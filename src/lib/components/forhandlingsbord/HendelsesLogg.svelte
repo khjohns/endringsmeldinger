@@ -1,40 +1,16 @@
 <script lang="ts">
-	import type { TimelineEvent, EventType, SporType } from '$lib/types/timeline';
+	import type { TimelineEvent, EventType } from '$lib/types/timeline';
 	import { extractEventType } from '$lib/types/timeline';
+	import { getEventTypeLabel } from '$lib/constants/eventLabels';
 	import { slide } from 'svelte/transition';
 
 	interface Props {
 		events: TimelineEvent[];
-		sporType: SporType;
 		expanded: boolean;
 		onToggle: () => void;
 	}
 
-	let { events, sporType, expanded, onToggle }: Props = $props();
-
-	const EVENT_TYPE_LABELS: Record<string, string> = {
-		sak_opprettet: 'opprettet',
-		grunnlag_opprettet: 'varslet',
-		grunnlag_oppdatert: 'oppdatert',
-		grunnlag_trukket: 'trukket',
-		vederlag_krav_sendt: 'sendte krav',
-		vederlag_krav_oppdatert: 'oppdaterte krav',
-		vederlag_krav_trukket: 'trukket',
-		frist_krav_sendt: 'sendte krav',
-		frist_krav_oppdatert: 'oppdaterte krav',
-		frist_krav_spesifisert: 'spesifiserte',
-		frist_krav_trukket: 'trukket',
-		respons_grunnlag: 'responderte',
-		respons_grunnlag_oppdatert: 'oppdaterte svar',
-		respons_vederlag: 'responderte',
-		respons_vederlag_oppdatert: 'oppdaterte svar',
-		respons_frist: 'responderte',
-		respons_frist_oppdatert: 'oppdaterte svar',
-		forsering_varsel: 'varslet forsering',
-		forsering_stoppet: 'stoppet forsering',
-		forsering_respons: 'responderte forsering',
-		te_aksepterer_respons: 'aksepterte',
-	};
+	let { events, expanded, onToggle }: Props = $props();
 
 	interface EventIcon {
 		symbol: string;
@@ -74,8 +50,7 @@
 
 	function getEventLabel(event: TimelineEvent, eventType: EventType | null): string {
 		if (event.summary) return event.summary;
-		if (!eventType) return 'hendelse';
-		return EVENT_TYPE_LABELS[eventType] ?? 'hendelse';
+		return getEventTypeLabel(eventType);
 	}
 
 	function formatDateShort(dateStr: string | undefined): string {
@@ -116,7 +91,7 @@
 			const dateLabel = formatDateShort(e.time);
 			const role = e.actorrole ?? '';
 			const revision = getRevision(e);
-			return { icon, dateLabel, label, role, revision };
+			return { id: e.id, icon, dateLabel, label, role, revision };
 		})
 	);
 
@@ -165,7 +140,7 @@
 			onclick={handleLogClick}
 			onkeydown={(e) => e.stopPropagation()}
 		>
-			{#each eventEntries as entry, i (i)}
+			{#each eventEntries as entry (entry.id)}
 				<div class="event-line">
 					<span class="event-icon" style="color: {entry.icon.color}" aria-hidden="true"
 						>{entry.icon.symbol}</span
@@ -238,7 +213,7 @@
 	.event-icon {
 		width: 14px;
 		flex-shrink: 0;
-		font-size: 12px;
+		font-size: 11px;
 		text-align: center;
 		line-height: 1;
 	}
@@ -255,8 +230,8 @@
 	.event-text {
 		flex: 1;
 		font-family: var(--font-ui);
-		font-size: 10px;
-		color: var(--color-ink-muted);
+		font-size: 11px;
+		color: var(--color-ink-secondary);
 		white-space: nowrap;
 		overflow: hidden;
 		text-overflow: ellipsis;

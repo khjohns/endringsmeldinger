@@ -1,6 +1,7 @@
 <script lang="ts">
-	import type { TimelineEvent, EventType, SporType } from '$lib/types/timeline';
+	import type { TimelineEvent, SporType } from '$lib/types/timeline';
 	import { extractEventType } from '$lib/types/timeline';
+	import { getEventTypeLabel } from '$lib/constants/eventLabels';
 	import HendelsesLogg from './HendelsesLogg.svelte';
 
 	interface Props {
@@ -17,35 +18,6 @@
 		expanded = !expanded;
 	}
 
-	const EVENT_TYPE_LABELS: Record<string, string> = {
-		sak_opprettet: 'opprettet',
-		grunnlag_opprettet: 'varslet',
-		grunnlag_oppdatert: 'oppdatert',
-		grunnlag_trukket: 'trukket',
-		vederlag_krav_sendt: 'sendte krav',
-		vederlag_krav_oppdatert: 'oppdaterte krav',
-		vederlag_krav_trukket: 'trukket',
-		frist_krav_sendt: 'sendte krav',
-		frist_krav_oppdatert: 'oppdaterte krav',
-		frist_krav_spesifisert: 'spesifiserte',
-		frist_krav_trukket: 'trukket',
-		respons_grunnlag: 'responderte',
-		respons_grunnlag_oppdatert: 'oppdaterte svar',
-		respons_vederlag: 'responderte',
-		respons_vederlag_oppdatert: 'oppdaterte svar',
-		respons_frist: 'responderte',
-		respons_frist_oppdatert: 'oppdaterte svar',
-		forsering_varsel: 'varslet forsering',
-		forsering_stoppet: 'stoppet forsering',
-		forsering_respons: 'responderte forsering',
-		te_aksepterer_respons: 'aksepterte',
-	};
-
-	function getEventTypeLabel(eventType: EventType | null): string {
-		if (!eventType) return 'hendelse';
-		return EVENT_TYPE_LABELS[eventType] ?? 'hendelse';
-	}
-
 	function formatRelativeDate(dateStr: string | undefined): string {
 		if (!dateStr) return '';
 		const date = new Date(dateStr);
@@ -54,7 +26,7 @@
 		const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
 
 		if (diffDays === 0) return 'i dag';
-		if (diffDays === 1) return 'i gar';
+		if (diffDays === 1) return 'i går';
 
 		// Short date: DD.MM
 		const day = date.getDate().toString().padStart(2, '0');
@@ -103,7 +75,7 @@
 {/if}
 
 {#if showLogg}
-	<HendelsesLogg {events} {sporType} {expanded} onToggle={handleToggle} />
+	<HendelsesLogg {events} {expanded} onToggle={handleToggle} />
 {/if}
 
 <style>
