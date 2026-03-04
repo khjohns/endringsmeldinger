@@ -1,5 +1,7 @@
 <script lang="ts">
 	import type { SakState, TimelineEvent, SporType, SporStatus } from '$lib/types/timeline';
+	import { extractSpor } from '$lib/types/timeline';
+	import Sporkort from './Sporkort.svelte';
 
 	interface Props {
 		state: SakState;
@@ -8,7 +10,23 @@
 		sakId: string;
 	}
 
-	let { state, prosjektId, sakId }: Props = $props();
+	let { state, timeline, prosjektId, sakId }: Props = $props();
+
+	// Group timeline events by track
+	const eventsBySpor = $derived.by(() => {
+		const map: Record<SporType, TimelineEvent[]> = {
+			grunnlag: [],
+			vederlag: [],
+			frist: [],
+		};
+		for (const event of timeline) {
+			const spor = event.spor ?? extractSpor(event.type);
+			if (spor && map[spor]) {
+				map[spor].push(event);
+			}
+		}
+		return map;
+	});
 
 	// Norwegian month names
 	const MONTH_NAMES = [
@@ -142,23 +160,6 @@
 			: null
 	);
 
-	// Status display labels
-	const STATUS_LABELS: Record<SporStatus, string> = {
-		ikke_relevant: 'Ikke relevant',
-		utkast: 'Utkast',
-		sendt: 'Sendt',
-		under_behandling: 'Under behandling',
-		godkjent: 'Godkjent',
-		delvis_godkjent: 'Delvis godkjent',
-		avslatt: 'Avslått',
-		under_forhandling: 'Under forhandling',
-		trukket: 'Trukket',
-		laast: 'Låst',
-	};
-
-	function statusLabel(status: SporStatus): string {
-		return STATUS_LABELS[status] ?? status;
-	}
 </script>
 
 <div class="timeline">
@@ -172,15 +173,13 @@
 
 			<div class="cards">
 				{#each group.tracks as track (track.spor)}
-					<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
-					<a class="sporkort-placeholder" href={track.href}>
-						<div class="sporkort-header">
-							<span class="spor-label">{track.label}</span>
-							<span class="spor-status" data-status={track.status}>
-								{statusLabel(track.status)}
-							</span>
-						</div>
-					</a>
+					<Sporkort
+						sporType={track.spor}
+						{state}
+						events={eventsBySpor[track.spor]}
+						{prosjektId}
+						{sakId}
+					/>
 				{/each}
 			</div>
 		</div>
@@ -257,66 +256,6 @@
 		padding: 0 0 16px 20px;
 		border-left: 1px solid var(--color-wire-strong);
 		margin-left: 20px;
-	}
-
-	/* Sporkort placeholder (Task 5 will replace this) */
-	.sporkort-placeholder {
-		display: flex;
-		flex-direction: column;
-		background: var(--color-felt);
-		border: 1px solid var(--color-wire-strong);
-		border-radius: 4px;
-		padding: 12px 14px;
-		text-decoration: none;
-		transition: background 120ms ease;
-	}
-
-	.sporkort-placeholder:hover {
-		background: var(--color-felt-hover);
-	}
-
-	.sporkort-header {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		gap: 8px;
-	}
-
-	.spor-label {
-		font-family: var(--font-ui);
-		font-size: 13px;
-		font-weight: 500;
-		color: var(--color-ink);
-	}
-
-	.spor-status {
-		font-family: var(--font-ui);
-		font-size: 11px;
-		color: var(--color-ink-muted);
-		border: 1px solid var(--color-wire-strong);
-		border-radius: 2px;
-		padding: 1px 6px;
-		white-space: nowrap;
-	}
-
-	.spor-status[data-status='sendt'] {
-		color: #e8a838;
-		border-color: rgba(232, 168, 56, 0.3);
-	}
-
-	.spor-status[data-status='godkjent'] {
-		color: var(--color-score-high);
-		border-color: rgba(61, 154, 110, 0.3);
-	}
-
-	.spor-status[data-status='avslatt'] {
-		color: var(--color-score-low);
-		border-color: rgba(196, 88, 88, 0.3);
-	}
-
-	.spor-status[data-status='delvis_godkjent'] {
-		color: #e8a838;
-		border-color: rgba(232, 168, 56, 0.3);
 	}
 
 	/* Opprettet marker at bottom */
