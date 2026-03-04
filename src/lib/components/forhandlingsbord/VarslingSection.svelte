@@ -56,7 +56,7 @@
 	.varsling-item {
 		display: flex;
 		align-items: center;
-		gap: 6px;
+		gap: 8px;
 		font-size: 13px;
 		line-height: 1.4;
 		color: var(--color-ink-secondary);
@@ -79,7 +79,7 @@
 	}
 
 	.varsling-symbol {
-		width: 14px;
+		width: 16px;
 		flex-shrink: 0;
 		text-align: center;
 		font-size: 12px;

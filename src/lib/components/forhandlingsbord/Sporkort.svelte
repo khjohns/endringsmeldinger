@@ -262,6 +262,6 @@
 		font-family: var(--font-ui);
 		font-size: 11px;
 		color: var(--color-score-low);
-		margin-top: 2px;
+		margin-top: 4px;
 	}
 </style>

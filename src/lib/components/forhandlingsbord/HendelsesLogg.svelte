@@ -193,7 +193,7 @@
 		justify-content: space-between;
 		background: var(--color-canvas);
 		border-top: 1px solid var(--color-wire);
-		padding: 6px 16px;
+		padding: 8px 16px;
 		margin: 8px -16px -12px;
 		border-radius: 0 0 var(--radius-md) var(--radius-md);
 		cursor: pointer;
@@ -226,7 +226,7 @@
 		display: flex;
 		flex-direction: column;
 		gap: 2px;
-		padding: 6px 16px 12px;
+		padding: 8px 16px 12px;
 		margin: 0 -16px -12px;
 		background: var(--color-canvas);
 		border-radius: 0 0 var(--radius-md) var(--radius-md);

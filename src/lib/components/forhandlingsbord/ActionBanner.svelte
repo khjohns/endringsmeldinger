@@ -62,7 +62,7 @@
 	.action-banner {
 		display: flex;
 		align-items: center;
-		gap: 6px;
+		gap: 8px;
 		padding: 8px 16px;
 		border-bottom: 1px solid var(--color-wire-strong);
 		background: var(--color-felt);

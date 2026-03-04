@@ -222,7 +222,7 @@
 		align-items: center;
 		gap: 8px;
 		padding: 12px 0 8px 0;
-		margin-left: 20px;
+		margin-left: 24px;
 	}
 
 	.spine-segment {
@@ -254,16 +254,16 @@
 		display: flex;
 		flex-direction: column;
 		gap: 8px;
-		padding: 0 0 16px 20px;
+		padding: 0 0 16px 24px;
 		border-left: 1px solid var(--color-wire-strong);
-		margin-left: 20px;
+		margin-left: 24px;
 	}
 
 	/* Opprettet marker at bottom */
 	.opprettet-group {
 		display: flex;
 		flex-direction: column;
-		margin-left: 20px;
+		margin-left: 24px;
 	}
 
 	.spine-tail {
@@ -293,7 +293,7 @@
 		color: var(--color-ink-muted);
 		display: flex;
 		align-items: center;
-		gap: 6px;
+		gap: 8px;
 	}
 
 	.opprettet-dato {
