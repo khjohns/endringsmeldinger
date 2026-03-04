@@ -34,16 +34,15 @@
 		return `${day}.${month}`;
 	}
 
-	// Last 3 events, sorted newest first
-	const recentEvents = $derived.by(() => {
+	// Events with time, sorted newest first (single pass for both mini-historikk and logg)
+	const sortedEvents = $derived.by(() => {
 		return [...events]
 			.filter((e) => e.time)
-			.sort((a, b) => new Date(b.time!).getTime() - new Date(a.time!).getTime())
-			.slice(0, 3);
+			.sort((a, b) => new Date(b.time!).getTime() - new Date(a.time!).getTime());
 	});
 
 	const entries = $derived(
-		recentEvents.map((e) => {
+		sortedEvents.slice(0, 3).map((e) => {
 			const eventType = extractEventType(e.type);
 			const role = e.actorrole ?? '';
 			const label = getEventTypeLabel(eventType);
@@ -52,9 +51,7 @@
 		})
 	);
 
-	// Count events with time for toggle threshold
-	const eventsWithTime = $derived(events.filter((e) => e.time).length);
-	const showLogg = $derived(eventsWithTime > 3);
+	const showLogg = $derived(sortedEvents.length > 3);
 </script>
 
 {#if entries.length > 0}
@@ -75,7 +72,7 @@
 {/if}
 
 {#if showLogg}
-	<HendelsesLogg {events} {expanded} onToggle={handleToggle} />
+	<HendelsesLogg events={sortedEvents} {expanded} onToggle={handleToggle} />
 {/if}
 
 <style>

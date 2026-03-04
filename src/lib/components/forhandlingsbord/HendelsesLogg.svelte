@@ -74,17 +74,11 @@
 		return null;
 	}
 
-	// All events sorted newest first
-	const allEvents = $derived.by(() => {
-		return [...events]
-			.filter((e) => e.time)
-			.sort((a, b) => new Date(b.time!).getTime() - new Date(a.time!).getTime());
-	});
-
-	const showToggle = $derived(allEvents.length > 3);
+	// Events are pre-sorted (newest first) and pre-filtered (time != null) by parent
+	const showToggle = $derived(events.length > 3);
 
 	const eventEntries = $derived(
-		allEvents.map((e) => {
+		events.map((e) => {
 			const eventType = extractEventType(e.type);
 			const icon = getEventIcon(eventType);
 			const label = getEventLabel(e, eventType);
@@ -122,11 +116,11 @@
 		role="button"
 		tabindex="0"
 		aria-expanded={expanded}
-		aria-label="{allEvents.length} hendelser"
+		aria-label="{events.length} hendelser"
 		onclick={handleToggleClick}
 		onkeydown={handleToggleKeydown}
 	>
-		<span class="toggle-label">{allEvents.length} hendelser</span>
+		<span class="toggle-label">{events.length} hendelser</span>
 		<span class="toggle-chevron" class:toggle-chevron-expanded={expanded} aria-hidden="true">
 			{expanded ? '\u25BE' : '\u25B8'}
 		</span>
