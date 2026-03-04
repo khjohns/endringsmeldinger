@@ -11,9 +11,10 @@
 		events: TimelineEvent[];
 		prosjektId: string;
 		sakId: string;
+		onFocusEvent?: (event: TimelineEvent | null) => void;
 	}
 
-	let { sporType, state: sakState, events, prosjektId, sakId }: Props = $props();
+	let { sporType, state: sakState, events, prosjektId, sakId, onFocusEvent }: Props = $props();
 
 	// Expanded state for hendelseslogg — lives here so card can shift visually
 	let loggExpanded = $state(false);
@@ -189,7 +190,7 @@
 		frist={sporType === 'frist' ? sakState.frist : undefined}
 	/>
 
-	<SporkortHistorikk {events} expanded={loggExpanded} onToggle={handleLoggToggle} />
+	<SporkortHistorikk {events} expanded={loggExpanded} onToggle={handleLoggToggle} {onFocusEvent} />
 
 	{#if hasPassivitet}
 		<div class="passivitet-warning" role="alert">

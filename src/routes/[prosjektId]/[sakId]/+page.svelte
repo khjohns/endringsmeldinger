@@ -1,14 +1,24 @@
 <script lang="ts">
 	import { page } from '$app/state';
+	import type { TimelineEvent } from '$lib/types/timeline';
 	import { createCaseContextQuery } from '$lib/queries/caseContext';
 	import Sidebar from '$lib/components/forhandlingsbord/Sidebar.svelte';
 	import ActionBanner from '$lib/components/forhandlingsbord/ActionBanner.svelte';
 	import Timeline from '$lib/components/forhandlingsbord/Timeline.svelte';
+	import Forhandsvisning from '$lib/components/forhandlingsbord/Forhandsvisning.svelte';
 
 	const prosjektId = $derived(page.params.prosjektId ?? '');
 	const sakId = $derived(page.params.sakId ?? '');
 
 	const query = $derived(createCaseContextQuery(sakId));
+
+	let focusedEvent = $state<TimelineEvent | null>(null);
+
+	function handleFocusEvent(event: TimelineEvent | null) {
+		focusedEvent = event;
+	}
+
+	const hasPanel = $derived(focusedEvent !== null);
 </script>
 
 <div class="small-screen-message" aria-hidden="true">
@@ -25,7 +35,7 @@
 		<p class="error-detail">{$query.error?.message ?? 'Ukjent feil'}</p>
 	</div>
 {:else if $query.data}
-	<div class="forhandlingsbord">
+	<div class="forhandlingsbord" class:har-panel={hasPanel}>
 		<Sidebar state={$query.data.state} />
 		<main class="main-content">
 			<ActionBanner state={$query.data.state} />
@@ -35,9 +45,13 @@
 					timeline={$query.data.timeline}
 					{prosjektId}
 					{sakId}
+					onFocusEvent={handleFocusEvent}
 				/>
 			</div>
 		</main>
+		{#if hasPanel}
+			<Forhandsvisning event={focusedEvent} {prosjektId} {sakId} />
+		{/if}
 	</div>
 {:else}
 	<div class="empty">
@@ -63,6 +77,10 @@
 		grid-template-columns: 260px 1fr;
 		min-height: 100vh;
 		background: var(--color-canvas);
+	}
+
+	.forhandlingsbord.har-panel {
+		grid-template-columns: 260px 1fr 360px;
 	}
 
 	.main-content {
@@ -115,6 +133,10 @@
 	@media (max-width: 1279px) and (min-width: 1024px) {
 		.forhandlingsbord {
 			grid-template-columns: 48px 1fr;
+		}
+
+		.forhandlingsbord.har-panel {
+			grid-template-columns: 48px 1fr 320px;
 		}
 	}
 

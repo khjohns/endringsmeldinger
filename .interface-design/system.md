@@ -232,6 +232,33 @@ Chevron: 8px ink-ghost, roterer 90° ved expand (▸ → ▾)
 | ✓ | Godkjent | score-high |
 | ✕ | Trukket/avslått | score-low |
 
+### Forhåndsvisningspanel (hendelsesdetalj)
+
+360px aside, sticky top 0, height 100vh, border-left 1px wire. Animerer inn: opacity 0→1, translateX 12→0, 200ms.
+
+**Grid:** Legger til tredje kolonne: `260px 1fr 360px` (responsive: `48px 1fr 320px`).
+
+**Tom tilstand:** 11px ink-ghost, text-align center, padding-top 32px. "Hover over en hendelse for å se detaljer"
+
+**Fylt tilstand — seksjoner:**
+- **Header:** Ikon (14px, fargeklasse) + handling (14px, weight 600, ink) + meta (font-data, 11px, ink-muted, tabular-nums)
+- **Separator:** 1px wire, margin 16px 0
+- **Seksjonslabel:** 10px, weight 600, uppercase, tracking 0.08em, ink-ghost, mb 8px
+- **Beskrivelse/Endring/Vurdering:** 12px, ink-secondary, line-height 1.5. Label varierer per hendelsestype.
+- **Vedlegg:** canvas-bg, wire border, r-sm, padding 8px 12px, 11px, ink-secondary. Hover: felt-hover. 📎-ikon.
+- **Bestemmelse:** canvas-bg, wire border, border-left 2px ink-ghost, r-sm. Paragraf: font-data 10px ink-muted. Tekst: 11px ink-secondary, lh 1.4.
+- **Spordetalj-lenke:** Flex end, 11px, weight 500, ink-muted. Hover: vekt. border-top 1px wire, padding-top 12px.
+
+**Fokusert hendelse i logg:** border-left 2px solid vekt (amber), felt-hover bg. Sticky fokus (cleares kun ved logg-lukking, ikke mouseleave).
+
+**Seksjonslabel-kontekst:**
+| Hendelsestype | Label |
+|---|---|
+| opprettet/sendt | Beskrivelse |
+| oppdatert/spesifisert | Endring |
+| respons_* | Vurdering |
+| annet | Detaljer |
+
 ### Saksliste (tabell)
 
 Full-width tabell med felt-bg, wire border, sticky header.

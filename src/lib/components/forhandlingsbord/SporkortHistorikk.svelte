@@ -8,9 +8,10 @@
 		events: TimelineEvent[];
 		expanded: boolean;
 		onToggle: () => void;
+		onFocusEvent?: (event: TimelineEvent | null) => void;
 	}
 
-	let { events, expanded, onToggle }: Props = $props();
+	let { events, expanded, onToggle, onFocusEvent }: Props = $props();
 
 	function formatRelativeDate(dateStr: string | undefined): string {
 		if (!dateStr) return '';
@@ -66,7 +67,7 @@
 {/if}
 
 {#if showLogg}
-	<HendelsesLogg events={sortedEvents} {expanded} {onToggle} />
+	<HendelsesLogg events={sortedEvents} {expanded} {onToggle} {onFocusEvent} />
 {/if}
 
 <style>

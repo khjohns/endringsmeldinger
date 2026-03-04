@@ -8,9 +8,10 @@
 		events: TimelineEvent[];
 		expanded: boolean;
 		onToggle: () => void;
+		onFocusEvent?: (event: TimelineEvent | null) => void;
 	}
 
-	let { events, expanded, onToggle }: Props = $props();
+	let { events, expanded, onToggle, onFocusEvent }: Props = $props();
 
 	interface EventIcon {
 		symbol: string;
@@ -119,20 +120,36 @@
 			: undefined
 	);
 
+	function emitFocus(index: number) {
+		focusedIndex = index;
+		if (index >= 0 && index < events.length) {
+			onFocusEvent?.(events[index]);
+		} else {
+			onFocusEvent?.(null);
+		}
+	}
+
 	function handleListKeydown(e: KeyboardEvent) {
 		e.stopPropagation();
 		if (e.key === 'Escape') {
 			e.preventDefault();
-			focusedIndex = -1;
+			emitFocus(-1);
 			onToggle();
 		} else if (e.key === 'ArrowDown') {
 			e.preventDefault();
-			focusedIndex = Math.min(focusedIndex + 1, eventEntries.length - 1);
+			emitFocus(Math.min(focusedIndex + 1, eventEntries.length - 1));
 		} else if (e.key === 'ArrowUp') {
 			e.preventDefault();
-			focusedIndex = Math.max(focusedIndex - 1, 0);
+			emitFocus(Math.max(focusedIndex - 1, 0));
 		}
 	}
+
+	function handleEventMouseEnter(index: number) {
+		emitFocus(index);
+	}
+
+	// No mouseleave clear — focus stays sticky until logg closes.
+	// This prevents grid flicker from panel mount/unmount on every hover exit.
 </script>
 
 {#if showToggle}
@@ -164,12 +181,14 @@
 			onkeydown={handleListKeydown}
 		>
 			{#each eventEntries as entry, i (entry.id)}
+				<!-- svelte-ignore a11y_interactive_supports_focus -->
 				<div
 					id="{listboxId}-option-{i}"
 					class="event-line"
 					class:event-line-focused={focusedIndex === i}
 					role="option"
 					aria-selected={focusedIndex === i}
+					onmouseenter={() => handleEventMouseEnter(i)}
 				>
 					<span class="event-icon" style="color: {entry.icon.color}" aria-hidden="true"
 						>{entry.icon.symbol}</span
@@ -236,12 +255,15 @@
 		display: flex;
 		align-items: center;
 		gap: 4px;
-		min-height: 20px;
+		min-height: 24px;
+		padding: 2px 8px;
+		border-left: 2px solid transparent;
+		border-radius: var(--radius-sm);
 	}
 
 	.event-line-focused {
 		background: var(--color-felt-hover);
-		border-radius: var(--radius-sm);
+		border-left-color: var(--color-vekt);
 	}
 
 	.event-icon {
