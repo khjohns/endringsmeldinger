@@ -1,0 +1,205 @@
+import { describe, it, expect, vi } from 'vitest';
+import { render, screen } from '@testing-library/svelte';
+import userEvent from '@testing-library/user-event';
+import HendelsesLoggTest from './HendelsesLoggTest.svelte';
+import type { TimelineEvent } from '$lib/types/timeline';
+
+function makeEvent(
+	overrides: Partial<TimelineEvent> & { type: string; time: string },
+): TimelineEvent {
+	return {
+		specversion: '1.0',
+		id: `evt-${Math.random().toString(36).slice(2, 8)}`,
+		source: '/projects/P001/cases/SAK-001',
+		actorrole: 'TE',
+		...overrides,
+	};
+}
+
+function makeManyEvents(count: number): TimelineEvent[] {
+	const types = [
+		'no.oslo.koe.grunnlag_opprettet',
+		'no.oslo.koe.grunnlag_oppdatert',
+		'no.oslo.koe.respons_grunnlag',
+		'no.oslo.koe.vederlag_krav_sendt',
+		'no.oslo.koe.respons_vederlag',
+	];
+	return Array.from({ length: count }, (_, i) =>
+		makeEvent({
+			type: types[i % types.length],
+			time: `2025-01-${String(10 + i).padStart(2, '0')}T12:00:00Z`,
+			actorrole: i % 2 === 0 ? 'TE' : 'BH',
+		}),
+	);
+}
+
+describe('HendelsesLogg', () => {
+	it('shows toggle-bar for 4+ events', () => {
+		const events = makeManyEvents(5);
+		render(HendelsesLoggTest, { props: { events } });
+		expect(screen.getByRole('button', { name: /5 hendelser/i })).toBeInTheDocument();
+	});
+
+	it('hides toggle-bar for 3 or fewer events', () => {
+		const events = makeManyEvents(3);
+		render(HendelsesLoggTest, { props: { events } });
+		expect(screen.queryByRole('button')).not.toBeInTheDocument();
+	});
+
+	it('hides toggle-bar for 0 events', () => {
+		render(HendelsesLoggTest, { props: { events: [] } });
+		expect(screen.queryByRole('button')).not.toBeInTheDocument();
+	});
+
+	it('shows correct event count in toggle label', () => {
+		const events = makeManyEvents(7);
+		render(HendelsesLoggTest, { props: { events } });
+		expect(screen.getByText('7 hendelser')).toBeInTheDocument();
+	});
+
+	it('calls onToggle when toggle-bar is clicked', async () => {
+		const user = userEvent.setup();
+		const onToggle = vi.fn();
+		const events = makeManyEvents(5);
+		render(HendelsesLoggTest, { props: { events, onToggle } });
+
+		const toggleBtn = screen.getByRole('button', { name: /5 hendelser/i });
+		await user.click(toggleBtn);
+		expect(onToggle).toHaveBeenCalledOnce();
+	});
+
+	it('shows event lines when expanded', () => {
+		const events = [
+			makeEvent({
+				type: 'no.oslo.koe.grunnlag_opprettet',
+				time: '2025-01-15T12:00:00Z',
+				actorrole: 'TE',
+			}),
+			makeEvent({
+				type: 'no.oslo.koe.respons_grunnlag',
+				time: '2025-01-16T12:00:00Z',
+				actorrole: 'BH',
+			}),
+			makeEvent({
+				type: 'no.oslo.koe.grunnlag_oppdatert',
+				time: '2025-01-17T12:00:00Z',
+				actorrole: 'TE',
+			}),
+			makeEvent({
+				type: 'no.oslo.koe.vederlag_krav_sendt',
+				time: '2025-01-18T12:00:00Z',
+				actorrole: 'TE',
+			}),
+		];
+		render(HendelsesLoggTest, { props: { events, expanded: true } });
+
+		// Should show event labels
+		expect(screen.getByText('varslet')).toBeInTheDocument();
+		expect(screen.getByText('responderte')).toBeInTheDocument();
+		expect(screen.getByText('oppdatert')).toBeInTheDocument();
+		expect(screen.getByText('sendte krav')).toBeInTheDocument();
+	});
+
+	it('does not show event lines when collapsed', () => {
+		const events = makeManyEvents(5);
+		render(HendelsesLoggTest, { props: { events, expanded: false } });
+
+		// Toggle bar should be visible but not the event list
+		expect(screen.getByRole('button', { name: /5 hendelser/i })).toBeInTheDocument();
+		// The event labels from the log should not appear (mini-historikk is separate)
+		expect(screen.queryByText('varslet')).not.toBeInTheDocument();
+	});
+
+	it('renders event date in DD.MM format', () => {
+		const events = [
+			makeEvent({ type: 'no.oslo.koe.grunnlag_opprettet', time: '2025-03-05T12:00:00Z' }),
+			makeEvent({ type: 'no.oslo.koe.grunnlag_oppdatert', time: '2025-03-06T12:00:00Z' }),
+			makeEvent({ type: 'no.oslo.koe.respons_grunnlag', time: '2025-03-07T12:00:00Z' }),
+			makeEvent({ type: 'no.oslo.koe.vederlag_krav_sendt', time: '2025-03-08T12:00:00Z' }),
+		];
+		render(HendelsesLoggTest, { props: { events, expanded: true } });
+		expect(screen.getByText('05.03')).toBeInTheDocument();
+	});
+
+	it('renders actor role (TE/BH)', () => {
+		const events = [
+			makeEvent({
+				type: 'no.oslo.koe.grunnlag_opprettet',
+				time: '2025-01-10T12:00:00Z',
+				actorrole: 'TE',
+			}),
+			makeEvent({
+				type: 'no.oslo.koe.respons_grunnlag',
+				time: '2025-01-11T12:00:00Z',
+				actorrole: 'BH',
+			}),
+			makeEvent({
+				type: 'no.oslo.koe.grunnlag_oppdatert',
+				time: '2025-01-12T12:00:00Z',
+				actorrole: 'TE',
+			}),
+			makeEvent({
+				type: 'no.oslo.koe.vederlag_krav_sendt',
+				time: '2025-01-13T12:00:00Z',
+				actorrole: 'TE',
+			}),
+		];
+		render(HendelsesLoggTest, { props: { events, expanded: true } });
+
+		// Check that TE and BH roles are rendered
+		const teElements = screen.getAllByText('TE');
+		const bhElements = screen.getAllByText('BH');
+		expect(teElements.length).toBeGreaterThan(0);
+		expect(bhElements.length).toBeGreaterThan(0);
+	});
+
+	it('uses summary from event when available', () => {
+		const events = [
+			makeEvent({
+				type: 'no.oslo.koe.grunnlag_opprettet',
+				time: '2025-01-10T12:00:00Z',
+				summary: 'Varslet om endrede grunnforhold',
+			}),
+			makeEvent({
+				type: 'no.oslo.koe.grunnlag_oppdatert',
+				time: '2025-01-11T12:00:00Z',
+			}),
+			makeEvent({
+				type: 'no.oslo.koe.respons_grunnlag',
+				time: '2025-01-12T12:00:00Z',
+			}),
+			makeEvent({
+				type: 'no.oslo.koe.vederlag_krav_sendt',
+				time: '2025-01-13T12:00:00Z',
+			}),
+		];
+		render(HendelsesLoggTest, { props: { events, expanded: true } });
+		expect(screen.getByText('Varslet om endrede grunnforhold')).toBeInTheDocument();
+	});
+
+	it('shows correct icon for opprettet events', () => {
+		const events = makeManyEvents(4);
+		const { container } = render(HendelsesLoggTest, {
+			props: { events, expanded: true },
+		});
+		// Flag icon for opprettet
+		const icons = container.querySelectorAll('.event-icon');
+		expect(icons.length).toBe(4);
+	});
+
+	it('shows revision info when event has respondert_versjon', () => {
+		const events = [
+			makeEvent({
+				type: 'no.oslo.koe.respons_grunnlag',
+				time: '2025-01-10T12:00:00Z',
+				actorrole: 'BH',
+				data: { resultat: 'godkjent', begrunnelse: 'ok', respondert_versjon: 2 } as never,
+			}),
+			makeEvent({ type: 'no.oslo.koe.grunnlag_opprettet', time: '2025-01-09T12:00:00Z' }),
+			makeEvent({ type: 'no.oslo.koe.grunnlag_oppdatert', time: '2025-01-08T12:00:00Z' }),
+			makeEvent({ type: 'no.oslo.koe.vederlag_krav_sendt', time: '2025-01-07T12:00:00Z' }),
+		];
+		render(HendelsesLoggTest, { props: { events, expanded: true } });
+		expect(screen.getByText('Rev. 2')).toBeInTheDocument();
+	});
+});

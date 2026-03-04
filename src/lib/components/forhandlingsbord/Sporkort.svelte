@@ -144,7 +144,7 @@
 		frist={sporType === 'frist' ? state.frist : undefined}
 	/>
 
-	<SporkortHistorikk {events} />
+	<SporkortHistorikk {events} {sporType} />
 
 	{#if hasPassivitet}
 		<div class="passivitet-warning" role="alert">

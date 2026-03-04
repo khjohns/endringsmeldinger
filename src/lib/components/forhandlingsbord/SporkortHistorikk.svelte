@@ -1,12 +1,21 @@
 <script lang="ts">
-	import type { TimelineEvent, EventType } from '$lib/types/timeline';
+	import type { TimelineEvent, EventType, SporType } from '$lib/types/timeline';
 	import { extractEventType } from '$lib/types/timeline';
+	import HendelsesLogg from './HendelsesLogg.svelte';
 
 	interface Props {
 		events: TimelineEvent[];
+		sporType: SporType;
 	}
 
-	let { events }: Props = $props();
+	let { events, sporType }: Props = $props();
+
+	// Local expanded state (each card manages its own)
+	let expanded = $state(false);
+
+	function handleToggle() {
+		expanded = !expanded;
+	}
 
 	const EVENT_TYPE_LABELS: Record<string, string> = {
 		sak_opprettet: 'opprettet',
@@ -70,6 +79,10 @@
 			return { dateLabel, role, label };
 		})
 	);
+
+	// Count events with time for toggle threshold
+	const eventsWithTime = $derived(events.filter((e) => e.time).length);
+	const showLogg = $derived(eventsWithTime > 3);
 </script>
 
 {#if entries.length > 0}
@@ -87,6 +100,10 @@
 			</span>
 		{/each}
 	</div>
+{/if}
+
+{#if showLogg}
+	<HendelsesLogg {events} {sporType} {expanded} onToggle={handleToggle} />
 {/if}
 
 <style>
