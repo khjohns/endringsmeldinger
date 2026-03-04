@@ -2,7 +2,10 @@
 	import { page } from '$app/state';
 	import { createCaseContextQuery } from '$lib/queries/caseContext';
 	import Sidebar from '$lib/components/forhandlingsbord/Sidebar.svelte';
+	import ActionBanner from '$lib/components/forhandlingsbord/ActionBanner.svelte';
+	import Timeline from '$lib/components/forhandlingsbord/Timeline.svelte';
 
+	const prosjektId = $derived(page.params.prosjektId ?? '');
 	const sakId = $derived(page.params.sakId ?? '');
 
 	const query = $derived(createCaseContextQuery(sakId));
@@ -21,11 +24,14 @@
 	<div class="forhandlingsbord">
 		<Sidebar state={$query.data.state} />
 		<main class="main-content">
-			<div class="placeholder">
-				<h1 class="placeholder-title">Forhandlingsbordet — {$query.data.state.sak_id}</h1>
-				<p class="placeholder-description">
-					Tidslinje og sporkort implementeres i neste oppgave.
-				</p>
+			<ActionBanner state={$query.data.state} />
+			<div class="timeline-container">
+				<Timeline
+					state={$query.data.state}
+					timeline={$query.data.timeline}
+					{prosjektId}
+					{sakId}
+				/>
 			</div>
 		</main>
 	</div>
@@ -44,27 +50,18 @@
 	}
 
 	.main-content {
-		padding: 24px;
-		overflow-y: auto;
-	}
-
-	.placeholder {
 		display: flex;
 		flex-direction: column;
-		gap: 8px;
+		overflow-y: auto;
+		height: 100vh;
+		position: sticky;
+		top: 0;
 	}
 
-	.placeholder-title {
-		font-size: 18px;
-		font-weight: 600;
-		color: var(--color-ink);
-		margin: 0;
-	}
-
-	.placeholder-description {
-		font-size: 14px;
-		color: var(--color-ink-secondary);
-		margin: 0;
+	.timeline-container {
+		flex: 1;
+		padding: 0 24px;
+		overflow-y: auto;
 	}
 
 	.loading,
