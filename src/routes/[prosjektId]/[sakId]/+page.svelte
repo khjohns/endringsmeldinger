@@ -38,7 +38,7 @@
 	<div class="forhandlingsbord" class:har-panel={hasPanel}>
 		<Sidebar state={$query.data.state} />
 		<main class="main-content">
-			<ActionBanner state={$query.data.state} />
+			<ActionBanner sakState={$query.data.state} />
 			<div class="timeline-container">
 				<Timeline
 					state={$query.data.state}

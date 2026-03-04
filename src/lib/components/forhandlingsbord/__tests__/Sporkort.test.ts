@@ -134,7 +134,7 @@ describe('Sporkort', () => {
 	});
 
 	it('shows action button when role is set and action is available', () => {
-		localStorage.setItem('koe-user-role', 'BH');
+		localStorage.setItem('koe-user-role', 'TE');
 		const state = makeBaseState({
 			grunnlag: {
 				status: 'avslatt',
@@ -270,6 +270,7 @@ describe('Sporkort', () => {
 			},
 		});
 		render(SporkortTest, { props: { sporType: 'frist' as SporType, state } });
+		expect(screen.getByText('Dager krevd')).toBeInTheDocument();
 		expect(screen.getByText('30d')).toBeInTheDocument();
 	});
 });

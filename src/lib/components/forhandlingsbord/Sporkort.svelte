@@ -1,6 +1,8 @@
 <script lang="ts">
 	import type { SporType, SakState, TimelineEvent } from '$lib/types/timeline';
 	import { beregnVarslingStatus } from '$lib/utils/varslingStatus';
+	import { browser } from '$app/environment';
+	import { onMount } from 'svelte';
 	import SporkortHeader from './SporkortHeader.svelte';
 	import SporkortData from './SporkortData.svelte';
 	import SporkortHistorikk from './SporkortHistorikk.svelte';
@@ -44,6 +46,22 @@
 			daysSinceLastEvent > 14
 	);
 
+	// User role — reactive via storage event from ActionBanner toggle
+	let userRole = $state<'TE' | 'BH' | null>(
+		browser ? (localStorage.getItem('koe-user-role') as 'TE' | 'BH' | null) : null
+	);
+
+	onMount(() => {
+		function onStorage(e: StorageEvent) {
+			if (e.key === 'koe-user-role') userRole = e.newValue as 'TE' | 'BH' | null;
+		}
+		window.addEventListener('storage', onStorage);
+		return () => window.removeEventListener('storage', onStorage);
+	});
+
+	// TE send label depends on track type
+	const teSendLabel = $derived(sporType === 'grunnlag' ? 'Varsle' : 'Send krav');
+
 	// Visual state computation
 	type BorderVariant = 'critical' | 'godkjent' | 'avslatt' | 'handling' | 'venter' | 'bortfalt' | 'default';
 
@@ -54,20 +72,27 @@
 		action: { label: string; urgent: boolean } | null;
 	}
 
+	// Role-aware action: TE sends krav/varsel, BH responds
+	function roleAction(teAction: { label: string; urgent: boolean } | null, bhAction: { label: string; urgent: boolean } | null): { label: string; urgent: boolean } | null {
+		if (userRole === 'TE') return teAction;
+		if (userRole === 'BH') return bhAction;
+		return null; // no role set → no action buttons
+	}
+
 	const visualState = $derived.by<CardVisualState>(() => {
 		const status = trackState.status;
 
-		// Passivitet overrides everything for grunnlag
+		// Passivitet overrides everything for grunnlag — BH must respond
 		if (hasPassivitet) {
 			return {
 				bgClass: 'bg-critical',
 				borderClass: 'border-critical',
 				borderVariant: 'critical' as BorderVariant,
-				action: { label: 'Svar nå', urgent: true },
+				action: roleAction(null, { label: 'Svar nå', urgent: true }),
 			};
 		}
 
-		// Godkjent
+		// Godkjent / låst — no actions
 		if (status === 'godkjent' || status === 'laast') {
 			return {
 				bgClass: 'bg-default',
@@ -77,33 +102,33 @@
 			};
 		}
 
-		// Avslatt
+		// Avslått — TE can consider forsering
 		if (status === 'avslatt') {
 			return {
 				bgClass: 'bg-default',
 				borderClass: 'border-avslatt',
 				borderVariant: 'avslatt' as BorderVariant,
-				action: { label: 'Forsering?', urgent: false },
+				action: roleAction({ label: 'Forsering?', urgent: false }, null),
 			};
 		}
 
-		// Delvis godkjent / under forhandling
+		// Delvis godkjent / under forhandling — BH responds, TE can update
 		if (status === 'delvis_godkjent' || status === 'under_forhandling') {
 			return {
 				bgClass: 'bg-default',
 				borderClass: 'border-handling',
 				borderVariant: 'handling' as BorderVariant,
-				action: { label: 'Svar', urgent: false },
+				action: roleAction({ label: 'Oppdater', urgent: false }, { label: 'Svar', urgent: false }),
 			};
 		}
 
-		// Sendt / under_behandling — waiting state
+		// Sendt / under_behandling — BH should respond
 		if (status === 'sendt' || status === 'under_behandling') {
 			return {
 				bgClass: 'bg-default',
 				borderClass: 'border-venter',
 				borderVariant: 'venter' as BorderVariant,
-				action: null,
+				action: roleAction(null, { label: 'Svar', urgent: false }),
 			};
 		}
 
@@ -113,16 +138,16 @@
 				bgClass: 'bg-default',
 				borderClass: 'border-bortfalt',
 				borderVariant: 'bortfalt' as BorderVariant,
-				action: { label: 'Se sak', urgent: false },
+				action: null,
 			};
 		}
 
-		// Default (utkast, ikke_relevant)
+		// Default (utkast, ikke_relevant) — TE can send
 		return {
 			bgClass: 'bg-default',
 			borderClass: 'border-venter',
 			borderVariant: 'default' as BorderVariant,
-			action: null,
+			action: roleAction({ label: teSendLabel, urgent: false }, null),
 		};
 	});
 

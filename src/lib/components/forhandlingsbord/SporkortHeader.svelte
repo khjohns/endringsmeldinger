@@ -2,7 +2,6 @@
 	import type { SporType, SporStatus } from '$lib/types/timeline';
 	import type { VarslingItem } from '$lib/utils/varslingStatus';
 	import { varslingSymbol } from '$lib/utils/varslingStatus';
-	import { browser } from '$app/environment';
 	import Badge from '$lib/components/primitives/Badge.svelte';
 
 	interface Props {
@@ -48,21 +47,6 @@
 		laast: 'Låst',
 	};
 
-	// Read role from localStorage for action button visibility
-	const userRole = $derived.by(() => {
-		if (!browser) return null;
-		return localStorage.getItem('koe-user-role') as 'TE' | 'BH' | null;
-	});
-
-	// Only show action button for correct role
-	const showAction = $derived.by(() => {
-		if (!action || !userRole) return false;
-		// BH responds, TE sends
-		// If action says "Svar" it's for BH, if "Send" it's for TE
-		// Simplified: just show the action if there is one (role filtering is handled at Sporkort level)
-		return true;
-	});
-
 	// Filter varsling items for this track
 	const trackVarsling = $derived(varsling.filter((v) => v.spor === sporType));
 </script>
@@ -84,7 +68,7 @@
 		</span>
 	{/each}
 
-	{#if showAction && action}
+	{#if action}
 		<button
 			class="action-btn"
 			class:action-urgent={action.urgent}

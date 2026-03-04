@@ -44,6 +44,9 @@
 		}
 
 		if (sporType === 'frist' && frist) {
+			if (frist.krevd_dager !== undefined && frist.krevd_dager !== null) {
+				parts.push('Dager krevd');
+			}
 			if (frist.antall_versjoner > 1) {
 				parts.push(`Rev. ${frist.antall_versjoner - 1}`);
 			}
@@ -127,15 +130,14 @@
 
 	.data-right {
 		flex-shrink: 0;
+		margin-left: auto;
 	}
 
 	.key-metric {
 		font-family: var(--font-data);
-		font-size: 15px;
+		font-size: 12px;
 		font-weight: 600;
 		color: var(--color-ink);
-		letter-spacing: -0.01em;
-		line-height: 1;
 		font-variant-numeric: tabular-nums;
 	}
 
