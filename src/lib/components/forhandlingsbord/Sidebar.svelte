@@ -59,6 +59,7 @@
 		height: 100vh;
 		width: 260px;
 		overflow-y: auto;
+		overflow-x: hidden;
 		border-right: 1px solid var(--color-wire);
 		background: var(--color-felt);
 		display: flex;
@@ -123,5 +124,85 @@
 		height: 1px;
 		background: var(--color-wire);
 		margin: 0;
+	}
+
+	/* Collapsed icon mode: 1024–1279px */
+	@media (max-width: 1279px) and (min-width: 1024px) {
+		.sidebar {
+			width: 48px;
+			align-items: center;
+		}
+
+		/* Hide text content, keep only role badges and symbols */
+		.sak-id,
+		.sak-tittel,
+		.prosjekt-navn,
+		.party-name {
+			display: none;
+		}
+
+		.section {
+			padding: 8px 0;
+			width: 48px;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			gap: 6px;
+		}
+
+		.section-identity {
+			align-items: center;
+		}
+
+		.section-parties {
+			align-items: center;
+		}
+
+		.party {
+			justify-content: center;
+		}
+
+		.party-role {
+			font-size: 11px;
+			color: var(--color-ink-muted);
+		}
+
+		/* Child components: hide section labels and text, keep symbols only */
+		:global(.sidebar .section-label) {
+			display: none;
+		}
+
+		:global(.sidebar .frist-label),
+		:global(.sidebar .frist-value) {
+			display: none;
+		}
+
+		:global(.sidebar .varsling-label) {
+			display: none;
+		}
+
+		:global(.sidebar .frister-section),
+		:global(.sidebar .varsling-section) {
+			padding: 8px 0;
+			width: 48px;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+		}
+
+		:global(.sidebar .frister-list),
+		:global(.sidebar .varsling-list) {
+			align-items: center;
+		}
+
+		:global(.sidebar .frist-item),
+		:global(.sidebar .varsling-item) {
+			justify-content: center;
+		}
+
+		:global(.sidebar .frist-icon),
+		:global(.sidebar .varsling-symbol) {
+			width: auto;
+		}
 	}
 </style>
