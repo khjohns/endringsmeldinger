@@ -1,0 +1,90 @@
+@import "tailwindcss";
+
+@theme inline {
+	/* ── Analysebordet — dark theme tokens ── */
+
+	/* Canvas & surfaces */
+	--color-canvas: #0c0e14;
+	--color-felt: #12151e;
+	--color-felt-raised: #181c28;
+	--color-felt-hover: #1e2233;
+	--color-felt-active: #242840;
+
+	/* Ink hierarchy */
+	--color-ink: #e2e5ef;
+	--color-ink-secondary: #8890a4;
+	--color-ink-muted: #7b829b;
+	--color-ink-ghost: #5a6178;
+
+	/* Wire — borders */
+	--color-wire: rgba(255, 255, 255, 0.06);
+	--color-wire-strong: rgba(255, 255, 255, 0.10);
+	--color-wire-focus: rgba(232, 168, 56, 0.35);
+
+	/* Vekt — weight accent (amber) */
+	--color-vekt: #e8a838;
+	--color-vekt-dim: #c49030;
+	--color-vekt-bg: rgba(232, 168, 56, 0.08);
+	--color-vekt-bg-strong: rgba(232, 168, 56, 0.14);
+
+	/* Score semantics */
+	--color-score-high: #3d9a6e;
+	--color-score-high-bg: rgba(61, 154, 110, 0.10);
+	--color-score-mid: #8890a4;
+	--color-score-low: #c45858;
+	--color-score-low-bg: rgba(196, 88, 88, 0.10);
+
+	/* Tipex editor */
+	--color-tipex-bg: #0c0e14;
+	--color-tipex-text: #e2e5ef;
+	--color-tipex-toolbar-bg: #181c28;
+	--color-tipex-toolbar-text: #8890a4;
+	--color-tipex-accent: #e8a838;
+
+	/* Typography */
+	--font-data: 'JetBrains Mono', 'SF Mono', 'Cascadia Code', 'Consolas', monospace;
+	--font-ui: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+	/* Spacing (4px grid) */
+	--spacing-1: 4px;
+	--spacing-2: 8px;
+	--spacing-3: 12px;
+	--spacing-4: 16px;
+	--spacing-5: 20px;
+	--spacing-6: 24px;
+	--spacing-8: 32px;
+	--spacing-10: 40px;
+	--spacing-12: 48px;
+
+	/* Radius (skarpere enn standard) */
+	--radius-sm: 2px;
+	--radius-md: 4px;
+	--radius-lg: 6px;
+}
+
+/* ── Reset ── */
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+	margin: 0;
+	padding: 0;
+}
+
+body {
+	font-family: var(--font-ui);
+	background: var(--color-canvas);
+	color: var(--color-ink);
+	line-height: 1.5;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	overflow-x: hidden;
+}
+
+.visually-hidden {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	overflow: hidden;
+	clip: rect(0, 0, 0, 0);
+}
