@@ -6,8 +6,17 @@
 	import KeyValueRow from '$lib/components/primitives/KeyValueRow.svelte';
 	import SectionHeading from '$lib/components/primitives/SectionHeading.svelte';
 	import ProgressBar from '$lib/components/primitives/ProgressBar.svelte';
+	import YesNoButtons from '$lib/components/primitives/YesNoButtons.svelte';
+	import VerdictButtons from '$lib/components/primitives/VerdictButtons.svelte';
+	import NumberInput from '$lib/components/primitives/NumberInput.svelte';
+	import SegmentedControl from '$lib/components/primitives/SegmentedControl.svelte';
+	import ConsequenceCallout from '$lib/components/primitives/ConsequenceCallout.svelte';
 
 	let checkboxChecked = $state(false);
+	let yesNoValue: boolean | null = $state(null);
+	let verdictValue: string | null = $state(null);
+	let numberValue: number | null = $state(150000);
+	let segmentValue = $state('poeng');
 </script>
 
 <div class="showcase">
@@ -100,6 +109,85 @@
 			<ProgressBar value={55} label="Vederlag evaluert" />
 			<ProgressBar value={20} label="Frist evaluert" />
 			<ProgressBar value={0} label="Ikke startet" />
+		</div>
+	</section>
+
+	<!-- YesNoButtons -->
+	<section class="showcase-section">
+		<SectionHeading title="Yes/No Buttons" paragrafRef="§ 32.2" />
+		<div class="showcase-stack">
+			<YesNoButtons
+				value={yesNoValue}
+				label="Varslet rettidig?"
+				paragrafRef="§ 32.2"
+				onchange={(v) => (yesNoValue = v)}
+			/>
+			<YesNoButtons value={true} label="Dokumentert?" onchange={() => {}} />
+			<YesNoButtons value={false} label="Innenfor frist?" onchange={() => {}} />
+		</div>
+	</section>
+
+	<!-- VerdictButtons -->
+	<section class="showcase-section">
+		<SectionHeading title="Verdict Buttons" />
+		<div class="showcase-stack">
+			<VerdictButtons
+				value={verdictValue}
+				options={[
+					{ id: 'godkjent', label: 'Godkjent', variant: 'godkjent' },
+					{ id: 'delvis', label: 'Delvis', variant: 'delvis' },
+					{ id: 'avslatt', label: 'Avslått', variant: 'avslatt' }
+				]}
+				onchange={(v) => (verdictValue = v)}
+			/>
+			<VerdictButtons
+				value="godkjent"
+				options={[
+					{ id: 'godkjent', label: 'Godkjent', variant: 'godkjent' },
+					{ id: 'frafalt', label: 'Frafalt', variant: 'avslatt' }
+				]}
+				onchange={() => {}}
+			/>
+		</div>
+	</section>
+
+	<!-- NumberInput -->
+	<section class="showcase-section">
+		<SectionHeading title="Number Input" />
+		<div class="showcase-row" style="align-items: flex-start;">
+			<NumberInput
+				value={numberValue}
+				label="Krevd beløp"
+				suffix="kr"
+				referenceValue={200000}
+				onchange={(v) => (numberValue = v)}
+			/>
+			<NumberInput value={20} label="Dager" suffix="dager" max={365} onchange={() => {}} />
+			<NumberInput value={67} label="Prosent" suffix="%" max={100} onchange={() => {}} />
+		</div>
+	</section>
+
+	<!-- SegmentedControl -->
+	<section class="showcase-section">
+		<SectionHeading title="Segmented Control" paragrafRef="§ 34" />
+		<SegmentedControl
+			value={segmentValue}
+			options={[
+				{ id: 'poeng', label: 'Poengmodell' },
+				{ id: 'pris', label: 'Prismodell' }
+			]}
+			onchange={(v) => (segmentValue = v)}
+		/>
+	</section>
+
+	<!-- ConsequenceCallout -->
+	<section class="showcase-section">
+		<SectionHeading title="Consequence Callout" />
+		<div class="showcase-stack">
+			<ConsequenceCallout variant="godkjent">Kravet er godkjent. Beløpet legges til endringsordren.</ConsequenceCallout>
+			<ConsequenceCallout variant="advarsel">Beløpet overskrider 15% av kontraktsverdien. Krever særskilt begrunnelse.</ConsequenceCallout>
+			<ConsequenceCallout variant="kritisk">Fristen er overskredet. Kravet kan være prekludert etter § 32.2.</ConsequenceCallout>
+			<ConsequenceCallout variant="info">Posisjonen er basert på totalentreprenørens varsel av 15.01.2026.</ConsequenceCallout>
 		</div>
 	</section>
 </div>
