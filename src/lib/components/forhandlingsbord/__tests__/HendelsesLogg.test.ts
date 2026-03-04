@@ -34,27 +34,29 @@ function makeManyEvents(count: number): TimelineEvent[] {
 }
 
 describe('HendelsesLogg', () => {
-	it('shows toggle-bar for 4+ events', () => {
-		const events = makeManyEvents(5);
-		render(HendelsesLoggTest, { props: { events } });
-		expect(screen.getByRole('button', { name: /5 hendelser/i })).toBeInTheDocument();
-	});
-
-	it('hides toggle-bar for 3 or fewer events', () => {
+	it('always shows first 3 events', () => {
 		const events = makeManyEvents(3);
 		render(HendelsesLoggTest, { props: { events } });
+		// All 3 should be visible as event-lines, no toggle needed
 		expect(screen.queryByRole('button')).not.toBeInTheDocument();
+		expect(screen.getByText('varslet')).toBeInTheDocument();
 	});
 
-	it('hides toggle-bar for 0 events', () => {
+	it('shows toggle for remaining events when more than 3', () => {
+		const events = makeManyEvents(5);
+		render(HendelsesLoggTest, { props: { events } });
+		expect(screen.getByRole('button', { name: /2 hendelser til/i })).toBeInTheDocument();
+	});
+
+	it('hides everything for 0 events', () => {
 		render(HendelsesLoggTest, { props: { events: [] } });
 		expect(screen.queryByRole('button')).not.toBeInTheDocument();
 	});
 
-	it('shows correct event count in toggle label', () => {
+	it('shows correct remaining count in toggle label', () => {
 		const events = makeManyEvents(7);
 		render(HendelsesLoggTest, { props: { events } });
-		expect(screen.getByText('7 hendelser')).toBeInTheDocument();
+		expect(screen.getByText('4 hendelser til')).toBeInTheDocument();
 	});
 
 	it('calls onToggle when toggle-bar is clicked', async () => {
@@ -63,7 +65,7 @@ describe('HendelsesLogg', () => {
 		const events = makeManyEvents(5);
 		render(HendelsesLoggTest, { props: { events, onToggle } });
 
-		const toggleBtn = screen.getByRole('button', { name: /5 hendelser/i });
+		const toggleBtn = screen.getByRole('button', { name: /2 hendelser til/i });
 		await user.click(toggleBtn);
 		expect(onToggle).toHaveBeenCalledOnce();
 	});
@@ -100,14 +102,14 @@ describe('HendelsesLogg', () => {
 		expect(screen.getByText('sendte krav')).toBeInTheDocument();
 	});
 
-	it('does not show event lines when collapsed', () => {
+	it('shows first 3 events but hides remaining when collapsed', () => {
 		const events = makeManyEvents(5);
 		render(HendelsesLoggTest, { props: { events, expanded: false } });
 
-		// Toggle bar should be visible but not the event list
-		expect(screen.getByRole('button', { name: /5 hendelser/i })).toBeInTheDocument();
-		// The event labels from the log should not appear (mini-historikk is separate)
-		expect(screen.queryByText('varslet')).not.toBeInTheDocument();
+		// First 3 events should be visible
+		expect(screen.getByText('varslet')).toBeInTheDocument();
+		// Toggle should show remaining count
+		expect(screen.getByRole('button', { name: /2 hendelser til/i })).toBeInTheDocument();
 	});
 
 	it('renders event date in DD.MM format', () => {

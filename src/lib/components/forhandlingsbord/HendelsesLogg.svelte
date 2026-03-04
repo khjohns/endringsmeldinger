@@ -75,20 +75,24 @@
 		return null;
 	}
 
-	// Events are pre-sorted (newest first) and pre-filtered (time != null) by parent
-	const showToggle = $derived(events.length > 3);
+	const VISIBLE_COUNT = 3;
 
-	const eventEntries = $derived(
-		events.map((e) => {
-			const eventType = extractEventType(e.type);
-			const icon = getEventIcon(eventType);
-			const label = getEventLabel(e, eventType);
-			const dateLabel = formatDateShort(e.time);
-			const role = e.actorrole ?? '';
-			const revision = getRevision(e);
-			return { id: e.id, icon, dateLabel, label, role, revision };
-		})
-	);
+	// Events are pre-sorted (newest first) and pre-filtered (time != null) by parent
+	const hasMore = $derived(events.length > VISIBLE_COUNT);
+
+	function mapEntry(e: TimelineEvent) {
+		const eventType = extractEventType(e.type);
+		const icon = getEventIcon(eventType);
+		const label = getEventLabel(e, eventType);
+		const dateLabel = formatDateShort(e.time);
+		const role = e.actorrole ?? '';
+		const revision = getRevision(e);
+		return { id: e.id, icon, dateLabel, label, role, revision };
+	}
+
+	const visibleEntries = $derived(events.slice(0, VISIBLE_COUNT).map(mapEntry));
+	const remainingEntries = $derived(events.slice(VISIBLE_COUNT).map(mapEntry));
+	const allEntries = $derived([...visibleEntries, ...remainingEntries]);
 
 	function handleToggleClick(e: MouseEvent) {
 		e.stopPropagation();
@@ -115,7 +119,7 @@
 	// Stable ID generated once (not derived, to avoid re-computation on reactive updates)
 	const listboxId = `logg-listbox-${Math.random().toString(36).slice(2, 8)}`;
 	const activeDescendantId = $derived(
-		focusedIndex >= 0 && focusedIndex < eventEntries.length
+		focusedIndex >= 0 && focusedIndex < allEntries.length
 			? `${listboxId}-option-${focusedIndex}`
 			: undefined
 	);
@@ -137,7 +141,8 @@
 			onToggle();
 		} else if (e.key === 'ArrowDown') {
 			e.preventDefault();
-			emitFocus(Math.min(focusedIndex + 1, eventEntries.length - 1));
+			const maxIndex = expanded ? allEntries.length - 1 : visibleEntries.length - 1;
+			emitFocus(Math.min(focusedIndex + 1, maxIndex));
 		} else if (e.key === 'ArrowUp') {
 			e.preventDefault();
 			emitFocus(Math.max(focusedIndex - 1, 0));
@@ -152,57 +157,82 @@
 	// This prevents grid flicker from panel mount/unmount on every hover exit.
 </script>
 
-{#if showToggle}
+{#if events.length > 0}
 	<div
-		class="toggle-bar"
-		class:toggle-bar-expanded={expanded}
-		role="button"
-		tabindex="0"
-		aria-expanded={expanded}
-		aria-label="{events.length} hendelser"
-		onclick={handleToggleClick}
-		onkeydown={handleToggleKeydown}
+		id={listboxId}
+		class="events-list"
+		role="listbox"
+		tabindex="-1"
+		aria-activedescendant={activeDescendantId}
+		onclick={handleLogClick}
+		onkeydown={handleListKeydown}
 	>
-		<span class="toggle-label">{events.length} hendelser</span>
-		<span class="toggle-chevron" class:toggle-chevron-expanded={expanded} aria-hidden="true">
-			{expanded ? '\u25BE' : '\u25B8'}
-		</span>
-	</div>
-
-	{#if expanded}
-		<div
-			id={listboxId}
-			class="events-list"
-			role="listbox"
-			tabindex="-1"
-			aria-activedescendant={activeDescendantId}
-			transition:slide={{ duration: 200 }}
-			onclick={handleLogClick}
-			onkeydown={handleListKeydown}
-		>
-			{#each eventEntries as entry, i (entry.id)}
-				<!-- svelte-ignore a11y_interactive_supports_focus -->
-				<div
-					id="{listboxId}-option-{i}"
-					class="event-line"
-					class:event-line-focused={focusedIndex === i}
-					role="option"
-					aria-selected={focusedIndex === i}
-					onmouseenter={() => handleEventMouseEnter(i)}
+		{#each visibleEntries as entry, i (entry.id)}
+			<!-- svelte-ignore a11y_interactive_supports_focus -->
+			<div
+				id="{listboxId}-option-{i}"
+				class="event-line"
+				class:event-line-focused={focusedIndex === i}
+				role="option"
+				aria-selected={focusedIndex === i}
+				onmouseenter={() => handleEventMouseEnter(i)}
+			>
+				<span class="event-icon" style="color: {entry.icon.color}" aria-hidden="true"
+					>{entry.icon.symbol}</span
 				>
-					<span class="event-icon" style="color: {entry.icon.color}" aria-hidden="true"
-						>{entry.icon.symbol}</span
-					>
-					<span class="event-date">{entry.dateLabel}</span>
-					<span class="event-text">{entry.label}</span>
-					{#if entry.revision}
-						<span class="event-rev">{entry.revision}</span>
-					{/if}
-					<span class="event-part">{entry.role}</span>
+				<span class="event-date">{entry.dateLabel}</span>
+				<span class="event-text">{entry.label}</span>
+				{#if entry.revision}
+					<span class="event-rev">{entry.revision}</span>
+				{/if}
+				<span class="event-part">{entry.role}</span>
+			</div>
+		{/each}
+
+		{#if hasMore}
+			<div
+				class="toggle-bar"
+				class:toggle-bar-expanded={expanded}
+				role="button"
+				tabindex="0"
+				aria-expanded={expanded}
+				aria-label="{remainingEntries.length} hendelser til"
+				onclick={handleToggleClick}
+				onkeydown={handleToggleKeydown}
+			>
+				<span class="toggle-label">{remainingEntries.length} hendelser til</span>
+				<span class="toggle-chevron" aria-hidden="true">
+					{expanded ? '\u25BE' : '\u25B8'}
+				</span>
+			</div>
+
+			{#if expanded}
+				<div class="remaining-events" transition:slide={{ duration: 200 }}>
+					{#each remainingEntries as entry, j (entry.id)}
+						<!-- svelte-ignore a11y_interactive_supports_focus -->
+						<div
+							id="{listboxId}-option-{j + VISIBLE_COUNT}"
+							class="event-line"
+							class:event-line-focused={focusedIndex === j + VISIBLE_COUNT}
+							role="option"
+							aria-selected={focusedIndex === j + VISIBLE_COUNT}
+							onmouseenter={() => handleEventMouseEnter(j + VISIBLE_COUNT)}
+						>
+							<span class="event-icon" style="color: {entry.icon.color}" aria-hidden="true"
+								>{entry.icon.symbol}</span
+							>
+							<span class="event-date">{entry.dateLabel}</span>
+							<span class="event-text">{entry.label}</span>
+							{#if entry.revision}
+								<span class="event-rev">{entry.revision}</span>
+							{/if}
+							<span class="event-part">{entry.role}</span>
+						</div>
+					{/each}
 				</div>
-			{/each}
-		</div>
-	{/if}
+			{/if}
+		{/if}
+	</div>
 {/if}
 
 <style>
@@ -210,11 +240,10 @@
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
-		background: var(--color-canvas);
 		border-top: 1px solid var(--color-wire);
-		padding: 8px 16px;
-		margin: 8px -16px -12px;
-		border-radius: 0 0 var(--radius-md) var(--radius-md);
+		padding: 4px 8px;
+		margin-top: 4px;
+		border-radius: var(--radius-sm);
 		cursor: pointer;
 		user-select: none;
 	}
@@ -225,7 +254,8 @@
 
 	.toggle-bar-expanded {
 		border-bottom: 1px solid var(--color-wire);
-		border-radius: 0;
+		border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+		margin-bottom: 4px;
 	}
 
 	.toggle-label {
@@ -245,10 +275,13 @@
 		display: flex;
 		flex-direction: column;
 		gap: 2px;
-		padding: 8px 16px 12px;
-		margin: 0 -16px -12px;
-		background: var(--color-canvas);
-		border-radius: 0 0 var(--radius-md) var(--radius-md);
+		padding-top: 4px;
+	}
+
+	.remaining-events {
+		display: flex;
+		flex-direction: column;
+		gap: 2px;
 	}
 
 	.event-line {
