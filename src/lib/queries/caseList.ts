@@ -5,6 +5,14 @@ import type { CaseListResponse } from '$lib/types/api';
 export function createCaseListQuery() {
   return createQuery<CaseListResponse>({
     queryKey: ['cases'],
-    queryFn: () => fetchCaseList(),
+    queryFn: async () => {
+      try {
+        return await fetchCaseList();
+      } catch {
+        // Fallback to mock data in development (backend not running)
+        const { mockCaseList } = await import('$lib/mocks/caseList');
+        return mockCaseList;
+      }
+    },
   });
 }
