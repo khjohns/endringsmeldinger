@@ -1,4 +1,4 @@
-# KOE Design System — Analysebordet
+# KOE Design System — Analysebordet + Forhandlingsbordet
 
 ## Intent
 
@@ -96,3 +96,156 @@ Border-left 3px (semantisk farge), padding 12px 16px, ikon + tekst.
 
 ### Locked value tokens
 Inline i rich text: {{type:value:display}}. Fargekoding: dager=blå, beløp=grønn, prosent=lilla, paragraf=nøytral.
+
+---
+
+## Forhandlingsbordet — Fase 2 Patterns
+
+### Signaturelement: Handlingskant
+
+Forhandlingsbordet arver Vektlinjen-konseptet men refortolker det: venstre kant = handlingsstatus.
+
+| Tilstand | Bakgrunn | Venstre kant | Handling |
+|---|---|---|---|
+| Handling — normal | --felt | 3px solid --vekt | → Svar |
+| Handling — kritisk | --score-low-bg | 3px solid --score-low | → Svar nå |
+| Venter på motpart | --felt | 1px solid --wire-strong | Ingen |
+| Godkjent | --felt | 2px solid --score-high | Ingen, ✓ badge |
+| Avslått | --felt | 2px solid --score-low | → Forsering? |
+| Bortfalt | --felt | 1px dashed --ink-ghost | → Se sak |
+
+### Layout: To-kolonne
+
+```
+┌──────────────────────┬────────────────────────────────┐
+│ Sidebar (260px)      │ Tidslinje (1fr, max 820px)     │
+│ sticky, 100vh        │                                │
+└──────────────────────┴────────────────────────────────┘
+```
+
+Grid: `260px 1fr`. Sidebar: sticky top 0, height 100vh, overflow-y auto, border-right 1px --wire.
+
+### Sidebar
+
+Seksjoner separert med 1px --wire. Padding sp-4 (16px).
+
+**Saksidentitet:** sak_id (font-data, 12px, ink-muted), tittel (font-ui, 16px, weight 600, ink), undertittel (13px, ink-secondary).
+
+**Parter:** Label (TE/BH) i font-data 10px ink-ghost, navn i font-ui 13px ink.
+
+**FRISTER:** Section-label-mønster (11px uppercase). Urgency-sortert — mest presserende øverst. Tre fargenivåer:
+- Kritisk (passivitet): score-low, weight 600, uppercase "PASSIVITET"
+- Advarsel: vekt
+- Normal: ink-secondary
+- Dager: font-data, mono
+
+**VARSLING:** Section-label-mønster. Symboler + menneskelig tekst:
+- ✓ ok: score-high
+- ⚠ warning: vekt
+- ✕ breach: score-low
+- – na: ink-ghost
+- §-referanse i title-attr (tooltip for juristen)
+
+### Tidslinjespine
+
+Vertikal linje: 1px solid --wire-strong, venstre for kortene.
+
+**Datomerke:** ink-muted, 11px, uppercase, tracking 0.06em. Relativ tid: "I DAG", "I GÅR", dato.
+**Datopunkt:** 6px sirkel, ink-muted.
+**Sak opprettet:** ○ + tekst, ink-muted.
+
+### ActionBanner
+
+Sticky øverst i tidslinjen. Én linje.
+
+```
+⚠ N handlinger venter på deg
+```
+
+- Fargekodet etter mest urgent: score-low-bg (passivitet), vekt-bg (normal), transparent (ingen)
+- font-ui, 12px, weight 600
+- Ikon ⚠ i matchende farge
+- Null-tilstand: "Ingen handlinger. Venter på TE." i ink-muted
+
+### Sporkort
+
+Kompakt 2-3 linjer. Hele kortet klikkbart (cursor pointer) → spordetalj.
+
+```
+Bakgrunn: --felt (normal), --score-low-bg (kritisk/passivitet)
+Border: 1px solid --wire
+Border-left: se differensieringstabell over
+Hover: --felt-hover
+Radius: --r-md (4px)
+Padding: sp-3 (12px) top/bottom, sp-4 (16px) left/right
+Gap mellom linjer: sp-1 (4px)
+Focus-visible: 2px solid --wire-focus, offset -2px
+Transition: background 150ms ease
+```
+
+**Header-linje (flex, center, gap sp-2):**
+- Spornavn: font-ui, 12px, weight 600, ink. ANSVARSGRUNNLAG / VEDERLAG / FRISTFORLENGELSE
+- Statusbadge: 10px, uppercase, weight 600, tracking 0.06em, ink-secondary, pill (1px 6px, r-sm, felt-active bg)
+- Varslingsflagg: font-ui, 10px, ink-muted. Symboler fargekodede (✓ score-high, ⚠ vekt, ✕ score-low). §-ref i title-attr.
+- Handlingsknapp (ml-auto): font-ui, 11px, weight 600. Normal: vekt tekst, vekt-bg bg. Kritisk: score-low tekst, score-low-bg bg. Hover: sterkere bg.
+
+**Data-linje:**
+- font-data, 12px, ink
+- Prikk-separert (· med sp-1)
+- Rev. N i vanlig tekst
+- Frist i ink-muted: "(DD.MM)" etter dager
+
+**Historikk-linje:**
+- font-ui, 10px, ink-muted
+- Prikk-separert
+- Relativ tid: "i dag", "i går", dato
+
+### Hendelseslogg (innfelt i sporkort, 4+ hendelser)
+
+**Toggle-bar (under historikk-linjen):**
+```
+Bakgrunn: --canvas (innfelt)
+Border-top: 1px solid --wire
+Radius: 0 0 r-md r-md
+Hover: rgba(255,255,255,0.03)
+Tekst: "N hendelser" font-data 10px ink-muted
+Chevron: 8px ink-ghost, roterer 90° ved expand (▸ → ▾)
+```
+
+**Ekspandert tilstand:**
+- Kortet: felt-raised bg, wire-strong border
+- Toggle-bar: border-bottom 1px wire (separator)
+- StopPropagation på hele toggle/logg-area
+
+**Hendelseslinje-anatomi:**
+```
+[ikon 14px] [dato 38px mono 10px] [tekst flex 11px] [rev 9px ghost] [part 20px mono 10px ghost]
+```
+
+**Hendelsesikoner:**
+| Ikon | Betydning | Farge |
+|---|---|---|
+| → | Sendt/krevd | ink-muted |
+| ⚑ | Varslet | ink-muted |
+| ↻ | Revidert | vekt-dim |
+| ◇ | Svar fra motpart | score-high |
+| ✓ | Godkjent | score-high |
+| ✕ | Trukket/avslått | score-low |
+
+### Saksliste (tabell)
+
+Full-width tabell med felt-bg, wire border, sticky header.
+- Header: 10px, uppercase, tracking 0.08em, ink-muted
+- Rader: hover → felt-hover, cursor pointer, hele raden klikkbar (lenke)
+- Tall-kolonner: font-data, tabular-nums
+- Status: Badge-primitiv
+- Sorteringsikon: ▴/▾ i ink-ghost, aktiv = ink
+
+### Fargekartlegging Analysebordet → Forhandlingsbordet
+
+| Analysebordet | Forhandlingsbordet | Prinsipp |
+|---|---|---|
+| vekt = vekting | vekt = handling kreves | Amber = "viktig" |
+| score-high = god score | score-high = godkjent | Grønn = "bra" |
+| score-low = dårlig score | score-low = kritisk/avslått | Rose = "problem" |
+| Vektlinjen (vertikal spine) | Handlingskant (venstre border) | Kant-accent = anker |
