@@ -7,7 +7,7 @@
 		formatDateShort
 	} from '$lib/utils/formatters';
 	import { getHovedkategoriLabel } from '$lib/constants/categories';
-	import { resolve } from '$app/paths';
+	import { getOverordnetStatusLabel } from '$lib/constants/statusLabels';
 	import { goto } from '$app/navigation';
 
 	interface Props {
@@ -37,48 +37,27 @@
 		}
 	}
 
-	function getStatusLabel(status: string | null): string {
-		switch (status) {
-			case 'UTKAST':
-				return 'Utkast';
-			case 'SENDT':
-				return 'Sendt';
-			case 'VENTER_PAA_SVAR':
-				return 'Venter på svar';
-			case 'UNDER_BEHANDLING':
-				return 'Under behandling';
-			case 'UNDER_FORHANDLING':
-				return 'Under forhandling';
-			case 'OMFORENT':
-				return 'Omforent';
-			case 'LUKKET':
-				return 'Lukket';
-			case 'LUKKET_TRUKKET':
-				return 'Trukket';
-			default:
-				return status ?? '—';
-		}
-	}
-
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	type AnyRoute = any;
-	const path = $derived(`/${prosjektId}/${case_item.sak_id}` as AnyRoute);
+	const path = $derived(`/${prosjektId}/${case_item.sak_id}`);
 	const tittel = $derived(case_item.cached_title ?? 'Uten tittel');
 	const badgeVariant = $derived(statusToBadgeVariant(case_item.cached_status));
-	const statusLabel = $derived(getStatusLabel(case_item.cached_status));
+	const statusLabel = $derived(
+		case_item.cached_status
+			? getOverordnetStatusLabel(case_item.cached_status as import('$lib/types/timeline').OverordnetStatus)
+			: '—'
+	);
 	const kategoriLabel = $derived(getHovedkategoriLabel(case_item.cached_hovedkategori));
 	const belopKrevd = $derived(formatCurrencyCompact(case_item.cached_sum_krevd));
 	const dagerKrevd = $derived(formatDaysCompact(case_item.cached_dager_krevd));
 	const sisteAktivitet = $derived(formatDateShort(case_item.last_event_at));
 
 	function handleRowClick() {
-		goto(resolve(path));
+		goto(path);
 	}
 </script>
 
 <tr class="row" onclick={handleRowClick}>
 	<td class="cell cell-id">
-		<a href={resolve(path)} class="row-link" aria-label="Åpne sak {case_item.sak_id}">
+		<a href={path} class="row-link" aria-label="Åpne sak {case_item.sak_id}">
 			<span class="sak-id">{case_item.sak_id}</span>
 		</a>
 	</td>
