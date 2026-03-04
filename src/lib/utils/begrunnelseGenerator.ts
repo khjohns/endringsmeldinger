@@ -649,7 +649,7 @@ export interface FristResponseInput {
 /**
  * Get varsel type label for display
  */
-function getVarselTypeLabel(varselType?: FristVarselType): string {
+export function getVarselTypeLabel(varselType?: FristVarselType): string {
   if (!varselType) return 'varsel';
   const labels: Record<FristVarselType, string> = {
     'varsel': 'varsel om fristforlengelse (§33.4)',
@@ -662,7 +662,7 @@ function getVarselTypeLabel(varselType?: FristVarselType): string {
 /**
  * Get preclusion paragraph reference based on varsel type
  */
-function getPreklusjonParagraf(varselType?: FristVarselType): string {
+export function getPreklusjonParagraf(varselType?: FristVarselType): string {
   switch (varselType) {
     case 'varsel':
       return '§33.4';

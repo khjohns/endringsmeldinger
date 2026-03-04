@@ -54,7 +54,7 @@ export interface EventSubmitResponse {
 
 export interface EventPayload {
   event_type: EventType;
-  data: Record<string, any>;
+  data: Record<string, unknown>;
   expected_version?: number;
   catenda_topic_id?: string;
   pdf_base64?: string;
@@ -73,7 +73,7 @@ export interface EventPayload {
 export async function submitEvent(
   sakId: string,
   eventType: EventType,
-  data: Record<string, any>,
+  data: Record<string, unknown>,
   options?: {
     expectedVersion?: number;
     catendaTopicId?: string;
