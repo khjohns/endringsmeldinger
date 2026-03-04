@@ -11,12 +11,19 @@
 	import NumberInput from '$lib/components/primitives/NumberInput.svelte';
 	import SegmentedControl from '$lib/components/primitives/SegmentedControl.svelte';
 	import ConsequenceCallout from '$lib/components/primitives/ConsequenceCallout.svelte';
+	import Tooltip from '$lib/components/primitives/Tooltip.svelte';
+	import Modal from '$lib/components/primitives/Modal.svelte';
+	import DatePicker from '$lib/components/primitives/DatePicker.svelte';
+	import LockedValueToken from '$lib/components/primitives/LockedValueToken.svelte';
 
 	let checkboxChecked = $state(false);
 	let yesNoValue: boolean | null = $state(null);
 	let verdictValue: string | null = $state(null);
 	let numberValue: number | null = $state(150000);
 	let segmentValue = $state('poeng');
+	let modalOpen = $state(false);
+	let destructiveModalOpen = $state(false);
+	let dateValue = $state('2026-01-15');
 </script>
 
 <div class="showcase">
@@ -190,6 +197,79 @@
 			<ConsequenceCallout variant="info">Posisjonen er basert på totalentreprenørens varsel av 15.01.2026.</ConsequenceCallout>
 		</div>
 	</section>
+
+	<!-- Tooltip -->
+	<section class="showcase-section">
+		<SectionHeading title="Tooltip" />
+		<div class="showcase-row">
+			<Tooltip content="Lagre endringer (Ctrl+S)">
+				<Button variant="primary">Hover for tooltip</Button>
+			</Tooltip>
+			<Tooltip content="Denne verdien er låst fordi kravet er ferdigbehandlet.">
+				<Badge variant="godkjent">Hover meg</Badge>
+			</Tooltip>
+		</div>
+	</section>
+
+	<!-- Modal -->
+	<section class="showcase-section">
+		<SectionHeading title="Modal" />
+		<div class="showcase-row">
+			<Button variant="secondary" onclick={() => (modalOpen = true)}>Åpne modal</Button>
+			<Button variant="destructive" onclick={() => (destructiveModalOpen = true)}>Slett (destructive)</Button>
+		</div>
+		<Modal bind:open={modalOpen} title="Bekreft handling">
+			Er du sikker på at du vil sende denne posisjonen?
+			{#snippet actions()}
+				<Button variant="secondary" onclick={() => (modalOpen = false)}>Avbryt</Button>
+				<Button variant="primary" onclick={() => (modalOpen = false)}>Bekreft</Button>
+			{/snippet}
+		</Modal>
+		<Modal bind:open={destructiveModalOpen} title="Slett krav" variant="destructive">
+			Dette vil permanent slette kravet og alle tilknyttede data.
+			{#snippet actions()}
+				<Button variant="secondary" onclick={() => (destructiveModalOpen = false)}>Avbryt</Button>
+				<Button variant="destructive" onclick={() => (destructiveModalOpen = false)}>Slett permanent</Button>
+			{/snippet}
+		</Modal>
+	</section>
+
+	<!-- DatePicker -->
+	<section class="showcase-section">
+		<SectionHeading title="Date Picker" />
+		<div class="showcase-row" style="align-items: flex-start;">
+			<DatePicker
+				value={dateValue}
+				label="Varseldato"
+				hint="Dato TE sendte varselet"
+				onchange={(v) => (dateValue = v)}
+			/>
+			<DatePicker value="" label="Svarfrist" onchange={() => {}} />
+		</div>
+	</section>
+
+	<!-- LockedValueToken -->
+	<section class="showcase-section">
+		<SectionHeading title="Locked Value Token" />
+		<p class="showcase-token-text">
+			Totalentreprenøren krever
+			<LockedValueToken type="belop" display="kr 150 000,-" />
+			for
+			<LockedValueToken type="dager" display="20 dager" />
+			fristforlengelse, tilsvarende
+			<LockedValueToken type="prosent" display="67%" />
+			av opprinnelig frist, jf.
+			<LockedValueToken type="paragraf" display="§ 34.1" />.
+		</p>
+		<div class="showcase-row">
+			<LockedValueToken type="dager" display="20 dager" />
+			<LockedValueToken type="belop" display="kr 150 000,-" />
+			<LockedValueToken type="prosent" display="67%" />
+			<LockedValueToken type="dato" display="15.01.2026" />
+			<LockedValueToken type="paragraf" display="§ 32.2" />
+			<LockedValueToken type="tekst" display="Varslet" />
+		</div>
+	</section>
 </div>
 
 <style>
@@ -237,5 +317,11 @@
 
 	.kv-container {
 		max-width: 400px;
+	}
+
+	.showcase-token-text {
+		font-size: 14px;
+		line-height: 1.8;
+		color: var(--color-ink);
 	}
 </style>

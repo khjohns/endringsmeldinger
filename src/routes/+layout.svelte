@@ -1,6 +1,9 @@
 <script lang="ts">
+	import { Tooltip } from 'bits-ui';
 	import '../app.css';
 	let { children } = $props();
 </script>
 
-{@render children()}
+<Tooltip.Provider delayDuration={300}>
+	{@render children()}
+</Tooltip.Provider>
