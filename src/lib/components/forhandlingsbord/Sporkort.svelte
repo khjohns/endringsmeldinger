@@ -55,7 +55,7 @@
 				bgClass: 'bg-critical',
 				borderClass: 'border-critical',
 				borderVariant: 'critical' as BorderVariant,
-				action: { label: 'Svar na', urgent: true },
+				action: { label: 'Svar nå', urgent: true },
 			};
 		}
 
@@ -148,7 +148,7 @@
 
 	{#if hasPassivitet}
 		<div class="passivitet-warning" role="alert">
-			{daysSinceLastEvent}d uten svar — du kan miste retten til a protestere
+			{daysSinceLastEvent}d uten svar — du kan miste retten til å protestere
 		</div>
 	{/if}
 </a>
