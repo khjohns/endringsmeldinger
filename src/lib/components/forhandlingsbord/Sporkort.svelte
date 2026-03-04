@@ -126,15 +126,52 @@
 	});
 
 	const href = $derived(`/${prosjektId}/${sakId}/${sporType}`);
+
+	const SPOR_NAMES: Record<SporType, string> = {
+		grunnlag: 'Ansvarsgrunnlag',
+		vederlag: 'Vederlagskrav',
+		frist: 'Fristkrav',
+	};
+
+	const STATUS_LABELS: Record<string, string> = {
+		ikke_relevant: 'Ikke relevant',
+		utkast: 'Utkast',
+		sendt: 'Sendt',
+		under_behandling: 'Under behandling',
+		godkjent: 'Godkjent',
+		delvis_godkjent: 'Delvis godkjent',
+		avslatt: 'Avslatt',
+		under_forhandling: 'Under forhandling',
+		trukket: 'Trukket',
+		laast: 'Låst',
+	};
+
+	const ariaLabel = $derived(
+		`${SPOR_NAMES[sporType]} — ${STATUS_LABELS[trackState.status] ?? trackState.status}`
+	);
+
+	function handleKeydown(e: KeyboardEvent) {
+		if (e.key === ' ') {
+			// Toggle hendelseslogg on Space if there are 4+ events
+			if (events.length >= 4) {
+				e.preventDefault();
+				handleLoggToggle();
+			}
+		}
+	}
 </script>
 
 <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
+<!-- svelte-ignore a11y_no_interactive_element_to_noninteractive_role -->
 <a {href}
 	class="sporkort {visualState.bgClass} {visualState.borderClass}"
 	class:sporkort-expanded={loggExpanded}
 	data-spor={sporType}
 	data-status={trackState.status}
 	data-border={visualState.borderVariant}
+	role="article"
+	aria-label={ariaLabel}
+	onkeydown={handleKeydown}
 >
 	<SporkortHeader
 		{sporType}

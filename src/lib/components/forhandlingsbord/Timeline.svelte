@@ -162,9 +162,9 @@
 
 </script>
 
-<div class="timeline">
+<div class="timeline" role="list">
 	{#each dateGroups as group (group.dateKey)}
-		<div class="date-group">
+		<div class="date-group" role="listitem">
 			<div class="date-marker">
 				<div class="spine-segment"></div>
 				<span class="date-label">{group.label}</span>

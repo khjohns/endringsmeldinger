@@ -10,7 +10,7 @@
 </script>
 
 {#if items.length > 0}
-	<section class="varsling-section" aria-label="Varsling">
+	<section class="varsling-section" aria-label="Varslingsstatus">
 		<h3 class="section-label">Varsling</h3>
 		<ul class="varsling-list">
 			{#each items as item (item.label)}

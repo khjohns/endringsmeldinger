@@ -107,6 +107,32 @@
 		e.stopPropagation();
 		e.preventDefault();
 	}
+
+	// Track focused event index for arrow-key navigation
+	let focusedIndex = $state(-1);
+
+	// Stable ID generated once (not derived, to avoid re-computation on reactive updates)
+	const listboxId = `logg-listbox-${Math.random().toString(36).slice(2, 8)}`;
+	const activeDescendantId = $derived(
+		focusedIndex >= 0 && focusedIndex < eventEntries.length
+			? `${listboxId}-option-${focusedIndex}`
+			: undefined
+	);
+
+	function handleListKeydown(e: KeyboardEvent) {
+		e.stopPropagation();
+		if (e.key === 'Escape') {
+			e.preventDefault();
+			focusedIndex = -1;
+			onToggle();
+		} else if (e.key === 'ArrowDown') {
+			e.preventDefault();
+			focusedIndex = Math.min(focusedIndex + 1, eventEntries.length - 1);
+		} else if (e.key === 'ArrowUp') {
+			e.preventDefault();
+			focusedIndex = Math.max(focusedIndex - 1, 0);
+		}
+	}
 </script>
 
 {#if showToggle}
@@ -129,13 +155,23 @@
 	{#if expanded}
 		<!-- svelte-ignore a11y_no_static_element_interactions -->
 		<div
+			id={listboxId}
 			class="events-list"
+			role="listbox"
+			tabindex="-1"
+			aria-activedescendant={activeDescendantId}
 			transition:slide={{ duration: 200 }}
 			onclick={handleLogClick}
-			onkeydown={(e) => e.stopPropagation()}
+			onkeydown={handleListKeydown}
 		>
-			{#each eventEntries as entry (entry.id)}
-				<div class="event-line">
+			{#each eventEntries as entry, i (entry.id)}
+				<div
+					id="{listboxId}-option-{i}"
+					class="event-line"
+					class:event-line-focused={focusedIndex === i}
+					role="option"
+					aria-selected={focusedIndex === i}
+				>
 					<span class="event-icon" style="color: {entry.icon.color}" aria-hidden="true"
 						>{entry.icon.symbol}</span
 					>
@@ -202,6 +238,11 @@
 		align-items: center;
 		gap: 4px;
 		min-height: 20px;
+	}
+
+	.event-line-focused {
+		background: var(--color-felt-hover);
+		border-radius: var(--radius-sm);
 	}
 
 	.event-icon {

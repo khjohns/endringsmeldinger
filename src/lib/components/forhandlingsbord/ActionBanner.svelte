@@ -51,7 +51,7 @@
 	);
 </script>
 
-<div class="action-banner" data-variant={variant} role="status">
+<div class="action-banner" data-variant={variant} role="status" aria-live="polite">
 	{#if variant !== 'none'}
 		<span class="icon" aria-hidden="true">⚠</span>
 	{/if}
