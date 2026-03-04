@@ -158,8 +158,8 @@
 		justify-content: space-between;
 		background: var(--color-canvas);
 		border-top: 1px solid var(--color-wire);
-		padding: 6px 12px;
-		margin: 8px -12px -8px;
+		padding: 6px 16px;
+		margin: 8px -16px -12px;
 		border-radius: 0 0 var(--radius-md) var(--radius-md);
 		cursor: pointer;
 		user-select: none;
@@ -182,8 +182,8 @@
 	}
 
 	.toggle-chevron {
-		font-size: 10px;
-		color: var(--color-ink-muted);
+		font-size: 8px;
+		color: var(--color-ink-ghost);
 		transition: transform 150ms ease;
 	}
 
@@ -191,8 +191,8 @@
 		display: flex;
 		flex-direction: column;
 		gap: 2px;
-		padding: 6px 12px 8px;
-		margin: 0 -12px -8px;
+		padding: 6px 16px 12px;
+		margin: 0 -16px -12px;
 		background: var(--color-canvas);
 		border-radius: 0 0 var(--radius-md) var(--radius-md);
 	}

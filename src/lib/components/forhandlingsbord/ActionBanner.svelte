@@ -79,14 +79,14 @@
 	}
 
 	.action-banner[data-variant='amber'] {
-		color: #e8a838;
-		background: rgba(232, 168, 56, 0.06);
+		color: var(--color-vekt);
+		background: var(--color-vekt-bg);
 		border-bottom-color: rgba(232, 168, 56, 0.2);
 	}
 
 	.action-banner[data-variant='rose'] {
-		color: #c45858;
-		background: rgba(196, 88, 88, 0.06);
+		color: var(--color-score-low);
+		background: var(--color-score-low-bg);
 		border-bottom-color: rgba(196, 88, 88, 0.2);
 	}
 

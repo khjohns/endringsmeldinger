@@ -39,7 +39,7 @@
 		font-size: 11px;
 		font-weight: 600;
 		text-transform: uppercase;
-		letter-spacing: 0.05em;
+		letter-spacing: 0.06em;
 		color: var(--color-ink-muted);
 		margin: 0 0 8px 0;
 	}

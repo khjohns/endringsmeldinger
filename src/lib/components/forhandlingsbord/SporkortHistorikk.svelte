@@ -7,16 +7,11 @@
 	interface Props {
 		events: TimelineEvent[];
 		sporType: SporType;
+		expanded: boolean;
+		onToggle: () => void;
 	}
 
-	let { events, sporType }: Props = $props();
-
-	// Local expanded state (each card manages its own)
-	let expanded = $state(false);
-
-	function handleToggle() {
-		expanded = !expanded;
-	}
+	let { events, sporType, expanded, onToggle }: Props = $props();
 
 	function formatRelativeDate(dateStr: string | undefined): string {
 		if (!dateStr) return '';
@@ -72,7 +67,7 @@
 {/if}
 
 {#if showLogg}
-	<HendelsesLogg events={sortedEvents} {expanded} onToggle={handleToggle} />
+	<HendelsesLogg events={sortedEvents} {expanded} {onToggle} />
 {/if}
 
 <style>

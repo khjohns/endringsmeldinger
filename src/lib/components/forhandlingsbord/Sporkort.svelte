@@ -13,13 +13,20 @@
 		sakId: string;
 	}
 
-	let { sporType, state, events, prosjektId, sakId }: Props = $props();
+	let { sporType, state: sakState, events, prosjektId, sakId }: Props = $props();
+
+	// Expanded state for hendelseslogg — lives here so card can shift visually
+	let loggExpanded = $state(false);
+
+	function handleLoggToggle() {
+		loggExpanded = !loggExpanded;
+	}
 
 	// Get the track state for this spor type
-	const trackState = $derived(state[sporType]);
+	const trackState = $derived(sakState[sporType]);
 
 	// Compute varsling items for all tracks (header will filter per track)
-	const varsling = $derived(beregnVarslingStatus(state));
+	const varsling = $derived(beregnVarslingStatus(sakState));
 
 	// Compute days since last event for passivitet check
 	const daysSinceLastEvent = $derived.by(() => {
@@ -32,7 +39,7 @@
 	// Passivitet: grunnlag sent > 14 days without response
 	const hasPassivitet = $derived(
 		sporType === 'grunnlag' &&
-			state.grunnlag.status === 'sendt' &&
+			sakState.grunnlag.status === 'sendt' &&
 			daysSinceLastEvent > 14
 	);
 
@@ -124,6 +131,7 @@
 <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
 <a {href}
 	class="sporkort {visualState.bgClass} {visualState.borderClass}"
+	class:sporkort-expanded={loggExpanded}
 	data-spor={sporType}
 	data-status={trackState.status}
 	data-border={visualState.borderVariant}
@@ -139,12 +147,12 @@
 
 	<SporkortData
 		{sporType}
-		grunnlag={sporType === 'grunnlag' ? state.grunnlag : undefined}
-		vederlag={sporType === 'vederlag' ? state.vederlag : undefined}
-		frist={sporType === 'frist' ? state.frist : undefined}
+		grunnlag={sporType === 'grunnlag' ? sakState.grunnlag : undefined}
+		vederlag={sporType === 'vederlag' ? sakState.vederlag : undefined}
+		frist={sporType === 'frist' ? sakState.frist : undefined}
 	/>
 
-	<SporkortHistorikk {events} {sporType} />
+	<SporkortHistorikk {events} {sporType} expanded={loggExpanded} onToggle={handleLoggToggle} />
 
 	{#if hasPassivitet}
 		<div class="passivitet-warning" role="alert">
@@ -168,6 +176,11 @@
 
 	.sporkort:hover {
 		background: var(--color-felt-hover);
+	}
+
+	.sporkort-expanded {
+		background: var(--color-felt-raised);
+		border-color: var(--color-wire-strong);
 	}
 
 	.sporkort:focus-visible {

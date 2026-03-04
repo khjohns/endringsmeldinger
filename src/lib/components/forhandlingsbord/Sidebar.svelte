@@ -29,14 +29,14 @@
 	<div class="section section-parties">
 		{#if state.entreprenor}
 			<div class="party">
+				<span class="party-role">TE</span>
 				<span class="party-name">{state.entreprenor}</span>
-				<span class="party-role">(TE)</span>
 			</div>
 		{/if}
 		{#if state.byggherre}
 			<div class="party">
+				<span class="party-role">BH</span>
 				<span class="party-name">{state.byggherre}</span>
-				<span class="party-role">(BH)</span>
 			</div>
 		{/if}
 	</div>
@@ -82,8 +82,8 @@
 	}
 
 	.sak-tittel {
-		font-size: 14px;
-		font-weight: 500;
+		font-size: 16px;
+		font-weight: 600;
 		color: var(--color-ink);
 		margin: 0;
 		line-height: 1.4;
@@ -112,8 +112,11 @@
 	}
 
 	.party-role {
-		color: var(--color-ink-muted);
-		font-size: 12px;
+		font-family: var(--font-data);
+		font-size: 10px;
+		color: var(--color-ink-ghost);
+		width: 20px;
+		flex-shrink: 0;
 	}
 
 	.divider {

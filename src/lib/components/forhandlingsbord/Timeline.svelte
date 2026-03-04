@@ -207,6 +207,7 @@
 		display: flex;
 		flex-direction: column;
 		padding: 16px 0;
+		max-width: 820px;
 	}
 
 	/* Date group */
