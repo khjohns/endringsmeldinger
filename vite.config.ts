@@ -1,9 +1,12 @@
 import tailwindcss from '@tailwindcss/vite';
 import { sveltekit } from '@sveltejs/kit/vite';
-import { defineConfig } from 'vite';
+import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
 	plugins: [tailwindcss(), sveltekit()],
+	resolve: {
+		conditions: ['browser', 'svelte']
+	},
 	server: {
 		port: 5173,
 		proxy: {
@@ -12,5 +15,12 @@ export default defineConfig({
 				changeOrigin: true
 			}
 		}
+	},
+	test: {
+		include: ['src/**/*.test.ts'],
+		environmentMatchGlobs: [
+			['src/lib/components/**/*.test.ts', 'jsdom']
+		],
+		setupFiles: ['src/test-setup.ts']
 	}
 });
