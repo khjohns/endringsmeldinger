@@ -6,3 +6,4 @@ build
 !.env.example
 .DS_Store
 *.local
+.worktrees
