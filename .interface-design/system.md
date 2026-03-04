@@ -189,27 +189,23 @@ Transition: background 150ms ease
 - Varslingsflagg: font-ui, 10px, ink-muted. Symboler fargekodede (✓ score-high, ⚠ vekt, ✕ score-low). §-ref i title-attr.
 - Handlingsknapp (ml-auto): font-ui, 11px, weight 600. Normal: vekt tekst, vekt-bg bg. Kritisk: score-low tekst, score-low-bg bg. Hover: sterkere bg.
 
-**Data-linje:**
-- font-data, 12px, ink
-- Prikk-separert (· med sp-1)
-- Rev. N i vanlig tekst
-- Frist i ink-muted: "(DD.MM)" etter dager
+**Data-linje (balansert layout):**
+- `display: flex; justify-content: space-between; align-items: baseline`
+- Venstre: prikk-separerte deskriptive segmenter (metode, kategori, Rev. N)
+- Høyre: nøkkelmetrikk — beløp (font-data, 15px, weight 600, tabular-nums) eller dager
+- Grunnlag har ingen høyre-metrikk (tekst ER innholdet)
+- Ingen "Frist Xd" — det finnes ingen kontraktsfestet svarfrist
 
-**Historikk-linje:**
-- font-ui, 10px, ink-muted
-- Prikk-separert
-- Relativ tid: "i dag", "i går", dato
+### Hendelseslogg (innfelt i sporkort, alltid synlig)
 
-### Hendelseslogg (innfelt i sporkort, 4+ hendelser)
+**Visning:** Nyeste 3 hendelser alltid synlige. Toggle for resten hvis >3.
 
-**Toggle-bar (under historikk-linjen):**
+**Toggle-bar:**
 ```
-Bakgrunn: --canvas (innfelt)
 Border-top: 1px solid --wire
-Radius: 0 0 r-md r-md
 Hover: rgba(255,255,255,0.03)
-Tekst: "N hendelser" font-data 10px ink-muted
-Chevron: 8px ink-ghost, roterer 90° ved expand (▸ → ▾)
+Tekst: "N hendelser til" font-data 10px ink-muted
+Chevron: 8px ink-ghost (▸ → ▾)
 ```
 
 **Ekspandert tilstand:**
@@ -219,8 +215,10 @@ Chevron: 8px ink-ghost, roterer 90° ved expand (▸ → ▾)
 
 **Hendelseslinje-anatomi:**
 ```
-[ikon 14px] [dato 38px mono 10px] [tekst flex 11px] [rev 9px ghost] [part 20px mono 10px ghost]
+[ikon 14px] [dato 38px mono 10px] [tekst flex 11px] [rev 9px ghost] [metrikk mono 11px w600]
 ```
+- Metrikk (beløp/dager) vises til høyre når tilgjengelig i event-data
+- TE/BH-rolle vises IKKE — avsender fremgår av hendelsesteksten
 
 **Hendelsesikoner:**
 | Ikon | Betydning | Farge |

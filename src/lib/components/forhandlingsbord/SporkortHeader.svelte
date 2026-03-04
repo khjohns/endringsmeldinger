@@ -42,10 +42,10 @@
 		under_behandling: 'Under behandling',
 		godkjent: 'Godkjent',
 		delvis_godkjent: 'Delvis godkjent',
-		avslatt: 'Avslatt',
+		avslatt: 'Avslått',
 		under_forhandling: 'Under forhandling',
 		trukket: 'Trukket',
-		laast: 'Last',
+		laast: 'Låst',
 	};
 
 	// Read role from localStorage for action button visibility

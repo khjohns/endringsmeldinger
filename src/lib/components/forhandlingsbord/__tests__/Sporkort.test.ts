@@ -270,6 +270,6 @@ describe('Sporkort', () => {
 			},
 		});
 		render(SporkortTest, { props: { sporType: 'frist' as SporType, state } });
-		expect(screen.getByText('30d krevd')).toBeInTheDocument();
+		expect(screen.getByText('30d')).toBeInTheDocument();
 	});
 });

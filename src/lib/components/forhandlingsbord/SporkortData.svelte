@@ -18,8 +18,8 @@
 
 	let { sporType, grunnlag, vederlag, frist }: Props = $props();
 
-	// Build dot-separated data segments per track type
-	const segments = $derived.by(() => {
+	// Left-side descriptive segments (method, category, revision)
+	const leftSegments = $derived.by(() => {
 		const parts: string[] = [];
 
 		if (sporType === 'grunnlag' && grunnlag) {
@@ -35,11 +35,6 @@
 
 		if (sporType === 'vederlag' && vederlag) {
 			if (vederlag.metode) parts.push(formatVederlagsmetode(vederlag.metode));
-			if (vederlag.krevd_belop !== undefined && vederlag.krevd_belop !== null) {
-				parts.push(formatCurrencyCompact(vederlag.krevd_belop));
-			} else if (vederlag.netto_belop !== undefined && vederlag.netto_belop !== null) {
-				parts.push(formatCurrencyCompact(vederlag.netto_belop));
-			}
 			if (vederlag.saerskilt_krav?.rigg_drift?.belop) {
 				parts.push(`rigg ${formatCurrencyCompact(vederlag.saerskilt_krav.rigg_drift.belop)}`);
 			}
@@ -49,9 +44,6 @@
 		}
 
 		if (sporType === 'frist' && frist) {
-			if (frist.krevd_dager !== undefined && frist.krevd_dager !== null) {
-				parts.push(`${formatDaysCompact(frist.krevd_dager)} krevd`);
-			}
 			if (frist.antall_versjoner > 1) {
 				parts.push(`Rev. ${frist.antall_versjoner - 1}`);
 			}
@@ -63,31 +55,43 @@
 		return parts;
 	});
 
-	// Deadline info (shown muted at end)
-	const deadlineText = $derived.by(() => {
-		if (sporType === 'vederlag' && vederlag?.siste_oppdatert) {
-			// Could show time since submission, but spec says "frist Xd"
-			// For now we only show deadline if there's a frist_for_spesifikasjon or similar
-			return null;
+	// Right-side key metric — the number the administrator scans for
+	const keyMetric = $derived.by(() => {
+		if (sporType === 'vederlag' && vederlag) {
+			if (vederlag.krevd_belop !== undefined && vederlag.krevd_belop !== null) {
+				return formatCurrencyCompact(vederlag.krevd_belop);
+			}
+			if (vederlag.netto_belop !== undefined && vederlag.netto_belop !== null) {
+				return formatCurrencyCompact(vederlag.netto_belop);
+			}
 		}
-		if (sporType === 'frist' && frist?.frist_for_spesifisering) {
-			return formatDateShort(frist.frist_for_spesifisering);
+		if (sporType === 'frist' && frist) {
+			if (frist.krevd_dager !== undefined && frist.krevd_dager !== null) {
+				return formatDaysCompact(frist.krevd_dager);
+			}
 		}
 		return null;
 	});
+
+	const hasContent = $derived(leftSegments.length > 0 || keyMetric !== null);
 </script>
 
-{#if segments.length > 0}
+{#if hasContent}
 	<div class="data-line">
-		{#each segments as segment, i (i)}
-			{#if i > 0}
-				<span class="dot-sep" aria-hidden="true">&middot;</span>
-			{/if}
-			<span class="data-segment">{segment}</span>
-		{/each}
-		{#if deadlineText}
-			<span class="dot-sep" aria-hidden="true">&middot;</span>
-			<span class="data-segment deadline">frist {deadlineText}</span>
+		{#if leftSegments.length > 0}
+			<div class="data-left">
+				{#each leftSegments as segment, i (i)}
+					{#if i > 0}
+						<span class="dot-sep" aria-hidden="true">&middot;</span>
+					{/if}
+					<span class="data-segment">{segment}</span>
+				{/each}
+			</div>
+		{/if}
+		{#if keyMetric}
+			<div class="data-right">
+				<span class="key-metric">{keyMetric}</span>
+			</div>
 		{/if}
 	</div>
 {/if}
@@ -95,9 +99,17 @@
 <style>
 	.data-line {
 		display: flex;
+		align-items: baseline;
+		justify-content: space-between;
+		gap: 12px;
+	}
+
+	.data-left {
+		display: flex;
 		align-items: center;
 		gap: 4px;
 		flex-wrap: wrap;
+		min-width: 0;
 	}
 
 	.data-segment {
@@ -113,7 +125,18 @@
 		color: var(--color-ink-muted);
 	}
 
-	.deadline {
-		color: var(--color-ink-muted);
+	.data-right {
+		flex-shrink: 0;
 	}
+
+	.key-metric {
+		font-family: var(--font-data);
+		font-size: 15px;
+		font-weight: 600;
+		color: var(--color-ink);
+		letter-spacing: -0.01em;
+		line-height: 1;
+		font-variant-numeric: tabular-nums;
+	}
+
 </style>

@@ -32,11 +32,11 @@ export const EVENT_BESTEMMELSER: Partial<Record<EventType, Bestemmelse>> = {
 	},
 	frist_krav_oppdatert: {
 		paragraf: 'NS 8407 §33.6',
-		tekst: 'Spesifisering av fristkrav: Krav skal spesifiseres innen rimelig tid etter varsling, med dokumentasjon for kravets omfang.',
+		tekst: 'Revisjon av fristkrav: Totalentreprenøren kan revidere sitt fremsatte krav med oppdatert dokumentasjon.',
 	},
 	frist_krav_spesifisert: {
-		paragraf: 'NS 8407 §33.6',
-		tekst: 'Spesifisering av fristkrav: Totalentreprenøren skal spesifisere sitt krav innen rimelig tid etter varsling.',
+		paragraf: 'NS 8407 §33.6.1',
+		tekst: 'Fremsatt krav: Totalentreprenøren skal fremsette sitt krav om fristforlengelse innen rimelig tid etter varsling.',
 	},
 	respons_grunnlag: {
 		paragraf: 'NS 8407 §32.3',

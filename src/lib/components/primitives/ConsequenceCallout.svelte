@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
+	import { fly } from 'svelte/transition';
 
 	interface Props {
 		variant?: 'godkjent' | 'advarsel' | 'kritisk' | 'info';
@@ -9,7 +10,7 @@
 	let { variant = 'info', children }: Props = $props();
 </script>
 
-<div class="callout callout-{variant}">
+<div class="callout callout-{variant}" in:fly={{ y: -4, duration: 200 }}>
 	<svg class="callout-icon" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
 		{#if variant === 'godkjent'}
 			<circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.25"/>
@@ -43,7 +44,6 @@
 		font-family: var(--font-ui);
 		font-size: 13px;
 		line-height: 1.5;
-		animation: callout-in 0.2s ease-out;
 	}
 
 	.callout-godkjent {
@@ -96,14 +96,4 @@
 		min-width: 0;
 	}
 
-	@keyframes callout-in {
-		from {
-			opacity: 0;
-			transform: translateY(-4px);
-		}
-		to {
-			opacity: 1;
-			transform: translateY(0);
-		}
-	}
 </style>

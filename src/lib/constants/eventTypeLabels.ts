@@ -7,7 +7,7 @@ import type { EventType } from '../types/timeline';
 
 export const EVENT_TYPE_LABELS: Record<EventType, string> = {
   sak_opprettet: 'Sak opprettet',
-  grunnlag_opprettet: 'Ansvarsgrunnlag sendt',
+  grunnlag_opprettet: 'Ansvarsgrunnlag varslet',
   grunnlag_oppdatert: 'Ansvarsgrunnlag oppdatert',
   grunnlag_trukket: 'Ansvarsgrunnlag trukket',
   vederlag_krav_sendt: 'Vederlagskrav sendt',
@@ -15,7 +15,7 @@ export const EVENT_TYPE_LABELS: Record<EventType, string> = {
   vederlag_krav_trukket: 'Vederlagskrav trukket',
   frist_krav_sendt: 'Fristkrav sendt',
   frist_krav_oppdatert: 'Fristkrav oppdatert',
-  frist_krav_spesifisert: 'Fristkrav spesifisert',
+  frist_krav_spesifisert: 'Fristkrav fremsatt',
   frist_krav_trukket: 'Fristkrav trukket',
   respons_grunnlag: 'Svar på ansvarsgrunnlag',
   respons_grunnlag_oppdatert: 'Svar på ansvarsgrunnlag oppdatert',

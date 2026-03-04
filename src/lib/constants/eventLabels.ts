@@ -10,7 +10,7 @@ export const EVENT_TYPE_LABELS: Record<string, string> = {
 	vederlag_krav_trukket: 'trukket',
 	frist_krav_sendt: 'sendte krav',
 	frist_krav_oppdatert: 'oppdaterte krav',
-	frist_krav_spesifisert: 'spesifiserte',
+	frist_krav_spesifisert: 'fremsatte krav',
 	frist_krav_trukket: 'trukket',
 	respons_grunnlag: 'responderte',
 	respons_grunnlag_oppdatert: 'oppdaterte svar',

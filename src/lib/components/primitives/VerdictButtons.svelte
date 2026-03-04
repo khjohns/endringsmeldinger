@@ -1,14 +1,14 @@
-<script lang="ts">
+<script lang="ts" generics="T extends string">
 	interface VerdictOption {
-		id: string;
+		id: T;
 		label: string;
 		variant: 'godkjent' | 'delvis' | 'avslatt';
 	}
 
 	interface Props {
-		value: string | null;
+		value: T | null;
 		options: VerdictOption[];
-		onchange: (value: string) => void;
+		onchange: (value: T) => void;
 	}
 
 	let { value, options, onchange }: Props = $props();

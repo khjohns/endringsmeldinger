@@ -123,36 +123,31 @@ describe('HendelsesLogg', () => {
 		expect(screen.getByText('05.03')).toBeInTheDocument();
 	});
 
-	it('renders actor role (TE/BH)', () => {
+	it('shows event metric (beløp/dager) when available', () => {
 		const events = [
 			makeEvent({
-				type: 'no.oslo.koe.grunnlag_opprettet',
+				type: 'no.oslo.koe.vederlag_krav_sendt',
 				time: '2025-01-10T12:00:00Z',
-				actorrole: 'TE',
+				data: { kostnads_overslag: 2400000 } as never,
 			}),
 			makeEvent({
-				type: 'no.oslo.koe.respons_grunnlag',
+				type: 'no.oslo.koe.frist_krav_sendt',
 				time: '2025-01-11T12:00:00Z',
-				actorrole: 'BH',
+				data: { antall_dager: 45 } as never,
+			}),
+			makeEvent({
+				type: 'no.oslo.koe.grunnlag_opprettet',
+				time: '2025-01-12T12:00:00Z',
 			}),
 			makeEvent({
 				type: 'no.oslo.koe.grunnlag_oppdatert',
-				time: '2025-01-12T12:00:00Z',
-				actorrole: 'TE',
-			}),
-			makeEvent({
-				type: 'no.oslo.koe.vederlag_krav_sendt',
 				time: '2025-01-13T12:00:00Z',
-				actorrole: 'TE',
 			}),
 		];
 		render(HendelsesLoggTest, { props: { events, expanded: true } });
 
-		// Check that TE and BH roles are rendered
-		const teElements = screen.getAllByText('TE');
-		const bhElements = screen.getAllByText('BH');
-		expect(teElements.length).toBeGreaterThan(0);
-		expect(bhElements.length).toBeGreaterThan(0);
+		expect(screen.getByText('2,4M')).toBeInTheDocument();
+		expect(screen.getByText('45d')).toBeInTheDocument();
 	});
 
 	it('uses summary from event when available', () => {

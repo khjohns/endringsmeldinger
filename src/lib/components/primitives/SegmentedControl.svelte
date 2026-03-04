@@ -1,13 +1,13 @@
-<script lang="ts">
+<script lang="ts" generics="T extends string">
 	interface SegmentOption {
-		id: string;
+		id: T;
 		label: string;
 	}
 
 	interface Props {
-		value: string;
+		value: T;
 		options: SegmentOption[];
-		onchange: (value: string) => void;
+		onchange: (value: T) => void;
 	}
 
 	let { value, options, onchange }: Props = $props();

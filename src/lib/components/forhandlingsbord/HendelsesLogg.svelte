@@ -2,6 +2,7 @@
 	import type { TimelineEvent, EventType } from '$lib/types/timeline';
 	import { extractEventType } from '$lib/types/timeline';
 	import { getEventTypeLabel } from '$lib/constants/eventLabels';
+	import { formatCurrencyCompact, formatDaysCompact } from '$lib/utils/formatters';
 	import { slide } from 'svelte/transition';
 
 	interface Props {
@@ -63,14 +64,27 @@
 	}
 
 	function getRevision(event: TimelineEvent): string | null {
-		// Events with data that contain revision info
 		const data = event.data as Record<string, unknown> | undefined;
 		if (!data) return null;
-
-		// Check for respondert_versjon (BH responses)
 		if ('respondert_versjon' in data && typeof data.respondert_versjon === 'number') {
 			return `Rev. ${data.respondert_versjon}`;
 		}
+		return null;
+	}
+
+	function getEventMetric(event: TimelineEvent): string | null {
+		const data = event.data as Record<string, unknown> | undefined;
+		if (!data) return null;
+
+		// Vederlag: beløp
+		if (typeof data.kostnads_overslag === 'number') return formatCurrencyCompact(data.kostnads_overslag);
+		if (typeof data.nytt_kostnads_overslag === 'number') return formatCurrencyCompact(data.nytt_kostnads_overslag);
+		if (typeof data.godkjent_belop === 'number') return formatCurrencyCompact(data.godkjent_belop);
+
+		// Frist: dager
+		if (typeof data.antall_dager === 'number') return formatDaysCompact(data.antall_dager);
+		if (typeof data.nytt_antall_dager === 'number') return formatDaysCompact(data.nytt_antall_dager);
+		if (typeof data.godkjent_dager === 'number') return formatDaysCompact(data.godkjent_dager);
 
 		return null;
 	}
@@ -85,9 +99,9 @@
 		const icon = getEventIcon(eventType);
 		const label = getEventLabel(e, eventType);
 		const dateLabel = formatDateShort(e.time);
-		const role = e.actorrole ?? '';
 		const revision = getRevision(e);
-		return { id: e.id, icon, dateLabel, label, role, revision };
+		const metric = getEventMetric(e);
+		return { id: e.id, icon, dateLabel, label, revision, metric };
 	}
 
 	const visibleEntries = $derived(events.slice(0, VISIBLE_COUNT).map(mapEntry));
@@ -185,7 +199,9 @@
 				{#if entry.revision}
 					<span class="event-rev">{entry.revision}</span>
 				{/if}
-				<span class="event-part">{entry.role}</span>
+				{#if entry.metric}
+					<span class="event-metric">{entry.metric}</span>
+				{/if}
 			</div>
 		{/each}
 
@@ -226,7 +242,9 @@
 							{#if entry.revision}
 								<span class="event-rev">{entry.revision}</span>
 							{/if}
-							<span class="event-part">{entry.role}</span>
+							{#if entry.metric}
+								<span class="event-metric">{entry.metric}</span>
+							{/if}
 						</div>
 					{/each}
 				</div>
@@ -333,12 +351,13 @@
 		flex-shrink: 0;
 	}
 
-	.event-part {
-		width: 20px;
+	.event-metric {
 		flex-shrink: 0;
 		font-family: var(--font-data);
-		font-size: 10px;
-		color: var(--color-ink-muted);
+		font-size: 11px;
+		font-weight: 600;
+		color: var(--color-ink);
 		text-align: right;
+		font-variant-numeric: tabular-nums;
 	}
 </style>
