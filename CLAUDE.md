@@ -70,5 +70,5 @@ src/lib/
 
 ## Planer
 
-- Metaplan: `~/Projects/Catenda/unified-timeline/docs/PLAN_SVELTE_GREENFIELD.md`
-- Fase 0-implementering: `~/Projects/Catenda/unified-timeline/docs/plans/2026-03-04-fase0-prosjektoppsett.md`
+- Metaplan: `docs/PLAN_SVELTE_GREENFIELD.md`
+- Fase 0-implementering: `docs/plans/2026-03-04-fase0-prosjektoppsett.md`
