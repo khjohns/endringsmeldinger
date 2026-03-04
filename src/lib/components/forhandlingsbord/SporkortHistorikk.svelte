@@ -1,17 +1,16 @@
 <script lang="ts">
-	import type { TimelineEvent, SporType } from '$lib/types/timeline';
+	import type { TimelineEvent } from '$lib/types/timeline';
 	import { extractEventType } from '$lib/types/timeline';
 	import { getEventTypeLabel } from '$lib/constants/eventLabels';
 	import HendelsesLogg from './HendelsesLogg.svelte';
 
 	interface Props {
 		events: TimelineEvent[];
-		sporType: SporType;
 		expanded: boolean;
 		onToggle: () => void;
 	}
 
-	let { events, sporType, expanded, onToggle }: Props = $props();
+	let { events, expanded, onToggle }: Props = $props();
 
 	function formatRelativeDate(dateStr: string | undefined): string {
 		if (!dateStr) return '';

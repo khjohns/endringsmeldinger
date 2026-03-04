@@ -161,8 +161,8 @@
 	}
 </script>
 
-<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
 <!-- svelte-ignore a11y_no_interactive_element_to_noninteractive_role -->
+<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
 <a {href}
 	class="sporkort {visualState.bgClass} {visualState.borderClass}"
 	class:sporkort-expanded={loggExpanded}
@@ -189,7 +189,7 @@
 		frist={sporType === 'frist' ? sakState.frist : undefined}
 	/>
 
-	<SporkortHistorikk {events} {sporType} expanded={loggExpanded} onToggle={handleLoggToggle} />
+	<SporkortHistorikk {events} expanded={loggExpanded} onToggle={handleLoggToggle} />
 
 	{#if hasPassivitet}
 		<div class="passivitet-warning" role="alert">
