@@ -3,7 +3,6 @@
 	import type { TimelineEvent } from '$lib/types/timeline';
 	import { createCaseContextQuery } from '$lib/queries/caseContext';
 	import Sidebar from '$lib/components/saksmappe/Sidebar.svelte';
-	import ActionBanner from '$lib/components/saksmappe/ActionBanner.svelte';
 	import Timeline from '$lib/components/saksmappe/Timeline.svelte';
 	import Forhandsvisning from '$lib/components/saksmappe/Forhandsvisning.svelte';
 
@@ -59,7 +58,6 @@
 			<Sidebar state={$query.data.state} />
 		</div>
 		<main class="main-content">
-			<ActionBanner sakState={$query.data.state} />
 			<div class="timeline-container">
 				<Timeline
 					state={$query.data.state}

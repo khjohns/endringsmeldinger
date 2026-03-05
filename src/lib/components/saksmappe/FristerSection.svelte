@@ -31,8 +31,8 @@
 	const frister = $derived.by(() => {
 		const items: FristItem[] = [];
 
-		// Grunnlag
-		if (state.grunnlag.status !== 'ikke_relevant') {
+		// Grunnlag — only show when pending (sendt/under_behandling)
+		if (state.grunnlag.status === 'sendt' || state.grunnlag.status === 'under_behandling') {
 			const dager = dagerSiden(state.grunnlag.siste_oppdatert, now);
 			const erPassivitet = state.grunnlag.status === 'sendt' && dager > 14;
 			const urgency = beregnUrgency(dager, erPassivitet);
@@ -45,8 +45,8 @@
 			});
 		}
 
-		// Frist
-		if (state.frist.status !== 'ikke_relevant') {
+		// Frist — only show when pending
+		if (state.frist.status === 'sendt' || state.frist.status === 'under_behandling') {
 			const dager = dagerSiden(state.frist.siste_oppdatert, now);
 			const urgency = beregnUrgency(dager, false);
 
@@ -58,8 +58,8 @@
 			});
 		}
 
-		// Vederlag
-		if (state.vederlag.status !== 'ikke_relevant') {
+		// Vederlag — only show when pending
+		if (state.vederlag.status === 'sendt' || state.vederlag.status === 'under_behandling') {
 			const dager = dagerSiden(state.vederlag.siste_oppdatert, now);
 			const urgency = beregnUrgency(dager, false);
 

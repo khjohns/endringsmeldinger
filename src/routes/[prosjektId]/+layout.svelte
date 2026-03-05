@@ -8,13 +8,23 @@
 	const sakId = $derived(page.params.sakId ?? null);
 
 	const queryClient = new QueryClient();
+
+	// Mock project metadata — will come from API later
+	const projectNames: Record<string, { name: string; entreprise: string }> = {
+		P001: { name: 'Operatunnelen', entreprise: 'Entreprise NS 8407' },
+	};
+	const projectMeta = $derived(prosjektId ? projectNames[prosjektId] ?? null : null);
 </script>
 
 <QueryClientProvider client={queryClient}>
 	<div class="app-shell">
 		<header class="top-nav">
 			<nav class="nav-breadcrumbs" aria-label="Brodsmuler">
-				<span>{prosjektId}</span>
+				<span>{projectMeta?.name ?? prosjektId}</span>
+				{#if projectMeta?.entreprise}
+					<span class="sep">/</span>
+					<span>{projectMeta.entreprise}</span>
+				{/if}
 				{#if sakId}
 					<span class="sep">/</span>
 					<span>Saker</span>

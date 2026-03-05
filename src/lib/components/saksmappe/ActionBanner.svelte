@@ -95,13 +95,13 @@
 	.action-banner[data-variant='amber'] {
 		color: var(--color-vekt);
 		background: var(--color-vekt-bg);
-		border-bottom-color: rgba(232, 168, 56, 0.2);
+		border-bottom-color: rgba(245, 158, 11, 0.2);
 	}
 
 	.action-banner[data-variant='rose'] {
 		color: var(--color-score-low);
 		background: var(--color-score-low-bg);
-		border-bottom-color: rgba(196, 88, 88, 0.2);
+		border-bottom-color: rgba(225, 29, 72, 0.2);
 	}
 
 	.icon {

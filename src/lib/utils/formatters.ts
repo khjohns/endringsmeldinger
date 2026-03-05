@@ -160,6 +160,7 @@ export function formatVederlagsmetode(metode?: string | null): string {
     case 'REGNINGSARBEID':
       return 'Regningsarbeid';
     case 'FASTPRIS':
+    case 'FASTPRIS_TILBUD':
       return 'Fastpris';
     default:
       return metode;

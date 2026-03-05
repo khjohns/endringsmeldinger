@@ -81,6 +81,14 @@ body {
 	overflow-x: hidden;
 }
 
+/* Hide scrollbar tracks globally — content still scrollable */
+* {
+	scrollbar-width: none; /* Firefox */
+}
+*::-webkit-scrollbar {
+	display: none; /* Chrome, Safari, Edge */
+}
+
 .visually-hidden {
 	position: absolute;
 	width: 1px;
