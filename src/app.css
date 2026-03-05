@@ -1,45 +1,7 @@
 @import "tailwindcss";
 
 @theme inline {
-	/* ── Forhandlingsbordet — zinc-neutral dark theme tokens ── */
-
-	/* Canvas & surfaces (zinc-neutral, no blue tint) */
-	--color-canvas: #09090b;
-	--color-felt: #121214;
-	--color-felt-raised: #1c1c1f;
-	--color-felt-hover: #18181b;
-	--color-felt-active: #27272a;
-
-	/* Ink hierarchy (brighter, purer whites) */
-	--color-ink: #fafafa;
-	--color-ink-secondary: #a1a1aa;
-	--color-ink-muted: #71717a;
-	--color-ink-ghost: #52525b;
-
-	/* Wire — borders (RGBA for blending, never solid hex) */
-	--color-wire: rgba(255, 255, 255, 0.08);
-	--color-wire-strong: rgba(255, 255, 255, 0.15);
-	--color-wire-focus: rgba(255, 255, 255, 0.25);
-
-	/* Vekt — action accent (amber) — the only warm color */
-	--color-vekt: #f59e0b;
-	--color-vekt-dim: #d97706;
-	--color-vekt-bg: rgba(245, 158, 11, 0.08);
-	--color-vekt-bg-strong: rgba(245, 158, 11, 0.14);
-
-	/* Score semantics */
-	--color-score-high: #10b981;
-	--color-score-high-bg: rgba(16, 185, 129, 0.10);
-	--color-score-mid: #a1a1aa;
-	--color-score-low: #e11d48;
-	--color-score-low-bg: rgba(225, 29, 72, 0.08);
-
-	/* Tipex editor */
-	--color-tipex-bg: #09090b;
-	--color-tipex-text: #fafafa;
-	--color-tipex-toolbar-bg: #1c1c1f;
-	--color-tipex-toolbar-text: #a1a1aa;
-	--color-tipex-accent: #f59e0b;
+	/* ── Non-color tokens (shared between light/dark) ── */
 
 	/* Typography */
 	--font-data: 'JetBrains Mono', 'SF Mono', 'Cascadia Code', 'Consolas', monospace;
@@ -60,6 +22,109 @@
 	--radius-sm: 2px;
 	--radius-md: 2px;
 	--radius-lg: 6px;
+
+	/* ── Color tokens reference CSS vars (resolved at runtime) ── */
+	--color-canvas: var(--koe-canvas);
+	--color-felt: var(--koe-felt);
+	--color-felt-raised: var(--koe-felt-raised);
+	--color-felt-hover: var(--koe-felt-hover);
+	--color-felt-active: var(--koe-felt-active);
+
+	--color-ink: var(--koe-ink);
+	--color-ink-secondary: var(--koe-ink-secondary);
+	--color-ink-muted: var(--koe-ink-muted);
+	--color-ink-ghost: var(--koe-ink-ghost);
+
+	--color-wire: var(--koe-wire);
+	--color-wire-strong: var(--koe-wire-strong);
+	--color-wire-focus: var(--koe-wire-focus);
+
+	--color-vekt: var(--koe-vekt);
+	--color-vekt-dim: var(--koe-vekt-dim);
+	--color-vekt-bg: var(--koe-vekt-bg);
+	--color-vekt-bg-strong: var(--koe-vekt-bg-strong);
+
+	--color-score-high: var(--koe-score-high);
+	--color-score-high-bg: var(--koe-score-high-bg);
+	--color-score-mid: var(--koe-score-mid);
+	--color-score-low: var(--koe-score-low);
+	--color-score-low-bg: var(--koe-score-low-bg);
+
+	--color-tipex-bg: var(--koe-tipex-bg);
+	--color-tipex-text: var(--koe-tipex-text);
+	--color-tipex-toolbar-bg: var(--koe-tipex-toolbar-bg);
+	--color-tipex-toolbar-text: var(--koe-tipex-toolbar-text);
+	--color-tipex-accent: var(--koe-tipex-accent);
+}
+
+/* ── Light theme (default) ── */
+:root {
+	--koe-canvas: #f4f4f5;
+	--koe-felt: #ffffff;
+	--koe-felt-raised: #f4f4f5;
+	--koe-felt-hover: #fafafa;
+	--koe-felt-active: #e4e4e7;
+
+	--koe-ink: #09090b;
+	--koe-ink-secondary: #52525b;
+	--koe-ink-muted: #71717a;
+	--koe-ink-ghost: #a1a1aa;
+
+	--koe-wire: rgba(0, 0, 0, 0.06);
+	--koe-wire-strong: rgba(0, 0, 0, 0.12);
+	--koe-wire-focus: rgba(0, 0, 0, 0.20);
+
+	--koe-vekt: #d97706;
+	--koe-vekt-dim: #b45309;
+	--koe-vekt-bg: rgba(217, 119, 6, 0.06);
+	--koe-vekt-bg-strong: rgba(217, 119, 6, 0.12);
+
+	--koe-score-high: #059669;
+	--koe-score-high-bg: #ecfdf5;
+	--koe-score-mid: #71717a;
+	--koe-score-low: #e11d48;
+	--koe-score-low-bg: #fff1f2;
+
+	--koe-tipex-bg: #ffffff;
+	--koe-tipex-text: #09090b;
+	--koe-tipex-toolbar-bg: #f4f4f5;
+	--koe-tipex-toolbar-text: #52525b;
+	--koe-tipex-accent: #d97706;
+}
+
+/* ── Dark theme ── */
+.dark {
+	--koe-canvas: #09090b;
+	--koe-felt: #121214;
+	--koe-felt-raised: #1c1c1f;
+	--koe-felt-hover: #18181b;
+	--koe-felt-active: #27272a;
+
+	--koe-ink: #fafafa;
+	--koe-ink-secondary: #a1a1aa;
+	--koe-ink-muted: #71717a;
+	--koe-ink-ghost: #52525b;
+
+	--koe-wire: rgba(255, 255, 255, 0.08);
+	--koe-wire-strong: rgba(255, 255, 255, 0.15);
+	--koe-wire-focus: rgba(255, 255, 255, 0.25);
+
+	--koe-vekt: #f59e0b;
+	--koe-vekt-dim: #d97706;
+	--koe-vekt-bg: rgba(245, 158, 11, 0.08);
+	--koe-vekt-bg-strong: rgba(245, 158, 11, 0.14);
+
+	--koe-score-high: #10b981;
+	--koe-score-high-bg: rgba(16, 185, 129, 0.10);
+	--koe-score-mid: #a1a1aa;
+	--koe-score-low: #e11d48;
+	--koe-score-low-bg: rgba(225, 29, 72, 0.08);
+
+	--koe-tipex-bg: #09090b;
+	--koe-tipex-text: #fafafa;
+	--koe-tipex-toolbar-bg: #1c1c1f;
+	--koe-tipex-toolbar-text: #a1a1aa;
+	--koe-tipex-accent: #f59e0b;
 }
 
 /* ── Reset ── */

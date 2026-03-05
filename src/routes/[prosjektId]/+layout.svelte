@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import { QueryClientProvider, QueryClient } from '@tanstack/svelte-query';
+	import ThemeToggle from '$lib/components/primitives/ThemeToggle.svelte';
 
 	let { children } = $props();
 
@@ -33,6 +34,7 @@
 				{/if}
 			</nav>
 			<div class="nav-user">
+				<ThemeToggle />
 				<span class="user-org">Hent AS</span>
 				<div class="avatar">AM</div>
 			</div>
