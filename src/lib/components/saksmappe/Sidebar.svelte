@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { browser } from '$app/environment';
+	import { onMount } from 'svelte';
 	import type { SakState } from '$lib/types/timeline';
 	import FristerSection from './FristerSection.svelte';
 	import { formatCurrency } from '$lib/utils/formatters';
@@ -8,6 +10,17 @@
 	}
 
 	let { state }: Props = $props();
+
+	// Current user role for "(Du)" indicator — avoid $state rune due to prop name conflict
+	let currentRole: string | null = browser ? localStorage.getItem('koe-user-role') : null;
+
+	onMount(() => {
+		const handler = (e: StorageEvent) => {
+			if (e.key === 'koe-user-role') currentRole = e.newValue;
+		};
+		window.addEventListener('storage', handler);
+		return () => window.removeEventListener('storage', handler);
+	});
 
 	// Build status summary text
 	const statusSummary = $derived.by(() => {
@@ -39,6 +52,11 @@
 	const godkjentVederlag = $derived(state.vederlag.godkjent_belop ?? 0);
 	const omtvistet = $derived(Math.max(0, krevdVederlag - godkjentVederlag));
 	const krevdDager = $derived(state.frist.krevd_dager ?? 0);
+
+	// Tidsrisiko calculations
+	const dagmulktsats = $derived(state.dagmulktsats ?? 0);
+	const dagmulktEksponering = $derived(krevdDager * dagmulktsats);
+	const maksForsering = $derived(Math.round(dagmulktEksponering * 1.3));
 </script>
 
 <aside class="sidebar" aria-label="Saksinformasjon">
@@ -62,13 +80,13 @@
 		{#if state.byggherre}
 			<div class="party-row">
 				<span class="party-label">BH</span>
-				<span class="party-name">{state.byggherre}</span>
+				<span class="party-name">{state.byggherre}{#if currentRole === 'BH'} <span class="party-du">(Du)</span>{/if}</span>
 			</div>
 		{/if}
 		{#if state.entreprenor}
 			<div class="party-row">
 				<span class="party-label">TE</span>
-				<span class="party-name">{state.entreprenor}</span>
+				<span class="party-name">{state.entreprenor}{#if currentRole === 'TE'} <span class="party-du">(Du)</span>{/if}</span>
 			</div>
 		{/if}
 	</div>
@@ -99,13 +117,13 @@
 				</div>
 				{#if godkjentVederlag > 0}
 					<div class="finans-rad">
-						<span class="finans-label">Godkjent</span>
+						<span class="finans-label"><span class="finans-symbol godkjent" aria-hidden="true">✓</span> Godkjent</span>
 						<span class="finans-verdi godkjent">{formatCurrency(godkjentVederlag)}</span>
 					</div>
 				{/if}
 				{#if omtvistet > 0}
 					<div class="finans-rad">
-						<span class="finans-label">Omtvistet</span>
+						<span class="finans-label"><span class="finans-symbol omtvistet" aria-hidden="true">△</span> Omtvistet</span>
 						<span class="finans-verdi omtvistet">{formatCurrency(omtvistet)}</span>
 					</div>
 				{/if}
@@ -114,6 +132,16 @@
 			{#if krevdDager > 0}
 				<div class="finans-divider"></div>
 				<div class="finans-undergruppe">Tidsrisiko ({krevdDager} dager)</div>
+				{#if dagmulktEksponering > 0}
+					<div class="finans-rad finans-rad-sub">
+						<span class="finans-label">Dagmulkteksponering</span>
+						<span class="finans-verdi omtvistet">- {formatCurrency(dagmulktEksponering)}</span>
+					</div>
+					<div class="finans-rad finans-rad-sub">
+						<span class="finans-label">Maks forsering (130%)</span>
+						<span class="finans-verdi krav">{formatCurrency(maksForsering)}</span>
+					</div>
+				{/if}
 			{/if}
 		</div>
 	{/if}
@@ -271,6 +299,32 @@
 	.finans-verdi.omtvistet {
 		color: var(--color-vekt);
 		font-weight: 600;
+	}
+
+	.finans-symbol {
+		font-size: 10px;
+	}
+
+	.finans-symbol.godkjent {
+		color: var(--color-score-high);
+	}
+
+	.finans-symbol.omtvistet {
+		color: var(--color-vekt);
+	}
+
+	.finans-rad-sub {
+		font-size: 11px;
+	}
+
+	.finans-rad-sub .finans-label {
+		color: var(--color-ink-muted);
+	}
+
+	.party-du {
+		color: var(--color-ink-muted);
+		font-weight: 400;
+		font-size: 11px;
 	}
 
 	.finans-divider {

@@ -102,6 +102,7 @@ export const scenario1_3AktiveSpor: SakState = {
   antall_events: 6,
   opprettet: '2026-01-13T09:00:00Z',
   siste_aktivitet: toDagerSiden,
+  dagmulktsats: 50000,
 };
 
 /**
@@ -192,6 +193,7 @@ export const scenario2_BlandetTilstand: SakState = {
   antall_events: 5,
   opprettet: '2025-11-07T08:00:00Z',
   siste_aktivitet: femDagerSiden,
+  dagmulktsats: 80000,
 };
 
 /**

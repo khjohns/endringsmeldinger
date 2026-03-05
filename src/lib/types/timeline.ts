@@ -597,6 +597,9 @@ export interface SakState {
   opprettet?: string;
   siste_aktivitet?: string;
   antall_events: number;
+
+  // Tidsrisiko (optional, for sidebar display)
+  dagmulktsats?: number;          // NOK per dag
 }
 
 // ========== EVENT PAYLOADS (for submission) ==========
@@ -633,7 +636,8 @@ export type EventType =
   | 'eo_akseptert'                 // TE aksepterer EO
   | 'eo_bestridt'                  // TE bestrider EO
   | 'eo_revidert'                  // BH reviderer EO
-  | 'te_aksepterer_respons';       // TE aksepterer BHs svar (per spor)
+  | 'te_aksepterer_respons'        // TE aksepterer BHs svar (per spor)
+  | 'internt_notat';               // Intern notat (kun synlig for egen organisasjon)
 
 // Varsel info structure (reusable)
 export interface VarselInfo {
