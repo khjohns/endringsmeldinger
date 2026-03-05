@@ -22,7 +22,7 @@
 	const hasPanel = $derived(focusedEvent !== null);
 </script>
 
-<!-- Sidebar-toggle: alltid synlig øverst til venstre -->
+<!-- Mobil-toggle: kun synlig under 1024px -->
 <button
 	class="sidebar-toggle"
 	class:er-open={sidebarOpen}
@@ -32,7 +32,7 @@
 	{sidebarOpen ? '✕' : '☰'}
 </button>
 
-<!-- Sidebar drawer -->
+<!-- Mobil sidebar drawer -->
 {#if sidebarOpen}
 	<!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
 	<div class="sidebar-backdrop" onclick={() => (sidebarOpen = false)}></div>
@@ -54,6 +54,10 @@
 	</div>
 {:else if $query.data}
 	<div class="forhandlingsbord" class:har-panel={hasPanel}>
+		<!-- Desktop: sidebar alltid synlig som grid-kolonne -->
+		<div class="desktop-sidebar">
+			<Sidebar state={$query.data.state} />
+		</div>
 		<main class="main-content">
 			<ActionBanner sakState={$query.data.state} />
 			<div class="timeline-container">
@@ -80,72 +84,20 @@
 {/if}
 
 <style>
-	/* ── Sidebar toggle-knapp ── */
-	.sidebar-toggle {
-		position: fixed;
-		top: 8px;
-		left: 16px;
-		z-index: 26;
-		width: 30px;
-		height: 30px;
-		background: var(--color-felt);
-		border: 1px solid var(--color-wire-strong);
-		border-radius: var(--radius-md);
-		color: var(--color-ink-secondary);
-		font-size: 14px;
-		cursor: pointer;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		transition: color 100ms ease-out, background 100ms ease-out;
-	}
-
-	.sidebar-toggle:hover {
-		color: var(--color-ink);
-		background: var(--color-felt-hover);
-	}
-
-	.sidebar-toggle.er-open {
-		color: var(--color-ink);
-		background: var(--color-felt-raised);
-	}
-
-	/* ── Sidebar drawer ── */
-	.sidebar-backdrop {
-		position: fixed;
-		inset: 0;
-		z-index: 21;
-		background: rgba(0, 0, 0, 0.45);
-	}
-
-	.sidebar-drawer {
-		position: fixed;
-		left: 0;
-		top: 0;
-		height: 100vh;
-		z-index: 22;
-		box-shadow: 4px 0 16px rgba(0, 0, 0, 0.4);
-	}
-
-	.sidebar-drawer :global(.sidebar) {
-		position: static;
-		height: 100vh;
-		width: 260px;
-	}
-
-	/* ── Forhandlingsbord ── */
+	/* ── Desktop grid ── */
 	.forhandlingsbord {
 		display: grid;
-		grid-template-columns: 1fr;
+		grid-template-columns: 260px 1fr;
 		min-height: 100vh;
 		background: var(--color-canvas);
 	}
 
 	.forhandlingsbord.har-panel {
-		grid-template-columns: 1fr 360px;
+		grid-template-columns: 260px 1fr 360px;
 	}
 
-	/* panel-overlay: transparent i grid på desktop */
+	/* display: contents = transparent for grid */
+	.desktop-sidebar,
 	.panel-overlay {
 		display: contents;
 	}
@@ -196,17 +148,86 @@
 		color: var(--color-ink-muted);
 	}
 
-	/* Tilbake-knapp: kun synlig på mobil */
+	/* Toggle + drawer: skjult på desktop */
+	.sidebar-toggle {
+		display: none;
+	}
+
 	.mobil-tilbake {
 		display: none;
 	}
 
-	/* ── Mobil (<768px): Forhandsvisning som fast overlay ── */
-	@media (max-width: 767px) {
+	/* ── Mobil (<1024px): drawer-modus ── */
+	@media (max-width: 1023px) {
+		/* Grid uten sidebar-kolonne */
+		.forhandlingsbord {
+			grid-template-columns: 1fr;
+		}
+
 		.forhandlingsbord.har-panel {
 			grid-template-columns: 1fr;
 		}
 
+		/* Desktop-sidebar skjult i grid */
+		.desktop-sidebar {
+			display: none;
+		}
+
+		/* Toggle-knapp */
+		.sidebar-toggle {
+			display: flex;
+			position: fixed;
+			top: 8px;
+			left: 16px;
+			z-index: 26;
+			width: 30px;
+			height: 30px;
+			align-items: center;
+			justify-content: center;
+			background: var(--color-felt);
+			border: 1px solid var(--color-wire-strong);
+			border-radius: var(--radius-md);
+			color: var(--color-ink-secondary);
+			font-size: 14px;
+			cursor: pointer;
+			transition: color 100ms ease-out, background 100ms ease-out;
+		}
+
+		.sidebar-toggle:hover {
+			color: var(--color-ink);
+			background: var(--color-felt-hover);
+		}
+
+		.sidebar-toggle.er-open {
+			color: var(--color-ink);
+			background: var(--color-felt-raised);
+		}
+
+		/* Backdrop */
+		.sidebar-backdrop {
+			position: fixed;
+			inset: 0;
+			z-index: 21;
+			background: rgba(0, 0, 0, 0.45);
+		}
+
+		/* Drawer */
+		.sidebar-drawer {
+			position: fixed;
+			left: 0;
+			top: 0;
+			height: 100vh;
+			z-index: 22;
+			box-shadow: 4px 0 16px rgba(0, 0, 0, 0.4);
+		}
+
+		.sidebar-drawer :global(.sidebar) {
+			position: static;
+			height: 100vh;
+			width: 280px;
+		}
+
+		/* Forhandsvisning som overlay */
 		.panel-overlay {
 			display: flex;
 			flex-direction: column;
