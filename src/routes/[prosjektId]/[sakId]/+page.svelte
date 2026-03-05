@@ -13,6 +13,7 @@
 	const query = $derived(createCaseContextQuery(sakId));
 
 	let focusedEvent = $state<TimelineEvent | null>(null);
+	let sidebarOpen = $state(false);
 
 	function handleFocusEvent(event: TimelineEvent | null) {
 		focusedEvent = event;
@@ -21,9 +22,26 @@
 	const hasPanel = $derived(focusedEvent !== null);
 </script>
 
-<div class="small-screen-message" aria-hidden="true">
-	<p class="small-screen-text">Desktop-verktøy — bruk større skjerm</p>
-</div>
+<!-- Mobil-toggle: kun synlig under 1024px -->
+<button
+	class="sidebar-toggle"
+	class:er-open={sidebarOpen}
+	onclick={() => (sidebarOpen = !sidebarOpen)}
+	aria-label={sidebarOpen ? 'Skjul saksinformasjon' : 'Vis saksinformasjon'}
+>
+	{sidebarOpen ? '✕' : '☰'}
+</button>
+
+<!-- Mobil sidebar drawer -->
+{#if sidebarOpen}
+	<!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
+	<div class="sidebar-backdrop" onclick={() => (sidebarOpen = false)}></div>
+	<div class="sidebar-drawer">
+		{#if $query.data}
+			<Sidebar state={$query.data.state} />
+		{/if}
+	</div>
+{/if}
 
 {#if $query.isLoading}
 	<div class="loading">
@@ -36,7 +54,10 @@
 	</div>
 {:else if $query.data}
 	<div class="forhandlingsbord" class:har-panel={hasPanel}>
-		<Sidebar state={$query.data.state} />
+		<!-- Desktop: sidebar alltid synlig som grid-kolonne -->
+		<div class="desktop-sidebar">
+			<Sidebar state={$query.data.state} />
+		</div>
 		<main class="main-content">
 			<ActionBanner sakState={$query.data.state} />
 			<div class="timeline-container">
@@ -50,7 +71,10 @@
 			</div>
 		</main>
 		{#if hasPanel}
-			<Forhandsvisning event={focusedEvent} {prosjektId} {sakId} />
+			<div class="panel-overlay">
+				<button class="mobil-tilbake" onclick={() => (focusedEvent = null)}>← Tilbake</button>
+				<Forhandsvisning event={focusedEvent} {prosjektId} {sakId} />
+			</div>
 		{/if}
 	</div>
 {:else}
@@ -60,18 +84,7 @@
 {/if}
 
 <style>
-	/* Small-screen message: hidden on desktop, shown below 1024px */
-	.small-screen-message {
-		display: none;
-	}
-
-	.small-screen-text {
-		font-family: var(--font-ui);
-		font-size: 14px;
-		color: var(--color-ink-muted);
-		text-align: center;
-	}
-
+	/* ── Desktop grid ── */
 	.forhandlingsbord {
 		display: grid;
 		grid-template-columns: 260px 1fr;
@@ -81,6 +94,12 @@
 
 	.forhandlingsbord.har-panel {
 		grid-template-columns: 260px 1fr 360px;
+	}
+
+	/* display: contents = transparent for grid */
+	.desktop-sidebar,
+	.panel-overlay {
+		display: contents;
 	}
 
 	.main-content {
@@ -129,32 +148,135 @@
 		color: var(--color-ink-muted);
 	}
 
-	/* 1024–1279px: sidebar collapses to 48px icon mode */
-	@media (max-width: 1279px) and (min-width: 1024px) {
+	/* Toggle + drawer: skjult på desktop */
+	.sidebar-toggle {
+		display: none;
+	}
+
+	.mobil-tilbake {
+		display: none;
+	}
+
+	/* ── Mobil (<1024px): drawer-modus ── */
+	@media (max-width: 1023px) {
+		/* Grid uten sidebar-kolonne */
 		.forhandlingsbord {
-			grid-template-columns: 48px 1fr;
+			grid-template-columns: 1fr;
 		}
 
 		.forhandlingsbord.har-panel {
-			grid-template-columns: 48px 1fr 320px;
+			grid-template-columns: 1fr;
 		}
-	}
 
-	/* <1024px: hide forhandlingsbord, show small-screen message */
-	@media (max-width: 1023px) {
-		.small-screen-message {
+		/* Desktop-sidebar skjult i grid */
+		.desktop-sidebar {
+			display: none;
+		}
+
+		/* Toggle-knapp */
+		.sidebar-toggle {
 			display: flex;
+			position: fixed;
+			top: 8px;
+			left: 16px;
+			z-index: 26;
+			width: 30px;
+			height: 30px;
 			align-items: center;
 			justify-content: center;
-			min-height: 100vh;
-			background: var(--color-canvas);
+			background: var(--color-felt);
+			border: 1px solid var(--color-wire-strong);
+			border-radius: var(--radius-md);
+			color: var(--color-ink-secondary);
+			font-size: 14px;
+			cursor: pointer;
+			transition: color 100ms ease-out, background 100ms ease-out;
 		}
 
-		.forhandlingsbord,
-		.loading,
-		.error,
-		.empty {
-			display: none;
+		.sidebar-toggle:hover {
+			color: var(--color-ink);
+			background: var(--color-felt-hover);
+		}
+
+		.sidebar-toggle.er-open {
+			color: var(--color-ink);
+			background: var(--color-felt-raised);
+		}
+
+		/* Backdrop */
+		.sidebar-backdrop {
+			position: fixed;
+			inset: 0;
+			z-index: 21;
+			background: rgba(0, 0, 0, 0.45);
+		}
+
+		/* Drawer */
+		.sidebar-drawer {
+			position: fixed;
+			left: 0;
+			top: 0;
+			height: 100vh;
+			z-index: 22;
+			box-shadow: 4px 0 16px rgba(0, 0, 0, 0.4);
+		}
+
+		.sidebar-drawer :global(.sidebar) {
+			position: static;
+			height: 100vh;
+			width: 280px;
+		}
+
+		/* Forhandsvisning som overlay */
+		.panel-overlay {
+			display: flex;
+			flex-direction: column;
+			position: fixed;
+			inset: 0;
+			z-index: 25;
+			background: var(--color-canvas);
+			overflow-y: auto;
+		}
+
+		.panel-overlay :global(.forhandsvisning) {
+			position: static;
+			height: auto;
+			border-left: none;
+		}
+
+		.mobil-tilbake {
+			display: flex;
+			align-items: center;
+			gap: 4px;
+			padding: 12px 16px;
+			position: sticky;
+			top: 0;
+			z-index: 1;
+			background: var(--color-felt);
+			border: none;
+			border-bottom: 1px solid var(--color-wire);
+			font-family: var(--font-ui);
+			font-size: 13px;
+			color: var(--color-ink-secondary);
+			cursor: pointer;
+			width: 100%;
+			text-align: left;
+			flex-shrink: 0;
+		}
+
+		.mobil-tilbake:hover {
+			color: var(--color-ink);
+		}
+
+		.main-content {
+			height: auto;
+			position: static;
+			overflow-y: visible;
+		}
+
+		.timeline-container {
+			overflow-y: visible;
+			padding: 0 16px;
 		}
 	}
 </style>
