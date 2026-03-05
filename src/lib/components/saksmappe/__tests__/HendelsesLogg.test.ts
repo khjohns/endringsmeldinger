@@ -123,33 +123,6 @@ describe('HendelsesLogg', () => {
 		expect(screen.getByText('05.03')).toBeInTheDocument();
 	});
 
-	it('shows event metric (beløp/dager) when available', () => {
-		const events = [
-			makeEvent({
-				type: 'no.oslo.koe.vederlag_krav_sendt',
-				time: '2025-01-10T12:00:00Z',
-				data: { kostnads_overslag: 2400000 } as never,
-			}),
-			makeEvent({
-				type: 'no.oslo.koe.frist_krav_sendt',
-				time: '2025-01-11T12:00:00Z',
-				data: { antall_dager: 45 } as never,
-			}),
-			makeEvent({
-				type: 'no.oslo.koe.grunnlag_opprettet',
-				time: '2025-01-12T12:00:00Z',
-			}),
-			makeEvent({
-				type: 'no.oslo.koe.grunnlag_oppdatert',
-				time: '2025-01-13T12:00:00Z',
-			}),
-		];
-		render(HendelsesLoggTest, { props: { events, expanded: true } });
-
-		expect(screen.getByText('2,4M')).toBeInTheDocument();
-		expect(screen.getByText('45d')).toBeInTheDocument();
-	});
-
 	it('uses summary from event when available', () => {
 		const events = [
 			makeEvent({

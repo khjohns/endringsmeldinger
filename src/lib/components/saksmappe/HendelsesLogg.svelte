@@ -2,7 +2,6 @@
 	import type { TimelineEvent, EventType } from '$lib/types/timeline';
 	import { extractEventType } from '$lib/types/timeline';
 	import { getEventTypeLabel } from '$lib/constants/eventLabels';
-	import { formatCurrencyCompact, formatDaysCompact } from '$lib/utils/formatters';
 	import { slide } from 'svelte/transition';
 
 	interface Props {
@@ -87,23 +86,6 @@
 		return null;
 	}
 
-	function getEventMetric(event: TimelineEvent): string | null {
-		const data = event.data as Record<string, unknown> | undefined;
-		if (!data) return null;
-
-		// Vederlag: beløp
-		if (typeof data.kostnads_overslag === 'number') return formatCurrencyCompact(data.kostnads_overslag);
-		if (typeof data.nytt_kostnads_overslag === 'number') return formatCurrencyCompact(data.nytt_kostnads_overslag);
-		if (typeof data.godkjent_belop === 'number') return formatCurrencyCompact(data.godkjent_belop);
-
-		// Frist: dager
-		if (typeof data.antall_dager === 'number') return formatDaysCompact(data.antall_dager);
-		if (typeof data.nytt_antall_dager === 'number') return formatDaysCompact(data.nytt_antall_dager);
-		if (typeof data.godkjent_dager === 'number') return formatDaysCompact(data.godkjent_dager);
-
-		return null;
-	}
-
 	const VISIBLE_COUNT = 3;
 
 	// Events are pre-sorted (newest first) and pre-filtered (time != null) by parent
@@ -115,10 +97,9 @@
 		const label = getEventLabel(e, eventType);
 		const dateLabel = formatDateShort(e.time);
 		const revision = getRevision(e);
-		const metric = getEventMetric(e);
 		const actorSuffix = getActorSuffix(e);
 		const internt = isInterntNotat(eventType);
-		return { id: e.id, icon, dateLabel, label, revision, metric, actorSuffix, internt };
+		return { id: e.id, icon, dateLabel, label, revision, actorSuffix, internt };
 	}
 
 	const visibleEntries = $derived(events.slice(0, VISIBLE_COUNT).map(mapEntry));
@@ -224,9 +205,6 @@
 				{#if entry.revision}
 					<span class="event-rev">{entry.revision}</span>
 				{/if}
-				{#if entry.metric}
-					<span class="event-metric">{entry.metric}</span>
-				{/if}
 			</div>
 		{/each}
 
@@ -274,9 +252,6 @@
 							{/if}
 							{#if entry.revision}
 								<span class="event-rev">{entry.revision}</span>
-							{/if}
-							{#if entry.metric}
-								<span class="event-metric">{entry.metric}</span>
 							{/if}
 						</div>
 					{/each}
@@ -396,16 +371,7 @@
 		font-size: 9px;
 		color: var(--color-ink-ghost);
 		flex-shrink: 0;
-	}
-
-	.event-metric {
-		flex-shrink: 0;
-		font-family: var(--font-data);
-		font-size: 11px;
-		font-weight: 600;
-		color: var(--color-ink);
-		text-align: right;
-		font-variant-numeric: tabular-nums;
+		margin-left: auto;
 	}
 
 	/* Gul Lapp — internal note styling */
@@ -413,6 +379,7 @@
 		background: var(--color-vekt-bg);
 		border-left: 2px dashed var(--color-vekt);
 		border-radius: 0 2px 2px 0;
+		margin: 4px 0;
 	}
 
 	.event-line-internt:hover {
