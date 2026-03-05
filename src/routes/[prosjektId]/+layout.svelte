@@ -33,8 +33,10 @@
 					<span class="current">{sakId}</span>
 				{/if}
 			</nav>
-			<div class="nav-user">
-				<ThemeToggle />
+			<div class="nav-actions">
+				<div class="theme-toggle-wrap">
+					<ThemeToggle />
+				</div>
 				<span class="user-org">Hent AS</span>
 				<div class="avatar">AM</div>
 			</div>
@@ -83,7 +85,7 @@
 		font-weight: 500;
 	}
 
-	.nav-user {
+	.nav-actions {
 		display: flex;
 		align-items: center;
 		gap: 12px;
@@ -114,8 +116,29 @@
 			padding: 0 16px;
 		}
 
-		.nav-user .user-org {
+		.nav-actions .user-org {
 			display: none;
+		}
+
+		/* Løft toggle ut av nav-flyten og plasser som flytende knapp
+		   under sidebar-hamburger (☰ top:8 left:16, 30×30) */
+		.theme-toggle-wrap {
+			position: fixed;
+			top: 46px;
+			left: 16px;
+			z-index: 26;
+		}
+
+		/* Ikon-only: skjul label, matcher 30×30 sidebar-toggle */
+		.theme-toggle-wrap :global(.theme-label) {
+			display: none;
+		}
+
+		.theme-toggle-wrap :global(.theme-toggle) {
+			width: 30px;
+			height: 30px;
+			padding: 0;
+			justify-content: center;
 		}
 	}
 </style>
