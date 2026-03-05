@@ -138,17 +138,18 @@
 			max-width: 120px;
 		}
 
-		.nav-actions .user-org {
+		.nav-actions .user-org,
+		.nav-actions .avatar {
 			display: none;
 		}
 
-		/* Løft toggles ut av nav-flyten og plasser som flytende knapper
-		   under sidebar-hamburger (☰ top:8 left:16, 30×30) */
-		.theme-toggle-wrap {
+		/* Flytt toggles til høyre, samme rad som sidebar-hamburger (☰ top:8 left:16) */
+		.nav-actions {
 			position: fixed;
-			top: 46px;
-			left: 16px;
+			top: 8px;
+			right: 16px;
 			z-index: 26;
+			gap: 6px;
 		}
 
 		/* Ikon-only: skjul label, matcher 30×30 sidebar-toggle */
@@ -161,13 +162,6 @@
 			height: 30px;
 			padding: 0;
 			justify-content: center;
-		}
-
-		.role-toggle-wrap {
-			position: fixed;
-			top: 84px;
-			left: 16px;
-			z-index: 26;
 		}
 	}
 </style>

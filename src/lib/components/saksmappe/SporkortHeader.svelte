@@ -154,10 +154,12 @@
 	@media (max-width: 1023px) {
 		.kort-header {
 			gap: 8px;
+			min-width: 0;
 		}
 
 		.kort-identitet {
 			gap: 8px;
+			min-width: 0;
 		}
 
 		.spor-navn {
@@ -167,6 +169,7 @@
 		.action-btn {
 			padding: 4px 10px;
 			font-size: 10px;
+			flex-shrink: 0;
 		}
 	}
 </style>
