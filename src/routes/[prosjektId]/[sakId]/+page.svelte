@@ -13,7 +13,7 @@
 	const query = $derived(createCaseContextQuery(sakId));
 
 	let focusedEvent = $state<TimelineEvent | null>(null);
-	let activeTab = $state<'hendelser' | 'sak'>('hendelser');
+	let sidebarOpen = $state(false);
 
 	function handleFocusEvent(event: TimelineEvent | null) {
 		focusedEvent = event;
@@ -21,6 +21,27 @@
 
 	const hasPanel = $derived(focusedEvent !== null);
 </script>
+
+<!-- Sidebar-toggle: alltid synlig øverst til venstre -->
+<button
+	class="sidebar-toggle"
+	class:er-open={sidebarOpen}
+	onclick={() => (sidebarOpen = !sidebarOpen)}
+	aria-label={sidebarOpen ? 'Skjul saksinformasjon' : 'Vis saksinformasjon'}
+>
+	{sidebarOpen ? '✕' : '☰'}
+</button>
+
+<!-- Sidebar drawer -->
+{#if sidebarOpen}
+	<!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
+	<div class="sidebar-backdrop" onclick={() => (sidebarOpen = false)}></div>
+	<div class="sidebar-drawer">
+		{#if $query.data}
+			<Sidebar state={$query.data.state} />
+		{/if}
+	</div>
+{/if}
 
 {#if $query.isLoading}
 	<div class="loading">
@@ -32,15 +53,7 @@
 		<p class="error-detail">{$query.error?.message ?? 'Ukjent feil'}</p>
 	</div>
 {:else if $query.data}
-	<div
-		class="forhandlingsbord"
-		class:har-panel={hasPanel}
-		class:tab-sak={activeTab === 'sak'}
-		class:tab-hendelser={activeTab === 'hendelser'}
-	>
-		<div class="sidebar-container">
-			<Sidebar state={$query.data.state} />
-		</div>
+	<div class="forhandlingsbord" class:har-panel={hasPanel}>
 		<main class="main-content">
 			<ActionBanner sakState={$query.data.state} />
 			<div class="timeline-container">
@@ -60,28 +73,6 @@
 			</div>
 		{/if}
 	</div>
-	<nav class="tabbar" aria-label="Navigasjon">
-		<button
-			class="tab"
-			class:aktiv={activeTab === 'hendelser'}
-			onclick={() => {
-				activeTab = 'hendelser';
-				focusedEvent = null;
-			}}
-		>
-			Hendelser
-		</button>
-		<button
-			class="tab"
-			class:aktiv={activeTab === 'sak'}
-			onclick={() => {
-				activeTab = 'sak';
-				focusedEvent = null;
-			}}
-		>
-			Sak
-		</button>
-	</nav>
 {:else}
 	<div class="empty">
 		<p class="empty-text">Ingen data for sak {sakId}</p>
@@ -89,21 +80,72 @@
 {/if}
 
 <style>
-	/* ── Desktop grid ── */
+	/* ── Sidebar toggle-knapp ── */
+	.sidebar-toggle {
+		position: fixed;
+		top: 8px;
+		left: 16px;
+		z-index: 26;
+		width: 30px;
+		height: 30px;
+		background: var(--color-felt);
+		border: 1px solid var(--color-wire-strong);
+		border-radius: var(--radius-md);
+		color: var(--color-ink-secondary);
+		font-size: 14px;
+		cursor: pointer;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		transition: color 100ms ease-out, background 100ms ease-out;
+	}
 
+	.sidebar-toggle:hover {
+		color: var(--color-ink);
+		background: var(--color-felt-hover);
+	}
+
+	.sidebar-toggle.er-open {
+		color: var(--color-ink);
+		background: var(--color-felt-raised);
+	}
+
+	/* ── Sidebar drawer ── */
+	.sidebar-backdrop {
+		position: fixed;
+		inset: 0;
+		z-index: 21;
+		background: rgba(0, 0, 0, 0.45);
+	}
+
+	.sidebar-drawer {
+		position: fixed;
+		left: 0;
+		top: 0;
+		height: 100vh;
+		z-index: 22;
+		box-shadow: 4px 0 16px rgba(0, 0, 0, 0.4);
+	}
+
+	.sidebar-drawer :global(.sidebar) {
+		position: static;
+		height: 100vh;
+		width: 260px;
+	}
+
+	/* ── Forhandlingsbord ── */
 	.forhandlingsbord {
 		display: grid;
-		grid-template-columns: 260px 1fr;
+		grid-template-columns: 1fr;
 		min-height: 100vh;
 		background: var(--color-canvas);
 	}
 
 	.forhandlingsbord.har-panel {
-		grid-template-columns: 260px 1fr 360px;
+		grid-template-columns: 1fr 360px;
 	}
 
-	/* Transparent wrappers — don't affect grid layout on desktop */
-	.sidebar-container,
+	/* panel-overlay: transparent i grid på desktop */
 	.panel-overlay {
 		display: contents;
 	}
@@ -154,94 +196,23 @@
 		color: var(--color-ink-muted);
 	}
 
-	/* Tab bar + tilbake-knapp — skjult på desktop */
-	.tabbar {
-		display: none;
-	}
-
-	.tab {
-		flex: 1;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		font-family: var(--font-ui);
-		font-size: 14px;
-		color: var(--color-ink-muted);
-		background: none;
-		border: none;
-		border-top: 2px solid transparent;
-		cursor: pointer;
-		transition: color 100ms ease-out;
-	}
-
-	.tab.aktiv {
-		color: var(--color-ink);
-		border-top-color: var(--color-vekt);
-	}
-
+	/* Tilbake-knapp: kun synlig på mobil */
 	.mobil-tilbake {
 		display: none;
 	}
 
-	/* ── 1024–1279px: sidebar collapses to 48px icon mode ── */
-	@media (max-width: 1279px) and (min-width: 1024px) {
-		.forhandlingsbord {
-			grid-template-columns: 48px 1fr;
-		}
-
+	/* ── Mobil (<768px): Forhandsvisning som fast overlay ── */
+	@media (max-width: 767px) {
 		.forhandlingsbord.har-panel {
-			grid-template-columns: 48px 1fr 320px;
-		}
-	}
-
-	/* ── Mobil (<1024px): tab-drevet enkeltkolonne ── */
-	@media (max-width: 1023px) {
-		.forhandlingsbord {
-			display: block;
-			padding-bottom: 56px;
+			grid-template-columns: 1fr;
 		}
 
-		/* Sidebar: full bredde, statisk posisjonering */
-		.sidebar-container {
-			display: block;
-		}
-
-		.sidebar-container :global(.sidebar) {
-			width: 100%;
-			position: static;
-			height: auto;
-			min-height: calc(100vh - 56px);
-		}
-
-		/* Skjul sidebar på hendelser-fanen */
-		.forhandlingsbord.tab-hendelser .sidebar-container {
-			display: none;
-		}
-
-		/* Main content: siden scroller, ikke intern container */
-		.main-content {
-			height: auto;
-			position: static;
-			overflow-y: visible;
-		}
-
-		.timeline-container {
-			overflow-y: visible;
-			padding: 0 16px;
-		}
-
-		/* Skjul main på sak-fanen */
-		.forhandlingsbord.tab-sak .main-content {
-			display: none;
-		}
-
-		/* Forhandsvisning: fast overlay */
 		.panel-overlay {
 			display: flex;
 			flex-direction: column;
 			position: fixed;
 			inset: 0;
-			z-index: 20;
+			z-index: 25;
 			background: var(--color-canvas);
 			overflow-y: auto;
 		}
@@ -252,7 +223,6 @@
 			border-left: none;
 		}
 
-		/* Tilbake-knapp */
 		.mobil-tilbake {
 			display: flex;
 			align-items: center;
@@ -277,22 +247,15 @@
 			color: var(--color-ink);
 		}
 
-		/* Tabbar */
-		.tabbar {
-			display: flex;
-			position: fixed;
-			bottom: 0;
-			left: 0;
-			right: 0;
-			height: 56px;
-			background: var(--color-felt);
-			border-top: 1px solid var(--color-wire-strong);
-			z-index: 10;
+		.main-content {
+			height: auto;
+			position: static;
+			overflow-y: visible;
 		}
 
-		/* Skjul tabbar når overlay er åpen */
-		.forhandlingsbord.har-panel ~ .tabbar {
-			display: none;
+		.timeline-container {
+			overflow-y: visible;
+			padding: 0 16px;
 		}
 	}
 </style>
