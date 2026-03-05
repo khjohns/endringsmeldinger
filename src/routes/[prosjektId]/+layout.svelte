@@ -21,14 +21,10 @@
 	<div class="app-shell">
 		<header class="top-nav">
 			<nav class="nav-breadcrumbs" aria-label="Brodsmuler">
-				<span>{projectMeta?.name ?? prosjektId}</span>
-				{#if projectMeta?.entreprise}
-					<span class="sep">/</span>
-					<span>{projectMeta.entreprise}</span>
-				{/if}
+				<a href="/{prosjektId}" class="crumb">{projectMeta?.name ?? prosjektId}</a>
 				{#if sakId}
 					<span class="sep">/</span>
-					<span>Saker</span>
+					<a href="/{prosjektId}" class="crumb">Saker</a>
 					<span class="sep">/</span>
 					<span class="current">{sakId}</span>
 				{/if}
@@ -76,6 +72,16 @@
 		color: var(--color-ink-secondary);
 	}
 
+	.nav-breadcrumbs .crumb {
+		color: var(--color-ink-secondary);
+		text-decoration: none;
+		transition: color 100ms ease;
+	}
+
+	.nav-breadcrumbs .crumb:hover {
+		color: var(--color-ink);
+	}
+
 	.nav-breadcrumbs .sep {
 		color: var(--color-ink-ghost);
 	}
@@ -114,6 +120,18 @@
 	@media (max-width: 1023px) {
 		.top-nav {
 			padding: 0 16px;
+			padding-left: 54px; /* plass til ☰ hamburger */
+		}
+
+		.nav-breadcrumbs {
+			min-width: 0;
+		}
+
+		.nav-breadcrumbs .crumb {
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+			max-width: 120px;
 		}
 
 		.nav-actions .user-org {
