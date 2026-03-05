@@ -1,4 +1,4 @@
-# KOE Design System — Analysebordet + Forhandlingsbordet
+# KOE Design System — Analysebordet + Saksmappen + Forhandlingsbordet
 
 ## Intent
 
@@ -99,11 +99,13 @@ Inline i rich text: {{type:value:display}}. Fargekoding: dager=blå, beløp=grø
 
 ---
 
-## Forhandlingsbordet — Fase 2 Patterns
+## Saksmappen — Fase 2 Patterns
+
+Oversiktssiden for en KOE-sak. Saksmappen er triage: åpne, scan status (<3s), avgjør om du skal inn i Forhandlingsbordet (spordetalj). Komponentkatalog: `src/lib/components/saksmappe/`.
 
 ### Signaturelement: Handlingskant
 
-Forhandlingsbordet arver Vektlinjen-konseptet men refortolker det: venstre kant = handlingsstatus.
+Saksmappen arver Vektlinjen-konseptet men refortolker det: venstre kant = handlingsstatus.
 
 | Tilstand | Bakgrunn | Venstre kant | Handling |
 |---|---|---|---|
@@ -266,11 +268,18 @@ Full-width tabell med felt-bg, wire border, sticky header.
 - Status: Badge-primitiv
 - Sorteringsikon: ▴/▾ i ink-ghost, aktiv = ink
 
-### Fargekartlegging Analysebordet → Forhandlingsbordet
+### Fargekartlegging Analysebordet → Saksmappen
 
-| Analysebordet | Forhandlingsbordet | Prinsipp |
+| Analysebordet | Saksmappen | Prinsipp |
 |---|---|---|
 | vekt = vekting | vekt = handling kreves | Amber = "viktig" |
 | score-high = god score | score-high = godkjent | Grønn = "bra" |
 | score-low = dårlig score | score-low = kritisk/avslått | Rose = "problem" |
 | Vektlinjen (vertikal spine) | Handlingskant (venstre border) | Kant-accent = anker |
+
+### Narrativskille: Saksmappe → Forhandlingsbord
+
+| Visning | Metafor | Formål | Modus |
+|---|---|---|---|
+| `/[prosjektId]/[sakId]` | Saksmappen | Scan status, triage | Lesing, scanning |
+| `/[prosjektId]/[sakId]/[spor]` | Forhandlingsbordet | Svar, ta standpunkt | Arbeid, skriving |

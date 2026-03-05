@@ -1,4 +1,4 @@
-# Forhandlingsbordet — Oversiktsside for KOE-sak
+# Saksmappen — Oversiktsside for KOE-sak
 
 ## Intent
 
@@ -6,18 +6,18 @@
 
 **Oppgave:** Scanning, ikke arbeid. Tre beslutninger per sak: (1) kreves det handling? (2) fra hvem? (3) hva haster mest? Alt innen 3 sekunder, uten å klikke inn i et spor.
 
-**Følelse:** Kontrollrom. Tett, nøkternt, ingenting dekorativt. Data-panelet på en trading desk — ikke dashboardet i en SaaS-app. Rose-tonet urgency som bryter monotonien.
+**Følelse:** Arbeidsmappe med merkelapper. Tett, nøkternt, ingenting dekorativt. Du åpner mappen, scanner forsiden, og avgjør om du må sette deg ned ved Forhandlingsbordet (spordetalj). Rose-tonet urgency som flaggede faner som stikker ut.
 
 ---
 
 ## Konsept
 
-Forhandlingsbordet er landingssiden for en KOE-sak. Når du åpner KOE-2024-047, lander du ikke på et spesifikt spor — du lander *her*.
+Saksmappen er landingssiden for en KOE-sak. Når du åpner KOE-2024-047, lander du ikke på et spesifikt spor — du lander *her*.
 
 Tre funksjoner:
-1. **Oversikt** — hele forhandlingslandskapet i ett blikk
+1. **Oversikt** — hele saken i ett blikk
 2. **Fokus** — hva som krever din oppmerksomhet *nå* (det kan være flere)
-3. **Inngang** — klikk for å grave dypere via spordetaljvisningen
+3. **Inngang** — klikk for å grave dypere via Forhandlingsbordet (spordetalj)
 
 ### Tetthetsfilosofi
 

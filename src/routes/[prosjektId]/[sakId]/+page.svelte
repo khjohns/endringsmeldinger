@@ -2,10 +2,10 @@
 	import { page } from '$app/state';
 	import type { TimelineEvent } from '$lib/types/timeline';
 	import { createCaseContextQuery } from '$lib/queries/caseContext';
-	import Sidebar from '$lib/components/forhandlingsbord/Sidebar.svelte';
-	import ActionBanner from '$lib/components/forhandlingsbord/ActionBanner.svelte';
-	import Timeline from '$lib/components/forhandlingsbord/Timeline.svelte';
-	import Forhandsvisning from '$lib/components/forhandlingsbord/Forhandsvisning.svelte';
+	import Sidebar from '$lib/components/saksmappe/Sidebar.svelte';
+	import ActionBanner from '$lib/components/saksmappe/ActionBanner.svelte';
+	import Timeline from '$lib/components/saksmappe/Timeline.svelte';
+	import Forhandsvisning from '$lib/components/saksmappe/Forhandsvisning.svelte';
 
 	const prosjektId = $derived(page.params.prosjektId ?? '');
 	const sakId = $derived(page.params.sakId ?? '');
@@ -53,7 +53,7 @@
 		<p class="error-detail">{$query.error?.message ?? 'Ukjent feil'}</p>
 	</div>
 {:else if $query.data}
-	<div class="forhandlingsbord" class:har-panel={hasPanel}>
+	<div class="saksmappe" class:har-panel={hasPanel}>
 		<!-- Desktop: sidebar alltid synlig som grid-kolonne -->
 		<div class="desktop-sidebar">
 			<Sidebar state={$query.data.state} />
@@ -85,14 +85,14 @@
 
 <style>
 	/* ── Desktop grid ── */
-	.forhandlingsbord {
+	.saksmappe {
 		display: grid;
 		grid-template-columns: 260px 1fr;
 		min-height: 100vh;
 		background: var(--color-canvas);
 	}
 
-	.forhandlingsbord.har-panel {
+	.saksmappe.har-panel {
 		grid-template-columns: 260px 1fr 360px;
 	}
 
@@ -160,11 +160,11 @@
 	/* ── Mobil (<1024px): drawer-modus ── */
 	@media (max-width: 1023px) {
 		/* Grid uten sidebar-kolonne */
-		.forhandlingsbord {
+		.saksmappe {
 			grid-template-columns: 1fr;
 		}
 
-		.forhandlingsbord.har-panel {
+		.saksmappe.har-panel {
 			grid-template-columns: 1fr;
 		}
 
