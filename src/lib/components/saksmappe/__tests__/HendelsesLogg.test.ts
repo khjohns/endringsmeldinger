@@ -112,7 +112,7 @@ describe('HendelsesLogg', () => {
 		expect(screen.getByRole('button', { name: /2 hendelser til/i })).toBeInTheDocument();
 	});
 
-	it('renders event date in DD.MM format', () => {
+	it('renders event date as short date for older events', () => {
 		const events = [
 			makeEvent({ type: 'no.oslo.koe.grunnlag_opprettet', time: '2025-03-05T12:00:00Z' }),
 			makeEvent({ type: 'no.oslo.koe.grunnlag_oppdatert', time: '2025-03-06T12:00:00Z' }),
@@ -120,7 +120,7 @@ describe('HendelsesLogg', () => {
 			makeEvent({ type: 'no.oslo.koe.vederlag_krav_sendt', time: '2025-03-08T12:00:00Z' }),
 		];
 		render(HendelsesLoggTest, { props: { events, expanded: true } });
-		expect(screen.getByText('05.03')).toBeInTheDocument();
+		expect(screen.getByText('5. mar')).toBeInTheDocument();
 	});
 
 	it('uses summary from event when available', () => {

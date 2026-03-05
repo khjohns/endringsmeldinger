@@ -29,10 +29,14 @@
 		return map;
 	});
 
-	// Norwegian month names
+	// Norwegian month names (full + abbreviated)
 	const MONTH_NAMES = [
 		'januar', 'februar', 'mars', 'april', 'mai', 'juni',
 		'juli', 'august', 'september', 'oktober', 'november', 'desember',
+	];
+	const MONTH_SHORT = [
+		'jan', 'feb', 'mar', 'apr', 'mai', 'jun',
+		'jul', 'aug', 'sep', 'okt', 'nov', 'des',
 	];
 
 	// Norwegian timezone
@@ -54,13 +58,13 @@
 		const todayKey = `${now.getFullYear()}-${now.getMonth()}-${now.getDate()}`;
 		const key = `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
 
-		if (key === todayKey) return 'I dag';
+		if (key === todayKey) return `I dag, ${d.getDate()}. ${MONTH_SHORT[d.getMonth()]}`;
 
 		// eslint-disable-next-line svelte/prefer-svelte-reactivity
 		const yesterday = new Date(now);
 		yesterday.setDate(yesterday.getDate() - 1);
 		const yesterdayKey = `${yesterday.getFullYear()}-${yesterday.getMonth()}-${yesterday.getDate()}`;
-		if (key === yesterdayKey) return 'I gar';
+		if (key === yesterdayKey) return 'I går';
 
 		return `${d.getDate()}. ${MONTH_NAMES[d.getMonth()]}`;
 	}

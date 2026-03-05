@@ -72,9 +72,29 @@
 	function formatDateShort(dateStr: string | undefined): string {
 		if (!dateStr) return '';
 		const date = new Date(dateStr);
-		const day = date.getDate().toString().padStart(2, '0');
-		const month = (date.getMonth() + 1).toString().padStart(2, '0');
-		return `${day}.${month}`;
+		const now = new Date();
+
+		// Check if today or yesterday — show clock time
+		const isToday =
+			date.getFullYear() === now.getFullYear() &&
+			date.getMonth() === now.getMonth() &&
+			date.getDate() === now.getDate();
+		const yesterday = new Date(now);
+		yesterday.setDate(yesterday.getDate() - 1);
+		const isYesterday =
+			date.getFullYear() === yesterday.getFullYear() &&
+			date.getMonth() === yesterday.getMonth() &&
+			date.getDate() === yesterday.getDate();
+
+		if (isToday || isYesterday) {
+			const hh = date.getHours().toString().padStart(2, '0');
+			const mm = date.getMinutes().toString().padStart(2, '0');
+			return `${hh}:${mm}`;
+		}
+
+		// Older events — short date
+		const MONTH_SHORT = ['jan', 'feb', 'mar', 'apr', 'mai', 'jun', 'jul', 'aug', 'sep', 'okt', 'nov', 'des'];
+		return `${date.getDate()}. ${MONTH_SHORT[date.getMonth()]}`;
 	}
 
 	function getRevision(event: TimelineEvent): string | null {
