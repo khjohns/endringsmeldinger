@@ -2,6 +2,7 @@
 	import { page } from '$app/state';
 	import { QueryClientProvider, QueryClient } from '@tanstack/svelte-query';
 	import ThemeToggle from '$lib/components/primitives/ThemeToggle.svelte';
+	import RoleToggle from '$lib/components/primitives/RoleToggle.svelte';
 
 	let { children } = $props();
 
@@ -30,6 +31,9 @@
 				{/if}
 			</nav>
 			<div class="nav-actions">
+				<div class="role-toggle-wrap">
+					<RoleToggle />
+				</div>
 				<div class="theme-toggle-wrap">
 					<ThemeToggle />
 				</div>
@@ -138,7 +142,7 @@
 			display: none;
 		}
 
-		/* Løft toggle ut av nav-flyten og plasser som flytende knapp
+		/* Løft toggles ut av nav-flyten og plasser som flytende knapper
 		   under sidebar-hamburger (☰ top:8 left:16, 30×30) */
 		.theme-toggle-wrap {
 			position: fixed;
@@ -157,6 +161,13 @@
 			height: 30px;
 			padding: 0;
 			justify-content: center;
+		}
+
+		.role-toggle-wrap {
+			position: fixed;
+			top: 84px;
+			left: 16px;
+			z-index: 26;
 		}
 	}
 </style>
