@@ -214,6 +214,8 @@
 		.document-area {
 			padding: 16px 0 80px 0;
 			gap: 16px;
+			max-width: 100vw;
+			overflow-x: hidden;
 		}
 
 		.spor-list {

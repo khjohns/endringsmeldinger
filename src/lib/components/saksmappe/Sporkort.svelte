@@ -308,6 +308,7 @@
 		.sporkort {
 			padding: 12px;
 			border-radius: 0;
+			overflow: hidden;
 		}
 	}
 </style>
