@@ -205,4 +205,19 @@
 		flex-direction: column;
 		gap: 16px;
 	}
+
+	@media (max-width: 1023px) {
+		.document-area {
+			padding: 16px 0 80px 0;
+			gap: 16px;
+		}
+
+		.spor-list {
+			gap: 12px;
+		}
+
+		.date-divider {
+			margin-bottom: 8px;
+		}
+	}
 </style>

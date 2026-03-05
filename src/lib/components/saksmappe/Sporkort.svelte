@@ -303,4 +303,11 @@
 		color: var(--color-score-low);
 		margin-top: 4px;
 	}
+
+	@media (max-width: 1023px) {
+		.sporkort {
+			padding: 12px;
+			border-radius: 0;
+		}
+	}
 </style>

@@ -334,4 +334,16 @@
 	.fv-spordetalj-lenke:hover {
 		color: var(--color-vekt);
 	}
+
+	@media (max-width: 1023px) {
+		.forhandsvisning {
+			padding: 16px;
+			border-left: none;
+		}
+
+		.fv-close {
+			top: 16px;
+			right: 16px;
+		}
+	}
 </style>

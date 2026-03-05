@@ -272,7 +272,6 @@
 
 		.timeline-container {
 			overflow-y: visible;
-			padding: 0 16px;
 		}
 	}
 </style>
