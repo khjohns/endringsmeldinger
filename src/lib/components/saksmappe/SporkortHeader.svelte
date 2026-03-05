@@ -150,4 +150,23 @@
 	.action-urgent:hover {
 		background: #be123c;
 	}
+
+	@media (max-width: 1023px) {
+		.kort-header {
+			gap: 8px;
+		}
+
+		.kort-identitet {
+			gap: 8px;
+		}
+
+		.spor-navn {
+			font-size: 12px;
+		}
+
+		.action-btn {
+			padding: 4px 10px;
+			font-size: 10px;
+		}
+	}
 </style>

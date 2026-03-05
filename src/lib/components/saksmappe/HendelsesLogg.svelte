@@ -2,7 +2,6 @@
 	import type { TimelineEvent, EventType } from '$lib/types/timeline';
 	import { extractEventType } from '$lib/types/timeline';
 	import { getEventTypeLabel } from '$lib/constants/eventLabels';
-	import { formatCurrencyCompact, formatDaysCompact } from '$lib/utils/formatters';
 	import { slide } from 'svelte/transition';
 
 	interface Props {
@@ -73,9 +72,29 @@
 	function formatDateShort(dateStr: string | undefined): string {
 		if (!dateStr) return '';
 		const date = new Date(dateStr);
-		const day = date.getDate().toString().padStart(2, '0');
-		const month = (date.getMonth() + 1).toString().padStart(2, '0');
-		return `${day}.${month}`;
+		const now = new Date();
+
+		// Check if today or yesterday — show clock time
+		const isToday =
+			date.getFullYear() === now.getFullYear() &&
+			date.getMonth() === now.getMonth() &&
+			date.getDate() === now.getDate();
+		const yesterday = new Date(now);
+		yesterday.setDate(yesterday.getDate() - 1);
+		const isYesterday =
+			date.getFullYear() === yesterday.getFullYear() &&
+			date.getMonth() === yesterday.getMonth() &&
+			date.getDate() === yesterday.getDate();
+
+		if (isToday || isYesterday) {
+			const hh = date.getHours().toString().padStart(2, '0');
+			const mm = date.getMinutes().toString().padStart(2, '0');
+			return `${hh}:${mm}`;
+		}
+
+		// Older events — short date
+		const MONTH_SHORT = ['jan', 'feb', 'mar', 'apr', 'mai', 'jun', 'jul', 'aug', 'sep', 'okt', 'nov', 'des'];
+		return `${date.getDate()}. ${MONTH_SHORT[date.getMonth()]}`;
 	}
 
 	function getRevision(event: TimelineEvent): string | null {
@@ -84,23 +103,6 @@
 		if ('respondert_versjon' in data && typeof data.respondert_versjon === 'number') {
 			return `Rev. ${data.respondert_versjon}`;
 		}
-		return null;
-	}
-
-	function getEventMetric(event: TimelineEvent): string | null {
-		const data = event.data as Record<string, unknown> | undefined;
-		if (!data) return null;
-
-		// Vederlag: beløp
-		if (typeof data.kostnads_overslag === 'number') return formatCurrencyCompact(data.kostnads_overslag);
-		if (typeof data.nytt_kostnads_overslag === 'number') return formatCurrencyCompact(data.nytt_kostnads_overslag);
-		if (typeof data.godkjent_belop === 'number') return formatCurrencyCompact(data.godkjent_belop);
-
-		// Frist: dager
-		if (typeof data.antall_dager === 'number') return formatDaysCompact(data.antall_dager);
-		if (typeof data.nytt_antall_dager === 'number') return formatDaysCompact(data.nytt_antall_dager);
-		if (typeof data.godkjent_dager === 'number') return formatDaysCompact(data.godkjent_dager);
-
 		return null;
 	}
 
@@ -115,10 +117,9 @@
 		const label = getEventLabel(e, eventType);
 		const dateLabel = formatDateShort(e.time);
 		const revision = getRevision(e);
-		const metric = getEventMetric(e);
 		const actorSuffix = getActorSuffix(e);
 		const internt = isInterntNotat(eventType);
-		return { id: e.id, icon, dateLabel, label, revision, metric, actorSuffix, internt };
+		return { id: e.id, icon, dateLabel, label, revision, actorSuffix, internt };
 	}
 
 	const visibleEntries = $derived(events.slice(0, VISIBLE_COUNT).map(mapEntry));
@@ -224,9 +225,6 @@
 				{#if entry.revision}
 					<span class="event-rev">{entry.revision}</span>
 				{/if}
-				{#if entry.metric}
-					<span class="event-metric">{entry.metric}</span>
-				{/if}
 			</div>
 		{/each}
 
@@ -274,9 +272,6 @@
 							{/if}
 							{#if entry.revision}
 								<span class="event-rev">{entry.revision}</span>
-							{/if}
-							{#if entry.metric}
-								<span class="event-metric">{entry.metric}</span>
 							{/if}
 						</div>
 					{/each}
@@ -396,16 +391,7 @@
 		font-size: 9px;
 		color: var(--color-ink-ghost);
 		flex-shrink: 0;
-	}
-
-	.event-metric {
-		flex-shrink: 0;
-		font-family: var(--font-data);
-		font-size: 11px;
-		font-weight: 600;
-		color: var(--color-ink);
-		text-align: right;
-		font-variant-numeric: tabular-nums;
+		margin-left: auto;
 	}
 
 	/* Gul Lapp — internal note styling */
@@ -413,6 +399,7 @@
 		background: var(--color-vekt-bg);
 		border-left: 2px dashed var(--color-vekt);
 		border-radius: 0 2px 2px 0;
+		margin: 4px 0;
 	}
 
 	.event-line-internt:hover {
