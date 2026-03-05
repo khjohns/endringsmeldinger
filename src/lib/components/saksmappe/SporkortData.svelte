@@ -119,6 +119,7 @@
 		display: flex;
 		justify-content: space-between;
 		align-items: baseline;
+		min-width: 0;
 	}
 
 	.meta-sti {
@@ -127,6 +128,9 @@
 		display: flex;
 		align-items: center;
 		gap: 6px;
+		min-width: 0;
+		overflow: hidden;
+		flex-wrap: wrap;
 	}
 
 	.dot-sep {
