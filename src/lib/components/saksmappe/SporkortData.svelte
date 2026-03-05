@@ -35,6 +35,9 @@
 
 		if (sporType === 'vederlag' && vederlag) {
 			if (vederlag.metode) parts.push(formatVederlagsmetode(vederlag.metode));
+			if (vederlag.antall_versjoner > 1) {
+				parts.push(`Rev. ${vederlag.antall_versjoner - 1}`);
+			}
 			if (vederlag.saerskilt_krav?.rigg_drift?.belop) {
 				parts.push(`rigg ${formatCurrencyCompact(vederlag.saerskilt_krav.rigg_drift.belop)}`);
 			}
@@ -58,87 +61,104 @@
 		return parts;
 	});
 
-	// Right-side key metric — the number the administrator scans for
+	// Right-side key metric
 	const keyMetric = $derived.by(() => {
 		if (sporType === 'vederlag' && vederlag) {
 			if (vederlag.krevd_belop !== undefined && vederlag.krevd_belop !== null) {
-				return formatCurrencyCompact(vederlag.krevd_belop);
+				return formatCurrencyCompact(vederlag.krevd_belop) + ' NOK';
 			}
 			if (vederlag.netto_belop !== undefined && vederlag.netto_belop !== null) {
-				return formatCurrencyCompact(vederlag.netto_belop);
+				return formatCurrencyCompact(vederlag.netto_belop) + ' NOK';
 			}
 		}
 		if (sporType === 'frist' && frist) {
 			if (frist.krevd_dager !== undefined && frist.krevd_dager !== null) {
-				return formatDaysCompact(frist.krevd_dager);
+				return `${frist.krevd_dager} dager`;
 			}
 		}
 		return null;
 	});
 
+	// Milepael warning for significant frist claims
+	const showMilepael = $derived(
+		sporType === 'frist' && frist?.krevd_dager !== undefined && frist.krevd_dager !== null && frist.krevd_dager > 14
+	);
+
 	const hasContent = $derived(leftSegments.length > 0 || keyMetric !== null);
 </script>
 
 {#if hasContent}
-	<div class="data-line">
+	<div class="kort-data">
 		{#if leftSegments.length > 0}
-			<div class="data-left">
+			<div class="meta-sti">
 				{#each leftSegments as segment, i (i)}
 					{#if i > 0}
 						<span class="dot-sep" aria-hidden="true">&middot;</span>
 					{/if}
-					<span class="data-segment">{segment}</span>
+					<span>{segment}</span>
 				{/each}
 			</div>
 		{/if}
 		{#if keyMetric}
-			<div class="data-right">
-				<span class="key-metric">{keyMetric}</span>
+			<div class="verdi-container">
+				<div class="verdi-metrikk">{keyMetric}</div>
+				{#if showMilepael}
+					<div class="milepael-tag">Pavirker milepael</div>
+				{/if}
+			</div>
+		{:else}
+			<div class="verdi-container">
+				<div class="verdi-metrikk">--</div>
 			</div>
 		{/if}
 	</div>
 {/if}
 
 <style>
-	.data-line {
+	.kort-data {
 		display: flex;
-		align-items: baseline;
 		justify-content: space-between;
-		gap: 12px;
+		align-items: baseline;
 	}
 
-	.data-left {
+	.meta-sti {
+		font-size: 12px;
+		color: var(--color-ink-secondary);
 		display: flex;
 		align-items: center;
-		gap: 4px;
-		flex-wrap: wrap;
-		min-width: 0;
-	}
-
-	.data-segment {
-		font-family: var(--font-data);
-		font-size: 12px;
-		color: var(--color-ink);
-		white-space: nowrap;
+		gap: 6px;
 	}
 
 	.dot-sep {
-		font-family: var(--font-data);
-		font-size: 12px;
-		color: var(--color-ink-muted);
+		color: var(--color-ink-ghost);
 	}
 
-	.data-right {
+	.verdi-container {
+		text-align: right;
 		flex-shrink: 0;
-		margin-left: auto;
 	}
 
-	.key-metric {
+	.verdi-metrikk {
 		font-family: var(--font-data);
-		font-size: 12px;
+		font-size: 15px;
 		font-weight: 600;
 		color: var(--color-ink);
 		font-variant-numeric: tabular-nums;
 	}
 
+	.milepael-tag {
+		display: inline-flex;
+		align-items: center;
+		gap: 4px;
+		font-size: 9px;
+		font-weight: 600;
+		text-transform: uppercase;
+		letter-spacing: 0.04em;
+		color: var(--color-score-low);
+		background: var(--color-canvas);
+		border: 1px solid rgba(225, 29, 72, 0.3);
+		padding: 2px 6px;
+		border-radius: var(--radius-sm);
+		margin-top: 6px;
+	}
 </style>

@@ -13,7 +13,6 @@
 		label: string;
 		dagerSiden: number;
 		urgency: 'normal' | 'warning' | 'critical';
-		tekst: string;
 	}
 
 	function dagerSiden(dato: string | undefined, referanse: Date): number {
@@ -40,10 +39,9 @@
 
 			items.push({
 				spor: 'grunnlag',
-				label: 'Grunnlag',
+				label: erPassivitet ? 'Passivitet' : 'Grunnlag',
 				dagerSiden: dager,
 				urgency,
-				tekst: erPassivitet ? 'passivitet!' : `${dager}d siden`,
 			});
 		}
 
@@ -54,10 +52,9 @@
 
 			items.push({
 				spor: 'frist',
-				label: 'Frist',
+				label: dager > 14 ? 'Advarsel' : 'Frist',
 				dagerSiden: dager,
 				urgency,
-				tekst: `${dager}d siden`,
 			});
 		}
 
@@ -68,93 +65,98 @@
 
 			items.push({
 				spor: 'vederlag',
-				label: 'Vederlag',
+				label: dager > 14 ? 'Advarsel' : 'Vederlag',
 				dagerSiden: dager,
 				urgency,
-				tekst: `${dager}d siden`,
 			});
 		}
 
-		// Sorter etter urgency (critical først, deretter warning, deretter normal)
+		// Sort: critical first, then warning, then normal
 		const urgencyOrder = { critical: 0, warning: 1, normal: 2 };
 		items.sort((a, b) => urgencyOrder[a.urgency] - urgencyOrder[b.urgency]);
 
 		return items;
 	});
+
+	// Only show items that are warning or critical
+	const visibleFrister = $derived(frister.filter((f) => f.urgency !== 'normal'));
 </script>
 
-{#if frister.length > 0}
+{#if visibleFrister.length > 0}
 	<section class="frister-section" aria-label="Frister">
 		<h3 class="section-label">Frister</h3>
-		<ul class="frister-list">
-			{#each frister as frist (frist.spor)}
-				<li class="frist-item" class:critical={frist.urgency === 'critical'} class:warning={frist.urgency === 'warning'}>
-					<span class="frist-icon" aria-hidden="true">
-						{#if frist.urgency === 'critical'}⚠{:else if frist.urgency === 'warning'}⚠{/if}
-					</span>
-					<span class="frist-label">{frist.label}</span>
-					<span class="frist-value">{frist.tekst}</span>
-				</li>
-			{/each}
-		</ul>
+		{#each visibleFrister as frist (frist.spor)}
+			<div
+				class="frist-item"
+				class:critical={frist.urgency === 'critical'}
+				class:warning={frist.urgency === 'warning'}
+			>
+				<span class="frist-label">{frist.label}</span>
+				<span class="frist-days">{frist.dagerSiden}d</span>
+			</div>
+		{/each}
 	</section>
 {/if}
 
 <style>
 	.frister-section {
-		padding: 12px 16px;
+		/* padding handled by parent sidebar-section */
 	}
 
 	.section-label {
-		font-size: 11px;
+		font-size: 10px;
 		font-weight: 600;
 		text-transform: uppercase;
-		letter-spacing: 0.06em;
+		letter-spacing: 0.08em;
 		color: var(--color-ink-muted);
-		margin: 0 0 8px 0;
-	}
-
-	.frister-list {
-		list-style: none;
-		margin: 0;
-		padding: 0;
-		display: flex;
-		flex-direction: column;
-		gap: 4px;
+		margin: 0 0 12px 0;
 	}
 
 	.frist-item {
 		display: flex;
-		align-items: center;
-		gap: 8px;
-		font-size: 13px;
-		line-height: 1.4;
-		color: var(--color-ink-secondary);
-	}
-
-	.frist-item.warning {
-		color: var(--color-vekt);
+		justify-content: space-between;
+		align-items: baseline;
+		margin-bottom: 8px;
+		padding: 6px 8px;
+		border-radius: var(--radius-sm);
 	}
 
 	.frist-item.critical {
-		color: var(--color-score-low);
+		background: var(--color-score-low-bg);
+		border: 1px solid rgba(225, 29, 72, 0.2);
 	}
 
-	.frist-icon {
-		width: 16px;
-		flex-shrink: 0;
-		text-align: center;
-		font-size: 12px;
+	.frist-item.warning {
+		background: var(--color-vekt-bg);
+		border: 1px solid rgba(245, 158, 11, 0.2);
 	}
 
 	.frist-label {
-		flex-shrink: 0;
+		font-size: 11px;
+		font-weight: 600;
+		text-transform: uppercase;
 	}
 
-	.frist-value {
-		margin-left: auto;
+	.frist-item.critical .frist-label {
+		color: var(--color-score-low);
+	}
+
+	.frist-item.warning .frist-label {
+		color: var(--color-vekt);
+	}
+
+	.frist-days {
 		font-family: var(--font-data);
 		font-size: 12px;
 		font-variant-numeric: tabular-nums;
+		font-weight: 600;
+	}
+
+	.frist-item.critical .frist-days {
+		color: var(--color-score-low);
+	}
+
+	.frist-item.warning .frist-days {
+		color: var(--color-vekt);
 	}
 </style>

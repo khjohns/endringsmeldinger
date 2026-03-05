@@ -73,7 +73,7 @@
 		{#if hasPanel}
 			<div class="panel-overlay">
 				<button class="mobil-tilbake" onclick={() => (focusedEvent = null)}>← Tilbake</button>
-				<Forhandsvisning event={focusedEvent} {prosjektId} {sakId} />
+				<Forhandsvisning event={focusedEvent} {prosjektId} {sakId} onClose={() => (focusedEvent = null)} />
 			</div>
 		{/if}
 	</div>
@@ -88,8 +88,10 @@
 	.saksmappe {
 		display: grid;
 		grid-template-columns: 260px 1fr;
-		min-height: 100vh;
+		height: 100%;
 		background: var(--color-canvas);
+		overflow: hidden;
+		transition: grid-template-columns 200ms ease;
 	}
 
 	.saksmappe.har-panel {
@@ -106,15 +108,11 @@
 		display: flex;
 		flex-direction: column;
 		overflow-y: auto;
-		height: 100vh;
-		position: sticky;
-		top: 0;
+		height: 100%;
 	}
 
 	.timeline-container {
 		flex: 1;
-		padding: 0 24px;
-		overflow-y: auto;
 	}
 
 	.loading,

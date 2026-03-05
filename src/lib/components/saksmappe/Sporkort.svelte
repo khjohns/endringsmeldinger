@@ -228,17 +228,20 @@
 	.sporkort {
 		display: flex;
 		flex-direction: column;
-		gap: 4px;
-		border: 1px solid var(--color-wire);
-		border-radius: var(--radius-md);
-		padding: 12px 16px;
+		gap: 8px;
+		background: var(--color-felt);
+		border: 1px solid var(--color-wire-strong);
+		border-radius: var(--radius-sm);
+		padding: 16px;
 		text-decoration: none;
 		cursor: pointer;
-		transition: background 150ms ease;
+		transition: background 150ms ease, border-color 150ms ease;
+		position: relative;
 	}
 
 	.sporkort:hover {
 		background: var(--color-felt-hover);
+		border-color: var(--color-wire-focus);
 	}
 
 	.sporkort-expanded {
@@ -259,13 +262,23 @@
 		background: var(--color-score-low-bg);
 	}
 
-	/* Left border variants */
+	/* Left border variants (Handlingskant / Vektlinjen) */
 	.border-critical {
-		border-left: 3px solid var(--color-score-low);
+		border-left: 2px solid var(--color-score-low);
+		background: var(--color-score-low-bg);
+	}
+
+	.border-critical:hover {
+		background: rgba(225, 29, 72, 0.12);
 	}
 
 	.border-godkjent {
-		border-left: 2px solid var(--color-score-high);
+		border-left: 1px solid var(--color-score-high);
+		opacity: 0.7;
+	}
+
+	.border-godkjent:hover {
+		opacity: 1;
 	}
 
 	.border-avslatt {
@@ -273,7 +286,7 @@
 	}
 
 	.border-handling {
-		border-left: 3px solid var(--color-vekt);
+		border-left: 2px solid var(--color-vekt);
 	}
 
 	.border-venter {

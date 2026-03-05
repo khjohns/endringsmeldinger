@@ -7,9 +7,10 @@
 		event: TimelineEvent | null;
 		prosjektId: string;
 		sakId: string;
+		onClose?: () => void;
 	}
 
-	let { event, prosjektId, sakId }: Props = $props();
+	let { event, prosjektId, sakId, onClose }: Props = $props();
 
 	// --- Icon mapping (mirrors HendelsesLogg) ---
 
@@ -101,12 +102,11 @@
 		<div class="fv-tom">Hover over en hendelse<br />for å se detaljer</div>
 	{:else}
 		<div class="fv-innhold">
+			<button class="fv-close" onclick={() => onClose?.()} aria-label="Lukk">&times;</button>
 			<div class="fv-header">
-				<div class="fv-ikon-linje">
-					<span class="fv-ikon {icon.cssClass}" aria-hidden="true">{icon.symbol}</span>
-					<span class="fv-handling">{handling}</span>
-				</div>
-				<div class="fv-meta">{meta}</div>
+				<span class="fv-ikon {icon.cssClass}" aria-hidden="true">{icon.symbol}</span>
+				<span class="fv-handling">{handling}</span>
+				<span class="fv-meta">{meta}</span>
 			</div>
 
 			{#if description}
@@ -147,13 +147,14 @@
 
 <style>
 	.forhandsvisning {
-		border-left: 1px solid var(--color-wire);
-		padding: 20px;
+		border-left: 1px solid var(--color-wire-strong);
+		padding: 24px;
 		position: sticky;
 		top: 0;
-		height: 100vh;
+		height: 100%;
 		overflow-y: auto;
 		animation: panelIn 200ms ease-out;
+		position: relative;
 	}
 
 	@keyframes panelIn {
@@ -175,15 +176,29 @@
 		line-height: 1.5;
 	}
 
-	.fv-header {
-		margin-bottom: 16px;
+	.fv-close {
+		position: absolute;
+		top: 24px;
+		right: 24px;
+		background: none;
+		border: none;
+		color: var(--color-ink-ghost);
+		cursor: pointer;
+		font-size: 16px;
+		padding: 4px;
+		line-height: 1;
 	}
 
-	.fv-ikon-linje {
+	.fv-close:hover {
+		color: var(--color-ink);
+	}
+
+	.fv-header {
 		display: flex;
-		align-items: center;
+		align-items: baseline;
 		gap: 8px;
-		margin-bottom: 4px;
+		margin-bottom: 16px;
+		padding-right: 24px;
 	}
 
 	.fv-ikon {
@@ -229,6 +244,7 @@
 		font-size: 11px;
 		color: var(--color-ink-muted);
 		font-variant-numeric: tabular-nums;
+		margin-left: auto;
 	}
 
 	.fv-separator {

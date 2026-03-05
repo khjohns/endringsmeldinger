@@ -64,7 +64,7 @@ describe('Sporkort', () => {
 	it('renders status badge', () => {
 		const state = makeBaseState();
 		render(SporkortTest, { props: { sporType: 'grunnlag' as SporType, state } });
-		expect(screen.getByRole('status')).toHaveTextContent('Sendt');
+		expect(screen.getByText('Sendt')).toBeInTheDocument();
 	});
 
 	it('renders godkjent status badge', () => {
@@ -77,7 +77,7 @@ describe('Sporkort', () => {
 			},
 		});
 		render(SporkortTest, { props: { sporType: 'grunnlag' as SporType, state } });
-		expect(screen.getByRole('status')).toHaveTextContent('Godkjent');
+		expect(screen.getByText('Godkjent')).toBeInTheDocument();
 	});
 
 	it('has correct left border variant for godkjent state', () => {
@@ -144,7 +144,7 @@ describe('Sporkort', () => {
 			},
 		});
 		render(SporkortTest, { props: { sporType: 'grunnlag' as SporType, state } });
-		expect(screen.getByRole('button', { name: /forsering/i })).toBeInTheDocument();
+		expect(screen.getByRole('button', { name: /forsering/i })).toBeInTheDocument(); // "Forsering? →"
 	});
 
 	it('does not show action button when no role is set', () => {
@@ -158,7 +158,8 @@ describe('Sporkort', () => {
 			},
 		});
 		render(SporkortTest, { props: { sporType: 'grunnlag' as SporType, state } });
-		expect(screen.queryByRole('button')).not.toBeInTheDocument();
+		// No action button (Forsering, Svar, etc.) — only the internal notes button may exist
+		expect(screen.queryByRole('button', { name: /forsering|svar|send|oppdater|varsle/i })).not.toBeInTheDocument();
 	});
 
 	it('shows passivitet warning for grunnlag sent > 14 days', () => {
@@ -257,7 +258,7 @@ describe('Sporkort', () => {
 		});
 		render(SporkortTest, { props: { sporType: 'vederlag' as SporType, state } });
 		expect(screen.getByText('Regningsarbeid')).toBeInTheDocument();
-		expect(screen.getByText('450k')).toBeInTheDocument();
+		expect(screen.getByText('450k NOK')).toBeInTheDocument();
 	});
 
 	it('shows data line for frist with days', () => {
@@ -271,6 +272,6 @@ describe('Sporkort', () => {
 		});
 		render(SporkortTest, { props: { sporType: 'frist' as SporType, state } });
 		expect(screen.getByText('Dager krevd')).toBeInTheDocument();
-		expect(screen.getByText('30d')).toBeInTheDocument();
+		expect(screen.getByText('30 dager')).toBeInTheDocument();
 	});
 });
