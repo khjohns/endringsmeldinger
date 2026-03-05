@@ -22,6 +22,7 @@ export const EVENT_TYPE_LABELS: Record<string, string> = {
 	forsering_stoppet: 'stoppet forsering',
 	forsering_respons: 'responderte forsering',
 	te_aksepterer_respons: 'aksepterte',
+	internt_notat: 'internt notat',
 };
 
 export function getEventTypeLabel(eventType: EventType | null): string {

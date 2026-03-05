@@ -46,6 +46,10 @@
 		if (eventType.includes('trukket') || eventType.includes('avslatt')) {
 			return { symbol: '\u2715', color: 'var(--color-score-low)' };
 		}
+		// internt notat
+		if (eventType === 'internt_notat') {
+			return { symbol: '\u{1F512}', color: 'var(--color-vekt)' };
+		}
 
 		return { symbol: '·', color: 'var(--color-ink-muted)' };
 	}
@@ -53,6 +57,17 @@
 	function getEventLabel(event: TimelineEvent, eventType: EventType | null): string {
 		if (event.summary) return event.summary;
 		return getEventTypeLabel(eventType);
+	}
+
+	function getActorSuffix(event: TimelineEvent): string | null {
+		// Only show actor suffix when there's no summary (summary already includes actor context)
+		if (event.summary) return null;
+		if (!event.actorrole) return null;
+		return event.actorrole === 'BH' ? 'av Byggherre' : 'av Entreprenør';
+	}
+
+	function isInterntNotat(eventType: EventType | null): boolean {
+		return eventType === 'internt_notat';
 	}
 
 	function formatDateShort(dateStr: string | undefined): string {
@@ -101,7 +116,9 @@
 		const dateLabel = formatDateShort(e.time);
 		const revision = getRevision(e);
 		const metric = getEventMetric(e);
-		return { id: e.id, icon, dateLabel, label, revision, metric };
+		const actorSuffix = getActorSuffix(e);
+		const internt = isInterntNotat(eventType);
+		return { id: e.id, icon, dateLabel, label, revision, metric, actorSuffix, internt };
 	}
 
 	const visibleEntries = $derived(events.slice(0, VISIBLE_COUNT).map(mapEntry));
@@ -187,6 +204,7 @@
 				id="{listboxId}-option-{i}"
 				class="event-line"
 				class:event-line-focused={focusedIndex === i}
+				class:event-line-internt={entry.internt}
 				role="option"
 				aria-selected={focusedIndex === i}
 				onmouseenter={() => handleEventMouseEnter(i)}
@@ -195,7 +213,14 @@
 					>{entry.icon.symbol}</span
 				>
 				<span class="event-date">{entry.dateLabel}</span>
-				<span class="event-text">{entry.label}</span>
+				{#if entry.internt}
+					<span class="event-text internt-label"><span class="kun-internt">KUN INTERNT:</span> {entry.label}</span>
+				{:else}
+					<span class="event-text">{entry.label}</span>
+				{/if}
+				{#if entry.actorSuffix && !entry.internt}
+					<span class="event-actor">{entry.actorSuffix}</span>
+				{/if}
 				{#if entry.revision}
 					<span class="event-rev">{entry.revision}</span>
 				{/if}
@@ -230,6 +255,7 @@
 							id="{listboxId}-option-{j + VISIBLE_COUNT}"
 							class="event-line"
 							class:event-line-focused={focusedIndex === j + VISIBLE_COUNT}
+							class:event-line-internt={entry.internt}
 							role="option"
 							aria-selected={focusedIndex === j + VISIBLE_COUNT}
 							onmouseenter={() => handleEventMouseEnter(j + VISIBLE_COUNT)}
@@ -238,7 +264,14 @@
 								>{entry.icon.symbol}</span
 							>
 							<span class="event-date">{entry.dateLabel}</span>
-							<span class="event-text">{entry.label}</span>
+							{#if entry.internt}
+								<span class="event-text internt-label"><span class="kun-internt">KUN INTERNT:</span> {entry.label}</span>
+							{:else}
+								<span class="event-text">{entry.label}</span>
+							{/if}
+							{#if entry.actorSuffix && !entry.internt}
+								<span class="event-actor">{entry.actorSuffix}</span>
+							{/if}
 							{#if entry.revision}
 								<span class="event-rev">{entry.revision}</span>
 							{/if}
@@ -373,6 +406,35 @@
 		color: var(--color-ink);
 		text-align: right;
 		font-variant-numeric: tabular-nums;
+	}
+
+	/* Gul Lapp — internal note styling */
+	.event-line-internt {
+		background: var(--color-vekt-bg);
+		border-left: 2px dashed var(--color-vekt);
+		border-radius: 0 2px 2px 0;
+	}
+
+	.event-line-internt:hover {
+		background: var(--color-vekt-bg-strong);
+	}
+
+	.kun-internt {
+		color: var(--color-vekt);
+		font-weight: 700;
+		font-size: 10px;
+		letter-spacing: 0.02em;
+	}
+
+	.internt-label {
+		color: var(--color-ink-secondary);
+	}
+
+	.event-actor {
+		flex-shrink: 0;
+		font-size: 10px;
+		color: var(--color-ink-ghost);
+		white-space: nowrap;
 	}
 
 	.btn-tilfoj-notat {
