@@ -341,4 +341,14 @@
 		color: var(--color-ink-ghost);
 		margin-bottom: 8px;
 	}
+
+	@media (max-width: 1023px) {
+		.sidebar {
+			width: 100%;
+		}
+
+		.sidebar-section {
+			padding: 12px 16px;
+		}
+	}
 </style>

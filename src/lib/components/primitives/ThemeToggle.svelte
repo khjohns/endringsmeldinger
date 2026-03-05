@@ -1,10 +1,8 @@
 <script lang="ts">
 	import { browser } from '$app/environment';
 
-	type Theme = 'light' | 'dark' | 'system';
-
-	let userChoice = $state<Theme>(
-		browser ? (localStorage.getItem('koe-theme') as Theme) ?? 'system' : 'system'
+	let override = $state<'light' | 'dark' | null>(
+		browser ? (localStorage.getItem('koe-theme') as 'light' | 'dark' | null) : null
 	);
 
 	let systemDark = $state(
@@ -12,10 +10,9 @@
 	);
 
 	let resolved = $derived<'light' | 'dark'>(
-		userChoice === 'system' ? (systemDark ? 'dark' : 'light') : userChoice
+		override ?? (systemDark ? 'dark' : 'light')
 	);
 
-	// Listen for system changes
 	if (browser) {
 		const mq = matchMedia('(prefers-color-scheme: dark)');
 		mq.addEventListener('change', (e) => {
@@ -23,29 +20,28 @@
 		});
 	}
 
-	// Apply .dark class to <html>
 	$effect(() => {
 		if (!browser) return;
-		const html = document.documentElement;
-		if (resolved === 'dark') {
-			html.classList.add('dark');
-		} else {
-			html.classList.remove('dark');
-		}
+		document.documentElement.classList.toggle('dark', resolved === 'dark');
 	});
 
-	function cycle() {
-		// Three-way: system → light → dark → system
-		const order: Theme[] = ['system', 'light', 'dark'];
-		const idx = order.indexOf(userChoice);
-		userChoice = order[(idx + 1) % order.length];
+	function toggle() {
+		// Flip to the opposite of current resolved theme
+		const next = resolved === 'dark' ? 'light' : 'dark';
+		// If that matches system, clear override; otherwise set it
+		const systemTheme = systemDark ? 'dark' : 'light';
+		override = next === systemTheme ? null : next;
 		if (browser) {
-			localStorage.setItem('koe-theme', userChoice);
+			if (override) {
+				localStorage.setItem('koe-theme', override);
+			} else {
+				localStorage.removeItem('koe-theme');
+			}
 		}
 	}
 </script>
 
-<button class="theme-toggle" onclick={cycle} title="Bytt tema" aria-label="Tema: {userChoice}">
+<button class="theme-toggle" onclick={toggle} title="Bytt tema" aria-label="Tema: {resolved}">
 	{#if resolved === 'light'}
 		<svg class="theme-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 			<circle cx="12" cy="12" r="5"/>
@@ -63,7 +59,7 @@
 			<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
 		</svg>
 	{/if}
-	<span class="theme-label">{userChoice === 'system' ? 'auto' : userChoice}</span>
+	<span class="theme-label">{resolved}</span>
 </button>
 
 <style>

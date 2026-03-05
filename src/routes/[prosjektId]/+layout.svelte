@@ -2,6 +2,7 @@
 	import { page } from '$app/state';
 	import { QueryClientProvider, QueryClient } from '@tanstack/svelte-query';
 	import ThemeToggle from '$lib/components/primitives/ThemeToggle.svelte';
+	import RoleToggle from '$lib/components/primitives/RoleToggle.svelte';
 
 	let { children } = $props();
 
@@ -21,20 +22,21 @@
 	<div class="app-shell">
 		<header class="top-nav">
 			<nav class="nav-breadcrumbs" aria-label="Brodsmuler">
-				<span>{projectMeta?.name ?? prosjektId}</span>
-				{#if projectMeta?.entreprise}
-					<span class="sep">/</span>
-					<span>{projectMeta.entreprise}</span>
-				{/if}
+				<a href="/{prosjektId}" class="crumb">{projectMeta?.name ?? prosjektId}</a>
 				{#if sakId}
 					<span class="sep">/</span>
-					<span>Saker</span>
+					<a href="/{prosjektId}" class="crumb">Saker</a>
 					<span class="sep">/</span>
 					<span class="current">{sakId}</span>
 				{/if}
 			</nav>
-			<div class="nav-user">
-				<ThemeToggle />
+			<div class="nav-actions">
+				<div class="role-toggle-wrap">
+					<RoleToggle />
+				</div>
+				<div class="theme-toggle-wrap">
+					<ThemeToggle />
+				</div>
 				<span class="user-org">Hent AS</span>
 				<div class="avatar">AM</div>
 			</div>
@@ -74,6 +76,16 @@
 		color: var(--color-ink-secondary);
 	}
 
+	.nav-breadcrumbs .crumb {
+		color: var(--color-ink-secondary);
+		text-decoration: none;
+		transition: color 100ms ease;
+	}
+
+	.nav-breadcrumbs .crumb:hover {
+		color: var(--color-ink);
+	}
+
 	.nav-breadcrumbs .sep {
 		color: var(--color-ink-ghost);
 	}
@@ -83,7 +95,7 @@
 		font-weight: 500;
 	}
 
-	.nav-user {
+	.nav-actions {
 		display: flex;
 		align-items: center;
 		gap: 12px;
@@ -112,10 +124,50 @@
 	@media (max-width: 1023px) {
 		.top-nav {
 			padding: 0 16px;
+			padding-left: 54px; /* plass til ☰ hamburger */
 		}
 
-		.nav-user .user-org {
+		.nav-breadcrumbs {
+			min-width: 0;
+		}
+
+		.nav-breadcrumbs .crumb {
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+			max-width: 120px;
+		}
+
+		.nav-actions .user-org {
 			display: none;
+		}
+
+		/* Løft toggles ut av nav-flyten og plasser som flytende knapper
+		   under sidebar-hamburger (☰ top:8 left:16, 30×30) */
+		.theme-toggle-wrap {
+			position: fixed;
+			top: 46px;
+			left: 16px;
+			z-index: 26;
+		}
+
+		/* Ikon-only: skjul label, matcher 30×30 sidebar-toggle */
+		.theme-toggle-wrap :global(.theme-label) {
+			display: none;
+		}
+
+		.theme-toggle-wrap :global(.theme-toggle) {
+			width: 30px;
+			height: 30px;
+			padding: 0;
+			justify-content: center;
+		}
+
+		.role-toggle-wrap {
+			position: fixed;
+			top: 84px;
+			left: 16px;
+			z-index: 26;
 		}
 	}
 </style>
