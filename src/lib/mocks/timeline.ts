@@ -289,4 +289,17 @@ export const timeline2_BlandetTilstand: TimelineEvent[] = [
         'tapt produktivitet og tilleggsbetong ved sektor D.',
     },
   },
+  // Internal note
+  {
+    specversion: '1.0',
+    id: 'evt-106',
+    source: SOURCE_P2,
+    type: 'no.oslo.koe.internt_notat',
+    time: '2025-12-16T10:45:00Z',
+    subject: SAK2,
+    actorrole: 'TE',
+    actor: 'Maria Andersen',
+    spor: 'frist',
+    summary: 'Sjekk med underentreprenør om de kan forsere støpingen.',
+  },
 ];

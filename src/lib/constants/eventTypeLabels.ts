@@ -39,6 +39,7 @@ export const EVENT_TYPE_LABELS: Record<EventType, string> = {
   eo_revidert: 'Endringsordre revidert',
   // TE aksepterer BH respons
   te_aksepterer_respons: 'Entreprenør godtok svaret',
+  internt_notat: 'Internt notat',
 };
 
 /**
