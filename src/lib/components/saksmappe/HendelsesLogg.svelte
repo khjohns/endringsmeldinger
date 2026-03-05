@@ -250,6 +250,13 @@
 				</div>
 			{/if}
 		{/if}
+		<button
+			class="btn-tilfoj-notat"
+			type="button"
+			onclick={(e: MouseEvent) => { e.stopPropagation(); e.preventDefault(); }}
+		>
+			+ Nytt internt notat
+		</button>
 	</div>
 {/if}
 
@@ -293,7 +300,9 @@
 		display: flex;
 		flex-direction: column;
 		gap: 2px;
-		padding-top: 4px;
+		margin-top: 16px;
+		padding-top: 8px;
+		border-top: 1px solid var(--color-wire);
 	}
 
 	.remaining-events {
@@ -304,17 +313,22 @@
 
 	.event-line {
 		display: flex;
-		align-items: center;
-		gap: 4px;
-		min-height: 24px;
-		padding: 2px 8px;
+		align-items: baseline;
+		gap: 12px;
+		padding: 6px 10px;
+		font-size: 12px;
+		cursor: pointer;
 		border-left: 2px solid transparent;
-		border-radius: var(--radius-sm);
+		transition: background 100ms;
+	}
+
+	.event-line:hover {
+		background: rgba(255, 255, 255, 0.02);
 	}
 
 	.event-line-focused {
+		border-left: 2px solid var(--color-vekt);
 		background: var(--color-felt-hover);
-		border-left-color: var(--color-vekt);
 	}
 
 	.event-icon {
@@ -326,7 +340,7 @@
 	}
 
 	.event-date {
-		width: 38px;
+		width: 48px;
 		flex-shrink: 0;
 		font-family: var(--font-data);
 		font-size: 10px;
@@ -359,5 +373,24 @@
 		color: var(--color-ink);
 		text-align: right;
 		font-variant-numeric: tabular-nums;
+	}
+
+	.btn-tilfoj-notat {
+		width: 100%;
+		text-align: left;
+		padding: 8px 10px;
+		margin-top: 4px;
+		font-size: 11px;
+		color: var(--color-ink-ghost);
+		background: transparent;
+		border: none;
+		border-top: 1px dashed var(--color-wire);
+		cursor: pointer;
+		transition: color 150ms;
+		font-family: var(--font-ui);
+	}
+
+	.btn-tilfoj-notat:hover {
+		color: var(--color-vekt);
 	}
 </style>

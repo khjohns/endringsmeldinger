@@ -1,8 +1,6 @@
 <script lang="ts">
 	import type { SporType, SporStatus } from '$lib/types/timeline';
 	import type { VarslingItem } from '$lib/utils/varslingStatus';
-	import { varslingSymbol } from '$lib/utils/varslingStatus';
-	import Badge from '$lib/components/primitives/Badge.svelte';
 
 	interface Props {
 		sporType: SporType;
@@ -21,19 +19,6 @@
 		frist: 'FRISTFORLENGELSE',
 	};
 
-	const STATUS_TO_BADGE: Record<SporStatus, 'godkjent' | 'avslatt' | 'delvis' | 'uavklart' | 'na'> = {
-		ikke_relevant: 'na',
-		utkast: 'na',
-		sendt: 'uavklart',
-		under_behandling: 'uavklart',
-		godkjent: 'godkjent',
-		delvis_godkjent: 'delvis',
-		avslatt: 'avslatt',
-		under_forhandling: 'delvis',
-		trukket: 'na',
-		laast: 'godkjent',
-	};
-
 	const STATUS_LABELS: Record<SporStatus, string> = {
 		ikke_relevant: 'Ikke relevant',
 		utkast: 'Utkast',
@@ -41,32 +26,35 @@
 		under_behandling: 'Under behandling',
 		godkjent: 'Godkjent',
 		delvis_godkjent: 'Delvis godkjent',
-		avslatt: 'Avslått',
+		avslatt: 'Avslatt',
 		under_forhandling: 'Under forhandling',
 		trukket: 'Trukket',
-		laast: 'Låst',
+		laast: 'Last',
 	};
 
-	// Filter varsling items for this track
-	const trackVarsling = $derived(varsling.filter((v) => v.spor === sporType));
+	type StempelVariant = 'critical' | 'waiting' | 'approved' | 'action';
+
+	const stempelVariant = $derived.by<StempelVariant>(() => {
+		if (status === 'avslatt') return 'critical';
+		if (status === 'godkjent' || status === 'laast') return 'approved';
+		if (status === 'under_forhandling' || status === 'delvis_godkjent') return 'action';
+		return 'waiting';
+	});
 </script>
 
-<div class="header">
-	<span class="spor-label">{SPOR_LABELS[sporType]}</span>
-
-	<Badge variant={STATUS_TO_BADGE[status]}>{STATUS_LABELS[status]}</Badge>
-
-	{#each trackVarsling as item (item.paragrafRef)}
+<div class="kort-header">
+	<div class="kort-identitet">
+		<span class="spor-navn">{SPOR_LABELS[sporType]}</span>
 		<span
-			class="varsling-flag"
-			class:varsling-ok={item.status === 'ok'}
-			class:varsling-warning={item.status === 'warning'}
-			class:varsling-breach={item.status === 'breach'}
-			title={item.paragrafRef}
+			class="stempel"
+			class:stempel-critical={stempelVariant === 'critical'}
+			class:stempel-waiting={stempelVariant === 'waiting'}
+			class:stempel-approved={stempelVariant === 'approved'}
+			class:stempel-action={stempelVariant === 'action'}
 		>
-			{varslingSymbol(item.status)} {item.label}
+			{STATUS_LABELS[status]}
 		</span>
-	{/each}
+	</div>
 
 	{#if action}
 		<button
@@ -74,69 +62,92 @@
 			class:action-urgent={action.urgent}
 			onclick={(e: MouseEvent) => e.stopPropagation()}
 		>
-			{action.label}
+			{action.label} &rarr;
 		</button>
 	{/if}
 </div>
 
 <style>
-	.header {
+	.kort-header {
+		display: flex;
+		justify-content: space-between;
+		align-items: flex-start;
+		gap: 16px;
+	}
+
+	.kort-identitet {
 		display: flex;
 		align-items: center;
-		gap: 8px;
+		gap: 12px;
+		flex-wrap: wrap;
 	}
 
-	.spor-label {
+	.spor-navn {
 		font-family: var(--font-ui);
-		font-size: 12px;
+		font-size: 13px;
 		font-weight: 600;
 		color: var(--color-ink);
+		text-transform: uppercase;
+		letter-spacing: 0.02em;
 	}
 
-	.varsling-flag {
-		font-family: var(--font-ui);
+	.stempel {
 		font-size: 10px;
-		color: var(--color-ink-muted);
-		white-space: nowrap;
+		font-weight: 600;
+		text-transform: uppercase;
+		letter-spacing: 0.06em;
+		padding: 2px 6px;
+		border-radius: var(--radius-sm);
+		border: 1px solid transparent;
 	}
 
-	.varsling-ok {
-		color: var(--color-score-high);
-	}
-
-	.varsling-warning {
-		color: var(--color-vekt);
-	}
-
-	.varsling-breach {
+	.stempel-critical {
 		color: var(--color-score-low);
+		border-color: rgba(225, 29, 72, 0.3);
+		background: rgba(225, 29, 72, 0.1);
+	}
+
+	.stempel-waiting {
+		color: var(--color-ink-secondary);
+		border-color: var(--color-wire-strong);
+	}
+
+	.stempel-approved {
+		color: var(--color-score-high);
+		border-color: rgba(16, 185, 129, 0.3);
+	}
+
+	.stempel-action {
+		color: var(--color-vekt);
+		border-color: rgba(245, 158, 11, 0.3);
 	}
 
 	.action-btn {
-		margin-left: auto;
 		font-family: var(--font-ui);
 		font-size: 11px;
 		font-weight: 600;
-		color: var(--color-vekt);
-		background: var(--color-vekt-bg);
-		border: none;
+		padding: 6px 12px;
 		border-radius: var(--radius-sm);
-		padding: 4px 12px;
+		border: 1px solid transparent;
 		cursor: pointer;
+		transition: all 150ms ease;
 		white-space: nowrap;
-		transition: background 120ms ease;
+		background: var(--color-vekt-bg);
+		color: var(--color-vekt);
+		border-color: rgba(245, 158, 11, 0.3);
 	}
 
 	.action-btn:hover {
-		background: rgba(232, 168, 56, 0.16);
+		background: rgba(245, 158, 11, 0.2);
 	}
 
 	.action-urgent {
-		color: var(--color-score-low);
-		background: var(--color-score-low-bg);
+		background: var(--color-score-low);
+		color: #fff;
+		border-color: transparent;
 	}
 
 	.action-urgent:hover {
-		background: rgba(196, 88, 88, 0.16);
+		background: #be123c;
 	}
 </style>

@@ -1,58 +1,71 @@
-# KOE Design System — Analysebordet + Saksmappen + Forhandlingsbordet
+# KOE Design System — Forhandlingsbordet
 
 ## Intent
 
-**Who:** Kontraktsadministrator i NS 8407-forhandlinger. Jobber med juridiske posisjoner, vederlagskrav, fristberegninger. Trenger presisjon og oversikt over komplekse tall.
+**Who:** Prosjektledere, anleggsledere og jurister (Entreprenor/Byggherre). Under tidspress pa byggeplassen eller i kontraktsmoter. Stort okonomisk ansvar.
 
-**What:** Evaluere krav, ta rettslige standpunkter, skrive begrunnelser. Tett analytisk arbeid der feil koster penger.
+**What:** Triage av pagaende tvister (NS 8405/8407). Umiddelbart forsta hva som brenner, hvem som har ballen, og hva den okonomiske risikoen er.
 
-**Feel:** Finansanalytikens skrivebord — kaldt, presist, datadrevet. Tallene ER innholdet. Ikke varmt, ikke vennlig. Autoritativt og nøkternt som en kontraktsprotokoll.
+**Feel:** Et fysisk skrivebord med juridiske dokumenter. Knallhardt, presist, teknisk og blottet for unodvendig pynt. Ingen myke skygger, ingen lekenhet. Det skal foles som en kontrakt.
 
 ## Direction
 
-**Domain:** Kontraktsrett, byggebransje, forhandlingsbord, protokoller, §-referanser, tidslinjer, beløpsberegninger.
+**Domain:** Kontraktsrett, byggebransje, forhandlingsbord, protokoller, paragraf-referanser, tidslinjer, belopsberegninger.
 
-**Color world:** Mørke kontorflater (canvas #0c0e14), kald stål-blå for paneler, ravgul (amber) for vekting og aksent — som gullskrift på mørkt skinn. Grønn for godkjent, rød for avslått, dempet for uavklart.
+**Color world:** Zinc-notral morke flater (base #09090b). Kald, ren, ingen bla tint. Amber (#f59e0b) som eneste varme farge — brukes KUN for handling kreves.
 
-**Signature:** Vektlinjen — en vertikal ravgul aksent (3px border-left) som løper ned venstrekanten. Gjør abstrakt vekting fysisk skannbar. Amber er den eneste varme fargen i et kaldt system.
+**Signature:** Handlingskanten — en venstre kant (2px border-left) pa sporkort som indikerer umiddelbar status. Rose = Kritisk, Amber = Handling kreves, Wire = Venter.
 
-**Depth:** Borders-only. Ingen skygger. Mørk bakgrunn + tett data = borders definerer struktur stille. Surface shifts (felt → felt-raised) erstatter drop shadows.
+**Depth:** Borders-only. Ingen drop-shadows brukes noe sted. Dybde skapes utelukkende ved subtile overflateskift og lav-opasitets borders.
+
+## Architecture & Depth Strategy
+
+**Level 0 (Base Canvas):** `--color-canvas` (#09090b). Top-nav, sidebar, hovedflate og panel deler denne fargen. Separeres kun med `--wire`. Forhindrer at appen fragmenteres i soner.
+
+**Level 1 (Dokumenter/Sporkort):** `--color-felt` (#121214). Mikro-loft fra base. Arkene ligger oppa skrivebordet.
+
+**Level 2 (Hover/Fokus):** `--color-felt-hover` (#18181b). Indikerer interaktivitet uten a bryte dybdeillusjonen.
 
 ## Tokens (implementert i src/app.css)
 
-### Surfaces
-- `canvas` #0c0e14 — arbeidsflate
-- `felt` #12151e — kort, paneler
-- `felt-raised` #181c28 — dropdowns, popovers
-- `felt-hover` #1e2233
-- `felt-active` #242840
+### Surfaces (zinc-neutral, ingen bla tint)
+- `canvas` #09090b — arbeidsflate (alias: `base`)
+- `felt` #121214 — kort, paneler
+- `felt-raised` #1c1c1f — dropdowns, popovers
+- `felt-hover` #18181b
+- `felt-active` #27272a
 
-### Ink (tekst-hierarki)
-- `ink` #e2e5ef — primærtekst
-- `ink-secondary` #8890a4 — støttetekst
-- `ink-muted` #7b829b — labels, metadata
-- `ink-ghost` #5a6178 — disabled, placeholder
+### Ink (tekst-hierarki, brighter purer whites)
+- `ink` #fafafa — primaertekst
+- `ink-secondary` #a1a1aa — stottetekst
+- `ink-muted` #71717a — labels, metadata
+- `ink-ghost` #52525b — disabled, placeholder
 
-### Wire (borders)
-- `wire` rgba(255,255,255,0.06) — standard separasjon
-- `wire-strong` rgba(255,255,255,0.10) — gruppedeling
-- `wire-focus` rgba(232,168,56,0.35) — fokusringer (amber)
+### Wire (borders — ALLTID RGBA, aldri solid hex)
+- `wire` rgba(255,255,255,0.08) — standard separasjon
+- `wire-strong` rgba(255,255,255,0.15) — seksjonsinndeling
+- `wire-focus` rgba(255,255,255,0.25) — fokusringer
 
-### Vekt (aksent — amber)
-- `vekt` #e8a838 — primær vektfarge
-- `vekt-dim` #c49030 — sekundær
-- `vekt-bg` rgba(232,168,56,0.08) — tint
-- `vekt-bg-strong` rgba(232,168,56,0.14) — emphasis
+### Vekt (aksent — amber, eneste varme farge)
+- `vekt` #f59e0b — primaer aksent
+- `vekt-dim` #d97706 — sekundaer
+- `vekt-bg` rgba(245,158,11,0.08) — tint
+- `vekt-bg-strong` rgba(245,158,11,0.14) — emphasis
 
 ### Score (semantisk)
-- `score-high` #3d9a6e / bg rgba(61,154,110,0.10) — godkjent, høy
-- `score-mid` #8890a4 — delvis, nøytral
-- `score-low` #c45858 / bg rgba(196,88,88,0.10) — avslått, lav
+- `score-high` #10b981 / bg rgba(16,185,129,0.10) — godkjent, emerald
+- `score-mid` #a1a1aa — noytralt
+- `score-low` #e11d48 / bg rgba(225,29,72,0.08) — kritisk, rose
+
+### Fargebruk (Umotivert farge er stoy)
+- **Amber (vekt):** KUN nar handling kreves, eller for a markere intern tvil/omtvistede midler.
+- **Rose (score-low):** KUN for kritisk fare: Dagmulkt, passivitet, avviste krav.
+- **Emerald (score-high):** KUN for avklarte, godkjente elementer.
 
 ## Typography
-- **UI:** Inter — labels, knapper, brødtekst
-- **Data:** JetBrains Mono — tall, beløp, datoer, prosent
-- **Section labels:** 11px, weight 600, uppercase, tracking 0.08em, ink-muted
+- **UI:** Inter — labels, knapper, brodtekst
+- **Data:** JetBrains Mono — tall, belop, datoer, prosent
+- **Section labels:** 10px, weight 600, uppercase, tracking 0.08em, ink-muted
 - **Body/labels:** 13px, weight 500
 - **Data values:** 13px, font-data, tabular-nums
 
@@ -60,226 +73,115 @@
 4px base grid: 4/8/12/16/20/24/32/40/48
 
 ## Radius
-Skarpere enn standard — kontraktdokument-karakter:
-- `sm` 2px — inputs, knapper, badges
-- `md` 4px — kort, segmented controls
+Skarpt — kontraktdokument-karakter. Ingen runde hjorner:
+- `sm` 2px — inputs, knapper, badges, kort
+- `md` 2px — kort, segmented controls (bevisst lik sm)
 - `lg` 6px — containere, modaler
+
+## Key Patterns
+
+### 1. Handlingskant (The Action Edge)
+Venstre kant av et sporkort (border-left: 2px solid) er reservert for umiddelbar statusavlesning. Oyet skanner denne aksen forst.
+
+| Tilstand | Bakgrunn | Venstre kant |
+|---|---|---|
+| Kritisk/Passivitet | score-low-bg | 2px solid score-low |
+| Handling kreves | felt | 2px solid vekt |
+| Godkjent | felt, opacity 0.7 | 1px solid score-high |
+| Avslatt | felt | 2px solid score-low |
+| Venter | felt | 1px solid wire-strong |
+| Bortfalt | felt | 1px dashed ink-ghost |
+
+### 2. Hoyreforankret Metrikk (The Tabular Wall)
+Alle tallverdier forankres til hoyre marg, formatert med JetBrains Mono (font-variant-numeric: tabular-nums). 15px font-size for nokkeltall i sporkort.
+
+### 3. Skilleark (Date Dividers)
+Flat date-divider med `::after` horizontal rule. Ingen vertikal tidslinje-spine. Dokumenter grupperes under horisontale datolinjer. Nyeste overst, eldste nederst.
+
+```css
+.date-divider { display: flex; align-items: center; gap: 16px; }
+.date-divider::after { content: ''; flex: 1; height: 1px; background: var(--wire); }
+.date-text { font-data, 10px, 600, uppercase, 0.08em tracking, ink-muted }
+```
+
+### 4. Stempler (Skarpe kanter)
+Alle status-indikatorer har skarpe hjorner (2px radius). De skal foles som blekkstempler, ikke systemkomponenter.
+
+Varianter:
+- `critical`: score-low tekst + score-low border + score-low bg 10%
+- `waiting`: ink-secondary tekst + wire-strong border
+- `approved`: score-high tekst + score-high border 30%
+- `action`: vekt tekst + vekt border 30%
+
+### 5. Gule Lapper (Interne Notater)
+Interne elementer markeres med svak amber-bakgrunn (vekt-bg) og stiplet venstrekant (dashed). Bryter bevisst med den strenge logg-estetikken for a signalisere at "dette gar ikke ut av huset".
+
+```css
+.internt-notat {
+  background: var(--vekt-bg);
+  border-left: 2px dashed var(--vekt);
+  border-radius: 0 2px 2px 0;
+}
+```
+
+### 6. Aksjonsknapper
+To varianter:
+- **Normal (amber outline):** vekt-bg bakgrunn, vekt tekst, vekt border 30%. For "BEHANDLE ->".
+- **Kritisk (solid rose):** score-low bakgrunn, hvit tekst. For "SVAR NA ->".
 
 ## Component Patterns
 
-### Knapper
-36px høyde, r-sm, font-ui 13px weight 600. Varianter via semantiske farger.
+### Top-Nav Breadcrumbs
+48px hoyde, border-bottom wire-strong. Breadcrumbs: 12px, ink-secondary. Current: ink, weight 500. Bruker-info hoyre-justert med avatar (24px sirkel).
 
-### Badges
-10-11px uppercase, weight 600, tracking 0.06em, padding 2px 8px, r-sm.
+### Sidebar (260px)
+Bakgrunn: canvas (IKKE felt — unified med hovedflaten). Border-right: wire-strong.
 
-### Section headers
-11px uppercase, tracking 0.06em, border-bottom 1px wire, optional §-ref i ink-muted.
+Seksjoner separert med 1px wire. Padding 16px 24px per seksjon.
 
-### Key-value rows
-Label (ink-secondary) + dotted leader + verdi (ink eller font-data). Brukt overalt i midtpanelet.
+**Saksidentitet:** sys-id (font-data, 11px, ink-muted), tittel (16px, weight 600), undertittel (13px, ink-secondary).
 
-### Verdict buttons
-Horisontal gruppe, 36px, semantisk farge per valg. Kun én aktiv.
+**Gjeldende Status boks:** felt bg, wire-strong border, sm radius, 12px padding. Header: 10px uppercase ink-secondary. Verdi: 12px ink, weight 500.
 
-### Number inputs
-font-data, tabular-nums, 36px høyde, canvas-bg (inset), suffix i ink-muted.
+**Parter:** Label (BH/TE) i font-data 10px ink-ghost, navn hoyre-justert, font-ui 13px weight 500.
 
-### Checkboxes
-16x16px, canvas-bg, wire-strong border. Checked: vekt-bg + vekt-border. Label først (mennesketekst), §-ref sekundært i ink-muted.
+**Frister:** Urgency-pills med farget bakgrunn. Critical: score-low-bg + score-low border 20%. Warning: vekt-bg + vekt border 20%. Bare warning/critical vises.
 
-### Segmented controls
-felt-bg container, r-md, 3px padding. Aktiv segment: vekt-bg-strong + vekt tekst.
+**Dokumentasjon:** Vedlegg-knapp med felt bg, wire border, sm radius.
 
-### Consequence callouts
-Border-left 3px (semantisk farge), padding 12px 16px, ikon + tekst.
-
-### Locked value tokens
-Inline i rich text: {{type:value:display}}. Fargekoding: dager=blå, beløp=grønn, prosent=lilla, paragraf=nøytral.
-
----
-
-## Saksmappen — Fase 2 Patterns
-
-Oversiktssiden for en KOE-sak. Saksmappen er triage: åpne, scan status (<3s), avgjør om du skal inn i Forhandlingsbordet (spordetalj). Komponentkatalog: `src/lib/components/saksmappe/`.
-
-### Signaturelement: Handlingskant
-
-Saksmappen arver Vektlinjen-konseptet men refortolker det: venstre kant = handlingsstatus.
-
-| Tilstand | Bakgrunn | Venstre kant | Handling |
-|---|---|---|---|
-| Handling — normal | --felt | 3px solid --vekt | → Svar |
-| Handling — kritisk | --score-low-bg | 3px solid --score-low | → Svar nå |
-| Venter på motpart | --felt | 1px solid --wire-strong | Ingen |
-| Godkjent | --felt | 2px solid --score-high | Ingen, ✓ badge |
-| Avslått | --felt | 2px solid --score-low | → Forsering? |
-| Bortfalt | --felt | 1px dashed --ink-ghost | → Se sak |
-
-### Layout: To-kolonne
-
-```
-┌──────────────────────┬────────────────────────────────┐
-│ Sidebar (260px)      │ Tidslinje (1fr, max 820px)     │
-│ sticky, 100vh        │                                │
-└──────────────────────┴────────────────────────────────┘
-```
-
-Grid: `260px 1fr`. Sidebar: sticky top 0, height 100vh, overflow-y auto, border-right 1px --wire.
-
-### Sidebar
-
-Seksjoner separert med 1px --wire. Padding sp-4 (16px).
-
-**Saksidentitet:** sak_id (font-data, 12px, ink-muted), tittel (font-ui, 16px, weight 600, ink), undertittel (13px, ink-secondary).
-
-**Parter:** Label (TE/BH) i font-data 10px ink-ghost, navn i font-ui 13px ink.
-
-**FRISTER:** Section-label-mønster (11px uppercase). Urgency-sortert — mest presserende øverst. Tre fargenivåer:
-- Kritisk (passivitet): score-low, weight 600, uppercase "PASSIVITET"
-- Advarsel: vekt
-- Normal: ink-secondary
-- Dager: font-data, mono
-
-**VARSLING:** Section-label-mønster. Symboler + menneskelig tekst:
-- ✓ ok: score-high
-- ⚠ warning: vekt
-- ✕ breach: score-low
-- – na: ink-ghost
-- §-referanse i title-attr (tooltip for juristen)
-
-### Tidslinjespine
-
-Vertikal linje: 1px solid --wire-strong, venstre for kortene.
-
-**Datomerke:** ink-muted, 11px, uppercase, tracking 0.06em. Relativ tid: "I DAG", "I GÅR", dato.
-**Datopunkt:** 6px sirkel, ink-muted.
-**Sak opprettet:** ○ + tekst, ink-muted.
-
-### ActionBanner
-
-Sticky øverst i tidslinjen. Én linje.
-
-```
-⚠ N handlinger venter på deg
-```
-
-- Fargekodet etter mest urgent: score-low-bg (passivitet), vekt-bg (normal), transparent (ingen)
-- font-ui, 12px, weight 600
-- Ikon ⚠ i matchende farge
-- Null-tilstand: "Ingen handlinger. Venter på TE." i ink-muted
+**Nokkeltall (NOK):** Finans-rader med label (ink-secondary) og verdi (font-data, tabular-nums). Krav=ink, Godkjent=score-high, Omtvistet=vekt. Divider + undergruppe for tidsrisiko.
 
 ### Sporkort
+felt bg, wire-strong border, sm radius, 16px padding, 8px gap mellom seksjoner.
 
-Kompakt 2-3 linjer. Hele kortet klikkbart (cursor pointer) → spordetalj.
+Hover: felt-hover bg, wire-focus border. Transition: 150ms ease.
 
-```
-Bakgrunn: --felt (normal), --score-low-bg (kritisk/passivitet)
-Border: 1px solid --wire
-Border-left: se differensieringstabell over
-Hover: --felt-hover
-Radius: --r-md (4px)
-Padding: sp-3 (12px) top/bottom, sp-4 (16px) left/right
-Gap mellom linjer: sp-1 (4px)
-Focus-visible: 2px solid --wire-focus, offset -2px
-Transition: background 150ms ease
-```
+**Header:** flex space-between. Spor-navn: 13px, 600, uppercase. Stempel + aksjonsknappe hoyre.
 
-**Header-linje (flex, center, gap sp-2):**
-- Spornavn: font-ui, 12px, weight 600, ink. ANSVARSGRUNNLAG / VEDERLAG / FRISTFORLENGELSE
-- Statusbadge: 10px, uppercase, weight 600, tracking 0.06em, ink-secondary, pill (1px 6px, r-sm, felt-active bg)
-- Varslingsflagg: font-ui, 10px, ink-muted. Symboler fargekodede (✓ score-high, ⚠ vekt, ✕ score-low). §-ref i title-attr.
-- Handlingsknapp (ml-auto): font-ui, 11px, weight 600. Normal: vekt tekst, vekt-bg bg. Kritisk: score-low tekst, score-low-bg bg. Hover: sterkere bg.
+**Data-linje:** flex space-between baseline. Venstre: prikk-separerte deskriptive segmenter (12px ink-secondary). Hoyre: nokkeltall (font-data 15px 600 tabular-nums) + evt milepael-tag.
 
-**Data-linje (balansert layout):**
-- `display: flex; justify-content: space-between; align-items: baseline`
-- Venstre: prikk-separerte deskriptive segmenter (metode, kategori, Rev. N)
-- Høyre: nøkkelmetrikk — beløp (font-data, 15px, weight 600, tabular-nums) eller dager
-- Grunnlag har ingen høyre-metrikk (tekst ER innholdet)
-- Ingen "Frist Xd" — det finnes ingen kontraktsfestet svarfrist
+**Hendelseslogg:** border-top wire, margin-top 16px. Event-linjer: baseline gap 12px. Fokusert: amber venstekant (2px solid vekt) + felt-hover bg.
 
-### Hendelseslogg (innfelt i sporkort, alltid synlig)
+**"+ Nytt internt notat":** Dashed border-top, ink-ghost tekst, hover -> vekt.
 
-**Visning:** Nyeste 3 hendelser alltid synlige. Toggle for resten hvis >3.
+### Forhåndsvisningspanel (360px)
+Border-left wire-strong. Padding 24px. Slide-in animasjon (opacity 0->1, translateX 12->0, 200ms).
 
-**Toggle-bar:**
-```
-Border-top: 1px solid --wire
-Hover: rgba(255,255,255,0.03)
-Tekst: "N hendelser til" font-data 10px ink-muted
-Chevron: 8px ink-ghost (▸ → ▾)
-```
+Close-button: absolut top-right, ink-ghost, hover->ink.
 
-**Ekspandert tilstand:**
-- Kortet: felt-raised bg, wire-strong border
-- Toggle-bar: border-bottom 1px wire (separator)
-- StopPropagation på hele toggle/logg-area
+Header: ikon + handling + meta (auto margin-left). Separator: 1px wire.
 
-**Hendelseslinje-anatomi:**
-```
-[ikon 14px] [dato 38px mono 10px] [tekst flex 11px] [rev 9px ghost] [metrikk mono 11px w600]
-```
-- Metrikk (beløp/dager) vises til høyre når tilgjengelig i event-data
-- TE/BH-rolle vises IKKE — avsender fremgår av hendelsesteksten
-
-**Hendelsesikoner:**
-| Ikon | Betydning | Farge |
-|---|---|---|
-| → | Sendt/krevd | ink-muted |
-| ⚑ | Varslet | ink-muted |
-| ↻ | Revidert | vekt-dim |
-| ◇ | Svar fra motpart | score-high |
-| ✓ | Godkjent | score-high |
-| ✕ | Trukket/avslått | score-low |
-
-### Forhåndsvisningspanel (hendelsesdetalj)
-
-360px aside, sticky top 0, height 100vh, border-left 1px wire. Animerer inn: opacity 0→1, translateX 12→0, 200ms.
-
-**Grid:** Legger til tredje kolonne: `260px 1fr 360px` (responsive: `48px 1fr 320px`).
-
-**Tom tilstand:** 11px ink-ghost, text-align center, padding-top 32px. "Hover over en hendelse for å se detaljer"
-
-**Fylt tilstand — seksjoner:**
-- **Header:** Ikon (14px, fargeklasse) + handling (14px, weight 600, ink) + meta (font-data, 11px, ink-muted, tabular-nums)
-- **Separator:** 1px wire, margin 16px 0
-- **Seksjonslabel:** 10px, weight 600, uppercase, tracking 0.08em, ink-ghost, mb 8px
-- **Beskrivelse/Endring/Vurdering:** 12px, ink-secondary, line-height 1.5. Label varierer per hendelsestype.
-- **Vedlegg:** canvas-bg, wire border, r-sm, padding 8px 12px, 11px, ink-secondary. Hover: felt-hover. 📎-ikon.
-- **Bestemmelse:** canvas-bg, wire border, border-left 2px ink-ghost, r-sm. Paragraf: font-data 10px ink-muted. Tekst: 11px ink-secondary, lh 1.4.
-- **Spordetalj-lenke:** Flex end, 11px, weight 500, ink-muted. Hover: vekt. border-top 1px wire, padding-top 12px.
-
-**Fokusert hendelse i logg:** border-left 2px solid vekt (amber), felt-hover bg. Sticky fokus (cleares kun ved logg-lukking, ikke mouseleave).
-
-**Seksjonslabel-kontekst:**
-| Hendelsestype | Label |
-|---|---|
-| opprettet/sendt | Beskrivelse |
-| oppdatert/spesifisert | Endring |
-| respons_* | Vurdering |
-| annet | Detaljer |
+Seksjonslabels: 10px uppercase ink-ghost. Tekst: 12px ink-secondary. Spordetalj-lenke: flex-end, 11px ink-muted, hover->vekt.
 
 ### Saksliste (tabell)
-
 Full-width tabell med felt-bg, wire border, sticky header.
 - Header: 10px, uppercase, tracking 0.08em, ink-muted
-- Rader: hover → felt-hover, cursor pointer, hele raden klikkbar (lenke)
+- Rader: hover -> felt-hover, cursor pointer
 - Tall-kolonner: font-data, tabular-nums
-- Status: Badge-primitiv
-- Sorteringsikon: ▴/▾ i ink-ghost, aktiv = ink
 
-### Fargekartlegging Analysebordet → Saksmappen
+## Narrativskille: Saksmappe vs Forhandlingsbord
 
-| Analysebordet | Saksmappen | Prinsipp |
-|---|---|---|
-| vekt = vekting | vekt = handling kreves | Amber = "viktig" |
-| score-high = god score | score-high = godkjent | Grønn = "bra" |
-| score-low = dårlig score | score-low = kritisk/avslått | Rose = "problem" |
-| Vektlinjen (vertikal spine) | Handlingskant (venstre border) | Kant-accent = anker |
-
-### Narrativskille: Saksmappe → Forhandlingsbord
-
-| Visning | Metafor | Formål | Modus |
+| Visning | Metafor | Formal | Modus |
 |---|---|---|---|
 | `/[prosjektId]/[sakId]` | Saksmappen | Scan status, triage | Lesing, scanning |
 | `/[prosjektId]/[sakId]/[spor]` | Forhandlingsbordet | Svar, ta standpunkt | Arbeid, skriving |

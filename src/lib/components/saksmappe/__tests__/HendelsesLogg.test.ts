@@ -38,7 +38,7 @@ describe('HendelsesLogg', () => {
 		const events = makeManyEvents(3);
 		render(HendelsesLoggTest, { props: { events } });
 		// All 3 should be visible as event-lines, no toggle needed
-		expect(screen.queryByRole('button')).not.toBeInTheDocument();
+		expect(screen.queryByRole('button', { name: /hendelser til/i })).not.toBeInTheDocument();
 		expect(screen.getByText('varslet')).toBeInTheDocument();
 	});
 

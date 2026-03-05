@@ -1,45 +1,45 @@
 @import "tailwindcss";
 
 @theme inline {
-	/* ── Analysebordet — dark theme tokens ── */
+	/* ── Forhandlingsbordet — zinc-neutral dark theme tokens ── */
 
-	/* Canvas & surfaces */
-	--color-canvas: #0c0e14;
-	--color-felt: #12151e;
-	--color-felt-raised: #181c28;
-	--color-felt-hover: #1e2233;
-	--color-felt-active: #242840;
+	/* Canvas & surfaces (zinc-neutral, no blue tint) */
+	--color-canvas: #09090b;
+	--color-felt: #121214;
+	--color-felt-raised: #1c1c1f;
+	--color-felt-hover: #18181b;
+	--color-felt-active: #27272a;
 
-	/* Ink hierarchy */
-	--color-ink: #e2e5ef;
-	--color-ink-secondary: #8890a4;
-	--color-ink-muted: #7b829b;
-	--color-ink-ghost: #5a6178;
+	/* Ink hierarchy (brighter, purer whites) */
+	--color-ink: #fafafa;
+	--color-ink-secondary: #a1a1aa;
+	--color-ink-muted: #71717a;
+	--color-ink-ghost: #52525b;
 
-	/* Wire — borders */
-	--color-wire: rgba(255, 255, 255, 0.06);
-	--color-wire-strong: rgba(255, 255, 255, 0.10);
-	--color-wire-focus: rgba(232, 168, 56, 0.35);
+	/* Wire — borders (RGBA for blending, never solid hex) */
+	--color-wire: rgba(255, 255, 255, 0.08);
+	--color-wire-strong: rgba(255, 255, 255, 0.15);
+	--color-wire-focus: rgba(255, 255, 255, 0.25);
 
-	/* Vekt — weight accent (amber) */
-	--color-vekt: #e8a838;
-	--color-vekt-dim: #c49030;
-	--color-vekt-bg: rgba(232, 168, 56, 0.08);
-	--color-vekt-bg-strong: rgba(232, 168, 56, 0.14);
+	/* Vekt — action accent (amber) — the only warm color */
+	--color-vekt: #f59e0b;
+	--color-vekt-dim: #d97706;
+	--color-vekt-bg: rgba(245, 158, 11, 0.08);
+	--color-vekt-bg-strong: rgba(245, 158, 11, 0.14);
 
 	/* Score semantics */
-	--color-score-high: #3d9a6e;
-	--color-score-high-bg: rgba(61, 154, 110, 0.10);
-	--color-score-mid: #8890a4;
-	--color-score-low: #c45858;
-	--color-score-low-bg: rgba(196, 88, 88, 0.10);
+	--color-score-high: #10b981;
+	--color-score-high-bg: rgba(16, 185, 129, 0.10);
+	--color-score-mid: #a1a1aa;
+	--color-score-low: #e11d48;
+	--color-score-low-bg: rgba(225, 29, 72, 0.08);
 
 	/* Tipex editor */
-	--color-tipex-bg: #0c0e14;
-	--color-tipex-text: #e2e5ef;
-	--color-tipex-toolbar-bg: #181c28;
-	--color-tipex-toolbar-text: #8890a4;
-	--color-tipex-accent: #e8a838;
+	--color-tipex-bg: #09090b;
+	--color-tipex-text: #fafafa;
+	--color-tipex-toolbar-bg: #1c1c1f;
+	--color-tipex-toolbar-text: #a1a1aa;
+	--color-tipex-accent: #f59e0b;
 
 	/* Typography */
 	--font-data: 'JetBrains Mono', 'SF Mono', 'Cascadia Code', 'Consolas', monospace;
@@ -56,9 +56,9 @@
 	--spacing-10: 40px;
 	--spacing-12: 48px;
 
-	/* Radius (skarpere enn standard) */
+	/* Radius (sharp — legal document character) */
 	--radius-sm: 2px;
-	--radius-md: 4px;
+	--radius-md: 2px;
 	--radius-lg: 6px;
 }
 

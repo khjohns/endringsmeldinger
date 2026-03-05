@@ -31,25 +31,14 @@
 
 	// Norwegian month names
 	const MONTH_NAMES = [
-		'januar',
-		'februar',
-		'mars',
-		'april',
-		'mai',
-		'juni',
-		'juli',
-		'august',
-		'september',
-		'oktober',
-		'november',
-		'desember',
+		'januar', 'februar', 'mars', 'april', 'mai', 'juni',
+		'juli', 'august', 'september', 'oktober', 'november', 'desember',
 	];
 
 	// Norwegian timezone
 	const TZ = 'Europe/Oslo';
 
 	function toLocalDate(dateStr: string): Date {
-		// Parse to Date and shift to Norwegian local date
 		return new Date(new Date(dateStr).toLocaleString('sv-SE', { timeZone: TZ }));
 	}
 
@@ -65,13 +54,13 @@
 		const todayKey = `${now.getFullYear()}-${now.getMonth()}-${now.getDate()}`;
 		const key = `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
 
-		if (key === todayKey) return 'i dag';
+		if (key === todayKey) return 'I dag';
 
 		// eslint-disable-next-line svelte/prefer-svelte-reactivity
 		const yesterday = new Date(now);
 		yesterday.setDate(yesterday.getDate() - 1);
 		const yesterdayKey = `${yesterday.getFullYear()}-${yesterday.getMonth()}-${yesterday.getDate()}`;
-		if (key === yesterdayKey) return 'i går';
+		if (key === yesterdayKey) return 'I gar';
 
 		return `${d.getDate()}. ${MONTH_NAMES[d.getMonth()]}`;
 	}
@@ -146,33 +135,16 @@
 	}
 
 	const dateGroups = $derived(buildDateGroups(activeTracks));
-
-	// Opprettet date
-	const opprettetLabel = $derived(
-		state.opprettet ? formatDateLabel(state.opprettet) : null
-	);
-
-	const opprettetFormatted = $derived(
-		state.opprettet
-			? (() => {
-					const d = toLocalDate(state.opprettet);
-					return `${d.getDate()}. ${MONTH_NAMES[d.getMonth()]} ${d.getFullYear()}`;
-				})()
-			: null
-	);
-
 </script>
 
-<div class="timeline" role="list">
+<div class="document-area" role="list">
 	{#each dateGroups as group (group.dateKey)}
 		<div class="date-group" role="listitem">
-			<div class="date-marker">
-				<div class="spine-segment"></div>
-				<span class="date-label">{group.label}</span>
-				<div class="date-rule"></div>
+			<div class="date-divider">
+				<span class="date-text">{group.label}</span>
 			</div>
 
-			<div class="cards">
+			<div class="spor-list">
 				{#each group.tracks as track (track.spor)}
 					<Sporkort
 						sporType={track.spor}
@@ -186,119 +158,51 @@
 			</div>
 		</div>
 	{/each}
-
-	<!-- Sak opprettet — bunn av spine -->
-	{#if opprettetLabel !== null}
-		<div class="opprettet-group">
-			<div class="spine-tail"></div>
-			<div class="opprettet-marker">
-				<span class="opprettet-dot" aria-hidden="true">○</span>
-				<span class="opprettet-text">
-					Sak opprettet av TE
-					{#if opprettetFormatted}
-						<span class="opprettet-dato">{opprettetFormatted}</span>
-					{/if}
-				</span>
-			</div>
-		</div>
-	{/if}
 </div>
 
 <style>
-	.timeline {
+	.document-area {
 		display: flex;
 		flex-direction: column;
-		padding: 16px 0;
+		gap: 24px;
+		width: 100%;
 		max-width: 820px;
+		margin: 0 auto;
+		padding: 32px 32px 120px 32px;
 	}
 
-	/* Date group */
 	.date-group {
 		display: flex;
 		flex-direction: column;
 	}
 
-	/* Date marker row */
-	.date-marker {
+	.date-divider {
 		display: flex;
 		align-items: center;
-		gap: 8px;
-		padding: 12px 0 8px 0;
-		margin-left: 24px;
+		gap: 16px;
+		margin-bottom: 12px;
 	}
 
-	.spine-segment {
-		width: 1px;
-		background: var(--color-wire-strong);
-		align-self: stretch;
-		margin-right: 8px;
-	}
-
-	.date-label {
-		font-family: var(--font-ui);
-		font-size: 11px;
-		font-weight: 600;
-		color: var(--color-ink-muted);
-		text-transform: uppercase;
-		letter-spacing: 0.06em;
-		white-space: nowrap;
-		flex-shrink: 0;
-	}
-
-	.date-rule {
+	.date-divider::after {
+		content: '';
 		flex: 1;
 		height: 1px;
 		background: var(--color-wire);
 	}
 
-	/* Cards container */
-	.cards {
-		display: flex;
-		flex-direction: column;
-		gap: 8px;
-		padding: 0 0 16px 24px;
-		border-left: 1px solid var(--color-wire-strong);
-		margin-left: 24px;
-	}
-
-	/* Opprettet marker at bottom */
-	.opprettet-group {
-		display: flex;
-		flex-direction: column;
-		margin-left: 24px;
-	}
-
-	.spine-tail {
-		width: 1px;
-		height: 16px;
-		background: var(--color-wire-strong);
-		margin-left: 0;
-	}
-
-	.opprettet-marker {
-		display: flex;
-		align-items: center;
-		gap: 8px;
-		padding: 4px 0 16px 0;
-	}
-
-	.opprettet-dot {
-		font-size: 14px;
-		color: var(--color-ink-ghost);
-		line-height: 1;
-		flex-shrink: 0;
-	}
-
-	.opprettet-text {
-		font-family: var(--font-ui);
-		font-size: 12px;
+	.date-text {
+		font-family: var(--font-data);
+		font-size: 10px;
+		font-weight: 600;
+		text-transform: uppercase;
+		letter-spacing: 0.08em;
 		color: var(--color-ink-muted);
-		display: flex;
-		align-items: center;
-		gap: 8px;
+		white-space: nowrap;
 	}
 
-	.opprettet-dato {
-		color: var(--color-ink-ghost);
+	.spor-list {
+		display: flex;
+		flex-direction: column;
+		gap: 16px;
 	}
 </style>
