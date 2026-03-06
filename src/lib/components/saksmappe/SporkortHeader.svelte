@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
 	import type { SporType, SporStatus } from '$lib/types/timeline';
 	import type { VarslingItem } from '$lib/utils/varslingStatus';
 
@@ -11,7 +12,15 @@
 		sakId: string;
 	}
 
-	let { sporType, status, varsling, action }: Props = $props();
+	let { sporType, status, varsling, action, prosjektId, sakId }: Props = $props();
+
+	function handleAction(e: MouseEvent) {
+		e.stopPropagation();
+		if (sporType === 'grunnlag') {
+			goto(`/${prosjektId}/${sakId}/svar-grunnlag`);
+		}
+		// TODO: svar-vederlag, svar-frist routes
+	}
 
 	const SPOR_LABELS: Record<SporType, string> = {
 		grunnlag: 'KONTRAKTSFORHOLD',
@@ -60,7 +69,7 @@
 		<button
 			class="action-btn"
 			class:action-urgent={action.urgent}
-			onclick={(e: MouseEvent) => e.stopPropagation()}
+			onclick={handleAction}
 		>
 			{action.label} &rarr;
 		</button>
