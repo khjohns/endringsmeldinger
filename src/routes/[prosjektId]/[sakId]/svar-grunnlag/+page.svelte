@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import { createCaseContextQuery } from '$lib/queries/caseContext';
+	import { getHjemmelObj } from '$lib/constants/categories';
 	import BhGrunnlagResponse from '$lib/components/bh-response/BhGrunnlagResponse.svelte';
 
 	const prosjektId = $derived(page.params.prosjektId ?? '');
@@ -27,15 +28,14 @@
 
 		const eventData = grunnlagEvent?.data as unknown as Record<string, unknown> | undefined;
 
+		const hjemmel = getHjemmelObj(underkategori);
+		const hjemmelRef = hjemmel ? `§${hjemmel.hjemmel_basis}` : undefined;
+
 		return {
 			tittel: state.sakstittel,
 			hovedkategori: grunnlag.hovedkategori ?? 'ENDRING',
 			underkategori,
-			hjemmelRef: underkategori === 'EO' ? '§31.3'
-				: underkategori === 'IRREG' ? '§32.3'
-				: underkategori === 'VALGRETT' ? '§32.3'
-				: grunnlag.hovedkategori === 'ENDRING' ? '§32.2'
-				: undefined,
+			hjemmelRef,
 			datoVarslet: grunnlag.grunnlag_varsel?.dato_sendt,
 			versjon: grunnlag.antall_versjoner ?? 1,
 			begrunnelseHtml: (eventData?.begrunnelse as string) ?? '<p>Begrunnelse fra TE vil vises her.</p>',

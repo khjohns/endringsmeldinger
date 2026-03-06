@@ -1,4 +1,7 @@
 <script lang="ts">
+	import { getKontraktsforholdLabel, getHjemmelLabel } from '$lib/constants/categories';
+	import { formatDateShortNorwegian } from '$lib/utils/dateFormatters';
+
 	interface Props {
 		tittel: string;
 		hovedkategori: string;
@@ -10,39 +13,11 @@
 
 	let { tittel, hovedkategori, underkategori, hjemmelRef, datoVarslet, versjon }: Props = $props();
 
-	const kategoriLabel = $derived.by(() => {
-		const labels: Record<string, string> = {
-			ENDRING: 'Endring',
-			SVIKT: 'Svikt',
-			ANDRE: 'Andre forhold',
-			FORCE_MAJEURE: 'Force majeure',
-		};
-		return labels[hovedkategori] ?? hovedkategori;
-	});
+	const kategoriLabel = $derived(getKontraktsforholdLabel(hovedkategori));
 
-	const underkategoriLabel = $derived.by(() => {
-		if (!underkategori) return null;
-		const labels: Record<string, string> = {
-			EO: 'Endringsordre',
-			IRREG: 'Irregulær endring',
-			VALGRETT: 'Valgrett',
-			SVAR_VARSEL: 'Svar på varsel',
-		};
-		return labels[underkategori] ?? underkategori;
-	});
+	const underkategoriLabel = $derived(underkategori ? getHjemmelLabel(underkategori) : null);
 
-	const formatDato = $derived.by(() => {
-		if (!datoVarslet) return null;
-		try {
-			return new Intl.DateTimeFormat('nb-NO', {
-				day: 'numeric',
-				month: 'short',
-				year: 'numeric',
-			}).format(new Date(datoVarslet));
-		} catch {
-			return datoVarslet;
-		}
-	});
+	const formatDato = $derived(datoVarslet ? formatDateShortNorwegian(datoVarslet) : null);
 </script>
 
 <div class="sammendrag-kort">

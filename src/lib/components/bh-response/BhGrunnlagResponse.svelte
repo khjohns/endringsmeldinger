@@ -91,16 +91,11 @@
 
 	const editorPlaceholder = $derived(getDynamicPlaceholder(resultat, prekludert));
 
-	const kategoriTag = $derived.by(() => {
-		const labels: Record<string, string> = {
-			ENDRING: 'ENDRING',
-			SVIKT: 'SVIKT',
-			ANDRE: 'ANDRE',
-			FORCE_MAJEURE: 'FORCE_MAJ',
-		};
-		const main = labels[krav.hovedkategori] ?? krav.hovedkategori;
-		return krav.underkategori ? `${main}/${krav.underkategori}` : main;
-	});
+	const kategoriTag = $derived(
+		krav.underkategori
+			? `${krav.hovedkategori}/${krav.underkategori}`
+			: krav.hovedkategori
+	);
 
 	const varslingTag = $derived.by(() => {
 		if (!visVarsling) return null;
