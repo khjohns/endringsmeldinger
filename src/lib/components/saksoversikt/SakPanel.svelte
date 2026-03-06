@@ -61,6 +61,11 @@
 >
 	{#if sak}
 		<div class="panel-innhold">
+			<!-- Mobile: Tilbake-knapp -->
+			<button class="mobil-tilbake" onclick={onclose}>
+				<span aria-hidden="true">&larr;</span> Tilbake
+			</button>
+
 			<!-- Header -->
 			<div class="panel-header">
 				<div class="panel-id">{sak.sak_id}</div>
@@ -523,5 +528,59 @@
 
 	.panel-lenke:hover {
 		color: var(--color-vekt);
+	}
+
+	/* Mobile: hidden by default */
+	.mobil-tilbake {
+		display: none;
+	}
+
+	@media (max-width: 1023px) {
+		.panel {
+			width: 100%;
+			position: fixed;
+			inset: 0;
+			border-left: none;
+			background: var(--color-canvas);
+			z-index: 25;
+		}
+
+		.panel::before {
+			display: none;
+		}
+
+		.panel-lukk {
+			display: none;
+		}
+
+		.mobil-tilbake {
+			display: flex;
+			align-items: center;
+			gap: 6px;
+			position: sticky;
+			top: 0;
+			z-index: 1;
+			padding: 12px 16px;
+			background: var(--color-canvas);
+			border: none;
+			border-bottom: 1px solid var(--color-wire);
+			font-family: var(--font-ui);
+			font-size: 13px;
+			font-weight: 500;
+			color: var(--color-ink-secondary);
+			cursor: pointer;
+		}
+
+		.mobil-tilbake:hover {
+			color: var(--color-ink);
+		}
+
+		.panel-header {
+			padding: 16px;
+		}
+
+		.panel-body {
+			padding: 16px;
+		}
 	}
 </style>

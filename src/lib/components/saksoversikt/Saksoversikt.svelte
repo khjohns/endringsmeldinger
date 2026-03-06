@@ -57,7 +57,8 @@
 					{sak}
 					{klynger}
 					erAktiv={valgtSak?.sak_id === sak.sak_id}
-					onclick={() => velgSak(sak)}
+					onpanel={() => velgSak(sak)}
+					{prosjektId}
 					{aktivtSpor}
 				/>
 			{/each}
@@ -152,5 +153,29 @@
 		display: flex;
 		flex-direction: column;
 		gap: 1px;
+	}
+
+	@media (max-width: 1023px) {
+		.liste-omraade {
+			padding: 12px;
+		}
+
+		.akse {
+			flex-direction: column;
+			gap: 8px;
+			padding: 0 8px 12px 8px;
+		}
+
+		.akse-spacer {
+			width: auto;
+		}
+
+		.akse-tidslinje {
+			margin: 0;
+		}
+
+		.sak-liste {
+			gap: 4px;
+		}
 	}
 </style>
