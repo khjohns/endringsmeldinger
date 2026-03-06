@@ -26,10 +26,10 @@
 		under_behandling: 'Under behandling',
 		godkjent: 'Godkjent',
 		delvis_godkjent: 'Delvis godkjent',
-		avslatt: 'Avslatt',
+		avslatt: 'Avslått',
 		under_forhandling: 'Under forhandling',
 		trukket: 'Trukket',
-		laast: 'Last',
+		laast: 'Låst',
 	};
 
 	type StempelVariant = 'critical' | 'waiting' | 'approved' | 'action';
@@ -71,24 +71,24 @@
 	.kort-header {
 		display: flex;
 		justify-content: space-between;
-		align-items: flex-start;
-		gap: 16px;
+		align-items: center;
+		gap: 12px;
 	}
 
 	.kort-identitet {
 		display: flex;
 		align-items: center;
-		gap: 12px;
+		gap: 8px;
 		flex-wrap: wrap;
 	}
 
 	.spor-navn {
 		font-family: var(--font-ui);
-		font-size: 13px;
+		font-size: 12px;
 		font-weight: 600;
 		color: var(--color-ink);
 		text-transform: uppercase;
-		letter-spacing: 0.02em;
+		letter-spacing: 0.04em;
 	}
 
 	.stempel {
@@ -130,7 +130,7 @@
 		border-radius: var(--radius-sm);
 		border: 1px solid transparent;
 		cursor: pointer;
-		transition: all 150ms ease;
+		transition: background 150ms ease, border-color 150ms ease;
 		white-space: nowrap;
 		background: var(--color-vekt-bg);
 		color: var(--color-vekt);

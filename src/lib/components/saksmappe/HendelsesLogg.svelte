@@ -292,7 +292,6 @@
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
-		border-top: 1px solid var(--color-wire);
 		padding: 4px 8px;
 		margin-top: 4px;
 		border-radius: var(--radius-sm);
@@ -301,41 +300,38 @@
 	}
 
 	.toggle-bar:hover {
-		background: rgba(255, 255, 255, 0.03);
+		background: var(--color-felt-hover);
 	}
 
 	.toggle-bar-expanded {
-		border-bottom: 1px solid var(--color-wire);
-		border-radius: var(--radius-sm) var(--radius-sm) 0 0;
 		margin-bottom: 4px;
 	}
 
 	.toggle-label {
 		font-family: var(--font-data);
 		font-size: 10px;
-		color: var(--color-ink-muted);
+		color: var(--color-ink-ghost);
 		letter-spacing: 0.01em;
 	}
 
 	.toggle-chevron {
 		font-size: 8px;
 		color: var(--color-ink-ghost);
-		transition: transform 150ms ease;
 	}
 
 	.events-list {
 		display: flex;
 		flex-direction: column;
-		gap: 2px;
+		gap: 1px;
 		margin-top: 8px;
-		padding-top: 6px;
+		padding-top: 8px;
 		border-top: 1px solid var(--color-wire);
 	}
 
 	.remaining-events {
 		display: flex;
 		flex-direction: column;
-		gap: 2px;
+		gap: 1px;
 	}
 
 	.event-line {
@@ -346,32 +342,33 @@
 		font-size: 12px;
 		cursor: pointer;
 		border-left: 2px solid transparent;
-		transition: background 100ms;
+		border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+		transition: background 150ms ease;
 	}
 
 	.event-line:hover {
-		background: rgba(255, 255, 255, 0.02);
+		background: var(--color-felt-hover);
 	}
 
 	.event-line-focused {
-		border-left: 2px solid var(--color-vekt);
+		border-left-color: var(--color-vekt);
 		background: var(--color-felt-hover);
 	}
 
 	.event-icon {
-		width: 14px;
+		width: 12px;
 		flex-shrink: 0;
-		font-size: 11px;
+		font-size: 10px;
 		text-align: center;
 		line-height: 1;
 	}
 
 	.event-date {
-		width: 48px;
+		min-width: 40px;
 		flex-shrink: 0;
 		font-family: var(--font-data);
 		font-size: 10px;
-		color: var(--color-ink-muted);
+		color: var(--color-ink-ghost);
 		letter-spacing: 0.01em;
 	}
 
@@ -386,7 +383,7 @@
 	}
 
 	.event-rev {
-		font-family: var(--font-ui);
+		font-family: var(--font-data);
 		font-size: 9px;
 		color: var(--color-ink-ghost);
 		flex-shrink: 0;
@@ -397,8 +394,8 @@
 	.event-line-internt {
 		background: var(--color-vekt-bg);
 		border-left: 2px dashed var(--color-vekt);
-		border-radius: 0 2px 2px 0;
-		margin: 4px 0;
+		border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+		margin: 2px 0;
 	}
 
 	.event-line-internt:hover {
@@ -407,7 +404,7 @@
 
 	.kun-internt {
 		color: var(--color-vekt);
-		font-weight: 700;
+		font-weight: 600;
 		font-size: 10px;
 		letter-spacing: 0.02em;
 	}
@@ -426,7 +423,7 @@
 	.btn-tilfoj-notat {
 		width: 100%;
 		text-align: left;
-		padding: 8px 10px;
+		padding: 8px 8px;
 		margin-top: 4px;
 		font-size: 11px;
 		color: var(--color-ink-ghost);
@@ -434,7 +431,7 @@
 		border: none;
 		border-top: 1px dashed var(--color-wire);
 		cursor: pointer;
-		transition: color 150ms;
+		transition: color 150ms ease;
 		font-family: var(--font-ui);
 	}
 

@@ -77,8 +77,8 @@
 	}
 
 	.meta-sti {
-		font-size: 12px;
-		color: var(--color-ink-secondary);
+		font-size: 11px;
+		color: var(--color-ink-muted);
 		display: flex;
 		align-items: center;
 		gap: 6px;
