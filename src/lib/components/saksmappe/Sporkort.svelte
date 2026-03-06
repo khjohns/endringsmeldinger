@@ -330,7 +330,7 @@
 		flex-direction: column;
 		gap: 6px;
 		background: var(--color-felt);
-		border: 1px solid var(--color-wire-strong);
+		border: 1px solid var(--color-wire);
 		border-radius: var(--radius-sm);
 		padding: 12px 16px;
 		cursor: pointer;
@@ -340,7 +340,7 @@
 
 	.sporkort:hover {
 		background: var(--color-felt-hover);
-		border-color: var(--color-wire-focus);
+		border-color: var(--color-wire-strong);
 	}
 
 	.sporkort-expanded {
@@ -448,7 +448,7 @@
 
 	.hendelse-metrikk {
 		font-family: var(--font-data);
-		font-size: 15px;
+		font-size: 12px;
 		font-weight: 600;
 		color: var(--color-ink);
 		font-variant-numeric: tabular-nums;

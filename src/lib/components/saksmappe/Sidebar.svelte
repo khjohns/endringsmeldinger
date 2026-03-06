@@ -1,6 +1,4 @@
 <script lang="ts">
-	import { browser } from '$app/environment';
-	import { onMount } from 'svelte';
 	import type { SakState } from '$lib/types/timeline';
 	import FristerSection from './FristerSection.svelte';
 	import { formatCurrency } from '$lib/utils/formatters';
@@ -10,17 +8,6 @@
 	}
 
 	let { state }: Props = $props();
-
-	// Current user role for "(Du)" indicator — avoid $state rune due to prop name conflict
-	let currentRole: string | null = browser ? localStorage.getItem('koe-user-role') : null;
-
-	onMount(() => {
-		const handler = (e: StorageEvent) => {
-			if (e.key === 'koe-user-role') currentRole = e.newValue;
-		};
-		window.addEventListener('storage', handler);
-		return () => window.removeEventListener('storage', handler);
-	});
 
 	// Build status summary text
 	const statusSummary = $derived.by(() => {
@@ -80,13 +67,13 @@
 		{#if state.byggherre}
 			<div class="party-row">
 				<span class="party-label">BH</span>
-				<span class="party-name">{state.byggherre}{#if currentRole === 'BH'} <span class="party-du">(Du)</span>{/if}</span>
+				<span class="party-name">{state.byggherre}</span>
 			</div>
 		{/if}
 		{#if state.entreprenor}
 			<div class="party-row">
 				<span class="party-label">TE</span>
-				<span class="party-name">{state.entreprenor}{#if currentRole === 'TE'} <span class="party-du">(Du)</span>{/if}</span>
+				<span class="party-name">{state.entreprenor}</span>
 			</div>
 		{/if}
 	</div>
@@ -317,12 +304,6 @@
 
 	.finans-rad-sub .finans-label {
 		color: var(--color-ink-muted);
-	}
-
-	.party-du {
-		color: var(--color-ink-muted);
-		font-weight: 400;
-		font-size: 11px;
 	}
 
 	.finans-divider {
