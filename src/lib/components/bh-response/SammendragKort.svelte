@@ -67,6 +67,9 @@
 		{#if erAvkortet || utvidet}
 			<button class="vis-mer" onclick={() => utvidet = !utvidet}>
 				{utvidet ? 'Vis mindre' : 'Vis mer'}
+				<svg class="vis-mer-chevron" class:vis-mer-chevron-opp={utvidet} width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
+					<path d="M2.5 4L5 6.5L7.5 4" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/>
+				</svg>
 			</button>
 		{/if}
 	{/if}
@@ -156,10 +159,10 @@
 	}
 
 	.begrunnelse-avkortet {
-		max-height: calc(1.6em * 3);
+		max-height: calc(1.6em * 4);
 		overflow: hidden;
-		-webkit-mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
-		mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
+		-webkit-mask-image: linear-gradient(to bottom, black 70%, transparent 100%);
+		mask-image: linear-gradient(to bottom, black 70%, transparent 100%);
 	}
 
 	.begrunnelse :global(p) {
@@ -180,9 +183,20 @@
 		color: var(--color-ink-muted);
 		cursor: pointer;
 		transition: color 150ms;
+		display: flex;
+		align-items: center;
+		gap: 2px;
 	}
 	.vis-mer:hover {
 		color: var(--color-ink);
+	}
+
+	.vis-mer-chevron {
+		transition: transform 150ms;
+	}
+
+	.vis-mer-chevron-opp {
+		transform: rotate(180deg);
 	}
 
 	.dato-linje {
@@ -195,6 +209,7 @@
 	}
 
 	.dato-label {
+		font-family: var(--font-data);
 		font-size: 11px;
 		color: var(--color-ink-muted);
 	}
