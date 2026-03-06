@@ -39,8 +39,13 @@
 		sidebarSpor = spor;
 	}
 
+	function erRedigerbart(target: EventTarget | null): boolean {
+		if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement) return true;
+		return target instanceof Element && target.closest('[contenteditable="true"]') !== null;
+	}
+
 	function handleKeydown(e: KeyboardEvent) {
-		if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+		if (erRedigerbart(e.target)) return;
 		if (e.repeat) return;
 		const spor = SPOR_TASTER[e.key.toLowerCase()];
 		if (spor) tastaturSpor = spor;
@@ -49,6 +54,10 @@
 	function handleKeyup(e: KeyboardEvent) {
 		const spor = SPOR_TASTER[e.key.toLowerCase()];
 		if (spor && tastaturSpor === spor) tastaturSpor = null;
+	}
+
+	function handleBlur() {
+		tastaturSpor = null;
 	}
 
 	const sidebarProps = $derived({
@@ -62,7 +71,7 @@
 	});
 </script>
 
-<svelte:window onkeydown={handleKeydown} onkeyup={handleKeyup} />
+<svelte:window onkeydown={handleKeydown} onkeyup={handleKeyup} onblur={handleBlur} />
 
 <div class="page-layout">
 	<!-- Desktop sidebar -->
