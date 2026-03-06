@@ -35,9 +35,6 @@
 
 		if (sporType === 'vederlag' && vederlag) {
 			if (vederlag.metode) parts.push(formatVederlagsmetode(vederlag.metode));
-			if (vederlag.antall_versjoner > 1) {
-				parts.push(`Rev. ${vederlag.antall_versjoner - 1}`);
-			}
 			if (vederlag.saerskilt_krav?.rigg_drift?.belop) {
 				parts.push(`rigg ${formatCurrencyCompact(vederlag.saerskilt_krav.rigg_drift.belop)}`);
 			}
@@ -49,9 +46,6 @@
 		if (sporType === 'frist' && frist) {
 			if (frist.krevd_dager !== undefined && frist.krevd_dager !== null) {
 				parts.push('Dager krevd');
-			}
-			if (frist.antall_versjoner > 1) {
-				parts.push(`Rev. ${frist.antall_versjoner - 1}`);
 			}
 			if (frist.ny_sluttdato) {
 				parts.push(`Ny dato ${formatDateShort(frist.ny_sluttdato)}`);
