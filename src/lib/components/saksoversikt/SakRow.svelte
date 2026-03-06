@@ -1,6 +1,5 @@
 <script lang="ts">
-	import type { SaksoversiktItem } from '$lib/mocks/saksoversikt';
-	import type { SporHendelseType } from '$lib/mocks/saksoversikt';
+	import type { SaksoversiktItem, SporHendelseType } from '$lib/mocks/saksoversikt';
 	import type { TidslinjeKlynge } from '$lib/utils/tidslinje';
 	import TidslinjeCanvas from './TidslinjeCanvas.svelte';
 

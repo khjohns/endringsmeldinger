@@ -1,7 +1,7 @@
-import type { SaksoversiktHendelse } from '$lib/mocks/saksoversikt';
+import type { SaksoversiktHendelse, SporHendelseType } from '$lib/mocks/saksoversikt';
 
 export interface TidslinjeNode {
-	type: 'K' | 'V' | 'F';
+	type: SporHendelseType;
 	dato: string;
 	label: string;
 	pos: number;
@@ -58,20 +58,33 @@ export function beregnTidslinje(
 	return klynger;
 }
 
-export function genererAkseMerker(min: Date, maks: Date): TidslinjeAkseMerke[] {
+/**
+ * Generate axis marks for the timeline, filtering out marks that are:
+ * - past `maksPosisjon` (reserved for "I DAG" label)
+ * - closer than `minAvstand`% to the previous kept mark
+ */
+export function genererAkseMerker(
+	min: Date,
+	maks: Date,
+	maksPosisjon = 92,
+	minAvstand = 10,
+): TidslinjeAkseMerke[] {
 	const spenn = maks.getTime() - min.getTime();
 	if (spenn <= 0) return [];
 	const merker: TidslinjeAkseMerke[] = [];
 	const start = new Date(min.getFullYear(), min.getMonth(), 1);
+	let sistePos = -Infinity;
 
 	while (start <= maks) {
 		const pos = ((start.getTime() - min.getTime()) / spenn) * 100;
-		if (pos >= 0 && pos <= 100) {
+		if (pos > maksPosisjon) break;
+		if (pos >= 0 && pos - sistePos >= minAvstand) {
 			const aar = String(start.getFullYear()).slice(2);
 			merker.push({
 				label: `${MAANED_KORT[start.getMonth()]} ${aar}`,
 				pos,
 			});
+			sistePos = pos;
 		}
 		start.setMonth(start.getMonth() + 1);
 	}
@@ -109,7 +122,7 @@ export function finnDatospenn(alleSaker: { hendelser: SaksoversiktHendelse[] }[]
 }
 
 /** Priority for cluster tag color: F > V > K */
-export function klyngePrioritet(items: TidslinjeNode[]): 'K' | 'V' | 'F' {
+export function klyngePrioritet(items: TidslinjeNode[]): SporHendelseType {
 	if (items.some((i) => i.type === 'F')) return 'F';
 	if (items.some((i) => i.type === 'V')) return 'V';
 	return 'K';

@@ -1,6 +1,7 @@
 import type { CaseListItem } from '$lib/types/api';
 
 export type SporHendelseType = 'K' | 'V' | 'F';
+export type SaksoversiktVisning = 'tidslinje' | 'tabell';
 
 export interface SaksoversiktHendelse {
 	type: SporHendelseType;
