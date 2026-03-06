@@ -120,14 +120,14 @@
 
 <div class="create-form">
 	<!-- TITTEL -->
-	<div class="field">
-		<label class="field-label" for="tittel">Tittel</label>
+	<div class="field tittel-field">
 		<input
 			id="tittel"
 			type="text"
-			class="field-control"
-			placeholder="Kort beskrivelse av forholdet"
+			class="tittel-input"
+			placeholder="Navn på kravet"
 			bind:value={tittel}
+			autofocus
 		/>
 	</div>
 
@@ -199,7 +199,35 @@
 	.create-form {
 		display: flex;
 		flex-direction: column;
-		gap: var(--spacing-6);
+		gap: var(--spacing-5);
+	}
+
+	/* --- Hero tittel --- */
+	.tittel-field {
+		margin-bottom: var(--spacing-2);
+	}
+
+	.tittel-input {
+		width: 100%;
+		background: transparent;
+		border: none;
+		border-bottom: 1px solid var(--color-wire);
+		font-family: var(--font-ui);
+		font-size: 18px;
+		font-weight: 600;
+		color: var(--color-ink);
+		padding: 0 0 var(--spacing-2);
+		outline: none;
+		transition: border-color 0.12s;
+	}
+
+	.tittel-input:focus {
+		border-color: var(--color-wire-focus);
+	}
+
+	.tittel-input::placeholder {
+		color: var(--color-ink-ghost);
+		font-weight: 400;
 	}
 
 	.form-section {
@@ -240,7 +268,7 @@
 
 	.field-label {
 		font-size: 13px;
-		font-weight: 400;
+		font-weight: 500;
 		color: var(--color-ink-secondary);
 	}
 
@@ -255,7 +283,7 @@
 		padding: 0 var(--spacing-3);
 		outline: none;
 		transition: border-color 0.12s;
-		height: 36px;
+		height: 32px;
 	}
 
 	.field-control:focus {

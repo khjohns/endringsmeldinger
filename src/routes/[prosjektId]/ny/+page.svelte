@@ -16,22 +16,23 @@
 
 <div class="ny-sak-layout">
 	<main class="ny-sak-main">
-		<a class="tilbake-lenke" href="/{prosjektId}">
-			<svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-				<path d="M8.5 3L4.5 7L8.5 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-			</svg>
-			Tilbake til saksoversikt
-		</a>
+		<div class="ny-sak-inner">
+			<a class="tilbake-lenke" href="/{prosjektId}">
+				<svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+					<path d="M8.5 3L4.5 7L8.5 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+				</svg>
+				Tilbake til saksoversikt
+			</a>
 
-		<header class="ny-sak-header">
-			<h1 class="ny-sak-tittel">Nytt varsel</h1>
-			<span class="ny-sak-id">Ny KOE-sak</span>
-		</header>
+			<header class="ny-sak-header">
+				<span class="ny-sak-eyebrow">Nytt varsel</span>
+			</header>
 
-		<CaseCreateForm
-			bind:begrunnelseHtml
-			onplaceholder={(p) => (begrunnelsePlaceholder = p)}
-		/>
+			<CaseCreateForm
+				bind:begrunnelseHtml
+				onplaceholder={(p) => (begrunnelsePlaceholder = p)}
+			/>
+		</div>
 	</main>
 
 	<!-- Desktop: inline panel -->
@@ -76,12 +77,12 @@
 
 	.ny-sak-main {
 		overflow-y: auto;
-		padding: var(--spacing-6);
+		padding: var(--spacing-8) var(--spacing-6);
 	}
 
-	/* Constrain form width within the scrollable area */
-	.ny-sak-main > :global(*) {
-		max-width: 680px;
+	.ny-sak-inner {
+		max-width: 600px;
+		margin: 0 auto;
 	}
 
 	.desktop-panel {
@@ -96,7 +97,7 @@
 		color: var(--color-ink-ghost);
 		text-decoration: none;
 		transition: color 0.12s;
-		margin-bottom: var(--spacing-4);
+		margin-bottom: var(--spacing-6);
 	}
 
 	.tilbake-lenke:hover {
@@ -104,19 +105,15 @@
 	}
 
 	.ny-sak-header {
-		margin-bottom: var(--spacing-6);
+		margin-bottom: var(--spacing-4);
 	}
 
-	.ny-sak-tittel {
-		font-size: 16px;
-		font-weight: 600;
-		color: var(--color-ink);
-		margin: 0;
-	}
-
-	.ny-sak-id {
+	.ny-sak-eyebrow {
 		font-family: var(--font-data);
-		font-size: 11px;
+		font-size: 10px;
+		font-weight: 600;
+		text-transform: uppercase;
+		letter-spacing: 0.08em;
 		color: var(--color-ink-muted);
 	}
 
@@ -136,7 +133,7 @@
 		}
 
 		.ny-sak-main {
-			padding: var(--spacing-4) var(--spacing-3);
+			padding: var(--spacing-5) var(--spacing-4);
 		}
 
 		.desktop-panel {

@@ -59,7 +59,7 @@
 		overflow-y: auto;
 		width: 340px;
 		border-left: 3px solid var(--color-vekt);
-		background: var(--color-canvas);
+		background: var(--color-felt);
 		display: flex;
 		flex-direction: column;
 		flex-shrink: 0;
@@ -77,8 +77,8 @@
 	.panel-tilbake {
 		display: flex;
 		align-items: center;
-		gap: 4px;
-		padding: 12px 16px;
+		gap: var(--spacing-1);
+		padding: var(--spacing-3) var(--spacing-4);
 		position: sticky;
 		top: 0;
 		z-index: 1;
@@ -99,7 +99,7 @@
 	}
 
 	.panel-section {
-		padding: 16px 20px;
+		padding: var(--spacing-4);
 		display: flex;
 		flex-direction: column;
 		gap: var(--spacing-3);
