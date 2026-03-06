@@ -2,6 +2,7 @@
 	import type { SaksoversiktItem } from '$lib/mocks/saksoversikt';
 	import { formatCurrencyCompact, formatDaysCompact, formatDateDayMonth } from '$lib/utils/formatters';
 	import { getOverordnetStatusLabel } from '$lib/constants/statusLabels';
+	import { getKombinertKategoriLabel } from '$lib/constants/categories';
 	import type { OverordnetStatus } from '$lib/types/timeline';
 
 	interface Props {
@@ -27,19 +28,11 @@
 	);
 
 	// Kategori-label
-	const kategoriLabel = $derived.by(() => {
-		if (!sak?.cached_hovedkategori) return null;
-		const hk = sak.cached_hovedkategori === 'SVIKT' ? 'Svikt i BH ytelse' : 'Endring';
-		const uk = sak.cached_underkategori;
-		if (!uk) return hk;
-		const ukLabel: Record<string, string> = {
-			GRUNNFORHOLD: 'Grunnforhold',
-			PROSJEKTERING: 'Prosjektering',
-			TILLEGG: 'Tilleggsarbeid',
-			DOKUMENTASJON: 'Dokumentasjon',
-		};
-		return `${hk} — ${ukLabel[uk] ?? uk}`;
-	});
+	const kategoriLabel = $derived(
+		sak?.cached_hovedkategori
+			? getKombinertKategoriLabel(sak.cached_hovedkategori, sak.cached_underkategori)
+			: null
+	);
 
 	// Forsering
 	const erForsering = $derived(
@@ -81,7 +74,7 @@
 			<div class="panel-body">
 				<!-- Kontraktsforhold -->
 				<div class="seksjon">
-					<div class="seksjon-label">Kontraktsforhold</div>
+					<div class="section-label">Kontraktsforhold</div>
 
 					{#if kategoriLabel}
 						<div class="kategori-badge">{kategoriLabel}</div>
@@ -95,7 +88,7 @@
 				<!-- Hendelsesforløp -->
 				{#if hendelser.length > 0}
 					<div class="seksjon">
-						<div class="seksjon-label">Hendelsesforløp</div>
+						<div class="section-label">Hendelsesforløp</div>
 
 						<div class="forloep">
 							{#each hendelser as h, i (h.dato + h.label)}
@@ -120,7 +113,7 @@
 
 				<!-- Krav (kompakt) -->
 				<div class="seksjon">
-					<div class="seksjon-label">Krav</div>
+					<div class="section-label">Krav</div>
 
 					<div class="krav-grid">
 						<div class="krav-rad">
@@ -287,12 +280,7 @@
 		flex-direction: column;
 	}
 
-	.seksjon-label {
-		font-size: 10px;
-		font-weight: 600;
-		text-transform: uppercase;
-		letter-spacing: 0.08em;
-		color: var(--color-ink-muted);
+	.section-label {
 		margin-bottom: 12px;
 	}
 

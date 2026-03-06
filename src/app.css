@@ -176,3 +176,12 @@ body {
 	overflow: hidden;
 	clip: rect(0, 0, 0, 0);
 }
+
+/* Section label — system.md: 10px 600 uppercase tracking 0.08em ink-muted */
+.section-label {
+	font-size: 10px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.08em;
+	color: var(--color-ink-muted);
+}

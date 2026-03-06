@@ -506,14 +506,7 @@
 		border-bottom: 1px solid var(--color-wire);
 	}
 
-	.section-label {
-		font-size: 10px;
-		font-weight: 600;
-		text-transform: uppercase;
-		letter-spacing: 0.08em;
-		color: var(--color-ink-muted);
-		margin: 0;
-	}
+	/* margin handled by .section-header */
 
 	.section-ref {
 		font-size: 11px;
