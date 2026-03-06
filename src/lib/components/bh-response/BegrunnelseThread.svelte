@@ -72,7 +72,7 @@
 			<!-- Editor (ren skriveflate) -->
 			<section class="editor-section">
 				<div class="editor-header">
-					<h3 class="editor-label">{editorLabel}</h3>
+					<h3 class="section-label">{editorLabel}</h3>
 					<span class="rolle-badge rolle-{editorRolle.toLowerCase()}">{editorRolle}</span>
 				</div>
 				<RichTextEditor
@@ -86,7 +86,7 @@
 			<!-- Vedlegg -->
 			<section class="vedlegg-section">
 				<div class="vedlegg-header">
-					<h3 class="vedlegg-label">Vedlegg</h3>
+					<h3 class="section-label">Vedlegg</h3>
 				</div>
 				<div class="upload-zone">
 					<svg class="upload-icon" width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
@@ -337,15 +337,6 @@
 		border-bottom: 1px solid var(--color-wire);
 	}
 
-	.editor-label {
-		font-size: 10px;
-		font-weight: 600;
-		text-transform: uppercase;
-		letter-spacing: 0.08em;
-		color: var(--color-ink-muted);
-		margin: 0;
-	}
-
 	/* --- Vedlegg --- */
 	.vedlegg-section {
 		padding: var(--spacing-4);
@@ -358,15 +349,6 @@
 	.vedlegg-header {
 		padding-bottom: var(--spacing-2);
 		border-bottom: 1px solid var(--color-wire);
-	}
-
-	.vedlegg-label {
-		font-size: 10px;
-		font-weight: 600;
-		text-transform: uppercase;
-		letter-spacing: 0.08em;
-		color: var(--color-ink-muted);
-		margin: 0;
 	}
 
 	.upload-zone {
