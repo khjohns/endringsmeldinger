@@ -7,9 +7,11 @@
 		expanded: boolean;
 		onToggle: () => void;
 		onFocusEvent?: (event: TimelineEvent | null) => void;
+		teNavn?: string;
+		bhNavn?: string;
 	}
 
-	let { events, expanded, onToggle, onFocusEvent }: Props = $props();
+	let { events, expanded, onToggle, onFocusEvent, teNavn, bhNavn }: Props = $props();
 
 	// Events with time, sorted newest first
 	const sortedEvents = $derived.by(() => {
@@ -20,5 +22,5 @@
 </script>
 
 {#if sortedEvents.length > 0}
-	<HendelsesLogg events={sortedEvents} {expanded} {onToggle} {onFocusEvent} />
+	<HendelsesLogg events={sortedEvents} {expanded} {onToggle} {onFocusEvent} {teNavn} {bhNavn} />
 {/if}

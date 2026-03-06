@@ -1,6 +1,7 @@
 <script lang="ts">
 	import RichTextEditor from '$lib/components/primitives/RichTextEditor.svelte';
 	import { formatDateShortNorwegian } from '$lib/utils/dateFormatters';
+	import { getPartsNavn } from '$lib/utils/partsNavn';
 	import { GRUNNLAG_RESULTAT_LABELS } from '$lib/constants/responseOptions';
 
 	interface BegrunnelseEntry {
@@ -34,11 +35,6 @@
 	}: Props = $props();
 
 	const editorLabel = $derived(editorRolle === 'TE' ? 'Din reviderte begrunnelse' : 'Ditt svar');
-
-	function partsNavn(rolle: 'TE' | 'BH'): string {
-		if (rolle === 'TE') return teNavn ?? 'Totalentreprenør';
-		return bhNavn ?? 'Byggherre';
-	}
 
 	let collapsedEntries = $state<Set<number>>(new Set());
 
@@ -118,7 +114,7 @@
 							aria-expanded={!collapsedEntries.has(i)}
 						>
 							<div class="entry-header-left">
-								<span class="entry-partsnavn">{partsNavn(entry.rolle)}</span>
+								<span class="entry-partsnavn">{getPartsNavn(entry.rolle, teNavn, bhNavn)}</span>
 								<span class="entry-versjon">v{entry.versjon}</span>
 								{#if entry.resultat}
 									<span class="entry-resultat resultat-{entry.resultat}">{GRUNNLAG_RESULTAT_LABELS[entry.resultat] ?? entry.resultat}</span>

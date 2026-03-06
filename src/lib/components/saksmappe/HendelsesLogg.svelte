@@ -2,6 +2,7 @@
 	import type { TimelineEvent, EventType } from '$lib/types/timeline';
 	import { extractEventType } from '$lib/types/timeline';
 	import { getEventTypeLabel } from '$lib/constants/eventLabels';
+	import { getPartsNavn } from '$lib/utils/partsNavn';
 	import { slide } from 'svelte/transition';
 
 	interface Props {
@@ -9,9 +10,11 @@
 		expanded: boolean;
 		onToggle: () => void;
 		onFocusEvent?: (event: TimelineEvent | null) => void;
+		teNavn?: string;
+		bhNavn?: string;
 	}
 
-	let { events, expanded, onToggle, onFocusEvent }: Props = $props();
+	let { events, expanded, onToggle, onFocusEvent, teNavn, bhNavn }: Props = $props();
 
 	interface EventIcon {
 		symbol: string;
@@ -62,7 +65,7 @@
 		// Only show actor suffix when there's no summary (summary already includes actor context)
 		if (event.summary) return null;
 		if (!event.actorrole) return null;
-		return event.actorrole === 'BH' ? 'av Byggherre' : 'av Entreprenør';
+		return `av ${getPartsNavn(event.actorrole as 'TE' | 'BH', teNavn, bhNavn)}`;
 	}
 
 	function isInterntNotat(eventType: EventType | null): boolean {
