@@ -14,7 +14,7 @@
 	let { sporType, status, varsling, action }: Props = $props();
 
 	const SPOR_LABELS: Record<SporType, string> = {
-		grunnlag: 'ANSVARSGRUNNLAG',
+		grunnlag: 'KONTRAKTSFORHOLD',
 		vederlag: 'VEDERLAG',
 		frist: 'FRISTFORLENGELSE',
 	};

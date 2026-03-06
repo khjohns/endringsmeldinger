@@ -7,7 +7,7 @@
 	} from '$lib/types/timeline';
 	import { formatCurrencyCompact, formatDaysCompact, formatDateShort } from '$lib/utils/formatters';
 	import { formatVederlagsmetode } from '$lib/utils/formatters';
-	import { getHovedkategoriLabel } from '$lib/constants/categories';
+	import { getKontraktsforholdLabel, getHjemmelLabel } from '$lib/constants/categories';
 
 	interface Props {
 		sporType: SporType;
@@ -23,10 +23,13 @@
 		const parts: string[] = [];
 
 		if (sporType === 'grunnlag' && grunnlag) {
-			if (grunnlag.tittel) parts.push(grunnlag.tittel);
 			if (grunnlag.hovedkategori) {
-				const label = getHovedkategoriLabel(grunnlag.hovedkategori);
+				const label = getKontraktsforholdLabel(grunnlag.hovedkategori);
 				if (label) parts.push(label);
+			}
+			if (grunnlag.underkategori) {
+				const hjemmel = getHjemmelLabel(grunnlag.underkategori);
+				if (hjemmel) parts.push(hjemmel);
 			}
 			if (grunnlag.grunnlag_varsel?.dato_sendt) {
 				parts.push(formatDateShort(grunnlag.grunnlag_varsel.dato_sendt));
