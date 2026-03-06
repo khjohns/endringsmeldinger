@@ -51,6 +51,8 @@
 		forrigeBegrunnelseHtml?: string;
 		lastResponseEventId?: string;
 		grunnlagEventId?: string;
+		teNavn?: string;
+		bhNavn?: string;
 	}
 
 	let {
@@ -65,6 +67,8 @@
 		forrigeBegrunnelseHtml,
 		lastResponseEventId,
 		grunnlagEventId = '',
+		teNavn,
+		bhNavn,
 	}: Props = $props();
 
 	const queryClient = useQueryClient();
@@ -158,7 +162,6 @@
 			versjon: number;
 			html: string;
 			dato?: string;
-			readonly: boolean;
 		}> = [];
 
 		// Previous exchange (TE v1 → BH v1 → TE v2 → ...)
@@ -168,7 +171,6 @@
 				versjon: svar.versjon,
 				html: svar.html,
 				dato: svar.dato,
-				readonly: true,
 			});
 		}
 
@@ -177,7 +179,6 @@
 			rolle: 'TE',
 			versjon: krav.versjon,
 			html: krav.begrunnelseHtml,
-			readonly: true,
 		});
 
 		return entries;
@@ -250,11 +251,12 @@
 			<div class="midtpanel-scroll">
 				<!-- Sammendragskort -->
 				<SammendragKort
+					sakId={sakId}
 					tittel={krav.tittel}
 					hovedkategori={krav.hovedkategori}
 					underkategori={krav.underkategori}
-					hjemmelRef={krav.hjemmelRef}
 					datoVarslet={krav.datoVarslet}
+					begrunnelseHtml={krav.begrunnelseHtml}
 					versjon={krav.versjon}
 				/>
 
@@ -346,6 +348,8 @@
 				entries={begrunnelseEntries}
 				bind:bhBegrunnelseHtml
 				editorPlaceholder={editorPlaceholder}
+				{teNavn}
+				{bhNavn}
 				{activeTab}
 				ontabchange={(tab) => (activeTab = tab)}
 			/>
@@ -377,6 +381,8 @@
 			entries={begrunnelseEntries}
 			bind:bhBegrunnelseHtml
 			editorPlaceholder={editorPlaceholder}
+			{teNavn}
+			{bhNavn}
 			{activeTab}
 			ontabchange={(tab) => (activeTab = tab)}
 		/>
@@ -508,14 +514,7 @@
 		border-bottom: 1px solid var(--color-wire);
 	}
 
-	.section-label {
-		font-size: 10px;
-		font-weight: 600;
-		text-transform: uppercase;
-		letter-spacing: 0.08em;
-		color: var(--color-ink-muted);
-		margin: 0;
-	}
+	/* margin handled by .section-header */
 
 	.section-ref {
 		font-size: 11px;

@@ -89,6 +89,9 @@
 			}),
 		};
 	});
+
+	const teNavn = $derived($query.data?.state?.entreprenor);
+	const bhNavn = $derived($query.data?.state?.byggherre);
 </script>
 
 {#if $query.isLoading}
@@ -108,6 +111,8 @@
 		teBegrunnelseHtml={timelineData.teBegrunnelseHtml}
 		bhSvar={timelineData.bhSvar}
 		tidligereSvar={timelineData.tidligereSvar}
+		{teNavn}
+		{bhNavn}
 	/>
 {/if}
 

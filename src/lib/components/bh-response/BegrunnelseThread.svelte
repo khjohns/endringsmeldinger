@@ -1,6 +1,7 @@
 <script lang="ts">
 	import RichTextEditor from '$lib/components/primitives/RichTextEditor.svelte';
 	import { formatDateShortNorwegian } from '$lib/utils/dateFormatters';
+	import { getPartsNavn } from '$lib/utils/partsNavn';
 	import { GRUNNLAG_RESULTAT_LABELS } from '$lib/constants/responseOptions';
 
 	interface BegrunnelseEntry {
@@ -8,7 +9,6 @@
 		versjon: number;
 		html: string;
 		dato?: string;
-		readonly: boolean;
 		resultat?: string;
 	}
 
@@ -17,6 +17,8 @@
 		bhBegrunnelseHtml: string;
 		editorPlaceholder: string;
 		editorRolle?: 'TE' | 'BH';
+		teNavn?: string;
+		bhNavn?: string;
 		activeTab?: 'begrunnelse' | 'historikk' | 'filer';
 		ontabchange?: (tab: 'begrunnelse' | 'historikk' | 'filer') => void;
 	}
@@ -26,6 +28,8 @@
 		bhBegrunnelseHtml = $bindable(''),
 		editorPlaceholder,
 		editorRolle = 'BH',
+		teNavn,
+		bhNavn,
 		activeTab = 'begrunnelse',
 		ontabchange,
 	}: Props = $props();
@@ -70,45 +74,10 @@
 
 	{#if activeTab === 'begrunnelse'}
 		<div class="thread-content">
-			<!-- Read-only entries (TE begrunnelser + previous BH responses) -->
-			{#each entries as entry, i}
-				<div class="entry entry-{entry.rolle.toLowerCase()}">
-					<button
-						class="entry-header"
-						onclick={() => toggleEntry(i)}
-						aria-expanded={!collapsedEntries.has(i)}
-					>
-						<div class="entry-header-left">
-							<span class="rolle-badge rolle-{entry.rolle.toLowerCase()}">{entry.rolle}</span>
-							<span class="entry-versjon">v{entry.versjon}</span>
-							{#if entry.resultat}
-								<span class="entry-resultat resultat-{entry.resultat}">{GRUNNLAG_RESULTAT_LABELS[entry.resultat] ?? entry.resultat}</span>
-							{/if}
-							{#if entry.dato}
-								<span class="entry-dato">{formatDateShortNorwegian(entry.dato)}</span>
-							{/if}
-						</div>
-						<svg
-							class="chevron"
-							class:chevron-collapsed={collapsedEntries.has(i)}
-							width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"
-						>
-							<path d="M4 5.5L7 8.5L10 5.5" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/>
-						</svg>
-					</button>
-					{#if !collapsedEntries.has(i)}
-						<div class="entry-body">
-							{@html entry.html}
-						</div>
-					{/if}
-				</div>
-			{/each}
-
-			<!-- BH editor (active response) -->
+			<!-- Editor (ren skriveflate) -->
 			<section class="editor-section">
 				<div class="editor-header">
-					<h3 class="editor-label">{editorLabel}</h3>
-					<span class="rolle-badge rolle-{editorRolle.toLowerCase()}">{editorRolle}</span>
+					<h3 class="section-label">{editorLabel}</h3>
 				</div>
 				<RichTextEditor
 					placeholder={editorPlaceholder}
@@ -121,7 +90,7 @@
 			<!-- Vedlegg -->
 			<section class="vedlegg-section">
 				<div class="vedlegg-header">
-					<h3 class="vedlegg-label">Vedlegg</h3>
+					<h3 class="section-label">Vedlegg</h3>
 				</div>
 				<div class="upload-zone">
 					<svg class="upload-icon" width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
@@ -135,8 +104,45 @@
 		</div>
 
 	{:else if activeTab === 'historikk'}
-		<div class="thread-content placeholder-content">
-			<p class="placeholder-text">Historikk over hendelser kommer i neste fase.</p>
+		<div class="thread-content">
+			{#if entries.length > 0}
+				{#each entries as entry, i}
+					<div class="entry">
+						<button
+							class="entry-header"
+							onclick={() => toggleEntry(i)}
+							aria-expanded={!collapsedEntries.has(i)}
+						>
+							<div class="entry-header-left">
+								<span class="entry-partsnavn">{getPartsNavn(entry.rolle, teNavn, bhNavn)}</span>
+								<span class="entry-versjon">v{entry.versjon}</span>
+								{#if entry.resultat}
+									<span class="entry-resultat resultat-{entry.resultat}">{GRUNNLAG_RESULTAT_LABELS[entry.resultat] ?? entry.resultat}</span>
+								{/if}
+								{#if entry.dato}
+									<span class="entry-dato">{formatDateShortNorwegian(entry.dato)}</span>
+								{/if}
+							</div>
+							<svg
+								class="chevron"
+								class:chevron-collapsed={collapsedEntries.has(i)}
+								width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"
+							>
+								<path d="M4 5.5L7 8.5L10 5.5" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/>
+							</svg>
+						</button>
+						{#if !collapsedEntries.has(i)}
+							<div class="entry-body">
+								{@html entry.html}
+							</div>
+						{/if}
+					</div>
+				{/each}
+			{:else}
+				<div class="placeholder-content">
+					<p class="placeholder-text">Ingen tidligere hendelser.</p>
+				</div>
+			{/if}
 		</div>
 
 	{:else if activeTab === 'filer'}
@@ -207,14 +213,6 @@
 		border-bottom: 1px solid var(--color-wire);
 	}
 
-	.entry-te {
-		border-left: 3px solid var(--color-role-te-text);
-	}
-
-	.entry-bh {
-		border-left: 3px solid var(--color-role-bh-text);
-	}
-
 	.entry-header {
 		display: flex;
 		align-items: center;
@@ -237,24 +235,11 @@
 		gap: var(--spacing-2);
 	}
 
-	.rolle-badge {
-		font-family: var(--font-data);
-		font-size: 10px;
+	.entry-partsnavn {
+		font-family: var(--font-ui);
+		font-size: 12px;
 		font-weight: 600;
-		letter-spacing: 0.06em;
-		text-transform: uppercase;
-		padding: 2px var(--spacing-2);
-		border-radius: 9999px;
-	}
-
-	.rolle-te {
-		background: var(--color-role-te-bg);
-		color: var(--color-role-te-text);
-	}
-
-	.rolle-bh {
-		background: var(--color-role-bh-bg);
-		color: var(--color-role-bh-text);
+		color: var(--color-ink-secondary);
 	}
 
 	.entry-versjon {
@@ -335,15 +320,6 @@
 		border-bottom: 1px solid var(--color-wire);
 	}
 
-	.editor-label {
-		font-size: 10px;
-		font-weight: 600;
-		text-transform: uppercase;
-		letter-spacing: 0.08em;
-		color: var(--color-ink-muted);
-		margin: 0;
-	}
-
 	/* --- Vedlegg --- */
 	.vedlegg-section {
 		padding: var(--spacing-4);
@@ -356,15 +332,6 @@
 	.vedlegg-header {
 		padding-bottom: var(--spacing-2);
 		border-bottom: 1px solid var(--color-wire);
-	}
-
-	.vedlegg-label {
-		font-size: 10px;
-		font-weight: 600;
-		text-transform: uppercase;
-		letter-spacing: 0.08em;
-		color: var(--color-ink-muted);
-		margin: 0;
 	}
 
 	.upload-zone {

@@ -77,6 +77,9 @@
 	const forrigeResultat = $derived($query.data?.state?.grunnlag.bh_resultat ?? undefined);
 	const isUpdateMode = $derived(!!forrigeResultat);
 	const forrigeVarsletITide = $derived($query.data?.state?.grunnlag.grunnlag_varslet_i_tide);
+
+	const teNavn = $derived($query.data?.state?.entreprenor);
+	const bhNavn = $derived($query.data?.state?.byggherre);
 </script>
 
 {#if $query.isLoading}
@@ -100,6 +103,8 @@
 		forrigeBegrunnelseHtml={timelineData.forrigeBegrunnelseHtml}
 		lastResponseEventId={timelineData.lastResponseEventId}
 		grunnlagEventId={timelineData.grunnlagEventId}
+		{teNavn}
+		{bhNavn}
 	/>
 {/if}
 
