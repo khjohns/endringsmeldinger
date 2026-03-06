@@ -56,10 +56,6 @@
 	--color-tipex-toolbar-text: var(--koe-tipex-toolbar-text);
 	--color-tipex-accent: var(--koe-tipex-accent);
 
-	--color-role-te-bg: var(--koe-role-te-bg);
-	--color-role-te-text: var(--koe-role-te-text);
-	--color-role-bh-bg: var(--koe-role-bh-bg);
-	--color-role-bh-text: var(--koe-role-bh-text);
 }
 
 /* ── Light theme (default) ── */
@@ -96,10 +92,6 @@
 	--koe-tipex-toolbar-text: #52525b;
 	--koe-tipex-accent: #d97706;
 
-	--koe-role-te-bg: rgba(59, 130, 246, 0.08);
-	--koe-role-te-text: #3b82f6;
-	--koe-role-bh-bg: rgba(168, 85, 247, 0.08);
-	--koe-role-bh-text: #a855f7;
 }
 
 /* ── Dark theme ── */
@@ -136,10 +128,6 @@
 	--koe-tipex-toolbar-text: #a1a1aa;
 	--koe-tipex-accent: #f59e0b;
 
-	--koe-role-te-bg: rgba(96, 165, 250, 0.12);
-	--koe-role-te-text: #60a5fa;
-	--koe-role-bh-bg: rgba(192, 132, 252, 0.12);
-	--koe-role-bh-text: #c084fc;
 }
 
 /* ── Reset ── */

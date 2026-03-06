@@ -100,6 +100,7 @@
 		<p class="error-text">Kunne ikke laste sak</p>
 	</div>
 {:else if krav}
+	{@const state = $query.data?.state}
 	<TeGrunnlagRevisjon
 		{prosjektId}
 		{sakId}
@@ -108,6 +109,8 @@
 		teBegrunnelseHtml={timelineData.teBegrunnelseHtml}
 		bhSvar={timelineData.bhSvar}
 		tidligereSvar={timelineData.tidligereSvar}
+		teNavn={state?.entreprenor}
+		bhNavn={state?.byggherre}
 	/>
 {/if}
 

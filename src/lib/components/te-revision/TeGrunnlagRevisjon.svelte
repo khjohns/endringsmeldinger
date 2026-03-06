@@ -43,6 +43,8 @@
 		teBegrunnelseHtml: string;
 		bhSvar: BhSvar | null;
 		tidligereSvar?: TidligereSvarEntry[];
+		teNavn?: string;
+		bhNavn?: string;
 	}
 
 	let {
@@ -53,6 +55,8 @@
 		teBegrunnelseHtml,
 		bhSvar,
 		tidligereSvar = [],
+		teNavn,
+		bhNavn,
 	}: Props = $props();
 
 	const queryClient = useQueryClient();
@@ -203,6 +207,8 @@
 				bind:bhBegrunnelseHtml={begrunnelseHtml}
 				editorPlaceholder="Oppdater din begrunnelse for kontraktsforholdet..."
 				editorRolle="TE"
+				{teNavn}
+				{bhNavn}
 				{activeTab}
 				ontabchange={(tab) => (activeTab = tab)}
 			/>
@@ -235,6 +241,8 @@
 			bind:bhBegrunnelseHtml={begrunnelseHtml}
 			editorPlaceholder="Oppdater din begrunnelse for kontraktsforholdet..."
 			editorRolle="TE"
+			{teNavn}
+			{bhNavn}
 			{activeTab}
 			ontabchange={(tab) => (activeTab = tab)}
 		/>
@@ -335,7 +343,6 @@
 		gap: var(--spacing-3);
 		padding: var(--spacing-4);
 		border: 1px solid var(--color-wire-strong);
-		border-left: 3px solid var(--color-role-bh-text);
 		border-radius: var(--radius-sm);
 		background: var(--color-felt);
 	}
