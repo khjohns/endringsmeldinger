@@ -1,5 +1,6 @@
 <script lang="ts">
 	import RichTextEditor from '$lib/components/primitives/RichTextEditor.svelte';
+	import { formatDateShortNorwegian } from '$lib/utils/dateFormatters';
 
 	interface BegrunnelseEntry {
 		rolle: 'TE' | 'BH';
@@ -43,18 +44,6 @@
 		{ id: 'filer' as const, label: 'Filer' },
 	];
 
-	function formatDato(dato?: string): string {
-		if (!dato) return '';
-		try {
-			return new Intl.DateTimeFormat('nb-NO', {
-				day: 'numeric',
-				month: 'short',
-				year: 'numeric',
-			}).format(new Date(dato));
-		} catch {
-			return dato;
-		}
-	}
 </script>
 
 <aside class="begrunnelse-thread">
@@ -87,7 +76,7 @@
 							<span class="rolle-badge rolle-{entry.rolle.toLowerCase()}">{entry.rolle}</span>
 							<span class="entry-versjon">v{entry.versjon}</span>
 							{#if entry.dato}
-								<span class="entry-dato">{formatDato(entry.dato)}</span>
+								<span class="entry-dato">{formatDateShortNorwegian(entry.dato)}</span>
 							{/if}
 						</div>
 						<svg
