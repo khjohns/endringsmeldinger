@@ -137,7 +137,7 @@
 		font-weight: 600;
 		letter-spacing: 0.06em;
 		text-transform: uppercase;
-		padding: 1px 6px;
+		padding: 2px var(--spacing-2);
 		border-radius: 9999px;
 		background: var(--color-role-te-bg);
 		color: var(--color-role-te-text);
@@ -149,7 +149,7 @@
 		flex-direction: column;
 		align-items: center;
 		gap: var(--spacing-2);
-		padding: var(--spacing-4) var(--spacing-3);
+		padding: var(--spacing-3);
 		border: 1px dashed var(--color-wire-strong);
 		border-radius: var(--radius-md);
 		color: var(--color-ink-secondary);
