@@ -328,7 +328,7 @@
 	.sporkort {
 		display: flex;
 		flex-direction: column;
-		gap: 6px;
+		gap: 4px;
 		background: var(--color-felt);
 		border: 1px solid var(--color-wire);
 		border-radius: var(--radius-sm);
@@ -341,6 +341,10 @@
 	.sporkort:hover {
 		background: var(--color-felt-hover);
 		border-color: var(--color-wire-strong);
+	}
+
+	.sporkort:active {
+		background: var(--color-felt-active);
 	}
 
 	.sporkort-expanded {
@@ -368,7 +372,7 @@
 	}
 
 	.border-critical:hover {
-		background: rgba(225, 29, 72, 0.12);
+		background: var(--color-score-low-bg);
 	}
 
 	.border-godkjent {
@@ -409,9 +413,8 @@
 		align-items: baseline;
 		gap: 6px;
 		font-family: var(--font-ui);
-		font-size: 12px;
+		font-size: 11px;
 		color: var(--color-ink-secondary);
-		margin-top: -2px;
 	}
 
 	.hendelse-ikon {

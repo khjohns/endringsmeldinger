@@ -190,7 +190,7 @@
 		font-size: 10px;
 		font-weight: 600;
 		text-transform: uppercase;
-		letter-spacing: 0.06em;
+		letter-spacing: 0.08em;
 		color: var(--color-ink-secondary);
 		margin-bottom: 4px;
 	}
@@ -242,7 +242,7 @@
 		cursor: pointer;
 		font-family: var(--font-ui);
 		font-size: 12px;
-		transition: all 150ms ease;
+		transition: background 150ms ease, border-color 150ms ease, color 150ms ease;
 	}
 
 	.btn-vedlegg:hover {
@@ -295,8 +295,6 @@
 	.finans-symbol.godkjent {
 		color: var(--color-score-high);
 	}
-
-
 
 	.finans-rad-sub {
 		font-size: 11px;

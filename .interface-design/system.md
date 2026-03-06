@@ -152,17 +152,19 @@ Seksjoner separert med 1px wire. Padding 16px 24px per seksjon.
 **Nokkeltall (NOK):** Finans-rader med label (ink-secondary) og verdi (font-data, tabular-nums). Krav=ink, Godkjent=score-high, Omtvistet=vekt. Divider + undergruppe for tidsrisiko.
 
 ### Sporkort
-felt bg, wire-strong border, sm radius, 16px padding, 8px gap mellom seksjoner.
+felt bg, wire border (0.08 alpha — within 0.05-0.12 range for dark mode), sm radius, 12px 16px padding, 4px gap mellom seksjoner.
 
-Hover: felt-hover bg, wire-focus border. Transition: 150ms ease.
+Hover: felt-hover bg, wire-strong border. Active: felt-active bg. Transition: 150ms ease.
 
-**Header:** flex space-between. Spor-navn: 13px, 600, uppercase. Stempel + aksjonsknappe hoyre.
+**Header:** flex space-between center. Spor-navn: 13px, 600, uppercase, 0.02em. Stempel + aksjonsknappe hoyre.
 
-**Data-linje:** flex space-between baseline. Venstre: prikk-separerte deskriptive segmenter (12px ink-secondary). Hoyre: nokkeltall (font-data 15px 600 tabular-nums) + evt milepael-tag.
+**Hendelse-kontekst:** Siste hendelse + nokkeltall (font-data 13px 600 tabular-nums, margin-left auto) pa samme rad. 11px ink-secondary.
 
-**Hendelseslogg:** border-top wire, margin-top 16px. Event-linjer: baseline gap 12px. Fokusert: amber venstekant (2px solid vekt) + felt-hover bg.
+**Data-linje:** Subordinert kontekst (hjemmel, kategori). 11px ink-muted. Kun vist nar relevant.
 
-**"+ Nytt internt notat":** Dashed border-top, ink-ghost tekst, hover -> vekt.
+**Hendelseslogg:** border-top wire, margin-top 8px padding-top 8px. Event-linjer: baseline gap 8px, padding 4px 8px. Dato: ink-ghost. Tekst: ink-secondary. Fokusert: amber venstekant (border-left-color vekt) + felt-hover bg. Click aktiverer forhåndsvisning (ikke hover).
+
+**"+ Nytt internt notat":** Dashed border-top wire, ink-ghost tekst, hover -> vekt.
 
 ### Forhåndsvisningspanel (360px)
 Border-left wire-strong. Padding 24px. Slide-in animasjon (opacity 0->1, translateX 12->0, 200ms).

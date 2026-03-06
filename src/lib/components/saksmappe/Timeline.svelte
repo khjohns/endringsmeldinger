@@ -184,7 +184,7 @@
 		display: flex;
 		align-items: center;
 		gap: 16px;
-		margin-bottom: 12px;
+		margin-bottom: 8px;
 	}
 
 	.date-divider::after {
