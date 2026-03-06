@@ -172,36 +172,12 @@
 
 	const latestEvent = $derived(events.length > 0 ? events[0] : null);
 
-	function formatDateShort(dateStr: string | undefined): string {
-		if (!dateStr) return '';
-		const date = new Date(dateStr);
-		const now = new Date();
-		const isToday =
-			date.getFullYear() === now.getFullYear() &&
-			date.getMonth() === now.getMonth() &&
-			date.getDate() === now.getDate();
-		const yesterday = new Date(now);
-		yesterday.setDate(yesterday.getDate() - 1);
-		const isYesterday =
-			date.getFullYear() === yesterday.getFullYear() &&
-			date.getMonth() === yesterday.getMonth() &&
-			date.getDate() === yesterday.getDate();
-		if (isToday || isYesterday) {
-			const hh = date.getHours().toString().padStart(2, '0');
-			const mm = date.getMinutes().toString().padStart(2, '0');
-			return `${hh}:${mm}`;
-		}
-		const MONTH_SHORT = ['jan', 'feb', 'mar', 'apr', 'mai', 'jun', 'jul', 'aug', 'sep', 'okt', 'nov', 'des'];
-		return `${date.getDate()}. ${MONTH_SHORT[date.getMonth()]}`;
-	}
-
 	const hendelseKontekst = $derived.by(() => {
 		if (!latestEvent) return null;
 		const eventType = extractEventType(latestEvent.type);
 		const icon = getEventIcon(eventType);
 		const label = latestEvent.summary ?? getEventTypeLabel(eventType);
 		const actor = latestEvent.actorrole === 'BH' ? 'Byggherre' : latestEvent.actorrole === 'TE' ? 'Entreprenør' : null;
-		const dateLabel = formatDateShort(latestEvent.time);
 
 		// Revisjon: antall_versjoner > 1 betyr Rev. N (N = antall_versjoner - 1)
 		const versjoner = trackState.antall_versjoner;
@@ -224,7 +200,7 @@
 			}
 		}
 
-		return { icon, dateLabel, label, actor, revision, detalj };
+		return { icon, label, actor, revision, detalj };
 	});
 
 	const href = $derived(`/${prosjektId}/${sakId}/${sporType}`);
@@ -287,9 +263,6 @@
 	{#if hendelseKontekst}
 		<div class="hendelse-kontekst">
 			<span class="hendelse-ikon" style="color: {hendelseKontekst.icon.color}" aria-hidden="true">{hendelseKontekst.icon.symbol}</span>
-			{#if hendelseKontekst.dateLabel}
-				<span class="hendelse-dato">{hendelseKontekst.dateLabel}</span>
-			{/if}
 			<span class="hendelse-tekst">
 				{hendelseKontekst.label}
 				{#if hendelseKontekst.actor}
@@ -413,20 +386,9 @@
 	}
 
 	.hendelse-ikon {
-		width: 14px;
 		flex-shrink: 0;
 		font-size: 11px;
-		text-align: center;
 		line-height: 1;
-	}
-
-	.hendelse-dato {
-		width: 48px;
-		flex-shrink: 0;
-		font-family: var(--font-data);
-		font-size: 10px;
-		color: var(--color-ink-muted);
-		letter-spacing: 0.01em;
 	}
 
 	.hendelse-tekst {
