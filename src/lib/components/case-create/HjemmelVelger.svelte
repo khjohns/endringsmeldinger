@@ -1,11 +1,7 @@
 <script lang="ts">
 	import { KRAV_STRUKTUR_NS8407, type Kontraktshjemmel, type Kontraktsforhold } from '$lib/constants/categories';
+	import type { ValgtHjemmel } from '$lib/types/hjemmel';
 	import KontraktsregelInline from './KontraktsregelInline.svelte';
-
-	interface ValgtHjemmel {
-		kontraktsforhold: Kontraktsforhold;
-		hjemmel: Kontraktshjemmel | null;
-	}
 
 	interface Props {
 		valgt: ValgtHjemmel | null;
@@ -16,82 +12,49 @@
 
 	function erValgt(forholdKode: string, hjemmelKode: string | null): boolean {
 		if (!valgt) return false;
-		if (hjemmelKode === null) {
-			return valgt.kontraktsforhold.kode === forholdKode && valgt.hjemmel === null;
-		}
-		return valgt.hjemmel?.kode === hjemmelKode;
+		return valgt.kontraktsforhold.kode === forholdKode && (valgt.hjemmel?.kode ?? null) === hjemmelKode;
 	}
 
-	function velgHjemmel(forhold: Kontraktsforhold, hjemmel: Kontraktshjemmel | null) {
-		onvelg({ kontraktsforhold: forhold, hjemmel });
-	}
+	const grupper = KRAV_STRUKTUR_NS8407;
 
-	// Build flat grouped structure for rendering
-	interface HjemmelGruppe {
-		forhold: Kontraktsforhold;
-		hjemler: Kontraktshjemmel[];
-		erStandalone: boolean;
-	}
-
-	const grupper: HjemmelGruppe[] = KRAV_STRUKTUR_NS8407.map((f) => ({
-		forhold: f,
-		hjemler: f.hjemler,
-		erStandalone: f.hjemler.length === 0,
-	}));
-
-	// Derive the selected kontraktsregel to show
-	let valgtRegel = $derived.by(() => {
-		if (!valgt) return null;
-		if (valgt.hjemmel) {
-			return {
-				ref: valgt.hjemmel.hjemmel_basis,
-				tittel: valgt.hjemmel.label,
-				beskrivelse: valgt.hjemmel.beskrivelse,
-			};
-		}
-		// Standalone (Force Majeure)
-		return {
-			ref: valgt.kontraktsforhold.hjemmel_frist,
-			tittel: valgt.kontraktsforhold.label,
-			beskrivelse: valgt.kontraktsforhold.beskrivelse,
-		};
-	});
+	const valgtRef = $derived(
+		valgt?.hjemmel?.hjemmel_basis ?? valgt?.kontraktsforhold.hjemmel_frist ?? null
+	);
+	const valgtTittel = $derived(valgt?.hjemmel?.label ?? valgt?.kontraktsforhold.label ?? '');
+	const valgtBeskrivelse = $derived(valgt?.hjemmel?.beskrivelse ?? valgt?.kontraktsforhold.beskrivelse ?? '');
 </script>
 
 <div class="hjemmel-velger">
 	<div class="hjemmel-liste" role="listbox" aria-label="Velg kontraktshjemmel">
-		{#each grupper as gruppe, gi (gruppe.forhold.kode)}
+		{#each grupper as gruppe, gi (gruppe.kode)}
 			{#if gi > 0}
 				<div class="gruppe-separator" role="separator"></div>
 			{/if}
 
-			{#if gruppe.erStandalone}
-				<!-- Force Majeure: standalone row, no sub-items -->
+			{#if gruppe.hjemler.length === 0}
 				<button
 					class="hjemmel-rad hjemmel-standalone"
-					class:hjemmel-valgt={erValgt(gruppe.forhold.kode, null)}
+					class:hjemmel-valgt={erValgt(gruppe.kode, null)}
 					role="option"
-					aria-selected={erValgt(gruppe.forhold.kode, null)}
-					onclick={() => velgHjemmel(gruppe.forhold, null)}
+					aria-selected={erValgt(gruppe.kode, null)}
+					onclick={() => onvelg({ kontraktsforhold: gruppe, hjemmel: null })}
 				>
-					<span class="hjemmel-label">{gruppe.forhold.label}</span>
-					<span class="hjemmel-ref">§{gruppe.forhold.hjemmel_frist}</span>
+					<span class="hjemmel-label">{gruppe.label}</span>
+					<span class="hjemmel-ref">§{gruppe.hjemmel_frist}</span>
 				</button>
 			{:else}
-				<!-- Group header -->
 				<div class="gruppe-header">
-					<span class="gruppe-navn">{gruppe.forhold.label}</span>
-					<span class="gruppe-ref">§{gruppe.forhold.hjemmel_frist}</span>
+					<span class="gruppe-navn">{gruppe.label}</span>
+					<span class="gruppe-ref">§{gruppe.hjemmel_frist}</span>
 				</div>
 
-				<!-- Hjemler in this group -->
 				{#each gruppe.hjemler as hjemmel (hjemmel.kode)}
 					<button
 						class="hjemmel-rad"
-						class:hjemmel-valgt={erValgt(gruppe.forhold.kode, hjemmel.kode)}
+						class:hjemmel-valgt={erValgt(gruppe.kode, hjemmel.kode)}
 						role="option"
-						aria-selected={erValgt(gruppe.forhold.kode, hjemmel.kode)}
-						onclick={() => velgHjemmel(gruppe.forhold, hjemmel)}
+						aria-selected={erValgt(gruppe.kode, hjemmel.kode)}
+						onclick={() => onvelg({ kontraktsforhold: gruppe, hjemmel })}
 					>
 						<span class="hjemmel-label">{hjemmel.label}</span>
 						<span class="hjemmel-ref">§{hjemmel.hjemmel_basis}</span>
@@ -101,14 +64,12 @@
 		{/each}
 	</div>
 
-	{#if valgtRegel}
-		<div class="regel-wrap">
-			<KontraktsregelInline
-				hjemmelRef={valgtRegel.ref}
-				tittel={valgtRegel.tittel}
-				beskrivelse={valgtRegel.beskrivelse}
-			/>
-		</div>
+	{#if valgtRef}
+		<KontraktsregelInline
+			hjemmelRef={valgtRef}
+			tittel={valgtTittel}
+			beskrivelse={valgtBeskrivelse}
+		/>
 	{/if}
 </div>
 

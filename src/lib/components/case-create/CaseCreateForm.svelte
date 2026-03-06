@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
-	import type { Kontraktsforhold, Kontraktshjemmel } from '$lib/constants/categories';
+	import type { ValgtHjemmel } from '$lib/types/hjemmel';
 	import { submitEvent } from '$lib/api/events';
 	import { beregnDagerSiden, getPreklusjonsvarsel } from '$lib/utils/preklusjonssjekk';
 	import HjemmelVelger from './HjemmelVelger.svelte';
@@ -9,11 +9,6 @@
 	import Button from '$lib/components/primitives/Button.svelte';
 	import DatePicker from '$lib/components/primitives/DatePicker.svelte';
 	import RichTextEditor from '$lib/components/primitives/RichTextEditor.svelte';
-
-	interface ValgtHjemmel {
-		kontraktsforhold: Kontraktsforhold;
-		hjemmel: Kontraktshjemmel | null;
-	}
 
 	// --- Form state ---
 	let valgtHjemmel = $state<ValgtHjemmel | null>(null);
@@ -42,8 +37,7 @@
 
 	const preklusjonsvarsel = $derived.by(() => {
 		if (!erEndringUtenEO || !datoOppdaget || dagerSidenOppdaget <= 0) return null;
-		const resultat = getPreklusjonsvarsel(dagerSidenOppdaget, undefined, 'ENDRING');
-		return resultat.alert ?? null;
+		return getPreklusjonsvarsel(dagerSidenOppdaget, undefined, 'ENDRING').alert ?? null;
 	});
 
 	const datoHint = $derived.by(() => {
@@ -59,18 +53,13 @@
 		return 'normal';
 	});
 
-	const begrunnelsePlaceholder = $derived.by(() => {
-		if (erForceMajeure) {
-			return 'Beskriv den ekstraordinære hendelsen og hvorfor den er utenfor din kontroll. Henvis til kontraktsbestemmelser og dokumentasjon.';
-		}
-		return 'Beskriv bakgrunnen for kravet og henvis til relevant kontraktsbestemmelse. Legg ved dokumentasjon som underbygger kravet.';
-	});
+	const begrunnelsePlaceholder = $derived(
+		erForceMajeure
+			? 'Beskriv den ekstraordinære hendelsen og hvorfor den er utenfor din kontroll. Henvis til kontraktsbestemmelser og dokumentasjon.'
+			: 'Beskriv bakgrunnen for kravet og henvis til relevant kontraktsbestemmelse. Legg ved dokumentasjon som underbygger kravet.'
+	);
 
-	// Konteksttekst for submit-knapp
-	const submitLabel = $derived.by(() => {
-		if (erEndringUtenEO) return 'Send varsel';
-		return 'Opprett sak';
-	});
+	const submitLabel = $derived(erEndringUtenEO ? 'Send varsel' : 'Opprett sak');
 
 	const submitRef = $derived.by(() => {
 		if (erEndringUtenEO) return '§32.2';
@@ -91,11 +80,6 @@
 
 	const kanSende = $derived(valideringsfeil.length === 0 && !submitting);
 
-	// --- Handlers ---
-	function handleHjemmelValg(valg: ValgtHjemmel) {
-		valgtHjemmel = valg;
-	}
-
 	async function handleSubmit() {
 		if (!kanSende || !valgtHjemmel) return;
 		submitting = true;
@@ -103,37 +87,28 @@
 
 		try {
 			const sakId = crypto.randomUUID();
-			const hovedkategori = valgtHjemmel.kontraktsforhold.kode;
-			const underkategori = valgtHjemmel.hjemmel?.kode ?? null;
 
-			// 1. Create the case
 			await submitEvent(sakId, 'sak_opprettet', {
 				prosjekt_id: prosjektId,
 				sakstype: 'standard',
 				tittel: tittel.trim(),
 			});
 
-			// 2. Create the grunnlag
 			await submitEvent(sakId, 'grunnlag_opprettet', {
 				tittel: tittel.trim(),
-				hovedkategori,
-				underkategori,
+				hovedkategori: valgtHjemmel.kontraktsforhold.kode,
+				underkategori: valgtHjemmel.hjemmel?.kode ?? null,
 				beskrivelse: beskrivelse.trim(),
 				dato_oppdaget: datoOppdaget,
-				begrunnelse: begrunnelseHtml || undefined,
+				begrunnelse: begrunnelseHtml.trim() || undefined,
 			});
 
-			// Navigate to the new case
 			await goto(`/${prosjektId}/${sakId}`);
 		} catch (err) {
 			submitError = err instanceof Error ? err.message : 'Kunne ikke opprette saken. Prøv igjen.';
 		} finally {
 			submitting = false;
 		}
-	}
-
-	function handleAvbryt() {
-		goto(`/${prosjektId}`);
 	}
 </script>
 
@@ -143,10 +118,9 @@
 		<div class="section-header">
 			<h3 class="section-label">Kontraktshjemmel</h3>
 		</div>
-		<HjemmelVelger valgt={valgtHjemmel} onvelg={handleHjemmelValg} />
+		<HjemmelVelger valgt={valgtHjemmel} onvelg={(valg) => (valgtHjemmel = valg)} />
 	</section>
 
-	<!-- Force Majeure info -->
 	{#if erForceMajeure}
 		<Alert variant="info">
 			<strong>Force Majeure</strong> <span class="alert-ref">§33.3</span> — Gir kun rett til fristforlengelse, ikke vederlag.
@@ -164,7 +138,7 @@
 			<input
 				id="tittel"
 				type="text"
-				class="field-input"
+				class="field-control"
 				placeholder="Kort beskrivelse av forholdet"
 				bind:value={tittel}
 			/>
@@ -174,7 +148,7 @@
 			<label class="field-label" for="beskrivelse">Beskrivelse</label>
 			<textarea
 				id="beskrivelse"
-				class="field-textarea"
+				class="field-control field-textarea"
 				placeholder="Hva har skjedd? Beskriv forholdet som utløser kravet."
 				bind:value={beskrivelse}
 			></textarea>
@@ -193,7 +167,6 @@
 			{/if}
 		</div>
 
-		<!-- Preklusjonsadvarsel -->
 		{#if preklusjonsvarsel}
 			<Alert variant={preklusjonsvarsel.variant === 'danger' ? 'danger' : 'warning'}>
 				<strong>{preklusjonsvarsel.title}</strong> — {preklusjonsvarsel.message}
@@ -230,7 +203,6 @@
 		</div>
 	</section>
 
-	<!-- SUBMIT ERROR -->
 	{#if submitError}
 		<Alert variant="danger">
 			<strong>Feil ved opprettelse</strong> — {submitError}
@@ -239,31 +211,19 @@
 
 	<!-- FOOTER -->
 	<div class="form-footer">
-		<Button variant="secondary" onclick={handleAvbryt}>
+		<Button variant="secondary" onclick={() => goto(`/${prosjektId}`)}>
 			Avbryt
 		</Button>
 		<div class="footer-right">
 			{#if valideringsfeil.length > 0 && (tittel || beskrivelse || datoOppdaget || valgtHjemmel)}
 				<span class="validation-hint">{valideringsfeil[0]}</span>
 			{/if}
-			<button
-				class="btn-submit"
-				disabled={!kanSende}
-				onclick={handleSubmit}
-				aria-busy={submitting}
-			>
-				{#if submitting}
-					<svg class="btn-spinner" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-						<circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="28" stroke-dashoffset="8" />
-					</svg>
+			<Button variant="primary" disabled={!kanSende} loading={submitting} onclick={handleSubmit}>
+				{submitLabel}
+				{#if submitRef}
+					<span class="btn-ref">{submitRef}</span>
 				{/if}
-				<span class:visually-hidden={submitting}>
-					{submitLabel}
-					{#if submitRef}
-						<span class="btn-ref">{submitRef}</span>
-					{/if}
-				</span>
-			</button>
+			</Button>
 		</div>
 	</div>
 </div>
@@ -275,7 +235,6 @@
 		gap: var(--spacing-6);
 	}
 
-	/* --- Sections --- */
 	.form-section {
 		display: flex;
 		flex-direction: column;
@@ -330,9 +289,8 @@
 		color: var(--color-ink-secondary);
 	}
 
-	.field-input {
+	.field-control {
 		width: 100%;
-		height: 36px;
 		background: var(--color-canvas);
 		border: 1px solid var(--color-wire);
 		border-radius: var(--radius-sm);
@@ -342,38 +300,23 @@
 		padding: 0 var(--spacing-3);
 		outline: none;
 		transition: border-color 0.12s;
+		height: 36px;
 	}
 
-	.field-input:focus {
+	.field-control:focus {
 		border-color: var(--color-wire-focus);
 	}
 
-	.field-input::placeholder {
+	.field-control::placeholder {
 		color: var(--color-ink-ghost);
 	}
 
 	.field-textarea {
-		width: 100%;
 		min-height: 80px;
-		background: var(--color-canvas);
-		border: 1px solid var(--color-wire);
-		border-radius: var(--radius-sm);
-		font-family: var(--font-ui);
-		font-size: 13px;
+		height: auto;
 		line-height: 1.5;
-		color: var(--color-ink);
 		padding: var(--spacing-2) var(--spacing-3);
-		outline: none;
 		resize: vertical;
-		transition: border-color 0.12s;
-	}
-
-	.field-textarea:focus {
-		border-color: var(--color-wire-focus);
-	}
-
-	.field-textarea::placeholder {
-		color: var(--color-ink-ghost);
 	}
 
 	/* --- Dato elapsed hint --- */
@@ -385,17 +328,9 @@
 		margin-top: var(--spacing-1);
 	}
 
-	.dato-normal {
-		color: var(--color-ink-muted);
-	}
-
-	.dato-varsel {
-		color: var(--color-vekt);
-	}
-
-	.dato-kritisk {
-		color: var(--color-score-low);
-	}
+	.dato-normal { color: var(--color-ink-muted); }
+	.dato-varsel { color: var(--color-vekt); }
+	.dato-kritisk { color: var(--color-score-low); }
 
 	/* --- Upload zone --- */
 	.upload-zone {
@@ -416,18 +351,9 @@
 		background: var(--color-vekt-bg);
 	}
 
-	.upload-icon {
-		color: var(--color-ink-ghost);
-	}
-
-	.upload-tekst {
-		font-size: 13px;
-	}
-
-	.upload-format {
-		font-size: 11px;
-		color: var(--color-ink-ghost);
-	}
+	.upload-icon { color: var(--color-ink-ghost); }
+	.upload-tekst { font-size: 13px; }
+	.upload-format { font-size: 11px; color: var(--color-ink-ghost); }
 
 	/* --- Footer --- */
 	.form-footer {
@@ -449,59 +375,11 @@
 		color: var(--color-ink-ghost);
 	}
 
-	/* --- Submit button --- */
-	.btn-submit {
-		display: inline-flex;
-		align-items: center;
-		justify-content: center;
-		gap: var(--spacing-2);
-		height: 36px;
-		padding: 0 var(--spacing-5);
-		background: var(--color-vekt);
-		color: var(--color-canvas);
-		border: 1px solid var(--color-vekt);
-		border-radius: var(--radius-sm);
-		font-family: var(--font-ui);
-		font-size: 13px;
-		font-weight: 600;
-		cursor: pointer;
-		transition: background-color 0.12s, border-color 0.12s;
-		white-space: nowrap;
-		position: relative;
-	}
-
-	.btn-submit:hover:not(:disabled) {
-		background: var(--color-vekt-dim);
-		border-color: var(--color-vekt-dim);
-	}
-
-	.btn-submit:focus-visible {
-		outline: none;
-		box-shadow: 0 0 0 2px var(--color-vekt-bg);
-	}
-
-	.btn-submit:disabled {
-		opacity: 0.4;
-		cursor: not-allowed;
-	}
-
 	.btn-ref {
 		font-family: var(--font-data);
 		font-size: 10px;
 		font-weight: 400;
 		opacity: 0.7;
 		margin-left: var(--spacing-1);
-	}
-
-	.btn-spinner {
-		animation: spin 0.8s linear infinite;
-	}
-
-	.visually-hidden {
-		visibility: hidden;
-	}
-
-	@keyframes spin {
-		to { transform: rotate(360deg); }
 	}
 </style>
