@@ -1,5 +1,5 @@
 /**
- * grunnlagDomain.ts — Ren NS 8407 domenelogikk for ansvarsgrunnlag.
+ * grunnlagDomain.ts — Ren NS 8407 domenelogikk for kontraktsforhold (grunnlag).
  *
  * Ingen React-avhengigheter. Alle funksjoner er rene (input → output).
  * Importeres av useGrunnlagBridge.ts som tynn React-adapter.
@@ -153,7 +153,7 @@ export function getDynamicPlaceholder(
   if (!resultat) return 'Velg resultat i kortet til venstre, deretter skriv begrunnelse...';
   if (prekludert && resultat === 'godkjent') return 'Begrunn din preklusjonsinnsigelse og din subsidiære godkjenning...';
   if (prekludert && resultat === 'avslatt') return 'Begrunn din preklusjonsinnsigelse og ditt subsidiære avslag...';
-  if (resultat === 'godkjent') return 'Begrunn din vurdering av ansvarsgrunnlaget...';
+  if (resultat === 'godkjent') return 'Begrunn din vurdering av kontraktsforholdet...';
   if (resultat === 'avslatt') return 'Forklar hvorfor forholdet ikke gir grunnlag for krav...';
   if (resultat === 'frafalt') return 'Begrunn hvorfor pålegget frafalles...';
   return 'Begrunn din vurdering...';

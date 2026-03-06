@@ -555,7 +555,7 @@ export function generateVederlagResponseBegrunnelse(
     );
   } else if (input.erGrunnlagAvslatt) {
     sections.push(
-      'Ansvarsgrunnlaget er avvist. Vurderingen av vederlagskravet nedenfor gjelder derfor ' +
+      'Kontraktsforholdet er avvist. Vurderingen av vederlagskravet nedenfor gjelder derfor ' +
       'subsidiært, for det tilfellet at byggherren ikke får medhold i avvisningen av grunnlaget.'
     );
   }
@@ -856,7 +856,7 @@ function generateFristKonklusjonSection(input: FristResponseInput, options: Begr
  * This function is kept for backwards compatibility but always returns empty.
  */
 function generateForceMajeureVederlagSection(_input: FristResponseInput): string {
-  // Force majeure is handled at grunnlag (ansvarsgrunnlag) level, not frist varsel level
+  // Force majeure is handled at grunnlag (kontraktsforhold) level, not frist varsel level
   return '';
 }
 
@@ -922,7 +922,7 @@ export function generateFristResponseBegrunnelse(
     );
   } else if (input.erGrunnlagSubsidiaer) {
     sections.push(
-      'Ansvarsgrunnlaget er avvist. Vurderingen av fristkravet nedenfor gjelder derfor ' +
+      'Kontraktsforholdet er avvist. Vurderingen av fristkravet nedenfor gjelder derfor ' +
       'subsidiært, for det tilfellet at byggherren ikke får medhold i avvisningen av grunnlaget.'
     );
   }
