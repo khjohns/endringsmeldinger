@@ -2,15 +2,18 @@
 	import type { TimelineEvent, EventType } from '$lib/types/timeline';
 	import { extractEventType } from '$lib/types/timeline';
 	import { getEventBestemmelse } from '$lib/constants/eventBestemmelser';
+	import { getPartsNavn } from '$lib/utils/partsNavn';
 
 	interface Props {
 		event: TimelineEvent | null;
 		prosjektId: string;
 		sakId: string;
 		onClose?: () => void;
+		teNavn?: string;
+		bhNavn?: string;
 	}
 
-	let { event, prosjektId, sakId, onClose }: Props = $props();
+	let { event, prosjektId, sakId, onClose, teNavn, bhNavn }: Props = $props();
 
 	// --- Icon mapping (mirrors HendelsesLogg) ---
 
@@ -86,7 +89,7 @@
 	const icon = $derived(getEventIcon(eventType));
 	const handling = $derived(event?.summary ?? '');
 	const meta = $derived(
-		event ? `${formatDate(event.time)} \u00B7 ${event.actorrole ?? ''}` : ''
+		event ? `${formatDate(event.time)} \u00B7 ${event.actorrole ? getPartsNavn(event.actorrole as 'TE' | 'BH', teNavn, bhNavn) : ''}` : ''
 	);
 	const description = $derived(event ? getDescription(event) : null);
 	const vedleggIds = $derived(event ? getVedleggIds(event) : []);

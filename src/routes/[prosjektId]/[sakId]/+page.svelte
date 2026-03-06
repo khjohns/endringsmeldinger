@@ -71,7 +71,7 @@
 		{#if hasPanel}
 			<div class="panel-overlay">
 				<button class="mobil-tilbake" onclick={() => (focusedEvent = null)}>← Tilbake</button>
-				<Forhandsvisning event={focusedEvent} {prosjektId} {sakId} onClose={() => (focusedEvent = null)} />
+				<Forhandsvisning event={focusedEvent} {prosjektId} {sakId} onClose={() => (focusedEvent = null)} teNavn={$query.data?.state?.entreprenor} bhNavn={$query.data?.state?.byggherre} />
 			</div>
 		{/if}
 	</div>
