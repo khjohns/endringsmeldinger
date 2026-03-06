@@ -382,4 +382,21 @@
 		opacity: 0.7;
 		margin-left: var(--spacing-1);
 	}
+
+	@media (max-width: 480px) {
+		.form-footer {
+			flex-direction: column-reverse;
+			gap: var(--spacing-3);
+			align-items: stretch;
+		}
+
+		.footer-right {
+			flex-direction: column;
+			align-items: stretch;
+		}
+
+		.validation-hint {
+			text-align: center;
+		}
+	}
 </style>
