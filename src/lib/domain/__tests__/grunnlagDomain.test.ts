@@ -10,6 +10,9 @@ import {
   getVerdictOptions,
   getDynamicPlaceholder,
   buildEventData,
+  getBhUpdateDefaults,
+  detekterEndringer,
+  buildTeRevisionEventData,
   type GrunnlagFormState,
   type GrunnlagDomainConfig,
 } from '../grunnlagDomain';
@@ -363,5 +366,130 @@ describe('buildEventData', () => {
     };
     const data = buildEventData(state, config);
     expect(data.dager_siden_varsel).toBeGreaterThanOrEqual(5);
+  });
+
+  it('includes grunnlag_varslet_i_tide in update mode for ENDRING', () => {
+    const state = makeState({ resultat: 'godkjent', begrunnelse: 'Oppdatert', varsletITide: false });
+    const config = {
+      ...makeConfig({
+        isUpdateMode: true,
+        grunnlagEvent: { hovedkategori: 'ENDRING', underkategori: 'ANNEN' },
+      }),
+      grunnlagEventId: 'grunnlag-42',
+      lastResponseEventId: 'evt-99',
+    };
+    const data = buildEventData(state, config);
+    expect(data.grunnlag_varslet_i_tide).toBe(false);
+  });
+});
+
+// ============================================================================
+// getBhUpdateDefaults
+// ============================================================================
+
+describe('getBhUpdateDefaults', () => {
+  it('pre-fills all fields from previous response', () => {
+    const defaults = getBhUpdateDefaults({
+      forrigeResultat: 'avslatt',
+      forrigeVarsletITide: false,
+      forrigeBegrunnelseHtml: '<p>Forrige begrunnelse</p>',
+    });
+    expect(defaults.resultat).toBe('avslatt');
+    expect(defaults.varsletITide).toBe(false);
+    expect(defaults.begrunnelse).toBe('<p>Forrige begrunnelse</p>');
+  });
+
+  it('defaults varsletITide to true when not set', () => {
+    const defaults = getBhUpdateDefaults({
+      forrigeResultat: 'godkjent',
+    });
+    expect(defaults.varsletITide).toBe(true);
+    expect(defaults.begrunnelse).toBe('');
+  });
+});
+
+// ============================================================================
+// detekterEndringer
+// ============================================================================
+
+describe('detekterEndringer', () => {
+  it('detects snuoperasjon (avslått → godkjent)', () => {
+    const info = detekterEndringer(
+      { resultat: 'godkjent', varsletITide: true, begrunnelse: '' },
+      { resultat: 'avslatt' },
+    );
+    expect(info.harEndring).toBe(true);
+    expect(info.endringer).toHaveLength(1);
+    expect(info.endringer[0].type).toBe('snuoperasjon');
+  });
+
+  it('detects trekker_godkjenning (godkjent → avslått)', () => {
+    const info = detekterEndringer(
+      { resultat: 'avslatt', varsletITide: true, begrunnelse: '' },
+      { resultat: 'godkjent' },
+    );
+    expect(info.harEndring).toBe(true);
+    expect(info.endringer[0].type).toBe('trekker_godkjenning');
+  });
+
+  it('detects frafaller_innsigelse (false → true)', () => {
+    const info = detekterEndringer(
+      { resultat: 'avslatt', varsletITide: true, begrunnelse: '' },
+      { resultat: 'avslatt', varsletITide: false },
+    );
+    expect(info.harEndring).toBe(true);
+    expect(info.endringer[0].type).toBe('frafaller_innsigelse');
+  });
+
+  it('detects ny_innsigelse (true → false)', () => {
+    const info = detekterEndringer(
+      { resultat: 'avslatt', varsletITide: false, begrunnelse: '' },
+      { resultat: 'avslatt', varsletITide: true },
+    );
+    expect(info.harEndring).toBe(true);
+    expect(info.endringer[0].type).toBe('ny_innsigelse');
+  });
+
+  it('detects begrunnelse change', () => {
+    const info = detekterEndringer(
+      { resultat: 'avslatt', varsletITide: true, begrunnelse: '<p>Ny</p>' },
+      { resultat: 'avslatt', begrunnelse: '<p>Gammel</p>' },
+    );
+    expect(info.harEndring).toBe(true);
+    expect(info.endringer[0].felt).toBe('begrunnelse');
+  });
+
+  it('returns no changes when nothing changed', () => {
+    const info = detekterEndringer(
+      { resultat: 'avslatt', varsletITide: false, begrunnelse: '<p>Samme</p>' },
+      { resultat: 'avslatt', varsletITide: false, begrunnelse: '<p>Samme</p>' },
+    );
+    expect(info.harEndring).toBe(false);
+    expect(info.endringer).toHaveLength(0);
+  });
+
+  it('detects multiple changes at once', () => {
+    const info = detekterEndringer(
+      { resultat: 'godkjent', varsletITide: true, begrunnelse: '<p>Ny</p>' },
+      { resultat: 'avslatt', varsletITide: false, begrunnelse: '<p>Gammel</p>' },
+    );
+    expect(info.harEndring).toBe(true);
+    expect(info.endringer).toHaveLength(3);
+  });
+});
+
+// ============================================================================
+// buildTeRevisionEventData
+// ============================================================================
+
+describe('buildTeRevisionEventData', () => {
+  it('builds TE revision payload', () => {
+    const data = buildTeRevisionEventData({
+      originalEventId: 'evt-grunnlag-1',
+      begrunnelseHtml: '<p>Oppdatert begrunnelse</p>',
+    });
+    expect(data.original_event_id).toBe('evt-grunnlag-1');
+    expect(data.begrunnelse).toBe('<p>Oppdatert begrunnelse</p>');
+    expect(data.dato_revidert).toBeDefined();
   });
 });

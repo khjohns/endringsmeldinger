@@ -8,12 +8,14 @@
 		html: string;
 		dato?: string;
 		readonly: boolean;
+		resultat?: string;
 	}
 
 	interface Props {
 		entries: BegrunnelseEntry[];
 		bhBegrunnelseHtml: string;
 		editorPlaceholder: string;
+		editorRolle?: 'TE' | 'BH';
 		activeTab?: 'begrunnelse' | 'historikk' | 'filer';
 		ontabchange?: (tab: 'begrunnelse' | 'historikk' | 'filer') => void;
 	}
@@ -22,9 +24,18 @@
 		entries,
 		bhBegrunnelseHtml = $bindable(''),
 		editorPlaceholder,
+		editorRolle = 'BH',
 		activeTab = 'begrunnelse',
 		ontabchange,
 	}: Props = $props();
+
+	const editorLabel = $derived(editorRolle === 'TE' ? 'Din reviderte begrunnelse' : 'Ditt svar');
+
+	const RESULTAT_LABELS: Record<string, string> = {
+		godkjent: 'Godkjent',
+		avslatt: 'Avslått',
+		frafalt: 'Frafalt',
+	};
 
 	let collapsedEntries = $state<Set<number>>(new Set());
 
@@ -75,6 +86,9 @@
 						<div class="entry-header-left">
 							<span class="rolle-badge rolle-{entry.rolle.toLowerCase()}">{entry.rolle}</span>
 							<span class="entry-versjon">v{entry.versjon}</span>
+							{#if entry.resultat}
+								<span class="entry-resultat resultat-{entry.resultat}">{RESULTAT_LABELS[entry.resultat] ?? entry.resultat}</span>
+							{/if}
 							{#if entry.dato}
 								<span class="entry-dato">{formatDateShortNorwegian(entry.dato)}</span>
 							{/if}
@@ -98,8 +112,8 @@
 			<!-- BH editor (active response) -->
 			<section class="editor-section">
 				<div class="editor-header">
-					<h3 class="editor-label">Ditt svar</h3>
-					<span class="rolle-badge rolle-bh">BH</span>
+					<h3 class="editor-label">{editorLabel}</h3>
+					<span class="rolle-badge rolle-{editorRolle.toLowerCase()}">{editorRolle}</span>
 				</div>
 				<RichTextEditor
 					placeholder={editorPlaceholder}
@@ -258,6 +272,29 @@
 	.entry-dato {
 		font-size: 11px;
 		color: var(--color-ink-ghost);
+	}
+
+	.entry-resultat {
+		font-family: var(--font-data);
+		font-size: 10px;
+		font-weight: 600;
+		padding: 1px var(--spacing-1);
+		border-radius: var(--radius-sm);
+	}
+
+	.resultat-godkjent {
+		color: var(--color-score-high);
+		background: var(--color-score-high-bg);
+	}
+
+	.resultat-avslatt {
+		color: var(--color-score-low);
+		background: var(--color-score-low-bg);
+	}
+
+	.resultat-frafalt {
+		color: var(--color-ink-muted);
+		background: var(--color-felt-raised);
 	}
 
 	.chevron {

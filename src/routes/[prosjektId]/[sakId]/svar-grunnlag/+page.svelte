@@ -69,6 +69,41 @@
 	});
 
 	const isUpdateMode = $derived(!!forrigeResultat);
+
+	// Previous BH response details for pre-fill in update mode
+	const forrigeVarsletITide = $derived.by(() => {
+		const state = $query.data?.state;
+		return state?.grunnlag.grunnlag_varslet_i_tide;
+	});
+
+	const lastResponseEvent = $derived.by(() => {
+		const timeline = $query.data?.timeline;
+		if (!timeline) return null;
+
+		// Find latest BH grunnlag response event
+		const responsEvents = timeline.filter(
+			(e) => e.type.includes('respons_grunnlag')
+		);
+		return responsEvents.length > 0 ? responsEvents[responsEvents.length - 1] : null;
+	});
+
+	const forrigeBegrunnelseHtml = $derived.by(() => {
+		if (!lastResponseEvent) return undefined;
+		const d = lastResponseEvent.data as unknown as Record<string, unknown> | undefined;
+		return (d?.begrunnelse as string) ?? undefined;
+	});
+
+	const lastResponseEventId = $derived(lastResponseEvent?.id);
+
+	// Grunnlag event ID (the original TE grunnlag_opprettet event)
+	const grunnlagEventId = $derived.by(() => {
+		const timeline = $query.data?.timeline;
+		if (!timeline) return '';
+		const grunnlagEvent = timeline.find(
+			(e) => e.type === 'no.oslo.koe.grunnlag_opprettet' || e.type === 'grunnlag_opprettet'
+		);
+		return grunnlagEvent?.id ?? '';
+	});
 </script>
 
 {#if $query.isLoading}
@@ -88,6 +123,10 @@
 		{tidligereSvar}
 		{forrigeResultat}
 		{isUpdateMode}
+		{forrigeVarsletITide}
+		{forrigeBegrunnelseHtml}
+		{lastResponseEventId}
+		{grunnlagEventId}
 	/>
 {/if}
 
