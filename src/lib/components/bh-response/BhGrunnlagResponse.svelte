@@ -158,7 +158,6 @@
 			versjon: number;
 			html: string;
 			dato?: string;
-			readonly: boolean;
 		}> = [];
 
 		// Previous exchange (TE v1 → BH v1 → TE v2 → ...)
@@ -168,7 +167,6 @@
 				versjon: svar.versjon,
 				html: svar.html,
 				dato: svar.dato,
-				readonly: true,
 			});
 		}
 
@@ -177,7 +175,6 @@
 			rolle: 'TE',
 			versjon: krav.versjon,
 			html: krav.begrunnelseHtml,
-			readonly: true,
 		});
 
 		return entries;
@@ -254,7 +251,6 @@
 					tittel={krav.tittel}
 					hovedkategori={krav.hovedkategori}
 					underkategori={krav.underkategori}
-					hjemmelRef={krav.hjemmelRef}
 					datoVarslet={krav.datoVarslet}
 					begrunnelseHtml={krav.begrunnelseHtml}
 					versjon={krav.versjon}

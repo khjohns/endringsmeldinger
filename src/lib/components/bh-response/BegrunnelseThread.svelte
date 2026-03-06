@@ -8,7 +8,6 @@
 		versjon: number;
 		html: string;
 		dato?: string;
-		readonly: boolean;
 		resultat?: string;
 	}
 
@@ -70,41 +69,7 @@
 
 	{#if activeTab === 'begrunnelse'}
 		<div class="thread-content">
-			<!-- Read-only entries (TE begrunnelser + previous BH responses) -->
-			{#each entries as entry, i}
-				<div class="entry entry-{entry.rolle.toLowerCase()}">
-					<button
-						class="entry-header"
-						onclick={() => toggleEntry(i)}
-						aria-expanded={!collapsedEntries.has(i)}
-					>
-						<div class="entry-header-left">
-							<span class="rolle-badge rolle-{entry.rolle.toLowerCase()}">{entry.rolle}</span>
-							<span class="entry-versjon">v{entry.versjon}</span>
-							{#if entry.resultat}
-								<span class="entry-resultat resultat-{entry.resultat}">{GRUNNLAG_RESULTAT_LABELS[entry.resultat] ?? entry.resultat}</span>
-							{/if}
-							{#if entry.dato}
-								<span class="entry-dato">{formatDateShortNorwegian(entry.dato)}</span>
-							{/if}
-						</div>
-						<svg
-							class="chevron"
-							class:chevron-collapsed={collapsedEntries.has(i)}
-							width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"
-						>
-							<path d="M4 5.5L7 8.5L10 5.5" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/>
-						</svg>
-					</button>
-					{#if !collapsedEntries.has(i)}
-						<div class="entry-body">
-							{@html entry.html}
-						</div>
-					{/if}
-				</div>
-			{/each}
-
-			<!-- BH editor (active response) -->
+			<!-- Editor (ren skriveflate) -->
 			<section class="editor-section">
 				<div class="editor-header">
 					<h3 class="editor-label">{editorLabel}</h3>
@@ -135,8 +100,45 @@
 		</div>
 
 	{:else if activeTab === 'historikk'}
-		<div class="thread-content placeholder-content">
-			<p class="placeholder-text">Historikk over hendelser kommer i neste fase.</p>
+		<div class="thread-content">
+			{#if entries.length > 0}
+				{#each entries as entry, i}
+					<div class="entry entry-{entry.rolle.toLowerCase()}">
+						<button
+							class="entry-header"
+							onclick={() => toggleEntry(i)}
+							aria-expanded={!collapsedEntries.has(i)}
+						>
+							<div class="entry-header-left">
+								<span class="rolle-badge rolle-{entry.rolle.toLowerCase()}">{entry.rolle}</span>
+								<span class="entry-versjon">v{entry.versjon}</span>
+								{#if entry.resultat}
+									<span class="entry-resultat resultat-{entry.resultat}">{GRUNNLAG_RESULTAT_LABELS[entry.resultat] ?? entry.resultat}</span>
+								{/if}
+								{#if entry.dato}
+									<span class="entry-dato">{formatDateShortNorwegian(entry.dato)}</span>
+								{/if}
+							</div>
+							<svg
+								class="chevron"
+								class:chevron-collapsed={collapsedEntries.has(i)}
+								width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"
+							>
+								<path d="M4 5.5L7 8.5L10 5.5" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/>
+							</svg>
+						</button>
+						{#if !collapsedEntries.has(i)}
+							<div class="entry-body">
+								{@html entry.html}
+							</div>
+						{/if}
+					</div>
+				{/each}
+			{:else}
+				<div class="placeholder-content">
+					<p class="placeholder-text">Ingen tidligere hendelser.</p>
+				</div>
+			{/if}
 		</div>
 
 	{:else if activeTab === 'filer'}

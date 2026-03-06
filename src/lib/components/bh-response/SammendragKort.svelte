@@ -8,7 +8,6 @@
 		status?: string;
 		hovedkategori: string;
 		underkategori?: string;
-		hjemmelRef?: string;
 		datoVarslet?: string;
 		begrunnelseHtml?: string;
 		versjon: number;
@@ -20,7 +19,6 @@
 		status,
 		hovedkategori,
 		underkategori,
-		hjemmelRef,
 		datoVarslet,
 		begrunnelseHtml,
 		versjon,
@@ -35,6 +33,10 @@
 	);
 
 	let utvidet = $state(false);
+	let begrunnelseEl = $state<HTMLElement | null>(null);
+	const erAvkortet = $derived(
+		begrunnelseEl ? begrunnelseEl.scrollHeight > begrunnelseEl.clientHeight : false
+	);
 </script>
 
 <!-- Header: sak-id / tittel / status -->
@@ -60,12 +62,18 @@
 	<div class="kategori-badge">{kombinertKategori}</div>
 
 	{#if begrunnelseHtml}
-		<div class="begrunnelse" class:begrunnelse-avkortet={!utvidet}>
+		<div
+			class="begrunnelse"
+			class:begrunnelse-avkortet={!utvidet}
+			bind:this={begrunnelseEl}
+		>
 			{@html begrunnelseHtml}
 		</div>
-		<button class="vis-mer" onclick={() => utvidet = !utvidet}>
-			{utvidet ? 'Vis mindre' : 'Vis mer'}
-		</button>
+		{#if erAvkortet || utvidet}
+			<button class="vis-mer" onclick={() => utvidet = !utvidet}>
+				{utvidet ? 'Vis mindre' : 'Vis mer'}
+			</button>
+		{/if}
 	{/if}
 
 	{#if formatDato}

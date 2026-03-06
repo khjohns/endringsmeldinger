@@ -191,6 +191,15 @@ Arver SakPanel-strukturen. INGEN kort-boks — flat seksjonsinndeling integrert 
 
 **Ingen dekorativ venstrekant.** Handlingskant-monsteret er reservert for status (rose/amber/wire), ikke rolle.
 
+### BegrunnelseThread (hoyrepanel, forhandlingsbordet)
+Sticky panel, felt bg, border-left wire-strong. Tre faner med amber underline pa aktiv.
+
+**Begrunnelse-fane (skriveflate):** Kun editor + vedlegg. Ren arbeidsflate uten lesestoff — TEs begrunnelse er fullt lesbar i midtpanelet (SammendragKort).
+
+**Historikk-fane (arkiv):** Collapsible entries med rolle-badge (TE/BH), versjon, dato, resultat. Rolle-farget venstrekant (3px). Kronologisk trad over alle versjoner. Referansedokument, ikke arbeidsverktoy.
+
+**Filer-fane:** Vedlegg og dokumenter (placeholder).
+
 ### Saksliste (tabell)
 Full-width tabell med felt-bg, wire border, sticky header.
 - Header: 10px, uppercase, tracking 0.08em, ink-muted

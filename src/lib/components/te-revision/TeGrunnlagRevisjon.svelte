@@ -82,7 +82,6 @@
 			versjon: s.versjon,
 			html: s.html,
 			dato: s.dato,
-			readonly: true as const,
 			resultat: s.resultat,
 		}));
 	});
@@ -146,7 +145,6 @@
 					tittel={krav.tittel}
 					hovedkategori={krav.hovedkategori}
 					underkategori={krav.underkategori}
-					hjemmelRef={krav.hjemmelRef}
 					datoVarslet={krav.datoVarslet}
 					versjon={krav.versjon}
 				/>
