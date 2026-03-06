@@ -81,7 +81,7 @@
 	const tracks = $derived<TrackCard[]>([
 		{
 			spor: 'grunnlag',
-			label: 'Ansvarsgrunnlag',
+			label: 'Kontraktsforhold',
 			status: state.grunnlag.status,
 			siste_oppdatert: state.grunnlag.siste_oppdatert,
 			href: `/${prosjektId}/${sakId}/grunnlag`,

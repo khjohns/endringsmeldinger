@@ -46,7 +46,7 @@ describe('Sporkort', () => {
 	it('renders track name for grunnlag', () => {
 		const state = makeBaseState();
 		render(SporkortTest, { props: { sporType: 'grunnlag' as SporType, state } });
-		expect(screen.getByText('ANSVARSGRUNNLAG')).toBeInTheDocument();
+		expect(screen.getByText('KONTRAKTSFORHOLD')).toBeInTheDocument();
 	});
 
 	it('renders track name for vederlag', () => {
@@ -231,7 +231,7 @@ describe('Sporkort', () => {
 		expect(link?.getAttribute('href')).toBe('/P001/SAK-001/vederlag');
 	});
 
-	it('shows data line for grunnlag with tittel', () => {
+	it('shows data line for grunnlag with kontraktsforhold and hjemmel', () => {
 		const state = makeBaseState({
 			grunnlag: {
 				status: 'sendt',
@@ -240,10 +240,14 @@ describe('Sporkort', () => {
 				siste_oppdatert: '2025-01-10T12:00:00Z',
 				tittel: 'Endring i grunnforhold',
 				hovedkategori: 'SVIKT',
+				underkategori: 'GRUNN',
 			},
 		});
 		render(SporkortTest, { props: { sporType: 'grunnlag' as SporType, state } });
-		expect(screen.getByText('Endring i grunnforhold')).toBeInTheDocument();
+		// Shows kontraktsforhold label
+		expect(screen.getByText('Forsinkelse eller svikt ved byggherrens ytelser')).toBeInTheDocument();
+		// Shows hjemmel label
+		expect(screen.getByText('Uforutsette grunnforhold')).toBeInTheDocument();
 	});
 
 	it('shows data line for vederlag with method and amount', () => {

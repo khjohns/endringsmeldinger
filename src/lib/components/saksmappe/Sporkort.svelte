@@ -206,7 +206,7 @@
 	const href = $derived(`/${prosjektId}/${sakId}/${sporType}`);
 
 	const SPOR_NAMES: Record<SporType, string> = {
-		grunnlag: 'Ansvarsgrunnlag',
+		grunnlag: 'Kontraktsforhold',
 		vederlag: 'Vederlagskrav',
 		frist: 'Fristkrav',
 	};

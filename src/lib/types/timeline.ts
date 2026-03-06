@@ -86,16 +86,16 @@ export type FristBeregningResultat =
   | 'delvis_godkjent'       // BH aksepterer deler (uenighet om antall dager)
   | 'avslatt';              // BH avviser kravet
 
-// Grunnlag response result (BH's vurdering av ansvarsgrunnlaget)
-// Med ett ansvarsgrunnlag per sak er det binært: godkjent eller avslått
+// Grunnlag response result (BH's vurdering av kontraktsforholdet)
+// Med ett kontraktsforhold per sak er det binært: godkjent eller avslått
 export type GrunnlagResponsResultat =
   | 'godkjent'
-  | 'avslatt'          // BH avslår ansvarsgrunnlaget
+  | 'avslatt'          // BH avslår kontraktsforholdet
   | 'frafalt';         // §32.3 c - BH frafaller pålegget (kun irregulær endring)
 
 // Årsaker til at subsidiær vurdering er relevant (NS 8407)
 export type SubsidiaerTrigger =
-  | 'grunnlag_avslatt'         // Nivå 0: BH avslo ansvarsgrunnlaget
+  | 'grunnlag_avslatt'         // Nivå 0: BH avslo kontraktsforholdet
   | 'grunnlag_prekludert_32_2' // Nivå 0: Grunnlag varslet for sent (§32.2) - kun ENDRING
   | 'forseringsrett_avslatt'   // Nivå 0: TE har ikke forseringsrett (§33.8)
   | 'preklusjon_hovedkrav'     // Nivå 1: Hovedkrav varslet for sent (§34.1.2) - kun SVIKT/ANDRE
