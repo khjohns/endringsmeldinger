@@ -7,8 +7,13 @@
 		erPrekludert,
 		getVerdictOptions,
 		getDynamicPlaceholder,
+		getBhUpdateDefaults,
+		detekterEndringer,
+		buildEventData,
 	} from '$lib/domain/grunnlagDomain';
 	import type { GrunnlagFormState, GrunnlagDomainConfig } from '$lib/domain/grunnlagDomain';
+	import { submitEvent } from '$lib/api/events';
+	import { useQueryClient } from '@tanstack/svelte-query';
 	import type { GrunnlagResponsResultat } from '$lib/types/timeline';
 	import SammendragKort from './SammendragKort.svelte';
 	import SegmentedButtons from './SegmentedButtons.svelte';
@@ -42,6 +47,10 @@
 		tidligereSvar?: TidligereSvar[];
 		forrigeResultat?: GrunnlagResponsResultat;
 		isUpdateMode?: boolean;
+		forrigeVarsletITide?: boolean;
+		forrigeBegrunnelseHtml?: string;
+		lastResponseEventId?: string;
+		grunnlagEventId?: string;
 	}
 
 	let {
@@ -52,15 +61,42 @@
 		tidligereSvar = [],
 		forrigeResultat,
 		isUpdateMode = false,
+		forrigeVarsletITide,
+		forrigeBegrunnelseHtml,
+		lastResponseEventId,
+		grunnlagEventId = '',
 	}: Props = $props();
 
-	// --- Form state ---
+	const queryClient = useQueryClient();
+
+	// --- Form state (pre-filled in update mode) ---
+	const updateDefaults = $derived.by(() => {
+		if (!isUpdateMode || !forrigeResultat) return null;
+		return getBhUpdateDefaults({
+			forrigeResultat,
+			forrigeVarsletITide,
+			forrigeBegrunnelseHtml,
+		});
+	});
+
 	let varsletITide = $state<boolean | undefined>(undefined);
 	let resultat = $state<string | undefined>(undefined);
 	let bhBegrunnelseHtml = $state('');
 	let submitting = $state(false);
+	let submitError = $state<string | null>(null);
 	let activeTab = $state<'begrunnelse' | 'historikk' | 'filer'>('begrunnelse');
 	let mobilPanelOpen = $state(false);
+	let hasInitialized = $state(false);
+
+	// Pre-fill once when updateDefaults becomes available
+	$effect(() => {
+		if (updateDefaults && !hasInitialized) {
+			varsletITide = updateDefaults.varsletITide;
+			resultat = updateDefaults.resultat;
+			bhBegrunnelseHtml = updateDefaults.begrunnelse;
+			hasInitialized = true;
+		}
+	});
 
 	const harBhBegrunnelse = $derived(bhBegrunnelseHtml.replace(/<[^>]*>/g, '').trim().length > 0);
 
@@ -93,6 +129,15 @@
 	const verdictOptions = $derived(getVerdictOptions(domainConfig));
 
 	const editorPlaceholder = $derived(getDynamicPlaceholder(resultat, prekludert));
+
+	// Change detection in update mode
+	const endringsInfo = $derived.by(() => {
+		if (!isUpdateMode || !forrigeResultat) return null;
+		return detekterEndringer(
+			{ resultat, varsletITide: varsletITide ?? true, begrunnelse: bhBegrunnelseHtml },
+			{ resultat: forrigeResultat, varsletITide: forrigeVarsletITide, begrunnelse: forrigeBegrunnelseHtml },
+		);
+	});
 
 	const kategoriTag = $derived(
 		krav.underkategori
@@ -148,10 +193,30 @@
 
 	async function handleSubmit() {
 		if (!kanSende) return;
-		// TODO: Submit via API
 		submitting = true;
-		// Placeholder for actual submission
-		submitting = false;
+		submitError = null;
+
+		try {
+			const eventData = buildEventData(formState, {
+				...domainConfig,
+				grunnlagEventId,
+				lastResponseEventId,
+			});
+
+			const eventType = isUpdateMode
+				? 'respons_grunnlag_oppdatert'
+				: 'respons_grunnlag';
+
+			await submitEvent(sakId, eventType, eventData);
+
+			// Invalidate case data so it refreshes
+			await queryClient.invalidateQueries({ queryKey: ['case-context', sakId] });
+
+			goto(`/${prosjektId}/${sakId}`);
+		} catch (err) {
+			submitError = err instanceof Error ? err.message : 'Kunne ikke sende svar';
+			submitting = false;
+		}
 	}
 
 	function handleAvbryt() {
@@ -214,6 +279,14 @@
 								<strong>Preklusjon</strong> — Varselet vurderes som for sent. Grunnlaget kan fortsatt vurderes subsidiært.
 							</Alert>
 						{/if}
+						{#if endringsInfo}
+							{@const varslingEndring = endringsInfo.endringer.find((e) => e.felt === 'varsletITide')}
+							{#if varslingEndring}
+								<Alert variant={varslingEndring.type === 'frafaller_innsigelse' ? 'info' : 'warning'}>
+									{varslingEndring.beskrivelse}
+								</Alert>
+							{/if}
+						{/if}
 					</section>
 				{/if}
 
@@ -234,6 +307,16 @@
 					/>
 				</section>
 
+				<!-- Endringsadvarsel for resultat -->
+				{#if endringsInfo}
+					{@const resultatEndring = endringsInfo.endringer.find((e) => e.felt === 'resultat')}
+					{#if resultatEndring}
+						<Alert variant="warning">
+							<strong>{resultatEndring.type === 'snuoperasjon' ? 'Snuoperasjon' : 'Endring'}</strong> — {resultatEndring.beskrivelse}
+						</Alert>
+					{/if}
+				{/if}
+
 				<!-- Konsekvens-callout -->
 				<KonsekvensCallout
 					{resultat}
@@ -243,12 +326,15 @@
 				/>
 
 				<!-- Footer -->
+				{#if submitError}
+					<Alert variant="warning">{submitError}</Alert>
+				{/if}
 				<div class="form-footer">
 					<Button variant="secondary" onclick={handleAvbryt}>
 						Avbryt
 					</Button>
 					<Button variant="primary" disabled={!kanSende} loading={submitting} onclick={handleSubmit}>
-						Send svar
+						{isUpdateMode ? 'Oppdater svar' : 'Send svar'}
 					</Button>
 				</div>
 			</div>

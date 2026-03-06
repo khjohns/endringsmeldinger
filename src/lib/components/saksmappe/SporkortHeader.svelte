@@ -17,7 +17,14 @@
 	function handleAction(e: MouseEvent) {
 		e.stopPropagation();
 		if (sporType === 'grunnlag') {
-			goto(`/${prosjektId}/${sakId}/svar-grunnlag`);
+			const role = typeof localStorage !== 'undefined'
+				? localStorage.getItem('koe-user-role')
+				: null;
+			if (role === 'TE') {
+				goto(`/${prosjektId}/${sakId}/rediger-grunnlag`);
+			} else {
+				goto(`/${prosjektId}/${sakId}/svar-grunnlag`);
+			}
 		}
 		// TODO: svar-vederlag, svar-frist routes
 	}
