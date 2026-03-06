@@ -39,7 +39,6 @@
 		<BegrunnelsePanel
 			placeholder={begrunnelsePlaceholder}
 			bind:html={begrunnelseHtml}
-			onchange={(h) => (begrunnelseHtml = h)}
 		/>
 	</div>
 </div>
@@ -61,7 +60,6 @@
 		<BegrunnelsePanel
 			placeholder={begrunnelsePlaceholder}
 			bind:html={begrunnelseHtml}
-			onchange={(h) => (begrunnelseHtml = h)}
 			overlay
 			onclose={() => (mobilPanelOpen = false)}
 		/>
@@ -78,7 +76,7 @@
 
 	.ny-sak-main {
 		overflow-y: auto;
-		padding: var(--spacing-6) var(--spacing-6);
+		padding: var(--spacing-6);
 	}
 
 	/* Constrain form width within the scrollable area */

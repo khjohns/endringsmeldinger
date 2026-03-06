@@ -4,12 +4,11 @@
 	interface Props {
 		placeholder: string;
 		html: string;
-		onchange: (html: string) => void;
 		onclose?: () => void;
 		overlay?: boolean;
 	}
 
-	let { placeholder, html = $bindable(), onchange, onclose, overlay = false }: Props = $props();
+	let { placeholder, html = $bindable(), onclose, overlay = false }: Props = $props();
 </script>
 
 <aside class="begrunnelse-panel" class:overlay>
@@ -23,7 +22,7 @@
 	{/if}
 
 	<!-- Begrunnelse -->
-	<section class="panel-section">
+	<section class="panel-section editor-section">
 		<div class="panel-header">
 			<h3 class="panel-label">Begrunnelse for kravet</h3>
 			<span class="rolle-badge">TE</span>
@@ -31,7 +30,6 @@
 		<RichTextEditor
 			{placeholder}
 			bind:html
-			{onchange}
 			hint="Referer til kontraktsbestemmelser med §-tegn."
 			maxHeight="none"
 		/>
@@ -107,8 +105,7 @@
 		gap: var(--spacing-3);
 	}
 
-	.panel-section:first-child,
-	.overlay .panel-section:nth-child(2) {
+	.editor-section {
 		flex: 1;
 		min-height: 0;
 	}
