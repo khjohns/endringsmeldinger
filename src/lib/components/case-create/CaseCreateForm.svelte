@@ -221,6 +221,10 @@
 		transition: border-color 0.12s;
 	}
 
+	.tittel-input:hover {
+		border-color: var(--color-wire-strong);
+	}
+
 	.tittel-input:focus {
 		border-color: var(--color-wire-focus);
 	}
@@ -274,7 +278,7 @@
 
 	.field-control {
 		width: 100%;
-		background: var(--color-canvas);
+		background: var(--color-felt);
 		border: 1px solid var(--color-wire);
 		border-radius: var(--radius-sm);
 		font-family: var(--font-ui);
@@ -284,6 +288,10 @@
 		outline: none;
 		transition: border-color 0.12s;
 		height: 32px;
+	}
+
+	.field-control:hover {
+		border-color: var(--color-wire-strong);
 	}
 
 	.field-control:focus {
