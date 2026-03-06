@@ -129,6 +129,13 @@ To varianter:
 - **Normal (amber outline):** vekt-bg bakgrunn, vekt tekst, vekt border 30%. For "BEHANDLE ->".
 - **Kritisk (solid rose):** score-low bakgrunn, hvit tekst. For "SVAR NA ->".
 
+### 7. Partsidentifikasjon (Party Names, Not Roles)
+Der en handling er utfort av en part, bruk faktisk selskapsnavn (f.eks. «Veidekke Entreprenor AS», «Statens vegvesen»), IKKE abstrakte rollekoder (TE/BH). Brukeren kjenner partene — rollekoder er intern sjargong som skaper avstand.
+
+- **Historikk-entries:** Partsnavn (12px, weight 600, ink-secondary) erstatter rolle-badge
+- **Editor-header:** Ingen rolle-badge — brukeren vet hvem de er
+- **Ingen rolle-farge:** Blatt/lilla for TE/BH er fjernet. Partene identifiseres ved navn, ikke fargekodet rolle. Fargereservering: kun semantisk (amber/rose/emerald for status)
+
 ## Component Patterns
 
 ### Top-Nav Breadcrumbs
@@ -174,6 +181,31 @@ Close-button: absolut top-right, ink-ghost, hover->ink.
 Header: ikon + handling + meta (auto margin-left). Separator: 1px wire.
 
 Seksjonslabels: 10px uppercase ink-ghost. Tekst: 12px ink-secondary. Spordetalj-lenke: flex-end, 11px ink-muted, hover->vekt.
+
+### SammendragKort (forhandlingsbordet)
+Arver SakPanel-strukturen. INGEN kort-boks — flat seksjonsinndeling integrert i skjemaets midtpanel. Brukeren sitter ved forhandlingsbordet og leser kravet direkte, ikke et sammendragskort *om* kravet.
+
+**Header (border-bottom wire-strong, padding-bottom 16px, margin-bottom 20px):**
+- sak-id: font-data 10px ink-muted + optional versjon-badge (felt-active bg, wire border, sm radius)
+- tittel: 16px weight 600 ink
+- status: 11px uppercase ink-secondary, tracking 0.04em
+
+**Kontraktsforhold-seksjon:**
+- seksjon-label: 10px 600 uppercase tracking 0.08em ink-muted
+- kategori-badge: kombinert hovedkategori + underkategori ("Svikt i BH ytelse — Grunnforhold"). font-data 11px 500, felt-active bg, wire border, sm radius, align-self flex-start
+- begrunnelse: 13px ink-secondary line-height 1.6 (rich-text HTML)
+- dato-linje: border-top wire, 11px ink-muted label + font-data 12px 500 ink-secondary verdi
+
+**Ingen dekorativ venstrekant.** Handlingskant-monsteret er reservert for status (rose/amber/wire), ikke rolle.
+
+### BegrunnelseThread (hoyrepanel, forhandlingsbordet)
+Sticky panel, felt bg, border-left wire-strong. Tre faner med amber underline pa aktiv.
+
+**Begrunnelse-fane (skriveflate):** Kun editor + vedlegg. Ren arbeidsflate uten lesestoff — TEs begrunnelse er fullt lesbar i midtpanelet (SammendragKort).
+
+**Historikk-fane (arkiv):** Collapsible entries med faktisk partsnavn (f.eks. «Veidekke», «Statens vegvesen»), versjon, dato, resultat. Ingen rolle-farget venstrekant — noytralt. Kronologisk trad over alle versjoner. Referansedokument, ikke arbeidsverktoy.
+
+**Filer-fane:** Vedlegg og dokumenter (placeholder).
 
 ### Saksliste (tabell)
 Full-width tabell med felt-bg, wire border, sticky header.

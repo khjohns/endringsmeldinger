@@ -3,6 +3,7 @@
 	import { extractEventType } from '$lib/types/timeline';
 	import { getEventTypeLabel } from '$lib/constants/eventLabels';
 	import { formatCurrencyCompact } from '$lib/utils/formatters';
+	import { getPartsNavn } from '$lib/utils/partsNavn';
 	import { beregnVarslingStatus } from '$lib/utils/varslingStatus';
 	import { browser } from '$app/environment';
 	import { onMount } from 'svelte';
@@ -184,7 +185,9 @@
 		const eventType = extractEventType(latestEvent.type);
 		const icon = getEventIcon(eventType);
 		const label = latestEvent.summary ?? getEventTypeLabel(eventType);
-		const actor = latestEvent.actorrole === 'BH' ? 'Byggherre' : latestEvent.actorrole === 'TE' ? 'Entreprenør' : null;
+		const actor = latestEvent.actorrole
+			? getPartsNavn(latestEvent.actorrole as 'TE' | 'BH', sakState.entreprenor, sakState.byggherre)
+			: null;
 
 		// Revisjon: antall_versjoner > 1 betyr Rev. N (N = antall_versjoner - 1)
 		const versjoner = trackState.antall_versjoner;
@@ -321,7 +324,7 @@
 		frist={sporType === 'frist' ? sakState.frist : undefined}
 	/>
 
-	<SporkortHistorikk {events} expanded={loggExpanded} onToggle={handleLoggToggle} {onFocusEvent} />
+	<SporkortHistorikk {events} expanded={loggExpanded} onToggle={handleLoggToggle} {onFocusEvent} teNavn={sakState.entreprenor} bhNavn={sakState.byggherre} />
 
 	{#if hasPassivitet}
 		<div class="passivitet-warning" role="alert">

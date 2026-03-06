@@ -43,6 +43,8 @@
 		teBegrunnelseHtml: string;
 		bhSvar: BhSvar | null;
 		tidligereSvar?: TidligereSvarEntry[];
+		teNavn?: string;
+		bhNavn?: string;
 	}
 
 	let {
@@ -53,6 +55,8 @@
 		teBegrunnelseHtml,
 		bhSvar,
 		tidligereSvar = [],
+		teNavn,
+		bhNavn,
 	}: Props = $props();
 
 	const queryClient = useQueryClient();
@@ -82,7 +86,6 @@
 			versjon: s.versjon,
 			html: s.html,
 			dato: s.dato,
-			readonly: true as const,
 			resultat: s.resultat,
 		}));
 	});
@@ -142,10 +145,10 @@
 			<div class="midtpanel-scroll">
 				<!-- Sammendragskort -->
 				<SammendragKort
+					sakId={sakId}
 					tittel={krav.tittel}
 					hovedkategori={krav.hovedkategori}
 					underkategori={krav.underkategori}
-					hjemmelRef={krav.hjemmelRef}
 					datoVarslet={krav.datoVarslet}
 					versjon={krav.versjon}
 				/>
@@ -159,7 +162,7 @@
 				{#if bhSvar}
 					<section class="bh-standpunkt">
 						<div class="section-header">
-							<h3 class="section-label">Byggherrens standpunkt</h3>
+							<h3 class="section-label">{bhNavn ?? 'Byggherre'} — standpunkt</h3>
 							{#if bhSvar.dato}
 								<span class="section-dato">{formatDateShortNorwegian(bhSvar.dato)}</span>
 							{/if}
@@ -204,6 +207,8 @@
 				bind:bhBegrunnelseHtml={begrunnelseHtml}
 				editorPlaceholder="Oppdater din begrunnelse for kontraktsforholdet..."
 				editorRolle="TE"
+				{teNavn}
+				{bhNavn}
 				{activeTab}
 				ontabchange={(tab) => (activeTab = tab)}
 			/>
@@ -236,6 +241,8 @@
 			bind:bhBegrunnelseHtml={begrunnelseHtml}
 			editorPlaceholder="Oppdater din begrunnelse for kontraktsforholdet..."
 			editorRolle="TE"
+			{teNavn}
+			{bhNavn}
 			{activeTab}
 			ontabchange={(tab) => (activeTab = tab)}
 		/>
@@ -336,7 +343,6 @@
 		gap: var(--spacing-3);
 		padding: var(--spacing-4);
 		border: 1px solid var(--color-wire-strong);
-		border-left: 3px solid var(--color-role-bh-text);
 		border-radius: var(--radius-sm);
 		background: var(--color-felt);
 	}
@@ -349,14 +355,7 @@
 		border-bottom: 1px solid var(--color-wire);
 	}
 
-	.section-label {
-		font-size: 10px;
-		font-weight: 600;
-		text-transform: uppercase;
-		letter-spacing: 0.08em;
-		color: var(--color-ink-muted);
-		margin: 0;
-	}
+	/* margin handled by .section-header */
 
 	.section-dato {
 		font-family: var(--font-data);
