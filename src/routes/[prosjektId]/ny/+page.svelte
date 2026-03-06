@@ -9,6 +9,9 @@
 	let begrunnelsePlaceholder = $state(
 		'Beskriv bakgrunnen for kravet og henvis til relevant kontraktsbestemmelse. Legg ved dokumentasjon som underbygger kravet.'
 	);
+	let mobilPanelOpen = $state(false);
+
+	const harBegrunnelse = $derived(begrunnelseHtml.replace(/<[^>]*>/g, '').trim().length > 0);
 </script>
 
 <div class="ny-sak-layout">
@@ -31,12 +34,39 @@
 		/>
 	</main>
 
-	<BegrunnelsePanel
-		placeholder={begrunnelsePlaceholder}
-		bind:html={begrunnelseHtml}
-		onchange={(h) => (begrunnelseHtml = h)}
-	/>
+	<!-- Desktop: inline panel -->
+	<div class="desktop-panel">
+		<BegrunnelsePanel
+			placeholder={begrunnelsePlaceholder}
+			bind:html={begrunnelseHtml}
+			onchange={(h) => (begrunnelseHtml = h)}
+		/>
+	</div>
 </div>
+
+<!-- Mobil: FAB -->
+<button class="begrunnelse-fab" onclick={() => (mobilPanelOpen = true)}>
+	<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+		<path d="M2 3h12M2 7h8M2 11h10" stroke="currentColor" stroke-width="1.25" stroke-linecap="round"/>
+	</svg>
+	Begrunnelse
+	{#if harBegrunnelse}
+		<span class="fab-badge"></span>
+	{/if}
+</button>
+
+<!-- Mobil: fullscreen overlay -->
+{#if mobilPanelOpen}
+	<div class="mobil-panel-overlay">
+		<BegrunnelsePanel
+			placeholder={begrunnelsePlaceholder}
+			bind:html={begrunnelseHtml}
+			onchange={(h) => (begrunnelseHtml = h)}
+			overlay
+			onclose={() => (mobilPanelOpen = false)}
+		/>
+	</div>
+{/if}
 
 <style>
 	.ny-sak-layout {
@@ -54,6 +84,10 @@
 	/* Constrain form width within the scrollable area */
 	.ny-sak-main > :global(*) {
 		max-width: 680px;
+	}
+
+	.desktop-panel {
+		display: contents;
 	}
 
 	.tilbake-lenke {
@@ -88,9 +122,63 @@
 		color: var(--color-ink-muted);
 	}
 
-	@media (max-width: 480px) {
+	/* FAB + mobil overlay: skjult på desktop */
+	.begrunnelse-fab {
+		display: none;
+	}
+
+	.mobil-panel-overlay {
+		display: none;
+	}
+
+	/* ── Mobil (<768px) ── */
+	@media (max-width: 767px) {
+		.ny-sak-layout {
+			grid-template-columns: 1fr;
+		}
+
 		.ny-sak-main {
 			padding: var(--spacing-4) var(--spacing-3);
+		}
+
+		.desktop-panel {
+			display: none;
+		}
+
+		.begrunnelse-fab {
+			display: flex;
+			align-items: center;
+			gap: 6px;
+			position: fixed;
+			bottom: 20px;
+			right: 16px;
+			z-index: 20;
+			padding: 10px 16px;
+			background: var(--color-felt-raised);
+			border: 1px solid var(--color-vekt-dim);
+			border-radius: 9999px;
+			font-family: var(--font-ui);
+			font-size: 13px;
+			font-weight: 500;
+			color: var(--color-vekt);
+			cursor: pointer;
+			transition: background 0.12s, border-color 0.12s;
+		}
+
+		.begrunnelse-fab:hover {
+			background: var(--color-vekt-bg);
+			border-color: var(--color-vekt);
+		}
+
+		.fab-badge {
+			width: 6px;
+			height: 6px;
+			border-radius: 9999px;
+			background: var(--color-vekt);
+		}
+
+		.mobil-panel-overlay {
+			display: contents;
 		}
 	}
 </style>
