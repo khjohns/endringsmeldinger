@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import { browser } from '$app/environment';
 	import type { SporType, SporStatus } from '$lib/types/timeline';
 	import type { VarslingItem } from '$lib/utils/varslingStatus';
 
@@ -17,7 +18,12 @@
 	function handleAction(e: MouseEvent) {
 		e.stopPropagation();
 		if (sporType === 'grunnlag') {
-			goto(`/${prosjektId}/${sakId}/svar-grunnlag`);
+			const role = browser ? localStorage.getItem('koe-user-role') : null;
+			if (role === 'TE') {
+				goto(`/${prosjektId}/${sakId}/rediger-grunnlag`);
+			} else {
+				goto(`/${prosjektId}/${sakId}/svar-grunnlag`);
+			}
 		}
 		// TODO: svar-vederlag, svar-frist routes
 	}

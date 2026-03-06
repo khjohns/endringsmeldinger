@@ -45,14 +45,21 @@
 	// Derive saksnr from case list (same pattern as ny/ page)
 	const saksnr = $derived(1); // TODO: derive from case list position
 
-	// Derive previous responses for the thread
-	const tidligereSvar = $derived.by(() => {
+	// Extract all timeline-derived values in a single pass
+	const timelineData = $derived.by(() => {
 		const timeline = $query.data?.timeline;
-		if (!timeline) return [];
+		if (!timeline) return { tidligereSvar: [], grunnlagEventId: '', lastResponseEventId: undefined as string | undefined, forrigeBegrunnelseHtml: undefined as string | undefined };
 
-		return timeline
-			.filter((e) => e.type.includes('respons_grunnlag'))
-			.map((e) => {
+		const responsEvents = timeline.filter((e) => e.type.includes('respons_grunnlag'));
+		const grunnlagEvent = timeline.find(
+			(e) => e.type === 'no.oslo.koe.grunnlag_opprettet' || e.type === 'grunnlag_opprettet'
+		);
+
+		const lastResponse = responsEvents.length > 0 ? responsEvents[responsEvents.length - 1] : null;
+		const lastResponseData = lastResponse?.data as unknown as Record<string, unknown> | undefined;
+
+		return {
+			tidligereSvar: responsEvents.map((e) => {
 				const d = e.data as unknown as Record<string, unknown> | undefined;
 				return {
 					rolle: (e.actorrole ?? 'BH') as 'TE' | 'BH',
@@ -60,15 +67,16 @@
 					html: (d?.begrunnelse as string) ?? '',
 					dato: e.time,
 				};
-			});
+			}),
+			grunnlagEventId: grunnlagEvent?.id ?? '',
+			lastResponseEventId: lastResponse?.id,
+			forrigeBegrunnelseHtml: (lastResponseData?.begrunnelse as string) ?? undefined,
+		};
 	});
 
-	const forrigeResultat = $derived.by(() => {
-		const state = $query.data?.state;
-		return state?.grunnlag.bh_resultat ?? undefined;
-	});
-
+	const forrigeResultat = $derived($query.data?.state?.grunnlag.bh_resultat ?? undefined);
 	const isUpdateMode = $derived(!!forrigeResultat);
+	const forrigeVarsletITide = $derived($query.data?.state?.grunnlag.grunnlag_varslet_i_tide);
 </script>
 
 {#if $query.isLoading}
@@ -85,9 +93,13 @@
 		{sakId}
 		{saksnr}
 		{krav}
-		{tidligereSvar}
+		tidligereSvar={timelineData.tidligereSvar}
 		{forrigeResultat}
 		{isUpdateMode}
+		{forrigeVarsletITide}
+		forrigeBegrunnelseHtml={timelineData.forrigeBegrunnelseHtml}
+		lastResponseEventId={timelineData.lastResponseEventId}
+		grunnlagEventId={timelineData.grunnlagEventId}
 	/>
 {/if}
 

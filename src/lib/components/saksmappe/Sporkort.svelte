@@ -85,13 +85,16 @@
 	const visualState = $derived.by<CardVisualState>(() => {
 		const status = trackState.status;
 
+		// BH has already responded? Use "Endre svar" label
+		const bhHarSvart = sporType === 'grunnlag' && sakState.grunnlag.bh_resultat !== undefined;
+
 		// Passivitet overrides everything for grunnlag — BH must respond
 		if (hasPassivitet) {
 			return {
 				bgClass: 'bg-critical',
 				borderClass: 'border-critical',
 				borderVariant: 'critical' as BorderVariant,
-				action: roleAction(null, { label: 'Svar nå', urgent: true }),
+				action: roleAction(null, { label: bhHarSvart ? 'Endre svar' : 'Svar nå', urgent: true }),
 			};
 		}
 
@@ -121,7 +124,10 @@
 				bgClass: 'bg-default',
 				borderClass: 'border-handling',
 				borderVariant: 'handling' as BorderVariant,
-				action: roleAction({ label: 'Oppdater', urgent: false }, { label: 'Svar', urgent: false }),
+				action: roleAction(
+					{ label: 'Oppdater', urgent: false },
+					{ label: bhHarSvart ? 'Endre svar' : 'Svar', urgent: false },
+				),
 			};
 		}
 
@@ -131,7 +137,7 @@
 				bgClass: 'bg-default',
 				borderClass: 'border-venter',
 				borderVariant: 'venter' as BorderVariant,
-				action: roleAction(null, { label: 'Svar', urgent: false }),
+				action: roleAction(null, { label: bhHarSvart ? 'Endre svar' : 'Svar', urgent: false }),
 			};
 		}
 
