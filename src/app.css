@@ -60,9 +60,9 @@
 /* ── Light theme (default) ── */
 :root {
 	--koe-canvas: #f4f4f5;
-	--koe-felt: #ffffff;
+	--koe-felt: #fafafa;
 	--koe-felt-raised: #f4f4f5;
-	--koe-felt-hover: #fafafa;
+	--koe-felt-hover: #f5f5f5;
 	--koe-felt-active: #e4e4e7;
 
 	--koe-ink: #09090b;
