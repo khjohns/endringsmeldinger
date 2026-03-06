@@ -250,11 +250,13 @@
 			<div class="midtpanel-scroll">
 				<!-- Sammendragskort -->
 				<SammendragKort
+					sakId={sakId}
 					tittel={krav.tittel}
 					hovedkategori={krav.hovedkategori}
 					underkategori={krav.underkategori}
 					hjemmelRef={krav.hjemmelRef}
 					datoVarslet={krav.datoVarslet}
+					begrunnelseHtml={krav.begrunnelseHtml}
 					versjon={krav.versjon}
 				/>
 

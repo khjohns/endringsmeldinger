@@ -142,6 +142,7 @@
 			<div class="midtpanel-scroll">
 				<!-- Sammendragskort -->
 				<SammendragKort
+					sakId={sakId}
 					tittel={krav.tittel}
 					hovedkategori={krav.hovedkategori}
 					underkategori={krav.underkategori}

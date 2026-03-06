@@ -175,6 +175,22 @@ Header: ikon + handling + meta (auto margin-left). Separator: 1px wire.
 
 Seksjonslabels: 10px uppercase ink-ghost. Tekst: 12px ink-secondary. Spordetalj-lenke: flex-end, 11px ink-muted, hover->vekt.
 
+### SammendragKort (forhandlingsbordet)
+Arver SakPanel-strukturen. INGEN kort-boks — flat seksjonsinndeling integrert i skjemaets midtpanel. Brukeren sitter ved forhandlingsbordet og leser kravet direkte, ikke et sammendragskort *om* kravet.
+
+**Header (border-bottom wire-strong, padding-bottom 16px, margin-bottom 20px):**
+- sak-id: font-data 10px ink-muted + optional versjon-badge (felt-active bg, wire border, sm radius)
+- tittel: 16px weight 600 ink
+- status: 11px uppercase ink-secondary, tracking 0.04em
+
+**Kontraktsforhold-seksjon:**
+- seksjon-label: 10px 600 uppercase tracking 0.08em ink-muted
+- kategori-badge: kombinert hovedkategori + underkategori ("Svikt i BH ytelse — Grunnforhold"). font-data 11px 500, felt-active bg, wire border, sm radius, align-self flex-start
+- begrunnelse: 13px ink-secondary line-height 1.6 (rich-text HTML)
+- dato-linje: border-top wire, 11px ink-muted label + font-data 12px 500 ink-secondary verdi
+
+**Ingen dekorativ venstrekant.** Handlingskant-monsteret er reservert for status (rose/amber/wire), ikke rolle.
+
 ### Saksliste (tabell)
 Full-width tabell med felt-bg, wire border, sticky header.
 - Header: 10px, uppercase, tracking 0.08em, ink-muted
