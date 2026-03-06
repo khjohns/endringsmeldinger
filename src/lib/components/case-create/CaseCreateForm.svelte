@@ -19,7 +19,6 @@
 	// --- Form state ---
 	let valgtHjemmel = $state<ValgtHjemmel | null>(null);
 	let tittel = $state('');
-	let beskrivelse = $state('');
 	let datoOppdaget = $state('');
 	let submitting = $state(false);
 	let submitError = $state('');
@@ -78,7 +77,6 @@
 		const feil: string[] = [];
 		if (!valgtHjemmel) feil.push('Velg kontraktshjemmel');
 		if (!tittel.trim() || tittel.trim().length < 5) feil.push('Tittel må ha minst 5 tegn');
-		if (!beskrivelse.trim()) feil.push('Beskrivelse er påkrevd');
 		if (!datoOppdaget) feil.push('Dato oppdaget er påkrevd');
 		return feil;
 	});
@@ -107,7 +105,6 @@
 				tittel: tittel.trim(),
 				hovedkategori: valgtHjemmel.kontraktsforhold.kode,
 				underkategori: valgtHjemmel.hjemmel?.kode ?? null,
-				beskrivelse: beskrivelse.trim(),
 				dato_oppdaget: datoOppdaget,
 				begrunnelse: begrunnelseHtml.trim() || undefined,
 			});
@@ -122,6 +119,18 @@
 </script>
 
 <div class="create-form">
+	<!-- TITTEL -->
+	<div class="field">
+		<label class="field-label" for="tittel">Tittel</label>
+		<input
+			id="tittel"
+			type="text"
+			class="field-control"
+			placeholder="Kort beskrivelse av forholdet"
+			bind:value={tittel}
+		/>
+	</div>
+
 	<!-- KONTRAKTSHJEMMEL -->
 	<section class="form-section">
 		<div class="section-header">
@@ -136,36 +145,14 @@
 		</Alert>
 	{/if}
 
-	<!-- DETALJER -->
+	<!-- DATO OPPDAGET -->
 	<section class="form-section">
 		<div class="section-header">
-			<h3 class="section-label">Detaljer</h3>
+			<h3 class="section-label">Dato oppdaget</h3>
 		</div>
-
-		<div class="field">
-			<label class="field-label" for="tittel">Tittel</label>
-			<input
-				id="tittel"
-				type="text"
-				class="field-control"
-				placeholder="Kort beskrivelse av forholdet"
-				bind:value={tittel}
-			/>
-		</div>
-
-		<div class="field">
-			<label class="field-label" for="beskrivelse">Beskrivelse</label>
-			<textarea
-				id="beskrivelse"
-				class="field-control field-textarea"
-				placeholder="Hva har skjedd? Beskriv forholdet som utløser kravet."
-				bind:value={beskrivelse}
-			></textarea>
-		</div>
-
 		<div class="field">
 			<DatePicker
-				label="Dato oppdaget"
+				label=""
 				value={datoOppdaget}
 				onchange={(v) => (datoOppdaget = v)}
 			/>
@@ -195,7 +182,7 @@
 			Avbryt
 		</Button>
 		<div class="footer-right">
-			{#if valideringsfeil.length > 0 && (tittel || beskrivelse || datoOppdaget || valgtHjemmel)}
+			{#if valideringsfeil.length > 0 && (tittel || datoOppdaget || valgtHjemmel)}
 				<span class="validation-hint">{valideringsfeil[0]}</span>
 			{/if}
 			<Button variant="primary" disabled={!kanSende} loading={submitting} onclick={handleSubmit}>
@@ -277,14 +264,6 @@
 
 	.field-control::placeholder {
 		color: var(--color-ink-ghost);
-	}
-
-	.field-textarea {
-		min-height: 80px;
-		height: auto;
-		line-height: 1.5;
-		padding: var(--spacing-2) var(--spacing-3);
-		resize: vertical;
 	}
 
 	/* --- Dato elapsed hint --- */

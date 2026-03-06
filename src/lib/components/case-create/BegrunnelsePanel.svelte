@@ -5,12 +5,23 @@
 		placeholder: string;
 		html: string;
 		onchange: (html: string) => void;
+		onclose?: () => void;
+		overlay?: boolean;
 	}
 
-	let { placeholder, html = $bindable(), onchange }: Props = $props();
+	let { placeholder, html = $bindable(), onchange, onclose, overlay = false }: Props = $props();
 </script>
 
-<aside class="begrunnelse-panel">
+<aside class="begrunnelse-panel" class:overlay>
+	{#if overlay}
+		<button class="panel-tilbake" onclick={onclose}>
+			<svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+				<path d="M8.5 3L4.5 7L8.5 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+			</svg>
+			Tilbake til skjema
+		</button>
+	{/if}
+
 	<!-- Begrunnelse -->
 	<section class="panel-section">
 		<div class="panel-header">
@@ -56,6 +67,39 @@
 		flex-shrink: 0;
 	}
 
+	.begrunnelse-panel.overlay {
+		position: fixed;
+		inset: 0;
+		width: 100%;
+		height: 100%;
+		z-index: 30;
+		border-left: none;
+	}
+
+	.panel-tilbake {
+		display: flex;
+		align-items: center;
+		gap: 4px;
+		padding: 12px 16px;
+		position: sticky;
+		top: 0;
+		z-index: 1;
+		background: var(--color-felt);
+		border: none;
+		border-bottom: 1px solid var(--color-wire);
+		font-family: var(--font-ui);
+		font-size: 13px;
+		color: var(--color-ink-secondary);
+		cursor: pointer;
+		width: 100%;
+		text-align: left;
+		flex-shrink: 0;
+	}
+
+	.panel-tilbake:hover {
+		color: var(--color-ink);
+	}
+
 	.panel-section {
 		padding: 16px 20px;
 		display: flex;
@@ -63,7 +107,8 @@
 		gap: var(--spacing-3);
 	}
 
-	.panel-section:first-child {
+	.panel-section:first-child,
+	.overlay .panel-section:nth-child(2) {
 		flex: 1;
 		min-height: 0;
 	}
