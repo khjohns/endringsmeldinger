@@ -140,8 +140,9 @@
 
 	.ny-sak-context {
 		display: flex;
+		flex-wrap: wrap;
 		align-items: center;
-		gap: var(--spacing-2);
+		gap: 2px var(--spacing-2);
 		margin-top: var(--spacing-1);
 		font-size: 12px;
 		color: var(--color-ink-secondary);
@@ -182,6 +183,15 @@
 
 		.ny-sak-main {
 			padding: var(--spacing-5) var(--spacing-4);
+			padding-bottom: 72px; /* plass til FAB */
+		}
+
+		.tilbake-lenke {
+			margin-bottom: var(--spacing-4);
+		}
+
+		.ny-sak-header {
+			margin-bottom: var(--spacing-3);
 		}
 
 		.desktop-panel {
