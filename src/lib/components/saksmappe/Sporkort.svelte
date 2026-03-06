@@ -1,5 +1,7 @@
 <script lang="ts">
-	import type { SporType, SakState, TimelineEvent } from '$lib/types/timeline';
+	import type { SporType, SakState, TimelineEvent, EventType } from '$lib/types/timeline';
+	import { extractEventType } from '$lib/types/timeline';
+	import { getEventTypeLabel } from '$lib/constants/eventLabels';
 	import { beregnVarslingStatus } from '$lib/utils/varslingStatus';
 	import { browser } from '$app/environment';
 	import { onMount } from 'svelte';
@@ -151,6 +153,56 @@
 		};
 	});
 
+	// --- Hendelse-kontekst: siste hendelse for dette sporet ---
+
+	function getEventIcon(eventType: EventType | null): { symbol: string; color: string } {
+		if (!eventType) return { symbol: '·', color: 'var(--color-ink-muted)' };
+		if (eventType.includes('sendt')) return { symbol: '\u2192', color: 'var(--color-ink-muted)' };
+		if (eventType.includes('opprettet') && !eventType.includes('oppdatert'))
+			return { symbol: '\u2691', color: 'var(--color-ink-muted)' };
+		if (eventType.includes('oppdatert') || eventType.includes('spesifisert'))
+			return { symbol: '\u21BB', color: 'var(--color-vekt-dim)' };
+		if (eventType.startsWith('respons_') && !eventType.includes('oppdatert'))
+			return { symbol: '\u25C7', color: 'var(--color-score-high)' };
+		if (eventType.includes('aksept')) return { symbol: '\u2713', color: 'var(--color-score-high)' };
+		if (eventType.includes('trukket') || eventType.includes('avslatt'))
+			return { symbol: '\u2715', color: 'var(--color-score-low)' };
+		return { symbol: '·', color: 'var(--color-ink-muted)' };
+	}
+
+	const latestEvent = $derived(events.length > 0 ? events[0] : null);
+
+	const hendelseKontekst = $derived.by(() => {
+		if (!latestEvent) return null;
+		const eventType = extractEventType(latestEvent.type);
+		const icon = getEventIcon(eventType);
+		const label = latestEvent.summary ?? getEventTypeLabel(eventType);
+		const actor = latestEvent.actorrole === 'BH' ? 'Byggherre' : latestEvent.actorrole === 'TE' ? 'Entreprenør' : null;
+
+		// Revisjon: antall_versjoner > 1 betyr Rev. N (N = antall_versjoner - 1)
+		const versjoner = trackState.antall_versjoner;
+		const revision = versjoner > 1 ? `Rev. ${versjoner - 1}` : null;
+
+		// Ekstra kontekst fra BH-respons
+		let detalj: string | null = null;
+		if (sporType === 'vederlag' && sakState.vederlag.godkjent_belop !== undefined && sakState.vederlag.godkjent_belop !== null) {
+			const godkjent = sakState.vederlag.godkjent_belop;
+			const krevd = sakState.vederlag.krevd_belop ?? sakState.vederlag.netto_belop;
+			if (krevd !== undefined && krevd !== null && godkjent !== krevd) {
+				detalj = `Godkjent ${Math.round(godkjent / 1000)}k av ${Math.round(krevd / 1000)}k`;
+			}
+		}
+		if (sporType === 'frist' && sakState.frist.godkjent_dager !== undefined && sakState.frist.godkjent_dager !== null) {
+			const godkjent = sakState.frist.godkjent_dager;
+			const krevd = sakState.frist.krevd_dager;
+			if (krevd !== undefined && krevd !== null) {
+				detalj = `Godkjent ${godkjent} av ${krevd} dager`;
+			}
+		}
+
+		return { icon, label, actor, revision, detalj };
+	});
+
 	const href = $derived(`/${prosjektId}/${sakId}/${sporType}`);
 
 	const SPOR_NAMES: Record<SporType, string> = {
@@ -207,6 +259,26 @@
 		{prosjektId}
 		{sakId}
 	/>
+
+	{#if hendelseKontekst}
+		<div class="hendelse-kontekst">
+			<span class="hendelse-ikon" style="color: {hendelseKontekst.icon.color}" aria-hidden="true">{hendelseKontekst.icon.symbol}</span>
+			<span class="hendelse-tekst">
+				{hendelseKontekst.label}
+				{#if hendelseKontekst.actor}
+					<span class="hendelse-aktor">av {hendelseKontekst.actor}</span>
+				{/if}
+			</span>
+			{#if hendelseKontekst.revision}
+				<span class="hendelse-separator" aria-hidden="true">&middot;</span>
+				<span class="hendelse-rev">{hendelseKontekst.revision}</span>
+			{/if}
+			{#if hendelseKontekst.detalj}
+				<span class="hendelse-separator" aria-hidden="true">&middot;</span>
+				<span class="hendelse-detalj">{hendelseKontekst.detalj}</span>
+			{/if}
+		</div>
+	{/if}
 
 	<SporkortData
 		{sporType}
@@ -304,11 +376,68 @@
 		margin-top: 4px;
 	}
 
+	/* Hendelse-kontekstlinje */
+	.hendelse-kontekst {
+		display: flex;
+		align-items: baseline;
+		gap: 6px;
+		font-family: var(--font-ui);
+		font-size: 12px;
+		color: var(--color-ink-secondary);
+		margin-top: -2px;
+	}
+
+	.hendelse-ikon {
+		flex-shrink: 0;
+		font-size: 11px;
+		line-height: 1;
+	}
+
+	.hendelse-tekst {
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		min-width: 0;
+	}
+
+	.hendelse-aktor {
+		color: var(--color-ink-muted);
+	}
+
+	.hendelse-separator {
+		color: var(--color-ink-ghost);
+		flex-shrink: 0;
+	}
+
+	.hendelse-rev {
+		font-family: var(--font-data);
+		font-size: 10px;
+		font-weight: 600;
+		color: var(--color-ink-muted);
+		flex-shrink: 0;
+	}
+
+	.hendelse-detalj {
+		font-size: 11px;
+		color: var(--color-ink-muted);
+		white-space: nowrap;
+		flex-shrink: 0;
+	}
+
 	@media (max-width: 1023px) {
 		.sporkort {
 			padding: 12px;
 			border-radius: 0;
 			overflow: hidden;
+		}
+
+		.hendelse-kontekst {
+			font-size: 11px;
+			gap: 4px;
+		}
+
+		.hendelse-detalj {
+			display: none;
 		}
 	}
 </style>
