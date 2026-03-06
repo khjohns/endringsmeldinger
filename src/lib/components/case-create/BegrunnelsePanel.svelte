@@ -139,8 +139,8 @@
 		text-transform: uppercase;
 		padding: 1px 6px;
 		border-radius: 9999px;
-		background: rgba(96, 165, 250, 0.12);
-		color: #60a5fa;
+		background: var(--color-role-te-bg);
+		color: var(--color-role-te-text);
 	}
 
 	/* --- Upload zone --- */
