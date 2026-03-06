@@ -2,6 +2,7 @@
 	import type { SaksoversiktItem, SporHendelseType, SaksoversiktVisning } from '$lib/mocks/saksoversikt';
 	import { formatCurrencyCompact } from '$lib/utils/formatters';
 	import { AKTIVE_OVERORDNET_STATUSER } from '$lib/constants/statusLabels';
+	import { page } from '$app/state';
 
 	interface Props {
 		saker: SaksoversiktItem[];
@@ -14,6 +15,8 @@
 	}
 
 	let { saker, prosjektNavn, entreprise, visning, onvisning, aktivtSpor, onspor }: Props = $props();
+
+	const prosjektId = $derived(page.params.prosjektId);
 
 	// Single-pass aggregation over all saker + hendelser
 	const stats = $derived.by(() => {
@@ -74,6 +77,12 @@
 			<span class="telling-sep">&middot;</span>
 			<span class="telling-aktiv">{stats.aktiveSaker} aktive</span>
 		</div>
+		<a class="ny-sak-btn" href="/{prosjektId}/ny">
+			<svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+				<path d="M7 3V11M3 7H11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+			</svg>
+			Ny sak
+		</a>
 	</div>
 
 	<!-- Visning -->
@@ -222,6 +231,29 @@
 		font-size: 11px;
 		color: var(--color-ink-secondary);
 		font-weight: 500;
+	}
+
+	.ny-sak-btn {
+		display: inline-flex;
+		align-items: center;
+		gap: var(--spacing-2);
+		margin-top: 12px;
+		padding: 6px 12px;
+		font-family: var(--font-ui);
+		font-size: 12px;
+		font-weight: 600;
+		color: var(--color-vekt);
+		background: var(--color-vekt-bg);
+		border: 1px solid rgba(245, 158, 11, 0.20);
+		border-radius: var(--radius-sm);
+		text-decoration: none;
+		transition: background-color 0.12s, border-color 0.12s;
+		cursor: pointer;
+	}
+
+	.ny-sak-btn:hover {
+		background: var(--color-vekt-bg-strong);
+		border-color: rgba(245, 158, 11, 0.30);
 	}
 
 	.section-label {
