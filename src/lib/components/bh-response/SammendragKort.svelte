@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { getKontraktsforholdLabel, getHjemmelLabel } from '$lib/constants/categories';
+	import { getKombinertKategoriLabel } from '$lib/constants/categories';
 	import { formatDateShortNorwegian } from '$lib/utils/dateFormatters';
 
 	interface Props {
@@ -24,13 +24,8 @@
 		versjon,
 	}: Props = $props();
 
-	const kategoriLabel = $derived(getKontraktsforholdLabel(hovedkategori));
-	const underkategoriLabel = $derived(underkategori ? getHjemmelLabel(underkategori) : null);
+	const kombinertKategori = $derived(getKombinertKategoriLabel(hovedkategori, underkategori));
 	const formatDato = $derived(datoVarslet ? formatDateShortNorwegian(datoVarslet) : null);
-
-	const kombinertKategori = $derived(
-		underkategoriLabel ? `${kategoriLabel} — ${underkategoriLabel}` : kategoriLabel
-	);
 
 	let utvidet = $state(false);
 	let begrunnelseEl = $state<HTMLElement | null>(null);
@@ -57,7 +52,7 @@
 
 <!-- Kontraktsforhold-seksjon -->
 <div class="seksjon">
-	<div class="seksjon-label">Kontraktsforhold</div>
+	<div class="section-label">Kontraktsforhold</div>
 
 	<div class="kategori-badge">{kombinertKategori}</div>
 
@@ -136,12 +131,7 @@
 		flex-direction: column;
 	}
 
-	.seksjon-label {
-		font-size: 10px;
-		font-weight: 600;
-		text-transform: uppercase;
-		letter-spacing: 0.08em;
-		color: var(--color-ink-muted);
+	.section-label {
 		margin-bottom: 12px;
 	}
 

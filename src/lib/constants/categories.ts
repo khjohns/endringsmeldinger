@@ -310,6 +310,19 @@ export function getHjemmelLabel(code: string | string[] | undefined | null): str
 // Legacy alias
 export const getUnderkategoriLabel = getHjemmelLabel;
 
+// Get combined "Kontraktsforhold — Hjemmel" label (e.g. "Forsinkelse eller svikt ved byggherrens ytelser — Grunnforhold")
+export function getKombinertKategoriLabel(
+  hovedkategori: string | string[] | undefined | null,
+  underkategori?: string | string[] | undefined | null,
+): string {
+  const hk = getKontraktsforholdLabel(hovedkategori);
+  if (!underkategori) return hk;
+  const uk = getHjemmelLabel(underkategori);
+  return uk && uk !== (Array.isArray(underkategori) ? underkategori[0] : underkategori)
+    ? `${hk} — ${uk}`
+    : hk;
+}
+
 // Get full kontraktsforhold object by code (case-insensitive)
 export function getKontraktsforhold(code: string | string[] | undefined | null): Kontraktsforhold | undefined {
   if (!code) return undefined;
