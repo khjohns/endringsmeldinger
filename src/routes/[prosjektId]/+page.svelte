@@ -23,7 +23,12 @@
 		browser ? (localStorage.getItem(STORAGE_KEY) as SaksoversiktVisning) ?? 'tidslinje' : 'tidslinje'
 	);
 
-	let aktivtSpor = $state<SporHendelseType | null>(null);
+	let sidebarOpen = $state(false);
+	let sidebarSpor = $state<SporHendelseType | null>(null);
+	let tastaturSpor = $state<SporHendelseType | null>(null);
+	const aktivtSpor = $derived(tastaturSpor ?? sidebarSpor);
+
+	const SPOR_TASTER: Record<string, SporHendelseType> = { k: 'K', v: 'V', f: 'F' };
 
 	function byttVisning(v: SaksoversiktVisning) {
 		visning = v;
@@ -31,20 +36,57 @@
 	}
 
 	function byttSpor(spor: SporHendelseType | null) {
-		aktivtSpor = spor;
+		sidebarSpor = spor;
 	}
+
+	function handleKeydown(e: KeyboardEvent) {
+		if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+		if (e.repeat) return;
+		const spor = SPOR_TASTER[e.key.toLowerCase()];
+		if (spor) tastaturSpor = spor;
+	}
+
+	function handleKeyup(e: KeyboardEvent) {
+		const spor = SPOR_TASTER[e.key.toLowerCase()];
+		if (spor && tastaturSpor === spor) tastaturSpor = null;
+	}
+
+	const sidebarProps = $derived({
+		saker: mockSaksoversikt,
+		prosjektNavn: projectMeta?.name ?? prosjektId ?? '',
+		entreprise: projectMeta?.entreprise ?? '',
+		visning,
+		onvisning: byttVisning,
+		aktivtSpor,
+		onspor: byttSpor,
+	});
 </script>
 
+<svelte:window onkeydown={handleKeydown} onkeyup={handleKeyup} />
+
 <div class="page-layout">
-	<OversiktSidebar
-		saker={mockSaksoversikt}
-		prosjektNavn={projectMeta?.name ?? prosjektId ?? ''}
-		entreprise={projectMeta?.entreprise ?? ''}
-		{visning}
-		onvisning={byttVisning}
-		{aktivtSpor}
-		onspor={byttSpor}
-	/>
+	<!-- Desktop sidebar -->
+	<div class="desktop-sidebar">
+		<OversiktSidebar {...sidebarProps} />
+	</div>
+
+	<!-- Mobile toggle -->
+	<button
+		class="sidebar-toggle"
+		class:er-open={sidebarOpen}
+		onclick={() => (sidebarOpen = !sidebarOpen)}
+		aria-label={sidebarOpen ? 'Skjul meny' : 'Vis meny'}
+	>
+		{sidebarOpen ? '\u2715' : '\u2630'}
+	</button>
+
+	<!-- Mobile drawer -->
+	{#if sidebarOpen}
+		<div class="sidebar-backdrop" role="presentation" onclick={() => (sidebarOpen = false)}></div>
+		<div class="sidebar-drawer">
+			<OversiktSidebar {...sidebarProps} />
+		</div>
+	{/if}
 
 	<div class="page-content">
 		{#if $query.isLoading}
@@ -111,5 +153,69 @@
 
 	.state-error .state-text {
 		color: var(--color-score-low);
+	}
+
+	/* Mobile: hidden by default */
+	.sidebar-toggle {
+		display: none;
+	}
+
+	.sidebar-backdrop {
+		display: none;
+	}
+
+	.sidebar-drawer {
+		display: none;
+	}
+
+	@media (max-width: 1023px) {
+		.desktop-sidebar {
+			display: none;
+		}
+
+		.sidebar-toggle {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			position: fixed;
+			top: 8px;
+			left: 16px;
+			z-index: 26;
+			width: 30px;
+			height: 30px;
+			background: var(--color-felt);
+			border: 1px solid var(--color-wire-strong);
+			border-radius: var(--radius-sm);
+			color: var(--color-ink-secondary);
+			font-size: 16px;
+			cursor: pointer;
+			line-height: 1;
+			transition: background 150ms, color 150ms;
+		}
+
+		.sidebar-toggle:hover,
+		.sidebar-toggle.er-open {
+			background: var(--color-felt-active);
+			color: var(--color-ink);
+		}
+
+		.sidebar-backdrop {
+			display: block;
+			position: fixed;
+			inset: 0;
+			z-index: 21;
+			background: rgba(0, 0, 0, 0.45);
+		}
+
+		.sidebar-drawer {
+			display: flex;
+			position: fixed;
+			left: 0;
+			top: 0;
+			height: 100vh;
+			z-index: 22;
+			width: 280px;
+			box-shadow: 4px 0 16px rgba(0, 0, 0, 0.4);
+		}
 	}
 </style>

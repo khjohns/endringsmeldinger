@@ -66,4 +66,10 @@
 		pointer-events: none;
 		z-index: 2;
 	}
+
+	@media (max-width: 1023px) {
+		.canvas {
+			margin: 0 8px;
+		}
+	}
 </style>

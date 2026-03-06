@@ -405,4 +405,13 @@
 		margin: 12px 0 16px 0;
 	}
 
+	@media (max-width: 1023px) {
+		.sidebar {
+			width: 100%;
+		}
+
+		.sidebar-section {
+			padding: 12px 16px;
+		}
+	}
 </style>
