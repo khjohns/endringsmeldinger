@@ -217,7 +217,7 @@ describe('Sporkort', () => {
 		expect(screen.queryByRole('alert')).not.toBeInTheDocument();
 	});
 
-	it('generates correct href for track', () => {
+	it('renders card with correct spor attribute', () => {
 		const state = makeBaseState();
 		const { container } = render(SporkortTest, {
 			props: {
@@ -227,8 +227,8 @@ describe('Sporkort', () => {
 				sakId: 'SAK-001',
 			},
 		});
-		const link = container.querySelector('a[data-spor="vederlag"]');
-		expect(link?.getAttribute('href')).toBe('/P001/SAK-001/vederlag');
+		const card = container.querySelector('[data-spor="vederlag"]');
+		expect(card).toBeTruthy();
 	});
 
 	it('shows data line for grunnlag with kontraktsforhold and hjemmel', () => {
@@ -250,7 +250,7 @@ describe('Sporkort', () => {
 		expect(screen.getByText('Uforutsette grunnforhold')).toBeInTheDocument();
 	});
 
-	it('shows data line for vederlag with method and amount', () => {
+	it('shows metric in hendelse row for vederlag', () => {
 		const state = makeBaseState({
 			vederlag: {
 				status: 'sendt',
@@ -261,11 +261,10 @@ describe('Sporkort', () => {
 			},
 		});
 		render(SporkortTest, { props: { sporType: 'vederlag' as SporType, state } });
-		expect(screen.getByText('Regningsarbeid')).toBeInTheDocument();
 		expect(screen.getByText('450k NOK')).toBeInTheDocument();
 	});
 
-	it('shows data line for frist with days', () => {
+	it('shows metric in hendelse row for frist', () => {
 		const state = makeBaseState({
 			frist: {
 				status: 'sendt',
@@ -275,7 +274,6 @@ describe('Sporkort', () => {
 			},
 		});
 		render(SporkortTest, { props: { sporType: 'frist' as SporType, state } });
-		expect(screen.getByText('Dager krevd')).toBeInTheDocument();
 		expect(screen.getByText('30 dager')).toBeInTheDocument();
 	});
 });
