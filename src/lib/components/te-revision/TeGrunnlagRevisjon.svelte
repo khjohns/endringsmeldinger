@@ -162,7 +162,7 @@
 				{#if bhSvar}
 					<section class="bh-standpunkt">
 						<div class="section-header">
-							<h3 class="section-label">Byggherrens standpunkt</h3>
+							<h3 class="section-label">{bhNavn ?? 'Byggherre'} — standpunkt</h3>
 							{#if bhSvar.dato}
 								<span class="section-dato">{formatDateShortNorwegian(bhSvar.dato)}</span>
 							{/if}
