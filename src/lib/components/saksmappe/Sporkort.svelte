@@ -2,6 +2,7 @@
 	import type { SporType, SakState, TimelineEvent, EventType } from '$lib/types/timeline';
 	import { extractEventType } from '$lib/types/timeline';
 	import { getEventTypeLabel } from '$lib/constants/eventLabels';
+	import { formatCurrencyCompact } from '$lib/utils/formatters';
 	import { beregnVarslingStatus } from '$lib/utils/varslingStatus';
 	import { browser } from '$app/environment';
 	import { onMount } from 'svelte';
@@ -203,6 +204,18 @@
 		return { icon, label, actor, revision, detalj };
 	});
 
+	// Key metric: always available regardless of events
+	const keyMetric = $derived.by(() => {
+		if (sporType === 'vederlag') {
+			const belop = sakState.vederlag.krevd_belop ?? sakState.vederlag.netto_belop;
+			if (belop !== undefined && belop !== null) return formatCurrencyCompact(belop) + ' NOK';
+		} else if (sporType === 'frist') {
+			const dager = sakState.frist.krevd_dager;
+			if (dager !== undefined && dager !== null) return `${dager} dager`;
+		}
+		return null;
+	});
+
 	const href = $derived(`/${prosjektId}/${sakId}/${sporType}`);
 
 	const SPOR_NAMES: Record<SporType, string> = {
@@ -228,6 +241,13 @@
 		`${SPOR_NAMES[sporType]} — ${STATUS_LABELS[trackState.status] ?? trackState.status}`
 	);
 
+	function handleCardClick() {
+		// Click on card opens preview panel with latest event
+		if (latestEvent) {
+			onFocusEvent?.(latestEvent);
+		}
+	}
+
 	function handleKeydown(e: KeyboardEvent) {
 		if (e.key === ' ') {
 			// Toggle hendelseslogg on Space if there are 4+ events
@@ -236,12 +256,15 @@
 				handleLoggToggle();
 			}
 		}
+		if (e.key === 'Enter') {
+			e.preventDefault();
+			handleCardClick();
+		}
 	}
 </script>
 
-<!-- svelte-ignore a11y_no_interactive_element_to_noninteractive_role -->
-<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
-<a {href}
+<!-- svelte-ignore a11y_no_noninteractive_tabindex -->
+<div
 	class="sporkort {visualState.bgClass} {visualState.borderClass}"
 	class:sporkort-expanded={loggExpanded}
 	data-spor={sporType}
@@ -249,6 +272,8 @@
 	data-border={visualState.borderVariant}
 	role="article"
 	aria-label={ariaLabel}
+	tabindex="0"
+	onclick={handleCardClick}
 	onkeydown={handleKeydown}
 >
 	<SporkortHeader
@@ -260,20 +285,25 @@
 		{sakId}
 	/>
 
-	{#if hendelseKontekst}
+	{#if hendelseKontekst || keyMetric}
 		<div class="hendelse-kontekst">
-			<span class="hendelse-ikon" style="color: {hendelseKontekst.icon.color}" aria-hidden="true">{hendelseKontekst.icon.symbol}</span>
-			<span class="hendelse-tekst">
-				{hendelseKontekst.label}
-				{#if hendelseKontekst.actor}
-					<span class="hendelse-aktor">av {hendelseKontekst.actor}</span>
+			{#if hendelseKontekst}
+				<span class="hendelse-ikon" style="color: {hendelseKontekst.icon.color}" aria-hidden="true">{hendelseKontekst.icon.symbol}</span>
+				<span class="hendelse-tekst">
+					{hendelseKontekst.label}
+					{#if hendelseKontekst.actor}
+						<span class="hendelse-aktor">av {hendelseKontekst.actor}</span>
+					{/if}
+				</span>
+				{#if hendelseKontekst.revision}
+					<span class="hendelse-rev">{hendelseKontekst.revision}</span>
 				{/if}
-			</span>
-			{#if hendelseKontekst.revision}
-				<span class="hendelse-rev">{hendelseKontekst.revision}</span>
+				{#if hendelseKontekst.detalj}
+					<span class="hendelse-detalj">{hendelseKontekst.detalj}</span>
+				{/if}
 			{/if}
-			{#if hendelseKontekst.detalj}
-				<span class="hendelse-detalj">{hendelseKontekst.detalj}</span>
+			{#if keyMetric}
+				<span class="hendelse-metrikk">{keyMetric}</span>
 			{/if}
 		</div>
 	{/if}
@@ -292,18 +322,17 @@
 			{daysSinceLastEvent}d uten svar — du kan miste retten til å protestere
 		</div>
 	{/if}
-</a>
+</div>
 
 <style>
 	.sporkort {
 		display: flex;
 		flex-direction: column;
-		gap: 8px;
+		gap: 6px;
 		background: var(--color-felt);
 		border: 1px solid var(--color-wire-strong);
 		border-radius: var(--radius-sm);
-		padding: 16px;
-		text-decoration: none;
+		padding: 12px 16px;
 		cursor: pointer;
 		transition: background 150ms ease, border-color 150ms ease;
 		position: relative;
@@ -415,6 +444,16 @@
 		color: var(--color-ink-muted);
 		white-space: nowrap;
 		flex-shrink: 0;
+	}
+
+	.hendelse-metrikk {
+		font-family: var(--font-data);
+		font-size: 15px;
+		font-weight: 600;
+		color: var(--color-ink);
+		font-variant-numeric: tabular-nums;
+		flex-shrink: 0;
+		margin-left: auto;
 	}
 
 	@media (max-width: 1023px) {

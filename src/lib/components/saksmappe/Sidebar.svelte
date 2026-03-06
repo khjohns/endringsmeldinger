@@ -108,7 +108,7 @@
 	<!-- Nokkeltall -->
 	{#if krevdVederlag > 0 || krevdDager > 0}
 		<div class="sidebar-section sidebar-section-last">
-			<div class="section-label">Nokkeltall (NOK)</div>
+			<div class="section-label">Nøkkeltall (NOK)</div>
 
 			{#if krevdVederlag > 0}
 				<div class="finans-rad">
@@ -123,7 +123,7 @@
 				{/if}
 				{#if omtvistet > 0}
 					<div class="finans-rad">
-						<span class="finans-label"><span class="finans-symbol omtvistet" aria-hidden="true">△</span> Omtvistet</span>
+						<span class="finans-label">Omtvistet</span>
 						<span class="finans-verdi omtvistet">{formatCurrency(omtvistet)}</span>
 					</div>
 				{/if}
@@ -138,7 +138,7 @@
 						<span class="finans-verdi omtvistet">- {formatCurrency(dagmulktEksponering)}</span>
 					</div>
 					<div class="finans-rad finans-rad-sub">
-						<span class="finans-label">Maks forsering (130%)</span>
+						<span class="finans-label">Maks. forseringskostnad</span>
 						<span class="finans-verdi krav">{formatCurrency(maksForsering)}</span>
 					</div>
 				{/if}
@@ -309,9 +309,7 @@
 		color: var(--color-score-high);
 	}
 
-	.finans-symbol.omtvistet {
-		color: var(--color-vekt);
-	}
+
 
 	.finans-rad-sub {
 		font-size: 11px;

@@ -47,7 +47,7 @@
 		}
 		// internt notat
 		if (eventType === 'internt_notat') {
-			return { symbol: '\u{1F512}', color: 'var(--color-vekt)' };
+			return { symbol: '\u270E', color: 'var(--color-vekt)' };
 		}
 
 		return { symbol: '·', color: 'var(--color-ink-muted)' };
@@ -181,12 +181,11 @@
 		}
 	}
 
-	function handleEventMouseEnter(index: number) {
+	function handleEventClick(index: number, e: MouseEvent) {
+		e.stopPropagation();
+		e.preventDefault();
 		emitFocus(index);
 	}
-
-	// No mouseleave clear — focus stays sticky until logg closes.
-	// This prevents grid flicker from panel mount/unmount on every hover exit.
 </script>
 
 {#if events.length > 0}
@@ -208,7 +207,7 @@
 				class:event-line-internt={entry.internt}
 				role="option"
 				aria-selected={focusedIndex === i}
-				onmouseenter={() => handleEventMouseEnter(i)}
+				onclick={(e: MouseEvent) => handleEventClick(i, e)}
 			>
 				<span class="event-icon" style="color: {entry.icon.color}" aria-hidden="true"
 					>{entry.icon.symbol}</span
@@ -256,7 +255,7 @@
 							class:event-line-internt={entry.internt}
 							role="option"
 							aria-selected={focusedIndex === j + VISIBLE_COUNT}
-							onmouseenter={() => handleEventMouseEnter(j + VISIBLE_COUNT)}
+							onclick={(e: MouseEvent) => handleEventClick(j + VISIBLE_COUNT, e)}
 						>
 							<span class="event-icon" style="color: {entry.icon.color}" aria-hidden="true"
 								>{entry.icon.symbol}</span
@@ -328,8 +327,8 @@
 		display: flex;
 		flex-direction: column;
 		gap: 2px;
-		margin-top: 16px;
-		padding-top: 8px;
+		margin-top: 8px;
+		padding-top: 6px;
 		border-top: 1px solid var(--color-wire);
 	}
 
@@ -342,8 +341,8 @@
 	.event-line {
 		display: flex;
 		align-items: baseline;
-		gap: 12px;
-		padding: 6px 10px;
+		gap: 8px;
+		padding: 4px 8px;
 		font-size: 12px;
 		cursor: pointer;
 		border-left: 2px solid transparent;

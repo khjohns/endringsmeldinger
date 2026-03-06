@@ -168,11 +168,11 @@
 	.document-area {
 		display: flex;
 		flex-direction: column;
-		gap: 24px;
+		gap: 16px;
 		width: 100%;
 		max-width: 820px;
 		margin: 0 auto;
-		padding: 32px 32px 120px 32px;
+		padding: 24px 32px 80px 32px;
 	}
 
 	.date-group {
@@ -207,7 +207,7 @@
 	.spor-list {
 		display: flex;
 		flex-direction: column;
-		gap: 16px;
+		gap: 12px;
 	}
 
 	@media (max-width: 1023px) {
