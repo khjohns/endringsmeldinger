@@ -1,0 +1,439 @@
+<script lang="ts">
+	import type { SaksoversiktItem, SporHendelseType } from '$lib/mocks/saksoversikt';
+	import { formatCurrencyCompact } from '$lib/utils/formatters';
+
+	type Visning = 'tidslinje' | 'tabell';
+
+	interface Props {
+		saker: SaksoversiktItem[];
+		prosjektNavn: string;
+		entreprise: string;
+		visning: Visning;
+		onvisning: (v: Visning) => void;
+		aktivtSpor: SporHendelseType | null;
+		onspor: (spor: SporHendelseType | null) => void;
+	}
+
+	let { saker, prosjektNavn, entreprise, visning, onvisning, aktivtSpor, onspor }: Props = $props();
+
+	// Aggregate stats
+	const totalKrevd = $derived(
+		saker.reduce((sum, s) => sum + (s.cached_sum_krevd ?? 0), 0)
+	);
+	const totalGodkjent = $derived(
+		saker.reduce((sum, s) => sum + (s.cached_sum_godkjent ?? 0), 0)
+	);
+	const totalOmtvistet = $derived(Math.max(0, totalKrevd - totalGodkjent));
+	const totalDagerKrevd = $derived(
+		saker.reduce((sum, s) => sum + (s.cached_dager_krevd ?? 0), 0)
+	);
+	const totalDagerGodkjent = $derived(
+		saker.reduce((sum, s) => sum + (s.cached_dager_godkjent ?? 0), 0)
+	);
+
+	// Status distribution
+	const AKTIVE_STATUSER = ['SENDT', 'UNDER_BEHANDLING', 'VENTER_PAA_SVAR', 'UTKAST'];
+	const aktiveSaker = $derived(
+		saker.filter((s) => s.cached_status && AKTIVE_STATUSER.includes(s.cached_status)).length
+	);
+
+	// Spor counts (across all saker)
+	const sporTelling = $derived.by(() => {
+		let k = 0, v = 0, f = 0;
+		for (const sak of saker) {
+			for (const h of sak.hendelser) {
+				if (h.type === 'K') k++;
+				else if (h.type === 'V') v++;
+				else if (h.type === 'F') f++;
+			}
+		}
+		return { k, v, f };
+	});
+
+	// Ubesvarte counts
+	const ubesvartTelling = $derived.by(() => {
+		let k = 0, v = 0, f = 0;
+		for (const sak of saker) {
+			for (const h of sak.hendelser) {
+				if (!h.besvart) {
+					if (h.type === 'K') k++;
+					else if (h.type === 'V') v++;
+					else if (h.type === 'F') f++;
+				}
+			}
+		}
+		return { k, v, f };
+	});
+
+	function toggleSpor(spor: SporHendelseType) {
+		onspor(aktivtSpor === spor ? null : spor);
+	}
+</script>
+
+<aside class="sidebar" aria-label="Prosjektoversikt">
+	<!-- Prosjektidentitet -->
+	<div class="sidebar-section">
+		<h2 class="prosjekt-navn">{prosjektNavn}</h2>
+		<span class="prosjekt-entreprise">{entreprise}</span>
+		<div class="sak-telling">
+			<span class="telling-verdi">{saker.length}</span>
+			<span class="telling-label">saker</span>
+			<span class="telling-sep">&middot;</span>
+			<span class="telling-aktiv">{aktiveSaker} aktive</span>
+		</div>
+	</div>
+
+	<!-- Visning -->
+	<div class="sidebar-section">
+		<div class="section-label">Visning</div>
+		<div class="visning-toggle">
+			<button
+				class="visning-btn"
+				class:visning-aktiv={visning === 'tidslinje'}
+				onclick={() => onvisning('tidslinje')}
+				type="button"
+			>Tidslinje</button>
+			<button
+				class="visning-btn"
+				class:visning-aktiv={visning === 'tabell'}
+				onclick={() => onvisning('tabell')}
+				type="button"
+			>Tabell</button>
+		</div>
+	</div>
+
+	<!-- Spor-fokus -->
+	<div class="sidebar-section">
+		<div class="section-label">Spor</div>
+		<div class="spor-knapper">
+			<button
+				class="spor-btn spor-k"
+				class:spor-aktiv={aktivtSpor === 'K'}
+				onclick={() => toggleSpor('K')}
+				type="button"
+			>
+				<span class="spor-ikon spor-ikon-k">K</span>
+				<span class="spor-tekst">Kontrakt</span>
+				<span class="spor-tall">{sporTelling.k}</span>
+				{#if ubesvartTelling.k > 0}
+					<span class="spor-ubesvart">{ubesvartTelling.k}</span>
+				{/if}
+			</button>
+			<button
+				class="spor-btn spor-v"
+				class:spor-aktiv={aktivtSpor === 'V'}
+				onclick={() => toggleSpor('V')}
+				type="button"
+			>
+				<span class="spor-ikon spor-ikon-v">V</span>
+				<span class="spor-tekst">Vederlag</span>
+				<span class="spor-tall">{sporTelling.v}</span>
+				{#if ubesvartTelling.v > 0}
+					<span class="spor-ubesvart">{ubesvartTelling.v}</span>
+				{/if}
+			</button>
+			<button
+				class="spor-btn spor-f"
+				class:spor-aktiv={aktivtSpor === 'F'}
+				onclick={() => toggleSpor('F')}
+				type="button"
+			>
+				<span class="spor-ikon spor-ikon-f">F</span>
+				<span class="spor-tekst">Frist</span>
+				<span class="spor-tall">{sporTelling.f}</span>
+				{#if ubesvartTelling.f > 0}
+					<span class="spor-ubesvart">{ubesvartTelling.f}</span>
+				{/if}
+			</button>
+		</div>
+	</div>
+
+	<!-- Nøkkeltall -->
+	<div class="sidebar-section sidebar-section-last">
+		<div class="section-label">Nøkkeltall (NOK)</div>
+		<div class="finans-rad">
+			<span class="finans-label">Krevd</span>
+			<span class="finans-verdi krav">{formatCurrencyCompact(totalKrevd)}</span>
+		</div>
+		{#if totalGodkjent > 0}
+			<div class="finans-rad">
+				<span class="finans-label">Godkjent</span>
+				<span class="finans-verdi godkjent">{formatCurrencyCompact(totalGodkjent)}</span>
+			</div>
+		{/if}
+		{#if totalOmtvistet > 0}
+			<div class="finans-rad">
+				<span class="finans-label">Omtvistet</span>
+				<span class="finans-verdi omtvistet">{formatCurrencyCompact(totalOmtvistet)}</span>
+			</div>
+		{/if}
+		{#if totalDagerKrevd > 0}
+			<div class="finans-divider"></div>
+			<div class="finans-rad">
+				<span class="finans-label">Dager krevd</span>
+				<span class="finans-verdi krav">{totalDagerKrevd}d</span>
+			</div>
+			{#if totalDagerGodkjent > 0}
+				<div class="finans-rad">
+					<span class="finans-label">Dager godkjent</span>
+					<span class="finans-verdi godkjent">{totalDagerGodkjent}d</span>
+				</div>
+			{/if}
+		{/if}
+	</div>
+
+</aside>
+
+<style>
+	.sidebar {
+		position: sticky;
+		top: 0;
+		height: 100%;
+		width: 260px;
+		overflow-y: auto;
+		overflow-x: hidden;
+		border-right: 1px solid var(--color-wire-strong);
+		background: var(--color-canvas);
+		display: flex;
+		flex-direction: column;
+		flex-shrink: 0;
+	}
+
+	.sidebar-section {
+		padding: 16px 24px;
+		border-bottom: 1px solid var(--color-wire);
+	}
+
+	.sidebar-section-last {
+		border-bottom: none;
+	}
+
+	.prosjekt-navn {
+		font-size: 16px;
+		font-weight: 600;
+		color: var(--color-ink);
+		margin: 0 0 2px 0;
+		line-height: 1.4;
+	}
+
+	.prosjekt-entreprise {
+		font-size: 13px;
+		color: var(--color-ink-secondary);
+		display: block;
+	}
+
+	.sak-telling {
+		margin-top: 12px;
+		display: flex;
+		align-items: baseline;
+		gap: 4px;
+	}
+
+	.telling-verdi {
+		font-family: var(--font-data);
+		font-size: 20px;
+		font-weight: 600;
+		font-variant-numeric: tabular-nums;
+		color: var(--color-ink);
+		line-height: 1;
+	}
+
+	.telling-label {
+		font-size: 12px;
+		color: var(--color-ink-secondary);
+	}
+
+	.telling-sep {
+		color: var(--color-ink-ghost);
+		font-size: 12px;
+	}
+
+	.telling-aktiv {
+		font-family: var(--font-data);
+		font-size: 11px;
+		color: var(--color-ink-secondary);
+		font-weight: 500;
+	}
+
+	.section-label {
+		font-size: 10px;
+		font-weight: 600;
+		text-transform: uppercase;
+		letter-spacing: 0.08em;
+		color: var(--color-ink-muted);
+		margin-bottom: 12px;
+	}
+
+	/* Visning toggle */
+	.visning-toggle {
+		display: flex;
+		gap: 1px;
+		background: var(--color-wire);
+		border-radius: var(--radius-sm);
+		overflow: hidden;
+	}
+
+	.visning-btn {
+		flex: 1;
+		padding: 8px 12px;
+		font-family: var(--font-ui);
+		font-size: 11px;
+		font-weight: 500;
+		border: none;
+		cursor: pointer;
+		background: var(--color-felt);
+		color: var(--color-ink-ghost);
+		transition: background 150ms, color 150ms;
+	}
+
+	.visning-btn:hover {
+		background: var(--color-felt-hover);
+		color: var(--color-ink-secondary);
+	}
+
+	.visning-aktiv {
+		background: var(--color-felt-active);
+		color: var(--color-ink);
+		font-weight: 600;
+	}
+
+	/* Spor-fokus knapper */
+	.spor-knapper {
+		display: flex;
+		flex-direction: column;
+		gap: 4px;
+	}
+
+	.spor-btn {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		padding: 8px;
+		background: transparent;
+		border: 1px solid transparent;
+		border-radius: var(--radius-sm);
+		cursor: pointer;
+		font-family: var(--font-ui);
+		font-size: 12px;
+		color: var(--color-ink-secondary);
+		transition: background 150ms, border-color 150ms, color 150ms;
+		width: 100%;
+		text-align: left;
+	}
+
+	.spor-btn:hover {
+		background: var(--color-felt);
+		border-color: var(--color-wire);
+	}
+
+	.spor-aktiv {
+		background: var(--color-felt);
+		border-color: var(--color-wire-strong);
+		color: var(--color-ink);
+	}
+
+	.spor-ikon {
+		width: 16px;
+		height: 16px;
+		border-radius: 1px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		font-family: var(--font-data);
+		font-size: 8px;
+		font-weight: 600;
+		flex-shrink: 0;
+	}
+
+	.spor-ikon-k {
+		border: 1px solid var(--color-ink-ghost);
+		color: var(--color-ink-muted);
+	}
+
+	.spor-ikon-v {
+		border: 1px solid var(--color-vekt);
+		color: var(--color-vekt);
+	}
+
+	.spor-ikon-f {
+		border: 1px solid var(--color-score-low);
+		color: var(--color-score-low);
+	}
+
+	.spor-aktiv .spor-ikon-k {
+		background: var(--color-ink-ghost);
+		color: var(--color-canvas);
+	}
+
+	.spor-aktiv .spor-ikon-v {
+		background: var(--color-vekt);
+		color: var(--color-canvas);
+	}
+
+	.spor-aktiv .spor-ikon-f {
+		background: var(--color-score-low);
+		color: var(--color-canvas);
+	}
+
+	.spor-tekst {
+		flex: 1;
+	}
+
+	.spor-tall {
+		font-family: var(--font-data);
+		font-size: 10px;
+		font-variant-numeric: tabular-nums;
+		color: var(--color-ink-ghost);
+	}
+
+	.spor-ubesvart {
+		font-family: var(--font-data);
+		font-size: 9px;
+		font-weight: 600;
+		font-variant-numeric: tabular-nums;
+		color: var(--color-canvas);
+		background: var(--color-vekt);
+		border-radius: 1px;
+		padding: 1px 4px;
+		line-height: 1.2;
+	}
+
+	/* Nøkkeltall */
+	.finans-rad {
+		display: flex;
+		justify-content: space-between;
+		align-items: baseline;
+		margin-bottom: 8px;
+		font-size: 13px;
+	}
+
+	.finans-label {
+		color: var(--color-ink-secondary);
+	}
+
+	.finans-verdi {
+		font-family: var(--font-data);
+		font-variant-numeric: tabular-nums;
+		font-weight: 500;
+	}
+
+	.finans-verdi.krav {
+		color: var(--color-ink);
+	}
+
+	.finans-verdi.godkjent {
+		color: var(--color-score-high);
+	}
+
+	.finans-verdi.omtvistet {
+		color: var(--color-vekt);
+		font-weight: 600;
+	}
+
+	.finans-divider {
+		height: 1px;
+		background: var(--color-wire);
+		margin: 12px 0 16px 0;
+	}
+
+</style>

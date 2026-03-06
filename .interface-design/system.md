@@ -181,9 +181,54 @@ Full-width tabell med felt-bg, wire border, sticky header.
 - Rader: hover -> felt-hover, cursor pointer
 - Tall-kolonner: font-data, tabular-nums
 
-## Narrativskille: Saksmappe vs Forhandlingsbord
+### Saksoversikt (tidslinje)
+HUD-inspirert tidslinjevisning av alle saker. Rad-per-sak med horisontale tidslinje-noder.
+
+**Layout:** 260px meta (sak-id + tittel) + flex tidslinje-canvas. 52px radhøyde.
+
+**Noder (16px):**
+- K (kontrakt): border ink-ghost, tekst ink-muted
+- V (vederlag): border vekt, tekst vekt
+- F (frist): border score-low, tekst score-low
+- Bakgrunn: canvas. Border-radius: 1px. Font: font-data 8px weight 600.
+- **Ubesvart:** Filled bakgrunn (typefarge), canvas tekst — krever oppmerksomhet.
+- **Besvart:** Outline only, opacity 0.6 — avklart, lavere prioritet.
+
+**Klynge-logikk:** Hendelser innenfor 5% av tidslinjebredden grupperes. Cluster-tag (12px) med prioritet F > V > K.
+
+**Spor-fokusering:** Sidebar K/V/F-knapper aktiverer globalt filter. Klynger uten match: opacity 0.15. Enkelt-noder som ikke matcher: opacity 0.12. Viser handlingsmønster på tvers av saker.
+
+**Eksplosjons-hover:** Noder i klynge translaterer ut (8px) ved hover. 200ms ease-out.
+
+**Digital Ink-Flow:** SVG dashed lines (stroke-dasharray: 2 3) mellom klynger. Farge: wire.
+
+**Tidsakse:** Sticky header med maanedslabels (font-data 9px ink-ghost). "I DAG" hoyre-justert (ink, weight 600). Labels filtreres: min 10% avstand, maks 92% posisjon.
+
+**Akse-label:** "TIDSLINJE" i akse-spacer (260px). Section-label stil (font-data 10px 600 uppercase 0.08em ink-muted).
+
+**Dot grid bakgrunn:** radial-gradient(circle at 1px 1px, wire 0.5px, transparent 0), 32px spacing.
+
+**Aktiv rad:** border-left 2px solid vekt, felt bg, wire border.
+
+**Detaljpanel (460px):**
+- Slide-in fra hoyre, position absolute. Transition: 300ms cubic-bezier(0.05, 0.7, 0.1, 1).
+- Double-wire: border-left wire-strong + inner pseudo rgba(255,255,255,0.04).
+- Header: sak-id (font-data 10px ink-muted), tittel (16px weight 600), status (11px uppercase ink-secondary).
+- Escape lukker panelet.
+
+**Panelstruktur (tre seksjoner):**
+1. **Kontraktsforhold:** kategori-badge (felt-active bg, wire border, sm radius) + begrunnelse-tekst (13px ink-secondary, line-height 1.6). Narrativ kontekst, ingen hendelser.
+2. **Hendelsesforlop:** Alle K/V/F kronologisk. Dato (font-data 10px ink-ghost, 48px) + farget node (16px, besvart=outline 0.6 / ubesvart=filled) + label. Vertikal wire-linje. Siste ubesvarte fremhevet (ink, weight 500) — viser hvem som har ballen.
+3. **Krav:** Kompakte rader (wire border, sm radius, 8px 12px padding) med spor-ikon (V amber, F rose) + navn + hoyre-justert verdi (font-data 13px tabular-nums). Godkjent i score-high etter skrastrek. Forsering-rad med palopt/maks.
+4. "Apne saksmappe" lenke: 12px ink-muted, hover vekt, border-top wire, margin-top auto.
+
+**OversiktSidebar (260px):** Canvas bg, wire-strong border-right. Seksjoner: Prosjektidentitet (navn, entreprise, telling), Visning (toggle Tidslinje/Tabell med section-label), Spor (K/V/F-knapper med tellinger + ubesvart-badges), Nøkkeltall (NOK). Toggle: inactive ink-ghost, active ink + weight 600, felt/felt-active bg. Preferanse i localStorage.
+
+## Narrativskille
 
 | Visning | Metafor | Formal | Modus |
 |---|---|---|---|
+| `/[prosjektId]` (tidslinje) | Kontrollrommet | Scan alle saker, triage | Radar, oversikt |
+| `/[prosjektId]` (tabell) | Sakslisten | Sortere, filtrere | Tabellmodus |
 | `/[prosjektId]/[sakId]` | Saksmappen | Scan status, triage | Lesing, scanning |
 | `/[prosjektId]/[sakId]/[spor]` | Forhandlingsbordet | Svar, ta standpunkt | Arbeid, skriving |
