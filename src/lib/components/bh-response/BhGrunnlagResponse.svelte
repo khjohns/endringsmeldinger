@@ -51,6 +51,8 @@
 		forrigeBegrunnelseHtml?: string;
 		lastResponseEventId?: string;
 		grunnlagEventId?: string;
+		teNavn?: string;
+		bhNavn?: string;
 	}
 
 	let {
@@ -65,6 +67,8 @@
 		forrigeBegrunnelseHtml,
 		lastResponseEventId,
 		grunnlagEventId = '',
+		teNavn,
+		bhNavn,
 	}: Props = $props();
 
 	const queryClient = useQueryClient();
@@ -344,6 +348,8 @@
 				entries={begrunnelseEntries}
 				bind:bhBegrunnelseHtml
 				editorPlaceholder={editorPlaceholder}
+				{teNavn}
+				{bhNavn}
 				{activeTab}
 				ontabchange={(tab) => (activeTab = tab)}
 			/>
@@ -375,6 +381,8 @@
 			entries={begrunnelseEntries}
 			bind:bhBegrunnelseHtml
 			editorPlaceholder={editorPlaceholder}
+			{teNavn}
+			{bhNavn}
 			{activeTab}
 			ontabchange={(tab) => (activeTab = tab)}
 		/>

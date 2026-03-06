@@ -16,6 +16,8 @@
 		bhBegrunnelseHtml: string;
 		editorPlaceholder: string;
 		editorRolle?: 'TE' | 'BH';
+		teNavn?: string;
+		bhNavn?: string;
 		activeTab?: 'begrunnelse' | 'historikk' | 'filer';
 		ontabchange?: (tab: 'begrunnelse' | 'historikk' | 'filer') => void;
 	}
@@ -25,11 +27,18 @@
 		bhBegrunnelseHtml = $bindable(''),
 		editorPlaceholder,
 		editorRolle = 'BH',
+		teNavn,
+		bhNavn,
 		activeTab = 'begrunnelse',
 		ontabchange,
 	}: Props = $props();
 
 	const editorLabel = $derived(editorRolle === 'TE' ? 'Din reviderte begrunnelse' : 'Ditt svar');
+
+	function partsNavn(rolle: 'TE' | 'BH'): string {
+		if (rolle === 'TE') return teNavn ?? 'Totalentreprenør';
+		return bhNavn ?? 'Byggherre';
+	}
 
 	let collapsedEntries = $state<Set<number>>(new Set());
 
@@ -73,7 +82,6 @@
 			<section class="editor-section">
 				<div class="editor-header">
 					<h3 class="section-label">{editorLabel}</h3>
-					<span class="rolle-badge rolle-{editorRolle.toLowerCase()}">{editorRolle}</span>
 				</div>
 				<RichTextEditor
 					placeholder={editorPlaceholder}
@@ -103,14 +111,14 @@
 		<div class="thread-content">
 			{#if entries.length > 0}
 				{#each entries as entry, i}
-					<div class="entry entry-{entry.rolle.toLowerCase()}">
+					<div class="entry">
 						<button
 							class="entry-header"
 							onclick={() => toggleEntry(i)}
 							aria-expanded={!collapsedEntries.has(i)}
 						>
 							<div class="entry-header-left">
-								<span class="rolle-badge rolle-{entry.rolle.toLowerCase()}">{entry.rolle}</span>
+								<span class="entry-partsnavn">{partsNavn(entry.rolle)}</span>
 								<span class="entry-versjon">v{entry.versjon}</span>
 								{#if entry.resultat}
 									<span class="entry-resultat resultat-{entry.resultat}">{GRUNNLAG_RESULTAT_LABELS[entry.resultat] ?? entry.resultat}</span>
@@ -209,14 +217,6 @@
 		border-bottom: 1px solid var(--color-wire);
 	}
 
-	.entry-te {
-		border-left: 3px solid var(--color-role-te-text);
-	}
-
-	.entry-bh {
-		border-left: 3px solid var(--color-role-bh-text);
-	}
-
 	.entry-header {
 		display: flex;
 		align-items: center;
@@ -239,24 +239,11 @@
 		gap: var(--spacing-2);
 	}
 
-	.rolle-badge {
-		font-family: var(--font-data);
-		font-size: 10px;
+	.entry-partsnavn {
+		font-family: var(--font-ui);
+		font-size: 12px;
 		font-weight: 600;
-		letter-spacing: 0.06em;
-		text-transform: uppercase;
-		padding: 2px var(--spacing-2);
-		border-radius: 9999px;
-	}
-
-	.rolle-te {
-		background: var(--color-role-te-bg);
-		color: var(--color-role-te-text);
-	}
-
-	.rolle-bh {
-		background: var(--color-role-bh-bg);
-		color: var(--color-role-bh-text);
+		color: var(--color-ink-secondary);
 	}
 
 	.entry-versjon {

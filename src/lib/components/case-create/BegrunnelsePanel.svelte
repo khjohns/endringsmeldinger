@@ -25,7 +25,6 @@
 	<section class="panel-section editor-section">
 		<div class="panel-header">
 			<h3 class="panel-label">Begrunnelse for kravet</h3>
-			<span class="rolle-badge">TE</span>
 		</div>
 		<RichTextEditor
 			{placeholder}
@@ -129,18 +128,6 @@
 		letter-spacing: 0.08em;
 		color: var(--color-ink-muted);
 		margin: 0;
-	}
-
-	.rolle-badge {
-		font-family: var(--font-data);
-		font-size: 10px;
-		font-weight: 600;
-		letter-spacing: 0.06em;
-		text-transform: uppercase;
-		padding: 2px var(--spacing-2);
-		border-radius: 9999px;
-		background: var(--color-role-te-bg);
-		color: var(--color-role-te-text);
 	}
 
 	/* --- Upload zone --- */
