@@ -89,6 +89,9 @@
 			}),
 		};
 	});
+
+	const teNavn = $derived($query.data?.state?.entreprenor);
+	const bhNavn = $derived($query.data?.state?.byggherre);
 </script>
 
 {#if $query.isLoading}
@@ -100,7 +103,6 @@
 		<p class="error-text">Kunne ikke laste sak</p>
 	</div>
 {:else if krav}
-	{@const state = $query.data?.state}
 	<TeGrunnlagRevisjon
 		{prosjektId}
 		{sakId}
@@ -109,8 +111,8 @@
 		teBegrunnelseHtml={timelineData.teBegrunnelseHtml}
 		bhSvar={timelineData.bhSvar}
 		tidligereSvar={timelineData.tidligereSvar}
-		teNavn={state?.entreprenor}
-		bhNavn={state?.byggherre}
+		{teNavn}
+		{bhNavn}
 	/>
 {/if}
 
