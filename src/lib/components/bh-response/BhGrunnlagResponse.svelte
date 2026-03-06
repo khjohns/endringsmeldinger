@@ -60,6 +60,9 @@
 	let bhBegrunnelseHtml = $state('');
 	let submitting = $state(false);
 	let activeTab = $state<'begrunnelse' | 'historikk' | 'filer'>('begrunnelse');
+	let mobilPanelOpen = $state(false);
+
+	const harBhBegrunnelse = $derived(bhBegrunnelseHtml.replace(/<[^>]*>/g, '').trim().length > 0);
 
 	// --- Domain config ---
 	const domainConfig: GrunnlagDomainConfig = $derived({
@@ -251,7 +254,39 @@
 			</div>
 		</main>
 
-		<!-- HØYREPANEL: Begrunnelsetråd -->
+		<!-- HØYREPANEL: Desktop inline -->
+		<div class="desktop-panel">
+			<BegrunnelseThread
+				entries={begrunnelseEntries}
+				bind:bhBegrunnelseHtml
+				editorPlaceholder={editorPlaceholder}
+				{activeTab}
+				ontabchange={(tab) => (activeTab = tab)}
+			/>
+		</div>
+	</div>
+</div>
+
+<!-- Mobil: FAB -->
+<button class="begrunnelse-fab" onclick={() => (mobilPanelOpen = true)}>
+	<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+		<path d="M2 3h12M2 7h8M2 11h10" stroke="currentColor" stroke-width="1.25" stroke-linecap="round"/>
+	</svg>
+	Begrunnelse
+	{#if harBhBegrunnelse}
+		<span class="fab-badge"></span>
+	{/if}
+</button>
+
+<!-- Mobil: fullscreen overlay -->
+{#if mobilPanelOpen}
+	<div class="mobil-panel-overlay">
+		<button class="panel-tilbake" onclick={() => (mobilPanelOpen = false)}>
+			<svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+				<path d="M8.5 3L4.5 7L8.5 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+			</svg>
+			Tilbake til skjema
+		</button>
 		<BegrunnelseThread
 			entries={begrunnelseEntries}
 			bind:bhBegrunnelseHtml
@@ -260,7 +295,7 @@
 			ontabchange={(tab) => (activeTab = tab)}
 		/>
 	</div>
-</div>
+{/if}
 
 <style>
 	.bh-response-layout {
@@ -291,15 +326,15 @@
 		border: none;
 		border-radius: var(--radius-sm);
 		font-family: var(--font-ui);
-		font-size: 13px;
-		color: var(--color-ink-secondary);
+		font-size: 12px;
+		color: var(--color-ink-ghost);
 		cursor: pointer;
-		transition: color 0.12s, background-color 0.12s;
+		text-decoration: none;
+		transition: color 0.12s;
 	}
 
 	.tilbake-btn:hover {
-		color: var(--color-ink);
-		background: var(--color-felt-hover);
+		color: var(--color-vekt);
 	}
 
 	.context-separator {
@@ -354,6 +389,10 @@
 		overflow: hidden;
 	}
 
+	.desktop-panel {
+		display: contents;
+	}
+
 	/* --- Midtpanel --- */
 	.midtpanel {
 		overflow-y: auto;
@@ -406,15 +445,107 @@
 		border-top: 1px solid var(--color-wire);
 	}
 
-	/* --- Mobile --- */
+	/* FAB + mobil overlay: skjult på desktop */
+	.begrunnelse-fab {
+		display: none;
+	}
+
+	.mobil-panel-overlay {
+		display: none;
+	}
+
+	.panel-tilbake {
+		display: flex;
+		align-items: center;
+		gap: var(--spacing-1);
+		padding: var(--spacing-3) var(--spacing-4);
+		position: sticky;
+		top: 0;
+		z-index: 1;
+		background: var(--color-felt);
+		border: none;
+		border-bottom: 1px solid var(--color-wire);
+		font-family: var(--font-ui);
+		font-size: 13px;
+		color: var(--color-ink-secondary);
+		cursor: pointer;
+		width: 100%;
+		text-align: left;
+		flex-shrink: 0;
+	}
+
+	.panel-tilbake:hover {
+		color: var(--color-ink);
+	}
+
+	/* --- Mobil (<1024px) --- */
 	@media (max-width: 1023px) {
 		.response-panels {
 			grid-template-columns: 1fr;
 		}
 
+		.desktop-panel {
+			display: none;
+		}
+
 		.midtpanel-scroll {
 			max-width: none;
-			padding: var(--spacing-4);
+			padding: var(--spacing-5) var(--spacing-4);
+			padding-bottom: 72px; /* plass til FAB */
+		}
+
+		.begrunnelse-fab {
+			display: flex;
+			align-items: center;
+			gap: var(--spacing-2);
+			position: fixed;
+			bottom: var(--spacing-5);
+			right: var(--spacing-4);
+			z-index: 20;
+			padding: var(--spacing-2) var(--spacing-4);
+			background: var(--color-felt-raised);
+			border: 1px solid var(--color-vekt-dim);
+			border-radius: 9999px;
+			font-family: var(--font-ui);
+			font-size: 13px;
+			font-weight: 500;
+			color: var(--color-vekt);
+			cursor: pointer;
+			transition: background 0.12s, border-color 0.12s;
+		}
+
+		.begrunnelse-fab:hover {
+			background: var(--color-vekt-bg);
+			border-color: var(--color-vekt);
+		}
+
+		.fab-badge {
+			width: 6px;
+			height: 6px;
+			border-radius: 9999px;
+			background: var(--color-vekt);
+		}
+
+		.mobil-panel-overlay {
+			display: flex;
+			flex-direction: column;
+			position: fixed;
+			inset: 0;
+			z-index: 30;
+			background: var(--color-canvas);
+			overflow-y: auto;
+		}
+
+		.mobil-panel-overlay :global(.begrunnelse-thread) {
+			position: static;
+			height: auto;
+			border-left: none;
+		}
+
+		.form-footer {
+			flex-direction: column-reverse;
+			gap: var(--spacing-3);
+			align-items: stretch;
 		}
 	}
 </style>
