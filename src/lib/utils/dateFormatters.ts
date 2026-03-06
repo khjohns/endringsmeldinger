@@ -85,6 +85,25 @@ export function getNowNorwegian(): string {
 }
 
 /**
+ * Format date to short Norwegian format with abbreviated month.
+ *
+ * @example formatDateShortNorwegian('2025-12-22T14:30:00Z') // '22. des. 2025'
+ */
+export function formatDateShortNorwegian(dateStr: string | undefined): string {
+  if (!dateStr) return '';
+  try {
+    return new Date(dateStr).toLocaleDateString(NORWEGIAN_LOCALE, {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+      timeZone: NORWEGIAN_TIMEZONE,
+    });
+  } catch {
+    return dateStr;
+  }
+}
+
+/**
  * Format date and time to compact Norwegian format for tables.
  * Returns DD.MM.YYYY, HH:MM format.
  *
