@@ -146,12 +146,12 @@
 		.begrunnelse-fab {
 			display: flex;
 			align-items: center;
-			gap: 6px;
+			gap: var(--spacing-2);
 			position: fixed;
-			bottom: 20px;
-			right: 16px;
+			bottom: var(--spacing-5);
+			right: var(--spacing-4);
 			z-index: 20;
-			padding: 10px 16px;
+			padding: var(--spacing-2) var(--spacing-4);
 			background: var(--color-felt-raised);
 			border: 1px solid var(--color-vekt-dim);
 			border-radius: 9999px;
