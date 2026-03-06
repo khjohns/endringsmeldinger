@@ -17,20 +17,7 @@
 
 	const datospenn = $derived(finnDatospenn(saker));
 
-	// Compute axis marks once (independent of per-case clusters)
-	const akseMerkerRaa = $derived(genererAkseMerker(datospenn.min, datospenn.maks));
-
-	// Filter out labels that are too close together (< 10%) or too close to "I DAG" (> 92%)
-	const akseMerker = $derived(
-		akseMerkerRaa.filter((merke, i) => {
-			if (merke.pos > 92) return false;
-			if (i === 0) return true;
-			let j = i - 1;
-			while (j >= 0 && akseMerkerRaa[j].pos > 92) j--;
-			if (j < 0) return true;
-			return merke.pos - akseMerkerRaa[j].pos >= 10;
-		})
-	);
+	const akseMerker = $derived(genererAkseMerker(datospenn.min, datospenn.maks));
 
 	const sakerMedTidslinje = $derived(
 		saker.map((sak) => ({

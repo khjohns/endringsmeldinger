@@ -21,6 +21,25 @@ const NORWEGIAN_LOCALE = 'nb-NO';
 const NORWEGIAN_TIMEZONE = 'Europe/Oslo';
 
 /**
+ * Format date as day + short month (for compact timelines)
+ *
+ * @example formatDateDayMonth('2025-12-22T14:30:00Z') // '22. des'
+ * @example formatDateDayMonth('2025-01-03T10:00:00Z') // '3. jan'
+ */
+export function formatDateDayMonth(dateStr: string | null | undefined): string {
+  if (!dateStr) return '—';
+  try {
+    return new Date(dateStr).toLocaleDateString(NORWEGIAN_LOCALE, {
+      day: 'numeric',
+      month: 'short',
+      timeZone: NORWEGIAN_TIMEZONE,
+    }).replace(/\.$/, '');
+  } catch {
+    return dateStr || '—';
+  }
+}
+
+/**
  * Format a number as Norwegian currency (kr)
  *
  * @example formatCurrency(50000) // '50 000 kr'

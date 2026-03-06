@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { SaksoversiktItem } from '$lib/mocks/saksoversikt';
-	import { formatCurrencyCompact, formatDaysCompact } from '$lib/utils/formatters';
+	import { formatCurrencyCompact, formatDaysCompact, formatDateDayMonth } from '$lib/utils/formatters';
 	import { getOverordnetStatusLabel } from '$lib/constants/statusLabels';
 	import type { OverordnetStatus } from '$lib/types/timeline';
 
@@ -43,15 +43,8 @@
 
 	// Forsering
 	const erForsering = $derived(
-		sak?.cached_forsering_paalopt != null || sak?.cached_forsering_maks != null
+		(sak?.cached_forsering_paalopt ?? 0) > 0 || (sak?.cached_forsering_maks ?? 0) > 0
 	);
-
-	function formatDatoKort(isoStr: string): string {
-		const d = new Date(isoStr);
-		const dag = d.getDate();
-		const mnd = ['jan', 'feb', 'mar', 'apr', 'mai', 'jun', 'jul', 'aug', 'sep', 'okt', 'nov', 'des'][d.getMonth()];
-		return `${dag}. ${mnd}`;
-	}
 
 	function handleKeydown(e: KeyboardEvent) {
 		if (e.key === 'Escape' && erAapen) onclose();
@@ -107,7 +100,7 @@
 									class:forloep-besvart={h.besvart}
 									class:forloep-siste={erSiste}
 								>
-									<span class="forloep-dato">{formatDatoKort(h.dato)}</span>
+									<span class="forloep-dato">{formatDateDayMonth(h.dato)}</span>
 									<div class="forloep-strek" class:forloep-strek-siste={erSiste}></div>
 									<span
 										class="forloep-node forloep-node-{h.type.toLowerCase()}"

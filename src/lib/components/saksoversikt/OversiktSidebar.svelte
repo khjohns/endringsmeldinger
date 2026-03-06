@@ -1,69 +1,62 @@
 <script lang="ts">
-	import type { SaksoversiktItem, SporHendelseType } from '$lib/mocks/saksoversikt';
+	import type { SaksoversiktItem, SporHendelseType, SaksoversiktVisning } from '$lib/mocks/saksoversikt';
 	import { formatCurrencyCompact } from '$lib/utils/formatters';
-
-	type Visning = 'tidslinje' | 'tabell';
+	import { AKTIVE_OVERORDNET_STATUSER } from '$lib/constants/statusLabels';
 
 	interface Props {
 		saker: SaksoversiktItem[];
 		prosjektNavn: string;
 		entreprise: string;
-		visning: Visning;
-		onvisning: (v: Visning) => void;
+		visning: SaksoversiktVisning;
+		onvisning: (v: SaksoversiktVisning) => void;
 		aktivtSpor: SporHendelseType | null;
 		onspor: (spor: SporHendelseType | null) => void;
 	}
 
 	let { saker, prosjektNavn, entreprise, visning, onvisning, aktivtSpor, onspor }: Props = $props();
 
-	// Aggregate stats
-	const totalKrevd = $derived(
-		saker.reduce((sum, s) => sum + (s.cached_sum_krevd ?? 0), 0)
-	);
-	const totalGodkjent = $derived(
-		saker.reduce((sum, s) => sum + (s.cached_sum_godkjent ?? 0), 0)
-	);
-	const totalOmtvistet = $derived(Math.max(0, totalKrevd - totalGodkjent));
-	const totalDagerKrevd = $derived(
-		saker.reduce((sum, s) => sum + (s.cached_dager_krevd ?? 0), 0)
-	);
-	const totalDagerGodkjent = $derived(
-		saker.reduce((sum, s) => sum + (s.cached_dager_godkjent ?? 0), 0)
-	);
+	// Single-pass aggregation over all saker + hendelser
+	const stats = $derived.by(() => {
+		let totalKrevd = 0, totalGodkjent = 0, totalDagerKrevd = 0, totalDagerGodkjent = 0;
+		let aktiveSaker = 0;
+		let sporK = 0, sporV = 0, sporF = 0;
+		let ubesvartK = 0, ubesvartV = 0, ubesvartF = 0;
 
-	// Status distribution
-	const AKTIVE_STATUSER = ['SENDT', 'UNDER_BEHANDLING', 'VENTER_PAA_SVAR', 'UTKAST'];
-	const aktiveSaker = $derived(
-		saker.filter((s) => s.cached_status && AKTIVE_STATUSER.includes(s.cached_status)).length
-	);
-
-	// Spor counts (across all saker)
-	const sporTelling = $derived.by(() => {
-		let k = 0, v = 0, f = 0;
 		for (const sak of saker) {
-			for (const h of sak.hendelser) {
-				if (h.type === 'K') k++;
-				else if (h.type === 'V') v++;
-				else if (h.type === 'F') f++;
-			}
-		}
-		return { k, v, f };
-	});
+			totalKrevd += sak.cached_sum_krevd ?? 0;
+			totalGodkjent += sak.cached_sum_godkjent ?? 0;
+			totalDagerKrevd += sak.cached_dager_krevd ?? 0;
+			totalDagerGodkjent += sak.cached_dager_godkjent ?? 0;
+			if (sak.cached_status && AKTIVE_OVERORDNET_STATUSER.includes(sak.cached_status as any)) aktiveSaker++;
 
-	// Ubesvarte counts
-	const ubesvartTelling = $derived.by(() => {
-		let k = 0, v = 0, f = 0;
-		for (const sak of saker) {
 			for (const h of sak.hendelser) {
+				if (h.type === 'K') sporK++;
+				else if (h.type === 'V') sporV++;
+				else sporF++;
+
 				if (!h.besvart) {
-					if (h.type === 'K') k++;
-					else if (h.type === 'V') v++;
-					else if (h.type === 'F') f++;
+					if (h.type === 'K') ubesvartK++;
+					else if (h.type === 'V') ubesvartV++;
+					else ubesvartF++;
 				}
 			}
 		}
-		return { k, v, f };
+
+		return {
+			totalKrevd, totalGodkjent,
+			totalOmtvistet: Math.max(0, totalKrevd - totalGodkjent),
+			totalDagerKrevd, totalDagerGodkjent,
+			aktiveSaker,
+			sporTelling: { K: sporK, V: sporV, F: sporF },
+			ubesvartTelling: { K: ubesvartK, V: ubesvartV, F: ubesvartF },
+		};
 	});
+
+	const SPOR_CONFIG: { key: SporHendelseType; label: string }[] = [
+		{ key: 'K', label: 'Kontrakt' },
+		{ key: 'V', label: 'Vederlag' },
+		{ key: 'F', label: 'Frist' },
+	];
 
 	function toggleSpor(spor: SporHendelseType) {
 		onspor(aktivtSpor === spor ? null : spor);
@@ -79,7 +72,7 @@
 			<span class="telling-verdi">{saker.length}</span>
 			<span class="telling-label">saker</span>
 			<span class="telling-sep">&middot;</span>
-			<span class="telling-aktiv">{aktiveSaker} aktive</span>
+			<span class="telling-aktiv">{stats.aktiveSaker} aktive</span>
 		</div>
 	</div>
 
@@ -106,45 +99,21 @@
 	<div class="sidebar-section">
 		<div class="section-label">Spor</div>
 		<div class="spor-knapper">
-			<button
-				class="spor-btn spor-k"
-				class:spor-aktiv={aktivtSpor === 'K'}
-				onclick={() => toggleSpor('K')}
-				type="button"
-			>
-				<span class="spor-ikon spor-ikon-k">K</span>
-				<span class="spor-tekst">Kontrakt</span>
-				<span class="spor-tall">{sporTelling.k}</span>
-				{#if ubesvartTelling.k > 0}
-					<span class="spor-ubesvart">{ubesvartTelling.k}</span>
-				{/if}
-			</button>
-			<button
-				class="spor-btn spor-v"
-				class:spor-aktiv={aktivtSpor === 'V'}
-				onclick={() => toggleSpor('V')}
-				type="button"
-			>
-				<span class="spor-ikon spor-ikon-v">V</span>
-				<span class="spor-tekst">Vederlag</span>
-				<span class="spor-tall">{sporTelling.v}</span>
-				{#if ubesvartTelling.v > 0}
-					<span class="spor-ubesvart">{ubesvartTelling.v}</span>
-				{/if}
-			</button>
-			<button
-				class="spor-btn spor-f"
-				class:spor-aktiv={aktivtSpor === 'F'}
-				onclick={() => toggleSpor('F')}
-				type="button"
-			>
-				<span class="spor-ikon spor-ikon-f">F</span>
-				<span class="spor-tekst">Frist</span>
-				<span class="spor-tall">{sporTelling.f}</span>
-				{#if ubesvartTelling.f > 0}
-					<span class="spor-ubesvart">{ubesvartTelling.f}</span>
-				{/if}
-			</button>
+			{#each SPOR_CONFIG as { key, label } (key)}
+				<button
+					class="spor-btn spor-{key.toLowerCase()}"
+					class:spor-aktiv={aktivtSpor === key}
+					onclick={() => toggleSpor(key)}
+					type="button"
+				>
+					<span class="spor-ikon spor-ikon-{key.toLowerCase()}">{key}</span>
+					<span class="spor-tekst">{label}</span>
+					<span class="spor-tall">{stats.sporTelling[key]}</span>
+					{#if stats.ubesvartTelling[key] > 0}
+						<span class="spor-ubesvart">{stats.ubesvartTelling[key]}</span>
+					{/if}
+				</button>
+			{/each}
 		</div>
 	</div>
 
@@ -153,30 +122,30 @@
 		<div class="section-label">Nøkkeltall (NOK)</div>
 		<div class="finans-rad">
 			<span class="finans-label">Krevd</span>
-			<span class="finans-verdi krav">{formatCurrencyCompact(totalKrevd)}</span>
+			<span class="finans-verdi krav">{formatCurrencyCompact(stats.totalKrevd)}</span>
 		</div>
-		{#if totalGodkjent > 0}
+		{#if stats.totalGodkjent > 0}
 			<div class="finans-rad">
 				<span class="finans-label">Godkjent</span>
-				<span class="finans-verdi godkjent">{formatCurrencyCompact(totalGodkjent)}</span>
+				<span class="finans-verdi godkjent">{formatCurrencyCompact(stats.totalGodkjent)}</span>
 			</div>
 		{/if}
-		{#if totalOmtvistet > 0}
+		{#if stats.totalOmtvistet > 0}
 			<div class="finans-rad">
 				<span class="finans-label">Omtvistet</span>
-				<span class="finans-verdi omtvistet">{formatCurrencyCompact(totalOmtvistet)}</span>
+				<span class="finans-verdi omtvistet">{formatCurrencyCompact(stats.totalOmtvistet)}</span>
 			</div>
 		{/if}
-		{#if totalDagerKrevd > 0}
+		{#if stats.totalDagerKrevd > 0}
 			<div class="finans-divider"></div>
 			<div class="finans-rad">
 				<span class="finans-label">Dager krevd</span>
-				<span class="finans-verdi krav">{totalDagerKrevd}d</span>
+				<span class="finans-verdi krav">{stats.totalDagerKrevd}d</span>
 			</div>
-			{#if totalDagerGodkjent > 0}
+			{#if stats.totalDagerGodkjent > 0}
 				<div class="finans-rad">
 					<span class="finans-label">Dager godkjent</span>
-					<span class="finans-verdi godkjent">{totalDagerGodkjent}d</span>
+					<span class="finans-verdi godkjent">{stats.totalDagerGodkjent}d</span>
 				</div>
 			{/if}
 		{/if}

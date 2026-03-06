@@ -6,7 +6,7 @@
 	import Saksoversikt from '$lib/components/saksoversikt/Saksoversikt.svelte';
 	import OversiktSidebar from '$lib/components/saksoversikt/OversiktSidebar.svelte';
 	import { mockSaksoversikt } from '$lib/mocks/saksoversikt';
-	import type { SporHendelseType } from '$lib/mocks/saksoversikt';
+	import type { SporHendelseType, SaksoversiktVisning } from '$lib/mocks/saksoversikt';
 
 	const prosjektId = $derived(page.params.prosjektId);
 	const query = createCaseListQuery();
@@ -17,16 +17,15 @@
 	};
 	const projectMeta = $derived(prosjektId ? projectNames[prosjektId] ?? null : null);
 
-	type Visning = 'tidslinje' | 'tabell';
 	const STORAGE_KEY = 'koe-saksoversikt-visning';
 
-	let visning = $state<Visning>(
-		browser ? (localStorage.getItem(STORAGE_KEY) as Visning) ?? 'tidslinje' : 'tidslinje'
+	let visning = $state<SaksoversiktVisning>(
+		browser ? (localStorage.getItem(STORAGE_KEY) as SaksoversiktVisning) ?? 'tidslinje' : 'tidslinje'
 	);
 
 	let aktivtSpor = $state<SporHendelseType | null>(null);
 
-	function byttVisning(v: Visning) {
+	function byttVisning(v: SaksoversiktVisning) {
 		visning = v;
 		if (browser) localStorage.setItem(STORAGE_KEY, v);
 	}
