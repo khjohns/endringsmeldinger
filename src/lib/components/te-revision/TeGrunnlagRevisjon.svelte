@@ -9,6 +9,7 @@
 	import Button from '$lib/components/primitives/Button.svelte';
 	import Alert from '$lib/components/primitives/Alert.svelte';
 	import { formatDateShortNorwegian } from '$lib/utils/dateFormatters';
+	import { GRUNNLAG_RESULTAT_LABELS } from '$lib/constants/responseOptions';
 
 	interface KravData {
 		tittel: string;
@@ -73,12 +74,6 @@
 	let mobilPanelOpen = $state(false);
 
 	const harBegrunnelse = $derived(begrunnelseHtml.replace(/<[^>]*>/g, '').trim().length > 0);
-
-	const RESULTAT_LABELS: Record<string, string> = {
-		godkjent: 'Godkjent',
-		avslatt: 'Avslått',
-		frafalt: 'Frafalt',
-	};
 
 	// Build thread entries: previous exchange as read-only
 	const threadEntries = $derived.by(() => {
@@ -171,7 +166,7 @@
 						</div>
 
 						<div class="standpunkt-resultat resultat-{bhSvar.resultat}">
-							<span class="resultat-badge">{RESULTAT_LABELS[bhSvar.resultat] ?? bhSvar.resultat}</span>
+							<span class="resultat-badge">{GRUNNLAG_RESULTAT_LABELS[bhSvar.resultat] ?? bhSvar.resultat}</span>
 							{#if bhSvar.varsletITide !== undefined}
 								<span class="varsling-tag" class:varsling-ok={bhSvar.varsletITide} class:varsling-fail={!bhSvar.varsletITide}>
 									§32.2 {bhSvar.varsletITide ? '✓' : '✗'}

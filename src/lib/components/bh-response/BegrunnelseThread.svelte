@@ -1,6 +1,7 @@
 <script lang="ts">
 	import RichTextEditor from '$lib/components/primitives/RichTextEditor.svelte';
 	import { formatDateShortNorwegian } from '$lib/utils/dateFormatters';
+	import { GRUNNLAG_RESULTAT_LABELS } from '$lib/constants/responseOptions';
 
 	interface BegrunnelseEntry {
 		rolle: 'TE' | 'BH';
@@ -30,12 +31,6 @@
 	}: Props = $props();
 
 	const editorLabel = $derived(editorRolle === 'TE' ? 'Din reviderte begrunnelse' : 'Ditt svar');
-
-	const RESULTAT_LABELS: Record<string, string> = {
-		godkjent: 'Godkjent',
-		avslatt: 'Avslått',
-		frafalt: 'Frafalt',
-	};
 
 	let collapsedEntries = $state<Set<number>>(new Set());
 
@@ -87,7 +82,7 @@
 							<span class="rolle-badge rolle-{entry.rolle.toLowerCase()}">{entry.rolle}</span>
 							<span class="entry-versjon">v{entry.versjon}</span>
 							{#if entry.resultat}
-								<span class="entry-resultat resultat-{entry.resultat}">{RESULTAT_LABELS[entry.resultat] ?? entry.resultat}</span>
+								<span class="entry-resultat resultat-{entry.resultat}">{GRUNNLAG_RESULTAT_LABELS[entry.resultat] ?? entry.resultat}</span>
 							{/if}
 							{#if entry.dato}
 								<span class="entry-dato">{formatDateShortNorwegian(entry.dato)}</span>

@@ -12,6 +12,13 @@ import type { SubsidiaerTrigger } from '../types/timeline';
 
 // ========== GRUNNLAG RESPONSE OPTIONS ==========
 
+/** Short UI labels for grunnlag response results */
+export const GRUNNLAG_RESULTAT_LABELS: Record<string, string> = {
+  godkjent: 'Godkjent',
+  avslatt: 'Avslått',
+  frafalt: 'Frafalt',
+};
+
 export const BH_GRUNNLAGSVAR_OPTIONS: DropdownOption[] = [
   { value: "", label: "— Velg —" },
   { value: "godkjent", label: "Godkjent" },

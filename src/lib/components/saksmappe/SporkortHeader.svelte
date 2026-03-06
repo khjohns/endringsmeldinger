@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import { browser } from '$app/environment';
 	import type { SporType, SporStatus } from '$lib/types/timeline';
 	import type { VarslingItem } from '$lib/utils/varslingStatus';
 
@@ -17,9 +18,7 @@
 	function handleAction(e: MouseEvent) {
 		e.stopPropagation();
 		if (sporType === 'grunnlag') {
-			const role = typeof localStorage !== 'undefined'
-				? localStorage.getItem('koe-user-role')
-				: null;
+			const role = browser ? localStorage.getItem('koe-user-role') : null;
 			if (role === 'TE') {
 				goto(`/${prosjektId}/${sakId}/rediger-grunnlag`);
 			} else {
