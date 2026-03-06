@@ -66,4 +66,10 @@
 		font-size: 11px;
 		color: var(--color-ink-muted);
 	}
+
+	@media (max-width: 480px) {
+		.ny-sak-side {
+			padding: var(--spacing-4) var(--spacing-3);
+		}
+	}
 </style>
