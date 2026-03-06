@@ -2,8 +2,18 @@
 	import { page } from '$app/state';
 	import CaseCreateForm from '$lib/components/case-create/CaseCreateForm.svelte';
 	import BegrunnelsePanel from '$lib/components/case-create/BegrunnelsePanel.svelte';
+	import { createCaseListQuery } from '$lib/queries/caseList';
 
 	const prosjektId = $derived(page.params.prosjektId);
+
+	// Mock project metadata — same pattern as layout (will come from API)
+	const projectMeta: Record<string, { name: string; te: string; bh: string }> = {
+		P001: { name: 'Operatunnelen', te: 'Vestlandsentreprisen AS', bh: 'Oslobygg' },
+	};
+	const meta = $derived(prosjektId ? projectMeta[prosjektId] ?? null : null);
+
+	const caseListQuery = createCaseListQuery();
+	const saksnr = $derived(($caseListQuery.data?.cases.length ?? 0) + 1);
 
 	let begrunnelseHtml = $state('');
 	let begrunnelsePlaceholder = $state(
@@ -26,6 +36,17 @@
 
 			<header class="ny-sak-header">
 				<span class="ny-sak-eyebrow">Nytt varsel</span>
+				<div class="ny-sak-context">
+					{#if meta}
+						<span class="context-prosjekt">{meta.name}</span>
+						<span class="context-sep">·</span>
+						<span class="context-part">{meta.te}</span>
+						<span class="context-sep">→</span>
+						<span class="context-part">{meta.bh}</span>
+					{/if}
+					<span class="context-sep">·</span>
+					<span class="context-nr">#{saksnr}</span>
+				</div>
 			</header>
 
 			<CaseCreateForm
@@ -114,6 +135,33 @@
 		font-weight: 600;
 		text-transform: uppercase;
 		letter-spacing: 0.08em;
+		color: var(--color-ink-muted);
+	}
+
+	.ny-sak-context {
+		display: flex;
+		align-items: center;
+		gap: var(--spacing-2);
+		margin-top: var(--spacing-1);
+		font-size: 12px;
+		color: var(--color-ink-secondary);
+	}
+
+	.context-prosjekt {
+		font-weight: 500;
+	}
+
+	.context-part {
+		color: var(--color-ink-muted);
+	}
+
+	.context-sep {
+		color: var(--color-ink-ghost);
+	}
+
+	.context-nr {
+		font-family: var(--font-data);
+		font-variant-numeric: tabular-nums;
 		color: var(--color-ink-muted);
 	}
 
