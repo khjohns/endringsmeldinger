@@ -13,5 +13,5 @@ export * from './varslingsregler';
 export * from './eventTypeLabels';
 
 // Re-export types
-export type { DropdownOption, Hovedkategori, Underkategori } from './categories';
+export type { DropdownOption, Kontraktsforhold, Kontraktshjemmel } from './categories';
 export type { VarslingsRegel, FristType, KonsekvensType, Aktor } from './varslingsregler';

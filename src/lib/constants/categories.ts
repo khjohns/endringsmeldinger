@@ -1,5 +1,5 @@
 /**
- * Hovedkategori and Underkategori Constants
+ * Kontraktsforhold og Kontraktshjemmel (NS 8407)
  * Based on NS 8407 Norwegian Standard Building Contract
  *
  * Enhanced with complete legal references and claim type information
@@ -33,8 +33,8 @@ export type StandardVederlagsmetode =
 // Type krav - what can be claimed
 export type TypeKrav = 'Tid' | 'Penger' | 'Tid og Penger';
 
-// Enhanced Underkategori with legal references
-export interface Underkategori {
+// Kontraktshjemmel — den juridiske underkategorien (f.eks. §32.1 Irregulær endring)
+export interface Kontraktshjemmel {
   kode: string;
   label: string;
   hjemmel_basis: string;      // The triggering paragraph
@@ -43,8 +43,8 @@ export interface Underkategori {
   gruppe?: string;            // Optional grouping for UI display
 }
 
-// Enhanced Hovedkategori with full legal context
-export interface Hovedkategori {
+// Kontraktsforhold — hovedkategorien for kravet (f.eks. Endring, Svikt, Force Majeure)
+export interface Kontraktsforhold {
   kode: string;
   label: string;
   beskrivelse: string;
@@ -52,11 +52,11 @@ export interface Hovedkategori {
   hjemmel_vederlag: string | null;        // Reference in section 34 (null for FM)
   standard_vederlagsmetode: StandardVederlagsmetode;
   type_krav: TypeKrav;
-  underkategorier: Underkategori[];
+  hjemler: Kontraktshjemmel[];
 }
 
 // Complete NS 8407 claim structure with legal references
-export const KRAV_STRUKTUR_NS8407: Hovedkategori[] = [
+export const KRAV_STRUKTUR_NS8407: Kontraktsforhold[] = [
   {
     kode: 'ENDRING',
     label: 'Endringer',
@@ -65,7 +65,7 @@ export const KRAV_STRUKTUR_NS8407: Hovedkategori[] = [
     hjemmel_vederlag: '34.1.1',
     standard_vederlagsmetode: 'Enhetspriser (34.3)',
     type_krav: 'Tid og Penger',
-    underkategorier: [
+    hjemler: [
       {
         kode: 'EO',
         label: 'Formell endringsordre',
@@ -141,7 +141,7 @@ export const KRAV_STRUKTUR_NS8407: Hovedkategori[] = [
     hjemmel_vederlag: '34.1.2',
     standard_vederlagsmetode: 'Regningsarbeid (34.4)',
     type_krav: 'Tid og Penger',
-    underkategorier: [
+    hjemler: [
       {
         kode: 'MEDVIRK',
         label: 'Manglende medvirkning/leveranser',
@@ -190,7 +190,7 @@ export const KRAV_STRUKTUR_NS8407: Hovedkategori[] = [
     // 1. Underkategoriene gjelder forhold der BH selv har handlet aktivt (nektelse, brukstakelse, stans)
     // 2. BH vet allerede om forholdet - §25.1.2 har begrenset praktisk verdi
     // 3. Den generelle varslingsfristen i §5 gjelder uansett
-    underkategorier: [
+    hjemler: [
       {
         kode: 'NEKT_MH',
         label: 'Nektelse av kontraktsmedhjelper',
@@ -241,7 +241,7 @@ export const KRAV_STRUKTUR_NS8407: Hovedkategori[] = [
     hjemmel_vederlag: null,
     standard_vederlagsmetode: 'Ingen (Kun fristforlengelse)',
     type_krav: 'Tid',
-    underkategorier: [],
+    hjemler: [],
   },
 ];
 
@@ -255,101 +255,118 @@ export const HOVEDKATEGORI_OPTIONS: DropdownOption[] = [
   })),
 ];
 
-// Generate UNDERKATEGORI_MAP from enhanced structure
-export const UNDERKATEGORI_MAP: Record<string, DropdownOption[]> =
+// Generate HJEMMEL_MAP (kontraktshjemler per kontraktsforhold) from structure
+export const HJEMMEL_MAP: Record<string, DropdownOption[]> =
   KRAV_STRUKTUR_NS8407.reduce(
-    (acc, hovedkategori) => {
-      acc[hovedkategori.kode] = hovedkategori.underkategorier.map((u) => ({
-        value: u.kode,
-        label: `${u.label} (§${u.hjemmel_basis})`,
+    (acc, forhold) => {
+      acc[forhold.kode] = forhold.hjemler.map((h) => ({
+        value: h.kode,
+        label: `${h.label} (§${h.hjemmel_basis})`,
       }));
       return acc;
     },
     {} as Record<string, DropdownOption[]>
   );
 
+// Legacy alias
+export const UNDERKATEGORI_MAP = HJEMMEL_MAP;
+
 // ========== HELPER FUNCTIONS ==========
 
-// Get underkategorier for a given hovedkategori
-export function getUnderkategorier(hovedkategori: string): DropdownOption[] {
-  return UNDERKATEGORI_MAP[hovedkategori] || [];
+// Get hjemler (kontraktshjemler) for a given kontraktsforhold
+export function getHjemler(kontraktsforholdKode: string): DropdownOption[] {
+  return HJEMMEL_MAP[kontraktsforholdKode] || [];
 }
 
-// Get hovedkategori label from code (case-insensitive)
-export function getHovedkategoriLabel(code: string | string[] | undefined | null): string {
+// Legacy alias
+export const getUnderkategorier = getHjemler;
+
+// Get kontraktsforhold label from code (case-insensitive)
+export function getKontraktsforholdLabel(code: string | string[] | undefined | null): string {
   if (!code) return '';
-  // Handle array by taking first element
   const codeStr = Array.isArray(code) ? code[0] : code;
   if (!codeStr) return '';
   const upperCode = codeStr.toUpperCase();
-  const kategori = KRAV_STRUKTUR_NS8407.find((k) => k.kode.toUpperCase() === upperCode);
-  return kategori?.label || codeStr;
+  const forhold = KRAV_STRUKTUR_NS8407.find((k) => k.kode.toUpperCase() === upperCode);
+  return forhold?.label || codeStr;
 }
 
-// Get underkategori label from code (case-insensitive)
-export function getUnderkategoriLabel(code: string | string[] | undefined | null): string {
+// Legacy alias
+export const getHovedkategoriLabel = getKontraktsforholdLabel;
+
+// Get kontraktshjemmel label from code (case-insensitive)
+export function getHjemmelLabel(code: string | string[] | undefined | null): string {
   if (!code) return '';
-  // Handle array by taking first element
   const codeStr = Array.isArray(code) ? code[0] : code;
   if (!codeStr) return '';
   const upperCode = codeStr.toUpperCase();
-  for (const hovedkategori of KRAV_STRUKTUR_NS8407) {
-    const underkategori = hovedkategori.underkategorier.find((u) => u.kode.toUpperCase() === upperCode);
-    if (underkategori) return underkategori.label;
+  for (const forhold of KRAV_STRUKTUR_NS8407) {
+    const hjemmel = forhold.hjemler.find((h) => h.kode.toUpperCase() === upperCode);
+    if (hjemmel) return hjemmel.label;
   }
   return codeStr;
 }
 
-// Get full hovedkategori object by code (case-insensitive)
-export function getHovedkategori(code: string | string[] | undefined | null): Hovedkategori | undefined {
+// Legacy alias
+export const getUnderkategoriLabel = getHjemmelLabel;
+
+// Get full kontraktsforhold object by code (case-insensitive)
+export function getKontraktsforhold(code: string | string[] | undefined | null): Kontraktsforhold | undefined {
   if (!code) return undefined;
-  // Handle array by taking first element
   const codeStr = Array.isArray(code) ? code[0] : code;
   if (!codeStr) return undefined;
   const upperCode = codeStr.toUpperCase();
   return KRAV_STRUKTUR_NS8407.find((k) => k.kode.toUpperCase() === upperCode);
 }
 
-// Get full underkategori object by code (case-insensitive)
-export function getUnderkategoriObj(code: string | string[] | undefined | null): Underkategori | undefined {
+// Legacy alias
+export const getHovedkategori = getKontraktsforhold;
+
+// Get full kontraktshjemmel object by code (case-insensitive)
+export function getHjemmelObj(code: string | string[] | undefined | null): Kontraktshjemmel | undefined {
   if (!code) return undefined;
-  // Handle array by taking first element
   const codeStr = Array.isArray(code) ? code[0] : code;
   if (!codeStr) return undefined;
   const upperCode = codeStr.toUpperCase();
-  for (const hovedkategori of KRAV_STRUKTUR_NS8407) {
-    const underkategori = hovedkategori.underkategorier.find((u) => u.kode.toUpperCase() === upperCode);
-    if (underkategori) return underkategori;
+  for (const forhold of KRAV_STRUKTUR_NS8407) {
+    const hjemmel = forhold.hjemler.find((h) => h.kode.toUpperCase() === upperCode);
+    if (hjemmel) return hjemmel;
   }
   return undefined;
 }
 
-// Group underkategorier by their gruppe field for UI display
-// Returns a Map preserving insertion order (groups appear in the order they first occur)
-export function getGrupperteUnderkategorier(
-  underkategorier: Underkategori[]
-): Map<string | null, Underkategori[]> {
-  const grupper = new Map<string | null, Underkategori[]>();
+// Legacy alias
+export const getUnderkategoriObj = getHjemmelObj;
 
-  for (const uk of underkategorier) {
-    const gruppeNavn = uk.gruppe ?? null;
+// Group hjemler by their gruppe field for UI display
+// Returns a Map preserving insertion order (groups appear in the order they first occur)
+export function getGrupperteHjemler(
+  hjemler: Kontraktshjemmel[]
+): Map<string | null, Kontraktshjemmel[]> {
+  const grupper = new Map<string | null, Kontraktshjemmel[]>();
+
+  for (const h of hjemler) {
+    const gruppeNavn = h.gruppe ?? null;
     if (!grupper.has(gruppeNavn)) {
       grupper.set(gruppeNavn, []);
     }
-    grupper.get(gruppeNavn)!.push(uk);
+    grupper.get(gruppeNavn)!.push(h);
   }
 
   return grupper;
 }
 
-// Check if underkategori is a law change (requires special handling)
-export function erLovendring(underkategoriKode: string): boolean {
-  return ['LOV_GJENSTAND', 'LOV_PROSESS', 'GEBYR'].includes(underkategoriKode);
+// Legacy alias
+export const getGrupperteUnderkategorier = getGrupperteHjemler;
+
+// Check if hjemmel is a law change (requires special handling)
+export function erLovendring(hjemmelKode: string): boolean {
+  return ['LOV_GJENSTAND', 'LOV_PROSESS', 'GEBYR'].includes(hjemmelKode);
 }
 
-// Get the correct paragraph reference for law change underkategorier
-export function getLovendringParagraf(underkategoriKode: string): string | null {
-  switch (underkategoriKode) {
+// Get the correct paragraph reference for law change hjemler
+export function getLovendringParagraf(hjemmelKode: string): string | null {
+  switch (hjemmelKode) {
     case 'LOV_GJENSTAND':
       return '14.4';
     case 'LOV_PROSESS':
@@ -367,27 +384,27 @@ export function erForceMajeure(hovedkategoriKode: string): boolean {
 }
 
 // Check if this is an irregular change (special passivity rules apply)
-export function erIrregulaerEndring(hovedkategoriKode: string, underkategoriKode: string): boolean {
-  return hovedkategoriKode === 'ENDRING' && underkategoriKode === 'IRREG';
+export function erIrregulaerEndring(kontraktsforholdKode: string, hjemmelKode: string): boolean {
+  return kontraktsforholdKode === 'ENDRING' && hjemmelKode === 'IRREG';
 }
 
-// Get type krav for a hovedkategori
-export function getTypeKrav(hovedkategoriKode: string): TypeKrav | undefined {
-  const kategori = getHovedkategori(hovedkategoriKode);
-  return kategori?.type_krav;
+// Get type krav for a kontraktsforhold
+export function getTypeKrav(kontraktsforholdKode: string): TypeKrav | undefined {
+  const forhold = getKontraktsforhold(kontraktsforholdKode);
+  return forhold?.type_krav;
 }
 
 // Get hjemmel references for a claim
 export function getHjemmelReferanser(
-  hovedkategoriKode: string,
-  underkategoriKode?: string
+  kontraktsforholdKode: string,
+  hjemmelKode?: string
 ): { frist: string; vederlag: string | null; varsel: string } {
-  const hovedkategori = getHovedkategori(hovedkategoriKode);
-  const underkategori = underkategoriKode ? getUnderkategoriObj(underkategoriKode) : undefined;
+  const forhold = getKontraktsforhold(kontraktsforholdKode);
+  const hjemmel = hjemmelKode ? getHjemmelObj(hjemmelKode) : undefined;
 
   return {
-    frist: hovedkategori?.hjemmel_frist || '',
-    vederlag: hovedkategori?.hjemmel_vederlag || null,
-    varsel: underkategori?.varselkrav_ref || '',
+    frist: forhold?.hjemmel_frist || '',
+    vederlag: forhold?.hjemmel_vederlag || null,
+    varsel: hjemmel?.varselkrav_ref || '',
   };
 }

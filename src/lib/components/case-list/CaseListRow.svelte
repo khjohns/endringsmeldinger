@@ -6,7 +6,7 @@
 		formatDaysCompact,
 		formatDateShort
 	} from '$lib/utils/formatters';
-	import { getHovedkategoriLabel } from '$lib/constants/categories';
+	import { getKontraktsforholdLabel } from '$lib/constants/categories';
 	import { getOverordnetStatusLabel } from '$lib/constants/statusLabels';
 	import { goto } from '$app/navigation';
 
@@ -45,7 +45,7 @@
 			? getOverordnetStatusLabel(case_item.cached_status as import('$lib/types/timeline').OverordnetStatus)
 			: '—'
 	);
-	const kategoriLabel = $derived(getHovedkategoriLabel(case_item.cached_hovedkategori));
+	const kategoriLabel = $derived(getKontraktsforholdLabel(case_item.cached_hovedkategori));
 	const belopKrevd = $derived(formatCurrencyCompact(case_item.cached_sum_krevd));
 	const dagerKrevd = $derived(formatDaysCompact(case_item.cached_dager_krevd));
 	const sisteAktivitet = $derived(formatDateShort(case_item.last_event_at));

@@ -7,7 +7,7 @@
 	} from '$lib/types/timeline';
 	import { formatCurrencyCompact, formatDaysCompact, formatDateShort } from '$lib/utils/formatters';
 	import { formatVederlagsmetode } from '$lib/utils/formatters';
-	import { getHovedkategoriLabel } from '$lib/constants/categories';
+	import { getKontraktsforholdLabel, getHjemmelLabel } from '$lib/constants/categories';
 
 	interface Props {
 		sporType: SporType;
@@ -23,10 +23,13 @@
 		const parts: string[] = [];
 
 		if (sporType === 'grunnlag' && grunnlag) {
-			if (grunnlag.tittel) parts.push(grunnlag.tittel);
 			if (grunnlag.hovedkategori) {
-				const label = getHovedkategoriLabel(grunnlag.hovedkategori);
+				const label = getKontraktsforholdLabel(grunnlag.hovedkategori);
 				if (label) parts.push(label);
+			}
+			if (grunnlag.underkategori) {
+				const hjemmel = getHjemmelLabel(grunnlag.underkategori);
+				if (hjemmel) parts.push(hjemmel);
 			}
 			if (grunnlag.grunnlag_varsel?.dato_sendt) {
 				parts.push(formatDateShort(grunnlag.grunnlag_varsel.dato_sendt));
@@ -35,9 +38,6 @@
 
 		if (sporType === 'vederlag' && vederlag) {
 			if (vederlag.metode) parts.push(formatVederlagsmetode(vederlag.metode));
-			if (vederlag.antall_versjoner > 1) {
-				parts.push(`Rev. ${vederlag.antall_versjoner - 1}`);
-			}
 			if (vederlag.saerskilt_krav?.rigg_drift?.belop) {
 				parts.push(`rigg ${formatCurrencyCompact(vederlag.saerskilt_krav.rigg_drift.belop)}`);
 			}
@@ -49,9 +49,6 @@
 		if (sporType === 'frist' && frist) {
 			if (frist.krevd_dager !== undefined && frist.krevd_dager !== null) {
 				parts.push('Dager krevd');
-			}
-			if (frist.antall_versjoner > 1) {
-				parts.push(`Rev. ${frist.antall_versjoner - 1}`);
 			}
 			if (frist.ny_sluttdato) {
 				parts.push(`Ny dato ${formatDateShort(frist.ny_sluttdato)}`);
