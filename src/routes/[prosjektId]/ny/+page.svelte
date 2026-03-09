@@ -13,7 +13,7 @@
 	const meta = $derived(prosjektId ? projectMeta[prosjektId] ?? null : null);
 
 	const caseListQuery = createCaseListQuery();
-	const saksnr = $derived(($caseListQuery.data?.cases.length ?? 0) + 1);
+	const saksnr = $derived((caseListQuery.data?.cases.length ?? 0) + 1);
 
 	let begrunnelseHtml = $state('');
 	let begrunnelsePlaceholder = $state(
