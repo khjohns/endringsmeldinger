@@ -98,27 +98,27 @@
 	{/if}
 
 	<div class="page-content">
-		{#if $query.isLoading}
+		{#if query.isLoading}
 			<div class="state-message" role="status" aria-live="polite">
 				<span class="state-text">Laster saker...</span>
 			</div>
-		{:else if $query.isError}
+		{:else if query.isError}
 			<div class="state-message state-error" role="alert">
 				<span class="state-text">
 					Kunne ikke laste saker.
-					{$query.error instanceof Error ? $query.error.message : 'Ukjent feil.'}
+					{query.error instanceof Error ? query.error.message : 'Ukjent feil.'}
 				</span>
 			</div>
-		{:else if $query.data && $query.data.cases.length === 0}
+		{:else if query.data && query.data.cases.length === 0}
 			<div class="state-message" role="status">
 				<span class="state-text">Ingen saker funnet i dette prosjektet.</span>
 			</div>
-		{:else if $query.data}
+		{:else if query.data}
 			{#if visning === 'tidslinje'}
 				<Saksoversikt saker={mockSaksoversikt} prosjektId={prosjektId ?? ''} {aktivtSpor} />
 			{:else}
 				<div class="tabell-wrap">
-					<CaseListTable cases={$query.data.cases} prosjektId={prosjektId ?? ''} />
+					<CaseListTable cases={query.data.cases} prosjektId={prosjektId ?? ''} />
 				</div>
 			{/if}
 		{/if}

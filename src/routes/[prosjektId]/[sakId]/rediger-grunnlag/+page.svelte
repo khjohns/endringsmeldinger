@@ -8,11 +8,11 @@
 	const prosjektId = $derived(page.params.prosjektId ?? '');
 	const sakId = $derived(page.params.sakId ?? '');
 
-	const query = $derived(createCaseContextQuery(sakId));
+	const query = createCaseContextQuery(() => sakId);
 
 	// Derive krav data from case state
 	const krav = $derived.by(() => {
-		const state = $query.data?.state;
+		const state = query.data?.state;
 		if (!state) return null;
 
 		const grunnlag = state.grunnlag;
@@ -36,8 +36,8 @@
 
 	// Extract all timeline-derived values in a single pass
 	const timelineData = $derived.by(() => {
-		const timeline = $query.data?.timeline;
-		const state = $query.data?.state;
+		const timeline = query.data?.timeline;
+		const state = query.data?.state;
 		if (!timeline) return {
 			originalEventId: '',
 			teBegrunnelseHtml: '',
@@ -90,15 +90,15 @@
 		};
 	});
 
-	const teNavn = $derived($query.data?.state?.entreprenor);
-	const bhNavn = $derived($query.data?.state?.byggherre);
+	const teNavn = $derived(query.data?.state?.entreprenor);
+	const bhNavn = $derived(query.data?.state?.byggherre);
 </script>
 
-{#if $query.isLoading}
+{#if query.isLoading}
 	<div class="loading">
 		<p class="loading-text">Laster sak…</p>
 	</div>
-{:else if $query.isError}
+{:else if query.isError}
 	<div class="error">
 		<p class="error-text">Kunne ikke laste sak</p>
 	</div>
