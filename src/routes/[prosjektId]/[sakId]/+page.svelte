@@ -9,7 +9,7 @@
 	const prosjektId = $derived(page.params.prosjektId ?? '');
 	const sakId = $derived(page.params.sakId ?? '');
 
-	const query = $derived(createCaseContextQuery(sakId));
+	const query = createCaseContextQuery(() => sakId);
 
 	let focusedEvent = $state<TimelineEvent | null>(null);
 	let sidebarOpen = $state(false);
@@ -36,32 +36,32 @@
 	<!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
 	<div class="sidebar-backdrop" onclick={() => (sidebarOpen = false)}></div>
 	<div class="sidebar-drawer">
-		{#if $query.data}
-			<Sidebar state={$query.data.state} />
+		{#if query.data}
+			<Sidebar state={query.data.state} />
 		{/if}
 	</div>
 {/if}
 
-{#if $query.isLoading}
+{#if query.isLoading}
 	<div class="loading">
 		<p class="loading-text">Laster sak {sakId}…</p>
 	</div>
-{:else if $query.isError}
+{:else if query.isError}
 	<div class="error">
 		<p class="error-text">Kunne ikke laste sak {sakId}</p>
-		<p class="error-detail">{$query.error?.message ?? 'Ukjent feil'}</p>
+		<p class="error-detail">{query.error?.message ?? 'Ukjent feil'}</p>
 	</div>
-{:else if $query.data}
+{:else if query.data}
 	<div class="saksmappe" class:har-panel={hasPanel}>
 		<!-- Desktop: sidebar alltid synlig som grid-kolonne -->
 		<div class="desktop-sidebar">
-			<Sidebar state={$query.data.state} />
+			<Sidebar state={query.data.state} />
 		</div>
 		<main class="main-content">
 			<div class="timeline-container">
 				<Timeline
-					state={$query.data.state}
-					timeline={$query.data.timeline}
+					state={query.data.state}
+					timeline={query.data.timeline}
 					{prosjektId}
 					{sakId}
 					onFocusEvent={handleFocusEvent}
@@ -71,7 +71,7 @@
 		{#if hasPanel}
 			<div class="panel-overlay">
 				<button class="mobil-tilbake" onclick={() => (focusedEvent = null)}>← Tilbake</button>
-				<Forhandsvisning event={focusedEvent} {prosjektId} {sakId} onClose={() => (focusedEvent = null)} teNavn={$query.data?.state?.entreprenor} bhNavn={$query.data?.state?.byggherre} />
+				<Forhandsvisning event={focusedEvent} {prosjektId} {sakId} onClose={() => (focusedEvent = null)} teNavn={query.data?.state?.entreprenor} bhNavn={query.data?.state?.byggherre} />
 			</div>
 		{/if}
 	</div>

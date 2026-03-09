@@ -35,7 +35,7 @@
 	},
 	"dependencies": {
 		"@friendofsvelte/tipex": "^0.1.1",
-		"@tanstack/svelte-query": "^5.90.2",
+		"@tanstack/svelte-query": "^6.1.0",
 		"@tiptap/extension-character-count": "^2.27.2",
 		"@tiptap/extension-placeholder": "^2.27.2",
 		"bits-ui": "^2.16.2",
