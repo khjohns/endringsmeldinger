@@ -14,6 +14,7 @@
 	import type {
 		VederlagSubmissionFormState,
 		VederlagSubmissionScenario,
+		VederlagSubmissionDefaultsConfig,
 	} from '$lib/domain/vederlagSubmissionDomain';
 	import { goto } from '$app/navigation';
 	import { submitEvent } from '$lib/api/events';
@@ -33,22 +34,9 @@
 		onavbryt: () => void;
 	}
 
-	interface ExistingData {
-		metode?: VederlagsMetode;
-		belop_direkte?: number;
-		kostnads_overslag?: number;
-		krever_justert_ep?: boolean;
-		varslet_for_oppstart?: boolean;
-		begrunnelse?: string;
-		saerskilt_krav?: {
-			rigg_drift?: { belop?: number };
-			produktivitet?: { belop?: number };
-		} | null;
-	}
-
 	interface Props {
 		scenario: VederlagSubmissionScenario;
-		existing?: ExistingData;
+		existing?: VederlagSubmissionDefaultsConfig['existing'];
 		prosjektId: string;
 		sakId: string;
 		grunnlagEventId: string;
