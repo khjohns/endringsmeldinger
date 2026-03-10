@@ -12,29 +12,38 @@
 		placeholder?: string;
 		maxHeight?: string;
 		label?: string;
-		hint?: string;
 		extensions?: Extension[];
 		onchange?: (html: string) => void;
+		oncharcount?: (count: number) => void;
 	}
 
 	let {
 		body = '<p></p>',
 		html = $bindable(''),
-		placeholder = 'Skriv her...',
+		placeholder = '',
 		maxHeight = '60vh',
 		label = '',
-		hint = '',
 		extensions: extraExtensions = [],
-		onchange
+		onchange,
+		oncharcount,
 	}: Props = $props();
 
 	let editor: Editor | undefined = $state();
-	let charCount = $derived(editor?.storage.characterCount?.characters() ?? 0);
+	const charCount = $derived(editor?.storage.characterCount?.characters() ?? 0);
+
+	$effect(() => {
+		oncharcount?.(charCount);
+	});
+
+	// Filter out Tipex's built-in Placeholder ("Write something ...") from defaultExtensions
+	const baseExtensions = defaultExtensions.filter(
+		(ext: any) => ext?.name !== 'placeholder' && ext?.config?.name !== 'placeholder'
+	);
 
 	let extensions = $derived([
-		...defaultExtensions,
+		...baseExtensions,
 		CharacterCount,
-		Placeholder.configure({ placeholder }),
+		...(placeholder ? [Placeholder.configure({ placeholder })] : []),
 		...extraExtensions
 	]);
 
@@ -60,12 +69,6 @@
 			onupdate={handleUpdate}
 			class="rte-editor"
 		/>
-	</div>
-	<div class="rte-footer">
-		<span class="rte-char-count">{charCount} tegn</span>
-		{#if hint}
-			<span class="rte-hint">{hint}</span>
-		{/if}
 	</div>
 </div>
 
@@ -104,7 +107,7 @@
 	}
 
 	.rte-container :global(.tipex-editor-section) {
-		min-height: 200px;
+		min-height: 400px;
 		max-height: var(--rte-max-height, 60vh);
 		overflow-y: auto;
 		padding: var(--spacing-4);
@@ -116,16 +119,11 @@
 
 	.rte-container :global(.tipex-editor-section .ProseMirror) {
 		outline: none;
-		min-height: 160px;
+		min-height: 360px;
 	}
 
 	.rte-container :global(.tipex-editor-section .ProseMirror p.is-editor-empty:first-child::before) {
-		color: var(--color-ink-ghost);
-		font-style: italic;
-		content: attr(data-placeholder);
-		float: left;
-		height: 0;
-		pointer-events: none;
+		display: none;
 	}
 
 	.rte-container :global(.tipex-controller) {
@@ -147,6 +145,22 @@
 	.rte-container :global(.tipex-controller button.active) {
 		color: var(--color-vekt) !important;
 		background: var(--color-vekt-bg) !important;
+	}
+
+	/* Simplified toolbar: hide buttons not needed for contract responses */
+	.rte-container :global(.tipex-controller button[aria-label="Heading 1"]),
+	.rte-container :global(.tipex-controller button[aria-label="Heading 2"]),
+	.rte-container :global(.tipex-controller button[aria-label="Heading 3"]),
+	.rte-container :global(.tipex-controller button[aria-label="Paragraph/Normal text"]),
+	.rte-container :global(.tipex-controller button[aria-label="Underline"]),
+	.rte-container :global(.tipex-controller button[aria-label="Strikethrough"]),
+	.rte-container :global(.tipex-controller button[aria-label="Inline Code"]),
+	.rte-container :global(.tipex-controller button[aria-label="Task List"]),
+	.rte-container :global(.tipex-controller button[aria-label="Code Block"]),
+	.rte-container :global(.tipex-controller button[aria-label="Horizontal Rule"]),
+	.rte-container :global(.tipex-controller button[aria-label="Copy Text"]),
+	.rte-container :global(.tipex-controller button[aria-label="Edit link"]) {
+		display: none !important;
 	}
 
 	.rte-container :global(.tiptap h2) {
@@ -180,23 +194,4 @@
 		margin: 0.5em 0;
 	}
 
-	.rte-footer {
-		display: flex;
-		align-items: baseline;
-		justify-content: space-between;
-		gap: var(--spacing-3);
-	}
-
-	.rte-char-count {
-		font-size: 11px;
-		font-family: var(--font-data);
-		color: var(--color-ink-muted);
-		font-variant-numeric: tabular-nums;
-	}
-
-	.rte-hint {
-		font-size: 11px;
-		color: var(--color-ink-muted);
-		text-align: right;
-	}
 </style>

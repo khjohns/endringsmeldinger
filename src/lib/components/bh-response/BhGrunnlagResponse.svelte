@@ -6,7 +6,6 @@
 		erSnuoperasjon,
 		erPrekludert,
 		getVerdictOptions,
-		getDynamicPlaceholder,
 		getBhUpdateDefaults,
 		detekterEndringer,
 		buildEventData,
@@ -20,7 +19,6 @@
 	import KonsekvensCallout from './KonsekvensCallout.svelte';
 	import BegrunnelseThread from './BegrunnelseThread.svelte';
 	import FormPageHeader from '$lib/components/shared/FormPageHeader.svelte';
-	import Button from '$lib/components/primitives/Button.svelte';
 	import Alert from '$lib/components/primitives/Alert.svelte';
 
 	interface KravData {
@@ -135,7 +133,7 @@
 
 	const verdictOptions = $derived(getVerdictOptions(domainConfig));
 
-	const editorPlaceholder = $derived(getDynamicPlaceholder(resultat, prekludert));
+
 
 	// Change detection in update mode
 	const endringsInfo = $derived.by(() => {
@@ -323,18 +321,6 @@
 					erSnuoperasjon={snuoperasjon}
 				/>
 
-				<!-- Footer -->
-				{#if submitError}
-					<Alert variant="warning">{submitError}</Alert>
-				{/if}
-				<div class="form-footer">
-					<Button variant="secondary" onclick={handleAvbryt}>
-						Avbryt
-					</Button>
-					<Button variant="primary" disabled={!kanSende} loading={submitting} onclick={handleSubmit}>
-						{isUpdateMode ? 'Oppdater svar' : 'Send svar'}
-					</Button>
-				</div>
 			</div>
 		</main>
 
@@ -343,11 +329,17 @@
 			<BegrunnelseThread
 				entries={begrunnelseEntries}
 				bind:bhBegrunnelseHtml
-				editorPlaceholder={editorPlaceholder}
+
 				{teNavn}
 				{bhNavn}
 				{activeTab}
 				ontabchange={(tab) => (activeTab = tab)}
+				submitLabel={isUpdateMode ? 'Oppdater svar' : 'Send svar'}
+				submitDisabled={!kanSende}
+				submitLoading={submitting}
+				{submitError}
+				onsubmit={handleSubmit}
+				onavbryt={handleAvbryt}
 			/>
 		</div>
 	</div>
@@ -376,11 +368,16 @@
 		<BegrunnelseThread
 			entries={begrunnelseEntries}
 			bind:bhBegrunnelseHtml
-			editorPlaceholder={editorPlaceholder}
 			{teNavn}
 			{bhNavn}
 			{activeTab}
 			ontabchange={(tab) => (activeTab = tab)}
+			submitLabel={isUpdateMode ? 'Oppdater svar' : 'Send svar'}
+			submitDisabled={!kanSende}
+			submitLoading={submitting}
+			{submitError}
+			onsubmit={handleSubmit}
+			onavbryt={handleAvbryt}
 		/>
 	</div>
 {/if}
@@ -440,15 +437,6 @@
 	.section-ref {
 		font-size: 11px;
 		color: var(--color-ink-ghost);
-	}
-
-	/* --- Footer --- */
-	.form-footer {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		padding-top: var(--spacing-4);
-		border-top: 1px solid var(--color-wire);
 	}
 
 	/* FAB + mobil overlay: skjult på desktop */

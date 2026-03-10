@@ -6,15 +6,25 @@
 	import { beregnDagerSiden, getPreklusjonsvarsel } from '$lib/utils/preklusjonssjekk';
 	import HjemmelVelger from './HjemmelVelger.svelte';
 	import Alert from '$lib/components/primitives/Alert.svelte';
-	import Button from '$lib/components/primitives/Button.svelte';
 	import DatePicker from '$lib/components/primitives/DatePicker.svelte';
+
+	interface FormActions {
+		submitLabel: string;
+		submitRef: string;
+		kanSende: boolean;
+		submitting: boolean;
+		submitError: string;
+		onsubmit: () => void;
+		onavbryt: () => void;
+	}
 
 	interface Props {
 		begrunnelseHtml: string;
 		onplaceholder?: (placeholder: string) => void;
+		onactions?: (actions: FormActions) => void;
 	}
 
-	let { begrunnelseHtml = $bindable(''), onplaceholder }: Props = $props();
+	let { begrunnelseHtml = $bindable(''), onplaceholder, onactions }: Props = $props();
 
 	// --- Form state ---
 	let valgtHjemmel = $state<ValgtHjemmel | null>(null);
@@ -85,6 +95,18 @@
 
 	$effect(() => {
 		onplaceholder?.(begrunnelsePlaceholder);
+	});
+
+	$effect(() => {
+		onactions?.({
+			submitLabel,
+			submitRef,
+			kanSende,
+			submitting,
+			submitError,
+			onsubmit: handleSubmit,
+			onavbryt: () => goto(`/${prosjektId}`),
+		});
 	});
 
 	async function handleSubmit() {
@@ -169,30 +191,6 @@
 			</Alert>
 		{/if}
 	</section>
-
-	{#if submitError}
-		<Alert variant="danger">
-			<strong>Feil ved opprettelse</strong> — {submitError}
-		</Alert>
-	{/if}
-
-	<!-- FOOTER -->
-	<div class="form-footer">
-		<Button variant="secondary" onclick={() => goto(`/${prosjektId}`)}>
-			Avbryt
-		</Button>
-		<div class="footer-right">
-			{#if valideringsfeil.length > 0 && (tittel || datoOppdaget || valgtHjemmel)}
-				<span class="validation-hint">{valideringsfeil[0]}</span>
-			{/if}
-			<Button variant="primary" disabled={!kanSende} loading={submitting} onclick={handleSubmit}>
-				{submitLabel}
-				{#if submitRef}
-					<span class="btn-ref">{submitRef}</span>
-				{/if}
-			</Button>
-		</div>
-	</div>
 </div>
 
 <style>
@@ -307,49 +305,4 @@
 	.dato-normal { color: var(--color-ink-muted); }
 	.dato-varsel { color: var(--color-vekt); }
 	.dato-kritisk { color: var(--color-score-low); }
-
-	/* --- Footer --- */
-	.form-footer {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		padding-top: var(--spacing-4);
-		border-top: 1px solid var(--color-wire);
-	}
-
-	.footer-right {
-		display: flex;
-		align-items: center;
-		gap: var(--spacing-3);
-	}
-
-	.validation-hint {
-		font-size: 11px;
-		color: var(--color-ink-ghost);
-	}
-
-	.btn-ref {
-		font-family: var(--font-data);
-		font-size: 10px;
-		font-weight: 400;
-		opacity: 0.7;
-		margin-left: var(--spacing-1);
-	}
-
-	@media (max-width: 480px) {
-		.form-footer {
-			flex-direction: column-reverse;
-			gap: var(--spacing-3);
-			align-items: stretch;
-		}
-
-		.footer-right {
-			flex-direction: column;
-			align-items: stretch;
-		}
-
-		.validation-hint {
-			text-align: center;
-		}
-	}
 </style>
