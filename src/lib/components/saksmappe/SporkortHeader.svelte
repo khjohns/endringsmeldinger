@@ -25,7 +25,15 @@
 				goto(`/${prosjektId}/${sakId}/svar-grunnlag`);
 			}
 		}
-		// TODO: svar-vederlag, svar-frist routes
+		if (sporType === 'vederlag') {
+			const role = browser ? localStorage.getItem('koe-user-role') : null;
+			if (role === 'TE') {
+				goto(`/${prosjektId}/${sakId}/send-vederlag`);
+			} else {
+				// TODO: svar-vederlag route (BH response)
+			}
+		}
+		// TODO: frist routes
 	}
 
 	const SPOR_LABELS: Record<SporType, string> = {
