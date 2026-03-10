@@ -1,5 +1,6 @@
 <script lang="ts">
 	import RichTextEditor from '$lib/components/primitives/RichTextEditor.svelte';
+	import Button from '$lib/components/primitives/Button.svelte';
 	import { formatDateShortNorwegian } from '$lib/utils/dateFormatters';
 	import { getPartsNavn } from '$lib/utils/partsNavn';
 	import { GRUNNLAG_RESULTAT_LABELS } from '$lib/constants/responseOptions';
@@ -15,27 +16,38 @@
 	interface Props {
 		entries: BegrunnelseEntry[];
 		bhBegrunnelseHtml: string;
-		editorPlaceholder: string;
 		editorRolle?: 'TE' | 'BH';
 		teNavn?: string;
 		bhNavn?: string;
 		activeTab?: 'begrunnelse' | 'historikk' | 'filer';
 		ontabchange?: (tab: 'begrunnelse' | 'historikk' | 'filer') => void;
+		submitLabel?: string;
+		submitDisabled?: boolean;
+		submitLoading?: boolean;
+		submitError?: string | null;
+		onsubmit?: () => void;
+		onavbryt?: () => void;
 	}
 
 	let {
 		entries,
 		bhBegrunnelseHtml = $bindable(''),
-		editorPlaceholder,
 		editorRolle = 'BH',
 		teNavn,
 		bhNavn,
 		activeTab = 'begrunnelse',
 		ontabchange,
+		submitLabel = 'Send svar',
+		submitDisabled = false,
+		submitLoading = false,
+		submitError = null,
+		onsubmit,
+		onavbryt,
 	}: Props = $props();
 
 	const editorLabel = $derived(editorRolle === 'TE' ? 'Din reviderte begrunnelse' : 'Ditt svar');
 
+	let charCount = $state(0);
 	let collapsedEntries = $state<Set<number>>(new Set());
 
 	function toggleEntry(index: number) {
@@ -78,12 +90,12 @@
 			<section class="editor-section">
 				<div class="editor-header">
 					<h3 class="section-label">{editorLabel}</h3>
+					<span class="char-count">{charCount} tegn</span>
 				</div>
 				<RichTextEditor
-					placeholder={editorPlaceholder}
 					bind:html={bhBegrunnelseHtml}
-					hint="Referer til kontraktsbestemmelser med §-tegn."
 					maxHeight="none"
+					oncharcount={(c) => (charCount = c)}
 				/>
 			</section>
 
@@ -101,6 +113,25 @@
 					<span class="upload-format">PDF, DOCX, XLSX, JPG</span>
 				</div>
 			</section>
+
+			<!-- Handlinger -->
+			{#if onsubmit}
+				<section class="action-section">
+					{#if submitError}
+						<div class="submit-error">{submitError}</div>
+					{/if}
+					<div class="action-buttons">
+						{#if onavbryt}
+							<Button variant="secondary" onclick={onavbryt}>
+								Avbryt
+							</Button>
+						{/if}
+						<Button variant="primary" disabled={submitDisabled} loading={submitLoading} onclick={onsubmit}>
+							{submitLabel}
+						</Button>
+					</div>
+				</section>
+			{/if}
 		</div>
 
 	{:else if activeTab === 'historikk'}
@@ -318,6 +349,13 @@
 		border-bottom: 1px solid var(--color-wire);
 	}
 
+	.char-count {
+		font-size: 11px;
+		font-family: var(--font-data);
+		color: var(--color-ink-ghost);
+		font-variant-numeric: tabular-nums;
+	}
+
 	/* --- Vedlegg --- */
 	.vedlegg-section {
 		padding: var(--spacing-4);
@@ -353,6 +391,25 @@
 	.upload-icon { color: var(--color-ink-ghost); }
 	.upload-tekst { font-size: 13px; }
 	.upload-format { font-size: 11px; color: var(--color-ink-ghost); }
+
+	/* --- Action footer --- */
+	.action-section {
+		padding: var(--spacing-4);
+		border-top: 1px solid var(--color-wire);
+		margin-top: auto;
+	}
+
+	.action-buttons {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+	}
+
+	.submit-error {
+		font-size: 12px;
+		color: var(--color-score-low);
+		margin-bottom: var(--spacing-3);
+	}
 
 	/* --- Placeholder tabs --- */
 	.placeholder-content {

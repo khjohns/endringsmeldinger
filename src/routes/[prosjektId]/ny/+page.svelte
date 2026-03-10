@@ -22,6 +22,13 @@
 	);
 	let mobilPanelOpen = $state(false);
 
+	// Form actions exposed by CaseCreateForm
+	let formActions = $state<{
+		submitLabel: string; submitRef: string; kanSende: boolean;
+		submitting: boolean; submitError: string;
+		onsubmit: () => void; onavbryt: () => void;
+	} | null>(null);
+
 	const harBegrunnelse = $derived(begrunnelseHtml.replace(/<[^>]*>/g, '').trim().length > 0);
 </script>
 
@@ -41,6 +48,7 @@
 			<CaseCreateForm
 				bind:begrunnelseHtml
 				onplaceholder={(p) => (begrunnelsePlaceholder = p)}
+				onactions={(a) => (formActions = a)}
 			/>
 		</div>
 	</main>
@@ -50,6 +58,12 @@
 		<BegrunnelsePanel
 			placeholder={begrunnelsePlaceholder}
 			bind:html={begrunnelseHtml}
+			submitLabel={formActions?.submitLabel}
+			submitDisabled={!formActions?.kanSende}
+			submitLoading={formActions?.submitting}
+			submitError={formActions?.submitError}
+			onsubmit={formActions?.onsubmit}
+			onavbryt={formActions?.onavbryt}
 		/>
 	</div>
 </div>
@@ -73,6 +87,12 @@
 			bind:html={begrunnelseHtml}
 			overlay
 			onclose={() => (mobilPanelOpen = false)}
+			submitLabel={formActions?.submitLabel}
+			submitDisabled={!formActions?.kanSende}
+			submitLoading={formActions?.submitting}
+			submitError={formActions?.submitError}
+			onsubmit={formActions?.onsubmit}
+			onavbryt={formActions?.onavbryt}
 		/>
 	</div>
 {/if}

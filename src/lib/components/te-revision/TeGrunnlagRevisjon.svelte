@@ -205,7 +205,7 @@
 			<BegrunnelseThread
 				entries={threadEntries}
 				bind:bhBegrunnelseHtml={begrunnelseHtml}
-				editorPlaceholder="Oppdater din begrunnelse for kontraktsforholdet..."
+
 				editorRolle="TE"
 				{teNavn}
 				{bhNavn}
@@ -239,7 +239,6 @@
 		<BegrunnelseThread
 			entries={threadEntries}
 			bind:bhBegrunnelseHtml={begrunnelseHtml}
-			editorPlaceholder="Oppdater din begrunnelse for kontraktsforholdet..."
 			editorRolle="TE"
 			{teNavn}
 			{bhNavn}
