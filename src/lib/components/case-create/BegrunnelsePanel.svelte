@@ -52,16 +52,12 @@
 
 <style>
 	.begrunnelse-panel {
-		position: sticky;
-		top: 0;
-		height: 100vh;
+		height: 100%;
 		overflow-y: auto;
-		width: 340px;
-		border-left: 3px solid var(--color-vekt);
-		background: var(--color-felt);
+		border-left: 1px solid var(--color-wire-strong);
+		background: var(--color-canvas);
 		display: flex;
 		flex-direction: column;
-		flex-shrink: 0;
 	}
 
 	.begrunnelse-panel.overlay {
