@@ -1,5 +1,14 @@
+<script module lang="ts">
+	import { defaultExtensions } from '@friendofsvelte/tipex';
+
+	// Filter out Tipex's built-in Placeholder ("Write something ...") once at module level
+	const baseExtensions = defaultExtensions.filter(
+		(ext: any) => ext?.name !== 'placeholder' && ext?.config?.name !== 'placeholder'
+	);
+</script>
+
 <script lang="ts">
-	import { Tipex, defaultExtensions } from '@friendofsvelte/tipex';
+	import { Tipex } from '@friendofsvelte/tipex';
 	import '@friendofsvelte/tipex/styles/index.css';
 	import '@friendofsvelte/tipex/styles/theme.css';
 	import CharacterCount from '@tiptap/extension-character-count';
@@ -34,11 +43,6 @@
 	$effect(() => {
 		oncharcount?.(charCount);
 	});
-
-	// Filter out Tipex's built-in Placeholder ("Write something ...") from defaultExtensions
-	const baseExtensions = defaultExtensions.filter(
-		(ext: any) => ext?.name !== 'placeholder' && ext?.config?.name !== 'placeholder'
-	);
 
 	let extensions = $derived([
 		...baseExtensions,
