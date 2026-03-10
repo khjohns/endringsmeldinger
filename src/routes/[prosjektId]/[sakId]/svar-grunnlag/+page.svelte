@@ -7,6 +7,12 @@
 	const prosjektId = $derived(page.params.prosjektId ?? '');
 	const sakId = $derived(page.params.sakId ?? '');
 
+	// Mock project metadata — same pattern as ny/ page (will come from API)
+	const projectMeta: Record<string, { name: string }> = {
+		P001: { name: 'Operatunnelen' },
+	};
+	const prosjektNavn = $derived(prosjektId ? projectMeta[prosjektId]?.name : undefined);
+
 	const query = createCaseContextQuery(() => sakId);
 
 	// Derive krav data from case state
@@ -105,6 +111,7 @@
 		grunnlagEventId={timelineData.grunnlagEventId}
 		{teNavn}
 		{bhNavn}
+		{prosjektNavn}
 	/>
 {/if}
 

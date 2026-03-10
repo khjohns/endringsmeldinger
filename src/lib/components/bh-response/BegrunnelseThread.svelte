@@ -154,13 +154,11 @@
 
 <style>
 	.begrunnelse-thread {
-		position: sticky;
-		top: 0;
-		height: 100vh;
+		height: 100%;
 		overflow-y: auto;
 		display: flex;
 		flex-direction: column;
-		background: var(--color-felt);
+		background: var(--color-canvas);
 		border-left: 1px solid var(--color-wire-strong);
 	}
 
@@ -168,7 +166,7 @@
 	.thread-tabs {
 		display: flex;
 		border-bottom: 1px solid var(--color-wire-strong);
-		background: var(--color-felt);
+		background: var(--color-canvas);
 		position: sticky;
 		top: 0;
 		z-index: 1;

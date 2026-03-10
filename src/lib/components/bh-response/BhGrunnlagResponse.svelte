@@ -19,6 +19,7 @@
 	import SegmentedButtons from './SegmentedButtons.svelte';
 	import KonsekvensCallout from './KonsekvensCallout.svelte';
 	import BegrunnelseThread from './BegrunnelseThread.svelte';
+	import FormPageHeader from '$lib/components/shared/FormPageHeader.svelte';
 	import Button from '$lib/components/primitives/Button.svelte';
 	import Alert from '$lib/components/primitives/Alert.svelte';
 
@@ -53,6 +54,7 @@
 		grunnlagEventId?: string;
 		teNavn?: string;
 		bhNavn?: string;
+		prosjektNavn?: string;
 	}
 
 	let {
@@ -69,6 +71,7 @@
 		grunnlagEventId = '',
 		teNavn,
 		bhNavn,
+		prosjektNavn,
 	}: Props = $props();
 
 	const queryClient = useQueryClient();
@@ -226,32 +229,25 @@
 </script>
 
 <div class="bh-response-layout">
-	<!-- Context line -->
-	<div class="context-line">
-		<button class="tilbake-btn" onclick={handleAvbryt}>
-			<svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-				<path d="M8.5 3L4.5 7L8.5 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-			</svg>
-			Tilbake til saksark
-		</button>
-		<span class="context-separator">·</span>
-		<span class="context-saksnr">#{saksnr}</span>
-		<span class="context-kategori">{kategoriTag}</span>
-		{#if varslingTag}
-			<span class="context-varsling" class:varsling-ok={varsletITide === true} class:varsling-fail={varsletITide === false}>
-				{varslingTag}
-			</span>
-		{/if}
-	</div>
-
 	<!-- Two-panel content -->
 	<div class="response-panels">
 		<!-- MIDTPANEL: Form -->
 		<main class="midtpanel">
 			<div class="midtpanel-scroll">
-				<!-- Sammendragskort -->
+				<FormPageHeader
+					tilbakeHref="/{prosjektId}/{sakId}"
+					tilbakeTekst="Tilbake til saksmappe"
+					eyebrow={isUpdateMode ? 'Oppdater svar' : 'Svar på grunnlag'}
+					{prosjektNavn}
+					{teNavn}
+					{bhNavn}
+					{saksnr}
+					tittel={krav.tittel}
+				/>
+
+				<!-- Kontraktsforhold -->
 				<SammendragKort
-					sakId={sakId}
+					hideHeader
 					tittel={krav.tittel}
 					hovedkategori={krav.hovedkategori}
 					underkategori={krav.underkategori}
@@ -393,96 +389,21 @@
 	.bh-response-layout {
 		display: flex;
 		flex-direction: column;
-		height: 100vh;
+		height: 100%;
 		background: var(--color-canvas);
-	}
-
-	/* --- Context line --- */
-	.context-line {
-		display: flex;
-		align-items: center;
-		gap: var(--spacing-3);
-		padding: var(--spacing-2) var(--spacing-4);
-		background: var(--color-felt);
-		border-bottom: 1px solid var(--color-wire-strong);
-		flex-shrink: 0;
-		flex-wrap: wrap;
-	}
-
-	.tilbake-btn {
-		display: flex;
-		align-items: center;
-		gap: var(--spacing-1);
-		padding: var(--spacing-1) var(--spacing-2);
-		background: transparent;
-		border: none;
-		border-radius: var(--radius-sm);
-		font-family: var(--font-ui);
-		font-size: 12px;
-		color: var(--color-ink-ghost);
-		cursor: pointer;
-		text-decoration: none;
-		transition: color 0.12s;
-	}
-
-	.tilbake-btn:hover {
-		color: var(--color-vekt);
-	}
-
-	.context-separator {
-		color: var(--color-ink-ghost);
-		font-size: 12px;
-	}
-
-	.context-saksnr {
-		font-family: var(--font-data);
-		font-size: 13px;
-		font-weight: 600;
-		color: var(--color-ink);
-	}
-
-	.context-kategori {
-		font-family: var(--font-data);
-		font-size: 11px;
-		font-weight: 500;
-		letter-spacing: 0.04em;
-		padding: 2px var(--spacing-2);
-		border-radius: 9999px;
-		background: var(--color-felt-raised);
-		color: var(--color-ink-muted);
-	}
-
-	.context-varsling {
-		font-family: var(--font-data);
-		font-size: 11px;
-		font-weight: 500;
-		padding: 2px var(--spacing-2);
-		border-radius: 9999px;
-		background: var(--color-felt-raised);
-		color: var(--color-ink-ghost);
-	}
-
-	.varsling-ok {
-		background: var(--color-score-high-bg);
-		color: var(--color-score-high);
-	}
-
-	.varsling-fail {
-		background: var(--color-score-low-bg);
-		color: var(--color-score-low);
 	}
 
 	/* --- Two-panel layout --- */
 	.response-panels {
 		display: grid;
-		grid-template-columns: 1fr 380px;
+		grid-template-columns: 3fr 2fr;
 		flex: 1;
 		min-height: 0;
 		overflow: hidden;
 	}
 
 	.desktop-panel {
-		display: contents;
+		overflow-y: auto;
 	}
 
 	/* --- Midtpanel --- */
@@ -563,8 +484,8 @@
 		color: var(--color-ink);
 	}
 
-	/* --- Mobil (<1024px) --- */
-	@media (max-width: 1023px) {
+	/* --- Mobil (<768px) --- */
+	@media (max-width: 767px) {
 		.response-panels {
 			grid-template-columns: 1fr;
 		}

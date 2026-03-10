@@ -2,6 +2,7 @@
 	import { page } from '$app/state';
 	import CaseCreateForm from '$lib/components/case-create/CaseCreateForm.svelte';
 	import BegrunnelsePanel from '$lib/components/case-create/BegrunnelsePanel.svelte';
+	import FormPageHeader from '$lib/components/shared/FormPageHeader.svelte';
 	import { createCaseListQuery } from '$lib/queries/caseList';
 
 	const prosjektId = $derived(page.params.prosjektId);
@@ -27,27 +28,15 @@
 <div class="ny-sak-layout">
 	<main class="ny-sak-main">
 		<div class="ny-sak-inner">
-			<a class="tilbake-lenke" href="/{prosjektId}">
-				<svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-					<path d="M8.5 3L4.5 7L8.5 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-				</svg>
-				Tilbake til saksoversikt
-			</a>
-
-			<header class="ny-sak-header">
-				<span class="ny-sak-eyebrow">Nytt varsel</span>
-				<div class="ny-sak-context">
-					{#if meta}
-						<span class="context-prosjekt">{meta.name}</span>
-						<span class="context-sep">·</span>
-						<span class="context-part">{meta.te}</span>
-						<span class="context-sep">→</span>
-						<span class="context-part">{meta.bh}</span>
-					{/if}
-					<span class="context-sep">·</span>
-					<span class="context-nr">#{saksnr}</span>
-				</div>
-			</header>
+			<FormPageHeader
+				tilbakeHref="/{prosjektId}"
+				tilbakeTekst="Tilbake til saksoversikt"
+				eyebrow="Nytt varsel"
+				prosjektNavn={meta?.name}
+				teNavn={meta?.te}
+				bhNavn={meta?.bh}
+				{saksnr}
+			/>
 
 			<CaseCreateForm
 				bind:begrunnelseHtml
@@ -91,7 +80,7 @@
 <style>
 	.ny-sak-layout {
 		display: grid;
-		grid-template-columns: 1fr 340px;
+		grid-template-columns: 3fr 2fr;
 		height: 100%;
 		overflow: hidden;
 	}
@@ -107,63 +96,7 @@
 	}
 
 	.desktop-panel {
-		display: contents;
-	}
-
-	.tilbake-lenke {
-		display: inline-flex;
-		align-items: center;
-		gap: var(--spacing-1);
-		font-size: 12px;
-		color: var(--color-ink-ghost);
-		text-decoration: none;
-		transition: color 0.12s;
-		margin-bottom: var(--spacing-6);
-	}
-
-	.tilbake-lenke:hover {
-		color: var(--color-vekt);
-	}
-
-	.ny-sak-header {
-		margin-bottom: var(--spacing-4);
-	}
-
-	.ny-sak-eyebrow {
-		font-family: var(--font-data);
-		font-size: 10px;
-		font-weight: 600;
-		text-transform: uppercase;
-		letter-spacing: 0.08em;
-		color: var(--color-ink-muted);
-	}
-
-	.ny-sak-context {
-		display: flex;
-		flex-wrap: wrap;
-		align-items: center;
-		gap: 2px var(--spacing-2);
-		margin-top: var(--spacing-1);
-		font-size: 12px;
-		color: var(--color-ink-secondary);
-	}
-
-	.context-prosjekt {
-		font-weight: 500;
-	}
-
-	.context-part {
-		color: var(--color-ink-muted);
-	}
-
-	.context-sep {
-		color: var(--color-ink-ghost);
-	}
-
-	.context-nr {
-		font-family: var(--font-data);
-		font-variant-numeric: tabular-nums;
-		color: var(--color-ink-muted);
+		overflow-y: auto;
 	}
 
 	/* FAB + mobil overlay: skjult på desktop */
@@ -184,14 +117,6 @@
 		.ny-sak-main {
 			padding: var(--spacing-5) var(--spacing-4);
 			padding-bottom: 72px; /* plass til FAB */
-		}
-
-		.tilbake-lenke {
-			margin-bottom: var(--spacing-4);
-		}
-
-		.ny-sak-header {
-			margin-bottom: var(--spacing-3);
 		}
 
 		.desktop-panel {

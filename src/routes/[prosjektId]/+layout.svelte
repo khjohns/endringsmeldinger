@@ -8,6 +8,14 @@
 
 	const prosjektId = $derived(page.params.prosjektId);
 	const sakId = $derived(page.params.sakId ?? null);
+	const pathname = $derived(page.url.pathname);
+	const isNySak = $derived(!sakId && pathname.endsWith('/ny'));
+	const subRouteName = $derived.by(() => {
+		if (!sakId) return null;
+		if (pathname.endsWith('/svar-grunnlag')) return 'Svar på grunnlag';
+		if (pathname.endsWith('/rediger-grunnlag')) return 'Rediger grunnlag';
+		return null;
+	});
 
 	const queryClient = new QueryClient();
 
@@ -23,11 +31,20 @@
 		<header class="top-nav">
 			<nav class="nav-breadcrumbs" aria-label="Brodsmuler">
 				<a href="/{prosjektId}" class="crumb">{projectMeta?.name ?? prosjektId}</a>
-				{#if sakId}
+				{#if isNySak}
+					<span class="sep">/</span>
+					<span class="current">Ny sak</span>
+				{:else if sakId}
 					<span class="sep">/</span>
 					<a href="/{prosjektId}" class="crumb">Saker</a>
 					<span class="sep">/</span>
-					<span class="current">{sakId}</span>
+					{#if subRouteName}
+						<a href="/{prosjektId}/{sakId}" class="crumb">{sakId}</a>
+						<span class="sep">/</span>
+						<span class="current">{subRouteName}</span>
+					{:else}
+						<span class="current">{sakId}</span>
+					{/if}
 				{/if}
 			</nav>
 			<div class="nav-actions">

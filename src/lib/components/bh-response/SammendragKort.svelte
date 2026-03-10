@@ -11,6 +11,7 @@
 		datoVarslet?: string;
 		begrunnelseHtml?: string;
 		versjon: number;
+		hideHeader?: boolean;
 	}
 
 	let {
@@ -22,6 +23,7 @@
 		datoVarslet,
 		begrunnelseHtml,
 		versjon,
+		hideHeader = false,
 	}: Props = $props();
 
 	const kombinertKategori = $derived(getKombinertKategoriLabel(hovedkategori, underkategori));
@@ -34,6 +36,7 @@
 	);
 </script>
 
+{#if !hideHeader}
 <!-- Header: sak-id / tittel / status -->
 <div class="sammendrag-header">
 	{#if sakId}
@@ -49,6 +52,7 @@
 		<div class="sak-status">{status}</div>
 	{/if}
 </div>
+{/if}
 
 <!-- Kontraktsforhold-seksjon -->
 <div class="seksjon">
