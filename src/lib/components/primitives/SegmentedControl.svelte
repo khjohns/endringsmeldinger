@@ -8,9 +8,10 @@
 		value: T;
 		options: SegmentOption[];
 		onchange: (value: T) => void;
+		disabled?: boolean;
 	}
 
-	let { value, options, onchange }: Props = $props();
+	let { value, options, onchange, disabled = false }: Props = $props();
 </script>
 
 <div class="segment-container" role="radiogroup">
@@ -18,9 +19,11 @@
 		<button
 			class="segment-btn"
 			class:segment-active={value === option.id}
+			class:segment-disabled={disabled}
 			role="radio"
 			aria-checked={value === option.id}
-			onclick={() => onchange(option.id)}
+			aria-disabled={disabled}
+			onclick={() => { if (!disabled) onchange(option.id); }}
 		>
 			{option.label}
 		</button>
@@ -63,5 +66,10 @@
 		background: var(--color-vekt-bg-strong);
 		color: var(--color-vekt);
 		font-weight: 600;
+	}
+
+	.segment-disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
 	}
 </style>

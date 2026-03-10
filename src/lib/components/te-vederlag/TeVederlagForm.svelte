@@ -188,7 +188,8 @@
 		<SegmentedControl
 			value={metode ?? ''}
 			options={METODE_OPTIONS}
-			onchange={(v) => { if (!isLocked) metode = v as VederlagsMetode; }}
+			onchange={(v) => { metode = v as VederlagsMetode; }}
+			disabled={isLocked}
 		/>
 		{#if metodeDescription}
 			<p class="metode-description">{metodeDescription}</p>
