@@ -27,6 +27,7 @@
 		submitError?: string | null;
 		onsubmit?: () => void;
 		onavbryt?: () => void;
+		availableTags?: string[];
 	}
 
 	let {
@@ -43,6 +44,7 @@
 		submitError = null,
 		onsubmit,
 		onavbryt,
+		availableTags = [],
 	}: Props = $props();
 
 	const editorLabel = $derived(editorRolle === 'TE' ? 'Din reviderte begrunnelse' : 'Ditt svar');
@@ -65,6 +67,38 @@
 		{ id: 'historikk' as const, label: 'Historikk' },
 		{ id: 'filer' as const, label: 'Filer' },
 	];
+
+	// Mock attachment state (real upload logic comes in a later phase)
+	interface Attachment {
+		id: string;
+		name: string;
+		size: string;
+		tags: Set<string>;
+	}
+
+	let attachments = $state<Attachment[]>([]);
+
+	function toggleTag(attachmentId: string, tag: string) {
+		attachments = attachments.map((a) => {
+			if (a.id !== attachmentId) return a;
+			const next = new Set(a.tags);
+			if (next.has(tag)) {
+				next.delete(tag);
+			} else {
+				next.add(tag);
+			}
+			return { ...a, tags: next };
+		});
+	}
+
+	// Placeholder: simulate adding a file
+	function handleMockUpload() {
+		const id = crypto.randomUUID();
+		attachments = [
+			...attachments,
+			{ id, name: `dokument_${attachments.length + 1}.pdf`, size: '— KB', tags: new Set() },
+		];
+	}
 
 </script>
 
@@ -104,7 +138,34 @@
 				<div class="vedlegg-header">
 					<h3 class="section-label">Vedlegg</h3>
 				</div>
-				<div class="upload-zone">
+
+				{#if attachments.length > 0}
+					<div class="attachment-list">
+						{#each attachments as att (att.id)}
+							<div class="attachment-item">
+								<div class="att-header">
+									<span class="att-name">{att.name}</span>
+									<span class="att-size">{att.size}</span>
+								</div>
+								{#if availableTags.length > 0}
+									<div class="tag-row">
+										{#each availableTags as tag}
+											<button
+												class="tag-pill"
+												class:tag-active={att.tags.has(tag)}
+												onclick={() => toggleTag(att.id, tag)}
+											>
+												{tag}
+											</button>
+										{/each}
+									</div>
+								{/if}
+							</div>
+						{/each}
+					</div>
+				{/if}
+
+				<div class="upload-zone" role="button" tabindex="0" onclick={handleMockUpload} onkeydown={(e) => { if (e.key === 'Enter') handleMockUpload(); }}>
 					<svg class="upload-icon" width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
 						<path d="M10 4V14M10 4L6 8M10 4L14 8" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/>
 						<path d="M3 14V15C3 16.1046 3.89543 17 5 17H15C16.1046 17 17 16.1046 17 15V14" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/>
@@ -391,6 +452,73 @@
 	.upload-icon { color: var(--color-ink-ghost); }
 	.upload-tekst { font-size: 13px; }
 	.upload-format { font-size: 11px; color: var(--color-ink-ghost); }
+
+	/* --- Attachment with tags --- */
+	.attachment-list {
+		display: flex;
+		flex-direction: column;
+		gap: var(--spacing-2);
+	}
+
+	.attachment-item {
+		background: var(--color-canvas);
+		border: 1px solid var(--color-wire);
+		border-radius: var(--radius-sm);
+		padding: var(--spacing-3);
+		display: flex;
+		flex-direction: column;
+		gap: var(--spacing-3);
+	}
+
+	.att-header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+	}
+
+	.att-name {
+		font-size: 12px;
+		font-weight: 500;
+		color: var(--color-ink);
+	}
+
+	.att-size {
+		font-family: var(--font-data);
+		font-size: 10px;
+		color: var(--color-ink-muted);
+	}
+
+	.tag-row {
+		display: flex;
+		gap: var(--spacing-2);
+		flex-wrap: wrap;
+	}
+
+	.tag-pill {
+		background: transparent;
+		border: 1px solid var(--color-wire-strong);
+		color: var(--color-ink-secondary);
+		font-family: var(--font-ui);
+		font-size: 10px;
+		font-weight: 600;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		padding: 4px 10px;
+		border-radius: 9999px;
+		cursor: pointer;
+		transition: all 0.12s;
+	}
+
+	.tag-pill:hover {
+		border-color: var(--color-ink-ghost);
+		color: var(--color-ink);
+	}
+
+	.tag-pill.tag-active {
+		background: var(--color-ink);
+		color: var(--color-canvas);
+		border-color: var(--color-ink);
+	}
 
 	/* --- Action footer --- */
 	.action-section {
