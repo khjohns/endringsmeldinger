@@ -10,7 +10,6 @@
 
 	interface FormActions {
 		submitLabel: string;
-		submitRef: string;
 		kanSende: boolean;
 		submitting: boolean;
 		submitError: string;
@@ -75,13 +74,6 @@
 
 	const submitLabel = $derived(erEndringUtenEO ? 'Send varsel' : 'Opprett sak');
 
-	const submitRef = $derived.by(() => {
-		if (erEndringUtenEO) return '§32.2';
-		if (erForceMajeure) return '§33.3';
-		if (valgtHjemmel?.hjemmel) return `§${valgtHjemmel.hjemmel.hjemmel_basis}`;
-		return '';
-	});
-
 	// Validering
 	const valideringsfeil = $derived.by(() => {
 		const feil: string[] = [];
@@ -100,7 +92,6 @@
 	$effect(() => {
 		onactions?.({
 			submitLabel,
-			submitRef,
 			kanSende,
 			submitting,
 			submitError,

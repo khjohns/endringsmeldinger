@@ -1,7 +1,6 @@
 <script lang="ts">
 	import RichTextEditor from '$lib/components/primitives/RichTextEditor.svelte';
 	import Button from '$lib/components/primitives/Button.svelte';
-	import type { Snippet } from 'svelte';
 
 	interface Props {
 		placeholder: string;
@@ -12,7 +11,6 @@
 		submitDisabled?: boolean;
 		submitLoading?: boolean;
 		submitError?: string;
-		submitChildren?: Snippet;
 		onsubmit?: () => void;
 		onavbryt?: () => void;
 	}
@@ -23,7 +21,6 @@
 		submitDisabled = false,
 		submitLoading = false,
 		submitError = '',
-		submitChildren,
 		onsubmit,
 		onavbryt,
 	}: Props = $props();
@@ -84,7 +81,6 @@
 				{/if}
 				<Button variant="primary" disabled={submitDisabled} loading={submitLoading} onclick={onsubmit}>
 					{submitLabel}
-					{#if submitChildren}{@render submitChildren()}{/if}
 				</Button>
 			</div>
 		</section>

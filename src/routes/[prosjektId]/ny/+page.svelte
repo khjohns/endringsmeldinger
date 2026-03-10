@@ -17,14 +17,12 @@
 	const saksnr = $derived((caseListQuery.data?.cases.length ?? 0) + 1);
 
 	let begrunnelseHtml = $state('');
-	let begrunnelsePlaceholder = $state(
-		'Beskriv bakgrunnen for kravet og henvis til relevant kontraktsbestemmelse. Legg ved dokumentasjon som underbygger kravet.'
-	);
+	let begrunnelsePlaceholder = $state('');
 	let mobilPanelOpen = $state(false);
 
 	// Form actions exposed by CaseCreateForm
 	let formActions = $state<{
-		submitLabel: string; submitRef: string; kanSende: boolean;
+		submitLabel: string; kanSende: boolean;
 		submitting: boolean; submitError: string;
 		onsubmit: () => void; onavbryt: () => void;
 	} | null>(null);
