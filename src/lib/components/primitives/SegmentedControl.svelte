@@ -14,12 +14,11 @@
 	let { value, options, onchange, disabled = false }: Props = $props();
 </script>
 
-<div class="segment-container" role="radiogroup">
+<div class="segment-container" class:segment-disabled={disabled} role="radiogroup">
 	{#each options as option (option.id)}
 		<button
 			class="segment-btn"
 			class:segment-active={value === option.id}
-			class:segment-disabled={disabled}
 			role="radio"
 			aria-checked={value === option.id}
 			aria-disabled={disabled}

@@ -4,8 +4,7 @@
 	import TeVederlagForm from '$lib/components/te-vederlag/TeVederlagForm.svelte';
 	import BegrunnelseThread from '$lib/components/bh-response/BegrunnelseThread.svelte';
 	import FormPageHeader from '$lib/components/shared/FormPageHeader.svelte';
-	import type { VederlagSubmissionScenario } from '$lib/domain/vederlagSubmissionDomain';
-	import type { VederlagsMetode } from '$lib/constants/paymentMethods';
+	import type { VederlagSubmissionScenario, VederlagSubmissionDefaultsConfig } from '$lib/domain/vederlagSubmissionDomain';
 
 	const prosjektId = $derived(page.params.prosjektId ?? '');
 	const sakId = $derived(page.params.sakId ?? '');
@@ -20,7 +19,13 @@
 	// Derive scenario from timeline
 	const vederlagData = $derived.by(() => {
 		const timeline = query.data?.timeline;
-		if (!timeline) return { scenario: 'new' as VederlagSubmissionScenario, existing: undefined, entries: [], grunnlagEventId: '', originalEventId: undefined as string | undefined };
+		if (!timeline) return {
+			scenario: 'new' as VederlagSubmissionScenario,
+			existing: undefined,
+			entries: [],
+			grunnlagEventId: '',
+			originalEventId: undefined as string | undefined,
+		};
 
 		const vederlagEvent = timeline.find(
 			(e) => e.type === 'vederlag_krav_sendt' || e.type === 'no.oslo.koe.vederlag_krav_sendt'
@@ -31,22 +36,14 @@
 		);
 
 		if (vederlagEvent) {
-			const d = vederlagEvent.data as Record<string, unknown> | undefined;
+			const existing = vederlagEvent.data as VederlagSubmissionDefaultsConfig['existing'] | undefined;
 			return {
 				scenario: 'edit' as VederlagSubmissionScenario,
-				existing: d ? {
-					metode: d.metode as VederlagsMetode | undefined,
-					belop_direkte: d.belop_direkte as number | undefined,
-					kostnads_overslag: d.kostnads_overslag as number | undefined,
-					krever_justert_ep: d.krever_justert_ep as boolean | undefined,
-					varslet_for_oppstart: d.varslet_for_oppstart as boolean | undefined,
-					begrunnelse: d.begrunnelse as string | undefined,
-					saerskilt_krav: d.saerskilt_krav as { rigg_drift?: { belop?: number }; produktivitet?: { belop?: number } } | null | undefined,
-				} : undefined,
+				existing,
 				entries: [{
 					rolle: 'TE' as const,
 					versjon: 1,
-					html: (d?.begrunnelse as string) ?? '',
+					html: existing?.begrunnelse ?? '',
 					dato: vederlagEvent.time,
 				}],
 				grunnlagEventId: grunnlagEvent?.id ?? '',
@@ -139,6 +136,7 @@
 					{bhNavn}
 					{activeTab}
 					ontabchange={(tab) => (activeTab = tab)}
+					availableTags={aktiveTags}
 					submitLabel={formActions?.submitLabel}
 					submitDisabled={!formActions?.kanSende}
 					submitLoading={formActions?.submitting}
@@ -178,6 +176,7 @@
 				{bhNavn}
 				{activeTab}
 				ontabchange={(tab) => (activeTab = tab)}
+				availableTags={aktiveTags}
 				submitLabel={formActions?.submitLabel}
 				submitDisabled={!formActions?.kanSende}
 				submitLoading={formActions?.submitting}
