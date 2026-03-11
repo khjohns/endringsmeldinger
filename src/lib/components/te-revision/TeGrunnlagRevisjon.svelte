@@ -3,6 +3,7 @@
 	import { buildTeRevisionEventData } from '$lib/domain/grunnlagDomain';
 	import type { GrunnlagResponsResultat } from '$lib/types/timeline';
 	import { submitEvent } from '$lib/api/events';
+	import { isHtmlEmpty } from '$lib/utils/formatters';
 	import { useQueryClient } from '@tanstack/svelte-query';
 	import SammendragKort from '$lib/components/bh-response/SammendragKort.svelte';
 	import BegrunnelseThread from '$lib/components/bh-response/BegrunnelseThread.svelte';
@@ -77,7 +78,7 @@
 	let activeTab = $state<'begrunnelse' | 'historikk' | 'filer'>('begrunnelse');
 	let mobilPanelOpen = $state(false);
 
-	const harBegrunnelse = $derived(begrunnelseHtml.replace(/<[^>]*>/g, '').trim().length > 0);
+	const harBegrunnelse = $derived(!isHtmlEmpty(begrunnelseHtml));
 
 	// Build thread entries: previous exchange as read-only
 	const threadEntries = $derived.by(() => {

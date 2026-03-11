@@ -32,6 +32,7 @@
 	const charCount = $derived(editor?.storage.characterCount?.characters() ?? 0);
 
 	$effect(() => {
+		if (!editor) return;
 		oncharcount?.(charCount);
 	});
 

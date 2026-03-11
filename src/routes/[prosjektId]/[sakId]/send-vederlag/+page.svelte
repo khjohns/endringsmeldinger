@@ -66,7 +66,6 @@
 	const bhNavn = $derived(query.data?.state?.byggherre);
 
 	let begrunnelseHtml = $state('');
-	let begrunnelsePlaceholder = $state('');
 	let aktiveTags = $state<string[]>([]);
 
 	let formActions = $state<{
@@ -124,7 +123,6 @@
 			grunnlagEventId={vederlagData.grunnlagEventId}
 			originalEventId={vederlagData.scenario === 'edit' ? vederlagData.originalEventId : undefined}
 			bind:begrunnelseHtml
-			onplaceholder={(p) => (begrunnelsePlaceholder = p)}
 			onactions={(a) => (formActions = a)}
 			onkravlinjer={(t) => (aktiveTags = t)}
 		/>
