@@ -131,7 +131,7 @@
 		font-family: var(--font-data);
 		font-size: 9px;
 		font-weight: 500;
-		color: var(--color-ink-ghost);
+		color: var(--color-ink-muted);
 		text-transform: uppercase;
 		letter-spacing: 0.06em;
 		transform: translateX(-50%);

@@ -37,6 +37,6 @@
 		font-family: var(--font-ui);
 		font-size: 11px;
 		font-weight: 400;
-		color: var(--color-ink-ghost);
+		color: var(--color-ink-muted);
 	}
 </style>

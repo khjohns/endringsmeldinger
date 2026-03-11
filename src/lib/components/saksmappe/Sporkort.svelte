@@ -446,7 +446,7 @@
 	.hendelse-rev {
 		font-family: var(--font-ui);
 		font-size: 9px;
-		color: var(--color-ink-ghost);
+		color: var(--color-ink-muted);
 		flex-shrink: 0;
 		margin-left: auto;
 	}

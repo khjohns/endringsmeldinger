@@ -108,7 +108,7 @@
 		font-family: var(--font-data);
 		font-size: 10px;
 		font-weight: 500;
-		color: var(--color-ink-ghost);
+		color: var(--color-ink-muted);
 		font-variant-numeric: tabular-nums;
 	}
 
@@ -167,7 +167,7 @@
 		font-family: var(--font-data);
 		font-size: 11px;
 		font-weight: 500;
-		color: var(--color-ink-ghost);
+		color: var(--color-ink-muted);
 		font-variant-numeric: tabular-nums;
 		flex-shrink: 0;
 		margin-left: var(--spacing-3);

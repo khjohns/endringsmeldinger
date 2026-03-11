@@ -324,6 +324,6 @@
 
 	.section-ref {
 		font-size: 11px;
-		color: var(--color-ink-ghost);
+		color: var(--color-ink-muted);
 	}
 </style>
