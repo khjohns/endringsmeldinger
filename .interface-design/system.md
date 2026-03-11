@@ -206,7 +206,7 @@ Arver SakPanel-strukturen. INGEN kort-boks — flat seksjonsinndeling integrert 
 - status: 11px uppercase ink-secondary, tracking 0.04em
 
 **Kontraktsforhold-seksjon:**
-- seksjon-label: 10px 600 uppercase tracking 0.08em ink-muted
+- Bruker `<SectionHeading title="Kontraktsforhold" paragrafRef={hjemmelRef} />` — konsistent med alle andre seksjoner
 - kategori-badge: kombinert hovedkategori + underkategori ("Svikt i BH ytelse — Grunnforhold"). font-data 11px 500, felt-active bg, wire border, sm radius, align-self flex-start
 - begrunnelse: 13px ink-secondary line-height 1.6 (rich-text HTML)
 - dato-linje: border-top wire, 11px ink-muted label + font-data 12px 500 ink-secondary verdi
@@ -270,6 +270,46 @@ HUD-inspirert tidslinjevisning av alle saker. Rad-per-sak med horisontale tidsli
 4. "Apne saksmappe" lenke: 12px ink-muted, hover vekt, border-top wire, margin-top auto.
 
 **OversiktSidebar (260px):** Canvas bg, wire-strong border-right. Seksjoner: Prosjektidentitet (navn, entreprise, telling), Visning (toggle Tidslinje/Tabell med section-label), Spor (K/V/F-knapper med tellinger + ubesvart-badges), Nøkkeltall (NOK). Toggle: inactive ink-ghost, active ink + weight 600, felt/felt-active bg. Preferanse i localStorage.
+
+### Saksark (Detaljsider / Skjemaer)
+
+Monsteret for alle spor-detalj/svarskjema-sider (send-vederlag, svar-grunnlag, etc.). Referanseimplementasjon: `TeVederlagForm.svelte`.
+
+**Layout:** `FormWithRightPanel` — midtpanel (skjema) + hoyre sticky panel (BegrunnelseThread med editor/historikk/filer-faner).
+
+**Seksjonsinndeling med SectionHeading:**
+- Bruk `<SectionHeading title="..." paragrafRef="§..." />` for alle seksjoner
+- Tittel venstre (11px, 600, uppercase, 0.06em tracking, ink-muted)
+- Paragraf-referanse hoyre (11px, 400, ink-muted)
+- Border-bottom wire under hele bredden
+- Aldri manuell `.section-header` div — alltid SectionHeading-komponenten
+
+**Helptext under seksjonsoverskrift:**
+```css
+.helptext {
+  font-size: 12px;
+  color: var(--color-ink-muted);
+  margin: 0;
+}
+```
+Plasseres direkte etter `<SectionHeading>`, for inputfelter. Forklarer kontraktskontekst (f.eks. "Ble varselet sendt uten ugrunnet opphold etter §32.2?").
+
+**Feltstorrelse (semantisk):**
+- `.field-amount` (belop): `max-width: 240px` — belopsfelt trenger ikke full bredde
+- `.field-auto` (korte valg): `width: fit-content` — tilpasser seg innholdet
+- Currency-formatering: `Intl.NumberFormat('nb-NO')` med `kr`-suffiks
+
+**Standpunkt-overgang:**
+Nar en side viser TEs henvendelse (SammendragKort) fulgt av BHs svarskjema, plasseres `<SectionHeading title="Standpunkt" />` mellom dem. Markerer overgangen fra lesing til handling.
+
+**SammendragKort i skjema:**
+- `hideHeader` — ingen sak-header (den er i FormPageHeader)
+- `hjemmelRef` — paragraf-referanse for Kontraktsforhold-seksjonen
+- Bruker SectionHeading internt for "Kontraktsforhold" + hjemmelRef
+
+**FormPageHeader:**
+- Tilbake-lenke, eyebrow (handlingstype), prosjekt/part-info, saksnr, tittel
+- Gir kontekst uten a gjenta sak-headeren i SammendragKort
 
 ## Narrativskille
 

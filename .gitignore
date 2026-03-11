@@ -7,3 +7,6 @@ build
 .DS_Store
 *.local
 .worktrees
+
+# codegrasp index
+.codegrasp/

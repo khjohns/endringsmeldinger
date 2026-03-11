@@ -2,12 +2,15 @@
 	import { getKombinertKategoriLabel } from '$lib/constants/categories';
 	import { formatDateShortNorwegian } from '$lib/utils/dateFormatters';
 
+	import SectionHeading from '$lib/components/primitives/SectionHeading.svelte';
+
 	interface Props {
 		sakId?: string;
 		tittel: string;
 		status?: string;
 		hovedkategori: string;
 		underkategori?: string;
+		hjemmelRef?: string;
 		datoVarslet?: string;
 		begrunnelseHtml?: string;
 		versjon: number;
@@ -20,6 +23,7 @@
 		status,
 		hovedkategori,
 		underkategori,
+		hjemmelRef,
 		datoVarslet,
 		begrunnelseHtml,
 		versjon,
@@ -56,7 +60,7 @@
 
 <!-- Kontraktsforhold-seksjon -->
 <div class="seksjon">
-	<div class="section-label">Kontraktsforhold</div>
+	<SectionHeading title="Kontraktsforhold" paragrafRef={hjemmelRef} />
 
 	<div class="kategori-badge">{kombinertKategori}</div>
 
@@ -138,11 +142,8 @@
 		flex-direction: column;
 	}
 
-	.section-label {
-		margin-bottom: 12px;
-	}
-
 	.kategori-badge {
+		margin-top: var(--spacing-3);
 		font-family: var(--font-data);
 		font-size: 11px;
 		font-weight: 500;

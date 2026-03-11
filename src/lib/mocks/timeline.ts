@@ -200,10 +200,14 @@ export const timeline2_BlandetTilstand: TimelineEvent[] = [
     data: {
       tittel: 'Forsinkede tegningsleveranser fra ARK',
       hovedkategori: 'ENDRING',
-      underkategori: 'PROSJEKTERING',
-      beskrivelse:
-        'Arkitektfirmaet leverte detaljerte armerings- og bekledingstegninger vesentlig forsinket ' +
-        'i forhold til fremdriftsplanen.',
+      underkategori: 'IRREG',
+      begrunnelse:
+        '<p>Arkitektfirmaet (BHs prosjekterende) leverte detaljerte armerings- og beklednings\u00ADtegninger ' +
+        'for akse 4–8 vesentlig forsinket i forhold til omforent fremdriftsplan. Tegningene var avtalt ' +
+        'levert innen 15. oktober 2025, men ble ikke mottatt før 5. november 2025.</p>' +
+        '<p>Forsinkelsen medførte at TE ikke kunne starte armering og forskaling iht. plan, noe som har ' +
+        'påført TE økte rigg- og driftskostnader samt krav om forsert innsats for å holde øvrig fremdrift. ' +
+        'TE anser forholdet som en irregulær endring jf. NS 8407 §32.1.</p>',
       dato_oppdaget: '2025-11-05',
       grunnlag_varsel: {
         dato_sendt: '2025-11-07',

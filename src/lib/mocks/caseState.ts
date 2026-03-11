@@ -124,7 +124,7 @@ export const scenario2_BlandetTilstand: SakState = {
     status: 'godkjent',
     tittel: 'Forsinkede tegningsleveranser fra ARK',
     hovedkategori: 'ENDRING',
-    underkategori: 'PROSJEKTERING',
+    underkategori: 'IRREG',
     beskrivelse:
       'Arkitektfirmaet leverte detaljerte armerings- og bekledingstegninger vesentlig forsinket ' +
       'i forhold til fremdriftsplanen, noe som medførte stanset produksjon i sektor D.',
