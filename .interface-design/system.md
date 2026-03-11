@@ -12,7 +12,7 @@
 
 **Domain:** Kontraktsrett, byggebransje, forhandlingsbord, protokoller, paragraf-referanser, tidslinjer, belopsberegninger.
 
-**Color world:** Zinc-notral morke flater (base #09090b). Kald, ren, ingen bla tint. Amber (#f59e0b) som eneste varme farge — brukes KUN for handling kreves.
+**Color world:** Dokumentbordet — varme papir-inspirerte flater. Lys: #f3f1ec canvas, #faf8f4 felt. Mork: #0f0d0a canvas, #16140f felt. Jernblekk-hierarki med golden amber aksent (#8e5409 lys / #f59e0b mork).
 
 **Signature:** Handlingskanten — en venstre kant (2px border-left) pa sporkort som indikerer umiddelbar status. Rose = Kritisk, Amber = Handling kreves, Wire = Venter.
 
@@ -20,42 +20,57 @@
 
 ## Architecture & Depth Strategy
 
-**Level 0 (Base Canvas):** `--color-canvas` (#09090b). Top-nav, sidebar, hovedflate og panel deler denne fargen. Separeres kun med `--wire`. Forhindrer at appen fragmenteres i soner.
+**Level 0 (Base Canvas):** `--color-canvas` (lys #f3f1ec / mork #0f0d0a). Top-nav, sidebar, hovedflate og panel deler denne fargen. Separeres kun med `--wire`. Forhindrer at appen fragmenteres i soner.
 
-**Level 1 (Dokumenter/Sporkort):** `--color-felt` (#121214). Mikro-loft fra base. Arkene ligger oppa skrivebordet.
+**Level 1 (Dokumenter/Sporkort):** `--color-felt` (lys #faf8f4 / mork #16140f). Mikro-loft fra base. Arkene ligger oppa skrivebordet.
 
-**Level 2 (Hover/Fokus):** `--color-felt-hover` (#18181b). Indikerer interaktivitet uten a bryte dybdeillusjonen.
+**Level 2 (Hover/Fokus):** `--color-felt-hover` (lys #efede7 / mork #1a1815). Indikerer interaktivitet uten a bryte dybdeillusjonen.
 
 ## Tokens (implementert i src/app.css)
 
-### Surfaces (zinc-neutral, ingen bla tint)
-- `canvas` #09090b — arbeidsflate (alias: `base`)
-- `felt` #121214 — kort, paneler
-- `felt-raised` #1c1c1f — dropdowns, popovers
-- `felt-hover` #18181b
-- `felt-active` #27272a
+### Surfaces (Dokumentbordet — varme papirtoner)
 
-### Ink (tekst-hierarki, brighter purer whites)
-- `ink` #fafafa — primaertekst
-- `ink-secondary` #a1a1aa — stottetekst
-- `ink-muted` #71717a — labels, metadata
-- `ink-ghost` #52525b — disabled, placeholder
+**Light (default):**
+- `canvas` #f3f1ec — bakgrunn
+- `felt` #faf8f4 — kort, paneler
+- `felt-raised` #f3f1ec — toolbar, headers
+- `felt-hover` #efede7
+- `felt-active` #e5e2da
 
-### Wire (borders — ALLTID RGBA, aldri solid hex)
-- `wire` rgba(255,255,255,0.08) — standard separasjon
-- `wire-strong` rgba(255,255,255,0.15) — seksjonsinndeling
-- `wire-focus` rgba(255,255,255,0.25) — fokusringer
+**Dark:**
+- `canvas` #0f0d0a — bakgrunn
+- `felt` #16140f — kort, paneler
+- `felt-raised` #1e1b16 — toolbar, headers
+- `felt-hover` #1a1815
+- `felt-active` #282520
 
-### Vekt (aksent — amber, eneste varme farge)
-- `vekt` #f59e0b — primaer aksent
-- `vekt-dim` #d97706 — sekundaer
-- `vekt-bg` rgba(245,158,11,0.08) — tint
-- `vekt-bg-strong` rgba(245,158,11,0.14) — emphasis
+### Ink (jernblekk-hierarki)
+
+**Light:**
+- `ink` #21201c — primaertekst
+- `ink-secondary` #57524b — stottetekst
+- `ink-muted` #655f56 — labels, metadata (WCAG AA 4.5:1+)
+- `ink-ghost` #8d8578 — KUN dekorativt (~3:1, under AA)
+
+**Dark:**
+- `ink` #f5f3ee
+- `ink-secondary` #a8a29a
+- `ink-muted` #908b82
+- `ink-ghost` #666157
+
+**ink-ghost policy:** Ghost (~3:1) er bevisst under WCAG AA. Bruk KUN for dekorative timestamps (redundant med tidslinje-posisjon) og dekorative divider-labels. All informativ tekst maa bruke ink-muted (4.5:1+) eller hoyere. Placeholders maa bruke ink-muted.
+
+### Wire (borders — ALLTID RGBA, varm tint)
+**Light:** rgba(33,28,18, 0.06/0.12/0.20)
+**Dark:** rgba(245,235,220, 0.08/0.15/0.25)
+
+### Vekt (aksent — amber)
+**Light:** `vekt` #8e5409, `vekt-dim` #7c4a0a, `vekt-bg` rgba(146,86,9, 0.06/0.12)
+**Dark:** `vekt` #f59e0b, `vekt-dim` #d97706, `vekt-bg` rgba(245,158,11, 0.08/0.14)
 
 ### Score (semantisk)
-- `score-high` #10b981 / bg rgba(16,185,129,0.10) — godkjent, emerald
-- `score-mid` #a1a1aa — noytralt
-- `score-low` #e11d48 / bg rgba(225,29,72,0.08) — kritisk, rose
+**Light:** high #047d56 / bg #eff5ee, mid #655f56, low #c01b3d / bg #f5eeef
+**Dark:** high #10b981 / bg rgba(16,185,129,0.10), mid #908b82, low #f03e5f / bg rgba(240,62,95,0.08)
 
 ### Fargebruk (Umotivert farge er stoy)
 - **Amber (vekt):** KUN nar handling kreves, eller for a markere intern tvil/omtvistede midler.
