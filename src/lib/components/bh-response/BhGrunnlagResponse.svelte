@@ -17,8 +17,8 @@
 	import SammendragKort from './SammendragKort.svelte';
 	import SegmentedButtons from './SegmentedButtons.svelte';
 	import KonsekvensCallout from './KonsekvensCallout.svelte';
-	import BegrunnelseThread from './BegrunnelseThread.svelte';
 	import FormPageHeader from '$lib/components/shared/FormPageHeader.svelte';
+	import FormWithRightPanel from '$lib/components/shared/FormWithRightPanel.svelte';
 	import Alert from '$lib/components/primitives/Alert.svelte';
 
 	interface KravData {
@@ -89,8 +89,6 @@
 	let bhBegrunnelseHtml = $state('');
 	let submitting = $state(false);
 	let submitError = $state<string | null>(null);
-	let activeTab = $state<'begrunnelse' | 'historikk' | 'filer'>('begrunnelse');
-	let mobilPanelOpen = $state(false);
 	let hasInitialized = $state(false);
 
 	// Pre-fill once when updateDefaults becomes available
@@ -102,8 +100,6 @@
 			hasInitialized = true;
 		}
 	});
-
-	const harBhBegrunnelse = $derived(bhBegrunnelseHtml.replace(/<[^>]*>/g, '').trim().length > 0);
 
 	// --- Domain config ---
 	const domainConfig: GrunnlagDomainConfig = $derived({
@@ -133,8 +129,6 @@
 
 	const verdictOptions = $derived(getVerdictOptions(domainConfig));
 
-
-
 	// Change detection in update mode
 	const endringsInfo = $derived.by(() => {
 		if (!isUpdateMode || !forrigeResultat) return null;
@@ -142,18 +136,6 @@
 			{ resultat, varsletITide: varsletITide ?? true, begrunnelse: bhBegrunnelseHtml },
 			{ resultat: forrigeResultat, varsletITide: forrigeVarsletITide, begrunnelse: forrigeBegrunnelseHtml },
 		);
-	});
-
-	const kategoriTag = $derived(
-		krav.underkategori
-			? `${krav.hovedkategori}/${krav.underkategori}`
-			: krav.hovedkategori
-	);
-
-	const varslingTag = $derived.by(() => {
-		if (!visVarsling) return null;
-		if (varsletITide === undefined) return '§32.2 ?';
-		return varsletITide ? '§32.2 ✓' : '§32.2 ✗';
 	});
 
 	// Build begrunnelse entries for thread panel
@@ -165,7 +147,6 @@
 			dato?: string;
 		}> = [];
 
-		// Previous exchange (TE v1 → BH v1 → TE v2 → ...)
 		for (const svar of tidligereSvar) {
 			entries.push({
 				rolle: svar.rolle,
@@ -175,7 +156,6 @@
 			});
 		}
 
-		// Current TE begrunnelse (latest version)
 		entries.push({
 			rolle: 'TE',
 			versjon: krav.versjon,
@@ -211,7 +191,6 @@
 
 			await submitEvent(sakId, eventType, eventData);
 
-			// Invalidate case data so it refreshes
 			await queryClient.invalidateQueries({ queryKey: ['case-context', sakId] });
 
 			goto(`/${prosjektId}/${sakId}`);
@@ -226,198 +205,109 @@
 	}
 </script>
 
-<div class="bh-response-layout">
-	<!-- Two-panel content -->
-	<div class="response-panels">
-		<!-- MIDTPANEL: Form -->
-		<main class="midtpanel">
-			<div class="midtpanel-scroll">
-				<FormPageHeader
-					tilbakeHref="/{prosjektId}/{sakId}"
-					tilbakeTekst="Tilbake til saksmappe"
-					eyebrow={isUpdateMode ? 'Oppdater svar' : 'Svar på grunnlag'}
-					{prosjektNavn}
-					{teNavn}
-					{bhNavn}
-					{saksnr}
-					tittel={krav.tittel}
-				/>
+<FormWithRightPanel
+	entries={begrunnelseEntries}
+	bind:bhBegrunnelseHtml
+	{teNavn}
+	{bhNavn}
+	submitLabel={isUpdateMode ? 'Oppdater svar' : 'Send svar'}
+	submitDisabled={!kanSende}
+	submitLoading={submitting}
+	{submitError}
+	onsubmit={handleSubmit}
+	onavbryt={handleAvbryt}
+>
+	<FormPageHeader
+		tilbakeHref="/{prosjektId}/{sakId}"
+		tilbakeTekst="Tilbake til saksmappe"
+		eyebrow={isUpdateMode ? 'Oppdater svar' : 'Svar på grunnlag'}
+		{prosjektNavn}
+		{teNavn}
+		{bhNavn}
+		{saksnr}
+		tittel={krav.tittel}
+	/>
 
-				<!-- Kontraktsforhold -->
-				<SammendragKort
-					hideHeader
-					tittel={krav.tittel}
-					hovedkategori={krav.hovedkategori}
-					underkategori={krav.underkategori}
-					datoVarslet={krav.datoVarslet}
-					begrunnelseHtml={krav.begrunnelseHtml}
-					versjon={krav.versjon}
-				/>
+	<!-- Kontraktsforhold -->
+	<SammendragKort
+		hideHeader
+		tittel={krav.tittel}
+		hovedkategori={krav.hovedkategori}
+		underkategori={krav.underkategori}
+		datoVarslet={krav.datoVarslet}
+		begrunnelseHtml={krav.begrunnelseHtml}
+		versjon={krav.versjon}
+	/>
 
-				<!-- Varsling §32.2 -->
-				{#if visVarsling}
-					<section class="form-section">
-						<div class="section-header">
-							<h3 class="section-label">Varsling §32.2</h3>
-							<span class="section-ref">Varslet i tide?</span>
-						</div>
-						<SegmentedButtons
-							options={[
-								{ value: 'ja', label: 'Ja, i tide' },
-								{ value: 'nei', label: 'Nei, prekludert' },
-							]}
-							selected={varsletITide === undefined ? undefined : varsletITide ? 'ja' : 'nei'}
-							onselect={(v) => (varsletITide = v === 'ja')}
-							size="sm"
-						/>
-						{#if varsletITide === false}
-							<Alert variant="warning">
-								<strong>Preklusjon</strong> — Varselet vurderes som for sent. Grunnlaget kan fortsatt vurderes subsidiært.
-							</Alert>
-						{/if}
-						{#if endringsInfo}
-							{@const varslingEndring = endringsInfo.endringer.find((e) => e.felt === 'varsletITide')}
-							{#if varslingEndring}
-								<Alert variant={varslingEndring.type === 'frafaller_innsigelse' ? 'info' : 'warning'}>
-									{varslingEndring.beskrivelse}
-								</Alert>
-							{/if}
-						{/if}
-					</section>
-				{/if}
-
-				<!-- Resultat -->
-				<section class="form-section">
-					<div class="section-header">
-						<h3 class="section-label">Resultat</h3>
-					</div>
-					<SegmentedButtons
-						options={verdictOptions.map(o => ({
-							value: o.value,
-							label: o.label,
-							icon: o.icon,
-							colorScheme: o.colorScheme,
-						}))}
-						selected={resultat}
-						onselect={(v) => (resultat = v)}
-					/>
-				</section>
-
-				<!-- Endringsadvarsel for resultat -->
-				{#if endringsInfo}
-					{@const resultatEndring = endringsInfo.endringer.find((e) => e.felt === 'resultat')}
-					{#if resultatEndring}
-						<Alert variant="warning">
-							<strong>{resultatEndring.type === 'snuoperasjon' ? 'Snuoperasjon' : 'Endring'}</strong> — {resultatEndring.beskrivelse}
-						</Alert>
-					{/if}
-				{/if}
-
-				<!-- Konsekvens-callout -->
-				<KonsekvensCallout
-					{resultat}
-					erPrekludert={prekludert}
-					erPaalegg={visFrafalt}
-					erSnuoperasjon={snuoperasjon}
-				/>
-
+	<!-- Varsling §32.2 -->
+	{#if visVarsling}
+		<section class="form-section">
+			<div class="section-header">
+				<h3 class="section-label">Varsling §32.2</h3>
+				<span class="section-ref">Varslet i tide?</span>
 			</div>
-		</main>
-
-		<!-- HØYREPANEL: Desktop inline -->
-		<div class="desktop-panel">
-			<BegrunnelseThread
-				entries={begrunnelseEntries}
-				bind:bhBegrunnelseHtml
-
-				{teNavn}
-				{bhNavn}
-				{activeTab}
-				ontabchange={(tab) => (activeTab = tab)}
-				submitLabel={isUpdateMode ? 'Oppdater svar' : 'Send svar'}
-				submitDisabled={!kanSende}
-				submitLoading={submitting}
-				{submitError}
-				onsubmit={handleSubmit}
-				onavbryt={handleAvbryt}
+			<SegmentedButtons
+				options={[
+					{ value: 'ja', label: 'Ja, i tide' },
+					{ value: 'nei', label: 'Nei, prekludert' },
+				]}
+				selected={varsletITide === undefined ? undefined : varsletITide ? 'ja' : 'nei'}
+				onselect={(v) => (varsletITide = v === 'ja')}
+				size="sm"
 			/>
-		</div>
-	</div>
-</div>
-
-<!-- Mobil: FAB -->
-<button class="begrunnelse-fab" onclick={() => (mobilPanelOpen = true)}>
-	<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-		<path d="M2 3h12M2 7h8M2 11h10" stroke="currentColor" stroke-width="1.25" stroke-linecap="round"/>
-	</svg>
-	Begrunnelse
-	{#if harBhBegrunnelse}
-		<span class="fab-badge"></span>
+			{#if varsletITide === false}
+				<Alert variant="warning">
+					<strong>Preklusjon</strong> — Varselet vurderes som for sent. Grunnlaget kan fortsatt vurderes subsidiært.
+				</Alert>
+			{/if}
+			{#if endringsInfo}
+				{@const varslingEndring = endringsInfo.endringer.find((e) => e.felt === 'varsletITide')}
+				{#if varslingEndring}
+					<Alert variant={varslingEndring.type === 'frafaller_innsigelse' ? 'info' : 'warning'}>
+						{varslingEndring.beskrivelse}
+					</Alert>
+				{/if}
+			{/if}
+		</section>
 	{/if}
-</button>
 
-<!-- Mobil: fullscreen overlay -->
-{#if mobilPanelOpen}
-	<div class="mobil-panel-overlay">
-		<button class="panel-tilbake" onclick={() => (mobilPanelOpen = false)}>
-			<svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-				<path d="M8.5 3L4.5 7L8.5 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-			</svg>
-			Tilbake til skjema
-		</button>
-		<BegrunnelseThread
-			entries={begrunnelseEntries}
-			bind:bhBegrunnelseHtml
-			{teNavn}
-			{bhNavn}
-			{activeTab}
-			ontabchange={(tab) => (activeTab = tab)}
-			submitLabel={isUpdateMode ? 'Oppdater svar' : 'Send svar'}
-			submitDisabled={!kanSende}
-			submitLoading={submitting}
-			{submitError}
-			onsubmit={handleSubmit}
-			onavbryt={handleAvbryt}
+	<!-- Resultat -->
+	<section class="form-section">
+		<div class="section-header">
+			<h3 class="section-label">Resultat</h3>
+		</div>
+		<SegmentedButtons
+			options={verdictOptions.map(o => ({
+				value: o.value,
+				label: o.label,
+				icon: o.icon,
+				colorScheme: o.colorScheme,
+			}))}
+			selected={resultat}
+			onselect={(v) => (resultat = v)}
 		/>
-	</div>
-{/if}
+	</section>
+
+	<!-- Endringsadvarsel for resultat -->
+	{#if endringsInfo}
+		{@const resultatEndring = endringsInfo.endringer.find((e) => e.felt === 'resultat')}
+		{#if resultatEndring}
+			<Alert variant="warning">
+				<strong>{resultatEndring.type === 'snuoperasjon' ? 'Snuoperasjon' : 'Endring'}</strong> — {resultatEndring.beskrivelse}
+			</Alert>
+		{/if}
+	{/if}
+
+	<!-- Konsekvens-callout -->
+	<KonsekvensCallout
+		{resultat}
+		erPrekludert={prekludert}
+		erPaalegg={visFrafalt}
+		erSnuoperasjon={snuoperasjon}
+	/>
+</FormWithRightPanel>
 
 <style>
-	.bh-response-layout {
-		display: flex;
-		flex-direction: column;
-		height: 100%;
-		background: var(--color-canvas);
-	}
-
-	/* --- Two-panel layout --- */
-	.response-panels {
-		display: grid;
-		grid-template-columns: 3fr 2fr;
-		flex: 1;
-		min-height: 0;
-		overflow: hidden;
-	}
-
-	.desktop-panel {
-		overflow-y: auto;
-	}
-
-	/* --- Midtpanel --- */
-	.midtpanel {
-		overflow-y: auto;
-	}
-
-	.midtpanel-scroll {
-		display: flex;
-		flex-direction: column;
-		gap: var(--spacing-5);
-		padding: var(--spacing-6);
-		max-width: 640px;
-		margin: 0 auto;
-	}
-
-	/* --- Form sections --- */
 	.form-section {
 		display: flex;
 		flex-direction: column;
@@ -432,114 +322,8 @@
 		border-bottom: 1px solid var(--color-wire);
 	}
 
-	/* margin handled by .section-header */
-
 	.section-ref {
 		font-size: 11px;
 		color: var(--color-ink-ghost);
-	}
-
-	/* FAB + mobil overlay: skjult på desktop */
-	.begrunnelse-fab {
-		display: none;
-	}
-
-	.mobil-panel-overlay {
-		display: none;
-	}
-
-	.panel-tilbake {
-		display: flex;
-		align-items: center;
-		gap: var(--spacing-1);
-		padding: var(--spacing-3) var(--spacing-4);
-		position: sticky;
-		top: 0;
-		z-index: 1;
-		background: var(--color-felt);
-		border: none;
-		border-bottom: 1px solid var(--color-wire);
-		font-family: var(--font-ui);
-		font-size: 13px;
-		color: var(--color-ink-secondary);
-		cursor: pointer;
-		width: 100%;
-		text-align: left;
-		flex-shrink: 0;
-	}
-
-	.panel-tilbake:hover {
-		color: var(--color-ink);
-	}
-
-	/* --- Mobil (<768px) --- */
-	@media (max-width: 767px) {
-		.response-panels {
-			grid-template-columns: 1fr;
-		}
-
-		.desktop-panel {
-			display: none;
-		}
-
-		.midtpanel-scroll {
-			max-width: none;
-			padding: var(--spacing-5) var(--spacing-4);
-			padding-bottom: 72px; /* plass til FAB */
-		}
-
-		.begrunnelse-fab {
-			display: flex;
-			align-items: center;
-			gap: var(--spacing-2);
-			position: fixed;
-			bottom: var(--spacing-5);
-			right: var(--spacing-4);
-			z-index: 20;
-			padding: var(--spacing-2) var(--spacing-4);
-			background: var(--color-felt-raised);
-			border: 1px solid var(--color-vekt-dim);
-			border-radius: 9999px;
-			font-family: var(--font-ui);
-			font-size: 13px;
-			font-weight: 500;
-			color: var(--color-vekt);
-			cursor: pointer;
-			transition: background 0.12s, border-color 0.12s;
-		}
-
-		.begrunnelse-fab:hover {
-			background: var(--color-vekt-bg);
-			border-color: var(--color-vekt);
-		}
-
-		.fab-badge {
-			width: 6px;
-			height: 6px;
-			border-radius: 9999px;
-			background: var(--color-vekt);
-		}
-
-		.mobil-panel-overlay {
-			display: flex;
-			flex-direction: column;
-			position: fixed;
-			inset: 0;
-			z-index: 30;
-			background: var(--color-canvas);
-			overflow-y: auto;
-		}
-
-		.mobil-panel-overlay :global(.begrunnelse-thread) {
-			position: static;
-			height: auto;
-			border-left: none;
-		}
-
-		.form-footer {
-			flex-direction: column-reverse;
-			gap: var(--spacing-3);
-			align-items: stretch;
-		}
 	}
 </style>
