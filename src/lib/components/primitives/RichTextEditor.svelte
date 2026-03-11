@@ -81,6 +81,8 @@
 		display: flex;
 		flex-direction: column;
 		gap: var(--spacing-2);
+		flex: 1;
+		min-height: 0;
 	}
 
 	.rte-label {
@@ -97,6 +99,10 @@
 		border-radius: var(--radius-sm);
 		overflow: hidden;
 		transition: border-color 0.12s;
+		flex: 1;
+		min-height: 0;
+		display: flex;
+		flex-direction: column;
 	}
 
 	.rte-container:focus-within {
@@ -108,10 +114,22 @@
 		border: none;
 		border-radius: 0;
 		backdrop-filter: none;
+		flex: 1;
+		min-height: 0;
+		display: flex;
+		flex-direction: column;
+	}
+
+	.rte-container :global(.tipex-editor-wrap) {
+		flex: 1;
+		min-height: 0;
+		display: flex;
+		flex-direction: column;
 	}
 
 	.rte-container :global(.tipex-editor-section) {
-		min-height: 400px;
+		flex: 1;
+		min-height: 120px;
 		max-height: var(--rte-max-height, 60vh);
 		overflow-y: auto;
 		padding: var(--spacing-4);
@@ -123,7 +141,8 @@
 
 	.rte-container :global(.tipex-editor-section .ProseMirror) {
 		outline: none;
-		min-height: 360px;
+		min-height: 100px;
+		height: 100%;
 	}
 
 	.rte-container :global(.tipex-editor-section .ProseMirror p.is-editor-empty:first-child::before) {
@@ -135,17 +154,26 @@
 		border-top: 1px solid var(--color-wire-strong) !important;
 		border-radius: 0 !important;
 		backdrop-filter: none;
+		flex-shrink: 0;
 	}
 
+	.rte-container :global(.tipex-controller .tipex-edit-button),
 	.rte-container :global(.tipex-controller button) {
 		color: var(--color-ink-secondary) !important;
 	}
 
+	.rte-container :global(.tipex-controller .tipex-edit-button svg),
+	.rte-container :global(.tipex-controller button svg) {
+		color: inherit !important;
+	}
+
+	.rte-container :global(.tipex-controller .tipex-edit-button:hover),
 	.rte-container :global(.tipex-controller button:hover) {
 		color: var(--color-ink) !important;
 		background: var(--color-felt-hover) !important;
 	}
 
+	.rte-container :global(.tipex-controller .tipex-edit-button.active),
 	.rte-container :global(.tipex-controller button.active) {
 		color: var(--color-vekt) !important;
 		background: var(--color-vekt-bg) !important;
