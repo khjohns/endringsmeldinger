@@ -123,20 +123,14 @@
 	const placeholder = $derived(getDynamicPlaceholder(metode));
 
 	// --- Expose kravlinjer for vedlegg-tagging ---
-	const aktiveTags = $derived.by(() => {
-		const tags: string[] = [];
-		if (metode) tags.push('Hovedkrav');
-		if (harRiggKrav) tags.push('Rigg/Drift');
-		if (harProduktivitetKrav) tags.push('Produktivitet');
-		return tags;
-	});
+	const KRAVLINJER = ['Hovedkrav', 'Rigg/Drift', 'Produktivitet'];
 
 	$effect(() => {
 		onplaceholder?.(placeholder);
 	});
 
 	$effect(() => {
-		onkravlinjer?.(aktiveTags);
+		onkravlinjer?.(KRAVLINJER);
 	});
 
 	const submitLabel = $derived(

@@ -68,15 +68,39 @@
 		{ id: 'filer' as const, label: 'Filer' },
 	];
 
-	// Mock attachment state (real upload logic comes in a later phase)
+	// --- Attachment state (local files, real API upload in later phase) ---
 	interface Attachment {
 		id: string;
 		name: string;
 		size: string;
+		file: File;
 		tags: Set<string>;
 	}
 
 	let attachments = $state<Attachment[]>([]);
+	let fileInput: HTMLInputElement | undefined = $state();
+	let dragOver = $state(false);
+
+	function formatFileSize(bytes: number): string {
+		if (bytes < 1024) return `${bytes} B`;
+		if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`;
+		return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+	}
+
+	function addFiles(files: FileList | File[]) {
+		const newAttachments = Array.from(files).map((file) => ({
+			id: crypto.randomUUID(),
+			name: file.name,
+			size: formatFileSize(file.size),
+			file,
+			tags: new Set<string>(),
+		}));
+		attachments = [...attachments, ...newAttachments];
+	}
+
+	function removeAttachment(id: string) {
+		attachments = attachments.filter((a) => a.id !== id);
+	}
 
 	function toggleTag(attachmentId: string, tag: string) {
 		attachments = attachments.map((a) => {
@@ -91,15 +115,34 @@
 		});
 	}
 
-	// Placeholder: simulate adding a file
-	function handleMockUpload() {
-		const id = crypto.randomUUID();
-		attachments = [
-			...attachments,
-			{ id, name: `dokument_${attachments.length + 1}.pdf`, size: '— KB', tags: new Set() },
-		];
+	function handleFileSelect(e: Event) {
+		const input = e.target as HTMLInputElement;
+		if (input.files?.length) {
+			addFiles(input.files);
+			input.value = '';
+		}
 	}
 
+	function handleDrop(e: DragEvent) {
+		e.preventDefault();
+		dragOver = false;
+		if (e.dataTransfer?.files?.length) {
+			addFiles(e.dataTransfer.files);
+		}
+	}
+
+	function handleDragOver(e: DragEvent) {
+		e.preventDefault();
+		dragOver = true;
+	}
+
+	function handleDragLeave() {
+		dragOver = false;
+	}
+
+	const filTabLabel = $derived(
+		attachments.length > 0 ? `Filer (${attachments.length})` : 'Filer'
+	);
 </script>
 
 <aside class="begrunnelse-thread">
@@ -113,14 +156,14 @@
 				aria-selected={activeTab === tab.id}
 				onclick={() => ontabchange?.(tab.id)}
 			>
-				{tab.label}
+				{tab.id === 'filer' ? filTabLabel : tab.label}
 			</button>
 		{/each}
 	</div>
 
 	{#if activeTab === 'begrunnelse'}
 		<div class="thread-content">
-			<!-- Editor (ren skriveflate) -->
+			<!-- Editor -->
 			<section class="editor-section">
 				<div class="editor-header">
 					<h3 class="section-label">{editorLabel}</h3>
@@ -131,51 +174,19 @@
 					maxHeight="none"
 					oncharcount={(c) => (charCount = c)}
 				/>
-			</section>
-
-			<!-- Vedlegg -->
-			<section class="vedlegg-section">
-				<div class="vedlegg-header">
-					<h3 class="section-label">Vedlegg</h3>
-				</div>
-
-				{#if attachments.length > 0}
-					<div class="attachment-list">
-						{#each attachments as att (att.id)}
-							<div class="attachment-item">
-								<div class="att-header">
-									<span class="att-name">{att.name}</span>
-									<span class="att-size">{att.size}</span>
-								</div>
-								{#if availableTags.length > 0}
-									<div class="tag-row">
-										{#each availableTags as tag}
-											<button
-												class="tag-pill"
-												class:tag-active={att.tags.has(tag)}
-												onclick={() => toggleTag(att.id, tag)}
-											>
-												{tag}
-											</button>
-										{/each}
-									</div>
-								{/if}
-							</div>
-						{/each}
-					</div>
-				{/if}
-
-				<div class="upload-zone" role="button" tabindex="0" onclick={handleMockUpload} onkeydown={(e) => { if (e.key === 'Enter') handleMockUpload(); }}>
-					<svg class="upload-icon" width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-						<path d="M10 4V14M10 4L6 8M10 4L14 8" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/>
-						<path d="M3 14V15C3 16.1046 3.89543 17 5 17H15C16.1046 17 17 16.1046 17 15V14" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/>
+				<button class="vedlegg-hint" onclick={() => ontabchange?.('filer')}>
+					<svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+						<path d="M7.5 2L11 5.5V11.5C11 12.0523 10.5523 12.5 10 12.5H4C3.44772 12.5 3 12.0523 3 11.5V2.5C3 1.94772 3.44772 1.5 4 1.5H7.5Z" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+						<path d="M7.5 2V5.5H11" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
 					</svg>
-					<span class="upload-tekst">Dra filer hit eller klikk for å laste opp</span>
-					<span class="upload-format">PDF, DOCX, XLSX, JPG</span>
-				</div>
+					Last opp vedlegg i Filer-fanen
+					{#if attachments.length > 0}
+						<span class="hint-count">{attachments.length}</span>
+					{/if}
+				</button>
 			</section>
 
-			<!-- Handlinger -->
+			<!-- Actions -->
 			{#if onsubmit}
 				<section class="action-section">
 					{#if submitError}
@@ -238,8 +249,83 @@
 		</div>
 
 	{:else if activeTab === 'filer'}
-		<div class="thread-content placeholder-content">
-			<p class="placeholder-text">Filoversikt kommer i neste fase.</p>
+		<div class="thread-content filer-content">
+			<!-- Hidden file input -->
+			<input
+				bind:this={fileInput}
+				type="file"
+				multiple
+				accept=".pdf,.docx,.xlsx,.jpg,.jpeg,.png"
+				class="sr-only"
+				onchange={handleFileSelect}
+			/>
+
+			<!-- Upload zone -->
+			<!-- svelte-ignore a11y_no_static_element_interactions -->
+			<div
+				class="upload-zone"
+				class:upload-zone-active={dragOver}
+				role="button"
+				tabindex="0"
+				onclick={() => fileInput?.click()}
+				onkeydown={(e) => { if (e.key === 'Enter') fileInput?.click(); }}
+				ondrop={handleDrop}
+				ondragover={handleDragOver}
+				ondragleave={handleDragLeave}
+			>
+				<svg class="upload-icon" width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+					<path d="M10 4V14M10 4L6 8M10 4L14 8" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/>
+					<path d="M3 14V15C3 16.1046 3.89543 17 5 17H15C16.1046 17 17 16.1046 17 15V14" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/>
+				</svg>
+				<span class="upload-tekst">Dra filer hit eller klikk for å laste opp</span>
+				<span class="upload-format">PDF, DOCX, XLSX, JPG</span>
+			</div>
+
+			<!-- Attachment list -->
+			{#if attachments.length > 0}
+				<div class="attachment-list">
+					{#each attachments as att (att.id)}
+						<div class="attachment-item">
+							<div class="att-header">
+								<div class="att-info">
+									<svg class="att-icon" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+										<path d="M9 1.5H4C3.44772 1.5 3 1.94772 3 2.5V13.5C3 14.0523 3.44772 14.5 4 14.5H12C12.5523 14.5 13 14.0523 13 13.5V5.5L9 1.5Z" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+										<path d="M9 1.5V5.5H13" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+									</svg>
+									<span class="att-name">{att.name}</span>
+								</div>
+								<div class="att-actions">
+									<span class="att-size">{att.size}</span>
+									<button
+										class="att-remove"
+										onclick={() => removeAttachment(att.id)}
+										aria-label="Fjern {att.name}"
+									>
+										<svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+											<path d="M4 4L10 10M10 4L4 10" stroke="currentColor" stroke-width="1.25" stroke-linecap="round"/>
+										</svg>
+									</button>
+								</div>
+							</div>
+							{#if availableTags.length > 0}
+								<div class="tag-row">
+									{#each availableTags as tag}
+										<button
+											class="tag-pill"
+											class:tag-active={att.tags.has(tag)}
+											onclick={() => toggleTag(att.id, tag)}
+										>
+											{tag}
+										</button>
+									{/each}
+								</div>
+							{/if}
+						</div>
+					{/each}
+				</div>
+			{:else}
+				<p class="filer-empty">Ingen vedlegg lastet opp enda.</p>
+			{/if}
 		</div>
 	{/if}
 </aside>
@@ -417,18 +503,55 @@
 		font-variant-numeric: tabular-nums;
 	}
 
-	/* --- Vedlegg --- */
-	.vedlegg-section {
-		padding: var(--spacing-4);
-		border-top: 1px solid var(--color-wire);
+	/* --- Vedlegg hint (in begrunnelse tab) --- */
+	.vedlegg-hint {
 		display: flex;
-		flex-direction: column;
-		gap: var(--spacing-3);
+		align-items: center;
+		gap: var(--spacing-2);
+		padding: var(--spacing-2) 0;
+		background: none;
+		border: none;
+		cursor: pointer;
+		font-family: var(--font-ui);
+		font-size: 12px;
+		color: var(--color-ink-muted);
+		transition: color 0.12s;
 	}
 
-	.vedlegg-header {
-		padding-bottom: var(--spacing-2);
-		border-bottom: 1px solid var(--color-wire);
+	.vedlegg-hint:hover {
+		color: var(--color-ink);
+	}
+
+	.hint-count {
+		font-family: var(--font-data);
+		font-size: 10px;
+		font-weight: 600;
+		min-width: 16px;
+		height: 16px;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		background: var(--color-wire-strong);
+		color: var(--color-ink-secondary);
+		border-radius: 9999px;
+	}
+
+	/* --- Filer tab --- */
+	.filer-content {
+		padding: var(--spacing-4);
+		gap: var(--spacing-4);
+	}
+
+	.sr-only {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		padding: 0;
+		margin: -1px;
+		overflow: hidden;
+		clip: rect(0, 0, 0, 0);
+		white-space: nowrap;
+		border: 0;
 	}
 
 	.upload-zone {
@@ -436,7 +559,7 @@
 		flex-direction: column;
 		align-items: center;
 		gap: var(--spacing-2);
-		padding: var(--spacing-3);
+		padding: var(--spacing-4);
 		border: 1px dashed var(--color-wire-strong);
 		border-radius: var(--radius-md);
 		color: var(--color-ink-secondary);
@@ -444,7 +567,8 @@
 		transition: border-color 0.15s, background-color 0.15s;
 	}
 
-	.upload-zone:hover {
+	.upload-zone:hover,
+	.upload-zone-active {
 		border-color: var(--color-vekt-dim);
 		background: var(--color-vekt-bg);
 	}
@@ -453,17 +577,17 @@
 	.upload-tekst { font-size: 13px; }
 	.upload-format { font-size: 11px; color: var(--color-ink-ghost); }
 
-	/* --- Attachment with tags --- */
+	/* --- Attachment list --- */
 	.attachment-list {
 		display: flex;
 		flex-direction: column;
-		gap: var(--spacing-2);
+		gap: var(--spacing-3);
 	}
 
 	.attachment-item {
-		background: var(--color-canvas);
+		background: var(--color-felt);
 		border: 1px solid var(--color-wire);
-		border-radius: var(--radius-sm);
+		border-radius: var(--radius-md);
 		padding: var(--spacing-3);
 		display: flex;
 		flex-direction: column;
@@ -474,18 +598,61 @@
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
+		gap: var(--spacing-2);
+	}
+
+	.att-info {
+		display: flex;
+		align-items: center;
+		gap: var(--spacing-2);
+		min-width: 0;
+	}
+
+	.att-icon {
+		color: var(--color-ink-ghost);
+		flex-shrink: 0;
 	}
 
 	.att-name {
 		font-size: 12px;
 		font-weight: 500;
 		color: var(--color-ink);
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	.att-actions {
+		display: flex;
+		align-items: center;
+		gap: var(--spacing-2);
+		flex-shrink: 0;
 	}
 
 	.att-size {
 		font-family: var(--font-data);
 		font-size: 10px;
 		color: var(--color-ink-muted);
+	}
+
+	.att-remove {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 20px;
+		height: 20px;
+		padding: 0;
+		background: none;
+		border: none;
+		border-radius: var(--radius-sm);
+		color: var(--color-ink-ghost);
+		cursor: pointer;
+		transition: color 0.12s, background 0.12s;
+	}
+
+	.att-remove:hover {
+		color: var(--color-score-low);
+		background: rgba(225, 29, 72, 0.1);
 	}
 
 	.tag-row {
@@ -520,6 +687,12 @@
 		border-color: var(--color-ink);
 	}
 
+	.filer-empty {
+		font-size: 13px;
+		color: var(--color-ink-ghost);
+		margin: 0;
+	}
+
 	/* --- Action footer --- */
 	.action-section {
 		padding: var(--spacing-4);
@@ -539,7 +712,7 @@
 		margin-bottom: var(--spacing-3);
 	}
 
-	/* --- Placeholder tabs --- */
+	/* --- Placeholder --- */
 	.placeholder-content {
 		display: flex;
 		align-items: center;
