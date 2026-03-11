@@ -273,30 +273,35 @@ HUD-inspirert tidslinjevisning av alle saker. Rad-per-sak med horisontale tidsli
 
 ### Saksark (Detaljsider / Skjemaer)
 
-Monsteret for alle spor-detalj/svarskjema-sider (send-vederlag, svar-grunnlag, etc.). Referanseimplementasjon: `TeVederlagForm.svelte`.
+Monsteret for alle spor-detalj/svarskjema-sider (send-vederlag, svar-grunnlag, ny sak, etc.).
 
 **Layout:** `FormWithRightPanel` — midtpanel (skjema) + hoyre sticky panel (BegrunnelseThread med editor/historikk/filer-faner).
 
-**Seksjonsinndeling med SectionHeading:**
-- Bruk `<SectionHeading title="..." paragrafRef="§..." />` for alle seksjoner
+**FormSection-komponent** (`src/lib/components/shared/FormSection.svelte`):
+Wrapper for alle skjema-seksjoner. Gir flex-column, gap 12px, og definerer `.helptext`, `.field-amount`, `.field-auto` via `:global()`. Bruk ALLTID `<FormSection>` i stedet for manuell `<section class="form-section">`.
+
+```svelte
+<FormSection>
+  <SectionHeading title="Varsling" paragrafRef="§32.2" />
+  <p class="helptext">Forklarende tekst under overskriften.</p>
+  <div class="field-amount"><NumberInput ... /></div>
+</FormSection>
+```
+
+**SectionHeading** (`src/lib/components/primitives/SectionHeading.svelte`):
 - Tittel venstre (11px, 600, uppercase, 0.06em tracking, ink-muted)
 - Paragraf-referanse hoyre (11px, 400, ink-muted)
 - Border-bottom wire under hele bredden
 - Aldri manuell `.section-header` div — alltid SectionHeading-komponenten
 
-**Helptext under seksjonsoverskrift:**
-```css
-.helptext {
-  font-size: 12px;
-  color: var(--color-ink-muted);
-  margin: 0;
-}
-```
-Plasseres direkte etter `<SectionHeading>`, for inputfelter. Forklarer kontraktskontekst (f.eks. "Ble varselet sendt uten ugrunnet opphold etter §32.2?").
+**Helptext** (`.helptext` — definert i FormSection):
+- 13px, ink-secondary, line-height 1.5
+- Plasseres etter `<SectionHeading>`, for inputfelter
+- Forklarer kontraktskontekst, ikke gjenta §-ref fra heading
 
-**Feltstorrelse (semantisk):**
-- `.field-amount` (belop): `max-width: 240px` — belopsfelt trenger ikke full bredde
-- `.field-auto` (korte valg): `width: fit-content` — tilpasser seg innholdet
+**Feltstorrelse** (definert i FormSection):
+- `.field-amount` (belop): `max-width: 240px`
+- `.field-auto` (korte valg): `width: fit-content`
 - Currency-formatering: `Intl.NumberFormat('nb-NO')` med `kr`-suffiks
 
 **Standpunkt-overgang:**

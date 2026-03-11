@@ -19,6 +19,7 @@
 	import KonsekvensCallout from './KonsekvensCallout.svelte';
 	import FormPageHeader from '$lib/components/shared/FormPageHeader.svelte';
 	import FormWithRightPanel from '$lib/components/shared/FormWithRightPanel.svelte';
+	import FormSection from '$lib/components/shared/FormSection.svelte';
 	import SectionHeading from '$lib/components/primitives/SectionHeading.svelte';
 	import Alert from '$lib/components/primitives/Alert.svelte';
 
@@ -246,7 +247,7 @@
 
 	<!-- Varsling §32.2 -->
 	{#if visVarsling}
-		<section class="form-section">
+		<FormSection>
 			<SectionHeading title="Varsling" paragrafRef="§32.2" />
 			<p class="helptext">Ble varselet sendt uten ugrunnet opphold?</p>
 			<SegmentedButtons
@@ -271,11 +272,11 @@
 					</Alert>
 				{/if}
 			{/if}
-		</section>
+		</FormSection>
 	{/if}
 
 	<!-- Resultat -->
-	<section class="form-section">
+	<FormSection>
 		<SectionHeading title="Resultat" />
 		<SegmentedButtons
 			options={verdictOptions.map(o => ({
@@ -295,7 +296,7 @@
 				</Alert>
 			{/if}
 		{/if}
-	</section>
+	</FormSection>
 
 	<!-- Konsekvens-callout -->
 	<KonsekvensCallout
@@ -306,17 +307,3 @@
 	/>
 </FormWithRightPanel>
 
-<style>
-	.form-section {
-		display: flex;
-		flex-direction: column;
-		gap: var(--spacing-3);
-	}
-
-	.helptext {
-		font-size: 13px;
-		color: var(--color-ink-secondary);
-		line-height: 1.5;
-		margin: 0;
-	}
-</style>
