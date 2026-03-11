@@ -288,8 +288,8 @@
 	.kravlinje-label {
 		position: absolute;
 		top: -8px;
-		left: var(--spacing-4);
-		background: var(--color-felt);
+		left: var(--spacing-3);
+		background: var(--color-canvas);
 		padding: 0 var(--spacing-2);
 		font-family: var(--font-data);
 		font-size: 10px;
