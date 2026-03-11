@@ -310,7 +310,7 @@
 		font-weight: 600;
 		text-transform: uppercase;
 		letter-spacing: 0.05em;
-		color: var(--color-ink-ghost);
+		color: var(--color-ink-muted);
 		margin-bottom: 8px;
 	}
 

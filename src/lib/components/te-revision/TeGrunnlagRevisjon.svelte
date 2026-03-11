@@ -278,7 +278,7 @@
 		border-radius: var(--radius-sm);
 		font-family: var(--font-ui);
 		font-size: 12px;
-		color: var(--color-ink-ghost);
+		color: var(--color-ink-muted);
 		cursor: pointer;
 		transition: color 0.12s;
 	}
@@ -360,7 +360,7 @@
 	.section-dato {
 		font-family: var(--font-data);
 		font-size: 11px;
-		color: var(--color-ink-ghost);
+		color: var(--color-ink-muted);
 	}
 
 	.standpunkt-resultat {
@@ -399,7 +399,7 @@
 		padding: 2px var(--spacing-2);
 		border-radius: 9999px;
 		background: var(--color-felt-raised);
-		color: var(--color-ink-ghost);
+		color: var(--color-ink-muted);
 	}
 
 	.varsling-ok {

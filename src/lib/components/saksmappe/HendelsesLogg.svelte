@@ -313,7 +313,7 @@
 	.toggle-label {
 		font-family: var(--font-data);
 		font-size: 10px;
-		color: var(--color-ink-ghost);
+		color: var(--color-ink-muted);
 		letter-spacing: 0.01em;
 	}
 
@@ -371,7 +371,7 @@
 		flex-shrink: 0;
 		font-family: var(--font-data);
 		font-size: 10px;
-		color: var(--color-ink-ghost);
+		color: var(--color-ink-muted);
 		letter-spacing: 0.01em;
 	}
 
@@ -388,7 +388,7 @@
 	.event-rev {
 		font-family: var(--font-data);
 		font-size: 9px;
-		color: var(--color-ink-ghost);
+		color: var(--color-ink-muted);
 		flex-shrink: 0;
 		margin-left: auto;
 	}
@@ -419,7 +419,7 @@
 	.event-actor {
 		flex-shrink: 0;
 		font-size: 10px;
-		color: var(--color-ink-ghost);
+		color: var(--color-ink-muted);
 		white-space: nowrap;
 	}
 
@@ -429,7 +429,7 @@
 		padding: 8px 8px;
 		margin-top: 4px;
 		font-size: 11px;
-		color: var(--color-ink-ghost);
+		color: var(--color-ink-muted);
 		background: transparent;
 		border: none;
 		border-top: 1px dashed var(--color-wire);

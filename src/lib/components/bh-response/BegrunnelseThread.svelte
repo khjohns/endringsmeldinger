@@ -421,7 +421,7 @@
 
 	.entry-dato {
 		font-size: 11px;
-		color: var(--color-ink-ghost);
+		color: var(--color-ink-muted);
 	}
 
 	.entry-resultat {
@@ -493,7 +493,7 @@
 	.char-count {
 		font-size: 11px;
 		font-family: var(--font-data);
-		color: var(--color-ink-ghost);
+		color: var(--color-ink-muted);
 		font-variant-numeric: tabular-nums;
 	}
 
@@ -569,7 +569,7 @@
 
 	.upload-icon { color: var(--color-ink-ghost); }
 	.upload-tekst { font-size: 13px; }
-	.upload-format { font-size: 11px; color: var(--color-ink-ghost); }
+	.upload-format { font-size: 11px; color: var(--color-ink-muted); }
 
 	/* --- Attachment list --- */
 	.attachment-list {
@@ -683,7 +683,7 @@
 
 	.filer-empty {
 		font-size: 13px;
-		color: var(--color-ink-ghost);
+		color: var(--color-ink-muted);
 		margin: 0;
 	}
 
@@ -716,6 +716,6 @@
 
 	.placeholder-text {
 		font-size: 13px;
-		color: var(--color-ink-ghost);
+		color: var(--color-ink-muted);
 	}
 </style>

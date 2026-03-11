@@ -161,7 +161,7 @@
 	}
 
 	:global(.date-editable[data-placeholder]) {
-		color: var(--color-ink-ghost);
+		color: var(--color-ink-muted);
 	}
 
 	:global(.date-literal) {
@@ -261,7 +261,7 @@
 		font-weight: 600;
 		text-transform: uppercase;
 		letter-spacing: 0.05em;
-		color: var(--color-ink-ghost);
+		color: var(--color-ink-muted);
 	}
 
 	:global(.cal-cell) {
@@ -306,7 +306,7 @@
 	}
 
 	:global(.cal-day[data-disabled]) {
-		color: var(--color-ink-ghost);
+		color: var(--color-ink-muted);
 		cursor: default;
 	}
 

@@ -56,7 +56,7 @@
 
 	.yesno-ref {
 		font-weight: 400;
-		color: var(--color-ink-ghost);
+		color: var(--color-ink-muted);
 		margin-left: var(--spacing-2);
 	}
 

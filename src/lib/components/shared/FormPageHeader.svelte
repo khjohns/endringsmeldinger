@@ -68,7 +68,7 @@
 		align-items: center;
 		gap: var(--spacing-1);
 		font-size: 12px;
-		color: var(--color-ink-ghost);
+		color: var(--color-ink-muted);
 		text-decoration: none;
 		transition: color 0.12s;
 		margin-bottom: var(--spacing-6);

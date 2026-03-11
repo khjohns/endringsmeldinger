@@ -278,7 +278,7 @@
 		border: none;
 		cursor: pointer;
 		background: var(--color-felt);
-		color: var(--color-ink-ghost);
+		color: var(--color-ink-muted);
 		transition: background 150ms, color 150ms;
 	}
 
@@ -379,7 +379,7 @@
 		font-family: var(--font-data);
 		font-size: 10px;
 		font-variant-numeric: tabular-nums;
-		color: var(--color-ink-ghost);
+		color: var(--color-ink-muted);
 	}
 
 	.spor-ubesvart {

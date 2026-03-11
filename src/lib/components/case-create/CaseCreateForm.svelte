@@ -219,7 +219,7 @@
 	}
 
 	.tittel-input::placeholder {
-		color: var(--color-ink-ghost);
+		color: var(--color-ink-muted);
 		font-weight: 400;
 	}
 
@@ -281,7 +281,7 @@
 	}
 
 	.field-control::placeholder {
-		color: var(--color-ink-ghost);
+		color: var(--color-ink-muted);
 	}
 
 	/* --- Dato elapsed hint --- */

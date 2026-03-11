@@ -323,7 +323,7 @@
 		font-family: var(--font-data);
 		font-size: 10px;
 		font-variant-numeric: tabular-nums;
-		color: var(--color-ink-ghost);
+		color: var(--color-ink-muted);
 		width: 48px;
 		flex-shrink: 0;
 		text-align: right;

@@ -75,7 +75,7 @@
 	}
 
 	.varsling-item.na {
-		color: var(--color-ink-ghost);
+		color: var(--color-ink-muted);
 	}
 
 	.varsling-symbol {
