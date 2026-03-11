@@ -7,6 +7,8 @@
 	import HjemmelVelger from './HjemmelVelger.svelte';
 	import Alert from '$lib/components/primitives/Alert.svelte';
 	import DatePicker from '$lib/components/primitives/DatePicker.svelte';
+	import SectionHeading from '$lib/components/primitives/SectionHeading.svelte';
+	import FormSection from '$lib/components/shared/FormSection.svelte';
 
 	interface FormActions {
 		submitLabel: string;
@@ -145,12 +147,10 @@
 	</div>
 
 	<!-- KONTRAKTSHJEMMEL -->
-	<section class="form-section">
-		<div class="section-header">
-			<h3 class="section-label">Kontraktshjemmel</h3>
-		</div>
+	<FormSection>
+		<SectionHeading title="Kontraktshjemmel" />
 		<HjemmelVelger valgt={valgtHjemmel} onvelg={(valg) => (valgtHjemmel = valg)} />
-	</section>
+	</FormSection>
 
 	{#if erForceMajeure}
 		<Alert variant="info">
@@ -159,10 +159,8 @@
 	{/if}
 
 	<!-- DATO OPPDAGET -->
-	<section class="form-section">
-		<div class="section-header">
-			<h3 class="section-label">Dato oppdaget</h3>
-		</div>
+	<FormSection>
+		<SectionHeading title="Dato oppdaget" />
 		<div class="field">
 			<DatePicker
 				label=""
@@ -181,7 +179,7 @@
 				<strong>{preklusjonsvarsel.title}</strong> — {preklusjonsvarsel.message}
 			</Alert>
 		{/if}
-	</section>
+	</FormSection>
 </div>
 
 <style>
@@ -222,22 +220,6 @@
 		color: var(--color-ink-muted);
 		font-weight: 400;
 	}
-
-	.form-section {
-		display: flex;
-		flex-direction: column;
-		gap: var(--spacing-3);
-	}
-
-	.section-header {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		padding-bottom: var(--spacing-2);
-		border-bottom: 1px solid var(--color-wire);
-	}
-
-	/* margin handled by .section-header */
 
 	.alert-ref {
 		font-family: var(--font-data);

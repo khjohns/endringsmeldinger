@@ -22,6 +22,7 @@
 	import SegmentedControl from '$lib/components/primitives/SegmentedControl.svelte';
 	import NumberInput from '$lib/components/primitives/NumberInput.svelte';
 	import SectionHeading from '$lib/components/primitives/SectionHeading.svelte';
+	import FormSection from '$lib/components/shared/FormSection.svelte';
 
 	interface FormActions {
 		submitLabel: string;
@@ -184,7 +185,7 @@
 
 <div class="te-vederlag-form">
 	<!-- BEREGNINGSMETODE §34 -->
-	<section class="form-section">
+	<FormSection>
 		<SectionHeading title="Beregningsmetode" paragrafRef="§34.2" />
 		<div class="field-auto">
 			<SegmentedControl
@@ -197,10 +198,10 @@
 		{#if metodeDescription}
 			<p class="helptext">{metodeDescription}</p>
 		{/if}
-	</section>
+	</FormSection>
 
 	<!-- HOVEDKRAV §34.2–34.4 -->
-	<section class="form-section">
+	<FormSection>
 		<SectionHeading title="Hovedkrav" paragrafRef="§34.1.1–34.1.2" />
 		<div class="field-amount">
 			<NumberInput
@@ -210,10 +211,10 @@
 				onchange={handleHovedkravChange}
 			/>
 		</div>
-	</section>
+	</FormSection>
 
 	<!-- SÆRSKILTE KRAV §34.1.3 -->
-	<section class="form-section">
+	<FormSection>
 		<SectionHeading title="Særskilte krav" paragrafRef="§34.1.3" />
 		<p class="helptext">Eventuelle tilleggskrav for rigg/drift-kostnader eller produktivitetstap som følge av endringen.</p>
 		<div class="field-amount">
@@ -232,7 +233,7 @@
 				onchange={(v) => (belopProduktivitet = v ?? undefined)}
 			/>
 		</div>
-	</section>
+	</FormSection>
 </div>
 
 <style>
@@ -240,26 +241,5 @@
 		display: flex;
 		flex-direction: column;
 		gap: var(--spacing-6);
-	}
-
-	.form-section {
-		display: flex;
-		flex-direction: column;
-		gap: var(--spacing-3);
-	}
-
-	.helptext {
-		font-size: 13px;
-		color: var(--color-ink-secondary);
-		line-height: 1.5;
-		margin: 0;
-	}
-
-	.field-auto {
-		width: fit-content;
-	}
-
-	.field-amount {
-		max-width: 240px;
 	}
 </style>
