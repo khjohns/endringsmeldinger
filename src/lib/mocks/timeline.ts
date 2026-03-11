@@ -136,13 +136,18 @@ export const timeline1_3AktiveSpor: TimelineEvent[] = [
     actorrole: 'TE',
     actor: 'Knut Larsen',
     spor: 'vederlag',
-    summary: 'TE sendte vederlagskrav: kr 2 400 000 (regningsarbeid)',
+    summary: 'TE sendte vederlagskrav: kr 2 930 000 (regningsarbeid)',
     data: {
       metode: 'REGNINGSARBEID',
       kostnads_overslag: 2400000,
       begrunnelse:
-        'Kostnadsoverslag for ekstra peling (type RD 219/12), spunt og forsterkningstiltak.',
+        'Kostnadsoverslag for ekstra peling (type RD 219/12), spunt og forsterkningstiltak. ' +
+        'Arbeidet er igangsatt etter varsling. Detaljert fakturaoversikt vedlegges.',
       varslet_for_oppstart: true,
+      saerskilt_krav: {
+        rigg_drift: { belop: 350000, dato_klar_over: '2026-01-20' },
+        produktivitet: { belop: 180000, dato_klar_over: '2026-01-25' },
+      },
     },
   },
   {
@@ -284,13 +289,17 @@ export const timeline2_BlandetTilstand: TimelineEvent[] = [
     actorrole: 'TE',
     actor: 'Maria Andersen',
     spor: 'vederlag',
-    summary: 'TE sendte vederlagskrav: kr 850 000 (fastpris)',
+    summary: 'TE sendte vederlagskrav: kr 1 125 000 (fastpris)',
     data: {
       metode: 'FASTPRIS_TILBUD',
       belop_direkte: 850000,
       begrunnelse:
         'Fastpristilbud for ekstraarbeid som fulgte av forsinkelsen: omrigging av mannskap, ' +
         'tapt produktivitet og tilleggsbetong ved sektor D.',
+      saerskilt_krav: {
+        rigg_drift: { belop: 180000, dato_klar_over: '2025-11-20' },
+        produktivitet: { belop: 95000, dato_klar_over: '2025-12-01' },
+      },
     },
   },
   // Internal note
