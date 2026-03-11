@@ -3,6 +3,7 @@
 	import CaseCreateForm from '$lib/components/case-create/CaseCreateForm.svelte';
 	import BegrunnelsePanel from '$lib/components/case-create/BegrunnelsePanel.svelte';
 	import FormPageHeader from '$lib/components/shared/FormPageHeader.svelte';
+	import { isHtmlEmpty } from '$lib/utils/formatters';
 	import { createCaseListQuery } from '$lib/queries/caseList';
 
 	const prosjektId = $derived(page.params.prosjektId);
@@ -27,7 +28,7 @@
 		onsubmit: () => void; onavbryt: () => void;
 	} | null>(null);
 
-	const harBegrunnelse = $derived(begrunnelseHtml.replace(/<[^>]*>/g, '').trim().length > 0);
+	const harBegrunnelse = $derived(!isHtmlEmpty(begrunnelseHtml));
 </script>
 
 <div class="ny-sak-layout">

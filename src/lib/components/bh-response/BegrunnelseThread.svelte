@@ -5,13 +5,7 @@
 	import { getPartsNavn } from '$lib/utils/partsNavn';
 	import { GRUNNLAG_RESULTAT_LABELS } from '$lib/constants/responseOptions';
 
-	interface BegrunnelseEntry {
-		rolle: 'TE' | 'BH';
-		versjon: number;
-		html: string;
-		dato?: string;
-		resultat?: string;
-	}
+	import type { BegrunnelseEntry } from '$lib/types';
 
 	interface Props {
 		entries: BegrunnelseEntry[];

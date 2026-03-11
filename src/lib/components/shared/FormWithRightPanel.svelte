@@ -1,14 +1,8 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
 	import BegrunnelseThread from '$lib/components/bh-response/BegrunnelseThread.svelte';
-
-	interface BegrunnelseEntry {
-		rolle: 'TE' | 'BH';
-		versjon: number;
-		html: string;
-		dato?: string;
-		resultat?: string;
-	}
+	import type { BegrunnelseEntry } from '$lib/types';
+	import { isHtmlEmpty } from '$lib/utils/formatters';
 
 	interface Props {
 		// Left panel content
@@ -48,7 +42,7 @@
 	let mobilPanelOpen = $state(false);
 	let activeTab = $state<'begrunnelse' | 'historikk' | 'filer'>('begrunnelse');
 
-	const harBegrunnelse = $derived(bhBegrunnelseHtml.replace(/<[^>]*>/g, '').trim().length > 0);
+	const harBegrunnelse = $derived(!isHtmlEmpty(bhBegrunnelseHtml));
 </script>
 
 <div class="form-layout">

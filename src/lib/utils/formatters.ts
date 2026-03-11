@@ -18,6 +18,14 @@ export {
 } from './dateFormatters';
 
 const NORWEGIAN_LOCALE = 'nb-NO';
+
+/**
+ * Check if an HTML string contains no visible text content.
+ * Strips tags and trims whitespace.
+ */
+export function isHtmlEmpty(html: string): boolean {
+  return html.replace(/<[^>]*>/g, '').trim().length === 0;
+}
 const NORWEGIAN_TIMEZONE = 'Europe/Oslo';
 
 /**
