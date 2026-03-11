@@ -242,13 +242,13 @@
 	/>
 
 	<!-- Standpunkt — overgang fra TE-henvendelse til BH-svar -->
-	<SectionHeading title="Standpunkt" />
+	<SectionHeading title="Byggherrens standpunkt" />
 
 	<!-- Varsling §32.2 -->
 	{#if visVarsling}
 		<section class="form-section">
 			<SectionHeading title="Varsling" paragrafRef="§32.2" />
-			<p class="helptext">Ble varselet sendt uten ugrunnet opphold etter §32.2?</p>
+			<p class="helptext">Ble varselet sendt uten ugrunnet opphold?</p>
 			<SegmentedButtons
 				options={[
 					{ value: 'ja', label: 'Ja, i tide' },
@@ -287,17 +287,15 @@
 			selected={resultat}
 			onselect={(v) => (resultat = v)}
 		/>
-	</section>
-
-	<!-- Endringsadvarsel for resultat -->
-	{#if endringsInfo}
-		{@const resultatEndring = endringsInfo.endringer.find((e) => e.felt === 'resultat')}
-		{#if resultatEndring}
-			<Alert variant="warning">
-				<strong>{resultatEndring.type === 'snuoperasjon' ? 'Snuoperasjon' : 'Endring'}</strong> — {resultatEndring.beskrivelse}
-			</Alert>
+		{#if endringsInfo}
+			{@const resultatEndring = endringsInfo.endringer.find((e) => e.felt === 'resultat')}
+			{#if resultatEndring}
+				<Alert variant="warning">
+					<strong>{resultatEndring.type === 'snuoperasjon' ? 'Snuoperasjon' : 'Endring'}</strong> — {resultatEndring.beskrivelse}
+				</Alert>
+			{/if}
 		{/if}
-	{/if}
+	</section>
 
 	<!-- Konsekvens-callout -->
 	<KonsekvensCallout
@@ -316,8 +314,9 @@
 	}
 
 	.helptext {
-		font-size: 12px;
-		color: var(--color-ink-muted);
+		font-size: 13px;
+		color: var(--color-ink-secondary);
+		line-height: 1.5;
 		margin: 0;
 	}
 </style>

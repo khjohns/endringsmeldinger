@@ -14,6 +14,7 @@
 		if (!sakId) return null;
 		if (pathname.endsWith('/svar-grunnlag')) return 'Svar på grunnlag';
 		if (pathname.endsWith('/rediger-grunnlag')) return 'Rediger grunnlag';
+		if (pathname.endsWith('/send-vederlag')) return 'Send vederlagskrav';
 		return null;
 	});
 

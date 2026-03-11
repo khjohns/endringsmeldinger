@@ -80,7 +80,7 @@
 ## Typography
 - **UI:** Inter — labels, knapper, brodtekst
 - **Data:** JetBrains Mono — tall, belop, datoer, prosent
-- **Section labels:** 10px, weight 600, uppercase, tracking 0.08em, ink-muted
+- **Section labels:** 11px, weight 600, uppercase, tracking 0.06em, ink-muted (SectionHeading-komponent)
 - **Body/labels:** 13px, weight 500
 - **Data values:** 13px, font-data, tabular-nums
 
