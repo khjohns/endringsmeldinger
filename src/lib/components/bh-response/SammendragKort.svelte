@@ -62,7 +62,12 @@
 <div class="seksjon">
 	<SectionHeading title="Kontraktsforhold" paragrafRef={hjemmelRef} />
 
-	<div class="kategori-badge">{kombinertKategori}</div>
+	<div class="kategori-linje">
+		<div class="kategori-badge">{kombinertKategori}</div>
+		{#if formatDato}
+			<span class="dato-verdi">Varslet {formatDato}</span>
+		{/if}
+	</div>
 
 	{#if begrunnelseHtml}
 		<div
@@ -82,12 +87,6 @@
 		{/if}
 	{/if}
 
-	{#if formatDato}
-		<div class="dato-linje">
-			<span class="dato-label">Varslet</span>
-			<span class="dato-verdi">{formatDato}</span>
-		</div>
-	{/if}
 </div>
 
 <style>
@@ -142,8 +141,16 @@
 		flex-direction: column;
 	}
 
-	.kategori-badge {
+	.kategori-linje {
+		display: flex;
+		align-items: baseline;
+		flex-wrap: wrap;
+		gap: 8px;
 		margin-top: var(--spacing-3);
+		margin-bottom: 12px;
+	}
+
+	.kategori-badge {
 		font-family: var(--font-data);
 		font-size: 11px;
 		font-weight: 500;
@@ -152,8 +159,6 @@
 		border: 1px solid var(--color-wire);
 		border-radius: var(--radius-sm);
 		padding: 4px 8px;
-		align-self: flex-start;
-		margin-bottom: 12px;
 	}
 
 	.begrunnelse {
@@ -164,10 +169,8 @@
 	}
 
 	.begrunnelse-avkortet {
-		max-height: calc(1.6em * 4);
+		max-height: calc(1.6em * 10);
 		overflow: hidden;
-		-webkit-mask-image: linear-gradient(to bottom, black 70%, transparent 100%);
-		mask-image: linear-gradient(to bottom, black 70%, transparent 100%);
 	}
 
 	.begrunnelse :global(p) {
@@ -204,25 +207,10 @@
 		transform: rotate(180deg);
 	}
 
-	.dato-linje {
-		display: flex;
-		align-items: center;
-		gap: 8px;
-		margin-top: 12px;
-		padding-top: 12px;
-		border-top: 1px solid var(--color-wire);
-	}
-
-	.dato-label {
+	.dato-verdi {
 		font-family: var(--font-data);
 		font-size: 11px;
 		color: var(--color-ink-muted);
-	}
-
-	.dato-verdi {
-		font-family: var(--font-data);
-		font-size: 12px;
-		font-weight: 500;
-		color: var(--color-ink-secondary);
+		margin-left: auto;
 	}
 </style>
