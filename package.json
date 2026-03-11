@@ -34,10 +34,11 @@
 		"vitest": "^3.1.0"
 	},
 	"dependencies": {
-		"@friendofsvelte/tipex": "^0.1.1",
 		"@tanstack/svelte-query": "^6.1.0",
+		"@tiptap/core": "^2.27.2",
 		"@tiptap/extension-character-count": "^2.27.2",
 		"@tiptap/extension-placeholder": "^2.27.2",
+		"@tiptap/starter-kit": "^2.27.2",
 		"bits-ui": "^2.16.2",
 		"date-fns": "^4.1.0",
 		"formsnap": "^2.0.1",
