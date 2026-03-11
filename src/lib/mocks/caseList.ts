@@ -35,7 +35,7 @@ export const mockCaseList: CaseListResponse = {
       cached_title: 'Tilleggskrav — forsinkede tegningsleveranser',
       cached_status: 'UNDER_BEHANDLING',
       cached_hovedkategori: 'ENDRING',
-      cached_underkategori: 'PROSJEKTERING',
+      cached_underkategori: 'IRREG',
       cached_sum_krevd: 850000,
       cached_sum_godkjent: null,
       cached_dager_krevd: 30,

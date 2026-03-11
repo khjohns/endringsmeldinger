@@ -19,6 +19,7 @@
 	import KonsekvensCallout from './KonsekvensCallout.svelte';
 	import FormPageHeader from '$lib/components/shared/FormPageHeader.svelte';
 	import FormWithRightPanel from '$lib/components/shared/FormWithRightPanel.svelte';
+	import SectionHeading from '$lib/components/primitives/SectionHeading.svelte';
 	import Alert from '$lib/components/primitives/Alert.svelte';
 
 	interface KravData {
@@ -234,18 +235,20 @@
 		tittel={krav.tittel}
 		hovedkategori={krav.hovedkategori}
 		underkategori={krav.underkategori}
+		hjemmelRef={krav.hjemmelRef}
 		datoVarslet={krav.datoVarslet}
 		begrunnelseHtml={krav.begrunnelseHtml}
 		versjon={krav.versjon}
 	/>
 
+	<!-- Standpunkt — overgang fra TE-henvendelse til BH-svar -->
+	<SectionHeading title="Standpunkt" />
+
 	<!-- Varsling §32.2 -->
 	{#if visVarsling}
 		<section class="form-section">
-			<div class="section-header">
-				<h3 class="section-label">Varsling §32.2</h3>
-				<span class="section-ref">Varslet i tide?</span>
-			</div>
+			<SectionHeading title="Varsling" paragrafRef="§32.2" />
+			<p class="helptext">Ble varselet sendt uten ugrunnet opphold etter §32.2?</p>
 			<SegmentedButtons
 				options={[
 					{ value: 'ja', label: 'Ja, i tide' },
@@ -273,9 +276,7 @@
 
 	<!-- Resultat -->
 	<section class="form-section">
-		<div class="section-header">
-			<h3 class="section-label">Resultat</h3>
-		</div>
+		<SectionHeading title="Resultat" />
 		<SegmentedButtons
 			options={verdictOptions.map(o => ({
 				value: o.value,
@@ -314,16 +315,9 @@
 		gap: var(--spacing-3);
 	}
 
-	.section-header {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		padding-bottom: var(--spacing-2);
-		border-bottom: 1px solid var(--color-wire);
-	}
-
-	.section-ref {
-		font-size: 11px;
+	.helptext {
+		font-size: 12px;
 		color: var(--color-ink-muted);
+		margin: 0;
 	}
 </style>
