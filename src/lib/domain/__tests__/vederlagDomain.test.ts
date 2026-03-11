@@ -877,3 +877,150 @@ describe('beregnAlt', () => {
     expect(result.harPreklusjonsSteg).toBe(true);
   });
 });
+
+// ============================================================================
+// BH SVAR-VEDERLAG UI SCENARIOS
+// ============================================================================
+
+describe('BH Svar-Vederlag UI Scenarios', () => {
+  const baseConfig: VederlagDomainConfig = {
+    metode: 'REGNINGSARBEID',
+    hovedkravBelop: 1_000_000,
+    riggBelop: 200_000,
+    produktivitetBelop: 150_000,
+    harRiggKrav: true,
+    harProduktivitetKrav: true,
+    kreverJustertEp: false,
+    kostnadsOverslag: 1_200_000,
+    hovedkategori: 'ENDRING',
+    grunnlagVarsletForSent: false,
+    grunnlagStatus: 'godkjent',
+  };
+
+  const godkjentAlleState: VederlagFormState = {
+    hovedkravVarsletITide: true,
+    riggVarsletITide: true,
+    produktivitetVarsletITide: true,
+    akseptererMetode: true,
+    holdTilbake: false,
+    hovedkravVurdering: 'godkjent',
+    riggVurdering: 'godkjent',
+    produktivitetVurdering: 'godkjent',
+    begrunnelse: '<p>Godkjent.</p>',
+  };
+
+  it('godkjent alle — prinsipalt godkjent, ingen subsidiært', () => {
+    const computed = beregnAlt(godkjentAlleState, baseConfig);
+    expect(computed.prinsipaltResultat).toBe('godkjent');
+    expect(computed.visSubsidiaertResultat).toBe(false);
+    expect(computed.totalGodkjent).toBe(1_350_000);
+    expect(computed.totalKrevdInklPrekludert).toBe(1_350_000);
+  });
+
+  it('delvis godkjent hovedkrav — prinsipalt delvis', () => {
+    const state: VederlagFormState = {
+      ...godkjentAlleState,
+      hovedkravVurdering: 'delvis',
+      hovedkravGodkjentBelop: 600_000,
+    };
+    const computed = beregnAlt(state, baseConfig);
+    expect(computed.prinsipaltResultat).toBe('delvis_godkjent');
+    expect(computed.totalGodkjent).toBe(600_000 + 200_000 + 150_000);
+  });
+
+  it('prekludert rigg — vises subsidiært', () => {
+    const state: VederlagFormState = {
+      ...godkjentAlleState,
+      riggVarsletITide: false,
+    };
+    const computed = beregnAlt(state, baseConfig);
+    expect(computed.riggPrekludert).toBe(true);
+    expect(computed.visSubsidiaertResultat).toBe(true);
+    expect(computed.subsidiaerTriggers).toContain('preklusjon_rigg');
+    expect(computed.totalGodkjent).toBe(1_000_000 + 150_000);
+    expect(computed.totalGodkjentInklPrekludert).toBe(1_350_000);
+  });
+
+  it('metode avslått — trigger i subsidiært', () => {
+    const state: VederlagFormState = {
+      ...godkjentAlleState,
+      akseptererMetode: false,
+      oensketMetode: 'ENHETSPRISER',
+    };
+    const computed = beregnAlt(state, baseConfig);
+    expect(computed.subsidiaerTriggers).toContain('metode_avslatt');
+    expect(computed.prinsipaltResultat).toBe('delvis_godkjent');
+  });
+
+  it('grunnlag avslått → hele vederlag subsidiært', () => {
+    const config: VederlagDomainConfig = {
+      ...baseConfig,
+      grunnlagStatus: 'avslatt',
+    };
+    const computed = beregnAlt(godkjentAlleState, config);
+    expect(computed.erSubsidiaer).toBe(true);
+  });
+
+  it('SVIKT kategori → har §34.1.2 preklusjon for hovedkrav', () => {
+    const config: VederlagDomainConfig = {
+      ...baseConfig,
+      hovedkategori: 'SVIKT',
+    };
+    const computed = beregnAlt(godkjentAlleState, config);
+    expect(computed.har34_1_2_Preklusjon).toBe(true);
+    expect(computed.harPreklusjonsSteg).toBe(true);
+  });
+
+  it('SVIKT + hovedkrav prekludert → prinsipalt delvis, subsidiært godkjent', () => {
+    const config: VederlagDomainConfig = {
+      ...baseConfig,
+      hovedkategori: 'SVIKT',
+    };
+    const state: VederlagFormState = {
+      ...godkjentAlleState,
+      hovedkravVarsletITide: false,
+    };
+    const computed = beregnAlt(state, config);
+    expect(computed.hovedkravPrekludert).toBe(true);
+    expect(computed.visSubsidiaertResultat).toBe(true);
+    expect(computed.subsidiaerTriggers).toContain('preklusjon_hovedkrav');
+    expect(computed.prinsipaltResultat).toBe('delvis_godkjent');
+    expect(computed.subsidiaertResultat).toBe('godkjent');
+  });
+
+  it('buildEventData produces correct event for new response', () => {
+    const computed = beregnAlt(godkjentAlleState, baseConfig);
+    const { eventType, data } = buildEventData(
+      godkjentAlleState, baseConfig, computed,
+      { vederlagKravId: 'evt-123', isUpdateMode: false },
+      '', computed.subsidiaerTriggers,
+    );
+    expect(eventType).toBe('respons_vederlag');
+    expect(data.vederlag_krav_id).toBe('evt-123');
+    expect(data.beregnings_resultat).toBe('godkjent');
+    expect(data.total_godkjent_belop).toBe(1_350_000);
+  });
+
+  it('buildEventData produces correct event for update', () => {
+    const computed = beregnAlt(godkjentAlleState, baseConfig);
+    const { eventType, data } = buildEventData(
+      godkjentAlleState, baseConfig, computed,
+      { vederlagKravId: 'evt-123', lastResponseEventId: 'resp-456', isUpdateMode: true },
+      '', computed.subsidiaerTriggers,
+    );
+    expect(eventType).toBe('respons_vederlag_oppdatert');
+    expect(data.original_respons_id).toBe('resp-456');
+  });
+
+  it('bare hovedkrav (ingen særskilte) — ingen preklusjonsSteg for ENDRING', () => {
+    const config: VederlagDomainConfig = {
+      ...baseConfig,
+      harRiggKrav: false,
+      harProduktivitetKrav: false,
+      riggBelop: undefined,
+      produktivitetBelop: undefined,
+    };
+    const computed = beregnAlt(godkjentAlleState, config);
+    expect(computed.harPreklusjonsSteg).toBe(false);
+  });
+});
