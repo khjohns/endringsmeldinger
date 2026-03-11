@@ -5,7 +5,6 @@
 	} from '$lib/constants/paymentMethods';
 	import {
 		getDefaults,
-		beregnVisibility,
 		beregnCanSubmit,
 		getDynamicPlaceholder,
 		buildEventData,
@@ -22,7 +21,6 @@
 	import { useQueryClient } from '@tanstack/svelte-query';
 	import SegmentedControl from '$lib/components/primitives/SegmentedControl.svelte';
 	import NumberInput from '$lib/components/primitives/NumberInput.svelte';
-	import Checkbox from '$lib/components/primitives/Checkbox.svelte';
 	import SectionHeading from '$lib/components/primitives/SectionHeading.svelte';
 
 	interface FormActions {
@@ -78,11 +76,32 @@
 	// --- Derived ---
 	const harRiggKrav = $derived((belopRigg ?? 0) > 0);
 	const harProduktivitetKrav = $derived((belopProduktivitet ?? 0) > 0);
-	const visibility = $derived(beregnVisibility({ metode }));
+	const isLocked = $derived(scenario === 'edit');
+
+	// Dynamic label for the main amount field based on method
+	const hovedkravLabel = $derived.by(() => {
+		if (metode === 'ENHETSPRISER') return 'Anslått beløp';
+		if (metode === 'REGNINGSARBEID') return 'Kostnadsoverslag';
+		if (metode === 'FASTPRIS_TILBUD') return 'Fast pris';
+		return 'Beløp';
+	});
+
+	// Route value to correct state var based on method
+	const hovedkravValue = $derived(
+		metode === 'REGNINGSARBEID' ? kostnadsOverslag : belopDirekte
+	);
+
+	function handleHovedkravChange(v: number | null) {
+		if (metode === 'REGNINGSARBEID') {
+			kostnadsOverslag = v ?? undefined;
+		} else {
+			belopDirekte = v ?? undefined;
+		}
+	}
+
 	const metodeDescription = $derived(
 		metode ? VEDERLAGSMETODE_DESCRIPTIONS[metode] : undefined
 	);
-	const isLocked = $derived(scenario === 'edit');
 
 	const mappedState: VederlagSubmissionFormState = $derived({
 		metode,
@@ -172,92 +191,61 @@
 <div class="te-vederlag-form">
 	<!-- BEREGNINGSMETODE §34 -->
 	<section class="form-section">
-		<SectionHeading title="Beregningsmetode" paragrafRef="§34" />
-		<SegmentedControl
-			value={metode ?? ''}
-			options={METODE_OPTIONS}
-			onchange={(v) => { metode = v as VederlagsMetode; }}
-			disabled={isLocked}
-		/>
+		<SectionHeading title="Beregningsmetode" paragrafRef="§34.2" />
+		<div class="field-auto">
+			<SegmentedControl
+				value={metode ?? ''}
+				options={METODE_OPTIONS}
+				onchange={(v) => { metode = v as VederlagsMetode; }}
+				disabled={isLocked}
+			/>
+		</div>
 		{#if metodeDescription}
-			<p class="metode-description">{metodeDescription}</p>
+			<p class="helptext">{metodeDescription}</p>
 		{/if}
 	</section>
 
-	<!-- METODE-SPESIFIKKE FELT -->
-	{#if metode}
-		<section class="form-section">
-			{#if visibility.showBelopDirekte}
-				<NumberInput
-					label="Beløp"
-					suffix="kr"
-					value={belopDirekte ?? null}
-					onchange={(v) => (belopDirekte = v ?? undefined)}
-				/>
-			{/if}
-			{#if visibility.showKostnadsOverslag}
-				<NumberInput
-					label="Kostnadsoverslag"
-					suffix="kr"
-					value={kostnadsOverslag ?? null}
-					onchange={(v) => (kostnadsOverslag = v ?? undefined)}
-				/>
-			{/if}
-			{#if visibility.showJustertEp}
-				<Checkbox
-					checked={kreverJustertEp}
-					label="Krever justerte enhetspriser"
-					paragrafRef="§34.3.3"
-					onchange={(v) => (kreverJustertEp = v)}
-				/>
-			{/if}
-			{#if visibility.showVarsletForOppstart}
-				<Checkbox
-					checked={varsletForOppstart}
-					label="Varslet før oppstart"
-					paragrafRef="§34.2.2"
-					onchange={(v) => (varsletForOppstart = v)}
-				/>
-			{/if}
-		</section>
-	{/if}
+	<!-- HOVEDKRAV §34.2–34.4 -->
+	<section class="form-section">
+		<SectionHeading title="Hovedkrav" paragrafRef="§34.1.1–34.1.2" />
+		<div class="field-amount">
+			<NumberInput
+				label={hovedkravLabel}
+				suffix="kr"
+				value={hovedkravValue ?? null}
+				onchange={handleHovedkravChange}
+			/>
+		</div>
+	</section>
 
 	<!-- SÆRSKILTE KRAV §34.1.3 -->
-	{#if metode}
-		<section class="form-section">
-			<div class="kravlinje-container">
-				<span class="kravlinje-label">Særskilte krav §34.1.3</span>
-				<p class="kravlinje-helptext">Oppgi beløp hvis relevant</p>
-
-				<div class="kravlinje">
-					<NumberInput
-						label="Rigg og drift"
-						suffix="kr"
-						value={belopRigg ?? null}
-						onchange={(v) => (belopRigg = v ?? undefined)}
-					/>
-				</div>
-
-				<div class="kravlinje-separator"></div>
-
-				<div class="kravlinje">
-					<NumberInput
-						label="Produktivitetstap"
-						suffix="kr"
-						value={belopProduktivitet ?? null}
-						onchange={(v) => (belopProduktivitet = v ?? undefined)}
-					/>
-				</div>
-			</div>
-		</section>
-	{/if}
+	<section class="form-section">
+		<SectionHeading title="Særskilte krav" paragrafRef="§34.1.3" />
+		<p class="helptext">Eventuelle tilleggskrav for rigg/drift-kostnader eller produktivitetstap som følge av endringen.</p>
+		<div class="field-amount">
+			<NumberInput
+				label="Rigg og drift"
+				suffix="kr"
+				value={belopRigg ?? null}
+				onchange={(v) => (belopRigg = v ?? undefined)}
+			/>
+		</div>
+		<div class="field-amount">
+			<NumberInput
+				label="Produktivitetstap"
+				suffix="kr"
+				value={belopProduktivitet ?? null}
+				onchange={(v) => (belopProduktivitet = v ?? undefined)}
+			/>
+		</div>
+	</section>
 </div>
 
 <style>
 	.te-vederlag-form {
 		display: flex;
 		flex-direction: column;
-		gap: var(--spacing-5);
+		gap: var(--spacing-6);
 	}
 
 	.form-section {
@@ -266,46 +254,18 @@
 		gap: var(--spacing-3);
 	}
 
-	.metode-description {
+	.helptext {
 		font-size: 13px;
 		color: var(--color-ink-secondary);
 		line-height: 1.5;
 		margin: 0;
 	}
 
-	/* Kravlinje-container: innfelt canvas-boks */
-	.kravlinje-container {
-		position: relative;
-		background: var(--color-canvas);
-		border: 1px solid var(--color-wire);
-		border-radius: var(--radius-md);
-		padding: var(--spacing-4);
-		display: flex;
-		flex-direction: column;
-		gap: var(--spacing-3);
+	.field-auto {
+		width: fit-content;
 	}
 
-	.kravlinje-label {
-		position: absolute;
-		top: -8px;
-		left: var(--spacing-3);
-		background: var(--color-canvas);
-		padding: 0 var(--spacing-2);
-		font-family: var(--font-data);
-		font-size: 10px;
-		font-weight: 600;
-		text-transform: uppercase;
-		letter-spacing: 0.06em;
-		color: var(--color-ink-ghost);
-	}
-
-	.kravlinje-helptext {
-		font-size: 12px;
-		color: var(--color-ink-muted);
-		margin: 0;
-	}
-
-	.kravlinje-separator {
-		border-bottom: 1px dashed var(--color-wire);
+	.field-amount {
+		max-width: 240px;
 	}
 </style>

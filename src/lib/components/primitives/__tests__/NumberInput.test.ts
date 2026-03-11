@@ -6,7 +6,7 @@ import NumberInput from '../NumberInput.svelte';
 describe('NumberInput', () => {
 	it('renders with value', () => {
 		render(NumberInput, { props: { value: 1500, onchange: () => {} } });
-		expect(screen.getByRole('textbox')).toHaveValue('1500');
+		expect(screen.getByRole('textbox')).toHaveValue('1\u00a0500');
 	});
 
 	it('renders label', () => {

@@ -17,7 +17,14 @@
 		onchange
 	}: Props = $props();
 
-	let inputValue = $derived(value !== null && value !== undefined ? String(value) : '');
+	let editing = $state(false);
+	let rawInput = $state('');
+
+	let displayValue = $derived.by(() => {
+		if (editing) return rawInput;
+		if (value === null || value === undefined) return '';
+		return value.toLocaleString('nb-NO');
+	});
 
 	let diff = $derived.by(() => {
 		if (referenceValue === undefined || value === null || value === undefined || referenceValue === 0) return null;
@@ -27,6 +34,7 @@
 
 	function handleInput(e: Event) {
 		const target = e.target as HTMLInputElement;
+		rawInput = target.value;
 		const raw = target.value.replace(/[^\d.-]/g, '');
 		if (raw === '') {
 			onchange(null);
@@ -36,6 +44,15 @@
 		if (isNaN(num)) return;
 		if (max !== undefined && num > max) num = max;
 		onchange(num);
+	}
+
+	function handleFocus() {
+		editing = true;
+		rawInput = value !== null && value !== undefined ? String(value) : '';
+	}
+
+	function handleBlur() {
+		editing = false;
 	}
 </script>
 
@@ -49,8 +66,10 @@
 			type="text"
 			inputmode="numeric"
 			class="number-input"
-			value={inputValue}
+			value={displayValue}
 			oninput={handleInput}
+			onfocus={handleFocus}
+			onblur={handleBlur}
 			aria-label={label || undefined}
 		/>
 		{#if suffix}
@@ -111,6 +130,7 @@
 		font-variant-numeric: tabular-nums;
 		color: var(--color-ink);
 		min-width: 0;
+		text-align: right;
 	}
 
 	.number-suffix {
