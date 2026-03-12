@@ -100,11 +100,31 @@
 		return `${date.getDate()}. ${MONTH_SHORT[date.getMonth()]}`;
 	}
 
-	function getRevision(event: TimelineEvent): string | null {
+	/**
+	 * Extract revision number for display.
+	 * Rev 0 (original) returns null — no badge shown.
+	 * Rev 1+ returns the revision number.
+	 */
+	function getRevision(event: TimelineEvent): number | null {
 		const data = event.data as Record<string, unknown> | undefined;
 		if (!data) return null;
+		// BH response: respondert_versjon is 0-indexed (0 = response to original)
 		if ('respondert_versjon' in data && typeof data.respondert_versjon === 'number') {
-			return `Rev. ${data.respondert_versjon}`;
+			return data.respondert_versjon > 0 ? data.respondert_versjon : null;
+		}
+		return null;
+	}
+
+	/**
+	 * Get the version number this event relates to (for entanglement matching).
+	 * Returns 0-indexed version: 0 = original, 1 = rev 1, etc.
+	 */
+	function getEventVersion(event: TimelineEvent): number | null {
+		const data = event.data as Record<string, unknown> | undefined;
+		if (!data) return null;
+		// BH response references TE version
+		if ('respondert_versjon' in data && typeof data.respondert_versjon === 'number') {
+			return data.respondert_versjon;
 		}
 		return null;
 	}
@@ -114,7 +134,7 @@
 	// Events are pre-sorted (newest first) and pre-filtered (time != null) by parent
 	const hasMore = $derived(events.length > VISIBLE_COUNT);
 
-	function mapEntry(e: TimelineEvent) {
+	function mapEntry(e: TimelineEvent, index: number) {
 		const eventType = extractEventType(e.type);
 		const icon = getEventIcon(eventType);
 		const label = getEventLabel(e, eventType);
@@ -122,12 +142,53 @@
 		const revision = getRevision(e);
 		const actorSuffix = getActorSuffix(e);
 		const internt = isInterntNotat(eventType);
-		return { id: e.id, icon, dateLabel, label, revision, actorSuffix, internt };
+		const version = getEventVersion(e);
+		const isResponse = eventType ? eventType.startsWith('respons_') : false;
+		const actorRole = e.actorrole as 'TE' | 'BH' | undefined;
+		return { id: e.id, icon, dateLabel, label, revision, actorSuffix, internt, version, isResponse, actorRole, index };
 	}
 
-	const visibleEntries = $derived(events.slice(0, VISIBLE_COUNT).map(mapEntry));
-	const remainingEntries = $derived(events.slice(VISIBLE_COUNT).map(mapEntry));
+	const visibleEntries = $derived(events.slice(0, VISIBLE_COUNT).map((e, i) => mapEntry(e, i)));
+	const remainingEntries = $derived(events.slice(VISIBLE_COUNT).map((e, i) => mapEntry(e, i + VISIBLE_COUNT)));
 	const allEntries = $derived([...visibleEntries, ...remainingEntries]);
+
+	// Entanglement: track which event indices are "linked" to the focused event
+	let entangledIndices = $state<Set<number>>(new Set());
+
+	function findEntangledIndices(clickedIndex: number): Set<number> {
+		const clicked = allEntries[clickedIndex];
+		if (!clicked) return new Set();
+
+		const linked = new Set<number>();
+
+		if (clicked.isResponse && clicked.version != null) {
+			// BH response → find TE claim with matching version
+			for (const entry of allEntries) {
+				if (entry.actorRole === 'TE' && !entry.isResponse) {
+					// TE claim version is inferred from position (newest = highest version)
+					// Use respondert_versjon to match
+					const evData = events[entry.index]?.data as Record<string, unknown> | undefined;
+					const evVersion = evData && 'versjon' in evData ? (evData.versjon as number) - 1 : null;
+					if (evVersion === clicked.version) {
+						linked.add(entry.index);
+					}
+				}
+			}
+		} else if (clicked.actorRole === 'TE' && !clicked.isResponse) {
+			// TE claim → find BH response with matching version
+			const evData = events[clickedIndex]?.data as Record<string, unknown> | undefined;
+			const evVersion = evData && 'versjon' in evData ? (evData.versjon as number) - 1 : null;
+			if (evVersion != null) {
+				for (const entry of allEntries) {
+					if (entry.isResponse && entry.version === evVersion) {
+						linked.add(entry.index);
+					}
+				}
+			}
+		}
+
+		return linked;
+	}
 
 	function handleToggleClick(e: MouseEvent) {
 		e.stopPropagation();
@@ -162,8 +223,10 @@
 	function emitFocus(index: number) {
 		focusedIndex = index;
 		if (index >= 0 && index < events.length) {
+			entangledIndices = findEntangledIndices(index);
 			onFocusEvent?.(events[index]);
 		} else {
+			entangledIndices = new Set();
 			onFocusEvent?.(null);
 		}
 	}
@@ -207,6 +270,7 @@
 				id="{listboxId}-option-{i}"
 				class="event-line"
 				class:event-line-focused={focusedIndex === i}
+				class:event-line-entangled={entangledIndices.has(i)}
 				class:event-line-internt={entry.internt}
 				role="option"
 				aria-selected={focusedIndex === i}
@@ -225,7 +289,7 @@
 					<span class="event-actor">{entry.actorSuffix}</span>
 				{/if}
 				{#if entry.revision}
-					<span class="event-rev">{entry.revision}</span>
+					<span class="event-rev-badge">Rev. {entry.revision}</span>
 				{/if}
 			</div>
 		{/each}
@@ -255,6 +319,7 @@
 							id="{listboxId}-option-{j + VISIBLE_COUNT}"
 							class="event-line"
 							class:event-line-focused={focusedIndex === j + VISIBLE_COUNT}
+							class:event-line-entangled={entangledIndices.has(j + VISIBLE_COUNT)}
 							class:event-line-internt={entry.internt}
 							role="option"
 							aria-selected={focusedIndex === j + VISIBLE_COUNT}
@@ -385,12 +450,25 @@
 		text-overflow: ellipsis;
 	}
 
-	.event-rev {
+	.event-rev-badge {
 		font-family: var(--font-data);
 		font-size: 9px;
 		color: var(--color-ink-muted);
 		flex-shrink: 0;
 		margin-left: auto;
+		border: 1px solid var(--color-wire-strong);
+		border-radius: var(--radius-sm);
+		padding: 1px 4px;
+		line-height: 1;
+	}
+
+	.event-line-entangled {
+		border-left-color: var(--color-wire-focus);
+		background: var(--color-felt-hover);
+	}
+
+	.event-line-entangled .event-text {
+		color: var(--color-ink);
 	}
 
 	/* Gul Lapp — internal note styling */
