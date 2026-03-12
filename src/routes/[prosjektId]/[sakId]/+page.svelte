@@ -1,9 +1,13 @@
 <script lang="ts">
 	import { page } from '$app/state';
+	import { browser } from '$app/environment';
 	import type { TimelineEvent } from '$lib/types/timeline';
 	import { createCaseContextQuery } from '$lib/queries/caseContext';
 	import Sidebar from '$lib/components/saksmappe/Sidebar.svelte';
 	import Timeline from '$lib/components/saksmappe/Timeline.svelte';
+	import KronologiskTidslinje from '$lib/components/saksmappe/KronologiskTidslinje.svelte';
+	import VisningstToggle from '$lib/components/saksmappe/VisningstToggle.svelte';
+	import type { Visning, SporFilter } from '$lib/components/saksmappe/VisningstToggle.svelte';
 	import Forhandsvisning from '$lib/components/saksmappe/Forhandsvisning.svelte';
 
 	const prosjektId = $derived(page.params.prosjektId ?? '');
@@ -13,6 +17,27 @@
 
 	let focusedEvent = $state<TimelineEvent | null>(null);
 	let sidebarOpen = $state(false);
+
+	// View toggle state — persisted per sak in localStorage
+	const storageKey = $derived(`koe-visning-${sakId}`);
+	let visning = $state<Visning>('kort');
+	let sporFilter = $state<SporFilter>({ K: true, V: true, F: true });
+
+	$effect(() => {
+		if (browser) {
+			const stored = localStorage.getItem(storageKey);
+			if (stored === 'kort' || stored === 'tidslinje') visning = stored;
+		}
+	});
+
+	function handleVisningChange(v: Visning) {
+		visning = v;
+		if (browser) localStorage.setItem(storageKey, v);
+	}
+
+	function handleFilterChange(f: SporFilter) {
+		sporFilter = f;
+	}
 
 	function handleFocusEvent(event: TimelineEvent | null) {
 		focusedEvent = event;
@@ -58,14 +83,29 @@
 			<Sidebar state={query.data.state} />
 		</div>
 		<main class="main-content">
+			<VisningstToggle
+				{visning}
+				{sporFilter}
+				onVisningChange={handleVisningChange}
+				onFilterChange={handleFilterChange}
+			/>
 			<div class="timeline-container">
-				<Timeline
-					state={query.data.state}
-					timeline={query.data.timeline}
-					{prosjektId}
-					{sakId}
-					onFocusEvent={handleFocusEvent}
-				/>
+				{#if visning === 'kort'}
+					<Timeline
+						state={query.data.state}
+						timeline={query.data.timeline}
+						{prosjektId}
+						{sakId}
+						onFocusEvent={handleFocusEvent}
+					/>
+				{:else}
+					<KronologiskTidslinje
+						sakState={query.data.state}
+						timeline={query.data.timeline}
+						{sporFilter}
+						onFocusEvent={handleFocusEvent}
+					/>
+				{/if}
 			</div>
 		</main>
 		{#if hasPanel}

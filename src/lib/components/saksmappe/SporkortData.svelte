@@ -7,15 +7,24 @@
 	} from '$lib/types/timeline';
 	import { formatCurrencyCompact, formatDateShort } from '$lib/utils/formatters';
 	import { getKontraktsforholdLabel, getHjemmelLabel } from '$lib/constants/categories';
+	import StatusQuoGap from './StatusQuoGap.svelte';
 
 	interface Props {
 		sporType: SporType;
 		grunnlag?: GrunnlagTilstand;
 		vederlag?: VederlagTilstand;
 		frist?: FristTilstand;
+		teNavn?: string;
+		bhNavn?: string;
 	}
 
-	let { sporType, grunnlag, vederlag, frist }: Props = $props();
+	let { sporType, grunnlag, vederlag, frist, teNavn, bhNavn }: Props = $props();
+
+	// Show gap when BH has responded with a value
+	const showGap = $derived(
+		(sporType === 'vederlag' && vederlag?.godkjent_belop != null) ||
+		(sporType === 'frist' && frist?.godkjent_dager != null)
+	);
 
 	// Left-side descriptive segments (method, category, revision)
 	const leftSegments = $derived.by(() => {
@@ -67,6 +76,10 @@
 			{/each}
 		</div>
 	</div>
+{/if}
+
+{#if showGap}
+	<StatusQuoGap {sporType} {vederlag} {frist} {teNavn} {bhNavn} compact />
 {/if}
 
 <style>
