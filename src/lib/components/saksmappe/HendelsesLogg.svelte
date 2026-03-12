@@ -458,7 +458,7 @@
 		margin-left: auto;
 		border: 1px solid var(--color-wire-strong);
 		border-radius: var(--radius-sm);
-		padding: 1px 4px;
+		padding: 2px 4px;
 		line-height: 1;
 	}
 

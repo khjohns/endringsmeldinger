@@ -341,8 +341,16 @@
 		color: var(--color-vekt);
 	}
 
+	.ledger-action:active {
+		color: var(--color-vekt-dim);
+	}
+
 	.ledger-action-frist:hover {
 		color: var(--color-score-low);
+	}
+
+	.ledger-action-frist:active {
+		color: var(--color-score-low-dim, var(--color-score-low));
 	}
 
 	@media (max-width: 1023px) {

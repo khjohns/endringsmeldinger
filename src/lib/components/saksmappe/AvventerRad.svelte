@@ -83,6 +83,7 @@
 		color: var(--color-ink-muted);
 		font-size: 10px;
 		flex-shrink: 0;
+		line-height: 1;
 	}
 
 	.avventer-label {
@@ -109,6 +110,10 @@
 
 	.avventer-action:hover {
 		color: var(--color-vekt);
+	}
+
+	.avventer-action:active {
+		color: var(--color-vekt-dim);
 	}
 
 	[data-spor='frist'] .avventer-action:hover {
