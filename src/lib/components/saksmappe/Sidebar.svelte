@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { SakState } from '$lib/types/timeline';
 	import FristerSection from './FristerSection.svelte';
+	import StatusQuoGap from './StatusQuoGap.svelte';
 	import { formatCurrency } from '$lib/utils/formatters';
 
 	interface Props {
@@ -92,44 +93,54 @@
 		</button>
 	</div>
 
-	<!-- Nokkeltall -->
-	{#if krevdVederlag > 0 || krevdDager > 0}
-		<div class="sidebar-section sidebar-section-last">
-			<div class="section-label">Nøkkeltall (NOK)</div>
-
-			{#if krevdVederlag > 0}
+	<!-- Ledger: Vederlag -->
+	{#if krevdVederlag > 0}
+		<div class="sidebar-section ledger-section ledger-vederlag">
+			<div class="ledger-header">Vederlag (V)</div>
+			{#if godkjentVederlag > 0}
+				<StatusQuoGap sporType="vederlag" vederlag={state.vederlag} teNavn={state.entreprenor} bhNavn={state.byggherre} />
+			{:else}
 				<div class="finans-rad">
-					<span class="finans-label">Krevd vederlag</span>
+					<span class="finans-label">Krevd ({state.entreprenor ?? 'TE'})</span>
 					<span class="finans-verdi krav">{formatCurrency(krevdVederlag)}</span>
 				</div>
-				{#if godkjentVederlag > 0}
-					<div class="finans-rad">
-						<span class="finans-label"><span class="finans-symbol godkjent" aria-hidden="true">✓</span> Godkjent</span>
-						<span class="finans-verdi godkjent">{formatCurrency(godkjentVederlag)}</span>
-					</div>
-				{/if}
-				{#if omtvistet > 0}
-					<div class="finans-rad">
-						<span class="finans-label">Omtvistet</span>
-						<span class="finans-verdi omtvistet">{formatCurrency(omtvistet)}</span>
-					</div>
-				{/if}
 			{/if}
+			{#if state.vederlag.status === 'sendt' || state.vederlag.status === 'under_behandling' || state.vederlag.status === 'delvis_godkjent'}
+				<button class="ledger-action" type="button">Svar på krav →</button>
+			{/if}
+		</div>
+	{/if}
 
-			{#if krevdDager > 0}
-				<div class="finans-divider"></div>
-				<div class="finans-undergruppe">Tidsrisiko ({krevdDager} dager)</div>
-				{#if dagmulktEksponering > 0}
-					<div class="finans-rad finans-rad-sub">
-						<span class="finans-label">Dagmulkteksponering</span>
-						<span class="finans-verdi omtvistet">- {formatCurrency(dagmulktEksponering)}</span>
-					</div>
-					<div class="finans-rad finans-rad-sub">
-						<span class="finans-label">Maks. forseringskostnad</span>
-						<span class="finans-verdi krav">{formatCurrency(maksForsering)}</span>
-					</div>
-				{/if}
+	<!-- Ledger: Frist -->
+	{#if krevdDager > 0}
+		<div class="sidebar-section ledger-section ledger-frist">
+			<div class="ledger-header">Frist (F)</div>
+			{#if state.frist.godkjent_dager != null}
+				<StatusQuoGap sporType="frist" frist={state.frist} teNavn={state.entreprenor} bhNavn={state.byggherre} />
+			{:else}
+				<div class="finans-rad">
+					<span class="finans-label">Krevd ({state.entreprenor ?? 'TE'})</span>
+					<span class="finans-verdi krav">{krevdDager} dager</span>
+				</div>
 			{/if}
+			{#if state.frist.status === 'sendt' || state.frist.status === 'under_behandling' || state.frist.status === 'delvis_godkjent'}
+				<button class="ledger-action ledger-action-frist" type="button">Svar på fristkrav →</button>
+			{/if}
+		</div>
+	{/if}
+
+	<!-- Tidsrisiko -->
+	{#if krevdDager > 0 && dagmulktEksponering > 0}
+		<div class="sidebar-section sidebar-section-last">
+			<div class="section-label">Tidsrisiko ({krevdDager} dager)</div>
+			<div class="finans-rad finans-rad-sub">
+				<span class="finans-label">Dagmulkteksponering</span>
+				<span class="finans-verdi omtvistet">- {formatCurrency(dagmulktEksponering)}</span>
+			</div>
+			<div class="finans-rad finans-rad-sub">
+				<span class="finans-label">Maks. forseringskostnad</span>
+				<span class="finans-verdi krav">{formatCurrency(maksForsering)}</span>
+			</div>
 		</div>
 	{/if}
 </aside>
@@ -274,21 +285,9 @@
 		color: var(--color-ink);
 	}
 
-	.finans-verdi.godkjent {
-		color: var(--color-score-high);
-	}
-
 	.finans-verdi.omtvistet {
 		color: var(--color-vekt);
 		font-weight: 600;
-	}
-
-	.finans-symbol {
-		font-size: 10px;
-	}
-
-	.finans-symbol.godkjent {
-		color: var(--color-score-high);
 	}
 
 	.finans-rad-sub {
@@ -299,19 +298,50 @@
 		color: var(--color-ink-muted);
 	}
 
-	.finans-divider {
-		height: 1px;
-		background: var(--color-wire);
-		margin: 12px 0 16px 0;
+	/* Ledger sections */
+	.ledger-section {
+		position: relative;
 	}
 
-	.finans-undergruppe {
+	.ledger-vederlag {
+		border-left: 2px solid var(--color-vekt);
+	}
+
+	.ledger-frist {
+		border-left: 2px solid var(--color-score-low);
+	}
+
+	.ledger-header {
+		font-family: var(--font-data);
 		font-size: 10px;
 		font-weight: 600;
 		text-transform: uppercase;
-		letter-spacing: 0.05em;
+		letter-spacing: 0.08em;
 		color: var(--color-ink-muted);
-		margin-bottom: 8px;
+		margin-bottom: 12px;
+	}
+
+	.ledger-action {
+		font-family: var(--font-data);
+		font-size: 10px;
+		color: var(--color-ink-muted);
+		background: none;
+		border: none;
+		cursor: pointer;
+		padding: 0;
+		margin-top: 12px;
+		display: flex;
+		align-items: center;
+		gap: 4px;
+		transition: color 150ms ease;
+	}
+
+	.ledger-action:hover {
+		color: var(--color-vekt);
+	}
+
+	.ledger-action-frist:hover {
+		color: var(--color-score-low);
 	}
 
 	@media (max-width: 1023px) {
