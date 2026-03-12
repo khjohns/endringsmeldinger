@@ -286,6 +286,20 @@
 		return map;
 	});
 
+	// --- Unanswered TE nodes (have fill color) ---
+	// A TE node is "unanswered" if it has no BH counterpart in the entanglement map
+	const unansweredNodeIds = $derived.by(() => {
+		const ids = new Set<string>();
+		for (const node of allNodes) {
+			if (node.actor !== 'TE') continue;
+			const partners = entanglementMap.get(node.id);
+			if (!partners || partners.size === 0) {
+				ids.add(node.id);
+			}
+		}
+		return ids;
+	});
+
 	// --- Entanglement state ---
 	let activeNodeId = $state<string | null>(null);
 	let entangledIds = $state<Set<string>>(new Set());
@@ -343,6 +357,7 @@
 					{@const barWidth = getBarWidth(node.spor, node.value)}
 					{@const entangled = isEntangled(node.id)}
 					{@const isActive = activeNodeId === node.id}
+					{@const isUnanswered = unansweredNodeIds.has(node.id)}
 
 					<!-- svelte-ignore a11y_no_static_element_interactions -->
 					<div
@@ -356,16 +371,16 @@
 							{#if isLeft}
 								<!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
 								<div class="node-info node-info-venstre" onclick={() => handleNodeClick(node.id, node.event)}>
-									<div class="info-tekst info-tekst-right">
-										<span class="aktor-badge" class:aktor-bh={node.isBH}>{node.actorName}</span>
-										<span class="verdi-tekst" class:verdi-aktiv={entangled || isActive}>{node.valueLabel ?? ''}</span>
-										<span class="dok-ref">{node.label}{#if node.revision} (Rev {node.revision}){/if}</span>
-									</div>
 									<div
 										class="bar bar-venstre"
 										class:bar-dashed={node.isBH}
 										style="width: {barWidth}px; {node.isBH ? `border-color: ${node.sporColor}` : `background-color: ${node.sporColor}`}"
 									></div>
+									<div class="info-tekst info-tekst-right">
+										<span class="aktor-badge" class:aktor-bh={node.isBH}>{node.actorName}</span>
+										<span class="verdi-tekst" class:verdi-aktiv={entangled || isActive}>{node.valueLabel ?? ''}</span>
+										<span class="dok-ref">{node.label}{#if node.revision} (Rev {node.revision}){/if}</span>
+									</div>
 								</div>
 							{/if}
 						</div>
@@ -376,6 +391,7 @@
 							class:senter-node-bh={node.isBH}
 							class:senter-node-active={isActive || entangled}
 							class:senter-node-entangled={entangled && !isActive}
+							class:senter-node-filled={isUnanswered}
 							style="--spor-color: {node.sporColor}"
 							onclick={() => handleNodeClick(node.id, node.event)}
 						>
@@ -442,12 +458,12 @@
 							{#if isLeft}
 								<!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
 								<div class="node-info node-info-venstre" onclick={() => handleNodeClick(fn.id)}>
+									<div class="bar bar-venstre bar-dashed" style="width: 48px; border-color: {fn.sporColor}"></div>
 									<div class="info-tekst info-tekst-right">
 										<span class="aktor-badge aktor-bh">{fn.actorName}</span>
 										<span class="verdi-tekst verdi-muted" class:verdi-aktiv={entangled}>Forventet svar</span>
 										<span class="dok-ref dok-ref-ghost">{fn.label}</span>
 									</div>
-									<div class="bar bar-venstre bar-dashed" style="width: 48px; border-color: {fn.sporColor}"></div>
 								</div>
 							{/if}
 						</div>
@@ -627,6 +643,12 @@
 		outline: 2px solid var(--color-ink-secondary);
 		outline-offset: 2px;
 		z-index: 10;
+	}
+
+	.senter-node-filled {
+		background: var(--spor-color);
+		border-color: var(--spor-color);
+		color: var(--color-canvas);
 	}
 
 	.senter-node-future {
