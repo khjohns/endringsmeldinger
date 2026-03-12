@@ -92,7 +92,7 @@
 		background: var(--color-felt);
 		border: 1px solid var(--color-wire);
 		border-radius: var(--radius-sm);
-		padding: 4px 10px;
+		padding: 4px 8px;
 		cursor: pointer;
 		transition: all 150ms ease;
 	}
@@ -121,14 +121,14 @@
 		background: transparent;
 		border: 1px solid var(--color-wire);
 		border-radius: var(--radius-sm);
-		padding: 2px 8px;
+		padding: 4px 8px;
 		cursor: pointer;
 		transition: all 150ms ease;
 	}
 
 	.filter-K.filter-active {
 		color: var(--color-ink);
-		background: rgba(161, 161, 170, 0.15);
+		background: var(--color-felt-hover);
 		border-color: var(--color-ink-muted);
 	}
 

@@ -797,6 +797,10 @@
 		color: var(--color-ink);
 	}
 
+	.ghost-node:active {
+		background: var(--color-felt-active);
+	}
+
 	/* Future zone */
 	.future-zone {
 		display: flex;
