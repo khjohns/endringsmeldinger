@@ -3,6 +3,7 @@
 	import FristerSection from './FristerSection.svelte';
 	import StatusQuoGap from './StatusQuoGap.svelte';
 	import { formatCurrency } from '$lib/utils/formatters';
+	import { isAwaitingResponse } from '$lib/utils/sporStatus';
 
 	interface Props {
 		state: SakState;
@@ -105,7 +106,7 @@
 					<span class="finans-verdi krav">{formatCurrency(krevdVederlag)}</span>
 				</div>
 			{/if}
-			{#if state.vederlag.status === 'sendt' || state.vederlag.status === 'under_behandling' || state.vederlag.status === 'delvis_godkjent'}
+			{#if isAwaitingResponse(state.vederlag.status)}
 				<button class="ledger-action" type="button">Svar på krav →</button>
 			{/if}
 		</div>
@@ -123,7 +124,7 @@
 					<span class="finans-verdi krav">{krevdDager} dager</span>
 				</div>
 			{/if}
-			{#if state.frist.status === 'sendt' || state.frist.status === 'under_behandling' || state.frist.status === 'delvis_godkjent'}
+			{#if isAwaitingResponse(state.frist.status)}
 				<button class="ledger-action ledger-action-frist" type="button">Svar på fristkrav →</button>
 			{/if}
 		</div>
