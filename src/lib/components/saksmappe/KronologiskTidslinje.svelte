@@ -1,9 +1,11 @@
 <script lang="ts">
-	import type { SakState, TimelineEvent, SporType, EventType } from '$lib/types/timeline';
+	import { onMount } from 'svelte';
+	import type { SakState, TimelineEvent, SporType, SporStatus, EventType } from '$lib/types/timeline';
 	import { extractEventType, extractSpor } from '$lib/types/timeline';
 	import { getEventTypeLabel } from '$lib/constants/eventLabels';
 	import { getPartsNavn } from '$lib/utils/partsNavn';
 	import { formatCurrency } from '$lib/utils/formatters';
+	import { isAwaitingResponse } from '$lib/utils/sporStatus';
 	import type { SporFilter } from './VisningstToggle.svelte';
 
 	interface Props {
@@ -43,20 +45,27 @@
 
 	// --- Norwegian date formatting ---
 	const TZ = 'Europe/Oslo';
-	const MONTH_SHORT = ['jan', 'feb', 'mar', 'apr', 'mai', 'jun', 'jul', 'aug', 'sep', 'okt', 'nov', 'des'];
 
-	function toLocalDate(dateStr: string): Date {
-		return new Date(new Date(dateStr).toLocaleString('sv-SE', { timeZone: TZ }));
-	}
+	const dateKeyFormatter = new Intl.DateTimeFormat('sv-SE', {
+		timeZone: TZ,
+		year: 'numeric',
+		month: '2-digit',
+		day: '2-digit',
+	});
+
+	const dateCompactFormatter = new Intl.DateTimeFormat('nb-NO', {
+		timeZone: TZ,
+		day: '2-digit',
+		month: '2-digit',
+		year: '2-digit',
+	});
 
 	function localDateKey(dateStr: string): string {
-		const d = toLocalDate(dateStr);
-		return `${d.getFullYear()}-${String(d.getMonth()).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+		return dateKeyFormatter.format(new Date(dateStr));
 	}
 
 	function formatDateCompact(dateStr: string): string {
-		const d = toLocalDate(dateStr);
-		return `${String(d.getDate()).padStart(2, '0')}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getFullYear()).slice(2)}`;
+		return dateCompactFormatter.format(new Date(dateStr));
 	}
 
 	// --- Event data extraction ---
@@ -140,40 +149,6 @@
 		};
 	}
 
-	// --- Max values for proportional bar sizing ---
-	const maxVederlag = $derived.by(() => {
-		let max = 0;
-		for (const ev of timeline) {
-			const spor = ev.spor ?? extractSpor(ev.type);
-			if (spor !== 'vederlag') continue;
-			const d = ev.data as Record<string, unknown> | undefined;
-			if (!d) continue;
-			const v = (d.krevd_belop ?? d.netto_belop ?? d.belop_direkte ?? d.godkjent_belop) as number | undefined;
-			if (v != null && v > max) max = v;
-		}
-		return max || 1;
-	});
-
-	const maxFrist = $derived.by(() => {
-		let max = 0;
-		for (const ev of timeline) {
-			const spor = ev.spor ?? extractSpor(ev.type);
-			if (spor !== 'frist') continue;
-			const d = ev.data as Record<string, unknown> | undefined;
-			if (!d) continue;
-			const v = (d.krevd_dager ?? d.godkjent_dager) as number | undefined;
-			if (v != null && v > max) max = v;
-		}
-		return max || 1;
-	});
-
-	function getBarWidth(spor: SporType, value: number | null): number {
-		if (value == null || value <= 0) return 4;
-		if (spor === 'vederlag') return Math.min(Math.max((value / maxVederlag) * 180, 4), 200);
-		if (spor === 'frist') return Math.min(Math.max((value / maxFrist) * 120, 4), 150);
-		return 0;
-	}
-
 	// --- Build sorted, filtered node list ---
 	const allNodes = $derived.by(() => {
 		const nodes: NodeData[] = [];
@@ -190,6 +165,30 @@
 		nodes.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 		return nodes;
 	});
+
+	// --- Max values for proportional bar sizing (computed from allNodes) ---
+	const maxVederlag = $derived.by(() => {
+		let max = 0;
+		for (const n of allNodes) {
+			if (n.spor === 'vederlag' && n.value != null && n.value > max) max = n.value;
+		}
+		return max || 1;
+	});
+
+	const maxFrist = $derived.by(() => {
+		let max = 0;
+		for (const n of allNodes) {
+			if (n.spor === 'frist' && n.value != null && n.value > max) max = n.value;
+		}
+		return max || 1;
+	});
+
+	function getBarWidth(spor: SporType, value: number | null): number {
+		if (value == null || value <= 0) return 4;
+		if (spor === 'vederlag') return Math.min(Math.max((value / maxVederlag) * 180, 4), 200);
+		if (spor === 'frist') return Math.min(Math.max((value / maxFrist) * 120, 4), 150);
+		return 0;
+	}
 
 	// --- Group by date ---
 	interface DateGroup {
@@ -229,7 +228,7 @@
 		const futures: FutureNodeData[] = [];
 
 		// For each track that's awaiting response, generate a future node
-		const tracks: { spor: SporType; status: string; antall_versjoner: number }[] = [
+		const tracks: { spor: SporType; status: SporStatus; antall_versjoner: number }[] = [
 			{ spor: 'grunnlag', ...sakState.grunnlag },
 			{ spor: 'vederlag', ...sakState.vederlag },
 			{ spor: 'frist', ...sakState.frist },
@@ -239,7 +238,7 @@
 			const filterKey = SPOR_TO_FILTER[track.spor];
 			if (!sporFilter[filterKey]) continue;
 
-			if (track.status === 'sendt' || track.status === 'under_behandling' || track.status === 'delvis_godkjent') {
+			if (isAwaitingResponse(track.status)) {
 				// Find the latest unanswered event for this track
 				const latestEvent = allNodes.filter(n => n.spor === track.spor && n.actor === 'TE').at(-1);
 				if (!latestEvent) continue;
@@ -259,55 +258,56 @@
 		return futures;
 	});
 
+	// --- Pre-computed entanglement map (O(1) lookup on hover) ---
+	const entanglementMap = $derived.by(() => {
+		const map = new Map<string, Set<string>>();
+
+		// Build krav-svar pairs by spor + version
+		for (const node of allNodes) {
+			if (node.version == null) continue;
+			for (const other of allNodes) {
+				if (other.id === node.id) continue;
+				if (other.spor !== node.spor || other.version !== node.version) continue;
+				if (other.actor === node.actor) continue;
+				// Found a pair
+				if (!map.has(node.id)) map.set(node.id, new Set());
+				map.get(node.id)!.add(other.id);
+			}
+		}
+
+		// Future ↔ history links
+		for (const fn of futureNodes) {
+			if (!map.has(fn.id)) map.set(fn.id, new Set());
+			map.get(fn.id)!.add(fn.targetId);
+			if (!map.has(fn.targetId)) map.set(fn.targetId, new Set());
+			map.get(fn.targetId)!.add(fn.id);
+		}
+
+		return map;
+	});
+
 	// --- Entanglement state ---
 	let activeNodeId = $state<string | null>(null);
 	let entangledIds = $state<Set<string>>(new Set());
 
-	function findEntangledNodes(nodeId: string): Set<string> {
-		const linked = new Set<string>();
-
-		// Check if this is a future node
-		if (nodeId.startsWith('future-')) {
-			const futureNode = futureNodes.find(fn => fn.id === nodeId);
-			if (futureNode) linked.add(futureNode.targetId);
-			return linked;
-		}
-
-		// Check if any future node points to this
-		for (const fn of futureNodes) {
-			if (fn.targetId === nodeId) linked.add(fn.id);
-		}
-
-		// Find krav-svar pairs by matching spor + version
-		const clickedNode = allNodes.find(n => n.id === nodeId);
-		if (clickedNode && clickedNode.version != null) {
-			for (const node of allNodes) {
-				if (node.id === nodeId) continue;
-				if (node.spor !== clickedNode.spor) continue;
-				if (node.version !== clickedNode.version) continue;
-				// One is TE, one is BH — they're a pair
-				if (node.actor !== clickedNode.actor) {
-					linked.add(node.id);
-				}
-			}
-		}
-
-		return linked;
+	function getEntangledSet(nodeId: string): Set<string> {
+		const linked = entanglementMap.get(nodeId) ?? new Set();
+		return new Set([nodeId, ...linked]);
 	}
 
 	function handleNodeClick(nodeId: string, event?: TimelineEvent | null) {
 		activeNodeId = nodeId;
-		entangledIds = new Set([nodeId, ...findEntangledNodes(nodeId)]);
+		entangledIds = getEntangledSet(nodeId);
 		if (event) onFocusEvent?.(event);
 	}
 
 	function handleNodeHover(nodeId: string) {
-		entangledIds = new Set([nodeId, ...findEntangledNodes(nodeId)]);
+		entangledIds = getEntangledSet(nodeId);
 	}
 
 	function handleNodeLeave() {
 		if (activeNodeId) {
-			entangledIds = new Set([activeNodeId, ...findEntangledNodes(activeNodeId)]);
+			entangledIds = getEntangledSet(activeNodeId);
 		} else {
 			entangledIds = new Set();
 		}
@@ -320,7 +320,6 @@
 	// --- Horizon ref for auto-scroll ---
 	let horizonRef = $state<HTMLDivElement | null>(null);
 
-	import { onMount } from 'svelte';
 	onMount(() => {
 		horizonRef?.scrollIntoView({ behavior: 'smooth', block: 'center' });
 	});
@@ -625,7 +624,8 @@
 	}
 
 	.senter-node-entangled {
-		box-shadow: 0 0 0 2px var(--color-canvas), 0 0 0 4px var(--color-ink-secondary);
+		outline: 2px solid var(--color-ink-secondary);
+		outline-offset: 2px;
 		z-index: 10;
 	}
 

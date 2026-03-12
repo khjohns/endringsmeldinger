@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { SporType, SakState } from '$lib/types/timeline';
 	import { getPartsNavn } from '$lib/utils/partsNavn';
+	import { isAwaitingResponse } from '$lib/utils/sporStatus';
 
 	interface Props {
 		sporType: SporType;
@@ -12,25 +13,11 @@
 
 	const trackState = $derived(state[sporType]);
 
-	// Show when the track is awaiting a response
-	const isAwaiting = $derived(
-		trackState.status === 'sendt' ||
-		trackState.status === 'under_behandling' ||
-		trackState.status === 'delvis_godkjent'
-	);
-
-	// Who is expected to act?
-	const expectedActor = $derived.by(() => {
-		const status = trackState.status;
-		// If TE sent and BH hasn't responded, BH must act
-		if (status === 'sendt' || status === 'under_behandling') return 'BH';
-		// If delvis_godkjent, both could act but primarily TE updates
-		if (status === 'delvis_godkjent') return 'BH';
-		return null;
-	});
+	// Show when the track is awaiting a response (BH must act)
+	const isAwaiting = $derived(isAwaitingResponse(trackState.status));
 
 	const expectedActorName = $derived(
-		expectedActor ? getPartsNavn(expectedActor, state.entreprenor, state.byggherre) : ''
+		getPartsNavn('BH', state.entreprenor, state.byggherre)
 	);
 
 	// Revision label
@@ -62,7 +49,7 @@
 	}
 </script>
 
-{#if isAwaiting && expectedActor}
+{#if isAwaiting}
 	<div class="avventer-rad" data-spor={sporType}>
 		<div class="avventer-tekst">
 			<span class="avventer-ikon" aria-hidden="true">◇</span>

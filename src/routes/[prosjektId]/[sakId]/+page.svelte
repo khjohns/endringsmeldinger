@@ -23,10 +23,11 @@
 	let visning = $state<Visning>('kort');
 	let sporFilter = $state<SporFilter>({ K: true, V: true, F: true });
 
-	import { onMount } from 'svelte';
-	onMount(() => {
-		const stored = localStorage.getItem(storageKey);
-		if (stored === 'kort' || stored === 'tidslinje') visning = stored;
+	$effect(() => {
+		if (browser) {
+			const stored = localStorage.getItem(storageKey);
+			if (stored === 'kort' || stored === 'tidslinje') visning = stored;
+		}
 	});
 
 	function handleVisningChange(v: Visning) {
