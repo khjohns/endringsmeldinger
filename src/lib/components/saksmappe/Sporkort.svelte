@@ -10,6 +10,7 @@
 	import SporkortHeader from './SporkortHeader.svelte';
 	import SporkortData from './SporkortData.svelte';
 	import SporkortHistorikk from './SporkortHistorikk.svelte';
+	import AvventerRad from './AvventerRad.svelte';
 
 	interface Props {
 		sporType: SporType;
@@ -322,9 +323,13 @@
 		grunnlag={sporType === 'grunnlag' ? sakState.grunnlag : undefined}
 		vederlag={sporType === 'vederlag' ? sakState.vederlag : undefined}
 		frist={sporType === 'frist' ? sakState.frist : undefined}
+		teNavn={sakState.entreprenor}
+		bhNavn={sakState.byggherre}
 	/>
 
 	<SporkortHistorikk {events} expanded={loggExpanded} onToggle={handleLoggToggle} {onFocusEvent} teNavn={sakState.entreprenor} bhNavn={sakState.byggherre} />
+
+	<AvventerRad {sporType} state={sakState} />
 
 	{#if hasPassivitet}
 		<div class="passivitet-warning" role="alert">
