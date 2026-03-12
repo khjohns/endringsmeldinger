@@ -3,7 +3,6 @@
 	import FristerSection from './FristerSection.svelte';
 	import StatusQuoGap from './StatusQuoGap.svelte';
 	import { formatCurrency } from '$lib/utils/formatters';
-	import { isAwaitingResponse } from '$lib/utils/sporStatus';
 
 	interface Props {
 		state: SakState;
@@ -106,9 +105,6 @@
 					<span class="finans-verdi krav">{formatCurrency(krevdVederlag)}</span>
 				</div>
 			{/if}
-			{#if isAwaitingResponse(state.vederlag.status)}
-				<button class="ledger-action" type="button">Svar på krav →</button>
-			{/if}
 		</div>
 	{/if}
 
@@ -123,9 +119,6 @@
 					<span class="finans-label">Krevd ({state.entreprenor ?? 'TE'})</span>
 					<span class="finans-verdi krav">{krevdDager} dager</span>
 				</div>
-			{/if}
-			{#if isAwaitingResponse(state.frist.status)}
-				<button class="ledger-action ledger-action-frist" type="button">Svar på fristkrav →</button>
 			{/if}
 		</div>
 	{/if}
@@ -304,13 +297,6 @@
 		position: relative;
 	}
 
-	.ledger-vederlag {
-		border-left: 2px solid var(--color-vekt);
-	}
-
-	.ledger-frist {
-		border-left: 2px solid var(--color-score-low);
-	}
 
 	.ledger-header {
 		font-family: var(--font-data);
@@ -320,37 +306,6 @@
 		letter-spacing: 0.08em;
 		color: var(--color-ink-muted);
 		margin-bottom: 12px;
-	}
-
-	.ledger-action {
-		font-family: var(--font-data);
-		font-size: 10px;
-		color: var(--color-ink-muted);
-		background: none;
-		border: none;
-		cursor: pointer;
-		padding: 0;
-		margin-top: 12px;
-		display: flex;
-		align-items: center;
-		gap: 4px;
-		transition: color 150ms ease;
-	}
-
-	.ledger-action:hover {
-		color: var(--color-vekt);
-	}
-
-	.ledger-action:active {
-		color: var(--color-vekt-dim);
-	}
-
-	.ledger-action-frist:hover {
-		color: var(--color-score-low);
-	}
-
-	.ledger-action-frist:active {
-		color: var(--color-score-low-dim, var(--color-score-low));
 	}
 
 	@media (max-width: 1023px) {

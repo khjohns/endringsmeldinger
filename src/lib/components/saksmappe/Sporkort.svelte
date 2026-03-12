@@ -289,10 +289,6 @@
 	<SporkortHeader
 		{sporType}
 		status={trackState.status}
-		{varsling}
-		action={visualState.action}
-		{prosjektId}
-		{sakId}
 	/>
 
 	{#if hendelseKontekst || keyMetric}

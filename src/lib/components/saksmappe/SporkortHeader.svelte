@@ -1,40 +1,12 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
-	import { browser } from '$app/environment';
 	import type { SporType, SporStatus } from '$lib/types/timeline';
-	import type { VarslingItem } from '$lib/utils/varslingStatus';
 
 	interface Props {
 		sporType: SporType;
 		status: SporStatus;
-		varsling: VarslingItem[];
-		action: { label: string; urgent: boolean } | null;
-		prosjektId: string;
-		sakId: string;
 	}
 
-	let { sporType, status, varsling, action, prosjektId, sakId }: Props = $props();
-
-	function handleAction(e: MouseEvent) {
-		e.stopPropagation();
-		if (sporType === 'grunnlag') {
-			const role = browser ? localStorage.getItem('koe-user-role') : null;
-			if (role === 'TE') {
-				goto(`/${prosjektId}/${sakId}/rediger-grunnlag`);
-			} else {
-				goto(`/${prosjektId}/${sakId}/svar-grunnlag`);
-			}
-		}
-		if (sporType === 'vederlag') {
-			const role = browser ? localStorage.getItem('koe-user-role') : null;
-			if (role === 'TE') {
-				goto(`/${prosjektId}/${sakId}/send-vederlag`);
-			} else {
-				// TODO: svar-vederlag route (BH response)
-			}
-		}
-		// TODO: frist routes
-	}
+	let { sporType, status }: Props = $props();
 
 	const SPOR_LABELS: Record<SporType, string> = {
 		grunnlag: 'KONTRAKTSFORHOLD',
@@ -66,28 +38,16 @@
 </script>
 
 <div class="kort-header">
-	<div class="kort-identitet">
-		<span class="spor-navn">{SPOR_LABELS[sporType]}</span>
-		<span
-			class="stempel"
-			class:stempel-critical={stempelVariant === 'critical'}
-			class:stempel-waiting={stempelVariant === 'waiting'}
-			class:stempel-approved={stempelVariant === 'approved'}
-			class:stempel-action={stempelVariant === 'action'}
-		>
-			{STATUS_LABELS[status]}
-		</span>
-	</div>
-
-	{#if action}
-		<button
-			class="action-btn"
-			class:action-urgent={action.urgent}
-			onclick={handleAction}
-		>
-			{action.label} &rarr;
-		</button>
-	{/if}
+	<span class="spor-navn">{SPOR_LABELS[sporType]}</span>
+	<span
+		class="stempel"
+		class:stempel-critical={stempelVariant === 'critical'}
+		class:stempel-waiting={stempelVariant === 'waiting'}
+		class:stempel-approved={stempelVariant === 'approved'}
+		class:stempel-action={stempelVariant === 'action'}
+	>
+		{STATUS_LABELS[status]}
+	</span>
 </div>
 
 <style>
@@ -95,14 +55,7 @@
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
-		gap: 12px;
-	}
-
-	.kort-identitet {
-		display: flex;
-		align-items: center;
 		gap: 8px;
-		flex-wrap: wrap;
 	}
 
 	.spor-navn {
@@ -145,54 +98,9 @@
 		border-color: rgba(245, 158, 11, 0.3);
 	}
 
-	.action-btn {
-		font-family: var(--font-ui);
-		font-size: 11px;
-		font-weight: 600;
-		padding: 6px 12px;
-		border-radius: var(--radius-sm);
-		border: 1px solid transparent;
-		cursor: pointer;
-		transition: background 150ms ease, border-color 150ms ease;
-		white-space: nowrap;
-		background: var(--color-vekt-bg);
-		color: var(--color-vekt);
-		border-color: rgba(245, 158, 11, 0.3);
-	}
-
-	.action-btn:hover {
-		background: rgba(245, 158, 11, 0.2);
-	}
-
-	.action-urgent {
-		background: var(--color-score-low);
-		color: #fff;
-		border-color: transparent;
-	}
-
-	.action-urgent:hover {
-		background: #be123c;
-	}
-
 	@media (max-width: 1023px) {
-		.kort-header {
-			gap: 8px;
-			min-width: 0;
-		}
-
-		.kort-identitet {
-			gap: 8px;
-			min-width: 0;
-		}
-
 		.spor-navn {
 			font-size: 12px;
-		}
-
-		.action-btn {
-			padding: 4px 10px;
-			font-size: 10px;
-			flex-shrink: 0;
 		}
 	}
 </style>
