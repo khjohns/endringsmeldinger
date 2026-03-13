@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { AlignJustify } from 'lucide-svelte';
 	import { page } from '$app/state';
 	import CaseCreateForm from '$lib/components/case-create/CaseCreateForm.svelte';
 	import BegrunnelsePanel from '$lib/components/case-create/BegrunnelsePanel.svelte';
@@ -69,9 +70,7 @@
 
 <!-- Mobil: FAB -->
 <button class="begrunnelse-fab" onclick={() => (mobilPanelOpen = true)}>
-	<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-		<path d="M2 3h12M2 7h8M2 11h10" stroke="currentColor" stroke-width="1.25" stroke-linecap="round"/>
-	</svg>
+	<AlignJustify size={16} strokeWidth={1.5} aria-hidden="true" />
 	Begrunnelse
 	{#if harBegrunnelse}
 		<span class="fab-badge"></span>

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { TriangleAlert, CircleX, Info } from 'lucide-svelte';
 	import type { Snippet } from 'svelte';
 
 	interface Props {
@@ -10,20 +11,13 @@
 </script>
 
 <div class="alert alert-{variant}" role="alert">
-	<svg class="alert-icon" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-		{#if variant === 'warning'}
-			<path d="M8 2L14.5 13H1.5L8 2Z" stroke="currentColor" stroke-width="1.25" stroke-linejoin="round"/>
-			<path d="M8 6.5V9" stroke="currentColor" stroke-width="1.25" stroke-linecap="round"/>
-			<circle cx="8" cy="11" r="0.75" fill="currentColor"/>
-		{:else if variant === 'danger'}
-			<circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.25"/>
-			<path d="M6 6L10 10M10 6L6 10" stroke="currentColor" stroke-width="1.25" stroke-linecap="round"/>
-		{:else}
-			<circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.25"/>
-			<path d="M8 7V11" stroke="currentColor" stroke-width="1.25" stroke-linecap="round"/>
-			<circle cx="8" cy="5" r="0.75" fill="currentColor"/>
-		{/if}
-	</svg>
+	{#if variant === 'warning'}
+		<TriangleAlert class="alert-icon" size={16} strokeWidth={1.5} aria-hidden="true" />
+	{:else if variant === 'danger'}
+		<CircleX class="alert-icon" size={16} strokeWidth={1.5} aria-hidden="true" />
+	{:else}
+		<Info class="alert-icon" size={16} strokeWidth={1.5} aria-hidden="true" />
+	{/if}
 	<div class="alert-content">
 		{@render children()}
 	</div>

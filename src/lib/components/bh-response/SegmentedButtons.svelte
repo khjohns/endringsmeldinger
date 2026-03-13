@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { Check, X, Undo2 } from 'lucide-svelte';
+
 	interface Option {
 		value: string;
 		label: string;
@@ -29,18 +31,11 @@
 			onclick={() => onselect(opt.value)}
 		>
 			{#if opt.icon === 'check'}
-				<svg width="12" height="12" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-					<path d="M3.5 7.5L5.5 9.5L10.5 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-				</svg>
+				<Check size={12} strokeWidth={1.5} aria-hidden="true" />
 			{:else if opt.icon === 'cross'}
-				<svg width="12" height="12" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-					<path d="M4 4L10 10M10 4L4 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-				</svg>
+				<X size={12} strokeWidth={1.5} aria-hidden="true" />
 			{:else if opt.icon === 'undo'}
-				<svg width="12" height="12" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-					<path d="M4 5.5H8.5C9.88 5.5 11 6.62 11 8C11 9.38 9.88 10.5 8.5 10.5H7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-					<path d="M6 3.5L4 5.5L6 7.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-				</svg>
+				<Undo2 size={12} strokeWidth={1.5} aria-hidden="true" />
 			{/if}
 			{opt.label}
 		</button>
