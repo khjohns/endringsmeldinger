@@ -92,15 +92,15 @@ export interface VederlagResponseInput {
   erGrunnlagAvslatt?: boolean;
 
   // Preklusjon (Port 1/2)
-  hovedkravVarsletITide?: boolean;  // §34.1.2 - kun SVIKT/ANDRE
-  riggVarsletITide?: boolean;       // §34.1.3
-  produktivitetVarsletITide?: boolean;  // §34.1.3
+  hovedkravVarsletITide?: boolean; // §34.1.2 - kun SVIKT/ANDRE
+  riggVarsletITide?: boolean; // §34.1.3
+  produktivitetVarsletITide?: boolean; // §34.1.3
 
   // Metode (Port 2/3)
   akseptererMetode: boolean;
   oensketMetode?: VederlagsMetode;
-  epJusteringVarsletITide?: boolean;  // §34.3.3 - TE varslet i tide?
-  epJusteringAkseptert?: boolean;     // §34.3.3 - BH aksepterer?
+  epJusteringVarsletITide?: boolean; // §34.3.3 - TE varslet i tide?
+  epJusteringAkseptert?: boolean; // §34.3.3 - BH aksepterer?
   kreverJustertEp?: boolean;
   holdTilbake?: boolean;
 
@@ -223,18 +223,21 @@ function getMetodeTerminologi(input: VederlagResponseInput): {
 function getMetodeLabel(metode?: VederlagsMetode): string {
   if (!metode) return 'ukjent beregningsmetode';
   const labels: Record<VederlagsMetode, string> = {
-    'ENHETSPRISER': 'enhetspriser (§34.3)',
-    'REGNINGSARBEID': 'regningsarbeid (§34.4)',
-    'FASTPRIS_TILBUD': 'fastpris/tilbud (§34.2.1)',
+    ENHETSPRISER: 'enhetspriser (§34.3)',
+    REGNINGSARBEID: 'regningsarbeid (§34.4)',
+    FASTPRIS_TILBUD: 'fastpris/tilbud (§34.2.1)',
   };
   return labels[metode] || metode;
 }
 
 function getVurderingVerb(vurdering: BelopVurdering): string {
   switch (vurdering) {
-    case 'godkjent': return 'godkjennes';
-    case 'delvis': return 'godkjennes delvis';
-    case 'avslatt': return 'avvises';
+    case 'godkjent':
+      return 'godkjennes';
+    case 'delvis':
+      return 'godkjennes delvis';
+    case 'avslatt':
+      return 'avvises';
   }
 }
 
@@ -249,11 +252,13 @@ function generateMetodeSection(input: VederlagResponseInput): string {
   const lines: string[] = [];
 
   if (input.akseptererMetode) {
-    lines.push(`Byggherren godtar den foreslåtte beregningsmetoden ${getMetodeLabel(input.metode)}.`);
+    lines.push(
+      `Byggherren godtar den foreslåtte beregningsmetoden ${getMetodeLabel(input.metode)}.`
+    );
   } else {
     lines.push(
       `Byggherren godtar ikke den foreslåtte beregningsmetoden ${getMetodeLabel(input.metode)}, ` +
-      `og krever i stedet beregning etter ${getMetodeLabel(input.oensketMetode)}.`
+        `og krever i stedet beregning etter ${getMetodeLabel(input.oensketMetode)}.`
     );
   }
 
@@ -261,14 +266,16 @@ function generateMetodeSection(input: VederlagResponseInput): string {
   if (input.kreverJustertEp) {
     // Når BH avviser enhetspriser som metode, men TE har krevd justerte EP
     if (!input.akseptererMetode && input.metode === 'ENHETSPRISER') {
-      lines.push('Byggherren tar likevel stilling til entreprenørens krav om justerte enhetspriser:');
+      lines.push(
+        'Byggherren tar likevel stilling til entreprenørens krav om justerte enhetspriser:'
+      );
     }
 
     // Først: Sjekk om TE varslet i tide
     if (input.epJusteringVarsletITide === false) {
       lines.push(
         'Kravet om justerte enhetspriser ble ikke varslet «uten ugrunnet opphold» (§34.3.3 første ledd). ' +
-        'Entreprenøren har dermed bare krav på slik justering som byggherren måtte forstå at forholdet ville føre til.'
+          'Entreprenøren har dermed bare krav på slik justering som byggherren måtte forstå at forholdet ville føre til.'
       );
     }
     // Deretter: BHs aksept/avvisning
@@ -278,7 +285,7 @@ function generateMetodeSection(input: VederlagResponseInput): string {
       } else {
         lines.push(
           'Kravet om justerte enhetspriser (§34.3.2) avvises. ' +
-          'Vilkårene for justering anses ikke oppfylt.'
+            'Vilkårene for justering anses ikke oppfylt.'
         );
       }
     }
@@ -288,7 +295,7 @@ function generateMetodeSection(input: VederlagResponseInput): string {
   if (input.holdTilbake) {
     lines.push(
       'Byggherren holder tilbake betaling inntil kostnadsoverslag mottas (§30.2). ' +
-      'Utbetaling vil skje når tilfredsstillende overslag er levert.'
+        'Utbetaling vil skje når tilfredsstillende overslag er levert.'
     );
   }
 
@@ -298,8 +305,12 @@ function generateMetodeSection(input: VederlagResponseInput): string {
 /**
  * Generate the amount evaluation section for hovedkrav
  */
-function generateHovedkravSection(input: VederlagResponseInput, options: BegrunnelseGeneratorOptions = {}): string {
-  const { hovedkravVurdering, hovedkravBelop, hovedkravGodkjentBelop, hovedkravVarsletITide } = input;
+function generateHovedkravSection(
+  input: VederlagResponseInput,
+  options: BegrunnelseGeneratorOptions = {}
+): string {
+  const { hovedkravVurdering, hovedkravBelop, hovedkravGodkjentBelop, hovedkravVarsletITide } =
+    input;
   const { useTokens = false } = options;
 
   if (!hovedkravBelop) {
@@ -315,7 +326,7 @@ function generateHovedkravSection(input: VederlagResponseInput, options: Begrunn
     // Prinsipalt: prekludert (§34.1.2)
     lines.push(
       `${terminologi.kravLabel} på ${formatCurrency(hovedkravBelop, useTokens)} avvises prinsipalt som prekludert iht. §34.1.2, ` +
-      `da varselet ikke ble fremsatt «uten ugrunnet opphold» etter at entreprenøren ble eller burde blitt klar over forholdet.`
+        `da varselet ikke ble fremsatt «uten ugrunnet opphold» etter at entreprenøren ble eller burde blitt klar over forholdet.`
     );
 
     // Subsidiært: faktisk vurdering
@@ -354,7 +365,10 @@ function generateHovedkravSection(input: VederlagResponseInput, options: Begrunn
 /**
  * Generate section for særskilte krav (rigg/drift)
  */
-function generateRiggSection(input: VederlagResponseInput, options: BegrunnelseGeneratorOptions = {}): string {
+function generateRiggSection(
+  input: VederlagResponseInput,
+  options: BegrunnelseGeneratorOptions = {}
+): string {
   const { useTokens = false } = options;
 
   if (!input.harRiggKrav || !input.riggBelop) {
@@ -368,8 +382,8 @@ function generateRiggSection(input: VederlagResponseInput, options: BegrunnelseG
     // Prinsipalt: prekludert
     lines.push(
       `Kravet om dekning av økte rigg- og driftskostnader på ${formatCurrency(input.riggBelop, useTokens)} ` +
-      `avvises prinsipalt som prekludert iht. §34.1.3, da varselet ikke ble fremsatt «uten ugrunnet opphold» ` +
-      `etter at entreprenøren ble eller burde blitt klar over at utgiftene ville påløpe.`
+        `avvises prinsipalt som prekludert iht. §34.1.3, da varselet ikke ble fremsatt «uten ugrunnet opphold» ` +
+        `etter at entreprenøren ble eller burde blitt klar over at utgiftene ville påløpe.`
     );
 
     // Subsidiært: faktisk vurdering
@@ -386,13 +400,15 @@ function generateRiggSection(input: VederlagResponseInput, options: BegrunnelseG
     }
   } else {
     // Ikke prekludert - vanlig vurdering
-    lines.push(generateKravVurderingText(
-      'rigg- og driftskostnader',
-      input.riggBelop,
-      input.riggVurdering ?? 'avslatt',
-      input.riggGodkjentBelop,
-      useTokens
-    ));
+    lines.push(
+      generateKravVurderingText(
+        'rigg- og driftskostnader',
+        input.riggBelop,
+        input.riggVurdering ?? 'avslatt',
+        input.riggGodkjentBelop,
+        useTokens
+      )
+    );
   }
 
   return lines.join(' ');
@@ -401,7 +417,10 @@ function generateRiggSection(input: VederlagResponseInput, options: BegrunnelseG
 /**
  * Generate section for særskilte krav (produktivitetstap)
  */
-function generateProduktivitetSection(input: VederlagResponseInput, options: BegrunnelseGeneratorOptions = {}): string {
+function generateProduktivitetSection(
+  input: VederlagResponseInput,
+  options: BegrunnelseGeneratorOptions = {}
+): string {
   const { useTokens = false } = options;
 
   if (!input.harProduktivitetKrav || !input.produktivitetBelop) {
@@ -415,8 +434,8 @@ function generateProduktivitetSection(input: VederlagResponseInput, options: Beg
     // Prinsipalt: prekludert
     lines.push(
       `Kravet om dekning av produktivitetstap på ${formatCurrency(input.produktivitetBelop, useTokens)} ` +
-      `avvises prinsipalt som prekludert iht. §34.1.3, da varselet ikke ble fremsatt «uten ugrunnet opphold» ` +
-      `etter at entreprenøren burde ha innsett at forstyrrelsene medførte merkostnader.`
+        `avvises prinsipalt som prekludert iht. §34.1.3, da varselet ikke ble fremsatt «uten ugrunnet opphold» ` +
+        `etter at entreprenøren burde ha innsett at forstyrrelsene medførte merkostnader.`
     );
 
     // Subsidiært: faktisk vurdering
@@ -433,13 +452,15 @@ function generateProduktivitetSection(input: VederlagResponseInput, options: Beg
     }
   } else {
     // Ikke prekludert - vanlig vurdering
-    lines.push(generateKravVurderingText(
-      'produktivitetstap',
-      input.produktivitetBelop,
-      input.produktivitetVurdering ?? 'avslatt',
-      input.produktivitetGodkjentBelop,
-      useTokens
-    ));
+    lines.push(
+      generateKravVurderingText(
+        'produktivitetstap',
+        input.produktivitetBelop,
+        input.produktivitetVurdering ?? 'avslatt',
+        input.produktivitetGodkjentBelop,
+        useTokens
+      )
+    );
   }
 
   return lines.join(' ');
@@ -502,7 +523,10 @@ function generateSubsidiaerKravText(
 /**
  * Generate the conclusion section with totals
  */
-function generateKonklusjonSection(input: VederlagResponseInput, options: BegrunnelseGeneratorOptions = {}): string {
+function generateKonklusjonSection(
+  input: VederlagResponseInput,
+  options: BegrunnelseGeneratorOptions = {}
+): string {
   const { useTokens = false } = options;
   const lines: string[] = [];
   const terminologi = getMetodeTerminologi(input);
@@ -510,7 +534,7 @@ function generateKonklusjonSection(input: VederlagResponseInput, options: Begrun
   // Prinsipalt resultat
   lines.push(
     `Samlet ${terminologi.belopLabel} utgjør etter dette ${formatCurrency(input.totalGodkjent, useTokens)} ` +
-    `av totalt krevde ${formatCurrency(input.totalKrevd, useTokens)}.`
+      `av totalt krevde ${formatCurrency(input.totalKrevd, useTokens)}.`
   );
 
   // Subsidiært resultat (kun hvis det er prekluderte krav)
@@ -522,7 +546,7 @@ function generateKonklusjonSection(input: VederlagResponseInput, options: Begrun
       const kravType = hovedkravPrekludert ? 'kravene' : 'særskilte kravene';
       lines.push(
         `Dersom de prekluderte ${kravType} hadde vært varslet i tide, ville samlet ${terminologi.belopLabel} ` +
-        `utgjort ${formatCurrency(input.totalGodkjentSubsidiaer, useTokens)} (subsidiært standpunkt).`
+          `utgjort ${formatCurrency(input.totalGodkjentSubsidiaer, useTokens)} (subsidiært standpunkt).`
       );
     }
   }
@@ -550,13 +574,13 @@ export function generateVederlagResponseBegrunnelse(
   if (input.erGrunnlagPrekludert) {
     sections.push(
       'Grunnlagsvarselet ble ikke fremsatt «uten ugrunnet opphold» (§32.2). ' +
-      'Vurderingen av vederlagskravet nedenfor gjelder derfor subsidiært, ' +
-      'for det tilfellet at byggherren ikke får medhold i preklusjonsinnsigelsen.'
+        'Vurderingen av vederlagskravet nedenfor gjelder derfor subsidiært, ' +
+        'for det tilfellet at byggherren ikke får medhold i preklusjonsinnsigelsen.'
     );
   } else if (input.erGrunnlagAvslatt) {
     sections.push(
       'Kontraktsforholdet er avvist. Vurderingen av vederlagskravet nedenfor gjelder derfor ' +
-      'subsidiært, for det tilfellet at byggherren ikke får medhold i avvisningen av grunnlaget.'
+        'subsidiært, for det tilfellet at byggherren ikke får medhold i avvisningen av grunnlaget.'
     );
   }
 
@@ -602,10 +626,7 @@ export function generateVederlagResponseBegrunnelse(
 /**
  * Combine auto-generated begrunnelse with user's additional comments
  */
-export function combineBegrunnelse(
-  autoBegrunnelse: string,
-  tilleggsBegrunnelse?: string
-): string {
+export function combineBegrunnelse(autoBegrunnelse: string, tilleggsBegrunnelse?: string): string {
   if (!tilleggsBegrunnelse?.trim()) {
     return autoBegrunnelse;
   }
@@ -623,9 +644,9 @@ export interface FristResponseInput {
   krevdDager: number;
 
   // Preklusjon (Port 1)
-  fristVarselOk?: boolean;  // §33.4: Varsel om fristforlengelse rettidig?
+  fristVarselOk?: boolean; // §33.4: Varsel om fristforlengelse rettidig?
   spesifisertKravOk?: boolean;
-  foresporselSvarOk?: boolean;  // §33.6.2/§5: Svar på forespørsel i tide?
+  foresporselSvarOk?: boolean; // §33.6.2/§5: Svar på forespørsel i tide?
   sendForesporsel?: boolean;
 
   // Vilkår (Port 2)
@@ -635,12 +656,12 @@ export interface FristResponseInput {
   godkjentDager: number;
 
   // Computed
-  erPrekludert: boolean;  // §33.4: Varsel for sent (varsel ELLER spesifisert uten forutgående varsel)
-  erForesporselSvarForSent?: boolean;  // §33.6.2 tredje ledd + §5: Sen respons på forespørsel
-  erRedusert_33_6_1?: boolean;  // §33.6.1: Sen spesifisering ETTER at varsel ble sendt i tide
-  harTidligereVarselITide?: boolean;  // For å vite om §33.6.1 er relevant ved spesifisert krav
-  erGrunnlagSubsidiaer?: boolean;  // Grunnlag avslått ELLER prekludert (§32.2) - hele fristkravet behandles subsidiært
-  erGrunnlagPrekludert?: boolean;  // §32.2: Grunnlagsvarselet kom for sent (mer spesifikk enn erGrunnlagSubsidiaer)
+  erPrekludert: boolean; // §33.4: Varsel for sent (varsel ELLER spesifisert uten forutgående varsel)
+  erForesporselSvarForSent?: boolean; // §33.6.2 tredje ledd + §5: Sen respons på forespørsel
+  erRedusert_33_6_1?: boolean; // §33.6.1: Sen spesifisering ETTER at varsel ble sendt i tide
+  harTidligereVarselITide?: boolean; // For å vite om §33.6.1 er relevant ved spesifisert krav
+  erGrunnlagSubsidiaer?: boolean; // Grunnlag avslått ELLER prekludert (§32.2) - hele fristkravet behandles subsidiært
+  erGrunnlagPrekludert?: boolean; // §32.2: Grunnlagsvarselet kom for sent (mer spesifikk enn erGrunnlagSubsidiaer)
   prinsipaltResultat: string;
   subsidiaertResultat?: string;
   visSubsidiaertResultat: boolean;
@@ -652,9 +673,9 @@ export interface FristResponseInput {
 export function getVarselTypeLabel(varselType?: FristVarselType): string {
   if (!varselType) return 'varsel';
   const labels: Record<FristVarselType, string> = {
-    'varsel': 'varsel om fristforlengelse (§33.4)',
-    'spesifisert': 'spesifisert krav (§33.6)',
-    'begrunnelse_utsatt': 'begrunnelse for utsettelse (§33.6.2 b)',
+    varsel: 'varsel om fristforlengelse (§33.4)',
+    spesifisert: 'spesifisert krav (§33.6)',
+    begrunnelse_utsatt: 'begrunnelse for utsettelse (§33.6.2 b)',
   };
   return labels[varselType] || varselType;
 }
@@ -753,23 +774,28 @@ function generateFristVilkarSection(input: FristResponseInput): string {
   const prefix = erPrekludert ? 'Subsidiært, hva gjelder vilkårene (§33.1): ' : '';
 
   if (vilkarOppfylt) {
-    return (
-      prefix +
-      'Det erkjennes at forholdet har hindret fremdriften, jf. §33.1.'
-    );
+    return prefix + 'Det erkjennes at forholdet har hindret fremdriften, jf. §33.1.';
   }
 
-  return (
-    prefix +
-    'Det bestrides at forholdet har hindret fremdriften, jf. §33.1.'
-  );
+  return prefix + 'Det bestrides at forholdet har hindret fremdriften, jf. §33.1.';
 }
 
 /**
  * Generate the calculation section for frist response
  */
-function generateFristBeregningSection(input: FristResponseInput, options: BegrunnelseGeneratorOptions = {}): string {
-  const { krevdDager, godkjentDager, erPrekludert, vilkarOppfylt, varselType, sendForesporsel, erGrunnlagSubsidiaer } = input;
+function generateFristBeregningSection(
+  input: FristResponseInput,
+  options: BegrunnelseGeneratorOptions = {}
+): string {
+  const {
+    krevdDager,
+    godkjentDager,
+    erPrekludert,
+    vilkarOppfylt,
+    varselType,
+    sendForesporsel,
+    erGrunnlagSubsidiaer,
+  } = input;
   const { useTokens = false } = options;
 
   // Skip calculation section when sending forespørsel or varsel about deadline extension without specified days
@@ -778,7 +804,9 @@ function generateFristBeregningSection(input: FristResponseInput, options: Begru
   }
 
   const erSubsidiaer = erPrekludert || !vilkarOppfylt || erGrunnlagSubsidiaer;
-  const prefix = erSubsidiaer ? 'Subsidiært, hva gjelder antall dager: ' : 'Hva gjelder antall dager: ';
+  const prefix = erSubsidiaer
+    ? 'Subsidiært, hva gjelder antall dager: '
+    : 'Hva gjelder antall dager: ';
 
   const fmtKrevd = formatDager(krevdDager, useTokens);
   const fmtGodkjent = formatDager(godkjentDager, useTokens);
@@ -794,16 +822,25 @@ function generateFristBeregningSection(input: FristResponseInput, options: Begru
   const prosentValue = krevdDager > 0 ? Math.round((godkjentDager / krevdDager) * 100) : 0;
   const fmtProsent = formatProsent(prosentValue, useTokens);
   return (
-    prefix +
-    `Kravet godkjennes delvis med ${fmtGodkjent} av krevde ${fmtKrevd} (${fmtProsent}).`
+    prefix + `Kravet godkjennes delvis med ${fmtGodkjent} av krevde ${fmtKrevd} (${fmtProsent}).`
   );
 }
 
 /**
  * Generate the conclusion section for frist response
  */
-function generateFristKonklusjonSection(input: FristResponseInput, options: BegrunnelseGeneratorOptions = {}): string {
-  const { krevdDager, godkjentDager, prinsipaltResultat, visSubsidiaertResultat, varselType, sendForesporsel } = input;
+function generateFristKonklusjonSection(
+  input: FristResponseInput,
+  options: BegrunnelseGeneratorOptions = {}
+): string {
+  const {
+    krevdDager,
+    godkjentDager,
+    prinsipaltResultat,
+    visSubsidiaertResultat,
+    varselType,
+    sendForesporsel,
+  } = input;
   const { useTokens = false } = options;
   const lines: string[] = [];
 
@@ -836,12 +873,12 @@ function generateFristKonklusjonSection(input: FristResponseInput, options: Begr
     if (godkjentDager > 0) {
       lines.push(
         `Dersom byggherren ikke får medhold i sin prinsipale avvisning, ` +
-        `kan entreprenøren maksimalt ha krav på ${fmtGodkjent} (subsidiært standpunkt).`
+          `kan entreprenøren maksimalt ha krav på ${fmtGodkjent} (subsidiært standpunkt).`
       );
     } else {
       lines.push(
         'Selv om byggherren ikke skulle få medhold i sin prinsipale avvisning, ' +
-        'ville kravet uansett blitt avslått subsidiært.'
+          'ville kravet uansett blitt avslått subsidiært.'
       );
     }
   }
@@ -863,7 +900,10 @@ function generateForceMajeureVederlagSection(_input: FristResponseInput): string
 /**
  * Generate §33.8 forsering warning if applicable
  */
-function generateForseringWarningSection(input: FristResponseInput, _options: BegrunnelseGeneratorOptions = {}): string {
+function generateForseringWarningSection(
+  input: FristResponseInput,
+  _options: BegrunnelseGeneratorOptions = {}
+): string {
   const { krevdDager, godkjentDager, prinsipaltResultat } = input;
   const avslatteDager = krevdDager - godkjentDager;
 
@@ -917,13 +957,13 @@ export function generateFristResponseBegrunnelse(
   if (input.erGrunnlagPrekludert) {
     sections.push(
       'Grunnlagsvarselet ble ikke fremsatt «uten ugrunnet opphold» (§32.2). ' +
-      'Vurderingen av fristkravet nedenfor gjelder derfor subsidiært, ' +
-      'for det tilfellet at byggherren ikke får medhold i preklusjonsinnsigelsen.'
+        'Vurderingen av fristkravet nedenfor gjelder derfor subsidiært, ' +
+        'for det tilfellet at byggherren ikke får medhold i preklusjonsinnsigelsen.'
     );
   } else if (input.erGrunnlagSubsidiaer) {
     sections.push(
       'Kontraktsforholdet er avvist. Vurderingen av fristkravet nedenfor gjelder derfor ' +
-      'subsidiært, for det tilfellet at byggherren ikke får medhold i avvisningen av grunnlaget.'
+        'subsidiært, for det tilfellet at byggherren ikke får medhold i avvisningen av grunnlaget.'
     );
   }
 
@@ -1023,8 +1063,8 @@ function generateForseringGrunnlagSection(input: ForseringResponseInput): string
 
   // If we have per-sak vurdering, generate detailed text
   if (vurderingPerSak && vurderingPerSak.length > 0) {
-    const uberettigedeSaker = vurderingPerSak.filter(v => !v.avslag_berettiget);
-    const berettigedeSaker = vurderingPerSak.filter(v => v.avslag_berettiget);
+    const uberettigedeSaker = vurderingPerSak.filter((v) => !v.avslag_berettiget);
+    const berettigedeSaker = vurderingPerSak.filter((v) => v.avslag_berettiget);
 
     if (uberettigedeSaker.length > 0 && berettigedeSaker.length > 0) {
       // Mixed case - some rejections were justified, some were not
@@ -1033,27 +1073,31 @@ function generateForseringGrunnlagSection(input: ForseringResponseInput): string
       );
 
       // List uberettigede
-      const uberettigedeText = uberettigedeSaker.map(v => {
-        const dager = v.avslatteDager ? ` (${v.avslatteDager} dager)` : '';
-        return `${v.sak_id}${v.sakTittel ? ': ' + v.sakTittel : ''}${dager}`;
-      }).join(', ');
+      const uberettigedeText = uberettigedeSaker
+        .map((v) => {
+          const dager = v.avslatteDager ? ` (${v.avslatteDager} dager)` : '';
+          return `${v.sak_id}${v.sakTittel ? ': ' + v.sakTittel : ''}${dager}`;
+        })
+        .join(', ');
       lines.push(
         `For følgende saker erkjennes det at avslaget var uberettiget: ${uberettigedeText}.`
       );
 
       // List berettigede
-      const berettigedeText = berettigedeSaker.map(v => {
-        const dager = v.avslatteDager ? ` (${v.avslatteDager} dager)` : '';
-        return `${v.sak_id}${v.sakTittel ? ': ' + v.sakTittel : ''}${dager}`;
-      }).join(', ');
+      const berettigedeText = berettigedeSaker
+        .map((v) => {
+          const dager = v.avslatteDager ? ` (${v.avslatteDager} dager)` : '';
+          return `${v.sak_id}${v.sakTittel ? ': ' + v.sakTittel : ''}${dager}`;
+        })
+        .join(', ');
       lines.push(
         `For følgende saker fastholdes det at avslaget var berettiget: ${berettigedeText}.`
       );
 
       // Summary
-      const totalUberettigetDager = dagerMedForseringsrett ?? uberettigedeSaker.reduce(
-        (sum, v) => sum + (v.avslatteDager ?? 0), 0
-      );
+      const totalUberettigetDager =
+        dagerMedForseringsrett ??
+        uberettigedeSaker.reduce((sum, v) => sum + (v.avslatteDager ?? 0), 0);
       lines.push(
         `Entreprenøren har dermed rett til forseringsvederlag for ${totalUberettigetDager} av totalt ${avslatteDager} avslåtte dager iht. §33.8.`
       );
@@ -1062,12 +1106,12 @@ function generateForseringGrunnlagSection(input: ForseringResponseInput): string
       if (vurderingPerSak.length > 1) {
         lines.push(
           `Byggherren erkjenner at avslagene på fristforlengelse i alle ${vurderingPerSak.length} saker var uberettiget. ` +
-          `Entreprenøren har dermed rett til forseringsvederlag for samtlige ${avslatteDager} dager iht. §33.8.`
+            `Entreprenøren har dermed rett til forseringsvederlag for samtlige ${avslatteDager} dager iht. §33.8.`
         );
       } else {
         lines.push(
           'Byggherren erkjenner at avslaget på fristforlengelse var uberettiget. ' +
-          'Entreprenøren har dermed rett til forseringsvederlag iht. §33.8.'
+            'Entreprenøren har dermed rett til forseringsvederlag iht. §33.8.'
         );
       }
     } else {
@@ -1075,12 +1119,12 @@ function generateForseringGrunnlagSection(input: ForseringResponseInput): string
       if (vurderingPerSak.length > 1) {
         lines.push(
           `Byggherren fastholder at avslagene på fristforlengelse i alle ${vurderingPerSak.length} saker var berettiget. ` +
-          'Entreprenøren hadde ikke krav på fristforlengelse og har derfor ikke rett til forseringsvederlag etter §33.8.'
+            'Entreprenøren hadde ikke krav på fristforlengelse og har derfor ikke rett til forseringsvederlag etter §33.8.'
         );
       } else {
         lines.push(
           'Byggherren fastholder at avslaget på fristforlengelse var berettiget. ' +
-          'Entreprenøren hadde ikke krav på fristforlengelse og har derfor ikke rett til forseringsvederlag etter §33.8.'
+            'Entreprenøren hadde ikke krav på fristforlengelse og har derfor ikke rett til forseringsvederlag etter §33.8.'
         );
       }
     }
@@ -1107,25 +1151,32 @@ function generateForseringGrunnlagSection(input: ForseringResponseInput): string
  * Generate section for Port 2: 30%-regel
  */
 function generateForsering30ProsentSection(input: ForseringResponseInput): string {
-  const { avslatteDager, dagmulktsats, maksForseringskostnad, estimertKostnad, trettiprosentOverholdt, trettiprosentBegrunnelse } = input;
+  const {
+    avslatteDager,
+    dagmulktsats,
+    maksForseringskostnad,
+    estimertKostnad,
+    trettiprosentOverholdt,
+    trettiprosentBegrunnelse,
+  } = input;
   const lines: string[] = [];
 
   lines.push(
     `Beregning av 30%-grensen (§33.8 første ledd): ${avslatteDager} avslåtte dager × ` +
-    `${formatCurrency(dagmulktsats)} dagmulkt × 1,3 = ${formatCurrency(maksForseringskostnad)}.`
+      `${formatCurrency(dagmulktsats)} dagmulkt × 1,3 = ${formatCurrency(maksForseringskostnad)}.`
   );
 
   if (trettiprosentOverholdt) {
     lines.push(
       `Entreprenørens estimerte forseringskostnad på ${formatCurrency(estimertKostnad)} ` +
-      `er innenfor grensen. Vilkåret i §33.8 er oppfylt.`
+        `er innenfor grensen. Vilkåret i §33.8 er oppfylt.`
     );
   } else {
     const overskridelse = estimertKostnad - maksForseringskostnad;
     lines.push(
       `Entreprenørens estimerte forseringskostnad på ${formatCurrency(estimertKostnad)} ` +
-      `overstiger grensen med ${formatCurrency(overskridelse)}. ` +
-      `Entreprenøren hadde dermed ikke valgrett til forsering etter §33.8.`
+        `overstiger grensen med ${formatCurrency(overskridelse)}. ` +
+        `Entreprenøren hadde dermed ikke valgrett til forsering etter §33.8.`
     );
     if (trettiprosentBegrunnelse) {
       lines.push(trettiprosentBegrunnelse);
@@ -1145,20 +1196,25 @@ function generateForseringBelopSection(input: ForseringResponseInput): string {
   // Hovedkrav vurdering
   switch (hovedkravVurdering) {
     case 'godkjent':
-      lines.push(`Forseringskostnadene på ${formatCurrency(hovedkravBelop ?? 0)} godkjennes i sin helhet.`);
+      lines.push(
+        `Forseringskostnadene på ${formatCurrency(hovedkravBelop ?? 0)} godkjennes i sin helhet.`
+      );
       break;
     case 'delvis': {
-      const prosent = hovedkravBelop && hovedkravBelop > 0
-        ? (((godkjentBelop ?? 0) / hovedkravBelop) * 100).toFixed(0)
-        : 0;
+      const prosent =
+        hovedkravBelop && hovedkravBelop > 0
+          ? (((godkjentBelop ?? 0) / hovedkravBelop) * 100).toFixed(0)
+          : 0;
       lines.push(
         `Forseringskostnadene godkjennes delvis med ${formatCurrency(godkjentBelop ?? 0)} ` +
-        `av krevde ${formatCurrency(hovedkravBelop ?? 0)} (${prosent}%).`
+          `av krevde ${formatCurrency(hovedkravBelop ?? 0)} (${prosent}%).`
       );
       break;
     }
     case 'avslatt':
-      lines.push(`Kravet om dekning av forseringskostnader på ${formatCurrency(hovedkravBelop ?? 0)} avvises.`);
+      lines.push(
+        `Kravet om dekning av forseringskostnader på ${formatCurrency(hovedkravBelop ?? 0)} avvises.`
+      );
       break;
   }
 
@@ -1188,7 +1244,7 @@ function generateForseringSaerskiltKravSection(
   if (isPrekludert) {
     lines.push(
       `Kravet om dekning av ${kravType === 'rigg' ? 'økte ' : ''}${kravLabel} på ${formatCurrency(belop)} ` +
-      `avvises prinsipalt som prekludert iht. §34.1.3, da varselet ikke ble fremsatt «uten ugrunnet opphold».`
+        `avvises prinsipalt som prekludert iht. §34.1.3, da varselet ikke ble fremsatt «uten ugrunnet opphold».`
     );
 
     if (vurdering) {
@@ -1197,7 +1253,9 @@ function generateForseringSaerskiltKravSection(
           lines.push(`Subsidiært aksepteres ${formatCurrency(belop)}.`);
           break;
         case 'delvis':
-          lines.push(`Subsidiært aksepteres ${formatCurrency(godkjentBelop ?? 0)} av krevde ${formatCurrency(belop)}.`);
+          lines.push(
+            `Subsidiært aksepteres ${formatCurrency(godkjentBelop ?? 0)} av krevde ${formatCurrency(belop)}.`
+          );
           break;
         case 'avslatt':
           lines.push('Subsidiært ville kravet uansett blitt avvist.');
@@ -1210,7 +1268,9 @@ function generateForseringSaerskiltKravSection(
         lines.push(`Kravet om ${kravLabelKort} på ${formatCurrency(belop)} godkjennes.`);
         break;
       case 'delvis':
-        lines.push(`Kravet om ${kravLabelKort} godkjennes delvis med ${formatCurrency(godkjentBelop ?? 0)} av krevde ${formatCurrency(belop)}.`);
+        lines.push(
+          `Kravet om ${kravLabelKort} godkjennes delvis med ${formatCurrency(godkjentBelop ?? 0)} av krevde ${formatCurrency(belop)}.`
+        );
         break;
       case 'avslatt':
         lines.push(`Kravet om ${kravLabelKort} på ${formatCurrency(belop)} avvises.`);
@@ -1254,7 +1314,7 @@ function generateForseringKonklusjonSection(input: ForseringResponseInput): stri
   // Prinsipalt resultat
   lines.push(
     `Samlet godkjent beløp utgjør ${formatCurrency(input.totalGodkjent)} ` +
-    `av totalt krevde ${formatCurrency(input.totalKrevd)}.`
+      `av totalt krevde ${formatCurrency(input.totalKrevd)}.`
   );
 
   // Subsidiært (hvis prekluderte krav)
@@ -1263,7 +1323,7 @@ function generateForseringKonklusjonSection(input: ForseringResponseInput): stri
     if (diff > 0) {
       lines.push(
         `Dersom de prekluderte særskilte kravene hadde vært varslet i tide, ville samlet godkjent beløp ` +
-        `utgjort ${formatCurrency(input.subsidiaerGodkjentBelop)} (subsidiært standpunkt).`
+          `utgjort ${formatCurrency(input.subsidiaerGodkjentBelop)} (subsidiært standpunkt).`
       );
     }
   }
@@ -1329,7 +1389,8 @@ export function generateForseringResponseBegrunnelse(input: ForseringResponseInp
  * Generate subsidiary section when BH denies forseringsrett but still evaluates amounts
  */
 function generateForseringSubsidiaerSection(input: ForseringResponseInput): string {
-  const { hovedkravVurdering, hovedkravBelop, godkjentBelop, totalKrevd, subsidiaerGodkjentBelop } = input;
+  const { hovedkravVurdering, hovedkravBelop, godkjentBelop, totalKrevd, subsidiaerGodkjentBelop } =
+    input;
   const lines: string[] = [];
 
   lines.push('Subsidiært, dersom entreprenøren hadde hatt forseringsrett:');
@@ -1342,12 +1403,13 @@ function generateForseringSubsidiaerSection(input: ForseringResponseInput): stri
       );
       break;
     case 'delvis': {
-      const prosent = hovedkravBelop && hovedkravBelop > 0
-        ? (((godkjentBelop ?? 0) / hovedkravBelop) * 100).toFixed(0)
-        : 0;
+      const prosent =
+        hovedkravBelop && hovedkravBelop > 0
+          ? (((godkjentBelop ?? 0) / hovedkravBelop) * 100).toFixed(0)
+          : 0;
       lines.push(
         `Forseringskostnadene ville blitt godkjent delvis med ${formatCurrency(godkjentBelop ?? 0)} ` +
-        `av krevde ${formatCurrency(hovedkravBelop ?? 0)} (${prosent}%).`
+          `av krevde ${formatCurrency(hovedkravBelop ?? 0)} (${prosent}%).`
       );
       break;
     }
@@ -1373,7 +1435,7 @@ function generateForseringSubsidiaerSection(input: ForseringResponseInput): stri
   if (subsidiaerGodkjentBelop !== undefined && subsidiaerGodkjentBelop > 0) {
     lines.push(
       `Samlet subsidiært godkjent beløp ville utgjort ${formatCurrency(subsidiaerGodkjentBelop)} ` +
-      `av totalt krevde ${formatCurrency(totalKrevd)}.`
+        `av totalt krevde ${formatCurrency(totalKrevd)}.`
     );
   } else if (subsidiaerGodkjentBelop === 0) {
     lines.push('Kravet ville uansett blitt avvist i sin helhet.');

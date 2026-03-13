@@ -39,11 +39,11 @@ export type {
 
 // Begrunnelse types (shared across BegrunnelseThread, FormWithRightPanel, etc.)
 export interface BegrunnelseEntry {
-	rolle: 'TE' | 'BH';
-	versjon: number;
-	html: string;
-	dato?: string;
-	resultat?: string;
+  rolle: 'TE' | 'BH';
+  versjon: number;
+  html: string;
+  dato?: string;
+  resultat?: string;
 }
 
 // File attachment types

@@ -37,11 +37,13 @@ const NORWEGIAN_TIMEZONE = 'Europe/Oslo';
 export function formatDateDayMonth(dateStr: string | null | undefined): string {
   if (!dateStr) return '—';
   try {
-    return new Date(dateStr).toLocaleDateString(NORWEGIAN_LOCALE, {
-      day: 'numeric',
-      month: 'short',
-      timeZone: NORWEGIAN_TIMEZONE,
-    }).replace(/\.$/, '');
+    return new Date(dateStr)
+      .toLocaleDateString(NORWEGIAN_LOCALE, {
+        day: 'numeric',
+        month: 'short',
+        timeZone: NORWEGIAN_TIMEZONE,
+      })
+      .replace(/\.$/, '');
   } catch {
     return dateStr || '—';
   }
@@ -73,9 +75,10 @@ export function formatCurrencyCompact(value?: number | null): string {
   const sign = value < 0 ? '-' : '';
   if (abs >= 1_000_000) {
     const millions = abs / 1_000_000;
-    const formatted = millions % 1 === 0
-      ? millions.toString()
-      : millions.toLocaleString(NORWEGIAN_LOCALE, { maximumFractionDigits: 1 });
+    const formatted =
+      millions % 1 === 0
+        ? millions.toString()
+        : millions.toLocaleString(NORWEGIAN_LOCALE, { maximumFractionDigits: 1 });
     return `${sign}${formatted}M`;
   }
   if (abs >= 10_000) {
@@ -205,8 +208,8 @@ export function formatVarselType(type?: string | null): string {
   const normalized = type.toLowerCase();
   switch (normalized) {
     case 'varsel':
-    case 'noytralt':  // Legacy support
-    case 'noytral':   // Typo fallback
+    case 'noytralt': // Legacy support
+    case 'noytral': // Typo fallback
       return 'Varsel om fristforlengelse';
     case 'spesifisert':
       return 'Spesifisert krav';

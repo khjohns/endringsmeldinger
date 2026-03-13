@@ -103,14 +103,19 @@ export function getDefaults(config: FristDefaultsConfig): FristFormState {
 
 export function beregnVisibility(
   state: Pick<FristFormState, 'fristVarselOk'>,
-  config: FristDomainConfig,
+  config: FristDomainConfig
 ): FristVisibilityFlags {
   const erBegrunnelseUtsatt = config.varselType === 'begrunnelse_utsatt';
 
   const showFristVarselOk = (() => {
     if (erBegrunnelseUtsatt) return false;
     if (config.varselType === 'varsel') return true;
-    if (config.varselType === 'spesifisert' && !config.harTidligereVarselITide && !config.erSvarPaForesporsel) return true;
+    if (
+      config.varselType === 'spesifisert' &&
+      !config.harTidligereVarselITide &&
+      !config.erSvarPaForesporsel
+    )
+      return true;
     return false;
   })();
 
@@ -140,21 +145,23 @@ export function beregnVisibility(
 
 export function beregnPreklusjon(
   state: Pick<FristFormState, 'fristVarselOk' | 'foresporselSvarOk'>,
-  config: FristDomainConfig,
+  config: FristDomainConfig
 ): boolean {
   const erForesporselSvarForSent = config.erSvarPaForesporsel && state.foresporselSvarOk === false;
   if (erForesporselSvarForSent) return true;
   if (config.varselType === 'varsel') return state.fristVarselOk === false;
-  if (config.varselType === 'spesifisert' && !config.harTidligereVarselITide) return state.fristVarselOk === false;
+  if (config.varselType === 'spesifisert' && !config.harTidligereVarselITide)
+    return state.fristVarselOk === false;
   return false;
 }
 
 export function beregnReduksjon(
   state: Pick<FristFormState, 'fristVarselOk' | 'spesifisertKravOk'>,
-  config: FristDomainConfig,
+  config: FristDomainConfig
 ): boolean {
   if (config.erSvarPaForesporsel) return false;
-  if (config.varselType === 'spesifisert' && config.harTidligereVarselITide) return state.spesifisertKravOk === false;
+  if (config.varselType === 'spesifisert' && config.harTidligereVarselITide)
+    return state.spesifisertKravOk === false;
   if (config.varselType === 'spesifisert' && !config.harTidligereVarselITide) {
     return state.fristVarselOk === true && state.spesifisertKravOk === false;
   }
@@ -222,7 +229,8 @@ export function beregnSubsidiaerTriggers(data: {
 export function getDynamicPlaceholder(resultat: FristBeregningResultat | undefined): string {
   if (!resultat) return 'Gjør valgene i kortet, deretter skriv begrunnelse...';
   if (resultat === 'godkjent') return 'Begrunn din godkjenning av fristforlengelsen...';
-  if (resultat === 'delvis_godkjent') return 'Forklar hvorfor du kun godkjenner deler av fristforlengelsen...';
+  if (resultat === 'delvis_godkjent')
+    return 'Forklar hvorfor du kun godkjenner deler av fristforlengelsen...';
   return 'Begrunn ditt avslag på fristforlengelsen...';
 }
 
@@ -240,9 +248,10 @@ export function buildEventData(
     subsidiaerTriggers: SubsidiaerTrigger[];
   },
   fristKravId: string,
-  autoBegrunnelse: string,
+  autoBegrunnelse: string
 ): Record<string, unknown> {
-  const effectiveGodkjentDager = computed.prinsipaltResultat !== 'avslatt' ? state.godkjentDager : 0;
+  const effectiveGodkjentDager =
+    computed.prinsipaltResultat !== 'avslatt' ? state.godkjentDager : 0;
   return {
     frist_krav_id: fristKravId,
     frist_varsel_ok: state.fristVarselOk,
@@ -255,10 +264,16 @@ export function buildEventData(
     auto_begrunnelse: autoBegrunnelse,
     beregnings_resultat: computed.prinsipaltResultat,
     krevd_dager: config.krevdDager,
-    subsidiaer_triggers: computed.subsidiaerTriggers.length > 0 ? computed.subsidiaerTriggers : undefined,
+    subsidiaer_triggers:
+      computed.subsidiaerTriggers.length > 0 ? computed.subsidiaerTriggers : undefined,
     subsidiaer_resultat: computed.visSubsidiaertResultat ? computed.subsidiaertResultat : undefined,
-    subsidiaer_godkjent_dager: computed.visSubsidiaertResultat && computed.subsidiaertResultat !== 'avslatt' ? effectiveGodkjentDager : undefined,
-    subsidiaer_begrunnelse: computed.visSubsidiaertResultat ? (state.begrunnelse || autoBegrunnelse) : undefined,
+    subsidiaer_godkjent_dager:
+      computed.visSubsidiaertResultat && computed.subsidiaertResultat !== 'avslatt'
+        ? effectiveGodkjentDager
+        : undefined,
+    subsidiaer_begrunnelse: computed.visSubsidiaertResultat
+      ? state.begrunnelse || autoBegrunnelse
+      : undefined,
   };
 }
 
@@ -291,7 +306,8 @@ export function beregnAlt(state: FristFormState, config: FristDomainConfig): Fri
   const showGodkjentDager = !state.sendForesporsel;
 
   const port2ErSubsidiaer = (erPrekludert || config.erGrunnlagSubsidiaer) && !state.sendForesporsel;
-  const port3ErSubsidiaer = (erPrekludert || !harHindring || config.erGrunnlagSubsidiaer) && !state.sendForesporsel;
+  const port3ErSubsidiaer =
+    (erPrekludert || !harHindring || config.erGrunnlagSubsidiaer) && !state.sendForesporsel;
 
   const subsidiaerTriggers = beregnSubsidiaerTriggers({
     erGrunnlagSubsidiaer: config.erGrunnlagSubsidiaer,

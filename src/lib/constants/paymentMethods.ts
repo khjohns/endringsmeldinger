@@ -16,18 +16,18 @@ export type VederlagsMetode = 'ENHETSPRISER' | 'REGNINGSARBEID' | 'FASTPRIS_TILB
 // ========== VEDERLAGSMETODER ==========
 
 export const VEDERLAGSMETODER_OPTIONS: DropdownOption[] = [
-  { value: "", label: "— Velg —" },
+  { value: '', label: '— Velg —' },
   {
-    value: "ENHETSPRISER",
-    label: "Enhetspriser (§34.3)"
+    value: 'ENHETSPRISER',
+    label: 'Enhetspriser (§34.3)',
   },
   {
-    value: "REGNINGSARBEID",
-    label: "Regningsarbeid (§30.2/§34.4)"
+    value: 'REGNINGSARBEID',
+    label: 'Regningsarbeid (§30.2/§34.4)',
   },
   {
-    value: "FASTPRIS_TILBUD",
-    label: "Fastpris / Tilbud (§34.2.1)"
+    value: 'FASTPRIS_TILBUD',
+    label: 'Fastpris / Tilbud (§34.2.1)',
   },
 ];
 
@@ -35,7 +35,7 @@ export const VEDERLAGSMETODER_OPTIONS: DropdownOption[] = [
 export function getVederlagsmetodeLabel(code: string | undefined | null): string {
   if (!code) return '';
   const upperCode = code.toUpperCase();
-  const option = VEDERLAGSMETODER_OPTIONS.find(opt => opt.value.toUpperCase() === upperCode);
+  const option = VEDERLAGSMETODER_OPTIONS.find((opt) => opt.value.toUpperCase() === upperCode);
   return option?.label || code;
 }
 
@@ -56,7 +56,10 @@ export function getVederlagsmetodeShortLabel(code: string | undefined | null): s
 // ========== DESCRIPTIVE HELP TEXT ==========
 
 export const VEDERLAGSMETODE_DESCRIPTIONS: Record<VederlagsMetode, string> = {
-  ENHETSPRISER: "Oppgjør basert på kontraktens enhetspriser, eventuelt justert for endrede forutsetninger.",
-  REGNINGSARBEID: "Oppgjør etter medgått tid og materialer. Entreprenøren skal gi kostnadsoverslag før arbeidet starter.",
-  FASTPRIS_TILBUD: "Entreprenøren gir et spesifisert pristilbud som byggherren kan akseptere eller avslå. Indeksreguleres ikke.",
+  ENHETSPRISER:
+    'Oppgjør basert på kontraktens enhetspriser, eventuelt justert for endrede forutsetninger.',
+  REGNINGSARBEID:
+    'Oppgjør etter medgått tid og materialer. Entreprenøren skal gi kostnadsoverslag før arbeidet starter.',
+  FASTPRIS_TILBUD:
+    'Entreprenøren gir et spesifisert pristilbud som byggherren kan akseptere eller avslå. Indeksreguleres ikke.',
 };
