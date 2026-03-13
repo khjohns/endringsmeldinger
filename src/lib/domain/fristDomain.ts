@@ -14,12 +14,12 @@ import type { FristBeregningResultat, SubsidiaerTrigger } from '../types/timelin
 // ============================================================================
 
 export interface FristFormState {
-  fristVarselOk: boolean;
-  spesifisertKravOk: boolean;
-  foresporselSvarOk: boolean;
-  vilkarOppfylt: boolean;
+  fristVarselOk: boolean | undefined;
+  spesifisertKravOk: boolean | undefined;
+  foresporselSvarOk: boolean | undefined;
+  vilkarOppfylt: boolean | undefined;
   sendForesporsel: boolean;
-  godkjentDager: number;
+  godkjentDager: number | undefined;
   begrunnelse: string;
   begrunnelseValidationError: string | undefined;
 }
@@ -86,13 +86,14 @@ export function getDefaults(config: FristDefaultsConfig): FristFormState {
       begrunnelseValidationError: undefined,
     };
   }
+  // New mode: no pre-selection — user must make explicit choices
   return {
-    fristVarselOk: true,
-    spesifisertKravOk: true,
-    foresporselSvarOk: true,
-    vilkarOppfylt: true,
+    fristVarselOk: undefined,
+    spesifisertKravOk: undefined,
+    foresporselSvarOk: undefined,
+    vilkarOppfylt: undefined,
     sendForesporsel: false,
-    godkjentDager: config.krevdDager,
+    godkjentDager: undefined,
     begrunnelse: '',
     begrunnelseValidationError: undefined,
   };
@@ -245,7 +246,7 @@ export function buildEventData(
   autoBegrunnelse: string
 ): Record<string, unknown> {
   const effectiveGodkjentDager =
-    computed.prinsipaltResultat !== 'avslatt' ? state.godkjentDager : 0;
+    computed.prinsipaltResultat !== 'avslatt' ? (state.godkjentDager ?? 0) : 0;
   return {
     frist_krav_id: fristKravId,
     frist_varsel_ok: state.fristVarselOk,
@@ -281,19 +282,20 @@ export function beregnAlt(state: FristFormState, config: FristDomainConfig): Fri
   const erRedusert = beregnReduksjon(state, config);
 
   const harHindring = state.vilkarOppfylt === true;
+  const effectiveGodkjentDager = state.godkjentDager ?? 0;
 
   const prinsipaltResultat = beregnPrinsipaltResultat({
     erPrekludert,
     sendForesporsel: state.sendForesporsel,
     harHindring,
     krevdDager: config.krevdDager,
-    godkjentDager: state.godkjentDager,
+    godkjentDager: effectiveGodkjentDager,
   });
 
   const subsidiaertResultat = beregnSubsidiaertResultat({
     harHindring,
     krevdDager: config.krevdDager,
-    godkjentDager: state.godkjentDager,
+    godkjentDager: effectiveGodkjentDager,
   });
 
   const visSubsidiaertResultat = prinsipaltResultat === 'avslatt';

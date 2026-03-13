@@ -15,7 +15,7 @@ import type { GrunnlagResponsResultat } from '../types/timeline';
 // ============================================================================
 
 export interface GrunnlagFormState {
-  varsletITide: boolean;
+  varsletITide: boolean | undefined;
   resultat: string | undefined;
   resultatError: boolean;
   begrunnelse: string;
@@ -62,8 +62,9 @@ export function getDefaults(config: GrunnlagDefaultsConfig): GrunnlagFormState {
       begrunnelseValidationError: undefined,
     };
   }
+  // New mode: no pre-selection — user must make explicit choices
   return {
-    varsletITide: true,
+    varsletITide: undefined,
     resultat: undefined,
     resultatError: false,
     begrunnelse: '',

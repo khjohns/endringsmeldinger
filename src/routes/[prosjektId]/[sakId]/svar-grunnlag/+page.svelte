@@ -97,6 +97,7 @@
       {sakId}
       {saksnr}
       {krav}
+      version={query.data?.version ?? 0}
       tidligereSvar={timelineData.tidligereSvar}
       {forrigeResultat}
       {isUpdateMode}

@@ -13,6 +13,7 @@
   } from '$lib/domain/grunnlagDomain';
   import type { GrunnlagFormState, GrunnlagDomainConfig } from '$lib/domain/grunnlagDomain';
   import { submitEvent } from '$lib/api/events';
+  import { boolToSegment } from '$lib/utils/formatters';
   import { draftKey, loadDraft, saveDraft, clearDraft } from '$lib/utils/draft';
   import { useQueryClient } from '@tanstack/svelte-query';
   import type { GrunnlagResponsResultat } from '$lib/types/timeline';
@@ -47,6 +48,7 @@
     sakId: string;
     saksnr: number;
     krav: KravData;
+    version: number;
     tidligereSvar?: TidligereSvar[];
     forrigeResultat?: GrunnlagResponsResultat;
     isUpdateMode?: boolean;
@@ -64,6 +66,7 @@
     sakId,
     saksnr,
     krav,
+    version,
     tidligereSvar = [],
     forrigeResultat,
     isUpdateMode = false,
@@ -142,7 +145,7 @@
   const visFrafalt = $derived(erPaalegg(domainConfig.grunnlagEvent));
 
   const formState: GrunnlagFormState = $derived({
-    varsletITide: varsletITide ?? true,
+    varsletITide,
     resultat,
     resultatError: false,
     begrunnelse: bhBegrunnelseHtml,
@@ -158,7 +161,7 @@
   const endringsInfo = $derived.by(() => {
     if (!isUpdateMode || !forrigeResultat) return null;
     return detekterEndringer(
-      { resultat, varsletITide: varsletITide ?? true, begrunnelse: bhBegrunnelseHtml },
+      { resultat, varsletITide, begrunnelse: bhBegrunnelseHtml },
       {
         resultat: forrigeResultat,
         varsletITide: forrigeVarsletITide,
@@ -216,7 +219,7 @@
 
       const eventType = isUpdateMode ? 'respons_grunnlag_oppdatert' : 'respons_grunnlag';
 
-      await submitEvent(sakId, eventType, eventData);
+      await submitEvent(sakId, eventType, eventData, { expectedVersion: version });
 
       clearDraft(dk);
       await queryClient.invalidateQueries({ queryKey: ['case-context', sakId] });
@@ -281,7 +284,7 @@
           { value: 'ja', label: 'Ja, i tide' },
           { value: 'nei', label: 'Nei, prekludert' },
         ]}
-        selected={varsletITide === undefined ? undefined : varsletITide ? 'ja' : 'nei'}
+        selected={boolToSegment(varsletITide)}
         onselect={(v) => (varsletITide = v === 'ja')}
         size="sm"
       />

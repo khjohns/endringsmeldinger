@@ -1,11 +1,11 @@
 <script lang="ts">
   interface Props {
-    value: number | null;
+    value: number | undefined;
     label?: string;
     suffix?: string;
     max?: number;
     referenceValue?: number;
-    onchange: (value: number | null) => void;
+    onchange: (value: number | undefined) => void;
   }
 
   let { value, label = '', suffix = '', max, referenceValue, onchange }: Props = $props();
@@ -15,18 +15,12 @@
 
   let displayValue = $derived.by(() => {
     if (editing) return rawInput;
-    if (value === null || value === undefined) return '';
+    if (value === undefined) return '';
     return value.toLocaleString('nb-NO');
   });
 
   let diff = $derived.by(() => {
-    if (
-      referenceValue === undefined ||
-      value === null ||
-      value === undefined ||
-      referenceValue === 0
-    )
-      return null;
+    if (referenceValue === undefined || value === undefined || referenceValue === 0) return null;
     const pct = ((value - referenceValue) / referenceValue) * 100;
     return { pct, direction: pct > 0 ? 'up' : pct < 0 ? 'down' : ('neutral' as const) };
   });
@@ -36,7 +30,7 @@
     rawInput = target.value;
     const raw = target.value.replace(/[^\d.-]/g, '');
     if (raw === '') {
-      onchange(null);
+      onchange(undefined);
       return;
     }
     let num = parseFloat(raw);
@@ -47,7 +41,7 @@
 
   function handleFocus() {
     editing = true;
-    rawInput = value !== null && value !== undefined ? String(value) : '';
+    rawInput = value !== undefined ? String(value) : '';
   }
 
   function handleBlur() {

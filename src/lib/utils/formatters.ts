@@ -124,6 +124,15 @@ export function formatBoolean(value?: boolean | null): string {
 }
 
 /**
+ * Map an optional boolean to a SegmentedButtons value string.
+ * Returns undefined when the value is not yet set (unselected state).
+ */
+export function boolToSegment(value: boolean | undefined): 'ja' | 'nei' | undefined {
+  if (value === undefined) return undefined;
+  return value ? 'ja' : 'nei';
+}
+
+/**
  * Format date to short Norwegian format (DD.MM.YYYY)
  * Used in tables and lists where space is limited.
  *
