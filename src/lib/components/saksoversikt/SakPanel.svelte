@@ -231,7 +231,8 @@
 	}
 
 	.panel-tittel {
-		font-size: 16px;
+		font-family: var(--font-prose);
+		font-size: 17px;
 		font-weight: 600;
 		color: var(--color-ink);
 		line-height: 1.3;
@@ -299,7 +300,9 @@
 	}
 
 	.begrunnelse {
-		font-size: 13px;
+		font-family: var(--font-prose);
+		font-size: 14px;
+		font-weight: 450;
 		color: var(--color-ink-secondary);
 		line-height: 1.6;
 		margin: 0;
