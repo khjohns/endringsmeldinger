@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// @ts-nocheck
 
 /**
  * Kontrastsjekk for KOE (Krav om Endringsordre) designtokens.

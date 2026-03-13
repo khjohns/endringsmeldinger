@@ -205,6 +205,8 @@ export const timeline2_BlandetTilstand: TimelineEvent[] = [
       tittel: 'Forsinkede tegningsleveranser fra ARK',
       hovedkategori: 'ENDRING',
       underkategori: 'IRREG',
+      beskrivelse:
+        'Arkitektfirmaet leverte detaljerte armerings- og bekledningstegninger for akse 4–8 vesentlig forsinket.',
       begrunnelse:
         '<p>Arkitektfirmaet (BHs prosjekterende) leverte detaljerte armerings- og beklednings\u00ADtegninger ' +
         'for akse 4–8 vesentlig forsinket i forhold til omforent fremdriftsplan. Tegningene var avtalt ' +
