@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { ChevronDown, File, Upload, X } from 'lucide-svelte';
 	import RichTextEditor from '$lib/components/primitives/RichTextEditor.svelte';
 	import Button from '$lib/components/primitives/Button.svelte';
 	import { formatDateShortNorwegian } from '$lib/utils/dateFormatters';
@@ -169,10 +170,7 @@
 					oncharcount={(c) => (charCount = c)}
 				/>
 				<button class="vedlegg-hint" onclick={() => ontabchange?.('filer')}>
-					<svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-						<path d="M7.5 2L11 5.5V11.5C11 12.0523 10.5523 12.5 10 12.5H4C3.44772 12.5 3 12.0523 3 11.5V2.5C3 1.94772 3.44772 1.5 4 1.5H7.5Z" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
-						<path d="M7.5 2V5.5H11" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
-					</svg>
+					<File size={14} strokeWidth={1.5} aria-hidden="true" />
 					Last opp vedlegg i Filer-fanen
 					{#if attachments.length > 0}
 						<span class="hint-count">{attachments.length}</span>
@@ -220,13 +218,10 @@
 									<span class="entry-dato">{formatDateShortNorwegian(entry.dato)}</span>
 								{/if}
 							</div>
-							<svg
-								class="chevron"
-								class:chevron-collapsed={collapsedEntries.has(i)}
-								width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"
-							>
-								<path d="M4 5.5L7 8.5L10 5.5" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/>
-							</svg>
+							<ChevronDown
+							class={`chevron${collapsedEntries.has(i) ? ' chevron-collapsed' : ''}`}
+							size={14} strokeWidth={1.5} aria-hidden="true"
+						/>
 						</button>
 						{#if !collapsedEntries.has(i)}
 							<div class="entry-body">
@@ -267,10 +262,7 @@
 				ondragover={handleDragOver}
 				ondragleave={handleDragLeave}
 			>
-				<svg class="upload-icon" width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-					<path d="M10 4V14M10 4L6 8M10 4L14 8" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/>
-					<path d="M3 14V15C3 16.1046 3.89543 17 5 17H15C16.1046 17 17 16.1046 17 15V14" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/>
-				</svg>
+				<Upload class="upload-icon" size={20} strokeWidth={1.5} aria-hidden="true" />
 				<span class="upload-tekst">Dra filer hit eller klikk for å laste opp</span>
 				<span class="upload-format">PDF, DOCX, XLSX, JPG</span>
 			</div>
@@ -282,10 +274,7 @@
 						<div class="attachment-item">
 							<div class="att-header">
 								<div class="att-info">
-									<svg class="att-icon" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-										<path d="M9 1.5H4C3.44772 1.5 3 1.94772 3 2.5V13.5C3 14.0523 3.44772 14.5 4 14.5H12C12.5523 14.5 13 14.0523 13 13.5V5.5L9 1.5Z" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
-										<path d="M9 1.5V5.5H13" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
-									</svg>
+									<File class="att-icon" size={16} strokeWidth={1.5} aria-hidden="true" />
 									<span class="att-name">{att.name}</span>
 								</div>
 								<div class="att-actions">
@@ -295,9 +284,7 @@
 										onclick={() => removeAttachment(att.id)}
 										aria-label="Fjern {att.name}"
 									>
-										<svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-											<path d="M4 4L10 10M10 4L4 10" stroke="currentColor" stroke-width="1.25" stroke-linecap="round"/>
-										</svg>
+										<X size={14} strokeWidth={1.5} aria-hidden="true" />
 									</button>
 								</div>
 							</div>

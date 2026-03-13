@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { CalendarDays, ChevronLeft, ChevronRight } from 'lucide-svelte';
 	import { DatePicker } from 'bits-ui';
 	import { CalendarDate, type DateValue } from '@internationalized/date';
 
@@ -50,12 +51,7 @@
 				{/snippet}
 			</DatePicker.Input>
 			<DatePicker.Trigger class="date-trigger">
-				<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-					<rect x="2" y="3" width="12" height="11" rx="1.5" stroke="currentColor" stroke-width="1.25"/>
-					<path d="M2 6.5H14" stroke="currentColor" stroke-width="1.25"/>
-					<path d="M5.5 1.5V4" stroke="currentColor" stroke-width="1.25" stroke-linecap="round"/>
-					<path d="M10.5 1.5V4" stroke="currentColor" stroke-width="1.25" stroke-linecap="round"/>
-				</svg>
+				<CalendarDays size={16} strokeWidth={1.5} aria-hidden="true" />
 			</DatePicker.Trigger>
 		</div>
 
@@ -64,15 +60,11 @@
 				{#snippet children({ months, weekdays })}
 					<DatePicker.Header class="cal-header">
 						<DatePicker.PrevButton class="cal-nav">
-							<svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-								<path d="M8.5 3L4.5 7L8.5 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-							</svg>
+							<ChevronLeft size={14} strokeWidth={1.5} aria-hidden="true" />
 						</DatePicker.PrevButton>
 						<DatePicker.Heading class="cal-heading" />
 						<DatePicker.NextButton class="cal-nav">
-							<svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-								<path d="M5.5 3L9.5 7L5.5 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-							</svg>
+							<ChevronRight size={14} strokeWidth={1.5} aria-hidden="true" />
 						</DatePicker.NextButton>
 					</DatePicker.Header>
 

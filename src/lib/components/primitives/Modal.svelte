@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { X } from 'lucide-svelte';
 	import { Dialog } from 'bits-ui';
 	import type { Snippet } from 'svelte';
 
@@ -33,9 +34,7 @@
 			<div class="modal-header">
 				<Dialog.Title class="modal-title">{title}</Dialog.Title>
 				<Dialog.Close class="modal-close" aria-label="Lukk">
-					<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-						<path d="M4 4L12 12M12 4L4 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-					</svg>
+					<X size={16} strokeWidth={1.5} aria-hidden="true" />
 				</Dialog.Close>
 			</div>
 			<div class="modal-body">
