@@ -88,10 +88,6 @@
 		font-size: 12px;
 		font-weight: 500;
 		color: var(--color-ink-secondary);
-		background: var(--color-felt-active);
-		border: 1px solid var(--color-wire);
-		border-radius: var(--radius-sm);
-		padding: 2px 8px;
 	}
 
 	.kravlinjer {
@@ -136,7 +132,9 @@
 	}
 
 	.begrunnelse {
-		font-size: 13px;
+		font-family: var(--font-prose);
+		font-size: 14px;
+		font-weight: 450;
 		line-height: 1.6;
 		color: var(--color-ink-secondary);
 		overflow: hidden;

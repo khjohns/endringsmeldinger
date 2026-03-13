@@ -119,7 +119,8 @@
 	}
 
 	.sak-tittel {
-		font-size: 16px;
+		font-family: var(--font-prose);
+		font-size: 17px;
 		font-weight: 600;
 		color: var(--color-ink);
 		line-height: 1.3;
@@ -155,14 +156,12 @@
 		font-size: 11px;
 		font-weight: 500;
 		color: var(--color-ink-secondary);
-		background: var(--color-felt-active);
-		border: 1px solid var(--color-wire);
-		border-radius: var(--radius-sm);
-		padding: 4px 8px;
 	}
 
 	.begrunnelse {
-		font-size: 13px;
+		font-family: var(--font-prose);
+		font-size: 14px;
+		font-weight: 450;
 		color: var(--color-ink-secondary);
 		line-height: 1.6;
 		margin: 0;

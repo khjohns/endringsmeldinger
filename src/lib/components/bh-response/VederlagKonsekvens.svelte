@@ -151,11 +151,11 @@
 		align-items: baseline;
 		gap: var(--spacing-2);
 		color: var(--color-ink-secondary);
+		font-family: var(--font-data);
+		font-variant-numeric: tabular-nums;
 	}
 
 	.belop-verdi {
-		font-family: var(--font-data);
-		font-variant-numeric: tabular-nums;
 		font-weight: 500;
 	}
 
