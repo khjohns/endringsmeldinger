@@ -25,14 +25,14 @@ export type BelopVurdering = 'godkjent' | 'delvis' | 'avslatt';
  */
 export interface VederlagFormState {
   // Port 1: Preklusjon
-  hovedkravVarsletITide: boolean;       // §34.1.2 (kun SVIKT/ANDRE)
-  riggVarsletITide: boolean;            // §34.1.3
-  produktivitetVarsletITide: boolean;   // §34.1.3
+  hovedkravVarsletITide: boolean; // §34.1.2 (kun SVIKT/ANDRE)
+  riggVarsletITide: boolean; // §34.1.3
+  produktivitetVarsletITide: boolean; // §34.1.3
 
   // Port 2: Metode
   akseptererMetode: boolean;
   oensketMetode?: VederlagsMetode;
-  epJusteringVarsletITide?: boolean;    // §34.3.3
+  epJusteringVarsletITide?: boolean; // §34.3.3
   epJusteringAkseptert?: boolean;
   holdTilbake: boolean;
 
@@ -184,7 +184,7 @@ export function har34_1_2Preklusjon(config: Pick<VederlagDomainConfig, 'hovedkat
  * er hele vederlagskravet automatisk subsidiært.
  */
 export function erHelVederlagSubsidiaerPgaGrunnlag(
-  config: Pick<VederlagDomainConfig, 'hovedkategori' | 'grunnlagVarsletForSent'>,
+  config: Pick<VederlagDomainConfig, 'hovedkategori' | 'grunnlagVarsletForSent'>
 ): boolean {
   return config.hovedkategori === 'ENDRING' && config.grunnlagVarsletForSent === true;
 }
@@ -194,27 +194,29 @@ export function erHelVederlagSubsidiaerPgaGrunnlag(
  * 1. Grunnlag er avslått av BH, ELLER
  * 2. Grunnlag er prekludert pga §32.2
  */
-export function erSubsidiaer(config: Pick<VederlagDomainConfig, 'grunnlagStatus' | 'hovedkategori' | 'grunnlagVarsletForSent'>): boolean {
+export function erSubsidiaer(
+  config: Pick<VederlagDomainConfig, 'grunnlagStatus' | 'hovedkategori' | 'grunnlagVarsletForSent'>
+): boolean {
   return config.grunnlagStatus === 'avslatt' || erHelVederlagSubsidiaerPgaGrunnlag(config);
 }
 
 export function beregnHovedkravPrekludert(
   state: Pick<VederlagFormState, 'hovedkravVarsletITide'>,
-  config: Pick<VederlagDomainConfig, 'hovedkategori'>,
+  config: Pick<VederlagDomainConfig, 'hovedkategori'>
 ): boolean {
   return har34_1_2Preklusjon(config) && state.hovedkravVarsletITide === false;
 }
 
 export function beregnRiggPrekludert(
   state: Pick<VederlagFormState, 'riggVarsletITide'>,
-  config: Pick<VederlagDomainConfig, 'harRiggKrav'>,
+  config: Pick<VederlagDomainConfig, 'harRiggKrav'>
 ): boolean {
   return config.harRiggKrav && state.riggVarsletITide === false;
 }
 
 export function beregnProduktivitetPrekludert(
   state: Pick<VederlagFormState, 'produktivitetVarsletITide'>,
-  config: Pick<VederlagDomainConfig, 'harProduktivitetKrav'>,
+  config: Pick<VederlagDomainConfig, 'harProduktivitetKrav'>
 ): boolean {
   return config.harProduktivitetKrav && state.produktivitetVarsletITide === false;
 }
@@ -229,12 +231,16 @@ export function harPreklusjonsSteg(config: VederlagDomainConfig): boolean {
 // ============================================================================
 
 /** §30.2: BH kan holde tilbake betaling for regningsarbeid uten kostnadsoverslag */
-export function kanHoldeTilbake(config: Pick<VederlagDomainConfig, 'metode' | 'kostnadsOverslag'>): boolean {
+export function kanHoldeTilbake(
+  config: Pick<VederlagDomainConfig, 'metode' | 'kostnadsOverslag'>
+): boolean {
   return config.metode === 'REGNINGSARBEID' && !config.kostnadsOverslag;
 }
 
 /** §34.3.3: BH må svare på EP-justering "uten ugrunnet opphold" */
-export function maSvarePaJustering(config: Pick<VederlagDomainConfig, 'metode' | 'kreverJustertEp'>): boolean {
+export function maSvarePaJustering(
+  config: Pick<VederlagDomainConfig, 'metode' | 'kreverJustertEp'>
+): boolean {
   return config.metode === 'ENHETSPRISER' && config.kreverJustertEp === true;
 }
 
@@ -249,7 +255,7 @@ export function beregnGodkjentBelop(
   vurdering: BelopVurdering | undefined,
   krevdBelop: number,
   delvisGodkjentBelop: number | undefined,
-  prekludert?: boolean,
+  prekludert?: boolean
 ): number {
   if (prekludert) return 0;
   switch (vurdering) {
@@ -278,7 +284,7 @@ export interface VederlagTotaler {
 export function beregnTotaler(
   state: VederlagFormState,
   config: VederlagDomainConfig,
-  preklusjon: { hovedkrav: boolean; rigg: boolean; produktivitet: boolean },
+  preklusjon: { hovedkrav: boolean; rigg: boolean; produktivitet: boolean }
 ): VederlagTotaler {
   const { hovedkravBelop, harRiggKrav, harProduktivitetKrav } = config;
   const riggBelop = config.riggBelop ?? 0;
@@ -301,17 +307,19 @@ export function beregnTotaler(
 
   if (!preklusjon.hovedkrav) {
     totalGodkjent += beregnGodkjentBelop(
-      state.hovedkravVurdering, hovedkravBelop, state.hovedkravGodkjentBelop,
+      state.hovedkravVurdering,
+      hovedkravBelop,
+      state.hovedkravGodkjentBelop
     );
   }
   if (harRiggKrav && !preklusjon.rigg) {
-    totalGodkjent += beregnGodkjentBelop(
-      state.riggVurdering, riggBelop, state.riggGodkjentBelop,
-    );
+    totalGodkjent += beregnGodkjentBelop(state.riggVurdering, riggBelop, state.riggGodkjentBelop);
   }
   if (harProduktivitetKrav && !preklusjon.produktivitet) {
     totalGodkjent += beregnGodkjentBelop(
-      state.produktivitetVurdering, produktivitetBelop, state.produktivitetGodkjentBelop,
+      state.produktivitetVurdering,
+      produktivitetBelop,
+      state.produktivitetGodkjentBelop
     );
   }
 
@@ -320,17 +328,23 @@ export function beregnTotaler(
 
   if (preklusjon.hovedkrav) {
     totalGodkjentInklPrekludert += beregnGodkjentBelop(
-      state.hovedkravVurdering, hovedkravBelop, state.hovedkravGodkjentBelop,
+      state.hovedkravVurdering,
+      hovedkravBelop,
+      state.hovedkravGodkjentBelop
     );
   }
   if (harRiggKrav && preklusjon.rigg) {
     totalGodkjentInklPrekludert += beregnGodkjentBelop(
-      state.riggVurdering, riggBelop, state.riggGodkjentBelop,
+      state.riggVurdering,
+      riggBelop,
+      state.riggGodkjentBelop
     );
   }
   if (harProduktivitetKrav && preklusjon.produktivitet) {
     totalGodkjentInklPrekludert += beregnGodkjentBelop(
-      state.produktivitetVurdering, produktivitetBelop, state.produktivitetGodkjentBelop,
+      state.produktivitetVurdering,
+      produktivitetBelop,
+      state.produktivitetGodkjentBelop
     );
   }
 
@@ -405,7 +419,7 @@ export function beregnSubsidiaertResultat(computed: {
 export function beregnSubsidiaerTriggers(
   state: VederlagFormState,
   config: VederlagDomainConfig,
-  preklusjon: { hovedkrav: boolean; rigg: boolean; produktivitet: boolean },
+  preklusjon: { hovedkrav: boolean; rigg: boolean; produktivitet: boolean }
 ): SubsidiaerTrigger[] {
   const triggers: SubsidiaerTrigger[] = [];
 
@@ -429,7 +443,7 @@ export function beregnSubsidiaerTriggers(
 
 export function getVurderingBadge(
   vurdering: BelopVurdering | undefined,
-  prekludert?: boolean,
+  prekludert?: boolean
 ): VurderingBadge {
   if (prekludert) return { variant: 'danger', label: 'Prekludert' };
   switch (vurdering) {
@@ -450,7 +464,8 @@ export function getVurderingBadge(
 export function getDynamicPlaceholder(resultat: VederlagBeregningResultat | undefined): string {
   if (!resultat) return 'Gjør valgene i wizarden, deretter skriv begrunnelse...';
   if (resultat === 'godkjent') return 'Begrunn din godkjenning av vederlagskravet...';
-  if (resultat === 'delvis_godkjent') return 'Forklar hvorfor du kun godkjenner deler av vederlagskravet...';
+  if (resultat === 'delvis_godkjent')
+    return 'Forklar hvorfor du kun godkjenner deler av vederlagskravet...';
   if (resultat === 'hold_tilbake') return 'Begrunn tilbakeholdelsen av betaling (§30.2)...';
   return 'Begrunn ditt avslag på vederlagskravet...';
 }
@@ -462,10 +477,15 @@ export function getDynamicPlaceholder(resultat: VederlagBeregningResultat | unde
 export function buildEventData(
   state: VederlagFormState,
   config: VederlagDomainConfig,
-  computed: Pick<VederlagComputedValues,
-    'har34_1_2_Preklusjon' | 'prinsipaltResultat' | 'subsidiaertResultat' |
-    'visSubsidiaertResultat' | 'totalGodkjent' | 'totalKrevdInklPrekludert' |
-    'totalGodkjentInklPrekludert'
+  computed: Pick<
+    VederlagComputedValues,
+    | 'har34_1_2_Preklusjon'
+    | 'prinsipaltResultat'
+    | 'subsidiaertResultat'
+    | 'visSubsidiaertResultat'
+    | 'totalGodkjent'
+    | 'totalKrevdInklPrekludert'
+    | 'totalGodkjentInklPrekludert'
   >,
   refs: {
     vederlagKravId: string;
@@ -473,7 +493,7 @@ export function buildEventData(
     isUpdateMode: boolean;
   },
   autoBegrunnelse: string,
-  subsidiaerTriggers: SubsidiaerTrigger[],
+  subsidiaerTriggers: SubsidiaerTrigger[]
 ): { eventType: string; data: Record<string, unknown> } {
   const begrunnelseTekst = state.begrunnelse || autoBegrunnelse;
 
@@ -502,7 +522,9 @@ export function buildEventData(
   // Felles data for begge modi
   const commonData: Record<string, unknown> = {
     // Port 1: Preklusjon
-    hovedkrav_varslet_i_tide: computed.har34_1_2_Preklusjon ? state.hovedkravVarsletITide : undefined,
+    hovedkrav_varslet_i_tide: computed.har34_1_2_Preklusjon
+      ? state.hovedkravVarsletITide
+      : undefined,
     rigg_varslet_i_tide: state.riggVarsletITide,
     produktivitet_varslet_i_tide: state.produktivitetVarsletITide,
 
@@ -536,9 +558,7 @@ export function buildEventData(
     subsidiaer_godkjent_belop: computed.visSubsidiaertResultat
       ? computed.totalGodkjentInklPrekludert
       : undefined,
-    subsidiaer_begrunnelse: computed.visSubsidiaertResultat
-      ? begrunnelseTekst
-      : undefined,
+    subsidiaer_begrunnelse: computed.visSubsidiaertResultat ? begrunnelseTekst : undefined,
   };
 
   if (refs.isUpdateMode && refs.lastResponseEventId) {
@@ -583,7 +603,7 @@ export function deriveVurdering(godkjent: number, krevd: number): BelopVurdering
 export function getGodkjentForDisplay(
   vurdering: BelopVurdering | undefined,
   krevdBelop: number,
-  godkjentBelop: number | undefined,
+  godkjentBelop: number | undefined
 ): number {
   if (vurdering === 'godkjent' || vurdering === undefined) return krevdBelop;
   if (vurdering === 'delvis') return godkjentBelop ?? 0;
@@ -594,7 +614,10 @@ export function getGodkjentForDisplay(
 // CONVENIENCE: beregnAlt
 // ============================================================================
 
-export function beregnAlt(state: VederlagFormState, config: VederlagDomainConfig): VederlagComputedValues {
+export function beregnAlt(
+  state: VederlagFormState,
+  config: VederlagDomainConfig
+): VederlagComputedValues {
   const _har34_1_2 = har34_1_2Preklusjon(config);
   const _erHelSubsidiaer = erHelVederlagSubsidiaerPgaGrunnlag(config);
   const _erSubsidiaer = erSubsidiaer(config);
@@ -602,7 +625,11 @@ export function beregnAlt(state: VederlagFormState, config: VederlagDomainConfig
   const hovedkravPrekludert = beregnHovedkravPrekludert(state, config);
   const riggPrekludert = beregnRiggPrekludert(state, config);
   const produktivitetPrekludert = beregnProduktivitetPrekludert(state, config);
-  const preklusjon = { hovedkrav: hovedkravPrekludert, rigg: riggPrekludert, produktivitet: produktivitetPrekludert };
+  const preklusjon = {
+    hovedkrav: hovedkravPrekludert,
+    rigg: riggPrekludert,
+    produktivitet: produktivitetPrekludert,
+  };
 
   const totaler = beregnTotaler(state, config, preklusjon);
   const _kanHoldeTilbake = kanHoldeTilbake(config);

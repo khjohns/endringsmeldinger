@@ -93,12 +93,18 @@ describe('beregnVisibility', () => {
   });
 
   it('shows fristVarselOk for spesifisert without prior varsel', () => {
-    const vis = beregnVisibility(makeState(), makeConfig({ varselType: 'spesifisert', harTidligereVarselITide: false }));
+    const vis = beregnVisibility(
+      makeState(),
+      makeConfig({ varselType: 'spesifisert', harTidligereVarselITide: false })
+    );
     expect(vis.showFristVarselOk).toBe(true);
   });
 
   it('hides fristVarselOk for spesifisert with prior varsel i tide', () => {
-    const vis = beregnVisibility(makeState(), makeConfig({ varselType: 'spesifisert', harTidligereVarselITide: true }));
+    const vis = beregnVisibility(
+      makeState(),
+      makeConfig({ varselType: 'spesifisert', harTidligereVarselITide: true })
+    );
     expect(vis.showFristVarselOk).toBe(false);
   });
 
@@ -113,7 +119,10 @@ describe('beregnVisibility', () => {
   });
 
   it('hides spesifisertKravOk when svar pa foresporsel', () => {
-    const vis = beregnVisibility(makeState(), makeConfig({ varselType: 'spesifisert', erSvarPaForesporsel: true }));
+    const vis = beregnVisibility(
+      makeState(),
+      makeConfig({ varselType: 'spesifisert', erSvarPaForesporsel: true })
+    );
     expect(vis.showSpesifisertKravOk).toBe(false);
   });
 
@@ -123,12 +132,18 @@ describe('beregnVisibility', () => {
   });
 
   it('shows sendForesporsel when varsel type and fristVarselOk is true', () => {
-    const vis = beregnVisibility(makeState({ fristVarselOk: true }), makeConfig({ varselType: 'varsel' }));
+    const vis = beregnVisibility(
+      makeState({ fristVarselOk: true }),
+      makeConfig({ varselType: 'varsel' })
+    );
     expect(vis.showSendForesporsel).toBe(true);
   });
 
   it('hides sendForesporsel when fristVarselOk is false', () => {
-    const vis = beregnVisibility(makeState({ fristVarselOk: false }), makeConfig({ varselType: 'varsel' }));
+    const vis = beregnVisibility(
+      makeState({ fristVarselOk: false }),
+      makeConfig({ varselType: 'varsel' })
+    );
     expect(vis.showSendForesporsel).toBe(false);
   });
 
@@ -147,45 +162,51 @@ describe('beregnVisibility', () => {
 
 describe('beregnPreklusjon', () => {
   it('returns true for varsel when fristVarselOk is false', () => {
-    expect(beregnPreklusjon(
-      makeState({ fristVarselOk: false }),
-      makeConfig({ varselType: 'varsel' }),
-    )).toBe(true);
+    expect(
+      beregnPreklusjon(makeState({ fristVarselOk: false }), makeConfig({ varselType: 'varsel' }))
+    ).toBe(true);
   });
 
   it('returns false for varsel when fristVarselOk is true', () => {
-    expect(beregnPreklusjon(
-      makeState({ fristVarselOk: true }),
-      makeConfig({ varselType: 'varsel' }),
-    )).toBe(false);
+    expect(
+      beregnPreklusjon(makeState({ fristVarselOk: true }), makeConfig({ varselType: 'varsel' }))
+    ).toBe(false);
   });
 
   it('returns true for spesifisert without prior varsel when fristVarselOk is false', () => {
-    expect(beregnPreklusjon(
-      makeState({ fristVarselOk: false }),
-      makeConfig({ varselType: 'spesifisert', harTidligereVarselITide: false }),
-    )).toBe(true);
+    expect(
+      beregnPreklusjon(
+        makeState({ fristVarselOk: false }),
+        makeConfig({ varselType: 'spesifisert', harTidligereVarselITide: false })
+      )
+    ).toBe(true);
   });
 
   it('returns false for spesifisert with prior varsel i tide', () => {
-    expect(beregnPreklusjon(
-      makeState({ fristVarselOk: false }),
-      makeConfig({ varselType: 'spesifisert', harTidligereVarselITide: true }),
-    )).toBe(false);
+    expect(
+      beregnPreklusjon(
+        makeState({ fristVarselOk: false }),
+        makeConfig({ varselType: 'spesifisert', harTidligereVarselITide: true })
+      )
+    ).toBe(false);
   });
 
   it('returns true when foresporsel svar er for sent', () => {
-    expect(beregnPreklusjon(
-      makeState({ foresporselSvarOk: false }),
-      makeConfig({ erSvarPaForesporsel: true }),
-    )).toBe(true);
+    expect(
+      beregnPreklusjon(
+        makeState({ foresporselSvarOk: false }),
+        makeConfig({ erSvarPaForesporsel: true })
+      )
+    ).toBe(true);
   });
 
   it('returns false for begrunnelse_utsatt', () => {
-    expect(beregnPreklusjon(
-      makeState({ fristVarselOk: false }),
-      makeConfig({ varselType: 'begrunnelse_utsatt' }),
-    )).toBe(false);
+    expect(
+      beregnPreklusjon(
+        makeState({ fristVarselOk: false }),
+        makeConfig({ varselType: 'begrunnelse_utsatt' })
+      )
+    ).toBe(false);
   });
 });
 
@@ -195,38 +216,43 @@ describe('beregnPreklusjon', () => {
 
 describe('beregnReduksjon', () => {
   it('returns true when spesifisert with prior varsel and spesifisertKravOk is false', () => {
-    expect(beregnReduksjon(
-      makeState({ spesifisertKravOk: false }),
-      makeConfig({ varselType: 'spesifisert', harTidligereVarselITide: true }),
-    )).toBe(true);
+    expect(
+      beregnReduksjon(
+        makeState({ spesifisertKravOk: false }),
+        makeConfig({ varselType: 'spesifisert', harTidligereVarselITide: true })
+      )
+    ).toBe(true);
   });
 
   it('returns true when spesifisert without prior varsel, fristVarselOk true, spesifisertKravOk false', () => {
-    expect(beregnReduksjon(
-      makeState({ fristVarselOk: true, spesifisertKravOk: false }),
-      makeConfig({ varselType: 'spesifisert', harTidligereVarselITide: false }),
-    )).toBe(true);
+    expect(
+      beregnReduksjon(
+        makeState({ fristVarselOk: true, spesifisertKravOk: false }),
+        makeConfig({ varselType: 'spesifisert', harTidligereVarselITide: false })
+      )
+    ).toBe(true);
   });
 
   it('returns false when fristVarselOk is false (prekludert, not reduced)', () => {
-    expect(beregnReduksjon(
-      makeState({ fristVarselOk: false, spesifisertKravOk: false }),
-      makeConfig({ varselType: 'spesifisert', harTidligereVarselITide: false }),
-    )).toBe(false);
+    expect(
+      beregnReduksjon(
+        makeState({ fristVarselOk: false, spesifisertKravOk: false }),
+        makeConfig({ varselType: 'spesifisert', harTidligereVarselITide: false })
+      )
+    ).toBe(false);
   });
 
   it('returns false for svar pa foresporsel', () => {
-    expect(beregnReduksjon(
-      makeState({ spesifisertKravOk: false }),
-      makeConfig({ varselType: 'spesifisert', erSvarPaForesporsel: true }),
-    )).toBe(false);
+    expect(
+      beregnReduksjon(
+        makeState({ spesifisertKravOk: false }),
+        makeConfig({ varselType: 'spesifisert', erSvarPaForesporsel: true })
+      )
+    ).toBe(false);
   });
 
   it('returns false for varsel type', () => {
-    expect(beregnReduksjon(
-      makeState(),
-      makeConfig({ varselType: 'varsel' }),
-    )).toBe(false);
+    expect(beregnReduksjon(makeState(), makeConfig({ varselType: 'varsel' }))).toBe(false);
   });
 });
 
@@ -236,52 +262,87 @@ describe('beregnReduksjon', () => {
 
 describe('beregnPrinsipaltResultat', () => {
   it('returns godkjent when all positive', () => {
-    expect(beregnPrinsipaltResultat({
-      erPrekludert: false, sendForesporsel: false, harHindring: true,
-      krevdDager: 10, godkjentDager: 10,
-    })).toBe('godkjent');
+    expect(
+      beregnPrinsipaltResultat({
+        erPrekludert: false,
+        sendForesporsel: false,
+        harHindring: true,
+        krevdDager: 10,
+        godkjentDager: 10,
+      })
+    ).toBe('godkjent');
   });
 
   it('returns avslatt when prekludert', () => {
-    expect(beregnPrinsipaltResultat({
-      erPrekludert: true, sendForesporsel: false, harHindring: true,
-      krevdDager: 10, godkjentDager: 10,
-    })).toBe('avslatt');
+    expect(
+      beregnPrinsipaltResultat({
+        erPrekludert: true,
+        sendForesporsel: false,
+        harHindring: true,
+        krevdDager: 10,
+        godkjentDager: 10,
+      })
+    ).toBe('avslatt');
   });
 
   it('returns avslatt when sendForesporsel', () => {
-    expect(beregnPrinsipaltResultat({
-      erPrekludert: false, sendForesporsel: true, harHindring: true,
-      krevdDager: 10, godkjentDager: 10,
-    })).toBe('avslatt');
+    expect(
+      beregnPrinsipaltResultat({
+        erPrekludert: false,
+        sendForesporsel: true,
+        harHindring: true,
+        krevdDager: 10,
+        godkjentDager: 10,
+      })
+    ).toBe('avslatt');
   });
 
   it('returns avslatt when no hindring', () => {
-    expect(beregnPrinsipaltResultat({
-      erPrekludert: false, sendForesporsel: false, harHindring: false,
-      krevdDager: 10, godkjentDager: 10,
-    })).toBe('avslatt');
+    expect(
+      beregnPrinsipaltResultat({
+        erPrekludert: false,
+        sendForesporsel: false,
+        harHindring: false,
+        krevdDager: 10,
+        godkjentDager: 10,
+      })
+    ).toBe('avslatt');
   });
 
   it('returns delvis_godkjent when godkjent < krevd', () => {
-    expect(beregnPrinsipaltResultat({
-      erPrekludert: false, sendForesporsel: false, harHindring: true,
-      krevdDager: 10, godkjentDager: 5,
-    })).toBe('delvis_godkjent');
+    expect(
+      beregnPrinsipaltResultat({
+        erPrekludert: false,
+        sendForesporsel: false,
+        harHindring: true,
+        krevdDager: 10,
+        godkjentDager: 5,
+      })
+    ).toBe('delvis_godkjent');
   });
 
   it('returns godkjent when krevdDager is 0', () => {
-    expect(beregnPrinsipaltResultat({
-      erPrekludert: false, sendForesporsel: false, harHindring: true,
-      krevdDager: 0, godkjentDager: 0,
-    })).toBe('godkjent');
+    expect(
+      beregnPrinsipaltResultat({
+        erPrekludert: false,
+        sendForesporsel: false,
+        harHindring: true,
+        krevdDager: 0,
+        godkjentDager: 0,
+      })
+    ).toBe('godkjent');
   });
 
   it('returns godkjent when godkjent >= 99% of krevd', () => {
-    expect(beregnPrinsipaltResultat({
-      erPrekludert: false, sendForesporsel: false, harHindring: true,
-      krevdDager: 100, godkjentDager: 99,
-    })).toBe('godkjent');
+    expect(
+      beregnPrinsipaltResultat({
+        erPrekludert: false,
+        sendForesporsel: false,
+        harHindring: true,
+        krevdDager: 100,
+        godkjentDager: 99,
+      })
+    ).toBe('godkjent');
   });
 });
 
@@ -291,27 +352,43 @@ describe('beregnPrinsipaltResultat', () => {
 
 describe('beregnSubsidiaertResultat', () => {
   it('returns godkjent when hindring and full days', () => {
-    expect(beregnSubsidiaertResultat({
-      harHindring: true, krevdDager: 10, godkjentDager: 10,
-    })).toBe('godkjent');
+    expect(
+      beregnSubsidiaertResultat({
+        harHindring: true,
+        krevdDager: 10,
+        godkjentDager: 10,
+      })
+    ).toBe('godkjent');
   });
 
   it('returns avslatt when no hindring (ignores preclusion)', () => {
-    expect(beregnSubsidiaertResultat({
-      harHindring: false, krevdDager: 10, godkjentDager: 10,
-    })).toBe('avslatt');
+    expect(
+      beregnSubsidiaertResultat({
+        harHindring: false,
+        krevdDager: 10,
+        godkjentDager: 10,
+      })
+    ).toBe('avslatt');
   });
 
   it('returns delvis_godkjent when partial days', () => {
-    expect(beregnSubsidiaertResultat({
-      harHindring: true, krevdDager: 10, godkjentDager: 5,
-    })).toBe('delvis_godkjent');
+    expect(
+      beregnSubsidiaertResultat({
+        harHindring: true,
+        krevdDager: 10,
+        godkjentDager: 5,
+      })
+    ).toBe('delvis_godkjent');
   });
 
   it('returns godkjent when krevdDager is 0', () => {
-    expect(beregnSubsidiaertResultat({
-      harHindring: true, krevdDager: 0, godkjentDager: 0,
-    })).toBe('godkjent');
+    expect(
+      beregnSubsidiaertResultat({
+        harHindring: true,
+        krevdDager: 0,
+        godkjentDager: 0,
+      })
+    ).toBe('godkjent');
   });
 });
 
@@ -321,35 +398,47 @@ describe('beregnSubsidiaertResultat', () => {
 
 describe('beregnSubsidiaerTriggers', () => {
   it('returns empty when nothing triggers', () => {
-    expect(beregnSubsidiaerTriggers({
-      erGrunnlagSubsidiaer: false, erPrekludert: false, harHindring: true,
-    })).toEqual([]);
+    expect(
+      beregnSubsidiaerTriggers({
+        erGrunnlagSubsidiaer: false,
+        erPrekludert: false,
+        harHindring: true,
+      })
+    ).toEqual([]);
   });
 
   it('includes grunnlag_avslatt when erGrunnlagSubsidiaer', () => {
     const triggers = beregnSubsidiaerTriggers({
-      erGrunnlagSubsidiaer: true, erPrekludert: false, harHindring: true,
+      erGrunnlagSubsidiaer: true,
+      erPrekludert: false,
+      harHindring: true,
     });
     expect(triggers).toContain('grunnlag_avslatt');
   });
 
   it('includes preklusjon_varsel when prekludert', () => {
     const triggers = beregnSubsidiaerTriggers({
-      erGrunnlagSubsidiaer: false, erPrekludert: true, harHindring: true,
+      erGrunnlagSubsidiaer: false,
+      erPrekludert: true,
+      harHindring: true,
     });
     expect(triggers).toContain('preklusjon_varsel');
   });
 
   it('includes ingen_hindring when vilkar not met', () => {
     const triggers = beregnSubsidiaerTriggers({
-      erGrunnlagSubsidiaer: false, erPrekludert: false, harHindring: false,
+      erGrunnlagSubsidiaer: false,
+      erPrekludert: false,
+      harHindring: false,
     });
     expect(triggers).toContain('ingen_hindring');
   });
 
   it('includes all triggers when all conditions met', () => {
     const triggers = beregnSubsidiaerTriggers({
-      erGrunnlagSubsidiaer: true, erPrekludert: true, harHindring: false,
+      erGrunnlagSubsidiaer: true,
+      erPrekludert: true,
+      harHindring: false,
     });
     expect(triggers).toHaveLength(3);
     expect(triggers).toContain('grunnlag_avslatt');

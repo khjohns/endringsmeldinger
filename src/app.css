@@ -1,156 +1,155 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @theme inline {
-	/* ── Non-color tokens (shared between light/dark) ── */
+  /* ── Non-color tokens (shared between light/dark) ── */
 
-	/* Typography */
-	--font-data: 'IBM Plex Mono', 'SF Mono', 'Cascadia Code', 'Consolas', monospace;
-	--font-ui: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-	--font-prose: 'IBM Plex Sans', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  /* Typography */
+  --font-data: 'IBM Plex Mono', 'SF Mono', 'Cascadia Code', 'Consolas', monospace;
+  --font-ui: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-prose: 'IBM Plex Sans', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 
-	/* Spacing (4px grid) */
-	--spacing-1: 4px;
-	--spacing-2: 8px;
-	--spacing-3: 12px;
-	--spacing-4: 16px;
-	--spacing-5: 20px;
-	--spacing-6: 24px;
-	--spacing-8: 32px;
-	--spacing-10: 40px;
-	--spacing-12: 48px;
+  /* Spacing (4px grid) */
+  --spacing-1: 4px;
+  --spacing-2: 8px;
+  --spacing-3: 12px;
+  --spacing-4: 16px;
+  --spacing-5: 20px;
+  --spacing-6: 24px;
+  --spacing-8: 32px;
+  --spacing-10: 40px;
+  --spacing-12: 48px;
 
-	/* Radius (sharp — legal document character) */
-	--radius-sm: 2px;
-	--radius-md: 2px;
-	--radius-lg: 6px;
+  /* Radius (sharp — legal document character) */
+  --radius-sm: 2px;
+  --radius-md: 2px;
+  --radius-lg: 6px;
 
-	/* ── Color tokens reference CSS vars (resolved at runtime) ── */
-	--color-canvas: var(--koe-canvas);
-	--color-felt: var(--koe-felt);
-	--color-felt-raised: var(--koe-felt-raised);
-	--color-felt-hover: var(--koe-felt-hover);
-	--color-felt-active: var(--koe-felt-active);
+  /* ── Color tokens reference CSS vars (resolved at runtime) ── */
+  --color-canvas: var(--koe-canvas);
+  --color-felt: var(--koe-felt);
+  --color-felt-raised: var(--koe-felt-raised);
+  --color-felt-hover: var(--koe-felt-hover);
+  --color-felt-active: var(--koe-felt-active);
 
-	--color-ink: var(--koe-ink);
-	--color-ink-secondary: var(--koe-ink-secondary);
-	--color-ink-muted: var(--koe-ink-muted);
-	--color-ink-ghost: var(--koe-ink-ghost);
+  --color-ink: var(--koe-ink);
+  --color-ink-secondary: var(--koe-ink-secondary);
+  --color-ink-muted: var(--koe-ink-muted);
+  --color-ink-ghost: var(--koe-ink-ghost);
 
-	--color-wire: var(--koe-wire);
-	--color-wire-strong: var(--koe-wire-strong);
-	--color-wire-focus: var(--koe-wire-focus);
+  --color-wire: var(--koe-wire);
+  --color-wire-strong: var(--koe-wire-strong);
+  --color-wire-focus: var(--koe-wire-focus);
 
-	--color-vekt: var(--koe-vekt);
-	--color-vekt-dim: var(--koe-vekt-dim);
-	--color-vekt-bg: var(--koe-vekt-bg);
-	--color-vekt-bg-strong: var(--koe-vekt-bg-strong);
+  --color-vekt: var(--koe-vekt);
+  --color-vekt-dim: var(--koe-vekt-dim);
+  --color-vekt-bg: var(--koe-vekt-bg);
+  --color-vekt-bg-strong: var(--koe-vekt-bg-strong);
 
-	--color-score-high: var(--koe-score-high);
-	--color-score-high-bg: var(--koe-score-high-bg);
-	--color-score-mid: var(--koe-score-mid);
-	--color-score-low: var(--koe-score-low);
-	--color-score-low-bg: var(--koe-score-low-bg);
-
+  --color-score-high: var(--koe-score-high);
+  --color-score-high-bg: var(--koe-score-high-bg);
+  --color-score-mid: var(--koe-score-mid);
+  --color-score-low: var(--koe-score-low);
+  --color-score-low-bg: var(--koe-score-low-bg);
 }
 
 /* ── Light theme (default) ── */
 :root {
-	--koe-canvas: #f3f1ec;
-	--koe-felt: #faf8f4;
-	--koe-felt-raised: #f3f1ec;
-	--koe-felt-hover: #efede7;
-	--koe-felt-active: #e5e2da;
+  --koe-canvas: #f3f1ec;
+  --koe-felt: #faf8f4;
+  --koe-felt-raised: #f3f1ec;
+  --koe-felt-hover: #efede7;
+  --koe-felt-active: #e5e2da;
 
-	--koe-ink: #21201c;
-	--koe-ink-secondary: #57524b;
-	--koe-ink-muted: #655f56;
-	--koe-ink-ghost: #8d8578;
+  --koe-ink: #21201c;
+  --koe-ink-secondary: #57524b;
+  --koe-ink-muted: #655f56;
+  --koe-ink-ghost: #8d8578;
 
-	--koe-wire: rgba(33, 28, 18, 0.06);
-	--koe-wire-strong: rgba(33, 28, 18, 0.12);
-	--koe-wire-focus: rgba(33, 28, 18, 0.20);
+  --koe-wire: rgba(33, 28, 18, 0.06);
+  --koe-wire-strong: rgba(33, 28, 18, 0.12);
+  --koe-wire-focus: rgba(33, 28, 18, 0.2);
 
-	--koe-vekt: #8e5409;
-	--koe-vekt-dim: #7c4a0a;
-	--koe-vekt-bg: rgba(146, 86, 9, 0.06);
-	--koe-vekt-bg-strong: rgba(146, 86, 9, 0.12);
+  --koe-vekt: #8e5409;
+  --koe-vekt-dim: #7c4a0a;
+  --koe-vekt-bg: rgba(146, 86, 9, 0.06);
+  --koe-vekt-bg-strong: rgba(146, 86, 9, 0.12);
 
-	--koe-score-high: #047d56;
-	--koe-score-high-bg: #eff5ee;
-	--koe-score-mid: #655f56;
-	--koe-score-low: #c01b3d;
-	--koe-score-low-bg: #f5eeef;
+  --koe-score-high: #047d56;
+  --koe-score-high-bg: #eff5ee;
+  --koe-score-mid: #655f56;
+  --koe-score-low: #c01b3d;
+  --koe-score-low-bg: #f5eeef;
 }
 
 /* ── Dark theme ── */
 .dark {
-	--koe-canvas: #0f0d0a;
-	--koe-felt: #16140f;
-	--koe-felt-raised: #1e1b16;
-	--koe-felt-hover: #1a1815;
-	--koe-felt-active: #282520;
+  --koe-canvas: #0f0d0a;
+  --koe-felt: #16140f;
+  --koe-felt-raised: #1e1b16;
+  --koe-felt-hover: #1a1815;
+  --koe-felt-active: #282520;
 
-	--koe-ink: #f5f3ee;
-	--koe-ink-secondary: #a8a29a;
-	--koe-ink-muted: #908b82;
-	--koe-ink-ghost: #666157;
+  --koe-ink: #f5f3ee;
+  --koe-ink-secondary: #a8a29a;
+  --koe-ink-muted: #908b82;
+  --koe-ink-ghost: #666157;
 
-	--koe-wire: rgba(245, 235, 220, 0.08);
-	--koe-wire-strong: rgba(245, 235, 220, 0.15);
-	--koe-wire-focus: rgba(245, 235, 220, 0.25);
+  --koe-wire: rgba(245, 235, 220, 0.08);
+  --koe-wire-strong: rgba(245, 235, 220, 0.15);
+  --koe-wire-focus: rgba(245, 235, 220, 0.25);
 
-	--koe-vekt: #f59e0b;
-	--koe-vekt-dim: #d97706;
-	--koe-vekt-bg: rgba(245, 158, 11, 0.08);
-	--koe-vekt-bg-strong: rgba(245, 158, 11, 0.14);
+  --koe-vekt: #f59e0b;
+  --koe-vekt-dim: #d97706;
+  --koe-vekt-bg: rgba(245, 158, 11, 0.08);
+  --koe-vekt-bg-strong: rgba(245, 158, 11, 0.14);
 
-	--koe-score-high: #10b981;
-	--koe-score-high-bg: rgba(16, 185, 129, 0.10);
-	--koe-score-mid: #908b82;
-	--koe-score-low: #f03e5f;
-	--koe-score-low-bg: rgba(240, 62, 95, 0.08);
+  --koe-score-high: #10b981;
+  --koe-score-high-bg: rgba(16, 185, 129, 0.1);
+  --koe-score-mid: #908b82;
+  --koe-score-low: #f03e5f;
+  --koe-score-low-bg: rgba(240, 62, 95, 0.08);
 }
 
 /* ── Reset ── */
 *,
 *::before,
 *::after {
-	box-sizing: border-box;
-	margin: 0;
-	padding: 0;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
 body {
-	font-family: var(--font-ui);
-	background: var(--color-canvas);
-	color: var(--color-ink);
-	line-height: 1.5;
-	-webkit-font-smoothing: antialiased;
-	-moz-osx-font-smoothing: grayscale;
-	overflow-x: hidden;
+  font-family: var(--font-ui);
+  background: var(--color-canvas);
+  color: var(--color-ink);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
 }
 
 /* Hide scrollbar tracks globally — content still scrollable */
 * {
-	scrollbar-width: none; /* Firefox */
+  scrollbar-width: none; /* Firefox */
 }
 *::-webkit-scrollbar {
-	display: none; /* Chrome, Safari, Edge */
+  display: none; /* Chrome, Safari, Edge */
 }
 
 .visually-hidden {
-	position: absolute;
-	width: 1px;
-	height: 1px;
-	overflow: hidden;
-	clip: rect(0, 0, 0, 0);
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
 }
 
 /* Section label — system.md: 10px 600 uppercase tracking 0.08em ink-muted */
 .section-label {
-	font-size: 10px;
-	font-weight: 600;
-	text-transform: uppercase;
-	letter-spacing: 0.08em;
-	color: var(--color-ink-muted);
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-ink-muted);
 }

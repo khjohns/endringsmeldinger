@@ -6,7 +6,7 @@ import type { Kontraktsforhold, Kontraktshjemmel } from '$lib/constants/categori
 
 /** Valgt hjemmel med tilhørende kontraktsforhold (utledet fra valget) */
 export interface ValgtHjemmel {
-	kontraktsforhold: Kontraktsforhold;
-	/** null for standalone-hjemler (Force Majeure) */
-	hjemmel: Kontraktshjemmel | null;
+  kontraktsforhold: Kontraktsforhold;
+  /** null for standalone-hjemler (Force Majeure) */
+  hjemmel: Kontraktshjemmel | null;
 }

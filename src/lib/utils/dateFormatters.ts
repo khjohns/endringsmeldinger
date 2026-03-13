@@ -111,10 +111,7 @@ export function formatDateShortNorwegian(dateStr: string | undefined): string {
  * @param fallback - Fallback string if date is undefined (default: '-')
  * @example formatDateTimeCompact('2025-12-22T14:30:00Z') // '22.12.2025, 15:30'
  */
-export function formatDateTimeCompact(
-  dateStr: string | undefined,
-  fallback: string = '-'
-): string {
+export function formatDateTimeCompact(dateStr: string | undefined, fallback: string = '-'): string {
   if (!dateStr) return fallback;
   try {
     return new Date(dateStr).toLocaleString(NORWEGIAN_LOCALE, {

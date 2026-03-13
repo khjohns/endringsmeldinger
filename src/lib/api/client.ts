@@ -55,7 +55,7 @@ async function getCsrfToken(forceRefresh: boolean = false): Promise<string> {
 
   // Prevent multiple simultaneous fetches
   if (!csrfTokenPromise) {
-    csrfTokenPromise = fetchCsrfToken().then(token => {
+    csrfTokenPromise = fetchCsrfToken().then((token) => {
       csrfToken = token;
       csrfTokenPromise = null;
       return token;
@@ -127,10 +127,7 @@ export function isRetryableError(error: unknown): boolean {
 /**
  * Generic API fetch wrapper with error handling
  */
-export async function apiFetch<T>(
-  endpoint: string,
-  options?: RequestInit
-): Promise<T> {
+export async function apiFetch<T>(endpoint: string, options?: RequestInit): Promise<T> {
   const url = `${API_BASE_URL}${endpoint}`;
 
   // Build headers with auth token and project ID
@@ -164,7 +161,10 @@ export async function apiFetch<T>(
     let data: unknown;
 
     // Handle JSON responses (including CloudEvents format: application/cloudevents+json)
-    if (contentType && (contentType.includes('application/json') || contentType.includes('+json'))) {
+    if (
+      contentType &&
+      (contentType.includes('application/json') || contentType.includes('+json'))
+    ) {
       data = await response.json();
     } else {
       data = await response.text();
@@ -191,20 +191,26 @@ export async function apiFetch<T>(
 
           if (retryResponse.ok) {
             const retryContentType = retryResponse.headers.get('content-type');
-            if (retryContentType && (retryContentType.includes('application/json') || retryContentType.includes('+json'))) {
-              return await retryResponse.json() as T;
+            if (
+              retryContentType &&
+              (retryContentType.includes('application/json') || retryContentType.includes('+json'))
+            ) {
+              return (await retryResponse.json()) as T;
             }
-            return await retryResponse.text() as unknown as T;
+            return (await retryResponse.text()) as unknown as T;
           }
         }
       }
 
       const errorMessage =
-        typeof data === 'object' && data !== null && 'message' in data && typeof (data as Record<string, unknown>).message === 'string'
-          ? (data as Record<string, unknown>).message as string
+        typeof data === 'object' &&
+        data !== null &&
+        'message' in data &&
+        typeof (data as Record<string, unknown>).message === 'string'
+          ? ((data as Record<string, unknown>).message as string)
           : typeof data === 'string'
-          ? data
-          : `HTTP ${response.status}: ${response.statusText}`;
+            ? data
+            : `HTTP ${response.status}: ${response.statusText}`;
 
       throw new ApiError(response.status, errorMessage, data);
     }

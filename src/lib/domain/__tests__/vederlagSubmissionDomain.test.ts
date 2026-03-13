@@ -223,16 +223,18 @@ describe('vederlagSubmissionDomain', () => {
   // ── beregnTeStatusSummary ──
   describe('beregnTeStatusSummary', () => {
     it('returns null when no metode', () => {
-      expect(domain.beregnTeStatusSummary(
-        { metode: undefined, belopDirekte: undefined, kostnadsOverslag: undefined },
-        { scenario: 'new' },
-      )).toBeNull();
+      expect(
+        domain.beregnTeStatusSummary(
+          { metode: undefined, belopDirekte: undefined, kostnadsOverslag: undefined },
+          { scenario: 'new' }
+        )
+      ).toBeNull();
     });
 
     it('returns krav text with amount for new ENHETSPRISER', () => {
       const result = domain.beregnTeStatusSummary(
         { metode: 'ENHETSPRISER', belopDirekte: 250000, kostnadsOverslag: undefined },
-        { scenario: 'new' },
+        { scenario: 'new' }
       );
       expect(result).toContain('250');
       expect(result).toContain('vederlag');
@@ -241,7 +243,7 @@ describe('vederlagSubmissionDomain', () => {
     it('returns krav text with kostnadsOverslag for new REGNINGSARBEID', () => {
       const result = domain.beregnTeStatusSummary(
         { metode: 'REGNINGSARBEID', belopDirekte: undefined, kostnadsOverslag: 400000 },
-        { scenario: 'new' },
+        { scenario: 'new' }
       );
       expect(result).toContain('400');
       expect(result).toContain('vederlag');
@@ -250,7 +252,7 @@ describe('vederlagSubmissionDomain', () => {
     it('returns generic text when no amount in new scenario', () => {
       const result = domain.beregnTeStatusSummary(
         { metode: 'REGNINGSARBEID', belopDirekte: undefined, kostnadsOverslag: undefined },
-        { scenario: 'new' },
+        { scenario: 'new' }
       );
       expect(result).toBe('Sender vederlagskrav');
     });
@@ -258,7 +260,7 @@ describe('vederlagSubmissionDomain', () => {
     it('returns justerer text for edit with changed amount', () => {
       const result = domain.beregnTeStatusSummary(
         { metode: 'ENHETSPRISER', belopDirekte: 300000, kostnadsOverslag: undefined },
-        { scenario: 'edit', existingBelop: 200000 },
+        { scenario: 'edit', existingBelop: 200000 }
       );
       expect(result).toContain('Justerer');
       expect(result).toContain('200');
@@ -268,7 +270,7 @@ describe('vederlagSubmissionDomain', () => {
     it('returns oppdaterer text for edit with same amount', () => {
       const result = domain.beregnTeStatusSummary(
         { metode: 'ENHETSPRISER', belopDirekte: 200000, kostnadsOverslag: undefined },
-        { scenario: 'edit', existingBelop: 200000 },
+        { scenario: 'edit', existingBelop: 200000 }
       );
       expect(result).toContain('Oppdaterer');
       expect(result).toContain('200');
@@ -277,7 +279,7 @@ describe('vederlagSubmissionDomain', () => {
     it('returns generic oppdaterer text for edit without amount', () => {
       const result = domain.beregnTeStatusSummary(
         { metode: 'REGNINGSARBEID', belopDirekte: undefined, kostnadsOverslag: undefined },
-        { scenario: 'edit' },
+        { scenario: 'edit' }
       );
       expect(result).toBe('Oppdaterer vederlagskrav');
     });
@@ -287,10 +289,12 @@ describe('vederlagSubmissionDomain', () => {
   describe('buildEventData', () => {
     it('throws when metode is undefined', () => {
       const state = domain.getDefaults({ scenario: 'new' });
-      expect(() => domain.buildEventData(state, {
-        scenario: 'new',
-        grunnlagEventId: 'g-1',
-      })).toThrow('metode is required');
+      expect(() =>
+        domain.buildEventData(state, {
+          scenario: 'new',
+          grunnlagEventId: 'g-1',
+        })
+      ).toThrow('metode is required');
     });
 
     it('builds ENHETSPRISER event data', () => {
@@ -440,8 +444,14 @@ describe('vederlagSubmissionDomain', () => {
         scenario: 'new',
         grunnlagEventId: 'g-1',
       });
-      expect(data.saerskilt_krav?.rigg_drift).toEqual({ belop: 30000, dato_klar_over: '2026-01-15' });
-      expect(data.saerskilt_krav?.produktivitet).toEqual({ belop: 20000, dato_klar_over: '2026-02-01' });
+      expect(data.saerskilt_krav?.rigg_drift).toEqual({
+        belop: 30000,
+        dato_klar_over: '2026-01-15',
+      });
+      expect(data.saerskilt_krav?.produktivitet).toEqual({
+        belop: 20000,
+        dato_klar_over: '2026-02-01',
+      });
     });
 
     it('sets saerskilt_krav to null when neither rigg nor produktivitet', () => {

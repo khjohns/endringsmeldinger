@@ -15,10 +15,7 @@ export function createCaseContextQuery(getSakId: () => string) {
           const [
             { scenario1_3AktiveSpor, scenario2_BlandetTilstand, scenario3_TomSak },
             { timeline1_3AktiveSpor, timeline2_BlandetTilstand },
-          ] = await Promise.all([
-            import('$lib/mocks/caseState'),
-            import('$lib/mocks/timeline'),
-          ]);
+          ] = await Promise.all([import('$lib/mocks/caseState'), import('$lib/mocks/timeline')]);
 
           // Pick mock state by sak_id; fall back to scenario 1
           const stateMap: Record<string, typeof scenario1_3AktiveSpor> = {

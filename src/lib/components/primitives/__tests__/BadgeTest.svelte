@@ -1,14 +1,14 @@
 <script lang="ts">
-	import Badge from '../Badge.svelte';
+  import Badge from '../Badge.svelte';
 
-	interface Props {
-		text?: string;
-		variant: 'godkjent' | 'avslatt' | 'delvis' | 'uavklart' | 'na';
-	}
+  interface Props {
+    text?: string;
+    variant: 'godkjent' | 'avslatt' | 'delvis' | 'uavklart' | 'na';
+  }
 
-	let { text = 'Status', variant }: Props = $props();
+  let { text = 'Status', variant }: Props = $props();
 </script>
 
 <Badge {variant}>
-	{text}
+  {text}
 </Badge>

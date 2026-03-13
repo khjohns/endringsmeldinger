@@ -6,7 +6,12 @@
  */
 
 import { apiFetch } from './client';
-import type { StateResponse, TimelineResponse, HistorikkResponse, CaseContextResponse } from '../types/api';
+import type {
+  StateResponse,
+  TimelineResponse,
+  HistorikkResponse,
+  CaseContextResponse,
+} from '../types/api';
 
 /**
  * Fetch the current state of a case

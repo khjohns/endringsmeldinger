@@ -119,8 +119,7 @@ export const timeline1_3AktiveSpor: TimelineEvent[] = [
     data: {
       original_event_id: 'evt-004',
       nytt_antall_dager: 45,
-      begrunnelse:
-        'Fremdriftsanalyse bekrefter 45 virkedager. Vedlegger oppdatert Gantt-diagram.',
+      begrunnelse: 'Fremdriftsanalyse bekrefter 45 virkedager. Vedlegger oppdatert Gantt-diagram.',
       dato_revidert: '2026-01-28',
     },
   },
