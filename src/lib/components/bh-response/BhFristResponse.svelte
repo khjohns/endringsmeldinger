@@ -2,7 +2,7 @@
   import { goto } from '$app/navigation';
   import { beregnAlt, buildEventData, getDefaults } from '$lib/domain/fristDomain';
   import type { FristFormState, FristDomainConfig } from '$lib/domain/fristDomain';
-  import type { FristVarselType, FristTilstand, EventType } from '$lib/types/timeline';
+  import type { FristTilstand, EventType } from '$lib/types/timeline';
   import { submitEvent } from '$lib/api/events';
   import { useQueryClient } from '@tanstack/svelte-query';
 
@@ -18,10 +18,10 @@
   import Checkbox from '$lib/components/primitives/Checkbox.svelte';
 
   interface KravData {
-    varselType?: FristVarselType;
     krevdDager: number;
     begrunnelseHtml?: string;
     datoVarslet?: string;
+    datoFremsatt?: string;
   }
 
   interface TidligereSvar {
@@ -83,7 +83,7 @@
     fristTilstand,
   });
 
-  // Port 1: Varsling
+  // Port 1: Foreløpig varsel + Fremsatt krav
   let fristVarselOk = $state<boolean>(initialDefaults.fristVarselOk);
   let spesifisertKravOk = $state<boolean>(initialDefaults.spesifisertKravOk);
   let foresporselSvarOk = $state<boolean>(initialDefaults.foresporselSvarOk);
@@ -130,7 +130,7 @@
   // --- Auto begrunnelse ---
   function genererAutoBegrunnelse(): string {
     const r = computed.prinsipaltResultat;
-    if (sendForesporsel) return 'Forespørsel om spesifisering sendt (§33.6.2).';
+    if (sendForesporsel) return 'Forespørsel om spesifisering sendt (§ 33.6.2).';
     if (r === 'godkjent')
       return `Fristforlengelse godkjent: ${godkjentDager} av ${domainConfig.krevdDager} dager.`;
     if (r === 'delvis_godkjent')
@@ -216,10 +216,10 @@
 
   <!-- TEs fristkrav -->
   <FristSammendrag
-    varselType={krav.varselType}
     krevdDager={krav.krevdDager}
     begrunnelseHtml={krav.begrunnelseHtml}
     datoVarslet={krav.datoVarslet}
+    datoFremsatt={krav.datoFremsatt}
   />
 
   <!-- Standpunkt-overgang -->
@@ -239,11 +239,11 @@
     </div>
   {/if}
 
-  <!-- Port 1: Varsling -->
+  <!-- Port 1: Foreløpig varsel + Fremsatt krav -->
   {#if computed.visibility.showFristVarselOk}
     <FormSection>
-      <SectionHeading title="Varsling" paragrafRef="§33.4" />
-      <p class="helptext">Ble varselet om fristforlengelse sendt uten ugrunnet opphold?</p>
+      <SectionHeading title="Foreløpig varsel" paragrafRef="§ 33.4" />
+      <p class="helptext">Ble varselet om fristforlengelse fremsatt uten ugrunnet opphold?</p>
       <SegmentedButtons
         options={preklusjonsOptions}
         selected={fristVarselOk ? 'ja' : 'nei'}
@@ -252,7 +252,8 @@
       />
       {#if !fristVarselOk}
         <Alert variant="warning">
-          <strong>Preklusjon</strong> — Varselet vurderes som for sent. Kravet er tapt (§33.4).
+          <strong>Preklusjon</strong> — Det foreløpige varselet vurderes som for sent. Kravet er tapt
+          (§ 33.4).
         </Alert>
       {/if}
     </FormSection>
@@ -260,8 +261,8 @@
 
   {#if computed.visibility.showSpesifisertKravOk}
     <FormSection>
-      <SectionHeading title="Spesifisering" paragrafRef="§33.6.1" />
-      <p class="helptext">Ble kravet spesifisert uten ugrunnet opphold?</p>
+      <SectionHeading title="Fremsatt krav" paragrafRef="§ 33.6.1" />
+      <p class="helptext">Ble kravet fremsatt uten ugrunnet opphold?</p>
       <SegmentedButtons
         options={reduksjonsOptions}
         selected={spesifisertKravOk ? 'ja' : 'nei'}
@@ -270,8 +271,8 @@
       />
       {#if !spesifisertKravOk}
         <Alert variant="warning">
-          <strong>Reduksjon</strong> — Spesifiseringen vurderes som for sent. Fristforlengelsen reduseres
-          til det åpenbare (§33.6.1).
+          <strong>Reduksjon</strong> — Det fremsatte kravet vurderes som for sent. Fristforlengelsen reduseres
+          til det åpenbare (§ 33.6.1).
         </Alert>
       {/if}
     </FormSection>
@@ -279,7 +280,7 @@
 
   {#if computed.visibility.showForesporselSvarOk}
     <FormSection>
-      <SectionHeading title="Svar på forespørsel" paragrafRef="§33.6.2" />
+      <SectionHeading title="Svar på forespørsel" paragrafRef="§ 33.6.2" />
       <p class="helptext">Svarte TE på forespørsel om spesifisering uten ugrunnet opphold?</p>
       <SegmentedButtons
         options={preklusjonsOptions}
@@ -289,7 +290,7 @@
       />
       {#if !foresporselSvarOk}
         <Alert variant="warning">
-          <strong>Preklusjon</strong> — Svaret vurderes som for sent. Kravet er tapt (§33.6.2).
+          <strong>Preklusjon</strong> — Svaret vurderes som for sent. Kravet er tapt (§ 33.6.2).
         </Alert>
       {/if}
     </FormSection>
@@ -297,8 +298,10 @@
 
   <!-- Port 2: Årsakssammenheng -->
   <FormSection>
-    <SectionHeading title="Årsakssammenheng" paragrafRef="§33.5" />
-    <p class="helptext">Foreligger det reell fremdriftshindring som følge av forholdet?</p>
+    <SectionHeading title="Årsakssammenheng" paragrafRef="§ 33.1" />
+    <p class="helptext">
+      Foreligger det en hindring på fremdriften som følge av det påberopte kontraktsforholdet?
+    </p>
     {#if computed.port2ErSubsidiaer}
       <div class="subsidiaer-markering">Subsidiært</div>
     {/if}
@@ -315,7 +318,7 @@
       <Checkbox
         checked={sendForesporsel}
         label="Send forespørsel om spesifisering"
-        paragrafRef="§33.6.2"
+        paragrafRef="§ 33.6.2"
         description="Be TE spesifisere kravet med antall dager og begrunnelse."
         onchange={(v) => (sendForesporsel = v)}
       />
@@ -324,7 +327,12 @@
 
   {#if computed.showGodkjentDager && !sendForesporsel}
     <FormSection>
-      <SectionHeading title="Utmåling" paragrafRef="§33.6" />
+      <SectionHeading title="Utmåling" paragrafRef="§ 33.5" />
+      <p class="helptext">
+        Fristforlengelsen skal svare til den virkning kontraktsforholdet har hatt på fremdriften,
+        herunder avbrudd, forskyvning til ugunstig årstid og samlet virkning av tidligere varslede
+        forhold.
+      </p>
       {#if computed.port3ErSubsidiaer}
         <div class="subsidiaer-markering">Subsidiært</div>
       {/if}
