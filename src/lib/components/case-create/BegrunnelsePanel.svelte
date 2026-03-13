@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { ChevronLeft, Upload } from 'lucide-svelte';
 	import RichTextEditor from '$lib/components/primitives/RichTextEditor.svelte';
 	import Button from '$lib/components/primitives/Button.svelte';
 
@@ -31,9 +32,7 @@
 <aside class="begrunnelse-panel" class:overlay>
 	{#if overlay}
 		<button class="panel-tilbake" onclick={onclose}>
-			<svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-				<path d="M8.5 3L4.5 7L8.5 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-			</svg>
+			<ChevronLeft size={14} strokeWidth={1.5} aria-hidden="true" />
 			Tilbake til skjema
 		</button>
 	{/if}
@@ -58,10 +57,7 @@
 			<h3 class="panel-label">Vedlegg</h3>
 		</div>
 		<div class="upload-zone">
-			<svg class="upload-icon" width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-				<path d="M10 4V14M10 4L6 8M10 4L14 8" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/>
-				<path d="M3 14V15C3 16.1046 3.89543 17 5 17H15C16.1046 17 17 16.1046 17 15V14" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/>
-			</svg>
+			<Upload class="upload-icon" size={20} strokeWidth={1.5} aria-hidden="true" />
 			<span class="upload-tekst">Dra filer hit eller klikk for å laste opp</span>
 			<span class="upload-format">PDF, DOCX, XLSX, JPG</span>
 		</div>

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { Check } from 'lucide-svelte';
 	import { Checkbox } from 'bits-ui';
 
 	interface Props {
@@ -29,9 +30,7 @@
 	>
 		{#snippet children({ checked: isChecked })}
 			{#if isChecked}
-				<svg class="checkbox-icon" width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-					<path d="M2.5 6L5 8.5L9.5 3.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
-				</svg>
+				<Check class="checkbox-icon" size={10} strokeWidth={2} aria-hidden="true" />
 			{/if}
 		{/snippet}
 	</Checkbox.Root>

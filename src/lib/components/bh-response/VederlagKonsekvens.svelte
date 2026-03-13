@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { Check, X, CircleMinus } from 'lucide-svelte';
 	import type { VederlagBeregningResultat, SubsidiaerTrigger } from '$lib/types/timeline';
 	import { formatCurrency } from '$lib/utils/formatters';
 
@@ -55,18 +56,11 @@
 	<div class="vederlag-konsekvens konsekvens-{variant}" role="status">
 		<div class="konsekvens-header">
 			{#if variant === 'positive'}
-				<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-					<path d="M4 8.5L6.5 11L12 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-				</svg>
+				<Check size={16} strokeWidth={1.5} aria-hidden="true" />
 			{:else if variant === 'negative'}
-				<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-					<path d="M5 5L11 11M11 5L5 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-				</svg>
+				<X size={16} strokeWidth={1.5} aria-hidden="true" />
 			{:else}
-				<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-					<circle cx="8" cy="8" r="5.5" stroke="currentColor" stroke-width="1.25"/>
-					<path d="M5 8H11" stroke="currentColor" stroke-width="1.25" stroke-linecap="round"/>
-				</svg>
+				<CircleMinus size={16} strokeWidth={1.5} aria-hidden="true" />
 			{/if}
 			<span class="konsekvens-tittel">{RESULTAT_LABELS[prinsipaltResultat]}</span>
 		</div>

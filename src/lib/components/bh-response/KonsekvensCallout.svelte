@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { Check, X, CircleMinus, TriangleAlert } from 'lucide-svelte';
+
 	interface Props {
 		resultat: string | undefined;
 		erPrekludert: boolean;
@@ -47,28 +49,17 @@
 	<div class="konsekvens konsekvens-{konsekvens.variant}" role="status">
 		{#if erSnuoperasjon}
 			<div class="snuoperasjon-alert">
-				<svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-					<path d="M7 1.5L13 12.5H1L7 1.5Z" stroke="currentColor" stroke-width="1.25" stroke-linejoin="round"/>
-					<path d="M7 5.5V8" stroke="currentColor" stroke-width="1.25" stroke-linecap="round"/>
-					<circle cx="7" cy="10" r="0.6" fill="currentColor"/>
-				</svg>
+				<TriangleAlert size={14} strokeWidth={1.5} aria-hidden="true" />
 				<span>Snuoperasjon — du endrer fra avslag til godkjenning</span>
 			</div>
 		{/if}
 		<div class="konsekvens-header">
 			{#if konsekvens.variant === 'positive'}
-				<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-					<path d="M4 8.5L6.5 11L12 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-				</svg>
+				<Check size={16} strokeWidth={1.5} aria-hidden="true" />
 			{:else if konsekvens.variant === 'negative'}
-				<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-					<path d="M5 5L11 11M11 5L5 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-				</svg>
+				<X size={16} strokeWidth={1.5} aria-hidden="true" />
 			{:else}
-				<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-					<circle cx="8" cy="8" r="5.5" stroke="currentColor" stroke-width="1.25"/>
-					<path d="M6 8H10" stroke="currentColor" stroke-width="1.25" stroke-linecap="round"/>
-				</svg>
+				<CircleMinus size={16} strokeWidth={1.5} aria-hidden="true" />
 			{/if}
 			<span class="konsekvens-tittel">{konsekvens.tittel}</span>
 		</div>
