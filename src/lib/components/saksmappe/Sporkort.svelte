@@ -5,6 +5,7 @@
   import { formatCurrencyCompact } from '$lib/utils/formatters';
   import { getPartsNavn } from '$lib/utils/partsNavn';
   import { beregnVarslingStatus } from '$lib/utils/varslingStatus';
+  import { isAwaitingResponse } from '$lib/utils/sporStatus';
   import { browser } from '$app/environment';
   import { onMount } from 'svelte';
   import SporkortHeader from './SporkortHeader.svelte';
@@ -19,9 +20,18 @@
     prosjektId: string;
     sakId: string;
     onFocusEvent?: (event: TimelineEvent | null) => void;
+    focusedEvent?: TimelineEvent | null;
   }
 
-  let { sporType, state: sakState, events, prosjektId, sakId, onFocusEvent }: Props = $props();
+  let {
+    sporType,
+    state: sakState,
+    events,
+    prosjektId,
+    sakId,
+    onFocusEvent,
+    focusedEvent = null,
+  }: Props = $props();
 
   // Expanded state for hendelseslogg — lives here so card can shift visually
   let loggExpanded = $state(false);
@@ -223,6 +233,35 @@
 
   const href = $derived(`/${prosjektId}/${sakId}/${sporType}`);
 
+  // Action href: maps role + sporType to the correct send/svar route
+  const actionHref = $derived.by(() => {
+    if (!visualState.action) return null;
+    const base = `/${prosjektId}/${sakId}`;
+
+    if (userRole === 'TE') {
+      if (sporType === 'grunnlag') return `${base}/grunnlag`;
+      if (sporType === 'vederlag') return `${base}/send-vederlag`;
+      if (sporType === 'frist') return `${base}/send-frist`;
+    }
+    if (userRole === 'BH') {
+      if (sporType === 'grunnlag') return `${base}/svar-grunnlag`;
+      if (sporType === 'vederlag') return `${base}/svar-vederlag`;
+      if (sporType === 'frist') return `${base}/svar-frist`;
+    }
+    return null;
+  });
+
+  const isAwaiting = $derived(isAwaitingResponse(trackState.status));
+
+  // AvventerRad always links to BH svar route
+  const avventerHref = $derived.by(() => {
+    const base = `/${prosjektId}/${sakId}`;
+    if (sporType === 'grunnlag') return `${base}/svar-grunnlag`;
+    if (sporType === 'vederlag') return `${base}/svar-vederlag`;
+    if (sporType === 'frist') return `${base}/svar-frist`;
+    return null;
+  });
+
   const SPOR_NAMES: Record<SporType, string> = {
     grunnlag: 'Kontraktsforhold',
     vederlag: 'Vederlagskrav',
@@ -314,15 +353,30 @@
     expanded={loggExpanded}
     onToggle={handleLoggToggle}
     {onFocusEvent}
+    {focusedEvent}
     teNavn={sakState.entreprenor}
     bhNavn={sakState.byggherre}
   />
 
-  <AvventerRad {sporType} state={sakState} />
+  <AvventerRad
+    {sporType}
+    state={sakState}
+    href={avventerHref}
+    actionLabel={visualState.action?.label}
+    urgent={visualState.action?.urgent ?? false}
+  />
 
-  {#if hasPassivitet}
-    <div class="passivitet-warning" role="alert">
-      {daysSinceLastEvent}d uten svar — du kan miste retten til å protestere
+  {#if !isAwaiting && visualState.action && actionHref}
+    <div class="sporkort-action-rad">
+      <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
+      <a
+        class="sporkort-action"
+        href={actionHref}
+        class:urgent={visualState.action.urgent}
+        onclick={(e: MouseEvent) => e.stopPropagation()}
+      >
+        {visualState.action.label} →
+      </a>
     </div>
   {/if}
 </div>
@@ -346,10 +400,6 @@
   .sporkort:hover {
     background: var(--color-felt-hover);
     border-color: var(--color-wire-strong);
-  }
-
-  .sporkort:active {
-    background: var(--color-felt-active);
   }
 
   .sporkort-expanded {
@@ -403,6 +453,50 @@
 
   .border-bortfalt {
     border-left: 1px dashed var(--color-ink-ghost);
+  }
+
+  .sporkort-action-rad {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 4px;
+    padding-top: 8px;
+    border-top: 1px solid var(--color-wire);
+  }
+
+  .sporkort-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-family: var(--font-ui);
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--color-ink-secondary);
+    text-decoration: none;
+    padding: 3px 10px;
+    border: 1px solid var(--color-wire-strong);
+    border-radius: var(--radius-sm);
+    background: var(--color-canvas);
+    transition:
+      color 150ms ease,
+      border-color 150ms ease,
+      background 150ms ease;
+    cursor: pointer;
+  }
+
+  .sporkort-action:hover {
+    color: var(--color-vekt);
+    border-color: var(--color-vekt);
+    background: var(--color-felt-hover);
+  }
+
+  .sporkort-action.urgent {
+    color: var(--color-score-low);
+    border-color: var(--color-score-low);
+    font-weight: 600;
+  }
+
+  .sporkort-action.urgent:hover {
+    background: var(--color-score-low-bg);
   }
 
   .passivitet-warning {
