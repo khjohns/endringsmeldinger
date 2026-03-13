@@ -31,8 +31,8 @@
     preklusjon_rigg: 'Rigg og drift prekludert (§34.1.3)',
     preklusjon_produktivitet: 'Produktivitetstap prekludert (§34.1.3)',
     reduksjon_ep_justering: 'EP-justering varslet for sent (§34.3.3)',
-    preklusjon_varsel: 'Varsel for sent (§33.4)',
-    reduksjon_spesifisert: 'Spesifisert krav for sent (§33.6)',
+    preklusjon_varsel: 'Foreløpig varsel for sent (§ 33.4)',
+    reduksjon_spesifisert: 'Fremsatt krav for sent (§ 33.6)',
     ingen_hindring: 'Ingen reell fremdriftshindring',
     metode_avslatt: 'Beregningsmetode avslått',
   };

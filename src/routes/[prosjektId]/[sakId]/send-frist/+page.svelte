@@ -125,7 +125,7 @@
 
   const EYEBROW_LABELS: Record<SubmissionScenario, string> = {
     new: 'Nytt fristkrav',
-    spesifisering: 'Spesifiser fristkrav',
+    spesifisering: 'Fremsett krav',
     foresporsel: 'Svar på forespørsel',
     edit: 'Oppdater fristkrav',
   };
