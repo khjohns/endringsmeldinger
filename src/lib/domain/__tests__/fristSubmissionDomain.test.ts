@@ -43,38 +43,35 @@ describe('fristSubmissionDomain', () => {
 
   // ── beregnVisibility ──
   describe('beregnVisibility', () => {
-    it('shows segmented control for new submission', () => {
+    it('shows all sections by default (before selection)', () => {
       const v = domain.beregnVisibility({ varselType: undefined }, { scenario: 'new' });
       expect(v.showSegmentedControl).toBe(true);
-      expect(v.showVarselSection).toBe(false);
-      expect(v.showKravSection).toBe(false);
-    });
-
-    it('shows varsel section when varsel selected', () => {
-      const v = domain.beregnVisibility({ varselType: 'varsel' }, { scenario: 'new' });
-      expect(v.showVarselSection).toBe(true);
-      expect(v.showKravSection).toBe(false);
-    });
-
-    it('shows both sections when spesifisert selected', () => {
-      const v = domain.beregnVisibility({ varselType: 'spesifisert' }, { scenario: 'new' });
-      expect(v.showVarselSection).toBe(true);
       expect(v.showKravSection).toBe(true);
     });
 
-    it('hides segmented control for spesifisering scenario', () => {
+    it('hides krav section when foreløpig varsel selected', () => {
+      const v = domain.beregnVisibility({ varselType: 'varsel' }, { scenario: 'new' });
+      expect(v.showKravSection).toBe(false);
+    });
+
+    it('shows krav section when spesifisert selected', () => {
+      const v = domain.beregnVisibility({ varselType: 'spesifisert' }, { scenario: 'new' });
+      expect(v.showKravSection).toBe(true);
+    });
+
+    it('always shows segmented control', () => {
       const v = domain.beregnVisibility(
         { varselType: 'spesifisert' },
         { scenario: 'spesifisering' }
       );
-      expect(v.showSegmentedControl).toBe(false);
+      expect(v.showSegmentedControl).toBe(true);
     });
 
     it('shows only krav + utsatt for forespørsel scenario', () => {
       const v = domain.beregnVisibility({ varselType: undefined }, { scenario: 'foresporsel' });
       expect(v.showSegmentedControl).toBe(true);
       expect(v.segmentOptions).toEqual([
-        { value: 'spesifisert', label: 'Krav' },
+        { value: 'spesifisert', label: 'Spesifisert krav' },
         { value: 'begrunnelse_utsatt', label: 'Utsatt beregning' },
       ]);
     });
