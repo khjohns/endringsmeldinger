@@ -4,6 +4,7 @@
   import { getHjemmelObj } from '$lib/constants/categories';
   import type { GrunnlagResponsResultat } from '$lib/types/timeline';
   import TeGrunnlagRevisjon from '$lib/components/te-revision/TeGrunnlagRevisjon.svelte';
+  import PageLoadingShell from '$lib/components/shared/PageLoadingShell.svelte';
 
   const prosjektId = $derived(page.params.prosjektId ?? '');
   const sakId = $derived(page.params.sakId ?? '');
@@ -115,44 +116,18 @@
   const bhNavn = $derived(query.data?.state?.byggherre);
 </script>
 
-{#if query.isLoading}
-  <div class="loading">
-    <p class="loading-text">Laster sak…</p>
-  </div>
-{:else if query.isError}
-  <div class="error">
-    <p class="error-text">Kunne ikke laste sak</p>
-  </div>
-{:else if krav}
-  <TeGrunnlagRevisjon
-    {prosjektId}
-    {sakId}
-    {krav}
-    originalEventId={timelineData.originalEventId}
-    teBegrunnelseHtml={timelineData.teBegrunnelseHtml}
-    bhSvar={timelineData.bhSvar}
-    tidligereSvar={timelineData.tidligereSvar}
-    {teNavn}
-    {bhNavn}
-  />
-{/if}
-
-<style>
-  .loading,
-  .error {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 100vh;
-  }
-
-  .loading-text {
-    font-size: 14px;
-    color: var(--color-ink-secondary);
-  }
-
-  .error-text {
-    font-size: 14px;
-    color: var(--color-score-low);
-  }
-</style>
+<PageLoadingShell loading={query.isLoading} error={query.isError} ready={!!krav}>
+  {#if krav}
+    <TeGrunnlagRevisjon
+      {prosjektId}
+      {sakId}
+      {krav}
+      originalEventId={timelineData.originalEventId}
+      teBegrunnelseHtml={timelineData.teBegrunnelseHtml}
+      bhSvar={timelineData.bhSvar}
+      tidligereSvar={timelineData.tidligereSvar}
+      {teNavn}
+      {bhNavn}
+    />
+  {/if}
+</PageLoadingShell>

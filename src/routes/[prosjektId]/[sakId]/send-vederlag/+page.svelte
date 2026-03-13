@@ -9,13 +9,14 @@
     VederlagSubmissionDefaultsConfig,
   } from '$lib/domain/vederlagSubmissionDomain';
 
+  import { PROJECT_META } from '$lib/constants/projectMeta';
+  import PageLoadingShell from '$lib/components/shared/PageLoadingShell.svelte';
+  import { isVederlagKravEvent, isGrunnlagEvent } from '$lib/constants/eventTypes';
+
   const prosjektId = $derived(page.params.prosjektId ?? '');
   const sakId = $derived(page.params.sakId ?? '');
 
-  const projectMeta: Record<string, { name: string; te: string; bh: string }> = {
-    P001: { name: 'Operatunnelen', te: 'Vestlandsentreprisen AS', bh: 'Oslobygg' },
-  };
-  const meta = $derived(prosjektId ? (projectMeta[prosjektId] ?? null) : null);
+  const meta = $derived(prosjektId ? (PROJECT_META[prosjektId] ?? null) : null);
 
   const query = createCaseContextQuery(() => sakId);
 
@@ -31,13 +32,9 @@
         originalEventId: undefined as string | undefined,
       };
 
-    const vederlagEvent = timeline.find(
-      (e) => e.type === 'vederlag_krav_sendt' || e.type === 'no.oslo.koe.vederlag_krav_sendt'
-    );
+    const vederlagEvent = timeline.find((e) => isVederlagKravEvent(e.type));
 
-    const grunnlagEvent = timeline.find(
-      (e) => e.type === 'no.oslo.koe.grunnlag_opprettet' || e.type === 'grunnlag_opprettet'
-    );
+    const grunnlagEvent = timeline.find((e) => isGrunnlagEvent(e.type));
 
     if (vederlagEvent) {
       const existing = vederlagEvent.data as
@@ -100,11 +97,7 @@
   });
 </script>
 
-{#if query.isLoading}
-  <div class="loading"><p class="loading-text">Laster sak...</p></div>
-{:else if query.isError}
-  <div class="error"><p class="error-text">Kunne ikke laste sak</p></div>
-{:else}
+<PageLoadingShell loading={query.isLoading} error={query.isError}>
   <FormWithRightPanel
     entries={vederlagData.entries}
     bind:bhBegrunnelseHtml={begrunnelseHtml}
@@ -142,23 +135,4 @@
       onkravlinjer={(t) => (aktiveTags = t)}
     />
   </FormWithRightPanel>
-{/if}
-
-<style>
-  .loading,
-  .error {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 100vh;
-  }
-
-  .loading-text {
-    font-size: 14px;
-    color: var(--color-ink-secondary);
-  }
-  .error-text {
-    font-size: 14px;
-    color: var(--color-score-low);
-  }
-</style>
+</PageLoadingShell>

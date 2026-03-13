@@ -7,13 +7,11 @@
   import { isHtmlEmpty } from '$lib/utils/formatters';
   import { createCaseListQuery } from '$lib/queries/caseList';
 
+  import { PROJECT_META } from '$lib/constants/projectMeta';
+
   const prosjektId = $derived(page.params.prosjektId);
 
-  // Mock project metadata — same pattern as layout (will come from API)
-  const projectMeta: Record<string, { name: string; te: string; bh: string }> = {
-    P001: { name: 'Operatunnelen', te: 'Vestlandsentreprisen AS', bh: 'Oslobygg' },
-  };
-  const meta = $derived(prosjektId ? (projectMeta[prosjektId] ?? null) : null);
+  const meta = $derived(prosjektId ? (PROJECT_META[prosjektId] ?? null) : null);
 
   const caseListQuery = createCaseListQuery();
   const saksnr = $derived((caseListQuery.data?.cases.length ?? 0) + 1);
