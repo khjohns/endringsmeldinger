@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { ChevronDown, File, Upload, X } from 'lucide-svelte';
+  import { ChevronDown, File as FileIcon, Upload, X } from 'lucide-svelte';
   import RichTextEditor from '$lib/components/primitives/RichTextEditor.svelte';
   import Button from '$lib/components/primitives/Button.svelte';
   import { formatDateShortNorwegian } from '$lib/utils/dateFormatters';
@@ -168,7 +168,7 @@
           oncharcount={(c) => (charCount = c)}
         />
         <button class="vedlegg-hint" onclick={() => ontabchange?.('filer')}>
-          <File size={14} strokeWidth={1.5} aria-hidden="true" />
+          <FileIcon size={14} strokeWidth={1.5} aria-hidden="true" />
           Last opp vedlegg i Filer-fanen
           {#if attachments.length > 0}
             <span class="hint-count">{attachments.length}</span>
@@ -279,7 +279,7 @@
             <div class="attachment-item">
               <div class="att-header">
                 <div class="att-info">
-                  <File class="att-icon" size={16} strokeWidth={1.5} aria-hidden="true" />
+                  <FileIcon class="att-icon" size={16} strokeWidth={1.5} aria-hidden="true" />
                   <span class="att-name">{att.name}</span>
                 </div>
                 <div class="att-actions">
