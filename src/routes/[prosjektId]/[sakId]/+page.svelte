@@ -97,6 +97,7 @@
             {prosjektId}
             {sakId}
             onFocusEvent={handleFocusEvent}
+            {focusedEvent}
           />
         {:else}
           <KronologiskTidslinje

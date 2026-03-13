@@ -10,11 +10,20 @@
     expanded: boolean;
     onToggle: () => void;
     onFocusEvent?: (event: TimelineEvent | null) => void;
+    focusedEvent?: TimelineEvent | null;
     teNavn?: string;
     bhNavn?: string;
   }
 
-  let { events, expanded, onToggle, onFocusEvent, teNavn, bhNavn }: Props = $props();
+  let {
+    events,
+    expanded,
+    onToggle,
+    onFocusEvent,
+    focusedEvent = null,
+    teNavn,
+    bhNavn,
+  }: Props = $props();
 
   interface EventIcon {
     symbol: string;
@@ -245,8 +254,11 @@
     e.preventDefault();
   }
 
-  // Track focused event index for arrow-key navigation
-  let focusedIndex = $state(-1);
+  // Track focused event index — synced with external focusedEvent
+  const focusedIndex = $derived.by(() => {
+    if (!focusedEvent) return -1;
+    return events.findIndex((e) => e.id === focusedEvent.id);
+  });
 
   // Stable ID generated once (not derived, to avoid re-computation on reactive updates)
   const listboxId = `logg-listbox-${Math.random().toString(36).slice(2, 8)}`;
@@ -257,7 +269,6 @@
   );
 
   function emitFocus(index: number) {
-    focusedIndex = index;
     if (index >= 0 && index < events.length) {
       entangledIndices = findEntangledIndices(index);
       onFocusEvent?.(events[index]);

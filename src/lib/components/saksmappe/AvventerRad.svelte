@@ -6,10 +6,18 @@
   interface Props {
     sporType: SporType;
     state: SakState;
-    onAction?: () => void;
+    href?: string | null;
+    actionLabel?: string;
+    urgent?: boolean;
   }
 
-  let { sporType, state, onAction }: Props = $props();
+  let {
+    sporType,
+    state,
+    href = null,
+    actionLabel: overrideLabel,
+    urgent = false,
+  }: Props = $props();
 
   const trackState = $derived(state[sporType]);
 
@@ -43,7 +51,6 @@
 
   function handleClick(e: MouseEvent) {
     e.stopPropagation();
-    onAction?.();
   }
 </script>
 
@@ -53,9 +60,12 @@
       <span class="avventer-ikon" aria-hidden="true">◇</span>
       <span class="avventer-label">Forventet: {expectedActorName} svarer på {docRef}</span>
     </div>
-    <button class="avventer-action" onclick={handleClick}>
-      {actionLabel} →
-    </button>
+    {#if href}
+      <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
+      <a class="avventer-pill" class:urgent {href} onclick={handleClick}>
+        {overrideLabel ?? actionLabel} →
+      </a>
+    {/if}
   </div>
 {/if}
 
@@ -93,28 +103,38 @@
     text-overflow: ellipsis;
   }
 
-  .avventer-action {
-    font-family: var(--font-data);
-    font-size: 10px;
-    color: var(--color-ink-muted);
-    background: none;
-    border: none;
+  .avventer-pill {
+    font-family: var(--font-ui);
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--color-ink-secondary);
+    text-decoration: none;
+    padding: 3px 10px;
+    border: 1px solid var(--color-wire-strong);
+    border-radius: var(--radius-sm);
+    background: var(--color-canvas);
     cursor: pointer;
     white-space: nowrap;
     flex-shrink: 0;
-    padding: 0;
-    transition: color 150ms ease;
+    transition:
+      color 150ms ease,
+      border-color 150ms ease,
+      background 150ms ease;
   }
 
-  .avventer-action:hover {
+  .avventer-pill:hover {
     color: var(--color-vekt);
+    border-color: var(--color-vekt);
+    background: var(--color-felt-hover);
   }
 
-  .avventer-action:active {
-    color: var(--color-vekt-dim);
-  }
-
-  [data-spor='frist'] .avventer-action:hover {
+  .avventer-pill.urgent {
     color: var(--color-score-low);
+    border-color: var(--color-score-low);
+    font-weight: 600;
+  }
+
+  .avventer-pill.urgent:hover {
+    background: var(--color-score-low-bg);
   }
 </style>
