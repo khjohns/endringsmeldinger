@@ -1,6 +1,5 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
-  import { onMount } from 'svelte';
   import {
     beregnAlt,
     buildEventData,
@@ -18,7 +17,7 @@
   import { submitEvent } from '$lib/api/events';
   import { draftKey, loadDraft, saveDraft, clearDraft } from '$lib/utils/draft';
   import { useQueryClient } from '@tanstack/svelte-query';
-  import { isHtmlEmpty, formatCurrency } from '$lib/utils/formatters';
+  import { isHtmlEmpty, formatCurrency, boolToSegment } from '$lib/utils/formatters';
   import {
     getVederlagsmetodeShortLabel,
     VEDERLAGSMETODER_OPTIONS,
@@ -50,6 +49,7 @@
     tittel: string;
     krav: KravData;
     domainConfig: VederlagDomainConfig;
+    version: number;
     tidligereSvar?: Array<{ rolle: 'TE' | 'BH'; versjon: number; html: string; dato?: string }>;
     isUpdateMode?: boolean;
     lastResponseData?: VederlagLastResponseData;
@@ -67,6 +67,7 @@
     tittel,
     krav,
     domainConfig,
+    version,
     tidligereSvar = [],
     isUpdateMode = false,
     lastResponseData,
@@ -81,12 +82,12 @@
 
   // --- Draft ---
   interface VederlagResponseDraft {
-    hovedkravVarsletITide: boolean;
-    riggVarsletITide: boolean;
-    produktivitetVarsletITide: boolean;
-    akseptererMetode: boolean;
+    hovedkravVarsletITide?: boolean;
+    riggVarsletITide?: boolean;
+    produktivitetVarsletITide?: boolean;
+    akseptererMetode?: boolean;
     oensketMetode?: VederlagsMetode;
-    hovedkravVurdering: BelopVurdering;
+    hovedkravVurdering?: BelopVurdering;
     hovedkravGodkjentBelop?: number;
     riggVurdering?: BelopVurdering;
     riggGodkjentBelop?: number;
@@ -96,70 +97,59 @@
   }
   const dk = draftKey('svar-vederlag', sakId);
   const draft = loadDraft<VederlagResponseDraft>(dk);
-  let draftReady = $state(false);
 
   // --- Form state ---
-  const defaults = $derived(
-    getDefaults({
-      isUpdateMode,
-      lastResponseEvent: lastResponseData,
-    })
-  );
+  const initialDefaults = getDefaults({
+    isUpdateMode,
+    lastResponseEvent: lastResponseData,
+  });
 
   // Port 1: Preklusjon
-  let hovedkravVarsletITide = $state<boolean>(draft?.hovedkravVarsletITide ?? true);
-  let riggVarsletITide = $state<boolean>(draft?.riggVarsletITide ?? true);
-  let produktivitetVarsletITide = $state<boolean>(draft?.produktivitetVarsletITide ?? true);
+  let hovedkravVarsletITide = $state<boolean | undefined>(
+    draft?.hovedkravVarsletITide ?? initialDefaults.hovedkravVarsletITide
+  );
+  let riggVarsletITide = $state<boolean | undefined>(
+    draft?.riggVarsletITide ?? initialDefaults.riggVarsletITide
+  );
+  let produktivitetVarsletITide = $state<boolean | undefined>(
+    draft?.produktivitetVarsletITide ?? initialDefaults.produktivitetVarsletITide
+  );
 
   // Port 2: Metode
-  let akseptererMetode = $state<boolean>(draft?.akseptererMetode ?? true);
-  let oensketMetode = $state<VederlagsMetode | undefined>(draft?.oensketMetode ?? undefined);
+  let akseptererMetode = $state<boolean | undefined>(
+    draft?.akseptererMetode ?? initialDefaults.akseptererMetode
+  );
+  let oensketMetode = $state<VederlagsMetode | undefined>(
+    draft?.oensketMetode ?? initialDefaults.oensketMetode
+  );
 
   // Port 3: Beløp
-  let hovedkravVurdering = $state<BelopVurdering>(draft?.hovedkravVurdering ?? 'godkjent');
-  let hovedkravGodkjentBelop = $state<number | undefined>(
-    draft?.hovedkravGodkjentBelop ?? undefined
+  let hovedkravVurdering = $state<BelopVurdering | undefined>(
+    draft?.hovedkravVurdering ?? initialDefaults.hovedkravVurdering
   );
-  let riggVurdering = $state<BelopVurdering | undefined>(draft?.riggVurdering ?? undefined);
-  let riggGodkjentBelop = $state<number | undefined>(draft?.riggGodkjentBelop ?? undefined);
+  let hovedkravGodkjentBelop = $state<number | undefined>(
+    draft?.hovedkravGodkjentBelop ?? initialDefaults.hovedkravGodkjentBelop
+  );
+  let riggVurdering = $state<BelopVurdering | undefined>(
+    draft?.riggVurdering ?? initialDefaults.riggVurdering
+  );
+  let riggGodkjentBelop = $state<number | undefined>(
+    draft?.riggGodkjentBelop ?? initialDefaults.riggGodkjentBelop
+  );
   let produktivitetVurdering = $state<BelopVurdering | undefined>(
-    draft?.produktivitetVurdering ?? undefined
+    draft?.produktivitetVurdering ?? initialDefaults.produktivitetVurdering
   );
   let produktivitetGodkjentBelop = $state<number | undefined>(
-    draft?.produktivitetGodkjentBelop ?? undefined
+    draft?.produktivitetGodkjentBelop ?? initialDefaults.produktivitetGodkjentBelop
   );
 
   // Port 4: Begrunnelse
-  let bhBegrunnelseHtml = $state(draft?.bhBegrunnelseHtml ?? '');
+  let bhBegrunnelseHtml = $state(draft?.bhBegrunnelseHtml ?? forrigeBegrunnelseHtml ?? '');
 
   // Submission
   let submitting = $state(false);
   let submitError = $state<string | null>(null);
-  let hasInitialized = $state(!!draft);
-
-  // Pre-fill in update mode (skipped if draft loaded)
-  $effect(() => {
-    if (defaults && !hasInitialized) {
-      hovedkravVarsletITide = defaults.hovedkravVarsletITide;
-      riggVarsletITide = defaults.riggVarsletITide;
-      produktivitetVarsletITide = defaults.produktivitetVarsletITide;
-      akseptererMetode = defaults.akseptererMetode;
-      oensketMetode = defaults.oensketMetode;
-      hovedkravVurdering = defaults.hovedkravVurdering;
-      hovedkravGodkjentBelop = defaults.hovedkravGodkjentBelop;
-      riggVurdering = defaults.riggVurdering;
-      riggGodkjentBelop = defaults.riggGodkjentBelop;
-      produktivitetVurdering = defaults.produktivitetVurdering;
-      produktivitetGodkjentBelop = defaults.produktivitetGodkjentBelop;
-      if (forrigeBegrunnelseHtml) bhBegrunnelseHtml = forrigeBegrunnelseHtml;
-      hasInitialized = true;
-      draftReady = true;
-    }
-  });
-
-  onMount(() => {
-    draftReady = true;
-  });
+  let draftReady = $state(true);
 
   // Auto-save draft
   $effect(() => {
@@ -223,13 +213,7 @@
   const sumKrevd = $derived(computed.totalKrevdInklPrekludert);
 
   // Begrunnelse entries for thread panel
-  const begrunnelseEntries = $derived.by(() => {
-    const entries: Array<{ rolle: 'TE' | 'BH'; versjon: number; html: string; dato?: string }> = [];
-    for (const svar of tidligereSvar) {
-      entries.push(svar);
-    }
-    return entries;
-  });
+  const begrunnelseEntries = $derived(tidligereSvar);
 
   // Metode-alternativer (ekskluder TEs valgte)
   const metodeAlternativer = $derived(
@@ -242,7 +226,15 @@
   // --- Validation ---
   const kanSende = $derived.by(() => {
     if (submitting) return false;
-    if (!akseptererMetode && !oensketMetode) return false;
+    // Port 1: Preklusjon fields must be answered when visible
+    if (computed.harPreklusjonsSteg) {
+      if (computed.har34_1_2_Preklusjon && hovedkravVarsletITide === undefined) return false;
+      if (krav.harRiggKrav && riggVarsletITide === undefined) return false;
+      if (krav.harProduktivitetKrav && produktivitetVarsletITide === undefined) return false;
+    }
+    // Port 2: Metode
+    if (akseptererMetode === undefined) return false;
+    if (akseptererMetode === false && !oensketMetode) return false;
     if (!hovedkravVurdering) return false;
     if (
       hovedkravVurdering === 'delvis' &&
@@ -289,7 +281,7 @@
         computed.subsidiaerTriggers
       );
 
-      await submitEvent(sakId, eventType as EventType, data);
+      await submitEvent(sakId, eventType as EventType, data, { expectedVersion: version });
       clearDraft(dk);
       await queryClient.invalidateQueries({ queryKey: ['case-context', sakId] });
       goto(`/${prosjektId}/${sakId}`);
@@ -375,7 +367,7 @@
           <span class="preklusjons-label">Hovedkrav (§34.1.2)</span>
           <SegmentedButtons
             options={preklusjonsOptions}
-            selected={hovedkravVarsletITide ? 'ja' : 'nei'}
+            selected={boolToSegment(hovedkravVarsletITide)}
             onselect={(v) => (hovedkravVarsletITide = v === 'ja')}
             size="sm"
           />
@@ -387,7 +379,7 @@
           <span class="preklusjons-label">Rigg og drift (§34.1.3)</span>
           <SegmentedButtons
             options={preklusjonsOptions}
-            selected={riggVarsletITide ? 'ja' : 'nei'}
+            selected={boolToSegment(riggVarsletITide)}
             onselect={(v) => (riggVarsletITide = v === 'ja')}
             size="sm"
           />
@@ -399,7 +391,7 @@
           <span class="preklusjons-label">Produktivitetstap (§34.1.3)</span>
           <SegmentedButtons
             options={preklusjonsOptions}
-            selected={produktivitetVarsletITide ? 'ja' : 'nei'}
+            selected={boolToSegment(produktivitetVarsletITide)}
             onselect={(v) => (produktivitetVarsletITide = v === 'ja')}
             size="sm"
           />
@@ -420,14 +412,14 @@
         { value: 'ja', label: 'Ja' },
         { value: 'nei', label: 'Nei' },
       ]}
-      selected={akseptererMetode ? 'ja' : 'nei'}
+      selected={boolToSegment(akseptererMetode)}
       onselect={(v) => {
         akseptererMetode = v === 'ja';
         if (v === 'ja') oensketMetode = undefined;
       }}
       size="sm"
     />
-    {#if !akseptererMetode}
+    {#if akseptererMetode === false}
       <div class="foretrukket-metode">
         <span class="foretrukket-label">Foretrukket metode:</span>
         <SegmentedButtons
@@ -457,12 +449,12 @@
     {#if hovedkravVurdering === 'delvis'}
       <div class="field-amount">
         <NumberInput
-          value={hovedkravGodkjentBelop ?? null}
+          value={hovedkravGodkjentBelop}
           label="Godkjent beløp"
           suffix="kr"
           max={krav.hovedkravBelop}
           referenceValue={krav.hovedkravBelop}
-          onchange={(v) => (hovedkravGodkjentBelop = v ?? undefined)}
+          onchange={(v) => (hovedkravGodkjentBelop = v)}
         />
       </div>
     {/if}
@@ -485,12 +477,12 @@
       {#if riggVurdering === 'delvis'}
         <div class="field-amount">
           <NumberInput
-            value={riggGodkjentBelop ?? null}
+            value={riggGodkjentBelop}
             label="Godkjent beløp"
             suffix="kr"
             max={krav.riggBelop}
             referenceValue={krav.riggBelop}
-            onchange={(v) => (riggGodkjentBelop = v ?? undefined)}
+            onchange={(v) => (riggGodkjentBelop = v)}
           />
         </div>
       {/if}
@@ -514,12 +506,12 @@
       {#if produktivitetVurdering === 'delvis'}
         <div class="field-amount">
           <NumberInput
-            value={produktivitetGodkjentBelop ?? null}
+            value={produktivitetGodkjentBelop}
             label="Godkjent beløp"
             suffix="kr"
             max={krav.produktivitetBelop}
             referenceValue={krav.produktivitetBelop}
-            onchange={(v) => (produktivitetGodkjentBelop = v ?? undefined)}
+            onchange={(v) => (produktivitetGodkjentBelop = v)}
           />
         </div>
       {/if}

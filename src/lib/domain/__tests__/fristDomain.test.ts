@@ -49,12 +49,12 @@ function makeConfig(overrides: Partial<FristDomainConfig> = {}): FristDomainConf
 // ============================================================================
 
 describe('getDefaults', () => {
-  it('returns TE-favorable defaults for create mode', () => {
+  it('returns blank defaults for create mode (no pre-selection)', () => {
     const defaults = getDefaults({ krevdDager: 10, isUpdateMode: false });
-    expect(defaults.fristVarselOk).toBe(true);
-    expect(defaults.spesifisertKravOk).toBe(true);
-    expect(defaults.vilkarOppfylt).toBe(true);
-    expect(defaults.godkjentDager).toBe(10);
+    expect(defaults.fristVarselOk).toBeUndefined();
+    expect(defaults.spesifisertKravOk).toBeUndefined();
+    expect(defaults.vilkarOppfylt).toBeUndefined();
+    expect(defaults.godkjentDager).toBeUndefined();
     expect(defaults.sendForesporsel).toBe(false);
     expect(defaults.begrunnelse).toBe('');
   });

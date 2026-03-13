@@ -115,6 +115,7 @@
       {krav}
       {domainConfig}
       {timelineData}
+      version={query.data?.version ?? 0}
       {isUpdateMode}
       {fristTilstand}
       {teNavn}

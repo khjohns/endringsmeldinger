@@ -46,9 +46,9 @@ function makeConfig(overrides: Partial<GrunnlagDomainConfig> = {}): GrunnlagDoma
 // ============================================================================
 
 describe('getDefaults', () => {
-  it('returns create mode defaults', () => {
+  it('returns create mode defaults (no pre-selection)', () => {
     const defaults = getDefaults({ isUpdateMode: false });
-    expect(defaults.varsletITide).toBe(true);
+    expect(defaults.varsletITide).toBeUndefined();
     expect(defaults.resultat).toBeUndefined();
     expect(defaults.begrunnelse).toBe('');
   });

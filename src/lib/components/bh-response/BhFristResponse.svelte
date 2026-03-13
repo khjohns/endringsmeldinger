@@ -6,6 +6,7 @@
   import type { FristTilstand, EventType } from '$lib/types/timeline';
   import { submitEvent } from '$lib/api/events';
   import { draftKey, loadDraft, saveDraft, clearDraft } from '$lib/utils/draft';
+  import { boolToSegment } from '$lib/utils/formatters';
   import { useQueryClient } from '@tanstack/svelte-query';
 
   import FristSammendrag from './FristSammendrag.svelte';
@@ -48,6 +49,7 @@
     krav: KravData;
     domainConfig: FristDomainConfig;
     timelineData: FristTimelineData;
+    version: number;
     isUpdateMode?: boolean;
     fristTilstand?: Partial<FristTilstand>;
     teNavn?: string;
@@ -63,6 +65,7 @@
     krav,
     domainConfig,
     timelineData,
+    version,
     isUpdateMode = false,
     fristTilstand,
     teNavn,
@@ -79,12 +82,12 @@
 
   // --- Draft ---
   interface FristResponseDraft {
-    fristVarselOk: boolean;
-    spesifisertKravOk: boolean;
-    foresporselSvarOk: boolean;
-    vilkarOppfylt: boolean;
+    fristVarselOk?: boolean;
+    spesifisertKravOk?: boolean;
+    foresporselSvarOk?: boolean;
+    vilkarOppfylt?: boolean;
     sendForesporsel: boolean;
-    godkjentDager: number;
+    godkjentDager?: number;
     bhBegrunnelseHtml: string;
   }
   const dk = draftKey('svar-frist', sakId);
@@ -100,20 +103,26 @@
   });
 
   // Port 1: Foreløpig varsel + Fremsatt krav
-  let fristVarselOk = $state<boolean>(draft?.fristVarselOk ?? initialDefaults.fristVarselOk);
-  let spesifisertKravOk = $state<boolean>(
+  let fristVarselOk = $state<boolean | undefined>(
+    draft?.fristVarselOk ?? initialDefaults.fristVarselOk
+  );
+  let spesifisertKravOk = $state<boolean | undefined>(
     draft?.spesifisertKravOk ?? initialDefaults.spesifisertKravOk
   );
-  let foresporselSvarOk = $state<boolean>(
+  let foresporselSvarOk = $state<boolean | undefined>(
     draft?.foresporselSvarOk ?? initialDefaults.foresporselSvarOk
   );
 
   // Port 2: Årsakssammenheng
-  let vilkarOppfylt = $state<boolean>(draft?.vilkarOppfylt ?? initialDefaults.vilkarOppfylt);
+  let vilkarOppfylt = $state<boolean | undefined>(
+    draft?.vilkarOppfylt ?? initialDefaults.vilkarOppfylt
+  );
 
   // Port 3: Utmåling
   let sendForesporsel = $state<boolean>(draft?.sendForesporsel ?? initialDefaults.sendForesporsel);
-  let godkjentDager = $state<number>(draft?.godkjentDager ?? initialDefaults.godkjentDager);
+  let godkjentDager = $state<number | undefined>(
+    draft?.godkjentDager ?? initialDefaults.godkjentDager
+  );
 
   // Begrunnelse
   let bhBegrunnelseHtml = $state(draft?.bhBegrunnelseHtml ?? forrigeBegrunnelseHtml ?? '');
@@ -160,10 +169,19 @@
   );
 
   // Begrunnelse entries for thread panel
-  const begrunnelseEntries = $derived([...tidligereSvar]);
+  const begrunnelseEntries = $derived(tidligereSvar);
 
   // --- Validation ---
-  const kanSende = $derived(!submitting);
+  const kanSende = $derived.by(() => {
+    if (submitting) return false;
+    if (sendForesporsel) return true; // Forespørsel requires no further field selections
+    if (computed.visibility.showFristVarselOk && fristVarselOk === undefined) return false;
+    if (computed.visibility.showSpesifisertKravOk && spesifisertKravOk === undefined) return false;
+    if (computed.visibility.showForesporselSvarOk && foresporselSvarOk === undefined) return false;
+    if (vilkarOppfylt === undefined) return false;
+    if (computed.showGodkjentDager && godkjentDager === undefined) return false;
+    return true;
+  });
 
   // --- Auto begrunnelse ---
   function genererAutoBegrunnelse(): string {
@@ -199,7 +217,7 @@
 
       const eventType = isUpdateMode ? 'respons_frist_oppdatert' : 'respons_frist';
 
-      await submitEvent(sakId, eventType as EventType, data);
+      await submitEvent(sakId, eventType as EventType, data, { expectedVersion: version });
       clearDraft(dk);
       await queryClient.invalidateQueries({ queryKey: ['case-context', sakId] });
       goto(`/${prosjektId}/${sakId}`);
@@ -285,11 +303,11 @@
       <p class="helptext">Ble varselet om fristforlengelse fremsatt uten ugrunnet opphold?</p>
       <SegmentedButtons
         options={preklusjonsOptions}
-        selected={fristVarselOk ? 'ja' : 'nei'}
+        selected={boolToSegment(fristVarselOk)}
         onselect={(v) => (fristVarselOk = v === 'ja')}
         size="sm"
       />
-      {#if !fristVarselOk}
+      {#if fristVarselOk === false}
         <Alert variant="warning">
           <strong>Preklusjon</strong> — Det foreløpige varselet vurderes som for sent. Kravet er tapt
           (§ 33.4).
@@ -307,11 +325,11 @@
       {/if}
       <SegmentedButtons
         options={reduksjonsOptions}
-        selected={spesifisertKravOk ? 'ja' : 'nei'}
+        selected={boolToSegment(spesifisertKravOk)}
         onselect={(v) => (spesifisertKravOk = v === 'ja')}
         size="sm"
       />
-      {#if !spesifisertKravOk}
+      {#if spesifisertKravOk === false}
         <Alert variant="warning">
           <strong>Reduksjon</strong> — Det fremsatte kravet vurderes som for sent. Fristforlengelsen reduseres
           til det åpenbare (§ 33.6.1).
@@ -326,11 +344,11 @@
       <p class="helptext">Svarte TE på forespørsel om spesifisering uten ugrunnet opphold?</p>
       <SegmentedButtons
         options={preklusjonsOptions}
-        selected={foresporselSvarOk ? 'ja' : 'nei'}
+        selected={boolToSegment(foresporselSvarOk)}
         onselect={(v) => (foresporselSvarOk = v === 'ja')}
         size="sm"
       />
-      {#if !foresporselSvarOk}
+      {#if foresporselSvarOk === false}
         <Alert variant="warning">
           <strong>Preklusjon</strong> — Svaret vurderes som for sent. Kravet er tapt (§ 33.6.2).
         </Alert>
@@ -349,7 +367,7 @@
     {/if}
     <SegmentedButtons
       options={hindringOptions}
-      selected={vilkarOppfylt ? 'ja' : 'nei'}
+      selected={boolToSegment(vilkarOppfylt)}
       onselect={(v) => (vilkarOppfylt = v === 'ja')}
     />
   </FormSection>
@@ -389,7 +407,7 @@
           label="Godkjent dager"
           suffix="dager"
           max={domainConfig.krevdDager > 0 ? domainConfig.krevdDager : undefined}
-          onchange={(v) => (godkjentDager = v ?? 0)}
+          onchange={(v) => (godkjentDager = v)}
         />
       </div>
     </FormSection>
@@ -399,7 +417,7 @@
   <FristKonsekvens
     prinsipaltResultat={computed.prinsipaltResultat}
     krevdDager={domainConfig.krevdDager}
-    {godkjentDager}
+    godkjentDager={godkjentDager ?? 0}
     visSubsidiaert={computed.visSubsidiaertResultat}
     subsidiaertResultat={computed.subsidiaertResultat}
     subsidiaerGodkjentDager={computed.visSubsidiaertResultat ? godkjentDager : undefined}

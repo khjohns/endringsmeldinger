@@ -128,6 +128,7 @@
       existing={vederlagData.existing}
       {prosjektId}
       {sakId}
+      version={query.data?.version ?? 0}
       grunnlagEventId={vederlagData.grunnlagEventId}
       originalEventId={vederlagData.scenario === 'edit' ? vederlagData.originalEventId : undefined}
       bind:begrunnelseHtml

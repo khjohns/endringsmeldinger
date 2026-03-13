@@ -40,6 +40,7 @@
     sakId: string;
     grunnlagEventId: string;
     originalEventId?: string;
+    version: number;
     begrunnelseHtml: string;
     onplaceholder?: (placeholder: string) => void;
     onactions?: (actions: FormActions) => void;
@@ -53,6 +54,7 @@
     sakId,
     grunnlagEventId,
     originalEventId,
+    version,
     begrunnelseHtml = $bindable(''),
     onplaceholder,
     onactions,
@@ -116,11 +118,11 @@
   // Route value to correct state var based on method
   const hovedkravValue = $derived(metode === 'REGNINGSARBEID' ? kostnadsOverslag : belopDirekte);
 
-  function handleHovedkravChange(v: number | null) {
+  function handleHovedkravChange(v: number | undefined) {
     if (metode === 'REGNINGSARBEID') {
-      kostnadsOverslag = v ?? undefined;
+      kostnadsOverslag = v;
     } else {
-      belopDirekte = v ?? undefined;
+      belopDirekte = v;
     }
   }
 
@@ -175,7 +177,8 @@
       await submitEvent(
         sakId,
         eventType as EventType,
-        eventData as unknown as Record<string, unknown>
+        eventData as unknown as Record<string, unknown>,
+        { expectedVersion: version }
       );
       clearDraft(dk);
       await queryClient.invalidateQueries({ queryKey: ['case-context', sakId] });
@@ -249,7 +252,7 @@
       <NumberInput
         label={hovedkravLabel}
         suffix="kr"
-        value={hovedkravValue ?? null}
+        value={hovedkravValue}
         onchange={handleHovedkravChange}
       />
     </div>
@@ -266,16 +269,16 @@
       <NumberInput
         label="Rigg og drift"
         suffix="kr"
-        value={belopRigg ?? null}
-        onchange={(v) => (belopRigg = v ?? undefined)}
+        value={belopRigg}
+        onchange={(v) => (belopRigg = v)}
       />
     </div>
     <div class="field-amount">
       <NumberInput
         label="Produktivitetstap"
         suffix="kr"
-        value={belopProduktivitet ?? null}
-        onchange={(v) => (belopProduktivitet = v ?? undefined)}
+        value={belopProduktivitet}
+        onchange={(v) => (belopProduktivitet = v)}
       />
     </div>
   </FormSection>

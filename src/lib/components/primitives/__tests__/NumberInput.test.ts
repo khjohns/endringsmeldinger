@@ -10,7 +10,7 @@ describe('NumberInput', () => {
   });
 
   it('renders label', () => {
-    render(NumberInput, { props: { value: null, label: 'Beløp', onchange: () => {} } });
+    render(NumberInput, { props: { value: undefined, label: 'Beløp', onchange: () => {} } });
     expect(screen.getByText('Beløp')).toBeInTheDocument();
   });
 
@@ -22,7 +22,7 @@ describe('NumberInput', () => {
   it('calls onchange on input', async () => {
     const onchange = vi.fn();
     const user = userEvent.setup();
-    render(NumberInput, { props: { value: null, onchange } });
+    render(NumberInput, { props: { value: undefined, onchange } });
     const input = screen.getByRole('textbox');
     await user.clear(input);
     await user.type(input, '250');
