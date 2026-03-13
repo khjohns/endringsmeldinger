@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { CircleCheck, TriangleAlert, CircleX, Info } from 'lucide-svelte';
 	import type { Snippet } from 'svelte';
 	import { fly } from 'svelte/transition';
 
@@ -11,23 +12,15 @@
 </script>
 
 <div class="callout callout-{variant}" in:fly={{ y: -4, duration: 200 }}>
-	<svg class="callout-icon" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-		{#if variant === 'godkjent'}
-			<circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.25"/>
-			<path d="M5.5 8L7 9.5L10.5 6" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/>
-		{:else if variant === 'advarsel'}
-			<path d="M8 2L14.5 13H1.5L8 2Z" stroke="currentColor" stroke-width="1.25" stroke-linejoin="round"/>
-			<path d="M8 6.5V9" stroke="currentColor" stroke-width="1.25" stroke-linecap="round"/>
-			<circle cx="8" cy="11" r="0.75" fill="currentColor"/>
-		{:else if variant === 'kritisk'}
-			<circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.25"/>
-			<path d="M6 6L10 10M10 6L6 10" stroke="currentColor" stroke-width="1.25" stroke-linecap="round"/>
-		{:else}
-			<circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.25"/>
-			<path d="M8 7V11" stroke="currentColor" stroke-width="1.25" stroke-linecap="round"/>
-			<circle cx="8" cy="5" r="0.75" fill="currentColor"/>
-		{/if}
-	</svg>
+	{#if variant === 'godkjent'}
+		<CircleCheck class="callout-icon" size={16} strokeWidth={1.5} aria-hidden="true" />
+	{:else if variant === 'advarsel'}
+		<TriangleAlert class="callout-icon" size={16} strokeWidth={1.5} aria-hidden="true" />
+	{:else if variant === 'kritisk'}
+		<CircleX class="callout-icon" size={16} strokeWidth={1.5} aria-hidden="true" />
+	{:else}
+		<Info class="callout-icon" size={16} strokeWidth={1.5} aria-hidden="true" />
+	{/if}
 	<div class="callout-content">
 		{@render children()}
 	</div>

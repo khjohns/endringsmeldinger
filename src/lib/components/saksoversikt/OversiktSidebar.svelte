@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { Plus } from 'lucide-svelte';
 	import type { SaksoversiktItem, SporHendelseType, SaksoversiktVisning } from '$lib/mocks/saksoversikt';
 	import { formatCurrencyCompact } from '$lib/utils/formatters';
 	import { AKTIVE_OVERORDNET_STATUSER } from '$lib/constants/statusLabels';
@@ -78,9 +79,7 @@
 			<span class="telling-aktiv">{stats.aktiveSaker} aktive</span>
 		</div>
 		<a class="ny-sak-btn" href="/{prosjektId}/ny">
-			<svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-				<path d="M7 3V11M3 7H11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-			</svg>
+			<Plus size={14} strokeWidth={1.5} aria-hidden="true" />
 			Ny sak
 		</a>
 	</div>
