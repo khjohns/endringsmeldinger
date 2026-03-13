@@ -57,7 +57,7 @@ src/lib/
 - Dark-only theme med tokens i `src/app.css` (`@theme inline`)
 - Spacing: 4px grid (spacing-1=4, spacing-2=8, ..., spacing-12=48)
 - Radius: sm=2px, md=4px, lg=6px (skarpere enn standard)
-- Typografi: Inter (UI), JetBrains Mono (data/tall)
+- Typografi: IBM Plex Sans (UI), IBM Plex Mono (data/tall)
 - Farger: canvas/felt/ink/wire/vekt-hierarki
 - INGEN skygger — borders-only + surface shifts
 

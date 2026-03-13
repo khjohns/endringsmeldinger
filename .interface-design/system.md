@@ -78,8 +78,8 @@
 - **Emerald (score-high):** KUN for avklarte, godkjente elementer.
 
 ## Typography
-- **UI:** Inter — labels, knapper, brodtekst
-- **Data:** JetBrains Mono — tall, belop, datoer, prosent
+- **UI:** IBM Plex Sans — labels, knapper, brodtekst. Mekaniske terminaler (90-graders avslutninger) som resonerer med kontraktsbord-metaforen. Ink traps gir lesbarhet pa 10-13px.
+- **Data:** IBM Plex Mono — tall, belop, datoer, prosent. Samme designfamilie som UI-fonten, deler x-hoyde og proporsjon for visuell koherens i KeyValueRow og sporkort.
 - **Section labels:** 11px, weight 600, uppercase, tracking 0.06em, ink-muted (SectionHeading-komponent)
 - **Body/labels:** 13px, weight 500
 - **Data values:** 13px, font-data, tabular-nums

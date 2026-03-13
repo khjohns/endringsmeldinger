@@ -4,8 +4,8 @@
 	/* ── Non-color tokens (shared between light/dark) ── */
 
 	/* Typography */
-	--font-data: 'JetBrains Mono', 'SF Mono', 'Cascadia Code', 'Consolas', monospace;
-	--font-ui: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+	--font-data: 'IBM Plex Mono', 'SF Mono', 'Cascadia Code', 'Consolas', monospace;
+	--font-ui: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 
 	/* Spacing (4px grid) */
 	--spacing-1: 4px;
