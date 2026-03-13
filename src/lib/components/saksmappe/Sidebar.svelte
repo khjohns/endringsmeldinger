@@ -106,7 +106,7 @@
         />
       {:else}
         <div class="finans-rad">
-          <span class="finans-label">Krevd ({state.entreprenor ?? 'TE'})</span>
+          <span class="finans-label">{state.entreprenor ?? 'TE'}</span>
           <span class="finans-verdi krav">{formatCurrency(krevdVederlag)}</span>
         </div>
       {/if}
@@ -126,7 +126,7 @@
         />
       {:else}
         <div class="finans-rad">
-          <span class="finans-label">Krevd ({state.entreprenor ?? 'TE'})</span>
+          <span class="finans-label">{state.entreprenor ?? 'TE'}</span>
           <span class="finans-verdi krav">{krevdDager} dager</span>
         </div>
       {/if}
@@ -154,7 +154,7 @@
     position: sticky;
     top: 0;
     height: 100%;
-    width: 260px;
+    width: 292px;
     overflow-y: auto;
     overflow-x: hidden;
     border-right: 1px solid var(--color-wire-strong);

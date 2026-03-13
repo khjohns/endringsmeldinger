@@ -50,12 +50,12 @@
 {#if gap}
   <div class="gap-visning" class:gap-compact={compact} data-spor={sporType}>
     <div class="gap-rad">
-      <span class="gap-label">Krevd ({teName})</span>
+      <span class="gap-label">Krevd</span>
       <span class="gap-verdi">{gap.krevdLabel}</span>
     </div>
     <div class="gap-rad">
-      <span class="gap-label">Anerkjent ({bhName})</span>
-      <span class="gap-verdi">− {gap.godkjentLabel}</span>
+      <span class="gap-label">Godkjent</span>
+      <span class="gap-verdi">{gap.godkjentLabel}</span>
     </div>
     <div class="gap-separator"></div>
     <div class="gap-rad gap-rad-total">
@@ -121,7 +121,7 @@
   }
 
   .gap-verdi-total {
-    font-size: 16px;
+    font-size: 13px;
     font-weight: 700;
   }
 
