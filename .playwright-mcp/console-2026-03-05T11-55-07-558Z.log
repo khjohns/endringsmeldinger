@@ -1,0 +1,2 @@
+[     115ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases/KOE-2024-031/context:0
+[  151552ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases/KOE-2024-031/context:0

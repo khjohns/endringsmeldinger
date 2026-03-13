@@ -1,0 +1,15 @@
+[     101ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases/KOE-2024-047/context:0
+[   86365ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases/KOE-2024-047/context:0
+[  159418ms] ReferenceError: ActionBanner is not defined
+    at $.add_svelte_meta.componentTag (http://localhost:5173/src/routes/[prosjektId]/[sakId]/+page.svelte?t=1772712514886:170:11)
+    at Module.add_svelte_meta (http://localhost:5173/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=1d4254ce:579:12)
+    at consequent_5 (http://localhost:5173/src/routes/[prosjektId]/[sakId]/+page.svelte?t=1772712514886:169:6)
+    at http://localhost:5173/node_modules/.vite/deps/chunk-7DWANYEO.js?v=1d4254ce:645:24
+    at update_reaction (http://localhost:5173/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=1d4254ce:3495:18)
+    at update_effect (http://localhost:5173/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=1d4254ce:3634:21)
+    at create_effect (http://localhost:5173/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=1d4254ce:2991:7)
+    at branch (http://localhost:5173/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=1d4254ce:3162:10)
+    at BranchManager.ensure (http://localhost:5173/node_modules/.vite/deps/chunk-7DWANYEO.js?v=1d4254ce:645:11)
+    at update_branch (http://localhost:5173/node_modules/.vite/deps/chunk-7DWANYEO.js?v=1d4254ce:784:14)
+[  159415ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases/KOE-2024-047/context:0
+[  169193ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases/KOE-2024-047/context:0

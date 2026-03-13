@@ -1,0 +1,25 @@
+[      80ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases:0
+[   56690ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases:0
+[  438756ms] [ERROR] SyntaxError: The requested module '/src/lib/utils/tidslinje.ts' does not provide an export named 'genererAkseMerker' @ http://localhost:5173/@fs/Users/kasper/Projects/endringsmeldinger/.svelte-kit/generated/client/app.js:24
+[  440930ms] [ERROR] SyntaxError: The requested module '/src/lib/utils/tidslinje.ts' does not provide an export named 'genererAkseMerker' @ http://localhost:5173/@fs/Users/kasper/Projects/endringsmeldinger/.svelte-kit/generated/client/app.js:24
+[  442342ms] [ERROR] SyntaxError: The requested module '/src/lib/utils/tidslinje.ts' does not provide an export named 'genererAkseMerker' @ http://localhost:5173/@fs/Users/kasper/Projects/endringsmeldinger/.svelte-kit/generated/client/app.js:24
+[  461429ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases:0
+[  483920ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases:0
+[  484893ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases:0
+[ 2575688ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases:0
+[ 2586085ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases/KOE-2024-047/context:0
+[ 2603793ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases:0
+[ 2607489ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases/KOE-2024-047/context:0
+[ 2622539ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases:0
+[ 2652757ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases/KOE-2024-047/context:0
+[ 2684354ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases:0
+[ 2869964ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases:0
+[ 2880070ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases:0
+[ 2885904ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases:0
+[ 2891008ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases:0
+[ 2894361ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases:0
+[ 2898385ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases:0
+[ 2903606ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases:0
+[ 3071996ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases:0
+[ 3081804ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases:0
+[ 3085949ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases:0
