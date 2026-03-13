@@ -1,0 +1,15 @@
+[     136ms] [WARNING] [tiptap warn]: Duplicate extension names found: ['placeholder']. This can lead to issues. @ http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:13173
+[     158ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases:0
+[  107154ms] ReferenceError: hint is not defined
+    at http://localhost:5175/src/lib/components/primitives/RichTextEditor.svelte?t=1773133660049:127:5
+    at http://localhost:5175/node_modules/.vite/deps/chunk-IFMMCUZX.js?v=4e4db574:788:5
+    at update_reaction (http://localhost:5175/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=4e4db574:3495:18)
+    at update_effect (http://localhost:5175/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=4e4db574:3634:21)
+    at create_effect (http://localhost:5175/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=4e4db574:2991:7)
+    at block (http://localhost:5175/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=4e4db574:3148:17)
+    at Module.if_block (http://localhost:5175/node_modules/.vite/deps/chunk-IFMMCUZX.js?v=4e4db574:786:3)
+    at http://localhost:5175/src/lib/components/primitives/RichTextEditor.svelte?t=1773133660049:126:14
+    at Module.add_svelte_meta (http://localhost:5175/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=4e4db574:579:12)
+    at RichTextEditor (http://localhost:5175/src/lib/components/primitives/RichTextEditor.svelte?t=1773133660049:125:5)
+[  186758ms] [WARNING] [tiptap warn]: Duplicate extension names found: ['placeholder']. This can lead to issues. @ http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:13173
+[  186784ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases:0

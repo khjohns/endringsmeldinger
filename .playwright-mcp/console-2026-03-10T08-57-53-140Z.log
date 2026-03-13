@@ -1,0 +1,90 @@
+[     137ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases/KOE-2024-012/context:0
+[     152ms] [WARNING] [tiptap warn]: Duplicate extension names found: ['placeholder']. This can lead to issues. @ http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:13173
+[  339273ms] [WARNING] [tiptap warn]: Duplicate extension names found: ['placeholder']. This can lead to issues. @ http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:13173
+[  352051ms] Error: https://svelte.dev/e/state_unsafe_mutation
+    at state_unsafe_mutation (http://localhost:5175/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=4e4db574:511:11)
+    at Module.set (http://localhost:5175/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=4e4db574:2015:5)
+    at set tipex (http://localhost:5175/src/lib/components/primitives/RichTextEditor.svelte?t=1773133412292:96:7)
+    at http://localhost:5175/node_modules/.vite/deps/chunk-IFMMCUZX.js?v=4e4db574:4073:13
+    at Editor.onTransaction (http://localhost:5175/node_modules/.vite/deps/@friendofsvelte_tipex.js?v=19d35f13:23170:9)
+    at http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:12281:48
+    at Array.forEach (<anonymous>)
+    at Editor.emit (http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:12281:17)
+    at Editor.dispatchTransaction (http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:16011:10)
+    at EditorView.dispatch (http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:11235:25)
+[  352046ms] [WARNING] [tiptap warn]: Duplicate extension names found: ['placeholder']. This can lead to issues. @ http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:13173
+[  362980ms] Error: https://svelte.dev/e/state_unsafe_mutation
+    at state_unsafe_mutation (http://localhost:5175/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=4e4db574:511:11)
+    at Module.set (http://localhost:5175/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=4e4db574:2015:5)
+    at set tipex (http://localhost:5175/src/lib/components/primitives/RichTextEditor.svelte?t=1773133425065:96:7)
+    at http://localhost:5175/node_modules/.vite/deps/chunk-IFMMCUZX.js?v=4e4db574:4073:13
+    at Editor.onTransaction (http://localhost:5175/node_modules/.vite/deps/@friendofsvelte_tipex.js?v=19d35f13:23170:9)
+    at http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:12281:48
+    at Array.forEach (<anonymous>)
+    at Editor.emit (http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:12281:17)
+    at Editor.dispatchTransaction (http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:16011:10)
+    at EditorView.dispatch (http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:11235:25)
+[  362975ms] [WARNING] [tiptap warn]: Duplicate extension names found: ['placeholder']. This can lead to issues. @ http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:13173
+[  372319ms] Error: https://svelte.dev/e/state_unsafe_mutation
+    at state_unsafe_mutation (http://localhost:5175/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=4e4db574:511:11)
+    at Module.set (http://localhost:5175/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=4e4db574:2015:5)
+    at set tipex (http://localhost:5175/src/lib/components/primitives/RichTextEditor.svelte?t=1773133435994:96:7)
+    at http://localhost:5175/node_modules/.vite/deps/chunk-IFMMCUZX.js?v=4e4db574:4073:13
+    at Editor.onTransaction (http://localhost:5175/node_modules/.vite/deps/@friendofsvelte_tipex.js?v=19d35f13:23170:9)
+    at http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:12281:48
+    at Array.forEach (<anonymous>)
+    at Editor.emit (http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:12281:17)
+    at Editor.dispatchTransaction (http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:16011:10)
+    at EditorView.dispatch (http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:11235:25)
+[  372321ms] [WARNING] [tiptap warn]: Duplicate extension names found: ['placeholder']. This can lead to issues. @ http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:13173
+[  378074ms] Error: https://svelte.dev/e/state_unsafe_mutation
+    at state_unsafe_mutation (http://localhost:5175/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=4e4db574:511:11)
+    at Module.set (http://localhost:5175/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=4e4db574:2015:5)
+    at set tipex (http://localhost:5175/src/lib/components/primitives/RichTextEditor.svelte?t=1773133445294:96:7)
+    at http://localhost:5175/node_modules/.vite/deps/chunk-IFMMCUZX.js?v=4e4db574:4073:13
+    at Editor.onTransaction (http://localhost:5175/node_modules/.vite/deps/@friendofsvelte_tipex.js?v=19d35f13:23170:9)
+    at http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:12281:48
+    at Array.forEach (<anonymous>)
+    at Editor.emit (http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:12281:17)
+    at Editor.dispatchTransaction (http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:16011:10)
+    at EditorView.dispatch (http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:11235:25)
+[  378077ms] [WARNING] [tiptap warn]: Duplicate extension names found: ['placeholder']. This can lead to issues. @ http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:13173
+[  390170ms] Error: https://svelte.dev/e/state_unsafe_mutation
+    at state_unsafe_mutation (http://localhost:5175/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=4e4db574:511:11)
+    at Module.set (http://localhost:5175/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=4e4db574:2015:5)
+    at set tipex (http://localhost:5175/src/lib/components/primitives/RichTextEditor.svelte?t=1773133451104:96:7)
+    at http://localhost:5175/node_modules/.vite/deps/chunk-IFMMCUZX.js?v=4e4db574:4073:13
+    at Editor.onTransaction (http://localhost:5175/node_modules/.vite/deps/@friendofsvelte_tipex.js?v=19d35f13:23170:9)
+    at http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:12281:48
+    at Array.forEach (<anonymous>)
+    at Editor.emit (http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:12281:17)
+    at Editor.dispatchTransaction (http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:16011:10)
+    at EditorView.dispatch (http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:11235:25)
+[  390170ms] [WARNING] [tiptap warn]: Duplicate extension names found: ['placeholder']. This can lead to issues. @ http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:13173
+[  403554ms] Error: https://svelte.dev/e/state_unsafe_mutation
+    at state_unsafe_mutation (http://localhost:5175/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=4e4db574:511:11)
+    at Module.set (http://localhost:5175/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=4e4db574:2015:5)
+    at set tipex (http://localhost:5175/src/lib/components/primitives/RichTextEditor.svelte?t=1773133463214:96:7)
+    at http://localhost:5175/node_modules/.vite/deps/chunk-IFMMCUZX.js?v=4e4db574:4073:13
+    at Editor.onTransaction (http://localhost:5175/node_modules/.vite/deps/@friendofsvelte_tipex.js?v=19d35f13:23170:9)
+    at http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:12281:48
+    at Array.forEach (<anonymous>)
+    at Editor.emit (http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:12281:17)
+    at Editor.dispatchTransaction (http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:16011:10)
+    at EditorView.dispatch (http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:11235:25)
+[  403552ms] [WARNING] [tiptap warn]: Duplicate extension names found: ['placeholder']. This can lead to issues. @ http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:13173
+[  409056ms] Error: https://svelte.dev/e/state_unsafe_mutation
+    at state_unsafe_mutation (http://localhost:5175/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=4e4db574:511:11)
+    at Module.set (http://localhost:5175/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=4e4db574:2015:5)
+    at set tipex (http://localhost:5175/src/lib/components/primitives/RichTextEditor.svelte?t=1773133476634:96:7)
+    at http://localhost:5175/node_modules/.vite/deps/chunk-IFMMCUZX.js?v=4e4db574:4073:13
+    at Editor.onTransaction (http://localhost:5175/node_modules/.vite/deps/@friendofsvelte_tipex.js?v=19d35f13:23170:9)
+    at http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:12281:48
+    at Array.forEach (<anonymous>)
+    at Editor.emit (http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:12281:17)
+    at Editor.dispatchTransaction (http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:16011:10)
+    at EditorView.dispatch (http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:11235:25)
+[  409053ms] [WARNING] [tiptap warn]: Duplicate extension names found: ['placeholder']. This can lead to issues. @ http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:13173
+[  426384ms] [WARNING] [tiptap warn]: Duplicate extension names found: ['placeholder']. This can lead to issues. @ http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:13173
+[  435327ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases/KOE-2024-012/context:0
+[  435353ms] [WARNING] [tiptap warn]: Duplicate extension names found: ['placeholder']. This can lead to issues. @ http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:13173
