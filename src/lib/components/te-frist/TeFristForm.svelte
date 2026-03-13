@@ -90,13 +90,13 @@
   const submitLabel = $derived.by(() => {
     switch (scenario) {
       case 'edit':
-        return 'Oppdater fristkrav §33';
+        return 'Oppdater fristkrav § 33';
       case 'spesifisering':
-        return 'Spesifiser krav §33';
+        return 'Spesifiser krav § 33';
       case 'foresporsel':
-        return 'Svar på forespørsel §33';
+        return 'Svar på forespørsel § 33';
       default:
-        return 'Send fristkrav §33';
+        return 'Send fristkrav § 33';
     }
   });
 
@@ -152,7 +152,7 @@
   <!-- KRAVTYPE -->
   {#if visibility.showSegmentedControl}
     <FormSection>
-      <SectionHeading title="Kravtype" paragrafRef="§33.4 / §33.6" />
+      <SectionHeading title="Kravtype" paragrafRef="§ 33.4 / § 33.6" />
       <div class="field-auto">
         <SegmentedControl
           value={varselType ?? ''}
@@ -168,7 +168,7 @@
   <!-- FORESPORSEL ALERT -->
   {#if visibility.showForesporselAlert}
     <Alert variant="info">
-      BH har bedt om spesifisering (§33.6.2). Svar med antall dager eller begrunn hvorfor
+      BH har bedt om spesifisering (§ 33.6.2). Svar med antall dager eller begrunn hvorfor
       beregningsgrunnlag ikke foreligger.
     </Alert>
   {/if}
@@ -176,7 +176,12 @@
   <!-- FRISTFORLENGELSE (antall dager) -->
   {#if visibility.showKravSection}
     <FormSection>
-      <SectionHeading title="Fristforlengelse" paragrafRef="§33.6" />
+      <SectionHeading title="Utmåling" paragrafRef="§ 33.5" />
+      <p class="helptext">
+        Fristforlengelsen skal svare til den virkning kontraktsforholdet har hatt på fremdriften,
+        herunder avbrudd, forskyvning til ugunstig årstid og samlet virkning av tidligere varslede
+        forhold.
+      </p>
       <div class="field-amount">
         <NumberInput
           label="Antall dager"

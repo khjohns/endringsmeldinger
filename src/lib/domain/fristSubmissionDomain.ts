@@ -120,12 +120,12 @@ export function getDefaults(config: FristSubmissionDefaultsConfig): FristSubmiss
 // ============================================================================
 
 const NEW_SEGMENTS = [
-  { value: 'varsel', label: 'Varsel' },
-  { value: 'spesifisert', label: 'Krav' },
+  { value: 'varsel', label: 'Foreløpig varsel' },
+  { value: 'spesifisert', label: 'Fremsatt krav' },
 ];
 
 const FORESPORSEL_SEGMENTS = [
-  { value: 'spesifisert', label: 'Krav' },
+  { value: 'spesifisert', label: 'Fremsatt krav' },
   { value: 'begrunnelse_utsatt', label: 'Utsatt beregning' },
 ];
 
@@ -200,8 +200,8 @@ export function getDynamicPlaceholder(varselType: FristVarselType | undefined): 
   if (varselType === 'varsel')
     return 'Beskriv kort hva som forårsaker behovet for fristforlengelse (valgfritt)...';
   if (varselType === 'spesifisert')
-    return 'Begrunn antall dager krevd og den virkning hindringen har hatt for fremdriften (§33.5)...';
-  return 'Begrunn hvorfor grunnlaget for å beregne kravet ikke foreligger (§33.6.2 b)...';
+    return 'Begrunn antall dager krevd og den virkning kontraktsforholdet har hatt på fremdriften (§ 33.5)...';
+  return 'Begrunn hvorfor grunnlaget for å beregne kravet ikke foreligger (§ 33.6.2 b)...';
 }
 
 // ============================================================================

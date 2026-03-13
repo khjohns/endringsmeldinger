@@ -3,23 +3,13 @@
   import { formatDateShort } from '$lib/utils/formatters';
 
   interface Props {
-    varselType?: string;
     krevdDager: number;
     begrunnelseHtml?: string;
     datoVarslet?: string;
+    datoFremsatt?: string;
   }
 
-  let { varselType, krevdDager, begrunnelseHtml, datoVarslet }: Props = $props();
-
-  const VARSELTYPE_LABELS: Record<string, string> = {
-    varsel: 'Varsel',
-    spesifisert: 'Spesifisert krav',
-    begrunnelse_utsatt: 'Utsatt beregning',
-  };
-
-  const varselTypeLabel = $derived(
-    varselType ? (VARSELTYPE_LABELS[varselType] ?? varselType) : undefined
-  );
+  let { krevdDager, begrunnelseHtml, datoVarslet, datoFremsatt }: Props = $props();
 
   let utvidet = $state(false);
   let begrunnelseEl = $state<HTMLElement | null>(null);
@@ -29,27 +19,22 @@
 </script>
 
 <div class="frist-sammendrag">
-  <SectionHeading title="Fristkrav" paragrafRef="§33" />
+  <SectionHeading title="Fristkrav" paragrafRef="§ 33.1" />
 
   <div class="detaljer">
-    {#if varselTypeLabel}
+    {#if datoVarslet}
       <div class="detalj-rad">
-        <span class="detalj-label">Type:</span>
-        <span class="detalj-verdi">{varselTypeLabel}</span>
+        <span class="detalj-label">Varslet om fristforlengelse</span>
+        <span class="detalj-dato">{formatDateShort(datoVarslet)}</span>
       </div>
     {/if}
 
     {#if krevdDager > 0}
       <div class="detalj-rad">
-        <span class="detalj-label">Krevd:</span>
-        <span class="detalj-dager">{krevdDager} dager</span>
-      </div>
-    {/if}
-
-    {#if datoVarslet}
-      <div class="detalj-rad">
-        <span class="detalj-label">Varslet:</span>
-        <span class="detalj-verdi">{formatDateShort(datoVarslet)}</span>
+        <span class="detalj-label">Krevd ({krevdDager} dager)</span>
+        {#if datoFremsatt}
+          <span class="detalj-dato">{formatDateShort(datoFremsatt)}</span>
+        {/if}
       </div>
     {/if}
   </div>
@@ -82,7 +67,7 @@
   .detalj-rad {
     display: flex;
     align-items: baseline;
-    gap: var(--spacing-2);
+    justify-content: space-between;
     font-size: 13px;
   }
 
@@ -90,18 +75,12 @@
     color: var(--color-ink-muted);
   }
 
-  .detalj-verdi {
-    font-size: 12px;
-    font-weight: 500;
-    color: var(--color-ink-secondary);
-  }
-
-  .detalj-dager {
+  .detalj-dato {
     font-family: var(--font-data);
     font-size: 13px;
     font-weight: 500;
     font-variant-numeric: tabular-nums;
-    color: var(--color-ink);
+    color: var(--color-ink-secondary);
   }
 
   .begrunnelse {
