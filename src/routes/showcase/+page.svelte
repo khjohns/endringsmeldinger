@@ -19,7 +19,7 @@
   let checkboxChecked = $state(false);
   let yesNoValue: boolean | null = $state(null);
   let verdictValue: string | null = $state(null);
-  let numberValue: number | null = $state(150000);
+  let numberValue: number | undefined = $state(150000);
   let segmentValue = $state('poeng');
   let modalOpen = $state(false);
   let destructiveModalOpen = $state(false);

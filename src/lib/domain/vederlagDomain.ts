@@ -25,19 +25,19 @@ export type BelopVurdering = 'godkjent' | 'delvis' | 'avslatt';
  */
 export interface VederlagFormState {
   // Port 1: Preklusjon
-  hovedkravVarsletITide: boolean; // §34.1.2 (kun SVIKT/ANDRE)
-  riggVarsletITide: boolean; // §34.1.3
-  produktivitetVarsletITide: boolean; // §34.1.3
+  hovedkravVarsletITide: boolean | undefined; // §34.1.2 (kun SVIKT/ANDRE)
+  riggVarsletITide: boolean | undefined; // §34.1.3
+  produktivitetVarsletITide: boolean | undefined; // §34.1.3
 
   // Port 2: Metode
-  akseptererMetode: boolean;
+  akseptererMetode: boolean | undefined;
   oensketMetode?: VederlagsMetode;
   epJusteringVarsletITide?: boolean; // §34.3.3
   epJusteringAkseptert?: boolean;
   holdTilbake: boolean;
 
   // Port 3: Beløp
-  hovedkravVurdering: BelopVurdering;
+  hovedkravVurdering: BelopVurdering | undefined;
   hovedkravGodkjentBelop?: number;
   riggVurdering?: BelopVurdering;
   riggGodkjentBelop?: number;
@@ -156,13 +156,14 @@ export function getDefaults(config: VederlagDefaultsConfig): VederlagFormState {
       begrunnelse: '',
     };
   }
+  // New mode: no pre-selection — user must make explicit choices
   return {
-    hovedkravVarsletITide: true,
-    riggVarsletITide: true,
-    produktivitetVarsletITide: true,
-    akseptererMetode: true,
+    hovedkravVarsletITide: undefined,
+    riggVarsletITide: undefined,
+    produktivitetVarsletITide: undefined,
+    akseptererMetode: undefined,
     holdTilbake: false,
-    hovedkravVurdering: 'godkjent',
+    hovedkravVurdering: undefined,
     begrunnelse: '',
   };
 }
@@ -353,7 +354,7 @@ export function beregnTotaler(
     totalKrevdInklPrekludert,
     totalGodkjent,
     totalGodkjentInklPrekludert,
-    harMetodeendring: !state.akseptererMetode,
+    harMetodeendring: state.akseptererMetode === false,
     harPrekludertKrav: preklusjon.hovedkrav || preklusjon.rigg || preklusjon.produktivitet,
   };
 }
@@ -399,7 +400,7 @@ export function beregnSubsidiaertResultat(computed: {
   totalKrevdInklPrekludert: number;
   totalGodkjentInklPrekludert: number;
   harMetodeendring: boolean;
-  hovedkravVurdering: BelopVurdering;
+  hovedkravVurdering: BelopVurdering | undefined;
 }): VederlagBeregningResultat {
   const godkjentProsent =
     computed.totalKrevdInklPrekludert > 0
@@ -432,7 +433,7 @@ export function beregnSubsidiaerTriggers(
     triggers.push('reduksjon_ep_justering');
   }
 
-  if (!state.akseptererMetode) triggers.push('metode_avslatt');
+  if (state.akseptererMetode === false) triggers.push('metode_avslatt');
 
   return triggers;
 }

@@ -144,6 +144,7 @@
       {tittel}
       {krav}
       {domainConfig}
+      version={query.data?.version ?? 0}
       tidligereSvar={timelineData.tidligereSvar}
       {isUpdateMode}
       lastResponseData={timelineData.lastResponseData}
