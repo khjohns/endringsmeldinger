@@ -9,9 +9,10 @@
     prosjektId: string;
     sakId: string;
     onFocusEvent?: (event: TimelineEvent | null) => void;
+    focusedEvent?: TimelineEvent | null;
   }
 
-  let { state, timeline, prosjektId, sakId, onFocusEvent }: Props = $props();
+  let { state, timeline, prosjektId, sakId, onFocusEvent, focusedEvent = null }: Props = $props();
 
   // Group timeline events by track
   const eventsBySpor = $derived.by(() => {
@@ -177,6 +178,7 @@
             {prosjektId}
             {sakId}
             {onFocusEvent}
+            {focusedEvent}
           />
         {/each}
       </div>
