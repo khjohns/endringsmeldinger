@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "codegrasp": {
+      "args": [
+        "serve",
+        "--root",
+        "/Users/kasper/Projects/endringsmeldinger"
+      ],
+      "command": "/Users/kasper/.cargo/bin/codegrasp",
+      "env": {},
+      "type": "stdio"
+    }
+  }
+}

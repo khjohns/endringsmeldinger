@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="nb">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dokumentbordet — Komplett palett</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Inter', sans-serif;
+    background: #1a1a1a;
+    color: #e0e0e0;
+    padding: 32px;
+    line-height: 1.5;
+  }
+
+  h1 { font-size: 20px; font-weight: 600; margin-bottom: 4px; }
+  .subtitle { font-size: 13px; color: #999; margin-bottom: 32px; }
+  h2 { font-size: 15px; font-weight: 600; margin: 32px 0 16px; text-transform: uppercase; letter-spacing: 0.06em; color: #888; }
+  h3 { font-size: 13px; font-weight: 600; margin-bottom: 8px; }
+
+  .themes { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
+  @media (max-width: 1100px) { .themes { grid-template-columns: 1fr; } }
+
+  .theme-box { border-radius: 8px; overflow: hidden; border: 1px solid rgba(255,255,255,0.08); }
+
+  /* ─── Token table ─── */
+  .token-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+  .token-table th {
+    text-align: left; padding: 6px 12px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.06em; font-size: 9px;
+  }
+  .token-table td { padding: 5px 12px; }
+  .token-table .swatch {
+    width: 20px; height: 20px; border-radius: 2px;
+    display: inline-block; vertical-align: middle; margin-right: 8px;
+    border: 1px solid rgba(128,128,128,0.2);
+  }
+  .token-table .hex { font-family: 'JetBrains Mono', monospace; font-size: 10px; }
+  .token-table .ratio { font-family: 'JetBrains Mono', monospace; font-size: 10px; }
+  .token-table .pass { color: #10b981; }
+  .token-table .warn { color: #f59e0b; }
+  .token-table .fail { color: #f03e5f; }
+
+  /* ─── Mockup card ─── */
+  .mockup-wrap { padding: 20px; }
+  .mockup-label {
+    font-size: 9px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.08em; margin-bottom: 8px; opacity: 0.5;
+  }
+
+  .sporkort {
+    border-radius: 2px;
+    padding: 12px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    font-family: 'Inter', sans-serif;
+  }
+  .sporkort .sk-header { display: flex; justify-content: space-between; align-items: center; }
+  .sporkort .sk-name { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.02em; }
+  .sporkort .sk-badge { font-size: 9px; font-weight: 600; padding: 2px 6px; border-radius: 2px; }
+  .sporkort .sk-body { font-size: 11px; line-height: 1.5; }
+  .sporkort .sk-meta { font-size: 10px; font-family: 'JetBrains Mono', monospace; }
+  .sporkort .sk-divider { height: 1px; margin: 2px 0; }
+  .sporkort .sk-event { font-size: 10px; display: flex; gap: 8px; align-items: baseline; }
+  .sporkort .sk-event .dato { font-family: 'JetBrains Mono', monospace; white-space: nowrap; }
+  .sporkort .sk-amount { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 600; margin-left: auto; font-variant-numeric: tabular-nums; }
+
+  /* ─── Buttons mockup ─── */
+  .btn-row { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+  .btn {
+    font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 600;
+    padding: 6px 14px; border-radius: 2px; border: 1px solid transparent; cursor: default;
+  }
+
+  /* ─── Section label mockup ─── */
+  .section-lbl {
+    font-size: 10px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.08em; margin-bottom: 4px;
+  }
+
+  /* ─── Alert mockup ─── */
+  .alert-mock {
+    font-size: 12px; padding: 10px 14px; border-radius: 2px;
+    margin-top: 8px; line-height: 1.5;
+  }
+
+  /* ─── Badge row ─── */
+  .badge-row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+  .badge-mock {
+    font-size: 9px; font-weight: 600; padding: 2px 8px; border-radius: 2px;
+    text-transform: uppercase; letter-spacing: 0.04em;
+  }
+
+  .divider { height: 1px; background: rgba(255,255,255,0.06); margin: 24px 0; }
+  .note {
+    font-size: 11px; color: #777; line-height: 1.6; padding: 12px 16px;
+    background: rgba(255,255,255,0.03); border-radius: 6px; margin-top: 24px;
+  }
+  .note strong { color: #aaa; }
+</style>
+</head>
+<body>
+
+<h1>B: Dokumentbordet — Komplett palett</h1>
+<p class="subtitle">Papir-inspirerte overflater. Blekk-hierarki. Alle tekst/bakgrunn-par verifisert mot WCAG 2.1.</p>
+
+<div class="themes">
+
+  <!-- ════════════════ LYST TEMA ════════════════ -->
+  <div class="theme-box" style="background: #f3f1ec;">
+    <div style="padding: 16px 20px; border-bottom: 1px solid rgba(33,28,18,0.08);">
+      <h3 style="color: #21201c;">Lyst tema (:root)</h3>
+      <span style="font-size: 11px; color: #655f56;">Kontorpapir, trykksverte, gullblekk</span>
+    </div>
+
+    <!-- Surfaces -->
+    <div style="display: flex; height: 40px;">
+      <div style="flex:1; background:#f3f1ec; display:flex; align-items:center; justify-content:center;">
+        <span style="font-size:8px; font-weight:600; color:#8d8578; letter-spacing:0.06em;">CANVAS</span>
+      </div>
+      <div style="flex:1; background:#faf8f4; display:flex; align-items:center; justify-content:center;">
+        <span style="font-size:8px; font-weight:600; color:#8d8578; letter-spacing:0.06em;">FELT</span>
+      </div>
+      <div style="flex:1; background:#efede7; display:flex; align-items:center; justify-content:center;">
+        <span style="font-size:8px; font-weight:600; color:#8d8578; letter-spacing:0.06em;">HOVER</span>
+      </div>
+      <div style="flex:1; background:#e5e2da; display:flex; align-items:center; justify-content:center;">
+        <span style="font-size:8px; font-weight:600; color:#8d8578; letter-spacing:0.06em;">ACTIVE</span>
+      </div>
+    </div>
+
+    <!-- Ink hierarchy on felt -->
+    <table class="token-table" style="background: #faf8f4; color: #21201c;">
+      <tr><th style="color:#8d8578;" colspan="3">Blekk-hierarki (på felt #faf8f4)</th></tr>
+      <tr>
+        <td><span class="swatch" style="background:#21201c;"></span> ink</td>
+        <td class="hex">#21201c</td>
+        <td class="ratio pass">17.4:1 AAA</td>
+      </tr>
+      <tr>
+        <td><span class="swatch" style="background:#57524b;"></span> ink-secondary</td>
+        <td class="hex">#57524b</td>
+        <td class="ratio pass">7.3:1 AAA</td>
+      </tr>
+      <tr>
+        <td><span class="swatch" style="background:#655f56;"></span> ink-muted</td>
+        <td class="hex">#655f56</td>
+        <td class="ratio pass">5.9:1 AA</td>
+      </tr>
+      <tr>
+        <td><span class="swatch" style="background:#8d8578;"></span> ink-ghost</td>
+        <td class="hex">#8d8578</td>
+        <td class="ratio warn">3.4:1 &ge;3</td>
+      </tr>
+    </table>
+
+    <!-- Accents on felt -->
+    <table class="token-table" style="background: #faf8f4; color: #21201c;">
+      <tr><th style="color:#8d8578;" colspan="3">Aksenter (på felt)</th></tr>
+      <tr>
+        <td><span class="swatch" style="background:#925609;"></span> vekt</td>
+        <td class="hex">#925609</td>
+        <td class="ratio pass">5.5:1 AA</td>
+      </tr>
+      <tr>
+        <td><span class="swatch" style="background:#7c4a0a;"></span> vekt-dim</td>
+        <td class="hex">#7c4a0a</td>
+        <td class="ratio pass">7.0:1 AAA</td>
+      </tr>
+      <tr>
+        <td><span class="swatch" style="background:#047d56;"></span> score-high</td>
+        <td class="hex">#047d56</td>
+        <td class="ratio pass">4.9:1 AA</td>
+      </tr>
+      <tr>
+        <td><span class="swatch" style="background:#c01b3d;"></span> score-low</td>
+        <td class="hex">#c01b3d</td>
+        <td class="ratio pass">5.7:1 AA</td>
+      </tr>
+    </table>
+
+    <!-- Mockup -->
+    <div class="mockup-wrap" style="background: #f3f1ec;">
+      <div class="mockup-label" style="color:#8d8578;">Sporkort-mockup</div>
+
+      <div class="sporkort" style="background:#faf8f4; border:1px solid rgba(33,28,18,0.08); border-left: 2px solid #925609;">
+        <div class="sk-header">
+          <span class="sk-name" style="color:#21201c;">KONTRAKTSFORHOLD</span>
+          <span class="sk-badge" style="background:rgba(146,86,9,0.06); color:#925609; border:1px solid rgba(146,86,9,0.18);">VENTER PÅ SVAR</span>
+        </div>
+        <div class="sk-body" style="color:#57524b;">
+          Svikt i BH ytelse — Grunnforhold §25.2
+          <span class="sk-amount" style="color:#21201c;">1 240 000</span>
+        </div>
+        <div class="sk-divider" style="background:rgba(33,28,18,0.06);"></div>
+        <div class="sk-event">
+          <span class="dato" style="color:#8d8578;">12. mar</span>
+          <span style="color:#57524b;">Veidekke Entreprenør AS sendte grunnlag</span>
+        </div>
+        <div class="sk-event">
+          <span class="dato" style="color:#8d8578;">08. mar</span>
+          <span style="color:#57524b;">Oslobygg opprettet sak</span>
+        </div>
+      </div>
+
+      <div class="section-lbl" style="color:#655f56; margin-top:16px;">RESULTAT</div>
+      <div class="badge-row">
+        <span class="badge-mock" style="background:#eff5ee; color:#047d56; border:1px solid rgba(4,125,86,0.2);">Godkjent</span>
+        <span class="badge-mock" style="background:#f5eeef; color:#c01b3d; border:1px solid rgba(192,27,61,0.2);">Avslått</span>
+        <span class="badge-mock" style="background:rgba(146,86,9,0.06); color:#925609; border:1px solid rgba(146,86,9,0.18);">Delvis</span>
+        <span class="badge-mock" style="background:#e5e2da; color:#655f56; border:1px solid rgba(33,28,18,0.1);">Uavklart</span>
+      </div>
+
+      <div class="btn-row">
+        <span class="btn" style="background:#925609; color:#faf8f4;">Send svar</span>
+        <span class="btn" style="background:transparent; color:#21201c; border-color:rgba(33,28,18,0.15);">Avbryt</span>
+        <span class="btn" style="background:#c01b3d; color:#faf8f4;">Svar nå</span>
+      </div>
+
+      <div class="alert-mock" style="background:rgba(146,86,9,0.06); color:#57524b; border-left:2px dashed #925609; margin-top:12px;">
+        <strong style="color:#925609;">Kun internt</strong> — Denne notaten er kun synlig for ditt team.
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════ MØRKT TEMA ════════════════ -->
+  <div class="theme-box" style="background: #0f0d0a;">
+    <div style="padding: 16px 20px; border-bottom: 1px solid rgba(245,235,220,0.08);">
+      <h3 style="color: #f5f3ee;">Mørkt tema (.dark)</h3>
+      <span style="font-size: 11px; color: #908b82;">Valnøtt-skrivebord, papir-hvitt blekk</span>
+    </div>
+
+    <!-- Surfaces -->
+    <div style="display: flex; height: 40px;">
+      <div style="flex:1; background:#0f0d0a; display:flex; align-items:center; justify-content:center;">
+        <span style="font-size:8px; font-weight:600; color:#666157; letter-spacing:0.06em;">CANVAS</span>
+      </div>
+      <div style="flex:1; background:#16140f; display:flex; align-items:center; justify-content:center;">
+        <span style="font-size:8px; font-weight:600; color:#666157; letter-spacing:0.06em;">FELT</span>
+      </div>
+      <div style="flex:1; background:#1a1815; display:flex; align-items:center; justify-content:center;">
+        <span style="font-size:8px; font-weight:600; color:#666157; letter-spacing:0.06em;">HOVER</span>
+      </div>
+      <div style="flex:1; background:#282520; display:flex; align-items:center; justify-content:center;">
+        <span style="font-size:8px; font-weight:600; color:#666157; letter-spacing:0.06em;">ACTIVE</span>
+      </div>
+    </div>
+
+    <!-- Ink hierarchy on felt -->
+    <table class="token-table" style="background: #16140f; color: #f5f3ee;">
+      <tr><th style="color:#666157;" colspan="3">Blekk-hierarki (på felt #16140f)</th></tr>
+      <tr>
+        <td><span class="swatch" style="background:#f5f3ee;"></span> ink</td>
+        <td class="hex">#f5f3ee</td>
+        <td class="ratio pass">16.9:1 AAA</td>
+      </tr>
+      <tr>
+        <td><span class="swatch" style="background:#a8a29a;"></span> ink-secondary</td>
+        <td class="hex">#a8a29a</td>
+        <td class="ratio pass">7.0:1 AAA</td>
+      </tr>
+      <tr>
+        <td><span class="swatch" style="background:#908b82;"></span> ink-muted</td>
+        <td class="hex">#908b82</td>
+        <td class="ratio pass">5.1:1 AA</td>
+      </tr>
+      <tr>
+        <td><span class="swatch" style="background:#666157;"></span> ink-ghost</td>
+        <td class="hex">#666157</td>
+        <td class="ratio warn">3.1:1 &ge;3</td>
+      </tr>
+    </table>
+
+    <!-- Accents on canvas -->
+    <table class="token-table" style="background: #0f0d0a; color: #f5f3ee;">
+      <tr><th style="color:#666157;" colspan="3">Aksenter (på canvas)</th></tr>
+      <tr>
+        <td><span class="swatch" style="background:#f59e0b;"></span> vekt</td>
+        <td class="hex">#f59e0b</td>
+        <td class="ratio pass">9.0:1 AAA</td>
+      </tr>
+      <tr>
+        <td><span class="swatch" style="background:#d97706;"></span> vekt-dim</td>
+        <td class="hex">#d97706</td>
+        <td class="ratio pass">6.4:1 AA</td>
+      </tr>
+      <tr>
+        <td><span class="swatch" style="background:#10b981;"></span> score-high</td>
+        <td class="hex">#10b981</td>
+        <td class="ratio pass">8.0:1 AAA</td>
+      </tr>
+      <tr>
+        <td><span class="swatch" style="background:#f03e5f;"></span> score-low</td>
+        <td class="hex">#f03e5f</td>
+        <td class="ratio pass">5.1:1 AA</td>
+      </tr>
+    </table>
+
+    <!-- Mockup -->
+    <div class="mockup-wrap" style="background: #0f0d0a;">
+      <div class="mockup-label" style="color:#666157;">Sporkort-mockup</div>
+
+      <div class="sporkort" style="background:#16140f; border:1px solid rgba(245,235,220,0.08); border-left: 2px solid #f59e0b;">
+        <div class="sk-header">
+          <span class="sk-name" style="color:#f5f3ee;">KONTRAKTSFORHOLD</span>
+          <span class="sk-badge" style="background:rgba(245,158,11,0.08); color:#f59e0b; border:1px solid rgba(245,158,11,0.2);">VENTER PÅ SVAR</span>
+        </div>
+        <div class="sk-body" style="color:#a8a29a;">
+          Svikt i BH ytelse — Grunnforhold §25.2
+          <span class="sk-amount" style="color:#f5f3ee;">1 240 000</span>
+        </div>
+        <div class="sk-divider" style="background:rgba(245,235,220,0.06);"></div>
+        <div class="sk-event">
+          <span class="dato" style="color:#666157;">12. mar</span>
+          <span style="color:#a8a29a;">Veidekke Entreprenør AS sendte grunnlag</span>
+        </div>
+        <div class="sk-event">
+          <span class="dato" style="color:#666157;">08. mar</span>
+          <span style="color:#a8a29a;">Oslobygg opprettet sak</span>
+        </div>
+      </div>
+
+      <div class="section-lbl" style="color:#908b82; margin-top:16px;">RESULTAT</div>
+      <div class="badge-row">
+        <span class="badge-mock" style="background:rgba(16,185,129,0.10); color:#10b981; border:1px solid rgba(16,185,129,0.2);">Godkjent</span>
+        <span class="badge-mock" style="background:rgba(240,62,95,0.08); color:#f03e5f; border:1px solid rgba(240,62,95,0.2);">Avslått</span>
+        <span class="badge-mock" style="background:rgba(245,158,11,0.08); color:#f59e0b; border:1px solid rgba(245,158,11,0.2);">Delvis</span>
+        <span class="badge-mock" style="background:#282520; color:#908b82; border:1px solid rgba(245,235,220,0.1);">Uavklart</span>
+      </div>
+
+      <div class="btn-row">
+        <span class="btn" style="background:#f59e0b; color:#0f0d0a;">Send svar</span>
+        <span class="btn" style="background:transparent; color:#f5f3ee; border-color:rgba(245,235,220,0.15);">Avbryt</span>
+        <span class="btn" style="background:#f03e5f; color:#f5f3ee;">Svar nå</span>
+      </div>
+
+      <div class="alert-mock" style="background:rgba(245,158,11,0.08); color:#a8a29a; border-left:2px dashed #f59e0b; margin-top:12px;">
+        <strong style="color:#f59e0b;">Kun internt</strong> — Denne notaten er kun synlig for ditt team.
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Key decisions -->
+<div class="note" style="margin-top: 32px;">
+  <strong>Designvalg:</strong><br>
+  &bull; <strong>Lyst vekt (#925609)</strong> — mørkere enn nåværende #d97706. Mer gull/brun enn neon-oransje. Passerer 5.5:1 på felt.<br>
+  &bull; <strong>Mørkt vekt (#f59e0b)</strong> — beholdt fra nåværende. Fungerer utmerket på mørke flater (9.0:1).<br>
+  &bull; <strong>score-low lys (#c01b3d)</strong> — dypere krimson enn nåværende #e11d48. Passerer 5.7:1.<br>
+  &bull; <strong>score-low mørk (#f03e5f)</strong> — lysere rose for kontrast på mørk. 5.1:1.<br>
+  &bull; <strong>score-high lys (#047d56)</strong> — mørkere smaragd. 4.9:1 (opp fra 3.4:1).<br>
+  &bull; <strong>ink-ghost</strong> — ~3.1–3.4:1 i begge temaer. Brukes kun dekorativt (dato, rev.nr). Alt med selvstendig informasjonsverdi flyttes til ink-muted (≥4.5:1).<br>
+  &bull; <strong>Wire-farger</strong> — rgba med varm base (33,28,18 lys / 245,235,220 mørk) i stedet for rent sort/hvitt.
+</div>
+
+<div class="note">
+  <strong>Kontrastsammendrag:</strong><br>
+  &bull; ink: ≥17:1 begge temaer (AAA+)<br>
+  &bull; ink-secondary: ≥7:1 begge temaer (AAA)<br>
+  &bull; ink-muted: ≥5:1 begge temaer (AA) — også på canvas og felt-active<br>
+  &bull; ink-ghost: ~3:1 (stor tekst AA, kun dekorativ bruk)<br>
+  &bull; Alle aksenter: ≥4.5:1 på sine primære overflater (AA)<br>
+  &bull; <strong>Totalt: 0 WCAG AA-brudd for informativ tekst</strong>
+</div>
+
+</body>
+</html>

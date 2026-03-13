@@ -1,0 +1,12 @@
+[   27323ms] Error: https://svelte.dev/e/each_key_duplicate
+    at each_key_duplicate (http://localhost:5174/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=2affec61:291:11)
+    at http://localhost:5174/node_modules/.vite/deps/chunk-IFMMCUZX.js?v=2affec61:1042:9
+    at update_reaction (http://localhost:5174/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=2affec61:3495:18)
+    at update_effect (http://localhost:5174/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=2affec61:3634:21)
+    at create_effect (http://localhost:5174/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=2affec61:2991:7)
+    at block (http://localhost:5174/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=2affec61:3148:17)
+    at Module.each (http://localhost:5174/node_modules/.vite/deps/chunk-IFMMCUZX.js?v=2affec61:969:17)
+    at http://localhost:5174/src/lib/components/primitives/DatePicker.svelte?t=1772621532599:319:35
+    at Module.add_svelte_meta (http://localhost:5174/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=2affec61:579:12)
+    at http://localhost:5174/src/lib/components/primitives/DatePicker.svelte?t=1772621532599:318:28
+[  115582ms] [ERROR] WebSocket connection to 'ws://localhost:5174/?token=9js-lgsGTTq5' failed:  @ http://localhost:5174/@vite/client:744

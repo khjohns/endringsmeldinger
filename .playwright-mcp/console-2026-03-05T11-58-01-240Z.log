@@ -1,0 +1,15 @@
+[     156ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases/KOE-2024-031/context:0
+[   44700ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases/KOE-2024-031/context:0
+[  142648ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases/KOE-2024-031/context:0
+[  150684ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases/KOE-2024-031/context:0
+[  171282ms] Error: https://svelte.dev/e/store_invalid_shape
+    at store_invalid_shape (http://localhost:5173/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=1d4254ce:212:11)
+    at Module.validate_store (http://localhost:5173/node_modules/.vite/deps/chunk-7DWANYEO.js?v=1d4254ce:1444:5)
+    at $state (http://localhost:5173/src/lib/components/saksmappe/Sidebar.svelte?t=1772712052452:37:5)
+    at Sidebar (http://localhost:5173/src/lib/components/saksmappe/Sidebar.svelte?t=1772712052452:44:17)
+    at http://localhost:5173/node_modules/.vite/deps/chunk-7DWANYEO.js?v=1d4254ce:320:58
+    at update_reaction (http://localhost:5173/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=1d4254ce:3495:18)
+    at update_effect (http://localhost:5173/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=1d4254ce:3634:21)
+    at create_effect (http://localhost:5173/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=1d4254ce:2991:7)
+    at branch (http://localhost:5173/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=1d4254ce:3162:10)
+    at http://localhost:5173/node_modules/.vite/deps/chunk-7DWANYEO.js?v=1d4254ce:314:17

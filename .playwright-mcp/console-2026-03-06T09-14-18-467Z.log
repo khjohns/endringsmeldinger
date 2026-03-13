@@ -1,0 +1,27 @@
+[     102ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases:0
+[   67560ms] ReferenceError: statusGrupper is not defined
+    at http://localhost:5173/src/lib/components/saksoversikt/OversiktSidebar.svelte?t=1772788525962:362:34
+    at http://localhost:5173/node_modules/.vite/deps/chunk-7DWANYEO.js?v=1d4254ce:938:22
+    at update_reaction (http://localhost:5173/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=1d4254ce:3495:18)
+    at execute_derived (http://localhost:5173/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=1d4254ce:1909:15)
+    at update_derived (http://localhost:5173/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=1d4254ce:1917:15)
+    at get (http://localhost:5173/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=1d4254ce:3740:7)
+    at http://localhost:5173/node_modules/.vite/deps/chunk-7DWANYEO.js?v=1d4254ce:971:5
+    at update_reaction (http://localhost:5173/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=1d4254ce:3495:18)
+    at update_effect (http://localhost:5173/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=1d4254ce:3634:21)
+    at create_effect (http://localhost:5173/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=1d4254ce:2991:7)
+[  241355ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases:0
+[  242425ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases:0
+[ 1187222ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases:0
+[ 1193030ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases:0
+[ 1197698ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases:0
+[ 1205156ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases:0
+[ 1759681ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases:0
+[ 1773600ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases:0
+[ 1780434ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases:0
+[ 1786242ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases:0
+[ 1794256ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases:0
+[ 1800531ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases:0
+[ 1807725ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases:0
+[ 1867488ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases:0
+[ 1872213ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases:0

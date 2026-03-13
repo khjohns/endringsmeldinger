@@ -1,0 +1,2 @@
+[     484ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases/KOE-2024-047/context:0
+[     521ms] [WARNING] [tiptap warn]: Duplicate extension names found: ['placeholder']. This can lead to issues. @ http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:13173

@@ -1,0 +1,42 @@
+[      69ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases:0
+[   69813ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases:0
+[   79509ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases:0
+[   80549ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases:0
+[  358092ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases:0
+[  530926ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases:0
+[  592591ms] ReferenceError: aktiveSaker is not defined
+    at OversiktSidebar (http://localhost:5173/src/lib/components/saksoversikt/OversiktSidebar.svelte?t=1772791297227:131:26)
+    at http://localhost:5173/node_modules/.vite/deps/chunk-7DWANYEO.js?v=1d4254ce:320:58
+    at update_reaction (http://localhost:5173/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=1d4254ce:3495:18)
+    at update_effect (http://localhost:5173/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=1d4254ce:3634:21)
+    at create_effect (http://localhost:5173/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=1d4254ce:2991:7)
+    at branch (http://localhost:5173/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=1d4254ce:3162:10)
+    at http://localhost:5173/node_modules/.vite/deps/chunk-7DWANYEO.js?v=1d4254ce:314:17
+    at update_reaction (http://localhost:5173/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=1d4254ce:3495:18)
+    at update_effect (http://localhost:5173/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=1d4254ce:3634:21)
+    at #traverse_effect_tree (http://localhost:5173/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=1d4254ce:2317:11)
+[  658550ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases:0
+[  663370ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases:0
+[  677764ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases:0
+[  692550ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases:0
+[ 1042070ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases:0
+[ 1046892ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases:0
+[ 1148063ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases:0
+[ 1158810ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases:0
+[ 1163977ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases:0
+[ 1324148ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases:0
+[ 1413455ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/src/routes/[prosjektId]/+page.svelte?t=1772792109537:0
+[ 1413460ms] [ERROR] TypeError: Failed to fetch dynamically imported module: http://localhost:5173/.svelte-kit/generated/client/nodes/4.js?t=1772792117931 @ http://localhost:5173/@fs/Users/kasper/Projects/endringsmeldinger/.svelte-kit/generated/client/app.js:24
+[ 1423383ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases:0
+[ 1430895ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases:0
+[ 1435541ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases:0
+[ 1637748ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases:0
+[ 1638488ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases:0
+[ 1649768ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases:0
+[ 1653845ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases:0
+[ 1655087ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases:0
+[ 1668796ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases:0
+[ 1683760ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases:0
+[ 1698696ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases:0
+[ 1740126ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases/KOE-2024-019/context:0
+[ 1742808ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases:0
