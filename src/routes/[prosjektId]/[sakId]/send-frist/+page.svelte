@@ -189,6 +189,7 @@
       existingVarselDato={fristData.existingVarselDato}
       {prosjektId}
       {sakId}
+      version={query.data?.version ?? 0}
       grunnlagEventId={fristData.grunnlagEventId}
       originalEventId={fristData.scenario !== 'new' ? fristData.originalEventId : undefined}
       erSvarPaForesporsel={fristData.erSvarPaForesporsel}

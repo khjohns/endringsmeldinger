@@ -44,6 +44,7 @@
     grunnlagEventId: string;
     originalEventId?: string;
     erSvarPaForesporsel?: boolean;
+    version: number;
     begrunnelseHtml: string;
     onactions?: (actions: FormActions) => void;
   }
@@ -57,6 +58,7 @@
     grunnlagEventId,
     originalEventId,
     erSvarPaForesporsel = false,
+    version,
     begrunnelseHtml = $bindable(''),
     onactions,
   }: Props = $props();
@@ -142,7 +144,8 @@
       await submitEvent(
         sakId,
         eventType as EventType,
-        eventData as unknown as Record<string, unknown>
+        eventData as unknown as Record<string, unknown>,
+        { expectedVersion: version }
       );
       clearDraft(dk);
       await queryClient.invalidateQueries({ queryKey: ['case-context', sakId] });
@@ -237,8 +240,8 @@
         <NumberInput
           label="Antall dager"
           suffix="dager"
-          value={antallDager ?? null}
-          onchange={(v) => (antallDager = v ?? undefined)}
+          value={antallDager}
+          onchange={(v) => (antallDager = v)}
         />
       </div>
     </FormSection>

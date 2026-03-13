@@ -62,14 +62,14 @@ const noPreklusjon = { hovedkrav: false, rigg: false, produktivitet: false };
 // ============================================================================
 
 describe('getDefaults', () => {
-  it('returns TE-favorable defaults for create mode', () => {
+  it('returns blank defaults for create mode (no pre-selection)', () => {
     const defaults = getDefaults({ isUpdateMode: false });
-    expect(defaults.hovedkravVarsletITide).toBe(true);
-    expect(defaults.riggVarsletITide).toBe(true);
-    expect(defaults.produktivitetVarsletITide).toBe(true);
-    expect(defaults.akseptererMetode).toBe(true);
+    expect(defaults.hovedkravVarsletITide).toBeUndefined();
+    expect(defaults.riggVarsletITide).toBeUndefined();
+    expect(defaults.produktivitetVarsletITide).toBeUndefined();
+    expect(defaults.akseptererMetode).toBeUndefined();
     expect(defaults.holdTilbake).toBe(false);
-    expect(defaults.hovedkravVurdering).toBe('godkjent');
+    expect(defaults.hovedkravVurdering).toBeUndefined();
     expect(defaults.begrunnelse).toBe('');
   });
 
