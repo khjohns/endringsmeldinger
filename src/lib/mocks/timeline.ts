@@ -187,6 +187,69 @@ export const timeline1_3AktiveSpor: TimelineEvent[] = [
   },
 ];
 
+// ========== SCENARIO 4: Omforent sak (KOE-2024-019) ==========
+
+const SOURCE_P4 = '/projects/P001/cases/KOE-2024-019';
+const SAK4 = 'KOE-2024-019';
+
+export const timeline4_Omforent: TimelineEvent[] = [
+  {
+    specversion: '1.0',
+    id: 'evt-301',
+    source: SOURCE_P4,
+    type: 'no.oslo.koe.grunnlag_opprettet',
+    time: '2025-09-12T10:00:00Z',
+    subject: SAK4,
+    actorrole: 'TE',
+    actor: 'Knut Larsen',
+    spor: 'grunnlag',
+    summary: 'TE varslet om tilleggsarbeider — omlegging av VA-ledninger',
+    data: {
+      tittel: 'Tilleggsarbeider — omlegging av VA-ledninger',
+      hovedkategori: 'ENDRING',
+      underkategori: 'TILLEGG',
+      beskrivelse:
+        'BH bestilte omlegging av eksisterende VA-ledninger i byggegruben som ikke var inkludert i ' +
+        'opprinnelig kontrakt.',
+      dato_oppdaget: '2025-09-10',
+      grunnlag_varsel: {
+        dato_sendt: '2025-09-12',
+        metode: ['e-post'],
+      },
+    },
+  },
+  {
+    specversion: '1.0',
+    id: 'evt-302',
+    source: SOURCE_P4,
+    type: 'no.oslo.koe.frist_krav_sendt',
+    time: '2025-10-01T09:00:00Z',
+    subject: SAK4,
+    actorrole: 'TE',
+    actor: 'Knut Larsen',
+    spor: 'frist',
+    summary: 'TE sendte spesifisert fristkrav: 15 virkedager',
+    data: {
+      varsel_type: 'spesifisert',
+      frist_varsel: {
+        dato_sendt: '2025-09-15',
+        metode: ['e-post'],
+      },
+      spesifisert_varsel: {
+        dato_sendt: '2025-10-01',
+        metode: ['e-post', 'Catenda'],
+      },
+      antall_dager: 15,
+      begrunnelse:
+        '<p>Omlegging av VA-ledninger krever graving, midlertidig omkobling og tilbakefylling som ' +
+        'forlenger kritisk linje for fundamentering med 15 virkedager.</p>' +
+        '<p>Arbeidet kan ikke utføres parallelt med øvrig fundamentering på grunn av ' +
+        'plassbegrensninger i byggegruben. TE har vurdert alternative løsninger med provisorisk ' +
+        'rørføring over bakkenivå, men dette ble avvist av kommunen av HMS-hensyn.</p>',
+    },
+  },
+];
+
 // ========== SCENARIO 2: Blandet tilstand (KOE-2024-031) ==========
 
 export const timeline2_BlandetTilstand: TimelineEvent[] = [

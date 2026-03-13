@@ -13,13 +13,19 @@ export function createCaseContextQuery(getSakId: () => string) {
         } catch {
           // Fallback to mock data in development (backend not running)
           const [
-            { scenario1_3AktiveSpor, scenario2_BlandetTilstand, scenario3_TomSak },
-            { timeline1_3AktiveSpor, timeline2_BlandetTilstand },
+            {
+              scenario1_3AktiveSpor,
+              scenario2_BlandetTilstand,
+              scenario3_TomSak,
+              scenario4_Omforent,
+            },
+            { timeline1_3AktiveSpor, timeline2_BlandetTilstand, timeline4_Omforent },
           ] = await Promise.all([import('$lib/mocks/caseState'), import('$lib/mocks/timeline')]);
 
           // Pick mock state by sak_id; fall back to scenario 1
           const stateMap: Record<string, typeof scenario1_3AktiveSpor> = {
             'KOE-2024-047': scenario1_3AktiveSpor,
+            'KOE-2024-019': scenario4_Omforent,
             'KOE-2024-031': scenario2_BlandetTilstand,
             'KOE-2024-058': scenario3_TomSak,
           };
@@ -27,6 +33,7 @@ export function createCaseContextQuery(getSakId: () => string) {
 
           const timelineMap: Record<string, typeof timeline1_3AktiveSpor> = {
             'KOE-2024-047': timeline1_3AktiveSpor,
+            'KOE-2024-019': timeline4_Omforent,
             'KOE-2024-031': timeline2_BlandetTilstand,
           };
           const timeline = timelineMap[sakId] ?? [];
