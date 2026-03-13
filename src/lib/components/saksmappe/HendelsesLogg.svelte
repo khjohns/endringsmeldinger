@@ -61,7 +61,12 @@
   }
 
   function getEventLabel(event: TimelineEvent, eventType: EventType | null): string {
-    if (event.summary) return event.summary;
+    if (event.summary) {
+      const s = event.summary;
+      if (s.startsWith('TE ')) return getPartsNavn('TE', teNavn, bhNavn) + ' ' + s.slice(3);
+      if (s.startsWith('BH ')) return getPartsNavn('BH', teNavn, bhNavn) + ' ' + s.slice(3);
+      return s;
+    }
     return getEventTypeLabel(eventType);
   }
 

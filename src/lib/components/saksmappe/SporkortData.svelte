@@ -5,7 +5,7 @@
     VederlagTilstand,
     FristTilstand,
   } from '$lib/types/timeline';
-  import { formatCurrencyCompact, formatDateShort } from '$lib/utils/formatters';
+  import { formatDateShort } from '$lib/utils/formatters';
   import { getKontraktsforholdLabel, getHjemmelLabel } from '$lib/constants/categories';
   import StatusQuoGap from './StatusQuoGap.svelte';
 
@@ -38,18 +38,6 @@
       if (grunnlag.underkategori) {
         const hjemmel = getHjemmelLabel(grunnlag.underkategori);
         if (hjemmel) parts.push(hjemmel);
-      }
-      if (grunnlag.grunnlag_varsel?.dato_sendt) {
-        parts.push(formatDateShort(grunnlag.grunnlag_varsel.dato_sendt));
-      }
-    }
-
-    if (sporType === 'vederlag' && vederlag) {
-      if (vederlag.saerskilt_krav?.rigg_drift?.belop) {
-        parts.push(`rigg ${formatCurrencyCompact(vederlag.saerskilt_krav.rigg_drift.belop)}`);
-      }
-      if (vederlag.saerskilt_krav?.produktivitet?.belop) {
-        parts.push(`prod. ${formatCurrencyCompact(vederlag.saerskilt_krav.produktivitet.belop)}`);
       }
     }
 
