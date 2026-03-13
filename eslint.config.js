@@ -24,7 +24,7 @@ export default ts.config(
 		},
 	},
 	{
-		files: ['src/lib/domain/**/*.ts', 'src/lib/utils/begrunnelseGenerator.ts'],
+		files: ['src/lib/domain/**/*.ts'],
 		rules: {
 			'@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
 		},
