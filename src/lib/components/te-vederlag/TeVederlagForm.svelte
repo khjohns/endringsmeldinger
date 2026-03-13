@@ -14,7 +14,9 @@
     VederlagSubmissionDefaultsConfig,
   } from '$lib/domain/vederlagSubmissionDomain';
   import { goto } from '$app/navigation';
+  import { onMount } from 'svelte';
   import { submitEvent } from '$lib/api/events';
+  import { draftKey, loadDraft, saveDraft, clearDraft } from '$lib/utils/draft';
   import type { EventType } from '$lib/types/timeline';
   import { useQueryClient } from '@tanstack/svelte-query';
   import SegmentedControl from '$lib/components/primitives/SegmentedControl.svelte';
@@ -59,18 +61,44 @@
 
   const queryClient = useQueryClient();
 
+  // --- Draft ---
+  interface VederlagDraft {
+    metode?: VederlagsMetode;
+    belopDirekte?: number;
+    kostnadsOverslag?: number;
+    kreverJustertEp: boolean;
+    varsletForOppstart: boolean;
+    belopRigg?: number;
+    belopProduktivitet?: number;
+    begrunnelseHtml: string;
+  }
+  const dk = draftKey('send-vederlag', sakId);
+  const draft = loadDraft<VederlagDraft>(dk);
+  let draftReady = $state(false);
+
   // --- Initialize from domain defaults ---
   const defaults = getDefaults({ scenario, existing });
 
-  let metode = $state<VederlagsMetode | undefined>(defaults.metode);
-  let belopDirekte = $state<number | undefined>(defaults.belopDirekte);
-  let kostnadsOverslag = $state<number | undefined>(defaults.kostnadsOverslag);
-  let kreverJustertEp = $state(defaults.kreverJustertEp);
-  let varsletForOppstart = $state(defaults.varsletForOppstart);
-  let belopRigg = $state<number | undefined>(defaults.belopRigg);
-  let belopProduktivitet = $state<number | undefined>(defaults.belopProduktivitet);
+  let metode = $state<VederlagsMetode | undefined>(draft?.metode ?? defaults.metode);
+  let belopDirekte = $state<number | undefined>(draft?.belopDirekte ?? defaults.belopDirekte);
+  let kostnadsOverslag = $state<number | undefined>(
+    draft?.kostnadsOverslag ?? defaults.kostnadsOverslag
+  );
+  let kreverJustertEp = $state(draft?.kreverJustertEp ?? defaults.kreverJustertEp);
+  let varsletForOppstart = $state(draft?.varsletForOppstart ?? defaults.varsletForOppstart);
+  let belopRigg = $state<number | undefined>(draft?.belopRigg ?? defaults.belopRigg);
+  let belopProduktivitet = $state<number | undefined>(
+    draft?.belopProduktivitet ?? defaults.belopProduktivitet
+  );
   let submitting = $state(false);
   let submitError = $state('');
+
+  onMount(() => {
+    if (draft?.begrunnelseHtml) {
+      begrunnelseHtml = draft.begrunnelseHtml;
+    }
+    draftReady = true;
+  });
 
   // --- Derived ---
   const harRiggKrav = $derived((belopRigg ?? 0) > 0);
@@ -149,6 +177,7 @@
         eventType as EventType,
         eventData as unknown as Record<string, unknown>
       );
+      clearDraft(dk);
       await queryClient.invalidateQueries({ queryKey: ['case-context', sakId] });
       goto(`/${prosjektId}/${sakId}`);
     } catch (err) {
@@ -169,6 +198,21 @@
       submitError,
       onsubmit: handleSubmit,
       onavbryt: handleAvbryt,
+    });
+  });
+
+  // Auto-save draft
+  $effect(() => {
+    if (!draftReady) return;
+    saveDraft(dk, {
+      metode,
+      belopDirekte,
+      kostnadsOverslag,
+      kreverJustertEp,
+      varsletForOppstart,
+      belopRigg,
+      belopProduktivitet,
+      begrunnelseHtml,
     });
   });
 

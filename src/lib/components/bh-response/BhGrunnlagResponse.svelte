@@ -1,5 +1,6 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
+  import { onMount } from 'svelte';
   import {
     erEndringMed32_2,
     erPaalegg,
@@ -12,6 +13,7 @@
   } from '$lib/domain/grunnlagDomain';
   import type { GrunnlagFormState, GrunnlagDomainConfig } from '$lib/domain/grunnlagDomain';
   import { submitEvent } from '$lib/api/events';
+  import { draftKey, loadDraft, saveDraft, clearDraft } from '$lib/utils/draft';
   import { useQueryClient } from '@tanstack/svelte-query';
   import type { GrunnlagResponsResultat } from '$lib/types/timeline';
   import SammendragKort from './SammendragKort.svelte';
@@ -86,21 +88,42 @@
     });
   });
 
-  let varsletITide = $state<boolean | undefined>(undefined);
-  let resultat = $state<string | undefined>(undefined);
-  let bhBegrunnelseHtml = $state('');
+  // --- Draft ---
+  interface GrunnlagDraft {
+    varsletITide?: boolean;
+    resultat?: string;
+    bhBegrunnelseHtml: string;
+  }
+  const dk = draftKey('svar-grunnlag', sakId);
+  const draft = loadDraft<GrunnlagDraft>(dk);
+  let draftReady = $state(false);
+
+  let varsletITide = $state<boolean | undefined>(draft?.varsletITide ?? undefined);
+  let resultat = $state<string | undefined>(draft?.resultat ?? undefined);
+  let bhBegrunnelseHtml = $state(draft?.bhBegrunnelseHtml ?? '');
   let submitting = $state(false);
   let submitError = $state<string | null>(null);
-  let hasInitialized = $state(false);
+  let hasInitialized = $state(!!draft);
 
-  // Pre-fill once when updateDefaults becomes available
+  // Pre-fill once when updateDefaults becomes available (skipped if draft loaded)
   $effect(() => {
     if (updateDefaults && !hasInitialized) {
       varsletITide = updateDefaults.varsletITide;
       resultat = updateDefaults.resultat;
       bhBegrunnelseHtml = updateDefaults.begrunnelse;
       hasInitialized = true;
+      draftReady = true;
     }
+  });
+
+  onMount(() => {
+    draftReady = true;
+  });
+
+  // Auto-save draft
+  $effect(() => {
+    if (!draftReady) return;
+    saveDraft(dk, { varsletITide, resultat, bhBegrunnelseHtml });
   });
 
   // --- Domain config ---
@@ -195,6 +218,7 @@
 
       await submitEvent(sakId, eventType, eventData);
 
+      clearDraft(dk);
       await queryClient.invalidateQueries({ queryKey: ['case-context', sakId] });
 
       goto(`/${prosjektId}/${sakId}`);
