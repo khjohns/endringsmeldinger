@@ -122,8 +122,8 @@
 
 	/* --- Tittel --- */
 	.page-tittel {
-		font-family: var(--font-ui);
-		font-size: 18px;
+		font-family: var(--font-prose);
+		font-size: 19px;
 		font-weight: 600;
 		color: var(--color-ink);
 		line-height: 1.3;

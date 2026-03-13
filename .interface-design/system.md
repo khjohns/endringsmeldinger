@@ -78,10 +78,41 @@
 - **Emerald (score-high):** KUN for avklarte, godkjente elementer.
 
 ## Typography
-- **UI:** IBM Plex Sans — labels, knapper, brodtekst. Mekaniske terminaler (90-graders avslutninger) som resonerer med kontraktsbord-metaforen. Ink traps gir lesbarhet pa 10-13px.
-- **Data:** IBM Plex Mono — tall, belop, datoer, prosent. Samme designfamilie som UI-fonten, deler x-hoyde og proporsjon for visuell koherens i KeyValueRow og sporkort.
-- **Section labels:** 11px, weight 600, uppercase, tracking 0.06em, ink-muted (SectionHeading-komponent)
-- **Body/labels:** 13px, weight 500
+
+### Tre fonter
+- **UI (`--font-ui`: Inter):** Labels, knapper, navigasjon, metadata, statusfraser, seksjonsoverskrifter (uppercase). Tekst du *skanner*. Hoy x-hoyde og apne aperturer gir best lesbarhet ved 10-13px pa HiDPI-skjermer.
+- **Prosa (`--font-prose`: IBM Plex Sans):** Begrunnelser, kontraktstekst, juridiske redegjoerelser, rich text-editor, dokumenttitler. Tekst du *leser og skriver*. Mekaniske terminaler gir maskinskrevet kontrakt-kvalitet. Lastes som variabel font (wght@400..600).
+- **Data (`--font-data`: IBM Plex Mono):** Tall, belop, datoer, prosent, system-IDer, paragrafreferanser, klassifikasjoner. Verdier du *slar opp*. Samme designfamilie som prosa-fonten.
+
+### Fontvalg-prinsipp
+- **UI** = navigasjon, interaksjon, korte labels. Fonten er usynlig — den skal ikke merkes.
+- **Prosa** = dokumentinnhold, argumentasjon, avsnitt. Fontbyttet signaliserer modusendring: "na leser/skriver du et dokument."
+- **Mono** = ville du *slatt det opp, kopiert, eller sammenlignet mot et annet dokument*? Tall, datoer, IDer, koder, paragrafer.
+
+### Overskrifter: Navigasjon vs. Dokumenttittel
+- **Seksjonsoverskrifter** ("KONTRAKTSFORHOLD", "VEDERLAGSKRAV") = UI-labels (Inter). Uppercase, tracked, strukturell navigasjon.
+- **Dokumenttitler** ("Tilleggskrav — forsinkede tegningsleveranser") = Prosa (IBM Plex Sans). Introduserer dokumentinnholdet, skaper visuell kontinuitet med brodteksten under.
+- **Sidebar/listevisning-titler** = Inter. Scanning/navigasjon, ikke dokumentlesing.
+
+### Fontveksling: Romlig separasjon avgjor
+- **Romlig separerte soner** kan ha forskjellig font (KeyValueRow: sans label venstre, mono verdi hoyre).
+- **Aldri bytt font inni en sammenhengende tekstlinje.** Forskjellig x-hoyde og bokstavbredde skaper visuell hakking.
+- **Linjen tar fonten til sin primaere funksjon:** Data-sammenligning (`Krevd 2 930 000 kr -> Godkjent 2 400 000 kr`) = hele linjen mono. Narrativ setning med innbakte tall = hele linjen sans.
+
+### Badges: Kun for status
+- Badges (visuelt fremhevet med bakgrunn/border) er reservert for *tilstandsinformasjon*: "Godkjent", "Avvist", "Mottatt krav".
+- Klassifikasjoner og faktaopplysninger (beregningsmetode, kontraktsforhold-kategori) vises som ren mono-tekst, ikke badge.
+
+### Prosa-innstillinger
+- IBM Plex Sans har lavere x-hoyde enn Inter — kompenser med +1px fontstorrelse og font-weight 450 (variabel font).
+- Prosa-brodtekst: 14-15px, weight 450, line-height 1.6.
+- Dokumenttitler: 17-19px, weight 600.
+
+### Skala
+- **Section labels (UI):** 11px, weight 600, uppercase, tracking 0.06em, ink-muted
+- **Body/labels (UI):** 13px, weight 500
+- **Prose body:** 14-15px, weight 450, line-height 1.6
+- **Document titles (prose):** 17-19px, weight 600
 - **Data values:** 13px, font-data, tabular-nums
 
 ## Spacing

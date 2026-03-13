@@ -51,14 +51,18 @@
 	}
 
 	.kr-tekst {
-		font-size: 12px;
+		font-family: var(--font-prose);
+		font-size: 13px;
+		font-weight: 450;
 		line-height: 1.6;
 		color: var(--color-ink-secondary);
 		margin: 0;
 	}
 
 	.kr-konsekvens {
-		font-size: 12px;
+		font-family: var(--font-prose);
+		font-size: 13px;
+		font-weight: 450;
 		line-height: 1.6;
 		color: var(--color-ink-muted);
 		margin: 0;

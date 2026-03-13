@@ -413,7 +413,9 @@
 	}
 
 	.standpunkt-begrunnelse {
-		font-size: 14px;
+		font-family: var(--font-prose);
+		font-size: 15px;
+		font-weight: 450;
 		line-height: 1.6;
 		color: var(--color-ink-secondary);
 	}

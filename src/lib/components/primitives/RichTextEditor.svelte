@@ -4,6 +4,15 @@
 	import StarterKit from '@tiptap/starter-kit';
 	import CharacterCount from '@tiptap/extension-character-count';
 	import Placeholder from '@tiptap/extension-placeholder';
+	import {
+		Bold,
+		Italic,
+		List,
+		ListOrdered,
+		TextQuote,
+		Undo2,
+		Redo2,
+	} from 'lucide-svelte';
 
 	interface Props {
 		body?: string;
@@ -76,9 +85,7 @@
 					onclick={() => editor?.chain().focus().toggleBold().run()}
 					aria-label="Fet"
 				>
-					<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-						<path d="M6 4h8a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"/><path d="M6 12h9a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"/>
-					</svg>
+					<Bold size={16} strokeWidth={2} />
 				</button>
 				<button
 					type="button"
@@ -86,9 +93,7 @@
 					onclick={() => editor?.chain().focus().toggleItalic().run()}
 					aria-label="Kursiv"
 				>
-					<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-						<line x1="19" y1="4" x2="10" y2="4"/><line x1="14" y1="20" x2="5" y2="20"/><line x1="15" y1="4" x2="9" y2="20"/>
-					</svg>
+					<Italic size={16} strokeWidth={2} />
 				</button>
 				<div class="rte-toolbar-sep"></div>
 				<button
@@ -97,10 +102,7 @@
 					onclick={() => editor?.chain().focus().toggleBulletList().run()}
 					aria-label="Punktliste"
 				>
-					<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-						<line x1="9" y1="6" x2="20" y2="6"/><line x1="9" y1="12" x2="20" y2="12"/><line x1="9" y1="18" x2="20" y2="18"/>
-						<circle cx="4" cy="6" r="1" fill="currentColor" stroke="none"/><circle cx="4" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="4" cy="18" r="1" fill="currentColor" stroke="none"/>
-					</svg>
+					<List size={16} strokeWidth={2} />
 				</button>
 				<button
 					type="button"
@@ -108,12 +110,7 @@
 					onclick={() => editor?.chain().focus().toggleOrderedList().run()}
 					aria-label="Nummerert liste"
 				>
-					<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-						<line x1="10" y1="6" x2="21" y2="6"/><line x1="10" y1="12" x2="21" y2="12"/><line x1="10" y1="18" x2="21" y2="18"/>
-						<text x="2" y="8" font-size="8" fill="currentColor" stroke="none" font-family="sans-serif">1</text>
-						<text x="2" y="14" font-size="8" fill="currentColor" stroke="none" font-family="sans-serif">2</text>
-						<text x="2" y="20" font-size="8" fill="currentColor" stroke="none" font-family="sans-serif">3</text>
-					</svg>
+					<ListOrdered size={16} strokeWidth={2} />
 				</button>
 				<button
 					type="button"
@@ -121,9 +118,7 @@
 					onclick={() => editor?.chain().focus().toggleBlockquote().run()}
 					aria-label="Sitat"
 				>
-					<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-						<path d="M3 6v5h5V6H3zm0 5c0 4 2 6 5 7"/><path d="M14 6v5h5V6h-5zm0 5c0 4 2 6 5 7"/>
-					</svg>
+					<TextQuote size={16} strokeWidth={2} />
 				</button>
 				<div class="rte-toolbar-sep"></div>
 				<button
@@ -132,9 +127,7 @@
 					disabled={!editor.can().undo()}
 					aria-label="Angre"
 				>
-					<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-						<polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
-					</svg>
+					<Undo2 size={16} strokeWidth={2} />
 				</button>
 				<button
 					type="button"
@@ -142,9 +135,7 @@
 					disabled={!editor.can().redo()}
 					aria-label="Gjør om"
 				>
-					<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-						<polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.13-9.36L23 10"/>
-					</svg>
+					<Redo2 size={16} strokeWidth={2} />
 				</button>
 			</div>
 		{/if}
@@ -198,8 +189,9 @@
 		outline: none;
 		flex: 1;
 		padding: var(--spacing-4);
-		font-family: var(--font-ui);
-		font-size: 14px;
+		font-family: var(--font-prose);
+		font-size: 15px;
+		font-weight: 450;
 		line-height: 1.6;
 		color: var(--color-ink);
 		min-height: 100px;
@@ -259,11 +251,6 @@
 	.rte-toolbar button:disabled {
 		opacity: 0.3;
 		cursor: default;
-	}
-
-	.rte-toolbar button svg {
-		width: 16px;
-		height: 16px;
 	}
 
 	/* Content styles */

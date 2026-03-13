@@ -90,7 +90,9 @@
 	}
 
 	.meta-sti {
+		font-family: var(--font-data);
 		font-size: 11px;
+		font-variant-numeric: tabular-nums;
 		color: var(--color-ink-muted);
 		display: flex;
 		align-items: center;
