@@ -3,6 +3,7 @@
   import { QueryClientProvider, QueryClient } from '@tanstack/svelte-query';
   import ThemeToggle from '$lib/components/primitives/ThemeToggle.svelte';
   import RoleToggle from '$lib/components/primitives/RoleToggle.svelte';
+  import { PROJECT_META } from '$lib/constants/projectMeta';
 
   let { children } = $props();
 
@@ -20,11 +21,7 @@
 
   const queryClient = new QueryClient();
 
-  // Mock project metadata — will come from API later
-  const projectNames: Record<string, { name: string; entreprise: string }> = {
-    P001: { name: 'Operatunnelen', entreprise: 'Entreprise NS 8407' },
-  };
-  const projectMeta = $derived(prosjektId ? (projectNames[prosjektId] ?? null) : null);
+  const projectMeta = $derived(prosjektId ? (PROJECT_META[prosjektId] ?? null) : null);
 </script>
 
 <QueryClientProvider client={queryClient}>

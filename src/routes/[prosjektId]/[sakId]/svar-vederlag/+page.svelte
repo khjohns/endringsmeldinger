@@ -9,14 +9,14 @@
   } from '$lib/domain/vederlagDomain';
   import type { VederlagsMetode } from '$lib/types/timeline';
 
+  import { PROJECT_META } from '$lib/constants/projectMeta';
+  import PageLoadingShell from '$lib/components/shared/PageLoadingShell.svelte';
+  import { isVederlagKravEvent, isResponsVederlagEvent } from '$lib/constants/eventTypes';
+
   const prosjektId = $derived(page.params.prosjektId ?? '');
   const sakId = $derived(page.params.sakId ?? '');
 
-  // Mock project metadata (same pattern as svar-grunnlag)
-  const projectMeta: Record<string, { name: string }> = {
-    P001: { name: 'Operatunnelen' },
-  };
-  const prosjektNavn = $derived(prosjektId ? projectMeta[prosjektId]?.name : undefined);
+  const prosjektNavn = $derived(prosjektId ? PROJECT_META[prosjektId]?.name : undefined);
 
   const query = createCaseContextQuery(() => sakId);
 
@@ -31,9 +31,7 @@
     const produktivitetBelop = v.saerskilt_krav?.produktivitet?.belop;
 
     // Find TE's vederlag_krav_sendt event for begrunnelseHtml
-    const vederlagEvent = query.data?.timeline?.find(
-      (e) => e.type === 'vederlag_krav_sendt' || e.type === 'no.oslo.koe.vederlag_krav_sendt'
-    );
+    const vederlagEvent = query.data?.timeline?.find((e) => isVederlagKravEvent(e.type));
     const eventData = vederlagEvent?.data as unknown as Record<string, unknown> | undefined;
 
     return {
@@ -87,12 +85,10 @@
       };
 
     // Find TE's krav event
-    const kravEvent = timeline.find(
-      (e) => e.type === 'vederlag_krav_sendt' || e.type === 'no.oslo.koe.vederlag_krav_sendt'
-    );
+    const kravEvent = timeline.find((e) => isVederlagKravEvent(e.type));
 
     // Find existing BH responses
-    const responsEvents = timeline.filter((e) => e.type.includes('respons_vederlag'));
+    const responsEvents = timeline.filter((e) => isResponsVederlagEvent(e.type));
     const lastResponse = responsEvents.length > 0 ? responsEvents[responsEvents.length - 1] : null;
     const lastData = lastResponse?.data as unknown as Record<string, unknown> | undefined;
 
@@ -139,49 +135,23 @@
   const tittel = $derived(query.data?.state?.sakstittel ?? '');
 </script>
 
-{#if query.isLoading}
-  <div class="loading">
-    <p class="loading-text">Laster sak…</p>
-  </div>
-{:else if query.isError}
-  <div class="error">
-    <p class="error-text">Kunne ikke laste sak</p>
-  </div>
-{:else if krav && domainConfig}
-  <BhVederlagResponse
-    {prosjektId}
-    {sakId}
-    {saksnr}
-    {tittel}
-    {krav}
-    {domainConfig}
-    tidligereSvar={timelineData.tidligereSvar}
-    {isUpdateMode}
-    lastResponseData={timelineData.lastResponseData}
-    forrigeBegrunnelseHtml={timelineData.forrigeBegrunnelseHtml}
-    vederlagKravId={timelineData.vederlagKravId}
-    {teNavn}
-    {bhNavn}
-    {prosjektNavn}
-  />
-{/if}
-
-<style>
-  .loading,
-  .error {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 100vh;
-  }
-
-  .loading-text {
-    font-size: 14px;
-    color: var(--color-ink-secondary);
-  }
-
-  .error-text {
-    font-size: 14px;
-    color: var(--color-score-low);
-  }
-</style>
+<PageLoadingShell loading={query.isLoading} error={query.isError} ready={!!krav && !!domainConfig}>
+  {#if krav && domainConfig}
+    <BhVederlagResponse
+      {prosjektId}
+      {sakId}
+      {saksnr}
+      {tittel}
+      {krav}
+      {domainConfig}
+      tidligereSvar={timelineData.tidligereSvar}
+      {isUpdateMode}
+      lastResponseData={timelineData.lastResponseData}
+      forrigeBegrunnelseHtml={timelineData.forrigeBegrunnelseHtml}
+      vederlagKravId={timelineData.vederlagKravId}
+      {teNavn}
+      {bhNavn}
+      {prosjektNavn}
+    />
+  {/if}
+</PageLoadingShell>

@@ -8,14 +8,12 @@
   import { mockSaksoversikt } from '$lib/mocks/saksoversikt';
   import type { SporHendelseType, SaksoversiktVisning } from '$lib/mocks/saksoversikt';
 
+  import { PROJECT_META } from '$lib/constants/projectMeta';
+
   const prosjektId = $derived(page.params.prosjektId);
   const query = createCaseListQuery();
 
-  // Mock project metadata — will come from API later
-  const projectNames: Record<string, { name: string; entreprise: string }> = {
-    P001: { name: 'Operatunnelen', entreprise: 'Entreprise NS 8407' },
-  };
-  const projectMeta = $derived(prosjektId ? (projectNames[prosjektId] ?? null) : null);
+  const projectMeta = $derived(prosjektId ? (PROJECT_META[prosjektId] ?? null) : null);
 
   const STORAGE_KEY = 'koe-saksoversikt-visning';
 
