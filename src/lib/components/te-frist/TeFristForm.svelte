@@ -20,6 +20,9 @@
   import SectionHeading from '$lib/components/primitives/SectionHeading.svelte';
   import FormSection from '$lib/components/shared/FormSection.svelte';
   import Alert from '$lib/components/primitives/Alert.svelte';
+  import { formatDateShort } from '$lib/utils/formatters';
+
+  const iDag = formatDateShort(new Date().toISOString().split('T')[0]);
 
   interface FormActions {
     submitLabel: string;
@@ -149,21 +152,30 @@
 </script>
 
 <div class="te-frist-form">
-  <!-- KRAVTYPE -->
-  {#if visibility.showSegmentedControl}
-    <FormSection>
-      <SectionHeading title="Kravtype" paragrafRef="§ 33.4 / § 33.6" />
-      <div class="field-auto">
-        <SegmentedControl
-          value={varselType ?? ''}
-          options={segmentOptions}
-          onchange={(v) => {
-            varselType = v;
-          }}
-        />
-      </div>
-    </FormSection>
-  {/if}
+  <!-- VARSLING -->
+  <FormSection>
+    <SectionHeading title="Varsling" paragrafRef="§ 33.4 / § 33.6" />
+    <div class="field-auto">
+      <SegmentedControl
+        value={varselType ?? ''}
+        options={segmentOptions}
+        onchange={(v) => {
+          varselType = v;
+        }}
+      />
+    </div>
+    {#if varselType === 'varsel'}
+      <p class="helptext">
+        Varselet registreres med dato {iDag}. Antall dager kan spesifiseres når grunnlaget for å
+        beregne omfanget foreligger (§ 33.6.1).
+      </p>
+    {:else if varselType === 'spesifisert'}
+      <p class="helptext">
+        Angi og begrunn det antall dager du krever som fristforlengelse. Kravet registreres med dato {iDag}
+        (§ 33.6.1).
+      </p>
+    {/if}
+  </FormSection>
 
   <!-- FORESPORSEL ALERT -->
   {#if visibility.showForesporselAlert}
@@ -173,7 +185,18 @@
     </Alert>
   {/if}
 
-  <!-- FRISTFORLENGELSE (antall dager) -->
+  <!-- ÅRSAKSSAMMENHENG -->
+  {#if visibility.showKravSection}
+    <FormSection>
+      <SectionHeading title="Årsakssammenheng" paragrafRef="§ 33.1" />
+      <p class="helptext">
+        Begrunnelsen må vise at det foreligger (1) en hindring på fremdriften og (2) at hindringen
+        er forårsaket av det påberopte kontraktsforholdet.
+      </p>
+    </FormSection>
+  {/if}
+
+  <!-- UTMÅLING -->
   {#if visibility.showKravSection}
     <FormSection>
       <SectionHeading title="Utmåling" paragrafRef="§ 33.5" />
@@ -182,7 +205,7 @@
         herunder avbrudd, forskyvning til ugunstig årstid og samlet virkning av tidligere varslede
         forhold.
       </p>
-      <div class="field-amount">
+      <div class="field-dager">
         <NumberInput
           label="Antall dager"
           suffix="dager"
@@ -199,5 +222,9 @@
     display: flex;
     flex-direction: column;
     gap: var(--spacing-6);
+  }
+
+  .field-dager {
+    max-width: 140px;
   }
 </style>

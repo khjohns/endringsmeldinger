@@ -263,6 +263,9 @@
     <FormSection>
       <SectionHeading title="Fremsatt krav" paragrafRef="§ 33.6.1" />
       <p class="helptext">Ble kravet fremsatt uten ugrunnet opphold?</p>
+      {#if computed.port1bErSubsidiaer}
+        <div class="subsidiaer-markering">Subsidiært</div>
+      {/if}
       <SegmentedButtons
         options={reduksjonsOptions}
         selected={spesifisertKravOk ? 'ja' : 'nei'}
@@ -341,7 +344,7 @@
           Krevd: <span class="krevd-dager">{domainConfig.krevdDager} dager</span>
         </div>
       {/if}
-      <div class="field-amount">
+      <div class="field-dager">
         <NumberInput
           value={godkjentDager}
           label="Godkjent dager"
@@ -361,10 +364,17 @@
     visSubsidiaert={computed.visSubsidiaertResultat}
     subsidiaertResultat={computed.subsidiaertResultat}
     subsidiaerGodkjentDager={computed.visSubsidiaertResultat ? godkjentDager : undefined}
-    subsidiaerTriggers={computed.subsidiaerTriggers}
     {sendForesporsel}
     erRedusert={computed.erRedusert}
   />
+
+  <!-- Forsering-risiko -->
+  {#if !sendForesporsel && computed.prinsipaltResultat === 'avslatt'}
+    <Alert variant="warning">
+      <strong>§ 33.8 Forsering-risiko</strong> — Hvis avslaget er uberettiget, kan entreprenøren velge
+      å anse det som et pålegg om forsering.
+    </Alert>
+  {/if}
 </FormWithRightPanel>
 
 <style>
@@ -406,5 +416,9 @@
     font-variant-numeric: tabular-nums;
     font-weight: 500;
     color: var(--color-ink);
+  }
+
+  .field-dager {
+    max-width: 140px;
   }
 </style>

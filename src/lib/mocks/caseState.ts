@@ -205,6 +205,105 @@ export const scenario2_BlandetTilstand: SakState = {
 };
 
 /**
+ * Scenario 4: KOE-2024-019 — Omforent sak (VA-ledninger)
+ *
+ * Alle spor ferdigbehandlet. Frist: spesifisert krav, 15 dager godkjent.
+ */
+export const scenario4_Omforent: SakState = {
+  sak_id: 'KOE-2024-019',
+  sakstittel: 'Tilleggsarbeider — omlegging av VA-ledninger',
+  prosjekt_navn: 'Operatunnelen — Parsell 3',
+  entreprenor: 'Veidekke Entreprenør AS',
+  byggherre: 'Statens vegvesen',
+  sakstype: 'standard',
+
+  grunnlag: {
+    status: 'godkjent',
+    tittel: 'Tilleggsarbeider — omlegging av VA-ledninger',
+    hovedkategori: 'ENDRING',
+    underkategori: 'TILLEGG',
+    beskrivelse:
+      'BH bestilte omlegging av eksisterende VA-ledninger i byggegruben som ikke var inkludert i ' +
+      'opprinnelig kontrakt.',
+    dato_oppdaget: '2025-09-10',
+    grunnlag_varsel: {
+      dato_sendt: '2025-09-12',
+      metode: ['e-post'],
+    },
+    bh_resultat: 'godkjent',
+    bh_begrunnelse:
+      'BH bekrefter at omlegging av VA-ledninger er et tilleggsarbeid utenfor kontrakten.',
+    bh_respondert_versjon: 0,
+    laast: true,
+    antall_versjoner: 1,
+    siste_event_id: 'evt-301',
+    siste_oppdatert: '2025-11-01T10:00:00Z',
+  },
+
+  frist: {
+    status: 'godkjent',
+    varsel_type: 'spesifisert',
+    frist_varsel: {
+      dato_sendt: '2025-09-15',
+      metode: ['e-post'],
+    },
+    spesifisert_varsel: {
+      dato_sendt: '2025-10-01',
+      metode: ['e-post', 'Catenda'],
+    },
+    krevd_dager: 15,
+    begrunnelse:
+      'Omlegging av VA-ledninger krever graving, midlertidig omkobling og tilbakefylling som ' +
+      'forlenger kritisk linje for fundamentering med 15 virkedager. Arbeidet kan ikke utføres ' +
+      'parallelt med øvrig fundamentering på grunn av plassbegrensninger i byggegruben.',
+    bh_resultat: 'godkjent',
+    bh_begrunnelse: 'BH godkjenner 15 dagers fristforlengelse.',
+    godkjent_dager: 15,
+    bh_respondert_versjon: 0,
+    antall_versjoner: 1,
+    siste_event_id: 'evt-304',
+    siste_oppdatert: '2025-12-15T10:00:00Z',
+  },
+
+  vederlag: {
+    status: 'godkjent',
+    metode: 'REGNINGSARBEID',
+    kostnads_overslag: 1100000,
+    krevd_belop: 1250000,
+    netto_belop: 1100000,
+    begrunnelse:
+      'Regningsarbeid for graving, midlertidig VA-omkobling, nye rørføringer og tilbakefylling. ' +
+      'Timelister og fakturaer fra UE vedlagt.',
+    bh_resultat: 'delvis_godkjent',
+    bh_begrunnelse: 'BH godkjenner kr 1 100 000 etter gjennomgang av fakturaer.',
+    godkjent_belop: 1100000,
+    bh_respondert_versjon: 0,
+    antall_versjoner: 1,
+    siste_event_id: 'evt-306',
+    siste_oppdatert: '2026-01-20T10:00:00Z',
+  },
+
+  // Computed
+  er_subsidiaert_vederlag: false,
+  er_subsidiaert_frist: false,
+  visningsstatus_vederlag: 'godkjent',
+  visningsstatus_frist: 'godkjent',
+  overordnet_status: 'OMFORENT',
+  kan_utstede_eo: true,
+  neste_handling: {
+    rolle: null,
+    handling: 'Saken er omforent',
+    spor: null,
+  },
+  sum_krevd: 1250000,
+  sum_godkjent: 1100000,
+  antall_events: 8,
+  opprettet: '2025-09-12T10:00:00Z',
+  siste_aktivitet: '2026-01-20T10:00:00Z',
+  dagmulktsats: 50000,
+};
+
+/**
  * Scenario 3: Tom sak
  *
  * Saken er opprettet men ingen spor er startet.

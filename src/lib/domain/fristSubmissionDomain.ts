@@ -121,11 +121,11 @@ export function getDefaults(config: FristSubmissionDefaultsConfig): FristSubmiss
 
 const NEW_SEGMENTS = [
   { value: 'varsel', label: 'Foreløpig varsel' },
-  { value: 'spesifisert', label: 'Fremsatt krav' },
+  { value: 'spesifisert', label: 'Spesifisert krav' },
 ];
 
 const FORESPORSEL_SEGMENTS = [
-  { value: 'spesifisert', label: 'Fremsatt krav' },
+  { value: 'spesifisert', label: 'Spesifisert krav' },
   { value: 'begrunnelse_utsatt', label: 'Utsatt beregning' },
 ];
 
@@ -133,11 +133,11 @@ export function beregnVisibility(
   state: Pick<FristSubmissionFormState, 'varselType'>,
   config: FristSubmissionVisibilityConfig
 ): FristSubmissionVisibility {
-  const showSegmentedControl = config.scenario === 'new' || config.scenario === 'foresporsel';
+  const showSegmentedControl = true;
   const segmentOptions = config.scenario === 'foresporsel' ? FORESPORSEL_SEGMENTS : NEW_SEGMENTS;
 
-  const showVarselSection = state.varselType === 'varsel' || state.varselType === 'spesifisert';
-  const showKravSection = state.varselType === 'spesifisert';
+  const showVarselSection = state.varselType !== 'varsel';
+  const showKravSection = state.varselType !== 'varsel';
   const showForesporselAlert = config.scenario === 'foresporsel';
   const begrunnelseRequired =
     state.varselType === 'spesifisert' || state.varselType === 'begrunnelse_utsatt';

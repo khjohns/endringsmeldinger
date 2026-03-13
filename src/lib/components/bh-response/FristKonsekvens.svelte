@@ -1,7 +1,6 @@
 <script lang="ts">
   import { Check, X, CircleMinus, Send } from 'lucide-svelte';
-  import type { FristBeregningResultat, SubsidiaerTrigger } from '$lib/types/timeline';
-  import { SUBSIDIAER_TRIGGER_LABELS } from '$lib/constants/responseOptions';
+  import type { FristBeregningResultat } from '$lib/types/timeline';
 
   interface Props {
     prinsipaltResultat?: FristBeregningResultat;
@@ -10,7 +9,6 @@
     visSubsidiaert: boolean;
     subsidiaertResultat?: FristBeregningResultat;
     subsidiaerGodkjentDager?: number;
-    subsidiaerTriggers?: SubsidiaerTrigger[];
     sendForesporsel?: boolean;
     erRedusert?: boolean;
   }
@@ -22,7 +20,6 @@
     visSubsidiaert,
     subsidiaertResultat,
     subsidiaerGodkjentDager,
-    subsidiaerTriggers = [],
     sendForesporsel = false,
     erRedusert = false,
   }: Props = $props();
@@ -65,16 +62,6 @@
       <span class="konsekvens-tittel">{RESULTAT_LABELS[prinsipaltResultat]}</span>
     </div>
 
-    {#if krevdDager > 0}
-      <div class="dager-rad">
-        <span class="dager-label">Krevd</span>
-        <span class="dager-verdi">{krevdDager} d</span>
-        <span class="dager-pil">&rarr;</span>
-        <span class="dager-label">Godkjent</span>
-        <span class="dager-verdi">{godkjentDager} d</span>
-      </div>
-    {/if}
-
     {#if erRedusert}
       <p class="konsekvens-beskrivelse">
         Fremsatt krav vurdert som for sent. Fristforlengelsen reduseres til det som er åpenbart (§
@@ -90,13 +77,10 @@
             <span class="dager-verdi">{subsidiaerGodkjentDager} d</span>
           {/if}
         </div>
-        {#if subsidiaerTriggers.length > 0}
-          <ul class="trigger-liste">
-            {#each subsidiaerTriggers as trigger}
-              <li>{SUBSIDIAER_TRIGGER_LABELS[trigger]}</li>
-            {/each}
-          </ul>
-        {/if}
+        <p class="subsidiaert-beskrivelse">
+          {subsidiaerGodkjentDager ?? godkjentDager} dager dersom kravet var varslet i tide og vilkårene
+          i § 33.1 var oppfylt.
+        </p>
       </div>
     {/if}
   </div>
@@ -160,26 +144,22 @@
     font-weight: 600;
   }
 
+  .konsekvens-detalj {
+    font-family: var(--font-data);
+    font-variant-numeric: tabular-nums;
+    font-weight: 400;
+    color: var(--color-ink-secondary);
+  }
+
   .konsekvens-beskrivelse {
     color: var(--color-ink-secondary);
     margin: 0;
   }
 
-  .dager-rad {
-    display: flex;
-    align-items: baseline;
-    gap: var(--spacing-2);
-    color: var(--color-ink-secondary);
+  .dager-verdi {
     font-family: var(--font-data);
     font-variant-numeric: tabular-nums;
-  }
-
-  .dager-verdi {
     font-weight: 500;
-  }
-
-  .dager-pil {
-    color: var(--color-ink-ghost);
   }
 
   .subsidiaert-seksjon {
@@ -200,14 +180,9 @@
     color: var(--color-ink-muted);
   }
 
-  .trigger-liste {
-    margin: var(--spacing-1) 0 0;
-    padding-left: var(--spacing-4);
-    font-size: 11px;
+  .subsidiaert-beskrivelse {
+    font-size: 12px;
     color: var(--color-ink-muted);
-  }
-
-  .trigger-liste li {
-    margin-bottom: 2px;
+    margin: var(--spacing-1) 0 0;
   }
 </style>
