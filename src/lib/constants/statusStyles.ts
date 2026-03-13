@@ -159,22 +159,26 @@ export function getOverordnetStatusStyle(status: OverordnetStatus | string | nul
     };
   }
   const upperStatus = status.toUpperCase() as OverordnetStatus;
-  return OVERORDNET_STATUS_STYLES[upperStatus] || {
-    variant: 'info',
-    className: 'bg-badge-info-bg text-badge-info-text',
-    label: status,
-  };
+  return (
+    OVERORDNET_STATUS_STYLES[upperStatus] || {
+      variant: 'info',
+      className: 'bg-badge-info-bg text-badge-info-text',
+      label: status,
+    }
+  );
 }
 
 /**
  * Get style for spor status
  */
 export function getSporStatusStyle(status: SporStatus): StatusStyle {
-  return SPOR_STATUS_STYLES[status] || {
-    variant: 'default',
-    className: 'bg-pkt-grays-gray-100 text-pkt-grays-gray-700',
-    label: status,
-  };
+  return (
+    SPOR_STATUS_STYLES[status] || {
+      variant: 'default',
+      className: 'bg-pkt-grays-gray-100 text-pkt-grays-gray-700',
+      label: status,
+    }
+  );
 }
 
 /**

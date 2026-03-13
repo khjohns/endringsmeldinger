@@ -36,13 +36,10 @@ export async function addMember(
   role: string = 'member',
   displayName?: string
 ): Promise<ProjectMembership> {
-  const data = await apiFetch<{ member: ProjectMembership }>(
-    `/api/projects/${projectId}/members`,
-    {
-      method: 'POST',
-      body: JSON.stringify({ email, role, display_name: displayName }),
-    }
-  );
+  const data = await apiFetch<{ member: ProjectMembership }>(`/api/projects/${projectId}/members`, {
+    method: 'POST',
+    body: JSON.stringify({ email, role, display_name: displayName }),
+  });
   return data.member;
 }
 
@@ -52,10 +49,7 @@ export async function addMember(
  * @param projectId - The project to remove the member from
  * @param userEmail - Email address of the user to remove
  */
-export async function removeMember(
-  projectId: string,
-  userEmail: string
-): Promise<void> {
+export async function removeMember(projectId: string, userEmail: string): Promise<void> {
   await apiFetch(`/api/projects/${projectId}/members/${encodeURIComponent(userEmail)}`, {
     method: 'DELETE',
   });
@@ -73,11 +67,8 @@ export async function updateMemberRole(
   userEmail: string,
   role: string
 ): Promise<void> {
-  await apiFetch(
-    `/api/projects/${projectId}/members/${encodeURIComponent(userEmail)}`,
-    {
-      method: 'PATCH',
-      body: JSON.stringify({ role }),
-    }
-  );
+  await apiFetch(`/api/projects/${projectId}/members/${encodeURIComponent(userEmail)}`, {
+    method: 'PATCH',
+    body: JSON.stringify({ role }),
+  });
 }

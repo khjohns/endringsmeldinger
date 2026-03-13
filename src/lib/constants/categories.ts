@@ -37,10 +37,10 @@ export type TypeKrav = 'Tid' | 'Penger' | 'Tid og Penger';
 export interface Kontraktshjemmel {
   kode: string;
   label: string;
-  hjemmel_basis: string;      // The triggering paragraph
+  hjemmel_basis: string; // The triggering paragraph
   beskrivelse: string;
-  varselkrav_ref: string;     // Legal reference for notification requirement
-  gruppe?: string;            // Optional grouping for UI display
+  varselkrav_ref: string; // Legal reference for notification requirement
+  gruppe?: string; // Optional grouping for UI display
 }
 
 // Kontraktsforhold — hovedkategorien for kravet (f.eks. Endring, Svikt, Force Majeure)
@@ -48,8 +48,8 @@ export interface Kontraktsforhold {
   kode: string;
   label: string;
   beskrivelse: string;
-  hjemmel_frist: string;                  // Reference in section 33
-  hjemmel_vederlag: string | null;        // Reference in section 34 (null for FM)
+  hjemmel_frist: string; // Reference in section 33
+  hjemmel_vederlag: string | null; // Reference in section 34 (null for FM)
   standard_vederlagsmetode: StandardVederlagsmetode;
   type_krav: TypeKrav;
   hjemler: Kontraktshjemmel[];
@@ -60,7 +60,8 @@ export const KRAV_STRUKTUR_NS8407: Kontraktsforhold[] = [
   {
     kode: 'ENDRING',
     label: 'Endringer',
-    beskrivelse: 'Avvik fra det opprinnelig avtalte, enten ved formell ordre, endrede rammebetingelser eller pålegg.',
+    beskrivelse:
+      'Avvik fra det opprinnelig avtalte, enten ved formell ordre, endrede rammebetingelser eller pålegg.',
     hjemmel_frist: '33.1 a)',
     hjemmel_vederlag: '34.1.1',
     standard_vederlagsmetode: 'Enhetspriser (34.3)',
@@ -78,7 +79,8 @@ export const KRAV_STRUKTUR_NS8407: Kontraktsforhold[] = [
         kode: 'IRREG',
         label: 'Irregulær endring (Pålegg)',
         hjemmel_basis: '32.1',
-        beskrivelse: 'Pålegg/anvisning som entreprenøren mener er endring, men som ikke er gitt som endringsordre.',
+        beskrivelse:
+          'Pålegg/anvisning som entreprenøren mener er endring, men som ikke er gitt som endringsordre.',
         varselkrav_ref: '32.2 / 33.4 / 34.1.1',
         gruppe: 'Endringsordrer',
       },
@@ -86,7 +88,8 @@ export const KRAV_STRUKTUR_NS8407: Kontraktsforhold[] = [
         kode: 'VALGRETT',
         label: 'Begrensning av valgrett',
         hjemmel_basis: '14.6',
-        beskrivelse: 'Pålegg (jf. §32.1) som begrenser entreprenørens rett til å velge materiale, utførelse eller løsning.',
+        beskrivelse:
+          'Pålegg (jf. §32.1) som begrenser entreprenørens rett til å velge materiale, utførelse eller løsning.',
         varselkrav_ref: '32.2 / 33.4 / 34.1.1',
         gruppe: 'Endringsordrer',
       },
@@ -95,7 +98,8 @@ export const KRAV_STRUKTUR_NS8407: Kontraktsforhold[] = [
         label: 'Endring via svar på varsel',
         hjemmel_basis: '24.2.2',
         // NB: §24.2.2 forutsetter avtalt risikoovergang etter §24.2.1
-        beskrivelse: 'Ved avtalt risikoovergang (§24.2.1): Byggherrens svar på varsel innebærer en endring uten at endringsordre er utstedt.',
+        beskrivelse:
+          'Ved avtalt risikoovergang (§24.2.1): Byggherrens svar på varsel innebærer en endring uten at endringsordre er utstedt.',
         varselkrav_ref: '32.2 / 33.4 / 34.1.1',
         gruppe: 'Endringsordrer',
       },
@@ -146,7 +150,8 @@ export const KRAV_STRUKTUR_NS8407: Kontraktsforhold[] = [
         kode: 'MEDVIRK',
         label: 'Manglende medvirkning/leveranser',
         hjemmel_basis: '22',
-        beskrivelse: 'Svikt i byggherrens medvirkningsplikter: lover/forskrifter (§22.1), råderett over eiendom (§22.2), fysisk arbeidsgrunnlag (§22.3) eller materialer (§22.4).',
+        beskrivelse:
+          'Svikt i byggherrens medvirkningsplikter: lover/forskrifter (§22.1), råderett over eiendom (§22.2), fysisk arbeidsgrunnlag (§22.3) eller materialer (§22.4).',
         varselkrav_ref: '25.1.2 / 33.4 / 34.1.2',
         gruppe: 'Medvirkning',
       },
@@ -154,7 +159,8 @@ export const KRAV_STRUKTUR_NS8407: Kontraktsforhold[] = [
         kode: 'GRUNN',
         label: 'Uforutsette grunnforhold',
         hjemmel_basis: '23.1',
-        beskrivelse: 'Forhold ved grunnen som avviker fra det entreprenøren hadde grunn til å regne med.',
+        beskrivelse:
+          'Forhold ved grunnen som avviker fra det entreprenøren hadde grunn til å regne med.',
         varselkrav_ref: '25.1.2 / 33.4 / 34.1.2',
         gruppe: 'Grunnforhold',
       },
@@ -170,7 +176,8 @@ export const KRAV_STRUKTUR_NS8407: Kontraktsforhold[] = [
         kode: 'PROSJ_RISIKO',
         label: 'Svikt i byggherrens prosjektering',
         hjemmel_basis: '24.1',
-        beskrivelse: 'Feil, mangler eller uklarheter i prosjektering/løsninger byggherren har risikoen for.',
+        beskrivelse:
+          'Feil, mangler eller uklarheter i prosjektering/løsninger byggherren har risikoen for.',
         // §25.1.2: Forhold som forstyrrer gjennomføringen ("burde" oppdaget)
         // §25.2: Prosjektering uegnet til å oppfylle §14-krav ("måtte" oppdaget - kun åpenbare feil)
         varselkrav_ref: '25.1.2 / 25.2 / 33.4 / 34.1.2',
@@ -203,7 +210,8 @@ export const KRAV_STRUKTUR_NS8407: Kontraktsforhold[] = [
         kode: 'SKADE_BH',
         label: 'Skade forårsaket av byggherren/sideentreprenør',
         hjemmel_basis: '19.1',
-        beskrivelse: 'Skade på kontraktsgjenstanden forårsaket av byggherren eller hans kontraktsmedhjelpere.',
+        beskrivelse:
+          'Skade på kontraktsgjenstanden forårsaket av byggherren eller hans kontraktsmedhjelpere.',
         varselkrav_ref: '5',
         gruppe: 'Kontraktsbrudd',
       },
@@ -219,7 +227,8 @@ export const KRAV_STRUKTUR_NS8407: Kontraktsforhold[] = [
         kode: 'STANS_BET',
         label: 'Stans ved betalingsmislighold',
         hjemmel_basis: '29.2',
-        beskrivelse: 'Rettmessig stans pga vesentlig betalingsmislighold. Krever 24 timers skriftlig varsel.',
+        beskrivelse:
+          'Rettmessig stans pga vesentlig betalingsmislighold. Krever 24 timers skriftlig varsel.',
         varselkrav_ref: '29.2',
         gruppe: 'Stans',
       },
@@ -227,7 +236,8 @@ export const KRAV_STRUKTUR_NS8407: Kontraktsforhold[] = [
         kode: 'ANDRE_ANDRE',
         label: 'Annet forhold',
         hjemmel_basis: '33.1 c)',
-        beskrivelse: 'Andre forhold byggherren har risikoen for som ikke dekkes av kategoriene over.',
+        beskrivelse:
+          'Andre forhold byggherren har risikoen for som ikke dekkes av kategoriene over.',
         varselkrav_ref: '33.4 / 34.1.2',
         gruppe: 'Annet',
       },
@@ -236,7 +246,8 @@ export const KRAV_STRUKTUR_NS8407: Kontraktsforhold[] = [
   {
     kode: 'FORCE_MAJEURE',
     label: 'Force Majeure',
-    beskrivelse: 'Ekstraordinære hendelser utenfor partenes kontroll (værforhold, offentlige påbud, streik, lockout etc.). Gjelder både parten selv og kontraktsmedhjelpere.',
+    beskrivelse:
+      'Ekstraordinære hendelser utenfor partenes kontroll (værforhold, offentlige påbud, streik, lockout etc.). Gjelder både parten selv og kontraktsmedhjelpere.',
     hjemmel_frist: '33.3',
     hjemmel_vederlag: null,
     standard_vederlagsmetode: 'Ingen (Kun fristforlengelse)',
@@ -256,17 +267,16 @@ export const HOVEDKATEGORI_OPTIONS: DropdownOption[] = [
 ];
 
 // Generate HJEMMEL_MAP (kontraktshjemler per kontraktsforhold) from structure
-export const HJEMMEL_MAP: Record<string, DropdownOption[]> =
-  KRAV_STRUKTUR_NS8407.reduce(
-    (acc, forhold) => {
-      acc[forhold.kode] = forhold.hjemler.map((h) => ({
-        value: h.kode,
-        label: `${h.label} (§${h.hjemmel_basis})`,
-      }));
-      return acc;
-    },
-    {} as Record<string, DropdownOption[]>
-  );
+export const HJEMMEL_MAP: Record<string, DropdownOption[]> = KRAV_STRUKTUR_NS8407.reduce(
+  (acc, forhold) => {
+    acc[forhold.kode] = forhold.hjemler.map((h) => ({
+      value: h.kode,
+      label: `${h.label} (§${h.hjemmel_basis})`,
+    }));
+    return acc;
+  },
+  {} as Record<string, DropdownOption[]>
+);
 
 // Legacy alias
 export const UNDERKATEGORI_MAP = HJEMMEL_MAP;
@@ -313,7 +323,7 @@ export const getUnderkategoriLabel = getHjemmelLabel;
 // Get combined "Kontraktsforhold — Hjemmel" label (e.g. "Forsinkelse eller svikt ved byggherrens ytelser — Grunnforhold")
 export function getKombinertKategoriLabel(
   hovedkategori: string | string[] | undefined | null,
-  underkategori?: string | string[] | undefined | null,
+  underkategori?: string | string[] | undefined | null
 ): string {
   const hk = getKontraktsforholdLabel(hovedkategori);
   if (!underkategori) return hk;
@@ -324,7 +334,9 @@ export function getKombinertKategoriLabel(
 }
 
 // Get full kontraktsforhold object by code (case-insensitive)
-export function getKontraktsforhold(code: string | string[] | undefined | null): Kontraktsforhold | undefined {
+export function getKontraktsforhold(
+  code: string | string[] | undefined | null
+): Kontraktsforhold | undefined {
   if (!code) return undefined;
   const codeStr = Array.isArray(code) ? code[0] : code;
   if (!codeStr) return undefined;
@@ -336,7 +348,9 @@ export function getKontraktsforhold(code: string | string[] | undefined | null):
 export const getHovedkategori = getKontraktsforhold;
 
 // Get full kontraktshjemmel object by code (case-insensitive)
-export function getHjemmelObj(code: string | string[] | undefined | null): Kontraktshjemmel | undefined {
+export function getHjemmelObj(
+  code: string | string[] | undefined | null
+): Kontraktshjemmel | undefined {
   if (!code) return undefined;
   const codeStr = Array.isArray(code) ? code[0] : code;
   if (!codeStr) return undefined;

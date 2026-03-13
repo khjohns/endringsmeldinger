@@ -133,98 +133,103 @@ describe('har34_1_2Preklusjon', () => {
 
 describe('erHelVederlagSubsidiaerPgaGrunnlag', () => {
   it('returns true for ENDRING with grunnlagVarsletForSent', () => {
-    expect(erHelVederlagSubsidiaerPgaGrunnlag({
-      hovedkategori: 'ENDRING',
-      grunnlagVarsletForSent: true,
-    })).toBe(true);
+    expect(
+      erHelVederlagSubsidiaerPgaGrunnlag({
+        hovedkategori: 'ENDRING',
+        grunnlagVarsletForSent: true,
+      })
+    ).toBe(true);
   });
 
   it('returns false for ENDRING without grunnlagVarsletForSent', () => {
-    expect(erHelVederlagSubsidiaerPgaGrunnlag({
-      hovedkategori: 'ENDRING',
-      grunnlagVarsletForSent: false,
-    })).toBe(false);
+    expect(
+      erHelVederlagSubsidiaerPgaGrunnlag({
+        hovedkategori: 'ENDRING',
+        grunnlagVarsletForSent: false,
+      })
+    ).toBe(false);
   });
 
   it('returns false for SVIKT even with grunnlagVarsletForSent', () => {
-    expect(erHelVederlagSubsidiaerPgaGrunnlag({
-      hovedkategori: 'SVIKT',
-      grunnlagVarsletForSent: true,
-    })).toBe(false);
+    expect(
+      erHelVederlagSubsidiaerPgaGrunnlag({
+        hovedkategori: 'SVIKT',
+        grunnlagVarsletForSent: true,
+      })
+    ).toBe(false);
   });
 });
 
 describe('erSubsidiaer', () => {
   it('returns true when grunnlag is avslått', () => {
-    expect(erSubsidiaer({
-      grunnlagStatus: 'avslatt',
-      hovedkategori: 'ENDRING',
-      grunnlagVarsletForSent: false,
-    })).toBe(true);
+    expect(
+      erSubsidiaer({
+        grunnlagStatus: 'avslatt',
+        hovedkategori: 'ENDRING',
+        grunnlagVarsletForSent: false,
+      })
+    ).toBe(true);
   });
 
   it('returns true when grunnlag varslet for sent (§32.2)', () => {
-    expect(erSubsidiaer({
-      grunnlagStatus: 'godkjent',
-      hovedkategori: 'ENDRING',
-      grunnlagVarsletForSent: true,
-    })).toBe(true);
+    expect(
+      erSubsidiaer({
+        grunnlagStatus: 'godkjent',
+        hovedkategori: 'ENDRING',
+        grunnlagVarsletForSent: true,
+      })
+    ).toBe(true);
   });
 
   it('returns false when grunnlag is godkjent and not §32.2', () => {
-    expect(erSubsidiaer({
-      grunnlagStatus: 'godkjent',
-      hovedkategori: 'ENDRING',
-      grunnlagVarsletForSent: false,
-    })).toBe(false);
+    expect(
+      erSubsidiaer({
+        grunnlagStatus: 'godkjent',
+        hovedkategori: 'ENDRING',
+        grunnlagVarsletForSent: false,
+      })
+    ).toBe(false);
   });
 });
 
 describe('beregnHovedkravPrekludert', () => {
   it('precluded when SVIKT and varslet for sent', () => {
-    expect(beregnHovedkravPrekludert(
-      { hovedkravVarsletITide: false },
-      { hovedkategori: 'SVIKT' },
-    )).toBe(true);
+    expect(
+      beregnHovedkravPrekludert({ hovedkravVarsletITide: false }, { hovedkategori: 'SVIKT' })
+    ).toBe(true);
   });
 
   it('not precluded when SVIKT and varslet i tide', () => {
-    expect(beregnHovedkravPrekludert(
-      { hovedkravVarsletITide: true },
-      { hovedkategori: 'SVIKT' },
-    )).toBe(false);
+    expect(
+      beregnHovedkravPrekludert({ hovedkravVarsletITide: true }, { hovedkategori: 'SVIKT' })
+    ).toBe(false);
   });
 
   it('never precluded for ENDRING (§34.1.2 does not apply)', () => {
-    expect(beregnHovedkravPrekludert(
-      { hovedkravVarsletITide: false },
-      { hovedkategori: 'ENDRING' },
-    )).toBe(false);
+    expect(
+      beregnHovedkravPrekludert({ hovedkravVarsletITide: false }, { hovedkategori: 'ENDRING' })
+    ).toBe(false);
   });
 });
 
 describe('beregnRiggPrekludert', () => {
   it('precluded when harRiggKrav and varslet for sent', () => {
-    expect(beregnRiggPrekludert(
-      { riggVarsletITide: false },
-      { harRiggKrav: true },
-    )).toBe(true);
+    expect(beregnRiggPrekludert({ riggVarsletITide: false }, { harRiggKrav: true })).toBe(true);
   });
 
   it('not precluded when no rigg krav', () => {
-    expect(beregnRiggPrekludert(
-      { riggVarsletITide: false },
-      { harRiggKrav: false },
-    )).toBe(false);
+    expect(beregnRiggPrekludert({ riggVarsletITide: false }, { harRiggKrav: false })).toBe(false);
   });
 });
 
 describe('beregnProduktivitetPrekludert', () => {
   it('precluded when harProduktivitetKrav and varslet for sent', () => {
-    expect(beregnProduktivitetPrekludert(
-      { produktivitetVarsletITide: false },
-      { harProduktivitetKrav: true },
-    )).toBe(true);
+    expect(
+      beregnProduktivitetPrekludert(
+        { produktivitetVarsletITide: false },
+        { harProduktivitetKrav: true }
+      )
+    ).toBe(true);
   });
 });
 
@@ -391,57 +396,69 @@ describe('beregnTotaler', () => {
 
 describe('beregnPrinsipaltResultat', () => {
   it('returns hold_tilbake when holdTilbake is true', () => {
-    expect(beregnPrinsipaltResultat({
-      totalKrevdInklPrekludert: 100000,
-      totalGodkjent: 100000,
-      harMetodeendring: false,
-      holdTilbake: true,
-    })).toBe('hold_tilbake');
+    expect(
+      beregnPrinsipaltResultat({
+        totalKrevdInklPrekludert: 100000,
+        totalGodkjent: 100000,
+        harMetodeendring: false,
+        holdTilbake: true,
+      })
+    ).toBe('hold_tilbake');
   });
 
   it('returns godkjent when fully approved', () => {
-    expect(beregnPrinsipaltResultat({
-      totalKrevdInklPrekludert: 100000,
-      totalGodkjent: 100000,
-      harMetodeendring: false,
-      holdTilbake: false,
-    })).toBe('godkjent');
+    expect(
+      beregnPrinsipaltResultat({
+        totalKrevdInklPrekludert: 100000,
+        totalGodkjent: 100000,
+        harMetodeendring: false,
+        holdTilbake: false,
+      })
+    ).toBe('godkjent');
   });
 
   it('returns delvis_godkjent when partially approved', () => {
-    expect(beregnPrinsipaltResultat({
-      totalKrevdInklPrekludert: 100000,
-      totalGodkjent: 50000,
-      harMetodeendring: false,
-      holdTilbake: false,
-    })).toBe('delvis_godkjent');
+    expect(
+      beregnPrinsipaltResultat({
+        totalKrevdInklPrekludert: 100000,
+        totalGodkjent: 50000,
+        harMetodeendring: false,
+        holdTilbake: false,
+      })
+    ).toBe('delvis_godkjent');
   });
 
   it('returns delvis_godkjent when method changed even if fully approved', () => {
-    expect(beregnPrinsipaltResultat({
-      totalKrevdInklPrekludert: 100000,
-      totalGodkjent: 100000,
-      harMetodeendring: true,
-      holdTilbake: false,
-    })).toBe('delvis_godkjent');
+    expect(
+      beregnPrinsipaltResultat({
+        totalKrevdInklPrekludert: 100000,
+        totalGodkjent: 100000,
+        harMetodeendring: true,
+        holdTilbake: false,
+      })
+    ).toBe('delvis_godkjent');
   });
 
   it('returns avslatt when nothing approved', () => {
-    expect(beregnPrinsipaltResultat({
-      totalKrevdInklPrekludert: 100000,
-      totalGodkjent: 0,
-      harMetodeendring: false,
-      holdTilbake: false,
-    })).toBe('avslatt');
+    expect(
+      beregnPrinsipaltResultat({
+        totalKrevdInklPrekludert: 100000,
+        totalGodkjent: 0,
+        harMetodeendring: false,
+        holdTilbake: false,
+      })
+    ).toBe('avslatt');
   });
 
   it('handles 99% threshold for godkjent', () => {
-    expect(beregnPrinsipaltResultat({
-      totalKrevdInklPrekludert: 100000,
-      totalGodkjent: 99000,
-      harMetodeendring: false,
-      holdTilbake: false,
-    })).toBe('godkjent');
+    expect(
+      beregnPrinsipaltResultat({
+        totalKrevdInklPrekludert: 100000,
+        totalGodkjent: 99000,
+        harMetodeendring: false,
+        holdTilbake: false,
+      })
+    ).toBe('godkjent');
   });
 });
 
@@ -451,39 +468,47 @@ describe('beregnPrinsipaltResultat', () => {
 
 describe('beregnSubsidiaertResultat', () => {
   it('returns godkjent when fully approved ignoring preclusion', () => {
-    expect(beregnSubsidiaertResultat({
-      totalKrevdInklPrekludert: 130000,
-      totalGodkjentInklPrekludert: 130000,
-      harMetodeendring: false,
-      hovedkravVurdering: 'godkjent',
-    })).toBe('godkjent');
+    expect(
+      beregnSubsidiaertResultat({
+        totalKrevdInklPrekludert: 130000,
+        totalGodkjentInklPrekludert: 130000,
+        harMetodeendring: false,
+        hovedkravVurdering: 'godkjent',
+      })
+    ).toBe('godkjent');
   });
 
   it('returns avslatt when all rejected', () => {
-    expect(beregnSubsidiaertResultat({
-      totalKrevdInklPrekludert: 130000,
-      totalGodkjentInklPrekludert: 0,
-      harMetodeendring: false,
-      hovedkravVurdering: 'avslatt',
-    })).toBe('avslatt');
+    expect(
+      beregnSubsidiaertResultat({
+        totalKrevdInklPrekludert: 130000,
+        totalGodkjentInklPrekludert: 0,
+        harMetodeendring: false,
+        hovedkravVurdering: 'avslatt',
+      })
+    ).toBe('avslatt');
   });
 
   it('returns delvis_godkjent when partially approved', () => {
-    expect(beregnSubsidiaertResultat({
-      totalKrevdInklPrekludert: 130000,
-      totalGodkjentInklPrekludert: 80000,
-      harMetodeendring: false,
-      hovedkravVurdering: 'delvis',
-    })).toBe('delvis_godkjent');
+    expect(
+      beregnSubsidiaertResultat({
+        totalKrevdInklPrekludert: 130000,
+        totalGodkjentInklPrekludert: 80000,
+        harMetodeendring: false,
+        hovedkravVurdering: 'delvis',
+      })
+    ).toBe('delvis_godkjent');
   });
 
   it('returns delvis_godkjent when method changed', () => {
-    expect(beregnSubsidiaertResultat({
-      totalKrevdInklPrekludert: 100000,
-      totalGodkjentInklPrekludert: 100000,
-      harMetodeendring: true,
-      hovedkravVurdering: 'godkjent',
-    })).toBe('delvis_godkjent');
+    expect(
+      beregnSubsidiaertResultat({
+        totalKrevdInklPrekludert: 100000,
+        totalGodkjentInklPrekludert: 100000,
+        harMetodeendring: true,
+        hovedkravVurdering: 'godkjent',
+      })
+    ).toBe('delvis_godkjent');
   });
 });
 
@@ -499,20 +524,20 @@ describe('beregnSubsidiaerTriggers', () => {
   });
 
   it('includes preklusjon_hovedkrav when hovedkrav precluded', () => {
-    const triggers = beregnSubsidiaerTriggers(
-      makeState(),
-      makeConfig(),
-      { hovedkrav: true, rigg: false, produktivitet: false },
-    );
+    const triggers = beregnSubsidiaerTriggers(makeState(), makeConfig(), {
+      hovedkrav: true,
+      rigg: false,
+      produktivitet: false,
+    });
     expect(triggers).toContain('preklusjon_hovedkrav');
   });
 
   it('includes preklusjon_rigg and preklusjon_produktivitet', () => {
-    const triggers = beregnSubsidiaerTriggers(
-      makeState(),
-      makeConfig(),
-      { hovedkrav: false, rigg: true, produktivitet: true },
-    );
+    const triggers = beregnSubsidiaerTriggers(makeState(), makeConfig(), {
+      hovedkrav: false,
+      rigg: true,
+      produktivitet: true,
+    });
     expect(triggers).toContain('preklusjon_rigg');
     expect(triggers).toContain('preklusjon_produktivitet');
   });
@@ -521,7 +546,7 @@ describe('beregnSubsidiaerTriggers', () => {
     const triggers = beregnSubsidiaerTriggers(
       makeState({ epJusteringVarsletITide: false }),
       makeConfig({ kreverJustertEp: true }),
-      noPreklusjon,
+      noPreklusjon
     );
     expect(triggers).toContain('reduksjon_ep_justering');
   });
@@ -530,7 +555,7 @@ describe('beregnSubsidiaerTriggers', () => {
     const triggers = beregnSubsidiaerTriggers(
       makeState({ akseptererMetode: false }),
       makeConfig(),
-      noPreklusjon,
+      noPreklusjon
     );
     expect(triggers).toContain('metode_avslatt');
   });
@@ -539,7 +564,7 @@ describe('beregnSubsidiaerTriggers', () => {
     const triggers = beregnSubsidiaerTriggers(
       makeState({ akseptererMetode: false, epJusteringVarsletITide: false }),
       makeConfig({ kreverJustertEp: true }),
-      { hovedkrav: true, rigg: true, produktivitet: false },
+      { hovedkrav: true, rigg: true, produktivitet: false }
     );
     expect(triggers).toHaveLength(4);
     expect(triggers).toContain('preklusjon_hovedkrav');
@@ -616,9 +641,12 @@ describe('buildEventData', () => {
 
   it('builds new response event', () => {
     const result = buildEventData(
-      baseState, baseConfig, baseComputed,
+      baseState,
+      baseConfig,
+      baseComputed,
       { vederlagKravId: 'v1', isUpdateMode: false },
-      'Auto begrunnelse', [],
+      'Auto begrunnelse',
+      []
     );
 
     expect(result.eventType).toBe('respons_vederlag');
@@ -632,9 +660,12 @@ describe('buildEventData', () => {
 
   it('builds update response event', () => {
     const result = buildEventData(
-      baseState, baseConfig, baseComputed,
+      baseState,
+      baseConfig,
+      baseComputed,
       { vederlagKravId: 'v1', lastResponseEventId: 'r1', isUpdateMode: true },
-      'Auto begrunnelse', [],
+      'Auto begrunnelse',
+      []
     );
 
     expect(result.eventType).toBe('respons_vederlag_oppdatert');
@@ -653,9 +684,12 @@ describe('buildEventData', () => {
     const triggers: SubsidiaerTrigger[] = ['preklusjon_rigg'];
 
     const result = buildEventData(
-      baseState, baseConfig, computed,
+      baseState,
+      baseConfig,
+      computed,
       { vederlagKravId: 'v1', isUpdateMode: false },
-      'Auto begrunnelse', triggers,
+      'Auto begrunnelse',
+      triggers
     );
 
     expect(result.data.subsidiaer_triggers).toEqual(['preklusjon_rigg']);
@@ -666,9 +700,12 @@ describe('buildEventData', () => {
   it('uses auto-begrunnelse when user begrunnelse is empty', () => {
     const state = makeState({ begrunnelse: '' });
     const result = buildEventData(
-      state, baseConfig, baseComputed,
+      state,
+      baseConfig,
+      baseComputed,
       { vederlagKravId: 'v1', isUpdateMode: false },
-      'Auto-generert tekst', [],
+      'Auto-generert tekst',
+      []
     );
     expect(result.data.begrunnelse).toBe('Auto-generert tekst');
   });
@@ -689,9 +726,12 @@ describe('buildEventData', () => {
     });
 
     const result = buildEventData(
-      state, config, baseComputed,
+      state,
+      config,
+      baseComputed,
       { vederlagKravId: 'v1', isUpdateMode: false },
-      '', [],
+      '',
+      []
     );
 
     expect(result.data.hovedkrav_godkjent_belop).toBe(60000);
@@ -702,16 +742,22 @@ describe('buildEventData', () => {
   it('includes §34.1.2 fields only when applicable', () => {
     const computed = { ...baseComputed, har34_1_2_Preklusjon: true };
     const result = buildEventData(
-      baseState, baseConfig, computed,
+      baseState,
+      baseConfig,
+      computed,
       { vederlagKravId: 'v1', isUpdateMode: false },
-      '', [],
+      '',
+      []
     );
     expect(result.data.hovedkrav_varslet_i_tide).toBe(true);
 
     const result2 = buildEventData(
-      baseState, baseConfig, baseComputed,
+      baseState,
+      baseConfig,
+      baseComputed,
       { vederlagKravId: 'v1', isUpdateMode: false },
-      '', [],
+      '',
+      []
     );
     expect(result2.data.hovedkrav_varslet_i_tide).toBeUndefined();
   });
@@ -991,9 +1037,12 @@ describe('BH Svar-Vederlag UI Scenarios', () => {
   it('buildEventData produces correct event for new response', () => {
     const computed = beregnAlt(godkjentAlleState, baseConfig);
     const { eventType, data } = buildEventData(
-      godkjentAlleState, baseConfig, computed,
+      godkjentAlleState,
+      baseConfig,
+      computed,
       { vederlagKravId: 'evt-123', isUpdateMode: false },
-      '', computed.subsidiaerTriggers,
+      '',
+      computed.subsidiaerTriggers
     );
     expect(eventType).toBe('respons_vederlag');
     expect(data.vederlag_krav_id).toBe('evt-123');
@@ -1004,9 +1053,12 @@ describe('BH Svar-Vederlag UI Scenarios', () => {
   it('buildEventData produces correct event for update', () => {
     const computed = beregnAlt(godkjentAlleState, baseConfig);
     const { eventType, data } = buildEventData(
-      godkjentAlleState, baseConfig, computed,
+      godkjentAlleState,
+      baseConfig,
+      computed,
       { vederlagKravId: 'evt-123', lastResponseEventId: 'resp-456', isUpdateMode: true },
-      '', computed.subsidiaerTriggers,
+      '',
+      computed.subsidiaerTriggers
     );
     expect(eventType).toBe('respons_vederlag_oppdatert');
     expect(data.original_respons_id).toBe('resp-456');

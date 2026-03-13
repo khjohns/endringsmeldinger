@@ -122,31 +122,39 @@ describe('erForceMajeure', () => {
 
 describe('erPrekludert', () => {
   it('returns true for ENDRING when varsletITide is false', () => {
-    expect(erPrekludert(
-      makeState({ varsletITide: false }),
-      makeConfig({ grunnlagEvent: { hovedkategori: 'ENDRING', underkategori: 'ANNEN' } }),
-    )).toBe(true);
+    expect(
+      erPrekludert(
+        makeState({ varsletITide: false }),
+        makeConfig({ grunnlagEvent: { hovedkategori: 'ENDRING', underkategori: 'ANNEN' } })
+      )
+    ).toBe(true);
   });
 
   it('returns false for ENDRING when varsletITide is true', () => {
-    expect(erPrekludert(
-      makeState({ varsletITide: true }),
-      makeConfig({ grunnlagEvent: { hovedkategori: 'ENDRING', underkategori: 'ANNEN' } }),
-    )).toBe(false);
+    expect(
+      erPrekludert(
+        makeState({ varsletITide: true }),
+        makeConfig({ grunnlagEvent: { hovedkategori: 'ENDRING', underkategori: 'ANNEN' } })
+      )
+    ).toBe(false);
   });
 
   it('returns false for EO even when varsletITide is false', () => {
-    expect(erPrekludert(
-      makeState({ varsletITide: false }),
-      makeConfig({ grunnlagEvent: { hovedkategori: 'ENDRING', underkategori: 'EO' } }),
-    )).toBe(false);
+    expect(
+      erPrekludert(
+        makeState({ varsletITide: false }),
+        makeConfig({ grunnlagEvent: { hovedkategori: 'ENDRING', underkategori: 'EO' } })
+      )
+    ).toBe(false);
   });
 
   it('returns false for FORCE_MAJEURE', () => {
-    expect(erPrekludert(
-      makeState({ varsletITide: false }),
-      makeConfig({ grunnlagEvent: { hovedkategori: 'FORCE_MAJEURE' } }),
-    )).toBe(false);
+    expect(
+      erPrekludert(
+        makeState({ varsletITide: false }),
+        makeConfig({ grunnlagEvent: { hovedkategori: 'FORCE_MAJEURE' } })
+      )
+    ).toBe(false);
   });
 });
 
@@ -202,31 +210,39 @@ describe('beregnPassivitet', () => {
 
 describe('erSnuoperasjon', () => {
   it('returns true when update mode, forrige avslatt, nå godkjent', () => {
-    expect(erSnuoperasjon(
-      makeState({ resultat: 'godkjent' }),
-      makeConfig({ isUpdateMode: true, forrigeResultat: 'avslatt' }),
-    )).toBe(true);
+    expect(
+      erSnuoperasjon(
+        makeState({ resultat: 'godkjent' }),
+        makeConfig({ isUpdateMode: true, forrigeResultat: 'avslatt' })
+      )
+    ).toBe(true);
   });
 
   it('returns false when not update mode', () => {
-    expect(erSnuoperasjon(
-      makeState({ resultat: 'godkjent' }),
-      makeConfig({ isUpdateMode: false, forrigeResultat: 'avslatt' }),
-    )).toBe(false);
+    expect(
+      erSnuoperasjon(
+        makeState({ resultat: 'godkjent' }),
+        makeConfig({ isUpdateMode: false, forrigeResultat: 'avslatt' })
+      )
+    ).toBe(false);
   });
 
   it('returns false when forrige was godkjent', () => {
-    expect(erSnuoperasjon(
-      makeState({ resultat: 'godkjent' }),
-      makeConfig({ isUpdateMode: true, forrigeResultat: 'godkjent' }),
-    )).toBe(false);
+    expect(
+      erSnuoperasjon(
+        makeState({ resultat: 'godkjent' }),
+        makeConfig({ isUpdateMode: true, forrigeResultat: 'godkjent' })
+      )
+    ).toBe(false);
   });
 
   it('returns false when nå is avslatt', () => {
-    expect(erSnuoperasjon(
-      makeState({ resultat: 'avslatt' }),
-      makeConfig({ isUpdateMode: true, forrigeResultat: 'avslatt' }),
-    )).toBe(false);
+    expect(
+      erSnuoperasjon(
+        makeState({ resultat: 'avslatt' }),
+        makeConfig({ isUpdateMode: true, forrigeResultat: 'avslatt' })
+      )
+    ).toBe(false);
   });
 });
 
@@ -236,40 +252,50 @@ describe('erSnuoperasjon', () => {
 
 describe('getVerdictOptions', () => {
   it('returns godkjent and avslatt for normal ENDRING', () => {
-    const opts = getVerdictOptions(makeConfig({
-      grunnlagEvent: { hovedkategori: 'ENDRING', underkategori: 'ANNEN' },
-    }));
+    const opts = getVerdictOptions(
+      makeConfig({
+        grunnlagEvent: { hovedkategori: 'ENDRING', underkategori: 'ANNEN' },
+      })
+    );
     expect(opts).toHaveLength(2);
-    expect(opts.map(o => o.value)).toEqual(['godkjent', 'avslatt']);
+    expect(opts.map((o) => o.value)).toEqual(['godkjent', 'avslatt']);
   });
 
   it('includes frafalt for IRREG (paaleg)', () => {
-    const opts = getVerdictOptions(makeConfig({
-      grunnlagEvent: { hovedkategori: 'ENDRING', underkategori: 'IRREG' },
-    }));
+    const opts = getVerdictOptions(
+      makeConfig({
+        grunnlagEvent: { hovedkategori: 'ENDRING', underkategori: 'IRREG' },
+      })
+    );
     expect(opts).toHaveLength(3);
-    expect(opts.map(o => o.value)).toContain('frafalt');
+    expect(opts.map((o) => o.value)).toContain('frafalt');
   });
 
   it('includes frafalt for VALGRETT (paaleg)', () => {
-    const opts = getVerdictOptions(makeConfig({
-      grunnlagEvent: { hovedkategori: 'ENDRING', underkategori: 'VALGRETT' },
-    }));
+    const opts = getVerdictOptions(
+      makeConfig({
+        grunnlagEvent: { hovedkategori: 'ENDRING', underkategori: 'VALGRETT' },
+      })
+    );
     expect(opts).toHaveLength(3);
-    expect(opts.map(o => o.value)).toContain('frafalt');
+    expect(opts.map((o) => o.value)).toContain('frafalt');
   });
 
   it('does not include frafalt for EO', () => {
-    const opts = getVerdictOptions(makeConfig({
-      grunnlagEvent: { hovedkategori: 'ENDRING', underkategori: 'EO' },
-    }));
+    const opts = getVerdictOptions(
+      makeConfig({
+        grunnlagEvent: { hovedkategori: 'ENDRING', underkategori: 'EO' },
+      })
+    );
     expect(opts).toHaveLength(2);
   });
 
   it('does not include frafalt for FORCE_MAJEURE', () => {
-    const opts = getVerdictOptions(makeConfig({
-      grunnlagEvent: { hovedkategori: 'FORCE_MAJEURE' },
-    }));
+    const opts = getVerdictOptions(
+      makeConfig({
+        grunnlagEvent: { hovedkategori: 'FORCE_MAJEURE' },
+      })
+    );
     expect(opts).toHaveLength(2);
   });
 });
@@ -312,7 +338,11 @@ describe('getDynamicPlaceholder', () => {
 
 describe('buildEventData', () => {
   it('builds create mode event data', () => {
-    const state = makeState({ resultat: 'godkjent', begrunnelse: 'Test begrunnelse', varsletITide: true });
+    const state = makeState({
+      resultat: 'godkjent',
+      begrunnelse: 'Test begrunnelse',
+      varsletITide: true,
+    });
     const config = {
       ...makeConfig(),
       grunnlagEventId: 'grunnlag-42',
@@ -369,7 +399,11 @@ describe('buildEventData', () => {
   });
 
   it('includes grunnlag_varslet_i_tide in update mode for ENDRING', () => {
-    const state = makeState({ resultat: 'godkjent', begrunnelse: 'Oppdatert', varsletITide: false });
+    const state = makeState({
+      resultat: 'godkjent',
+      begrunnelse: 'Oppdatert',
+      varsletITide: false,
+    });
     const config = {
       ...makeConfig({
         isUpdateMode: true,
@@ -416,7 +450,7 @@ describe('detekterEndringer', () => {
   it('detects snuoperasjon (avslått → godkjent)', () => {
     const info = detekterEndringer(
       { resultat: 'godkjent', varsletITide: true, begrunnelse: '' },
-      { resultat: 'avslatt' },
+      { resultat: 'avslatt' }
     );
     expect(info.harEndring).toBe(true);
     expect(info.endringer).toHaveLength(1);
@@ -426,7 +460,7 @@ describe('detekterEndringer', () => {
   it('detects trekker_godkjenning (godkjent → avslått)', () => {
     const info = detekterEndringer(
       { resultat: 'avslatt', varsletITide: true, begrunnelse: '' },
-      { resultat: 'godkjent' },
+      { resultat: 'godkjent' }
     );
     expect(info.harEndring).toBe(true);
     expect(info.endringer[0].type).toBe('trekker_godkjenning');
@@ -435,7 +469,7 @@ describe('detekterEndringer', () => {
   it('detects frafaller_innsigelse (false → true)', () => {
     const info = detekterEndringer(
       { resultat: 'avslatt', varsletITide: true, begrunnelse: '' },
-      { resultat: 'avslatt', varsletITide: false },
+      { resultat: 'avslatt', varsletITide: false }
     );
     expect(info.harEndring).toBe(true);
     expect(info.endringer[0].type).toBe('frafaller_innsigelse');
@@ -444,7 +478,7 @@ describe('detekterEndringer', () => {
   it('detects ny_innsigelse (true → false)', () => {
     const info = detekterEndringer(
       { resultat: 'avslatt', varsletITide: false, begrunnelse: '' },
-      { resultat: 'avslatt', varsletITide: true },
+      { resultat: 'avslatt', varsletITide: true }
     );
     expect(info.harEndring).toBe(true);
     expect(info.endringer[0].type).toBe('ny_innsigelse');
@@ -453,7 +487,7 @@ describe('detekterEndringer', () => {
   it('detects begrunnelse change', () => {
     const info = detekterEndringer(
       { resultat: 'avslatt', varsletITide: true, begrunnelse: '<p>Ny</p>' },
-      { resultat: 'avslatt', begrunnelse: '<p>Gammel</p>' },
+      { resultat: 'avslatt', begrunnelse: '<p>Gammel</p>' }
     );
     expect(info.harEndring).toBe(true);
     expect(info.endringer[0].felt).toBe('begrunnelse');
@@ -462,7 +496,7 @@ describe('detekterEndringer', () => {
   it('returns no changes when nothing changed', () => {
     const info = detekterEndringer(
       { resultat: 'avslatt', varsletITide: false, begrunnelse: '<p>Samme</p>' },
-      { resultat: 'avslatt', varsletITide: false, begrunnelse: '<p>Samme</p>' },
+      { resultat: 'avslatt', varsletITide: false, begrunnelse: '<p>Samme</p>' }
     );
     expect(info.harEndring).toBe(false);
     expect(info.endringer).toHaveLength(0);
@@ -471,7 +505,7 @@ describe('detekterEndringer', () => {
   it('detects multiple changes at once', () => {
     const info = detekterEndringer(
       { resultat: 'godkjent', varsletITide: true, begrunnelse: '<p>Ny</p>' },
-      { resultat: 'avslatt', varsletITide: false, begrunnelse: '<p>Gammel</p>' },
+      { resultat: 'avslatt', varsletITide: false, begrunnelse: '<p>Gammel</p>' }
     );
     expect(info.harEndring).toBe(true);
     expect(info.endringer).toHaveLength(3);

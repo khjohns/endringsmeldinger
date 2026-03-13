@@ -121,7 +121,7 @@ export function getDefaults(config: VederlagSubmissionDefaultsConfig): VederlagS
 // ============================================================================
 
 export function beregnVisibility(
-  state: Pick<VederlagSubmissionFormState, 'metode'>,
+  state: Pick<VederlagSubmissionFormState, 'metode'>
 ): VederlagSubmissionVisibility {
   const metode = state.metode;
   return {
@@ -159,8 +159,10 @@ export function beregnCanSubmit(state: VederlagSubmissionFormState): boolean {
 
 export function getDynamicPlaceholder(metode: VederlagsMetode | undefined): string {
   if (!metode) return 'Velg beregningsmetode for å begynne...';
-  if (metode === 'ENHETSPRISER') return 'Begrunn kravets omfang med referanse til kontraktens enhetspriser (§34.3)...';
-  if (metode === 'REGNINGSARBEID') return 'Begrunn behovet for regningsarbeid og estimer omfanget (§34.4)...';
+  if (metode === 'ENHETSPRISER')
+    return 'Begrunn kravets omfang med referanse til kontraktens enhetspriser (§34.3)...';
+  if (metode === 'REGNINGSARBEID')
+    return 'Begrunn behovet for regningsarbeid og estimer omfanget (§34.4)...';
   return 'Begrunn tilbudt fastpris (§34.2.1)...';
 }
 
@@ -175,13 +177,11 @@ export interface TeStatusSummaryConfig {
 
 export function beregnTeStatusSummary(
   state: Pick<VederlagSubmissionFormState, 'metode' | 'belopDirekte' | 'kostnadsOverslag'>,
-  config: TeStatusSummaryConfig,
+  config: TeStatusSummaryConfig
 ): string | null {
   if (!state.metode) return null;
 
-  const belop = state.metode === 'REGNINGSARBEID'
-    ? state.kostnadsOverslag
-    : state.belopDirekte;
+  const belop = state.metode === 'REGNINGSARBEID' ? state.kostnadsOverslag : state.belopDirekte;
 
   if (config.scenario === 'edit') {
     if (belop !== undefined && belop > 0) {
@@ -210,7 +210,7 @@ function formatCompact(n: number): string {
 
 export function buildEventData(
   state: VederlagSubmissionFormState,
-  config: VederlagSubmissionBuildConfig,
+  config: VederlagSubmissionBuildConfig
 ): VederlagSubmissionEventData {
   if (!state.metode) throw new Error('metode is required');
 
@@ -218,21 +218,23 @@ export function buildEventData(
   const isEnhetspriser = state.metode === 'ENHETSPRISER';
 
   // Build justert_ep_varsel (§34.3.3)
-  const justertEpVarsel = isEnhetspriser && state.kreverJustertEp && config.datoOppdaget
-    ? { dato_sendt: config.datoOppdaget }
-    : undefined;
+  const justertEpVarsel =
+    isEnhetspriser && state.kreverJustertEp && config.datoOppdaget
+      ? { dato_sendt: config.datoOppdaget }
+      : undefined;
 
   // Build saerskilt_krav (§34.1.3)
-  const saerskiltKrav = state.harRiggKrav || state.harProduktivitetKrav
-    ? {
-        rigg_drift: state.harRiggKrav
-          ? { belop: state.belopRigg, dato_klar_over: state.datoKlarOverRigg }
-          : undefined,
-        produktivitet: state.harProduktivitetKrav
-          ? { belop: state.belopProduktivitet, dato_klar_over: state.datoKlarOverProduktivitet }
-          : undefined,
-      }
-    : null;
+  const saerskiltKrav =
+    state.harRiggKrav || state.harProduktivitetKrav
+      ? {
+          rigg_drift: state.harRiggKrav
+            ? { belop: state.belopRigg, dato_klar_over: state.datoKlarOverRigg }
+            : undefined,
+          produktivitet: state.harProduktivitetKrav
+            ? { belop: state.belopProduktivitet, dato_klar_over: state.datoKlarOverProduktivitet }
+            : undefined,
+        }
+      : null;
 
   const result: VederlagSubmissionEventData = {
     grunnlag_event_id: config.grunnlagEventId,
@@ -259,7 +261,9 @@ export function buildEventData(
 
 export function getEventType(config: { scenario: VederlagSubmissionScenario }): string {
   switch (config.scenario) {
-    case 'new': return 'vederlag_krav_sendt';
-    case 'edit': return 'vederlag_krav_oppdatert';
+    case 'new':
+      return 'vederlag_krav_sendt';
+    case 'edit':
+      return 'vederlag_krav_oppdatert';
   }
 }

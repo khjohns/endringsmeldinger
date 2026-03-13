@@ -41,7 +41,7 @@ export interface PreklusjonsResultat {
 }
 
 // Thresholds for "uten ugrunnet opphold" (without undue delay)
-const VARSEL_TERSKEL_DAGER = 3;   // Soft warning after 3 days
+const VARSEL_TERSKEL_DAGER = 3; // Soft warning after 3 days
 const KRITISK_TERSKEL_DAGER = 14; // Critical after 14 days (rule of thumb)
 
 /**
@@ -90,7 +90,8 @@ function getPreklusjonskonsekvens(hovedkategori?: string): {
     case 'ENDRING':
       return {
         kritiskTittel: 'Preklusjonsfare (§32.2)',
-        kritiskMelding: 'Du risikerer å tape retten til å påberope at forholdet innebærer en endring. Sørg for å begrunne tidsbruken godt.',
+        kritiskMelding:
+          'Du risikerer å tape retten til å påberope at forholdet innebærer en endring. Sørg for å begrunne tidsbruken godt.',
         varselTittel: 'Husk varslingsfrist (§32.2)',
         varselMelding: 'Varsel skal sendes raskest mulig for å unngå diskusjon om frister.',
       };
@@ -98,14 +99,17 @@ function getPreklusjonskonsekvens(hovedkategori?: string): {
     case 'ANDRE':
       return {
         kritiskTittel: 'Preklusjonsfare (§25.1.2)',
-        kritiskMelding: 'Ved sen varsling kan byggherren kreve erstatning for tap som kunne vært unngått ved rettidig varsel. Dokumenter årsaken til tidsbruken.',
+        kritiskMelding:
+          'Ved sen varsling kan byggherren kreve erstatning for tap som kunne vært unngått ved rettidig varsel. Dokumenter årsaken til tidsbruken.',
         varselTittel: 'Husk varslingsfrist (§25.1.2)',
-        varselMelding: 'Varsle snarest for å unngå erstatningsansvar for tap byggherren kunne unngått.',
+        varselMelding:
+          'Varsle snarest for å unngå erstatningsansvar for tap byggherren kunne unngått.',
       };
     case 'FORCE_MAJEURE':
       return {
         kritiskTittel: 'Preklusjonsfare (§33.4)',
-        kritiskMelding: 'Kravet på fristforlengelse kan være tapt. Dokumenter godt hvorfor varsling tok tid.',
+        kritiskMelding:
+          'Kravet på fristforlengelse kan være tapt. Dokumenter godt hvorfor varsling tok tid.',
         varselTittel: 'Husk varslingsfrist (§33.4)',
         varselMelding: 'Varsle snarest for å sikre retten til fristforlengelse.',
       };
@@ -113,9 +117,11 @@ function getPreklusjonskonsekvens(hovedkategori?: string): {
       // Fallback for ukjent kategori
       return {
         kritiskTittel: 'Preklusjonsfare!',
-        kritiskMelding: 'NS 8407 krever varsling "uten ugrunnet opphold". Ved å sende dette nå, risikerer du at kravet er svekket. Sørg for å begrunne tidsbruken godt.',
+        kritiskMelding:
+          'NS 8407 krever varsling "uten ugrunnet opphold". Ved å sende dette nå, risikerer du at kravet er svekket. Sørg for å begrunne tidsbruken godt.',
         varselTittel: 'Husk varslingsfrist',
-        varselMelding: 'Varsel skal sendes raskest mulig for å sikre bevis og unngå diskusjon om frister.',
+        varselMelding:
+          'Varsel skal sendes raskest mulig for å sikre bevis og unngå diskusjon om frister.',
       };
   }
 }
@@ -314,7 +320,8 @@ export function getPreklusjonsvarselMellomDatoer(
   hovedkategori?: string
 ): PreklusjonsResultat {
   const parsedOppdaget = typeof datoOppdaget === 'string' ? parseISO(datoOppdaget) : datoOppdaget;
-  const parsedVarsel = typeof datoVarselSendt === 'string' ? parseISO(datoVarselSendt) : datoVarselSendt;
+  const parsedVarsel =
+    typeof datoVarselSendt === 'string' ? parseISO(datoVarselSendt) : datoVarselSendt;
   const dager = differenceInDays(parsedVarsel, parsedOppdaget);
 
   // Negative days means varsel was sent before discovery (which is fine/unusual)
@@ -414,8 +421,10 @@ export function sjekkVederlagspreklusjon(
     case 'SVIKT':
     case 'ANDRE': {
       // §34.1.2: Preklusjon - kravet tapes
-      const erKritisk = dagerSidenOppdagelse !== undefined && dagerSidenOppdagelse > KRITISK_TERSKEL_DAGER;
-      const erVarsel = dagerSidenOppdagelse !== undefined && dagerSidenOppdagelse > VARSEL_TERSKEL_DAGER;
+      const erKritisk =
+        dagerSidenOppdagelse !== undefined && dagerSidenOppdagelse > KRITISK_TERSKEL_DAGER;
+      const erVarsel =
+        dagerSidenOppdagelse !== undefined && dagerSidenOppdagelse > VARSEL_TERSKEL_DAGER;
 
       const resultat: VederlagspreklusjonsResultat = {
         harPreklusjon: true,
@@ -438,8 +447,7 @@ export function sjekkVederlagspreklusjon(
         resultat.alert = {
           variant: 'warning',
           title: 'Varsle snart - vederlagskrav (§34.1.2)',
-          message:
-            `Det er gått ${dagerSidenOppdagelse} dager. Vederlagskravet tapes dersom det ikke varsles i tide.`,
+          message: `Det er gått ${dagerSidenOppdagelse} dager. Vederlagskravet tapes dersom det ikke varsles i tide.`,
         };
       }
 

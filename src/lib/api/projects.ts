@@ -35,13 +35,10 @@ export async function getProject(projectId: string): Promise<Project> {
  * @returns The created project
  */
 export async function createProject(payload: CreateProjectPayload): Promise<Project> {
-  const data = await apiFetch<{ success: boolean; project: Project }>(
-    '/api/projects',
-    {
-      method: 'POST',
-      body: JSON.stringify(payload),
-    }
-  );
+  const data = await apiFetch<{ success: boolean; project: Project }>('/api/projects', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
   return data.project;
 }
 

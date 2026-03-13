@@ -54,7 +54,7 @@ export interface FristSubmissionBuildConfig {
   scenario: SubmissionScenario;
   grunnlagEventId: string;
   erSvarPaForesporsel?: boolean;
-  originalEventId?: string;  // for revision/specification events
+  originalEventId?: string; // for revision/specification events
 }
 
 export interface FristSubmissionEventData {
@@ -131,7 +131,7 @@ const FORESPORSEL_SEGMENTS = [
 
 export function beregnVisibility(
   state: Pick<FristSubmissionFormState, 'varselType'>,
-  config: FristSubmissionVisibilityConfig,
+  config: FristSubmissionVisibilityConfig
 ): FristSubmissionVisibility {
   const showSegmentedControl = config.scenario === 'new' || config.scenario === 'foresporsel';
   const segmentOptions = config.scenario === 'foresporsel' ? FORESPORSEL_SEGMENTS : NEW_SEGMENTS;
@@ -139,7 +139,8 @@ export function beregnVisibility(
   const showVarselSection = state.varselType === 'varsel' || state.varselType === 'spesifisert';
   const showKravSection = state.varselType === 'spesifisert';
   const showForesporselAlert = config.scenario === 'foresporsel';
-  const begrunnelseRequired = state.varselType === 'spesifisert' || state.varselType === 'begrunnelse_utsatt';
+  const begrunnelseRequired =
+    state.varselType === 'spesifisert' || state.varselType === 'begrunnelse_utsatt';
 
   return {
     showSegmentedControl,
@@ -171,7 +172,7 @@ export function beregnPreklusjonsvarsel(config: {
 
 export function beregnCanSubmit(
   state: FristSubmissionFormState,
-  _config: FristSubmissionVisibilityConfig,
+  _config: FristSubmissionVisibilityConfig
 ): boolean {
   if (!state.varselType) return false;
 
@@ -196,8 +197,10 @@ export function beregnCanSubmit(
 
 export function getDynamicPlaceholder(varselType: FristVarselType | undefined): string {
   if (!varselType) return 'Velg kravtype i kortet for å begynne...';
-  if (varselType === 'varsel') return 'Beskriv kort hva som forårsaker behovet for fristforlengelse (valgfritt)...';
-  if (varselType === 'spesifisert') return 'Begrunn antall dager krevd og den virkning hindringen har hatt for fremdriften (§33.5)...';
+  if (varselType === 'varsel')
+    return 'Beskriv kort hva som forårsaker behovet for fristforlengelse (valgfritt)...';
+  if (varselType === 'spesifisert')
+    return 'Begrunn antall dager krevd og den virkning hindringen har hatt for fremdriften (§33.5)...';
   return 'Begrunn hvorfor grunnlaget for å beregne kravet ikke foreligger (§33.6.2 b)...';
 }
 
@@ -207,7 +210,7 @@ export function getDynamicPlaceholder(varselType: FristVarselType | undefined): 
 
 export function buildEventData(
   state: FristSubmissionFormState,
-  config: FristSubmissionBuildConfig,
+  config: FristSubmissionBuildConfig
 ): FristSubmissionEventData {
   const today = new Date().toISOString().split('T')[0];
 
@@ -255,10 +258,14 @@ export function buildEventData(
 
 export function getEventType(config: { scenario: SubmissionScenario }): string {
   switch (config.scenario) {
-    case 'new': return 'frist_krav_sendt';
-    case 'spesifisering': return 'frist_krav_spesifisert';
-    case 'foresporsel': return 'frist_krav_spesifisert';
-    case 'edit': return 'frist_krav_oppdatert';
+    case 'new':
+      return 'frist_krav_sendt';
+    case 'spesifisering':
+      return 'frist_krav_spesifisert';
+    case 'foresporsel':
+      return 'frist_krav_spesifisert';
+    case 'edit':
+      return 'frist_krav_oppdatert';
   }
 }
 
@@ -288,7 +295,7 @@ export interface TeStatusSummaryConfig {
 
 export function beregnTeStatusSummary(
   state: Pick<FristSubmissionFormState, 'varselType' | 'antallDager'>,
-  config: TeStatusSummaryConfig,
+  config: TeStatusSummaryConfig
 ): string | null {
   if (!state.varselType) return null;
 
@@ -337,9 +344,7 @@ export function beregnTeStatusSummary(
 // REVISION CONTEXT — computation
 // ============================================================================
 
-export function beregnRevisionContext(
-  config: RevisionContextConfig,
-): RevisionContext {
+export function beregnRevisionContext(config: RevisionContextConfig): RevisionContext {
   const isSpec = config.scenario === 'spesifisering' || config.scenario === 'foresporsel';
 
   return {

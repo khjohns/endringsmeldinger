@@ -10,21 +10,21 @@ export type Aktor = 'TE' | 'BH';
 
 // Deadline types
 export type FristType =
-  | 'UTEN_UGRUNNET_OPPHOLD'  // "UUO" - Without undue delay
-  | 'RIMELIG_TID'            // Reasonable time
-  | 'SPESIFIKK_DAGER'        // Specific number of days
-  | 'LOPENDE'                // Ongoing/weekly
-  | 'INNEN_FRIST_UTLOP'      // Before deadline expires
-  | 'INNEN_OPPSTART';        // Before work starts
+  | 'UTEN_UGRUNNET_OPPHOLD' // "UUO" - Without undue delay
+  | 'RIMELIG_TID' // Reasonable time
+  | 'SPESIFIKK_DAGER' // Specific number of days
+  | 'LOPENDE' // Ongoing/weekly
+  | 'INNEN_FRIST_UTLOP' // Before deadline expires
+  | 'INNEN_OPPSTART'; // Before work starts
 
 // Consequence types for missed deadlines
 export type KonsekvensType =
-  | 'PREKLUSJON_KRAV'        // Claim is lost
-  | 'PREKLUSJON_INNSIGELSE'  // Objection rights lost (passive acceptance)
-  | 'REDUKSJON_SKJONN'       // Claim reduced to "obvious" amount
-  | 'ANSVAR_SKADE'           // Liability for damages
-  | 'BEVISBYRDE_TAP'         // Loss of invoice as evidence
-  | 'INGEN_DIREKTE';         // No direct consequence
+  | 'PREKLUSJON_KRAV' // Claim is lost
+  | 'PREKLUSJON_INNSIGELSE' // Objection rights lost (passive acceptance)
+  | 'REDUKSJON_SKJONN' // Claim reduced to "obvious" amount
+  | 'ANSVAR_SKADE' // Liability for damages
+  | 'BEVISBYRDE_TAP' // Loss of invoice as evidence
+  | 'INGEN_DIREKTE'; // No direct consequence
 
 // Notification rule structure
 export interface VarslingsRegel {
@@ -32,9 +32,9 @@ export interface VarslingsRegel {
   paragraf: string;
   beskrivelse: string;
   aktor: Aktor;
-  trigger_beskrivelse: string;      // What triggers the obligation?
+  trigger_beskrivelse: string; // What triggers the obligation?
   frist_type: FristType;
-  frist_dager: number | null;       // Only for SPESIFIKK_DAGER
+  frist_dager: number | null; // Only for SPESIFIKK_DAGER
   konsekvens_type: KonsekvensType;
   konsekvens_beskrivelse: string;
 }
@@ -59,7 +59,8 @@ export const VARSLINGSREGLER_NS8407: ProsessFlyt[] = [
         frist_type: 'UTEN_UGRUNNET_OPPHOLD',
         frist_dager: null,
         konsekvens_type: 'PREKLUSJON_KRAV',
-        konsekvens_beskrivelse: 'TE taper retten til å kreve endring (arbeidet blir en del av kontrakten).',
+        konsekvens_beskrivelse:
+          'TE taper retten til å kreve endring (arbeidet blir en del av kontrakten).',
       },
       {
         kode: 'SVAR_IRREGULAER',
@@ -80,7 +81,8 @@ export const VARSLINGSREGLER_NS8407: ProsessFlyt[] = [
       {
         kode: 'VARSEL_SVIKT_BH',
         paragraf: '34.1.2 / 25.1.2',
-        beskrivelse: 'TE må varsle om svikt ved BHs ytelser, forsinket leveranse, feil i underlag etc.',
+        beskrivelse:
+          'TE må varsle om svikt ved BHs ytelser, forsinket leveranse, feil i underlag etc.',
         aktor: 'TE',
         trigger_beskrivelse: 'Oppdagelse av forholdet',
         frist_type: 'UTEN_UGRUNNET_OPPHOLD',
@@ -91,7 +93,8 @@ export const VARSLINGSREGLER_NS8407: ProsessFlyt[] = [
       {
         kode: 'VARSEL_RIGG_DRIFT',
         paragraf: '34.1.3',
-        beskrivelse: 'Særskilt varsel hvis TE vil kreve dekning for rigg, drift eller nedsatt produktivitet.',
+        beskrivelse:
+          'Særskilt varsel hvis TE vil kreve dekning for rigg, drift eller nedsatt produktivitet.',
         aktor: 'TE',
         trigger_beskrivelse: 'Når det blir klart at slike utgifter påløper',
         frist_type: 'UTEN_UGRUNNET_OPPHOLD',
@@ -124,7 +127,8 @@ export const VARSLINGSREGLER_NS8407: ProsessFlyt[] = [
         frist_type: 'UTEN_UGRUNNET_OPPHOLD',
         frist_dager: null,
         konsekvens_type: 'REDUKSJON_SKJONN',
-        konsekvens_beskrivelse: 'Bare krav på slik fristforlengelse som den andre parten måtte forstå.',
+        konsekvens_beskrivelse:
+          'Bare krav på slik fristforlengelse som den andre parten måtte forstå.',
       },
       {
         kode: 'SVAR_PA_FORESPORSEL',
@@ -200,7 +204,8 @@ export const VARSLINGSREGLER_NS8407: ProsessFlyt[] = [
         frist_type: 'INNEN_OPPSTART',
         frist_dager: null,
         konsekvens_type: 'BEVISBYRDE_TAP',
-        konsekvens_beskrivelse: 'Strengere bevisbyrde for at arbeidet var nødvendig/kostnadene rimelige.',
+        konsekvens_beskrivelse:
+          'Strengere bevisbyrde for at arbeidet var nødvendig/kostnadene rimelige.',
       },
       {
         kode: 'INNSENDING_OPPGAVER',
