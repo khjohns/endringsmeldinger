@@ -12,7 +12,9 @@
     FristSubmissionDefaultsConfig,
   } from '$lib/domain/fristSubmissionDomain';
   import { goto } from '$app/navigation';
+  import { onMount } from 'svelte';
   import { submitEvent } from '$lib/api/events';
+  import { draftKey, loadDraft, saveDraft, clearDraft } from '$lib/utils/draft';
   import type { EventType } from '$lib/types/timeline';
   import { useQueryClient } from '@tanstack/svelte-query';
   import SegmentedControl from '$lib/components/primitives/SegmentedControl.svelte';
@@ -61,13 +63,32 @@
 
   const queryClient = useQueryClient();
 
+  // --- Draft ---
+  interface FristDraft {
+    varselType?: string;
+    antallDager?: number;
+    begrunnelseHtml: string;
+  }
+  const dk = draftKey('send-frist', sakId);
+  const draft = loadDraft<FristDraft>(dk);
+  let draftReady = $state(false);
+
   // --- Initialize from domain defaults ---
   const defaults = getDefaults({ scenario, existing, existingVarselDato });
 
-  let varselType = $state<string | undefined>(defaults.varselType);
-  let antallDager = $state<number | undefined>(defaults.antallDager || undefined);
+  let varselType = $state<string | undefined>(draft?.varselType ?? defaults.varselType);
+  let antallDager = $state<number | undefined>(
+    draft?.antallDager ?? (defaults.antallDager || undefined)
+  );
   let submitting = $state(false);
   let submitError = $state('');
+
+  onMount(() => {
+    if (draft?.begrunnelseHtml) {
+      begrunnelseHtml = draft.begrunnelseHtml;
+    }
+    draftReady = true;
+  });
 
   // --- Derived ---
   const visibility = $derived(
@@ -123,6 +144,7 @@
         eventType as EventType,
         eventData as unknown as Record<string, unknown>
       );
+      clearDraft(dk);
       await queryClient.invalidateQueries({ queryKey: ['case-context', sakId] });
       goto(`/${prosjektId}/${sakId}`);
     } catch (err) {
@@ -144,6 +166,12 @@
       onsubmit: handleSubmit,
       onavbryt: handleAvbryt,
     });
+  });
+
+  // Auto-save draft
+  $effect(() => {
+    if (!draftReady) return;
+    saveDraft(dk, { varselType, antallDager, begrunnelseHtml });
   });
 
   const segmentOptions = $derived(

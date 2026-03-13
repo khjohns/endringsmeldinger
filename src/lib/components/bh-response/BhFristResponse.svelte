@@ -1,9 +1,11 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
+  import { onMount } from 'svelte';
   import { beregnAlt, buildEventData, getDefaults } from '$lib/domain/fristDomain';
   import type { FristFormState, FristDomainConfig } from '$lib/domain/fristDomain';
   import type { FristTilstand, EventType } from '$lib/types/timeline';
   import { submitEvent } from '$lib/api/events';
+  import { draftKey, loadDraft, saveDraft, clearDraft } from '$lib/utils/draft';
   import { useQueryClient } from '@tanstack/svelte-query';
 
   import FristSammendrag from './FristSammendrag.svelte';
@@ -75,6 +77,20 @@
 
   const queryClient = useQueryClient();
 
+  // --- Draft ---
+  interface FristResponseDraft {
+    fristVarselOk: boolean;
+    spesifisertKravOk: boolean;
+    foresporselSvarOk: boolean;
+    vilkarOppfylt: boolean;
+    sendForesporsel: boolean;
+    godkjentDager: number;
+    bhBegrunnelseHtml: string;
+  }
+  const dk = draftKey('svar-frist', sakId);
+  const draft = loadDraft<FristResponseDraft>(dk);
+  let draftReady = $state(false);
+
   // --- Form state (initialized from domain defaults) ---
   const initialDefaults = getDefaults({
     krevdDager: domainConfig.krevdDager,
@@ -84,23 +100,45 @@
   });
 
   // Port 1: Foreløpig varsel + Fremsatt krav
-  let fristVarselOk = $state<boolean>(initialDefaults.fristVarselOk);
-  let spesifisertKravOk = $state<boolean>(initialDefaults.spesifisertKravOk);
-  let foresporselSvarOk = $state<boolean>(initialDefaults.foresporselSvarOk);
+  let fristVarselOk = $state<boolean>(draft?.fristVarselOk ?? initialDefaults.fristVarselOk);
+  let spesifisertKravOk = $state<boolean>(
+    draft?.spesifisertKravOk ?? initialDefaults.spesifisertKravOk
+  );
+  let foresporselSvarOk = $state<boolean>(
+    draft?.foresporselSvarOk ?? initialDefaults.foresporselSvarOk
+  );
 
   // Port 2: Årsakssammenheng
-  let vilkarOppfylt = $state<boolean>(initialDefaults.vilkarOppfylt);
+  let vilkarOppfylt = $state<boolean>(draft?.vilkarOppfylt ?? initialDefaults.vilkarOppfylt);
 
   // Port 3: Utmåling
-  let sendForesporsel = $state<boolean>(initialDefaults.sendForesporsel);
-  let godkjentDager = $state<number>(initialDefaults.godkjentDager);
+  let sendForesporsel = $state<boolean>(draft?.sendForesporsel ?? initialDefaults.sendForesporsel);
+  let godkjentDager = $state<number>(draft?.godkjentDager ?? initialDefaults.godkjentDager);
 
   // Begrunnelse
-  let bhBegrunnelseHtml = $state(forrigeBegrunnelseHtml ?? '');
+  let bhBegrunnelseHtml = $state(draft?.bhBegrunnelseHtml ?? forrigeBegrunnelseHtml ?? '');
 
   // Submission
   let submitting = $state(false);
   let submitError = $state<string | null>(null);
+
+  onMount(() => {
+    draftReady = true;
+  });
+
+  // Auto-save draft
+  $effect(() => {
+    if (!draftReady) return;
+    saveDraft(dk, {
+      fristVarselOk,
+      spesifisertKravOk,
+      foresporselSvarOk,
+      vilkarOppfylt,
+      sendForesporsel,
+      godkjentDager,
+      bhBegrunnelseHtml,
+    });
+  });
 
   // --- Domain computations ---
   const formState: FristFormState = $derived({
@@ -162,6 +200,7 @@
       const eventType = isUpdateMode ? 'respons_frist_oppdatert' : 'respons_frist';
 
       await submitEvent(sakId, eventType as EventType, data);
+      clearDraft(dk);
       await queryClient.invalidateQueries({ queryKey: ['case-context', sakId] });
       goto(`/${prosjektId}/${sakId}`);
     } catch (err) {

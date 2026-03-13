@@ -1,5 +1,6 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
+  import { onMount } from 'svelte';
   import {
     beregnAlt,
     buildEventData,
@@ -15,6 +16,7 @@
   } from '$lib/domain/vederlagDomain';
   import type { VederlagsMetode, EventType } from '$lib/types/timeline';
   import { submitEvent } from '$lib/api/events';
+  import { draftKey, loadDraft, saveDraft, clearDraft } from '$lib/utils/draft';
   import { useQueryClient } from '@tanstack/svelte-query';
   import { isHtmlEmpty, formatCurrency } from '$lib/utils/formatters';
   import {
@@ -77,6 +79,25 @@
 
   const queryClient = useQueryClient();
 
+  // --- Draft ---
+  interface VederlagResponseDraft {
+    hovedkravVarsletITide: boolean;
+    riggVarsletITide: boolean;
+    produktivitetVarsletITide: boolean;
+    akseptererMetode: boolean;
+    oensketMetode?: VederlagsMetode;
+    hovedkravVurdering: BelopVurdering;
+    hovedkravGodkjentBelop?: number;
+    riggVurdering?: BelopVurdering;
+    riggGodkjentBelop?: number;
+    produktivitetVurdering?: BelopVurdering;
+    produktivitetGodkjentBelop?: number;
+    bhBegrunnelseHtml: string;
+  }
+  const dk = draftKey('svar-vederlag', sakId);
+  const draft = loadDraft<VederlagResponseDraft>(dk);
+  let draftReady = $state(false);
+
   // --- Form state ---
   const defaults = $derived(
     getDefaults({
@@ -86,31 +107,37 @@
   );
 
   // Port 1: Preklusjon
-  let hovedkravVarsletITide = $state<boolean>(true);
-  let riggVarsletITide = $state<boolean>(true);
-  let produktivitetVarsletITide = $state<boolean>(true);
+  let hovedkravVarsletITide = $state<boolean>(draft?.hovedkravVarsletITide ?? true);
+  let riggVarsletITide = $state<boolean>(draft?.riggVarsletITide ?? true);
+  let produktivitetVarsletITide = $state<boolean>(draft?.produktivitetVarsletITide ?? true);
 
   // Port 2: Metode
-  let akseptererMetode = $state<boolean>(true);
-  let oensketMetode = $state<VederlagsMetode | undefined>(undefined);
+  let akseptererMetode = $state<boolean>(draft?.akseptererMetode ?? true);
+  let oensketMetode = $state<VederlagsMetode | undefined>(draft?.oensketMetode ?? undefined);
 
   // Port 3: Beløp
-  let hovedkravVurdering = $state<BelopVurdering>('godkjent');
-  let hovedkravGodkjentBelop = $state<number | undefined>(undefined);
-  let riggVurdering = $state<BelopVurdering | undefined>(undefined);
-  let riggGodkjentBelop = $state<number | undefined>(undefined);
-  let produktivitetVurdering = $state<BelopVurdering | undefined>(undefined);
-  let produktivitetGodkjentBelop = $state<number | undefined>(undefined);
+  let hovedkravVurdering = $state<BelopVurdering>(draft?.hovedkravVurdering ?? 'godkjent');
+  let hovedkravGodkjentBelop = $state<number | undefined>(
+    draft?.hovedkravGodkjentBelop ?? undefined
+  );
+  let riggVurdering = $state<BelopVurdering | undefined>(draft?.riggVurdering ?? undefined);
+  let riggGodkjentBelop = $state<number | undefined>(draft?.riggGodkjentBelop ?? undefined);
+  let produktivitetVurdering = $state<BelopVurdering | undefined>(
+    draft?.produktivitetVurdering ?? undefined
+  );
+  let produktivitetGodkjentBelop = $state<number | undefined>(
+    draft?.produktivitetGodkjentBelop ?? undefined
+  );
 
   // Port 4: Begrunnelse
-  let bhBegrunnelseHtml = $state('');
+  let bhBegrunnelseHtml = $state(draft?.bhBegrunnelseHtml ?? '');
 
   // Submission
   let submitting = $state(false);
   let submitError = $state<string | null>(null);
-  let hasInitialized = $state(false);
+  let hasInitialized = $state(!!draft);
 
-  // Pre-fill in update mode
+  // Pre-fill in update mode (skipped if draft loaded)
   $effect(() => {
     if (defaults && !hasInitialized) {
       hovedkravVarsletITide = defaults.hovedkravVarsletITide;
@@ -126,7 +153,31 @@
       produktivitetGodkjentBelop = defaults.produktivitetGodkjentBelop;
       if (forrigeBegrunnelseHtml) bhBegrunnelseHtml = forrigeBegrunnelseHtml;
       hasInitialized = true;
+      draftReady = true;
     }
+  });
+
+  onMount(() => {
+    draftReady = true;
+  });
+
+  // Auto-save draft
+  $effect(() => {
+    if (!draftReady) return;
+    saveDraft(dk, {
+      hovedkravVarsletITide,
+      riggVarsletITide,
+      produktivitetVarsletITide,
+      akseptererMetode,
+      oensketMetode,
+      hovedkravVurdering,
+      hovedkravGodkjentBelop,
+      riggVurdering,
+      riggGodkjentBelop,
+      produktivitetVurdering,
+      produktivitetGodkjentBelop,
+      bhBegrunnelseHtml,
+    });
   });
 
   // --- Domain computations ---
@@ -239,6 +290,7 @@
       );
 
       await submitEvent(sakId, eventType as EventType, data);
+      clearDraft(dk);
       await queryClient.invalidateQueries({ queryKey: ['case-context', sakId] });
       goto(`/${prosjektId}/${sakId}`);
     } catch (err) {
