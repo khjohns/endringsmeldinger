@@ -34,9 +34,9 @@ export type SporStatus =
 // ========== VEDERLAG ENUMS ==========
 
 export type VederlagsMetode =
-  | 'ENHETSPRISER'      // Enhetspriser (§34.3) - kontrakts- eller justerte
-  | 'REGNINGSARBEID'    // Regningsarbeid med kostnadsoverslag (§30.2/§34.4)
-  | 'FASTPRIS_TILBUD';  // Fastpris / Tilbud (§34.2.1)
+  | 'ENHETSPRISER' // Enhetspriser (§34.3) - kontrakts- eller justerte
+  | 'REGNINGSARBEID' // Regningsarbeid med kostnadsoverslag (§30.2/§34.4)
+  | 'FASTPRIS_TILBUD'; // Fastpris / Tilbud (§34.2.1)
 
 /**
  * Felles base-modell for vederlagskompensasjon.
@@ -53,59 +53,59 @@ export type VederlagsMetode =
  */
 export interface VederlagKompensasjon {
   metode: VederlagsMetode;
-  belop_direkte?: number;      // For ENHETSPRISER/FASTPRIS_TILBUD
-  kostnads_overslag?: number;  // For REGNINGSARBEID (§30.2)
-  fradrag_belop?: number;      // Fradrag (§34.4)
-  er_estimat?: boolean;        // Om beløpet er et estimat
+  belop_direkte?: number; // For ENHETSPRISER/FASTPRIS_TILBUD
+  kostnads_overslag?: number; // For REGNINGSARBEID (§30.2)
+  fradrag_belop?: number; // Fradrag (§34.4)
+  er_estimat?: boolean; // Om beløpet er et estimat
   // Computed (fra backend)
-  netto_belop?: number;        // brutto - fradrag
-  krevd_belop?: number;        // alias for netto_belop
+  netto_belop?: number; // brutto - fradrag
+  krevd_belop?: number; // alias for netto_belop
 }
 
 // Vederlag beregning results - forenklet til tre hovedkategorier
 // Årsaken til avslag fanges av `subsidiaer_triggers`
 // NB: 'avventer' er fjernet - BH må enten avslå eller delvis godkjenne med forklaring
 export type VederlagBeregningResultat =
-  | 'godkjent'              // BH aksepterer kravet (sum og metode)
-  | 'delvis_godkjent'       // BH aksepterer deler (uenighet om beløp/metode)
-  | 'avslatt'               // BH avviser kravet
-  | 'hold_tilbake';         // §30.2 tilbakeholdelse (kun ved manglende overslag)
+  | 'godkjent' // BH aksepterer kravet (sum og metode)
+  | 'delvis_godkjent' // BH aksepterer deler (uenighet om beløp/metode)
+  | 'avslatt' // BH avviser kravet
+  | 'hold_tilbake'; // §30.2 tilbakeholdelse (kun ved manglende overslag)
 
 // ========== FRIST ENUMS ==========
 
 export type FristVarselType =
-  | 'varsel'             // §33.4 - Varsel om fristforlengelse (uten dager)
-  | 'spesifisert'        // §33.6 - Spesifisert krav (med dager)
+  | 'varsel' // §33.4 - Varsel om fristforlengelse (uten dager)
+  | 'spesifisert' // §33.6 - Spesifisert krav (med dager)
   | 'begrunnelse_utsatt'; // §33.6.2 b - Begrunnelse for hvorfor beregning ikke er mulig
 
 // Frist beregning results - forenklet til tre hovedkategorier
 // Årsaken til avslag fanges av `subsidiaer_triggers`
 // NB: 'avventer' er fjernet - BH må enten avslå eller delvis godkjenne med forklaring
 export type FristBeregningResultat =
-  | 'godkjent'              // BH aksepterer kravet (enighet om antall dager)
-  | 'delvis_godkjent'       // BH aksepterer deler (uenighet om antall dager)
-  | 'avslatt';              // BH avviser kravet
+  | 'godkjent' // BH aksepterer kravet (enighet om antall dager)
+  | 'delvis_godkjent' // BH aksepterer deler (uenighet om antall dager)
+  | 'avslatt'; // BH avviser kravet
 
 // Grunnlag response result (BH's vurdering av kontraktsforholdet)
 // Med ett kontraktsforhold per sak er det binært: godkjent eller avslått
 export type GrunnlagResponsResultat =
   | 'godkjent'
-  | 'avslatt'          // BH avslår kontraktsforholdet
-  | 'frafalt';         // §32.3 c - BH frafaller pålegget (kun irregulær endring)
+  | 'avslatt' // BH avslår kontraktsforholdet
+  | 'frafalt'; // §32.3 c - BH frafaller pålegget (kun irregulær endring)
 
 // Årsaker til at subsidiær vurdering er relevant (NS 8407)
 export type SubsidiaerTrigger =
-  | 'grunnlag_avslatt'         // Nivå 0: BH avslo kontraktsforholdet
+  | 'grunnlag_avslatt' // Nivå 0: BH avslo kontraktsforholdet
   | 'grunnlag_prekludert_32_2' // Nivå 0: Grunnlag varslet for sent (§32.2) - kun ENDRING
-  | 'forseringsrett_avslatt'   // Nivå 0: TE har ikke forseringsrett (§33.8)
-  | 'preklusjon_hovedkrav'     // Nivå 1: Hovedkrav varslet for sent (§34.1.2) - kun SVIKT/ANDRE
-  | 'preklusjon_rigg'          // Nivå 1: Rigg/drift varslet for sent (§34.1.3)
+  | 'forseringsrett_avslatt' // Nivå 0: TE har ikke forseringsrett (§33.8)
+  | 'preklusjon_hovedkrav' // Nivå 1: Hovedkrav varslet for sent (§34.1.2) - kun SVIKT/ANDRE
+  | 'preklusjon_rigg' // Nivå 1: Rigg/drift varslet for sent (§34.1.3)
   | 'preklusjon_produktivitet' // Nivå 1: Produktivitet varslet for sent (§34.1.3)
-  | 'reduksjon_ep_justering'   // Nivå 1: EP-justering varslet for sent (§34.3.3) - begrenset til det BH "måtte forstå"
-  | 'preklusjon_varsel'        // Nivå 1: Varsel om fristforlengelse for sent (§33.4)
-  | 'reduksjon_spesifisert'    // Nivå 1: Spesifisert krav for sent (§33.6) - begrenset til det BH "måtte forstå"
-  | 'ingen_hindring'           // Nivå 2: Ingen reell fremdriftshindring (§33.5)
-  | 'metode_avslatt';          // Nivå 2: BH aksepterer ikke foreslått metode
+  | 'reduksjon_ep_justering' // Nivå 1: EP-justering varslet for sent (§34.3.3) - begrenset til det BH "måtte forstå"
+  | 'preklusjon_varsel' // Nivå 1: Varsel om fristforlengelse for sent (§33.4)
+  | 'reduksjon_spesifisert' // Nivå 1: Spesifisert krav for sent (§33.6) - begrenset til det BH "måtte forstå"
+  | 'ingen_hindring' // Nivå 2: Ingen reell fremdriftshindring (§33.5)
+  | 'metode_avslatt'; // Nivå 2: BH aksepterer ikke foreslått metode
 
 export type OverordnetStatus =
   | 'UTKAST'
@@ -138,15 +138,15 @@ export interface SakRelasjon {
   relatert_sak_id: string;
   relatert_sak_tittel?: string;
   // Fra Catenda API response:
-  bimsync_issue_board_ref?: string;  // Topic board ID for cross-board relasjoner
-  bimsync_issue_number?: number;     // Lesbart saksnummer i Catenda
+  bimsync_issue_board_ref?: string; // Topic board ID for cross-board relasjoner
+  bimsync_issue_number?: number; // Lesbart saksnummer i Catenda
 }
 
 // ========== TRACK STATES (Read-Only) ==========
 
 export interface GrunnlagTilstand {
   status: SporStatus;
-  tittel?: string;                   // Kort beskrivende tittel for varselet
+  tittel?: string; // Kort beskrivende tittel for varselet
   hovedkategori?: string;
   underkategori?: string | string[]; // Support both single and multiple underkategorier
   beskrivelse?: string;
@@ -186,22 +186,22 @@ export interface VederlagTilstand {
 
   // TE's krav - hovedbeløp (følger VederlagKompensasjon struktur)
   metode?: VederlagsMetode;
-  belop_direkte?: number;        // For ENHETSPRISER/FASTPRIS_TILBUD
-  kostnads_overslag?: number;    // For REGNINGSARBEID (§30.2)
-  fradrag_belop?: number;        // Fradrag (§34.4) - reduksjon for besparelser
-  er_estimat?: boolean;          // Om beløpet er et estimat
-  krever_justert_ep?: boolean;   // For ENHETSPRISER - krever justerte EP
+  belop_direkte?: number; // For ENHETSPRISER/FASTPRIS_TILBUD
+  kostnads_overslag?: number; // For REGNINGSARBEID (§30.2)
+  fradrag_belop?: number; // Fradrag (§34.4) - reduksjon for besparelser
+  er_estimat?: boolean; // Om beløpet er et estimat
+  krever_justert_ep?: boolean; // For ENHETSPRISER - krever justerte EP
   begrunnelse?: string;
 
   // Computed beløp (fra backend)
-  netto_belop?: number;          // brutto - fradrag
-  krevd_belop?: number;          // alias for netto_belop
+  netto_belop?: number; // brutto - fradrag
+  krevd_belop?: number; // alias for netto_belop
 
   // Særskilte krav (§34.1.3) - separate frister per kostnadstype
   // Per standarden: TE kan bli klar over rigg/drift og produktivitetstap på ulike tidspunkt
   saerskilt_krav?: {
-    rigg_drift?: SaerskiltKravItem;      // §34.1.3 første ledd
-    produktivitet?: SaerskiltKravItem;   // §34.1.3 annet ledd
+    rigg_drift?: SaerskiltKravItem; // §34.1.3 første ledd
+    produktivitet?: SaerskiltKravItem; // §34.1.3 annet ledd
   };
 
   // TE's varselinfo (Port 1) - Using VarselInfo structure
@@ -322,7 +322,7 @@ export interface FristTilstand {
  */
 export interface ForseringVederlag {
   // Metode (§34.4 - typisk regningsarbeid for forsering)
-  metode: string;  // Default "REGNINGSARBEID"
+  metode: string; // Default "REGNINGSARBEID"
 
   // Særskilte krav (§34.1.3)
   saerskilt_krav?: {
@@ -393,7 +393,7 @@ export interface ForseringBHRespons {
  */
 export interface ForseringData {
   // Referanser til opprinnelige saker
-  avslatte_fristkrav: string[];  // SAK-IDs til avslåtte fristforlengelser
+  avslatte_fristkrav: string[]; // SAK-IDs til avslåtte fristforlengelser
 
   // Varsling
   dato_varslet: string;
@@ -402,9 +402,9 @@ export interface ForseringData {
   begrunnelse?: string;
 
   // Kalkulasjonsgrunnlag
-  avslatte_dager: number;           // Sum av avslåtte dager
-  dagmulktsats: number;             // NOK per dag
-  maks_forseringskostnad: number;   // Beregnet: avslatte_dager * dagmulktsats * 1.3
+  avslatte_dager: number; // Sum av avslåtte dager
+  dagmulktsats: number; // NOK per dag
+  maks_forseringskostnad: number; // Beregnet: avslatte_dager * dagmulktsats * 1.3
 
   // Status
   er_iverksatt: boolean;
@@ -437,22 +437,22 @@ export interface ForseringData {
  * UTKAST → UTSTEDT → AKSEPTERT/BESTRIDT → (evt. REVIDERT → AKSEPTERT)
  */
 export type EOStatus =
-  | 'utkast'       // BH forbereder EO
-  | 'utstedt'      // BH har utstedt EO
-  | 'akseptert'    // TE har akseptert EO
-  | 'bestridt'     // TE har bestridt EO (fremmer nytt KOE)
-  | 'revidert';    // BH har revidert EO etter bestridelse
+  | 'utkast' // BH forbereder EO
+  | 'utstedt' // BH har utstedt EO
+  | 'akseptert' // TE har akseptert EO
+  | 'bestridt' // TE har bestridt EO (fremmer nytt KOE)
+  | 'revidert'; // BH har revidert EO etter bestridelse
 
 /**
  * Konsekvenser av endringen (fra Endringsordre-malen).
  * Checkboxes som angir hvilke områder som påvirkes.
  */
 export interface EOKonsekvenser {
-  sha: boolean;        // SHA-konsekvenser (Sikkerhet, Helse, Arbeidsmiljø)
-  kvalitet: boolean;   // Kvalitetskonsekvenser
-  fremdrift: boolean;  // Fremdriftskonsekvenser (fristforlengelse)
-  pris: boolean;       // Priskonsekvenser (vederlag)
-  annet: boolean;      // Andre konsekvenser
+  sha: boolean; // SHA-konsekvenser (Sikkerhet, Helse, Arbeidsmiljø)
+  kvalitet: boolean; // Kvalitetskonsekvenser
+  fremdrift: boolean; // Fremdriftskonsekvenser (fristforlengelse)
+  pris: boolean; // Priskonsekvenser (vederlag)
+  annet: boolean; // Andre konsekvenser
   // Computed (fra backend)
   har_konsekvenser?: boolean;
 }
@@ -512,7 +512,7 @@ export interface EOUtstedtData {
  */
 export interface EndringsordreData {
   // Referanser til KOE-saker som inngår i denne EO-en
-  relaterte_koe_saker: string[];  // SAK-IDs til KOE-er
+  relaterte_koe_saker: string[]; // SAK-IDs til KOE-er
 
   // Identifikasjon
   eo_nummer: string;
@@ -528,8 +528,8 @@ export interface EndringsordreData {
 
   // Vederlag/oppgjør
   oppgjorsform?: VederlagsMetode;
-  kompensasjon_belop?: number;   // Tillegg
-  fradrag_belop?: number;        // Fratrekk
+  kompensasjon_belop?: number; // Tillegg
+  fradrag_belop?: number; // Fratrekk
   er_estimat: boolean;
 
   // Fristkonsekvens
@@ -564,10 +564,10 @@ export interface SakState {
   byggherre?: string;
 
   // Sakstype og relasjoner (ny relasjonell modell for forsering/endringsordre)
-  sakstype?: SaksType;  // Default: 'standard'
-  relaterte_saker?: SakRelasjon[];  // Kun for sakstype='forsering' eller 'endringsordre'
-  forsering_data?: ForseringData;  // Kun for sakstype='forsering'
-  endringsordre_data?: EndringsordreData;  // Kun for sakstype='endringsordre'
+  sakstype?: SaksType; // Default: 'standard'
+  relaterte_saker?: SakRelasjon[]; // Kun for sakstype='forsering' eller 'endringsordre'
+  forsering_data?: ForseringData; // Kun for sakstype='forsering'
+  endringsordre_data?: EndringsordreData; // Kun for sakstype='endringsordre'
 
   // The three tracks (kun relevant for sakstype='standard')
   grunnlag: GrunnlagTilstand;
@@ -599,7 +599,7 @@ export interface SakState {
   antall_events: number;
 
   // Tidsrisiko (optional, for sidebar display)
-  dagmulktsats?: number;          // NOK per dag
+  dagmulktsats?: number; // NOK per dag
 }
 
 // ========== EVENT PAYLOADS (for submission) ==========
@@ -614,30 +614,30 @@ export type EventType =
   | 'vederlag_krav_trukket'
   | 'frist_krav_sendt'
   | 'frist_krav_oppdatert'
-  | 'frist_krav_spesifisert'     // TE specifies days for neutral notice (§33.6.1/§33.6.2)
+  | 'frist_krav_spesifisert' // TE specifies days for neutral notice (§33.6.1/§33.6.2)
   | 'frist_krav_trukket'
   | 'respons_grunnlag'
-  | 'respons_grunnlag_oppdatert'   // BH's "snuoperasjon" - endrer standpunkt
+  | 'respons_grunnlag_oppdatert' // BH's "snuoperasjon" - endrer standpunkt
   | 'respons_vederlag'
-  | 'respons_vederlag_oppdatert'   // BH opphever tilbakeholdelse eller endrer standpunkt
+  | 'respons_vederlag_oppdatert' // BH opphever tilbakeholdelse eller endrer standpunkt
   | 'respons_frist'
-  | 'respons_frist_oppdatert'      // BH endrer standpunkt, evt stopper forsering
-  | 'forsering_varsel'             // §33.8 - TE varsler om iverksettelse av forsering
-  | 'forsering_stoppet'            // TE stopper forsering (eller BH godkjenner frist)
-  | 'forsering_respons'            // BH aksepterer/avslår forseringen
+  | 'respons_frist_oppdatert' // BH endrer standpunkt, evt stopper forsering
+  | 'forsering_varsel' // §33.8 - TE varsler om iverksettelse av forsering
+  | 'forsering_stoppet' // TE stopper forsering (eller BH godkjenner frist)
+  | 'forsering_respons' // BH aksepterer/avslår forseringen
   | 'forsering_kostnader_oppdatert' // TE oppdaterer påløpte kostnader
-  | 'forsering_koe_lagt_til'       // KOE lagt til forseringssak
-  | 'forsering_koe_fjernet'        // KOE fjernet fra forseringssak
+  | 'forsering_koe_lagt_til' // KOE lagt til forseringssak
+  | 'forsering_koe_fjernet' // KOE fjernet fra forseringssak
   // Endringsordre-events (§31.3)
-  | 'eo_opprettet'                 // EO-sak opprettet (av BH)
-  | 'eo_koe_lagt_til'              // KOE lagt til EO
-  | 'eo_koe_fjernet'               // KOE fjernet fra EO
-  | 'eo_utstedt'                   // BH utsteder EO formelt
-  | 'eo_akseptert'                 // TE aksepterer EO
-  | 'eo_bestridt'                  // TE bestrider EO
-  | 'eo_revidert'                  // BH reviderer EO
-  | 'te_aksepterer_respons'        // TE aksepterer BHs svar (per spor)
-  | 'internt_notat';               // Intern notat (kun synlig for egen organisasjon)
+  | 'eo_opprettet' // EO-sak opprettet (av BH)
+  | 'eo_koe_lagt_til' // KOE lagt til EO
+  | 'eo_koe_fjernet' // KOE fjernet fra EO
+  | 'eo_utstedt' // BH utsteder EO formelt
+  | 'eo_akseptert' // TE aksepterer EO
+  | 'eo_bestridt' // TE bestrider EO
+  | 'eo_revidert' // BH reviderer EO
+  | 'te_aksepterer_respons' // TE aksepterer BHs svar (per spor)
+  | 'internt_notat'; // Intern notat (kun synlig for egen organisasjon)
 
 // Varsel info structure (reusable)
 export interface VarselInfo {
@@ -648,16 +648,16 @@ export interface VarselInfo {
 // Særskilt krav item (§34.1.3) - separate beløp og datoer per type
 export interface SaerskiltKravItem {
   belop?: number;
-  dato_klar_over?: string;  // Når TE ble klar over at utgifter ville påløpe
+  dato_klar_over?: string; // Når TE ble klar over at utgifter ville påløpe
 }
 
 export interface GrunnlagEventData {
-  tittel: string;                    // Kort beskrivende tittel for varselet
-  hovedkategori: string;             // Code from HOVEDKATEGORI_OPTIONS (e.g., "ENDRING")
-  underkategori: string | string[];  // Code(s) from UNDERKATEGORI_MAP
+  tittel: string; // Kort beskrivende tittel for varselet
+  hovedkategori: string; // Code from HOVEDKATEGORI_OPTIONS (e.g., "ENDRING")
+  underkategori: string | string[]; // Code(s) from UNDERKATEGORI_MAP
   beskrivelse: string;
   dato_oppdaget: string;
-  grunnlag_varsel?: VarselInfo;      // Structured varsel info
+  grunnlag_varsel?: VarselInfo; // Structured varsel info
   vedlegg_ids?: string[];
 }
 
@@ -667,16 +667,16 @@ export interface VederlagEventData {
   vedlegg_ids?: string[];
 
   // Beløp - avhenger av metode
-  belop_direkte?: number;        // For ENHETSPRISER/FASTPRIS_TILBUD (kan være negativt = fradrag)
-  kostnads_overslag?: number;    // For REGNINGSARBEID (§30.2)
+  belop_direkte?: number; // For ENHETSPRISER/FASTPRIS_TILBUD (kan være negativt = fradrag)
+  kostnads_overslag?: number; // For REGNINGSARBEID (§30.2)
 
   // For ENHETSPRISER
   krever_justert_ep?: boolean;
 
   // Særskilte krav (§34.1.3) - separate frister per kostnadstype
   saerskilt_krav?: {
-    rigg_drift?: SaerskiltKravItem;      // §34.1.3 første ledd
-    produktivitet?: SaerskiltKravItem;   // §34.1.3 annet ledd
+    rigg_drift?: SaerskiltKravItem; // §34.1.3 første ledd
+    produktivitet?: SaerskiltKravItem; // §34.1.3 annet ledd
   };
 
   // Varsler (VarselInfo structure)
@@ -730,7 +730,7 @@ export interface ResponsVederlagEventData {
   oensket_metode?: VederlagsMetode;
   ep_justering_akseptert?: boolean;
   hold_tilbake?: boolean;
-  vederlagsmetode?: VederlagsMetode;  // BH's valgte metode (legacy)
+  vederlagsmetode?: VederlagsMetode; // BH's valgte metode (legacy)
 
   // Port 3: Beløpsvurdering - Hovedkrav
   hovedkrav_vurdering?: BelopVurdering;
@@ -746,7 +746,7 @@ export interface ResponsVederlagEventData {
   beregnings_resultat: VederlagBeregningResultat;
   total_godkjent_belop?: number;
   total_krevd_belop?: number;
-  begrunnelse?: string;  // Samlet begrunnelse
+  begrunnelse?: string; // Samlet begrunnelse
   frist_for_spesifikasjon?: string;
 
   // Subsidiært standpunkt (når BH tar prinsipalt avslag men subsidiært godkjenner)
@@ -827,8 +827,8 @@ export interface ResponsGrunnlagOppdatertEventData {
 // Vederlag update event (TE revises claim amount)
 export interface VederlagOppdatertEventData {
   original_event_id: string;
-  nytt_belop_direkte?: number;      // For ENHETSPRISER/FASTPRIS_TILBUD
-  nytt_kostnads_overslag?: number;  // For REGNINGSARBEID (§30.2)
+  nytt_belop_direkte?: number; // For ENHETSPRISER/FASTPRIS_TILBUD
+  nytt_kostnads_overslag?: number; // For REGNINGSARBEID (§30.2)
   begrunnelse: string;
   dato_revidert: string;
 }
@@ -897,15 +897,15 @@ export interface ResponsFristOppdatertEventData {
 
 // Forsering varsel event (§33.8 - TE varsler om forsering)
 export interface ForseringVarselEventData {
-  frist_krav_id: string;  // Reference to the rejected frist claim
-  respons_frist_id: string;  // Reference to BH's frist response that triggered this
+  frist_krav_id: string; // Reference to the rejected frist claim
+  respons_frist_id: string; // Reference to BH's frist response that triggered this
   estimert_kostnad: number;
   begrunnelse: string;
-  bekreft_30_prosent: boolean;  // TE confirms cost < dagmulkt + 30%
+  bekreft_30_prosent: boolean; // TE confirms cost < dagmulkt + 30%
   dato_iverksettelse: string;
-  avslatte_dager: number;  // Number of days rejected by BH
-  dagmulktsats: number;  // Daily liquidated damages rate in NOK
-  grunnlag_avslag_trigger: boolean;  // True if triggered by grunnlag rejection
+  avslatte_dager: number; // Number of days rejected by BH
+  dagmulktsats: number; // Daily liquidated damages rate in NOK
+  grunnlag_avslag_trigger: boolean; // True if triggered by grunnlag rejection
 }
 
 // ========== TIMELINE DISPLAY ==========
@@ -939,22 +939,22 @@ export interface CloudEvent<T = EventData> {
   // Required attributes
   specversion: '1.0';
   id: string;
-  source: string;  // /projects/{prosjekt_id}/cases/{sak_id}
-  type: string;    // no.oslo.koe.{event_type}
+  source: string; // /projects/{prosjekt_id}/cases/{sak_id}
+  type: string; // no.oslo.koe.{event_type}
 
   // Optional attributes
-  time?: string;   // ISO 8601 with Z suffix
-  subject?: string;  // sak_id
+  time?: string; // ISO 8601 with Z suffix
+  subject?: string; // sak_id
   datacontenttype?: 'application/json';
   dataschema?: string;
 
   // Extension attributes (KOE-specific)
-  actor?: string;           // Hvem som utførte handlingen
-  actorrole?: 'TE' | 'BH';  // Rolle
-  comment?: string;         // Valgfri kommentar
-  referstoid?: string;      // Referanse til annen event
-  summary?: string;         // Human-readable summary
-  spor?: SporType | null;   // Track/category (grunnlag, vederlag, frist)
+  actor?: string; // Hvem som utførte handlingen
+  actorrole?: 'TE' | 'BH'; // Rolle
+  comment?: string; // Valgfri kommentar
+  referstoid?: string; // Referanse til annen event
+  summary?: string; // Human-readable summary
+  spor?: SporType | null; // Track/category (grunnlag, vederlag, frist)
 
   // Payload
   data?: T;
@@ -972,7 +972,7 @@ export const CLOUDEVENTS_NAMESPACE = 'no.oslo.koe';
  * extractEventType('no.oslo.koe.grunnlag_opprettet') // 'grunnlag_opprettet'
  */
 export function extractEventType(ceType: string): EventType | null {
-  if (!ceType) return null;  // Defensive check for undefined/null
+  if (!ceType) return null; // Defensive check for undefined/null
   const prefix = `${CLOUDEVENTS_NAMESPACE}.`;
   if (ceType.startsWith(prefix)) {
     return ceType.substring(prefix.length) as EventType;
@@ -1009,12 +1009,12 @@ export interface TimelineEntry {
   event_id: string;
   tidsstempel: string;
   type: string;
-  event_type?: EventType;  // Machine-readable event type
+  event_type?: EventType; // Machine-readable event type
   aktor: string;
   rolle: 'TE' | 'BH';
   spor: SporType | null;
   sammendrag: string;
-  event_data?: EventData;  // Full submitted form data
+  event_data?: EventData; // Full submitted form data
 }
 
 // ============================================================

@@ -7,8 +7,7 @@
 
 import type { CaseListItem, CaseListResponse } from '$lib/types/api';
 
-const dato = (dagerSiden: number) =>
-  new Date(Date.now() - dagerSiden * 86400000).toISOString();
+const dato = (dagerSiden: number) => new Date(Date.now() - dagerSiden * 86400000).toISOString();
 
 export const mockCaseList: CaseListResponse = {
   cases: [

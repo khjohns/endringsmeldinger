@@ -75,13 +75,18 @@ export function getDefaults(config: GrunnlagDefaultsConfig): GrunnlagFormState {
 // CATEGORY CHECKS
 // ============================================================================
 
-export function erEndringMed32_2(event?: { hovedkategori?: string; underkategori?: string }): boolean {
+export function erEndringMed32_2(event?: {
+  hovedkategori?: string;
+  underkategori?: string;
+}): boolean {
   return event?.hovedkategori === 'ENDRING' && event?.underkategori !== 'EO';
 }
 
 export function erPaalegg(event?: { hovedkategori?: string; underkategori?: string }): boolean {
-  return event?.hovedkategori === 'ENDRING' &&
-    (event?.underkategori === 'IRREG' || event?.underkategori === 'VALGRETT');
+  return (
+    event?.hovedkategori === 'ENDRING' &&
+    (event?.underkategori === 'IRREG' || event?.underkategori === 'VALGRETT')
+  );
 }
 
 export function erForceMajeure(event?: { hovedkategori?: string }): boolean {
@@ -94,7 +99,7 @@ export function erForceMajeure(event?: { hovedkategori?: string }): boolean {
 
 export function erPrekludert(
   state: Pick<GrunnlagFormState, 'varsletITide'>,
-  config: GrunnlagDomainConfig,
+  config: GrunnlagDomainConfig
 ): boolean {
   return erEndringMed32_2(config.grunnlagEvent) && state.varsletITide === false;
 }
@@ -103,9 +108,11 @@ export function erPrekludert(
 // PASSIVITY (§32.3)
 // ============================================================================
 
-export function beregnPassivitet(
-  event?: { hovedkategori?: string; underkategori?: string; dato_varslet?: string },
-): { erPassiv: boolean; dagerSidenVarsel: number } {
+export function beregnPassivitet(event?: {
+  hovedkategori?: string;
+  underkategori?: string;
+  dato_varslet?: string;
+}): { erPassiv: boolean; dagerSidenVarsel: number } {
   const dagerSidenVarsel = event?.dato_varslet
     ? differenceInDays(new Date(), new Date(event.dato_varslet))
     : 0;
@@ -121,7 +128,7 @@ export function beregnPassivitet(
 
 export function erSnuoperasjon(
   state: Pick<GrunnlagFormState, 'resultat'>,
-  config: GrunnlagDomainConfig,
+  config: GrunnlagDomainConfig
 ): boolean {
   if (!config.isUpdateMode || config.forrigeResultat !== 'avslatt') return false;
   return state.resultat === 'godkjent';
@@ -133,11 +140,29 @@ export function erSnuoperasjon(
 
 export function getVerdictOptions(config: GrunnlagDomainConfig): VerdictOption[] {
   const opts: VerdictOption[] = [
-    { value: 'godkjent', label: 'Godkjent', description: 'Grunnlag anerkjent', icon: 'check', colorScheme: 'green' },
-    { value: 'avslatt', label: 'Avslått', description: 'Grunnlag avvist', icon: 'cross', colorScheme: 'red' },
+    {
+      value: 'godkjent',
+      label: 'Godkjent',
+      description: 'Grunnlag anerkjent',
+      icon: 'check',
+      colorScheme: 'green',
+    },
+    {
+      value: 'avslatt',
+      label: 'Avslått',
+      description: 'Grunnlag avvist',
+      icon: 'cross',
+      colorScheme: 'red',
+    },
   ];
   if (erPaalegg(config.grunnlagEvent)) {
-    opts.push({ value: 'frafalt', label: 'Frafalt', description: 'Pålegget frafalles', icon: 'undo', colorScheme: 'gray' });
+    opts.push({
+      value: 'frafalt',
+      label: 'Frafalt',
+      description: 'Pålegget frafalles',
+      icon: 'undo',
+      colorScheme: 'gray',
+    });
   }
   return opts;
 }
@@ -146,13 +171,12 @@ export function getVerdictOptions(config: GrunnlagDomainConfig): VerdictOption[]
 // DYNAMIC PLACEHOLDER
 // ============================================================================
 
-export function getDynamicPlaceholder(
-  resultat: string | undefined,
-  prekludert: boolean,
-): string {
+export function getDynamicPlaceholder(resultat: string | undefined, prekludert: boolean): string {
   if (!resultat) return 'Velg resultat i kortet til venstre, deretter skriv begrunnelse...';
-  if (prekludert && resultat === 'godkjent') return 'Begrunn din preklusjonsinnsigelse og din subsidiære godkjenning...';
-  if (prekludert && resultat === 'avslatt') return 'Begrunn din preklusjonsinnsigelse og ditt subsidiære avslag...';
+  if (prekludert && resultat === 'godkjent')
+    return 'Begrunn din preklusjonsinnsigelse og din subsidiære godkjenning...';
+  if (prekludert && resultat === 'avslatt')
+    return 'Begrunn din preklusjonsinnsigelse og ditt subsidiære avslag...';
   if (resultat === 'godkjent') return 'Begrunn din vurdering av kontraktsforholdet...';
   if (resultat === 'avslatt') return 'Forklar hvorfor forholdet ikke gir grunnlag for krav...';
   if (resultat === 'frafalt') return 'Begrunn hvorfor pålegget frafalles...';
@@ -168,7 +192,7 @@ export function buildEventData(
   config: GrunnlagDomainConfig & {
     grunnlagEventId: string;
     lastResponseEventId?: string;
-  },
+  }
 ): Record<string, unknown> {
   const isEndring = erEndringMed32_2(config.grunnlagEvent);
   const { dagerSidenVarsel } = beregnPassivitet(config.grunnlagEvent);
@@ -222,7 +246,12 @@ export function getBhUpdateDefaults(config: BhUpdateConfig): GrunnlagFormState {
 
 export interface EndringItem {
   felt: 'resultat' | 'varsletITide' | 'begrunnelse';
-  type: 'snuoperasjon' | 'trekker_godkjenning' | 'frafaller_innsigelse' | 'ny_innsigelse' | 'endret';
+  type:
+    | 'snuoperasjon'
+    | 'trekker_godkjenning'
+    | 'frafaller_innsigelse'
+    | 'ny_innsigelse'
+    | 'endret';
   beskrivelse: string;
 }
 
@@ -237,7 +266,7 @@ export interface EndringsInfo {
  */
 export function detekterEndringer(
   state: Pick<GrunnlagFormState, 'resultat' | 'varsletITide' | 'begrunnelse'>,
-  forrige: { resultat: GrunnlagResponsResultat; varsletITide?: boolean; begrunnelse?: string },
+  forrige: { resultat: GrunnlagResponsResultat; varsletITide?: boolean; begrunnelse?: string }
 ): EndringsInfo {
   const endringer: EndringItem[] = [];
 
