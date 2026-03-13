@@ -193,41 +193,20 @@
     if (!latestEvent) return null;
     const eventType = extractEventType(latestEvent.type);
     const icon = getEventIcon(eventType);
-    const label = latestEvent.summary ?? getEventTypeLabel(eventType);
-    const actor = latestEvent.actorrole
-      ? getPartsNavn(latestEvent.actorrole as 'TE' | 'BH', sakState.entreprenor, sakState.byggherre)
-      : null;
+    const rawLabel = latestEvent.summary ?? getEventTypeLabel(eventType);
+    const teNavn = sakState.entreprenor;
+    const bhNavn = sakState.byggherre;
+    const label = rawLabel.startsWith('TE ')
+      ? getPartsNavn('TE', teNavn, bhNavn) + ' ' + rawLabel.slice(3)
+      : rawLabel.startsWith('BH ')
+        ? getPartsNavn('BH', teNavn, bhNavn) + ' ' + rawLabel.slice(3)
+        : rawLabel;
 
     // Revisjon: antall_versjoner > 1 betyr Rev. N (N = antall_versjoner - 1)
     const versjoner = trackState.antall_versjoner;
     const revision = versjoner > 1 ? `Rev. ${versjoner - 1}` : null;
 
-    // Ekstra kontekst fra BH-respons
-    let detalj: string | null = null;
-    if (
-      sporType === 'vederlag' &&
-      sakState.vederlag.godkjent_belop !== undefined &&
-      sakState.vederlag.godkjent_belop !== null
-    ) {
-      const godkjent = sakState.vederlag.godkjent_belop;
-      const krevd = sakState.vederlag.krevd_belop ?? sakState.vederlag.netto_belop;
-      if (krevd !== undefined && krevd !== null && godkjent !== krevd) {
-        detalj = `Godkjent ${Math.round(godkjent / 1000)}k av ${Math.round(krevd / 1000)}k`;
-      }
-    }
-    if (
-      sporType === 'frist' &&
-      sakState.frist.godkjent_dager !== undefined &&
-      sakState.frist.godkjent_dager !== null
-    ) {
-      const godkjent = sakState.frist.godkjent_dager;
-      const krevd = sakState.frist.krevd_dager;
-      if (krevd !== undefined && krevd !== null) {
-        detalj = `Godkjent ${godkjent} av ${krevd} dager`;
-      }
-    }
-
-    return { icon, label, actor, revision, detalj };
+    return { icon, label, revision };
   });
 
   // Key metric: always available regardless of events
@@ -310,17 +289,9 @@
         <span class="hendelse-ikon" style="color: {hendelseKontekst.icon.color}" aria-hidden="true"
           >{hendelseKontekst.icon.symbol}</span
         >
-        <span class="hendelse-tekst">
-          {hendelseKontekst.label}
-          {#if hendelseKontekst.actor}
-            <span class="hendelse-aktor">av {hendelseKontekst.actor}</span>
-          {/if}
-        </span>
+        <span class="hendelse-tekst">{hendelseKontekst.label}</span>
         {#if hendelseKontekst.revision}
           <span class="hendelse-rev">{hendelseKontekst.revision}</span>
-        {/if}
-        {#if hendelseKontekst.detalj}
-          <span class="hendelse-detalj">{hendelseKontekst.detalj}</span>
         {/if}
       {/if}
       {#if keyMetric}

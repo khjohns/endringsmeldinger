@@ -91,7 +91,14 @@
 
   const eventType = $derived(event ? extractEventType(event.type) : null);
   const icon = $derived(getEventIcon(eventType));
-  const handling = $derived(event?.summary ?? '');
+  const handling = $derived.by(() => {
+    const summary = event?.summary ?? '';
+    if (summary.startsWith('TE '))
+      return getPartsNavn('TE', teNavn, bhNavn) + ' ' + summary.slice(3);
+    if (summary.startsWith('BH '))
+      return getPartsNavn('BH', teNavn, bhNavn) + ' ' + summary.slice(3);
+    return summary;
+  });
   const meta = $derived(
     event
       ? `${formatDate(event.time)} \u00B7 ${event.actorrole ? getPartsNavn(event.actorrole as 'TE' | 'BH', teNavn, bhNavn) : ''}`
@@ -111,9 +118,13 @@
     <div class="fv-innhold">
       <button class="fv-close" onclick={() => onClose?.()} aria-label="Lukk">&times;</button>
       <div class="fv-header">
-        <span class="fv-ikon {icon.cssClass}" aria-hidden="true">{icon.symbol}</span>
-        <span class="fv-handling">{handling}</span>
-        <span class="fv-meta">{meta}</span>
+        <div class="fv-tittel-rad">
+          <span class="fv-ikon {icon.cssClass}" aria-hidden="true">{icon.symbol}</span>
+          <span class="fv-handling">{handling}</span>
+        </div>
+        <div class="fv-meta-rad">
+          <span class="fv-meta">{meta}</span>
+        </div>
       </div>
 
       {#if description}
@@ -200,10 +211,20 @@
 
   .fv-header {
     display: flex;
-    align-items: baseline;
-    gap: 8px;
+    flex-direction: column;
+    gap: 4px;
     margin-bottom: 16px;
     padding-right: 24px;
+  }
+
+  .fv-tittel-rad {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+  }
+
+  .fv-meta-rad {
+    padding-left: 24px;
   }
 
   .fv-ikon {
@@ -249,7 +270,6 @@
     font-size: 11px;
     color: var(--color-ink-muted);
     font-variant-numeric: tabular-nums;
-    margin-left: auto;
   }
 
   .fv-separator {
