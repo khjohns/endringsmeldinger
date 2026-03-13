@@ -1,9 +1,11 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
   import { page } from '$app/state';
+  import { onMount } from 'svelte';
   import type { ValgtHjemmel } from '$lib/types/hjemmel';
   import { submitEvent } from '$lib/api/events';
   import { beregnDagerSiden, getPreklusjonsvarsel } from '$lib/utils/preklusjonssjekk';
+  import { draftKey, loadDraft, saveDraft, clearDraft } from '$lib/utils/draft';
   import HjemmelVelger from './HjemmelVelger.svelte';
   import Alert from '$lib/components/primitives/Alert.svelte';
   import DatePicker from '$lib/components/primitives/DatePicker.svelte';
@@ -27,12 +29,33 @@
 
   let { begrunnelseHtml = $bindable(''), onplaceholder, onactions }: Props = $props();
 
+  // --- Draft ---
+  interface CaseCreateDraft {
+    valgtHjemmel: ValgtHjemmel | null;
+    tittel: string;
+    datoOppdaget: string;
+    begrunnelseHtml: string;
+  }
+  const dk = draftKey('ny', page.params.prosjektId);
+  let draftReady = $state(false);
+
   // --- Form state ---
   let valgtHjemmel = $state<ValgtHjemmel | null>(null);
   let tittel = $state('');
   let datoOppdaget = $state('');
   let submitting = $state(false);
   let submitError = $state('');
+
+  onMount(() => {
+    const draft = loadDraft<CaseCreateDraft>(dk);
+    if (draft) {
+      valgtHjemmel = draft.valgtHjemmel;
+      tittel = draft.tittel ?? '';
+      datoOppdaget = draft.datoOppdaget ?? '';
+      begrunnelseHtml = draft.begrunnelseHtml ?? '';
+    }
+    draftReady = true;
+  });
 
   // --- Derived ---
   const prosjektId = $derived(page.params.prosjektId);
@@ -97,6 +120,12 @@
     });
   });
 
+  // Auto-save draft
+  $effect(() => {
+    if (!draftReady) return;
+    saveDraft(dk, { valgtHjemmel, tittel, datoOppdaget, begrunnelseHtml });
+  });
+
   async function handleSubmit() {
     if (!kanSende || !valgtHjemmel) return;
     submitting = true;
@@ -105,20 +134,26 @@
     try {
       const sakId = crypto.randomUUID();
 
-      await submitEvent(sakId, 'sak_opprettet', {
+      const sakResult = await submitEvent(sakId, 'sak_opprettet', {
         prosjekt_id: prosjektId,
         sakstype: 'standard',
-        tittel: tittel.trim(),
+        sakstittel: tittel.trim(),
       });
 
-      await submitEvent(sakId, 'grunnlag_opprettet', {
-        tittel: tittel.trim(),
-        hovedkategori: valgtHjemmel.kontraktsforhold.kode,
-        underkategori: valgtHjemmel.hjemmel?.kode ?? null,
-        dato_oppdaget: datoOppdaget,
-        begrunnelse: begrunnelseHtml.trim() || undefined,
-      });
+      await submitEvent(
+        sakId,
+        'grunnlag_opprettet',
+        {
+          tittel: tittel.trim(),
+          hovedkategori: valgtHjemmel.kontraktsforhold.kode,
+          underkategori: valgtHjemmel.hjemmel?.kode ?? null,
+          dato_oppdaget: datoOppdaget,
+          beskrivelse: begrunnelseHtml.trim() || undefined,
+        },
+        { expectedVersion: sakResult.new_version ?? 1 }
+      );
 
+      clearDraft(dk);
       await goto(`/${prosjektId}/${sakId}`);
     } catch (err) {
       submitError = err instanceof Error ? err.message : 'Kunne ikke opprette saken. Prøv igjen.';
