@@ -1,0 +1,250 @@
+<h2>Fargeretning — Lyst tema</h2>
+<p class="subtitle">Tre retninger fra subtil til uttalt varme. Klikk den som treffer riktig.</p>
+
+<style>
+  .palette-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 24px; margin: 32px 0; }
+  @media (max-width: 900px) { .palette-grid { grid-template-columns: 1fr; } }
+
+  .palette-card {
+    border: 1px solid rgba(0,0,0,0.1);
+    border-radius: 8px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: box-shadow 0.15s, transform 0.15s;
+  }
+  .palette-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.08); transform: translateY(-2px); }
+
+  .palette-header {
+    padding: 20px;
+    border-bottom: 1px solid rgba(0,0,0,0.06);
+  }
+  .palette-header h3 { margin: 0 0 4px; font-size: 16px; }
+  .palette-header .tagline { font-size: 13px; opacity: 0.6; margin: 0; }
+
+  .surface-strip {
+    display: flex;
+    height: 48px;
+  }
+  .surface-strip div { flex: 1; position: relative; }
+  .surface-strip div::after {
+    content: attr(data-name);
+    position: absolute; bottom: 4px; left: 50%; transform: translateX(-50%);
+    font-size: 8px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;
+    opacity: 0.5; white-space: nowrap;
+  }
+
+  .text-samples { padding: 16px 20px; display: flex; flex-direction: column; gap: 6px; }
+  .text-sample { display: flex; justify-content: space-between; align-items: center; }
+  .text-sample .label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+  .text-sample .ratio { font-size: 10px; font-family: monospace; opacity: 0.5; }
+  .text-sample .ratio.pass { color: #059669; opacity: 1; }
+  .text-sample .ratio.warn { color: #d97706; opacity: 1; }
+  .text-sample .ratio.fail { color: #e11d48; opacity: 1; }
+
+  .accent-strip { display: flex; height: 32px; }
+  .accent-strip div { flex: 1; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 700; letter-spacing: 0.05em; }
+
+  .mini-card {
+    margin: 16px 20px 20px;
+    border-radius: 2px;
+    padding: 12px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .mini-card .card-header { display: flex; justify-content: space-between; align-items: center; }
+  .mini-card .card-name { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.02em; }
+  .mini-card .card-badge { font-size: 9px; font-weight: 600; padding: 2px 6px; border-radius: 2px; }
+  .mini-card .card-body { font-size: 11px; line-height: 1.5; }
+  .mini-card .card-meta { font-size: 10px; display: flex; gap: 8px; }
+  .mini-card .card-divider { height: 1px; margin: 4px 0; }
+  .mini-card .card-event { font-size: 10px; display: flex; gap: 8px; }
+  .mini-card .card-event .dato { font-family: 'JetBrains Mono', monospace; white-space: nowrap; }
+
+  .palette-footer {
+    padding: 12px 20px 16px;
+    font-size: 11px;
+    line-height: 1.5;
+    border-top: 1px solid rgba(0,0,0,0.04);
+  }
+  .palette-footer strong { display: block; margin-bottom: 2px; }
+</style>
+
+<div class="palette-grid">
+
+  <!-- A: VARM STEIN -->
+  <div class="palette-card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="palette-header" style="background: #fafaf9;">
+      <h3 style="color: #1c1917;">A: Varm Stein</h3>
+      <p class="tagline" style="color: #57534e;">Subtilt. Zinc → Stone. Profesjonell temperaturskift.</p>
+    </div>
+
+    <div class="surface-strip">
+      <div style="background:#f5f5f4; color:#78716c;" data-name="canvas"></div>
+      <div style="background:#fafaf9; color:#78716c;" data-name="felt"></div>
+      <div style="background:#f5f5f4; color:#78716c;" data-name="raised"></div>
+      <div style="background:#e7e5e4; color:#78716c;" data-name="active"></div>
+    </div>
+
+    <div class="text-samples" style="background: #fafaf9;">
+      <div class="text-sample">
+        <span class="label" style="color:#1c1917;">ink — Primærtekst</span>
+        <span class="ratio pass">19.1:1</span>
+      </div>
+      <div class="text-sample">
+        <span class="label" style="color:#57534e;">ink-secondary — Støttetekst</span>
+        <span class="ratio pass">7.4:1</span>
+      </div>
+      <div class="text-sample">
+        <span class="label" style="color:#6b6560;">ink-muted — Labels</span>
+        <span class="ratio pass">5.0:1</span>
+      </div>
+      <div class="text-sample">
+        <span class="label" style="color:#94908b;">ink-ghost — Metadata</span>
+        <span class="ratio warn">2.8:1</span>
+      </div>
+    </div>
+
+    <div class="accent-strip">
+      <div style="background:#b45309; color:#fafaf9;">VEKT</div>
+      <div style="background:#047857; color:#fafaf9;">HIGH</div>
+      <div style="background:#be123c; color:#fafaf9;">LOW</div>
+    </div>
+
+    <div class="mini-card" style="background:#f5f5f4; border: 1px solid rgba(28,25,23,0.08); border-left: 2px solid #b45309;">
+      <div class="card-header">
+        <span class="card-name" style="color:#1c1917;">KONTRAKTSFORHOLD</span>
+        <span class="card-badge" style="background:rgba(180,83,9,0.08); color:#b45309; border: 1px solid rgba(180,83,9,0.2);">VENTER PÅ SVAR</span>
+      </div>
+      <div class="card-body" style="color:#57534e;">Svikt i BH ytelse — Grunnforhold §25.2</div>
+      <div class="card-divider" style="background:rgba(28,25,23,0.06);"></div>
+      <div class="card-event">
+        <span class="dato" style="color:#94908b;">12. mar</span>
+        <span style="color:#57534e;">Veidekke sendte grunnlag</span>
+      </div>
+    </div>
+
+    <div class="palette-footer" style="color:#57534e;">
+      <strong>Karakter:</strong> Nesten identisk med dagens — bare temperaturen endres. Zinc-kulden forsvinner, men estetikken er den samme.
+    </div>
+  </div>
+
+  <!-- B: DOKUMENTBORDET -->
+  <div class="palette-card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="palette-header" style="background: #faf8f4;">
+      <h3 style="color: #21201c;">B: Dokumentbordet</h3>
+      <p class="tagline" style="color: #5c5650;">Papir-inspirert. Blekk-hierarki. Varmt og substansielt.</p>
+    </div>
+
+    <div class="surface-strip">
+      <div style="background:#f3f1ec; color:#8a847b;" data-name="canvas"></div>
+      <div style="background:#faf8f4; color:#8a847b;" data-name="felt"></div>
+      <div style="background:#f3f1ec; color:#8a847b;" data-name="raised"></div>
+      <div style="background:#e5e2da; color:#8a847b;" data-name="active"></div>
+    </div>
+
+    <div class="text-samples" style="background: #faf8f4;">
+      <div class="text-sample">
+        <span class="label" style="color:#21201c;">ink — Primærtekst</span>
+        <span class="ratio pass">17.4:1</span>
+      </div>
+      <div class="text-sample">
+        <span class="label" style="color:#5c5650;">ink-secondary — Støttetekst</span>
+        <span class="ratio pass">6.8:1</span>
+      </div>
+      <div class="text-sample">
+        <span class="label" style="color:#736d64;">ink-muted — Labels</span>
+        <span class="ratio pass">4.6:1</span>
+      </div>
+      <div class="text-sample">
+        <span class="label" style="color:#928b82;">ink-ghost — Metadata</span>
+        <span class="ratio warn">2.9:1</span>
+      </div>
+    </div>
+
+    <div class="accent-strip">
+      <div style="background:#a3580c; color:#faf8f4;">VEKT</div>
+      <div style="background:#047857; color:#faf8f4;">HIGH</div>
+      <div style="background:#b91c3c; color:#faf8f4;">LOW</div>
+    </div>
+
+    <div class="mini-card" style="background:#f3f1ec; border: 1px solid rgba(33,32,28,0.08); border-left: 2px solid #a3580c;">
+      <div class="card-header">
+        <span class="card-name" style="color:#21201c;">KONTRAKTSFORHOLD</span>
+        <span class="card-badge" style="background:rgba(163,88,12,0.07); color:#a3580c; border: 1px solid rgba(163,88,12,0.18);">VENTER PÅ SVAR</span>
+      </div>
+      <div class="card-body" style="color:#5c5650;">Svikt i BH ytelse — Grunnforhold §25.2</div>
+      <div class="card-divider" style="background:rgba(33,32,28,0.06);"></div>
+      <div class="card-event">
+        <span class="dato" style="color:#928b82;">12. mar</span>
+        <span style="color:#5c5650;">Veidekke sendte grunnlag</span>
+      </div>
+    </div>
+
+    <div class="palette-footer" style="color:#5c5650;">
+      <strong>Karakter:</strong> Føles som kvalitetspapir på et mahogni-skrivebord. Flatene har en merkbar varme uten å bli «beige». Amber-aksenten mørkner for kontrast — mer gull enn neon.
+    </div>
+  </div>
+
+  <!-- C: BLEKK & PAPIR -->
+  <div class="palette-card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="palette-header" style="background: #f8f4ec;">
+      <h3 style="color: #211c12;">C: Blekk & Papir</h3>
+      <p class="tagline" style="color: #5e5340;">Uttalt. Pergament-toner. Jernblekk-hierarki.</p>
+    </div>
+
+    <div class="surface-strip">
+      <div style="background:#f0ece2; color:#8a8070;" data-name="canvas"></div>
+      <div style="background:#f8f4ec; color:#8a8070;" data-name="felt"></div>
+      <div style="background:#f0ece2; color:#8a8070;" data-name="raised"></div>
+      <div style="background:#e2ddd0; color:#8a8070;" data-name="active"></div>
+    </div>
+
+    <div class="text-samples" style="background: #f8f4ec;">
+      <div class="text-sample">
+        <span class="label" style="color:#211c12;">ink — Primærtekst</span>
+        <span class="ratio pass">15.8:1</span>
+      </div>
+      <div class="text-sample">
+        <span class="label" style="color:#5e5340;">ink-secondary — Støttetekst</span>
+        <span class="ratio pass">6.2:1</span>
+      </div>
+      <div class="text-sample">
+        <span class="label" style="color:#756850;">ink-muted — Labels</span>
+        <span class="ratio pass">4.5:1</span>
+      </div>
+      <div class="text-sample">
+        <span class="label" style="color:#968a76;">ink-ghost — Metadata</span>
+        <span class="ratio warn">2.7:1</span>
+      </div>
+    </div>
+
+    <div class="accent-strip">
+      <div style="background:#8c4a0a; color:#f8f4ec;">VEKT</div>
+      <div style="background:#0f6b4f; color:#f8f4ec;">HIGH</div>
+      <div style="background:#a31838; color:#f8f4ec;">LOW</div>
+    </div>
+
+    <div class="mini-card" style="background:#f0ece2; border: 1px solid rgba(33,28,18,0.08); border-left: 2px solid #8c4a0a;">
+      <div class="card-header">
+        <span class="card-name" style="color:#211c12;">KONTRAKTSFORHOLD</span>
+        <span class="card-badge" style="background:rgba(140,74,10,0.07); color:#8c4a0a; border: 1px solid rgba(140,74,10,0.18);">VENTER PÅ SVAR</span>
+      </div>
+      <div class="card-body" style="color:#5e5340;">Svikt i BH ytelse — Grunnforhold §25.2</div>
+      <div class="card-divider" style="background:rgba(33,28,18,0.06);"></div>
+      <div class="card-event">
+        <span class="dato" style="color:#968a76;">12. mar</span>
+        <span style="color:#5e5340;">Veidekke sendte grunnlag</span>
+      </div>
+    </div>
+
+    <div class="palette-footer" style="color:#5e5340;">
+      <strong>Karakter:</strong> Jernblekk og pergament. Mest karakter, men kan tippe over i «historisk» snarere enn «profesjonelt verktøy». Aksenter dypes ned i brunspaletten.
+    </div>
+  </div>
+
+</div>
+
+<div style="margin-top: 16px; padding: 16px; background: #f5f5f5; border-radius: 6px; font-size: 12px; line-height: 1.6; color: #555;">
+  <strong>Om ink-ghost (2.7–2.9:1):</strong> Ingen av retningene klarer 4.5:1 for ghost — det er umulig uten at fargen slutter å «føles ghost». Forslaget: bruk ghost KUN for dekorativ metadata der informasjonen også finnes på andre måter. Flytt alt med selvstendig informasjonsverdi opp til ink-muted (4.5:1+).
+</div>

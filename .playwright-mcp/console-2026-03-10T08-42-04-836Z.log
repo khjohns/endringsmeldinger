@@ -1,0 +1,311 @@
+[     341ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases:0
+[    5751ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases/KOE-2024-012/context:0
+[   10849ms] [WARNING] [tiptap warn]: Duplicate extension names found: ['placeholder']. This can lead to issues. @ http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:13173
+[   10871ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases/KOE-2024-012/context:0
+[  480417ms] [WARNING] [tiptap warn]: Duplicate extension names found: ['placeholder']. This can lead to issues. @ http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:13173
+[  490831ms] Error: https://svelte.dev/e/state_unsafe_mutation
+    at state_unsafe_mutation (http://localhost:5175/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=4e4db574:511:11)
+    at Module.set (http://localhost:5175/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=4e4db574:2015:5)
+    at set tipex (http://localhost:5175/src/lib/components/primitives/RichTextEditor.svelte?t=1773132605066:96:7)
+    at http://localhost:5175/node_modules/.vite/deps/chunk-IFMMCUZX.js?v=4e4db574:4073:13
+    at Editor.onTransaction (http://localhost:5175/node_modules/.vite/deps/@friendofsvelte_tipex.js?v=19d35f13:23170:9)
+    at http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:12281:48
+    at Array.forEach (<anonymous>)
+    at Editor.emit (http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:12281:17)
+    at Editor.dispatchTransaction (http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:16011:10)
+    at EditorView.dispatch (http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:11235:25)
+[  490835ms] [WARNING] [tiptap warn]: Duplicate extension names found: ['placeholder']. This can lead to issues. @ http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:13173
+[  644728ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases/KOE-2024-012/context:0
+[  644754ms] [WARNING] [tiptap warn]: Duplicate extension names found: ['placeholder']. This can lead to issues. @ http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:13173
+[  655450ms] Error: https://svelte.dev/e/state_unsafe_mutation
+    at state_unsafe_mutation (http://localhost:5175/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=4e4db574:511:11)
+    at Module.set (http://localhost:5175/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=4e4db574:2015:5)
+    at set tipex (http://localhost:5175/src/lib/components/primitives/RichTextEditor.svelte?t=1773132756937:96:7)
+    at http://localhost:5175/node_modules/.vite/deps/chunk-IFMMCUZX.js?v=4e4db574:4073:13
+    at Editor.onTransaction (http://localhost:5175/node_modules/.vite/deps/@friendofsvelte_tipex.js?v=19d35f13:23170:9)
+    at http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:12281:48
+    at Array.forEach (<anonymous>)
+    at Editor.emit (http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:12281:17)
+    at Editor.dispatchTransaction (http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:16011:10)
+    at EditorView.dispatch (http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:11235:25)
+[  655461ms] [WARNING] [tiptap warn]: Duplicate extension names found: ['placeholder']. This can lead to issues. @ http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:13173
+[  664536ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases/KOE-2024-012/context:0
+[  664566ms] [WARNING] [tiptap warn]: Duplicate extension names found: ['placeholder']. This can lead to issues. @ http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:13173
+[  927579ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases/KOE-2024-012/context:0
+[  927598ms] [WARNING] [tiptap warn]: Duplicate extension names found: ['placeholder']. This can lead to issues. @ http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:13173
+[ 1287573ms] [WARNING] [tiptap warn]: Duplicate extension names found: ['placeholder']. This can lead to issues. @ http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:13173
+[ 1300339ms] Error: https://svelte.dev/e/state_unsafe_mutation
+    at state_unsafe_mutation (http://localhost:5175/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=4e4db574:511:11)
+    at Module.set (http://localhost:5175/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=4e4db574:2015:5)
+    at set tipex (http://localhost:5175/src/lib/components/primitives/RichTextEditor.svelte?t=1773133412292:96:7)
+    at http://localhost:5175/node_modules/.vite/deps/chunk-IFMMCUZX.js?v=4e4db574:4073:13
+    at Editor.onTransaction (http://localhost:5175/node_modules/.vite/deps/@friendofsvelte_tipex.js?v=19d35f13:23170:9)
+    at http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:12281:48
+    at Array.forEach (<anonymous>)
+    at Editor.emit (http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:12281:17)
+    at Editor.dispatchTransaction (http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:16011:10)
+    at EditorView.dispatch (http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:11235:25)
+[ 1300329ms] [WARNING] [tiptap warn]: Duplicate extension names found: ['placeholder']. This can lead to issues. @ http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:13173
+[ 1311288ms] Error: https://svelte.dev/e/state_unsafe_mutation
+    at state_unsafe_mutation (http://localhost:5175/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=4e4db574:511:11)
+    at Module.set (http://localhost:5175/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=4e4db574:2015:5)
+    at set tipex (http://localhost:5175/src/lib/components/primitives/RichTextEditor.svelte?t=1773133425065:96:7)
+    at http://localhost:5175/node_modules/.vite/deps/chunk-IFMMCUZX.js?v=4e4db574:4073:13
+    at Editor.onTransaction (http://localhost:5175/node_modules/.vite/deps/@friendofsvelte_tipex.js?v=19d35f13:23170:9)
+    at http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:12281:48
+    at Array.forEach (<anonymous>)
+    at Editor.emit (http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:12281:17)
+    at Editor.dispatchTransaction (http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:16011:10)
+    at EditorView.dispatch (http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:11235:25)
+[ 1311285ms] [WARNING] [tiptap warn]: Duplicate extension names found: ['placeholder']. This can lead to issues. @ http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:13173
+[ 1320633ms] Error: https://svelte.dev/e/state_unsafe_mutation
+    at state_unsafe_mutation (http://localhost:5175/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=4e4db574:511:11)
+    at Module.set (http://localhost:5175/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=4e4db574:2015:5)
+    at set tipex (http://localhost:5175/src/lib/components/primitives/RichTextEditor.svelte?t=1773133435994:96:7)
+    at http://localhost:5175/node_modules/.vite/deps/chunk-IFMMCUZX.js?v=4e4db574:4073:13
+    at Editor.onTransaction (http://localhost:5175/node_modules/.vite/deps/@friendofsvelte_tipex.js?v=19d35f13:23170:9)
+    at http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:12281:48
+    at Array.forEach (<anonymous>)
+    at Editor.emit (http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:12281:17)
+    at Editor.dispatchTransaction (http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:16011:10)
+    at EditorView.dispatch (http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:11235:25)
+[ 1320635ms] [WARNING] [tiptap warn]: Duplicate extension names found: ['placeholder']. This can lead to issues. @ http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:13173
+[ 1326369ms] Error: https://svelte.dev/e/state_unsafe_mutation
+    at state_unsafe_mutation (http://localhost:5175/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=4e4db574:511:11)
+    at Module.set (http://localhost:5175/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=4e4db574:2015:5)
+    at set tipex (http://localhost:5175/src/lib/components/primitives/RichTextEditor.svelte?t=1773133445294:96:7)
+    at http://localhost:5175/node_modules/.vite/deps/chunk-IFMMCUZX.js?v=4e4db574:4073:13
+    at Editor.onTransaction (http://localhost:5175/node_modules/.vite/deps/@friendofsvelte_tipex.js?v=19d35f13:23170:9)
+    at http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:12281:48
+    at Array.forEach (<anonymous>)
+    at Editor.emit (http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:12281:17)
+    at Editor.dispatchTransaction (http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:16011:10)
+    at EditorView.dispatch (http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:11235:25)
+[ 1326378ms] [WARNING] [tiptap warn]: Duplicate extension names found: ['placeholder']. This can lead to issues. @ http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:13173
+[ 1338474ms] Error: https://svelte.dev/e/state_unsafe_mutation
+    at state_unsafe_mutation (http://localhost:5175/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=4e4db574:511:11)
+    at Module.set (http://localhost:5175/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=4e4db574:2015:5)
+    at set tipex (http://localhost:5175/src/lib/components/primitives/RichTextEditor.svelte?t=1773133451104:96:7)
+    at http://localhost:5175/node_modules/.vite/deps/chunk-IFMMCUZX.js?v=4e4db574:4073:13
+    at Editor.onTransaction (http://localhost:5175/node_modules/.vite/deps/@friendofsvelte_tipex.js?v=19d35f13:23170:9)
+    at http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:12281:48
+    at Array.forEach (<anonymous>)
+    at Editor.emit (http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:12281:17)
+    at Editor.dispatchTransaction (http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:16011:10)
+    at EditorView.dispatch (http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:11235:25)
+[ 1338474ms] [WARNING] [tiptap warn]: Duplicate extension names found: ['placeholder']. This can lead to issues. @ http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:13173
+[ 1351869ms] Error: https://svelte.dev/e/state_unsafe_mutation
+    at state_unsafe_mutation (http://localhost:5175/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=4e4db574:511:11)
+    at Module.set (http://localhost:5175/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=4e4db574:2015:5)
+    at set tipex (http://localhost:5175/src/lib/components/primitives/RichTextEditor.svelte?t=1773133463214:96:7)
+    at http://localhost:5175/node_modules/.vite/deps/chunk-IFMMCUZX.js?v=4e4db574:4073:13
+    at Editor.onTransaction (http://localhost:5175/node_modules/.vite/deps/@friendofsvelte_tipex.js?v=19d35f13:23170:9)
+    at http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:12281:48
+    at Array.forEach (<anonymous>)
+    at Editor.emit (http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:12281:17)
+    at Editor.dispatchTransaction (http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:16011:10)
+    at EditorView.dispatch (http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:11235:25)
+[ 1351870ms] [WARNING] [tiptap warn]: Duplicate extension names found: ['placeholder']. This can lead to issues. @ http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:13173
+[ 1357359ms] Error: https://svelte.dev/e/state_unsafe_mutation
+    at state_unsafe_mutation (http://localhost:5175/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=4e4db574:511:11)
+    at Module.set (http://localhost:5175/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=4e4db574:2015:5)
+    at set tipex (http://localhost:5175/src/lib/components/primitives/RichTextEditor.svelte?t=1773133476634:96:7)
+    at http://localhost:5175/node_modules/.vite/deps/chunk-IFMMCUZX.js?v=4e4db574:4073:13
+    at Editor.onTransaction (http://localhost:5175/node_modules/.vite/deps/@friendofsvelte_tipex.js?v=19d35f13:23170:9)
+    at http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:12281:48
+    at Array.forEach (<anonymous>)
+    at Editor.emit (http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:12281:17)
+    at Editor.dispatchTransaction (http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:16011:10)
+    at EditorView.dispatch (http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:11235:25)
+[ 1357356ms] [WARNING] [tiptap warn]: Duplicate extension names found: ['placeholder']. This can lead to issues. @ http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:13173
+[ 1374696ms] Error: https://svelte.dev/e/state_unsafe_mutation
+    at state_unsafe_mutation (http://localhost:5175/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=4e4db574:511:11)
+    at Module.set (http://localhost:5175/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=4e4db574:2015:5)
+    at set tipex (http://localhost:5175/src/lib/components/primitives/RichTextEditor.svelte?t=1773133482145:98:7)
+    at http://localhost:5175/node_modules/.vite/deps/chunk-IFMMCUZX.js?v=4e4db574:4073:13
+    at Editor.onTransaction (http://localhost:5175/node_modules/.vite/deps/@friendofsvelte_tipex.js?v=19d35f13:23170:9)
+    at http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:12281:48
+    at Array.forEach (<anonymous>)
+    at Editor.emit (http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:12281:17)
+    at Editor.dispatchTransaction (http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:16011:10)
+    at EditorView.dispatch (http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:11235:25)
+[ 1374694ms] [WARNING] [tiptap warn]: Duplicate extension names found: ['placeholder']. This can lead to issues. @ http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:13173
+[ 1383633ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases/KOE-2024-012/context:0
+[ 1383659ms] [WARNING] [tiptap warn]: Duplicate extension names found: ['placeholder']. This can lead to issues. @ http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:13173
+[ 1535344ms] Error: https://svelte.dev/e/state_unsafe_mutation
+    at state_unsafe_mutation (http://localhost:5175/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=4e4db574:511:11)
+    at Module.set (http://localhost:5175/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=4e4db574:2015:5)
+    at set tipex (http://localhost:5175/src/lib/components/primitives/RichTextEditor.svelte?t=1773133499421:98:7)
+    at http://localhost:5175/node_modules/.vite/deps/chunk-IFMMCUZX.js?v=4e4db574:4073:13
+    at Editor.onTransaction (http://localhost:5175/node_modules/.vite/deps/@friendofsvelte_tipex.js?v=19d35f13:23170:9)
+    at http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:12281:48
+    at Array.forEach (<anonymous>)
+    at Editor.emit (http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:12281:17)
+    at Editor.dispatchTransaction (http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:16011:10)
+    at EditorView.dispatch (http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:11235:25)
+[ 1535346ms] ReferenceError: hint is not defined
+    at http://localhost:5175/src/lib/components/primitives/RichTextEditor.svelte?t=1773133660049:127:5
+    at http://localhost:5175/node_modules/.vite/deps/chunk-IFMMCUZX.js?v=4e4db574:788:5
+    at update_reaction (http://localhost:5175/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=4e4db574:3495:18)
+    at update_effect (http://localhost:5175/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=4e4db574:3634:21)
+    at create_effect (http://localhost:5175/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=4e4db574:2991:7)
+    at block (http://localhost:5175/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=4e4db574:3148:17)
+    at Module.if_block (http://localhost:5175/node_modules/.vite/deps/chunk-IFMMCUZX.js?v=4e4db574:786:3)
+    at http://localhost:5175/src/lib/components/primitives/RichTextEditor.svelte?t=1773133660049:126:14
+    at Module.add_svelte_meta (http://localhost:5175/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=4e4db574:579:12)
+    at RichTextEditor (http://localhost:5175/src/lib/components/primitives/RichTextEditor.svelte?t=1773133660049:125:5)
+[ 1614956ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases/KOE-2024-012/context:0
+[ 1614976ms] [WARNING] [tiptap warn]: Duplicate extension names found: ['placeholder']. This can lead to issues. @ http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:13173
+[ 1776506ms] Error: https://svelte.dev/e/state_unsafe_mutation
+    at state_unsafe_mutation (http://localhost:5175/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=4e4db574:511:11)
+    at Module.set (http://localhost:5175/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=4e4db574:2015:5)
+    at set tipex (http://localhost:5175/src/lib/components/primitives/RichTextEditor.svelte?t=1773133721847:100:7)
+    at http://localhost:5175/node_modules/.vite/deps/chunk-IFMMCUZX.js?v=4e4db574:4073:13
+    at Editor.onTransaction (http://localhost:5175/node_modules/.vite/deps/@friendofsvelte_tipex.js?v=19d35f13:23170:9)
+    at http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:12281:48
+    at Array.forEach (<anonymous>)
+    at Editor.emit (http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:12281:17)
+    at Editor.dispatchTransaction (http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:16011:10)
+    at EditorView.dispatch (http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:11235:25)
+[ 1924066ms] Error: https://svelte.dev/e/state_unsafe_mutation
+    at state_unsafe_mutation (http://localhost:5175/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=4e4db574:511:11)
+    at Module.set (http://localhost:5175/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=4e4db574:2015:5)
+    at set tipex (http://localhost:5175/src/lib/components/primitives/RichTextEditor.svelte?t=1773133901195:103:7)
+    at http://localhost:5175/node_modules/.vite/deps/chunk-IFMMCUZX.js?v=4e4db574:4073:13
+    at Editor.onTransaction (http://localhost:5175/node_modules/.vite/deps/@friendofsvelte_tipex.js?v=19d35f13:23170:9)
+    at http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:12281:48
+    at Array.forEach (<anonymous>)
+    at Editor.emit (http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:12281:17)
+    at Editor.dispatchTransaction (http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:16011:10)
+    at EditorView.dispatch (http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:11235:25)
+[ 1929630ms] Error: https://svelte.dev/e/state_unsafe_mutation
+    at state_unsafe_mutation (http://localhost:5175/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=4e4db574:511:11)
+    at Module.set (http://localhost:5175/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=4e4db574:2015:5)
+    at set tipex (http://localhost:5175/src/lib/components/primitives/RichTextEditor.svelte?t=1773134048701:103:7)
+    at http://localhost:5175/node_modules/.vite/deps/chunk-IFMMCUZX.js?v=4e4db574:4073:13
+    at Editor.onTransaction (http://localhost:5175/node_modules/.vite/deps/@friendofsvelte_tipex.js?v=19d35f13:23170:9)
+    at http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:12281:48
+    at Array.forEach (<anonymous>)
+    at Editor.emit (http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:12281:17)
+    at Editor.dispatchTransaction (http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:16011:10)
+    at EditorView.dispatch (http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:11235:25)
+[ 1934589ms] Error: https://svelte.dev/e/state_unsafe_mutation
+    at state_unsafe_mutation (http://localhost:5175/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=4e4db574:511:11)
+    at Module.set (http://localhost:5175/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=4e4db574:2015:5)
+    at set tipex (http://localhost:5175/src/lib/components/primitives/RichTextEditor.svelte?t=1773134054304:103:7)
+    at http://localhost:5175/node_modules/.vite/deps/chunk-IFMMCUZX.js?v=4e4db574:4073:13
+    at Editor.onTransaction (http://localhost:5175/node_modules/.vite/deps/@friendofsvelte_tipex.js?v=19d35f13:23170:9)
+    at http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:12281:48
+    at Array.forEach (<anonymous>)
+    at Editor.emit (http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:12281:17)
+    at Editor.dispatchTransaction (http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:16011:10)
+    at EditorView.dispatch (http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:11235:25)
+[ 1944249ms] Error: https://svelte.dev/e/state_unsafe_mutation
+    at state_unsafe_mutation (http://localhost:5175/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=4e4db574:511:11)
+    at Module.set (http://localhost:5175/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=4e4db574:2015:5)
+    at set tipex (http://localhost:5175/src/lib/components/primitives/RichTextEditor.svelte?t=1773134059284:103:7)
+    at http://localhost:5175/node_modules/.vite/deps/chunk-IFMMCUZX.js?v=4e4db574:4073:13
+    at Editor.onTransaction (http://localhost:5175/node_modules/.vite/deps/@friendofsvelte_tipex.js?v=19d35f13:23170:9)
+    at http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:12281:48
+    at Array.forEach (<anonymous>)
+    at Editor.emit (http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:12281:17)
+    at Editor.dispatchTransaction (http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:16011:10)
+    at EditorView.dispatch (http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:11235:25)
+[ 1949583ms] Error: https://svelte.dev/e/state_unsafe_mutation
+    at state_unsafe_mutation (http://localhost:5175/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=4e4db574:511:11)
+    at Module.set (http://localhost:5175/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=4e4db574:2015:5)
+    at set tipex (http://localhost:5175/src/lib/components/primitives/RichTextEditor.svelte?t=1773134068887:103:7)
+    at http://localhost:5175/node_modules/.vite/deps/chunk-IFMMCUZX.js?v=4e4db574:4073:13
+    at Editor.onTransaction (http://localhost:5175/node_modules/.vite/deps/@friendofsvelte_tipex.js?v=19d35f13:23170:9)
+    at http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:12281:48
+    at Array.forEach (<anonymous>)
+    at Editor.emit (http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:12281:17)
+    at Editor.dispatchTransaction (http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:16011:10)
+    at EditorView.dispatch (http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:11235:25)
+[ 1959585ms] Error: https://svelte.dev/e/state_unsafe_mutation
+    at state_unsafe_mutation (http://localhost:5175/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=4e4db574:511:11)
+    at Module.set (http://localhost:5175/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=4e4db574:2015:5)
+    at set tipex (http://localhost:5175/src/lib/components/primitives/RichTextEditor.svelte?t=1773134074211:103:7)
+    at http://localhost:5175/node_modules/.vite/deps/chunk-IFMMCUZX.js?v=4e4db574:4073:13
+    at Editor.onTransaction (http://localhost:5175/node_modules/.vite/deps/@friendofsvelte_tipex.js?v=19d35f13:23170:9)
+    at http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:12281:48
+    at Array.forEach (<anonymous>)
+    at Editor.emit (http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:12281:17)
+    at Editor.dispatchTransaction (http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:16011:10)
+    at EditorView.dispatch (http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:11235:25)
+[ 1970682ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases/KOE-2024-012/context:0
+[ 1984117ms] Error: https://svelte.dev/e/state_unsafe_mutation
+    at state_unsafe_mutation (http://localhost:5175/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=4e4db574:511:11)
+    at Module.set (http://localhost:5175/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=4e4db574:2015:5)
+    at set tipex (http://localhost:5175/src/lib/components/primitives/RichTextEditor.svelte?t=1773134084192:103:7)
+    at http://localhost:5175/node_modules/.vite/deps/chunk-IFMMCUZX.js?v=4e4db574:4073:13
+    at Editor.onTransaction (http://localhost:5175/node_modules/.vite/deps/@friendofsvelte_tipex.js?v=19d35f13:23170:9)
+    at http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:12281:48
+    at Array.forEach (<anonymous>)
+    at Editor.emit (http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:12281:17)
+    at Editor.dispatchTransaction (http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:16011:10)
+    at EditorView.dispatch (http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:11235:25)
+[ 1993099ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases/KOE-2024-012/context:0
+[ 2001781ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases/KOE-2024-012/context:0
+[ 2005613ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases:0
+[ 2008154ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases:0
+[ 2015845ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases:0
+[ 2027761ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases:0
+[ 2090976ms] Error: https://svelte.dev/e/state_unsafe_mutation
+    at state_unsafe_mutation (http://localhost:5175/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=4e4db574:511:11)
+    at Module.set (http://localhost:5175/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=4e4db574:2015:5)
+    at set tipex (http://localhost:5175/src/lib/components/primitives/RichTextEditor.svelte?t=1773134140488:103:7)
+    at http://localhost:5175/node_modules/.vite/deps/chunk-IFMMCUZX.js?v=4e4db574:4073:13
+    at Editor.onTransaction (http://localhost:5175/node_modules/.vite/deps/@friendofsvelte_tipex.js?v=19d35f13:23170:9)
+    at http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:12281:48
+    at Array.forEach (<anonymous>)
+    at Editor.emit (http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:12281:17)
+    at Editor.dispatchTransaction (http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:16011:10)
+    at EditorView.dispatch (http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:11235:25)
+[ 2098047ms] Error: https://svelte.dev/e/state_unsafe_mutation
+    at state_unsafe_mutation (http://localhost:5175/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=4e4db574:511:11)
+    at Module.set (http://localhost:5175/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=4e4db574:2015:5)
+    at set tipex (http://localhost:5175/src/lib/components/primitives/RichTextEditor.svelte?t=1773134215689:103:7)
+    at http://localhost:5175/node_modules/.vite/deps/chunk-IFMMCUZX.js?v=4e4db574:4073:13
+    at Editor.onTransaction (http://localhost:5175/node_modules/.vite/deps/@friendofsvelte_tipex.js?v=19d35f13:23170:9)
+    at http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:12281:48
+    at Array.forEach (<anonymous>)
+    at Editor.emit (http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:12281:17)
+    at Editor.dispatchTransaction (http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:16011:10)
+    at EditorView.dispatch (http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:11235:25)
+[ 2137435ms] ReferenceError: onformstate is not defined
+    at http://localhost:5175/src/lib/components/case-create/CaseCreateForm.svelte?t=1773134262143:129:3
+    at update_reaction (http://localhost:5175/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=4e4db574:3495:18)
+    at update_effect (http://localhost:5175/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=4e4db574:3634:21)
+    at flush_queued_effects (http://localhost:5175/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=4e4db574:2613:7)
+    at _Batch.process (http://localhost:5175/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=4e4db574:2285:7)
+    at flush_effects (http://localhost:5175/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=4e4db574:2571:13)
+    at _Batch.flush (http://localhost:5175/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=4e4db574:2374:7)
+    at Array.<anonymous> (http://localhost:5175/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=4e4db574:2496:17)
+    at run_all (http://localhost:5175/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=4e4db574:44:11)
+    at run_micro_tasks (http://localhost:5175/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=4e4db574:700:3)
+[ 2240478ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases:0
+[ 2473940ms] ReferenceError: submitChildren is not defined
+    at http://localhost:5175/src/lib/components/case-create/BegrunnelsePanel.svelte?t=1773134598542:219:10
+    at http://localhost:5175/node_modules/.vite/deps/chunk-IFMMCUZX.js?v=4e4db574:788:5
+    at update_reaction (http://localhost:5175/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=4e4db574:3495:18)
+    at update_effect (http://localhost:5175/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=4e4db574:3634:21)
+    at create_effect (http://localhost:5175/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=4e4db574:2991:7)
+    at block (http://localhost:5175/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=4e4db574:3148:17)
+    at Module.if_block (http://localhost:5175/node_modules/.vite/deps/chunk-IFMMCUZX.js?v=4e4db574:786:3)
+    at http://localhost:5175/src/lib/components/case-create/BegrunnelsePanel.svelte?t=1773134598542:218:19
+    at Module.add_svelte_meta (http://localhost:5175/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=4e4db574:579:12)
+    at http://localhost:5175/src/lib/components/case-create/BegrunnelsePanel.svelte?t=1773134598542:217:10
+[ 2509016ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases:0
+[ 2518486ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases:0
+[ 2535309ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases:0
+[ 2550475ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases:0
+[ 2565350ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases:0
+[ 2583583ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases:0
+[ 2600899ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases:0
+[ 2620514ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases:0
+[ 2637711ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases:0
+[ 2660071ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases:0
+[ 2673011ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases:0
+[ 2916676ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases:0
+[ 2986919ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases:0

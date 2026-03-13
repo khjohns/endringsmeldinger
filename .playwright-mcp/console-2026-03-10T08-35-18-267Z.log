@@ -1,0 +1,12 @@
+[    2120ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/P001:0
+[    2301ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/favicon.ico:0
+[    2370ms] [WARNING] The next HMR update will cause the page to reload @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=70ac3e05:3211
+[    2370ms] [ERROR] SvelteKitError: Not found: /P001
+    at navigate (http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=70ac3e05:1607:24)
+    at async Module.start (http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=70ac3e05:363:3) @ http://localhost:5173/@fs/Users/kasper/Projects/paragraf/.svelte-kit/generated/client/app.js:15
+[    5226ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/P001:0
+[    5243ms] [WARNING] The next HMR update will cause the page to reload @ http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=70ac3e05:3211
+[    5243ms] [ERROR] SvelteKitError: Not found: /P001
+    at navigate (http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=70ac3e05:1607:24)
+    at async Module.start (http://localhost:5173/node_modules/@sveltejs/kit/src/runtime/client/client.js?v=70ac3e05:363:3) @ http://localhost:5173/@fs/Users/kasper/Projects/paragraf/.svelte-kit/generated/client/app.js:15
+[  185249ms] [ERROR] WebSocket connection to 'ws://localhost:5173/?token=LSt4s-u2wSRZ' failed:  @ http://localhost:5173/@vite/client:744

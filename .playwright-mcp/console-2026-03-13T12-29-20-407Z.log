@@ -1,0 +1,15 @@
+[     204ms] [ERROR] Failed to load resource: the server responded with a status of 401 (UNAUTHORIZED) @ http://localhost:5174/api/cases:0
+[  128307ms] [ERROR] Failed to load resource: the server responded with a status of 401 (UNAUTHORIZED) @ http://localhost:5174/api/cases:0
+[  182831ms] Error: https://svelte.dev/e/each_key_duplicate
+    at each_key_duplicate (http://localhost:5174/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=26b99002:291:11)
+    at http://localhost:5174/node_modules/.vite/deps/chunk-IFMMCUZX.js?v=26b99002:1042:9
+    at update_reaction (http://localhost:5174/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=26b99002:3495:18)
+    at update_effect (http://localhost:5174/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=26b99002:3634:21)
+    at create_effect (http://localhost:5174/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=26b99002:2991:7)
+    at block (http://localhost:5174/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=26b99002:3148:17)
+    at Module.each (http://localhost:5174/node_modules/.vite/deps/chunk-IFMMCUZX.js?v=26b99002:969:17)
+    at http://localhost:5174/src/lib/components/primitives/DatePicker.svelte:323:35
+    at Module.add_svelte_meta (http://localhost:5174/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=26b99002:579:12)
+    at http://localhost:5174/src/lib/components/primitives/DatePicker.svelte:322:28
+[  541212ms] [ERROR] Failed to load resource: the server responded with a status of 401 (UNAUTHORIZED) @ http://localhost:5174/api/cases:0
+[  607399ms] [ERROR] Failed to load resource: the server responded with a status of 401 (UNAUTHORIZED) @ http://localhost:5174/api/events:0

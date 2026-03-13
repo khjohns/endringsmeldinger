@@ -1,0 +1,35 @@
+[     134ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases:0
+[  228191ms] Error: https://svelte.dev/e/state_unsafe_mutation
+    at state_unsafe_mutation (http://localhost:5175/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=4e4db574:511:11)
+    at Module.set (http://localhost:5175/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=4e4db574:2015:5)
+    at set tipex (http://localhost:5175/src/lib/components/primitives/RichTextEditor.svelte?t=1773134354943:103:7)
+    at http://localhost:5175/node_modules/.vite/deps/chunk-IFMMCUZX.js?v=4e4db574:4073:13
+    at Editor.onTransaction (http://localhost:5175/node_modules/.vite/deps/@friendofsvelte_tipex.js?v=19d35f13:23170:9)
+    at http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:12281:48
+    at Array.forEach (<anonymous>)
+    at Editor.emit (http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:12281:17)
+    at Editor.dispatchTransaction (http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:16011:10)
+    at EditorView.dispatch (http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=4e4db574:11235:25)
+[  228194ms] ReferenceError: submitChildren is not defined
+    at http://localhost:5175/src/lib/components/case-create/BegrunnelsePanel.svelte?t=1773134598542:219:10
+    at http://localhost:5175/node_modules/.vite/deps/chunk-IFMMCUZX.js?v=4e4db574:788:5
+    at update_reaction (http://localhost:5175/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=4e4db574:3495:18)
+    at update_effect (http://localhost:5175/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=4e4db574:3634:21)
+    at create_effect (http://localhost:5175/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=4e4db574:2991:7)
+    at block (http://localhost:5175/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=4e4db574:3148:17)
+    at Module.if_block (http://localhost:5175/node_modules/.vite/deps/chunk-IFMMCUZX.js?v=4e4db574:786:3)
+    at http://localhost:5175/src/lib/components/case-create/BegrunnelsePanel.svelte?t=1773134598542:218:19
+    at Module.add_svelte_meta (http://localhost:5175/node_modules/.vite/deps/chunk-TEB4CHWZ.js?v=4e4db574:579:12)
+    at http://localhost:5175/src/lib/components/case-create/BegrunnelsePanel.svelte?t=1773134598542:217:10
+[  263332ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases:0
+[  272780ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases:0
+[  289546ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases:0
+[  305553ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases:0
+[  320548ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases:0
+[  339134ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases:0
+[  356164ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases:0
+[  375428ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases:0
+[  393126ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases:0
+[  415662ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases:0
+[  428879ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases:0
+[  670981ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases:0

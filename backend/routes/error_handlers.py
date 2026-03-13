@@ -1,0 +1,75 @@
+"""
+Error Handlers Module
+
+Centralized Flask error handlers.
+"""
+
+from flask import Flask, g, jsonify, request
+from werkzeug.exceptions import HTTPException
+
+try:
+    from lib.monitoring.audit import audit
+except ImportError:
+    # Fallback audit class for development
+    class audit:
+        @staticmethod
+        def log_security_event(*args, **kwargs):
+            pass
+
+        @staticmethod
+        def log_access_denied(*args, **kwargs):
+            pass
+
+
+def register_error_handlers(app: Flask) -> None:
+    """
+    Register error handlers for the Flask application.
+
+    Args:
+        app: Flask application instance
+    """
+
+    @app.errorhandler(429)
+    def ratelimit_handler(e):
+        """Handler for rate limit exceeded."""
+        audit.log_security_event("rate_limit_exceeded", {"limit": str(e.description)})
+        return jsonify(
+            {
+                "error": "Rate limit exceeded",
+                "detail": str(e.description),
+                "retry_after": getattr(e, "retry_after", 60),
+            }
+        ), 429
+
+    @app.errorhandler(403)
+    def forbidden_handler(e):
+        """Handler for access denied."""
+        user = g.get("user", {})
+        audit.log_access_denied(
+            user=user.get("email", "anonymous"), resource=request.path, reason=str(e)
+        )
+        return jsonify({"error": "Forbidden", "detail": str(e)}), 403
+
+    @app.errorhandler(500)
+    def internal_error_handler(e):
+        """Handler for internal server errors."""
+        app.logger.error(f"Internal Server Error: {str(e)}", exc_info=True)
+        return jsonify(
+            {
+                "error": "Internal Server Error",
+                "detail": "An unexpected error occurred. Please try again or contact support.",
+            }
+        ), 500
+
+    @app.errorhandler(Exception)
+    def handle_unexpected_error(e):
+        """Catch-all handler for unhandled exceptions."""
+        if isinstance(e, HTTPException):
+            return e
+        app.logger.error(f"Unhandled Exception: {str(e)}", exc_info=True)
+        return jsonify(
+            {
+                "error": "Internal Server Error",
+                "detail": str(e) if app.debug else "An unexpected error occurred.",
+            }
+        ), 500

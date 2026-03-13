@@ -1,0 +1,2 @@
+[  233783ms] [ERROR] WebSocket connection to 'ws://localhost:5175/?token=GvwFPlH-ZMcu' failed:  @ http://localhost:5175/@vite/client:744
+[  238749ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/cases:0

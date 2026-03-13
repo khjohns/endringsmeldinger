@@ -1,0 +1,1 @@
+[    3788ms] [WARNING] [tiptap warn]: Duplicate extension names found: ['placeholder']. This can lead to issues. @ http://localhost:5175/node_modules/.vite/deps/chunk-5YYAEDTH.js?v=794e50e4:13173
