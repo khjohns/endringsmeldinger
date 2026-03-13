@@ -49,7 +49,7 @@
       <span class="konsekvens-tittel">Forespørsel om spesifisering</span>
     </div>
     <p class="konsekvens-beskrivelse">
-      TE bes spesifisere sitt fristkrav med antall dager og begrunnelse (§33.6.2).
+      TE bes spesifisere sitt fristkrav med antall dager og begrunnelse (§ 33.6.2).
     </p>
   </div>
 {:else if variant && prinsipaltResultat}
@@ -77,8 +77,8 @@
 
     {#if erRedusert}
       <p class="konsekvens-beskrivelse">
-        Spesifisert krav vurdert som for sent. Fristforlengelsen reduseres til det som er åpenbart
-        (§33.6.1).
+        Fremsatt krav vurdert som for sent. Fristforlengelsen reduseres til det som er åpenbart (§
+        33.6.1).
       </p>
     {/if}
 

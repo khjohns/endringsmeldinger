@@ -109,13 +109,9 @@ export function beregnVisibility(
 
   const showFristVarselOk = (() => {
     if (erBegrunnelseUtsatt) return false;
+    if (config.erSvarPaForesporsel) return false;
     if (config.varselType === 'varsel') return true;
-    if (
-      config.varselType === 'spesifisert' &&
-      !config.harTidligereVarselITide &&
-      !config.erSvarPaForesporsel
-    )
-      return true;
+    if (config.varselType === 'spesifisert') return true;
     return false;
   })();
 
@@ -150,8 +146,7 @@ export function beregnPreklusjon(
   const erForesporselSvarForSent = config.erSvarPaForesporsel && state.foresporselSvarOk === false;
   if (erForesporselSvarForSent) return true;
   if (config.varselType === 'varsel') return state.fristVarselOk === false;
-  if (config.varselType === 'spesifisert' && !config.harTidligereVarselITide)
-    return state.fristVarselOk === false;
+  if (config.varselType === 'spesifisert') return state.fristVarselOk === false;
   return false;
 }
 
@@ -160,9 +155,7 @@ export function beregnReduksjon(
   config: FristDomainConfig
 ): boolean {
   if (config.erSvarPaForesporsel) return false;
-  if (config.varselType === 'spesifisert' && config.harTidligereVarselITide)
-    return state.spesifisertKravOk === false;
-  if (config.varselType === 'spesifisert' && !config.harTidligereVarselITide) {
+  if (config.varselType === 'spesifisert') {
     return state.fristVarselOk === true && state.spesifisertKravOk === false;
   }
   return false;

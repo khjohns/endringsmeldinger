@@ -27,10 +27,10 @@
     const eventData = fristEvent?.data as unknown as Record<string, unknown> | undefined;
 
     return {
-      varselType: frist.varsel_type,
       krevdDager: frist.krevd_dager ?? 0,
       begrunnelseHtml: (eventData?.begrunnelse as string) ?? undefined,
       datoVarslet: frist.frist_varsel?.dato_sendt,
+      datoFremsatt: frist.spesifisert_varsel?.dato_sendt,
     };
   });
 
