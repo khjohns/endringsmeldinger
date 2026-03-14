@@ -3,6 +3,7 @@
   import { extractEventType } from '$lib/types/timeline';
   import { getEventTypeLabel } from '$lib/constants/eventLabels';
   import { getPartsNavn } from '$lib/utils/partsNavn';
+  import { getEventIcon } from '$lib/utils/eventIcons';
   import { slide } from 'svelte/transition';
 
   interface Props {
@@ -24,50 +25,6 @@
     teNavn,
     bhNavn,
   }: Props = $props();
-
-  interface EventIcon {
-    symbol: string;
-    color: string;
-  }
-
-  function getEventIcon(eventType: EventType | null): EventIcon {
-    if (!eventType) return { symbol: '·', color: 'var(--color-ink-muted)' };
-
-    // sendt/krav_sendt
-    if (
-      eventType.includes('sendt') ||
-      eventType === 'frist_krav_sendt' ||
-      eventType === 'vederlag_krav_sendt'
-    ) {
-      return { symbol: '\u2192', color: 'var(--color-ink-muted)' };
-    }
-    // opprettet (varsel)
-    if (eventType.includes('opprettet') && !eventType.includes('oppdatert')) {
-      return { symbol: '\u2691', color: 'var(--color-ink-muted)' };
-    }
-    // oppdatert/spesifisert
-    if (eventType.includes('oppdatert') || eventType.includes('spesifisert')) {
-      return { symbol: '\u21BB', color: 'var(--color-vekt-dim)' };
-    }
-    // respons (ny — not oppdatert)
-    if (eventType.startsWith('respons_') && !eventType.includes('oppdatert')) {
-      return { symbol: '\u25C7', color: 'var(--color-score-high)' };
-    }
-    // akseptert
-    if (eventType.includes('aksept')) {
-      return { symbol: '\u2713', color: 'var(--color-score-high)' };
-    }
-    // trukket/avslatt
-    if (eventType.includes('trukket') || eventType.includes('avslatt')) {
-      return { symbol: '\u2715', color: 'var(--color-score-low)' };
-    }
-    // internt notat
-    if (eventType === 'internt_notat') {
-      return { symbol: '\u270E', color: 'var(--color-vekt)' };
-    }
-
-    return { symbol: '·', color: 'var(--color-ink-muted)' };
-  }
 
   function getEventLabel(event: TimelineEvent, eventType: EventType | null): string {
     if (event.summary) {
@@ -200,38 +157,34 @@
   // Entanglement: track which event indices are "linked" to the focused event
   let entangledIndices = $state<Set<number>>(new Set());
 
+  function getTeClaimVersion(index: number): number | null {
+    const data = events[index]?.data as Record<string, unknown> | undefined;
+    return data && 'versjon' in data && typeof data.versjon === 'number'
+      ? (data.versjon as number) - 1
+      : null;
+  }
+
   function findEntangledIndices(clickedIndex: number): Set<number> {
     const clicked = allEntries[clickedIndex];
     if (!clicked) return new Set();
 
     const linked = new Set<number>();
 
-    if (clicked.isResponse && clicked.version != null) {
-      // BH response → find TE claim with matching version
-      for (const entry of allEntries) {
-        if (entry.actorRole === 'TE' && !entry.isResponse) {
-          // TE claim version is inferred from position (newest = highest version)
-          // Use respondert_versjon to match
-          const evData = events[entry.index]?.data as Record<string, unknown> | undefined;
-          const evVersion = evData && 'versjon' in evData ? (evData.versjon as number) - 1 : null;
-          if (evVersion === clicked.version) {
-            linked.add(entry.index);
-          }
-        }
-      }
-    } else if (clicked.actorRole === 'TE' && !clicked.isResponse) {
-      // TE claim → find BH response with matching version
-      const evData = events[clickedIndex]?.data as Record<string, unknown> | undefined;
-      const evVersion = evData && 'versjon' in evData ? (evData.versjon as number) - 1 : null;
-      if (evVersion != null) {
-        for (const entry of allEntries) {
-          if (entry.isResponse && entry.version === evVersion) {
-            linked.add(entry.index);
-          }
-        }
+    // BH response → find matching TE claim, or TE claim → find matching BH response
+    const isBhResponse = clicked.isResponse && clicked.version != null;
+    const isTeClaim = clicked.actorRole === 'TE' && !clicked.isResponse;
+    if (!isBhResponse && !isTeClaim) return linked;
+
+    const targetVersion = isBhResponse ? clicked.version : getTeClaimVersion(clickedIndex);
+    if (targetVersion == null) return linked;
+
+    for (const entry of allEntries) {
+      if (isBhResponse && entry.actorRole === 'TE' && !entry.isResponse) {
+        if (getTeClaimVersion(entry.index) === targetVersion) linked.add(entry.index);
+      } else if (isTeClaim && entry.isResponse && entry.version === targetVersion) {
+        linked.add(entry.index);
       }
     }
-
     return linked;
   }
 
