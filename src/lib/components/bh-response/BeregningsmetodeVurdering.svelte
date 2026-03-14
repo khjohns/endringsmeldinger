@@ -1,33 +1,29 @@
 <script lang="ts">
   import type { VederlagsMetode } from '$lib/types/timeline';
-  import { getVederlagsmetodeShortLabel } from '$lib/constants/paymentMethods';
+  import {
+    getVederlagsmetodeShortLabel,
+    VEDERLAGSMETODER_OPTIONS,
+  } from '$lib/constants/paymentMethods';
   import { boolToSegment } from '$lib/utils/formatters';
   import FormSection from '$lib/components/shared/FormSection.svelte';
   import SectionHeading from '$lib/components/primitives/SectionHeading.svelte';
   import SegmentedButtons from './SegmentedButtons.svelte';
 
-  interface MetodeOption {
-    value: string;
-    label: string;
-  }
-
   interface Props {
     teMetode: VederlagsMetode | undefined;
     akseptererMetode: boolean | undefined;
     oensketMetode: VederlagsMetode | undefined;
-    metodeAlternativer: MetodeOption[];
     onaksepterer: (v: boolean) => void;
     onoensket: (v: VederlagsMetode) => void;
   }
 
-  let {
-    teMetode,
-    akseptererMetode,
-    oensketMetode,
-    metodeAlternativer,
-    onaksepterer,
-    onoensket,
-  }: Props = $props();
+  let { teMetode, akseptererMetode, oensketMetode, onaksepterer, onoensket }: Props = $props();
+
+  const metodeAlternativer = $derived(
+    VEDERLAGSMETODER_OPTIONS.filter(
+      (o): o is { value: string; label: string } => !!o.value && o.value !== teMetode
+    )
+  );
 </script>
 
 <FormSection>
