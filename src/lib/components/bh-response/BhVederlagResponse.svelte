@@ -18,7 +18,6 @@
   import { draftKey, loadDraft, saveDraft, clearDraft } from '$lib/utils/draft';
   import { useQueryClient } from '@tanstack/svelte-query';
   import { isHtmlEmpty } from '$lib/utils/formatters';
-  import { VEDERLAGSMETODER_OPTIONS } from '$lib/constants/paymentMethods';
 
   import VederlagSammendrag from './VederlagSammendrag.svelte';
   import VederlagKonsekvens from './VederlagKonsekvens.svelte';
@@ -146,11 +145,9 @@
   // Submission
   let submitting = $state(false);
   let submitError = $state<string | null>(null);
-  let draftReady = $state(true);
 
   // Auto-save draft
   $effect(() => {
-    if (!draftReady) return;
     saveDraft(dk, {
       hovedkravVarsletITide,
       riggVarsletITide,
@@ -206,19 +203,6 @@
     }
     return linjer;
   });
-
-  const sumKrevd = $derived(computed.totalKrevdInklPrekludert);
-
-  // Begrunnelse entries for thread panel
-  const begrunnelseEntries = $derived(tidligereSvar);
-
-  // Metode-alternativer (ekskluder TEs valgte)
-  const metodeAlternativer = $derived(
-    VEDERLAGSMETODER_OPTIONS.filter((o) => o.value && o.value !== krav.metode).map((o) => ({
-      value: o.value!,
-      label: o.label,
-    }))
-  );
 
   // --- Validation ---
   const kanSende = $derived.by(() => {
@@ -294,7 +278,7 @@
 </script>
 
 <FormWithRightPanel
-  entries={begrunnelseEntries}
+  entries={tidligereSvar}
   bind:bhBegrunnelseHtml
   {teNavn}
   {bhNavn}
@@ -320,7 +304,7 @@
   <VederlagSammendrag
     metode={krav.metode}
     kravlinjer={sammendragKravlinjer}
-    {sumKrevd}
+    sumKrevd={computed.totalKrevdInklPrekludert}
     begrunnelseHtml={krav.begrunnelseHtml}
   />
 
@@ -361,7 +345,6 @@
     teMetode={krav.metode}
     {akseptererMetode}
     {oensketMetode}
-    {metodeAlternativer}
     onaksepterer={(v) => {
       akseptererMetode = v;
       if (v) oensketMetode = undefined;
