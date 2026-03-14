@@ -439,6 +439,24 @@ export function beregnSubsidiaerTriggers(
 }
 
 // ============================================================================
+// VALIDATION HELPERS
+// ============================================================================
+
+/**
+ * Sjekk om en kravlinje har gyldig vurdering.
+ * Krever at vurdering er satt, og at godkjentBelop er satt ved 'delvis'.
+ */
+export function erKravlinjeGyldig(
+  vurdering: BelopVurdering | undefined,
+  godkjentBelop: number | undefined
+): boolean {
+  if (!vurdering) return false;
+  if (vurdering === 'delvis' && (godkjentBelop === undefined || godkjentBelop === null))
+    return false;
+  return true;
+}
+
+// ============================================================================
 // BADGE HELPERS
 // ============================================================================
 

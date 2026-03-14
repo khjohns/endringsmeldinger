@@ -6,6 +6,7 @@
     getDefaults,
     erSubsidiaer as erSubsidiaerFn,
     erHelVederlagSubsidiaerPgaGrunnlag,
+    erKravlinjeGyldig,
   } from '$lib/domain/vederlagDomain';
   import type {
     VederlagFormState,
@@ -17,20 +18,16 @@
   import { submitEvent } from '$lib/api/events';
   import { draftKey, loadDraft, saveDraft, clearDraft } from '$lib/utils/draft';
   import { useQueryClient } from '@tanstack/svelte-query';
-  import { isHtmlEmpty, formatCurrency, boolToSegment } from '$lib/utils/formatters';
-  import {
-    getVederlagsmetodeShortLabel,
-    VEDERLAGSMETODER_OPTIONS,
-  } from '$lib/constants/paymentMethods';
+  import { isHtmlEmpty } from '$lib/utils/formatters';
 
   import VederlagSammendrag from './VederlagSammendrag.svelte';
   import VederlagKonsekvens from './VederlagKonsekvens.svelte';
-  import SegmentedButtons from './SegmentedButtons.svelte';
+  import PreklusjonsVurdering from './PreklusjonsVurdering.svelte';
+  import BeregningsmetodeVurdering from './BeregningsmetodeVurdering.svelte';
+  import KravlinjeVurdering from './KravlinjeVurdering.svelte';
   import FormPageHeader from '$lib/components/shared/FormPageHeader.svelte';
   import FormWithRightPanel from '$lib/components/shared/FormWithRightPanel.svelte';
-  import FormSection from '$lib/components/shared/FormSection.svelte';
   import SectionHeading from '$lib/components/primitives/SectionHeading.svelte';
-  import NumberInput from '$lib/components/primitives/NumberInput.svelte';
 
   interface KravData {
     metode?: VederlagsMetode;
@@ -149,11 +146,9 @@
   // Submission
   let submitting = $state(false);
   let submitError = $state<string | null>(null);
-  let draftReady = $state(true);
 
   // Auto-save draft
   $effect(() => {
-    if (!draftReady) return;
     saveDraft(dk, {
       hovedkravVarsletITide,
       riggVarsletITide,
@@ -210,53 +205,103 @@
     return linjer;
   });
 
-  const sumKrevd = $derived(computed.totalKrevdInklPrekludert);
+  // Preklusjonslinjer for data-drevet PreklusjonsVurdering
+  const preklusjonsLinjer = $derived.by(() => {
+    const linjer: Array<{ key: string; label: string; value: boolean | undefined }> = [];
+    if (computed.har34_1_2_Preklusjon) {
+      linjer.push({ key: 'hovedkrav', label: 'Hovedkrav (§34.1.2)', value: hovedkravVarsletITide });
+    }
+    if (krav.harRiggKrav) {
+      linjer.push({ key: 'rigg', label: 'Rigg og drift (§34.1.3)', value: riggVarsletITide });
+    }
+    if (krav.harProduktivitetKrav) {
+      linjer.push({
+        key: 'produktivitet',
+        label: 'Produktivitetstap (§34.1.3)',
+        value: produktivitetVarsletITide,
+      });
+    }
+    return linjer;
+  });
 
-  // Begrunnelse entries for thread panel
-  const begrunnelseEntries = $derived(tidligereSvar);
+  function handlePreklusjon(key: string, value: boolean) {
+    if (key === 'hovedkrav') hovedkravVarsletITide = value;
+    else if (key === 'rigg') riggVarsletITide = value;
+    else produktivitetVarsletITide = value;
+  }
 
-  // Metode-alternativer (ekskluder TEs valgte)
-  const metodeAlternativer = $derived(
-    VEDERLAGSMETODER_OPTIONS.filter((o) => o.value && o.value !== krav.metode).map((o) => ({
-      value: o.value,
-      label: o.label,
-    }))
-  );
+  // Kravlinjer for data-drevet KravlinjeVurdering
+  interface KravlinjeItem {
+    key: string;
+    title: string;
+    paragrafRef: string;
+    krevdBelop: number | undefined;
+    prekludert: boolean;
+    vurdering: BelopVurdering | undefined;
+    godkjentBelop: number | undefined;
+  }
+
+  const kravlinjer = $derived.by(() => {
+    const linjer: KravlinjeItem[] = [
+      {
+        key: 'hovedkrav',
+        title: 'Hovedkrav',
+        paragrafRef: '§34.1.1–34.1.2',
+        krevdBelop: krav.hovedkravBelop,
+        prekludert: computed.hovedkravPrekludert,
+        vurdering: hovedkravVurdering,
+        godkjentBelop: hovedkravGodkjentBelop,
+      },
+    ];
+    if (krav.harRiggKrav) {
+      linjer.push({
+        key: 'rigg',
+        title: 'Rigg og drift',
+        paragrafRef: '§34.1.3',
+        krevdBelop: krav.riggBelop,
+        prekludert: computed.riggPrekludert,
+        vurdering: riggVurdering,
+        godkjentBelop: riggGodkjentBelop,
+      });
+    }
+    if (krav.harProduktivitetKrav) {
+      linjer.push({
+        key: 'produktivitet',
+        title: 'Produktivitetstap',
+        paragrafRef: '§34.1.3',
+        krevdBelop: krav.produktivitetBelop,
+        prekludert: computed.produktivitetPrekludert,
+        vurdering: produktivitetVurdering,
+        godkjentBelop: produktivitetGodkjentBelop,
+      });
+    }
+    return linjer;
+  });
+
+  function handleKravlinjeVurdering(key: string, v: BelopVurdering) {
+    if (key === 'hovedkrav') hovedkravVurdering = v;
+    else if (key === 'rigg') riggVurdering = v;
+    else produktivitetVurdering = v;
+  }
+
+  function handleKravlinjeBelop(key: string, v: number | undefined) {
+    if (key === 'hovedkrav') hovedkravGodkjentBelop = v;
+    else if (key === 'rigg') riggGodkjentBelop = v;
+    else produktivitetGodkjentBelop = v;
+  }
 
   // --- Validation ---
   const kanSende = $derived.by(() => {
     if (submitting) return false;
-    // Port 1: Preklusjon fields must be answered when visible
-    if (computed.harPreklusjonsSteg) {
-      if (computed.har34_1_2_Preklusjon && hovedkravVarsletITide === undefined) return false;
-      if (krav.harRiggKrav && riggVarsletITide === undefined) return false;
-      if (krav.harProduktivitetKrav && produktivitetVarsletITide === undefined) return false;
-    }
+    // Port 1: Preklusjon — alle synlige linjer må besvares
+    if (computed.harPreklusjonsSteg && preklusjonsLinjer.some((l) => l.value === undefined))
+      return false;
     // Port 2: Metode
     if (akseptererMetode === undefined) return false;
     if (akseptererMetode === false && !oensketMetode) return false;
-    if (!hovedkravVurdering) return false;
-    if (
-      hovedkravVurdering === 'delvis' &&
-      (hovedkravGodkjentBelop === undefined || hovedkravGodkjentBelop === null)
-    )
-      return false;
-    if (krav.harRiggKrav) {
-      if (!riggVurdering) return false;
-      if (
-        riggVurdering === 'delvis' &&
-        (riggGodkjentBelop === undefined || riggGodkjentBelop === null)
-      )
-        return false;
-    }
-    if (krav.harProduktivitetKrav) {
-      if (!produktivitetVurdering) return false;
-      if (
-        produktivitetVurdering === 'delvis' &&
-        (produktivitetGodkjentBelop === undefined || produktivitetGodkjentBelop === null)
-      )
-        return false;
-    }
+    // Port 3: Beløp — alle kravlinjer må ha gyldig vurdering
+    if (kravlinjer.some((l) => !erKravlinjeGyldig(l.vurdering, l.godkjentBelop))) return false;
+    // Port 4: Begrunnelse
     if (isHtmlEmpty(bhBegrunnelseHtml)) return false;
     return true;
   });
@@ -294,22 +339,10 @@
   function handleAvbryt() {
     goto(`/${prosjektId}/${sakId}`);
   }
-
-  // --- Options ---
-  const vurderingOptions = [
-    { value: 'godkjent', label: 'Godkjent', icon: 'check' as const, colorScheme: 'green' as const },
-    { value: 'delvis', label: 'Delvis godkjent' },
-    { value: 'avslatt', label: 'Avslått', icon: 'cross' as const, colorScheme: 'red' as const },
-  ];
-
-  const preklusjonsOptions = [
-    { value: 'ja', label: 'Ja, i tide' },
-    { value: 'nei', label: 'Nei, prekludert', colorScheme: 'red' as const },
-  ];
 </script>
 
 <FormWithRightPanel
-  entries={begrunnelseEntries}
+  entries={tidligereSvar}
   bind:bhBegrunnelseHtml
   {teNavn}
   {bhNavn}
@@ -335,7 +368,7 @@
   <VederlagSammendrag
     metode={krav.metode}
     kravlinjer={sammendragKravlinjer}
-    {sumKrevd}
+    sumKrevd={computed.totalKrevdInklPrekludert}
     begrunnelseHtml={krav.begrunnelseHtml}
   />
 
@@ -358,165 +391,34 @@
 
   <!-- Port 1: Preklusjon -->
   {#if computed.harPreklusjonsSteg}
-    <FormSection>
-      <SectionHeading title="Preklusjon" paragrafRef="§34.1.2 / §34.1.3" />
-      <p class="helptext">Er kravene varslet innen kontraktens varslingsfrister?</p>
-
-      {#if computed.har34_1_2_Preklusjon}
-        <div class="preklusjons-rad">
-          <span class="preklusjons-label">Hovedkrav (§34.1.2)</span>
-          <SegmentedButtons
-            options={preklusjonsOptions}
-            selected={boolToSegment(hovedkravVarsletITide)}
-            onselect={(v) => (hovedkravVarsletITide = v === 'ja')}
-            size="sm"
-          />
-        </div>
-      {/if}
-
-      {#if krav.harRiggKrav}
-        <div class="preklusjons-rad">
-          <span class="preklusjons-label">Rigg og drift (§34.1.3)</span>
-          <SegmentedButtons
-            options={preklusjonsOptions}
-            selected={boolToSegment(riggVarsletITide)}
-            onselect={(v) => (riggVarsletITide = v === 'ja')}
-            size="sm"
-          />
-        </div>
-      {/if}
-
-      {#if krav.harProduktivitetKrav}
-        <div class="preklusjons-rad">
-          <span class="preklusjons-label">Produktivitetstap (§34.1.3)</span>
-          <SegmentedButtons
-            options={preklusjonsOptions}
-            selected={boolToSegment(produktivitetVarsletITide)}
-            onselect={(v) => (produktivitetVarsletITide = v === 'ja')}
-            size="sm"
-          />
-        </div>
-      {/if}
-    </FormSection>
+    <PreklusjonsVurdering linjer={preklusjonsLinjer} onchange={handlePreklusjon} />
   {/if}
 
   <!-- Port 2: Beregningsmetode -->
-  <FormSection>
-    <SectionHeading title="Beregningsmetode" paragrafRef="§34.2" />
-    <p class="helptext">
-      TE krever {getVederlagsmetodeShortLabel(krav.metode)?.toLowerCase() ?? 'ukjent metode'}.
-      Aksepterer du beregningsmetoden?
-    </p>
-    <SegmentedButtons
-      options={[
-        { value: 'ja', label: 'Ja' },
-        { value: 'nei', label: 'Nei' },
-      ]}
-      selected={boolToSegment(akseptererMetode)}
-      onselect={(v) => {
-        akseptererMetode = v === 'ja';
-        if (v === 'ja') oensketMetode = undefined;
-      }}
-      size="sm"
-    />
-    {#if akseptererMetode === false}
-      <div class="foretrukket-metode">
-        <span class="foretrukket-label">Foretrukket metode:</span>
-        <SegmentedButtons
-          options={metodeAlternativer}
-          selected={oensketMetode}
-          onselect={(v) => (oensketMetode = v as VederlagsMetode)}
-          size="sm"
-        />
-      </div>
-    {/if}
-  </FormSection>
+  <BeregningsmetodeVurdering
+    teMetode={krav.metode}
+    {akseptererMetode}
+    {oensketMetode}
+    onaksepterer={(v) => {
+      akseptererMetode = v;
+      if (v) oensketMetode = undefined;
+    }}
+    onoensket={(v) => (oensketMetode = v)}
+  />
 
   <!-- Port 3: Per-kravlinje evaluering -->
-  <FormSection>
-    <SectionHeading title="Hovedkrav" paragrafRef="§34.1.1–34.1.2" />
-    {#if computed.hovedkravPrekludert}
-      <div class="subsidiaer-markering">Subsidiært</div>
-    {/if}
-    <div class="krevd-linje">
-      Krevd: <span class="krevd-belop">{formatCurrency(krav.hovedkravBelop)}</span>
-    </div>
-    <SegmentedButtons
-      options={vurderingOptions}
-      selected={hovedkravVurdering}
-      onselect={(v) => (hovedkravVurdering = v as BelopVurdering)}
+  {#each kravlinjer as linje (linje.key)}
+    <KravlinjeVurdering
+      title={linje.title}
+      paragrafRef={linje.paragrafRef}
+      krevdBelop={linje.krevdBelop}
+      prekludert={linje.prekludert}
+      vurdering={linje.vurdering}
+      godkjentBelop={linje.godkjentBelop}
+      onvurdering={(v) => handleKravlinjeVurdering(linje.key, v)}
+      ongodkjentbelop={(v) => handleKravlinjeBelop(linje.key, v)}
     />
-    {#if hovedkravVurdering === 'delvis'}
-      <div class="field-amount">
-        <NumberInput
-          value={hovedkravGodkjentBelop}
-          label="Godkjent beløp"
-          suffix="kr"
-          max={krav.hovedkravBelop}
-          referenceValue={krav.hovedkravBelop}
-          onchange={(v) => (hovedkravGodkjentBelop = v)}
-        />
-      </div>
-    {/if}
-  </FormSection>
-
-  {#if krav.harRiggKrav}
-    <FormSection>
-      <SectionHeading title="Rigg og drift" paragrafRef="§34.1.3" />
-      {#if computed.riggPrekludert}
-        <div class="subsidiaer-markering">Subsidiært</div>
-      {/if}
-      <div class="krevd-linje">
-        Krevd: <span class="krevd-belop">{formatCurrency(krav.riggBelop)}</span>
-      </div>
-      <SegmentedButtons
-        options={vurderingOptions}
-        selected={riggVurdering}
-        onselect={(v) => (riggVurdering = v as BelopVurdering)}
-      />
-      {#if riggVurdering === 'delvis'}
-        <div class="field-amount">
-          <NumberInput
-            value={riggGodkjentBelop}
-            label="Godkjent beløp"
-            suffix="kr"
-            max={krav.riggBelop}
-            referenceValue={krav.riggBelop}
-            onchange={(v) => (riggGodkjentBelop = v)}
-          />
-        </div>
-      {/if}
-    </FormSection>
-  {/if}
-
-  {#if krav.harProduktivitetKrav}
-    <FormSection>
-      <SectionHeading title="Produktivitetstap" paragrafRef="§34.1.3" />
-      {#if computed.produktivitetPrekludert}
-        <div class="subsidiaer-markering">Subsidiært</div>
-      {/if}
-      <div class="krevd-linje">
-        Krevd: <span class="krevd-belop">{formatCurrency(krav.produktivitetBelop)}</span>
-      </div>
-      <SegmentedButtons
-        options={vurderingOptions}
-        selected={produktivitetVurdering}
-        onselect={(v) => (produktivitetVurdering = v as BelopVurdering)}
-      />
-      {#if produktivitetVurdering === 'delvis'}
-        <div class="field-amount">
-          <NumberInput
-            value={produktivitetGodkjentBelop}
-            label="Godkjent beløp"
-            suffix="kr"
-            max={krav.produktivitetBelop}
-            referenceValue={krav.produktivitetBelop}
-            onchange={(v) => (produktivitetGodkjentBelop = v)}
-          />
-        </div>
-      {/if}
-    </FormSection>
-  {/if}
+  {/each}
 
   <!-- Konsekvens -->
   <VederlagKonsekvens
@@ -543,57 +445,5 @@
 
   .subsidiaer-banner p {
     margin: 0;
-  }
-
-  .preklusjons-rad {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--spacing-3);
-    padding: var(--spacing-2) 0;
-  }
-
-  .preklusjons-label {
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--color-ink);
-  }
-
-  .foretrukket-metode {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-2);
-    padding-top: var(--spacing-2);
-  }
-
-  .foretrukket-label {
-    font-size: 12px;
-    color: var(--color-ink-muted);
-  }
-
-  .subsidiaer-markering {
-    font-family: var(--font-data);
-    font-size: 10px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: var(--color-vekt);
-    padding: 2px 6px;
-    background: var(--color-vekt-bg);
-    border: 1px dashed var(--color-vekt);
-    border-radius: var(--radius-sm);
-    align-self: flex-start;
-  }
-
-  .krevd-linje {
-    font-size: 13px;
-    color: var(--color-ink-secondary);
-  }
-
-  .krevd-belop {
-    font-family: var(--font-data);
-    font-variant-numeric: tabular-nums;
-    font-weight: 500;
-    color: var(--color-ink);
   }
 </style>
