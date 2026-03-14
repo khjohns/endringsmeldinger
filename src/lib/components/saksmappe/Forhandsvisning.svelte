@@ -3,6 +3,7 @@
   import { extractEventType } from '$lib/types/timeline';
   import { getEventBestemmelse } from '$lib/constants/eventBestemmelser';
   import { getPartsNavn } from '$lib/utils/partsNavn';
+  import { getEventIcon } from '$lib/utils/eventIcons';
 
   interface Props {
     event: TimelineEvent | null;
@@ -14,41 +15,6 @@
   }
 
   let { event, prosjektId, sakId, onClose, teNavn, bhNavn }: Props = $props();
-
-  // --- Icon mapping (mirrors HendelsesLogg) ---
-
-  interface EventIcon {
-    symbol: string;
-    cssClass: string;
-  }
-
-  function getEventIcon(eventType: EventType | null): EventIcon {
-    if (!eventType) return { symbol: '\u00B7', cssClass: '' };
-
-    if (
-      eventType.includes('sendt') ||
-      eventType === 'frist_krav_sendt' ||
-      eventType === 'vederlag_krav_sendt'
-    ) {
-      return { symbol: '\u2192', cssClass: 'sendt' };
-    }
-    if (eventType.includes('opprettet') && !eventType.includes('oppdatert')) {
-      return { symbol: '\u2691', cssClass: 'varslet' };
-    }
-    if (eventType.includes('oppdatert') || eventType.includes('spesifisert')) {
-      return { symbol: '\u21BB', cssClass: 'revisjon' };
-    }
-    if (eventType.startsWith('respons_') && !eventType.includes('oppdatert')) {
-      return { symbol: '\u25C7', cssClass: 'respons' };
-    }
-    if (eventType.includes('aksept')) {
-      return { symbol: '\u2713', cssClass: 'godkjent' };
-    }
-    if (eventType.includes('trukket') || eventType.includes('avslatt')) {
-      return { symbol: '\u2715', cssClass: 'avslatt' };
-    }
-    return { symbol: '\u00B7', cssClass: '' };
-  }
 
   // --- Data extraction ---
 
