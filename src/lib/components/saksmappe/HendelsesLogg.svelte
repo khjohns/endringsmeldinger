@@ -110,9 +110,11 @@
   function getEventVersion(event: TimelineEvent): number | null {
     const data = event.data as Record<string, unknown> | undefined;
     if (!data) return null;
-    // BH response references TE version
     if ('respondert_versjon' in data && typeof data.respondert_versjon === 'number') {
       return data.respondert_versjon;
+    }
+    if ('versjon' in data && typeof data.versjon === 'number') {
+      return (data.versjon as number) - 1;
     }
     return null;
   }
@@ -157,31 +159,24 @@
   // Entanglement: track which event indices are "linked" to the focused event
   let entangledIndices = $state<Set<number>>(new Set());
 
-  function getTeClaimVersion(index: number): number | null {
-    const data = events[index]?.data as Record<string, unknown> | undefined;
-    return data && 'versjon' in data && typeof data.versjon === 'number'
-      ? (data.versjon as number) - 1
-      : null;
-  }
-
   function findEntangledIndices(clickedIndex: number): Set<number> {
     const clicked = allEntries[clickedIndex];
-    if (!clicked) return new Set();
+    if (!clicked || clicked.version == null) return new Set();
 
     const linked = new Set<number>();
-
-    // BH response → find matching TE claim, or TE claim → find matching BH response
-    const isBhResponse = clicked.isResponse && clicked.version != null;
+    const isBhResponse = clicked.isResponse;
     const isTeClaim = clicked.actorRole === 'TE' && !clicked.isResponse;
     if (!isBhResponse && !isTeClaim) return linked;
 
-    const targetVersion = isBhResponse ? clicked.version : getTeClaimVersion(clickedIndex);
-    if (targetVersion == null) return linked;
-
     for (const entry of allEntries) {
-      if (isBhResponse && entry.actorRole === 'TE' && !entry.isResponse) {
-        if (getTeClaimVersion(entry.index) === targetVersion) linked.add(entry.index);
-      } else if (isTeClaim && entry.isResponse && entry.version === targetVersion) {
+      if (
+        isBhResponse &&
+        entry.actorRole === 'TE' &&
+        !entry.isResponse &&
+        entry.version === clicked.version
+      ) {
+        linked.add(entry.index);
+      } else if (isTeClaim && entry.isResponse && entry.version === clicked.version) {
         linked.add(entry.index);
       }
     }

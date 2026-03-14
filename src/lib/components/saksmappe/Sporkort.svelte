@@ -5,6 +5,7 @@
   import { formatCurrencyCompact } from '$lib/utils/formatters';
   import { getPartsNavn } from '$lib/utils/partsNavn';
   import { beregnVarslingStatus } from '$lib/utils/varslingStatus';
+  import { getEventIcon } from '$lib/utils/eventIcons';
   import { isAwaitingResponse } from '$lib/utils/sporStatus';
   import { browser } from '$app/environment';
   import { onMount } from 'svelte';
@@ -181,21 +182,6 @@
   });
 
   // --- Hendelse-kontekst: siste hendelse for dette sporet ---
-
-  function getEventIcon(eventType: EventType | null): { symbol: string; color: string } {
-    if (!eventType) return { symbol: '·', color: 'var(--color-ink-muted)' };
-    if (eventType.includes('sendt')) return { symbol: '\u2192', color: 'var(--color-ink-muted)' };
-    if (eventType.includes('opprettet') && !eventType.includes('oppdatert'))
-      return { symbol: '\u2691', color: 'var(--color-ink-muted)' };
-    if (eventType.includes('oppdatert') || eventType.includes('spesifisert'))
-      return { symbol: '\u21BB', color: 'var(--color-vekt-dim)' };
-    if (eventType.startsWith('respons_') && !eventType.includes('oppdatert'))
-      return { symbol: '\u25C7', color: 'var(--color-score-high)' };
-    if (eventType.includes('aksept')) return { symbol: '\u2713', color: 'var(--color-score-high)' };
-    if (eventType.includes('trukket') || eventType.includes('avslatt'))
-      return { symbol: '\u2715', color: 'var(--color-score-low)' };
-    return { symbol: '·', color: 'var(--color-ink-muted)' };
-  }
 
   const latestEvent = $derived(events.length > 0 ? events[0] : null);
 
