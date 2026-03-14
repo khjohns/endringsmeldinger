@@ -86,12 +86,57 @@
     isBH: boolean;
     label: string;
     actorName: string;
-    revision: number | null; // null = rev 0 (original), 1+ for revisions
-    value: number | null; // beløp or dager
+    revision: number | null;
+    value: number | null;
     valueLabel: string | null;
     isResponse: boolean;
-    version: number | null; // for entanglement matching
+    version: number | null;
     date: string;
+  }
+
+  interface VersionInfo {
+    version: number | null;
+    revision: number | null;
+  }
+
+  function extractVersionInfo(data: Record<string, unknown> | undefined): VersionInfo {
+    if (!data) return { version: null, revision: null };
+    if ('respondert_versjon' in data && typeof data.respondert_versjon === 'number') {
+      return {
+        version: data.respondert_versjon,
+        revision: data.respondert_versjon > 0 ? data.respondert_versjon : null,
+      };
+    }
+    if ('versjon' in data && typeof data.versjon === 'number') {
+      const v = (data.versjon as number) - 1;
+      return { version: v, revision: v > 0 ? v : null };
+    }
+    return { version: null, revision: null };
+  }
+
+  interface ValueInfo {
+    value: number | null;
+    valueLabel: string | null;
+  }
+
+  function extractValue(spor: SporType, data: Record<string, unknown> | undefined): ValueInfo {
+    if (!data) return { value: null, valueLabel: null };
+    if (spor === 'vederlag') {
+      const belop = (data.godkjent_belop ??
+        data.krevd_belop ??
+        data.netto_belop ??
+        data.belop_direkte) as number | undefined;
+      if (belop != null) {
+        return { value: belop, valueLabel: belop > 0 ? formatCurrency(belop) : 'Avvist (0)' };
+      }
+    }
+    if (spor === 'frist') {
+      const dager = (data.godkjent_dager ?? data.krevd_dager) as number | undefined;
+      if (dager != null) {
+        return { value: dager, valueLabel: dager > 0 ? `${dager} dager` : 'Avvist (0)' };
+      }
+    }
+    return { value: null, valueLabel: null };
   }
 
   function extractNodeData(ev: TimelineEvent): NodeData | null {
@@ -101,43 +146,8 @@
     const eventType = extractEventType(ev.type);
     const actor: 'TE' | 'BH' = (ev.actorrole as 'TE' | 'BH') ?? 'TE';
     const data = ev.data as Record<string, unknown> | undefined;
-
-    // Revision: respondert_versjon for responses, or versjon for claims
-    let revision: number | null = null;
-    let version: number | null = null;
-    if (data) {
-      if ('respondert_versjon' in data && typeof data.respondert_versjon === 'number') {
-        version = data.respondert_versjon;
-        revision = data.respondert_versjon > 0 ? data.respondert_versjon : null;
-      } else if ('versjon' in data && typeof data.versjon === 'number') {
-        version = (data.versjon as number) - 1; // 0-indexed
-        revision = version > 0 ? version : null;
-      }
-    }
-
-    // Value: beløp for vederlag, dager for frist
-    let value: number | null = null;
-    let valueLabel: string | null = null;
-    if (spor === 'vederlag' && data) {
-      const belop = (data.godkjent_belop ??
-        data.krevd_belop ??
-        data.netto_belop ??
-        data.belop_direkte) as number | undefined;
-      if (belop != null) {
-        value = belop;
-        valueLabel = belop > 0 ? `${formatCurrency(belop)}` : 'Avvist (0)';
-      }
-    }
-    if (spor === 'frist' && data) {
-      const dager = (data.godkjent_dager ?? data.krevd_dager) as number | undefined;
-      if (dager != null) {
-        value = dager;
-        valueLabel = dager > 0 ? `${dager} dager` : 'Avvist (0)';
-      }
-    }
-
-    const isResponse = eventType ? eventType.startsWith('respons_') : false;
-    const label = ev.summary ?? getEventTypeLabel(eventType);
+    const { version, revision } = extractVersionInfo(data);
+    const { value, valueLabel } = extractValue(spor, data);
 
     return {
       id: ev.id,
@@ -147,12 +157,12 @@
       sporColor: SPOR_COLORS[spor],
       actor,
       isBH: actor === 'BH',
-      label,
+      label: ev.summary ?? getEventTypeLabel(eventType),
       actorName: getPartsNavn(actor, sakState.entreprenor, sakState.byggherre),
       revision,
       value,
       valueLabel,
-      isResponse,
+      isResponse: eventType ? eventType.startsWith('respons_') : false,
       version,
       date: ev.time ?? '',
     };
