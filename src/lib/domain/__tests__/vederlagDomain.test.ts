@@ -20,6 +20,7 @@ import {
   getDynamicPlaceholder,
   deriveVurdering,
   getGodkjentForDisplay,
+  erKravlinjeGyldig,
   buildEventData,
   beregnAlt,
   type VederlagFormState,
@@ -1074,5 +1075,34 @@ describe('BH Svar-Vederlag UI Scenarios', () => {
     };
     const computed = beregnAlt(godkjentAlleState, config);
     expect(computed.harPreklusjonsSteg).toBe(false);
+  });
+});
+
+// ============================================================================
+// erKravlinjeGyldig
+// ============================================================================
+describe('erKravlinjeGyldig', () => {
+  it('returns false when vurdering is undefined', () => {
+    expect(erKravlinjeGyldig(undefined, undefined)).toBe(false);
+  });
+
+  it('returns true when godkjent', () => {
+    expect(erKravlinjeGyldig('godkjent', undefined)).toBe(true);
+  });
+
+  it('returns true when avslatt', () => {
+    expect(erKravlinjeGyldig('avslatt', undefined)).toBe(true);
+  });
+
+  it('returns false when delvis without beløp', () => {
+    expect(erKravlinjeGyldig('delvis', undefined)).toBe(false);
+  });
+
+  it('returns true when delvis with beløp', () => {
+    expect(erKravlinjeGyldig('delvis', 50000)).toBe(true);
+  });
+
+  it('returns true when delvis with zero beløp', () => {
+    expect(erKravlinjeGyldig('delvis', 0)).toBe(true);
   });
 });
