@@ -6,6 +6,7 @@
     getDefaults,
     erSubsidiaer as erSubsidiaerFn,
     erHelVederlagSubsidiaerPgaGrunnlag,
+    erKravlinjeGyldig,
   } from '$lib/domain/vederlagDomain';
   import type {
     VederlagFormState,
@@ -204,40 +205,103 @@
     return linjer;
   });
 
+  // Preklusjonslinjer for data-drevet PreklusjonsVurdering
+  const preklusjonsLinjer = $derived.by(() => {
+    const linjer: Array<{ key: string; label: string; value: boolean | undefined }> = [];
+    if (computed.har34_1_2_Preklusjon) {
+      linjer.push({ key: 'hovedkrav', label: 'Hovedkrav (§34.1.2)', value: hovedkravVarsletITide });
+    }
+    if (krav.harRiggKrav) {
+      linjer.push({ key: 'rigg', label: 'Rigg og drift (§34.1.3)', value: riggVarsletITide });
+    }
+    if (krav.harProduktivitetKrav) {
+      linjer.push({
+        key: 'produktivitet',
+        label: 'Produktivitetstap (§34.1.3)',
+        value: produktivitetVarsletITide,
+      });
+    }
+    return linjer;
+  });
+
+  function handlePreklusjon(key: string, value: boolean) {
+    if (key === 'hovedkrav') hovedkravVarsletITide = value;
+    else if (key === 'rigg') riggVarsletITide = value;
+    else produktivitetVarsletITide = value;
+  }
+
+  // Kravlinjer for data-drevet KravlinjeVurdering
+  interface KravlinjeItem {
+    key: string;
+    title: string;
+    paragrafRef: string;
+    krevdBelop: number | undefined;
+    prekludert: boolean;
+    vurdering: BelopVurdering | undefined;
+    godkjentBelop: number | undefined;
+  }
+
+  const kravlinjer = $derived.by(() => {
+    const linjer: KravlinjeItem[] = [
+      {
+        key: 'hovedkrav',
+        title: 'Hovedkrav',
+        paragrafRef: '§34.1.1–34.1.2',
+        krevdBelop: krav.hovedkravBelop,
+        prekludert: computed.hovedkravPrekludert,
+        vurdering: hovedkravVurdering,
+        godkjentBelop: hovedkravGodkjentBelop,
+      },
+    ];
+    if (krav.harRiggKrav) {
+      linjer.push({
+        key: 'rigg',
+        title: 'Rigg og drift',
+        paragrafRef: '§34.1.3',
+        krevdBelop: krav.riggBelop,
+        prekludert: computed.riggPrekludert,
+        vurdering: riggVurdering,
+        godkjentBelop: riggGodkjentBelop,
+      });
+    }
+    if (krav.harProduktivitetKrav) {
+      linjer.push({
+        key: 'produktivitet',
+        title: 'Produktivitetstap',
+        paragrafRef: '§34.1.3',
+        krevdBelop: krav.produktivitetBelop,
+        prekludert: computed.produktivitetPrekludert,
+        vurdering: produktivitetVurdering,
+        godkjentBelop: produktivitetGodkjentBelop,
+      });
+    }
+    return linjer;
+  });
+
+  function handleKravlinjeVurdering(key: string, v: BelopVurdering) {
+    if (key === 'hovedkrav') hovedkravVurdering = v;
+    else if (key === 'rigg') riggVurdering = v;
+    else produktivitetVurdering = v;
+  }
+
+  function handleKravlinjeBelop(key: string, v: number | undefined) {
+    if (key === 'hovedkrav') hovedkravGodkjentBelop = v;
+    else if (key === 'rigg') riggGodkjentBelop = v;
+    else produktivitetGodkjentBelop = v;
+  }
+
   // --- Validation ---
   const kanSende = $derived.by(() => {
     if (submitting) return false;
-    // Port 1: Preklusjon fields must be answered when visible
-    if (computed.harPreklusjonsSteg) {
-      if (computed.har34_1_2_Preklusjon && hovedkravVarsletITide === undefined) return false;
-      if (krav.harRiggKrav && riggVarsletITide === undefined) return false;
-      if (krav.harProduktivitetKrav && produktivitetVarsletITide === undefined) return false;
-    }
+    // Port 1: Preklusjon — alle synlige linjer må besvares
+    if (computed.harPreklusjonsSteg && preklusjonsLinjer.some((l) => l.value === undefined))
+      return false;
     // Port 2: Metode
     if (akseptererMetode === undefined) return false;
     if (akseptererMetode === false && !oensketMetode) return false;
-    if (!hovedkravVurdering) return false;
-    if (
-      hovedkravVurdering === 'delvis' &&
-      (hovedkravGodkjentBelop === undefined || hovedkravGodkjentBelop === null)
-    )
-      return false;
-    if (krav.harRiggKrav) {
-      if (!riggVurdering) return false;
-      if (
-        riggVurdering === 'delvis' &&
-        (riggGodkjentBelop === undefined || riggGodkjentBelop === null)
-      )
-        return false;
-    }
-    if (krav.harProduktivitetKrav) {
-      if (!produktivitetVurdering) return false;
-      if (
-        produktivitetVurdering === 'delvis' &&
-        (produktivitetGodkjentBelop === undefined || produktivitetGodkjentBelop === null)
-      )
-        return false;
-    }
+    // Port 3: Beløp — alle kravlinjer må ha gyldig vurdering
+    if (kravlinjer.some((l) => !erKravlinjeGyldig(l.vurdering, l.godkjentBelop))) return false;
+    // Port 4: Begrunnelse
     if (isHtmlEmpty(bhBegrunnelseHtml)) return false;
     return true;
   });
@@ -327,17 +391,7 @@
 
   <!-- Port 1: Preklusjon -->
   {#if computed.harPreklusjonsSteg}
-    <PreklusjonsVurdering
-      har34_1_2_Preklusjon={computed.har34_1_2_Preklusjon}
-      harRiggKrav={krav.harRiggKrav}
-      harProduktivitetKrav={krav.harProduktivitetKrav}
-      {hovedkravVarsletITide}
-      {riggVarsletITide}
-      {produktivitetVarsletITide}
-      onhovedkrav={(v) => (hovedkravVarsletITide = v)}
-      onrigg={(v) => (riggVarsletITide = v)}
-      onproduktivitet={(v) => (produktivitetVarsletITide = v)}
-    />
+    <PreklusjonsVurdering linjer={preklusjonsLinjer} onchange={handlePreklusjon} />
   {/if}
 
   <!-- Port 2: Beregningsmetode -->
@@ -353,42 +407,18 @@
   />
 
   <!-- Port 3: Per-kravlinje evaluering -->
-  <KravlinjeVurdering
-    title="Hovedkrav"
-    paragrafRef="§34.1.1–34.1.2"
-    krevdBelop={krav.hovedkravBelop}
-    prekludert={computed.hovedkravPrekludert}
-    vurdering={hovedkravVurdering}
-    godkjentBelop={hovedkravGodkjentBelop}
-    onvurdering={(v) => (hovedkravVurdering = v)}
-    ongodkjentbelop={(v) => (hovedkravGodkjentBelop = v)}
-  />
-
-  {#if krav.harRiggKrav}
+  {#each kravlinjer as linje (linje.key)}
     <KravlinjeVurdering
-      title="Rigg og drift"
-      paragrafRef="§34.1.3"
-      krevdBelop={krav.riggBelop}
-      prekludert={computed.riggPrekludert}
-      vurdering={riggVurdering}
-      godkjentBelop={riggGodkjentBelop}
-      onvurdering={(v) => (riggVurdering = v)}
-      ongodkjentbelop={(v) => (riggGodkjentBelop = v)}
+      title={linje.title}
+      paragrafRef={linje.paragrafRef}
+      krevdBelop={linje.krevdBelop}
+      prekludert={linje.prekludert}
+      vurdering={linje.vurdering}
+      godkjentBelop={linje.godkjentBelop}
+      onvurdering={(v) => handleKravlinjeVurdering(linje.key, v)}
+      ongodkjentbelop={(v) => handleKravlinjeBelop(linje.key, v)}
     />
-  {/if}
-
-  {#if krav.harProduktivitetKrav}
-    <KravlinjeVurdering
-      title="Produktivitetstap"
-      paragrafRef="§34.1.3"
-      krevdBelop={krav.produktivitetBelop}
-      prekludert={computed.produktivitetPrekludert}
-      vurdering={produktivitetVurdering}
-      godkjentBelop={produktivitetGodkjentBelop}
-      onvurdering={(v) => (produktivitetVurdering = v)}
-      ongodkjentbelop={(v) => (produktivitetGodkjentBelop = v)}
-    />
-  {/if}
+  {/each}
 
   <!-- Konsekvens -->
   <VederlagKonsekvens
