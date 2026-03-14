@@ -12,7 +12,6 @@
   import { getPartsNavn } from '$lib/utils/partsNavn';
   import { formatCurrency } from '$lib/utils/formatters';
   import { isAwaitingResponse } from '$lib/utils/sporStatus';
-  import { getEventIcon } from '$lib/utils/eventIcons';
   import type { SporFilter } from './VisningstToggle.svelte';
 
   interface Props {
