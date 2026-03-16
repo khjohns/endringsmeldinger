@@ -5,7 +5,7 @@
     VederlagTilstand,
     FristTilstand,
   } from '$lib/types/timeline';
-  import { formatDateShort } from '$lib/utils/formatters';
+  import { formatDateShort, formatCurrency } from '$lib/utils/formatters';
   import { getKontraktsforholdLabel, getHjemmelLabel } from '$lib/constants/categories';
   import StatusQuoGap from './StatusQuoGap.svelte';
 
@@ -26,8 +26,8 @@
       (sporType === 'frist' && frist?.godkjent_dager != null)
   );
 
-  // Left-side descriptive segments (method, category, revision)
-  const leftSegments = $derived.by(() => {
+  // Single-line segments: label · label · label (all mono, dot-separated)
+  const segments = $derived.by(() => {
     const parts: string[] = [];
 
     if (sporType === 'grunnlag' && grunnlag) {
@@ -42,27 +42,38 @@
     }
 
     if (sporType === 'frist' && frist) {
-      if (frist.ny_sluttdato) {
-        parts.push(`Ny dato ${formatDateShort(frist.ny_sluttdato)}`);
+      if (frist.frist_varsel?.dato_sendt) {
+        parts.push(`Varslet ${formatDateShort(frist.frist_varsel.dato_sendt)}`);
+      }
+      if (frist.krevd_dager != null) {
+        parts.push(`Krevd ${frist.krevd_dager} dager`);
+      }
+      if (frist.spesifisert_varsel?.dato_sendt) {
+        parts.push(`Krav fremsatt ${formatDateShort(frist.spesifisert_varsel.dato_sendt)}`);
+      }
+    }
+
+    if (sporType === 'vederlag' && vederlag) {
+      const hovedbelop = vederlag.krevd_belop ?? vederlag.netto_belop ?? vederlag.kostnads_overslag;
+      if (hovedbelop != null) parts.push(`Hovedkrav ${formatCurrency(hovedbelop)}`);
+      if (vederlag.saerskilt_krav?.rigg_drift?.belop != null) {
+        parts.push(`R&D ${formatCurrency(vederlag.saerskilt_krav.rigg_drift.belop)}`);
+      }
+      if (vederlag.saerskilt_krav?.produktivitet?.belop != null) {
+        parts.push(`Prod. ${formatCurrency(vederlag.saerskilt_krav.produktivitet.belop)}`);
       }
     }
 
     return parts;
   });
-
-  const hasContent = $derived(leftSegments.length > 0);
 </script>
 
-{#if hasContent}
-  <div class="kort-data">
-    <div class="meta-sti">
-      {#each leftSegments as segment, i (i)}
-        {#if i > 0}
-          <span class="dot-sep" aria-hidden="true">&middot;</span>
-        {/if}
-        <span>{segment}</span>
-      {/each}
-    </div>
+{#if segments.length > 0}
+  <div class="meta-sti">
+    {#each segments as segment, i (i)}
+      {#if i > 0}<span class="dot-sep" aria-hidden="true">·</span>{/if}
+      <span>{segment}</span>
+    {/each}
   </div>
 {/if}
 
@@ -71,26 +82,18 @@
 {/if}
 
 <style>
-  .kort-data {
-    display: flex;
-    align-items: baseline;
-    min-width: 0;
-  }
-
   .meta-sti {
     font-family: var(--font-data);
     font-size: 11px;
     font-variant-numeric: tabular-nums;
     color: var(--color-ink-muted);
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    min-width: 0;
+    white-space: nowrap;
     overflow: hidden;
-    flex-wrap: wrap;
+    text-overflow: ellipsis;
   }
 
   .dot-sep {
     color: var(--color-ink-ghost);
+    margin: 0 4px;
   }
 </style>

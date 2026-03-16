@@ -75,8 +75,8 @@
     justify-content: space-between;
     align-items: center;
     gap: 8px;
-    margin-top: 4px;
-    padding-top: 8px;
+    margin-top: 2px;
+    padding-top: 4px;
     border-top: 1px dashed var(--color-wire);
   }
 
@@ -107,25 +107,23 @@
     font-family: var(--font-ui);
     font-size: 11px;
     font-weight: 500;
-    color: var(--color-ink-secondary);
+    color: var(--color-vekt);
     text-decoration: none;
     padding: 3px 10px;
-    border: 1px solid var(--color-wire-strong);
+    border: 1px solid color-mix(in srgb, var(--color-vekt) 30%, transparent);
     border-radius: var(--radius-sm);
-    background: var(--color-canvas);
+    background: var(--color-vekt-bg);
     cursor: pointer;
     white-space: nowrap;
     flex-shrink: 0;
     transition:
-      color 150ms ease,
       border-color 150ms ease,
       background 150ms ease;
   }
 
   .avventer-pill:hover {
-    color: var(--color-vekt);
     border-color: var(--color-vekt);
-    background: var(--color-felt-hover);
+    background: var(--color-vekt-bg-strong);
   }
 
   .avventer-pill.urgent {

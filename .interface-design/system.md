@@ -139,7 +139,7 @@ Venstre kant av et sporkort (border-left: 2px solid) er reservert for umiddelbar
 | Bortfalt | felt | 1px dashed ink-ghost |
 
 ### 2. Hoyreforankret Metrikk (The Tabular Wall)
-Alle tallverdier forankres til hoyre marg, formatert med JetBrains Mono (font-variant-numeric: tabular-nums). 15px font-size for nokkeltall i sporkort.
+Alle tallverdier forankres til hoyre marg, formatert med IBM Plex Mono (font-variant-numeric: tabular-nums). 12px font-size, weight 600 for nokkeltall i sporkort.
 
 ### 3. Skilleark (Date Dividers)
 Flat date-divider med `::after` horizontal rule. Ingen vertikal tidslinje-spine. Dokumenter grupperes under horisontale datolinjer. Nyeste overst, eldste nederst.
@@ -172,7 +172,7 @@ Interne elementer markeres med svak amber-bakgrunn (vekt-bg) og stiplet venstrek
 
 ### 6. Aksjonsknapper
 To varianter:
-- **Normal (amber outline):** vekt-bg bakgrunn, vekt tekst, vekt border 30%. For "BEHANDLE ->".
+- **Normal (amber outline):** vekt-bg bakgrunn, vekt tekst, vekt border 30% (`color-mix(in srgb, var(--color-vekt) 30%, transparent)`). For "Svar ->", "Oppdater ->". Hover: vekt-bg-strong + solid vekt border.
 - **Kritisk (solid rose):** score-low bakgrunn, hvit tekst. For "SVAR NA ->".
 
 ### 7. Partsidentifikasjon (Party Names, Not Roles)
@@ -190,7 +190,7 @@ Der en handling er utfort av en part, bruk faktisk selskapsnavn (f.eks. «Veidek
 ### Sidebar (260px)
 Bakgrunn: canvas (IKKE felt — unified med hovedflaten). Border-right: wire-strong.
 
-Seksjoner separert med 1px wire. Padding 16px 24px per seksjon.
+Seksjoner separert med 1px wire. Padding 12px 16px per seksjon.
 
 **Saksidentitet:** sys-id (font-data, 11px, ink-muted), tittel (16px, weight 600), undertittel (13px, ink-secondary).
 
@@ -205,19 +205,20 @@ Seksjoner separert med 1px wire. Padding 16px 24px per seksjon.
 **Nokkeltall (NOK):** Finans-rader med label (ink-secondary) og verdi (font-data, tabular-nums). Krav=ink, Godkjent=score-high, Omtvistet=vekt. Divider + undergruppe for tidsrisiko.
 
 ### Sporkort
-felt bg, wire border (0.08 alpha — within 0.05-0.12 range for dark mode), sm radius, 12px 16px padding, 4px gap mellom seksjoner.
+felt bg, wire border (0.08 alpha — within 0.05-0.12 range for dark mode), sm radius, 8px 12px padding, 2px gap mellom seksjoner. Kompakt — alle tre kort skal fa plass pa ~900px vertikal hoyde.
 
 Hover: felt-hover bg, wire-strong border. Active: felt-active bg. Transition: 150ms ease.
 
 **Header:** flex space-between center. Spor-navn: 13px, 600, uppercase, 0.02em. Stempel + aksjonsknappe hoyre.
 
-**Hendelse-kontekst:** Siste hendelse + nokkeltall (font-data 13px 600 tabular-nums, margin-left auto) pa samme rad. 11px ink-secondary.
+**Data-linje:** Strukturert statusoppsummering i font-data 11px ink-muted, enlinjes med dot-separator:
+- Grunnlag: "Kontraktsforhold-label · Hjemmel-label"
+- Vederlag: "2 930 000 kr · R&D 350 000 kr · Prod. 180 000 kr"
+- Frist: "Varslet 13.01.2026 · Krevd 45 dager 20.01.2026"
 
-**Data-linje:** Subordinert kontekst (hjemmel, kategori). 11px ink-muted. Kun vist nar relevant.
+**Hendelseslogg:** border-top wire, margin-top 8px padding-top 8px. Event-linjer: baseline gap 8px, padding 4px 8px. Dato: ink-muted. Tekst: ink-secondary. **Forste entry (siste hendelse): weight 500, ink** — recency-gradient skaper visuelt hierarki. Fokusert: amber venstekant (border-left-color vekt) + felt-hover bg. Click aktiverer forhåndsvisning (ikke hover).
 
-**Hendelseslogg:** border-top wire, margin-top 8px padding-top 8px. Event-linjer: baseline gap 8px, padding 4px 8px. Dato: ink-ghost. Tekst: ink-secondary. Fokusert: amber venstekant (border-left-color vekt) + felt-hover bg. Click aktiverer forhåndsvisning (ikke hover).
-
-**"+ Nytt internt notat":** Dashed border-top wire, ink-ghost tekst, hover -> vekt.
+**"+ Nytt internt notat":** Dashed border-top wire, **vekt-farge alltid** (ikke bare hover), weight 500. Handlingsknapp, ikke dekorativt element.
 
 ### Forhåndsvisningspanel (360px)
 Border-left wire-strong. Padding 24px. Slide-in animasjon (opacity 0->1, translateX 12->0, 200ms).

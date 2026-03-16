@@ -34,7 +34,7 @@ export const scenario1_3AktiveSpor: SakState = {
     status: 'sendt',
     tittel: 'Endrede grunnforhold ved akse C5–C8',
     hovedkategori: 'SVIKT',
-    underkategori: 'GRUNNFORHOLD',
+    underkategori: 'GRUNN',
     beskrivelse:
       'Under utgraving ved akse C5–C8 ble det påtruffet ukjente leirelag som ikke fremgår av de ' +
       'geotekniske rapportene i anbudsgrunnlaget. Dette medfører behov for ekstra peling og ' +

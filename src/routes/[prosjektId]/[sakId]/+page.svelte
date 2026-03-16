@@ -155,6 +155,14 @@
     flex-direction: column;
     overflow-y: auto;
     height: 100%;
+    container-type: inline-size;
+  }
+
+  /* Når main-content er smal (panel åpen), krymper document-area for bedre sentrering */
+  @container (max-width: 900px) {
+    .main-content :global(.document-area) {
+      max-width: 680px;
+    }
   }
 
   .timeline-container {

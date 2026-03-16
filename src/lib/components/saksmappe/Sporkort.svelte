@@ -1,11 +1,6 @@
 <script lang="ts">
-  import type { SporType, SakState, TimelineEvent, EventType } from '$lib/types/timeline';
-  import { extractEventType } from '$lib/types/timeline';
-  import { getEventTypeLabel } from '$lib/constants/eventLabels';
-  import { formatCurrencyCompact } from '$lib/utils/formatters';
-  import { getPartsNavn } from '$lib/utils/partsNavn';
+  import type { SporType, SakState, TimelineEvent } from '$lib/types/timeline';
   import { beregnVarslingStatus } from '$lib/utils/varslingStatus';
-  import { getEventIcon } from '$lib/utils/eventIcons';
   import { isAwaitingResponse } from '$lib/utils/sporStatus';
   import { browser } from '$app/environment';
   import { onMount } from 'svelte';
@@ -183,38 +178,13 @@
 
   // --- Hendelse-kontekst: siste hendelse for dette sporet ---
 
-  const latestEvent = $derived(events.length > 0 ? events[0] : null);
-
-  const hendelseKontekst = $derived.by(() => {
-    if (!latestEvent) return null;
-    const eventType = extractEventType(latestEvent.type);
-    const icon = getEventIcon(eventType);
-    const rawLabel = latestEvent.summary ?? getEventTypeLabel(eventType);
-    const teNavn = sakState.entreprenor;
-    const bhNavn = sakState.byggherre;
-    const label = rawLabel.startsWith('TE ')
-      ? getPartsNavn('TE', teNavn, bhNavn) + ' ' + rawLabel.slice(3)
-      : rawLabel.startsWith('BH ')
-        ? getPartsNavn('BH', teNavn, bhNavn) + ' ' + rawLabel.slice(3)
-        : rawLabel;
-
-    // Revisjon: antall_versjoner > 1 betyr Rev. N (N = antall_versjoner - 1)
-    const versjoner = trackState.antall_versjoner;
-    const revision = versjoner > 1 ? `Rev. ${versjoner - 1}` : null;
-
-    return { icon, label, revision };
-  });
-
-  // Key metric: always available regardless of events
-  const keyMetric = $derived.by(() => {
-    if (sporType === 'vederlag') {
-      const belop = sakState.vederlag.krevd_belop ?? sakState.vederlag.netto_belop;
-      if (belop !== undefined && belop !== null) return formatCurrencyCompact(belop) + ' NOK';
-    } else if (sporType === 'frist') {
-      const dager = sakState.frist.krevd_dager;
-      if (dager !== undefined && dager !== null) return `${dager} dager`;
-    }
-    return null;
+  // Nyeste hendelse (med tid) — brukes for kontekstlinje og card-click
+  const latestEvent = $derived.by(() => {
+    const withTime = events.filter((e) => e.time);
+    if (withTime.length === 0) return null;
+    return withTime.reduce((a, b) =>
+      new Date(b.time!).getTime() > new Date(a.time!).getTime() ? b : a
+    );
   });
 
   const href = $derived(`/${prosjektId}/${sakId}/${sporType}`);
@@ -308,23 +278,6 @@
 >
   <SporkortHeader {sporType} status={trackState.status} />
 
-  {#if hendelseKontekst || keyMetric}
-    <div class="hendelse-kontekst">
-      {#if hendelseKontekst}
-        <span class="hendelse-ikon" style="color: {hendelseKontekst.icon.color}" aria-hidden="true"
-          >{hendelseKontekst.icon.symbol}</span
-        >
-        <span class="hendelse-tekst">{hendelseKontekst.label}</span>
-        {#if hendelseKontekst.revision}
-          <span class="hendelse-rev">{hendelseKontekst.revision}</span>
-        {/if}
-      {/if}
-      {#if keyMetric}
-        <span class="hendelse-metrikk">{keyMetric}</span>
-      {/if}
-    </div>
-  {/if}
-
   <SporkortData
     {sporType}
     grunnlag={sporType === 'grunnlag' ? sakState.grunnlag : undefined}
@@ -371,11 +324,11 @@
   .sporkort {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 2px;
     background: var(--color-felt);
     border: 1px solid var(--color-wire);
     border-radius: var(--radius-sm);
-    padding: 12px 16px;
+    padding: 8px 12px;
     cursor: pointer;
     transition:
       background 150ms ease,
@@ -444,8 +397,8 @@
   .sporkort-action-rad {
     display: flex;
     justify-content: flex-end;
-    margin-top: 4px;
-    padding-top: 8px;
+    margin-top: 2px;
+    padding-top: 4px;
     border-top: 1px solid var(--color-wire);
   }
 
@@ -456,23 +409,21 @@
     font-family: var(--font-ui);
     font-size: 11px;
     font-weight: 500;
-    color: var(--color-ink-secondary);
+    color: var(--color-vekt);
     text-decoration: none;
     padding: 3px 10px;
-    border: 1px solid var(--color-wire-strong);
+    border: 1px solid color-mix(in srgb, var(--color-vekt) 30%, transparent);
     border-radius: var(--radius-sm);
-    background: var(--color-canvas);
+    background: var(--color-vekt-bg);
     transition:
-      color 150ms ease,
       border-color 150ms ease,
       background 150ms ease;
     cursor: pointer;
   }
 
   .sporkort-action:hover {
-    color: var(--color-vekt);
     border-color: var(--color-vekt);
-    background: var(--color-felt-hover);
+    background: var(--color-vekt-bg-strong);
   }
 
   .sporkort-action.urgent {
@@ -492,72 +443,11 @@
     margin-top: 4px;
   }
 
-  /* Hendelse-kontekstlinje */
-  .hendelse-kontekst {
-    display: flex;
-    align-items: baseline;
-    gap: 6px;
-    font-family: var(--font-ui);
-    font-size: 11px;
-    color: var(--color-ink-secondary);
-  }
-
-  .hendelse-ikon {
-    flex-shrink: 0;
-    font-size: 11px;
-    line-height: 1;
-  }
-
-  .hendelse-tekst {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    min-width: 0;
-  }
-
-  .hendelse-aktor {
-    color: var(--color-ink-muted);
-  }
-
-  .hendelse-rev {
-    font-family: var(--font-ui);
-    font-size: 9px;
-    color: var(--color-ink-muted);
-    flex-shrink: 0;
-    margin-left: auto;
-  }
-
-  .hendelse-detalj {
-    font-size: 11px;
-    color: var(--color-ink-muted);
-    white-space: nowrap;
-    flex-shrink: 0;
-  }
-
-  .hendelse-metrikk {
-    font-family: var(--font-data);
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--color-ink);
-    font-variant-numeric: tabular-nums;
-    flex-shrink: 0;
-    margin-left: auto;
-  }
-
   @media (max-width: 1023px) {
     .sporkort {
       padding: 12px;
       border-radius: 0;
       overflow: hidden;
-    }
-
-    .hendelse-kontekst {
-      font-size: 11px;
-      gap: 4px;
-    }
-
-    .hendelse-detalj {
-      display: none;
     }
   }
 </style>
