@@ -164,7 +164,7 @@
   }
 
   .sidebar-section {
-    padding: 16px 24px;
+    padding: 12px 16px;
     border-bottom: 1px solid var(--color-wire);
   }
 
@@ -197,8 +197,8 @@
     background: var(--color-felt);
     border: 1px solid var(--color-wire-strong);
     border-radius: var(--radius-sm);
-    padding: 12px;
-    margin-top: 16px;
+    padding: 8px;
+    margin-top: 12px;
   }
 
   .status-header {
@@ -218,14 +218,14 @@
   }
 
   .section-label {
-    margin-bottom: 12px;
+    margin-bottom: 8px;
   }
 
   .party-row {
     display: flex;
     justify-content: space-between;
     align-items: baseline;
-    margin-bottom: 8px;
+    margin-bottom: 4px;
   }
 
   .party-label {

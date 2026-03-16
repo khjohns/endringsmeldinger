@@ -392,9 +392,9 @@
   .events-list {
     display: flex;
     flex-direction: column;
-    gap: 1px;
-    margin-top: 8px;
-    padding-top: 8px;
+    gap: 0;
+    margin-top: 4px;
+    padding-top: 4px;
     border-top: 1px solid var(--color-wire);
   }
 
@@ -408,7 +408,7 @@
     display: flex;
     align-items: baseline;
     gap: 8px;
-    padding: 4px 8px;
+    padding: 2px 8px;
     font-size: 12px;
     cursor: pointer;
     border-left: 2px solid transparent;
@@ -417,12 +417,12 @@
   }
 
   .event-line:hover {
-    background: var(--color-felt-hover);
+    background: var(--color-felt-active);
   }
 
   .event-line-focused {
     border-left-color: var(--color-vekt);
-    background: var(--color-felt-hover);
+    background: var(--color-felt-active);
   }
 
   .event-icon {
@@ -506,19 +506,20 @@
   .btn-tilfoj-notat {
     width: 100%;
     text-align: left;
-    padding: 8px 8px;
-    margin-top: 4px;
+    padding: 4px 8px;
+    margin-top: 2px;
     font-size: 11px;
-    color: var(--color-ink-muted);
+    font-weight: 500;
+    color: var(--color-vekt);
     background: transparent;
     border: none;
     border-top: 1px dashed var(--color-wire);
     cursor: pointer;
-    transition: color 150ms ease;
+    transition: opacity 150ms ease;
     font-family: var(--font-ui);
   }
 
   .btn-tilfoj-notat:hover {
-    color: var(--color-vekt);
+    opacity: 0.8;
   }
 </style>

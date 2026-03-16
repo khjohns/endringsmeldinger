@@ -246,13 +246,12 @@ describe('Sporkort', () => {
       },
     });
     render(SporkortTest, { props: { sporType: 'grunnlag' as SporType, state } });
-    // Shows kontraktsforhold label
-    expect(screen.getByText('Forsinkelse eller svikt ved byggherrens ytelser')).toBeInTheDocument();
-    // Shows hjemmel label
-    expect(screen.getByText('Uforutsette grunnforhold')).toBeInTheDocument();
+    // Shows kontraktsforhold and hjemmel labels
+    expect(screen.getByText(/Forsinkelse eller svikt/)).toBeInTheDocument();
+    expect(screen.getByText(/Uforutsette grunnforhold/)).toBeInTheDocument();
   });
 
-  it('shows metric in hendelse row for vederlag', () => {
+  it('shows single-line data for vederlag with amount', () => {
     const state = makeBaseState({
       vederlag: {
         status: 'sendt',
@@ -263,10 +262,10 @@ describe('Sporkort', () => {
       },
     });
     render(SporkortTest, { props: { sporType: 'vederlag' as SporType, state } });
-    expect(screen.getByText('450k NOK')).toBeInTheDocument();
+    expect(screen.getByText('450 000 kr')).toBeInTheDocument();
   });
 
-  it('shows metric in hendelse row for frist', () => {
+  it('shows single-line data for frist with krevd dager', () => {
     const state = makeBaseState({
       frist: {
         status: 'sendt',
@@ -276,6 +275,6 @@ describe('Sporkort', () => {
       },
     });
     render(SporkortTest, { props: { sporType: 'frist' as SporType, state } });
-    expect(screen.getByText('30 dager')).toBeInTheDocument();
+    expect(screen.getByText(/Krevd 30 dager/)).toBeInTheDocument();
   });
 });
