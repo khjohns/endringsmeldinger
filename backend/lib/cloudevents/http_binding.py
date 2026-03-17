@@ -123,6 +123,11 @@ def _get_spor_for_event(event) -> str | None:
         return "frist"
     elif "forsering" in event_type:
         return "forsering"
+    elif event_type == "internt_notat":
+        # Spor is stored in event data
+        data = getattr(event, "data", None)
+        if data and hasattr(data, "spor"):
+            return data.spor
     return None
 
 
