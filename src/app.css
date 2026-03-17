@@ -4,7 +4,7 @@
   /* ── Non-color tokens (shared between light/dark) ── */
 
   /* Typography */
-  --font-data: 'Source Code Pro', 'SF Mono', 'Cascadia Code', 'Consolas', monospace;
+  --font-data: 'IBM Plex Mono', 'SF Mono', 'Cascadia Code', 'Consolas', monospace;
   --font-ui: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --font-prose: 'IBM Plex Sans', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 
