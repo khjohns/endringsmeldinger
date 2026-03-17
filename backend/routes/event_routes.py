@@ -755,36 +755,77 @@ def submit_batch():
         ), 500
 
 
+_CE_PREFIX = f"{CLOUDEVENTS_NAMESPACE}."
+
+
+def _extract_event_type(e: dict) -> str | None:
+    """
+    Extract bare event_type from an event dict.
+
+    Handles both formats:
+    - CloudEvents (JSON repo): {"type": "no.oslo.koe.grunnlag_opprettet", ...}
+    - Internal (Supabase repo): {"event_type": "grunnlag_opprettet", ...}
+    """
+    et = e.get("event_type")
+    if et:
+        return et
+
+    ce_type = e.get("type", "")
+    if ce_type.startswith(_CE_PREFIX):
+        return ce_type[len(_CE_PREFIX):]
+
+    return None
+
+
+# Compact labels for saksoversikt timeline (matches frontend eventTypeLabels.ts)
+_HENDELSE_LABELS: dict[str, str] = {
+    "grunnlag_opprettet": "Varslet kontraktsforhold",
+    "grunnlag_oppdatert": "Oppdaterte kontraktsforhold",
+    "grunnlag_trukket": "Trakk kontraktsforhold",
+    "vederlag_krav_sendt": "Sendte vederlagskrav",
+    "vederlag_krav_oppdatert": "Oppdaterte vederlagskrav",
+    "vederlag_krav_trukket": "Trakk vederlagskrav",
+    "frist_krav_sendt": "Sendte fristkrav",
+    "frist_krav_oppdatert": "Oppdaterte fristkrav",
+    "frist_krav_spesifisert": "Spesifiserte fristkrav",
+    "frist_krav_trukket": "Trakk fristkrav",
+    "respons_grunnlag": "Svarte på kontraktsforhold",
+    "respons_grunnlag_oppdatert": "Oppdaterte svar på kontraktsforhold",
+    "respons_vederlag": "Svarte på vederlagskrav",
+    "respons_vederlag_oppdatert": "Oppdaterte svar på vederlagskrav",
+    "respons_frist": "Svarte på fristkrav",
+    "respons_frist_oppdatert": "Oppdaterte svar på fristkrav",
+}
+
+_SPOR_MAP: dict[str, str] = {
+    "grunnlag": "K",
+    "vederlag": "V",
+    "frist": "F",
+}
+
+
+def _get_spor(event_type: str) -> str | None:
+    for prefix, code in _SPOR_MAP.items():
+        if event_type.startswith(prefix) or event_type.startswith(f"respons_{prefix}"):
+            return code
+    return None
+
+
 def _events_to_hendelser(events_data: list[dict]) -> list[dict]:
     """
-    Map raw CloudEvents to compact hendelser for saksoversikt timeline.
+    Map events to compact hendelser for saksoversikt timeline.
 
     Returns list of {type: 'K'|'V'|'F', dato, label, besvart}.
 
-    besvart is set per-spor: all events on a spor are marked besvart
-    if any response event exists on that spor.
+    Handles both CloudEvents format (JSON repo) and internal format
+    (Supabase repo). besvart is set per-spor: all events on a spor
+    are marked besvart if any response event exists on that spor.
     """
-    ce_prefix = f"{CLOUDEVENTS_NAMESPACE}."
-    SPOR_MAP = {
-        "grunnlag": "K",
-        "vederlag": "V",
-        "frist": "F",
-    }
-
-    def _get_spor(event_type: str) -> str | None:
-        for prefix, code in SPOR_MAP.items():
-            if event_type.startswith(prefix) or event_type.startswith(f"respons_{prefix}"):
-                return code
-        return None
-
     # First pass: collect which spor have responses
     responded_spor: set[str] = set()
     for e in events_data:
-        ce_type = e.get("type", "")
-        if not ce_type.startswith(ce_prefix):
-            continue
-        event_type = ce_type[len(ce_prefix):]
-        if event_type.startswith("respons_"):
+        event_type = _extract_event_type(e)
+        if event_type and event_type.startswith("respons_"):
             spor = _get_spor(event_type)
             if spor:
                 responded_spor.add(spor)
@@ -792,18 +833,15 @@ def _events_to_hendelser(events_data: list[dict]) -> list[dict]:
     # Second pass: build hendelser
     result = []
     for e in events_data:
-        ce_type = e.get("type", "")
-        if not ce_type.startswith(ce_prefix):
+        event_type = _extract_event_type(e)
+        if not event_type:
             continue
-        event_type = ce_type[len(ce_prefix):]
         spor = _get_spor(event_type)
         if not spor:
             continue
-        entry: dict = {
-            "type": spor,
-            "dato": e.get("time"),
-            "label": e.get("summary", event_type),
-        }
+        dato = e.get("time") or e.get("tidsstempel")
+        label = e.get("summary") or _HENDELSE_LABELS.get(event_type, event_type)
+        entry: dict = {"type": spor, "dato": dato, "label": label}
         if spor in responded_spor:
             entry["besvart"] = True
         result.append(entry)

@@ -18,7 +18,7 @@ export interface TidslinjeAkseMerke {
   pos: number;
 }
 
-const KLYNGE_TERSKEL = 5; // % avstand for å slå sammen
+const KLYNGE_TERSKEL = 8; // % avstand for å slå sammen
 
 const MAANED_KORT: Record<number, string> = {
   0: 'JAN',
@@ -68,10 +68,57 @@ export function beregnTidslinje(
   return klynger;
 }
 
+/** Priority for cluster display: F > V > K */
+export function klyngePrioritet(items: TidslinjeNode[]): SporHendelseType {
+  if (items.some((i) => i.type === 'F')) return 'F';
+  if (items.some((i) => i.type === 'V')) return 'V';
+  return 'K';
+}
+
+/** Spor breakdown string for badge: "2K 1V" */
+export function sporFordeling(items: TidslinjeNode[]): string {
+  const teller: Partial<Record<SporHendelseType, number>> = {};
+  for (const item of items) {
+    teller[item.type] = (teller[item.type] ?? 0) + 1;
+  }
+  // Show in K, V, F order — omit zero
+  const deler: string[] = [];
+  for (const spor of ['K', 'V', 'F'] as SporHendelseType[]) {
+    const n = teller[spor];
+    if (n) deler.push(`${n}${spor}`);
+  }
+  return deler.join(' ');
+}
+
+/** Grouped tooltip: "Kontraktsforhold: Varslet, Svarte\nVederlag: Sendte krav" */
+export function gruppertTooltip(items: TidslinjeNode[]): string {
+  const SPOR_LABEL: Record<SporHendelseType, string> = {
+    K: 'Kontraktsforhold',
+    V: 'Vederlag',
+    F: 'Frist',
+  };
+  const grupper = new Map<SporHendelseType, string[]>();
+  for (const item of items) {
+    const list = grupper.get(item.type);
+    if (list) {
+      list.push(item.label);
+    } else {
+      grupper.set(item.type, [item.label]);
+    }
+  }
+  const linjer: string[] = [];
+  for (const spor of ['K', 'V', 'F'] as SporHendelseType[]) {
+    const labels = grupper.get(spor);
+    if (labels) {
+      linjer.push(`${SPOR_LABEL[spor]}: ${labels.join(', ')}`);
+    }
+  }
+  return linjer.join('\n');
+}
+
 /**
- * Generate axis marks for the timeline, filtering out marks that are:
- * - past `maksPosisjon` (reserved for "I DAG" label)
- * - closer than `minAvstand`% to the previous kept mark
+ * Generate axis marks for the timeline.
+ * Uses weekly marks if span < 90 days, monthly marks otherwise.
  */
 export function genererAkseMerker(
   min: Date,
@@ -82,21 +129,45 @@ export function genererAkseMerker(
   const spenn = maks.getTime() - min.getTime();
   if (spenn <= 0) return [];
   const merker: TidslinjeAkseMerke[] = [];
-  const start = new Date(min.getFullYear(), min.getMonth(), 1);
   let sistePos = -Infinity;
 
-  while (start <= maks) {
-    const pos = ((start.getTime() - min.getTime()) / spenn) * 100;
-    if (pos > maksPosisjon) break;
-    if (pos >= 0 && pos - sistePos >= minAvstand) {
-      const aar = String(start.getFullYear()).slice(2);
-      merker.push({
-        label: `${MAANED_KORT[start.getMonth()]} ${aar}`,
-        pos,
-      });
-      sistePos = pos;
+  const spennDager = spenn / (1000 * 60 * 60 * 24);
+  const brukUker = spennDager < 90;
+
+  if (brukUker) {
+    // Weekly marks: start from first Monday on or after min
+    const ukeStart = new Date(min);
+    const dag = ukeStart.getDay();
+    const dagerTilMandag = dag === 0 ? 1 : dag === 1 ? 0 : 8 - dag;
+    ukeStart.setDate(ukeStart.getDate() + dagerTilMandag);
+
+    while (ukeStart <= maks) {
+      const pos = ((ukeStart.getTime() - min.getTime()) / spenn) * 100;
+      if (pos > maksPosisjon) break;
+      if (pos >= 0 && pos - sistePos >= minAvstand) {
+        const d = ukeStart.getDate();
+        const m = MAANED_KORT[ukeStart.getMonth()];
+        merker.push({ label: `${d}. ${m}`, pos });
+        sistePos = pos;
+      }
+      ukeStart.setDate(ukeStart.getDate() + 7);
     }
-    start.setMonth(start.getMonth() + 1);
+  } else {
+    // Monthly marks
+    const start = new Date(min.getFullYear(), min.getMonth(), 1);
+    while (start <= maks) {
+      const pos = ((start.getTime() - min.getTime()) / spenn) * 100;
+      if (pos > maksPosisjon) break;
+      if (pos >= 0 && pos - sistePos >= minAvstand) {
+        const aar = String(start.getFullYear()).slice(2);
+        merker.push({
+          label: `${MAANED_KORT[start.getMonth()]} ${aar}`,
+          pos,
+        });
+        sistePos = pos;
+      }
+      start.setMonth(start.getMonth() + 1);
+    }
   }
 
   return merker;
@@ -129,11 +200,4 @@ export function finnDatospenn(alleSaker: { hendelser: SaksoversiktHendelse[] }[]
     min: new Date(min - padding),
     maks: new Date(maks + padding),
   };
-}
-
-/** Priority for cluster tag color: F > V > K */
-export function klyngePrioritet(items: TidslinjeNode[]): SporHendelseType {
-  if (items.some((i) => i.type === 'F')) return 'F';
-  if (items.some((i) => i.type === 'V')) return 'V';
-  return 'K';
 }
