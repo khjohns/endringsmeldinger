@@ -86,9 +86,8 @@
   <div class="sidebar-section">
     <h2 class="prosjekt-navn">{prosjektNavn}</h2>
     <span class="prosjekt-meta"
-      >{#if prosjektNavn !== prosjektId}<span class="prosjekt-id">{prosjektId}</span>
-        <span class="meta-sep">&middot;</span>
-      {/if}<span class="prosjekt-entreprise">{entreprise}</span></span
+      >{#if prosjektNavn !== prosjektId}{prosjektId} ·
+      {/if}{entreprise}</span
     >
     <div class="sak-telling">
       <span class="telling-verdi">{saker.length}</span>
@@ -212,25 +211,16 @@
   }
 
   .prosjekt-meta {
-    font-size: 13px;
-    color: var(--color-ink-secondary);
-    display: block;
-  }
-
-  .prosjekt-id {
     font-family: var(--font-data);
     font-size: 12px;
     font-weight: 500;
     color: var(--color-ink-muted);
+    display: block;
   }
 
   .meta-sep {
     color: var(--color-ink-ghost);
     margin: 0 2px;
-  }
-
-  .prosjekt-entreprise {
-    /* inherits font-ui from parent */
   }
 
   .sak-telling {
@@ -242,7 +232,7 @@
 
   .telling-verdi {
     font-family: var(--font-data);
-    font-size: 20px;
+    font-size: 13px;
     font-weight: 600;
     font-variant-numeric: tabular-nums;
     color: var(--color-ink);
@@ -266,7 +256,7 @@
 
   .telling-tall {
     font-family: var(--font-data);
-    font-size: 11px;
+    font-size: 13px;
     font-weight: 600;
     font-variant-numeric: tabular-nums;
   }
