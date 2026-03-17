@@ -196,6 +196,13 @@
           tekst:
             'Totalentreprenøren kan revidere sitt fremsatte krav med oppdatert dokumentasjon og begrunnelse. Kravet skal angis og begrunnes med angivelse av antall dager.',
         },
+        {
+          paragraf: paragrafLabel('33.4'),
+          tekst:
+            'Det opprinnelige varselet om fristforlengelse skal være gitt uten ugrunnet opphold. Revisjon av kravet endrer ikke varslingsfristen.',
+          konsekvens:
+            'Kravet på fristforlengelse tapes hvis det opprinnelige varselet ikke ble gitt i tide.',
+        },
       ];
     } else if (et === 'frist_krav_spesifisert') {
       return [BESTEMMELSE_33_6_1];
@@ -300,7 +307,7 @@
     }
 
     // For vederlag-events: derive from metode + saerskilt_krav
-    if ((eventType === 'vederlag_krav_sendt' || eventType === 'vederlag_krav_oppdatert') && d) {
+    if (eventType === 'vederlag_krav_sendt' && d) {
       // 1) Retten til vederlagsjustering
       items.push({
         paragraf: paragrafLabel('34.1'),
@@ -321,6 +328,19 @@
           konsekvens: 'Retten til å kreve disse postene tapes hvis det ikke varsles særskilt.',
         });
       }
+    } else if (eventType === 'vederlag_krav_oppdatert' && d) {
+      // Oppdatert krav: spesifiseringsplikt + generell rett
+      items.push({
+        paragraf: paragrafLabel('34.1'),
+        tekst:
+          'Totalentreprenøren har krav på vederlagsjustering dersom det foreligger en endring eller annet forhold byggherren bærer risikoen for. Kravet skal varsles uten ugrunnet opphold.',
+        konsekvens: 'Kravet tapes hvis det ikke varsles i tide.',
+      });
+      items.push({
+        paragraf: paragrafLabel('34.2'),
+        tekst:
+          'Kravet skal spesifiseres og begrunnes. Totalentreprenøren kan revidere sitt krav med oppdatert dokumentasjon etter hvert som grunnlaget for beregningen klargjøres.',
+      });
       // For frist-events: derive from event type + varsel_type
     } else if (
       (eventType === 'frist_krav_sendt' ||
