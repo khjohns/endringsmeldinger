@@ -1,10 +1,14 @@
 <script lang="ts">
   import { onMount, onDestroy } from 'svelte';
-  import { Editor, type Extension } from '@tiptap/core';
+  import { Editor, type AnyExtension } from '@tiptap/core';
   import StarterKit from '@tiptap/starter-kit';
   import CharacterCount from '@tiptap/extension-character-count';
   import Placeholder from '@tiptap/extension-placeholder';
   import { Bold, Italic, List, ListOrdered, TextQuote, Undo2, Redo2 } from 'lucide-svelte';
+
+  interface EditorApi {
+    setContent: (html: string) => void;
+  }
 
   interface Props {
     body?: string;
@@ -12,9 +16,10 @@
     placeholder?: string;
     maxHeight?: string;
     label?: string;
-    extensions?: Extension[];
+    extensions?: AnyExtension[];
     onchange?: (html: string) => void;
     oncharcount?: (count: number) => void;
+    onready?: (api: EditorApi) => void;
   }
 
   let {
@@ -26,6 +31,7 @@
     extensions: extraExtensions = [],
     onchange,
     oncharcount,
+    onready,
   }: Props = $props();
 
   let element = $state<HTMLDivElement>();
@@ -54,6 +60,14 @@
         const newHtml = e.getHTML();
         html = newHtml;
         onchange?.(newHtml);
+      },
+    });
+
+    onready?.({
+      setContent: (content: string) => {
+        if (!editor) return;
+        editor.commands.setContent(content, false);
+        html = content;
       },
     });
   });

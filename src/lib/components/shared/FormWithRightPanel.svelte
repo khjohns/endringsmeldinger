@@ -22,6 +22,11 @@
     submitError?: string | null;
     onsubmit?: () => void;
     onavbryt?: () => void;
+
+    // Auto-begrunnelse props
+    showRegenerate?: boolean;
+    onregenerate?: () => void;
+    onuseredited?: () => void;
   }
 
   let {
@@ -38,6 +43,9 @@
     submitError = null,
     onsubmit,
     onavbryt,
+    showRegenerate = false,
+    onregenerate,
+    onuseredited,
   }: Props = $props();
 
   let mobilPanelOpen = $state(false);
@@ -72,6 +80,9 @@
         {submitError}
         {onsubmit}
         {onavbryt}
+        {showRegenerate}
+        {onregenerate}
+        {onuseredited}
       />
     </div>
   </div>
@@ -108,6 +119,9 @@
       {submitError}
       {onsubmit}
       {onavbryt}
+      {showRegenerate}
+      {onregenerate}
+      {onuseredited}
     />
   </div>
 {/if}
