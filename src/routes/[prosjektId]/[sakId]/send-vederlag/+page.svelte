@@ -10,13 +10,14 @@
   } from '$lib/domain/vederlagSubmissionDomain';
 
   import { projectToMeta } from '$lib/constants/projectMeta';
+  import { projectStore } from '$lib/stores/project.svelte';
   import PageLoadingShell from '$lib/components/shared/PageLoadingShell.svelte';
   import { isVederlagKravEvent, isGrunnlagEvent } from '$lib/constants/eventTypes';
 
   const prosjektId = $derived(page.params.prosjektId ?? '');
   const sakId = $derived(page.params.sakId ?? '');
 
-  const meta = $derived(projectToMeta(page.data.project, prosjektId));
+  const meta = $derived(projectToMeta(projectStore.current, prosjektId));
 
   const query = createCaseContextQuery(() => sakId);
 

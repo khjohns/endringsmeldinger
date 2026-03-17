@@ -11,6 +11,7 @@
     SaksoversiktItem,
   } from '$lib/mocks/saksoversikt';
   import { projectToMeta } from '$lib/constants/projectMeta';
+  import { projectStore } from '$lib/stores/project.svelte';
 
   const prosjektId = $derived(page.params.prosjektId);
   const query = createCaseListQuery(() => prosjektId ?? '');
@@ -23,7 +24,7 @@
     }))
   );
 
-  const projectMeta = $derived(projectToMeta(page.data.project, prosjektId));
+  const projectMeta = $derived(projectToMeta(projectStore.current, prosjektId));
 
   const STORAGE_KEY = 'koe-saksoversikt-visning';
 

@@ -7,10 +7,11 @@
   import { isHtmlEmpty } from '$lib/utils/formatters';
   import { createCaseListQuery } from '$lib/queries/caseList';
   import { projectToMeta } from '$lib/constants/projectMeta';
+  import { projectStore } from '$lib/stores/project.svelte';
 
   const prosjektId = $derived(page.params.prosjektId);
 
-  const meta = $derived(projectToMeta(page.data.project, prosjektId));
+  const meta = $derived(projectToMeta(projectStore.current, prosjektId));
 
   const caseListQuery = createCaseListQuery(() => prosjektId ?? '');
   const saksnr = $derived((caseListQuery.data?.cases.length ?? 0) + 1);

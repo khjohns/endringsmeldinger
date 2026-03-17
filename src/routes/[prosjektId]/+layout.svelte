@@ -4,8 +4,14 @@
   import ThemeToggle from '$lib/components/primitives/ThemeToggle.svelte';
   import RoleToggle from '$lib/components/primitives/RoleToggle.svelte';
   import type { Project } from '$lib/types/project';
+  import { projectStore } from '$lib/stores/project.svelte';
 
   let { children, data } = $props<{ children: any; data: { project: Project | null } }>();
+
+  // Sync layout-loaded project → reactive store for all child pages
+  $effect(() => {
+    projectStore.set(data.project);
+  });
 
   const prosjektId = $derived(page.params.prosjektId);
   const sakId = $derived(page.params.sakId ?? null);
