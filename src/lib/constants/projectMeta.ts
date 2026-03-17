@@ -15,14 +15,14 @@ export function projectToMeta(
   if (!project) {
     return {
       name: fallbackId ?? '',
-      entreprise: 'Entreprise NS 8407',
+      entreprise: 'Totalentreprise NS 8407',
       te: '',
       bh: '',
     };
   }
   return {
     name: project.name,
-    entreprise: 'Entreprise NS 8407',
+    entreprise: 'Totalentreprise NS 8407',
     te: project.settings?.contract?.totalentreprenor_navn ?? '',
     bh: project.settings?.contract?.byggherre_navn ?? '',
   };
