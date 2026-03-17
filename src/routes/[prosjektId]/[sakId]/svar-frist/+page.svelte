@@ -4,14 +4,13 @@
   import BhFristResponse from '$lib/components/bh-response/BhFristResponse.svelte';
   import type { FristDomainConfig } from '$lib/domain/fristDomain';
 
-  import { PROJECT_META } from '$lib/constants/projectMeta';
   import PageLoadingShell from '$lib/components/shared/PageLoadingShell.svelte';
   import { isFristKravEvent, isResponsFristEvent } from '$lib/constants/eventTypes';
 
   const prosjektId = $derived(page.params.prosjektId ?? '');
   const sakId = $derived(page.params.sakId ?? '');
 
-  const prosjektNavn = $derived(prosjektId ? PROJECT_META[prosjektId]?.name : undefined);
+  const prosjektNavn = $derived(page.data.project?.name ?? prosjektId);
 
   const query = createCaseContextQuery(() => sakId);
 

@@ -10,11 +10,10 @@
     SaksoversiktVisning,
     SaksoversiktItem,
   } from '$lib/mocks/saksoversikt';
-
-  import { PROJECT_META } from '$lib/constants/projectMeta';
+  import { projectToMeta } from '$lib/constants/projectMeta';
 
   const prosjektId = $derived(page.params.prosjektId);
-  const query = createCaseListQuery();
+  const query = createCaseListQuery(() => prosjektId ?? '');
 
   // Map CaseListItem[] from API to SaksoversiktItem[]
   const saker = $derived<SaksoversiktItem[]>(
@@ -24,7 +23,7 @@
     }))
   );
 
-  const projectMeta = $derived(prosjektId ? (PROJECT_META[prosjektId] ?? null) : null);
+  const projectMeta = $derived(projectToMeta(page.data.project, prosjektId));
 
   const STORAGE_KEY = 'koe-saksoversikt-visning';
 

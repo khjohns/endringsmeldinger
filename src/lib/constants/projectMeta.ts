@@ -1,7 +1,4 @@
-/**
- * Mock project metadata — will come from API later.
- * Single source of truth for all route files.
- */
+import type { Project } from '$lib/types/project';
 
 export interface ProjectMeta {
   name: string;
@@ -10,11 +7,23 @@ export interface ProjectMeta {
   bh: string;
 }
 
-export const PROJECT_META: Record<string, ProjectMeta> = {
-  P001: {
-    name: 'Operatunnelen',
+/** Derive ProjectMeta from API Project data */
+export function projectToMeta(
+  project: Project | null | undefined,
+  fallbackId?: string
+): ProjectMeta {
+  if (!project) {
+    return {
+      name: fallbackId ?? '',
+      entreprise: 'Entreprise NS 8407',
+      te: '',
+      bh: '',
+    };
+  }
+  return {
+    name: project.name,
     entreprise: 'Entreprise NS 8407',
-    te: 'Vestlandsentreprisen AS',
-    bh: 'Oslobygg',
-  },
-};
+    te: project.settings?.contract?.totalentreprenor_navn ?? '',
+    bh: project.settings?.contract?.byggherre_navn ?? '',
+  };
+}

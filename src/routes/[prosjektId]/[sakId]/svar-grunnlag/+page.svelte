@@ -4,13 +4,12 @@
   import { getHjemmelObj } from '$lib/constants/categories';
   import BhGrunnlagResponse from '$lib/components/bh-response/BhGrunnlagResponse.svelte';
   import PageLoadingShell from '$lib/components/shared/PageLoadingShell.svelte';
-  import { PROJECT_META } from '$lib/constants/projectMeta';
   import { isGrunnlagEvent, isResponsGrunnlagEvent } from '$lib/constants/eventTypes';
 
   const prosjektId = $derived(page.params.prosjektId ?? '');
   const sakId = $derived(page.params.sakId ?? '');
 
-  const prosjektNavn = $derived(prosjektId ? PROJECT_META[prosjektId]?.name : undefined);
+  const prosjektNavn = $derived(page.data.project?.name ?? prosjektId);
 
   const query = createCaseContextQuery(() => sakId);
 
