@@ -2,8 +2,17 @@
   import type { TimelineEvent, EventType } from '$lib/types/timeline';
   import { extractEventType } from '$lib/types/timeline';
   import { getEventBestemmelse } from '$lib/constants/eventBestemmelser';
+  import { getKontraktsforhold, getHjemmelObj } from '$lib/constants/categories';
+  import { getKontraktsregel } from '$lib/constants/kontraktsregler';
+  import { getParagrafTittel } from '$lib/constants/paragrafTitler';
   import { getPartsNavn } from '$lib/utils/partsNavn';
   import { getEventIcon } from '$lib/utils/eventIcons';
+
+  interface BestemmelseItem {
+    paragraf: string;
+    tekst: string;
+    konsekvens?: string;
+  }
 
   interface Props {
     event: TimelineEvent | null;
@@ -54,6 +63,67 @@
     return 'Detaljer';
   }
 
+  // --- Kontraktsforhold-tekster (parafrasert, ikke ordrett fra NS 8407) ---
+
+  function forholdParagraf(kode: string): string {
+    switch (kode) {
+      case 'ENDRING':
+        return 'Punkt 31–32 Endringer';
+      case 'SVIKT':
+        return 'Punkt 22–24 Byggherrens ytelser';
+      case 'ANDRE':
+        return 'Byggherrens risikoområde';
+      case 'FORCE_MAJEURE':
+        return '§33.3 Force majeure';
+      default:
+        return kode;
+    }
+  }
+
+  function forholdTekst(kode: string): string {
+    switch (kode) {
+      case 'ENDRING':
+        return 'Endring av det opprinnelig avtalte — enten ved formell endringsordre (§31.3) eller gjennom pålegg uten endringsordre (§32.1). Totalentreprenøren har utførelsesplikt, men kan kreve justering av vederlag og frister.';
+      case 'SVIKT':
+        return 'Byggherren bærer risikoen for sine ytelser etter punkt 22 (medvirkning), 23 (grunnforhold) og 24 (prosjektering). Forsinkelse eller svikt i disse gir totalentreprenøren rett til justering.';
+      case 'ANDRE':
+        return 'Andre forhold byggherren har risikoen for, som ikke faller inn under endringer eller svikt i byggherrens ytelser. Gir tilsvarende rett til fristforlengelse og vederlagsjustering.';
+      case 'FORCE_MAJEURE':
+        return 'Ekstraordinære omstendigheter utenfor partenes kontroll — værforhold, offentlige påbud, streik mv. Gir kun rett til fristforlengelse, ikke vederlagsjustering.';
+      default:
+        return '';
+    }
+  }
+
+  function fristTekst(kode: string): string {
+    switch (kode) {
+      case 'ENDRING':
+        return 'Totalentreprenøren har krav på fristforlengelse når fremdriften hindres som følge av endringer. Må varsles uten ugrunnet opphold (§33.4). Kravet tapes hvis det ikke varsles i tide.';
+      case 'SVIKT':
+        return 'Totalentreprenøren har krav på fristforlengelse når fremdriften hindres av forsinkelse eller svikt ved byggherrens ytelser. Må varsles uten ugrunnet opphold (§33.4). Kravet tapes hvis det ikke varsles i tide.';
+      case 'ANDRE':
+        return 'Totalentreprenøren har krav på fristforlengelse når fremdriften hindres av forhold byggherren har risikoen for. Må varsles uten ugrunnet opphold (§33.4). Kravet tapes hvis det ikke varsles i tide.';
+      case 'FORCE_MAJEURE':
+        return 'Begge parter har krav på fristforlengelse ved force majeure. Må varsles uten ugrunnet opphold (§33.4). Gir ikke rett til vederlagsjustering.';
+      default:
+        return '';
+    }
+  }
+
+  function vederlagTekst(kode: string, metode: string): string {
+    const metodeKort = metode.replace(/\s*\(.*?\)/g, '');
+    switch (kode) {
+      case 'ENDRING':
+        return `Totalentreprenøren har krav på vederlagsjustering ved endringer. Må varsles uten ugrunnet opphold. Standard beregningsmetode: ${metodeKort.toLowerCase()}.`;
+      case 'SVIKT':
+        return `Totalentreprenøren har krav på vederlagsjustering ved svikt i byggherrens ytelser. Må varsles uten ugrunnet opphold — kravet tapes hvis det ikke varsles i tide. Standard beregningsmetode: ${metodeKort.toLowerCase()}.`;
+      case 'ANDRE':
+        return `Totalentreprenøren har krav på vederlagsjustering for andre forhold byggherren har risikoen for. Må varsles uten ugrunnet opphold. Standard beregningsmetode: ${metodeKort.toLowerCase()}.`;
+      default:
+        return '';
+    }
+  }
+
   // --- Derived ---
 
   const eventType = $derived(event ? extractEventType(event.type) : null);
@@ -73,7 +143,72 @@
   );
   const description = $derived(event ? getDescription(event) : null);
   const vedleggIds = $derived(event ? getVedleggIds(event) : []);
-  const bestemmelse = $derived(getEventBestemmelse(eventType));
+  const bestemmelser = $derived.by<BestemmelseItem[]>(() => {
+    const items: BestemmelseItem[] = [];
+    const d = event?.data as Record<string, unknown> | undefined;
+
+    // For grunnlag-events: derive from hovedkategori/underkategori
+    if (d?.hovedkategori) {
+      const forhold = getKontraktsforhold(d.hovedkategori as string);
+
+      // 1) Kontraktshjemmel (underkategori) — den konkrete bestemmelsen som utløser kravet
+      if (d.underkategori) {
+        const hjemmel = getHjemmelObj(d.underkategori as string);
+        if (hjemmel) {
+          const regel = getKontraktsregel(hjemmel.hjemmel_basis);
+          const tittel = getParagrafTittel(hjemmel.hjemmel_basis);
+          items.push({
+            paragraf: tittel ? `§${hjemmel.hjemmel_basis} ${tittel}` : `§${hjemmel.hjemmel_basis}`,
+            tekst: regel?.regel ?? hjemmel.beskrivelse,
+            konsekvens: regel?.konsekvens,
+          });
+        }
+      }
+
+      if (forhold) {
+        // 2) Kontraktsforhold (hovedkategori) — hvorfor dette er byggherrens risiko
+        items.push({
+          paragraf: forholdParagraf(forhold.kode),
+          tekst: forholdTekst(forhold.kode),
+        });
+
+        // 3) Fristkrav — retten til fristforlengelse
+        const fristTittel = getParagrafTittel(forhold.hjemmel_frist);
+        items.push({
+          paragraf: fristTittel
+            ? `§${forhold.hjemmel_frist} ${fristTittel}`
+            : `§${forhold.hjemmel_frist}`,
+          tekst: fristTekst(forhold.kode),
+        });
+
+        // 4) Vederlagskrav — retten til vederlagsjustering (ikke for force majeure)
+        if (forhold.hjemmel_vederlag) {
+          const vedTittel = getParagrafTittel(forhold.hjemmel_vederlag);
+          items.push({
+            paragraf: vedTittel
+              ? `§${forhold.hjemmel_vederlag} ${vedTittel}`
+              : `§${forhold.hjemmel_vederlag}`,
+            tekst: vederlagTekst(forhold.kode, forhold.standard_vederlagsmetode),
+          });
+        }
+      }
+    }
+
+    // Fallback: static eventType lookup with titles
+    if (items.length === 0) {
+      const fallback = getEventBestemmelse(eventType);
+      if (fallback) {
+        const pNum = fallback.paragraf.replace(/^NS 8407 §/, '');
+        const tittel = getParagrafTittel(pNum);
+        items.push({
+          paragraf: tittel ? `${fallback.paragraf} ${tittel}` : fallback.paragraf,
+          tekst: fallback.tekst,
+        });
+      }
+    }
+
+    return items;
+  });
   const sectionLabel = $derived(getSectionLabel(eventType));
   const spordetaljHref = $derived(event?.spor ? `/${prosjektId}/${sakId}/${event.spor}` : null);
 </script>
@@ -97,7 +232,7 @@
       {#if description}
         <div class="fv-separator"></div>
         <div class="fv-seksjon-label">{sectionLabel}</div>
-        <div class="fv-tekst">{description}</div>
+        <div class="fv-tekst">{@html description}</div>
       {/if}
 
       {#if vedleggIds.length > 0}
@@ -111,13 +246,20 @@
         {/each}
       {/if}
 
-      {#if bestemmelse}
+      {#if bestemmelser.length > 0}
         <div class="fv-separator"></div>
-        <div class="fv-seksjon-label">Bestemmelse</div>
-        <div class="fv-bestemmelse">
-          <div class="fv-paragraf">{bestemmelse.paragraf}</div>
-          <div class="fv-bestemmelse-tekst">{bestemmelse.tekst}</div>
+        <div class="fv-seksjon-label">
+          {bestemmelser.length === 1 ? 'Bestemmelse' : 'Bestemmelser'}
         </div>
+        {#each bestemmelser as b, i (i)}
+          <div class="fv-bestemmelse" class:fv-bestemmelse-gap={i > 0}>
+            <div class="fv-paragraf">{b.paragraf}</div>
+            <div class="fv-bestemmelse-tekst">{b.tekst}</div>
+            {#if b.konsekvens}
+              <div class="fv-konsekvens">{b.konsekvens}</div>
+            {/if}
+          </div>
+        {/each}
       {/if}
 
       {#if spordetaljHref}
@@ -302,10 +444,22 @@
     margin-bottom: 4px;
   }
 
+  .fv-bestemmelse-gap {
+    margin-top: 8px;
+  }
+
   .fv-bestemmelse-tekst {
     font-size: 11px;
     color: var(--color-ink-secondary);
     line-height: 1.4;
+  }
+
+  .fv-konsekvens {
+    font-size: 11px;
+    color: var(--color-ink-muted);
+    line-height: 1.4;
+    margin-top: 4px;
+    font-style: italic;
   }
 
   .fv-spordetalj-lenke {
