@@ -3,6 +3,9 @@
   import { onMount } from 'svelte';
   import { beregnAlt, buildEventData, getDefaults } from '$lib/domain/fristDomain';
   import type { FristFormState, FristDomainConfig } from '$lib/domain/fristDomain';
+  import { generateFristResponseBegrunnelse } from '$lib/domain/begrunnelse/fristBegrunnelse';
+  import type { FristResponseInput } from '$lib/domain/begrunnelse/fristBegrunnelse';
+  import { tokensToHtml } from '$lib/editor/tokenConverter';
   import type { FristTilstand, EventType } from '$lib/types/timeline';
   import { submitEvent } from '$lib/api/events';
   import { draftKey, loadDraft, saveDraft, clearDraft } from '$lib/utils/draft';
@@ -89,6 +92,7 @@
     sendForesporsel: boolean;
     godkjentDager?: number;
     bhBegrunnelseHtml: string;
+    userHasEditedBegrunnelse?: boolean;
   }
   const dk = draftKey('svar-frist', sakId);
   const draft = loadDraft<FristResponseDraft>(dk);
@@ -126,6 +130,9 @@
 
   // Begrunnelse
   let bhBegrunnelseHtml = $state(draft?.bhBegrunnelseHtml ?? forrigeBegrunnelseHtml ?? '');
+  let userHasEdited = $state(
+    draft?.userHasEditedBegrunnelse ?? (isUpdateMode && !!forrigeBegrunnelseHtml)
+  );
 
   // Submission
   let submitting = $state(false);
@@ -146,6 +153,7 @@
       sendForesporsel,
       godkjentDager,
       bhBegrunnelseHtml,
+      userHasEditedBegrunnelse: userHasEdited,
     });
   });
 
@@ -162,6 +170,51 @@
   });
 
   const computed = $derived(beregnAlt(formState, domainConfig));
+
+  // --- Auto-begrunnelse ---
+  const canGenerateBegrunnelse = $derived(
+    sendForesporsel || (vilkarOppfylt !== undefined && godkjentDager !== undefined)
+  );
+
+  const fristBegrunnelseInput: FristResponseInput = $derived({
+    varselType: domainConfig.varselType,
+    krevdDager: domainConfig.krevdDager,
+    fristVarselOk,
+    spesifisertKravOk,
+    foresporselSvarOk,
+    sendForesporsel,
+    vilkarOppfylt: vilkarOppfylt ?? false,
+    godkjentDager: godkjentDager ?? 0,
+    erPrekludert: computed.erPrekludert,
+    erForesporselSvarForSent: foresporselSvarOk === false,
+    erRedusert_33_6_1: computed.erRedusert,
+    harTidligereVarselITide: domainConfig.harTidligereVarselITide,
+    erGrunnlagSubsidiaer: domainConfig.erGrunnlagSubsidiaer,
+    erGrunnlagPrekludert: domainConfig.erHelFristSubsidiaerPgaGrunnlag,
+    prinsipaltResultat: computed.prinsipaltResultat,
+    subsidiaertResultat: computed.subsidiaertResultat,
+    visSubsidiaertResultat: computed.visSubsidiaertResultat,
+  });
+
+  const autoBegrunnelseHtml = $derived.by(() => {
+    if (!canGenerateBegrunnelse) return '';
+    const tokens = generateFristResponseBegrunnelse(fristBegrunnelseInput, { useTokens: true });
+    return tokensToHtml(tokens);
+  });
+
+  // Auto-populate editor when form is filled and user hasn't manually edited
+  $effect(() => {
+    if (!userHasEdited && autoBegrunnelseHtml) {
+      bhBegrunnelseHtml = autoBegrunnelseHtml;
+    }
+  });
+
+  function handleRegenerate() {
+    if (autoBegrunnelseHtml) {
+      bhBegrunnelseHtml = autoBegrunnelseHtml;
+      userHasEdited = false;
+    }
+  }
 
   // --- Subsidiary context ---
   const visSubsidiaerBanner = $derived(
@@ -183,17 +236,6 @@
     return true;
   });
 
-  // --- Auto begrunnelse ---
-  function genererAutoBegrunnelse(): string {
-    const r = computed.prinsipaltResultat;
-    if (sendForesporsel) return 'Forespørsel om spesifisering sendt (§ 33.6.2).';
-    if (r === 'godkjent')
-      return `Fristforlengelse godkjent: ${godkjentDager} av ${domainConfig.krevdDager} dager.`;
-    if (r === 'delvis_godkjent')
-      return `Fristforlengelse delvis godkjent: ${godkjentDager} av ${domainConfig.krevdDager} dager.`;
-    return `Fristforlengelse avslått.`;
-  }
-
   // --- Submit ---
   async function handleSubmit() {
     if (!kanSende) return;
@@ -201,7 +243,7 @@
     submitError = null;
 
     try {
-      const autoBegrunnelse = genererAutoBegrunnelse();
+      const autoBegrunnelse = generateFristResponseBegrunnelse(fristBegrunnelseInput);
       const data = buildEventData(
         formState,
         domainConfig,
@@ -259,6 +301,9 @@
   {submitError}
   onsubmit={handleSubmit}
   onavbryt={handleAvbryt}
+  showRegenerate={userHasEdited && !!autoBegrunnelseHtml}
+  onregenerate={handleRegenerate}
+  onuseredited={() => (userHasEdited = true)}
 >
   <FormPageHeader
     tilbakeHref="/{prosjektId}/{sakId}"

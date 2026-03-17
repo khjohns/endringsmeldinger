@@ -14,6 +14,9 @@
     VederlagLastResponseData,
     BelopVurdering,
   } from '$lib/domain/vederlagDomain';
+  import { generateVederlagResponseBegrunnelse } from '$lib/domain/begrunnelse/vederlagBegrunnelse';
+  import type { VederlagResponseInput } from '$lib/domain/begrunnelse/vederlagBegrunnelse';
+  import { tokensToHtml } from '$lib/editor/tokenConverter';
   import type { VederlagsMetode, EventType } from '$lib/types/timeline';
   import { submitEvent } from '$lib/api/events';
   import { draftKey, loadDraft, saveDraft, clearDraft } from '$lib/utils/draft';
@@ -91,6 +94,7 @@
     produktivitetVurdering?: BelopVurdering;
     produktivitetGodkjentBelop?: number;
     bhBegrunnelseHtml: string;
+    userHasEditedBegrunnelse?: boolean;
   }
   const dk = draftKey('svar-vederlag', sakId);
   const draft = loadDraft<VederlagResponseDraft>(dk);
@@ -142,6 +146,9 @@
 
   // Port 4: Begrunnelse
   let bhBegrunnelseHtml = $state(draft?.bhBegrunnelseHtml ?? forrigeBegrunnelseHtml ?? '');
+  let userHasEdited = $state(
+    draft?.userHasEditedBegrunnelse ?? (isUpdateMode && !!forrigeBegrunnelseHtml)
+  );
 
   // Submission
   let submitting = $state(false);
@@ -162,6 +169,7 @@
       produktivitetVurdering,
       produktivitetGodkjentBelop,
       bhBegrunnelseHtml,
+      userHasEditedBegrunnelse: userHasEdited,
     });
   });
 
@@ -183,6 +191,62 @@
   });
 
   const computed = $derived(beregnAlt(formState, domainConfig));
+
+  // --- Auto-begrunnelse ---
+  const canGenerateBegrunnelse = $derived(
+    akseptererMetode !== undefined && hovedkravVurdering !== undefined
+  );
+
+  const autoBegrunnelseHtml = $derived.by(() => {
+    if (!canGenerateBegrunnelse) return '';
+
+    const input: VederlagResponseInput = {
+      metode: krav.metode,
+      hovedkravBelop: krav.hovedkravBelop,
+      riggBelop: krav.riggBelop,
+      produktivitetBelop: krav.produktivitetBelop,
+      harRiggKrav: krav.harRiggKrav,
+      harProduktivitetKrav: krav.harProduktivitetKrav,
+      erGrunnlagPrekludert: domainConfig.grunnlagVarsletForSent,
+      erGrunnlagAvslatt: domainConfig.grunnlagStatus === 'avslatt',
+      hovedkravVarsletITide,
+      riggVarsletITide,
+      produktivitetVarsletITide,
+      akseptererMetode: akseptererMetode!,
+      oensketMetode,
+      epJusteringVarsletITide: undefined,
+      epJusteringAkseptert: undefined,
+      kreverJustertEp: domainConfig.kreverJustertEp,
+      holdTilbake: false,
+      hovedkravVurdering: hovedkravVurdering!,
+      hovedkravGodkjentBelop,
+      riggVurdering,
+      riggGodkjentBelop,
+      produktivitetVurdering,
+      produktivitetGodkjentBelop,
+      totalKrevd: computed.totalKrevdInklPrekludert,
+      totalGodkjent: computed.totalGodkjent,
+      totalGodkjentSubsidiaer: computed.totalGodkjentInklPrekludert,
+      harPrekludertKrav: computed.harPrekludertKrav,
+    };
+
+    const tokens = generateVederlagResponseBegrunnelse(input, { useTokens: true });
+    return tokensToHtml(tokens);
+  });
+
+  // Auto-populate editor when form is filled and user hasn't manually edited
+  $effect(() => {
+    if (!userHasEdited && autoBegrunnelseHtml) {
+      bhBegrunnelseHtml = autoBegrunnelseHtml;
+    }
+  });
+
+  function handleRegenerate() {
+    if (autoBegrunnelseHtml) {
+      bhBegrunnelseHtml = autoBegrunnelseHtml;
+      userHasEdited = false;
+    }
+  }
 
   // --- UI visibility ---
   const subsidiærKontekst = $derived(erSubsidiaerFn(domainConfig));
@@ -352,6 +416,9 @@
   {submitError}
   onsubmit={handleSubmit}
   onavbryt={handleAvbryt}
+  showRegenerate={userHasEdited && !!autoBegrunnelseHtml}
+  onregenerate={handleRegenerate}
+  onuseredited={() => (userHasEdited = true)}
 >
   <FormPageHeader
     tilbakeHref="/{prosjektId}/{sakId}"

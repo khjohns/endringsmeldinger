@@ -1,10 +1,11 @@
 <script lang="ts">
-  import { ChevronDown, File as FileIcon, Upload, X } from 'lucide-svelte';
+  import { ChevronDown, File as FileIcon, Upload, X, RefreshCw } from 'lucide-svelte';
   import RichTextEditor from '$lib/components/primitives/RichTextEditor.svelte';
   import Button from '$lib/components/primitives/Button.svelte';
   import { formatDateShortNorwegian } from '$lib/utils/dateFormatters';
   import { getPartsNavn } from '$lib/utils/partsNavn';
   import { GRUNNLAG_RESULTAT_LABELS } from '$lib/constants/responseOptions';
+  import LockedValueNode from '$lib/editor/LockedValueNode';
 
   import type { BegrunnelseEntry } from '$lib/types';
 
@@ -23,6 +24,9 @@
     onsubmit?: () => void;
     onavbryt?: () => void;
     availableTags?: string[];
+    showRegenerate?: boolean;
+    onregenerate?: () => void;
+    onuseredited?: () => void;
   }
 
   let {
@@ -40,9 +44,37 @@
     onsubmit,
     onavbryt,
     availableTags = [],
+    showRegenerate = false,
+    onregenerate,
+    onuseredited,
   }: Props = $props();
 
   const editorLabel = $derived(editorRolle === 'TE' ? 'Din reviderte begrunnelse' : 'Ditt svar');
+
+  // --- Editor API for programmatic content updates ---
+  let editorApi: { setContent: (html: string) => void } | undefined;
+  let prevBhHtml: string | undefined = undefined;
+
+  // Sync editor when bhBegrunnelseHtml changes from outside (auto-generation, regeneration)
+  $effect(() => {
+    if (editorApi && bhBegrunnelseHtml !== prevBhHtml) {
+      editorApi.setContent(bhBegrunnelseHtml);
+      prevBhHtml = bhBegrunnelseHtml;
+    }
+  });
+
+  function handleEditorReady(api: { setContent: (html: string) => void }) {
+    editorApi = api;
+    // Sync any content that arrived before the editor was ready
+    api.setContent(bhBegrunnelseHtml);
+    prevBhHtml = bhBegrunnelseHtml;
+  }
+
+  function handleEditorChange(newHtml: string) {
+    prevBhHtml = newHtml;
+    bhBegrunnelseHtml = newHtml;
+    onuseredited?.();
+  }
 
   let charCount = $state(0);
   let collapsedEntries = $state<Set<number>>(new Set());
@@ -160,10 +192,25 @@
       <section class="editor-section">
         <div class="editor-header">
           <h3 class="section-label">{editorLabel}</h3>
-          <span class="char-count">{charCount} tegn</span>
+          <div class="editor-header-right">
+            {#if showRegenerate}
+              <button
+                class="regenerate-btn"
+                onclick={onregenerate}
+                title="Regenerer fra skjemadata"
+              >
+                <RefreshCw size={12} strokeWidth={2} aria-hidden="true" />
+                Regenerer
+              </button>
+            {/if}
+            <span class="char-count">{charCount} tegn</span>
+          </div>
         </div>
         <RichTextEditor
-          bind:html={bhBegrunnelseHtml}
+          body={bhBegrunnelseHtml}
+          onchange={handleEditorChange}
+          onready={handleEditorReady}
+          extensions={[LockedValueNode]}
           maxHeight="none"
           oncharcount={(c) => (charCount = c)}
         />
@@ -484,6 +531,37 @@
     justify-content: space-between;
     padding-bottom: var(--spacing-2);
     border-bottom: 1px solid var(--color-wire);
+  }
+
+  .editor-header-right {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-3);
+  }
+
+  .regenerate-btn {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-1);
+    padding: 2px var(--spacing-2);
+    background: transparent;
+    border: 1px solid var(--color-wire-strong);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-ui);
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--color-ink-secondary);
+    cursor: pointer;
+    transition:
+      color 0.12s,
+      border-color 0.12s,
+      background 0.12s;
+  }
+
+  .regenerate-btn:hover {
+    color: var(--color-ink);
+    border-color: var(--color-ink-muted);
+    background: var(--color-felt-hover);
   }
 
   .char-count {
