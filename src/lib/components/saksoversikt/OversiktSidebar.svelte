@@ -85,7 +85,10 @@
   <!-- Prosjektidentitet -->
   <div class="sidebar-section">
     <h2 class="prosjekt-navn">{prosjektNavn}</h2>
-    <span class="prosjekt-entreprise">{entreprise}</span>
+    <span class="prosjekt-entreprise"
+      >{#if prosjektNavn !== prosjektId}{prosjektId} ·
+      {/if}{entreprise}</span
+    >
     <div class="sak-telling">
       <span class="telling-verdi">{saker.length}</span>
       <span class="telling-label">saker</span>

@@ -10,7 +10,9 @@
   const prosjektId = $derived(page.params.prosjektId ?? '');
   const sakId = $derived(page.params.sakId ?? '');
 
-  const prosjektNavn = $derived(page.data.project?.name ?? prosjektId);
+  import { projectStore } from '$lib/stores/project.svelte';
+
+  const prosjektNavn = $derived(projectStore.current?.name ?? prosjektId);
 
   const query = createCaseContextQuery(() => sakId);
 

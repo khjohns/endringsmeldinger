@@ -10,6 +10,7 @@
   } from '$lib/domain/fristSubmissionDomain';
 
   import { projectToMeta } from '$lib/constants/projectMeta';
+  import { projectStore } from '$lib/stores/project.svelte';
   import PageLoadingShell from '$lib/components/shared/PageLoadingShell.svelte';
   import {
     isFristKravEvent,
@@ -20,7 +21,7 @@
   const prosjektId = $derived(page.params.prosjektId ?? '');
   const sakId = $derived(page.params.sakId ?? '');
 
-  const meta = $derived(projectToMeta(page.data.project, prosjektId));
+  const meta = $derived(projectToMeta(projectStore.current, prosjektId));
 
   const query = createCaseContextQuery(() => sakId);
 
