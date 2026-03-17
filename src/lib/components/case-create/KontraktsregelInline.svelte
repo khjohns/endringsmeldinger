@@ -51,7 +51,7 @@
   .kr-tekst {
     font-family: var(--font-prose);
     font-size: 13px;
-    font-weight: 450;
+    font-weight: 400;
     line-height: 1.6;
     color: var(--color-ink-secondary);
     margin: 0;
@@ -60,7 +60,7 @@
   .kr-konsekvens {
     font-family: var(--font-prose);
     font-size: 13px;
-    font-weight: 450;
+    font-weight: 400;
     line-height: 1.6;
     color: var(--color-ink-muted);
     margin: 0;

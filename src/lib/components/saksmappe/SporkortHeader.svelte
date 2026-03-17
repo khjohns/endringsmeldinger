@@ -95,7 +95,7 @@
 
   .stempel-action {
     color: var(--color-vekt);
-    border-color: rgba(245, 158, 11, 0.3);
+    border-color: color-mix(in srgb, var(--color-vekt) 30%, transparent);
   }
 
   @media (max-width: 1023px) {

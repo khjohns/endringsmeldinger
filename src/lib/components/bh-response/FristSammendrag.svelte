@@ -86,7 +86,7 @@
   .begrunnelse {
     font-family: var(--font-prose);
     font-size: 14px;
-    font-weight: 450;
+    font-weight: 400;
     line-height: 1.6;
     color: var(--color-ink-secondary);
     overflow: hidden;

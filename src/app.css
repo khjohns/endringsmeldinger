@@ -4,7 +4,7 @@
   /* ── Non-color tokens (shared between light/dark) ── */
 
   /* Typography */
-  --font-data: 'IBM Plex Mono', 'SF Mono', 'Cascadia Code', 'Consolas', monospace;
+  --font-data: 'Source Code Pro', 'SF Mono', 'Cascadia Code', 'Consolas', monospace;
   --font-ui: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --font-prose: 'IBM Plex Sans', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 
@@ -69,10 +69,10 @@
   --koe-wire-strong: rgba(33, 28, 18, 0.12);
   --koe-wire-focus: rgba(33, 28, 18, 0.2);
 
-  --koe-vekt: #8e5409;
-  --koe-vekt-dim: #7c4a0a;
-  --koe-vekt-bg: rgba(146, 86, 9, 0.06);
-  --koe-vekt-bg-strong: rgba(146, 86, 9, 0.12);
+  --koe-vekt: #2c5a8c;
+  --koe-vekt-dim: #214a76;
+  --koe-vekt-bg: rgba(44, 90, 140, 0.06);
+  --koe-vekt-bg-strong: rgba(44, 90, 140, 0.12);
 
   --koe-score-high: #047d56;
   --koe-score-high-bg: #eff5ee;
@@ -98,10 +98,10 @@
   --koe-wire-strong: rgba(245, 235, 220, 0.15);
   --koe-wire-focus: rgba(245, 235, 220, 0.25);
 
-  --koe-vekt: #f59e0b;
-  --koe-vekt-dim: #d97706;
-  --koe-vekt-bg: rgba(245, 158, 11, 0.08);
-  --koe-vekt-bg-strong: rgba(245, 158, 11, 0.14);
+  --koe-vekt: #7b9ec8;
+  --koe-vekt-dim: #5f83b0;
+  --koe-vekt-bg: rgba(123, 158, 200, 0.08);
+  --koe-vekt-bg-strong: rgba(123, 158, 200, 0.14);
 
   --koe-score-high: #10b981;
   --koe-score-high-bg: rgba(16, 185, 129, 0.1);

@@ -299,7 +299,7 @@
   .begrunnelse {
     font-family: var(--font-prose);
     font-size: 14px;
-    font-weight: 450;
+    font-weight: 400;
     color: var(--color-ink-secondary);
     line-height: 1.6;
     margin: 0;

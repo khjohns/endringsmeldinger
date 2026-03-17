@@ -85,15 +85,17 @@
   <!-- Prosjektidentitet -->
   <div class="sidebar-section">
     <h2 class="prosjekt-navn">{prosjektNavn}</h2>
-    <span class="prosjekt-entreprise"
-      >{#if prosjektNavn !== prosjektId}{prosjektId} ·
-      {/if}{entreprise}</span
+    <span class="prosjekt-meta"
+      >{#if prosjektNavn !== prosjektId}<span class="prosjekt-id">{prosjektId}</span>
+        <span class="meta-sep">&middot;</span>
+      {/if}<span class="prosjekt-entreprise">{entreprise}</span></span
     >
     <div class="sak-telling">
       <span class="telling-verdi">{saker.length}</span>
       <span class="telling-label">saker</span>
       <span class="telling-sep">&middot;</span>
-      <span class="telling-aktiv">{stats.aktiveSaker} aktive</span>
+      <span class="telling-aktiv"><span class="telling-tall">{stats.aktiveSaker}</span> aktive</span
+      >
     </div>
     <a class="ny-sak-btn" href="/{prosjektId}/ny">
       <Plus size={14} strokeWidth={1.5} aria-hidden="true" />
@@ -209,10 +211,26 @@
     line-height: 1.4;
   }
 
-  .prosjekt-entreprise {
+  .prosjekt-meta {
     font-size: 13px;
     color: var(--color-ink-secondary);
     display: block;
+  }
+
+  .prosjekt-id {
+    font-family: var(--font-data);
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--color-ink-muted);
+  }
+
+  .meta-sep {
+    color: var(--color-ink-ghost);
+    margin: 0 2px;
+  }
+
+  .prosjekt-entreprise {
+    /* inherits font-ui from parent */
   }
 
   .sak-telling {
@@ -242,10 +260,15 @@
   }
 
   .telling-aktiv {
+    font-size: 12px;
+    color: var(--color-ink-secondary);
+  }
+
+  .telling-tall {
     font-family: var(--font-data);
     font-size: 11px;
-    color: var(--color-ink-secondary);
-    font-weight: 500;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
   }
 
   .ny-sak-btn {
@@ -259,7 +282,7 @@
     font-weight: 600;
     color: var(--color-vekt);
     background: var(--color-vekt-bg);
-    border: 1px solid rgba(245, 158, 11, 0.2);
+    border: 1px solid color-mix(in srgb, var(--color-vekt) 20%, transparent);
     border-radius: var(--radius-sm);
     text-decoration: none;
     transition:
@@ -270,7 +293,7 @@
 
   .ny-sak-btn:hover {
     background: var(--color-vekt-bg-strong);
-    border-color: rgba(245, 158, 11, 0.3);
+    border-color: color-mix(in srgb, var(--color-vekt) 30%, transparent);
   }
 
   .section-label {

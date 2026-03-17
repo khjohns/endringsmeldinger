@@ -183,7 +183,7 @@
     padding: var(--spacing-4);
     font-family: var(--font-prose);
     font-size: 15px;
-    font-weight: 450;
+    font-weight: 400;
     line-height: 1.6;
     color: var(--color-ink);
     min-height: 100px;
