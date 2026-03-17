@@ -82,7 +82,7 @@
 ### Tre fonter
 - **UI (`--font-ui`: Inter):** Labels, knapper, navigasjon, metadata, statusfraser, seksjonsoverskrifter (uppercase). Tekst du *skanner*. Hoy x-hoyde og apne aperturer gir best lesbarhet ved 10-13px pa HiDPI-skjermer.
 - **Prosa (`--font-prose`: IBM Plex Sans):** Begrunnelser, kontraktstekst, juridiske redegjoerelser, rich text-editor, dokumenttitler. Tekst du *leser og skriver*. Mekaniske terminaler gir maskinskrevet kontrakt-kvalitet. Lastes som variabel font (wght@400..600).
-- **Data (`--font-data`: Source Code Pro):** Tall, belop, datoer, prosent, system-IDer, paragrafreferanser, klassifikasjoner. Verdier du *slar opp*. Bredere og mer naturlig lesbar enn IBM Plex Mono.
+- **Data (`--font-data`: IBM Plex Mono):** Tall, belop, datoer, prosent, system-IDer, paragrafreferanser, klassifikasjoner. Verdier du *slar opp*. Samme designfamilie som prosa-fonten.
 
 ### Fontvalg-prinsipp
 - **UI** = navigasjon, interaksjon, korte labels. Fonten er usynlig — den skal ikke merkes.
