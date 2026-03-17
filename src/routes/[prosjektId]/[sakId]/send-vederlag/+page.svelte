@@ -9,14 +9,14 @@
     VederlagSubmissionDefaultsConfig,
   } from '$lib/domain/vederlagSubmissionDomain';
 
-  import { PROJECT_META } from '$lib/constants/projectMeta';
+  import { projectToMeta } from '$lib/constants/projectMeta';
   import PageLoadingShell from '$lib/components/shared/PageLoadingShell.svelte';
   import { isVederlagKravEvent, isGrunnlagEvent } from '$lib/constants/eventTypes';
 
   const prosjektId = $derived(page.params.prosjektId ?? '');
   const sakId = $derived(page.params.sakId ?? '');
 
-  const meta = $derived(prosjektId ? (PROJECT_META[prosjektId] ?? null) : null);
+  const meta = $derived(projectToMeta(page.data.project, prosjektId));
 
   const query = createCaseContextQuery(() => sakId);
 

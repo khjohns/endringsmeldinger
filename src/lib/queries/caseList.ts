@@ -2,9 +2,9 @@ import { createQuery } from '@tanstack/svelte-query';
 import { fetchCaseList } from '$lib/api/cases';
 import type { CaseListResponse } from '$lib/types/api';
 
-export function createCaseListQuery() {
+export function createCaseListQuery(getProsjektId?: () => string) {
   return createQuery<CaseListResponse>(() => ({
-    queryKey: ['cases'],
+    queryKey: ['cases', getProsjektId?.() ?? 'default'],
     queryFn: async () => {
       try {
         return await fetchCaseList();

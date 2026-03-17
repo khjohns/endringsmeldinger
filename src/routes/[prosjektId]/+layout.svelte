@@ -3,9 +3,9 @@
   import { QueryClientProvider, QueryClient } from '@tanstack/svelte-query';
   import ThemeToggle from '$lib/components/primitives/ThemeToggle.svelte';
   import RoleToggle from '$lib/components/primitives/RoleToggle.svelte';
-  import { PROJECT_META } from '$lib/constants/projectMeta';
+  import type { Project } from '$lib/types/project';
 
-  let { children } = $props();
+  let { children, data } = $props<{ children: any; data: { project: Project | null } }>();
 
   const prosjektId = $derived(page.params.prosjektId);
   const sakId = $derived(page.params.sakId ?? null);
@@ -21,14 +21,14 @@
 
   const queryClient = new QueryClient();
 
-  const projectMeta = $derived(prosjektId ? (PROJECT_META[prosjektId] ?? null) : null);
+  const projectName = $derived(data.project?.name ?? prosjektId);
 </script>
 
 <QueryClientProvider client={queryClient}>
   <div class="app-shell">
     <header class="top-nav">
       <nav class="nav-breadcrumbs" aria-label="Brodsmuler">
-        <a href="/{prosjektId}" class="crumb">{projectMeta?.name ?? prosjektId}</a>
+        <a href="/{prosjektId}" class="crumb">{projectName}</a>
         {#if isNySak}
           <span class="sep">/</span>
           <span class="current">Ny sak</span>
