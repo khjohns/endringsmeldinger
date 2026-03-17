@@ -184,6 +184,13 @@ export interface HistorikkResponse {
 
 // ========== CASE LIST ==========
 
+export interface CaseListHendelse {
+  type: 'K' | 'V' | 'F';
+  dato: string;
+  label: string;
+  besvart?: boolean;
+}
+
 export interface CaseListItem {
   sak_id: string;
   sakstype: 'standard' | 'forsering' | 'endringsordre';
@@ -202,6 +209,8 @@ export interface CaseListItem {
   // Forsering-specific cached fields
   cached_forsering_paalopt: number | null;
   cached_forsering_maks: number | null;
+  // Timeline hendelser for saksoversikt
+  hendelser?: CaseListHendelse[];
 }
 
 export interface CaseListResponse {

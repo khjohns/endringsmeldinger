@@ -1,17 +1,13 @@
-import type { CaseListItem } from '$lib/types/api';
+import type { CaseListItem, CaseListHendelse } from '$lib/types/api';
 
 export type SporHendelseType = 'K' | 'V' | 'F';
 export type SaksoversiktVisning = 'tidslinje' | 'tabell';
 
-export interface SaksoversiktHendelse {
-  type: SporHendelseType;
-  dato: string;
-  label: string;
-  besvart?: boolean;
-}
+/** @deprecated Use CaseListHendelse from '$lib/types/api' */
+export type SaksoversiktHendelse = CaseListHendelse;
 
 export interface SaksoversiktItem extends CaseListItem {
-  hendelser: SaksoversiktHendelse[];
+  hendelser: CaseListHendelse[];
   cached_begrunnelse?: string | null;
 }
 

@@ -39,6 +39,7 @@ from lib.cloudevents import (
     format_timeline_response,
 )
 from lib.helpers.version_control import handle_concurrency_error
+from models.cloudevents import CLOUDEVENTS_NAMESPACE
 from models.events import (
     AnyEvent,
     EventType,
@@ -754,12 +755,68 @@ def submit_batch():
         ), 500
 
 
+def _events_to_hendelser(events_data: list[dict]) -> list[dict]:
+    """
+    Map raw CloudEvents to compact hendelser for saksoversikt timeline.
+
+    Returns list of {type: 'K'|'V'|'F', dato, label, besvart}.
+
+    besvart is set per-spor: all events on a spor are marked besvart
+    if any response event exists on that spor.
+    """
+    ce_prefix = f"{CLOUDEVENTS_NAMESPACE}."
+    SPOR_MAP = {
+        "grunnlag": "K",
+        "vederlag": "V",
+        "frist": "F",
+    }
+
+    def _get_spor(event_type: str) -> str | None:
+        for prefix, code in SPOR_MAP.items():
+            if event_type.startswith(prefix) or event_type.startswith(f"respons_{prefix}"):
+                return code
+        return None
+
+    # First pass: collect which spor have responses
+    responded_spor: set[str] = set()
+    for e in events_data:
+        ce_type = e.get("type", "")
+        if not ce_type.startswith(ce_prefix):
+            continue
+        event_type = ce_type[len(ce_prefix):]
+        if event_type.startswith("respons_"):
+            spor = _get_spor(event_type)
+            if spor:
+                responded_spor.add(spor)
+
+    # Second pass: build hendelser
+    result = []
+    for e in events_data:
+        ce_type = e.get("type", "")
+        if not ce_type.startswith(ce_prefix):
+            continue
+        event_type = ce_type[len(ce_prefix):]
+        spor = _get_spor(event_type)
+        if not spor:
+            continue
+        entry: dict = {
+            "type": spor,
+            "dato": e.get("time"),
+            "label": e.get("summary", event_type),
+        }
+        if spor in responded_spor:
+            entry["besvart"] = True
+        result.append(entry)
+
+    return result
+
+
 @events_bp.route("/api/cases", methods=["GET"])
 @require_magic_link
 @require_project_access()
 def list_cases():
     """
-    List all cases with metadata.
+    List all cases with metadata and hendelser for saksoversikt.
 
     Query parameters:
     - sakstype: Filter by case type (standard, forsering, endringsordre)
@@ -774,7 +831,10 @@ def list_cases():
                 "cached_status": "Under behandling",
                 "created_at": "2025-01-15T10:30:00Z",
                 "created_by": "contractor@example.com",
-                "last_event_at": "2025-01-20T14:00:00Z"
+                "last_event_at": "2025-01-20T14:00:00Z",
+                "hendelser": [
+                    {"type": "K", "dato": "2025-01-15T10:30:00Z", "label": "TE varslet...", "besvart": true}
+                ]
             },
             ...
         ]
@@ -788,36 +848,45 @@ def list_cases():
         else:
             cases = _get_metadata_repo().list_all()
 
-        return jsonify(
-            {
-                "cases": [
-                    {
-                        "sak_id": c.sak_id,
-                        "sakstype": getattr(c, "sakstype", "standard"),
-                        "cached_title": c.cached_title,
-                        "cached_status": c.cached_status,
-                        "created_at": c.created_at.isoformat()
-                        if c.created_at
-                        else None,
-                        "created_by": c.created_by,
-                        "last_event_at": c.last_event_at.isoformat()
-                        if c.last_event_at
-                        else None,
-                        # Reporting fields
-                        "cached_sum_krevd": c.cached_sum_krevd,
-                        "cached_sum_godkjent": c.cached_sum_godkjent,
-                        "cached_dager_krevd": c.cached_dager_krevd,
-                        "cached_dager_godkjent": c.cached_dager_godkjent,
-                        "cached_hovedkategori": c.cached_hovedkategori,
-                        "cached_underkategori": c.cached_underkategori,
-                        # Forsering-specific cached fields
-                        "cached_forsering_paalopt": c.cached_forsering_paalopt,
-                        "cached_forsering_maks": c.cached_forsering_maks,
-                    }
-                    for c in cases
-                ]
-            }
-        )
+        event_repo = _get_event_repo()
+
+        result = []
+        for c in cases:
+            # Fetch events to derive hendelser
+            try:
+                events_data, _ = event_repo.get_events(c.sak_id)
+                hendelser = _events_to_hendelser(events_data)
+            except Exception as exc:
+                logger.warning(f"Failed to load hendelser for {c.sak_id}: {exc}")
+                hendelser = []
+
+            result.append({
+                "sak_id": c.sak_id,
+                "sakstype": getattr(c, "sakstype", "standard"),
+                "cached_title": c.cached_title,
+                "cached_status": c.cached_status,
+                "created_at": c.created_at.isoformat()
+                if c.created_at
+                else None,
+                "created_by": c.created_by,
+                "last_event_at": c.last_event_at.isoformat()
+                if c.last_event_at
+                else None,
+                # Reporting fields
+                "cached_sum_krevd": c.cached_sum_krevd,
+                "cached_sum_godkjent": c.cached_sum_godkjent,
+                "cached_dager_krevd": c.cached_dager_krevd,
+                "cached_dager_godkjent": c.cached_dager_godkjent,
+                "cached_hovedkategori": c.cached_hovedkategori,
+                "cached_underkategori": c.cached_underkategori,
+                # Forsering-specific cached fields
+                "cached_forsering_paalopt": c.cached_forsering_paalopt,
+                "cached_forsering_maks": c.cached_forsering_maks,
+                # Timeline hendelser for saksoversikt
+                "hendelser": hendelser,
+            })
+
+        return jsonify({"cases": result})
 
     except Exception as e:
         logger.error(f"Failed to list cases: {e}", exc_info=True)
