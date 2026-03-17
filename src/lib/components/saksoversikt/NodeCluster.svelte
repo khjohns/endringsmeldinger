@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { TidslinjeNode } from '$lib/utils/tidslinje';
-  import { klyngePrioritet } from '$lib/utils/tidslinje';
+  import { klyngePrioritet, sporFordeling, gruppertTooltip } from '$lib/utils/tidslinje';
   import type { SporHendelseType } from '$lib/mocks/saksoversikt';
 
   interface Props {
@@ -13,6 +13,8 @@
 
   const tagType = $derived(klyngePrioritet(items));
   const harFlere = $derived(items.length > 1);
+  const fordeling = $derived(sporFordeling(items));
+  const tooltip = $derived(gruppertTooltip(items));
 
   // Dim cluster if a spor filter is active and no items match it
   const erDimmet = $derived(aktivtSpor !== null && !items.some((i) => i.type === aktivtSpor));
@@ -23,7 +25,7 @@
   class:klynge-fler={harFlere}
   class:klynge-dim={erDimmet}
   style:left="{pos}%"
-  title={items.map((i) => `${i.type}: ${i.label}`).join('\n')}
+  title={tooltip}
 >
   {#each items as item, idx (idx)}
     <div
@@ -36,7 +38,7 @@
     </div>
   {/each}
   {#if harFlere}
-    <div class="klynge-tag tag-{tagType.toLowerCase()}">{items.length}</div>
+    <div class="klynge-tag tag-{tagType.toLowerCase()}">{fordeling}</div>
   {/if}
 </div>
 
@@ -135,9 +137,8 @@
     position: absolute;
     top: -3px;
     right: -3px;
-    min-width: 12px;
     height: 12px;
-    padding: 0 2px;
+    padding: 0 3px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -148,6 +149,8 @@
     z-index: 30;
     border-radius: 1px;
     transform: translate(25%, -25%);
+    white-space: nowrap;
+    letter-spacing: 0.02em;
   }
 
   .tag-k {
