@@ -43,12 +43,12 @@
     <div class="date-row">
       <DatePicker.Input class="date-input">
         {#snippet children({ segments })}
-          {#each segments as { part, value: segValue }, si (si)}
+          {#each segments as seg, si (`${seg.part}-${si}`)}
             <DatePicker.Segment
-              {part}
-              class="date-segment {part === 'literal' ? 'date-literal' : 'date-editable'}"
+              part={seg.part}
+              class="date-segment {seg.part === 'literal' ? 'date-literal' : 'date-editable'}"
             >
-              {segValue}
+              {seg.value}
             </DatePicker.Segment>
           {/each}
         {/snippet}
@@ -58,46 +58,48 @@
       </DatePicker.Trigger>
     </div>
 
-    <DatePicker.Content class="date-popover">
-      <DatePicker.Calendar>
-        {#snippet children({ months, weekdays })}
-          <DatePicker.Header class="cal-header">
-            <DatePicker.PrevButton class="cal-nav">
-              <ChevronLeft size={14} strokeWidth={1.5} aria-hidden="true" />
-            </DatePicker.PrevButton>
-            <DatePicker.Heading class="cal-heading" />
-            <DatePicker.NextButton class="cal-nav">
-              <ChevronRight size={14} strokeWidth={1.5} aria-hidden="true" />
-            </DatePicker.NextButton>
-          </DatePicker.Header>
+    <DatePicker.Portal>
+      <DatePicker.Content class="date-popover">
+        <DatePicker.Calendar>
+          {#snippet children({ months, weekdays })}
+            <DatePicker.Header class="cal-header">
+              <DatePicker.PrevButton class="cal-nav">
+                <ChevronLeft size={14} strokeWidth={1.5} aria-hidden="true" />
+              </DatePicker.PrevButton>
+              <DatePicker.Heading class="cal-heading" />
+              <DatePicker.NextButton class="cal-nav">
+                <ChevronRight size={14} strokeWidth={1.5} aria-hidden="true" />
+              </DatePicker.NextButton>
+            </DatePicker.Header>
 
-          {#each months as month (month.value.toString())}
-            <DatePicker.Grid class="cal-grid">
-              <DatePicker.GridHead>
-                <DatePicker.GridRow class="cal-row">
-                  {#each weekdays as weekday (weekday)}
-                    <DatePicker.HeadCell class="cal-weekday">{weekday}</DatePicker.HeadCell>
-                  {/each}
-                </DatePicker.GridRow>
-              </DatePicker.GridHead>
-              <DatePicker.GridBody>
-                {#each month.weeks as weekDates, wi (wi)}
+            {#each months as month (month.value.toString())}
+              <DatePicker.Grid class="cal-grid">
+                <DatePicker.GridHead>
                   <DatePicker.GridRow class="cal-row">
-                    {#each weekDates as date (date.toString())}
-                      <DatePicker.Cell {date} month={month.value} class="cal-cell">
-                        <DatePicker.Day class="cal-day">
-                          {date.day}
-                        </DatePicker.Day>
-                      </DatePicker.Cell>
+                    {#each weekdays as weekday (weekday)}
+                      <DatePicker.HeadCell class="cal-weekday">{weekday}</DatePicker.HeadCell>
                     {/each}
                   </DatePicker.GridRow>
-                {/each}
-              </DatePicker.GridBody>
-            </DatePicker.Grid>
-          {/each}
-        {/snippet}
-      </DatePicker.Calendar>
-    </DatePicker.Content>
+                </DatePicker.GridHead>
+                <DatePicker.GridBody>
+                  {#each month.weeks as weekDates, wi (wi)}
+                    <DatePicker.GridRow class="cal-row">
+                      {#each weekDates as date (date.toString())}
+                        <DatePicker.Cell {date} month={month.value} class="cal-cell">
+                          <DatePicker.Day class="cal-day">
+                            {date.day}
+                          </DatePicker.Day>
+                        </DatePicker.Cell>
+                      {/each}
+                    </DatePicker.GridRow>
+                  {/each}
+                </DatePicker.GridBody>
+              </DatePicker.Grid>
+            {/each}
+          {/snippet}
+        </DatePicker.Calendar>
+      </DatePicker.Content>
+    </DatePicker.Portal>
   </DatePicker.Root>
   {#if hint}
     <div class="date-hint">{hint}</div>
