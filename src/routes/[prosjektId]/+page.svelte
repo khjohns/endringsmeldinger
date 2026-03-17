@@ -5,13 +5,24 @@
   import CaseListTable from '$lib/components/case-list/CaseListTable.svelte';
   import Saksoversikt from '$lib/components/saksoversikt/Saksoversikt.svelte';
   import OversiktSidebar from '$lib/components/saksoversikt/OversiktSidebar.svelte';
-  import { mockSaksoversikt } from '$lib/mocks/saksoversikt';
-  import type { SporHendelseType, SaksoversiktVisning } from '$lib/mocks/saksoversikt';
+  import type {
+    SporHendelseType,
+    SaksoversiktVisning,
+    SaksoversiktItem,
+  } from '$lib/mocks/saksoversikt';
 
   import { PROJECT_META } from '$lib/constants/projectMeta';
 
   const prosjektId = $derived(page.params.prosjektId);
   const query = createCaseListQuery();
+
+  // Map CaseListItem[] from API to SaksoversiktItem[]
+  const saker = $derived<SaksoversiktItem[]>(
+    (query.data?.cases ?? []).map((c) => ({
+      ...c,
+      hendelser: c.hendelser ?? [],
+    }))
+  );
 
   const projectMeta = $derived(prosjektId ? (PROJECT_META[prosjektId] ?? null) : null);
 
@@ -61,7 +72,7 @@
   }
 
   const sidebarProps = $derived({
-    saker: mockSaksoversikt,
+    saker,
     prosjektNavn: projectMeta?.name ?? prosjektId ?? '',
     entreprise: projectMeta?.entreprise ?? '',
     visning,
@@ -115,7 +126,7 @@
       </div>
     {:else if query.data}
       {#if visning === 'tidslinje'}
-        <Saksoversikt saker={mockSaksoversikt} prosjektId={prosjektId ?? ''} {aktivtSpor} />
+        <Saksoversikt {saker} prosjektId={prosjektId ?? ''} {aktivtSpor} />
       {:else}
         <div class="tabell-wrap">
           <CaseListTable cases={query.data.cases} prosjektId={prosjektId ?? ''} />
