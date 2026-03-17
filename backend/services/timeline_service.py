@@ -30,6 +30,7 @@ from models.events import (
     FristEvent,
     GrunnlagEvent,
     GrunnlagResponsResultat,
+    InterntNotatEvent,
     ResponsEvent,
     SakOpprettetEvent,
     SporStatus,
@@ -273,6 +274,7 @@ class TimelineService:
             EventType.EO_BESTRIDT: self._handle_eo_bestridt,
             EventType.EO_REVIDERT: self._handle_eo_revidert,
             EventType.TE_AKSEPTERER_RESPONS: self._handle_te_aksepterer_respons,
+            EventType.INTERNT_NOTAT: self._handle_internt_notat,
         }
 
         handler = handlers.get(event.event_type)
@@ -1238,6 +1240,10 @@ class TimelineService:
         logger.debug(f"TE aksepterte BH respons på {spor.value}")
         return state
 
+    def _handle_internt_notat(self, state: SakState, event: object) -> SakState:
+        """Internt notat påvirker ikke state — lagres kun som hendelse i loggen."""
+        return state
+
     # ============ HELPERS ============
 
     def _respons_til_status(self, resultat: GrunnlagResponsResultat) -> SporStatus:
@@ -1474,6 +1480,8 @@ class TimelineService:
             return "frist"  # Forsering hører til frist-sporet
         elif isinstance(event, ResponsEvent):
             return event.spor.value
+        elif isinstance(event, InterntNotatEvent):
+            return event.data.spor
         return None
 
     def _get_event_summary(self, event: AnyEvent) -> str:

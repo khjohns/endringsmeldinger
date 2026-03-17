@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { TimelineEvent } from '$lib/types/timeline';
+  import type { TimelineEvent, SporType } from '$lib/types/timeline';
   import HendelsesLogg from './HendelsesLogg.svelte';
 
   interface Props {
@@ -10,6 +10,8 @@
     focusedEvent?: TimelineEvent | null;
     teNavn?: string;
     bhNavn?: string;
+    sakId: string;
+    sporType: SporType;
   }
 
   let {
@@ -20,6 +22,8 @@
     focusedEvent = null,
     teNavn,
     bhNavn,
+    sakId,
+    sporType,
   }: Props = $props();
 
   // Events with time, sorted newest first
@@ -39,5 +43,7 @@
     {focusedEvent}
     {teNavn}
     {bhNavn}
+    {sakId}
+    {sporType}
   />
 {/if}

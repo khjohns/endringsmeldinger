@@ -295,6 +295,8 @@
     {focusedEvent}
     teNavn={sakState.entreprenor}
     bhNavn={sakState.byggherre}
+    {sakId}
+    {sporType}
   />
 
   <AvventerRad

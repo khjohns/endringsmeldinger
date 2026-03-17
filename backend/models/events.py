@@ -108,6 +108,9 @@ class EventType(str, Enum):
     # TE aksepterer BH respons (per spor)
     TE_AKSEPTERER_RESPONS = "te_aksepterer_respons"
 
+    # Internt notat (kun synlig for egen organisasjon)
+    INTERNT_NOTAT = "internt_notat"
+
 
 # ============ VEDERLAG ENUMS ============
 
@@ -766,6 +769,23 @@ class WithdrawalEvent(SakEvent):
         if v not in valid_types:
             raise ValueError(f"Ugyldig event_type for WithdrawalEvent: {v}")
         return v
+
+
+# ============ INTERNT NOTAT ============
+
+
+class InterntNotatData(BaseModel):
+    """Data for internt notat."""
+
+    tekst: str = Field(..., description="Notat-tekst")
+    spor: str | None = Field(default=None, description="Hvilket spor notatet gjelder")
+
+
+class InterntNotatEvent(SakEvent):
+    """Internt notat — kun synlig for egen organisasjon."""
+
+    event_type: EventType = Field(default=EventType.INTERNT_NOTAT)
+    data: InterntNotatData = Field(..., description="Notat-data")
 
 
 # ============ RESPONS EVENTS (BH) ============
@@ -1867,6 +1887,8 @@ def parse_event(data: dict) -> AnyEvent:
         EventType.EO_REVIDERT.value: EORevidertEvent,
         # TE aksepterer BH respons
         EventType.TE_AKSEPTERER_RESPONS.value: TEAkseptererResponsEvent,
+        # Internt notat
+        EventType.INTERNT_NOTAT.value: InterntNotatEvent,
     }
 
     event_class = type_map.get(event_type)

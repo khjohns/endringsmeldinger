@@ -1,9 +1,12 @@
 <script lang="ts">
-  import type { TimelineEvent, EventType } from '$lib/types/timeline';
+  import type { TimelineEvent, EventType, SporType } from '$lib/types/timeline';
   import { extractEventType } from '$lib/types/timeline';
   import { getEventTypeLabel } from '$lib/constants/eventLabels';
   import { getPartsNavn } from '$lib/utils/partsNavn';
   import { getEventIcon } from '$lib/utils/eventIcons';
+  import { submitEvent } from '$lib/api/events';
+  import { fetchCaseState } from '$lib/api/state';
+  import { useQueryClient } from '@tanstack/svelte-query';
   import { slide } from 'svelte/transition';
 
   interface Props {
@@ -14,6 +17,8 @@
     focusedEvent?: TimelineEvent | null;
     teNavn?: string;
     bhNavn?: string;
+    sakId: string;
+    sporType: SporType;
   }
 
   let {
@@ -24,7 +29,69 @@
     focusedEvent = null,
     teNavn,
     bhNavn,
+    sakId,
+    sporType,
   }: Props = $props();
+
+  const queryClient = useQueryClient();
+
+  let notatOpen = $state(false);
+  let notatTekst = $state('');
+  let notatSubmitting = $state(false);
+  let notatError = $state('');
+  let notatInput = $state<HTMLTextAreaElement | null>(null);
+
+  function openNotat(e: MouseEvent) {
+    e.stopPropagation();
+    e.preventDefault();
+    notatOpen = true;
+    notatError = '';
+    // Focus textarea after it renders
+    requestAnimationFrame(() => notatInput?.focus());
+  }
+
+  function cancelNotat() {
+    notatOpen = false;
+    notatTekst = '';
+    notatError = '';
+  }
+
+  async function sendNotat() {
+    const tekst = notatTekst.trim();
+    if (!tekst || notatSubmitting) return;
+    notatSubmitting = true;
+    notatError = '';
+    try {
+      const { version } = await fetchCaseState(sakId);
+      await submitEvent(
+        sakId,
+        'internt_notat',
+        {
+          tekst,
+          spor: sporType,
+        },
+        { expectedVersion: version }
+      );
+      notatTekst = '';
+      notatOpen = false;
+      await queryClient.invalidateQueries({ queryKey: ['case-context', sakId] });
+    } catch (err) {
+      notatError = err instanceof Error ? err.message : 'Kunne ikke lagre notatet.';
+    } finally {
+      notatSubmitting = false;
+    }
+  }
+
+  function handleNotatKeydown(e: KeyboardEvent) {
+    if (e.key === 'Escape') {
+      cancelNotat();
+    } else if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+      e.preventDefault();
+      sendNotat();
+    }
+    // Stop propagation so card doesn't handle these keys
+    e.stopPropagation();
+  }
 
   function getEventLabel(event: TimelineEvent, eventType: EventType | null): string {
     if (event.summary) {
@@ -344,16 +411,49 @@
         </div>
       {/if}
     {/if}
-    <button
-      class="btn-tilfoj-notat"
-      type="button"
-      onclick={(e: MouseEvent) => {
-        e.stopPropagation();
-        e.preventDefault();
-      }}
-    >
-      + Nytt internt notat
-    </button>
+    {#if notatOpen}
+      <div class="notat-inline" transition:slide={{ duration: 150 }}>
+        <textarea
+          class="notat-textarea"
+          bind:this={notatInput}
+          bind:value={notatTekst}
+          placeholder="Skriv et internt notat…"
+          rows="2"
+          disabled={notatSubmitting}
+          onkeydown={handleNotatKeydown}
+          onclick={(e: MouseEvent) => e.stopPropagation()}
+        ></textarea>
+        {#if notatError}
+          <div class="notat-error">{notatError}</div>
+        {/if}
+        <div class="notat-actions">
+          <span class="notat-hint">⌘+Enter for å sende</span>
+          <button
+            class="notat-btn notat-btn-cancel"
+            type="button"
+            onclick={(e: MouseEvent) => {
+              e.stopPropagation();
+              cancelNotat();
+            }}
+            disabled={notatSubmitting}>Avbryt</button
+          >
+          <button
+            class="notat-btn notat-btn-send"
+            type="button"
+            onclick={(e: MouseEvent) => {
+              e.stopPropagation();
+              sendNotat();
+            }}
+            disabled={!notatTekst.trim() || notatSubmitting}
+            >{notatSubmitting ? 'Lagrer…' : 'Lagre'}</button
+          >
+        </div>
+      </div>
+    {:else}
+      <button class="btn-tilfoj-notat" type="button" onclick={openNotat}>
+        + Nytt internt notat
+      </button>
+    {/if}
   </div>
 {/if}
 
@@ -521,5 +621,98 @@
 
   .btn-tilfoj-notat:hover {
     opacity: 0.8;
+  }
+
+  /* --- Inline notat --- */
+  .notat-inline {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-1);
+    margin-top: 4px;
+    padding-top: 4px;
+    border-top: 1px dashed var(--color-wire);
+  }
+
+  .notat-textarea {
+    width: 100%;
+    min-height: 48px;
+    padding: var(--spacing-2);
+    background: var(--color-vekt-bg);
+    border: 1px solid color-mix(in srgb, var(--color-vekt) 30%, transparent);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-ui);
+    font-size: 12px;
+    color: var(--color-ink);
+    resize: vertical;
+    outline: none;
+    transition: border-color 0.12s;
+  }
+
+  .notat-textarea:focus {
+    border-color: var(--color-vekt);
+  }
+
+  .notat-textarea::placeholder {
+    color: var(--color-ink-muted);
+  }
+
+  .notat-textarea:disabled {
+    opacity: 0.6;
+  }
+
+  .notat-error {
+    font-size: 11px;
+    color: var(--color-score-low);
+  }
+
+  .notat-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+  }
+
+  .notat-hint {
+    font-family: var(--font-data);
+    font-size: 10px;
+    color: var(--color-ink-muted);
+    margin-right: auto;
+  }
+
+  .notat-btn {
+    font-family: var(--font-ui);
+    font-size: 11px;
+    font-weight: 500;
+    padding: 2px 8px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition:
+      background 0.12s,
+      border-color 0.12s;
+  }
+
+  .notat-btn:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+
+  .notat-btn-cancel {
+    background: transparent;
+    border: 1px solid var(--color-wire);
+    color: var(--color-ink-secondary);
+  }
+
+  .notat-btn-cancel:hover:not(:disabled) {
+    background: var(--color-felt-hover);
+  }
+
+  .notat-btn-send {
+    background: var(--color-vekt-bg);
+    border: 1px solid color-mix(in srgb, var(--color-vekt) 30%, transparent);
+    color: var(--color-vekt);
+  }
+
+  .notat-btn-send:hover:not(:disabled) {
+    border-color: var(--color-vekt);
+    background: var(--color-vekt-bg-strong);
   }
 </style>
