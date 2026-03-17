@@ -140,6 +140,7 @@ def _get_event_summary(event) -> str:
         ForseringVarselEvent,
         FristEvent,
         GrunnlagEvent,
+        InterntNotatEvent,
         ResponsEvent,
         SakOpprettetEvent,
         VederlagEvent,
@@ -160,6 +161,8 @@ def _get_event_summary(event) -> str:
         return f"Forsering: {event.data.estimert_kostnad:,.0f} NOK"
     elif isinstance(event, ResponsEvent):
         return _get_respons_summary(event)
+    elif isinstance(event, InterntNotatEvent):
+        return event.data.tekst
     elif isinstance(event, SakOpprettetEvent):
         return event.sakstittel
     elif isinstance(event, EOUtstedtEvent):
