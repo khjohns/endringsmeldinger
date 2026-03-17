@@ -123,7 +123,7 @@
 
   .frist-item.warning {
     background: var(--color-vekt-bg);
-    border: 1px solid rgba(245, 158, 11, 0.2);
+    border: 1px solid color-mix(in srgb, var(--color-vekt) 20%, transparent);
   }
 
   .frist-label {

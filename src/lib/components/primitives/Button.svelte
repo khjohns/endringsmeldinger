@@ -79,7 +79,7 @@
     cursor: not-allowed;
   }
 
-  /* Primary — amber/vekt */
+  /* Primary — vekt */
   .btn-primary {
     background: var(--color-vekt);
     color: var(--color-canvas);

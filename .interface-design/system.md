@@ -12,7 +12,7 @@
 
 **Domain:** Kontraktsrett, byggebransje, forhandlingsbord, protokoller, paragraf-referanser, tidslinjer, belopsberegninger.
 
-**Color world:** Dokumentbordet — varme papir-inspirerte flater. Lys: #f3f1ec canvas, #faf8f4 felt. Mork: #0f0d0a canvas, #16140f felt. Jernblekk-hierarki med golden amber aksent (#8e5409 lys / #f59e0b mork).
+**Color world:** Dokumentbordet — varme papir-inspirerte flater. Lys: #f3f1ec canvas, #faf8f4 felt. Mork: #0f0d0a canvas, #16140f felt. Jernblekk-hierarki med stalblaa aksent (#2c5a8c lys / #7b9ec8 mork). Kald aksent mot varme flater gir profesjonell spenning — gjenkjennelig for byggebransjen (blakopi, stalkonstruksjon, institusjonelle dokumenter).
 
 **Signature:** Handlingskanten — en venstre kant (2px border-left) pa sporkort som indikerer umiddelbar status. Rose = Kritisk, Amber = Handling kreves, Wire = Venter.
 
@@ -64,16 +64,16 @@
 **Light:** rgba(33,28,18, 0.06/0.12/0.20)
 **Dark:** rgba(245,235,220, 0.08/0.15/0.25)
 
-### Vekt (aksent — amber)
-**Light:** `vekt` #8e5409, `vekt-dim` #7c4a0a, `vekt-bg` rgba(146,86,9, 0.06/0.12)
-**Dark:** `vekt` #f59e0b, `vekt-dim` #d97706, `vekt-bg` rgba(245,158,11, 0.08/0.14)
+### Vekt (aksent — stal)
+**Light:** `vekt` #2c5a8c, `vekt-dim` #214a76, `vekt-bg` rgba(44,90,140, 0.06/0.12)
+**Dark:** `vekt` #7b9ec8, `vekt-dim` #5f83b0, `vekt-bg` rgba(123,158,200, 0.08/0.14)
 
 ### Score (semantisk)
 **Light:** high #047d56 / bg #eff5ee, mid #655f56, low #c01b3d / bg #f5eeef
 **Dark:** high #10b981 / bg rgba(16,185,129,0.10), mid #908b82, low #f03e5f / bg rgba(240,62,95,0.08)
 
 ### Fargebruk (Umotivert farge er stoy)
-- **Amber (vekt):** KUN nar handling kreves, eller for a markere intern tvil/omtvistede midler.
+- **Stal (vekt):** KUN nar handling kreves, eller for a markere intern tvil/omtvistede midler.
 - **Rose (score-low):** KUN for kritisk fare: Dagmulkt, passivitet, avviste krav.
 - **Emerald (score-high):** KUN for avklarte, godkjente elementer.
 
@@ -82,7 +82,7 @@
 ### Tre fonter
 - **UI (`--font-ui`: Inter):** Labels, knapper, navigasjon, metadata, statusfraser, seksjonsoverskrifter (uppercase). Tekst du *skanner*. Hoy x-hoyde og apne aperturer gir best lesbarhet ved 10-13px pa HiDPI-skjermer.
 - **Prosa (`--font-prose`: IBM Plex Sans):** Begrunnelser, kontraktstekst, juridiske redegjoerelser, rich text-editor, dokumenttitler. Tekst du *leser og skriver*. Mekaniske terminaler gir maskinskrevet kontrakt-kvalitet. Lastes som variabel font (wght@400..600).
-- **Data (`--font-data`: IBM Plex Mono):** Tall, belop, datoer, prosent, system-IDer, paragrafreferanser, klassifikasjoner. Verdier du *slar opp*. Samme designfamilie som prosa-fonten.
+- **Data (`--font-data`: Source Code Pro):** Tall, belop, datoer, prosent, system-IDer, paragrafreferanser, klassifikasjoner. Verdier du *slar opp*. Bredere og mer naturlig lesbar enn IBM Plex Mono.
 
 ### Fontvalg-prinsipp
 - **UI** = navigasjon, interaksjon, korte labels. Fonten er usynlig — den skal ikke merkes.
@@ -104,8 +104,8 @@
 - Klassifikasjoner og faktaopplysninger (beregningsmetode, kontraktsforhold-kategori) vises som ren mono-tekst, ikke badge.
 
 ### Prosa-innstillinger
-- IBM Plex Sans har lavere x-hoyde enn Inter — kompenser med +1px fontstorrelse og font-weight 450 (variabel font).
-- Prosa-brodtekst: 14-15px, weight 450, line-height 1.6.
+- IBM Plex Sans har lavere x-hoyde enn Inter — kompenser med +1px fontstorrelse.
+- Prosa-brodtekst: 14-15px, weight 400, line-height 1.6.
 - Dokumenttitler: 17-19px, weight 600.
 
 ### Skala
