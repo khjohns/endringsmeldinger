@@ -76,13 +76,13 @@
               <DatePicker.Grid class="cal-grid">
                 <DatePicker.GridHead>
                   <DatePicker.GridRow class="cal-row">
-                    {#each weekdays as weekday (weekday)}
+                    {#each weekdays as weekday, wi (wi)}
                       <DatePicker.HeadCell class="cal-weekday">{weekday}</DatePicker.HeadCell>
                     {/each}
                   </DatePicker.GridRow>
                 </DatePicker.GridHead>
                 <DatePicker.GridBody>
-                  {#each month.weeks as weekDates, wi (wi)}
+                  {#each month.weeks as weekDates, wki (wki)}
                     <DatePicker.GridRow class="cal-row">
                       {#each weekDates as date (date.toString())}
                         <DatePicker.Cell {date} month={month.value} class="cal-cell">
