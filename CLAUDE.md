@@ -6,6 +6,13 @@ KOE (Krav om Endringsordre) — SvelteKit-frontend for NS 8407-forhandlinger. Gr
 
 All UI-tekst er på **norsk (bokmål)**.
 
+## Codegrasp
+
+Bruk codegrasp MCP-server aktivt for kodebase-utforskning og kontekst:
+- `run_pipeline` / `get_context_capsule` — foretrekk fremfor Explore-agent (sparer tokens)
+- `save_observation` — lagre arkitekturelle innsikter linket til symboler
+- `search_memory` / `get_session_context` — hent tidligere observasjoner
+
 ## Kommandoer
 
 ```bash

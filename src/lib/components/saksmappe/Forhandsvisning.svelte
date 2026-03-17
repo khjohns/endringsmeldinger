@@ -22,7 +22,8 @@
     const d = ev.data as Record<string, unknown> | undefined;
     if (!d) return ev.summary ?? null;
 
-    // Prefer endrings_begrunnelse for updates, then beskrivelse, then begrunnelse
+    // Prefer tekst (internt notat), then endrings_begrunnelse, then beskrivelse, then begrunnelse
+    if (typeof d.tekst === 'string') return d.tekst;
     if (typeof d.endrings_begrunnelse === 'string') return d.endrings_begrunnelse;
     if (typeof d.beskrivelse === 'string') return d.beskrivelse;
     if (typeof d.begrunnelse === 'string') return d.begrunnelse;
