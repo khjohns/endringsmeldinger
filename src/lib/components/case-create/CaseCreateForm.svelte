@@ -99,7 +99,7 @@
     const feil: string[] = [];
     if (!valgtHjemmel) feil.push('Velg kontraktshjemmel');
     if (!tittel.trim() || tittel.trim().length < 5) feil.push('Tittel må ha minst 5 tegn');
-    if (!datoOppdaget) feil.push('Dato oppdaget er påkrevd');
+    if (!datoOppdaget) feil.push('Dato forholdet oppstod er påkrevd');
     return feil;
   });
 
@@ -176,22 +176,9 @@
     />
   </div>
 
-  <!-- KONTRAKTSHJEMMEL -->
+  <!-- DATO FORHOLDET OPPSTOD -->
   <FormSection>
-    <SectionHeading title="Kontraktshjemmel" />
-    <HjemmelVelger valgt={valgtHjemmel} onvelg={(valg) => (valgtHjemmel = valg)} />
-  </FormSection>
-
-  {#if erForceMajeure}
-    <Alert variant="info">
-      <strong>Force Majeure</strong> <span class="alert-ref">§33.3</span> — Gir kun rett til fristforlengelse,
-      ikke vederlag.
-    </Alert>
-  {/if}
-
-  <!-- DATO OPPDAGET -->
-  <FormSection>
-    <SectionHeading title="Dato oppdaget" />
+    <SectionHeading title="Dato forholdet oppstod" />
     <div class="field">
       <DatePicker label="" value={datoOppdaget} onchange={(v) => (datoOppdaget = v)} />
       {#if datoHint}
@@ -207,6 +194,19 @@
       </Alert>
     {/if}
   </FormSection>
+
+  <!-- KONTRAKTSHJEMMEL -->
+  <FormSection>
+    <SectionHeading title="Kontraktshjemmel" />
+    <HjemmelVelger valgt={valgtHjemmel} onvelg={(valg) => (valgtHjemmel = valg)} />
+  </FormSection>
+
+  {#if erForceMajeure}
+    <Alert variant="info">
+      <strong>Force Majeure</strong> <span class="alert-ref">§33.3</span> — Gir kun rett til fristforlengelse,
+      ikke vederlag.
+    </Alert>
+  {/if}
 </div>
 
 <style>
