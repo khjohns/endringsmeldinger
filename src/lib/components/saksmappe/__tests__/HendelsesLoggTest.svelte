@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { TimelineEvent, SporType } from '$lib/types/timeline';
+  import { QueryClient, QueryClientProvider } from '@tanstack/svelte-query';
   import HendelsesLogg from '../HendelsesLogg.svelte';
 
   interface Props {
@@ -17,6 +18,12 @@
     sakId = 'test-sak',
     sporType = 'grunnlag',
   }: Props = $props();
+
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  });
 </script>
 
-<HendelsesLogg {events} {expanded} {onToggle} {sakId} {sporType} />
+<QueryClientProvider client={queryClient}>
+  <HendelsesLogg {events} {expanded} {onToggle} {sakId} {sporType} />
+</QueryClientProvider>

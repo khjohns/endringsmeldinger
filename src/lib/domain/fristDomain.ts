@@ -113,7 +113,7 @@ export function beregnVisibility(
     if (erBegrunnelseUtsatt) return false;
     if (config.erSvarPaForesporsel) return false;
     if (config.varselType === 'varsel') return true;
-    if (config.varselType === 'spesifisert') return true;
+    if (config.varselType === 'spesifisert') return !config.harTidligereVarselITide;
     return false;
   })();
 
@@ -148,7 +148,10 @@ export function beregnPreklusjon(
   const erForesporselSvarForSent = config.erSvarPaForesporsel && state.foresporselSvarOk === false;
   if (erForesporselSvarForSent) return true;
   if (config.varselType === 'varsel') return state.fristVarselOk === false;
-  if (config.varselType === 'spesifisert') return state.fristVarselOk === false;
+  if (config.varselType === 'spesifisert') {
+    if (config.harTidligereVarselITide) return false;
+    return state.fristVarselOk === false;
+  }
   return false;
 }
 

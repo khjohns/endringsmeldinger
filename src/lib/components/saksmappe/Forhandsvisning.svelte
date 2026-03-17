@@ -63,6 +63,13 @@
     return 'Detaljer';
   }
 
+  // --- Helpers ---
+
+  function paragrafLabel(ref: string): string {
+    const tittel = getParagrafTittel(ref);
+    return tittel ? `§${ref} ${tittel}` : `§${ref}`;
+  }
+
   // --- Kontraktsforhold-tekster (parafrasert, ikke ordrett fra NS 8407) ---
 
   function forholdParagraf(kode: string): string {
@@ -124,6 +131,111 @@
     }
   }
 
+  // --- Vederlag-event bestemmelser ---
+
+  function vederlagMetodeBestemmelser(metode: string | undefined): BestemmelseItem[] {
+    switch (metode) {
+      case 'REGNINGSARBEID':
+        return [
+          {
+            paragraf: paragrafLabel('34.4'),
+            tekst:
+              'Arbeidet avregnes etter medgåtte kostnader med påslag. Totalentreprenøren skal føre løpende oversikt over timer og materialer, og sende spesifiserte oppgaver til byggherren.',
+            konsekvens: 'Byggherren skal gis mulighet til å kontrollere omfanget fortløpende.',
+          },
+        ];
+      case 'ENHETSPRISER':
+        return [
+          {
+            paragraf: paragrafLabel('34.3'),
+            tekst:
+              'Vederlaget beregnes ut fra avtalte enhetspriser. Dersom forutsetningene for enhetsprisene endres vesentlig, kan begge parter kreve justering.',
+          },
+        ];
+      case 'FASTPRIS_TILBUD':
+        return [
+          {
+            paragraf: paragrafLabel('34.2'),
+            tekst:
+              'Vederlaget er fastsatt som et avtalt beløp basert på totalentreprenørens tilbud. Partene kan kreve vederlaget justert dersom forutsetningene endres vesentlig.',
+          },
+        ];
+      default:
+        return [];
+    }
+  }
+
+  // --- Frist-event bestemmelser ---
+
+  const BESTEMMELSE_33_6_1: BestemmelseItem = {
+    paragraf: paragrafLabel('33.6.1'),
+    tekst:
+      'Totalentreprenøren skal fremsette sitt krav med angivelse av antall dager fristforlengelse, uten ugrunnet opphold etter at grunnlaget for beregningen foreligger.',
+    konsekvens:
+      'Kravet begrenses til det den andre parten måtte forstå at forholdet ville medføre.',
+  };
+
+  function fristEventBestemmelser(et: EventType, d: Record<string, unknown>): BestemmelseItem[] {
+    if (et === 'frist_krav_sendt') {
+      const items: BestemmelseItem[] = [
+        {
+          paragraf: paragrafLabel('33.4'),
+          tekst:
+            'Totalentreprenøren skal varsle uten ugrunnet opphold dersom det oppstår forhold som gir grunnlag for fristforlengelse. Varselet skal angi hvilke frister som berøres.',
+          konsekvens: 'Kravet på fristforlengelse tapes hvis det ikke varsles i tide.',
+        },
+      ];
+      if (d.varsel_type === 'spesifisert' || d.antall_dager) {
+        items.push(BESTEMMELSE_33_6_1);
+      }
+      return items;
+    } else if (et === 'frist_krav_oppdatert') {
+      return [
+        {
+          paragraf: paragrafLabel('33.6'),
+          tekst:
+            'Totalentreprenøren kan revidere sitt fremsatte krav med oppdatert dokumentasjon og begrunnelse. Kravet skal angis og begrunnes med angivelse av antall dager.',
+        },
+      ];
+    } else if (et === 'frist_krav_spesifisert') {
+      return [BESTEMMELSE_33_6_1];
+    }
+    return [];
+  }
+
+  // --- Respons-event bestemmelser ---
+
+  function responsEventBestemmelser(et: EventType, d: Record<string, unknown>): BestemmelseItem[] {
+    if (et === 'respons_frist') {
+      const items: BestemmelseItem[] = [
+        {
+          paragraf: paragrafLabel('33.7'),
+          tekst:
+            'Byggherren skal ta stilling til kravet uten ugrunnet opphold etter mottak av begrunnet krav med angivelse av antall dager.',
+          konsekvens: 'Innsigelser mot kravet tapes hvis det ikke svares i tide.',
+        },
+      ];
+      if (d.beregnings_resultat === 'avslatt') {
+        items.push({
+          paragraf: paragrafLabel('33.8'),
+          tekst:
+            'Dersom byggherren avslår et berettiget fristkrav, kan totalentreprenøren velge å anse avslaget som et pålegg om forsering. TE skal i så fall varsle om antatt forseringskostnad før arbeidet igangsettes.',
+        });
+      }
+      return items;
+    } else if (et === 'respons_vederlag') {
+      return [
+        {
+          paragraf: paragrafLabel('34.2'),
+          tekst:
+            'Byggherren skal ta stilling til kravet om vederlagsjustering innen rimelig tid. Standpunktet skal være begrunnet.',
+          konsekvens: 'Innsigelser mot kravet tapes hvis det ikke svares i tide.',
+        },
+      ];
+    }
+    return [];
+  }
+
   // --- Derived ---
 
   const eventType = $derived(event ? extractEventType(event.type) : null);
@@ -156,9 +268,8 @@
         const hjemmel = getHjemmelObj(d.underkategori as string);
         if (hjemmel) {
           const regel = getKontraktsregel(hjemmel.hjemmel_basis);
-          const tittel = getParagrafTittel(hjemmel.hjemmel_basis);
           items.push({
-            paragraf: tittel ? `§${hjemmel.hjemmel_basis} ${tittel}` : `§${hjemmel.hjemmel_basis}`,
+            paragraf: paragrafLabel(hjemmel.hjemmel_basis),
             tekst: regel?.regel ?? hjemmel.beskrivelse,
             konsekvens: regel?.konsekvens,
           });
@@ -173,25 +284,54 @@
         });
 
         // 3) Fristkrav — retten til fristforlengelse
-        const fristTittel = getParagrafTittel(forhold.hjemmel_frist);
         items.push({
-          paragraf: fristTittel
-            ? `§${forhold.hjemmel_frist} ${fristTittel}`
-            : `§${forhold.hjemmel_frist}`,
+          paragraf: paragrafLabel(forhold.hjemmel_frist),
           tekst: fristTekst(forhold.kode),
         });
 
         // 4) Vederlagskrav — retten til vederlagsjustering (ikke for force majeure)
         if (forhold.hjemmel_vederlag) {
-          const vedTittel = getParagrafTittel(forhold.hjemmel_vederlag);
           items.push({
-            paragraf: vedTittel
-              ? `§${forhold.hjemmel_vederlag} ${vedTittel}`
-              : `§${forhold.hjemmel_vederlag}`,
+            paragraf: paragrafLabel(forhold.hjemmel_vederlag),
             tekst: vederlagTekst(forhold.kode, forhold.standard_vederlagsmetode),
           });
         }
       }
+    }
+
+    // For vederlag-events: derive from metode + saerskilt_krav
+    if ((eventType === 'vederlag_krav_sendt' || eventType === 'vederlag_krav_oppdatert') && d) {
+      // 1) Retten til vederlagsjustering
+      items.push({
+        paragraf: paragrafLabel('34.1'),
+        tekst:
+          'Totalentreprenøren har krav på vederlagsjustering dersom det foreligger en endring eller annet forhold byggherren bærer risikoen for. Kravet skal varsles uten ugrunnet opphold.',
+        konsekvens: 'Kravet tapes hvis det ikke varsles i tide.',
+      });
+
+      // 2) Beregningsmetode
+      items.push(...vederlagMetodeBestemmelser(d.metode as string | undefined));
+
+      // 3) Særskilt krav (rigg, drift, produktivitet)
+      if (d.saerskilt_krav) {
+        items.push({
+          paragraf: paragrafLabel('34.1.3'),
+          tekst:
+            'Totalentreprenøren skal varsle særskilt dersom det vil bli krevd dekning for rigg, drift eller nedsatt produktivitet. Varselet skal gis uten ugrunnet opphold etter at det ble klart at slike utgifter ville påløpe.',
+          konsekvens: 'Retten til å kreve disse postene tapes hvis det ikke varsles særskilt.',
+        });
+      }
+      // For frist-events: derive from event type + varsel_type
+    } else if (
+      (eventType === 'frist_krav_sendt' ||
+        eventType === 'frist_krav_oppdatert' ||
+        eventType === 'frist_krav_spesifisert') &&
+      d
+    ) {
+      items.push(...fristEventBestemmelser(eventType, d));
+      // For respons-events: derive from event type + resultat
+    } else if ((eventType === 'respons_frist' || eventType === 'respons_vederlag') && d) {
+      items.push(...responsEventBestemmelser(eventType, d));
     }
 
     // Fallback: static eventType lookup with titles
@@ -274,12 +414,10 @@
   .forhandsvisning {
     border-left: 1px solid var(--color-wire-strong);
     padding: 24px;
-    position: sticky;
-    top: 0;
+    position: relative;
     height: 100%;
     overflow-y: auto;
     animation: panelIn 200ms ease-out;
-    position: relative;
   }
 
   @keyframes panelIn {

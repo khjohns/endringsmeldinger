@@ -144,7 +144,7 @@ describe('Sporkort', () => {
       },
     });
     render(SporkortTest, { props: { sporType: 'grunnlag' as SporType, state } });
-    expect(screen.getByRole('button', { name: /forsering/i })).toBeInTheDocument(); // "Forsering? →"
+    expect(screen.getByRole('link', { name: /forsering/i })).toBeInTheDocument(); // "Forsering? →"
   });
 
   it('does not show action button when no role is set', () => {
@@ -174,8 +174,12 @@ describe('Sporkort', () => {
         siste_oppdatert: '2024-01-01T12:00:00Z', // >1 year ago
       },
     });
-    render(SporkortTest, { props: { sporType: 'grunnlag' as SporType, state } });
-    expect(screen.getByRole('alert')).toHaveTextContent('uten svar');
+    const { container } = render(SporkortTest, {
+      props: { sporType: 'grunnlag' as SporType, state },
+    });
+    // Passivitet is indicated by critical styling on the card
+    const card = container.querySelector('[data-spor="grunnlag"]');
+    expect(card?.getAttribute('data-border')).toBe('critical');
   });
 
   it('shows critical background for passivitet', () => {
@@ -262,7 +266,7 @@ describe('Sporkort', () => {
       },
     });
     render(SporkortTest, { props: { sporType: 'vederlag' as SporType, state } });
-    expect(screen.getByText('450 000 kr')).toBeInTheDocument();
+    expect(screen.getByText('Hovedkrav 450 000 kr')).toBeInTheDocument();
   });
 
   it('shows single-line data for frist with krevd dager', () => {
