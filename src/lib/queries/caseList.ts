@@ -7,9 +7,13 @@ export function createCaseListQuery(getProsjektId?: () => string) {
     queryKey: ['cases', getProsjektId?.() ?? 'default'],
     queryFn: async () => {
       try {
-        return await fetchCaseList();
+        const result = await fetchCaseList();
+        if (result.cases.length > 0) return result;
+        // API returned empty — fall back to mock data
+        const { mockCaseList } = await import('$lib/mocks/caseList');
+        return mockCaseList;
       } catch {
-        // Fallback to mock data in development (backend not running)
+        // Backend not running — fall back to mock data
         const { mockCaseList } = await import('$lib/mocks/caseList');
         return mockCaseList;
       }
