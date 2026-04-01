@@ -7,14 +7,15 @@
     getDefaults,
   } from '$lib/domain/grunnlagDomain';
   import type { GrunnlagFormState, GrunnlagDomainConfig } from '$lib/domain/grunnlagDomain';
-  import { DD, TE, BH } from './data.js';
+  import { store } from './store.svelte.js';
+  import { TE, BH } from './data.js';
   import Stamp from './Stamp.svelte';
   import CaseAnchor from './CaseAnchor.svelte';
   import { toggleChoice } from './utils.js';
 
-  let { onclose }: { onclose: () => void } = $props();
+  let { onclose, onsend }: { onclose: () => void; onsend: () => void } = $props();
 
-  const d = DD.ansvar;
+  const d = store.tracks.ansvar;
 
   /**
    * Mock domain config for KOE-104:
@@ -186,6 +187,16 @@
           Grunnlag anerkjent. Vederlag og frist behandles prinsipalt.
         </p>
       {/if}
+    </div>
+
+    <div class="send-row">
+      <button
+        class="btn btn-primary"
+        onclick={() => {
+          store.sendGrunnlagSvar(resultat as 'godkjent' | 'avslatt' | 'frafalt');
+          onsend();
+        }}>Send svar</button
+      >
     </div>
   {/if}
 </div>

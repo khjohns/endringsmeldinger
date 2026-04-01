@@ -12,7 +12,8 @@
     RotateCcw,
     RotateCw,
   } from 'lucide-svelte';
-  import { S, EVT_GROUPED } from './data.js';
+  import { store } from './store.svelte.js';
+  import { S } from './data.js';
   import DateSeparator from './DateSeparator.svelte';
   import type { Track, Mode, RightTab } from './types.js';
 
@@ -85,7 +86,7 @@
     {#if tab === 'historikk'}
       <div class="history" style="position: relative">
         <div class="history-line"></div>
-        {#each Object.entries(EVT_GROUPED) as [date, events], gi}
+        {#each Object.entries(store.evtGrouped) as [date, events], gi}
           <DateSeparator {date} />
           {#each events as e}
             <div

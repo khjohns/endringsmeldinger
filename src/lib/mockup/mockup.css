@@ -504,6 +504,12 @@
   color: white;
 }
 
+.mockup .send-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 24px;
+}
+
 /* ── Scrollbar ── */
 .mockup ::-webkit-scrollbar {
   width: 5px;

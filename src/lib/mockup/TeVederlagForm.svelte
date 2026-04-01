@@ -7,13 +7,14 @@
   import type { VederlagSubmissionFormState } from '$lib/domain/vederlagSubmissionDomain';
   import type { VederlagsMetode } from '$lib/constants/paymentMethods';
   import { VEDERLAGSMETODE_DESCRIPTIONS } from '$lib/constants/paymentMethods';
-  import { DD, TE } from './data.js';
+  import { store } from './store.svelte.js';
+  import { TE } from './data.js';
   import { fmt } from './utils.js';
   import CaseAnchor from './CaseAnchor.svelte';
 
-  let { onclose }: { onclose: () => void } = $props();
+  let { onclose, onsend }: { onclose: () => void; onsend: () => void } = $props();
 
-  const d = DD.vederlag;
+  const d = store.tracks.vederlag;
 
   const scenario = 'new' as const;
   const defaults = getDefaults({ scenario });
@@ -198,6 +199,15 @@
           Sender vederlagskrav
         {/if}
       </div>
+    </div>
+    <div class="send-row">
+      <button
+        class="btn btn-primary"
+        onclick={() => {
+          store.sendTeVederlag(hovedkravValue ?? 0, metode ?? 'REGNINGSARBEID');
+          onsend();
+        }}>Send krav</button
+      >
     </div>
   {/if}
 </div>

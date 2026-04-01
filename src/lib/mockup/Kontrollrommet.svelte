@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { DD } from './data.js';
+  import { store } from './store.svelte.js';
   import Header from './Header.svelte';
   import ConsistencyStrip from './ConsistencyStrip.svelte';
   import LeftSidebar from './LeftSidebar.svelte';
@@ -18,13 +18,13 @@
   let sel: TrackKey = $state('ansvar');
   let rTab: RightTab = $state('bestemmelser');
   let mode: Mode = $state('read');
-  const d = $derived(DD[sel]);
-  const draftCount = $derived(Object.values(DD).filter((x) => x.draftState === 'draft').length);
 
-  const subV = $derived(DD.vederlag.te.value! - DD.vederlag.bh.subsidiaer!);
-  const prinV = $derived(DD.vederlag.te.value! - DD.vederlag.bh.prinsipal!);
-  const subF = $derived(DD.frist.te.value! - DD.frist.bh.subsidiaer!);
-  const prinF = $derived(DD.frist.te.value! - DD.frist.bh.prinsipal!);
+  const d = $derived(store.tracks[sel]);
+
+  const subV = $derived(store.tracks.vederlag.te.value! - store.tracks.vederlag.bh.subsidiaer!);
+  const prinV = $derived(store.tracks.vederlag.te.value! - store.tracks.vederlag.bh.prinsipal!);
+  const subF = $derived(store.tracks.frist.te.value! - store.tracks.frist.bh.subsidiaer!);
+  const prinF = $derived(store.tracks.frist.te.value! - store.tracks.frist.bh.prinsipal!);
 
   function goForm(key: TrackKey) {
     sel = key;
@@ -36,6 +36,10 @@
     mode = 'read';
     rTab = 'bestemmelser';
   }
+
+  function handleSend() {
+    goRead();
+  }
 </script>
 
 <div class="mockup">
@@ -45,7 +49,7 @@
     {#if mode === 'form'}
       <ConsistencyStrip
         {sel}
-        {draftCount}
+        draftCount={store.draftCount}
         onselect={(key, _draftText) => {
           sel = key;
         }}
@@ -73,17 +77,17 @@
         {#if mode === 'read'}
           <CenterRead {d} {sel} {role} onform={goForm} />
         {:else if sel === 'frist' && role === 'BH'}
-          <FristForm onclose={goRead} />
+          <FristForm onclose={goRead} onsend={handleSend} />
         {:else if sel === 'frist' && role === 'TE'}
-          <TeFristForm onclose={goRead} />
+          <TeFristForm onclose={goRead} onsend={handleSend} />
         {:else if sel === 'vederlag' && role === 'BH'}
-          <VederlagForm onclose={goRead} />
+          <VederlagForm onclose={goRead} onsend={handleSend} />
         {:else if sel === 'vederlag' && role === 'TE'}
-          <TeVederlagForm onclose={goRead} />
+          <TeVederlagForm onclose={goRead} onsend={handleSend} />
         {:else if sel === 'ansvar' && role === 'BH'}
-          <GrunnlagForm onclose={goRead} />
+          <GrunnlagForm onclose={goRead} onsend={handleSend} />
         {:else if sel === 'ansvar' && role === 'TE'}
-          <TeGrunnlagForm onclose={goRead} />
+          <TeGrunnlagForm onclose={goRead} onsend={handleSend} />
         {/if}
 
         <ActionBar {mode} {role} {subV} {subF} {prinV} {prinF} oncloseform={goRead} />

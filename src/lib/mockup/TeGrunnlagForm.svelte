@@ -1,11 +1,12 @@
 <script lang="ts">
-  import { DD, TE, BH } from './data.js';
+  import { store } from './store.svelte.js';
+  import { TE, BH } from './data.js';
   import Stamp from './Stamp.svelte';
   import CaseAnchor from './CaseAnchor.svelte';
 
-  let { onclose }: { onclose: () => void } = $props();
+  let { onclose, onsend }: { onclose: () => void; onsend: () => void } = $props();
 
-  const d = DD.ansvar;
+  const d = store.tracks.ansvar;
 
   let begrunnelse = $state(d.teT);
   const kanSende = $derived(begrunnelse.length >= 10);
@@ -58,6 +59,15 @@
   {#if kanSende}
     <div class="status-box">
       <div class="font-mono status-text">Klar til å sende revisjon</div>
+    </div>
+    <div class="send-row">
+      <button
+        class="btn btn-primary"
+        onclick={() => {
+          store.sendTeGrunnlag(begrunnelse);
+          onsend();
+        }}>Send revisjon</button
+      >
     </div>
   {/if}
 </div>
