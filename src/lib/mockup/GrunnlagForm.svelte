@@ -7,6 +7,8 @@
     getDefaults,
   } from '$lib/domain/grunnlagDomain';
   import type { GrunnlagFormState, GrunnlagDomainConfig } from '$lib/domain/grunnlagDomain';
+  import RichTextEditor from '$lib/components/primitives/RichTextEditor.svelte';
+  import LockedValueNode from '$lib/editor/LockedValueNode';
   import { store } from './store.svelte.js';
   import { TE, BH } from './data.js';
   import Stamp from './Stamp.svelte';
@@ -41,12 +43,14 @@
 
   let varsletITide = $state<boolean | undefined>(initialDefaults.varsletITide);
   let resultat = $state<string | undefined>(initialDefaults.resultat);
+  let begrunnelseHtml = $state('');
+  let charCount = $state(0);
 
   const formState: GrunnlagFormState = $derived({
     varsletITide,
     resultat,
     resultatError: false,
-    begrunnelse: '',
+    begrunnelse: begrunnelseHtml,
     begrunnelseValidationError: undefined,
   });
 
@@ -203,6 +207,22 @@
           Grunnlag anerkjent. Vederlag og frist behandles prinsipalt.
         </p>
       {/if}
+    </div>
+
+    <div class="begrunnelse-section">
+      <div class="question-header">
+        <span class="question-label">Begrunnelse</span>
+        <span class="font-mono char-count">{charCount} tegn</span>
+      </div>
+      <div class="editor-wrapper">
+        <RichTextEditor
+          body={begrunnelseHtml}
+          onchange={(html) => (begrunnelseHtml = html)}
+          extensions={[LockedValueNode]}
+          maxHeight="none"
+          oncharcount={(c) => (charCount = c)}
+        />
+      </div>
     </div>
   {/if}
 </div>
