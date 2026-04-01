@@ -2,13 +2,26 @@
   import { AlertTriangle, Check, X, CircleMinus } from 'lucide-svelte';
   import { beregnAlt, getDefaults } from '$lib/domain/fristDomain';
   import type { FristFormState, FristDomainConfig } from '$lib/domain/fristDomain';
+  import { generateFristResponseBegrunnelse } from '$lib/domain/begrunnelse/fristBegrunnelse';
+  import type { FristResponseInput } from '$lib/domain/begrunnelse/fristBegrunnelse';
+  import { tokensToHtml } from '$lib/editor/tokenConverter';
+  import RichTextEditor from '$lib/components/primitives/RichTextEditor.svelte';
+  import LockedValueNode from '$lib/editor/LockedValueNode';
+  import { RefreshCw } from 'lucide-svelte';
+  import { isHtmlEmpty } from '$lib/utils/formatters';
   import { store } from './store.svelte.js';
   import { TE } from './data.js';
   import Stamp from './Stamp.svelte';
   import CaseAnchor from './CaseAnchor.svelte';
   import { toggleChoice } from './utils.js';
 
-  let { onclose, onsend }: { onclose: () => void; onsend: () => void } = $props();
+  let {
+    onsend,
+    onactions,
+  }: {
+    onsend: () => void;
+    onactions?: (a: { canSend: boolean; send: () => void }) => void;
+  } = $props();
 
   const d = store.tracks.frist;
 
@@ -30,6 +43,12 @@
     isUpdateMode: false,
   });
 
+  let begrunnelseHtml = $state('');
+  let userHasEdited = $state(false);
+  let editorApi: { setContent: (html: string) => void } | undefined;
+  let prevHtml: string | undefined;
+  let charCount = $state(0);
+
   let fristVarselOk = $state<boolean | undefined>(initialDefaults.fristVarselOk);
   let spesifisertKravOk = $state<boolean | undefined>(initialDefaults.spesifisertKravOk);
   let foresporselSvarOk = $state<boolean | undefined>(initialDefaults.foresporselSvarOk);
@@ -44,7 +63,7 @@
     vilkarOppfylt,
     sendForesporsel,
     godkjentDager,
-    begrunnelse: '',
+    begrunnelse: begrunnelseHtml,
     begrunnelseValidationError: undefined,
   });
 
@@ -65,7 +84,77 @@
     if (computed.visibility.showForesporselSvarOk && foresporselSvarOk === undefined) return false;
     if (vilkarOppfylt === undefined) return false;
     if (computed.showGodkjentDager && godkjentDager === undefined) return false;
+    if (isHtmlEmpty(begrunnelseHtml)) return false;
     return true;
+  });
+
+  const autoBegrunnelseHtml = $derived.by(() => {
+    if (!sendForesporsel && (vilkarOppfylt === undefined || godkjentDager === undefined)) return '';
+    const input: FristResponseInput = {
+      varselType: domainConfig.varselType,
+      krevdDager: domainConfig.krevdDager,
+      fristVarselOk,
+      spesifisertKravOk,
+      foresporselSvarOk,
+      sendForesporsel,
+      vilkarOppfylt: vilkarOppfylt ?? false,
+      godkjentDager: godkjentDager ?? 0,
+      erPrekludert: computed.erPrekludert,
+      erForesporselSvarForSent: foresporselSvarOk === false,
+      erRedusert_33_6_1: computed.erRedusert,
+      harTidligereVarselITide: domainConfig.harTidligereVarselITide,
+      erGrunnlagSubsidiaer: domainConfig.erGrunnlagSubsidiaer,
+      erGrunnlagPrekludert: domainConfig.erHelFristSubsidiaerPgaGrunnlag,
+      prinsipaltResultat: computed.prinsipaltResultat,
+      subsidiaertResultat: computed.subsidiaertResultat,
+      visSubsidiaertResultat: computed.visSubsidiaertResultat,
+    };
+    const tokens = generateFristResponseBegrunnelse(input, { useTokens: true });
+    return tokensToHtml(tokens);
+  });
+
+  $effect(() => {
+    if (!userHasEdited && autoBegrunnelseHtml) {
+      begrunnelseHtml = autoBegrunnelseHtml;
+    }
+  });
+
+  $effect(() => {
+    if (editorApi && begrunnelseHtml !== prevHtml) {
+      editorApi.setContent(begrunnelseHtml);
+      prevHtml = begrunnelseHtml;
+    }
+  });
+
+  function handleEditorReady(api: { setContent: (html: string) => void }) {
+    editorApi = api;
+    if (begrunnelseHtml) {
+      api.setContent(begrunnelseHtml);
+      prevHtml = begrunnelseHtml;
+    }
+  }
+
+  function handleEditorChange(newHtml: string) {
+    prevHtml = newHtml;
+    begrunnelseHtml = newHtml;
+    userHasEdited = true;
+  }
+
+  function handleRegenerate() {
+    if (autoBegrunnelseHtml) {
+      begrunnelseHtml = autoBegrunnelseHtml;
+      userHasEdited = false;
+    }
+  }
+
+  $effect(() => {
+    onactions?.({
+      canSend: allAnswered,
+      send: () => {
+        store.sendFristSvar(godkjentDager ?? 0);
+        onsend();
+      },
+    });
   });
 </script>
 
@@ -86,12 +175,16 @@
 
   <div class="bh-heading">Byggherrens standpunkt</div>
 
-  {#if domainConfig.erGrunnlagSubsidiaer}
+  {#if domainConfig.erGrunnlagSubsidiaer || domainConfig.erHelFristSubsidiaerPgaGrunnlag}
     <div class="sub-banner">
       <Stamp variant="ochre" small flat>Subsidiært</Stamp>
       <p class="font-serif sub-banner-text">
-        Grunnlaget er avslått. Vurderingen nedenfor gjelder for det tilfelle at grunnlaget likevel
-        godkjennes.
+        {#if domainConfig.erGrunnlagSubsidiaer}
+          Grunnlaget er avslått. Vurderingen nedenfor gjelder for det tilfelle at grunnlaget likevel
+          godkjennes.
+        {:else}
+          Grunnlaget ble varslet for sent (§32.2). Hele fristkravet behandles subsidiært.
+        {/if}
       </p>
     </div>
   {/if}
@@ -300,14 +393,28 @@
       </div>
     {/if}
 
-    <div class="send-row">
-      <button
-        class="btn btn-primary"
-        onclick={() => {
-          store.sendFristSvar(godkjentDager ?? 0);
-          onsend();
-        }}>Send svar</button
-      >
+    <div class="begrunnelse-section">
+      <div class="question-header">
+        <span class="question-label">Begrunnelse</span>
+        <div class="begrunnelse-header-right">
+          {#if userHasEdited && autoBegrunnelseHtml}
+            <button class="regenerate-btn" onclick={handleRegenerate}>
+              <RefreshCw size={12} strokeWidth={2} /> Regenerer
+            </button>
+          {/if}
+          <span class="font-mono char-count">{charCount} tegn</span>
+        </div>
+      </div>
+      <div class="editor-wrapper">
+        <RichTextEditor
+          body={begrunnelseHtml}
+          onchange={handleEditorChange}
+          onready={handleEditorReady}
+          extensions={[LockedValueNode]}
+          maxHeight="none"
+          oncharcount={(c) => (charCount = c)}
+        />
+      </div>
     </div>
   {/if}
 </div>

@@ -36,7 +36,7 @@
   } = $props();
 
   const readTabs: RightTab[] = ['bestemmelser', 'historikk', 'vedlegg'];
-  const formTabs: RightTab[] = ['begrunnelse', 'historikk', 'filer'];
+  const formTabs: RightTab[] = ['bestemmelser', 'historikk', 'filer'];
   const tabs = $derived(mode === 'read' ? readTabs : formTabs);
 
   const tabLabels: Record<RightTab, string> = {

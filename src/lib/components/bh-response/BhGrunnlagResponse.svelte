@@ -17,11 +17,13 @@
   import { draftKey, loadDraft, saveDraft, clearDraft } from '$lib/utils/draft';
   import { useQueryClient } from '@tanstack/svelte-query';
   import type { GrunnlagResponsResultat } from '$lib/types/timeline';
+  import { sporBestemmelser } from '$lib/utils/bestemmelser';
   import SammendragKort from './SammendragKort.svelte';
   import SegmentedButtons from './SegmentedButtons.svelte';
   import KonsekvensCallout from './KonsekvensCallout.svelte';
   import FormPageHeader from '$lib/components/shared/FormPageHeader.svelte';
   import FormWithRightPanel from '$lib/components/shared/FormWithRightPanel.svelte';
+  import InlineBegrunnelse from '$lib/components/shared/InlineBegrunnelse.svelte';
   import FormSection from '$lib/components/shared/FormSection.svelte';
   import SectionHeading from '$lib/components/primitives/SectionHeading.svelte';
   import Alert from '$lib/components/primitives/Alert.svelte';
@@ -80,6 +82,7 @@
   }: Props = $props();
 
   const queryClient = useQueryClient();
+  const bestemmelser = sporBestemmelser('grunnlag');
 
   // --- Form state (pre-filled in update mode) ---
   const updateDefaults = $derived.by(() => {
@@ -170,7 +173,7 @@
     );
   });
 
-  // Build begrunnelse entries for thread panel
+  // Build begrunnelse entries for historikk panel
   const begrunnelseEntries = $derived.by(() => {
     const entries: Array<{
       rolle: 'TE' | 'BH';
@@ -236,18 +239,7 @@
   }
 </script>
 
-<FormWithRightPanel
-  entries={begrunnelseEntries}
-  bind:bhBegrunnelseHtml
-  {teNavn}
-  {bhNavn}
-  submitLabel={isUpdateMode ? 'Oppdater svar' : 'Send svar'}
-  submitDisabled={!kanSende}
-  submitLoading={submitting}
-  {submitError}
-  onsubmit={handleSubmit}
-  onavbryt={handleAvbryt}
->
+<FormWithRightPanel {bestemmelser} entries={begrunnelseEntries} {teNavn} {bhNavn}>
   <FormPageHeader
     tilbakeHref="/{prosjektId}/{sakId}"
     tilbakeTekst="Tilbake til saksmappe"
@@ -334,5 +326,16 @@
     erPrekludert={prekludert}
     erPaalegg={visFrafalt}
     erSnuoperasjon={snuoperasjon}
+  />
+
+  <!-- Begrunnelse (inline, under resultat) -->
+  <InlineBegrunnelse
+    bind:html={bhBegrunnelseHtml}
+    submitLabel={isUpdateMode ? 'Oppdater svar' : 'Send svar'}
+    submitDisabled={!kanSende}
+    submitLoading={submitting}
+    {submitError}
+    onsubmit={handleSubmit}
+    onavbryt={handleAvbryt}
   />
 </FormWithRightPanel>

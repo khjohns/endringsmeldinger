@@ -9,7 +9,13 @@
   import { TE } from './data.js';
   import CaseAnchor from './CaseAnchor.svelte';
 
-  let { onclose, onsend }: { onclose: () => void; onsend: () => void } = $props();
+  let {
+    onsend,
+    onactions,
+  }: {
+    onsend: () => void;
+    onactions?: (a: { canSend: boolean; send: () => void }) => void;
+  } = $props();
 
   const d = store.tracks.frist;
 
@@ -43,6 +49,16 @@
   });
 
   const kanSende = $derived(beregnCanSubmit(mappedState, { scenario }));
+
+  $effect(() => {
+    onactions?.({
+      canSend: kanSende,
+      send: () => {
+        store.sendTeFrist(antallDager ?? 0);
+        onsend();
+      },
+    });
+  });
 </script>
 
 <div class="form-content">
@@ -162,15 +178,6 @@
           Spesifiserer fristkrav
         {/if}
       </div>
-    </div>
-    <div class="send-row">
-      <button
-        class="btn btn-primary"
-        onclick={() => {
-          store.sendTeFrist(antallDager ?? 0);
-          onsend();
-        }}>Send krav</button
-      >
     </div>
   {/if}
 </div>

@@ -7,13 +7,21 @@
     getDefaults,
   } from '$lib/domain/grunnlagDomain';
   import type { GrunnlagFormState, GrunnlagDomainConfig } from '$lib/domain/grunnlagDomain';
+  import RichTextEditor from '$lib/components/primitives/RichTextEditor.svelte';
+  import LockedValueNode from '$lib/editor/LockedValueNode';
   import { store } from './store.svelte.js';
   import { TE, BH } from './data.js';
   import Stamp from './Stamp.svelte';
   import CaseAnchor from './CaseAnchor.svelte';
   import { toggleChoice } from './utils.js';
 
-  let { onclose, onsend }: { onclose: () => void; onsend: () => void } = $props();
+  let {
+    onsend,
+    onactions,
+  }: {
+    onsend: () => void;
+    onactions?: (a: { canSend: boolean; send: () => void }) => void;
+  } = $props();
 
   const d = store.tracks.ansvar;
 
@@ -35,12 +43,14 @@
 
   let varsletITide = $state<boolean | undefined>(initialDefaults.varsletITide);
   let resultat = $state<string | undefined>(initialDefaults.resultat);
+  let begrunnelseHtml = $state('');
+  let charCount = $state(0);
 
   const formState: GrunnlagFormState = $derived({
     varsletITide,
     resultat,
     resultatError: false,
-    begrunnelse: '',
+    begrunnelse: begrunnelseHtml,
     begrunnelseValidationError: undefined,
   });
 
@@ -58,6 +68,16 @@
     if (resultat === 'godkjent') return { ikon: Check, label: 'Godkjent', color: 'var(--green)' };
     if (resultat === 'frafalt') return { ikon: Undo2, label: 'Frafalt', color: 'var(--ink-3)' };
     return { ikon: X, label: 'Avslått', color: 'var(--red)' };
+  });
+
+  $effect(() => {
+    onactions?.({
+      canSend: allAnswered,
+      send: () => {
+        store.sendGrunnlagSvar(resultat as 'godkjent' | 'avslatt' | 'frafalt');
+        onsend();
+      },
+    });
   });
 </script>
 
@@ -189,14 +209,20 @@
       {/if}
     </div>
 
-    <div class="send-row">
-      <button
-        class="btn btn-primary"
-        onclick={() => {
-          store.sendGrunnlagSvar(resultat as 'godkjent' | 'avslatt' | 'frafalt');
-          onsend();
-        }}>Send svar</button
-      >
+    <div class="begrunnelse-section">
+      <div class="question-header">
+        <span class="question-label">Begrunnelse</span>
+        <span class="font-mono char-count">{charCount} tegn</span>
+      </div>
+      <div class="editor-wrapper">
+        <RichTextEditor
+          body={begrunnelseHtml}
+          onchange={(html) => (begrunnelseHtml = html)}
+          extensions={[LockedValueNode]}
+          maxHeight="none"
+          oncharcount={(c) => (charCount = c)}
+        />
+      </div>
     </div>
   {/if}
 </div>

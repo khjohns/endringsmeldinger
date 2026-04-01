@@ -245,12 +245,12 @@ Arver SakPanel-strukturen. INGEN kort-boks — flat seksjonsinndeling integrert 
 
 **Ingen dekorativ venstrekant.** Handlingskant-monsteret er reservert for status (rose/amber/wire), ikke rolle.
 
-### BegrunnelseThread (hoyrepanel, forhandlingsbordet)
-Sticky panel, felt bg, border-left wire-strong. Tre faner med amber underline pa aktiv.
+### BegrunnelseThread (kun brukt i TeGrunnlagRevisjon)
+Sticky panel, felt bg, border-left wire-strong. Tre faner med amber underline pa aktiv. Brukes kun i revisjonsmodus (TE reviderer grunnlag). For alle andre skjemaer er begrunnelse flyttet inline i midtpanelet (InlineBegrunnelse) og hoyrepanelet viser KontekstPanel.
 
-**Begrunnelse-fane (skriveflate):** Kun editor + vedlegg. Ren arbeidsflate uten lesestoff — TEs begrunnelse er fullt lesbar i midtpanelet (SammendragKort).
+**Begrunnelse-fane (skriveflate):** Kun editor + vedlegg.
 
-**Historikk-fane (arkiv):** Collapsible entries med faktisk partsnavn (f.eks. «Veidekke», «Statens vegvesen»), versjon, dato, resultat. Ingen rolle-farget venstrekant — noytralt. Kronologisk trad over alle versjoner. Referansedokument, ikke arbeidsverktoy.
+**Historikk-fane (arkiv):** Collapsible entries med faktisk partsnavn (f.eks. «Veidekke», «Statens vegvesen»), versjon, dato, resultat.
 
 **Filer-fane:** Vedlegg og dokumenter (placeholder).
 
@@ -307,7 +307,22 @@ HUD-inspirert tidslinjevisning av alle saker. Rad-per-sak med horisontale tidsli
 
 Monsteret for alle spor-detalj/svarskjema-sider (send-vederlag, svar-grunnlag, ny sak, etc.).
 
-**Layout:** `FormWithRightPanel` — midtpanel (skjema) + hoyre sticky panel (BegrunnelseThread med editor/historikk/filer-faner).
+**Layout:** `FormWithRightPanel` — midtpanel (skjema + InlineBegrunnelse) + hoyre sticky panel (KontekstPanel med bestemmelser/historikk/filer-faner).
+
+**Kognitiv flyt:** Brukeren besvarer sporsmal (skjema) med kontraktsbestemmelser synlige i hoyrepanelet, ser resultatet (konsekvens-boks), og gjennomgar auto-generert begrunnelse inline under resultatet. Bestemmelser er referansemateriale under beslutningene; begrunnelsen er gjennomgangsoppgave etter beslutningene.
+
+**KontekstPanel** (`src/lib/components/shared/KontekstPanel.svelte`):
+Hoyre panel med tre faner:
+- Bestemmelser: §-referanser fra `sporBestemmelser(spor)` — vises mens brukeren tar stilling
+- Historikk: Tidligere begrunnelser (BegrunnelseEntry[]) — collapsible entries med partsnavn
+- Filer: Vedlegg med drag-and-drop upload, tagging
+
+**InlineBegrunnelse** (`src/lib/components/shared/InlineBegrunnelse.svelte`):
+Plasseres i midtpanelet etter konsekvens-boksen. Inneholder:
+- SectionHeading + regenerer-knapp + tegnteller
+- RichTextEditor med LockedValueNode-stotte
+- Send/Avbryt-knapper under editoren
+- Auto-generert begrunnelse fylles inn nar tilstrekkelig skjemadata foreligger
 
 **FormSection-komponent** (`src/lib/components/shared/FormSection.svelte`):
 Wrapper for alle skjema-seksjoner. Gir flex-column, gap 12px, og definerer `.helptext`, `.field-amount`, `.field-auto` via `:global()`. Bruk ALLTID `<FormSection>` i stedet for manuell `<section class="form-section">`.
