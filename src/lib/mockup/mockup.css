@@ -520,3 +520,81 @@
 .mockup ::-webkit-scrollbar-thumb {
   background: var(--ink-4);
 }
+
+/* ══════════════════════════════════════════
+   Mobile (≤768px) — shared form & component styles
+   ══════════════════════════════════════════ */
+@media (max-width: 768px) {
+  /* Form content: tighter padding */
+  .mockup .form-content {
+    padding: 20px 16px 120px;
+  }
+
+  /* Touch-friendly pills */
+  .mockup .pill {
+    padding: 10px 16px;
+    font-size: 14px;
+  }
+
+  /* Buttons: slightly larger tap targets */
+  .mockup .btn {
+    padding: 10px 16px;
+    font-size: 12px;
+  }
+  .mockup .btn-sm {
+    padding: 8px 14px;
+  }
+
+  /* TE context block */
+  .mockup .te-context {
+    padding: 16px;
+    margin-bottom: 24px;
+  }
+
+  /* Question blocks */
+  .mockup .question-block {
+    margin-bottom: 24px;
+  }
+  .mockup .question-header {
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  /* Measurement inputs: full width on mobile */
+  .mockup .measurement-input {
+    width: 100%;
+  }
+
+  /* Begrunnelse textarea */
+  .mockup .begrunnelse-textarea {
+    min-height: 120px;
+    padding: 12px;
+  }
+
+  /* Segment row */
+  .mockup .segment-btn {
+    padding: 10px 8px;
+    font-size: 11px;
+  }
+
+  /* Sub-zone: reduce indent on mobile */
+  .mockup .sub-zone {
+    margin-left: 12px;
+    padding-left: 12px;
+  }
+
+  /* Result box */
+  .mockup .result-box {
+    padding: 16px;
+  }
+  .mockup .result-header {
+    font-size: 14px;
+    gap: 8px;
+  }
+
+  /* Alert box */
+  .mockup .alert-box {
+    padding: 12px;
+    font-size: 13px;
+  }
+}

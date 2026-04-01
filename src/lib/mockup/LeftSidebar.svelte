@@ -251,4 +251,28 @@
     font-size: 11px;
     font-weight: 700;
   }
+
+  /* ── Mobile ── */
+  @media (max-width: 768px) {
+    .sidebar {
+      width: 100%;
+      border-right: none;
+      overflow-y: auto;
+    }
+    .id-plate {
+      padding: 16px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .id-number {
+      font-size: 24px;
+    }
+    .case-title {
+      font-size: 15px;
+    }
+    .gap-values {
+      gap: 8px;
+    }
+  }
 </style>

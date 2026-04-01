@@ -90,4 +90,26 @@
     color: var(--ink-4);
     margin-left: auto;
   }
+
+  /* ── Mobile ── */
+  @media (max-width: 768px) {
+    .strip {
+      padding: 6px 12px;
+      gap: 4px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .strip-label {
+      display: none;
+    }
+    .strip-btn {
+      padding: 6px 8px;
+      font-size: 11px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .strip-count {
+      flex-shrink: 0;
+    }
+  }
 </style>
