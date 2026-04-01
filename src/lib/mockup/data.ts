@@ -1,9 +1,13 @@
 import { Scale, Banknote, Clock } from 'lucide-svelte';
 import type { Track, HistoryEvent, TrackKey } from './types.js';
-import { groupByDate } from './utils.js';
+import { groupByDate, provision } from './utils.js';
+import { getPartsNavn } from '$lib/utils/partsNavn.js';
 
-export const TE = 'Byggnor';
-export const BH = 'Kystveien Eiendom';
+const TE_NAVN = 'Byggnor';
+const BH_NAVN = 'Kystveien Eiendom';
+
+export const TE = getPartsNavn('TE', TE_NAVN, BH_NAVN);
+export const BH = getPartsNavn('BH', TE_NAVN, BH_NAVN);
 
 export const S = { xs: 4, sm: 8, md: 12, lg: 16, xl: 20, xxl: 24, section: 32 };
 
@@ -17,24 +21,24 @@ export const DD: Record<TrackKey, Track> = {
     te: { position: 'Svikt', ref: '§ 23.1' },
     bh: { position: 'Avvist', ref: '§ 23.1 (2)' },
     best: [
-      {
-        ref: '§ 23.1',
-        title: 'Risiko for forhold ved grunnen',
-        text: 'Totalentreprenøren har risikoen for forhold ved grunnen med mindre det foreligger avvik fra det som fremkommer av kontrakten, herunder byggegrunn og grunnforhold som er beskrevet eller forutsatt.',
-        note: 'Svikt-vurderingen knytter seg til hva TE med rimelighet burde ha oppdaget.',
-      },
-      {
-        ref: '§ 23.1 (2)',
-        title: 'Avvik innenfor angitt toleranse',
-        text: 'Dersom kontraktsgrunnlaget angir toleranser, bærer totalentreprenøren risikoen for avvik innenfor disse.',
-        note: 'Forbeholdet i pkt. 4.2 angir ±2 m variasjon.',
-      },
-      {
-        ref: '§ 34.2',
-        title: 'Krav om endringsordre',
-        text: 'Dersom totalentreprenøren mener det foreligger en endring, skal han varsle byggherren uten ugrunnet opphold.',
-        note: 'Kravet tapes hvis ikke varslet i tide.',
-      },
+      provision(
+        '§ 23.1',
+        'Risiko for forhold ved grunnen',
+        'Totalentreprenøren har risikoen for forhold ved grunnen med mindre det foreligger avvik fra det som fremkommer av kontrakten, herunder byggegrunn og grunnforhold som er beskrevet eller forutsatt.',
+        'Svikt-vurderingen knytter seg til hva TE med rimelighet burde ha oppdaget.'
+      ),
+      provision(
+        '§ 23.1 (2)',
+        'Avvik innenfor angitt toleranse',
+        'Dersom kontraktsgrunnlaget angir toleranser, bærer totalentreprenøren risikoen for avvik innenfor disse.',
+        'Forbeholdet i pkt. 4.2 angir ±2 m variasjon.'
+      ),
+      provision(
+        '§ 34.2',
+        'Krav om endringsordre',
+        'Dersom totalentreprenøren mener det foreligger en endring, skal han varsle byggherren uten ugrunnet opphold.',
+        'Kravet tapes hvis ikke varslet i tide.'
+      ),
     ],
     teT: 'Under utgraving i akse 1–3 støtte vi på massivt fjell som ikke fremkommer av de geotekniske rapportene (vedlegg 3 i kontrakten). Dybden på fjellet krever sprengning fremfor pigging. Dette utgjør en vesentlig endring av forutsetningene for tilbudet og representerer en svikt ved byggherrens leveranse av grunnlagsdata.',
     bhT: 'Kravet avvises i sin helhet. I geoteknisk rapport punkt 4.2 er det tatt uttrykkelig forbehold om at fjellkoter kan variere med inntil 2 meter i dette området. At fjellet ligger høyere enn antatt faller dermed innenfor entreprenørens risiko iht. NS 8407 § 23.1, 2. ledd.',
@@ -58,18 +62,18 @@ export const DD: Record<TrackKey, Track> = {
     te: { value: 450000, unit: ',-' },
     bh: { prinsipal: 0, subsidiaer: 300000, unit: ',-' },
     best: [
-      {
-        ref: '§ 34.1',
-        title: 'Retten til vederlagsjustering',
-        text: 'Totalentreprenøren har krav på vederlagsjustering dersom det foreligger en endring eller annet forhold byggherren bærer risikoen for.',
-        note: 'Kravet tapes hvis ikke varslet i tide.',
-      },
-      {
-        ref: '§ 34.4',
-        title: 'Regningsarbeid',
-        text: 'Arbeidet avregnes etter medgåtte kostnader med påslag. Totalentreprenøren skal føre løpende oversikt over timer og materialer.',
-        note: 'Byggherren skal gis mulighet til å kontrollere omfanget fortløpende.',
-      },
+      provision(
+        '§ 34.1',
+        'Retten til vederlagsjustering',
+        'Totalentreprenøren har krav på vederlagsjustering dersom det foreligger en endring eller annet forhold byggherren bærer risikoen for.',
+        'Kravet tapes hvis ikke varslet i tide.'
+      ),
+      provision(
+        '§ 34.4',
+        'Regningsarbeid',
+        'Arbeidet avregnes etter medgåtte kostnader med påslag. Totalentreprenøren skal føre løpende oversikt over timer og materialer.',
+        'Byggherren skal gis mulighet til å kontrollere omfanget fortløpende.'
+      ),
     ],
     teT: 'Sprengningsarbeidene krevde innleie av spesialisert borerigg samt ekstra mannskap i 14 arbeidsdager. Total kostnad beregnet som regningsarbeid iht. NS 8407 § 30: maskin og mannskap kr 300.000,-, leie eksternt utstyr kr 150.000,-. Totalt kr 450.000,- eksklusiv mva.',
     bhT: 'Dersom det mot formodning skulle konstateres rett til endring, aksepteres kun påløpte kostnader for den faktiske sprengningen. Kostnader knyttet til leie av eksternt utstyr (150.000,-) avvises subsidiært da entreprenøren uansett skulle hatt borerigg på plassen.',
@@ -88,18 +92,16 @@ export const DD: Record<TrackKey, Track> = {
     te: { value: 14, unit: ' dgr' },
     bh: { prinsipal: 0, subsidiaer: 7, unit: ' dgr' },
     best: [
-      {
-        ref: '§ 33.1',
-        title: 'Fristforlengelse ved endringer',
-        text: 'Totalentreprenøren har krav på fristforlengelse dersom fremdriften hindres som følge av endringer eller andre forhold byggherren bærer risikoen for.',
-        note: null,
-      },
-      {
-        ref: '§ 33.5',
-        title: 'Utmåling av fristforlengelse',
-        text: 'Fristforlengelsen skal svare til den virkning kontraktsforholdet har hatt på fremdriften.',
-        note: null,
-      },
+      provision(
+        '§ 33.1',
+        'Fristforlengelse ved endringer',
+        'Totalentreprenøren har krav på fristforlengelse dersom fremdriften hindres som følge av endringer eller andre forhold byggherren bærer risikoen for.'
+      ),
+      provision(
+        '§ 33.5',
+        'Utmåling av fristforlengelse',
+        'Fristforlengelsen skal svare til den virkning kontraktsforholdet har hatt på fremdriften.'
+      ),
     ],
     teT: 'Sprengningsarbeidene medførte full stans i grunnarbeidet i akse 1–3 i 14 arbeidsdager. Arbeidet ligger på kritisk linje for råbyggsfasen, og forsinkelsen forplanter seg direkte til sluttfristen.',
     bhT: 'Tidsbruken for selve sprengningen vurderes å utgjøre maksimalt 7 arbeidsdager. Resterende dager avvises da arbeidet ikke i sin helhet ligger på kritisk linje iht. fremdriftsplan rev. 4.',
