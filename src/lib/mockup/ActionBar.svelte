@@ -11,9 +11,7 @@
     subF,
     prinV,
     prinF,
-    mobileView = 'matrix',
     oncloseform,
-    onmobileback,
     ontogglecontext,
   }: {
     mode: Mode;
@@ -22,9 +20,7 @@
     subF: number;
     prinV: number;
     prinF: number;
-    mobileView?: 'matrix' | 'detail' | 'context';
     oncloseform: () => void;
-    onmobileback?: () => void;
     ontogglecontext?: () => void;
   } = $props();
 </script>

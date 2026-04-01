@@ -13,20 +13,23 @@
   }: {
     role: Role;
     mode: Mode;
-    mobileView?: 'matrix' | 'detail' | 'context';
+    mobileView?: 'matrix' | 'detail';
     onrolechange: (r: Role) => void;
     onback: () => void;
   } = $props();
-
-  const showBack = $derived(mode === 'form' || mobileView === 'detail');
 </script>
 
 <header class="header">
   <div class="ochre-stripe"></div>
   <div class="left">
-    {#if showBack}
+    {#if mode === 'form'}
       <button class="back-btn" onclick={onback}>
         <ChevronLeft size={16} /> <span class="back-text">Oversikt</span>
+      </button>
+    {/if}
+    {#if mobileView === 'detail' && mode === 'read'}
+      <button class="back-btn mobile-only-back" onclick={onback}>
+        <ChevronLeft size={16} />
       </button>
     {/if}
     <div class="ns-badge">
@@ -92,6 +95,9 @@
     cursor: pointer;
     border-right: var(--rule);
     height: 100%;
+  }
+  .mobile-only-back {
+    display: none;
   }
   .ns-badge {
     display: flex;
@@ -201,6 +207,9 @@
     }
     .back-text {
       display: none;
+    }
+    .mobile-only-back {
+      display: flex;
     }
     .right {
       padding: 0 10px;

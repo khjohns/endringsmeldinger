@@ -14,8 +14,7 @@
   import RightSidebar from './RightSidebar.svelte';
   import type { Role, Mode, TrackKey, RightTab } from './types.js';
 
-  /** Mobile view: which panel is visible on narrow screens */
-  type MobileView = 'matrix' | 'detail' | 'context';
+  type MobileView = 'matrix' | 'detail';
 
   let role: Role = $state('BH');
   let sel: TrackKey = $state('ansvar');
@@ -44,44 +43,25 @@
   }
 
   function handleSend() {
-    goRead();
-    mobileView = 'matrix';
+    goMatrix();
   }
 
-  /** Mobile: select a track from the matrix → show detail */
-  function mobileSelectTrack(key: TrackKey) {
+  function selectTrack(key: TrackKey) {
     sel = key;
     rTab = 'bestemmelser';
     mobileView = 'detail';
   }
 
-  /** Mobile: go back to the matrix view */
-  function mobileBack() {
-    if (mode === 'form') {
-      goRead();
-    }
+  function goMatrix() {
+    goRead();
     mobileView = 'matrix';
     rightPanelOpen = false;
-  }
-
-  /** Mobile: toggle right panel overlay */
-  function toggleRightPanel() {
-    rightPanelOpen = !rightPanelOpen;
   }
 </script>
 
 <div class="mockup">
   <div class="shell">
-    <Header
-      {role}
-      {mode}
-      {mobileView}
-      onrolechange={(r) => (role = r)}
-      onback={() => {
-        if (mode === 'form') goRead();
-        else mobileBack();
-      }}
-    />
+    <Header {role} {mode} {mobileView} onrolechange={(r) => (role = r)} onback={goMatrix} />
 
     {#if mode === 'form'}
       <ConsistencyStrip
@@ -103,7 +83,7 @@
             {prinV}
             {subF}
             {prinF}
-            onselect={mobileSelectTrack}
+            onselect={selectTrack}
             onform={goForm}
           />
         </div>
@@ -133,10 +113,8 @@
           {subF}
           {prinV}
           {prinF}
-          {mobileView}
           oncloseform={goRead}
-          onmobileback={mobileBack}
-          ontogglecontext={toggleRightPanel}
+          ontogglecontext={() => (rightPanelOpen = !rightPanelOpen)}
         />
       </main>
 
