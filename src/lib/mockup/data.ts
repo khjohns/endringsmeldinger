@@ -1,7 +1,8 @@
 import { Scale, Banknote, Clock } from 'lucide-svelte';
-import type { Track, HistoryEvent, TrackKey } from './types.js';
+import type { Track, TrackData, HistoryEvent, TrackKey } from './types.js';
 import { groupByDate, sporBestemmelser } from './utils.js';
 import { getPartsNavn } from '$lib/utils/partsNavn.js';
+import type { ComponentType } from 'svelte';
 
 const TE_NAVN = 'Byggnor';
 const BH_NAVN = 'Kystveien Eiendom';
@@ -11,11 +12,17 @@ export const BH = getPartsNavn('BH', TE_NAVN, BH_NAVN);
 
 export const S = { xs: 4, sm: 8, md: 12, lg: 16, xl: 20, xxl: 24, section: 32 };
 
-export const DD: Record<TrackKey, Track> = {
+/** Ikon-oppslag — holdt separat fra DD slik at structuredClone fungerer */
+export const TRACK_ICONS: Record<TrackKey, ComponentType> = {
+  ansvar: Scale,
+  vederlag: Banknote,
+  frist: Clock,
+};
+
+export const DD: Record<TrackKey, TrackData> = {
   ansvar: {
     label: 'Ansvarsgrunnlag',
     num: 'I',
-    icon: Scale,
     type: 'binary',
     status: 'disputed',
     te: { position: 'Svikt', ref: '§ 23.1' },
@@ -37,7 +44,6 @@ export const DD: Record<TrackKey, Track> = {
   vederlag: {
     label: 'Økonomi',
     num: 'II',
-    icon: Banknote,
     type: 'numeric',
     status: 'subsidiary',
     te: { value: 450000, unit: ',-' },
@@ -54,7 +60,6 @@ export const DD: Record<TrackKey, Track> = {
   frist: {
     label: 'Frist',
     num: 'III',
-    icon: Clock,
     type: 'numeric',
     status: 'subsidiary',
     te: { value: 14, unit: ' dgr' },

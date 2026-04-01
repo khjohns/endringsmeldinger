@@ -2,13 +2,20 @@
  * Reaktiv mockup-store. Wrapper DD/EVT som $state slik at
  * skjema-handlinger reflekteres i lesemodus og historikk.
  */
-import { DD as initialDD, EVT as initialEVT, TE, BH } from './data.js';
+import { DD as initialDD, EVT as initialEVT, TRACK_ICONS, TE, BH } from './data.js';
 import { groupByDate } from './utils.js';
-import type { Track, TrackKey, HistoryEvent, Role } from './types.js';
+import type { Track, TrackData, TrackKey, HistoryEvent, Role } from './types.js';
 
 function createStore() {
-  let tracks: Record<TrackKey, Track> = $state(structuredClone(initialDD));
+  let tracks: Record<TrackKey, TrackData> = $state(structuredClone(initialDD));
   let events: HistoryEvent[] = $state([...initialEVT]);
+
+  /** Tracks med icon påsatt — for bruk i komponenter */
+  const tracksWithIcons: Record<TrackKey, Track> = $derived({
+    ansvar: { ...tracks.ansvar, icon: TRACK_ICONS.ansvar },
+    vederlag: { ...tracks.vederlag, icon: TRACK_ICONS.vederlag },
+    frist: { ...tracks.frist, icon: TRACK_ICONS.frist },
+  });
 
   const evtGrouped = $derived(groupByDate(events));
   const draftCount = $derived(Object.values(tracks).filter((t) => t.draftState === 'draft').length);
@@ -116,7 +123,7 @@ function createStore() {
 
   return {
     get tracks() {
-      return tracks;
+      return tracksWithIcons;
     },
     get events() {
       return events;
