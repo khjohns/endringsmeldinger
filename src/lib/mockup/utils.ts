@@ -1,4 +1,4 @@
-import type { DraftState, Role, HistoryEvent, Provision } from './types.js';
+import type { DraftState, Role, HistoryEvent, Provision, TrackKey } from './types.js';
 import { getParagrafTittel } from '$lib/constants/paragrafTitler.js';
 import { getKontraktsregel } from '$lib/constants/kontraktsregler.js';
 
@@ -9,23 +9,25 @@ export function fmt(n: number): string {
 
 /**
  * Bygg en Provision fra produksjonens KONTRAKTSREGLER + PARAGRAF_TITLER.
- * ref-formatet er "§ 23.1" — strippes til "23.1" for oppslag.
- * Bruker produksjonens regeltekst der tilgjengelig, med konsekvens som note.
+ * Krever at §-nøkkelen finnes i begge oppslagstabellene.
  */
-export function provision(
-  ref: string,
-  fallbackTitle: string,
-  fallbackText: string,
-  fallbackNote: string | null = null
-): Provision {
-  const key = ref.replace(/^§\s*/, '');
-  const regel = getKontraktsregel(key);
-  return {
-    ref,
-    title: getParagrafTittel(key) ?? fallbackTitle,
-    text: regel?.regel ?? fallbackText,
-    note: regel?.konsekvens ?? fallbackNote,
-  };
+function regel(key: string): Provision | null {
+  const tittel = getParagrafTittel(key);
+  const kr = getKontraktsregel(key);
+  if (!tittel || !kr) return null;
+  return { ref: `§ ${key}`, title: tittel, text: kr.regel, note: kr.konsekvens };
+}
+
+/** Relevante bestemmelser per spor, bygget fra produksjonens kontraktsregler. */
+const SPOR_PARAGRAFER: Record<TrackKey, string[]> = {
+  ansvar: ['23.1', '32.2', '25.1.2'],
+  vederlag: ['34.1', '34.2', '34.4'],
+  frist: ['33.1', '33.4', '33.5'],
+};
+
+/** Hent bestemmelser for et spor fra produksjonens KONTRAKTSREGLER. */
+export function sporBestemmelser(spor: TrackKey): Provision[] {
+  return SPOR_PARAGRAFER[spor].map(regel).filter((p): p is Provision => p !== null);
 }
 
 export function act(draftState: DraftState, role: Role): string {
