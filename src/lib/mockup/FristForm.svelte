@@ -2,13 +2,24 @@
   import { AlertTriangle, Check, X, CircleMinus } from 'lucide-svelte';
   import { beregnAlt, getDefaults } from '$lib/domain/fristDomain';
   import type { FristFormState, FristDomainConfig } from '$lib/domain/fristDomain';
+  import { generateFristResponseBegrunnelse } from '$lib/domain/begrunnelse/fristBegrunnelse';
+  import type { FristResponseInput } from '$lib/domain/begrunnelse/fristBegrunnelse';
+  import { tokensToHtml } from '$lib/editor/tokenConverter';
   import { store } from './store.svelte.js';
   import { TE } from './data.js';
   import Stamp from './Stamp.svelte';
   import CaseAnchor from './CaseAnchor.svelte';
   import { toggleChoice } from './utils.js';
 
-  let { onclose, onsend }: { onclose: () => void; onsend: () => void } = $props();
+  let {
+    onclose,
+    onsend,
+    onactions,
+  }: {
+    onclose: () => void;
+    onsend: () => void;
+    onactions?: (a: { canSend: boolean; send: () => void }) => void;
+  } = $props();
 
   const d = store.tracks.frist;
 
@@ -66,6 +77,43 @@
     if (vilkarOppfylt === undefined) return false;
     if (computed.showGodkjentDager && godkjentDager === undefined) return false;
     return true;
+  });
+
+  // Auto-begrunnelse
+  const autoBegrunnelseHtml = $derived.by(() => {
+    if (!sendForesporsel && (vilkarOppfylt === undefined || godkjentDager === undefined)) return '';
+    const input: FristResponseInput = {
+      varselType: domainConfig.varselType,
+      krevdDager: domainConfig.krevdDager,
+      fristVarselOk,
+      spesifisertKravOk,
+      foresporselSvarOk,
+      sendForesporsel,
+      vilkarOppfylt: vilkarOppfylt ?? false,
+      godkjentDager: godkjentDager ?? 0,
+      erPrekludert: computed.erPrekludert,
+      erForesporselSvarForSent: foresporselSvarOk === false,
+      erRedusert_33_6_1: computed.erRedusert,
+      harTidligereVarselITide: domainConfig.harTidligereVarselITide,
+      erGrunnlagSubsidiaer: domainConfig.erGrunnlagSubsidiaer,
+      erGrunnlagPrekludert: domainConfig.erHelFristSubsidiaerPgaGrunnlag,
+      prinsipaltResultat: computed.prinsipaltResultat,
+      subsidiaertResultat: computed.subsidiaertResultat,
+      visSubsidiaertResultat: computed.visSubsidiaertResultat,
+    };
+    const tokens = generateFristResponseBegrunnelse(input, { useTokens: true });
+    return tokensToHtml(tokens);
+  });
+
+  // Expose actions to parent (for sticky ActionBar)
+  $effect(() => {
+    onactions?.({
+      canSend: allAnswered,
+      send: () => {
+        store.sendFristSvar(godkjentDager ?? 0);
+        onsend();
+      },
+    });
   });
 </script>
 
@@ -300,15 +348,17 @@
       </div>
     {/if}
 
-    <div class="send-row">
-      <button
-        class="btn btn-primary"
-        onclick={() => {
-          store.sendFristSvar(godkjentDager ?? 0);
-          onsend();
-        }}>Send svar</button
-      >
-    </div>
+    {#if autoBegrunnelseHtml}
+      <div class="begrunnelse-section">
+        <div class="question-header">
+          <span class="question-label">Begrunnelse</span>
+          <span class="font-mono question-ref">Auto-generert</span>
+        </div>
+        <div class="font-serif begrunnelse-preview">
+          {@html autoBegrunnelseHtml}
+        </div>
+      </div>
+    {/if}
   {/if}
 </div>
 

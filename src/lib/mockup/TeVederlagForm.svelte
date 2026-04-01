@@ -12,7 +12,15 @@
   import { fmt } from './utils.js';
   import CaseAnchor from './CaseAnchor.svelte';
 
-  let { onclose, onsend }: { onclose: () => void; onsend: () => void } = $props();
+  let {
+    onclose,
+    onsend,
+    onactions,
+  }: {
+    onclose: () => void;
+    onsend: () => void;
+    onactions?: (a: { canSend: boolean; send: () => void }) => void;
+  } = $props();
 
   const d = store.tracks.vederlag;
 
@@ -60,6 +68,16 @@
   });
 
   const kanSende = $derived(beregnCanSubmit(mappedState));
+
+  $effect(() => {
+    onactions?.({
+      canSend: kanSende,
+      send: () => {
+        store.sendTeVederlag(hovedkravValue ?? 0, metode ?? 'REGNINGSARBEID');
+        onsend();
+      },
+    });
+  });
   const metodeDescription = $derived(metode ? VEDERLAGSMETODE_DESCRIPTIONS[metode] : undefined);
 
   const METODE_OPTIONS: { value: VederlagsMetode; label: string }[] = [
@@ -199,15 +217,6 @@
           Sender vederlagskrav
         {/if}
       </div>
-    </div>
-    <div class="send-row">
-      <button
-        class="btn btn-primary"
-        onclick={() => {
-          store.sendTeVederlag(hovedkravValue ?? 0, metode ?? 'REGNINGSARBEID');
-          onsend();
-        }}>Send krav</button
-      >
     </div>
   {/if}
 </div>
