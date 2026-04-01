@@ -8,6 +8,8 @@
   import CenterForm from './CenterForm.svelte';
   import FristForm from './FristForm.svelte';
   import TeFristForm from './TeFristForm.svelte';
+  import VederlagForm from './VederlagForm.svelte';
+  import TeVederlagForm from './TeVederlagForm.svelte';
   import ActionBar from './ActionBar.svelte';
   import RightSidebar from './RightSidebar.svelte';
   import type { Role, Mode, TrackKey, RightTab } from './types.js';
@@ -95,6 +97,10 @@
           <FristForm onclose={goRead} />
         {:else if sel === 'frist' && role === 'TE'}
           <TeFristForm onclose={goRead} />
+        {:else if sel === 'vederlag' && role === 'BH'}
+          <VederlagForm onclose={goRead} />
+        {:else if sel === 'vederlag' && role === 'TE'}
+          <TeVederlagForm onclose={goRead} />
         {:else}
           <CenterForm {d} {sel} {choices} ontoggle={toggleChoice} />
         {/if}
