@@ -149,6 +149,45 @@ export const KONTRAKTSREGLER: Record<string, Kontraktsregel> = {
       'Totalentreprenøren må varsle uten ugrunnet opphold. Byggherren må påberope sen varsling skriftlig uten ugrunnet opphold (§5).',
   },
 
+  // ========== VEDERLAGSJUSTERING ==========
+
+  '34.1': {
+    regel:
+      'Totalentreprenøren har krav på vederlagsjustering dersom det foreligger en endring etter kapittel V, eller dersom det foreligger andre forhold som byggherren bærer risikoen for etter kontrakten.',
+    konsekvens:
+      'Kravet om vederlagsjustering må varsles uten ugrunnet opphold. Byggherren må påberope sen varsling skriftlig uten ugrunnet opphold (§5).',
+  },
+
+  '34.2': {
+    regel:
+      'Vederlagsjusteringen skal fastsettes på grunnlag av kontraktens enhetspriser så langt disse passer. Der enhetspriser ikke passer, fastsettes vederlaget som regningsarbeid, eller ut fra annen avtalt metode.',
+    konsekvens:
+      'Totalentreprenøren skal varsle uten ugrunnet opphold dersom han vil kreve vederlagsjustering, med opplysninger om hva kravet bygger på og om mulig kravets størrelse.',
+  },
+
+  '34.4': {
+    regel:
+      'Regningsarbeid avregnes etter nødvendige kostnader med et avtalt eller sedvanlig påslag for indirekte kostnader, risiko og fortjeneste. Totalentreprenøren skal føre løpende oversikt over timer og materialer.',
+    konsekvens:
+      'Byggherren skal gis mulighet til å kontrollere omfanget fortløpende. Manglende dokumentasjon kan medføre at deler av kravet avvises.',
+  },
+
+  // ========== FRISTFORLENGELSE ==========
+
+  '33.1': {
+    regel:
+      'Totalentreprenøren har krav på fristforlengelse dersom fremdriften hindres som følge av: a) endringer, b) svikt ved byggherrens ytelser, eller c) andre forhold som byggherren bærer risikoen for etter kontrakten.',
+    konsekvens:
+      'Kravet om fristforlengelse må varsles uten ugrunnet opphold (§33.4). Spesifisering skal sendes innen rimelig tid (§33.6). Byggherren må svare uten ugrunnet opphold (§33.7).',
+  },
+
+  '33.5': {
+    regel:
+      'Fristforlengelsen skal svare til den virkning det aktuelle forholdet har hatt eller vil ha på fremdriften. Ved utmålingen skal det tas hensyn til alle relevante forhold, herunder om forsinkelsen ligger på kritisk linje.',
+    konsekvens:
+      'Totalentreprenøren har bevisbyrden for at forholdet faktisk har forsinket fremdriften, og for omfanget av forsinkelsen.',
+  },
+
   // ========== FORCE MAJEURE ==========
 
   '33.3': {

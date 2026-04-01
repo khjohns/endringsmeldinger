@@ -1,0 +1,522 @@
+/* Kontraktsbordet — Design System (mockup-isolert) */
+
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;0,6..72,700;1,6..72,400;1,6..72,500&display=swap');
+
+:root {
+  /* Surfaces */
+  --canvas: #f8f7f4;
+  --paper: #ffffff;
+  --paper-inset: #f6f5f1;
+  --paper-sub: #fafaf7;
+  --plate: #1c1917;
+
+  /* Ink */
+  --ink: #1c1917;
+  --ink-2: #4a4945;
+  --ink-3: #7a7975;
+  --ink-4: #a8a7a2;
+
+  /* Borders */
+  --edge: 2px solid #1c1917;
+  --rule: 1px solid rgba(28, 25, 23, 0.12);
+  --rule-subtle: 1px solid rgba(28, 25, 23, 0.07);
+
+  /* Accent — ochre */
+  --ochre: #b8860b;
+  --ochre-bg: #fbf6ea;
+  --ochre-border: #ddd0a0;
+
+  /* Semantic */
+  --red: #991b1b;
+  --red-bg: #fdf2f2;
+  --green: #166534;
+
+  /* Draft */
+  --draft: #6b5e2f;
+  --draft-bg: #fdfbf0;
+  --draft-border: #dbd2a8;
+}
+
+/* ── Reset (scoped to mockup) ── */
+.mockup * {
+  box-sizing: border-box;
+  margin: 0;
+}
+
+.mockup {
+  background: var(--canvas);
+  color: var(--ink);
+  font-family: 'Space Grotesk', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Font utilities ── */
+.mockup .font-serif {
+  font-family: 'Newsreader', serif;
+}
+.mockup .font-mono {
+  font-family: 'JetBrains Mono', monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Stamps ── */
+.mockup .stamp {
+  display: inline-block;
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 4px 12px;
+  border: 2px solid currentColor;
+  line-height: 1;
+  box-shadow: 2px 2px 0 currentColor;
+}
+.mockup .stamp-red {
+  color: var(--red);
+  transform: rotate(-1.2deg);
+  background: var(--red-bg);
+}
+.mockup .stamp-ochre {
+  color: var(--ochre);
+  transform: rotate(-0.6deg);
+  background: var(--ochre-bg);
+}
+.mockup .stamp-draft {
+  color: var(--draft);
+  border-style: dashed;
+  transform: rotate(-0.8deg);
+  background: var(--draft-bg);
+  box-shadow: none;
+}
+.mockup .stamp-sm {
+  font-size: 9px;
+  padding: 3px 8px;
+  border-width: 1.5px;
+  box-shadow: 1px 1px 0 currentColor;
+}
+.mockup .stamp-sm.stamp-draft {
+  box-shadow: none;
+}
+.mockup .stamp-sm.stamp-flat {
+  box-shadow: none;
+  transform: none;
+}
+
+/* ── Buttons ── */
+.mockup .btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-radius: 0;
+  cursor: pointer;
+  transition: all 60ms linear;
+}
+.mockup .btn:active {
+  transform: translate(2px, 2px);
+}
+.mockup .btn-primary {
+  background: var(--plate);
+  color: white;
+  border: 2px solid var(--plate);
+  box-shadow: 3px 3px 0 rgba(28, 25, 23, 0.2);
+}
+.mockup .btn-primary:hover {
+  box-shadow: 2px 2px 0 rgba(28, 25, 23, 0.2);
+  transform: translate(1px, 1px);
+}
+.mockup .btn-secondary {
+  background: var(--paper);
+  color: var(--ink);
+  border: 2px solid var(--ink);
+  box-shadow: 2px 2px 0 rgba(28, 25, 23, 0.12);
+}
+.mockup .btn-secondary:hover {
+  box-shadow: 1px 1px 0 rgba(28, 25, 23, 0.12);
+  transform: translate(1px, 1px);
+}
+.mockup .btn-danger {
+  background: var(--paper);
+  color: var(--red);
+  border: 2px solid var(--red);
+  box-shadow: 2px 2px 0 rgba(153, 27, 27, 0.12);
+}
+.mockup .btn-danger:hover {
+  box-shadow: 1px 1px 0 rgba(153, 27, 27, 0.12);
+  transform: translate(1px, 1px);
+}
+.mockup .btn-sm {
+  font-size: 10px;
+  padding: 6px 12px;
+  box-shadow: 2px 2px 0 rgba(28, 25, 23, 0.08);
+}
+.mockup .btn-sm:hover {
+  box-shadow: 1px 1px 0 rgba(28, 25, 23, 0.08);
+  transform: translate(1px, 1px);
+}
+
+/* ── Matrix rows ── */
+.mockup .m-row {
+  cursor: pointer;
+  border-left: 3px solid transparent;
+  transition: background 80ms;
+}
+.mockup .m-row:hover {
+  background: var(--paper-inset);
+}
+.mockup .m-row:active {
+  background: var(--paper);
+}
+.mockup .m-row.on {
+  background: var(--paper);
+  border-left-color: var(--ochre);
+}
+
+/* ── Tabs ── */
+.mockup .tab {
+  padding: 10px 16px;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ink-4);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  background: none;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+  transition: all 100ms;
+}
+.mockup .tab:hover {
+  color: var(--ink-2);
+  background: var(--paper-inset);
+}
+.mockup .tab.on {
+  color: var(--ink);
+  border-bottom-color: var(--ochre);
+  background: transparent;
+}
+
+/* ── Subsidiary zone ── */
+.mockup .sub-zone {
+  position: relative;
+  margin-left: 24px;
+  padding-left: 20px;
+  border-left: 2px dashed var(--ochre-border);
+}
+.mockup .sub-zone::before {
+  content: '';
+  position: absolute;
+  left: -6px;
+  top: 0;
+  width: 10px;
+  height: 10px;
+  background: var(--ochre);
+  transform: rotate(45deg);
+}
+
+/* ── Attachment cards ── */
+.mockup .att {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: var(--paper);
+  border: var(--rule-subtle);
+  cursor: pointer;
+  transition:
+    border-color 100ms,
+    box-shadow 100ms;
+}
+.mockup .att:hover {
+  border-color: var(--ink);
+  box-shadow: 2px 2px 0 rgba(28, 25, 23, 0.04);
+}
+
+/* ── Provision cards ── */
+.mockup .best-card {
+  padding: 16px;
+  background: var(--paper-inset);
+  border: var(--rule-subtle);
+  transition: border-color 100ms;
+  cursor: default;
+}
+.mockup .best-card:hover {
+  border-color: var(--ochre-border);
+}
+
+/* ── Pills (yes/no toggle) ── */
+.mockup .pill {
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  border: 2px solid var(--ink-4);
+  background: var(--paper);
+  color: var(--ink-2);
+  cursor: pointer;
+  transition: all 80ms;
+}
+.mockup .pill:hover {
+  border-color: var(--ink);
+  color: var(--ink);
+}
+.mockup .pill.yes {
+  background: var(--green);
+  color: white;
+  border-color: var(--green);
+}
+.mockup .pill.no {
+  background: var(--red);
+  color: white;
+  border-color: var(--red);
+}
+
+/* ── Form shared styles ── */
+.mockup .form-content {
+  max-width: 840px;
+  margin: 0 auto;
+  padding: 32px 40px 120px;
+}
+.mockup .te-context {
+  margin-bottom: 40px;
+  padding: 24px;
+  background: var(--paper-sub);
+  border-top: var(--edge);
+  border-left: var(--rule);
+  border-right: var(--rule);
+  border-bottom: var(--rule);
+}
+.mockup .context-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.mockup .context-label-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.mockup .context-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+.mockup .context-ref {
+  font-size: 11px;
+  font-weight: 500;
+  background: var(--paper-inset);
+  border: var(--rule-subtle);
+  padding: 2px 8px;
+  color: var(--ink-2);
+}
+.mockup .context-text {
+  font-size: 15px;
+  line-height: 1.65;
+  color: var(--ink-3);
+}
+.mockup .bh-heading {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 32px;
+}
+.mockup .question-block {
+  margin-bottom: 32px;
+}
+.mockup .question-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.mockup .question-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+.mockup .question-ref {
+  font-size: 11px;
+  background: var(--paper-inset);
+  border: var(--rule-subtle);
+  padding: 2px 8px;
+  color: var(--ink-3);
+}
+.mockup .question-text {
+  font-size: 14px;
+  color: var(--ink-2);
+  margin-bottom: 16px;
+}
+.mockup .helptext {
+  font-size: 13px;
+  color: var(--ink-3);
+  line-height: 1.5;
+}
+.mockup .divider {
+  height: 1px;
+  background: rgba(28, 25, 23, 0.08);
+  margin-bottom: 32px;
+}
+.mockup .sub-banner {
+  margin-bottom: 32px;
+  padding: 16px 20px;
+  background: var(--ochre-bg);
+  border-left: 2px dashed var(--ochre-border);
+}
+.mockup .sub-banner-text {
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--ink-2);
+  font-style: italic;
+  margin-top: 8px;
+}
+.mockup .alert-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px;
+  margin-top: 16px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.mockup .alert-box.warning {
+  background: var(--ochre-bg);
+  border: 1px solid var(--ochre-border);
+  color: var(--ink);
+}
+.mockup .measurement-input-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+  margin-bottom: 8px;
+}
+.mockup .measurement-input {
+  width: 180px;
+  font-size: 18px;
+  font-weight: 700;
+  padding: 8px 16px;
+  background: var(--paper-inset);
+  border: var(--edge);
+  color: var(--ink);
+  outline: none;
+}
+.mockup .measurement-input:focus {
+  border-color: var(--ochre);
+}
+.mockup .begrunnelse-textarea {
+  width: 100%;
+  min-height: 160px;
+  padding: 16px;
+  font-size: 15px;
+  line-height: 1.65;
+  resize: vertical;
+  background: var(--paper);
+  border: var(--rule);
+  color: var(--ink);
+  outline: none;
+}
+.mockup .begrunnelse-textarea:focus {
+  border-color: rgba(28, 25, 23, 0.3);
+}
+.mockup .result-box {
+  padding: 20px 24px;
+  background: var(--paper);
+  border: 2px solid var(--ink-4);
+}
+.mockup .result-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 16px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+.mockup .result-note {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--ink-3);
+  margin-top: 12px;
+}
+.mockup .sub-result {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px dashed var(--ochre-border);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.mockup .sub-result-text {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ochre);
+}
+.mockup .status-box {
+  margin-top: 32px;
+  padding: 16px 20px;
+  background: var(--paper);
+  border: 2px solid var(--ochre);
+}
+.mockup .status-text {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ochre);
+  letter-spacing: 0.02em;
+}
+.mockup .segment-row {
+  display: flex;
+  border: var(--edge);
+}
+.mockup .segment-btn {
+  flex: 1;
+  padding: 10px 16px;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  background: var(--paper);
+  color: var(--ink-3);
+  border: none;
+  border-right: var(--edge);
+  cursor: pointer;
+  transition: all 80ms;
+}
+.mockup .segment-btn:last-child {
+  border-right: none;
+}
+.mockup .segment-btn.active {
+  background: var(--plate);
+  color: white;
+}
+
+.mockup .send-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 24px;
+}
+
+/* ── Scrollbar ── */
+.mockup ::-webkit-scrollbar {
+  width: 5px;
+}
+.mockup ::-webkit-scrollbar-track {
+  background: transparent;
+}
+.mockup ::-webkit-scrollbar-thumb {
+  background: var(--ink-4);
+}
