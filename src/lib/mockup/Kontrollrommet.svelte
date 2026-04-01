@@ -18,8 +18,6 @@
   let sel: TrackKey = $state('ansvar');
   let rTab: RightTab = $state('bestemmelser');
   let mode: Mode = $state('read');
-  let saving = $state(false);
-
   const d = $derived(DD[sel]);
   const draftCount = $derived(Object.values(DD).filter((x) => x.draftState === 'draft').length);
 
@@ -42,7 +40,7 @@
 
 <div class="mockup">
   <div class="shell">
-    <Header {role} {mode} {saving} onrolechange={(r) => (role = r)} onback={goRead} />
+    <Header {role} {mode} onrolechange={(r) => (role = r)} onback={goRead} />
 
     {#if mode === 'form'}
       <ConsistencyStrip

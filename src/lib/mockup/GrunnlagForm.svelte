@@ -10,6 +10,7 @@
   import { DD, TE, BH } from './data.js';
   import Stamp from './Stamp.svelte';
   import CaseAnchor from './CaseAnchor.svelte';
+  import { toggleChoice } from './utils.js';
 
   let { onclose }: { onclose: () => void } = $props();
 
@@ -46,10 +47,6 @@
   const prekludert = $derived(erPrekludert(formState, domainConfig));
   const verdictOptions = $derived(getVerdictOptions(domainConfig));
 
-  function toggleChoice(current: boolean | undefined, value: boolean): boolean | undefined {
-    return current === value ? undefined : value;
-  }
-
   const allAnswered = $derived.by(() => {
     if (visVarsling && varsletITide === undefined) return false;
     if (!resultat) return false;
@@ -57,21 +54,9 @@
   });
 
   const resultatDisplay = $derived.by(() => {
-    if (resultat === 'godkjent')
-      return {
-        ikon: Check,
-        label: 'Godkjent',
-        color: 'var(--green)',
-        stampVariant: 'ochre' as const,
-      };
-    if (resultat === 'frafalt')
-      return {
-        ikon: Undo2,
-        label: 'Frafalt',
-        color: 'var(--ink-3)',
-        stampVariant: 'draft' as const,
-      };
-    return { ikon: X, label: 'Avslått', color: 'var(--red)', stampVariant: 'red' as const };
+    if (resultat === 'godkjent') return { ikon: Check, label: 'Godkjent', color: 'var(--green)' };
+    if (resultat === 'frafalt') return { ikon: Undo2, label: 'Frafalt', color: 'var(--ink-3)' };
+    return { ikon: X, label: 'Avslått', color: 'var(--red)' };
   });
 </script>
 
@@ -206,46 +191,7 @@
 </div>
 
 <style>
-  .form-content {
-    max-width: 840px;
-    margin: 0 auto;
-    padding: 32px 40px 120px;
-  }
-  .te-context {
-    margin-bottom: 40px;
-    padding: 24px;
-    background: var(--paper-sub);
-    border-top: var(--edge);
-    border-left: var(--rule);
-    border-right: var(--rule);
-    border-bottom: var(--rule);
-  }
-  .context-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 12px;
-  }
-  .context-label-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .context-label {
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--ink-3);
-  }
-  .context-ref {
-    font-size: 11px;
-    font-weight: 500;
-    background: var(--paper-inset);
-    border: var(--rule-subtle);
-    padding: 2px 8px;
-    color: var(--ink-2);
-  }
+  /* Form-specific styles (shared styles in mockup.css) */
   .te-position {
     display: flex;
     align-items: center;
@@ -264,67 +210,9 @@
     font-weight: 500;
     color: var(--ink-2);
   }
-  .context-text {
-    font-size: 15px;
-    line-height: 1.65;
-    color: var(--ink-3);
-  }
-  .bh-heading {
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    margin-bottom: 32px;
-  }
-  .question-block {
-    margin-bottom: 32px;
-  }
-  .question-header {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 12px;
-  }
-  .question-label {
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--ink-2);
-  }
-  .question-ref {
-    font-size: 11px;
-    background: var(--paper-inset);
-    border: var(--rule-subtle);
-    padding: 2px 8px;
-    color: var(--ink-3);
-  }
-  .question-text {
-    font-size: 14px;
-    color: var(--ink-2);
-    margin-bottom: 16px;
-  }
   .pill-row {
     display: flex;
     gap: 8px;
-  }
-  .divider {
-    height: 1px;
-    background: rgba(28, 25, 23, 0.08);
-    margin-bottom: 32px;
-  }
-  .alert-box {
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
-    padding: 16px;
-    margin-top: 16px;
-    font-size: 13px;
-    line-height: 1.5;
-  }
-  .alert-box.warning {
-    background: var(--ochre-bg);
-    border: 1px solid var(--ochre-border);
-    color: var(--ink);
   }
   .verdict-row {
     display: flex;
@@ -374,27 +262,7 @@
     letter-spacing: 0;
     opacity: 0.8;
   }
-  .result-box {
-    padding: 20px 24px;
-    background: var(--paper);
-    border: 2px solid var(--ink-4);
-  }
-  .result-header {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    font-size: 16px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.02em;
-  }
   .result-label {
     font-size: 16px;
-  }
-  .result-note {
-    font-size: 13px;
-    line-height: 1.5;
-    color: var(--ink-3);
-    margin-top: 12px;
   }
 </style>
