@@ -1,6 +1,7 @@
 <script lang="ts">
   import { ArrowRight } from 'lucide-svelte';
-  import { DD, S } from './data.js';
+  import { store } from './store.svelte.js';
+  import { S } from './data.js';
   import { fmt, act } from './utils.js';
   import DualBar from './DualBar.svelte';
   import Stamp from './Stamp.svelte';
@@ -41,7 +42,7 @@
   </div>
 
   <div style="padding: 0 {S.sm}px">
-    {#each Object.entries(DD) as [k, dd]}
+    {#each Object.entries(store.tracks) as [k, dd]}
       {@const on = sel === k}
       <div
         class="m-row"

@@ -5,12 +5,13 @@
     beregnCanSubmit,
   } from '$lib/domain/fristSubmissionDomain';
   import type { FristSubmissionFormState } from '$lib/domain/fristSubmissionDomain';
-  import { DD, TE } from './data.js';
+  import { store } from './store.svelte.js';
+  import { TE } from './data.js';
   import CaseAnchor from './CaseAnchor.svelte';
 
-  let { onclose }: { onclose: () => void } = $props();
+  let { onclose, onsend }: { onclose: () => void; onsend: () => void } = $props();
 
-  const d = DD.frist;
+  const d = store.tracks.frist;
 
   /**
    * Mock scenario: TE spesifiserer fristkrav for KOE-104.
@@ -161,6 +162,15 @@
           Spesifiserer fristkrav
         {/if}
       </div>
+    </div>
+    <div class="send-row">
+      <button
+        class="btn btn-primary"
+        onclick={() => {
+          store.sendTeFrist(antallDager ?? 0);
+          onsend();
+        }}>Send krav</button
+      >
     </div>
   {/if}
 </div>

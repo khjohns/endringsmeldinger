@@ -1,18 +1,17 @@
 <script lang="ts">
-  import { ChevronLeft } from 'lucide-svelte';
+  import { ChevronLeft, RotateCcw } from 'lucide-svelte';
+  import { store } from './store.svelte.js';
   import { TE, BH, S } from './data.js';
   import type { Role, Mode } from './types.js';
 
   let {
     role,
     mode,
-    saving = false,
     onrolechange,
     onback,
   }: {
     role: Role;
     mode: Mode;
-    saving?: boolean;
     onrolechange: (r: Role) => void;
     onback: () => void;
   } = $props();
@@ -35,12 +34,9 @@
     </div>
   </div>
   <div class="right">
-    {#if mode === 'form'}
-      <div class="save-indicator">
-        <div class="save-dot" style:background={saving ? 'var(--ochre)' : 'var(--green)'}></div>
-        <span class="font-mono save-text">{saving ? 'Lagrer...' : 'Lagret'}</span>
-      </div>
-    {/if}
+    <button class="reset-btn" onclick={() => store.reset()} title="Nullstill mockup">
+      <RotateCcw size={12} /> Nullstill
+    </button>
     <span class="font-mono role-label">VIS SOM</span>
     <div class="role-toggle">
       {#each ['TE', 'BH'] as r}
@@ -128,21 +124,6 @@
     padding: 0 16px;
     gap: 12px;
   }
-  .save-indicator {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-right: 12px;
-  }
-  .save-dot {
-    width: 6px;
-    height: 6px;
-    transition: background 200ms;
-  }
-  .save-text {
-    font-size: 10px;
-    color: var(--ink-4);
-  }
   .role-label {
     font-size: 10px;
     color: var(--ink-4);
@@ -165,5 +146,23 @@
   .role-btn.active {
     background: var(--plate);
     color: white;
+  }
+  .reset-btn {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--ink-4);
+    background: transparent;
+    border: 1px solid var(--ink-4);
+    cursor: pointer;
+    transition: all 80ms;
+  }
+  .reset-btn:hover {
+    color: var(--ink);
+    border-color: var(--ink);
   }
 </style>

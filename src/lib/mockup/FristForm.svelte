@@ -2,14 +2,15 @@
   import { AlertTriangle, Check, X, CircleMinus } from 'lucide-svelte';
   import { beregnAlt, getDefaults } from '$lib/domain/fristDomain';
   import type { FristFormState, FristDomainConfig } from '$lib/domain/fristDomain';
-  import { DD, TE } from './data.js';
+  import { store } from './store.svelte.js';
+  import { TE } from './data.js';
   import Stamp from './Stamp.svelte';
   import CaseAnchor from './CaseAnchor.svelte';
   import { toggleChoice } from './utils.js';
 
-  let { onclose }: { onclose: () => void } = $props();
+  let { onclose, onsend }: { onclose: () => void; onsend: () => void } = $props();
 
-  const d = DD.frist;
+  const d = store.tracks.frist;
 
   /**
    * Mock domain config for KOE-104: TE claimed 14 days, sent as spesifisert krav.
@@ -298,6 +299,16 @@
         >
       </div>
     {/if}
+
+    <div class="send-row">
+      <button
+        class="btn btn-primary"
+        onclick={() => {
+          store.sendFristSvar(godkjentDager ?? 0);
+          onsend();
+        }}>Send svar</button
+      >
+    </div>
   {/if}
 </div>
 

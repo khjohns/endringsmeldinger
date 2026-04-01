@@ -11,15 +11,16 @@
     VederlagDomainConfig,
     BelopVurdering,
   } from '$lib/domain/vederlagDomain';
-  import { DD, TE, BH } from './data.js';
+  import { store } from './store.svelte.js';
+  import { TE, BH } from './data.js';
   import { fmt } from './utils.js';
   import Stamp from './Stamp.svelte';
   import CaseAnchor from './CaseAnchor.svelte';
   import { toggleChoice } from './utils.js';
 
-  let { onclose }: { onclose: () => void } = $props();
+  let { onclose, onsend }: { onclose: () => void; onsend: () => void } = $props();
 
-  const d = DD.vederlag;
+  const d = store.tracks.vederlag;
 
   /**
    * Mock domain config for KOE-104:
@@ -260,6 +261,16 @@
           </span>
         </div>
       {/if}
+    </div>
+
+    <div class="send-row">
+      <button
+        class="btn btn-primary"
+        onclick={() => {
+          store.sendVederlagSvar(computed.totalGodkjent);
+          onsend();
+        }}>Send svar</button
+      >
     </div>
   {/if}
 </div>

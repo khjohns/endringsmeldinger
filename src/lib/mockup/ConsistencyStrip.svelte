@@ -1,6 +1,7 @@
 <script lang="ts">
   import { Pencil, Circle } from 'lucide-svelte';
-  import { DD, S } from './data.js';
+  import { store } from './store.svelte.js';
+  import { S } from './data.js';
   import { fmt } from './utils.js';
   import type { TrackKey } from './types.js';
 
@@ -17,7 +18,7 @@
 
 <div class="strip">
   <span class="font-mono strip-label">Dine svar:</span>
-  {#each Object.entries(DD) as [k, dd]}
+  {#each Object.entries(store.tracks) as [k, dd]}
     {@const active = k === sel}
     {@const ds = dd.draftState}
     <button
