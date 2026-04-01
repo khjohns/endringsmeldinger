@@ -510,27 +510,47 @@
   margin-top: 24px;
 }
 
-/* ── Inline begrunnelse (auto-generert) ── */
+/* ── Inline begrunnelse ── */
 .mockup .begrunnelse-section {
   margin-top: 24px;
 }
-.mockup .begrunnelse-preview {
+.mockup .begrunnelse-header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: auto;
+}
+.mockup .regenerate-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  background: transparent;
+  border: 1px solid rgba(28, 25, 23, 0.12);
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--ink-3);
+  cursor: pointer;
+  transition: all 80ms;
+}
+.mockup .regenerate-btn:hover {
+  color: var(--ink);
+  border-color: var(--ink-3);
+}
+.mockup .char-count {
+  font-size: 10px;
+  color: var(--ink-4);
+}
+.mockup .editor-wrapper {
   margin-top: 12px;
-  padding: 16px 20px;
-  background: var(--paper-inset);
   border: 1px solid rgba(28, 25, 23, 0.08);
-  font-size: 14px;
-  line-height: 1.65;
-  color: var(--ink-2);
 }
-.mockup .begrunnelse-preview p {
-  margin: 0 0 0.6em;
+.mockup .editor-wrapper:focus-within {
+  border-color: rgba(28, 25, 23, 0.2);
 }
-.mockup .begrunnelse-preview p:last-child {
-  margin-bottom: 0;
-}
-/* Locked value tokens */
-.mockup .begrunnelse-preview .locked-value {
+/* Locked value tokens in editor */
+.mockup .locked-value {
   display: inline;
   font-family: 'JetBrains Mono', monospace;
   font-size: 12px;
@@ -539,9 +559,9 @@
   border-radius: 2px;
   white-space: nowrap;
 }
-.mockup .begrunnelse-preview .locked-value--belop,
-.mockup .begrunnelse-preview .locked-value--dager,
-.mockup .begrunnelse-preview .locked-value--prosent {
+.mockup .locked-value--belop,
+.mockup .locked-value--dager,
+.mockup .locked-value--prosent {
   background: rgba(184, 134, 11, 0.08);
   color: var(--ochre);
   border: 1px solid rgba(184, 134, 11, 0.15);
