@@ -13,7 +13,15 @@
   import CaseAnchor from './CaseAnchor.svelte';
   import { toggleChoice } from './utils.js';
 
-  let { onclose, onsend }: { onclose: () => void; onsend: () => void } = $props();
+  let {
+    onclose,
+    onsend,
+    onactions,
+  }: {
+    onclose: () => void;
+    onsend: () => void;
+    onactions?: (a: { canSend: boolean; send: () => void }) => void;
+  } = $props();
 
   const d = store.tracks.ansvar;
 
@@ -58,6 +66,17 @@
     if (resultat === 'godkjent') return { ikon: Check, label: 'Godkjent', color: 'var(--green)' };
     if (resultat === 'frafalt') return { ikon: Undo2, label: 'Frafalt', color: 'var(--ink-3)' };
     return { ikon: X, label: 'Avslått', color: 'var(--red)' };
+  });
+
+  // Expose actions to parent (for sticky ActionBar)
+  $effect(() => {
+    onactions?.({
+      canSend: allAnswered,
+      send: () => {
+        store.sendGrunnlagSvar(resultat as 'godkjent' | 'avslatt' | 'frafalt');
+        onsend();
+      },
+    });
   });
 </script>
 
@@ -187,16 +206,6 @@
           Grunnlag anerkjent. Vederlag og frist behandles prinsipalt.
         </p>
       {/if}
-    </div>
-
-    <div class="send-row">
-      <button
-        class="btn btn-primary"
-        onclick={() => {
-          store.sendGrunnlagSvar(resultat as 'godkjent' | 'avslatt' | 'frafalt');
-          onsend();
-        }}>Send svar</button
-      >
     </div>
   {/if}
 </div>

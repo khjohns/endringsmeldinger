@@ -11,6 +11,9 @@
     VederlagDomainConfig,
     BelopVurdering,
   } from '$lib/domain/vederlagDomain';
+  import { generateVederlagResponseBegrunnelse } from '$lib/domain/begrunnelse/vederlagBegrunnelse';
+  import type { VederlagResponseInput } from '$lib/domain/begrunnelse/vederlagBegrunnelse';
+  import { tokensToHtml } from '$lib/editor/tokenConverter';
   import { store } from './store.svelte.js';
   import { TE, BH } from './data.js';
   import { fmt } from './utils.js';
@@ -18,7 +21,15 @@
   import CaseAnchor from './CaseAnchor.svelte';
   import { toggleChoice } from './utils.js';
 
-  let { onclose, onsend }: { onclose: () => void; onsend: () => void } = $props();
+  let {
+    onclose,
+    onsend,
+    onactions,
+  }: {
+    onclose: () => void;
+    onsend: () => void;
+    onactions?: (a: { canSend: boolean; send: () => void }) => void;
+  } = $props();
 
   const d = store.tracks.vederlag;
 
@@ -78,6 +89,42 @@
     if (akseptererMetode === undefined) return false;
     if (!erKravlinjeGyldig(hovedkravVurdering, hovedkravGodkjentBelop)) return false;
     return true;
+  });
+
+  // Auto-begrunnelse
+  const autoBegrunnelseHtml = $derived.by(() => {
+    if (akseptererMetode === undefined || hovedkravVurdering === undefined) return '';
+    const input: VederlagResponseInput = {
+      metode: domainConfig.metode,
+      hovedkravBelop: domainConfig.hovedkravBelop,
+      harRiggKrav: false,
+      harProduktivitetKrav: false,
+      erGrunnlagPrekludert: domainConfig.grunnlagVarsletForSent,
+      erGrunnlagAvslatt: domainConfig.grunnlagStatus === 'avslatt',
+      hovedkravVarsletITide,
+      akseptererMetode: akseptererMetode!,
+      kreverJustertEp: false,
+      holdTilbake: false,
+      hovedkravVurdering: hovedkravVurdering!,
+      hovedkravGodkjentBelop,
+      totalKrevd: computed.totalKrevdInklPrekludert,
+      totalGodkjent: computed.totalGodkjent,
+      totalGodkjentSubsidiaer: computed.totalGodkjentInklPrekludert,
+      harPrekludertKrav: computed.harPrekludertKrav,
+    };
+    const tokens = generateVederlagResponseBegrunnelse(input, { useTokens: true });
+    return tokensToHtml(tokens);
+  });
+
+  // Expose actions to parent (for sticky ActionBar)
+  $effect(() => {
+    onactions?.({
+      canSend: allAnswered,
+      send: () => {
+        store.sendVederlagSvar(computed.totalGodkjent);
+        onsend();
+      },
+    });
   });
 
   const vurderingOptions: { value: BelopVurdering; label: string; cls: string }[] = [
@@ -263,15 +310,17 @@
       {/if}
     </div>
 
-    <div class="send-row">
-      <button
-        class="btn btn-primary"
-        onclick={() => {
-          store.sendVederlagSvar(computed.totalGodkjent);
-          onsend();
-        }}>Send svar</button
-      >
-    </div>
+    {#if autoBegrunnelseHtml}
+      <div class="begrunnelse-section">
+        <div class="question-header">
+          <span class="question-label">Begrunnelse</span>
+          <span class="font-mono question-ref">Auto-generert</span>
+        </div>
+        <div class="font-serif begrunnelse-preview">
+          {@html autoBegrunnelseHtml}
+        </div>
+      </div>
+    {/if}
   {/if}
 </div>
 

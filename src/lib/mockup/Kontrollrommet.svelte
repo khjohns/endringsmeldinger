@@ -22,6 +22,7 @@
   let mode: Mode = $state('read');
   let mobileView: MobileView = $state('matrix');
   let rightPanelOpen = $state(false);
+  let formActions = $state<{ canSend: boolean; send: () => void } | null>(null);
 
   const d = $derived(store.tracks[sel]);
 
@@ -34,7 +35,7 @@
     sel = key;
     mode = 'form';
     mobileView = 'detail';
-    rTab = 'begrunnelse';
+    rTab = 'bestemmelser';
   }
 
   function goRead() {
@@ -93,17 +94,25 @@
         {#if mode === 'read'}
           <CenterRead {d} {sel} {role} onform={goForm} />
         {:else if sel === 'frist' && role === 'BH'}
-          <FristForm onclose={goRead} onsend={handleSend} />
+          <FristForm onclose={goRead} onsend={handleSend} onactions={(a) => (formActions = a)} />
         {:else if sel === 'frist' && role === 'TE'}
-          <TeFristForm onclose={goRead} onsend={handleSend} />
+          <TeFristForm onclose={goRead} onsend={handleSend} onactions={(a) => (formActions = a)} />
         {:else if sel === 'vederlag' && role === 'BH'}
-          <VederlagForm onclose={goRead} onsend={handleSend} />
+          <VederlagForm onclose={goRead} onsend={handleSend} onactions={(a) => (formActions = a)} />
         {:else if sel === 'vederlag' && role === 'TE'}
-          <TeVederlagForm onclose={goRead} onsend={handleSend} />
+          <TeVederlagForm
+            onclose={goRead}
+            onsend={handleSend}
+            onactions={(a) => (formActions = a)}
+          />
         {:else if sel === 'ansvar' && role === 'BH'}
-          <GrunnlagForm onclose={goRead} onsend={handleSend} />
+          <GrunnlagForm onclose={goRead} onsend={handleSend} onactions={(a) => (formActions = a)} />
         {:else if sel === 'ansvar' && role === 'TE'}
-          <TeGrunnlagForm onclose={goRead} onsend={handleSend} />
+          <TeGrunnlagForm
+            onclose={goRead}
+            onsend={handleSend}
+            onactions={(a) => (formActions = a)}
+          />
         {/if}
 
         <ActionBar
@@ -115,6 +124,8 @@
           {prinF}
           oncloseform={goRead}
           ontogglecontext={() => (rightPanelOpen = !rightPanelOpen)}
+          onsend={() => formActions?.send()}
+          canSend={formActions?.canSend ?? false}
         />
       </main>
 

@@ -510,6 +510,51 @@
   margin-top: 24px;
 }
 
+/* ── Inline begrunnelse (auto-generert) ── */
+.mockup .begrunnelse-section {
+  margin-top: 24px;
+}
+.mockup .begrunnelse-preview {
+  margin-top: 12px;
+  padding: 16px 20px;
+  background: var(--paper-inset);
+  border: 1px solid rgba(28, 25, 23, 0.08);
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--ink-2);
+}
+.mockup .begrunnelse-preview p {
+  margin: 0 0 0.6em;
+}
+.mockup .begrunnelse-preview p:last-child {
+  margin-bottom: 0;
+}
+/* Locked value tokens */
+.mockup .begrunnelse-preview .locked-value {
+  display: inline;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 1px 4px;
+  border-radius: 2px;
+  white-space: nowrap;
+}
+.mockup .begrunnelse-preview .locked-value--belop {
+  background: rgba(184, 134, 11, 0.08);
+  color: var(--ochre);
+  border: 1px solid rgba(184, 134, 11, 0.15);
+}
+.mockup .begrunnelse-preview .locked-value--dager {
+  background: rgba(184, 134, 11, 0.08);
+  color: var(--ochre);
+  border: 1px solid rgba(184, 134, 11, 0.15);
+}
+.mockup .begrunnelse-preview .locked-value--prosent {
+  background: rgba(184, 134, 11, 0.08);
+  color: var(--ochre);
+  border: 1px solid rgba(184, 134, 11, 0.15);
+}
+
 /* ── Scrollbar ── */
 .mockup ::-webkit-scrollbar {
   width: 5px;
