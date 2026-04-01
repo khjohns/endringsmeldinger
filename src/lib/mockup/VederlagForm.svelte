@@ -4,6 +4,7 @@
     beregnAlt,
     getDefaults,
     erSubsidiaer as erSubsidiaerFn,
+    erHelVederlagSubsidiaerPgaGrunnlag,
     erKravlinjeGyldig,
   } from '$lib/domain/vederlagDomain';
   import type {
@@ -14,6 +15,12 @@
   import { generateVederlagResponseBegrunnelse } from '$lib/domain/begrunnelse/vederlagBegrunnelse';
   import type { VederlagResponseInput } from '$lib/domain/begrunnelse/vederlagBegrunnelse';
   import { tokensToHtml } from '$lib/editor/tokenConverter';
+  import { isHtmlEmpty } from '$lib/utils/formatters';
+  import {
+    VEDERLAGSMETODER_OPTIONS,
+    getVederlagsmetodeShortLabel,
+  } from '$lib/constants/paymentMethods';
+  import type { VederlagsMetode } from '$lib/types/timeline';
   import RichTextEditor from '$lib/components/primitives/RichTextEditor.svelte';
   import LockedValueNode from '$lib/editor/LockedValueNode';
   import { RefreshCw } from 'lucide-svelte';
@@ -55,27 +62,58 @@
 
   // Port 1: Preklusjon
   let hovedkravVarsletITide = $state<boolean | undefined>(initialDefaults.hovedkravVarsletITide);
+  let riggVarsletITide = $state<boolean | undefined>(initialDefaults.riggVarsletITide);
+  let produktivitetVarsletITide = $state<boolean | undefined>(
+    initialDefaults.produktivitetVarsletITide
+  );
 
   // Port 2: Metode
   let akseptererMetode = $state<boolean | undefined>(initialDefaults.akseptererMetode);
+  let oensketMetode = $state<VederlagsMetode | undefined>(initialDefaults.oensketMetode);
 
   // Port 3: Beløp
   let hovedkravVurdering = $state<BelopVurdering | undefined>(initialDefaults.hovedkravVurdering);
   let hovedkravGodkjentBelop = $state<number | undefined>(initialDefaults.hovedkravGodkjentBelop);
+  let riggVurdering = $state<BelopVurdering | undefined>(initialDefaults.riggVurdering);
+  let riggGodkjentBelop = $state<number | undefined>(initialDefaults.riggGodkjentBelop);
+  let produktivitetVurdering = $state<BelopVurdering | undefined>(
+    initialDefaults.produktivitetVurdering
+  );
+  let produktivitetGodkjentBelop = $state<number | undefined>(
+    initialDefaults.produktivitetGodkjentBelop
+  );
+
+  // Begrunnelse state (declared before formState which references it)
+  let begrunnelseHtml = $state('');
+  let userHasEdited = $state(false);
+  let editorApi: { setContent: (html: string) => void } | undefined;
+  let prevHtml: string | undefined;
+  let charCount = $state(0);
 
   const formState: VederlagFormState = $derived({
     hovedkravVarsletITide,
-    riggVarsletITide: undefined,
-    produktivitetVarsletITide: undefined,
+    riggVarsletITide,
+    produktivitetVarsletITide,
     akseptererMetode,
+    oensketMetode,
     holdTilbake: false,
     hovedkravVurdering,
     hovedkravGodkjentBelop,
-    begrunnelse: '',
+    riggVurdering,
+    riggGodkjentBelop,
+    produktivitetVurdering,
+    produktivitetGodkjentBelop,
+    begrunnelse: begrunnelseHtml,
   });
 
   const computed = $derived(beregnAlt(formState, domainConfig));
   const isSubsidiaer = $derived(erSubsidiaerFn(domainConfig));
+
+  const subsidiærGrunn = $derived.by(() => {
+    if (domainConfig.grunnlagStatus === 'avslatt') return 'grunnlag_avslatt' as const;
+    if (erHelVederlagSubsidiaerPgaGrunnlag(domainConfig)) return 'grunnlag_32_2' as const;
+    return null;
+  });
 
   const resultat = $derived.by(() => {
     const r = computed.prinsipaltResultat;
@@ -85,35 +123,145 @@
     return { ikon: X, label: 'Avslått', color: 'var(--red)' };
   });
 
-  const allAnswered = $derived.by(() => {
-    if (computed.harPreklusjonsSteg && hovedkravVarsletITide === undefined) return false;
-    if (akseptererMetode === undefined) return false;
-    if (!erKravlinjeGyldig(hovedkravVurdering, hovedkravGodkjentBelop)) return false;
-    return true;
+  // Data-driven preklusjonslinjer (matches production BhVederlagResponse)
+  const preklusjonsLinjer = $derived.by(() => {
+    const linjer: Array<{ key: string; label: string; ref: string; value: boolean | undefined }> =
+      [];
+    if (computed.har34_1_2_Preklusjon) {
+      linjer.push({
+        key: 'hovedkrav',
+        label: 'Varsling hovedkrav',
+        ref: '§ 34.1.2',
+        value: hovedkravVarsletITide,
+      });
+    }
+    if (domainConfig.harRiggKrav) {
+      linjer.push({
+        key: 'rigg',
+        label: 'Varsling rigg og drift',
+        ref: '§ 34.1.3',
+        value: riggVarsletITide,
+      });
+    }
+    if (domainConfig.harProduktivitetKrav) {
+      linjer.push({
+        key: 'produktivitet',
+        label: 'Varsling produktivitetstap',
+        ref: '§ 34.1.3',
+        value: produktivitetVarsletITide,
+      });
+    }
+    return linjer;
   });
 
-  // --- Begrunnelse editor ---
-  let begrunnelseHtml = $state('');
-  let userHasEdited = $state(false);
-  let editorApi: { setContent: (html: string) => void } | undefined;
-  let prevHtml: string | undefined;
-  let charCount = $state(0);
+  function handlePreklusjon(key: string, value: boolean | undefined) {
+    if (key === 'hovedkrav') hovedkravVarsletITide = value;
+    else if (key === 'rigg') riggVarsletITide = value;
+    else produktivitetVarsletITide = value;
+  }
+
+  // Data-driven kravlinjer (matches production BhVederlagResponse)
+  interface KravlinjeItem {
+    key: string;
+    title: string;
+    paragrafRef: string;
+    krevdBelop: number | undefined;
+    prekludert: boolean;
+    vurdering: BelopVurdering | undefined;
+    godkjentBelop: number | undefined;
+  }
+
+  const kravlinjer = $derived.by(() => {
+    const linjer: KravlinjeItem[] = [
+      {
+        key: 'hovedkrav',
+        title: 'Hovedkrav',
+        paragrafRef: '§ 34.1.1–34.1.2',
+        krevdBelop: domainConfig.hovedkravBelop,
+        prekludert: computed.hovedkravPrekludert,
+        vurdering: hovedkravVurdering,
+        godkjentBelop: hovedkravGodkjentBelop,
+      },
+    ];
+    if (domainConfig.harRiggKrav) {
+      linjer.push({
+        key: 'rigg',
+        title: 'Rigg og drift',
+        paragrafRef: '§ 34.1.3',
+        krevdBelop: domainConfig.riggBelop,
+        prekludert: computed.riggPrekludert,
+        vurdering: riggVurdering,
+        godkjentBelop: riggGodkjentBelop,
+      });
+    }
+    if (domainConfig.harProduktivitetKrav) {
+      linjer.push({
+        key: 'produktivitet',
+        title: 'Produktivitetstap',
+        paragrafRef: '§ 34.1.3',
+        krevdBelop: domainConfig.produktivitetBelop,
+        prekludert: computed.produktivitetPrekludert,
+        vurdering: produktivitetVurdering,
+        godkjentBelop: produktivitetGodkjentBelop,
+      });
+    }
+    return linjer;
+  });
+
+  function handleKravlinjeVurdering(key: string, v: BelopVurdering | undefined) {
+    if (key === 'hovedkrav') hovedkravVurdering = v;
+    else if (key === 'rigg') riggVurdering = v;
+    else produktivitetVurdering = v;
+  }
+
+  function handleKravlinjeBelop(key: string, v: number | undefined) {
+    if (key === 'hovedkrav') hovedkravGodkjentBelop = v;
+    else if (key === 'rigg') riggGodkjentBelop = v;
+    else produktivitetGodkjentBelop = v;
+  }
+
+  // Alternative metode options (ekskluderer TEs metode)
+  const metodeAlternativer = $derived(
+    VEDERLAGSMETODER_OPTIONS.filter(
+      (o): o is { value: string; label: string } => !!o.value && o.value !== domainConfig.metode
+    )
+  );
+
+  // Validation (matches production kanSende)
+  const allAnswered = $derived.by(() => {
+    if (computed.harPreklusjonsSteg && preklusjonsLinjer.some((l) => l.value === undefined))
+      return false;
+    if (akseptererMetode === undefined) return false;
+    if (akseptererMetode === false && !oensketMetode) return false;
+    if (kravlinjer.some((l) => !erKravlinjeGyldig(l.vurdering, l.godkjentBelop))) return false;
+    if (isHtmlEmpty(begrunnelseHtml)) return false;
+    return true;
+  });
 
   const autoBegrunnelseHtml = $derived.by(() => {
     if (akseptererMetode === undefined || hovedkravVurdering === undefined) return '';
     const input: VederlagResponseInput = {
       metode: domainConfig.metode,
       hovedkravBelop: domainConfig.hovedkravBelop,
-      harRiggKrav: false,
-      harProduktivitetKrav: false,
+      riggBelop: domainConfig.riggBelop,
+      produktivitetBelop: domainConfig.produktivitetBelop,
+      harRiggKrav: domainConfig.harRiggKrav,
+      harProduktivitetKrav: domainConfig.harProduktivitetKrav,
       erGrunnlagPrekludert: domainConfig.grunnlagVarsletForSent,
       erGrunnlagAvslatt: domainConfig.grunnlagStatus === 'avslatt',
       hovedkravVarsletITide,
+      riggVarsletITide,
+      produktivitetVarsletITide,
       akseptererMetode: akseptererMetode!,
-      kreverJustertEp: false,
+      oensketMetode,
+      kreverJustertEp: domainConfig.kreverJustertEp,
       holdTilbake: false,
       hovedkravVurdering: hovedkravVurdering!,
       hovedkravGodkjentBelop,
+      riggVurdering,
+      riggGodkjentBelop,
+      produktivitetVurdering,
+      produktivitetGodkjentBelop,
       totalKrevd: computed.totalKrevdInklPrekludert,
       totalGodkjent: computed.totalGodkjent,
       totalGodkjentSubsidiaer: computed.totalGodkjentInklPrekludert,
@@ -227,7 +375,9 @@
     </div>
     <div class="font-mono context-value">{fmt(d.te.value!)},-</div>
     <div class="context-meta">
-      <span class="font-mono context-metode">Regningsarbeid (§ 34.4)</span>
+      <span class="font-mono context-metode"
+        >{getVederlagsmetodeShortLabel(domainConfig.metode)} (§ 34.4)</span
+      >
     </div>
     <p class="font-serif context-text">{d.teT}</p>
   </div>
@@ -238,88 +388,121 @@
     <div class="sub-banner">
       <Stamp variant="ochre" small flat>Subsidiært</Stamp>
       <p class="font-serif sub-banner-text">
-        Grunnlaget er avslått. Vurderingen nedenfor gjelder for det tilfelle at grunnlaget likevel
-        godkjennes.
+        {#if subsidiærGrunn === 'grunnlag_avslatt'}
+          Grunnlaget er avslått. Vurderingen nedenfor gjelder for det tilfelle at grunnlaget likevel
+          godkjennes.
+        {:else if subsidiærGrunn === 'grunnlag_32_2'}
+          Grunnlaget ble varslet for sent (§32.2). Hele vederlagskravet behandles subsidiært.
+        {/if}
       </p>
     </div>
   {/if}
 
+  <!-- Preklusjon (data-drevet) -->
   {#if computed.harPreklusjonsSteg}
-    {@render yesNoPill(
-      'Varsling hovedkrav',
-      '§ 34.1.2',
-      'Ble vederlagskravet varslet uten ugrunnet opphold?',
-      hovedkravVarsletITide,
-      'Ja, i tide',
-      'Nei, prekludert',
-      (v) => (hovedkravVarsletITide = v),
-      {
-        alertHtml:
-          '<strong>Preklusjon</strong> — Vederlagskravet vurderes som for sent varslet. Kravet er tapt (§ 34.1.2).',
-      }
-    )}
+    {#each preklusjonsLinjer as linje (linje.key)}
+      {@render yesNoPill(
+        linje.label,
+        linje.ref,
+        'Ble kravet varslet uten ugrunnet opphold?',
+        linje.value,
+        'Ja, i tide',
+        'Nei, prekludert',
+        (v) => handlePreklusjon(linje.key, v),
+        {
+          alertHtml: `<strong>Preklusjon</strong> — Kravet vurderes som for sent varslet (${linje.ref}).`,
+        }
+      )}
+    {/each}
     <div class="divider"></div>
   {/if}
 
+  <!-- Beregningsmetode -->
   {@render yesNoPill(
     'Beregningsmetode',
     '§ 34.2',
-    'Aksepterer du TE sin beregningsmetode (regningsarbeid)?',
+    `Aksepterer du ${getVederlagsmetodeShortLabel(domainConfig.metode)?.toLowerCase() ?? 'beregningsmetoden'}?`,
     akseptererMetode,
     'Ja, akseptert',
     'Nei, bestrides',
-    (v) => (akseptererMetode = v)
+    (v) => {
+      akseptererMetode = v;
+      if (v === true) oensketMetode = undefined;
+    }
   )}
 
-  <div class="divider"></div>
-
-  <div class="question-block">
-    <div class="question-header">
-      <span class="question-label">Hovedkrav</span>
-      <span class="font-mono question-ref">§ 34.1.1–34.1.2</span>
-    </div>
-    {#if computed.hovedkravPrekludert}
-      <Stamp variant="red" small flat>Prekludert</Stamp>
-    {:else}
-      <div class="kravlinje-header">
-        <span class="font-mono kravlinje-krevd">Krevd: {fmt(domainConfig.hovedkravBelop)},-</span>
-      </div>
-      <div class="vurdering-row">
-        {#each vurderingOptions as opt}
+  {#if akseptererMetode === false}
+    <div class="foretrukket-metode">
+      <span class="foretrukket-label">Foretrukket metode:</span>
+      <div class="pill-row">
+        {#each metodeAlternativer as alt}
           <button
             class="pill"
-            class:yes={opt.cls === 'yes' && hovedkravVurdering === opt.value}
-            class:partial={opt.cls === 'partial' && hovedkravVurdering === opt.value}
-            class:no={opt.cls === 'no' && hovedkravVurdering === opt.value}
+            class:yes={oensketMetode === alt.value}
             onclick={() =>
-              (hovedkravVurdering = hovedkravVurdering === opt.value ? undefined : opt.value)}
-            >{opt.label}</button
+              (oensketMetode =
+                oensketMetode === alt.value ? undefined : (alt.value as VederlagsMetode))}
+            >{alt.label}</button
           >
         {/each}
       </div>
-      {#if hovedkravVurdering === 'delvis'}
-        <div class="measurement-row">
-          <div>
-            <div class="measurement-input-label">Godkjent beløp</div>
-            <input
-              type="number"
-              min="0"
-              max={domainConfig.hovedkravBelop}
-              value={hovedkravGodkjentBelop ?? ''}
-              oninput={(e) => {
-                const v = parseInt(e.currentTarget.value);
-                hovedkravGodkjentBelop = isNaN(v) ? undefined : v;
-              }}
-              placeholder="beløp"
-              class="font-mono measurement-input"
-            />
-          </div>
-        </div>
-      {/if}
-    {/if}
-  </div>
+    </div>
+  {/if}
 
-  {#if allAnswered}
+  <div class="divider"></div>
+
+  <!-- Kravlinjer (data-drevet) -->
+  {#each kravlinjer as linje (linje.key)}
+    <div class="question-block">
+      <div class="question-header">
+        <span class="question-label">{linje.title}</span>
+        <span class="font-mono question-ref">{linje.paragrafRef}</span>
+      </div>
+      {#if linje.prekludert}
+        <Stamp variant="red" small flat>Prekludert</Stamp>
+      {:else}
+        <div class="kravlinje-header">
+          <span class="font-mono kravlinje-krevd">Krevd: {fmt(linje.krevdBelop ?? 0)},-</span>
+        </div>
+        <div class="vurdering-row">
+          {#each vurderingOptions as opt}
+            <button
+              class="pill"
+              class:yes={opt.cls === 'yes' && linje.vurdering === opt.value}
+              class:partial={opt.cls === 'partial' && linje.vurdering === opt.value}
+              class:no={opt.cls === 'no' && linje.vurdering === opt.value}
+              onclick={() =>
+                handleKravlinjeVurdering(
+                  linje.key,
+                  linje.vurdering === opt.value ? undefined : opt.value
+                )}>{opt.label}</button
+            >
+          {/each}
+        </div>
+        {#if linje.vurdering === 'delvis'}
+          <div class="measurement-row">
+            <div>
+              <div class="measurement-input-label">Godkjent beløp</div>
+              <input
+                type="number"
+                min="0"
+                max={linje.krevdBelop}
+                value={linje.godkjentBelop ?? ''}
+                oninput={(e) => {
+                  const v = parseInt(e.currentTarget.value);
+                  handleKravlinjeBelop(linje.key, isNaN(v) ? undefined : v);
+                }}
+                placeholder="beløp"
+                class="font-mono measurement-input"
+              />
+            </div>
+          </div>
+        {/if}
+      {/if}
+    </div>
+  {/each}
+
+  {#if allAnswered || (akseptererMetode !== undefined && hovedkravVurdering !== undefined)}
     <div class="divider"></div>
     <div class="result-box" style:border-color={resultat.color}>
       <div class="result-header" style:color={resultat.color}>
@@ -423,5 +606,18 @@
     font-size: 13px;
     font-weight: 600;
     color: var(--ink-2);
+  }
+  .foretrukket-metode {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 12px;
+  }
+  .foretrukket-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--ink-4);
   }
 </style>
