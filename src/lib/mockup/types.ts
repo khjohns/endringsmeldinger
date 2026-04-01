@@ -46,10 +46,10 @@ export interface TrackBH {
   unit?: string;
 }
 
-export interface Track {
+/** Track-data uten icon — trygg for structuredClone */
+export interface TrackData {
   label: string;
   num: string;
-  icon: ComponentType;
   type: TrackType;
   status: TrackStatus;
   te: TrackTE;
@@ -62,6 +62,11 @@ export interface Track {
   note: InternalNote | null;
   draft: Draft | null;
   draftState: DraftState;
+}
+
+/** TrackData + icon (sammensatt i komponenter) */
+export interface Track extends TrackData {
+  icon: ComponentType;
 }
 
 export interface HistoryEvent {
