@@ -1,6 +1,6 @@
 <script lang="ts">
   import { Check, XSquare, Send } from 'lucide-svelte';
-  import { TE, S } from './data.js';
+  import { TE } from './data.js';
   import { fmt } from './utils.js';
   import type { Mode, Role } from './types.js';
 

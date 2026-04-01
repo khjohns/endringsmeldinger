@@ -12,8 +12,7 @@
     RotateCcw,
     RotateCw,
   } from 'lucide-svelte';
-  import { S, EVT } from './data.js';
-  import { groupByDate } from './utils.js';
+  import { S, EVT_GROUPED } from './data.js';
   import DateSeparator from './DateSeparator.svelte';
   import type { Track, Mode, RightTab } from './types.js';
 
@@ -36,7 +35,6 @@
   const readTabs: RightTab[] = ['bestemmelser', 'historikk', 'vedlegg'];
   const formTabs: RightTab[] = ['begrunnelse', 'historikk', 'filer'];
   const tabs = $derived(mode === 'read' ? readTabs : formTabs);
-  const grouped = $derived(groupByDate(EVT));
 
   const tabLabels: Record<RightTab, string> = {
     bestemmelser: 'Bestemmelser',
@@ -49,8 +47,20 @@
   const toolbarIcons = [Bold, Italic, List, ListOrdered, RotateCcw, RotateCw];
 </script>
 
+{#snippet attList(showPages: boolean)}
+  {#each d.att as v}
+    <div class="att" style="margin-bottom: {S.sm}px">
+      <Paperclip size={14} style="color: var(--ink-4); flex-shrink: 0" />
+      <div class="att-info">
+        <div class="att-name">{v.n}</div>
+        {#if showPages && v.p}<div class="font-mono att-pages">{v.p} sider</div>{/if}
+      </div>
+      <ExternalLink size={14} style="color: var(--ink-4); flex-shrink: 0" />
+    </div>
+  {/each}
+{/snippet}
+
 <aside class="right-sidebar">
-  <!-- Tabs -->
   <div class="tab-bar">
     {#each tabs as t}
       <button class="tab" class:on={tab === t} onclick={() => ontabchange(t)}>
@@ -60,7 +70,6 @@
   </div>
 
   <div class="tab-content">
-    <!-- Bestemmelser -->
     {#if tab === 'bestemmelser'}
       {#each d.best as b}
         <div class="best-card" style="margin-bottom: {S.lg}px">
@@ -73,11 +82,10 @@
       {/each}
     {/if}
 
-    <!-- Historikk -->
     {#if tab === 'historikk'}
       <div class="history" style="position: relative">
         <div class="history-line"></div>
-        {#each Object.entries(grouped) as [date, events], gi}
+        {#each Object.entries(EVT_GROUPED) as [date, events], gi}
           <DateSeparator {date} />
           {#each events as e}
             <div
@@ -106,18 +114,8 @@
       </div>
     {/if}
 
-    <!-- Vedlegg -->
     {#if tab === 'vedlegg'}
-      {#each d.att as v}
-        <div class="att" style="margin-bottom: {S.sm}px">
-          <Paperclip size={14} style="color: var(--ink-4); flex-shrink: 0" />
-          <div class="att-info">
-            <div class="att-name">{v.n}</div>
-            {#if v.p}<div class="font-mono att-pages">{v.p} sider</div>{/if}
-          </div>
-          <ExternalLink size={14} style="color: var(--ink-4); flex-shrink: 0" />
-        </div>
-      {/each}
+      {@render attList(true)}
 
       {#if d.note}
         <div class="note-sep"></div>
@@ -131,12 +129,11 @@
         </div>
       {/if}
 
-      <button class="add-note-btn">
+      <button class="dashed-action-btn">
         <Plus size={14} /> Nytt notat
       </button>
     {/if}
 
-    <!-- Begrunnelse (form mode) -->
     {#if tab === 'begrunnelse'}
       <div class="reasoning-header">
         <span class="font-mono reasoning-label">Ditt svar</span>
@@ -160,18 +157,9 @@
       </p>
     {/if}
 
-    <!-- Filer (form mode) -->
     {#if tab === 'filer'}
-      {#each d.att as v}
-        <div class="att" style="margin-bottom: {S.sm}px">
-          <Paperclip size={14} style="color: var(--ink-4); flex-shrink: 0" />
-          <div class="att-info">
-            <div class="att-name">{v.n}</div>
-          </div>
-          <ExternalLink size={14} style="color: var(--ink-4); flex-shrink: 0" />
-        </div>
-      {/each}
-      <button class="upload-btn">
+      {@render attList(false)}
+      <button class="dashed-action-btn" style="margin-top: 16px; padding: 12px 16px">
         <Upload size={14} /> Last opp nytt vedlegg
       </button>
     {/if}
@@ -313,23 +301,23 @@
     font-style: italic;
     color: var(--draft);
   }
-  .add-note-btn {
+  .dashed-action-btn {
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 8px;
     margin-top: 12px;
     padding: 8px 12px;
+    width: 100%;
     font-size: 12px;
     font-weight: 700;
     color: var(--ink-3);
-    background: transparent;
+    background: var(--paper);
     border: 2px dashed var(--ink-4);
     cursor: pointer;
-    width: 100%;
-    justify-content: center;
     transition: all 80ms;
   }
-  .add-note-btn:hover {
+  .dashed-action-btn:hover {
     border-color: var(--ink);
     color: var(--ink);
   }
@@ -398,27 +386,5 @@
     align-items: center;
     gap: 8px;
     color: var(--ink-4);
-  }
-
-  /* Filer */
-  .upload-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    margin-top: 16px;
-    padding: 12px 16px;
-    width: 100%;
-    font-size: 12px;
-    font-weight: 700;
-    color: var(--ink-3);
-    background: var(--paper);
-    border: 2px dashed var(--ink-4);
-    cursor: pointer;
-    transition: all 80ms;
-  }
-  .upload-btn:hover {
-    border-color: var(--ink);
-    color: var(--ink);
   }
 </style>

@@ -2,6 +2,7 @@
   import { S, TE } from './data.js';
   import { fmt } from './utils.js';
   import Stamp from './Stamp.svelte';
+  import CaseAnchor from './CaseAnchor.svelte';
   import type { Track, TrackKey } from './types.js';
 
   let {
@@ -18,19 +19,12 @@
 </script>
 
 <div class="form-content">
-  <!-- Case anchor -->
-  <div class="case-anchor">
-    <span class="font-mono case-badge">KOE-104</span>
-    <span class="font-serif case-subtitle"
-      >Uforutsette grunnforhold — Fjell i byggegrop akse 1–3</span
-    >
-  </div>
+  <CaseAnchor />
 
-  <!-- TE context -->
   <div class="te-context">
     <div class="context-header">
       <div class="context-label-row">
-        <svelte:component this={d.icon} size={14} style="color: var(--ink-3)" />
+        <d.icon size={14} style="color: var(--ink-3)" />
         <span class="context-label">{d.label} — {TE}s krav</span>
       </div>
       <span class="font-mono context-ref">{d.best[0].ref}</span>
@@ -45,7 +39,6 @@
 
   <div class="bh-heading">Byggherrens standpunkt</div>
 
-  <!-- Q1: Fremsatt krav -->
   <div class="question-block">
     <div class="question-header">
       <span class="question-label">Fremsatt krav</span>
@@ -64,7 +57,6 @@
 
   <div class="divider"></div>
 
-  <!-- Q2: Årsakssammenheng -->
   <div class="question-block">
     <div class="question-header">
       <span class="question-label">Årsakssammenheng</span>
@@ -86,7 +78,6 @@
     </div>
   </div>
 
-  <!-- Q3: Utmåling (numeric only) -->
   {#if d.type === 'numeric'}
     <div class="divider"></div>
     <div class="question-block">
@@ -124,23 +115,6 @@
     max-width: 840px;
     margin: 0 auto;
     padding: 32px 40px 120px;
-  }
-  .case-anchor {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 24px;
-  }
-  .case-badge {
-    font-size: 12px;
-    font-weight: 700;
-    background: var(--plate);
-    color: white;
-    padding: 2px 8px;
-  }
-  .case-subtitle {
-    font-size: 14px;
-    color: var(--ink-3);
   }
   .te-context {
     margin-bottom: 40px;

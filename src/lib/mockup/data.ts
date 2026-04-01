@@ -1,5 +1,6 @@
 import { Scale, Banknote, Clock } from 'lucide-svelte';
 import type { Track, HistoryEvent, TrackKey } from './types.js';
+import { groupByDate } from './utils.js';
 
 export const TE = 'Byggnor';
 export const BH = 'Kystveien Eiendom';
@@ -140,3 +141,5 @@ export const EVT: HistoryEvent[] = [
   },
   { d: '12.04', t: '11:00', a: 'TE', n: TE, s: 'Opprettet', x: 'KOE-104.' },
 ];
+
+export const EVT_GROUPED = groupByDate(EVT);
