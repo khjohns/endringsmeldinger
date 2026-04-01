@@ -4,10 +4,12 @@
   import TeVederlagForm from '$lib/components/te-vederlag/TeVederlagForm.svelte';
   import FormPageHeader from '$lib/components/shared/FormPageHeader.svelte';
   import FormWithRightPanel from '$lib/components/shared/FormWithRightPanel.svelte';
+  import InlineBegrunnelse from '$lib/components/shared/InlineBegrunnelse.svelte';
   import type {
     VederlagSubmissionScenario,
     VederlagSubmissionDefaultsConfig,
   } from '$lib/domain/vederlagSubmissionDomain';
+  import { sporBestemmelser } from '$lib/utils/bestemmelser';
 
   import { projectToMeta } from '$lib/constants/projectMeta';
   import { projectStore } from '$lib/stores/project.svelte';
@@ -20,6 +22,7 @@
   const meta = $derived(projectToMeta(projectStore.current, prosjektId));
 
   const query = createCaseContextQuery(() => sakId);
+  const bestemmelser = sporBestemmelser('vederlag');
 
   // Derive scenario from timeline
   const vederlagData = $derived.by(() => {
@@ -100,18 +103,11 @@
 
 <PageLoadingShell loading={query.isLoading} error={query.isError}>
   <FormWithRightPanel
+    {bestemmelser}
     entries={vederlagData.entries}
-    bind:bhBegrunnelseHtml={begrunnelseHtml}
-    editorRolle="TE"
     {teNavn}
     {bhNavn}
     availableTags={aktiveTags}
-    submitLabel={formActions?.submitLabel}
-    submitDisabled={!formActions?.kanSende}
-    submitLoading={formActions?.submitting}
-    submitError={formActions?.submitError}
-    onsubmit={formActions?.onsubmit}
-    onavbryt={formActions?.onavbryt}
   >
     <FormPageHeader
       tilbakeHref="/{prosjektId}/{sakId}"
@@ -135,6 +131,17 @@
       bind:begrunnelseHtml
       onactions={(a) => (formActions = a)}
       onkravlinjer={(t) => (aktiveTags = t)}
+    />
+
+    <InlineBegrunnelse
+      bind:html={begrunnelseHtml}
+      label="Begrunnelse"
+      submitLabel={formActions?.submitLabel}
+      submitDisabled={!formActions?.kanSende}
+      submitLoading={formActions?.submitting}
+      submitError={formActions?.submitError}
+      onsubmit={formActions?.onsubmit}
+      onavbryt={formActions?.onavbryt}
     />
   </FormWithRightPanel>
 </PageLoadingShell>

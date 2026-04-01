@@ -22,6 +22,7 @@
   import { draftKey, loadDraft, saveDraft, clearDraft } from '$lib/utils/draft';
   import { useQueryClient } from '@tanstack/svelte-query';
   import { isHtmlEmpty } from '$lib/utils/formatters';
+  import { sporBestemmelser } from '$lib/utils/bestemmelser';
 
   import VederlagSammendrag from './VederlagSammendrag.svelte';
   import VederlagKonsekvens from './VederlagKonsekvens.svelte';
@@ -30,6 +31,7 @@
   import KravlinjeVurdering from './KravlinjeVurdering.svelte';
   import FormPageHeader from '$lib/components/shared/FormPageHeader.svelte';
   import FormWithRightPanel from '$lib/components/shared/FormWithRightPanel.svelte';
+  import InlineBegrunnelse from '$lib/components/shared/InlineBegrunnelse.svelte';
   import SectionHeading from '$lib/components/primitives/SectionHeading.svelte';
 
   interface KravData {
@@ -79,6 +81,7 @@
   }: Props = $props();
 
   const queryClient = useQueryClient();
+  const bestemmelser = sporBestemmelser('vederlag');
 
   // --- Draft ---
   interface VederlagResponseDraft {
@@ -405,21 +408,7 @@
   }
 </script>
 
-<FormWithRightPanel
-  entries={tidligereSvar}
-  bind:bhBegrunnelseHtml
-  {teNavn}
-  {bhNavn}
-  submitLabel={isUpdateMode ? 'Oppdater svar' : 'Send svar'}
-  submitDisabled={!kanSende}
-  submitLoading={submitting}
-  {submitError}
-  onsubmit={handleSubmit}
-  onavbryt={handleAvbryt}
-  showRegenerate={userHasEdited && !!autoBegrunnelseHtml}
-  onregenerate={handleRegenerate}
-  onuseredited={() => (userHasEdited = true)}
->
+<FormWithRightPanel {bestemmelser} entries={tidligereSvar} {teNavn} {bhNavn}>
   <FormPageHeader
     tilbakeHref="/{prosjektId}/{sakId}"
     tilbakeTekst="Tilbake til saksmappe"
@@ -496,6 +485,20 @@
     subsidiaertResultat={computed.subsidiaertResultat}
     totalGodkjentSubsidiaert={computed.totalGodkjentInklPrekludert}
     subsidiaerTriggers={computed.subsidiaerTriggers}
+  />
+
+  <!-- Begrunnelse (inline, under resultat) -->
+  <InlineBegrunnelse
+    bind:html={bhBegrunnelseHtml}
+    showRegenerate={userHasEdited && !!autoBegrunnelseHtml}
+    onregenerate={handleRegenerate}
+    onuseredited={() => (userHasEdited = true)}
+    submitLabel={isUpdateMode ? 'Oppdater svar' : 'Send svar'}
+    submitDisabled={!kanSende}
+    submitLoading={submitting}
+    {submitError}
+    onsubmit={handleSubmit}
+    onavbryt={handleAvbryt}
   />
 </FormWithRightPanel>
 
