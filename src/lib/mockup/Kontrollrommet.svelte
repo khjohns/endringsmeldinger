@@ -1,15 +1,15 @@
 <script lang="ts">
-  import { untrack } from 'svelte';
   import { DD } from './data.js';
   import Header from './Header.svelte';
   import ConsistencyStrip from './ConsistencyStrip.svelte';
   import LeftSidebar from './LeftSidebar.svelte';
   import CenterRead from './CenterRead.svelte';
-  import CenterForm from './CenterForm.svelte';
   import FristForm from './FristForm.svelte';
   import TeFristForm from './TeFristForm.svelte';
   import VederlagForm from './VederlagForm.svelte';
   import TeVederlagForm from './TeVederlagForm.svelte';
+  import GrunnlagForm from './GrunnlagForm.svelte';
+  import TeGrunnlagForm from './TeGrunnlagForm.svelte';
   import ActionBar from './ActionBar.svelte';
   import RightSidebar from './RightSidebar.svelte';
   import type { Role, Mode, TrackKey, RightTab } from './types.js';
@@ -18,8 +18,6 @@
   let sel: TrackKey = $state('ansvar');
   let rTab: RightTab = $state('bestemmelser');
   let mode: Mode = $state('read');
-  let choices: Record<string, string | null> = $state({});
-  let begr = $state('');
   let saving = $state(false);
 
   const d = $derived(DD[sel]);
@@ -34,28 +32,12 @@
     sel = key;
     mode = 'form';
     rTab = 'begrunnelse';
-    begr = DD[key].draft?.text || '';
-    choices = {};
   }
 
   function goRead() {
     mode = 'read';
     rTab = 'bestemmelser';
   }
-
-  function toggleChoice(key: string, value: string) {
-    choices = { ...choices, [key]: choices[key] === value ? null : value };
-  }
-
-  $effect(() => {
-    if (mode !== 'form') return;
-    void begr;
-    void choices;
-
-    untrack(() => (saving = true));
-    const t = setTimeout(() => untrack(() => (saving = false)), 600);
-    return () => clearTimeout(t);
-  });
 </script>
 
 <div class="mockup">
@@ -66,9 +48,8 @@
       <ConsistencyStrip
         {sel}
         {draftCount}
-        onselect={(key, draftText) => {
+        onselect={(key, _draftText) => {
           sel = key;
-          begr = draftText;
         }}
       />
     {/if}
@@ -101,8 +82,10 @@
           <VederlagForm onclose={goRead} />
         {:else if sel === 'vederlag' && role === 'TE'}
           <TeVederlagForm onclose={goRead} />
-        {:else}
-          <CenterForm {d} {sel} {choices} ontoggle={toggleChoice} />
+        {:else if sel === 'ansvar' && role === 'BH'}
+          <GrunnlagForm onclose={goRead} />
+        {:else if sel === 'ansvar' && role === 'TE'}
+          <TeGrunnlagForm onclose={goRead} />
         {/if}
 
         <ActionBar {mode} {role} {subV} {subF} {prinV} {prinF} oncloseform={goRead} />
@@ -112,9 +95,9 @@
         {d}
         {mode}
         tab={rTab}
-        {begr}
+        begr=""
         ontabchange={(t) => (rTab = t)}
-        onbegrchange={(v) => (begr = v)}
+        onbegrchange={() => {}}
       />
     </div>
   </div>
