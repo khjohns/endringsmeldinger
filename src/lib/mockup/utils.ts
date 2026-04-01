@@ -1,5 +1,6 @@
 import type { DraftState, Role, HistoryEvent, Provision } from './types.js';
 import { getParagrafTittel } from '$lib/constants/paragrafTitler.js';
+import { getKontraktsregel } from '$lib/constants/kontraktsregler.js';
 
 /** Bare tallformatering (nb-NO). Produksjon bruker formatCurrency/formatDays med andre suffiks. */
 export function fmt(n: number): string {
@@ -7,17 +8,24 @@ export function fmt(n: number): string {
 }
 
 /**
- * Bygg en Provision med tittel fra produksjonens PARAGRAF_TITLER der tilgjengelig.
+ * Bygg en Provision fra produksjonens KONTRAKTSREGLER + PARAGRAF_TITLER.
  * ref-formatet er "§ 23.1" — strippes til "23.1" for oppslag.
+ * Bruker produksjonens regeltekst der tilgjengelig, med konsekvens som note.
  */
 export function provision(
   ref: string,
   fallbackTitle: string,
-  text: string,
-  note: string | null = null
+  fallbackText: string,
+  fallbackNote: string | null = null
 ): Provision {
   const key = ref.replace(/^§\s*/, '');
-  return { ref, title: getParagrafTittel(key) ?? fallbackTitle, text, note };
+  const regel = getKontraktsregel(key);
+  return {
+    ref,
+    title: getParagrafTittel(key) ?? fallbackTitle,
+    text: regel?.regel ?? fallbackText,
+    note: regel?.konsekvens ?? fallbackNote,
+  };
 }
 
 export function act(draftState: DraftState, role: Role): string {
