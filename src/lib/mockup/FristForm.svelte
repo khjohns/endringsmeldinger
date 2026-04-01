@@ -52,29 +52,13 @@
     return current === value ? undefined : value;
   }
 
-  const resultatIkon = $derived(
-    computed.prinsipaltResultat === 'godkjent'
-      ? Check
-      : computed.prinsipaltResultat === 'delvis_godkjent'
-        ? CircleMinus
-        : X
-  );
-
-  const resultatLabel = $derived(
-    computed.prinsipaltResultat === 'godkjent'
-      ? 'Godkjent'
-      : computed.prinsipaltResultat === 'delvis_godkjent'
-        ? 'Delvis godkjent'
-        : 'Avslått'
-  );
-
-  const resultatColor = $derived(
-    computed.prinsipaltResultat === 'godkjent'
-      ? 'var(--green)'
-      : computed.prinsipaltResultat === 'delvis_godkjent'
-        ? 'var(--ochre)'
-        : 'var(--red)'
-  );
+  const resultat = $derived.by(() => {
+    const r = computed.prinsipaltResultat;
+    if (r === 'godkjent') return { ikon: Check, label: 'Godkjent', color: 'var(--green)' };
+    if (r === 'delvis_godkjent')
+      return { ikon: CircleMinus, label: 'Delvis godkjent', color: 'var(--ochre)' };
+    return { ikon: X, label: 'Avslått', color: 'var(--red)' };
+  });
 
   const allAnswered = $derived.by(() => {
     if (sendForesporsel) return true;
@@ -114,134 +98,108 @@
     </div>
   {/if}
 
-  {#if computed.visibility.showFristVarselOk}
+  {#snippet yesNoPill(
+    label: string,
+    ref: string,
+    text: string,
+    answer: boolean | undefined,
+    yesText: string,
+    noText: string,
+    onset: (v: boolean | undefined) => void,
+    opts?: { subsidiaer?: boolean; alertHtml?: string }
+  )}
     <div class="question-block">
       <div class="question-header">
-        <span class="question-label">Foreløpig varsel</span>
-        <span class="font-mono question-ref">§ 33.4</span>
+        <span class="question-label">{label}</span>
+        <span class="font-mono question-ref">{ref}</span>
       </div>
-      <p class="question-text">Ble varselet om fristforlengelse fremsatt uten ugrunnet opphold?</p>
-      <div class="pill-row">
-        <button
-          class="pill"
-          class:yes={fristVarselOk === true}
-          onclick={() => (fristVarselOk = toggleChoice(fristVarselOk, true))}>Ja, i tide</button
-        >
-        <button
-          class="pill"
-          class:no={fristVarselOk === false}
-          onclick={() => (fristVarselOk = toggleChoice(fristVarselOk, false))}
-          >Nei, prekludert</button
-        >
-      </div>
-      {#if fristVarselOk === false}
-        <div class="alert-box warning">
-          <AlertTriangle size={14} />
-          <span
-            ><strong>Preklusjon</strong> — Det foreløpige varselet vurderes som for sent. Kravet er tapt
-            (§ 33.4).</span
-          >
-        </div>
-      {/if}
-    </div>
-    <div class="divider"></div>
-  {/if}
-
-  {#if computed.visibility.showSpesifisertKravOk}
-    <div class="question-block">
-      <div class="question-header">
-        <span class="question-label">Fremsatt krav</span>
-        <span class="font-mono question-ref">§ 33.6.1</span>
-      </div>
-      <p class="question-text">Ble kravet fremsatt uten ugrunnet opphold?</p>
-      {#if computed.port1bErSubsidiaer}
+      <p class="question-text">{text}</p>
+      {#if opts?.subsidiaer}
         <Stamp variant="ochre" small flat>Subsidiært</Stamp>
       {/if}
       <div class="pill-row">
         <button
           class="pill"
-          class:yes={spesifisertKravOk === true}
-          onclick={() => (spesifisertKravOk = toggleChoice(spesifisertKravOk, true))}
-          >Ja, i tide</button
+          class:yes={answer === true}
+          onclick={() => onset(toggleChoice(answer, true))}>{yesText}</button
         >
         <button
           class="pill"
-          class:no={spesifisertKravOk === false}
-          onclick={() => (spesifisertKravOk = toggleChoice(spesifisertKravOk, false))}
-          >Nei, for sent</button
+          class:no={answer === false}
+          onclick={() => onset(toggleChoice(answer, false))}>{noText}</button
         >
       </div>
-      {#if spesifisertKravOk === false}
+      {#if answer === false && opts?.alertHtml}
         <div class="alert-box warning">
           <AlertTriangle size={14} />
-          <span
-            ><strong>Reduksjon</strong> — Det fremsatte kravet vurderes som for sent. Fristforlengelsen
-            reduseres til det åpenbare (§ 33.6.1).</span
-          >
+          <span>{@html opts.alertHtml}</span>
         </div>
       {/if}
     </div>
+  {/snippet}
+
+  {#if computed.visibility.showFristVarselOk}
+    {@render yesNoPill(
+      'Foreløpig varsel',
+      '§ 33.4',
+      'Ble varselet om fristforlengelse fremsatt uten ugrunnet opphold?',
+      fristVarselOk,
+      'Ja, i tide',
+      'Nei, prekludert',
+      (v) => (fristVarselOk = v),
+      {
+        alertHtml:
+          '<strong>Preklusjon</strong> — Det foreløpige varselet vurderes som for sent. Kravet er tapt (§ 33.4).',
+      }
+    )}
+    <div class="divider"></div>
+  {/if}
+
+  {#if computed.visibility.showSpesifisertKravOk}
+    {@render yesNoPill(
+      'Fremsatt krav',
+      '§ 33.6.1',
+      'Ble kravet fremsatt uten ugrunnet opphold?',
+      spesifisertKravOk,
+      'Ja, i tide',
+      'Nei, for sent',
+      (v) => (spesifisertKravOk = v),
+      {
+        subsidiaer: computed.port1bErSubsidiaer,
+        alertHtml:
+          '<strong>Reduksjon</strong> — Det fremsatte kravet vurderes som for sent. Fristforlengelsen reduseres til det åpenbare (§ 33.6.1).',
+      }
+    )}
     <div class="divider"></div>
   {/if}
 
   {#if computed.visibility.showForesporselSvarOk}
-    <div class="question-block">
-      <div class="question-header">
-        <span class="question-label">Svar på forespørsel</span>
-        <span class="font-mono question-ref">§ 33.6.2</span>
-      </div>
-      <p class="question-text">Svarte TE på forespørsel om spesifisering uten ugrunnet opphold?</p>
-      <div class="pill-row">
-        <button
-          class="pill"
-          class:yes={foresporselSvarOk === true}
-          onclick={() => (foresporselSvarOk = toggleChoice(foresporselSvarOk, true))}
-          >Ja, i tide</button
-        >
-        <button
-          class="pill"
-          class:no={foresporselSvarOk === false}
-          onclick={() => (foresporselSvarOk = toggleChoice(foresporselSvarOk, false))}
-          >Nei, prekludert</button
-        >
-      </div>
-      {#if foresporselSvarOk === false}
-        <div class="alert-box warning">
-          <AlertTriangle size={14} />
-          <span
-            ><strong>Preklusjon</strong> — Svaret vurderes som for sent. Kravet er tapt (§ 33.6.2).</span
-          >
-        </div>
-      {/if}
-    </div>
+    {@render yesNoPill(
+      'Svar på forespørsel',
+      '§ 33.6.2',
+      'Svarte TE på forespørsel om spesifisering uten ugrunnet opphold?',
+      foresporselSvarOk,
+      'Ja, i tide',
+      'Nei, prekludert',
+      (v) => (foresporselSvarOk = v),
+      {
+        alertHtml:
+          '<strong>Preklusjon</strong> — Svaret vurderes som for sent. Kravet er tapt (§ 33.6.2).',
+      }
+    )}
     <div class="divider"></div>
   {/if}
 
-  <div class="question-block">
-    <div class="question-header">
-      <span class="question-label">Årsakssammenheng</span>
-      <span class="font-mono question-ref">§ 33.1</span>
-    </div>
-    <p class="question-text">
-      Foreligger det en hindring på fremdriften som følge av det påberopte kontraktsforholdet?
-    </p>
-    {#if computed.port2ErSubsidiaer}
-      <Stamp variant="ochre" small flat>Subsidiært</Stamp>
-    {/if}
-    <div class="pill-row">
-      <button
-        class="pill"
-        class:yes={vilkarOppfylt === true}
-        onclick={() => (vilkarOppfylt = toggleChoice(vilkarOppfylt, true))}>Ja, hindring</button
-      >
-      <button
-        class="pill"
-        class:no={vilkarOppfylt === false}
-        onclick={() => (vilkarOppfylt = toggleChoice(vilkarOppfylt, false))}
-        >Nei, ingen hindring</button
-      >
-    </div>
-  </div>
+  {@render yesNoPill(
+    'Årsakssammenheng',
+    '§ 33.1',
+    'Foreligger det en hindring på fremdriften som følge av det påberopte kontraktsforholdet?',
+    vilkarOppfylt,
+    'Ja, hindring',
+    'Nei, ingen hindring',
+    (v) => (vilkarOppfylt = v),
+    { subsidiaer: computed.port2ErSubsidiaer }
+  )}
 
   <div class="divider"></div>
 
@@ -302,10 +260,10 @@
   {/if}
 
   {#if allAnswered}
-    <div class="result-box" style:border-color={resultatColor}>
-      <div class="result-header" style:color={resultatColor}>
-        <svelte:component this={resultatIkon} size={18} />
-        <span class="result-label">{resultatLabel}</span>
+    <div class="result-box" style:border-color={resultat.color}>
+      <div class="result-header" style:color={resultat.color}>
+        <resultat.ikon size={18} />
+        <span class="result-label">{resultat.label}</span>
       </div>
       {#if computed.prinsipaltResultat !== 'avslatt' && godkjentDager !== undefined}
         <div class="result-detail">
