@@ -12,11 +12,9 @@
   import { toggleChoice } from './utils.js';
 
   let {
-    onclose,
     onsend,
     onactions,
   }: {
-    onclose: () => void;
     onsend: () => void;
     onactions?: (a: { canSend: boolean; send: () => void }) => void;
   } = $props();
@@ -79,7 +77,6 @@
     return true;
   });
 
-  // Auto-begrunnelse
   const autoBegrunnelseHtml = $derived.by(() => {
     if (!sendForesporsel && (vilkarOppfylt === undefined || godkjentDager === undefined)) return '';
     const input: FristResponseInput = {
@@ -105,7 +102,6 @@
     return tokensToHtml(tokens);
   });
 
-  // Expose actions to parent (for sticky ActionBar)
   $effect(() => {
     onactions?.({
       canSend: allAnswered,

@@ -539,16 +539,8 @@
   border-radius: 2px;
   white-space: nowrap;
 }
-.mockup .begrunnelse-preview .locked-value--belop {
-  background: rgba(184, 134, 11, 0.08);
-  color: var(--ochre);
-  border: 1px solid rgba(184, 134, 11, 0.15);
-}
-.mockup .begrunnelse-preview .locked-value--dager {
-  background: rgba(184, 134, 11, 0.08);
-  color: var(--ochre);
-  border: 1px solid rgba(184, 134, 11, 0.15);
-}
+.mockup .begrunnelse-preview .locked-value--belop,
+.mockup .begrunnelse-preview .locked-value--dager,
 .mockup .begrunnelse-preview .locked-value--prosent {
   background: rgba(184, 134, 11, 0.08);
   color: var(--ochre);
