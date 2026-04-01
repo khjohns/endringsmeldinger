@@ -37,6 +37,18 @@ export type {
   ApiClientConfig,
 } from './api';
 
+// Bestemmelser (contract provisions for context panel)
+export interface Bestemmelse {
+  /** §-referanse, f.eks. "§ 34.1" */
+  ref: string;
+  /** Paragraftittel, f.eks. "Vederlagsjustering" */
+  title: string;
+  /** Regeltekst: trigger, handling og frist */
+  text: string;
+  /** Konsekvens ved brudd (kan være null) */
+  note: string | null;
+}
+
 // Begrunnelse types (shared across BegrunnelseThread, FormWithRightPanel, etc.)
 export interface BegrunnelseEntry {
   rolle: 'TE' | 'BH';

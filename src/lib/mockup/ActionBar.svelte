@@ -13,6 +13,8 @@
     prinF,
     oncloseform,
     ontogglecontext,
+    onsend,
+    canSend = false,
   }: {
     mode: Mode;
     role: Role;
@@ -22,6 +24,8 @@
     prinF: number;
     oncloseform: () => void;
     ontogglecontext?: () => void;
+    onsend?: () => void;
+    canSend?: boolean;
   } = $props();
 </script>
 
@@ -53,7 +57,9 @@
       {/if}
       {#if mode === 'form'}
         <button class="btn btn-secondary" onclick={oncloseform}>Lukk kladd</button>
-        <button class="btn btn-primary"><Send size={14} /> Send svar</button>
+        <button class="btn btn-primary" disabled={!canSend} onclick={onsend}
+          ><Send size={14} /> Send svar</button
+        >
       {:else if role === 'TE'}
         <button class="btn btn-danger"><XSquare size={14} /> Trekk</button>
         <button class="btn btn-primary"><Check size={14} /> Godta</button>
@@ -142,24 +148,17 @@
     .action-inner {
       gap: 8px;
     }
+    /* Hide status on mobile — not enough room */
     .status-section {
-      flex: 1;
-      min-width: 0;
-    }
-    .status-text {
-      font-size: 11px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .status-sep {
-      margin: 0 4px;
+      display: none;
     }
     .action-buttons {
-      flex-shrink: 0;
+      flex: 1;
+      justify-content: flex-end;
     }
     .context-btn {
       display: inline-flex;
+      margin-right: auto;
     }
     .context-btn-text {
       display: none;

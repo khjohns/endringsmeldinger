@@ -4,12 +4,28 @@
   import Stamp from './Stamp.svelte';
   import CaseAnchor from './CaseAnchor.svelte';
 
-  let { onclose, onsend }: { onclose: () => void; onsend: () => void } = $props();
+  let {
+    onsend,
+    onactions,
+  }: {
+    onsend: () => void;
+    onactions?: (a: { canSend: boolean; send: () => void }) => void;
+  } = $props();
 
   const d = store.tracks.ansvar;
 
   let begrunnelse = $state(d.teT);
   const kanSende = $derived(begrunnelse.length >= 10);
+
+  $effect(() => {
+    onactions?.({
+      canSend: kanSende,
+      send: () => {
+        store.sendTeGrunnlag(begrunnelse);
+        onsend();
+      },
+    });
+  });
 </script>
 
 <div class="form-content">
@@ -59,15 +75,6 @@
   {#if kanSende}
     <div class="status-box">
       <div class="font-mono status-text">Klar til å sende revisjon</div>
-    </div>
-    <div class="send-row">
-      <button
-        class="btn btn-primary"
-        onclick={() => {
-          store.sendTeGrunnlag(begrunnelse);
-          onsend();
-        }}>Send revisjon</button
-      >
     </div>
   {/if}
 </div>
