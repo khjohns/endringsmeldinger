@@ -4,6 +4,24 @@
 
 En app for krav om endringsordre etter NS 8407 totalentreprisekontrakt (norsk byggebransje). To parter: TE (totalentreprenør, f.eks. «Byggnor») og BH (byggherre, f.eks. «Kystveien Eiendom»). Tre spor per sak: Ansvarsgrunnlag (K), Vederlag (V), Frist (F). Subsidiær forgreining når ansvar bestrides prinsipalt.
 
+## Veddemålet
+
+Denne mockupen er ikke en throwaway-prototype. Den er et veddemål på at vi kan bygge et bedre produkt enn den eksisterende produksjonen — med bedre design, bedre UX, og null teknisk gjeld. Beløp: 100 USD.
+
+**Reglene:**
+- Mockupen skal være produksjonsklar kode, ikke wireframes
+- Samme domenelogikk, samme editor-stack, samme typer som produksjon
+- Enhver feature i mockupen skal ha full paritet med tilsvarende produksjonsfeature
+- Når designet er ferdig, skal mockup-koden kunne erstatte produksjonskomponentene uten omskriving
+- Forenklinger er OK for demo-data (hardkodet KOE-104), men kodestiene må være komplette
+
+**Hva «null gjeld» betyr konkret:**
+- Alle state-variabler som produksjon har, skal mockupen ha (rigg, produktivitet, oensketMetode etc.)
+- Alle valideringssjekker som produksjon har, skal mockupen ha (isHtmlEmpty, metode-sjekk etc.)
+- Data-drevne arrays (preklusjonsLinjer, kravlinjer) — ikke hardkodede enkelt-felter
+- Ekte RichTextEditor med LockedValueNode, ikke textarea-placeholders
+- Auto-generert begrunnelse med token-system, ikke statisk tekst
+
 ## Prosjektfiler
 
 - `system.md` — Komplett designsystem. **Les denne først.** Den inneholder alle beslutninger: farger, typografi, spacing, depth-strategi, komponentmønstre, og retningsvalg.
@@ -11,7 +29,7 @@ En app for krav om endringsordre etter NS 8407 totalentreprisekontrakt (norsk by
 
 ### Svelte 5 mockup-miljø (aktivt)
 
-Mockupen er nå implementert som Svelte 5-komponenter i `src/lib/mockup/` med rute på `/mockup`. Deploybar til Vercel.
+Mockupen er implementert som Svelte 5-komponenter i `src/lib/mockup/` med rute på `/mockup`. Deploybar til Vercel.
 
 **Arkitektur:**
 ```
@@ -26,8 +44,8 @@ src/lib/mockup/
 ├── ConsistencyStrip.svelte  # Kladd-stripe (form mode)
 ├── LeftSidebar.svelte       # Matrise med DualBar + eksponering
 ├── CenterRead.svelte        # Lesemodus: dual-posisjon dokumenter
-├── RightSidebar.svelte      # Høyrepanel: bestemmelser/historikk/vedlegg
-├── ActionBar.svelte         # Sticky bunnlinje
+├── RightSidebar.svelte      # Høyrepanel: bestemmelser/historikk/filer
+├── ActionBar.svelte         # Sticky bunnlinje (send/lukk/kontekst)
 ├── CaseAnchor.svelte        # KOE-104 badge + tittel
 ├── Stamp.svelte             # Gjenbrukbart stempel
 ├── DualBar.svelte           # Subsidiær/prinsipal-barer
@@ -35,8 +53,8 @@ src/lib/mockup/
 │
 │   # BH-skjemaer (byggherre svarer på krav)
 ├── GrunnlagForm.svelte      # → grunnlagDomain.ts
-├── VederlagForm.svelte      # → vederlagDomain.ts
-├── FristForm.svelte         # → fristDomain.ts
+├── VederlagForm.svelte      # → vederlagDomain.ts + vederlagBegrunnelse.ts
+├── FristForm.svelte         # → fristDomain.ts + fristBegrunnelse.ts
 │
 │   # TE-skjemaer (entreprenør sender/reviderer krav)
 ├── TeGrunnlagForm.svelte    # → grunnlagDomain.ts (revisjon)
@@ -47,6 +65,8 @@ src/lib/mockup/
 **Delt domenelogikk:** Alle 6 skjemaer importerer ren TypeScript-domenelogikk direkte fra `src/lib/domain/`. Ingen duplisering — mockup bruker produksjonens `beregnAlt()`, `getDefaults()`, `beregnVisibility()` etc.
 
 **Delt kontraktsdata:** Bestemmelser (§-referanser) bygges fra produksjonens `KONTRAKTSREGLER` + `PARAGRAF_TITLER`. Partsnavn via `getPartsNavn()`.
+
+**Delt editor-stack:** BH-skjemaer (vederlag, frist, grunnlag) bruker produksjonens `RichTextEditor` med `LockedValueNode`-extension. Auto-generert begrunnelse via `generateVederlagResponseBegrunnelse` / `generateFristResponseBegrunnelse` med `tokensToHtml()`.
 
 **Reaktiv store:** `store.svelte.ts` wrapper DD/EVT som `$state`. Skjema-handlinger (send svar/krav) oppdaterer tracks + legger til hendelse i historikk. Lesemodus reflekterer endringer umiddelbart. Nullstill-knapp resetter til initial state.
 
@@ -70,20 +90,27 @@ Metaforen er riggkontoret — der kontraktsadministratoren faktisk jobber. Hybri
 - Draft-seksjon har full dashed border, markert «Internt — ikke synlig for motpart».
 - Doble progressbarer: subsidiært (oker) og prinsipalt (rød) per dimensjon.
 - Action bar BH: designet venteboks med pulserende oker-prikk, ikke bare tekst.
-- Alle skjemaer bruker produksjonens domenelogikk direkte — null arkitektonisk gjeld ved migrering.
+- **Høyrepanel i skjemamodus:** Bestemmelser/historikk/filer — kontekst mens du tar stilling. Begrunnelse er inline i midtpanelet under resultat-boksen.
+- **Sticky ActionBar:** Send/Lukk-knapper kun i sticky bunnlinje, aldri inline i skjema. Mobil: statuslinje skjult, kontekst-knapp (BookOpen) venstrestilt, handlingsknapper høyre.
+- **formActions-callback:** Skjemaer eksponerer `{canSend, send}` via `onactions`-prop. Kontrollrommet videresender til ActionBar.
 
 ## Hva som er ferdig
 
 - ✅ Lesemodus (matrise + argumenter + kontekstpanel med faner)
 - ✅ Skjemamodus komplett for alle 3 spor × 2 roller (6 skjemaer)
-  - BH: Grunnlag (§32.2 varsling + verdict), Vederlag (preklusjon + metode + kravlinje), Frist (6 porter med full domenelogikk)
+  - BH: Grunnlag (§32.2 varsling + verdict + RichTextEditor), Vederlag (data-drevet preklusjon + alternativ metode + kravlinjer + auto-begrunnelse), Frist (6 porter med full domenelogikk + auto-begrunnelse)
   - TE: Grunnlag (revisjon), Vederlag (metode + beløp + særskilte krav), Frist (varsling + utmåling)
+- ✅ Full paritet med produksjon for BH-skjemaer (alle state-variabler, valideringssjekker, data-arrays)
+- ✅ Auto-generert begrunnelse med locked value tokens (vederlag + frist)
+- ✅ RichTextEditor + LockedValueNode i alle BH-skjemaer
 - ✅ Reaktiv state: send-handlinger oppdaterer matrise + historikk + eksponering
 - ✅ Draft-flyt (kladd som tredje lag, konsistens-stripe)
 - ✅ Dual bars (prinsipal/subsidiær eksponering)
 - ✅ Stempelsystem (bestridt/subsidiært/kladd/venter)
 - ✅ Visuell identitet og designsystem (system.md + mockup.css)
 - ✅ Nullstill-knapp for demo
+- ✅ Sticky ActionBar med formActions-wiring (alle 6 skjemaer)
+- ✅ Mobil-tilpasset ActionBar (skjult status, kontekst-FAB)
 
 ## Designbeslutninger som må tas
 
@@ -117,19 +144,12 @@ Bruker fyller ut halvveis, lukker tab, kommer tilbake dagen etter.
 - Bruk produksjonens `loadDraft`/`saveDraft` (localStorage)?
 - Visuell indikator: «Du har en kladd fra i går» ved oppstart?
 - Auto-save med status-indikator i header (som i original mockup)?
-- Eller: la mockup-miljøet droppe draft og fokusere på flyten?
 
 ### 6. Tom tilstand / onboarding
 Første gang brukeren åpner en sak — alle spor er tomme.
 - Hvordan ser en tom matrise ut?
 - Hva er CTA for TE? «Opprett krav» vs. «Varsle endringsordre»?
 - Hva ser BH før TE har sendt noe?
-
-### 7. Responsiv / høyrepanel i skjemamodus
-Produksjon bruker `FormWithRightPanel` (2-kolonne: skjema | begrunnelse-editor). Mockup har skjema i senter + statisk høyrepanel.
-- Skal mockup også ha begrunnelse-editor i høyrepanelet under skjemamodus?
-- Eller: beholde bestemmelser/historikk i høyrepanelet (nyttigere kontekst)?
-- Mobil: skal høyrepanelet kollapse til FAB som i produksjon?
 
 ## Hva som bør bygges videre
 
@@ -153,6 +173,8 @@ Kontekstuell hjelp koblet til kontraktsbestemmelser. Flagge typiske svakheter i 
 ## Skill og arbeidsmetode
 
 Bruk `interface-design` skill. Les system.md først og bygg i tråd med den. Kjør swap-test, squint-test og signature-test før presentasjon. Alle valg må ha et «hvorfor».
+
+**Paritet-sjekk:** Før du anser et skjema som ferdig, sammenlign bit-for-bit med tilsvarende produksjonskomponent. Alle state-variabler, valideringssjekker, data-arrays og editor-features skal matche. Forskjeller i design er bra — forskjeller i funksjonalitet er gjeld.
 
 ## Tone
 
