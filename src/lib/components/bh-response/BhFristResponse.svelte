@@ -11,12 +11,14 @@
   import { draftKey, loadDraft, saveDraft, clearDraft } from '$lib/utils/draft';
   import { boolToSegment } from '$lib/utils/formatters';
   import { useQueryClient } from '@tanstack/svelte-query';
+  import { sporBestemmelser } from '$lib/utils/bestemmelser';
 
   import FristSammendrag from './FristSammendrag.svelte';
   import FristKonsekvens from './FristKonsekvens.svelte';
   import SegmentedButtons from './SegmentedButtons.svelte';
   import FormPageHeader from '$lib/components/shared/FormPageHeader.svelte';
   import FormWithRightPanel from '$lib/components/shared/FormWithRightPanel.svelte';
+  import InlineBegrunnelse from '$lib/components/shared/InlineBegrunnelse.svelte';
   import FormSection from '$lib/components/shared/FormSection.svelte';
   import SectionHeading from '$lib/components/primitives/SectionHeading.svelte';
   import NumberInput from '$lib/components/primitives/NumberInput.svelte';
@@ -82,6 +84,7 @@
   const forrigeBegrunnelseHtml = $derived(timelineData.forrigeBegrunnelseHtml);
 
   const queryClient = useQueryClient();
+  const bestemmelser = sporBestemmelser('frist');
 
   // --- Draft ---
   interface FristResponseDraft {
@@ -221,9 +224,6 @@
     domainConfig.erGrunnlagSubsidiaer || domainConfig.erHelFristSubsidiaerPgaGrunnlag
   );
 
-  // Begrunnelse entries for thread panel
-  const begrunnelseEntries = $derived(tidligereSvar);
-
   // --- Validation ---
   const kanSende = $derived.by(() => {
     if (submitting) return false;
@@ -290,21 +290,7 @@
   ];
 </script>
 
-<FormWithRightPanel
-  entries={begrunnelseEntries}
-  bind:bhBegrunnelseHtml
-  {teNavn}
-  {bhNavn}
-  submitLabel={isUpdateMode ? 'Oppdater svar' : 'Send svar'}
-  submitDisabled={!kanSende}
-  submitLoading={submitting}
-  {submitError}
-  onsubmit={handleSubmit}
-  onavbryt={handleAvbryt}
-  showRegenerate={userHasEdited && !!autoBegrunnelseHtml}
-  onregenerate={handleRegenerate}
-  onuseredited={() => (userHasEdited = true)}
->
+<FormWithRightPanel {bestemmelser} entries={tidligereSvar} {teNavn} {bhNavn}>
   <FormPageHeader
     tilbakeHref="/{prosjektId}/{sakId}"
     tilbakeTekst="Tilbake til saksmappe"
@@ -477,6 +463,20 @@
       å anse det som et pålegg om forsering.
     </Alert>
   {/if}
+
+  <!-- Begrunnelse (inline, under resultat) -->
+  <InlineBegrunnelse
+    bind:html={bhBegrunnelseHtml}
+    showRegenerate={userHasEdited && !!autoBegrunnelseHtml}
+    onregenerate={handleRegenerate}
+    onuseredited={() => (userHasEdited = true)}
+    submitLabel={isUpdateMode ? 'Oppdater svar' : 'Send svar'}
+    submitDisabled={!kanSende}
+    submitLoading={submitting}
+    {submitError}
+    onsubmit={handleSubmit}
+    onavbryt={handleAvbryt}
+  />
 </FormWithRightPanel>
 
 <style>

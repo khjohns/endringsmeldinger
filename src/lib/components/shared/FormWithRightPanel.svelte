@@ -1,100 +1,68 @@
 <script lang="ts">
-  import { AlignJustify, ChevronLeft } from 'lucide-svelte';
+  import { BookOpen, ChevronLeft } from 'lucide-svelte';
   import type { Snippet } from 'svelte';
-  import BegrunnelseThread from '$lib/components/bh-response/BegrunnelseThread.svelte';
-  import type { BegrunnelseEntry } from '$lib/types';
-  import { isHtmlEmpty } from '$lib/utils/formatters';
+  import KontekstPanel from './KontekstPanel.svelte';
+  import type { Bestemmelse, BegrunnelseEntry } from '$lib/types';
 
   interface Props {
-    // Left panel content
+    /** Left panel content (form + InlineBegrunnelse) */
     children: Snippet;
 
-    // BegrunnelseThread props (passed through)
-    entries: BegrunnelseEntry[];
-    bhBegrunnelseHtml: string;
-    editorRolle?: 'TE' | 'BH';
+    /** Bestemmelser for right panel */
+    bestemmelser?: Bestemmelse[];
+
+    /** Historikk entries for right panel */
+    entries?: BegrunnelseEntry[];
+
+    /** Party names for historikk display */
     teNavn?: string;
     bhNavn?: string;
-    availableTags?: string[];
-    submitLabel?: string;
-    submitDisabled?: boolean;
-    submitLoading?: boolean;
-    submitError?: string | null;
-    onsubmit?: () => void;
-    onavbryt?: () => void;
 
-    // Auto-begrunnelse props
-    showRegenerate?: boolean;
-    onregenerate?: () => void;
-    onuseredited?: () => void;
+    /** Tags for file attachments */
+    availableTags?: string[];
   }
 
   let {
     children,
-    entries,
-    bhBegrunnelseHtml = $bindable(''),
-    editorRolle = 'BH',
+    bestemmelser = [],
+    entries = [],
     teNavn,
     bhNavn,
     availableTags = [],
-    submitLabel = 'Send svar',
-    submitDisabled = false,
-    submitLoading = false,
-    submitError = null,
-    onsubmit,
-    onavbryt,
-    showRegenerate = false,
-    onregenerate,
-    onuseredited,
   }: Props = $props();
 
   let mobilPanelOpen = $state(false);
-  let activeTab = $state<'begrunnelse' | 'historikk' | 'filer'>('begrunnelse');
-
-  const harBegrunnelse = $derived(!isHtmlEmpty(bhBegrunnelseHtml));
+  let activeTab = $state<'bestemmelser' | 'historikk' | 'filer'>('bestemmelser');
 </script>
 
 <div class="form-layout">
   <div class="form-panels">
-    <!-- Left panel -->
+    <!-- Left panel: form content -->
     <main class="midtpanel">
       <div class="midtpanel-scroll">
         {@render children()}
       </div>
     </main>
 
-    <!-- Right panel: desktop -->
+    <!-- Right panel: context (bestemmelser/historikk/filer) -->
     <div class="desktop-panel">
-      <BegrunnelseThread
+      <KontekstPanel
+        {bestemmelser}
         {entries}
-        bind:bhBegrunnelseHtml
-        {editorRolle}
         {teNavn}
         {bhNavn}
         {activeTab}
         ontabchange={(tab) => (activeTab = tab)}
         {availableTags}
-        {submitLabel}
-        {submitDisabled}
-        {submitLoading}
-        {submitError}
-        {onsubmit}
-        {onavbryt}
-        {showRegenerate}
-        {onregenerate}
-        {onuseredited}
       />
     </div>
   </div>
 </div>
 
-<!-- Mobile: FAB -->
-<button class="begrunnelse-fab" onclick={() => (mobilPanelOpen = true)}>
-  <AlignJustify size={16} strokeWidth={1.5} aria-hidden="true" />
-  Begrunnelse
-  {#if harBegrunnelse}
-    <span class="fab-badge"></span>
-  {/if}
+<!-- Mobile: FAB for context panel -->
+<button class="kontekst-fab" onclick={() => (mobilPanelOpen = true)}>
+  <BookOpen size={16} strokeWidth={1.5} aria-hidden="true" />
+  Bestemmelser
 </button>
 
 <!-- Mobile: fullscreen overlay -->
@@ -104,24 +72,14 @@
       <ChevronLeft size={14} strokeWidth={1.5} aria-hidden="true" />
       Tilbake til skjema
     </button>
-    <BegrunnelseThread
+    <KontekstPanel
+      {bestemmelser}
       {entries}
-      bind:bhBegrunnelseHtml
-      {editorRolle}
       {teNavn}
       {bhNavn}
       {activeTab}
       ontabchange={(tab) => (activeTab = tab)}
       {availableTags}
-      {submitLabel}
-      {submitDisabled}
-      {submitLoading}
-      {submitError}
-      {onsubmit}
-      {onavbryt}
-      {showRegenerate}
-      {onregenerate}
-      {onuseredited}
     />
   </div>
 {/if}
@@ -160,7 +118,7 @@
   }
 
   /* FAB + mobile overlay: hidden on desktop */
-  .begrunnelse-fab {
+  .kontekst-fab {
     display: none;
   }
   .mobil-panel-overlay {
@@ -201,10 +159,9 @@
     .midtpanel-scroll {
       max-width: none;
       padding: var(--spacing-5) var(--spacing-4);
-      padding-bottom: 72px;
     }
 
-    .begrunnelse-fab {
+    .kontekst-fab {
       display: flex;
       align-items: center;
       gap: var(--spacing-2);
@@ -214,28 +171,21 @@
       z-index: 20;
       padding: var(--spacing-2) var(--spacing-4);
       background: var(--color-felt-raised);
-      border: 1px solid var(--color-vekt-dim);
+      border: 1px solid var(--color-wire-strong);
       border-radius: 9999px;
       font-family: var(--font-ui);
       font-size: 13px;
       font-weight: 500;
-      color: var(--color-vekt);
+      color: var(--color-ink-secondary);
       cursor: pointer;
       transition:
         background 0.12s,
         border-color 0.12s;
     }
 
-    .begrunnelse-fab:hover {
-      background: var(--color-vekt-bg);
-      border-color: var(--color-vekt);
-    }
-
-    .fab-badge {
-      width: 6px;
-      height: 6px;
-      border-radius: 9999px;
-      background: var(--color-vekt);
+    .kontekst-fab:hover {
+      background: var(--color-felt-hover);
+      border-color: var(--color-ink-muted);
     }
 
     .mobil-panel-overlay {
@@ -248,7 +198,7 @@
       overflow-y: auto;
     }
 
-    .mobil-panel-overlay :global(.begrunnelse-thread) {
+    .mobil-panel-overlay :global(.kontekst-panel) {
       position: static;
       height: auto;
       border-left: none;

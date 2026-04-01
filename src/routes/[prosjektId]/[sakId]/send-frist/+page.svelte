@@ -4,10 +4,12 @@
   import TeFristForm from '$lib/components/te-frist/TeFristForm.svelte';
   import FormPageHeader from '$lib/components/shared/FormPageHeader.svelte';
   import FormWithRightPanel from '$lib/components/shared/FormWithRightPanel.svelte';
+  import InlineBegrunnelse from '$lib/components/shared/InlineBegrunnelse.svelte';
   import type {
     SubmissionScenario,
     FristSubmissionDefaultsConfig,
   } from '$lib/domain/fristSubmissionDomain';
+  import { sporBestemmelser } from '$lib/utils/bestemmelser';
 
   import { projectToMeta } from '$lib/constants/projectMeta';
   import { projectStore } from '$lib/stores/project.svelte';
@@ -24,6 +26,7 @@
   const meta = $derived(projectToMeta(projectStore.current, prosjektId));
 
   const query = createCaseContextQuery(() => sakId);
+  const bestemmelser = sporBestemmelser('frist');
 
   // Derive scenario from timeline and frist state
   interface FristRouteData {
@@ -160,19 +163,7 @@
 </script>
 
 <PageLoadingShell loading={query.isLoading} error={query.isError}>
-  <FormWithRightPanel
-    entries={fristData.entries}
-    bind:bhBegrunnelseHtml={begrunnelseHtml}
-    editorRolle="TE"
-    {teNavn}
-    {bhNavn}
-    submitLabel={formActions?.submitLabel}
-    submitDisabled={!formActions?.kanSende}
-    submitLoading={formActions?.submitting}
-    submitError={formActions?.submitError}
-    onsubmit={formActions?.onsubmit}
-    onavbryt={formActions?.onavbryt}
-  >
+  <FormWithRightPanel {bestemmelser} entries={fristData.entries} {teNavn} {bhNavn}>
     <FormPageHeader
       tilbakeHref="/{prosjektId}/{sakId}"
       tilbakeTekst="Tilbake til saksmappe"
@@ -196,6 +187,17 @@
       erSvarPaForesporsel={fristData.erSvarPaForesporsel}
       bind:begrunnelseHtml
       onactions={(a) => (formActions = a)}
+    />
+
+    <InlineBegrunnelse
+      bind:html={begrunnelseHtml}
+      label="Begrunnelse"
+      submitLabel={formActions?.submitLabel}
+      submitDisabled={!formActions?.kanSende}
+      submitLoading={formActions?.submitting}
+      submitError={formActions?.submitError}
+      onsubmit={formActions?.onsubmit}
+      onavbryt={formActions?.onavbryt}
     />
   </FormWithRightPanel>
 </PageLoadingShell>
