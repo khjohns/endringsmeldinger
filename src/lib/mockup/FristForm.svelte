@@ -5,6 +5,9 @@
   import { generateFristResponseBegrunnelse } from '$lib/domain/begrunnelse/fristBegrunnelse';
   import type { FristResponseInput } from '$lib/domain/begrunnelse/fristBegrunnelse';
   import { tokensToHtml } from '$lib/editor/tokenConverter';
+  import RichTextEditor from '$lib/components/primitives/RichTextEditor.svelte';
+  import LockedValueNode from '$lib/editor/LockedValueNode';
+  import { RefreshCw } from 'lucide-svelte';
   import { store } from './store.svelte.js';
   import { TE } from './data.js';
   import Stamp from './Stamp.svelte';
@@ -77,6 +80,12 @@
     return true;
   });
 
+  let begrunnelseHtml = $state('');
+  let userHasEdited = $state(false);
+  let editorApi: { setContent: (html: string) => void } | undefined;
+  let prevHtml: string | undefined;
+  let charCount = $state(0);
+
   const autoBegrunnelseHtml = $derived.by(() => {
     if (!sendForesporsel && (vilkarOppfylt === undefined || godkjentDager === undefined)) return '';
     const input: FristResponseInput = {
@@ -101,6 +110,40 @@
     const tokens = generateFristResponseBegrunnelse(input, { useTokens: true });
     return tokensToHtml(tokens);
   });
+
+  $effect(() => {
+    if (!userHasEdited && autoBegrunnelseHtml) {
+      begrunnelseHtml = autoBegrunnelseHtml;
+    }
+  });
+
+  $effect(() => {
+    if (editorApi && begrunnelseHtml !== prevHtml) {
+      editorApi.setContent(begrunnelseHtml);
+      prevHtml = begrunnelseHtml;
+    }
+  });
+
+  function handleEditorReady(api: { setContent: (html: string) => void }) {
+    editorApi = api;
+    if (begrunnelseHtml) {
+      api.setContent(begrunnelseHtml);
+      prevHtml = begrunnelseHtml;
+    }
+  }
+
+  function handleEditorChange(newHtml: string) {
+    prevHtml = newHtml;
+    begrunnelseHtml = newHtml;
+    userHasEdited = true;
+  }
+
+  function handleRegenerate() {
+    if (autoBegrunnelseHtml) {
+      begrunnelseHtml = autoBegrunnelseHtml;
+      userHasEdited = false;
+    }
+  }
 
   $effect(() => {
     onactions?.({
@@ -344,17 +387,29 @@
       </div>
     {/if}
 
-    {#if autoBegrunnelseHtml}
-      <div class="begrunnelse-section">
-        <div class="question-header">
-          <span class="question-label">Begrunnelse</span>
-          <span class="font-mono question-ref">Auto-generert</span>
-        </div>
-        <div class="font-serif begrunnelse-preview">
-          {@html autoBegrunnelseHtml}
+    <div class="begrunnelse-section">
+      <div class="question-header">
+        <span class="question-label">Begrunnelse</span>
+        <div class="begrunnelse-header-right">
+          {#if userHasEdited && autoBegrunnelseHtml}
+            <button class="regenerate-btn" onclick={handleRegenerate}>
+              <RefreshCw size={12} strokeWidth={2} /> Regenerer
+            </button>
+          {/if}
+          <span class="font-mono char-count">{charCount} tegn</span>
         </div>
       </div>
-    {/if}
+      <div class="editor-wrapper">
+        <RichTextEditor
+          body={begrunnelseHtml}
+          onchange={handleEditorChange}
+          onready={handleEditorReady}
+          extensions={[LockedValueNode]}
+          maxHeight="none"
+          oncharcount={(c) => (charCount = c)}
+        />
+      </div>
+    </div>
   {/if}
 </div>
 
