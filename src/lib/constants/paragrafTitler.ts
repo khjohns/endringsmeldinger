@@ -42,11 +42,13 @@ export const PARAGRAF_TITLER: Record<string, string> = {
   '29.2': 'Stansing ved betalingsmislighold',
 
   // Fristforlengelse
+  '33.1': 'Fristforlengelse',
   '33.1 a)': 'Fristforlengelse — endringer',
   '33.1 b)': 'Fristforlengelse — svikt ved byggherrens ytelser',
   '33.1 c)': 'Fristforlengelse — andre forhold',
   '33.3': 'Fristforlengelse — force majeure',
   '33.4': 'Varsel om fristforlengelse',
+  '33.5': 'Utmåling av fristforlengelse',
   '33.6': 'Spesifisering av fristkrav',
   '33.6.1': 'Fremsatt krav om fristforlengelse',
   '33.7': 'Svarplikt ved fristkrav',
