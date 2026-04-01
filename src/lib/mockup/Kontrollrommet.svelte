@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { untrack } from 'svelte';
   import { DD } from './data.js';
   import Header from './Header.svelte';
   import ConsistencyStrip from './ConsistencyStrip.svelte';
@@ -20,7 +21,6 @@
   const d = $derived(DD[sel]);
   const draftCount = $derived(Object.values(DD).filter((x) => x.draftState === 'draft').length);
 
-  // Computed exposure values
   const subV = $derived(DD.vederlag.te.value! - DD.vederlag.bh.subsidiaer!);
   const prinV = $derived(DD.vederlag.te.value! - DD.vederlag.bh.prinsipal!);
   const subF = $derived(DD.frist.te.value! - DD.frist.bh.subsidiaer!);
@@ -43,15 +43,13 @@
     choices = { ...choices, [key]: choices[key] === value ? null : value };
   }
 
-  // Auto-save simulation
   $effect(() => {
     if (mode !== 'form') return;
-    // Track dependencies
     void begr;
     void choices;
 
-    saving = true;
-    const t = setTimeout(() => (saving = false), 600);
+    untrack(() => (saving = true));
+    const t = setTimeout(() => untrack(() => (saving = false)), 600);
     return () => clearTimeout(t);
   });
 </script>
@@ -76,6 +74,10 @@
         <LeftSidebar
           {sel}
           {role}
+          {subV}
+          {prinV}
+          {subF}
+          {prinF}
           onselect={(key) => {
             sel = key;
             rTab = 'bestemmelser';

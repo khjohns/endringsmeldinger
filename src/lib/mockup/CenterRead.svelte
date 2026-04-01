@@ -3,6 +3,7 @@
   import { TE, BH, S } from './data.js';
   import { fmt, act } from './utils.js';
   import Stamp from './Stamp.svelte';
+  import CaseAnchor from './CaseAnchor.svelte';
   import type { Track, TrackKey, Role } from './types.js';
 
   let {
@@ -21,23 +22,15 @@
 </script>
 
 <div class="read-content">
-  <!-- Case anchor -->
-  <div class="case-anchor">
-    <span class="font-mono case-badge">KOE-104</span>
-    <span class="font-serif case-subtitle"
-      >Uforutsette grunnforhold — Fjell i byggegrop akse 1–3</span
-    >
-  </div>
+  <CaseAnchor />
 
-  <!-- Section heading -->
   <div class="section-heading">
     <div class="heading-row">
-      <svelte:component this={d.icon} size={18} style="color: var(--ink-2)" />
+      <d.icon size={18} style="color: var(--ink-2)" />
       <h2 class="heading-text">{d.num}. {d.label}{isSub ? ' (Sub.)' : ''}</h2>
     </div>
   </div>
 
-  <!-- Subsidiary notice -->
   {#if isSub}
     <div style="margin-bottom: {S.section}px">
       <div class="sub-zone sub-notice">
@@ -50,9 +43,7 @@
     </div>
   {/if}
 
-  <!-- Document panels -->
   <div class={isSub ? 'sub-zone' : ''}>
-    <!-- TE panel -->
     <div class="doc-panel te-panel">
       <div class="doc-sidebar te-sidebar">
         <div class="party-name te-name">{TE}</div>
@@ -68,7 +59,6 @@
       </div>
     </div>
 
-    <!-- BH panel -->
     <div
       class="doc-panel bh-panel"
       style:background={d.status === 'disputed' ? 'var(--red-bg)' : 'var(--paper)'}
@@ -123,7 +113,6 @@
       </div>
     </div>
 
-    <!-- Draft section -->
     {#if d.draft}
       <div class="draft-section">
         <div class="draft-header">
@@ -143,7 +132,6 @@
       </div>
     {/if}
 
-    <!-- Action button (no draft) -->
     {#if !d.draft}
       <div class="action-row">
         <button class="btn btn-primary" onclick={() => onform(sel)}>
@@ -160,23 +148,6 @@
     max-width: 840px;
     margin: 0 auto;
     padding: 40px 40px 120px;
-  }
-  .case-anchor {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 32px;
-  }
-  .case-badge {
-    font-size: 12px;
-    font-weight: 700;
-    background: var(--plate);
-    color: white;
-    padding: 2px 8px;
-  }
-  .case-subtitle {
-    font-size: 14px;
-    color: var(--ink-3);
   }
   .section-heading {
     border-bottom: 2px solid var(--ochre);

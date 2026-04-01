@@ -9,23 +9,25 @@
   let {
     sel,
     role,
+    subV,
+    prinV,
+    subF,
+    prinF,
     onselect,
     onform,
   }: {
     sel: TrackKey;
     role: Role;
+    subV: number;
+    prinV: number;
+    subF: number;
+    prinF: number;
     onselect: (key: TrackKey) => void;
     onform: (key: TrackKey) => void;
   } = $props();
-
-  const subV = $derived(DD.vederlag.te.value! - DD.vederlag.bh.subsidiaer!);
-  const prinV = $derived(DD.vederlag.te.value! - DD.vederlag.bh.prinsipal!);
-  const subF = $derived(DD.frist.te.value! - DD.frist.bh.subsidiaer!);
-  const prinF = $derived(DD.frist.te.value! - DD.frist.bh.prinsipal!);
 </script>
 
 <aside class="sidebar">
-  <!-- ID plate -->
   <div class="id-plate">
     <div class="font-mono id-label">IDENTIFIKATOR</div>
     <div class="id-number">KOE-104</div>
@@ -34,12 +36,10 @@
     </div>
   </div>
 
-  <!-- Title -->
   <div style="padding: {S.xl}px {S.xxl}px {S.lg}px">
     <h2 class="font-serif case-title">Uforutsette grunnforhold: Fjell i byggegrop akse 1–3</h2>
   </div>
 
-  <!-- Matrix rows -->
   <div style="padding: 0 {S.sm}px">
     {#each Object.entries(DD) as [k, dd]}
       {@const on = sel === k}
@@ -56,7 +56,7 @@
       >
         <div class="row-header">
           <div class="row-label">
-            <svelte:component this={dd.icon} size={14} style="color: var(--ink-3)" />
+            <dd.icon size={14} style="color: var(--ink-3)" />
             <span class="row-name">{dd.num}. {dd.label}</span>
           </div>
           {#if dd.draftState === 'draft'}
@@ -102,10 +102,8 @@
     {/each}
   </div>
 
-  <!-- Separator -->
   <div class="ochre-sep"></div>
 
-  <!-- Exposure summary -->
   <div style="padding: 0 {S.xxl}px {S.xxl}px">
     <div class="exposure-heading">Samlet eksponering</div>
     <div class="exposure-box">
