@@ -22,11 +22,9 @@
   import { toggleChoice } from './utils.js';
 
   let {
-    onclose,
     onsend,
     onactions,
   }: {
-    onclose: () => void;
     onsend: () => void;
     onactions?: (a: { canSend: boolean; send: () => void }) => void;
   } = $props();
@@ -91,7 +89,6 @@
     return true;
   });
 
-  // Auto-begrunnelse
   const autoBegrunnelseHtml = $derived.by(() => {
     if (akseptererMetode === undefined || hovedkravVurdering === undefined) return '';
     const input: VederlagResponseInput = {
@@ -116,7 +113,6 @@
     return tokensToHtml(tokens);
   });
 
-  // Expose actions to parent (for sticky ActionBar)
   $effect(() => {
     onactions?.({
       canSend: allAnswered,

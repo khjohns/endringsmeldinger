@@ -14,11 +14,9 @@
   import { toggleChoice } from './utils.js';
 
   let {
-    onclose,
     onsend,
     onactions,
   }: {
-    onclose: () => void;
     onsend: () => void;
     onactions?: (a: { canSend: boolean; send: () => void }) => void;
   } = $props();
@@ -68,7 +66,6 @@
     return { ikon: X, label: 'Avslått', color: 'var(--red)' };
   });
 
-  // Expose actions to parent (for sticky ActionBar)
   $effect(() => {
     onactions?.({
       canSend: allAnswered,

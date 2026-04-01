@@ -5,11 +5,9 @@
   import CaseAnchor from './CaseAnchor.svelte';
 
   let {
-    onclose,
     onsend,
     onactions,
   }: {
-    onclose: () => void;
     onsend: () => void;
     onactions?: (a: { canSend: boolean; send: () => void }) => void;
   } = $props();

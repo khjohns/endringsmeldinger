@@ -41,6 +41,7 @@
   function goRead() {
     mode = 'read';
     rTab = 'bestemmelser';
+    formActions = null;
   }
 
   function handleSend() {
@@ -94,25 +95,17 @@
         {#if mode === 'read'}
           <CenterRead {d} {sel} {role} onform={goForm} />
         {:else if sel === 'frist' && role === 'BH'}
-          <FristForm onclose={goRead} onsend={handleSend} onactions={(a) => (formActions = a)} />
+          <FristForm onsend={handleSend} onactions={(a) => (formActions = a)} />
         {:else if sel === 'frist' && role === 'TE'}
-          <TeFristForm onclose={goRead} onsend={handleSend} onactions={(a) => (formActions = a)} />
+          <TeFristForm onsend={handleSend} onactions={(a) => (formActions = a)} />
         {:else if sel === 'vederlag' && role === 'BH'}
-          <VederlagForm onclose={goRead} onsend={handleSend} onactions={(a) => (formActions = a)} />
+          <VederlagForm onsend={handleSend} onactions={(a) => (formActions = a)} />
         {:else if sel === 'vederlag' && role === 'TE'}
-          <TeVederlagForm
-            onclose={goRead}
-            onsend={handleSend}
-            onactions={(a) => (formActions = a)}
-          />
+          <TeVederlagForm onsend={handleSend} onactions={(a) => (formActions = a)} />
         {:else if sel === 'ansvar' && role === 'BH'}
-          <GrunnlagForm onclose={goRead} onsend={handleSend} onactions={(a) => (formActions = a)} />
+          <GrunnlagForm onsend={handleSend} onactions={(a) => (formActions = a)} />
         {:else if sel === 'ansvar' && role === 'TE'}
-          <TeGrunnlagForm
-            onclose={goRead}
-            onsend={handleSend}
-            onactions={(a) => (formActions = a)}
-          />
+          <TeGrunnlagForm onsend={handleSend} onactions={(a) => (formActions = a)} />
         {/if}
 
         <ActionBar
