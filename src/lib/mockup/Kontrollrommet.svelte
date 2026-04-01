@@ -14,10 +14,15 @@
   import RightSidebar from './RightSidebar.svelte';
   import type { Role, Mode, TrackKey, RightTab } from './types.js';
 
+  /** Mobile view: which panel is visible on narrow screens */
+  type MobileView = 'matrix' | 'detail' | 'context';
+
   let role: Role = $state('BH');
   let sel: TrackKey = $state('ansvar');
   let rTab: RightTab = $state('bestemmelser');
   let mode: Mode = $state('read');
+  let mobileView: MobileView = $state('matrix');
+  let rightPanelOpen = $state(false);
 
   const d = $derived(store.tracks[sel]);
 
@@ -29,6 +34,7 @@
   function goForm(key: TrackKey) {
     sel = key;
     mode = 'form';
+    mobileView = 'detail';
     rTab = 'begrunnelse';
   }
 
@@ -39,12 +45,43 @@
 
   function handleSend() {
     goRead();
+    mobileView = 'matrix';
+  }
+
+  /** Mobile: select a track from the matrix → show detail */
+  function mobileSelectTrack(key: TrackKey) {
+    sel = key;
+    rTab = 'bestemmelser';
+    mobileView = 'detail';
+  }
+
+  /** Mobile: go back to the matrix view */
+  function mobileBack() {
+    if (mode === 'form') {
+      goRead();
+    }
+    mobileView = 'matrix';
+    rightPanelOpen = false;
+  }
+
+  /** Mobile: toggle right panel overlay */
+  function toggleRightPanel() {
+    rightPanelOpen = !rightPanelOpen;
   }
 </script>
 
 <div class="mockup">
   <div class="shell">
-    <Header {role} {mode} onrolechange={(r) => (role = r)} onback={goRead} />
+    <Header
+      {role}
+      {mode}
+      {mobileView}
+      onrolechange={(r) => (role = r)}
+      onback={() => {
+        if (mode === 'form') goRead();
+        else mobileBack();
+      }}
+    />
 
     {#if mode === 'form'}
       <ConsistencyStrip
@@ -58,22 +95,21 @@
 
     <div class="body">
       {#if mode === 'read'}
-        <LeftSidebar
-          {sel}
-          {role}
-          {subV}
-          {prinV}
-          {subF}
-          {prinF}
-          onselect={(key) => {
-            sel = key;
-            rTab = 'bestemmelser';
-          }}
-          onform={goForm}
-        />
+        <div class="left-panel" class:mobile-hidden={mobileView !== 'matrix'}>
+          <LeftSidebar
+            {sel}
+            {role}
+            {subV}
+            {prinV}
+            {subF}
+            {prinF}
+            onselect={mobileSelectTrack}
+            onform={goForm}
+          />
+        </div>
       {/if}
 
-      <main class="center">
+      <main class="center" class:mobile-hidden={mode === 'read' && mobileView === 'matrix'}>
         {#if mode === 'read'}
           <CenterRead {d} {sel} {role} onform={goForm} />
         {:else if sel === 'frist' && role === 'BH'}
@@ -90,17 +126,37 @@
           <TeGrunnlagForm onclose={goRead} onsend={handleSend} />
         {/if}
 
-        <ActionBar {mode} {role} {subV} {subF} {prinV} {prinF} oncloseform={goRead} />
+        <ActionBar
+          {mode}
+          {role}
+          {subV}
+          {subF}
+          {prinV}
+          {prinF}
+          {mobileView}
+          oncloseform={goRead}
+          onmobileback={mobileBack}
+          ontogglecontext={toggleRightPanel}
+        />
       </main>
 
-      <RightSidebar
-        {d}
-        {mode}
-        tab={rTab}
-        begr=""
-        ontabchange={(t) => (rTab = t)}
-        onbegrchange={() => {}}
-      />
+      <div class="right-panel" class:right-panel-open={rightPanelOpen}>
+        {#if rightPanelOpen}
+          <!-- svelte-ignore a11y_no_static_element_interactions a11y_click_events_have_key_events -->
+          <div class="right-panel-backdrop" onclick={() => (rightPanelOpen = false)}></div>
+        {/if}
+        <div class="right-panel-inner">
+          <RightSidebar
+            {d}
+            {mode}
+            tab={rTab}
+            begr=""
+            ontabchange={(t) => (rTab = t)}
+            onbegrchange={() => {}}
+            onclose={() => (rightPanelOpen = false)}
+          />
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -116,11 +172,63 @@
     flex: 1;
     display: flex;
     overflow: hidden;
+    position: relative;
   }
   .center {
     flex: 1;
     overflow-y: auto;
     background: var(--canvas);
     position: relative;
+  }
+  .left-panel {
+    display: contents;
+  }
+  .right-panel-inner {
+    display: contents;
+  }
+  .right-panel-backdrop {
+    display: none;
+  }
+
+  /* ── Mobile (≤768px) ── */
+  @media (max-width: 768px) {
+    .mobile-hidden {
+      display: none !important;
+    }
+    .left-panel {
+      display: block;
+      width: 100%;
+      overflow-y: auto;
+    }
+    .center {
+      width: 100%;
+    }
+    /* Right panel as slide-up sheet */
+    .right-panel {
+      position: absolute;
+      inset: 0;
+      z-index: 40;
+      pointer-events: none;
+      display: none;
+    }
+    .right-panel.right-panel-open {
+      display: block;
+      pointer-events: auto;
+    }
+    .right-panel-backdrop {
+      display: block;
+      position: absolute;
+      inset: 0;
+      background: rgba(28, 25, 23, 0.4);
+    }
+    .right-panel-inner {
+      display: flex;
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 70%;
+      z-index: 1;
+    }
   }
 </style>

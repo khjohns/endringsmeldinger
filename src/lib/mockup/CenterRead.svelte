@@ -307,4 +307,75 @@
     justify-content: flex-end;
     margin-top: 20px;
   }
+
+  /* ── Mobile ── */
+  @media (max-width: 768px) {
+    .read-content {
+      padding: 20px 16px 120px;
+    }
+    .heading-text {
+      font-size: 16px;
+    }
+    .doc-panel {
+      flex-direction: column;
+    }
+    .doc-sidebar {
+      width: 100%;
+      padding: 12px 16px;
+      border-right: none;
+      border-bottom: var(--edge);
+      flex-direction: row;
+      align-items: center;
+      gap: 12px;
+    }
+    .party-name {
+      margin-bottom: 0;
+    }
+    .te-value,
+    .bh-value {
+      font-size: 18px;
+    }
+    .rejected-badge {
+      gap: 6px;
+    }
+    .rejected-text {
+      font-size: 13px;
+    }
+    .principally-disputed {
+      margin-top: 0;
+      padding-top: 0;
+      border-top: none;
+      margin-left: auto;
+    }
+    .doc-content {
+      padding: 16px;
+    }
+    .argument-text {
+      font-size: 15px;
+      line-height: 1.6;
+    }
+    .stamp-position {
+      top: 12px;
+      right: 12px;
+    }
+    .bh-argument-box {
+      padding: 12px;
+    }
+    .draft-section {
+      padding: 16px;
+    }
+    .draft-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 12px;
+    }
+    .draft-meta {
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .sub-notice {
+      margin-left: 0;
+      padding-left: 16px;
+    }
+  }
 </style>

@@ -7,22 +7,26 @@
   let {
     role,
     mode,
+    mobileView = 'matrix',
     onrolechange,
     onback,
   }: {
     role: Role;
     mode: Mode;
+    mobileView?: 'matrix' | 'detail' | 'context';
     onrolechange: (r: Role) => void;
     onback: () => void;
   } = $props();
+
+  const showBack = $derived(mode === 'form' || mobileView === 'detail');
 </script>
 
 <header class="header">
   <div class="ochre-stripe"></div>
   <div class="left">
-    {#if mode === 'form'}
+    {#if showBack}
       <button class="back-btn" onclick={onback}>
-        <ChevronLeft size={16} /> Oversikt
+        <ChevronLeft size={16} /> <span class="back-text">Oversikt</span>
       </button>
     {/if}
     <div class="ns-badge">
@@ -35,7 +39,7 @@
   </div>
   <div class="right">
     <button class="reset-btn" onclick={() => store.reset()} title="Nullstill mockup">
-      <RotateCcw size={12} /> Nullstill
+      <RotateCcw size={12} /> <span class="reset-text">Nullstill</span>
     </button>
     <span class="font-mono role-label">VIS SOM</span>
     <div class="role-toggle">
@@ -164,5 +168,52 @@
   .reset-btn:hover {
     color: var(--ink);
     border-color: var(--ink);
+  }
+
+  /* ── Mobile ── */
+  @media (max-width: 768px) {
+    .header {
+      height: auto;
+      min-height: 44px;
+      flex-wrap: wrap;
+    }
+    .left {
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+    }
+    .ns-badge {
+      padding: 0 10px;
+    }
+    .project-info {
+      padding: 0 10px;
+      gap: 6px;
+      min-width: 0;
+    }
+    .project-name {
+      font-size: 13px;
+    }
+    .project-parties {
+      display: none;
+    }
+    .back-btn {
+      padding: 0 10px;
+    }
+    .back-text {
+      display: none;
+    }
+    .right {
+      padding: 0 10px;
+      gap: 8px;
+    }
+    .role-label {
+      display: none;
+    }
+    .reset-text {
+      display: none;
+    }
+    .reset-btn {
+      padding: 4px 6px;
+    }
   }
 </style>

@@ -24,6 +24,7 @@
     begr,
     ontabchange,
     onbegrchange,
+    onclose,
   }: {
     d: Track;
     mode: Mode;
@@ -31,6 +32,7 @@
     begr: string;
     ontabchange: (t: RightTab) => void;
     onbegrchange: (v: string) => void;
+    onclose?: () => void;
   } = $props();
 
   const readTabs: RightTab[] = ['bestemmelser', 'historikk', 'vedlegg'];
@@ -68,6 +70,9 @@
         {tabLabels[t]}
       </button>
     {/each}
+    {#if onclose}
+      <button class="mobile-close-btn" onclick={onclose}>✕</button>
+    {/if}
   </div>
 
   <div class="tab-content">
@@ -387,5 +392,28 @@
     align-items: center;
     gap: 8px;
     color: var(--ink-4);
+  }
+  .mobile-close-btn {
+    display: none;
+    margin-left: auto;
+    padding: 8px 14px;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--ink-3);
+    background: none;
+    border: none;
+    cursor: pointer;
+  }
+
+  /* ── Mobile ── */
+  @media (max-width: 768px) {
+    .right-sidebar {
+      width: 100%;
+      border-left: none;
+      border-top: var(--edge);
+    }
+    .mobile-close-btn {
+      display: block;
+    }
   }
 </style>
