@@ -30,6 +30,11 @@ export function sporBestemmelser(spor: TrackKey): Provision[] {
   return SPOR_PARAGRAFER[spor].map(regel).filter((p): p is Provision => p !== null);
 }
 
+/** Toggle boolean | undefined: same value → undefined, different → value */
+export function toggleChoice(current: boolean | undefined, value: boolean): boolean | undefined {
+  return current === value ? undefined : value;
+}
+
 export function act(draftState: DraftState, role: Role): string {
   if (draftState === 'empty') return role === 'TE' ? 'Revider' : 'Besvar';
   if (draftState === 'draft') return 'Fortsett';

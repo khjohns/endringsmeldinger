@@ -5,6 +5,7 @@
   import { DD, TE } from './data.js';
   import Stamp from './Stamp.svelte';
   import CaseAnchor from './CaseAnchor.svelte';
+  import { toggleChoice } from './utils.js';
 
   let { onclose }: { onclose: () => void } = $props();
 
@@ -47,10 +48,6 @@
   });
 
   const computed = $derived(beregnAlt(formState, domainConfig));
-
-  function toggleChoice(current: boolean | undefined, value: boolean): boolean | undefined {
-    return current === value ? undefined : value;
-  }
 
   const resultat = $derived.by(() => {
     const r = computed.prinsipaltResultat;
@@ -305,127 +302,16 @@
 </div>
 
 <style>
-  .form-content {
-    max-width: 840px;
-    margin: 0 auto;
-    padding: 32px 40px 120px;
-  }
-  .te-context {
-    margin-bottom: 40px;
-    padding: 24px;
-    background: var(--paper-sub);
-    border-top: var(--edge);
-    border-left: var(--rule);
-    border-right: var(--rule);
-    border-bottom: var(--rule);
-  }
-  .context-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 12px;
-  }
-  .context-label-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .context-label {
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--ink-3);
-  }
-  .context-ref {
-    font-size: 11px;
-    font-weight: 500;
-    background: var(--paper-inset);
-    border: var(--rule-subtle);
-    padding: 2px 8px;
-    color: var(--ink-2);
-  }
+  /* Form-specific styles (shared styles in mockup.css) */
   .context-value {
     font-size: 22px;
     font-weight: 700;
     margin-bottom: 12px;
     letter-spacing: -0.02em;
   }
-  .context-text {
-    font-size: 15px;
-    line-height: 1.65;
-    color: var(--ink-3);
-  }
-  .bh-heading {
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    margin-bottom: 32px;
-  }
-  .sub-banner {
-    margin-bottom: 32px;
-    padding: 16px 20px;
-    background: var(--ochre-bg);
-    border-left: 2px dashed var(--ochre-border);
-  }
-  .sub-banner-text {
-    font-size: 14px;
-    line-height: 1.55;
-    color: var(--ink-2);
-    font-style: italic;
-    margin-top: 8px;
-  }
-  .question-block {
-    margin-bottom: 32px;
-  }
-  .question-header {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 12px;
-  }
-  .question-label {
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--ink-2);
-  }
-  .question-ref {
-    font-size: 11px;
-    background: var(--paper-inset);
-    border: var(--rule-subtle);
-    padding: 2px 8px;
-    color: var(--ink-3);
-  }
-  .question-text {
-    font-size: 14px;
-    color: var(--ink-2);
-    margin-bottom: 16px;
-  }
   .pill-row {
     display: flex;
     gap: 8px;
-  }
-  .divider {
-    height: 1px;
-    background: rgba(28, 25, 23, 0.08);
-    margin-bottom: 32px;
-  }
-  .alert-box {
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
-    padding: 16px;
-    margin-top: 16px;
-    font-size: 13px;
-    line-height: 1.5;
-    color: var(--ink-2);
-  }
-  .alert-box.warning {
-    background: var(--ochre-bg);
-    border: 1px solid var(--ochre-border);
-    color: var(--ink);
   }
   .measurement-row {
     display: flex;
@@ -442,41 +328,11 @@
     font-weight: 700;
     letter-spacing: -0.02em;
   }
-  .measurement-input-label {
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--ink-2);
-    margin-bottom: 8px;
-  }
   .measurement-input {
     width: 140px;
-    font-size: 18px;
-    font-weight: 700;
-    padding: 8px 16px;
-    background: var(--paper-inset);
-    border: var(--edge);
-    color: var(--ink);
-    outline: none;
-  }
-  .measurement-input:focus {
-    border-color: var(--ochre);
   }
   .result-box {
     margin-top: 32px;
-    padding: 20px 24px;
-    background: var(--paper);
-    border: 2px solid var(--ink-4);
-  }
-  .result-header {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    font-size: 16px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.02em;
   }
   .result-detail {
     margin-top: 12px;
@@ -487,23 +343,8 @@
     color: var(--ink-2);
   }
   .result-note {
-    font-size: 13px;
     font-style: italic;
-    color: var(--ink-3);
     margin-top: 8px;
-  }
-  .sub-result {
-    margin-top: 16px;
-    padding-top: 16px;
-    border-top: 1px dashed var(--ochre-border);
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-  .sub-result-text {
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--ochre);
   }
   .checkbox-row {
     display: flex;
