@@ -8,6 +8,7 @@
   import RichTextEditor from '$lib/components/primitives/RichTextEditor.svelte';
   import LockedValueNode from '$lib/editor/LockedValueNode';
   import { RefreshCw } from 'lucide-svelte';
+  import { isHtmlEmpty } from '$lib/utils/formatters';
   import { store } from './store.svelte.js';
   import { TE } from './data.js';
   import Stamp from './Stamp.svelte';
@@ -42,6 +43,12 @@
     isUpdateMode: false,
   });
 
+  let begrunnelseHtml = $state('');
+  let userHasEdited = $state(false);
+  let editorApi: { setContent: (html: string) => void } | undefined;
+  let prevHtml: string | undefined;
+  let charCount = $state(0);
+
   let fristVarselOk = $state<boolean | undefined>(initialDefaults.fristVarselOk);
   let spesifisertKravOk = $state<boolean | undefined>(initialDefaults.spesifisertKravOk);
   let foresporselSvarOk = $state<boolean | undefined>(initialDefaults.foresporselSvarOk);
@@ -56,7 +63,7 @@
     vilkarOppfylt,
     sendForesporsel,
     godkjentDager,
-    begrunnelse: '',
+    begrunnelse: begrunnelseHtml,
     begrunnelseValidationError: undefined,
   });
 
@@ -77,14 +84,9 @@
     if (computed.visibility.showForesporselSvarOk && foresporselSvarOk === undefined) return false;
     if (vilkarOppfylt === undefined) return false;
     if (computed.showGodkjentDager && godkjentDager === undefined) return false;
+    if (isHtmlEmpty(begrunnelseHtml)) return false;
     return true;
   });
-
-  let begrunnelseHtml = $state('');
-  let userHasEdited = $state(false);
-  let editorApi: { setContent: (html: string) => void } | undefined;
-  let prevHtml: string | undefined;
-  let charCount = $state(0);
 
   const autoBegrunnelseHtml = $derived.by(() => {
     if (!sendForesporsel && (vilkarOppfylt === undefined || godkjentDager === undefined)) return '';
@@ -173,12 +175,16 @@
 
   <div class="bh-heading">Byggherrens standpunkt</div>
 
-  {#if domainConfig.erGrunnlagSubsidiaer}
+  {#if domainConfig.erGrunnlagSubsidiaer || domainConfig.erHelFristSubsidiaerPgaGrunnlag}
     <div class="sub-banner">
       <Stamp variant="ochre" small flat>Subsidiært</Stamp>
       <p class="font-serif sub-banner-text">
-        Grunnlaget er avslått. Vurderingen nedenfor gjelder for det tilfelle at grunnlaget likevel
-        godkjennes.
+        {#if domainConfig.erGrunnlagSubsidiaer}
+          Grunnlaget er avslått. Vurderingen nedenfor gjelder for det tilfelle at grunnlaget likevel
+          godkjennes.
+        {:else}
+          Grunnlaget ble varslet for sent (§32.2). Hele fristkravet behandles subsidiært.
+        {/if}
       </p>
     </div>
   {/if}
