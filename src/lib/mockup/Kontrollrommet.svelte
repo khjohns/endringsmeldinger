@@ -6,6 +6,7 @@
   import LeftSidebar from './LeftSidebar.svelte';
   import CenterRead from './CenterRead.svelte';
   import CenterForm from './CenterForm.svelte';
+  import FristForm from './FristForm.svelte';
   import ActionBar from './ActionBar.svelte';
   import RightSidebar from './RightSidebar.svelte';
   import type { Role, Mode, TrackKey, RightTab } from './types.js';
@@ -89,6 +90,8 @@
       <main class="center">
         {#if mode === 'read'}
           <CenterRead {d} {sel} {role} onform={goForm} />
+        {:else if sel === 'frist'}
+          <FristForm onclose={goRead} />
         {:else}
           <CenterForm {d} {sel} {choices} ontoggle={toggleChoice} />
         {/if}
