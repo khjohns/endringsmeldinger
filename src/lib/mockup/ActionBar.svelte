@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Check, XSquare, Send } from 'lucide-svelte';
+  import { Check, XSquare, Send, BookOpen } from 'lucide-svelte';
   import { TE } from './data.js';
   import { fmt } from './utils.js';
   import type { Mode, Role } from './types.js';
@@ -12,6 +12,7 @@
     prinV,
     prinF,
     oncloseform,
+    ontogglecontext,
   }: {
     mode: Mode;
     role: Role;
@@ -20,6 +21,7 @@
     prinV: number;
     prinF: number;
     oncloseform: () => void;
+    ontogglecontext?: () => void;
   } = $props();
 </script>
 
@@ -43,6 +45,12 @@
       </div>
     </div>
     <div class="action-buttons">
+      {#if ontogglecontext}
+        <button class="btn btn-secondary context-btn" onclick={ontogglecontext}>
+          <BookOpen size={14} />
+          <span class="context-btn-text">Kontekst</span>
+        </button>
+      {/if}
       {#if mode === 'form'}
         <button class="btn btn-secondary" onclick={oncloseform}>Lukk kladd</button>
         <button class="btn btn-primary"><Send size={14} /> Send svar</button>
@@ -121,5 +129,40 @@
     font-size: 12px;
     font-weight: 600;
     color: var(--ink-3);
+  }
+  .context-btn {
+    display: none;
+  }
+
+  /* ── Mobile ── */
+  @media (max-width: 768px) {
+    .action-bar {
+      padding: 10px 12px;
+    }
+    .action-inner {
+      gap: 8px;
+    }
+    .status-section {
+      flex: 1;
+      min-width: 0;
+    }
+    .status-text {
+      font-size: 11px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .status-sep {
+      margin: 0 4px;
+    }
+    .action-buttons {
+      flex-shrink: 0;
+    }
+    .context-btn {
+      display: inline-flex;
+    }
+    .context-btn-text {
+      display: none;
+    }
   }
 </style>
