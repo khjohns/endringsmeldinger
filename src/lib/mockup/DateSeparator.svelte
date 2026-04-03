@@ -18,7 +18,7 @@
   .line {
     flex: 1;
     height: 1px;
-    background: var(--ochre-border);
+    background: var(--gold-border);
   }
   .date {
     font-size: 10px;

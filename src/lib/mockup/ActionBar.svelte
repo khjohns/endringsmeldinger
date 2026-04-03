@@ -41,7 +41,7 @@
           {#if mode === 'form'}
             <span style="color: var(--ink-2)">Autolagret — lukk eller send</span>
           {:else}
-            <span style="color: var(--ochre)">Subs. {fmt(subV)},- / {subF}d</span>
+            <span style="color: var(--green)">Subs. {fmt(subV)},- / {subF}d</span>
             <span class="status-sep">·</span>
             <span style="color: var(--red)">Prins. {fmt(prinV)},- / {prinF}d</span>
           {/if}
@@ -98,7 +98,8 @@
   .status-dot {
     width: 8px;
     height: 8px;
-    background: var(--ochre);
+    border-radius: 50%;
+    background: var(--gold);
   }
   .status-label {
     font-size: 10px;
@@ -124,12 +125,15 @@
     gap: 12px;
     padding: 8px 16px;
     border: var(--rule);
+    border-radius: 4px;
     background: var(--paper-inset);
   }
   .waiting-dot {
     width: 6px;
     height: 6px;
-    background: var(--ochre);
+    border-radius: 50%;
+    background: var(--gold);
+    animation: pulse 2s ease-in-out infinite;
   }
   .waiting-text {
     font-size: 12px;

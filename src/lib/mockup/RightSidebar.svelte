@@ -209,7 +209,7 @@
   .best-note {
     font-size: 13px;
     line-height: 1.5;
-    color: var(--ochre);
+    color: var(--green);
     font-style: italic;
     margin-top: 12px;
   }
@@ -221,7 +221,7 @@
     top: 8px;
     bottom: 0;
     width: 2px;
-    background: rgba(28, 25, 23, 0.06);
+    background: var(--paper-inset);
   }
   .history-event {
     position: relative;
@@ -241,7 +241,8 @@
     font-size: 9px;
     font-weight: 700;
     z-index: 1;
-    border: 2px solid var(--plate);
+    border: 1.5px solid var(--plate);
+    border-radius: 4px;
   }
   .event-time {
     font-size: 10px;
@@ -276,14 +277,15 @@
   }
   .note-sep {
     height: 1px;
-    background: var(--ochre-border);
+    background: var(--gold-border);
     margin: 16px 0;
     opacity: 0.5;
   }
   .internal-note {
     padding: 12px;
     background: var(--draft-bg);
-    border: 2px dashed var(--draft-border);
+    border: 1.5px dashed var(--draft-border);
+    border-radius: 4px;
   }
   .note-header {
     display: flex;
@@ -319,7 +321,8 @@
     font-weight: 700;
     color: var(--ink-3);
     background: var(--paper);
-    border: 2px dashed var(--ink-4);
+    border: 1.5px dashed var(--ink-4);
+    border-radius: 4px;
     cursor: pointer;
     transition: all 80ms;
   }
@@ -353,22 +356,25 @@
     line-height: 1.65;
     resize: none;
     background: var(--paper);
-    border: var(--rule);
+    border: var(--control-border);
+    border-radius: 4px;
     color: var(--ink);
     outline: none;
     min-height: 280px;
     transition: border-color 120ms;
   }
   .reasoning-textarea:focus {
-    border-color: rgba(28, 25, 23, 0.3);
+    border-color: var(--control-focus);
+    box-shadow: var(--control-focus-ring);
   }
   .toolbar {
     display: flex;
     gap: 2px;
     margin-top: 12px;
     padding: 4px;
-    background: var(--paper);
+    background: var(--paper-inset);
     border: var(--rule-subtle);
+    border-radius: 4px;
   }
   .toolbar-btn {
     width: 28px;

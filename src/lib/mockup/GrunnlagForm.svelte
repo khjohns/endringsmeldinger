@@ -162,7 +162,7 @@
     </div>
     <p class="question-text">Vurder om kontraktsforholdet gir grunnlag for krav.</p>
     {#if prekludert}
-      <Stamp variant="ochre" small flat>Subsidiært</Stamp>
+      <Stamp variant="green" small flat>Subsidiært</Stamp>
     {/if}
     <div class="verdict-row">
       {#each verdictOptions as opt}
@@ -241,6 +241,7 @@
     background: var(--plate);
     color: white;
     padding: 3px 8px;
+    border-radius: 2px;
   }
   .position-ref {
     font-size: 11px;
@@ -263,10 +264,11 @@
     gap: 4px;
     padding: 16px 12px;
     background: var(--paper);
-    border: 2px solid var(--ink-4);
+    border: 1.5px solid var(--ink-4);
+    border-radius: 4px;
     cursor: pointer;
     transition: all 80ms;
-    font-family: 'Space Grotesk', sans-serif;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 700;
     font-size: 12px;
     text-transform: uppercase;

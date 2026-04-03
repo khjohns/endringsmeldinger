@@ -1,40 +1,141 @@
-/* Kontraktsbordet — Design System (mockup-isolert) */
+/* Kontraktsbordet — Design System v2 (mockup-isolert) */
 
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;0,6..72,700;1,6..72,400;1,6..72,500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,500;0,7..72,600;0,7..72,700;1,7..72,400;1,7..72,500&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap');
 
 :root {
-  /* Surfaces */
-  --canvas: #f8f7f4;
+  /* ── Surfaces ── */
+  --canvas: #f7f7f5;
   --paper: #ffffff;
-  --paper-inset: #f6f5f1;
-  --paper-sub: #fafaf7;
+  --paper-inset: #f3f3f0;
+  --paper-sub: #fafaf8;
   --plate: #1c1917;
 
-  /* Ink */
+  /* ── Ink — 4 levels ── */
   --ink: #1c1917;
   --ink-2: #4a4945;
   --ink-3: #7a7975;
   --ink-4: #a8a7a2;
 
-  /* Borders */
-  --edge: 2px solid #1c1917;
-  --rule: 1px solid rgba(28, 25, 23, 0.12);
-  --rule-subtle: 1px solid rgba(28, 25, 23, 0.07);
+  /* ── Borders — 4 intensities ── */
+  --edge: 1.5px solid #1c1917;
+  --rule: 1px solid rgba(28, 25, 23, 0.1);
+  --rule-subtle: 1px solid rgba(28, 25, 23, 0.06);
+  --rule-strong: 1px solid rgba(28, 25, 23, 0.2);
 
-  /* Accent — ochre */
-  --ochre: #b8860b;
-  --ochre-bg: #fbf6ea;
-  --ochre-border: #ddd0a0;
+  /* ── Accent — Gold (primary) ── */
+  --gold: #d4a020;
+  --gold-bg: #fff8e8;
+  --gold-border: #f0d880;
 
-  /* Semantic */
-  --red: #991b1b;
-  --red-bg: #fdf2f2;
-  --green: #166534;
+  /* ── Accent — Green (subsidiary) ── */
+  --green: #034b45;
+  --green-bg: #ecf5f3;
+  --green-border: #a0ccc4;
 
-  /* Draft */
-  --draft: #6b5e2f;
-  --draft-bg: #fdfbf0;
-  --draft-border: #dbd2a8;
+  /* ── Semantic ── */
+  --red: #cc3030;
+  --red-bg: #fff0ee;
+
+  /* ── Draft ── */
+  --draft: #5a6048;
+  --draft-bg: #f6f7f2;
+  --draft-border: #c8ccb0;
+
+  /* ── Controls ── */
+  --control-bg: var(--paper-inset);
+  --control-border: 1.5px solid #1c1917;
+  --control-focus: var(--gold);
+  --control-focus-ring: 0 0 0 3px var(--gold-border);
+
+  /* ── Overlays ── */
+  --overlay-1: #ffffff;
+  --overlay-2: #ffffff;
+  --overlay-bd: rgba(28, 25, 23, 0.12);
+  --overlay-shadow-sm: 0 4px 16px rgba(0, 0, 0, 0.08), 0 1px 4px rgba(0, 0, 0, 0.04);
+  --overlay-shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+/* ── Dark Mode — Kveldsskiftet ── */
+.mockup.dark {
+  --canvas: #000000;
+  --paper: #111110;
+  --paper-inset: #1a1918;
+  --paper-sub: #141312;
+  --plate: #000000;
+
+  --ink: #f0ede5;
+  --ink-2: #b8b4a8;
+  --ink-3: #787470;
+  --ink-4: #484440;
+
+  --edge: 1.5px solid #2a2828;
+  --rule: 1px solid rgba(240, 237, 229, 0.06);
+  --rule-subtle: 1px solid rgba(240, 237, 229, 0.03);
+  --rule-strong: 1px solid rgba(240, 237, 229, 0.12);
+
+  --gold: #f0c840;
+  --gold-bg: #1e1a0e;
+  --gold-border: #4a4018;
+
+  --green: #50d0b8;
+  --green-bg: #0e1e1a;
+  --green-border: #183028;
+
+  --red: #dc2626;
+  --red-bg: #1e1010;
+
+  --draft: #909080;
+  --draft-bg: #141410;
+  --draft-border: #2e2e24;
+
+  --control-bg: var(--paper-inset);
+  --control-border: 1.5px solid #2a2828;
+  --control-focus: var(--gold);
+  --control-focus-ring: 0 0 0 3px var(--gold-border);
+
+  --overlay-1: #1e1e1c;
+  --overlay-2: #252523;
+  --overlay-bd: rgba(240, 237, 229, 0.1);
+  --overlay-shadow-sm: 0 4px 16px rgba(0, 0, 0, 0.4), 0 1px 4px rgba(0, 0, 0, 0.3);
+  --overlay-shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5), 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* ── Animations ── */
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes dropIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mockup * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
 /* ── Reset (scoped to mockup) ── */
@@ -46,125 +147,182 @@
 .mockup {
   background: var(--canvas);
   color: var(--ink);
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   -webkit-font-smoothing: antialiased;
 }
 
 /* ── Font utilities ── */
 .mockup .font-serif {
-  font-family: 'Newsreader', serif;
+  font-family: 'Literata', serif;
 }
 .mockup .font-mono {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'IBM Plex Mono', monospace;
   font-variant-numeric: tabular-nums;
 }
 
 /* ── Stamps ── */
 .mockup .stamp {
   display: inline-block;
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-weight: 700;
   font-size: 11px;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   padding: 4px 12px;
-  border: 2px solid currentColor;
+  border: 1.5px solid currentColor;
+  border-radius: 4px;
   line-height: 1;
-  box-shadow: 2px 2px 0 currentColor;
+  box-shadow: 1px 1px 0 currentColor;
+  transition: box-shadow 0.15s ease;
+}
+.mockup .stamp:hover {
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
 }
 .mockup .stamp-red {
   color: var(--red);
-  transform: rotate(-1.2deg);
+  transform: rotate(-0.5deg);
   background: var(--red-bg);
 }
-.mockup .stamp-ochre {
-  color: var(--ochre);
-  transform: rotate(-0.6deg);
-  background: var(--ochre-bg);
+.mockup .stamp-gold {
+  color: var(--gold);
+  transform: rotate(-0.3deg);
+  background: var(--gold-bg);
+}
+.mockup .stamp-green {
+  color: var(--green);
+  transform: rotate(-0.5deg);
+  background: var(--green-bg);
 }
 .mockup .stamp-draft {
   color: var(--draft);
   border-style: dashed;
-  transform: rotate(-0.8deg);
+  transform: none;
   background: var(--draft-bg);
+  box-shadow: none;
+}
+.mockup .stamp-draft:hover {
   box-shadow: none;
 }
 .mockup .stamp-sm {
   font-size: 9px;
   padding: 3px 8px;
-  border-width: 1.5px;
+  border-width: 1px;
   box-shadow: 1px 1px 0 currentColor;
 }
 .mockup .stamp-sm.stamp-draft {
   box-shadow: none;
 }
-.mockup .stamp-sm.stamp-flat {
+.mockup .stamp-flat {
   box-shadow: none;
   transform: none;
 }
+.mockup .stamp-flat:hover {
+  box-shadow: none;
+}
 
-/* ── Buttons ── */
+/* ── Buttons — Soft Y-translate ── */
 .mockup .btn {
   display: inline-flex;
   align-items: center;
   gap: 8px;
   padding: 8px 16px;
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-weight: 700;
   font-size: 12px;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
-  border-radius: 0;
+  letter-spacing: 0.03em;
+  border-radius: 4px;
   cursor: pointer;
-  transition: all 60ms linear;
-}
-.mockup .btn:active {
-  transform: translate(2px, 2px);
+  transition: all 100ms ease;
 }
 .mockup .btn-primary {
   background: var(--plate);
   color: white;
-  border: 2px solid var(--plate);
-  box-shadow: 3px 3px 0 rgba(28, 25, 23, 0.2);
+  border: 1.5px solid var(--plate);
+  box-shadow: 0 2px 6px rgba(28, 25, 23, 0.15);
 }
 .mockup .btn-primary:hover {
-  box-shadow: 2px 2px 0 rgba(28, 25, 23, 0.2);
-  transform: translate(1px, 1px);
+  box-shadow: 0 4px 12px rgba(28, 25, 23, 0.2);
+  transform: translateY(-1px);
+}
+.mockup .btn-primary:active {
+  box-shadow: 0 1px 3px rgba(28, 25, 23, 0.12);
+  transform: translateY(1px);
 }
 .mockup .btn-secondary {
   background: var(--paper);
   color: var(--ink);
-  border: 2px solid var(--ink);
-  box-shadow: 2px 2px 0 rgba(28, 25, 23, 0.12);
+  border: 1.5px solid rgba(28, 25, 23, 0.25);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
 }
 .mockup .btn-secondary:hover {
-  box-shadow: 1px 1px 0 rgba(28, 25, 23, 0.12);
-  transform: translate(1px, 1px);
+  border-color: rgba(28, 25, 23, 0.5);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  transform: translateY(-1px);
+}
+.mockup .btn-secondary:active {
+  box-shadow: 0 0 2px rgba(0, 0, 0, 0.04);
+  transform: translateY(1px);
 }
 .mockup .btn-danger {
   background: var(--paper);
   color: var(--red);
-  border: 2px solid var(--red);
-  box-shadow: 2px 2px 0 rgba(153, 27, 27, 0.12);
+  border: 1.5px solid rgba(204, 48, 48, 0.25);
+  box-shadow: 0 1px 4px rgba(204, 48, 48, 0.08);
 }
 .mockup .btn-danger:hover {
-  box-shadow: 1px 1px 0 rgba(153, 27, 27, 0.12);
-  transform: translate(1px, 1px);
+  border-color: var(--red);
+  box-shadow: 0 2px 8px rgba(204, 48, 48, 0.12);
+  transform: translateY(-1px);
+}
+.mockup .btn-danger:active {
+  box-shadow: 0 0 2px rgba(204, 48, 48, 0.06);
+  transform: translateY(1px);
 }
 .mockup .btn-sm {
   font-size: 10px;
   padding: 6px 12px;
-  box-shadow: 2px 2px 0 rgba(28, 25, 23, 0.08);
 }
-.mockup .btn-sm:hover {
-  box-shadow: 1px 1px 0 rgba(28, 25, 23, 0.08);
-  transform: translate(1px, 1px);
+
+/* ── Dark mode buttons — Glow strategy ── */
+.mockup.dark .btn-primary {
+  background: var(--gold);
+  color: #1c1917;
+  border-color: var(--gold);
+  box-shadow: 0 0 12px rgba(240, 200, 64, 0.25);
+}
+.mockup.dark .btn-primary:hover {
+  box-shadow: 0 0 20px rgba(240, 200, 64, 0.35);
+}
+.mockup.dark .btn-primary:active {
+  box-shadow: 0 0 6px rgba(240, 200, 64, 0.2);
+}
+.mockup.dark .btn-secondary {
+  background: var(--paper);
+  color: var(--ink);
+  border: 1px solid #2a2828;
+  box-shadow: 0 0 8px rgba(240, 237, 229, 0.04);
+}
+.mockup.dark .btn-secondary:hover {
+  border-color: var(--ink-3);
+  box-shadow: 0 0 12px rgba(240, 237, 229, 0.06);
+}
+.mockup.dark .btn-danger {
+  background: var(--paper);
+  color: var(--red);
+  border: 1px solid rgba(220, 38, 38, 0.25);
+  box-shadow: 0 0 8px rgba(220, 38, 38, 0.08);
+}
+.mockup.dark .btn-danger:hover {
+  border-color: var(--red);
+  box-shadow: 0 0 14px rgba(220, 38, 38, 0.15);
 }
 
 /* ── Matrix rows ── */
 .mockup .m-row {
   cursor: pointer;
   border-left: 3px solid transparent;
+  border-radius: 0 4px 4px 0;
   transition: background 80ms;
 }
 .mockup .m-row:hover {
@@ -175,13 +333,14 @@
 }
 .mockup .m-row.on {
   background: var(--paper);
-  border-left-color: var(--ochre);
+  border-left-color: var(--gold);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
 }
 
 /* ── Tabs ── */
 .mockup .tab {
   padding: 10px 16px;
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
@@ -193,7 +352,7 @@
   border-top: none;
   border-left: none;
   border-right: none;
-  transition: all 100ms;
+  transition: all 0.15s ease;
 }
 .mockup .tab:hover {
   color: var(--ink-2);
@@ -201,25 +360,25 @@
 }
 .mockup .tab.on {
   color: var(--ink);
-  border-bottom-color: var(--ochre);
+  border-bottom-color: var(--gold);
   background: transparent;
 }
 
 /* ── Subsidiary zone ── */
 .mockup .sub-zone {
   position: relative;
-  margin-left: 24px;
-  padding-left: 20px;
-  border-left: 2px dashed var(--ochre-border);
+  margin-left: 20px;
+  padding-left: 18px;
+  border-left: 2px dashed var(--green-border);
 }
 .mockup .sub-zone::before {
   content: '';
   position: absolute;
-  left: -6px;
+  left: -7px;
   top: 0;
-  width: 10px;
-  height: 10px;
-  background: var(--ochre);
+  width: 11px;
+  height: 11px;
+  background: var(--green);
   transform: rotate(45deg);
 }
 
@@ -231,14 +390,14 @@
   padding: 12px;
   background: var(--paper);
   border: var(--rule-subtle);
+  border-radius: 4px;
   cursor: pointer;
   transition:
-    border-color 100ms,
-    box-shadow 100ms;
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
 }
 .mockup .att:hover {
-  border-color: var(--ink);
-  box-shadow: 2px 2px 0 rgba(28, 25, 23, 0.04);
+  border: var(--rule-strong);
 }
 
 /* ── Provision cards ── */
@@ -246,11 +405,12 @@
   padding: 16px;
   background: var(--paper-inset);
   border: var(--rule-subtle);
-  transition: border-color 100ms;
+  border-radius: 4px;
+  transition: border-color 0.15s ease;
   cursor: default;
 }
 .mockup .best-card:hover {
-  border-color: var(--ochre-border);
+  border-color: var(--green-border);
 }
 
 /* ── Pills (yes/no toggle) ── */
@@ -258,7 +418,8 @@
   padding: 8px 16px;
   font-size: 13px;
   font-weight: 600;
-  border: 2px solid var(--ink-4);
+  border: var(--control-border);
+  border-radius: 4px;
   background: var(--paper);
   color: var(--ink-2);
   cursor: pointer;
@@ -267,6 +428,9 @@
 .mockup .pill:hover {
   border-color: var(--ink);
   color: var(--ink);
+}
+.mockup .pill:focus-visible {
+  box-shadow: var(--control-focus-ring);
 }
 .mockup .pill.yes {
   background: var(--green);
@@ -277,6 +441,11 @@
   background: var(--red);
   color: white;
   border-color: var(--red);
+}
+.mockup .pill.partial {
+  background: var(--gold);
+  color: var(--ink);
+  border-color: var(--gold);
 }
 
 /* ── Form shared styles ── */
@@ -293,6 +462,7 @@
   border-left: var(--rule);
   border-right: var(--rule);
   border-bottom: var(--rule);
+  border-radius: 0 0 4px 4px;
 }
 .mockup .context-header {
   display: flex;
@@ -317,10 +487,12 @@
   font-weight: 500;
   background: var(--paper-inset);
   border: var(--rule-subtle);
+  border-radius: 2px;
   padding: 2px 8px;
   color: var(--ink-2);
 }
 .mockup .context-text {
+  font-family: 'Literata', serif;
   font-size: 15px;
   line-height: 1.65;
   color: var(--ink-3);
@@ -349,8 +521,10 @@
 }
 .mockup .question-ref {
   font-size: 11px;
+  font-family: 'IBM Plex Mono', monospace;
   background: var(--paper-inset);
   border: var(--rule-subtle);
+  border-radius: 2px;
   padding: 2px 8px;
   color: var(--ink-3);
 }
@@ -372,10 +546,12 @@
 .mockup .sub-banner {
   margin-bottom: 32px;
   padding: 16px 20px;
-  background: var(--ochre-bg);
-  border-left: 2px dashed var(--ochre-border);
+  background: var(--green-bg);
+  border-left: 2px dashed var(--green-border);
+  border-radius: 0 4px 4px 0;
 }
 .mockup .sub-banner-text {
+  font-family: 'Literata', serif;
   font-size: 14px;
   line-height: 1.55;
   color: var(--ink-2);
@@ -390,10 +566,11 @@
   margin-top: 16px;
   font-size: 13px;
   line-height: 1.5;
+  border-radius: 4px;
 }
 .mockup .alert-box.warning {
-  background: var(--ochre-bg);
-  border: 1px solid var(--ochre-border);
+  background: var(--gold-bg);
+  border: 1px solid var(--gold-border);
   color: var(--ink);
 }
 .mockup .measurement-input-label {
@@ -406,36 +583,44 @@
 }
 .mockup .measurement-input {
   width: 180px;
+  font-family: 'IBM Plex Mono', monospace;
   font-size: 18px;
   font-weight: 700;
   padding: 8px 16px;
-  background: var(--paper-inset);
-  border: var(--edge);
+  background: var(--control-bg);
+  border: var(--control-border);
+  border-radius: 4px;
   color: var(--ink);
   outline: none;
+  font-variant-numeric: tabular-nums;
 }
 .mockup .measurement-input:focus {
-  border-color: var(--ochre);
+  border-color: var(--control-focus);
+  box-shadow: var(--control-focus-ring);
 }
 .mockup .begrunnelse-textarea {
   width: 100%;
   min-height: 160px;
   padding: 16px;
+  font-family: 'Literata', serif;
   font-size: 15px;
   line-height: 1.65;
   resize: vertical;
   background: var(--paper);
-  border: var(--rule);
+  border: var(--control-border);
+  border-radius: 4px;
   color: var(--ink);
   outline: none;
 }
 .mockup .begrunnelse-textarea:focus {
-  border-color: rgba(28, 25, 23, 0.3);
+  border-color: var(--control-focus);
+  box-shadow: var(--control-focus-ring);
 }
 .mockup .result-box {
   padding: 20px 24px;
   background: var(--paper);
-  border: 2px solid var(--ink-4);
+  border: 1.5px solid var(--ink-4);
+  border-radius: 4px;
 }
 .mockup .result-header {
   display: flex;
@@ -447,6 +632,7 @@
   letter-spacing: 0.02em;
 }
 .mockup .result-note {
+  font-family: 'Literata', serif;
   font-size: 13px;
   line-height: 1.5;
   color: var(--ink-3);
@@ -455,7 +641,7 @@
 .mockup .sub-result {
   margin-top: 16px;
   padding-top: 16px;
-  border-top: 1px dashed var(--ochre-border);
+  border-top: 1px dashed var(--green-border);
   display: flex;
   align-items: center;
   gap: 12px;
@@ -463,28 +649,31 @@
 .mockup .sub-result-text {
   font-size: 12px;
   font-weight: 600;
-  color: var(--ochre);
+  color: var(--green);
 }
 .mockup .status-box {
   margin-top: 32px;
   padding: 16px 20px;
   background: var(--paper);
-  border: 2px solid var(--ochre);
+  border: 1.5px solid var(--gold);
+  border-radius: 4px;
 }
 .mockup .status-text {
   font-size: 12px;
   font-weight: 700;
-  color: var(--ochre);
+  color: var(--gold);
   letter-spacing: 0.02em;
 }
 .mockup .segment-row {
   display: flex;
   border: var(--edge);
+  border-radius: 4px;
+  overflow: hidden;
 }
 .mockup .segment-btn {
   flex: 1;
   padding: 10px 16px;
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 12px;
   font-weight: 700;
   text-transform: uppercase;
@@ -527,11 +716,12 @@
   padding: 2px 8px;
   background: transparent;
   border: 1px solid rgba(28, 25, 23, 0.12);
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 11px;
   font-weight: 500;
   color: var(--ink-3);
   cursor: pointer;
+  border-radius: 4px;
   transition: all 80ms;
 }
 .mockup .regenerate-btn:hover {
@@ -544,15 +734,15 @@
 }
 .mockup .editor-wrapper {
   margin-top: 12px;
-  border: 1px solid rgba(28, 25, 23, 0.08);
+  border: var(--rule);
 }
 .mockup .editor-wrapper:focus-within {
-  border-color: rgba(28, 25, 23, 0.2);
+  border: var(--rule-strong);
 }
 /* Locked value tokens in editor */
 .mockup .locked-value {
   display: inline;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'IBM Plex Mono', monospace;
   font-size: 12px;
   font-weight: 600;
   padding: 1px 4px;
@@ -562,9 +752,9 @@
 .mockup .locked-value--belop,
 .mockup .locked-value--dager,
 .mockup .locked-value--prosent {
-  background: rgba(184, 134, 11, 0.08);
-  color: var(--ochre);
-  border: 1px solid rgba(184, 134, 11, 0.15);
+  background: var(--gold-bg);
+  color: var(--gold);
+  border: 1px solid var(--gold-border);
 }
 
 /* ── Scrollbar ── */
@@ -576,6 +766,7 @@
 }
 .mockup ::-webkit-scrollbar-thumb {
   background: var(--ink-4);
+  border-radius: 4px;
 }
 
 /* ══════════════════════════════════════════

@@ -73,7 +73,7 @@
     const r = computed.prinsipaltResultat;
     if (r === 'godkjent') return { ikon: Check, label: 'Godkjent', color: 'var(--green)' };
     if (r === 'delvis_godkjent')
-      return { ikon: CircleMinus, label: 'Delvis godkjent', color: 'var(--ochre)' };
+      return { ikon: CircleMinus, label: 'Delvis godkjent', color: 'var(--gold)' };
     return { ikon: X, label: 'Avslått', color: 'var(--red)' };
   });
 
@@ -177,7 +177,7 @@
 
   {#if domainConfig.erGrunnlagSubsidiaer || domainConfig.erHelFristSubsidiaerPgaGrunnlag}
     <div class="sub-banner">
-      <Stamp variant="ochre" small flat>Subsidiært</Stamp>
+      <Stamp variant="green" small flat>Subsidiært</Stamp>
       <p class="font-serif sub-banner-text">
         {#if domainConfig.erGrunnlagSubsidiaer}
           Grunnlaget er avslått. Vurderingen nedenfor gjelder for det tilfelle at grunnlaget likevel
@@ -206,7 +206,7 @@
       </div>
       <p class="question-text">{text}</p>
       {#if opts?.subsidiaer}
-        <Stamp variant="ochre" small flat>Subsidiært</Stamp>
+        <Stamp variant="green" small flat>Subsidiært</Stamp>
       {/if}
       <div class="pill-row">
         <button
@@ -324,7 +324,7 @@
         Fristforlengelsen skal svare til den virkning kontraktsforholdet har hatt på fremdriften.
       </p>
       {#if computed.port3ErSubsidiaer}
-        <Stamp variant="ochre" small flat>Subsidiært</Stamp>
+        <Stamp variant="green" small flat>Subsidiært</Stamp>
       {/if}
       <div class="measurement-row">
         <div>
@@ -368,7 +368,7 @@
       {/if}
       {#if computed.visSubsidiaertResultat}
         <div class="sub-result">
-          <Stamp variant="ochre" small flat>Subsidiært</Stamp>
+          <Stamp variant="green" small flat>Subsidiært</Stamp>
           <span class="font-mono sub-result-text">
             {computed.subsidiaertResultat === 'godkjent'
               ? 'Godkjent'

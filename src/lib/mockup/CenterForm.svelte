@@ -86,7 +86,7 @@
         <span class="font-mono question-ref">{d.best[1]?.ref || d.best[0].ref}</span>
       </div>
       <div style="margin-bottom: {S.lg}px; display: inline-block">
-        <Stamp variant="ochre" small flat>Subsidiært</Stamp>
+        <Stamp variant="green" small flat>Subsidiært</Stamp>
       </div>
       <div class="measurement-row">
         <div>
@@ -202,7 +202,7 @@
   }
   .divider {
     height: 1px;
-    background: rgba(28, 25, 23, 0.08);
+    background: var(--paper-inset);
     margin-bottom: 40px;
   }
   .measurement-row {
@@ -239,6 +239,6 @@
     outline: none;
   }
   .measurement-input:focus {
-    border-color: var(--ochre);
+    border-color: var(--control-focus);
   }
 </style>

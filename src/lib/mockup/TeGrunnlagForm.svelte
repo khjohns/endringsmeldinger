@@ -105,7 +105,7 @@
     margin-bottom: 32px;
     padding: 20px 24px;
     background: var(--red-bg);
-    border: 1px solid rgba(153, 27, 27, 0.15);
+    border: 1px solid var(--red-bg);
   }
   .standpunkt-header {
     display: flex;

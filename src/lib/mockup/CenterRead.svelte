@@ -34,7 +34,7 @@
   {#if isSub}
     <div style="margin-bottom: {S.section}px">
       <div class="sub-zone sub-notice">
-        <Stamp variant="ochre" small>Subsidiært</Stamp>
+        <Stamp variant="green" small>Subsidiært</Stamp>
         <p class="font-serif sub-notice-text">
           Ansvarsgrunnlaget er prinsipalt bestridt. Utmåling er utelukkende subsidiær — ingen
           erkjennelse av ansvar.
@@ -93,14 +93,12 @@
         {/if}
         {#if d.status === 'subsidiary'}
           <div class="stamp-position">
-            <Stamp variant="ochre">Subsidiært</Stamp>
+            <Stamp variant="green">Subsidiært</Stamp>
           </div>
         {/if}
         <div
           class="bh-argument-box"
-          style:background={d.status === 'disputed'
-            ? 'rgba(255,255,255,0.5)'
-            : 'var(--paper-inset)'}
+          style:background="var(--paper-inset)"
           style:margin-top={d.status ? `${S.section}px` : '0'}
         >
           <p
@@ -150,7 +148,7 @@
     padding: 40px 40px 120px;
   }
   .section-heading {
-    border-bottom: 2px solid var(--ochre);
+    border-bottom: 2px solid var(--gold);
     padding-bottom: 12px;
     margin-bottom: 32px;
   }
@@ -166,9 +164,10 @@
     letter-spacing: -0.01em;
   }
   .sub-notice {
-    background: var(--ochre-bg);
+    background: var(--green-bg);
     padding: 16px 20px;
     border: var(--rule-subtle);
+    border-radius: 4px;
   }
   .sub-notice-text {
     font-size: 14px;
@@ -185,11 +184,13 @@
   .te-panel {
     border-top: var(--edge);
     border-bottom: var(--rule);
+    border-radius: 4px 4px 0 0;
     background: var(--paper);
   }
   .bh-panel {
     border-top: var(--edge);
     border-bottom: var(--rule);
+    border-radius: 0 0 4px 4px;
     position: relative;
   }
   .doc-sidebar {
@@ -217,6 +218,7 @@
     background: var(--plate);
     color: white;
     padding: 3px 8px;
+    border-radius: 2px;
     display: inline-block;
     width: fit-content;
     margin-bottom: 8px;
@@ -256,7 +258,7 @@
     padding: 24px;
   }
   .argument-text {
-    font-size: 17px;
+    font-size: 16px;
     line-height: 1.75;
   }
   .stamp-position {
@@ -266,12 +268,14 @@
   }
   .bh-argument-box {
     border: var(--rule-subtle);
+    border-radius: 3px;
     padding: 20px;
   }
   .draft-section {
     padding: 20px 24px;
     background: var(--draft-bg);
-    border: 2px dashed var(--draft-border);
+    border: 1.5px dashed var(--draft-border);
+    border-radius: 4px;
     margin-top: 8px;
   }
   .draft-header {
