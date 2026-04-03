@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { ChevronLeft, RotateCcw } from 'lucide-svelte';
+  import { ChevronLeft, RotateCcw, Sun, Moon } from 'lucide-svelte';
   import { store } from './store.svelte.js';
   import { TE, BH, S } from './data.js';
   import type { Role, Mode } from './types.js';
@@ -7,20 +7,24 @@
   let {
     role,
     mode,
+    dark = false,
     mobileView = 'matrix',
     onrolechange,
     onback,
+    ondarkchange,
   }: {
     role: Role;
     mode: Mode;
+    dark?: boolean;
     mobileView?: 'matrix' | 'detail';
     onrolechange: (r: Role) => void;
     onback: () => void;
+    ondarkchange?: (v: boolean) => void;
   } = $props();
 </script>
 
 <header class="header">
-  <div class="ochre-stripe"></div>
+  <div class="gold-stripe"></div>
   <div class="left">
     {#if mode === 'form'}
       <button class="back-btn" onclick={onback}>
@@ -41,6 +45,17 @@
     </div>
   </div>
   <div class="right">
+    <button
+      class="theme-btn"
+      onclick={() => ondarkchange?.(!dark)}
+      title={dark ? 'Bytt til lys modus' : 'Bytt til mørk modus'}
+    >
+      {#if dark}
+        <Sun size={14} />
+      {:else}
+        <Moon size={14} />
+      {/if}
+    </button>
     <button class="reset-btn" onclick={() => store.reset()} title="Nullstill mockup">
       <RotateCcw size={12} /> <span class="reset-text">Nullstill</span>
     </button>
@@ -70,13 +85,13 @@
     z-index: 30;
     position: relative;
   }
-  .ochre-stripe {
+  .gold-stripe {
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
     height: 3px;
-    background: var(--ochre);
+    background: var(--gold);
   }
   .left {
     display: flex;
@@ -106,7 +121,7 @@
     border-right: var(--edge);
     height: 100%;
     background: var(--plate);
-    color: var(--ochre);
+    color: var(--gold);
   }
   .ns-text {
     font-size: 13px;
@@ -142,6 +157,8 @@
   .role-toggle {
     display: flex;
     border: var(--edge);
+    border-radius: 4px;
+    overflow: hidden;
   }
   .role-btn {
     padding: 4px 14px;
@@ -157,17 +174,35 @@
     background: var(--plate);
     color: white;
   }
+  .theme-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    color: var(--ink-4);
+    background: transparent;
+    border: 1px solid var(--ink-4);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .theme-btn:hover {
+    color: var(--gold);
+    border-color: var(--gold);
+  }
   .reset-btn {
     display: flex;
     align-items: center;
     gap: 4px;
     padding: 4px 10px;
-    font-family: 'Space Grotesk', sans-serif;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: 10px;
     font-weight: 600;
     color: var(--ink-4);
     background: transparent;
     border: 1px solid var(--ink-4);
+    border-radius: 4px;
     cursor: pointer;
     transition: all 80ms;
   }

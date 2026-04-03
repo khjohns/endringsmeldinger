@@ -70,6 +70,7 @@
     color: var(--ink-4);
     background: transparent;
     border: none;
+    border-radius: 4px;
     cursor: pointer;
     transition: all 80ms;
   }
@@ -79,7 +80,7 @@
   .strip-btn.active {
     font-weight: 700;
     color: var(--draft);
-    background: rgba(107, 94, 47, 0.08);
+    background: var(--draft-bg);
   }
   .strip-value {
     font-size: 11px;

@@ -4,7 +4,7 @@
   let { te, sub, prin }: { te: number; sub: number; prin: number } = $props();
 
   const bars = $derived([
-    { label: 'subs.', val: sub, color: 'var(--ochre)' },
+    { label: 'subs.', val: sub, color: 'var(--green)' },
     { label: 'prins.', val: prin, color: 'var(--red)' },
   ]);
 </script>
@@ -43,8 +43,9 @@
   .bar-track {
     flex: 1;
     height: 5px;
-    background: var(--paper);
+    background: var(--paper-inset);
     border: var(--rule-subtle);
+    border-radius: 2px;
     overflow: hidden;
   }
   .bar-fill {

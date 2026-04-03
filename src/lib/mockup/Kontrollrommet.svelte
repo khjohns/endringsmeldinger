@@ -20,6 +20,7 @@
   let sel: TrackKey = $state('ansvar');
   let rTab: RightTab = $state('bestemmelser');
   let mode: Mode = $state('read');
+  let dark = $state(false);
   let mobileView: MobileView = $state('matrix');
   let rightPanelOpen = $state(false);
   let formActions = $state<{ canSend: boolean; send: () => void } | null>(null);
@@ -61,9 +62,17 @@
   }
 </script>
 
-<div class="mockup">
+<div class="mockup" class:dark>
   <div class="shell">
-    <Header {role} {mode} {mobileView} onrolechange={(r) => (role = r)} onback={goMatrix} />
+    <Header
+      {role}
+      {mode}
+      {dark}
+      {mobileView}
+      onrolechange={(r) => (role = r)}
+      onback={goMatrix}
+      ondarkchange={(v) => (dark = v)}
+    />
 
     {#if mode === 'form'}
       <ConsistencyStrip

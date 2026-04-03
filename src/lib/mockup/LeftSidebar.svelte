@@ -33,7 +33,7 @@
     <div class="font-mono id-label">IDENTIFIKATOR</div>
     <div class="id-number">KOE-104</div>
     <div style="margin-top: {S.md}px">
-      <Stamp variant="ochre" small flat>Venter</Stamp>
+      <Stamp variant="gold" small flat>Venter</Stamp>
     </div>
   </div>
 
@@ -103,14 +103,14 @@
     {/each}
   </div>
 
-  <div class="ochre-sep"></div>
+  <div class="gold-sep"></div>
 
   <div style="padding: 0 {S.xxl}px {S.xxl}px">
     <div class="exposure-heading">Samlet eksponering</div>
     <div class="exposure-box">
       <div class="exposure-row">
-        <span class="font-mono exposure-label" style="color: var(--ochre)">Subsidiært</span>
-        <span class="font-mono exposure-value" style="color: var(--ochre)"
+        <span class="font-mono exposure-label" style="color: var(--green)">Subsidiært</span>
+        <span class="font-mono exposure-value" style="color: var(--green)"
           >{fmt(subV)},- + {subF}d</span
         >
       </div>
@@ -183,6 +183,7 @@
     padding: 4px 12px;
     background: var(--paper);
     border: var(--rule-subtle);
+    border-radius: 4px;
     display: flex;
     justify-content: space-between;
   }
@@ -198,7 +199,7 @@
   .gap-sub {
     font-size: 10px;
     font-weight: 600;
-    color: var(--ochre);
+    color: var(--green);
   }
   .gap-prin {
     font-size: 10px;
@@ -219,9 +220,9 @@
     font-weight: 600;
     color: var(--red);
   }
-  .ochre-sep {
+  .gold-sep {
     height: 1px;
-    background: var(--ochre-border);
+    background: var(--gold-border);
     margin: 16px 24px;
   }
   .exposure-heading {
@@ -235,6 +236,7 @@
     padding: 12px;
     background: var(--paper);
     border: var(--rule-subtle);
+    border-radius: 4px;
   }
   .exposure-row {
     display: flex;

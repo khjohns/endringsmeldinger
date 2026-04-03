@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
 
-  type Variant = 'red' | 'ochre' | 'draft';
+  type Variant = 'red' | 'gold' | 'green' | 'draft';
 
   let {
     variant,

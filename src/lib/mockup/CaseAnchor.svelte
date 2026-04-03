@@ -20,6 +20,7 @@
     background: var(--plate);
     color: white;
     padding: 2px 8px;
+    border-radius: 2px;
   }
   .case-subtitle {
     font-size: 14px;
