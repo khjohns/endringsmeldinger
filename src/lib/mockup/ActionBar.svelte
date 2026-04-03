@@ -77,15 +77,16 @@
   .action-bar {
     position: sticky;
     bottom: 0;
-    background: var(--paper);
-    border-top: var(--edge);
-    padding: 12px 24px;
-    z-index: 20;
-    box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.05);
-  }
-  .action-inner {
     max-width: 840px;
     margin: 0 auto;
+    background: var(--paper);
+    border: var(--rule);
+    border-radius: 4px 4px 0 0;
+    padding: 14px 24px;
+    z-index: 20;
+    box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.06);
+  }
+  .action-inner {
     display: flex;
     align-items: center;
     justify-content: space-between;
