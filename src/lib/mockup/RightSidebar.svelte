@@ -180,7 +180,7 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    background: var(--paper);
+    background: var(--canvas);
   }
   .tab-bar {
     display: flex;

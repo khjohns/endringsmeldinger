@@ -79,7 +79,7 @@
     bottom: 0;
     max-width: 840px;
     margin: 0 auto;
-    background: var(--paper);
+    background: var(--canvas);
     border: var(--rule);
     border-radius: 4px 4px 0 0;
     padding: 14px 24px;
