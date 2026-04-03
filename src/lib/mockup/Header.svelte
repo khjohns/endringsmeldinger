@@ -77,7 +77,7 @@
   .header {
     height: 52px;
     border-bottom: var(--edge);
-    background: var(--paper);
+    background: var(--canvas);
     display: flex;
     align-items: stretch;
     justify-content: space-between;
