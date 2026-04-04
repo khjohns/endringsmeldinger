@@ -1,7 +1,7 @@
 <script lang="ts">
-  import { XSquare, Pencil, ArrowRight } from 'lucide-svelte';
+  import { XSquare, Pencil } from 'lucide-svelte';
   import { TE, BH } from './data.js';
-  import { fmt, act } from './utils.js';
+  import { fmt } from './utils.js';
   import Stamp from './Stamp.svelte';
   import SubStripe from './SubStripe.svelte';
   import CaseAnchor from './CaseAnchor.svelte';
@@ -88,7 +88,8 @@
     </div>
 
     {#if d.draft}
-      <div class="draft-section">
+      <!-- svelte-ignore a11y_no_static_element_interactions a11y_click_events_have_key_events -->
+      <div class="draft-section draft-clickable" onclick={() => onform(sel)}>
         <div class="draft-header">
           <div class="draft-meta">
             <Stamp variant="draft" small>Kladd</Stamp>
@@ -98,20 +99,8 @@
               <span class="font-mono draft-value">{fmt(d.draft.value)},-</span>
             {/if}
           </div>
-          <button class="btn btn-secondary btn-sm" onclick={() => onform(sel)}>
-            <Pencil size={12} /> Fortsett
-          </button>
         </div>
         <p class="font-serif draft-text">{d.draft.text}</p>
-      </div>
-    {/if}
-
-    {#if !d.draft}
-      <div class="action-row">
-        <button class="btn btn-primary" onclick={() => onform(sel)}>
-          {act(d.draftState, role)}
-          <ArrowRight size={14} />
-        </button>
       </div>
     {/if}
   {/snippet}
@@ -237,6 +226,16 @@
     border-radius: 4px;
     margin-top: 8px;
   }
+  .draft-clickable {
+    cursor: pointer;
+    transition:
+      border-color 0.15s,
+      background 0.15s;
+  }
+  .draft-clickable:hover {
+    border-color: var(--draft);
+    background: color-mix(in srgb, var(--draft-bg) 80%, var(--draft) 5%);
+  }
   .draft-header {
     display: flex;
     align-items: center;
@@ -265,12 +264,6 @@
     font-style: italic;
     color: var(--draft);
   }
-  .action-row {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 20px;
-  }
-
   /* ── Mobile ── */
   @media (max-width: 768px) {
     .read-content {

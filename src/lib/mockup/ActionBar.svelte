@@ -1,28 +1,35 @@
 <script lang="ts">
-  import { Check, XSquare, Send, BookOpen } from 'lucide-svelte';
+  import { Check, XSquare, Send, BookOpen, ArrowRight } from 'lucide-svelte';
   import { TE } from './data.js';
-  import { fmt } from './utils.js';
-  import type { Mode, Role } from './types.js';
+  import { fmt, act } from './utils.js';
+  import type { Mode, Role, TrackKey } from './types.js';
+  import type { DraftState } from './types.js';
 
   let {
     mode,
     role,
+    sel,
+    draftState,
     subV,
     subF,
     prinV,
     prinF,
     oncloseform,
+    onform,
     ontogglecontext,
     onsend,
     canSend = false,
   }: {
     mode: Mode;
     role: Role;
+    sel: TrackKey;
+    draftState: DraftState;
     subV: number;
     subF: number;
     prinV: number;
     prinF: number;
     oncloseform: () => void;
+    onform: (key: TrackKey) => void;
     ontogglecontext?: () => void;
     onsend?: () => void;
     canSend?: boolean;
@@ -64,10 +71,10 @@
         <button class="btn btn-danger"><XSquare size={14} /> Trekk</button>
         <button class="btn btn-primary"><Check size={14} /> Godta</button>
       {:else}
-        <div class="waiting-box">
-          <div class="waiting-dot"></div>
-          <span class="waiting-text">Avventer {TE}</span>
-        </div>
+        <button class="btn btn-primary" onclick={() => onform(sel)}>
+          {act(draftState, role)}
+          <ArrowRight size={14} />
+        </button>
       {/if}
     </div>
   </div>
@@ -119,27 +126,6 @@
   .action-buttons {
     display: flex;
     gap: 8px;
-  }
-  .waiting-box {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 8px 16px;
-    border: var(--rule);
-    border-radius: 4px;
-    background: var(--paper-inset);
-  }
-  .waiting-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: var(--gold);
-    animation: pulse 2s ease-in-out infinite;
-  }
-  .waiting-text {
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--ink-3);
   }
   .context-btn {
     display: none;

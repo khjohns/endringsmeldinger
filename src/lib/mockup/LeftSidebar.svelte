@@ -1,8 +1,7 @@
 <script lang="ts">
-  import { ArrowRight } from 'lucide-svelte';
   import { store } from './store.svelte.js';
   import { S } from './data.js';
-  import { fmt, act } from './utils.js';
+  import { fmt } from './utils.js';
   import DualBar from './DualBar.svelte';
   import Stamp from './Stamp.svelte';
   import type { TrackKey, Role } from './types.js';
@@ -15,7 +14,6 @@
     subF,
     prinF,
     onselect,
-    onform,
   }: {
     sel: TrackKey;
     role: Role;
@@ -24,7 +22,6 @@
     subF: number;
     prinF: number;
     onselect: (key: TrackKey) => void;
-    onform: (key: TrackKey) => void;
   } = $props();
 </script>
 
@@ -87,18 +84,6 @@
             <span class="font-mono binary-bh">{dd.bh.position}</span>
           </div>
         {/if}
-
-        <button
-          class="btn btn-secondary btn-sm"
-          style="width: 100%"
-          onclick={(e) => {
-            e.stopPropagation();
-            onform(k as TrackKey);
-          }}
-        >
-          {act(dd.draftState, role)}
-          <ArrowRight size={12} />
-        </button>
       </div>
     {/each}
   </div>
