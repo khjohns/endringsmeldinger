@@ -10,19 +10,18 @@
   }
 
   .diamond-marker .diamond {
+    /* 18px padding-left + 7px diamond offset = 25px from content edge */
     left: -25px;
     top: -5px;
-    animation: diamond-in 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    animation: diamond-in 0.15s ease-out;
   }
 
   @keyframes diamond-in {
     from {
       opacity: 0;
-      transform: rotate(45deg) scale(0);
     }
     to {
       opacity: 1;
-      transform: rotate(45deg) scale(1);
     }
   }
 </style>
