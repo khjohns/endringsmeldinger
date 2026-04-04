@@ -38,9 +38,9 @@ const surfaces = {
   'paper-sub':  '#f9f8f4',
   plate:        '#1c1917',
   'gold-bg':    '#fff8e8',
-  'green-bg':   '#ebf2ee',
+  'green-bg':   '#ecf5f3',
   'red-bg':     '#fff0ee',
-  'draft-bg':   '#f4f4ec',
+  'draft-bg':   '#f6f7f2',
 };
 
 const textColors = {
