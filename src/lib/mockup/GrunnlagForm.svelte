@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { AlertTriangle, Check, X, Undo2 } from 'lucide-svelte';
+  import { Check, X, Undo2 } from 'lucide-svelte';
   import {
     erEndringMed32_2,
     erPrekludert,
@@ -89,7 +89,7 @@
   yesText: string,
   noText: string,
   onset: (v: boolean | undefined) => void,
-  opts?: { alertHtml?: string }
+  opts?: { alertText?: string }
 )}
   <div class="question-block">
     <div class="question-header">
@@ -109,11 +109,8 @@
         onclick={() => onset(toggleChoice(answer, false))}>{noText}</button
       >
     </div>
-    {#if answer === false && opts?.alertHtml}
-      <div class="alert-box warning">
-        <AlertTriangle size={14} />
-        <span>{@html opts.alertHtml}</span>
-      </div>
+    {#if answer === false && opts?.alertText}
+      <p class="font-serif consequence-text">{opts.alertText}</p>
     {/if}
   </div>
 {/snippet}
@@ -148,8 +145,7 @@
       'Nei, prekludert',
       (v) => (varsletITide = v),
       {
-        alertHtml:
-          '<strong>Preklusjon</strong> — Varselet vurderes som for sent. Grunnlaget kan fortsatt vurderes subsidiært.',
+        alertText: 'For sent varslet — grunnlaget vurderes subsidiært.',
       }
     )}
     <div class="divider"></div>

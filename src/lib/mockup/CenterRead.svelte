@@ -155,13 +155,13 @@
     border-right: var(--rule);
   }
   .te-panel {
-    border-top: var(--edge);
+    border-top: var(--rule);
     border-bottom: var(--rule);
     border-radius: 4px 4px 0 0;
     background: var(--paper);
   }
   .bh-panel {
-    border-top: var(--edge);
+    border-top: var(--rule);
     border-bottom: var(--rule);
     border-radius: 0 0 4px 4px;
     position: relative;
@@ -170,7 +170,7 @@
     width: 180px;
     flex-shrink: 0;
     padding: 20px;
-    border-right: var(--edge);
+    border-right: var(--rule);
     display: flex;
     flex-direction: column;
   }
@@ -286,7 +286,7 @@
       width: 100%;
       padding: 12px 16px;
       border-right: none;
-      border-bottom: var(--edge);
+      border-bottom: var(--rule);
       flex-direction: row;
       align-items: center;
       gap: 12px;

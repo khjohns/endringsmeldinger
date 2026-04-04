@@ -128,7 +128,7 @@
   .sidebar {
     width: 300px;
     flex-shrink: 0;
-    border-right: var(--edge);
+    border-right: var(--rule);
     display: flex;
     flex-direction: column;
     overflow-y: auto;
@@ -138,7 +138,7 @@
     background: var(--plate);
     color: white;
     padding: 20px 24px;
-    border-bottom: var(--edge);
+    border-bottom: var(--rule);
   }
   .id-label {
     font-size: 9px;
