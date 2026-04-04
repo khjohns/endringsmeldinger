@@ -405,9 +405,9 @@
     <p class="font-serif context-text">{d.teT}</p>
   </div>
 
-  <div class="bh-heading">Byggherrens standpunkt</div>
-
   {#snippet formBody()}
+    <div class="bh-heading">Byggherrens standpunkt</div>
+
     <!-- Preklusjon (data-drevet) -->
     {#if computed.harPreklusjonsSteg}
       {#each preklusjonsLinjer as linje (linje.key)}

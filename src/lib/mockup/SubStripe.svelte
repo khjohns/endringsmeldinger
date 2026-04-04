@@ -13,16 +13,20 @@
   } = $props();
 </script>
 
-<div class="sub-stripe">
-  <!-- Primary diamond (always present) -->
-  <div class="diamond primary"></div>
-
-  {#if notice}
-    <div class="sub-stripe-notice">
+<!-- Notice sits ABOVE the stripe, sharing the diamond visually -->
+{#if notice}
+  <div class="sub-notice-wrapper">
+    <div class="diamond notice-diamond"></div>
+    <div class="sub-notice">
       <Stamp variant="green" small flat>Subsidiært</Stamp>
-      <p class="font-serif sub-stripe-notice-text">{notice}</p>
+      <p class="font-serif sub-notice-text">{notice}</p>
     </div>
-  {/if}
+  </div>
+{/if}
+
+<!-- Stripe starts here — wraps only BH content -->
+<div class="sub-stripe">
+  <div class="diamond stripe-diamond"></div>
 
   {@render children()}
 
@@ -39,6 +43,30 @@
 </div>
 
 <style>
+  /* Notice — above the stripe, with its own diamond */
+  .sub-notice-wrapper {
+    position: relative;
+    margin-left: 20px;
+    padding-left: 18px;
+    margin-bottom: 24px;
+  }
+
+  .sub-notice {
+    background: var(--green-bg);
+    padding: 12px 16px;
+    border: var(--rule-subtle);
+    border-radius: 4px;
+  }
+
+  .sub-notice-text {
+    font-size: 13px;
+    line-height: 1.55;
+    color: var(--ink-2);
+    font-style: italic;
+    margin-top: 8px;
+  }
+
+  /* Stripe — wraps BH content only */
   .sub-stripe {
     position: relative;
     margin-left: 20px;
@@ -58,6 +86,7 @@
     }
   }
 
+  /* Shared diamond style */
   .diamond {
     position: absolute;
     width: 11px;
@@ -66,27 +95,17 @@
     transform: rotate(45deg);
   }
 
-  .diamond.primary {
+  .notice-diamond {
+    left: -6px;
+    top: 4px;
+  }
+
+  .stripe-diamond {
     left: -7px;
     top: 0;
   }
 
-  .sub-stripe-notice {
-    background: var(--green-bg);
-    padding: 12px 16px;
-    border: var(--rule-subtle);
-    border-radius: 4px;
-    margin-bottom: 24px;
-  }
-
-  .sub-stripe-notice-text {
-    font-size: 13px;
-    line-height: 1.55;
-    color: var(--ink-2);
-    font-style: italic;
-    margin-top: 8px;
-  }
-
+  /* Counter at bottom */
   .sub-stripe-counter {
     display: flex;
     align-items: center;
@@ -114,6 +133,11 @@
   }
 
   @media (max-width: 640px) {
+    .sub-notice-wrapper {
+      margin-left: 12px;
+      padding-left: 12px;
+    }
+
     .sub-stripe {
       margin-left: 12px;
       padding-left: 12px;

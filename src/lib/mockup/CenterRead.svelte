@@ -31,8 +31,24 @@
     </div>
   </div>
 
+  <!-- TE-blokk: prinsipalt krav, alltid utenfor stripe -->
+  <div class="doc-panel te-panel">
+    <div class="doc-sidebar te-sidebar">
+      <div class="party-name te-name">{TE}</div>
+      {#if d.type === 'binary'}
+        <div class="font-mono te-position">{d.te.position?.toUpperCase()}</div>
+        <div class="font-mono te-ref">{d.te.ref}</div>
+      {:else}
+        <div class="font-mono te-value">{fmt(d.te.value!)}{d.te.unit}</div>
+      {/if}
+    </div>
+    <div class="doc-content">
+      <p class="font-serif argument-text">{d.teT}</p>
+    </div>
+  </div>
+
   {#if isSub}
-    <div style="margin-bottom: {S.section}px">
+    <div style="margin-bottom: {S.section}px; margin-top: {S.section}px">
       <div class="sub-zone sub-notice">
         <Stamp variant="green" small>Subsidiært</Stamp>
         <p class="font-serif sub-notice-text">
@@ -43,22 +59,8 @@
     </div>
   {/if}
 
+  <!-- BH-blokk: subsidiært svar, innenfor stripe -->
   <div class={isSub ? 'sub-zone' : ''}>
-    <div class="doc-panel te-panel">
-      <div class="doc-sidebar te-sidebar">
-        <div class="party-name te-name">{TE}</div>
-        {#if d.type === 'binary'}
-          <div class="font-mono te-position">{d.te.position?.toUpperCase()}</div>
-          <div class="font-mono te-ref">{d.te.ref}</div>
-        {:else}
-          <div class="font-mono te-value">{fmt(d.te.value!)}{d.te.unit}</div>
-        {/if}
-      </div>
-      <div class="doc-content">
-        <p class="font-serif argument-text">{d.teT}</p>
-      </div>
-    </div>
-
     <div
       class="doc-panel bh-panel"
       style:background={d.status === 'disputed' ? 'var(--red-bg)' : 'var(--paper)'}
