@@ -83,7 +83,6 @@
     return '';
   });
 
-  // Count subsidiary conditions for diamond counter
   const subsidiærDiamondCount = $derived.by(() => {
     let count = 0;
     if (isHelSubsidiaer) count++;
@@ -93,7 +92,6 @@
     return count;
   });
 
-  // Track whether spesifisertKravOk triggers a partial subsidiary stripe
   const hasPartialSubStripe = $derived(!isHelSubsidiaer && spesifisertKravOk === false);
 
   const resultat = $derived.by(() => {
@@ -255,7 +253,6 @@
       <div class="divider"></div>
     {/if}
 
-    <!-- Diamond marker when foresporselSvar = nei adds condition inside existing stripe -->
     {#if (isHelSubsidiaer || hasPartialSubStripe) && foresporselSvarOk === false}
       <Diamond />
     {/if}
