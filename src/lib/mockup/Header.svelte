@@ -108,7 +108,7 @@
     background: none;
     border: none;
     cursor: pointer;
-    border-right: var(--rule);
+    border-right: var(--edge);
     height: 100%;
   }
   .mobile-only-back {

@@ -52,7 +52,7 @@
   .sub-notice-section,
   .sub-stripe {
     position: relative;
-    margin-left: 20px;
+    margin-left: -20px;
     padding-left: 18px;
     border-left: 2px dashed var(--green-border);
   }
@@ -108,8 +108,8 @@
   @media (max-width: 640px) {
     .sub-notice-section,
     .sub-stripe {
-      margin-left: 12px;
-      padding-left: 12px;
+      margin-left: -12px;
+      padding-left: 10px;
     }
   }
 </style>

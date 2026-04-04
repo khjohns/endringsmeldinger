@@ -206,7 +206,7 @@
     yesText: string,
     noText: string,
     onset: (v: boolean | undefined) => void,
-    opts?: { alertHtml?: string }
+    opts?: { alertText?: string }
   )}
     <div class="question-block">
       <div class="question-header">
@@ -226,11 +226,8 @@
           onclick={() => onset(toggleChoice(answer, false))}>{noText}</button
         >
       </div>
-      {#if answer === false && opts?.alertHtml}
-        <div class="alert-box warning">
-          <AlertTriangle size={14} />
-          <span>{@html opts.alertHtml}</span>
-        </div>
+      {#if answer === false && opts?.alertText}
+        <p class="font-serif consequence-text">{opts.alertText}</p>
       {/if}
     </div>
   {/snippet}
@@ -246,8 +243,7 @@
         'Nei, prekludert',
         (v) => (foresporselSvarOk = v),
         {
-          alertHtml:
-            '<strong>Preklusjon</strong> — Svaret vurderes som for sent. Kravet er tapt (§ 33.6.2).',
+          alertText: 'For sent svart — kravet er tapt.',
         }
       )}
       <div class="divider"></div>
@@ -264,7 +260,10 @@
       vilkarOppfylt,
       'Ja, hindring',
       'Nei, ingen hindring',
-      (v) => (vilkarOppfylt = v)
+      (v) => (vilkarOppfylt = v),
+      {
+        alertText: 'Ingen årsakssammenheng — ytterligere betingelse for utmåling nedenfor.',
+      }
     )}
 
     <div class="divider"></div>
@@ -404,8 +403,7 @@
         'Nei, prekludert',
         (v) => (fristVarselOk = v),
         {
-          alertHtml:
-            '<strong>Preklusjon</strong> — Det foreløpige varselet vurderes som for sent. Kravet er tapt (§ 33.4).',
+          alertText: 'For sent varslet — kravet er tapt.',
         }
       )}
       <div class="divider"></div>
@@ -421,8 +419,7 @@
         'Nei, for sent',
         (v) => (spesifisertKravOk = v),
         {
-          alertHtml:
-            '<strong>Reduksjon</strong> — Det fremsatte kravet vurderes som for sent. Fristforlengelsen reduseres til det åpenbare (§ 33.6.1).',
+          alertText: 'For sent fremsatt — ytterligere betingelse for utmåling nedenfor.',
         }
       )}
       <div class="divider"></div>

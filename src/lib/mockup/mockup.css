@@ -69,9 +69,9 @@
   --ink-4: #6a6662;
 
   --edge: 1.5px solid #2a2828;
-  --rule: 1px solid rgba(240, 237, 229, 0.06);
-  --rule-subtle: 1px solid rgba(240, 237, 229, 0.03);
-  --rule-strong: 1px solid rgba(240, 237, 229, 0.12);
+  --rule: 1px solid rgba(240, 237, 229, 0.12);
+  --rule-subtle: 1px solid rgba(240, 237, 229, 0.06);
+  --rule-strong: 1px solid rgba(240, 237, 229, 0.2);
 
   --gold: #f0c840;
   --gold-bg: #1e1a0e;
@@ -455,11 +455,8 @@
   margin-bottom: 40px;
   padding: 24px;
   background: var(--paper-sub);
-  border-top: var(--edge);
-  border-left: var(--rule);
-  border-right: var(--rule);
-  border-bottom: var(--rule);
-  border-radius: 0 0 4px 4px;
+  border: var(--rule);
+  border-radius: 4px;
 }
 .mockup .context-header {
   display: flex;
@@ -570,6 +567,13 @@
   border: 1px solid var(--gold-border);
   color: var(--ink);
 }
+.mockup .consequence-text {
+  font-size: 15px;
+  font-style: italic;
+  color: var(--red);
+  margin-top: 12px;
+  line-height: 1.5;
+}
 .mockup .measurement-input-label {
   font-size: 10px;
   font-weight: 700;
@@ -663,7 +667,7 @@
 }
 .mockup .segment-row {
   display: flex;
-  border: var(--edge);
+  border: var(--rule);
   border-radius: 4px;
   overflow: hidden;
 }
@@ -678,7 +682,7 @@
   background: var(--paper);
   color: var(--ink-3);
   border: none;
-  border-right: var(--edge);
+  border-right: var(--rule);
   cursor: pointer;
   transition: all 80ms;
 }

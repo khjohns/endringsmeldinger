@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { AlertTriangle, Check, X, CircleMinus } from 'lucide-svelte';
+  import { Check, X, CircleMinus } from 'lucide-svelte';
   import {
     beregnAlt,
     getDefaults,
@@ -351,7 +351,7 @@
   yesText: string,
   noText: string,
   onset: (v: boolean | undefined) => void,
-  opts?: { alertHtml?: string }
+  opts?: { alertText?: string }
 )}
   <div class="question-block">
     <div class="question-header">
@@ -371,11 +371,8 @@
         onclick={() => onset(toggleChoice(answer, false))}>{noText}</button
       >
     </div>
-    {#if answer === false && opts?.alertHtml}
-      <div class="alert-box warning">
-        <AlertTriangle size={14} />
-        <span>{@html opts.alertHtml}</span>
-      </div>
+    {#if answer === false && opts?.alertText}
+      <p class="font-serif consequence-text">{opts.alertText}</p>
     {/if}
   </div>
 {/snippet}
@@ -415,7 +412,7 @@
           'Nei, prekludert',
           (v) => handlePreklusjon(linje.key, v),
           {
-            alertHtml: `<strong>Preklusjon</strong> — Kravet vurderes som for sent varslet (${linje.ref}).`,
+            alertText: `For sent varslet — ytterligere betingelse for utmåling nedenfor.`,
           }
         )}
       {/each}

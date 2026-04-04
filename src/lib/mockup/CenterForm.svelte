@@ -120,10 +120,7 @@
     margin-bottom: 40px;
     padding: 24px;
     background: var(--paper-sub);
-    border-top: var(--edge);
-    border-left: var(--rule);
-    border-right: var(--rule);
-    border-bottom: var(--rule);
+    border: var(--rule);
   }
   .context-header {
     display: flex;
@@ -234,7 +231,7 @@
     font-weight: 700;
     padding: 8px 16px;
     background: var(--paper-inset);
-    border: var(--edge);
+    border: var(--rule);
     color: var(--ink);
     outline: none;
   }

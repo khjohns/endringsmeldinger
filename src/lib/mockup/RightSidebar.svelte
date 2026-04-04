@@ -176,7 +176,7 @@
   .right-sidebar {
     width: 300px;
     flex-shrink: 0;
-    border-left: var(--edge);
+    border-left: var(--rule);
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -416,7 +416,7 @@
     .right-sidebar {
       width: 100%;
       border-left: none;
-      border-top: var(--edge);
+      border-top: var(--rule);
     }
     .mobile-close-btn {
       display: block;
