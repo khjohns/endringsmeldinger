@@ -1,8 +1,9 @@
 <script lang="ts">
   import { XSquare, Pencil, ArrowRight } from 'lucide-svelte';
-  import { TE, BH, S } from './data.js';
+  import { TE, BH } from './data.js';
   import { fmt, act } from './utils.js';
   import Stamp from './Stamp.svelte';
+  import SubStripe from './SubStripe.svelte';
   import CaseAnchor from './CaseAnchor.svelte';
   import type { Track, TrackKey, Role } from './types.js';
 
@@ -31,34 +32,23 @@
     </div>
   </div>
 
-  {#if isSub}
-    <div style="margin-bottom: {S.section}px">
-      <div class="sub-zone sub-notice">
-        <Stamp variant="green" small>Subsidiært</Stamp>
-        <p class="font-serif sub-notice-text">
-          Ansvarsgrunnlaget er prinsipalt bestridt. Utmåling er utelukkende subsidiær — ingen
-          erkjennelse av ansvar.
-        </p>
-      </div>
+  <!-- TE-blokk: prinsipalt krav, alltid utenfor stripe -->
+  <div class="doc-panel te-panel">
+    <div class="doc-sidebar te-sidebar">
+      <div class="party-name te-name">{TE}</div>
+      {#if d.type === 'binary'}
+        <div class="font-mono te-position">{d.te.position?.toUpperCase()}</div>
+        <div class="font-mono te-ref">{d.te.ref}</div>
+      {:else}
+        <div class="font-mono te-value">{fmt(d.te.value!)}{d.te.unit}</div>
+      {/if}
     </div>
-  {/if}
-
-  <div class={isSub ? 'sub-zone' : ''}>
-    <div class="doc-panel te-panel">
-      <div class="doc-sidebar te-sidebar">
-        <div class="party-name te-name">{TE}</div>
-        {#if d.type === 'binary'}
-          <div class="font-mono te-position">{d.te.position?.toUpperCase()}</div>
-          <div class="font-mono te-ref">{d.te.ref}</div>
-        {:else}
-          <div class="font-mono te-value">{fmt(d.te.value!)}{d.te.unit}</div>
-        {/if}
-      </div>
-      <div class="doc-content">
-        <p class="font-serif argument-text">{d.teT}</p>
-      </div>
+    <div class="doc-content">
+      <p class="font-serif argument-text">{d.teT}</p>
     </div>
+  </div>
 
+  {#snippet bhBlock()}
     <div
       class="doc-panel bh-panel"
       style:background={d.status === 'disputed' ? 'var(--red-bg)' : 'var(--paper)'}
@@ -80,34 +70,20 @@
             <XSquare size={18} />
             <span class="rejected-text">Avslått</span>
           </div>
-          <div class="font-mono principally-disputed">PRINSIPALT BESTRIDT</div>
+          <div class="sidebar-stamp">
+            <Stamp variant="red" small>Bestridt</Stamp>
+          </div>
         {:else}
           <div class="font-mono bh-value">{fmt(d.bh.subsidiaer!)}{d.bh.unit}</div>
         {/if}
       </div>
-      <div class="doc-content" style="position: relative">
-        {#if d.status === 'disputed'}
-          <div class="stamp-position">
-            <Stamp variant="red">Bestridt</Stamp>
-          </div>
-        {/if}
-        {#if d.status === 'subsidiary'}
-          <div class="stamp-position">
-            <Stamp variant="green">Subsidiært</Stamp>
-          </div>
-        {/if}
-        <div
-          class="bh-argument-box"
-          style:background="var(--paper-inset)"
-          style:margin-top={d.status ? `${S.section}px` : '0'}
+      <div class="doc-content">
+        <p
+          class="font-serif argument-text"
+          style:color={d.status === 'disputed' ? 'var(--red)' : 'var(--ink-2)'}
         >
-          <p
-            class="font-serif argument-text"
-            style:color={d.status === 'disputed' ? 'var(--red)' : 'var(--ink-2)'}
-          >
-            {d.bhT}
-          </p>
-        </div>
+          {d.bhT}
+        </p>
       </div>
     </div>
 
@@ -138,7 +114,17 @@
         </button>
       </div>
     {/if}
-  </div>
+  {/snippet}
+
+  {#if isSub}
+    <SubStripe
+      notice="Ansvarsgrunnlaget er prinsipalt bestridt. Utmåling er utelukkende subsidiær — ingen erkjennelse av ansvar."
+    >
+      {@render bhBlock()}
+    </SubStripe>
+  {:else}
+    {@render bhBlock()}
+  {/if}
 </div>
 
 <style>
@@ -162,19 +148,6 @@
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: -0.01em;
-  }
-  .sub-notice {
-    background: var(--green-bg);
-    padding: 16px 20px;
-    border: var(--rule-subtle);
-    border-radius: 4px;
-  }
-  .sub-notice-text {
-    font-size: 14px;
-    line-height: 1.55;
-    color: var(--ink-2);
-    font-style: italic;
-    margin-top: 8px;
   }
   .doc-panel {
     display: flex;
@@ -245,14 +218,6 @@
     font-weight: 700;
     text-transform: uppercase;
   }
-  .principally-disputed {
-    font-size: 9px;
-    font-weight: 700;
-    margin-top: auto;
-    padding-top: 20px;
-    border-top: 1px solid rgba(255, 255, 255, 0.3);
-    opacity: 0.8;
-  }
   .doc-content {
     flex: 1;
     padding: 24px;
@@ -261,15 +226,9 @@
     font-size: 16px;
     line-height: 1.75;
   }
-  .stamp-position {
-    position: absolute;
-    top: 16px;
-    right: 20px;
-  }
-  .bh-argument-box {
-    border: var(--rule-subtle);
-    border-radius: 3px;
-    padding: 20px;
+  .sidebar-stamp {
+    margin-top: auto;
+    padding-top: 16px;
   }
   .draft-section {
     padding: 20px 24px;
@@ -345,25 +304,12 @@
     .rejected-text {
       font-size: 13px;
     }
-    .principally-disputed {
-      margin-top: 0;
-      padding-top: 0;
-      border-top: none;
-      margin-left: auto;
-    }
     .doc-content {
       padding: 16px;
     }
     .argument-text {
       font-size: 15px;
       line-height: 1.6;
-    }
-    .stamp-position {
-      top: 12px;
-      right: 12px;
-    }
-    .bh-argument-box {
-      padding: 12px;
     }
     .draft-section {
       padding: 16px;
@@ -376,10 +322,6 @@
     .draft-meta {
       flex-wrap: wrap;
       gap: 8px;
-    }
-    .sub-notice {
-      margin-left: 0;
-      padding-left: 16px;
     }
   }
 </style>

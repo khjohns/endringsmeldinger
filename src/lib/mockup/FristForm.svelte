@@ -12,6 +12,8 @@
   import { store } from './store.svelte.js';
   import { TE } from './data.js';
   import Stamp from './Stamp.svelte';
+  import SubStripe from './SubStripe.svelte';
+  import Diamond from './Diamond.svelte';
   import CaseAnchor from './CaseAnchor.svelte';
   import { toggleChoice } from './utils.js';
 
@@ -68,6 +70,29 @@
   });
 
   const computed = $derived(beregnAlt(formState, domainConfig));
+
+  const isHelSubsidiaer = $derived(
+    domainConfig.erGrunnlagSubsidiaer || domainConfig.erHelFristSubsidiaerPgaGrunnlag
+  );
+
+  const subsidiærNotice = $derived.by(() => {
+    if (domainConfig.erGrunnlagSubsidiaer)
+      return 'Grunnlaget er avslått. Vurderingen nedenfor gjelder for det tilfelle at grunnlaget likevel godkjennes.';
+    if (domainConfig.erHelFristSubsidiaerPgaGrunnlag)
+      return 'Grunnlaget ble varslet for sent (§32.2). Hele fristkravet behandles subsidiært.';
+    return '';
+  });
+
+  const subsidiærDiamondCount = $derived.by(() => {
+    let count = 0;
+    if (isHelSubsidiaer) count++;
+    if (spesifisertKravOk === false) count++;
+    if (fristVarselOk === false) count++;
+    if (foresporselSvarOk === false) count++;
+    return count;
+  });
+
+  const hasPartialSubStripe = $derived(!isHelSubsidiaer && spesifisertKravOk === false);
 
   const resultat = $derived.by(() => {
     const r = computed.prinsipaltResultat;
@@ -173,22 +198,6 @@
     <p class="font-serif context-text">{d.teT}</p>
   </div>
 
-  <div class="bh-heading">Byggherrens standpunkt</div>
-
-  {#if domainConfig.erGrunnlagSubsidiaer || domainConfig.erHelFristSubsidiaerPgaGrunnlag}
-    <div class="sub-banner">
-      <Stamp variant="green" small flat>Subsidiært</Stamp>
-      <p class="font-serif sub-banner-text">
-        {#if domainConfig.erGrunnlagSubsidiaer}
-          Grunnlaget er avslått. Vurderingen nedenfor gjelder for det tilfelle at grunnlaget likevel
-          godkjennes.
-        {:else}
-          Grunnlaget ble varslet for sent (§32.2). Hele fristkravet behandles subsidiært.
-        {/if}
-      </p>
-    </div>
-  {/if}
-
   {#snippet yesNoPill(
     label: string,
     ref: string,
@@ -197,7 +206,7 @@
     yesText: string,
     noText: string,
     onset: (v: boolean | undefined) => void,
-    opts?: { subsidiaer?: boolean; alertHtml?: string }
+    opts?: { alertHtml?: string }
   )}
     <div class="question-block">
       <div class="question-header">
@@ -205,9 +214,6 @@
         <span class="font-mono question-ref">{ref}</span>
       </div>
       <p class="question-text">{text}</p>
-      {#if opts?.subsidiaer}
-        <Stamp variant="green" small flat>Subsidiært</Stamp>
-      {/if}
       <div class="pill-row">
         <button
           class="pill"
@@ -229,193 +235,223 @@
     </div>
   {/snippet}
 
-  {#if computed.visibility.showFristVarselOk}
+  {#snippet formBodyBelow()}
+    {#if computed.visibility.showForesporselSvarOk}
+      {@render yesNoPill(
+        'Svar på forespørsel',
+        '§ 33.6.2',
+        'Svarte TE på forespørsel om spesifisering uten ugrunnet opphold?',
+        foresporselSvarOk,
+        'Ja, i tide',
+        'Nei, prekludert',
+        (v) => (foresporselSvarOk = v),
+        {
+          alertHtml:
+            '<strong>Preklusjon</strong> — Svaret vurderes som for sent. Kravet er tapt (§ 33.6.2).',
+        }
+      )}
+      <div class="divider"></div>
+    {/if}
+
+    {#if (isHelSubsidiaer || hasPartialSubStripe) && foresporselSvarOk === false}
+      <Diamond />
+    {/if}
+
     {@render yesNoPill(
-      'Foreløpig varsel',
-      '§ 33.4',
-      'Ble varselet om fristforlengelse fremsatt uten ugrunnet opphold?',
-      fristVarselOk,
-      'Ja, i tide',
-      'Nei, prekludert',
-      (v) => (fristVarselOk = v),
-      {
-        alertHtml:
-          '<strong>Preklusjon</strong> — Det foreløpige varselet vurderes som for sent. Kravet er tapt (§ 33.4).',
-      }
+      'Årsakssammenheng',
+      '§ 33.1',
+      'Foreligger det en hindring på fremdriften som følge av det påberopte kontraktsforholdet?',
+      vilkarOppfylt,
+      'Ja, hindring',
+      'Nei, ingen hindring',
+      (v) => (vilkarOppfylt = v)
     )}
+
     <div class="divider"></div>
-  {/if}
 
-  {#if computed.visibility.showSpesifisertKravOk}
-    {@render yesNoPill(
-      'Fremsatt krav',
-      '§ 33.6.1',
-      'Ble kravet fremsatt uten ugrunnet opphold?',
-      spesifisertKravOk,
-      'Ja, i tide',
-      'Nei, for sent',
-      (v) => (spesifisertKravOk = v),
-      {
-        subsidiaer: computed.port1bErSubsidiaer,
-        alertHtml:
-          '<strong>Reduksjon</strong> — Det fremsatte kravet vurderes som for sent. Fristforlengelsen reduseres til det åpenbare (§ 33.6.1).',
-      }
-    )}
-    <div class="divider"></div>
-  {/if}
-
-  {#if computed.visibility.showForesporselSvarOk}
-    {@render yesNoPill(
-      'Svar på forespørsel',
-      '§ 33.6.2',
-      'Svarte TE på forespørsel om spesifisering uten ugrunnet opphold?',
-      foresporselSvarOk,
-      'Ja, i tide',
-      'Nei, prekludert',
-      (v) => (foresporselSvarOk = v),
-      {
-        alertHtml:
-          '<strong>Preklusjon</strong> — Svaret vurderes som for sent. Kravet er tapt (§ 33.6.2).',
-      }
-    )}
-    <div class="divider"></div>
-  {/if}
-
-  {@render yesNoPill(
-    'Årsakssammenheng',
-    '§ 33.1',
-    'Foreligger det en hindring på fremdriften som følge av det påberopte kontraktsforholdet?',
-    vilkarOppfylt,
-    'Ja, hindring',
-    'Nei, ingen hindring',
-    (v) => (vilkarOppfylt = v),
-    { subsidiaer: computed.port2ErSubsidiaer }
-  )}
-
-  <div class="divider"></div>
-
-  {#if computed.visibility.showSendForesporsel}
-    <div class="question-block">
-      <label class="checkbox-row">
-        <input
-          type="checkbox"
-          checked={sendForesporsel}
-          onchange={(e) => (sendForesporsel = e.currentTarget.checked)}
-        />
-        <div>
-          <span class="checkbox-label">Send forespørsel om spesifisering</span>
-          <span class="font-mono question-ref" style="display: inline; margin-left: 8px"
-            >§ 33.6.2</span
-          >
-          <p class="checkbox-desc">Be TE spesifisere kravet med antall dager og begrunnelse.</p>
-        </div>
-      </label>
-    </div>
-    <div class="divider"></div>
-  {/if}
-
-  {#if computed.showGodkjentDager && !sendForesporsel}
-    <div class="question-block">
-      <div class="question-header">
-        <span class="question-label">Utmåling</span>
-        <span class="font-mono question-ref">§ 33.5</span>
-      </div>
-      <p class="question-text">
-        Fristforlengelsen skal svare til den virkning kontraktsforholdet har hatt på fremdriften.
-      </p>
-      {#if computed.port3ErSubsidiaer}
-        <Stamp variant="green" small flat>Subsidiært</Stamp>
-      {/if}
-      <div class="measurement-row">
-        <div>
-          <div class="measurement-label">Krevd</div>
-          <div class="font-mono measurement-value">{d.te.value} dager</div>
-        </div>
-        <div>
-          <div class="measurement-input-label">Godkjent dager</div>
+    {#if computed.visibility.showSendForesporsel}
+      <div class="question-block">
+        <label class="checkbox-row">
           <input
-            type="number"
-            min="0"
-            max={domainConfig.krevdDager}
-            value={godkjentDager ?? ''}
-            oninput={(e) => {
-              const v = parseInt(e.currentTarget.value);
-              godkjentDager = isNaN(v) ? undefined : v;
-            }}
-            placeholder="dager"
-            class="font-mono measurement-input"
+            type="checkbox"
+            checked={sendForesporsel}
+            onchange={(e) => (sendForesporsel = e.currentTarget.checked)}
           />
-        </div>
+          <div>
+            <span class="checkbox-label">Send forespørsel om spesifisering</span>
+            <span class="font-mono question-ref" style="display: inline; margin-left: 8px"
+              >§ 33.6.2</span
+            >
+            <p class="checkbox-desc">Be TE spesifisere kravet med antall dager og begrunnelse.</p>
+          </div>
+        </label>
       </div>
-    </div>
-  {/if}
+      <div class="divider"></div>
+    {/if}
 
-  {#if allAnswered}
-    <div class="result-box" style:border-color={resultat.color}>
-      <div class="result-header" style:color={resultat.color}>
-        <resultat.ikon size={18} />
-        <span class="result-label">{resultat.label}</span>
-      </div>
-      {#if computed.prinsipaltResultat !== 'avslatt' && godkjentDager !== undefined}
-        <div class="result-detail">
-          <span class="font-mono result-days"
-            >{godkjentDager} av {domainConfig.krevdDager} dager</span
-          >
+    {#if computed.showGodkjentDager && !sendForesporsel}
+      <div class="question-block">
+        <div class="question-header">
+          <span class="question-label">Utmåling</span>
+          <span class="font-mono question-ref">§ 33.5</span>
         </div>
-      {/if}
-      {#if computed.erRedusert}
-        <p class="font-serif result-note">Kravet er redusert til det åpenbare (§ 33.6.1).</p>
-      {/if}
-      {#if computed.visSubsidiaertResultat}
-        <div class="sub-result">
-          <Stamp variant="green" small flat>Subsidiært</Stamp>
-          <span class="font-mono sub-result-text">
-            {computed.subsidiaertResultat === 'godkjent'
-              ? 'Godkjent'
-              : computed.subsidiaertResultat === 'delvis_godkjent'
-                ? 'Delvis godkjent'
-                : 'Avslått'}
-            {#if computed.subsidiaertResultat !== 'avslatt' && godkjentDager !== undefined}
-              — {godkjentDager} dager
-            {/if}
-          </span>
+        <p class="question-text">
+          Fristforlengelsen skal svare til den virkning kontraktsforholdet har hatt på fremdriften.
+        </p>
+        <div class="measurement-row">
+          <div>
+            <div class="measurement-label">Krevd</div>
+            <div class="font-mono measurement-value">{d.te.value} dager</div>
+          </div>
+          <div>
+            <div class="measurement-input-label">Godkjent dager</div>
+            <input
+              type="number"
+              min="0"
+              max={domainConfig.krevdDager}
+              value={godkjentDager ?? ''}
+              oninput={(e) => {
+                const v = parseInt(e.currentTarget.value);
+                godkjentDager = isNaN(v) ? undefined : v;
+              }}
+              placeholder="dager"
+              class="font-mono measurement-input"
+            />
+          </div>
         </div>
-      {/if}
-    </div>
-
-    {#if computed.prinsipaltResultat === 'avslatt' && !sendForesporsel}
-      <div class="alert-box warning">
-        <AlertTriangle size={14} />
-        <span
-          ><strong>§ 33.8 Forsering-risiko</strong> — Hvis avslaget er uberettiget, kan entreprenøren
-          velge å anse det som et pålegg om forsering.</span
-        >
       </div>
     {/if}
 
-    <div class="begrunnelse-section">
-      <div class="question-header">
-        <span class="question-label">Begrunnelse</span>
-        <div class="begrunnelse-header-right">
-          {#if userHasEdited && autoBegrunnelseHtml}
-            <button class="regenerate-btn" onclick={handleRegenerate}>
-              <RefreshCw size={12} strokeWidth={2} /> Regenerer
-            </button>
-          {/if}
-          <span class="font-mono char-count">{charCount} tegn</span>
+    {#if allAnswered}
+      <div class="result-box" style:border-color={resultat.color}>
+        <div class="result-header" style:color={resultat.color}>
+          <resultat.ikon size={18} />
+          <span class="result-label">{resultat.label}</span>
+        </div>
+        {#if computed.prinsipaltResultat !== 'avslatt' && godkjentDager !== undefined}
+          <div class="result-detail">
+            <span class="font-mono result-days"
+              >{godkjentDager} av {domainConfig.krevdDager} dager</span
+            >
+          </div>
+        {/if}
+        {#if computed.erRedusert}
+          <p class="font-serif result-note">Kravet er redusert til det åpenbare (§ 33.6.1).</p>
+        {/if}
+        {#if computed.visSubsidiaertResultat}
+          <div class="sub-result">
+            <Stamp variant="green" small flat>Subsidiært</Stamp>
+            <span class="font-mono sub-result-text">
+              {computed.subsidiaertResultat === 'godkjent'
+                ? 'Godkjent'
+                : computed.subsidiaertResultat === 'delvis_godkjent'
+                  ? 'Delvis godkjent'
+                  : 'Avslått'}
+              {#if computed.subsidiaertResultat !== 'avslatt' && godkjentDager !== undefined}
+                — {godkjentDager} dager
+              {/if}
+            </span>
+          </div>
+        {/if}
+      </div>
+
+      {#if computed.prinsipaltResultat === 'avslatt' && !sendForesporsel}
+        <div class="alert-box warning">
+          <AlertTriangle size={14} />
+          <span
+            ><strong>§ 33.8 Forsering-risiko</strong> — Hvis avslaget er uberettiget, kan entreprenøren
+            velge å anse det som et pålegg om forsering.</span
+          >
+        </div>
+      {/if}
+
+      <div class="begrunnelse-section">
+        <div class="question-header">
+          <span class="question-label">Begrunnelse</span>
+          <div class="begrunnelse-header-right">
+            {#if userHasEdited && autoBegrunnelseHtml}
+              <button class="regenerate-btn" onclick={handleRegenerate}>
+                <RefreshCw size={12} strokeWidth={2} /> Regenerer
+              </button>
+            {/if}
+            <span class="font-mono char-count">{charCount} tegn</span>
+          </div>
+        </div>
+        <div class="editor-wrapper">
+          <RichTextEditor
+            body={begrunnelseHtml}
+            onchange={handleEditorChange}
+            onready={handleEditorReady}
+            extensions={[LockedValueNode]}
+            maxHeight="none"
+            oncharcount={(c) => (charCount = c)}
+          />
         </div>
       </div>
-      <div class="editor-wrapper">
-        <RichTextEditor
-          body={begrunnelseHtml}
-          onchange={handleEditorChange}
-          onready={handleEditorReady}
-          extensions={[LockedValueNode]}
-          maxHeight="none"
-          oncharcount={(c) => (charCount = c)}
-        />
-      </div>
-    </div>
+    {/if}
+  {/snippet}
+
+  {#snippet formContent()}
+    <div class="bh-heading">Byggherrens standpunkt</div>
+
+    {#if computed.visibility.showFristVarselOk}
+      {@render yesNoPill(
+        'Foreløpig varsel',
+        '§ 33.4',
+        'Ble varselet om fristforlengelse fremsatt uten ugrunnet opphold?',
+        fristVarselOk,
+        'Ja, i tide',
+        'Nei, prekludert',
+        (v) => (fristVarselOk = v),
+        {
+          alertHtml:
+            '<strong>Preklusjon</strong> — Det foreløpige varselet vurderes som for sent. Kravet er tapt (§ 33.4).',
+        }
+      )}
+      <div class="divider"></div>
+    {/if}
+
+    {#if computed.visibility.showSpesifisertKravOk}
+      {@render yesNoPill(
+        'Fremsatt krav',
+        '§ 33.6.1',
+        'Ble kravet fremsatt uten ugrunnet opphold?',
+        spesifisertKravOk,
+        'Ja, i tide',
+        'Nei, for sent',
+        (v) => (spesifisertKravOk = v),
+        {
+          alertHtml:
+            '<strong>Reduksjon</strong> — Det fremsatte kravet vurderes som for sent. Fristforlengelsen reduseres til det åpenbare (§ 33.6.1).',
+        }
+      )}
+      <div class="divider"></div>
+    {/if}
+
+    <!-- Scenario 2: Delvis sub — spesifisertKravOk = false triggers stripe below -->
+    {#if hasPartialSubStripe}
+      <SubStripe
+        notice="Kravet er for sent fremsatt. Alt nedenfor er subsidiær utmåling — fristforlengelsen reduseres til det åpenbare."
+        diamondCount={subsidiærDiamondCount}
+      >
+        {@render formBodyBelow()}
+      </SubStripe>
+    {:else}
+      <!-- Scenario 3: Additional diamonds when inside hel-sub stripe -->
+      {#if isHelSubsidiaer && spesifisertKravOk === false}
+        <Diamond />
+      {/if}
+      {@render formBodyBelow()}
+    {/if}
+  {/snippet}
+
+  <!-- Scenario 1: Helt subsidiært — wrap everything -->
+  {#if isHelSubsidiaer}
+    <SubStripe notice={subsidiærNotice} diamondCount={subsidiærDiamondCount}>
+      {@render formContent()}
+    </SubStripe>
+  {:else}
+    {@render formContent()}
   {/if}
 </div>
 
