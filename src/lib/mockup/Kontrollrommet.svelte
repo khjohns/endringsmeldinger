@@ -87,16 +87,7 @@
     <div class="body">
       {#if mode === 'read'}
         <div class="left-panel" class:mobile-hidden={mobileView !== 'matrix'}>
-          <LeftSidebar
-            {sel}
-            {role}
-            {subV}
-            {prinV}
-            {subF}
-            {prinF}
-            onselect={selectTrack}
-            onform={goForm}
-          />
+          <LeftSidebar {sel} {role} {subV} {prinV} {subF} {prinF} onselect={selectTrack} />
         </div>
       {/if}
 
@@ -120,11 +111,14 @@
         <ActionBar
           {mode}
           {role}
+          {sel}
+          draftState={d.draftState}
           {subV}
           {subF}
           {prinV}
           {prinF}
           oncloseform={goRead}
+          onform={goForm}
           ontogglecontext={() => (rightPanelOpen = !rightPanelOpen)}
           onsend={() => formActions?.send()}
           canSend={formActions?.canSend ?? false}
