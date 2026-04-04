@@ -165,19 +165,6 @@
     text-transform: uppercase;
     letter-spacing: -0.01em;
   }
-  .sub-notice {
-    background: var(--green-bg);
-    padding: 16px 20px;
-    border: var(--rule-subtle);
-    border-radius: 4px;
-  }
-  .sub-notice-text {
-    font-size: 14px;
-    line-height: 1.55;
-    color: var(--ink-2);
-    font-style: italic;
-    margin-top: 8px;
-  }
   .doc-panel {
     display: flex;
     border-left: var(--rule);

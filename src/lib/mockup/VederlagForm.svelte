@@ -125,11 +125,9 @@
     return '';
   });
 
-  // Count active subsidiary conditions for diamond counter (scenario 3)
   const subsidiærDiamondCount = $derived.by(() => {
     let count = 0;
-    if (isSubsidiaer) count++; // Base: grunnlag bestridt
-    // Each preklusjon answer = "nei" adds a condition
+    if (isSubsidiaer) count++;
     if (computed.harPreklusjonsSteg) {
       for (const l of preklusjonsLinjer) {
         if (l.value === false) count++;
@@ -353,7 +351,7 @@
   yesText: string,
   noText: string,
   onset: (v: boolean | undefined) => void,
-  opts?: { subsidiaer?: boolean; alertHtml?: string }
+  opts?: { alertHtml?: string }
 )}
   <div class="question-block">
     <div class="question-header">
@@ -361,9 +359,6 @@
       <span class="font-mono question-ref">{ref}</span>
     </div>
     <p class="question-text">{text}</p>
-    {#if opts?.subsidiaer}
-      <Stamp variant="green" small flat>Subsidiært</Stamp>
-    {/if}
     <div class="pill-row">
       <button
         class="pill"
@@ -427,7 +422,6 @@
       <div class="divider"></div>
     {/if}
 
-    <!-- Diamond marker for each preklusjon "nei" (scenario 3: dobbelt sub.) -->
     {#if isSubsidiaer && preklusjonsLinjer.some((l) => l.value === false)}
       <Diamond />
     {/if}

@@ -13,7 +13,6 @@
   } = $props();
 </script>
 
-<!-- Notice sits ABOVE the stripe, sharing the diamond visually -->
 {#if notice}
   <div class="sub-notice-wrapper">
     <div class="diamond notice-diamond"></div>
@@ -24,7 +23,6 @@
   </div>
 {/if}
 
-<!-- Stripe starts here — wraps only BH content -->
 <div class="sub-stripe">
   <div class="diamond stripe-diamond"></div>
 
@@ -43,7 +41,6 @@
 </div>
 
 <style>
-  /* Notice — above the stripe, with its own diamond */
   .sub-notice-wrapper {
     position: relative;
     margin-left: 20px;
@@ -51,22 +48,11 @@
     margin-bottom: 24px;
   }
 
-  .sub-notice {
-    background: var(--green-bg);
-    padding: 12px 16px;
-    border: var(--rule-subtle);
-    border-radius: 4px;
+  .notice-diamond {
+    left: -6px;
+    top: 4px;
   }
 
-  .sub-notice-text {
-    font-size: 13px;
-    line-height: 1.55;
-    color: var(--ink-2);
-    font-style: italic;
-    margin-top: 8px;
-  }
-
-  /* Stripe — wraps BH content only */
   .sub-stripe {
     position: relative;
     margin-left: 20px;
@@ -86,26 +72,11 @@
     }
   }
 
-  /* Shared diamond style */
-  .diamond {
-    position: absolute;
-    width: 11px;
-    height: 11px;
-    background: var(--green);
-    transform: rotate(45deg);
-  }
-
-  .notice-diamond {
-    left: -6px;
-    top: 4px;
-  }
-
   .stripe-diamond {
     left: -7px;
     top: 0;
   }
 
-  /* Counter at bottom */
   .sub-stripe-counter {
     display: flex;
     align-items: center;
@@ -117,13 +88,6 @@
   .mini-diamonds {
     display: flex;
     gap: 4px;
-  }
-
-  .mini-diamond {
-    width: 8px;
-    height: 8px;
-    background: var(--green);
-    transform: rotate(45deg);
   }
 
   .counter-label {
