@@ -200,8 +200,6 @@
     <p class="font-serif context-text">{d.teT}</p>
   </div>
 
-  <div class="bh-heading">Byggherrens standpunkt</div>
-
   {#snippet yesNoPill(
     label: string,
     ref: string,
@@ -397,6 +395,8 @@
   {/snippet}
 
   {#snippet formContent()}
+    <div class="bh-heading">Byggherrens standpunkt</div>
+
     {#if computed.visibility.showFristVarselOk}
       {@render yesNoPill(
         'Foreløpig varsel',
