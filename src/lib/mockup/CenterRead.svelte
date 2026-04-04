@@ -83,33 +83,20 @@
             <span class="rejected-text">Avslått</span>
           </div>
           <div class="font-mono principally-disputed">PRINSIPALT BESTRIDT</div>
+          <div class="sidebar-stamp">
+            <Stamp variant="red" small>Bestridt</Stamp>
+          </div>
         {:else}
           <div class="font-mono bh-value">{fmt(d.bh.subsidiaer!)}{d.bh.unit}</div>
         {/if}
       </div>
-      <div class="doc-content" style="position: relative">
-        {#if d.status === 'disputed'}
-          <div class="stamp-position">
-            <Stamp variant="red">Bestridt</Stamp>
-          </div>
-        {/if}
-        {#if d.status === 'subsidiary'}
-          <div class="stamp-position">
-            <Stamp variant="green">Subsidiært</Stamp>
-          </div>
-        {/if}
-        <div
-          class="bh-argument-box"
-          style:background="var(--paper-inset)"
-          style:margin-top={d.status ? `${S.section}px` : '0'}
+      <div class="doc-content">
+        <p
+          class="font-serif argument-text"
+          style:color={d.status === 'disputed' ? 'var(--red)' : 'var(--ink-2)'}
         >
-          <p
-            class="font-serif argument-text"
-            style:color={d.status === 'disputed' ? 'var(--red)' : 'var(--ink-2)'}
-          >
-            {d.bhT}
-          </p>
-        </div>
+          {d.bhT}
+        </p>
       </div>
     </div>
 
@@ -250,15 +237,8 @@
     font-size: 16px;
     line-height: 1.75;
   }
-  .stamp-position {
-    position: absolute;
-    top: 16px;
-    right: 20px;
-  }
-  .bh-argument-box {
-    border: var(--rule-subtle);
-    border-radius: 3px;
-    padding: 20px;
+  .sidebar-stamp {
+    margin-top: 12px;
   }
   .draft-section {
     padding: 20px 24px;
@@ -346,13 +326,6 @@
     .argument-text {
       font-size: 15px;
       line-height: 1.6;
-    }
-    .stamp-position {
-      top: 12px;
-      right: 12px;
-    }
-    .bh-argument-box {
-      padding: 12px;
     }
     .draft-section {
       padding: 16px;
