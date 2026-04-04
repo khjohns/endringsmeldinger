@@ -1,8 +1,9 @@
 <script lang="ts">
   import { XSquare, Pencil, ArrowRight } from 'lucide-svelte';
-  import { TE, BH, S } from './data.js';
+  import { TE, BH } from './data.js';
   import { fmt, act } from './utils.js';
   import Stamp from './Stamp.svelte';
+  import SubStripe from './SubStripe.svelte';
   import CaseAnchor from './CaseAnchor.svelte';
   import type { Track, TrackKey, Role } from './types.js';
 
@@ -47,20 +48,7 @@
     </div>
   </div>
 
-  {#if isSub}
-    <div style="margin-bottom: {S.section}px; margin-top: {S.section}px">
-      <div class="sub-zone sub-notice">
-        <Stamp variant="green" small>Subsidiært</Stamp>
-        <p class="font-serif sub-notice-text">
-          Ansvarsgrunnlaget er prinsipalt bestridt. Utmåling er utelukkende subsidiær — ingen
-          erkjennelse av ansvar.
-        </p>
-      </div>
-    </div>
-  {/if}
-
-  <!-- BH-blokk: subsidiært svar, innenfor stripe -->
-  <div class={isSub ? 'sub-zone' : ''}>
+  {#snippet bhBlock()}
     <div
       class="doc-panel bh-panel"
       style:background={d.status === 'disputed' ? 'var(--red-bg)' : 'var(--paper)'}
@@ -82,7 +70,6 @@
             <XSquare size={18} />
             <span class="rejected-text">Avslått</span>
           </div>
-          <div class="font-mono principally-disputed">PRINSIPALT BESTRIDT</div>
           <div class="sidebar-stamp">
             <Stamp variant="red" small>Bestridt</Stamp>
           </div>
@@ -127,7 +114,17 @@
         </button>
       </div>
     {/if}
-  </div>
+  {/snippet}
+
+  {#if isSub}
+    <SubStripe
+      notice="Ansvarsgrunnlaget er prinsipalt bestridt. Utmåling er utelukkende subsidiær — ingen erkjennelse av ansvar."
+    >
+      {@render bhBlock()}
+    </SubStripe>
+  {:else}
+    {@render bhBlock()}
+  {/if}
 </div>
 
 <style>
@@ -221,14 +218,6 @@
     font-weight: 700;
     text-transform: uppercase;
   }
-  .principally-disputed {
-    font-size: 9px;
-    font-weight: 700;
-    margin-top: auto;
-    padding-top: 20px;
-    border-top: 1px solid rgba(255, 255, 255, 0.3);
-    opacity: 0.8;
-  }
   .doc-content {
     flex: 1;
     padding: 24px;
@@ -238,7 +227,8 @@
     line-height: 1.75;
   }
   .sidebar-stamp {
-    margin-top: 12px;
+    margin-top: auto;
+    padding-top: 16px;
   }
   .draft-section {
     padding: 20px 24px;
@@ -314,12 +304,6 @@
     .rejected-text {
       font-size: 13px;
     }
-    .principally-disputed {
-      margin-top: 0;
-      padding-top: 0;
-      border-top: none;
-      margin-left: auto;
-    }
     .doc-content {
       padding: 16px;
     }
@@ -338,10 +322,6 @@
     .draft-meta {
       flex-wrap: wrap;
       gap: 8px;
-    }
-    .sub-notice {
-      margin-left: 0;
-      padding-left: 16px;
     }
   }
 </style>

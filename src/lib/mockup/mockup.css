@@ -364,23 +364,7 @@
   background: transparent;
 }
 
-/* ── Subsidiary zone ── */
-.mockup .sub-zone {
-  position: relative;
-  margin-left: 20px;
-  padding-left: 18px;
-  border-left: 2px dashed var(--green-border);
-}
-.mockup .sub-zone::before {
-  content: '';
-  position: absolute;
-  left: -7px;
-  top: 0;
-  width: 11px;
-  height: 11px;
-  background: var(--green);
-  transform: rotate(45deg);
-}
+/* ── Subsidiary markers ── */
 .mockup .diamond {
   position: absolute;
   width: 11px;
@@ -836,12 +820,6 @@
   .mockup .segment-btn {
     padding: 10px 8px;
     font-size: 11px;
-  }
-
-  /* Sub-zone: reduce indent on mobile */
-  .mockup .sub-zone {
-    margin-left: 12px;
-    padding-left: 12px;
   }
 
   /* Result box */
