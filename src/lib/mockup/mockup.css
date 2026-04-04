@@ -4,17 +4,17 @@
 
 :root {
   /* ── Surfaces ── */
-  --canvas: #f7f7f5;
-  --paper: #ffffff;
-  --paper-inset: #f3f3f0;
-  --paper-sub: #fafaf8;
+  --canvas: #fefdfb;
+  --paper: #f5f3ee;
+  --paper-inset: #efede7;
+  --paper-sub: #f9f8f4;
   --plate: #1c1917;
 
   /* ── Ink — 4 levels ── */
   --ink: #1c1917;
   --ink-2: #4a4945;
-  --ink-3: #7a7975;
-  --ink-4: #a8a7a2;
+  --ink-3: #6b6a66;
+  --ink-4: #898780;
 
   /* ── Borders — 4 intensities ── */
   --edge: 1.5px solid #1c1917;
@@ -23,13 +23,13 @@
   --rule-strong: 1px solid rgba(28, 25, 23, 0.2);
 
   /* ── Accent — Gold (primary) ── */
-  --gold: #d4a020;
+  --gold: #a98015;
   --gold-bg: #fff8e8;
   --gold-border: #f0d880;
 
   /* ── Accent — Green (subsidiary) ── */
   --green: #034b45;
-  --green-bg: #ecf5f3;
+  --green-bg: #ebf2ee;
   --green-border: #a0ccc4;
 
   /* ── Semantic ── */
@@ -38,7 +38,7 @@
 
   /* ── Draft ── */
   --draft: #5a6048;
-  --draft-bg: #f6f7f2;
+  --draft-bg: #f4f4ec;
   --draft-border: #c8ccb0;
 
   /* ── Controls ── */
