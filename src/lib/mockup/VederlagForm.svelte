@@ -28,6 +28,8 @@
   import { TE, BH } from './data.js';
   import { fmt } from './utils.js';
   import Stamp from './Stamp.svelte';
+  import SubStripe from './SubStripe.svelte';
+  import Diamond from './Diamond.svelte';
   import CaseAnchor from './CaseAnchor.svelte';
   import { toggleChoice } from './utils.js';
 
@@ -113,6 +115,25 @@
     if (domainConfig.grunnlagStatus === 'avslatt') return 'grunnlag_avslatt' as const;
     if (erHelVederlagSubsidiaerPgaGrunnlag(domainConfig)) return 'grunnlag_32_2' as const;
     return null;
+  });
+
+  const subsidiærNotice = $derived.by(() => {
+    if (subsidiærGrunn === 'grunnlag_avslatt')
+      return 'Grunnlaget er avslått. Vurderingen nedenfor gjelder for det tilfelle at grunnlaget likevel godkjennes.';
+    if (subsidiærGrunn === 'grunnlag_32_2')
+      return 'Grunnlaget ble varslet for sent (§32.2). Hele vederlagskravet behandles subsidiært.';
+    return '';
+  });
+
+  const subsidiærDiamondCount = $derived.by(() => {
+    let count = 0;
+    if (isSubsidiaer) count++;
+    if (computed.harPreklusjonsSteg) {
+      for (const l of preklusjonsLinjer) {
+        if (l.value === false) count++;
+      }
+    }
+    return count;
   });
 
   const resultat = $derived.by(() => {
@@ -330,7 +351,7 @@
   yesText: string,
   noText: string,
   onset: (v: boolean | undefined) => void,
-  opts?: { subsidiaer?: boolean; alertHtml?: string }
+  opts?: { alertHtml?: string }
 )}
   <div class="question-block">
     <div class="question-header">
@@ -338,9 +359,6 @@
       <span class="font-mono question-ref">{ref}</span>
     </div>
     <p class="question-text">{text}</p>
-    {#if opts?.subsidiaer}
-      <Stamp variant="green" small flat>Subsidiært</Stamp>
-    {/if}
     <div class="pill-row">
       <button
         class="pill"
@@ -382,180 +400,180 @@
     <p class="font-serif context-text">{d.teT}</p>
   </div>
 
-  <div class="bh-heading">Byggherrens standpunkt</div>
+  {#snippet formBody()}
+    <div class="bh-heading">Byggherrens standpunkt</div>
 
-  {#if isSubsidiaer}
-    <div class="sub-banner">
-      <Stamp variant="green" small flat>Subsidiært</Stamp>
-      <p class="font-serif sub-banner-text">
-        {#if subsidiærGrunn === 'grunnlag_avslatt'}
-          Grunnlaget er avslått. Vurderingen nedenfor gjelder for det tilfelle at grunnlaget likevel
-          godkjennes.
-        {:else if subsidiærGrunn === 'grunnlag_32_2'}
-          Grunnlaget ble varslet for sent (§32.2). Hele vederlagskravet behandles subsidiært.
-        {/if}
-      </p>
-    </div>
-  {/if}
+    <!-- Preklusjon (data-drevet) -->
+    {#if computed.harPreklusjonsSteg}
+      {#each preklusjonsLinjer as linje (linje.key)}
+        {@render yesNoPill(
+          linje.label,
+          linje.ref,
+          'Ble kravet varslet uten ugrunnet opphold?',
+          linje.value,
+          'Ja, i tide',
+          'Nei, prekludert',
+          (v) => handlePreklusjon(linje.key, v),
+          {
+            alertHtml: `<strong>Preklusjon</strong> — Kravet vurderes som for sent varslet (${linje.ref}).`,
+          }
+        )}
+      {/each}
+      <div class="divider"></div>
+    {/if}
 
-  <!-- Preklusjon (data-drevet) -->
-  {#if computed.harPreklusjonsSteg}
-    {#each preklusjonsLinjer as linje (linje.key)}
-      {@render yesNoPill(
-        linje.label,
-        linje.ref,
-        'Ble kravet varslet uten ugrunnet opphold?',
-        linje.value,
-        'Ja, i tide',
-        'Nei, prekludert',
-        (v) => handlePreklusjon(linje.key, v),
-        {
-          alertHtml: `<strong>Preklusjon</strong> — Kravet vurderes som for sent varslet (${linje.ref}).`,
-        }
-      )}
-    {/each}
-    <div class="divider"></div>
-  {/if}
+    {#if isSubsidiaer && preklusjonsLinjer.some((l) => l.value === false)}
+      <Diamond />
+    {/if}
 
-  <!-- Beregningsmetode -->
-  {@render yesNoPill(
-    'Beregningsmetode',
-    '§ 34.2',
-    `Aksepterer du ${getVederlagsmetodeShortLabel(domainConfig.metode)?.toLowerCase() ?? 'beregningsmetoden'}?`,
-    akseptererMetode,
-    'Ja, akseptert',
-    'Nei, bestrides',
-    (v) => {
-      akseptererMetode = v;
-      if (v === true) oensketMetode = undefined;
-    }
-  )}
+    <!-- Beregningsmetode -->
+    {@render yesNoPill(
+      'Beregningsmetode',
+      '§ 34.2',
+      `Aksepterer du ${getVederlagsmetodeShortLabel(domainConfig.metode)?.toLowerCase() ?? 'beregningsmetoden'}?`,
+      akseptererMetode,
+      'Ja, akseptert',
+      'Nei, bestrides',
+      (v) => {
+        akseptererMetode = v;
+        if (v === true) oensketMetode = undefined;
+      }
+    )}
 
-  {#if akseptererMetode === false}
-    <div class="foretrukket-metode">
-      <span class="foretrukket-label">Foretrukket metode:</span>
-      <div class="pill-row">
-        {#each metodeAlternativer as alt}
-          <button
-            class="pill"
-            class:yes={oensketMetode === alt.value}
-            onclick={() =>
-              (oensketMetode =
-                oensketMetode === alt.value ? undefined : (alt.value as VederlagsMetode))}
-            >{alt.label}</button
-          >
-        {/each}
-      </div>
-    </div>
-  {/if}
-
-  <div class="divider"></div>
-
-  <!-- Kravlinjer (data-drevet) -->
-  {#each kravlinjer as linje (linje.key)}
-    <div class="question-block">
-      <div class="question-header">
-        <span class="question-label">{linje.title}</span>
-        <span class="font-mono question-ref">{linje.paragrafRef}</span>
-      </div>
-      {#if linje.prekludert}
-        <Stamp variant="red" small flat>Prekludert</Stamp>
-      {:else}
-        <div class="kravlinje-header">
-          <span class="font-mono kravlinje-krevd">Krevd: {fmt(linje.krevdBelop ?? 0)},-</span>
-        </div>
-        <div class="vurdering-row">
-          {#each vurderingOptions as opt}
+    {#if akseptererMetode === false}
+      <div class="foretrukket-metode">
+        <span class="foretrukket-label">Foretrukket metode:</span>
+        <div class="pill-row">
+          {#each metodeAlternativer as alt}
             <button
               class="pill"
-              class:yes={opt.cls === 'yes' && linje.vurdering === opt.value}
-              class:partial={opt.cls === 'partial' && linje.vurdering === opt.value}
-              class:no={opt.cls === 'no' && linje.vurdering === opt.value}
+              class:yes={oensketMetode === alt.value}
               onclick={() =>
-                handleKravlinjeVurdering(
-                  linje.key,
-                  linje.vurdering === opt.value ? undefined : opt.value
-                )}>{opt.label}</button
+                (oensketMetode =
+                  oensketMetode === alt.value ? undefined : (alt.value as VederlagsMetode))}
+              >{alt.label}</button
             >
           {/each}
         </div>
-        {#if linje.vurdering === 'delvis'}
-          <div class="measurement-row">
-            <div>
-              <div class="measurement-input-label">Godkjent beløp</div>
-              <input
-                type="number"
-                min="0"
-                max={linje.krevdBelop}
-                value={linje.godkjentBelop ?? ''}
-                oninput={(e) => {
-                  const v = parseInt(e.currentTarget.value);
-                  handleKravlinjeBelop(linje.key, isNaN(v) ? undefined : v);
-                }}
-                placeholder="beløp"
-                class="font-mono measurement-input"
-              />
+      </div>
+    {/if}
+
+    <div class="divider"></div>
+
+    <!-- Kravlinjer (data-drevet) -->
+    {#each kravlinjer as linje (linje.key)}
+      <div class="question-block">
+        <div class="question-header">
+          <span class="question-label">{linje.title}</span>
+          <span class="font-mono question-ref">{linje.paragrafRef}</span>
+        </div>
+        {#if linje.prekludert}
+          <Stamp variant="red" small flat>Prekludert</Stamp>
+        {:else}
+          <div class="kravlinje-header">
+            <span class="font-mono kravlinje-krevd">Krevd: {fmt(linje.krevdBelop ?? 0)},-</span>
+          </div>
+          <div class="vurdering-row">
+            {#each vurderingOptions as opt}
+              <button
+                class="pill"
+                class:yes={opt.cls === 'yes' && linje.vurdering === opt.value}
+                class:partial={opt.cls === 'partial' && linje.vurdering === opt.value}
+                class:no={opt.cls === 'no' && linje.vurdering === opt.value}
+                onclick={() =>
+                  handleKravlinjeVurdering(
+                    linje.key,
+                    linje.vurdering === opt.value ? undefined : opt.value
+                  )}>{opt.label}</button
+              >
+            {/each}
+          </div>
+          {#if linje.vurdering === 'delvis'}
+            <div class="measurement-row">
+              <div>
+                <div class="measurement-input-label">Godkjent beløp</div>
+                <input
+                  type="number"
+                  min="0"
+                  max={linje.krevdBelop}
+                  value={linje.godkjentBelop ?? ''}
+                  oninput={(e) => {
+                    const v = parseInt(e.currentTarget.value);
+                    handleKravlinjeBelop(linje.key, isNaN(v) ? undefined : v);
+                  }}
+                  placeholder="beløp"
+                  class="font-mono measurement-input"
+                />
+              </div>
             </div>
+          {/if}
+        {/if}
+      </div>
+    {/each}
+
+    {#if allAnswered || (akseptererMetode !== undefined && hovedkravVurdering !== undefined)}
+      <div class="divider"></div>
+      <div class="result-box" style:border-color={resultat.color}>
+        <div class="result-header" style:color={resultat.color}>
+          <resultat.ikon size={18} />
+          <span class="result-label">{resultat.label}</span>
+        </div>
+        {#if computed.prinsipaltResultat !== 'avslatt'}
+          <div class="result-detail">
+            <span class="font-mono result-amount">
+              {fmt(computed.totalGodkjent)},- av {fmt(computed.totalKrevdInklPrekludert)},-
+            </span>
           </div>
         {/if}
-      {/if}
-    </div>
-  {/each}
-
-  {#if allAnswered || (akseptererMetode !== undefined && hovedkravVurdering !== undefined)}
-    <div class="divider"></div>
-    <div class="result-box" style:border-color={resultat.color}>
-      <div class="result-header" style:color={resultat.color}>
-        <resultat.ikon size={18} />
-        <span class="result-label">{resultat.label}</span>
+        {#if computed.visSubsidiaertResultat}
+          <div class="sub-result">
+            <Stamp variant="green" small flat>Subsidiært</Stamp>
+            <span class="font-mono sub-result-text">
+              {computed.subsidiaertResultat === 'godkjent'
+                ? 'Godkjent'
+                : computed.subsidiaertResultat === 'delvis_godkjent'
+                  ? 'Delvis godkjent'
+                  : 'Avslått'}
+              {#if computed.subsidiaertResultat !== 'avslatt'}
+                — {fmt(computed.totalGodkjentInklPrekludert)},-
+              {/if}
+            </span>
+          </div>
+        {/if}
       </div>
-      {#if computed.prinsipaltResultat !== 'avslatt'}
-        <div class="result-detail">
-          <span class="font-mono result-amount">
-            {fmt(computed.totalGodkjent)},- av {fmt(computed.totalKrevdInklPrekludert)},-
-          </span>
-        </div>
-      {/if}
-      {#if computed.visSubsidiaertResultat}
-        <div class="sub-result">
-          <Stamp variant="green" small flat>Subsidiært</Stamp>
-          <span class="font-mono sub-result-text">
-            {computed.subsidiaertResultat === 'godkjent'
-              ? 'Godkjent'
-              : computed.subsidiaertResultat === 'delvis_godkjent'
-                ? 'Delvis godkjent'
-                : 'Avslått'}
-            {#if computed.subsidiaertResultat !== 'avslatt'}
-              — {fmt(computed.totalGodkjentInklPrekludert)},-
+
+      <div class="begrunnelse-section">
+        <div class="question-header">
+          <span class="question-label">Begrunnelse</span>
+          <div class="begrunnelse-header-right">
+            {#if userHasEdited && autoBegrunnelseHtml}
+              <button class="regenerate-btn" onclick={handleRegenerate}>
+                <RefreshCw size={12} strokeWidth={2} /> Regenerer
+              </button>
             {/if}
-          </span>
+            <span class="font-mono char-count">{charCount} tegn</span>
+          </div>
         </div>
-      {/if}
-    </div>
+        <div class="editor-wrapper">
+          <RichTextEditor
+            body={begrunnelseHtml}
+            onchange={handleEditorChange}
+            onready={handleEditorReady}
+            extensions={[LockedValueNode]}
+            maxHeight="none"
+            oncharcount={(c) => (charCount = c)}
+          />
+        </div>
+      </div>
+    {/if}
+  {/snippet}
 
-    <div class="begrunnelse-section">
-      <div class="question-header">
-        <span class="question-label">Begrunnelse</span>
-        <div class="begrunnelse-header-right">
-          {#if userHasEdited && autoBegrunnelseHtml}
-            <button class="regenerate-btn" onclick={handleRegenerate}>
-              <RefreshCw size={12} strokeWidth={2} /> Regenerer
-            </button>
-          {/if}
-          <span class="font-mono char-count">{charCount} tegn</span>
-        </div>
-      </div>
-      <div class="editor-wrapper">
-        <RichTextEditor
-          body={begrunnelseHtml}
-          onchange={handleEditorChange}
-          onready={handleEditorReady}
-          extensions={[LockedValueNode]}
-          maxHeight="none"
-          oncharcount={(c) => (charCount = c)}
-        />
-      </div>
-    </div>
+  {#if isSubsidiaer}
+    <SubStripe notice={subsidiærNotice} diamondCount={subsidiærDiamondCount}>
+      {@render formBody()}
+    </SubStripe>
+  {:else}
+    {@render formBody()}
   {/if}
 </div>
 

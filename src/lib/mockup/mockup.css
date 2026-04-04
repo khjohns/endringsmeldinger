@@ -364,20 +364,17 @@
   background: transparent;
 }
 
-/* ── Subsidiary zone ── */
-.mockup .sub-zone {
-  position: relative;
-  margin-left: 20px;
-  padding-left: 18px;
-  border-left: 2px dashed var(--green-border);
-}
-.mockup .sub-zone::before {
-  content: '';
+/* ── Subsidiary markers ── */
+.mockup .diamond {
   position: absolute;
-  left: -7px;
-  top: 0;
   width: 11px;
   height: 11px;
+  background: var(--green);
+  transform: rotate(45deg);
+}
+.mockup .mini-diamond {
+  width: 8px;
+  height: 8px;
   background: var(--green);
   transform: rotate(45deg);
 }
@@ -543,16 +540,16 @@
   background: rgba(28, 25, 23, 0.08);
   margin-bottom: 32px;
 }
-.mockup .sub-banner {
-  margin-bottom: 32px;
-  padding: 16px 20px;
+/* ── Subsidiary notice (shared by SubStripe + CenterRead) ── */
+.mockup .sub-notice {
   background: var(--green-bg);
-  border-left: 2px dashed var(--green-border);
-  border-radius: 0 4px 4px 0;
+  padding: 12px 16px;
+  border: var(--rule-subtle);
+  border-radius: 4px;
 }
-.mockup .sub-banner-text {
+.mockup .sub-notice-text {
   font-family: 'Literata', serif;
-  font-size: 14px;
+  font-size: 13px;
   line-height: 1.55;
   color: var(--ink-2);
   font-style: italic;
@@ -823,12 +820,6 @@
   .mockup .segment-btn {
     padding: 10px 8px;
     font-size: 11px;
-  }
-
-  /* Sub-zone: reduce indent on mobile */
-  .mockup .sub-zone {
-    margin-left: 12px;
-    padding-left: 12px;
   }
 
   /* Result box */
