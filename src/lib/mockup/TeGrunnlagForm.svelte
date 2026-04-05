@@ -94,7 +94,7 @@
     font-weight: 700;
     background: var(--plate);
     color: white;
-    padding: 3px 8px;
+    padding: 4px 8px;
   }
   .position-ref {
     font-size: 11px;

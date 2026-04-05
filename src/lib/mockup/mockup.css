@@ -205,7 +205,7 @@
 }
 .mockup .stamp-sm {
   font-size: 9px;
-  padding: 3px 8px;
+  padding: 4px 8px;
   border-width: 1px;
   box-shadow: 1px 1px 0 currentColor;
 }
@@ -281,7 +281,7 @@
 }
 .mockup .btn-sm {
   font-size: 10px;
-  padding: 6px 12px;
+  padding: 4px 12px;
 }
 
 /* ── Dark mode buttons — Glow strategy ── */
@@ -339,7 +339,7 @@
 
 /* ── Tabs ── */
 .mockup .tab {
-  padding: 10px 16px;
+  padding: 8px 16px;
   font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 11px;
   font-weight: 700;
@@ -618,7 +618,7 @@
   box-shadow: var(--control-focus-ring);
 }
 .mockup .result-box {
-  padding: 20px 24px;
+  padding: 16px 24px;
   background: var(--paper);
   border: 1.5px solid var(--ink-4);
   border-radius: 4px;
@@ -654,7 +654,7 @@
 }
 .mockup .status-box {
   margin-top: 32px;
-  padding: 16px 20px;
+  padding: 16px 24px;
   background: var(--paper);
   border: 1.5px solid var(--gold);
   border-radius: 4px;
@@ -673,7 +673,7 @@
 }
 .mockup .segment-btn {
   flex: 1;
-  padding: 10px 16px;
+  padding: 8px 16px;
   font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 12px;
   font-weight: 700;
@@ -776,22 +776,22 @@
 @media (max-width: 768px) {
   /* Form content: tighter padding */
   .mockup .form-content {
-    padding: 20px 16px 120px;
+    padding: 16px 16px 120px;
   }
 
   /* Touch-friendly pills */
   .mockup .pill {
-    padding: 10px 16px;
+    padding: 12px 16px;
     font-size: 14px;
   }
 
   /* Buttons: slightly larger tap targets */
   .mockup .btn {
-    padding: 10px 16px;
+    padding: 12px 16px;
     font-size: 12px;
   }
   .mockup .btn-sm {
-    padding: 8px 14px;
+    padding: 8px 12px;
   }
 
   /* TE context block */
@@ -822,7 +822,7 @@
 
   /* Segment row */
   .mockup .segment-btn {
-    padding: 10px 8px;
+    padding: 8px 8px;
     font-size: 11px;
   }
 

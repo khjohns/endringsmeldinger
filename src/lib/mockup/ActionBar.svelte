@@ -89,7 +89,7 @@
     background: var(--canvas);
     border: var(--rule);
     border-radius: 4px 4px 0 0;
-    padding: 14px 24px;
+    padding: 12px 24px;
     z-index: 20;
     box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.06);
   }
@@ -134,7 +134,7 @@
   /* ── Mobile ── */
   @media (max-width: 768px) {
     .action-bar {
-      padding: 10px 12px;
+      padding: 8px 12px;
     }
     .action-inner {
       gap: 8px;
