@@ -158,7 +158,7 @@
   .doc-sidebar {
     width: 180px;
     flex-shrink: 0;
-    padding: 20px;
+    padding: 16px;
     border-right: var(--rule);
     display: flex;
     flex-direction: column;
@@ -179,7 +179,7 @@
     font-weight: 700;
     background: var(--plate);
     color: white;
-    padding: 3px 8px;
+    padding: 4px 8px;
     border-radius: 2px;
     display: inline-block;
     width: fit-content;
@@ -220,7 +220,7 @@
     padding-top: 16px;
   }
   .draft-section {
-    padding: 20px 24px;
+    padding: 16px 24px;
     background: var(--draft-bg);
     border: 1.5px dashed var(--draft-border);
     border-radius: 4px;
