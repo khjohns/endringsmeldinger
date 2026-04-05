@@ -8,7 +8,7 @@
   import type { VederlagsMetode } from '$lib/constants/paymentMethods';
   import { VEDERLAGSMETODE_DESCRIPTIONS } from '$lib/constants/paymentMethods';
   import { store } from './store.svelte.js';
-  import { TE } from './data.js';
+  import { TRACK_ICONS } from './data.js';
   import { fmt } from './utils.js';
   import CaseAnchor from './CaseAnchor.svelte';
 
@@ -20,7 +20,7 @@
     onactions?: (a: { canSend: boolean; send: () => void }) => void;
   } = $props();
 
-  const d = store.tracks.vederlag;
+  const d = $derived(store.vederlagDisplay);
 
   const scenario = 'new' as const;
   const defaults = getDefaults({ scenario });
@@ -71,7 +71,7 @@
     onactions?.({
       canSend: kanSende,
       send: () => {
-        store.sendTeVederlag(hovedkravValue ?? 0, metode ?? 'REGNINGSARBEID');
+        store.sendTeVederlag(hovedkravValue ?? 0);
         onsend();
       },
     });
@@ -91,8 +91,8 @@
   <div class="te-context">
     <div class="context-header">
       <div class="context-label-row">
-        <d.icon size={14} style="color: var(--ink-3)" />
-        <span class="context-label">{d.label} — {TE}s krav</span>
+        <svelte:component this={TRACK_ICONS.vederlag} size={14} style="color: var(--ink-3)" />
+        <span class="context-label">{d.label} — {store.teNavn}s krav</span>
       </div>
       <span class="font-mono context-ref">§ 34.1</span>
     </div>
@@ -101,7 +101,7 @@
     </p>
   </div>
 
-  <div class="bh-heading">{TE}s standpunkt</div>
+  <div class="bh-heading">{store.teNavn}s standpunkt</div>
 
   <div class="question-block">
     <div class="question-header">

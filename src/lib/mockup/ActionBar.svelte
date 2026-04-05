@@ -71,7 +71,7 @@
         <button class="btn btn-primary"><Check size={14} /> Godta</button>
       {:else}
         <button class="btn btn-primary" onclick={() => onform(sel)}>
-          {hasDraft ? 'Fortsett' : role === 'TE' ? 'Revider' : 'Besvar'}
+          {hasDraft ? 'Fortsett' : 'Besvar'}
           <ArrowRight size={14} />
         </button>
       {/if}
