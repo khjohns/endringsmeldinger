@@ -1,6 +1,5 @@
 <script lang="ts">
   import { Check, XSquare, Send, BookOpen, ArrowRight } from 'lucide-svelte';
-  import { store } from './store.svelte.js';
   import { fmt } from './utils.js';
   import type { Mode, Role, SporKey } from './types.js';
 

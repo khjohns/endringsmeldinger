@@ -4,7 +4,7 @@
  * Scenariovalg bytter hele SakState + timeline + UI-state.
  * Domain configs utledes reaktivt fra SakState.
  */
-import { SCENARIOS, DEFAULT_SCENARIO } from './scenarios.js';
+import { SCENARIOS, DEFAULT_SCENARIO, SPOR_KEYS } from './scenarios.js';
 import type { Scenario, SporUIState, SporKey } from './scenarios.js';
 import {
   deriveTrackDisplay,
@@ -38,7 +38,7 @@ function createStore() {
 
   // UI-state
   const draftCount = $derived(
-    (['ansvar', 'vederlag', 'frist'] as SporKey[]).filter(
+    SPOR_KEYS.filter(
       (k) => scenario.ui[k].draft !== null
     ).length
   );
@@ -62,89 +62,42 @@ function createStore() {
     return fristDisplay;
   }
 
-  // BH-handlinger — oppdaterer SakState
+  // BH-handlinger — direkte mutasjon for Svelte 5 fine-grained reactivity
   function sendGrunnlagSvar(resultat: 'godkjent' | 'avslatt' | 'frafalt') {
-    scenario.sak = {
-      ...scenario.sak,
-      grunnlag: {
-        ...scenario.sak.grunnlag,
-        bh_resultat: resultat,
-        bh_respondert_versjon: 0,
-      },
-    };
-    scenario.ui.ansvar = { ...scenario.ui.ansvar, draft: null };
+    scenario.sak.grunnlag.bh_resultat = resultat;
+    scenario.sak.grunnlag.bh_respondert_versjon = 0;
+    scenario.ui.ansvar.draft = null;
   }
 
   function sendVederlagSvar(godkjentBelop: number) {
     const krevd = scenario.sak.vederlag.krevd_belop ?? 0;
-    const resultat =
-      godkjentBelop >= krevd
-        ? ('godkjent' as const)
-        : godkjentBelop > 0
-          ? ('delvis_godkjent' as const)
-          : ('avslatt' as const);
-    scenario.sak = {
-      ...scenario.sak,
-      vederlag: {
-        ...scenario.sak.vederlag,
-        bh_resultat: resultat,
-        godkjent_belop: godkjentBelop,
-        bh_respondert_versjon: 0,
-      },
-    };
-    scenario.ui.vederlag = { ...scenario.ui.vederlag, draft: null };
+    scenario.sak.vederlag.bh_resultat =
+      godkjentBelop >= krevd ? 'godkjent' : godkjentBelop > 0 ? 'delvis_godkjent' : 'avslatt';
+    scenario.sak.vederlag.godkjent_belop = godkjentBelop;
+    scenario.sak.vederlag.bh_respondert_versjon = 0;
+    scenario.ui.vederlag.draft = null;
   }
 
   function sendFristSvar(godkjentDager: number) {
     const krevd = scenario.sak.frist.krevd_dager ?? 0;
-    const resultat =
-      godkjentDager >= krevd
-        ? ('godkjent' as const)
-        : godkjentDager > 0
-          ? ('delvis_godkjent' as const)
-          : ('avslatt' as const);
-    scenario.sak = {
-      ...scenario.sak,
-      frist: {
-        ...scenario.sak.frist,
-        bh_resultat: resultat,
-        godkjent_dager: godkjentDager,
-        bh_respondert_versjon: 0,
-      },
-    };
-    scenario.ui.frist = { ...scenario.ui.frist, draft: null };
+    scenario.sak.frist.bh_resultat =
+      godkjentDager >= krevd ? 'godkjent' : godkjentDager > 0 ? 'delvis_godkjent' : 'avslatt';
+    scenario.sak.frist.godkjent_dager = godkjentDager;
+    scenario.sak.frist.bh_respondert_versjon = 0;
+    scenario.ui.frist.draft = null;
   }
 
-  // TE-handlinger
   function sendTeGrunnlag(begrunnelse: string) {
-    scenario.sak = {
-      ...scenario.sak,
-      grunnlag: {
-        ...scenario.sak.grunnlag,
-        beskrivelse: begrunnelse,
-      },
-    };
+    scenario.sak.grunnlag.beskrivelse = begrunnelse;
   }
 
   function sendTeVederlag(belop: number) {
-    scenario.sak = {
-      ...scenario.sak,
-      vederlag: {
-        ...scenario.sak.vederlag,
-        krevd_belop: belop,
-        netto_belop: belop,
-      },
-    };
+    scenario.sak.vederlag.krevd_belop = belop;
+    scenario.sak.vederlag.netto_belop = belop;
   }
 
   function sendTeFrist(dager: number) {
-    scenario.sak = {
-      ...scenario.sak,
-      frist: {
-        ...scenario.sak.frist,
-        krevd_dager: dager,
-      },
-    };
+    scenario.sak.frist.krevd_dager = dager;
   }
 
   return {
