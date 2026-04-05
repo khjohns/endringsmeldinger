@@ -10,13 +10,6 @@ export type Role = 'TE' | 'BH';
 export type Mode = 'read' | 'form';
 export type RightTab = 'bestemmelser' | 'historikk' | 'vedlegg' | 'begrunnelse' | 'filer';
 
-export interface Provision {
-  ref: string;
-  title: string;
-  text: string;
-  note: string | null;
-}
-
 export interface Attachment {
   n: string;
   p?: number;

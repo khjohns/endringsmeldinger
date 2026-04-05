@@ -7,8 +7,7 @@ import type { SakState } from '$lib/types/timeline';
 import type { VederlagDomainConfig } from '$lib/domain/vederlagDomain';
 import type { FristDomainConfig } from '$lib/domain/fristDomain';
 import type { GrunnlagDomainConfig } from '$lib/domain/grunnlagDomain';
-
-export type SporKey = 'ansvar' | 'vederlag' | 'frist';
+import type { SporKey } from './scenarios.js';
 
 export interface TrackDisplay {
   label: string;

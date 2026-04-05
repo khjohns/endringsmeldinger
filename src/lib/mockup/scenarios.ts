@@ -20,6 +20,7 @@ import type { SakState, TimelineEvent } from '$lib/types/timeline';
 import type { Draft, Attachment, InternalNote } from './types.js';
 
 export type SporKey = 'ansvar' | 'vederlag' | 'frist';
+export const SPOR_KEYS: SporKey[] = ['ansvar', 'vederlag', 'frist'];
 
 export interface SporUIState {
   draft: Draft | null;

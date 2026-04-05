@@ -4,9 +4,8 @@
   import { fmt } from './utils.js';
   import DualBar from './DualBar.svelte';
   import Stamp from './Stamp.svelte';
+  import { SPOR_KEYS } from './scenarios.js';
   import type { SporKey } from './types.js';
-
-  const SPOR: SporKey[] = ['ansvar', 'vederlag', 'frist'];
 
   let {
     sel,
@@ -39,7 +38,7 @@
   </div>
 
   <div style="padding: 0 {S.sm}px">
-    {#each SPOR as k}
+    {#each SPOR_KEYS as k}
       {@const display = store.display(k)}
       {@const Icon = TRACK_ICONS[k]}
       {@const on = sel === k}

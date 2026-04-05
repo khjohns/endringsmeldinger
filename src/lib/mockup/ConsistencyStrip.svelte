@@ -2,9 +2,8 @@
   import { Pencil, Circle } from 'lucide-svelte';
   import { store } from './store.svelte.js';
   import { fmt } from './utils.js';
+  import { SPOR_KEYS } from './scenarios.js';
   import type { SporKey } from './types.js';
-
-  const SPOR_KEYS: SporKey[] = ['ansvar', 'vederlag', 'frist'];
 
   let {
     sel,
