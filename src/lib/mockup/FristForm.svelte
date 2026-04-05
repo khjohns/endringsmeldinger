@@ -10,7 +10,7 @@
   import { RefreshCw } from 'lucide-svelte';
   import { isHtmlEmpty } from '$lib/utils/formatters';
   import { store } from './store.svelte.js';
-  import { TE } from './data.js';
+  import { TRACK_ICONS } from './data.js';
   import Stamp from './Stamp.svelte';
   import SubStripe from './SubStripe.svelte';
   import Diamond from './Diamond.svelte';
@@ -18,27 +18,14 @@
   import { toggleChoice } from './utils.js';
 
   let {
+    domainConfig,
     onsend,
     onactions,
   }: {
+    domainConfig: FristDomainConfig;
     onsend: () => void;
     onactions?: (a: { canSend: boolean; send: () => void }) => void;
   } = $props();
-
-  const d = store.tracks.frist;
-
-  /**
-   * Mock domain config for KOE-104: TE claimed 14 days, sent as spesifisert krav.
-   * In production this is derived from case state in +page.svelte.
-   */
-  const domainConfig: FristDomainConfig = {
-    varselType: 'spesifisert',
-    krevdDager: d.te.value!,
-    erSvarPaForesporsel: false,
-    harTidligereVarselITide: true,
-    erGrunnlagSubsidiaer: true,
-    erHelFristSubsidiaerPgaGrunnlag: false,
-  };
 
   const initialDefaults = getDefaults({
     krevdDager: domainConfig.krevdDager,
@@ -189,13 +176,13 @@
   <div class="te-context">
     <div class="context-header">
       <div class="context-label-row">
-        <d.icon size={14} style="color: var(--ink-3)" />
-        <span class="context-label">{d.label} — {TE}s krav</span>
+        <TRACK_ICONS.frist size={14} style="color: var(--ink-3)" />
+        <span class="context-label">{store.fristDisplay.label} — {store.teNavn}s krav</span>
       </div>
       <span class="font-mono context-ref">§ 33.1</span>
     </div>
-    <div class="font-mono context-value">{d.te.value} dager</div>
-    <p class="font-serif context-text">{d.teT}</p>
+    <div class="font-mono context-value">{store.fristDisplay.krevdValue} dager</div>
+    <p class="font-serif context-text">{store.fristDisplay.teText}</p>
   </div>
 
   {#snippet yesNoPill(
@@ -300,7 +287,7 @@
         <div class="measurement-row">
           <div>
             <div class="measurement-label">Krevd</div>
-            <div class="font-mono measurement-value">{d.te.value} dager</div>
+            <div class="font-mono measurement-value">{domainConfig.krevdDager} dager</div>
           </div>
           <div>
             <div class="measurement-input-label">Godkjent dager</div>
