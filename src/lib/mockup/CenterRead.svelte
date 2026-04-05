@@ -1,25 +1,27 @@
 <script lang="ts">
   import { XSquare, Pencil } from 'lucide-svelte';
-  import { TE, BH } from './data.js';
+  import { store } from './store.svelte.js';
+  import { TRACK_ICONS } from './data.js';
   import { fmt } from './utils.js';
   import Stamp from './Stamp.svelte';
   import SubStripe from './SubStripe.svelte';
   import CaseAnchor from './CaseAnchor.svelte';
-  import type { Track, TrackKey, Role } from './types.js';
+  import type { SporKey, Role } from './types.js';
 
   let {
-    d,
     sel,
     role,
     onform,
   }: {
-    d: Track;
-    sel: TrackKey;
+    sel: SporKey;
     role: Role;
-    onform: (key: TrackKey) => void;
+    onform: (key: SporKey) => void;
   } = $props();
 
-  const isSub = $derived(sel !== 'ansvar');
+  const display = $derived(store.display(sel));
+  const ui = $derived(store.getUI(sel));
+  const isSub = $derived(display.isSubsidiary);
+  const TrackIcon = $derived(TRACK_ICONS[sel]);
 </script>
 
 <div class="read-content">
@@ -27,45 +29,45 @@
 
   <div class="section-heading">
     <div class="heading-row">
-      <d.icon size={18} style="color: var(--ink-2)" />
-      <h2 class="heading-text">{d.num}. {d.label}{isSub ? ' (Sub.)' : ''}</h2>
+      <TrackIcon size={18} style="color: var(--ink-2)" />
+      <h2 class="heading-text">{display.num}. {display.label}{isSub ? ' (Sub.)' : ''}</h2>
     </div>
   </div>
 
   <!-- TE-blokk: prinsipalt krav, alltid utenfor stripe -->
   <div class="doc-panel te-panel">
     <div class="doc-sidebar te-sidebar">
-      <div class="party-name te-name">{TE}</div>
-      {#if d.type === 'binary'}
-        <div class="font-mono te-position">{d.te.position?.toUpperCase()}</div>
-        <div class="font-mono te-ref">{d.te.ref}</div>
+      <div class="party-name te-name">{store.teNavn}</div>
+      {#if display.isBinary}
+        <div class="font-mono te-position">{display.tePosition}</div>
+        <div class="font-mono te-ref">{display.teRef}</div>
       {:else}
-        <div class="font-mono te-value">{fmt(d.te.value!)}{d.te.unit}</div>
+        <div class="font-mono te-value">{fmt(display.krevdValue!)}{display.krevdUnit}</div>
       {/if}
     </div>
     <div class="doc-content">
-      <p class="font-serif argument-text">{d.teT}</p>
+      <p class="font-serif argument-text">{display.teText}</p>
     </div>
   </div>
 
   {#snippet bhBlock()}
     <div
       class="doc-panel bh-panel"
-      style:background={d.status === 'disputed' ? 'var(--red-bg)' : 'var(--paper)'}
+      style:background={display.isDisputed ? 'var(--red-bg)' : 'var(--paper)'}
     >
       <div
         class="doc-sidebar bh-sidebar"
-        style:background={d.status === 'disputed' ? 'var(--red)' : 'var(--paper-sub)'}
-        style:color={d.status === 'disputed' ? 'white' : 'var(--ink)'}
+        style:background={display.isDisputed ? 'var(--red)' : 'var(--paper-sub)'}
+        style:color={display.isDisputed ? 'white' : 'var(--ink)'}
       >
         <div
           class="party-name"
-          style:font-weight={d.status === 'disputed' ? '700' : '500'}
-          style:color={d.status === 'disputed' ? 'rgba(255,255,255,0.8)' : 'var(--ink-2)'}
+          style:font-weight={display.isDisputed ? '700' : '500'}
+          style:color={display.isDisputed ? 'rgba(255,255,255,0.8)' : 'var(--ink-2)'}
         >
-          {BH}
+          {store.bhNavn}
         </div>
-        {#if d.status === 'disputed'}
+        {#if display.isDisputed}
           <div class="rejected-badge">
             <XSquare size={18} />
             <span class="rejected-text">Avslått</span>
@@ -74,20 +76,20 @@
             <Stamp variant="red" small>Bestridt</Stamp>
           </div>
         {:else}
-          <div class="font-mono bh-value">{fmt(d.bh.subsidiaer!)}{d.bh.unit}</div>
+          <div class="font-mono bh-value">{fmt(display.bhSubsidiaer!)}{display.bhUnit}</div>
         {/if}
       </div>
       <div class="doc-content">
         <p
           class="font-serif argument-text"
-          style:color={d.status === 'disputed' ? 'var(--red)' : 'var(--ink-2)'}
+          style:color={display.isDisputed ? 'var(--red)' : 'var(--ink-2)'}
         >
-          {d.bhT}
+          {display.bhText}
         </p>
       </div>
     </div>
 
-    {#if d.draft}
+    {#if ui.draft}
       <!-- svelte-ignore a11y_no_static_element_interactions a11y_click_events_have_key_events -->
       <div class="draft-section draft-clickable" onclick={() => onform(sel)}>
         <div class="draft-header">
@@ -95,12 +97,12 @@
             <Stamp variant="draft" small>Kladd</Stamp>
             <Pencil size={12} style="color: var(--draft)" />
             <span class="draft-label">Internt — ikke synlig for motpart</span>
-            {#if d.draft.value}
-              <span class="font-mono draft-value">{fmt(d.draft.value)},-</span>
+            {#if ui.draft.value}
+              <span class="font-mono draft-value">{fmt(ui.draft.value)},-</span>
             {/if}
           </div>
         </div>
-        <p class="font-serif draft-text">{d.draft.text}</p>
+        <p class="font-serif draft-text">{ui.draft.text}</p>
       </div>
     {/if}
   {/snippet}

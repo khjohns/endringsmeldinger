@@ -1,41 +1,44 @@
 <script lang="ts">
   import { Pencil, Circle } from 'lucide-svelte';
   import { store } from './store.svelte.js';
-  import { S } from './data.js';
   import { fmt } from './utils.js';
-  import type { TrackKey } from './types.js';
+  import type { SporKey } from './types.js';
+
+  const SPOR_KEYS: SporKey[] = ['ansvar', 'vederlag', 'frist'];
 
   let {
     sel,
     draftCount,
     onselect,
   }: {
-    sel: TrackKey;
+    sel: SporKey;
     draftCount: number;
-    onselect: (key: TrackKey, draftText: string) => void;
+    onselect: (key: SporKey, draftText: string) => void;
   } = $props();
 </script>
 
 <div class="strip">
   <span class="font-mono strip-label">Dine svar:</span>
-  {#each Object.entries(store.tracks) as [k, dd]}
+  {#each SPOR_KEYS as k}
+    {@const display = store.display(k)}
+    {@const ui = store.getUI(k)}
+    {@const hasDraft = ui.draft !== null}
     {@const active = k === sel}
-    {@const ds = dd.draftState}
     <button
       class="strip-btn"
       class:active
-      class:has-draft={ds === 'draft'}
-      onclick={() => onselect(k as TrackKey, dd.draft?.text || '')}
+      class:has-draft={hasDraft}
+      onclick={() => onselect(k, ui.draft?.text || '')}
     >
-      {#if ds === 'draft'}
+      {#if hasDraft}
         <Pencil size={10} />
       {:else}
         <Circle size={10} />
       {/if}
-      <span>{dd.label}:</span>
+      <span>{display.label}:</span>
       <span class="font-mono strip-value">
-        {#if ds === 'empty'}—{:else if k === 'ansvar'}Bestridt{:else if dd.draft?.value}{fmt(
-            dd.draft.value
+        {#if !hasDraft}—{:else if k === 'ansvar'}Bestridt{:else if ui.draft?.value}{fmt(
+            ui.draft.value
           )},-{:else}Kladd{/if}
       </span>
     </button>

@@ -13,12 +13,12 @@
     RotateCw,
   } from 'lucide-svelte';
   import { store } from './store.svelte.js';
-  import { S } from './data.js';
-  import DateSeparator from './DateSeparator.svelte';
-  import type { Track, Mode, RightTab } from './types.js';
+  import { S, sporBestemmelser } from './data.js';
+  import { getEventTypeLabel } from '$lib/constants/eventTypeLabels.js';
+  import type { SporKey, Mode, RightTab } from './types.js';
 
   let {
-    d,
+    sel,
     mode,
     tab,
     begr,
@@ -26,7 +26,7 @@
     onbegrchange,
     onclose,
   }: {
-    d: Track;
+    sel: SporKey;
     mode: Mode;
     tab: RightTab;
     begr: string;
@@ -34,6 +34,9 @@
     onbegrchange: (v: string) => void;
     onclose?: () => void;
   } = $props();
+
+  const ui = $derived(store.getUI(sel));
+  const best = $derived(sporBestemmelser(sel));
 
   const readTabs: RightTab[] = ['bestemmelser', 'historikk', 'vedlegg'];
   const formTabs: RightTab[] = ['bestemmelser', 'historikk', 'filer'];
@@ -51,7 +54,7 @@
 </script>
 
 {#snippet attList(showPages: boolean)}
-  {#each d.att as v}
+  {#each ui.att as v}
     <div class="att" style="margin-bottom: {S.sm}px">
       <Paperclip size={14} style="color: var(--ink-4); flex-shrink: 0" />
       <div class="att-info">
@@ -77,7 +80,7 @@
 
   <div class="tab-content">
     {#if tab === 'bestemmelser'}
-      {#each d.best as b}
+      {#each best as b}
         <div class="best-card" style="margin-bottom: {S.lg}px">
           <div class="font-mono best-ref">{b.ref} {b.title}</div>
           <p class="font-serif best-text">{b.text}</p>
@@ -91,31 +94,41 @@
     {#if tab === 'historikk'}
       <div class="history" style="position: relative">
         <div class="history-line"></div>
-        {#each Object.entries(store.evtGrouped) as [date, events], gi}
-          <DateSeparator {date} />
-          {#each events as e}
+        {#each store.timeline as event, i}
+          <div
+            class="history-event"
+            style="opacity: {i === 0 ? 1 : 0.5}"
+            onmouseenter={(ev) => {
+              ev.currentTarget.style.opacity = '1';
+            }}
+            onmouseleave={(ev) => {
+              ev.currentTarget.style.opacity = i === 0 ? '1' : '0.5';
+            }}
+          >
             <div
-              class="history-event"
-              style="opacity: {gi === 0 ? 1 : 0.5}"
-              onmouseenter={(ev) => {
-                ev.currentTarget.style.opacity = '1';
-              }}
-              onmouseleave={(ev) => {
-                ev.currentTarget.style.opacity = gi === 0 ? '1' : '0.5';
-              }}
+              class="font-mono event-marker"
+              style:background={event.actorrole === 'TE' ? 'var(--plate)' : 'var(--paper)'}
+              style:color={event.actorrole === 'TE' ? 'white' : 'var(--ink)'}
             >
-              <div
-                class="font-mono event-marker"
-                style:background={e.a === 'TE' ? 'var(--plate)' : 'var(--paper)'}
-                style:color={e.a === 'TE' ? 'white' : 'var(--ink)'}
-              >
-                {e.a}
-              </div>
-              <div class="font-mono event-time">{e.t}</div>
-              <div class="event-subject">{e.n}: {e.s}</div>
-              <div class="event-detail">{e.x}</div>
+              {event.actorrole ?? '?'}
             </div>
-          {/each}
+            <div class="font-mono event-time">
+              {event.time
+                ? new Date(event.time).toLocaleString('nb-NO', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    day: '2-digit',
+                    month: 'short',
+                  })
+                : ''}
+            </div>
+            <div class="event-subject">
+              {getEventTypeLabel(event.type?.replace('no.oslo.koe.', '') ?? '')}
+            </div>
+            {#if event.summary}
+              <div class="event-detail">{event.summary}</div>
+            {/if}
+          </div>
         {/each}
       </div>
     {/if}
@@ -123,15 +136,15 @@
     {#if tab === 'vedlegg'}
       {@render attList(true)}
 
-      {#if d.note}
+      {#if ui.note}
         <div class="note-sep"></div>
         <div class="internal-note">
           <div class="note-header">
             <Pencil size={11} style="color: var(--draft)" />
-            <span class="font-mono note-date">{d.note.d}</span>
+            <span class="font-mono note-date">{ui.note.d}</span>
             <span class="note-label">Internt</span>
           </div>
-          <p class="font-serif note-text">{d.note.t}</p>
+          <p class="font-serif note-text">{ui.note.t}</p>
         </div>
       {/if}
 
