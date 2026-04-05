@@ -1,146 +1,176 @@
 /**
- * Reaktiv mockup-store. Wrapper DD/EVT som $state slik at
- * skjema-handlinger reflekteres i lesemodus og historikk.
+ * Reaktiv mockup-store. Wrapper SakState + lokal UI-state.
+ *
+ * Scenariovalg bytter hele SakState + timeline + UI-state.
+ * Domain configs utledes reaktivt fra SakState.
  */
-import { DD as initialDD, EVT as initialEVT, TRACK_ICONS, TE, BH } from './data.js';
-import { groupByDate } from './utils.js';
-import type { Track, TrackData, TrackKey, HistoryEvent, Role } from './types.js';
+import { SCENARIOS, DEFAULT_SCENARIO } from './scenarios.js';
+import type { Scenario, SporUIState, SporKey } from './scenarios.js';
+import {
+  deriveTrackDisplay,
+  deriveVederlagDomainConfig,
+  deriveFristDomainConfig,
+  deriveGrunnlagDomainConfig,
+} from './derive.js';
+import type { Draft } from './types.js';
+import { getPartsNavn } from '$lib/utils/partsNavn.js';
 
 function createStore() {
-  let tracks: Record<TrackKey, TrackData> = $state(structuredClone(initialDD));
-  let events: HistoryEvent[] = $state([...initialEVT]);
+  let scenario: Scenario = $state(structuredClone(DEFAULT_SCENARIO));
 
-  /** Tracks med icon påsatt — for bruk i komponenter */
-  const tracksWithIcons: Record<TrackKey, Track> = $derived({
-    ansvar: { ...tracks.ansvar, icon: TRACK_ICONS.ansvar },
-    vederlag: { ...tracks.vederlag, icon: TRACK_ICONS.vederlag },
-    frist: { ...tracks.frist, icon: TRACK_ICONS.frist },
-  });
+  // Derived — SakState
+  const sak = $derived(scenario.sak);
+  const timeline = $derived(scenario.timeline);
 
-  const evtGrouped = $derived(groupByDate(events));
-  const draftCount = $derived(Object.values(tracks).filter((t) => t.draftState === 'draft').length);
+  // Partsnavn (erstatter gamle TE/BH-konstanter)
+  const teNavn = $derived(getPartsNavn('TE', sak.entreprenor, sak.byggherre));
+  const bhNavn = $derived(getPartsNavn('BH', sak.entreprenor, sak.byggherre));
 
-  function now(): { d: string; t: string } {
-    const n = new Date();
-    const d = `${n.getDate().toString().padStart(2, '0')}.${(n.getMonth() + 1).toString().padStart(2, '0')}`;
-    const t = `${n.getHours().toString().padStart(2, '0')}:${n.getMinutes().toString().padStart(2, '0')}`;
-    return { d, t };
+  // Display-data per spor
+  const ansvarDisplay = $derived(deriveTrackDisplay(sak, 'ansvar'));
+  const vederlagDisplay = $derived(deriveTrackDisplay(sak, 'vederlag'));
+  const fristDisplay = $derived(deriveTrackDisplay(sak, 'frist'));
+
+  // Domain configs for BH-skjemaer
+  const vederlagDomainConfig = $derived(deriveVederlagDomainConfig(sak));
+  const fristDomainConfig = $derived(deriveFristDomainConfig(sak));
+  const grunnlagDomainConfig = $derived(deriveGrunnlagDomainConfig(sak));
+
+  // UI-state
+  const draftCount = $derived(
+    (['ansvar', 'vederlag', 'frist'] as SporKey[]).filter(
+      (k) => scenario.ui[k].draft !== null
+    ).length
+  );
+
+  function selectScenario(id: string) {
+    const found = SCENARIOS.find((s) => s.id === id);
+    if (found) scenario = structuredClone(found);
   }
 
-  function addEvent(role: Role, subject: string, detail: string) {
-    const { d, t } = now();
-    const name = role === 'TE' ? TE : BH;
-    events = [{ d, t, a: role, n: name, s: subject, x: detail }, ...events];
+  function getUI(spor: SporKey): SporUIState {
+    return scenario.ui[spor];
   }
 
-  /** BH sender svar på grunnlag */
+  function setDraft(spor: SporKey, draft: Draft | null) {
+    scenario.ui[spor] = { ...scenario.ui[spor], draft };
+  }
+
+  function display(spor: SporKey) {
+    if (spor === 'ansvar') return ansvarDisplay;
+    if (spor === 'vederlag') return vederlagDisplay;
+    return fristDisplay;
+  }
+
+  // BH-handlinger — oppdaterer SakState
   function sendGrunnlagSvar(resultat: 'godkjent' | 'avslatt' | 'frafalt') {
-    const labels: Record<string, string> = {
-      godkjent: 'Grunnlag godkjent',
-      avslatt: 'Grunnlag avslått',
-      frafalt: 'Pålegg frafalt',
-    };
-    tracks.ansvar = {
-      ...tracks.ansvar,
-      status: resultat === 'avslatt' ? 'disputed' : 'empty',
-      bh: {
-        ...tracks.ansvar.bh,
-        position: resultat === 'godkjent' ? 'Godkjent' : 'Avvist',
+    scenario.sak = {
+      ...scenario.sak,
+      grunnlag: {
+        ...scenario.sak.grunnlag,
+        bh_resultat: resultat,
+        bh_respondert_versjon: 0,
       },
-      draftState: 'empty',
-      draft: null,
     };
-    addEvent('BH', labels[resultat] ?? 'Grunnlag vurdert', `${resultat}.`);
+    scenario.ui.ansvar = { ...scenario.ui.ansvar, draft: null };
   }
 
-  /** BH sender svar på vederlag */
   function sendVederlagSvar(godkjentBelop: number) {
-    const krevd = tracks.vederlag.te.value!;
-    const label =
+    const krevd = scenario.sak.vederlag.krevd_belop ?? 0;
+    const resultat =
       godkjentBelop >= krevd
-        ? 'Vederlag godkjent'
+        ? ('godkjent' as const)
         : godkjentBelop > 0
-          ? 'Vederlag delvis godkjent'
-          : 'Vederlag avslått';
-    tracks.vederlag = {
-      ...tracks.vederlag,
-      bh: { ...tracks.vederlag.bh, subsidiaer: godkjentBelop },
-      draftState: 'empty',
-      draft: null,
+          ? ('delvis_godkjent' as const)
+          : ('avslatt' as const);
+    scenario.sak = {
+      ...scenario.sak,
+      vederlag: {
+        ...scenario.sak.vederlag,
+        bh_resultat: resultat,
+        godkjent_belop: godkjentBelop,
+        bh_respondert_versjon: 0,
+      },
     };
-    addEvent('BH', label, `${godkjentBelop.toLocaleString('nb-NO')},-`);
+    scenario.ui.vederlag = { ...scenario.ui.vederlag, draft: null };
   }
 
-  /** BH sender svar på frist */
   function sendFristSvar(godkjentDager: number) {
-    const krevd = tracks.frist.te.value!;
-    const label =
+    const krevd = scenario.sak.frist.krevd_dager ?? 0;
+    const resultat =
       godkjentDager >= krevd
-        ? 'Frist godkjent'
+        ? ('godkjent' as const)
         : godkjentDager > 0
-          ? 'Frist delvis godkjent'
-          : 'Frist avslått';
-    tracks.frist = {
-      ...tracks.frist,
-      bh: { ...tracks.frist.bh, subsidiaer: godkjentDager },
-      draftState: 'empty',
-      draft: null,
+          ? ('delvis_godkjent' as const)
+          : ('avslatt' as const);
+    scenario.sak = {
+      ...scenario.sak,
+      frist: {
+        ...scenario.sak.frist,
+        bh_resultat: resultat,
+        godkjent_dager: godkjentDager,
+        bh_respondert_versjon: 0,
+      },
     };
-    addEvent('BH', label, `${godkjentDager} dager.`);
+    scenario.ui.frist = { ...scenario.ui.frist, draft: null };
   }
 
-  /** TE sender/reviderer grunnlag */
+  // TE-handlinger
   function sendTeGrunnlag(begrunnelse: string) {
-    tracks.ansvar = {
-      ...tracks.ansvar,
-      teT: begrunnelse,
+    scenario.sak = {
+      ...scenario.sak,
+      grunnlag: {
+        ...scenario.sak.grunnlag,
+        beskrivelse: begrunnelse,
+      },
     };
-    addEvent('TE', 'Grunnlag revidert', 'Oppdatert begrunnelse.');
   }
 
-  /** TE sender vederlagskrav */
-  function sendTeVederlag(belop: number, metode: string) {
-    tracks.vederlag = {
-      ...tracks.vederlag,
-      te: { ...tracks.vederlag.te, value: belop },
+  function sendTeVederlag(belop: number) {
+    scenario.sak = {
+      ...scenario.sak,
+      vederlag: {
+        ...scenario.sak.vederlag,
+        krevd_belop: belop,
+        netto_belop: belop,
+      },
     };
-    addEvent('TE', 'Vederlagskrav sendt', `${belop.toLocaleString('nb-NO')},- (${metode}).`);
   }
 
-  /** TE sender fristkrav */
   function sendTeFrist(dager: number) {
-    tracks.frist = {
-      ...tracks.frist,
-      te: { ...tracks.frist.te, value: dager },
+    scenario.sak = {
+      ...scenario.sak,
+      frist: {
+        ...scenario.sak.frist,
+        krevd_dager: dager,
+      },
     };
-    addEvent('TE', 'Fristkrav sendt', `${dager} dager.`);
-  }
-
-  function reset() {
-    tracks = structuredClone(initialDD);
-    events = [...initialEVT];
   }
 
   return {
-    get tracks() {
-      return tracksWithIcons;
-    },
-    get events() {
-      return events;
-    },
-    get evtGrouped() {
-      return evtGrouped;
-    },
-    get draftCount() {
-      return draftCount;
-    },
+    get sak() { return sak; },
+    get scenario() { return scenario; },
+    get timeline() { return timeline; },
+    get teNavn() { return teNavn; },
+    get bhNavn() { return bhNavn; },
+    get ansvarDisplay() { return ansvarDisplay; },
+    get vederlagDisplay() { return vederlagDisplay; },
+    get fristDisplay() { return fristDisplay; },
+    get vederlagDomainConfig() { return vederlagDomainConfig; },
+    get fristDomainConfig() { return fristDomainConfig; },
+    get grunnlagDomainConfig() { return grunnlagDomainConfig; },
+    get draftCount() { return draftCount; },
+    get scenarios() { return SCENARIOS; },
+    selectScenario,
+    display,
+    getUI,
+    setDraft,
     sendGrunnlagSvar,
     sendVederlagSvar,
     sendFristSvar,
     sendTeGrunnlag,
     sendTeVederlag,
     sendTeFrist,
-    reset,
   };
 }
 
