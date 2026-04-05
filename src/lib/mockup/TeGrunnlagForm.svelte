@@ -1,6 +1,6 @@
 <script lang="ts">
   import { store } from './store.svelte.js';
-  import { TE, BH } from './data.js';
+  import { TRACK_ICONS } from './data.js';
   import Stamp from './Stamp.svelte';
   import CaseAnchor from './CaseAnchor.svelte';
 
@@ -12,9 +12,9 @@
     onactions?: (a: { canSend: boolean; send: () => void }) => void;
   } = $props();
 
-  const d = store.tracks.ansvar;
+  const d = $derived(store.ansvarDisplay);
 
-  let begrunnelse = $state(d.teT);
+  let begrunnelse = $state(d.teText);
   const kanSende = $derived(begrunnelse.length >= 10);
 
   $effect(() => {
@@ -34,23 +34,23 @@
   <div class="te-context">
     <div class="context-header">
       <div class="context-label-row">
-        <d.icon size={14} style="color: var(--ink-3)" />
+        <svelte:component this={TRACK_ICONS.ansvar} size={14} style="color: var(--ink-3)" />
         <span class="context-label">{d.label} — Revider grunnlag</span>
       </div>
-      <span class="font-mono context-ref">{d.te.ref}</span>
+      <span class="font-mono context-ref">{d.teRef}</span>
     </div>
     <div class="te-position">
-      <span class="font-mono position-badge">{d.te.position?.toUpperCase()}</span>
-      <span class="font-mono position-ref">{d.te.ref}</span>
+      <span class="font-mono position-badge">{d.tePosition?.toUpperCase()}</span>
+      <span class="font-mono position-ref">{d.teRef}</span>
     </div>
   </div>
 
   <div class="bh-standpunkt">
     <div class="standpunkt-header">
-      <span class="standpunkt-label">{BH} — standpunkt</span>
+      <span class="standpunkt-label">{store.bhNavn} — standpunkt</span>
       <Stamp variant="red" small>Bestridt</Stamp>
     </div>
-    <p class="font-serif standpunkt-text">{d.bhT}</p>
+    <p class="font-serif standpunkt-text">{d.bhText}</p>
   </div>
 
   <div class="divider"></div>
@@ -58,7 +58,7 @@
   <div class="question-block">
     <div class="question-header">
       <span class="question-label">Din begrunnelse</span>
-      <span class="font-mono question-ref">{d.te.ref}</span>
+      <span class="font-mono question-ref">{d.teRef}</span>
     </div>
     <p class="helptext">
       Oppdater din begrunnelse for kontraktsforholdet. Kategori og hjemmel kan ikke endres.

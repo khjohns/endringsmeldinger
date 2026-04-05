@@ -6,7 +6,7 @@
   } from '$lib/domain/fristSubmissionDomain';
   import type { FristSubmissionFormState } from '$lib/domain/fristSubmissionDomain';
   import { store } from './store.svelte.js';
-  import { TE } from './data.js';
+  import { TRACK_ICONS } from './data.js';
   import CaseAnchor from './CaseAnchor.svelte';
 
   let {
@@ -17,7 +17,7 @@
     onactions?: (a: { canSend: boolean; send: () => void }) => void;
   } = $props();
 
-  const d = store.tracks.frist;
+  const d = $derived(store.fristDisplay);
 
   /**
    * Mock scenario: TE spesifiserer fristkrav for KOE-104.
@@ -67,8 +67,8 @@
   <div class="te-context">
     <div class="context-header">
       <div class="context-label-row">
-        <d.icon size={14} style="color: var(--ink-3)" />
-        <span class="context-label">{d.label} — {TE}s krav</span>
+        <svelte:component this={TRACK_ICONS.frist} size={14} style="color: var(--ink-3)" />
+        <span class="context-label">{d.label} — {store.teNavn}s krav</span>
       </div>
       <span class="font-mono context-ref">§ 33.4 / § 33.6</span>
     </div>
@@ -77,7 +77,7 @@
     </p>
   </div>
 
-  <div class="bh-heading">{TE}s standpunkt</div>
+  <div class="bh-heading">{store.teNavn}s standpunkt</div>
 
   <div class="question-block">
     <div class="question-header">

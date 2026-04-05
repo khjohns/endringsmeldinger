@@ -1,9 +1,11 @@
 <script lang="ts">
-  import { S, TE } from './data.js';
+  import { S, TRACK_ICONS, sporBestemmelser } from './data.js';
   import { fmt } from './utils.js';
   import Stamp from './Stamp.svelte';
   import CaseAnchor from './CaseAnchor.svelte';
-  import type { Track, TrackKey } from './types.js';
+  import { store } from './store.svelte.js';
+  import type { TrackDisplay } from './derive.js';
+  import type { SporKey } from './types.js';
 
   let {
     d,
@@ -11,11 +13,14 @@
     choices,
     ontoggle,
   }: {
-    d: Track;
-    sel: TrackKey;
+    d: TrackDisplay;
+    sel: SporKey;
     choices: Record<string, string | null>;
     ontoggle: (key: string, value: string) => void;
   } = $props();
+
+  const icon = $derived(TRACK_ICONS[sel]);
+  const best = $derived(sporBestemmelser(sel));
 </script>
 
 <div class="form-content">
@@ -24,17 +29,17 @@
   <div class="te-context">
     <div class="context-header">
       <div class="context-label-row">
-        <d.icon size={14} style="color: var(--ink-3)" />
-        <span class="context-label">{d.label} — {TE}s krav</span>
+        <svelte:component this={icon} size={14} style="color: var(--ink-3)" />
+        <span class="context-label">{d.label} — {store.teNavn}s krav</span>
       </div>
-      <span class="font-mono context-ref">{d.best[0].ref}</span>
+      <span class="font-mono context-ref">{best[0]?.ref}</span>
     </div>
-    {#if d.type === 'numeric'}
+    {#if !d.isBinary}
       <div class="font-mono context-value">
-        {fmt(d.te.value!)}{d.te.unit === ' dgr' ? ' dager' : d.te.unit}
+        {fmt(d.krevdValue!)}{d.krevdUnit === ' dgr' ? ' dager' : d.krevdUnit}
       </div>
     {/if}
-    <p class="font-serif context-text">{d.teT}</p>
+    <p class="font-serif context-text">{d.teText}</p>
   </div>
 
   <div class="bh-heading">Byggherrens standpunkt</div>
@@ -60,7 +65,7 @@
   <div class="question-block">
     <div class="question-header">
       <span class="question-label">Årsakssammenheng</span>
-      <span class="font-mono question-ref">{d.best[0].ref}</span>
+      <span class="font-mono question-ref">{best[0]?.ref}</span>
     </div>
     <p class="question-text">
       {#if sel === 'frist'}Foreligger det en hindring på fremdriften?
@@ -78,12 +83,12 @@
     </div>
   </div>
 
-  {#if d.type === 'numeric'}
+  {#if !d.isBinary}
     <div class="divider"></div>
     <div class="question-block">
       <div class="question-header">
         <span class="question-label">Utmåling</span>
-        <span class="font-mono question-ref">{d.best[1]?.ref || d.best[0].ref}</span>
+        <span class="font-mono question-ref">{best[1]?.ref || best[0]?.ref}</span>
       </div>
       <div style="margin-bottom: {S.lg}px; display: inline-block">
         <Stamp variant="green" small flat>Subsidiært</Stamp>
@@ -92,7 +97,7 @@
         <div>
           <div class="measurement-label">Krevd</div>
           <div class="font-mono measurement-value">
-            {fmt(d.te.value!)}{d.te.unit === ' dgr' ? ' dager' : d.te.unit}
+            {fmt(d.krevdValue!)}{d.krevdUnit === ' dgr' ? ' dager' : d.krevdUnit}
           </div>
         </div>
         <div>
