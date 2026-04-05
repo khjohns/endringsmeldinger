@@ -1,27 +1,27 @@
 <script lang="ts">
   import { store } from './store.svelte.js';
-  import { S } from './data.js';
+  import { S, TRACK_ICONS } from './data.js';
   import { fmt } from './utils.js';
   import DualBar from './DualBar.svelte';
   import Stamp from './Stamp.svelte';
-  import type { TrackKey, Role } from './types.js';
+  import type { SporKey } from './types.js';
+
+  const SPOR: SporKey[] = ['ansvar', 'vederlag', 'frist'];
 
   let {
     sel,
-    role,
     subV,
     prinV,
     subF,
     prinF,
     onselect,
   }: {
-    sel: TrackKey;
-    role: Role;
+    sel: SporKey;
     subV: number;
     prinV: number;
     subF: number;
     prinF: number;
-    onselect: (key: TrackKey) => void;
+    onselect: (key: SporKey) => void;
   } = $props();
 </script>
 
@@ -39,49 +39,52 @@
   </div>
 
   <div style="padding: 0 {S.sm}px">
-    {#each Object.entries(store.tracks) as [k, dd]}
+    {#each SPOR as k}
+      {@const display = store.display(k)}
+      {@const Icon = TRACK_ICONS[k]}
       {@const on = sel === k}
+      {@const hasDraft = store.getUI(k).draft !== null}
       <div
         class="m-row"
         class:on
         style="padding: {S.md}px; margin-bottom: 2px"
-        onclick={() => onselect(k as TrackKey)}
+        onclick={() => onselect(k)}
         role="button"
         tabindex="0"
         onkeydown={(e) => {
-          if (e.key === 'Enter') onselect(k as TrackKey);
+          if (e.key === 'Enter') onselect(k);
         }}
       >
         <div class="row-header">
           <div class="row-label">
-            <dd.icon size={14} style="color: var(--ink-3)" />
-            <span class="row-name">{dd.num}. {dd.label}</span>
+            <Icon size={14} style="color: var(--ink-3)" />
+            <span class="row-name">{display.num}. {display.label}</span>
           </div>
-          {#if dd.draftState === 'draft'}
+          {#if hasDraft}
             <Stamp variant="draft" small>Kladd</Stamp>
           {/if}
         </div>
 
-        {#if dd.type === 'numeric'}
+        {#if !display.isBinary}
           <div style="margin-bottom: {S.sm}px">
-            <div class="font-mono claimed">Krevd: {fmt(dd.te.value!)}{dd.te.unit}</div>
-            <DualBar te={dd.te.value!} sub={dd.bh.subsidiaer!} prin={dd.bh.prinsipal!} />
+            <div class="font-mono claimed">Krevd: {fmt(display.krevdValue!)}{display.krevdUnit}</div>
+            <DualBar te={display.krevdValue!} sub={display.bhSubsidiaer!} prin={display.bhPrinsipal!} />
             <div class="gap-box">
               <span class="font-mono gap-label">GAP</span>
               <div class="gap-values">
                 <span class="font-mono gap-sub"
-                  >s. {fmt(dd.te.value! - dd.bh.subsidiaer!)}{dd.te.unit}</span
+                  >s. {fmt(display.krevdValue! - display.bhSubsidiaer!)}{display.krevdUnit}</span
                 >
                 <span class="font-mono gap-prin"
-                  >p. {fmt(dd.te.value! - dd.bh.prinsipal!)}{dd.te.unit}</span
+                  >p. {fmt(display.krevdValue! - display.bhPrinsipal!)}{display.krevdUnit}</span
                 >
               </div>
             </div>
           </div>
         {:else}
           <div class="binary-row">
-            <span class="font-mono binary-te">{dd.te.position}</span>
-            <span class="font-mono binary-bh">{dd.bh.position}</span>
+            <span class="font-mono binary-te">{display.tePosition}</span>
+            <span class="font-mono binary-bh">{display.bhPosition}</span>
           </div>
         {/if}
       </div>

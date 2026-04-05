@@ -1,15 +1,14 @@
 <script lang="ts">
   import { Check, XSquare, Send, BookOpen, ArrowRight } from 'lucide-svelte';
-  import { TE } from './data.js';
-  import { fmt, act } from './utils.js';
-  import type { Mode, Role, TrackKey } from './types.js';
-  import type { DraftState } from './types.js';
+  import { store } from './store.svelte.js';
+  import { fmt } from './utils.js';
+  import type { Mode, Role, SporKey } from './types.js';
 
   let {
     mode,
     role,
     sel,
-    draftState,
+    hasDraft,
     subV,
     subF,
     prinV,
@@ -22,14 +21,14 @@
   }: {
     mode: Mode;
     role: Role;
-    sel: TrackKey;
-    draftState: DraftState;
+    sel: SporKey;
+    hasDraft: boolean;
     subV: number;
     subF: number;
     prinV: number;
     prinF: number;
     oncloseform: () => void;
-    onform: (key: TrackKey) => void;
+    onform: (key: SporKey) => void;
     ontogglecontext?: () => void;
     onsend?: () => void;
     canSend?: boolean;
@@ -72,7 +71,7 @@
         <button class="btn btn-primary"><Check size={14} /> Godta</button>
       {:else}
         <button class="btn btn-primary" onclick={() => onform(sel)}>
-          {act(draftState, role)}
+          {hasDraft ? 'Fortsett' : role === 'TE' ? 'Revider' : 'Besvar'}
           <ArrowRight size={14} />
         </button>
       {/if}
