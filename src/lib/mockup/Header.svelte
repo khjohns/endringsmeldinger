@@ -1,7 +1,6 @@
 <script lang="ts">
   import { ChevronLeft, RotateCcw, Sun, Moon } from 'lucide-svelte';
   import { store } from './store.svelte.js';
-  import { TE, BH, S } from './data.js';
   import type { Role, Mode } from './types.js';
 
   let {
@@ -41,10 +40,21 @@
     </div>
     <div class="project-info">
       <span class="project-name">Kystveien Vest</span>
-      <span class="project-parties">{TE} → {BH}</span>
+      <span class="project-parties">{store.teNavn} → {store.bhNavn}</span>
     </div>
   </div>
   <div class="right">
+    <div class="scenario-select">
+      <select
+        class="font-mono"
+        value={store.scenario.id}
+        onchange={(e) => store.selectScenario(e.currentTarget.value)}
+      >
+        {#each store.scenarios as s}
+          <option value={s.id}>{s.label}</option>
+        {/each}
+      </select>
+    </div>
     <button
       class="theme-btn"
       onclick={() => ondarkchange?.(!dark)}
@@ -56,7 +66,7 @@
         <Moon size={14} />
       {/if}
     </button>
-    <button class="reset-btn" onclick={() => store.reset()} title="Nullstill mockup">
+    <button class="reset-btn" onclick={() => store.selectScenario(store.scenario.id)} title="Nullstill mockup">
       <RotateCcw size={12} /> <span class="reset-text">Nullstill</span>
     </button>
     <span class="font-mono role-label">VIS SOM</span>
@@ -173,6 +183,19 @@
   .role-btn.active {
     background: var(--plate);
     color: white;
+  }
+  .scenario-select {
+    display: flex;
+    align-items: center;
+    height: 100%;
+  }
+  .scenario-select select {
+    font-size: 11px;
+    background: var(--paper-inset);
+    border: var(--rule);
+    border-radius: 4px;
+    padding: 4px 8px;
+    color: var(--ink-2);
   }
   .theme-btn {
     display: flex;

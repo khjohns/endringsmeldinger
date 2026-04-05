@@ -12,12 +12,12 @@
   import TeGrunnlagForm from './TeGrunnlagForm.svelte';
   import ActionBar from './ActionBar.svelte';
   import RightSidebar from './RightSidebar.svelte';
-  import type { Role, Mode, TrackKey, RightTab } from './types.js';
+  import type { Role, Mode, SporKey, RightTab } from './types.js';
 
   type MobileView = 'matrix' | 'detail';
 
   let role: Role = $state('BH');
-  let sel: TrackKey = $state('ansvar');
+  let sel: SporKey = $state('ansvar');
   let rTab: RightTab = $state('bestemmelser');
   let mode: Mode = $state('read');
   let dark = $state(false);
@@ -25,14 +25,12 @@
   let rightPanelOpen = $state(false);
   let formActions = $state<{ canSend: boolean; send: () => void } | null>(null);
 
-  const d = $derived(store.tracks[sel]);
+  const subV = $derived(store.vederlagDisplay.krevdValue! - store.vederlagDisplay.bhSubsidiaer!);
+  const prinV = $derived(store.vederlagDisplay.krevdValue! - store.vederlagDisplay.bhPrinsipal!);
+  const subF = $derived(store.fristDisplay.krevdValue! - store.fristDisplay.bhSubsidiaer!);
+  const prinF = $derived(store.fristDisplay.krevdValue! - store.fristDisplay.bhPrinsipal!);
 
-  const subV = $derived(store.tracks.vederlag.te.value! - store.tracks.vederlag.bh.subsidiaer!);
-  const prinV = $derived(store.tracks.vederlag.te.value! - store.tracks.vederlag.bh.prinsipal!);
-  const subF = $derived(store.tracks.frist.te.value! - store.tracks.frist.bh.subsidiaer!);
-  const prinF = $derived(store.tracks.frist.te.value! - store.tracks.frist.bh.prinsipal!);
-
-  function goForm(key: TrackKey) {
+  function goForm(key: SporKey) {
     sel = key;
     mode = 'form';
     mobileView = 'detail';
@@ -49,7 +47,7 @@
     goMatrix();
   }
 
-  function selectTrack(key: TrackKey) {
+  function selectTrack(key: SporKey) {
     sel = key;
     rTab = 'bestemmelser';
     mobileView = 'detail';
@@ -87,13 +85,13 @@
     <div class="body">
       {#if mode === 'read'}
         <div class="left-panel" class:mobile-hidden={mobileView !== 'matrix'}>
-          <LeftSidebar {sel} {role} {subV} {prinV} {subF} {prinF} onselect={selectTrack} />
+          <LeftSidebar {sel} {subV} {prinV} {subF} {prinF} onselect={selectTrack} />
         </div>
       {/if}
 
       <main class="center" class:mobile-hidden={mode === 'read' && mobileView === 'matrix'}>
         {#if mode === 'read'}
-          <CenterRead {d} {sel} {role} onform={goForm} />
+          <CenterRead {sel} {role} onform={goForm} />
         {:else if sel === 'frist' && role === 'BH'}
           <FristForm onsend={handleSend} onactions={(a) => (formActions = a)} />
         {:else if sel === 'frist' && role === 'TE'}
@@ -112,7 +110,7 @@
           {mode}
           {role}
           {sel}
-          draftState={d.draftState}
+          hasDraft={store.getUI(sel).draft !== null}
           {subV}
           {subF}
           {prinV}
@@ -132,7 +130,7 @@
         {/if}
         <div class="right-panel-inner">
           <RightSidebar
-            {d}
+            {sel}
             {mode}
             tab={rTab}
             begr=""
