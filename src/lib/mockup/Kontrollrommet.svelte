@@ -93,15 +93,15 @@
         {#if mode === 'read'}
           <CenterRead {sel} {role} onform={goForm} />
         {:else if sel === 'frist' && role === 'BH'}
-          <FristForm onsend={handleSend} onactions={(a) => (formActions = a)} />
+          <FristForm domainConfig={store.fristDomainConfig} onsend={handleSend} onactions={(a) => (formActions = a)} />
         {:else if sel === 'frist' && role === 'TE'}
           <TeFristForm onsend={handleSend} onactions={(a) => (formActions = a)} />
         {:else if sel === 'vederlag' && role === 'BH'}
-          <VederlagForm onsend={handleSend} onactions={(a) => (formActions = a)} />
+          <VederlagForm domainConfig={store.vederlagDomainConfig} onsend={handleSend} onactions={(a) => (formActions = a)} />
         {:else if sel === 'vederlag' && role === 'TE'}
           <TeVederlagForm onsend={handleSend} onactions={(a) => (formActions = a)} />
         {:else if sel === 'ansvar' && role === 'BH'}
-          <GrunnlagForm onsend={handleSend} onactions={(a) => (formActions = a)} />
+          <GrunnlagForm domainConfig={store.grunnlagDomainConfig} onsend={handleSend} onactions={(a) => (formActions = a)} />
         {:else if sel === 'ansvar' && role === 'TE'}
           <TeGrunnlagForm onsend={handleSend} onactions={(a) => (formActions = a)} />
         {/if}

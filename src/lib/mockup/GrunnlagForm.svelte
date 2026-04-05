@@ -10,34 +10,20 @@
   import RichTextEditor from '$lib/components/primitives/RichTextEditor.svelte';
   import LockedValueNode from '$lib/editor/LockedValueNode';
   import { store } from './store.svelte.js';
-  import { TE, BH } from './data.js';
+  import { TRACK_ICONS } from './data.js';
   import Stamp from './Stamp.svelte';
   import CaseAnchor from './CaseAnchor.svelte';
   import { toggleChoice } from './utils.js';
 
   let {
+    domainConfig,
     onsend,
     onactions,
   }: {
+    domainConfig: GrunnlagDomainConfig;
     onsend: () => void;
     onactions?: (a: { canSend: boolean; send: () => void }) => void;
   } = $props();
-
-  const d = store.tracks.ansvar;
-
-  /**
-   * Mock domain config for KOE-104:
-   * TE claims svikt (§23.1) — not ENDRING, so no §32.2 varsling check.
-   */
-  const domainConfig: GrunnlagDomainConfig = {
-    grunnlagEvent: {
-      hovedkategori: 'SVIKT',
-      underkategori: undefined,
-      dato_varslet: '2025-04-12',
-    },
-    isUpdateMode: false,
-    harSubsidiaereSvar: false,
-  };
 
   const initialDefaults = getDefaults({ isUpdateMode: false });
 
@@ -121,16 +107,16 @@
   <div class="te-context">
     <div class="context-header">
       <div class="context-label-row">
-        <d.icon size={14} style="color: var(--ink-3)" />
-        <span class="context-label">{d.label} — {TE}s krav</span>
+        <TRACK_ICONS.ansvar size={14} style="color: var(--ink-3)" />
+        <span class="context-label">{store.ansvarDisplay.label} — {store.teNavn}s krav</span>
       </div>
-      <span class="font-mono context-ref">{d.te.ref}</span>
+      <span class="font-mono context-ref">{store.ansvarDisplay.teRef}</span>
     </div>
     <div class="te-position">
-      <span class="font-mono position-badge">{d.te.position?.toUpperCase()}</span>
-      <span class="font-mono position-ref">{d.te.ref}</span>
+      <span class="font-mono position-badge">{store.ansvarDisplay.tePosition}</span>
+      <span class="font-mono position-ref">{store.ansvarDisplay.teRef}</span>
     </div>
-    <p class="font-serif context-text">{d.teT}</p>
+    <p class="font-serif context-text">{store.ansvarDisplay.teText}</p>
   </div>
 
   <div class="bh-heading">Byggherrens standpunkt</div>
@@ -154,7 +140,7 @@
   <div class="question-block">
     <div class="question-header">
       <span class="question-label">Resultat</span>
-      <span class="font-mono question-ref">{d.te.ref}</span>
+      <span class="font-mono question-ref">{store.ansvarDisplay.teRef}</span>
     </div>
     <p class="question-text">Vurder om kontraktsforholdet gir grunnlag for krav.</p>
     {#if prekludert}

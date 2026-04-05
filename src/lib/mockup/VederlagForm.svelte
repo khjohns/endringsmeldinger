@@ -25,7 +25,7 @@
   import LockedValueNode from '$lib/editor/LockedValueNode';
   import { RefreshCw } from 'lucide-svelte';
   import { store } from './store.svelte.js';
-  import { TE, BH } from './data.js';
+  import { TRACK_ICONS } from './data.js';
   import { fmt } from './utils.js';
   import Stamp from './Stamp.svelte';
   import SubStripe from './SubStripe.svelte';
@@ -34,31 +34,14 @@
   import { toggleChoice } from './utils.js';
 
   let {
+    domainConfig,
     onsend,
     onactions,
   }: {
+    domainConfig: VederlagDomainConfig;
     onsend: () => void;
     onactions?: (a: { canSend: boolean; send: () => void }) => void;
   } = $props();
-
-  const d = store.tracks.vederlag;
-
-  /**
-   * Mock domain config for KOE-104:
-   * TE claims 450.000,- via regningsarbeid. Grunnlag is disputed (subsidiaer).
-   */
-  const domainConfig: VederlagDomainConfig = {
-    metode: 'REGNINGSARBEID',
-    hovedkravBelop: d.te.value!,
-    riggBelop: undefined,
-    produktivitetBelop: undefined,
-    harRiggKrav: false,
-    harProduktivitetKrav: false,
-    kreverJustertEp: false,
-    hovedkategori: 'SVIKT',
-    grunnlagVarsletForSent: false,
-    grunnlagStatus: 'avslatt',
-  };
 
   const initialDefaults = getDefaults({ isUpdateMode: false });
 
@@ -383,18 +366,18 @@
   <div class="te-context">
     <div class="context-header">
       <div class="context-label-row">
-        <d.icon size={14} style="color: var(--ink-3)" />
-        <span class="context-label">{d.label} — {TE}s krav</span>
+        <TRACK_ICONS.vederlag size={14} style="color: var(--ink-3)" />
+        <span class="context-label">{store.vederlagDisplay.label} — {store.teNavn}s krav</span>
       </div>
       <span class="font-mono context-ref">§ 34.1</span>
     </div>
-    <div class="font-mono context-value">{fmt(d.te.value!)},-</div>
+    <div class="font-mono context-value">{fmt(store.vederlagDisplay.krevdValue!)},-</div>
     <div class="context-meta">
       <span class="font-mono context-metode"
         >{getVederlagsmetodeShortLabel(domainConfig.metode)} (§ 34.4)</span
       >
     </div>
-    <p class="font-serif context-text">{d.teT}</p>
+    <p class="font-serif context-text">{store.vederlagDisplay.teText}</p>
   </div>
 
   {#snippet formBody()}
