@@ -158,6 +158,10 @@
     return linjer;
   });
 
+  const hasPartialSubStripe = $derived(
+    !isSubsidiaer && preklusjonsLinjer.some((l) => l.value === false)
+  );
+
   function handlePreklusjon(key: string, value: boolean | undefined) {
     if (key === 'hovedkrav') hovedkravVarsletITide = value;
     else if (key === 'rigg') riggVarsletITide = value;
@@ -380,32 +384,7 @@
     <p class="font-serif context-text">{store.display('vederlag').teText}</p>
   </div>
 
-  {#snippet formBody()}
-    <div class="bh-heading">Byggherrens standpunkt</div>
-
-    <!-- Preklusjon (data-drevet) -->
-    {#if computed.harPreklusjonsSteg}
-      {#each preklusjonsLinjer as linje (linje.key)}
-        {@render yesNoPill(
-          linje.label,
-          linje.ref,
-          'Ble kravet varslet uten ugrunnet opphold?',
-          linje.value,
-          'Ja, i tide',
-          'Nei, prekludert',
-          (v) => handlePreklusjon(linje.key, v),
-          {
-            alertText: `For sent varslet — ytterligere betingelse for utmåling nedenfor.`,
-          }
-        )}
-      {/each}
-      <div class="divider"></div>
-    {/if}
-
-    {#if isSubsidiaer && preklusjonsLinjer.some((l) => l.value === false)}
-      <Diamond />
-    {/if}
-
+  {#snippet formBodyBelow()}
     <!-- Beregningsmetode -->
     {@render yesNoPill(
       'Beregningsmetode',
@@ -545,6 +524,43 @@
           />
         </div>
       </div>
+    {/if}
+  {/snippet}
+
+  {#snippet formBody()}
+    <div class="bh-heading">Byggherrens standpunkt</div>
+
+    <!-- Preklusjon (data-drevet) -->
+    {#if computed.harPreklusjonsSteg}
+      {#each preklusjonsLinjer as linje (linje.key)}
+        {@render yesNoPill(
+          linje.label,
+          linje.ref,
+          'Ble kravet varslet uten ugrunnet opphold?',
+          linje.value,
+          'Ja, i tide',
+          'Nei, prekludert',
+          (v) => handlePreklusjon(linje.key, v),
+          {
+            alertText: `For sent varslet — ytterligere betingelse for utmåling nedenfor.`,
+          }
+        )}
+      {/each}
+      <div class="divider"></div>
+    {/if}
+
+    {#if hasPartialSubStripe}
+      <SubStripe
+        notice="Kravet er for sent varslet. Alt nedenfor er subsidiær utmåling."
+        diamondCount={subsidiærDiamondCount}
+      >
+        {@render formBodyBelow()}
+      </SubStripe>
+    {:else}
+      {#if isSubsidiaer && preklusjonsLinjer.some((l) => l.value === false)}
+        <Diamond />
+      {/if}
+      {@render formBodyBelow()}
     {/if}
   {/snippet}
 
