@@ -108,15 +108,15 @@
     <div class="context-header">
       <div class="context-label-row">
         <TRACK_ICONS.ansvar size={14} style="color: var(--ink-3)" />
-        <span class="context-label">{store.ansvarDisplay.label} — {store.teNavn}s krav</span>
+        <span class="context-label">{store.display('ansvar').label} — {store.teNavn}s krav</span>
       </div>
-      <span class="font-mono context-ref">{store.ansvarDisplay.teRef}</span>
+      <span class="font-mono context-ref">{store.display('ansvar').teRef}</span>
     </div>
     <div class="te-position">
-      <span class="font-mono position-badge">{store.ansvarDisplay.tePosition}</span>
-      <span class="font-mono position-ref">{store.ansvarDisplay.teRef}</span>
+      <span class="font-mono position-badge">{store.display('ansvar').tePosition}</span>
+      <span class="font-mono position-ref">{store.display('ansvar').teRef}</span>
     </div>
-    <p class="font-serif context-text">{store.ansvarDisplay.teText}</p>
+    <p class="font-serif context-text">{store.display('ansvar').teText}</p>
   </div>
 
   <div class="bh-heading">Byggherrens standpunkt</div>
@@ -140,7 +140,7 @@
   <div class="question-block">
     <div class="question-header">
       <span class="question-label">Resultat</span>
-      <span class="font-mono question-ref">{store.ansvarDisplay.teRef}</span>
+      <span class="font-mono question-ref">{store.display('ansvar').teRef}</span>
     </div>
     <p class="question-text">Vurder om kontraktsforholdet gir grunnlag for krav.</p>
     {#if prekludert}

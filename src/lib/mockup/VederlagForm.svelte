@@ -367,17 +367,17 @@
     <div class="context-header">
       <div class="context-label-row">
         <TRACK_ICONS.vederlag size={14} style="color: var(--ink-3)" />
-        <span class="context-label">{store.vederlagDisplay.label} — {store.teNavn}s krav</span>
+        <span class="context-label">{store.display('vederlag').label} — {store.teNavn}s krav</span>
       </div>
       <span class="font-mono context-ref">§ 34.1</span>
     </div>
-    <div class="font-mono context-value">{fmt(store.vederlagDisplay.krevdValue!)},-</div>
+    <div class="font-mono context-value">{fmt(store.display('vederlag').krevdValue!)},-</div>
     <div class="context-meta">
       <span class="font-mono context-metode"
         >{getVederlagsmetodeShortLabel(domainConfig.metode)} (§ 34.4)</span
       >
     </div>
-    <p class="font-serif context-text">{store.vederlagDisplay.teText}</p>
+    <p class="font-serif context-text">{store.display('vederlag').teText}</p>
   </div>
 
   {#snippet formBody()}
