@@ -158,10 +158,6 @@
     return linjer;
   });
 
-  const hasPartialSubStripe = $derived(
-    !isSubsidiaer && preklusjonsLinjer.some((l) => l.value === false)
-  );
-
   function handlePreklusjon(key: string, value: boolean | undefined) {
     if (key === 'hovedkrav') hovedkravVarsletITide = value;
     else if (key === 'rigg') riggVarsletITide = value;
@@ -577,19 +573,7 @@
       <div class="divider"></div>
     {/if}
 
-    {#if hasPartialSubStripe}
-      <SubStripe
-        notice="Kravet er for sent varslet. Alt nedenfor er subsidiær utmåling."
-        diamondCount={subsidiærDiamondCount}
-      >
-        {@render formBodyBelow()}
-      </SubStripe>
-    {:else}
-      {#if isSubsidiaer && preklusjonsLinjer.some((l) => l.value === false)}
-        <Diamond />
-      {/if}
-      {@render formBodyBelow()}
-    {/if}
+    {@render formBodyBelow()}
   {/snippet}
 
   {#if isSubsidiaer}
