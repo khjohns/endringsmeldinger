@@ -75,6 +75,8 @@
           <div class="sidebar-stamp">
             <Stamp variant="red" small>Bestridt</Stamp>
           </div>
+        {:else if display.isBinary}
+          <div class="font-mono bh-value">{display.bhPosition}</div>
         {:else}
           <div class="font-mono bh-value">{fmt(display.bhSubsidiaer!)}{display.bhUnit}</div>
         {/if}
