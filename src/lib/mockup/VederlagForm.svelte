@@ -323,10 +323,15 @@
     });
   });
 
-  const vurderingOptions: { value: BelopVurdering; label: string; cls: string }[] = [
-    { value: 'godkjent', label: 'Godkjent', cls: 'yes' },
-    { value: 'delvis', label: 'Delvis', cls: 'partial' },
-    { value: 'avslatt', label: 'Avvist', cls: 'no' },
+  const vurderingOptions: {
+    value: BelopVurdering;
+    label: string;
+    cls: string;
+    icon?: typeof Check;
+  }[] = [
+    { value: 'godkjent', label: 'Godkjent', cls: 'yes', icon: Check },
+    { value: 'delvis', label: 'Delvis godkjent', cls: 'partial' },
+    { value: 'avslatt', label: 'Avslått', cls: 'no', icon: X },
   ];
 </script>
 
@@ -389,10 +394,10 @@
     {@render yesNoPill(
       'Beregningsmetode',
       '§ 34.2',
-      `Aksepterer du ${getVederlagsmetodeShortLabel(domainConfig.metode)?.toLowerCase() ?? 'beregningsmetoden'}?`,
+      `TE krever ${getVederlagsmetodeShortLabel(domainConfig.metode)?.toLowerCase() ?? 'ukjent metode'}. Aksepterer du beregningsmetoden?`,
       akseptererMetode,
-      'Ja, akseptert',
-      'Nei, bestrides',
+      'Ja',
+      'Nei',
       (v) => {
         akseptererMetode = v;
         if (v === true) oensketMetode = undefined;
@@ -427,45 +432,51 @@
           <span class="font-mono question-ref">{linje.paragrafRef}</span>
         </div>
         {#if linje.prekludert}
-          <Stamp variant="red" small flat>Prekludert</Stamp>
-        {:else}
-          <div class="kravlinje-header">
-            <span class="font-mono kravlinje-krevd">Krevd: {fmt(linje.krevdBelop ?? 0)},-</span>
-          </div>
-          <div class="vurdering-row">
-            {#each vurderingOptions as opt}
-              <button
-                class="pill"
-                class:yes={opt.cls === 'yes' && linje.vurdering === opt.value}
-                class:partial={opt.cls === 'partial' && linje.vurdering === opt.value}
-                class:no={opt.cls === 'no' && linje.vurdering === opt.value}
-                onclick={() =>
-                  handleKravlinjeVurdering(
-                    linje.key,
-                    linje.vurdering === opt.value ? undefined : opt.value
-                  )}>{opt.label}</button
-              >
-            {/each}
-          </div>
-          {#if linje.vurdering === 'delvis'}
-            <div class="measurement-row">
-              <div>
-                <div class="measurement-input-label">Godkjent beløp</div>
-                <input
-                  type="number"
-                  min="0"
-                  max={linje.krevdBelop}
-                  value={linje.godkjentBelop ?? ''}
-                  oninput={(e) => {
-                    const v = parseInt(e.currentTarget.value);
-                    handleKravlinjeBelop(linje.key, isNaN(v) ? undefined : v);
-                  }}
-                  placeholder="beløp"
-                  class="font-mono measurement-input"
-                />
-              </div>
+          <Stamp variant="green" small flat>Subsidiært</Stamp>
+        {/if}
+        <div class="kravlinje-header">
+          <span class="font-mono kravlinje-krevd"
+            >Krevd: <strong>{fmt(linje.krevdBelop ?? 0)}</strong> kr</span
+          >
+        </div>
+        <div class="vurdering-row">
+          {#each vurderingOptions as opt}
+            <button
+              class="pill"
+              class:yes={opt.cls === 'yes' && linje.vurdering === opt.value}
+              class:partial={opt.cls === 'partial' && linje.vurdering === opt.value}
+              class:no={opt.cls === 'no' && linje.vurdering === opt.value}
+              onclick={() =>
+                handleKravlinjeVurdering(
+                  linje.key,
+                  linje.vurdering === opt.value ? undefined : opt.value
+                )}
+            >
+              {#if opt.icon}
+                <svelte:component this={opt.icon} size={12} strokeWidth={2.5} />
+              {/if}
+              {opt.label}</button
+            >
+          {/each}
+        </div>
+        {#if linje.vurdering === 'delvis'}
+          <div class="measurement-row">
+            <div>
+              <div class="measurement-input-label">GODKJENT BELØP</div>
+              <input
+                type="number"
+                min="0"
+                max={linje.krevdBelop}
+                value={linje.godkjentBelop ?? ''}
+                oninput={(e) => {
+                  const v = parseInt(e.currentTarget.value);
+                  handleKravlinjeBelop(linje.key, isNaN(v) ? undefined : v);
+                }}
+                placeholder="kr"
+                class="font-mono measurement-input"
+              />
             </div>
-          {/if}
+          </div>
         {/if}
       </div>
     {/each}
@@ -480,7 +491,7 @@
         {#if computed.prinsipaltResultat !== 'avslatt'}
           <div class="result-detail">
             <span class="font-mono result-amount">
-              {fmt(computed.totalGodkjent)},- av {fmt(computed.totalKrevdInklPrekludert)},-
+              {fmt(computed.totalGodkjent)} av {fmt(computed.totalKrevdInklPrekludert)} kr
             </span>
           </div>
         {/if}
@@ -494,7 +505,7 @@
                   ? 'Delvis godkjent'
                   : 'Avslått'}
               {#if computed.subsidiaertResultat !== 'avslatt'}
-                — {fmt(computed.totalGodkjentInklPrekludert)},-
+                — {fmt(computed.totalGodkjentInklPrekludert)} kr
               {/if}
             </span>
           </div>
@@ -530,22 +541,39 @@
   {#snippet formBody()}
     <div class="bh-heading">Byggherrens standpunkt</div>
 
-    <!-- Preklusjon (data-drevet) -->
+    <!-- Preklusjon (data-drevet, compact inline layout) -->
     {#if computed.harPreklusjonsSteg}
-      {#each preklusjonsLinjer as linje (linje.key)}
-        {@render yesNoPill(
-          linje.label,
-          linje.ref,
-          'Ble kravet varslet uten ugrunnet opphold?',
-          linje.value,
-          'Ja, i tide',
-          'Nei, prekludert',
-          (v) => handlePreklusjon(linje.key, v),
-          {
-            alertText: `For sent varslet — ytterligere betingelse for utmåling nedenfor.`,
-          }
-        )}
-      {/each}
+      <div class="preklusjon-section">
+        <div class="question-header">
+          <span class="question-label">PREKLUSJON</span>
+          <span class="font-mono question-ref">§34.1.2 / §34.1.3</span>
+        </div>
+        <p class="question-text">Er kravene varslet innen kontraktens varslingsfrister?</p>
+        {#each preklusjonsLinjer as linje (linje.key)}
+          <div class="preklusjons-rad">
+            <span class="preklusjons-label">{linje.label} ({linje.ref})</span>
+            <div class="pill-row">
+              <button
+                class="pill"
+                class:yes={linje.value === true}
+                onclick={() => handlePreklusjon(linje.key, toggleChoice(linje.value, true))}
+                >Ja, i tide</button
+              >
+              <button
+                class="pill"
+                class:no={linje.value === false}
+                onclick={() => handlePreklusjon(linje.key, toggleChoice(linje.value, false))}
+                >Nei, prekludert</button
+              >
+            </div>
+          </div>
+          {#if linje.value === false}
+            <p class="font-serif consequence-text">
+              For sent varslet — ytterligere betingelse for utmåling nedenfor.
+            </p>
+          {/if}
+        {/each}
+      </div>
       <div class="divider"></div>
     {/if}
 
@@ -633,5 +661,22 @@
     letter-spacing: 0.04em;
     text-transform: uppercase;
     color: var(--ink-4);
+  }
+  .preklusjon-section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .preklusjons-rad {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 4px 0;
+  }
+  .preklusjons-label {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ink-2);
   }
 </style>
