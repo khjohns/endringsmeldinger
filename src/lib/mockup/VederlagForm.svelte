@@ -427,52 +427,59 @@
           <span class="question-label">{linje.title}</span>
           <span class="font-mono question-ref">{linje.paragrafRef}</span>
         </div>
-        {#if linje.prekludert}
-          <Stamp variant="green" small flat>Subsidiært</Stamp>
-        {/if}
-        <div class="kravlinje-header">
-          <span class="font-mono kravlinje-krevd"
-            >Krevd: <strong>{fmt(linje.krevdBelop ?? 0)}</strong> kr</span
-          >
-        </div>
-        <div class="vurdering-row">
-          {#each vurderingOptions as opt}
-            <button
-              class="pill"
-              class:yes={opt.cls === 'yes' && linje.vurdering === opt.value}
-              class:partial={opt.cls === 'partial' && linje.vurdering === opt.value}
-              class:no={opt.cls === 'no' && linje.vurdering === opt.value}
-              onclick={() =>
-                handleKravlinjeVurdering(
-                  linje.key,
-                  linje.vurdering === opt.value ? undefined : opt.value
-                )}
+        {#snippet kravlinjeContent()}
+          <div class="kravlinje-header">
+            <span class="font-mono kravlinje-krevd"
+              >Krevd: <strong>{fmt(linje.krevdBelop ?? 0)}</strong> kr</span
             >
-              {#if opt.icon}
-                <svelte:component this={opt.icon} size={12} strokeWidth={2.5} />
-              {/if}
-              {opt.label}</button
-            >
-          {/each}
-        </div>
-        {#if linje.vurdering === 'delvis'}
-          <div class="measurement-row">
-            <div>
-              <div class="measurement-input-label">GODKJENT BELØP</div>
-              <input
-                type="number"
-                min="0"
-                max={linje.krevdBelop}
-                value={linje.godkjentBelop ?? ''}
-                oninput={(e) => {
-                  const v = parseInt(e.currentTarget.value);
-                  handleKravlinjeBelop(linje.key, isNaN(v) ? undefined : v);
-                }}
-                placeholder="kr"
-                class="font-mono measurement-input"
-              />
-            </div>
           </div>
+          <div class="vurdering-row">
+            {#each vurderingOptions as opt}
+              <button
+                class="pill"
+                class:yes={opt.cls === 'yes' && linje.vurdering === opt.value}
+                class:partial={opt.cls === 'partial' && linje.vurdering === opt.value}
+                class:no={opt.cls === 'no' && linje.vurdering === opt.value}
+                onclick={() =>
+                  handleKravlinjeVurdering(
+                    linje.key,
+                    linje.vurdering === opt.value ? undefined : opt.value
+                  )}
+              >
+                {#if opt.icon}
+                  <svelte:component this={opt.icon} size={12} strokeWidth={2.5} />
+                {/if}
+                {opt.label}</button
+              >
+            {/each}
+          </div>
+          {#if linje.vurdering === 'delvis'}
+            <div class="measurement-row">
+              <div>
+                <div class="measurement-input-label">GODKJENT BELØP</div>
+                <input
+                  type="number"
+                  min="0"
+                  max={linje.krevdBelop}
+                  value={linje.godkjentBelop ?? ''}
+                  oninput={(e) => {
+                    const v = parseInt(e.currentTarget.value);
+                    handleKravlinjeBelop(linje.key, isNaN(v) ? undefined : v);
+                  }}
+                  placeholder="kr"
+                  class="font-mono measurement-input"
+                />
+              </div>
+            </div>
+          {/if}
+        {/snippet}
+
+        {#if linje.prekludert}
+          <SubStripe notice="Kravet er for sent varslet. Utmåling er subsidiær.">
+            {@render kravlinjeContent()}
+          </SubStripe>
+        {:else}
+          {@render kravlinjeContent()}
         {/if}
       </div>
     {/each}
