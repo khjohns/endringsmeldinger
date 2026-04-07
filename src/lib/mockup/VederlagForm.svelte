@@ -475,7 +475,10 @@
         {/snippet}
 
         {#if linje.prekludert}
-          <SubStripe notice="Kravet er for sent varslet. Utmåling er subsidiær.">
+          {@const isFirst = kravlinjer.findIndex((l) => l.prekludert) === kravlinjer.indexOf(linje)}
+          <SubStripe
+            notice={isFirst ? 'Kravet er for sent varslet. Utmåling er subsidiær.' : undefined}
+          >
             {@render kravlinjeContent()}
           </SubStripe>
         {:else}
