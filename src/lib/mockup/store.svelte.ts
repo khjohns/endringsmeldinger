@@ -1,8 +1,6 @@
 /**
  * Reaktiv mockup-store. Wrapper SakState + lokal UI-state.
- *
  * Scenariovalg bytter hele SakState + timeline + UI-state.
- * Domain configs utledes reaktivt fra SakState.
  */
 import { SCENARIOS, DEFAULT_SCENARIO, SPOR_KEYS } from './scenarios.js';
 import type { Scenario, SporUIState, SporKey } from './scenarios.js';
@@ -12,35 +10,28 @@ import {
   deriveFristDomainConfig,
   deriveGrunnlagDomainConfig,
 } from './derive.js';
+import type { TrackDisplay } from './derive.js';
 import type { Draft } from './types.js';
 import { getPartsNavn } from '$lib/utils/partsNavn.js';
 
 function createStore() {
   let scenario: Scenario = $state(structuredClone(DEFAULT_SCENARIO));
 
-  // Derived — SakState
-  const sak = $derived(scenario.sak);
-  const timeline = $derived(scenario.timeline);
+  const teNavn = $derived(getPartsNavn('TE', scenario.sak.entreprenor, scenario.sak.byggherre));
+  const bhNavn = $derived(getPartsNavn('BH', scenario.sak.entreprenor, scenario.sak.byggherre));
 
-  // Partsnavn (erstatter gamle TE/BH-konstanter)
-  const teNavn = $derived(getPartsNavn('TE', sak.entreprenor, sak.byggherre));
-  const bhNavn = $derived(getPartsNavn('BH', sak.entreprenor, sak.byggherre));
+  const displays: Record<SporKey, TrackDisplay> = $derived({
+    ansvar: deriveTrackDisplay(scenario.sak, 'ansvar'),
+    vederlag: deriveTrackDisplay(scenario.sak, 'vederlag'),
+    frist: deriveTrackDisplay(scenario.sak, 'frist'),
+  });
 
-  // Display-data per spor
-  const ansvarDisplay = $derived(deriveTrackDisplay(sak, 'ansvar'));
-  const vederlagDisplay = $derived(deriveTrackDisplay(sak, 'vederlag'));
-  const fristDisplay = $derived(deriveTrackDisplay(sak, 'frist'));
+  const vederlagDomainConfig = $derived(deriveVederlagDomainConfig(scenario.sak));
+  const fristDomainConfig = $derived(deriveFristDomainConfig(scenario.sak));
+  const grunnlagDomainConfig = $derived(deriveGrunnlagDomainConfig(scenario.sak));
 
-  // Domain configs for BH-skjemaer
-  const vederlagDomainConfig = $derived(deriveVederlagDomainConfig(sak));
-  const fristDomainConfig = $derived(deriveFristDomainConfig(sak));
-  const grunnlagDomainConfig = $derived(deriveGrunnlagDomainConfig(sak));
-
-  // UI-state
   const draftCount = $derived(
-    SPOR_KEYS.filter(
-      (k) => scenario.ui[k].draft !== null
-    ).length
+    SPOR_KEYS.filter((k) => scenario.ui[k].draft !== null).length
   );
 
   function selectScenario(id: string) {
@@ -48,21 +39,18 @@ function createStore() {
     if (found) scenario = structuredClone(found);
   }
 
+  function display(spor: SporKey): TrackDisplay {
+    return displays[spor];
+  }
+
   function getUI(spor: SporKey): SporUIState {
     return scenario.ui[spor];
   }
 
   function setDraft(spor: SporKey, draft: Draft | null) {
-    scenario.ui[spor] = { ...scenario.ui[spor], draft };
+    scenario.ui[spor].draft = draft;
   }
 
-  function display(spor: SporKey) {
-    if (spor === 'ansvar') return ansvarDisplay;
-    if (spor === 'vederlag') return vederlagDisplay;
-    return fristDisplay;
-  }
-
-  // BH-handlinger — direkte mutasjon for Svelte 5 fine-grained reactivity
   function sendGrunnlagSvar(resultat: 'godkjent' | 'avslatt' | 'frafalt') {
     scenario.sak.grunnlag.bh_resultat = resultat;
     scenario.sak.grunnlag.bh_respondert_versjon = 0;
@@ -101,21 +89,18 @@ function createStore() {
   }
 
   return {
-    get sak() { return sak; },
+    get sak() { return scenario.sak; },
     get scenario() { return scenario; },
-    get timeline() { return timeline; },
+    get timeline() { return scenario.timeline; },
     get teNavn() { return teNavn; },
     get bhNavn() { return bhNavn; },
-    get ansvarDisplay() { return ansvarDisplay; },
-    get vederlagDisplay() { return vederlagDisplay; },
-    get fristDisplay() { return fristDisplay; },
     get vederlagDomainConfig() { return vederlagDomainConfig; },
     get fristDomainConfig() { return fristDomainConfig; },
     get grunnlagDomainConfig() { return grunnlagDomainConfig; },
     get draftCount() { return draftCount; },
     get scenarios() { return SCENARIOS; },
-    selectScenario,
     display,
+    selectScenario,
     getUI,
     setDraft,
     sendGrunnlagSvar,

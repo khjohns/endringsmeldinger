@@ -25,10 +25,10 @@
   let rightPanelOpen = $state(false);
   let formActions = $state<{ canSend: boolean; send: () => void } | null>(null);
 
-  const subV = $derived(store.vederlagDisplay.krevdValue! - store.vederlagDisplay.bhSubsidiaer!);
-  const prinV = $derived(store.vederlagDisplay.krevdValue! - store.vederlagDisplay.bhPrinsipal!);
-  const subF = $derived(store.fristDisplay.krevdValue! - store.fristDisplay.bhSubsidiaer!);
-  const prinF = $derived(store.fristDisplay.krevdValue! - store.fristDisplay.bhPrinsipal!);
+  const subV = $derived(store.display('vederlag').krevdValue! - store.display('vederlag').bhSubsidiaer!);
+  const prinV = $derived(store.display('vederlag').krevdValue! - store.display('vederlag').bhPrinsipal!);
+  const subF = $derived(store.display('frist').krevdValue! - store.display('frist').bhSubsidiaer!);
+  const prinF = $derived(store.display('frist').krevdValue! - store.display('frist').bhPrinsipal!);
 
   function goForm(key: SporKey) {
     sel = key;

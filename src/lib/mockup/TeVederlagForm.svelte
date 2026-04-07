@@ -20,7 +20,7 @@
     onactions?: (a: { canSend: boolean; send: () => void }) => void;
   } = $props();
 
-  const d = $derived(store.vederlagDisplay);
+  const d = $derived(store.display('vederlag'));
 
   const scenario = 'new' as const;
   const defaults = getDefaults({ scenario });

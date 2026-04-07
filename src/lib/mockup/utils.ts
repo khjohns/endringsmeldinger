@@ -22,8 +22,15 @@ const SPOR_PARAGRAFER: Record<SporKey, string[]> = {
   frist: ['33.1', '33.4', '33.5'],
 };
 
+/** Precomputed — statisk data som aldri endres. */
+const SPOR_BESTEMMELSER: Record<SporKey, Bestemmelse[]> = {
+  ansvar: SPOR_PARAGRAFER.ansvar.map(byggBestemmelse).filter((b): b is Bestemmelse => b !== null),
+  vederlag: SPOR_PARAGRAFER.vederlag.map(byggBestemmelse).filter((b): b is Bestemmelse => b !== null),
+  frist: SPOR_PARAGRAFER.frist.map(byggBestemmelse).filter((b): b is Bestemmelse => b !== null),
+};
+
 export function sporBestemmelser(spor: SporKey): Bestemmelse[] {
-  return SPOR_PARAGRAFER[spor].map(byggBestemmelse).filter((b): b is Bestemmelse => b !== null);
+  return SPOR_BESTEMMELSER[spor];
 }
 
 /** Toggle boolean | undefined: same value → undefined, different → value */

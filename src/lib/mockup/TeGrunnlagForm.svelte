@@ -12,7 +12,7 @@
     onactions?: (a: { canSend: boolean; send: () => void }) => void;
   } = $props();
 
-  const d = $derived(store.ansvarDisplay);
+  const d = $derived(store.display('ansvar'));
 
   let begrunnelse = $state(d.teText);
   const kanSende = $derived(begrunnelse.length >= 10);

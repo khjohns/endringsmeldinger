@@ -177,12 +177,12 @@
     <div class="context-header">
       <div class="context-label-row">
         <TRACK_ICONS.frist size={14} style="color: var(--ink-3)" />
-        <span class="context-label">{store.fristDisplay.label} — {store.teNavn}s krav</span>
+        <span class="context-label">{store.display('frist').label} — {store.teNavn}s krav</span>
       </div>
       <span class="font-mono context-ref">§ 33.1</span>
     </div>
-    <div class="font-mono context-value">{store.fristDisplay.krevdValue} dager</div>
-    <p class="font-serif context-text">{store.fristDisplay.teText}</p>
+    <div class="font-mono context-value">{store.display('frist').krevdValue} dager</div>
+    <p class="font-serif context-text">{store.display('frist').teText}</p>
   </div>
 
   {#snippet yesNoPill(

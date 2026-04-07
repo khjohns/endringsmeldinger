@@ -17,7 +17,7 @@
     onactions?: (a: { canSend: boolean; send: () => void }) => void;
   } = $props();
 
-  const d = $derived(store.fristDisplay);
+  const d = $derived(store.display('frist'));
 
   /**
    * Mock scenario: TE spesifiserer fristkrav for KOE-104.
