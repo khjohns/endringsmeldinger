@@ -282,9 +282,13 @@
   });
 
   $effect(() => {
-    if (editorApi && begrunnelseHtml !== prevHtml) {
-      editorApi.setContent(begrunnelseHtml);
-      prevHtml = begrunnelseHtml;
+    // Read begrunnelseHtml unconditionally to always track as dependency.
+    // Without this, the && short-circuit prevents Svelte from tracking the
+    // dependency when editorApi is not yet set, and the effect never re-runs.
+    const html = begrunnelseHtml;
+    if (editorApi && html !== prevHtml) {
+      editorApi.setContent(html);
+      prevHtml = html;
     }
   });
 

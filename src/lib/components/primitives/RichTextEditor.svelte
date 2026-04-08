@@ -284,6 +284,14 @@
     margin-bottom: 0.25em;
   }
 
+  .rte-editor :global(.tiptap p) {
+    margin: 0 0 0.75em 0;
+  }
+
+  .rte-editor :global(.tiptap p:last-child) {
+    margin-bottom: 0;
+  }
+
   .rte-editor :global(.tiptap blockquote) {
     border-left: 3px solid var(--color-wire-strong);
     padding-left: var(--spacing-4);
