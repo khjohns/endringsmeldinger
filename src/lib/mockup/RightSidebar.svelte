@@ -11,28 +11,36 @@
     ListOrdered,
     RotateCcw,
     RotateCw,
+    FileText,
   } from 'lucide-svelte';
   import { store } from './store.svelte.js';
   import { S, sporBestemmelser } from './data.js';
   import { getEventTypeLabel } from '$lib/constants/eventTypeLabels.js';
   import type { SporKey, Mode, RightTab } from './types.js';
+  import type { TimelineEvent } from '$lib/types/timeline';
 
   let {
     sel,
     mode,
     tab,
     begr,
+    activeEvent = null,
     ontabchange,
     onbegrchange,
     onclose,
+    oneventclick,
+    onletterclick,
   }: {
     sel: SporKey;
     mode: Mode;
     tab: RightTab;
     begr: string;
+    activeEvent?: TimelineEvent | null;
     ontabchange: (t: RightTab) => void;
     onbegrchange: (v: string) => void;
     onclose?: () => void;
+    oneventclick?: (ev: TimelineEvent) => void;
+    onletterclick?: (ev: TimelineEvent) => void;
   } = $props();
 
   const ui = $derived(store.getUI(sel));
@@ -95,15 +103,13 @@
       <div class="history" style="position: relative">
         <div class="history-line"></div>
         {#each store.timeline as event, i}
+          <!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
           <div
             class="history-event"
-            style="opacity: {i === 0 ? 1 : 0.5}"
-            onmouseenter={(ev) => {
-              ev.currentTarget.style.opacity = '1';
-            }}
-            onmouseleave={(ev) => {
-              ev.currentTarget.style.opacity = i === 0 ? '1' : '0.5';
-            }}
+            class:history-event-active={activeEvent?.id === event.id}
+            class:history-event-clickable={!!oneventclick}
+            class:history-event-first={i === 0}
+            onclick={() => oneventclick?.(event)}
           >
             <div
               class="font-mono event-marker"
@@ -127,6 +133,17 @@
             </div>
             {#if event.summary}
               <div class="event-detail">{event.summary}</div>
+            {/if}
+            {#if onletterclick}
+              <button
+                class="event-letter-btn"
+                onclick={(e) => {
+                  e.stopPropagation();
+                  onletterclick!(event);
+                }}
+              >
+                <FileText size={11} /> Brev
+              </button>
             {/if}
           </div>
         {/each}
@@ -241,6 +258,14 @@
     padding-left: 36px;
     margin-bottom: 20px;
     transition: opacity 100ms;
+    opacity: 0.5;
+  }
+  .history-event-first,
+  .history-event-active {
+    opacity: 1;
+  }
+  .history-event:hover {
+    opacity: 1;
   }
   .event-marker {
     position: absolute;
@@ -270,6 +295,48 @@
   .event-detail {
     font-size: 12px;
     color: var(--ink-3);
+  }
+  .history-event-clickable {
+    cursor: pointer;
+    border-radius: 4px;
+    padding-right: 8px;
+    transition:
+      background 80ms,
+      opacity 100ms;
+  }
+  .history-event-clickable:hover {
+    background: var(--paper-inset);
+  }
+  .history-event-active {
+    background: var(--gold-bg);
+    border-left: 2px solid var(--gold);
+    padding-left: 34px;
+  }
+  .history-event-active .event-marker {
+    border-color: var(--gold);
+  }
+  .event-letter-btn {
+    display: none;
+    align-items: center;
+    gap: 4px;
+    margin-top: 4px;
+    padding: 2px 8px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--ink-3);
+    background: var(--paper);
+    border: var(--rule);
+    border-radius: 3px;
+    cursor: pointer;
+    transition: all 80ms;
+  }
+  .event-letter-btn:hover {
+    color: var(--ink);
+    border-color: var(--ink-3);
+  }
+  .history-event:hover .event-letter-btn {
+    display: inline-flex;
   }
 
   /* Vedlegg */

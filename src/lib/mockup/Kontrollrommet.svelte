@@ -12,7 +12,11 @@
   import TeGrunnlagForm from './TeGrunnlagForm.svelte';
   import ActionBar from './ActionBar.svelte';
   import RightSidebar from './RightSidebar.svelte';
+  import WithdrawModal from './WithdrawModal.svelte';
+  import LetterPreviewModal from './LetterPreviewModal.svelte';
+  import { buildLetterContent } from './letterContentBuilder.js';
   import type { Role, Mode, SporKey, RightTab } from './types.js';
+  import type { TimelineEvent } from '$lib/types/timeline';
 
   type MobileView = 'matrix' | 'detail';
 
@@ -24,9 +28,17 @@
   let mobileView: MobileView = $state('matrix');
   let rightPanelOpen = $state(false);
   let formActions = $state<{ canSend: boolean; send: () => void } | null>(null);
+  let activeEvent: TimelineEvent | null = $state(null);
+  let showWithdrawModal = $state(false);
+  let letterEvent: TimelineEvent | null = $state(null);
+  const brevInnhold = $derived(letterEvent ? buildLetterContent(letterEvent, store.sak) : null);
 
-  const subV = $derived(store.display('vederlag').krevdValue! - store.display('vederlag').bhSubsidiaer!);
-  const prinV = $derived(store.display('vederlag').krevdValue! - store.display('vederlag').bhPrinsipal!);
+  const subV = $derived(
+    store.display('vederlag').krevdValue! - store.display('vederlag').bhSubsidiaer!
+  );
+  const prinV = $derived(
+    store.display('vederlag').krevdValue! - store.display('vederlag').bhPrinsipal!
+  );
   const subF = $derived(store.display('frist').krevdValue! - store.display('frist').bhSubsidiaer!);
   const prinF = $derived(store.display('frist').krevdValue! - store.display('frist').bhPrinsipal!);
 
@@ -41,6 +53,7 @@
     mode = 'read';
     rTab = 'bestemmelser';
     formActions = null;
+    activeEvent = null;
   }
 
   function handleSend() {
@@ -91,17 +104,35 @@
 
       <main class="center" class:mobile-hidden={mode === 'read' && mobileView === 'matrix'}>
         {#if mode === 'read'}
-          <CenterRead {sel} {role} onform={goForm} />
+          <CenterRead
+            {sel}
+            {role}
+            {activeEvent}
+            onform={goForm}
+            onbacktonow={() => (activeEvent = null)}
+          />
         {:else if sel === 'frist' && role === 'BH'}
-          <FristForm domainConfig={store.fristDomainConfig} onsend={handleSend} onactions={(a) => (formActions = a)} />
+          <FristForm
+            domainConfig={store.fristDomainConfig}
+            onsend={handleSend}
+            onactions={(a) => (formActions = a)}
+          />
         {:else if sel === 'frist' && role === 'TE'}
           <TeFristForm onsend={handleSend} onactions={(a) => (formActions = a)} />
         {:else if sel === 'vederlag' && role === 'BH'}
-          <VederlagForm domainConfig={store.vederlagDomainConfig} onsend={handleSend} onactions={(a) => (formActions = a)} />
+          <VederlagForm
+            domainConfig={store.vederlagDomainConfig}
+            onsend={handleSend}
+            onactions={(a) => (formActions = a)}
+          />
         {:else if sel === 'vederlag' && role === 'TE'}
           <TeVederlagForm onsend={handleSend} onactions={(a) => (formActions = a)} />
         {:else if sel === 'ansvar' && role === 'BH'}
-          <GrunnlagForm domainConfig={store.grunnlagDomainConfig} onsend={handleSend} onactions={(a) => (formActions = a)} />
+          <GrunnlagForm
+            domainConfig={store.grunnlagDomainConfig}
+            onsend={handleSend}
+            onactions={(a) => (formActions = a)}
+          />
         {:else if sel === 'ansvar' && role === 'TE'}
           <TeGrunnlagForm onsend={handleSend} onactions={(a) => (formActions = a)} />
         {/if}
@@ -120,8 +151,24 @@
           ontogglecontext={() => (rightPanelOpen = !rightPanelOpen)}
           onsend={() => formActions?.send()}
           canSend={formActions?.canSend ?? false}
+          onwithdraw={() => (showWithdrawModal = true)}
         />
       </main>
+
+      {#if brevInnhold}
+        <LetterPreviewModal {brevInnhold} onclose={() => (letterEvent = null)} />
+      {/if}
+
+      {#if showWithdrawModal}
+        <WithdrawModal
+          spor={sel}
+          onconfirm={(begr) => {
+            store.withdrawTrack(sel, begr || undefined);
+            showWithdrawModal = false;
+          }}
+          oncancel={() => (showWithdrawModal = false)}
+        />
+      {/if}
 
       <div class="right-panel" class:right-panel-open={rightPanelOpen}>
         {#if rightPanelOpen}
@@ -134,9 +181,17 @@
             {mode}
             tab={rTab}
             begr=""
+            {activeEvent}
             ontabchange={(t) => (rTab = t)}
             onbegrchange={() => {}}
             onclose={() => (rightPanelOpen = false)}
+            oneventclick={(ev) => {
+              activeEvent = ev;
+              rTab = 'historikk';
+            }}
+            onletterclick={(ev) => {
+              letterEvent = ev;
+            }}
           />
         </div>
       </div>
