@@ -17,6 +17,7 @@
     ontogglecontext,
     onsend,
     canSend = false,
+    onwithdraw,
   }: {
     mode: Mode;
     role: Role;
@@ -31,6 +32,7 @@
     ontogglecontext?: () => void;
     onsend?: () => void;
     canSend?: boolean;
+    onwithdraw?: () => void;
   } = $props();
 </script>
 
@@ -66,7 +68,7 @@
           ><Send size={14} /> Send svar</button
         >
       {:else if role === 'TE'}
-        <button class="btn btn-danger"><XSquare size={14} /> Trekk</button>
+        <button class="btn btn-danger" onclick={onwithdraw}><XSquare size={14} /> Trekk</button>
         <button class="btn btn-primary"><Check size={14} /> Godta</button>
       {:else}
         <button class="btn btn-primary" onclick={() => onform(sel)}>

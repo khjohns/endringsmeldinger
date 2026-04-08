@@ -9,9 +9,9 @@ import type { SporKey } from './scenarios.js';
 
 // Re-export shared domain config derivation functions
 export {
-	deriveVederlagDomainConfig,
-	deriveFristDomainConfig,
-	deriveGrunnlagDomainConfig,
+  deriveVederlagDomainConfig,
+  deriveFristDomainConfig,
+  deriveGrunnlagDomainConfig,
 } from '$lib/domain/deriveConfig';
 
 export interface TrackDisplay {
@@ -35,6 +35,9 @@ export interface TrackDisplay {
   isBinary: boolean;
   isDisputed: boolean;
   isSubsidiary: boolean;
+  isWithdrawn: boolean;
+  withdrawnReason?: string;
+  withdrawnViaGrunnlag?: boolean;
 }
 
 const TRACK_META: Record<SporKey, { label: string; num: string }> = {
@@ -64,6 +67,8 @@ export function deriveTrackDisplay(sak: SakState, spor: SporKey): TrackDisplay {
       bhText: g.bh_begrunnelse ?? '',
       isDisputed: g.bh_resultat === 'avslatt' || !g.bh_resultat,
       isSubsidiary: false,
+      isWithdrawn: g.status === 'trukket',
+      withdrawnReason: g.trukket_begrunnelse,
     };
   }
 
@@ -81,6 +86,9 @@ export function deriveTrackDisplay(sak: SakState, spor: SporKey): TrackDisplay {
       bhText: v.bh_begrunnelse ?? '',
       isDisputed: v.bh_resultat === 'avslatt',
       isSubsidiary: sak.er_subsidiaert_vederlag,
+      isWithdrawn: v.status === 'trukket',
+      withdrawnReason: v.trukket_begrunnelse,
+      withdrawnViaGrunnlag: v.trukket_via_grunnlag,
     };
   }
 
@@ -98,6 +106,8 @@ export function deriveTrackDisplay(sak: SakState, spor: SporKey): TrackDisplay {
     bhText: f.bh_begrunnelse ?? '',
     isDisputed: f.bh_resultat === 'avslatt',
     isSubsidiary: sak.er_subsidiaert_frist,
+    isWithdrawn: f.status === 'trukket',
+    withdrawnReason: f.trukket_begrunnelse,
+    withdrawnViaGrunnlag: f.trukket_via_grunnlag,
   };
 }
-

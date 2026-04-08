@@ -14,6 +14,8 @@ import type { TrackDisplay } from './derive.js';
 import type { Draft } from './types.js';
 import { getPartsNavn } from '$lib/utils/partsNavn.js';
 
+const INACTIVE_STATUSES = new Set(['ikke_relevant', 'utkast', 'trukket']);
+
 function createStore() {
   let scenario: Scenario = $state(structuredClone(DEFAULT_SCENARIO));
 
@@ -30,9 +32,7 @@ function createStore() {
   const fristDomainConfig = $derived(deriveFristDomainConfig(scenario.sak));
   const grunnlagDomainConfig = $derived(deriveGrunnlagDomainConfig(scenario.sak));
 
-  const draftCount = $derived(
-    SPOR_KEYS.filter((k) => scenario.ui[k].draft !== null).length
-  );
+  const draftCount = $derived(SPOR_KEYS.filter((k) => scenario.ui[k].draft !== null).length);
 
   function selectScenario(id: string) {
     const found = SCENARIOS.find((s) => s.id === id);
@@ -88,17 +88,112 @@ function createStore() {
     scenario.sak.frist.krevd_dager = dager;
   }
 
+  function withdrawTrack(spor: SporKey, begrunnelse?: string) {
+    const inactiveStatuses = INACTIVE_STATUSES;
+    const now = new Date().toISOString();
+
+    if (spor === 'ansvar') {
+      // Forward cascade: grunnlag → vederlag + frist
+      scenario.sak.grunnlag.status = 'trukket';
+      scenario.sak.grunnlag.trukket_begrunnelse = begrunnelse;
+      addWithdrawEvent('grunnlag_trukket', 'grunnlag', begrunnelse, now);
+
+      if (!inactiveStatuses.has(scenario.sak.vederlag.status)) {
+        scenario.sak.vederlag.status = 'trukket';
+        scenario.sak.vederlag.trukket_via_grunnlag = true;
+      }
+      if (!inactiveStatuses.has(scenario.sak.frist.status)) {
+        scenario.sak.frist.status = 'trukket';
+        scenario.sak.frist.trukket_via_grunnlag = true;
+      }
+    } else if (spor === 'vederlag') {
+      scenario.sak.vederlag.status = 'trukket';
+      scenario.sak.vederlag.trukket_begrunnelse = begrunnelse;
+      addWithdrawEvent('vederlag_krav_trukket', 'vederlag', begrunnelse, now);
+      checkReverseCascade(now);
+    } else {
+      scenario.sak.frist.status = 'trukket';
+      scenario.sak.frist.trukket_begrunnelse = begrunnelse;
+      addWithdrawEvent('frist_krav_trukket', 'frist', begrunnelse, now);
+      checkReverseCascade(now);
+    }
+
+    // Clear drafts for withdrawn tracks
+    if (spor === 'ansvar') {
+      scenario.ui.ansvar.draft = null;
+      scenario.ui.vederlag.draft = null;
+      scenario.ui.frist.draft = null;
+    } else {
+      scenario.ui[spor].draft = null;
+    }
+  }
+
+  function checkReverseCascade(now: string) {
+    const inactiveStatuses = INACTIVE_STATUSES;
+    const vedInactive = inactiveStatuses.has(scenario.sak.vederlag.status);
+    const fristInactive = inactiveStatuses.has(scenario.sak.frist.status);
+    const grunnlagActive = !inactiveStatuses.has(scenario.sak.grunnlag.status);
+
+    if (grunnlagActive && vedInactive && fristInactive) {
+      scenario.sak.grunnlag.status = 'trukket';
+      scenario.sak.grunnlag.trukket_alle_krav = true;
+    }
+  }
+
+  function addWithdrawEvent(
+    eventType: string,
+    spor: string,
+    begrunnelse: string | undefined,
+    time: string
+  ) {
+    scenario.timeline.unshift({
+      specversion: '1.0',
+      id: `evt-withdraw-${Date.now()}`,
+      source: `/projects/P001/cases/${scenario.sak.sak_id}`,
+      type: `no.oslo.koe.${eventType}`,
+      time,
+      subject: scenario.sak.sak_id,
+      actorrole: 'TE',
+      actor: scenario.sak.entreprenor ?? 'TE',
+      spor: spor as 'grunnlag' | 'vederlag' | 'frist',
+      summary: begrunnelse || 'Kravet er trukket tilbake',
+      data: {
+        begrunnelse: begrunnelse || undefined,
+      } as unknown as import('$lib/types/timeline').EventData,
+    });
+  }
+
   return {
-    get sak() { return scenario.sak; },
-    get scenario() { return scenario; },
-    get timeline() { return scenario.timeline; },
-    get teNavn() { return teNavn; },
-    get bhNavn() { return bhNavn; },
-    get vederlagDomainConfig() { return vederlagDomainConfig; },
-    get fristDomainConfig() { return fristDomainConfig; },
-    get grunnlagDomainConfig() { return grunnlagDomainConfig; },
-    get draftCount() { return draftCount; },
-    get scenarios() { return SCENARIOS; },
+    get sak() {
+      return scenario.sak;
+    },
+    get scenario() {
+      return scenario;
+    },
+    get timeline() {
+      return scenario.timeline;
+    },
+    get teNavn() {
+      return teNavn;
+    },
+    get bhNavn() {
+      return bhNavn;
+    },
+    get vederlagDomainConfig() {
+      return vederlagDomainConfig;
+    },
+    get fristDomainConfig() {
+      return fristDomainConfig;
+    },
+    get grunnlagDomainConfig() {
+      return grunnlagDomainConfig;
+    },
+    get draftCount() {
+      return draftCount;
+    },
+    get scenarios() {
+      return SCENARIOS;
+    },
     display,
     selectScenario,
     getUI,
@@ -109,6 +204,7 @@ function createStore() {
     sendTeGrunnlag,
     sendTeVederlag,
     sendTeFrist,
+    withdrawTrack,
   };
 }
 
