@@ -132,9 +132,10 @@
   });
 
   $effect(() => {
-    if (editorApi && begrunnelseHtml !== prevHtml) {
-      editorApi.setContent(begrunnelseHtml);
-      prevHtml = begrunnelseHtml;
+    const html = begrunnelseHtml;
+    if (editorApi && html !== prevHtml) {
+      editorApi.setContent(html);
+      prevHtml = html;
     }
   });
 

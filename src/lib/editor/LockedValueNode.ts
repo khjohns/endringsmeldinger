@@ -9,6 +9,7 @@
  */
 
 import { Node, mergeAttributes } from '@tiptap/core';
+import { NodeSelection } from '@tiptap/pm/state';
 import type { LockedValueType } from '$lib/utils/lockedValueTokens';
 
 export const LockedValueNode = Node.create({
@@ -19,6 +20,21 @@ export const LockedValueNode = Node.create({
   group: 'inline',
   selectable: true,
   draggable: true,
+
+  addKeyboardShortcuts() {
+    const deleteIfSelected = () => {
+      const { selection } = this.editor.state;
+      if (selection instanceof NodeSelection && selection.node.type.name === this.name) {
+        this.editor.commands.deleteSelection();
+        return true;
+      }
+      return false;
+    };
+    return {
+      Backspace: deleteIfSelected,
+      Delete: deleteIfSelected,
+    };
+  },
 
   addAttributes() {
     return {
