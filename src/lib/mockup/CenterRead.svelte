@@ -60,7 +60,7 @@
       <button class="snap-back-btn" onclick={() => onbacktonow?.()}>
         <ArrowLeft size={13} /> Tilbake til nåtid
       </button>
-      <span class="snap-date"
+      <span class="snap-date font-mono"
         >{activeEvent.time ? formatDateTimeNorwegian(activeEvent.time) : ''}</span
       >
     </div>
@@ -68,10 +68,10 @@
     <div class="snap-event-card">
       <div class="snap-event-header">
         <div
-          class="font-mono snap-actor-badge"
-          style:background={activeEvent.actorrole === 'TE' ? 'var(--plate)' : 'var(--paper)'}
+          class="snap-actor-badge font-mono"
+          style:background={activeEvent.actorrole === 'TE' ? 'var(--brand)' : 'var(--surface)'}
           style:color={activeEvent.actorrole === 'TE' ? 'white' : 'var(--ink)'}
-          style:border-color={activeEvent.actorrole === 'TE' ? 'var(--plate)' : 'var(--ink-3)'}
+          style:border-color={activeEvent.actorrole === 'TE' ? 'var(--brand)' : 'var(--ink-3)'}
         >
           {activeEvent.actorrole ?? '?'}
         </div>
@@ -87,38 +87,38 @@
       </div>
 
       {#if activeEvent.summary}
-        <p class="font-serif snap-summary">{activeEvent.summary}</p>
+        <p class="snap-summary">{activeEvent.summary}</p>
       {/if}
 
       {#if activeEvent.data && typeof activeEvent.data === 'object'}
         {@const d = activeEvent.data as unknown as Record<string, unknown>}
         {#if d.beskrivelse}
           <div class="snap-detail-section">
-            <div class="font-mono snap-detail-label">Beskrivelse</div>
-            <p class="font-serif snap-detail-text">{d.beskrivelse}</p>
+            <div class="snap-detail-label">Beskrivelse</div>
+            <p class="snap-detail-text">{d.beskrivelse}</p>
           </div>
         {/if}
         {#if d.begrunnelse}
           <div class="snap-detail-section">
-            <div class="font-mono snap-detail-label">Begrunnelse</div>
-            <p class="font-serif snap-detail-text">{d.begrunnelse}</p>
+            <div class="snap-detail-label">Begrunnelse</div>
+            <p class="snap-detail-text">{d.begrunnelse}</p>
           </div>
         {/if}
         {#if d.endrings_begrunnelse}
           <div class="snap-detail-section">
-            <div class="font-mono snap-detail-label">Endringsbegrunnelse</div>
-            <p class="font-serif snap-detail-text">{d.endrings_begrunnelse}</p>
+            <div class="snap-detail-label">Endringsbegrunnelse</div>
+            <p class="snap-detail-text">{d.endrings_begrunnelse}</p>
           </div>
         {/if}
         {#if d.krevd_belop != null}
           <div class="snap-detail-section">
-            <div class="font-mono snap-detail-label">Krevd beløp</div>
+            <div class="snap-detail-label">Krevd beløp</div>
             <div class="font-mono snap-detail-value">{fmt(d.krevd_belop as number)},-</div>
           </div>
         {/if}
         {#if d.krevd_dager != null}
           <div class="snap-detail-section">
-            <div class="font-mono snap-detail-label">Krevd fristforlengelse</div>
+            <div class="snap-detail-label">Krevd fristforlengelse</div>
             <div class="font-mono snap-detail-value">{d.krevd_dager} dager</div>
           </div>
         {/if}
@@ -129,7 +129,7 @@
   <div class="read-content">
     <CaseAnchor />
 
-    <!-- Section heading with short underline -->
+    <!-- Section heading -->
     <div class="section-heading">
       <div class="heading-row">
         <TrackIcon size={18} style="color: var(--ink-2)" />
@@ -138,11 +138,11 @@
       <div class="heading-underline" class:underline-green={isSub}></div>
     </div>
 
-    <!-- Subsidiær notice — above cards, not between -->
+    <!-- Subsidiær notice -->
     {#if isSub && !display.isWithdrawn}
       <div class="sub-notice-top">
         <div class="sub-diamond-inline"></div>
-        <span class="font-serif sub-notice-top-text">
+        <span class="sub-notice-top-text">
           Ansvarsgrunnlaget er bestridt. {store.bhNavn}s posisjon på dette sporet er subsidiær —
           betinget av at ansvar foreligger.
         </span>
@@ -153,35 +153,33 @@
     {#if display.isWithdrawn}
       <div class="withdrawn-card">
         <div class="withdrawn-header">
-          <Stamp variant="red" small>Trukket</Stamp>
+          <Stamp variant="avslag" small>Trukket</Stamp>
           {#if display.withdrawnViaGrunnlag}
-            <span class="font-serif withdrawn-via">Trukket via ansvarsgrunnlaget</span>
+            <span class="withdrawn-via">Trukket via ansvarsgrunnlaget</span>
           {/if}
         </div>
         {#if display.withdrawnReason}
-          <p class="font-serif withdrawn-reason">{display.withdrawnReason}</p>
+          <p class="withdrawn-reason">{display.withdrawnReason}</p>
         {:else}
-          <p class="font-serif withdrawn-reason withdrawn-no-reason">Ingen begrunnelse oppgitt.</p>
+          <p class="withdrawn-reason withdrawn-no-reason">Ingen begrunnelse oppgitt.</p>
         {/if}
       </div>
     {:else if expandedSide === 'te'}
-      <!-- Full reading: TE -->
       <div class="card-full">
         <div class="reading-party">
-          <span class="reading-party-name te-name">{store.teNavn}</span>
+          <span class="reading-party-name">{store.teNavn}</span>
         </div>
-        <p class="font-serif reading-text">{display.teText}</p>
+        <p class="reading-text">{display.teText}</p>
         <button class="back-btn" onclick={() => (expandedSide = null)}>
           <ChevronUp size={13} /> Tilbake til sammenligning
         </button>
       </div>
     {:else if expandedSide === 'bh'}
-      <!-- Full reading: BH -->
       <div class="card-full">
         <div class="reading-party">
           <span class="reading-party-name">{store.bhNavn}</span>
         </div>
-        <p class="font-serif reading-text">{display.bhText}</p>
+        <p class="reading-text">{display.bhText}</p>
         <button class="back-btn" onclick={() => (expandedSide = null)}>
           <ChevronUp size={13} /> Tilbake til sammenligning
         </button>
@@ -192,7 +190,7 @@
         <!-- TE card -->
         <div class="doc-panel te-panel">
           <div class="doc-sidebar te-sidebar">
-            <div class="party-name te-name">{store.teNavn}</div>
+            <div class="party-name">{store.teNavn}</div>
             {#if display.isBinary}
               <div class="font-mono te-position">{display.tePosition}</div>
               <div class="font-mono te-ref">{display.teRef}</div>
@@ -205,13 +203,13 @@
           <div class="doc-content">
             {#if display.teText.length > 200}
               <div class="truncated">
-                <p class="font-serif argument-text">{display.teText}</p>
+                <p class="argument-text">{display.teText}</p>
               </div>
               <button class="read-btn" onclick={() => (expandedSide = 'te')}>
                 <BookOpen size={12} /> Les hele begrunnelsen
               </button>
             {:else}
-              <p class="font-serif argument-text">{display.teText}</p>
+              <p class="argument-text">{display.teText}</p>
             {/if}
           </div>
         </div>
@@ -253,13 +251,13 @@
             <div class="draft-meta">
               <Stamp variant="draft" small>Kladd</Stamp>
               <Pencil size={12} style="color: var(--draft)" />
-              <span class="draft-label">Internt - ikke synlig for motpart</span>
+              <span class="draft-label">Internt — ikke synlig for motpart</span>
               {#if ui.draft.value}
                 <span class="font-mono draft-value">{fmt(ui.draft.value)},-</span>
               {/if}
             </div>
           </div>
-          <p class="font-serif draft-text">{ui.draft.text}</p>
+          <p class="draft-text">{ui.draft.text}</p>
         </div>
       {/if}
     {/if}
@@ -269,27 +267,29 @@
 {#snippet bhCard()}
   <div
     class="doc-panel bh-panel"
-    style:background={display.isDisputed ? 'var(--red-bg)' : 'var(--paper)'}
+    style:background={display.isDisputed ? '#FFFAFA' : 'var(--surface)'}
+    style:border-color={display.isDisputed ? 'var(--danger-border)' : '#D9D5CC'}
   >
     <div
       class="doc-sidebar bh-sidebar"
-      style:background={display.isDisputed ? 'var(--red)' : 'var(--paper-sub)'}
-      style:color={display.isDisputed ? 'white' : 'var(--ink)'}
+      style:background={display.isDisputed ? 'var(--danger-bg)' : 'var(--surface-warm)'}
+      style:color={display.isDisputed ? 'var(--danger)' : 'var(--ink)'}
+      style:border-right-color={display.isDisputed ? 'var(--danger-border)' : '#D9D5CC'}
     >
       <div
         class="party-name"
         style:font-weight={display.isDisputed ? '700' : '500'}
-        style:color={display.isDisputed ? 'rgba(255,255,255,0.8)' : 'var(--ink-2)'}
+        style:color={display.isDisputed ? 'var(--danger)' : 'var(--ink-2)'}
       >
         {store.bhNavn}
       </div>
       {#if display.isDisputed}
-        <div class="rejected-badge">
+        <div class="rejected-badge" style:color="var(--danger)">
           <XSquare size={18} />
-          <span class="rejected-text">Avslatt</span>
+          <span class="rejected-text">Avslått</span>
         </div>
         <div class="sidebar-stamp">
-          <Stamp variant="red" small>Bestridt</Stamp>
+          <Stamp variant="avslag" small>Bestridt</Stamp>
         </div>
       {:else if display.isBinary}
         <div class="font-mono bh-value">{display.bhPosition}</div>
@@ -303,8 +303,8 @@
       {#if display.bhText.length > 200}
         <div class="truncated">
           <p
-            class="font-serif argument-text"
-            style:color={display.isDisputed ? 'var(--red)' : 'var(--ink-2)'}
+            class="argument-text"
+            style:color={display.isDisputed ? 'var(--danger)' : 'var(--ink-2)'}
           >
             {display.bhText}
           </p>
@@ -314,8 +314,8 @@
         </button>
       {:else}
         <p
-          class="font-serif argument-text"
-          style:color={display.isDisputed ? 'var(--red)' : 'var(--ink-2)'}
+          class="argument-text"
+          style:color={display.isDisputed ? 'var(--danger)' : 'var(--ink-2)'}
         >
           {display.bhText}
         </p>
@@ -331,7 +331,7 @@
     padding: 24px 32px 120px;
   }
 
-  /* ── Section heading with short underline ── */
+  /* ── Section heading ── */
   .section-heading {
     padding-bottom: 12px;
     margin-bottom: 24px;
@@ -342,22 +342,21 @@
     gap: 12px;
   }
   .heading-text {
-    font-size: 20px;
+    font-size: 24px;
     font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: -0.01em;
+    line-height: 32px;
   }
   .heading-underline {
-    width: 40px;
-    height: 2px;
-    background: var(--gold);
-    margin-top: 10px;
+    width: 52px;
+    height: 3px;
+    background: var(--accent);
+    margin-top: 8px;
   }
   .heading-underline.underline-green {
     background: var(--green);
   }
 
-  /* ── Subsidiær notice (top, above cards) ── */
+  /* ── Subsidiær notice ── */
   .sub-notice-top {
     display: flex;
     align-items: flex-start;
@@ -377,13 +376,12 @@
     margin-top: 3px;
   }
   .sub-notice-top-text {
-    font-size: 13px;
+    font-size: 14px;
     line-height: 1.55;
     color: var(--ink-2);
-    font-style: italic;
   }
 
-  /* ── Cards with gap ── */
+  /* ── Cards ── */
   .cards {
     display: flex;
     flex-direction: column;
@@ -391,38 +389,35 @@
   }
   .doc-panel {
     display: flex;
-    border: var(--rule);
+    border: 1px solid #d9d5cc;
     border-radius: 4px;
   }
   .te-panel {
-    background: var(--paper);
+    background: var(--surface);
   }
   .bh-panel {
     position: relative;
   }
   .doc-sidebar {
-    width: 180px;
+    width: 195px;
     flex-shrink: 0;
-    padding: 16px;
-    border-right: var(--rule);
+    padding: 20px;
+    border-right: 1px solid #d9d5cc;
     display: flex;
     flex-direction: column;
   }
   .te-sidebar {
-    background: var(--paper-sub);
+    background: var(--surface-warm);
   }
   .party-name {
-    font-size: 12px;
+    font-size: 14px;
     margin-bottom: 12px;
-  }
-  .te-name {
-    font-weight: 700;
-    color: var(--ink);
+    font-weight: 600;
   }
   .te-position {
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 700;
-    background: var(--plate);
+    background: var(--brand);
     color: white;
     padding: 4px 8px;
     border-radius: 2px;
@@ -431,7 +426,7 @@
     margin-bottom: 8px;
   }
   .te-ref {
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 500;
     color: var(--ink-2);
   }
@@ -448,24 +443,24 @@
     gap: 8px;
   }
   .rejected-text {
-    font-size: 16px;
+    font-size: 18px;
     font-weight: 700;
-    text-transform: uppercase;
   }
   .doc-content {
     flex: 1;
-    padding: 18px 24px;
+    padding: 20px 24px;
   }
   .argument-text {
-    font-size: 16px;
+    font-size: 18px;
     line-height: 1.75;
+    color: var(--ink-2);
   }
   .sidebar-stamp {
     margin-top: auto;
     padding-top: 16px;
   }
 
-  /* ── Truncation with fade mask ── */
+  /* ── Truncation ── */
   .truncated {
     max-height: 96px;
     overflow: hidden;
@@ -478,9 +473,9 @@
     gap: 6px;
     margin-top: 8px;
     padding: 4px 0;
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 600;
+    font-family: var(--font-sans);
     color: var(--ink-3);
     background: none;
     border: none;
@@ -502,12 +497,12 @@
     margin-bottom: 16px;
   }
   .reading-party-name {
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 500;
     color: var(--ink-2);
   }
   .reading-text {
-    font-size: 16px;
+    font-size: 18px;
     line-height: 1.75;
     max-width: 62ch;
   }
@@ -517,12 +512,12 @@
     gap: 6px;
     margin-top: 24px;
     padding: 6px 12px;
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 600;
+    font-family: var(--font-sans);
     color: var(--ink-2);
-    background: var(--paper);
-    border: var(--rule);
+    background: var(--surface);
+    border: 1px solid #d9d5cc;
     border-radius: 4px;
     cursor: pointer;
     transition: all 0.15s;
@@ -535,15 +530,14 @@
   /* ── Posisjonsoversikt ── */
   .gap-viz {
     padding: 10px 16px;
-    background: var(--paper-inset);
+    background: var(--surface-inset);
     border-radius: 4px;
     margin-top: 12px;
   }
   .gap-viz-label {
-    font-size: 10px;
+    font-size: 11px;
     font-weight: 700;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
+    letter-spacing: 0.04em;
     color: var(--ink-3);
     display: block;
     margin-bottom: 8px;
@@ -560,7 +554,7 @@
     border-radius: 4px 0 0 4px;
   }
   .gap-seg-gap {
-    background: var(--red);
+    background: var(--danger);
     opacity: 0.85;
     min-width: 8px;
     border-radius: 0 4px 4px 0;
@@ -571,14 +565,14 @@
     margin-top: 6px;
   }
   .gap-label-ok {
-    font-size: 10px;
+    font-size: 11px;
     font-weight: 700;
     color: var(--green);
   }
   .gap-label-gap {
-    font-size: 10px;
+    font-size: 11px;
     font-weight: 700;
-    color: var(--red);
+    color: var(--danger);
   }
 
   /* ── Draft ── */
@@ -597,7 +591,6 @@
   }
   .draft-clickable:hover {
     border-color: var(--draft);
-    background: color-mix(in srgb, var(--draft-bg) 80%, var(--draft) 5%);
   }
   .draft-header {
     display: flex;
@@ -611,7 +604,7 @@
     gap: 12px;
   }
   .draft-label {
-    font-size: 11px;
+    font-size: 13px;
     font-weight: 600;
     color: var(--draft);
   }
@@ -622,19 +615,17 @@
     margin-left: 8px;
   }
   .draft-text {
-    font-size: 15px;
+    font-size: 16px;
     line-height: 1.65;
-    font-style: italic;
     color: var(--draft);
   }
 
   /* ── Withdrawn ── */
   .withdrawn-card {
     padding: 24px;
-    background: var(--red-bg);
-    border: 1.5px solid var(--red);
+    background: var(--danger-bg);
+    border: 1px solid var(--danger-border);
     border-radius: 4px;
-    opacity: 0.85;
   }
   .withdrawn-header {
     display: flex;
@@ -643,18 +634,16 @@
     margin-bottom: 12px;
   }
   .withdrawn-via {
-    font-size: 12px;
+    font-size: 13px;
     color: var(--ink-3);
-    font-style: italic;
   }
   .withdrawn-reason {
-    font-size: 14px;
+    font-size: 16px;
     line-height: 1.6;
     color: var(--ink-2);
   }
   .withdrawn-no-reason {
     color: var(--ink-4);
-    font-style: italic;
   }
 
   /* ── Historikk snapshot ── */
@@ -663,8 +652,8 @@
     align-items: center;
     justify-content: space-between;
     padding: 10px 16px;
-    background: var(--gold-bg);
-    border: 1px solid var(--gold-border);
+    background: var(--warning-bg);
+    border: 1px solid var(--warning);
     border-radius: 4px;
     margin-bottom: 24px;
     animation: dropIn 0.15s ease-out;
@@ -674,28 +663,28 @@
     align-items: center;
     gap: 6px;
     padding: 6px 12px;
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    font-size: 12px;
-    font-weight: 700;
-    color: var(--gold);
+    font-size: 13px;
+    font-weight: 600;
+    font-family: var(--font-sans);
+    color: var(--warning);
     background: none;
-    border: 1px solid var(--gold-border);
+    border: 1px solid var(--warning);
     border-radius: 4px;
     cursor: pointer;
     transition: all 0.15s;
   }
   .snap-back-btn:hover {
-    background: var(--gold-border);
+    background: var(--warning-bg);
     color: var(--ink);
   }
   .snap-date {
     font-size: 12px;
     font-weight: 600;
-    color: var(--gold);
+    color: var(--warning);
   }
   .snap-event-card {
-    background: var(--paper);
-    border: var(--rule);
+    background: var(--surface);
+    border: 1px solid #d9d5cc;
     border-radius: 4px;
     padding: 24px;
     animation: fadeUp 0.2s ease-out;
@@ -712,7 +701,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 10px;
+    font-size: 11px;
     font-weight: 700;
     border: 1.5px solid;
     border-radius: 4px;
@@ -722,26 +711,26 @@
     flex: 1;
   }
   .snap-event-type {
-    font-size: 14px;
+    font-size: 16px;
     font-weight: 700;
   }
   .snap-event-actor {
-    font-size: 12px;
+    font-size: 13px;
     color: var(--ink-3);
   }
   .snap-spor-badge {
-    font-size: 10px;
+    font-size: 11px;
     font-weight: 700;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.04em;
     text-transform: uppercase;
     padding: 3px 8px;
-    background: var(--paper-inset);
+    background: var(--surface-inset);
     border: var(--rule-subtle);
     border-radius: 2px;
     color: var(--ink-3);
   }
   .snap-summary {
-    font-size: 15px;
+    font-size: 16px;
     line-height: 1.65;
     color: var(--ink-2);
     margin-bottom: 20px;
@@ -752,21 +741,21 @@
     margin-top: 16px;
   }
   .snap-detail-label {
-    font-size: 10px;
+    font-size: 12px;
     font-weight: 700;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.04em;
     text-transform: uppercase;
     color: var(--ink-3);
     margin-bottom: 8px;
   }
   .snap-detail-text {
-    font-size: 15px;
+    font-size: 16px;
     line-height: 1.65;
     color: var(--ink-2);
     max-width: 62ch;
   }
   .snap-detail-value {
-    font-size: 20px;
+    font-size: 22px;
     font-weight: 700;
     letter-spacing: -0.02em;
   }
@@ -777,7 +766,7 @@
       padding: 20px 16px 120px;
     }
     .heading-text {
-      font-size: 16px;
+      font-size: 20px;
     }
     .doc-panel {
       flex-direction: column;
@@ -786,7 +775,7 @@
       width: 100%;
       padding: 12px 16px;
       border-right: none;
-      border-bottom: var(--rule);
+      border-bottom: 1px solid #d9d5cc;
       flex-direction: row;
       align-items: center;
       gap: 12px;
@@ -802,20 +791,20 @@
       gap: 6px;
     }
     .rejected-text {
-      font-size: 13px;
+      font-size: 14px;
     }
     .doc-content {
       padding: 16px;
     }
     .argument-text {
-      font-size: 15px;
+      font-size: 16px;
       line-height: 1.6;
     }
     .card-full {
       padding: 24px 0;
     }
     .reading-text {
-      font-size: 15px;
+      font-size: 16px;
       line-height: 1.6;
     }
     .gap-bar {

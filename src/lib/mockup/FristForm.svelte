@@ -83,10 +83,10 @@
 
   const resultat = $derived.by(() => {
     const r = computed.prinsipaltResultat;
-    if (r === 'godkjent') return { ikon: Check, label: 'Godkjent', color: 'var(--green)' };
+    if (r === 'godkjent') return { ikon: Check, label: 'Godkjent', color: 'var(--success)' };
     if (r === 'delvis_godkjent')
-      return { ikon: CircleMinus, label: 'Delvis godkjent', color: 'var(--gold)' };
-    return { ikon: X, label: 'Avslått', color: 'var(--red)' };
+      return { ikon: CircleMinus, label: 'Delvis godkjent', color: 'var(--warning)' };
+    return { ikon: X, label: 'Avslått', color: 'var(--danger)' };
   });
 
   const allAnswered = $derived.by(() => {
@@ -495,7 +495,7 @@
     width: 18px;
     height: 18px;
     margin-top: 2px;
-    accent-color: var(--plate);
+    accent-color: var(--brand);
     flex-shrink: 0;
   }
   .checkbox-label {

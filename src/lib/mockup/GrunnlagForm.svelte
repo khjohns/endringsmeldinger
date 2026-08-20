@@ -51,9 +51,9 @@
   });
 
   const resultatDisplay = $derived.by(() => {
-    if (resultat === 'godkjent') return { ikon: Check, label: 'Godkjent', color: 'var(--green)' };
+    if (resultat === 'godkjent') return { ikon: Check, label: 'Godkjent', color: 'var(--success)' };
     if (resultat === 'frafalt') return { ikon: Undo2, label: 'Frafalt', color: 'var(--ink-3)' };
-    return { ikon: X, label: 'Avslått', color: 'var(--red)' };
+    return { ikon: X, label: 'Avslått', color: 'var(--danger)' };
   });
 
   $effect(() => {
@@ -220,7 +220,7 @@
   .position-badge {
     font-size: 11px;
     font-weight: 700;
-    background: var(--plate);
+    background: var(--brand);
     color: white;
     padding: 4px 8px;
     border-radius: 2px;
@@ -245,16 +245,14 @@
     align-items: center;
     gap: 4px;
     padding: 16px 12px;
-    background: var(--paper);
-    border: 1.5px solid var(--ink-4);
+    background: var(--surface);
+    border: 1px solid var(--ink-4);
     border-radius: 4px;
     cursor: pointer;
     transition: all 80ms;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: var(--font-sans);
     font-weight: 700;
-    font-size: 12px;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
+    font-size: 13px;
     color: var(--ink-3);
   }
   .verdict-btn:hover {
@@ -265,12 +263,12 @@
     color: white;
   }
   .verdict-btn.green {
-    background: var(--green);
-    border-color: var(--green);
+    background: var(--success);
+    border-color: var(--success);
   }
   .verdict-btn.red {
-    background: var(--red);
-    border-color: var(--red);
+    background: var(--danger);
+    border-color: var(--danger);
   }
   .verdict-btn.gray {
     background: var(--ink-3);

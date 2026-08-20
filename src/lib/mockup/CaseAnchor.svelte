@@ -3,8 +3,7 @@
 
 <div class="case-anchor">
   <span class="font-mono case-badge">KOE-104</span>
-  <span class="font-serif case-subtitle">Uforutsette grunnforhold — Fjell i byggegrop akse 1–3</span
-  >
+  <span class="case-subtitle">Uforutsette grunnforhold — Fjell i byggegrop akse 1–3</span>
 </div>
 
 <style>
@@ -15,15 +14,15 @@
     margin-bottom: 32px;
   }
   .case-badge {
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 700;
-    background: var(--plate);
+    background: var(--brand);
     color: white;
-    padding: 2px 8px;
+    padding: 3px 8px;
     border-radius: 2px;
   }
   .case-subtitle {
-    font-size: 14px;
+    font-size: 15px;
     color: var(--ink-3);
   }
 </style>

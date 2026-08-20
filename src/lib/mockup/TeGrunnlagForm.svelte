@@ -48,7 +48,7 @@
   <div class="bh-standpunkt">
     <div class="standpunkt-header">
       <span class="standpunkt-label">{store.bhNavn} — standpunkt</span>
-      <Stamp variant="red" small>Bestridt</Stamp>
+      <Stamp variant="avslag" small>Bestridt</Stamp>
     </div>
     <p class="font-serif standpunkt-text">{d.bhText}</p>
   </div>
@@ -92,7 +92,7 @@
   .position-badge {
     font-size: 11px;
     font-weight: 700;
-    background: var(--plate);
+    background: var(--brand);
     color: white;
     padding: 4px 8px;
   }
@@ -104,8 +104,8 @@
   .bh-standpunkt {
     margin-bottom: 32px;
     padding: 20px 24px;
-    background: var(--red-bg);
-    border: 1px solid var(--red-bg);
+    background: var(--danger-bg);
+    border: 1px solid var(--danger-border);
   }
   .standpunkt-header {
     display: flex;
@@ -118,7 +118,7 @@
     font-weight: 700;
     letter-spacing: 0.06em;
     text-transform: uppercase;
-    color: var(--red);
+    color: var(--danger);
   }
   .standpunkt-text {
     font-size: 14px;

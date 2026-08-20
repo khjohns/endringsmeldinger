@@ -17,7 +17,7 @@
 </script>
 
 <div class="strip">
-  <span class="font-mono strip-label">Dine svar:</span>
+  <span class="strip-label">Dine svar:</span>
   {#each SPOR_KEYS as k}
     {@const display = store.display(k)}
     {@const ui = store.getUI(k)}
@@ -47,7 +47,7 @@
 
 <style>
   .strip {
-    border-bottom: var(--rule);
+    border-bottom: 1px solid #d9d5cc;
     background: var(--draft-bg);
     padding: 8px 24px;
     display: flex;
@@ -56,10 +56,9 @@
     flex-shrink: 0;
   }
   .strip-label {
-    font-size: 10px;
+    font-size: 11px;
     font-weight: 700;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
+    letter-spacing: 0.04em;
     color: var(--draft);
   }
   .strip-btn {
@@ -67,8 +66,9 @@
     align-items: center;
     gap: 6px;
     padding: 4px 12px;
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 500;
+    font-family: var(--font-sans);
     color: var(--ink-4);
     background: transparent;
     border: none;
@@ -82,14 +82,14 @@
   .strip-btn.active {
     font-weight: 700;
     color: var(--draft);
-    background: var(--draft-bg);
+    background: var(--surface);
   }
   .strip-value {
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 700;
   }
   .strip-count {
-    font-size: 10px;
+    font-size: 11px;
     color: var(--ink-4);
     margin-left: auto;
   }
@@ -107,7 +107,7 @@
     }
     .strip-btn {
       padding: 6px 8px;
-      font-size: 11px;
+      font-size: 12px;
       white-space: nowrap;
       flex-shrink: 0;
     }
