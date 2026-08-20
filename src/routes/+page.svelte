@@ -1,26 +1,25 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
-  import { listProjects } from '$lib/api/projects';
   import type { Project } from '$lib/types/project';
+
+  // Mock data — no backend/Supabase calls
+  const mockProjects: Project[] = [
+    { id: 'oslobygg', name: 'OsloBygg AS', description: 'Kontraktsoppfølging pilot' },
+  ];
 
   let projects = $state<Project[]>([]);
   let loading = $state(true);
   let error = $state('');
 
   onMount(async () => {
-    try {
-      projects = await listProjects();
-      // Auto-redirect if exactly one project
-      if (projects.length === 1) {
-        goto(`/${projects[0].id}`, { replaceState: true });
-        return;
-      }
-    } catch {
-      error = 'Kunne ikke laste prosjekter.';
-    } finally {
-      loading = false;
+    projects = mockProjects;
+    // Auto-redirect if exactly one project
+    if (projects.length === 1) {
+      goto(`/${projects[0].id}`, { replaceState: true });
+      return;
     }
+    loading = false;
   });
 </script>
 

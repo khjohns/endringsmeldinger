@@ -1,0 +1,406 @@
+<h2>Fargeprofil — Surface Hierarchy</h2>
+<p class="subtitle">Tre kandidater for bedre separasjon mellom layout og innhold. Klikk den du foretrekker.</p>
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Literata:ital,opsz,wght@0,7..72,400;1,7..72,400&family=IBM+Plex+Mono:wght@500;600;700&display=swap');
+
+  .mock-layout {
+    display: flex;
+    height: 340px;
+    border-radius: 6px;
+    overflow: hidden;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 11px;
+    border: 1px solid rgba(0,0,0,0.12);
+  }
+  .mock-left {
+    width: 140px;
+    flex-shrink: 0;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    border-right: 1px solid var(--mk-edge);
+  }
+  .mock-id { padding: 8px 10px; color: #fff; font-weight: 700; font-size: 13px; }
+  .mock-row {
+    padding: 8px;
+    border-radius: 3px;
+    border-left: 3px solid transparent;
+    font-size: 10px;
+    font-weight: 600;
+  }
+  .mock-row.active {
+    border-left-color: #D4A020;
+  }
+  .mock-center {
+    flex: 1;
+    padding: 16px 20px;
+    overflow: hidden;
+  }
+  .mock-heading {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.01em;
+    padding-bottom: 6px;
+    margin-bottom: 12px;
+    border-bottom: 2px solid #D4A020;
+  }
+  .mock-doc {
+    display: flex;
+    margin-bottom: 2px;
+    overflow: hidden;
+  }
+  .mock-doc-side {
+    width: 80px;
+    flex-shrink: 0;
+    padding: 10px;
+    font-size: 10px;
+    border-right: 1px solid var(--mk-edge);
+  }
+  .mock-doc-side .name { font-weight: 700; margin-bottom: 4px; }
+  .mock-doc-body {
+    flex: 1;
+    padding: 10px 14px;
+    font-family: 'Literata', serif;
+    font-size: 11px;
+    line-height: 1.6;
+    color: var(--mk-ink2);
+  }
+  .mock-inset {
+    padding: 8px 10px;
+    border-radius: 3px;
+    border: 1px solid var(--mk-rule);
+    margin-top: 6px;
+    font-family: 'Literata', serif;
+    font-size: 10px;
+    line-height: 1.5;
+  }
+  .mock-right {
+    width: 150px;
+    flex-shrink: 0;
+    padding: 12px;
+    border-left: 1px solid var(--mk-edge);
+    overflow: hidden;
+  }
+  .mock-tab-bar {
+    display: flex;
+    gap: 2px;
+    margin-bottom: 8px;
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .mock-tab { padding: 4px 6px; color: var(--mk-ink3); }
+  .mock-tab.active { color: var(--mk-ink); border-bottom: 2px solid #D4A020; }
+  .mock-best-card {
+    padding: 8px;
+    border-radius: 3px;
+    border: 1px solid var(--mk-rule);
+    margin-bottom: 6px;
+    font-size: 10px;
+    line-height: 1.4;
+  }
+  .mock-best-ref { font-family: 'IBM Plex Mono', monospace; font-weight: 700; font-size: 9px; margin-bottom: 3px; }
+  .mock-best-note { color: #034B45; font-style: italic; font-family: 'Literata', serif; font-size: 9px; margin-top: 4px; }
+  .mock-sub-notice {
+    padding: 8px 10px;
+    border-radius: 3px;
+    margin-bottom: 10px;
+    font-size: 9px;
+    font-style: italic;
+    font-family: 'Literata', serif;
+    border: 1px solid var(--mk-rule);
+  }
+  .mock-draft {
+    padding: 8px 10px;
+    border-radius: 3px;
+    border: 1.5px dashed var(--mk-draft-border);
+    margin-top: 8px;
+    font-size: 9px;
+    font-style: italic;
+    font-family: 'Literata', serif;
+  }
+  .mock-stamp {
+    display: inline-block;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 700;
+    font-size: 8px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 2px 6px;
+    border: 1px solid;
+    border-radius: 3px;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .swatch-row {
+    display: flex;
+    gap: 4px;
+    margin-top: 8px;
+    flex-wrap: wrap;
+  }
+  .swatch {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 9px;
+    font-family: 'IBM Plex Mono', monospace;
+    color: #666;
+  }
+  .swatch-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 2px;
+    border: 1px solid rgba(0,0,0,0.15);
+  }
+</style>
+
+<div class="cards">
+  <!-- OPTION A: Mørkere canvas -->
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding: 0;">
+      <div class="mock-layout" style="
+        --mk-canvas: #EEECEA;
+        --mk-paper: #FFFFFF;
+        --mk-paper-inset: #F5F4F2;
+        --mk-paper-sub: #F9F9F7;
+        --mk-plate: #1C1917;
+        --mk-ink: #1C1917;
+        --mk-ink2: #4A4945;
+        --mk-ink3: #7A7975;
+        --mk-edge: rgba(28,25,23,0.15);
+        --mk-rule: rgba(28,25,23,0.08);
+        --mk-green-bg: #E8F2F0;
+        --mk-draft-bg: #F0F1EC;
+        --mk-draft-border: #C8CCB0;
+        --mk-draft: #5A6048;
+      ">
+        <div class="mock-left" style="background: var(--mk-canvas);">
+          <div class="mock-id" style="background: var(--mk-plate);">KOE-104</div>
+          <div class="mock-row active" style="background: var(--mk-paper);">1. Ansvar</div>
+          <div class="mock-row" style="background: var(--mk-canvas);">2. Vederlag</div>
+          <div class="mock-row" style="background: var(--mk-canvas);">3. Frist</div>
+          <div style="flex:1"></div>
+          <div style="padding: 6px 8px; background: var(--mk-paper); border: 1px solid var(--mk-rule); border-radius: 3px; font-size: 9px;">
+            <div style="font-family: 'IBM Plex Mono', monospace; font-weight: 700; color: #034B45;">Subs. 150 000,-</div>
+            <div style="font-family: 'IBM Plex Mono', monospace; font-weight: 700; color: #CC3030;">Prins. 450 000,-</div>
+          </div>
+        </div>
+        <div class="mock-center" style="background: var(--mk-canvas);">
+          <div class="mock-heading" style="color: var(--mk-ink);">III. Frist (Sub.)</div>
+          <div class="mock-sub-notice" style="background: var(--mk-green-bg);">
+            <span class="mock-stamp" style="color: #034B45; border-color: #034B45; background: var(--mk-green-bg);">Subsidiært</span><br>
+            Ansvarsgrunnlaget er prinsipalt bestridt.
+          </div>
+          <div class="mock-doc" style="border: 1px solid var(--mk-edge); border-radius: 4px 4px 0 0;">
+            <div class="mock-doc-side" style="background: var(--mk-paper-sub);"><div class="name">Byggnor</div><div style="font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:13px;">14 dgr</div></div>
+            <div class="mock-doc-body" style="background: var(--mk-paper);">Sprengningsarbeidene medførte full stans i grunnarbeidet...</div>
+          </div>
+          <div class="mock-doc" style="border: 1px solid var(--mk-edge); border-radius: 0 0 4px 4px;">
+            <div class="mock-doc-side" style="background: var(--mk-paper-sub);"><div class="name" style="font-weight:500;color:var(--mk-ink2);">Kystveien Eiendom</div><div style="font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:13px;">7 dgr</div></div>
+            <div class="mock-doc-body" style="background: var(--mk-paper);">
+              <span class="mock-stamp" style="color: #034B45; border-color: #034B45; background: var(--mk-green-bg); float: right;">Subsidiært</span>
+              <div class="mock-inset" style="background: var(--mk-paper-inset); margin-top: 20px;">Tidsbruken for selve sprengningen vurderes å utgjøre maksimalt 7 arbeidsdager.</div>
+            </div>
+          </div>
+          <div class="mock-draft" style="background: var(--mk-draft-bg); color: var(--mk-draft);">
+            <span class="mock-stamp" style="color: var(--mk-draft); border-color: var(--mk-draft-border); background: var(--mk-draft-bg); border-style: dashed;">Kladd</span>
+            Vi fastholder at forbeholdet i pkt. 4.2 er tilstrekkelig klart...
+          </div>
+        </div>
+        <div class="mock-right" style="background: var(--mk-canvas);">
+          <div class="mock-tab-bar">
+            <span class="mock-tab active" style="color: var(--mk-ink);">Best.</span>
+            <span class="mock-tab">Hist.</span>
+            <span class="mock-tab">Vedl.</span>
+          </div>
+          <div class="mock-best-card" style="background: var(--mk-paper-inset);">
+            <div class="mock-best-ref">§ 33.1 Fristforlengelse</div>
+            <div style="color: var(--mk-ink2);">Totalentreprenøren har krav på fristforlengelse...</div>
+            <div class="mock-best-note">Kravet om fristforlengelse må varsles uten ugrunnet opphold.</div>
+          </div>
+          <div class="mock-best-card" style="background: var(--mk-paper-inset);">
+            <div class="mock-best-ref">§ 33.5 Utmåling</div>
+            <div style="color: var(--mk-ink2);">Fristforlengelsen skal svare til den virkning...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A. Mørkere canvas</h3>
+      <p>Canvas ned til #EEECEA (93%). Paper (#FFF) løfter seg 7%. Klar separasjon.</p>
+      <div class="swatch-row">
+        <span class="swatch"><span class="swatch-dot" style="background:#EEECEA"></span>canvas</span>
+        <span class="swatch"><span class="swatch-dot" style="background:#F5F4F2"></span>inset</span>
+        <span class="swatch"><span class="swatch-dot" style="background:#F9F9F7"></span>sub</span>
+        <span class="swatch"><span class="swatch-dot" style="background:#FFFFFF"></span>paper</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- OPTION B: Tre nivåer (drop paper-sub) -->
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding: 0;">
+      <div class="mock-layout" style="
+        --mk-canvas: #F0EFEC;
+        --mk-paper: #FFFFFF;
+        --mk-paper-inset: #F7F6F4;
+        --mk-paper-sub: #F7F6F4;
+        --mk-plate: #1C1917;
+        --mk-ink: #1C1917;
+        --mk-ink2: #4A4945;
+        --mk-ink3: #7A7975;
+        --mk-edge: rgba(28,25,23,0.15);
+        --mk-rule: rgba(28,25,23,0.08);
+        --mk-green-bg: #E6F0EE;
+        --mk-draft-bg: #EEEFE9;
+        --mk-draft-border: #C8CCB0;
+        --mk-draft: #5A6048;
+      ">
+        <div class="mock-left" style="background: var(--mk-canvas);">
+          <div class="mock-id" style="background: var(--mk-plate);">KOE-104</div>
+          <div class="mock-row active" style="background: var(--mk-paper);">1. Ansvar</div>
+          <div class="mock-row" style="background: var(--mk-canvas);">2. Vederlag</div>
+          <div class="mock-row" style="background: var(--mk-canvas);">3. Frist</div>
+          <div style="flex:1"></div>
+          <div style="padding: 6px 8px; background: var(--mk-paper); border: 1px solid var(--mk-rule); border-radius: 3px; font-size: 9px;">
+            <div style="font-family: 'IBM Plex Mono', monospace; font-weight: 700; color: #034B45;">Subs. 150 000,-</div>
+            <div style="font-family: 'IBM Plex Mono', monospace; font-weight: 700; color: #CC3030;">Prins. 450 000,-</div>
+          </div>
+        </div>
+        <div class="mock-center" style="background: var(--mk-canvas);">
+          <div class="mock-heading" style="color: var(--mk-ink);">III. Frist (Sub.)</div>
+          <div class="mock-sub-notice" style="background: var(--mk-green-bg);">
+            <span class="mock-stamp" style="color: #034B45; border-color: #034B45; background: var(--mk-green-bg);">Subsidiært</span><br>
+            Ansvarsgrunnlaget er prinsipalt bestridt.
+          </div>
+          <div class="mock-doc" style="border: 1px solid var(--mk-edge); border-radius: 4px 4px 0 0;">
+            <div class="mock-doc-side" style="background: var(--mk-paper-inset);"><div class="name">Byggnor</div><div style="font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:13px;">14 dgr</div></div>
+            <div class="mock-doc-body" style="background: var(--mk-paper);">Sprengningsarbeidene medførte full stans i grunnarbeidet...</div>
+          </div>
+          <div class="mock-doc" style="border: 1px solid var(--mk-edge); border-radius: 0 0 4px 4px;">
+            <div class="mock-doc-side" style="background: var(--mk-paper-inset);"><div class="name" style="font-weight:500;color:var(--mk-ink2);">Kystveien Eiendom</div><div style="font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:13px;">7 dgr</div></div>
+            <div class="mock-doc-body" style="background: var(--mk-paper);">
+              <span class="mock-stamp" style="color: #034B45; border-color: #034B45; background: var(--mk-green-bg); float: right;">Subsidiært</span>
+              <div class="mock-inset" style="background: var(--mk-paper-inset); margin-top: 20px;">Tidsbruken for selve sprengningen vurderes å utgjøre maksimalt 7 arbeidsdager.</div>
+            </div>
+          </div>
+          <div class="mock-draft" style="background: var(--mk-draft-bg); color: var(--mk-draft);">
+            <span class="mock-stamp" style="color: var(--mk-draft); border-color: var(--mk-draft-border); background: var(--mk-draft-bg); border-style: dashed;">Kladd</span>
+            Vi fastholder at forbeholdet i pkt. 4.2 er tilstrekkelig klart...
+          </div>
+        </div>
+        <div class="mock-right" style="background: var(--mk-canvas);">
+          <div class="mock-tab-bar">
+            <span class="mock-tab active" style="color: var(--mk-ink);">Best.</span>
+            <span class="mock-tab">Hist.</span>
+            <span class="mock-tab">Vedl.</span>
+          </div>
+          <div class="mock-best-card" style="background: var(--mk-paper-inset);">
+            <div class="mock-best-ref">§ 33.1 Fristforlengelse</div>
+            <div style="color: var(--mk-ink2);">Totalentreprenøren har krav på fristforlengelse...</div>
+            <div class="mock-best-note">Kravet om fristforlengelse må varsles uten ugrunnet opphold.</div>
+          </div>
+          <div class="mock-best-card" style="background: var(--mk-paper-inset);">
+            <div class="mock-best-ref">§ 33.5 Utmåling</div>
+            <div style="color: var(--mk-ink2);">Fristforlengelsen skal svare til den virkning...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B. Tre nivåer — sterkere kontrast</h3>
+      <p>Canvas #F0EFEC (94%), dropper paper-sub. Sidebar bruker inset. Kun 3 overflater: canvas → inset → paper.</p>
+      <div class="swatch-row">
+        <span class="swatch"><span class="swatch-dot" style="background:#F0EFEC"></span>canvas</span>
+        <span class="swatch"><span class="swatch-dot" style="background:#F7F6F4"></span>inset</span>
+        <span class="swatch"><span class="swatch-dot" style="background:#FFFFFF"></span>paper</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- OPTION C: Nåværende + sterkere borders -->
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding: 0;">
+      <div class="mock-layout" style="
+        --mk-canvas: #F7F7F5;
+        --mk-paper: #FFFFFF;
+        --mk-paper-inset: #F3F3F0;
+        --mk-paper-sub: #FAFAF8;
+        --mk-plate: #1C1917;
+        --mk-ink: #1C1917;
+        --mk-ink2: #4A4945;
+        --mk-ink3: #7A7975;
+        --mk-edge: rgba(28,25,23,0.20);
+        --mk-rule: rgba(28,25,23,0.12);
+        --mk-green-bg: #ECF5F3;
+        --mk-draft-bg: #F6F7F2;
+        --mk-draft-border: #C8CCB0;
+        --mk-draft: #5A6048;
+      ">
+        <div class="mock-left" style="background: var(--mk-canvas);">
+          <div class="mock-id" style="background: var(--mk-plate);">KOE-104</div>
+          <div class="mock-row active" style="background: var(--mk-paper);">1. Ansvar</div>
+          <div class="mock-row" style="background: var(--mk-canvas);">2. Vederlag</div>
+          <div class="mock-row" style="background: var(--mk-canvas);">3. Frist</div>
+          <div style="flex:1"></div>
+          <div style="padding: 6px 8px; background: var(--mk-paper); border: 1px solid var(--mk-rule); border-radius: 3px; font-size: 9px;">
+            <div style="font-family: 'IBM Plex Mono', monospace; font-weight: 700; color: #034B45;">Subs. 150 000,-</div>
+            <div style="font-family: 'IBM Plex Mono', monospace; font-weight: 700; color: #CC3030;">Prins. 450 000,-</div>
+          </div>
+        </div>
+        <div class="mock-center" style="background: var(--mk-canvas);">
+          <div class="mock-heading" style="color: var(--mk-ink);">III. Frist (Sub.)</div>
+          <div class="mock-sub-notice" style="background: var(--mk-green-bg); border: 1px solid rgba(3,75,69,0.15);">
+            <span class="mock-stamp" style="color: #034B45; border-color: #034B45; background: var(--mk-green-bg);">Subsidiært</span><br>
+            Ansvarsgrunnlaget er prinsipalt bestridt.
+          </div>
+          <div class="mock-doc" style="border: 1.5px solid rgba(28,25,23,0.20); border-radius: 4px 4px 0 0;">
+            <div class="mock-doc-side" style="background: var(--mk-paper-sub); border-right: 1.5px solid rgba(28,25,23,0.20);"><div class="name">Byggnor</div><div style="font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:13px;">14 dgr</div></div>
+            <div class="mock-doc-body" style="background: var(--mk-paper);">Sprengningsarbeidene medførte full stans i grunnarbeidet...</div>
+          </div>
+          <div class="mock-doc" style="border: 1.5px solid rgba(28,25,23,0.20); border-radius: 0 0 4px 4px; border-top: none;">
+            <div class="mock-doc-side" style="background: var(--mk-paper-sub); border-right: 1.5px solid rgba(28,25,23,0.20);"><div class="name" style="font-weight:500;color:var(--mk-ink2);">Kystveien Eiendom</div><div style="font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:13px;">7 dgr</div></div>
+            <div class="mock-doc-body" style="background: var(--mk-paper);">
+              <span class="mock-stamp" style="color: #034B45; border-color: #034B45; background: var(--mk-green-bg); float: right;">Subsidiært</span>
+              <div class="mock-inset" style="background: var(--mk-paper-inset); margin-top: 20px; border: 1px solid rgba(28,25,23,0.12);">Tidsbruken for selve sprengningen vurderes å utgjøre maksimalt 7 arbeidsdager.</div>
+            </div>
+          </div>
+          <div class="mock-draft" style="background: var(--mk-draft-bg); color: var(--mk-draft);">
+            <span class="mock-stamp" style="color: var(--mk-draft); border-color: var(--mk-draft-border); background: var(--mk-draft-bg); border-style: dashed;">Kladd</span>
+            Vi fastholder at forbeholdet i pkt. 4.2 er tilstrekkelig klart...
+          </div>
+        </div>
+        <div class="mock-right" style="background: var(--mk-canvas);">
+          <div class="mock-tab-bar">
+            <span class="mock-tab active" style="color: var(--mk-ink);">Best.</span>
+            <span class="mock-tab">Hist.</span>
+            <span class="mock-tab">Vedl.</span>
+          </div>
+          <div class="mock-best-card" style="background: var(--mk-paper-inset); border: 1px solid rgba(28,25,23,0.12);">
+            <div class="mock-best-ref">§ 33.1 Fristforlengelse</div>
+            <div style="color: var(--mk-ink2);">Totalentreprenøren har krav på fristforlengelse...</div>
+            <div class="mock-best-note">Kravet om fristforlengelse må varsles uten ugrunnet opphold.</div>
+          </div>
+          <div class="mock-best-card" style="background: var(--mk-paper-inset); border: 1px solid rgba(28,25,23,0.12);">
+            <div class="mock-best-ref">§ 33.5 Utmåling</div>
+            <div style="color: var(--mk-ink2);">Fristforlengelsen skal svare til den virkning...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C. Nåværende farger + sterkere borders</h3>
+      <p>Beholder #F7F7F5 canvas. Borders gjør jobben — edge opp til 20% opacity, rule til 12%. Minst endring.</p>
+      <div class="swatch-row">
+        <span class="swatch"><span class="swatch-dot" style="background:#F7F7F5"></span>canvas</span>
+        <span class="swatch"><span class="swatch-dot" style="background:#F3F3F0"></span>inset</span>
+        <span class="swatch"><span class="swatch-dot" style="background:#FAFAF8"></span>sub</span>
+        <span class="swatch"><span class="swatch-dot" style="background:#FFFFFF"></span>paper</span>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="nb">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KOE — Skifer-nyanser, lys modus</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;450;500;600&family=Inter:wght@400;500;600&display=swap');
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    padding: 32px 40px;
+  }
+
+  .page-dark {
+    background: #1a1917;
+    color: #f5f3ee;
+  }
+
+  .page-light {
+    background: #f3f1ec;
+    color: #21201c;
+  }
+
+  h1 {
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .page-dark h1 { color: #908b82; }
+  .page-light h1 { color: #655f56; }
+
+  .intro {
+    font-size: 13px;
+    max-width: 640px;
+    margin-bottom: 32px;
+    line-height: 1.6;
+  }
+  .page-dark .intro { color: #a8a29a; }
+  .page-light .intro { color: #57524b; }
+
+  .theme-toggle {
+    display: flex;
+    gap: 2px;
+    border-radius: 2px;
+    padding: 2px;
+    margin-bottom: 32px;
+  }
+  .page-dark .theme-toggle { background: rgba(245,235,220,0.06); }
+  .page-light .theme-toggle { background: rgba(33,28,18,0.06); }
+
+  .theme-toggle button {
+    font-family: 'Inter', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    padding: 6px 16px;
+    border: none;
+    border-radius: 2px;
+    cursor: pointer;
+    background: transparent;
+    transition: all 150ms;
+  }
+  .page-dark .theme-toggle button { color: #666157; }
+  .page-dark .theme-toggle button.active { background: rgba(245,235,220,0.12); color: #f5f3ee; }
+  .page-light .theme-toggle button { color: #8d8578; }
+  .page-light .theme-toggle button.active { background: rgba(33,28,18,0.08); color: #21201c; }
+
+  /* ── Section: Badge comparison ── */
+  .section-title {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 16px;
+  }
+  .page-dark .section-title { color: #666157; }
+  .page-light .section-title { color: #8d8578; }
+
+  .badge-compare {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-bottom: 48px;
+  }
+
+  .variant {
+    border-radius: 2px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 200ms;
+    position: relative;
+  }
+  .page-dark .variant { border: 1px solid rgba(245,235,220,0.08); }
+  .page-dark .variant:hover { border-color: rgba(245,235,220,0.20); }
+  .page-dark .variant.selected { border-color: #f5f3ee; box-shadow: 0 0 0 1px #f5f3ee; }
+  .page-light .variant { border: 1px solid rgba(33,28,18,0.08); }
+  .page-light .variant:hover { border-color: rgba(33,28,18,0.20); }
+  .page-light .variant.selected { border-color: #21201c; box-shadow: 0 0 0 1px #21201c; }
+
+  .variant-header {
+    padding: 12px 16px 8px;
+  }
+
+  .variant-label {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .page-dark .variant-label { color: #908b82; }
+  .page-light .variant-label { color: #655f56; }
+
+  .variant-name {
+    font-size: 14px;
+    font-weight: 600;
+    margin-top: 2px;
+  }
+
+  .variant-hex {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    margin-top: 1px;
+  }
+  .page-dark .variant-hex { color: #666157; }
+  .page-light .variant-hex { color: #8d8578; }
+
+  .variant-desc {
+    font-size: 11px;
+    padding: 0 16px 12px;
+    line-height: 1.5;
+  }
+  .page-dark .variant-desc { color: #a8a29a; }
+  .page-light .variant-desc { color: #57524b; }
+
+  /* ── Mock card area ── */
+  .mock-area {
+    padding: 0 12px 12px;
+  }
+
+  .mock-surface {
+    border-radius: 2px;
+    padding: 12px;
+  }
+
+  /* Badge row */
+  .badge-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+  }
+
+  .badge {
+    font-size: 9px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+  }
+
+  /* Full mock card */
+  .mini-card {
+    padding: 8px 10px;
+    border-radius: 2px;
+    margin-bottom: 6px;
+    border: 1px solid;
+  }
+
+  .mini-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 3px;
+  }
+
+  .mini-card-title {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+  }
+
+  .mini-card-data {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+  }
+
+  .mini-action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 2px;
+    border: 1px solid;
+    margin-top: 6px;
+  }
+
+  .mini-note {
+    padding: 6px 8px;
+    border-radius: 0 2px 2px 0;
+    border-left: 2px dashed;
+    margin-top: 8px;
+    font-size: 10px;
+    font-style: italic;
+  }
+
+  /* Active edge indicator */
+  .edge-demo {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+  }
+
+  .edge-strip {
+    width: 4px;
+    height: 40px;
+    border-radius: 1px;
+  }
+
+  .edge-label {
+    font-size: 9px;
+    font-weight: 500;
+    align-self: center;
+  }
+
+  /* Swatches */
+  .swatch-row {
+    display: flex;
+    gap: 6px;
+    padding: 10px 16px 12px;
+  }
+
+  .sw {
+    text-align: center;
+  }
+
+  .sw-box {
+    width: 28px;
+    height: 28px;
+    border-radius: 2px;
+  }
+
+  .sw-label {
+    font-size: 7px;
+    font-weight: 500;
+    margin-top: 3px;
+  }
+  .page-dark .sw-label { color: #666157; }
+  .page-light .sw-label { color: #8d8578; }
+</style>
+</head>
+<body class="page-light">
+
+<h1>Skifer-nyanse — Raffinering</h1>
+<p class="intro">
+  Tre nyanser av skifer testet mot de varme papir-flatene. Fokus: badge-differensiering mellom
+  «Mottatt» (grønn), «Handling kreves» (skifer), og «Kritisk» (rose). Hvilken nyanse gir best avlesning?
+</p>
+
+<div class="theme-toggle">
+  <button onclick="setTheme('light')">Lys</button>
+  <button onclick="setTheme('dark')">Mørk</button>
+</div>
+
+<div class="badge-compare" id="variants">
+</div>
+
+<script>
+const variants = {
+  cool: {
+    name: 'Kald skifer',
+    desc: 'Ren blå-grå. Sterkest kontrast mot varme flater. Tydeligst «dette er ikke grønn».',
+    dark: { accent: '#8ba4c4', dim: '#6b87aa', bg: 'rgba(139,164,196,0.08)', bgStrong: 'rgba(139,164,196,0.14)' },
+    light: { accent: '#3b6098', dim: '#2f4e7d', bg: 'rgba(59,96,152,0.06)', bgStrong: 'rgba(59,96,152,0.12)' },
+  },
+  warm: {
+    name: 'Varm skifer',
+    desc: 'Blått med en touch varme. Harmonerer bedre med papir-paletten. Noe mykere.',
+    dark: { accent: '#92a3b5', dim: '#7389a0', bg: 'rgba(146,163,181,0.08)', bgStrong: 'rgba(146,163,181,0.14)' },
+    light: { accent: '#4a6580', dim: '#3b5268', bg: 'rgba(74,101,128,0.06)', bgStrong: 'rgba(74,101,128,0.12)' },
+  },
+  steel: {
+    name: 'Stål',
+    desc: 'Mørkere, mer mettet. Tyngre visuell vekt. Føles som industrielt verktøy, ikke kontor.',
+    dark: { accent: '#7b9ec8', dim: '#5f83b0', bg: 'rgba(123,158,200,0.08)', bgStrong: 'rgba(123,158,200,0.14)' },
+    light: { accent: '#2c5a8c', dim: '#214a76', bg: 'rgba(44,90,140,0.06)', bgStrong: 'rgba(44,90,140,0.12)' },
+  }
+};
+
+const base = {
+  dark: {
+    canvas: '#0f0d0a', felt: '#16140f', feltHover: '#1a1815', feltActive: '#282520',
+    ink: '#f5f3ee', inkSec: '#a8a29a', inkMuted: '#908b82', inkGhost: '#666157',
+    wire: 'rgba(245,235,220,0.08)', wireStrong: 'rgba(245,235,220,0.15)',
+    scoreHigh: '#10b981', scoreLow: '#f03e5f',
+    scoreHighBg: 'rgba(16,185,129,0.10)', scoreLowBg: 'rgba(240,62,95,0.08)',
+  },
+  light: {
+    canvas: '#f3f1ec', felt: '#faf8f4', feltHover: '#efede7', feltActive: '#e5e2da',
+    ink: '#21201c', inkSec: '#57524b', inkMuted: '#655f56', inkGhost: '#8d8578',
+    wire: 'rgba(33,28,18,0.06)', wireStrong: 'rgba(33,28,18,0.12)',
+    scoreHigh: '#047d56', scoreLow: '#c01b3d',
+    scoreHighBg: '#eff5ee', scoreLowBg: '#f5eeef',
+  }
+};
+
+let currentTheme = 'light';
+
+function setTheme(t) {
+  currentTheme = t;
+  document.body.className = 'page-' + t;
+  document.querySelectorAll('.theme-toggle button').forEach(b => b.classList.remove('active'));
+  document.querySelector(`.theme-toggle button[onclick="setTheme('${t}')"]`).classList.add('active');
+  render();
+}
+
+function render() {
+  const container = document.getElementById('variants');
+  const b = base[currentTheme];
+  let html = '';
+
+  for (const [key, v] of Object.entries(variants)) {
+    const a = v[currentTheme];
+    const hexDisplay = currentTheme === 'light' ? a.accent : a.accent;
+
+    html += `
+    <div class="variant" data-choice="${key}" onclick="selectVariant(this)">
+      <div class="variant-header">
+        <div class="variant-label">${key === 'cool' ? 'I' : key === 'warm' ? 'II' : 'III'}</div>
+        <div class="variant-name" style="color:${a.accent};">${v.name}</div>
+        <div class="variant-hex">${hexDisplay}</div>
+      </div>
+      <div class="variant-desc">${v.desc}</div>
+
+      <div class="mock-area">
+        <div class="mock-surface" style="background:${b.felt};border:1px solid ${b.wireStrong};border-radius:2px;">
+
+          <!-- Badge comparison row -->
+          <div style="margin-bottom:10px;">
+            <div style="font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:${b.inkMuted};margin-bottom:6px;">Badges</div>
+            <div class="badge-row">
+              <span class="badge" style="color:${b.scoreHigh};border:1px solid ${b.scoreHigh}40;background:${b.scoreHighBg};">Mottatt</span>
+              <span class="badge" style="color:${a.accent};border:1px solid ${a.accent}40;background:${a.bg};">Handling kreves</span>
+              <span class="badge" style="color:${b.scoreLow};border:1px solid ${b.scoreLow}40;background:${b.scoreLowBg};">Kritisk</span>
+            </div>
+          </div>
+
+          <!-- Vederlag card with accent -->
+          <div class="mini-card" style="background:${b.felt};border-color:${b.wireStrong};border-left:2px solid ${a.accent};">
+            <div class="mini-card-header">
+              <span class="mini-card-title" style="color:${b.ink};">Vederlagskrav</span>
+              <span class="badge" style="color:${a.accent};border:1px solid ${a.accent}40;background:${a.bg};">Handling kreves</span>
+            </div>
+            <div class="mini-card-data" style="color:${b.inkMuted};">2 930 000 kr · R&D 350 000 kr</div>
+            <div class="mini-action-btn" style="color:${a.accent};border-color:${a.accent}40;background:${a.bg};">
+              Svar →
+            </div>
+          </div>
+
+          <!-- Grunnlag card (approved) -->
+          <div class="mini-card" style="background:${b.felt};border-color:${b.wireStrong};border-left:1px solid ${b.scoreHigh};opacity:0.85;">
+            <div class="mini-card-header">
+              <span class="mini-card-title" style="color:${b.ink};">Kontraktsgrunnlag</span>
+              <span class="badge" style="color:${b.scoreHigh};border:1px solid ${b.scoreHigh}40;background:${b.scoreHighBg};">Mottatt</span>
+            </div>
+            <div class="mini-card-data" style="color:${b.inkMuted};">Svikt i BH ytelse · §32.2</div>
+          </div>
+
+          <!-- Frist card (critical) -->
+          <div class="mini-card" style="background:${b.scoreLowBg};border-color:${b.wireStrong};border-left:2px solid ${b.scoreLow};">
+            <div class="mini-card-header">
+              <span class="mini-card-title" style="color:${b.ink};">Fristforlengelse</span>
+              <span class="badge" style="color:${b.scoreLow};border:1px solid ${b.scoreLow}40;background:${b.scoreLowBg};">Kritisk</span>
+            </div>
+            <div class="mini-card-data" style="color:${b.inkMuted};">Krevd 45 dager · 20.03.2026</div>
+          </div>
+
+          <!-- Internal note -->
+          <div class="mini-note" style="background:${a.bg};border-left-color:${a.accent};color:${b.inkSec};">
+            Internt: Sjekk rigg-dokumentasjon
+          </div>
+
+          <!-- Edge strips -->
+          <div class="edge-demo">
+            <div>
+              <div class="edge-strip" style="background:${a.accent};"></div>
+              <div class="edge-label" style="color:${b.inkGhost};font-size:8px;">Handling</div>
+            </div>
+            <div>
+              <div class="edge-strip" style="background:${b.scoreLow};"></div>
+              <div class="edge-label" style="color:${b.inkGhost};font-size:8px;">Kritisk</div>
+            </div>
+            <div>
+              <div class="edge-strip" style="background:${b.scoreHigh};width:2px;"></div>
+              <div class="edge-label" style="color:${b.inkGhost};font-size:8px;">Godkj.</div>
+            </div>
+            <div>
+              <div class="edge-strip" style="background:${b.wireStrong};width:1px;"></div>
+              <div class="edge-label" style="color:${b.inkGhost};font-size:8px;">Venter</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="swatch-row">
+        <div class="sw"><div class="sw-box" style="background:${a.accent};"></div><div class="sw-label">Aksent</div></div>
+        <div class="sw"><div class="sw-box" style="background:${a.dim};"></div><div class="sw-label">Dim</div></div>
+        <div class="sw"><div class="sw-box" style="background:${a.bg};border:1px solid ${a.accent}30;"></div><div class="sw-label">Bg</div></div>
+        <div class="sw"><div class="sw-box" style="background:${a.bgStrong};border:1px solid ${a.accent}30;"></div><div class="sw-label">Bg+</div></div>
+      </div>
+    </div>`;
+  }
+
+  container.innerHTML = html;
+}
+
+function selectVariant(el) {
+  document.querySelectorAll('.variant').forEach(v => v.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+// Start in light mode (user's focus area)
+document.querySelector('.theme-toggle button:first-child').classList.add('active');
+render();
+</script>
+
+</body>
+</html>
