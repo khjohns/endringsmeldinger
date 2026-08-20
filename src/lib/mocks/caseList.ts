@@ -6,6 +6,10 @@
  */
 
 import type { CaseListItem, CaseListResponse } from '$lib/types/api';
+import { mockSaksoversikt } from '$lib/mocks/saksoversikt';
+
+// Index hendelser by sak_id for lookup
+const hendelserMap = Object.fromEntries(mockSaksoversikt.map((s) => [s.sak_id, s.hendelser]));
 
 const dato = (dagerSiden: number) => new Date(Date.now() - dagerSiden * 86400000).toISOString();
 
@@ -27,6 +31,7 @@ export const mockCaseList: CaseListResponse = {
       created_at: '2026-01-13T09:00:00Z',
       created_by: 'Knut Larsen',
       last_event_at: dato(2),
+      hendelser: hendelserMap['KOE-2024-047'],
     },
     {
       sak_id: 'KOE-2024-031',
@@ -44,6 +49,7 @@ export const mockCaseList: CaseListResponse = {
       created_at: '2025-11-07T08:00:00Z',
       created_by: 'Maria Andersen',
       last_event_at: dato(5),
+      hendelser: hendelserMap['KOE-2024-031'],
     },
     {
       sak_id: 'KOE-2024-019',
@@ -61,6 +67,7 @@ export const mockCaseList: CaseListResponse = {
       created_at: '2025-09-12T10:00:00Z',
       created_by: 'Knut Larsen',
       last_event_at: dato(45),
+      hendelser: hendelserMap['KOE-2024-019'],
     },
     {
       sak_id: 'KOE-2024-023',
@@ -78,6 +85,7 @@ export const mockCaseList: CaseListResponse = {
       created_at: '2025-10-01T11:00:00Z',
       created_by: 'Maria Andersen',
       last_event_at: dato(18),
+      hendelser: hendelserMap['KOE-2024-023'],
     },
     {
       sak_id: 'KOE-2024-038',
@@ -95,6 +103,7 @@ export const mockCaseList: CaseListResponse = {
       created_at: '2025-12-10T13:00:00Z',
       created_by: 'Knut Larsen',
       last_event_at: dato(10),
+      hendelser: hendelserMap['KOE-2024-038'],
     },
     {
       sak_id: 'KOE-2024-058',
@@ -112,6 +121,7 @@ export const mockCaseList: CaseListResponse = {
       created_at: new Date().toISOString(),
       created_by: 'Knut Larsen',
       last_event_at: new Date().toISOString(),
+      hendelser: hendelserMap['KOE-2024-058'],
     },
     {
       sak_id: 'KOE-2024-012',
@@ -129,6 +139,7 @@ export const mockCaseList: CaseListResponse = {
       created_at: '2025-08-01T09:00:00Z',
       created_by: 'Maria Andersen',
       last_event_at: dato(90),
+      hendelser: hendelserMap['KOE-2024-012'],
     },
   ] satisfies CaseListItem[],
 };
