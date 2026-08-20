@@ -1,0 +1,2 @@
+[  356232ms] [ERROR] WebSocket connection to 'ws://localhost:5199/?token=a59ZU3grBYdx' failed:  @ http://localhost:5199/@vite/client:744
+[  356249ms] [LOG] [vite] server connection lost. Polling for restart... @ http://localhost:5199/@vite/client:864

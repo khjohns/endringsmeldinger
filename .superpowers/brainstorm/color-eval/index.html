@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="nb">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KOE Fargepalett — Sammenligning</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;450;500;600&family=Inter:wght@400;500;600&display=swap');
+
+  :root { color-scheme: light; }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: #1a1917;
+    color: #f5f3ee;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    padding: 32px 40px;
+  }
+
+  h1 {
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #908b82;
+    margin-bottom: 8px;
+  }
+
+  .intro {
+    font-size: 13px;
+    color: #a8a29a;
+    max-width: 640px;
+    margin-bottom: 40px;
+    line-height: 1.6;
+  }
+
+  .themes {
+    display: flex;
+    gap: 24px;
+    margin-bottom: 48px;
+  }
+
+  .theme-toggle {
+    display: flex;
+    gap: 2px;
+    background: rgba(245,235,220,0.06);
+    border-radius: 2px;
+    padding: 2px;
+    margin-bottom: 32px;
+  }
+
+  .theme-toggle button {
+    font-family: 'Inter', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    padding: 6px 16px;
+    border: none;
+    border-radius: 2px;
+    cursor: pointer;
+    background: transparent;
+    color: #666157;
+    transition: all 150ms;
+  }
+
+  .theme-toggle button.active {
+    background: rgba(245,235,220,0.12);
+    color: #f5f3ee;
+  }
+
+  /* ── Palette grid ── */
+  .palettes {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    margin-bottom: 48px;
+  }
+
+  .palette {
+    border: 1px solid rgba(245,235,220,0.08);
+    border-radius: 2px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: border-color 200ms;
+    position: relative;
+  }
+
+  .palette:hover {
+    border-color: rgba(245,235,220,0.20);
+  }
+
+  .palette.selected {
+    border-color: #f5f3ee;
+    box-shadow: 0 0 0 1px #f5f3ee;
+  }
+
+  .palette-label {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #908b82;
+    padding: 12px 16px 8px;
+  }
+
+  .palette-name {
+    font-size: 15px;
+    font-weight: 600;
+    padding: 0 16px 4px;
+  }
+
+  .palette-desc {
+    font-size: 12px;
+    color: #a8a29a;
+    padding: 0 16px 16px;
+    line-height: 1.5;
+  }
+
+  /* ── Mockup inside each palette ── */
+  .mock-container {
+    padding: 0 12px 12px;
+  }
+
+  .mock {
+    border-radius: 2px;
+    overflow: hidden;
+    font-size: 11px;
+  }
+
+  /* Mock sidebar */
+  .mock-side {
+    padding: 12px;
+    border-bottom: 1px solid;
+  }
+
+  .mock-side .sak-id {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    font-weight: 500;
+    margin-bottom: 2px;
+  }
+
+  .mock-side .sak-title {
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+
+  .mock-side .status-box {
+    padding: 8px;
+    border-radius: 2px;
+    margin-bottom: 8px;
+  }
+
+  .mock-side .status-label {
+    font-size: 9px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 2px;
+  }
+
+  .mock-side .status-val {
+    font-size: 11px;
+    font-weight: 500;
+  }
+
+  /* Mock sporkort */
+  .mock-cards {
+    padding: 12px;
+  }
+
+  .mock-card {
+    padding: 8px 10px;
+    border-radius: 2px;
+    margin-bottom: 6px;
+    border: 1px solid;
+  }
+
+  .mock-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+  }
+
+  .mock-card-title {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+  }
+
+  .mock-badge {
+    font-size: 9px;
+    font-weight: 600;
+    padding: 2px 6px;
+    border-radius: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .mock-card-data {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    margin-bottom: 4px;
+  }
+
+  .mock-card-events {
+    font-size: 10px;
+    padding-top: 4px;
+    border-top: 1px solid;
+  }
+
+  .mock-event {
+    display: flex;
+    gap: 6px;
+    padding: 2px 0;
+  }
+
+  .mock-event-date {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 9px;
+    white-space: nowrap;
+  }
+
+  /* Action button mock */
+  .mock-action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 2px;
+    border: 1px solid;
+    margin-top: 4px;
+  }
+
+  /* Internal note mock */
+  .mock-note {
+    padding: 6px 8px;
+    border-radius: 0 2px 2px 0;
+    border-left: 2px dashed;
+    margin-top: 6px;
+    font-size: 10px;
+    font-style: italic;
+  }
+
+  /* ── Swatch row ── */
+  .swatches {
+    display: flex;
+    gap: 4px;
+    padding: 8px 16px 12px;
+  }
+
+  .swatch {
+    width: 24px;
+    height: 24px;
+    border-radius: 2px;
+    border: 1px solid rgba(245,235,220,0.1);
+  }
+
+  .swatch-label {
+    font-size: 8px;
+    text-align: center;
+    margin-top: 2px;
+    color: #666157;
+  }
+
+  /* ── Vote section ── */
+  .vote-section {
+    text-align: center;
+    padding: 24px 0;
+  }
+
+  .vote-section p {
+    font-size: 12px;
+    color: #666157;
+    margin-top: 8px;
+  }
+</style>
+</head>
+<body>
+
+<h1>KOE Aksent — Fargepalett-sammenligning</h1>
+<p class="intro">
+  Tre alternative retninger for aksent-fargen (vekt). Alle vist i mørkt tema mot de eksisterende papir-flatene.
+  Klikk på paletten som føles mest riktig for byggebransjen.
+</p>
+
+<div class="theme-toggle">
+  <button class="active" onclick="setTheme('dark')">Mørk</button>
+  <button onclick="setTheme('light')">Lys</button>
+</div>
+
+<div class="palettes" id="palettes">
+
+  <!-- ═══ A: Current Amber ═══ -->
+  <div class="palette" data-choice="amber" onclick="selectPalette(this)">
+    <div class="palette-label">A — Nåværende</div>
+    <div class="palette-name">Amber / Gull</div>
+    <div class="palette-desc">Varm, synlig, men kan oppleves som «fintech» eller uformelt i byggebransjen.</div>
+
+    <div class="mock-container">
+      <div class="mock" id="mock-amber">
+        <!-- Populated by JS based on theme -->
+      </div>
+    </div>
+
+    <div class="swatches" id="swatches-amber"></div>
+  </div>
+
+  <!-- ═══ B: Petrol ═══ -->
+  <div class="palette" data-choice="petrol" onclick="selectPalette(this)">
+    <div class="palette-label">B — Forslag</div>
+    <div class="palette-name">Petrol / Industriblå</div>
+    <div class="palette-desc">Skandinavisk industridesign. Kald mot varme flater. Mekanisk, nøkternt.</div>
+
+    <div class="mock-container">
+      <div class="mock" id="mock-petrol">
+      </div>
+    </div>
+
+    <div class="swatches" id="swatches-petrol"></div>
+  </div>
+
+  <!-- ═══ C: Slate Blue ═══ -->
+  <div class="palette" data-choice="slate" onclick="selectPalette(this)">
+    <div class="palette-label">C — Forslag</div>
+    <div class="palette-name">Skifer / Blåkopi</div>
+    <div class="palette-desc">Institusjonell, juridisk. Minner om blåkopi-tegninger og offentlig sektor.</div>
+
+    <div class="mock-container">
+      <div class="mock" id="mock-slate">
+      </div>
+    </div>
+
+    <div class="swatches" id="swatches-slate"></div>
+  </div>
+
+</div>
+
+<div class="vote-section">
+  <p>Klikk på en palett ovenfor, eller beskriv i terminalen hva du tenker.</p>
+</div>
+
+<script>
+const palettes = {
+  amber: {
+    dark: {
+      accent: '#f59e0b', accentDim: '#d97706',
+      accentBg: 'rgba(245,158,11,0.08)', accentBgStrong: 'rgba(245,158,11,0.14)',
+      canvas: '#0f0d0a', felt: '#16140f', feltHover: '#1a1815', feltActive: '#282520',
+      ink: '#f5f3ee', inkSec: '#a8a29a', inkMuted: '#908b82', inkGhost: '#666157',
+      wire: 'rgba(245,235,220,0.08)', wireStrong: 'rgba(245,235,220,0.15)',
+      scoreHigh: '#10b981', scoreLow: '#f03e5f', scoreLowBg: 'rgba(240,62,95,0.08)',
+    },
+    light: {
+      accent: '#8e5409', accentDim: '#7c4a0a',
+      accentBg: 'rgba(146,86,9,0.06)', accentBgStrong: 'rgba(146,86,9,0.12)',
+      canvas: '#f3f1ec', felt: '#faf8f4', feltHover: '#efede7', feltActive: '#e5e2da',
+      ink: '#21201c', inkSec: '#57524b', inkMuted: '#655f56', inkGhost: '#8d8578',
+      wire: 'rgba(33,28,18,0.06)', wireStrong: 'rgba(33,28,18,0.12)',
+      scoreHigh: '#047d56', scoreLow: '#c01b3d', scoreLowBg: '#f5eeef',
+    }
+  },
+  petrol: {
+    dark: {
+      accent: '#5eaead', accentDim: '#478a89',
+      accentBg: 'rgba(94,174,173,0.08)', accentBgStrong: 'rgba(94,174,173,0.14)',
+      canvas: '#0f0d0a', felt: '#16140f', feltHover: '#1a1815', feltActive: '#282520',
+      ink: '#f5f3ee', inkSec: '#a8a29a', inkMuted: '#908b82', inkGhost: '#666157',
+      wire: 'rgba(245,235,220,0.08)', wireStrong: 'rgba(245,235,220,0.15)',
+      scoreHigh: '#10b981', scoreLow: '#f03e5f', scoreLowBg: 'rgba(240,62,95,0.08)',
+    },
+    light: {
+      accent: '#1a6b6b', accentDim: '#155858',
+      accentBg: 'rgba(26,107,107,0.06)', accentBgStrong: 'rgba(26,107,107,0.12)',
+      canvas: '#f3f1ec', felt: '#faf8f4', feltHover: '#efede7', feltActive: '#e5e2da',
+      ink: '#21201c', inkSec: '#57524b', inkMuted: '#655f56', inkGhost: '#8d8578',
+      wire: 'rgba(33,28,18,0.06)', wireStrong: 'rgba(33,28,18,0.12)',
+      scoreHigh: '#047d56', scoreLow: '#c01b3d', scoreLowBg: '#f5eeef',
+    }
+  },
+  slate: {
+    dark: {
+      accent: '#8ba4c4', accentDim: '#6b87aa',
+      accentBg: 'rgba(139,164,196,0.08)', accentBgStrong: 'rgba(139,164,196,0.14)',
+      canvas: '#0f0d0a', felt: '#16140f', feltHover: '#1a1815', feltActive: '#282520',
+      ink: '#f5f3ee', inkSec: '#a8a29a', inkMuted: '#908b82', inkGhost: '#666157',
+      wire: 'rgba(245,235,220,0.08)', wireStrong: 'rgba(245,235,220,0.15)',
+      scoreHigh: '#10b981', scoreLow: '#f03e5f', scoreLowBg: 'rgba(240,62,95,0.08)',
+    },
+    light: {
+      accent: '#3b6098', accentDim: '#2f4e7d',
+      accentBg: 'rgba(59,96,152,0.06)', accentBgStrong: 'rgba(59,96,152,0.12)',
+      canvas: '#f3f1ec', felt: '#faf8f4', feltHover: '#efede7', feltActive: '#e5e2da',
+      ink: '#21201c', inkSec: '#57524b', inkMuted: '#655f56', inkGhost: '#8d8578',
+      wire: 'rgba(33,28,18,0.06)', wireStrong: 'rgba(33,28,18,0.12)',
+      scoreHigh: '#047d56', scoreLow: '#c01b3d', scoreLowBg: '#f5eeef',
+    }
+  }
+};
+
+let currentTheme = 'dark';
+
+function setTheme(theme) {
+  currentTheme = theme;
+  document.querySelectorAll('.theme-toggle button').forEach(b => b.classList.remove('active'));
+  document.querySelector(`.theme-toggle button[onclick="setTheme('${theme}')"]`).classList.add('active');
+  renderAll();
+}
+
+function renderMock(containerId, p) {
+  const c = document.getElementById(containerId);
+  c.style.background = p.canvas;
+  c.innerHTML = `
+    <div class="mock-side" style="background:${p.felt};border-color:${p.wireStrong};">
+      <div class="sak-id" style="color:${p.inkMuted};">KOE-2026-003</div>
+      <div class="sak-title" style="color:${p.ink};">Forsinkede tegningsleveranser</div>
+      <div class="status-box" style="background:${p.feltHover};border:1px solid ${p.wireStrong};">
+        <div class="status-label" style="color:${p.inkMuted};">Status</div>
+        <div class="status-val" style="color:${p.ink};">Venter på BH svar</div>
+      </div>
+    </div>
+    <div class="mock-cards" style="background:${p.canvas};">
+      <!-- Grunnlag card -->
+      <div class="mock-card" style="background:${p.felt};border-color:${p.wireStrong};">
+        <div class="mock-card-header">
+          <span class="mock-card-title" style="color:${p.ink};">Kontraktsgrunnlag</span>
+          <span class="mock-badge" style="color:${p.scoreHigh};border:1px solid ${p.scoreHigh}40;background:${p.scoreHigh}15;">Mottatt</span>
+        </div>
+        <div class="mock-card-data" style="color:${p.inkMuted};">Svikt i BH ytelse · NS 8407 §32.2</div>
+      </div>
+
+      <!-- Vederlag card — uses accent -->
+      <div class="mock-card" style="background:${p.felt};border-color:${p.wireStrong};border-left:2px solid ${p.accent};">
+        <div class="mock-card-header">
+          <span class="mock-card-title" style="color:${p.ink};">Vederlagskrav</span>
+          <span class="mock-badge" style="color:${p.accent};border:1px solid ${p.accent}40;background:${p.accentBg};">Handling kreves</span>
+        </div>
+        <div class="mock-card-data" style="color:${p.inkMuted};">2 930 000 kr · R&D 350 000 kr</div>
+        <div class="mock-card-events" style="border-color:${p.wire};">
+          <div class="mock-event">
+            <span class="mock-event-date" style="color:${p.inkGhost};">14.03</span>
+            <span style="color:${p.ink};font-weight:500;">Krav mottatt fra Veidekke</span>
+          </div>
+          <div class="mock-event">
+            <span class="mock-event-date" style="color:${p.inkGhost};">10.03</span>
+            <span style="color:${p.inkSec};">Varsel sendt</span>
+          </div>
+        </div>
+        <div class="mock-action-btn" style="color:${p.accent};border-color:${p.accent}40;background:${p.accentBg};">
+          Svar →
+        </div>
+      </div>
+
+      <!-- Frist card — critical -->
+      <div class="mock-card" style="background:${p.scoreLowBg};border-color:${p.wireStrong};border-left:2px solid ${p.scoreLow};">
+        <div class="mock-card-header">
+          <span class="mock-card-title" style="color:${p.ink};">Fristforlengelse</span>
+          <span class="mock-badge" style="color:${p.scoreLow};border:1px solid ${p.scoreLow}40;background:${p.scoreLowBg};">Kritisk</span>
+        </div>
+        <div class="mock-card-data" style="color:${p.inkMuted};">Krevd 45 dager · Frist 20.03.2026</div>
+      </div>
+
+      <!-- Internal note -->
+      <div class="mock-note" style="background:${p.accentBg};border-left-color:${p.accent};color:${p.inkSec};">
+        Internt: Sjekk rigg-dokumentasjon før svar
+      </div>
+    </div>
+  `;
+}
+
+function renderSwatches(containerId, p) {
+  const c = document.getElementById(containerId);
+  c.innerHTML = `
+    <div style="text-align:center;">
+      <div class="swatch" style="background:${p.accent};"></div>
+      <div class="swatch-label">Aksent</div>
+    </div>
+    <div style="text-align:center;">
+      <div class="swatch" style="background:${p.accentDim};"></div>
+      <div class="swatch-label">Dim</div>
+    </div>
+    <div style="text-align:center;">
+      <div class="swatch" style="background:${p.accentBg};border:1px solid ${p.accent}30;"></div>
+      <div class="swatch-label">Bg</div>
+    </div>
+    <div style="text-align:center;">
+      <div class="swatch" style="background:${p.accentBgStrong};border:1px solid ${p.accent}30;"></div>
+      <div class="swatch-label">Bg+</div>
+    </div>
+    <div style="text-align:center;">
+      <div class="swatch" style="background:${p.scoreHigh};"></div>
+      <div class="swatch-label">Godkj.</div>
+    </div>
+    <div style="text-align:center;">
+      <div class="swatch" style="background:${p.scoreLow};"></div>
+      <div class="swatch-label">Kritisk</div>
+    </div>
+  `;
+}
+
+function renderAll() {
+  for (const key of ['amber','petrol','slate']) {
+    const p = palettes[key][currentTheme];
+    renderMock('mock-' + key, p);
+    renderSwatches('swatches-' + key, p);
+  }
+}
+
+function selectPalette(el) {
+  document.querySelectorAll('.palette').forEach(p => p.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+renderAll();
+</script>
+
+</body>
+</html>

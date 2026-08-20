@@ -1,0 +1,3 @@
+{"type":"server-started","port":63271,"host":"127.0.0.1","url_host":"localhost","url":"http://localhost:63271","screen_dir":"/Users/kasper/Projects/endringsmeldinger/.superpowers/brainstorm/10665-1775242922/content","state_dir":"/Users/kasper/Projects/endringsmeldinger/.superpowers/brainstorm/10665-1775242922/state"}
+{"type":"screen-added","file":"/Users/kasper/Projects/endringsmeldinger/.superpowers/brainstorm/10665-1775242922/content/surface-profiles.html"}
+{"type":"server-stopped","reason":"idle timeout"}

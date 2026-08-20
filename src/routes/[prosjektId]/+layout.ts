@@ -1,6 +1,10 @@
 import { setActiveProjectId } from '$lib/api/client';
-import { getProject } from '$lib/api/projects';
 import type { Project } from '$lib/types/project';
+
+// Mock projects — no backend/Supabase calls
+const mockProjects: Record<string, Project> = {
+  oslobygg: { id: 'oslobygg', name: 'OsloBygg AS', description: 'Kontraktsoppfølging pilot' },
+};
 
 export async function load({ params }: { params: { prosjektId: string } }) {
   const { prosjektId } = params;
@@ -8,12 +12,7 @@ export async function load({ params }: { params: { prosjektId: string } }) {
   // Sync URL prosjektId → API header for all downstream requests
   setActiveProjectId(prosjektId);
 
-  let project: Project | null = null;
-  try {
-    project = await getProject(prosjektId);
-  } catch {
-    // Backend not available or project not found — pages fall back to prosjektId
-  }
+  const project: Project | null = mockProjects[prosjektId] ?? { id: prosjektId, name: prosjektId };
 
   return { project };
 }

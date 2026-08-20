@@ -209,13 +209,29 @@
 
   const isAwaiting = $derived(isAwaitingResponse(trackState.status));
 
-  // AvventerRad always links to BH svar route
+  // AvventerRad: BH → svar route, TE → send route (to update/revise the sent claim)
   const avventerHref = $derived.by(() => {
     const base = `/${prosjektId}/${sakId}`;
-    if (sporType === 'grunnlag') return `${base}/svar-grunnlag`;
-    if (sporType === 'vederlag') return `${base}/svar-vederlag`;
-    if (sporType === 'frist') return `${base}/svar-frist`;
+    if (userRole === 'BH') {
+      if (sporType === 'grunnlag') return `${base}/svar-grunnlag`;
+      if (sporType === 'vederlag') return `${base}/svar-vederlag`;
+      if (sporType === 'frist') return `${base}/svar-frist`;
+    }
+    if (userRole === 'TE') {
+      if (sporType === 'grunnlag') return null; // TE waits for BH on grunnlag
+      if (sporType === 'vederlag') return `${base}/send-vederlag`;
+      if (sporType === 'frist') return `${base}/send-frist`;
+    }
     return null;
+  });
+
+  // Label shown in AvventerRad button — differs per role
+  const avventerLabel = $derived.by(() => {
+    if (userRole === 'TE') {
+      if (sporType === 'vederlag') return 'Oppdater vederlagskrav';
+      if (sporType === 'frist') return 'Oppdater fristkrav';
+    }
+    return undefined; // fall through to AvventerRad's default BH label
   });
 
   const SPOR_NAMES: Record<SporType, string> = {
@@ -303,7 +319,7 @@
     {sporType}
     state={sakState}
     href={avventerHref}
-    actionLabel={visualState.action?.label}
+    actionLabel={avventerLabel ?? visualState.action?.label}
     urgent={visualState.action?.urgent ?? false}
   />
 
