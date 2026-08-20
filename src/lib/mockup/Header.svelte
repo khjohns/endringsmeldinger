@@ -23,7 +23,7 @@
 </script>
 
 <header class="header">
-  <div class="gold-stripe"></div>
+  <div class="brand-stripe"></div>
   <div class="left">
     {#if mode === 'form'}
       <button class="back-btn" onclick={onback}>
@@ -35,11 +35,11 @@
         <ChevronLeft size={16} />
       </button>
     {/if}
-    <div class="ns-badge">
-      <span class="ns-text">NS 8407</span>
+    <div class="logo">
+      <span class="logo-oslo">Oslo</span> / <span class="logo-bygg">Oslobygg</span>
     </div>
     <div class="project-info">
-      <span class="project-name">Kystveien Vest</span>
+      <span class="project-name">{store.scenario.label.split(' — ')[0] || 'Kystveien Vest'}</span>
       <span class="project-parties">{store.teNavn} → {store.bhNavn}</span>
     </div>
   </div>
@@ -66,17 +66,17 @@
         <Moon size={14} />
       {/if}
     </button>
-    <button class="reset-btn" onclick={() => store.selectScenario(store.scenario.id)} title="Nullstill mockup">
+    <button
+      class="reset-btn"
+      onclick={() => store.selectScenario(store.scenario.id)}
+      title="Nullstill mockup"
+    >
       <RotateCcw size={12} /> <span class="reset-text">Nullstill</span>
     </button>
-    <span class="font-mono role-label">VIS SOM</span>
     <div class="role-toggle">
       {#each ['TE', 'BH'] as r}
-        <button
-          class="font-mono role-btn"
-          class:active={role === r}
-          style:border-right={r === 'TE' ? 'var(--edge)' : 'none'}
-          onclick={() => onrolechange(r as Role)}>{r}</button
+        <button class="role-btn" class:active={role === r} onclick={() => onrolechange(r as Role)}
+          >{r}</button
         >
       {/each}
     </div>
@@ -85,9 +85,9 @@
 
 <style>
   .header {
-    height: 52px;
-    border-bottom: var(--edge);
-    background: var(--canvas);
+    height: 56px;
+    border-bottom: 1px solid #d9d5cc;
+    background: var(--surface);
     display: flex;
     align-items: stretch;
     justify-content: space-between;
@@ -95,13 +95,13 @@
     z-index: 30;
     position: relative;
   }
-  .gold-stripe {
+  .brand-stripe {
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
     height: 3px;
-    background: var(--gold);
+    background: var(--brand);
   }
   .left {
     display: flex;
@@ -112,31 +112,39 @@
     align-items: center;
     gap: 4px;
     padding: 0 16px;
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 600;
-    color: var(--ink-3);
+    color: var(--ink-2);
     background: none;
     border: none;
     cursor: pointer;
-    border-right: var(--edge);
+    border-right: 1px solid #d9d5cc;
     height: 100%;
+    font-family: var(--font-sans);
+  }
+  .back-btn:hover {
+    background: var(--surface-inset);
   }
   .mobile-only-back {
     display: none;
   }
-  .ns-badge {
+  .logo {
     display: flex;
     align-items: center;
-    padding: 0 16px;
-    border-right: var(--edge);
+    padding: 0 20px;
+    border-right: 1px solid #d9d5cc;
     height: 100%;
-    background: var(--plate);
-    color: var(--gold);
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--ink);
+    gap: 4px;
   }
-  .ns-text {
-    font-size: 13px;
+  .logo-oslo {
     font-weight: 700;
-    letter-spacing: 0.06em;
+    color: var(--brand);
+  }
+  .logo-bygg {
+    font-weight: 600;
   }
   .project-info {
     padding: 0 16px;
@@ -145,13 +153,13 @@
     gap: 12px;
   }
   .project-name {
-    font-size: 14px;
-    font-weight: 700;
+    font-size: 15px;
+    font-weight: 600;
   }
   .project-parties {
-    font-size: 12px;
+    font-size: 13px;
     color: var(--ink-3);
-    font-weight: 500;
+    font-weight: 400;
   }
   .right {
     display: flex;
@@ -159,30 +167,33 @@
     padding: 0 16px;
     gap: 12px;
   }
-  .role-label {
-    font-size: 10px;
-    color: var(--ink-4);
-    letter-spacing: 0.06em;
-  }
   .role-toggle {
     display: flex;
-    border: var(--edge);
+    border: 1px solid #d9d5cc;
     border-radius: 4px;
     overflow: hidden;
   }
   .role-btn {
-    padding: 4px 14px;
-    font-size: 11px;
+    padding: 6px 16px;
+    font-size: 13px;
     font-weight: 700;
-    background: var(--paper);
+    font-family: var(--font-sans);
+    background: var(--surface);
     color: var(--ink-3);
     border: none;
     cursor: pointer;
-    transition: all 80ms;
+    transition: all 120ms;
+  }
+  .role-btn + .role-btn {
+    border-left: 1px solid #d9d5cc;
   }
   .role-btn.active {
-    background: var(--plate);
+    background: var(--brand);
     color: white;
+  }
+  .role-btn:hover:not(.active) {
+    background: var(--surface-inset);
+    color: var(--ink);
   }
   .scenario-select {
     display: flex;
@@ -190,8 +201,9 @@
     height: 100%;
   }
   .scenario-select select {
-    font-size: 11px;
-    background: var(--paper-inset);
+    font-size: 12px;
+    font-family: var(--font-mono);
+    background: var(--surface-inset);
     border: var(--rule);
     border-radius: 4px;
     padding: 4px 8px;
@@ -201,44 +213,44 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 28px;
-    height: 28px;
-    color: var(--ink-4);
+    width: 36px;
+    height: 36px;
+    color: var(--ink-3);
     background: transparent;
-    border: 1px solid var(--ink-4);
+    border: 1px solid #d9d5cc;
     border-radius: 4px;
     cursor: pointer;
     transition: all 0.15s ease;
   }
   .theme-btn:hover {
-    color: var(--gold);
-    border-color: var(--gold);
+    color: var(--brand);
+    border-color: var(--brand);
   }
   .reset-btn {
     display: flex;
     align-items: center;
     gap: 4px;
-    padding: 4px 10px;
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    font-size: 10px;
-    font-weight: 600;
-    color: var(--ink-4);
+    padding: 6px 12px;
+    font-size: 12px;
+    font-weight: 500;
+    font-family: var(--font-sans);
+    color: var(--ink-3);
     background: transparent;
-    border: 1px solid var(--ink-4);
+    border: 1px solid #d9d5cc;
     border-radius: 4px;
     cursor: pointer;
     transition: all 80ms;
   }
   .reset-btn:hover {
     color: var(--ink);
-    border-color: var(--ink);
+    border-color: var(--ink-3);
   }
 
   /* ── Mobile ── */
   @media (max-width: 768px) {
     .header {
       height: auto;
-      min-height: 44px;
+      min-height: 48px;
       flex-wrap: wrap;
     }
     .left {
@@ -246,16 +258,17 @@
       min-width: 0;
       overflow: hidden;
     }
-    .ns-badge {
-      padding: 0 10px;
+    .logo {
+      padding: 0 12px;
+      border-right: none;
     }
     .project-info {
-      padding: 0 10px;
+      padding: 0 12px;
       gap: 6px;
       min-width: 0;
     }
     .project-name {
-      font-size: 13px;
+      font-size: 14px;
     }
     .project-parties {
       display: none;
@@ -273,14 +286,11 @@
       padding: 0 10px;
       gap: 8px;
     }
-    .role-label {
-      display: none;
-    }
     .reset-text {
       display: none;
     }
     .reset-btn {
-      padding: 4px 6px;
+      padding: 6px 8px;
     }
   }
 </style>

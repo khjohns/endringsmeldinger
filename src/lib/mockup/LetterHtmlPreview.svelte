@@ -57,7 +57,7 @@
     padding: 40px 50px;
     background: white;
     color: #2c2c2c;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: var(--font-sans);
     font-size: 10pt;
     line-height: 1.5;
     position: relative;
@@ -123,7 +123,7 @@
     margin-bottom: 16px;
   }
   .letter-section-text {
-    font-family: 'Literata', serif;
+    font-family: var(--font-sans);
     font-size: 10pt;
     line-height: 1.6;
     white-space: pre-wrap;

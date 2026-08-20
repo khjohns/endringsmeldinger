@@ -1,103 +1,158 @@
-/* Kontraktsbordet — Design System v2 (mockup-isolert) */
+/* ══════════════════════════════════════════════════════════════
+   Kontraktsbordet — Design System v3 (Oslobygg-profil)
+   ══════════════════════════════════════════════════════════════ */
 
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,500;0,7..72,600;0,7..72,700;1,7..72,400;1,7..72,500&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap');
+/* ── Oslo Sans — Local font-face ── */
+@font-face {
+  font-family: 'Oslo Sans';
+  src: url('/fonts/OsloSans-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Oslo Sans';
+  src: url('/fonts/OsloSans-Medium.woff2') format('woff2');
+  font-weight: 500 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Oslo Sans';
+  src: url('/fonts/OsloSans-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
 
+/* ── Fallback stack ── */
 :root {
+  --font-sans: 'Oslo Sans', Arial, 'Helvetica Neue', Helvetica, sans-serif;
+  --font-mono: 'IBM Plex Mono', 'Roboto Mono', ui-monospace, SFMono-Regular, Consolas, monospace;
+}
+
+/* ══════════════════════════════════════════════════
+   Light mode tokens
+   ══════════════════════════════════════════════════ */
+:root {
+  /* ── Brand ── */
+  --brand: #034b45;
+  --brand-2: #2a2859;
+  --accent: #f9c66b;
+
   /* ── Surfaces ── */
-  --canvas: #fefdfb;
-  --paper: #f5f3ee;
-  --paper-inset: #efede7;
-  --paper-sub: #f9f8f4;
-  --plate: #1c1917;
+  --canvas: #f9f9f9;
+  --surface: #ffffff;
+  --surface-warm: #f8f0dd;
+  --surface-inset: #f2f0eb;
 
   /* ── Ink — 4 levels ── */
-  --ink: #1c1917;
-  --ink-2: #4a4945;
-  --ink-3: #6b6a66;
-  --ink-4: #898780;
+  --ink: #2c2c2c;
+  --ink-2: #5f5f5f;
+  --ink-3: #747474;
+  --ink-4: #9a9a9a;
 
-  /* ── Borders — 4 intensities ── */
-  --edge: 1.5px solid #1c1917;
-  --rule: 1px solid rgba(28, 25, 23, 0.1);
-  --rule-subtle: 1px solid rgba(28, 25, 23, 0.06);
-  --rule-strong: 1px solid rgba(28, 25, 23, 0.2);
+  /* ── Borders ── */
+  --edge: 1px solid var(--brand);
+  --rule: 1px solid #d9d5cc;
+  --rule-subtle: 1px solid #e9e6df;
+  --rule-strong: 1px solid #c0bdb5;
 
-  /* ── Accent — Gold (primary) ── */
-  --gold: #a98015;
+  /* ── Status — semantic ── */
+  --danger: #b42318;
+  --danger-bg: #fff2f1;
+  --danger-border: #efb8b3;
+  --success: #116149;
+  --success-bg: #e5ffe6;
+  --warning: #7a4e00;
+  --warning-bg: #ffe7bc;
+  --info: #1f42aa;
+  --info-bg: #f1fdff;
+
+  /* ── Draft / Internal ── */
+  --draft: #6b6b6b;
+  --draft-bg: #f5f5f5;
+  --draft-border: #d0d0d0;
+
+  /* ── Subsidiary ── */
+  --green: #034b45;
+  --green-bg: #e8f4f2;
+  --green-border: #a0ccc4;
+
+  /* ── Accent alias (gold → accent) ── */
+  --gold: #7a4e00;
   --gold-bg: #fff8e8;
   --gold-border: #f0d880;
 
-  /* ── Accent — Green (subsidiary) ── */
-  --green: #034b45;
-  --green-bg: #ecf5f3;
-  --green-border: #a0ccc4;
-
-  /* ── Semantic ── */
-  --red: #cc3030;
-  --red-bg: #fff0ee;
-
-  /* ── Draft ── */
-  --draft: #5a6048;
-  --draft-bg: #f6f7f2;
-  --draft-border: #c8ccb0;
-
   /* ── Controls ── */
-  --control-bg: var(--paper-inset);
-  --control-border: 1.5px solid #1c1917;
-  --control-focus: var(--gold);
-  --control-focus-ring: 0 0 0 3px var(--gold-border);
+  --control-bg: var(--surface-inset);
+  --control-border: 1px solid #d9d5cc;
+  --control-focus: var(--brand-2);
+  --control-focus-ring: 0 0 0 3px rgba(42, 40, 89, 0.2);
 
   /* ── Overlays ── */
   --overlay-1: #ffffff;
-  --overlay-2: #ffffff;
-  --overlay-bd: rgba(28, 25, 23, 0.12);
-  --overlay-shadow-sm: 0 4px 16px rgba(0, 0, 0, 0.08), 0 1px 4px rgba(0, 0, 0, 0.04);
-  --overlay-shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.06);
+  --overlay-2: #fafafa;
+  --overlay-bd: rgba(0, 0, 0, 0.12);
+  --overlay-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --overlay-shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.08), 0 1px 4px rgba(0, 0, 0, 0.04);
 }
 
-/* ── Dark Mode — Kveldsskiftet ── */
+/* ══════════════════════════════════════════════════
+   Dark mode tokens
+   ══════════════════════════════════════════════════ */
 .mockup.dark {
-  --canvas: #000000;
-  --paper: #111110;
-  --paper-inset: #1a1918;
-  --paper-sub: #141312;
-  --plate: #000000;
+  --brand: #40b5a5;
+  --brand-2: #8b87d0;
+  --accent: #f9c66b;
 
-  --ink: #f0ede5;
-  --ink-2: #b8b4a8;
-  --ink-3: #878380;
-  --ink-4: #6a6662;
+  --canvas: #111111;
+  --surface: #1a1a1a;
+  --surface-warm: #1e1c16;
+  --surface-inset: #222222;
 
-  --edge: 1.5px solid #2a2828;
-  --rule: 1px solid rgba(240, 237, 229, 0.12);
-  --rule-subtle: 1px solid rgba(240, 237, 229, 0.06);
-  --rule-strong: 1px solid rgba(240, 237, 229, 0.2);
+  --ink: #f0f0f0;
+  --ink-2: #b0b0b0;
+  --ink-3: #808080;
+  --ink-4: #606060;
 
-  --gold: #f0c840;
-  --gold-bg: #1e1a0e;
-  --gold-border: #4a4018;
+  --edge: 1px solid #333333;
+  --rule: 1px solid rgba(255, 255, 255, 0.08);
+  --rule-subtle: 1px solid rgba(255, 255, 255, 0.05);
+  --rule-strong: 1px solid rgba(255, 255, 255, 0.15);
 
-  --green: #50d0b8;
-  --green-bg: #0e1e1a;
-  --green-border: #183028;
+  --danger: #f87171;
+  --danger-bg: rgba(248, 113, 113, 0.1);
+  --danger-border: rgba(248, 113, 113, 0.25);
+  --success: #4ade80;
+  --success-bg: rgba(74, 222, 128, 0.1);
+  --warning: #fbbf24;
+  --warning-bg: rgba(251, 191, 36, 0.1);
+  --info: #93c5fd;
+  --info-bg: rgba(147, 197, 253, 0.1);
 
-  --red: #ea3e3e;
-  --red-bg: #1e1010;
+  --draft: #888888;
+  --draft-bg: #1e1e1e;
+  --draft-border: #333333;
 
-  --draft: #909080;
-  --draft-bg: #141410;
-  --draft-border: #2e2e24;
+  --green: #40b5a5;
+  --green-bg: rgba(64, 181, 165, 0.08);
+  --green-border: rgba(64, 181, 165, 0.2);
 
-  --control-bg: var(--paper-inset);
-  --control-border: 1.5px solid #2a2828;
-  --control-focus: var(--gold);
-  --control-focus-ring: 0 0 0 3px var(--gold-border);
+  --gold: #f9c66b;
+  --gold-bg: rgba(249, 198, 107, 0.08);
+  --gold-border: rgba(249, 198, 107, 0.2);
 
-  --overlay-1: #1e1e1c;
-  --overlay-2: #252523;
-  --overlay-bd: rgba(240, 237, 229, 0.1);
-  --overlay-shadow-sm: 0 4px 16px rgba(0, 0, 0, 0.4), 0 1px 4px rgba(0, 0, 0, 0.3);
-  --overlay-shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5), 0 2px 8px rgba(0, 0, 0, 0.3);
+  --control-bg: var(--surface-inset);
+  --control-border: 1px solid #333333;
+  --control-focus: var(--brand-2);
+  --control-focus-ring: 0 0 0 3px rgba(139, 135, 208, 0.2);
+
+  --overlay-1: #1e1e1e;
+  --overlay-2: #252525;
+  --overlay-bd: rgba(255, 255, 255, 0.08);
+  --overlay-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2);
+  --overlay-shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.4), 0 1px 4px rgba(0, 0, 0, 0.3);
 }
 
 /* ── Animations ── */
@@ -147,178 +202,163 @@
 .mockup {
   background: var(--canvas);
   color: var(--ink);
-  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.5;
   -webkit-font-smoothing: antialiased;
 }
 
 /* ── Font utilities ── */
 .mockup .font-serif {
-  font-family: 'Literata', serif;
+  font-family: var(--font-sans);
 }
 .mockup .font-mono {
-  font-family: 'IBM Plex Mono', monospace;
+  font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
 }
 
-/* ── Stamps ── */
+/* ── Focus-visible (global for mockup) ── */
+.mockup :focus-visible {
+  outline: 2px solid var(--control-focus);
+  outline-offset: 2px;
+}
+
+.mockup button:focus-visible,
+.mockup [role='button']:focus-visible {
+  outline: 2px solid var(--control-focus);
+  outline-offset: 2px;
+}
+
+/* ══════════════════════════════════════════════════
+   Stamps — Status badges
+   ══════════════════════════════════════════════════ */
 .mockup .stamp {
-  display: inline-block;
-  font-family: 'Plus Jakarta Sans', sans-serif;
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--font-sans);
   font-weight: 700;
-  font-size: 11px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  padding: 4px 12px;
-  border: 1.5px solid currentColor;
-  border-radius: 4px;
+  font-size: 12px;
   line-height: 1;
-  box-shadow: 1px 1px 0 currentColor;
-  transition: box-shadow 0.15s ease;
+  letter-spacing: 0.02em;
+  padding: 4px 10px;
+  border-radius: 4px;
+  border: 1px solid currentColor;
 }
-.mockup .stamp:hover {
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
-}
-.mockup .stamp-red {
-  color: var(--red);
-  transform: rotate(-0.5deg);
-  background: var(--red-bg);
+.mockup .stamp-avslag {
+  color: var(--danger);
+  background: var(--danger-bg);
+  border-color: #f3aaa4;
 }
 .mockup .stamp-gold {
-  color: var(--gold);
-  transform: rotate(-0.3deg);
-  background: var(--gold-bg);
+  color: var(--warning);
+  background: var(--warning-bg);
 }
 .mockup .stamp-green {
-  color: var(--green);
-  transform: rotate(-0.5deg);
-  background: var(--green-bg);
+  color: var(--success);
+  background: var(--success-bg);
 }
 .mockup .stamp-draft {
   color: var(--draft);
   border-style: dashed;
-  transform: none;
   background: var(--draft-bg);
-  box-shadow: none;
-}
-.mockup .stamp-draft:hover {
-  box-shadow: none;
 }
 .mockup .stamp-sm {
-  font-size: 9px;
-  padding: 4px 8px;
-  border-width: 1px;
-  box-shadow: 1px 1px 0 currentColor;
-}
-.mockup .stamp-sm.stamp-draft {
-  box-shadow: none;
+  font-size: 11px;
+  padding: 3px 8px;
 }
 .mockup .stamp-flat {
-  box-shadow: none;
   transform: none;
 }
-.mockup .stamp-flat:hover {
-  box-shadow: none;
-}
 
-/* ── Buttons — Soft Y-translate ── */
+/* ══════════════════════════════════════════════════
+   Buttons
+   ══════════════════════════════════════════════════ */
 .mockup .btn {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 16px;
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  font-weight: 700;
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
+  padding: 10px 20px;
+  min-height: 44px;
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 1;
   border-radius: 4px;
   cursor: pointer;
-  transition: all 100ms ease;
+  transition:
+    background 120ms,
+    border-color 120ms,
+    box-shadow 120ms;
+  white-space: nowrap;
+}
+.mockup .btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 .mockup .btn-primary {
-  background: var(--plate);
-  color: white;
-  border: 1.5px solid var(--plate);
-  box-shadow: 0 2px 6px rgba(28, 25, 23, 0.15);
+  background: var(--brand-2);
+  color: #ffffff;
+  border: 1px solid var(--brand-2);
 }
-.mockup .btn-primary:hover {
-  box-shadow: 0 4px 12px rgba(28, 25, 23, 0.2);
-  transform: translateY(-1px);
+.mockup .btn-primary:hover:not(:disabled) {
+  filter: brightness(1.1);
 }
-.mockup .btn-primary:active {
-  box-shadow: 0 1px 3px rgba(28, 25, 23, 0.12);
-  transform: translateY(1px);
+.mockup .btn-primary:active:not(:disabled) {
+  filter: brightness(0.95);
 }
 .mockup .btn-secondary {
-  background: var(--paper);
+  background: var(--surface);
   color: var(--ink);
-  border: 1.5px solid rgba(28, 25, 23, 0.25);
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+  border: 1px solid #d9d5cc;
 }
-.mockup .btn-secondary:hover {
-  border-color: rgba(28, 25, 23, 0.5);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-  transform: translateY(-1px);
-}
-.mockup .btn-secondary:active {
-  box-shadow: 0 0 2px rgba(0, 0, 0, 0.04);
-  transform: translateY(1px);
+.mockup .btn-secondary:hover:not(:disabled) {
+  border-color: var(--ink-3);
+  background: var(--surface-inset);
 }
 .mockup .btn-danger {
-  background: var(--paper);
-  color: var(--red);
-  border: 1.5px solid rgba(204, 48, 48, 0.25);
-  box-shadow: 0 1px 4px rgba(204, 48, 48, 0.08);
+  background: var(--surface);
+  color: var(--danger);
+  border: 1px solid var(--danger-border);
 }
-.mockup .btn-danger:hover {
-  border-color: var(--red);
-  box-shadow: 0 2px 8px rgba(204, 48, 48, 0.12);
-  transform: translateY(-1px);
-}
-.mockup .btn-danger:active {
-  box-shadow: 0 0 2px rgba(204, 48, 48, 0.06);
-  transform: translateY(1px);
+.mockup .btn-danger:hover:not(:disabled) {
+  background: var(--danger-bg);
+  border-color: var(--danger);
 }
 .mockup .btn-sm {
-  font-size: 10px;
-  padding: 4px 12px;
+  min-height: 32px;
+  padding: 6px 12px;
+  font-size: 12px;
 }
 
-/* ── Dark mode buttons — Glow strategy ── */
+/* ── Dark mode buttons ── */
 .mockup.dark .btn-primary {
-  background: var(--gold);
-  color: #1c1917;
-  border-color: var(--gold);
-  box-shadow: 0 0 12px rgba(240, 200, 64, 0.25);
+  background: var(--brand-2);
+  color: #ffffff;
+  border-color: var(--brand-2);
 }
-.mockup.dark .btn-primary:hover {
-  box-shadow: 0 0 20px rgba(240, 200, 64, 0.35);
-}
-.mockup.dark .btn-primary:active {
-  box-shadow: 0 0 6px rgba(240, 200, 64, 0.2);
+.mockup.dark .btn-primary:hover:not(:disabled) {
+  filter: brightness(1.15);
 }
 .mockup.dark .btn-secondary {
-  background: var(--paper);
+  background: var(--surface);
   color: var(--ink);
-  border: 1px solid #2a2828;
-  box-shadow: 0 0 8px rgba(240, 237, 229, 0.04);
+  border-color: #444;
 }
-.mockup.dark .btn-secondary:hover {
+.mockup.dark .btn-secondary:hover:not(:disabled) {
   border-color: var(--ink-3);
-  box-shadow: 0 0 12px rgba(240, 237, 229, 0.06);
 }
 .mockup.dark .btn-danger {
-  background: var(--paper);
-  color: var(--red);
-  border: 1px solid rgba(220, 38, 38, 0.25);
-  box-shadow: 0 0 8px rgba(220, 38, 38, 0.08);
+  color: var(--danger);
+  border-color: rgba(248, 113, 113, 0.3);
 }
-.mockup.dark .btn-danger:hover {
-  border-color: var(--red);
-  box-shadow: 0 0 14px rgba(220, 38, 38, 0.15);
+.mockup.dark .btn-danger:hover:not(:disabled) {
+  background: var(--danger-bg);
+  border-color: var(--danger);
 }
 
-/* ── Matrix rows ── */
+/* ══════════════════════════════════════════════════
+   Matrix rows (left sidebar track list)
+   ══════════════════════════════════════════════════ */
 .mockup .m-row {
   cursor: pointer;
   border-left: 3px solid transparent;
@@ -326,45 +366,45 @@
   transition: background 80ms;
 }
 .mockup .m-row:hover {
-  background: var(--paper-inset);
+  background: var(--surface-inset);
 }
 .mockup .m-row:active {
-  background: var(--paper);
+  background: var(--surface);
 }
 .mockup .m-row.on {
-  background: var(--paper);
-  border-left-color: var(--gold);
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+  background: var(--surface);
+  border-left-color: var(--accent);
 }
 
-/* ── Tabs ── */
+/* ══════════════════════════════════════════════════
+   Tabs (right sidebar)
+   ══════════════════════════════════════════════════ */
 .mockup .tab {
-  padding: 8px 16px;
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--ink-4);
+  padding: 12px 16px;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink-3);
   cursor: pointer;
+  border: none;
   border-bottom: 2px solid transparent;
   background: none;
-  border-top: none;
-  border-left: none;
-  border-right: none;
-  transition: all 0.15s ease;
+  transition:
+    color 0.15s ease,
+    border-color 0.15s ease;
 }
 .mockup .tab:hover {
-  color: var(--ink-2);
-  background: var(--paper-inset);
+  color: var(--ink);
+  background: var(--surface-inset);
 }
 .mockup .tab.on {
   color: var(--ink);
-  border-bottom-color: var(--gold);
-  background: transparent;
+  border-bottom-color: var(--accent);
 }
 
-/* ── Subsidiary markers ── */
+/* ══════════════════════════════════════════════════
+   Subsidiary markers
+   ══════════════════════════════════════════════════ */
 .mockup .diamond {
   position: absolute;
   width: 11px;
@@ -379,28 +419,30 @@
   transform: rotate(45deg);
 }
 
-/* ── Attachment cards ── */
+/* ══════════════════════════════════════════════════
+   Attachment cards
+   ══════════════════════════════════════════════════ */
 .mockup .att {
   display: flex;
   align-items: center;
   gap: 12px;
   padding: 12px;
-  background: var(--paper);
+  background: var(--surface);
   border: var(--rule-subtle);
   border-radius: 4px;
   cursor: pointer;
-  transition:
-    border-color 0.15s ease,
-    box-shadow 0.15s ease;
+  transition: border-color 0.15s ease;
 }
 .mockup .att:hover {
-  border: var(--rule-strong);
+  border-color: var(--ink-4);
 }
 
-/* ── Provision cards ── */
+/* ══════════════════════════════════════════════════
+   Provision cards (bestemmelser)
+   ══════════════════════════════════════════════════ */
 .mockup .best-card {
   padding: 16px;
-  background: var(--paper-inset);
+  background: var(--surface-warm);
   border: var(--rule-subtle);
   border-radius: 4px;
   transition: border-color 0.15s ease;
@@ -410,14 +452,18 @@
   border-color: var(--green-border);
 }
 
-/* ── Pills (yes/no toggle) ── */
+/* ══════════════════════════════════════════════════
+   Pills (yes/no toggle)
+   ══════════════════════════════════════════════════ */
 .mockup .pill {
   padding: 8px 16px;
-  font-size: 13px;
+  min-height: 40px;
+  font-size: 14px;
   font-weight: 600;
-  border: var(--control-border);
+  font-family: var(--font-sans);
+  border: 1px solid #d9d5cc;
   border-radius: 4px;
-  background: var(--paper);
+  background: var(--surface);
   color: var(--ink-2);
   cursor: pointer;
   transition: all 80ms;
@@ -427,25 +473,28 @@
   color: var(--ink);
 }
 .mockup .pill:focus-visible {
-  box-shadow: var(--control-focus-ring);
+  outline: 2px solid var(--control-focus);
+  outline-offset: 2px;
 }
 .mockup .pill.yes {
-  background: var(--green);
+  background: var(--success);
   color: white;
-  border-color: var(--green);
+  border-color: var(--success);
 }
 .mockup .pill.no {
-  background: var(--red);
+  background: var(--danger);
   color: white;
-  border-color: var(--red);
+  border-color: var(--danger);
 }
 .mockup .pill.partial {
-  background: var(--gold);
-  color: var(--ink);
-  border-color: var(--gold);
+  background: var(--warning);
+  color: white;
+  border-color: var(--warning);
 }
 
-/* ── Form shared styles ── */
+/* ══════════════════════════════════════════════════
+   Form shared styles
+   ══════════════════════════════════════════════════ */
 .mockup .form-content {
   max-width: 840px;
   margin: 0 auto;
@@ -454,7 +503,7 @@
 .mockup .te-context {
   margin-bottom: 40px;
   padding: 24px;
-  background: var(--paper-sub);
+  background: var(--surface-warm);
   border: var(--rule);
   border-radius: 4px;
 }
@@ -470,33 +519,31 @@
   gap: 8px;
 }
 .mockup .context-label {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  letter-spacing: 0.02em;
   color: var(--ink-3);
 }
 .mockup .context-ref {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 500;
-  background: var(--paper-inset);
+  background: var(--surface-inset);
   border: var(--rule-subtle);
   border-radius: 2px;
   padding: 2px 8px;
   color: var(--ink-2);
 }
 .mockup .context-text {
-  font-family: 'Literata', serif;
-  font-size: 15px;
+  font-size: 16px;
   line-height: 1.65;
-  color: var(--ink-3);
+  color: var(--ink-2);
 }
 .mockup .bh-heading {
-  font-size: 11px;
+  font-size: 14px;
   font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  letter-spacing: 0.02em;
   margin-bottom: 32px;
+  color: var(--ink);
 }
 .mockup .question-block {
   margin-bottom: 32px;
@@ -504,40 +551,41 @@
 .mockup .question-header {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   margin-bottom: 12px;
 }
 .mockup .question-label {
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--ink-2);
+  letter-spacing: 0.02em;
+  color: var(--ink);
 }
 .mockup .question-ref {
-  font-size: 11px;
-  font-family: 'IBM Plex Mono', monospace;
-  background: var(--paper-inset);
+  font-size: 12px;
+  background: var(--surface-inset);
   border: var(--rule-subtle);
   border-radius: 2px;
   padding: 2px 8px;
   color: var(--ink-3);
 }
 .mockup .question-text {
-  font-size: 14px;
+  font-size: 16px;
   color: var(--ink-2);
   margin-bottom: 16px;
+  line-height: 1.5;
 }
 .mockup .helptext {
-  font-size: 13px;
+  font-size: 14px;
   color: var(--ink-3);
   line-height: 1.5;
 }
 .mockup .divider {
   height: 1px;
-  background: rgba(28, 25, 23, 0.08);
+  background: #e9e6df;
   margin-bottom: 32px;
 }
-/* ── Subsidiary notice (shared by SubStripe + CenterRead) ── */
+
+/* ── Subsidiary notice ── */
 .mockup .sub-notice {
   background: var(--green-bg);
   padding: 12px 16px;
@@ -545,46 +593,47 @@
   border-radius: 4px;
 }
 .mockup .sub-notice-text {
-  font-family: 'Literata', serif;
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.55;
   color: var(--ink-2);
-  font-style: italic;
   margin-top: 8px;
 }
+
+/* ── Alert box ── */
 .mockup .alert-box {
   display: flex;
   align-items: flex-start;
   gap: 12px;
   padding: 16px;
   margin-top: 16px;
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.5;
   border-radius: 4px;
 }
 .mockup .alert-box.warning {
-  background: var(--gold-bg);
-  border: 1px solid var(--gold-border);
+  background: var(--warning-bg);
+  border: 1px solid var(--warning);
   color: var(--ink);
 }
+
 .mockup .consequence-text {
-  font-size: 15px;
-  font-style: italic;
-  color: var(--red);
+  font-size: 16px;
+  color: var(--danger);
   margin-top: 12px;
   line-height: 1.5;
 }
+
+/* ── Measurement input ── */
 .mockup .measurement-input-label {
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  letter-spacing: 0.02em;
   color: var(--ink-2);
   margin-bottom: 8px;
 }
 .mockup .measurement-input {
   width: 180px;
-  font-family: 'IBM Plex Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 18px;
   font-weight: 700;
   padding: 8px 16px;
@@ -599,15 +648,17 @@
   border-color: var(--control-focus);
   box-shadow: var(--control-focus-ring);
 }
+
+/* ── Begrunnelse textarea ── */
 .mockup .begrunnelse-textarea {
   width: 100%;
   min-height: 160px;
   padding: 16px;
-  font-family: 'Literata', serif;
-  font-size: 15px;
+  font-family: var(--font-sans);
+  font-size: 16px;
   line-height: 1.65;
   resize: vertical;
-  background: var(--paper);
+  background: var(--surface);
   border: var(--control-border);
   border-radius: 4px;
   color: var(--ink);
@@ -617,24 +668,24 @@
   border-color: var(--control-focus);
   box-shadow: var(--control-focus-ring);
 }
+
+/* ── Result box ── */
 .mockup .result-box {
   padding: 16px 24px;
-  background: var(--paper);
-  border: 1.5px solid var(--ink-4);
+  background: var(--surface);
+  border: 1px solid var(--ink-4);
   border-radius: 4px;
 }
 .mockup .result-header {
   display: flex;
   align-items: center;
   gap: 12px;
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.01em;
 }
 .mockup .result-note {
-  font-family: 'Literata', serif;
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.5;
   color: var(--ink-3);
   margin-top: 12px;
@@ -648,23 +699,27 @@
   gap: 12px;
 }
 .mockup .sub-result-text {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
   color: var(--green);
 }
+
+/* ── Status box ── */
 .mockup .status-box {
   margin-top: 32px;
   padding: 16px 24px;
-  background: var(--paper);
-  border: 1.5px solid var(--gold);
+  background: var(--surface);
+  border: 1px solid var(--accent);
   border-radius: 4px;
 }
 .mockup .status-text {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 700;
-  color: var(--gold);
+  color: var(--warning);
   letter-spacing: 0.02em;
 }
+
+/* ── Segment row ── */
 .mockup .segment-row {
   display: flex;
   border: var(--rule);
@@ -674,12 +729,10 @@
 .mockup .segment-btn {
   flex: 1;
   padding: 8px 16px;
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  font-size: 12px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  background: var(--paper);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 600;
+  background: var(--surface);
   color: var(--ink-3);
   border: none;
   border-right: var(--rule);
@@ -690,7 +743,7 @@
   border-right: none;
 }
 .mockup .segment-btn.active {
-  background: var(--plate);
+  background: var(--brand-2);
   color: white;
 }
 
@@ -714,11 +767,11 @@
   display: flex;
   align-items: center;
   gap: 4px;
-  padding: 2px 8px;
+  padding: 4px 10px;
   background: transparent;
-  border: 1px solid rgba(28, 25, 23, 0.12);
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  font-size: 11px;
+  border: 1px solid #d9d5cc;
+  font-family: var(--font-sans);
+  font-size: 12px;
   font-weight: 500;
   color: var(--ink-3);
   cursor: pointer;
@@ -730,7 +783,7 @@
   border-color: var(--ink-3);
 }
 .mockup .char-count {
-  font-size: 10px;
+  font-size: 12px;
   color: var(--ink-4);
 }
 .mockup .editor-wrapper {
@@ -740,13 +793,14 @@
 .mockup .editor-wrapper:focus-within {
   border: var(--rule-strong);
 }
-/* Locked value tokens in editor */
+
+/* ── Locked value tokens ── */
 .mockup .locked-value {
   display: inline;
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 12px;
+  font-family: var(--font-mono);
+  font-size: 13px;
   font-weight: 600;
-  padding: 1px 4px;
+  padding: 1px 6px;
   border-radius: 2px;
   white-space: nowrap;
 }
@@ -770,72 +824,55 @@
   border-radius: 4px;
 }
 
-/* ══════════════════════════════════════════
-   Mobile (≤768px) — shared form & component styles
-   ══════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════
+   Mobile (≤768px)
+   ══════════════════════════════════════════════════ */
 @media (max-width: 768px) {
-  /* Form content: tighter padding */
   .mockup .form-content {
     padding: 16px 16px 120px;
   }
-
-  /* Touch-friendly pills */
   .mockup .pill {
-    padding: 12px 16px;
-    font-size: 14px;
+    padding: 10px 16px;
+    min-height: 44px;
+    font-size: 15px;
   }
-
-  /* Buttons: slightly larger tap targets */
   .mockup .btn {
-    padding: 12px 16px;
-    font-size: 12px;
+    padding: 10px 16px;
+    min-height: 44px;
   }
   .mockup .btn-sm {
     padding: 8px 12px;
   }
-
-  /* TE context block */
   .mockup .te-context {
     padding: 16px;
     margin-bottom: 24px;
   }
-
-  /* Question blocks */
   .mockup .question-block {
     margin-bottom: 24px;
   }
   .mockup .question-header {
     flex-direction: column;
+    align-items: flex-start;
     gap: 4px;
   }
-
-  /* Measurement inputs: full width on mobile */
   .mockup .measurement-input {
     width: 100%;
   }
-
-  /* Begrunnelse textarea */
   .mockup .begrunnelse-textarea {
     min-height: 120px;
     padding: 12px;
   }
-
-  /* Segment row */
   .mockup .segment-btn {
-    padding: 8px 8px;
-    font-size: 11px;
+    padding: 8px;
+    font-size: 12px;
   }
-
-  /* Result box */
   .mockup .result-box {
     padding: 16px;
   }
   .mockup .result-header {
-    font-size: 14px;
+    font-size: 16px;
     gap: 8px;
   }
-
-  /* Alert box */
   .mockup .alert-box {
     padding: 12px;
     font-size: 13px;

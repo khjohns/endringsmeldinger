@@ -5,7 +5,7 @@
 
   const bars = $derived([
     { label: 'subs.', val: sub, color: 'var(--green)' },
-    { label: 'prins.', val: prin, color: 'var(--red)' },
+    { label: 'prins.', val: prin, color: 'var(--danger)' },
   ]);
 </script>
 

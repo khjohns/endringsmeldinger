@@ -244,10 +244,10 @@
     display: flex;
     align-items: center;
     gap: 4px;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: var(--font-sans);
     font-size: 11px;
     font-weight: 600;
-    color: var(--gold);
+    color: var(--accent);
     background: none;
     border: none;
     cursor: pointer;
@@ -260,7 +260,7 @@
     padding: 12px;
     font-size: 14px;
     line-height: 1.6;
-    background: var(--paper);
+    background: var(--surface);
     border: var(--control-border);
     border-radius: 4px;
     color: var(--ink);

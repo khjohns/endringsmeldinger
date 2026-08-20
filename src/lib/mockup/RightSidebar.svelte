@@ -82,7 +82,7 @@
       </button>
     {/each}
     {#if onclose}
-      <button class="mobile-close-btn" onclick={onclose}>✕</button>
+      <button class="mobile-close-btn" onclick={onclose} aria-label="Lukk panel">✕</button>
     {/if}
   </div>
 
@@ -91,9 +91,9 @@
       {#each best as b}
         <div class="best-card" style="margin-bottom: {S.lg}px">
           <div class="font-mono best-ref">{b.ref} {b.title}</div>
-          <p class="font-serif best-text">{b.text}</p>
+          <p class="best-text">{b.text}</p>
           {#if b.note}
-            <p class="font-serif best-note">{b.note}</p>
+            <p class="best-note">{b.note}</p>
           {/if}
         </div>
       {/each}
@@ -112,13 +112,14 @@
             onclick={() => oneventclick?.(event)}
           >
             <div
-              class="font-mono event-marker"
-              style:background={event.actorrole === 'TE' ? 'var(--plate)' : 'var(--paper)'}
+              class="event-marker font-mono"
+              style:background={event.actorrole === 'TE' ? 'var(--brand)' : 'var(--surface)'}
               style:color={event.actorrole === 'TE' ? 'white' : 'var(--ink)'}
+              style:border-color={event.actorrole === 'TE' ? 'var(--brand)' : 'var(--ink-3)'}
             >
               {event.actorrole ?? '?'}
             </div>
-            <div class="font-mono event-time">
+            <div class="event-time font-mono">
               {event.time
                 ? new Date(event.time).toLocaleString('nb-NO', {
                     hour: '2-digit',
@@ -157,11 +158,11 @@
         <div class="note-sep"></div>
         <div class="internal-note">
           <div class="note-header">
-            <Pencil size={11} style="color: var(--draft)" />
-            <span class="font-mono note-date">{ui.note.d}</span>
-            <span class="note-label">Internt</span>
+            <Pencil size={12} style="color: var(--draft)" />
+            <span class="note-date font-mono">{ui.note.d}</span>
+            <span class="note-label">Internt, ikke synlig for motpart</span>
           </div>
-          <p class="font-serif note-text">{ui.note.t}</p>
+          <p class="note-text">{ui.note.t}</p>
         </div>
       {/if}
 
@@ -172,14 +173,14 @@
 
     {#if tab === 'begrunnelse'}
       <div class="reasoning-header">
-        <span class="font-mono reasoning-label">Ditt svar</span>
+        <span class="reasoning-label">Ditt svar</span>
         <span class="font-mono reasoning-count">{begr.length} tegn</span>
       </div>
       <textarea
         value={begr}
         oninput={(e) => onbegrchange(e.currentTarget.value)}
         placeholder="Skriv din begrunnelse her..."
-        class="font-serif reasoning-textarea"
+        class="reasoning-textarea"
       ></textarea>
       <div class="toolbar">
         {#each toolbarIcons as Icon}
@@ -204,18 +205,18 @@
 
 <style>
   .right-sidebar {
-    width: 300px;
+    width: 330px;
     flex-shrink: 0;
-    border-left: var(--rule);
+    border-left: 1px solid #d9d5cc;
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    background: var(--canvas);
+    background: var(--surface);
   }
   .tab-bar {
     display: flex;
     flex-shrink: 0;
-    border-bottom: var(--rule);
+    border-bottom: 1px solid #d9d5cc;
   }
   .tab-content {
     flex: 1;
@@ -227,20 +228,19 @@
 
   /* Bestemmelser */
   .best-ref {
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 700;
     margin-bottom: 8px;
   }
   .best-text {
-    font-size: 14px;
+    font-size: 15px;
     line-height: 1.6;
     color: var(--ink-2);
   }
   .best-note {
-    font-size: 13px;
+    font-size: 14px;
     line-height: 1.5;
     color: var(--green);
-    font-style: italic;
     margin-top: 12px;
   }
 
@@ -250,8 +250,8 @@
     left: 10px;
     top: 8px;
     bottom: 0;
-    width: 2px;
-    background: var(--paper-inset);
+    width: 1px;
+    background: #d9d5cc;
   }
   .history-event {
     position: relative;
@@ -276,24 +276,24 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 9px;
+    font-size: 10px;
     font-weight: 700;
     z-index: 1;
-    border: 1.5px solid var(--plate);
+    border: 1.5px solid;
     border-radius: 4px;
   }
   .event-time {
-    font-size: 10px;
+    font-size: 11px;
     color: var(--ink-4);
     margin-bottom: 2px;
   }
   .event-subject {
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 600;
     margin-bottom: 2px;
   }
   .event-detail {
-    font-size: 12px;
+    font-size: 14px;
     color: var(--ink-3);
   }
   .history-event-clickable {
@@ -305,27 +305,27 @@
       opacity 100ms;
   }
   .history-event-clickable:hover {
-    background: var(--paper-inset);
+    background: var(--surface-inset);
   }
   .history-event-active {
     background: var(--gold-bg);
-    border-left: 2px solid var(--gold);
+    border-left: 2px solid var(--accent);
     padding-left: 34px;
   }
   .history-event-active .event-marker {
-    border-color: var(--gold);
+    border-color: var(--accent);
   }
   .event-letter-btn {
     display: none;
     align-items: center;
     gap: 4px;
     margin-top: 4px;
-    padding: 2px 8px;
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    font-size: 10px;
+    padding: 3px 8px;
+    font-size: 11px;
     font-weight: 600;
+    font-family: var(--font-sans);
     color: var(--ink-3);
-    background: var(--paper);
+    background: var(--surface);
     border: var(--rule);
     border-radius: 3px;
     cursor: pointer;
@@ -345,19 +345,19 @@
     min-width: 0;
   }
   .att-name {
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 600;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
   .att-pages {
-    font-size: 10px;
+    font-size: 11px;
     color: var(--ink-4);
   }
   .note-sep {
     height: 1px;
-    background: var(--gold-border);
+    background: var(--accent);
     margin: 16px 0;
     opacity: 0.5;
   }
@@ -374,19 +374,18 @@
     margin-bottom: 8px;
   }
   .note-date {
-    font-size: 9px;
+    font-size: 11px;
     font-weight: 700;
     color: var(--draft);
   }
   .note-label {
-    font-size: 10px;
+    font-size: 12px;
     font-weight: 600;
     color: var(--draft);
   }
   .note-text {
-    font-size: 13px;
+    font-size: 14px;
     line-height: 1.5;
-    font-style: italic;
     color: var(--draft);
   }
   .dashed-action-btn {
@@ -397,10 +396,11 @@
     margin-top: 12px;
     padding: 8px 12px;
     width: 100%;
-    font-size: 12px;
-    font-weight: 700;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: var(--font-sans);
     color: var(--ink-3);
-    background: var(--paper);
+    background: var(--surface);
     border: 1.5px dashed var(--ink-4);
     border-radius: 4px;
     cursor: pointer;
@@ -418,24 +418,24 @@
     margin-bottom: 12px;
   }
   .reasoning-label {
-    font-size: 10px;
+    font-size: 12px;
     font-weight: 700;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
+    letter-spacing: 0.02em;
     color: var(--ink-3);
   }
   .reasoning-count {
-    font-size: 10px;
+    font-size: 12px;
     color: var(--ink-4);
   }
   .reasoning-textarea {
     flex: 1;
     width: 100%;
     padding: 16px;
-    font-size: 15px;
+    font-family: var(--font-sans);
+    font-size: 16px;
     line-height: 1.65;
     resize: none;
-    background: var(--paper);
+    background: var(--surface);
     border: var(--control-border);
     border-radius: 4px;
     color: var(--ink);
@@ -452,13 +452,13 @@
     gap: 2px;
     margin-top: 12px;
     padding: 4px;
-    background: var(--paper-inset);
+    background: var(--surface-inset);
     border: var(--rule-subtle);
     border-radius: 4px;
   }
   .toolbar-btn {
-    width: 28px;
-    height: 28px;
+    width: 32px;
+    height: 32px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -466,13 +466,17 @@
     background: transparent;
     border: none;
     cursor: pointer;
-    transition: color 80ms;
+    border-radius: 4px;
+    transition:
+      color 80ms,
+      background 80ms;
   }
   .toolbar-btn:hover {
     color: var(--ink);
+    background: var(--surface);
   }
   .upload-hint {
-    font-size: 11px;
+    font-size: 12px;
     margin-top: 12px;
     display: flex;
     align-items: center;
@@ -483,7 +487,7 @@
     display: none;
     margin-left: auto;
     padding: 8px 14px;
-    font-size: 16px;
+    font-size: 18px;
     font-weight: 700;
     color: var(--ink-3);
     background: none;
@@ -496,7 +500,7 @@
     .right-sidebar {
       width: 100%;
       border-left: none;
-      border-top: var(--rule);
+      border-top: 1px solid #d9d5cc;
     }
     .mobile-close-btn {
       display: block;

@@ -121,10 +121,10 @@
 
   const resultat = $derived.by(() => {
     const r = computed.prinsipaltResultat;
-    if (r === 'godkjent') return { ikon: Check, label: 'Godkjent', color: 'var(--green)' };
+    if (r === 'godkjent') return { ikon: Check, label: 'Godkjent', color: 'var(--success)' };
     if (r === 'delvis_godkjent')
-      return { ikon: CircleMinus, label: 'Delvis godkjent', color: 'var(--gold)' };
-    return { ikon: X, label: 'Avslått', color: 'var(--red)' };
+      return { ikon: CircleMinus, label: 'Delvis godkjent', color: 'var(--warning)' };
+    return { ikon: X, label: 'Avslått', color: 'var(--danger)' };
   });
 
   // Data-driven preklusjonslinjer (matches production BhVederlagResponse)
@@ -621,9 +621,9 @@
     gap: 8px;
   }
   .pill.partial {
-    background: var(--gold);
-    color: var(--ink);
-    border-color: var(--gold);
+    background: var(--warning);
+    color: white;
+    border-color: var(--warning);
   }
   .kravlinje-header {
     margin-bottom: 12px;

@@ -21,10 +21,8 @@
     frist: 'fristkravet',
   };
 
-  // Cascade warning: withdrawing grunnlag also withdraws vederlag + frist
   const cascadeDown = $derived(spor === 'ansvar');
 
-  // Reverse cascade: if this is the last active claim, grunnlag auto-withdraws
   const reverseCascade = $derived.by(() => {
     if (spor === 'ansvar') return false;
     const otherSpor = spor === 'vederlag' ? 'frist' : 'vederlag';
@@ -34,26 +32,32 @@
   });
 </script>
 
-<!-- svelte-ignore a11y_no_static_element_interactions a11y_click_events_have_key_events -->
+<!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
 <div class="modal-backdrop" onclick={oncancel}>
-  <!-- svelte-ignore a11y_no_static_element_interactions a11y_click_events_have_key_events -->
-  <div class="modal-card" onclick={(e) => e.stopPropagation()}>
+  <!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
+  <div
+    class="modal-card"
+    onclick={(e) => e.stopPropagation()}
+    role="dialog"
+    aria-modal="true"
+    aria-label="Trekk tilbake krav"
+  >
     <div class="modal-header">
-      <XSquare size={18} style="color: var(--red)" />
+      <XSquare size={18} style="color: var(--danger)" />
       <h3 class="modal-title">Trekk tilbake {sporLabels[spor]}</h3>
     </div>
 
-    <p class="modal-desc font-serif">
+    <p class="modal-desc">
       Du er i ferd med å trekke tilbake {sporLabels[spor]}. Denne handlingen kan ikke angres uten å
       sende et nytt krav.
     </p>
 
     {#if cascadeDown}
       <div class="cascade-warning">
-        <AlertTriangle size={16} style="color: var(--red); flex-shrink: 0" />
+        <AlertTriangle size={16} style="color: var(--danger); flex-shrink: 0" />
         <div>
           <div class="cascade-title">Kaskadeeffekt</div>
-          <p class="cascade-text font-serif">
+          <p class="cascade-text">
             Trekking av ansvarsgrunnlaget vil automatisk trekke tilbake vederlagskravet og
             fristkravet. Ansvarsgrunnlaget er fundamentet for hele saken.
           </p>
@@ -63,10 +67,10 @@
 
     {#if reverseCascade}
       <div class="cascade-info">
-        <AlertTriangle size={16} style="color: var(--gold); flex-shrink: 0" />
+        <AlertTriangle size={16} style="color: var(--warning); flex-shrink: 0" />
         <div>
           <div class="cascade-title">Siste aktive krav</div>
-          <p class="cascade-text font-serif">
+          <p class="cascade-text">
             Dette er det siste aktive kravet. Trekking vil automatisk trekke ansvarsgrunnlaget, da
             det ikke har praktisk effekt uten aktive krav.
           </p>
@@ -75,10 +79,10 @@
     {/if}
 
     <div class="field">
-      <label class="font-mono field-label" for="withdraw-reason">Begrunnelse (valgfritt)</label>
+      <label class="field-label" for="withdraw-reason">Begrunnelse (valgfritt)</label>
       <textarea
         id="withdraw-reason"
-        class="font-serif field-textarea"
+        class="field-textarea"
         bind:value={begrunnelse}
         placeholder="Hvorfor trekkes kravet tilbake?"
         rows="3"
@@ -98,7 +102,7 @@
   .modal-backdrop {
     position: fixed;
     inset: 0;
-    background: rgba(28, 25, 23, 0.5);
+    background: rgba(0, 0, 0, 0.4);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -108,8 +112,8 @@
   .modal-card {
     width: 480px;
     max-width: 90vw;
-    background: var(--canvas);
-    border: var(--rule);
+    background: var(--surface);
+    border: 1px solid #d9d5cc;
     border-radius: 4px;
     padding: 28px;
     box-shadow: var(--overlay-shadow-lg);
@@ -121,11 +125,11 @@
     margin-bottom: 16px;
   }
   .modal-title {
-    font-size: 16px;
+    font-size: 18px;
     font-weight: 700;
   }
   .modal-desc {
-    font-size: 14px;
+    font-size: 16px;
     line-height: 1.6;
     color: var(--ink-2);
     margin-bottom: 20px;
@@ -135,8 +139,8 @@
     align-items: flex-start;
     gap: 12px;
     padding: 14px 16px;
-    background: var(--red-bg);
-    border: 1px solid var(--red);
+    background: var(--danger-bg);
+    border: 1px solid var(--danger-border);
     border-radius: 4px;
     margin-bottom: 16px;
   }
@@ -145,18 +149,18 @@
     align-items: flex-start;
     gap: 12px;
     padding: 14px 16px;
-    background: var(--gold-bg);
-    border: 1px solid var(--gold-border);
+    background: var(--warning-bg);
+    border: 1px solid var(--warning);
     border-radius: 4px;
     margin-bottom: 16px;
   }
   .cascade-title {
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 700;
     margin-bottom: 4px;
   }
   .cascade-text {
-    font-size: 13px;
+    font-size: 14px;
     line-height: 1.5;
     color: var(--ink-2);
   }
@@ -165,19 +169,19 @@
   }
   .field-label {
     display: block;
-    font-size: 10px;
+    font-size: 12px;
     font-weight: 700;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
+    letter-spacing: 0.02em;
     color: var(--ink-3);
     margin-bottom: 8px;
   }
   .field-textarea {
     width: 100%;
     padding: 12px;
-    font-size: 14px;
+    font-family: var(--font-sans);
+    font-size: 16px;
     line-height: 1.6;
-    background: var(--paper);
+    background: var(--surface-inset);
     border: var(--control-border);
     border-radius: 4px;
     color: var(--ink);

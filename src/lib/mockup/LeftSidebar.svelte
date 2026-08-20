@@ -26,15 +26,15 @@
 
 <aside class="sidebar">
   <div class="id-plate">
-    <div class="font-mono id-label">IDENTIFIKATOR</div>
-    <div class="id-number">KOE-104</div>
+    <div class="id-label">Identifikator</div>
+    <div class="id-number font-mono">KOE-104</div>
     <div style="margin-top: {S.md}px">
       <Stamp variant="gold" small flat>Venter</Stamp>
     </div>
   </div>
 
   <div style="padding: {S.xl}px {S.xxl}px {S.lg}px">
-    <h2 class="font-serif case-title">Uforutsette grunnforhold: Fjell i byggegrop akse 1–3</h2>
+    <h2 class="case-title">Uforutsette grunnforhold: Fjell i byggegrop akse 1–3</h2>
   </div>
 
   <div style="padding: 0 {S.sm}px">
@@ -66,8 +66,14 @@
 
         {#if !display.isBinary}
           <div style="margin-bottom: {S.sm}px">
-            <div class="font-mono claimed">Krevd: {fmt(display.krevdValue!)}{display.krevdUnit}</div>
-            <DualBar te={display.krevdValue!} sub={display.bhSubsidiaer!} prin={display.bhPrinsipal!} />
+            <div class="font-mono claimed">
+              Krevd: {fmt(display.krevdValue!)}{display.krevdUnit}
+            </div>
+            <DualBar
+              te={display.krevdValue!}
+              sub={display.bhSubsidiaer!}
+              prin={display.bhPrinsipal!}
+            />
             <div class="gap-box">
               <span class="font-mono gap-label">GAP</span>
               <div class="gap-values">
@@ -96,16 +102,12 @@
     <div class="exposure-heading">Samlet eksponering</div>
     <div class="exposure-box">
       <div class="exposure-row">
-        <span class="font-mono exposure-label" style="color: var(--green)">Subsidiært</span>
-        <span class="font-mono exposure-value" style="color: var(--green)"
-          >{fmt(subV)},- + {subF}d</span
-        >
+        <span class="exposure-label" style="color: var(--green)">Subsidiært</span>
+        <span class="font-mono exposure-value">{fmt(subV)},- + {subF}d</span>
       </div>
       <div class="exposure-row">
-        <span class="font-mono exposure-label" style="color: var(--red)">Prinsipalt</span>
-        <span class="font-mono exposure-value" style="color: var(--red)"
-          >{fmt(prinV)},- + {prinF}d</span
-        >
+        <span class="exposure-label" style="color: var(--danger)">Prinsipalt</span>
+        <span class="font-mono exposure-value">{fmt(prinV)},- + {prinF}d</span>
       </div>
     </div>
   </div>
@@ -115,23 +117,23 @@
   .sidebar {
     width: 300px;
     flex-shrink: 0;
-    border-right: var(--rule);
+    border-right: 1px solid #d9d5cc;
     display: flex;
     flex-direction: column;
     overflow-y: auto;
-    background: var(--canvas);
+    background: var(--surface);
   }
   .id-plate {
-    background: var(--plate);
+    background: var(--brand);
     color: white;
-    padding: 20px 24px;
-    border-bottom: var(--rule);
+    padding: 22px 24px;
   }
   .id-label {
-    font-size: 9px;
-    color: var(--ink-4);
-    font-weight: 600;
-    letter-spacing: 0.1em;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #d0eee9;
     margin-bottom: 4px;
   }
   .id-number {
@@ -141,9 +143,10 @@
     line-height: 1;
   }
   .case-title {
-    font-size: 16px;
-    font-weight: 500;
+    font-size: 18px;
+    font-weight: 600;
     line-height: 1.4;
+    color: var(--ink);
   }
   .row-header {
     display: flex;
@@ -157,26 +160,26 @@
     gap: 8px;
   }
   .row-name {
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 600;
   }
   .claimed {
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 600;
     margin-bottom: 8px;
   }
   .gap-box {
     margin-top: 8px;
     padding: 4px 12px;
-    background: var(--paper);
+    background: var(--surface-inset);
     border: var(--rule-subtle);
     border-radius: 4px;
     display: flex;
     justify-content: space-between;
   }
   .gap-label {
-    font-size: 9px;
-    font-weight: 600;
+    font-size: 10px;
+    font-weight: 700;
     color: var(--ink-4);
   }
   .gap-values {
@@ -184,14 +187,14 @@
     gap: 12px;
   }
   .gap-sub {
-    font-size: 10px;
+    font-size: 11px;
     font-weight: 600;
     color: var(--green);
   }
   .gap-prin {
-    font-size: 10px;
+    font-size: 11px;
     font-weight: 600;
-    color: var(--red);
+    color: var(--danger);
   }
   .binary-row {
     display: flex;
@@ -199,45 +202,46 @@
     margin-bottom: 8px;
   }
   .binary-te {
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 600;
   }
   .binary-bh {
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 600;
-    color: var(--red);
+    color: var(--danger);
   }
   .gold-sep {
     height: 1px;
-    background: var(--gold-border);
+    background: var(--accent);
     margin: 16px 24px;
   }
   .exposure-heading {
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.02em;
     margin-bottom: 12px;
+    color: var(--ink);
   }
   .exposure-box {
     padding: 12px;
-    background: var(--paper);
+    background: var(--surface-warm);
     border: var(--rule-subtle);
     border-radius: 4px;
   }
   .exposure-row {
     display: flex;
     justify-content: space-between;
+    align-items: center;
   }
   .exposure-row + .exposure-row {
     margin-top: 8px;
   }
   .exposure-label {
-    font-size: 10px;
-    font-weight: 600;
+    font-size: 12px;
+    font-weight: 700;
   }
   .exposure-value {
-    font-size: 11px;
+    font-size: 13px;
     font-weight: 700;
   }
 
@@ -249,7 +253,7 @@
       overflow-y: auto;
     }
     .id-plate {
-      padding: 16px 16px;
+      padding: 16px;
       display: flex;
       align-items: center;
       gap: 12px;
@@ -258,7 +262,7 @@
       font-size: 24px;
     }
     .case-title {
-      font-size: 15px;
+      font-size: 16px;
     }
     .gap-values {
       gap: 8px;

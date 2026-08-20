@@ -41,8 +41,8 @@
     <div class="status-section">
       <div class="status-dot"></div>
       <div>
-        <div class="font-mono status-label">
-          {mode === 'form' ? 'REDIGERER KLADD' : 'SAKSSTATUS'}
+        <div class="status-label">
+          {mode === 'form' ? 'Redigerer kladd' : 'Saksstatus'}
         </div>
         <div class="status-text">
           {#if mode === 'form'}
@@ -50,7 +50,7 @@
           {:else}
             <span style="color: var(--green)">Subs. {fmt(subV)},- / {subF}d</span>
             <span class="status-sep">·</span>
-            <span style="color: var(--red)">Prins. {fmt(prinV)},- / {prinF}d</span>
+            <span style="color: var(--danger)">Prins. {fmt(prinV)},- / {prinF}d</span>
           {/if}
         </div>
       </div>
@@ -86,10 +86,10 @@
     bottom: 0;
     max-width: 840px;
     margin: 0 auto;
-    background: var(--canvas);
-    border: var(--rule);
+    background: var(--surface);
+    border: 1px solid #d9d5cc;
     border-radius: 4px 4px 0 0;
-    padding: 12px 24px;
+    padding: 14px 24px;
     z-index: 20;
     box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.06);
   }
@@ -107,16 +107,16 @@
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    background: var(--gold);
+    background: var(--accent);
   }
   .status-label {
-    font-size: 10px;
+    font-size: 11px;
     font-weight: 600;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.04em;
     color: var(--ink-4);
   }
   .status-text {
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 700;
   }
   .status-sep {
@@ -134,12 +134,11 @@
   /* ── Mobile ── */
   @media (max-width: 768px) {
     .action-bar {
-      padding: 8px 12px;
+      padding: 10px 12px;
     }
     .action-inner {
       gap: 8px;
     }
-    /* Hide status on mobile — not enough room */
     .status-section {
       display: none;
     }
