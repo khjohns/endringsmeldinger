@@ -1,12 +1,20 @@
 import { describe, it, expect } from 'vitest';
-import { deriveTrackDisplay, deriveVederlagDomainConfig, deriveFristDomainConfig, deriveGrunnlagDomainConfig } from '../derive';
-import { scenario1_3AktiveSpor, scenario2_BlandetTilstand, scenario4_Omforent } from '$lib/mocks/caseState';
+import {
+  deriveTrackDisplay,
+  deriveVederlagDomainConfig,
+  deriveFristDomainConfig,
+  deriveGrunnlagDomainConfig,
+} from '../derive';
+import {
+  scenario1_3AktiveSpor,
+  scenario2_BlandetTilstand,
+  scenario4_Omforent,
+} from '$lib/mocks/caseState';
 
 describe('deriveTrackDisplay', () => {
   it('utleder vederlag-display fra SakState', () => {
     const result = deriveTrackDisplay(scenario1_3AktiveSpor, 'vederlag');
-    expect(result.label).toBe('Økonomi');
-    expect(result.num).toBe('II');
+    expect(result.label).toBe('Vederlag');
     expect(result.krevdValue).toBe(2930000);
     expect(result.krevdUnit).toBe(',-');
     expect(result.teText).toContain('Kostnadsoverslag');
@@ -15,15 +23,13 @@ describe('deriveTrackDisplay', () => {
   it('utleder grunnlag-display fra SakState', () => {
     const result = deriveTrackDisplay(scenario1_3AktiveSpor, 'ansvar');
     expect(result.label).toBe('Ansvarsgrunnlag');
-    expect(result.num).toBe('I');
     expect(result.tePosition).toBe('SVIKT');
     expect(result.teText).toContain('leirelag');
   });
 
   it('utleder frist-display fra SakState', () => {
     const result = deriveTrackDisplay(scenario1_3AktiveSpor, 'frist');
-    expect(result.label).toBe('Frist');
-    expect(result.num).toBe('III');
+    expect(result.label).toBe('Fristforlengelse');
     expect(result.krevdValue).toBe(45);
     expect(result.krevdUnit).toBe(' dgr');
   });

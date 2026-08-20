@@ -38,12 +38,15 @@ export interface TrackDisplay {
   isWithdrawn: boolean;
   withdrawnReason?: string;
   withdrawnViaGrunnlag?: boolean;
+  // Oppdatering
+  sisteOppdatert?: string;
+  antallVersjoner: number;
 }
 
 const TRACK_META: Record<SporKey, { label: string; num: string }> = {
-  ansvar: { label: 'Ansvarsgrunnlag', num: 'I' },
-  vederlag: { label: 'Økonomi', num: 'II' },
-  frist: { label: 'Frist', num: 'III' },
+  ansvar: { label: 'Ansvarsgrunnlag', num: '' },
+  vederlag: { label: 'Vederlag', num: '' },
+  frist: { label: 'Fristforlengelse', num: '' },
 };
 
 export function deriveTrackDisplay(sak: SakState, spor: SporKey): TrackDisplay {
@@ -69,6 +72,8 @@ export function deriveTrackDisplay(sak: SakState, spor: SporKey): TrackDisplay {
       isSubsidiary: false,
       isWithdrawn: g.status === 'trukket',
       withdrawnReason: g.trukket_begrunnelse,
+      sisteOppdatert: g.siste_oppdatert,
+      antallVersjoner: g.antall_versjoner,
     };
   }
 
@@ -89,6 +94,8 @@ export function deriveTrackDisplay(sak: SakState, spor: SporKey): TrackDisplay {
       isWithdrawn: v.status === 'trukket',
       withdrawnReason: v.trukket_begrunnelse,
       withdrawnViaGrunnlag: v.trukket_via_grunnlag,
+      sisteOppdatert: v.siste_oppdatert,
+      antallVersjoner: v.antall_versjoner,
     };
   }
 
@@ -109,5 +116,7 @@ export function deriveTrackDisplay(sak: SakState, spor: SporKey): TrackDisplay {
     isWithdrawn: f.status === 'trukket',
     withdrawnReason: f.trukket_begrunnelse,
     withdrawnViaGrunnlag: f.trukket_via_grunnlag,
+    sisteOppdatert: f.siste_oppdatert,
+    antallVersjoner: f.antall_versjoner,
   };
 }

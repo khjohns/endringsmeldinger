@@ -133,7 +133,7 @@
     <div class="section-heading">
       <div class="heading-row">
         <TrackIcon size={18} style="color: var(--ink-2)" />
-        <h2 class="heading-text">{display.num}. {display.label}{isSub ? ' (Sub.)' : ''}</h2>
+        <h2 class="heading-text">{display.label}{isSub ? ' (Sub.)' : ''}</h2>
       </div>
       <div class="heading-underline" class:underline-green={isSub}></div>
     </div>

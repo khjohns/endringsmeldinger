@@ -1,10 +1,10 @@
 <script lang="ts">
   import { store } from './store.svelte.js';
-  import { S, TRACK_ICONS } from './data.js';
+  import { S } from './data.js';
   import { fmt } from './utils.js';
+  import { formatDateMedium } from '$lib/utils/formatters.js';
   import DualBar from './DualBar.svelte';
   import Stamp from './Stamp.svelte';
-  import { SPOR_KEYS } from './scenarios.js';
   import type { SporKey } from './types.js';
 
   let {
@@ -22,6 +22,20 @@
     prinF: number;
     onselect: (key: SporKey) => void;
   } = $props();
+
+  const trackGroups: { label: string; tracks: { id: SporKey; label: string }[] }[] = [
+    {
+      label: 'Grunnlag',
+      tracks: [{ id: 'ansvar', label: 'Ansvarsgrunnlag' }],
+    },
+    {
+      label: 'Krav',
+      tracks: [
+        { id: 'vederlag', label: 'Vederlag' },
+        { id: 'frist', label: 'Fristforlengelse' },
+      ],
+    },
+  ];
 </script>
 
 <aside class="sidebar">
@@ -38,61 +52,72 @@
   </div>
 
   <div style="padding: 0 {S.sm}px">
-    {#each SPOR_KEYS as k}
-      {@const display = store.display(k)}
-      {@const Icon = TRACK_ICONS[k]}
-      {@const on = sel === k}
-      {@const hasDraft = store.getUI(k).draft !== null}
-      <div
-        class="m-row"
-        class:on
-        style="padding: {S.md}px; margin-bottom: 2px"
-        onclick={() => onselect(k)}
-        role="button"
-        tabindex="0"
-        onkeydown={(e) => {
-          if (e.key === 'Enter') onselect(k);
-        }}
-      >
-        <div class="row-header">
-          <div class="row-label">
-            <Icon size={14} style="color: var(--ink-3)" />
-            <span class="row-name">{display.num}. {display.label}</span>
-          </div>
-          {#if hasDraft}
-            <Stamp variant="draft" small>Kladd</Stamp>
-          {/if}
-        </div>
-
-        {#if !display.isBinary}
-          <div style="margin-bottom: {S.sm}px">
-            <div class="font-mono claimed">
-              Krevd: {fmt(display.krevdValue!)}{display.krevdUnit}
+    {#each trackGroups as group, gi}
+      {#if gi > 0}
+        <div class="group-sep"></div>
+      {/if}
+      <div class="group-label">{group.label}</div>
+      {#each group.tracks as t}
+        {@const display = store.display(t.id)}
+        {@const on = sel === t.id}
+        {@const hasDraft = store.getUI(t.id).draft !== null}
+        <div
+          class="m-row"
+          class:on
+          style="padding: {S.md}px; margin-bottom: 2px"
+          onclick={() => onselect(t.id)}
+          role="button"
+          tabindex="0"
+          onkeydown={(e) => {
+            if (e.key === 'Enter') onselect(t.id);
+          }}
+        >
+          <div class="row-header">
+            <div class="row-label">
+              <span class="row-name">{t.label}</span>
             </div>
-            <DualBar
-              te={display.krevdValue!}
-              sub={display.bhSubsidiaer!}
-              prin={display.bhPrinsipal!}
-            />
-            <div class="gap-box">
-              <span class="font-mono gap-label">GAP</span>
-              <div class="gap-values">
-                <span class="font-mono gap-sub"
-                  >s. {fmt(display.krevdValue! - display.bhSubsidiaer!)}{display.krevdUnit}</span
-                >
-                <span class="font-mono gap-prin"
-                  >p. {fmt(display.krevdValue! - display.bhPrinsipal!)}{display.krevdUnit}</span
-                >
+            {#if hasDraft}
+              <Stamp variant="draft" small>Kladd</Stamp>
+            {/if}
+          </div>
+          <div class="row-update">
+            {#if display.antallVersjoner > 0 && display.sisteOppdatert}
+              Oppdatert {formatDateMedium(display.sisteOppdatert)}
+            {:else}
+              Ikke påbegynt
+            {/if}
+          </div>
+
+          {#if !display.isBinary}
+            <div style="margin-bottom: {S.sm}px">
+              <div class="font-mono claimed">
+                Krevd: {fmt(display.krevdValue!)}{display.krevdUnit}
+              </div>
+              <DualBar
+                te={display.krevdValue!}
+                sub={display.bhSubsidiaer!}
+                prin={display.bhPrinsipal!}
+              />
+              <div class="gap-box">
+                <span class="font-mono gap-label">GAP</span>
+                <div class="gap-values">
+                  <span class="font-mono gap-sub"
+                    >s. {fmt(display.krevdValue! - display.bhSubsidiaer!)}{display.krevdUnit}</span
+                  >
+                  <span class="font-mono gap-prin"
+                    >p. {fmt(display.krevdValue! - display.bhPrinsipal!)}{display.krevdUnit}</span
+                  >
+                </div>
               </div>
             </div>
-          </div>
-        {:else}
-          <div class="binary-row">
-            <span class="font-mono binary-te">{display.tePosition}</span>
-            <span class="font-mono binary-bh">{display.bhPosition}</span>
-          </div>
-        {/if}
-      </div>
+          {:else}
+            <div class="binary-row">
+              <span class="font-mono binary-te">{display.tePosition}</span>
+              <span class="font-mono binary-bh">{display.bhPosition}</span>
+            </div>
+          {/if}
+        </div>
+      {/each}
     {/each}
   </div>
 
@@ -152,7 +177,6 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 8px;
   }
   .row-label {
     display: flex;
@@ -160,8 +184,15 @@
     gap: 8px;
   }
   .row-name {
-    font-size: 14px;
+    font-size: 16px;
     font-weight: 600;
+    line-height: 24px;
+  }
+  .row-update {
+    font-size: 13px;
+    line-height: 18px;
+    color: var(--ink-3);
+    margin-bottom: 8px;
   }
   .claimed {
     font-size: 12px;
@@ -214,6 +245,21 @@
     height: 1px;
     background: var(--accent);
     margin: 16px 24px;
+  }
+  .group-label {
+    font-size: 12px;
+    line-height: 16px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    padding: 0 8px;
+    margin-bottom: 12px;
+  }
+  .group-sep {
+    height: 1px;
+    background: var(--rule-subtle);
+    margin: 8px 12px 16px;
   }
   .exposure-heading {
     font-size: 12px;
