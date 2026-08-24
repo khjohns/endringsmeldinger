@@ -1,6 +1,6 @@
 <script lang="ts">
   import { untrack } from 'svelte';
-  import { XSquare, Pencil, BookOpen, ChevronUp, ArrowLeft } from 'lucide-svelte';
+  import { Pencil, BookOpen, ChevronUp, ArrowLeft } from 'lucide-svelte';
   import { store } from './store.svelte.js';
   import { fmt, BESTRIDT_LABEL } from './utils.js';
   import { getEventTypeLabel } from '$lib/constants/eventTypeLabels.js';
@@ -239,8 +239,15 @@
 
       <!-- Draft -->
       {#if ui.draft}
-        <!-- svelte-ignore a11y_no_static_element_interactions a11y_click_events_have_key_events -->
-        <div class="draft-section draft-clickable" onclick={() => onform(sel)}>
+        <div
+          class="draft-section draft-clickable"
+          onclick={() => onform(sel)}
+          role="button"
+          tabindex="0"
+          onkeydown={(e) => {
+            if (e.key === 'Enter') onform(sel);
+          }}
+        >
           <div class="draft-header">
             <div class="draft-meta">
               <Stamp variant="draft" small>Kladd</Stamp>
@@ -265,10 +272,6 @@
         {store.bhNavn}
       </div>
       {#if display.isDisputed}
-        <div class="rejected-badge" style:color="var(--danger)">
-          <XSquare size={18} />
-          <span class="rejected-text">Avslått</span>
-        </div>
         <div class="sidebar-stamp">
           <Stamp variant="avslag" small>{BESTRIDT_LABEL}</Stamp>
         </div>
@@ -439,15 +442,6 @@
     font-weight: 700;
     letter-spacing: -0.03em;
     line-height: 1;
-  }
-  .rejected-badge {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .rejected-text {
-    font-size: 18px;
-    font-weight: 700;
   }
   .doc-content {
     flex: 1;
@@ -792,12 +786,6 @@
     .te-value,
     .bh-value {
       font-size: 18px;
-    }
-    .rejected-badge {
-      gap: 6px;
-    }
-    .rejected-text {
-      font-size: 14px;
     }
     .doc-content {
       padding: 16px;
