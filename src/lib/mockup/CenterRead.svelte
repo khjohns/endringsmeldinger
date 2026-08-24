@@ -273,7 +273,15 @@
           <Stamp variant="avslag" small>{BESTRIDT_LABEL}</Stamp>
         </div>
       {:else if display.isBinary}
-        <div class="font-mono bh-value">{display.bhPosition}</div>
+        {@const bhVariant =
+          store.sak.grunnlag.bh_resultat === 'godkjent'
+            ? 'green'
+            : store.sak.grunnlag.bh_resultat === 'frafalt'
+              ? 'gold'
+              : store.sak.grunnlag.bh_resultat === 'avslatt'
+                ? 'avslag'
+                : 'neutral'}
+        <Stamp variant={bhVariant}>{display.bhPosition}</Stamp>
       {:else}
         <div class="font-mono bh-value">
           <CountUp value={display.bhSubsidiaer!} suffix={display.bhUnit} />

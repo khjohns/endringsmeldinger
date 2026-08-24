@@ -262,6 +262,10 @@
   border-style: dashed;
   background: var(--draft-bg);
 }
+.mockup .stamp-neutral {
+  color: var(--ink-2);
+  background: var(--surface-inset);
+}
 .mockup .stamp-sm {
   font-size: 11px;
   padding: 3px 8px;
