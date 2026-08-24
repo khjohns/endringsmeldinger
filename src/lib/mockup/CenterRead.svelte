@@ -551,14 +551,12 @@
     height: 14px;
   }
   .gap-seg-ok {
-    background: var(--green);
-    opacity: 0.8;
+    background: var(--green-border);
     min-width: 8px;
     border-radius: 4px 0 0 4px;
   }
   .gap-seg-gap {
-    background: var(--danger);
-    opacity: 0.85;
+    background: var(--danger-border);
     min-width: 8px;
     border-radius: 0 4px 4px 0;
   }
