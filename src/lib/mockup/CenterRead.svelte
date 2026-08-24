@@ -303,7 +303,7 @@
   .read-content {
     max-width: 840px;
     margin: 0 auto;
-    padding: 24px 32px 120px;
+    padding: 32px 40px 120px;
   }
 
   /* ── Section heading ── */
@@ -527,7 +527,7 @@
 
   /* ── Posisjonsoversikt ── */
   .gap-viz {
-    padding: 10px 16px;
+    padding: 8px 16px;
     background: var(--surface-inset);
     border-radius: 4px;
     margin-top: 12px;
@@ -579,7 +579,7 @@
     background: var(--draft-bg);
     border: 1.5px dashed var(--draft-border);
     border-radius: 4px;
-    margin-top: 8px;
+    margin-top: 12px;
   }
   .draft-clickable {
     cursor: pointer;
@@ -761,7 +761,7 @@
   /* ── Mobile ── */
   @media (max-width: 768px) {
     .read-content {
-      padding: 20px 16px 120px;
+      padding: 16px 16px 120px;
     }
     .heading-text {
       font-size: 20px;
