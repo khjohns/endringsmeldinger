@@ -127,7 +127,10 @@
     <!-- Section heading -->
     <div class="section-heading">
       <div class="heading-row">
-        <h2 class="heading-text">{display.label}{isSub ? ' (Sub.)' : ''}</h2>
+        <h2 class="heading-text">{display.label}</h2>
+        {#if isSub}
+          <Stamp variant="green" small flat>Subsidiært</Stamp>
+        {/if}
       </div>
       <div class="heading-underline" class:underline-green={isSub}></div>
     </div>
