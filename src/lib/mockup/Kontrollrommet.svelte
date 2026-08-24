@@ -74,7 +74,7 @@
 </script>
 
 <div class="mockup" class:dark>
-  <div class="shell">
+  <div class="shell" class:read-mode={mode === 'read'}>
     <Header
       {role}
       {mode}
@@ -218,6 +218,27 @@
     background: var(--canvas);
     position: relative;
   }
+  .read-mode .body {
+    margin-top: -56px;
+  }
+  .read-mode .center {
+    padding-top: 56px;
+  }
+  .read-mode .right-panel {
+    display: flex;
+    flex-direction: column;
+    min-width: 330px;
+    padding-top: 56px;
+  }
+  .read-mode .right-panel-inner {
+    display: flex;
+    flex: 1;
+    min-height: 0;
+  }
+  .read-mode .right-panel-inner :global(.right-sidebar) {
+    flex: 1;
+    width: 330px;
+  }
   .left-panel {
     display: contents;
   }
@@ -248,6 +269,15 @@
       z-index: 40;
       pointer-events: none;
       display: none;
+    }
+    .read-mode .body {
+      margin-top: 0;
+    }
+    .read-mode .center {
+      padding-top: 0;
+    }
+    .read-mode .right-panel {
+      padding-top: 0;
     }
     .right-panel.right-panel-open {
       display: block;

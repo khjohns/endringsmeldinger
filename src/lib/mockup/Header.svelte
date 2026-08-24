@@ -22,8 +22,7 @@
   } = $props();
 </script>
 
-<header class="header">
-  <div class="brand-stripe"></div>
+<header class="header" class:header-read={mode === 'read'}>
   <div class="left">
     {#if mode === 'form'}
       <button class="back-btn" onclick={onback}>
@@ -35,12 +34,10 @@
         <ChevronLeft size={16} />
       </button>
     {/if}
-    <div class="logo">
-      <span class="logo-oslo">Oslo</span> / <span class="logo-bygg">Oslobygg</span>
-    </div>
     <div class="project-info">
-      <span class="project-name">{store.scenario.label.split(' — ')[0] || 'Kystveien Vest'}</span>
-      <span class="project-parties">{store.teNavn} → {store.bhNavn}</span>
+      <span class="project-name">{store.sak.prosjekt_navn ?? 'Kystveien Vest'}</span>
+      <span class="breadcrumb-separator">/</span>
+      <span class="project-case">{store.scenario.label.split(' — ')[0]}</span>
     </div>
   </div>
   <div class="right">
@@ -95,14 +92,6 @@
     z-index: 30;
     position: relative;
   }
-  .brand-stripe {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 3px;
-    background: var(--brand);
-  }
   .left {
     display: flex;
     align-items: center;
@@ -128,23 +117,9 @@
   .mobile-only-back {
     display: none;
   }
-  .logo {
-    display: flex;
-    align-items: center;
-    padding: 0 20px;
-    border-right: 1px solid #d9d5cc;
-    height: 100%;
-    font-size: 15px;
-    font-weight: 600;
-    color: var(--ink);
-    gap: 4px;
-  }
-  .logo-oslo {
-    font-weight: 700;
-    color: var(--brand);
-  }
-  .logo-bygg {
-    font-weight: 600;
+  .header-read {
+    width: calc(100% - 300px);
+    margin-left: 300px;
   }
   .project-info {
     padding: 0 16px;
@@ -156,10 +131,15 @@
     font-size: 15px;
     font-weight: 600;
   }
-  .project-parties {
+  .breadcrumb-separator {
     font-size: 13px;
     color: var(--ink-3);
     font-weight: 400;
+  }
+  .project-case {
+    font-size: 13px;
+    color: var(--ink-2);
+    font-weight: 600;
   }
   .right {
     display: flex;
@@ -258,9 +238,9 @@
       min-width: 0;
       overflow: hidden;
     }
-    .logo {
-      padding: 0 12px;
-      border-right: none;
+    .header-read {
+      width: 100%;
+      margin-left: 0;
     }
     .project-info {
       padding: 0 12px;
@@ -269,9 +249,6 @@
     }
     .project-name {
       font-size: 14px;
-    }
-    .project-parties {
-      display: none;
     }
     .back-btn {
       padding: 0 10px;

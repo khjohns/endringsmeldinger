@@ -6,6 +6,7 @@
   import DualBar from './DualBar.svelte';
   import Stamp from './Stamp.svelte';
   import type { SporKey } from './types.js';
+  import osloLogo from '../../../public/logos/Oslo-logo-hvit-RGB.png?inline';
 
   let {
     sel,
@@ -40,15 +41,20 @@
 
 <aside class="sidebar">
   <div class="id-plate">
-    <div class="id-label">Identifikator</div>
-    <div class="id-number font-mono">KOE-104</div>
-    <div style="margin-top: {S.md}px">
-      <Stamp variant="gold" small flat>Venter</Stamp>
+    <div class="sender">
+      <div class="oslo-logo" style:background-image={`url(${osloLogo})`} aria-hidden="true"></div>
+      <div class="sender-name">
+        <div>Oslo kommune</div>
+        <div>Oslobygg</div>
+      </div>
     </div>
-  </div>
 
-  <div style="padding: {S.xl}px {S.xxl}px {S.lg}px">
-    <h2 class="case-title">Uforutsette grunnforhold: Fjell i byggegrop akse 1–3</h2>
+    <div class="case-identity">
+      <div class="id-label">Sak</div>
+      <div class="id-number">KOE-047</div>
+      <span class="case-status">Venter på svar</span>
+      <h2 class="case-title">Uforutsette grunnforhold, Fjell i byggegrop akse 1–3</h2>
+    </div>
   </div>
 
   <div style="padding: 0 {S.sm}px">
@@ -149,29 +155,67 @@
     background: var(--surface);
   }
   .id-plate {
-    background: var(--brand);
+    background: #034b45;
     color: white;
-    padding: 22px 24px;
+    padding: 18px 20px 20px;
+  }
+  .sender {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+  }
+  .oslo-logo {
+    width: 27px;
+    height: 35px;
+    flex: 0 0 27px;
+    background-position: -22px -19px;
+    background-repeat: no-repeat;
+    background-size: 114px auto;
+  }
+  .sender-name {
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1.35;
+    letter-spacing: 0.01em;
+  }
+  .sender-name div + div {
+    font-weight: 700;
+  }
+  .case-identity {
+    margin-top: 21px;
   }
   .id-label {
-    font-size: 11px;
+    font-size: 10px;
     font-weight: 700;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: #d0eee9;
-    margin-bottom: 4px;
+    color: #c8e2dc;
+    margin-bottom: 5px;
   }
   .id-number {
-    font-size: 32px;
+    font-size: 28px;
     font-weight: 700;
-    letter-spacing: -0.03em;
-    line-height: 1;
+    letter-spacing: -0.02em;
+    line-height: 1.05;
+  }
+  .case-status {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 3px 6px;
+    background: #f5d578;
+    color: #473a12;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: 0.01em;
+    border-radius: 1px;
   }
   .case-title {
-    font-size: 18px;
+    margin-top: 20px;
+    font-size: 12px;
     font-weight: 600;
     line-height: 1.4;
-    color: var(--ink);
+    color: #ffffff;
   }
   .row-header {
     display: flex;
