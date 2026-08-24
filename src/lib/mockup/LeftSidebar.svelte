@@ -162,7 +162,7 @@
   .sidebar {
     width: 300px;
     flex-shrink: 0;
-    border-right: 1px solid #d9d5cc;
+    border-right: var(--rule);
     display: flex;
     flex-direction: column;
     overflow-y: auto;
