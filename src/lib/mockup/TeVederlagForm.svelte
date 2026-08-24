@@ -6,7 +6,11 @@
   } from '$lib/domain/vederlagSubmissionDomain';
   import type { VederlagSubmissionFormState } from '$lib/domain/vederlagSubmissionDomain';
   import type { VederlagsMetode } from '$lib/constants/paymentMethods';
-  import { VEDERLAGSMETODE_DESCRIPTIONS } from '$lib/constants/paymentMethods';
+  import {
+    VEDERLAGSMETODER_OPTIONS,
+    VEDERLAGSMETODE_DESCRIPTIONS,
+    getVederlagsmetodeShortLabel,
+  } from '$lib/constants/paymentMethods';
   import { store } from './store.svelte.js';
   import { TRACK_ICONS } from './data.js';
   import { fmt } from './utils.js';
@@ -78,11 +82,11 @@
   });
   const metodeDescription = $derived(metode ? VEDERLAGSMETODE_DESCRIPTIONS[metode] : undefined);
 
-  const METODE_OPTIONS: { value: VederlagsMetode; label: string }[] = [
-    { value: 'ENHETSPRISER', label: 'Enhetspriser' },
-    { value: 'REGNINGSARBEID', label: 'Regningsarbeid' },
-    { value: 'FASTPRIS_TILBUD', label: 'Fastpris' },
-  ];
+  const METODE_OPTIONS: { value: VederlagsMetode; label: string }[] =
+    VEDERLAGSMETODER_OPTIONS.filter((o) => o.value !== '').map((o) => ({
+      value: o.value as VederlagsMetode,
+      label: getVederlagsmetodeShortLabel(o.value),
+    }));
 </script>
 
 <div class="form-content">

@@ -11,6 +11,7 @@
   import { isHtmlEmpty } from '$lib/utils/formatters';
   import { store } from './store.svelte.js';
   import { TRACK_ICONS } from './data.js';
+  import { sporResultatLabel } from './utils.js';
   import Stamp from './Stamp.svelte';
   import SubStripe from './SubStripe.svelte';
   import Diamond from './Diamond.svelte';
@@ -83,10 +84,10 @@
 
   const resultat = $derived.by(() => {
     const r = computed.prinsipaltResultat;
-    if (r === 'godkjent') return { ikon: Check, label: 'Godkjent', color: 'var(--success)' };
-    if (r === 'delvis_godkjent')
-      return { ikon: CircleMinus, label: 'Delvis godkjent', color: 'var(--warning)' };
-    return { ikon: X, label: 'Avslått', color: 'var(--danger)' };
+    const label = sporResultatLabel(r);
+    if (r === 'godkjent') return { ikon: Check, label, color: 'var(--success)' };
+    if (r === 'delvis_godkjent') return { ikon: CircleMinus, label, color: 'var(--warning)' };
+    return { ikon: X, label, color: 'var(--danger)' };
   });
 
   const allAnswered = $derived.by(() => {
@@ -329,11 +330,7 @@
           <div class="sub-result">
             <Stamp variant="green" small flat>Subsidiært</Stamp>
             <span class="font-mono sub-result-text">
-              {computed.subsidiaertResultat === 'godkjent'
-                ? 'Godkjent'
-                : computed.subsidiaertResultat === 'delvis_godkjent'
-                  ? 'Delvis godkjent'
-                  : 'Avslått'}
+              {sporResultatLabel(computed.subsidiaertResultat)}
               {#if computed.subsidiaertResultat !== 'avslatt' && godkjentDager !== undefined}
                 — {godkjentDager} dager
               {/if}

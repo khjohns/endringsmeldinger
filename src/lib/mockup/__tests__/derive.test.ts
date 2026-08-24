@@ -10,6 +10,8 @@ import {
   scenario2_BlandetTilstand,
   scenario4_Omforent,
 } from '$lib/mocks/caseState';
+import { getHjemmelLabel } from '$lib/constants/categories';
+import { GRUNNLAG_RESULTAT_LABELS } from '$lib/constants/responseOptions';
 
 describe('deriveTrackDisplay', () => {
   it('utleder vederlag-display fra SakState', () => {
@@ -23,7 +25,10 @@ describe('deriveTrackDisplay', () => {
   it('utleder grunnlag-display fra SakState', () => {
     const result = deriveTrackDisplay(scenario1_3AktiveSpor, 'ansvar');
     expect(result.label).toBe('Ansvarsgrunnlag');
-    expect(result.tePosition).toBe('SVIKT');
+    expect(result.tePosition).toBe(getHjemmelLabel('GRUNN'));
+    expect(result.teRef).toBe('§ 23.1');
+    expect(result.bhPosition).toBe('Ikke besvart');
+    expect(result.isDisputed).toBe(false);
     expect(result.teText).toContain('leirelag');
   });
 
@@ -36,7 +41,9 @@ describe('deriveTrackDisplay', () => {
 
   it('håndterer omforent sak med godkjent grunnlag', () => {
     const result = deriveTrackDisplay(scenario4_Omforent, 'ansvar');
-    expect(result.bhPosition).toBe('Godkjent');
+    expect(result.tePosition).toBe(getHjemmelLabel('IRREG'));
+    expect(result.teRef).toBe('§ 32.1');
+    expect(result.bhPosition).toBe(GRUNNLAG_RESULTAT_LABELS.godkjent);
     expect(result.isDisputed).toBe(false);
   });
 

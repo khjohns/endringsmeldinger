@@ -1,7 +1,7 @@
 <script lang="ts">
   import { Pencil, Circle } from 'lucide-svelte';
   import { store } from './store.svelte.js';
-  import { fmt } from './utils.js';
+  import { fmt, BESTRIDT_LABEL } from './utils.js';
   import { SPOR_KEYS } from './scenarios.js';
   import type { SporKey } from './types.js';
 
@@ -36,7 +36,7 @@
       {/if}
       <span>{display.label}:</span>
       <span class="font-mono strip-value">
-        {#if !hasDraft}—{:else if k === 'ansvar'}Bestridt{:else if ui.draft?.value}{fmt(
+        {#if !hasDraft}—{:else if k === 'ansvar'}{BESTRIDT_LABEL}{:else if ui.draft?.value}{fmt(
             ui.draft.value
           )},-{:else}Kladd{/if}
       </span>

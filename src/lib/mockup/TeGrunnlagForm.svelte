@@ -1,6 +1,7 @@
 <script lang="ts">
   import { store } from './store.svelte.js';
   import { TRACK_ICONS } from './data.js';
+  import { BESTRIDT_LABEL } from './utils.js';
   import Stamp from './Stamp.svelte';
   import CaseAnchor from './CaseAnchor.svelte';
 
@@ -40,15 +41,17 @@
       <span class="font-mono context-ref">{d.teRef}</span>
     </div>
     <div class="te-position">
-      <span class="font-mono position-badge">{d.tePosition?.toUpperCase()}</span>
+      <span class="font-mono position-badge">{d.tePosition}</span>
       <span class="font-mono position-ref">{d.teRef}</span>
     </div>
   </div>
 
-  <div class="bh-standpunkt">
+  <div class="bh-standpunkt" class:is-disputed={d.isDisputed}>
     <div class="standpunkt-header">
       <span class="standpunkt-label">{store.bhNavn} — standpunkt</span>
-      <Stamp variant="avslag" small>Bestridt</Stamp>
+      {#if d.isDisputed}
+        <Stamp variant="avslag" small>{BESTRIDT_LABEL}</Stamp>
+      {/if}
     </div>
     <p class="font-serif standpunkt-text">{d.bhText}</p>
   </div>
@@ -104,6 +107,10 @@
   .bh-standpunkt {
     margin-bottom: 32px;
     padding: 20px 24px;
+    background: var(--surface-inset);
+    border: var(--rule-subtle);
+  }
+  .bh-standpunkt.is-disputed {
     background: var(--danger-bg);
     border: 1px solid var(--danger-border);
   }
@@ -118,6 +125,9 @@
     font-weight: 700;
     letter-spacing: 0.06em;
     text-transform: uppercase;
+    color: var(--ink-3);
+  }
+  .is-disputed .standpunkt-label {
     color: var(--danger);
   }
   .standpunkt-text {
