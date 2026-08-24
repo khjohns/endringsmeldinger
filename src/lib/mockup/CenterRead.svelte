@@ -259,22 +259,9 @@
 {/if}
 
 {#snippet bhCard()}
-  <div
-    class="doc-panel bh-panel"
-    style:background={display.isDisputed ? '#FFFAFA' : 'var(--surface)'}
-    style:border-color={display.isDisputed ? 'var(--danger-border)' : '#D9D5CC'}
-  >
-    <div
-      class="doc-sidebar bh-sidebar"
-      style:background={display.isDisputed ? 'var(--danger-bg)' : 'var(--surface-warm)'}
-      style:color={display.isDisputed ? 'var(--danger)' : 'var(--ink)'}
-      style:border-right-color={display.isDisputed ? 'var(--danger-border)' : '#D9D5CC'}
-    >
-      <div
-        class="party-name"
-        style:font-weight={display.isDisputed ? '700' : '500'}
-        style:color={display.isDisputed ? 'var(--danger)' : 'var(--ink-2)'}
-      >
+  <div class="doc-panel bh-panel" class:disputed={display.isDisputed}>
+    <div class="doc-sidebar bh-sidebar">
+      <div class="party-name">
         {store.bhNavn}
       </div>
       {#if display.isDisputed}
@@ -296,10 +283,7 @@
     <div class="doc-content">
       {#if display.bhText.length > 200}
         <div class="truncated">
-          <p
-            class="argument-text"
-            style:color={display.isDisputed ? 'var(--danger)' : 'var(--ink-2)'}
-          >
+          <p class="argument-text">
             {display.bhText}
           </p>
         </div>
@@ -307,10 +291,7 @@
           <BookOpen size={12} /> Les hele begrunnelsen
         </button>
       {:else}
-        <p
-          class="argument-text"
-          style:color={display.isDisputed ? 'var(--danger)' : 'var(--ink-2)'}
-        >
+        <p class="argument-text">
           {display.bhText}
         </p>
       {/if}
@@ -383,7 +364,7 @@
   }
   .doc-panel {
     display: flex;
-    border: 1px solid #d9d5cc;
+    border: var(--rule);
     border-radius: 4px;
   }
   .te-panel {
@@ -391,22 +372,42 @@
   }
   .bh-panel {
     position: relative;
+    background: var(--surface);
+  }
+  .bh-panel.disputed {
+    background: var(--danger-bg);
+    border-color: var(--danger-border);
   }
   .doc-sidebar {
     width: 195px;
     flex-shrink: 0;
     padding: 20px;
-    border-right: 1px solid #d9d5cc;
+    border-right: var(--rule);
     display: flex;
     flex-direction: column;
   }
   .te-sidebar {
     background: var(--surface-warm);
   }
+  .bh-sidebar {
+    background: var(--surface-warm);
+  }
+  .bh-panel.disputed .bh-sidebar {
+    background: var(--danger-bg);
+    border-right-color: var(--danger-border);
+  }
   .party-name {
     font-size: 14px;
     margin-bottom: 12px;
     font-weight: 600;
+  }
+  .bh-sidebar .party-name {
+    font-weight: 500;
+    color: var(--ink-2);
+  }
+  .bh-panel.disputed .party-name {
+    font-weight: 700;
+    color: var(--danger);
   }
   .te-position {
     font-size: 12px;
@@ -448,6 +449,9 @@
     font-size: 18px;
     line-height: 1.75;
     color: var(--ink-2);
+  }
+  .bh-panel.disputed .argument-text {
+    color: var(--danger);
   }
   .sidebar-stamp {
     margin-top: auto;
@@ -511,7 +515,7 @@
     font-family: var(--font-sans);
     color: var(--ink-2);
     background: var(--surface);
-    border: 1px solid #d9d5cc;
+    border: var(--rule);
     border-radius: 4px;
     cursor: pointer;
     transition: all 0.15s;
@@ -678,7 +682,7 @@
   }
   .snap-event-card {
     background: var(--surface);
-    border: 1px solid #d9d5cc;
+    border: var(--rule);
     border-radius: 4px;
     padding: 24px;
     animation: fadeUp 0.2s ease-out;
@@ -769,7 +773,7 @@
       width: 100%;
       padding: 12px 16px;
       border-right: none;
-      border-bottom: 1px solid #d9d5cc;
+      border-bottom: var(--rule);
       flex-direction: row;
       align-items: center;
       gap: 12px;
