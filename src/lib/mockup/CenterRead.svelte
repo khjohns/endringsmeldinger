@@ -2,13 +2,11 @@
   import { untrack } from 'svelte';
   import { XSquare, Pencil, BookOpen, ChevronUp, ArrowLeft } from 'lucide-svelte';
   import { store } from './store.svelte.js';
-  import { TRACK_ICONS } from './data.js';
   import { fmt } from './utils.js';
   import { getEventTypeLabel } from '$lib/constants/eventTypeLabels.js';
   import { formatDateTimeNorwegian } from '$lib/utils/dateFormatters.js';
   import Stamp from './Stamp.svelte';
   import SubStripe from './SubStripe.svelte';
-  import CaseAnchor from './CaseAnchor.svelte';
   import CountUp from './CountUp.svelte';
   import type { SporKey, Role } from './types.js';
   import type { TimelineEvent } from '$lib/types/timeline';
@@ -30,7 +28,6 @@
   const display = $derived(store.display(sel));
   const ui = $derived(store.getUI(sel));
   const isSub = $derived(display.isSubsidiary);
-  const TrackIcon = $derived(TRACK_ICONS[sel]);
 
   let expandedSide: 'te' | 'bh' | null = $state(null);
 
@@ -127,12 +124,9 @@
   </div>
 {:else}
   <div class="read-content">
-    <CaseAnchor />
-
     <!-- Section heading -->
     <div class="section-heading">
       <div class="heading-row">
-        <TrackIcon size={18} style="color: var(--ink-2)" />
         <h2 class="heading-text">{display.label}{isSub ? ' (Sub.)' : ''}</h2>
       </div>
       <div class="heading-underline" class:underline-green={isSub}></div>
