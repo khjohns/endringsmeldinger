@@ -36,7 +36,7 @@
     </div>
     {#if !d.isBinary}
       <div class="font-mono context-value">
-        {fmt(d.krevdValue!)}{d.krevdUnit === ' dgr' ? ' dager' : d.krevdUnit}
+        {fmt(d.krevdValue!)}{d.krevdUnit}
       </div>
     {/if}
     <p class="font-serif context-text">{d.teText}</p>
@@ -97,7 +97,7 @@
         <div>
           <div class="measurement-label">Krevd</div>
           <div class="font-mono measurement-value">
-            {fmt(d.krevdValue!)}{d.krevdUnit === ' dgr' ? ' dager' : d.krevdUnit}
+            {fmt(d.krevdValue!)}{d.krevdUnit}
           </div>
         </div>
         <div>

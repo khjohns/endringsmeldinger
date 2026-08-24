@@ -7,6 +7,7 @@
   import Stamp from './Stamp.svelte';
   import type { SporKey } from './types.js';
   import osloLogo from '../../../public/logos/Oslo-logo-hvit-RGB.png?inline';
+  import { getHjemmelLabel } from '$lib/constants/categories.js';
 
   let {
     sel,
@@ -26,7 +27,7 @@
 
   const trackGroups: { label: string; tracks: { id: SporKey; label: string }[] }[] = [
     {
-      label: 'Grunnlag',
+      label: 'Kontraktsforhold',
       tracks: [{ id: 'ansvar', label: 'Ansvarsgrunnlag' }],
     },
     {
@@ -57,7 +58,7 @@
     </div>
   </div>
 
-  <div style="padding: 0 {S.sm}px">
+  <div class="sidebar-tracks" style="padding-inline: {S.sm}px">
     {#each trackGroups as group, gi}
       {#if gi > 0}
         <div class="group-sep"></div>
@@ -67,6 +68,8 @@
         {@const display = store.display(t.id)}
         {@const on = sel === t.id}
         {@const hasDraft = store.getUI(t.id).draft !== null}
+        {@const contractLabel =
+          t.id === 'ansvar' ? getHjemmelLabel(store.sak.grunnlag.underkategori) : null}
         <div
           class="m-row"
           class:on
@@ -80,7 +83,7 @@
         >
           <div class="row-header">
             <div class="row-label">
-              <span class="row-name">{t.label}</span>
+              <span class="row-name">{contractLabel || t.label}</span>
             </div>
             {#if hasDraft}
               <Stamp variant="draft" small>Kladd</Stamp>
@@ -118,7 +121,9 @@
             </div>
           {:else}
             <div class="binary-row">
-              <span class="font-mono binary-te">{display.tePosition}</span>
+              <span class="font-mono binary-te"
+                >{contractLabel ? display.teRef : display.tePosition}</span
+              >
               <span class="font-mono binary-bh">{display.bhPosition}</span>
             </div>
           {/if}
@@ -134,11 +139,11 @@
     <div class="exposure-box">
       <div class="exposure-row">
         <span class="exposure-label" style="color: var(--green)">Subsidiært</span>
-        <span class="font-mono exposure-value">{fmt(subV)},- + {subF}d</span>
+        <span class="font-mono exposure-value">{fmt(subV)},- + {subF} dager</span>
       </div>
       <div class="exposure-row">
         <span class="exposure-label" style="color: var(--danger)">Prinsipalt</span>
-        <span class="font-mono exposure-value">{fmt(prinV)},- + {prinF}d</span>
+        <span class="font-mono exposure-value">{fmt(prinV)},- + {prinF} dager</span>
       </div>
     </div>
   </div>
@@ -217,6 +222,9 @@
     line-height: 1.4;
     color: #ffffff;
   }
+  .sidebar-tracks {
+    padding-top: 28px;
+  }
   .row-header {
     display: flex;
     align-items: center;
@@ -233,7 +241,7 @@
     line-height: 24px;
   }
   .row-update {
-    font-size: 13px;
+    font-size: 12px;
     line-height: 18px;
     color: var(--ink-3);
     margin-bottom: 8px;
@@ -286,9 +294,10 @@
     color: var(--danger);
   }
   .gold-sep {
-    height: 1px;
-    background: var(--accent);
-    margin: 16px 24px;
+    width: 52px;
+    height: 2px;
+    background: #d59b2d;
+    margin: 24px 24px 16px;
   }
   .group-label {
     font-size: 12px;
@@ -307,10 +316,12 @@
   }
   .exposure-heading {
     font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.02em;
+    line-height: 16px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
     margin-bottom: 12px;
-    color: var(--ink);
+    color: var(--ink-3);
   }
   .exposure-box {
     padding: 12px;
@@ -320,18 +331,19 @@
   }
   .exposure-row {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
   }
   .exposure-row + .exposure-row {
-    margin-top: 8px;
+    margin-top: 12px;
   }
   .exposure-label {
     font-size: 12px;
     font-weight: 700;
   }
   .exposure-value {
-    font-size: 13px;
+    font-size: 15px;
     font-weight: 700;
   }
 

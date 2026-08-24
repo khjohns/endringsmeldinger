@@ -31,7 +31,7 @@ describe('deriveTrackDisplay', () => {
     const result = deriveTrackDisplay(scenario1_3AktiveSpor, 'frist');
     expect(result.label).toBe('Fristforlengelse');
     expect(result.krevdValue).toBe(45);
-    expect(result.krevdUnit).toBe(' dgr');
+    expect(result.krevdUnit).toBe(' dager');
   });
 
   it('håndterer omforent sak med godkjent grunnlag', () => {
