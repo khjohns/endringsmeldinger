@@ -2,7 +2,7 @@
   import { untrack } from 'svelte';
   import { XSquare, Pencil, BookOpen, ChevronUp, ArrowLeft } from 'lucide-svelte';
   import { store } from './store.svelte.js';
-  import { fmt } from './utils.js';
+  import { fmt, BESTRIDT_LABEL } from './utils.js';
   import { getEventTypeLabel } from '$lib/constants/eventTypeLabels.js';
   import { formatDateTimeNorwegian } from '$lib/utils/dateFormatters.js';
   import Stamp from './Stamp.svelte';
@@ -283,7 +283,7 @@
           <span class="rejected-text">Avslått</span>
         </div>
         <div class="sidebar-stamp">
-          <Stamp variant="avslag" small>Bestridt</Stamp>
+          <Stamp variant="avslag" small>{BESTRIDT_LABEL}</Stamp>
         </div>
       {:else if display.isBinary}
         <div class="font-mono bh-value">{display.bhPosition}</div>

@@ -7,6 +7,7 @@
     getDefaults,
   } from '$lib/domain/grunnlagDomain';
   import type { GrunnlagFormState, GrunnlagDomainConfig } from '$lib/domain/grunnlagDomain';
+  import { GRUNNLAG_RESULTAT_LABELS } from '$lib/constants/responseOptions.js';
   import RichTextEditor from '$lib/components/primitives/RichTextEditor.svelte';
   import LockedValueNode from '$lib/editor/LockedValueNode';
   import { store } from './store.svelte.js';
@@ -51,9 +52,11 @@
   });
 
   const resultatDisplay = $derived.by(() => {
-    if (resultat === 'godkjent') return { ikon: Check, label: 'Godkjent', color: 'var(--success)' };
-    if (resultat === 'frafalt') return { ikon: Undo2, label: 'Frafalt', color: 'var(--ink-3)' };
-    return { ikon: X, label: 'Avslått', color: 'var(--danger)' };
+    if (resultat === 'godkjent')
+      return { ikon: Check, label: GRUNNLAG_RESULTAT_LABELS.godkjent, color: 'var(--success)' };
+    if (resultat === 'frafalt')
+      return { ikon: Undo2, label: GRUNNLAG_RESULTAT_LABELS.frafalt, color: 'var(--ink-3)' };
+    return { ikon: X, label: GRUNNLAG_RESULTAT_LABELS.avslatt, color: 'var(--danger)' };
   });
 
   $effect(() => {

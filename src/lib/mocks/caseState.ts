@@ -221,7 +221,7 @@ export const scenario4_Omforent: SakState = {
     status: 'godkjent',
     tittel: 'Tilleggsarbeider — omlegging av VA-ledninger',
     hovedkategori: 'ENDRING',
-    underkategori: 'TILLEGG',
+    underkategori: 'IRREG',
     beskrivelse:
       'BH bestilte omlegging av eksisterende VA-ledninger i byggegruben som ikke var inkludert i ' +
       'opprinnelig kontrakt.',

@@ -8,6 +8,7 @@
   import type { SporKey } from './types.js';
   import osloLogo from '../../../public/logos/Oslo-logo-hvit-RGB.png?inline';
   import { getHjemmelLabel } from '$lib/constants/categories.js';
+  import { getOverordnetStatusStyle } from '$lib/constants/statusStyles.js';
 
   let {
     sel,
@@ -38,6 +39,8 @@
       ],
     },
   ];
+
+  const statusStyle = $derived(getOverordnetStatusStyle(store.sak.overordnet_status));
 </script>
 
 <aside class="sidebar">
@@ -53,7 +56,13 @@
     <div class="case-identity">
       <div class="id-label">Sak</div>
       <div class="id-number">KOE-047</div>
-      <span class="case-status">Venter på svar</span>
+      <span
+        class="case-status"
+        class:variant-default={statusStyle.variant === 'default'}
+        class:variant-info={statusStyle.variant === 'info'}
+        class:variant-success={statusStyle.variant === 'success'}
+        class:variant-danger={statusStyle.variant === 'danger'}>{statusStyle.label}</span
+      >
       <h2 class="case-title">Uforutsette grunnforhold, Fjell i byggegrop akse 1–3</h2>
     </div>
   </div>
@@ -214,6 +223,22 @@
     line-height: 1.2;
     letter-spacing: 0.01em;
     border-radius: 1px;
+  }
+  .case-status.variant-default {
+    background: #d6d3cb;
+    color: #2e2c28;
+  }
+  .case-status.variant-info {
+    background: #bcd7e8;
+    color: #0e2a3a;
+  }
+  .case-status.variant-success {
+    background: #bfe3c4;
+    color: #12351a;
+  }
+  .case-status.variant-danger {
+    background: #f2b8b0;
+    color: #48150e;
   }
   .case-title {
     margin-top: 20px;

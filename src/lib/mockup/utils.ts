@@ -1,11 +1,22 @@
-import type { Bestemmelse } from '$lib/types';
+import type { Bestemmelse, SporStatus } from '$lib/types';
 import type { SporKey } from './scenarios.js';
 import { getParagrafTittel } from '$lib/constants/paragrafTitler.js';
 import { getKontraktsregel } from '$lib/constants/kontraktsregler.js';
+import { SPOR_STATUS_LABELS } from '$lib/constants/statusLabels.js';
 
 /** Bare tallformatering (nb-NO). Produksjon bruker formatCurrency/formatDays med andre suffiks. */
 export function fmt(n: number): string {
   return n.toLocaleString('nb-NO');
+}
+
+export const BESTRIDT_LABEL = 'Bestridt';
+
+/**
+ * Label for beregningsresultat (godkjent / delvis_godkjent / avslatt).
+ * Løs typing: VederlagBeregningResultat inneholder også 'hold_tilbake' som ikke er SporStatus.
+ */
+export function sporResultatLabel(status: string): string {
+  return SPOR_STATUS_LABELS[status as SporStatus] ?? status;
 }
 
 function byggBestemmelse(key: string): Bestemmelse | null {
@@ -25,7 +36,9 @@ const SPOR_PARAGRAFER: Record<SporKey, string[]> = {
 /** Precomputed — statisk data som aldri endres. */
 const SPOR_BESTEMMELSER: Record<SporKey, Bestemmelse[]> = {
   ansvar: SPOR_PARAGRAFER.ansvar.map(byggBestemmelse).filter((b): b is Bestemmelse => b !== null),
-  vederlag: SPOR_PARAGRAFER.vederlag.map(byggBestemmelse).filter((b): b is Bestemmelse => b !== null),
+  vederlag: SPOR_PARAGRAFER.vederlag
+    .map(byggBestemmelse)
+    .filter((b): b is Bestemmelse => b !== null),
   frist: SPOR_PARAGRAFER.frist.map(byggBestemmelse).filter((b): b is Bestemmelse => b !== null),
 };
 

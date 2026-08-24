@@ -26,7 +26,7 @@
   import { RefreshCw } from 'lucide-svelte';
   import { store } from './store.svelte.js';
   import { TRACK_ICONS } from './data.js';
-  import { fmt } from './utils.js';
+  import { fmt, sporResultatLabel } from './utils.js';
   import Stamp from './Stamp.svelte';
   import SubStripe from './SubStripe.svelte';
   import Diamond from './Diamond.svelte';
@@ -121,10 +121,10 @@
 
   const resultat = $derived.by(() => {
     const r = computed.prinsipaltResultat;
-    if (r === 'godkjent') return { ikon: Check, label: 'Godkjent', color: 'var(--success)' };
-    if (r === 'delvis_godkjent')
-      return { ikon: CircleMinus, label: 'Delvis godkjent', color: 'var(--warning)' };
-    return { ikon: X, label: 'Avslått', color: 'var(--danger)' };
+    const label = sporResultatLabel(r);
+    if (r === 'godkjent') return { ikon: Check, label, color: 'var(--success)' };
+    if (r === 'delvis_godkjent') return { ikon: CircleMinus, label, color: 'var(--warning)' };
+    return { ikon: X, label, color: 'var(--danger)' };
   });
 
   // Data-driven preklusjonslinjer (matches production BhVederlagResponse)
@@ -329,9 +329,9 @@
     cls: string;
     icon?: typeof Check;
   }[] = [
-    { value: 'godkjent', label: 'Godkjent', cls: 'yes', icon: Check },
-    { value: 'delvis', label: 'Delvis godkjent', cls: 'partial' },
-    { value: 'avslatt', label: 'Avslått', cls: 'no', icon: X },
+    { value: 'godkjent', label: sporResultatLabel('godkjent'), cls: 'yes', icon: Check },
+    { value: 'delvis', label: sporResultatLabel('delvis_godkjent'), cls: 'partial' },
+    { value: 'avslatt', label: sporResultatLabel('avslatt'), cls: 'no', icon: X },
   ];
 </script>
 
@@ -509,11 +509,7 @@
           <div class="sub-result">
             <Stamp variant="green" small flat>Subsidiært</Stamp>
             <span class="font-mono sub-result-text">
-              {computed.subsidiaertResultat === 'godkjent'
-                ? 'Godkjent'
-                : computed.subsidiaertResultat === 'delvis_godkjent'
-                  ? 'Delvis godkjent'
-                  : 'Avslått'}
+              {sporResultatLabel(computed.subsidiaertResultat)}
               {#if computed.subsidiaertResultat !== 'avslatt'}
                 — {fmt(computed.totalGodkjentInklPrekludert)} kr
               {/if}

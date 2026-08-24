@@ -5,6 +5,8 @@
  * Domain config-avledninger er delt via $lib/domain/deriveConfig.
  */
 import type { SakState } from '$lib/types/timeline';
+import { getHjemmelLabel, getHjemmelObj } from '$lib/constants/categories.js';
+import { GRUNNLAG_RESULTAT_LABELS } from '$lib/constants/responseOptions.js';
 import type { SporKey } from './scenarios.js';
 
 // Re-export shared domain config derivation functions
@@ -21,7 +23,6 @@ export interface TrackDisplay {
   tePosition?: string;
   teRef?: string;
   bhPosition?: string;
-  bhRef?: string;
   // Vederlag/Frist (numeric)
   krevdValue?: number;
   krevdUnit?: string;
@@ -54,21 +55,18 @@ export function deriveTrackDisplay(sak: SakState, spor: SporKey): TrackDisplay {
 
   if (spor === 'ansvar') {
     const g = sak.grunnlag;
+    const hjemmel = getHjemmelObj(g.underkategori);
     return {
       ...meta,
       isBinary: true,
-      tePosition: g.hovedkategori?.toUpperCase(),
-      teRef: '§ 23.1',
-      bhPosition:
-        g.bh_resultat === 'godkjent'
-          ? 'Godkjent'
-          : g.bh_resultat === 'frafalt'
-            ? 'Frafalt'
-            : 'Avvist',
-      bhRef: '§ 23.1 (2)',
+      tePosition: getHjemmelLabel(g.underkategori),
+      teRef: hjemmel ? `§ ${hjemmel.hjemmel_basis}` : undefined,
+      bhPosition: g.bh_resultat
+        ? (GRUNNLAG_RESULTAT_LABELS[g.bh_resultat] ?? g.bh_resultat)
+        : 'Ikke besvart',
       teText: g.beskrivelse ?? '',
       bhText: g.bh_begrunnelse ?? '',
-      isDisputed: g.bh_resultat === 'avslatt' || !g.bh_resultat,
+      isDisputed: g.bh_resultat === 'avslatt',
       isSubsidiary: false,
       isWithdrawn: g.status === 'trukket',
       withdrawnReason: g.trukket_begrunnelse,

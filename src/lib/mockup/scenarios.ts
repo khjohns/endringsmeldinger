@@ -54,7 +54,7 @@ const scenario1_Subsidiaer: SakState = {
     ...scenario1_3AktiveSpor.grunnlag,
     bh_resultat: 'avslatt',
     bh_begrunnelse:
-      'Forbeholdet i geoteknisk rapport pkt. 4.2 dekker variasjoner i fjellkoter. Avvist.',
+      'Forbeholdet i geoteknisk rapport pkt. 4.2 dekker variasjoner i fjellkoter. Avslått.',
     bh_respondert_versjon: 0,
   },
   er_subsidiaert_vederlag: true,
