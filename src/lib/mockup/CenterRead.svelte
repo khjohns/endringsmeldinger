@@ -464,11 +464,11 @@
   }
 
   /* ── Truncation ── */
-  .truncated {
-    max-height: 96px;
+  .truncated .argument-text {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
     overflow: hidden;
-    -webkit-mask-image: linear-gradient(to bottom, black 40%, transparent 100%);
-    mask-image: linear-gradient(to bottom, black 40%, transparent 100%);
   }
   .read-btn {
     display: flex;
