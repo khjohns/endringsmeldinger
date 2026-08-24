@@ -48,9 +48,9 @@
           {#if mode === 'form'}
             <span style="color: var(--ink-2)">Autolagret — lukk eller send</span>
           {:else}
-            <span style="color: var(--green)">Subs. {fmt(subV)},- / {subF}d</span>
+            <span style="color: var(--green)">Subs. {fmt(subV)},- / {subF} dager</span>
             <span class="status-sep">·</span>
-            <span style="color: var(--danger)">Prins. {fmt(prinV)},- / {prinF}d</span>
+            <span style="color: var(--danger)">Prins. {fmt(prinV)},- / {prinF} dager</span>
           {/if}
         </div>
       </div>
