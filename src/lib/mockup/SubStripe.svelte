@@ -1,6 +1,5 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
-  import Stamp from './Stamp.svelte';
 
   let {
     notice,
@@ -17,7 +16,7 @@
   <div class="sub-notice-section">
     <div class="diamond"></div>
     <div class="sub-notice">
-      <Stamp variant="green" small flat>Subsidiært</Stamp>
+      <span class="subsidiaer-markering">Subsidiært</span>
       <p class="font-serif sub-notice-text">{notice}</p>
     </div>
   </div>
@@ -31,7 +30,7 @@
   {#if diamondCount > 1}
     <div class="sub-stripe-counter">
       <div class="mini-diamonds">
-        {#each Array(diamondCount) as _}
+        {#each [...Array(diamondCount).keys()] as i (i)}
           <div class="mini-diamond"></div>
         {/each}
       </div>
@@ -41,6 +40,20 @@
 </div>
 
 <style>
+  .subsidiaer-markering {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--warning);
+    padding: 2px 6px;
+    background: var(--warning-bg);
+    border: 1px dashed var(--warning);
+    border-radius: 2px;
+    align-self: flex-start;
+  }
   /*
    * Shared geometry: both notice and stripe use identical left offset
    * so the dashed line + diamonds form one continuous visual axis.
