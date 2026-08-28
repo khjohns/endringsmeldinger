@@ -6,11 +6,11 @@
   import type { FristResponseInput } from '$lib/domain/begrunnelse/fristBegrunnelse';
   import { tokensToHtml } from '$lib/editor/tokenConverter';
   import RichTextEditor from '$lib/components/primitives/RichTextEditor.svelte';
+  import SectionHeading from '$lib/components/primitives/SectionHeading.svelte';
   import LockedValueNode from '$lib/editor/LockedValueNode';
   import { RefreshCw } from 'lucide-svelte';
   import { isHtmlEmpty } from '$lib/utils/formatters';
   import { store } from './store.svelte.js';
-  import { TRACK_ICONS } from './data.js';
   import { sporResultatLabel } from './utils.js';
   import Stamp from './Stamp.svelte';
   import SubStripe from './SubStripe.svelte';
@@ -85,9 +85,9 @@
   const resultat = $derived.by(() => {
     const r = computed.prinsipaltResultat;
     const label = sporResultatLabel(r);
-    if (r === 'godkjent') return { ikon: Check, label, color: 'var(--success)' };
-    if (r === 'delvis_godkjent') return { ikon: CircleMinus, label, color: 'var(--warning)' };
-    return { ikon: X, label, color: 'var(--danger)' };
+    if (r === 'godkjent') return { ikon: Check, label, variant: 'positive' as const };
+    if (r === 'delvis_godkjent') return { ikon: CircleMinus, label, variant: 'mixed' as const };
+    return { ikon: X, label, variant: 'negative' as const };
   });
 
   const allAnswered = $derived.by(() => {
@@ -175,16 +175,23 @@
 <div class="form-content">
   <CaseAnchor />
 
-  <div class="te-context">
-    <div class="context-header">
-      <div class="context-label-row">
-        <TRACK_ICONS.frist size={14} style="color: var(--ink-3)" />
-        <span class="context-label">{store.display('frist').label} — {store.teNavn}s krav</span>
+  <div class="sammendrag">
+    <SectionHeading title="Fristkrav" paragrafRef="§ 33.1" />
+
+    <div class="sammendrag-kravlinjer">
+      <div class="sammendrag-kravlinje">
+        <span class="sammendrag-kravlinje-label"
+          >{store.display('frist').label} — {store.teNavn}s krav</span
+        >
+        <span class="font-mono sammendrag-kravlinje-belop"
+          >{store.display('frist').krevdValue} dager</span
+        >
       </div>
-      <span class="font-mono context-ref">§ 33.1</span>
     </div>
-    <div class="font-mono context-value">{store.display('frist').krevdValue} dager</div>
-    <p class="font-serif context-text">{store.display('frist').teText}</p>
+
+    {#if store.display('frist').teText}
+      <p class="font-serif sammendrag-begrunnelse">{store.display('frist').teText}</p>
+    {/if}
   </div>
 
   {#snippet yesNoPill(
@@ -198,20 +205,19 @@
     opts?: { alertText?: string }
   )}
     <div class="question-block">
-      <div class="question-header">
-        <span class="question-label">{label}</span>
-        <span class="font-mono question-ref">{ref}</span>
-      </div>
+      <SectionHeading title={label} paragrafRef={ref} />
       <p class="question-text">{text}</p>
-      <div class="pill-row">
+      <div class="segment-row">
         <button
-          class="pill"
-          class:yes={answer === true}
+          class="segment-btn"
+          class:segment-active={answer === true}
+          class:seg-yes={answer === true}
           onclick={() => onset(toggleChoice(answer, true))}>{yesText}</button
         >
         <button
-          class="pill"
-          class:no={answer === false}
+          class="segment-btn"
+          class:segment-active={answer === false}
+          class:seg-no={answer === false}
           onclick={() => onset(toggleChoice(answer, false))}>{noText}</button
         >
       </div>
@@ -235,7 +241,6 @@
           alertText: 'For sent svart — kravet er tapt.',
         }
       )}
-      <div class="divider"></div>
     {/if}
 
     {#if (isHelSubsidiaer || hasPartialSubStripe) && foresporselSvarOk === false}
@@ -255,8 +260,6 @@
       }
     )}
 
-    <div class="divider"></div>
-
     {#if computed.visibility.showSendForesporsel}
       <div class="question-block">
         <label class="checkbox-row">
@@ -274,45 +277,38 @@
           </div>
         </label>
       </div>
-      <div class="divider"></div>
     {/if}
 
     {#if computed.showGodkjentDager && !sendForesporsel}
       <div class="question-block">
-        <div class="question-header">
-          <span class="question-label">Utmåling</span>
-          <span class="font-mono question-ref">§ 33.5</span>
-        </div>
+        <SectionHeading title="Utmåling" paragrafRef="§ 33.5" />
         <p class="question-text">
           Fristforlengelsen skal svare til den virkning kontraktsforholdet har hatt på fremdriften.
         </p>
-        <div class="measurement-row">
-          <div>
-            <div class="measurement-label">Krevd</div>
-            <div class="font-mono measurement-value">{domainConfig.krevdDager} dager</div>
-          </div>
-          <div>
-            <div class="measurement-input-label">Godkjent dager</div>
+        <div class="number-field">
+          <span class="number-input-label">Godkjent dager</span>
+          <div class="number-input-wrap">
             <input
-              type="number"
-              min="0"
-              max={domainConfig.krevdDager}
+              type="text"
+              inputmode="numeric"
               value={godkjentDager ?? ''}
               oninput={(e) => {
-                const v = parseInt(e.currentTarget.value);
+                const v = parseInt(e.currentTarget.value.replace(/\D/g, ''));
                 godkjentDager = isNaN(v) ? undefined : v;
               }}
-              placeholder="dager"
+              placeholder="0"
               class="font-mono measurement-input"
             />
+            <span class="number-input-suffix">dager</span>
           </div>
+          <span class="font-mono number-input-ref">av {domainConfig.krevdDager} dager krevd</span>
         </div>
       </div>
     {/if}
 
     {#if allAnswered}
-      <div class="result-box" style:border-color={resultat.color}>
-        <div class="result-header" style:color={resultat.color}>
+      <div class="result-box konsekvens-{resultat.variant}">
+        <div class="result-header">
           <resultat.ikon size={18} />
           <span class="result-label">{resultat.label}</span>
         </div>
@@ -350,8 +346,8 @@
       {/if}
 
       <div class="begrunnelse-section">
-        <div class="question-header">
-          <span class="question-label">Begrunnelse</span>
+        <div class="sh-heading">
+          <span class="sh-title">Begrunnelse</span>
           <div class="begrunnelse-header-right">
             {#if userHasEdited && autoBegrunnelseHtml}
               <button class="regenerate-btn" onclick={handleRegenerate}>
@@ -376,7 +372,7 @@
   {/snippet}
 
   {#snippet formContent()}
-    <div class="bh-heading">Byggherrens standpunkt</div>
+    <SectionHeading title="Byggherrens standpunkt" />
 
     {#if computed.visibility.showFristVarselOk}
       {@render yesNoPill(
@@ -391,7 +387,6 @@
           alertText: 'For sent varslet — kravet er tapt.',
         }
       )}
-      <div class="divider"></div>
     {/if}
 
     {#if computed.visibility.showSpesifisertKravOk}
@@ -407,7 +402,6 @@
           alertText: 'For sent fremsatt — ytterligere betingelse for utmåling nedenfor.',
         }
       )}
-      <div class="divider"></div>
     {/if}
 
     <!-- Scenario 2: Delvis sub — spesifisertKravOk = false triggers stripe below -->
@@ -439,39 +433,190 @@
 
 <style>
   /* Form-specific styles (shared styles in mockup.css) */
-  .context-value {
-    font-size: 22px;
-    font-weight: 700;
-    margin-bottom: 12px;
-    letter-spacing: -0.02em;
-  }
-  .pill-row {
+
+  /* ── TE's fristkrav-sammendrag ── */
+  .sammendrag {
+    margin-bottom: 40px;
     display: flex;
-    gap: 8px;
+    flex-direction: column;
+    gap: 12px;
   }
-  .measurement-row {
+
+  .sammendrag-kravlinjer {
     display: flex;
-    align-items: flex-end;
-    gap: 32px;
+    flex-direction: column;
+    gap: 2px;
   }
-  .measurement-label {
+  .sammendrag-kravlinje {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 2px 0;
+  }
+  .sammendrag-kravlinje-label {
+    font-size: 13px;
+    color: var(--ink-2);
+  }
+  .sammendrag-kravlinje-belop {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ink);
+  }
+  .sammendrag-begrunnelse {
+    margin-top: 4px;
+    color: var(--ink-3);
+  }
+
+  /* ── Lokal overskrift for begrunnelse (har ekstra kontroller; ellers identisk med SectionHeading) ── */
+  .sh-heading {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--color-wire);
+  }
+  .sh-title {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--ink-3);
+  }
+
+  /* ── Seksjonsluft: jevnt 20px mellom blokker (matcher produksjons gap) ── */
+  .question-block {
+    margin-bottom: var(--spacing-5);
+    margin-top: var(--spacing-5);
+  }
+
+  /* ── Segment buttons ── */
+  .segment-row {
+    display: inline-flex;
+    border: 1px solid #d9d5cc;
+    border-radius: 4px;
+    overflow: hidden;
+    width: fit-content;
+  }
+  .segment-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    min-height: 32px;
+    font-family: var(--font-sans);
+    font-size: 13px;
+    font-weight: 600;
+    background: var(--surface);
+    color: var(--ink-3);
+    border: none;
+    border-right: 1px solid #d9d5cc;
+    cursor: pointer;
+    transition: all 80ms;
+    white-space: nowrap;
+    line-height: 1;
+  }
+  .segment-btn:last-child {
+    border-right: none;
+  }
+  .segment-btn:hover:not(.segment-active) {
+    background: var(--surface-inset);
+    color: var(--ink);
+  }
+  .segment-active {
+    background: var(--brand-2);
+    color: white;
+  }
+  .segment-active.seg-yes {
+    background: var(--success);
+    color: white;
+  }
+  .segment-active.seg-no {
+    background: var(--danger);
+    color: white;
+  }
+
+  /* ── Utmåling / NumberInput ── */
+  .number-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-width: 240px;
+  }
+  .number-input-label {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+  .number-input-wrap {
+    display: flex;
+    align-items: center;
+    gap: 0;
+  }
+  .number-input-wrap .font-mono.measurement-input {
+    border-radius: 4px 0 0 4px;
+    flex: 1;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+  .number-input-suffix {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ink-3);
+    padding: 8px 12px;
+    background: var(--surface-inset);
+    border: var(--control-border);
+    border-left: none;
+    border-radius: 0 4px 4px 0;
+    white-space: nowrap;
+  }
+  .number-input-ref {
     font-size: 12px;
     color: var(--ink-4);
-    margin-bottom: 4px;
+    margin-top: 2px;
   }
-  .measurement-value {
-    font-size: 22px;
-    font-weight: 700;
-    letter-spacing: -0.02em;
-  }
-  .measurement-input {
-    width: 140px;
-  }
+
+  /* ── Resultat-boks ── */
   .result-box {
-    margin-top: 32px;
+    margin-top: 0;
+    padding: 12px 16px;
+    background: var(--surface);
+    border: none;
+    border-left: 3px solid var(--ink-4);
+    border-radius: 4px;
   }
-  .result-detail {
-    margin-top: 12px;
+  .result-box.konsekvens-positive {
+    border-left-color: var(--success);
+    background: color-mix(in srgb, var(--success) 6%, var(--surface));
+  }
+  .result-box.konsekvens-negative {
+    border-left-color: var(--danger);
+    background: color-mix(in srgb, var(--danger) 6%, var(--surface));
+  }
+  .result-box.konsekvens-mixed {
+    border-left-color: var(--warning);
+    background: color-mix(in srgb, var(--warning) 6%, var(--surface));
+  }
+  .result-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    line-height: 1;
+  }
+  .konsekvens-positive .result-header {
+    color: var(--success);
+  }
+  .konsekvens-negative .result-header {
+    color: var(--danger);
+  }
+  .konsekvens-mixed .result-header {
+    color: var(--warning);
   }
   .result-days {
     font-size: 13px;
@@ -482,6 +627,7 @@
     font-style: italic;
     margin-top: 8px;
   }
+
   .checkbox-row {
     display: flex;
     align-items: flex-start;
