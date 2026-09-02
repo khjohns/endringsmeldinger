@@ -55,7 +55,7 @@ flowchart TB
             F --> D
         end
 
-        WH["Webhook-abonnement<br/>per Catenda-prosjekt"]
+        WH["Webhook-abonnement<br/>per Catenda-prosjekt og eventtype<br/>med unik routingnøkkel i target path"]
 
         P --> B
         P --> WH
@@ -66,7 +66,7 @@ flowchart TB
     CRED -->|"GET /oauth2/authorize eller client credentials"| TOKEN
     TOKEN -->|"Authorization: Bearer …"| P
     TOKEN --> B
-    WH -->|"issue.created / issue.modified"| ROUTER
+    WH -->|"issue.created<br/>issue.modified er valgfri audit"| ROUTER
     CFG -. "velger riktig board, library og folder" .-> P
 ```
 
@@ -86,11 +86,11 @@ etter at prosjektet er konfigurert.
 flowchart LR
     A["Felles Bearer token"]
     P["GET /v2/projects<br/>alle tilgjengelige Catenda-prosjekter"]
-    B["GET /opencde/bcf/3.0/projects<br/>alle tilgjengelige topic boards"]
-    J["Koble board til prosjekt via<br/>bimsync_project_id"]
+    B["GET /opencde/bcf/3.0/projects<br/>?bimsync_project_id={id}"]
+    J["Velg og valider prosjektets<br/>topic board(s)"]
     L["GET /v2/projects/{id}/libraries<br/>velg library og eventuelt folder"]
     R[("Lagre prosjektkonfigurasjon<br/>med faktiske GUID-er")]
-    W["POST /v2/projects/{id}/webhooks/user<br/>issue.created + issue.modified"]
+    W["POST /v2/projects/{id}/webhooks/user<br/>ett abonnement per eventtype<br/>unik target path per prosjekt"]
 
     A --> P
     A --> B
@@ -115,7 +115,7 @@ sequenceDiagram
     actor U as Bruker (TE/BH)
     participant UI as Catenda UI
     participant CAT as Catenda webhook-tjeneste
-    participant WH as Backend<br/>POST /webhook/catenda/{secret}
+    participant WH as Backend<br/>POST /webhook/catenda/{project_hook_key}
     participant API as Catenda BCF/v2 API
     participant REG as Prosjektregister
     participant DB as Event store + sak_metadata
@@ -126,11 +126,12 @@ sequenceDiagram
     UI->>CAT: Topic lagres
     CAT->>WH: issue.created
 
-    WH->>WH: Valider secret path, payload og duplikat-ID
-    WH->>API: GET topic board fra board-ID i webhook
-    API-->>WH: bimsync_project_id (Catenda-prosjekt)
-    WH->>REG: Slå opp board + Catenda-prosjekt
-    REG-->>WH: internal_project_id + library/folder
+    WH->>WH: Valider opaque target path og payload
+    WH->>REG: Slå opp project_hook_key
+    REG-->>WH: internal_project_id + Catenda-prosjekt<br/>+ tillatte boards + library/folder
+    WH->>WH: Hent topic-ID og eventuell board-ID fra callback
+    WH->>API: Finn/valider topic board blant prosjektets boards
+    API-->>WH: board-ID + bimsync_project_id
 
     alt Prosjekt/board er ikke konfigurert
         WH->>WH: Avvis eller parker eventet og varsle drift
@@ -153,8 +154,17 @@ sequenceDiagram
     APP->>DB: Henter kontekst, state og tidslinje via backend
 ```
 
-Webhook-eventet heter `issue.created` i dagens oppsett. Backend aksepterer også
-`bcf.issue.created`.
+Webhook-eventet heter `issue.created`. `bcf.issue.created` og
+`bcf.comment.created` er ikke dokumenterte abonnementsevents. Dagens route har
+aliaser for dem, men strukturvalidatoren avviser dem før dispatch.
+
+Den lokale OpenAPI-filen dokumenterer opprettelse og administrasjon av
+abonnementer, men ikke JSON-kontrakten Catenda sender til callback-URL-en. En
+ekte `issue.created` må derfor fanges og lagres som test-fixture før feltnavnene
+for topic, board, prosjekt og event-ID låses. Den unike routingnøkkelen i
+abonnementets target path gjør at fysisk prosjekt kan identifiseres uten å
+stole på et udokumentert payload-felt. Board fra payload/API kryssjekkes alltid
+mot prosjektregisteret.
 
 ## 3. Innsending, PDF og synkronisering tilbake til Catenda
 
@@ -192,9 +202,14 @@ sequenceDiagram
         end
 
         BE->>DB: Hent prosjektets Catenda-konfigurasjon
-        BE->>DOC: POST PDF til prosjektets library/folder
-        DOC-->>BE: library_item_id / document_guid
-        BE->>BCF: POST document_reference på riktig topic
+        BE->>DOC: POST PDF til prosjektets document-library/folder
+        DOC-->>BE: library item id (kompakt UUID) + revisjon
+        BE->>BE: Normaliser ID til BCF document_guid-format
+        alt Første dokument eller eget unikt filnavn
+            BE->>BCF: POST document_reference på riktig topic
+        else Samme dokumentnavn finnes og failOnDocumentExists=false
+            BE->>BCF: Gjenbruk eksisterende document reference
+        end
         BE->>BCF: POST kommentar med resultat og ny app-lenke
 
         opt Intern status er endret
@@ -243,8 +258,9 @@ til `Lukket`. `Omforent` brukes når partene faktisk er enige.
 
 Den kanoniske relasjonen i appen går fra en Endringsordre eller Forsering til
 de underliggende KOE-sakene. Reverse oppslag gjør at relasjonen også vises fra
-KOE-siden. I Catenda opprettes relasjonen begge veier fordi BCF-endepunktet
-arbeider på ett topic om gangen.
+KOE-siden. Catenda-spesifikasjonen garanterer ikke at en relasjon blir synlig
+fra begge topics. Inntil dette er kontrakttestet, opprettes den eksplisitt fra
+begge sider for å oppfylle brukerkravet.
 
 ```mermaid
 flowchart LR
@@ -258,9 +274,14 @@ flowchart LR
 
     CET["Catenda EO-/Forsering-topic"]
     CKT["Catenda KOE-topic"]
-    CET -->|"PUT related_topics"| CKT
-    CKT -->|"PUT related_topics"| CET
+    CET -->|"GET → union → PUT related_topics"| CKT
+    CKT -->|"GET → union → PUT related_topics"| CET
 ```
+
+`related_topic_guid` skal alltid være Catendas topic GUID, aldri appens
+`sak_id`. Catendas OpenAPI sier ikke eksplisitt om `PUT related_topics` legger
+til eller erstatter samlingen. GET–union–PUT hindrer tap av eksisterende
+relasjoner dersom PUT følger BCF-semantikken for full samlingsoppdatering.
 
 ## 6. Catenda-endepunkter brukt i denne flyten
 
@@ -273,11 +294,12 @@ Alle endepunkter har base URL `https://api.catenda.com`.
 | Valider innlogget Catenda-bruker | `GET /opencde/foundation/1.0/current-user` |
 | List brukerens Catenda-prosjekter | `GET /v2/projects` |
 | Hent Catenda-prosjekt | `GET /v2/projects/{catenda_project_id}` |
-| List topic boards | `GET /opencde/bcf/3.0/projects` |
+| List topic boards | `GET /opencde/bcf/3.0/projects?bimsync_project_id={catenda_project_id}` |
 | Hent topic board | `GET /opencde/bcf/3.0/projects/{topic_board_id}` |
 | Hent typer og statuser | `GET /opencde/bcf/3.0/projects/{topic_board_id}/extensions` |
 | Hent board + custom fields | `GET /v2/projects/{catenda_project_id}/issues/boards/{topic_board_id}?include=customFields,customFieldInstances` |
 | List/opprett topics | `GET/POST /opencde/bcf/3.0/projects/{topic_board_id}/topics` |
+| List topics på tvers av boards i prosjekt | `GET /opencde/bcf/3.0/bimsync-projects/{catenda_project_id}/topics` |
 | Hent/oppdater topic | `GET/PUT /opencde/bcf/3.0/projects/{topic_board_id}/topics/{topic_guid}` |
 | List/opprett kommentarer | `GET/POST /opencde/bcf/3.0/projects/{topic_board_id}/topics/{topic_guid}/comments` |
 | List biblioteker | `GET /v2/projects/{catenda_project_id}/libraries` |
@@ -318,3 +340,98 @@ men en egen, validert `catenda_project_config`-modell/tabell vil gi sikrere
 oppslag og unikhetskrav. Minstekravet er unik indeks på `catenda_project_id` og
 `topic_board_id`, slik at et webhook-event aldri kan rutes til mer enn ett
 internt prosjekt.
+
+## 9. Funn fra kontroll mot lokal Catenda OpenAPI
+
+Disse punktene bør håndteres før integrasjonen brukes med flere prosjekter:
+
+| Prioritet | Funn | Konsekvens / anbefaling |
+|---|---|---|
+| Kritisk | Callback-payloaden er ikke beskrevet i webhook-OpenAPI | Fang et ekte `issue.created`, opprett fixture og bruk unik prosjekt-routingnøkkel i target path |
+| Kritisk | Topic `PUT` nullstiller utelatte BCF-felter | Statusoppdatering må hente og bevare blant annet type, labels, priority, assigned_to, stage og due_date |
+| Kritisk | Webhooken reserverer event-ID før behandling og returnerer HTTP 200 også ved `{success:false}` | Bruk en varig inbox/UoW, marker event fullført etter suksess og skill permanente avvisninger fra retriable feil |
+| Høy | Dagens sendeflyt henter `project_id`, `library_id` og `folder_id` globalt | Slå opp alle tre fra saken sitt interne prosjekt |
+| Høy | Samme PDF-navn med `failOnDocumentExists=false` lager ny revisjon | Åpent ADR-valg: samlet saksdokument eller separate brev med revisjonsløp per part og spor; lagre uansett library item-ID og document-reference-GUID |
+| Høy | Klienten antar at `POST document_references` returnerer objekt, mens OpenAPI viser liste | Normaliser både liste- og objektrespons defensivt |
+| Høy | EO-/Forseringstjenestene sender flere steder interne `sak_id`-er som `related_topic_guid` | Slå alltid opp Catenda topic GUID fra metadata før Catenda-kallet |
+| Middels | Library fallback kan velge første bibliotek uansett type | Tillat bare library med `type=document`; håndter paginering |
+| Middels | Revisjonens `document.filename` settes til tilfeldig tempfilnavn | Sett både dokumentnavn og revisjonsfilnavn til ønsket PDF-navn |
+| Middels | Mappeoppretting mangler top-level `type: folder` fra skjemaet | Send både top-level type og `document.type` |
+| Lav | DELETE webhook er dokumentert med HTTP 200, mens mixinen bare godtar 204 | Godta dokumentert 200-respons, eventuelt også 204 defensivt |
+| Lav | Klienten sender udokumentert `name` ved opprettelse av webhook | Fjern feltet eller bekreft det i en kontrakttest |
+
+To forhold må kontrakttestes mot et testprosjekt fordi OpenAPI-en ikke er
+entydig: om `PUT related_topics` er additiv eller erstatter hele samlingen, og
+om en enkelt relasjon automatisk blir synlig fra begge topics.
+
+## 10. Tester før produksjonsimplementasjon
+
+### P0 – kontrakttester mot Catenda-testprosjekter
+
+1. **Fang reell webhook-payload:** Opprett topic i to ulike Catenda-prosjekter
+   og lagre komplette, anonymiserte `issue.created`-payloads som fixtures.
+   Verifiser topic-, board-, prosjekt- og event-ID-feltene samt compact/dashed
+   GUID-format.
+2. **Webhook-leveranse:** Mål timeout og retry ved 500/timeout, kontroller om
+   samme event-ID gjenbrukes, og verifiser når abonnementets `failureCount` og
+   state endres. Test at unik target path faktisk identifiserer prosjektet.
+3. **Topic-status uten datatap:** Opprett et topic med type, labels, prioritet,
+   ansvarlig, stage, beskrivelse og due date. Oppdater bare appstatus og
+   kontroller at samtlige øvrige felt er uendret.
+4. **Dokumentkontrakt:** Last opp første PDF og samme filnavn på nytt. Registrer
+   faktisk responsform, library item-ID, revisjons-ID og antall document
+   references. Gjenta med unikt filnavn. Dette gir faktagrunnlaget for ADR-et
+   om samlet dokument kontra separate brev.
+5. **Related topics:** Opprett A→B, les relasjoner fra både A og B, legg deretter
+   til A→C og kontroller at A→B ikke forsvinner. Gjenta på tvers av to boards i
+   samme Catenda-prosjekt. Bruk bare Catenda topic GUID-er.
+6. **Teknisk identitet:** For hvert prosjekt, verifiser tilgang til konfigurert
+   board og document-library samt rettighetene createComment, update,
+   updateDocumentReferences og updateRelatedTopics.
+
+### P0 – integrasjons- og robusthetstester i appen
+
+1. **Flerprosjektisolasjon:** Lever samtidige webhooks fra minst to prosjekter.
+   Kontroller at sak, eventer, metadata, kommentar, status, PDF, library og
+   folder alltid havner i riktig prosjekt.
+2. **Durable webhook inbox:** Simuler feil etter mottak, under databasecommit og
+   under Catenda-kall. Retry skal gi nøyaktig én appsak, men fortsatt fullføre
+   manglende sideeffekter.
+3. **Outbox for Catenda:** Simuler feil separat for PDF-upload,
+   document-reference, kommentar og status. Operasjonene skal kunne retries
+   idempotent uten duplikate brev, referanser eller kommentarer.
+4. **Utkast kontra Send:** `Lagre utkast` skal ikke utføre Catenda-kall eller
+   opprette formell meddelelse. Ett klikk på `Send` skal opprette nøyaktig ett
+   domene-event og de avtalte Catenda-sideeffektene.
+5. **Ekko fra egne Catenda-kall:** `issue.modified` og eventuelle
+   status-webhooks utløst av appens kommentar/status skal ikke lage nye
+   domene-events eller starte en synkroniseringsløkke.
+6. **ID-kollisjon og samtidighet:** Lever to `issue.created` i samme sekund og
+   verifiser unike `sak_id`-er. Dagens sekundbaserte ID må erstattes eller
+   sikres med UUID/unik databaseconstraint.
+7. **Relasjonsoppslag:** Verifiser EO/Forsering→KOE og reverse KOE→EO/Forsering
+   både i appen og Catenda, inkludert flere relasjoner på samme KOE.
+
+### Eksisterende test som må strammes inn
+
+`test_full_flow.py` bør få en egen ekte webhook-variant. Dagens
+`_create_case_directly()` omgår webhook-ruten, og `verify_pdf_upload()` avslutter
+med suksess selv om ingen document reference finnes. Den nye testen må vente
+med avgrenset timeout og feile hvis sak, kommentar, dokument, referanse eller
+prosjektruting mangler. Opprettede topics, dokumenter og webhook-abonnement må
+registreres under testen og ryddes deterministisk etterpå.
+
+## 11. Åpent ADR: dokument- og brevmodell
+
+Før dokumentflyten implementeres ferdig må ett av disse alternativene velges:
+
+| Alternativ | Catenda-modell | Viktigste konsekvens |
+|---|---|---|
+| Samlet saksdokument | Ett library item per KOE, ny revisjon ved hver formelle sending | Enkel dokumentliste, men mindre tydelig hvilket brev/revisjon som tilhører part og spor |
+| Separate brev | Ett library item per formelle meddelelse; revisjoner bare av det aktuelle brevet | Tydelig korrespondanse og revisjonshistorikk, men flere dokumenter og referanser per topic |
+| Separate brev per part og spor | Stabilt library item per kombinasjon av TE/BH og grunnlag/vederlag/frist | Strukturert revisjonsløp, men krever eksplisitt dokumentnøkkel og streng navnestandard |
+
+Valget påvirker filnavn, unik dokumentnøkkel, når document references opprettes,
+PDF-innhold, kommentarformat og hvordan appen kobler domene-event til Catenda
+library item og revisjon. Det bør derfor besluttes i et ADR før kodeendringene
+for PDF-upload gjennomføres.
