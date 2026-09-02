@@ -256,7 +256,7 @@ class DocumentsMixin:
         # Bimsync-Params header (JSON)
         bimsync_params: dict = {
             "name": document_name,
-            "document": {"type": "file", "filename": file_path_obj.name},
+            "document": {"type": "file", "filename": document_name},
             "failOnDocumentExists": False,
         }
 
@@ -284,20 +284,32 @@ class DocumentsMixin:
         except Exception:
             return None
 
-        result = response.json()
+        try:
+            result = response.json()
+        except (TypeError, ValueError):
+            logger.error("Dokumentopplasting returnerte ugyldig JSON")
+            return None
 
-        # API returns a list with one element
-        if isinstance(result, list) and len(result) > 0:
+        # The API documents a one-element list. Accept an object defensively
+        # because that response shape has also occurred in integrations.
+        if isinstance(result, list) and len(result) == 1:
             library_item = result[0]
-        else:
+        elif isinstance(result, dict):
             library_item = result
+        else:
+            logger.error("Ugyldig respons ved dokumentopplasting")
+            return None
+
+        if not isinstance(library_item, dict) or not library_item.get("id"):
+            logger.error("Dokumentrespons mangler library-item-id")
+            return None
 
         library_item_id = library_item["id"]
 
         logger.info("Dokument lastet opp!")
         logger.info(f"   library-item-id: {library_item_id}")
-        logger.info(f"   Navn: {library_item['name']}")
-        logger.info(f"   Type: {library_item['type']}")
+        logger.info(f"   Navn: {library_item.get('name', 'N/A')}")
+        logger.info(f"   Type: {library_item.get('type', 'N/A')}")
 
         return library_item
 
@@ -519,7 +531,22 @@ class DocumentsMixin:
         if response is None:
             return None
 
-        doc_ref = response.json()
+        try:
+            result = response.json()
+        except (TypeError, ValueError):
+            logger.error("Oppretting av document reference returnerte ugyldig JSON")
+            return None
+        if isinstance(result, list) and len(result) == 1:
+            doc_ref = result[0]
+        elif isinstance(result, dict):
+            doc_ref = result
+        else:
+            logger.error("Ugyldig respons ved oppretting av document reference")
+            return None
+
+        if not isinstance(doc_ref, dict) or not doc_ref.get("guid"):
+            logger.error("Document reference-respons mangler guid")
+            return None
 
         logger.info("Document reference opprettet!")
         logger.info(f"   Reference GUID: {doc_ref['guid']}")

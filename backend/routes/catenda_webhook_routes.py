@@ -64,12 +64,23 @@ def get_webhook_service() -> WebhookService:
     # Create event repository (uses EVENT_STORE_BACKEND env var)
     event_repository = create_event_repository()
 
+    # Build project resolver (trinn 2A): for øyeblikket en legacy-adapter over
+    # dagens ene .env-konfigurasjon. Tjenesten resolvere payloaden til et
+    # internt prosjekt før noen sideeffekter.
+    from services.catenda_project_resolver_factory import (
+        build_legacy_project_resolver,
+    )
+
+    catenda_client = get_catenda_client()
+    resolver = build_legacy_project_resolver(catenda_client)
+
     # Create and return service
     return WebhookService(
         event_repository=event_repository,
-        catenda_client=get_catenda_client(),
+        catenda_client=catenda_client,
         config=config,
         magic_link_generator=magic_link_mgr,
+        resolver=resolver,
     )
 
 

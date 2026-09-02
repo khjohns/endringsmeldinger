@@ -40,13 +40,18 @@ ALLOWED_TOPIC_TYPES = ["Krav om endringsordre", "Endringsordre", "Forsering"]
 # Hvis angitt, prosesseres kun topics fra disse board IDs.
 # Sett til None eller tom liste for å akseptere alle boards.
 #
+# NB (trinn 2A): Board-godkjenning gjøres per-prosjekt i
+# CatendaProjectResolver (catenda_project_config.topic_board_ids), ikke globalt.
+# Denne globale konstanten er derfor satt til None for å unngå at en hardkodet
+# enkelt-board-ID overstyrer/ruter feil i flerprosjektoppsettet.
+#
 # Finn board ID i Catenda URL eller via API.
 #
 # Eksempel:
 # ALLOWED_BOARD_IDS = ["board-123", "board-456"]  # Kun disse boards
 # ALLOWED_BOARD_IDS = None                        # Alle boards
 
-ALLOWED_BOARD_IDS = ["ffc8413d-1ec5-4834-878b-2955db96e734"]
+ALLOWED_BOARD_IDS = None
 
 
 # ----------------------------------------------------------------------------

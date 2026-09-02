@@ -55,7 +55,12 @@ class TestCatendaConfig:
 
     def test_catenda_disabled_by_default_without_credentials(self):
         """is_catenda_enabled should be False when no credentials are set."""
-        settings = Settings()
+        settings = Settings(
+            _env_file=None,
+            catenda_client_id="",
+            catenda_client_secret="",
+            catenda_enabled="",
+        )
         assert settings.is_catenda_enabled is False
 
     def test_catenda_auto_enabled_with_credentials(self):
@@ -88,3 +93,25 @@ class TestCatendaConfig:
 
         settings2 = Settings(catenda_enabled="True")
         assert settings2.is_catenda_enabled is True
+
+
+class TestSettingsRepresentation:
+    """Sensitive configuration must not leak through logs or assertion output."""
+
+    def test_sensitive_values_are_hidden_from_repr(self):
+        markers = {
+            "catenda_client_secret": "marker-catenda-client-secret",
+            "catenda_access_token": "marker-catenda-access-token",
+            "catenda_refresh_token": "marker-catenda-refresh-token",
+            "webhook_secret_path": "marker-webhook-secret",
+            "csrf_secret_key": "marker-csrf-secret",
+            "azure_storage_key": "marker-storage-key",
+            "azure_service_bus_connection": "marker-service-bus-connection",
+            "azure_sql_connection": "marker-sql-connection",
+        }
+        settings = Settings(_env_file=None, **markers)
+
+        rendered = repr(settings)
+
+        for marker in markers.values():
+            assert marker not in rendered
