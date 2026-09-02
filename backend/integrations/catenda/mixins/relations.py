@@ -7,6 +7,7 @@ Topic relation management methods for Catenda API client.
 
 import logging
 from typing import TYPE_CHECKING
+from uuid import UUID
 
 import requests
 
@@ -100,6 +101,10 @@ class RelationsMixin:
             logger.error("Ingen topic board valgt")
             return False
 
+        if not related_topic_guids:
+            logger.info(f"Ingen nye relasjoner for topic {topic_id}")
+            return True
+
         logger.info(
             f"Oppretter {len(related_topic_guids)} relasjon(er) for topic {topic_id}..."
         )
@@ -109,8 +114,50 @@ class RelationsMixin:
             f"/topics/{topic_id}/related_topics"
         )
 
-        # Payload is a list of objects
-        payload = [{"related_topic_guid": guid} for guid in related_topic_guids]
+        try:
+            new_guids = [str(UUID(guid.strip())) for guid in related_topic_guids]
+        except (AttributeError, TypeError, ValueError):
+            logger.error("Nye topic-relasjoner inneholder ugyldig GUID")
+            return False
+
+        # PUT may replace the relation collection. Fetch all existing relations,
+        # including those to other boards in the physical project, and send the
+        # stable union to avoid accidental relation loss.
+        existing_response = self._safe_request(
+            "GET",
+            url,
+            "Feil ved henting av eksisterende topic-relasjoner",
+            params={"includeBimsyncProjectTopics": "true"},
+        )
+        if existing_response is None:
+            return False
+
+        try:
+            existing_relations = existing_response.json()
+        except (TypeError, ValueError):
+            logger.error("Henting av topic-relasjoner returnerte ugyldig JSON")
+            return False
+        if not isinstance(existing_relations, list):
+            logger.error("Ugyldig respons ved henting av topic-relasjoner")
+            return False
+
+        existing_guids: list[str] = []
+        for relation in existing_relations:
+            if not isinstance(relation, dict) or not isinstance(
+                relation.get("related_topic_guid"), str
+            ):
+                logger.error("Eksisterende topic-relasjon mangler gyldig GUID")
+                return False
+            try:
+                existing_guids.append(
+                    str(UUID(relation["related_topic_guid"].strip()))
+                )
+            except (AttributeError, TypeError, ValueError):
+                logger.error("Eksisterende topic-relasjon inneholder ugyldig GUID")
+                return False
+
+        all_guids = list(dict.fromkeys([*existing_guids, *new_guids]))
+        payload = [{"related_topic_guid": guid} for guid in all_guids]
 
         response = self._safe_request(
             "PUT", url, "Feil ved oppretting av topic-relasjoner", json=payload

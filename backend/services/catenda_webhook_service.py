@@ -25,6 +25,10 @@ from models.events import SakOpprettetEvent
 from repositories import create_metadata_repository
 from repositories.event_repository import JsonFileEventRepository
 from services.catenda_comment_generator import CatendaCommentGenerator
+from services.catenda_project_resolver import (
+    CatendaProjectResolver,
+    ProjectResolutionError,
+)
 from services.timeline_service import TimelineService
 from utils.logger import get_logger
 
@@ -70,6 +74,7 @@ class WebhookService:
         self,
         event_repository: JsonFileEventRepository,
         catenda_client: Any,
+        resolver: CatendaProjectResolver,
         config: dict[str, Any] | None = None,
         magic_link_generator: Any | None = None,
     ):
@@ -81,13 +86,18 @@ class WebhookService:
             catenda_client: Authenticated Catenda API client
             config: Optional configuration dict (project_id, library_id, etc.)
             magic_link_generator: Optional magic link generator for URLs
+            resolver: Obligatorisk CatendaProjectResolver for fail-closed
+                prosjektruting.
         """
+        if resolver is None:
+            raise ValueError("WebhookService krever en CatendaProjectResolver")
         self.event_repo = event_repository
         self.metadata_repo = create_metadata_repository()
         self.timeline_service = TimelineService()
         self.catenda = catenda_client
         self.config = config or {}
         self.magic_link_generator = magic_link_generator
+        self.resolver = resolver
 
     def get_react_app_base_url(self) -> str:
         """
@@ -142,14 +152,13 @@ class WebhookService:
                 should_process_topic,
             )
 
-            # Extract basic data from webhook payload
+            # Extract basic data from webhook payload. Resolveren er eneste
+            # autoritative kilde for prosjekt-, board- og topic-kontekst.
             temp_topic_data = webhook_payload.get("issue", {}) or webhook_payload.get(
                 "topic", {}
             )
-            raw_board_id = (
-                webhook_payload.get("project_id")
-                or temp_topic_data.get("boardId")
-                or temp_topic_data.get("topic_board_id")
+            raw_board_id = temp_topic_data.get("boardId") or temp_topic_data.get(
+                "topic_board_id"
             )
             raw_topic_id = (
                 temp_topic_data.get("id")
@@ -157,19 +166,21 @@ class WebhookService:
                 or webhook_payload.get("guid")
             )
 
-            if not raw_topic_id or not raw_board_id:
-                logger.error(
-                    f"Webhook missing 'topic_id' or 'board_id'. Payload: {webhook_payload}"
-                )
-                return {
-                    "success": False,
-                    "error": "Missing topic_id or board_id in webhook",
-                }
-
-            # Format GUIDs to UUID format with dashes (BCF API requirement)
-            topic_id = format_guid_with_dashes(raw_topic_id)
-            board_id = format_guid_with_dashes(raw_board_id)
-            logger.info(f"📋 Formatted GUIDs - topic: {topic_id}, board: {board_id}")
+            # Resolveren kjører før domene-sideeffekter, men ruten har på dette
+            # tidspunktet allerede reservert event-ID-en. Durable inbox er et
+            # separat, kjent oppfølgingsarbeid.
+            resolved = self.resolver.resolve(
+                project_id=(webhook_payload.get("project") or {}).get("id"),
+                board_id=raw_board_id,
+                topic_id=raw_topic_id,
+            )
+            board_id = resolved.board_id
+            topic_id = resolved.topic_id
+            logger.info(
+                f"📍 Rutede webhook til intern prosjekt "
+                f"{resolved.internal_project_id} "
+                f"(catenda {resolved.catenda_project_id})"
+            )
 
             # Fetch full topic details from Catenda API FIRST
             # (webhook payload often doesn't include topic_type)
@@ -211,16 +222,11 @@ class WebhookService:
             logger.info(f"📋 Topic type: '{topic_type}' -> Sakstype: '{sakstype}'")
 
             project_name = "Unknown project"
-            v2_project_id = None
-
-            # Get project details
-            board_details = self.catenda.get_topic_board_details()
-            if board_details:
-                v2_project_id = board_details.get("bimsync_project_id")
-                if v2_project_id:
-                    project_details = self.catenda.get_project_details(v2_project_id)
-                    if project_details:
-                        project_name = project_details.get("name", project_name)
+            project_details = self.catenda.get_project_details(
+                resolved.catenda_project_id
+            )
+            if project_details:
+                project_name = project_details.get("name", project_name)
 
             # NOTE: Custom fields (Byggherre, Leverandør) extracted but not currently used
             # TODO: Consider using these fields for party identification
@@ -241,13 +247,18 @@ class WebhookService:
             timestamp = datetime.now(UTC).strftime("%Y%m%d-%H%M%S")
             sak_id = f"SAK-{timestamp}"
 
+            # Appens prosjekt-ID er intern; fysisk Catenda-ID brukes kun i
+            # Catenda-metadata/API-kall. Begge kommer fra resolveren.
+            app_project_id = resolved.internal_project_id
+            catenda_project_id = resolved.catenda_project_id
+
             # Create SakOpprettetEvent (Event Sourcing)
             event = SakOpprettetEvent(
                 sak_id=sak_id,
                 sakstittel=title,
                 aktor=author_name,
                 aktor_rolle="TE",  # Assume TE created the case
-                prosjekt_id=v2_project_id or "unknown",
+                prosjekt_id=app_project_id,
                 catenda_topic_id=topic_id,
                 sakstype=sakstype,
             )
@@ -262,8 +273,8 @@ class WebhookService:
                 events=[event],
                 catenda_topic_id=topic_id,
                 catenda_board_id=board_id,
-                catenda_project_id=v2_project_id,
-                prosjekt_id=v2_project_id,
+                catenda_project_id=catenda_project_id,
+                prosjekt_id=app_project_id,
                 metadata_kwargs={
                     "created_by": author_name,
                     "cached_title": title,
@@ -322,6 +333,19 @@ class WebhookService:
 
             return {"success": True, "sak_id": sak_id}
 
+        except ProjectResolutionError as e:
+            logger.warning(
+                "Webhook project resolution failed (%s, retryable=%s): %s",
+                e.error_code,
+                e.retryable,
+                e,
+            )
+            return {
+                "success": False,
+                "error": str(e),
+                "error_code": e.error_code,
+                "retryable": e.retryable,
+            }
         except Exception as e:
             logger.exception(f"Error in handle_new_topic_created: {e}")
             return {"success": False, "error": str(e)}

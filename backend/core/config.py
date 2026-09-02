@@ -5,6 +5,7 @@ All environment variables are loaded here using Pydantic Settings.
 This provides type validation and automatic .env file loading.
 """
 
+from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -18,7 +19,7 @@ class Settings(BaseSettings):
 
     # Catenda API credentials
     catenda_client_id: str = ""
-    catenda_client_secret: str = ""
+    catenda_client_secret: str = Field(default="", repr=False)
     catenda_project_id: str = ""
     catenda_organization_id: str = ""
     catenda_library_id: str = ""
@@ -26,8 +27,8 @@ class Settings(BaseSettings):
     catenda_topic_board_id: str = ""
 
     # Catenda OAuth tokens (generert av setup_authentication.py)
-    catenda_access_token: str = ""
-    catenda_refresh_token: str = ""
+    catenda_access_token: str = Field(default="", repr=False)
+    catenda_refresh_token: str = Field(default="", repr=False)
     catenda_redirect_uri: str = "http://localhost:8080/callback"
 
     # Catenda integration toggle (auto-detected if not explicitly set)
@@ -76,8 +77,10 @@ class Settings(BaseSettings):
     repository_type: str = "csv"  # "csv" for local dev, "dataverse" for production
 
     # Security
-    webhook_secret_path: str = ""
-    csrf_secret_key: str = "dev-secret-key-change-in-production"
+    webhook_secret_path: str = Field(default="", repr=False)
+    csrf_secret_key: str = Field(
+        default="dev-secret-key-change-in-production", repr=False
+    )
 
     # Flask
     flask_host: str = "0.0.0.0"
@@ -100,15 +103,15 @@ class Settings(BaseSettings):
 
     # Azure Storage (for document storage)
     azure_storage_account: str = ""
-    azure_storage_key: str = ""
+    azure_storage_key: str = Field(default="", repr=False)
     azure_storage_container: str = "koe-documents"
 
     # Azure Service Bus (for background tasks)
-    azure_service_bus_connection: str = ""
+    azure_service_bus_connection: str = Field(default="", repr=False)
     azure_queue_name: str = "koe-events"
 
     # Azure SQL (for production database)
-    azure_sql_connection: str = ""
+    azure_sql_connection: str = Field(default="", repr=False)
 
     # Azure Key Vault (for secrets management)
     azure_keyvault_url: str = ""

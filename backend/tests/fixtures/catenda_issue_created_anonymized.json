@@ -1,0 +1,38 @@
+{
+  "createdBy": {
+    "avatarEtag": "redacted",
+    "avatarUrl": "https://example.invalid/avatar",
+    "createdAt": "2026-09-02T09:00:00.000Z",
+    "email": "test.user@example.invalid",
+    "id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "name": "Test User",
+    "type": "user",
+    "username": "test.user"
+  },
+  "event": {
+    "id": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "timestamp": "2026-09-02T09:00:00.000Z",
+    "type": "issue.created"
+  },
+  "issue": {
+    "assignedTo": null,
+    "boardId": "cccccccc-cccc-cccc-cccc-cccccccccccc",
+    "description": "Anonymised test description",
+    "id": "dddddddd-dddd-dddd-dddd-dddddddddddd",
+    "status": "Open",
+    "statusId": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+    "title": "TEST-ANONYMISED-WEBHOOK",
+    "type": "Krav om endringsordre",
+    "typeId": "ffffffffffffffffffffffffffffffff",
+    "url": "https://example.invalid/issues/anonymous"
+  },
+  "project": {
+    "createdAt": "2026-01-01T00:00:00.000Z",
+    "description": "Anonymised test project",
+    "id": "11111111111111111111111111111111",
+    "imageEtag": "redacted",
+    "imageUrl": "https://example.invalid/project-image",
+    "name": "TEST-PROJECT",
+    "updatedAt": "2026-09-02T09:00:00.000Z"
+  }
+}

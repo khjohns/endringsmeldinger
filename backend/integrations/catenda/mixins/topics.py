@@ -16,6 +16,24 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
+# Ordinary BCF fields are not persistent when omitted from Catenda's topic PUT.
+# Keep this as an explicit request-schema allowlist: response-only fields and
+# persistent ``bimsync_*`` extensions must not be copied back indiscriminately.
+_TOPIC_UPDATE_FIELDS = (
+    "topic_type",
+    "topic_status",
+    "title",
+    "priority",
+    "labels",
+    "assigned_to",
+    "stage",
+    "description",
+    "due_date",
+    "creation_date",
+    "creation_author",
+)
+
+
 class TopicsMixin:
     """BCF topic management methods."""
 
@@ -137,13 +155,16 @@ class TopicsMixin:
         return True
 
     def get_topic_details(
-        self: "CatendaClientBase", topic_id: str | None = None
+        self: "CatendaClientBase",
+        topic_id: str | None = None,
+        select: tuple[str, ...] | None = None,
     ) -> dict | None:
         """
         Get details for a specific topic.
 
         Args:
             topic_id: Topic GUID (uses self.test_topic_id if None)
+            select: Optional fields to request explicitly with OData
 
         Returns:
             Topic data or None
@@ -158,7 +179,10 @@ class TopicsMixin:
 
         url = f"{self.base_url}/opencde/bcf/3.0/projects/{self.topic_board_id}/topics/{topic_id}"
 
-        response = self._safe_request("GET", url, "Feil ved henting av topic")
+        params = {"$select": ",".join(select)} if select else None
+        response = self._safe_request(
+            "GET", url, "Feil ved henting av topic", params=params
+        )
         if response is None:
             return None
 
@@ -268,31 +292,40 @@ class TopicsMixin:
             logger.error("Ingen topic board valgt")
             return None
 
-        if not any([topic_status, title, description]):
+        if topic_status is None and title is None and description is None:
             logger.warning("Ingen felter a oppdatere")
             return None
 
         # BCF 3.0 PUT requires title, so fetch existing topic first
-        existing = self.get_topic_details(topic_guid)
+        # Catenda does not return every topic property by default. Request the
+        # complete preservation allowlist explicitly before issuing PUT.
+        existing = self.get_topic_details(topic_guid, select=_TOPIC_UPDATE_FIELDS)
         if not existing:
             logger.error(f"Kunne ikke hente eksisterende topic {topic_guid}")
             return None
 
         url = f"{self.base_url}/opencde/bcf/3.0/projects/{self.topic_board_id}/topics/{topic_guid}"
 
-        # Build payload with existing values as base, then apply updates
-        payload: dict = {
-            "title": title or existing.get("title"),
+        # Catenda unsets ordinary BCF fields omitted from PUT. Preserve every
+        # writable BCF field returned by GET, including intentional false-y
+        # values such as an empty labels list. Catenda-specific fields are
+        # persistent and are deliberately not copied from the response.
+        payload = {
+            field: existing[field]
+            for field in _TOPIC_UPDATE_FIELDS
+            if field in existing and existing[field] is not None
         }
-        if topic_status:
-            payload["topic_status"] = topic_status
-        elif existing.get("topic_status"):
-            payload["topic_status"] = existing.get("topic_status")
 
+        if title is not None:
+            payload["title"] = title
+        if not payload.get("title"):
+            logger.error(f"Eksisterende topic {topic_guid} mangler obligatorisk title")
+            return None
+
+        if topic_status is not None:
+            payload["topic_status"] = topic_status
         if description is not None:
             payload["description"] = description
-        elif existing.get("description"):
-            payload["description"] = existing.get("description")
 
         logger.info(f"Oppdaterer topic {topic_guid}...")
         if topic_status:
