@@ -2689,11 +2689,10 @@ class CatendaInteractiveMenu:
 
         print("Oppgi informasjon om webhoken:\n")
 
-        name = input("Navn (f.eks. 'KOE-varsler'): ").strip()
         target_url = input("Callback URL: ").strip()
 
-        if not name or not target_url:
-            print("❌ Navn og URL er påkrevd")
+        if not target_url:
+            print("❌ URL er påkrevd")
             self.pause()
             return
 
@@ -2710,7 +2709,6 @@ class CatendaInteractiveMenu:
         try:
             result = self.tester.create_webhook(
                 project_id=self.project_id,
-                name=f"{name} ({event})",
                 target_url=target_url,
                 event=event,
             )
@@ -2718,7 +2716,6 @@ class CatendaInteractiveMenu:
             if result:
                 print("\n✅ Webhook opprettet!")
                 print(f"   ID: {result.get('id')}")
-                print(f"   Navn: {result.get('name')}")
                 print(f"   Event: {result.get('event')}")
             else:
                 print("❌ Opprettelse feilet")

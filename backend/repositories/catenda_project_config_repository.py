@@ -1,17 +1,22 @@
-"""
-Repository for CatendaProjectConfig.
+"""Repositories for CatendaProjectConfig.
 
-Definerer et injiserbart grensesnitt (Protocol) som resolveren avhenger av, samt
-et in-memory-repository for enhetstester og lokal utvikling.
-
-I trinn 2B foreslås permanent lagring i dedikerte, normaliserte tabeller.
-Dette grensesnittet er utformet slik at en slik implementasjon kan erstatte
-InMemoryCatendaProjectConfigRepository uten å endre resolver eller webhook-flyt.
+The permanent Supabase implementation returns a complete project configuration
+plus its *active* boards. A failed database lookup is distinct from an unknown
+project, so the resolver can mark outages as retryable without any fallback.
 """
 
+import os
 from typing import Protocol, runtime_checkable
 
 from models.catenda_project_config import CatendaProjectConfig
+
+
+class ProjectRegistryRepositoryError(RuntimeError):
+    """The project registry could not be queried (usually transient)."""
+
+
+class ProjectRegistryConfigurationError(RuntimeError):
+    """A registry row violates the application's required configuration."""
 
 
 @runtime_checkable
@@ -49,3 +54,80 @@ class InMemoryCatendaProjectConfigRepository:
     def _normalise(guid: str) -> str:
         # Config-modellen og resolveren validerer UUID-er før repository-oppslag.
         return guid.replace("-", "").lower() if guid else guid
+
+
+class SupabaseCatendaProjectConfigRepository:
+    """Read active Catenda routing configuration from Supabase.
+
+    ``client`` is injectable, keeping unit tests entirely offline. The
+    repository caches neither hits nor misses so project/board activation is
+    reflected without a backend restart.
+    """
+
+    PROJECT_TABLE = "catenda_project_configs"
+    BOARD_TABLE = "catenda_topic_board_configs"
+
+    def __init__(self, client=None, url: str | None = None, key: str | None = None):
+        if client is None:
+            from lib.supabase.client import create_supabase_client
+
+            # This backend-only registry is protected by service-role-only RLS.
+            # Resolve its key here rather than elevating the shared Supabase
+            # client factory used by unrelated application flows.
+            service_key = (
+                key
+                or os.environ.get("SUPABASE_SECRET_KEY")
+                or os.environ.get("SUPABASE_KEY")
+            )
+            client = create_supabase_client(url=url, key=service_key)
+        self.client = client
+
+    def get_by_catenda_project(self, catenda_project_id: str) -> CatendaProjectConfig | None:
+        """Return the project and its active boards, or ``None`` if inactive/unknown."""
+        try:
+            project_result = (
+                self.client.table(self.PROJECT_TABLE)
+                .select("internal_project_id, catenda_project_id, library_id, folder_id")
+                .eq("catenda_project_id", catenda_project_id)
+                .eq("is_active", True)
+                .limit(1)
+                .execute()
+            )
+        except Exception as exc:
+            raise ProjectRegistryRepositoryError(
+                "Kunne ikke lese Catenda-prosjektregisteret"
+            ) from exc
+
+        rows = getattr(project_result, "data", None) or []
+        if not rows:
+            return None
+        row = rows[0]
+
+        try:
+            boards_result = (
+                self.client.table(self.BOARD_TABLE)
+                .select("topic_board_id")
+                .eq("internal_project_id", row["internal_project_id"])
+                .eq("is_active", True)
+                .execute()
+            )
+        except Exception as exc:
+            raise ProjectRegistryRepositoryError(
+                "Kunne ikke lese topic boards fra Catenda-prosjektregisteret"
+            ) from exc
+
+        try:
+            return CatendaProjectConfig(
+                internal_project_id=row["internal_project_id"],
+                catenda_project_id=row["catenda_project_id"],
+                topic_board_ids=[
+                    board["topic_board_id"]
+                    for board in (getattr(boards_result, "data", None) or [])
+                ],
+                library_id=row["library_id"],
+                folder_id=row.get("folder_id"),
+            )
+        except (KeyError, TypeError, ValueError) as exc:
+            raise ProjectRegistryConfigurationError(
+                "Ugyldig data i Catenda-prosjektregisteret"
+            ) from exc

@@ -360,7 +360,7 @@ class WebhookService:
         are NOT directly synced to our event log. Status is derived from events
         submitted by TE/BH through our API.
 
-        This handler only logs the change for audit purposes and updates metadata cache.
+        This handler only logs the change for audit purposes.
 
         Args:
             webhook_payload: Webhook event payload from Catenda

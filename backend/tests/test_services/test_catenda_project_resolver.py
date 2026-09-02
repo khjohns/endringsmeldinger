@@ -17,13 +17,17 @@ from pydantic import ValidationError
 from models.catenda_project_config import CatendaProjectConfig
 from repositories.catenda_project_config_repository import (
     InMemoryCatendaProjectConfigRepository,
+    ProjectRegistryConfigurationError,
+    ProjectRegistryRepositoryError,
 )
 from services.catenda_project_resolver import (
     CatendaProjectResolver,
     InvalidInputIdError,
+    InvalidProjectRegistryConfigError,
     MissingInputIdError,
     ProjectBoardMismatchError,
     TemporaryCatendaError,
+    TemporaryProjectRegistryError,
     UnknownBoardError,
     UnknownProjectError,
     normalise_guid,
@@ -301,3 +305,37 @@ class TestResolveTemporaryCatendaError:
             resolver.resolve(
                 project_id=FIXTURE_PROJECT_ID, board_id=BOARD_ID, topic_id=TOPIC_ID
             )
+
+
+class TestResolveProjectRegistryErrors:
+    def test_repository_outage_is_retriable_and_not_unknown_project(self):
+        class FailingRegistry:
+            def get_by_catenda_project(self, _project_id):
+                raise ProjectRegistryRepositoryError("database unavailable")
+
+        resolver = CatendaProjectResolver(
+            FailingRegistry(), lambda _board: FIXTURE_PROJECT_ID
+        )
+
+        with pytest.raises(TemporaryProjectRegistryError) as exc_info:
+            resolver.resolve(
+                project_id=FIXTURE_PROJECT_ID, board_id=BOARD_ID, topic_id=TOPIC_ID
+            )
+        assert exc_info.value.error_code == "temporary_project_registry_error"
+        assert exc_info.value.retryable is True
+
+    def test_invalid_registry_data_is_permanent_configuration_error(self):
+        class InvalidRegistry:
+            def get_by_catenda_project(self, _project_id):
+                raise ProjectRegistryConfigurationError("no active boards")
+
+        resolver = CatendaProjectResolver(
+            InvalidRegistry(), lambda _board: FIXTURE_PROJECT_ID
+        )
+
+        with pytest.raises(InvalidProjectRegistryConfigError) as exc_info:
+            resolver.resolve(
+                project_id=FIXTURE_PROJECT_ID, board_id=BOARD_ID, topic_id=TOPIC_ID
+            )
+        assert exc_info.value.error_code == "invalid_project_registry_config"
+        assert exc_info.value.retryable is False

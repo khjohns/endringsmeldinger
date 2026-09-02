@@ -47,7 +47,8 @@ class WebhooksMixin:
             project_id: Catenda project ID
             target_url: URL to receive webhook notifications
             event: Event type (issue.created, issue.modified, issue.deleted)
-            name: Webhook name
+            name: Deprecated compatibility argument; Catenda's request schema
+                does not accept a name.
 
         Returns:
             Webhook data
@@ -57,9 +58,8 @@ class WebhooksMixin:
         url = f"{self.base_url}/v2/projects/{project_id}/webhooks/user"
 
         payload: dict = {"event": event, "target_url": target_url}
-
         if name:
-            payload["name"] = name
+            logger.debug("Webhook name ignored because it is not part of the API schema")
 
         response = self._safe_request(
             "POST", url, "Feil ved oppretting av webhook", json=payload
@@ -125,7 +125,7 @@ class WebhooksMixin:
         if response is None:
             return False
 
-        if response.status_code == 204:
+        if response.status_code in (200, 204):
             logger.info("Webhook slettet")
             return True
         else:

@@ -24,8 +24,9 @@ NEW_TOPIC_GUID = "33333333-3333-3333-3333-333333333333"
 
 
 class _Response:
-    def __init__(self, payload):
+    def __init__(self, payload, status_code=200):
         self._payload = payload
+        self.status_code = status_code
 
     def json(self):
         return self._payload
@@ -311,3 +312,88 @@ def test_related_topics_rejects_internal_case_id_before_api_call(client):
 
     assert client.create_topic_relations(TOPIC_GUID, ["SAK-20260902-120000"]) is False
     client._safe_request.assert_not_called()
+
+
+def test_library_listing_uses_documented_pagination(client):
+    first_page = [
+        {"id": f"library-{index}", "name": f"Library {index}", "type": "document"}
+        for index in range(1000)
+    ]
+    final_page = [
+        {"id": "library-final", "name": "Final library", "type": "document"}
+    ]
+    client._safe_request = Mock(
+        side_effect=[_Response(first_page), _Response(final_page)]
+    )
+
+    assert len(client.list_libraries(PROJECT_ID)) == 1001
+    assert client._safe_request.call_args_list[0].kwargs["params"] == {
+        "page": 1,
+        "pageSize": 1000,
+    }
+    assert client._safe_request.call_args_list[1].kwargs["params"] == {
+        "page": 2,
+        "pageSize": 1000,
+    }
+
+
+def test_library_fallback_selects_only_document_library(client):
+    client.list_libraries = Mock(
+        return_value=[
+            {"id": "classification-id", "name": "Documents", "type": "classification"},
+            {"id": "document-id", "name": "Project files", "type": "document"},
+        ]
+    )
+
+    assert client.select_library(PROJECT_ID, "Documents") is True
+    assert client.library_id == "document-id"
+
+
+def test_library_selection_fails_without_document_library(client):
+    client.list_libraries = Mock(
+        return_value=[
+            {"id": "classification-id", "name": "Documents", "type": "classification"}
+        ]
+    )
+
+    assert client.select_library(PROJECT_ID, "Documents") is False
+
+
+def test_folder_creation_sends_both_documented_type_fields(client):
+    client._safe_request = Mock(return_value=_Response({"id": FOLDER_ID}))
+
+    assert client.create_folder(PROJECT_ID, "Letters") == {"id": FOLDER_ID}
+    request = client._safe_request.call_args
+    assert request.kwargs["json"] == {
+        "name": "Letters",
+        "type": "folder",
+        "document": {"type": "folder"},
+    }
+
+
+def test_webhook_creation_omits_undocumented_name(client):
+    client._safe_request = Mock(
+        return_value=_Response({"id": "webhook-id", "state": "ENABLED"})
+    )
+
+    client.create_webhook(
+        PROJECT_ID,
+        "https://callback.example.invalid/hook",
+        event="issue.created",
+        name="Legacy display name",
+    )
+
+    request = client._safe_request.call_args
+    assert request.kwargs["json"] == {
+        "event": "issue.created",
+        "target_url": "https://callback.example.invalid/hook",
+    }
+
+
+@pytest.mark.parametrize("status_code", [200, 204])
+def test_webhook_deletion_accepts_documented_and_defensive_statuses(
+    client, status_code
+):
+    client._safe_request = Mock(return_value=_Response({}, status_code=status_code))
+
+    assert client.delete_webhook(PROJECT_ID, "webhook-id") is True

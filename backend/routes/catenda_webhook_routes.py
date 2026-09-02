@@ -64,15 +64,15 @@ def get_webhook_service() -> WebhookService:
     # Create event repository (uses EVENT_STORE_BACKEND env var)
     event_repository = create_event_repository()
 
-    # Build project resolver (trinn 2A): for øyeblikket en legacy-adapter over
-    # dagens ene .env-konfigurasjon. Tjenesten resolvere payloaden til et
-    # internt prosjekt før noen sideeffekter.
+    # Supabase is the permanent multi-project backend; legacy preserves local
+    # CSV development. A selected permanent backend never falls back to global
+    # project IDs.
     from services.catenda_project_resolver_factory import (
-        build_legacy_project_resolver,
+        build_project_resolver,
     )
 
     catenda_client = get_catenda_client()
-    resolver = build_legacy_project_resolver(catenda_client)
+    resolver = build_project_resolver(catenda_client)
 
     # Create and return service
     return WebhookService(

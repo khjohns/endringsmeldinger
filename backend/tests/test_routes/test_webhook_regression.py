@@ -265,6 +265,41 @@ class TestWebhookRoute:
         assert response.status_code == 404
 
 
+class TestWebhookRuntimeWiring:
+    """The Flask factory must select the permanent resolver through its factory."""
+
+    def test_get_webhook_service_uses_selected_resolver_factory(self, monkeypatch):
+        import app
+        from routes import catenda_webhook_routes
+        from services import catenda_project_resolver_factory
+
+        client = MagicMock()
+        resolver = MagicMock()
+        service_type = MagicMock()
+        event_repository = MagicMock()
+        magic_links = MagicMock()
+
+        monkeypatch.setattr(app, "get_magic_link_manager", lambda: magic_links)
+        monkeypatch.setattr(catenda_webhook_routes, "get_catenda_client", lambda: client)
+        monkeypatch.setattr(
+            catenda_webhook_routes,
+            "create_event_repository",
+            lambda: event_repository,
+        )
+        monkeypatch.setattr(catenda_webhook_routes, "WebhookService", service_type)
+        monkeypatch.setattr(
+            catenda_project_resolver_factory,
+            "build_project_resolver",
+            lambda supplied_client: resolver,
+        )
+
+        catenda_webhook_routes.get_webhook_service()
+
+        service_type.assert_called_once()
+        assert service_type.call_args.kwargs["resolver"] is resolver
+        assert service_type.call_args.kwargs["catenda_client"] is client
+
+
 class TestWebhookServiceCreation:
     """Tjenestenivå: ID-lagring og sideeffektkontroll i handle_new_topic_created."""
 
@@ -407,6 +442,30 @@ class TestWebhookServiceCreation:
 
         assert result["success"] is True
         assert result["action"] == "ignored_due_to_filter"
+        mock_creation.create_sak.assert_not_called()
+        mock_client.create_comment.assert_not_called()
+
+    @pytest.mark.parametrize(
+        "change",
+        [
+            {"modification": {"event": "status_updated", "value": "Closed"}},
+            {"comment": {"comment": "Kommentar opprettet av appen"}},
+        ],
+    )
+    def test_topic_modification_echo_does_not_create_domain_side_effects(
+        self, service, change
+    ):
+        svc, mock_client, mock_creation, _ = service
+        svc.metadata_repo.get_by_topic_id.return_value = MagicMock(
+            sak_id="SAK-existing"
+        )
+        payload = {"issue": {"id": FIXTURE_TOPIC_ID}, **change}
+
+        result = svc.handle_topic_modification(payload)
+
+        assert result["success"] is True
+        assert result["action"] == "logged"
+        assert svc.event_repo.method_calls == []
         mock_creation.create_sak.assert_not_called()
         mock_client.create_comment.assert_not_called()
 
