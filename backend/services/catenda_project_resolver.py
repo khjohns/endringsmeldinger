@@ -20,6 +20,8 @@ from uuid import UUID
 from models.catenda_project_config import CatendaProjectConfig
 from repositories.catenda_project_config_repository import (
     CatendaProjectConfigRepository,
+    ProjectRegistryConfigurationError,
+    ProjectRegistryRepositoryError,
 )
 
 
@@ -65,6 +67,19 @@ class TemporaryCatendaError(ProjectResolutionError):
 
     error_code = "temporary_catenda_error"
     retryable = True
+
+
+class TemporaryProjectRegistryError(ProjectResolutionError):
+    """Midlertidig feil ved oppslag i det permanente prosjektregisteret."""
+
+    error_code = "temporary_project_registry_error"
+    retryable = True
+
+
+class InvalidProjectRegistryConfigError(ProjectResolutionError):
+    """Permanent registerdata er ufullstendige eller ugyldige."""
+
+    error_code = "invalid_project_registry_config"
 
 
 @dataclass(frozen=True)
@@ -133,7 +148,16 @@ class CatendaProjectResolver:
         normalised_board_id = _normalise_payload_guid(board_id, "issue.boardId")
         normalised_topic_id = _normalise_payload_guid(topic_id, "issue.id")
 
-        config = self._register.get_by_catenda_project(normalised_project_id)
+        try:
+            config = self._register.get_by_catenda_project(normalised_project_id)
+        except ProjectRegistryRepositoryError as exc:
+            raise TemporaryProjectRegistryError(
+                "Midlertidig feil ved oppslag i Catenda-prosjektregisteret"
+            ) from exc
+        except ProjectRegistryConfigurationError as exc:
+            raise InvalidProjectRegistryConfigError(
+                "Ugyldig konfigurasjon i Catenda-prosjektregisteret"
+            ) from exc
         if config is None:
             raise UnknownProjectError(
                 f"Ingen prosjektkonfigurasjon for catenda_project_id "

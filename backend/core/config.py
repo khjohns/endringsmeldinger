@@ -25,6 +25,9 @@ class Settings(BaseSettings):
     catenda_library_id: str = ""
     catenda_folder_id: str = ""
     catenda_topic_board_id: str = ""
+    # "legacy" preserves today's local/CSV setup. Multi-project environments
+    # must explicitly select "supabase" for durable routing configuration.
+    catenda_project_registry_backend: str = "legacy"
 
     # Catenda OAuth tokens (generert av setup_authentication.py)
     catenda_access_token: str = Field(default="", repr=False)

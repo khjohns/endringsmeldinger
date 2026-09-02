@@ -5,6 +5,10 @@ from unittest.mock import MagicMock
 import pytest
 
 from core.config import settings
+from models.catenda_project_config import CatendaProjectConfig
+from repositories.catenda_project_config_repository import (
+    InMemoryCatendaProjectConfigRepository,
+)
 from services.catenda_project_resolver import (
     ProjectBoardMismatchError,
     UnknownProjectError,
@@ -12,7 +16,9 @@ from services.catenda_project_resolver import (
 from services.catenda_project_resolver_factory import (
     LEGACY_INTERNAL_PROJECT_ID,
     LegacyProjectResolverConfigurationError,
+    ProjectResolverConfigurationError,
     build_legacy_project_resolver,
+    build_project_resolver,
 )
 
 PROJECT_ID = "11111111-1111-1111-1111-111111111111"
@@ -53,8 +59,7 @@ def test_complete_settings_build_and_resolve(configured_settings):
     assert context.board_id == BOARD_ID
     assert context.topic_id == TOPIC_ID
     assert context.library_id == LIBRARY_ID
-    assert client.topic_board_id == BOARD_ID
-    client.get_topic_board_details.assert_called_once_with()
+    client.get_topic_board_details.assert_called_once_with(BOARD_ID)
 
 
 @pytest.mark.parametrize(
@@ -105,3 +110,47 @@ def test_global_settings_cannot_override_payload_after_build(
         )
 
     client.get_topic_board_details.assert_not_called()
+
+
+def test_supabase_backend_uses_injected_permanent_registry_not_global_settings(
+    configured_settings, monkeypatch
+):
+    monkeypatch.setattr(settings, "catenda_project_id", OTHER_PROJECT_ID)
+    registry = InMemoryCatendaProjectConfigRepository(
+        [
+            CatendaProjectConfig(
+                internal_project_id="internal-project-2",
+                catenda_project_id=PROJECT_ID,
+                topic_board_ids=[BOARD_ID],
+                library_id=LIBRARY_ID,
+            )
+        ]
+    )
+    client = make_client()
+
+    resolver = build_project_resolver(client, backend="supabase", registry=registry)
+    context = resolver.resolve(
+        project_id=PROJECT_ID,
+        board_id=BOARD_ID,
+        topic_id=TOPIC_ID,
+    )
+
+    assert context.internal_project_id == "internal-project-2"
+    assert context.library_id == LIBRARY_ID
+
+
+def test_selected_supabase_backend_fails_closed_when_registry_cannot_start(
+    configured_settings, monkeypatch
+):
+    monkeypatch.setattr(
+        "services.catenda_project_resolver_factory.SupabaseCatendaProjectConfigRepository",
+        lambda: (_ for _ in ()).throw(RuntimeError("Supabase unavailable")),
+    )
+
+    with pytest.raises(ProjectResolverConfigurationError):
+        build_project_resolver(make_client(), backend="supabase")
+
+
+def test_unknown_registry_backend_fails_closed(configured_settings):
+    with pytest.raises(ProjectResolverConfigurationError):
+        build_project_resolver(make_client(), backend="not-a-backend")

@@ -376,24 +376,32 @@ En slik webhookleveranse er nå verifisert manuelt for ett prosjekt, inkludert
 første kommentar og duplikatleveranse. Den er foreløpig ikke en automatisert
 variant av `test_full_flow.py`, og den dekket ikke Send/PDF-flyten.
 
+Etter innføringen av permanent register/factory ble legacy-flyten testet levende
+på nytt 2. september 2026: Catenda leverte `issue.created`, boardets
+`bimsync_project_id` ble kryssjekket, topic-et ble rutet til internt prosjekt
+`oslobygg`, metadata og ett opprettelsesevent ble lagret, og én kommentar ble
+postet på riktig topic. Første levering svarte HTTP 200. Replay av nøyaktig samme
+request/event-ID svarte HTTP 202 `already_processed`, uten ny lokal sak eller
+ekstra Catenda-kommentar. Faktiske webhook-, prosjekt-, board-, topic- og
+kommentar-ID-er lagres ikke i dette dokumentet.
+
 ## 8. Besluttet målarkitektur og nødvendige kodeendringer
 
 | Område | Beslutning | Avvik i dagens kode |
 |---|---|---|
-| Catenda-identitet | Én teknisk OAuth-klient med tilgang til alle relevante Oslobygg-prosjekter | Tokenet er allerede globalt, men prosjektressursene er også globale |
-| Prosjektruting | Webhooken leser `project.id` og `issue.boardId`, slår opp intern prosjektkonfigurasjon og kryssjekker boardets `bimsync_project_id` | Resolveren er implementert; runtime bruker foreløpig en fail-closed legacy-adapter for ett `.env`-konfigurert prosjekt |
-| Prosjektkonfigurasjon | Hvert internt prosjekt lagrer egne `catenda_project_id`, `topic_board_id(s)`, `library_id` og `folder_id` | `Settings` har bare ett sett med ID-er for hele backend-instansen |
+| Catenda-identitet | Én teknisk OAuth-klient med tilgang til alle relevante Oslobygg-prosjekter | Tokenet er globalt som ønsket; Send/PDF-hjelperen bruker fortsatt enkelte globale prosjektressurs-ID-er |
+| Prosjektruting | Webhooken leser `project.id` og `issue.boardId`, slår opp intern prosjektkonfigurasjon og kryssjekker boardets `bimsync_project_id` | Permanent Supabase-register og runtime-factory er implementert. `CATENDA_PROJECT_REGISTRY_BACKEND=supabase` velger det; `legacy` er bakoverkompatibel lokal/CSV-standard til migrasjonen er anvendt og konfigurasjon er lagt inn |
+| Prosjektkonfigurasjon | Hvert internt prosjekt lagrer egne `catenda_project_id`, `topic_board_id(s)`, `library_id` og `folder_id` | Dedikerte tabeller/migrasjon og repository finnes; miljøet må fortsatt migreres og konfigureres før flerprosjekt brukes levende |
 | Utkast | Lagres kun i appen og kan endres uten Catenda-synk | Dagens skjema autosaver lokalt i nettleserens `localStorage`; eksplisitt knapp og backend-draftstore finnes ikke |
 | Send | Oppretter formelt event, PDF, dokumentreferanse, kommentar og eventuell statusendring | `POST /api/events` forsøker Catenda/PDF ved hvert event |
 | Status | Appens eventlogg er autoritativ; Catenda-endringer importeres ikke | Samsvarer i hovedsak med dagens webhook-håndtering |
 | Avslutning uten enighet | Bruk eksisterende `Lukket`; beskriv utfallet i event/PDF/kommentar | Krever et tydelig avslutnings-event eller avslutningsårsak |
 | Saksrelasjoner | Lagres én gang kanonisk i appen, vises begge veier og opprettes begge veier i Catenda | Intern reverse-indeks finnes; Catenda-kallene må være konsekvent toveis |
 
-Prosjektets eksisterende `projects.settings` kan teknisk lagre Catenda-ID-ene,
-men en egen, validert `catenda_project_config`-modell/tabell vil gi sikrere
-oppslag og unikhetskrav. Minstekravet er unik indeks på `catenda_project_id` og
-`topic_board_id`, slik at et webhook-event aldri kan rutes til mer enn ett
-internt prosjekt.
+Prosjektets eksisterende `projects.settings` kunne teknisk lagret Catenda-ID-ene,
+men løsningen bruker nå egne, validerte registertabeller med unikhet på
+`catenda_project_id` og `topic_board_id`. Dermed kan et webhook-event ikke rutes
+til mer enn ett internt prosjekt.
 
 ## 8A. Trinn 2A – prosjekt-resolveren (implementert)
 
@@ -413,6 +421,8 @@ derfor fortsatt miste en senere retry frem til en varig inbox er implementert.
 | `CatendaProjectResolver` | `backend/services/catenda_project_resolver.py` | Leser `project.id` + `issue.boardId`, normaliserer GUID-er, slår opp konfig og kryssjekker boardets `bimsync_project_id` |
 | `ResolvedProjectContext` | samme | Levert til webhook-tjenesten: `internal_project_id`, `catenda_project_id`, `board_id`, `topic_id`, `library_id`, `folder_id` |
 | `build_legacy_project_resolver` | `backend/services/catenda_project_resolver_factory.py` | Fail-closed legacy-adapter over dagens ene `.env`-konfig; krever klient, prosjekt-, board- og library-ID (internt prosjekt-ID `oslobygg`) |
+| `build_project_resolver` | samme | Velger eksplisitt `legacy` eller `supabase`; et valgt Supabase-register som ikke kan opprettes, gir oppstartsfeil uten fallback til globale Catenda-ID-er |
+| `SupabaseCatendaProjectConfigRepository` | `backend/repositories/catenda_project_config_repository.py` | Leser én aktiv prosjektkonfig og dens aktive boards uten cache; skiller tomt resultat fra repository-feil |
 
 ### Hva webhook-tjenesten bruker fra resolved kontekst
 
@@ -444,6 +454,8 @@ tjenesteresultat med `success:false`.
 | `ProjectBoardMismatchError` (`project_board_mismatch`, ikke retriable) | `project.id` ≠ boardets `bimsync_project_id` (motstrid) |
 | `UnknownBoardError` (`unknown_board`, ikke retriable) | Boardet er ikke registrert for prosjektet, eller finnes ikke i Catenda |
 | `TemporaryCatendaError` (`temporary_catenda_error`, retriable) | Midlertidig Catenda-feil ved board-oppslag |
+| `TemporaryProjectRegistryError` (`temporary_project_registry_error`, retriable) | Midlertidig database-/repositoryfeil under oppslag i permanent prosjektregister |
+| `InvalidProjectRegistryConfigError` (`invalid_project_registry_config`, ikke retriable) | Aktiv registerrad mangler gyldig library, prosjekt-ID eller minst ett aktivt board |
 
 Felles konsekvens nå (trinn 2A): ingen domene-sideeffekter (verken sak eller
 kommentar) oppstår ved noen av feilene. Den tidlige idempotensreservasjonen er
@@ -451,15 +463,16 @@ det kjente unntaket. `ALLOWED_BOARD_IDS` i
 `utils/filtering_config.py` er satt til `None` fordi board-godkjenning nå gjøres
 per-prosjekt i resolveren, ikke globalt.
 
-## 8B. Trinn 2B – permanent lagring (skjema skal presenteres før implementasjon)
+## 8B. Trinn 2B – permanent prosjektregister (implementert, ikke anvendt)
 
-Trinn 2A bruker et in-memory-register og en legacy-adapter over dagens `.env`.
-Permanent lagring implementeres separat i trinn 2B. **Skjemaet presenteres og
-godkjennes før koden skrives.** Anbefalt mål er dedikerte, normaliserte tabeller
-for prosjektkonfigurasjon og boards med unike constraints, fremfor
-`projects.settings`.
+Det permanente registeret er implementert i kode og som migrasjonen
+`supabase/migrations/20260902_catenda_project_registry.sql`. Migrasjonen er
+**ikke anvendt** mot noen Supabase-instans av dette arbeidet, og ingen levende
+flerprosjekttest er utført. Tabellenes data må administreres av en
+backend-/driftsprosess før `CATENDA_PROJECT_REGISTRY_BACKEND=supabase` settes i
+et miljø.
 
-Foreslått skjema (ikke migrert eller implementert):
+Skjemaet bruker dedikerte, normaliserte tabeller fremfor `projects.settings`:
 
 ```text
 catenda_project_configs
@@ -477,12 +490,51 @@ catenda_topic_board_configs
 - internal_project_id TEXT NOT NULL
   FOREIGN KEY -> catenda_project_configs(internal_project_id)
 - is_active BOOLEAN NOT NULL
+- created_at / updated_at TIMESTAMPTZ NOT NULL
 ```
 
 `internal_project_id` er `TEXT` i begge tabeller for å samsvare med eksisterende
 `projects.id`. `catenda_project_id` lagres bare i prosjekttabellen og utledes via
 FK-en for boards, slik at to kopier ikke kan komme i utakt. Boardets primærnøkkel
 gir i seg selv unikhet; en ekstra `UNIQUE(topic_board_id)` er ikke nødvendig.
+
+`catenda_project_configs.internal_project_id → projects.id` har `ON DELETE
+CASCADE`, og boards kaskader fra konfigurasjonen. Dette er konsistent med at
+prosjekter normalt deaktiveres logisk; `is_active=false` stenger umiddelbart
+ruting uten å slette historikk. Delvise indekser dekker aktive oppslag, og
+`updated_at` oppdateres av database-triggere.
+
+RLS er aktivert. Bare `service_role` har policy og eksplisitte tabellrettigheter;
+`PUBLIC`, `anon` og `authenticated` har ingen adgang fordi Catenda-prosjekt-,
+library- og board-ID-er er backend-integrasjonskonfigurasjon. Én teknisk
+Catenda OAuth-klient forblir global og lagres aldri per prosjekt.
+
+### Runtimevalg og feil ved registeroppslag
+
+`CATENDA_PROJECT_REGISTRY_BACKEND` er `legacy` som standard for å bevare
+CSV-utvikling. I et miljø som skal håndtere flere prosjekter settes den
+eksplisitt til `supabase`. Da bygger webhook-ruten
+`SupabaseCatendaProjectConfigRepository`, henter aktiv prosjektkonfigurasjon og
+aktive boards ved hver resolving. `ResolvedProjectContext` bærer
+`library_id`/`folder_id` fra den resolvede konfigurasjonen; den eksisterende
+Send/PDF-hjelperen bruker fortsatt historiske globale config-verdier og må
+kobles til sakens resolvede prosjektkonfig før flerprosjekt-Send aktiveres.
+Registeroppslag caches ikke, slik at aktivering/deaktivering blir synlig uten
+restart.
+
+Aktivering gjøres i denne rekkefølgen: anvend migrasjonen, opprett/verifiser
+tilhørende rad i `projects`, legg inn én `catenda_project_configs`-rad og minst
+ett aktivt board per prosjekt, verifiser GUID-ene mot Catenda, og sett til slutt
+backendvalget til `supabase`. Det finnes foreløpig ikke et administrasjons-API
+eller UI for registeret; innlegging må derfor gjøres som en kontrollert
+driftsoperasjon med service-role/SQL-migrering.
+
+Et valgt Supabase-register som ikke kan opprettes eller leses faller **ikke**
+tilbake til `.env`-prosjekt-ID-er: konstruksjonsfeil stopper fail-closed, og en
+runtime repositoryfeil gir `temporary_project_registry_error` (retriable). Et
+tomt/inaktivt prosjekt gir derimot `unknown_project`; ugyldige aktive
+registerdata gir `invalid_project_registry_config`. Dette skillet er nødvendig
+for en senere durable inbox/retry-policy.
 
 ## 8C. Trinn 3 – durable webhook inbox og outbox (planlagt)
 
@@ -543,9 +595,9 @@ Redis kan fortsatt brukes til rate limiting og korte worker-locker, men ikke
 som sannhetskilde for webhook-idempotens. Dette er målarkitektur; tabeller,
 worker, RPC og unikhetsconstraint er ikke implementert ennå.
 
-## 9. Funn fra kontroll mot lokal Catenda OpenAPI
+## 9. Funn og status fra kontroll mot lokal Catenda OpenAPI
 
-Disse punktene bør håndteres før integrasjonen brukes med flere prosjekter:
+Tabellen skiller gjenstående arbeid fra kontraktavvik som allerede er rettet:
 
 | Prioritet | Funn | Konsekvens / anbefaling |
 |---|---|---|
@@ -556,11 +608,11 @@ Disse punktene bør håndteres før integrasjonen brukes med flere prosjekter:
 | Høy | Samme PDF-navn med `failOnDocumentExists=false` lager ny revisjon | Åpent ADR-valg: samlet saksdokument eller separate brev med revisjonsløp per part og spor; lagre uansett library item-ID og document-reference-GUID |
 | Høy | `POST document_references` returnerer dokumentert en liste | Klienten normaliserer nå en-elements liste og defensivt objektsvar og avviser tom/malformed respons |
 | Høy | EO-/Forseringstjenestene sender flere steder interne `sak_id`-er som `related_topic_guid` | Lavnivåklienten avviser nå ikke-UUID-er; tjenestene må fortsatt slå opp Catenda topic GUID fra metadata før Catenda-kallet |
-| Middels | Library fallback kan velge første bibliotek uansett type | Tillat bare library med `type=document`; håndter paginering |
+| Middels | Library fallback kunne velge første bibliotek uansett type | Klienten paginerer nå med dokumentert `page`/`pageSize`, velger bare `type=document` og feiler hvis prosjektet ikke har document-library |
 | Middels | Revisjonens `document.filename` ble satt til tilfeldig tempfilnavn | Klienten bruker nå ønsket PDF-navn for både library item og revisjon; verifiser levende ved ny revisjon |
-| Middels | Mappeoppretting mangler top-level `type: folder` fra skjemaet | Send både top-level type og `document.type` |
-| Lav | DELETE webhook er dokumentert med HTTP 200, mens mixinen bare godtar 204 | Godta dokumentert 200-respons, eventuelt også 204 defensivt |
-| Lav | Klienten sender udokumentert `name` ved opprettelse av webhook | Fjern feltet eller bekreft det i en kontrakttest |
+| Middels | Mappeoppretting manglet top-level `type: folder` fra skjemaet | Klienten sender nå både top-level `type` og `document.type` som `folder` |
+| Lav | DELETE webhook er dokumentert med HTTP 200, mens mixinen bare godtok 204 | Klienten godtar nå dokumentert 200 og defensivt 204 |
+| Lav | Klienten sendte udokumentert `name` ved opprettelse av webhook | `name` utelates nå fra request-payload; kompatibilitetsargumentet ignoreres |
 
 To forhold må kontrakttestes mot et testprosjekt fordi OpenAPI-en ikke er
 entydig: om `PUT related_topics` er additiv eller erstatter hele samlingen, og
@@ -602,8 +654,8 @@ om en enkelt relasjon automatisk blir synlig fra begge topics.
    testes gjennom rute, service, resolver og legacy-factory. Testene dekker
    første levering, duplikat, manglende/ugyldige ID-er, ukjent prosjekt/board,
    prosjekt–board-mismatch, GUID-normalisering, fail-closed-konfigurasjon og
-   fravær av domene-sideeffekter ved resolverfeil. Den relevante pakken har 95
-   grønne tester. Retry-testene dokumenterer fortsatt dagens kjente tap av
+   fravær av domene-sideeffekter ved resolverfeil. De målrettede testene er
+   grønne. Retry-testene dokumenterer fortsatt dagens kjente tap av
    retry; de beviser ikke en implementert inbox.
 2. **Fixture gjennom framtidig inbox:** POST den anonymiserte fixturen til
    Flask-ruten med kontrollerte Catenda-svar. Verifiser én sak, korrekt lagrede
@@ -625,9 +677,10 @@ om en enkelt relasjon automatisk blir synlig fra begge topics.
    dagens opprettelse av ny sak sender både `sak_opprettet` og
    `grunnlag_opprettet`; «ett klikk = ett event» gjelder derfor ikke denne
    flyten uten en egen beslutning.
-7. **Ekko fra egne Catenda-kall:** `issue.modified` og eventuelle
-   status-webhooks utløst av appens kommentar/status skal ikke lage nye
-   domene-events eller starte en synkroniseringsløkke.
+7. **Ekko fra egne Catenda-kall – automatisert kontrakt implementert:**
+   `issue.modified` for status og kommentarer lager ikke nye domene-events,
+   saker eller kommentarer. Levende callback-varianter bør fortsatt fanges som
+   fixtures for å bekrefte at Catendas faktiske payload klassifiseres riktig.
 8. **ID-kollisjon og samtidighet:** Lever to `issue.created` i samme sekund og
    verifiser unike `sak_id`-er. Dagens sekundbaserte ID må erstattes eller
    sikres med UUID/unik databaseconstraint.
@@ -647,6 +700,9 @@ Ingen levende Catenda-data eller credentials brukes.
 | `document.filename` bruker ønsket revisjonsnavn og ikke tilfeldig tempfilnavn | Grønn i mock-kontrakten; levende revisjonstest gjenstår |
 | Opprettelse av document reference normaliserer dokumentert en-elements listerespons og avviser malformed respons | Grønn |
 | Related topics validerer Catenda topic-UUID-er og gjør GET–normalisering–union–PUT uten tap | Grønn i mock-kontrakten; levende replacement-/toveissemantikk gjenstår |
+| Library-listing paginerer og valg/fallback begrenses til `type=document` | Grønn |
+| Mappeoppretting sender både top-level `type=folder` og `document.type=folder` | Grønn |
+| Webhook-opprettelse utelater udokumentert `name`; sletting godtar HTTP 200 og 204 | Grønn |
 
 Alle kontraktene er nå ordinært grønne. Levende tester må fortsatt bekrefte de
 tre Catenda-egenskapene som ikke kan avgjøres av lokal OpenAPI og mocks:
@@ -656,11 +712,11 @@ og `related_topics`-semantikk på tvers av boards.
 ### Eksisterende test som må strammes inn
 
 `test_full_flow.py` bør få en egen ekte webhook-variant. Dagens
-`_create_case_directly()` omgår webhook-ruten, og `verify_pdf_upload()` avslutter
-med suksess selv om ingen document reference finnes. Den nye testen må vente
-med avgrenset timeout og feile hvis sak, kommentar, dokument, referanse eller
-prosjektruting mangler. Opprettede topics, dokumenter og webhook-abonnement må
-registreres under testen og ryddes deterministisk etterpå.
+`_create_case_directly()` omgår webhook-ruten. `verify_pdf_upload()` venter nå
+med avgrenset timeout og feiler hvis library eller document reference mangler;
+en framtidig ekte webhooktest må i tillegg feile hvis sak, kommentar, dokument
+eller prosjektruting mangler. Opprettede topics, dokumenter og
+webhook-abonnement må registreres under testen og ryddes deterministisk etterpå.
 
 ## 11. Åpent ADR: dokument- og brevmodell
 

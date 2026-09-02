@@ -718,32 +718,40 @@ class BaseTester:
     # PDF-verifisering
     # =========================================================================
 
-    def verify_pdf_upload(self, topic_guid: str) -> bool:
-        """Verifiser PDF-generering og opplasting for et topic"""
+    def verify_pdf_upload(
+        self,
+        topic_guid: str,
+        timeout_seconds: float = 15,
+        poll_interval: float = 1,
+    ) -> bool:
+        """Verifiser at minst én document reference blir synlig innen fristen."""
         print_header("Verifiser PDF")
 
         if not self.library_id:
-            print_warn("Inget bibliotek konfigurert - hopper over PDF-sjekk")
-            return True
+            print_fail("Ingen document-library konfigurert")
+            return False
 
         print_info("Sjekker dokumentreferanser på topic...")
+        deadline = time.monotonic() + timeout_seconds
 
-        # Vent på asynkron PDF-generering
-        time.sleep(3)
+        while True:
+            documents = self.client.list_document_references(topic_guid)
+            if documents:
+                print_ok(f"Fant {len(documents)} dokument(er) lenket til topic")
+                for doc in documents:
+                    print_info(
+                        f"  - {doc.get('description', 'Ukjent')} ({doc.get('guid')})"
+                    )
+                return True
 
-        documents = self.client.list_document_references(topic_guid)
-
-        if documents:
-            print_ok(f"Fant {len(documents)} dokument(er) lenket til topic")
-            for doc in documents:
-                print_info(
-                    f"  - {doc.get('description', 'Ukjent')} ({doc.get('guid')})"
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                print_fail(
+                    "Ingen document reference funnet innen "
+                    f"{timeout_seconds:g} sekunder"
                 )
-        else:
-            print_warn("Ingen dokumenter funnet ennå")
-            print_info("PDF-generering kan ta noen sekunder")
-
-        return True
+                return False
+            time.sleep(min(poll_interval, remaining))
 
     # =========================================================================
     # Catenda-integrasjon

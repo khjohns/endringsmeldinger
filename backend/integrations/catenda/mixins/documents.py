@@ -162,11 +162,28 @@ class DocumentsMixin:
         logger.info(f"Henter libraries for prosjekt {project_id}...")
         url = f"{self.base_url}/v2/projects/{project_id}/libraries"
 
-        response = self._safe_request("GET", url, "Feil ved henting av libraries")
-        if response is None:
-            return []
+        page = 1
+        page_size = 1000
+        libraries: list[dict] = []
+        while True:
+            response = self._safe_request(
+                "GET",
+                url,
+                "Feil ved henting av libraries",
+                params={"page": page, "pageSize": page_size},
+            )
+            if response is None:
+                return []
 
-        libraries = response.json()
+            page_items = response.json()
+            if not isinstance(page_items, list):
+                logger.error("Ugyldig respons ved henting av libraries")
+                return []
+            libraries.extend(page_items)
+            if len(page_items) < page_size:
+                break
+            page += 1
+
         logger.info(f"Fant {len(libraries)} library/libraries")
 
         for lib in libraries:
@@ -193,17 +210,25 @@ class DocumentsMixin:
             logger.error("Ingen libraries funnet")
             return False
 
-        # Search for library with matching name
-        for lib in libraries:
-            if lib["name"].lower() == library_name.lower():
+        document_libraries = [
+            library for library in libraries if library.get("type") == "document"
+        ]
+        if not document_libraries:
+            logger.error("Ingen document-library funnet")
+            return False
+
+        # Search only document libraries; other library types cannot accept PDFs.
+        for lib in document_libraries:
+            if lib.get("name", "").lower() == library_name.lower():
                 self.library_id = lib["id"]
                 logger.info(f"Valgte library: {lib['name']}")
                 return True
 
-        # If not found, use first library
-        self.library_id = libraries[0]["id"]
+        # If the requested name is absent, use the first document library only.
+        self.library_id = document_libraries[0]["id"]
         logger.warning(
-            f"Library '{library_name}' ikke funnet, bruker: {libraries[0]['name']}"
+            f"Document-library '{library_name}' ikke funnet, bruker: "
+            f"{document_libraries[0]['name']}"
         )
         return True
 
@@ -430,8 +455,11 @@ class DocumentsMixin:
 
         url = f"{self.base_url}/v2/projects/{project_id}/libraries/{self.library_id}/items"
 
-        # NB: Catenda API requires document.type, not just type at top level
-        payload: dict = {"name": folder_name, "document": {"type": "folder"}}
+        payload: dict = {
+            "name": folder_name,
+            "type": "folder",
+            "document": {"type": "folder"},
+        }
 
         if parent_id:
             payload["parentId"] = parent_id
