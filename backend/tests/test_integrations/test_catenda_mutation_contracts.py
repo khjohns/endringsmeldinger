@@ -337,6 +337,18 @@ def test_library_listing_uses_documented_pagination(client):
     }
 
 
+def test_topic_board_listing_can_filter_by_physical_project(client):
+    client._safe_request = Mock(return_value=_Response([]))
+
+    assert client.list_topic_boards(PROJECT_ID) == []
+    request = client._safe_request.call_args
+    assert request.args[:2] == (
+        "GET",
+        f"{BASE_URL}/opencde/bcf/3.0/projects",
+    )
+    assert request.kwargs["params"] == {"bimsync_project_id": PROJECT_ID}
+
+
 def test_library_fallback_selects_only_document_library(client):
     client.list_libraries = Mock(
         return_value=[

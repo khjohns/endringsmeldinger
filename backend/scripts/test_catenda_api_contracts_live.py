@@ -130,7 +130,7 @@ def _wait_for_revision_count(
         time.sleep(1)
 
 
-def run_live_checks(*, mutating: bool) -> bool:
+def run_live_checks(*, mutating: bool, cross_board: bool = False) -> bool:
     if not mutating:
         raise RuntimeError("Bruk --mutating for å opprette og rydde testressurser")
     if (
@@ -153,14 +153,14 @@ def run_live_checks(*, mutating: bool) -> bool:
     timestamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
     folder_id: str | None = None
     webhook_id: str | None = None
-    topic_ids: list[str] = []
+    topic_ids: list[tuple[str, str]] = []
     document_ids: list[str] = []
     document_reference: tuple[str, str] | None = None
     checks_ok = False
     cleanup_ok = True
 
     try:
-        print("[1/6] Leser paginert library-liste og validerer document-library")
+        print("[1/7] Leser paginert library-liste og validerer document-library")
         libraries = client.list_libraries(project_id)
         configured_library = next(
             (
@@ -176,7 +176,7 @@ def run_live_checks(*, mutating: bool) -> bool:
             raise RuntimeError("Konfigurert library har ikke type=document")
         print("      OK: konfigurert document-library funnet")
 
-        print("[2/6] Oppretter og leser en midlertidig testmappe")
+        print("[2/7] Oppretter og leser en midlertidig testmappe")
         folder = client.create_folder(
             project_id,
             f"codex-contract-probe-{timestamp}-{suffix}",
@@ -199,7 +199,7 @@ def run_live_checks(*, mutating: bool) -> bool:
             f"(type={top_level_type}, document.type={document_type})"
         )
 
-        print("[3/6] Oppretter og sletter et midlertidig webhook-abonnement")
+        print("[3/7] Oppretter og sletter et midlertidig webhook-abonnement")
         webhook = client.create_webhook(
             project_id,
             f"https://example.invalid/catenda-contract-probe/{suffix}",
@@ -227,7 +227,7 @@ def run_live_checks(*, mutating: bool) -> bool:
         topic_type = non_domain_types[0]
         initial_status, changed_status = statuses[:2]
 
-        print("[4/6] Verifiserer statusoppdatering uten tap av topic-felter")
+        print("[4/7] Verifiserer statusoppdatering uten tap av topic-felter")
         seeded_fields: dict = {
             "description": f"Contract probe {suffix}",
             "due_date": "2030-01-15T12:00:00.000+0000",
@@ -249,7 +249,7 @@ def run_live_checks(*, mutating: bool) -> bool:
             extra_fields=seeded_fields,
         )
         topic_a_id = str(topic_a["guid"])
-        topic_ids.append(topic_a_id)
+        topic_ids.append((settings.catenda_topic_board_id, topic_a_id))
         before = client.get_topic_details(topic_a_id, select=TOPIC_FIELDS)
         if not before:
             raise RuntimeError("Kunne ikke lese status-testtopic før oppdatering")
@@ -280,7 +280,7 @@ def run_live_checks(*, mutating: bool) -> bool:
             f"({', '.join(sorted(preserved_fields))})"
         )
 
-        print("[5/6] Verifiserer PDF-revisjoner og document reference")
+        print("[5/7] Verifiserer PDF-revisjoner og document reference")
         with TemporaryDirectory(prefix="catenda-contract-") as temp_dir:
             first_pdf = Path(temp_dir) / "first.pdf"
             second_pdf = Path(temp_dir) / "second.pdf"
@@ -367,22 +367,23 @@ def run_live_checks(*, mutating: bool) -> bool:
                 "unikt navn ga nytt item; én reference ble lest tilbake"
             )
 
-        print("[6/6] Verifiserer related_topics GET–union–PUT-semantikk")
+        print("[6/7] Verifiserer related_topics i samme board")
         topic_b = _create_contract_topic(
             client,
             title=f"CODEX-CONTRACT-B-{timestamp}-{suffix}",
             topic_type=topic_type,
             topic_status=initial_status,
         )
+        topic_b_id = str(topic_b["guid"])
+        topic_ids.append((settings.catenda_topic_board_id, topic_b_id))
         topic_c = _create_contract_topic(
             client,
             title=f"CODEX-CONTRACT-C-{timestamp}-{suffix}",
             topic_type=topic_type,
             topic_status=initial_status,
         )
-        topic_b_id = str(topic_b["guid"])
         topic_c_id = str(topic_c["guid"])
-        topic_ids.extend([topic_b_id, topic_c_id])
+        topic_ids.append((settings.catenda_topic_board_id, topic_c_id))
 
         if not client.create_topic_relations(topic_a_id, [topic_b_id]):
             raise RuntimeError("A→B-relasjonen feilet")
@@ -428,17 +429,131 @@ def run_live_checks(*, mutating: bool) -> bool:
             "      OK: klienten bevarte A→B etter A→C; "
             f"Catenda PUT {put_text} samlingen; automatisk reverse: {reverse_text}"
         )
+
+        if not cross_board:
+            print("[7/7] Cross-board related_topics hoppet over (bruk --cross-board)")
+            checks_ok = True
+            return checks_ok
+
+        print("[7/7] Verifiserer related_topics på tvers av boards")
+        boards = client.list_topic_boards(project_id)
+        secondary_boards: list[tuple[str, dict]] = []
+        for board in boards:
+            board_id = str(board.get("project_id") or board.get("id") or "")
+            if not board_id or _same_guid(
+                board_id, settings.catenda_topic_board_id
+            ):
+                continue
+            candidate_extensions = client.get_topic_board_extensions(board_id) or {}
+            candidate_types = [
+                candidate_type
+                for candidate_type in (candidate_extensions.get("topic_type") or [])
+                if candidate_type not in DOMAIN_TOPIC_TYPES
+            ]
+            candidate_statuses = candidate_extensions.get("topic_status") or []
+            actions = candidate_extensions.get("project_actions") or []
+            if candidate_types and candidate_statuses and "createTopic" in actions:
+                secondary_boards.append((board_id, candidate_extensions))
+        if not secondary_boards:
+            raise RuntimeError(
+                "Fant ikke sekundærboard med createTopic og ikke-domene-type"
+            )
+
+        # A board can permit topic creation while Catenda still rejects a
+        # cross-board relation to it. Probe at most three eligible boards to
+        # distinguish a board-specific ACL/configuration issue from a general
+        # API behavior without generating excessive temporary resources.
+        selected_secondary: tuple[str, dict, str] | None = None
+        failed_board_count = 0
+        for secondary_board_id, secondary_extensions in secondary_boards[:3]:
+            secondary_type = next(
+                candidate_type
+                for candidate_type in secondary_extensions["topic_type"]
+                if candidate_type not in DOMAIN_TOPIC_TYPES
+            )
+            secondary_status = secondary_extensions["topic_status"][0]
+            client.topic_board_id = secondary_board_id
+            topic_d = _create_contract_topic(
+                client,
+                title=f"CODEX-CONTRACT-D-{timestamp}-{suffix}",
+                topic_type=secondary_type,
+                topic_status=secondary_status,
+            )
+            topic_d_id = str(topic_d["guid"])
+            topic_ids.append((secondary_board_id, topic_d_id))
+
+            client.topic_board_id = settings.catenda_topic_board_id
+            if client.create_topic_relations(topic_a_id, [topic_d_id]):
+                selected_secondary = (
+                    secondary_board_id,
+                    secondary_extensions,
+                    topic_d_id,
+                )
+                break
+            failed_board_count += 1
+
+        if not selected_secondary:
+            raise RuntimeError(
+                "Catenda avviste cross-board related_topics mot "
+                f"{failed_board_count} separate boards"
+            )
+
+        secondary_board_id, secondary_extensions, topic_d_id = selected_secondary
+        secondary_type = next(
+            candidate_type
+            for candidate_type in secondary_extensions["topic_type"]
+            if candidate_type not in DOMAIN_TOPIC_TYPES
+        )
+        secondary_status = secondary_extensions["topic_status"][0]
+        client.topic_board_id = secondary_board_id
+        topic_e = _create_contract_topic(
+            client,
+            title=f"CODEX-CONTRACT-E-{timestamp}-{suffix}",
+            topic_type=secondary_type,
+            topic_status=secondary_status,
+        )
+        topic_e_id = str(topic_e["guid"])
+        topic_ids.append((secondary_board_id, topic_e_id))
+
+        client.topic_board_id = settings.catenda_topic_board_id
+        a_after_d = _related_guids(client.list_related_topics(topic_a_id))
+        if _canonical_guid(topic_d_id) not in a_after_d:
+            raise RuntimeError("Cross-board A→D kunne ikke leses fra A")
+        client.topic_board_id = secondary_board_id
+        d_after_a = _related_guids(client.list_related_topics(topic_d_id))
+        if _canonical_guid(topic_a_id) not in d_after_a:
+            raise RuntimeError("Cross-board A→D var ikke synlig reverse fra D")
+
+        client.topic_board_id = settings.catenda_topic_board_id
+        if not client.create_topic_relations(topic_a_id, [topic_e_id]):
+            raise RuntimeError("Cross-board A→E-relasjonen feilet")
+        a_after_e = _related_guids(client.list_related_topics(topic_a_id))
+        if not {
+            _canonical_guid(topic_d_id),
+            _canonical_guid(topic_e_id),
+        }.issubset(a_after_e):
+            raise RuntimeError("Cross-board A→E fjernet eksisterende A→D")
+        client.topic_board_id = secondary_board_id
+        e_after_a = _related_guids(client.list_related_topics(topic_e_id))
+        if _canonical_guid(topic_a_id) not in e_after_a:
+            raise RuntimeError("Cross-board A→E var ikke synlig reverse fra E")
+        print(
+            "      OK: to cross-board-relasjoner ble bevart og var automatisk "
+            "synlige begge veier"
+        )
         checks_ok = True
     finally:
         if document_reference:
             print("[cleanup] Sletter document reference")
             topic_id, reference_id = document_reference
+            client.topic_board_id = settings.catenda_topic_board_id
             cleanup_ok = (
                 client.delete_document_reference(topic_id, reference_id)
                 and cleanup_ok
             )
-        for topic_id in reversed(topic_ids):
+        for board_id, topic_id in reversed(topic_ids):
             print("[cleanup] Sletter testtopic")
+            client.topic_board_id = board_id
             cleanup_ok = client.delete_topic(topic_id) and cleanup_ok
         for document_id in reversed(document_ids):
             print("[cleanup] Sletter testdokument")
@@ -453,9 +568,8 @@ def run_live_checks(*, mutating: bool) -> bool:
             cleanup_ok = (
                 client.delete_library_item(project_id, folder_id) and cleanup_ok
             )
-
-    if not cleanup_ok:
-        raise RuntimeError("Live-sjekk fullført, men opprydding feilet")
+        if not cleanup_ok:
+            raise RuntimeError("Live-sjekk fullført, men opprydding feilet")
     return checks_ok
 
 
@@ -466,10 +580,21 @@ def main() -> int:
         action="store_true",
         help="Tillat midlertidig opprettelse og sletting i Catenda-testprosjektet",
     )
+    parser.add_argument(
+        "--cross-board",
+        action="store_true",
+        help="Kjør også kontrakten for relasjoner mellom to topic boards",
+    )
     args = parser.parse_args()
 
     try:
-        return 0 if run_live_checks(mutating=args.mutating) else 1
+        return (
+            0
+            if run_live_checks(
+                mutating=args.mutating, cross_board=args.cross_board
+            )
+            else 1
+        )
     except Exception as exc:
         print(f"FEIL: {exc}", file=sys.stderr)
         return 1

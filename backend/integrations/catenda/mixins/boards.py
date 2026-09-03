@@ -35,9 +35,14 @@ class BoardsMixin:
             **kwargs,
         ) -> requests.Response | None: ...
 
-    def list_topic_boards(self: "CatendaClientBase") -> list[dict]:
+    def list_topic_boards(
+        self: "CatendaClientBase", project_id: str | None = None
+    ) -> list[dict]:
         """
         List all available topic boards (BCF projects).
+
+        Args:
+            project_id: Optional physical Catenda project ID to filter by.
 
         Returns:
             List of topic boards
@@ -46,7 +51,10 @@ class BoardsMixin:
 
         url = f"{self.base_url}/opencde/bcf/3.0/projects"
 
-        response = self._safe_request("GET", url, "Feil ved henting av topic boards")
+        params = {"bimsync_project_id": project_id} if project_id else None
+        response = self._safe_request(
+            "GET", url, "Feil ved henting av topic boards", params=params
+        )
         if response is None:
             return []
 
