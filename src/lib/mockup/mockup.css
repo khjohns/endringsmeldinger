@@ -785,6 +785,20 @@
 .mockup .editor-wrapper {
   margin-top: 12px;
   border: var(--rule);
+  --font-prose: var(--font-sans);
+  --color-canvas: var(--surface);
+  --color-felt: var(--surface);
+  --color-felt-raised: var(--surface-inset);
+  --color-felt-hover: var(--surface-warm);
+  --color-ink: var(--ink);
+  --color-ink-secondary: var(--ink-2);
+  --color-ink-muted: var(--ink-4);
+  --color-wire: color-mix(in srgb, var(--ink) 8%, transparent);
+  --color-wire-strong: color-mix(in srgb, var(--ink) 14%, transparent);
+  --color-wire-focus: var(--control-focus);
+  --color-vekt: var(--brand);
+  --color-vekt-bg: var(--info-bg);
+  --radius-sm: 7px;
 }
 .mockup .editor-wrapper:focus-within {
   border: var(--rule-strong);
