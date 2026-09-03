@@ -618,8 +618,10 @@ Tabellen skiller gjenstående arbeid fra kontraktavvik som allerede er rettet:
 | Lav | Klienten sendte udokumentert `name` ved opprettelse av webhook | `name` utelates nå fra request-payload; kompatibilitetsargumentet ignoreres |
 
 Levende test i samme board viser at `PUT related_topics` er additivt og at en
-enkelt relasjon automatisk blir synlig fra begge topics. Semantikken på tvers av
-to boards i samme fysiske Catenda-prosjekt gjenstår å teste.
+enkelt relasjon automatisk blir synlig fra begge topics. Cross-board-kall mot
+tre forskjellige, skrivbare boards i samme fysiske Catenda-prosjekt ga derimot
+HTTP 500 fra Catenda. Inntil Catenda avklarer eller retter dette, må relaterte
+KOE/EO/forsering-topics ligge i samme board eller relasjonen bare lagres internt.
 
 ## 10. Tester før produksjonsimplementasjon
 
@@ -646,10 +648,12 @@ to boards i samme fysiske Catenda-prosjekt gjenstår å teste.
    samme filnavn ga samme item og nøyaktig én ekstra revisjon med ønsket navn.
    Unikt filnavn ga et nytt item. Én document reference ble opprettet, lest og
    slettet. Den konkrete brev-/dokumentmodellen er fortsatt et ADR-valg.
-6. **Related topics – utført i ett board:** A→B var synlig fra både A og B.
+6. **Related topics – utført:** A→B var synlig fra både A og B.
    Etter A→C var A→B bevart. Direkte `PUT` med bare B lot også C stå, altså er
-   operasjonen additiv i dette testboardet. Gjenta på tvers av to boards i samme
-   Catenda-prosjekt. Bruk bare Catenda topic GUID-er.
+   operasjonen additiv i dette testboardet. Samme operasjon på tvers av boards
+   ble forsøkt mot tre forskjellige sekundærboards i samme fysiske prosjekt;
+   alle svarte HTTP 500 selv om topics kunne opprettes der. Bruk bare Catenda
+   topic GUID-er og behandle cross-board-relasjoner som ikke støttet foreløpig.
 7. **Teknisk identitet:** For hvert prosjekt, verifiser tilgang til konfigurert
    board og document-library samt rettighetene createComment, update,
    updateDocumentReferences og updateRelatedTopics.
@@ -705,14 +709,15 @@ Ingen levende Catenda-data eller credentials brukes.
 | Status-`PUT` henter topic med `$select` og bevarer writable BCF-felt, inkludert tomme verdier | Grønn i mock og levende for alle felter testboardet tilbyr; priority/stage finnes ikke der |
 | `document.filename` bruker ønsket revisjonsnavn og ikke tilfeldig tempfilnavn | Grønn i mock og levende med to revisjoner |
 | Opprettelse av document reference normaliserer dokumentert en-elements listerespons og avviser malformed respons | Grønn |
-| Related topics validerer Catenda topic-UUID-er og gjør GET–normalisering–union–PUT uten tap | Grønn i mock og levende i samme board; cross-board gjenstår |
+| Related topics validerer Catenda topic-UUID-er og gjør GET–normalisering–union–PUT uten tap | Grønn i mock og levende i samme board; cross-board feiler med HTTP 500 i tre skrivbare sekundærboards |
 | Library-listing paginerer og valg/fallback begrenses til `type=document` | Grønn i mock og levende test |
 | Mappeoppretting sender både top-level `type=folder` og `document.type=folder` | Grønn i mock og levende test |
 | Webhook-opprettelse utelater udokumentert `name`; sletting godtar HTTP 200 og 204 | Grønn i mock og levende test |
 
-Alle kontraktene er nå ordinært grønne. Av de tidligere åpne levende
-egenskapene gjenstår bare statusfeltene priority/stage i et board som tilbyr
-dem, og `related_topics` på tvers av boards.
+Alle kontraktene for støttet flyt er nå ordinært grønne. Av de tidligere åpne
+levende egenskapene gjenstår statusfeltene priority/stage i et board som tilbyr
+dem. Cross-board `related_topics` er testet, men er blokkert av HTTP 500 fra
+Catenda og er derfor ikke en støttet flyt nå.
 
 En kontrollert levende kontrakttest ble kjørt 3. september 2026 mot
 Catenda-testprosjektet. Den bekreftet at pagineringsparametrene for library-listen
@@ -731,7 +736,16 @@ at appens GET–union–PUT bevarer eksisterende relasjoner, og at et direkte PU
 med en delmengde er additivt i dette boardet. Testen brukte en ikke-domene-type
 som filtreres bort av appen, og slettet tre topics, to dokument-items, én
 reference og testmappen den selv opprettet. Ingen faktiske ressurs-ID-er,
-feltnavnverdier, brukeridentiteter eller target URL-er lagres her.
+feltverdier, brukeridentiteter eller target URL-er lagres her.
+
+En separat cross-board-kjøring 3. september 2026 fant elleve boards i samme
+fysiske testprosjekt. Tre sekundærboards med `createTopic`, gyldig status og en
+ikke-domene-type ble prøvd. Midlertidige topics kunne opprettes i alle tre, men
+relasjon fra topic i primærboardet feilet med HTTP 500 hver gang. Samme-board-
+kontrakten passerte i samme kjøring. Alle midlertidige topics og øvrige
+testressurser ble slettet. Proben kjøres eksplisitt med
+`scripts/test_catenda_api_contracts_live.py --mutating --cross-board`; uten
+`--cross-board` kjøres bare de støttede kontraktene.
 
 ### Eksisterende test som må strammes inn
 
