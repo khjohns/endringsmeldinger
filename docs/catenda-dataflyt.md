@@ -354,7 +354,9 @@ Alle endepunkter har base URL `https://api.catenda.com`.
 | List/opprett kommentarer | `GET/POST /opencde/bcf/3.0/projects/{topic_board_id}/topics/{topic_guid}/comments` |
 | List biblioteker | `GET /v2/projects/{catenda_project_id}/libraries` |
 | List mapper / last opp dokument | `GET/POST /v2/projects/{catenda_project_id}/libraries/{library_id}/items` |
-| List/opprett dokumentreferanser | `GET/POST /opencde/bcf/3.0/projects/{topic_board_id}/topics/{topic_guid}/document_references` |
+| List dokumentrevisjoner | `GET /v2/projects/{catenda_project_id}/libraries/{library_id}/items/{library_item_id}/revisions` |
+| Slett library item | `DELETE /v2/projects/{catenda_project_id}/libraries/{library_id}/items/{library_item_id}` |
+| List/opprett/slett dokumentreferanser | `GET/POST /opencde/bcf/3.0/projects/{topic_board_id}/topics/{topic_guid}/document_references`, `DELETE .../document_references/{reference_id}` |
 | List/opprett topic-relasjoner | `GET/PUT /opencde/bcf/3.0/projects/{topic_board_id}/topics/{topic_guid}/related_topics` |
 | List/opprett webhooks | `GET/POST /v2/projects/{catenda_project_id}/webhooks/user` |
 | Slett webhook | `DELETE /v2/projects/{catenda_project_id}/webhooks/user/{webhook_id}` |
@@ -602,21 +604,22 @@ Tabellen skiller gjenstående arbeid fra kontraktavvik som allerede er rettet:
 | Prioritet | Funn | Konsekvens / anbefaling |
 |---|---|---|
 | Høy | Callback-payloaden er ikke beskrevet i webhook-OpenAPI; én levende kontrakt er fanget, og den har `project.id` i stedet for toppnivå `project_id` | Behold fixturen som regresjonskontrakt, les `project.id` eksplisitt og gjenta testen i et prosjekt nummer to før flerprosjektruting låses |
-| Kritisk | Topic `PUT` nullstiller utelatte BCF-felter | Klienten gjør nå GET med eksplisitt `$select` og PUT av en writable allowlist; `$select`/`priority` må fortsatt verifiseres levende |
+| Kritisk | Topic `PUT` nullstiller utelatte BCF-felter | Klienten gjør nå GET med eksplisitt `$select` og PUT av en writable allowlist. Levende test har bekreftet bevaring av alle felter testboardet tilbyr; boardet har ingen priority/stage-extension |
 | Kritisk | Webhooken reserverer event-ID før behandling og returnerer HTTP 200 også ved `{success:false}` | Erstatt Redis-reservasjonen med durable inbox. Nåværende UoW er ikke en ekte transaksjon; bruk database/RPC-transaksjon og outbox for Catenda-sideeffekter |
 | Høy | Dagens sendeflyt henter `project_id`, `library_id` og `folder_id` globalt | Slå opp alle tre fra saken sitt interne prosjekt |
-| Høy | Samme PDF-navn med `failOnDocumentExists=false` lager ny revisjon | Åpent ADR-valg: samlet saksdokument eller separate brev med revisjonsløp per part og spor; lagre uansett library item-ID og document-reference-GUID |
+| Høy | Samme PDF-navn med `failOnDocumentExists=false` lager ny revisjon | Bekreftet levende: samme library item-ID og nøyaktig én ekstra revisjon. ADR-valget om samlet saksdokument eller separate brev er fortsatt åpent; lagre uansett item-, revisjons- og reference-ID |
 | Høy | `POST document_references` returnerer dokumentert en liste | Klienten normaliserer nå en-elements liste og defensivt objektsvar og avviser tom/malformed respons |
+| Høy | Document API returnerer compact library item-ID, mens levende BCF-kall avviste compact `document_guid` og godtok dashed UUID | Normaliser eksplisitt ved grensen til Topic API; ikke bland library item-ID og revisjons-ID |
 | Høy | EO-/Forseringstjenestene sender flere steder interne `sak_id`-er som `related_topic_guid` | Lavnivåklienten avviser nå ikke-UUID-er; tjenestene må fortsatt slå opp Catenda topic GUID fra metadata før Catenda-kallet |
 | Middels | Library fallback kunne velge første bibliotek uansett type | Klienten paginerer nå med dokumentert `page`/`pageSize`, velger bare `type=document` og feiler hvis prosjektet ikke har document-library |
-| Middels | Revisjonens `document.filename` ble satt til tilfeldig tempfilnavn | Klienten bruker nå ønsket PDF-navn for både library item og revisjon; verifiser levende ved ny revisjon |
+| Middels | Revisjonens `document.filename` ble satt til tilfeldig tempfilnavn | Klienten bruker nå ønsket PDF-navn for både library item og revisjon; levende revisjonsliste bekrefter navnet for begge revisjoner |
 | Middels | Mappeoppretting manglet top-level `type: folder` fra skjemaet | Klienten sender nå både top-level `type` og `document.type` som `folder` |
 | Lav | DELETE webhook er dokumentert med HTTP 200, mens mixinen bare godtok 204 | Klienten godtar nå dokumentert 200 og defensivt 204 |
 | Lav | Klienten sendte udokumentert `name` ved opprettelse av webhook | `name` utelates nå fra request-payload; kompatibilitetsargumentet ignoreres |
 
-To forhold må kontrakttestes mot et testprosjekt fordi OpenAPI-en ikke er
-entydig: om `PUT related_topics` er additiv eller erstatter hele samlingen, og
-om en enkelt relasjon automatisk blir synlig fra begge topics.
+Levende test i samme board viser at `PUT related_topics` er additivt og at en
+enkelt relasjon automatisk blir synlig fra begge topics. Semantikken på tvers av
+to boards i samme fysiske Catenda-prosjekt gjenstår å teste.
 
 ## 10. Tester før produksjonsimplementasjon
 
@@ -634,16 +637,19 @@ om en enkelt relasjon automatisk blir synlig fra begge topics.
    kontroller om samme event-ID gjenbrukes, og verifiser når abonnementets
    `failureCount` og state endres. Test også eventuell unik target path som
    ekstra prosjektbinding.
-4. **Topic-status uten datatap:** Opprett et topic med type, labels, prioritet,
-   ansvarlig, stage, beskrivelse og due date. Oppdater bare appstatus og
-   kontroller at samtlige øvrige felt er uendret.
-5. **Dokumentkontrakt:** Last opp første PDF og samme filnavn på nytt. Registrer
-   faktisk responsform, library item-ID, revisjons-ID og antall document
-   references. Gjenta med unikt filnavn. Dette gir faktagrunnlaget for ADR-et
-   om samlet dokument kontra separate brev.
-6. **Related topics:** Opprett A→B, les relasjoner fra både A og B, legg deretter
-   til A→C og kontroller at A→B ikke forsvinner. Gjenta på tvers av to boards i
-   samme Catenda-prosjekt. Bruk bare Catenda topic GUID-er.
+4. **Topic-status uten datatap – utført for tilgjengelige extensions:** En
+   levende statusendring bevarte type, title, labels, ansvarlig, beskrivelse,
+   due date, creation date og creation author. Testboardets extensions har
+   verken priority eller stage; de to feltene må derfor prøves i et board som
+   tilbyr dem dersom de tas i bruk.
+5. **Dokumentkontrakt – utført:** Første PDF ga ett library item og én revisjon;
+   samme filnavn ga samme item og nøyaktig én ekstra revisjon med ønsket navn.
+   Unikt filnavn ga et nytt item. Én document reference ble opprettet, lest og
+   slettet. Den konkrete brev-/dokumentmodellen er fortsatt et ADR-valg.
+6. **Related topics – utført i ett board:** A→B var synlig fra både A og B.
+   Etter A→C var A→B bevart. Direkte `PUT` med bare B lot også C stå, altså er
+   operasjonen additiv i dette testboardet. Gjenta på tvers av to boards i samme
+   Catenda-prosjekt. Bruk bare Catenda topic GUID-er.
 7. **Teknisk identitet:** For hvert prosjekt, verifiser tilgang til konfigurert
    board og document-library samt rettighetene createComment, update,
    updateDocumentReferences og updateRelatedTopics.
@@ -696,18 +702,36 @@ Ingen levende Catenda-data eller credentials brukes.
 | Kontrakt | Status |
 |---|---|
 | Document upload normaliserer dokumentert en-elements listerespons og støtter objektsvar defensivt; prosjekt, library, folder og dokumentnavn sendes korrekt | Grønn |
-| Status-`PUT` henter topic med `$select` og bevarer writable BCF-felt, inkludert tomme verdier | Grønn i mock-kontrakten; levende `$select`/`priority` gjenstår |
-| `document.filename` bruker ønsket revisjonsnavn og ikke tilfeldig tempfilnavn | Grønn i mock-kontrakten; levende revisjonstest gjenstår |
+| Status-`PUT` henter topic med `$select` og bevarer writable BCF-felt, inkludert tomme verdier | Grønn i mock og levende for alle felter testboardet tilbyr; priority/stage finnes ikke der |
+| `document.filename` bruker ønsket revisjonsnavn og ikke tilfeldig tempfilnavn | Grønn i mock og levende med to revisjoner |
 | Opprettelse av document reference normaliserer dokumentert en-elements listerespons og avviser malformed respons | Grønn |
-| Related topics validerer Catenda topic-UUID-er og gjør GET–normalisering–union–PUT uten tap | Grønn i mock-kontrakten; levende replacement-/toveissemantikk gjenstår |
-| Library-listing paginerer og valg/fallback begrenses til `type=document` | Grønn |
-| Mappeoppretting sender både top-level `type=folder` og `document.type=folder` | Grønn |
-| Webhook-opprettelse utelater udokumentert `name`; sletting godtar HTTP 200 og 204 | Grønn |
+| Related topics validerer Catenda topic-UUID-er og gjør GET–normalisering–union–PUT uten tap | Grønn i mock og levende i samme board; cross-board gjenstår |
+| Library-listing paginerer og valg/fallback begrenses til `type=document` | Grønn i mock og levende test |
+| Mappeoppretting sender både top-level `type=folder` og `document.type=folder` | Grønn i mock og levende test |
+| Webhook-opprettelse utelater udokumentert `name`; sletting godtar HTTP 200 og 204 | Grønn i mock og levende test |
 
-Alle kontraktene er nå ordinært grønne. Levende tester må fortsatt bekrefte de
-tre Catenda-egenskapene som ikke kan avgjøres av lokal OpenAPI og mocks:
-topic-`$select` med hele allowlisten, revisjonsopprettelse ved samme dokumentnavn
-og `related_topics`-semantikk på tvers av boards.
+Alle kontraktene er nå ordinært grønne. Av de tidligere åpne levende
+egenskapene gjenstår bare statusfeltene priority/stage i et board som tilbyr
+dem, og `related_topics` på tvers av boards.
+
+En kontrollert levende kontrakttest ble kjørt 3. september 2026 mot
+Catenda-testprosjektet. Den bekreftet at pagineringsparametrene for library-listen
+aksepteres og at konfigurert library har `type=document`; at mappepayloaden
+aksepteres og leses tilbake som top-level `type=document` med
+`document.type=folder`; og at webhook-opprettelse uten `name` samt påfølgende
+sletting fungerer.
+
+Samme test ble deretter utvidet og kjørt mot det samme testprosjektet. Den
+bekreftet statusbevaring for feltene nevnt i punkt 4; samme item-ID, to unike
+revisjons-ID-er og korrekt revisjonsnavn ved gjenbruk av PDF-navn; nytt item ved
+unikt navn; og opprettelse/lesing/sletting av document reference. Den viste også
+at Topic API krevde dashed `document_guid` for item-ID-en som Document API
+returnerte compact. For topics viste testen at relasjonen er automatisk toveis,
+at appens GET–union–PUT bevarer eksisterende relasjoner, og at et direkte PUT
+med en delmengde er additivt i dette boardet. Testen brukte en ikke-domene-type
+som filtreres bort av appen, og slettet tre topics, to dokument-items, én
+reference og testmappen den selv opprettet. Ingen faktiske ressurs-ID-er,
+feltnavnverdier, brukeridentiteter eller target URL-er lagres her.
 
 ### Eksisterende test som må strammes inn
 

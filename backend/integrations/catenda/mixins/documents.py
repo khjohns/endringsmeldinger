@@ -432,6 +432,68 @@ class DocumentsMixin:
         )
         return item
 
+    def list_document_revisions(
+        self: "CatendaClientBase", project_id: str, item_id: str
+    ) -> list[dict]:
+        """List every revision of a document-library item."""
+        if not self.library_id:
+            logger.error("Ingen library valgt")
+            return []
+
+        url = (
+            f"{self.base_url}/v2/projects/{project_id}/libraries/"
+            f"{self.library_id}/items/{item_id}/revisions"
+        )
+        page = 1
+        page_size = 1000
+        revisions: list[dict] = []
+        while True:
+            response = self._safe_request(
+                "GET",
+                url,
+                f"Feil ved henting av revisjoner for library item {item_id}",
+                params={"scope": "all", "page": page, "pageSize": page_size},
+            )
+            if response is None:
+                return []
+
+            page_items = response.json()
+            if not isinstance(page_items, list):
+                logger.error("Ugyldig respons ved henting av dokumentrevisjoner")
+                return []
+            revisions.extend(page_items)
+            if len(page_items) < page_size:
+                break
+            page += 1
+
+        logger.info(f"Fant {len(revisions)} dokumentrevisjon(er)")
+        return revisions
+
+    def delete_library_item(
+        self: "CatendaClientBase", project_id: str, item_id: str
+    ) -> bool:
+        """Delete a document-library item, including a test-created folder."""
+        if not self.library_id:
+            logger.error("Ingen library valgt")
+            return False
+
+        url = (
+            f"{self.base_url}/v2/projects/{project_id}/libraries/"
+            f"{self.library_id}/items/{item_id}"
+        )
+        response = self._safe_request(
+            "DELETE", url, f"Feil ved sletting av library item {item_id}"
+        )
+        if response is None:
+            return False
+        if response.status_code in (200, 204):
+            logger.info(f"Library item slettet: {item_id}")
+            return True
+        logger.warning(
+            f"Uventet statuskode ved sletting av library item: {response.status_code}"
+        )
+        return False
+
     def create_folder(
         self: "CatendaClientBase",
         project_id: str,
@@ -622,3 +684,29 @@ class DocumentsMixin:
             logger.info(f"    URL: {ref.get('url', 'N/A')}")
 
         return doc_refs
+
+    def delete_document_reference(
+        self: "CatendaClientBase", topic_id: str, reference_id: str
+    ) -> bool:
+        """Delete a document reference created for a topic."""
+        if not self.topic_board_id:
+            logger.error("Ingen topic board valgt")
+            return False
+
+        url = (
+            f"{self.base_url}/opencde/bcf/3.0/projects/{self.topic_board_id}"
+            f"/topics/{topic_id}/document_references/{reference_id}"
+        )
+        response = self._safe_request(
+            "DELETE", url, "Feil ved sletting av document reference"
+        )
+        if response is None:
+            return False
+        if response.status_code == 204:
+            logger.info(f"Document reference slettet: {reference_id}")
+            return True
+        logger.warning(
+            "Uventet statuskode ved sletting av document reference: "
+            f"{response.status_code}"
+        )
+        return False

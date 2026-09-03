@@ -371,6 +371,60 @@ def test_folder_creation_sends_both_documented_type_fields(client):
     }
 
 
+@pytest.mark.parametrize("status_code", [200, 204])
+def test_library_item_deletion_accepts_documented_and_defensive_statuses(
+    client, status_code
+):
+    client._safe_request = Mock(return_value=_Response({}, status_code=status_code))
+
+    assert client.delete_library_item(PROJECT_ID, FOLDER_ID) is True
+    request = client._safe_request.call_args
+    assert request.args[:2] == (
+        "DELETE",
+        f"{BASE_URL}/v2/projects/{PROJECT_ID}/libraries/{LIBRARY_ID}/items/{FOLDER_ID}",
+    )
+
+
+def test_document_revision_listing_uses_documented_pagination(client):
+    first_page = [
+        {"id": f"revision-{index}", "version": index + 1} for index in range(1000)
+    ]
+    final_page = [{"id": "revision-final", "version": 1001}]
+    client._safe_request = Mock(
+        side_effect=[_Response(first_page), _Response(final_page)]
+    )
+
+    assert len(client.list_document_revisions(PROJECT_ID, "item-guid")) == 1001
+    expected_url = (
+        f"{BASE_URL}/v2/projects/{PROJECT_ID}/libraries/{LIBRARY_ID}/items/"
+        "item-guid/revisions"
+    )
+    first_call, second_call = client._safe_request.call_args_list
+    assert first_call.args[:2] == ("GET", expected_url)
+    assert first_call.kwargs["params"] == {
+        "scope": "all",
+        "page": 1,
+        "pageSize": 1000,
+    }
+    assert second_call.kwargs["params"] == {
+        "scope": "all",
+        "page": 2,
+        "pageSize": 1000,
+    }
+
+
+def test_document_reference_deletion_uses_documented_endpoint(client):
+    client._safe_request = Mock(return_value=_Response({}, status_code=204))
+
+    assert client.delete_document_reference(TOPIC_GUID, "reference-guid") is True
+    request = client._safe_request.call_args
+    assert request.args[:2] == (
+        "DELETE",
+        f"{BASE_URL}/opencde/bcf/3.0/projects/{BOARD_ID}/topics/"
+        f"{TOPIC_GUID}/document_references/reference-guid",
+    )
+
+
 def test_webhook_creation_omits_undocumented_name(client):
     client._safe_request = Mock(
         return_value=_Response({"id": "webhook-id", "state": "ENABLED"})
