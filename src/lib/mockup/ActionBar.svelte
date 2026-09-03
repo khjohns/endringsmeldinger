@@ -36,7 +36,7 @@
   } = $props();
 </script>
 
-<div class="action-bar">
+<div class="action-bar" class:action-bar-form={mode === 'form'}>
   <div class="action-inner">
     <div class="status-section">
       <div class="status-dot"></div>
@@ -82,16 +82,21 @@
 
 <style>
   .action-bar {
+    position: relative;
+    margin: 0 20px 20px;
+    background: var(--surface);
+    border: var(--rule);
+    border-radius: 12px;
+    padding: 14px 24px;
+    z-index: 20;
+  }
+  .action-bar-form {
     position: sticky;
     bottom: 0;
     max-width: 840px;
     margin: 0 auto;
-    background: var(--surface);
-    border: 1px solid #d9d5cc;
-    border-radius: 4px 4px 0 0;
-    padding: 14px 24px;
-    z-index: 20;
-    box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.06);
+    border-radius: 12px 12px 0 0;
+    box-shadow: 0 -2px 12px rgba(27, 42, 34, 0.06);
   }
   .action-inner {
     display: flex;

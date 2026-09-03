@@ -21,7 +21,7 @@
   type MobileView = 'matrix' | 'detail';
 
   let role: Role = $state('BH');
-  let sel: SporKey = $state('ansvar');
+  let sel: SporKey = $state('vederlag');
   let rTab: RightTab = $state('bestemmelser');
   let mode: Mode = $state('read');
   let dark = $state(false);
@@ -219,16 +219,16 @@
     position: relative;
   }
   .read-mode .body {
-    margin-top: -56px;
+    margin-top: calc(-1 * var(--mockup-topbar-height));
   }
   .read-mode .center {
-    padding-top: 56px;
+    padding-top: var(--mockup-topbar-height);
   }
   .read-mode .right-panel {
     display: flex;
     flex-direction: column;
-    min-width: 330px;
-    padding-top: 56px;
+    min-width: var(--mockup-drawer-width);
+    padding-top: var(--mockup-topbar-height);
   }
   .read-mode .right-panel-inner {
     display: flex;
@@ -237,7 +237,7 @@
   }
   .read-mode .right-panel-inner :global(.right-sidebar) {
     flex: 1;
-    width: 330px;
+    width: var(--mockup-drawer-width);
   }
   .left-panel {
     display: contents;

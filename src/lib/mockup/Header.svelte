@@ -82,8 +82,8 @@
 
 <style>
   .header {
-    height: 56px;
-    border-bottom: 1px solid #d9d5cc;
+    height: var(--mockup-topbar-height);
+    border-bottom: var(--rule);
     background: var(--surface);
     display: flex;
     align-items: stretch;
@@ -107,7 +107,7 @@
     background: none;
     border: none;
     cursor: pointer;
-    border-right: 1px solid #d9d5cc;
+    border-right: var(--rule);
     height: 100%;
     font-family: var(--font-sans);
   }
@@ -118,8 +118,8 @@
     display: none;
   }
   .header-read {
-    width: calc(100% - 300px);
-    margin-left: 300px;
+    width: calc(100% - var(--mockup-sidebar-width));
+    margin-left: var(--mockup-sidebar-width);
   }
   .project-info {
     padding: 0 16px;
@@ -149,27 +149,29 @@
   }
   .role-toggle {
     display: flex;
-    border: 1px solid #d9d5cc;
-    border-radius: 4px;
-    overflow: hidden;
+    gap: 8px;
   }
   .role-btn {
-    padding: 6px 16px;
-    font-size: 13px;
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    font-size: 12px;
     font-weight: 700;
     font-family: var(--font-sans);
-    background: var(--surface);
+    background: var(--canvas);
     color: var(--ink-3);
-    border: none;
+    border: var(--control-border);
+    border-radius: 999px;
     cursor: pointer;
     transition: all 120ms;
   }
   .role-btn + .role-btn {
-    border-left: 1px solid #d9d5cc;
+    border-left: 1px solid #c6d7cd;
   }
   .role-btn.active {
     background: var(--brand);
     color: white;
+    border-color: var(--brand);
   }
   .role-btn:hover:not(.active) {
     background: var(--surface-inset);
@@ -182,23 +184,23 @@
   }
   .scenario-select select {
     font-size: 12px;
-    font-family: var(--font-mono);
+    font-family: var(--font-sans);
     background: var(--surface-inset);
     border: var(--rule);
-    border-radius: 4px;
+    border-radius: 999px;
     padding: 4px 8px;
     color: var(--ink-2);
   }
   .theme-btn {
-    display: flex;
+    display: none;
     align-items: center;
     justify-content: center;
     width: 36px;
     height: 36px;
     color: var(--ink-3);
     background: transparent;
-    border: 1px solid #d9d5cc;
-    border-radius: 4px;
+    border: var(--control-border);
+    border-radius: 999px;
     cursor: pointer;
     transition: all 0.15s ease;
   }
@@ -216,8 +218,8 @@
     font-family: var(--font-sans);
     color: var(--ink-3);
     background: transparent;
-    border: 1px solid #d9d5cc;
-    border-radius: 4px;
+    border: var(--control-border);
+    border-radius: 999px;
     cursor: pointer;
     transition: all 80ms;
   }

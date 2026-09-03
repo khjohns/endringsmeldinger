@@ -5,7 +5,7 @@
 
   const bars = $derived([
     { label: 'subs.', val: sub, color: 'var(--green)' },
-    { label: 'prins.', val: prin, color: 'var(--danger)' },
+    { label: 'prins.', val: prin, color: 'var(--green)' },
   ]);
 </script>
 
@@ -32,6 +32,7 @@
     display: flex;
     align-items: center;
     gap: 8px;
+    justify-content: space-between;
   }
   .bar-label {
     font-size: 9px;
@@ -41,15 +42,16 @@
     font-weight: 600;
   }
   .bar-track {
-    flex: 1;
-    height: 5px;
-    background: var(--paper-inset);
-    border: var(--rule-subtle);
-    border-radius: 2px;
+    flex: 0 0 96px;
+    height: 6px;
+    background: rgba(242, 247, 244, 0.2);
+    border-radius: 999px;
     overflow: hidden;
   }
   .bar-fill {
     height: 100%;
+    min-width: 4px;
+    border-radius: inherit;
   }
   .bar-value {
     font-size: 10px;
