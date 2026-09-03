@@ -1,7 +1,6 @@
 <script lang="ts">
   import { store } from './store.svelte.js';
   import Header from './Header.svelte';
-  import ConsistencyStrip from './ConsistencyStrip.svelte';
   import LeftSidebar from './LeftSidebar.svelte';
   import CenterRead from './CenterRead.svelte';
   import FristForm from './FristForm.svelte';
@@ -74,7 +73,7 @@
 </script>
 
 <div class="mockup" class:dark>
-  <div class="shell" class:read-mode={mode === 'read'}>
+  <div class="shell">
     <Header
       {role}
       {mode}
@@ -85,22 +84,10 @@
       ondarkchange={(v) => (dark = v)}
     />
 
-    {#if mode === 'form'}
-      <ConsistencyStrip
-        {sel}
-        draftCount={store.draftCount}
-        onselect={(key, _draftText) => {
-          sel = key;
-        }}
-      />
-    {/if}
-
     <div class="body">
-      {#if mode === 'read'}
-        <div class="left-panel" class:mobile-hidden={mobileView !== 'matrix'}>
-          <LeftSidebar {sel} {subV} {prinV} {subF} {prinF} onselect={selectTrack} />
-        </div>
-      {/if}
+      <div class="left-panel" class:mobile-hidden={mobileView !== 'matrix'}>
+        <LeftSidebar {sel} {subV} {prinV} {subF} {prinF} onselect={selectTrack} />
+      </div>
 
       <main class="center" class:mobile-hidden={mode === 'read' && mobileView === 'matrix'}>
         {#if mode === 'read'}
@@ -218,31 +205,28 @@
     background: var(--canvas);
     position: relative;
   }
-  .read-mode .body {
+  .body {
     margin-top: calc(-1 * var(--mockup-topbar-height));
   }
-  .read-mode .center {
+  .center {
     padding-top: var(--mockup-topbar-height);
   }
-  .read-mode .right-panel {
+  .right-panel {
     display: flex;
     flex-direction: column;
     min-width: var(--mockup-drawer-width);
     padding-top: var(--mockup-topbar-height);
   }
-  .read-mode .right-panel-inner {
+  .right-panel-inner {
     display: flex;
     flex: 1;
     min-height: 0;
   }
-  .read-mode .right-panel-inner :global(.right-sidebar) {
+  .right-panel-inner :global(.right-sidebar) {
     flex: 1;
     width: var(--mockup-drawer-width);
   }
   .left-panel {
-    display: contents;
-  }
-  .right-panel-inner {
     display: contents;
   }
   .right-panel-backdrop {
@@ -270,13 +254,13 @@
       pointer-events: none;
       display: none;
     }
-    .read-mode .body {
+    .body {
       margin-top: 0;
     }
-    .read-mode .center {
+    .center {
       padding-top: 0;
     }
-    .read-mode .right-panel {
+    .right-panel {
       padding-top: 0;
     }
     .right-panel.right-panel-open {

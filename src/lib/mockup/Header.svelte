@@ -22,7 +22,7 @@
   } = $props();
 </script>
 
-<header class="header" class:header-read={mode === 'read'}>
+<header class="header header-offset">
   <div class="left">
     {#if mode === 'form'}
       <button class="back-btn" onclick={onback}>
@@ -117,7 +117,7 @@
   .mobile-only-back {
     display: none;
   }
-  .header-read {
+  .header-offset {
     width: calc(100% - var(--mockup-sidebar-width));
     margin-left: var(--mockup-sidebar-width);
   }
@@ -240,7 +240,7 @@
       min-width: 0;
       overflow: hidden;
     }
-    .header-read {
+    .header-offset {
       width: 100%;
       margin-left: 0;
     }

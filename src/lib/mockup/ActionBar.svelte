@@ -92,11 +92,22 @@
   }
   .action-bar-form {
     position: sticky;
-    bottom: 0;
-    max-width: 840px;
-    margin: 0 auto;
-    border-radius: 12px 12px 0 0;
-    box-shadow: 0 -2px 12px rgba(27, 42, 34, 0.06);
+    bottom: 12px;
+    width: calc(100% - 32px);
+    max-width: 808px;
+    margin: 0 auto 12px;
+    padding: 10px 12px 10px 16px;
+    border-radius: 12px;
+    box-shadow: var(--overlay-shadow-lg);
+  }
+  .action-bar-form .status-dot {
+    background: var(--green);
+    box-shadow: 0 0 0 4px var(--green-bg);
+  }
+  .action-bar-form .btn {
+    min-height: 38px;
+    padding: 8px 16px;
+    font-size: 13px;
   }
   .action-inner {
     display: flex;
