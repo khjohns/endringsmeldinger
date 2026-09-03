@@ -6,9 +6,9 @@
   import DualBar from './DualBar.svelte';
   import Stamp from './Stamp.svelte';
   import type { SporKey } from './types.js';
-  import osloLogo from '../../../public/logos/Oslo-logo-hvit-RGB.png?inline';
   import { getHjemmelLabel } from '$lib/constants/categories.js';
   import { getOverordnetStatusStyle } from '$lib/constants/statusStyles.js';
+  import { ChevronRight } from 'lucide-svelte';
 
   let {
     sel,
@@ -46,7 +46,13 @@
 <aside class="sidebar">
   <div class="id-plate">
     <div class="sender">
-      <div class="oslo-logo" style:background-image={`url(${osloLogo})`} aria-hidden="true"></div>
+      <div class="oslo-logo" aria-hidden="true">
+        <svg viewBox="0 0 24 24">
+          <path
+            d="M12 2 4 5v6.1c0 5 3.4 9.7 8 10.9 4.6-1.2 8-5.9 8-10.9V5l-8-3Zm0 2.2 6 2.2v4.7c0 4.1-2.7 7.9-6 8.9-3.3-1-6-4.8-6-8.9V6.4l6-2.2Zm0 2.8a3 3 0 0 0-1 5.8V16h2v-3.2A3 3 0 0 0 12 7Z"
+          />
+        </svg>
+      </div>
       <div class="sender-name">
         <div>Oslo kommune</div>
         <div>Oslobygg</div>
@@ -55,19 +61,21 @@
 
     <div class="case-identity">
       <div class="id-label">Sak</div>
-      <div class="id-number">KOE-047</div>
-      <span
-        class="case-status"
-        class:variant-default={statusStyle.variant === 'default'}
-        class:variant-info={statusStyle.variant === 'info'}
-        class:variant-success={statusStyle.variant === 'success'}
-        class:variant-danger={statusStyle.variant === 'danger'}>{statusStyle.label}</span
-      >
+      <div class="case-topline">
+        <div class="id-number">KOE-047</div>
+        <span
+          class="case-status"
+          class:variant-default={statusStyle.variant === 'default'}
+          class:variant-info={statusStyle.variant === 'info'}
+          class:variant-success={statusStyle.variant === 'success'}
+          class:variant-danger={statusStyle.variant === 'danger'}>{statusStyle.label}</span
+        >
+      </div>
       <h2 class="case-title">Uforutsette grunnforhold, Fjell i byggegrop akse 1–3</h2>
     </div>
   </div>
 
-  <div class="sidebar-tracks" style="padding-inline: {S.sm}px">
+  <div class="sidebar-tracks">
     {#each trackGroups as group, gi}
       {#if gi > 0}
         <div class="group-sep"></div>
@@ -82,7 +90,6 @@
         <div
           class="m-row"
           class:on
-          style="padding: {S.md}px; margin-bottom: 2px"
           onclick={() => onselect(t.id)}
           role="button"
           tabindex="0"
@@ -94,9 +101,19 @@
             <div class="row-label">
               <span class="row-name">{contractLabel || t.label}</span>
             </div>
-            {#if hasDraft}
-              <Stamp variant="draft" small>Kladd</Stamp>
-            {/if}
+            <div class="row-actions">
+              {#if hasDraft}
+                <Stamp variant="draft" small>Kladd</Stamp>
+              {/if}
+              {#if on}
+                <ChevronRight
+                  class="active-chevron"
+                  size={15}
+                  strokeWidth={2.25}
+                  aria-hidden="true"
+                />
+              {/if}
+            </div>
           </div>
           <div class="row-update">
             {#if display.antallVersjoner > 0 && display.sisteOppdatert}
@@ -160,31 +177,49 @@
 
 <style>
   .sidebar {
-    width: 300px;
+    width: var(--mockup-sidebar-width);
     flex-shrink: 0;
-    border-right: var(--rule);
+    border-right: 1px solid var(--sidebar-border);
     display: flex;
     flex-direction: column;
     overflow-y: auto;
-    background: var(--surface);
+    background: var(--sidebar-bg);
+    color: var(--sidebar-text);
+    /* Keep all shared component tokens legible when rendered in the dark rail. */
+    --ink: var(--sidebar-text);
+    --ink-2: var(--sidebar-text);
+    --ink-3: var(--sidebar-muted);
+    --ink-4: var(--sidebar-muted);
+    --surface: var(--sidebar-raised);
+    --surface-inset: rgba(255, 255, 255, 0.09);
   }
   .id-plate {
-    background: #034b45;
-    color: white;
-    padding: 18px 20px 20px;
+    background: var(--sidebar-bg);
+    color: var(--sidebar-text);
+    padding: 16px 16px 18px;
   }
   .sender {
     display: flex;
     align-items: center;
     gap: 9px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(24, 35, 29, 0.55);
   }
   .oslo-logo {
-    width: 27px;
-    height: 35px;
-    flex: 0 0 27px;
-    background-position: -22px -19px;
-    background-repeat: no-repeat;
-    background-size: 114px auto;
+    width: 32px;
+    height: 32px;
+    flex: 0 0 32px;
+    display: grid;
+    place-items: center;
+    color: var(--sidebar-text);
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(242, 247, 244, 0.2);
+    border-radius: 5px;
+  }
+  .oslo-logo svg {
+    width: 20px;
+    height: 20px;
+    fill: currentColor;
   }
   .sender-name {
     font-size: 11px;
@@ -196,33 +231,38 @@
     font-weight: 700;
   }
   .case-identity {
-    margin-top: 21px;
+    margin-top: 24px;
   }
   .id-label {
     font-size: 10px;
     font-weight: 700;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: #c8e2dc;
+    color: var(--sidebar-muted);
     margin-bottom: 5px;
   }
   .id-number {
-    font-size: 28px;
-    font-weight: 700;
+    font-size: 24px;
+    font-weight: 800;
     letter-spacing: -0.02em;
     line-height: 1.05;
   }
+  .case-topline {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
   .case-status {
     display: inline-block;
-    margin-top: 10px;
-    padding: 3px 6px;
-    background: #f5d578;
-    color: #473a12;
+    padding: 3px 9px;
+    background: #fff0a6;
+    color: #5a4715;
     font-size: 10px;
     font-weight: 700;
     line-height: 1.2;
     letter-spacing: 0.01em;
-    border-radius: 1px;
+    border-radius: 6px;
   }
   .case-status.variant-default {
     background: #d6d3cb;
@@ -241,14 +281,14 @@
     color: #48150e;
   }
   .case-title {
-    margin-top: 20px;
+    margin-top: 8px;
     font-size: 12px;
-    font-weight: 600;
+    font-weight: 400;
     line-height: 1.4;
-    color: #ffffff;
+    color: var(--sidebar-muted);
   }
   .sidebar-tracks {
-    padding-top: 28px;
+    padding: 10px 16px 16px;
   }
   .row-header {
     display: flex;
@@ -260,35 +300,66 @@
     align-items: center;
     gap: 8px;
   }
+  .row-actions {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .active-chevron {
+    color: var(--sidebar-accent-text);
+    flex-shrink: 0;
+  }
   .row-name {
-    font-size: 16px;
-    font-weight: 600;
-    line-height: 24px;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 18px;
   }
   .row-update {
     font-size: 12px;
-    line-height: 18px;
-    color: var(--ink-3);
-    margin-bottom: 8px;
+    line-height: 16px;
+    color: var(--sidebar-muted);
+    margin-bottom: 6px;
   }
   .claimed {
     font-size: 12px;
     font-weight: 600;
     margin-bottom: 8px;
   }
+  .m-row {
+    padding: 10px;
+    margin-bottom: 8px;
+    background: rgba(255, 255, 255, 0.035);
+    border: 1px solid rgba(242, 247, 244, 0.07);
+  }
+  .m-row:not(.on) {
+    opacity: 0.76;
+  }
+  .m-row:not(.on):hover {
+    opacity: 1;
+    background: rgba(255, 255, 255, 0.05);
+  }
+  .m-row.on {
+    opacity: 1;
+    background: var(--sidebar-raised);
+    border-color: var(--sidebar-accent-text);
+    box-shadow: inset 3px 0 0 var(--sidebar-accent-text);
+  }
+  .m-row.on .row-name {
+    color: var(--sidebar-accent-text);
+  }
   .gap-box {
     margin-top: 8px;
     padding: 4px 12px;
-    background: var(--surface-inset);
-    border: var(--rule-subtle);
-    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.09);
+    border: 1px solid rgba(242, 247, 244, 0.08);
+    border-radius: 8px;
     display: flex;
     justify-content: space-between;
   }
   .gap-label {
     font-size: 10px;
     font-weight: 700;
-    color: var(--ink-4);
+    color: var(--sidebar-muted);
   }
   .gap-values {
     display: flex;
@@ -297,17 +368,17 @@
   .gap-sub {
     font-size: 11px;
     font-weight: 600;
-    color: var(--green);
+    color: #e79a94;
   }
   .gap-prin {
     font-size: 11px;
     font-weight: 600;
-    color: var(--danger);
+    color: #e79a94;
   }
   .binary-row {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 8px;
+    margin-bottom: 0;
   }
   .binary-te {
     font-size: 12px;
@@ -319,25 +390,20 @@
     color: var(--danger);
   }
   .gold-sep {
-    width: 52px;
-    height: 2px;
-    background: #d59b2d;
-    margin: 24px 24px 16px;
+    display: none;
   }
   .group-label {
-    font-size: 12px;
+    font-size: 10px;
     line-height: 16px;
     font-weight: 600;
     letter-spacing: 0.05em;
     text-transform: uppercase;
-    color: var(--ink-3);
-    padding: 0 8px;
-    margin-bottom: 12px;
+    color: var(--sidebar-muted);
+    padding: 0;
+    margin-bottom: 10px;
   }
   .group-sep {
-    height: 1px;
-    background: var(--rule-subtle);
-    margin: 8px 12px 16px;
+    height: 14px;
   }
   .exposure-heading {
     font-size: 12px;
@@ -346,13 +412,13 @@
     letter-spacing: 0.05em;
     text-transform: uppercase;
     margin-bottom: 12px;
-    color: var(--ink-3);
+    color: var(--sidebar-muted);
   }
   .exposure-box {
     padding: 12px;
-    background: var(--surface-warm);
-    border: var(--rule-subtle);
-    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(242, 247, 244, 0.1);
+    border-radius: 10px;
   }
   .exposure-row {
     display: flex;
@@ -370,6 +436,12 @@
   .exposure-value {
     font-size: 15px;
     font-weight: 700;
+  }
+
+  .sidebar :global(.stamp-draft) {
+    color: var(--sidebar-text);
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(242, 247, 244, 0.18);
   }
 
   /* ── Mobile ── */

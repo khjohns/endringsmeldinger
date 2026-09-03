@@ -205,9 +205,9 @@
 
 <style>
   .right-sidebar {
-    width: 330px;
+    width: var(--mockup-drawer-width);
     flex-shrink: 0;
-    border-left: 1px solid #d9d5cc;
+    border-left: var(--rule);
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -216,7 +216,7 @@
   .tab-bar {
     display: flex;
     flex-shrink: 0;
-    border-bottom: 1px solid #d9d5cc;
+    border-bottom: var(--rule);
   }
   .tab-content {
     flex: 1;
@@ -224,21 +224,24 @@
     padding: 20px;
     display: flex;
     flex-direction: column;
+    font-family: var(--font-legal);
   }
 
   /* Bestemmelser */
   .best-ref {
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 700;
     margin-bottom: 8px;
+    font-family: var(--font-legal);
+    text-transform: uppercase;
   }
   .best-text {
-    font-size: 15px;
+    font-size: 12px;
     line-height: 1.6;
     color: var(--ink-2);
   }
   .best-note {
-    font-size: 14px;
+    font-size: 12px;
     line-height: 1.5;
     color: var(--green);
     margin-top: 12px;
@@ -251,7 +254,7 @@
     top: 8px;
     bottom: 0;
     width: 1px;
-    background: #d9d5cc;
+    background: #c6d7cd;
   }
   .history-event {
     position: relative;

@@ -1,34 +1,17 @@
 /* ══════════════════════════════════════════════════════════════
-   Kontraktsbordet — Design System v3 (Oslobygg-profil)
+   Kontraktsbordet — Sage & Stone (Oslobygg-profil)
    ══════════════════════════════════════════════════════════════ */
-
-/* ── Oslo Sans — Local font-face ── */
-@font-face {
-  font-family: 'Oslo Sans';
-  src: url('/fonts/OsloSans-Regular.woff2') format('woff2');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'Oslo Sans';
-  src: url('/fonts/OsloSans-Medium.woff2') format('woff2');
-  font-weight: 500 600;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'Oslo Sans';
-  src: url('/fonts/OsloSans-Bold.woff2') format('woff2');
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
 
 /* ── Fallback stack ── */
 :root {
-  --font-sans: 'Oslo Sans', Arial, 'Helvetica Neue', Helvetica, sans-serif;
-  --font-mono: 'IBM Plex Mono', 'Roboto Mono', ui-monospace, SFMono-Regular, Consolas, monospace;
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', 'IBM Plex Mono', ui-monospace, SFMono-Regular, Consolas, monospace;
+  --font-legal: 'IBM Plex Sans', 'Inter', sans-serif;
+
+  /* The three measurements shared by the desktop shell. */
+  --mockup-sidebar-width: 320px;
+  --mockup-drawer-width: 384px;
+  --mockup-topbar-height: 56px;
 }
 
 /* ══════════════════════════════════════════════════
@@ -36,85 +19,93 @@
    ══════════════════════════════════════════════════ */
 :root {
   /* ── Brand ── */
-  --brand: #034b45;
-  --brand-2: #2a2859;
-  --accent: #f9c66b;
+  --brand: #2d4a3b;
+  --brand-2: #2d4a3b;
+  --accent: #86efac;
+
+  /* ── Sidebar ── */
+  --sidebar-bg: #212f27;
+  --sidebar-raised: #2d3e34;
+  --sidebar-text: #f2f7f4;
+  --sidebar-muted: #98aea1;
+  --sidebar-accent-text: #86efac;
+  --sidebar-border: #18231d;
 
   /* ── Surfaces ── */
-  --canvas: #f9f9f9;
-  --surface: #ffffff;
-  --surface-warm: #f8f0dd;
-  --surface-inset: #f2f0eb;
+  --canvas: #f5f7f5;
+  --surface: #fafcfa;
+  --surface-warm: #eef5f0;
+  --surface-inset: #edf2ee;
 
   /* ── Ink — 4 levels ── */
-  --ink: #2c2c2c;
-  --ink-2: #5f5f5f;
-  --ink-3: #747474;
-  --ink-4: #9a9a9a;
+  --ink: #1b2a22;
+  --ink-2: #294336;
+  --ink-3: #61776b;
+  --ink-4: #8fa598;
 
   /* ── Borders ── */
   --edge: 1px solid var(--brand);
-  --rule: 1px solid #d9d5cc;
-  --rule-subtle: 1px solid #e9e6df;
-  --rule-strong: 1px solid #c0bdb5;
+  --rule: 1px solid #dfe7e2;
+  --rule-subtle: 1px solid #e8efea;
+  --rule-strong: 1px solid #c6d7cd;
 
   /* ── Status — semantic ── */
-  --danger: #b42318;
-  --danger-bg: #fff2f1;
-  --danger-border: #efb8b3;
-  --success: #116149;
-  --success-bg: #e5ffe6;
-  --warning: #7a4e00;
-  --warning-bg: #ffe7bc;
-  --info: #1f42aa;
-  --info-bg: #f1fdff;
+  --danger: #b33e33;
+  --danger-bg: #fceded;
+  --danger-border: #e8b7b2;
+  --success: #2d6a4f;
+  --success-bg: #e6f0ea;
+  --warning: #b87e28;
+  --warning-bg: #fff3dc;
+  --info: #2d4a3b;
+  --info-bg: #eaf2ec;
 
   /* ── Draft / Internal ── */
-  --draft: #6b6b6b;
-  --draft-bg: #f5f5f5;
-  --draft-border: #d0d0d0;
+  --draft: #61776b;
+  --draft-bg: #f0f5f1;
+  --draft-border: #c6d7cd;
 
   /* ── Subsidiary ── */
-  --green: #034b45;
-  --green-bg: #e8f4f2;
-  --green-border: #a0ccc4;
+  --green: #2d6a4f;
+  --green-bg: #e6f0ea;
+  --green-border: #a3c7b3;
 
   /* ── Accent alias (gold → accent) ── */
-  --gold: #7a4e00;
-  --gold-bg: #fff8e8;
-  --gold-border: #f0d880;
+  --gold: #b87e28;
+  --gold-bg: #fff3dc;
+  --gold-border: #efd39a;
 
   /* ── Controls ── */
   --control-bg: var(--surface-inset);
-  --control-border: 1px solid #d9d5cc;
-  --control-focus: var(--brand-2);
-  --control-focus-ring: 0 0 0 3px rgba(42, 40, 89, 0.2);
+  --control-border: 1px solid #c6d7cd;
+  --control-focus: var(--brand);
+  --control-focus-ring: 0 0 0 3px rgba(45, 74, 59, 0.2);
 
   /* ── Overlays ── */
-  --overlay-1: #ffffff;
-  --overlay-2: #fafafa;
-  --overlay-bd: rgba(0, 0, 0, 0.12);
-  --overlay-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
-  --overlay-shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.08), 0 1px 4px rgba(0, 0, 0, 0.04);
+  --overlay-1: #fafcfa;
+  --overlay-2: #f0f5f1;
+  --overlay-bd: rgba(27, 42, 34, 0.12);
+  --overlay-shadow-sm: 0 1px 3px rgba(27, 42, 34, 0.07), 0 1px 2px rgba(27, 42, 34, 0.04);
+  --overlay-shadow-lg: 0 6px 20px rgba(27, 42, 34, 0.09), 0 2px 6px rgba(27, 42, 34, 0.04);
 }
 
 /* ══════════════════════════════════════════════════
    Dark mode tokens
    ══════════════════════════════════════════════════ */
 .mockup.dark {
-  --brand: #40b5a5;
-  --brand-2: #8b87d0;
-  --accent: #f9c66b;
+  --brand: #6ea986;
+  --brand-2: #47755b;
+  --accent: #a7e3b8;
 
-  --canvas: #111111;
-  --surface: #1a1a1a;
-  --surface-warm: #1e1c16;
-  --surface-inset: #222222;
+  --canvas: #142019;
+  --surface: #1b2a22;
+  --surface-warm: #203429;
+  --surface-inset: #263a2e;
 
-  --ink: #f0f0f0;
-  --ink-2: #b0b0b0;
-  --ink-3: #808080;
-  --ink-4: #606060;
+  --ink: #f2f7f4;
+  --ink-2: #c5d5cb;
+  --ink-3: #98aea1;
+  --ink-4: #71877a;
 
   --edge: 1px solid #333333;
   --rule: 1px solid rgba(255, 255, 255, 0.08);
@@ -135,9 +126,9 @@
   --draft-bg: #1e1e1e;
   --draft-border: #333333;
 
-  --green: #40b5a5;
-  --green-bg: rgba(64, 181, 165, 0.08);
-  --green-border: rgba(64, 181, 165, 0.2);
+  --green: #72bb8d;
+  --green-bg: rgba(114, 187, 141, 0.1);
+  --green-border: rgba(114, 187, 141, 0.24);
 
   --gold: #f9c66b;
   --gold-bg: rgba(249, 198, 107, 0.08);
@@ -203,7 +194,7 @@
   background: var(--canvas);
   color: var(--ink);
   font-family: var(--font-sans);
-  font-size: 16px;
+  font-size: 14px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
 }
@@ -241,7 +232,7 @@
   line-height: 1;
   letter-spacing: 0.02em;
   padding: 4px 10px;
-  border-radius: 4px;
+  border-radius: 999px;
   border: 1px solid currentColor;
 }
 .mockup .stamp-avslag {
@@ -287,7 +278,7 @@
   font-weight: 600;
   font-size: 14px;
   line-height: 1;
-  border-radius: 4px;
+  border-radius: 999px;
   cursor: pointer;
   transition:
     background 120ms,
@@ -313,7 +304,7 @@
 .mockup .btn-secondary {
   background: var(--surface);
   color: var(--ink);
-  border: 1px solid #d9d5cc;
+  border: var(--control-border);
 }
 .mockup .btn-secondary:hover:not(:disabled) {
   border-color: var(--ink-3);
@@ -365,19 +356,19 @@
    ══════════════════════════════════════════════════ */
 .mockup .m-row {
   cursor: pointer;
-  border-left: 3px solid transparent;
-  border-radius: 0 4px 4px 0;
-  transition: background 80ms;
+  border-radius: 12px;
+  transition:
+    background 120ms,
+    border-color 120ms;
 }
 .mockup .m-row:hover {
-  background: var(--surface-inset);
+  background: var(--sidebar-raised);
 }
 .mockup .m-row:active {
-  background: var(--surface);
+  background: #384b40;
 }
 .mockup .m-row.on {
-  background: var(--surface);
-  border-left-color: var(--accent);
+  background: var(--sidebar-raised);
 }
 
 /* ══════════════════════════════════════════════════
@@ -386,7 +377,7 @@
 .mockup .tab {
   padding: 12px 16px;
   font-family: var(--font-sans);
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 600;
   color: var(--ink-3);
   cursor: pointer;
@@ -403,7 +394,7 @@
 }
 .mockup .tab.on {
   color: var(--ink);
-  border-bottom-color: var(--accent);
+  border-bottom-color: var(--brand);
 }
 
 /* ══════════════════════════════════════════════════
@@ -433,7 +424,7 @@
   padding: 12px;
   background: var(--surface);
   border: var(--rule-subtle);
-  border-radius: 4px;
+  border-radius: 12px;
   cursor: pointer;
   transition: border-color 0.15s ease;
 }
@@ -445,15 +436,16 @@
    Provision cards (bestemmelser)
    ══════════════════════════════════════════════════ */
 .mockup .best-card {
-  padding: 16px;
-  background: var(--surface-warm);
-  border: var(--rule-subtle);
-  border-radius: 4px;
+  padding: 0 0 16px;
+  background: transparent;
+  border: 0;
+  border-bottom: var(--rule);
+  border-radius: 0;
   transition: border-color 0.15s ease;
   cursor: default;
 }
 .mockup .best-card:hover {
-  border-color: var(--green-border);
+  border-color: #c6d7cd;
 }
 
 /* ══════════════════════════════════════════════════
@@ -465,8 +457,8 @@
   font-size: 14px;
   font-weight: 600;
   font-family: var(--font-sans);
-  border: 1px solid #d9d5cc;
-  border-radius: 4px;
+  border: var(--control-border);
+  border-radius: 999px;
   background: var(--surface);
   color: var(--ink-2);
   cursor: pointer;

@@ -6,7 +6,6 @@
   import { getEventTypeLabel } from '$lib/constants/eventTypeLabels.js';
   import { formatDateTimeNorwegian } from '$lib/utils/dateFormatters.js';
   import Stamp from './Stamp.svelte';
-  import SubStripe from './SubStripe.svelte';
   import CountUp from './CountUp.svelte';
   import type { SporKey, Role } from './types.js';
   import type { TimelineEvent } from '$lib/types/timeline';
@@ -212,13 +211,7 @@
         </div>
 
         <!-- BH card -->
-        {#if isSub}
-          <SubStripe>
-            {@render bhCard()}
-          </SubStripe>
-        {:else}
-          {@render bhCard()}
-        {/if}
+        {@render bhCard()}
       </div>
 
       <!-- Posisjonsoversikt -->
@@ -295,7 +288,11 @@
       {/if}
     </div>
     <div class="doc-content">
-      {#if display.bhText.length > 200}
+      {#if !display.bhText}
+        <p class="argument-text empty-response">
+          Ingen motkrav eller kommentarer registrert fra byggherre.
+        </p>
+      {:else if display.bhText.length > 200}
         <div class="truncated">
           <p class="argument-text">
             {display.bhText}
@@ -315,15 +312,13 @@
 
 <style>
   .read-content {
-    max-width: 840px;
-    margin: 0 auto;
-    padding: 32px 40px 120px;
+    width: 100%;
+    padding: 20px;
   }
 
   /* ── Section heading ── */
   .section-heading {
-    padding-bottom: 12px;
-    margin-bottom: 24px;
+    margin-bottom: 20px;
   }
   .heading-row {
     display: flex;
@@ -331,15 +326,13 @@
     gap: 12px;
   }
   .heading-text {
-    font-size: 24px;
+    font-size: 30px;
     font-weight: 700;
-    line-height: 32px;
+    line-height: 36px;
+    letter-spacing: -0.02em;
   }
   .heading-underline {
-    width: 52px;
-    height: 3px;
-    background: var(--accent);
-    margin-top: 8px;
+    display: none;
   }
   .heading-underline.underline-green {
     background: var(--green);
@@ -350,11 +343,11 @@
     display: flex;
     align-items: flex-start;
     gap: 10px;
-    padding: 10px 14px;
+    padding: 14px;
     background: var(--green-bg);
     border: 1px solid var(--green-border);
-    border-radius: 4px;
-    margin-bottom: 16px;
+    border-radius: 12px;
+    margin-bottom: 20px;
   }
   .sub-diamond-inline {
     width: 11px;
@@ -365,8 +358,8 @@
     margin-top: 3px;
   }
   .sub-notice-top-text {
-    font-size: 14px;
-    line-height: 1.55;
+    font-size: 12px;
+    line-height: 1.625;
     color: var(--ink-2);
   }
 
@@ -374,12 +367,21 @@
   .cards {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    overflow: hidden;
+    background: var(--surface);
+    border: var(--rule);
+    border-radius: 12px;
+    box-shadow: var(--overlay-shadow-sm);
   }
   .doc-panel {
     display: flex;
-    border: var(--rule);
-    border-radius: 4px;
+    min-height: 106px;
+    border: 0;
+    border-radius: 0;
+  }
+  .doc-panel + .doc-panel,
+  .cards :global(.bh-panel) {
+    border-top: var(--rule);
   }
   .te-panel {
     background: var(--surface);
@@ -393,7 +395,7 @@
     border-color: var(--danger-border);
   }
   .doc-sidebar {
-    width: 195px;
+    width: 42%;
     flex-shrink: 0;
     padding: 20px;
     border-right: var(--rule);
@@ -411,9 +413,11 @@
     border-right-color: var(--danger-border);
   }
   .party-name {
-    font-size: 14px;
+    font-size: 12px;
     margin-bottom: 12px;
-    font-weight: 600;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
   }
   .bh-sidebar .party-name {
     font-weight: 500;
@@ -441,9 +445,9 @@
   }
   .te-value,
   .bh-value {
-    font-size: 24px;
+    font-size: 30px;
     font-weight: 700;
-    letter-spacing: -0.03em;
+    letter-spacing: 0.02em;
     line-height: 1;
   }
   .doc-content {
@@ -451,9 +455,13 @@
     padding: 20px 24px;
   }
   .argument-text {
-    font-size: 18px;
-    line-height: 1.75;
+    font-size: 14px;
+    line-height: 1.6;
     color: var(--ink-2);
+  }
+  .empty-response {
+    color: var(--ink-3);
+    font-style: italic;
   }
   .bh-panel.disputed .argument-text {
     color: var(--danger);
@@ -532,10 +540,11 @@
 
   /* ── Posisjonsoversikt ── */
   .gap-viz {
-    padding: 8px 16px;
+    padding: 16px;
     background: var(--surface-inset);
-    border-radius: 4px;
-    margin-top: 12px;
+    border: var(--rule);
+    border-radius: 12px;
+    margin-top: 20px;
   }
   .gap-viz-label {
     font-size: 11px;
@@ -548,7 +557,7 @@
   .gap-bar {
     display: flex;
     gap: 2px;
-    height: 14px;
+    height: 12px;
   }
   .gap-seg-ok {
     background: var(--green-border);
@@ -556,7 +565,7 @@
     border-radius: 4px 0 0 4px;
   }
   .gap-seg-gap {
-    background: var(--danger-border);
+    background: #d96459;
     min-width: 8px;
     border-radius: 0 4px 4px 0;
   }
@@ -578,11 +587,11 @@
 
   /* ── Draft ── */
   .draft-section {
-    padding: 16px 24px;
+    padding: 16px;
     background: var(--draft-bg);
     border: 1.5px dashed var(--draft-border);
-    border-radius: 4px;
-    margin-top: 12px;
+    border-radius: 12px;
+    margin-top: 20px;
   }
   .draft-clickable {
     cursor: pointer;
@@ -597,12 +606,13 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 16px;
+    margin-bottom: 8px;
   }
   .draft-meta {
     display: flex;
     align-items: center;
     gap: 12px;
+    width: 100%;
   }
   .draft-label {
     font-size: 13px;
@@ -610,14 +620,14 @@
     color: var(--draft);
   }
   .draft-value {
-    font-size: 18px;
+    font-size: 14px;
     font-weight: 700;
     color: var(--draft);
-    margin-left: 8px;
+    margin-left: auto;
   }
   .draft-text {
-    font-size: 16px;
-    line-height: 1.65;
+    font-size: 14px;
+    line-height: 1.6;
     color: var(--draft);
   }
 
