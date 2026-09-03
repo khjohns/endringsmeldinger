@@ -540,6 +540,14 @@ for en senere durable inbox/retry-policy.
 
 ## 8C. Trinn 3 – durable webhook inbox og outbox (planlagt)
 
+**Beslutningsstatus 3. september 2026:** Arkitekturen er vurdert, men bevisst
+ikke implementert i denne arbeidsrunden. Et mindre Redis-/minnelagergrep ville
+fortsatt hatt krasjvinduer og gitt en falsk garanti om idempotens. Korrekt
+implementasjon forutsetter Supabase-migrasjon for inbox/outbox og én atomisk
+PostgreSQL-funksjon/RPC som lagrer sak, første event og metadata, markerer
+inbox-raden fullført og oppretter de første outbox-operasjonene i samme
+transaksjon. Dette behandles som en egen backend-leveranse senere.
+
 Dagens Redis-/minnelager reserverer `event.id` før behandlingen og er ikke en
 durable korrekthetsmekanisme. Det har TTL, mister data ved prosessrestart uten
 Redis og skiller ikke mottatt, pågående, feilet og fullført behandling.
