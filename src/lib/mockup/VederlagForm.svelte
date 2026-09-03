@@ -30,7 +30,6 @@
   import { store } from './store.svelte.js';
   import { fmt, sporResultatLabel } from './utils.js';
   import Stamp from './Stamp.svelte';
-  import SubStripe from './SubStripe.svelte';
   import CaseAnchor from './CaseAnchor.svelte';
   import { toggleChoice } from './utils.js';
 
@@ -130,23 +129,14 @@
     return '';
   });
 
-  const subsidiærDiamondCount = $derived.by(() => {
-    let count = 0;
-    if (isSubsidiaer) count++;
-    if (computed.harPreklusjonsSteg) {
-      for (const l of preklusjonsLinjer) {
-        if (l.value === false) count++;
-      }
-    }
-    return count;
-  });
-
   const resultat = $derived.by(() => {
     const r = computed.prinsipaltResultat;
     const label = sporResultatLabel(r);
-    if (r === 'godkjent') return { ikon: Check, label, variant: 'positive' as const };
-    if (r === 'delvis_godkjent') return { ikon: CircleMinus, label, variant: 'mixed' as const };
-    return { ikon: X, label, variant: 'negative' as const };
+    const konklusjon = `Kravet er ${label.toLocaleLowerCase('nb-NO')}`;
+    if (r === 'godkjent') return { ikon: Check, konklusjon, variant: 'positive' as const };
+    if (r === 'delvis_godkjent')
+      return { ikon: CircleMinus, konklusjon, variant: 'mixed' as const };
+    return { ikon: X, konklusjon, variant: 'negative' as const };
   });
 
   // Granulær resultat-rad per kostnadselement (kravlinje).
@@ -474,60 +464,82 @@
 <div class="form-content">
   <CaseAnchor />
 
-  <div class="sammendrag">
-    <SectionHeading title="Vederlagskrav" paragrafRef="§ 34.1" />
-
-    {#if domainConfig.metode}
-      <div class="sammendrag-metode">
-        <span class="sammendrag-metode-label">Beregningsmetode:</span>
-        <span class="font-mono sammendrag-metode-verdi"
-          >{getVederlagsmetodeLabel(domainConfig.metode)}</span
-        >
-      </div>
+  <div class="form-title-row">
+    <h1>Krav om vederlagsjustering</h1>
+    {#if isSubsidiaer}
+      <span class="subsidiaer-chip">Subsidiært</span>
     {/if}
+  </div>
 
-    <div class="sammendrag-kravlinjer">
-      <div class="sammendrag-kravlinje">
-        <span class="sammendrag-kravlinje-label">Hovedkrav</span>
-        <span class="font-mono sammendrag-kravlinje-belop"
-          >{fmt(domainConfig.hovedkravBelop)},-</span
-        >
+  <div class="sammendrag">
+    <div class="sammendrag-header">
+      <div>
+        <span class="sammendrag-eyebrow">Entreprenørens krav</span>
+        <h2>{store.teNavn}</h2>
       </div>
-      {#if domainConfig.harRiggKrav && domainConfig.riggBelop}
-        <div class="sammendrag-kravlinje">
-          <span class="sammendrag-kravlinje-label">Rigg og drift</span>
-          <span class="font-mono sammendrag-kravlinje-belop">{fmt(domainConfig.riggBelop)},-</span>
-        </div>
-      {/if}
-      {#if domainConfig.harProduktivitetKrav && domainConfig.produktivitetBelop}
-        <div class="sammendrag-kravlinje">
-          <span class="sammendrag-kravlinje-label">Produktivitetstap</span>
-          <span class="font-mono sammendrag-kravlinje-belop"
-            >{fmt(domainConfig.produktivitetBelop)},-</span
+      <span class="font-mono sammendrag-ref">§ 34.1</span>
+    </div>
+
+    <div class="sammendrag-okonomi">
+      {#if domainConfig.metode}
+        <div class="sammendrag-metode">
+          <span class="sammendrag-metode-label">Beregningsmetode</span>
+          <span class="sammendrag-metode-verdi">{getVederlagsmetodeLabel(domainConfig.metode)}</span
           >
         </div>
       {/if}
-      {#if sammendragKravlinjer.length > 1}
-        <div class="sammendrag-kravlinje sammendrag-sum">
-          <span class="sammendrag-kravlinje-label">Sum krevd</span>
-          <span class="font-mono sammendrag-kravlinje-belop">{fmt(sammendragTotalKrevd)},-</span>
+
+      <div class="sammendrag-kravlinjer">
+        <div class="sammendrag-kravlinje">
+          <span class="sammendrag-kravlinje-label">Hovedkrav</span>
+          <span class="font-mono sammendrag-kravlinje-belop"
+            >{fmt(domainConfig.hovedkravBelop)},-</span
+          >
         </div>
-      {/if}
+        {#if domainConfig.harRiggKrav && domainConfig.riggBelop}
+          <div class="sammendrag-kravlinje">
+            <span class="sammendrag-kravlinje-label">Rigg og drift</span>
+            <span class="font-mono sammendrag-kravlinje-belop">{fmt(domainConfig.riggBelop)},-</span
+            >
+          </div>
+        {/if}
+        {#if domainConfig.harProduktivitetKrav && domainConfig.produktivitetBelop}
+          <div class="sammendrag-kravlinje">
+            <span class="sammendrag-kravlinje-label">Produktivitetstap</span>
+            <span class="font-mono sammendrag-kravlinje-belop"
+              >{fmt(domainConfig.produktivitetBelop)},-</span
+            >
+          </div>
+        {/if}
+        {#if sammendragKravlinjer.length > 1}
+          <div class="sammendrag-kravlinje sammendrag-sum">
+            <span class="sammendrag-kravlinje-label">Sum krevd</span>
+            <span class="font-mono sammendrag-kravlinje-belop">{fmt(sammendragTotalKrevd)},-</span>
+          </div>
+        {/if}
+      </div>
     </div>
 
     {#if store.display('vederlag').teText}
-      <div
-        class="sammendrag-begrunnelse"
-        class:avkortet={!begrunnelseUtvidet}
-        bind:this={begrunnelseEl}
-      >
-        <p class="font-serif">{store.display('vederlag').teText}</p>
+      <div class="sammendrag-begrunnelse-panel">
+        <span class="sammendrag-begrunnelse-label">Entreprenørens begrunnelse</span>
+        <div
+          class="sammendrag-begrunnelse"
+          class:avkortet={!begrunnelseUtvidet}
+          bind:this={begrunnelseEl}
+        >
+          <p>{store.display('vederlag').teText}</p>
+        </div>
+        {#if erBegrunnelseAvkortet || begrunnelseUtvidet}
+          <button
+            class="vis-mer-btn"
+            aria-expanded={begrunnelseUtvidet}
+            onclick={() => (begrunnelseUtvidet = !begrunnelseUtvidet)}
+          >
+            {begrunnelseUtvidet ? 'Vis mindre' : 'Vis hele begrunnelsen'}
+          </button>
+        {/if}
       </div>
-      {#if erBegrunnelseAvkortet || begrunnelseUtvidet}
-        <button class="vis-mer-btn" onclick={() => (begrunnelseUtvidet = !begrunnelseUtvidet)}>
-          {begrunnelseUtvidet ? 'Vis mindre' : 'Vis mer'}
-        </button>
-      {/if}
     {/if}
   </div>
 
@@ -649,7 +661,7 @@
         {/snippet}
 
         {#if linje.prekludert}
-          <div class="subsidiaer-markering">Subsidiært</div>
+          <span class="subsidiaer-chip kravlinje-subsidiaer-chip">Subsidiært</span>
         {/if}
         {@render kravlinjeContent()}
       </div>
@@ -659,7 +671,7 @@
       <div class="result-box konsekvens-{resultat.variant}">
         <div class="result-header">
           <resultat.ikon size={18} />
-          <span class="result-label">{resultat.label}</span>
+          <span class="result-label">{resultat.konklusjon}</span>
         </div>
 
         <div class="result-tabell">
@@ -743,7 +755,12 @@
   {/snippet}
 
   {#snippet formBody()}
-    <SectionHeading title="Byggherrens standpunkt" />
+    <div class="standpunkt-heading">
+      <span class="standpunkt-title">Byggherrens standpunkt</span>
+      {#if isSubsidiaer}
+        <span class="subsidiaer-chip">Subsidiært</span>
+      {/if}
+    </div>
 
     <!-- Preklusjon (data-drevet, segment buttons) -->
     {#if computed.harPreklusjonsSteg}
@@ -770,11 +787,6 @@
               >
             </div>
           </div>
-          {#if linje.value === false}
-            <p class="font-serif consequence-text">
-              For sent varslet — ytterligere betingelse for utmåling nedenfor.
-            </p>
-          {/if}
         {/each}
       </div>
     {/if}
@@ -782,24 +794,128 @@
     {@render formBodyBelow()}
   {/snippet}
 
-  {#if isSubsidiaer}
-    <SubStripe notice={subsidiærNotice} diamondCount={subsidiærDiamondCount}>
-      {@render formBody()}
-    </SubStripe>
-  {:else}
-    {@render formBody()}
+  {#if isSubsidiaer && subsidiærNotice}
+    <div class="subsidiaer-notice">
+      <span class="subsidiaer-notice-mark" aria-hidden="true"></span>
+      <p>{subsidiærNotice}</p>
+    </div>
   {/if}
+  {@render formBody()}
 </div>
 
 <style>
   /* Form-specific styles (shared styles in mockup.css) */
 
+  .form-title-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .form-title-row h1 {
+    font-size: 30px;
+    font-weight: 700;
+    line-height: 36px;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+  }
+
+  .subsidiaer-notice {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px 16px;
+    margin-bottom: 24px;
+    color: var(--ink-2);
+    background: var(--info-bg);
+    border: var(--rule-strong);
+    border-radius: 12px;
+    font-size: 13px;
+    line-height: 1.6;
+  }
+  .subsidiaer-notice p {
+    margin: 0;
+  }
+  .subsidiaer-notice-mark {
+    flex: none;
+    width: 10px;
+    height: 10px;
+    margin-top: 5px;
+    background: var(--brand);
+    border-radius: 1px;
+    transform: rotate(45deg);
+  }
+
+  .standpunkt-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 4px 0 16px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--color-wire);
+  }
+  .standpunkt-title {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--ink-3);
+  }
+
   /* ── TE's vederlagskrav-sammendrag ── */
   .sammendrag {
-    margin-bottom: 40px;
+    margin-bottom: 32px;
+    overflow: hidden;
+    background: var(--surface);
+    border: var(--rule);
+    border-radius: 12px;
+    box-shadow: var(--overlay-shadow-sm);
+  }
+  .sammendrag-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 14px 16px;
+    border-bottom: var(--rule);
+  }
+  .sammendrag-header > div {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+  }
+  .sammendrag-eyebrow,
+  .sammendrag-begrunnelse-label,
+  .sammendrag-metode-label {
+    font-size: 10px;
+    font-weight: 600;
+    line-height: 1.2;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--ink-4);
+  }
+  .sammendrag-header h2 {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.35;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    color: var(--ink);
+  }
+  .sammendrag-ref {
+    flex: none;
+    font-size: 11px;
+    color: var(--ink-4);
+  }
+  .sammendrag-okonomi {
     display: flex;
     flex-direction: column;
     gap: 12px;
+    padding: 16px;
+    background: var(--surface-warm);
   }
 
   /* ── Lokal overskrift for begrunnelse (har ekstra kontroller; ellers identisk med SectionHeading) ── */
@@ -819,38 +935,45 @@
     color: var(--ink-3);
   }
 
-  /* ── Seksjonsluft: jevnt 20px mellom blokker (matcher produksjons gap) ── */
-  .question-block {
-    margin-bottom: var(--spacing-5);
+  /* ── Byggherrens beslutningsseksjoner ── */
+  .form-content .question-block,
+  .preklusjon-section {
+    margin: 0 0 16px;
+    padding: 18px;
+    background: var(--surface);
+    border: var(--rule);
+    border-radius: 12px;
   }
-  .question-block:not(.krav-linje-block) {
-    margin-top: var(--spacing-5);
+  .question-block .question-text {
+    margin: 14px 0;
+    font-size: 14px;
+    line-height: 1.55;
+    color: var(--ink-2);
   }
 
   .sammendrag-metode {
     display: flex;
     align-items: baseline;
-    gap: 8px;
-    font-size: 13px;
-  }
-  .sammendrag-metode-label {
-    color: var(--ink-3);
+    gap: 12px;
+    padding-bottom: 12px;
+    border-bottom: var(--rule);
   }
   .sammendrag-metode-verdi {
-    font-size: 12px;
-    font-weight: 500;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.4;
     color: var(--ink-2);
   }
   .sammendrag-kravlinjer {
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: 4px;
   }
   .sammendrag-kravlinje {
     display: flex;
     justify-content: space-between;
     align-items: baseline;
-    padding: 2px 0;
+    padding: 1px 0;
   }
   .sammendrag-kravlinje-label {
     font-size: 13px;
@@ -862,20 +985,28 @@
     color: var(--ink);
   }
   .sammendrag-sum {
-    border-top: 1px solid var(--rule);
-    padding-top: 8px;
-    margin-top: 4px;
+    border-top: var(--rule);
+    padding-top: 7px;
+    margin-top: 3px;
   }
   .sammendrag-sum .sammendrag-kravlinje-label {
     font-weight: 600;
     color: var(--ink);
   }
   .sammendrag-sum .sammendrag-kravlinje-belop {
-    font-weight: 600;
+    font-size: 14px;
+    font-weight: 700;
+  }
+  .sammendrag-begrunnelse-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    padding: 16px;
+    border-top: var(--rule);
   }
   .sammendrag-begrunnelse {
-    font-size: 15px;
-    line-height: 1.6;
+    font-size: 14px;
+    line-height: 1.65;
     color: var(--ink-2);
     overflow: hidden;
   }
@@ -883,43 +1014,48 @@
     margin: 0;
   }
   .sammendrag-begrunnelse.avkortet {
-    max-height: calc(1.6em * 10);
+    max-height: calc(1.65em * 8);
   }
   .vis-mer-btn {
-    align-self: flex-start;
+    width: fit-content;
     background: none;
     border: none;
     font-size: 12px;
-    font-weight: 500;
-    color: var(--ink-3);
+    font-weight: 600;
+    color: var(--green);
     cursor: pointer;
     padding: 0;
-    margin-top: 4px;
   }
   .vis-mer-btn:hover {
     color: var(--ink);
   }
 
-  .subsidiaer-markering {
-    display: inline-block;
+  .subsidiaer-chip {
+    display: inline-flex;
+    align-items: center;
+    width: fit-content;
     font-family: var(--font-mono);
     font-size: 10px;
     font-weight: 600;
+    line-height: 1;
     letter-spacing: 0.06em;
     text-transform: uppercase;
-    color: var(--warning);
-    padding: 2px 6px;
-    background: var(--warning-bg);
-    border: 1px dashed var(--warning);
-    border-radius: 2px;
-    margin-bottom: 12px;
+    color: var(--green);
+    padding: 5px 8px;
+    background: color-mix(in srgb, var(--green-bg) 55%, transparent);
+    border: 1px dashed var(--green);
+    border-radius: 6px;
+  }
+  .kravlinje-subsidiaer-chip {
+    margin-top: 12px;
+    margin-bottom: 14px;
   }
 
   .kravlinje-header {
-    margin-bottom: 12px;
+    margin: 14px 0 12px;
   }
   .kravlinje-krevd {
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 600;
     color: var(--ink-2);
   }
@@ -930,6 +1066,7 @@
     flex-direction: column;
     gap: 6px;
     max-width: 240px;
+    margin-top: 14px;
   }
   .number-input-label {
     font-size: 12px;
@@ -967,24 +1104,20 @@
     margin-top: 2px;
   }
   .result-box {
-    margin-top: 0;
-    padding: 12px 16px;
+    margin-top: 24px;
+    padding: 16px;
     background: var(--surface);
-    border: none;
-    border-left: 3px solid var(--ink-4);
-    border-radius: 4px;
+    border: var(--rule-strong);
+    border-radius: 12px;
   }
   .result-box.konsekvens-positive {
-    border-left-color: var(--success);
-    background: color-mix(in srgb, var(--success) 6%, var(--surface));
+    background: var(--surface);
   }
   .result-box.konsekvens-negative {
-    border-left-color: var(--danger);
-    background: color-mix(in srgb, var(--danger) 6%, var(--surface));
+    background: var(--surface);
   }
   .result-box.konsekvens-mixed {
-    border-left-color: var(--warning);
-    background: color-mix(in srgb, var(--warning) 6%, var(--surface));
+    background: var(--surface);
   }
   .result-header {
     display: flex;
@@ -1002,14 +1135,14 @@
     color: var(--danger);
   }
   .konsekvens-mixed .result-header {
-    color: var(--warning);
+    color: color-mix(in srgb, var(--warning) 78%, var(--ink));
   }
 
   /* ── Granulær resultat-tabell ── */
   .result-tabell {
-    margin-top: 12px;
-    border: 1px solid var(--rule);
-    border-radius: 4px;
+    margin-top: 14px;
+    border: var(--rule);
+    border-radius: 8px;
     overflow: hidden;
   }
   .tr {
@@ -1018,7 +1151,7 @@
     gap: 12px;
   }
   .tr + .tr {
-    border-top: 1px solid var(--rule);
+    border-top: var(--rule);
   }
   .tr-head {
     background: var(--surface-inset);
@@ -1074,7 +1207,7 @@
     color: var(--danger);
   }
   .td-delvis {
-    color: var(--warning);
+    color: var(--ink-2);
   }
   .td-emo {
     color: var(--ink-4);
@@ -1084,7 +1217,10 @@
     display: flex;
     flex-direction: column;
     gap: 8px;
-    margin-top: 12px;
+    margin-top: 14px;
+    padding: 12px;
+    background: var(--surface-inset);
+    border-radius: 8px;
   }
   .foretrukket-label {
     font-size: 11px;
@@ -1093,18 +1229,54 @@
     text-transform: uppercase;
     color: var(--ink-4);
   }
+
+  .begrunnelse-section {
+    margin-top: 16px;
+    padding: 18px;
+    background: var(--surface);
+    border: var(--rule);
+    border-radius: 12px;
+  }
+  .begrunnelse-section .editor-wrapper {
+    margin-top: 12px;
+    overflow: hidden;
+    border: var(--rule-strong);
+    border-radius: 8px;
+  }
+  .begrunnelse-section .editor-wrapper:focus-within {
+    border-color: var(--control-focus);
+    box-shadow: var(--control-focus-ring);
+  }
+  .begrunnelse-section .regenerate-btn {
+    padding: 5px 10px;
+    background: var(--surface);
+    border: var(--control-border);
+    border-radius: 999px;
+    color: var(--ink-3);
+  }
+  .begrunnelse-section .regenerate-btn:hover {
+    color: var(--ink);
+    background: var(--surface-inset);
+    border-color: var(--ink-3);
+  }
+
   .preklusjon-section {
     display: flex;
     flex-direction: column;
-    gap: 8px;
-    margin-top: var(--spacing-5);
+    gap: 0;
+  }
+  .preklusjon-section .question-text {
+    margin: 14px 0 8px;
+    font-size: 14px;
+    line-height: 1.55;
   }
   .preklusjons-rad {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 12px;
-    padding: 4px 0;
+    gap: 16px;
+    padding: 10px 0;
+    border-top: var(--rule-subtle);
   }
   .preklusjons-label {
     font-size: 13px;
@@ -1115,39 +1287,44 @@
   /* ── Segment buttons ── */
   .segment-row {
     display: inline-flex;
-    border: 1px solid #d9d5cc;
-    border-radius: 4px;
-    overflow: hidden;
+    flex-wrap: wrap;
+    gap: 3px;
     width: fit-content;
+    padding: 3px;
+    background: var(--surface-inset);
+    border: var(--rule-strong);
+    border-radius: 999px;
   }
   .segment-btn {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 6px;
-    padding: 6px 14px;
-    min-height: 32px;
+    padding: 7px 14px;
+    min-height: 34px;
     font-family: var(--font-sans);
     font-size: 13px;
     font-weight: 600;
-    background: var(--surface);
+    background: transparent;
     color: var(--ink-3);
     border: none;
-    border-right: 1px solid #d9d5cc;
+    border-radius: 999px;
     cursor: pointer;
-    transition: all 80ms;
+    transition:
+      background 120ms,
+      color 120ms,
+      box-shadow 120ms;
     white-space: nowrap;
     line-height: 1;
   }
-  .segment-btn:last-child {
-    border-right: none;
-  }
   .segment-btn:hover:not(.segment-active) {
-    background: var(--surface-inset);
+    background: var(--surface);
     color: var(--ink);
   }
   .segment-active {
     background: var(--brand-2);
     color: white;
+    box-shadow: 0 1px 2px rgba(27, 42, 34, 0.12);
   }
   .segment-active.seg-yes {
     background: var(--success);

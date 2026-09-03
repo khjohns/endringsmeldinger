@@ -6,6 +6,7 @@
   import DualBar from './DualBar.svelte';
   import Stamp from './Stamp.svelte';
   import type { SporKey } from './types.js';
+  import osloLogo from '../../../public/logos/Oslo-logo-hvit-RGB.png?inline';
   import { getHjemmelLabel } from '$lib/constants/categories.js';
   import { getOverordnetStatusStyle } from '$lib/constants/statusStyles.js';
   import { ChevronRight } from 'lucide-svelte';
@@ -46,13 +47,7 @@
 <aside class="sidebar">
   <div class="id-plate">
     <div class="sender">
-      <div class="oslo-logo" aria-hidden="true">
-        <svg viewBox="0 0 24 24">
-          <path
-            d="M12 2 4 5v6.1c0 5 3.4 9.7 8 10.9 4.6-1.2 8-5.9 8-10.9V5l-8-3Zm0 2.2 6 2.2v4.7c0 4.1-2.7 7.9-6 8.9-3.3-1-6-4.8-6-8.9V6.4l6-2.2Zm0 2.8a3 3 0 0 0-1 5.8V16h2v-3.2A3 3 0 0 0 12 7Z"
-          />
-        </svg>
-      </div>
+      <div class="oslo-logo" style:background-image={`url(${osloLogo})`} aria-hidden="true"></div>
       <div class="sender-name">
         <div>Oslo kommune</div>
         <div>Oslobygg</div>
@@ -206,20 +201,12 @@
     border-bottom: 1px solid rgba(24, 35, 29, 0.55);
   }
   .oslo-logo {
-    width: 32px;
-    height: 32px;
-    flex: 0 0 32px;
-    display: grid;
-    place-items: center;
-    color: var(--sidebar-text);
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(242, 247, 244, 0.2);
-    border-radius: 5px;
-  }
-  .oslo-logo svg {
-    width: 20px;
-    height: 20px;
-    fill: currentColor;
+    width: 27px;
+    height: 35px;
+    flex: 0 0 27px;
+    background-position: -22px -19px;
+    background-repeat: no-repeat;
+    background-size: 114px auto;
   }
   .sender-name {
     font-size: 11px;
