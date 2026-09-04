@@ -13,6 +13,8 @@
   import RightSidebar from './RightSidebar.svelte';
   import WithdrawModal from './WithdrawModal.svelte';
   import LetterPreviewModal from './LetterPreviewModal.svelte';
+  import NewCaseForm from './NewCaseForm.svelte';
+  import NewCaseActionBar from './NewCaseActionBar.svelte';
   import { buildLetterContent } from './letterContentBuilder.js';
   import type { Role, Mode, SporKey, RightTab } from './types.js';
   import type { TimelineEvent } from '$lib/types/timeline';
@@ -26,10 +28,20 @@
   let dark = $state(false);
   let mobileView: MobileView = $state('matrix');
   let rightPanelOpen = $state(false);
-  let formActions = $state<{ canSend: boolean; send: () => void } | null>(null);
+  let formActions = $state<{
+    canSend: boolean;
+    sendLabel?: string;
+    send: () => void;
+  } | null>(null);
   let activeEvent: TimelineEvent | null = $state(null);
   let showWithdrawModal = $state(false);
   let letterEvent: TimelineEvent | null = $state(null);
+  let creatingCase = $state(false);
+  let newCaseActions = $state<{
+    canSend: boolean;
+    sendLabel: string;
+    send: () => void;
+  } | null>(null);
   const brevInnhold = $derived(letterEvent ? buildLetterContent(letterEvent, store.sak) : null);
 
   const subV = $derived(
@@ -70,6 +82,26 @@
     mobileView = 'matrix';
     rightPanelOpen = false;
   }
+
+  function startNewCase() {
+    role = 'TE';
+    creatingCase = true;
+    mode = 'read';
+    mobileView = 'detail';
+    rightPanelOpen = false;
+    newCaseActions = null;
+  }
+
+  function closeNewCase() {
+    creatingCase = false;
+    newCaseActions = null;
+    goMatrix();
+  }
+
+  function handleNewCaseSend() {
+    sel = 'ansvar';
+    closeNewCase();
+  }
 </script>
 
 <div class="mockup" class:dark>
@@ -79,18 +111,31 @@
       {mode}
       {dark}
       {mobileView}
+      {creatingCase}
       onrolechange={(r) => (role = r)}
-      onback={goMatrix}
+      onback={creatingCase ? closeNewCase : goMatrix}
+      onnewcase={startNewCase}
       ondarkchange={(v) => (dark = v)}
     />
 
     <div class="body">
-      <div class="left-panel" class:mobile-hidden={mobileView !== 'matrix'}>
-        <LeftSidebar {sel} {subV} {prinV} {subF} {prinF} onselect={selectTrack} />
-      </div>
+      {#if !creatingCase}
+        <div class="left-panel" class:mobile-hidden={mobileView !== 'matrix'}>
+          <LeftSidebar {sel} {subV} {prinV} {subF} {prinF} onselect={selectTrack} />
+        </div>
+      {/if}
 
-      <main class="center" class:mobile-hidden={mode === 'read' && mobileView === 'matrix'}>
-        {#if mode === 'read'}
+      <main
+        class="center"
+        class:center-new-case={creatingCase}
+        class:mobile-hidden={!creatingCase && mode === 'read' && mobileView === 'matrix'}
+      >
+        {#if creatingCase}
+          <NewCaseForm
+            onsend={handleNewCaseSend}
+            onactions={(actions) => (newCaseActions = actions)}
+          />
+        {:else if mode === 'read'}
           <CenterRead
             {sel}
             {role}
@@ -124,22 +169,32 @@
           <TeGrunnlagForm onsend={handleSend} onactions={(a) => (formActions = a)} />
         {/if}
 
-        <ActionBar
-          {mode}
-          {role}
-          {sel}
-          hasDraft={store.getUI(sel).draft !== null}
-          {subV}
-          {subF}
-          {prinV}
-          {prinF}
-          oncloseform={goRead}
-          onform={goForm}
-          ontogglecontext={() => (rightPanelOpen = !rightPanelOpen)}
-          onsend={() => formActions?.send()}
-          canSend={formActions?.canSend ?? false}
-          onwithdraw={() => (showWithdrawModal = true)}
-        />
+        {#if creatingCase}
+          <NewCaseActionBar
+            canSend={newCaseActions?.canSend ?? false}
+            sendLabel={newCaseActions?.sendLabel ?? 'Send ansvarsgrunnlag'}
+            oncancel={closeNewCase}
+            onsend={() => newCaseActions?.send()}
+          />
+        {:else}
+          <ActionBar
+            {mode}
+            {role}
+            {sel}
+            hasDraft={store.getUI(sel).draft !== null}
+            {subV}
+            {subF}
+            {prinV}
+            {prinF}
+            oncloseform={goRead}
+            onform={goForm}
+            ontogglecontext={() => (rightPanelOpen = !rightPanelOpen)}
+            onsend={() => formActions?.send()}
+            canSend={formActions?.canSend ?? false}
+            sendLabel={formActions?.sendLabel}
+            onwithdraw={() => (showWithdrawModal = true)}
+          />
+        {/if}
       </main>
 
       {#if brevInnhold}
@@ -157,31 +212,33 @@
         />
       {/if}
 
-      <div class="right-panel" class:right-panel-open={rightPanelOpen}>
-        {#if rightPanelOpen}
-          <!-- svelte-ignore a11y_no_static_element_interactions a11y_click_events_have_key_events -->
-          <div class="right-panel-backdrop" onclick={() => (rightPanelOpen = false)}></div>
-        {/if}
-        <div class="right-panel-inner">
-          <RightSidebar
-            {sel}
-            {mode}
-            tab={rTab}
-            begr=""
-            {activeEvent}
-            ontabchange={(t) => (rTab = t)}
-            onbegrchange={() => {}}
-            onclose={() => (rightPanelOpen = false)}
-            oneventclick={(ev) => {
-              activeEvent = ev;
-              rTab = 'historikk';
-            }}
-            onletterclick={(ev) => {
-              letterEvent = ev;
-            }}
-          />
+      {#if !creatingCase}
+        <div class="right-panel" class:right-panel-open={rightPanelOpen}>
+          {#if rightPanelOpen}
+            <!-- svelte-ignore a11y_no_static_element_interactions a11y_click_events_have_key_events -->
+            <div class="right-panel-backdrop" onclick={() => (rightPanelOpen = false)}></div>
+          {/if}
+          <div class="right-panel-inner">
+            <RightSidebar
+              {sel}
+              {mode}
+              tab={rTab}
+              begr=""
+              {activeEvent}
+              ontabchange={(t) => (rTab = t)}
+              onbegrchange={() => {}}
+              onclose={() => (rightPanelOpen = false)}
+              oneventclick={(ev) => {
+                activeEvent = ev;
+                rTab = 'historikk';
+              }}
+              onletterclick={(ev) => {
+                letterEvent = ev;
+              }}
+            />
+          </div>
         </div>
-      </div>
+      {/if}
     </div>
   </div>
 </div>

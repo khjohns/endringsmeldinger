@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { ChevronLeft, RotateCcw, Sun, Moon } from 'lucide-svelte';
+  import { ChevronLeft, RotateCcw, Sun, Moon, Plus } from 'lucide-svelte';
   import { store } from './store.svelte.js';
   import type { Role, Mode } from './types.js';
 
@@ -8,25 +8,30 @@
     mode,
     dark = false,
     mobileView = 'matrix',
+    creatingCase = false,
     onrolechange,
     onback,
+    onnewcase,
     ondarkchange,
   }: {
     role: Role;
     mode: Mode;
     dark?: boolean;
     mobileView?: 'matrix' | 'detail';
+    creatingCase?: boolean;
     onrolechange: (r: Role) => void;
     onback: () => void;
+    onnewcase?: () => void;
     ondarkchange?: (v: boolean) => void;
   } = $props();
 </script>
 
-<header class="header header-offset">
+<header class="header header-offset" class:header-full={creatingCase}>
   <div class="left">
-    {#if mode === 'form'}
+    {#if mode === 'form' || creatingCase}
       <button class="back-btn" onclick={onback}>
-        <ChevronLeft size={16} /> <span class="back-text">Oversikt</span>
+        <ChevronLeft size={16} />
+        <span class="back-text">{creatingCase ? 'Saksoversikt' : 'Oversikt'}</span>
       </button>
     {/if}
     {#if mobileView === 'detail' && mode === 'read'}
@@ -37,21 +42,28 @@
     <div class="project-info">
       <span class="project-name">{store.sak.prosjekt_navn ?? 'Kystveien Vest'}</span>
       <span class="breadcrumb-separator">/</span>
-      <span class="project-case">{store.scenario.label.split(' — ')[0]}</span>
+      <span class="project-case">
+        {creatingCase ? 'Ny sak' : store.scenario.label.split(' — ')[0]}
+      </span>
     </div>
   </div>
   <div class="right">
-    <div class="scenario-select">
-      <select
-        class="font-mono"
-        value={store.scenario.id}
-        onchange={(e) => store.selectScenario(e.currentTarget.value)}
-      >
-        {#each store.scenarios as s}
-          <option value={s.id}>{s.label}</option>
-        {/each}
-      </select>
-    </div>
+    {#if !creatingCase}
+      <div class="scenario-select">
+        <select
+          class="font-mono"
+          value={store.scenario.id}
+          onchange={(e) => store.selectScenario(e.currentTarget.value)}
+        >
+          {#each store.scenarios as s}
+            <option value={s.id}>{s.label}</option>
+          {/each}
+        </select>
+      </div>
+    {/if}
+    {#if role === 'TE' && !creatingCase && onnewcase}
+      <button class="new-case-btn" onclick={onnewcase}><Plus size={13} /> Ny sak</button>
+    {/if}
     <button
       class="theme-btn"
       onclick={() => ondarkchange?.(!dark)}
@@ -63,20 +75,24 @@
         <Moon size={14} />
       {/if}
     </button>
-    <button
-      class="reset-btn"
-      onclick={() => store.selectScenario(store.scenario.id)}
-      title="Nullstill mockup"
-    >
-      <RotateCcw size={12} /> <span class="reset-text">Nullstill</span>
-    </button>
-    <div class="role-toggle">
-      {#each ['TE', 'BH'] as r}
-        <button class="role-btn" class:active={role === r} onclick={() => onrolechange(r as Role)}
-          >{r}</button
-        >
-      {/each}
-    </div>
+    {#if !creatingCase}
+      <button
+        class="reset-btn"
+        onclick={() => store.selectScenario(store.scenario.id)}
+        title="Nullstill mockup"
+      >
+        <RotateCcw size={12} /> <span class="reset-text">Nullstill</span>
+      </button>
+      <div class="role-toggle">
+        {#each ['TE', 'BH'] as r}
+          <button class="role-btn" class:active={role === r} onclick={() => onrolechange(r as Role)}
+            >{r}</button
+          >
+        {/each}
+      </div>
+    {:else}
+      <span class="role-context">TE</span>
+    {/if}
   </div>
 </header>
 
@@ -120,6 +136,10 @@
   .header-offset {
     width: calc(100% - var(--mockup-sidebar-width));
     margin-left: var(--mockup-sidebar-width);
+  }
+  .header-full {
+    width: 100%;
+    margin-left: 0;
   }
   .project-info {
     padding: 0 16px;
@@ -222,6 +242,34 @@
     border-radius: 999px;
     cursor: pointer;
     transition: all 80ms;
+  }
+  .new-case-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 11px;
+    font-family: var(--font-sans);
+    font-size: 12px;
+    font-weight: 600;
+    color: white;
+    background: var(--brand-2);
+    border: 1px solid var(--brand-2);
+    border-radius: 999px;
+    cursor: pointer;
+  }
+  .new-case-btn:hover {
+    background: var(--brand);
+  }
+  .role-context {
+    display: grid;
+    width: 30px;
+    height: 30px;
+    place-items: center;
+    font-size: 12px;
+    font-weight: 700;
+    color: white;
+    background: var(--brand);
+    border-radius: 999px;
   }
   .reset-btn:hover {
     color: var(--ink);
