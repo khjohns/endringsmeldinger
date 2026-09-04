@@ -29,8 +29,8 @@ function byggBestemmelse(key: string): Bestemmelse | null {
 /** Relevante bestemmelser per spor — tilpasset mockup-skjemavisningen. */
 const SPOR_PARAGRAFER: Record<SporKey, string[]> = {
   ansvar: ['23.1', '32.2', '25.1.2'],
-  vederlag: ['34.1', '34.2', '34.4'],
-  frist: ['33.1', '33.4', '33.5'],
+  vederlag: ['34.1', '34.1.2', '34.1.3', '34.2', '34.4'],
+  frist: ['33.1', '33.4', '33.6.1', '33.5'],
 };
 
 /** Precomputed — statisk data som aldri endres. */

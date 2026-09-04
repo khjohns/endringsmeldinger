@@ -57,9 +57,78 @@ const scenario1_Subsidiaer: SakState = {
       'Forbeholdet i geoteknisk rapport pkt. 4.2 dekker variasjoner i fjellkoter. Avslått.',
     bh_respondert_versjon: 0,
   },
+  vederlag: {
+    ...scenario1_3AktiveSpor.vederlag,
+    status: 'avslatt',
+    bh_resultat: 'avslatt',
+    bh_begrunnelse:
+      'Ansvarsgrunnlaget er avslått, og vederlagskravet avslås derfor prinsipalt. Subsidiært godkjennes kr 2 100 000 av hovedkravet. Kravet om rigg og drift anses varslet for sent, men kr 280 000 godkjennes subsidiært. Produktivitetstapet på kr 180 000 godkjennes subsidiært.',
+    bh_metode: 'REGNINGSARBEID',
+    godkjent_belop: 0,
+    bh_respondert_versjon: 2,
+    subsidiaer_triggers: ['grunnlag_avslatt', 'preklusjon_rigg'],
+    subsidiaer_resultat: 'delvis_godkjent',
+    subsidiaer_godkjent_belop: 2560000,
+    subsidiaer_begrunnelse:
+      'Dersom ansvarsgrunnlaget likevel fører frem, godkjennes samlet kr 2 560 000.',
+    differanse: 2930000,
+    godkjenningsgrad_prosent: 0,
+    har_subsidiaert_standpunkt: true,
+    siste_event_id: 'evt-009',
+    siste_oppdatert: '2026-02-16T13:20:00Z',
+  },
   er_subsidiaert_vederlag: true,
   er_subsidiaert_frist: true,
+  visningsstatus_vederlag: 'avslatt',
+  antall_events: 9,
+  siste_aktivitet: '2026-02-16T13:20:00Z',
+  neste_handling: {
+    rolle: 'BH',
+    handling: 'Svar på fristkravet',
+    spor: 'frist',
+  },
 };
+
+const timeline1_Subsidiaer: TimelineEvent[] = [
+  ...timeline1_3AktiveSpor,
+  {
+    specversion: '1.0',
+    id: 'evt-009',
+    source: '/projects/P001/cases/KOE-2024-047-SUB',
+    type: 'no.oslo.koe.respons_vederlag',
+    time: '2026-02-16T13:20:00Z',
+    subject: 'KOE-2024-047-SUB',
+    actorrole: 'BH',
+    actor: 'Statens vegvesen',
+    spor: 'vederlag',
+    summary: 'BH avslo kravet prinsipalt og godkjente kr 2 560 000 subsidiært',
+    data: {
+      vederlag_krav_id: 'evt-008',
+      respondert_versjon: 2,
+      hovedkrav_varslet_i_tide: true,
+      rigg_varslet_i_tide: false,
+      produktivitet_varslet_i_tide: true,
+      aksepterer_metode: true,
+      vederlagsmetode: 'REGNINGSARBEID',
+      hovedkrav_vurdering: 'delvis',
+      hovedkrav_godkjent_belop: 2100000,
+      rigg_vurdering: 'delvis',
+      rigg_godkjent_belop: 280000,
+      produktivitet_vurdering: 'godkjent',
+      produktivitet_godkjent_belop: 180000,
+      beregnings_resultat: 'avslatt',
+      total_godkjent_belop: 0,
+      total_krevd_belop: 2930000,
+      begrunnelse:
+        'Ansvarsgrunnlaget er avslått, og vederlagskravet avslås derfor prinsipalt. Subsidiært godkjennes kr 2 100 000 av hovedkravet. Kravet om rigg og drift anses varslet for sent, men kr 280 000 godkjennes subsidiært. Produktivitetstapet på kr 180 000 godkjennes subsidiært.',
+      subsidiaer_triggers: ['grunnlag_avslatt', 'preklusjon_rigg'],
+      subsidiaer_resultat: 'delvis_godkjent',
+      subsidiaer_godkjent_belop: 2560000,
+      subsidiaer_begrunnelse:
+        'Dersom ansvarsgrunnlaget likevel fører frem, godkjennes samlet kr 2 560 000.',
+    },
+  },
+];
 
 export const SCENARIOS: Scenario[] = [
   {
@@ -77,7 +146,7 @@ export const SCENARIOS: Scenario[] = [
     id: 'scenario1sub',
     label: 'KOE-047 — Subsidiært (grunnlag avslått)',
     sak: scenario1_Subsidiaer,
-    timeline: timeline1_3AktiveSpor,
+    timeline: timeline1_Subsidiaer,
     ui: {
       ansvar: {
         draft: { text: 'Vi fastholder at forbeholdet i pkt. 4.2 er tilstrekkelig klart.' },

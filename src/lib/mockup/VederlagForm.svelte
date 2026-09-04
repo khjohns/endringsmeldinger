@@ -17,6 +17,7 @@
   import type { VederlagResponseInput } from '$lib/domain/begrunnelse/vederlagBegrunnelse';
   import { tokensToHtml } from '$lib/editor/tokenConverter';
   import { isHtmlEmpty } from '$lib/utils/formatters';
+  import { formatDateShortNorwegian } from '$lib/utils/dateFormatters';
   import {
     VEDERLAGSMETODER_OPTIONS,
     getVederlagsmetodeLabel,
@@ -93,6 +94,28 @@
 
   const computed = $derived(beregnAlt(formState, domainConfig));
   const isSubsidiaer = $derived(erSubsidiaerFn(domainConfig));
+  const submissionMeta = $derived.by(() => {
+    const events = store.timeline.filter(
+      (event) =>
+        event.spor === 'vederlag' &&
+        event.actorrole === 'TE' &&
+        (event.type.endsWith('.vederlag_krav_sendt') ||
+          event.type.endsWith('.vederlag_krav_oppdatert'))
+    );
+    const labelFor = (date: string | undefined, fallbackIndex = 0) => {
+      if (!date) return undefined;
+      const dateOnly = date.slice(0, 10);
+      const matchingIndex = events.findIndex((event) => event.time?.slice(0, 10) === dateOnly);
+      const revision = matchingIndex >= 0 ? matchingIndex : fallbackIndex;
+      return `Sendt ${formatDateShortNorwegian(date)} · ${revision === 0 ? 'opprinnelig krav' : `rev. ${revision}`}`;
+    };
+
+    return {
+      hovedkrav: labelFor(events[0]?.time, 0),
+      rigg: labelFor(store.sak.vederlag.rigg_drift_varsel?.dato_sendt, 1),
+      produktivitet: labelFor(store.sak.vederlag.produktivitetstap_varsel?.dato_sendt, 1),
+    };
+  });
 
   // TE's sammendrag data
   const sammendragKravlinjer = $derived.by(() => {
@@ -218,14 +241,20 @@
 
   // Data-driven preklusjonslinjer (matches production BhVederlagResponse)
   const preklusjonsLinjer = $derived.by(() => {
-    const linjer: Array<{ key: string; label: string; ref: string; value: boolean | undefined }> =
-      [];
+    const linjer: Array<{
+      key: string;
+      label: string;
+      ref: string;
+      value: boolean | undefined;
+      submissionMeta?: string;
+    }> = [];
     if (computed.har34_1_2_Preklusjon) {
       linjer.push({
         key: 'hovedkrav',
         label: 'Varsling hovedkrav',
         ref: '§ 34.1.2',
         value: hovedkravVarsletITide,
+        submissionMeta: submissionMeta.hovedkrav,
       });
     }
     if (domainConfig.harRiggKrav) {
@@ -234,6 +263,7 @@
         label: 'Varsling rigg og drift',
         ref: '§ 34.1.3',
         value: riggVarsletITide,
+        submissionMeta: submissionMeta.rigg,
       });
     }
     if (domainConfig.harProduktivitetKrav) {
@@ -242,6 +272,7 @@
         label: 'Varsling produktivitetstap',
         ref: '§ 34.1.3',
         value: produktivitetVarsletITide,
+        submissionMeta: submissionMeta.produktivitet,
       });
     }
     return linjer;
@@ -410,7 +441,21 @@
     onactions?.({
       canSend: allAnswered,
       send: () => {
-        store.sendVederlagSvar(computed.totalGodkjent);
+        store.sendVederlagSvar(computed.totalGodkjent, {
+          hovedkravVarsletITide,
+          riggVarsletITide,
+          produktivitetVarsletITide,
+          akseptererMetode,
+          oensketMetode,
+          hovedkravVurdering,
+          hovedkravGodkjentBelop,
+          riggVurdering,
+          riggGodkjentBelop,
+          produktivitetVurdering,
+          produktivitetGodkjentBelop,
+          subsidiaerGodkjentBelop: isSubsidiaer ? computed.totalGodkjentInklPrekludert : undefined,
+          begrunnelse: begrunnelseHtml,
+        });
         onsend();
       },
     });
@@ -769,7 +814,12 @@
         <p class="question-text">Er kravene varslet innen kontraktens varslingsfrister?</p>
         {#each preklusjonsLinjer as linje (linje.key)}
           <div class="preklusjons-rad">
-            <span class="preklusjons-label">{linje.label} ({linje.ref})</span>
+            <span class="preklusjons-copy">
+              <span class="preklusjons-label">{linje.label} ({linje.ref})</span>
+              {#if linje.submissionMeta}
+                <span class="preklusjons-meta">{linje.submissionMeta}</span>
+              {/if}
+            </span>
             <div class="segment-row">
               <button
                 class="segment-btn"
@@ -1279,9 +1329,19 @@
     border-top: var(--rule-subtle);
   }
   .preklusjons-label {
+    display: block;
     font-size: 13px;
     font-weight: 500;
     color: var(--ink-2);
+  }
+  .preklusjons-copy {
+    min-width: 0;
+  }
+  .preklusjons-meta {
+    display: block;
+    margin-top: 3px;
+    font-size: 11px;
+    color: var(--ink-4);
   }
 
   /* ── Segment buttons ── */

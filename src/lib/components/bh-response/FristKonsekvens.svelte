@@ -11,6 +11,7 @@
     subsidiaerGodkjentDager?: number;
     sendForesporsel?: boolean;
     erRedusert?: boolean;
+    erPrekludert?: boolean;
   }
 
   let {
@@ -22,6 +23,7 @@
     subsidiaerGodkjentDager,
     sendForesporsel = false,
     erRedusert = false,
+    erPrekludert = false,
   }: Props = $props();
 
   const RESULTAT_LABELS: Record<FristBeregningResultat, string> = {
@@ -64,8 +66,9 @@
 
     {#if erRedusert}
       <p class="konsekvens-beskrivelse">
-        Fremsatt krav vurdert som for sent. Fristforlengelsen reduseres til det som er åpenbart (§
-        33.6.1).
+        {erPrekludert
+          ? 'Subsidiært er det spesifiserte kravet fremsatt for sent. Kravet begrenses til den fristforlengelsen byggherren måtte forstå (§ 33.6.1).'
+          : 'Det spesifiserte kravet er fremsatt for sent. Kravet begrenses til den fristforlengelsen byggherren måtte forstå (§ 33.6.1).'}
       </p>
     {/if}
 

@@ -158,6 +158,20 @@ export const KONTRAKTSREGLER: Record<string, Kontraktsregel> = {
       'Kravet om vederlagsjustering må varsles uten ugrunnet opphold. Byggherren må påberope sen varsling skriftlig uten ugrunnet opphold (§5).',
   },
 
+  '34.1.2': {
+    regel:
+      'Når vederlagskravet bygger på svikt ved byggherrens ytelser eller andre forhold byggherren har risikoen for, skal totalentreprenøren varsle uten ugrunnet opphold etter at han ble eller burde blitt klar over forholdet.',
+    konsekvens:
+      'Retten til vederlagsjustering kan gå tapt dersom kravet varsles for sent. Byggherren må påberope preklusjon skriftlig uten ugrunnet opphold (§5).',
+  },
+
+  '34.1.3': {
+    regel:
+      'Krav om særskilt dekning av økte utgifter til rigg og drift skal varsles uten ugrunnet opphold når totalentreprenøren blir klar over at utgiftene vil påløpe. Det samme gjelder krav som følge av nedsatt produktivitet eller forstyrrelser i arbeidet.',
+    konsekvens:
+      'Ved for sen varsling kan retten til de særskilte kostnadspostene gå tapt. Rigg og drift samt produktivitetstap vurderes hver for seg.',
+  },
+
   '34.2': {
     regel:
       'Vederlagsjusteringen skal fastsettes på grunnlag av kontraktens enhetspriser så langt disse passer. Der enhetspriser ikke passer, fastsettes vederlaget som regningsarbeid, eller ut fra annen avtalt metode.',
@@ -178,7 +192,14 @@ export const KONTRAKTSREGLER: Record<string, Kontraktsregel> = {
     regel:
       'Totalentreprenøren har krav på fristforlengelse dersom fremdriften hindres som følge av: a) endringer, b) svikt ved byggherrens ytelser, eller c) andre forhold som byggherren bærer risikoen for etter kontrakten.',
     konsekvens:
-      'Kravet om fristforlengelse må varsles uten ugrunnet opphold (§33.4). Spesifisering skal sendes innen rimelig tid (§33.6). Byggherren må svare uten ugrunnet opphold (§33.7).',
+      'Kravet om fristforlengelse må varsles uten ugrunnet opphold (§33.4). Når beregningsgrunnlaget foreligger, skal antall dager angis og begrunnes uten ugrunnet opphold (§33.6.1). Byggherren må svare uten ugrunnet opphold (§33.7).',
+  },
+
+  '33.4': {
+    regel:
+      'En part som vil kreve fristforlengelse etter §§33.1–33.3, skal skriftlig varsle motparten uten ugrunnet opphold, selv om kravet ennå ikke kan spesifiseres.',
+    konsekvens:
+      'Ved sent varsel tapes fristkravet. Motparten må imidlertid gjøre forsinkelsen gjeldende skriftlig uten ugrunnet opphold; ellers anses varselet som rettidig (§5).',
   },
 
   '33.5': {
@@ -186,6 +207,13 @@ export const KONTRAKTSREGLER: Record<string, Kontraktsregel> = {
       'Fristforlengelsen skal svare til den virkning det aktuelle forholdet har hatt eller vil ha på fremdriften. Ved utmålingen skal det tas hensyn til alle relevante forhold, herunder om forsinkelsen ligger på kritisk linje.',
     konsekvens:
       'Totalentreprenøren har bevisbyrden for at forholdet faktisk har forsinket fremdriften, og for omfanget av forsinkelsen.',
+  },
+
+  '33.6.1': {
+    regel:
+      'Når parten har grunnlag for å beregne omfanget, skal han uten ugrunnet opphold angi og begrunne antallet dager fristforlengelse som kreves.',
+    konsekvens:
+      'Ved for sen spesifisering er kravet begrenset til den fristforlengelsen motparten måtte forstå at parten hadde krav på. Motparten må svare uten ugrunnet opphold (§33.7).',
   },
 
   // ========== FORCE MAJEURE ==========

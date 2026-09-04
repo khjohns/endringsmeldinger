@@ -79,12 +79,14 @@ describe('deriveFristDomainConfig', () => {
     expect(cfg.krevdDager).toBe(45);
     expect(cfg.varselType).toBe('spesifisert');
     expect(cfg.erGrunnlagSubsidiaer).toBe(false);
+    expect(cfg.harTidligereVarselITide).toBe(false);
   });
 
   it('utleder config fra blandet sak med godkjent grunnlag', () => {
     const cfg = deriveFristDomainConfig(scenario2_BlandetTilstand);
     expect(cfg.krevdDager).toBe(30);
     expect(cfg.erGrunnlagSubsidiaer).toBe(false); // grunnlag godkjent
+    expect(cfg.harTidligereVarselITide).toBe(true); // tidligere BH-respons foreligger
   });
 });
 

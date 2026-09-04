@@ -80,12 +80,20 @@ export const scenario1_3AktiveSpor: SakState = {
       'Kostnadsoverslag for ekstra peling (type RD 219/12), spunt og forsterkningstiltak. ' +
       'Arbeidet er igangsatt etter varsling. Detaljert fakturaoversikt vedlegges.',
     varslet_for_oppstart: true,
+    rigg_drift_varsel: {
+      dato_sendt: '2026-02-03',
+      metode: ['Catenda'],
+    },
+    produktivitetstap_varsel: {
+      dato_sendt: '2026-02-10',
+      metode: ['Catenda'],
+    },
     saerskilt_krav: {
       rigg_drift: { belop: 350000, dato_klar_over: '2026-01-20' },
-      produktivitet: { belop: 180000, dato_klar_over: '2026-01-25' },
+      produktivitet: { belop: 180000, dato_klar_over: '2026-02-08' },
     },
-    antall_versjoner: 1,
-    siste_event_id: 'evt-006',
+    antall_versjoner: 3,
+    siste_event_id: 'evt-008',
     siste_oppdatert: toDagerSiden,
   },
 

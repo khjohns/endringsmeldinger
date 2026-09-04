@@ -718,6 +718,7 @@ export interface ResponsVederlagEventData {
   respondert_versjon?: number;
 
   // Port 1: Preklusjon av særskilte krav (§34.1.3)
+  hovedkrav_varslet_i_tide?: boolean;
   rigg_varslet_i_tide?: boolean;
   produktivitet_varslet_i_tide?: boolean;
 
@@ -829,6 +830,9 @@ export interface VederlagOppdatertEventData {
   original_event_id: string;
   nytt_belop_direkte?: number; // For ENHETSPRISER/FASTPRIS_TILBUD
   nytt_kostnads_overslag?: number; // For REGNINGSARBEID (§30.2)
+  saerskilt_krav?: VederlagEventData['saerskilt_krav'];
+  rigg_drift_varsel?: VarselInfo;
+  produktivitetstap_varsel?: VarselInfo;
   begrunnelse: string;
   dato_revidert: string;
 }

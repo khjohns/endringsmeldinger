@@ -1,7 +1,7 @@
 <script lang="ts">
   import { Check, XSquare, Send, BookOpen, ArrowRight, PencilLine } from 'lucide-svelte';
   import { formatDateShortNorwegian } from '$lib/utils/dateFormatters.js';
-  import { fmt } from './utils.js';
+  import { fmt, sporResultatLabel } from './utils.js';
   import { store } from './store.svelte.js';
   import type { Mode, Role, SporKey } from './types.js';
 
@@ -43,6 +43,11 @@
     formatDateShortNorwegian(store.sak.grunnlag.siste_oppdatert)
   );
   const isTeGrunnlagActions = $derived(mode === 'read' && role === 'TE' && sel === 'ansvar');
+  const hasBhVederlagResponse = $derived(Boolean(store.sak.vederlag.bh_resultat));
+  const isVederlagPending = $derived(sel === 'vederlag' && !hasBhVederlagResponse);
+  const vederlagResultat = $derived(
+    store.sak.vederlag.bh_resultat ? sporResultatLabel(store.sak.vederlag.bh_resultat) : ''
+  );
 </script>
 
 <div
@@ -60,13 +65,27 @@
               ? 'Redigerer kladd'
               : sel === 'ansvar'
                 ? 'Sist aktivitet'
-                : 'Saksstatus'}
+                : isVederlagPending && hasDraft
+                  ? 'Kladd'
+                  : 'Saksstatus'}
           </div>
           <div class="status-text">
             {#if mode === 'form'}
               <span style="color: var(--ink-2)">Autolagret — lukk eller send</span>
             {:else if sel === 'ansvar'}
               <span style="color: var(--ink-2)">{sisteGrunnlagAktivitet || 'Ikke registrert'}</span>
+            {:else if isVederlagPending}
+              <span style="color: var(--ink-2)">
+                {hasDraft
+                  ? 'Autolagret — ikke sendt'
+                  : role === 'BH'
+                    ? 'Kravet er ikke besvart'
+                    : `Avventer svar fra ${store.bhNavn}`}
+              </span>
+            {:else if sel === 'vederlag'}
+              <span style="color: var(--ink-2)">
+                {vederlagResultat} · {fmt(store.sak.vederlag.godkjent_belop ?? 0)},- godkjent
+              </span>
             {:else}
               <span style="color: var(--green)">Subs. {fmt(subV)},- / {subF} dager</span>
               <span class="status-sep">·</span>
@@ -102,12 +121,18 @@
                 : 'Bekreft enighet'}
             </button>
           {/if}
-        {:else}
-          <button class="btn btn-primary"><Check size={14} /> Godta</button>
+        {:else if sel !== 'vederlag' || hasBhVederlagResponse}
+          <button class="btn btn-primary"><Check size={14} /> Godta svar</button>
         {/if}
       {:else}
         <button class="btn btn-primary" onclick={() => onform(sel)}>
-          Fortsett til utfylling
+          {sel === 'vederlag'
+            ? hasBhVederlagResponse
+              ? 'Oppdater svar'
+              : hasDraft
+                ? 'Fortsett utfylling'
+                : 'Svar på kravet'
+            : 'Fortsett til utfylling'}
           <ArrowRight size={14} />
         </button>
       {/if}

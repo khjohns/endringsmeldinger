@@ -135,7 +135,7 @@ export const timeline1_3AktiveSpor: TimelineEvent[] = [
     actorrole: 'TE',
     actor: 'Knut Larsen',
     spor: 'vederlag',
-    summary: 'TE sendte vederlagskrav: kr 2 930 000 (regningsarbeid)',
+    summary: 'TE sendte hovedkrav: kr 2 400 000 (regningsarbeid)',
     data: {
       metode: 'REGNINGSARBEID',
       kostnads_overslag: 2400000,
@@ -143,10 +143,6 @@ export const timeline1_3AktiveSpor: TimelineEvent[] = [
         'Kostnadsoverslag for ekstra peling (type RD 219/12), spunt og forsterkningstiltak. ' +
         'Arbeidet er igangsatt etter varsling. Detaljert fakturaoversikt vedlegges.',
       varslet_for_oppstart: true,
-      saerskilt_krav: {
-        rigg_drift: { belop: 350000, dato_klar_over: '2026-01-20' },
-        produktivitet: { belop: 180000, dato_klar_over: '2026-01-25' },
-      },
     },
   },
   {
@@ -159,11 +155,19 @@ export const timeline1_3AktiveSpor: TimelineEvent[] = [
     actorrole: 'TE',
     actor: 'Knut Larsen',
     spor: 'vederlag',
-    summary: 'TE oppdaterte kostnadsoverslaget til kr 2 400 000',
+    summary: 'TE la til krav om rigg og drift på kr 350 000',
     data: {
       original_event_id: 'evt-006',
       nytt_kostnads_overslag: 2400000,
-      begrunnelse: 'Oppdatert etter tilbud fra underkontraktør for pelingarbeid.',
+      saerskilt_krav: {
+        rigg_drift: { belop: 350000, dato_klar_over: '2026-01-20' },
+      },
+      rigg_drift_varsel: {
+        dato_sendt: '2026-02-03',
+        metode: ['Catenda'],
+      },
+      begrunnelse:
+        'Oppdatert etter at omfanget av økte rigg- og driftskostnader var tilstrekkelig avklart.',
       dato_revidert: '2026-02-03',
     },
   },
@@ -177,11 +181,23 @@ export const timeline1_3AktiveSpor: TimelineEvent[] = [
     actorrole: 'TE',
     actor: 'Knut Larsen',
     spor: 'vederlag',
-    summary: 'TE bekreftet endelig krav med vedlegg',
+    summary: 'TE la til krav om produktivitetstap på kr 180 000',
     data: {
       original_event_id: 'evt-007',
       nytt_kostnads_overslag: 2400000,
-      begrunnelse: 'Endelig fakturaoversikt og timelister vedlagt.',
+      saerskilt_krav: {
+        rigg_drift: { belop: 350000, dato_klar_over: '2026-01-20' },
+        produktivitet: { belop: 180000, dato_klar_over: '2026-02-08' },
+      },
+      rigg_drift_varsel: {
+        dato_sendt: '2026-02-03',
+        metode: ['Catenda'],
+      },
+      produktivitetstap_varsel: {
+        dato_sendt: '2026-02-10',
+        metode: ['Catenda'],
+      },
+      begrunnelse: 'Produktivitetsanalysen og endelig fakturaoversikt er vedlagt.',
       dato_revidert: '2026-02-10',
     },
   },

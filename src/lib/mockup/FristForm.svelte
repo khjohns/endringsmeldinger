@@ -1,22 +1,21 @@
 <script lang="ts">
-  import { AlertTriangle, Check, X, CircleMinus } from 'lucide-svelte';
-  import { beregnAlt, getDefaults } from '$lib/domain/fristDomain';
-  import type { FristFormState, FristDomainConfig } from '$lib/domain/fristDomain';
+  import { AlertTriangle, Check, CircleMinus, RefreshCw, X } from 'lucide-svelte';
+  import { beregnAlt } from '$lib/domain/fristDomain';
+  import type { FristDomainConfig, FristFormState } from '$lib/domain/fristDomain';
   import { generateFristResponseBegrunnelse } from '$lib/domain/begrunnelse/fristBegrunnelse';
   import type { FristResponseInput } from '$lib/domain/begrunnelse/fristBegrunnelse';
   import { tokensToHtml } from '$lib/editor/tokenConverter';
+  import LockedValueNode from '$lib/editor/LockedValueNode';
   import RichTextEditor from '$lib/components/primitives/RichTextEditor.svelte';
   import SectionHeading from '$lib/components/primitives/SectionHeading.svelte';
-  import LockedValueNode from '$lib/editor/LockedValueNode';
-  import { RefreshCw } from 'lucide-svelte';
   import { isHtmlEmpty } from '$lib/utils/formatters';
+  import { formatDateShortNorwegian } from '$lib/utils/dateFormatters';
   import { store } from './store.svelte.js';
-  import { sporResultatLabel } from './utils.js';
-  import Stamp from './Stamp.svelte';
-  import SubStripe from './SubStripe.svelte';
-  import Diamond from './Diamond.svelte';
+  import { sporResultatLabel, toggleChoice } from './utils.js';
   import CaseAnchor from './CaseAnchor.svelte';
-  import { toggleChoice } from './utils.js';
+  import FormPageHeader from './components/FormPageHeader.svelte';
+  import NumberField from './components/NumberField.svelte';
+  import Stamp from './Stamp.svelte';
 
   let {
     domainConfig,
@@ -28,10 +27,12 @@
     onactions?: (a: { canSend: boolean; send: () => void }) => void;
   } = $props();
 
-  const initialDefaults = getDefaults({
-    krevdDager: domainConfig.krevdDager,
-    isUpdateMode: false,
-  });
+  let fristVarselOk = $state<boolean | undefined>();
+  let spesifisertKravOk = $state<boolean | undefined>();
+  let foresporselSvarOk = $state<boolean | undefined>();
+  let vilkarOppfylt = $state<boolean | undefined>();
+  let sendForesporsel = $state(false);
+  let godkjentDager = $state<number | undefined>();
 
   let begrunnelseHtml = $state('');
   let userHasEdited = $state(false);
@@ -39,12 +40,11 @@
   let prevHtml: string | undefined;
   let charCount = $state(0);
 
-  let fristVarselOk = $state<boolean | undefined>(initialDefaults.fristVarselOk);
-  let spesifisertKravOk = $state<boolean | undefined>(initialDefaults.spesifisertKravOk);
-  let foresporselSvarOk = $state<boolean | undefined>(initialDefaults.foresporselSvarOk);
-  let vilkarOppfylt = $state<boolean | undefined>(initialDefaults.vilkarOppfylt);
-  let sendForesporsel = $state<boolean>(initialDefaults.sendForesporsel);
-  let godkjentDager = $state<number | undefined>(initialDefaults.godkjentDager);
+  let begrunnelseUtvidet = $state(false);
+  let begrunnelseEl = $state<HTMLElement | null>(null);
+  const erBegrunnelseAvkortet = $derived(
+    begrunnelseEl ? begrunnelseEl.scrollHeight > begrunnelseEl.clientHeight : false
+  );
 
   const formState: FristFormState = $derived({
     fristVarselOk,
@@ -58,37 +58,79 @@
   });
 
   const computed = $derived(beregnAlt(formState, domainConfig));
-
   const isHelSubsidiaer = $derived(
     domainConfig.erGrunnlagSubsidiaer || domainConfig.erHelFristSubsidiaerPgaGrunnlag
   );
+  const hasPartialSubsidiaer = $derived(!isHelSubsidiaer && spesifisertKravOk === false);
+  const hasForesporselSubsidiaer = $derived(!isHelSubsidiaer && foresporselSvarOk === false);
+  const isSubsidiaer = $derived(
+    isHelSubsidiaer || hasPartialSubsidiaer || hasForesporselSubsidiaer
+  );
+
+  const varselTypeLabel = $derived.by(() => {
+    if (domainConfig.varselType === 'varsel') return 'Foreløpig varsel';
+    if (domainConfig.varselType === 'begrunnelse_utsatt') return 'Begrunnelse for utsatt beregning';
+    return 'Spesifisert krav';
+  });
+
+  const submissionMeta = $derived.by(() => {
+    const events = store.timeline.filter(
+      (event) =>
+        event.spor === 'frist' &&
+        event.actorrole === 'TE' &&
+        (event.type.endsWith('.frist_krav_sendt') ||
+          event.type.endsWith('.frist_krav_oppdatert') ||
+          event.type.endsWith('.frist_krav_spesifisert'))
+    );
+    const latest = events.at(-1);
+    const revision = Math.max(0, events.length - 1, store.sak.frist.antall_versjoner - 1);
+    return {
+      forelopig: store.sak.frist.frist_varsel?.dato_sendt
+        ? `Sendt ${formatDateShortNorwegian(store.sak.frist.frist_varsel.dato_sendt)}`
+        : undefined,
+      spesifisert: store.sak.frist.spesifisert_varsel?.dato_sendt
+        ? `Sendt ${formatDateShortNorwegian(store.sak.frist.spesifisert_varsel.dato_sendt)}`
+        : undefined,
+      latest: latest?.time
+        ? `${revision > 0 ? 'Sist oppdatert' : 'Sendt'} ${formatDateShortNorwegian(latest.time)} · ${revision === 0 ? 'opprinnelig krav' : `rev. ${revision}`}`
+        : undefined,
+    };
+  });
 
   const subsidiærNotice = $derived.by(() => {
     if (domainConfig.erGrunnlagSubsidiaer)
-      return 'Grunnlaget er avslått. Vurderingen nedenfor gjelder for det tilfelle at grunnlaget likevel godkjennes.';
+      return 'Grunnlaget er avslått. Vurderingen nedenfor gjelder dersom grunnlaget likevel godkjennes.';
     if (domainConfig.erHelFristSubsidiaerPgaGrunnlag)
-      return 'Grunnlaget ble varslet for sent (§32.2). Hele fristkravet behandles subsidiært.';
+      return 'Grunnlaget ble varslet for sent (§ 32.2). Hele fristkravet behandles subsidiært.';
+    if (hasForesporselSubsidiaer)
+      return 'Svaret på forespørselen er vurdert som for sent. Den videre vurderingen er subsidiær.';
+    if (hasPartialSubsidiaer)
+      return 'Det spesifiserte kravet er fremsatt for sent. Utmålingen nedenfor gjelder subsidiært og begrenses til det åpenbare.';
     return '';
   });
 
-  const subsidiærDiamondCount = $derived.by(() => {
-    let count = 0;
-    if (isHelSubsidiaer) count++;
-    if (spesifisertKravOk === false) count++;
-    if (fristVarselOk === false) count++;
-    if (foresporselSvarOk === false) count++;
-    return count;
-  });
-
-  const hasPartialSubStripe = $derived(!isHelSubsidiaer && spesifisertKravOk === false);
-
   const resultat = $derived.by(() => {
+    if (sendForesporsel) {
+      return {
+        ikon: CircleMinus,
+        konklusjon: 'Forespørsel om spesifisering',
+        variant: 'neutral' as const,
+      };
+    }
     const r = computed.prinsipaltResultat;
-    const label = sporResultatLabel(r);
-    if (r === 'godkjent') return { ikon: Check, label, variant: 'positive' as const };
-    if (r === 'delvis_godkjent') return { ikon: CircleMinus, label, variant: 'mixed' as const };
-    return { ikon: X, label, variant: 'negative' as const };
+    const konklusjon = `Kravet er ${sporResultatLabel(r).toLocaleLowerCase('nb-NO')}`;
+    if (r === 'godkjent') return { ikon: Check, konklusjon, variant: 'positive' as const };
+    if (r === 'delvis_godkjent')
+      return { ikon: CircleMinus, konklusjon, variant: 'mixed' as const };
+    return { ikon: X, konklusjon, variant: 'negative' as const };
   });
+
+  const prinsipaltGodkjent = $derived(
+    computed.prinsipaltResultat === 'avslatt' ? 0 : (godkjentDager ?? 0)
+  );
+  const subsidiaertGodkjent = $derived(
+    computed.subsidiaertResultat === 'avslatt' ? 0 : (godkjentDager ?? 0)
+  );
 
   const allAnswered = $derived.by(() => {
     if (sendForesporsel) return true;
@@ -122,14 +164,11 @@
       subsidiaertResultat: computed.subsidiaertResultat,
       visSubsidiaertResultat: computed.visSubsidiaertResultat,
     };
-    const tokens = generateFristResponseBegrunnelse(input, { useTokens: true });
-    return tokensToHtml(tokens);
+    return tokensToHtml(generateFristResponseBegrunnelse(input, { useTokens: true }));
   });
 
   $effect(() => {
-    if (!userHasEdited && autoBegrunnelseHtml) {
-      begrunnelseHtml = autoBegrunnelseHtml;
-    }
+    if (!userHasEdited && autoBegrunnelseHtml) begrunnelseHtml = autoBegrunnelseHtml;
   });
 
   $effect(() => {
@@ -155,450 +194,634 @@
   }
 
   function handleRegenerate() {
-    if (autoBegrunnelseHtml) {
-      begrunnelseHtml = autoBegrunnelseHtml;
-      userHasEdited = false;
-    }
+    if (!autoBegrunnelseHtml) return;
+    begrunnelseHtml = autoBegrunnelseHtml;
+    userHasEdited = false;
   }
 
   $effect(() => {
     onactions?.({
       canSend: allAnswered,
       send: () => {
-        store.sendFristSvar(godkjentDager ?? 0);
+        store.sendFristSvar(prinsipaltGodkjent, {
+          fristVarselOk,
+          spesifisertKravOk,
+          foresporselSvarOk,
+          sendForesporsel,
+          vilkarOppfylt,
+          subsidiaerTriggers: computed.subsidiaerTriggers,
+          subsidiaerGodkjentDager:
+            !sendForesporsel && computed.visSubsidiaertResultat ? subsidiaertGodkjent : undefined,
+          begrunnelse: begrunnelseHtml,
+        });
         onsend();
       },
     });
   });
 </script>
 
+{#snippet answerButtons(
+  answer: boolean | undefined,
+  yesText: string,
+  noText: string,
+  onset: (value: boolean | undefined) => void
+)}
+  <div class="segment-row">
+    <button
+      type="button"
+      class="segment-btn"
+      class:segment-active={answer === true}
+      class:seg-yes={answer === true}
+      onclick={() => onset(toggleChoice(answer, true))}>{yesText}</button
+    >
+    <button
+      type="button"
+      class="segment-btn"
+      class:segment-active={answer === false}
+      class:seg-no={answer === false}
+      onclick={() => onset(toggleChoice(answer, false))}>{noText}</button
+    >
+  </div>
+{/snippet}
+
 <div class="form-content">
   <CaseAnchor />
 
-  <div class="sammendrag">
-    <SectionHeading title="Fristkrav" paragrafRef="§ 33.1" />
+  <FormPageHeader
+    title="Svar på krav om fristforlengelse"
+    intro="Vurder varsling, årsakssammenheng og hvor mange dager byggherren godkjenner."
+  />
 
-    <div class="sammendrag-kravlinjer">
-      <div class="sammendrag-kravlinje">
-        <span class="sammendrag-kravlinje-label"
-          >{store.display('frist').label} — {store.teNavn}s krav</span
-        >
-        <span class="font-mono sammendrag-kravlinje-belop"
-          >{store.display('frist').krevdValue} dager</span
-        >
+  <section class="sammendrag">
+    <div class="sammendrag-header">
+      <div>
+        <span class="sammendrag-eyebrow">Entreprenørens krav</span>
+        <h2>{store.teNavn}</h2>
+      </div>
+      <span class="font-mono sammendrag-ref">§ 33.1</span>
+    </div>
+
+    <div class="sammendrag-krav">
+      <div class="sammendrag-type">
+        <span class="sammendrag-label">Kravstype</span>
+        <span class="sammendrag-verdi">{varselTypeLabel}</span>
+      </div>
+      <div class="sammendrag-dager">
+        <span class="sammendrag-label">Krevd fristforlengelse</span>
+        <strong class="font-mono">{domainConfig.krevdDager} dager</strong>
+      </div>
+      <div class="sammendrag-datoer">
+        {#if submissionMeta.forelopig}
+          <span><strong>Foreløpig varsel</strong>{submissionMeta.forelopig}</span>
+        {/if}
+        {#if submissionMeta.spesifisert}
+          <span><strong>Spesifisert krav</strong>{submissionMeta.spesifisert}</span>
+        {/if}
+        {#if submissionMeta.latest}
+          <span><strong>Gjeldende versjon</strong>{submissionMeta.latest}</span>
+        {/if}
       </div>
     </div>
 
     {#if store.display('frist').teText}
-      <p class="font-serif sammendrag-begrunnelse">{store.display('frist').teText}</p>
+      <div class="sammendrag-begrunnelse-panel">
+        <span class="sammendrag-label">Entreprenørens begrunnelse</span>
+        <div
+          class="sammendrag-begrunnelse"
+          class:avkortet={!begrunnelseUtvidet}
+          bind:this={begrunnelseEl}
+        >
+          <p>{store.display('frist').teText}</p>
+        </div>
+        {#if erBegrunnelseAvkortet || begrunnelseUtvidet}
+          <button
+            type="button"
+            class="vis-mer-btn"
+            aria-expanded={begrunnelseUtvidet}
+            onclick={() => (begrunnelseUtvidet = !begrunnelseUtvidet)}
+          >
+            {begrunnelseUtvidet ? 'Vis mindre' : 'Vis hele begrunnelsen'}
+          </button>
+        {/if}
+      </div>
+    {/if}
+  </section>
+
+  {#if isHelSubsidiaer && subsidiærNotice}
+    <div class="subsidiaer-notice">
+      <span class="subsidiaer-notice-mark" aria-hidden="true"></span>
+      <p>{subsidiærNotice}</p>
+    </div>
+  {/if}
+
+  <div class="standpunkt-heading">
+    <span class="standpunkt-title">Byggherrens standpunkt</span>
+    {#if isSubsidiaer}
+      <span class="subsidiaer-chip">Subsidiært</span>
     {/if}
   </div>
 
-  {#snippet yesNoPill(
-    label: string,
-    ref: string,
-    text: string,
-    answer: boolean | undefined,
-    yesText: string,
-    noText: string,
-    onset: (v: boolean | undefined) => void,
-    opts?: { alertText?: string }
-  )}
-    <div class="question-block">
-      <SectionHeading title={label} paragrafRef={ref} />
-      <p class="question-text">{text}</p>
-      <div class="segment-row">
-        <button
-          class="segment-btn"
-          class:segment-active={answer === true}
-          class:seg-yes={answer === true}
-          onclick={() => onset(toggleChoice(answer, true))}>{yesText}</button
-        >
-        <button
-          class="segment-btn"
-          class:segment-active={answer === false}
-          class:seg-no={answer === false}
-          onclick={() => onset(toggleChoice(answer, false))}>{noText}</button
-        >
-      </div>
-      {#if answer === false && opts?.alertText}
-        <p class="font-serif consequence-text">{opts.alertText}</p>
-      {/if}
-    </div>
-  {/snippet}
+  {#if computed.visibility.showFristVarselOk || computed.visibility.showSpesifisertKravOk || computed.visibility.showForesporselSvarOk}
+    <section class="question-card preklusjon-section">
+      <SectionHeading title="Varsling og frister" paragrafRef="§ 33.4 / § 33.6" />
+      <p class="question-text">Vurder om entreprenørens varsler og krav er fremsatt i tide.</p>
 
-  {#snippet formBodyBelow()}
-    {#if computed.visibility.showForesporselSvarOk}
-      {@render yesNoPill(
-        'Svar på forespørsel',
-        '§ 33.6.2',
-        'Svarte TE på forespørsel om spesifisering uten ugrunnet opphold?',
-        foresporselSvarOk,
-        'Ja, i tide',
-        'Nei, prekludert',
-        (v) => (foresporselSvarOk = v),
-        {
-          alertText: 'For sent svart — kravet er tapt.',
-        }
-      )}
-    {/if}
-
-    {#if (isHelSubsidiaer || hasPartialSubStripe) && foresporselSvarOk === false}
-      <Diamond />
-    {/if}
-
-    {@render yesNoPill(
-      'Årsakssammenheng',
-      '§ 33.1',
-      'Foreligger det en hindring på fremdriften som følge av det påberopte kontraktsforholdet?',
-      vilkarOppfylt,
-      'Ja, hindring',
-      'Nei, ingen hindring',
-      (v) => (vilkarOppfylt = v),
-      {
-        alertText: 'Ingen årsakssammenheng — ytterligere betingelse for utmåling nedenfor.',
-      }
-    )}
-
-    {#if computed.visibility.showSendForesporsel}
-      <div class="question-block">
-        <label class="checkbox-row">
-          <input
-            type="checkbox"
-            checked={sendForesporsel}
-            onchange={(e) => (sendForesporsel = e.currentTarget.checked)}
-          />
-          <div>
-            <span class="checkbox-label">Send forespørsel om spesifisering</span>
-            <span class="font-mono question-ref" style="display: inline; margin-left: 8px"
-              >§ 33.6.2</span
-            >
-            <p class="checkbox-desc">Be TE spesifisere kravet med antall dager og begrunnelse.</p>
-          </div>
-        </label>
-      </div>
-    {/if}
-
-    {#if computed.showGodkjentDager && !sendForesporsel}
-      <div class="question-block">
-        <SectionHeading title="Utmåling" paragrafRef="§ 33.5" />
-        <p class="question-text">
-          Fristforlengelsen skal svare til den virkning kontraktsforholdet har hatt på fremdriften.
-        </p>
-        <div class="number-field">
-          <span class="number-input-label">Godkjent dager</span>
-          <div class="number-input-wrap">
-            <input
-              type="text"
-              inputmode="numeric"
-              value={godkjentDager ?? ''}
-              oninput={(e) => {
-                const v = parseInt(e.currentTarget.value.replace(/\D/g, ''));
-                godkjentDager = isNaN(v) ? undefined : v;
-              }}
-              placeholder="0"
-              class="font-mono measurement-input"
-            />
-            <span class="number-input-suffix">dager</span>
-          </div>
-          <span class="font-mono number-input-ref">av {domainConfig.krevdDager} dager krevd</span>
-        </div>
-      </div>
-    {/if}
-
-    {#if allAnswered}
-      <div class="result-box konsekvens-{resultat.variant}">
-        <div class="result-header">
-          <resultat.ikon size={18} />
-          <span class="result-label">{resultat.label}</span>
-        </div>
-        {#if computed.prinsipaltResultat !== 'avslatt' && godkjentDager !== undefined}
-          <div class="result-detail">
-            <span class="font-mono result-days"
-              >{godkjentDager} av {domainConfig.krevdDager} dager</span
-            >
-          </div>
-        {/if}
-        {#if computed.erRedusert}
-          <p class="font-serif result-note">Kravet er redusert til det åpenbare (§ 33.6.1).</p>
-        {/if}
-        {#if computed.visSubsidiaertResultat}
-          <div class="sub-result">
-            <Stamp variant="green" small flat>Subsidiært</Stamp>
-            <span class="font-mono sub-result-text">
-              {sporResultatLabel(computed.subsidiaertResultat)}
-              {#if computed.subsidiaertResultat !== 'avslatt' && godkjentDager !== undefined}
-                — {godkjentDager} dager
-              {/if}
-            </span>
-          </div>
-        {/if}
-      </div>
-
-      {#if computed.prinsipaltResultat === 'avslatt' && !sendForesporsel}
-        <div class="alert-box warning">
-          <AlertTriangle size={14} />
-          <span
-            ><strong>§ 33.8 Forsering-risiko</strong> — Hvis avslaget er uberettiget, kan entreprenøren
-            velge å anse det som et pålegg om forsering.</span
-          >
-        </div>
-      {/if}
-
-      <div class="begrunnelse-section">
-        <div class="sh-heading">
-          <span class="sh-title">Begrunnelse</span>
-          <div class="begrunnelse-header-right">
-            {#if userHasEdited && autoBegrunnelseHtml}
-              <button class="regenerate-btn" onclick={handleRegenerate}>
-                <RefreshCw size={12} strokeWidth={2} /> Regenerer
-              </button>
+      {#if computed.visibility.showFristVarselOk}
+        <div class="preklusjons-rad">
+          <span class="preklusjons-copy">
+            <span class="preklusjons-label">Foreløpig varsel (§ 33.4)</span>
+            {#if submissionMeta.forelopig}
+              <span class="preklusjons-meta">{submissionMeta.forelopig}</span>
             {/if}
-            <span class="font-mono char-count">{charCount} tegn</span>
+          </span>
+          {@render answerButtons(
+            fristVarselOk,
+            'Ja, i tide',
+            'Nei, for sent',
+            (value) => (fristVarselOk = value)
+          )}
+        </div>
+      {/if}
+
+      {#if computed.visibility.showSpesifisertKravOk}
+        <div class="preklusjons-rad">
+          <span class="preklusjons-copy">
+            <span class="preklusjons-label">Spesifisert krav (§ 33.6.1)</span>
+            {#if submissionMeta.spesifisert}
+              <span class="preklusjons-meta">{submissionMeta.spesifisert}</span>
+            {/if}
+          </span>
+          {@render answerButtons(
+            spesifisertKravOk,
+            'Ja, i tide',
+            'Nei, for sent',
+            (value) => (spesifisertKravOk = value)
+          )}
+        </div>
+      {/if}
+
+      {#if computed.visibility.showForesporselSvarOk}
+        <div class="preklusjons-rad">
+          <span class="preklusjons-copy">
+            <span class="preklusjons-label">Svar på forespørsel (§ 33.6.2)</span>
+            {#if submissionMeta.latest}
+              <span class="preklusjons-meta">{submissionMeta.latest}</span>
+            {/if}
+          </span>
+          {@render answerButtons(
+            foresporselSvarOk,
+            'Ja, i tide',
+            'Nei, prekludert',
+            (value) => (foresporselSvarOk = value)
+          )}
+        </div>
+      {/if}
+    </section>
+  {/if}
+
+  {#if (hasPartialSubsidiaer || hasForesporselSubsidiaer) && subsidiærNotice}
+    <div class="subsidiaer-notice">
+      <span class="subsidiaer-notice-mark" aria-hidden="true"></span>
+      <p>{subsidiærNotice}</p>
+    </div>
+  {/if}
+
+  {#if computed.visibility.showSendForesporsel}
+    <section class="question-card">
+      <SectionHeading title="Spesifisering" paragrafRef="§ 33.6.2" />
+      <p class="question-text">
+        Dersom kravet ikke er tilstrekkelig spesifisert, kan byggherren be om antall dager og
+        nærmere begrunnelse.
+      </p>
+      <label class="checkbox-row">
+        <input
+          type="checkbox"
+          checked={sendForesporsel}
+          onchange={(event) => (sendForesporsel = event.currentTarget.checked)}
+        />
+        <span>
+          <strong>Send forespørsel om spesifisering</strong>
+          <small>TE må spesifisere kravet før byggherren tar endelig stilling.</small>
+        </span>
+      </label>
+    </section>
+  {/if}
+
+  {#if !sendForesporsel}
+    <section class="question-card">
+      <div class="question-card-heading">
+        <SectionHeading title="Årsakssammenheng" paragrafRef="§ 33.1" />
+        {#if isSubsidiaer}
+          <span class="subsidiaer-chip">Subsidiært</span>
+        {/if}
+      </div>
+      <p class="question-text">
+        Foreligger det en hindring på fremdriften som følge av det påberopte kontraktsforholdet?
+      </p>
+      {@render answerButtons(
+        vilkarOppfylt,
+        'Ja, hindring',
+        'Nei, ingen hindring',
+        (value) => (vilkarOppfylt = value)
+      )}
+    </section>
+
+    {#if computed.showGodkjentDager}
+      <section class="question-card">
+        <div class="question-card-heading">
+          <SectionHeading title="Utmåling" paragrafRef="§ 33.5" />
+          {#if isSubsidiaer}
+            <span class="subsidiaer-chip">Subsidiært</span>
+          {/if}
+        </div>
+        <p class="question-text">
+          Fristforlengelsen skal svare til virkningen kontraktsforholdet har hatt på fremdriften.
+        </p>
+        <NumberField
+          id="bh-frist-godkjent-dager"
+          label="Godkjent fristforlengelse"
+          suffix="dager"
+          value={godkjentDager}
+          max={domainConfig.krevdDager}
+          hint={`Av ${domainConfig.krevdDager} dager krevd`}
+          onchange={(value) => (godkjentDager = value)}
+        />
+      </section>
+    {/if}
+  {/if}
+
+  {#if allAnswered}
+    <section class="result-box konsekvens-{resultat.variant}">
+      <div class="result-header">
+        <resultat.ikon size={18} />
+        <span>{resultat.konklusjon}</span>
+      </div>
+
+      {#if sendForesporsel}
+        <p class="result-help">
+          Endelig vurdering av fristkravet avventes til TE har spesifisert kravet.
+        </p>
+      {:else}
+        <div class="result-tabell">
+          <div class="result-cell">
+            <span>Krevd</span>
+            <strong class="font-mono">{domainConfig.krevdDager} dager</strong>
           </div>
+          <div class="result-cell">
+            <span>Prinsipalt godkjent</span>
+            <strong class="font-mono">{prinsipaltGodkjent} dager</strong>
+          </div>
+          {#if computed.visSubsidiaertResultat}
+            <div class="result-cell">
+              <span>Subsidiært godkjent</span>
+              <strong class="font-mono">{subsidiaertGodkjent} dager</strong>
+            </div>
+          {/if}
         </div>
-        <div class="editor-wrapper">
-          <RichTextEditor
-            body={begrunnelseHtml}
-            onchange={handleEditorChange}
-            onready={handleEditorReady}
-            extensions={[LockedValueNode]}
-            maxHeight="none"
-            oncharcount={(c) => (charCount = c)}
-          />
-        </div>
+        {#if computed.erRedusert}
+          <p class="result-help">
+            {computed.erPrekludert
+              ? 'Subsidiært begrenses kravet til den fristforlengelsen byggherren måtte forstå (§ 33.6.1).'
+              : 'Kravet begrenses til den fristforlengelsen byggherren måtte forstå (§ 33.6.1).'}
+          </p>
+        {/if}
+      {/if}
+    </section>
+
+    {#if computed.prinsipaltResultat === 'avslatt' && !sendForesporsel}
+      <div class="risk-notice">
+        <AlertTriangle size={16} />
+        <p>
+          <strong>Forseringsrisiko etter § 33.8.</strong> Dersom avslaget er uberettiget, kan TE velge
+          å anse det som et pålegg om forsering.
+        </p>
       </div>
     {/if}
-  {/snippet}
 
-  {#snippet formContent()}
-    <SectionHeading title="Byggherrens standpunkt" />
-
-    {#if computed.visibility.showFristVarselOk}
-      {@render yesNoPill(
-        'Foreløpig varsel',
-        '§ 33.4',
-        'Ble varselet om fristforlengelse fremsatt uten ugrunnet opphold?',
-        fristVarselOk,
-        'Ja, i tide',
-        'Nei, prekludert',
-        (v) => (fristVarselOk = v),
-        {
-          alertText: 'For sent varslet — kravet er tapt.',
-        }
-      )}
-    {/if}
-
-    {#if computed.visibility.showSpesifisertKravOk}
-      {@render yesNoPill(
-        'Fremsatt krav',
-        '§ 33.6.1',
-        'Ble kravet fremsatt uten ugrunnet opphold?',
-        spesifisertKravOk,
-        'Ja, i tide',
-        'Nei, for sent',
-        (v) => (spesifisertKravOk = v),
-        {
-          alertText: 'For sent fremsatt — ytterligere betingelse for utmåling nedenfor.',
-        }
-      )}
-    {/if}
-
-    <!-- Scenario 2: Delvis sub — spesifisertKravOk = false triggers stripe below -->
-    {#if hasPartialSubStripe}
-      <SubStripe
-        notice="Kravet er for sent fremsatt. Alt nedenfor er subsidiær utmåling — fristforlengelsen reduseres til det åpenbare."
-        diamondCount={subsidiærDiamondCount}
-      >
-        {@render formBodyBelow()}
-      </SubStripe>
-    {:else}
-      <!-- Scenario 3: Additional diamonds when inside hel-sub stripe -->
-      {#if isHelSubsidiaer && spesifisertKravOk === false}
-        <Diamond />
-      {/if}
-      {@render formBodyBelow()}
-    {/if}
-  {/snippet}
-
-  <!-- Scenario 1: Helt subsidiært — wrap everything -->
-  {#if isHelSubsidiaer}
-    <SubStripe notice={subsidiærNotice} diamondCount={subsidiærDiamondCount}>
-      {@render formContent()}
-    </SubStripe>
-  {:else}
-    {@render formContent()}
+    <section class="begrunnelse-section">
+      <div class="begrunnelse-heading">
+        <span class="begrunnelse-title">Begrunnelse</span>
+        <div class="begrunnelse-actions">
+          {#if userHasEdited && autoBegrunnelseHtml}
+            <button type="button" class="regenerate-btn" onclick={handleRegenerate}>
+              <RefreshCw size={12} strokeWidth={2} /> Regenerer
+            </button>
+          {/if}
+          <span class="font-mono char-count">{charCount} tegn</span>
+        </div>
+      </div>
+      <p class="begrunnelse-help">
+        Begrunnelsen kan utdypes og redigeres. Automatiske konklusjoner beholdes som låste felt.
+      </p>
+      <div class="editor-wrapper">
+        <RichTextEditor
+          body={begrunnelseHtml}
+          onchange={handleEditorChange}
+          onready={handleEditorReady}
+          extensions={[LockedValueNode]}
+          maxHeight="none"
+          oncharcount={(count) => (charCount = count)}
+        />
+      </div>
+    </section>
   {/if}
 </div>
 
 <style>
-  /* Form-specific styles (shared styles in mockup.css) */
-
-  /* ── TE's fristkrav-sammendrag ── */
   .sammendrag {
-    margin-bottom: 40px;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
+    margin-bottom: 32px;
+    overflow: hidden;
+    background: var(--surface);
+    border: var(--rule);
+    border-radius: 12px;
+    box-shadow: var(--overlay-shadow-sm);
   }
-
-  .sammendrag-kravlinjer {
+  .sammendrag-header {
     display: flex;
-    flex-direction: column;
-    gap: 2px;
-  }
-  .sammendrag-kravlinje {
-    display: flex;
+    align-items: flex-start;
     justify-content: space-between;
-    align-items: baseline;
-    padding: 2px 0;
+    gap: 16px;
+    padding: 14px 16px;
+    border-bottom: var(--rule);
   }
-  .sammendrag-kravlinje-label {
-    font-size: 13px;
-    color: var(--ink-2);
+  .sammendrag-header > div {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
   }
-  .sammendrag-kravlinje-belop {
+  .sammendrag-eyebrow,
+  .sammendrag-label {
+    font-size: 10px;
+    font-weight: 600;
+    line-height: 1.3;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--ink-4);
+  }
+  .sammendrag-header h2 {
+    margin: 0;
     font-size: 13px;
-    font-weight: 500;
+    font-weight: 700;
+    line-height: 1.35;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
     color: var(--ink);
   }
-  .sammendrag-begrunnelse {
-    margin-top: 4px;
+  .sammendrag-ref {
+    flex: none;
+    font-size: 11px;
+    color: var(--ink-4);
+  }
+  .sammendrag-krav {
+    display: grid;
+    grid-template-columns: minmax(150px, 0.8fr) minmax(180px, 1fr);
+    gap: 12px 28px;
+    padding: 16px;
+    background: var(--surface-warm);
+  }
+  .sammendrag-type,
+  .sammendrag-dager {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  .sammendrag-verdi,
+  .sammendrag-dager strong {
+    font-size: 14px;
+    line-height: 1.4;
+    color: var(--ink);
+  }
+  .sammendrag-datoer {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 20px;
+    padding-top: 12px;
+    border-top: var(--rule);
+  }
+  .sammendrag-datoer span {
+    display: flex;
+    gap: 6px;
+    font-size: 11px;
+    color: var(--ink-4);
+  }
+  .sammendrag-datoer strong {
+    font-weight: 600;
     color: var(--ink-3);
   }
-
-  /* ── Lokal overskrift for begrunnelse (har ekstra kontroller; ellers identisk med SectionHeading) ── */
-  .sh-heading {
+  .sammendrag-begrunnelse-panel {
     display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 12px;
-    padding-bottom: 8px;
-    border-bottom: 1px solid var(--color-wire);
+    flex-direction: column;
+    gap: 9px;
+    padding: 16px;
+    border-top: var(--rule);
   }
-  .sh-title {
+  .sammendrag-begrunnelse {
+    overflow: hidden;
+    font-size: 14px;
+    line-height: 1.65;
+    color: var(--ink-2);
+  }
+  .sammendrag-begrunnelse p {
+    margin: 0;
+  }
+  .sammendrag-begrunnelse.avkortet {
+    max-height: calc(1.65em * 8);
+  }
+  .vis-mer-btn {
+    width: fit-content;
+    padding: 0;
     font-size: 12px;
     font-weight: 600;
+    color: var(--green);
+    background: none;
+    border: none;
+    cursor: pointer;
+  }
+
+  .standpunkt-heading,
+  .question-card-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .standpunkt-heading {
+    margin: 4px 0 16px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--color-wire);
+  }
+  .standpunkt-title {
+    font-size: 12px;
+    font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.06em;
     color: var(--ink-3);
   }
-
-  /* ── Seksjonsluft: jevnt 20px mellom blokker (matcher produksjons gap) ── */
-  .question-block {
-    margin-bottom: var(--spacing-5);
-    margin-top: var(--spacing-5);
+  .question-card-heading :global(.section-heading) {
+    flex: 1;
   }
 
-  /* ── Segment buttons ── */
+  .question-card,
+  .begrunnelse-section {
+    margin: 0 0 16px;
+    padding: 18px;
+    background: var(--surface);
+    border: var(--rule);
+    border-radius: 12px;
+  }
+  .question-text {
+    margin: 14px 0;
+    font-size: 14px;
+    line-height: 1.55;
+    color: var(--ink-2);
+  }
+
+  .preklusjons-rad {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 10px 0;
+    border-top: var(--rule-subtle);
+  }
+  .preklusjons-copy {
+    min-width: 0;
+  }
+  .preklusjons-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ink-2);
+  }
+  .preklusjons-meta {
+    display: block;
+    margin-top: 3px;
+    font-size: 11px;
+    color: var(--ink-4);
+  }
+
   .segment-row {
     display: inline-flex;
-    border: 1px solid #d9d5cc;
-    border-radius: 4px;
-    overflow: hidden;
+    flex-wrap: wrap;
+    flex: none;
+    gap: 3px;
     width: fit-content;
+    padding: 3px;
+    background: var(--surface-inset);
+    border: var(--rule-strong);
+    border-radius: 999px;
   }
   .segment-btn {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    padding: 6px 14px;
-    min-height: 32px;
+    justify-content: center;
+    min-height: 34px;
+    padding: 7px 14px;
     font-family: var(--font-sans);
     font-size: 13px;
     font-weight: 600;
-    background: var(--surface);
-    color: var(--ink-3);
-    border: none;
-    border-right: 1px solid #d9d5cc;
-    cursor: pointer;
-    transition: all 80ms;
-    white-space: nowrap;
     line-height: 1;
-  }
-  .segment-btn:last-child {
-    border-right: none;
+    white-space: nowrap;
+    color: var(--ink-3);
+    background: transparent;
+    border: none;
+    border-radius: 999px;
+    cursor: pointer;
   }
   .segment-btn:hover:not(.segment-active) {
-    background: var(--surface-inset);
     color: var(--ink);
+    background: var(--surface);
   }
   .segment-active {
-    background: var(--brand-2);
     color: white;
+    background: var(--brand-2);
+    box-shadow: 0 1px 2px rgba(27, 42, 34, 0.12);
   }
   .segment-active.seg-yes {
     background: var(--success);
-    color: white;
   }
   .segment-active.seg-no {
     background: var(--danger);
-    color: white;
   }
 
-  /* ── Utmåling / NumberInput ── */
-  .number-field {
+  .subsidiaer-chip {
+    display: inline-flex;
+    align-items: center;
+    width: fit-content;
+    padding: 5px 8px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 600;
+    line-height: 1;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--green);
+    background: color-mix(in srgb, var(--green-bg) 55%, transparent);
+    border: 1px dashed var(--green);
+    border-radius: 6px;
+  }
+  .subsidiaer-notice {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 16px;
+    padding: 14px 16px;
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--ink-2);
+    background: var(--info-bg);
+    border: var(--rule-strong);
+    border-radius: 12px;
+  }
+  .subsidiaer-notice p {
+    margin: 0;
+  }
+  .subsidiaer-notice-mark {
+    flex: none;
+    width: 10px;
+    height: 10px;
+    margin-top: 5px;
+    background: var(--brand);
+    border-radius: 1px;
+    transform: rotate(45deg);
+  }
+
+  .checkbox-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px;
+    background: var(--surface-inset);
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  .checkbox-row input {
+    flex: none;
+    width: 18px;
+    height: 18px;
+    margin-top: 1px;
+    accent-color: var(--brand);
+  }
+  .checkbox-row span {
     display: flex;
     flex-direction: column;
-    gap: 6px;
-    max-width: 240px;
-  }
-  .number-input-label {
-    font-size: 12px;
-    font-weight: 600;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    color: var(--ink-3);
-  }
-  .number-input-wrap {
-    display: flex;
-    align-items: center;
-    gap: 0;
-  }
-  .number-input-wrap .font-mono.measurement-input {
-    border-radius: 4px 0 0 4px;
-    flex: 1;
-    text-align: right;
-    font-variant-numeric: tabular-nums;
-  }
-  .number-input-suffix {
-    font-family: var(--font-mono);
+    gap: 4px;
     font-size: 13px;
-    font-weight: 500;
-    color: var(--ink-3);
-    padding: 8px 12px;
-    background: var(--surface-inset);
-    border: var(--control-border);
-    border-left: none;
-    border-radius: 0 4px 4px 0;
-    white-space: nowrap;
+    color: var(--ink-2);
   }
-  .number-input-ref {
+  .checkbox-row small {
     font-size: 12px;
-    color: var(--ink-4);
-    margin-top: 2px;
+    line-height: 1.45;
+    color: var(--ink-3);
   }
 
-  /* ── Resultat-boks ── */
   .result-box {
-    margin-top: 0;
-    padding: 12px 16px;
+    margin: 24px 0 16px;
+    padding: 16px;
     background: var(--surface);
-    border: none;
-    border-left: 3px solid var(--ink-4);
-    border-radius: 4px;
-  }
-  .result-box.konsekvens-positive {
-    border-left-color: var(--success);
-    background: color-mix(in srgb, var(--success) 6%, var(--surface));
-  }
-  .result-box.konsekvens-negative {
-    border-left-color: var(--danger);
-    background: color-mix(in srgb, var(--danger) 6%, var(--surface));
-  }
-  .result-box.konsekvens-mixed {
-    border-left-color: var(--warning);
-    background: color-mix(in srgb, var(--warning) 6%, var(--surface));
+    border: var(--rule-strong);
+    border-radius: 12px;
   }
   .result-header {
     display: flex;
@@ -606,8 +829,6 @@
     gap: 8px;
     font-size: 15px;
     font-weight: 700;
-    letter-spacing: 0.01em;
-    line-height: 1;
   }
   .konsekvens-positive .result-header {
     color: var(--success);
@@ -616,38 +837,141 @@
     color: var(--danger);
   }
   .konsekvens-mixed .result-header {
-    color: var(--warning);
+    color: color-mix(in srgb, var(--warning) 78%, var(--ink));
   }
-  .result-days {
-    font-size: 13px;
-    font-weight: 600;
+  .konsekvens-neutral .result-header {
     color: var(--ink-2);
   }
-  .result-note {
-    font-style: italic;
-    margin-top: 8px;
+  .result-tabell {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    margin-top: 14px;
+    overflow: hidden;
+    background: var(--surface-inset);
+    border: var(--rule);
+    border-radius: 8px;
   }
-
-  .checkbox-row {
+  .result-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 10px 12px;
+    border-left: var(--rule);
+  }
+  .result-cell:first-child {
+    border-left: none;
+  }
+  .result-cell span {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--ink-4);
+  }
+  .result-cell strong {
+    font-size: 13px;
+    color: var(--ink);
+  }
+  .result-help {
+    margin-top: 12px;
+    font-size: 12px;
+    line-height: 1.5;
+    color: var(--ink-3);
+  }
+  .risk-notice {
     display: flex;
     align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 16px;
+    padding: 13px 15px;
+    color: color-mix(in srgb, var(--warning) 72%, var(--ink));
+    background: color-mix(in srgb, var(--warning) 7%, var(--surface));
+    border: 1px solid color-mix(in srgb, var(--warning) 34%, var(--color-wire));
+    border-radius: 10px;
+  }
+  .risk-notice :global(svg) {
+    flex: none;
+    margin-top: 2px;
+  }
+  .risk-notice p {
+    margin: 0;
+    font-size: 12px;
+    line-height: 1.55;
+  }
+
+  .begrunnelse-heading {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
     gap: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--color-wire);
+  }
+  .begrunnelse-title {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--ink-3);
+  }
+  .begrunnelse-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .char-count {
+    font-size: 11px;
+    color: var(--ink-4);
+  }
+  .begrunnelse-help {
+    margin: 12px 0;
+    font-size: 13px;
+    line-height: 1.55;
+    color: var(--ink-3);
+  }
+  .editor-wrapper {
+    overflow: hidden;
+    border: var(--rule-strong);
+    border-radius: 8px;
+  }
+  .editor-wrapper:focus-within {
+    border-color: var(--control-focus);
+    box-shadow: var(--control-focus-ring);
+  }
+  .regenerate-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 10px;
+    font-size: 11px;
+    color: var(--ink-3);
+    background: var(--surface);
+    border: var(--control-border);
+    border-radius: 999px;
     cursor: pointer;
   }
-  .checkbox-row input[type='checkbox'] {
-    width: 18px;
-    height: 18px;
-    margin-top: 2px;
-    accent-color: var(--brand);
-    flex-shrink: 0;
-  }
-  .checkbox-label {
-    font-size: 13px;
-    font-weight: 700;
-  }
-  .checkbox-desc {
-    font-size: 12px;
-    color: var(--ink-3);
-    margin-top: 4px;
+
+  @media (max-width: 720px) {
+    .sammendrag-krav {
+      grid-template-columns: 1fr;
+    }
+    .sammendrag-datoer {
+      grid-column: auto;
+      flex-direction: column;
+    }
+    .preklusjons-rad {
+      align-items: flex-start;
+      flex-direction: column;
+    }
+    .result-tabell {
+      grid-template-columns: 1fr;
+    }
+    .result-cell {
+      border-top: var(--rule);
+      border-left: none;
+    }
+    .result-cell:first-child {
+      border-top: none;
+    }
   }
 </style>

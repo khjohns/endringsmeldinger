@@ -161,7 +161,9 @@ export function beregnReduksjon(
 ): boolean {
   if (config.erSvarPaForesporsel) return false;
   if (config.varselType === 'spesifisert') {
-    return state.fristVarselOk === true && state.spesifisertKravOk === false;
+    // § 33.6.1 er en selvstendig, subsidiær begrensning også når BH samtidig
+    // gjør gjeldende at det foreløpige varselet er prekludert etter § 33.4.
+    return state.spesifisertKravOk === false;
   }
   return false;
 }
@@ -211,11 +213,13 @@ export function beregnSubsidiaertResultat(data: {
 export function beregnSubsidiaerTriggers(data: {
   erGrunnlagSubsidiaer: boolean;
   erPrekludert: boolean;
+  erRedusert?: boolean;
   harHindring: boolean;
 }): SubsidiaerTrigger[] {
   const triggers: SubsidiaerTrigger[] = [];
   if (data.erGrunnlagSubsidiaer) triggers.push('grunnlag_avslatt');
   if (data.erPrekludert) triggers.push('preklusjon_varsel');
+  if (data.erRedusert) triggers.push('reduksjon_spesifisert');
   if (!data.harHindring) triggers.push('ingen_hindring');
   return triggers;
 }
@@ -312,6 +316,7 @@ export function beregnAlt(state: FristFormState, config: FristDomainConfig): Fri
   const subsidiaerTriggers = beregnSubsidiaerTriggers({
     erGrunnlagSubsidiaer: config.erGrunnlagSubsidiaer,
     erPrekludert,
+    erRedusert,
     harHindring,
   });
 
