@@ -7,6 +7,7 @@
   import { formatDateTimeNorwegian } from '$lib/utils/dateFormatters.js';
   import Stamp from './Stamp.svelte';
   import CountUp from './CountUp.svelte';
+  import GrunnlagOverview from './GrunnlagOverview.svelte';
   import type { SporKey, Role } from './types.js';
   import type { TimelineEvent } from '$lib/types/timeline';
 
@@ -160,6 +161,8 @@
           <p class="withdrawn-reason withdrawn-no-reason">Ingen begrunnelse oppgitt.</p>
         {/if}
       </div>
+    {:else if sel === 'ansvar'}
+      <GrunnlagOverview onform={() => onform(sel)} />
     {:else if expandedSide === 'te'}
       <div class="card-full">
         <div class="reading-party">
