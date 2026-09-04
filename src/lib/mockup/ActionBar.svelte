@@ -1,6 +1,8 @@
 <script lang="ts">
   import { Check, XSquare, Send, BookOpen, ArrowRight } from 'lucide-svelte';
+  import { formatDateShortNorwegian } from '$lib/utils/dateFormatters.js';
   import { fmt } from './utils.js';
+  import { store } from './store.svelte.js';
   import type { Mode, Role, SporKey } from './types.js';
 
   let {
@@ -34,6 +36,10 @@
     canSend?: boolean;
     onwithdraw?: () => void;
   } = $props();
+
+  const sisteGrunnlagAktivitet = $derived(
+    formatDateShortNorwegian(store.sak.grunnlag.siste_oppdatert)
+  );
 </script>
 
 <div class="action-bar" class:action-bar-form={mode === 'form'}>
@@ -42,11 +48,13 @@
       <div class="status-dot"></div>
       <div>
         <div class="status-label">
-          {mode === 'form' ? 'Redigerer kladd' : 'Saksstatus'}
+          {mode === 'form' ? 'Redigerer kladd' : sel === 'ansvar' ? 'Sist aktivitet' : 'Saksstatus'}
         </div>
         <div class="status-text">
           {#if mode === 'form'}
             <span style="color: var(--ink-2)">Autolagret — lukk eller send</span>
+          {:else if sel === 'ansvar'}
+            <span style="color: var(--ink-2)">{sisteGrunnlagAktivitet || 'Ikke registrert'}</span>
           {:else}
             <span style="color: var(--green)">Subs. {fmt(subV)},- / {subF} dager</span>
             <span class="status-sep">·</span>
@@ -69,7 +77,18 @@
         >
       {:else if role === 'TE'}
         <button class="btn btn-danger" onclick={onwithdraw}><XSquare size={14} /> Trekk</button>
-        <button class="btn btn-primary"><Check size={14} /> Godta</button>
+        {#if sel === 'ansvar'}
+          {#if store.sak.grunnlag.bh_resultat}
+            <button class="btn btn-primary">
+              <Check size={14} />
+              {store.sak.grunnlag.bh_resultat === 'avslatt'
+                ? 'Aksepter byggherrens standpunkt'
+                : 'Bekreft enighet'}
+            </button>
+          {/if}
+        {:else}
+          <button class="btn btn-primary"><Check size={14} /> Godta</button>
+        {/if}
       {:else}
         <button class="btn btn-primary" onclick={() => onform(sel)}>
           Fortsett til utfylling
