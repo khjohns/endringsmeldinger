@@ -76,7 +76,45 @@ function createStore() {
   }
 
   function sendTeGrunnlag(begrunnelse: string) {
-    scenario.sak.grunnlag.beskrivelse = begrunnelse;
+    const grunnlag = scenario.sak.grunnlag;
+    const now = new Date().toISOString();
+    const previousEventId =
+      scenario.timeline
+        .filter((event) => event.spor === 'grunnlag' && event.actorrole === 'TE')
+        .at(-1)?.id ??
+      grunnlag.siste_event_id ??
+      'grunnlag-opprettet';
+    const currentVersionCount = Math.max(
+      grunnlag.antall_versjoner,
+      scenario.timeline.filter((event) => event.spor === 'grunnlag' && event.actorrole === 'TE')
+        .length,
+      1
+    );
+    const eventId = `evt-grunnlag-update-${Date.now()}`;
+
+    grunnlag.beskrivelse = begrunnelse;
+    grunnlag.antall_versjoner = currentVersionCount + 1;
+    grunnlag.siste_event_id = eventId;
+    grunnlag.siste_oppdatert = now;
+    scenario.ui.ansvar.draft = null;
+
+    scenario.timeline.push({
+      specversion: '1.0',
+      id: eventId,
+      source: `/projects/P001/cases/${scenario.sak.sak_id}`,
+      type: 'no.oslo.koe.grunnlag_oppdatert',
+      time: now,
+      subject: scenario.sak.sak_id,
+      actorrole: 'TE',
+      actor: scenario.sak.entreprenor ?? 'TE',
+      spor: 'grunnlag',
+      summary: 'Totalentreprenøren oppdaterte begrunnelsen for ansvarsgrunnlaget',
+      data: {
+        original_event_id: previousEventId,
+        beskrivelse: begrunnelse,
+        endrings_begrunnelse: 'Oppdatert redegjørelse.',
+      } as import('$lib/types/timeline').EventData,
+    });
   }
 
   function sendTeVederlag(belop: number) {

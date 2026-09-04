@@ -74,7 +74,11 @@
   );
 
   function wordCount(text: string): number {
-    return text.trim() ? text.trim().split(/\s+/).length : 0;
+    const plainText = text
+      .replace(/<[^>]*>/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+    return plainText ? plainText.split(' ').length : 0;
   }
 </script>
 
@@ -110,7 +114,7 @@
         {/if}
       </div>
     </div>
-    <p class="reading-text">{text}</p>
+    <div class="reading-text">{@html text}</div>
   </article>
 {:else}
   <div class="status-card status-{status.variant}">
@@ -165,7 +169,7 @@
         </div>
       </div>
       {#if teText}
-        <p class:clamped={teText.length > 420} class="position-text">{teText}</p>
+        <div class:clamped={teText.length > 420} class="position-text">{@html teText}</div>
       {:else}
         <p class="position-text empty-text">Ingen redegjørelse registrert.</p>
       {/if}
@@ -210,7 +214,7 @@
         </div>
       </div>
       {#if bhText}
-        <p class:clamped={bhText.length > 420} class="position-text">{bhText}</p>
+        <div class:clamped={bhText.length > 420} class="position-text">{@html bhText}</div>
       {:else}
         <p class="position-text empty-text">Byggherren har ikke registrert et standpunkt.</p>
       {/if}
@@ -447,6 +451,21 @@
     line-clamp: 6;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 6;
+  }
+  :global(.position-text p),
+  :global(.reading-text p) {
+    margin: 0 0 0.75em;
+  }
+  :global(.position-text p:last-child),
+  :global(.reading-text p:last-child) {
+    margin-bottom: 0;
+  }
+  :global(.position-text ul),
+  :global(.position-text ol),
+  :global(.reading-text ul),
+  :global(.reading-text ol) {
+    margin: 0.5em 0;
+    padding-left: 1.5em;
   }
   .empty-text {
     font-style: italic;

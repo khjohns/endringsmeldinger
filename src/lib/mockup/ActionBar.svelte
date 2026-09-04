@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Check, XSquare, Send, BookOpen, ArrowRight } from 'lucide-svelte';
+  import { Check, XSquare, Send, BookOpen, ArrowRight, PencilLine } from 'lucide-svelte';
   import { formatDateShortNorwegian } from '$lib/utils/dateFormatters.js';
   import { fmt } from './utils.js';
   import { store } from './store.svelte.js';
@@ -19,6 +19,7 @@
     ontogglecontext,
     onsend,
     canSend = false,
+    sendLabel = 'Send svar',
     onwithdraw,
   }: {
     mode: Mode;
@@ -34,36 +35,48 @@
     ontogglecontext?: () => void;
     onsend?: () => void;
     canSend?: boolean;
+    sendLabel?: string;
     onwithdraw?: () => void;
   } = $props();
 
   const sisteGrunnlagAktivitet = $derived(
     formatDateShortNorwegian(store.sak.grunnlag.siste_oppdatert)
   );
+  const isTeGrunnlagActions = $derived(mode === 'read' && role === 'TE' && sel === 'ansvar');
 </script>
 
-<div class="action-bar" class:action-bar-form={mode === 'form'}>
+<div
+  class="action-bar"
+  class:action-bar-form={mode === 'form'}
+  class:action-bar-te-grunnlag={isTeGrunnlagActions}
+>
   <div class="action-inner">
-    <div class="status-section">
-      <div class="status-dot"></div>
-      <div>
-        <div class="status-label">
-          {mode === 'form' ? 'Redigerer kladd' : sel === 'ansvar' ? 'Sist aktivitet' : 'Saksstatus'}
-        </div>
-        <div class="status-text">
-          {#if mode === 'form'}
-            <span style="color: var(--ink-2)">Autolagret — lukk eller send</span>
-          {:else if sel === 'ansvar'}
-            <span style="color: var(--ink-2)">{sisteGrunnlagAktivitet || 'Ikke registrert'}</span>
-          {:else}
-            <span style="color: var(--green)">Subs. {fmt(subV)},- / {subF} dager</span>
-            <span class="status-sep">·</span>
-            <span style="color: var(--danger)">Prins. {fmt(prinV)},- / {prinF} dager</span>
-          {/if}
+    {#if !isTeGrunnlagActions}
+      <div class="status-section">
+        <div class="status-dot"></div>
+        <div>
+          <div class="status-label">
+            {mode === 'form'
+              ? 'Redigerer kladd'
+              : sel === 'ansvar'
+                ? 'Sist aktivitet'
+                : 'Saksstatus'}
+          </div>
+          <div class="status-text">
+            {#if mode === 'form'}
+              <span style="color: var(--ink-2)">Autolagret — lukk eller send</span>
+            {:else if sel === 'ansvar'}
+              <span style="color: var(--ink-2)">{sisteGrunnlagAktivitet || 'Ikke registrert'}</span>
+            {:else}
+              <span style="color: var(--green)">Subs. {fmt(subV)},- / {subF} dager</span>
+              <span class="status-sep">·</span>
+              <span style="color: var(--danger)">Prins. {fmt(prinV)},- / {prinF} dager</span>
+            {/if}
+          </div>
         </div>
       </div>
-    </div>
-    <div class="action-buttons">
+    {/if}
+    <div class="action-buttons" class:te-grunnlag-actions={isTeGrunnlagActions}>
       {#if ontogglecontext}
         <button class="btn btn-secondary context-btn" onclick={ontogglecontext}>
           <BookOpen size={14} />
@@ -73,11 +86,14 @@
       {#if mode === 'form'}
         <button class="btn btn-secondary" onclick={oncloseform}>Lukk kladd</button>
         <button class="btn btn-primary" disabled={!canSend} onclick={onsend}
-          ><Send size={14} /> Send svar</button
+          ><Send size={14} /> {sendLabel}</button
         >
       {:else if role === 'TE'}
         <button class="btn btn-danger" onclick={onwithdraw}><XSquare size={14} /> Trekk</button>
         {#if sel === 'ansvar'}
+          <button class="btn btn-secondary" onclick={() => onform(sel)}>
+            <PencilLine size={14} /> Oppdater begrunnelse
+          </button>
           {#if store.sak.grunnlag.bh_resultat}
             <button class="btn btn-primary">
               <Check size={14} />
@@ -161,6 +177,12 @@
   .action-buttons {
     display: flex;
     gap: 8px;
+  }
+  .te-grunnlag-actions {
+    width: 100%;
+  }
+  .te-grunnlag-actions .btn-danger {
+    margin-right: auto;
   }
   .context-btn {
     display: none;
