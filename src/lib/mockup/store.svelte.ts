@@ -13,7 +13,12 @@ import {
 import type { TrackDisplay } from './derive.js';
 import type { Draft } from './types.js';
 import { getPartsNavn } from '$lib/utils/partsNavn.js';
-import type { BelopVurdering, SubsidiaerTrigger, VederlagsMetode } from '$lib/types/timeline.js';
+import type {
+  BelopVurdering,
+  FristVarselType,
+  SubsidiaerTrigger,
+  VederlagsMetode,
+} from '$lib/types/timeline.js';
 
 export interface VederlagSvarDetaljer {
   hovedkravVarsletITide?: boolean;
@@ -269,8 +274,68 @@ function createStore() {
     scenario.sak.vederlag.netto_belop = belop;
   }
 
-  function sendTeFrist(dager: number) {
-    scenario.sak.frist.krevd_dager = dager;
+  function sendTeFrist(
+    dager: number | undefined,
+    varselType: FristVarselType | undefined,
+    begrunnelse: string
+  ) {
+    if (!varselType) return;
+
+    const frist = scenario.sak.frist;
+    const now = new Date().toISOString();
+    const today = now.slice(0, 10);
+    const hadSubmission = Boolean(frist.varsel_type || frist.frist_varsel);
+    const wasSpecified = frist.varsel_type === 'spesifisert' && frist.krevd_dager !== undefined;
+    const eventType = wasSpecified
+      ? 'frist_krav_oppdatert'
+      : hadSubmission
+        ? 'frist_krav_spesifisert'
+        : 'frist_krav_sendt';
+    const currentVersionCount = Math.max(
+      frist.antall_versjoner,
+      scenario.timeline.filter((event) => event.spor === 'frist' && event.actorrole === 'TE')
+        .length,
+      hadSubmission ? 1 : 0
+    );
+    const eventId = `evt-frist-te-${Date.now()}`;
+
+    frist.status = 'sendt';
+    frist.varsel_type = varselType;
+    frist.frist_varsel ??= { dato_sendt: today, metode: ['digital oversendelse'] };
+    if (varselType === 'spesifisert') {
+      frist.spesifisert_varsel ??= { dato_sendt: today, metode: ['digital oversendelse'] };
+      frist.krevd_dager = dager;
+    } else {
+      frist.krevd_dager = undefined;
+    }
+    frist.begrunnelse = begrunnelse || undefined;
+    frist.antall_versjoner = currentVersionCount + 1;
+    frist.siste_event_id = eventId;
+    frist.siste_oppdatert = now;
+    scenario.ui.frist.draft = null;
+
+    scenario.timeline.push({
+      specversion: '1.0',
+      id: eventId,
+      source: `/projects/P001/cases/${scenario.sak.sak_id}`,
+      type: `no.oslo.koe.${eventType}`,
+      time: now,
+      subject: scenario.sak.sak_id,
+      actorrole: 'TE',
+      actor: scenario.sak.entreprenor ?? 'TE',
+      spor: 'frist',
+      summary:
+        varselType === 'spesifisert'
+          ? `Totalentreprenøren ${wasSpecified ? 'oppdaterte' : 'spesifiserte'} fristkravet til ${dager ?? 0} dager`
+          : 'Totalentreprenøren sendte foreløpig varsel om fristforlengelse',
+      data: {
+        varsel_type: varselType,
+        frist_varsel: frist.frist_varsel,
+        spesifisert_varsel: frist.spesifisert_varsel,
+        antall_dager: varselType === 'spesifisert' ? dager : undefined,
+        begrunnelse: begrunnelse || undefined,
+      } as unknown as import('$lib/types/timeline').EventData,
+    });
   }
 
   function withdrawTrack(spor: SporKey, begrunnelse?: string) {

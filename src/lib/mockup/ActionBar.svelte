@@ -44,9 +44,34 @@
   );
   const isTeGrunnlagActions = $derived(mode === 'read' && role === 'TE' && sel === 'ansvar');
   const hasBhVederlagResponse = $derived(Boolean(store.sak.vederlag.bh_resultat));
+  const hasBhFristResponse = $derived(Boolean(store.sak.frist.bh_resultat));
   const isVederlagPending = $derived(sel === 'vederlag' && !hasBhVederlagResponse);
+  const isFristPending = $derived(sel === 'frist' && !hasBhFristResponse);
   const vederlagResultat = $derived(
     store.sak.vederlag.bh_resultat ? sporResultatLabel(store.sak.vederlag.bh_resultat) : ''
+  );
+  const fristResultat = $derived(
+    store.sak.frist.bh_resultat ? sporResultatLabel(store.sak.frist.bh_resultat) : ''
+  );
+  const hasFristSubmission = $derived(
+    Boolean(
+      store.sak.frist.varsel_type ||
+      store.sak.frist.frist_varsel ||
+      store.sak.frist.krevd_dager !== undefined
+    )
+  );
+  const hasSpecifiedFristClaim = $derived(
+    store.sak.frist.varsel_type === 'spesifisert' && store.sak.frist.krevd_dager !== undefined
+  );
+  const teFristActionLabel = $derived(
+    !hasFristSubmission
+      ? 'Send fristvarsel'
+      : hasSpecifiedFristClaim
+        ? 'Oppdater krav'
+        : 'Spesifiser krav'
+  );
+  const isTeTrackActions = $derived(
+    mode === 'read' && role === 'TE' && (sel === 'ansvar' || sel === 'frist')
   );
 </script>
 
@@ -56,7 +81,7 @@
   class:action-bar-te-grunnlag={isTeGrunnlagActions}
 >
   <div class="action-inner">
-    {#if !isTeGrunnlagActions}
+    {#if !isTeTrackActions}
       <div class="status-section">
         <div class="status-dot"></div>
         <div>
@@ -65,7 +90,7 @@
               ? 'Redigerer kladd'
               : sel === 'ansvar'
                 ? 'Sist aktivitet'
-                : isVederlagPending && hasDraft
+                : (isVederlagPending || isFristPending) && hasDraft
                   ? 'Kladd'
                   : 'Saksstatus'}
           </div>
@@ -82,9 +107,23 @@
                     ? 'Kravet er ikke besvart'
                     : `Avventer svar fra ${store.bhNavn}`}
               </span>
+            {:else if isFristPending}
+              <span style="color: var(--ink-2)">
+                {hasDraft
+                  ? 'Autolagret — ikke sendt'
+                  : role === 'BH'
+                    ? 'Kravet er ikke besvart'
+                    : hasSpecifiedFristClaim
+                      ? `Avventer svar fra ${store.bhNavn}`
+                      : 'Foreløpig varsel sendt — antall dager ikke spesifisert'}
+              </span>
             {:else if sel === 'vederlag'}
               <span style="color: var(--ink-2)">
                 {vederlagResultat} · {fmt(store.sak.vederlag.godkjent_belop ?? 0)},- godkjent
+              </span>
+            {:else if sel === 'frist'}
+              <span style="color: var(--ink-2)">
+                {fristResultat} · {store.sak.frist.godkjent_dager ?? 0} dager godkjent
               </span>
             {:else}
               <span style="color: var(--green)">Subs. {fmt(subV)},- / {subF} dager</span>
@@ -95,7 +134,11 @@
         </div>
       </div>
     {/if}
-    <div class="action-buttons" class:te-grunnlag-actions={isTeGrunnlagActions}>
+    <div
+      class="action-buttons"
+      class:te-grunnlag-actions={isTeGrunnlagActions}
+      class:te-track-actions={isTeTrackActions}
+    >
       {#if ontogglecontext}
         <button class="btn btn-secondary context-btn" onclick={ontogglecontext}>
           <BookOpen size={14} />
@@ -108,7 +151,9 @@
           ><Send size={14} /> {sendLabel}</button
         >
       {:else if role === 'TE'}
-        <button class="btn btn-danger" onclick={onwithdraw}><XSquare size={14} /> Trekk</button>
+        {#if sel !== 'frist' || hasFristSubmission}
+          <button class="btn btn-danger" onclick={onwithdraw}><XSquare size={14} /> Trekk</button>
+        {/if}
         {#if sel === 'ansvar'}
           <button class="btn btn-secondary" onclick={() => onform(sel)}>
             <PencilLine size={14} /> Oppdater begrunnelse
@@ -121,6 +166,19 @@
                 : 'Bekreft enighet'}
             </button>
           {/if}
+        {:else if sel === 'frist'}
+          <button
+            class:btn-secondary={hasBhFristResponse}
+            class:btn-primary={!hasBhFristResponse}
+            class="btn"
+            onclick={() => onform(sel)}
+          >
+            <PencilLine size={14} />
+            {teFristActionLabel}
+          </button>
+          {#if hasBhFristResponse}
+            <button class="btn btn-primary"><Check size={14} /> Godta svar</button>
+          {/if}
         {:else if sel !== 'vederlag' || hasBhVederlagResponse}
           <button class="btn btn-primary"><Check size={14} /> Godta svar</button>
         {/if}
@@ -132,7 +190,13 @@
               : hasDraft
                 ? 'Fortsett utfylling'
                 : 'Svar på kravet'
-            : 'Fortsett til utfylling'}
+            : sel === 'frist'
+              ? hasBhFristResponse
+                ? 'Oppdater svar'
+                : hasDraft
+                  ? 'Fortsett utfylling'
+                  : 'Svar på kravet'
+              : 'Fortsett til utfylling'}
           <ArrowRight size={14} />
         </button>
       {/if}
@@ -206,7 +270,11 @@
   .te-grunnlag-actions {
     width: 100%;
   }
-  .te-grunnlag-actions .btn-danger {
+  .te-track-actions {
+    width: 100%;
+  }
+  .te-grunnlag-actions .btn-danger,
+  .te-track-actions .btn-danger {
     margin-right: auto;
   }
   .context-btn {

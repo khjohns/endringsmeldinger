@@ -4,8 +4,12 @@
     beregnCanSubmit,
     beregnTeStatusSummary,
     getDynamicPlaceholder,
+    getDefaults,
   } from '$lib/domain/fristSubmissionDomain';
-  import type { FristSubmissionFormState } from '$lib/domain/fristSubmissionDomain';
+  import type {
+    FristSubmissionFormState,
+    SubmissionScenario,
+  } from '$lib/domain/fristSubmissionDomain';
   import type { FristVarselType } from '$lib/types/timeline';
   import { formatDateShortNorwegian } from '$lib/utils/dateFormatters';
   import { store } from './store.svelte.js';
@@ -24,13 +28,37 @@
     onactions?: (a: { canSend: boolean; sendLabel?: string; send: () => void }) => void;
   } = $props();
 
-  const scenario = 'spesifisering' as const;
+  const existing = store.sak.frist;
+  const scenario: SubmissionScenario =
+    existing.varsel_type === 'spesifisert' && existing.krevd_dager !== undefined
+      ? 'edit'
+      : existing.frist_varsel
+        ? 'spesifisering'
+        : 'new';
   const existingVarselDato = $derived(store.sak.frist.frist_varsel?.dato_sendt);
+  const defaults = getDefaults({
+    scenario,
+    existingVarselDato: existing.frist_varsel?.dato_sendt,
+    existing: existing.varsel_type
+      ? {
+          varsel_type: existing.varsel_type,
+          antall_dager: existing.krevd_dager,
+          begrunnelse: existing.begrunnelse,
+          frist_varsel: existing.frist_varsel?.dato_sendt
+            ? {
+                dato_sendt: existing.frist_varsel.dato_sendt,
+                metode: existing.frist_varsel.metode ?? [],
+              }
+            : undefined,
+          ny_sluttdato: existing.ny_sluttdato,
+        }
+      : undefined,
+  });
 
-  let varselType = $state<FristVarselType | undefined>('spesifisert');
-  let antallDager = $state<number | undefined>();
-  let begrunnelse = $state('');
-  let charCount = $state(0);
+  let varselType = $state<FristVarselType | undefined>(defaults.varselType);
+  let antallDager = $state<number | undefined>(defaults.antallDager || undefined);
+  let begrunnelse = $state(defaults.begrunnelse);
+  let charCount = $state(defaults.begrunnelse.replace(/<[^>]*>/g, '').trim().length);
 
   const visibility = $derived(beregnVisibility({ varselType }, { scenario }));
   const varselDatoLabel = $derived(formatDateShortNorwegian(existingVarselDato));
@@ -52,9 +80,16 @@
   $effect(() => {
     onactions?.({
       canSend: kanSende,
-      sendLabel: varselType === 'varsel' ? 'Send varsel' : 'Send fristkrav',
+      sendLabel:
+        scenario === 'edit'
+          ? 'Send oppdatert krav'
+          : scenario === 'spesifisering'
+            ? 'Send spesifisert krav'
+            : varselType === 'varsel'
+              ? 'Send varsel'
+              : 'Send fristkrav',
       send: () => {
-        store.sendTeFrist(antallDager ?? 0);
+        store.sendTeFrist(antallDager, varselType, begrunnelse);
         onsend();
       },
     });
@@ -66,10 +101,12 @@
 
   <FormPageHeader
     title="Krav om fristforlengelse"
-    intro="Angi kravstype, antall dager og hvordan kontraktsforholdet påvirker fremdriften."
+    intro={scenario === 'edit'
+      ? 'Oppdater antall dager eller begrunnelsen for det innsendte fristkravet.'
+      : 'Angi kravstype, antall dager og hvordan kontraktsforholdet påvirker fremdriften.'}
   />
 
-  {#if existingVarselDato}
+  {#if existingVarselDato && scenario !== 'edit'}
     <section class="prior-notice">
       <div class="prior-notice-header">
         <div>
@@ -88,25 +125,29 @@
     <span class="font-mono standpunkt-ref">§ 33.1</span>
   </div>
 
-  <FormSection title="Kravstype" paragrafRef="§ 33.4 / § 33.6">
-    <SegmentedControl
-      options={visibility.segmentOptions}
-      value={varselType ?? ''}
-      onchange={(value) => (varselType = value as FristVarselType)}
-    />
-    {#if varselType === 'varsel'}
-      <p class="helptext">
-        Varselet registreres med dagens dato. Antall dager kan spesifiseres når grunnlaget for å
-        beregne omfanget foreligger.
-      </p>
-    {:else if varselType === 'spesifisert'}
-      <p class="helptext">
-        Angi det antall dager som kreves, og dokumenter virkningen på fremdriften.
-      </p>
-    {:else if varselType === 'begrunnelse_utsatt'}
-      <p class="helptext">Begrunn hvorfor grunnlaget for å beregne kravet ennå ikke foreligger.</p>
-    {/if}
-  </FormSection>
+  {#if scenario !== 'edit'}
+    <FormSection title="Kravstype" paragrafRef="§ 33.4 / § 33.6">
+      <SegmentedControl
+        options={visibility.segmentOptions}
+        value={varselType ?? ''}
+        onchange={(value) => (varselType = value as FristVarselType)}
+      />
+      {#if varselType === 'varsel'}
+        <p class="helptext">
+          Varselet registreres med dagens dato. Antall dager kan spesifiseres når grunnlaget for å
+          beregne omfanget foreligger.
+        </p>
+      {:else if varselType === 'spesifisert'}
+        <p class="helptext">
+          Angi det antall dager som kreves, og dokumenter virkningen på fremdriften.
+        </p>
+      {:else if varselType === 'begrunnelse_utsatt'}
+        <p class="helptext">
+          Begrunn hvorfor grunnlaget for å beregne kravet ennå ikke foreligger.
+        </p>
+      {/if}
+    </FormSection>
+  {/if}
 
   {#if visibility.showKravSection}
     {#if varselType === 'spesifisert'}
