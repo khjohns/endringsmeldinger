@@ -9,6 +9,7 @@
   import CountUp from './CountUp.svelte';
   import GrunnlagOverview from './GrunnlagOverview.svelte';
   import VederlagOverview from './VederlagOverview.svelte';
+  import FristOverview from './FristOverview.svelte';
   import type { SporKey, Role } from './types.js';
   import type { TimelineEvent } from '$lib/types/timeline';
 
@@ -129,7 +130,11 @@
     <div class="section-heading">
       <div class="heading-row">
         <h2 class="heading-text">
-          {sel === 'vederlag' ? 'Krav om vederlagsjustering' : display.label}
+          {sel === 'vederlag'
+            ? 'Krav om vederlagsjustering'
+            : sel === 'frist'
+              ? 'Krav om fristforlengelse'
+              : display.label}
         </h2>
         {#if isSub}
           <Stamp variant="green" small flat>Subsidiært</Stamp>
@@ -168,6 +173,8 @@
       <GrunnlagOverview onform={() => onform(sel)} />
     {:else if sel === 'vederlag'}
       <VederlagOverview onform={() => onform(sel)} />
+    {:else if sel === 'frist'}
+      <FristOverview onform={() => onform(sel)} />
     {:else if expandedSide === 'te'}
       <div class="card-full">
         <div class="reading-party">
