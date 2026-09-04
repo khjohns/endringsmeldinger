@@ -454,6 +454,7 @@
     subsidiaerGodkjentDager={computed.visSubsidiaertResultat ? godkjentDager : undefined}
     {sendForesporsel}
     erRedusert={computed.erRedusert}
+    erPrekludert={computed.erPrekludert}
   />
 
   <!-- Forsering-risiko -->

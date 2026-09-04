@@ -233,13 +233,13 @@ describe('beregnReduksjon', () => {
     ).toBe(true);
   });
 
-  it('returns false when fristVarselOk is false (prekludert, not reduced)', () => {
+  it('retains §33.6.1 as a subsidiary limitation when §33.4 is also precluded', () => {
     expect(
       beregnReduksjon(
         makeState({ fristVarselOk: false, spesifisertKravOk: false }),
         makeConfig({ varselType: 'spesifisert', harTidligereVarselITide: false })
       )
-    ).toBe(false);
+    ).toBe(true);
   });
 
   it('returns false for svar pa foresporsel', () => {
@@ -434,6 +434,17 @@ describe('beregnSubsidiaerTriggers', () => {
     expect(triggers).toContain('ingen_hindring');
   });
 
+  it('includes reduksjon_spesifisert when §33.6.1 is invoked', () => {
+    const triggers = beregnSubsidiaerTriggers({
+      erGrunnlagSubsidiaer: false,
+      erPrekludert: true,
+      erRedusert: true,
+      harHindring: true,
+    });
+    expect(triggers).toContain('preklusjon_varsel');
+    expect(triggers).toContain('reduksjon_spesifisert');
+  });
+
   it('includes all triggers when all conditions met', () => {
     const triggers = beregnSubsidiaerTriggers({
       erGrunnlagSubsidiaer: true,
@@ -574,5 +585,19 @@ describe('beregnAlt', () => {
     expect(computed.subsidiaerTriggers).toContain('preklusjon_varsel');
     expect(computed.port2ErSubsidiaer).toBe(true);
     expect(computed.port3ErSubsidiaer).toBe(true);
+  });
+
+  it('retains the §33.6.1 limitation when both notice stages are late', () => {
+    const state = makeState({ fristVarselOk: false, spesifisertKravOk: false });
+    const config = makeConfig({
+      varselType: 'spesifisert',
+      harTidligereVarselITide: false,
+    });
+    const computed = beregnAlt(state, config);
+
+    expect(computed.erPrekludert).toBe(true);
+    expect(computed.erRedusert).toBe(true);
+    expect(computed.subsidiaerTriggers).toContain('preklusjon_varsel');
+    expect(computed.subsidiaerTriggers).toContain('reduksjon_spesifisert');
   });
 });

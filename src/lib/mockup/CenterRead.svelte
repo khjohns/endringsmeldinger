@@ -8,6 +8,7 @@
   import Stamp from './Stamp.svelte';
   import CountUp from './CountUp.svelte';
   import GrunnlagOverview from './GrunnlagOverview.svelte';
+  import VederlagOverview from './VederlagOverview.svelte';
   import type { SporKey, Role } from './types.js';
   import type { TimelineEvent } from '$lib/types/timeline';
 
@@ -127,7 +128,9 @@
     <!-- Section heading -->
     <div class="section-heading">
       <div class="heading-row">
-        <h2 class="heading-text">{display.label}</h2>
+        <h2 class="heading-text">
+          {sel === 'vederlag' ? 'Krav om vederlagsjustering' : display.label}
+        </h2>
         {#if isSub}
           <Stamp variant="green" small flat>Subsidiært</Stamp>
         {/if}
@@ -163,6 +166,8 @@
       </div>
     {:else if sel === 'ansvar'}
       <GrunnlagOverview onform={() => onform(sel)} />
+    {:else if sel === 'vederlag'}
+      <VederlagOverview onform={() => onform(sel)} />
     {:else if expandedSide === 'te'}
       <div class="card-full">
         <div class="reading-party">
@@ -345,12 +350,12 @@
   .sub-notice-top {
     display: flex;
     align-items: flex-start;
-    gap: 10px;
-    padding: 14px;
+    gap: 11px;
+    padding: 11px 14px;
     background: var(--green-bg);
     border: 1px solid var(--green-border);
     border-radius: 12px;
-    margin-bottom: 20px;
+    margin-bottom: 16px;
   }
   .sub-diamond-inline {
     width: 11px;

@@ -98,16 +98,16 @@ function generateFristPreklusjonSection(input: FristResponseInput): string {
 
   if (input.erPrekludert) {
     const prinsipaltTekst =
-      'Kravet avvises prinsipalt som prekludert iht. §33.4, ' +
-      'da varsel ikke ble fremsatt «uten ugrunnet opphold» ' +
-      'etter at entreprenøren ble eller burde blitt klar over forholdet.';
+      'Byggherren gjør gjeldende at varselet ikke ble fremsatt «uten ugrunnet opphold». ' +
+      'Kravet er derfor prinsipalt tapt etter §33.4. Innsigelsen om sen varsling ' +
+      'fremsettes med dette svaret, jf. §5.';
 
     if (input.erRedusert_33_6_1) {
       return (
         prinsipaltTekst +
-        ' Subsidiært bemerkes at selv om §33.4-fristen ikke anses oversittet, ' +
-        'ble det spesifiserte kravet uansett fremsatt for sent iht. §33.6.1. ' +
-        'Entreprenøren ville da kun hatt krav på det byggherren måtte forstå at han hadde krav på.'
+        ' Subsidiært, dersom varselet likevel anses rettidig, gjør byggherren gjeldende at ' +
+        'det spesifiserte kravet ble fremsatt for sent iht. §33.6.1. Kravet er da begrenset ' +
+        'til den fristforlengelsen byggherren måtte forstå at entreprenøren hadde krav på.'
       );
     }
 
@@ -116,9 +116,9 @@ function generateFristPreklusjonSection(input: FristResponseInput): string {
 
   if (input.erRedusert_33_6_1) {
     return (
-      'Kravet om fristforlengelse ble ikke fremsatt «uten ugrunnet opphold» etter at grunnlaget ' +
-      'for å beregne kravet forelå (§33.6.1). Entreprenøren har dermed bare krav på slik ' +
-      'fristforlengelse som byggherren måtte forstå at han hadde krav på.'
+      'Byggherren gjør gjeldende at det spesifiserte kravet ikke ble fremsatt «uten ugrunnet ' +
+      'opphold» etter at beregningsgrunnlaget forelå (§33.6.1). Kravet er derfor begrenset ' +
+      'til den fristforlengelsen byggherren måtte forstå at entreprenøren hadde krav på.'
     );
   }
 

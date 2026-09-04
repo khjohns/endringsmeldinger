@@ -80,6 +80,7 @@
         {@const display = store.display(t.id)}
         {@const on = sel === t.id}
         {@const hasDraft = store.getUI(t.id).draft !== null}
+        {@const isUnansweredVederlag = t.id === 'vederlag' && !store.sak.vederlag.bh_resultat}
         {@const contractLabel =
           t.id === 'ansvar' ? getHjemmelLabel(store.sak.grunnlag.underkategori) : null}
         <div
@@ -123,22 +124,28 @@
               <div class="font-mono claimed">
                 Krevd: {fmt(display.krevdValue!)}{display.krevdUnit}
               </div>
-              <DualBar
-                te={display.krevdValue!}
-                sub={display.bhSubsidiaer!}
-                prin={display.bhPrinsipal!}
-              />
-              <div class="gap-box">
-                <span class="font-mono gap-label">GAP</span>
-                <div class="gap-values">
-                  <span class="font-mono gap-sub"
-                    >s. {fmt(display.krevdValue! - display.bhSubsidiaer!)}{display.krevdUnit}</span
-                  >
-                  <span class="font-mono gap-prin"
-                    >p. {fmt(display.krevdValue! - display.bhPrinsipal!)}{display.krevdUnit}</span
-                  >
+              {#if isUnansweredVederlag}
+                <div class="awaiting-response">Avventer byggherrens svar</div>
+              {:else}
+                <DualBar
+                  te={display.krevdValue!}
+                  sub={display.bhSubsidiaer!}
+                  prin={display.bhPrinsipal!}
+                />
+                <div class="gap-box">
+                  <span class="font-mono gap-label">GAP</span>
+                  <div class="gap-values">
+                    <span class="font-mono gap-sub"
+                      >s. {fmt(
+                        display.krevdValue! - display.bhSubsidiaer!
+                      )}{display.krevdUnit}</span
+                    >
+                    <span class="font-mono gap-prin"
+                      >p. {fmt(display.krevdValue! - display.bhPrinsipal!)}{display.krevdUnit}</span
+                    >
+                  </div>
                 </div>
-              </div>
+              {/if}
             </div>
           {:else}
             <div class="binary-row">
@@ -311,6 +318,15 @@
     font-size: 12px;
     font-weight: 600;
     margin-bottom: 8px;
+  }
+  .awaiting-response {
+    padding: 7px 9px;
+    font-size: 11px;
+    line-height: 1.4;
+    color: var(--sidebar-muted);
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(242, 247, 244, 0.08);
+    border-radius: 6px;
   }
   .m-row {
     padding: 10px;
