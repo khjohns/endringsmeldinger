@@ -128,6 +128,7 @@
   {#if scenario !== 'edit'}
     <FormSection title="Kravstype" paragrafRef="§ 33.4 / § 33.6">
       <SegmentedControl
+        label="Kravstype"
         options={visibility.segmentOptions}
         value={varselType ?? ''}
         onchange={(value) => (varselType = value as FristVarselType)}

@@ -1,4 +1,6 @@
 <script lang="ts">
+  import SegmentedControl from '$lib/components/primitives/SegmentedControl.svelte';
+  import YesNoControl from './components/YesNoControl.svelte';
   import { BookOpen, Check, ChevronUp, X, Undo2 } from 'lucide-svelte';
   import {
     erEndringMed32_2,
@@ -13,7 +15,6 @@
   import { store } from './store.svelte.js';
   import { TRACK_ICONS } from './data.js';
   import CaseAnchor from './CaseAnchor.svelte';
-  import { toggleChoice } from './utils.js';
 
   let {
     domainConfig,
@@ -90,18 +91,7 @@
       <span class="font-mono question-ref">{ref}</span>
     </div>
     <p class="question-text">{text}</p>
-    <div class="pill-row">
-      <button
-        class="pill"
-        class:yes={answer === true}
-        onclick={() => onset(toggleChoice(answer, true))}>{yesText}</button
-      >
-      <button
-        class="pill"
-        class:no={answer === false}
-        onclick={() => onset(toggleChoice(answer, false))}>{noText}</button
-      >
-    </div>
+    <YesNoControl value={answer} {yesText} {noText} {label} onchange={onset} />
   </div>
 {/snippet}
 
@@ -169,30 +159,25 @@
     {#if prekludert}
       <span class="subsidiaer-chip">Subsidiært</span>
     {/if}
-    <div class="verdict-row">
-      {#each verdictOptions as opt}
-        <button
-          class="verdict-btn"
-          class:active={resultat === opt.value}
-          class:green={opt.colorScheme === 'green' && resultat === opt.value}
-          class:red={opt.colorScheme === 'red' && resultat === opt.value}
-          class:gray={opt.colorScheme === 'gray' && resultat === opt.value}
-          onclick={() => (resultat = resultat === opt.value ? undefined : opt.value)}
-        >
-          {#if opt.icon === 'check'}<Check size={14} />
-          {:else if opt.icon === 'cross'}<X size={14} />
-          {:else}<Undo2 size={14} />
-          {/if}
-          <span>
-            {opt.value === 'godkjent'
-              ? 'Anerkjent'
-              : opt.value === 'avslatt'
-                ? 'Bestridt'
-                : opt.label}
-          </span>
-        </button>
-      {/each}
-    </div>
+    <SegmentedControl
+      variant="mockup"
+      label="Kontraktsmessig grunnlag"
+      value={resultat}
+      options={verdictOptions.map((opt) => ({
+        id: opt.value,
+        label:
+          opt.value === 'godkjent' ? 'Anerkjent' : opt.value === 'avslatt' ? 'Bestridt' : opt.label,
+        icon: opt.icon === 'check' ? Check : opt.icon === 'cross' ? X : Undo2,
+        tone:
+          opt.colorScheme === 'green'
+            ? 'success'
+            : opt.colorScheme === 'red'
+              ? 'danger'
+              : 'neutral',
+      }))}
+      onchange={(value) => (resultat = value)}
+      onclear={() => (resultat = undefined)}
+    />
   </div>
 
   {#if allAnswered}
@@ -358,69 +343,6 @@
     color: var(--ink-3);
     border-bottom: 1px solid var(--color-wire);
   }
-  .pill-row {
-    display: inline-flex;
-    gap: 3px;
-    width: fit-content;
-    padding: 3px;
-    background: var(--surface-inset);
-    border: var(--rule-strong);
-    border-radius: 999px;
-  }
-  .pill-row :global(.pill) {
-    min-height: 34px;
-    padding: 7px 14px;
-    background: transparent;
-    border: 0;
-  }
-  .verdict-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-top: 14px;
-  }
-  .verdict-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 7px;
-    min-width: 130px;
-    min-height: 42px;
-    padding: 9px 16px;
-    font-family: var(--font-sans);
-    font-size: 13px;
-    font-weight: 650;
-    color: var(--ink-2);
-    background: var(--surface);
-    border: var(--rule-strong);
-    border-radius: 999px;
-    cursor: pointer;
-    transition:
-      color 120ms,
-      background 120ms,
-      border-color 120ms;
-  }
-  .verdict-btn:hover:not(.active) {
-    background: var(--surface-warm);
-    border-color: var(--ink-3);
-    color: var(--ink);
-  }
-  .verdict-btn.green {
-    color: var(--success);
-    background: var(--success-bg);
-    border-color: var(--success);
-  }
-  .verdict-btn.red {
-    color: var(--danger);
-    background: var(--danger-bg);
-    border-color: var(--danger);
-  }
-  .verdict-btn.gray {
-    color: var(--ink-2);
-    background: var(--surface-inset);
-    border-color: var(--ink-3);
-  }
-
   .subsidiaer-chip {
     display: inline-flex;
     width: fit-content;
@@ -478,10 +400,6 @@
   @media (max-width: 768px) {
     .form-title-row h1 {
       font-size: 25px;
-    }
-    .verdict-btn {
-      flex: 1;
-      min-width: 120px;
     }
   }
 </style>

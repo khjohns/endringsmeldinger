@@ -102,6 +102,7 @@
 
   <FormSection title="Beregningsmetode" paragrafRef="§ 34.2">
     <SegmentedControl
+      label="Beregningsmetode"
       options={METODE_OPTIONS}
       value={metode}
       onchange={(value) => (metode = value as VederlagsMetode)}

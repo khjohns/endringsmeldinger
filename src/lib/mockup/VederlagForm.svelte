@@ -1,4 +1,6 @@
 <script lang="ts">
+  import SegmentedControl from '$lib/components/primitives/SegmentedControl.svelte';
+  import YesNoControl from './components/YesNoControl.svelte';
   import { Check, X, CircleMinus } from 'lucide-svelte';
   import {
     beregnAlt,
@@ -33,7 +35,6 @@
   import { fmt, sporResultatLabel } from './utils.js';
   import Stamp from './Stamp.svelte';
   import CaseAnchor from './CaseAnchor.svelte';
-  import { toggleChoice } from './utils.js';
 
   let {
     domainConfig,
@@ -487,20 +488,7 @@
   <div class="question-block">
     <SectionHeading title={label} paragrafRef={ref} />
     <p class="question-text">{text}</p>
-    <div class="segment-row">
-      <button
-        class="segment-btn"
-        class:segment-active={answer === true}
-        class:seg-yes={answer === true}
-        onclick={() => onset(toggleChoice(answer, true))}>{yesText}</button
-      >
-      <button
-        class="segment-btn"
-        class:segment-active={answer === false}
-        class:seg-no={answer === false}
-        onclick={() => onset(toggleChoice(answer, false))}>{noText}</button
-      >
-    </div>
+    <YesNoControl value={answer} {yesText} {noText} {label} onchange={onset} />
     {#if answer === false && opts?.alertText}
       <p class="font-serif consequence-text">{opts.alertText}</p>
     {/if}
@@ -607,18 +595,14 @@
     {#if akseptererMetode === false}
       <div class="foretrukket-metode">
         <span class="foretrukket-label">Foretrukket metode:</span>
-        <div class="segment-row">
-          {#each metodeAlternativer as alt (alt.value)}
-            <button
-              class="segment-btn"
-              class:segment-active={oensketMetode === alt.value}
-              onclick={() =>
-                (oensketMetode =
-                  oensketMetode === alt.value ? undefined : (alt.value as VederlagsMetode))}
-              >{alt.label}</button
-            >
-          {/each}
-        </div>
+        <SegmentedControl
+          variant="mockup"
+          label="Foretrukket metode"
+          value={oensketMetode}
+          options={metodeAlternativer.map((alt) => ({ id: alt.value, label: alt.label }))}
+          onchange={(value) => (oensketMetode = value as VederlagsMetode)}
+          onclear={() => (oensketMetode = undefined)}
+        />
       </div>
     {/if}
 
@@ -632,28 +616,19 @@
               >Krevd: <strong>{fmt(linje.krevdBelop ?? 0)}</strong> kr</span
             >
           </div>
-          <div class="segment-row">
-            {#each vurderingOptions as opt (opt.value)}
-              {@const Icon = opt.icon}
-              <button
-                class="segment-btn"
-                class:segment-active={linje.vurdering === opt.value}
-                class:seg-yes={opt.cls === 'yes' && linje.vurdering === opt.value}
-                class:seg-partial={opt.cls === 'partial' && linje.vurdering === opt.value}
-                class:seg-no={opt.cls === 'no' && linje.vurdering === opt.value}
-                onclick={() =>
-                  handleKravlinjeVurdering(
-                    linje.key,
-                    linje.vurdering === opt.value ? undefined : opt.value
-                  )}
-              >
-                {#if Icon}
-                  <Icon size={12} strokeWidth={2.5} />
-                {/if}
-                {opt.label}</button
-              >
-            {/each}
-          </div>
+          <SegmentedControl
+            variant="mockup"
+            label={linje.title}
+            value={linje.vurdering}
+            options={vurderingOptions.map((opt) => ({
+              id: opt.value,
+              label: opt.label,
+              icon: opt.icon ?? undefined,
+              tone: opt.cls === 'yes' ? 'success' : opt.cls === 'partial' ? 'warning' : 'danger',
+            }))}
+            onchange={(value) => handleKravlinjeVurdering(linje.key, value)}
+            onclear={() => handleKravlinjeVurdering(linje.key, undefined)}
+          />
           {#if linje.vurdering === 'delvis'}
             <div class="number-field">
               <div class="number-input-label">Godkjent beløp</div>
@@ -816,22 +791,13 @@
                 <span class="preklusjons-meta">{linje.submissionMeta}</span>
               {/if}
             </span>
-            <div class="segment-row">
-              <button
-                class="segment-btn"
-                class:segment-active={linje.value === true}
-                class:seg-yes={linje.value === true}
-                onclick={() => handlePreklusjon(linje.key, toggleChoice(linje.value, true))}
-                >Ja, i tide</button
-              >
-              <button
-                class="segment-btn"
-                class:segment-active={linje.value === false}
-                class:seg-no={linje.value === false}
-                onclick={() => handlePreklusjon(linje.key, toggleChoice(linje.value, false))}
-                >Nei, prekludert</button
-              >
-            </div>
+            <YesNoControl
+              value={linje.value}
+              label={linje.label}
+              yesText="Ja, i tide"
+              noText="Nei, prekludert"
+              onchange={(value) => handlePreklusjon(linje.key, value)}
+            />
           </div>
         {/each}
       </div>
@@ -1321,60 +1287,5 @@
     margin-top: 3px;
     font-size: 11px;
     color: var(--ink-4);
-  }
-
-  /* ── Segment buttons ── */
-  .segment-row {
-    display: inline-flex;
-    flex-wrap: wrap;
-    gap: 3px;
-    width: fit-content;
-    padding: 3px;
-    background: var(--surface-inset);
-    border: var(--rule-strong);
-    border-radius: 999px;
-  }
-  .segment-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    padding: 7px 14px;
-    min-height: 34px;
-    font-family: var(--font-sans);
-    font-size: 13px;
-    font-weight: 600;
-    background: transparent;
-    color: var(--ink-3);
-    border: none;
-    border-radius: 999px;
-    cursor: pointer;
-    transition:
-      background 120ms,
-      color 120ms,
-      box-shadow 120ms;
-    white-space: nowrap;
-    line-height: 1;
-  }
-  .segment-btn:hover:not(.segment-active) {
-    background: var(--surface);
-    color: var(--ink);
-  }
-  .segment-active {
-    background: var(--brand-2);
-    color: white;
-    box-shadow: 0 1px 2px rgba(27, 42, 34, 0.12);
-  }
-  .segment-active.seg-yes {
-    background: var(--success);
-    color: white;
-  }
-  .segment-active.seg-no {
-    background: var(--danger);
-    color: white;
-  }
-  .segment-active.seg-partial {
-    background: var(--warning);
-    color: white;
   }
 </style>
