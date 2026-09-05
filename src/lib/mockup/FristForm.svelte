@@ -1,5 +1,7 @@
 <script lang="ts">
-  import { AlertTriangle, Check, CircleMinus, RefreshCw, X } from 'lucide-svelte';
+  import { AlertTriangle, Check, CircleMinus, Clock3, RefreshCw, X } from 'lucide-svelte';
+  import ExpandableReasoning from '$lib/components/patterns/ExpandableReasoning.svelte';
+  import StatementCard from '$lib/components/patterns/StatementCard.svelte';
   import { beregnAlt } from '$lib/domain/fristDomain';
   import type { FristDomainConfig, FristFormState } from '$lib/domain/fristDomain';
   import { generateFristResponseBegrunnelse } from '$lib/domain/begrunnelse/fristBegrunnelse';
@@ -40,12 +42,6 @@
   let prevHtml: string | undefined;
   let charCount = $state(0);
 
-  let begrunnelseUtvidet = $state(false);
-  let begrunnelseEl = $state<HTMLElement | null>(null);
-  const erBegrunnelseAvkortet = $derived(
-    begrunnelseEl ? begrunnelseEl.scrollHeight > begrunnelseEl.clientHeight : false
-  );
-
   const formState: FristFormState = $derived({
     fristVarselOk,
     spesifisertKravOk,
@@ -66,12 +62,6 @@
   const isSubsidiaer = $derived(
     isHelSubsidiaer || hasPartialSubsidiaer || hasForesporselSubsidiaer
   );
-
-  const varselTypeLabel = $derived.by(() => {
-    if (domainConfig.varselType === 'varsel') return 'Foreløpig varsel';
-    if (domainConfig.varselType === 'begrunnelse_utsatt') return 'Begrunnelse for utsatt beregning';
-    return 'Spesifisert krav';
-  });
 
   const submissionMeta = $derived.by(() => {
     const events = store.timeline.filter(
@@ -252,60 +242,55 @@
     intro="Vurder varsling, årsakssammenheng og hvor mange dager byggherren godkjenner."
   />
 
-  <section class="sammendrag">
-    <div class="sammendrag-header">
-      <div>
-        <span class="sammendrag-eyebrow">Entreprenørens krav</span>
-        <h2>{store.teNavn}</h2>
-      </div>
-      <span class="font-mono sammendrag-ref">§ 33.1</span>
-    </div>
+  <div class="claim-overview">
+    <StatementCard
+      eyebrow="Totalentreprenørens krav"
+      partyName={store.teNavn}
+      reference="§ 33.4 / § 33.6.1"
+    >
+      {#snippet icon()}<Clock3 size={14} />{/snippet}
 
-    <div class="sammendrag-krav">
-      <div class="sammendrag-type">
-        <span class="sammendrag-label">Kravstype</span>
-        <span class="sammendrag-verdi">{varselTypeLabel}</span>
-      </div>
-      <div class="sammendrag-dager">
-        <span class="sammendrag-label">Krevd fristforlengelse</span>
-        <strong class="font-mono">{domainConfig.krevdDager} dager</strong>
-      </div>
-      <div class="sammendrag-datoer">
-        {#if submissionMeta.forelopig}
-          <span><strong>Foreløpig varsel</strong>{submissionMeta.forelopig}</span>
+      <div class="claim-summary">
+        {#if domainConfig.varselType === 'spesifisert'}
+          <div class="primary-days">
+            <span class="sammendrag-label">Krevd fristforlengelse</span>
+            <strong class="font-mono">{domainConfig.krevdDager} dager</strong>
+          </div>
+        {:else if domainConfig.varselType === 'begrunnelse_utsatt'}
+          <div class="notice-hero">
+            <span class="sammendrag-label">Foreløpig krav om fristforlengelse</span>
+            <strong>Fristvirkningen beregnes senere</strong>
+            <p>Entreprenøren har begrunnet hvorfor antall dager ennå ikke kan spesifiseres.</p>
+          </div>
+        {:else}
+          <div class="notice-hero">
+            <span class="sammendrag-label">Varsel om fristforlengelse</span>
+            <strong>Foreløpig varsel</strong>
+            <p>Antall dager er ikke spesifisert ennå.</p>
+          </div>
         {/if}
-        {#if submissionMeta.spesifisert}
-          <span><strong>Spesifisert krav</strong>{submissionMeta.spesifisert}</span>
-        {/if}
-        {#if submissionMeta.latest}
-          <span><strong>Gjeldende versjon</strong>{submissionMeta.latest}</span>
-        {/if}
       </div>
-    </div>
 
-    {#if store.display('frist').teText}
-      <div class="sammendrag-begrunnelse-panel">
-        <span class="sammendrag-label">Entreprenørens begrunnelse</span>
-        <div
-          class="sammendrag-begrunnelse"
-          class:avkortet={!begrunnelseUtvidet}
-          bind:this={begrunnelseEl}
-        >
-          <p>{store.display('frist').teText}</p>
+      {#if submissionMeta.forelopig || submissionMeta.spesifisert || submissionMeta.latest}
+        <div class="sammendrag-datoer">
+          {#if submissionMeta.forelopig}
+            <span><strong>Foreløpig varsel</strong>{submissionMeta.forelopig}</span>
+          {/if}
+          {#if submissionMeta.spesifisert}
+            <span><strong>Spesifisert krav</strong>{submissionMeta.spesifisert}</span>
+          {/if}
+          {#if submissionMeta.latest}
+            <span><strong>Gjeldende versjon</strong>{submissionMeta.latest}</span>
+          {/if}
         </div>
-        {#if erBegrunnelseAvkortet || begrunnelseUtvidet}
-          <button
-            type="button"
-            class="vis-mer-btn"
-            aria-expanded={begrunnelseUtvidet}
-            onclick={() => (begrunnelseUtvidet = !begrunnelseUtvidet)}
-          >
-            {begrunnelseUtvidet ? 'Vis mindre' : 'Vis hele begrunnelsen'}
-          </button>
-        {/if}
-      </div>
-    {/if}
-  </section>
+      {/if}
+
+      <ExpandableReasoning
+        label="Entreprenørens begrunnelse"
+        html={store.display('frist').teText}
+      />
+    </StatementCard>
+  </div>
 
   {#if isHelSubsidiaer && subsidiærNotice}
     <div class="subsidiaer-notice">
@@ -528,75 +513,50 @@
 </div>
 
 <style>
-  .sammendrag {
+  .claim-overview {
     margin-bottom: 32px;
-    overflow: hidden;
-    background: var(--surface);
-    border: var(--rule);
-    border-radius: 12px;
-    box-shadow: var(--overlay-shadow-sm);
   }
-  .sammendrag-header {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 16px;
-    padding: 14px 16px;
-    border-bottom: var(--rule);
+  .claim-overview :global(.statement-card) {
+    margin-bottom: 0;
   }
-  .sammendrag-header > div {
-    display: flex;
-    flex-direction: column;
-    gap: 3px;
-  }
-  .sammendrag-eyebrow,
-  .sammendrag-label {
-    font-size: 10px;
-    font-weight: 600;
-    line-height: 1.3;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: var(--ink-4);
-  }
-  .sammendrag-header h2 {
-    margin: 0;
-    font-size: 13px;
-    font-weight: 700;
-    line-height: 1.35;
-    text-transform: uppercase;
-    letter-spacing: 0.02em;
-    color: var(--ink);
-  }
-  .sammendrag-ref {
-    flex: none;
-    font-size: 11px;
-    color: var(--ink-4);
-  }
-  .sammendrag-krav {
-    display: grid;
-    grid-template-columns: minmax(150px, 0.8fr) minmax(180px, 1fr);
-    gap: 12px 28px;
-    padding: 16px;
+  .claim-summary {
+    padding: 18px 24px;
     background: var(--surface-warm);
   }
-  .sammendrag-type,
-  .sammendrag-dager {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
+  .sammendrag-label {
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1.3;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--ink-4);
   }
-  .sammendrag-verdi,
-  .sammendrag-dager strong {
-    font-size: 14px;
-    line-height: 1.4;
+  .primary-days strong {
+    display: block;
+    margin-top: 7px;
+    font-size: 30px;
+    line-height: 1.1;
+    letter-spacing: 0.02em;
+  }
+  .notice-hero strong {
+    display: block;
+    margin-top: 7px;
+    font-size: 20px;
+    line-height: 1.3;
     color: var(--ink);
   }
+  .notice-hero p {
+    margin: 6px 0 0;
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--ink-3);
+  }
   .sammendrag-datoer {
-    grid-column: 1 / -1;
     display: flex;
     flex-wrap: wrap;
     gap: 8px 20px;
-    padding-top: 12px;
+    padding: 13px 24px;
+    background: var(--surface-warm);
     border-top: var(--rule);
   }
   .sammendrag-datoer span {
@@ -609,36 +569,6 @@
     font-weight: 600;
     color: var(--ink-3);
   }
-  .sammendrag-begrunnelse-panel {
-    display: flex;
-    flex-direction: column;
-    gap: 9px;
-    padding: 16px;
-    border-top: var(--rule);
-  }
-  .sammendrag-begrunnelse {
-    overflow: hidden;
-    font-size: 14px;
-    line-height: 1.65;
-    color: var(--ink-2);
-  }
-  .sammendrag-begrunnelse p {
-    margin: 0;
-  }
-  .sammendrag-begrunnelse.avkortet {
-    max-height: calc(1.65em * 8);
-  }
-  .vis-mer-btn {
-    width: fit-content;
-    padding: 0;
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--green);
-    background: none;
-    border: none;
-    cursor: pointer;
-  }
-
   .standpunkt-heading,
   .question-card-heading {
     display: flex;
@@ -952,11 +882,7 @@
   }
 
   @media (max-width: 720px) {
-    .sammendrag-krav {
-      grid-template-columns: 1fr;
-    }
     .sammendrag-datoer {
-      grid-column: auto;
       flex-direction: column;
     }
     .preklusjons-rad {
