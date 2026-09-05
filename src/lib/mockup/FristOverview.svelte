@@ -1,12 +1,13 @@
 <script lang="ts">
   import { Clock3 } from 'lucide-svelte';
   import ExpandableReasoning from '$lib/components/patterns/ExpandableReasoning.svelte';
+  import InternalDraftCard from '$lib/components/patterns/InternalDraftCard.svelte';
+  import PendingResponseCard from '$lib/components/patterns/PendingResponseCard.svelte';
   import StatementCard from '$lib/components/patterns/StatementCard.svelte';
   import type { ResponsFristEventData } from '$lib/types/timeline.js';
   import { formatDateShortNorwegian } from '$lib/utils/dateFormatters.js';
   import { store } from './store.svelte.js';
   import { fmt, sporResultatLabel } from './utils.js';
-  import Stamp from './Stamp.svelte';
 
   let { onform }: { onform: () => void } = $props();
 
@@ -215,14 +216,12 @@
     {/if}
   </StatementCard>
 {:else}
-  <section class="pending-card">
-    <span class="pending-icon"><Clock3 size={16} /></span>
-    <div>
-      <span class="eyebrow">Byggherrens standpunkt</span>
-      <h3>Avventer svar fra {store.bhNavn}</h3>
-      <p>Det er ikke registrert noen vurdering av dagkravet eller begrunnelse fra byggherren.</p>
-    </div>
-  </section>
+  <div class="pending-response">
+    <PendingResponseCard
+      partyName={store.bhNavn}
+      description="Det er ikke registrert noen vurdering av dagkravet eller begrunnelse fra byggherren."
+    />
+  </div>
 {/if}
 
 {#if hasUsefulPositionOverview}
@@ -272,18 +271,13 @@
 {/if}
 
 {#if ui.draft}
-  <button class="draft-card" onclick={onform}>
-    <span class="draft-content">
-      <span class="draft-heading">
-        <Stamp variant="draft" small flat>Kladd</Stamp>
-        <span>Internt — ikke synlig for motpart</span>
-        {#if ui.draft.value}
-          <strong class="font-mono draft-value">{fmt(ui.draft.value)} dager</strong>
-        {/if}
-      </span>
-      <span class="draft-text">{ui.draft.text}</span>
-    </span>
-  </button>
+  <div class="draft-note">
+    <InternalDraftCard
+      text={ui.draft.text}
+      value={ui.draft.value !== undefined ? `${fmt(ui.draft.value)} dager` : undefined}
+      onopen={onform}
+    />
+  </div>
 {/if}
 
 <style>
@@ -295,12 +289,6 @@
     letter-spacing: 0.07em;
     text-transform: uppercase;
     color: var(--ink-4);
-  }
-  h3 {
-    margin: 4px 0 0;
-    font-size: 14px;
-    line-height: 1.4;
-    color: var(--ink);
   }
   .claim-summary,
   .response-summary {
@@ -417,35 +405,8 @@
     background: var(--danger-bg);
     border-color: var(--danger-border);
   }
-  .pending-card {
-    display: flex;
-    align-items: flex-start;
-    gap: 13px;
+  .pending-response {
     margin-bottom: 20px;
-    padding: 18px 20px;
-    background: var(--surface);
-    border: var(--rule);
-    border-radius: 12px;
-  }
-  .pending-icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 30px;
-    height: 30px;
-    flex: none;
-    color: var(--ink-3);
-    background: var(--surface-inset);
-    border-radius: 999px;
-  }
-  .pending-card h3 {
-    margin-top: 3px;
-  }
-  .pending-card p {
-    margin: 4px 0 0;
-    font-size: 12px;
-    line-height: 1.5;
-    color: var(--ink-3);
   }
   .position-card {
     margin-bottom: 20px;
@@ -513,42 +474,8 @@
   .position-gap {
     background: #d06b60;
   }
-  .draft-card {
-    display: flex;
-    width: 100%;
+  .draft-note {
     margin-bottom: 20px;
-    padding: 15px 16px;
-    text-align: left;
-    font-family: var(--font-sans);
-    color: var(--draft);
-    background: var(--draft-bg);
-    border: 1.5px dashed var(--draft-border);
-    border-radius: 12px;
-    cursor: pointer;
-  }
-  .draft-card:hover {
-    border-color: var(--draft);
-  }
-  .draft-content {
-    min-width: 0;
-    width: 100%;
-  }
-  .draft-heading {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 12px;
-    font-weight: 600;
-  }
-  .draft-value {
-    margin-left: auto;
-    font-size: 13px;
-  }
-  .draft-text {
-    display: block;
-    margin-top: 9px;
-    font-size: 13px;
-    line-height: 1.55;
   }
 
   @media (max-width: 640px) {

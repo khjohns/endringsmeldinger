@@ -26,6 +26,7 @@
   import type { VederlagsMetode } from '$lib/types/timeline';
   import RichTextEditor from '$lib/components/primitives/RichTextEditor.svelte';
   import SectionHeading from '$lib/components/primitives/SectionHeading.svelte';
+  import StandpointHeading from '$lib/components/patterns/StandpointHeading.svelte';
   import LockedValueNode from '$lib/editor/LockedValueNode';
   import { RefreshCw } from 'lucide-svelte';
   import { store } from './store.svelte.js';
@@ -800,12 +801,7 @@
   {/snippet}
 
   {#snippet formBody()}
-    <div class="standpunkt-heading">
-      <span class="standpunkt-title">Byggherrens standpunkt</span>
-      {#if isSubsidiaer}
-        <span class="subsidiaer-chip">Subsidiært</span>
-      {/if}
-    </div>
+    <StandpointHeading subsidiary={isSubsidiaer} />
 
     <!-- Preklusjon (data-drevet, segment buttons) -->
     {#if computed.harPreklusjonsSteg}
@@ -894,23 +890,6 @@
     background: var(--brand);
     border-radius: 1px;
     transform: rotate(45deg);
-  }
-
-  .standpunkt-heading {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    margin: 4px 0 16px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid var(--color-wire);
-  }
-  .standpunkt-title {
-    font-size: 12px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: var(--ink-3);
   }
 
   /* ── TE's vederlagskrav-sammendrag ── */
