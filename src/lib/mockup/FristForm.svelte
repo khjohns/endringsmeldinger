@@ -9,7 +9,8 @@
   import { tokensToHtml } from '$lib/editor/tokenConverter';
   import LockedValueNode from '$lib/editor/LockedValueNode';
   import RichTextEditor from '$lib/components/primitives/RichTextEditor.svelte';
-  import SectionHeading from '$lib/components/primitives/SectionHeading.svelte';
+  import QuestionCard from '$lib/components/patterns/QuestionCard.svelte';
+  import StandpointHeading from '$lib/components/patterns/StandpointHeading.svelte';
   import { isHtmlEmpty } from '$lib/utils/formatters';
   import { formatDateShortNorwegian } from '$lib/utils/dateFormatters';
   import { store } from './store.svelte.js';
@@ -299,18 +300,14 @@
     </div>
   {/if}
 
-  <div class="standpunkt-heading">
-    <span class="standpunkt-title">Byggherrens standpunkt</span>
-    {#if isSubsidiaer}
-      <span class="subsidiaer-chip">Subsidiært</span>
-    {/if}
-  </div>
+  <StandpointHeading subsidiary={isSubsidiaer} />
 
   {#if computed.visibility.showFristVarselOk || computed.visibility.showSpesifisertKravOk || computed.visibility.showForesporselSvarOk}
-    <section class="question-card preklusjon-section">
-      <SectionHeading title="Varsling og frister" paragrafRef="§ 33.4 / § 33.6" />
-      <p class="question-text">Vurder om entreprenørens varsler og krav er fremsatt i tide.</p>
-
+    <QuestionCard
+      title="Varsling og frister"
+      paragrafRef="§ 33.4 / § 33.6"
+      description="Vurder om entreprenørens varsler og krav er fremsatt i tide."
+    >
       {#if computed.visibility.showFristVarselOk}
         <div class="preklusjons-rad">
           <span class="preklusjons-copy">
@@ -361,7 +358,7 @@
           )}
         </div>
       {/if}
-    </section>
+    </QuestionCard>
   {/if}
 
   {#if (hasPartialSubsidiaer || hasForesporselSubsidiaer) && subsidiærNotice}
@@ -372,12 +369,11 @@
   {/if}
 
   {#if computed.visibility.showSendForesporsel}
-    <section class="question-card">
-      <SectionHeading title="Spesifisering" paragrafRef="§ 33.6.2" />
-      <p class="question-text">
-        Dersom kravet ikke er tilstrekkelig spesifisert, kan byggherren be om antall dager og
-        nærmere begrunnelse.
-      </p>
+    <QuestionCard
+      title="Spesifisering"
+      paragrafRef="§ 33.6.2"
+      description="Dersom kravet ikke er tilstrekkelig spesifisert, kan byggherren be om antall dager og nærmere begrunnelse."
+    >
       <label class="checkbox-row">
         <input
           type="checkbox"
@@ -389,39 +385,31 @@
           <small>TE må spesifisere kravet før byggherren tar endelig stilling.</small>
         </span>
       </label>
-    </section>
+    </QuestionCard>
   {/if}
 
   {#if !sendForesporsel}
-    <section class="question-card">
-      <div class="question-card-heading">
-        <SectionHeading title="Årsakssammenheng" paragrafRef="§ 33.1" />
-        {#if isSubsidiaer}
-          <span class="subsidiaer-chip">Subsidiært</span>
-        {/if}
-      </div>
-      <p class="question-text">
-        Foreligger det en hindring på fremdriften som følge av det påberopte kontraktsforholdet?
-      </p>
+    <QuestionCard
+      title="Årsakssammenheng"
+      paragrafRef="§ 33.1"
+      description="Foreligger det en hindring på fremdriften som følge av det påberopte kontraktsforholdet?"
+      subsidiary={isSubsidiaer}
+    >
       {@render answerButtons(
         vilkarOppfylt,
         'Ja, hindring',
         'Nei, ingen hindring',
         (value) => (vilkarOppfylt = value)
       )}
-    </section>
+    </QuestionCard>
 
     {#if computed.showGodkjentDager}
-      <section class="question-card">
-        <div class="question-card-heading">
-          <SectionHeading title="Utmåling" paragrafRef="§ 33.5" />
-          {#if isSubsidiaer}
-            <span class="subsidiaer-chip">Subsidiært</span>
-          {/if}
-        </div>
-        <p class="question-text">
-          Fristforlengelsen skal svare til virkningen kontraktsforholdet har hatt på fremdriften.
-        </p>
+      <QuestionCard
+        title="Utmåling"
+        paragrafRef="§ 33.5"
+        description="Fristforlengelsen skal svare til virkningen kontraktsforholdet har hatt på fremdriften."
+        subsidiary={isSubsidiaer}
+      >
         <NumberField
           id="bh-frist-godkjent-dager"
           label="Godkjent fristforlengelse"
@@ -431,7 +419,7 @@
           hint={`Av ${domainConfig.krevdDager} dager krevd`}
           onchange={(value) => (godkjentDager = value)}
         />
-      </section>
+      </QuestionCard>
     {/if}
   {/if}
 
@@ -569,30 +557,6 @@
     font-weight: 600;
     color: var(--ink-3);
   }
-  .standpunkt-heading,
-  .question-card-heading {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-  }
-  .standpunkt-heading {
-    margin: 4px 0 16px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid var(--color-wire);
-  }
-  .standpunkt-title {
-    font-size: 12px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: var(--ink-3);
-  }
-  .question-card-heading :global(.section-heading) {
-    flex: 1;
-  }
-
-  .question-card,
   .begrunnelse-section {
     margin: 0 0 16px;
     padding: 18px;
@@ -600,13 +564,6 @@
     border: var(--rule);
     border-radius: 12px;
   }
-  .question-text {
-    margin: 14px 0;
-    font-size: 14px;
-    line-height: 1.55;
-    color: var(--ink-2);
-  }
-
   .preklusjons-rad {
     display: flex;
     align-items: center;
@@ -675,22 +632,6 @@
     background: var(--danger);
   }
 
-  .subsidiaer-chip {
-    display: inline-flex;
-    align-items: center;
-    width: fit-content;
-    padding: 5px 8px;
-    font-family: var(--font-mono);
-    font-size: 10px;
-    font-weight: 600;
-    line-height: 1;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--green);
-    background: color-mix(in srgb, var(--green-bg) 55%, transparent);
-    border: 1px dashed var(--green);
-    border-radius: 6px;
-  }
   .subsidiaer-notice {
     display: flex;
     align-items: flex-start;

@@ -1,18 +1,9 @@
 <script lang="ts">
-  import {
-    BookOpen,
-    Check,
-    ChevronLeft,
-    CircleMinus,
-    Clock3,
-    Paperclip,
-    Pencil,
-    X,
-  } from 'lucide-svelte';
+  import { BookOpen, Check, ChevronLeft, CircleMinus, Clock3, Paperclip, X } from 'lucide-svelte';
+  import InternalDraftCard from '$lib/components/patterns/InternalDraftCard.svelte';
   import { getHjemmelObj, getKontraktsforhold } from '$lib/constants/categories.js';
   import { formatDateShortNorwegian } from '$lib/utils/dateFormatters.js';
   import { store } from './store.svelte.js';
-  import Stamp from './Stamp.svelte';
 
   let { onform }: { onform: () => void } = $props();
 
@@ -230,16 +221,9 @@
   </div>
 
   {#if ui.draft}
-    <button class="draft-card" onclick={onform}>
-      <span class="draft-icon"><Pencil size={13} /></span>
-      <span class="draft-content">
-        <span class="draft-heading">
-          <Stamp variant="draft" small flat>Kladd</Stamp>
-          <span>Internt — ikke synlig for motpart</span>
-        </span>
-        <span class="draft-text">{ui.draft.text}</span>
-      </span>
-    </button>
+    <div class="draft-note">
+      <InternalDraftCard text={ui.draft.text} onopen={onform} />
+    </div>
   {/if}
 {/if}
 
@@ -536,54 +520,8 @@
     color: var(--ink-2);
   }
 
-  .draft-card {
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
-    width: 100%;
+  .draft-note {
     margin-top: 16px;
-    padding: 14px 16px;
-    text-align: left;
-    font-family: var(--font-sans);
-    color: var(--draft);
-    background: var(--draft-bg);
-    border: 1.5px dashed var(--draft-border);
-    border-radius: 12px;
-    cursor: pointer;
-    transition:
-      border-color 120ms,
-      background 120ms;
-  }
-  .draft-card:hover {
-    border-color: var(--draft);
-    background: var(--surface-warm);
-  }
-  .draft-icon {
-    display: grid;
-    flex: none;
-    width: 28px;
-    height: 28px;
-    place-items: center;
-    border-radius: 50%;
-    background: var(--surface);
-  }
-  .draft-content {
-    display: flex;
-    flex: 1;
-    flex-direction: column;
-    gap: 8px;
-    min-width: 0;
-  }
-  .draft-heading {
-    display: flex;
-    align-items: center;
-    gap: 9px;
-    font-size: 12px;
-    font-weight: 600;
-  }
-  .draft-text {
-    font-size: 13px;
-    line-height: 1.55;
   }
 
   @media (max-width: 768px) {
