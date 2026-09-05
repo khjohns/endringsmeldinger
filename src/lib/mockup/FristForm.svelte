@@ -1,4 +1,5 @@
 <script lang="ts">
+  import YesNoControl from './components/YesNoControl.svelte';
   import { AlertTriangle, Check, CircleMinus, Clock3, RefreshCw, X } from 'lucide-svelte';
   import ExpandableReasoning from '$lib/components/patterns/ExpandableReasoning.svelte';
   import StatementCard from '$lib/components/patterns/StatementCard.svelte';
@@ -14,7 +15,7 @@
   import { isHtmlEmpty } from '$lib/utils/formatters';
   import { formatDateShortNorwegian } from '$lib/utils/dateFormatters';
   import { store } from './store.svelte.js';
-  import { sporResultatLabel, toggleChoice } from './utils.js';
+  import { sporResultatLabel } from './utils.js';
   import CaseAnchor from './CaseAnchor.svelte';
   import FormPageHeader from './components/FormPageHeader.svelte';
   import NumberField from './components/NumberField.svelte';
@@ -212,27 +213,13 @@
 </script>
 
 {#snippet answerButtons(
+  label: string,
   answer: boolean | undefined,
   yesText: string,
   noText: string,
   onset: (value: boolean | undefined) => void
 )}
-  <div class="segment-row">
-    <button
-      type="button"
-      class="segment-btn"
-      class:segment-active={answer === true}
-      class:seg-yes={answer === true}
-      onclick={() => onset(toggleChoice(answer, true))}>{yesText}</button
-    >
-    <button
-      type="button"
-      class="segment-btn"
-      class:segment-active={answer === false}
-      class:seg-no={answer === false}
-      onclick={() => onset(toggleChoice(answer, false))}>{noText}</button
-    >
-  </div>
+  <YesNoControl value={answer} {yesText} {noText} {label} onchange={onset} />
 {/snippet}
 
 <div class="form-content">
@@ -317,6 +304,7 @@
             {/if}
           </span>
           {@render answerButtons(
+            'Foreløpig varsel (§ 33.4)',
             fristVarselOk,
             'Ja, i tide',
             'Nei, for sent',
@@ -334,6 +322,7 @@
             {/if}
           </span>
           {@render answerButtons(
+            'Spesifisert krav (§ 33.6.1)',
             spesifisertKravOk,
             'Ja, i tide',
             'Nei, for sent',
@@ -351,6 +340,7 @@
             {/if}
           </span>
           {@render answerButtons(
+            'Svar på forespørsel (§ 33.6.2)',
             foresporselSvarOk,
             'Ja, i tide',
             'Nei, prekludert',
@@ -396,6 +386,7 @@
       subsidiary={isSubsidiaer}
     >
       {@render answerButtons(
+        'Årsakssammenheng (§ 33.1)',
         vilkarOppfylt,
         'Ja, hindring',
         'Nei, ingen hindring',
@@ -586,50 +577,6 @@
     margin-top: 3px;
     font-size: 11px;
     color: var(--ink-4);
-  }
-
-  .segment-row {
-    display: inline-flex;
-    flex-wrap: wrap;
-    flex: none;
-    gap: 3px;
-    width: fit-content;
-    padding: 3px;
-    background: var(--surface-inset);
-    border: var(--rule-strong);
-    border-radius: 999px;
-  }
-  .segment-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 34px;
-    padding: 7px 14px;
-    font-family: var(--font-sans);
-    font-size: 13px;
-    font-weight: 600;
-    line-height: 1;
-    white-space: nowrap;
-    color: var(--ink-3);
-    background: transparent;
-    border: none;
-    border-radius: 999px;
-    cursor: pointer;
-  }
-  .segment-btn:hover:not(.segment-active) {
-    color: var(--ink);
-    background: var(--surface);
-  }
-  .segment-active {
-    color: white;
-    background: var(--brand-2);
-    box-shadow: 0 1px 2px rgba(27, 42, 34, 0.12);
-  }
-  .segment-active.seg-yes {
-    background: var(--success);
-  }
-  .segment-active.seg-no {
-    background: var(--danger);
   }
 
   .subsidiaer-notice {
