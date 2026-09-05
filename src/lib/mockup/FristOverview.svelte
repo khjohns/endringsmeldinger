@@ -1,5 +1,7 @@
 <script lang="ts">
-  import { BookOpen, ChevronUp, Clock3, Paperclip } from 'lucide-svelte';
+  import { Clock3 } from 'lucide-svelte';
+  import ExpandableReasoning from '$lib/components/patterns/ExpandableReasoning.svelte';
+  import StatementCard from '$lib/components/patterns/StatementCard.svelte';
   import type { ResponsFristEventData } from '$lib/types/timeline.js';
   import { formatDateShortNorwegian } from '$lib/utils/dateFormatters.js';
   import { store } from './store.svelte.js';
@@ -101,26 +103,16 @@
   const subsidiaertPct = $derived(
     krevdDager > 0 ? Math.min(100, Math.max(0, (subsidiaertGodkjent / krevdDager) * 100)) : 0
   );
-
-  let teExpanded = $state(false);
-  let bhExpanded = $state(false);
 </script>
 
-<section class="claim-card">
-  <div class="party-header">
-    <div class="party-heading">
-      <div class="eyebrow-row">
-        <Clock3 size={14} />
-        <span class="eyebrow">Totalentreprenørens krav</span>
-      </div>
-      <h3>{store.teNavn}</h3>
-      <div class="submission-meta">
-        {#if teDate}<span>Sendt {teDate}</span>{/if}
-        {#if teRevision > 0}<span>Rev. {teRevision}</span>{/if}
-      </div>
-    </div>
-    <span class="font-mono party-ref">§ 33.4 / § 33.6.1</span>
-  </div>
+<StatementCard
+  eyebrow="Totalentreprenørens krav"
+  partyName={store.teNavn}
+  reference="§ 33.4 / § 33.6.1"
+  submittedAt={teDate}
+  revisionLabel={teRevision > 0 ? `Rev. ${teRevision}` : undefined}
+>
+  {#snippet icon()}<Clock3 size={14} />{/snippet}
 
   <div class="claim-summary">
     {#if frist.varsel_type === 'spesifisert' && frist.krevd_dager !== undefined}
@@ -164,53 +156,28 @@
     {/if}
   </div>
 
-  <div class="reasoning-section">
-    <span class="eyebrow">Entreprenørens begrunnelse</span>
-    {#if frist.begrunnelse}
-      <div class="reasoning-text" class:clamped={!teExpanded && frist.begrunnelse.length > 420}>
-        {@html frist.begrunnelse}
-      </div>
-      {#if frist.begrunnelse.length > 420}
-        <button class="read-button" onclick={() => (teExpanded = !teExpanded)}>
-          {#if teExpanded}<ChevronUp size={13} /> Vis mindre
-          {:else}<BookOpen size={13} /> Les hele begrunnelsen{/if}
-        </button>
-      {/if}
-    {:else}
-      <p class="empty-text">Ingen begrunnelse registrert.</p>
-    {/if}
-    {#if ui.att.length > 0}
-      <div class="attachment-meta">
-        <Paperclip size={12} />
-        {ui.att.length} vedlegg
-        {#if attachmentPages > 0}· {attachmentPages} sider{/if}
-      </div>
-    {/if}
-  </div>
-</section>
+  <ExpandableReasoning
+    label="Entreprenørens begrunnelse"
+    html={frist.begrunnelse}
+    attachmentCount={ui.att.length}
+    {attachmentPages}
+  />
+</StatementCard>
 
 {#if hasBhResponse}
-  <section class="response-card">
-    <div class="party-header">
-      <div class="party-heading">
-        <div class="eyebrow-row">
-          <Clock3 size={14} />
-          <span class="eyebrow">Byggherrens standpunkt</span>
-        </div>
-        <h3>{store.bhNavn}</h3>
-        <div class="submission-meta">
-          {#if bhDate}<span>Svart {bhDate}</span>{/if}
-          {#if bhAnsweredRevision !== undefined}
-            <span>
-              {bhAnsweredRevision === 0
-                ? 'Svar på opprinnelig krav'
-                : `Svar på rev. ${bhAnsweredRevision}`}
-            </span>
-          {/if}
-        </div>
-      </div>
-      <span class="font-mono party-ref">§ 33</span>
-    </div>
+  <StatementCard
+    eyebrow="Byggherrens standpunkt"
+    partyName={store.bhNavn}
+    reference="§ 33"
+    submittedAt={bhDate}
+    submittedLabel="Svart"
+    revisionLabel={bhAnsweredRevision === undefined
+      ? undefined
+      : bhAnsweredRevision === 0
+        ? 'Svar på opprinnelig krav'
+        : `Svar på rev. ${bhAnsweredRevision}`}
+  >
+    {#snippet icon()}<Clock3 size={14} />{/snippet}
 
     <div class="response-summary" class:with-subsidiary={hasSubsidiaryPosition}>
       <div>
@@ -244,23 +211,9 @@
     {/if}
 
     {#if frist.bh_begrunnelse}
-      <div class="reasoning-section response-reasoning">
-        <span class="eyebrow">Byggherrens begrunnelse</span>
-        <div
-          class="reasoning-text"
-          class:clamped={!bhExpanded && frist.bh_begrunnelse.length > 420}
-        >
-          {@html frist.bh_begrunnelse}
-        </div>
-        {#if frist.bh_begrunnelse.length > 420}
-          <button class="read-button" onclick={() => (bhExpanded = !bhExpanded)}>
-            {#if bhExpanded}<ChevronUp size={13} /> Vis mindre
-            {:else}<BookOpen size={13} /> Les hele begrunnelsen{/if}
-          </button>
-        {/if}
-      </div>
+      <ExpandableReasoning label="Byggherrens begrunnelse" html={frist.bh_begrunnelse} />
     {/if}
-  </section>
+  </StatementCard>
 {:else}
   <section class="pending-card">
     <span class="pending-icon"><Clock3 size={16} /></span>
@@ -334,32 +287,6 @@
 {/if}
 
 <style>
-  .claim-card,
-  .response-card {
-    overflow: hidden;
-    margin-bottom: 20px;
-    background: var(--surface);
-    border: var(--rule);
-    border-radius: 12px;
-    box-shadow: var(--overlay-shadow-sm);
-  }
-  .party-header {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 20px;
-    padding: 14px 16px;
-    border-bottom: var(--rule);
-  }
-  .party-heading {
-    min-width: 0;
-  }
-  .eyebrow-row {
-    display: flex;
-    align-items: center;
-    gap: 7px;
-    color: var(--ink-4);
-  }
   .eyebrow {
     display: block;
     font-size: 10px;
@@ -369,32 +296,11 @@
     text-transform: uppercase;
     color: var(--ink-4);
   }
-  .eyebrow-row .eyebrow {
-    color: inherit;
-  }
   h3 {
     margin: 4px 0 0;
     font-size: 14px;
     line-height: 1.4;
     color: var(--ink);
-  }
-  .submission-meta {
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 4px 9px;
-    margin-top: 4px;
-    font-size: 11px;
-    color: var(--ink-4);
-  }
-  .submission-meta span + span::before {
-    margin-right: 9px;
-    content: '\00b7';
-  }
-  .party-ref {
-    flex: none;
-    font-size: 12px;
-    color: var(--ink-4);
   }
   .claim-summary,
   .response-summary {
@@ -510,58 +416,6 @@
     color: var(--danger);
     background: var(--danger-bg);
     border-color: var(--danger-border);
-  }
-  .reasoning-section {
-    padding: 18px 24px 20px;
-    border-top: var(--rule);
-  }
-  .reasoning-text {
-    max-width: 74ch;
-    margin-top: 9px;
-    font-size: 14px;
-    line-height: 1.65;
-    color: var(--ink-2);
-  }
-  .reasoning-text.clamped {
-    display: -webkit-box;
-    overflow: hidden;
-    line-clamp: 5;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 5;
-  }
-  :global(.reasoning-text p) {
-    margin: 0 0 0.75em;
-  }
-  :global(.reasoning-text p:last-child) {
-    margin-bottom: 0;
-  }
-  .read-button {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    margin-top: 11px;
-    padding: 0;
-    font-family: var(--font-sans);
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--green);
-    background: transparent;
-    border: 0;
-    cursor: pointer;
-  }
-  .attachment-meta {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    margin-top: 13px;
-    font-size: 11px;
-    color: var(--ink-4);
-  }
-  .empty-text {
-    margin: 9px 0 0;
-    font-size: 14px;
-    font-style: italic;
-    color: var(--ink-4);
   }
   .pending-card {
     display: flex;
