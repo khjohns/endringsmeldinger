@@ -336,8 +336,19 @@ export function detekterEndringer(
 export function buildTeRevisionEventData(config: {
   originalEventId: string;
   begrunnelseHtml: string;
+  grunnlag?: import('$lib/types/timeline').GrunnlagTilstand;
 }): Record<string, unknown> {
   return {
+    ...(config.grunnlag
+      ? {
+          tittel: config.grunnlag.tittel,
+          hovedkategori: config.grunnlag.hovedkategori,
+          underkategori: config.grunnlag.underkategori,
+          dato_oppdaget: config.grunnlag.dato_oppdaget,
+          grunnlag_varsel: config.grunnlag.grunnlag_varsel,
+          beskrivelse: config.begrunnelseHtml,
+        }
+      : {}),
     original_event_id: config.originalEventId,
     begrunnelse: config.begrunnelseHtml,
     dato_revidert: new Date().toISOString().split('T')[0],

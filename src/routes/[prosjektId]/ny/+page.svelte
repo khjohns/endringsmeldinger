@@ -1,183 +1,75 @@
 <script lang="ts">
-  import { AlignJustify } from 'lucide-svelte';
   import { page } from '$app/state';
-  import CaseCreateForm from '$lib/components/case-create/CaseCreateForm.svelte';
-  import BegrunnelsePanel from '$lib/components/case-create/BegrunnelsePanel.svelte';
-  import FormPageHeader from '$lib/components/shared/FormPageHeader.svelte';
-  import { isHtmlEmpty } from '$lib/utils/formatters';
-  import { createCaseListQuery } from '$lib/queries/caseList';
-  import { projectToMeta } from '$lib/constants/projectMeta';
-  import { projectStore } from '$lib/stores/project.svelte';
+  import { goto } from '$app/navigation';
+  import { ChevronLeft } from 'lucide-svelte';
+  import '$lib/components/kontraktsbord/mockup.css';
+  import NewCaseForm from '$lib/components/kontraktsbord/NewCaseForm.svelte';
+  import NewCaseActionBar from '$lib/components/kontraktsbord/NewCaseActionBar.svelte';
 
-  const prosjektId = $derived(page.params.prosjektId);
+  const prosjektId = $derived(page.params.prosjektId ?? '');
+  let actions = $state<{ canSend: boolean; sendLabel: string; send: () => void } | null>(null);
 
-  const meta = $derived(projectToMeta(projectStore.current, prosjektId));
-
-  const caseListQuery = createCaseListQuery(() => prosjektId ?? '');
-  const saksnr = $derived((caseListQuery.data?.cases.length ?? 0) + 1);
-
-  let begrunnelseHtml = $state('');
-  let begrunnelsePlaceholder = $state('');
-  let mobilPanelOpen = $state(false);
-
-  // Form actions exposed by CaseCreateForm
-  let formActions = $state<{
-    submitLabel: string;
-    kanSende: boolean;
-    submitting: boolean;
-    submitError: string;
-    onsubmit: () => void;
-    onavbryt: () => void;
-  } | null>(null);
-
-  const harBegrunnelse = $derived(!isHtmlEmpty(begrunnelseHtml));
+  $effect(() => {
+    localStorage.setItem('koe-user-role', 'TE');
+  });
 </script>
 
-<div class="ny-sak-layout">
-  <main class="ny-sak-main">
-    <div class="ny-sak-inner">
-      <FormPageHeader
-        tilbakeHref="/{prosjektId}"
-        tilbakeTekst="Tilbake til saksoversikt"
-        eyebrow="Nytt varsel"
-        prosjektNavn={meta?.name}
-        teNavn={meta?.te}
-        bhNavn={meta?.bh}
-        {saksnr}
-      />
+<svelte:head><title>Nytt ansvarsgrunnlag — Kontraktsbordet</title></svelte:head>
 
-      <CaseCreateForm
-        bind:begrunnelseHtml
-        onplaceholder={(p) => (begrunnelsePlaceholder = p)}
-        onactions={(a) => (formActions = a)}
-      />
-    </div>
-  </main>
-
-  <!-- Desktop: inline panel -->
-  <div class="desktop-panel">
-    <BegrunnelsePanel
-      placeholder={begrunnelsePlaceholder}
-      bind:html={begrunnelseHtml}
-      submitLabel={formActions?.submitLabel}
-      submitDisabled={!formActions?.kanSende}
-      submitLoading={formActions?.submitting}
-      submitError={formActions?.submitError}
-      onsubmit={formActions?.onsubmit}
-      onavbryt={formActions?.onavbryt}
+<div class="mockup">
+  <div class="new-case-shell">
+    <header>
+      <a href="/{prosjektId}"><ChevronLeft size={16} /> Saksoversikt</a>
+      <span>Nytt ansvarsgrunnlag</span>
+    </header>
+    <main>
+      {#key prosjektId}
+        <NewCaseForm
+          {prosjektId}
+          onsend={() => {}}
+          oncreated={(sakId) =>
+            goto('/' + prosjektId + '/' + encodeURIComponent(sakId) + '?spor=ansvar&rolle=TE')}
+          onactions={(next) => (actions = next)}
+        />
+      {/key}
+    </main>
+    <NewCaseActionBar
+      canSend={actions?.canSend ?? false}
+      sendLabel={actions?.sendLabel ?? 'Send ansvarsgrunnlag'}
+      oncancel={() => goto('/' + prosjektId)}
+      onsend={() => actions?.send()}
     />
   </div>
 </div>
 
-<!-- Mobil: FAB -->
-<button class="begrunnelse-fab" onclick={() => (mobilPanelOpen = true)}>
-  <AlignJustify size={16} strokeWidth={1.5} aria-hidden="true" />
-  Begrunnelse
-  {#if harBegrunnelse}
-    <span class="fab-badge"></span>
-  {/if}
-</button>
-
-<!-- Mobil: fullscreen overlay -->
-{#if mobilPanelOpen}
-  <div class="mobil-panel-overlay">
-    <BegrunnelsePanel
-      placeholder={begrunnelsePlaceholder}
-      bind:html={begrunnelseHtml}
-      overlay
-      onclose={() => (mobilPanelOpen = false)}
-      submitLabel={formActions?.submitLabel}
-      submitDisabled={!formActions?.kanSende}
-      submitLoading={formActions?.submitting}
-      submitError={formActions?.submitError}
-      onsubmit={formActions?.onsubmit}
-      onavbryt={formActions?.onavbryt}
-    />
-  </div>
-{/if}
-
 <style>
-  .ny-sak-layout {
-    display: grid;
-    grid-template-columns: 3fr 2fr;
-    height: 100%;
-    overflow: hidden;
+  .new-case-shell {
+    height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    background: var(--canvas);
   }
-
-  .ny-sak-main {
+  header {
+    min-height: 64px;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    padding: 0 24px;
+    border-bottom: var(--rule);
+    background: var(--surface);
+  }
+  header a {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--ink-2);
+    text-decoration: none;
+  }
+  header span {
+    font-weight: 600;
+  }
+  main {
+    flex: 1;
     overflow-y: auto;
-    padding: var(--spacing-8) var(--spacing-6);
-  }
-
-  .ny-sak-inner {
-    max-width: 600px;
-    margin: 0 auto;
-  }
-
-  .desktop-panel {
-    overflow-y: auto;
-  }
-
-  /* FAB + mobil overlay: skjult på desktop */
-  .begrunnelse-fab {
-    display: none;
-  }
-
-  .mobil-panel-overlay {
-    display: none;
-  }
-
-  /* ── Mobil (<768px) ── */
-  @media (max-width: 767px) {
-    .ny-sak-layout {
-      grid-template-columns: 1fr;
-    }
-
-    .ny-sak-main {
-      padding: var(--spacing-5) var(--spacing-4);
-      padding-bottom: 72px; /* plass til FAB */
-    }
-
-    .desktop-panel {
-      display: none;
-    }
-
-    .begrunnelse-fab {
-      display: flex;
-      align-items: center;
-      gap: var(--spacing-2);
-      position: fixed;
-      bottom: var(--spacing-5);
-      right: var(--spacing-4);
-      z-index: 20;
-      padding: var(--spacing-2) var(--spacing-4);
-      background: var(--color-felt-raised);
-      border: 1px solid var(--color-vekt-dim);
-      border-radius: 9999px;
-      font-family: var(--font-ui);
-      font-size: 13px;
-      font-weight: 500;
-      color: var(--color-vekt);
-      cursor: pointer;
-      transition:
-        background 0.12s,
-        border-color 0.12s;
-    }
-
-    .begrunnelse-fab:hover {
-      background: var(--color-vekt-bg);
-      border-color: var(--color-vekt);
-    }
-
-    .fab-badge {
-      width: 6px;
-      height: 6px;
-      border-radius: 9999px;
-      background: var(--color-vekt);
-    }
-
-    .mobil-panel-overlay {
-      display: contents;
-    }
   }
 </style>

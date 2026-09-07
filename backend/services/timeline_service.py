@@ -380,8 +380,40 @@ class TimelineService:
         grunnlag.siste_event_id = event.event_id
         grunnlag.siste_oppdatert = event.tidsstempel
 
+        if event.event_type == EventType.GRUNNLAG_OPPRETTET:
+            self._apply_konsekvensvarsler(state, event)
         state.grunnlag = grunnlag
         return state
+
+    def _apply_konsekvensvarsler(self, state, event):
+        """Project notices from the same immutable submission into their tracks."""
+        from models.events import VarselInfo
+        from models.sak_state import SendtKonsekvensVarsel
+        from zoneinfo import ZoneInfo
+
+        dato = event.tidsstempel.astimezone(ZoneInfo("Europe/Oslo")).date().isoformat()
+        info = VarselInfo(dato_sendt=dato, metode=["Digital innsending"])
+        for kind, tekst in event.data.varsler.model_dump(exclude_none=True).items():
+            track = state.frist if kind == "frist" else state.vederlag
+            track.varsler.append(SendtKonsekvensVarsel(
+                type=kind, tekst=tekst, tidsstempel=event.tidsstempel, event_id=event.event_id,
+            ))
+            if kind == "frist":
+                if track.frist_varsel is None:
+                    track.frist_varsel = info
+                if track.varsel_type is None:
+                    track.varsel_type = "varsel"
+                    track.begrunnelse = tekst
+                    track.antall_versjoner = 1
+            else:
+                field = {"vederlag": "vederlag_varsel", "rigg_drift": "rigg_drift_varsel",
+                         "produktivitet": "produktivitetstap_varsel"}[kind]
+                if getattr(track, field) is None:
+                    setattr(track, field, info.model_dump())
+            if track.status in {SporStatus.IKKE_RELEVANT, SporStatus.UTKAST}:
+                track.status = SporStatus.SENDT
+            track.siste_event_id = event.event_id
+            track.siste_oppdatert = event.tidsstempel
 
     def _handle_grunnlag_trukket(
         self, state: SakState, event: GrunnlagEvent
@@ -463,6 +495,10 @@ class TimelineService:
         """Håndterer VEDERLAG_KRAV_SENDT og VEDERLAG_KRAV_OPPDATERT"""
         vederlag = state.vederlag
 
+        self._apply_konsekvensvarsler(state, event)
+        if event.data.varsel_type == "varsel":
+            return state
+
         # Oppdater data - VederlagTilstand uses belop_direkte/kostnads_overslag (not krevd_belop)
         vederlag.belop_direkte = event.data.belop_direkte
         vederlag.kostnads_overslag = event.data.kostnads_overslag
@@ -484,7 +520,7 @@ class TimelineService:
         vederlag.krever_justert_ep = event.data.krever_justert_ep
 
         # Port 1: Varselinfo (VarselInfo objects serialized as dicts)
-        if event.data.rigg_drift_varsel:
+        if event.data.rigg_drift_varsel and not any(v.type == "rigg_drift" for v in vederlag.varsler):
             vederlag.rigg_drift_varsel = (
                 event.data.rigg_drift_varsel.model_dump()
                 if hasattr(event.data.rigg_drift_varsel, "model_dump")
@@ -498,7 +534,7 @@ class TimelineService:
             )
         if event.data.varslet_for_oppstart is not None:
             vederlag.varslet_for_oppstart = event.data.varslet_for_oppstart
-        if event.data.produktivitetstap_varsel:
+        if event.data.produktivitetstap_varsel and not any(v.type == "produktivitet" for v in vederlag.varsler):
             vederlag.produktivitetstap_varsel = (
                 event.data.produktivitetstap_varsel.model_dump()
                 if hasattr(event.data.produktivitetstap_varsel, "model_dump")
@@ -565,7 +601,7 @@ class TimelineService:
         )
 
         # Copy VarselInfo objects directly (includes dato_sendt and metode)
-        if event.data.frist_varsel:
+        if event.data.frist_varsel and not frist.varsler:
             frist.frist_varsel = event.data.frist_varsel
         if event.data.spesifisert_varsel:
             frist.spesifisert_varsel = event.data.spesifisert_varsel
@@ -1493,6 +1529,8 @@ class TimelineService:
                 event.data.hovedkategori, event.data.underkategori
             )
         elif isinstance(event, VederlagEvent):
+            if event.data.varsel_type == "varsel":
+                return "Varsel om vederlagsjustering – ikke spesifisert"
             belop = event.data.belop_direkte or event.data.kostnads_overslag or 0
             return f"Krav: {belop:,.0f} NOK"
         elif isinstance(event, FristEvent):
@@ -1582,6 +1620,9 @@ class TimelineService:
         vederlag_events.sort(key=lambda e: e.tidsstempel)
 
         for event in vederlag_events:
+            # Neutral notices live in the notice history, not the calculation revisions.
+            if isinstance(event, VederlagEvent) and event.data.varsel_type == "varsel":
+                continue
             aktor_info = AktorInfo(
                 navn=event.aktor,
                 rolle=event.aktor_rolle,

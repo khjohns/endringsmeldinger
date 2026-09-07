@@ -524,6 +524,16 @@ class ReportLabPdfGenerator:
 
         return elements
 
+    def _build_notice_history(self, varsler) -> list:
+        from xml.sax.saxutils import escape
+        elements = []
+        for varsel in varsler:
+            elements.append(Paragraph(
+                f"<b>Varsel {varsel.tidsstempel.isoformat()}</b><br/>" + escape(varsel.tekst),
+                self.styles["KoeBodyText"],
+            ))
+        return elements
+
     def _build_vederlag_section(
         self, state: SakState, events: list | None = None
     ) -> list:
@@ -537,6 +547,7 @@ class ReportLabPdfGenerator:
         )
 
         vederlag = state.vederlag
+        elements.extend(self._build_notice_history(vederlag.varsler))
         if vederlag.status in ["ikke_relevant", "ikke_startet"]:
             elements.append(
                 Paragraph(
@@ -637,6 +648,7 @@ class ReportLabPdfGenerator:
         )
 
         frist = state.frist
+        elements.extend(self._build_notice_history(frist.varsler))
         if frist.status in ["ikke_relevant", "ikke_startet"]:
             elements.append(
                 Paragraph(

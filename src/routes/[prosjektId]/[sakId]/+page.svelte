@@ -1,335 +1,82 @@
 <script lang="ts">
   import { page } from '$app/state';
-  import { browser } from '$app/environment';
-  import type { TimelineEvent } from '$lib/types/timeline';
+  import { goto } from '$app/navigation';
   import { createCaseContextQuery } from '$lib/queries/caseContext';
-  import Sidebar from '$lib/components/saksmappe/Sidebar.svelte';
-  import Timeline from '$lib/components/saksmappe/Timeline.svelte';
-  import KronologiskTidslinje from '$lib/components/saksmappe/KronologiskTidslinje.svelte';
-  import VisningstToggle from '$lib/components/saksmappe/VisningstToggle.svelte';
-  import type { Visning, SporFilter } from '$lib/components/saksmappe/VisningstToggle.svelte';
-  import Forhandsvisning from '$lib/components/saksmappe/Forhandsvisning.svelte';
+  import CaseWorkspace from '$lib/kontraktsbord/CaseWorkspace.svelte';
+  import {
+    readWorkspaceView,
+    workspaceViewUrl,
+    type WorkspaceView,
+  } from '$lib/kontraktsbord/viewState';
 
   const prosjektId = $derived(page.params.prosjektId ?? '');
   const sakId = $derived(page.params.sakId ?? '');
-
-  const query = createCaseContextQuery(() => sakId);
-
-  let focusedEvent = $state<TimelineEvent | null>(null);
-  let sidebarOpen = $state(false);
-
-  // View toggle state — persisted per sak in localStorage
-  const storageKey = $derived(`koe-visning-${sakId}`);
-  let visning = $state<Visning>('kort');
-  let sporFilter = $state<SporFilter>({ K: true, V: true, F: true });
+  const query = createCaseContextQuery(
+    () => sakId,
+    () => prosjektId
+  );
+  const storedRole =
+    typeof localStorage !== 'undefined' && localStorage.getItem('koe-user-role') === 'TE'
+      ? 'TE'
+      : 'BH';
+  const view = $derived(readWorkspaceView(page.url.searchParams, storedRole));
 
   $effect(() => {
-    if (browser) {
-      const stored = localStorage.getItem(storageKey);
-      if (stored === 'kort' || stored === 'tidslinje') visning = stored;
-    }
+    localStorage.setItem('koe-user-role', view.role);
   });
 
-  function handleVisningChange(v: Visning) {
-    visning = v;
-    if (browser) localStorage.setItem(storageKey, v);
+  function changeView(next: WorkspaceView) {
+    const href = workspaceViewUrl(page.url, next);
+    if (href !== page.url.pathname + page.url.search + page.url.hash)
+      void goto(href, { noScroll: true, keepFocus: true });
   }
 
-  function handleFilterChange(f: SporFilter) {
-    sporFilter = f;
+  async function refetch() {
+    const result = await query.refetch();
+    if (result.error) throw result.error;
+    if (!result.data) throw new Error('Saken kunne ikke lastes.');
+    return result.data;
   }
-
-  function handleFocusEvent(event: TimelineEvent | null) {
-    focusedEvent = event;
-  }
-
-  const hasPanel = $derived(focusedEvent !== null);
 </script>
 
-<!-- Mobil-toggle: kun synlig under 1024px -->
-<button
-  class="sidebar-toggle"
-  class:er-open={sidebarOpen}
-  onclick={() => (sidebarOpen = !sidebarOpen)}
-  aria-label={sidebarOpen ? 'Skjul saksinformasjon' : 'Vis saksinformasjon'}
->
-  {sidebarOpen ? '✕' : '☰'}
-</button>
+<svelte:head><title>{query.data?.state.sakstittel ?? 'Sak'} — Kontraktsbordet</title></svelte:head>
 
-<!-- Mobil sidebar drawer -->
-{#if sidebarOpen}
-  <!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
-  <div class="sidebar-backdrop" onclick={() => (sidebarOpen = false)}></div>
-  <div class="sidebar-drawer">
-    {#if query.data}
-      <Sidebar state={query.data.state} />
-    {/if}
-  </div>
-{/if}
-
-{#if query.isLoading}
-  <div class="loading">
-    <p class="loading-text">Laster sak {sakId}…</p>
-  </div>
+{#if query.data}
+  {#key prosjektId + ':' + sakId}
+    <CaseWorkspace
+      response={query.data}
+      projectId={prosjektId}
+      {refetch}
+      {view}
+      onviewchange={changeView}
+      onnewcase={() => goto('/' + prosjektId + '/ny')}
+    />
+  {/key}
 {:else if query.isError}
-  <div class="error">
-    <p class="error-text">Kunne ikke laste sak {sakId}</p>
-    <p class="error-detail">{query.error?.message ?? 'Ukjent feil'}</p>
-  </div>
-{:else if query.data}
-  <div class="saksmappe" class:har-panel={hasPanel}>
-    <!-- Desktop: sidebar alltid synlig som grid-kolonne -->
-    <div class="desktop-sidebar">
-      <Sidebar state={query.data.state} />
-    </div>
-    <main class="main-content">
-      <VisningstToggle
-        {visning}
-        {sporFilter}
-        onVisningChange={handleVisningChange}
-        onFilterChange={handleFilterChange}
-      />
-      <div class="timeline-container">
-        {#if visning === 'kort'}
-          <Timeline
-            state={query.data.state}
-            timeline={query.data.timeline}
-            {prosjektId}
-            {sakId}
-            onFocusEvent={handleFocusEvent}
-            {focusedEvent}
-          />
-        {:else}
-          <KronologiskTidslinje
-            sakState={query.data.state}
-            timeline={query.data.timeline}
-            {sporFilter}
-            onFocusEvent={handleFocusEvent}
-          />
-        {/if}
-      </div>
-    </main>
-    {#if hasPanel}
-      <div class="panel-overlay">
-        <button class="mobil-tilbake" onclick={() => (focusedEvent = null)}>← Tilbake</button>
-        <Forhandsvisning
-          event={focusedEvent}
-          {prosjektId}
-          {sakId}
-          onClose={() => (focusedEvent = null)}
-          teNavn={query.data?.state?.entreprenor}
-          bhNavn={query.data?.state?.byggherre}
-        />
-      </div>
-    {/if}
+  <div class="case-message" role="alert">
+    <h1>Kunne ikke laste saken</h1>
+    <p>{query.error?.message}</p>
+    <button onclick={() => query.refetch()}>Prøv igjen</button>
+    <a href="/{prosjektId}">Til saksoversikten</a>
   </div>
 {:else}
-  <div class="empty">
-    <p class="empty-text">Ingen data for sak {sakId}</p>
-  </div>
+  <div class="case-message" role="status">Laster sak …</div>
 {/if}
 
 <style>
-  /* ── Desktop grid ── */
-  .saksmappe {
-    display: grid;
-    grid-template-columns: 260px 1fr;
-    height: 100%;
-    background: var(--color-canvas);
-    overflow: hidden;
-    transition: grid-template-columns 200ms ease;
+  .case-message {
+    padding: 40px;
+    color: var(--color-ink);
   }
-
-  .saksmappe.har-panel {
-    grid-template-columns: 260px 1fr 360px;
+  .case-message h1 {
+    font-size: 22px;
+    margin-bottom: 12px;
   }
-
-  /* display: contents = transparent for grid */
-  .desktop-sidebar,
-  .panel-overlay {
-    display: contents;
+  .case-message p {
+    margin-bottom: 16px;
   }
-
-  .main-content {
-    display: flex;
-    flex-direction: column;
-    overflow-y: auto;
-    height: 100%;
-    container-type: inline-size;
-  }
-
-  /* Når main-content er smal (panel åpen), krymper document-area for bedre sentrering */
-  @container (max-width: 900px) {
-    .main-content :global(.document-area) {
-      max-width: 680px;
-    }
-  }
-
-  .timeline-container {
-    flex: 1;
-  }
-
-  .loading,
-  .error,
-  .empty {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-height: 100vh;
-    gap: 8px;
-  }
-
-  .loading-text {
-    font-size: 14px;
-    color: var(--color-ink-secondary);
-  }
-
-  .error-text {
-    font-size: 14px;
-    color: var(--color-score-low);
-  }
-
-  .error-detail {
-    font-size: 12px;
-    color: var(--color-ink-muted);
-  }
-
-  .empty-text {
-    font-size: 14px;
-    color: var(--color-ink-muted);
-  }
-
-  /* Toggle + drawer: skjult på desktop */
-  .sidebar-toggle {
-    display: none;
-  }
-
-  .mobil-tilbake {
-    display: none;
-  }
-
-  /* ── Mobil (<1024px): drawer-modus ── */
-  @media (max-width: 1023px) {
-    /* Grid uten sidebar-kolonne */
-    .saksmappe {
-      grid-template-columns: 1fr;
-    }
-
-    .saksmappe.har-panel {
-      grid-template-columns: 1fr;
-    }
-
-    /* Desktop-sidebar skjult i grid */
-    .desktop-sidebar {
-      display: none;
-    }
-
-    /* Toggle-knapp */
-    .sidebar-toggle {
-      display: flex;
-      position: fixed;
-      top: 8px;
-      left: 16px;
-      z-index: 26;
-      width: 30px;
-      height: 30px;
-      align-items: center;
-      justify-content: center;
-      background: var(--color-felt);
-      border: 1px solid var(--color-wire-strong);
-      border-radius: var(--radius-md);
-      color: var(--color-ink-secondary);
-      font-size: 14px;
-      cursor: pointer;
-      transition:
-        color 100ms ease-out,
-        background 100ms ease-out;
-    }
-
-    .sidebar-toggle:hover {
-      color: var(--color-ink);
-      background: var(--color-felt-hover);
-    }
-
-    .sidebar-toggle.er-open {
-      color: var(--color-ink);
-      background: var(--color-felt-raised);
-    }
-
-    /* Backdrop */
-    .sidebar-backdrop {
-      position: fixed;
-      inset: 0;
-      z-index: 21;
-      background: rgba(0, 0, 0, 0.45);
-    }
-
-    /* Drawer */
-    .sidebar-drawer {
-      position: fixed;
-      left: 0;
-      top: 0;
-      height: 100vh;
-      z-index: 22;
-      box-shadow: 4px 0 16px rgba(0, 0, 0, 0.4);
-    }
-
-    .sidebar-drawer :global(.sidebar) {
-      position: static;
-      height: 100vh;
-      width: 280px;
-    }
-
-    /* Forhandsvisning som overlay */
-    .panel-overlay {
-      display: flex;
-      flex-direction: column;
-      position: fixed;
-      inset: 0;
-      z-index: 25;
-      background: var(--color-canvas);
-      overflow-y: auto;
-    }
-
-    .panel-overlay :global(.forhandsvisning) {
-      position: static;
-      height: auto;
-      border-left: none;
-    }
-
-    .mobil-tilbake {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      padding: 12px 16px;
-      position: sticky;
-      top: 0;
-      z-index: 1;
-      background: var(--color-felt);
-      border: none;
-      border-bottom: 1px solid var(--color-wire);
-      font-family: var(--font-ui);
-      font-size: 13px;
-      color: var(--color-ink-secondary);
-      cursor: pointer;
-      width: 100%;
-      text-align: left;
-      flex-shrink: 0;
-    }
-
-    .mobil-tilbake:hover {
-      color: var(--color-ink);
-    }
-
-    .main-content {
-      height: auto;
-      position: static;
-      overflow-y: visible;
-    }
-
-    .timeline-container {
-      overflow-y: visible;
-    }
+  .case-message button {
+    margin-right: 16px;
+    cursor: pointer;
   }
 </style>

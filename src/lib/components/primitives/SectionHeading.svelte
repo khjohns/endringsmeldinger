@@ -1,15 +1,19 @@
 <script lang="ts">
+  import type { Snippet } from 'svelte';
   interface Props {
     title: string;
     paragrafRef?: string;
+    aside?: Snippet;
   }
 
-  let { title, paragrafRef = '' }: Props = $props();
+  let { title, paragrafRef = '', aside }: Props = $props();
 </script>
 
 <div class="section-heading">
   <span class="section-title">{title}</span>
-  {#if paragrafRef}
+  {#if aside}
+    {@render aside()}
+  {:else if paragrafRef}
     <span class="section-ref">{paragrafRef}</span>
   {/if}
 </div>

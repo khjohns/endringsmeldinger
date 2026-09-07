@@ -374,6 +374,12 @@ def validate_vederlag_event(data: dict[str, Any]) -> None:
     if not data:
         raise ValidationError("Vederlag data mangler")
 
+    if data.get("varsel_type") == "varsel":
+        # The event model validates selected notices and rejects amounts/methods.
+        from models.events import VederlagData
+        VederlagData.model_validate(data)
+        return
+
     # Normalize metode to UPPERCASE (backend standard)
     _normalize_to_upper(data, "metode")
     metode = data.get("metode")

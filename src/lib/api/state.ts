@@ -49,6 +49,11 @@ export async function fetchHistorikk(sakId: string): Promise<HistorikkResponse> 
  * Fetch combined case context: state + timeline + historikk in one request.
  * Eliminates redundant Supabase round-trips by fetching events once on backend.
  */
-export async function fetchCaseContext(sakId: string): Promise<CaseContextResponse> {
-  return apiFetch<CaseContextResponse>(`/api/cases/${sakId}/context`);
+export async function fetchCaseContext(
+  sakId: string,
+  prosjektId?: string
+): Promise<CaseContextResponse> {
+  return apiFetch<CaseContextResponse>(`/api/cases/${encodeURIComponent(sakId)}/context`, {
+    headers: prosjektId ? { 'X-Project-ID': prosjektId } : undefined,
+  });
 }

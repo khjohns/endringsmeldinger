@@ -72,6 +72,13 @@ class SakRelasjon(BaseModel):
 # ============ SPOR-TILSTANDER ============
 
 
+class SendtKonsekvensVarsel(BaseModel):
+    type: str
+    tekst: str
+    tidsstempel: datetime
+    event_id: str
+
+
 class GrunnlagTilstand(BaseModel):
     """Aggregert tilstand for grunnlag-sporet"""
 
@@ -136,6 +143,9 @@ class VederlagTilstand(BaseModel):
     - Replaced krevd_belop with belop_direkte/kostnads_overslag per metode
     - Added saerskilt_krav with nested rigg_drift/produktivitet items
     """
+
+    varsler: list[SendtKonsekvensVarsel] = Field(default_factory=list)
+    vederlag_varsel: dict | None = None
 
     status: SporStatus = Field(
         default=SporStatus.IKKE_RELEVANT, description="Nåværende status for vederlag"
@@ -660,6 +670,8 @@ class EndringsordreData(BaseModel):
 class FristTilstand(BaseModel):
     """Aggregert tilstand for frist-sporet"""
 
+    varsler: list[SendtKonsekvensVarsel] = Field(default_factory=list)
+
     status: SporStatus = Field(
         default=SporStatus.IKKE_RELEVANT, description="Nåværende status for frist"
     )
@@ -995,6 +1007,8 @@ class SakState(BaseModel):
         elif self.vederlag.status == SporStatus.AVSLATT:
             return "Avvist"
         elif self.vederlag.status == SporStatus.SENDT:
+            if self.vederlag.varsler and not self.vederlag.metode:
+                return "Varslet – ikke spesifisert"
             return "Sendt - venter på svar"
         elif self.vederlag.status == SporStatus.UNDER_BEHANDLING:
             return "Under behandling"
@@ -1050,6 +1064,8 @@ class SakState(BaseModel):
         elif self.frist.status == SporStatus.AVSLATT:
             return "Avvist"
         elif self.frist.status == SporStatus.SENDT:
+            if self.frist.varsel_type == "varsel":
+                return "Varslet – ikke spesifisert"
             return "Sendt - venter på svar"
         elif self.frist.status == SporStatus.UNDER_BEHANDLING:
             return "Under behandling"
@@ -1114,7 +1130,14 @@ class SakState(BaseModel):
 
         # Sjekk om noen er sendt
         if any(s == SporStatus.SENDT for s in aktive_statuser):
-            return "VENTER_PAA_SVAR"
+            if (
+                self.grunnlag.status == SporStatus.SENDT
+                or (self.vederlag.status == SporStatus.SENDT
+                    and not (self.vederlag.varsler and not self.vederlag.metode))
+                or (self.frist.status == SporStatus.SENDT and self.frist.varsel_type != "varsel")
+            ):
+                return "VENTER_PAA_SVAR"
+            return "UNDER_BEHANDLING"
 
         # Sjekk om noen spor er utkast (og resten er ferdige)
         # Dette dekker tilfellet der f.eks. grunnlag er godkjent men vederlag ikke er sendt
@@ -1187,6 +1210,9 @@ class SakState(BaseModel):
         if self.vederlag.status == SporStatus.UTKAST:
             return {"rolle": "TE", "handling": "Send vederlagskrav", "spor": "vederlag"}
 
+        if self.vederlag.status == SporStatus.SENDT and self.vederlag.varsler and not self.vederlag.metode:
+            return {"rolle": "TE", "handling": "Spesifiser vederlagskravet når beregningsgrunnlaget foreligger", "spor": "vederlag"}
+
         if self.vederlag.status == SporStatus.SENDT:
             return {
                 "rolle": "BH",
@@ -1204,6 +1230,9 @@ class SakState(BaseModel):
         # Sjekk frist
         if self.frist.status == SporStatus.UTKAST:
             return {"rolle": "TE", "handling": "Send fristkrav", "spor": "frist"}
+
+        if self.frist.status == SporStatus.SENDT and self.frist.varsel_type == "varsel":
+            return {"rolle": "TE", "handling": "Spesifiser fristkravet når beregningsgrunnlaget foreligger", "spor": "frist"}
 
         if self.frist.status == SporStatus.SENDT:
             return {"rolle": "BH", "handling": "Vurder fristkrav", "spor": "frist"}

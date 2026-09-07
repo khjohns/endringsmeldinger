@@ -1,47 +1,20 @@
 import { createQuery } from '@tanstack/svelte-query';
+import { getActiveProjectId } from '$lib/api/client';
+import { fetchCaseContext } from '$lib/api/state';
 import type { CaseContextResponse } from '$lib/types/api';
-import {
-  scenario1_3AktiveSpor,
-  scenario2_BlandetTilstand,
-  scenario3_TomSak,
-  scenario4_Omforent,
-} from '$lib/mocks/caseState';
-import {
-  timeline1_3AktiveSpor,
-  timeline2_BlandetTilstand,
-  timeline4_Omforent,
-} from '$lib/mocks/timeline';
 
-const stateMap: Record<string, typeof scenario1_3AktiveSpor> = {
-  'KOE-2024-047': scenario1_3AktiveSpor,
-  'KOE-2024-019': scenario4_Omforent,
-  'KOE-2024-031': scenario2_BlandetTilstand,
-  'KOE-2024-058': scenario3_TomSak,
-};
-
-const timelineMap: Record<string, typeof timeline1_3AktiveSpor> = {
-  'KOE-2024-047': timeline1_3AktiveSpor,
-  'KOE-2024-019': timeline4_Omforent,
-  'KOE-2024-031': timeline2_BlandetTilstand,
-};
-
-export function createCaseContextQuery(getSakId: () => string) {
+export function createCaseContextQuery(
+  getSakId: () => string,
+  getProsjektId: () => string = getActiveProjectId
+) {
   return createQuery<CaseContextResponse>(() => {
     const sakId = getSakId();
+    const prosjektId = getProsjektId();
     return {
-      queryKey: ['case-context', sakId],
-      queryFn: async (): Promise<CaseContextResponse> => {
-        const state = stateMap[sakId] ?? scenario1_3AktiveSpor;
-        const timeline = timelineMap[sakId] ?? [];
-
-        return {
-          version: 1,
-          state,
-          timeline,
-          historikk: { grunnlag: [], vederlag: [], frist: [] },
-        };
-      },
-      enabled: !!sakId,
+      // Preserve the case prefix used by existing mutation invalidations.
+      queryKey: ['case-context', sakId, prosjektId],
+      queryFn: () => fetchCaseContext(sakId, prosjektId),
+      enabled: !!sakId && !!prosjektId,
     };
   });
 }

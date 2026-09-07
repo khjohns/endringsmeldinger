@@ -75,6 +75,7 @@ export async function submitEvent(
   eventType: EventType,
   data: Record<string, unknown>,
   options?: {
+    projectId?: string;
     expectedVersion?: number;
     catendaTopicId?: string;
     pdfBase64?: string;
@@ -83,6 +84,7 @@ export async function submitEvent(
 ): Promise<EventSubmitResponse> {
   return apiFetch<EventSubmitResponse>(`/api/events`, {
     method: 'POST',
+    headers: options?.projectId ? { 'X-Project-ID': options.projectId } : undefined,
     body: JSON.stringify({
       sak_id: sakId,
       event: {
