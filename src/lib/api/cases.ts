@@ -13,7 +13,12 @@ import type { CaseListResponse } from '../types/api';
  * @param sakstype - Optional filter by case type
  * @returns List of all cases with metadata
  */
-export async function fetchCaseList(sakstype?: string): Promise<CaseListResponse> {
+export async function fetchCaseList(
+  sakstype?: string,
+  prosjektId?: string
+): Promise<CaseListResponse> {
   const params = sakstype ? `?sakstype=${encodeURIComponent(sakstype)}` : '';
-  return apiFetch<CaseListResponse>(`/api/cases${params}`);
+  return apiFetch<CaseListResponse>(`/api/cases${params}`, {
+    headers: prosjektId ? { 'X-Project-ID': prosjektId } : undefined,
+  });
 }

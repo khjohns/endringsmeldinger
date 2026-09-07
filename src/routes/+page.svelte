@@ -2,24 +2,23 @@
   import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
   import type { Project } from '$lib/types/project';
-
-  // Mock data — no backend/Supabase calls
-  const mockProjects: Project[] = [
-    { id: 'oslobygg', name: 'OsloBygg AS', description: 'Kontraktsoppfølging pilot' },
-  ];
+  import { listProjects } from '$lib/api/projects';
 
   let projects = $state<Project[]>([]);
   let loading = $state(true);
   let error = $state('');
 
   onMount(async () => {
-    projects = mockProjects;
-    // Auto-redirect if exactly one project
-    if (projects.length === 1) {
-      goto(`/${projects[0].id}`, { replaceState: true });
-      return;
+    try {
+      projects = await listProjects();
+      if (projects.length === 1) {
+        await goto(`/${encodeURIComponent(projects[0].id)}`, { replaceState: true });
+      }
+    } catch (err) {
+      error = err instanceof Error ? err.message : 'Kunne ikke laste prosjekter.';
+    } finally {
+      loading = false;
     }
-    loading = false;
   });
 </script>
 

@@ -36,6 +36,13 @@ class BusinessRuleValidator:
         """
         rules = self._get_rules_for_event(event.event_type)
 
+        varsler = getattr(getattr(event, "data", None), "varsler", None)
+        if varsler and varsler.model_dump(exclude_none=True):
+            if event.event_type == EventType.GRUNNLAG_OPPDATERT:
+                return ValidationResult(False, "Nye varsler sendes fra vederlags- eller fristsporet.", "NOTICE_TRACK")
+            # Category is TE's assessment, not a condition for sending a notice.
+            # See docs/adr/001-varsling-og-kontraktsforhold.md.
+
         for rule_name, rule_fn in rules:
             result = rule_fn(event, current_state)
             if not result.is_valid:
@@ -273,6 +280,8 @@ class BusinessRuleValidator:
 
     def _rule_vederlag_sent(self, event: AnyEvent, state: SakState) -> ValidationResult:
         """R: Cannot respond to unsent vederlag."""
+        if state.vederlag.varsler and not state.vederlag.metode:
+            return ValidationResult(False, "Vederlaget er varslet, men det foreligger ikke et spesifisert krav å besvare.")
         invalid_statuses = {SporStatus.IKKE_RELEVANT, SporStatus.UTKAST}
 
         if state.vederlag.status in invalid_statuses:

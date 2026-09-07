@@ -17,7 +17,7 @@ import {
   timeline4_Omforent,
 } from '$lib/mocks/timeline';
 import type { SakState, TimelineEvent } from '$lib/types/timeline';
-import type { Draft, Attachment, InternalNote } from './types.js';
+import type { Draft, Attachment, InternalNote } from '$lib/components/kontraktsbord/types';
 
 export type SporKey = 'ansvar' | 'vederlag' | 'frist';
 export const SPOR_KEYS: SporKey[] = ['ansvar', 'vederlag', 'frist'];

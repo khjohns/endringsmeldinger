@@ -36,6 +36,8 @@ class CatendaCommentGenerator:
         try:
             event_type_value = event.event_type.value
             event_type_display = self._format_event_type(event_type_value)
+            if event_type_value.startswith("vederlag_") and getattr(getattr(event, "data", None), "varsel_type", None) == "varsel":
+                event_type_display = "Varsel om vederlagsjustering"
 
             # Build comment parts
             parts = []
@@ -49,6 +51,12 @@ class CatendaCommentGenerator:
                 forsering_content = self._build_forsering_content(event)
                 if forsering_content:
                     parts.append(forsering_content)
+                    parts.append("")
+
+            varsler = getattr(getattr(event, "data", None), "varsler", None)
+            if varsler:
+                for tekst in varsler.model_dump(exclude_none=True).values():
+                    parts.append(tekst)
                     parts.append("")
 
             # Status summary
@@ -256,6 +264,9 @@ class CatendaCommentGenerator:
         for track_name, status, track in tracks:
             if status != SporStatus.IKKE_RELEVANT:
                 status_display = self._format_status(status.value)
+                if (track_name == "Vederlag" and track.varsler and not track.metode
+                        or track_name == "Frist" and track.varsel_type == "varsel"):
+                    status_display = "Varslet – ikke spesifisert"
                 lines.append(f"- {track_name}: {status_display}")
 
                 # Add details if available

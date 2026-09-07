@@ -1,18 +1,11 @@
 import { setActiveProjectId } from '$lib/api/client';
-import type { Project } from '$lib/types/project';
+import { getProject } from '$lib/api/projects';
+import type { LayoutLoad } from './$types';
 
-// Mock projects — no backend/Supabase calls
-const mockProjects: Record<string, Project> = {
-  oslobygg: { id: 'oslobygg', name: 'OsloBygg AS', description: 'Kontraktsoppfølging pilot' },
-};
-
-export async function load({ params }: { params: { prosjektId: string } }) {
+export const load: LayoutLoad = async ({ params }) => {
   const { prosjektId } = params;
-
-  // Sync URL prosjektId → API header for all downstream requests
+  // Keep mutation requests scoped to the project in the URL.
   setActiveProjectId(prosjektId);
-
-  const project: Project | null = mockProjects[prosjektId] ?? { id: prosjektId, name: prosjektId };
-
+  const project = await getProject(prosjektId);
   return { project };
-}
+};

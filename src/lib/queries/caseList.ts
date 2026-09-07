@@ -1,10 +1,15 @@
 import { createQuery } from '@tanstack/svelte-query';
-import { mockCaseList } from '$lib/mocks/caseList';
+import { fetchCaseList } from '$lib/api/cases';
+import { getActiveProjectId } from '$lib/api/client';
 import type { CaseListResponse } from '$lib/types/api';
 
-export function createCaseListQuery(getProsjektId?: () => string) {
-  return createQuery<CaseListResponse>(() => ({
-    queryKey: ['cases', getProsjektId?.() ?? 'default'],
-    queryFn: async (): Promise<CaseListResponse> => mockCaseList,
-  }));
+export function createCaseListQuery(getProsjektId: () => string = getActiveProjectId) {
+  return createQuery<CaseListResponse>(() => {
+    const prosjektId = getProsjektId();
+    return {
+      queryKey: ['cases', prosjektId],
+      queryFn: () => fetchCaseList(undefined, prosjektId),
+      enabled: !!prosjektId,
+    };
+  });
 }

@@ -517,6 +517,30 @@ describe('detekterEndringer', () => {
 // ============================================================================
 
 describe('buildTeRevisionEventData', () => {
+  it('preserves required basis fields when revising the description for the API', () => {
+    const data = buildTeRevisionEventData({
+      originalEventId: 'original',
+      begrunnelseHtml: '<p>Oppdatert redegjørelse</p>',
+      grunnlag: {
+        status: 'sendt',
+        laast: false,
+        antall_versjoner: 1,
+        tittel: 'Grunnforhold',
+        hovedkategori: 'SVIKT',
+        underkategori: 'GRUNNFORHOLD',
+        dato_oppdaget: '2026-09-01',
+        grunnlag_varsel: { dato_sendt: '2026-09-02' },
+      },
+    });
+    expect(data).toMatchObject({
+      tittel: 'Grunnforhold',
+      hovedkategori: 'SVIKT',
+      underkategori: 'GRUNNFORHOLD',
+      dato_oppdaget: '2026-09-01',
+      grunnlag_varsel: { dato_sendt: '2026-09-02' },
+      beskrivelse: '<p>Oppdatert redegjørelse</p>',
+    });
+  });
   it('builds TE revision payload', () => {
     const data = buildTeRevisionEventData({
       originalEventId: 'evt-grunnlag-1',

@@ -1,3 +1,4 @@
+import type { KonsekvensVarsler, VarselKind } from '$lib/domain/konsekvensVarsler';
 /**
  * Reaktiv mockup-store. Wrapper SakState + lokal UI-state.
  * Scenariovalg bytter hele SakState + timeline + UI-state.
@@ -9,9 +10,9 @@ import {
   deriveVederlagDomainConfig,
   deriveFristDomainConfig,
   deriveGrunnlagDomainConfig,
-} from './derive.js';
-import type { TrackDisplay } from './derive.js';
-import type { Draft } from './types.js';
+} from '$lib/components/kontraktsbord/derive';
+import type { TrackDisplay } from '$lib/components/kontraktsbord/derive';
+import type { Draft } from '$lib/components/kontraktsbord/types';
 import { getPartsNavn } from '$lib/utils/partsNavn.js';
 import type {
   BelopVurdering,
@@ -49,8 +50,8 @@ export interface FristSvarDetaljer {
 
 const INACTIVE_STATUSES = new Set(['ikke_relevant', 'utkast', 'trukket']);
 
-function createStore() {
-  let scenario: Scenario = $state(structuredClone(DEFAULT_SCENARIO));
+export function createDemoStore(initial: Scenario = DEFAULT_SCENARIO) {
+  let scenario: Scenario = $state(structuredClone(initial));
 
   const teNavn = $derived(getPartsNavn('TE', scenario.sak.entreprenor, scenario.sak.byggherre));
   const bhNavn = $derived(getPartsNavn('BH', scenario.sak.entreprenor, scenario.sak.byggherre));
@@ -269,7 +270,41 @@ function createStore() {
     });
   }
 
-  function sendTeVederlag(belop: number) {
+  function sendTeVederlagVarsel(varsler: KonsekvensVarsler) {
+    const tidsstempel = new Date().toISOString();
+    const event_id = crypto.randomUUID();
+    const v = scenario.sak.vederlag;
+    v.varsler = [
+      ...(v.varsler ?? []),
+      ...Object.entries(varsler).map(([type, tekst]) => ({
+        type: type as VarselKind,
+        tekst,
+        tidsstempel,
+        event_id,
+      })),
+    ];
+    if (v.status === 'utkast' || v.status === 'ikke_relevant') v.status = 'sendt';
+    v.siste_oppdatert = tidsstempel;
+    scenario.timeline.push({
+      specversion: '1.0',
+      source: '/demo',
+      id: event_id,
+      type: 'no.oslo.koe.vederlag_krav_sendt',
+      actorrole: 'TE',
+      actor: teNavn,
+      time: tidsstempel,
+      spor: 'vederlag',
+      summary: 'Varslet – ikke spesifisert',
+      data: { varsel_type: 'varsel', varsler },
+    });
+  }
+
+  function sendTeVederlag(belop: number, metode?: VederlagsMetode) {
+    const v = scenario.sak.vederlag;
+    v.metode = metode ?? v.metode ?? 'REGNINGSARBEID';
+    v.status = 'sendt';
+    if (v.metode === 'REGNINGSARBEID') v.kostnads_overslag = belop;
+    else v.belop_direkte = belop;
     scenario.sak.vederlag.krevd_belop = belop;
     scenario.sak.vederlag.netto_belop = belop;
   }
@@ -414,6 +449,16 @@ function createStore() {
   }
 
   return {
+    isDemo: true as const,
+    submitting: false,
+    submissionError: null as string | null,
+    demo: {
+      get scenario() {
+        return scenario;
+      },
+      scenarios: SCENARIOS,
+      selectScenario,
+    },
     get sak() {
       return scenario.sak;
     },
@@ -453,9 +498,10 @@ function createStore() {
     sendFristSvar,
     sendTeGrunnlag,
     sendTeVederlag,
+    sendTeVederlagVarsel,
     sendTeFrist,
     withdrawTrack,
   };
 }
 
-export const store = createStore();
+export type DemoCaseWorkspace = ReturnType<typeof createDemoStore>;

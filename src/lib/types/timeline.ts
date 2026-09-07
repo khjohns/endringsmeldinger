@@ -1,3 +1,4 @@
+import type { SendtKonsekvensVarsel, KonsekvensVarsler } from '$lib/domain/konsekvensVarsler';
 /**
  * Unified Timeline Types
  *
@@ -182,6 +183,8 @@ export interface GrunnlagTilstand {
 }
 
 export interface VederlagTilstand {
+  varsler?: SendtKonsekvensVarsel[];
+  vederlag_varsel?: VarselInfo;
   status: SporStatus;
 
   // TE's krav - hovedbeløp (følger VederlagKompensasjon struktur)
@@ -252,6 +255,7 @@ export interface VederlagTilstand {
 }
 
 export interface FristTilstand {
+  varsler?: SendtKonsekvensVarsel[];
   status: SporStatus;
 
   // TE's krav
@@ -652,6 +656,7 @@ export interface SaerskiltKravItem {
 }
 
 export interface GrunnlagEventData {
+  varsler?: KonsekvensVarsler;
   tittel: string; // Kort beskrivende tittel for varselet
   hovedkategori: string; // Code from HOVEDKATEGORI_OPTIONS (e.g., "ENDRING")
   underkategori: string | string[]; // Code(s) from UNDERKATEGORI_MAP
@@ -915,7 +920,14 @@ export interface ForseringVarselEventData {
 // ========== TIMELINE DISPLAY ==========
 
 // Union type for all possible event data
+export interface VederlagVarselEventData {
+  varsel_type: 'varsel';
+  varsler: KonsekvensVarsler;
+  begrunnelse?: string;
+}
+
 export type EventData =
+  | VederlagVarselEventData
   | GrunnlagEventData
   | GrunnlagOppdatertEventData
   | VederlagEventData

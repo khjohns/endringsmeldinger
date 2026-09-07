@@ -446,6 +446,23 @@ For “Hindringer BH har risikoen for” (100000006):
 """
 
 
+class KonsekvensVarsler(BaseModel):
+    """Explicit notices; omitted fields never mean waiver of a claim."""
+
+    model_config = {"extra": "forbid"}
+    vederlag: str | None = Field(default=None, min_length=1)
+    rigg_drift: str | None = Field(default=None, min_length=1)
+    produktivitet: str | None = Field(default=None, min_length=1)
+    frist: str | None = Field(default=None, min_length=1)
+
+    @field_validator("vederlag", "rigg_drift", "produktivitet", "frist")
+    @classmethod
+    def nonblank_notice(cls, value):
+        if value is not None and not value.strip():
+            raise ValueError("Varselet må ha et innhold")
+        return value
+
+
 class GrunnlagData(BaseModel):
     """
     Data for ansvarsgrunnlag (Event 1 - Hvorfor/Hvem).
@@ -474,6 +491,8 @@ class GrunnlagData(BaseModel):
     dato_oppdaget: str = Field(
         ..., description="Når forholdet ble oppdaget (YYYY-MM-DD)"
     )
+
+    varsler: KonsekvensVarsler = Field(default_factory=KonsekvensVarsler)
 
     # Varselinformasjon
     grunnlag_varsel: VarselInfo | None = Field(
@@ -537,6 +556,25 @@ class VederlagData(VederlagKompensasjon):
     - netto_belop: Computed (brutto - fradrag)
     - krevd_belop: Alias for netto_belop
     """
+
+    # A neutral notice has no calculation method or amount.
+    metode: VederlagsMetode | None = None
+    varsel_type: Literal["varsel", "spesifisert"] = "spesifisert"
+    varsler: KonsekvensVarsler = Field(default_factory=KonsekvensVarsler)
+
+    @model_validator(mode="after")
+    def validate_notice_or_claim(self):
+        if self.varsel_type == "varsel":
+            if not self.varsler.model_dump(exclude_none=True) or self.varsler.frist:
+                raise ValueError("Velg minst ett vederlagsvarsel. Frist varsles i fristsporet.")
+            if any(value is not None for value in (
+                self.metode, self.belop_direkte, self.kostnads_overslag,
+                self.fradrag_belop, self.saerskilt_krav,
+            )):
+                raise ValueError("Et nøytralt varsel skal ikke inneholde beregningsmetode eller beløp")
+        elif self.metode is None:
+            raise ValueError("metode er påkrevd for spesifisert krav")
+        return self
 
     # Detaljert begrunnelse for vederlagskravet
     begrunnelse: str = Field(..., min_length=1, description="Begrunnelse for kravet")

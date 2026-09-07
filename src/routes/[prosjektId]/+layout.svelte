@@ -31,41 +31,45 @@
 </script>
 
 <QueryClientProvider client={queryClient}>
-  <div class="app-shell">
-    <header class="top-nav">
-      <nav class="nav-breadcrumbs" aria-label="Brodsmuler">
-        <a href="/{prosjektId}" class="crumb">{projectName}</a>
-        {#if isNySak}
-          <span class="sep">/</span>
-          <span class="current">Ny sak</span>
-        {:else if sakId}
-          <span class="sep">/</span>
-          <a href="/{prosjektId}" class="crumb">Saker</a>
-          <span class="sep">/</span>
-          {#if subRouteName}
-            <a href="/{prosjektId}/{sakId}" class="crumb">{sakId}</a>
+  {#if sakId || isNySak}
+    {@render children()}
+  {:else}
+    <div class="app-shell">
+      <header class="top-nav">
+        <nav class="nav-breadcrumbs" aria-label="Brodsmuler">
+          <a href="/{prosjektId}" class="crumb">{projectName}</a>
+          {#if isNySak}
             <span class="sep">/</span>
-            <span class="current">{subRouteName}</span>
-          {:else}
-            <span class="current">{sakId}</span>
+            <span class="current">Ny sak</span>
+          {:else if sakId}
+            <span class="sep">/</span>
+            <a href="/{prosjektId}" class="crumb">Saker</a>
+            <span class="sep">/</span>
+            {#if subRouteName}
+              <a href="/{prosjektId}/{sakId}" class="crumb">{sakId}</a>
+              <span class="sep">/</span>
+              <span class="current">{subRouteName}</span>
+            {:else}
+              <span class="current">{sakId}</span>
+            {/if}
           {/if}
-        {/if}
-      </nav>
-      <div class="nav-actions">
-        <div class="role-toggle-wrap">
-          <RoleToggle />
+        </nav>
+        <div class="nav-actions">
+          <div class="role-toggle-wrap">
+            <RoleToggle />
+          </div>
+          <div class="theme-toggle-wrap">
+            <ThemeToggle />
+          </div>
+          <span class="user-org">Hent AS</span>
+          <div class="avatar">AM</div>
         </div>
-        <div class="theme-toggle-wrap">
-          <ThemeToggle />
-        </div>
-        <span class="user-org">Hent AS</span>
-        <div class="avatar">AM</div>
-      </div>
-    </header>
-    <main class="app-main">
-      {@render children()}
-    </main>
-  </div>
+      </header>
+      <main class="app-main">
+        {@render children()}
+      </main>
+    </div>
+  {/if}
 </QueryClientProvider>
 
 <style>
