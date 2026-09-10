@@ -1,6 +1,9 @@
 <script lang="ts">
   import { page } from '$app/state';
   import { goto } from '$app/navigation';
+  import AppTopbar from '$lib/components/navigation/AppTopbar.svelte';
+  import { projectStore } from '$lib/stores/project.svelte';
+  import { savePreferredRole } from '$lib/utils/rolePreference';
   import { ChevronLeft } from 'lucide-svelte';
   import '$lib/components/kontraktsbord/mockup.css';
   import NewCaseForm from '$lib/components/kontraktsbord/NewCaseForm.svelte';
@@ -10,7 +13,7 @@
   let actions = $state<{ canSend: boolean; sendLabel: string; send: () => void } | null>(null);
 
   $effect(() => {
-    localStorage.setItem('koe-user-role', 'TE');
+    savePreferredRole('TE');
   });
 </script>
 
@@ -18,10 +21,18 @@
 
 <div class="mockup">
   <div class="new-case-shell">
-    <header>
-      <a href="/{prosjektId}"><ChevronLeft size={16} /> Saksoversikt</a>
-      <span>Nytt ansvarsgrunnlag</span>
-    </header>
+    <AppTopbar
+      projectName={projectStore.current?.name ?? prosjektId}
+      projectHref={`/${prosjektId}`}
+      caseLabel="Ny sak"
+      role="TE"
+      lockedRole
+      onrolechange={() => {}}
+    >
+      {#snippet leading()}<a class="back-link" href={`/${prosjektId}`} aria-label="Til saksoversikt"
+          ><ChevronLeft size={17} /></a
+        >{/snippet}
+    </AppTopbar>
     <main>
       {#key prosjektId}
         <NewCaseForm
@@ -49,24 +60,16 @@
     flex-direction: column;
     background: var(--canvas);
   }
-  header {
-    min-height: 64px;
-    display: flex;
-    align-items: center;
-    gap: 24px;
-    padding: 0 24px;
-    border-bottom: var(--rule);
-    background: var(--surface);
-  }
-  header a {
+  .back-link {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    padding: 6px;
     color: var(--ink-2);
-    text-decoration: none;
+    border-radius: 5px;
   }
-  header span {
-    font-weight: 600;
+  .back-link:focus-visible {
+    outline: 2px solid var(--brand);
+    outline-offset: 3px;
   }
   main {
     flex: 1;

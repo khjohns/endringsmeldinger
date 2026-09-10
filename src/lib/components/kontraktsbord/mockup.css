@@ -11,7 +11,7 @@
   /* The three measurements shared by the desktop shell. */
   --mockup-sidebar-width: 320px;
   --mockup-drawer-width: 384px;
-  --mockup-topbar-height: 56px;
+  --mockup-topbar-height: 64px;
 }
 
 /* ══════════════════════════════════════════════════
@@ -32,22 +32,22 @@
   --sidebar-border: #18231d;
 
   /* ── Surfaces ── */
-  --canvas: #f5f7f5;
-  --surface: #fafcfa;
-  --surface-warm: #eef5f0;
-  --surface-inset: #edf2ee;
+  --canvas: #f5f6f3;
+  --surface: #ffffff;
+  --surface-warm: #f4f5f1;
+  --surface-inset: #f0f2ed;
 
   /* ── Ink — 4 levels ── */
   --ink: #1b2a22;
-  --ink-2: #294336;
-  --ink-3: #61776b;
-  --ink-4: #8fa598;
+  --ink-2: #34423b;
+  --ink-3: #59675f;
+  --ink-4: #68756d;
 
   /* ── Borders ── */
   --edge: 1px solid var(--brand);
-  --rule: 1px solid #dfe7e2;
-  --rule-subtle: 1px solid #e8efea;
-  --rule-strong: 1px solid #c6d7cd;
+  --rule: 1px solid #e1e5de;
+  --rule-subtle: 1px solid #edf0e9;
+  --rule-strong: 1px solid #cbd3c9;
 
   /* ── Status — semantic ── */
   --danger: #b33e33;

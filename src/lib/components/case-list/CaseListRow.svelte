@@ -9,9 +9,10 @@
   interface Props {
     case_item: CaseListItem;
     prosjektId: string;
+    href?: string;
   }
 
-  let { case_item, prosjektId }: Props = $props();
+  let { case_item, prosjektId, href }: Props = $props();
 
   type BadgeVariant = 'godkjent' | 'avslatt' | 'delvis' | 'uavklart' | 'na';
 
@@ -33,7 +34,9 @@
     }
   }
 
-  const path = $derived(`/${prosjektId}/${case_item.sak_id}`);
+  const path = $derived(
+    href ?? `/${encodeURIComponent(prosjektId)}/${encodeURIComponent(case_item.sak_id)}`
+  );
   const tittel = $derived(case_item.cached_title ?? 'Uten tittel');
   const badgeVariant = $derived(statusToBadgeVariant(case_item.cached_status));
   const statusLabel = $derived(
@@ -48,7 +51,12 @@
   const dagerKrevd = $derived(formatDaysCompact(case_item.cached_dager_krevd));
   const sisteAktivitet = $derived(formatDateShort(case_item.last_event_at));
 
-  function handleRowClick() {
+  function handleRowClick(event: MouseEvent) {
+    // Let native links handle keyboard activation and opening a new tab.
+    if (event.target instanceof Element && event.target.closest('a, button')) return;
+    if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey)
+      return;
+    if (window.getSelection()?.toString()) return;
     goto(path);
   }
 </script>
@@ -135,6 +143,11 @@
   }
 
   .row-link {
+    background: transparent;
+    border: 0;
+    font: inherit;
+    cursor: pointer;
+    text-align: left;
     display: block;
     padding: 10px 12px;
     color: inherit;

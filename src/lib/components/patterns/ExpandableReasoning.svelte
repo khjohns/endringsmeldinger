@@ -54,7 +54,7 @@
 
 <style>
   .reasoning-section {
-    padding: 18px 24px 20px;
+    padding: 24px;
     border-top: var(--rule, 1px solid var(--color-wire));
   }
   .eyebrow {
@@ -67,10 +67,11 @@
     color: var(--ink-4, var(--color-ink-muted));
   }
   .reasoning-text {
-    max-width: 74ch;
-    margin-top: 9px;
+    max-width: 68ch;
+    overflow-wrap: anywhere;
+    margin-top: 12px;
     font-size: 14px;
-    line-height: 1.65;
+    line-height: 1.75;
     color: var(--ink-2, var(--color-ink-secondary));
   }
   .reasoning-text.clamped {

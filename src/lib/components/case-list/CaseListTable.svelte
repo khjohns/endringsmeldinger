@@ -5,9 +5,10 @@
   interface Props {
     cases: CaseListItem[];
     prosjektId: string;
+    caseHref?: (item: CaseListItem) => string;
   }
 
-  let { cases, prosjektId }: Props = $props();
+  let { cases, prosjektId, caseHref }: Props = $props();
 
   type SortKey =
     | 'sak_id'
@@ -95,7 +96,7 @@
     </thead>
     <tbody>
       {#each sortedCases as case_item (case_item.sak_id)}
-        <CaseListRow {case_item} {prosjektId} />
+        <CaseListRow {case_item} {prosjektId} href={caseHref?.(case_item)} />
       {/each}
     </tbody>
   </table>

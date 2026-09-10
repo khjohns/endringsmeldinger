@@ -19,6 +19,8 @@ export interface ContractSettings {
 
 export interface ProjectSettings {
   contract?: ContractSettings;
+  image_url?: string;
+  image_alt?: string;
   [key: string]: unknown;
 }
 

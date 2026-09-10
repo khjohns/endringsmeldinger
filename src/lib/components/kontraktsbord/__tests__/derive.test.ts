@@ -1,6 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import {
   deriveTrackDisplay,
+  assessedGap,
+  formatExposure,
   deriveVederlagDomainConfig,
   deriveFristDomainConfig,
   deriveGrunnlagDomainConfig,
@@ -101,5 +103,33 @@ describe('deriveGrunnlagDomainConfig', () => {
     const cfg = deriveGrunnlagDomainConfig(scenario4_Omforent);
     expect(cfg.isUpdateMode).toBe(true);
     expect(cfg.forrigeResultat).toBe('godkjent');
+  });
+});
+
+describe('vurdert omfang og eksponering', () => {
+  it.each(['frist', 'vederlag'] as const)('skiller ubesvart %s fra uttrykkelig null', (track) => {
+    const sak = structuredClone(scenario1_3AktiveSpor);
+    sak[track].bh_resultat = undefined;
+    const unanswered = deriveTrackDisplay(sak, track);
+    expect(unanswered.bhPrinsipal).toBeUndefined();
+    expect(unanswered.bhSubsidiaer).toBeUndefined();
+    expect(assessedGap(unanswered.krevdValue!, unanswered.bhPrinsipal)).toBeUndefined();
+
+    sak[track].bh_resultat = 'avslatt';
+    sak.frist.godkjent_dager = 0;
+    sak.frist.subsidiaer_godkjent_dager = 0;
+    sak.vederlag.godkjent_belop = 0;
+    sak.vederlag.subsidiaer_godkjent_belop = 0;
+    const rejected = deriveTrackDisplay(sak, track);
+    expect(rejected.bhPrinsipal).toBe(0);
+    expect(rejected.bhSubsidiaer).toBe(0);
+    expect(assessedGap(rejected.krevdValue!, rejected.bhPrinsipal)).toBe(rejected.krevdValue);
+  });
+
+  it('summerer bare vurderte spor og beholder null', () => {
+    expect(formatExposure(370000, undefined)).not.toContain('dager');
+    expect(formatExposure(undefined, 45)).toBe('45 dager');
+    expect(formatExposure(undefined, undefined)).toBe('Ikke vurdert');
+    expect(formatExposure(0, 0)).toBe('0,- + 0 dager');
   });
 });

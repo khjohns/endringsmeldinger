@@ -352,12 +352,12 @@
 <style>
   .read-content {
     width: 100%;
-    padding: 20px;
+    padding: 28px;
   }
 
   /* ── Section heading ── */
   .section-heading {
-    margin-bottom: 20px;
+    margin-bottom: 24px;
   }
   .heading-row {
     display: flex;
@@ -386,7 +386,7 @@
     background: var(--green-bg);
     border: 1px solid var(--green-border);
     border-radius: 12px;
-    margin-bottom: 16px;
+    margin-bottom: 24px;
   }
   .sub-diamond-inline {
     width: 11px;
@@ -494,8 +494,10 @@
     padding: 20px 24px;
   }
   .argument-text {
+    max-width: 68ch;
+    overflow-wrap: anywhere;
     font-size: 14px;
-    line-height: 1.6;
+    line-height: 1.75;
     color: var(--ink-2);
   }
   .empty-response {

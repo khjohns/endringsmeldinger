@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { readPreferredRole, savePreferredRole } from '$lib/utils/rolePreference';
+  import { assessedGap } from './derive';
   import { getCaseWorkspace } from '$lib/kontraktsbord/context.svelte';
   const store = getCaseWorkspace();
   import Header from './Header.svelte';
@@ -35,7 +37,7 @@
 
   type MobileView = 'matrix' | 'detail';
 
-  let role: Role = $state('BH');
+  let role: Role = $state(readPreferredRole());
   let sel: SporKey = $state('vederlag');
   let rTab: RightTab = $state('bestemmelser');
   let mode: Mode = $state('read');
@@ -61,6 +63,7 @@
   $effect(() => {
     if (view) {
       role = view.role;
+      savePreferredRole(view.role);
       sel = view.track;
       mode = view.mode;
       if (view.mode === 'form') mobileView = 'detail';
@@ -73,19 +76,24 @@
 
   function changeRole(next: Role) {
     role = next;
+    savePreferredRole(next);
     mode = 'read';
     formActions = null;
     notifyView();
   }
 
   const subV = $derived(
-    store.display('vederlag').krevdValue! - store.display('vederlag').bhSubsidiaer!
+    assessedGap(store.display('vederlag').krevdValue!, store.display('vederlag').bhSubsidiaer)
   );
   const prinV = $derived(
-    store.display('vederlag').krevdValue! - store.display('vederlag').bhPrinsipal!
+    assessedGap(store.display('vederlag').krevdValue!, store.display('vederlag').bhPrinsipal)
   );
-  const subF = $derived(store.display('frist').krevdValue! - store.display('frist').bhSubsidiaer!);
-  const prinF = $derived(store.display('frist').krevdValue! - store.display('frist').bhPrinsipal!);
+  const subF = $derived(
+    assessedGap(store.display('frist').krevdValue!, store.display('frist').bhSubsidiaer)
+  );
+  const prinF = $derived(
+    assessedGap(store.display('frist').krevdValue!, store.display('frist').bhPrinsipal)
+  );
 
   function goForm(key: SporKey) {
     sel = key;

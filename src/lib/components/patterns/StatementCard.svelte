@@ -52,7 +52,7 @@
 <style>
   .statement-card {
     overflow: hidden;
-    margin-bottom: 20px;
+    margin-bottom: 28px;
     background: var(--surface, var(--color-canvas));
     border: var(--rule, 1px solid var(--color-wire));
     border-radius: 12px;
@@ -63,7 +63,7 @@
     align-items: flex-start;
     justify-content: space-between;
     gap: 20px;
-    padding: 14px 16px;
+    padding: 20px 24px;
     border-bottom: var(--rule, 1px solid var(--color-wire));
   }
   .party-heading {
@@ -109,5 +109,13 @@
     font-family: var(--font-mono, var(--font-data));
     font-size: 12px;
     color: var(--ink-4, var(--color-ink-muted));
+  }
+  @media (max-width: 640px) {
+    .statement-header {
+      padding: 16px 18px;
+    }
+    .statement-card {
+      margin-bottom: 20px;
+    }
   }
 </style>

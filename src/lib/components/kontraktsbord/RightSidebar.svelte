@@ -1,5 +1,6 @@
 <script lang="ts">
   import {
+    ChevronDown,
     Paperclip,
     ExternalLink,
     Plus,
@@ -89,15 +90,26 @@
 
   <div class="tab-content">
     {#if tab === 'bestemmelser'}
-      {#each best as b}
-        <div class="best-card" style="margin-bottom: {S.lg}px">
-          <div class="font-mono best-ref">{b.ref} {b.title}</div>
-          <p class="best-text">{b.text}</p>
-          {#if b.note}
-            <p class="best-note">{b.note}</p>
-          {/if}
-        </div>
-      {/each}
+      <p class="provisions-intro">Bestemmelser for dette sporet. Åpne dem du vil lese.</p>
+      {#key sel}
+        {#each best as b, i (b.ref)}
+          <details class="provision" open={i === 0}>
+            <summary class="provision-summary">
+              <span class="provision-heading">
+                <span class="font-mono best-ref">{b.ref}</span>
+                <span class="best-title">{b.title}</span>
+              </span>
+              <ChevronDown size={16} strokeWidth={1.75} aria-hidden="true" />
+            </summary>
+            <div class="provision-body">
+              <p class="best-text">{b.text}</p>
+              {#if b.note}
+                <p class="best-note">{b.note}</p>
+              {/if}
+            </div>
+          </details>
+        {/each}
+      {/key}
     {/if}
 
     {#if tab === 'historikk'}
@@ -229,23 +241,72 @@
   }
 
   /* Bestemmelser */
-  .best-ref {
+  .provisions-intro {
+    margin: 0 0 18px;
+    color: var(--ink-3);
     font-size: 12px;
-    font-weight: 700;
-    margin-bottom: 8px;
-    font-family: var(--font-legal);
-    text-transform: uppercase;
+    line-height: 1.5;
   }
-  .best-text {
-    font-size: 12px;
-    line-height: 1.6;
+  .provision {
+    border-bottom: var(--rule);
+  }
+  .provision-summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 16px 0;
+    list-style: none;
+    cursor: pointer;
+  }
+  .provision-summary::-webkit-details-marker {
+    display: none;
+  }
+  .provision-summary:hover .best-title {
+    color: var(--ink);
+  }
+  .provision-summary:focus-visible {
+    outline: 2px solid var(--control-focus);
+    outline-offset: 4px;
+    border-radius: 4px;
+  }
+  .provision-summary :global(svg) {
+    flex-shrink: 0;
+    color: var(--ink-3);
+  }
+  .provision[open] .provision-summary :global(svg) {
+    transform: rotate(180deg);
+  }
+  .provision-heading {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  .best-ref {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--ink-3);
+  }
+  .best-title {
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.4;
+    color: var(--ink-2);
+  }
+  .provision-body {
+    padding: 0 0 20px;
+  }
+  .best-text,
+  .best-note {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.7;
     color: var(--ink-2);
   }
   .best-note {
-    font-size: 12px;
-    line-height: 1.5;
-    color: var(--green);
-    margin-top: 12px;
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: var(--rule-subtle);
   }
 
   /* Historikk */

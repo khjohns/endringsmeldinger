@@ -1,4 +1,5 @@
 <script lang="ts">
+  import PositionExplanation from './PositionExplanation.svelte';
   import { Coins } from 'lucide-svelte';
   import ExpandableReasoning from '$lib/components/patterns/ExpandableReasoning.svelte';
   import InternalDraftCard from '$lib/components/patterns/InternalDraftCard.svelte';
@@ -197,7 +198,7 @@
 
 {#if hasBhResponse}
   <StatementCard
-    eyebrow="Byggherrens standpunkt"
+    eyebrow="BHs siste svar · sendt"
     partyName={store.bhNavn}
     reference="§ 34.1"
     submittedAt={bhDate}
@@ -210,6 +211,28 @@
   >
     {#snippet icon()}<Coins size={14} />{/snippet}
 
+    <PositionExplanation
+      subsidiary={hasSubsidiaryPosition}
+      value={`vederlaget til ${fmt(subsidiaertGodkjent)} kr`}
+      rejected={vederlag.bh_resultat === 'avslatt'}
+      triggers={latestBhResponseData?.subsidiaer_triggers ??
+        vederlag.subsidiaer_triggers ?? [
+          ...(hasSubsidiaryPosition && store.sak.grunnlag.bh_resultat === 'avslatt'
+            ? ['grunnlag_avslatt' as const]
+            : []),
+          ...(latestBhResponseData?.hovedkrav_varslet_i_tide === false
+            ? ['preklusjon_hovedkrav' as const]
+            : []),
+          ...(latestBhResponseData?.rigg_varslet_i_tide === false
+            ? ['preklusjon_rigg' as const]
+            : []),
+          ...(latestBhResponseData?.produktivitet_varslet_i_tide === false
+            ? ['preklusjon_produktivitet' as const]
+            : []),
+          ...(latestBhResponseData?.aksepterer_metode === false ? ['metode_avslatt' as const] : []),
+        ]}
+    />
+
     <div
       class="response-summary"
       class:with-subsidiary={hasSubsidiaryPosition && !hasDetailedBhResponse}
@@ -217,7 +240,11 @@
     >
       <div>
         <span class="eyebrow">Resultat</span>
-        <strong>{bhResultLabel}</strong>
+        <strong
+          >{vederlag.bh_resultat === 'avslatt'
+            ? 'BH avslår kravet prinsipalt'
+            : bhResultLabel}</strong
+        >
       </div>
       {#if !hasDetailedBhResponse}
         <div class="approved-amount">
@@ -226,7 +253,7 @@
         </div>
         {#if hasSubsidiaryPosition}
           <div class="approved-amount">
-            <span class="eyebrow">Subsidiært godkjent</span>
+            <span class="eyebrow">Subsidiært vurdert</span>
             <strong class="font-mono">{fmt(subsidiaertGodkjent)},-</strong>
           </div>
         {/if}
@@ -241,7 +268,7 @@
               <th>Krav</th>
               <th class="numeric">Krevd</th>
               <th class="numeric">Prinsipalt godkjent</th>
-              {#if hasSubsidiaryPosition}<th class="numeric">Subsidiært godkjent</th>{/if}
+              {#if hasSubsidiaryPosition}<th class="numeric">Subsidiært vurdert</th>{/if}
             </tr>
           </thead>
           <tbody>
@@ -303,7 +330,7 @@
       </div>
       {#if hasSubsidiaryPosition}
         <div>
-          <span>Subsidiært godkjent</span>
+          <span>Subsidiært vurdert</span>
           <strong class="font-mono">{fmt(subsidiaertGodkjent)},-</strong>
         </div>
       {/if}
@@ -322,6 +349,7 @@
 {#if ui.draft}
   <div class="draft-note">
     <InternalDraftCard
+      label="Nytt BH-svar: Kladd under arbeid · ikke sendt"
       text={ui.draft.text}
       value={ui.draft.value !== undefined ? `${fmt(ui.draft.value)},-` : undefined}
       onopen={onform}

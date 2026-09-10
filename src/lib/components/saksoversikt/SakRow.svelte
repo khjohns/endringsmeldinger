@@ -9,19 +9,34 @@
     erAktiv: boolean;
     onpanel: () => void;
     prosjektId: string;
+    previewOnly?: boolean;
     aktivtSpor?: SporHendelseType | null;
   }
 
-  let { sak, klynger, erAktiv, onpanel, prosjektId, aktivtSpor = null }: Props = $props();
+  let {
+    sak,
+    klynger,
+    erAktiv,
+    onpanel,
+    prosjektId,
+    aktivtSpor = null,
+    previewOnly = false,
+  }: Props = $props();
 
   const tittel = $derived(sak.cached_title ?? 'Uten tittel');
 </script>
 
 <div class="rad" class:rad-aktiv={erAktiv}>
-  <a class="meta" href="/{prosjektId}/{sak.sak_id}">
-    <span class="sak-id">{sak.sak_id}</span>
-    <span class="sak-tittel">{tittel}</span>
-  </a>
+  {#if previewOnly}
+    <button class="meta" onclick={onpanel}
+      ><span class="sak-id">{sak.sak_id}</span><span class="sak-tittel">{tittel}</span></button
+    >
+  {:else}
+    <a class="meta" href="/{prosjektId}/{sak.sak_id}">
+      <span class="sak-id">{sak.sak_id}</span>
+      <span class="sak-tittel">{tittel}</span>
+    </a>
+  {/if}
   <button
     class="tidslinje-knapp"
     type="button"
@@ -61,6 +76,10 @@
   }
 
   .meta {
+    background: transparent;
+    border: 0;
+    text-align: left;
+    cursor: pointer;
     width: 260px;
     flex-shrink: 0;
     display: flex;
@@ -127,6 +146,10 @@
     }
 
     .meta {
+      background: transparent;
+      border: 0;
+      text-align: left;
+      cursor: pointer;
       width: 100%;
       padding: 0;
     }

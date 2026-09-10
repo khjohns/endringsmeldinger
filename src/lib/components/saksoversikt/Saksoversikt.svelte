@@ -7,13 +7,18 @@
   interface Props {
     saker: SaksoversiktItem[];
     prosjektId: string;
+    previewOnly?: boolean;
     aktivtSpor?: SporHendelseType | null;
   }
 
-  let { saker, prosjektId, aktivtSpor = null }: Props = $props();
+  let { saker, prosjektId, aktivtSpor = null, previewOnly = false }: Props = $props();
 
   let valgtSak = $state<SaksoversiktItem | null>(null);
   const panelAapen = $derived(valgtSak !== null);
+
+  $effect(() => {
+    if (valgtSak && !saker.some((sak) => sak.sak_id === valgtSak?.sak_id)) valgtSak = null;
+  });
 
   const datospenn = $derived(finnDatospenn(saker));
 
@@ -60,12 +65,13 @@
           onpanel={() => velgSak(sak)}
           {prosjektId}
           {aktivtSpor}
+          {previewOnly}
         />
       {/each}
     </div>
   </div>
 
-  <SakPanel sak={valgtSak} erAapen={panelAapen} onclose={lukkPanel} {prosjektId} />
+  <SakPanel sak={valgtSak} erAapen={panelAapen} onclose={lukkPanel} {prosjektId} {previewOnly} />
 </div>
 
 <style>

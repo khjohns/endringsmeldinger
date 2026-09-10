@@ -223,7 +223,11 @@
 
   {#if ui.draft}
     <div class="draft-note">
-      <InternalDraftCard text={ui.draft.text} onopen={onform} />
+      <InternalDraftCard
+        label="Nytt BH-svar: Kladd under arbeid · ikke sendt"
+        text={ui.draft.text}
+        onopen={onform}
+      />
     </div>
   {/if}
 {/if}

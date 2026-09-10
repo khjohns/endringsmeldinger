@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { formatExposure } from './derive';
   import { Check, XSquare, Send, BookOpen, ArrowRight, PencilLine } from 'lucide-svelte';
   import { formatDateShortNorwegian } from '$lib/utils/dateFormatters.js';
   import { fmt, sporResultatLabel } from './utils.js';
@@ -27,10 +28,10 @@
     role: Role;
     sel: SporKey;
     hasDraft: boolean;
-    subV: number;
-    subF: number;
-    prinV: number;
-    prinF: number;
+    subV: number | undefined;
+    subF: number | undefined;
+    prinV: number | undefined;
+    prinF: number | undefined;
     oncloseform: () => void;
     onform: (key: SporKey) => void;
     ontogglecontext?: () => void;
@@ -133,9 +134,13 @@
                 {fristResultat} · {store.sak.frist.godkjent_dager ?? 0} dager godkjent
               </span>
             {:else}
-              <span style="color: var(--green)">Subs. {fmt(subV)},- / {subF} dager</span>
+              <span style="color: var(--green)"
+                >Bestridt subsidiært: {formatExposure(subV, subF)}</span
+              >
               <span class="status-sep">·</span>
-              <span style="color: var(--danger)">Prins. {fmt(prinV)},- / {prinF} dager</span>
+              <span style="color: var(--danger)"
+                >Bestridt prinsipalt: {formatExposure(prinV, prinF)}</span
+              >
             {/if}
           </div>
         </div>
