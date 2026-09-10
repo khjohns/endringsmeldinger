@@ -10,9 +10,10 @@
   const projectMeta = $derived(projectToMeta(projectStore.current, prosjektId));
 </script>
 
-<svelte:head><title>Krav og endringer — {projectMeta.name}</title></svelte:head>
+<svelte:head><title>Aktivitetslogg — {projectMeta.name}</title></svelte:head>
 
 <ProjectOverview
+  activePage="activity"
   cases={query.data?.cases ?? []}
   {prosjektId}
   prosjektNavn={projectMeta.name}

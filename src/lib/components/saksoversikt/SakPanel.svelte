@@ -14,9 +14,10 @@
     erAapen: boolean;
     onclose: () => void;
     prosjektId: string;
+    previewOnly?: boolean;
   }
 
-  let { sak, erAapen, onclose, prosjektId }: Props = $props();
+  let { sak, erAapen, onclose, prosjektId, previewOnly = false }: Props = $props();
 
   const statusLabel = $derived(
     sak?.cached_status ? getOverordnetStatusLabel(sak.cached_status as OverordnetStatus) : null
@@ -165,10 +166,12 @@
         </div>
 
         <!-- Lenke -->
-        <a href="/{prosjektId}/{sak.sak_id}" class="panel-lenke">
-          Åpne saksmappe
-          <span aria-hidden="true">&rarr;</span>
-        </a>
+        {#if !previewOnly}
+          <a href="/{prosjektId}/{sak.sak_id}" class="panel-lenke">
+            Åpne saksmappe
+            <span aria-hidden="true">&rarr;</span>
+          </a>
+        {/if}
       </div>
     </div>
   {/if}

@@ -24,7 +24,7 @@
     display: flex;
     align-items: flex-start;
     gap: 13px;
-    padding: 18px 20px;
+    padding: 20px 24px;
     background: var(--surface, var(--color-canvas));
     border: var(--rule, 1px solid var(--color-wire));
     border-radius: 12px;
@@ -61,5 +61,10 @@
     font-size: 12px;
     line-height: 1.5;
     color: var(--ink-3, var(--color-ink-secondary));
+  }
+  @media (max-width: 640px) {
+    .pending-response-card {
+      padding: 18px;
+    }
   }
 </style>

@@ -1,9 +1,9 @@
 <script lang="ts">
-  import { ChevronLeft, RotateCcw, Sun, Moon, Plus } from 'lucide-svelte';
+  import { ChevronLeft, RotateCcw, SlidersHorizontal, Plus } from 'lucide-svelte';
+  import AppTopbar from '$lib/components/navigation/AppTopbar.svelte';
   import { getCaseWorkspace } from '$lib/kontraktsbord/context.svelte';
-  const store = getCaseWorkspace();
   import type { Role, Mode } from './types.js';
-
+  const store = getCaseWorkspace();
   let {
     role,
     mode,
@@ -14,322 +14,225 @@
     onback,
     onnewcase,
     ondarkchange,
-    overviewHref,
+    overviewHref = store.isDemo ? '/mockup/oversikt' : undefined,
   }: {
     role: Role;
     mode: Mode;
     dark?: boolean;
     mobileView?: 'matrix' | 'detail';
     creatingCase?: boolean;
-    onrolechange: (r: Role) => void;
+    onrolechange: (role: Role) => void;
     onback: () => void;
     onnewcase?: () => void;
-    ondarkchange?: (v: boolean) => void;
+    ondarkchange?: (dark: boolean) => void;
     overviewHref?: string;
   } = $props();
+  let demoTools: HTMLDetailsElement | undefined = $state();
 </script>
 
-<header class="header header-offset" class:header-full={creatingCase}>
-  <div class="left">
-    {#if mode === 'form' || creatingCase}
-      <button class="back-btn" onclick={onback}>
-        <ChevronLeft size={16} />
-        <span class="back-text">{creatingCase ? 'Saksoversikt' : 'Oversikt'}</span>
-      </button>
-    {/if}
-    {#if mobileView === 'detail' && mode === 'read'}
-      <button class="back-btn mobile-only-back" onclick={onback}>
-        <ChevronLeft size={16} />
-      </button>
-    {/if}
-    <div class="project-info">
-      {#if overviewHref}
-        <a class="project-name" href={overviewHref}>{store.sak.prosjekt_navn ?? 'Saksoversikt'}</a>
-      {:else}
-        <span class="project-name">{store.sak.prosjekt_navn ?? 'Prosjekt'}</span>
-      {/if}
-      <span class="breadcrumb-separator">/</span>
-      <span class="project-case">
-        {creatingCase ? 'Ny sak' : store.sak.sak_id}
-      </span>
-    </div>
-  </div>
-  <div class="right">
-    {#if !creatingCase && store.demo}
-      <div class="scenario-select">
-        <select
-          class="font-mono"
-          aria-label="Scenario"
-          value={store.demo.scenario.id}
-          onchange={(e) => store.demo?.selectScenario(e.currentTarget.value)}
-        >
-          {#each store.demo.scenarios as s}
-            <option value={s.id}>{s.label}</option>
-          {/each}
-        </select>
-      </div>
-    {/if}
-    {#if role === 'TE' && !creatingCase && onnewcase}
-      <button class="new-case-btn" onclick={onnewcase}><Plus size={13} /> Ny sak</button>
-    {/if}
-    <button
-      class="theme-btn"
-      onclick={() => ondarkchange?.(!dark)}
-      title={dark ? 'Bytt til lys modus' : 'Bytt til mørk modus'}
-    >
-      {#if dark}
-        <Sun size={14} />
-      {:else}
-        <Moon size={14} />
-      {/if}
-    </button>
-    {#if !creatingCase}
-      {#if store.demo}
+<svelte:window
+  onclick={(event) => {
+    if (demoTools?.open && event.target instanceof Node && !demoTools.contains(event.target))
+      demoTools.open = false;
+  }}
+  onkeydown={(event) => {
+    if (event.key === 'Escape' && demoTools?.open) {
+      demoTools.open = false;
+      demoTools.querySelector('summary')?.focus();
+    }
+  }}
+/>
+<div class="header-offset" class:header-full={creatingCase}>
+  <AppTopbar
+    projectName={store.sak.prosjekt_navn ?? 'Prosjekt'}
+    projectHref={overviewHref}
+    caseLabel={creatingCase ? 'Ny sak' : store.sak.sak_id}
+    {role}
+    {onrolechange}
+    lockedRole={creatingCase}
+  >
+    {#snippet leading()}
+      {#if mode === 'form' || creatingCase || mobileView === 'detail'}
         <button
-          class="reset-btn"
-          onclick={() => store.demo?.selectScenario(store.demo.scenario.id)}
-          title="Nullstill mockup"
+          class="back-btn"
+          class:mobile-only={mode === 'read' && !creatingCase}
+          onclick={onback}
+          aria-label={creatingCase ? 'Til saksoversikt' : 'Til oversikt'}
+          ><ChevronLeft size={17} /></button
         >
-          <RotateCcw size={12} /> <span class="reset-text">Nullstill</span>
-        </button>
       {/if}
-      <div class="role-toggle">
-        {#each ['TE', 'BH'] as r}
-          <button class="role-btn" class:active={role === r} onclick={() => onrolechange(r as Role)}
-            >{r}</button
+    {/snippet}
+    {#snippet actions()}
+      {#if role === 'TE' && !creatingCase && onnewcase}<button
+          class="new-case-btn"
+          onclick={onnewcase}><Plus size={14} />Ny sak</button
+        >{/if}
+      {#if store.demo && !creatingCase}
+        <details class="demo-tools" bind:this={demoTools}>
+          <summary aria-label="Demoverktøy" title="Demoverktøy"
+            ><SlidersHorizontal size={17} /></summary
           >
-        {/each}
-      </div>
-    {:else}
-      <span class="role-context">TE</span>
-    {/if}
-  </div>
-</header>
+          <div class="demo-popover">
+            <strong>Demoverktøy</strong>
+            <label for="demo-scenario">Eksempelsak</label>
+            <select
+              id="demo-scenario"
+              aria-label="Scenario"
+              value={store.demo.scenario.id}
+              onchange={(event) => store.demo?.selectScenario(event.currentTarget.value)}
+            >
+              {#each store.demo.scenarios as scenario}<option value={scenario.id}
+                  >{scenario.label}</option
+                >{/each}
+            </select>
+            <button
+              class="reset-btn"
+              onclick={() => store.demo?.selectScenario(store.demo.scenario.id)}
+              ><RotateCcw size={14} />Nullstill eksempelsaken</button
+            >
+            <p>Gjenoppretter opprinnelige krav, svar og kladder i denne eksempelsaken.</p>
+            {#if ondarkchange}<label class="theme-option"
+                ><input
+                  type="checkbox"
+                  checked={dark}
+                  onchange={(event) => ondarkchange?.(event.currentTarget.checked)}
+                />Mørk visning</label
+              >{/if}
+          </div>
+        </details>
+      {/if}
+    {/snippet}
+  </AppTopbar>
+</div>
 
 <style>
-  .header {
-    height: var(--mockup-topbar-height);
-    border-bottom: var(--rule);
-    background: var(--surface);
-    display: flex;
-    align-items: stretch;
-    justify-content: space-between;
-    flex-shrink: 0;
-    z-index: 30;
-    position: relative;
-  }
-  .left {
-    display: flex;
-    align-items: center;
-  }
-  .back-btn {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    padding: 0 16px;
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--ink-2);
-    background: none;
-    border: none;
-    cursor: pointer;
-    border-right: var(--rule);
-    height: 100%;
-    font-family: var(--font-sans);
-  }
-  .back-btn:hover {
-    background: var(--surface-inset);
-  }
-  .mobile-only-back {
-    display: none;
-  }
   .header-offset {
     width: calc(100% - var(--mockup-sidebar-width));
     margin-left: var(--mockup-sidebar-width);
+    position: relative;
+    z-index: 30;
+    flex-shrink: 0;
   }
   .header-full {
     width: 100%;
     margin-left: 0;
   }
-  .project-info {
-    padding: 0 16px;
+  .back-btn,
+  .demo-tools summary {
     display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-  .project-name {
-    color: inherit;
-    text-decoration: none;
-    font-size: 15px;
-    font-weight: 600;
-  }
-  .breadcrumb-separator {
-    font-size: 13px;
-    color: var(--ink-3);
-    font-weight: 400;
-  }
-  .project-case {
-    font-size: 13px;
-    color: var(--ink-2);
-    font-weight: 600;
-  }
-  .right {
-    display: flex;
-    align-items: center;
-    padding: 0 16px;
-    gap: 12px;
-  }
-  .role-toggle {
-    display: flex;
-    gap: 8px;
-  }
-  .role-btn {
-    width: 30px;
-    height: 30px;
-    padding: 0;
-    font-size: 12px;
-    font-weight: 700;
-    font-family: var(--font-sans);
-    background: var(--canvas);
-    color: var(--ink-3);
-    border: var(--control-border);
-    border-radius: 999px;
-    cursor: pointer;
-    transition: all 120ms;
-  }
-  .role-btn + .role-btn {
-    border-left: 1px solid #c6d7cd;
-  }
-  .role-btn.active {
-    background: var(--brand);
-    color: white;
-    border-color: var(--brand);
-  }
-  .role-btn:hover:not(.active) {
-    background: var(--surface-inset);
-    color: var(--ink);
-  }
-  .scenario-select {
-    display: flex;
-    align-items: center;
-    height: 100%;
-  }
-  .scenario-select select {
-    font-size: 12px;
-    font-family: var(--font-sans);
-    background: var(--surface-inset);
-    border: var(--rule);
-    border-radius: 999px;
-    padding: 4px 8px;
-    color: var(--ink-2);
-  }
-  .theme-btn {
-    display: none;
     align-items: center;
     justify-content: center;
-    width: 36px;
-    height: 36px;
-    color: var(--ink-3);
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border: 0;
+    border-radius: 6px;
     background: transparent;
-    border: var(--control-border);
-    border-radius: 999px;
+    color: var(--ink-3);
     cursor: pointer;
-    transition: all 0.15s ease;
   }
-  .theme-btn:hover {
-    color: var(--brand);
-    border-color: var(--brand);
+  .back-btn:hover,
+  .demo-tools summary:hover {
+    background: var(--surface-inset);
+  }
+  .mobile-only {
+    display: none;
+  }
+  .demo-tools {
+    position: relative;
+  }
+  .demo-tools summary {
+    list-style: none;
+  }
+  .demo-tools summary::-webkit-details-marker {
+    display: none;
+  }
+  .demo-popover {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 12px);
+    width: min(340px, calc(100vw - 32px));
+    padding: 20px;
+    border: var(--rule);
+    border-radius: 10px;
+    background: var(--surface);
+    box-shadow: var(--overlay-shadow-lg);
+    font-size: 12px;
+  }
+  .demo-popover strong {
+    display: block;
+    margin-bottom: 16px;
+    font-size: 14px;
+  }
+  .demo-popover label {
+    display: block;
+    margin-bottom: 6px;
+    color: var(--ink-3);
+  }
+  select {
+    width: 100%;
+    padding: 8px;
+    color: var(--ink-2);
+    background: var(--surface-inset);
+    border: var(--rule);
+    border-radius: 5px;
+    font: inherit;
   }
   .reset-btn {
     display: flex;
+    gap: 8px;
     align-items: center;
-    gap: 4px;
-    padding: 6px 12px;
-    font-size: 12px;
-    font-weight: 500;
-    font-family: var(--font-sans);
-    color: var(--ink-3);
-    background: transparent;
-    border: var(--control-border);
-    border-radius: 999px;
+    margin-top: 16px;
+    padding: 8px 10px;
+    border: var(--rule);
+    border-radius: 5px;
+    background: var(--surface);
+    color: var(--ink-2);
+    font: inherit;
     cursor: pointer;
-    transition: all 80ms;
+  }
+  .demo-popover p {
+    margin: 8px 0 16px;
+    line-height: 1.5;
+    color: var(--ink-3);
+  }
+  .demo-popover .theme-option {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 0;
   }
   .new-case-btn {
-    display: inline-flex;
+    display: flex;
     align-items: center;
-    gap: 5px;
-    padding: 6px 11px;
-    font-family: var(--font-sans);
-    font-size: 12px;
-    font-weight: 600;
+    gap: 6px;
+    padding: 8px 12px;
+    border: 0;
+    border-radius: 6px;
     color: white;
-    background: var(--brand-2);
-    border: 1px solid var(--brand-2);
-    border-radius: 999px;
+    background: var(--brand);
+    font: inherit;
+    font-size: 12px;
     cursor: pointer;
   }
-  .new-case-btn:hover {
-    background: var(--brand);
+  button:focus-visible,
+  summary:focus-visible,
+  select:focus-visible {
+    outline: 2px solid var(--brand);
+    outline-offset: 3px;
   }
-  .role-context {
-    display: grid;
-    width: 30px;
-    height: 30px;
-    place-items: center;
-    font-size: 12px;
-    font-weight: 700;
-    color: white;
-    background: var(--brand);
-    border-radius: 999px;
-  }
-  .reset-btn:hover {
-    color: var(--ink);
-    border-color: var(--ink-3);
-  }
-
-  /* ── Mobile ── */
   @media (max-width: 768px) {
-    .header {
-      height: auto;
-      min-height: 48px;
-      flex-wrap: wrap;
-    }
-    .left {
-      flex: 1;
-      min-width: 0;
-      overflow: hidden;
-    }
     .header-offset {
       width: 100%;
       margin-left: 0;
     }
-    .project-info {
-      padding: 0 12px;
-      gap: 6px;
-      min-width: 0;
-    }
-    .project-name {
-      font-size: 14px;
-    }
-    .back-btn {
-      padding: 0 10px;
-    }
-    .back-text {
-      display: none;
-    }
-    .mobile-only-back {
+    .mobile-only {
       display: flex;
     }
-    .right {
-      padding: 0 10px;
-      gap: 8px;
-    }
-    .reset-text {
-      display: none;
-    }
-    .reset-btn {
-      padding: 6px 8px;
+    .demo-popover {
+      position: fixed;
+      top: 64px;
+      right: 12px;
     }
   }
 </style>

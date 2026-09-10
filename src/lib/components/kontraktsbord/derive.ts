@@ -86,8 +86,8 @@ export function deriveTrackDisplay(sak: SakState, spor: SporKey): TrackDisplay {
       hasNotice: Boolean(v.varsler?.length),
       krevdValue: v.krevd_belop ?? v.netto_belop ?? 0,
       krevdUnit: ',-',
-      bhPrinsipal: v.godkjent_belop ?? 0,
-      bhSubsidiaer: v.subsidiaer_godkjent_belop ?? v.godkjent_belop ?? 0,
+      bhPrinsipal: v.bh_resultat ? v.godkjent_belop : undefined,
+      bhSubsidiaer: v.bh_resultat ? (v.subsidiaer_godkjent_belop ?? v.godkjent_belop) : undefined,
       bhUnit: ',-',
       teText: v.begrunnelse ?? '',
       bhText: v.bh_begrunnelse ?? '',
@@ -110,8 +110,8 @@ export function deriveTrackDisplay(sak: SakState, spor: SporKey): TrackDisplay {
     hasNotice: Boolean(f.frist_varsel),
     krevdValue: f.krevd_dager ?? 0,
     krevdUnit: ' dager',
-    bhPrinsipal: f.godkjent_dager ?? 0,
-    bhSubsidiaer: f.subsidiaer_godkjent_dager ?? f.godkjent_dager ?? 0,
+    bhPrinsipal: f.bh_resultat ? f.godkjent_dager : undefined,
+    bhSubsidiaer: f.bh_resultat ? (f.subsidiaer_godkjent_dager ?? f.godkjent_dager) : undefined,
     bhUnit: ' dager',
     teText: f.begrunnelse ?? '',
     bhText: f.bh_begrunnelse ?? '',
@@ -123,4 +123,17 @@ export function deriveTrackDisplay(sak: SakState, spor: SporKey): TrackDisplay {
     sisteOppdatert: f.siste_oppdatert,
     antallVersjoner: f.antall_versjoner,
   };
+}
+
+/** Ubesvarte krav inngår ikke i bestridt omfang. */
+export function assessedGap(claimed: number, assessed: number | undefined): number | undefined {
+  return assessed === undefined ? undefined : Math.max(0, claimed - assessed);
+}
+
+export function formatExposure(amount: number | undefined, days: number | undefined): string {
+  const parts = [
+    amount === undefined ? null : `${amount.toLocaleString('nb-NO')},-`,
+    days === undefined ? null : `${days} dager`,
+  ];
+  return parts.filter(Boolean).join(' + ') || 'Ikke vurdert';
 }

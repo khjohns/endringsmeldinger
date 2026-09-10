@@ -52,6 +52,7 @@ from models.events import (
 )
 from models.sak_state import SakState
 from repositories.event_repository import ConcurrencyError
+from services.follow_up_context import build_follow_up_context
 from services.business_rules import BusinessRuleValidator
 from services.catenda_service import CatendaService, map_status_to_catenda
 from utils.logger import get_logger
@@ -842,6 +843,12 @@ def _events_to_hendelser(events_data: list[dict]) -> list[dict]:
         dato = e.get("time") or e.get("tidsstempel")
         label = e.get("summary") or _HENDELSE_LABELS.get(event_type, event_type)
         entry: dict = {"type": spor, "dato": dato, "label": label}
+        event_id = e.get("id") or e.get("event_id")
+        if event_id:
+            entry["id"] = str(event_id)
+        role = e.get("actorrole") or e.get("aktor_rolle")
+        if role in ("TE", "BH"):
+            entry["rolle"] = role
         if spor in responded_spor:
             entry["besvart"] = True
         result.append(entry)
@@ -890,13 +897,19 @@ def list_cases():
 
         result = []
         for c in cases:
-            # Fetch events to derive hendelser
+            # Reuse the event read for timeline and version-aware follow-up context.
+            oppfolging = None
+            hendelser = []
             try:
                 events_data, _ = event_repo.get_events(c.sak_id)
                 hendelser = _events_to_hendelser(events_data)
+                if events_data:
+                    state = _get_timeline_service().compute_state(
+                        [parse_event(event) for event in events_data]
+                    )
+                    oppfolging = build_follow_up_context(state)
             except Exception as exc:
-                logger.warning(f"Failed to load hendelser for {c.sak_id}: {exc}")
-                hendelser = []
+                logger.warning(f"Failed to load overview context for {c.sak_id}: {exc}")
 
             result.append({
                 "sak_id": c.sak_id,
@@ -922,6 +935,7 @@ def list_cases():
                 "cached_forsering_maks": c.cached_forsering_maks,
                 # Timeline hendelser for saksoversikt
                 "hendelser": hendelser,
+                "oppfolging": oppfolging,
             })
 
         return jsonify({"cases": result})

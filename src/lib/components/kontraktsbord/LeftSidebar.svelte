@@ -1,16 +1,11 @@
 <script lang="ts">
   import { getCaseWorkspace } from '$lib/kontraktsbord/context.svelte';
   const store = getCaseWorkspace();
-  import { S } from './data.js';
   import { fmt } from './utils.js';
-  import { formatDateMedium } from '$lib/utils/formatters.js';
-  import DualBar from './DualBar.svelte';
-  import Stamp from './Stamp.svelte';
   import type { SporKey } from './types.js';
   import osloLogo from '../../../../public/logos/Oslo-logo-hvit-RGB.png?inline';
-  import { getHjemmelLabel } from '$lib/constants/categories.js';
   import { getOverordnetStatusStyle } from '$lib/constants/statusStyles.js';
-  import { ChevronRight } from 'lucide-svelte';
+  import { Building2, ChevronRight } from 'lucide-svelte';
 
   let {
     sel,
@@ -21,17 +16,17 @@
     onselect,
   }: {
     sel: SporKey;
-    subV: number;
-    prinV: number;
-    subF: number;
-    prinF: number;
+    subV: number | undefined;
+    prinV: number | undefined;
+    subF: number | undefined;
+    prinF: number | undefined;
     onselect: (key: SporKey) => void;
   } = $props();
 
   const trackGroups: { label: string; tracks: { id: SporKey; label: string }[] }[] = [
     {
       label: 'Kontraktsforhold',
-      tracks: [{ id: 'ansvar', label: 'Ansvarsgrunnlag' }],
+      tracks: [{ id: 'ansvar', label: 'Grunnlag' }],
     },
     {
       label: 'Krav',
@@ -42,145 +37,170 @@
     },
   ];
 
+  const projectNumber = $derived(
+    store.isDemo
+      ? store.timeline.map((event) => event.source.match(/\/projects\/([^/]+)/)?.[1]).find(Boolean)
+      : store.projectId
+  );
+
   const statusStyle = $derived(getOverordnetStatusStyle(store.sak.overordnet_status));
+  const exposureGroups = $derived(
+    [
+      {
+        label: 'Uavklart',
+        values: [
+          prinV === undefined && !store.display('vederlag').isWithdrawn
+            ? store.display('vederlag').unspecified
+              ? store.display('vederlag').hasNotice
+                ? 'Vederlag ikke spesifisert'
+                : null
+              : `${fmt(store.display('vederlag').krevdValue!)} kr`
+            : null,
+          prinF === undefined && !store.display('frist').isWithdrawn
+            ? store.display('frist').unspecified
+              ? store.display('frist').hasNotice
+                ? 'Frist ikke spesifisert'
+                : null
+              : `${fmt(store.display('frist').krevdValue!)} kalenderdager`
+            : null,
+        ].filter(Boolean),
+      },
+      {
+        label: 'Bestridt prinsipalt',
+        values: [
+          prinV !== undefined && !store.display('vederlag').isWithdrawn ? `${fmt(prinV)} kr` : null,
+          prinF !== undefined && !store.display('frist').isWithdrawn
+            ? `${fmt(prinF)} kalenderdager`
+            : null,
+        ].filter(Boolean),
+      },
+      {
+        label: 'Bestridt subsidiært',
+        values: [
+          subV !== undefined &&
+          !store.display('vederlag').isWithdrawn &&
+          (store.display('vederlag').isSubsidiary || subV !== prinV)
+            ? `${fmt(subV)} kr`
+            : null,
+          subF !== undefined &&
+          !store.display('frist').isWithdrawn &&
+          (store.display('frist').isSubsidiary || subF !== prinF)
+            ? `${fmt(subF)} kalenderdager`
+            : null,
+        ].filter(Boolean),
+      },
+    ].filter((group) => group.values.length)
+  );
 </script>
 
 <aside class="sidebar">
   <div class="id-plate">
     <div class="sender">
-      {#if store.isDemo}
-        <div class="oslo-logo" style:background-image={`url(${osloLogo})`} aria-hidden="true"></div>
-      {/if}
+      <div class="oslo-logo" style:background-image={`url(${osloLogo})`} aria-hidden="true"></div>
       <div class="sender-name">
-        <div>{store.bhNavn}</div>
+        <span class="municipality">Oslo kommune</span>
+        <span class="agency">Oslobygg KF</span>
       </div>
     </div>
-
     <div class="case-identity">
-      <div class="id-label">Sak</div>
-      <div class="case-topline">
-        <div class="id-number">{store.sak.sak_id}</div>
-        <span
-          class="case-status"
-          class:variant-default={statusStyle.variant === 'default'}
-          class:variant-info={statusStyle.variant === 'info'}
-          class:variant-success={statusStyle.variant === 'success'}
-          class:variant-danger={statusStyle.variant === 'danger'}>{statusStyle.label}</span
-        >
-      </div>
+      <div class="id-number">{store.sak.sak_id}</div>
       <h2 class="case-title">{store.sak.sakstittel}</h2>
+      <span
+        class="case-status"
+        class:variant-sent={store.sak.overordnet_status === 'SENDT'}
+        class:variant-default={statusStyle.variant === 'default'}
+        class:variant-info={statusStyle.variant === 'info'}
+        class:variant-success={statusStyle.variant === 'success'}
+        class:variant-danger={statusStyle.variant === 'danger'}
+        >Saksstatus: {statusStyle.label}</span
+      >
     </div>
   </div>
 
-  <div class="sidebar-tracks">
+  <nav class="sidebar-tracks" aria-label="Sakens spor">
     {#each trackGroups as group, gi}
-      {#if gi > 0}
-        <div class="group-sep"></div>
-      {/if}
+      {#if gi > 0}<div class="group-sep"></div>{/if}
       <div class="group-label">{group.label}</div>
       {#each group.tracks as t}
         {@const display = store.display(t.id)}
         {@const on = sel === t.id}
+        {@const track = t.id === 'ansvar' ? store.sak.grunnlag : store.sak[t.id]}
         {@const hasDraft = store.getUI(t.id).draft !== null}
-        {@const isUnansweredVederlag = t.id === 'vederlag' && !store.sak.vederlag.bh_resultat}
-        {@const contractLabel =
-          t.id === 'ansvar' ? getHjemmelLabel(store.sak.grunnlag.underkategori) : null}
-        <div
+        {@const hasNewRevision =
+          !display.isWithdrawn &&
+          track.bh_respondert_versjon !== undefined &&
+          display.antallVersjoner - 1 > track.bh_respondert_versjon}
+        {@const unit = t.id === 'frist' ? ' dager' : ' kr'}
+        <button
+          type="button"
           class="m-row"
           class:on
+          aria-current={on ? 'page' : undefined}
           onclick={() => onselect(t.id)}
-          role="button"
-          tabindex="0"
-          onkeydown={(e) => {
-            if (e.key === 'Enter') onselect(t.id);
-          }}
         >
-          <div class="row-header">
-            <div class="row-label">
-              <span class="row-name">{contractLabel || t.label}</span>
-            </div>
-            <div class="row-actions">
-              {#if hasDraft}
-                <Stamp variant="draft" small>Kladd</Stamp>
-              {/if}
-              {#if on}
-                <ChevronRight
-                  class="active-chevron"
-                  size={15}
-                  strokeWidth={2.25}
-                  aria-hidden="true"
-                />
-              {/if}
-            </div>
-          </div>
-          <div class="row-update">
-            {#if (display.antallVersjoner > 0 || display.hasNotice) && display.sisteOppdatert}
-              Oppdatert {formatDateMedium(display.sisteOppdatert)}
-            {:else}
-              Ikke påbegynt
-            {/if}
-          </div>
-
-          {#if display.unspecified}
-            <div class="awaiting-response">
-              {display.hasNotice ? 'Varslet – ikke spesifisert' : 'Ikke varslet'}
-            </div>
-          {:else if !display.isBinary}
-            <div style="margin-bottom: {S.sm}px">
-              <div class="font-mono claimed">
-                Krevd: {fmt(display.krevdValue!)}{display.krevdUnit}
-              </div>
-              {#if isUnansweredVederlag}
-                <div class="awaiting-response">Avventer byggherrens svar</div>
-              {:else}
-                <DualBar
-                  te={display.krevdValue!}
-                  sub={display.bhSubsidiaer!}
-                  prin={display.bhPrinsipal!}
-                />
-                <div class="gap-box">
-                  <span class="font-mono gap-label">GAP</span>
-                  <div class="gap-values">
-                    <span class="font-mono gap-sub"
-                      >s. {fmt(
-                        display.krevdValue! - display.bhSubsidiaer!
-                      )}{display.krevdUnit}</span
-                    >
-                    <span class="font-mono gap-prin"
-                      >p. {fmt(display.krevdValue! - display.bhPrinsipal!)}{display.krevdUnit}</span
-                    >
-                  </div>
-                </div>
-              {/if}
-            </div>
-          {:else}
-            <div class="binary-row">
-              <span class="font-mono binary-te"
-                >{contractLabel ? display.teRef : display.tePosition}</span
-              >
-              <span class="font-mono binary-bh">{display.bhPosition}</span>
-            </div>
+          <span class="row-header">
+            <span class="row-name">{t.label}</span>
+            <span class="row-actions">
+              {#if hasDraft}<span
+                  class="draft-chip"
+                  title="Nytt BH-svar: Kladd under arbeid · ikke sendt">BH-kladd</span
+                >{/if}
+              {#if on}<ChevronRight size={15} strokeWidth={2.25} aria-hidden="true" />{/if}
+            </span>
+          </span>
+          {#if !display.isBinary && !display.unspecified}
+            <span class="font-mono claimed">Krevd: {fmt(display.krevdValue!)}{unit}</span>
           {/if}
-        </div>
+          <span class="row-status">
+            {#if display.isWithdrawn}
+              Kravet er trukket
+            {:else if display.isBinary}
+              {display.isDisputed
+                ? 'BH bestrider grunnlaget'
+                : track.bh_resultat
+                  ? `BH: ${display.bhPosition}`
+                  : display.antallVersjoner > 0
+                    ? 'Ikke vurdert'
+                    : 'Ikke påbegynt'}
+            {:else if display.unspecified}
+              {display.hasNotice ? 'Varslet – ikke spesifisert' : 'Ikke varslet'}
+            {:else if display.bhPrinsipal === undefined}
+              Ikke vurdert
+            {:else}
+              {#if display.isDisputed}Prinsipalt avslått{:else}BH: {fmt(
+                  display.bhPrinsipal
+                )}{unit}{/if}{#if display.bhSubsidiaer !== undefined && (display.isSubsidiary || display.bhSubsidiaer !== display.bhPrinsipal)}
+                <span class="position-separator">{' · '}</span>subsidiært {fmt(
+                  display.bhSubsidiaer
+                )}{unit}{/if}
+            {/if}
+          </span>
+          {#if hasNewRevision}<span class="new-revision">Nytt fra TE · ubesvart revisjon</span>{/if}
+        </button>
       {/each}
     {/each}
-  </div>
+  </nav>
 
-  <div class="gold-sep"></div>
-
-  <div style="padding: 0 {S.xxl}px {S.xxl}px">
-    <div class="exposure-heading">Samlet eksponering</div>
+  <section class="exposure" aria-labelledby="exposure-heading">
+    <h3 id="exposure-heading" class="exposure-heading">Uavklart og bestridt</h3>
     <div class="exposure-box">
-      <div class="exposure-row">
-        <span class="exposure-label" style="color: var(--green)">Subsidiært</span>
-        <span class="font-mono exposure-value">{fmt(subV)},- + {subF} dager</span>
-      </div>
-      <div class="exposure-row">
-        <span class="exposure-label" style="color: var(--danger)">Prinsipalt</span>
-        <span class="font-mono exposure-value">{fmt(prinV)},- + {prinF} dager</span>
-      </div>
+      {#each exposureGroups as group}
+        <div class="exposure-row">
+          <span class="exposure-label">{group.label}</span>
+          {#each group.values as value}<span class="font-mono exposure-value">{value}</span>{/each}
+        </div>
+      {:else}
+        <span class="row-status">Ingen aktive, spesifiserte krav</span>
+      {/each}
     </div>
-  </div>
+  </section>
+  <footer class="project-footer" aria-label="Prosjektinformasjon">
+    <Building2 size={18} strokeWidth={1.5} aria-hidden="true" />
+    <div class="project-details">
+      <div class="project-name">{store.sak.prosjekt_navn ?? 'Prosjekt'}</div>
+      {#if projectNumber}<div class="project-number">Prosjekt {projectNumber}</div>{/if}
+    </div>
+  </footer>
 </aside>
 
 <style>
@@ -204,54 +224,76 @@
   .id-plate {
     background: var(--sidebar-bg);
     color: var(--sidebar-text);
-    padding: 16px 16px 18px;
+    padding: 20px 20px 18px;
   }
   .sender {
     display: flex;
     align-items: center;
-    gap: 9px;
-    padding-bottom: 12px;
-    border-bottom: 1px solid rgba(24, 35, 29, 0.55);
+    gap: 11px;
+    padding: 2px 4px;
   }
   .oslo-logo {
-    width: 27px;
-    height: 35px;
-    flex: 0 0 27px;
-    background-position: -22px -19px;
+    width: 36px;
+    height: 43px;
+    flex: 0 0 36px;
+    background-position: -22px -22px;
     background-repeat: no-repeat;
-    background-size: 114px auto;
+    background-size: 128px auto;
   }
   .sender-name {
-    font-size: 11px;
-    font-weight: 600;
-    line-height: 1.35;
-    letter-spacing: 0.01em;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    line-height: 1.3;
   }
-  .sender-name div + div {
+  .municipality {
+    font-size: 15px;
     font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+  .agency {
+    font-size: 13px;
+    color: var(--sidebar-muted);
+    font-weight: 500;
+  }
+  .project-footer {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    gap: 10px;
+    margin: auto 20px 0;
+    padding: 16px 0 20px;
+    border-top: 1px solid var(--sidebar-border);
+    color: var(--sidebar-muted);
+  }
+  .project-footer :global(svg) {
+    flex-shrink: 0;
+  }
+  .project-details {
+    min-width: 0;
+  }
+  .project-name {
+    color: var(--sidebar-muted);
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+  }
+  .project-number {
+    margin-top: 3px;
+    font-size: 11px;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
   }
   .case-identity {
     margin-top: 24px;
   }
-  .id-label {
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--sidebar-muted);
-    margin-bottom: 5px;
-  }
   .id-number {
-    font-size: 24px;
-    font-weight: 800;
-    letter-spacing: -0.02em;
-    line-height: 1.05;
-  }
-  .case-topline {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
+    font-size: 11px;
+    font-weight: 500;
+    line-height: 1.5;
+    color: var(--sidebar-muted);
+    overflow-wrap: anywhere;
   }
   .case-status {
     display: inline-block;
@@ -263,6 +305,10 @@
     line-height: 1.2;
     letter-spacing: 0.01em;
     border-radius: 6px;
+  }
+  .case-status.variant-sent {
+    background: rgba(242, 247, 244, 0.08);
+    color: #c5d4cb;
   }
   .case-status.variant-default {
     background: #d6d3cb;
@@ -281,11 +327,12 @@
     color: #48150e;
   }
   .case-title {
-    margin-top: 8px;
-    font-size: 12px;
-    font-weight: 400;
-    line-height: 1.4;
-    color: var(--sidebar-muted);
+    margin: 6px 0 12px;
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 1.25;
+    letter-spacing: -0.015em;
+    color: var(--sidebar-text);
   }
   .sidebar-tracks {
     padding: 10px 16px 16px;
@@ -295,53 +342,36 @@
     align-items: center;
     justify-content: space-between;
   }
-  .row-label {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
   .row-actions {
     display: flex;
     align-items: center;
     gap: 5px;
-  }
-  .active-chevron {
-    color: var(--sidebar-accent-text);
-    flex-shrink: 0;
   }
   .row-name {
     font-size: 12px;
     font-weight: 700;
     line-height: 18px;
   }
-  .row-update {
-    font-size: 12px;
-    line-height: 16px;
-    color: var(--sidebar-muted);
-    margin-bottom: 6px;
-  }
   .claimed {
     font-size: 12px;
     font-weight: 600;
-    margin-bottom: 8px;
-  }
-  .awaiting-response {
-    padding: 7px 9px;
-    font-size: 11px;
-    line-height: 1.4;
-    color: var(--sidebar-muted);
-    background: rgba(255, 255, 255, 0.06);
-    border: 1px solid rgba(242, 247, 244, 0.08);
-    border-radius: 6px;
+    margin: 6px 0 3px;
+    display: block;
   }
   .m-row {
-    padding: 10px;
+    display: block;
+    width: 100%;
+    text-align: left;
+    font: inherit;
+    color: inherit;
+    cursor: pointer;
+    padding: 12px;
     margin-bottom: 8px;
     background: rgba(255, 255, 255, 0.035);
     border: 1px solid rgba(242, 247, 244, 0.07);
   }
   .m-row:not(.on) {
-    opacity: 0.76;
+    opacity: 1;
   }
   .m-row:not(.on):hover {
     opacity: 1;
@@ -350,56 +380,11 @@
   .m-row.on {
     opacity: 1;
     background: var(--sidebar-raised);
-    border-color: var(--sidebar-accent-text);
+    border-color: rgba(242, 247, 244, 0.14);
     box-shadow: inset 3px 0 0 var(--sidebar-accent-text);
   }
   .m-row.on .row-name {
-    color: var(--sidebar-accent-text);
-  }
-  .gap-box {
-    margin-top: 8px;
-    padding: 4px 12px;
-    background: rgba(255, 255, 255, 0.09);
-    border: 1px solid rgba(242, 247, 244, 0.08);
-    border-radius: 8px;
-    display: flex;
-    justify-content: space-between;
-  }
-  .gap-label {
-    font-size: 10px;
-    font-weight: 700;
-    color: var(--sidebar-muted);
-  }
-  .gap-values {
-    display: flex;
-    gap: 12px;
-  }
-  .gap-sub {
-    font-size: 11px;
-    font-weight: 600;
-    color: #e79a94;
-  }
-  .gap-prin {
-    font-size: 11px;
-    font-weight: 600;
-    color: #e79a94;
-  }
-  .binary-row {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 0;
-  }
-  .binary-te {
-    font-size: 12px;
-    font-weight: 600;
-  }
-  .binary-bh {
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--danger);
-  }
-  .gold-sep {
-    display: none;
+    color: var(--sidebar-text);
   }
   .group-label {
     font-size: 10px;
@@ -425,8 +410,8 @@
   }
   .exposure-box {
     padding: 12px;
-    background: rgba(255, 255, 255, 0.07);
-    border: 1px solid rgba(242, 247, 244, 0.1);
+    background: rgba(255, 255, 255, 0.025);
+    border: 1px solid rgba(242, 247, 244, 0.07);
     border-radius: 10px;
   }
   .exposure-row {
@@ -443,37 +428,46 @@
     font-weight: 700;
   }
   .exposure-value {
-    font-size: 15px;
+    font-size: 13px;
     font-weight: 700;
   }
 
-  .sidebar :global(.stamp-draft) {
-    color: var(--sidebar-text);
-    background: rgba(255, 255, 255, 0.12);
-    border-color: rgba(242, 247, 244, 0.18);
+  .position-separator {
+    white-space: pre;
   }
-
-  /* ── Mobile ── */
+  .row-status {
+    display: block;
+    margin-top: 4px;
+    font-size: 12px;
+    line-height: 1.5;
+    color: #c5d4cb;
+  }
+  .draft-chip {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 6px;
+    border: 1px dashed var(--sidebar-muted);
+    border-radius: 5px;
+    color: var(--sidebar-text);
+    white-space: nowrap;
+  }
+  .new-revision {
+    display: block;
+    font-size: 11px;
+    margin-top: 6px;
+    color: #fff0a6;
+  }
+  .m-row:focus-visible {
+    outline: 2px solid var(--sidebar-accent-text);
+    outline-offset: 3px;
+  }
+  .exposure {
+    padding: 0 16px 24px;
+  }
   @media (max-width: 768px) {
     .sidebar {
       width: 100%;
       border-right: none;
-      overflow-y: auto;
-    }
-    .id-plate {
-      padding: 16px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-    .id-number {
-      font-size: 24px;
-    }
-    .case-title {
-      font-size: 16px;
-    }
-    .gap-values {
-      gap: 8px;
     }
   }
 </style>

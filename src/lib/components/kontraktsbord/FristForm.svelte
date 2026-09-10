@@ -1,4 +1,5 @@
 <script lang="ts">
+  import PositionExplanation from './PositionExplanation.svelte';
   import YesNoControl from './components/YesNoControl.svelte';
   import { AlertTriangle, Check, CircleMinus, Clock3, RefreshCw, X } from 'lucide-svelte';
   import ExpandableReasoning from '$lib/components/patterns/ExpandableReasoning.svelte';
@@ -154,7 +155,10 @@
       };
     }
     const r = computed.prinsipaltResultat;
-    const konklusjon = `Kravet er ${sporResultatLabel(r).toLocaleLowerCase('nb-NO')}`;
+    const konklusjon =
+      r === 'avslatt'
+        ? 'BH avslår kravet prinsipalt'
+        : `BH ${r === 'godkjent' ? 'godkjenner' : 'godkjenner delvis'} kravet prinsipalt`;
     if (r === 'godkjent') return { ikon: Check, konklusjon, variant: 'positive' as const };
     if (r === 'delvis_godkjent')
       return { ikon: CircleMinus, konklusjon, variant: 'mixed' as const };
@@ -470,8 +474,10 @@
         >
           <NumberField
             id="bh-frist-godkjent-dager"
-            label="Godkjent fristforlengelse"
-            suffix="dager"
+            label={isSubsidiaer || computed.port3ErSubsidiaer
+              ? 'Subsidiært vurdert fristforlengelse'
+              : 'Godkjent fristforlengelse'}
+            suffix="kalenderdager"
             value={godkjentDager}
             max={domainConfig.krevdDager}
             hint={`Av ${domainConfig.krevdDager} dager krevd`}
@@ -493,6 +499,17 @@
             Endelig vurdering av fristkravet avventes til TE har spesifisert kravet.
           </p>
         {:else}
+          <PositionExplanation
+            subsidiary={computed.visSubsidiaertResultat}
+            value={`fristforlengelsen til ${subsidiaertGodkjent} kalenderdager`}
+            rejected={computed.prinsipaltResultat === 'avslatt'}
+            triggers={[
+              ...computed.subsidiaerTriggers,
+              ...(domainConfig.erHelFristSubsidiaerPgaGrunnlag
+                ? ['grunnlag_prekludert_32_2' as const]
+                : []),
+            ]}
+          />
           <div class="result-tabell">
             <div class="result-cell">
               <span>Krevd</span>
@@ -504,7 +521,7 @@
             </div>
             {#if computed.visSubsidiaertResultat}
               <div class="result-cell">
-                <span>Subsidiært godkjent</span>
+                <span>Subsidiært vurdert</span>
                 <strong class="font-mono">{subsidiaertGodkjent} dager</strong>
               </div>
             {/if}

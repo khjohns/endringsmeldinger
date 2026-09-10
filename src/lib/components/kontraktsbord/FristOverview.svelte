@@ -1,4 +1,5 @@
 <script lang="ts">
+  import PositionExplanation from './PositionExplanation.svelte';
   import { Clock3 } from 'lucide-svelte';
   import ExpandableReasoning from '$lib/components/patterns/ExpandableReasoning.svelte';
   import InternalDraftCard from '$lib/components/patterns/InternalDraftCard.svelte';
@@ -168,7 +169,7 @@
 
 {#if hasBhResponse}
   <StatementCard
-    eyebrow="Byggherrens standpunkt"
+    eyebrow="BHs siste svar · sendt"
     partyName={store.bhNavn}
     reference="§ 33"
     submittedAt={bhDate}
@@ -181,10 +182,27 @@
   >
     {#snippet icon()}<Clock3 size={14} />{/snippet}
 
+    <PositionExplanation
+      subsidiary={hasSubsidiaryPosition}
+      value={`fristforlengelsen til ${fmt(subsidiaertGodkjent)} kalenderdager`}
+      rejected={frist.bh_resultat === 'avslatt'}
+      triggers={latestBhResponseData?.subsidiaer_triggers ??
+        frist.subsidiaer_triggers ?? [
+          ...(hasSubsidiaryPosition && store.sak.grunnlag.bh_resultat === 'avslatt'
+            ? ['grunnlag_avslatt' as const]
+            : []),
+          ...(fristVarselOk === false ? ['preklusjon_varsel' as const] : []),
+          ...(spesifisertKravOk === false ? ['reduksjon_spesifisert' as const] : []),
+          ...(vilkarOppfylt === false ? ['ingen_hindring' as const] : []),
+        ]}
+    />
+
     <div class="response-summary" class:with-subsidiary={hasSubsidiaryPosition}>
       <div>
         <span class="eyebrow">Resultat</span>
-        <strong>{bhResultLabel}</strong>
+        <strong
+          >{frist.bh_resultat === 'avslatt' ? 'BH avslår kravet prinsipalt' : bhResultLabel}</strong
+        >
       </div>
       <div class="approved-days">
         <span class="eyebrow">Prinsipalt godkjent</span>
@@ -192,7 +210,7 @@
       </div>
       {#if hasSubsidiaryPosition}
         <div class="approved-days">
-          <span class="eyebrow">Subsidiært godkjent</span>
+          <span class="eyebrow">Subsidiært vurdert</span>
           <strong class="font-mono">{fmt(subsidiaertGodkjent)} dager</strong>
         </div>
       {/if}
@@ -239,7 +257,7 @@
       </div>
       {#if hasSubsidiaryPosition}
         <div>
-          <span>Subsidiært godkjent</span>
+          <span>Subsidiært vurdert</span>
           <strong class="font-mono">{fmt(subsidiaertGodkjent)} dager</strong>
         </div>
       {/if}
@@ -260,7 +278,7 @@
       <div class="position-row subsidiary-row">
         <div class="position-row-label">
           <span>Subsidiært</span>
-          <span>{fmt(subsidiaertGodkjent)} av {fmt(krevdDager)} dager godkjent</span>
+          <span>{fmt(subsidiaertGodkjent)} av {fmt(krevdDager)} dager vurdert betinget</span>
         </div>
         <div class="position-bar" aria-hidden="true">
           <span class="position-approved subsidiary" style:width="{subsidiaertPct}%"></span>
@@ -274,6 +292,7 @@
 {#if ui.draft}
   <div class="draft-note">
     <InternalDraftCard
+      label="Nytt BH-svar: Kladd under arbeid · ikke sendt"
       text={ui.draft.text}
       value={ui.draft.value !== undefined ? `${fmt(ui.draft.value)} dager` : undefined}
       onopen={onform}

@@ -185,6 +185,8 @@ export interface HistorikkResponse {
 // ========== CASE LIST ==========
 
 export interface CaseListHendelse {
+  id?: string;
+  rolle?: 'TE' | 'BH';
   type: 'K' | 'V' | 'F';
   dato: string;
   label: string;
@@ -192,6 +194,7 @@ export interface CaseListHendelse {
 }
 
 export interface CaseListItem {
+  oppfolging?: import('$lib/domain/followUp').FollowUpContext | null;
   sak_id: string;
   sakstype: 'standard' | 'forsering' | 'endringsordre';
   cached_title: string | null;

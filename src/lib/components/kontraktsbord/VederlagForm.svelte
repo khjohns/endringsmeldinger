@@ -1,4 +1,5 @@
 <script lang="ts">
+  import PositionExplanation from './PositionExplanation.svelte';
   import SegmentedControl from '$lib/components/primitives/SegmentedControl.svelte';
   import YesNoControl from './components/YesNoControl.svelte';
   import { Check, X, CircleMinus } from 'lucide-svelte';
@@ -209,8 +210,10 @@
 
   const resultat = $derived.by(() => {
     const r = computed.prinsipaltResultat;
-    const label = sporResultatLabel(r);
-    const konklusjon = `Kravet er ${label.toLocaleLowerCase('nb-NO')}`;
+    const konklusjon =
+      r === 'avslatt'
+        ? 'BH avslår kravet prinsipalt'
+        : `BH ${r === 'godkjent' ? 'godkjenner' : 'godkjenner delvis'} kravet prinsipalt`;
     if (r === 'godkjent') return { ikon: Check, konklusjon, variant: 'positive' as const };
     if (r === 'delvis_godkjent')
       return { ikon: CircleMinus, konklusjon, variant: 'mixed' as const };
@@ -702,7 +705,14 @@
               value={linje.vurdering}
               options={vurderingOptions.map((opt) => ({
                 id: opt.value,
-                label: opt.label,
+                label:
+                  isSubsidiaer || linje.prekludert
+                    ? opt.value === 'godkjent'
+                      ? 'Fullt beløp'
+                      : opt.value === 'delvis'
+                        ? 'Redusert beløp'
+                        : 'Null'
+                    : opt.label,
                 icon: opt.icon ?? undefined,
                 tone: opt.cls === 'yes' ? 'success' : opt.cls === 'partial' ? 'warning' : 'danger',
               }))}
@@ -711,7 +721,9 @@
             />
             {#if linje.vurdering === 'delvis'}
               <div class="number-field">
-                <div class="number-input-label">Godkjent beløp</div>
+                <div class="number-input-label">
+                  {isSubsidiaer || linje.prekludert ? 'Subsidiært vurdert beløp' : 'Godkjent beløp'}
+                </div>
                 <div class="number-input-wrap">
                   <input
                     type="text"
@@ -774,6 +786,18 @@
             <resultat.ikon size={18} />
             <span class="result-label">{resultat.konklusjon}</span>
           </div>
+          <PositionExplanation
+            subsidiary={computed.visSubsidiaertResultat}
+            value={`vederlaget til ${fmt(computed.totalGodkjentInklPrekludert)} kr`}
+            rejected={computed.prinsipaltResultat === 'avslatt'}
+            triggers={[
+              ...computed.subsidiaerTriggers,
+              ...(domainConfig.grunnlagStatus === 'avslatt' ? ['grunnlag_avslatt' as const] : []),
+              ...(erHelVederlagSubsidiaerPgaGrunnlag(domainConfig)
+                ? ['grunnlag_prekludert_32_2' as const]
+                : []),
+            ]}
+          />
 
           <div class="result-tabell">
             <div class="tr tr-head">
@@ -781,7 +805,7 @@
               <span class="td td-tal">Krevd</span>
               <span class="td td-tal">Prinsipalt godkjent</span>
               {#if computed.visSubsidiaertResultat}
-                <span class="td td-tal">Subsidiært godkjent</span>
+                <span class="td td-tal">Subsidiært vurdert</span>
               {/if}
             </div>
             {#each resultatRader as rad (rad.key)}
