@@ -12,12 +12,11 @@
     ListOrdered,
     RotateCcw,
     RotateCw,
-    FileText,
   } from 'lucide-svelte';
   import { getCaseWorkspace } from '$lib/kontraktsbord/context.svelte';
   const store = getCaseWorkspace();
   import { S, sporBestemmelser } from './data.js';
-  import { getEventTypeLabel } from '$lib/constants/eventTypeLabels.js';
+  import CaseHistory from './CaseHistory.svelte';
   import type { SporKey, Mode, RightTab } from './types.js';
   import type { TimelineEvent } from '$lib/types/timeline';
 
@@ -113,55 +112,7 @@
     {/if}
 
     {#if tab === 'historikk'}
-      <div class="history" style="position: relative">
-        <div class="history-line"></div>
-        {#each store.timeline as event, i}
-          <!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
-          <div
-            class="history-event"
-            class:history-event-active={activeEvent?.id === event.id}
-            class:history-event-clickable={!!oneventclick}
-            class:history-event-first={i === 0}
-            onclick={() => oneventclick?.(event)}
-          >
-            <div
-              class="event-marker font-mono"
-              style:background={event.actorrole === 'TE' ? 'var(--brand)' : 'var(--surface)'}
-              style:color={event.actorrole === 'TE' ? 'white' : 'var(--ink)'}
-              style:border-color={event.actorrole === 'TE' ? 'var(--brand)' : 'var(--ink-3)'}
-            >
-              {event.actorrole ?? '?'}
-            </div>
-            <div class="event-time font-mono">
-              {event.time
-                ? new Date(event.time).toLocaleString('nb-NO', {
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    day: '2-digit',
-                    month: 'short',
-                  })
-                : ''}
-            </div>
-            <div class="event-subject">
-              {getEventTypeLabel(event.type?.replace('no.oslo.koe.', '') ?? '')}
-            </div>
-            {#if event.summary}
-              <div class="event-detail">{event.summary}</div>
-            {/if}
-            {#if onletterclick}
-              <button
-                class="event-letter-btn"
-                onclick={(e) => {
-                  e.stopPropagation();
-                  onletterclick!(event);
-                }}
-              >
-                <FileText size={11} /> Brev
-              </button>
-            {/if}
-          </div>
-        {/each}
-      </div>
+      <CaseHistory events={store.timeline} {sel} {activeEvent} {oneventclick} {onletterclick} />
     {/if}
 
     {#if tab === 'vedlegg'}
@@ -307,101 +258,6 @@
     margin-top: 14px;
     padding-top: 14px;
     border-top: var(--rule-subtle);
-  }
-
-  /* Historikk */
-  .history-line {
-    position: absolute;
-    left: 10px;
-    top: 8px;
-    bottom: 0;
-    width: 1px;
-    background: #c6d7cd;
-  }
-  .history-event {
-    position: relative;
-    padding-left: 36px;
-    margin-bottom: 20px;
-    transition: opacity 100ms;
-    opacity: 0.5;
-  }
-  .history-event-first,
-  .history-event-active {
-    opacity: 1;
-  }
-  .history-event:hover {
-    opacity: 1;
-  }
-  .event-marker {
-    position: absolute;
-    left: 0;
-    top: 1px;
-    width: 22px;
-    height: 22px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 10px;
-    font-weight: 700;
-    z-index: 1;
-    border: 1.5px solid;
-    border-radius: 4px;
-  }
-  .event-time {
-    font-size: 11px;
-    color: var(--ink-4);
-    margin-bottom: 2px;
-  }
-  .event-subject {
-    font-size: 14px;
-    font-weight: 600;
-    margin-bottom: 2px;
-  }
-  .event-detail {
-    font-size: 14px;
-    color: var(--ink-3);
-  }
-  .history-event-clickable {
-    cursor: pointer;
-    border-radius: 4px;
-    padding-right: 8px;
-    transition:
-      background 80ms,
-      opacity 100ms;
-  }
-  .history-event-clickable:hover {
-    background: var(--surface-inset);
-  }
-  .history-event-active {
-    background: var(--gold-bg);
-    border-left: 2px solid var(--accent);
-    padding-left: 34px;
-  }
-  .history-event-active .event-marker {
-    border-color: var(--accent);
-  }
-  .event-letter-btn {
-    display: none;
-    align-items: center;
-    gap: 4px;
-    margin-top: 4px;
-    padding: 3px 8px;
-    font-size: 11px;
-    font-weight: 600;
-    font-family: var(--font-sans);
-    color: var(--ink-3);
-    background: var(--surface);
-    border: var(--rule);
-    border-radius: 3px;
-    cursor: pointer;
-    transition: all 80ms;
-  }
-  .event-letter-btn:hover {
-    color: var(--ink);
-    border-color: var(--ink-3);
-  }
-  .history-event:hover .event-letter-btn {
-    display: inline-flex;
   }
 
   /* Vedlegg */
