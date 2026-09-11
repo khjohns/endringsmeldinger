@@ -74,11 +74,7 @@ class SupabaseCatendaProjectConfigRepository:
             # This backend-only registry is protected by service-role-only RLS.
             # Resolve its key here rather than elevating the shared Supabase
             # client factory used by unrelated application flows.
-            service_key = (
-                key
-                or os.environ.get("SUPABASE_SECRET_KEY")
-                or os.environ.get("SUPABASE_KEY")
-            )
+            service_key = key or os.environ.get("SUPABASE_SECRET_KEY")
             client = create_supabase_client(url=url, key=service_key)
         self.client = client
 

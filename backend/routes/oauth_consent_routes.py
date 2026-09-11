@@ -23,13 +23,8 @@ def _get_supabase_url() -> str:
 
 
 def _get_supabase_key() -> str:
-    """Get Supabase service key from environment."""
-    return (
-        os.getenv("SUPABASE_SERVICE_ROLE_KEY")
-        or os.getenv("SUPABASE_SECRET_KEY")
-        or os.getenv("SUPABASE_KEY")
-        or ""
-    )
+    """Get the Supabase secret key from the environment."""
+    return os.getenv("SUPABASE_SECRET_KEY", "")
 
 
 @oauth_consent_bp.route("/authorization/<authorization_id>", methods=["GET"])

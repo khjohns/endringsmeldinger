@@ -40,7 +40,7 @@ def _get_supabase_publishable_key() -> str:
 
 
 def _get_supabase_secret_key() -> str:
-    return os.getenv("SUPABASE_SECRET_KEY") or os.getenv("SUPABASE_KEY") or ""
+    return os.getenv("SUPABASE_SECRET_KEY", "")
 
 
 @oauth_auto_consent_bp.route("/consent", methods=["GET"])

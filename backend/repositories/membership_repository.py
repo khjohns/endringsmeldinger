@@ -28,11 +28,7 @@ class SupabaseMembershipRepository:
             raise ImportError("Supabase client not installed")
 
         self.url = url or os.environ.get("SUPABASE_URL")
-        self.key = (
-            key
-            or os.environ.get("SUPABASE_SECRET_KEY")
-            or os.environ.get("SUPABASE_KEY")
-        )
+        self.key = key or os.environ.get("SUPABASE_SECRET_KEY")
 
         if not self.url or not self.key:
             raise ValueError("Supabase credentials required")

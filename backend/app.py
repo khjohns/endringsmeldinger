@@ -239,8 +239,10 @@ if __name__ == "__main__":
     if os.getenv("EVENT_STORE_BACKEND") == "supabase":
         if not os.getenv("SUPABASE_URL"):
             warnings.append("SUPABASE_URL mangler (EVENT_STORE_BACKEND=supabase)")
-        if not os.getenv("SUPABASE_KEY"):
-            warnings.append("SUPABASE_KEY mangler (EVENT_STORE_BACKEND=supabase)")
+        if not os.getenv("SUPABASE_SECRET_KEY"):
+            warnings.append(
+                "SUPABASE_SECRET_KEY mangler (EVENT_STORE_BACKEND=supabase)"
+            )
 
     # Graceful shutdown handler
     def shutdown_handler(signum, frame):
