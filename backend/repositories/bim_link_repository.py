@@ -27,11 +27,7 @@ class BimLinkRepository:
         if not SUPABASE_AVAILABLE:
             raise ImportError("Supabase client not installed")
         self.url = url or os.environ.get("SUPABASE_URL")
-        self.key = (
-            key
-            or os.environ.get("SUPABASE_SECRET_KEY")
-            or os.environ.get("SUPABASE_KEY")
-        )
+        self.key = key or os.environ.get("SUPABASE_SECRET_KEY")
         if not self.url or not self.key:
             raise ValueError("Supabase credentials required")
         self.client: Client = create_client(self.url, self.key)

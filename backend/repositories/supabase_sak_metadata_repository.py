@@ -72,7 +72,7 @@ class SupabaseSakMetadataRepository:
 
     Environment variables:
     - SUPABASE_URL: Project URL (e.g., https://xxx.supabase.co)
-    - SUPABASE_KEY: Service role key (for backend)
+    - SUPABASE_SECRET_KEY: Secret key (for backend)
     """
 
     TABLE_NAME = "sak_metadata"
@@ -84,17 +84,12 @@ class SupabaseSakMetadataRepository:
             )
 
         self.url = url or os.environ.get("SUPABASE_URL")
-        # Support both SUPABASE_SECRET_KEY (new) and SUPABASE_KEY (legacy)
-        self.key = (
-            key
-            or os.environ.get("SUPABASE_SECRET_KEY")
-            or os.environ.get("SUPABASE_KEY")
-        )
+        self.key = key or os.environ.get("SUPABASE_SECRET_KEY")
 
         if not self.url or not self.key:
             raise ValueError(
-                "Supabase credentials required. Set SUPABASE_URL and SUPABASE_KEY "
-                "environment variables or pass them to constructor."
+                "Supabase credentials required. Set SUPABASE_URL and "
+                "SUPABASE_SECRET_KEY environment variable or pass it to constructor."
             )
 
         self.client: Client = create_client(self.url, self.key)

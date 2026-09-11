@@ -28,18 +28,18 @@ def create_supabase_client(
 
     Args:
         url: Supabase URL (default: fra miljøvariabler)
-        key: Supabase anon key (default: fra miljøvariabler)
+        key: Supabase secret key (default: fra miljøvariabler)
         timeout: Request timeout i sekunder
 
     Returns:
         Konfigurert Supabase Client
     """
     _url = url or os.environ.get("SUPABASE_URL")
-    _key = key or os.environ.get("SUPABASE_KEY")
+    _key = key or os.environ.get("SUPABASE_SECRET_KEY")
     _timeout = timeout or settings.supabase_request_timeout
 
     if not _url or not _key:
-        raise ValueError("SUPABASE_URL and SUPABASE_KEY must be set")
+        raise ValueError("SUPABASE_URL and SUPABASE_SECRET_KEY must be set")
 
     # supabase-py 2.x has simplified API - timeout via httpx_timeout
     # Note: ClientOptions API changed in 2.x, just use defaults

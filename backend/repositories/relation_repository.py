@@ -47,7 +47,7 @@ class RelationRepository:
 
         Args:
             url: Supabase URL (defaults to SUPABASE_URL env var)
-            key: Supabase key (defaults to SUPABASE_SECRET_KEY or SUPABASE_KEY env var)
+            key: Supabase secret key (defaults to SUPABASE_SECRET_KEY env var)
         """
         if not SUPABASE_AVAILABLE:
             raise ImportError(
@@ -55,16 +55,12 @@ class RelationRepository:
             )
 
         self.url = url or os.environ.get("SUPABASE_URL")
-        self.key = (
-            key
-            or os.environ.get("SUPABASE_SECRET_KEY")
-            or os.environ.get("SUPABASE_KEY")
-        )
+        self.key = key or os.environ.get("SUPABASE_SECRET_KEY")
 
         if not self.url or not self.key:
             raise ValueError(
-                "Supabase credentials required. Set SUPABASE_URL and SUPABASE_KEY "
-                "environment variables or pass them to constructor."
+                "Supabase credentials required. Set SUPABASE_URL and "
+                "SUPABASE_SECRET_KEY environment variable or pass it to constructor."
             )
 
         self.client: Client = create_client(self.url, self.key)

@@ -21,6 +21,7 @@ Werkzeug>=3.1.0
 Flask-Limiter>=4.0.0              # Rate limiting
 limits>=5.0.0                     # Rate limiting backend
 PyJWT>=2.8.0                      # JWT token validation (Supabase Auth)
+cryptography>=42.0.0              # RSA/EC public keys for JWKS validation
 
 # ------------------------------------------------------------------------------
 # HTTP Requests & API Integration

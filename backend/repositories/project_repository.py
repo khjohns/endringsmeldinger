@@ -29,15 +29,11 @@ class SupabaseProjectRepository:
             raise ImportError("Supabase client not installed. Run: pip install supabase")
 
         self.url = url or os.environ.get("SUPABASE_URL")
-        self.key = (
-            key
-            or os.environ.get("SUPABASE_SECRET_KEY")
-            or os.environ.get("SUPABASE_KEY")
-        )
+        self.key = key or os.environ.get("SUPABASE_SECRET_KEY")
 
         if not self.url or not self.key:
             raise ValueError(
-                "Supabase credentials required. Set SUPABASE_URL and SUPABASE_KEY."
+                "Supabase credentials required. Set SUPABASE_URL and SUPABASE_SECRET_KEY."
             )
 
         self.client: Client = create_client(self.url, self.key)

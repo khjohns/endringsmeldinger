@@ -65,7 +65,7 @@ def active_project_row():
     }
 
 
-def test_constructor_prefers_service_role_key_without_elevating_shared_client(
+def test_constructor_uses_secret_key_without_elevating_shared_client(
     monkeypatch,
 ):
     created_with = {}
@@ -77,7 +77,6 @@ def test_constructor_prefers_service_role_key_without_elevating_shared_client(
 
     monkeypatch.setenv("SUPABASE_URL", "https://registry.example.invalid")
     monkeypatch.setenv("SUPABASE_SECRET_KEY", "service-role-key")
-    monkeypatch.setenv("SUPABASE_KEY", "legacy-key")
     monkeypatch.setattr("lib.supabase.client.create_supabase_client", create_client)
 
     repository = SupabaseCatendaProjectConfigRepository()
