@@ -6,6 +6,8 @@
   import { formatDateShortNorwegian } from '$lib/utils/dateFormatters.js';
   import { getCaseWorkspace } from '$lib/kontraktsbord/context.svelte';
   const store = getCaseWorkspace();
+  import { getClaimReview } from '$lib/approval/claimReview.svelte';
+  const claimReview = getClaimReview();
   import { TRACK_ICONS } from './data.js';
   import CaseAnchor from './CaseAnchor.svelte';
   import { buildTeRevisionEventData } from '$lib/domain/grunnlagDomain';
@@ -68,6 +70,22 @@
       send: () => {
         if (kanSende)
           void submission.run(async () => {
+            if (claimReview) {
+              await claimReview.submit(
+                'grunnlag',
+                'grunnlag_oppdatert',
+                buildTeRevisionEventData({
+                  originalEventId:
+                    submissionRefs(store.timeline, 'grunnlag').claimId ?? 'demo-grunnlag',
+                  begrunnelseHtml,
+                  grunnlag: store.sak.grunnlag,
+                }),
+                () => {
+                  if (store.isDemo) store.sendTeGrunnlag(begrunnelseHtml);
+                }
+              );
+              return;
+            }
             if (store.isDemo) store.sendTeGrunnlag(begrunnelseHtml);
             else
               await store.submit(

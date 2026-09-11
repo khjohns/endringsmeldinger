@@ -27,6 +27,7 @@ from uuid import uuid4
 from pydantic import BaseModel, Field, computed_field, field_validator, model_validator
 
 from models.cloudevents import CloudEventMixin
+from models.letter_document import LetterSnapshot
 
 # ============ ENUMS FOR EVENT TYPES ============
 
@@ -471,6 +472,9 @@ class GrunnlagData(BaseModel):
     Kategoriseringen følger NS 8407 og bestemmer hvilke juridiske regler som gjelder.
     """
 
+    brev: LetterSnapshot | None = None
+
+
     tittel: str = Field(
         ...,
         min_length=1,
@@ -556,6 +560,9 @@ class VederlagData(VederlagKompensasjon):
     - netto_belop: Computed (brutto - fradrag)
     - krevd_belop: Alias for netto_belop
     """
+
+    brev: LetterSnapshot | None = None
+
 
     # A neutral notice has no calculation method or amount.
     metode: VederlagsMetode | None = None
@@ -677,6 +684,9 @@ class FristData(BaseModel):
 
     NB! Vi avventer med å ta det ovenfor med i modellen.
     """
+
+    brev: LetterSnapshot | None = None
+
 
     # ============ VARSELTYPE (PORT 1) ============
     # Optional for update events (frist_krav_oppdatert) where it's inherited from original
@@ -853,6 +863,9 @@ class GrunnlagResponsData(BaseModel):
     er dette en oppdatering og kun feltene som sendes vil oppdateres.
     """
 
+    brev: LetterSnapshot | None = None
+
+
     resultat: GrunnlagResponsResultat | None = Field(
         default=None, description="BHs vurdering av ansvarsgrunnlaget"
     )
@@ -925,6 +938,10 @@ class VederlagResponsData(BaseModel):
     Støtter partielle oppdateringer: Hvis original_respons_id er satt,
     er dette en oppdatering og kun feltene som sendes vil oppdateres.
     """
+
+    brev: LetterSnapshot | None = None
+    tilleggs_begrunnelse: str | None = None
+
 
     # ============ PARTIELL OPPDATERING ============
     original_respons_id: str | None = Field(
@@ -1067,6 +1084,10 @@ class FristResponsData(BaseModel):
     Støtter partielle oppdateringer: Hvis original_respons_id er satt,
     er dette en oppdatering og kun feltene som sendes vil oppdateres.
     """
+
+    brev: LetterSnapshot | None = None
+    tilleggs_begrunnelse: str | None = None
+
 
     # ============ PARTIELL OPPDATERING ============
     original_respons_id: str | None = Field(
@@ -2064,4 +2085,10 @@ def parse_event_from_request(request_data: dict) -> AnyEvent:
             }
             request_data["spor"] = spor_map.get(event_type)
 
+    letter = request_data.get('data', {}).get('brev')
+    if letter and request_data.get('aktor_rolle') == 'TE':
+        letter = LetterSnapshot.model_validate(letter)
+        letter.referanser.eventId = request_data['event_id']
+        letter.referanser.sakId = request_data['sak_id']
+        request_data['data']['brev'] = letter.model_dump(mode='json')
     return parse_event(request_data)

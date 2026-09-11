@@ -3,7 +3,7 @@
 ## Dokumentstatus
 
 - **Dato:** 2026-09-05
-- **Status:** Beslutningsgrunnlag — ikke implementasjonsklar
+- **Status:** Domenereferanse. Første implementasjon 2026-09-11; se [leveranse, konfigurasjon og avgrensninger](../../brev-og-godkjenning.md).
 - **Omfang:** Intern ferdigstilling, godkjenning og publisering av byggherrens svar
 - **Neste steg:** Avklare punktene i «Åpne beslutninger», deretter utarbeide UI-spesifikasjon og implementasjonsplan
 

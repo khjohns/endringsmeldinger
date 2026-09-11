@@ -1,3 +1,4 @@
+import { LetterCancelled } from '$lib/approval/claimReview.svelte';
 import type { TimelineEvent, SporType } from '$lib/types/timeline';
 import { onMount } from 'svelte';
 import { draftKey, loadDraft, saveDraft, clearDraft } from '$lib/utils/draft';
@@ -72,6 +73,7 @@ export function createSubmission(onSuccess?: () => void) {
         onSuccess?.();
         complete();
       } catch (cause) {
+        if (cause instanceof LetterCancelled) return;
         error = cause instanceof Error ? cause.message : 'Kunne ikke sende. Prøv igjen.';
       } finally {
         pending = false;
@@ -84,12 +86,18 @@ export function createFormDraft<T extends Record<string, unknown>>(
   enabled: boolean,
   key: string,
   read: () => T,
-  restore: (data: T) => void
+  restore: (data: T) => void,
+  initial?: Record<string, unknown>
 ) {
   let ready = $state(!enabled);
   let cleared = false;
   const storageKey = draftKey('kontraktsbord', key);
   onMount(() => {
+    if (initial) {
+      restore(initial as T);
+      ready = true;
+      return;
+    }
     if (enabled) {
       const saved = loadDraft<T>(storageKey);
       if (saved) restore(saved);
@@ -102,6 +110,9 @@ export function createFormDraft<T extends Record<string, unknown>>(
   return {
     get ready() {
       return ready;
+    },
+    snapshot() {
+      return JSON.parse(JSON.stringify(read())) as Record<string, unknown>;
     },
     clear() {
       cleared = true;

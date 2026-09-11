@@ -1,41 +1,27 @@
 <script lang="ts">
-  import { Download, RotateCcw, X } from 'lucide-svelte';
+  import { Download, X } from 'lucide-svelte';
+  import { onMount } from 'svelte';
   import LetterHtmlPreview from './LetterHtmlPreview.svelte';
-  import { isSeksjonEdited, resetSeksjon } from './letterTypes';
-  import type { BrevInnhold, BrevSeksjoner } from './letterTypes';
-
+  import type { BrevInnhold } from './letterTypes';
   let {
     brevInnhold,
     onclose,
-  }: {
-    brevInnhold: BrevInnhold;
-    onclose: () => void;
-  } = $props();
-
-  let activeTab: 'editor' | 'preview' = $state('editor');
-  let seksjoner: BrevSeksjoner = $state(structuredClone(brevInnhold.seksjoner));
+    draft = false,
+  }: { brevInnhold: BrevInnhold; onclose: () => void; draft?: boolean } = $props();
+  let dialog: HTMLDialogElement;
   let isDownloading = $state(false);
-
-  const currentBrev = $derived({
-    ...brevInnhold,
-    seksjoner,
-  });
-
-  const seksjonKeys = ['innledning', 'begrunnelse', 'avslutning'] as const;
-
-  function handleReset(key: keyof BrevSeksjoner) {
-    seksjoner[key] = resetSeksjon(seksjoner[key]);
-  }
-
+  let error = $state('');
+  onMount(() => dialog.showModal());
   async function downloadPdf() {
     isDownloading = true;
+    error = '';
     try {
-      const resp = await fetch('/api/letter/generate', {
+      const resp = await fetch(`${import.meta.env.VITE_API_BASE_URL || ''}/api/letter/generate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           brev_innhold: {
-            tittel: brevInnhold.tittel,
+            tittel: `${draft ? 'UTKAST – ' : ''}${brevInnhold.tittel}`,
             mottaker: brevInnhold.mottaker,
             avsender: brevInnhold.avsender,
             referanser: {
@@ -45,235 +31,118 @@
               spor_type: brevInnhold.referanser.sporType,
               dato: brevInnhold.referanser.dato,
             },
-            seksjoner: {
-              innledning: seksjoner.innledning.redigertTekst,
-              begrunnelse: seksjoner.begrunnelse.redigertTekst,
-              avslutning: seksjoner.avslutning.redigertTekst,
-            },
+            seksjoner: Object.fromEntries(
+              Object.entries(brevInnhold.seksjoner).map(([key, value]) => [
+                key,
+                value.redigertTekst,
+              ])
+            ),
           },
         }),
       });
-      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-      const blob = await resp.blob();
-      const url = URL.createObjectURL(blob);
+      if (!resp.ok) throw new Error('PDF-en kunne ikke genereres. Prøv igjen.');
+      const url = URL.createObjectURL(await resp.blob());
       const a = document.createElement('a');
       a.href = url;
-      a.download = `brev-${brevInnhold.referanser.sakId}-${brevInnhold.referanser.sporType}.pdf`;
+      a.download = `${draft ? 'utkast-' : ''}brev-${brevInnhold.referanser.sakId}.pdf`;
       a.click();
-      URL.revokeObjectURL(url);
-    } catch {
-      // Backend may not be running in mockup mode
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    } catch (cause) {
+      error = cause instanceof Error ? cause.message : 'Nedlasting feilet.';
     } finally {
       isDownloading = false;
     }
   }
 </script>
 
-<!-- svelte-ignore a11y_no_static_element_interactions a11y_click_events_have_key_events -->
-<div class="letter-backdrop" onclick={onclose}>
-  <!-- svelte-ignore a11y_no_static_element_interactions a11y_click_events_have_key_events -->
-  <div class="letter-modal" onclick={(e) => e.stopPropagation()}>
-    <!-- Header -->
-    <div class="letter-modal-header">
-      <h3 class="letter-modal-title">{brevInnhold.tittel}</h3>
-      <button class="letter-close-btn" onclick={onclose}>
-        <X size={18} />
-      </button>
+<dialog bind:this={dialog} class="letter-modal" {onclose} aria-labelledby="letter-title">
+  <header>
+    <div>
+      <span>{draft ? 'Utkast – ikke sendt' : 'Brev fra sakshistorikken'}</span>
+      <h2 id="letter-title">{brevInnhold.tittel}</h2>
     </div>
-
-    <!-- Tabs -->
-    <div class="letter-tabs">
-      <button class="tab" class:on={activeTab === 'editor'} onclick={() => (activeTab = 'editor')}>
-        Rediger
-      </button>
-      <button
-        class="tab"
-        class:on={activeTab === 'preview'}
-        onclick={() => (activeTab = 'preview')}
-      >
-        Forhandsvis
-      </button>
-    </div>
-
-    <!-- Content -->
-    <div class="letter-modal-content">
-      {#if activeTab === 'editor'}
-        <div class="editor-sections">
-          {#each seksjonKeys as key}
-            {@const seksjon = seksjoner[key]}
-            {@const edited = isSeksjonEdited(seksjon)}
-            <div class="editor-section" class:editor-section-edited={edited}>
-              <div class="editor-section-header">
-                <label class="font-mono editor-label" for="letter-{key}">{seksjon.tittel}</label>
-                {#if edited}
-                  <button class="editor-reset" onclick={() => handleReset(key)}>
-                    <RotateCcw size={12} /> Nullstill
-                  </button>
-                {/if}
-              </div>
-              <textarea
-                id="letter-{key}"
-                class="font-serif editor-textarea"
-                bind:value={seksjon.redigertTekst}
-                rows={key === 'begrunnelse' ? 8 : 4}
-              ></textarea>
-            </div>
-          {/each}
-        </div>
-      {:else}
-        <div class="preview-scroll">
-          <LetterHtmlPreview brevInnhold={currentBrev} />
-        </div>
-      {/if}
-    </div>
-
-    <!-- Footer -->
-    <div class="letter-modal-footer">
-      <button class="btn btn-secondary" onclick={onclose}>Lukk</button>
-      <button class="btn btn-primary" onclick={downloadPdf} disabled={isDownloading}>
-        <Download size={14} />
-        {isDownloading ? 'Laster ned...' : 'Last ned PDF'}
-      </button>
-    </div>
-  </div>
-</div>
+    <button aria-label="Lukk brev" onclick={onclose}><X size={20} /></button>
+  </header>
+  <div class="preview-scroll"><LetterHtmlPreview {brevInnhold} /></div>
+  <footer>
+    {#if error}<p role="alert">{error}</p>{/if}<button class="btn btn-secondary" onclick={onclose}
+      >Lukk</button
+    ><button class="btn btn-primary" onclick={downloadPdf} disabled={isDownloading}
+      ><Download size={14} />{isDownloading
+        ? 'Laster ned …'
+        : draft
+          ? 'Last ned utkast'
+          : 'Last ned PDF'}</button
+    >
+  </footer>
+</dialog>
 
 <style>
-  .letter-backdrop {
-    position: fixed;
-    inset: 0;
-    background: rgba(28, 25, 23, 0.6);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 100;
-    animation: fadeUp 0.1s ease-out;
-  }
   .letter-modal {
-    width: 720px;
-    max-width: 95vw;
-    max-height: 90vh;
+    width: min(960px, 96vw);
+    max-width: 96vw;
+    height: 94vh;
+    max-height: 94vh;
+    padding: 0;
     background: var(--canvas);
+    color: var(--ink);
     border: var(--rule);
-    border-radius: 4px;
+    border-radius: 12px;
+  }
+  .letter-modal[open] {
     display: flex;
     flex-direction: column;
-    box-shadow: var(--overlay-shadow-lg);
   }
-  .letter-modal-header {
+  .letter-modal::backdrop {
+    background: rgb(20 30 24 / 55%);
+  }
+  header {
+    padding: 18px 24px;
     display: flex;
-    align-items: center;
     justify-content: space-between;
-    padding: 16px 24px;
-    border-bottom: var(--rule);
-  }
-  .letter-modal-title {
-    font-size: 14px;
-    font-weight: 700;
-    flex: 1;
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-  .letter-close-btn {
-    display: flex;
     align-items: center;
-    justify-content: center;
-    width: 32px;
-    height: 32px;
-    background: none;
-    border: none;
-    color: var(--ink-3);
-    cursor: pointer;
-    border-radius: 4px;
-    flex-shrink: 0;
-  }
-  .letter-close-btn:hover {
-    background: var(--paper-inset);
-    color: var(--ink);
-  }
-  .letter-tabs {
-    display: flex;
+    gap: 16px;
     border-bottom: var(--rule);
-    flex-shrink: 0;
   }
-  .letter-modal-content {
+  header span {
+    font-size: 11px;
+    color: var(--ink-3);
+  }
+  h2 {
+    font-size: 16px;
+    margin: 4px 0 0;
+  }
+  header button {
+    border: 0;
+    background: transparent;
+    color: inherit;
+    padding: 10px;
+    cursor: pointer;
+  }
+  .preview-scroll {
     flex: 1;
-    overflow-y: auto;
+    overflow: auto;
     padding: 24px;
   }
-  .letter-modal-footer {
+  footer {
     display: flex;
+    gap: 10px;
     justify-content: flex-end;
-    gap: 8px;
+    align-items: center;
     padding: 16px 24px;
     border-top: var(--rule);
-    flex-shrink: 0;
   }
-
-  /* Editor */
-  .editor-sections {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
+  footer p {
+    color: var(--danger);
+    font-size: 12px;
+    margin-right: auto;
   }
-  .editor-section {
-    border: var(--rule);
-    border-radius: 4px;
-    padding: 16px;
-  }
-  .editor-section-edited {
-    border-color: var(--gold-border);
-    background: var(--gold-bg);
-  }
-  .editor-section-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 8px;
-  }
-  .editor-label {
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--ink-3);
-  }
-  .editor-reset {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    font-family: var(--font-sans);
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--accent);
-    background: none;
-    border: none;
-    cursor: pointer;
-  }
-  .editor-reset:hover {
-    color: var(--ink);
-  }
-  .editor-textarea {
-    width: 100%;
-    padding: 12px;
-    font-size: 14px;
-    line-height: 1.6;
-    background: var(--surface);
-    border: var(--control-border);
-    border-radius: 4px;
-    color: var(--ink);
-    outline: none;
-    resize: vertical;
-  }
-  .editor-textarea:focus {
-    border-color: var(--control-focus);
-    box-shadow: var(--control-focus-ring);
-  }
-
-  /* Preview */
-  .preview-scroll {
-    overflow-x: auto;
+  @media (max-width: 768px) {
+    .preview-scroll {
+      padding: 12px;
+    }
+    footer {
+      flex-wrap: wrap;
+    }
   }
 </style>

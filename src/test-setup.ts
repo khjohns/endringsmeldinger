@@ -16,3 +16,14 @@ if (typeof Element !== 'undefined' && !Element.prototype.animate) {
 afterEach(() => {
   cleanup();
 });
+
+// jsdom has no top-layer implementation; keep native-dialog visibility testable.
+if (typeof HTMLDialogElement !== 'undefined' && !HTMLDialogElement.prototype.showModal) {
+  HTMLDialogElement.prototype.showModal = function () {
+    this.setAttribute('open', '');
+  };
+  HTMLDialogElement.prototype.close = function () {
+    this.removeAttribute('open');
+    this.dispatchEvent(new Event('close'));
+  };
+}

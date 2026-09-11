@@ -3,6 +3,17 @@
   import { assessedGap } from './derive';
   import { getCaseWorkspace } from '$lib/kontraktsbord/context.svelte';
   const store = getCaseWorkspace();
+  import { createApprovalWorkspace, setApprovalWorkspace } from '$lib/approval/context.svelte';
+  import ApprovalPanel from './ApprovalPanel.svelte';
+  import { onMount, untrack } from 'svelte';
+  const approval = setApprovalWorkspace(createApprovalWorkspace(store));
+  import { createClaimReview, setClaimReview } from '$lib/approval/claimReview.svelte';
+  import ClaimLetterDialog from './ClaimLetterDialog.svelte';
+  const claimReview = setClaimReview(createClaimReview(store));
+  let showApproval = $state(false);
+  onMount(() => {
+    if (role === 'BH') void approval.load();
+  });
   import Header from './Header.svelte';
   import LeftSidebar from './LeftSidebar.svelte';
   import CenterRead from './CenterRead.svelte';
@@ -70,6 +81,17 @@
     }
   });
 
+  $effect(() => {
+    const currentMode = mode,
+      currentRole = role,
+      track = sel;
+    untrack(() => {
+      if (currentMode === 'form' && currentRole === 'BH')
+        approval.beginEdit(track === 'ansvar' ? 'grunnlag' : track);
+      else approval.endEdit();
+    });
+  });
+
   function notifyView() {
     onviewchange?.({ track: sel, mode, role });
   }
@@ -79,6 +101,7 @@
     savePreferredRole(next);
     mode = 'read';
     formActions = null;
+    if (next === 'BH') void approval.load();
     notifyView();
   }
 
@@ -96,6 +119,17 @@
   );
 
   function goForm(key: SporKey) {
+    if (
+      role === 'BH' &&
+      approval.state.items.some(
+        (i) =>
+          i.track === (key === 'ansvar' ? 'grunnlag' : key) &&
+          ['ferdigstilt', 'til_godkjenning'].includes(i.status)
+      )
+    ) {
+      showApproval = true;
+      return;
+    }
     sel = key;
     mode = 'form';
     mobileView = 'detail';
@@ -112,6 +146,7 @@
   }
 
   function handleSend() {
+    if (role === 'BH') showApproval = true;
     goMatrix();
   }
 
@@ -184,6 +219,21 @@
           class:center-new-case={creatingCase}
           class:mobile-hidden={!creatingCase && mode === 'read' && mobileView === 'matrix'}
         >
+          {#if role === 'BH' && !creatingCase}
+            <div class="approval-entry">
+              <div>
+                <strong>Brev og intern godkjenning</strong><span
+                  >{approval.state.items.filter((i) => i.status === 'ferdigstilt').length} ferdigstilte
+                  vurderinger · {approval.state.packages.filter(
+                    (p) => p.status === 'til_godkjenning'
+                  ).length} til godkjenning</span
+                >
+              </div>
+              <button class="btn btn-secondary" onclick={() => (showApproval = true)}
+                >Åpne brev</button
+              >
+            </div>
+          {/if}
           {#if creatingCase}
             <NewCaseForm
               onsend={handleNewCaseSend}
@@ -197,9 +247,21 @@
               onform={goForm}
               onbacktonow={() => (activeEvent = null)}
             />
+          {:else if role === 'BH' && (!approval.loaded || !approval.canPrepare)}
+            <div class="approval-entry">
+              <p role={approval.error ? 'alert' : 'status'}>
+                {approval.error ||
+                  (approval.loaded
+                    ? 'Åpne brev for å behandle godkjenningspakken.'
+                    : 'Henter intern behandling …')}
+              </p>
+              <button class="btn btn-secondary" onclick={() => void approval.load()}
+                >Prøv igjen</button
+              >
+            </div>
           {:else if sel === 'frist' && role === 'BH'}
             <FristForm
-              domainConfig={store.fristDomainConfig}
+              domainConfig={approval.fristConfig}
               onsend={handleSend}
               onactions={(a) => (formActions = a)}
             />
@@ -207,7 +269,7 @@
             <TeFristForm onsend={handleSend} onactions={(a) => (formActions = a)} />
           {:else if sel === 'vederlag' && role === 'BH'}
             <VederlagForm
-              domainConfig={store.vederlagDomainConfig}
+              domainConfig={approval.vederlagConfig}
               onsend={handleSend}
               onactions={(a) => (formActions = a)}
             />
@@ -245,13 +307,27 @@
               ontogglecontext={() => (rightPanelOpen = !rightPanelOpen)}
               onsend={() => formActions?.send()}
               canSend={formActions?.canSend ?? false}
-              sendLabel={formActions?.sendLabel}
+              sendLabel={role === 'BH' ? 'Ferdigstill vurdering' : 'Se brev og send'}
               onwithdraw={() => (showWithdrawModal = true)}
             />
           {/if}
         </main>
       {/key}
 
+      {#if claimReview.letter}<ClaimLetterDialog review={claimReview} />{/if}
+      {#if showApproval && role === 'BH'}
+        <ApprovalPanel
+          onclose={() => (showApproval = false)}
+          onrevise={async (item) => {
+            await approval.revise(item);
+            showApproval = false;
+            sel = item.track === 'grunnlag' ? 'ansvar' : item.track;
+            mode = 'form';
+            mobileView = 'detail';
+            notifyView();
+          }}
+        />
+      {/if}
       {#if brevInnhold}
         <LetterPreviewModal {brevInnhold} onclose={() => (letterEvent = null)} />
       {/if}
@@ -308,6 +384,22 @@
 </div>
 
 <style>
+  .approval-entry {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 16px 24px;
+    border-bottom: var(--rule);
+    background: var(--surface);
+    font-size: 12px;
+  }
+  .approval-entry span {
+    display: block;
+    margin-top: 4px;
+    font-size: 11px;
+    color: var(--ink-3);
+  }
   .shell {
     height: 100vh;
     display: flex;

@@ -28,13 +28,14 @@
     getVederlagsmetodeShortLabel,
   } from '$lib/constants/paymentMethods';
   import type { VederlagsMetode } from '$lib/types/timeline';
-  import RichTextEditor from '$lib/components/primitives/RichTextEditor.svelte';
+  import GeneratedReasoning from './components/GeneratedReasoning.svelte';
   import SectionHeading from '$lib/components/primitives/SectionHeading.svelte';
   import StandpointHeading from '$lib/components/patterns/StandpointHeading.svelte';
-  import LockedValueNode from '$lib/editor/LockedValueNode';
-  import { RefreshCw } from 'lucide-svelte';
+
   import { getCaseWorkspace } from '$lib/kontraktsbord/context.svelte';
   const store = getCaseWorkspace();
+  const review = getApprovalWorkspace();
+  import { getApprovalWorkspace } from '$lib/approval/context.svelte';
   import { fmt, sporResultatLabel } from './utils.js';
   import Stamp from './Stamp.svelte';
   import CaseAnchor from './CaseAnchor.svelte';
@@ -106,11 +107,12 @@
   );
 
   // Begrunnelse state (declared before formState which references it)
+  // The generator consumes formState, so assigning its result avoids a derived dependency cycle.
+  // eslint-disable-next-line svelte/prefer-writable-derived
   let begrunnelseHtml = $state(previous?.begrunnelse ?? '');
-  let userHasEdited = $state(Boolean(previous?.begrunnelse));
-  let editorApi: { setContent: (html: string) => void } | undefined;
-  let prevHtml: string | undefined;
-  let charCount = $state(0);
+  let tilleggHtml = $state(
+    String((previous as unknown as Record<string, unknown> | undefined)?.tilleggs_begrunnelse ?? '')
+  );
 
   const formState: VederlagFormState = $derived({
     hovedkravVarsletITide,
@@ -132,7 +134,7 @@
   const draft = createFormDraft(
     !store.isDemo,
     `${store.isDemo ? 'demo' : store.projectId}:${store.sak.sak_id}-BH-vederlag-${store.sak.vederlag.antall_versjoner}`,
-    () => ({ ...formState, userHasEdited }),
+    () => ({ ...formState, tilleggHtml }),
     (saved) => {
       hovedkravVarsletITide = saved.hovedkravVarsletITide;
       riggVarsletITide = saved.riggVarsletITide;
@@ -146,8 +148,14 @@
       produktivitetVurdering = saved.produktivitetVurdering;
       produktivitetGodkjentBelop = saved.produktivitetGodkjentBelop;
       begrunnelseHtml = saved.begrunnelse ?? '';
-      userHasEdited = saved.userHasEdited ?? false;
-    }
+      tilleggHtml =
+        typeof saved.tilleggHtml === 'string'
+          ? saved.tilleggHtml
+          : (saved as unknown as Record<string, unknown>).userHasEdited
+            ? (saved.begrunnelse ?? '')
+            : '';
+    },
+    review?.restored('vederlag')?.form
   );
   const isSubsidiaer = $derived(erSubsidiaerFn(domainConfig));
   const submissionMeta = $derived.by(() => {
@@ -458,42 +466,12 @@
   });
 
   $effect(() => {
-    if (!userHasEdited && autoBegrunnelseHtml) {
-      begrunnelseHtml = autoBegrunnelseHtml;
-    }
+    begrunnelseHtml =
+      autoBegrunnelseHtml +
+      (tilleggHtml.replace(/<[^>]*>/g, '').trim()
+        ? '<p><strong>Utdypende begrunnelse</strong></p>' + tilleggHtml
+        : '');
   });
-
-  $effect(() => {
-    // Read begrunnelseHtml unconditionally to always track as dependency.
-    // Without this, the && short-circuit prevents Svelte from tracking the
-    // dependency when editorApi is not yet set, and the effect never re-runs.
-    const html = begrunnelseHtml;
-    if (editorApi && html !== prevHtml) {
-      editorApi.setContent(html);
-      prevHtml = html;
-    }
-  });
-
-  function handleEditorReady(api: { setContent: (html: string) => void }) {
-    editorApi = api;
-    if (begrunnelseHtml) {
-      api.setContent(begrunnelseHtml);
-      prevHtml = begrunnelseHtml;
-    }
-  }
-
-  function handleEditorChange(newHtml: string) {
-    prevHtml = newHtml;
-    begrunnelseHtml = newHtml;
-    userHasEdited = true;
-  }
-
-  function handleRegenerate() {
-    if (autoBegrunnelseHtml) {
-      begrunnelseHtml = autoBegrunnelseHtml;
-      userHasEdited = false;
-    }
-  }
 
   $effect(() => {
     onactions?.({
@@ -501,6 +479,28 @@
       send: () => {
         if (allAnswered)
           void submission.run(async () => {
+            if (review) {
+              const refs = submissionRefs(store.timeline, 'vederlag');
+              const { eventType, data } = buildEventData(
+                formState,
+                domainConfig,
+                computed,
+                {
+                  vederlagKravId: refs.claimId ?? review.claimId('vederlag'),
+                  lastResponseEventId: refs.responseId,
+                  isUpdateMode: Boolean(refs.responseId),
+                },
+                autoBegrunnelseHtml,
+                computed.subsidiaerTriggers
+              );
+              await review.prepare(
+                'vederlag',
+                eventType as EventType,
+                { ...data, tilleggs_begrunnelse: tilleggHtml },
+                draft.snapshot()
+              );
+              return;
+            }
             if (store.isDemo) {
               store.sendVederlagSvar(computed.totalGodkjent, {
                 hovedkravVarsletITide,
@@ -857,23 +857,13 @@
         <div class="begrunnelse-section">
           <div class="sh-heading">
             <span class="sh-title">Begrunnelse</span>
-            <div class="begrunnelse-header-right">
-              {#if userHasEdited && autoBegrunnelseHtml}
-                <button class="regenerate-btn" onclick={handleRegenerate}>
-                  <RefreshCw size={12} strokeWidth={2} /> Regenerer
-                </button>
-              {/if}
-              <span class="font-mono char-count">{charCount} tegn</span>
-            </div>
+            <div class="begrunnelse-header-right"></div>
           </div>
-          <div class="editor-wrapper">
-            <RichTextEditor
-              body={begrunnelseHtml}
-              onchange={handleEditorChange}
-              onready={handleEditorReady}
-              extensions={[LockedValueNode]}
-              maxHeight="none"
-              oncharcount={(c) => (charCount = c)}
+          <div class="reasoning-content">
+            <GeneratedReasoning
+              generated={autoBegrunnelseHtml}
+              additional={tilleggHtml}
+              onchange={(html) => (tilleggHtml = html)}
             />
           </div>
         </div>

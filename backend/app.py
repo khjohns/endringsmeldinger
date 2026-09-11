@@ -185,6 +185,7 @@ from routes.error_handlers import register_error_handlers
 from routes.event_routes import events_bp
 from routes.forsering_routes import forsering_bp
 from routes.letter_routes import letter_bp
+from routes.approval_routes import approval_bp
 from routes.membership_routes import membership_bp
 from routes.oauth_auto_consent_routes import oauth_auto_consent_bp  # noqa: F401
 from routes.oauth_consent_routes import oauth_consent_bp  # OAuth consent API
@@ -201,6 +202,7 @@ app.register_blueprint(endringsordre_bp)
 app.register_blueprint(cloudevents_bp)
 app.register_blueprint(analytics_bp)
 app.register_blueprint(letter_bp)
+app.register_blueprint(approval_bp)
 app.register_blueprint(oauth_consent_bp)
 app.register_blueprint(oauth_auto_consent_bp)
 app.register_blueprint(wellknown_bp)

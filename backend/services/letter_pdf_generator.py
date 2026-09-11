@@ -7,18 +7,18 @@ Pure Python - no system dependencies required.
 
 import re
 from datetime import UTC, datetime
+from html import escape
 from io import BytesIO
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
 from pydantic import BaseModel
 from reportlab.lib.colors import HexColor
-from reportlab.lib.enums import TA_JUSTIFY, TA_RIGHT
+from reportlab.lib.enums import TA_RIGHT
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
 from reportlab.lib.units import mm
 from reportlab.platypus import (
-    Image,
     Paragraph,
     SimpleDocTemplate,
     Spacer,
@@ -114,6 +114,7 @@ def _markdown_to_reportlab(text: str) -> str:
     result_lines = []
 
     for line in lines:
+        line = escape(line)
         # Headers: ### must come before ## which must come before #
         if line.startswith("### "):
             line = f'<font size="11"><b>{line[4:]}</b></font>'
@@ -288,7 +289,7 @@ class LetterPdfGenerator:
                 parent=self.styles["Normal"],
                 fontSize=10,
                 textColor=COLORS["text"],
-                alignment=TA_JUSTIFY,
+                alignment=0,
                 leading=14,
                 spaceAfter=8 * mm,
             )
@@ -365,7 +366,7 @@ class LetterPdfGenerator:
             story.extend(self._build_recipient(brev_innhold.mottaker))
 
             # --- Subject line with border ---
-            story.append(Paragraph(brev_innhold.tittel, self.styles["Subject"]))
+            story.append(Paragraph(escape(brev_innhold.tittel), self.styles["Subject"]))
 
             # Add a line under the subject
             story.append(Spacer(1, 2 * mm))
@@ -429,37 +430,16 @@ class LetterPdfGenerator:
         # Format date
         dato = _format_date_norwegian(brev_innhold.referanser.dato)
 
-        # Try to find logo
-        logo_path = self._find_logo_path()
-
-        # Create header table (logo left, date/ref right)
+        # Sender identity must match the frozen document, including TE letters.
         header_data = []
-
-        # Logo cell
-        if logo_path:
-            try:
-                # Get image dimensions to preserve aspect ratio
-                from reportlab.lib.utils import ImageReader
-
-                img_reader = ImageReader(str(logo_path))
-                img_width, img_height = img_reader.getSize()
-                aspect_ratio = img_width / img_height
-                # Target height 80pt (matches frontend), calculate width from aspect ratio
-                target_height = 80
-                target_width = target_height * aspect_ratio
-                logo = Image(str(logo_path), width=target_width, height=target_height)
-                logo_cell = logo
-            except Exception:
-                logo_cell = Paragraph("Oslo kommune", self.styles["Normal"])
-        else:
-            logo_cell = Paragraph("Oslo kommune", self.styles["Normal"])
+        logo_cell = Paragraph(escape(brev_innhold.avsender.navn), self.styles["RecipientName"])
 
         # Date and reference cell
         date_ref = f"""
         <para align="right">
         <font size="10">{dato}</font><br/>
-        <font size="9" color="#666666">Vår ref: {brev_innhold.referanser.sak_id}</font><br/>
-        <font size="9" color="#666666">Deres ref: {brev_innhold.referanser.event_id[:8]}</font>
+        <font size="9" color="#666666">Vår ref: {escape(brev_innhold.referanser.sak_id)}</font><br/>
+        <font size="9" color="#666666">Dokument: {escape(brev_innhold.referanser.event_id[:8])}</font>
         </para>
         """
         date_cell = Paragraph(date_ref, self.styles["Normal"])
@@ -528,7 +508,7 @@ class LetterPdfGenerator:
         canvas.drawString(50, footer_y, left_text)
 
         # Right side
-        right_text = f"Generert: {_get_norwegian_date()}"
+        right_text = brev_innhold.referanser.dato
         canvas.drawRightString(A4[0] - 50, footer_y, right_text)
 
         canvas.restoreState()

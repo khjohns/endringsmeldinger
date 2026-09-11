@@ -48,6 +48,7 @@ describe('basis submission with optional notices', () => {
       await fireEvent.click(checkbox);
     }
     actions!.send();
+    await fireEvent.click(await screen.findByRole('button', { name: 'Send til byggherren' }));
     await waitFor(() => expect(complete).toHaveBeenCalledOnce());
     expect(submitEvent).toHaveBeenCalledTimes(2);
     const [, eventType, data] = vi.mocked(submitEvent).mock.calls[1];
@@ -85,10 +86,12 @@ describe('basis submission with optional notices', () => {
     await waitFor(() => expect(actions?.canSend).toBe(true));
     await fireEvent.click(screen.getByRole('checkbox', { name: VARSEL_LABELS.frist }));
     actions!.send();
+    await fireEvent.click(await screen.findByRole('button', { name: 'Send til byggherren' }));
     await screen.findByRole('alert');
     expect(complete).not.toHaveBeenCalled();
     expect(screen.getByRole('checkbox', { name: VARSEL_LABELS.frist })).toBeChecked();
     actions!.send();
+    await fireEvent.click(await screen.findByRole('button', { name: 'Send til byggherren' }));
     await waitFor(() => expect(complete).toHaveBeenCalledOnce());
     expect(submitEvent).toHaveBeenCalledTimes(3);
     const calls = vi.mocked(submitEvent).mock.calls;

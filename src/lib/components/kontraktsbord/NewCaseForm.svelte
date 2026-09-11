@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { CalendarDays, Check, ChevronDown, ChevronUp, Search, Upload } from 'lucide-svelte';
+  import { CalendarDays, ChevronDown, ChevronUp, Search, Upload } from 'lucide-svelte';
   import FormSection from './components/FormSection.svelte';
   import KonsekvensVarsler from './KonsekvensVarsler.svelte';
   import { buildKonsekvensVarsler, type VarselValg } from '$lib/domain/konsekvensVarsler';
@@ -16,6 +16,12 @@
   import { draftKey, loadDraft, saveDraft, clearDraft } from '$lib/utils/draft';
   import { createSubmission } from '$lib/kontraktsbord/submission.svelte';
   const submission = createSubmission();
+  import { createLetterConfirmation } from '$lib/approval/claimReview.svelte';
+  import { letterText } from '$lib/approval/letter';
+  import { projectStore } from '$lib/stores/project.svelte';
+  import { formatDateNorwegian } from '$lib/utils/dateFormatters';
+  import ClaimLetterDialog from './ClaimLetterDialog.svelte';
+  const letterConfirmation = createLetterConfirmation();
 
   let {
     onsend,
@@ -113,13 +119,9 @@
   $effect(() => {
     onactions?.({
       canSend: canSend && !submission.pending,
-      sendLabel,
+      sendLabel: 'Se brev og send',
       send: () => {
         if (!canSend || !valgtHjemmel) return;
-        if (!prosjektId) {
-          onsend();
-          return;
-        }
         const project = prosjektId;
         const selection = valgtHjemmel;
         const basisData = {
@@ -132,8 +134,40 @@
         };
         void submission.run(
           async () => {
+            const section = (tittel: string, tekst: string) => ({
+              tittel,
+              originalTekst: tekst,
+              redigertTekst: tekst,
+            });
+            const sender =
+              projectStore.current?.settings.contract?.totalentreprenor_navn ?? 'Totalentreprenør';
+            const recipient =
+              projectStore.current?.settings.contract?.byggherre_navn ?? 'Byggherre';
+            const id = createdCase?.id ?? crypto.randomUUID();
+            const brev = await letterConfirmation.show({
+              tittel: `${sendLabel === 'Send varsel' ? 'Varsel om endring' : 'Ansvarsgrunnlag'} – ${basisData.tittel}`,
+              avsender: { navn: sender, rolle: 'TE' },
+              mottaker: { navn: recipient, rolle: 'BH' },
+              referanser: {
+                sakId: id,
+                sakstittel: basisData.tittel,
+                eventId: 'utkast',
+                sporType: 'grunnlag',
+                dato: formatDateNorwegian(new Date().toISOString()),
+              },
+              seksjoner: {
+                innledning: section('Innledning', `Vi varsler med dette om ${basisData.tittel}.`),
+                begrunnelse: section(
+                  'Begrunnelse',
+                  [letterText(basisData.beskrivelse), ...Object.values(basisData.varsler)].join(
+                    '\n\n'
+                  )
+                ),
+                avslutning: section('Avslutning', `Med vennlig hilsen\n${sender}`),
+              },
+            });
+            if (!project) return;
             if (!createdCase) {
-              const id = crypto.randomUUID();
               const result = await submitEvent(
                 id,
                 'sak_opprettet',
@@ -155,17 +189,22 @@
                 varsler,
               });
             }
-            const result = await submitEvent(createdCase.id, 'grunnlag_opprettet', basisData, {
-              projectId: project,
-              expectedVersion: createdCase.version,
-            });
+            const result = await submitEvent(
+              createdCase.id,
+              'grunnlag_opprettet',
+              { ...basisData, brev },
+              {
+                projectId: project,
+                expectedVersion: createdCase.version,
+              }
+            );
             if (!result.success)
               throw new Error(result.message ?? 'Kunne ikke lagre ansvarsgrunnlaget.');
             draftReady = false;
             clearDraft(dk);
           },
           () => {
-            oncreated?.(createdCase!.id);
+            if (createdCase) oncreated?.(createdCase.id);
             onsend();
           }
         );
@@ -173,6 +212,8 @@
     });
   });
 </script>
+
+{#if letterConfirmation.letter}<ClaimLetterDialog review={letterConfirmation} />{/if}
 
 {#if !prosjektId || draftReady}
   <div class="new-case-form">

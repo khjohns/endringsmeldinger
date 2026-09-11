@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/svelte';
 import { userEvent } from '@testing-library/user-event';
 import WorkspaceHarness from './WorkspaceHarness.svelte';
@@ -8,6 +8,19 @@ import { createDemoStore } from '$lib/mockup/store.svelte';
 import { createCaseWorkspace } from '$lib/kontraktsbord/context.svelte';
 import type { CaseContextResponse } from '$lib/types/api';
 
+import { apiFetch } from '$lib/api/client';
+vi.mock('$lib/api/client', () => ({ apiFetch: vi.fn() }));
+beforeEach(() => {
+  vi.mocked(apiFetch).mockImplementation(async (_url, options) => {
+    if (options?.method === 'POST') throw new Error('Saken er endret av en annen bruker');
+    return {
+      state: { version: 0, items: [], packages: [] },
+      actor: 'handler@test',
+      chain: [],
+      canPrepare: true,
+    } as never;
+  });
+});
 describe('shared case workspace UI', () => {
   it('uses case identity and keeps scenario selection exclusive to the demo', async () => {
     const demo = createDemoStore();
@@ -44,7 +57,7 @@ describe('shared case workspace UI', () => {
     const yes = screen.queryByRole('radio', { name: 'Ja, i tide' });
     if (yes) await user.click(yes);
     await user.click(verdict);
-    const send = screen.getByRole('button', { name: /Send svar/ });
+    const send = screen.getByRole('button', { name: 'Ferdigstill vurdering' });
     await waitFor(() => expect(send).toBeEnabled());
     await user.click(send);
     expect(await screen.findByRole('alert')).toHaveTextContent(
@@ -54,7 +67,7 @@ describe('shared case workspace UI', () => {
       'aria-checked',
       'true'
     );
-    expect(sendEvent).toHaveBeenCalledOnce();
+    expect(sendEvent).not.toHaveBeenCalled();
   });
 });
 
