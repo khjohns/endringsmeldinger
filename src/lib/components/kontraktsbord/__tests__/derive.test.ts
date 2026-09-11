@@ -60,7 +60,7 @@ describe('deriveVederlagDomainConfig', () => {
   it('utleder config fra scenario1', () => {
     const cfg = deriveVederlagDomainConfig(scenario1_3AktiveSpor);
     expect(cfg.metode).toBe('REGNINGSARBEID');
-    expect(cfg.hovedkravBelop).toBe(2930000);
+    expect(cfg.hovedkravBelop).toBe(2400000);
     expect(cfg.harRiggKrav).toBe(true);
     expect(cfg.riggBelop).toBe(350000);
     expect(cfg.harProduktivitetKrav).toBe(true);
@@ -71,7 +71,7 @@ describe('deriveVederlagDomainConfig', () => {
   it('utleder config fra omforent sak', () => {
     const cfg = deriveVederlagDomainConfig(scenario4_Omforent);
     expect(cfg.grunnlagStatus).toBe('godkjent');
-    expect(cfg.hovedkravBelop).toBe(1250000);
+    expect(cfg.hovedkravBelop).toBe(1100000);
   });
 });
 

@@ -1,6 +1,6 @@
+import { letterText } from '$lib/approval/letter';
 import type { TimelineEvent, SakState, SporType } from '$lib/types/timeline';
 import type { BrevInnhold, BrevSeksjon } from './letterTypes';
-import { getEventTypeLabel } from '$lib/constants/eventTypeLabels';
 import { formatDateNorwegian } from '$lib/utils/dateFormatters';
 
 function makeSeksjon(tittel: string, tekst: string): BrevSeksjon {
@@ -29,9 +29,12 @@ function extractBegrunnelse(event: TimelineEvent): string {
 }
 
 export function buildLetterContent(event: TimelineEvent, sak: SakState): BrevInnhold {
+  const stored = (event.data as unknown as Record<string, unknown> | undefined)?.brev as
+    | BrevInnhold
+    | undefined;
+  if (stored?.seksjoner && stored.referanser) return JSON.parse(JSON.stringify(stored));
   const sporType: SporType = event.spor ?? 'grunnlag';
   const dato = formatDateNorwegian(event.time) || formatDateNorwegian(new Date().toISOString());
-  const eventLabel = getEventTypeLabel(event.type?.replace('no.oslo.koe.', '') ?? '');
   const sporLabel = getSporLabel(sporType);
   const sakstittel = sak.grunnlag.tittel ?? sak.sak_id;
 
@@ -45,14 +48,30 @@ export function buildLetterContent(event: TimelineEvent, sak: SakState): BrevInn
 
   const innledningTekst =
     `Vi viser til ${sporLabel} i sak ${sak.sak_id} \u2014 \u00AB${sakstittel}\u00BB.\n\n` +
-    `Denne hendelsen gjelder: ${eventLabel} (${dato}).`;
+    `Brevet gjelder ${sporLabel}.`;
 
   const varsler = event.data && 'varsler' in event.data ? event.data.varsler : undefined;
   const varselTekster = Object.values(varsler ?? {}).filter(
     (text): text is string => typeof text === 'string'
   );
-  const begrunnelse = extractBegrunnelse(event);
+  const begrunnelse = letterText(extractBegrunnelse(event));
+  const d = event.data as unknown as Record<string, unknown>;
+  const facts =
+    event.actorrole === 'TE'
+      ? [
+          typeof d?.belop_direkte === 'number'
+            ? `Krav: ${d.belop_direkte.toLocaleString('nb-NO')} kr`
+            : '',
+          typeof d?.kostnads_overslag === 'number'
+            ? `Kostnadsoverslag: ${d.kostnads_overslag.toLocaleString('nb-NO')} kr`
+            : '',
+          typeof d?.antall_dager === 'number' ? `Krav: ${d.antall_dager} dager` : '',
+        ]
+          .filter(Boolean)
+          .join('\n')
+      : '';
   const begrunnelseTekst = [
+    facts,
     begrunnelse,
     ...varselTekster.filter((text) => !begrunnelse.includes(text)),
   ].join('\n\n');
@@ -60,7 +79,7 @@ export function buildLetterContent(event: TimelineEvent, sak: SakState): BrevInn
   const avslutningTekst = `Med vennlig hilsen\n${avsenderNavn}\n\n${dato}`;
 
   return {
-    tittel: `Vedr: ${eventLabel} \u2014 ${sakstittel}`,
+    tittel: `${isTE ? 'Krav om' : 'Svar på krav om'} ${sporLabel} \u2014 ${sakstittel}`,
     mottaker: { navn: mottakerNavn, rolle: isTE ? 'BH' : 'TE' },
     avsender: { navn: avsenderNavn, rolle: isTE ? 'TE' : 'BH' },
     referanser: {

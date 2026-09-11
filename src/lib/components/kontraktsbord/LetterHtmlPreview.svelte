@@ -1,20 +1,19 @@
 <script lang="ts">
-  import { formatDateNorwegian } from '$lib/utils/dateFormatters';
   import type { BrevInnhold } from './letterTypes';
 
   let { brevInnhold }: { brevInnhold: BrevInnhold } = $props();
 
-  const generertDato = formatDateNorwegian(new Date().toISOString());
+  const generertDato = $derived(brevInnhold.referanser.dato);
 </script>
 
 <div class="a4-page">
   <!-- Header -->
   <div class="letter-header">
-    <div class="letter-logo">NS 8407</div>
+    <div class="letter-logo">{brevInnhold.avsender.navn}</div>
     <div class="letter-refs">
       <div class="letter-date">{brevInnhold.referanser.dato}</div>
       <div class="letter-ref">Sak: {brevInnhold.referanser.sakId}</div>
-      <div class="letter-ref">Event: {brevInnhold.referanser.eventId}</div>
+      <div class="letter-ref">Dokument: {brevInnhold.referanser.eventId}</div>
     </div>
   </div>
 
@@ -46,13 +45,14 @@
   <!-- Footer -->
   <div class="letter-footer">
     <span>{brevInnhold.referanser.sakId} | NS 8407:2011</span>
-    <span>Generert: {generertDato}</span>
+    <span>{generertDato}</span>
   </div>
 </div>
 
 <style>
   .a4-page {
-    width: 210mm;
+    width: 100%;
+    max-width: 210mm;
     min-height: 297mm;
     padding: 40px 50px;
     background: white;
@@ -73,7 +73,7 @@
     margin-bottom: 24px;
   }
   .letter-logo {
-    font-size: 18pt;
+    font-size: 14pt;
     font-weight: 800;
     color: #2a2859;
     letter-spacing: 0.05em;
@@ -127,7 +127,7 @@
     font-size: 10pt;
     line-height: 1.6;
     white-space: pre-wrap;
-    text-align: justify;
+    text-align: left;
   }
   .letter-footer {
     position: absolute;

@@ -15,6 +15,8 @@
   import { formatDateShortNorwegian } from '$lib/utils/dateFormatters.js';
   import { getCaseWorkspace } from '$lib/kontraktsbord/context.svelte';
   const store = getCaseWorkspace();
+  const review = getApprovalWorkspace();
+  import { getApprovalWorkspace } from '$lib/approval/context.svelte';
   import { TRACK_ICONS } from './data.js';
   import CaseAnchor from './CaseAnchor.svelte';
   import {
@@ -71,7 +73,8 @@
       varsletITide = saved.varsletITide;
       resultat = saved.resultat;
       begrunnelseHtml = saved.begrunnelseHtml ?? '';
-    }
+    },
+    review?.restored('grunnlag')?.form
   );
   const prekludert = $derived(erPrekludert(formState, domainConfig));
   const verdictOptions = $derived(getVerdictOptions(domainConfig));
@@ -101,6 +104,21 @@
       send: () => {
         if (allAnswered)
           void submission.run(async () => {
+            if (review) {
+              const refs = submissionRefs(store.timeline, 'grunnlag');
+              await review.prepare(
+                'grunnlag',
+                refs.responseId ? 'respons_grunnlag_oppdatert' : 'respons_grunnlag',
+                buildEventData(formState, {
+                  ...domainConfig,
+                  isUpdateMode: Boolean(refs.responseId),
+                  grunnlagEventId: refs.claimId ?? review.claimId('grunnlag'),
+                  lastResponseEventId: refs.responseId,
+                }),
+                draft.snapshot()
+              );
+              return;
+            }
             if (store.isDemo) {
               store.sendGrunnlagSvar(resultat as 'godkjent' | 'avslatt' | 'frafalt');
             } else {

@@ -18,7 +18,7 @@ import tempfile
 from datetime import UTC, datetime
 from typing import Any
 
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, g, jsonify, request
 
 from api.validators import (
     ValidationError as ApiValidationError,
@@ -445,6 +445,9 @@ def submit_event():
 
         # 2. Parse event (validates server-controlled fields)
         event_data["sak_id"] = sak_id
+        from routes.approval_routes import project_policy
+        if str(event_data.get('event_type', '')).startswith('respons_') and project_policy(getattr(g, 'project_id', 'oslobygg')):
+            return jsonify(message='BH-svar må publiseres gjennom intern godkjenning.'), 403
         event = parse_event_from_request(event_data)
 
         # 3. Load current state for validation
@@ -530,6 +533,11 @@ def submit_event():
         from core.config import settings
 
         if settings.is_catenda_enabled and catenda_topic_id:
+            frozen_letter = getattr(getattr(event, 'data', None), 'brev', None)
+            if frozen_letter:
+                from services.approval_letter import pdf_bytes
+                client_pdf_base64 = base64.b64encode(pdf_bytes(frozen_letter)).decode('ascii')
+                client_pdf_filename = f'brev-{sak_id}-{event.event_id}.pdf'
             catenda_success, pdf_source, catenda_documents = _post_to_catenda(
                 sak_id=sak_id,
                 state=new_state,
@@ -624,6 +632,9 @@ def submit_batch():
 
         # 1. Parse all events
         events = []
+        from routes.approval_routes import project_policy
+        if project_policy(getattr(g, 'project_id', 'oslobygg')) and any(str(ed.get('event_type', '')).startswith('respons_') for ed in event_datas):
+            return jsonify(message='BH-svar må publiseres gjennom intern godkjenning.'), 403
         for ed in event_datas:
             ed["sak_id"] = sak_id  # Ensure consistent sak_id
             events.append(parse_event_from_request(ed))

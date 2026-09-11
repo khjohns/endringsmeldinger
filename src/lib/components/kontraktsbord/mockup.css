@@ -806,7 +806,7 @@
 
 /* ── Locked value tokens ── */
 .mockup .locked-value {
-  display: inline;
+  display: inline-block;
   font-family: var(--font-mono);
   font-size: 13px;
   font-weight: 600;
@@ -817,9 +817,9 @@
 .mockup .locked-value--belop,
 .mockup .locked-value--dager,
 .mockup .locked-value--prosent {
-  background: var(--gold-bg);
-  color: var(--gold);
-  border: 1px solid var(--gold-border);
+  background: var(--paper-inset);
+  color: var(--ink-2);
+  border: var(--rule);
 }
 
 /* ── Scrollbar ── */

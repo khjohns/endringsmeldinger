@@ -1,7 +1,7 @@
 <script lang="ts">
   import PositionExplanation from './PositionExplanation.svelte';
   import YesNoControl from './components/YesNoControl.svelte';
-  import { AlertTriangle, Check, CircleMinus, Clock3, RefreshCw, X } from 'lucide-svelte';
+  import { AlertTriangle, Check, CircleMinus, Clock3, X } from 'lucide-svelte';
   import ExpandableReasoning from '$lib/components/patterns/ExpandableReasoning.svelte';
   import StatementCard from '$lib/components/patterns/StatementCard.svelte';
   import { beregnAlt, buildEventData, getDefaults } from '$lib/domain/fristDomain';
@@ -17,19 +17,19 @@
   import { generateFristResponseBegrunnelse } from '$lib/domain/begrunnelse/fristBegrunnelse';
   import type { FristResponseInput } from '$lib/domain/begrunnelse/fristBegrunnelse';
   import { tokensToHtml } from '$lib/editor/tokenConverter';
-  import LockedValueNode from '$lib/editor/LockedValueNode';
-  import RichTextEditor from '$lib/components/primitives/RichTextEditor.svelte';
+
+  import GeneratedReasoning from './components/GeneratedReasoning.svelte';
   import QuestionCard from '$lib/components/patterns/QuestionCard.svelte';
   import StandpointHeading from '$lib/components/patterns/StandpointHeading.svelte';
   import { isHtmlEmpty } from '$lib/utils/formatters';
   import { formatDateShortNorwegian } from '$lib/utils/dateFormatters';
   import { getCaseWorkspace } from '$lib/kontraktsbord/context.svelte';
   const store = getCaseWorkspace();
-  import { sporResultatLabel } from './utils.js';
+  const review = getApprovalWorkspace();
+  import { getApprovalWorkspace } from '$lib/approval/context.svelte';
   import CaseAnchor from './CaseAnchor.svelte';
   import FormPageHeader from './components/FormPageHeader.svelte';
   import NumberField from './components/NumberField.svelte';
-  import Stamp from './Stamp.svelte';
 
   let {
     domainConfig,
@@ -59,11 +59,12 @@
   let sendForesporsel = $state(false);
   let godkjentDager = $state<number | undefined>(initialDefaults.godkjentDager);
 
+  // The generator consumes formState, so assigning its result avoids a derived dependency cycle.
+  // eslint-disable-next-line svelte/prefer-writable-derived
   let begrunnelseHtml = $state(previous?.begrunnelse ?? '');
-  let userHasEdited = $state(Boolean(previous?.begrunnelse));
-  let editorApi: { setContent: (html: string) => void } | undefined;
-  let prevHtml: string | undefined;
-  let charCount = $state(0);
+  let tilleggHtml = $state(
+    String((previous as unknown as Record<string, unknown> | undefined)?.tilleggs_begrunnelse ?? '')
+  );
 
   const formState: FristFormState = $derived({
     fristVarselOk,
@@ -88,7 +89,7 @@
       sendForesporsel,
       godkjentDager,
       begrunnelseHtml,
-      userHasEdited,
+      tilleggHtml,
     }),
     (saved) => {
       fristVarselOk = saved.fristVarselOk;
@@ -98,8 +99,14 @@
       sendForesporsel = saved.sendForesporsel ?? false;
       godkjentDager = saved.godkjentDager;
       begrunnelseHtml = saved.begrunnelseHtml ?? '';
-      userHasEdited = saved.userHasEdited ?? false;
-    }
+      tilleggHtml =
+        typeof saved.tilleggHtml === 'string'
+          ? saved.tilleggHtml
+          : (saved as unknown as Record<string, unknown>).userHasEdited
+            ? (saved.begrunnelseHtml ?? '')
+            : '';
+    },
+    review?.restored('frist')?.form
   );
   const isHelSubsidiaer = $derived(
     domainConfig.erGrunnlagSubsidiaer || domainConfig.erHelFristSubsidiaerPgaGrunnlag
@@ -208,36 +215,12 @@
   });
 
   $effect(() => {
-    if (!userHasEdited && autoBegrunnelseHtml) begrunnelseHtml = autoBegrunnelseHtml;
+    begrunnelseHtml =
+      autoBegrunnelseHtml +
+      (tilleggHtml.replace(/<[^>]*>/g, '').trim()
+        ? '<p><strong>Utdypende begrunnelse</strong></p>' + tilleggHtml
+        : '');
   });
-
-  $effect(() => {
-    const html = begrunnelseHtml;
-    if (editorApi && html !== prevHtml) {
-      editorApi.setContent(html);
-      prevHtml = html;
-    }
-  });
-
-  function handleEditorReady(api: { setContent: (html: string) => void }) {
-    editorApi = api;
-    if (begrunnelseHtml) {
-      api.setContent(begrunnelseHtml);
-      prevHtml = begrunnelseHtml;
-    }
-  }
-
-  function handleEditorChange(newHtml: string) {
-    prevHtml = newHtml;
-    begrunnelseHtml = newHtml;
-    userHasEdited = true;
-  }
-
-  function handleRegenerate() {
-    if (!autoBegrunnelseHtml) return;
-    begrunnelseHtml = autoBegrunnelseHtml;
-    userHasEdited = false;
-  }
 
   $effect(() => {
     onactions?.({
@@ -245,6 +228,24 @@
       send: () => {
         if (allAnswered)
           void submission.run(async () => {
+            if (review) {
+              const refs = submissionRefs(store.timeline, 'frist');
+              const data = buildEventData(
+                formState,
+                domainConfig,
+                computed,
+                refs.claimId ?? review.claimId('frist'),
+                autoBegrunnelseHtml
+              );
+              if (refs.responseId) data.original_respons_id = refs.responseId;
+              await review.prepare(
+                'frist',
+                refs.responseId ? 'respons_frist_oppdatert' : 'respons_frist',
+                { ...data, tilleggs_begrunnelse: tilleggHtml },
+                draft.snapshot()
+              );
+              return;
+            }
             if (store.isDemo) {
               store.sendFristSvar(prinsipaltGodkjent, {
                 fristVarselOk,
@@ -549,26 +550,16 @@
       <section class="begrunnelse-section">
         <div class="begrunnelse-heading">
           <span class="begrunnelse-title">Begrunnelse</span>
-          <div class="begrunnelse-actions">
-            {#if userHasEdited && autoBegrunnelseHtml}
-              <button type="button" class="regenerate-btn" onclick={handleRegenerate}>
-                <RefreshCw size={12} strokeWidth={2} /> Regenerer
-              </button>
-            {/if}
-            <span class="font-mono char-count">{charCount} tegn</span>
-          </div>
+          <div class="begrunnelse-actions"></div>
         </div>
         <p class="begrunnelse-help">
           Begrunnelsen kan utdypes og redigeres. Automatiske konklusjoner beholdes som låste felt.
         </p>
-        <div class="editor-wrapper">
-          <RichTextEditor
-            body={begrunnelseHtml}
-            onchange={handleEditorChange}
-            onready={handleEditorReady}
-            extensions={[LockedValueNode]}
-            maxHeight="none"
-            oncharcount={(count) => (charCount = count)}
+        <div class="reasoning-content">
+          <GeneratedReasoning
+            generated={autoBegrunnelseHtml}
+            additional={tilleggHtml}
+            onchange={(html) => (tilleggHtml = html)}
           />
         </div>
       </section>

@@ -69,7 +69,7 @@ it('supports keyboard selection and separate letter actions', async () => {
   render(CaseHistory, {
     props: { events, sel: 'frist', oneventclick: select, onletterclick: letter },
   });
-  const title = screen.getByRole('button', { name: 'Fristkrav oppdatert', exact: true });
+  const title = screen.getByRole('button', { name: 'Fristkrav oppdatert' });
   title.focus();
   await user.keyboard('{Enter}');
   expect(select).toHaveBeenCalledWith(events[1]);

@@ -98,7 +98,9 @@
           </div>
           <div class="status-text">
             {#if mode === 'form'}
-              <span style="color: var(--ink-2)">Autolagret — lukk eller send</span>
+              <span style="color: var(--ink-2)"
+                >Autolagret — {role === 'BH' ? 'klar til ferdigstilling' : 'ikke sendt'}</span
+              >
             {:else if sel === 'ansvar'}
               <span style="color: var(--ink-2)">{sisteGrunnlagAktivitet || 'Ikke registrert'}</span>
             {:else if isVederlagPending}

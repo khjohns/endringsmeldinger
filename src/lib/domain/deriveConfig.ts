@@ -20,7 +20,11 @@ export function deriveVederlagDomainConfig(sak: SakState): VederlagDomainConfig 
   const g = sak.grunnlag;
   return {
     metode: v.metode,
-    hovedkravBelop: v.krevd_belop ?? v.netto_belop ?? 0,
+    hovedkravBelop:
+      (v.metode === 'REGNINGSARBEID' ? v.kostnads_overslag : v.belop_direkte) ??
+      v.krevd_belop ??
+      v.netto_belop ??
+      0,
     riggBelop: v.saerskilt_krav?.rigg_drift?.belop,
     produktivitetBelop: v.saerskilt_krav?.produktivitet?.belop,
     harRiggKrav: !!v.saerskilt_krav?.rigg_drift,

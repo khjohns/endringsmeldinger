@@ -1,3 +1,5 @@
+import { SvelteDate } from 'svelte/reactivity';
+import { documentToBrev } from '$lib/approval/letter';
 import type { KonsekvensVarsler, VarselKind } from '$lib/domain/konsekvensVarsler';
 /**
  * Reaktiv mockup-store. Wrapper SakState + lokal UI-state.
@@ -103,7 +105,7 @@ export function createDemoStore(initial: Scenario = DEFAULT_SCENARIO) {
       1
     );
     const respondertVersjon = teVersionCount - 1;
-    const now = new Date().toISOString();
+    const now = new SvelteDate().toISOString();
     const eventId = `evt-vederlag-response-${Date.now()}`;
 
     vederlag.bh_resultat = resultat;
@@ -168,7 +170,7 @@ export function createDemoStore(initial: Scenario = DEFAULT_SCENARIO) {
       1
     );
     const respondertVersjon = teVersionCount - 1;
-    const now = new Date().toISOString();
+    const now = new SvelteDate().toISOString();
     const eventId = `evt-frist-response-${Date.now()}`;
     const subsidiaerResultat =
       detaljer?.subsidiaerGodkjentDager === undefined
@@ -230,7 +232,7 @@ export function createDemoStore(initial: Scenario = DEFAULT_SCENARIO) {
 
   function sendTeGrunnlag(begrunnelse: string) {
     const grunnlag = scenario.sak.grunnlag;
-    const now = new Date().toISOString();
+    const now = new SvelteDate().toISOString();
     const previousEventId =
       scenario.timeline
         .filter((event) => event.spor === 'grunnlag' && event.actorrole === 'TE')
@@ -271,7 +273,7 @@ export function createDemoStore(initial: Scenario = DEFAULT_SCENARIO) {
   }
 
   function sendTeVederlagVarsel(varsler: KonsekvensVarsler) {
-    const tidsstempel = new Date().toISOString();
+    const tidsstempel = new SvelteDate().toISOString();
     const event_id = crypto.randomUUID();
     const v = scenario.sak.vederlag;
     v.varsler = [
@@ -317,7 +319,7 @@ export function createDemoStore(initial: Scenario = DEFAULT_SCENARIO) {
     if (!varselType) return;
 
     const frist = scenario.sak.frist;
-    const now = new Date().toISOString();
+    const now = new SvelteDate().toISOString();
     const today = now.slice(0, 10);
     const hadSubmission = Boolean(frist.varsel_type || frist.frist_varsel);
     const wasSpecified = frist.varsel_type === 'spesifisert' && frist.krevd_dager !== undefined;
@@ -375,7 +377,7 @@ export function createDemoStore(initial: Scenario = DEFAULT_SCENARIO) {
 
   function withdrawTrack(spor: SporKey, begrunnelse?: string) {
     const inactiveStatuses = INACTIVE_STATUSES;
-    const now = new Date().toISOString();
+    const now = new SvelteDate().toISOString();
 
     if (spor === 'ansvar') {
       // Forward cascade: grunnlag → vederlag + frist
@@ -395,12 +397,12 @@ export function createDemoStore(initial: Scenario = DEFAULT_SCENARIO) {
       scenario.sak.vederlag.status = 'trukket';
       scenario.sak.vederlag.trukket_begrunnelse = begrunnelse;
       addWithdrawEvent('vederlag_krav_trukket', 'vederlag', begrunnelse, now);
-      checkReverseCascade(now);
+      checkReverseCascade();
     } else {
       scenario.sak.frist.status = 'trukket';
       scenario.sak.frist.trukket_begrunnelse = begrunnelse;
       addWithdrawEvent('frist_krav_trukket', 'frist', begrunnelse, now);
-      checkReverseCascade(now);
+      checkReverseCascade();
     }
 
     // Clear drafts for withdrawn tracks
@@ -413,7 +415,7 @@ export function createDemoStore(initial: Scenario = DEFAULT_SCENARIO) {
     }
   }
 
-  function checkReverseCascade(now: string) {
+  function checkReverseCascade() {
     const inactiveStatuses = INACTIVE_STATUSES;
     const vedInactive = inactiveStatuses.has(scenario.sak.vederlag.status);
     const fristInactive = inactiveStatuses.has(scenario.sak.frist.status);
@@ -446,6 +448,43 @@ export function createDemoStore(initial: Scenario = DEFAULT_SCENARIO) {
         begrunnelse: begrunnelse || undefined,
       } as unknown as import('$lib/types/timeline').EventData,
     });
+  }
+
+  function applyApprovedItems(
+    items: import('$lib/approval/types').ReviewItem[],
+    packageId: string,
+    letter: import('$lib/approval/types').LetterDocument
+  ) {
+    for (const item of items) {
+      if (scenario.timeline.some((e) => e.id === `${packageId}-${item.id}`)) continue;
+      const d = item.data;
+      const previousCount = scenario.timeline.length;
+      if (item.track === 'grunnlag')
+        sendGrunnlagSvar(d.resultat as 'godkjent' | 'avslatt' | 'frafalt');
+      else if (item.track === 'vederlag')
+        sendVederlagSvar(Number(d.total_godkjent_belop ?? d.godkjent_belop ?? 0), {
+          begrunnelse: String(d.begrunnelse ?? ''),
+          subsidiaerGodkjentBelop: d.subsidiaer_godkjent_belop as number | undefined,
+        });
+      else
+        sendFristSvar(Number(d.godkjent_dager ?? 0), {
+          begrunnelse: String(d.begrunnelse ?? ''),
+          subsidiaerGodkjentDager: d.subsidiaer_godkjent_dager as number | undefined,
+        });
+      scenario.timeline.splice(previousCount);
+      scenario.timeline.push({
+        specversion: '1.0',
+        source: '/demo',
+        id: `${packageId}-${item.id}`,
+        type: `no.oslo.koe.${item.eventType}`,
+        time: new SvelteDate().toISOString(),
+        actor: item.owner,
+        actorrole: 'BH',
+        spor: item.track,
+        summary: 'Svar publisert etter intern godkjenning',
+        data: { ...d, brev: documentToBrev(letter, packageId) },
+      } as unknown as import('$lib/types/timeline').TimelineEvent);
+    }
   }
 
   return {
@@ -493,6 +532,30 @@ export function createDemoStore(initial: Scenario = DEFAULT_SCENARIO) {
     selectScenario,
     getUI,
     setDraft,
+    recordClaimLetter(
+      track: import('$lib/types/timeline').SporType,
+      type: import('$lib/types/timeline').EventType,
+      data: Record<string, unknown>,
+      brev: import('$lib/components/kontraktsbord/letterTypes').BrevInnhold,
+      previousCount: number
+    ) {
+      scenario.timeline.splice(previousCount);
+      const id = crypto.randomUUID();
+      brev.referanser.eventId = id;
+      scenario.timeline.push({
+        specversion: '1.0',
+        source: '/demo',
+        id,
+        type: `no.oslo.koe.${type}`,
+        time: new SvelteDate().toISOString(),
+        actorrole: 'TE',
+        actor: teNavn,
+        spor: track,
+        summary: brev.tittel,
+        data: { ...data, brev },
+      } as unknown as import('$lib/types/timeline').TimelineEvent);
+    },
+    applyApprovedItems,
     sendGrunnlagSvar,
     sendVederlagSvar,
     sendFristSvar,

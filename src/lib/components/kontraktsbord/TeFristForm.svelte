@@ -23,6 +23,8 @@
   import { formatDateShortNorwegian } from '$lib/utils/dateFormatters';
   import { getCaseWorkspace } from '$lib/kontraktsbord/context.svelte';
   const store = getCaseWorkspace();
+  import { getClaimReview } from '$lib/approval/claimReview.svelte';
+  const claimReview = getClaimReview();
   import CaseAnchor from './CaseAnchor.svelte';
   import FormPageHeader from './components/FormPageHeader.svelte';
   import FormSection from './components/FormSection.svelte';
@@ -113,6 +115,27 @@
       send: () => {
         if (kanSende)
           void submission.run(async () => {
+            if (claimReview) {
+              await claimReview.submit(
+                'frist',
+                getEventType({ scenario }) as EventType,
+                buildEventData(mappedState, {
+                  scenario,
+                  grunnlagEventId:
+                    submissionRefs(store.timeline, 'grunnlag').claimId ?? 'demo-grunnlag',
+                  originalEventId:
+                    scenario !== 'new'
+                      ? (submissionRefs(store.timeline, 'frist').claimId ??
+                        existing.varsler?.find((v) => v.type === 'frist')?.event_id)
+                      : undefined,
+                  erSvarPaForesporsel: scenario === 'foresporsel',
+                }),
+                () => {
+                  if (store.isDemo) store.sendTeFrist(antallDager, varselType, begrunnelse);
+                }
+              );
+              return;
+            }
             if (store.isDemo) store.sendTeFrist(antallDager, varselType, begrunnelse);
             else
               await store.submit(getEventType({ scenario }) as EventType, {

@@ -24,6 +24,8 @@
   } from '$lib/constants/paymentMethods';
   import { getCaseWorkspace } from '$lib/kontraktsbord/context.svelte';
   const store = getCaseWorkspace();
+  import { getClaimReview } from '$lib/approval/claimReview.svelte';
+  const claimReview = getClaimReview();
   import { fmt } from './utils.js';
   import CaseAnchor from './CaseAnchor.svelte';
   import FormPageHeader from './components/FormPageHeader.svelte';
@@ -132,6 +134,39 @@
       send: () => {
         if (kanSende)
           void submission.run(async () => {
+            if (claimReview) {
+              const data =
+                mode === 'varsel'
+                  ? {
+                      varsel_type: 'varsel',
+                      varsler: noticeData,
+                      begrunnelse: Object.values(noticeData).join('\n\n'),
+                    }
+                  : buildEventData(mappedState, {
+                      scenario,
+                      grunnlagEventId:
+                        submissionRefs(store.timeline, 'grunnlag').claimId ?? 'demo-grunnlag',
+                      originalEventId:
+                        scenario === 'edit'
+                          ? submissionRefs(store.timeline, 'vederlag').claimId
+                          : undefined,
+                      datoOppdaget: store.sak.grunnlag.dato_oppdaget,
+                    });
+              await claimReview.submit(
+                'vederlag',
+                mode === 'varsel'
+                  ? 'vederlag_krav_sendt'
+                  : (getEventType({ scenario }) as EventType),
+                data,
+                () => {
+                  if (store.isDemo) {
+                    if (mode === 'varsel') store.sendTeVederlagVarsel(noticeData);
+                    else store.sendTeVederlag(hovedkravValue ?? 0, metode);
+                  }
+                }
+              );
+              return;
+            }
             if (mode === 'varsel') {
               if (store.isDemo) store.sendTeVederlagVarsel(noticeData);
               else
