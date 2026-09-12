@@ -115,5 +115,5 @@ inkludert oppfriskning etter lagring, revisjoner, tilbaketrekking, versjonskonfl
 og nettverksbrudd ved saksopprettelse.
 
 Prosjektoversikten og showcase beholder foreløpig sitt eksisterende utseende.
-Gamle, ikke-rutede UI-komponenter kan ryddes bort i en separat gjennomgang;
-de brukes ikke som alternative sakssider.
+De gamle, ikke-rutede saks- og skjemakomponentene er fjernet sammen med
+ubrukte komponenter fra kontraktsbordet og testene for det gamle saksgrensesnittet.

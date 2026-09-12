@@ -398,23 +398,6 @@
 }
 
 /* ══════════════════════════════════════════════════
-   Subsidiary markers
-   ══════════════════════════════════════════════════ */
-.mockup .diamond {
-  position: absolute;
-  width: 11px;
-  height: 11px;
-  background: var(--green);
-  transform: rotate(45deg);
-}
-.mockup .mini-diamond {
-  width: 8px;
-  height: 8px;
-  background: var(--green);
-  transform: rotate(45deg);
-}
-
-/* ══════════════════════════════════════════════════
    Attachment cards
    ══════════════════════════════════════════════════ */
 .mockup .att {
@@ -446,46 +429,6 @@
 }
 .mockup .best-card:hover {
   border-color: #c6d7cd;
-}
-
-/* ══════════════════════════════════════════════════
-   Pills (yes/no toggle)
-   ══════════════════════════════════════════════════ */
-.mockup .pill {
-  padding: 8px 16px;
-  min-height: 40px;
-  font-size: 14px;
-  font-weight: 600;
-  font-family: var(--font-sans);
-  border: var(--control-border);
-  border-radius: 999px;
-  background: var(--surface);
-  color: var(--ink-2);
-  cursor: pointer;
-  transition: all 80ms;
-}
-.mockup .pill:hover {
-  border-color: var(--ink);
-  color: var(--ink);
-}
-.mockup .pill:focus-visible {
-  outline: 2px solid var(--control-focus);
-  outline-offset: 2px;
-}
-.mockup .pill.yes {
-  background: var(--success);
-  color: white;
-  border-color: var(--success);
-}
-.mockup .pill.no {
-  background: var(--danger);
-  color: white;
-  border-color: var(--danger);
-}
-.mockup .pill.partial {
-  background: var(--warning);
-  color: white;
-  border-color: var(--warning);
 }
 
 /* ══════════════════════════════════════════════════
@@ -579,20 +522,6 @@
   height: 1px;
   background: #e9e6df;
   margin-bottom: 32px;
-}
-
-/* ── Subsidiary notice ── */
-.mockup .sub-notice {
-  background: var(--green-bg);
-  padding: 12px 16px;
-  border: var(--rule-subtle);
-  border-radius: 4px;
-}
-.mockup .sub-notice-text {
-  font-size: 14px;
-  line-height: 1.55;
-  color: var(--ink-2);
-  margin-top: 8px;
 }
 
 /* ── Alert box ── */
@@ -840,11 +769,6 @@
 @media (max-width: 768px) {
   .mockup .form-content {
     padding: 16px 16px 120px;
-  }
-  .mockup .pill {
-    padding: 10px 16px;
-    min-height: 44px;
-    font-size: 15px;
   }
   .mockup .btn {
     padding: 10px 16px;
