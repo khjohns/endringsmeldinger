@@ -1,0 +1,123 @@
+"""Catenda adapter, identity resolution and bounded membership cache."""
+
+import os
+from datetime import UTC, datetime
+from urllib.parse import urlsplit
+
+from lib.auth.catenda_oauth import CatendaOAuth, CatendaUnavailable
+from lib.auth.domain import catenda_id, reconciliation_changes
+from repositories.auth_repository import AuthRepository, utcnow
+
+
+class AuthService:
+    def __init__(self, repo=None, oauth=None):
+        self.repo = repo or AuthRepository()
+        self.oauth = oauth or CatendaOAuth(
+            os.getenv("CATENDA_CLIENT_ID", ""),
+            os.getenv("CATENDA_CLIENT_SECRET", ""),
+            os.getenv("CATENDA_LOGIN_REDIRECT_URI", ""),
+        )
+        self.frontend_url = os.getenv("AUTH_FRONTEND_URL", "").rstrip("/")
+        self.max_age = int(os.getenv("AUTH_MEMBERSHIP_MAX_AGE_SECONDS", "900"))
+        if not 60 <= self.max_age <= 3600:
+            raise ValueError("Membership cache lifetime must be 60–3600 seconds")
+
+    def validate_config(self):
+        for value in (self.frontend_url, self.oauth.redirect_uri):
+            url = urlsplit(value)
+            local = os.getenv("APP_ENV") == "development" and url.hostname in {
+                "localhost",
+                "127.0.0.1",
+            }
+            if (
+                not url.netloc
+                or url.username
+                or url.password
+                or url.query
+                or url.fragment
+                or (url.scheme != "https" and not (local and url.scheme == "http"))
+            ):
+                raise ValueError("Configure static HTTPS authentication URLs")
+        if urlsplit(self.frontend_url).path not in {"", "/"}:
+            raise ValueError("AUTH_FRONTEND_URL must be an origin")
+        if not self.oauth.client_id or not self.oauth.client_secret:
+            raise ValueError("Catenda application credentials missing")
+
+    def login(self, token):
+        user = self.oauth.user(token)
+        user_id = self.repo.identity("catenda", self.oauth.BASE, **user)
+        available = self.oauth.projects(token)
+        # Only explicitly registered projects belong to this application.
+        configs = self.repo.configs()
+        for config in configs:
+            if catenda_id(config["catenda_project_id"]) in available:
+                self.sync(config, token)
+        self.repo.deactivate_user_projects(
+            user_id,
+            [
+                c["internal_project_id"]
+                for c in configs
+                if catenda_id(c["catenda_project_id"]) not in available
+            ],
+        )
+        return user_id
+
+    def sync(self, config, token=None):
+        started = utcnow()
+        if token is None:
+            # Separate integration credential. Never replace it with a user's token.
+            from core.container import get_container
+
+            client = get_container().catenda_client
+            if not client.ensure_authenticated():
+                raise CatendaUnavailable("Membership source unavailable")
+            token = client.access_token
+        members = self.oauth.members(config["catenda_project_id"], token)
+        existing = self.repo.memberships(project_id=config["internal_project_id"])
+        changes = reconciliation_changes(
+            [{**m, "subject": m["catenda_subject"]} for m in existing],
+            members,
+        )
+        self.repo.reconcile(
+            config["internal_project_id"],
+            config["catenda_project_id"],
+            changes["upsert"],
+            started,
+        )
+        return {"members": len(members), "deactivated": len(changes["deactivate"])}
+
+    def ensure_fresh(self, project_id):
+        config = next(
+            (c for c in self.repo.configs() if c["internal_project_id"] == project_id),
+            None,
+        )
+        if config is None:
+            return False
+        state = self.repo.sync_state(project_id)
+        fresh = False
+        if state and catenda_id(state["catenda_project_id"]) == catenda_id(
+            config["catenda_project_id"]
+        ):
+            age = (
+                datetime.now(UTC)
+                - datetime.fromisoformat(state["synced_at"].replace("Z", "+00:00"))
+            ).total_seconds()
+            fresh = 0 <= age < self.max_age
+        if not fresh:
+            self.sync(config)
+        return True
+
+    def role(self, project_id, user_id):
+        if not self.ensure_fresh(project_id):
+            return None
+        member = self.repo.membership(project_id, user_id)
+        if member:
+            return "viewer" if member["viewer_override"] else member["role"]
+        return None
+
+    def user_projects(self, user_id):
+        result = []
+        for member in self.repo.memberships(user_id=user_id, active=True):
+            if self.role(member["project_id"], user_id):
+                result.append(member["project_id"])
+        return result

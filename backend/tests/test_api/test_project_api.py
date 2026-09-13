@@ -24,6 +24,21 @@ class TestCreateProject:
         container._project_repo = self.mock_project_repo
         container._membership_repo = self.mock_membership_repo
         set_container(container)
+        if type(self).__name__ != "TestCreateProject":
+            from lib.auth.session import cookie_name
+            monkeypatch.delenv("DISABLE_AUTH", raising=False)
+            service = MagicMock()
+            service.repo.session.return_value = {
+                "app_users": {"id": "user-id", "email": "test@example.com"},
+                "csrf_token": "csrf",
+            }
+            service.role.side_effect = lambda project, user: self.mock_membership_repo.get_role(project, "test@example.com")
+            service.user_projects.side_effect = lambda user: [
+                m.project_id for m in self.mock_membership_repo.get_user_projects("test@example.com")
+            ]
+            monkeypatch.setitem(app.extensions, "koe_auth", service)
+            self.client.set_cookie(cookie_name(), "session")
+            self.client.environ_base["HTTP_X_CSRF_TOKEN"] = "csrf"
 
         yield
 
@@ -143,6 +158,21 @@ class TestUpdateProject:
         container._project_repo = self.mock_project_repo
         container._membership_repo = self.mock_membership_repo
         set_container(container)
+        if type(self).__name__ != "TestCreateProject":
+            from lib.auth.session import cookie_name
+            monkeypatch.delenv("DISABLE_AUTH", raising=False)
+            service = MagicMock()
+            service.repo.session.return_value = {
+                "app_users": {"id": "user-id", "email": "test@example.com"},
+                "csrf_token": "csrf",
+            }
+            service.role.side_effect = lambda project, user: self.mock_membership_repo.get_role(project, "test@example.com")
+            service.user_projects.side_effect = lambda user: [
+                m.project_id for m in self.mock_membership_repo.get_user_projects("test@example.com")
+            ]
+            monkeypatch.setitem(app.extensions, "koe_auth", service)
+            self.client.set_cookie(cookie_name(), "session")
+            self.client.environ_base["HTTP_X_CSRF_TOKEN"] = "csrf"
 
         yield
 
@@ -288,6 +318,21 @@ class TestDeactivateProject:
         container._project_repo = self.mock_project_repo
         container._membership_repo = self.mock_membership_repo
         set_container(container)
+        if type(self).__name__ != "TestCreateProject":
+            from lib.auth.session import cookie_name
+            monkeypatch.delenv("DISABLE_AUTH", raising=False)
+            service = MagicMock()
+            service.repo.session.return_value = {
+                "app_users": {"id": "user-id", "email": "test@example.com"},
+                "csrf_token": "csrf",
+            }
+            service.role.side_effect = lambda project, user: self.mock_membership_repo.get_role(project, "test@example.com")
+            service.user_projects.side_effect = lambda user: [
+                m.project_id for m in self.mock_membership_repo.get_user_projects("test@example.com")
+            ]
+            monkeypatch.setitem(app.extensions, "koe_auth", service)
+            self.client.set_cookie(cookie_name(), "session")
+            self.client.environ_base["HTTP_X_CSRF_TOKEN"] = "csrf"
 
         yield
 
@@ -354,13 +399,28 @@ class TestListProjects:
         container._project_repo = self.mock_project_repo
         container._membership_repo = self.mock_membership_repo
         set_container(container)
+        if type(self).__name__ != "TestCreateProject":
+            from lib.auth.session import cookie_name
+            monkeypatch.delenv("DISABLE_AUTH", raising=False)
+            service = MagicMock()
+            service.repo.session.return_value = {
+                "app_users": {"id": "user-id", "email": "test@example.com"},
+                "csrf_token": "csrf",
+            }
+            service.role.side_effect = lambda project, user: self.mock_membership_repo.get_role(project, "test@example.com")
+            service.user_projects.side_effect = lambda user: [
+                m.project_id for m in self.mock_membership_repo.get_user_projects("test@example.com")
+            ]
+            monkeypatch.setitem(app.extensions, "koe_auth", service)
+            self.client.set_cookie(cookie_name(), "session")
+            self.client.environ_base["HTTP_X_CSRF_TOKEN"] = "csrf"
 
         yield
 
         set_container(None)
 
     def test_list_projects_with_memberships(self):
-        """GET /api/projects returns projects user is member of + open access."""
+        """GET /api/projects returns only projects the user is a member of."""
         from models.project_membership import ProjectMembership
 
         self.mock_membership_repo.get_user_projects.return_value = [
@@ -381,9 +441,9 @@ class TestListProjects:
         assert resp.status_code == 200
         data = resp.get_json()
         project_ids = [p["id"] for p in data["projects"]]
-        # Should include proj1 (member) and oslobygg (open access), but NOT proj2
+        # Only proj1 is accessible; there are no open-access exceptions
         assert "proj1" in project_ids
-        assert "oslobygg" in project_ids
+        assert "oslobygg" not in project_ids
         assert "proj2" not in project_ids
 
 
@@ -403,6 +463,21 @@ class TestGetProject:
         container._project_repo = self.mock_project_repo
         container._membership_repo = self.mock_membership_repo
         set_container(container)
+        if type(self).__name__ != "TestCreateProject":
+            from lib.auth.session import cookie_name
+            monkeypatch.delenv("DISABLE_AUTH", raising=False)
+            service = MagicMock()
+            service.repo.session.return_value = {
+                "app_users": {"id": "user-id", "email": "test@example.com"},
+                "csrf_token": "csrf",
+            }
+            service.role.side_effect = lambda project, user: self.mock_membership_repo.get_role(project, "test@example.com")
+            service.user_projects.side_effect = lambda user: [
+                m.project_id for m in self.mock_membership_repo.get_user_projects("test@example.com")
+            ]
+            monkeypatch.setitem(app.extensions, "koe_auth", service)
+            self.client.set_cookie(cookie_name(), "session")
+            self.client.environ_base["HTTP_X_CSRF_TOKEN"] = "csrf"
 
         yield
 

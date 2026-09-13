@@ -386,7 +386,14 @@ def main():
 
 if __name__ == "__main__":
     try:
-        main()
+        if sys.argv[1:] == ["--test-login"]:
+            from test_catenda_login_live import main as test_login
+            sys.exit(test_login())
+        elif sys.argv[1:]:
+            print("Usage: setup_authentication.py [--test-login]")
+            sys.exit(2)
+        else:
+            main()
     except KeyboardInterrupt:
         print("\n\nAvbrutt.")
         sys.exit(0)

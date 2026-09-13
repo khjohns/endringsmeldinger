@@ -11,10 +11,10 @@ Endpoints:
 - GET    /api/bim/models                                   - List cached models for active project
 """
 
-from flask import Blueprint, jsonify, request
+from flask import g, Blueprint, jsonify, request
 from pydantic import ValidationError
 
-from lib.auth.magic_link import require_magic_link
+from lib.auth.session import require_auth
 from lib.auth.project_access import require_project_access
 from utils.logger import get_logger
 
@@ -45,7 +45,7 @@ def _get_metadata_repo():
 
 
 @bim_bp.route("/api/saker/<sak_id>/bim-links", methods=["GET"])
-@require_magic_link
+@require_auth
 @require_project_access()
 def list_bim_links(sak_id: str):
     """List all BIM links for a case."""
@@ -58,7 +58,7 @@ def list_bim_links(sak_id: str):
 
 
 @bim_bp.route("/api/saker/<sak_id>/bim-links", methods=["POST"])
-@require_magic_link
+@require_auth
 @require_project_access(min_role="member")
 def create_bim_link(sak_id: str):
     """Create a new BIM link."""
@@ -67,7 +67,7 @@ def create_bim_link(sak_id: str):
 
         data = request.get_json()
         link_data = BimLinkCreate.model_validate(data)
-        user_email = request.magic_link_data.get("email", "unknown")
+        user_email = g.user.get("email", "unknown")
 
         created = _get_bim_repo().create_link(sak_id, link_data, linked_by=user_email)
         return jsonify(created.model_dump(mode="json")), 201
@@ -79,7 +79,7 @@ def create_bim_link(sak_id: str):
 
 
 @bim_bp.route("/api/saker/<sak_id>/bim-links/<int:link_id>", methods=["DELETE"])
-@require_magic_link
+@require_auth
 @require_project_access(min_role="member")
 def delete_bim_link(sak_id: str, link_id: int):
     """Delete a BIM link."""
@@ -106,7 +106,7 @@ RELATION_CATEGORY_LABELS = {
 @bim_bp.route(
     "/api/saker/<sak_id>/bim-links/<int:link_id>/related", methods=["GET"]
 )
-@require_magic_link
+@require_auth
 @require_project_access()
 def get_related_bim_objects(sak_id: str, link_id: int):
     """Get related BIM objects for a linked IFC product."""
@@ -186,7 +186,7 @@ def get_related_bim_objects(sak_id: str, link_id: int):
 
 
 @bim_bp.route("/api/bim/ifc-products", methods=["GET"])
-@require_magic_link
+@require_auth
 @require_project_access()
 def list_ifc_products():
     """List IFC products with filtering, search, and fag lookup."""
@@ -292,7 +292,7 @@ def list_ifc_products():
 
 
 @bim_bp.route("/api/bim/ifc-types", methods=["GET"])
-@require_magic_link
+@require_auth
 @require_project_access()
 def list_ifc_types():
     """Get IFC type summary (type → count) for the active Catenda project."""
@@ -316,7 +316,7 @@ def list_ifc_types():
 
 
 @bim_bp.route("/api/bim/models", methods=["GET"])
-@require_magic_link
+@require_auth
 @require_project_access()
 def list_bim_models():
     """List cached Catenda models for the active project."""

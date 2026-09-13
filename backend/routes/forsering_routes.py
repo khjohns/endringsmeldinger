@@ -19,10 +19,10 @@ Endpoints:
 
 from typing import Any
 
-from flask import Blueprint, jsonify, request
+from flask import g, Blueprint, jsonify, request
 
 from lib.auth.csrf_protection import require_csrf
-from lib.auth.magic_link import require_magic_link
+from lib.auth.session import require_auth
 from lib.auth.project_access import require_project_access
 from lib.decorators import handle_service_errors
 from lib.helpers.version_control import handle_concurrency_error
@@ -182,7 +182,7 @@ def _build_catenda_response(catenda_result: CatendaSyncResult | None) -> dict[st
 
 @forsering_bp.route("/api/forsering/opprett", methods=["POST"])
 @require_csrf
-@require_magic_link
+@require_auth
 @require_project_access(min_role="member")
 @handle_service_errors
 def opprett_forseringssak():
@@ -241,7 +241,7 @@ def opprett_forseringssak():
 
 
 @forsering_bp.route("/api/forsering/<sak_id>/relaterte", methods=["GET"])
-@require_magic_link
+@require_auth
 @require_project_access()
 @handle_service_errors
 def hent_relaterte_saker(sak_id: str):
@@ -252,7 +252,7 @@ def hent_relaterte_saker(sak_id: str):
 
 
 @forsering_bp.route("/api/forsering/<sak_id>/kontekst", methods=["GET"])
-@require_magic_link
+@require_auth
 @require_project_access()
 @handle_service_errors
 def hent_forseringskontekst(sak_id: str):
@@ -273,6 +273,8 @@ def hent_forseringskontekst(sak_id: str):
 
 
 @forsering_bp.route("/api/forsering/kandidater", methods=["GET"])
+@require_auth
+@require_project_access()
 @handle_service_errors
 def hent_kandidat_koe_saker():
     """Hent KOE-saker som kan brukes i en forseringssak."""
@@ -282,7 +284,7 @@ def hent_kandidat_koe_saker():
 
 
 @forsering_bp.route("/api/forsering/by-relatert/<sak_id>", methods=["GET"])
-@require_magic_link
+@require_auth
 @require_project_access()
 def finn_forseringer_for_sak(sak_id: str):
     """Finn forseringssaker som refererer til en gitt KOE-sak."""
@@ -292,7 +294,7 @@ def finn_forseringer_for_sak(sak_id: str):
 
 @forsering_bp.route("/api/forsering/<sak_id>/relatert", methods=["POST"])
 @require_csrf
-@require_magic_link
+@require_auth
 @require_project_access(min_role="member")
 @handle_service_errors
 def legg_til_relatert_sak(sak_id: str):
@@ -312,7 +314,7 @@ def legg_til_relatert_sak(sak_id: str):
 
 @forsering_bp.route("/api/forsering/<sak_id>/relatert/<koe_sak_id>", methods=["DELETE"])
 @require_csrf
-@require_magic_link
+@require_auth
 @require_project_access(min_role="member")
 @handle_service_errors
 def fjern_relatert_sak(sak_id: str, koe_sak_id: str):
@@ -330,7 +332,7 @@ def fjern_relatert_sak(sak_id: str, koe_sak_id: str):
 
 
 @forsering_bp.route("/api/forsering/valider", methods=["POST"])
-@require_magic_link
+@require_auth
 @require_project_access(min_role="member")
 @handle_service_errors
 def valider_forseringskostnad():
@@ -360,7 +362,7 @@ def valider_forseringskostnad():
 
 @forsering_bp.route("/api/forsering/<sak_id>/bh-respons", methods=["POST"])
 @require_csrf
-@require_magic_link
+@require_auth
 @require_project_access(min_role="member")
 @handle_service_errors
 def registrer_bh_respons(sak_id: str):
@@ -399,7 +401,7 @@ def registrer_bh_respons(sak_id: str):
     if error:
         return error
 
-    aktor = getattr(request, "magic_link_name", "Ukjent BH")
+    aktor = g.user.get("name", "Ukjent BH")
     expected_version = payload.get("expected_version")
 
     service = _get_forsering_service()
@@ -453,7 +455,7 @@ def registrer_bh_respons(sak_id: str):
 
 
 @forsering_bp.route("/api/forsering/<sak_id>/valider-grunnlag", methods=["GET"])
-@require_magic_link
+@require_auth
 @require_project_access()
 @handle_service_errors
 def valider_forseringsgrunnlag(sak_id: str):
@@ -479,7 +481,7 @@ def valider_forseringsgrunnlag(sak_id: str):
 
 @forsering_bp.route("/api/forsering/<sak_id>/stopp", methods=["POST"])
 @require_csrf
-@require_magic_link
+@require_auth
 @require_project_access(min_role="member")
 @handle_service_errors
 def stopp_forsering(sak_id: str):
@@ -494,7 +496,7 @@ def stopp_forsering(sak_id: str):
     if error:
         return error
 
-    aktor = getattr(request, "magic_link_name", "Ukjent TE")
+    aktor = g.user.get("name", "Ukjent TE")
     expected_version = payload.get("expected_version")
 
     service = _get_forsering_service()
@@ -533,7 +535,7 @@ def stopp_forsering(sak_id: str):
 
 @forsering_bp.route("/api/forsering/<sak_id>/kostnader", methods=["PUT"])
 @require_csrf
-@require_magic_link
+@require_auth
 @require_project_access(min_role="member")
 @handle_service_errors
 def oppdater_kostnader(sak_id: str):
@@ -548,7 +550,7 @@ def oppdater_kostnader(sak_id: str):
     if error:
         return error
 
-    aktor = getattr(request, "magic_link_name", "Ukjent TE")
+    aktor = g.user.get("name", "Ukjent TE")
     expected_version = payload.get("expected_version")
 
     service = _get_forsering_service()

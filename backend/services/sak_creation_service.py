@@ -179,6 +179,9 @@ class SakCreationService:
             )
 
         container = get_container()
+        if not metadata.prosjekt_id:
+            from lib.project_context import get_project_id
+            metadata.prosjekt_id = get_project_id()
 
         try:
             with container.create_unit_of_work() as uow:

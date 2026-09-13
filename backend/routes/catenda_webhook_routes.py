@@ -54,10 +54,6 @@ def get_webhook_service() -> WebhookService:
         Configured WebhookService instance
     """
     # Import here to avoid circular dependencies
-    from app import get_magic_link_manager
-
-    magic_link_mgr = get_magic_link_manager()
-
     # Get config from settings
     config = settings.get_catenda_config()
 
@@ -79,7 +75,6 @@ def get_webhook_service() -> WebhookService:
         event_repository=event_repository,
         catenda_client=catenda_client,
         config=config,
-        magic_link_generator=magic_link_mgr,
         resolver=resolver,
     )
 

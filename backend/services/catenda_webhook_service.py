@@ -285,20 +285,11 @@ class WebhookService:
             if not result.success:
                 return {"success": False, "error": result.error}
 
-            # Generate magic link with correct route based on sakstype
-            magic_token = None
-            if self.magic_link_generator:
-                magic_token = self.magic_link_generator.generate(
-                    sak_id=sak_id, email=author_email
-                )
-
+            # Ordinary project-scoped link; the app requires a Catenda session.
+            from urllib.parse import quote
             base_url = self.get_react_app_base_url()
-            frontend_route = get_frontend_route(sakstype, sak_id)
-            magic_link = (
-                f"{base_url}{frontend_route}?magicToken={magic_token}"
-                if magic_token
-                else f"{base_url}{frontend_route}"
-            )
+            frontend_route = f"/{quote(app_project_id, safe='')}/{quote(sak_id, safe='')}"
+            magic_link = f"{base_url}{frontend_route}"
 
             # Post comment to Catenda (synchronous - critical operation)
             # Only if Catenda is enabled and client is available

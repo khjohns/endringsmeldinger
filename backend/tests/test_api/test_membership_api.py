@@ -1,182 +1,165 @@
-"""Tests for membership management API."""
+"""API contract for Catenda membership and local viewer restrictions."""
+
+from unittest.mock import Mock
 
 import pytest
-from unittest.mock import MagicMock, patch
+from flask import Flask
 
-from core.container import Container, set_container
-from models.project_membership import ProjectMembership
+from lib.project_context import init_project_context
+from routes.membership_routes import membership_bp
 
 
-class TestMembershipAPI:
-    """Tests for /api/projects/<pid>/members endpoints."""
+@pytest.fixture
+def api(monkeypatch):
+    monkeypatch.delenv("DISABLE_AUTH", raising=False)
+    monkeypatch.delenv("APP_ENV", raising=False)
+    app = Flask(__name__)
+    app.testing = True
+    app.register_blueprint(membership_bp)
+    init_project_context(app)
+    repo = Mock()
+    repo.session.return_value = {
+        "app_users": {"id": "caller", "email": "caller@example.com"},
+        "csrf_token": "csrf",
+    }
+    repo.memberships.return_value = [
+        {
+            "id": "member-id",
+            "project_id": "p",
+            "user_id": "other",
+            "catenda_subject": "catenda-id",
+            "user_email": "u@example.com",
+            "display_name": "User",
+            "role": "member",
+            "viewer_override": False,
+            "active": True,
+            "created_at": "now",
+            "updated_at": "now",
+        }
+    ]
+    service = Mock(repo=repo)
+    service.role.return_value = "admin"
+    repo.configs.return_value = [
+        {"internal_project_id": "p", "catenda_project_id": "catenda-project"}
+    ]
+    service.sync.return_value = {"members": 1, "deactivated": 0}
+    app.extensions["koe_auth"] = service
+    client = app.test_client()
+    client.set_cookie("__Host-koe_session", "cookie")
+    return client, service
 
-    @pytest.fixture(autouse=True)
-    def setup(self, app, client, monkeypatch):
-        monkeypatch.setenv("DISABLE_AUTH", "true")
-        self.client = client
 
-        # Create a mock membership repo that handles both
-        # the access decorator check (get_role) and the CRUD operations.
-        self.mock_repo = MagicMock()
-        # Default: test@example.com (set by DISABLE_AUTH) is admin in proj1
-        self.mock_repo.get_role.return_value = "admin"
+def test_list_members(api):
+    client, service = api
+    response = client.get("/api/projects/p/members")
+    assert response.status_code == 200
+    assert response.json["members"][0]["external_id"] == "catenda-id"
+    assert response.json["members"][0]["source"] == "catenda"
 
-        # Inject mock repo into the container
-        container = Container()
-        container._membership_repo = self.mock_repo
-        set_container(container)
 
-        yield
+def test_viewer_limit_is_reflected_in_public_role(api):
+    client, service = api
+    service.repo.memberships.return_value[0]["viewer_override"] = True
+    assert client.get("/api/projects/p/members").json["members"][0]["role"] == "viewer"
 
-        set_container(None)
 
-    def test_list_members(self):
-        self.mock_repo.get_by_project.return_value = [
-            ProjectMembership(
-                id="1",
-                project_id="proj1",
-                user_email="a@example.com",
-                role="admin",
-            )
-        ]
+@pytest.mark.parametrize(
+    "method,path",
+    [
+        ("post", "/api/projects/p/members"),
+        ("delete", "/api/projects/p/members/member-id"),
+    ],
+)
+def test_local_creation_and_removal_are_not_supported(api, method, path):
+    client, service = api
+    assert getattr(client, method)(path).status_code == 405
+    service.repo.viewer_override.assert_not_called()
 
-        resp = self.client.get(
-            "/api/projects/proj1/members",
-            headers={"X-Project-ID": "proj1"},
+
+@pytest.mark.parametrize("value", [True, False])
+def test_admin_can_set_or_release_viewer_limit(api, value):
+    client, service = api
+    response = client.patch(
+        "/api/projects/p/members/member-id",
+        json={"viewer_override": value},
+        headers={"X-CSRF-Token": "csrf"},
+    )
+    assert response.status_code == 200
+    service.repo.viewer_override.assert_called_once_with("p", "member-id", value)
+
+
+@pytest.mark.parametrize(
+    "payload",
+    [
+        {"role": "admin"},
+        {"viewer_override": "false"},
+        {"viewer_override": True, "role": "admin"},
+    ],
+)
+def test_cannot_assign_catenda_roles_locally(api, payload):
+    client, service = api
+    response = client.patch(
+        "/api/projects/p/members/member-id",
+        json=payload,
+        headers={"X-CSRF-Token": "csrf"},
+    )
+    assert response.status_code == 400
+    service.repo.viewer_override.assert_not_called()
+
+
+def test_non_admin_cannot_change_override(api):
+    client, service = api
+    service.role.return_value = "member"
+    response = client.patch(
+        "/api/projects/p/members/member-id",
+        json={"viewer_override": True},
+        headers={"X-CSRF-Token": "csrf"},
+    )
+    assert response.status_code == 403
+    service.repo.viewer_override.assert_not_called()
+
+
+def test_cannot_limit_self_or_unknown_member(api):
+    client, service = api
+    service.repo.memberships.return_value[0]["user_id"] = "caller"
+    for member in ("member-id", "unknown"):
+        response = client.patch(
+            f"/api/projects/p/members/{member}",
+            json={"viewer_override": True},
+            headers={"X-CSRF-Token": "csrf"},
         )
-        assert resp.status_code == 200
-        data = resp.get_json()
-        assert len(data["members"]) == 1
-        assert data["members"][0]["user_email"] == "a@example.com"
+        assert response.status_code == 403
+    service.repo.viewer_override.assert_not_called()
 
-    def test_add_member(self):
-        self.mock_repo.add.return_value = ProjectMembership(
-            id="new-id",
-            project_id="proj1",
-            user_email="new@example.com",
-            role="member",
-        )
 
-        resp = self.client.post(
-            "/api/projects/proj1/members",
-            json={"email": "new@example.com", "role": "member"},
-            headers={"X-Project-ID": "proj1"},
-        )
-        assert resp.status_code == 201
-        data = resp.get_json()
-        assert data["success"] is True
-        assert data["member"]["user_email"] == "new@example.com"
+def test_sync_requires_admin_and_csrf(api):
+    client, service = api
+    assert client.post("/api/projects/p/members/sync").status_code == 403
+    assert (
+        client.post(
+            "/api/projects/p/members/sync", headers={"X-CSRF-Token": "csrf"}
+        ).status_code
+        == 200
+    )
+    service.sync.assert_called_once()
 
-    def test_add_member_missing_email(self):
-        resp = self.client.post(
-            "/api/projects/proj1/members",
-            json={"role": "member"},
-            headers={"X-Project-ID": "proj1"},
-        )
-        assert resp.status_code == 400
 
-    def test_add_member_invalid_role(self):
-        resp = self.client.post(
-            "/api/projects/proj1/members",
-            json={"email": "a@example.com", "role": "superadmin"},
-            headers={"X-Project-ID": "proj1"},
-        )
-        assert resp.status_code == 400
+def test_sync_error_is_generic(api):
+    client, service = api
+    service.sync.side_effect = RuntimeError("secret provider information")
+    response = client.post(
+        "/api/projects/p/members/sync", headers={"X-CSRF-Token": "csrf"}
+    )
+    assert response.status_code == 503
+    assert b"secret" not in response.data
 
-    def test_add_member_duplicate(self):
-        self.mock_repo.add.side_effect = Exception("duplicate key violates unique constraint")
 
-        resp = self.client.post(
-            "/api/projects/proj1/members",
-            json={"email": "existing@example.com", "role": "member"},
-            headers={"X-Project-ID": "proj1"},
-        )
-        assert resp.status_code == 409
-        assert resp.get_json()["error"] == "DUPLICATE"
-
-    def test_remove_member(self):
-        self.mock_repo.remove.return_value = True
-
-        resp = self.client.delete(
-            "/api/projects/proj1/members/user@example.com",
-            headers={"X-Project-ID": "proj1"},
-        )
-        assert resp.status_code == 200
-        assert resp.get_json()["success"] is True
-
-    def test_remove_nonexistent_member(self):
-        self.mock_repo.remove.return_value = False
-
-        resp = self.client.delete(
-            "/api/projects/proj1/members/unknown@example.com",
-            headers={"X-Project-ID": "proj1"},
-        )
-        assert resp.status_code == 404
-
-    def test_remove_last_admin_blocked(self):
-        """Cannot remove yourself if you are the last admin."""
-        self.mock_repo.get_by_project.return_value = [
-            ProjectMembership(
-                id="1",
-                project_id="proj1",
-                user_email="test@example.com",
-                role="admin",
-            )
-        ]
-
-        resp = self.client.delete(
-            "/api/projects/proj1/members/test@example.com",
-            headers={"X-Project-ID": "proj1"},
-        )
-        assert resp.status_code == 400
-        assert resp.get_json()["error"] == "LAST_ADMIN"
-
-    def test_update_role(self):
-        self.mock_repo.update_role.return_value = True
-
-        resp = self.client.patch(
-            "/api/projects/proj1/members/user@example.com",
-            json={"role": "admin"},
-            headers={"X-Project-ID": "proj1"},
-        )
-        assert resp.status_code == 200
-        assert resp.get_json()["success"] is True
-
-    def test_update_role_invalid(self):
-        resp = self.client.patch(
-            "/api/projects/proj1/members/user@example.com",
-            json={"role": "superadmin"},
-            headers={"X-Project-ID": "proj1"},
-        )
-        assert resp.status_code == 400
-
-    def test_update_role_not_found(self):
-        self.mock_repo.update_role.return_value = False
-
-        resp = self.client.patch(
-            "/api/projects/proj1/members/unknown@example.com",
-            json={"role": "viewer"},
-            headers={"X-Project-ID": "proj1"},
-        )
-        assert resp.status_code == 404
-
-    def test_viewer_cannot_add_member(self):
-        """Viewers should get 403 when trying to add members (requires admin)."""
-        self.mock_repo.get_role.return_value = "viewer"
-
-        resp = self.client.post(
-            "/api/projects/proj1/members",
-            json={"email": "new@example.com", "role": "member"},
-            headers={"X-Project-ID": "proj1"},
-        )
-        assert resp.status_code == 403
-
-    def test_member_cannot_remove_member(self):
-        """Members should get 403 when trying to remove members (requires admin)."""
-        self.mock_repo.get_role.return_value = "member"
-
-        resp = self.client.delete(
-            "/api/projects/proj1/members/user@example.com",
-            headers={"X-Project-ID": "proj1"},
-        )
-        assert resp.status_code == 403
+def test_other_project_header_is_rejected(api):
+    client, service = api
+    assert (
+        client.get(
+            "/api/projects/p/members", headers={"X-Project-ID": "other"}
+        ).status_code
+        == 403
+    )
+    service.repo.memberships.assert_not_called()

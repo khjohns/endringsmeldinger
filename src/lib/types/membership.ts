@@ -11,6 +11,10 @@ export interface ProjectMembership {
   project_id: string;
   user_email: string;
   external_id?: string;
+  user_id?: string;
+  source?: 'catenda';
+  catenda_role?: 'admin' | 'member';
+  viewer_override?: boolean;
   role: 'admin' | 'member' | 'viewer';
   display_name?: string;
   invited_by?: string;
