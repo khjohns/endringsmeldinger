@@ -20,11 +20,15 @@ export function tokensToHtml(tokenString: string): string {
   const paragraphs = tokenString.split('\n\n');
   return paragraphs
     .map((p) => {
-      const html = p.replace(
-        /\{\{(\w+):([^:}]+):([^}]+)\}\}/g,
-        (_, type: string, value: string, display: string) =>
-          `<span data-locked-value="${escapeAttr(value)}" data-locked-type="${escapeAttr(type)}" class="locked-value locked-value--${escapeAttr(type)}" contenteditable="false">${escapeHtml(display)}</span>`
-      );
+      let html = '';
+      let offset = 0;
+      for (const match of p.matchAll(/\{\{(\w+):([^:}]+):([^}]+)\}\}/g)) {
+        const [token, type, value, display] = match;
+        html += escapeHtml(p.slice(offset, match.index));
+        html += `<span data-locked-value="${escapeAttr(value)}" data-locked-type="${escapeAttr(type)}" class="locked-value locked-value--${escapeAttr(type)}" contenteditable="false">${escapeHtml(display)}</span>`;
+        offset = match.index + token.length;
+      }
+      html += escapeHtml(p.slice(offset));
       return `<p>${html}</p>`;
     })
     .join('');

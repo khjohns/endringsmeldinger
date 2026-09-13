@@ -1,5 +1,6 @@
 """Catenda adapter, identity resolution and bounded membership cache."""
 
+import json
 import os
 from datetime import UTC, datetime
 from urllib.parse import urlsplit
@@ -114,6 +115,53 @@ class AuthService:
         if member:
             return "viewer" if member["viewer_override"] else member["role"]
         return None
+
+    def contract_role(self, project_id, user_id):
+        """Read current team membership on writes; no stale authority cache.
+
+        The mapping uses immutable team IDs, never names or user-controlled data.
+        Missing/ambiguous membership grants neither contract side.
+        """
+        mapping = json.loads(os.getenv("CATENDA_CONTRACT_TEAMS", "{}"))
+        teams = mapping.get(project_id)
+        if not teams:
+            return None
+        if not isinstance(teams, dict) or set(teams) != {"TE", "BH"}:
+            raise ValueError("Configure TE and BH team IDs")
+        ids = {}
+        for role, values in teams.items():
+            if not isinstance(values, list) or not values:
+                raise ValueError("Each contract side needs a team ID list")
+            ids[role] = {catenda_id(value) for value in values}
+        if ids["TE"] & ids["BH"]:
+            raise ValueError("The same team cannot represent both contract sides")
+        config = next(
+            (c for c in self.repo.configs() if c["internal_project_id"] == project_id),
+            None,
+        )
+        member = self.repo.membership(project_id, user_id)
+        if (
+            not config
+            or not member
+            or not member.get("active")
+            or member.get("viewer_override")
+        ):
+            return None
+        from core.container import get_container
+
+        client = get_container().catenda_client
+        if not client.ensure_authenticated():
+            raise CatendaUnavailable("Team membership source unavailable")
+        subject = catenda_id(member["catenda_subject"])
+        roles = set()
+        for role, team_ids in ids.items():
+            for team_id in team_ids:
+                members = self.oauth.team_members(
+                    config["catenda_project_id"], team_id, client.access_token
+                )
+                if subject in members:
+                    roles.add(role)
+        return next(iter(roles)) if len(roles) == 1 else None
 
     def user_projects(self, user_id):
         result = []

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { sanitizeRichText } from '$lib/utils/sanitizeRichText';
   import { BookOpen, ChevronUp, Paperclip } from 'lucide-svelte';
 
   type Props = {
@@ -22,15 +23,15 @@
   }: Props = $props();
 
   let expanded = $state(false);
+  const safeHtml = $derived(sanitizeRichText(html));
   const isLong = $derived(html.length > clampThreshold);
 </script>
 
 <div class="reasoning-section">
   <span class="eyebrow">{label}</span>
   {#if html}
-    <!-- Rich-text HTML must be sanitized or otherwise trusted before it reaches this component. -->
     <div class="reasoning-text" class:clamped={!expanded && isLong}>
-      {@html html}
+      {@html safeHtml}
     </div>
     {#if isLong}
       <button class="read-button" type="button" onclick={() => (expanded = !expanded)}>

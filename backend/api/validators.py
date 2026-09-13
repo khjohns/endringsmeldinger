@@ -15,12 +15,13 @@ from constants import (
     validate_kategori_kombinasjon,
 )
 from models.events import (
+    EventType,
     FristVarselType,
     VederlagsMetode,
 )
 
 
-class ValidationError(Exception):
+class ValidationError(ValueError):
     """
     Custom exception for validation errors with helpful context.
 
@@ -525,3 +526,49 @@ def validate_respons_event(data: dict[str, Any], spor_type: str) -> None:
 
         if data.get("vilkar_oppfylt") is None:
             raise ValidationError("vilkar_oppfylt er påkrevd")
+
+
+# Dispatch table for event validation - replaces if/elif chain
+EVENT_VALIDATORS = {
+    EventType.GRUNNLAG_OPPRETTET.value: lambda d: validate_grunnlag_event(d),
+    EventType.GRUNNLAG_OPPDATERT.value: lambda d: validate_grunnlag_event(
+        d, is_update=True
+    ),
+    EventType.VEDERLAG_KRAV_SENDT.value: lambda d: validate_vederlag_event(d),
+    EventType.VEDERLAG_KRAV_OPPDATERT.value: lambda d: validate_vederlag_event(d),
+    EventType.FRIST_KRAV_SENDT.value: lambda d: validate_frist_event(d),
+    EventType.FRIST_KRAV_OPPDATERT.value: lambda d: validate_frist_event(
+        d, is_update=True
+    ),
+    EventType.FRIST_KRAV_SPESIFISERT.value: lambda d: validate_frist_event(
+        d, is_specification=True
+    ),
+    EventType.RESPONS_GRUNNLAG.value: lambda d: validate_respons_event(d, "grunnlag"),
+    EventType.RESPONS_VEDERLAG.value: lambda d: validate_respons_event(d, "vederlag"),
+    EventType.RESPONS_FRIST.value: lambda d: validate_respons_event(d, "frist"),
+    # Withdrawal events - no data validation needed (begrunnelse is optional)
+    EventType.GRUNNLAG_TRUKKET.value: lambda d: None,
+    EventType.VEDERLAG_KRAV_TRUKKET.value: lambda d: None,
+    EventType.FRIST_KRAV_TRUKKET.value: lambda d: None,
+}
+
+
+def validate_event_data(event_type: str, data_payload: dict) -> None:
+    """
+    Dispatch event validation to the appropriate validator.
+
+    Uses a dispatch table instead of if/elif chain for cleaner code.
+
+    Args:
+        event_type: The event type string (e.g., 'grunnlag_opprettet')
+        data_payload: The event data to validate
+
+    Raises:
+        ValidationError: If validation fails
+    """
+    # Response revisions use the same payload contract as initial responses.
+    if event_type and event_type.startswith("respons_"):
+        event_type = event_type.removesuffix("_oppdatert")
+    validator_func = EVENT_VALIDATORS.get(event_type)
+    if validator_func:
+        validator_func(data_payload)

@@ -24,6 +24,7 @@ from flask import g, Blueprint, jsonify, request
 from lib.auth.csrf_protection import require_csrf
 from lib.auth.session import require_auth
 from lib.auth.project_access import require_project_access
+from lib.auth.contract_role import require_contract_role
 from lib.decorators import handle_service_errors
 from lib.helpers.version_control import handle_concurrency_error
 from models.sak_state import SakState
@@ -184,6 +185,7 @@ def _build_catenda_response(catenda_result: CatendaSyncResult | None) -> dict[st
 @require_csrf
 @require_auth
 @require_project_access(min_role="member")
+@require_contract_role("TE")
 @handle_service_errors
 def opprett_forseringssak():
     """
@@ -296,6 +298,7 @@ def finn_forseringer_for_sak(sak_id: str):
 @require_csrf
 @require_auth
 @require_project_access(min_role="member")
+@require_contract_role("TE")
 @handle_service_errors
 def legg_til_relatert_sak(sak_id: str):
     """Legg til en KOE-sak som relatert til forseringen."""
@@ -316,6 +319,7 @@ def legg_til_relatert_sak(sak_id: str):
 @require_csrf
 @require_auth
 @require_project_access(min_role="member")
+@require_contract_role("TE")
 @handle_service_errors
 def fjern_relatert_sak(sak_id: str, koe_sak_id: str):
     """Fjern en KOE-sak fra forseringen."""
@@ -334,6 +338,7 @@ def fjern_relatert_sak(sak_id: str, koe_sak_id: str):
 @forsering_bp.route("/api/forsering/valider", methods=["POST"])
 @require_auth
 @require_project_access(min_role="member")
+@require_contract_role("TE")
 @handle_service_errors
 def valider_forseringskostnad():
     """
@@ -364,6 +369,7 @@ def valider_forseringskostnad():
 @require_csrf
 @require_auth
 @require_project_access(min_role="member")
+@require_contract_role("BH")
 @handle_service_errors
 def registrer_bh_respons(sak_id: str):
     """
@@ -483,6 +489,7 @@ def valider_forseringsgrunnlag(sak_id: str):
 @require_csrf
 @require_auth
 @require_project_access(min_role="member")
+@require_contract_role("TE")
 @handle_service_errors
 def stopp_forsering(sak_id: str):
     """
@@ -537,6 +544,7 @@ def stopp_forsering(sak_id: str):
 @require_csrf
 @require_auth
 @require_project_access(min_role="member")
+@require_contract_role("TE")
 @handle_service_errors
 def oppdater_kostnader(sak_id: str):
     """

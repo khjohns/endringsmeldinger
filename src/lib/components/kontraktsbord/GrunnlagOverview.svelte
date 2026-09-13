@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { sanitizeRichText } from '$lib/utils/sanitizeRichText';
   import { BookOpen, Check, ChevronLeft, CircleMinus, Clock3, Paperclip, X } from 'lucide-svelte';
   import InternalDraftCard from '$lib/components/patterns/InternalDraftCard.svelte';
   import { getHjemmelObj, getKontraktsforhold } from '$lib/constants/categories.js';
@@ -44,8 +45,8 @@
     };
   });
 
-  const teText = $derived(grunnlag.beskrivelse ?? '');
-  const bhText = $derived(grunnlag.bh_begrunnelse ?? '');
+  const teText = $derived(sanitizeRichText(grunnlag.beskrivelse ?? ''));
+  const bhText = $derived(sanitizeRichText(grunnlag.bh_begrunnelse ?? ''));
   const grunnlagEvents = $derived(store.timeline.filter((event) => event.spor === 'grunnlag'));
   const teEvents = $derived(grunnlagEvents.filter((event) => event.actorrole === 'TE'));
   const bhEvents = $derived(grunnlagEvents.filter((event) => event.actorrole === 'BH'));

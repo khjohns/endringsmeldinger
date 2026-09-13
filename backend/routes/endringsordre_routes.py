@@ -17,6 +17,7 @@ from flask import Blueprint, g, jsonify, request
 
 from lib.auth.csrf_protection import require_csrf
 from lib.auth.project_access import require_project_access
+from lib.auth.contract_role import require_contract_role
 from lib.auth.session import require_auth
 from lib.decorators import handle_service_errors
 from routes.related_cases_utils import (
@@ -54,6 +55,7 @@ def _get_endringsordre_service():
 @require_csrf
 @require_auth
 @require_project_access(min_role="member")
+@require_contract_role("BH")
 @handle_service_errors
 def opprett_endringsordresak():
     """
@@ -139,6 +141,7 @@ def hent_eo_kontekst(sak_id: str):
 @require_csrf
 @require_auth
 @require_project_access(min_role="member")
+@require_contract_role("BH")
 @handle_service_errors
 def legg_til_koe(sak_id: str):
     """Legg til en KOE-sak til endringsordren."""
@@ -171,6 +174,7 @@ def legg_til_koe(sak_id: str):
 @require_csrf
 @require_auth
 @require_project_access(min_role="member")
+@require_contract_role("BH")
 @handle_service_errors
 def fjern_koe(sak_id: str, koe_sak_id: str):
     """Fjern en KOE-sak fra endringsordren."""

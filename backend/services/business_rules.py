@@ -56,7 +56,7 @@ class BusinessRuleValidator:
 
         # Rules that apply to all events
         common_rules = [
-            ("ROLE_CHECK", self._rule_role_check),
+            ("ROLE_CHECK", self.validate_actor_role),
             ("CASE_NOT_CLOSED", self._rule_case_not_closed),
         ]
 
@@ -148,7 +148,9 @@ class BusinessRuleValidator:
 
     # ========== COMMON RULES ==========
 
-    def _rule_role_check(self, event: AnyEvent, state: SakState) -> ValidationResult:
+    def validate_actor_role(
+        self, event: AnyEvent, state: SakState | None = None
+    ) -> ValidationResult:
         """R: Actor role must match allowed roles for event type."""
         te_only_events = {
             EventType.GRUNNLAG_OPPRETTET,
@@ -167,6 +169,9 @@ class BusinessRuleValidator:
             # Forsering TE-handlinger
             EventType.FORSERING_KOE_LAGT_TIL,
             EventType.FORSERING_KOE_FJERNET,
+            EventType.FORSERING_VARSEL,
+            EventType.FORSERING_STOPPET,
+            EventType.FORSERING_KOSTNADER_OPPDATERT,
             # TE aksepterer BH respons
             EventType.TE_AKSEPTERER_RESPONS,
         }
@@ -175,6 +180,10 @@ class BusinessRuleValidator:
             EventType.RESPONS_GRUNNLAG,
             EventType.RESPONS_VEDERLAG,
             EventType.RESPONS_FRIST,
+            EventType.RESPONS_GRUNNLAG_OPPDATERT,
+            EventType.RESPONS_VEDERLAG_OPPDATERT,
+            EventType.RESPONS_FRIST_OPPDATERT,
+            EventType.FORSERING_RESPONS,
             # EO BH-handlinger
             EventType.EO_OPPRETTET,
             EventType.EO_KOE_LAGT_TIL,

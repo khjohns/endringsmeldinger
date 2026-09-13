@@ -28,6 +28,7 @@ def api(monkeypatch):
         "csrf_token": "csrf",
     }
     auth.role.return_value = "member"
+    auth.contract_role.return_value = "BH"
     app.extensions["koe_auth"] = auth
     service = Mock()
     service.opprett_endringsordresak.return_value = {
@@ -45,6 +46,13 @@ def api(monkeypatch):
     return SimpleNamespace(
         client=client, service=service, auth=auth, container=container
     )
+
+
+@pytest.mark.parametrize("role", ["TE", None])
+def test_direct_order_requires_bh_team(api, role):
+    api.auth.contract_role.return_value = role
+    assert post(api).status_code == 403
+    api.service.opprett_endringsordresak.assert_not_called()
 
 
 def post(api, **payload):
