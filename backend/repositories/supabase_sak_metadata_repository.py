@@ -61,6 +61,7 @@ except ImportError:
     Client = None
 
 from lib.supabase import with_retry
+from lib.supabase.exceptions import NotFoundError
 from models.sak_metadata import SakMetadata
 
 
@@ -176,6 +177,32 @@ class SupabaseSakMetadataRepository:
         return None
 
     @with_retry()
+    def set_catenda_mapping(
+        self,
+        sak_id: str,
+        prosjekt_id: str,
+        topic_id: str,
+        board_id: str,
+        catenda_project_id: str,
+    ) -> None:
+        """Update the topic mapping only for a case in this project."""
+        result = (
+            self.client.table(self.TABLE_NAME)
+            .update(
+                {
+                    "catenda_topic_id": topic_id,
+                    "catenda_board_id": board_id,
+                    "catenda_project_id": catenda_project_id,
+                }
+            )
+            .eq("sak_id", sak_id)
+            .eq("prosjekt_id", prosjekt_id)
+            .execute()
+        )
+        if not result.data:
+            raise NotFoundError("Saken finnes ikke i prosjektet")
+
+    @with_retry()
     def update_cache(
         self,
         sak_id: str,
@@ -268,7 +295,9 @@ class SupabaseSakMetadataRepository:
         return [self._row_to_metadata(row) for row in result.data]
 
     @with_retry()
-    def list_by_sakstype(self, sakstype: str, prosjekt_id: str | None = None) -> list[SakMetadata]:
+    def list_by_sakstype(
+        self, sakstype: str, prosjekt_id: str | None = None
+    ) -> list[SakMetadata]:
         """List cases filtered by sakstype within a project."""
         pid = self._get_project_id(prosjekt_id)
         result = (

@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { caseAmount, caseDays } from './presentation';
+  import { caseStatus } from '$lib/components/saksoversikt/overview';
   import type { CaseListItem } from '$lib/types/api';
   import CaseListRow from './CaseListRow.svelte';
 
@@ -33,6 +35,7 @@
   }
 
   function compareValues(a: unknown, b: unknown, dir: SortDir): number {
+    if (a == null && b == null) return 0;
     if (a === null || a === undefined) return dir === 'asc' ? 1 : -1;
     if (b === null || b === undefined) return dir === 'asc' ? -1 : 1;
     if (typeof a === 'number' && typeof b === 'number') {
@@ -46,7 +49,19 @@
   }
 
   const sortedCases = $derived(
-    [...cases].sort((a, b) => compareValues(a[sortKey], b[sortKey], sortDir))
+    [...cases].sort((a, b) => {
+      const value = (item: CaseListItem) =>
+        sortKey === 'cached_sum_krevd'
+          ? caseAmount(item)
+          : sortKey === 'cached_dager_krevd'
+            ? caseDays(item)
+            : sortKey === 'cached_status'
+              ? caseStatus(item)
+              : sortKey === 'sak_id'
+                ? item.endringsordre_data?.eo_nummer || item.sak_id
+                : item[sortKey];
+      return compareValues(value(a), value(b), sortDir);
+    })
   );
 
   const columns: { key: SortKey; label: string; numeric?: boolean }[] = [
@@ -54,7 +69,7 @@
     { key: 'cached_title', label: 'Tittel' },
     { key: 'cached_status', label: 'Status' },
     { key: 'cached_hovedkategori', label: 'Kategori' },
-    { key: 'cached_sum_krevd', label: 'Krevd', numeric: true },
+    { key: 'cached_sum_krevd', label: 'Beløp', numeric: true },
     { key: 'cached_dager_krevd', label: 'Dager', numeric: true },
     { key: 'last_event_at', label: 'Siste aktivitet' },
   ];

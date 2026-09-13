@@ -3,22 +3,60 @@
   import { caseFollowUp, taskHref } from '$lib/domain/followUp';
   import type { CaseListItem } from '$lib/types/api';
   import type { Role } from '$lib/components/kontraktsbord/types';
+  import { caseStatus, formalizedClaims } from './overview';
   let {
     cases,
     role,
     projectId,
     scenarios = {},
+    demo = false,
   }: {
     cases: CaseListItem[];
     role: Role;
     projectId: string;
     scenarios?: Record<string, string>;
+    demo?: boolean;
   } = $props();
   let showAll = $state(false);
-  const tasks = $derived(cases.flatMap(caseFollowUp).filter((task) => task.role === role));
-  const missing = $derived(cases.filter((item) => !item.oppfolging).length);
+  const formalized = $derived(formalizedClaims(cases));
+  const claimCases = $derived(
+    cases.filter((item) => item.sakstype === 'standard' && !formalized.has(item.sak_id))
+  );
+  const orderTasks = $derived(
+    cases
+      .filter((item) => item.sakstype === 'endringsordre')
+      .flatMap((item) => {
+        const status = caseStatus(item);
+        const needsResponse = status === 'utstedt' || status === 'revidert';
+        if (!needsResponse && status !== 'bestridt') return [];
+        return [
+          {
+            id: `${item.sak_id}:endringsordre`,
+            caseId: item.sak_id,
+            caseTitle: item.cached_title ?? 'Uten tittel',
+            track: 'endringsordre' as const,
+            role: needsResponse ? ('TE' as const) : ('BH' as const),
+            title: needsResponse ? 'Les endringsordren' : 'Følg opp bestridt endringsordre',
+            detail: needsResponse
+              ? item.endringsordre_data?.relaterte_koe_saker.length
+                ? 'Åpne endringsordren for å se enigheten som er formalisert, vederlaget og fristen.'
+                : 'Åpne endringsordren for å se pålegget, vederlaget og fristen.'
+              : 'Entreprenøren har bestridt endringsordren. Les merknadene og vurder videre oppfølging.',
+          },
+        ];
+      })
+  );
+  const tasks = $derived(
+    [...claimCases.flatMap(caseFollowUp), ...orderTasks].filter((task) => task.role === role)
+  );
+  const missing = $derived(claimCases.filter((item) => !item.oppfolging).length);
   const caseCount = $derived(new Set(tasks.map((task) => task.caseId)).size);
-  const labels = { ansvar: 'Grunnlag', vederlag: 'Vederlag', frist: 'Frist' };
+  const labels = {
+    ansvar: 'Grunnlag',
+    vederlag: 'Vederlag',
+    frist: 'Frist',
+    endringsordre: 'Endringsordre',
+  };
 </script>
 
 <section class="work-queue" aria-labelledby="queue-title">
@@ -26,7 +64,11 @@
     <div>
       <p class="eyebrow">{role === 'BH' ? 'Byggherrens' : 'Entreprenørens'} arbeidsliste</p>
       <h2 id="queue-title">Dette trenger din oppfølging</h2>
-      <p class="queue-count" role="status">{tasks.length} handlinger i {caseCount} saker</p>
+      <p class="queue-count" role="status">
+        {tasks.length}
+        {tasks.length === 1 ? 'handling' : 'handlinger'} i {caseCount}
+        {caseCount === 1 ? 'sak' : 'saker'}
+      </p>
     </div>
     {#if tasks.length > 3}<button
         class="show-all"
@@ -48,7 +90,9 @@
       </div>
       <div class="task-actions">
         <span class="track-label">{labels[task.track]}</span><a
-          href={taskHref(task, projectId, scenarios[task.caseId])}
+          href={task.track === 'endringsordre'
+            ? `${demo ? '/mockup/endringsordre' : `/${encodeURIComponent(projectId)}`}/${encodeURIComponent(task.caseId)}?rolle=${role}`
+            : taskHref(task, projectId, scenarios[task.caseId])}
           aria-label={`${task.title} – ${task.caseId}`}>Følg opp <ArrowRight size={15} /></a
         >
       </div>

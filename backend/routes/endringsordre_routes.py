@@ -13,17 +13,16 @@ Endpoints:
 - GET /api/endringsordre/by-relatert/<sak_id> - Finn EO-er for en KOE-sak
 """
 
-from flask import g, Blueprint, jsonify, request
+from flask import Blueprint, g, jsonify, request
 
 from lib.auth.csrf_protection import require_csrf
-from lib.auth.session import require_auth
 from lib.auth.project_access import require_project_access
+from lib.auth.session import require_auth
 from lib.decorators import handle_service_errors
 from routes.related_cases_utils import (
     build_kandidater_response,
     build_kontekst_response,
     build_relaterte_response,
-    safe_find_related,
     validate_required_fields,
 )
 from utils.logger import get_logger
@@ -71,7 +70,9 @@ def opprett_endringsordresak():
         ...
     }
     """
-    payload = request.json
+    payload = request.get_json(silent=True)
+    if not isinstance(payload, dict):
+        raise ValueError("Forespørselen må inneholde et JSON-objekt")
 
     # Valider påkrevde felter
     error = validate_required_fields(payload, ["eo_nummer", "beskrivelse"])
@@ -92,7 +93,7 @@ def opprett_endringsordresak():
         er_estimat=payload.get("er_estimat", False),
         frist_dager=payload.get("frist_dager"),
         ny_sluttdato=payload.get("ny_sluttdato"),
-        utstedt_av=payload.get("utstedt_av"),
+        utstedt_av=g.user.get("name") or g.user.get("email") or g.user["id"],
     )
 
     logger.info(
@@ -148,7 +149,9 @@ def legg_til_koe(sak_id: str):
         return error
 
     service = _get_endringsordre_service()
-    result = service.legg_til_koe(sak_id, payload["koe_sak_id"])
+    result = service.legg_til_koe(
+        sak_id, payload["koe_sak_id"], aktor=g.user.get("name") or g.user["email"]
+    )
 
     logger.info(
         f"KOE {payload['koe_sak_id']} lagt til EO {sak_id} (catenda_synced={result.get('catenda_synced')})"
@@ -172,7 +175,9 @@ def legg_til_koe(sak_id: str):
 def fjern_koe(sak_id: str, koe_sak_id: str):
     """Fjern en KOE-sak fra endringsordren."""
     service = _get_endringsordre_service()
-    result = service.fjern_koe(sak_id, koe_sak_id)
+    result = service.fjern_koe(
+        sak_id, koe_sak_id, aktor=g.user.get("name") or g.user["email"]
+    )
 
     logger.info(
         f"KOE {koe_sak_id} fjernet fra EO {sak_id} (catenda_synced={result.get('catenda_synced')})"
@@ -197,14 +202,7 @@ def hent_neste_eo_nummer():
     Returns:
         { "neste_nummer": "EO-004", "antall_eksisterende": 3 }
     """
-    container = _get_container()
-    metadata_repo = container.metadata_repository
-    antall = metadata_repo.count_by_sakstype("endringsordre")
-    neste = antall + 1
-    return jsonify({
-        "neste_nummer": f"EO-{neste:03d}",
-        "antall_eksisterende": antall,
-    })
+    return jsonify(_get_endringsordre_service().hent_neste_eo_nummer())
 
 
 @endringsordre_bp.route("/api/endringsordre/kandidater", methods=["GET"])
@@ -221,7 +219,8 @@ def hent_kandidat_koe_saker():
 @endringsordre_bp.route("/api/endringsordre/by-relatert/<sak_id>", methods=["GET"])
 @require_auth
 @require_project_access()
+@handle_service_errors
 def finn_eoer_for_koe(sak_id: str):
     """Finn endringsordrer som refererer til en gitt KOE-sak."""
     service = _get_endringsordre_service()
-    return safe_find_related(service.finn_eoer_for_koe, sak_id, "endringsordrer")
+    return jsonify(success=True, endringsordrer=service.finn_eoer_for_koe(sak_id))

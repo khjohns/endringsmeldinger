@@ -5,6 +5,8 @@
   import { getKontraktsforholdLabel } from '$lib/constants/categories';
   import { getOverordnetStatusLabel } from '$lib/constants/statusLabels';
   import { goto } from '$app/navigation';
+  import { caseAmount, caseDays } from './presentation';
+  import { caseStatus } from '$lib/components/saksoversikt/overview';
 
   interface Props {
     case_item: CaseListItem;
@@ -20,13 +22,17 @@
     switch (status) {
       case 'OMFORENT':
       case 'LUKKET':
+      case 'akseptert':
         return 'godkjent';
       case 'LUKKET_TRUKKET':
+      case 'bestridt':
         return 'avslatt';
       case 'SENDT':
       case 'VENTER_PAA_SVAR':
       case 'UNDER_BEHANDLING':
       case 'UNDER_FORHANDLING':
+      case 'utstedt':
+      case 'revidert':
         return 'delvis';
       case 'UTKAST':
       default:
@@ -38,17 +44,49 @@
     href ?? `/${encodeURIComponent(prosjektId)}/${encodeURIComponent(case_item.sak_id)}`
   );
   const tittel = $derived(case_item.cached_title ?? 'Uten tittel');
-  const badgeVariant = $derived(statusToBadgeVariant(case_item.cached_status));
+  const isOrder = $derived(case_item.sakstype === 'endringsordre');
+  const status = $derived(caseStatus(case_item));
+  const badgeVariant = $derived(statusToBadgeVariant(status));
+  const eoStatusLabels: Record<string, string> = {
+    utkast: 'Utkast',
+    utstedt: 'Utstedt',
+    akseptert: 'Akseptert',
+    bestridt: 'Bestridt',
+    revidert: 'Revidert',
+  };
   const statusLabel = $derived(
-    case_item.cached_status
-      ? getOverordnetStatusLabel(
-          case_item.cached_status as import('$lib/types/timeline').OverordnetStatus
-        )
+    status
+      ? (eoStatusLabels[status] ??
+          getOverordnetStatusLabel(status as import('$lib/types/timeline').OverordnetStatus))
       : '—'
   );
-  const kategoriLabel = $derived(getKontraktsforholdLabel(case_item.cached_hovedkategori));
-  const belopKrevd = $derived(formatCurrencyCompact(case_item.cached_sum_krevd));
-  const dagerKrevd = $derived(formatDaysCompact(case_item.cached_dager_krevd));
+  const linkedCount = $derived(case_item.endringsordre_data?.relaterte_koe_saker.length ?? 0);
+  const kategoriLabel = $derived(
+    isOrder
+      ? case_item.endringsordre_data
+        ? linkedCount
+          ? `${linkedCount} KOE · enighet`
+          : 'Direkte pålegg'
+        : '—'
+      : getKontraktsforholdLabel(case_item.cached_hovedkategori)
+  );
+  const belopKrevd = $derived(
+    isOrder && case_item.endringsordre_data && caseAmount(case_item) === null
+      ? 'Uavklart'
+      : formatCurrencyCompact(caseAmount(case_item))
+  );
+  const dagerKrevd = $derived(
+    isOrder && case_item.endringsordre_data && caseDays(case_item) === null
+      ? 'Uavklart'
+      : formatDaysCompact(caseDays(case_item))
+  );
+  const amountLabel = $derived(
+    isOrder
+      ? case_item.endringsordre_data?.er_estimat
+        ? 'Estimat i EO'
+        : 'Vederlag i EO'
+      : 'Krevd'
+  );
   const sisteAktivitet = $derived(formatDateShort(case_item.last_event_at));
 
   function handleRowClick(event: MouseEvent) {
@@ -64,11 +102,14 @@
 <tr class="row" onclick={handleRowClick}>
   <td class="cell cell-id">
     <a href={path} class="row-link" aria-label="Åpne sak {case_item.sak_id}">
-      <span class="sak-id">{case_item.sak_id}</span>
+      <span class="sak-id">{case_item.endringsordre_data?.eo_nummer || case_item.sak_id}</span>
     </a>
   </td>
   <td class="cell cell-tittel">
     <span class="cell-text">{tittel}</span>
+    <span class="case-type" class:order={isOrder}>
+      {isOrder ? 'Endringsordre' : case_item.sakstype === 'forsering' ? 'Forsering' : 'KOE-krav'}
+    </span>
   </td>
   <td class="cell cell-status">
     <div class="cell-inner">
@@ -79,10 +120,17 @@
     <span class="cell-text cell-text-muted">{kategoriLabel || '—'}</span>
   </td>
   <td class="cell cell-num cell-belop">
-    <span class="cell-text cell-text-num">{belopKrevd}</span>
+    <span class="cell-text cell-text-num" aria-label={`${amountLabel}: ${belopKrevd}`}
+      >{belopKrevd}</span
+    >
+    {#if isOrder}<span class="value-label">{amountLabel}</span>{/if}
   </td>
   <td class="cell cell-num cell-dager">
-    <span class="cell-text cell-text-num">{dagerKrevd}</span>
+    <span
+      class="cell-text cell-text-num"
+      aria-label={`${isOrder ? 'Fristjustering i EO' : 'Krevd frist'}: ${dagerKrevd}`}
+      >{dagerKrevd}</span
+    >
   </td>
   <td class="cell cell-date">
     <span class="cell-text cell-text-date">{sisteAktivitet}</span>
@@ -124,6 +172,31 @@
   .cell-text-muted {
     color: var(--color-ink-secondary);
     font-size: 12px;
+  }
+
+  .cell-tittel .cell-text {
+    padding-bottom: 3px;
+  }
+
+  .case-type {
+    display: block;
+    padding: 0 12px 10px;
+    color: var(--color-ink-muted);
+    font-size: 10px;
+    font-weight: 550;
+  }
+
+  .case-type.order {
+    color: var(--color-vekt);
+  }
+
+  .value-label {
+    display: block;
+    margin-top: -6px;
+    padding: 0 12px 10px;
+    color: var(--color-ink-muted);
+    font-size: 10px;
+    text-align: right;
   }
 
   .cell-text-num {
