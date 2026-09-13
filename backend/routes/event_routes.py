@@ -32,7 +32,7 @@ from api.validators import (
 from core.config import settings
 from integrations.catenda import CatendaAuthError
 from lib.auth.csrf_protection import require_csrf
-from lib.auth.magic_link import get_magic_link_manager, require_magic_link
+from lib.auth.session import require_auth
 from lib.auth.project_access import require_project_access
 from lib.catenda_factory import get_catenda_client
 from lib.cloudevents import (
@@ -130,7 +130,6 @@ events_bp = Blueprint("events", __name__)
 
 # Stateless singletons (safe to keep global)
 validator = BusinessRuleValidator()
-magic_link_manager = get_magic_link_manager()
 
 
 # ---------------------------------------------------------------------------
@@ -357,7 +356,7 @@ def _ensure_catenda_auth(catenda_topic_id: str | None) -> None:
 
 @events_bp.route("/api/events", methods=["POST"])
 @require_csrf
-@require_magic_link
+@require_auth
 @require_project_access(min_role="member")
 def submit_event():
     """
@@ -592,7 +591,7 @@ def submit_event():
 
 @events_bp.route("/api/events/batch", methods=["POST"])
 @require_csrf
-@require_magic_link
+@require_auth
 @require_project_access(min_role="member")
 def submit_batch():
     """
@@ -637,6 +636,8 @@ def submit_batch():
             return jsonify(message='BH-svar må publiseres gjennom intern godkjenning.'), 403
         for ed in event_datas:
             ed["sak_id"] = sak_id  # Ensure consistent sak_id
+            if ed.get("event_type") == "sak_opprettet":
+                ed["prosjekt_id"] = g.project_id
             events.append(parse_event_from_request(ed))
 
         # 2. Load current state
@@ -700,9 +701,9 @@ def submit_batch():
                 sak_id=sak_id,
                 sakstype=data.get("sakstype", "standard"),
                 events=validated_events,
-                prosjekt_id=data.get("prosjekt_id"),
+                prosjekt_id=g.project_id,
                 metadata_kwargs={
-                    "created_by": request.magic_link_data.get("email", "unknown"),
+                    "created_by": g.user.get("email", "unknown"),
                     "cached_title": initial_state.sakstittel,
                     "cached_status": initial_state.overordnet_status,
                 },
@@ -868,7 +869,7 @@ def _events_to_hendelser(events_data: list[dict]) -> list[dict]:
 
 
 @events_bp.route("/api/cases", methods=["GET"])
-@require_magic_link
+@require_auth
 @require_project_access()
 def list_cases():
     """
@@ -991,7 +992,7 @@ def _fetch_and_parse_events(sak_id: str):
 
 
 @events_bp.route("/api/cases/<sak_id>/context", methods=["GET"])
-@require_magic_link
+@require_auth
 @require_project_access()
 def get_case_context(sak_id: str):
     """
@@ -1037,7 +1038,7 @@ def get_case_context(sak_id: str):
 
 
 @events_bp.route("/api/cases/<sak_id>/state", methods=["GET"])
-@require_magic_link
+@require_auth
 @require_project_access()
 def get_case_state(sak_id: str):
     """
@@ -1061,7 +1062,7 @@ def get_case_state(sak_id: str):
 
 
 @events_bp.route("/api/cases/<sak_id>/timeline", methods=["GET"])
-@require_magic_link
+@require_auth
 @require_project_access()
 def get_case_timeline(sak_id: str):
     """
@@ -1082,7 +1083,7 @@ def get_case_timeline(sak_id: str):
 
 
 @events_bp.route("/api/cases/<sak_id>/historikk", methods=["GET"])
-@require_magic_link
+@require_auth
 @require_project_access()
 def get_case_historikk(sak_id: str):
     """
@@ -1308,12 +1309,11 @@ def _post_catenda_comment(
 
         comment_generator = CatendaCommentGenerator()
 
-        magic_token = magic_link_manager.generate(sak_id=sak_id)
         base_url = settings.dev_react_app_url or settings.react_app_url
-        sakstype = getattr(state, "sakstype", "koe") or "koe"
-        frontend_route = get_frontend_route(sakstype, sak_id)
+        from urllib.parse import quote
+        frontend_route = f"/{quote(g.project_id, safe='')}/{quote(sak_id, safe='')}"
         magic_link = (
-            f"{base_url}{frontend_route}?magicToken={magic_token}" if base_url else None
+            f"{base_url}{frontend_route}" if base_url else None
         )
 
         comment_text = comment_generator.generate_comment(state, event, magic_link)

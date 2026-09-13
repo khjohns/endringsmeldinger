@@ -1,114 +1,87 @@
-"""
-Project access control decorator.
+"""Authorize the actual project/resource using fresh Catenda membership."""
 
-Checks that the current user (identified by email from magic link or Entra ID)
-has membership in the project specified by X-Project-ID header.
-
-Backward compatibility: The default project ('oslobygg') is open access
-until all users have been migrated to project memberships.
-"""
-
-import logging
-import os
 from functools import wraps
 
 from flask import g, jsonify, request
 
-logger = logging.getLogger(__name__)
+from lib.auth.domain import referenced_case_ids
+from lib.auth.session import dev_auth_disabled, get_auth_service
 
-# Projects that don't require membership checks (backward compat)
-OPEN_ACCESS_PROJECTS = {"oslobygg"}
-
-
-def _get_user_email() -> str | None:
-    """Extract user email from request context.
-
-    Supports:
-    - Magic links: request.magic_link_data["email"]
-    - Entra ID: g.entra_user.email (future)
-    - DISABLE_AUTH: test@example.com
-    """
-    # Magic link auth
-    if hasattr(request, "magic_link_data") and request.magic_link_data:
-        return request.magic_link_data.get("email")
-
-    # Entra ID auth (future)
-    if hasattr(g, "entra_user") and g.entra_user:
-        return g.entra_user.email
-
-    return None
+OPEN_ACCESS_PROJECTS = frozenset()
+ROLE_HIERARCHY = {"viewer": 0, "member": 1, "admin": 2}
 
 
 def get_container():
-    """Import here to avoid circular imports."""
-    from core.container import get_container
+    from core.container import get_container as container
 
-    return get_container()
+    return container()
 
 
-def require_project_access(min_role: str = "viewer"):
-    """
-    Decorator that checks project membership.
-
-    Must be used AFTER @require_magic_link or @require_entra_auth
-    so that user email is available in request context.
-
-    Args:
-        min_role: Minimum required role. "viewer" < "member" < "admin"
-    """
-    ROLE_HIERARCHY = {"viewer": 0, "member": 1, "admin": 2}
+def require_project_access(min_role="viewer"):
+    if min_role not in ROLE_HIERARCHY:
+        raise ValueError("Unknown minimum role")
 
     def decorator(f):
         @wraps(f)
-        def decorated_function(*args, **kwargs):
-            # Bypass project access check when auth is disabled (local dev)
-            if os.environ.get("DISABLE_AUTH", "").lower() == "true":
+        def decorated(*args, **kwargs):
+            if dev_auth_disabled():
                 g.project_role = "admin"
                 g.user_email = "test@example.com"
                 return f(*args, **kwargs)
+            project_id = kwargs.get("project_id") or getattr(g, "project_id", None)
+            header_project = request.headers.get("X-Project-ID")
 
-            project_id = getattr(g, "project_id", "oslobygg")
+            def denied():
+                return jsonify(error="FORBIDDEN", message="Du har ikke tilgang."), 403
 
-            # Open access projects bypass membership check
-            if project_id in OPEN_ACCESS_PROJECTS:
-                return f(*args, **kwargs)
-
-            email = _get_user_email()
-            if not email:
-                return jsonify({
-                    "error": "FORBIDDEN",
-                    "message": "Bruker-e-post ikke tilgjengelig for tilgangskontroll",
-                }), 403
-
-            repo = get_container().membership_repository
-            role = repo.get_role(project_id, email)
-
-            if role is None:
-                logger.warning(
-                    f"Access denied: {email} is not a member of project {project_id}"
+            if not project_id or (header_project and header_project != project_id):
+                return denied()
+            g.project_id = project_id
+            try:
+                service = get_auth_service()
+                role = service.role(project_id, g.user["id"])
+                if (
+                    role not in ROLE_HIERARCHY
+                    or ROLE_HIERARCHY[role] < ROLE_HIERARCHY[min_role]
+                ):
+                    return denied()
+                payload = request.get_json(silent=True) or {}
+                if not isinstance(payload, dict):
+                    return denied()
+                if payload.get("prosjekt_id") not in {None, project_id}:
+                    return denied()
+                case_id = (
+                    kwargs.get("sak_id")
+                    or kwargs.get("sakId")
+                    or kwargs.get("case_id")
+                    or payload.get("sak_id")
+                    or payload.get("sakId")
                 )
-                return jsonify({
-                    "error": "FORBIDDEN",
-                    "message": "Du har ikke tilgang til dette prosjektet",
-                }), 403
-
-            # Check role hierarchy
-            if ROLE_HIERARCHY.get(role, 0) < ROLE_HIERARCHY.get(min_role, 0):
-                logger.warning(
-                    f"Insufficient role: {email} has '{role}' but needs '{min_role}' "
-                    f"in project {project_id}"
-                )
-                return jsonify({
-                    "error": "FORBIDDEN",
-                    "message": f"Krever '{min_role}'-tilgang til dette prosjektet",
-                }), 403
-
-            # Store membership info in request context
-            g.project_role = role
-            g.user_email = email
-
+                case_ids = referenced_case_ids(payload) | referenced_case_ids(kwargs)
+                if case_id:
+                    case_ids.add(case_id)
+                for checked_id in case_ids:
+                    metadata = get_container().metadata_repository.get(checked_id)
+                    creating = (
+                        checked_id == case_id
+                        and request.endpoint == "events.submit_batch"
+                        and payload.get("expected_version") == 0
+                        and payload.get("events", [{}])[0].get("event_type")
+                        == "sak_opprettet"
+                    )
+                    if metadata is None and creating:
+                        continue
+                    if metadata is None or metadata.prosjekt_id != project_id:
+                        return denied()
+                g.project_role = role
+                g.user_email = g.user.get("email", "")
+            except Exception:
+                return jsonify(
+                    error="ACCESS_UNAVAILABLE",
+                    message="Tilgang kunne ikke bekreftes. Prøv igjen senere.",
+                ), 503
             return f(*args, **kwargs)
 
-        return decorated_function
+        return decorated
 
     return decorator

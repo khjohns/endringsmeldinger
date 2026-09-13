@@ -191,22 +191,15 @@ def require_csrf(f):
 
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        # Hent token fra header
-        token = request.headers.get("X-CSRF-Token", "")
-
-        # Valider token
-        valid, error = validate_csrf_token(token, max_age=CSRF_TOKEN_MAX_AGE)
-
+        from .session import csrf_valid, dev_auth_disabled
+        if dev_auth_disabled():
+            return f(*args, **kwargs)
+        try:
+            valid = csrf_valid()
+        except Exception:
+            return jsonify(error="AUTH_UNAVAILABLE"), 503
         if not valid:
-            return jsonify(
-                {
-                    "error": "CSRF validation failed",
-                    "detail": error,
-                    "hint": "Obtain a fresh token from GET /api/csrf-token",
-                }
-            ), 403
-
-        # Token er gyldig - kjør original funksjon
+            return jsonify(error="CSRF validation failed", message="Prøv igjen."), 403
         return f(*args, **kwargs)
 
     return decorated_function

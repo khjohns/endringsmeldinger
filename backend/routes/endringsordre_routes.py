@@ -13,10 +13,10 @@ Endpoints:
 - GET /api/endringsordre/by-relatert/<sak_id> - Finn EO-er for en KOE-sak
 """
 
-from flask import Blueprint, jsonify, request
+from flask import g, Blueprint, jsonify, request
 
 from lib.auth.csrf_protection import require_csrf
-from lib.auth.magic_link import require_magic_link
+from lib.auth.session import require_auth
 from lib.auth.project_access import require_project_access
 from lib.decorators import handle_service_errors
 from routes.related_cases_utils import (
@@ -53,7 +53,7 @@ def _get_endringsordre_service():
 
 @endringsordre_bp.route("/api/endringsordre/opprett", methods=["POST"])
 @require_csrf
-@require_magic_link
+@require_auth
 @require_project_access(min_role="member")
 @handle_service_errors
 def opprett_endringsordresak():
@@ -103,7 +103,7 @@ def opprett_endringsordresak():
 
 
 @endringsordre_bp.route("/api/endringsordre/<sak_id>/relaterte", methods=["GET"])
-@require_magic_link
+@require_auth
 @require_project_access()
 @handle_service_errors
 def hent_relaterte_koe_saker(sak_id: str):
@@ -114,7 +114,7 @@ def hent_relaterte_koe_saker(sak_id: str):
 
 
 @endringsordre_bp.route("/api/endringsordre/<sak_id>/kontekst", methods=["GET"])
-@require_magic_link
+@require_auth
 @require_project_access()
 @handle_service_errors
 def hent_eo_kontekst(sak_id: str):
@@ -136,7 +136,7 @@ def hent_eo_kontekst(sak_id: str):
 
 @endringsordre_bp.route("/api/endringsordre/<sak_id>/koe", methods=["POST"])
 @require_csrf
-@require_magic_link
+@require_auth
 @require_project_access(min_role="member")
 @handle_service_errors
 def legg_til_koe(sak_id: str):
@@ -166,7 +166,7 @@ def legg_til_koe(sak_id: str):
     "/api/endringsordre/<sak_id>/koe/<koe_sak_id>", methods=["DELETE"]
 )
 @require_csrf
-@require_magic_link
+@require_auth
 @require_project_access(min_role="member")
 @handle_service_errors
 def fjern_koe(sak_id: str, koe_sak_id: str):
@@ -187,6 +187,8 @@ def fjern_koe(sak_id: str, koe_sak_id: str):
 
 
 @endringsordre_bp.route("/api/endringsordre/neste-nummer", methods=["GET"])
+@require_auth
+@require_project_access()
 @handle_service_errors
 def hent_neste_eo_nummer():
     """
@@ -206,6 +208,8 @@ def hent_neste_eo_nummer():
 
 
 @endringsordre_bp.route("/api/endringsordre/kandidater", methods=["GET"])
+@require_auth
+@require_project_access()
 @handle_service_errors
 def hent_kandidat_koe_saker():
     """Hent KOE-saker som kan legges til i en endringsordre."""
@@ -215,7 +219,7 @@ def hent_kandidat_koe_saker():
 
 
 @endringsordre_bp.route("/api/endringsordre/by-relatert/<sak_id>", methods=["GET"])
-@require_magic_link
+@require_auth
 @require_project_access()
 def finn_eoer_for_koe(sak_id: str):
     """Finn endringsordrer som refererer til en gitt KOE-sak."""

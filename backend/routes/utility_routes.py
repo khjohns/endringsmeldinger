@@ -11,6 +11,8 @@ Endpoints for:
 import logging
 
 from flask import Blueprint, current_app, jsonify, request
+from lib.auth.session import require_auth, load_session, dev_auth_disabled
+from lib.auth.project_access import require_project_access
 
 from lib.auth import generate_csrf_token, require_csrf
 
@@ -45,6 +47,7 @@ def list_routes():
 
 
 @utility_bp.route("/api/csrf-token", methods=["GET"])
+@require_auth
 def get_csrf_token():
     """
     Hent CSRF-token for å beskytte state-changing operations.
@@ -56,13 +59,15 @@ def get_csrf_token():
         JSON: {"csrfToken": "...", "expiresIn": 3600}
     """
     try:
-        token = generate_csrf_token()
-        return jsonify(
+        token = "development" if dev_auth_disabled() else load_session()["csrf_token"]
+        response = jsonify(
             {
                 "csrfToken": token,
                 "expiresIn": 3600,  # 1 time
             }
-        ), 200
+        )
+        response.headers["Cache-Control"] = "no-store"
+        return response, 200
     except Exception as e:
         logger.error(f"Feil ved generering av CSRF-token: {e}")
         return jsonify({"error": "Failed to generate CSRF token"}), 500
@@ -74,17 +79,7 @@ def verify_magic_link():
     Verifiserer et Magic Link token.
     Returnerer den interne sakId-en hvis token er gyldig.
     """
-    from app import get_magic_link_manager
-
-    magic_link_mgr = get_magic_link_manager()
-
-    token = request.args.get("token", "")
-    valid, error, token_data = magic_link_mgr.verify(token)
-
-    if not valid:
-        return jsonify({"error": "Invalid or expired link", "detail": error}), 403
-
-    return jsonify({"success": True, "sakId": token_data["sak_id"]}), 200
+    return jsonify(error="GONE", message="Logg inn med Catenda."), 410
 
 
 @utility_bp.route("/api/health", methods=["GET"])
@@ -199,6 +194,8 @@ def catenda_health_check():
 
 
 @utility_bp.route("/api/metadata/by-topic/<topic_id>", methods=["GET"])
+@require_auth
+@require_project_access()
 def get_metadata_by_topic(topic_id: str):
     """
     Hent sak-metadata basert på Catenda topic ID.
@@ -210,7 +207,8 @@ def get_metadata_by_topic(topic_id: str):
     repo = create_metadata_repository()
     metadata = repo.get_by_topic_id(topic_id)
 
-    if not metadata:
+    from flask import g
+    if not metadata or metadata.prosjekt_id != g.project_id:
         return jsonify({"error": "No case found for topic", "topic_id": topic_id}), 404
 
     return jsonify(
@@ -228,6 +226,8 @@ def get_metadata_by_topic(topic_id: str):
 
 @utility_bp.route("/api/validate-user", methods=["POST"])
 @require_csrf
+@require_auth
+@require_project_access(min_role="member")
 def validate_user():
     """
     Validerer om en e-post tilhører en bruker i prosjektet

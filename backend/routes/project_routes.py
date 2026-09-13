@@ -13,12 +13,13 @@ Endpoints:
 
 import uuid
 
-from flask import Blueprint, jsonify, request
+from flask import g, Blueprint, jsonify, request
 from pydantic import ValidationError
 
 from lib.auth.csrf_protection import require_csrf
-from lib.auth.magic_link import require_magic_link
-from lib.auth.project_access import require_project_access, OPEN_ACCESS_PROJECTS
+from lib.auth.session import require_auth
+from lib.auth.project_access import require_project_access
+from lib.auth.session import dev_auth_disabled, get_auth_service
 from utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -41,22 +42,18 @@ def _get_membership_repo():
 
 
 @projects_bp.route("/api/projects", methods=["GET"])
-@require_magic_link
+@require_auth
 def list_projects():
     """List projects the current user has access to."""
     try:
-        email = request.magic_link_data.get("email")
-        if not email:
+        if dev_auth_disabled():
             projects = _get_project_repo().list_active()
         else:
-            from core.container import get_container
-            memberships = get_container().membership_repository.get_user_projects(email)
-            member_project_ids = {m.project_id for m in memberships}
-
+            member_project_ids = set(get_auth_service().user_projects(g.user["id"]))
             all_projects = _get_project_repo().list_active()
             projects = [
                 p for p in all_projects
-                if p.id in member_project_ids or p.id in OPEN_ACCESS_PROJECTS
+                if p.id in member_project_ids
             ]
 
         return jsonify({
@@ -64,11 +61,11 @@ def list_projects():
         })
     except Exception as e:
         logger.error(f"Failed to list projects: {e}", exc_info=True)
-        return jsonify({"error": "INTERNAL_ERROR", "message": str(e)}), 500
+        return jsonify(error="ACCESS_UNAVAILABLE", message="Tilgang kunne ikke bekreftes. Prøv igjen senere."), 503
 
 
 @projects_bp.route("/api/projects/<project_id>", methods=["GET"])
-@require_magic_link
+@require_auth
 @require_project_access()
 def get_project(project_id: str):
     """Get a single project by ID."""
@@ -84,12 +81,14 @@ def get_project(project_id: str):
 
 @projects_bp.route("/api/projects", methods=["POST"])
 @require_csrf
-@require_magic_link
+@require_auth
 def create_project():
     """Create a new project with server-generated UUID.
 
     Also adds the creator as admin member of the project.
     """
+    if not dev_auth_disabled():
+        return jsonify(error="FORBIDDEN", message="Prosjekter må registreres av systemansvarlig."), 403
     try:
         from models.project import CreateProjectRequest, Project
         from models.project_membership import ProjectMembership
@@ -112,7 +111,7 @@ def create_project():
 
         # Generate server-side UUID
         project_id = str(uuid.uuid4())
-        email = request.magic_link_data.get("email", "unknown")
+        email = g.user.get("email", "unknown")
 
         project = Project(
             id=project_id,
@@ -149,7 +148,7 @@ def create_project():
 
 @projects_bp.route("/api/projects/<project_id>", methods=["PATCH"])
 @require_csrf
-@require_magic_link
+@require_auth
 @require_project_access(min_role="admin")
 def update_project(project_id: str):
     """Update a project's name and/or description. Requires admin role."""
@@ -201,7 +200,7 @@ def update_project(project_id: str):
 
 @projects_bp.route("/api/projects/<project_id>/deactivate", methods=["PATCH"])
 @require_csrf
-@require_magic_link
+@require_auth
 @require_project_access(min_role="admin")
 def deactivate_project(project_id: str):
     """Soft-delete a project by setting is_active=false. Requires admin role."""

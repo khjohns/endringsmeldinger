@@ -5,18 +5,7 @@
  * Handles authentication, error handling, and request formatting.
  */
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
-
-// Auth token storage (set by AuthContext)
-let authToken: string | null = null;
-
-export function setAuthToken(token: string | null) {
-  authToken = token;
-}
-
-export function getAuthToken(): string | null {
-  return authToken;
-}
+export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
 // Active project ID (set by ProjectContext)
 let activeProjectId: string = 'oslobygg';
@@ -34,9 +23,9 @@ let csrfToken: string | null = null;
 let csrfTokenPromise: Promise<string> | null = null;
 
 async function fetchCsrfToken(): Promise<string> {
-  const response = await fetch(`${API_BASE_URL}/api/csrf-token`);
+  const response = await fetch(`${API_BASE_URL}/api/csrf-token`, { credentials: 'include' });
   if (!response.ok) {
-    throw new Error('Failed to fetch CSRF token');
+    throw new ApiError(response.status, 'Kunne ikke bekrefte sesjonen.');
   }
   const data = await response.json();
   return data.csrfToken;
@@ -55,11 +44,14 @@ async function getCsrfToken(forceRefresh: boolean = false): Promise<string> {
 
   // Prevent multiple simultaneous fetches
   if (!csrfTokenPromise) {
-    csrfTokenPromise = fetchCsrfToken().then((token) => {
-      csrfToken = token;
-      csrfTokenPromise = null;
-      return token;
-    });
+    csrfTokenPromise = fetchCsrfToken()
+      .then((token) => {
+        csrfToken = token;
+        return token;
+      })
+      .finally(() => {
+        csrfTokenPromise = null;
+      });
   }
 
   return csrfTokenPromise;
@@ -136,10 +128,6 @@ export async function apiFetch<T>(endpoint: string, options?: RequestInit): Prom
     'X-Project-ID': activeProjectId,
   };
 
-  if (authToken) {
-    headers['Authorization'] = `Bearer ${authToken}`;
-  }
-
   // Add CSRF token for state-changing methods
   const method = options?.method?.toUpperCase() ?? 'GET';
   if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)) {
@@ -150,6 +138,7 @@ export async function apiFetch<T>(endpoint: string, options?: RequestInit): Prom
   try {
     const response = await fetch(url, {
       ...options,
+      credentials: 'include',
       headers: {
         ...headers,
         ...options?.headers,
@@ -172,6 +161,15 @@ export async function apiFetch<T>(endpoint: string, options?: RequestInit): Prom
 
     // Handle error responses
     if (!response.ok) {
+      if (
+        response.status === 401 &&
+        typeof window !== 'undefined' &&
+        window.location.pathname !== '/login'
+      ) {
+        window.location.replace(
+          `/login?return_to=${encodeURIComponent(window.location.pathname + window.location.search)}`
+        );
+      }
       // If 403 and it's a CSRF error, try once with a fresh token
       if (response.status === 403 && ['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)) {
         const responseData = data as Record<string, unknown> | undefined;
@@ -183,6 +181,7 @@ export async function apiFetch<T>(endpoint: string, options?: RequestInit): Prom
 
           const retryResponse = await fetch(url, {
             ...options,
+            credentials: 'include',
             headers: {
               ...headers,
               ...options?.headers,

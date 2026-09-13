@@ -1,132 +1,100 @@
-"""Tests for project access decorator."""
+"""Access tests exercise authentication and project guards without dev bypass."""
 
-import os
+from types import SimpleNamespace
+from unittest.mock import Mock, patch
 
 import pytest
 from flask import Flask, jsonify
-from unittest.mock import MagicMock, patch
 
-from lib.auth.magic_link import require_magic_link
+from lib.auth.domain import referenced_case_ids
 from lib.auth.project_access import require_project_access
+from lib.auth.session import require_auth
 from lib.project_context import init_project_context
 
 
-def _create_test_app(mock_container, min_role="viewer", bp_name="test_bp"):
-    """Create a fresh Flask app with a protected test endpoint."""
+def test_nested_event_references_are_authorized_too():
+    assert referenced_case_ids(
+        {
+            "sak_id": "own",
+            "events": [
+                {"data": {"koe_sak_id": "other"}},
+                {"data": {"relaterte_koe_saker": ["third"]}},
+            ],
+        }
+    ) == {"own", "other", "third"}
+
+
+@pytest.fixture
+def api(monkeypatch):
+    monkeypatch.delenv("DISABLE_AUTH", raising=False)
     app = Flask(__name__)
-    app.config["TESTING"] = True
-
-    # Register project context middleware (sets g.project_id from header)
+    app.testing = True
     init_project_context(app)
+    service = Mock()
+    service.repo.session.return_value = {
+        "app_users": {"id": "user", "email": "u@example.com"},
+        "csrf_token": "csrf",
+    }
+    app.extensions["koe_auth"] = service
 
-    @app.route("/protected")
-    @require_magic_link
-    @require_project_access(min_role=min_role)
-    def test_endpoint():
-        return jsonify({"ok": True})
+    @app.get("/protected")
+    @require_auth
+    @require_project_access(min_role="member")
+    def protected():
+        return jsonify(ok=True)
 
-    return app
+    @app.get("/cases/<sak_id>")
+    @require_auth
+    @require_project_access()
+    def case(sak_id):
+        return jsonify(ok=True)
+
+    client = app.test_client()
+    # Respect environment's cookie naming without weakening the production tests.
+    from lib.auth.session import cookie_name
+
+    client.set_cookie(cookie_name(), "token")
+    return client, service
 
 
-class TestRequireProjectAccess:
-    """Test the @require_project_access decorator."""
+@pytest.mark.parametrize(
+    "role,status",
+    [("member", 200), ("admin", 200), ("viewer", 403), (None, 403), ("unknown", 403)],
+)
+def test_minimum_role(api, role, status):
+    client, service = api
+    service.role.return_value = role
+    assert client.get("/protected", headers={"X-Project-ID": "p"}).status_code == status
 
-    @pytest.fixture(autouse=True)
-    def setup(self, monkeypatch):
-        """Set up test environment with auth disabled."""
-        monkeypatch.setenv("DISABLE_AUTH", "true")
 
-    def test_access_granted_when_member(self):
-        """User with membership can access project."""
-        mock_repo = MagicMock()
-        mock_repo.get_role.return_value = "member"
+def test_default_project_requires_membership(api):
+    client, service = api
+    service.role.return_value = None
+    assert client.get("/protected").status_code == 403
+    service.role.assert_called_with("oslobygg", "user")
 
-        mock_container = MagicMock()
-        mock_container.membership_repository = mock_repo
 
-        with patch("lib.auth.project_access.get_container", return_value=mock_container):
-            app = _create_test_app(mock_container)
-            client = app.test_client()
+def test_access_source_failure_does_not_grant_access(api):
+    client, service = api
+    service.role.side_effect = RuntimeError("source unavailable")
+    assert client.get("/protected").status_code == 503
 
-            resp = client.get(
-                "/protected",
-                headers={"X-Project-ID": "proj1"},
-            )
-            assert resp.status_code == 200
-            assert resp.get_json() == {"ok": True}
 
-    def test_access_denied_when_not_member(self):
-        """User without membership gets 403."""
-        mock_repo = MagicMock()
-        mock_repo.get_role.return_value = None
-
-        mock_container = MagicMock()
-        mock_container.membership_repository = mock_repo
-
-        with patch("lib.auth.project_access.get_container", return_value=mock_container):
-            app = _create_test_app(mock_container)
-            client = app.test_client()
-
-            resp = client.get(
-                "/protected",
-                headers={"X-Project-ID": "proj1"},
-            )
-            assert resp.status_code == 403
-            data = resp.get_json()
-            assert data["error"] == "FORBIDDEN"
-
-    def test_default_project_bypasses_check(self):
-        """The default 'oslobygg' project is open access (backward compat)."""
-        # No mock_container needed -- oslobygg bypasses the membership check entirely
-        mock_container = MagicMock()
-
-        with patch("lib.auth.project_access.get_container", return_value=mock_container):
-            app = _create_test_app(mock_container)
-            client = app.test_client()
-
-            resp = client.get(
-                "/protected",
-                headers={"X-Project-ID": "oslobygg"},
-            )
-            assert resp.status_code == 200
-            # Verify the membership repo was never called
-            mock_container.membership_repository.get_role.assert_not_called()
-
-    def test_insufficient_role_denied(self):
-        """User with viewer role denied when member required."""
-        mock_repo = MagicMock()
-        mock_repo.get_role.return_value = "viewer"
-
-        mock_container = MagicMock()
-        mock_container.membership_repository = mock_repo
-
-        with patch("lib.auth.project_access.get_container", return_value=mock_container):
-            app = _create_test_app(mock_container, min_role="member")
-            client = app.test_client()
-
-            resp = client.get(
-                "/protected",
-                headers={"X-Project-ID": "proj1"},
-            )
-            assert resp.status_code == 403
-            data = resp.get_json()
-            assert data["error"] == "FORBIDDEN"
-
-    def test_admin_has_member_access(self):
-        """Admin role satisfies member requirement."""
-        mock_repo = MagicMock()
-        mock_repo.get_role.return_value = "admin"
-
-        mock_container = MagicMock()
-        mock_container.membership_repository = mock_repo
-
-        with patch("lib.auth.project_access.get_container", return_value=mock_container):
-            app = _create_test_app(mock_container, min_role="member")
-            client = app.test_client()
-
-            resp = client.get(
-                "/protected",
-                headers={"X-Project-ID": "proj1"},
-            )
-            assert resp.status_code == 200
-            assert resp.get_json() == {"ok": True}
+@pytest.mark.parametrize(
+    "metadata,status",
+    [
+        (None, 403),
+        (SimpleNamespace(prosjekt_id="other"), 403),
+        (SimpleNamespace(prosjekt_id="p"), 200),
+    ],
+)
+def test_case_must_belong_to_authorized_project(api, metadata, status):
+    client, service = api
+    service.role.return_value = "member"
+    container = Mock()
+    container.metadata_repository.get.return_value = metadata
+    with patch("lib.auth.project_access.get_container", return_value=container):
+        assert (
+            client.get("/cases/case", headers={"X-Project-ID": "p"}).status_code
+            == status
+        )

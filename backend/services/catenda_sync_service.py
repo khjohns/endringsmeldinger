@@ -195,21 +195,17 @@ class CatendaSyncService:
     def _generate_magic_link(self, sak_id: str, state: SakState) -> str | None:
         """Generer magic link for saken."""
         try:
-            magic_link_manager = self._get_magic_link_manager()
-            if not magic_link_manager:
-                return None
-
-            magic_token = magic_link_manager.generate(sak_id=sak_id)
             base_url = settings.dev_react_app_url or settings.react_app_url
 
             if not base_url:
                 return None
 
             # Bestem frontend-rute basert på sakstype
-            sakstype = getattr(state, "sakstype", "standard") or "standard"
-            frontend_route = get_frontend_route(sakstype, sak_id)
-
-            return f"{base_url}{frontend_route}?magicToken={magic_token}"
+            from urllib.parse import quote
+            project_id = getattr(state, "prosjekt_id", None)
+            if not project_id:
+                return base_url
+            return f"{base_url}/{quote(project_id, safe='')}/{quote(sak_id, safe='')}"
 
         except Exception as e:
             logger.error(f"Failed to generate magic link for {sak_id}: {e}")

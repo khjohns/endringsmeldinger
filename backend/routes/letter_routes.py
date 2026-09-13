@@ -5,6 +5,8 @@ Provides endpoints for generating formal letters as PDF.
 """
 
 from flask import Blueprint, Response, jsonify, request
+from lib.auth.session import require_auth
+from lib.auth.project_access import require_project_access
 
 from services.letter_pdf_generator import (
     BrevInnhold,
@@ -21,6 +23,8 @@ letter_bp = Blueprint("letter", __name__)
 
 
 @letter_bp.route("/api/letter/generate", methods=["POST"])
+@require_auth
+@require_project_access()
 def generate_letter_pdf():
     """
     Generate a formal letter PDF from structured content.

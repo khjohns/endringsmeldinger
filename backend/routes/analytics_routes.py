@@ -22,9 +22,9 @@ from collections import defaultdict
 from datetime import UTC, datetime, timedelta
 from typing import Any
 
-from flask import Blueprint, jsonify, request
+from flask import g, Blueprint, jsonify, request
 
-from lib.auth.magic_link import require_magic_link
+from lib.auth.session import require_auth
 from lib.auth.project_access import require_project_access
 from models.events import parse_event
 from models.sak_metadata import SakMetadata
@@ -110,8 +110,21 @@ def _get_all_events_batch() -> list[dict[str, Any]]:
 
     @with_retry()
     def fetch_table(table_name: str) -> list[dict]:
-        result = client.table(table_name).select("*").execute()
-        return result.data or []
+        # Membership authorizes one project, never the complete event tables.
+        sak_ids = [case.sak_id for case in _get_metadata_repo().list_all()]
+        rows = []
+        for start in range(0, len(sak_ids), 100):
+            for offset in range(0, 100000, 500):
+                page = (client.table(table_name).select("*")
+                        .in_("sak_id", sak_ids[start:start + 100])
+                        .order("sak_id").order("event_id")
+                        .range(offset, offset + 499).execute().data or [])
+                rows.extend(page)
+                if len(page) < 500:
+                    break
+            else:
+                raise RuntimeError("Event pagination limit")
+        return rows
 
     for table in tables:
         try:
@@ -148,7 +161,7 @@ def _get_all_events_n_plus_one() -> list[dict[str, Any]]:
         sak_ids = [c.sak_id for c in cases]
     except Exception as e:
         logger.warning(f"Could not list cases from metadata: {e}")
-        sak_ids = _get_event_repo().get_all_sak_ids()
+        raise RuntimeError("Project metadata unavailable") from e
 
     for sak_id in sak_ids:
         try:
@@ -177,8 +190,8 @@ def _compute_all_states() -> dict[str, Any]:
     try:
         cases = _get_metadata_repo().list_all()
         sak_ids = [c.sak_id for c in cases]
-    except Exception:
-        sak_ids = _get_event_repo().get_all_sak_ids()
+    except Exception as e:
+        raise RuntimeError("Project metadata unavailable") from e
 
     for sak_id in sak_ids:
         try:
@@ -199,7 +212,7 @@ def _compute_all_states() -> dict[str, Any]:
 
 
 @analytics_bp.route("/api/analytics/summary", methods=["GET"])
-@require_magic_link
+@require_auth
 @require_project_access()
 def get_summary():
     """
@@ -279,7 +292,7 @@ def get_summary():
 
 
 @analytics_bp.route("/api/analytics/by-category", methods=["GET"])
-@require_magic_link
+@require_auth
 @require_project_access()
 def get_by_category():
     """
@@ -369,7 +382,7 @@ def get_by_category():
 
 
 @analytics_bp.route("/api/analytics/timeline", methods=["GET"])
-@require_magic_link
+@require_auth
 @require_project_access()
 def get_activity_timeline():
     """
@@ -451,7 +464,7 @@ def get_activity_timeline():
 
 
 @analytics_bp.route("/api/analytics/vederlag", methods=["GET"])
-@require_magic_link
+@require_auth
 @require_project_access()
 def get_vederlag_analytics():
     """
@@ -596,7 +609,7 @@ def get_vederlag_analytics():
 
 
 @analytics_bp.route("/api/analytics/frist", methods=["GET"])
-@require_magic_link
+@require_auth
 @require_project_access()
 def get_frist_analytics():
     """
@@ -663,7 +676,7 @@ def get_frist_analytics():
 
 
 @analytics_bp.route("/api/analytics/response-times", methods=["GET"])
-@require_magic_link
+@require_auth
 @require_project_access()
 def get_response_times():
     """
@@ -798,7 +811,7 @@ def get_response_times():
 
 
 @analytics_bp.route("/api/analytics/actors", methods=["GET"])
-@require_magic_link
+@require_auth
 @require_project_access()
 def get_actor_analytics():
     """

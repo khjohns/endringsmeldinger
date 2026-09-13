@@ -187,6 +187,7 @@ from routes.forsering_routes import forsering_bp
 from routes.letter_routes import letter_bp
 from routes.approval_routes import approval_bp
 from routes.membership_routes import membership_bp
+from routes.auth_routes import auth_bp
 from routes.oauth_auto_consent_routes import oauth_auto_consent_bp  # noqa: F401
 from routes.oauth_consent_routes import oauth_consent_bp  # OAuth consent API
 from routes.project_routes import projects_bp
@@ -208,6 +209,7 @@ app.register_blueprint(oauth_auto_consent_bp)
 app.register_blueprint(wellknown_bp)
 app.register_blueprint(projects_bp)
 app.register_blueprint(membership_bp)
+app.register_blueprint(auth_bp)
 app.register_blueprint(bim_bp)
 
 # Register error handlers

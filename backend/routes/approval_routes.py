@@ -6,7 +6,7 @@ import os
 from flask import Blueprint, g, jsonify, request
 
 from lib.auth.csrf_protection import require_csrf
-from lib.auth.magic_link import require_magic_link
+from lib.auth.session import require_auth
 from lib.auth.project_access import require_project_access
 from repositories.event_repository import ConcurrencyError
 from services.approval_service import ApprovalService
@@ -24,7 +24,7 @@ def context(case_id):
 
     container = get_container()
     project = getattr(g, "project_id", "oslobygg")
-    identity = getattr(request, "magic_link_data", {}) or {}
+    identity = getattr(g, "user", {}) or {}
     actor = (identity.get("email") or "").lower()
     if identity.get("sak_id") and identity["sak_id"] != case_id:
         raise PermissionError("Du har ikke tilgang til saken.")
@@ -57,7 +57,7 @@ def context(case_id):
 
 
 @approval_bp.route("/api/cases/<case_id>/approvals", methods=["GET", "POST"])
-@require_magic_link
+@require_auth
 @require_project_access(min_role="member")
 def approvals(case_id):
     try:
