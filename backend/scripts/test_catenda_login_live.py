@@ -5,13 +5,25 @@ No provider tokens, .env values or remote memberships are written.
 """
 
 import os
+import sys
 import time
 import webbrowser
 from datetime import UTC, datetime
+from pathlib import Path
 from uuid import uuid4
 
 from flask import Flask, g, jsonify
 from werkzeug.serving import WSGIRequestHandler, make_server
+
+# The script is normally invoked as ``python scripts/...`` from ``backend``.
+# In that mode Python puts ``backend/scripts`` on sys.path, while the
+# application packages live one directory up in ``backend``.
+BACKEND_DIR = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(BACKEND_DIR))
+
+from dotenv import load_dotenv
+
+load_dotenv(BACKEND_DIR / ".env")
 
 from lib.auth.catenda_oauth import CatendaOAuth
 from lib.auth.domain import catenda_id
@@ -188,3 +200,7 @@ def main():
         while not outcome["done"] and time.monotonic() < deadline:
             server.handle_request()
     return 0 if outcome["passed"] else 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
