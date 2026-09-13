@@ -18,6 +18,11 @@ it('searches the table and links directly to the matching demo case despite a sa
     demoScenarios: { 'KOE-2024-047': 'scenario1' },
   });
   expect(screen.getByRole('heading', { name: 'Krav og endringer' })).toBeInTheDocument();
+  expect(screen.getByRole('link', { name: 'Ny endringsordre' })).toHaveAttribute(
+    'href',
+    '/mockup/endringsordre/ny'
+  );
+  expect(screen.getByRole('link', { name: 'Åpne eksempelsak' })).toBeInTheDocument();
   await user.type(screen.getByRole('searchbox', { name: 'Søk i saker' }), 'KOE-2024-047');
   expect(screen.getByText(`1 av ${mockSaksoversikt.length} saker`)).toBeInTheDocument();
   expect(screen.getByRole('link', { name: 'Åpne sak KOE-2024-047' })).toHaveAttribute(
@@ -39,8 +44,13 @@ it('carries the selected role from the overview into a case and back', async () 
   const props = { cases: mockSaksoversikt, prosjektId: 'P001', prosjektNavn: 'Operatunnelen' };
   const overview = render(ProjectOverview, props);
   expect(screen.queryByRole('link', { name: 'Ny sak' })).not.toBeInTheDocument();
+  expect(screen.getByRole('link', { name: 'Ny endringsordre' })).toHaveAttribute(
+    'href',
+    '/P001/endringsordre/ny'
+  );
   await user.click(screen.getByRole('button', { name: 'Entreprenør TE' }));
   expect(screen.getByRole('link', { name: 'Ny sak' })).toHaveAttribute('href', '/P001/ny');
+  expect(screen.queryByRole('link', { name: 'Ny endringsordre' })).not.toBeInTheDocument();
   expect(localStorage.getItem('koe-user-role')).toBe('TE');
   expect(screen.getByRole('link', { name: 'Åpne sak KOE-2024-047' })).toHaveAttribute(
     'href',
@@ -72,6 +82,42 @@ it('carries the selected role from the overview into a case and back', async () 
     'true'
   );
   expect(screen.queryByRole('link', { name: 'Ny sak' })).not.toBeInTheDocument();
+});
+
+it('filters endringsordrer in the shared register and preserves the viewer role', async () => {
+  localStorage.setItem('koe-user-role', 'BH');
+  const user = userEvent.setup();
+  render(ProjectOverview, {
+    cases: [
+      mockSaksoversikt[0],
+      {
+        ...mockSaksoversikt[0],
+        sak_id: 'EO-1',
+        sakstype: 'endringsordre',
+        cached_title: 'Ekstra belysning',
+        cached_status: 'utstedt',
+        endringsordre_data: {
+          status: 'utstedt',
+          eo_nummer: 'EO-001',
+          relaterte_koe_saker: [],
+          netto_belop: 25000,
+          frist_dager: null,
+          er_estimat: true,
+        },
+      },
+    ],
+    prosjektId: 'P001',
+    prosjektNavn: 'Testprosjekt',
+  });
+  await user.selectOptions(screen.getByRole('combobox', { name: 'Sakstype' }), 'endringsordre');
+  expect(screen.getByText('1 av 2 saker')).toBeInTheDocument();
+  expect(screen.queryByRole('link', { name: 'Åpne sak KOE-2024-047' })).not.toBeInTheDocument();
+  expect(screen.getByRole('link', { name: 'Åpne sak EO-1' })).toHaveAttribute(
+    'href',
+    '/P001/EO-1?rolle=BH'
+  );
+  expect(screen.getByText('Utstedt')).toBeInTheDocument();
+  expect(screen.getByText('Estimat i EO')).toBeInTheDocument();
 });
 
 it('filters the register by time claims and clears it', async () => {

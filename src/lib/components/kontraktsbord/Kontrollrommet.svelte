@@ -15,6 +15,7 @@
     if (role === 'BH') void approval.load();
   });
   import Header from './Header.svelte';
+  import EndringsordreLink from '$lib/components/endringsordre/EndringsordreLink.svelte';
   import LeftSidebar from './LeftSidebar.svelte';
   import CenterRead from './CenterRead.svelte';
   import FristForm from './FristForm.svelte';
@@ -206,6 +207,9 @@
       ondarkchange={(v) => (dark = v)}
     />
 
+    {#if !store.isDemo && !creatingCase && mode === 'read'}
+      <EndringsordreLink state={store.sak} projectId={store.projectId} {role} />
+    {/if}
     <div class="body">
       {#if !creatingCase}
         <div class="left-panel" class:mobile-hidden={mobileView !== 'matrix'}>

@@ -3,6 +3,8 @@ Repository for lightweight case metadata with cached fields.
 """
 
 import csv
+import os
+import tempfile
 from datetime import datetime
 from pathlib import Path
 from threading import RLock
@@ -88,6 +90,48 @@ class SakMetadataRepository:
                             else None,
                         )
             return None
+
+    def set_catenda_mapping(
+        self,
+        sak_id: str,
+        prosjekt_id: str,
+        topic_id: str,
+        board_id: str,
+        catenda_project_id: str,
+    ) -> None:
+        """Persist an outbound topic mapping within the authorized project."""
+        with self.lock:
+            with self.csv_path.open(encoding="utf-8", newline="") as source:
+                reader = csv.DictReader(source)
+                fields = reader.fieldnames
+                rows = list(reader)
+            found = False
+            for row in rows:
+                if (
+                    row["sak_id"] == sak_id
+                    and (row.get("prosjekt_id") or "oslobygg") == prosjekt_id
+                ):
+                    row.update(
+                        catenda_topic_id=topic_id,
+                        catenda_board_id=board_id,
+                        catenda_project_id=catenda_project_id,
+                    )
+                    found = True
+            if not found:
+                raise ValueError("Saken finnes ikke i prosjektet")
+            with tempfile.NamedTemporaryFile(
+                mode="w",
+                encoding="utf-8",
+                newline="",
+                dir=self.csv_path.parent,
+                prefix=".sak-metadata-",
+                delete=False,
+            ) as target:
+                writer = csv.DictWriter(target, fieldnames=fields)
+                writer.writeheader()
+                writer.writerows(rows)
+                temporary = target.name
+            os.replace(temporary, self.csv_path)
 
     def update_cache(
         self,

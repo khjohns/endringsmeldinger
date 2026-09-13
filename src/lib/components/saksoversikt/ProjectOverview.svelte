@@ -19,7 +19,13 @@
   import ProjectActivity from './ProjectActivity.svelte';
   import ProjectSummary from './ProjectSummary.svelte';
   import type { ContractSettings } from '$lib/types/project';
-  import { filterCases, overviewStats, isTimeClaim, type CaseFilter } from './overview';
+  import {
+    filterCases,
+    overviewStats,
+    isTimeClaim,
+    type CaseFilter,
+    type CaseTypeFilter,
+  } from './overview';
   import type { CaseListItem } from '$lib/types/api';
   import osloLogo from '../../../../public/logos/Oslo-logo-hvit-RGB.png?inline';
 
@@ -64,16 +70,20 @@
 
   let query = $state('');
   let filter = $state<CaseFilter>('all');
+  let caseType = $state<CaseTypeFilter>('all');
   let timeClaimsOnly = $state(false);
   let registerElement: HTMLElement | undefined = $state();
   function showTimeClaims() {
     timeClaimsOnly = true;
     filter = 'all';
+    caseType = 'standard';
     query = '';
     registerElement?.scrollIntoView({ block: 'start', behavior: 'smooth' });
   }
   const filtered = $derived(
-    filterCases(cases, query, filter).filter((item) => !timeClaimsOnly || isTimeClaim(item))
+    filterCases(cases, query, filter, caseType).filter(
+      (item) => !timeClaimsOnly || isTimeClaim(item)
+    )
   );
   const stats = $derived(overviewStats(cases));
   const filters: { id: CaseFilter; label: string }[] = [
@@ -138,9 +148,22 @@
           </p>
         </div>
         {#if demo && activePage === 'overview'}
-          <a class="primary" href="/mockup">Åpne eksempelsak</a>
+          <div class="heading-actions">
+            <a class="primary" class:secondary-action={role === 'BH'} href="/mockup"
+              >Åpne eksempelsak</a
+            >
+            {#if role === 'BH'}<a class="primary" href="/mockup/endringsordre/ny"
+                ><Plus size={17} />Ny endringsordre</a
+              >{/if}
+          </div>
         {:else if role === 'TE' && activePage === 'overview'}
-          <a class="primary" href={`/${prosjektId}/ny`}><Plus size={17} /> Ny sak</a>
+          <a class="primary" href={`/${encodeURIComponent(prosjektId)}/ny`}
+            ><Plus size={17} /> Ny sak</a
+          >
+        {:else if role === 'BH' && activePage === 'overview'}
+          <a class="primary" href={`/${encodeURIComponent(prosjektId)}/endringsordre/ny`}
+            ><Plus size={17} /> Ny endringsordre</a
+          >
         {/if}
       </header>
       <details class="mobile-project-info">
@@ -169,6 +192,7 @@
             <div class="stat-label">Saker i prosjektet <FolderOpen size={17} /></div>
             <strong class="stat-value">{stats.total}</strong>
             <p>{stats.active} aktive · {stats.drafts} kladder</p>
+            <p>{stats.claims} KOE · {stats.orders} endringsordrer</p>
           </section>
           <button
             type="button"
@@ -188,16 +212,16 @@
             <span class="stat-action">Vis fristkrav <ArrowRight size={13} /></span>
           </button>
           <section class="stat">
-            <div class="stat-label">Fremsatt vederlag <Coins size={17} /></div>
+            <div class="stat-label">Fremsatt vederlag · KOE <Coins size={17} /></div>
             <strong class="stat-value amount"
               >{stats.claimed === null ? '—' : fmt(stats.claimed)}{#if stats.claimed !== null}<small
                   >kr</small
                 >{/if}</strong
             >
-            <p>Registrerte krav · kladder og trukne saker utelatt</p>
+            <p>Registrerte KOE-krav · kladder og trukne saker utelatt</p>
           </section>
           <section class="stat">
-            <div class="stat-label">Prinsipalt godkjent <Check size={17} /></div>
+            <div class="stat-label">Prinsipalt godkjent · KOE <Check size={17} /></div>
             <strong class="stat-value amount"
               >{stats.approved === null
                 ? '—'
@@ -211,7 +235,7 @@
           </section>
         </div>
 
-        <WorkQueue {cases} {role} projectId={prosjektId} scenarios={demoScenarios} />
+        <WorkQueue {cases} {role} projectId={prosjektId} scenarios={demoScenarios} {demo} />
         <div class="overview-content">
           <section
             class="register"
@@ -231,8 +255,12 @@
                   aria-pressed={filter === option.id}
                   onclick={() => (filter = option.id)}
                   >{option.label}<span
-                    >{filterCases(timeClaimsOnly ? cases.filter(isTimeClaim) : cases, '', option.id)
-                      .length}</span
+                    >{filterCases(
+                      timeClaimsOnly ? cases.filter(isTimeClaim) : cases,
+                      '',
+                      option.id,
+                      caseType
+                    ).length}</span
                   ></button
                 >{/each}
             </div>
@@ -244,7 +272,19 @@
                   aria-label="Søk i saker"
                   placeholder="Søk etter saksnummer eller tittel"
                 /></label
-              ><span class="result-count" role="status"
+              >
+              <label class="type-filter"
+                >Sakstype
+                <select bind:value={caseType} onchange={() => (timeClaimsOnly = false)}>
+                  <option value="all">Alle typer</option>
+                  <option value="standard">KOE-krav</option>
+                  <option value="endringsordre">Endringsordrer</option>
+                  {#if cases.some((item) => item.sakstype === 'forsering')}
+                    <option value="forsering">Forsering</option>
+                  {/if}
+                </select>
+              </label>
+              <span class="result-count" role="status"
                 >{filtered.length} av {cases.length} saker</span
               >
             </div>
@@ -252,13 +292,18 @@
               <div class="active-filter">
                 <span>Viser spesifiserte fristkrav</span><button
                   type="button"
-                  onclick={() => (timeClaimsOnly = false)}
+                  onclick={() => {
+                    timeClaimsOnly = false;
+                    caseType = 'all';
+                  }}
                   aria-label="Fjern fristfilter"><X size={13} />Fjern filter</button
                 >
               </div>
             {/if}
             {#if !cases.length}<div class="state-message">
-                Ingen saker ennå. Opprett den første saken med «Ny sak».
+                Ingen saker ennå. {role === 'BH'
+                  ? 'Opprett den første endringsordren med «Ny endringsordre».'
+                  : 'Opprett det første KOE-kravet med «Ny sak».'}
               </div>
             {:else if !filtered.length}<div class="state-message">
                 Ingen saker passer søket og utvalget.<button
@@ -266,6 +311,7 @@
                   onclick={() => {
                     query = '';
                     filter = 'all';
+                    caseType = 'all';
                     timeClaimsOnly = false;
                   }}>Vis alle saker</button
                 >
@@ -275,12 +321,14 @@
                   cases={filtered}
                   {prosjektId}
                   caseHref={(item) =>
-                    caseLink(
-                      { caseId: item.sak_id, type: 'K' },
-                      prosjektId,
-                      role,
-                      demoScenarios[item.sak_id]
-                    )}
+                    item.sakstype === 'endringsordre'
+                      ? `${demo ? '/mockup/endringsordre' : `/${encodeURIComponent(prosjektId)}`}/${encodeURIComponent(item.sak_id)}?rolle=${role}`
+                      : caseLink(
+                          { caseId: item.sak_id, type: 'K' },
+                          prosjektId,
+                          role,
+                          demoScenarios[item.sak_id]
+                        )}
                 />
               </div>{/if}
           </section>
@@ -291,6 +339,17 @@
 </div>
 
 <style>
+  .heading-actions {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .primary.secondary-action {
+    background: var(--color-felt);
+    color: var(--color-ink-secondary);
+    border-color: var(--color-wire);
+  }
   .project-overview {
     --color-canvas: #f5f6f3;
     --color-felt: #fff;
@@ -632,6 +691,26 @@
     justify-content: space-between;
     gap: 16px;
     padding: 18px 24px;
+    flex-wrap: wrap;
+  }
+  .type-filter {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--color-ink-muted);
+    font-size: 12px;
+  }
+  .type-filter select {
+    padding: 8px 10px;
+    border: 1px solid var(--color-wire);
+    border-radius: 7px;
+    background: var(--color-felt);
+    color: var(--color-ink-secondary);
+    font: inherit;
+  }
+  .type-filter select:focus-visible {
+    outline: 2px solid var(--color-wire-focus);
+    outline-offset: 3px;
   }
   .search {
     display: flex;

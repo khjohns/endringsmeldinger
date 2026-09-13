@@ -37,6 +37,7 @@ from models.events import (
     SporType,
     TEAkseptererResponsEvent,
     VederlagEvent,
+    VederlagsMetode,
 )
 from models.sak_state import (
     EndringsordreData,
@@ -136,7 +137,11 @@ def _extract_vederlag_from_eo_data(vederlag: Any) -> tuple:
         return (None, None, None, False)
 
     oppgjorsform = vederlag.metode.value if vederlag.metode else None
-    kompensasjon_belop = getattr(vederlag, "belop_direkte", None)
+    kompensasjon_belop = (
+        vederlag.kostnads_overslag
+        if vederlag.metode == VederlagsMetode.REGNINGSARBEID
+        else vederlag.belop_direkte
+    )
     fradrag_belop = getattr(vederlag, "fradrag_belop", None)
     er_estimat = getattr(vederlag, "er_estimat", False)
 
@@ -1076,6 +1081,11 @@ class TimelineService:
             oppgjorsform, kompensasjon_belop, fradrag_belop, er_estimat = (
                 _extract_vederlag_from_eo_data(data.vederlag)
             )
+            if data.vederlag is None:
+                oppgjorsform = data.oppgjorsform
+                kompensasjon_belop = data.kompensasjon_belop
+                fradrag_belop = data.fradrag_belop
+                er_estimat = data.er_estimat or False
 
             # Handle both relaterte_sak_ids and relaterte_koe_saker
             relaterte = data.relaterte_sak_ids or data.relaterte_koe_saker or []
@@ -1092,6 +1102,7 @@ class TimelineService:
                 fradrag_belop=fradrag_belop,
                 er_estimat=er_estimat,
                 frist_dager=data.frist_dager,
+                ny_sluttdato=data.ny_sluttdato,
                 status=EOStatus.UTSTEDT,
                 dato_utstedt=event.tidsstempel.strftime("%Y-%m-%d"),
                 utstedt_av=event.aktor,

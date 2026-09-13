@@ -911,6 +911,7 @@ def list_cases():
         for c in cases:
             # Reuse the event read for timeline and version-aware follow-up context.
             oppfolging = None
+            endringsordre_data = None
             hendelser = []
             try:
                 events_data, _ = event_repo.get_events(c.sak_id)
@@ -920,6 +921,20 @@ def list_cases():
                         [parse_event(event) for event in events_data]
                     )
                     oppfolging = build_follow_up_context(state)
+                    if state.endringsordre_data:
+                        eo = state.endringsordre_data
+                        endringsordre_data = {
+                            "status": eo.status,
+                            "eo_nummer": eo.eo_nummer,
+                            "relaterte_koe_saker": eo.relaterte_koe_saker,
+                            "netto_belop": eo.netto_belop
+                            if eo.kompensasjon_belop is not None or eo.fradrag_belop is not None
+                            else None if eo.konsekvenser.pris else 0,
+                            "frist_dager": eo.frist_dager
+                            if eo.frist_dager is not None
+                            else None if eo.konsekvenser.fremdrift else 0,
+                            "er_estimat": eo.er_estimat,
+                        }
             except Exception as exc:
                 logger.warning(f"Failed to load overview context for {c.sak_id}: {exc}")
 
@@ -948,6 +963,7 @@ def list_cases():
                 # Timeline hendelser for saksoversikt
                 "hendelser": hendelser,
                 "oppfolging": oppfolging,
+                "endringsordre_data": endringsordre_data,
             })
 
         return jsonify({"cases": result})

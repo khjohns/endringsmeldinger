@@ -3,6 +3,8 @@
   import { goto } from '$app/navigation';
   import { createCaseContextQuery } from '$lib/queries/caseContext';
   import CaseWorkspace from '$lib/kontraktsbord/CaseWorkspace.svelte';
+  import EndringsordrePage from '$lib/components/endringsordre/EndringsordrePage.svelte';
+  import { projectStore } from '$lib/stores/project.svelte';
   import {
     readWorkspaceView,
     workspaceViewUrl,
@@ -43,14 +45,24 @@
 
 {#if query.data}
   {#key prosjektId + ':' + sakId}
-    <CaseWorkspace
-      response={query.data}
-      projectId={prosjektId}
-      {refetch}
-      {view}
-      onviewchange={changeView}
-      onnewcase={() => goto('/' + prosjektId + '/ny')}
-    />
+    {#if query.data.state.sakstype === 'endringsordre'}
+      <EndringsordrePage
+        response={query.data}
+        projectId={prosjektId}
+        projectName={projectStore.current?.name ?? prosjektId}
+        role={view.role}
+        onrolechange={(role) => changeView({ ...view, role })}
+      />
+    {:else}
+      <CaseWorkspace
+        response={query.data}
+        projectId={prosjektId}
+        {refetch}
+        {view}
+        onviewchange={changeView}
+        onnewcase={() => goto('/' + prosjektId + '/ny')}
+      />
+    {/if}
   {/key}
 {:else if query.isError}
   <div class="case-message" role="alert">

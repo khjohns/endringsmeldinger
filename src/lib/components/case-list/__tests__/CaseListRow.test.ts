@@ -22,6 +22,59 @@ const baseCaseItem: CaseListItem = {
 };
 
 describe('CaseListRow', () => {
+  it('shows EO numbers, status and order values without reusing stale KOE claim amounts', () => {
+    const item: CaseListItem = {
+      ...baseCaseItem,
+      sakstype: 'endringsordre',
+      endringsordre_data: {
+        status: 'bestridt',
+        eo_nummer: 'EO-042',
+        relaterte_koe_saker: ['KOE-1', 'KOE-2'],
+        netto_belop: -20000,
+        frist_dager: 0,
+        er_estimat: false,
+      },
+    };
+    render(CaseListRowTest, { props: { case_item: item, prosjektId: 'PRJ-01' } });
+    expect(screen.getByText('EO-042')).toBeInTheDocument();
+    expect(screen.getByText('Endringsordre')).toBeInTheDocument();
+    expect(screen.getByText('Bestridt')).toBeInTheDocument();
+    expect(screen.getByText('2 KOE · enighet')).toBeInTheDocument();
+    expect(screen.queryByText('450k')).not.toBeInTheDocument();
+    expect(screen.getByLabelText('Vederlag i EO: -20k')).toBeInTheDocument();
+    expect(screen.getByLabelText('Fristjustering i EO: 0d')).toBeInTheDocument();
+  });
+
+  it('keeps unspecified EO price and time unknown', () => {
+    render(CaseListRowTest, {
+      props: { case_item: { ...baseCaseItem, sakstype: 'endringsordre' }, prosjektId: 'PRJ-01' },
+    });
+    expect(screen.getByLabelText('Vederlag i EO: —')).toBeInTheDocument();
+    expect(screen.getByLabelText('Fristjustering i EO: —')).toBeInTheDocument();
+  });
+
+  it('labels affected but unspecified EO price and time as unresolved', () => {
+    render(CaseListRowTest, {
+      props: {
+        case_item: {
+          ...baseCaseItem,
+          sakstype: 'endringsordre',
+          endringsordre_data: {
+            status: 'utstedt',
+            eo_nummer: 'EO-1',
+            relaterte_koe_saker: [],
+            netto_belop: null,
+            frist_dager: null,
+            er_estimat: false,
+          },
+        },
+        prosjektId: 'PRJ-01',
+      },
+    });
+    expect(screen.getByLabelText('Vederlag i EO: Uavklart')).toBeInTheDocument();
+    expect(screen.getByLabelText('Fristjustering i EO: Uavklart')).toBeInTheDocument();
+  });
+
   it('renders sak-ID', () => {
     render(CaseListRowTest, { props: { case_item: baseCaseItem, prosjektId: 'PRJ-01' } });
     expect(screen.getByText('SAK-001')).toBeInTheDocument();

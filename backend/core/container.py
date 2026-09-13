@@ -227,6 +227,7 @@ class Container:
             catenda_client=self.catenda_client,
             event_repository=self.event_repository,
             timeline_service=self.timeline_service,
+            metadata_repository=self.metadata_repository,
         )
 
     def create_unit_of_work(self) -> "TrackingUnitOfWork":

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { filterCases, overviewStats, isTimeClaim } from '../overview';
+import { filterCases, overviewStats, isTimeClaim, formalizedClaims } from '../overview';
 import { mockSaksoversikt } from '$lib/mocks/saksoversikt';
 
 const make = (status: string, claimed: number | null, approved: number | null) => ({
@@ -51,4 +51,62 @@ it('counts specified time claims without adding days or treating zero as missing
   expect(cases.filter(isTimeClaim)).toHaveLength(2);
   expect(overviewStats(cases).timeClaims).toBe(2);
   expect(overviewStats(cases).unassessedTimeClaims).toBe(1);
+});
+
+it('keeps EO formalization out of the original KOE financial and time totals', () => {
+  const claim = { ...make('OMFORENT', 500, 400), cached_dager_krevd: 10 };
+  const order = {
+    ...make('utstedt', 400, 400),
+    sak_id: 'EO-1',
+    sakstype: 'endringsordre' as const,
+    cached_dager_krevd: 10,
+    endringsordre_data: {
+      status: 'utstedt' as const,
+      eo_nummer: 'EO-001',
+      relaterte_koe_saker: [claim.sak_id],
+      netto_belop: 400,
+      frist_dager: 10,
+      er_estimat: false,
+    },
+  };
+  expect(overviewStats([claim, order])).toMatchObject({
+    total: 2,
+    claims: 1,
+    orders: 1,
+    claimed: 500,
+    approved: 400,
+    assessed: 1,
+    timeClaims: 1,
+  });
+  expect(formalizedClaims([claim, order])).toEqual(new Set([claim.sak_id]));
+  expect(
+    formalizedClaims([
+      { ...order, endringsordre_data: { ...order.endringsordre_data, status: 'utkast' } },
+    ])
+  ).toEqual(new Set());
+});
+
+it('combines EO type and status filters and searches the actual EO number', () => {
+  const cases = [
+    make('SENDT', 100, null),
+    { ...make('utstedt', null, null), sakstype: 'endringsordre' as const },
+    { ...make('akseptert', null, null), sakstype: 'endringsordre' as const },
+    { ...make('utkast', null, null), sakstype: 'endringsordre' as const },
+  ];
+  expect(filterCases(cases, '', 'active', 'endringsordre')).toEqual([cases[1]]);
+  expect(filterCases(cases, '', 'closed', 'endringsordre')).toEqual([cases[2]]);
+  expect(filterCases(cases, '', 'draft', 'endringsordre')).toEqual([cases[3]]);
+  expect(filterCases(cases, '', 'all', 'standard')).toEqual([cases[0]]);
+  const numbered = {
+    ...cases[1],
+    endringsordre_data: {
+      status: 'utstedt' as const,
+      eo_nummer: 'EO-042',
+      relaterte_koe_saker: [],
+      netto_belop: null,
+      frist_dager: null,
+      er_estimat: false,
+    },
+  };
+  expect(filterCases([numbered], 'eo-042', 'all', 'endringsordre')).toEqual([numbered]);
 });

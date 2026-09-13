@@ -195,6 +195,14 @@ export interface CaseListHendelse {
 
 export interface CaseListItem {
   oppfolging?: import('$lib/domain/followUp').FollowUpContext | null;
+  endringsordre_data?: {
+    status: import('$lib/types/timeline').EOStatus;
+    eo_nummer: string;
+    relaterte_koe_saker: string[];
+    netto_belop: number | null;
+    frist_dager: number | null;
+    er_estimat: boolean;
+  } | null;
   sak_id: string;
   sakstype: 'standard' | 'forsering' | 'endringsordre';
   cached_title: string | null;
