@@ -113,3 +113,16 @@ class CatendaOAuth:
                 userType="user",
             )
         )
+
+    def team_members(self, project_id: str, team_id: str, token: str) -> set[str]:
+        rows = self.collection(
+            f"/v2/projects/{catenda_id(project_id)}/teams/{catenda_id(team_id)}/members",
+            token,
+        )
+        subjects = set()
+        for row in rows:
+            user = row.get("user", {})
+            if user.get("type") != "user":
+                raise CatendaUnavailable("Expected individual team members")
+            subjects.add(catenda_id(user["id"]))
+        return subjects

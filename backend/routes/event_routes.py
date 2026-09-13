@@ -24,16 +24,14 @@ from api.validators import (
     ValidationError as ApiValidationError,
 )
 from api.validators import (
-    validate_frist_event,
-    validate_grunnlag_event,
-    validate_respons_event,
-    validate_vederlag_event,
+    validate_event_data,
 )
 from core.config import settings
 from integrations.catenda import CatendaAuthError
+from lib.auth.contract_role import require_contract_role
 from lib.auth.csrf_protection import require_csrf
-from lib.auth.session import require_auth
 from lib.auth.project_access import require_project_access
+from lib.auth.session import require_auth
 from lib.catenda_factory import get_catenda_client
 from lib.cloudevents import (
     format_timeline_response,
@@ -163,47 +161,15 @@ def _get_timeline_service():
 # Helper functions for submit_event (reduces cyclomatic complexity)
 # ============================================================================
 
-# Dispatch table for event validation - replaces if/elif chain
-EVENT_VALIDATORS = {
-    EventType.GRUNNLAG_OPPRETTET.value: lambda d: validate_grunnlag_event(d),
-    EventType.GRUNNLAG_OPPDATERT.value: lambda d: validate_grunnlag_event(
-        d, is_update=True
-    ),
-    EventType.VEDERLAG_KRAV_SENDT.value: lambda d: validate_vederlag_event(d),
-    EventType.VEDERLAG_KRAV_OPPDATERT.value: lambda d: validate_vederlag_event(d),
-    EventType.FRIST_KRAV_SENDT.value: lambda d: validate_frist_event(d),
-    EventType.FRIST_KRAV_OPPDATERT.value: lambda d: validate_frist_event(
-        d, is_update=True
-    ),
-    EventType.FRIST_KRAV_SPESIFISERT.value: lambda d: validate_frist_event(
-        d, is_specification=True
-    ),
-    EventType.RESPONS_GRUNNLAG.value: lambda d: validate_respons_event(d, "grunnlag"),
-    EventType.RESPONS_VEDERLAG.value: lambda d: validate_respons_event(d, "vederlag"),
-    EventType.RESPONS_FRIST.value: lambda d: validate_respons_event(d, "frist"),
-    # Withdrawal events - no data validation needed (begrunnelse is optional)
-    EventType.GRUNNLAG_TRUKKET.value: lambda d: None,
-    EventType.VEDERLAG_KRAV_TRUKKET.value: lambda d: None,
-    EventType.FRIST_KRAV_TRUKKET.value: lambda d: None,
-}
-
-
-def _validate_event_by_type(event_type: str, data_payload: dict) -> None:
-    """
-    Dispatch event validation to the appropriate validator.
-
-    Uses a dispatch table instead of if/elif chain for cleaner code.
-
-    Args:
-        event_type: The event type string (e.g., 'grunnlag_opprettet')
-        data_payload: The event data to validate
-
-    Raises:
-        ApiValidationError: If validation fails
-    """
-    validator_func = EVENT_VALIDATORS.get(event_type)
-    if validator_func:
-        validator_func(data_payload)
+def _parse_authorized_event(data: dict) -> AnyEvent:
+    """Bind identity and enforce contract authority even on the first event."""
+    data["aktor"] = g.user.get("name") or g.user.get("email") or g.user["id"]
+    data["aktor_rolle"] = g.contract_role
+    event = parse_event_from_request(data)
+    result = validator.validate_actor_role(event)
+    if not result.is_valid:
+        raise PermissionError(result.message)
+    return event
 
 
 def _derive_spor_from_event(event: AnyEvent) -> str | None:
@@ -358,6 +324,7 @@ def _ensure_catenda_auth(catenda_topic_id: str | None) -> None:
 @require_csrf
 @require_auth
 @require_project_access(min_role="member")
+@require_contract_role()
 def submit_event():
     """
     Submit a single event with optional client-generated PDF.
@@ -399,16 +366,16 @@ def submit_event():
         sak_id = payload.get("sak_id")
         expected_version = payload.get("expected_version")
         event_data = payload.get("event")
-        catenda_topic_id = payload.get("catenda_topic_id")
-
-        # Look up catenda_topic_id from metadata if not provided
-        if not catenda_topic_id:
-            metadata = _get_metadata_repo().get(sak_id)
-            if metadata and metadata.catenda_topic_id:
-                catenda_topic_id = metadata.catenda_topic_id
-                logger.info(
-                    f"Retrieved catenda_topic_id from metadata: {catenda_topic_id}"
-                )
+        # The authorized case determines the external target, never the client.
+        metadata = _get_metadata_repo().get(sak_id)
+        catenda_topic_id = metadata.catenda_topic_id if metadata else None
+        supplied_topic = payload.get("catenda_topic_id")
+        if supplied_topic and supplied_topic != catenda_topic_id:
+            return jsonify(
+                success=False,
+                error="CATENDA_TOPIC_MISMATCH",
+                message="Catenda-topic tilhører ikke saken.",
+            ), 400
 
         # Optional client-generated PDF (PREFERRED)
         client_pdf_base64 = payload.get("pdf_base64")
@@ -437,7 +404,7 @@ def submit_event():
         data_payload = event_data.get("data")
 
         try:
-            _validate_event_by_type(event_type, data_payload)
+            validate_event_data(event_type, data_payload)
         except ApiValidationError as e:
             logger.warning(f"Validation error: {e}")
             return jsonify(_build_validation_error_response(e)), 400
@@ -447,7 +414,7 @@ def submit_event():
         from routes.approval_routes import project_policy
         if str(event_data.get('event_type', '')).startswith('respons_') and project_policy(getattr(g, 'project_id', 'oslobygg')):
             return jsonify(message='BH-svar må publiseres gjennom intern godkjenning.'), 403
-        event = parse_event_from_request(event_data)
+        event = _parse_authorized_event(event_data)
 
         # 3. Load current state for validation
         existing_events_data, current_version = _get_event_repo().get_events(sak_id)
@@ -568,6 +535,8 @@ def submit_event():
             }
         ), 201
 
+    except PermissionError as e:
+        return jsonify(success=False, error="CONTRACT_ROLE_REQUIRED", message=str(e)), 403
     except CatendaAuthError as e:
         logger.error(f"Catenda token expired: {e}")
         return jsonify(
@@ -593,6 +562,7 @@ def submit_event():
 @require_csrf
 @require_auth
 @require_project_access(min_role="member")
+@require_contract_role()
 def submit_batch():
     """
     Submit multiple events atomically.
@@ -635,10 +605,11 @@ def submit_batch():
         if project_policy(getattr(g, 'project_id', 'oslobygg')) and any(str(ed.get('event_type', '')).startswith('respons_') for ed in event_datas):
             return jsonify(message='BH-svar må publiseres gjennom intern godkjenning.'), 403
         for ed in event_datas:
+            validate_event_data(ed.get("event_type"), ed.get("data"))
             ed["sak_id"] = sak_id  # Ensure consistent sak_id
             if ed.get("event_type") == "sak_opprettet":
                 ed["prosjekt_id"] = g.project_id
-            events.append(parse_event_from_request(ed))
+            events.append(_parse_authorized_event(ed))
 
         # 2. Load current state
         existing_events_data, current_version = _get_event_repo().get_events(sak_id)
@@ -762,6 +733,12 @@ def submit_batch():
             }
         ), 201
 
+    except PermissionError as e:
+        return jsonify(success=False, error="CONTRACT_ROLE_REQUIRED", message=str(e)), 403
+    except ApiValidationError as e:
+        return jsonify(_build_validation_error_response(e)), 400
+    except (ValueError, TypeError) as e:
+        return jsonify(success=False, error="VALIDATION_ERROR", message=str(e)), 400
     except Exception as e:
         return jsonify(
             {"success": False, "error": "INTERNAL_ERROR", "message": str(e)}

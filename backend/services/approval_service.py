@@ -14,6 +14,7 @@ from pathlib import Path
 from uuid import uuid4
 
 from models.events import parse_event, parse_event_from_request
+from api.validators import validate_event_data
 from repositories.event_repository import ConcurrencyError
 
 TRACKS = ("grunnlag", "vederlag", "frist")
@@ -104,13 +105,15 @@ class ApprovalService:
                 raise ValueError(
                     "Kravet er endret. Revider vurderingen før du fortsetter."
                 )
+            data = copy.deepcopy(item["data"])
+            validate_event_data(item["eventType"], data)
             event = parse_event_from_request(
                 {
                     "sak_id": case_id,
                     "event_type": item["eventType"],
                     "aktor": item["owner"],
                     "aktor_rolle": "BH",
-                    "data": copy.deepcopy(item["data"]),
+                    "data": data,
                 }
             )
             state = self.timeline.compute_state(existing + validated)

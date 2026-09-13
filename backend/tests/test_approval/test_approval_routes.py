@@ -11,6 +11,7 @@ from routes.approval_routes import approval_bp
 @pytest.fixture
 def api(monkeypatch, tmp_path):
     app = Flask(__name__)
+    app.testing = True
     app.register_blueprint(approval_bp)
     app.before_request(lambda: setattr(g, "project_id", "p1"))
     monkeypatch.setenv("DISABLE_AUTH", "true")

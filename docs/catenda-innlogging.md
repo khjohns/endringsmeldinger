@@ -69,6 +69,49 @@ Lokale API-er for å opprette/slette medlemmer eller tildele admin er fjernet.
 BH/TE og økonomiske godkjenningsfullmakter er separate fra disse tilgangsrollene;
 denne endringen gir ingen nye fullmakter basert på Catenda-adminstatus.
 
+### Kontraktsrolle fra Catenda-team
+
+Skriving av kontraktshendelser krever nå en entydig TE/BH-tilknytning fra Catenda.
+Serverkonfigurasjonen `CATENDA_CONTRACT_TEAMS` kobler interne prosjekt-ID-er til
+Catenda-team-ID-er. Eksempel (erstatt alle eksempel-ID-er før bruk):
+
+```json
+{
+  "internt-prosjekt": {
+    "TE": ["11111111-1111-1111-1111-111111111111"],
+    "BH": ["22222222-2222-2222-2222-222222222222"]
+  }
+}
+```
+
+Begge sider skal ha minst én team-ID; flere team per side er tillatt. Teamnavn,
+e-postdomener og app-rollen admin brukes ikke til å utlede kontraktssiden.
+Det samme teamet kan ikke representere begge sider. Konfigurasjonen ligger på
+serveren og krever ingen ny databasemigrasjon.
+
+Etter prosjektets vanlige tilgangskontroll hentes teammedlemmer fra
+`GET /v2/projects/{project-id}/teams/{team-id}/members` med integrasjonens token.
+Identiteten sammenlignes med medlemskapets `catenda_subject`, aldri e-post.
+Oppslaget følger den eksisterende pagineringskontrollen. Det gjøres på hver
+beskyttet forespørsel, uten gjenbruk av teamfullmakter mellom forespørsler.
+Integrasjonskontoen må ha lesetilgang til de konfigurerte teamene.
+
+Manglende tilknytning, eller medlemskap på begge sider, gir 403. Feil hos Catenda
+eller ugyldig konfigurasjon gir 503. Manglende prosjektkonfigurasjon gir ingen
+skriverett. Lesing av vanlige saker krever fortsatt bare prosjektmedlemskap.
+Intern BH-behandling krever både BH-teamtilknytning og den eksisterende
+godkjenningspolicyen. EO-handlinger krever BH; forseringshandlinger krever TE,
+med unntak av BH-respons. Generelle hendelser kontrolleres per hendelsestype.
+
+Aktørnavn og hendelsens TE/BH-rolle settes av serveren ved både enkelt- og
+batchinnsending. Klientens rollevalg er bare en visningspreferanse og gir ikke
+fullmakt. Dev-bypass beholder muligheten til å simulere begge sider lokalt.
+
+**Før produksjonssetting:** Sett faktiske team-ID-er for hvert prosjekt og
+verifiser teamoppslag med integrasjonskontoen. Uten denne konfigurasjonen blir
+kontraktsskriving avvist. Dette er testet med lokale, isolerte provider-/DB-mocker;
+ingen migrasjon eller kontroll mot den eksterne databasen er utført.
+
 Ved innlogging hentes medlemmene i brukerens registrerte prosjekter. Prosjekter
 brukeren ikke lenger har i Catenda fjernes også fra brukerens lokale tilganger.
 Hele medlemslisten pagineres og valideres før en prosjektoppdatering. Snapshotet

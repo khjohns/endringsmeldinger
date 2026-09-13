@@ -8,6 +8,7 @@ from flask import Blueprint, g, jsonify, request
 from lib.auth.csrf_protection import require_csrf
 from lib.auth.session import require_auth
 from lib.auth.project_access import require_project_access
+from lib.auth.contract_role import require_contract_role
 from repositories.event_repository import ConcurrencyError
 from services.approval_service import ApprovalService
 
@@ -59,6 +60,7 @@ def context(case_id):
 @approval_bp.route("/api/cases/<case_id>/approvals", methods=["GET", "POST"])
 @require_auth
 @require_project_access(min_role="member")
+@require_contract_role("BH")
 def approvals(case_id):
     try:
         service, project, actor, chain, can_prepare = context(case_id)
