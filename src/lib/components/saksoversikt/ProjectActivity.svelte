@@ -34,8 +34,8 @@
     >
     <label class="track-filter"
       >Spor <select bind:value={track} onchange={() => (limit = 20)}
-        ><option value="">Alle spor</option>{#each Object.entries(labels) as [value, label]}<option
-            {value}>{label}</option
+        ><option value="">Alle spor</option
+        >{#each Object.entries(labels) as [value, label] (value)}<option {value}>{label}</option
           >{/each}</select
       ></label
     >
@@ -57,6 +57,8 @@
           >{#if event.rolle}{event.rolle}{:else}<History size={19} aria-hidden="true" />{/if}</span
         >
         <div class="event-copy">
+          <!-- activityHref bygger stien i domenelaget, som holdes fri for $app-avhengigheter. -->
+          <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
           <a href={activityHref(event, projectId, role, scenarios[event.caseId])}
             >{event.caseId} · {event.caseTitle}<ArrowRight size={14} aria-hidden="true" /></a
           >

@@ -1,6 +1,7 @@
 <script lang="ts">
   import { page } from '$app/state';
   import { goto } from '$app/navigation';
+  import { resolve } from '$app/paths';
   import AppTopbar from '$lib/components/navigation/AppTopbar.svelte';
   import { projectStore } from '$lib/stores/project.svelte';
   import { savePreferredRole } from '$lib/utils/rolePreference';
@@ -29,8 +30,10 @@
       lockedRole
       onrolechange={() => {}}
     >
-      {#snippet leading()}<a class="back-link" href={`/${prosjektId}`} aria-label="Til saksoversikt"
-          ><ChevronLeft size={17} /></a
+      {#snippet leading()}<a
+          class="back-link"
+          href={resolve('/[prosjektId]', { prosjektId })}
+          aria-label="Til saksoversikt"><ChevronLeft size={17} /></a
         >{/snippet}
     </AppTopbar>
     <main>
@@ -38,8 +41,12 @@
         <NewCaseForm
           {prosjektId}
           onsend={() => {}}
-          oncreated={(sakId) =>
-            goto('/' + prosjektId + '/' + encodeURIComponent(sakId) + '?spor=ansvar&rolle=TE')}
+          oncreated={(sakId) => {
+            const href = `${resolve('/[prosjektId]/[sakId]', { prosjektId, sakId: encodeURIComponent(sakId) })}?spor=ansvar&rolle=TE`;
+            // Ruten er resolvet over; bare spørrestrengen legges til etterpå.
+            // eslint-disable-next-line svelte/no-navigation-without-resolve
+            void goto(href);
+          }}
           onactions={(next) => (actions = next)}
         />
       {/key}
@@ -47,7 +54,7 @@
     <NewCaseActionBar
       canSend={actions?.canSend ?? false}
       sendLabel={actions?.sendLabel ?? 'Send ansvarsgrunnlag'}
-      oncancel={() => goto('/' + prosjektId)}
+      oncancel={() => goto(resolve('/[prosjektId]', { prosjektId }))}
       onsend={() => actions?.send()}
     />
   </div>

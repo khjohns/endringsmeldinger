@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { resolve } from '$app/paths';
   import AppTopbar from '$lib/components/navigation/AppTopbar.svelte';
   import { readPreferredRole, savePreferredRole } from '$lib/utils/rolePreference';
   import type { Role } from '$lib/components/kontraktsbord/types';
@@ -59,8 +60,16 @@
     activePage?: 'overview' | 'activity';
   } = $props();
 
-  const overviewHref = $derived(demo ? '/mockup/oversikt' : `/${encodeURIComponent(prosjektId)}`);
-  const activityHref = $derived(`${overviewHref}/aktivitet`);
+  const overviewHref = $derived(
+    demo
+      ? resolve('/mockup/oversikt')
+      : resolve('/[prosjektId]', { prosjektId: encodeURIComponent(prosjektId) })
+  );
+  const activityHref = $derived(
+    demo
+      ? resolve('/mockup/oversikt/aktivitet')
+      : resolve('/[prosjektId]/aktivitet', { prosjektId: encodeURIComponent(prosjektId) })
+  );
 
   let role = $state<Role>(readPreferredRole());
   function changeRole(next: Role) {
@@ -103,10 +112,13 @@
     </div>
     <nav class="rail-nav" aria-label="Arbeidsområde">
       <span class="eyebrow">Arbeidsområde</span>
+      <!-- Allerede resolvet i utledningen over. -->
+      <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
       <a href={overviewHref} aria-current={activePage === 'overview' ? 'page' : undefined}
         ><FolderOpen size={18} /> Krav og endringer
         <span class="count">{loading || error ? '—' : stats.total}</span></a
       >
+      <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
       <a href={activityHref} aria-current={activePage === 'activity' ? 'page' : undefined}
         ><History size={18} /> Aktivitetslogg</a
       >
@@ -122,7 +134,7 @@
         compact
       />
       <p class="project-number">Prosjekt {prosjektId}</p>
-      <a href="/" class="switch-project">Bytt prosjekt <ArrowRight size={14} /></a>
+      <a href={resolve('/')} class="switch-project">Bytt prosjekt <ArrowRight size={14} /></a>
     </div>
   </aside>
 
@@ -130,9 +142,11 @@
     <AppTopbar projectName={prosjektNavn} {role} onrolechange={changeRole} />
     <div class="workspace">
       <nav class="mobile-project-nav" aria-label="Prosjektsider">
+        <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
         <a href={overviewHref} aria-current={activePage === 'overview' ? 'page' : undefined}
           >Krav og endringer</a
         >
+        <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
         <a href={activityHref} aria-current={activePage === 'activity' ? 'page' : undefined}
           >Aktivitetslogg</a
         >
@@ -149,20 +163,25 @@
         </div>
         {#if demo && activePage === 'overview'}
           <div class="heading-actions">
-            <a class="primary" class:secondary-action={role === 'BH'} href="/mockup"
+            <a class="primary" class:secondary-action={role === 'BH'} href={resolve('/mockup')}
               >Åpne eksempelsak</a
             >
-            {#if role === 'BH'}<a class="primary" href="/mockup/endringsordre/ny"
+            {#if role === 'BH'}<a class="primary" href={resolve('/mockup/endringsordre/ny')}
                 ><Plus size={17} />Ny endringsordre</a
               >{/if}
           </div>
         {:else if role === 'TE' && activePage === 'overview'}
-          <a class="primary" href={`/${encodeURIComponent(prosjektId)}/ny`}
+          <a
+            class="primary"
+            href={resolve('/[prosjektId]/ny', { prosjektId: encodeURIComponent(prosjektId) })}
             ><Plus size={17} /> Ny sak</a
           >
         {:else if role === 'BH' && activePage === 'overview'}
-          <a class="primary" href={`/${encodeURIComponent(prosjektId)}/endringsordre/ny`}
-            ><Plus size={17} /> Ny endringsordre</a
+          <a
+            class="primary"
+            href={resolve('/[prosjektId]/endringsordre/ny', {
+              prosjektId: encodeURIComponent(prosjektId),
+            })}><Plus size={17} /> Ny endringsordre</a
           >
         {/if}
       </header>
@@ -177,7 +196,7 @@
           imageAlt={projectImageAlt}
           headingId="mobile-project-summary-title"
         />
-        <a href="/">Bytt prosjekt <ArrowRight size={14} /></a>
+        <a href={resolve('/')}>Bytt prosjekt <ArrowRight size={14} /></a>
       </details>
       {#if demo}<p class="demo-note">Forhåndsvisning med eksempelsaker.</p>{/if}
       {#if loading}
@@ -250,7 +269,7 @@
               </div>
             </div>
             <div class="filters" role="group" aria-label="Saksutvalg">
-              {#each filters as option}<button
+              {#each filters as option (option.id)}<button
                   class:active={filter === option.id}
                   aria-pressed={filter === option.id}
                   onclick={() => (filter = option.id)}

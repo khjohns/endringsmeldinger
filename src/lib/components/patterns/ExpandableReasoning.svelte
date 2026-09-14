@@ -31,6 +31,8 @@
   <span class="eyebrow">{label}</span>
   {#if html}
     <div class="reasoning-text" class:clamped={!expanded && isLong}>
+      <!-- Saniteres med DOMPurify (sanitizeRichText) før rendering. -->
+      <!-- eslint-disable-next-line svelte/no-at-html-tags -->
       {@html safeHtml}
     </div>
     {#if isLong}

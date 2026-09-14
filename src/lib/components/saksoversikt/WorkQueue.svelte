@@ -89,7 +89,8 @@
         <p class="detail">{task.detail}</p>
       </div>
       <div class="task-actions">
-        <span class="track-label">{labels[task.track]}</span><a
+        <span class="track-label">{labels[task.track]}</span
+        ><!-- taskHref bygger stien i domenelaget, som holdes fritt for $app-avhengigheter. --><!-- eslint-disable-next-line svelte/no-navigation-without-resolve --><a
           href={task.track === 'endringsordre'
             ? `${demo ? '/mockup/endringsordre' : `/${encodeURIComponent(projectId)}`}/${encodeURIComponent(task.caseId)}?rolle=${role}`
             : taskHref(task, projectId, scenarios[task.caseId])}

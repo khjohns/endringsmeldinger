@@ -179,7 +179,7 @@
 
   {#if kravlinjer.length > 1}
     <div class="amount-breakdown">
-      {#each kravlinjer as row}
+      {#each kravlinjer as row (row.label)}
         <div class="amount-row">
           <span>{row.label}</span>
           <span class="font-mono">{fmt(row.amount)},-</span>
@@ -272,7 +272,7 @@
             </tr>
           </thead>
           <tbody>
-            {#each bhResponseRows as row}
+            {#each bhResponseRows as row (row.label)}
               <tr>
                 <td>
                   <span class="response-line-title">

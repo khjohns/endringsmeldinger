@@ -218,7 +218,7 @@
 
     {#if assessmentRows.length > 0}
       <div class="assessment-list">
-        {#each assessmentRows as row}
+        {#each assessmentRows as row (`${row.ref}|${row.label}`)}
           <div class="assessment-row">
             <div>
               <strong>{row.label}</strong>

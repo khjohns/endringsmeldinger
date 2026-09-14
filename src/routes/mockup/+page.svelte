@@ -26,5 +26,7 @@
 <Kontrollrommet
   {view}
   onviewchange={(next) =>
+    // Utledet av gjeldende URL (bare query endres), ikke en ny rute.
+    // eslint-disable-next-line svelte/no-navigation-without-resolve
     goto(workspaceViewUrl(page.url, next), { noScroll: true, keepFocus: true })}
 />
