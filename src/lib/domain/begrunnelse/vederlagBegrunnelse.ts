@@ -14,6 +14,8 @@
  */
 
 import type { VederlagsMetode } from '../../types/timeline';
+import type { VederlagDomainConfig } from '../vederlagDomain';
+import { har34_1_2Preklusjon } from '../vederlagDomain';
 import type { BelopVurdering, BegrunnelseGeneratorOptions } from './shared';
 import { formatCurrency, formatProsent, getVurderingVerb } from './shared';
 
@@ -23,6 +25,13 @@ import { formatCurrency, formatProsent, getVurderingVerb } from './shared';
 
 export interface VederlagResponseInput {
   // Claim context
+  /**
+   * Grunnlagets hovedkategori. Avgjør om §34.1.2-preklusjon i det hele tatt
+   * gjelder hovedkravet — ved ENDRING er hjemmelen §34.1.1, som ikke har samme
+   * regel om rettighetstap. Uten kategori påberopes ingen §34.1.2-preklusjon,
+   * likt `har34_1_2Preklusjon()` og feltet `hovedkrav_varslet_i_tide` i hendelsen.
+   */
+  hovedkategori?: VederlagDomainConfig['hovedkategori'];
   metode?: VederlagsMetode;
   hovedkravBelop?: number;
   riggBelop?: number;
@@ -66,6 +75,18 @@ export interface VederlagResponseInput {
 // ============================================================================
 // HELPERS
 // ============================================================================
+
+/**
+ * §34.1.2 rammer bare hovedkravet når grunnlaget er SVIKT/ANDRE. Speiler
+ * gatingen i `buildEventData`, slik at brevteksten og det lagrede feltet
+ * `hovedkrav_varslet_i_tide` ikke kan gi motstridende standpunkt.
+ */
+function erHovedkravPrekludert(input: VederlagResponseInput): boolean {
+  return (
+    input.hovedkravVarsletITide === false &&
+    har34_1_2Preklusjon({ hovedkategori: input.hovedkategori })
+  );
+}
 
 function getEffektivMetode(input: VederlagResponseInput): VederlagsMetode | undefined {
   if (!input.akseptererMetode && input.oensketMetode) {
@@ -180,8 +201,7 @@ function generateHovedkravSection(
   input: VederlagResponseInput,
   options: BegrunnelseGeneratorOptions = {}
 ): string {
-  const { hovedkravVurdering, hovedkravBelop, hovedkravGodkjentBelop, hovedkravVarsletITide } =
-    input;
+  const { hovedkravVurdering, hovedkravBelop, hovedkravGodkjentBelop } = input;
   const { useTokens = false } = options;
 
   if (!hovedkravBelop) {
@@ -189,7 +209,7 @@ function generateHovedkravSection(
   }
 
   const lines: string[] = [];
-  const isPrekludert = hovedkravVarsletITide === false;
+  const isPrekludert = erHovedkravPrekludert(input);
   const terminologi = getMetodeTerminologi(input);
   if (isPrekludert) {
     lines.push(
@@ -378,7 +398,7 @@ function generateKonklusjonSection(
   if (input.harPrekludertKrav && input.totalGodkjentSubsidiaer !== undefined) {
     const diff = input.totalGodkjentSubsidiaer - input.totalGodkjent;
     if (diff > 0) {
-      const hovedkravPrekludert = input.hovedkravVarsletITide === false;
+      const hovedkravPrekludert = erHovedkravPrekludert(input);
       const kravType = hovedkravPrekludert ? 'kravene' : 'særskilte kravene';
       lines.push(
         `Dersom de prekluderte ${kravType} hadde vært varslet i tide, ville samlet ${terminologi.belopLabel} ` +
