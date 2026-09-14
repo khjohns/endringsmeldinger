@@ -176,6 +176,28 @@ prosjekter. Et utløpt statisk `CATENDA_ACCESS_TOKEN` stopper bakgrunnssynk og t
 når cachen utløper. Verifiser driftsopplegget for tjenestetoken før produksjonssetting;
 client credentials er ifølge Catenda bare tilgjengelig for Boost-kunder.
 
+## Brukerbekreftet innloggingstest 2026-09-14
+
+Brukeren rapporterer vellykket Catenda-innlogging både med egen konto og en
+kollegas konto, gjennom testflyten nedenfor. Dette er to reelle kontotester,
+ikke bare stubber. Resultatet er brukerbekreftet; Codex har ikke observert testene
+eller hentet tokens. Testflyten bruker minnelager og verifiserer ikke Supabase-drift.
+
+Dette støtter at OAuth-flyten fungerer for flere individuelle Catenda-kontoer.
+En ekstern brukerkonto er foreløpig **ikke testet**. Forventningen er samme OAuth-flyt,
+men prosjektmedlemskap, eventuell prosjektgodkjenning og TE/BH-teamtilgang må fortsatt
+verifiseres for en representativ ekstern konto før den banen markeres testet.
+
+Brukeren bekrefter også at Catenda-prosjektene opprettes med egne TE- og BH-team.
+Brukeren har nå bekreftet at navnene `@BYGGHERRE` og `@TE-(PL og PGL)` brukes i
+alle prosjekter. Dette er brukerbekreftet standardisering, ikke en automatisk
+inventering av alle prosjektene. Navnene kan brukes til å finne team ved oppsett,
+men medlemskap kontrolleres fortsatt mot team-ID: appen bruker eksplisitt mapping
+av team-ID-er per prosjekt i `CATENDA_CONTRACT_TEAMS`. Prosjektmedlemskap gir adgang
+til prosjektet; entydig teammedlemskap bestemmer kontraktssiden ved beskyttede
+handlinger. Manglende mapping eller medlemskap i begge sider gir ingen skriverett.
+Faktiske team-ID-er må registreres for hvert prosjekt; ingen ID-er er gjettet her.
+
 ## Gjenstående eksterne avklaringer
 
 En ekte OAuth-test kan kjøres med den eksisterende lokale callbacken:
@@ -196,8 +218,9 @@ Et eksisterende organisasjonstoken fra oppsettsskriptet er ikke personinnlogging
 - Om appen trenger særskilt prosjektgodkjenning må bekreftes med Catenda.
 - Bekreft at `members?userType=user` omfatter ønsket tilgang gjennom team/organisasjon.
   Inntil da gir løsningen bare tilgang til brukere som faktisk finnes i denne listen.
-- Gjennomfør en ekte nettleserinnlogging med registrert callback og en bruker i et
-  konfigurert prosjekt. Automatiske tester bruker stubbet Catenda og lokal database.
+- Ekte nettleserinnlogging er brukerbekreftet for to kontoer som beskrevet over.
+  Suppler med en representativ ekstern konto og verifiser prosjekt-/teamtilgangen.
+  Automatiske tester bruker fortsatt stubbet Catenda og lokal database.
 
 Kilder: [Catenda OAuth](https://developers.catenda.com/authentication),
 [Catenda-bruker](https://developers.catenda.com/user-api/get-current-user),

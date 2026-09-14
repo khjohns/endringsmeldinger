@@ -35,8 +35,10 @@ describe('cookie authentication', () => {
     await apiFetch('/api/auth/logout', { method: 'POST' });
     expect(fetch.mock.calls[0][1].credentials).toBe('include');
     expect(fetch.mock.calls[1][1].credentials).toBe('include');
-    expect(fetch.mock.calls[1][1].headers['X-CSRF-Token']).toBe('csrf-for-session');
-    expect(fetch.mock.calls[1][1].headers.Authorization).toBeUndefined();
+    expect(new Headers(fetch.mock.calls[1][1].headers).get('X-CSRF-Token')).toBe(
+      'csrf-for-session'
+    );
+    expect(new Headers(fetch.mock.calls[1][1].headers).has('Authorization')).toBe(false);
   });
 
   it('delegates OAuth state and callback construction to the backend', () => {

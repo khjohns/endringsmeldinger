@@ -84,3 +84,8 @@ Matrisen for «endring i kontrakt» er oppgitt av brukeren: Prosjektleder 200 00
 Visningen sammenligner TEs krav for inkluderte vurderinger med BHs standpunkt. Foreløpig regel er høyeste samlede prinsipale eller subsidiære standpunkt, med vederlag og fristverdi lagt sammen innen hvert standpunkt. Fristverdi er godkjente dager × dagmulktssats i kroner per dag. Subsidiært standpunkt tas med selv når ansvarsgrunnlaget er avslått. Manglende sats gir uavklart verdi, ikke null. En sats på én promille av kontraktsverdi antas ikke automatisk; satsen må finnes i saks-/kontraktsdata.
 
 Beregningsinngangene lagres i den interne brevpakken ved innsending, og utelates fra mottakerens brev/PDF. Eldre pakker uten disse inngangene får ikke en etterberegning med dagens sats. Dette er en beregningshjelp i UI, ikke serververifisert fullmaktskontroll. Visningen varsler dersom den konfigurerte kjeden mangler en tilstrekkelig rolle. Den endrer ikke kjeden, gir ikke rettigheter og blokkerer ikke publisering. Automatisk ruting og håndheving krever serverstyrt rolle-/fullmaktstildeling og kontraktsgrunnlag.
+
+
+Driftsavklaring 2026-09-14: brukeren oppgir én Flask-backendinstans og at appen
+ikke er i produksjon. Se [persistens og gjenoppretting](audit-persistens-gjenoppretting-2026-09-14.md)
+for lokale krasj-/prosesstester og lagringsavklaringer før produksjonssetting.
