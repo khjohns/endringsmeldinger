@@ -9,6 +9,19 @@ const NORWEGIAN_TIMEZONE = 'Europe/Oslo';
 const NORWEGIAN_LOCALE = 'nb-NO';
 
 /**
+ * Parser en datostreng og returnerer null når den ikke er gyldig.
+ *
+ * `new Date(...)` kaster ikke på ugyldig inndata — den gir `Invalid Date`, og
+ * `toLocaleDateString`/`toLocaleString` returnerer da den engelske strengen
+ * «Invalid Date». Et `try/catch` rundt formateringen fanger derfor ingenting.
+ * Funksjonene under bruker denne hjelperen for å nå sitt tiltenkte fallback.
+ */
+export function parseDateSafe(dateStr: string): Date | null {
+  const parsed = new Date(dateStr);
+  return Number.isNaN(parsed.getTime()) ? null : parsed;
+}
+
+/**
  * Format date string to Norwegian locale and timezone.
  * Assumes input is UTC ISO string from backend.
  *
@@ -16,16 +29,14 @@ const NORWEGIAN_LOCALE = 'nb-NO';
  */
 export function formatDateNorwegian(dateStr: string | undefined): string {
   if (!dateStr) return '—';
-  try {
-    return new Date(dateStr).toLocaleDateString(NORWEGIAN_LOCALE, {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric',
-      timeZone: NORWEGIAN_TIMEZONE,
-    });
-  } catch {
-    return dateStr;
-  }
+  const parsed = parseDateSafe(dateStr);
+  if (!parsed) return dateStr;
+  return parsed.toLocaleDateString(NORWEGIAN_LOCALE, {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+    timeZone: NORWEGIAN_TIMEZONE,
+  });
 }
 
 /**
@@ -35,36 +46,32 @@ export function formatDateNorwegian(dateStr: string | undefined): string {
  */
 export function formatDateTimeNorwegian(dateStr: string | undefined): string {
   if (!dateStr) return '—';
-  try {
-    return new Date(dateStr).toLocaleString(NORWEGIAN_LOCALE, {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      timeZone: NORWEGIAN_TIMEZONE,
-    });
-  } catch {
-    return dateStr;
-  }
+  const parsed = parseDateSafe(dateStr);
+  if (!parsed) return dateStr;
+  return parsed.toLocaleString(NORWEGIAN_LOCALE, {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    timeZone: NORWEGIAN_TIMEZONE,
+  });
 }
 
 /**
  * Format date to short Norwegian format (DD.MM).
  *
- * @example formatDateMinimalNorwegian('2025-12-22T14:30:00Z') // '22.12'
+ * @example formatDateMinimalNorwegian('2025-12-22T14:30:00Z') // '22.12.'
  */
 export function formatDateMinimalNorwegian(dateStr: string | undefined): string {
   if (!dateStr) return '—';
-  try {
-    return new Date(dateStr).toLocaleDateString(NORWEGIAN_LOCALE, {
-      day: '2-digit',
-      month: '2-digit',
-      timeZone: NORWEGIAN_TIMEZONE,
-    });
-  } catch {
-    return dateStr;
-  }
+  const parsed = parseDateSafe(dateStr);
+  if (!parsed) return dateStr;
+  return parsed.toLocaleDateString(NORWEGIAN_LOCALE, {
+    day: '2-digit',
+    month: '2-digit',
+    timeZone: NORWEGIAN_TIMEZONE,
+  });
 }
 
 /**
@@ -91,16 +98,14 @@ export function getNowNorwegian(): string {
  */
 export function formatDateShortNorwegian(dateStr: string | undefined): string {
   if (!dateStr) return '';
-  try {
-    return new Date(dateStr).toLocaleDateString(NORWEGIAN_LOCALE, {
-      day: 'numeric',
-      month: 'short',
-      year: 'numeric',
-      timeZone: NORWEGIAN_TIMEZONE,
-    });
-  } catch {
-    return dateStr;
-  }
+  const parsed = parseDateSafe(dateStr);
+  if (!parsed) return dateStr;
+  return parsed.toLocaleDateString(NORWEGIAN_LOCALE, {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+    timeZone: NORWEGIAN_TIMEZONE,
+  });
 }
 
 /**
@@ -113,16 +118,14 @@ export function formatDateShortNorwegian(dateStr: string | undefined): string {
  */
 export function formatDateTimeCompact(dateStr: string | undefined, fallback: string = '-'): string {
   if (!dateStr) return fallback;
-  try {
-    return new Date(dateStr).toLocaleString(NORWEGIAN_LOCALE, {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      timeZone: NORWEGIAN_TIMEZONE,
-    });
-  } catch {
-    return dateStr;
-  }
+  const parsed = parseDateSafe(dateStr);
+  if (!parsed) return dateStr;
+  return parsed.toLocaleString(NORWEGIAN_LOCALE, {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    timeZone: NORWEGIAN_TIMEZONE,
+  });
 }
