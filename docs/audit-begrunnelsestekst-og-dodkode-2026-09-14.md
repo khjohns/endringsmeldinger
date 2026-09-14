@@ -215,9 +215,10 @@ Et kontrollpunkt markert OK gjelder bare det beskrevne scenariet og den auditert
 koden. Hypoteser skal ikke rapporteres som bekreftede funn uten kodebevis eller
 reproduksjon.
 
-Neste delgjennomgang, valgt av bruker: `utils/formatters.ts` (29,6 % dekning) og
-`utils/dateFormatters.ts` (35 %). Begge er live, og formatering av beløp, dager og
-datoer går rett inn i brevtekst som sendes til motparten.
+Neste delgjennomgang er gjennomført:
+[formatering av datoer, beløp og dager](audit-formatering-2026-09-14.md). Den fant og
+rettet uvirksom feilhåndtering som lot «Invalid Date» og et falskt rødt SLA-merke nå
+visningen, og hevet dekningen til 100 % / 90 %.
 
 Øvrige uauditerte områder: forseringsflyten ende-til-ende — `forseringBegrunnelse.ts`
 er beholdt, men er fortsatt unådd fra frontend selv om backend har
