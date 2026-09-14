@@ -1,5 +1,6 @@
 <script lang="ts">
   import { Tooltip } from 'bits-ui';
+  import '$lib/components/kontraktsbord/theme.css';
   import '../app.css';
   import { logout } from '$lib/api/auth';
   let { children, data } = $props();
