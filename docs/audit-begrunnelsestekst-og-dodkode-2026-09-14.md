@@ -14,9 +14,10 @@ Selve beregningsdomenet (`src/lib/domain/`) er solid: 96,6 % linjedekning og ing
 funn i denne runden. Problemene ligger i *tekstgeneratorene* rundt det, og i at en
 betydelig del av NS 8407-regelkoden ikke er koblet til noen rute.
 
-Ett bekreftet funn med rettslig betydning er rettet (BEGR-01). To forhold er
-kartlagt og dokumentert, men ikke endret, fordi disposisjonen er en produktbeslutning
-(DØD-01) eller en preeksisterende tilstand utenfor denne rundens omfang (HYG-01).
+Ett bekreftet funn med rettslig betydning er rettet (BEGR-01), og en rød test er
+gjenopprettet (TEST-01). Den unådde koden er kartlagt og deretter ryddet etter
+brukerens beslutning (DØD-01). Ett forhold er dokumentert uten å endres, fordi det er
+en preeksisterende tilstand utenfor denne rundens omfang (HYG-01).
 
 ## Funn og retting
 
@@ -81,7 +82,7 @@ lå i testens mock.
 beholdes og bare nettverkskallet stubbes. Nye eksporter fra `client.ts` vil ikke
 bryte testen på nytt.
 
-### DØD-01 — Middels: NS 8407-regelmoduler uten noen rute som når dem — kartlagt, ikke endret
+### DØD-01 — Middels: NS 8407-regelmoduler uten noen rute som når dem — ryddet
 
 Reachability-analyse fra `src/routes/**` med transitiv import-følging: 173 filer er
 nåbare, 28 er det ikke (~121 KB, når `app.d.ts` og `test-setup.ts` holdes utenfor
@@ -115,8 +116,8 @@ opprydding:
    uten ny gjennomgang, begynner appen å gi juridiske råd etter tommelfingerregler som
    ikke er forankret i NS 8407-teksten.
 
-Disposisjonen — slette, eller koble inn og kvalitetssikre — er en produktbeslutning
-og er derfor ikke gjort her. Se «Åpen beslutning».
+**Disposisjon, besluttet av bruker:** `forseringBegrunnelse.ts` beholdes; resten
+slettes. Se «Gjennomført opprydding».
 
 Noterte svakheter i `preklusjonssjekk.ts` dersom den vurderes gjenbrukt (ikke rettet,
 siden koden er unådd): `sjekkBHPassivitet` gir bare kritisk status når
@@ -144,12 +145,26 @@ i denne runden er rene.
 
 ## Verifikasjon
 
+Før opprydding, etter rettingene i BEGR-01/TEST-01:
+
 ```sh
 npx vitest run                 # 523 tester, 51 filer — alle passerer
 npm run check                  # 0 feil, 19 eksisterende advarsler
 npm run build                  # passerer
 npx eslint <endrede filer>     # rent (59 preeksisterende feil ellers i repoet)
 ```
+
+Etter opprydding:
+
+```sh
+npx vitest run                 # 510 tester, 50 filer — alle passerer
+npm run check                  # 0 feil, 18 advarsler
+npm run build                  # passerer
+npx eslint .                   # 54 preeksisterende feil (fem lå i slettede filer)
+```
+
+Differansen på 13 tester er `varslingStatus.test.ts`, som fulgte modulen sin. Ingen
+gjenværende test måtte endres for å kompensere for slettingen.
 
 Ny testfil `src/lib/domain/__tests__/vederlagBegrunnelse.test.ts` har 17 tester.
 Fire av dem feilet mot koden før rettingen og er nå ordinære regresjonstester, uten
@@ -160,19 +175,38 @@ og `package-lock.json` er uendret.
 
 Ingen backendendringer, ingen Supabase/RLS-endringer og ingen live Catenda-kall.
 
-## Åpen beslutning
+## Gjennomført opprydding
 
-Disposisjonen av de 28 unådde filene trenger en avgjørelse før neste runde:
+27 filer er slettet: de 26 unådde modulene utenom `forseringBegrunnelse.ts`, pluss
+`utils/__tests__/varslingStatus.test.ts`, som testet en slettet modul. Katalogen
+`components/shared/` ble tom og er borte.
 
-1. **Slett** det som er forlatt. Reduserer risikoen for at feil regelmodell kobles
-   inn senere. Historikken beholder koden.
-2. **Koble inn** det som fortsatt er ønsket — særlig varslingsstatus-matrisen, som
-   er spesifisert i fase 2-planen. Krever egen gjennomgang av regelinnholdet før
-   det vises til brukere.
-3. **La ligge** med en eksplisitt markering av at modulene ikke er i bruk.
+To filer ble holdt tilbake etter kontroll, og det er grunnen til at listen her ikke er
+identisk med rekkeviddeanalysens:
 
-`preklusjonssjekk.ts` bør ikke kobles inn uten at tersklene forankres i kontrakts-
-teksten, og uten at de tre svakhetene over rettes.
+- **`domain/begrunnelse/forseringBegrunnelse.ts`** — beholdt etter brukerens
+  beslutning. Den avhenger bare av `./shared`, som er live, og står derfor trygt
+  alene. Barrelen `domain/begrunnelse/index.ts` er slettet med resten; forsering kan
+  importeres direkte, slik frist- og vederlagsgeneratorene allerede gjør.
+- **`mocks/saksoversikt.ts`** — *ikke* slettet. Rekkeviddeanalysen regner den som
+  unådd fordi den ikke nås fra en rute, men den er en aktiv testfixture for seks
+  levende testfiler (`ProjectOverview`, `ProjectActivity`, `WorkQueue`, `activity`,
+  `overview` og `domain/__tests__/followUp`). «Unådd fra en rute» er altså ikke det
+  samme som «trygg å slette»; referansene fra tester må kontrolleres særskilt.
+
+`.interface-design/system.md` beskriver fortsatt `SakPanel` og `OversiktSidebar` som
+del av designsystemet. Spesifikasjonen er ikke endret her — den er et designdokument,
+ikke en kodereferanse — men avviket bør avklares: enten er komponentene ønsket og må
+bygges på nytt, eller så beskriver spesifikasjonen en visning produktet ikke har.
+
+Sletting av `varslingStatus.ts` fjerner samtidig den eneste implementeringen av
+varslingsstatus-matrisen fra fase 2-planen. Skal den funksjonen leveres, må
+regelinnholdet gjennomgås på nytt før det vises til brukere — den slettede koden er
+ikke kvalitetssikret for det formålet. Historikken beholder den.
+
+`preklusjonssjekk.ts` er slettet. Blir en preklusjonsberegning aktuell senere, bør
+den ikke hentes tilbake uten at tersklene (3/7/10/14/21 dager) forankres i
+kontraktsteksten, og uten at de tre svakhetene over rettes.
 
 ## Gjenopptakelse
 
@@ -181,6 +215,11 @@ Et kontrollpunkt markert OK gjelder bare det beskrevne scenariet og den auditert
 koden. Hypoteser skal ikke rapporteres som bekreftede funn uten kodebevis eller
 reproduksjon.
 
-Naturlige neste områder, fortsatt uauditert: `forseringBegrunnelse` og forseringsflyten
-ende-til-ende, `utils/formatters.ts` (29,6 %) og `utils/dateFormatters.ts` (35 %) som
-begge er live, samt frontendfeil ved nettverksbrudd og prosjektbytte.
+Neste delgjennomgang, valgt av bruker: `utils/formatters.ts` (29,6 % dekning) og
+`utils/dateFormatters.ts` (35 %). Begge er live, og formatering av beløp, dager og
+datoer går rett inn i brevtekst som sendes til motparten.
+
+Øvrige uauditerte områder: forseringsflyten ende-til-ende — `forseringBegrunnelse.ts`
+er beholdt, men er fortsatt unådd fra frontend selv om backend har
+`forsering_routes.py`/`forsering_service.py` — samt frontendfeil ved nettverksbrudd og
+prosjektbytte.
