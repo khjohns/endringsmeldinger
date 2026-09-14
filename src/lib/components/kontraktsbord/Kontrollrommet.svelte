@@ -1,4 +1,5 @@
 <script lang="ts">
+  import CatendaSyncNotice from './CatendaSyncNotice.svelte';
   import { readPreferredRole, savePreferredRole } from '$lib/utils/rolePreference';
   import { assessedGap } from './derive';
   import { getCaseWorkspace } from '$lib/kontraktsbord/context.svelte';
@@ -206,6 +207,10 @@
       onnewcase={startNewCase}
       ondarkchange={(v) => (dark = v)}
     />
+
+    {#if !store.isDemo && !creatingCase}
+      <CatendaSyncNotice status={store.catendaSyncStatus} />
+    {/if}
 
     {#if !store.isDemo && !creatingCase && mode === 'read'}
       <EndringsordreLink state={store.sak} projectId={store.projectId} {role} />

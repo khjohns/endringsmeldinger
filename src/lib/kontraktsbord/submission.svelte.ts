@@ -1,3 +1,4 @@
+import { orderTimeline } from '$lib/utils/timelineOrder';
 import { LetterCancelled } from '$lib/approval/claimReview.svelte';
 import type { TimelineEvent, SporType } from '$lib/types/timeline';
 import { onMount } from 'svelte';
@@ -5,9 +6,7 @@ import { draftKey, loadDraft, saveDraft, clearDraft } from '$lib/utils/draft';
 
 /** Resolve claims explicitly: a track's siste_event_id may point to a BH response. */
 export function submissionRefs(timeline: TimelineEvent[], spor: SporType) {
-  timeline = [...timeline].sort(
-    (a, b) => (Date.parse(a.time ?? '') || 0) - (Date.parse(b.time ?? '') || 0)
-  );
+  timeline = orderTimeline(timeline);
   const claimTypes =
     spor === 'grunnlag'
       ? ['grunnlag_opprettet', 'grunnlag_oppdatert']

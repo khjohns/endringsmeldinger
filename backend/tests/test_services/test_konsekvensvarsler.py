@@ -1,11 +1,19 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import pytest
 from pydantic import ValidationError
 
 from models.events import (
-    EventType, FristData, FristEvent, GrunnlagData, GrunnlagEvent,
-    KonsekvensVarsler, VarselInfo, VederlagData, VederlagEvent, parse_event,
+    EventType,
+    FristData,
+    FristEvent,
+    GrunnlagData,
+    GrunnlagEvent,
+    KonsekvensVarsler,
+    VarselInfo,
+    VederlagData,
+    VederlagEvent,
+    parse_event,
 )
 from services.business_rules import BusinessRuleValidator
 from services.catenda_comment_generator import CatendaCommentGenerator
@@ -15,7 +23,7 @@ from services.timeline_service import TimelineService
 def grunnlag(**varsler):
     return GrunnlagEvent(
         sak_id="NOTICE-1", aktor="TE", aktor_rolle="TE",
-        tidsstempel=datetime(2026, 9, 6, 22, 30, tzinfo=timezone.utc),
+        tidsstempel=datetime(2026, 9, 6, 22, 30, tzinfo=UTC),
         data=GrunnlagData(tittel="Forsinket underlag", hovedkategori="SVIKT",
                           beskrivelse="Tegninger mangler", dato_oppdaget="2026-09-01",
                           varsler=KonsekvensVarsler(**varsler)),
@@ -65,7 +73,7 @@ def test_neutral_notices_do_not_assign_bh_a_calculation_response():
 
 def test_specification_preserves_original_notices_and_dates():
     basis = grunnlag(rigg_drift="Rigg vil påløpe", frist="Krever frist")
-    later = datetime(2026, 9, 9, tzinfo=timezone.utc)
+    later = datetime(2026, 9, 9, tzinfo=UTC)
     money = VederlagEvent(sak_id=basis.sak_id, aktor="TE", aktor_rolle="TE",
         tidsstempel=later, data=VederlagData(metode="ENHETSPRISER", belop_direkte=12000,
         begrunnelse="Beregnet krav", rigg_drift_varsel=VarselInfo(dato_sendt="2026-09-09")))
@@ -88,10 +96,10 @@ def test_specification_preserves_original_notices_and_dates():
 def test_later_notice_does_not_replace_existing_claim_or_its_response():
     basis = grunnlag()
     claim = VederlagEvent(sak_id=basis.sak_id, aktor="TE", aktor_rolle="TE",
-        tidsstempel=datetime(2026, 9, 8, tzinfo=timezone.utc),
+        tidsstempel=datetime(2026, 9, 8, tzinfo=UTC),
         data=VederlagData(metode="ENHETSPRISER", belop_direkte=12000, begrunnelse="Beregnet"))
     notice = VederlagEvent(sak_id=basis.sak_id, aktor="TE", aktor_rolle="TE",
-        tidsstempel=datetime(2026, 9, 9, tzinfo=timezone.utc),
+        tidsstempel=datetime(2026, 9, 9, tzinfo=UTC),
         data=VederlagData(varsel_type="varsel", begrunnelse="Nye riggkostnader",
                          varsler=KonsekvensVarsler(rigg_drift="Rigg vil påløpe")))
     service = TimelineService()
@@ -118,7 +126,8 @@ def test_invalid_notice_or_claim_rejected(data):
 def test_force_majeure_allows_initial_and_later_compensation_notices():
     event = grunnlag(vederlag="Krever vederlag", rigg_drift="Rigg", produktivitet="Produktivitet", frist="Frist")
     event.data.hovedkategori = "FORCE_MAJEURE"
-    initial = TimelineService().compute_state([grunnlag()])
+    from models.sak_state import SakState
+    initial = SakState(sak_id=event.sak_id)
     validator = BusinessRuleValidator()
     assert validator.validate(event, initial).is_valid
     state = TimelineService().compute_state([event])

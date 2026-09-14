@@ -12,7 +12,8 @@ from routes import event_routes
 
 
 @pytest.fixture
-def api(monkeypatch):
+def api(monkeypatch, tmp_path):
+    monkeypatch.setenv("BH_APPROVAL_DB", str(tmp_path / "approval.sqlite"))
     monkeypatch.delenv("DISABLE_AUTH", raising=False)
     monkeypatch.delenv("BH_APPROVAL_POLICIES", raising=False)
     app = Flask(__name__)
@@ -126,3 +127,100 @@ def test_bh_cannot_submit_te_claim_even_without_existing_events(api, batch):
         body["events"] = [body.pop("event")]
     assert post(api, body, batch).status_code == 403
     api.container.event_repository.get_events.assert_not_called()
+
+
+@pytest.mark.parametrize("failure", ["catenda", "catenda_auth", "cache"])
+def test_committed_event_is_successful_when_secondary_work_fails(
+    api, monkeypatch, failure
+):
+    from integrations.catenda import CatendaAuthError
+    from services.timeline_service import TimelineService
+
+    api.container.event_repository.get_events.return_value = ([], 0)
+    api.container.event_repository.append.return_value = 1
+    api.container.timeline_service = TimelineService()
+    monkeypatch.setattr(event_routes, "_ensure_catenda_auth", lambda _: None)
+    monkeypatch.setattr(
+        "core.config.settings", SimpleNamespace(is_catenda_enabled=True)
+    )
+    sync = Mock(return_value=(True, "server", []))
+    monkeypatch.setattr(event_routes, "_post_to_catenda", sync)
+    if failure == "cache":
+        api.container.metadata_repository.update_cache.side_effect = RuntimeError(
+            "Cache unavailable"
+        )
+    else:
+        sync.side_effect = (
+            CatendaAuthError("Token expired")
+            if failure == "catenda_auth"
+            else RuntimeError("Upload failed")
+        )
+    body = payload()
+    body["expected_version"] = 0
+    response = post(api, body)
+    api.container.event_repository.append.assert_called_once()
+    assert response.status_code == 201, response.json
+    assert response.json["success"] is True
+    assert response.json["new_version"] == 1
+    if failure != "cache":
+        assert response.json["catenda_synced"] is False
+
+
+@pytest.mark.parametrize("encoded", ["not base64", "aGVsbG8=", "", 123])
+def test_invalid_pdf_is_rejected_before_event_commit(api, encoded):
+    body = payload()
+    body["pdf_base64"] = encoded
+    response = post(api, body)
+    assert response.status_code == 400
+    api.parser.assert_not_called()
+    api.container.event_repository.append.assert_not_called()
+
+
+def test_committed_batch_survives_cache_failure(api):
+    from models.events import SakOpprettetEvent
+    from services.timeline_service import TimelineService
+
+    created = SakOpprettetEvent(
+        sak_id="case", aktor="TE", aktor_rolle="TE", sakstittel="Sak"
+    )
+    api.container.event_repository.get_events.return_value = (
+        [created.model_dump(mode="json")],
+        1,
+    )
+    api.container.event_repository.append_batch.return_value = 2
+    api.container.timeline_service = TimelineService()
+    api.container.metadata_repository.update_cache.side_effect = RuntimeError(
+        "Cache unavailable"
+    )
+    body = payload()
+    body["events"] = [body.pop("event")]
+    response = post(api, body, batch=True)
+    api.container.event_repository.append_batch.assert_called_once()
+    assert response.status_code == 201, response.json
+    assert response.json["new_version"] == 2
+
+
+def test_failed_delivery_is_in_reloaded_case_context(api, monkeypatch):
+    from services.timeline_service import TimelineService
+
+    api.container.event_repository.get_events.return_value = ([], 0)
+    api.container.event_repository.append.return_value = 1
+    api.container.timeline_service = TimelineService()
+    monkeypatch.setattr(event_routes, "_ensure_catenda_auth", lambda _: None)
+    monkeypatch.setattr(
+        "core.config.settings", SimpleNamespace(is_catenda_enabled=True)
+    )
+    monkeypatch.setattr(
+        event_routes, "_post_to_catenda", Mock(return_value=(False, None, []))
+    )
+    body = payload()
+    body["expected_version"] = 0
+    assert post(api, body).status_code == 201
+    event = api.container.event_repository.append.call_args.args[0]
+    api.container.event_repository.get_events.return_value = (
+        [event.model_dump(mode="json")],
+        1,
+    )
+    result = api.client.get("/api/cases/case/context", headers={"X-Project-ID": "p"})
+    assert result.status_code == 200, result.json
+    assert result.json["catenda_sync"] == {"status": "failed", "outstanding": 1}

@@ -4,7 +4,7 @@ import {
   deriveFristDomainConfig,
 } from '$lib/components/kontraktsbord/derive';
 import { getContext, setContext } from 'svelte';
-import { apiFetch } from '$lib/api/client';
+import { apiFetch, ApiError } from '$lib/api/client';
 import type { CaseWorkspace } from '$lib/kontraktsbord/context.svelte';
 import { submissionRefs } from '$lib/kontraktsbord/submission.svelte';
 import type { EventType, SporType } from '$lib/types/timeline';
@@ -23,6 +23,7 @@ export function createApprovalWorkspace(store: CaseWorkspace) {
   let actor = $state(store.isDemo ? demoUsers[0].id : '');
   let chain = $state<ApprovalUser[]>(store.isDemo ? demoUsers.slice(1) : []);
   let canPrepare = $state(store.isDemo);
+  let dailyRate = $state<number | null>(null);
   let error = $state('');
   let busy = $state(false);
   let loaded = $state(store.isDemo);
@@ -65,11 +66,13 @@ export function createApprovalWorkspace(store: CaseWorkspace) {
     actor: string;
     chain: ApprovalUser[];
     canPrepare: boolean;
+    dailyRate?: number | null;
   }) {
     state = result.state;
     actor = result.actor;
     chain = result.chain;
     canPrepare = result.canPrepare;
+    dailyRate = result.dailyRate ?? null;
     loaded = true;
   }
   async function load() {
@@ -112,6 +115,7 @@ export function createApprovalWorkspace(store: CaseWorkspace) {
         }
       }
     } catch (cause) {
+      if (cause instanceof ApiError && cause.status === 409) await load();
       error = cause instanceof Error ? cause.message : 'Handlingen kunne ikke fullføres.';
       throw cause;
     } finally {
@@ -131,6 +135,9 @@ export function createApprovalWorkspace(store: CaseWorkspace) {
     },
     get canPrepare() {
       return canPrepare;
+    },
+    get dailyRate() {
+      return dailyRate;
     },
     get error() {
       return error;

@@ -7,6 +7,17 @@ function event(id: string, type: string, time: string): TimelineEvent {
 }
 
 describe('submission references', () => {
+  it('uses committed positions when the latest claim has an older timestamp', () => {
+    const first = {
+      ...event('first', 'grunnlag_opprettet', '2026-09-05T12:00:00Z'),
+      streamposition: 1,
+    };
+    const revision = {
+      ...event('revision', 'grunnlag_oppdatert', '2026-09-04T12:00:00Z'),
+      streamposition: 2,
+    };
+    expect(submissionRefs([revision, first], 'grunnlag').claimId).toBe('revision');
+  });
   it('does not let a supplementary neutral notice replace a specified claim or its response', () => {
     const claim = event('claim', 'vederlag_krav_sendt', '2026-09-03T12:00:00Z');
     const response = event('response', 'respons_vederlag', '2026-09-04T12:00:00Z');

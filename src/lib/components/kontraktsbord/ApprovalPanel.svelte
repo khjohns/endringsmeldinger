@@ -23,7 +23,6 @@
   import { decisionSummary, documentToBrev, letterText } from '$lib/approval/letter';
   import AuthoritySummary from './AuthoritySummary.svelte';
   import { authorityMatrix } from '$lib/approval/authority';
-  import { projectStore } from '$lib/stores/project.svelte';
   import LetterPreviewModal from './LetterPreviewModal.svelte';
   import { formatDateNorwegian } from '$lib/utils/dateFormatters';
 
@@ -68,12 +67,7 @@
   );
   const draftLetter: LetterDocument = $derived({
     authorityContext: {
-      dailyRate:
-        store.sak.dagmulktsats ||
-        (!store.isDemo && projectStore.current?.id === store.projectId
-          ? projectStore.current.settings.contract?.dagmulkt_sats
-          : null) ||
-        null,
+      dailyRate: store.isDemo ? store.sak.dagmulktsats || null : review.dailyRate,
       claimedMoney: store.sak.vederlag.krevd_belop ?? store.sak.vederlag.netto_belop ?? 0,
       claimedDays: store.sak.frist.krevd_dager ?? 0,
       matrixVersion: '2026-01',

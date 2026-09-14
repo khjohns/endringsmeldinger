@@ -84,3 +84,21 @@ def test_letter_draft_persists_without_public_events(api):
         == "Hei"
     )
     container.event_repository.append_batch.assert_not_called()
+
+
+def test_daily_rate_comes_from_project_settings_or_server_override(api, monkeypatch):
+    client, container = api
+    container.project_repository = Mock(spec=["get"])
+    container.project_repository.get.return_value = SimpleNamespace(
+        settings={"contract": {"dagmulkt_sats": 12000}}
+    )
+    assert client.get("/api/cases/c1/approvals").json["dailyRate"] == 12000
+    container.project_repository.get.assert_called_once_with("p1")
+    monkeypatch.setenv(
+        "BH_APPROVAL_POLICIES",
+        json.dumps(
+            {"p1": {"handlers": ["test@example.com"], "chain": [], "daily_rate": 15000}}
+        ),
+    )
+    assert client.get("/api/cases/c1/approvals").json["dailyRate"] == 15000
+    container.project_repository.get.assert_called_once()

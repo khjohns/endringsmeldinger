@@ -7,6 +7,7 @@ Generates PDF showing current state and last events per track.
 
 import re
 from datetime import UTC, datetime
+from html import escape
 from io import BytesIO
 from typing import Any, TypedDict
 from zoneinfo import ZoneInfo
@@ -222,7 +223,7 @@ class ReportLabPdfGenerator:
 
         for line in lines:
             # Escape XML special characters first (but preserve markdown)
-            line = line.replace("&", "&amp;")
+            line = escape(line)
 
             # Headers: ### must come before ## which must come before #
             if line.startswith("### "):
@@ -376,7 +377,7 @@ class ReportLabPdfGenerator:
             )
             story.append(
                 Paragraph(
-                    f"Generert: {_get_norwegian_time()} | Sak-ID: {state.sak_id}",
+                    f"Generert: {_get_norwegian_time()} | Sak-ID: {escape(state.sak_id)}",
                     self.styles["KoeSmallText"],
                 )
             )
@@ -1000,7 +1001,7 @@ class ReportLabPdfGenerator:
             eo.status.value if hasattr(eo.status, "value") else str(eo.status)
         )
         elements.append(
-            Paragraph(f"<b>Status:</b> {status_label}", self.styles["KoeBodyText"])
+            Paragraph(f"<b>Status:</b> {escape(status_label)}", self.styles["KoeBodyText"])
         )
 
         return elements
@@ -1041,7 +1042,7 @@ class ReportLabPdfGenerator:
                 event_type = self._format_event_type(te_event.get("event_type", ""))
                 elements.append(
                     Paragraph(
-                        f"<b>Entreprenør ({date}):</b> {event_type}",
+                        f"<b>Entreprenør ({escape(date)}):</b> {escape(event_type)}",
                         self.styles["KoeBodyText"],
                     )
                 )
@@ -1058,14 +1059,14 @@ class ReportLabPdfGenerator:
                     resultat_display = self._format_status(resultat)
                     elements.append(
                         Paragraph(
-                            f"<b>Byggherre ({date}):</b> {event_type} - {resultat_display}",
+                            f"<b>Byggherre ({escape(date)}):</b> {escape(event_type)} - {escape(resultat_display)}",
                             self.styles["KoeBodyText"],
                         )
                     )
                 else:
                     elements.append(
                         Paragraph(
-                            f"<b>Byggherre ({date}):</b> {event_type}",
+                            f"<b>Byggherre ({escape(date)}):</b> {escape(event_type)}",
                             self.styles["KoeBodyText"],
                         )
                     )
@@ -1094,17 +1095,17 @@ class ReportLabPdfGenerator:
             ],
             [
                 Paragraph(
-                    f"<b>{saksbehandler['navn']}</b>", self.styles["KoeBodyText"]
+                    f"<b>{escape(saksbehandler['navn'])}</b>", self.styles["KoeBodyText"]
                 ),
-                Paragraph(f"<b>{godkjenner['navn']}</b>", self.styles["KoeBodyText"]),
+                Paragraph(f"<b>{escape(godkjenner['navn'])}</b>", self.styles["KoeBodyText"]),
             ],
             [
-                Paragraph(saksbehandler["rolle"], self.styles["KoeSmallText"]),
-                Paragraph(godkjenner["rolle"], self.styles["KoeSmallText"]),
+                Paragraph(escape(saksbehandler["rolle"]), self.styles["KoeSmallText"]),
+                Paragraph(escape(godkjenner["rolle"]), self.styles["KoeSmallText"]),
             ],
             [
-                Paragraph(saksbehandler["dato"], self.styles["KoeSmallText"]),
-                Paragraph(godkjenner["dato"], self.styles["KoeSmallText"]),
+                Paragraph(escape(saksbehandler["dato"]), self.styles["KoeSmallText"]),
+                Paragraph(escape(godkjenner["dato"]), self.styles["KoeSmallText"]),
             ],
         ]
 

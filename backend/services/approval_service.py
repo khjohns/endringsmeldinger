@@ -13,9 +13,10 @@ from datetime import UTC, datetime
 from pathlib import Path
 from uuid import uuid4
 
-from models.events import parse_event, parse_event_from_request
 from api.validators import validate_event_data
+from models.events import parse_event, parse_event_from_request
 from repositories.event_repository import ConcurrencyError
+from services.approval_authority import validate_authority
 
 TRACKS = ("grunnlag", "vederlag", "frist")
 
@@ -38,12 +39,15 @@ def claims(events):
 
 
 class ApprovalService:
-    def __init__(self, path, event_repo, timeline_service, validator):
+    def __init__(
+        self, path, event_repo, timeline_service, validator, authority_policy=None
+    ):
         self.path = str(path)
         Path(path).parent.mkdir(parents=True, exist_ok=True)
         self.events = event_repo
         self.timeline = timeline_service
         self.validator = validator
+        self.authority_policy = authority_policy or {}
         with sqlite3.connect(self.path) as db:
             db.execute(
                 "CREATE TABLE IF NOT EXISTS approvals (project TEXT, case_id TEXT, body TEXT NOT NULL, PRIMARY KEY(project,case_id))"
@@ -111,6 +115,7 @@ class ApprovalService:
                 {
                     "sak_id": case_id,
                     "event_type": item["eventType"],
+                    "refererer_til_event_id": item["claimId"],
                     "aktor": item["owner"],
                     "aktor_rolle": "BH",
                     "data": data,
@@ -134,6 +139,9 @@ class ApprovalService:
         return validated, version
 
     def command(self, project, case_id, actor, chain, can_prepare, body):
+        if not can_prepare and actor not in {u["id"] for u in chain}:
+            raise PermissionError("Godkjenningsfullmakten er tilbakekalt.")
+        self.reconcile_policy(project, case_id, chain)
         now = datetime.now(UTC).isoformat()
         command_id = body.get("commandId")
         if not isinstance(command_id, str) or not command_id:
@@ -281,6 +289,9 @@ class ApprovalService:
                         "Godkjenningskjeden mangler eller inneholder saksbehandleren."
                     )
                 self.validate_items(case_id, items)
+                authority = validate_authority(
+                    items, chain, self.authority_policy.get("daily_rate")
+                )
                 previous = body.get("previousId")
                 if previous and not any(
                     p["id"] == previous
@@ -295,6 +306,14 @@ class ApprovalService:
                     items
                 )  # Never trust client-provided decision copies.
                 letter["caseId"] = case_id
+                # The preview and frozen package use the same server rate as authority checks.
+                letter["authorityContext"] = {
+                    **(letter.get("authorityContext") or {}),
+                    "dailyRate": float(self.authority_policy["daily_rate"])
+                    if self.authority_policy.get("daily_rate") is not None
+                    else None,
+                    "matrixVersion": "2026-01",
+                }
                 for key in (
                     "introduction",
                     "closing",
@@ -313,6 +332,7 @@ class ApprovalService:
                     "createdAt": now,
                     "previousId": previous,
                     "policy": {"type": "configured-chain", "version": digest(chain)},
+                    "authority": authority,
                     "letter": letter,
                     "contentHash": digest(letter),
                     "steps": [
@@ -323,6 +343,20 @@ class ApprovalService:
                 state["packages"].append(package)
             elif action in ("approve", "return", "withdraw", "publish"):
                 p = next(p for p in state["packages"] if p["id"] == body["packageId"])
+                if action in ("approve", "publish") and p["status"] != "sendt":
+                    if p["policy"]["version"] != digest(chain):
+                        raise ValueError(
+                            "Godkjenningskjeden er endret. Pakken må behandles på nytt."
+                        )
+                    authority = validate_authority(
+                        p["letter"]["items"],
+                        chain,
+                        self.authority_policy.get("daily_rate"),
+                    )
+                    if p.get("authority") != authority:
+                        raise ValueError(
+                            "Fullmaktsgrunnlaget er endret. Pakken må behandles på nytt."
+                        )
                 if action == "publish":
                     if actor != p["owner"] and not any(
                         s["id"] == actor for s in p["steps"]
@@ -417,6 +451,75 @@ class ApprovalService:
             state["version"] += 1
             state["commands"][command_id] = actor
             return self.public(state)
+
+    def reconcile_policy(self, project, case_id, chain):
+        """Return uncommitted packages for fresh approval when authority changes."""
+        now = datetime.now(UTC).isoformat()
+        with self.transaction(project, case_id) as (state, db):
+            changed = False
+            for p in state["packages"]:
+                if p["status"] not in {
+                    "til_godkjenning",
+                    "godkjent",
+                    "publisering_feilet",
+                }:
+                    continue
+                try:
+                    authority = validate_authority(
+                        p["letter"]["items"],
+                        chain,
+                        self.authority_policy.get("daily_rate"),
+                    )
+                    stale = (
+                        p["policy"]["version"] != digest(chain)
+                        or p.get("authority") != authority
+                    )
+                except ValueError:
+                    stale = True
+                if not stale:
+                    continue
+                # A public commit is irreversible here; recover its private receipt.
+                ids = {e["event_id"] for e in p.get("publicationEvents", [])}
+                if ids:
+                    raw, _ = self.events.get_events(case_id)
+                    found = ids & {e["event_id"] for e in raw}
+                    if found:
+                        if found != ids:
+                            raise ValueError(
+                                "Ufullstendig publisering krever administrativ kontroll."
+                            )
+                        self.publish(project, case_id, state, p, db, now)
+                        changed = True
+                        continue
+                p.update(
+                    status="returnert",
+                    returnedBy="system",
+                    returnedAt=now,
+                    comment="Godkjenningskjeden eller fullmaktsgrunnlaget er endret. Brevet krever ny godkjenning.",
+                )
+                for item in list(state["items"]):
+                    if any(i["id"] == item["id"] for i in p["letter"]["items"]):
+                        item["status"] = "erstattet"
+                        state["items"].append(
+                            {
+                                **copy.deepcopy(item),
+                                "id": str(uuid4()),
+                                "previousId": item["id"],
+                                "status": "kladd",
+                                "createdAt": now,
+                            }
+                        )
+                state.setdefault("audit", []).append(
+                    {
+                        "action": "policy_return",
+                        "actor": "system",
+                        "at": now,
+                        "packageId": p["id"],
+                    }
+                )
+                changed = True
+            if changed:
+                state["version"] += 1
 
     def publish(self, project, case_id, state, p, db, now):
         if p["status"] == "sendt":

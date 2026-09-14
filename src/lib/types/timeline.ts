@@ -965,6 +965,7 @@ export interface CloudEvent<T = EventData> {
   dataschema?: string;
 
   // Extension attributes (KOE-specific)
+  streamposition?: number; // Committed order within the returned event stream
   actor?: string; // Hvem som utførte handlingen
   actorrole?: 'TE' | 'BH'; // Rolle
   comment?: string; // Valgfri kommentar

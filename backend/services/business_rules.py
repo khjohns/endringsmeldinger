@@ -8,7 +8,7 @@ This ensures the event log never contains invalid state transitions.
 from collections.abc import Callable
 from dataclasses import dataclass
 
-from models.events import AnyEvent, EventType, SporStatus
+from models.events import AnyEvent, EventType, ResponsEvent, SporStatus
 from models.sak_state import EOStatus, SakState, SaksType
 
 
@@ -39,7 +39,11 @@ class BusinessRuleValidator:
         varsler = getattr(getattr(event, "data", None), "varsler", None)
         if varsler and varsler.model_dump(exclude_none=True):
             if event.event_type == EventType.GRUNNLAG_OPPDATERT:
-                return ValidationResult(False, "Nye varsler sendes fra vederlags- eller fristsporet.", "NOTICE_TRACK")
+                return ValidationResult(
+                    False,
+                    "Nye varsler sendes fra vederlags- eller fristsporet.",
+                    "NOTICE_TRACK",
+                )
             # Category is TE's assessment, not a condition for sending a notice.
             # See docs/adr/001-varsling-og-kontraktsforhold.md.
 
@@ -58,6 +62,8 @@ class BusinessRuleValidator:
         common_rules = [
             ("ROLE_CHECK", self.validate_actor_role),
             ("CASE_NOT_CLOSED", self._rule_case_not_closed),
+            ("CREATE_ONCE", self._rule_create_once),
+            ("RESPONSE_REFERENCE", self._rule_response_reference),
         ]
 
         # Event-specific rules
@@ -94,6 +100,19 @@ class BusinessRuleValidator:
             EventType.RESPONS_FRIST: [
                 ("TRACK_SENT", self._rule_frist_sent),
                 ("NOT_ALREADY_RESPONDED", self._rule_frist_not_already_responded),
+            ],
+            EventType.RESPONS_GRUNNLAG_OPPDATERT: [
+                ("TRACK_SENT", self._rule_grunnlag_sent),
+                ("NOT_LOCKED", self._rule_grunnlag_not_locked),
+                ("PREVIOUS_RESPONSE", self._rule_previous_response),
+            ],
+            EventType.RESPONS_VEDERLAG_OPPDATERT: [
+                ("TRACK_SENT", self._rule_vederlag_sent),
+                ("PREVIOUS_RESPONSE", self._rule_previous_response),
+            ],
+            EventType.RESPONS_FRIST_OPPDATERT: [
+                ("TRACK_SENT", self._rule_frist_sent),
+                ("PREVIOUS_RESPONSE", self._rule_previous_response),
             ],
             # Cannot update locked grunnlag
             EventType.GRUNNLAG_OPPDATERT: [
@@ -204,6 +223,75 @@ class BusinessRuleValidator:
 
         return ValidationResult(is_valid=True)
 
+    def _rule_create_once(self, event, state):
+        track = {
+            EventType.GRUNNLAG_OPPRETTET: state.grunnlag,
+            EventType.VEDERLAG_KRAV_SENDT: state.vederlag,
+            EventType.FRIST_KRAV_SENDT: state.frist,
+        }.get(event.event_type)
+        # Independent consequence notices do not recreate an existing specified claim.
+        notice = (
+            event.event_type == EventType.VEDERLAG_KRAV_SENDT
+            and event.data.varsel_type == "varsel"
+        )
+        if track is not None and track.krav_event_id and not notice:
+            return ValidationResult(
+                False, "Sporet er allerede opprettet. Send en revisjon."
+            )
+        if event.event_type == EventType.SAK_OPPRETTET and state.antall_events:
+            return ValidationResult(False, "Saken er allerede opprettet.")
+        if (
+            event.event_type == EventType.EO_OPPRETTET
+            and state.endringsordre_data is not None
+        ):
+            return ValidationResult(False, "Endringsordren er allerede opprettet.")
+        return ValidationResult(True)
+
+    def _rule_response_reference(self, event, state):
+        if not isinstance(event, ResponsEvent):
+            return ValidationResult(True)
+        if (
+            event.event_type.value.removeprefix("respons_").removesuffix("_oppdatert")
+            != event.spor.value
+        ):
+            return ValidationResult(False, "Svartype og spor samsvarer ikke.")
+        track = getattr(state, event.spor.value)
+        field = {
+            "grunnlag": "grunnlag_event_id",
+            "vederlag": "vederlag_krav_id",
+            "frist": "frist_krav_id",
+        }[event.spor.value]
+        references = [
+            ref
+            for ref in (event.refererer_til_event_id, getattr(event.data, field, None))
+            if ref
+        ]
+        original = event.data.original_respons_id
+        if original and (
+            original != track.respons_event_id
+            or track.bh_respondert_versjon != max(0, track.antall_versjoner - 1)
+        ):
+            return ValidationResult(
+                False, "Svaret er endret eller gjelder et tidligere krav."
+            )
+        if references and any(ref != track.krav_event_id for ref in references):
+            return ValidationResult(
+                False, "Svaret må gjelde gjeldende krav i dette sporet."
+            )
+        if track.krav_event_id and not references and not original:
+            return ValidationResult(False, "Referanse til kravet som besvares mangler.")
+        return ValidationResult(True)
+
+    def _rule_previous_response(self, event, state):
+        track = getattr(state, event.spor.value)
+        if not track.respons_event_id or track.bh_respondert_versjon != max(
+            0, track.antall_versjoner - 1
+        ):
+            return ValidationResult(
+                False, "Ingen tidligere respons på gjeldende krav å revidere."
+            )
+        return ValidationResult(True)
+
     def _rule_case_not_closed(
         self, event: AnyEvent, state: SakState
     ) -> ValidationResult:
@@ -290,7 +378,10 @@ class BusinessRuleValidator:
     def _rule_vederlag_sent(self, event: AnyEvent, state: SakState) -> ValidationResult:
         """R: Cannot respond to unsent vederlag."""
         if state.vederlag.varsler and not state.vederlag.metode:
-            return ValidationResult(False, "Vederlaget er varslet, men det foreligger ikke et spesifisert krav å besvare.")
+            return ValidationResult(
+                False,
+                "Vederlaget er varslet, men det foreligger ikke et spesifisert krav å besvare.",
+            )
         invalid_statuses = {SporStatus.IKKE_RELEVANT, SporStatus.UTKAST}
 
         if state.vederlag.status in invalid_statuses:
@@ -534,7 +625,11 @@ class BusinessRuleValidator:
                     is_valid=False,
                     message="Entreprenør har allerede akseptert svaret på grunnlag",
                 )
-            if state.grunnlag.status in {SporStatus.GODKJENT, SporStatus.LAAST, SporStatus.TRUKKET}:
+            if state.grunnlag.status in {
+                SporStatus.GODKJENT,
+                SporStatus.LAAST,
+                SporStatus.TRUKKET,
+            }:
                 return ValidationResult(
                     is_valid=False,
                     message="Grunnlag er allerede avsluttet",

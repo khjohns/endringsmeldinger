@@ -53,6 +53,7 @@ export interface TimelineResponse {
  * Returns state + timeline + historikk in a single request.
  */
 export interface CaseContextResponse {
+  catenda_sync?: { status: 'clear' | 'pending' | 'failed' | 'unknown'; outstanding?: number };
   version: number;
   state: SakState;
   timeline: TimelineEvent[];

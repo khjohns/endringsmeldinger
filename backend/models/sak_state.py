@@ -82,6 +82,9 @@ class SendtKonsekvensVarsel(BaseModel):
 class GrunnlagTilstand(BaseModel):
     """Aggregert tilstand for grunnlag-sporet"""
 
+    krav_event_id: str | None = None
+    respons_event_id: str | None = None
+
     status: SporStatus = Field(
         default=SporStatus.IKKE_RELEVANT, description="Nåværende status for grunnlag"
     )
@@ -146,6 +149,9 @@ class VederlagTilstand(BaseModel):
 
     varsler: list[SendtKonsekvensVarsel] = Field(default_factory=list)
     vederlag_varsel: dict | None = None
+
+    krav_event_id: str | None = None
+    respons_event_id: str | None = None
 
     status: SporStatus = Field(
         default=SporStatus.IKKE_RELEVANT, description="Nåværende status for vederlag"
@@ -671,6 +677,9 @@ class FristTilstand(BaseModel):
     """Aggregert tilstand for frist-sporet"""
 
     varsler: list[SendtKonsekvensVarsel] = Field(default_factory=list)
+
+    krav_event_id: str | None = None
+    respons_event_id: str | None = None
 
     status: SporStatus = Field(
         default=SporStatus.IKKE_RELEVANT, description="Nåværende status for frist"
