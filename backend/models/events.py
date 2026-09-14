@@ -863,6 +863,8 @@ class GrunnlagResponsData(BaseModel):
     er dette en oppdatering og kun feltene som sendes vil oppdateres.
     """
 
+    grunnlag_event_id: str | None = None
+
     brev: LetterSnapshot | None = None
 
 
@@ -1084,6 +1086,8 @@ class FristResponsData(BaseModel):
     Støtter partielle oppdateringer: Hvis original_respons_id er satt,
     er dette en oppdatering og kun feltene som sendes vil oppdateres.
     """
+
+    frist_krav_id: str | None = None
 
     brev: LetterSnapshot | None = None
     tilleggs_begrunnelse: str | None = None

@@ -37,6 +37,7 @@ from lib.cloudevents import (
     format_timeline_response,
 )
 from lib.helpers.version_control import handle_concurrency_error
+from lib.pdf_input import decode_pdf
 from models.cloudevents import CLOUDEVENTS_NAMESPACE
 from models.events import (
     AnyEvent,
@@ -50,9 +51,9 @@ from models.events import (
 )
 from models.sak_state import SakState
 from repositories.event_repository import ConcurrencyError
-from services.follow_up_context import build_follow_up_context
 from services.business_rules import BusinessRuleValidator
 from services.catenda_service import CatendaService, map_status_to_catenda
+from services.follow_up_context import build_follow_up_context
 from utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -380,6 +381,8 @@ def submit_event():
         # Optional client-generated PDF (PREFERRED)
         client_pdf_base64 = payload.get("pdf_base64")
         client_pdf_filename = payload.get("pdf_filename")
+        if client_pdf_base64 is not None:
+            decode_pdf(client_pdf_base64)  # Reject malformed attachments before event commit.
 
         if not sak_id or expected_version is None or not event_data:
             return jsonify(
@@ -455,6 +458,16 @@ def submit_event():
         # 5d. Pre-flight check: Verify Catenda token if Catenda integration is requested
         _ensure_catenda_auth(catenda_topic_id)
 
+        # Record intent before commit. Orphan receipts from failed commits are ignored
+        # when reading case status because only persisted event IDs are considered.
+        from core.config import settings
+        from services.catenda_delivery_status import CatendaDeliveryStatus
+
+        delivery_status = None
+        if settings.is_catenda_enabled and catenda_topic_id:
+            delivery_status = CatendaDeliveryStatus()
+            delivery_status.record(g.project_id, sak_id, event.event_id, "pending")
+
         # 6. Persist event (with optimistic lock)
         try:
             new_version = _get_event_repo().append(event, expected_version)
@@ -471,22 +484,25 @@ def submit_event():
         if isinstance(underkategori, list):
             underkategori = underkategori[0] if underkategori else None
 
-        _get_metadata_repo().update_cache(
-            sak_id=sak_id,
-            cached_title=new_state.sakstittel,
-            cached_status=new_state.overordnet_status,
-            last_event_at=datetime.now(UTC),
-            # Reporting fields
-            cached_sum_krevd=new_state.vederlag.krevd_belop,
-            cached_sum_godkjent=new_state.vederlag.godkjent_belop,
-            cached_dager_krevd=new_state.frist.krevd_dager,
-            cached_dager_godkjent=new_state.frist.godkjent_dager,
-            cached_hovedkategori=new_state.grunnlag.hovedkategori,
-            cached_underkategori=underkategori,
-            # Forsering-specific cached fields
-            cached_forsering_paalopt=new_state.forsering_data.paalopte_kostnader if new_state.forsering_data else None,
-            cached_forsering_maks=new_state.forsering_data.maks_forseringskostnad if new_state.forsering_data else None,
-        )
+        try:
+            _get_metadata_repo().update_cache(
+                sak_id=sak_id,
+                cached_title=new_state.sakstittel,
+                cached_status=new_state.overordnet_status,
+                last_event_at=datetime.now(UTC),
+                # Reporting fields
+                cached_sum_krevd=new_state.vederlag.krevd_belop,
+                cached_sum_godkjent=new_state.vederlag.godkjent_belop,
+                cached_dager_krevd=new_state.frist.krevd_dager,
+                cached_dager_godkjent=new_state.frist.godkjent_dager,
+                cached_hovedkategori=new_state.grunnlag.hovedkategori,
+                cached_underkategori=underkategori,
+                # Forsering-specific cached fields
+                cached_forsering_paalopt=new_state.forsering_data.paalopte_kostnader if new_state.forsering_data else None,
+                cached_forsering_maks=new_state.forsering_data.maks_forseringskostnad if new_state.forsering_data else None,
+            )
+        except Exception:
+            logger.exception("Event committed; metadata cache refresh failed")
 
         logger.debug(f"Event persisted, version: {new_version}")
 
@@ -498,27 +514,43 @@ def submit_event():
 
         from core.config import settings
 
-        if settings.is_catenda_enabled and catenda_topic_id:
-            frozen_letter = getattr(getattr(event, 'data', None), 'brev', None)
-            if frozen_letter:
-                from services.approval_letter import pdf_bytes
-                client_pdf_base64 = base64.b64encode(pdf_bytes(frozen_letter)).decode('ascii')
-                client_pdf_filename = f'brev-{sak_id}-{event.event_id}.pdf'
-            catenda_success, pdf_source, catenda_documents = _post_to_catenda(
-                sak_id=sak_id,
-                state=new_state,
-                event=event,
-                topic_id=catenda_topic_id,
-                client_pdf_base64=client_pdf_base64,
-                client_pdf_filename=client_pdf_filename,
-                old_status=old_status,
-            )
-            if not catenda_success:
-                catenda_skipped_reason = "error"
-        elif not settings.is_catenda_enabled:
-            catenda_skipped_reason = "catenda_disabled"
-        else:
-            catenda_skipped_reason = "no_topic_id"
+        try:
+            if settings.is_catenda_enabled and catenda_topic_id:
+                frozen_letter = getattr(getattr(event, 'data', None), 'brev', None)
+                if frozen_letter:
+                    from services.approval_letter import pdf_bytes
+                    client_pdf_base64 = base64.b64encode(pdf_bytes(frozen_letter)).decode('ascii')
+                    client_pdf_filename = f'brev-{sak_id}-{event.event_id}.pdf'
+                catenda_success, pdf_source, catenda_documents = _post_to_catenda(
+                    sak_id=sak_id,
+                    state=new_state,
+                    event=event,
+                    topic_id=catenda_topic_id,
+                    client_pdf_base64=client_pdf_base64,
+                    client_pdf_filename=client_pdf_filename,
+                    old_status=old_status,
+                    require_supplied_pdf=bool(frozen_letter),
+                )
+                if not catenda_success:
+                    catenda_skipped_reason = "error"
+            elif not settings.is_catenda_enabled:
+                catenda_skipped_reason = "catenda_disabled"
+            else:
+                catenda_skipped_reason = "no_topic_id"
+        except Exception:
+            # The event is committed: an integration failure must not invite resubmission.
+            logger.exception("Event committed; Catenda delivery failed")
+            catenda_skipped_reason = "error"
+
+        if delivery_status is not None:
+            try:
+                delivery_status.record(
+                    g.project_id, sak_id, event.event_id,
+                    "delivered" if catenda_success else "failed",
+                )
+            except Exception:
+                # Keep the persisted pending receipt: delivery is unconfirmed.
+                logger.exception("Could not persist Catenda delivery receipt")
 
         # 10. Return success with new state
         return jsonify(
@@ -707,22 +739,25 @@ def submit_batch():
         if isinstance(underkategori, list):
             underkategori = underkategori[0] if underkategori else None
 
-        _get_metadata_repo().update_cache(
-            sak_id=sak_id,
-            cached_title=final_state.sakstittel,
-            cached_status=final_state.overordnet_status,
-            last_event_at=datetime.now(UTC),
-            # Reporting fields
-            cached_sum_krevd=final_state.vederlag.krevd_belop,
-            cached_sum_godkjent=final_state.vederlag.godkjent_belop,
-            cached_dager_krevd=final_state.frist.krevd_dager,
-            cached_dager_godkjent=final_state.frist.godkjent_dager,
-            cached_hovedkategori=final_state.grunnlag.hovedkategori,
-            cached_underkategori=underkategori,
-            # Forsering-specific cached fields
-            cached_forsering_paalopt=final_state.forsering_data.paalopte_kostnader if final_state.forsering_data else None,
-            cached_forsering_maks=final_state.forsering_data.maks_forseringskostnad if final_state.forsering_data else None,
-        )
+        try:
+            _get_metadata_repo().update_cache(
+                sak_id=sak_id,
+                cached_title=final_state.sakstittel,
+                cached_status=final_state.overordnet_status,
+                last_event_at=datetime.now(UTC),
+                # Reporting fields
+                cached_sum_krevd=final_state.vederlag.krevd_belop,
+                cached_sum_godkjent=final_state.vederlag.godkjent_belop,
+                cached_dager_krevd=final_state.frist.krevd_dager,
+                cached_dager_godkjent=final_state.frist.godkjent_dager,
+                cached_hovedkategori=final_state.grunnlag.hovedkategori,
+                cached_underkategori=underkategori,
+                # Forsering-specific cached fields
+                cached_forsering_paalopt=final_state.forsering_data.paalopte_kostnader if final_state.forsering_data else None,
+                cached_forsering_maks=final_state.forsering_data.maks_forseringskostnad if final_state.forsering_data else None,
+            )
+        except Exception:
+            logger.exception("Batch committed; metadata cache refresh failed")
 
         return jsonify(
             {
@@ -1016,9 +1051,20 @@ def get_case_context(sak_id: str):
     vederlag_historikk = timeline_svc.get_vederlag_historikk(events)
     frist_historikk = timeline_svc.get_frist_historikk(events)
 
+    try:
+        from services.catenda_delivery_status import CatendaDeliveryStatus
+
+        catenda_sync = CatendaDeliveryStatus().summary(
+            g.project_id, sak_id, {event.event_id for event in events}
+        )
+    except Exception:
+        logger.exception("Could not read Catenda delivery status")
+        catenda_sync = {"status": "unknown"}
+
     return jsonify(
         {
             "version": version,
+            "catenda_sync": catenda_sync,
             "state": state.model_dump(mode="json"),
             "timeline": cloudevents_timeline,
             "historikk": {
@@ -1180,18 +1226,26 @@ def _resolve_pdf(
     """
     # PRIORITY 1: Try client-generated PDF
     if client_pdf_base64:
+        pdf_path = None
         try:
-            pdf_data = base64.b64decode(client_pdf_base64)
+            pdf_data = decode_pdf(client_pdf_base64)
             with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as temp_pdf:
-                temp_pdf.write(pdf_data)
                 pdf_path = temp_pdf.name
+                temp_pdf.write(pdf_data)
             filename = client_pdf_filename or f"KOE_{sak_id}.pdf"
             logger.debug(f"Client PDF decoded: {len(pdf_data)} bytes")
             return pdf_path, filename, "client"
         except Exception as e:
             logger.error(f"Failed to decode client PDF: {e}")
+            if pdf_path:
+                try:
+                    os.remove(pdf_path)
+                except OSError:
+                    pass
+            return None, None, None
 
     # PRIORITY 2: Fallback to server generation
+    pdf_path = None
     try:
         from services.reportlab_pdf_generator import ReportLabPdfGenerator
 
@@ -1224,6 +1278,11 @@ def _resolve_pdf(
     except Exception as e:
         logger.error(f"Failed to generate PDF: {e}", exc_info=True)
 
+    if pdf_path:
+        try:
+            os.remove(pdf_path)
+        except OSError:
+            pass
     return None, None, None
 
 
@@ -1298,7 +1357,6 @@ def _post_catenda_comment(
     """
     try:
         from services.catenda_comment_generator import CatendaCommentGenerator
-        from utils.filtering_config import get_frontend_route
 
         comment_generator = CatendaCommentGenerator()
 
@@ -1310,7 +1368,9 @@ def _post_catenda_comment(
         )
 
         comment_text = comment_generator.generate_comment(state, event, magic_link)
-        ctx.service.create_comment(topic_id, comment_text)
+        result = ctx.service.create_comment(topic_id, comment_text)
+        if not result:
+            return False
 
         logger.debug(f"Comment posted to Catenda for case {sak_id}")
         return True
@@ -1325,7 +1385,7 @@ def _post_catenda_comment(
 
 def _sync_topic_status(
     ctx: CatendaContext, topic_id: str, old_status: str | None, new_status: str
-) -> None:
+) -> bool:
     """
     Sync topic status to Catenda if changed.
 
@@ -1337,7 +1397,7 @@ def _sync_topic_status(
     """
     if old_status == new_status:
         logger.debug(f"Status unchanged ({new_status}), skipping Catenda update")
-        return
+        return True
 
     catenda_status = map_status_to_catenda(new_status)
     logger.info(
@@ -1349,6 +1409,7 @@ def _sync_topic_status(
         logger.debug(f"Topic status updated to: {catenda_status}")
     else:
         logger.warning("Topic status update failed")
+    return bool(result)
 
 
 def _post_to_catenda(
@@ -1359,6 +1420,7 @@ def _post_to_catenda(
     client_pdf_base64: str | None = None,
     client_pdf_filename: str | None = None,
     old_status: str | None = None,
+    require_supplied_pdf: bool = False,
 ) -> tuple[bool, str | None, list[dict[str, Any]]]:
     """
     Post PDF and comment to Catenda (hybrid approach) + sync status.
@@ -1376,10 +1438,11 @@ def _post_to_catenda(
         client_pdf_base64: Optional base64 PDF from client
         client_pdf_filename: Optional filename from client
         old_status: Previous overordnet_status for status sync
+        require_supplied_pdf: Reject a fallback PDF for a frozen approved letter
 
     Returns:
         (success, pdf_source, catenda_documents)
-        - success: True if PDF uploaded or comment posted
+        - success: True only when PDF, comment and status sync all succeeded
         - pdf_source: "client" | "server" | None
         - catenda_documents: List of uploaded document info dicts
     """
@@ -1398,29 +1461,39 @@ def _post_to_catenda(
             sak_id, state, client_pdf_base64, client_pdf_filename
         )
 
+        if require_supplied_pdf and pdf_source != "client":
+            if pdf_path:
+                try:
+                    os.remove(pdf_path)
+                except OSError:
+                    pass
+            return False, pdf_source, []
+
         # 3. Upload and link PDF to topic
         pdf_uploaded = False
         if pdf_path:
-            doc_info = _upload_and_link_pdf(
-                ctx, topic_id, pdf_path, filename, pdf_source
-            )
-            pdf_uploaded = doc_info is not None
-            if doc_info:
-                catenda_documents.append(doc_info)
-            # Cleanup temp file
             try:
-                os.remove(pdf_path)
-            except OSError:
-                pass
+                doc_info = _upload_and_link_pdf(
+                    ctx, topic_id, pdf_path, filename, pdf_source
+                )
+                pdf_uploaded = doc_info is not None
+                if doc_info:
+                    catenda_documents.append(doc_info)
+            finally:
+                # Contract documents must not survive a failed upload in /tmp.
+                try:
+                    os.remove(pdf_path)
+                except OSError:
+                    pass
 
         # 4. Post comment (always try, regardless of PDF status)
         comment_posted = _post_catenda_comment(ctx, topic_id, sak_id, state, event)
 
         # 5. Sync topic status if changed
-        _sync_topic_status(ctx, topic_id, old_status, state.overordnet_status)
+        status_synced = _sync_topic_status(ctx, topic_id, old_status, state.overordnet_status)
 
-        # Return success if either PDF uploaded or comment posted
-        return (pdf_uploaded or comment_posted), pdf_source, catenda_documents
+        # A comment alone is not delivery of the approved letter.
+        return (pdf_uploaded and comment_posted and status_synced), pdf_source, catenda_documents
 
     except CatendaAuthError:
         # Re-raise auth errors to trigger proper error handling upstream

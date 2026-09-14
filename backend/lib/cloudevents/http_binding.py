@@ -229,7 +229,11 @@ def format_timeline_response(
         2
     """
     return [
-        format_event_response(event, include_dataschema, base_url) for event in events
+        {
+            **format_event_response(event, include_dataschema, base_url),
+            "streamposition": position,
+        }
+        for position, event in enumerate(events, start=1)
     ]
 
 

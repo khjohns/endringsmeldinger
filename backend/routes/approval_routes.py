@@ -5,10 +5,10 @@ import os
 
 from flask import Blueprint, g, jsonify, request
 
-from lib.auth.csrf_protection import require_csrf
-from lib.auth.session import require_auth
-from lib.auth.project_access import require_project_access
 from lib.auth.contract_role import require_contract_role
+from lib.auth.csrf_protection import require_csrf
+from lib.auth.project_access import require_project_access
+from lib.auth.session import require_auth
 from repositories.event_repository import ConcurrencyError
 from services.approval_service import ApprovalService
 
@@ -37,6 +37,16 @@ def context(case_id):
         raise PermissionError("Intern godkjenning er ikke konfigurert for prosjektet.")
     handlers = [email.lower() for email in policy.get("handlers", [])]
     chain = [{**user, "id": user["id"].lower()} for user in policy.get("chain", [])]
+    authority_policy = dict(policy)
+    if "daily_rate" not in authority_policy:
+        project_repo = getattr(container, "project_repository", None)
+        record = project_repo.get(project) if project_repo is not None else None
+        settings = record.settings if record is not None else {}
+        authority_policy["daily_rate"] = (
+            (settings.get("contract") or {}).get("dagmulkt_sats")
+            if isinstance(settings, dict)
+            else None
+        )
     from services.business_rules import BusinessRuleValidator
 
     service = ApprovalService(
@@ -44,6 +54,7 @@ def context(case_id):
         container.event_repository,
         container.timeline_service,
         BusinessRuleValidator(),
+        authority_policy=authority_policy,
     )
     allowed = actor in handlers + [u["id"] for u in chain]
     if actor and not allowed:
@@ -65,6 +76,7 @@ def approvals(case_id):
     try:
         service, project, actor, chain, can_prepare = context(case_id)
         if request.method == "GET":
+            service.reconcile_policy(project, case_id, chain)
             state = service.read(project, case_id)
         else:
             body = request.get_json()
@@ -140,12 +152,19 @@ def approvals(case_id):
                         pdf_bytes(snapshot(package["letter"], package["id"]))
                     ).decode("ascii"),
                     client_pdf_filename=f"brev-{case_id}-{package['id']}.pdf",
+                    require_supplied_pdf=True,
                 )
                 return "delivered" if success else "failed"
 
             service.deliver(project, case_id, body["packageId"], dispatch)
             state = service.read(project, case_id)
-        return jsonify(state=state, actor=actor, chain=chain, canPrepare=can_prepare)
+        return jsonify(
+            state=state,
+            actor=actor,
+            chain=chain,
+            canPrepare=can_prepare,
+            dailyRate=service.authority_policy.get("daily_rate"),
+        )
     except PermissionError as error:
         return jsonify(message=str(error)), 403
     except ConcurrencyError:

@@ -201,7 +201,7 @@ class TimelineService:
         Hovedmetode: Beregn SakState fra event-liste.
 
         Args:
-            events: Liste med events, må være sortert kronologisk
+            events: Liste med events i autoritativ stream-/commit-rekkefølge
 
         Returns:
             Ferdig aggregert SakState
@@ -216,11 +216,11 @@ class TimelineService:
         if not events:
             raise ValueError("Kan ikke beregne state uten events")
 
-        # Sorter events etter tidsstempel (sikre kronologisk rekkefølge)
-        sorted_events = sorted(events, key=lambda e: e.tidsstempel)
+        # Preserve repository stream order. Wall clocks are not a commit sequence.
+        ordered_events = events
 
         # Initialiser tom state
-        sak_id = sorted_events[0].sak_id
+        sak_id = ordered_events[0].sak_id
         state = SakState(
             sak_id=sak_id,
             grunnlag=GrunnlagTilstand(),
@@ -229,13 +229,13 @@ class TimelineService:
         )
 
         # Prosesser hver event
-        for event in sorted_events:
+        for event in ordered_events:
             state = self._apply_event(state, event)
 
         # Oppdater metadata
-        state.antall_events = len(sorted_events)
-        state.opprettet = sorted_events[0].tidsstempel
-        state.siste_aktivitet = sorted_events[-1].tidsstempel
+        state.antall_events = len(ordered_events)
+        state.opprettet = ordered_events[0].tidsstempel
+        state.siste_aktivitet = ordered_events[-1].tidsstempel
 
         logger.debug(f"Computed state for {sak_id}: {state.overordnet_status}")
         return state
@@ -381,6 +381,8 @@ class TimelineService:
             if grunnlag.status == SporStatus.AVSLATT:
                 grunnlag.status = SporStatus.SENDT
 
+        grunnlag.krav_event_id = event.event_id
+
         # Metadata
         grunnlag.siste_event_id = event.event_id
         grunnlag.siste_oppdatert = event.tidsstempel
@@ -392,9 +394,10 @@ class TimelineService:
 
     def _apply_konsekvensvarsler(self, state, event):
         """Project notices from the same immutable submission into their tracks."""
+        from zoneinfo import ZoneInfo
+
         from models.events import VarselInfo
         from models.sak_state import SendtKonsekvensVarsel
-        from zoneinfo import ZoneInfo
 
         dato = event.tidsstempel.astimezone(ZoneInfo("Europe/Oslo")).date().isoformat()
         info = VarselInfo(dato_sendt=dato, metode=["Digital innsending"])
@@ -560,6 +563,8 @@ class TimelineService:
             }:
                 vederlag.status = SporStatus.SENDT
 
+        vederlag.krav_event_id = event.event_id
+
         # Metadata
         vederlag.siste_event_id = event.event_id
         vederlag.siste_oppdatert = event.tidsstempel
@@ -631,6 +636,8 @@ class TimelineService:
             }:
                 frist.status = SporStatus.SENDT
 
+        frist.krav_event_id = event.event_id
+
         # Metadata
         frist.siste_event_id = event.event_id
         frist.siste_oppdatert = event.tidsstempel
@@ -696,6 +703,8 @@ class TimelineService:
 
         # Spor hvilken versjon BH responderte på
         grunnlag.bh_respondert_versjon = max(0, grunnlag.antall_versjoner - 1)
+
+        grunnlag.respons_event_id = event.event_id
 
         # Metadata
         grunnlag.siste_event_id = event.event_id
@@ -785,6 +794,8 @@ class TimelineService:
         # Spor hvilken versjon BH responderte på
         vederlag.bh_respondert_versjon = max(0, vederlag.antall_versjoner - 1)
 
+        vederlag.respons_event_id = event.event_id
+
         # Metadata
         vederlag.siste_event_id = event.event_id
         vederlag.siste_oppdatert = event.tidsstempel
@@ -871,6 +882,8 @@ class TimelineService:
 
         # Spor hvilken versjon BH responderte på
         frist.bh_respondert_versjon = max(0, frist.antall_versjoner - 1)
+
+        frist.respons_event_id = event.event_id
 
         # Metadata
         frist.siste_event_id = event.event_id

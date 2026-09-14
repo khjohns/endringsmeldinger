@@ -473,14 +473,14 @@ class LetterPdfGenerator:
         elements = []
 
         elements.append(Paragraph("TIL", self.styles["RecipientLabel"]))
-        elements.append(Paragraph(mottaker.navn, self.styles["RecipientName"]))
+        elements.append(Paragraph(escape(mottaker.navn), self.styles["RecipientName"]))
 
         if mottaker.adresse:
-            elements.append(Paragraph(mottaker.adresse, self.styles["RecipientDetail"]))
+            elements.append(Paragraph(escape(mottaker.adresse), self.styles["RecipientDetail"]))
 
         if mottaker.orgnr:
             elements.append(
-                Paragraph(f"Org.nr: {mottaker.orgnr}", self.styles["RecipientDetail"])
+                Paragraph(f"Org.nr: {escape(mottaker.orgnr)}", self.styles["RecipientDetail"])
             )
 
         elements.append(Spacer(1, 15 * mm))

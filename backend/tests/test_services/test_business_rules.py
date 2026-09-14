@@ -28,6 +28,7 @@ from models.events import (
     VederlagResponsData,
     VederlagsMetode,
 )
+from models.sak_state import SakState
 from services.business_rules import BusinessRuleValidator, ValidationResult
 from services.timeline_service import TimelineService
 
@@ -87,7 +88,7 @@ class TestBusinessRuleValidator:
             ),
         )
 
-        result = validator.validate(event, base_state)
+        result = validator.validate(event, SakState(sak_id="TEST-001"))
         assert result.is_valid
 
     def test_bh_cannot_send_grunnlag(self, validator, base_state):
@@ -136,6 +137,7 @@ class TestBusinessRuleValidator:
             aktor="BH User",
             aktor_rolle="BH",
             spor=SporType.GRUNNLAG,
+            refererer_til_event_id=base_state.grunnlag.krav_event_id,
             data=GrunnlagResponsData(
                 resultat=GrunnlagResponsResultat.GODKJENT, begrunnelse="Test"
             ),
@@ -284,6 +286,7 @@ class TestBusinessRuleValidator:
             aktor="BH User",
             aktor_rolle="BH",
             spor=SporType.VEDERLAG,
+            refererer_til_event_id=events[-1].event_id,
             data=VederlagResponsData(
                 beregnings_resultat=VederlagBeregningResultat.GODKJENT,
                 begrunnelse="Approved",

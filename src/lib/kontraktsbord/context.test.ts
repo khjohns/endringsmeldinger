@@ -118,3 +118,47 @@ describe('case workspace', () => {
     expect(sendEvent).toHaveBeenCalledTimes(1);
   });
 });
+
+it('keeps a persisted Catenda failure across refresh and workspace recreation', async () => {
+  const failed = { ...initial(5), catenda_sync: { status: 'failed' as const, outstanding: 1 } };
+  const workspace = createCaseWorkspace(failed, { projectId: 'a', refetch: async () => failed });
+  await workspace.refresh();
+  expect(workspace.catendaSyncStatus).toBe('failed');
+  expect(createCaseWorkspace(failed, { projectId: 'a' }).catendaSyncStatus).toBe('failed');
+  workspace.replace({ ...initial(5), catenda_sync: { status: 'clear' } });
+  expect(workspace.catendaSyncStatus).toBe('clear');
+});
+
+it('shows a delivery failure even if the refresh after saving fails', async () => {
+  const workspace = createCaseWorkspace(initial(), {
+    projectId: 'a',
+    sendEvent: vi.fn().mockResolvedValue({
+      success: true,
+      new_version: 5,
+      catenda_synced: false,
+      catenda_skipped_reason: 'error',
+    }),
+    refetch: vi.fn().mockRejectedValue(new Error('offline')),
+  });
+  await expect(workspace.submit('respons_grunnlag', {})).rejects.toThrow('Endringen er lagret');
+  expect(workspace.catendaSyncStatus).toBe('failed');
+  workspace.replace({ ...initial(4), catenda_sync: { status: 'clear' } });
+  expect(workspace.catendaSyncStatus).toBe('failed');
+});
+
+it('distinguishes unconfirmed delivery from failures and intentionally disabled integration', async () => {
+  const workspace = createCaseWorkspace(initial(), {
+    projectId: 'a',
+    sendEvent: vi.fn().mockResolvedValue({
+      success: true,
+      new_version: 5,
+      catenda_synced: false,
+      catenda_skipped_reason: 'catenda_disabled',
+    }),
+    refetch: async () => ({ ...initial(5), catenda_sync: { status: 'clear' } }),
+  });
+  await workspace.submit('respons_grunnlag', {});
+  expect(workspace.catendaSyncStatus).toBe('clear');
+  workspace.replace({ ...initial(5), catenda_sync: { status: 'unknown' } });
+  expect(workspace.catendaSyncStatus).toBe('unknown');
+});

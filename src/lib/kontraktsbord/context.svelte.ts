@@ -1,3 +1,4 @@
+import { orderTimeline } from '$lib/utils/timelineOrder';
 import { getContext, setContext } from 'svelte';
 import { fetchCaseContext } from '$lib/api/state';
 import { submitEvent } from '$lib/api/events';
@@ -30,6 +31,7 @@ export function createCaseWorkspace(initial: CaseContextResponse, options: Works
   let submitting = $state(false);
   let submissionError = $state<string | null>(null);
   let needsRefresh = $state(false);
+  let syncFailureVersion = $state<number | null>(null);
   let editKey: string | null = null;
   let editVersion: number | null = null;
   let requiredVersion: number | null = null;
@@ -49,11 +51,7 @@ export function createCaseWorkspace(initial: CaseContextResponse, options: Works
   const grunnlagConfig = $derived(deriveGrunnlagDomainConfig(response.state));
   const teNavn = $derived(getPartsNavn('TE', response.state.entreprenor, response.state.byggherre));
   const bhNavn = $derived(getPartsNavn('BH', response.state.entreprenor, response.state.byggherre));
-  const timeline = $derived(
-    [...response.timeline].sort(
-      (a, b) => (Date.parse(a.time ?? '') || 0) - (Date.parse(b.time ?? '') || 0)
-    )
-  );
+  const timeline = $derived(orderTimeline(response.timeline));
 
   function replace(next: CaseContextResponse) {
     if (next.state.sak_id !== sakId)
@@ -61,6 +59,8 @@ export function createCaseWorkspace(initial: CaseContextResponse, options: Works
     // A slower request must never roll the workspace back after a confirmed update.
     if (next.version < response.version) return;
     response = next;
+    if (next.catenda_sync && syncFailureVersion !== null && next.version >= syncFailureVersion)
+      syncFailureVersion = null;
   }
 
   async function refresh() {
@@ -91,6 +91,8 @@ export function createCaseWorkspace(initial: CaseContextResponse, options: Works
       saved = true;
       needsRefresh = true;
       requiredVersion = result.new_version ?? response.version + 1;
+      if (result.catenda_synced === false && result.catenda_skipped_reason === 'error')
+        syncFailureVersion = requiredVersion;
       await refresh();
       if (editKey !== null) editVersion = response.version;
     } catch (error) {
@@ -138,6 +140,9 @@ export function createCaseWorkspace(initial: CaseContextResponse, options: Works
     },
     get submitting() {
       return submitting;
+    },
+    get catendaSyncStatus() {
+      return syncFailureVersion !== null ? 'failed' : (response.catenda_sync?.status ?? 'clear');
     },
     get submissionError() {
       return submissionError;
