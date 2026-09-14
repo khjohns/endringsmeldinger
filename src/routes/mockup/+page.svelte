@@ -4,7 +4,7 @@
   import { untrack } from 'svelte';
   import { readPreferredRole } from '$lib/utils/rolePreference';
   import { readWorkspaceView, workspaceViewUrl } from '$lib/kontraktsbord/viewState';
-  import '$lib/components/kontraktsbord/mockup.css';
+  import '$lib/components/kontraktsbord/theme.css';
   import Kontrollrommet from '$lib/components/kontraktsbord/Kontrollrommet.svelte';
   import { createDemoStore } from '$lib/mockup/store.svelte';
   import { setCaseWorkspace } from '$lib/kontraktsbord/context.svelte';

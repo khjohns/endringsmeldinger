@@ -1,4 +1,5 @@
 <script lang="ts">
+  import '$lib/components/kontraktsbord/theme.css';
   import AppTopbar from '$lib/components/navigation/AppTopbar.svelte';
   import { readPreferredRole, savePreferredRole } from '$lib/utils/rolePreference';
   import type { Role } from '$lib/components/kontraktsbord/types';
@@ -350,41 +351,32 @@
     color: var(--color-ink-secondary);
     border-color: var(--color-wire);
   }
+  /*
+   * Oversikten er skrevet mot --color-*-navnene, mens det delte temaet bruker
+   * --brand/--surface/--ink. Her bindes de sammen, slik at paletten har én
+   * kilde (theme.css) og verdiene ikke lenger står duplisert i denne filen.
+   * Mørke verdier følger av at theme.css bytter tokens på :root.dark.
+   */
   .project-overview {
-    --color-canvas: #f5f6f3;
-    --color-felt: #fff;
-    --color-felt-hover: #f4f5f1;
-    --color-felt-active: #edf1e9;
-    --color-ink: #1b2a22;
-    --color-ink-secondary: #34423b;
-    --color-ink-muted: #68756d;
-    --color-ink-ghost: #89958d;
-    --color-wire: #e1e5de;
-    --color-wire-strong: #cbd3c9;
-    --color-wire-focus: #2d4a3b;
-    --color-vekt: #2d4a3b;
-    --color-vekt-bg: #edf2e9;
+    --color-canvas: var(--canvas);
+    --color-felt: var(--surface);
+    --color-felt-hover: var(--surface-warm);
+    --color-felt-active: var(--surface-selected);
+    --color-ink: var(--ink);
+    --color-ink-secondary: var(--ink-2);
+    --color-ink-muted: var(--ink-4);
+    --color-ink-ghost: var(--ink-ghost);
+    --color-wire: var(--rule-color);
+    --color-wire-strong: var(--rule-strong-color);
+    --color-wire-focus: var(--brand-contrast);
+    --color-vekt: var(--brand-contrast);
+    --color-vekt-bg: var(--brand-bg);
     display: flex;
     height: 100%;
     min-height: 0;
     background: var(--color-canvas);
     color: var(--color-ink);
     font-family: var(--font-ui);
-  }
-  :global(.dark) .project-overview {
-    --color-canvas: #142019;
-    --color-felt: #1b2a22;
-    --color-felt-hover: #203429;
-    --color-felt-active: #263a2e;
-    --color-ink: #f2f7f4;
-    --color-ink-secondary: #c5d5cb;
-    --color-ink-muted: #98aea1;
-    --color-ink-ghost: #71877a;
-    --color-wire: #304438;
-    --color-wire-strong: #4b6254;
-    --color-wire-focus: #a7e3b8;
-    --color-vekt: #a7e3b8;
-    --color-vekt-bg: #203429;
   }
   .project-rail {
     width: 280px;
@@ -393,8 +385,8 @@
     display: flex;
     flex-direction: column;
     padding: 24px 20px 20px;
-    background: #212f27;
-    color: #f2f7f4;
+    background: var(--sidebar-bg);
+    color: var(--sidebar-text);
   }
   .sender {
     display: flex;
@@ -408,7 +400,7 @@
   .sender span {
     display: block;
     margin-top: 3px;
-    color: #98aea1;
+    color: var(--sidebar-muted);
     font-size: 12px;
   }
   .oslo-logo {
@@ -423,7 +415,7 @@
     margin-top: 40px;
   }
   .rail-nav .eyebrow {
-    color: #98aea1;
+    color: var(--sidebar-muted);
   }
   .rail-nav a {
     display: flex;
@@ -433,17 +425,17 @@
     padding: 12px;
     border-radius: 8px;
     background: transparent;
-    color: #c3d1c8;
+    color: var(--sidebar-link);
     text-decoration: none;
     font-size: 13px;
     font-weight: 600;
   }
   .rail-nav a[aria-current='page'] {
-    background: #35483c;
-    color: #f2f7f4;
+    background: var(--sidebar-active);
+    color: var(--sidebar-text);
   }
   .rail-nav a:hover {
-    background: #2e4134;
+    background: var(--sidebar-hover);
   }
   .mobile-project-nav {
     display: none;
@@ -458,7 +450,7 @@
   }
   .project-number {
     margin: 20px 0 0;
-    color: #afc0b5;
+    color: var(--sidebar-dim);
     font-size: 12px;
   }
   .switch-project {
@@ -468,14 +460,14 @@
     width: fit-content;
     margin-top: 16px;
     padding: 4px 0;
-    color: #c9d8cf;
+    color: var(--sidebar-bright);
     text-underline-offset: 4px;
   }
   .switch-project:hover {
-    color: #fff;
+    color: var(--sidebar-text);
   }
   .project-rail a:focus-visible {
-    outline: 2px solid #b8d6bc;
+    outline: 2px solid var(--sidebar-focus);
     outline-offset: 4px;
   }
   .mobile-project-info {
@@ -526,7 +518,7 @@
     align-items: center;
     gap: 8px;
     padding: 11px 16px;
-    background: #2d4a3b;
+    background: var(--brand-contrast);
     color: white;
     border-radius: 8px;
     text-decoration: none;

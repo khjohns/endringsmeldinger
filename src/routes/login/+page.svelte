@@ -1,6 +1,7 @@
 <script lang="ts">
   import { page } from '$app/state';
   import { loginUrl } from '$lib/api/auth';
+  import '$lib/components/kontraktsbord/theme.css';
   import Button from '$lib/components/primitives/Button.svelte';
 
   let leaving = $state(false);
@@ -25,7 +26,21 @@
 </main>
 
 <style>
+  /*
+   * Innloggingen følger den grønne paletten fra theme.css. Tokenene settes her
+   * slik at både siden og knappen inni arver dem; knappen er skrevet mot
+   * --color-vekt.
+   */
   .login-page {
+    --color-canvas: var(--canvas);
+    --color-felt: var(--surface);
+    --color-ink: var(--ink);
+    --color-ink-secondary: var(--ink-2);
+    --color-ink-muted: var(--ink-4);
+    --color-wire: var(--rule-color);
+    --color-vekt: var(--brand-contrast);
+    --color-vekt-dim: var(--brand-2);
+    --color-vekt-bg: var(--brand-bg);
     min-height: 100dvh;
     display: grid;
     place-items: center;
