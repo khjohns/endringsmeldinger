@@ -1,5 +1,4 @@
 <script lang="ts">
-  import '$lib/components/kontraktsbord/theme.css';
   import AppTopbar from '$lib/components/navigation/AppTopbar.svelte';
   import { readPreferredRole, savePreferredRole } from '$lib/utils/rolePreference';
   import type { Role } from '$lib/components/kontraktsbord/types';
@@ -351,26 +350,7 @@
     color: var(--color-ink-secondary);
     border-color: var(--color-wire);
   }
-  /*
-   * Oversikten er skrevet mot --color-*-navnene, mens det delte temaet bruker
-   * --brand/--surface/--ink. Her bindes de sammen, slik at paletten har én
-   * kilde (theme.css) og verdiene ikke lenger står duplisert i denne filen.
-   * Mørke verdier følger av at theme.css bytter tokens på :root.dark.
-   */
   .project-overview {
-    --color-canvas: var(--canvas);
-    --color-felt: var(--surface);
-    --color-felt-hover: var(--surface-warm);
-    --color-felt-active: var(--surface-selected);
-    --color-ink: var(--ink);
-    --color-ink-secondary: var(--ink-2);
-    --color-ink-muted: var(--ink-4);
-    --color-ink-ghost: var(--ink-ghost);
-    --color-wire: var(--rule-color);
-    --color-wire-strong: var(--rule-strong-color);
-    --color-wire-focus: var(--brand-contrast);
-    --color-vekt: var(--brand-contrast);
-    --color-vekt-bg: var(--brand-bg);
     display: flex;
     height: 100%;
     min-height: 0;
