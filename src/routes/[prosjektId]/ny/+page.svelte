@@ -5,7 +5,7 @@
   import { projectStore } from '$lib/stores/project.svelte';
   import { savePreferredRole } from '$lib/utils/rolePreference';
   import { ChevronLeft } from 'lucide-svelte';
-  import '$lib/components/kontraktsbord/mockup.css';
+  import '$lib/components/kontraktsbord/theme.css';
   import NewCaseForm from '$lib/components/kontraktsbord/NewCaseForm.svelte';
   import NewCaseActionBar from '$lib/components/kontraktsbord/NewCaseActionBar.svelte';
 

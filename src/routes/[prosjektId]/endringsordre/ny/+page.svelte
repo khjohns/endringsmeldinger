@@ -6,7 +6,7 @@
   import AppTopbar from '$lib/components/navigation/AppTopbar.svelte';
   import EndringsordreForm from '$lib/components/endringsordre/EndringsordreForm.svelte';
   import { projectStore } from '$lib/stores/project.svelte';
-  import '$lib/components/kontraktsbord/mockup.css';
+  import '$lib/components/kontraktsbord/theme.css';
   const projectId = $derived(page.params.prosjektId ?? '');
   const projectName = $derived(projectStore.current?.name ?? projectId);
   const queryClient = useQueryClient();

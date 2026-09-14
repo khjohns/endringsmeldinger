@@ -1,6 +1,6 @@
 <script lang="ts">
   import Kontrollrommet from '$lib/components/kontraktsbord/Kontrollrommet.svelte';
-  import '$lib/components/kontraktsbord/mockup.css';
+  import '$lib/components/kontraktsbord/theme.css';
   import { createCaseWorkspace, setCaseWorkspace } from './context.svelte';
   import type { WorkspaceView } from './viewState';
   import type { CaseContextResponse } from '$lib/types/api';

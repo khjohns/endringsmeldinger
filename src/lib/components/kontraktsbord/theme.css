@@ -76,6 +76,23 @@
   --gold-border: #efd39a;
 
   /* ── Controls ── */
+  /* ── Oversiktsflater: toner som ikke finnes i skalaene over ── */
+  --surface-selected: #edf1e9;
+  --ink-ghost: #89958d;
+  --rule-color: #e1e5de;
+  --rule-strong-color: #cbd3c9;
+  --brand-bg: #edf2e9;
+  /* Aksent for oversikten. Lik --brand i lys modus, men --accent i mørk. */
+  --brand-contrast: #2d4a3b;
+
+  /* ── Sidepanel (alltid mørkegrønt, uavhengig av tema) ── */
+  --sidebar-link: #c3d1c8;
+  --sidebar-active: #35483c;
+  --sidebar-hover: #2e4134;
+  --sidebar-dim: #afc0b5;
+  --sidebar-bright: #c9d8cf;
+  --sidebar-focus: #b8d6bc;
+
   --control-bg: var(--surface-inset);
   --control-border: 1px solid #c6d7cd;
   --control-focus: var(--brand);
@@ -92,6 +109,7 @@
 /* ══════════════════════════════════════════════════
    Dark mode tokens
    ══════════════════════════════════════════════════ */
+:root.dark,
 .mockup.dark {
   --brand: #6ea986;
   --brand-2: #47755b;
@@ -133,6 +151,14 @@
   --gold: #f9c66b;
   --gold-bg: rgba(249, 198, 107, 0.08);
   --gold-border: rgba(249, 198, 107, 0.2);
+
+  /* ── Oversiktsflater ── */
+  --surface-selected: #263a2e;
+  --ink-ghost: #71877a;
+  --rule-color: #304438;
+  --rule-strong-color: #4b6254;
+  --brand-bg: #203429;
+  --brand-contrast: #a7e3b8;
 
   --control-bg: var(--surface-inset);
   --control-border: 1px solid #333333;

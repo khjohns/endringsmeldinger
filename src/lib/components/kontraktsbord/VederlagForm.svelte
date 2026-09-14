@@ -913,7 +913,7 @@
 {/if}
 
 <style>
-  /* Form-specific styles (shared styles in mockup.css) */
+  /* Form-specific styles (shared styles in theme.css) */
 
   .form-title-row {
     display: flex;
