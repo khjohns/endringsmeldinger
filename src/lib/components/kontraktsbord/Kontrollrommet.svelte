@@ -255,7 +255,6 @@
           {:else if mode === 'read'}
             <CenterRead
               {sel}
-              {role}
               {activeEvent}
               onform={goForm}
               onbacktonow={() => (activeEvent = null)}

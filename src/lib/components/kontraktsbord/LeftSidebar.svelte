@@ -118,10 +118,10 @@
   </div>
 
   <nav class="sidebar-tracks" aria-label="Sakens spor">
-    {#each trackGroups as group, gi}
+    {#each trackGroups as group, gi (group.label)}
       {#if gi > 0}<div class="group-sep"></div>{/if}
       <div class="group-label">{group.label}</div>
-      {#each group.tracks as t}
+      {#each group.tracks as t (t.id)}
         {@const display = store.display(t.id)}
         {@const on = sel === t.id}
         {@const track = t.id === 'ansvar' ? store.sak.grunnlag : store.sak[t.id]}
@@ -170,6 +170,8 @@
               {#if display.isDisputed}Prinsipalt avslått{:else}BH: {fmt(
                   display.bhPrinsipal
                 )}{unit}{/if}{#if display.bhSubsidiaer !== undefined && (display.isSubsidiary || display.bhSubsidiaer !== display.bhPrinsipal)}
+                <!-- Mustachen bevarer mellomrommene; .position-separator har white-space: pre. -->
+                <!-- eslint-disable-next-line svelte/no-useless-mustaches -->
                 <span class="position-separator">{' · '}</span>subsidiært {fmt(
                   display.bhSubsidiaer
                 )}{unit}{/if}
@@ -184,10 +186,11 @@
   <section class="exposure" aria-labelledby="exposure-heading">
     <h3 id="exposure-heading" class="exposure-heading">Uavklart og bestridt</h3>
     <div class="exposure-box">
-      {#each exposureGroups as group}
+      {#each exposureGroups as group (group.label)}
         <div class="exposure-row">
           <span class="exposure-label">{group.label}</span>
-          {#each group.values as value}<span class="font-mono exposure-value">{value}</span>{/each}
+          {#each group.values as value, vi (vi)}<span class="font-mono exposure-value">{value}</span
+            >{/each}
         </div>
       {:else}
         <span class="row-status">Ingen aktive, spesifiserte krav</span>

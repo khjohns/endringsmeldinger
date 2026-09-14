@@ -81,7 +81,7 @@
               value={store.demo.scenario.id}
               onchange={(event) => store.demo?.selectScenario(event.currentTarget.value)}
             >
-              {#each store.demo.scenarios as scenario}<option value={scenario.id}
+              {#each store.demo.scenarios as scenario (scenario.id)}<option value={scenario.id}
                   >{scenario.label}</option
                 >{/each}
             </select>
