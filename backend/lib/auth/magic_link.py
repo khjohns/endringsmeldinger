@@ -168,8 +168,12 @@ def require_magic_link(f):
 
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        # Allow bypassing auth for testing (NOT for production!)
-        if os.environ.get("DISABLE_AUTH", "").lower() == "true":
+        # Allow bypassing auth only in an explicit test/development context.
+        # Magic links themselves remain a supported provider for users without
+        # Catenda/Entra access; this branch is only the local test shortcut.
+        from .session import dev_auth_disabled
+
+        if dev_auth_disabled():
             request.magic_link_data = {"sak_id": None, "email": "test@example.com"}
             return f(*args, **kwargs)
 

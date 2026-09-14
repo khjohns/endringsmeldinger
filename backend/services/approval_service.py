@@ -7,13 +7,13 @@ Publication uses persisted event IDs to recover after an event-store commit/cras
 import copy
 import hashlib
 import json
-import sqlite3
 from contextlib import contextmanager
 from datetime import UTC, datetime
 from pathlib import Path
 from uuid import uuid4
 
 from api.validators import validate_event_data
+from lib.sqlite_connection import sqlite_connection
 from models.events import parse_event, parse_event_from_request
 from repositories.event_repository import ConcurrencyError
 from services.approval_authority import validate_authority
@@ -48,7 +48,7 @@ class ApprovalService:
         self.timeline = timeline_service
         self.validator = validator
         self.authority_policy = authority_policy or {}
-        with sqlite3.connect(self.path) as db:
+        with sqlite_connection(self.path) as db:
             db.execute(
                 "CREATE TABLE IF NOT EXISTS approvals (project TEXT, case_id TEXT, body TEXT NOT NULL, PRIMARY KEY(project,case_id))"
             )
@@ -58,7 +58,7 @@ class ApprovalService:
 
     @contextmanager
     def transaction(self, project, case_id):
-        with sqlite3.connect(self.path, timeout=15) as db:
+        with sqlite_connection(self.path) as db:
             db.execute("BEGIN IMMEDIATE")
             row = db.execute(
                 "SELECT body FROM approvals WHERE project=? AND case_id=?",
@@ -69,14 +69,25 @@ class ApprovalService:
                 if row
                 else {"version": 0, "items": [], "packages": [], "commands": {}}
             )
+            before = copy.deepcopy(state)
             yield state, db
-            db.execute(
-                "INSERT OR REPLACE INTO approvals VALUES (?,?,?)",
-                (project, case_id, json.dumps(state)),
-            )
+            if state != before:
+                db.execute(
+                    "INSERT OR REPLACE INTO approvals VALUES (?,?,?)",
+                    (project, case_id, json.dumps(state)),
+                )
 
     def read(self, project, case_id):
-        with self.transaction(project, case_id) as (state, _):
+        with sqlite_connection(self.path) as db:
+            row = db.execute(
+                "SELECT body FROM approvals WHERE project=? AND case_id=?",
+                (project, case_id),
+            ).fetchone()
+            state = (
+                json.loads(row[0])
+                if row
+                else {"version": 0, "items": [], "packages": [], "commands": {}}
+            )
             return self.public(state)
 
     @staticmethod
@@ -585,6 +596,8 @@ class ApprovalService:
                 < 300
             ):
                 return
+            attempt_id = str(uuid4())
+            p["notificationAttemptId"] = attempt_id
             p["notificationAttemptAt"] = datetime.now(UTC).isoformat()
             db.execute(
                 "UPDATE approval_outbox SET status=? WHERE id=?",
@@ -600,6 +613,9 @@ class ApprovalService:
             result = "failed"
         with self.transaction(project, case_id) as (state, db):
             p = next(p for p in state["packages"] if p["id"] == package_id)
+            # A timed-out worker must not overwrite the receipt of its replacement.
+            if p.get("notificationAttemptId") != attempt_id:
+                return
             p["notificationStatus"] = result
             db.execute(
                 "UPDATE approval_outbox SET status=? WHERE id=?", (result, package_id)

@@ -21,10 +21,12 @@ export function getActiveProjectId(): string {
 // CSRF token storage and fetching
 let csrfToken: string | null = null;
 let csrfTokenPromise: Promise<string> | null = null;
+let csrfGeneration = 0;
 
 async function fetchCsrfToken(): Promise<string> {
   const response = await fetch(`${API_BASE_URL}/api/csrf-token`, { credentials: 'include' });
   if (!response.ok) {
+    if (response.status === 401) redirectToLogin();
     throw new ApiError(response.status, 'Kunne ikke bekrefte sesjonen.');
   }
   const data = await response.json();
@@ -38,20 +40,21 @@ async function getCsrfToken(forceRefresh: boolean = false): Promise<string> {
 
   // Clear old token if forcing refresh
   if (forceRefresh) {
-    csrfToken = null;
-    csrfTokenPromise = null;
+    clearCsrfToken();
   }
 
   // Prevent multiple simultaneous fetches
   if (!csrfTokenPromise) {
-    csrfTokenPromise = fetchCsrfToken()
+    const generation = csrfGeneration;
+    const pending = fetchCsrfToken()
       .then((token) => {
-        csrfToken = token;
+        if (generation === csrfGeneration) csrfToken = token;
         return token;
       })
       .finally(() => {
-        csrfTokenPromise = null;
+        if (csrfTokenPromise === pending) csrfTokenPromise = null;
       });
+    csrfTokenPromise = pending;
   }
 
   return csrfTokenPromise;
@@ -59,6 +62,7 @@ async function getCsrfToken(forceRefresh: boolean = false): Promise<string> {
 
 // Clear CSRF token (used on 403 errors to force refresh)
 export function clearCsrfToken() {
+  csrfGeneration++;
   csrfToken = null;
   csrfTokenPromise = null;
 }
@@ -121,112 +125,60 @@ export function isRetryableError(error: unknown): boolean {
  */
 export async function apiFetch<T>(endpoint: string, options?: RequestInit): Promise<T> {
   const url = `${API_BASE_URL}${endpoint}`;
-
-  // Build headers with auth token and project ID
-  const headers: Record<string, string> = {
+  // Snapshot the target before waiting for CSRF; navigation may change the default.
+  const headers = new Headers({
     'Content-Type': 'application/json',
     'X-Project-ID': activeProjectId,
-  };
-
-  // Add CSRF token for state-changing methods
+  });
+  new Headers(options?.headers).forEach((value, key) => headers.set(key, value));
   const method = options?.method?.toUpperCase() ?? 'GET';
-  if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)) {
-    const csrf = await getCsrfToken();
-    headers['X-CSRF-Token'] = csrf;
-  }
+  const mutation = ['POST', 'PUT', 'PATCH', 'DELETE'].includes(method);
 
   try {
-    const response = await fetch(url, {
-      ...options,
-      credentials: 'include',
-      headers: {
-        ...headers,
-        ...options?.headers,
-      },
-    });
+    if (mutation) headers.set('X-CSRF-Token', await getCsrfToken());
+    for (let attempt = 0; attempt < 2; attempt++) {
+      const response = await fetch(url, { ...options, credentials: 'include', headers });
+      const contentType = response.headers.get('content-type');
+      const data: unknown =
+        contentType && (contentType.includes('application/json') || contentType.includes('+json'))
+          ? await response.json()
+          : await response.text();
+      if (response.ok) return data as T;
 
-    // Parse response body
-    const contentType = response.headers.get('content-type');
-    let data: unknown;
-
-    // Handle JSON responses (including CloudEvents format: application/cloudevents+json)
-    if (
-      contentType &&
-      (contentType.includes('application/json') || contentType.includes('+json'))
-    ) {
-      data = await response.json();
-    } else {
-      data = await response.text();
-    }
-
-    // Handle error responses
-    if (!response.ok) {
+      if (response.status === 401) redirectToLogin();
+      const detail =
+        typeof data === 'object' && data !== null ? (data as Record<string, unknown>) : undefined;
+      // Only an explicit CSRF rejection is safe to replay automatically.
       if (
-        response.status === 401 &&
-        typeof window !== 'undefined' &&
-        window.location.pathname !== '/login'
+        attempt === 0 &&
+        mutation &&
+        response.status === 403 &&
+        detail?.error === 'CSRF validation failed'
       ) {
-        window.location.replace(
-          `/login?return_to=${encodeURIComponent(window.location.pathname + window.location.search)}`
-        );
+        headers.set('X-CSRF-Token', await getCsrfToken(true));
+        continue;
       }
-      // If 403 and it's a CSRF error, try once with a fresh token
-      if (response.status === 403 && ['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)) {
-        const responseData = data as Record<string, unknown> | undefined;
-        if (responseData?.error === 'CSRF validation failed') {
-          // Clear cached token and retry once
-          clearCsrfToken();
-          const freshCsrf = await getCsrfToken(true);
-          headers['X-CSRF-Token'] = freshCsrf;
-
-          const retryResponse = await fetch(url, {
-            ...options,
-            credentials: 'include',
-            headers: {
-              ...headers,
-              ...options?.headers,
-            },
-          });
-
-          if (retryResponse.ok) {
-            const retryContentType = retryResponse.headers.get('content-type');
-            if (
-              retryContentType &&
-              (retryContentType.includes('application/json') || retryContentType.includes('+json'))
-            ) {
-              return (await retryResponse.json()) as T;
-            }
-            return (await retryResponse.text()) as unknown as T;
-          }
-        }
-      }
-
-      const errorMessage =
-        typeof data === 'object' &&
-        data !== null &&
-        'message' in data &&
-        typeof (data as Record<string, unknown>).message === 'string'
-          ? ((data as Record<string, unknown>).message as string)
+      const message =
+        typeof detail?.message === 'string'
+          ? detail.message
           : typeof data === 'string'
             ? data
             : `HTTP ${response.status}: ${response.statusText}`;
-
-      throw new ApiError(response.status, errorMessage, data);
+      throw new ApiError(response.status, message, data);
     }
-
-    return data as T;
+    throw new ApiError(403, 'Kunne ikke bekrefte sesjonen.');
   } catch (error) {
-    // Re-throw ApiError as-is
-    if (error instanceof ApiError) {
-      throw error;
-    }
-
-    // Network errors or other issues
-    if (error instanceof TypeError) {
+    if (error instanceof ApiError) throw error;
+    if (error instanceof TypeError)
       throw new ApiError(0, 'Network error: Could not connect to server');
-    }
-
-    // Unknown errors
     throw new ApiError(500, error instanceof Error ? error.message : 'Unknown error');
+  }
+}
+
+function redirectToLogin() {
+  if (typeof window !== 'undefined' && window.location.pathname !== '/login') {
+    window.location.replace(
+      `/login?return_to=${encodeURIComponent(window.location.pathname + window.location.search)}`
+    );
   }
 }

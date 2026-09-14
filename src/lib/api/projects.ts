@@ -25,7 +25,9 @@ export async function listProjects(): Promise<Project[]> {
  * @returns The project
  */
 export async function getProject(projectId: string): Promise<Project> {
-  return apiFetch<Project>(`/api/projects/${projectId}`);
+  return apiFetch<Project>(`/api/projects/${encodeURIComponent(projectId)}`, {
+    headers: { 'X-Project-ID': projectId },
+  });
 }
 
 /**
@@ -54,9 +56,10 @@ export async function updateProject(
   payload: UpdateProjectPayload
 ): Promise<Project> {
   const data = await apiFetch<{ success: boolean; project: Project }>(
-    `/api/projects/${projectId}`,
+    `/api/projects/${encodeURIComponent(projectId)}`,
     {
       method: 'PATCH',
+      headers: { 'X-Project-ID': projectId },
       body: JSON.stringify(payload),
     }
   );
@@ -69,7 +72,8 @@ export async function updateProject(
  * @param projectId - The project to deactivate
  */
 export async function deactivateProject(projectId: string): Promise<void> {
-  await apiFetch(`/api/projects/${projectId}/deactivate`, {
+  await apiFetch(`/api/projects/${encodeURIComponent(projectId)}/deactivate`, {
     method: 'PATCH',
+    headers: { 'X-Project-ID': projectId },
   });
 }

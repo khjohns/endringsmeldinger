@@ -2,8 +2,9 @@
 
 import json
 import os
-import sqlite3
 from pathlib import Path
+
+from lib.sqlite_connection import sqlite_connection
 
 
 class CatendaDeliveryStatus:
@@ -13,7 +14,7 @@ class CatendaDeliveryStatus:
             path or os.environ.get("BH_APPROVAL_DB", "koe_data/approvals.sqlite3")
         )
         Path(self.path).parent.mkdir(parents=True, exist_ok=True)
-        with sqlite3.connect(self.path, timeout=15) as db:
+        with sqlite_connection(self.path) as db:
             db.execute("""CREATE TABLE IF NOT EXISTS catenda_delivery_status (
                 project TEXT, case_id TEXT, event_id TEXT, status TEXT NOT NULL,
                 PRIMARY KEY (project, case_id, event_id))""")
@@ -21,14 +22,14 @@ class CatendaDeliveryStatus:
     def record(self, project, case_id, event_id, status):
         if status not in {"pending", "failed", "delivered"}:
             raise ValueError("Invalid delivery status")
-        with sqlite3.connect(self.path, timeout=15) as db:
+        with sqlite_connection(self.path) as db:
             db.execute(
                 "INSERT OR REPLACE INTO catenda_delivery_status VALUES (?, ?, ?, ?)",
                 (project, case_id, event_id, status),
             )
 
     def summary(self, project, case_id, event_ids):
-        with sqlite3.connect(self.path, timeout=15) as db:
+        with sqlite_connection(self.path) as db:
             states = [
                 status
                 for event_id, status in db.execute(
