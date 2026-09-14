@@ -80,14 +80,50 @@ Key Svelte 5 docs relevant to this project's patterns. Consult these before gene
 - `$derived` is shallow-reactive — pass all dependencies as explicit arguments to extracted functions.
 - Migration guide: https://svelte.dev/docs/svelte/v5-migration-guide
 
-## Designsystem — Analysebordet
+## Designsystem
 
-- Dark-only theme med tokens i `src/app.css` (`@theme inline`)
-- Spacing: 4px grid (spacing-1=4, spacing-2=8, ..., spacing-12=48)
-- Radius: sm=2px, md=4px, lg=6px (skarpere enn standard)
-- Typografi: Inter (UI), IBM Plex Sans (prosa/skriving), IBM Plex Mono (data/tall)
-- Farger: canvas/felt/ink/wire/vekt-hierarki
-- INGEN skygger — borders-only + surface shifts
+Verifisert mot koden 2026-09-14. Det finnes **to parallelle tokensystemer**. Sjekk
+hvilket som gjelder for flaten du endrer før du rører farger.
+
+### 1. `mockup.css` — arbeidsflatene (gjeldende design)
+
+`src/lib/components/kontraktsbord/mockup.css`. Filnavnet er misvisende: dette er
+produksjonsdesignet, ikke en mockup. Det importeres av `CaseWorkspace.svelte` og av
+rutene `/[prosjektId]/ny` og `/[prosjektId]/endringsordre/ny`, i tillegg til
+`/mockup`-rutene.
+
+- ~90 tokens på `:root`. Eget vokabular: `--brand`, `--surface`, `--surface-warm`,
+  `--surface-inset`, `--ink` / `--ink-2` / `--ink-3` / `--ink-4`, `--rule`,
+  `--danger`, `--success`, `--warning`, `--draft`, `--green`, `--gold`
+- Aksent: grønn `--brand: #2d4a3b`
+- **Lys er standard.** Mørkt tema er varianten `.mockup.dark`
+- Typografi: `--font-sans` Inter, `--font-mono` JetBrains Mono (IBM Plex Mono som
+  fallback), `--font-legal` IBM Plex Sans
+- Radius settes med literalverdier (2px, 4px, 12px, 999px), ikke tokens
+- Broen til `--color-*`-navnene finnes bare i `.mockup .editor-wrapper`, for at
+  rik-tekst-editoren skal arve paletten. Den er ikke global.
+
+### 2. `src/app.css` — `@theme inline` (eldre vokabular)
+
+- `--koe-*` → `--color-canvas` / `--color-felt` / `--color-ink` / `--color-wire` /
+  `--color-vekt`. Aksent: stålblå `--koe-vekt: #2c5a8c`
+- **Lys er standard**, `.dark` er varianten
+- Spacing: 4px-grid (`--spacing-1` = 4px … `--spacing-12` = 48px). Gjelder begge systemer
+- Radius: `--radius-sm` 2px, `--radius-md` **2px**, `--radius-lg` 6px
+- Typografi: `--font-ui` Inter, `--font-prose` IBM Plex Sans, `--font-data` IBM Plex Mono
+- I praksis maler denne paletten bare `/login` og `/showcase`. Alt annet laster enten
+  `mockup.css` eller overstyrer tokenene lokalt.
+
+### Kjente avvik
+
+- `ProjectOverview.svelte` (oversikten «Krav og endringer», live på `/[prosjektId]`)
+  importerer ikke `mockup.css`. Den redeklarerer `--color-*`-navnene med hardkodede
+  grønnverdier og har 12 rå hex i sidepanelet. Åtte kjerneverdier er håndduplikater
+  av `mockup.css` — endres paletten ett sted, følger ikke det andre etter.
+- Skygger er i bruk: 38 forekomster av `box-shadow`. En tidligere regel om
+  «ingen skygger, borders-only» stemmer ikke med koden.
+- `.interface-design/system.md` beskriver et eldre stålblått fargesystem
+  («Dokumentbordet») og er utdatert på farger. Se statusnotisen øverst i filen.
 
 ## Konvensjoner
 

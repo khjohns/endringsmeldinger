@@ -1,5 +1,22 @@
 # KOE Design System — Forhandlingsbordet
 
+> **Status: delvis utdatert (notert 2026-09-14).**
+>
+> Fargesystemet beskrevet under — «Dokumentbordet» med varme papirflater og
+> stålblå aksent (#2c5a8c / #7b9ec8) — er **ikke** det som vises i appen i dag.
+> Arbeidsflatene bruker en grønn palett med `--brand: #2d4a3b`, definert i
+> `src/lib/components/kontraktsbord/mockup.css`. Den paletten kom i september 2026;
+> denne filen ble sist endret i april 2026.
+>
+> Stålblått maler i praksis bare `/login` og `/showcase`.
+>
+> Ikke bruk fargeverdiene her som fasit. Øvrige deler — intensjon, hierarki,
+> komponentanatomi, statusspråk og kontrastkravene — er ikke etterprøvd på nytt og
+> kan fortsatt være gyldige. Merk likevel at «ingen myke skygger» ikke stemmer med
+> koden: det er 38 forekomster av `box-shadow`.
+>
+> Se «Designsystem» i `CLAUDE.md` for verifisert tilstand.
+
 ## Intent
 
 **Who:** Prosjektledere, anleggsledere og jurister (Entreprenor/Byggherre). Under tidspress pa byggeplassen eller i kontraktsmoter. Stort okonomisk ansvar.
