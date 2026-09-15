@@ -6,19 +6,22 @@
    * Begge kontraktsparter ser de samme vedleggene — det er hele poenget med at
    * de deles — så panelet merker tydelig hvilken side som lastet opp hvert av dem.
    */
-  import { Download, Loader, Paperclip, Upload } from 'lucide-svelte';
+  import { Download, Loader, Paperclip, Trash2, Upload } from 'lucide-svelte';
   import {
     formaterStorrelse,
     hentVedlegg,
     lastNedVedlegg,
     lastOppVedlegg,
     MAKS_VEDLEGG_BYTES,
+    slettVedlegg,
     type Vedlegg,
   } from '$lib/api/vedlegg';
 
   const { sakId, kanLasteOpp = true }: { sakId: string; kanLasteOpp?: boolean } = $props();
 
   let vedlegg = $state<Vedlegg[]>([]);
+  let minRolle = $state<'TE' | 'BH' | null>(null);
+  let fjerner = $state<string | null>(null);
   let laster = $state(true);
   let lasterOpp = $state(false);
   let henter = $state<string | null>(null);
@@ -33,7 +36,9 @@
   async function oppdater() {
     laster = true;
     try {
-      vedlegg = await hentVedlegg(sakId);
+      const liste = await hentVedlegg(sakId);
+      vedlegg = liste.vedlegg;
+      minRolle = liste.minRolle;
       feil = null;
     } catch (e) {
       feil = e instanceof Error ? e.message : 'Kunne ikke hente vedlegg.';
@@ -57,6 +62,22 @@
     } finally {
       lasterOpp = false;
       if (filvelger) filvelger.value = '';
+    }
+  }
+
+  async function fjern(v: Vedlegg) {
+    if (fjerner) return;
+    fjerner = v.id;
+    feil = null;
+    try {
+      await slettVedlegg(sakId, v.id);
+      await oppdater();
+    } catch (e) {
+      // Backend forklarer hvorfor — typisk at vedlegget er brukt i en
+      // sendt hendelse og derfor er del av sakens grunnlag.
+      feil = e instanceof Error ? e.message : 'Kunne ikke fjerne vedlegget.';
+    } finally {
+      fjerner = null;
     }
   }
 
@@ -96,7 +117,7 @@
             </div>
           </div>
           <button
-            class="last-ned"
+            class="ikonknapp"
             onclick={() => lastNed(v)}
             disabled={henter === v.id}
             aria-label="Last ned {v.navn}"
@@ -107,6 +128,20 @@
               <Download size={14} aria-hidden="true" />
             {/if}
           </button>
+          {#if kanLasteOpp && minRolle !== null && v.lastet_opp_rolle === minRolle}
+            <button
+              class="ikonknapp fjern"
+              onclick={() => fjern(v)}
+              disabled={fjerner === v.id}
+              aria-label="Fjern {v.navn}"
+            >
+              {#if fjerner === v.id}
+                <Loader size={14} class="spinner" aria-hidden="true" />
+              {:else}
+                <Trash2 size={14} aria-hidden="true" />
+              {/if}
+            </button>
+          {/if}
         </li>
       {/each}
     </ul>
@@ -185,7 +220,7 @@
     font-size: 11px;
     color: var(--ink-4);
   }
-  .last-ned {
+  .ikonknapp {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -198,12 +233,15 @@
     cursor: pointer;
     transition: all 80ms;
   }
-  .last-ned:hover:not(:disabled) {
+  .ikonknapp:hover:not(:disabled) {
     color: var(--ink);
     background: var(--surface-2, transparent);
   }
-  .last-ned:disabled {
+  .ikonknapp:disabled {
     cursor: progress;
+  }
+  .ikonknapp.fjern:hover:not(:disabled) {
+    color: var(--avslag, #b3261e);
   }
   .tom {
     margin: 0;

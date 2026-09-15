@@ -45,6 +45,31 @@ def reader_contract_team() -> str | None:
     return team or None
 
 
+def reader_contract_role() -> str | None:
+    """Leserens kontraktsside (TE/BH), eller None når den ikke kan bekreftes.
+
+    Notatfilteret bruker `reader_contract_team`, som er strengere. Denne
+    brukes der siden er det relevante — for eksempel om et vedlegg er lastet
+    opp av leserens egen part.
+    """
+    role = getattr(g, "contract_role", None)
+    if role in {"TE", "BH"}:
+        return role
+
+    project_id = getattr(g, "project_id", None)
+    user = getattr(g, "user", None)
+    if not project_id or not user or not user.get("id"):
+        return None
+
+    from lib.auth.session import get_auth_service
+
+    try:
+        role, _team = get_auth_service().contract_membership(project_id, user["id"])
+    except Exception:
+        return None
+    return role if role in {"TE", "BH"} else None
+
+
 def is_internal_note(event: object) -> bool:
     """Om hendelsen er et internt notat, uavhengig av om typen er enum eller str."""
     event_type = getattr(event, "event_type", None)
