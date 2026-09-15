@@ -19,6 +19,11 @@ export interface Vedlegg {
   lastet_opp_av: string;
   lastet_opp_rolle: 'TE' | 'BH';
   tidspunkt: string;
+  /**
+   * 'staged': ligger hos oss, ikke sendt, usett av motparten.
+   * 'delivered': sendt sammen med en hendelse og lastet opp til Catenda.
+   */
+  status: 'staged' | 'delivered';
 }
 
 /** Filstørrelsen backend godtar. Speiler MAKS_VEDLEGG_BYTES. */

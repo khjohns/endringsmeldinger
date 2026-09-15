@@ -236,3 +236,61 @@ slipper gjennom.
 Backend: **1245 tester passerer** (21 nye i denne runden). Frontend: **513 tester /
 43 filer**, 0 typefeil / 10 advarsler, grønn lint og build. Ruff uendret på 18
 eksisterende feil.
+
+## Oppfølging: opplastingen er utsatt til innsending
+
+Brukerspørsmål 2026-09-15: skal vedlegget lastes opp umiddelbart, eller først når saken
+er sendt — slik at det kan fjernes uten risiko for at det havner i Catenda?
+
+Spørsmålet traff en reell svakhet i det som var bygget. Vedlegget ble lastet opp i det
+brukeren valgte filen, altså til det **delte** biblioteket, før avsenderen hadde bestemt
+seg for å sende noe. Sletting ryddet i Catenda, men gjorde ikke dokumentet usett. Det er
+samme klasse som BE-01: materiale når motparten før avsenderen har ment å dele det.
+
+### «Sendt» er hendelsens commit
+
+Det finnes ingen «saken er sendt» som helhet — `SporStatus.SENDT` er per spor, og
+levering til Catenda skjer ved hendelses-commit (`_post_to_catenda` rett etter `append`,
+med leveringskvittering rundt). Den naturlige grensen er derfor at vedlegget lastes opp
+i samme øyeblikk som hendelsen som viser til det blir lagret.
+
+### Mellomlagring
+
+Brukervalg: bytene mellomlagres i `BH_APPROVAL_DB`, samme base som godkjenninger,
+leveringskvitteringer og vedleggsregisteret. De lagres atomisk med registerraden, så
+ingen foreldreløse filer kan oppstå, og det er én ting å sikkerhetskopiere.
+Persistensauditens åpne punkt om varig lagring og restore-test for den filen gjelder nå
+også vedlegg.
+
+`vedlegg_id` genereres lokalt og er stabil gjennom hele livsløpet, så en hendelse viser
+til samme verdi før og etter levering. Catendas egen item-ID lagres ved siden av når den
+finnes. Ved levering frigis det mellomlagrede innholdet — Catenda holder dokumentet, og
+å beholde bytene ville vært den dobbeltlagringen vi bevisst unngår.
+
+### Hva det gir
+
+| Tilstand | Egenskap |
+| --- | --- |
+| `staged` | Har aldri forlatt oss. Kan lastes ned av egen side for kontroll, og **fjernes sporløst** — ingen Catenda-kall, ingenting å rydde. |
+| `delivered` | Sendt sammen med en hendelse. Del av sakens formelle grunnlag; kan ikke fjernes. |
+
+Feiler opplastingen etter at hendelsen er lagret, gjør det ikke innsendingen mislykket —
+hendelsen er committet, og en integrasjonsfeil skal ikke invitere til ny innsending
+(samme prinsipp som PDF-02). Vedlegget blir stående som `staged` så leveringen kan
+gjentas. Det åpner et hull som er lukket eksplisitt: sletting kontrollerer også om en
+lagret hendelse viser til vedlegget, slik at et referert men uleverte vedlegg ikke kan
+fjernes under saken.
+
+Panelets hjelpetekst er rettet tilsvarende. Den sa at vedlegg deles med motparten, noe
+som var riktig for umiddelbar opplasting og nå ville vært misvisende: «Vedlegg sendes
+først når du sender kravet. Fram til da ligger de her og er ikke synlige for motparten.»
+Usendte vedlegg er dessuten merket «ikke sendt» i listen.
+
+### Verifikasjon
+
+Backend: **1246 tester passerer**, hvorav 30 i vedleggsrutene — blant annet at
+opplasting ikke når Catenda, at et mellomlagret vedlegg kan lastes ned uten
+Catenda-kall, at sletting av mellomlagret vedlegg ikke utløser noe Catenda-kall i det
+hele tatt, at feilet levering beholder mellomlagringen, og at tempfilen ryddes når
+opplastingen kaster. Frontend: **513 tester / 43 filer**, 0 typefeil / 10 advarsler,
+grønn lint og build. Ruff uendret på 18 eksisterende feil.

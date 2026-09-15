@@ -554,6 +554,15 @@ def submit_event():
 
         logger.debug(f"Event persisted, version: {new_version}")
 
+        # Vedleggene sendes først nå. Fram til hendelsen var lagret, lå de
+        # mellomlagret hos oss og var usett av motparten.
+        try:
+            from routes.vedlegg_routes import lever_vedlegg_for_hendelse
+
+            lever_vedlegg_for_hendelse(g.project_id, sak_id, event)
+        except Exception:
+            logger.exception("Event committed; vedleggslevering feilet")
+
         # 9. Catenda Integration (PDF + Comment + Status Sync) - optional
         catenda_success = False
         pdf_source = None
