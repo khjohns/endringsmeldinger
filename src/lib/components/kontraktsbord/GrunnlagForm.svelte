@@ -19,6 +19,7 @@
   import { getApprovalWorkspace } from '$lib/approval/context.svelte';
   import { TRACK_ICONS } from './data.js';
   import CaseAnchor from './CaseAnchor.svelte';
+  import UtkastStatus from './UtkastStatus.svelte';
   import {
     createSubmission,
     createFormDraft,
@@ -67,7 +68,11 @@
   const visVarsling = $derived(erEndringMed32_2(domainConfig.grunnlagEvent));
   const draft = createFormDraft(
     !store.isDemo,
-    `${store.isDemo ? 'demo' : store.projectId}:${store.sak.sak_id}-BH-grunnlag-${store.sak.grunnlag.antall_versjoner}`,
+    {
+      sakId: store.sak.sak_id,
+      spor: 'grunnlag',
+      revisjon: store.sak.grunnlag.antall_versjoner,
+    },
     () => ({ varsletITide, resultat, begrunnelseHtml }),
     (saved) => {
       varsletITide = saved.varsletITide;
@@ -162,6 +167,13 @@
   <div class="form-content">
     {#if submission.pending}<p role="status">Sender …</p>{/if}
     {#if submission.error}<p role="alert">{submission.error}</p>{/if}
+    <UtkastStatus
+      status={draft.status}
+      konflikt={draft.konflikt}
+      sistEndretAv={draft.sistEndretAv}
+      behold={draft.behold}
+      hentInn={draft.hentInn}
+    />
     <CaseAnchor />
 
     <div class="form-title-row">

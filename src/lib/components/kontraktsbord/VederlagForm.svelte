@@ -39,6 +39,7 @@
   import { fmt, sporResultatLabel } from './utils.js';
   import Stamp from './Stamp.svelte';
   import CaseAnchor from './CaseAnchor.svelte';
+  import UtkastStatus from './UtkastStatus.svelte';
   import type { EventType, ResponsVederlagEventData } from '$lib/types/timeline';
   import {
     createSubmission,
@@ -133,7 +134,11 @@
   const computed = $derived(beregnAlt(formState, domainConfig));
   const draft = createFormDraft(
     !store.isDemo,
-    `${store.isDemo ? 'demo' : store.projectId}:${store.sak.sak_id}-BH-vederlag-${store.sak.vederlag.antall_versjoner}`,
+    {
+      sakId: store.sak.sak_id,
+      spor: 'vederlag',
+      revisjon: store.sak.vederlag.antall_versjoner,
+    },
     () => ({ ...formState, tilleggHtml }),
     (saved) => {
       hovedkravVarsletITide = saved.hovedkravVarsletITide;
@@ -577,6 +582,13 @@
   <div class="form-content">
     {#if submission.pending}<p role="status">Sender …</p>{/if}
     {#if submission.error}<p role="alert">{submission.error}</p>{/if}
+    <UtkastStatus
+      status={draft.status}
+      konflikt={draft.konflikt}
+      sistEndretAv={draft.sistEndretAv}
+      behold={draft.behold}
+      hentInn={draft.hentInn}
+    />
     <CaseAnchor />
 
     <div class="form-title-row">

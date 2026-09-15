@@ -16,9 +16,10 @@ Kontrollert og rettet: lokal utkastlagring i nettleseren, og fravær av et delt
 arbeidsutkast for flere saksbehandlere i samme organisasjon.
 
 Utenfor omfang: ekte tekstsamarbeid med fletting (se
-[Gjenstående](#gjenstående)), Supabase/RLS, og migrering av de seks
-saksskjemaene til serverutkastet — det siste er bygget, men ikke tatt i bruk av UI,
-og er det neste trinnet.
+[Gjenstående](#gjenstående)) og Supabase/RLS.
+
+De seks saksskjemaene er migrert til serverutkastet i samme runde — se
+[Migreringen av skjemaene](#migreringen-av-skjemaene).
 
 ## Funnet, reprodusert før retting
 
@@ -102,6 +103,42 @@ Det er et bevisst mellomtrinn: «siste skriving vinner» ville tapt kollegaens t
 stille, og en konflikt som kan vises er ærligere enn det. Begge retninger er dekket —
 også den som tror utkastet er tomt, slik at en ny fane ikke sletter en kollegas arbeid.
 
+## Migreringen av skjemaene
+
+`createFormDraft` i `src/lib/kontraktsbord/submission.svelte.ts` var ett sømpunkt som
+alle seks skjemaene gikk gjennom, og nøkkelen bar allerede `prosjekt:sak-SIDE-spor-versjon`.
+Den tar nå `{ sakId, spor, revisjon }` i stedet for en nøkkelstreng, og går mot serveren.
+
+Kontraktssiden falt ut av nøkkelen med vilje: teamet avgjør siden, og backend leser den
+fra `contract_membership`. En klient kan altså ikke velge hvilken side den skriver som.
+
+Atferden skjemaene fikk:
+
+- **Utsatt lagring.** Tekst skrives 1,2 sekunder etter siste tastetrykk, ikke ved hvert
+  tegn. Effekten rydder sin egen timer, så en pågående redigering utsetter skrivingen.
+- **Ingen tom skriving.** Et skjema som er uendret siden det ble lastet, skriver ikke
+  seg selv tilbake og bumper ikke versjonen.
+- **Konflikten stopper autolagringen.** Så lenge valget står åpent skrives ingenting;
+  ellers ville neste tastetrykk overskrevet kollegaen uten at noen bestemte det.
+- **Frakoblet mister ikke tekst.** Nettverksfeil setter status `frakoblet` og lar
+  teksten stå i skjemaet. Neste endring forsøker på nytt. Det samme gjelder om utkastet
+  ikke kunne hentes ved montering — skjemaet er brukbart uansett.
+- **Demo rører ikke serveren.** `enabled = !store.isDemo` som før.
+
+### 409-en, slik brukeren møter den
+
+`UtkastStatus.svelte` viser en linje med lagringsstatus og hvem som sist endret
+utkastet, og ved konflikt et valg med to utfall:
+
+- **Behold min tekst** — skriver over kollegaens versjon, bevisst valgt.
+- **Hent inn deres** — forkaster min tekst til fordel for den lagrede.
+
+Teksten sier rett ut at den andre versjonen går tapt. Det er ikke pent, men det er
+sant, og alternativet — å flette to juridiske begrunnelser automatisk — er verre.
+Dette dekker kravet om synlig lagringsstatus i forrige logg. Kravet om å vise **hvem
+som arbeider i utkastet akkurat nå** er ikke dekket; det trenger tilstedeværelse i
+sanntid, og står igjen sammen med flettingen.
+
 ## Avskrevet
 
 Etter regelen om at hypoteser ikke rapporteres som funn: to mistanker holdt ikke, og
@@ -131,19 +168,38 @@ Ingen nettverkstilgang kreves; suitene går uten.
 | Kommando | Før | Etter |
 | --- | --- | --- |
 | `cd backend && python3 -m pytest -q` | 1249 passerer | **1275 passerer** (+26) |
-| `npx vitest run` | 513 tester, 43 filer | **518 tester, 43 filer** (+5) |
+| `npx vitest run` | 513 tester, 43 filer | **529 tester, 44 filer** (+16) |
 | `npm run check` | 0 feil, 10 advarsler | **0 feil, 10 advarsler** |
 | `npm run lint` | grønn | **grønn** |
 | `npm run build` | passerer | **passerer** |
 | `ruff check services/ routes/ lib/ tests/` | 18 | **18** |
 | `models/events.py` UP042 / `app.py` I001 | 10 / 1 | **10 / 1** |
 
+`npm run lint` kjører nå `prettier --check src/` før eslint. Formateringen var før
+bare håndhevet av pre-commit-kroken, uten CI i repoet; nå er feil formatering en synlig
+feil i stedet for en stille omskriving av det som nettopp ble skrevet.
+
 Nye tester: `backend/tests/test_services/test_utkast_registry.py` (12),
-`backend/tests/test_routes/test_utkast_routes.py` (14).
+`backend/tests/test_routes/test_utkast_routes.py` (14),
+`src/lib/kontraktsbord/__tests__/formDraft.test.ts` (11).
 `src/lib/utils/__tests__/draft-owner.test.ts` gikk fra én `it.fails` til seks
 passerende, og dekker nå: ingen gjenoppretting for neste bruker, egen tekst tilbake til
 den som skrev den, to brukeres utkast side om side, gamle utkast urørt, ingen skriving
 uten innlogget bruker, og opphør etter utlogging.
+
+### Testene ble kontrollert med mutasjon
+
+`createFormDraft` hadde **ingen** dekning før denne runden, så de 518 grønne testene sa
+ingenting om migreringen. De elleve nye passerte på første forsøk, og det beviser lite
+når kode og test skrives sammen. To mutasjoner ble derfor innført i implementasjonen for
+å se at testene faktisk biter:
+
+| Mutasjon | Utfall |
+| --- | --- |
+| Fjernet sperren som stopper autolagring mens en konflikt er uavklart | 2 tester feilet |
+| Sendte alltid `null` som forventet versjon, så konflikt aldri kan oppdages | 1 test feilet |
+
+Implementasjonen ble gjenopprettet og verifisert på nytt.
 
 ### Endringer i eksisterende tester, og hvorfor
 
@@ -170,20 +226,22 @@ sammenblandingsrisiko der.
 
 ## Gjenstående
 
-1. **Migrere de seks saksskjemaene til serverutkastet.** `createFormDraft` i
-   `src/lib/kontraktsbord/submission.svelte.ts` er det ene sømpunktet — alle seks går
-   gjennom den, og nøkkelen bærer allerede riktig identitet. Migreringen trenger en
-   UX-beslutning om hvordan en 409-konflikt vises, og UX er avtalt utsatt til brukeren
-   kan se endringer løpende. Endepunktene er ubrukt av UI fram til dette er gjort.
-2. **Ekte tekstsamarbeid.** Konfliktdeteksjon er ikke fletting. Kravlisten i forrige
-   logg står: flere samtidige redaktører uten at hele snapshots overskriver hverandre,
-   konflikthåndtering for strukturerte felt (beløp, datoer, frister), og visning av
-   lagrings-/tilkoblingsstatus og hvem som arbeider. Synkroniseringsmekanisme skal
-   velges ut fra faktisk driftsoppsett; en CRDT-provider er en ny kjørende tjeneste og
-   er ikke innført her.
-3. **Opprydding av utkast etter innsending.** `DELETE`-ruten finnes, men ingen
-   innsendingsvei kaller den ennå. Merk at «sendt» har tre svar i dette systemet —
-   `submit_event`, `submit_batch` og `ApprovalService.publish` — så oppryddingen må
-   kobles til alle tre, på samme måte som vedlegg og kvitteringer.
+1. **Ekte tekstsamarbeid.** Konfliktdeteksjon er ikke fletting. Kravlisten i forrige
+   logg står fortsatt på to punkter: flere samtidige redaktører uten at hele snapshots
+   overskriver hverandre, og konflikthåndtering for strukturerte felt (beløp, datoer,
+   frister) — en 409 på hele skjemaet skiller ikke mellom et endret beløp og en endret
+   setning. Synkroniseringsmekanisme skal velges ut fra faktisk driftsoppsett; en
+   CRDT-provider er en ny kjørende tjeneste og er ikke innført her.
+2. **Tilstedeværelse.** Kravet om å vise hvem som arbeider i utkastet akkurat nå er
+   ikke dekket. Statuslinjen viser hvem som sist *endret* det, ikke hvem som sitter i
+   det. Dette hører sammen med punkt 1.
+3. **Opprydding av forlatte utkast.** Skjemaene sletter utkastet ved vellykket
+   innsending (`createSubmission(() => draft.clear())`), så den normale veien rydder
+   etter seg uansett hvilken av de tre innsendingsveiene backend brukte. To hull står
+   igjen: en innsending fra en annen fane eller maskin rydder ikke denne klientens
+   utkast, og en nettleser som dør mellom innsending og sletting etterlater raden.
+   Konsekvensen er begrenset — revisjonen er frosset, så neste skjema åpner på
+   `revisjon + 1` og får et tomt utkast — men radene blir liggende. En opprydding
+   server-side ved innsending ville lukket begge.
 4. **`BH_APPROVAL_DB` trenger varig lagring og restore-test** før produksjon. Nå ligger
    også utkastene der. Se [persistensauditen](audit-persistens-gjenoppretting-2026-09-14.md).

@@ -28,6 +28,7 @@
   const review = getApprovalWorkspace();
   import { getApprovalWorkspace } from '$lib/approval/context.svelte';
   import CaseAnchor from './CaseAnchor.svelte';
+  import UtkastStatus from './UtkastStatus.svelte';
   import FormPageHeader from './components/FormPageHeader.svelte';
   import NumberField from './components/NumberField.svelte';
 
@@ -80,7 +81,7 @@
   const computed = $derived(beregnAlt(formState, domainConfig));
   const draft = createFormDraft(
     !store.isDemo,
-    `${store.isDemo ? 'demo' : store.projectId}:${store.sak.sak_id}-BH-frist-${store.sak.frist.antall_versjoner}`,
+    { sakId: store.sak.sak_id, spor: 'frist', revisjon: store.sak.frist.antall_versjoner },
     () => ({
       fristVarselOk,
       spesifisertKravOk,
@@ -295,6 +296,13 @@
   <div class="form-content">
     {#if submission.pending}<p role="status">Sender …</p>{/if}
     {#if submission.error}<p role="alert">{submission.error}</p>{/if}
+    <UtkastStatus
+      status={draft.status}
+      konflikt={draft.konflikt}
+      sistEndretAv={draft.sistEndretAv}
+      behold={draft.behold}
+      hentInn={draft.hentInn}
+    />
     <CaseAnchor />
 
     <FormPageHeader
