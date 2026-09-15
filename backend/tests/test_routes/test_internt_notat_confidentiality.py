@@ -29,7 +29,7 @@ BH_BYGGHERRE_TEAM = "33333333333333333333333333333333"
 BH_RADGIVER_TEAM = "55555555555555555555555555555555"
 
 
-def _notat(rolle: str, team: str | None) -> InterntNotatEvent:
+def _notat(rolle: str, team: str) -> InterntNotatEvent:
     return InterntNotatEvent(
         sak_id="case",
         aktor="Notatskriver",
@@ -111,13 +111,6 @@ def test_samme_side_annet_team_ser_ikke_notatet(api, path):
     Dette er tilfellet et rent TE/BH-filter ikke fanger.
     """
     client = api("BH", "BH", BH_RADGIVER_TEAM, BH_BYGGHERRE_TEAM)
-    _assert_skjult(_get(client, f"/api/cases/case/{path}"))
-
-
-@pytest.mark.parametrize("path", ["timeline", "context"])
-def test_notat_uten_team_skjules(api, path):
-    """Et notat uten registrert organisasjon vises ikke til noen."""
-    client = api("TE", "TE", TE_TEAM, None)
     _assert_skjult(_get(client, f"/api/cases/case/{path}"))
 
 
@@ -268,3 +261,57 @@ def test_team_stemples_av_serveren_ikke_av_klienten(submit_api):
     assert response.status_code == 201, response.get_data(as_text=True)
     lagret = submit_api.appended()
     assert lagret.aktor_team_id == TE_TEAM
+
+
+def test_notat_avvises_uten_entydig_organisasjon(monkeypatch, tmp_path):
+    """Er leseren med i to team på samme side, kan notatet ikke skrives.
+
+    Et notat uten entydig organisasjon ville vært ulesbart for alle — også for
+    forfatteren — så det avvises i stedet for å bli lagret som død data.
+    """
+    monkeypatch.setenv("BH_APPROVAL_DB", str(tmp_path / "approval.sqlite"))
+    monkeypatch.delenv("DISABLE_AUTH", raising=False)
+
+    app = Flask(__name__)
+    app.testing = True
+    init_project_context(app)
+    app.register_blueprint(event_routes.events_bp)
+
+    auth = Mock()
+    auth.repo.session.return_value = {
+        "app_users": {"id": "u", "email": "te@example.com", "name": "TE Bruker"},
+        "csrf_token": "csrf",
+    }
+    auth.role.return_value = "member"
+    auth.contract_role.return_value = "BH"
+    # Medlem i to BH-team: rollen er entydig, organisasjonen er det ikke.
+    auth.contract_membership.return_value = ("BH", None)
+    app.extensions["koe_auth"] = auth
+
+    container = Mock()
+    container.metadata_repository.get.return_value = SimpleNamespace(
+        prosjekt_id="p", catenda_topic_id="topic"
+    )
+    container.event_repository.get_events.return_value = ([], 0)
+    monkeypatch.setattr(event_routes, "_get_container", lambda: container)
+    monkeypatch.setattr("lib.auth.project_access.get_container", lambda: container)
+
+    client = app.test_client()
+    client.set_cookie(cookie_name(), "session")
+
+    response = client.post(
+        "/api/events",
+        json={
+            "sak_id": "case",
+            "expected_version": 0,
+            "event": {
+                "event_type": "internt_notat",
+                "data": {"tekst": NOTAT_TEKST, "spor": "grunnlag"},
+            },
+        },
+        headers={"X-Project-ID": "p", "X-CSRF-Token": "csrf"},
+    )
+
+    assert response.status_code == 403, response.get_data(as_text=True)
+    assert "teamtilknytning" in response.get_json()["message"]
+    container.event_repository.append.assert_not_called()

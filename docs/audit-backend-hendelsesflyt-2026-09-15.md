@@ -16,6 +16,11 @@ og kontekstrutene for EO/forsering), utgående Catenda-levering fra innsendingsr
 forretningsreglene i `services/business_rules.py` for forseringssporet, og de fem røde
 testene i baselinen.
 
+Forutsetning (brukeravklaring 2026-09-15): appen er **ikke i produksjon**, og databasen
+inneholder ingen reelle data. Skjemaendringer på hendelser har derfor ingen
+migreringskostnad i denne runden, og funn som ellers ville krevd backfill kan lukkes
+strengt med én gang. Dette vinduet lukker seg ved første produksjonsdata.
+
 Utenfor omfang: Supabase/RLS, dokument- og vedleggsflyten, driftsoppsett, og
 webhookens durable outbox (ligger til trinn 3 i [Catenda-dataflyten](catenda-dataflyt.md)
 og er utsatt etter avtale). Ingen tokens, produksjonsdata eller eksterne tjenester er
@@ -81,10 +86,21 @@ av saken.
 
 Et notat **uten** `aktor_team_id` skjules for alle, også for forfatteren.
 Brukeravklaring 2026-09-15: den strengeste varianten ble valgt fremfor et fallback til
-rollefilteret. Konsekvensen er reell og skal ikke underslås — et notat skrevet før
-denne endringen blir usynlig for den som skrev det. I praksis er mengden trolig null,
-siden det ikke finnes noen opprettelsesflate i frontend (se gjenstående punkter), men
-det er ikke verifisert mot produksjonsdata.
+rollefilteret.
+
+Fordi appen ikke er i produksjon og databasen ikke inneholder reelle data
+(brukeravklaring 2026-09-15), finnes det ingen notater som rammes av dette, og ingen
+migrering å ta hensyn til. Det samme gjorde det mulig å gå ett skritt lenger enn å
+filtrere: `InterntNotatEvent.aktor_team_id` er **påkrevd**, innsnevret fra det valgfrie
+feltet på `SakEvent`. Et notat uten organisasjon kan dermed ikke lagres i det hele tatt.
+
+Feltet kan ikke være påkrevd på `SakEvent` selv: webhook-, EO- og forseringstjenestene
+lager hendelser uten en innlogget bruker, og for dem finnes ingen organisasjon å sette.
+Notater skrives derimot alltid av en autentisert person, så innsnevringen holder.
+
+Mangler brukeren entydig teamtilknytning — typisk medlemskap i to team på samme
+kontraktsside — avvises notatet med HTTP 403 og en forklarende melding, i stedet for å
+bli lagret som data ingen noensinne kan lese. Filteret beholdes som dybdeforsvar.
 
 Filteret er lagt på **serialiseringen**, ikke på `_fetch_and_parse_events`. Første
 forsøk filtrerte før `compute_state`, og en egen test viste hvorfor det er galt: en sak
@@ -203,6 +219,7 @@ underliggende mangelen er ikke rettet** — den er utsatt etter avtale (trinn 3)
 | `streamposition` tåler filtrering | Frontenden bruker feltet kun til relativ sortering (`src/lib/utils/timelineOrder.ts`), ikke som stabil identifikator. |
 | Analytics-tidslinjen | `/api/analytics/timeline` aggregerer kun antall per periode og returnerer ingen hendelsesinnhold. Et internt notat øker en telling med én. Dette er **ikke** rettet og regnes som akseptert restsignal. |
 | Eksisterende forseringsflyt | Alle eksisterende forseringstester passerer uendret etter BE-03/BE-04. |
+| Notat uten organisasjon kan ikke lagres | `InterntNotatEvent.aktor_team_id` er påkrevd; ruten avviser med 403 før lagring når teamet ikke er entydig. |
 | Klienten kan ikke oppgi egen organisasjon | Innsendingstest med forfalsket `aktor_team_id` i nyttelasten: serveren overskriver med verdien fra medlemsoppslaget. |
 | Teamoppslaget koster ikke ekstra kall | `contract_membership` gjør samme løkke som før og returnerer begge verdier; `visible_events` slår ikke opp team i det hele tatt for saker uten interne notater. |
 
@@ -221,7 +238,8 @@ underliggende mangelen er ikke rettet** — den er utsatt etter avtale (trinn 3)
   en etikett (`eventTypeLabels.ts`), så et notat ville blitt vist, men ingen rute
   oppretter et. BE-01 var derfor latent: skrive- og lesebanen i backend er fullt koblet,
   og lekkasjen ville inntruffet i det første notat ble opprettet — via API-et i dag,
-  eller via en fremtidig UI.
+  eller via en fremtidig UI. Appen er ikke i produksjon og databasen har ingen reelle
+  data, så lekkasjen har aldri materialisert seg. Den er lukket før første notat.
 - **`FORSERING_KOE_LAGT_TIL` / `FORSERING_KOE_FJERNET`** har fortsatt ingen
   «er dette en forseringssak»-regel, slik EO-motpartene har. Dette er *ikke* undersøkt
   eller reprodusert i denne runden, og skal ikke leses som at det er i orden.
@@ -243,7 +261,7 @@ underliggende mangelen er ikke rettet** — den er utsatt etter avtale (trinn 3)
 cd backend && python3 -m pytest -q
 ```
 
-Resultat: **1197 passerer, 0 feiler** (baseline var 1161 passerte / 5 feilet).
+Resultat: **1196 passerer, 0 feiler** (baseline var 1161 passerte / 5 feilet).
 
 `git diff --check`: rent. Ruff på `services/ routes/ lib/ tests/`: 18 feil både før og
 etter — alle eksisterende. `models/events.py` har i tillegg 10 eksisterende `UP042` på

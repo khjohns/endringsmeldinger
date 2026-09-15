@@ -168,6 +168,15 @@ def _parse_authorized_event(data: dict) -> AnyEvent:
     data["aktor"] = g.user.get("name") or g.user.get("email") or g.user["id"]
     data["aktor_rolle"] = g.contract_role
     data["aktor_team_id"] = getattr(g, "contract_team", None)
+    if (
+        data.get("event_type") == EventType.INTERNT_NOTAT.value
+        and not data["aktor_team_id"]
+    ):
+        # Uten entydig organisasjon ville notatet vært ulesbart for alle,
+        # forfatteren inkludert. Da er det riktigere å avvise det.
+        raise PermissionError(
+            "Interne notater krever entydig teamtilknytning i Catenda."
+        )
     event = parse_event_from_request(data)
     result = validator.validate_actor_role(event)
     if not result.is_valid:
