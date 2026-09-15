@@ -21,7 +21,6 @@ from typing import Any
 
 from flask import g, Blueprint, jsonify, request
 
-from lib.auth.csrf_protection import require_csrf
 from lib.auth.session import require_auth
 from lib.auth.project_access import require_project_access
 from lib.auth.contract_role import require_contract_role
@@ -182,7 +181,6 @@ def _build_catenda_response(catenda_result: CatendaSyncResult | None) -> dict[st
 
 
 @forsering_bp.route("/api/forsering/opprett", methods=["POST"])
-@require_csrf
 @require_auth
 @require_project_access(min_role="member")
 @require_contract_role("TE")
@@ -295,7 +293,6 @@ def finn_forseringer_for_sak(sak_id: str):
 
 
 @forsering_bp.route("/api/forsering/<sak_id>/relatert", methods=["POST"])
-@require_csrf
 @require_auth
 @require_project_access(min_role="member")
 @require_contract_role("TE")
@@ -316,7 +313,6 @@ def legg_til_relatert_sak(sak_id: str):
 
 
 @forsering_bp.route("/api/forsering/<sak_id>/relatert/<koe_sak_id>", methods=["DELETE"])
-@require_csrf
 @require_auth
 @require_project_access(min_role="member")
 @require_contract_role("TE")
@@ -366,7 +362,6 @@ def valider_forseringskostnad():
 
 
 @forsering_bp.route("/api/forsering/<sak_id>/bh-respons", methods=["POST"])
-@require_csrf
 @require_auth
 @require_project_access(min_role="member")
 @require_contract_role("BH")
@@ -486,7 +481,6 @@ def valider_forseringsgrunnlag(sak_id: str):
 
 
 @forsering_bp.route("/api/forsering/<sak_id>/stopp", methods=["POST"])
-@require_csrf
 @require_auth
 @require_project_access(min_role="member")
 @require_contract_role("TE")
@@ -541,7 +535,6 @@ def stopp_forsering(sak_id: str):
 
 
 @forsering_bp.route("/api/forsering/<sak_id>/kostnader", methods=["PUT"])
-@require_csrf
 @require_auth
 @require_project_access(min_role="member")
 @require_contract_role("TE")

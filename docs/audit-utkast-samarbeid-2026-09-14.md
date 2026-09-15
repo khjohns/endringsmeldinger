@@ -3,6 +3,11 @@
 Dato: 2026-09-14. Status: krav avklart; samarbeidsfunksjonen er ikke implementert.
 Ingen eksisterende lokale utkast er slettet, flyttet eller gitt en antatt eier.
 
+> **Fulgt opp 2026-09-15:** lekkasjen er lukket og teamavgrensede serverutkast er bygget
+> — se [utkastlekkasje og teamavgrensede serverutkast](audit-utkast-serverlagring-2026-09-15.md).
+> Avklaring 2 er der presisert til å gjelde **Catenda-team-ID**, ikke kontraktsside.
+> Flettekravet i kravlisten under står fortsatt åpent.
+
 ## Brukerens avklaringer
 
 1. Gamle lokale utkast uten entydig eier skal beholdes urørt, men ikke automatisk

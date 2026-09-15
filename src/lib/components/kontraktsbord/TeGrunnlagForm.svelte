@@ -10,6 +10,7 @@
   const claimReview = getClaimReview();
   import { TRACK_ICONS } from './data.js';
   import CaseAnchor from './CaseAnchor.svelte';
+  import UtkastStatus from './UtkastStatus.svelte';
   import { buildTeRevisionEventData } from '$lib/domain/grunnlagDomain';
   import {
     createSubmission,
@@ -53,7 +54,11 @@
   let bhContextExpanded = $state(false);
   const draft = createFormDraft(
     !store.isDemo,
-    `${store.isDemo ? 'demo' : store.projectId}:${store.sak.sak_id}-TE-grunnlag-${store.sak.grunnlag.antall_versjoner}`,
+    {
+      sakId: store.sak.sak_id,
+      spor: 'grunnlag',
+      revisjon: store.sak.grunnlag.antall_versjoner,
+    },
     () => ({ begrunnelseHtml }),
     (saved) => {
       begrunnelseHtml = saved.begrunnelseHtml ?? originalBegrunnelse;
@@ -108,6 +113,13 @@
   <div class="form-content">
     {#if submission.pending}<p role="status">Sender …</p>{/if}
     {#if submission.error}<p role="alert">{submission.error}</p>{/if}
+    <UtkastStatus
+      status={draft.status}
+      konflikt={draft.konflikt}
+      sistEndretAv={draft.sistEndretAv}
+      behold={draft.behold}
+      hentInn={draft.hentInn}
+    />
     <CaseAnchor />
 
     <div class="form-title-row">

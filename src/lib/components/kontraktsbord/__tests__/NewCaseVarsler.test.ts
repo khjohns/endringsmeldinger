@@ -4,16 +4,23 @@ import NewCaseForm from '../NewCaseForm.svelte';
 import { KRAV_STRUKTUR_NS8407 } from '$lib/constants/categories';
 import { VARSEL_LABELS } from '$lib/domain/konsekvensVarsler';
 import { submitEvent } from '$lib/api/events';
+import { setDraftOwner } from '$lib/utils/draftOwner';
 
 vi.mock('$lib/api/events', () => ({ submitEvent: vi.fn() }));
 vi.mock('$app/environment', () => ({ browser: true }));
 
+// Lokale utkast er bundet til den innloggede. I appen setter rot-layouten
+// eieren via getSession() før noen side rendres; her rendres komponenten
+// direkte, så eieren må settes for hånd.
+const EIER = 'saksbehandler-1';
+
 beforeEach(() => {
   localStorage.clear();
+  setDraftOwner(EIER);
   vi.mocked(submitEvent).mockReset();
   const kontraktsforhold = KRAV_STRUKTUR_NS8407.find((k) => k.kode === 'ENDRING')!;
   localStorage.setItem(
-    'koe-draft-kontraktsbord-ny-project',
+    `koe-draft-kontraktsbord-ny-project::${EIER}`,
     JSON.stringify({
       tittel: 'Endret fundament',
       datoOppdaget: '2026-09-01',
@@ -61,7 +68,7 @@ describe('basis submission with optional notices', () => {
     ]);
     expect(data).not.toHaveProperty('belop_direkte');
     expect(data).not.toHaveProperty('antall_dager');
-    expect(localStorage.getItem('koe-draft-kontraktsbord-ny-project')).toBeNull();
+    expect(localStorage.getItem(`koe-draft-kontraktsbord-ny-project::${EIER}`)).toBeNull();
   });
 
   it('preserves notices and the created case when basis submission fails, then retries that case', async () => {

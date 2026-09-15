@@ -108,10 +108,34 @@ class AuthService:
             self.sync(config)
         return True
 
+    def _membership(self, project_id, user_id):
+        """Medlemskapet, med ett oppslag per forespørsel.
+
+        Tilgangslaget spør to ganger om det samme: `require_project_access`
+        gjennom `role()`, og `require_contract_role` gjennom
+        `contract_membership()`. Memoet lever bare i forespørselens `g`, så
+        dette er ikke autoritetscachen `contract_membership` bevisst unngår —
+        verdien leses like ferskt som før, bare én gang i stedet for to.
+
+        Utenfor en forespørsel (skript, direkte tjenestebruk) er det ingen `g`
+        å henge memoet på, og oppslaget går rett til repoet.
+        """
+        from flask import g, has_request_context
+
+        if not has_request_context():
+            return self.repo.membership(project_id, user_id)
+        memo = getattr(g, "_koe_membership", None)
+        if memo is None:
+            memo = g._koe_membership = {}
+        nokkel = (project_id, user_id)
+        if nokkel not in memo:
+            memo[nokkel] = self.repo.membership(project_id, user_id)
+        return memo[nokkel]
+
     def role(self, project_id, user_id):
         if not self.ensure_fresh(project_id):
             return None
-        member = self.repo.membership(project_id, user_id)
+        member = self._membership(project_id, user_id)
         if member:
             return "viewer" if member["viewer_override"] else member["role"]
         return None
@@ -150,7 +174,7 @@ class AuthService:
             (c for c in self.repo.configs() if c["internal_project_id"] == project_id),
             None,
         )
-        member = self.repo.membership(project_id, user_id)
+        member = self._membership(project_id, user_id)
         if (
             not config
             or not member
