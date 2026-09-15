@@ -18,21 +18,10 @@ import pytest
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-# Mock CSRF protection BEFORE importing routes
-from lib.auth import csrf_protection
-
-
-def mock_require_csrf(f):
-    """Mock CSRF decorator for testing"""
-    return f
-
-
-# Mock both the module-level function and the one imported by routes
-csrf_protection.require_csrf = mock_require_csrf
-import lib.auth
-
-lib.auth.require_csrf = mock_require_csrf
-
+# CSRF håndheves i `require_auth`, som har sesjonen å sammenlikne mot. Det er
+# ett håndhevingspunkt, og det kan ikke slås av her — tester som sender en
+# mutasjon må sende `X-CSRF-Token` som samsvarer med sesjonens token, eller
+# kjøre med DISABLE_AUTH.
 from app import SystemContext
 from app import app as flask_app
 from repositories.csv_repository import CSVRepository

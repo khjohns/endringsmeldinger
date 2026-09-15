@@ -15,7 +15,6 @@ Endpoints:
 
 from flask import Blueprint, g, jsonify, request
 
-from lib.auth.csrf_protection import require_csrf
 from lib.auth.project_access import require_project_access
 from lib.auth.contract_role import require_contract_role
 from lib.auth.session import require_auth
@@ -52,7 +51,6 @@ def _get_endringsordre_service():
 
 
 @endringsordre_bp.route("/api/endringsordre/opprett", methods=["POST"])
-@require_csrf
 @require_auth
 @require_project_access(min_role="member")
 @require_contract_role("BH")
@@ -138,7 +136,6 @@ def hent_eo_kontekst(sak_id: str):
 
 
 @endringsordre_bp.route("/api/endringsordre/<sak_id>/koe", methods=["POST"])
-@require_csrf
 @require_auth
 @require_project_access(min_role="member")
 @require_contract_role("BH")
@@ -171,7 +168,6 @@ def legg_til_koe(sak_id: str):
 @endringsordre_bp.route(
     "/api/endringsordre/<sak_id>/koe/<koe_sak_id>", methods=["DELETE"]
 )
-@require_csrf
 @require_auth
 @require_project_access(min_role="member")
 @require_contract_role("BH")

@@ -14,8 +14,6 @@ from flask import Blueprint, current_app, jsonify, request
 from lib.auth.session import require_auth, load_session, dev_auth_disabled
 from lib.auth.project_access import require_project_access
 
-from lib.auth import generate_csrf_token, require_csrf
-
 logger = logging.getLogger(__name__)
 
 # Create Blueprint
@@ -225,7 +223,6 @@ def get_metadata_by_topic(topic_id: str):
 
 
 @utility_bp.route("/api/validate-user", methods=["POST"])
-@require_csrf
 @require_auth
 @require_project_access(min_role="member")
 def validate_user():

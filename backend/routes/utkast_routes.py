@@ -21,7 +21,6 @@ del av utkastets identitet, og en lagring her endrer aldri et sendt brev.
 from flask import Blueprint, g, jsonify, request
 
 from lib.auth.contract_role import require_contract_role
-from lib.auth.csrf_protection import require_csrf
 from lib.auth.project_access import require_project_access
 from lib.auth.session import require_auth
 from lib.decorators import handle_service_errors
@@ -109,7 +108,6 @@ def hent_utkast(sak_id: str, spor: str):
 
 
 @utkast_bp.route("/api/cases/<sak_id>/utkast/<spor>", methods=["PUT"])
-@require_csrf
 @require_auth
 @require_project_access(min_role="member")
 @require_contract_role()
@@ -172,7 +170,6 @@ def lagre_utkast(sak_id: str, spor: str):
 
 
 @utkast_bp.route("/api/cases/<sak_id>/utkast/<spor>", methods=["DELETE"])
-@require_csrf
 @require_auth
 @require_project_access(min_role="member")
 @require_contract_role()

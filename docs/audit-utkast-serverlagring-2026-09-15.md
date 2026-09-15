@@ -1,5 +1,10 @@
 # Audit: utkastlekkasje og teamavgrensede serverutkast
 
+> **Fulgt opp samme dag:** tilgangslaget er ryddet etter denne runden — CSRF er samlet
+> i ett håndhevingspunkt og medlemskapsoppslaget halvert. Se
+> [opprydding i tilgangslaget](audit-tilgangslaget-opprydding-2026-09-15.md), som også
+> tar opp kallfrekvensen mot Catenda som autolagringen her innførte.
+
 Dato: 2026-09-15. Utgangspunkt: `faacab9`.
 Forrige logger: [utkast og samarbeid](audit-utkast-samarbeid-2026-09-14.md), som avklarte
 kravene og etterlot funnet åpent, og [vedleggs- og dokumentflyt](audit-vedleggsflyt-2026-09-15.md).

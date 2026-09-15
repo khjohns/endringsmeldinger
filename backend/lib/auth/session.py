@@ -68,7 +68,12 @@ def require_auth(f):
             if not session:
                 return jsonify(error="UNAUTHORIZED", message="Du må logge inn."), 401
             g.user = session["app_users"]
-            # Enforce CSRF here too: several legacy mutations lacked a decorator.
+            # Eneste CSRF-håndhevingspunkt i appen, og bevisst plassert her:
+            # kontrollen trenger sesjonen å sammenlikne mot, og en dekoratør
+            # utenpå denne ville kjørt først og svart 403 på en utlogget bruker
+            # som egentlig skal ha 401 og sendes til innlogging. At den ligger
+            # inne i autentiseringen betyr også at en ny mutasjonsrute ikke kan
+            # gå glipp av den ved å mangle en dekoratør.
             if request.method not in {"GET", "HEAD", "OPTIONS"} and not csrf_valid():
                 return jsonify(
                     error="CSRF validation failed", message="Prøv igjen."
