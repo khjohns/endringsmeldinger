@@ -151,6 +151,15 @@ class BusinessRuleValidator:
             EventType.FORSERING_KOSTNADER_OPPDATERT: [
                 ("FORSERING_NOTIFIED", self._rule_forsering_notified),
             ],
+            # KOE-kobling krever en forseringssak, slik EO-motpartene krever en
+            # EO-sak. Koblingen kan skje før varselet sendes, så den er ikke
+            # betinget av FORSERING_NOTIFIED.
+            EventType.FORSERING_KOE_LAGT_TIL: [
+                ("IS_FORSERING_CASE", self._rule_is_forsering_case),
+            ],
+            EventType.FORSERING_KOE_FJERNET: [
+                ("IS_FORSERING_CASE", self._rule_is_forsering_case),
+            ],
             # ========== ENDRINGSORDRE RULES ==========
             # EO opprettelse - ingen spesifikke regler utover rolle-sjekk
             EventType.EO_OPPRETTET: [],
@@ -487,7 +496,7 @@ class BusinessRuleValidator:
     def _rule_is_forsering_case(
         self, event: AnyEvent, state: SakState
     ) -> ValidationResult:
-        """R: Forseringsvarsel krever en forseringssak.
+        """R: Handlingen krever en forseringssak.
 
         TimelineService ignorerer forsering-hendelser når `forsering_data`
         mangler. Uten denne regelen ville varselet bli lagret som en hendelse
