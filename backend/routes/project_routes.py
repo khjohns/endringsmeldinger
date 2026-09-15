@@ -16,7 +16,6 @@ import uuid
 from flask import g, Blueprint, jsonify, request
 from pydantic import ValidationError
 
-from lib.auth.csrf_protection import require_csrf
 from lib.auth.session import require_auth
 from lib.auth.project_access import require_project_access
 from lib.auth.session import dev_auth_disabled, get_auth_service
@@ -80,7 +79,6 @@ def get_project(project_id: str):
 
 
 @projects_bp.route("/api/projects", methods=["POST"])
-@require_csrf
 @require_auth
 def create_project():
     """Create a new project with server-generated UUID.
@@ -147,7 +145,6 @@ def create_project():
 
 
 @projects_bp.route("/api/projects/<project_id>", methods=["PATCH"])
-@require_csrf
 @require_auth
 @require_project_access(min_role="admin")
 def update_project(project_id: str):
@@ -199,7 +196,6 @@ def update_project(project_id: str):
 
 
 @projects_bp.route("/api/projects/<project_id>/deactivate", methods=["PATCH"])
-@require_csrf
 @require_auth
 @require_project_access(min_role="admin")
 def deactivate_project(project_id: str):

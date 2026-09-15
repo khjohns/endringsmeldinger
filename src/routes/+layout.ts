@@ -4,6 +4,7 @@ export const prerender = false;
 import { redirect, error } from '@sveltejs/kit';
 import { getSession } from '$lib/api/auth';
 import { ApiError } from '$lib/api/client';
+import { setDraftOwner } from '$lib/utils/draftOwner';
 import type { LayoutLoad } from './$types';
 
 export const load: LayoutLoad = async ({ url }) => {
@@ -12,8 +13,12 @@ export const load: LayoutLoad = async ({ url }) => {
     url.pathname === '/login' ||
     url.pathname === '/mockup' ||
     url.pathname.startsWith('/mockup/')
-  )
+  ) {
+    // Demoen har ingen innlogget bruker, men skal beholde sine egne utkast.
+    // Eieren er konstant fordi demodataene ikke tilhører noen.
+    setDraftOwner(url.pathname.startsWith('/mockup') ? 'mockup' : null);
     return { user: null };
+  }
   try {
     return { user: await getSession() };
   } catch (err) {
