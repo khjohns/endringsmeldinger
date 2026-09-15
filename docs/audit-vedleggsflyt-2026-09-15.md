@@ -294,3 +294,22 @@ Catenda-kall, at sletting av mellomlagret vedlegg ikke utløser noe Catenda-kall
 hele tatt, at feilet levering beholder mellomlagringen, og at tempfilen ryddes når
 opplastingen kaster. Frontend: **513 tester / 43 filer**, 0 typefeil / 10 advarsler,
 grønn lint og build. Ruff uendret på 18 eksisterende feil.
+
+### Etterkontroll: tre innsendingsveier, ikke én
+
+Leveringen ble først koblet inn i `submit_event`. En gjennomgang av de andre
+append-punktene viste at det ikke var nok — to veier bruker `append_batch` og hoppet
+over leveringen helt:
+
+| Vei | Følge før retting |
+| --- | --- |
+| `submit_batch` | Hendelsene lagres, vedlegget blir stående mellomlagret. Saken viser til et vedlegg som aldri når Catenda. |
+| `ApprovalService.publish` | Samme, for BH-siden: brevet publiseres som «sendt», men vedlegget følger ikke med. |
+
+Hjelperen tar nå en liste hendelser (`lever_vedlegg_for_hendelser`) og kalles fra alle
+tre. Begge de nye veiene har test, inkludert at en feilet vedleggslevering ikke gjør
+brevet usendt — hendelsene er allerede lagret.
+
+Dette er verdt å merke seg som mønster: vedlegg, PDF-levering og kvitteringer henger
+alle på «når ble dette sendt», og systemet har flere svar på det spørsmålet. En ny
+innsendingsvei må kobles til alle tre.

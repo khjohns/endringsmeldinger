@@ -788,6 +788,14 @@ def submit_batch():
             except ConcurrencyError as e:
                 return handle_concurrency_error(e)
 
+            # Vedlegg sendes først nå, som ved enkeltinnsending.
+            try:
+                from routes.vedlegg_routes import lever_vedlegg_for_hendelser
+
+                lever_vedlegg_for_hendelser(g.project_id, sak_id, validated_events)
+            except Exception:
+                logger.exception("Batch committed; vedleggslevering feilet")
+
         # 6. Compute final state and update metadata cache
         all_events = existing_events + validated_events
         final_state = _get_timeline_service().compute_state(all_events)

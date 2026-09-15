@@ -137,3 +137,41 @@ def test_kompakt_og_dashet_form_er_samme_vedlegg(api):
     from uuid import UUID
 
     assert _send(api, [UUID(api.eget).hex]).status_code == 201
+
+
+def test_batchinnsending_leverer_vedlegg(api, monkeypatch):
+    """Batch bruker append_batch og må levere vedlegg som enkeltinnsending.
+
+    Uten dette ville saken vist til et vedlegg som aldri nådde Catenda.
+    """
+    levert = []
+    monkeypatch.setattr(
+        "routes.vedlegg_routes.lever_vedlegg_for_hendelser",
+        lambda p, s, hendelser: levert.extend(hendelser),
+    )
+    api.container.event_repository.append_batch.return_value = 3
+
+    response = api.client.post(
+        "/api/events/batch",
+        json={
+            "sak_id": "case",
+            "expected_version": 1,
+            "events": [
+                {
+                    "event_type": "grunnlag_opprettet",
+                    "data": {
+                        "tittel": "Krav",
+                        "hovedkategori": "ENDRING",
+                        "underkategori": "IRREG",
+                        "beskrivelse": "Beskrivelse",
+                        "dato_oppdaget": "2026-09-13",
+                        "vedlegg_ids": [api.eget],
+                    },
+                }
+            ],
+        },
+        headers={"X-Project-ID": "p", "X-CSRF-Token": "csrf"},
+    )
+
+    assert response.status_code in (200, 201), response.get_data(as_text=True)
+    assert [h.data.vedlegg_ids for h in levert] == [[api.eget]]
