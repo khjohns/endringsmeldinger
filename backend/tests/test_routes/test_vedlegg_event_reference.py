@@ -20,8 +20,7 @@ from routes import event_routes
 from services.timeline_service import TimelineService
 from services.vedlegg_registry import VedleggRegistry
 
-EGET_VEDLEGG = "3fa85f64-5717-4562-b3fc-2c963f66afa6"
-FREMMED_VEDLEGG = "7c9e6679-7425-40de-944b-e07fc1f90ae7"
+UKJENT_VEDLEGG = "11111111-1111-4111-8111-111111111111"
 
 
 @pytest.fixture
@@ -32,8 +31,8 @@ def api(monkeypatch, tmp_path):
 
     # Ett vedlegg hører til saken, ett hører til en annen sak i samme prosjekt.
     registry = VedleggRegistry()
-    registry.record("p", "case", EGET_VEDLEGG, "eget.pdf", 10, "TE Bruker", "TE")
-    registry.record("p", "annen-sak", FREMMED_VEDLEGG, "fremmed.pdf", 10, "Andre", "TE")
+    eget = registry.stage("p", "case", "eget.pdf", b"%PDF-", "TE Bruker", "TE")
+    fremmed = registry.stage("p", "annen-sak", "fremmed.pdf", b"%PDF-", "Andre", "TE")
 
     app = Flask(__name__)
     app.testing = True
@@ -70,7 +69,12 @@ def api(monkeypatch, tmp_path):
 
     client = app.test_client()
     client.set_cookie(cookie_name(), "session")
-    return SimpleNamespace(client=client, container=container)
+    return SimpleNamespace(
+        client=client,
+        container=container,
+        eget=eget["id"],
+        fremmed=fremmed["id"],
+    )
 
 
 def _send(api, vedlegg_ids):
@@ -97,7 +101,7 @@ def _send(api, vedlegg_ids):
 
 def test_vedlegg_fra_annen_sak_avvises(api):
     """En gyldig UUID er ikke nok — vedlegget må høre til denne saken."""
-    response = _send(api, [FREMMED_VEDLEGG])
+    response = _send(api, [api.fremmed])
 
     assert response.status_code == 400, response.get_data(as_text=True)
     assert "vedlegg" in response.get_json()["message"].lower()
@@ -106,7 +110,7 @@ def test_vedlegg_fra_annen_sak_avvises(api):
 
 def test_ukjent_vedlegg_avvises(api):
     """En UUID som ikke er registrert noe sted skal heller ikke godtas."""
-    response = _send(api, ["11111111-1111-4111-8111-111111111111"])
+    response = _send(api, [UKJENT_VEDLEGG])
 
     assert response.status_code == 400
     api.container.event_repository.append.assert_not_called()
@@ -114,11 +118,11 @@ def test_ukjent_vedlegg_avvises(api):
 
 def test_eget_vedlegg_godtas(api):
     """Kontroll: sakens eget vedlegg skal fortsatt kunne refereres."""
-    response = _send(api, [EGET_VEDLEGG])
+    response = _send(api, [api.eget])
 
     assert response.status_code == 201, response.get_data(as_text=True)
     lagret = api.container.event_repository.append.call_args.args[0]
-    assert lagret.data.vedlegg_ids == [EGET_VEDLEGG]
+    assert lagret.data.vedlegg_ids == [api.eget]
 
 
 def test_ingen_vedlegg_er_fortsatt_lovlig(api):
@@ -126,15 +130,10 @@ def test_ingen_vedlegg_er_fortsatt_lovlig(api):
 
 
 def test_kompakt_og_dashet_form_er_samme_vedlegg(api):
-    """Catenda returnerer kompakt hex ved opplasting; feltet godtar begge former.
+    """Vedleggs-ID-en er en UUID; begge skriveformer skal treffe samme rad.
 
-    Samme dokument skal ikke avvises fordi klienten sendte den andre formen.
+    Registeret lagrer den dashede formen, men en klient kan sende den kompakte.
     """
     from uuid import UUID
 
-    registry = VedleggRegistry()
-    kompakt = UUID(FREMMED_VEDLEGG).hex
-    registry.record("p", "case", kompakt, "kompakt.pdf", 10, "TE Bruker", "TE")
-
-    # Registrert kompakt, referert med bindestreker.
-    assert _send(api, [FREMMED_VEDLEGG]).status_code == 201
+    assert _send(api, [UUID(api.eget).hex]).status_code == 201

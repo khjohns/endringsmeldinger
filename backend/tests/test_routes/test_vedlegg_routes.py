@@ -1,8 +1,13 @@
-"""Vedleggsruter: opplasting, liste og nedlasting.
+"""Vedleggsruter: mellomlagring, nedlasting, sletting og levering.
 
-Tilgangskontrollen er vår egen. Backend snakker med Catenda gjennom appens
+Vedlegget lastes ikke opp til Catenda når brukeren velger filen. Det ville
+gjort dokumentet synlig for motparten før avsenderen hadde bestemt seg for å
+sende noe. Bytene ligger hos oss til hendelsen som viser til vedlegget er
+lagret; først da sendes det.
+
+Tilgangskontrollen er vår egen: backend snakker med Catenda gjennom appens
 tjenestekonto, så bibliotekets team-rettigheter begrenser ikke hva appen kan
-lese — hver forespørsel må autoriseres mot saken her.
+lese.
 """
 
 import io
@@ -15,9 +20,9 @@ from flask import Flask
 from lib.auth.session import cookie_name
 from lib.project_context import init_project_context
 from routes import vedlegg_routes
-from services.vedlegg_registry import VedleggRegistry
+from services.vedlegg_registry import DELIVERED, STAGED, VedleggRegistry
 
-VEDLEGG_ID = "3fa85f6457174562b3fc2c963f66afa6"
+CATENDA_ID = "3fa85f6457174562b3fc2c963f66afa6"
 INNHOLD = b"%PDF-1.7 testinnhold"
 
 
@@ -48,7 +53,7 @@ def api(monkeypatch, tmp_path):
     monkeypatch.setattr("lib.auth.project_access.get_container", lambda: container)
 
     service = Mock()
-    service.upload_document.return_value = {"id": VEDLEGG_ID}
+    service.upload_document.return_value = {"id": CATENDA_ID}
     service.download_document.return_value = (INNHOLD, "fra-catenda.pdf")
     ctx = SimpleNamespace(
         service=service, project_id="cat-p", folder_id="mappe-1", library_id="lib-1"
@@ -57,7 +62,7 @@ def api(monkeypatch, tmp_path):
 
     client = app.test_client()
     client.set_cookie(cookie_name(), "session")
-    return SimpleNamespace(client=client, service=service, tmp_path=tmp_path)
+    return SimpleNamespace(client=client, service=service, auth=auth)
 
 
 def _last_opp(api, filnavn="rapport.pdf", innhold=INNHOLD, sak="S1"):
@@ -69,46 +74,44 @@ def _last_opp(api, filnavn="rapport.pdf", innhold=INNHOLD, sak="S1"):
     )
 
 
-def test_opplasting_lagrer_og_registrerer(api):
+def _id(response) -> str:
+    return response.get_json()["id"]
+
+
+def _tomme_hendelser(monkeypatch):
+    from routes import event_routes
+
+    repo = Mock()
+    repo.get_events.return_value = ([], 0)
+    monkeypatch.setattr(event_routes, "_get_event_repo", lambda: repo)
+    return repo
+
+
+# ============ MELLOMLAGRING ============
+
+
+def test_opplasting_naar_ikke_catenda(api):
+    """Kjernen i utsatt opplasting: filen forlater ikke appen ennå."""
     response = _last_opp(api)
 
     assert response.status_code == 201, response.get_data(as_text=True)
-    body = response.get_json()
-    assert body["id"] == VEDLEGG_ID
-    assert body["navn"] == "rapport.pdf"
-    assert body["storrelse"] == len(INNHOLD)
-    api.service.upload_document.assert_called_once()
+    assert response.get_json()["status"] == STAGED
+    api.service.upload_document.assert_not_called()
 
 
-def test_opplastet_fil_ryddes_fra_disk(api, monkeypatch):
-    """Kontraktsinnhold skal ikke bli liggende i /tmp (jf. PDF-03)."""
-    sett = {}
+def test_mellomlagret_vedlegg_kan_lastes_ned_uten_catenda(api):
+    """Den som lastet opp må kunne kontrollere filen før den sendes."""
+    vedlegg_id = _id(_last_opp(api))
 
-    def fanger(project_id, file_path, filename=None, folder_id=None):
-        sett["sti"] = file_path
-        return {"id": VEDLEGG_ID}
+    response = api.client.get(
+        f"/api/cases/S1/vedlegg/{vedlegg_id}", headers={"X-Project-ID": "p"}
+    )
 
-    api.service.upload_document.side_effect = fanger
-    assert _last_opp(api).status_code == 201
-
-    import os
-
-    assert not os.path.exists(sett["sti"])
-
-
-def test_opplasting_rydder_ogsa_ved_feil(api):
-    sett = {}
-
-    def feiler(project_id, file_path, filename=None, folder_id=None):
-        sett["sti"] = file_path
-        raise RuntimeError("Catenda nede")
-
-    api.service.upload_document.side_effect = feiler
-    _last_opp(api)
-
-    import os
-
-    assert not os.path.exists(sett["sti"])
+    assert response.status_code == 200
+    assert response.data == INNHOLD
+    assert 'filename="rapport.pdf"' in response.headers["Content-Disposition"]
+    assert response.headers["X-Content-Type-Options"] == "nosniff"
+    api.service.download_document.assert_not_called()
 
 
 @pytest.mark.parametrize(
@@ -122,178 +125,13 @@ def test_opplasting_rydder_ogsa_ved_feil(api):
 )
 def test_ugyldige_opplastinger_avvises(api, filnavn, innhold, status):
     assert _last_opp(api, filnavn, innhold).status_code == status
-    api.service.upload_document.assert_not_called()
 
 
 def test_stier_i_filnavn_saneres(api):
     """Et filnavn er et navn, ikke en sti."""
-    assert _last_opp(api, "../../etc/passwd").status_code == 201
-    assert "/" not in api.service.upload_document.call_args.kwargs["filename"]
-
-
-def test_nedlasting_av_eget_vedlegg(api):
-    _last_opp(api)
-
-    response = api.client.get(
-        f"/api/cases/S1/vedlegg/{VEDLEGG_ID}", headers={"X-Project-ID": "p"}
-    )
-
-    assert response.status_code == 200
-    assert response.data == INNHOLD
-    assert 'filename="rapport.pdf"' in response.headers["Content-Disposition"]
-    assert response.headers["X-Content-Type-Options"] == "nosniff"
-
-
-def test_vedlegg_fra_annen_sak_gir_404(api):
-    """Vedlegget hører til én sak. En annen sak i samme prosjekt får det ikke."""
-    _last_opp(api, sak="S1")
-
-    response = api.client.get(
-        f"/api/cases/S2/vedlegg/{VEDLEGG_ID}", headers={"X-Project-ID": "p"}
-    )
-
-    assert response.status_code == 404
-    api.service.download_document.assert_not_called()
-
-
-def test_ukjent_vedlegg_gir_404_uten_catenda_kall(api):
-    response = api.client.get(
-        "/api/cases/S1/vedlegg/ukjent-id", headers={"X-Project-ID": "p"}
-    )
-
-    assert response.status_code == 404
-    api.service.download_document.assert_not_called()
-
-
-def test_listen_er_saksavgrenset(api):
-    _last_opp(api, sak="S1")
-
-    egen = api.client.get("/api/cases/S1/vedlegg", headers={"X-Project-ID": "p"})
-    annen = api.client.get("/api/cases/S2/vedlegg", headers={"X-Project-ID": "p"})
-
-    assert [v["id"] for v in egen.get_json()["vedlegg"]] == [VEDLEGG_ID]
-    assert annen.get_json()["vedlegg"] == []
-
-
-def test_registeret_skiller_prosjekter(tmp_path):
-    """Samme sak-ID i to prosjekter skal ikke dele vedlegg."""
-    registry = VedleggRegistry(str(tmp_path / "r.sqlite"))
-    registry.record("p1", "S1", VEDLEGG_ID, "a.pdf", 10, "Ola", "TE")
-
-    assert registry.belongs_to_case("p1", "S1", VEDLEGG_ID)
-    assert not registry.belongs_to_case("p2", "S1", VEDLEGG_ID)
-
-
-# ============ SLETTING ============
-
-
-def _slett(api, vedlegg_id=VEDLEGG_ID, sak="S1"):
-    return api.client.delete(
-        f"/api/cases/{sak}/vedlegg/{vedlegg_id}",
-        headers={"X-Project-ID": "p", "X-CSRF-Token": "csrf"},
-    )
-
-
-@pytest.fixture
-def uten_hendelser(monkeypatch):
-    """Sakens hendelsesstrøm er tom; ingen vedlegg er tatt i bruk."""
-    from routes import event_routes
-
-    repo = Mock()
-    repo.get_events.return_value = ([], 0)
-    monkeypatch.setattr(event_routes, "_get_event_repo", lambda: repo)
-    return repo
-
-
-def test_ubrukt_vedlegg_kan_slettes(api, uten_hendelser):
-    _last_opp(api)
-    api.service.delete_document.return_value = True
-
-    response = _slett(api)
-
-    assert response.status_code == 200, response.get_data(as_text=True)
-    api.service.delete_document.assert_called_once()
-    # Registreringen er borte, så vedlegget kan ikke lenger lastes ned.
-    assert (
-        api.client.get(
-            f"/api/cases/S1/vedlegg/{VEDLEGG_ID}", headers={"X-Project-ID": "p"}
-        ).status_code
-        == 404
-    )
-
-
-def test_vedlegg_i_bruk_kan_ikke_slettes(api, monkeypatch):
-    """Et vedlegg en lagret hendelse viser til er del av sakens grunnlag."""
-    _last_opp(api)
-
-    from routes import event_routes
-
-    hendelse = {
-        "event_type": "grunnlag_opprettet",
-        "sak_id": "S1",
-        "aktor": "TE",
-        "aktor_rolle": "TE",
-        "tidsstempel": "2026-09-15T08:00:00Z",
-        "data": {
-            "tittel": "K",
-            "hovedkategori": "ENDRING",
-            "underkategori": "IRREG",
-            "beskrivelse": "B",
-            "dato_oppdaget": "2026-09-13",
-            "vedlegg_ids": [VEDLEGG_ID],
-        },
-    }
-    repo = Mock()
-    repo.get_events.return_value = ([hendelse], 1)
-    monkeypatch.setattr(event_routes, "_get_event_repo", lambda: repo)
-
-    response = _slett(api)
-
-    assert response.status_code == 409
-    api.service.delete_document.assert_not_called()
-
-
-def test_motparten_kan_ikke_slette(api, uten_hendelser):
-    """BH skal ikke kunne rydde i TEs dokumentasjon."""
-    _last_opp(api)
-    api.client.application.extensions["koe_auth"].contract_role.return_value = "BH"
-    api.client.application.extensions[
-        "koe_auth"
-    ].contract_membership.return_value = ("BH", "team-bh")
-
-    response = _slett(api)
-
-    assert response.status_code == 403
-    api.service.delete_document.assert_not_called()
-
-
-def test_ukjent_vedlegg_gir_404_ved_sletting(api, uten_hendelser):
-    assert _slett(api, "finnes-ikke").status_code == 404
-    api.service.delete_document.assert_not_called()
-
-
-def test_registrering_beholdes_hvis_catenda_feiler(api, uten_hendelser):
-    """Feiler biblioteket, skal vedlegget ikke bli usynlig men eksisterende."""
-    _last_opp(api)
-    api.service.delete_document.return_value = False
-
-    assert _slett(api).status_code == 502
+    assert _id(_last_opp(api, "../../etc/passwd"))
     liste = api.client.get("/api/cases/S1/vedlegg", headers={"X-Project-ID": "p"})
-    assert [v["id"] for v in liste.get_json()["vedlegg"]] == [VEDLEGG_ID]
-
-
-def test_uleselig_hendelsesstrom_nekter_sletting(api, monkeypatch):
-    """Kan vi ikke avgjøre om vedlegget er i bruk, sletter vi ikke."""
-    _last_opp(api)
-
-    from routes import event_routes
-
-    repo = Mock()
-    repo.get_events.side_effect = RuntimeError("lager nede")
-    monkeypatch.setattr(event_routes, "_get_event_repo", lambda: repo)
-
-    assert _slett(api).status_code == 503
-    api.service.delete_document.assert_not_called()
+    assert "/" not in liste.get_json()["vedlegg"][0]["navn"]
 
 
 # ============ INNHOLDSKONTROLL ============
@@ -311,10 +149,7 @@ def test_uleselig_hendelsesstrom_nekter_sletting(api, monkeypatch):
     ],
 )
 def test_forkledd_innhold_avvises(api, filnavn, innhold, hvorfor):
-    response = _last_opp(api, filnavn, innhold)
-
-    assert response.status_code == 400, hvorfor
-    api.service.upload_document.assert_not_called()
+    assert _last_opp(api, filnavn, innhold).status_code == 400, hvorfor
 
 
 @pytest.mark.parametrize(
@@ -330,3 +165,201 @@ def test_forkledd_innhold_avvises(api, filnavn, innhold, hvorfor):
 )
 def test_legitime_formater_slipper_gjennom(api, filnavn, innhold):
     assert _last_opp(api, filnavn, innhold).status_code == 201
+
+
+# ============ SAKS- OG PROSJEKTGRENSER ============
+
+
+def test_vedlegg_fra_annen_sak_gir_404(api):
+    vedlegg_id = _id(_last_opp(api, sak="S1"))
+
+    response = api.client.get(
+        f"/api/cases/S2/vedlegg/{vedlegg_id}", headers={"X-Project-ID": "p"}
+    )
+
+    assert response.status_code == 404
+
+
+def test_listen_er_saksavgrenset(api):
+    vedlegg_id = _id(_last_opp(api, sak="S1"))
+
+    egen = api.client.get("/api/cases/S1/vedlegg", headers={"X-Project-ID": "p"})
+    annen = api.client.get("/api/cases/S2/vedlegg", headers={"X-Project-ID": "p"})
+
+    assert [v["id"] for v in egen.get_json()["vedlegg"]] == [vedlegg_id]
+    assert annen.get_json()["vedlegg"] == []
+
+
+def test_registeret_skiller_prosjekter(tmp_path):
+    registry = VedleggRegistry(str(tmp_path / "r.sqlite"))
+    v = registry.stage("p1", "S1", "a.pdf", b"%PDF-", "Ola", "TE")
+
+    assert registry.belongs_to_case("p1", "S1", v["id"])
+    assert not registry.belongs_to_case("p2", "S1", v["id"])
+
+
+# ============ SLETTING ============
+
+
+def _slett(api, vedlegg_id, sak="S1"):
+    return api.client.delete(
+        f"/api/cases/{sak}/vedlegg/{vedlegg_id}",
+        headers={"X-Project-ID": "p", "X-CSRF-Token": "csrf"},
+    )
+
+
+def test_mellomlagret_vedlegg_kan_fjernes_sporlost(api, monkeypatch):
+    """Hele poenget med utsatt opplasting: sletting uten at noe er delt."""
+    _tomme_hendelser(monkeypatch)
+    vedlegg_id = _id(_last_opp(api))
+
+    assert _slett(api, vedlegg_id).status_code == 200
+    # Ingenting ble noen gang sendt, så det er ingenting å rydde i Catenda.
+    api.service.upload_document.assert_not_called()
+    api.service.delete_document.assert_not_called()
+    assert (
+        api.client.get(
+            f"/api/cases/S1/vedlegg/{vedlegg_id}", headers={"X-Project-ID": "p"}
+        ).status_code
+        == 404
+    )
+
+
+def test_levert_vedlegg_kan_ikke_fjernes(api, monkeypatch, tmp_path):
+    _tomme_hendelser(monkeypatch)
+    vedlegg_id = _id(_last_opp(api))
+    VedleggRegistry().mark_delivered("p", "S1", vedlegg_id, CATENDA_ID)
+
+    response = _slett(api, vedlegg_id)
+
+    assert response.status_code == 409
+    assert response.get_json()["error"] == "VEDLEGG_SENDT"
+
+
+def test_referert_vedlegg_kan_ikke_fjernes_selv_om_levering_feilet(api, monkeypatch):
+    """Feiler opplastingen etter commit, står vedlegget som mellomlagret.
+
+    Saken viser likevel til det, så det må ikke kunne slettes.
+    """
+    vedlegg_id = _id(_last_opp(api))
+
+    from routes import event_routes
+
+    hendelse = {
+        "event_type": "grunnlag_opprettet",
+        "sak_id": "S1",
+        "aktor": "TE",
+        "aktor_rolle": "TE",
+        "tidsstempel": "2026-09-15T08:00:00Z",
+        "data": {
+            "tittel": "K",
+            "hovedkategori": "ENDRING",
+            "underkategori": "IRREG",
+            "beskrivelse": "B",
+            "dato_oppdaget": "2026-09-13",
+            "vedlegg_ids": [vedlegg_id],
+        },
+    }
+    repo = Mock()
+    repo.get_events.return_value = ([hendelse], 1)
+    monkeypatch.setattr(event_routes, "_get_event_repo", lambda: repo)
+
+    assert _slett(api, vedlegg_id).status_code == 409
+
+
+def test_motparten_kan_ikke_slette(api, monkeypatch):
+    """BH skal ikke kunne rydde i TEs dokumentasjon."""
+    _tomme_hendelser(monkeypatch)
+    vedlegg_id = _id(_last_opp(api))
+    api.auth.contract_role.return_value = "BH"
+    api.auth.contract_membership.return_value = ("BH", "team-bh")
+
+    assert _slett(api, vedlegg_id).status_code == 403
+
+
+def test_uleselig_hendelsesstrom_nekter_sletting(api, monkeypatch):
+    """Kan vi ikke avgjøre om vedlegget er i bruk, sletter vi ikke."""
+    vedlegg_id = _id(_last_opp(api))
+
+    from routes import event_routes
+
+    repo = Mock()
+    repo.get_events.side_effect = RuntimeError("lager nede")
+    monkeypatch.setattr(event_routes, "_get_event_repo", lambda: repo)
+
+    assert _slett(api, vedlegg_id).status_code == 503
+
+
+# ============ LEVERING VED INNSENDING ============
+
+
+def _hendelse_med(vedlegg_ids):
+    return SimpleNamespace(data=SimpleNamespace(vedlegg_ids=vedlegg_ids))
+
+
+def test_levering_laster_opp_og_frigir_innholdet(api):
+    vedlegg_id = _id(_last_opp(api))
+
+    vedlegg_routes.lever_vedlegg_for_hendelse("p", "S1", _hendelse_med([vedlegg_id]))
+
+    api.service.upload_document.assert_called_once()
+    registry = VedleggRegistry()
+    oppforing = registry.get("p", "S1", vedlegg_id)
+    assert oppforing["status"] == DELIVERED
+    assert oppforing["catenda_item_id"] == CATENDA_ID
+    # Catenda holder dokumentet nå; vi beholder ingen kopi.
+    assert registry.content("p", "S1", vedlegg_id) is None
+
+
+def test_levert_vedlegg_hentes_fra_catenda(api):
+    vedlegg_id = _id(_last_opp(api))
+    vedlegg_routes.lever_vedlegg_for_hendelse("p", "S1", _hendelse_med([vedlegg_id]))
+
+    response = api.client.get(
+        f"/api/cases/S1/vedlegg/{vedlegg_id}", headers={"X-Project-ID": "p"}
+    )
+
+    assert response.status_code == 200
+    assert response.data == INNHOLD
+    api.service.download_document.assert_called_once()
+    # Navnet er vårt registrerte, ikke Catendas.
+    assert 'filename="rapport.pdf"' in response.headers["Content-Disposition"]
+
+
+def test_vedlegg_som_ikke_refereres_blir_ikke_levert(api):
+    """Et mellomlagret vedlegg hendelsen ikke viser til, sendes ikke."""
+    vedlegg_id = _id(_last_opp(api))
+
+    vedlegg_routes.lever_vedlegg_for_hendelse("p", "S1", _hendelse_med([]))
+
+    api.service.upload_document.assert_not_called()
+    assert VedleggRegistry().get("p", "S1", vedlegg_id)["status"] == STAGED
+
+
+def test_feilet_levering_beholder_mellomlagringen(api):
+    """Hendelsen er committet; vedlegget må kunne leveres på nytt senere."""
+    vedlegg_id = _id(_last_opp(api))
+    api.service.upload_document.side_effect = RuntimeError("Catenda nede")
+
+    vedlegg_routes.lever_vedlegg_for_hendelse("p", "S1", _hendelse_med([vedlegg_id]))
+
+    registry = VedleggRegistry()
+    assert registry.get("p", "S1", vedlegg_id)["status"] == STAGED
+    assert registry.content("p", "S1", vedlegg_id) == INNHOLD
+
+
+def test_levering_rydder_tempfilen(api, monkeypatch):
+    """Kontraktsinnhold skal ikke bli liggende i /tmp (jf. PDF-03)."""
+    vedlegg_id = _id(_last_opp(api))
+    sett = {}
+
+    def fanger(project_id, file_path, filename=None, folder_id=None):
+        sett["sti"] = file_path
+        raise RuntimeError("feiler etter at filen er skrevet")
+
+    api.service.upload_document.side_effect = fanger
+    vedlegg_routes.lever_vedlegg_for_hendelse("p", "S1", _hendelse_med([vedlegg_id]))
+
+    import os
+
+    assert not os.path.exists(sett["sti"])

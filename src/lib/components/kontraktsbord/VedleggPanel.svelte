@@ -114,6 +114,9 @@
             <div class="att-name" title={v.navn}>{v.navn}</div>
             <div class="font-mono att-meta">
               {formaterStorrelse(v.storrelse)} · {v.lastet_opp_rolle} · {v.lastet_opp_av}
+              {#if v.status === 'staged'}
+                · <span class="usendt">ikke sendt</span>
+              {/if}
             </div>
           </div>
           <button
@@ -128,7 +131,7 @@
               <Download size={14} aria-hidden="true" />
             {/if}
           </button>
-          {#if kanLasteOpp && minRolle !== null && v.lastet_opp_rolle === minRolle}
+          {#if kanLasteOpp && v.status === 'staged' && minRolle !== null && v.lastet_opp_rolle === minRolle}
             <button
               class="ikonknapp fjern"
               onclick={() => fjern(v)}
@@ -182,7 +185,10 @@
       <p class="hjelp">
         Slipp filer her, eller velg. Maks {MAKS_VEDLEGG_BYTES / (1024 * 1024)} MB per fil.
       </p>
-      <p class="hjelp">Vedlegg deles med motparten i prosjektets dokumentbibliotek.</p>
+      <p class="hjelp">
+        Vedlegg sendes først når du sender kravet. Fram til da ligger de her og er ikke synlige for
+        motparten.
+      </p>
     </div>
   {/if}
 </div>
@@ -242,6 +248,9 @@
   }
   .ikonknapp.fjern:hover:not(:disabled) {
     color: var(--avslag, #b3261e);
+  }
+  .usendt {
+    color: var(--draft, var(--ink-3));
   }
   .tom {
     margin: 0;

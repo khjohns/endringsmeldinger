@@ -108,62 +108,17 @@ def last_opp_vedlegg(sak_id: str):
     except UgyldigVedlegg as e:
         return jsonify(error="UGYLDIG_INNHOLD", message=str(e)), 400
 
-    ctx = _catenda_context(sak_id)
-    if ctx is None:
-        return jsonify(
-            error="CATENDA_UTILGJENGELIG",
-            message="Dokumentbiblioteket er ikke tilgjengelig.",
-        ), 503
-
-    import os
-    import tempfile
-
-    sti = None
-    try:
-        # upload_document leser fra disk. Filen ryddes uansett utfall, slik at
-        # kontraktsinnhold ikke blir liggende i /tmp (jf. PDF-03).
-        with tempfile.NamedTemporaryFile(delete=False, suffix=f"-{navn}") as tmp:
-            tmp.write(innhold)
-            sti = tmp.name
-        item = ctx.service.upload_document(
-            project_id=ctx.project_id,
-            file_path=sti,
-            filename=navn,
-            folder_id=ctx.folder_id,
-        )
-    finally:
-        if sti:
-            try:
-                os.remove(sti)
-            except OSError:
-                pass
-
-    if not item or not item.get("id"):
-        return jsonify(
-            error="OPPLASTING_FEILET",
-            message="Dokumentet ble ikke lastet opp. Prøv igjen.",
-        ), 502
-
-    vedlegg_id = item["id"]
-    _registry().record(
+    oppforing = _registry().stage(
         g.project_id,
         sak_id,
-        vedlegg_id,
         navn,
-        len(innhold),
+        innhold,
         g.user.get("name") or g.user.get("email") or g.user["id"],
         g.contract_role,
     )
-    logger.info(f"Vedlegg lastet opp for sak {sak_id}: {vedlegg_id}")
+    logger.info(f"Vedlegg mellomlagret for sak {sak_id}: {oppforing['id']}")
 
-    return jsonify(
-        {
-            "id": vedlegg_id,
-            "navn": navn,
-            "storrelse": len(innhold),
-            "lastet_opp_rolle": g.contract_role,
-        }
-    ), 201
+    return jsonify(oppforing), 201
 
 
 @vedlegg_bp.route("/api/cases/<sak_id>/vedlegg/<vedlegg_id>", methods=["GET"])
@@ -178,32 +133,31 @@ def last_ned_vedlegg(sak_id: str, vedlegg_id: str):
     røper om et dokument finnes i et annet prosjekt.
     """
     registry = _registry()
-    if not registry.belongs_to_case(g.project_id, sak_id, vedlegg_id):
+    oppforing = registry.get(g.project_id, sak_id, vedlegg_id)
+    if oppforing is None:
         return jsonify(
             error="IKKE_FUNNET", message="Vedlegget finnes ikke på denne saken."
         ), 404
 
-    ctx = _catenda_context(sak_id)
-    if ctx is None:
-        return jsonify(
-            error="CATENDA_UTILGJENGELIG",
-            message="Dokumentbiblioteket er ikke tilgjengelig.",
-        ), 503
+    innhold = registry.content(g.project_id, sak_id, vedlegg_id)
+    if innhold is None:
+        # Levert: Catenda holder dokumentet, vi holder ingen kopi.
+        ctx = _catenda_context(sak_id)
+        if ctx is None:
+            return jsonify(
+                error="CATENDA_UTILGJENGELIG",
+                message="Dokumentbiblioteket er ikke tilgjengelig.",
+            ), 503
+        resultat = ctx.service.download_document(
+            ctx.project_id, oppforing["catenda_item_id"] or vedlegg_id
+        )
+        if resultat is None:
+            return jsonify(
+                error="NEDLASTING_FEILET", message="Dokumentet kunne ikke hentes."
+            ), 502
+        innhold, _catenda_navn = resultat
 
-    resultat = ctx.service.download_document(ctx.project_id, vedlegg_id)
-    if resultat is None:
-        return jsonify(
-            error="NEDLASTING_FEILET", message="Dokumentet kunne ikke hentes."
-        ), 502
-
-    innhold, catenda_navn = resultat
-    # Det registrerte navnet er vårt eget og er allerede saneringsbehandlet;
-    # Catendas navn brukes bare som reserve.
-    registrert = next(
-        (v["navn"] for v in registry.list(g.project_id, sak_id) if v["id"] == vedlegg_id),
-        None,
-    )
-    filnavn = registrert or secure_filename(catenda_navn or "") or "vedlegg"
+    filnavn = oppforing["navn"]
 
     from flask import Response
 
@@ -220,13 +174,12 @@ def last_ned_vedlegg(sak_id: str, vedlegg_id: str):
 
 
 def _refererte_vedlegg(sak_id: str) -> set[str]:
-    """Vedlegg som er referert av en lagret hendelse på saken.
+    """Vedlegg en lagret hendelse viser til.
 
-    Slike vedlegg er del av den juridiske loggen og kan ikke fjernes.
-    Klarer vi ikke å lese hendelsene, regnes alt som referert: å slette på
-    usikkert grunnlag er verre enn å nekte.
+    Normalt er slike allerede `delivered`, men leveringen kan ha feilet etter
+    at hendelsen ble lagret. Da står vedlegget fortsatt som `staged` mens saken
+    viser til det, og det må ikke kunne slettes.
     """
-    from lib.auth.domain import catenda_id
     from models.events import parse_event
     from routes.event_routes import _get_event_repo
 
@@ -235,7 +188,7 @@ def _refererte_vedlegg(sak_id: str) -> set[str]:
     for rad in events_data or []:
         hendelse = parse_event(rad)
         for ref in getattr(getattr(hendelse, "data", None), "vedlegg_ids", None) or []:
-            referert.add(catenda_id(ref))
+            referert.add(ref)
     return referert
 
 
@@ -246,23 +199,21 @@ def _refererte_vedlegg(sak_id: str) -> set[str]:
 @require_contract_role()
 @handle_service_errors
 def slett_vedlegg(sak_id: str, vedlegg_id: str):
-    """Slett et vedlegg som ennå ikke er tatt i bruk i en hendelse.
+    """Fjern et mellomlagret vedlegg.
 
-    Regelen er bevisst snever. Et vedlegg som en lagret hendelse viser til, er
-    del av sakens formelle grunnlag og fjernes ikke herfra. Og bare den siden
-    som lastet opp vedlegget kan fjerne det: motparten skal ikke kunne rydde i
-    den andres dokumentasjon.
+    Et `staged` vedlegg har aldri forlatt oss, så det kan fjernes uten spor:
+    ingenting er lastet opp til det delte biblioteket, og motparten har ikke
+    kunnet se det. Det er hele grunnen til at opplastingen er utsatt til
+    innsending.
 
-    Merk at sletting ikke gjør dokumentet usett. Biblioteket er delt, så
-    motparten kan allerede ha lest det.
+    Et levert vedlegg er sendt og er del av sakens formelle grunnlag; det
+    fjernes ikke herfra. Og bare den siden som lastet opp kan fjerne: motparten
+    skal ikke kunne rydde i den andres dokumentasjon.
     """
-    from lib.auth.domain import catenda_id
+    from services.vedlegg_registry import STAGED
 
     registry = _registry()
-    oppforing = next(
-        (v for v in registry.list(g.project_id, sak_id) if v["id"] == vedlegg_id),
-        None,
-    )
+    oppforing = registry.get(g.project_id, sak_id, vedlegg_id)
     if oppforing is None:
         return jsonify(
             error="IKKE_FUNNET", message="Vedlegget finnes ikke på denne saken."
@@ -274,6 +225,14 @@ def slett_vedlegg(sak_id: str, vedlegg_id: str):
             message="Bare den som lastet opp vedlegget kan fjerne det.",
         ), 403
 
+    if oppforing["status"] != STAGED:
+        # Levert betyr at en lagret hendelse viste til vedlegget og at det er
+        # sendt til motparten. Da er det del av sakens formelle grunnlag.
+        return jsonify(
+            error="VEDLEGG_SENDT",
+            message="Vedlegget er sendt og kan ikke fjernes.",
+        ), 409
+
     try:
         referert = _refererte_vedlegg(sak_id)
     except Exception:
@@ -283,28 +242,90 @@ def slett_vedlegg(sak_id: str, vedlegg_id: str):
             message="Kunne ikke bekrefte om vedlegget er i bruk. Prøv igjen.",
         ), 503
 
-    if catenda_id(vedlegg_id) in referert:
+    if vedlegg_id in referert:
         return jsonify(
             error="VEDLEGG_I_BRUK",
             message="Vedlegget er brukt i en sendt hendelse og kan ikke fjernes.",
         ), 409
 
-    ctx = _catenda_context(sak_id)
-    if ctx is None:
-        return jsonify(
-            error="CATENDA_UTILGJENGELIG",
-            message="Dokumentbiblioteket er ikke tilgjengelig.",
-        ), 503
-
-    if not ctx.service.delete_document(ctx.project_id, vedlegg_id):
-        return jsonify(
-            error="SLETTING_FEILET",
-            message="Dokumentet kunne ikke fjernes fra biblioteket.",
-        ), 502
-
-    # Registreringen fjernes først etter at biblioteket faktisk er ryddet,
-    # slik at en feil ikke etterlater et vedlegg som er usynlig men finnes.
     registry.delete(g.project_id, sak_id, vedlegg_id)
     logger.info(f"Vedlegg fjernet fra sak {sak_id}: {vedlegg_id}")
 
     return jsonify({"slettet": vedlegg_id}), 200
+
+
+def lever_vedlegg_for_hendelse(project_id: str, sak_id: str, event) -> None:
+    """Last opp mellomlagrede vedlegg som hendelsen viser til.
+
+    Kalles etter at hendelsen er lagret. Dette er øyeblikket vedlegget faktisk
+    sendes: fram til nå har det ligget hos oss, usett av motparten.
+
+    Feil her gjør ikke innsendingen mislykket — hendelsen er allerede
+    committet, og en integrasjonsfeil skal ikke invitere til ny innsending
+    (samme prinsipp som PDF-02). Vedlegget blir stående som mellomlagret, og
+    sakens referanse til det består, slik at leveringen kan gjentas.
+    """
+    vedlegg_ids = getattr(getattr(event, "data", None), "vedlegg_ids", None)
+    if not vedlegg_ids:
+        return
+
+    from services.vedlegg_registry import STAGED
+
+    registry = _registry()
+    ventende = [
+        oppforing
+        for oppforing in registry.list(project_id, sak_id)
+        if oppforing["id"] in set(vedlegg_ids) and oppforing["status"] == STAGED
+    ]
+    if not ventende:
+        return
+
+    ctx = _catenda_context(sak_id)
+    if ctx is None:
+        logger.warning(
+            "Hendelse lagret; vedlegg venter på tilgjengelig dokumentbibliotek (%s)",
+            sak_id,
+        )
+        return
+
+    import os
+    import tempfile
+
+    for oppforing in ventende:
+        innhold = registry.content(project_id, sak_id, oppforing["id"])
+        if innhold is None:
+            continue
+        sti = None
+        try:
+            with tempfile.NamedTemporaryFile(
+                delete=False, suffix=f"-{oppforing['navn']}"
+            ) as tmp:
+                tmp.write(innhold)
+                sti = tmp.name
+            item = ctx.service.upload_document(
+                project_id=ctx.project_id,
+                file_path=sti,
+                filename=oppforing["navn"],
+                folder_id=ctx.folder_id,
+            )
+        except Exception:
+            logger.exception(
+                "Hendelse lagret; opplasting av vedlegg %s feilet", oppforing["id"]
+            )
+            continue
+        finally:
+            if sti:
+                try:
+                    os.remove(sti)
+                except OSError:
+                    pass
+
+        if item and item.get("id"):
+            registry.mark_delivered(project_id, sak_id, oppforing["id"], item["id"])
+            logger.info(
+                f"Vedlegg {oppforing['id']} levert til Catenda for sak {sak_id}"
+            )
+        else:
+            logger.error(
+                "Hendelse lagret; vedlegg %s ble ikke lastet opp", oppforing["id"]
+            )
