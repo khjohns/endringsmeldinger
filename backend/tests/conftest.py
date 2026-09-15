@@ -116,7 +116,10 @@ def mock_system(mock_repository, mock_catenda, temp_data_dir, monkeypatch):
     """Create mock SystemContext (replaces KOEAutomationSystem)"""
     config = {
         "catenda_client_id": "test-client-id",
-        "catenda_client_secret": "test-secret",
+        # Et lagret token gjør at SystemContext._authenticate tar token-grenen.
+        # Med client_secret ville fixturen ha gjort et ekte kall til
+        # api.catenda.com ved oppsett — enhetstester skal ikke ut på nettet.
+        "catenda_access_token": "test-access-token",
         "catenda_project_id": "project-123",
         "catenda_library_id": "library-123",
         "data_dir": temp_data_dir,
