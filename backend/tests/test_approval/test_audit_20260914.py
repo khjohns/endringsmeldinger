@@ -85,6 +85,12 @@ def test_revoked_reviewer_cannot_approve_existing_package(setup, monkeypatch):
     }
     auth.role.return_value = "member"
     auth.contract_role.return_value = "BH"
+    # contract_membership er kilden rutene bruker; den følger rollen
+    # så per-test-overstyringer av contract_role fortsatt virker.
+    auth.contract_membership.side_effect = lambda p, u: (
+        auth.contract_role(p, u),
+        "test-team-id",
+    )
     app.extensions["koe_auth"] = auth
     container = SimpleNamespace(
         event_repository=repo,

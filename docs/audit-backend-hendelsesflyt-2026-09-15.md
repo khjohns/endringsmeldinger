@@ -40,19 +40,51 @@ legger hele `data`-nyttelasten på svaret, og `_get_event_summary`
 er nok. Begge kontraktsparter er medlemmer av samme prosjekt; det er hele premisset for
 samarbeidet. BH leste altså TEs interne vurderinger, og omvendt.
 
-Reprodusert med to lesepunkter (`timeline`, `context`) der en BH-leser fikk teksten
-«Internt: vårt krav står svakt på årsakssammenheng.» ordrett i svaret.
+Reprodusert med to lesepunkter (`timeline`, `context`) der en leser fra motparten fikk
+teksten «Internt: vårt krav står svakt på årsakssammenheng.» ordrett i svaret.
 
 `lib/auth/event_visibility.py` innfører nå `visible_events()`, brukt i `event_routes`
 (timeline og context) og i `related_cases_utils` (EO- og forseringskontekst). Notatet
 fjernes i sin helhet, ikke bare teksten: at en part har gjort en intern vurdering er i
 seg selv opplysning motparten ikke skal ha.
 
-Regelen er fail-closed. Kan ikke leserens TE/BH-tilknytning bekreftes — manglende
-rolle, feilende medlemsoppslag, eller en prosjektrolle uten partstilknytning — skjules
-notatet. Det gjelder også lokalt med `DISABLE_AUTH`, fordi det da ikke finnes noe
-partsskille å bygge på. Feil i medlemsoppslaget skjuler notatet i stedet for å bryte
-lesingen av saken.
+#### Skillet går på organisasjon, ikke på kontraktsside
+
+Første utkast filtrerte på `aktor_rolle` (TE/BH). Det er ikke godt nok, og
+`CATENDA_CONTRACT_TEAMS` viser hvorfor: hver kontraktsside mappes til en **liste** av
+Catenda-team-IDer, og flere team per side er en validert, støttet konfigurasjon.
+Byggherren og en ekstern rådgiver er ulike organisasjoner på samme side. Et rollefilter
+ville latt rådgiveren lese byggherrens interne notater — nøyaktig det regelen skal
+hindre, siden dokumentasjonen sier «egen **organisasjon**», ikke «egen kontraktsside».
+
+Reprodusert: med `{"BH": [byggherre_team, radgiver_team]}` gir `contract_role` «BH» for
+begge brukerne. Rollen alene kan ikke skille dem.
+
+`AuthService.contract_role` beregnet allerede hvilket team som traff, men kastet det.
+Det er nå delt i to: `contract_membership()` returnerer `(rolle, team_id)`, og
+`contract_role()` er et tynt kall på den. Treff i flere team på samme side gir entydig
+rolle, men ikke entydig organisasjon — da er `team_id` None. Oppslaget gjøres fortsatt
+én gang; ingen ekstra Catenda-kall.
+
+Hendelsen bærer nå organisasjonen: `SakEvent.aktor_team_id`. Feltet settes av serveren
+fra medlemsoppslaget, aldri av klienten — en egen test sender et forfalsket
+`aktor_team_id` og kontrollerer at det lagrede er serverens. Feltet er valgfritt, så
+lagrede hendelser parser uendret (verifisert mot `parse_event`).
+
+#### Fail-closed i begge ender
+
+Notatet vises bare når **både** leserens og notatets organisasjon er kjent og er den
+samme. Kan ikke leserens team bekreftes — manglende tilknytning, feilende
+medlemsoppslag, medlemskap i to team på samme side, eller lokalt med `DISABLE_AUTH` —
+skjules notatet. Feil i medlemsoppslaget skjuler notatet i stedet for å bryte lesingen
+av saken.
+
+Et notat **uten** `aktor_team_id` skjules for alle, også for forfatteren.
+Brukeravklaring 2026-09-15: den strengeste varianten ble valgt fremfor et fallback til
+rollefilteret. Konsekvensen er reell og skal ikke underslås — et notat skrevet før
+denne endringen blir usynlig for den som skrev det. I praksis er mengden trolig null,
+siden det ikke finnes noen opprettelsesflate i frontend (se gjenstående punkter), men
+det er ikke verifisert mot produksjonsdata.
 
 Filteret er lagt på **serialiseringen**, ikke på `_fetch_and_parse_events`. Første
 forsøk filtrerte før `compute_state`, og en egen test viste hvorfor det er galt: en sak
@@ -171,6 +203,8 @@ underliggende mangelen er ikke rettet** — den er utsatt etter avtale (trinn 3)
 | `streamposition` tåler filtrering | Frontenden bruker feltet kun til relativ sortering (`src/lib/utils/timelineOrder.ts`), ikke som stabil identifikator. |
 | Analytics-tidslinjen | `/api/analytics/timeline` aggregerer kun antall per periode og returnerer ingen hendelsesinnhold. Et internt notat øker en telling med én. Dette er **ikke** rettet og regnes som akseptert restsignal. |
 | Eksisterende forseringsflyt | Alle eksisterende forseringstester passerer uendret etter BE-03/BE-04. |
+| Klienten kan ikke oppgi egen organisasjon | Innsendingstest med forfalsket `aktor_team_id` i nyttelasten: serveren overskriver med verdien fra medlemsoppslaget. |
+| Teamoppslaget koster ikke ekstra kall | `contract_membership` gjør samme løkke som før og returnerer begge verdier; `visible_events` slår ikke opp team i det hele tatt for saker uten interne notater. |
 
 ## Gjenstående og avklaringer
 
@@ -193,6 +227,13 @@ underliggende mangelen er ikke rettet** — den er utsatt etter avtale (trinn 3)
   eller reprodusert i denne runden, og skal ikke leses som at det er i orden.
 - **Forsering er fortsatt halvferdig**: backend har ruter og tjeneste, men
   frontendgeneratoren er ikke koblet til noen rute.
+- **`aktor_team_id` er ikke eksponert i frontendens typer.** Det er med hensikt:
+  filtreringen skjer server-side, og andre organisasjoners notater når aldri klienten.
+  Feltet følger kun med på leserens egne notater, der det er leserens eget team.
+- **Andre hendelsestyper enn notater stemples også** med `aktor_team_id` på den
+  generiske ruten, men tjenestene som lager EO- og forseringshendelser (`aktor_rolle`
+  hardkodet) setter det ikke. Ingen av dem er interne notater, så filteret er upåvirket.
+  Skal feltet brukes til revisjon senere, må de stedene følges opp.
 - **18 eksisterende ruff-feil** i backend er uendret (samme antall før og etter denne
   runden). De nye og endrede filene er rene.
 
@@ -202,11 +243,11 @@ underliggende mangelen er ikke rettet** — den er utsatt etter avtale (trinn 3)
 cd backend && python3 -m pytest -q
 ```
 
-Resultat: **1187 passerer, 0 feiler** (baseline var 1161 passerte / 5 feilet).
-De nye og endrede testfilene alene: 56 passerer.
+Resultat: **1197 passerer, 0 feiler** (baseline var 1161 passerte / 5 feilet).
 
-Ruff på alle nye og endrede filer: rent. `git diff --check`: rent. Ruff på
-`services/ routes/ lib/ tests/`: 18 feil både før og etter — alle eksisterende.
+`git diff --check`: rent. Ruff på `services/ routes/ lib/ tests/`: 18 feil både før og
+etter — alle eksisterende. `models/events.py` har i tillegg 10 eksisterende `UP042` på
+enum-deklarasjoner som ikke er rørt her.
 
 Frontend er kun berørt av den ene typeutvidelsen beskrevet i BE-02, og baselinen
 holder: 501 tester / 42 filer passerer, `npm run check` gir 0 feil og 10 advarsler,

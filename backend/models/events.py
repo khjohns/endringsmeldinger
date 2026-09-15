@@ -329,6 +329,14 @@ class SakEvent(CloudEventMixin, BaseModel):
     aktor_rolle: Literal["TE", "BH"] = Field(
         ..., description="Rolle til aktøren (TE=Totalentreprenør, BH=Byggherre)"
     )
+    aktor_team_id: str | None = Field(
+        default=None,
+        description=(
+            "Catenda-team-ID til aktørens organisasjon. Settes av serveren. "
+            "En kontraktsside kan ha flere team (byggherre og ekstern rådgiver), "
+            "så rollen alene identifiserer ikke organisasjonen."
+        ),
+    )
     kommentar: str | None = Field(
         default=None, description="Valgfri kommentar/begrunnelse"
     )

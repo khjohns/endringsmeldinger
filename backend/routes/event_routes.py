@@ -167,6 +167,7 @@ def _parse_authorized_event(data: dict) -> AnyEvent:
     """Bind identity and enforce contract authority even on the first event."""
     data["aktor"] = g.user.get("name") or g.user.get("email") or g.user["id"]
     data["aktor_rolle"] = g.contract_role
+    data["aktor_team_id"] = getattr(g, "contract_team", None)
     event = parse_event_from_request(data)
     result = validator.validate_actor_role(event)
     if not result.is_valid:
