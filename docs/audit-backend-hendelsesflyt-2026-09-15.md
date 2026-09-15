@@ -144,9 +144,13 @@ Fem scenarioer ble godtatt før retting og avvises nå:
 | Forsering stoppes uten varsel | `FORSERING_NOTIFIED` |
 | Forsering stoppes to ganger | `NOT_ALREADY_STOPPED` |
 | Påløpte kostnader oppdateres uten varsel | `FORSERING_NOTIFIED` |
+| KOE-kobling (`forsering_koe_lagt_til`/`_fjernet`) i en vanlig KOE-sak | `IS_FORSERING_CASE` |
 
 I tillegg krever `FORSERING_VARSEL` nå en forseringssak (`IS_FORSERING_CASE`), etter
-mønster av `_rule_is_eo_case`. Uten den ville et varsel i en vanlig KOE-sak bli lagret
+mønster av `_rule_is_eo_case`. Den samme regelen dekker de to KOE-koblingstypene, som
+ikke emitteres av noen tjeneste og derfor bare er nåbare gjennom den generiske
+`/api/events`-ruten. Koblingen er *ikke* betinget av at varselet er sendt: en
+forseringssak bygges av avslåtte fristkrav, og koblingen kan skje før varselet. Uten den ville et varsel i en vanlig KOE-sak bli lagret
 som en hendelse uten virkning — `TimelineService` ignorerer forsering-hendelser når
 `forsering_data` mangler — altså en stille nullhendelse i en juridisk logg.
 
@@ -249,6 +253,7 @@ fortsatt fullt ut. Dette vinduet lukker seg ved første produksjonsdata.
 | `streamposition` tåler filtrering | Frontenden bruker feltet kun til relativ sortering (`src/lib/utils/timelineOrder.ts`), ikke som stabil identifikator. |
 | Analytics-tidslinjen | `/api/analytics/timeline` aggregerer kun antall per periode og returnerer ingen hendelsesinnhold. Et internt notat øker en telling med én. Dette er **ikke** rettet og regnes som akseptert restsignal. |
 | Eksisterende forseringsflyt | Alle eksisterende forseringstester passerer uendret etter BE-03/BE-04. |
+| `EndringsordreService` har **ikke** samme omgåelse som forsering | Undersøkt fordi tjenesten er strukturelt lik: den appender `EO_KOE_LAGT_TIL`/`_FJERNET` uten å kalle validatoren. Hypotesen holdt ikke. Tjenestens egne kontroller er *strengere* enn validatoren for disse typene: den krever EO i `UTKAST`, og at KOE-saken er en gyldig kandidat respektive faktisk er koblet — ingen av delene kontrollerer validatoren. Av fellesreglene er `CASE_NOT_CLOSED` eksplisitt unntatt for alle EO-typer, `CREATE_ONCE` og `RESPONSE_REFERENCE` treffer ikke, og `ROLE_CHECK` er allerede dekket av `@require_contract_role("BH")` på ruten. Igjen står `IS_EO_CASE`, og en probe bekrefter at `endringsordre_data`-kontrollen tjenesten bruker er ekvivalent: `endringsordre_data` settes kun når `sakstype` allerede er `ENDRINGSORDRE`, og validator og tjeneste avviser/godtar likt i begge retninger. Ingen endring gjort. |
 | Notat uten organisasjon kan ikke lagres | `InterntNotatEvent.aktor_team_id` er påkrevd; ruten avviser med 403 før lagring når teamet ikke er entydig. |
 | Klienten kan ikke oppgi egen organisasjon | Innsendingstest med forfalsket `aktor_team_id` i nyttelasten: serveren overskriver med verdien fra medlemsoppslaget. |
 | Teamoppslaget koster ikke ekstra kall | `contract_membership` gjør samme løkke som før og returnerer begge verdier; `visible_events` slår ikke opp team i det hele tatt for saker uten interne notater. |
@@ -270,9 +275,8 @@ fortsatt fullt ut. Dette vinduet lukker seg ved første produksjonsdata.
   og lekkasjen ville inntruffet i det første notat ble opprettet — via API-et i dag,
   eller via en fremtidig UI. Appen er ikke i produksjon og databasen har ingen reelle
   data, så lekkasjen har aldri materialisert seg. Den er lukket før første notat.
-- **`FORSERING_KOE_LAGT_TIL` / `FORSERING_KOE_FJERNET`** har fortsatt ingen
-  «er dette en forseringssak»-regel, slik EO-motpartene har. Dette er *ikke* undersøkt
-  eller reprodusert i denne runden, og skal ikke leses som at det er i orden.
+- **`FORSERING_KOE_LAGT_TIL` / `FORSERING_KOE_FJERNET`** er undersøkt i ettertid og
+  rettet; se BE-03. Punktet er dermed lukket.
 - **Forsering er fortsatt halvferdig**: backend har ruter og tjeneste, men
   frontendgeneratoren er ikke koblet til noen rute.
 - **`aktor_team_id` er ikke eksponert i frontendens typer.** Det er med hensikt:

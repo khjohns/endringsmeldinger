@@ -148,3 +148,59 @@ def test_kostnader_kan_ikke_oppdateres_uten_varsel(validator, timeline_service):
     result = validator.validate(kostnader, state)
 
     assert not result.is_valid, "Kostnader ble oppdatert uten varslet forsering"
+
+
+# ============ KOE-KOBLING (§33.8) ============
+
+
+def _koe_kobling(event_type: str) -> object:
+    from models.events import ForseringKoeHandlingData, ForseringKoeHandlingEvent
+
+    return ForseringKoeHandlingEvent(
+        sak_id="FORS-001",
+        aktor="TE Bruker",
+        aktor_rolle="TE",
+        event_type=event_type,
+        data=ForseringKoeHandlingData(koe_sak_id="KOE-1"),
+    )
+
+
+def _standard_sak() -> SakOpprettetEvent:
+    return SakOpprettetEvent(
+        sak_id="FORS-001",
+        aktor="TE Bruker",
+        aktor_rolle="TE",
+        sakstittel="Vanlig KOE-sak",
+        sakstype="standard",
+    )
+
+
+@pytest.mark.parametrize(
+    "event_type", ["forsering_koe_lagt_til", "forsering_koe_fjernet"]
+)
+def test_koe_kobling_krever_forseringssak(validator, timeline_service, event_type):
+    """KOE-kobling i en vanlig sak blir en stille nullhendelse.
+
+    TimelineService ignorerer forsering-hendelser når forsering_data mangler, så
+    hendelsen ville blitt liggende i den juridiske loggen uten virkning. Samme
+    begrunnelse som IS_FORSERING_CASE for selve varselet.
+    """
+    state = _state(timeline_service, [_standard_sak()])
+
+    result = validator.validate(_koe_kobling(event_type), state)
+
+    assert not result.is_valid, (
+        f"{event_type} ble godtatt i en sak som ikke er en forseringssak"
+    )
+
+
+@pytest.mark.parametrize(
+    "event_type", ["forsering_koe_lagt_til", "forsering_koe_fjernet"]
+)
+def test_koe_kobling_godtas_i_forseringssak(validator, timeline_service, event_type):
+    """Kontroll: koblingen skal fortsatt virke i en ekte forseringssak."""
+    state = _state(timeline_service, [_sak_opprettet(), _varsel()])
+
+    result = validator.validate(_koe_kobling(event_type), state)
+
+    assert result.is_valid, result.message
