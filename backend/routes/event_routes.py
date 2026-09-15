@@ -178,10 +178,42 @@ def _parse_authorized_event(data: dict) -> AnyEvent:
             "Interne notater krever entydig teamtilknytning i Catenda."
         )
     event = parse_event_from_request(data)
+    _krev_egne_vedlegg(event)
     result = validator.validate_actor_role(event)
     if not result.is_valid:
         raise PermissionError(result.message)
     return event
+
+
+def _krev_egne_vedlegg(event: AnyEvent) -> None:
+    """Vedleggsreferanser må peke på vedlegg registrert på denne saken.
+
+    Formkontrollen på modellen (UUID, maks 50) hindrer fri tekst, men en gyldig
+    UUID kan fortsatt peke på et dokument i et annet prosjekt eller på
+    ingenting. Hendelsen inngår i formelle brev, og vedleggslisten vises til
+    BH-godkjenner, så referansen må være kontrollert.
+
+    Raises:
+        ValueError: Ved ukjent referanse. Ruten oversetter dette til HTTP 400.
+    """
+    vedlegg_ids = getattr(getattr(event, "data", None), "vedlegg_ids", None)
+    if not vedlegg_ids:
+        return
+
+    from lib.auth.domain import catenda_id
+    from services.vedlegg_registry import VedleggRegistry
+
+    # Catenda returnerer kompakt hex ved opplasting, mens feltet godtar begge
+    # UUID-former. Sammenligningen normaliseres, ellers ville samme dokument
+    # blitt avvist avhengig av hvilken form klienten sendte.
+    registry = VedleggRegistry()
+    kjente = {catenda_id(v["id"]) for v in registry.list(g.project_id, event.sak_id)}
+    ukjente = [ref for ref in vedlegg_ids if catenda_id(ref) not in kjente]
+    if ukjente:
+        raise ValueError(
+            "Vedlegget hører ikke til denne saken. "
+            "Last det opp på saken før du viser til det."
+        )
 
 
 def _derive_spor_from_event(event: AnyEvent) -> str | None:

@@ -72,6 +72,14 @@ class VedleggRegistry:
             for row in rows
         ]
 
+    def delete(self, project, case_id, vedlegg_id) -> None:
+        """Fjern registreringen. Kaller ikke Catenda — det gjør ruten."""
+        with sqlite_connection(self.path) as db:
+            db.execute(
+                "DELETE FROM vedlegg WHERE project=? AND case_id=? AND vedlegg_id=?",
+                (project, case_id, vedlegg_id),
+            )
+
     def belongs_to_case(self, project, case_id, vedlegg_id) -> bool:
         """Om vedlegget er registrert på nøyaktig denne saken i dette prosjektet."""
         with sqlite_connection(self.path) as db:

@@ -168,13 +168,6 @@ Det er ikke pynt: i en tvistesak må den som laster opp vite at handlingen er de
 
 - 15 MB per fil, under Flasks `MAX_CONTENT_LENGTH` på 16 MiB. Ingen chunking eller
   gjenopptakelse av avbrutte opplastinger.
-- Filtypen valideres ikke. Innholdet strømmes med `application/octet-stream` og
-  `nosniff`, så nettleseren tolker det ikke som HTML, men virusskanning finnes ikke.
-- Ingen sletting av vedlegg. `delete_library_item` finnes på klienten, men å fjerne et
-  dokument fra en tvistesak er en beslutning som trenger en egen regel.
-- `vedlegg_ids` på hendelser er fortsatt formvalidert (VED-01) og kobles ennå ikke
-  automatisk til det opplastede vedlegget. Å knytte et vedlegg til en bestemt
-  hendelse er neste steg.
 - Ingen live Catenda-test er kjørt. Rutene er verifisert mot mocket tjenestelag;
   endepunktsvalget er lest ut av `document-api-openapi.yaml`.
 
@@ -186,3 +179,60 @@ den midlertidige filen ryddes både ved suksess og feil).
 Frontend: **511 tester / 43 filer** (10 nye), 0 typefeil / 10 advarsler, grønn lint og
 `npm run build`. Ruff uendret på 18 eksisterende feil; `app.py` har fortsatt sin ene
 eksisterende `I001`.
+
+## Oppfølging: referansekontroll, sletting og innholdskontroll
+
+De tre gjenstående punktene fra implementeringen er tatt.
+
+### Vedleggsreferanser kontrolleres mot saken
+
+Dette er den egentlige regelen VED-01 bare tilnærmet. Formkontrollen (UUID, maks 50)
+hindrer fri tekst, men en gyldig UUID kunne fortsatt peke på et dokument i et annet
+prosjekt eller på ingenting. Reprodusert: en hendelse med et vedlegg fra en **annen
+sak i samme prosjekt**, og en helt ukjent UUID, ble begge godtatt med HTTP 201.
+
+`_krev_egne_vedlegg` i det felles parsepunktet (`_parse_authorized_event`, brukt av
+både enkelt- og batchinnsending) krever nå at hver referanse er registrert på saken.
+Sammenligningen normaliseres med `catenda_id`: Catenda returnerer kompakt hex ved
+opplasting, mens feltet godtar begge UUID-former, og samme dokument skulle ikke bli
+avvist avhengig av hvilken form klienten sendte.
+
+### Sletting er bevisst snever
+
+`DELETE /api/cases/<sak>/vedlegg/<id>` fjerner et vedlegg, men bare når:
+
+- **ingen lagret hendelse viser til det** — et referert vedlegg er del av sakens
+  formelle grunnlag og fjernes ikke herfra (HTTP 409), og
+- **forespørselen kommer fra siden som lastet det opp** — motparten skal ikke kunne
+  rydde i den andres dokumentasjon (HTTP 403).
+
+Kan hendelsesstrømmen ikke leses, nektes sletting (503): å slette på usikkert grunnlag
+er verre enn å nekte. Registreringen fjernes først etter at biblioteket faktisk er
+ryddet, slik at en feil ikke etterlater et vedlegg som er usynlig i appen men finnes i
+Catenda.
+
+Sletting gjør ikke dokumentet usett. Biblioteket er delt, så motparten kan allerede ha
+lest det. Det er en grense ved delt lagring, ikke ved denne implementasjonen.
+
+### Innholdskontroll — og hva den ikke er
+
+`lib/vedlegg_innhold.py` avviser innhold som er et kjørbart program uansett filnavn
+(MZ, ELF, Mach-O, Java-klasse, shebang), og krever at innholdet stemmer med filtypen
+når navnet lover et kjent format. Det dekker den realistiske vektoren mellom to parter
+i en tvist: en fil som utgir seg for å være dokumentasjon.
+
+**Dette er ikke virusskanning.** Ekte skanning krever en ekstern tjeneste
+(ClamAV-daemon eller et skanne-API); ingen slik avhengighet finnes i repoet, og en
+attrapp ville gitt falsk trygghet — nøyaktig den feiltypen denne auditserien har funnet
+flere av. Reell innholdsskanning står fortsatt åpen.
+
+Ukjente, ikke-kjørbare formater slippes bevisst gjennom. Byggfag har mange legitime
+filtyper (IFC, DWG, fremdriftsformater), og en uttømmende hviteliste ville blokkert
+reelle bevis. Testene dekker begge sider: forkledde kjørbare avvises, `.ifc` og `.dwg`
+slipper gjennom.
+
+### Verifikasjon
+
+Backend: **1245 tester passerer** (21 nye i denne runden). Frontend: **513 tester /
+43 filer**, 0 typefeil / 10 advarsler, grønn lint og build. Ruff uendret på 18
+eksisterende feil.

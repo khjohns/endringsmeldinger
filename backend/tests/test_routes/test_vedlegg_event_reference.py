@@ -1,0 +1,140 @@
+"""Et `vedlegg_ids` på en hendelse må peke på et vedlegg som hører til saken.
+
+VED-01 strammet formen (UUID, maks 50). Det er ikke den egentlige regelen:
+en gyldig UUID kan fortsatt peke på et dokument i et annet prosjekt, eller på
+ingenting. Nå som vedlegg registreres per sak, kan referansen kontrolleres.
+
+Hendelsene inngår i formelle brev, og vedleggslisten vises til BH-godkjenner.
+En referanse som ikke er kontrollert er et beslutningsgrunnlag ingen har sjekket.
+"""
+
+from types import SimpleNamespace
+from unittest.mock import Mock
+
+import pytest
+from flask import Flask
+
+from lib.auth.session import cookie_name
+from lib.project_context import init_project_context
+from routes import event_routes
+from services.timeline_service import TimelineService
+from services.vedlegg_registry import VedleggRegistry
+
+EGET_VEDLEGG = "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+FREMMED_VEDLEGG = "7c9e6679-7425-40de-944b-e07fc1f90ae7"
+
+
+@pytest.fixture
+def api(monkeypatch, tmp_path):
+    monkeypatch.setenv("BH_APPROVAL_DB", str(tmp_path / "approval.sqlite"))
+    monkeypatch.delenv("DISABLE_AUTH", raising=False)
+    monkeypatch.delenv("BH_APPROVAL_POLICIES", raising=False)
+
+    # Ett vedlegg hører til saken, ett hører til en annen sak i samme prosjekt.
+    registry = VedleggRegistry()
+    registry.record("p", "case", EGET_VEDLEGG, "eget.pdf", 10, "TE Bruker", "TE")
+    registry.record("p", "annen-sak", FREMMED_VEDLEGG, "fremmed.pdf", 10, "Andre", "TE")
+
+    app = Flask(__name__)
+    app.testing = True
+    init_project_context(app)
+    app.register_blueprint(event_routes.events_bp)
+
+    auth = Mock()
+    auth.repo.session.return_value = {
+        "app_users": {"id": "u", "email": "te@example.com", "name": "TE Bruker"},
+        "csrf_token": "csrf",
+    }
+    auth.role.return_value = "member"
+    auth.contract_role.return_value = "TE"
+    auth.contract_membership.return_value = ("TE", "team-te")
+    app.extensions["koe_auth"] = auth
+
+    sak_opprettet = {
+        "event_type": "sak_opprettet",
+        "sak_id": "case",
+        "aktor": "System",
+        "aktor_rolle": "TE",
+        "tidsstempel": "2026-09-15T08:00:00Z",
+        "sakstittel": "Testsak",
+    }
+    container = Mock()
+    container.metadata_repository.get.return_value = SimpleNamespace(
+        prosjekt_id="p", catenda_topic_id=None
+    )
+    container.event_repository.get_events.return_value = ([sak_opprettet], 1)
+    container.event_repository.append.return_value = 2
+    container.timeline_service = TimelineService()
+    monkeypatch.setattr(event_routes, "_get_container", lambda: container)
+    monkeypatch.setattr("lib.auth.project_access.get_container", lambda: container)
+
+    client = app.test_client()
+    client.set_cookie(cookie_name(), "session")
+    return SimpleNamespace(client=client, container=container)
+
+
+def _send(api, vedlegg_ids):
+    return api.client.post(
+        "/api/events",
+        json={
+            "sak_id": "case",
+            "expected_version": 1,
+            "event": {
+                "event_type": "grunnlag_opprettet",
+                "data": {
+                    "tittel": "Krav",
+                    "hovedkategori": "ENDRING",
+                    "underkategori": "IRREG",
+                    "beskrivelse": "Beskrivelse",
+                    "dato_oppdaget": "2026-09-13",
+                    "vedlegg_ids": vedlegg_ids,
+                },
+            },
+        },
+        headers={"X-Project-ID": "p", "X-CSRF-Token": "csrf"},
+    )
+
+
+def test_vedlegg_fra_annen_sak_avvises(api):
+    """En gyldig UUID er ikke nok — vedlegget må høre til denne saken."""
+    response = _send(api, [FREMMED_VEDLEGG])
+
+    assert response.status_code == 400, response.get_data(as_text=True)
+    assert "vedlegg" in response.get_json()["message"].lower()
+    api.container.event_repository.append.assert_not_called()
+
+
+def test_ukjent_vedlegg_avvises(api):
+    """En UUID som ikke er registrert noe sted skal heller ikke godtas."""
+    response = _send(api, ["11111111-1111-4111-8111-111111111111"])
+
+    assert response.status_code == 400
+    api.container.event_repository.append.assert_not_called()
+
+
+def test_eget_vedlegg_godtas(api):
+    """Kontroll: sakens eget vedlegg skal fortsatt kunne refereres."""
+    response = _send(api, [EGET_VEDLEGG])
+
+    assert response.status_code == 201, response.get_data(as_text=True)
+    lagret = api.container.event_repository.append.call_args.args[0]
+    assert lagret.data.vedlegg_ids == [EGET_VEDLEGG]
+
+
+def test_ingen_vedlegg_er_fortsatt_lovlig(api):
+    assert _send(api, []).status_code == 201
+
+
+def test_kompakt_og_dashet_form_er_samme_vedlegg(api):
+    """Catenda returnerer kompakt hex ved opplasting; feltet godtar begge former.
+
+    Samme dokument skal ikke avvises fordi klienten sendte den andre formen.
+    """
+    from uuid import UUID
+
+    registry = VedleggRegistry()
+    kompakt = UUID(FREMMED_VEDLEGG).hex
+    registry.record("p", "case", kompakt, "kompakt.pdf", 10, "TE Bruker", "TE")
+
+    # Registrert kompakt, referert med bindestreker.
+    assert _send(api, [FREMMED_VEDLEGG]).status_code == 201

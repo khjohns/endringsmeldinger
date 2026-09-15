@@ -23,6 +23,7 @@ from lib.auth.csrf_protection import require_csrf
 from lib.auth.project_access import require_project_access
 from lib.auth.session import require_auth
 from lib.decorators import handle_service_errors
+from lib.vedlegg_innhold import UgyldigVedlegg, kontroller_innhold
 from services.vedlegg_registry import VedleggRegistry
 from utils.logger import get_logger
 
@@ -56,8 +57,19 @@ def _catenda_context(sak_id: str):
 @require_project_access()
 @handle_service_errors
 def list_vedlegg(sak_id: str):
-    """Vedlegg registrert på saken."""
-    return jsonify({"vedlegg": _registry().list(g.project_id, sak_id)})
+    """Vedlegg registrert på saken.
+
+    `min_rolle` lar klienten vise fjern-knappen bare på egne vedlegg. Det er
+    en visningshjelp — sletteruten håndhever regelen uavhengig av den.
+    """
+    from lib.auth.event_visibility import reader_contract_role
+
+    return jsonify(
+        {
+            "vedlegg": _registry().list(g.project_id, sak_id),
+            "min_rolle": reader_contract_role(),
+        }
+    )
 
 
 @vedlegg_bp.route("/api/cases/<sak_id>/vedlegg", methods=["POST"])
@@ -90,6 +102,11 @@ def last_opp_vedlegg(sak_id: str):
             error="FOR_STOR_FIL",
             message=f"Filen er større enn {MAKS_VEDLEGG_BYTES // (1024 * 1024)} MB.",
         ), 413
+
+    try:
+        kontroller_innhold(navn, innhold)
+    except UgyldigVedlegg as e:
+        return jsonify(error="UGYLDIG_INNHOLD", message=str(e)), 400
 
     ctx = _catenda_context(sak_id)
     if ctx is None:
@@ -200,3 +217,94 @@ def last_ned_vedlegg(sak_id: str, vedlegg_id: str):
             "Cache-Control": "no-store",
         },
     )
+
+
+def _refererte_vedlegg(sak_id: str) -> set[str]:
+    """Vedlegg som er referert av en lagret hendelse på saken.
+
+    Slike vedlegg er del av den juridiske loggen og kan ikke fjernes.
+    Klarer vi ikke å lese hendelsene, regnes alt som referert: å slette på
+    usikkert grunnlag er verre enn å nekte.
+    """
+    from lib.auth.domain import catenda_id
+    from models.events import parse_event
+    from routes.event_routes import _get_event_repo
+
+    events_data, _versjon = _get_event_repo().get_events(sak_id)
+    referert: set[str] = set()
+    for rad in events_data or []:
+        hendelse = parse_event(rad)
+        for ref in getattr(getattr(hendelse, "data", None), "vedlegg_ids", None) or []:
+            referert.add(catenda_id(ref))
+    return referert
+
+
+@vedlegg_bp.route("/api/cases/<sak_id>/vedlegg/<vedlegg_id>", methods=["DELETE"])
+@require_csrf
+@require_auth
+@require_project_access(min_role="member")
+@require_contract_role()
+@handle_service_errors
+def slett_vedlegg(sak_id: str, vedlegg_id: str):
+    """Slett et vedlegg som ennå ikke er tatt i bruk i en hendelse.
+
+    Regelen er bevisst snever. Et vedlegg som en lagret hendelse viser til, er
+    del av sakens formelle grunnlag og fjernes ikke herfra. Og bare den siden
+    som lastet opp vedlegget kan fjerne det: motparten skal ikke kunne rydde i
+    den andres dokumentasjon.
+
+    Merk at sletting ikke gjør dokumentet usett. Biblioteket er delt, så
+    motparten kan allerede ha lest det.
+    """
+    from lib.auth.domain import catenda_id
+
+    registry = _registry()
+    oppforing = next(
+        (v for v in registry.list(g.project_id, sak_id) if v["id"] == vedlegg_id),
+        None,
+    )
+    if oppforing is None:
+        return jsonify(
+            error="IKKE_FUNNET", message="Vedlegget finnes ikke på denne saken."
+        ), 404
+
+    if oppforing["lastet_opp_rolle"] != g.contract_role:
+        return jsonify(
+            error="IKKE_EGEN_SIDE",
+            message="Bare den som lastet opp vedlegget kan fjerne det.",
+        ), 403
+
+    try:
+        referert = _refererte_vedlegg(sak_id)
+    except Exception:
+        logger.exception("Kunne ikke lese hendelsene for %s", sak_id)
+        return jsonify(
+            error="KAN_IKKE_BEKREFTE",
+            message="Kunne ikke bekrefte om vedlegget er i bruk. Prøv igjen.",
+        ), 503
+
+    if catenda_id(vedlegg_id) in referert:
+        return jsonify(
+            error="VEDLEGG_I_BRUK",
+            message="Vedlegget er brukt i en sendt hendelse og kan ikke fjernes.",
+        ), 409
+
+    ctx = _catenda_context(sak_id)
+    if ctx is None:
+        return jsonify(
+            error="CATENDA_UTILGJENGELIG",
+            message="Dokumentbiblioteket er ikke tilgjengelig.",
+        ), 503
+
+    if not ctx.service.delete_document(ctx.project_id, vedlegg_id):
+        return jsonify(
+            error="SLETTING_FEILET",
+            message="Dokumentet kunne ikke fjernes fra biblioteket.",
+        ), 502
+
+    # Registreringen fjernes først etter at biblioteket faktisk er ryddet,
+    # slik at en feil ikke etterlater et vedlegg som er usynlig men finnes.
+    registry.delete(g.project_id, sak_id, vedlegg_id)
+    logger.info(f"Vedlegg fjernet fra sak {sak_id}: {vedlegg_id}")
+
+    return jsonify({"slettet": vedlegg_id}), 200

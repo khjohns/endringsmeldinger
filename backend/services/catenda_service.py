@@ -188,6 +188,27 @@ class CatendaService:
             logger.error(f"Kunne ikke laste ned dokument {item_id}: {e}")
             return None
 
+    def delete_document(self, project_id: str, item_id: str) -> bool:
+        """
+        Slett et dokument fra Catendas bibliotek.
+
+        Args:
+            project_id: Catenda-prosjekt-ID
+            item_id: Library-item-ID
+
+        Returns:
+            True hvis dokumentet ble slettet.
+        """
+        if not self.client:
+            logger.warning("No Catenda client configured, skipping delete")
+            return False
+
+        try:
+            return bool(self.client.delete_library_item(project_id, item_id))
+        except Exception as e:
+            logger.error(f"Kunne ikke slette dokument {item_id}: {e}")
+            return False
+
     def create_document_reference(
         self, topic_guid: str, document_guid: str
     ) -> dict[str, Any] | None:

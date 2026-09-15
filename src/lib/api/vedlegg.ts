@@ -38,14 +38,38 @@ async function feilmelding(response: Response): Promise<string> {
   return 'Noe gikk galt. Prøv igjen.';
 }
 
-export async function hentVedlegg(sakId: string): Promise<Vedlegg[]> {
+export interface VedleggsListe {
+  vedlegg: Vedlegg[];
+  /** Leserens kontraktsside, eller null når den ikke kan bekreftes. */
+  minRolle: 'TE' | 'BH' | null;
+}
+
+export async function hentVedlegg(sakId: string): Promise<VedleggsListe> {
   const response = await fetch(base(sakId), {
     credentials: 'include',
     headers: { 'X-Project-ID': getActiveProjectId() },
   });
   if (!response.ok) throw new ApiError(response.status, await feilmelding(response));
   const data = await response.json();
-  return data.vedlegg ?? [];
+  return { vedlegg: data.vedlegg ?? [], minRolle: data.min_rolle ?? null };
+}
+
+/**
+ * Fjern et vedlegg som ennå ikke er brukt i en sendt hendelse.
+ *
+ * Backend håndhever regelen: kun egen side, og kun så lenge ingen lagret
+ * hendelse viser til vedlegget.
+ */
+export async function slettVedlegg(sakId: string, vedleggId: string): Promise<void> {
+  const response = await fetch(`${base(sakId)}/${encodeURIComponent(vedleggId)}`, {
+    method: 'DELETE',
+    credentials: 'include',
+    headers: {
+      'X-Project-ID': getActiveProjectId(),
+      'X-CSRF-Token': await getCsrfToken(),
+    },
+  });
+  if (!response.ok) throw new ApiError(response.status, await feilmelding(response));
 }
 
 export async function lastOppVedlegg(sakId: string, fil: File): Promise<Vedlegg> {
