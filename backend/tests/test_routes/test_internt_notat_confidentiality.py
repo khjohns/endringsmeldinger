@@ -1,9 +1,11 @@
-"""Internt notat skal kun være synlig for forfatterens egen side (TE eller BH).
+"""Internt notat skal kun være synlig for forfatterens egen organisasjon.
 
 Hendelsestypen er dokumentert som «kun synlig for egen organisasjon»
-(models/events.py, src/lib/types/timeline.ts). Testene her holder lesesiden
-opp mot den dokumenterte regelen: motparten skal verken se notatteksten eller
-at notatet finnes.
+(models/events.py, src/lib/types/timeline.ts). Skillet går på Catenda-team, ikke
+på kontraktsside: en side kan ha flere team, og byggherren og en ekstern
+rådgiver er ulike organisasjoner selv om begge er BH. Testene her holder
+lesesiden opp mot den regelen: andre skal verken se notatteksten eller at
+notatet finnes.
 """
 
 import json
@@ -22,12 +24,17 @@ from services.timeline_service import TimelineService
 
 NOTAT_TEKST = "Internt: vårt krav står svakt på årsakssammenheng."
 
+TE_TEAM = "22222222222222222222222222222222"
+BH_BYGGHERRE_TEAM = "33333333333333333333333333333333"
+BH_RADGIVER_TEAM = "55555555555555555555555555555555"
 
-def _notat(rolle: str) -> InterntNotatEvent:
+
+def _notat(rolle: str, team: str | None) -> InterntNotatEvent:
     return InterntNotatEvent(
         sak_id="case",
         aktor="Notatskriver",
         aktor_rolle=rolle,
+        aktor_team_id=team,
         tidsstempel=datetime(2026, 9, 15, 9, 0, tzinfo=UTC),
         data=InterntNotatData(tekst=NOTAT_TEKST, spor="grunnlag"),
     )
@@ -37,7 +44,7 @@ def _notat(rolle: str) -> InterntNotatEvent:
 def api(monkeypatch, tmp_path):
     """Ekte auth og ruteparsing; kun lager og providere er erstattet."""
 
-    def build(leser_rolle: str, notat_rolle: str):
+    def build(leser_rolle, notat_rolle, leser_team, notat_team):
         monkeypatch.setenv("BH_APPROVAL_DB", str(tmp_path / "approval.sqlite"))
         monkeypatch.delenv("DISABLE_AUTH", raising=False)
         app = Flask(__name__)
@@ -52,6 +59,7 @@ def api(monkeypatch, tmp_path):
         }
         auth.role.return_value = "member"
         auth.contract_role.return_value = leser_rolle
+        auth.contract_membership.return_value = (leser_rolle, leser_team)
         app.extensions["koe_auth"] = auth
 
         container = Mock()
@@ -59,7 +67,7 @@ def api(monkeypatch, tmp_path):
             prosjekt_id="p", catenda_topic_id="topic"
         )
         container.event_repository.get_events.return_value = (
-            [_notat(notat_rolle).model_dump(mode="json")],
+            [_notat(notat_rolle, notat_team).model_dump(mode="json")],
             1,
         )
         container.timeline_service = TimelineService()
@@ -82,22 +90,41 @@ def _body(response) -> str:
     return json.dumps(response.get_json(), ensure_ascii=False)
 
 
+def _assert_skjult(response):
+    assert response.status_code == 200, response.get_data(as_text=True)
+    body = _body(response)
+    assert NOTAT_TEKST not in body, "Notatteksten lekket"
+    assert "internt_notat" not in body, "Notatets eksistens lekket"
+
+
 @pytest.mark.parametrize("path", ["timeline", "context"])
 def test_motpart_ser_ikke_internt_notat(api, path):
     """BH skal ikke få TEs interne notat fra lesepunktene."""
-    client = api(leser_rolle="BH", notat_rolle="TE")
-    response = _get(client, f"/api/cases/case/{path}")
-
-    assert response.status_code == 200, response.get_data(as_text=True)
-    body = _body(response)
-    assert NOTAT_TEKST not in body, "Notatteksten lekket til motparten"
-    assert "internt_notat" not in body, "Notatets eksistens lekket til motparten"
+    client = api("BH", "TE", BH_BYGGHERRE_TEAM, TE_TEAM)
+    _assert_skjult(_get(client, f"/api/cases/case/{path}"))
 
 
 @pytest.mark.parametrize("path", ["timeline", "context"])
-def test_egen_side_ser_eget_internt_notat(api, path):
-    """TE skal fortsatt se sitt eget notat — filteret må ikke skjule for forfatteren."""
-    client = api(leser_rolle="TE", notat_rolle="TE")
+def test_samme_side_annet_team_ser_ikke_notatet(api, path):
+    """Rådgiveren er på BH-siden, men er ikke byggherrens organisasjon.
+
+    Dette er tilfellet et rent TE/BH-filter ikke fanger.
+    """
+    client = api("BH", "BH", BH_RADGIVER_TEAM, BH_BYGGHERRE_TEAM)
+    _assert_skjult(_get(client, f"/api/cases/case/{path}"))
+
+
+@pytest.mark.parametrize("path", ["timeline", "context"])
+def test_notat_uten_team_skjules(api, path):
+    """Et notat uten registrert organisasjon vises ikke til noen."""
+    client = api("TE", "TE", TE_TEAM, None)
+    _assert_skjult(_get(client, f"/api/cases/case/{path}"))
+
+
+@pytest.mark.parametrize("path", ["timeline", "context"])
+def test_eget_team_ser_eget_internt_notat(api, path):
+    """Egen organisasjon skal fortsatt se notatet sitt."""
+    client = api("TE", "TE", TE_TEAM, TE_TEAM)
     response = _get(client, f"/api/cases/case/{path}")
 
     assert response.status_code == 200, response.get_data(as_text=True)
@@ -131,6 +158,7 @@ def submit_api(monkeypatch, tmp_path):
     }
     auth.role.return_value = "member"
     auth.contract_role.return_value = "TE"
+    auth.contract_membership.return_value = ("TE", TE_TEAM)
     app.extensions["koe_auth"] = auth
 
     sak_opprettet = {
@@ -160,7 +188,11 @@ def submit_api(monkeypatch, tmp_path):
 
     client = app.test_client()
     client.set_cookie(cookie_name(), "session")
-    return SimpleNamespace(client=client, post_to_catenda=post_spy)
+    return SimpleNamespace(
+        client=client,
+        post_to_catenda=post_spy,
+        appended=lambda: container.event_repository.append.call_args.args[0],
+    )
 
 
 def test_internt_notat_gir_ingen_catenda_levering(submit_api):
@@ -211,3 +243,28 @@ def test_vanlig_hendelse_leveres_fortsatt(submit_api):
 
     assert response.status_code == 201, response.get_data(as_text=True)
     submit_api.post_to_catenda.assert_called_once()
+
+
+def test_team_stemples_av_serveren_ikke_av_klienten(submit_api):
+    """Organisasjonen på hendelsen må komme fra medlemsoppslaget.
+
+    Kunne klienten oppgi aktor_team_id selv, ville den kunne adressere notatet
+    til en annen organisasjon — eller gi seg selv innsyn i andres notater.
+    """
+    response = submit_api.client.post(
+        "/api/events",
+        json={
+            "sak_id": "case",
+            "expected_version": 1,
+            "event": {
+                "event_type": "internt_notat",
+                "aktor_team_id": "forfalsket-team",
+                "data": {"tekst": NOTAT_TEKST, "spor": "grunnlag"},
+            },
+        },
+        headers={"X-Project-ID": "p", "X-CSRF-Token": "csrf"},
+    )
+
+    assert response.status_code == 201, response.get_data(as_text=True)
+    lagret = submit_api.appended()
+    assert lagret.aktor_team_id == TE_TEAM

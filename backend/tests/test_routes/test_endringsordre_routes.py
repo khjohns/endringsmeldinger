@@ -29,6 +29,12 @@ def api(monkeypatch):
     }
     auth.role.return_value = "member"
     auth.contract_role.return_value = "BH"
+    # contract_membership er kilden rutene bruker; den følger rollen
+    # så per-test-overstyringer av contract_role fortsatt virker.
+    auth.contract_membership.side_effect = lambda p, u: (
+        auth.contract_role(p, u),
+        "test-team-id",
+    )
     app.extensions["koe_auth"] = auth
     service = Mock()
     service.opprett_endringsordresak.return_value = {

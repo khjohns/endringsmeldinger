@@ -3,31 +3,33 @@
 `internt_notat` er dokumentert som «kun synlig for egen organisasjon»
 (models/events.py). Hendelsen lagres i sakens felles hendelsesstrøm, som begge
 kontraktsparter leser fra. Filteret her er derfor det eneste som skiller
-partene på lesesiden, og det må brukes på alle punkter som returnerer
+organisasjonene på lesesiden, og det må brukes på alle punkter som returnerer
 hendelser til en klient.
 
-Regelen er fail-closed: kan ikke leserens TE/BH-tilknytning bekreftes, skjules
-notatet. Det gjelder også når autentisering er slått av lokalt
-(`DISABLE_AUTH`), fordi det da ikke finnes noen partsskille å bygge på.
+Skillet går på Catenda-team, ikke på kontraktsside. En side kan ha flere team —
+byggherren og en ekstern rådgiver er ulike organisasjoner på samme side — og
+`CATENDA_CONTRACT_TEAMS` mapper hver side til en *liste* av team-IDer. Et filter
+på TE/BH ville derfor latt rådgiveren lese byggherrens interne notater.
+
+Regelen er fail-closed i begge ender: notatet vises bare når både leserens og
+notatets organisasjon er kjent og er den samme. Et notat uten `aktor_team_id`
+vises ikke til noen.
 """
 
 from flask import g
 
 from models.events import EventType
 
-CONTRACT_ROLES = frozenset({"TE", "BH"})
 
+def reader_contract_team() -> str | None:
+    """Leserens Catenda-team, eller None når det ikke kan bekreftes.
 
-def reader_contract_role() -> str | None:
-    """Leserens TE/BH-tilknytning, eller None når den ikke kan bekreftes.
-
-    Rollen slås ikke opp på nytt dersom en rutedekoratør allerede har satt den.
+    Teamet slås ikke opp på nytt dersom en rutedekoratør allerede har satt det.
     Feil mot medlemsoppslaget gir None, ikke unntak: lesing av saken skal ikke
-    bryte fordi partstilknytningen er utilgjengelig — notatene skjules i stedet.
+    bryte fordi teamtilknytningen er utilgjengelig — notatene skjules i stedet.
     """
-    role = getattr(g, "contract_role", None)
-    if role in CONTRACT_ROLES:
-        return role
+    if hasattr(g, "contract_team"):
+        return g.contract_team or None
 
     project_id = getattr(g, "project_id", None)
     user = getattr(g, "user", None)
@@ -37,10 +39,10 @@ def reader_contract_role() -> str | None:
     from lib.auth.session import get_auth_service
 
     try:
-        role = get_auth_service().contract_role(project_id, user["id"])
+        _role, team = get_auth_service().contract_membership(project_id, user["id"])
     except Exception:
         return None
-    return role if role in CONTRACT_ROLES else None
+    return team or None
 
 
 def is_internal_note(event: object) -> bool:
@@ -51,18 +53,22 @@ def is_internal_note(event: object) -> bool:
 
 
 def visible_events(events: list) -> list:
-    """Fjern interne notater som tilhører motparten.
+    """Fjern interne notater som ikke tilhører leserens egen organisasjon.
 
-    Notatet skjules i sin helhet, ikke bare teksten: at en part har gjort en
-    intern vurdering er i seg selv opplysning motparten ikke skal ha.
+    Notatet skjules i sin helhet, ikke bare teksten: at en organisasjon har gjort
+    en intern vurdering er i seg selv opplysning de andre ikke skal ha.
+
+    Notater uten `aktor_team_id` — skrevet før organisasjonen ble registrert på
+    hendelsen — skjules for alle, også for forfatteren. Det er et bevisst valg:
+    et notat der vi ikke vet hvem som eier det, kan ikke vises til noen.
     """
     if not any(is_internal_note(event) for event in events):
         return events
 
-    role = reader_contract_role()
+    team = reader_contract_team()
     return [
         event
         for event in events
         if not is_internal_note(event)
-        or (role is not None and getattr(event, "aktor_rolle", None) == role)
+        or (team is not None and getattr(event, "aktor_team_id", None) == team)
     ]

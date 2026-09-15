@@ -117,15 +117,26 @@ class AuthService:
         return None
 
     def contract_role(self, project_id, user_id):
+        """Kontraktssiden (TE/BH) brukeren tilhører, eller None."""
+        return self.contract_membership(project_id, user_id)[0]
+
+    def contract_membership(self, project_id, user_id):
         """Read current team membership on writes; no stale authority cache.
 
         The mapping uses immutable team IDs, never names or user-controlled data.
         Missing/ambiguous membership grants neither contract side.
+
+        Returns:
+            (rolle, team_id). Teamet er organisasjonen brukeren faktisk sitter i.
+            En kontraktsside kan ha flere team — byggherre og ekstern rådgiver er
+            ulike organisasjoner på samme side — så rollen alene skiller dem ikke.
+            Treff i flere team på samme side gir entydig rolle, men ikke entydig
+            organisasjon; da er team_id None.
         """
         mapping = json.loads(os.getenv("CATENDA_CONTRACT_TEAMS", "{}"))
         teams = mapping.get(project_id)
         if not teams:
-            return None
+            return None, None
         if not isinstance(teams, dict) or set(teams) != {"TE", "BH"}:
             raise ValueError("Configure TE and BH team IDs")
         ids = {}
@@ -146,22 +157,28 @@ class AuthService:
             or not member.get("active")
             or member.get("viewer_override")
         ):
-            return None
+            return None, None
         from core.container import get_container
 
         client = get_container().catenda_client
         if not client.ensure_authenticated():
             raise CatendaUnavailable("Team membership source unavailable")
         subject = catenda_id(member["catenda_subject"])
-        roles = set()
+        matches = set()
         for role, team_ids in ids.items():
             for team_id in team_ids:
                 members = self.oauth.team_members(
                     config["catenda_project_id"], team_id, client.access_token
                 )
                 if subject in members:
-                    roles.add(role)
-        return next(iter(roles)) if len(roles) == 1 else None
+                    matches.add((role, team_id))
+        roles = {role for role, _ in matches}
+        if len(roles) != 1:
+            return None, None
+        found_teams = {team for _, team in matches}
+        return next(iter(roles)), (
+            next(iter(found_teams)) if len(found_teams) == 1 else None
+        )
 
     def user_projects(self, user_id):
         result = []
