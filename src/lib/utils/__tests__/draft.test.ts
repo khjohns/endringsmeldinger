@@ -2,13 +2,18 @@
 
 import { beforeEach, afterEach, describe, expect, it, vi } from 'vitest';
 import { clearDraft, draftKey, loadDraft, saveDraft } from '$lib/utils/draft';
+import { setDraftOwner } from '$lib/utils/draftOwner';
 
 describe('draft persistence', () => {
   beforeEach(() => {
     localStorage.clear();
+    // Utkast lagres bare for en bekreftet innlogget bruker; uten eier gjør
+    // save/load ingenting, og testene under ville blitt innholdsløse.
+    setDraftOwner('saksbehandler-1');
   });
 
   afterEach(() => {
+    setDraftOwner(null);
     vi.restoreAllMocks();
   });
 
@@ -18,8 +23,10 @@ describe('draft persistence', () => {
 
     saveDraft(key, draft);
 
-    expect(localStorage.getItem(key)).toBe(JSON.stringify(draft));
     expect(loadDraft<typeof draft>(key)).toEqual(draft);
+    // Utkastet ligger under en nøkkel som bærer eieren, ikke under den nakne.
+    expect(localStorage.getItem(key)).toBeNull();
+    expect(localStorage.getItem(`${key}::saksbehandler-1`)).toBe(JSON.stringify(draft));
   });
 
   it('does not call the network while saving a draft', () => {
@@ -37,11 +44,12 @@ describe('draft persistence', () => {
     clearDraft(key);
 
     expect(loadDraft(key)).toBeNull();
+    expect(localStorage.length).toBe(0);
   });
 
   it('returns null for malformed persisted data', () => {
     const key = draftKey('ny', 'prosjekt-b');
-    localStorage.setItem(key, '{not-json');
+    localStorage.setItem(`${key}::saksbehandler-1`, '{not-json');
 
     expect(loadDraft(key)).toBeNull();
   });
