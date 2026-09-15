@@ -109,6 +109,7 @@ export function createCaseWorkspace(initial: CaseContextResponse, options: Works
 
   return {
     isDemo: false as const,
+    sakId,
     projectId: options.projectId,
     demo: undefined,
     get sak() {

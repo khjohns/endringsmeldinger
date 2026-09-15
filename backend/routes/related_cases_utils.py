@@ -10,6 +10,7 @@ from typing import Any
 
 from flask import jsonify
 
+from lib.auth.event_visibility import visible_events
 from lib.cloudevents import format_timeline_response
 from models.sak_state import SakRelasjon, SakState
 from utils.logger import get_logger
@@ -76,7 +77,7 @@ def serialize_hendelser(hendelser: dict[str, list]) -> dict[str, list[dict]]:
     """
     result = {}
     for sak_id, events in hendelser.items():
-        result[sak_id] = format_timeline_response(events)
+        result[sak_id] = format_timeline_response(visible_events(events))
     return result
 
 
@@ -136,7 +137,7 @@ def build_kontekst_response(
         for key, value in extra_fields.items():
             if key.endswith("_hendelser") and isinstance(value, list):
                 # Formater som CloudEvents (f.eks. eo_hendelser, forsering_hendelser)
-                response[key] = format_timeline_response(value)
+                response[key] = format_timeline_response(visible_events(value))
             else:
                 response[key] = value
 

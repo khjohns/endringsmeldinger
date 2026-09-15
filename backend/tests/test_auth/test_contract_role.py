@@ -108,3 +108,44 @@ def test_revisions_and_forsering_cannot_bypass_role_rules(event_type, wrong_role
         SimpleNamespace(event_type=event_type, aktor_rolle=wrong_role), None
     )
     assert not result.is_valid
+
+
+# ============ ORGANISASJON (CATENDA-TEAM) ============
+
+BH_RADGIVER = "55555555555555555555555555555555"
+
+
+def test_contract_membership_gir_bade_rolle_og_team(service):
+    """Teamet er organisasjonen; rollen er bare hvilken kontraktsside den er på."""
+    service.oauth.team_members.side_effect = (
+        lambda project, team, token: {USER} if team == BH else set()
+    )
+    assert service.contract_membership("p", "internal-user") == ("BH", BH)
+
+
+def test_to_team_pa_samme_side_gir_rolle_men_ikke_entydig_organisasjon(
+    service, monkeypatch
+):
+    """En kontraktsside kan ha flere team — byggherre og ekstern rådgiver.
+
+    Rollen er da fortsatt entydig, men organisasjonen er det ikke. Dette er
+    grunnen til at interne notater filtreres på team og ikke på TE/BH: et
+    rollefilter ville latt rådgiveren lese byggherrens interne notater.
+    """
+    monkeypatch.setenv(
+        "CATENDA_CONTRACT_TEAMS",
+        json.dumps({"p": {"TE": [TE], "BH": [BH, BH_RADGIVER]}}),
+    )
+    service.oauth.team_members.side_effect = (
+        lambda project, team, token: {USER} if team in {BH, BH_RADGIVER} else set()
+    )
+
+    rolle, team = service.contract_membership("p", "internal-user")
+
+    assert rolle == "BH"
+    assert team is None
+
+
+def test_ukjent_medlemskap_gir_verken_rolle_eller_team(service):
+    service.oauth.team_members.side_effect = lambda project, team, token: set()
+    assert service.contract_membership("p", "internal-user") == (None, None)

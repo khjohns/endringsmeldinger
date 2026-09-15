@@ -48,8 +48,14 @@ export interface EventSubmitResponse {
   new_version?: number;
   /** Whether the event was synced to Catenda (prosjekthotellet) */
   catenda_synced?: boolean;
-  /** Reason why Catenda sync was skipped or failed */
-  catenda_skipped_reason?: 'no_topic_id' | 'not_authenticated' | 'error' | 'catenda_disabled';
+  /** Reason why Catenda sync was skipped or failed.
+   *  'internal_note': interne notater leveres aldri til den delte topicen. */
+  catenda_skipped_reason?:
+    | 'no_topic_id'
+    | 'not_authenticated'
+    | 'error'
+    | 'catenda_disabled'
+    | 'internal_note';
 }
 
 export interface EventPayload {

@@ -17,6 +17,7 @@
   const store = getCaseWorkspace();
   import { S, sporBestemmelser } from './data.js';
   import CaseHistory from './CaseHistory.svelte';
+  import VedleggPanel from './VedleggPanel.svelte';
   import type { SporKey, Mode, RightTab } from './types.js';
   import type { TimelineEvent } from '$lib/types/timeline';
 
@@ -116,7 +117,11 @@
     {/if}
 
     {#if tab === 'vedlegg'}
-      {@render attList(true)}
+      {#if store.isDemo}
+        {@render attList(true)}
+      {:else}
+        <VedleggPanel sakId={store.sakId} kanLasteOpp={false} />
+      {/if}
 
       {#if ui.note}
         <div class="note-sep"></div>
@@ -159,10 +164,14 @@
     {/if}
 
     {#if tab === 'filer'}
-      {@render attList(false)}
-      <button class="dashed-action-btn" style="margin-top: 16px; padding: 12px 16px">
-        <Upload size={14} /> Last opp nytt vedlegg
-      </button>
+      {#if store.isDemo}
+        {@render attList(false)}
+        <button class="dashed-action-btn" style="margin-top: 16px; padding: 12px 16px">
+          <Upload size={14} /> Last opp nytt vedlegg
+        </button>
+      {:else}
+        <VedleggPanel sakId={store.sakId} />
+      {/if}
     {/if}
   </div>
 </aside>

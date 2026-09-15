@@ -10,6 +10,13 @@ Repoets `Dockerfile` og `deploy.sh` gjelder frontend (statisk SPA/nginx).
 Det er derfor ikke grunnlag for å rapportere tap av produksjonsdata eller et
 konkret feilkonfigurert backendvolum. Fremtidig produksjonslagring er ikke verifisert.
 
+> **Presisering 2026-09-15:** brukeren har bekreftet at databasen heller ikke inneholder
+> reelle data. Dette er den tidligste protokollføringen av at appen ikke er i produksjon,
+> og forutsetningen gjelder alle auditloggene i denne mappen. De øvrige loggene fra
+> 2026-09-14 tok ikke høyde for den; forbeholdene deres om historiske strømmer og
+> migrering er gjennomgått og presisert enkeltvis. Se
+> [gjennomgangen av produksjonsforbehold](audit-backend-hendelsesflyt-2026-09-15.md).
+
 Kontrollert: lokal SQLite for godkjenninger, outbox og Catenda-kvitteringer;
 transaksjonsgrenser, konkurrerende prosesser, restart, prosessavbrudd og feilkvitteringer.
 Supabase/RLS, live Catenda, maskinkrasj/strømbrudd og backup-restore er ikke testet.

@@ -177,7 +177,13 @@ class TestRetryLostAfterCommit:
         TODO (trinn 2/3): en durable outbox skal registrere kommentarposten
         som en gjenværende sideeffekt og fullføre den uavhengig av webhooken.
         """
+        from core.config import settings
         from services.catenda_webhook_service import WebhookService
+
+        # Kommentarposten er betinget av at integrasjonen er på. Uten dette
+        # hoppes hele grenen over, og testen ville ikke røre feilbanen den
+        # skal dokumentere.
+        monkeypatch.setattr(settings, "catenda_enabled", "true")
 
         # Simuler Catenda-feil etter at saken er commit't lokalt.
         mock_client = MagicMock()
@@ -240,4 +246,7 @@ class TestRetryLostAfterCommit:
 
         # Tjenesten rapporterer success (feilen er bare logget), så en retry
         # fra Catenda vil aldri utløses for å fullføre kommentaren.
+        # Dette er dagens dokumenterte mangel, ikke ønsket sluttilstand:
+        # den manglende kommentaren har ingen fastholdt oppgave som fullfører
+        # den senere. Se docs/catenda-dataflyt.md trinn 3.
         assert result["success"] is True
