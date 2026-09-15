@@ -7,7 +7,7 @@ Document and library management methods for Catenda API client.
 
 import json
 import logging
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from typing import TYPE_CHECKING
 
 import requests
@@ -18,6 +18,29 @@ if TYPE_CHECKING:
     from ..base import CatendaClientBase
 
 logger = logging.getLogger(__name__)
+
+
+def _filename_from_disposition(disposition: str | None) -> str | None:
+    """Hent filnavnet fra en Content-Disposition-header.
+
+    Navnet kommer fra Catenda og brukes videre i vårt eget svar. Det skal
+    aldri tolkes som en sti, så bare siste ledd beholdes.
+    """
+    if not disposition:
+        return None
+    value = cgi_parse_filename(disposition)
+    if not value:
+        return None
+    return PurePosixPath(value.replace("\\", "/")).name or None
+
+
+def cgi_parse_filename(disposition: str) -> str | None:
+    """Minimal Content-Disposition-parsing; `cgi` er fjernet i Python 3.13."""
+    for part in disposition.split(";"):
+        key, _, raw = part.strip().partition("=")
+        if key.strip().lower() == "filename":
+            return raw.strip().strip('"') or None
+    return None
 
 
 class DocumentsMixin:
@@ -337,6 +360,64 @@ class DocumentsMixin:
         logger.info(f"   Type: {library_item.get('type', 'N/A')}")
 
         return library_item
+
+    def download_library_item(
+        self: "CatendaClientBase", project_id: str, item_id: str
+    ) -> tuple[bytes, str | None] | None:
+        """
+        Last ned innholdet i et dokument fra biblioteket.
+
+        Samme item-endepunkt som `get_library_item`, men med
+        `Content-Type: application/octet-stream` returnerer Catenda selve filen
+        i stedet for metadata (se document-api-openapi.yaml, `getLibraryItem`).
+
+        Det finnes også et `/token`-endepunkt som utsteder en signert URL uten
+        autentisering, gyldig i én time. Den brukes bevisst ikke: URL-en ville
+        vært en omgåelig lenke til et dokument i en tvistesak, utstedt med
+        appens tjenestekonto og ikke brukerens egen Catenda-tilgang.
+
+        Args:
+            project_id: Catenda-prosjekt-ID
+            item_id: Library-item-ID
+
+        Returns:
+            (innhold, filnavn) eller None ved feil. Filnavnet er det Catenda
+            oppgir i Content-Disposition, når det finnes.
+
+        Raises:
+            CatendaAuthError: Ved utløpt access token
+        """
+        if not self.library_id:
+            logger.error("Ingen library valgt")
+            return None
+
+        url = (
+            f"{self.base_url}/v2/projects/{project_id}/libraries/"
+            f"{self.library_id}/items/{item_id}"
+        )
+
+        headers = self.get_headers()
+        headers["Content-Type"] = "application/octet-stream"
+
+        try:
+            response = self._make_request(
+                "GET",
+                url,
+                f"Feil ved nedlasting av dokument {item_id}",
+                headers=headers,
+            )
+        except CatendaAuthError:
+            raise
+        except Exception:
+            return None
+
+        if response is None:
+            return None
+
+        filename = _filename_from_disposition(
+            response.headers.get("Content-Disposition")
+        )
+        return response.content, filename
 
     # ==========================================
     # FOLDERS (v2 API)

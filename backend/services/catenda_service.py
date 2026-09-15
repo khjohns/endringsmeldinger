@@ -164,6 +164,30 @@ class CatendaService:
             logger.error(f"❌ Exception uploading document: {e}")
             raise
 
+    def download_document(
+        self, project_id: str, item_id: str
+    ) -> tuple[bytes, str | None] | None:
+        """
+        Last ned innholdet i et dokument fra Catendas bibliotek.
+
+        Args:
+            project_id: Catenda-prosjekt-ID
+            item_id: Library-item-ID
+
+        Returns:
+            (innhold, filnavn fra Catenda) eller None hvis dokumentet ikke
+            kunne hentes.
+        """
+        if not self.client:
+            logger.warning("No Catenda client configured, skipping download")
+            return None
+
+        try:
+            return self.client.download_library_item(project_id, item_id)
+        except Exception as e:
+            logger.error(f"Kunne ikke laste ned dokument {item_id}: {e}")
+            return None
+
     def create_document_reference(
         self, topic_guid: str, document_guid: str
     ) -> dict[str, Any] | None:
