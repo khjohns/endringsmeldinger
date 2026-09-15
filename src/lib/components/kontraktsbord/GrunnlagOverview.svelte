@@ -107,6 +107,8 @@
         {/if}
       </div>
     </div>
+    <!-- Saniteres med DOMPurify (sanitizeRichText) før rendering. -->
+    <!-- eslint-disable-next-line svelte/no-at-html-tags -->
     <div class="reading-text">{@html text}</div>
   </article>
 {:else}
@@ -162,6 +164,8 @@
         </div>
       </div>
       {#if teText}
+        <!-- Saniteres med DOMPurify (sanitizeRichText) før rendering. -->
+        <!-- eslint-disable-next-line svelte/no-at-html-tags -->
         <div class:clamped={teText.length > 420} class="position-text">{@html teText}</div>
       {:else}
         <p class="position-text empty-text">Ingen redegjørelse registrert.</p>
@@ -207,6 +211,8 @@
         </div>
       </div>
       {#if bhText}
+        <!-- Saniteres med DOMPurify (sanitizeRichText) før rendering. -->
+        <!-- eslint-disable-next-line svelte/no-at-html-tags -->
         <div class:clamped={bhText.length > 420} class="position-text">{@html bhText}</div>
       {:else}
         <p class="position-text empty-text">Byggherren har ikke registrert et standpunkt.</p>

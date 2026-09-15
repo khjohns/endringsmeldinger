@@ -1,6 +1,7 @@
 <script lang="ts">
   import { page } from '$app/state';
   import { goto } from '$app/navigation';
+  import { resolve } from '$app/paths';
   import { createCaseContextQuery } from '$lib/queries/caseContext';
   import CaseWorkspace from '$lib/kontraktsbord/CaseWorkspace.svelte';
   import EndringsordrePage from '$lib/components/endringsordre/EndringsordrePage.svelte';
@@ -30,6 +31,8 @@
   function changeView(next: WorkspaceView) {
     const href = workspaceViewUrl(page.url, next);
     if (href !== page.url.pathname + page.url.search + page.url.hash)
+      // href er utledet av gjeldende URL (bare query endres), ikke en ny rute.
+      // eslint-disable-next-line svelte/no-navigation-without-resolve
       void goto(href, { noScroll: true, keepFocus: true });
   }
 
@@ -60,7 +63,7 @@
         {refetch}
         {view}
         onviewchange={changeView}
-        onnewcase={() => goto('/' + prosjektId + '/ny')}
+        onnewcase={() => goto(resolve('/[prosjektId]/ny', { prosjektId }))}
       />
     {/if}
   {/key}
@@ -69,7 +72,7 @@
     <h1>Kunne ikke laste saken</h1>
     <p>{query.error?.message}</p>
     <button onclick={() => query.refetch()}>Prøv igjen</button>
-    <a href="/{prosjektId}">Til saksoversikten</a>
+    <a href={resolve('/[prosjektId]', { prosjektId })}>Til saksoversikten</a>
   </div>
 {:else}
   <div class="case-message" role="status">Laster sak …</div>

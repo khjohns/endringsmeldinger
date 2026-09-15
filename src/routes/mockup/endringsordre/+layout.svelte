@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import AppTopbar from '$lib/components/navigation/AppTopbar.svelte';
-  import '$lib/components/kontraktsbord/mockup.css';
+  import '$lib/components/kontraktsbord/theme.css';
   let { children }: { children: Snippet } = $props();
 </script>
 

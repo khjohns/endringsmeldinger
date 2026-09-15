@@ -435,6 +435,7 @@
   const autoBegrunnelseHtml = $derived.by(() => {
     if (akseptererMetode === undefined || hovedkravVurdering === undefined) return '';
     const input: VederlagResponseInput = {
+      hovedkategori: domainConfig.hovedkategori,
       metode: domainConfig.metode,
       hovedkravBelop: domainConfig.hovedkravBelop,
       riggBelop: domainConfig.riggBelop,
@@ -912,7 +913,7 @@
 {/if}
 
 <style>
-  /* Form-specific styles (shared styles in mockup.css) */
+  /* Form-specific styles (shared styles in theme.css) */
 
   .form-title-row {
     display: flex;

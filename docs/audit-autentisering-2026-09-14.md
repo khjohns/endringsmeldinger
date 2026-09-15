@@ -50,3 +50,11 @@ Det er lagt til 15 tester i `backend/tests/test_auth/test_auth_interactions.py`:
 Dette bekrefter ikke en live Catenda-, Entra- eller magic-link-innlogging. Det
 gjenstår også å utforme godkjennerflyten dersom magic link skal brukes som
 alternativ identitetsleverandør.
+
+## Neste delgjennomgang
+
+Domenelaget er dekket i
+[generert begrunnelsestekst og domenelagets rekkevidde](audit-begrunnelsestekst-og-dodkode-2026-09-14.md).
+Den runden retter en §34.1.2-påstand i brevtekst ved ENDRING, gjenoppretter en rød
+frontendtest som lå brutt gjennom denne auditrunden, og kartlegger NS 8407-regelmoduler
+som ikke er nåbare fra noen rute.

@@ -1,6 +1,7 @@
 <script lang="ts">
   import CatendaSyncNotice from './CatendaSyncNotice.svelte';
   import { readPreferredRole, savePreferredRole } from '$lib/utils/rolePreference';
+  import { readDarkMode, saveDarkMode } from '$lib/utils/theme';
   import { assessedGap } from './derive';
   import { getCaseWorkspace } from '$lib/kontraktsbord/context.svelte';
   const store = getCaseWorkspace();
@@ -54,7 +55,7 @@
   let sel: SporKey = $state('vederlag');
   let rTab: RightTab = $state('bestemmelser');
   let mode: Mode = $state('read');
-  let dark = $state(false);
+  let dark = $state(readDarkMode());
   let mobileView: MobileView = $state('matrix');
   let rightPanelOpen = $state(false);
   let formActions = $state<{
@@ -205,7 +206,10 @@
       {overviewHref}
       onback={creatingCase ? closeNewCase : goMatrix}
       onnewcase={startNewCase}
-      ondarkchange={(v) => (dark = v)}
+      ondarkchange={(v) => {
+        dark = v;
+        saveDarkMode(v);
+      }}
     />
 
     {#if !store.isDemo && !creatingCase}
@@ -251,7 +255,6 @@
           {:else if mode === 'read'}
             <CenterRead
               {sel}
-              {role}
               {activeEvent}
               onform={goForm}
               onbacktonow={() => (activeEvent = null)}

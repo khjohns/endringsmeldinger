@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { resolve } from '$app/paths';
   import AppTopbar from '$lib/components/navigation/AppTopbar.svelte';
   import { readPreferredRole, savePreferredRole } from '$lib/utils/rolePreference';
   import type { Role } from '$lib/components/kontraktsbord/types';
@@ -59,8 +60,16 @@
     activePage?: 'overview' | 'activity';
   } = $props();
 
-  const overviewHref = $derived(demo ? '/mockup/oversikt' : `/${encodeURIComponent(prosjektId)}`);
-  const activityHref = $derived(`${overviewHref}/aktivitet`);
+  const overviewHref = $derived(
+    demo
+      ? resolve('/mockup/oversikt')
+      : resolve('/[prosjektId]', { prosjektId: encodeURIComponent(prosjektId) })
+  );
+  const activityHref = $derived(
+    demo
+      ? resolve('/mockup/oversikt/aktivitet')
+      : resolve('/[prosjektId]/aktivitet', { prosjektId: encodeURIComponent(prosjektId) })
+  );
 
   let role = $state<Role>(readPreferredRole());
   function changeRole(next: Role) {
@@ -103,10 +112,13 @@
     </div>
     <nav class="rail-nav" aria-label="Arbeidsområde">
       <span class="eyebrow">Arbeidsområde</span>
+      <!-- Allerede resolvet i utledningen over. -->
+      <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
       <a href={overviewHref} aria-current={activePage === 'overview' ? 'page' : undefined}
         ><FolderOpen size={18} /> Krav og endringer
         <span class="count">{loading || error ? '—' : stats.total}</span></a
       >
+      <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
       <a href={activityHref} aria-current={activePage === 'activity' ? 'page' : undefined}
         ><History size={18} /> Aktivitetslogg</a
       >
@@ -122,7 +134,7 @@
         compact
       />
       <p class="project-number">Prosjekt {prosjektId}</p>
-      <a href="/" class="switch-project">Bytt prosjekt <ArrowRight size={14} /></a>
+      <a href={resolve('/')} class="switch-project">Bytt prosjekt <ArrowRight size={14} /></a>
     </div>
   </aside>
 
@@ -130,9 +142,11 @@
     <AppTopbar projectName={prosjektNavn} {role} onrolechange={changeRole} />
     <div class="workspace">
       <nav class="mobile-project-nav" aria-label="Prosjektsider">
+        <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
         <a href={overviewHref} aria-current={activePage === 'overview' ? 'page' : undefined}
           >Krav og endringer</a
         >
+        <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
         <a href={activityHref} aria-current={activePage === 'activity' ? 'page' : undefined}
           >Aktivitetslogg</a
         >
@@ -149,20 +163,25 @@
         </div>
         {#if demo && activePage === 'overview'}
           <div class="heading-actions">
-            <a class="primary" class:secondary-action={role === 'BH'} href="/mockup"
+            <a class="primary" class:secondary-action={role === 'BH'} href={resolve('/mockup')}
               >Åpne eksempelsak</a
             >
-            {#if role === 'BH'}<a class="primary" href="/mockup/endringsordre/ny"
+            {#if role === 'BH'}<a class="primary" href={resolve('/mockup/endringsordre/ny')}
                 ><Plus size={17} />Ny endringsordre</a
               >{/if}
           </div>
         {:else if role === 'TE' && activePage === 'overview'}
-          <a class="primary" href={`/${encodeURIComponent(prosjektId)}/ny`}
+          <a
+            class="primary"
+            href={resolve('/[prosjektId]/ny', { prosjektId: encodeURIComponent(prosjektId) })}
             ><Plus size={17} /> Ny sak</a
           >
         {:else if role === 'BH' && activePage === 'overview'}
-          <a class="primary" href={`/${encodeURIComponent(prosjektId)}/endringsordre/ny`}
-            ><Plus size={17} /> Ny endringsordre</a
+          <a
+            class="primary"
+            href={resolve('/[prosjektId]/endringsordre/ny', {
+              prosjektId: encodeURIComponent(prosjektId),
+            })}><Plus size={17} /> Ny endringsordre</a
           >
         {/if}
       </header>
@@ -177,7 +196,7 @@
           imageAlt={projectImageAlt}
           headingId="mobile-project-summary-title"
         />
-        <a href="/">Bytt prosjekt <ArrowRight size={14} /></a>
+        <a href={resolve('/')}>Bytt prosjekt <ArrowRight size={14} /></a>
       </details>
       {#if demo}<p class="demo-note">Forhåndsvisning med eksempelsaker.</p>{/if}
       {#if loading}
@@ -250,7 +269,7 @@
               </div>
             </div>
             <div class="filters" role="group" aria-label="Saksutvalg">
-              {#each filters as option}<button
+              {#each filters as option (option.id)}<button
                   class:active={filter === option.id}
                   aria-pressed={filter === option.id}
                   onclick={() => (filter = option.id)}
@@ -351,40 +370,12 @@
     border-color: var(--color-wire);
   }
   .project-overview {
-    --color-canvas: #f5f6f3;
-    --color-felt: #fff;
-    --color-felt-hover: #f4f5f1;
-    --color-felt-active: #edf1e9;
-    --color-ink: #1b2a22;
-    --color-ink-secondary: #34423b;
-    --color-ink-muted: #68756d;
-    --color-ink-ghost: #89958d;
-    --color-wire: #e1e5de;
-    --color-wire-strong: #cbd3c9;
-    --color-wire-focus: #2d4a3b;
-    --color-vekt: #2d4a3b;
-    --color-vekt-bg: #edf2e9;
     display: flex;
     height: 100%;
     min-height: 0;
     background: var(--color-canvas);
     color: var(--color-ink);
     font-family: var(--font-ui);
-  }
-  :global(.dark) .project-overview {
-    --color-canvas: #142019;
-    --color-felt: #1b2a22;
-    --color-felt-hover: #203429;
-    --color-felt-active: #263a2e;
-    --color-ink: #f2f7f4;
-    --color-ink-secondary: #c5d5cb;
-    --color-ink-muted: #98aea1;
-    --color-ink-ghost: #71877a;
-    --color-wire: #304438;
-    --color-wire-strong: #4b6254;
-    --color-wire-focus: #a7e3b8;
-    --color-vekt: #a7e3b8;
-    --color-vekt-bg: #203429;
   }
   .project-rail {
     width: 280px;
@@ -393,8 +384,8 @@
     display: flex;
     flex-direction: column;
     padding: 24px 20px 20px;
-    background: #212f27;
-    color: #f2f7f4;
+    background: var(--sidebar-bg);
+    color: var(--sidebar-text);
   }
   .sender {
     display: flex;
@@ -408,7 +399,7 @@
   .sender span {
     display: block;
     margin-top: 3px;
-    color: #98aea1;
+    color: var(--sidebar-muted);
     font-size: 12px;
   }
   .oslo-logo {
@@ -423,7 +414,7 @@
     margin-top: 40px;
   }
   .rail-nav .eyebrow {
-    color: #98aea1;
+    color: var(--sidebar-muted);
   }
   .rail-nav a {
     display: flex;
@@ -433,17 +424,17 @@
     padding: 12px;
     border-radius: 8px;
     background: transparent;
-    color: #c3d1c8;
+    color: var(--sidebar-link);
     text-decoration: none;
     font-size: 13px;
     font-weight: 600;
   }
   .rail-nav a[aria-current='page'] {
-    background: #35483c;
-    color: #f2f7f4;
+    background: var(--sidebar-active);
+    color: var(--sidebar-text);
   }
   .rail-nav a:hover {
-    background: #2e4134;
+    background: var(--sidebar-hover);
   }
   .mobile-project-nav {
     display: none;
@@ -458,7 +449,7 @@
   }
   .project-number {
     margin: 20px 0 0;
-    color: #afc0b5;
+    color: var(--sidebar-dim);
     font-size: 12px;
   }
   .switch-project {
@@ -468,14 +459,14 @@
     width: fit-content;
     margin-top: 16px;
     padding: 4px 0;
-    color: #c9d8cf;
+    color: var(--sidebar-bright);
     text-underline-offset: 4px;
   }
   .switch-project:hover {
-    color: #fff;
+    color: var(--sidebar-text);
   }
   .project-rail a:focus-visible {
-    outline: 2px solid #b8d6bc;
+    outline: 2px solid var(--sidebar-focus);
     outline-offset: 4px;
   }
   .mobile-project-info {
@@ -526,7 +517,7 @@
     align-items: center;
     gap: 8px;
     padding: 11px 16px;
-    background: #2d4a3b;
+    background: var(--brand-contrast);
     color: white;
     border-radius: 8px;
     text-decoration: none;

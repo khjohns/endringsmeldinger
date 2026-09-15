@@ -5,6 +5,7 @@
   import { getKontraktsforholdLabel } from '$lib/constants/categories';
   import { getOverordnetStatusLabel } from '$lib/constants/statusLabels';
   import { goto } from '$app/navigation';
+  import { resolve } from '$app/paths';
   import { caseAmount, caseDays } from './presentation';
   import { caseStatus } from '$lib/components/saksoversikt/overview';
 
@@ -41,7 +42,11 @@
   }
 
   const path = $derived(
-    href ?? `/${encodeURIComponent(prosjektId)}/${encodeURIComponent(case_item.sak_id)}`
+    href ??
+      resolve('/[prosjektId]/[sakId]', {
+        prosjektId: encodeURIComponent(prosjektId),
+        sakId: encodeURIComponent(case_item.sak_id),
+      })
   );
   const tittel = $derived(case_item.cached_title ?? 'Uten tittel');
   const isOrder = $derived(case_item.sakstype === 'endringsordre');
@@ -95,12 +100,16 @@
     if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey)
       return;
     if (window.getSelection()?.toString()) return;
+    // Allerede resolvet der verdien bygges.
+    // eslint-disable-next-line svelte/no-navigation-without-resolve
     goto(path);
   }
 </script>
 
 <tr class="row" onclick={handleRowClick}>
   <td class="cell cell-id">
+    <!-- Allerede resolvet der verdien bygges. -->
+    <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
     <a href={path} class="row-link" aria-label="Åpne sak {case_item.sak_id}">
       <span class="sak-id">{case_item.endringsordre_data?.eo_nummer || case_item.sak_id}</span>
     </a>

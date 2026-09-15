@@ -10,7 +10,7 @@
   import type { CaseContextResponse } from '$lib/types/api';
   import type { SakState } from '$lib/types/timeline';
   import type { Role } from '$lib/components/kontraktsbord/types';
-  import '$lib/components/kontraktsbord/mockup.css';
+  import '$lib/components/kontraktsbord/theme.css';
 
   let {
     response,
