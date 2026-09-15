@@ -17,6 +17,10 @@ Utenfor omfang: Catendas egen tilgangskontroll på dokumentbiblioteket, live opp
 Supabase/RLS, og den globale `project_id`/`library_id`/`folder_id`-rutingen som er avtalt
 eget arbeid i [Catenda-dataflyten](catenda-dataflyt.md).
 
+> **Oppfølging samme dag:** flyten er nå bygget — se
+> [Vedleggsflyten er implementert](#vedleggsflyten-er-implementert) nederst.
+> Kartleggingen under beskriver tilstanden auditen fant, og beholdes som referat.
+
 ## Hovedkonklusjon: flyten finnes ikke ende-til-ende
 
 Dette er auditens viktigste funn, og det er ikke en feil — det er en tilstand som bør
@@ -104,3 +108,81 @@ importsorteringen jeg selv brøt er rettet.
 Ingen frontendendringer i denne runden. Ingen live Catenda-kall.
 
 «OK» gjelder de konkrete kontrollene i tabellen over, ikke hele dokumenthåndteringen.
+
+
+## Vedleggsflyten er implementert
+
+Brukeravklaring 2026-09-15: Catenda har tilgangskontroll på biblioteket via team-ID,
+begge parters team får tilgang, og frontend må kunne laste opp og ned. UX for dette er
+tatt med i samme runde.
+
+### Én autoritativ kopi, i Catenda
+
+Dokumentene lever i Catendas bibliotek; appen holder ingen egen kopi. To kopier kan
+divergere, og i en kontraktstvist må «hvilken fil ble faktisk sendt» ha ett svar.
+Catenda er dessuten allerede flaten begge parter ser, og gir revisjonshistorikk vi
+ellers måtte bygge selv. En eventuell blob-kopi er dermed et arkiveringsspørsmål —
+uavhengig oppbevaring hvis prosjektets Catenda-tilgang opphører — og ikke et
+lagringslag under denne flyten.
+
+### Tilgangskontrollen er vår, ikke Catendas
+
+Dette er det viktigste avviket fra premisset, og det er verifisert i koden:
+`lib/catenda_factory.get_catenda_client` bygger klienten fra `catenda_access_token`
+eller klient-credentials — **appens tjenestekonto**, ikke brukerens egen
+Catenda-tilgang. Per-bruker-tokens finnes i `CatendaOAuth`, men brukes bare til
+medlemskaps- og rolleoppslag, aldri til dokumentkall.
+
+Bibliotekets team-rettigheter begrenser derfor ikke hva appen kan lese. Vår backend er
+håndhevingspunktet, og `VedleggRegistry` binder hvert vedlegg til nøyaktig én sak i ett
+prosjekt. Nedlasting autoriseres mot det registeret; en ukjent ID gir 404, ikke 403, så
+svaret ikke røper om dokumentet finnes i et annet prosjekt.
+
+Registeret dekker også vinduet mellom opplasting og innsending: et vedlegg kan vises og
+lastes ned før hendelsen som refererer til det er lagret.
+
+### Catendas nedlastingstoken brukes bevisst ikke
+
+`POST .../items/{id}/token` utsteder en signert URL som gir tilgang «without requiring
+additional authentication», gyldig i én time. Den ville vært en omgåelig lenke til et
+dokument i en tvistesak, utstedt med tjenestekontoens myndighet. I stedet brukes
+`GET` på item-endepunktet med `Content-Type: application/octet-stream`, som returnerer
+selve filen (`getLibraryItem` i `document-api-openapi.yaml`), og backend strømmer den
+videre etter egen autorisasjon.
+
+### Hva som er bygget
+
+| Del | Innhold |
+| --- | --- |
+| `CatendaClient.download_library_item` | Henter filinnhold. Filnavn fra `Content-Disposition` reduseres til siste ledd — et filnavn er et navn, ikke en sti. |
+| `VedleggRegistry` | SQLite i det eksisterende `BH_APPROVAL_DB`, samme mønster som leveringskvitteringene. Nøkkel er (prosjekt, sak, vedlegg-ID). |
+| `POST /api/cases/<sak>/vedlegg` | Opplasting. `secure_filename`, tom fil og 15 MB-grense avvises før Catenda kontaktes. Midlertidig fil ryddes i `finally`, også når opplastingen kaster (jf. PDF-03). |
+| `GET /api/cases/<sak>/vedlegg` | Sakens vedlegg med navn, størrelse, opplaster og kontraktsside. |
+| `GET /api/cases/<sak>/vedlegg/<id>` | Nedlasting med `nosniff` og `no-store`. Filnavnet er vårt registrerte, allerede sanerte navn. |
+| `VedleggPanel.svelte` | Liste med størrelse, hvilken side som lastet opp og nedlastingsknapp; filvelger og slippsone; laste-, tom- og feiltilstander. Demo-modus beholder mockup-listen. |
+
+Panelet sier eksplisitt at «Vedlegg deles med motparten i prosjektets dokumentbibliotek».
+Det er ikke pynt: i en tvistesak må den som laster opp vite at handlingen er delende.
+
+### Avgrensninger
+
+- 15 MB per fil, under Flasks `MAX_CONTENT_LENGTH` på 16 MiB. Ingen chunking eller
+  gjenopptakelse av avbrutte opplastinger.
+- Filtypen valideres ikke. Innholdet strømmes med `application/octet-stream` og
+  `nosniff`, så nettleseren tolker det ikke som HTML, men virusskanning finnes ikke.
+- Ingen sletting av vedlegg. `delete_library_item` finnes på klienten, men å fjerne et
+  dokument fra en tvistesak er en beslutning som trenger en egen regel.
+- `vedlegg_ids` på hendelser er fortsatt formvalidert (VED-01) og kobles ennå ikke
+  automatisk til det opplastede vedlegget. Å knytte et vedlegg til en bestemt
+  hendelse er neste steg.
+- Ingen live Catenda-test er kjørt. Rutene er verifisert mot mocket tjenestelag;
+  endepunktsvalget er lest ut av `document-api-openapi.yaml`.
+
+### Verifikasjon
+
+Backend: **1224 tester passerer** (13 nye vedleggstester, blant annet at et vedlegg fra
+en annen sak gir 404 uten at Catenda kontaktes, at registeret skiller prosjekter, og at
+den midlertidige filen ryddes både ved suksess og feil).
+Frontend: **511 tester / 43 filer** (10 nye), 0 typefeil / 10 advarsler, grønn lint og
+`npm run build`. Ruff uendret på 18 eksisterende feil; `app.py` har fortsatt sin ene
+eksisterende `I001`.

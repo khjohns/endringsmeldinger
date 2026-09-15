@@ -192,11 +192,13 @@ from routes.oauth_auto_consent_routes import oauth_auto_consent_bp  # noqa: F401
 from routes.oauth_consent_routes import oauth_consent_bp  # OAuth consent API
 from routes.project_routes import projects_bp
 from routes.utility_routes import utility_bp
+from routes.vedlegg_routes import vedlegg_bp
 from routes.wellknown_routes import wellknown_bp  # OAuth discovery endpoints
 
 # Register routes
 app.register_blueprint(utility_bp)
 app.register_blueprint(events_bp)
+app.register_blueprint(vedlegg_bp)
 app.register_blueprint(webhook_bp)
 app.register_blueprint(forsering_bp)
 app.register_blueprint(endringsordre_bp)

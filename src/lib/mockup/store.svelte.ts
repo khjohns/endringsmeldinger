@@ -489,6 +489,7 @@ export function createDemoStore(initial: Scenario = DEFAULT_SCENARIO) {
 
   return {
     isDemo: true as const,
+    sakId: 'DEMO-SAK',
     submitting: false,
     submissionError: null as string | null,
     demo: {
