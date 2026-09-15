@@ -6,7 +6,6 @@ import os
 from flask import Blueprint, g, jsonify, request
 
 from lib.auth.contract_role import require_contract_role
-from lib.auth.csrf_protection import require_csrf
 from lib.auth.project_access import require_project_access
 from lib.auth.session import require_auth
 from repositories.event_repository import ConcurrencyError
@@ -83,13 +82,7 @@ def approvals(case_id):
             if not isinstance(body, dict):
                 raise ValueError("Ugyldig forespørsel.")
 
-            @require_csrf
-            def execute():
-                return service.command(
-                    project, case_id, actor, chain, can_prepare, body
-                )
-
-            state = execute()
+            state = service.command(project, case_id, actor, chain, can_prepare, body)
             if not isinstance(state, dict):
                 return state
         if request.method == "POST" and body.get("action") == "publish":

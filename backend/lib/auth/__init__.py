@@ -7,7 +7,6 @@ Supports multiple authentication methods:
 - Supabase Auth: Alternative for development
 """
 
-from .csrf_protection import generate_csrf_token, require_csrf
 from .entra_id import (
     EntraUser,
     get_entra_user,
@@ -25,9 +24,6 @@ from .supabase_validator import (
 )
 
 __all__ = [
-    # CSRF
-    "require_csrf",
-    "generate_csrf_token",
     # Magic Links (eksterne brukere)
     "MagicLinkManager",
     "require_magic_link",

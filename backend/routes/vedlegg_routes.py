@@ -19,7 +19,6 @@ from flask import Blueprint, g, jsonify, request
 from werkzeug.utils import secure_filename
 
 from lib.auth.contract_role import require_contract_role
-from lib.auth.csrf_protection import require_csrf
 from lib.auth.project_access import require_project_access
 from lib.auth.session import require_auth
 from lib.decorators import handle_service_errors
@@ -73,7 +72,6 @@ def list_vedlegg(sak_id: str):
 
 
 @vedlegg_bp.route("/api/cases/<sak_id>/vedlegg", methods=["POST"])
-@require_csrf
 @require_auth
 @require_project_access(min_role="member")
 @require_contract_role()
@@ -193,7 +191,6 @@ def _refererte_vedlegg(sak_id: str) -> set[str]:
 
 
 @vedlegg_bp.route("/api/cases/<sak_id>/vedlegg/<vedlegg_id>", methods=["DELETE"])
-@require_csrf
 @require_auth
 @require_project_access(min_role="member")
 @require_contract_role()

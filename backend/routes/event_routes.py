@@ -29,7 +29,6 @@ from api.validators import (
 from core.config import settings
 from integrations.catenda import CatendaAuthError
 from lib.auth.contract_role import require_contract_role
-from lib.auth.csrf_protection import require_csrf
 from lib.auth.event_visibility import is_internal_note, visible_events
 from lib.auth.project_access import require_project_access
 from lib.auth.session import require_auth
@@ -365,7 +364,6 @@ def _ensure_catenda_auth(catenda_topic_id: str | None) -> None:
 
 
 @events_bp.route("/api/events", methods=["POST"])
-@require_csrf
 @require_auth
 @require_project_access(min_role="member")
 @require_contract_role()
@@ -650,7 +648,6 @@ def submit_event():
 
 
 @events_bp.route("/api/events/batch", methods=["POST"])
-@require_csrf
 @require_auth
 @require_project_access(min_role="member")
 @require_contract_role()
