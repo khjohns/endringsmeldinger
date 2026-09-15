@@ -30,6 +30,7 @@ from core.config import settings
 from integrations.catenda import CatendaAuthError
 from lib.auth.contract_role import require_contract_role
 from lib.auth.csrf_protection import require_csrf
+from lib.auth.event_visibility import is_internal_note, visible_events
 from lib.auth.project_access import require_project_access
 from lib.auth.session import require_auth
 from lib.catenda_factory import get_catenda_client
@@ -463,8 +464,13 @@ def submit_event():
         from core.config import settings
         from services.catenda_delivery_status import CatendaDeliveryStatus
 
+        # Et internt notat er ikke ment for motparten og skal derfor verken
+        # leveres til den delte Catenda-topicen eller etterlate en
+        # leveringskvittering som ville gitt et permanent synkfeil-banner.
+        internal_note = is_internal_note(event)
+
         delivery_status = None
-        if settings.is_catenda_enabled and catenda_topic_id:
+        if settings.is_catenda_enabled and catenda_topic_id and not internal_note:
             delivery_status = CatendaDeliveryStatus()
             delivery_status.record(g.project_id, sak_id, event.event_id, "pending")
 
@@ -515,7 +521,9 @@ def submit_event():
         from core.config import settings
 
         try:
-            if settings.is_catenda_enabled and catenda_topic_id:
+            if internal_note:
+                catenda_skipped_reason = "internal_note"
+            elif settings.is_catenda_enabled and catenda_topic_id:
                 frozen_letter = getattr(getattr(event, 'data', None), 'brev', None)
                 if frozen_letter:
                     from services.approval_letter import pdf_bytes
@@ -1042,8 +1050,10 @@ def get_case_context(sak_id: str):
         logger.error(f"Failed to compute state for {sak_id}: {compute_error}", exc_info=True)
         return jsonify({"error": "Kunne ikke beregne saksstatus"}), 500
 
-    # Build timeline (CloudEvents format)
-    cloudevents_timeline = format_timeline_response(events)
+    # Build timeline (CloudEvents format). Motpartens interne notater filtreres
+    # bort her, ikke før state-beregningen: tilstanden skal utledes av hele
+    # strømmen uansett hvem som leser.
+    cloudevents_timeline = format_timeline_response(visible_events(events))
 
     # Build historikk for all three tracks
     timeline_svc = _get_timeline_service()
@@ -1115,7 +1125,7 @@ def get_case_timeline(sak_id: str):
 
     events, version = result
 
-    cloudevents_timeline = format_timeline_response(events)
+    cloudevents_timeline = format_timeline_response(visible_events(events))
     response = jsonify({"version": version, "events": cloudevents_timeline})
     response.headers["Content-Type"] = "application/cloudevents+json"
     return response

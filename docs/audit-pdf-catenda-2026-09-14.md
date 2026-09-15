@@ -97,7 +97,9 @@ fortsatt; minnebruk, renderingskompleksitet og belastning er ikke lasttestet.
 - Brukeren har valgt vedvarende synkfeilmelding nå. Implementert som beskrevet
   under, uten å innføre automatisk retry eller endre det planlagte outbox-arbeidet.
 - Den eksisterende CloudEvents-skjemamapping-feilen for `internt_notat` fra forrige
-  audit er fortsatt et eget, åpent punkt.
+  audit er rettet i [auditen av intern konfidensialitet og forseringsregler](audit-backend-hendelsesflyt-2026-09-15.md).
+  Den samme gjennomgangen avdekket at `internt_notat` ikke var skjermet mot motparten
+  i det hele tatt — se BE-01 og BE-02 der.
 
 ## Verifikasjon
 

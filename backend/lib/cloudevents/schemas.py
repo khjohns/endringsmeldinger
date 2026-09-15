@@ -33,6 +33,7 @@ from models.events import (
     FristResponsData,
     GrunnlagData,
     GrunnlagResponsData,
+    InterntNotatData,
     TEAkseptererResponsData,
     VederlagData,
     VederlagResponsData,
@@ -88,6 +89,8 @@ EVENT_TYPE_TO_DATA_MODEL = {
     EventType.FORSERING_KOE_FJERNET.value: ForseringKoeHandlingData,
     # TE aksepterer BH respons
     EventType.TE_AKSEPTERER_RESPONS.value: TEAkseptererResponsData,
+    # Internt notat (kun synlig for egen organisasjon)
+    EventType.INTERNT_NOTAT.value: InterntNotatData,
 }
 
 
