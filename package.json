@@ -11,7 +11,7 @@
 		"check:error": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --threshold error",
 		"test": "vitest run",
 		"test:watch": "vitest",
-		"lint": "eslint .",
+		"lint": "prettier --check src/ && eslint .",
 		"format": "prettier --write src/",
 		"prepare": "husky"
 	},
