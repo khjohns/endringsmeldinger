@@ -2,6 +2,7 @@ import { render, fireEvent, waitFor, cleanup } from '@testing-library/svelte';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import EndringsordreForm from '../EndringsordreForm.svelte';
 import { createEndringsordre, fetchEOCandidates, fetchNextEONumber } from '$lib/api/endringsordre';
+import { setDraftOwner } from '$lib/utils/draftOwner';
 
 vi.mock('$lib/api/endringsordre', () => ({
   createEndringsordre: vi.fn(),
@@ -15,10 +16,14 @@ const props = {
   userId: 'user',
   oncreated: vi.fn(),
 };
-const key = 'koe-draft-endringsordre-project:user';
+// Lokale utkast er bundet til den innloggede. I appen setter rot-layouten
+// eieren via getSession() før noen side rendres; her rendres komponenten
+// direkte, så eieren må settes for hånd.
+const key = `koe-draft-endringsordre-project:user::${props.userId}`;
 
 beforeEach(() => {
   localStorage.clear();
+  setDraftOwner(props.userId);
   vi.clearAllMocks();
   vi.mocked(fetchNextEONumber).mockResolvedValue({ neste_nummer: 'EO-001' });
   vi.mocked(fetchEOCandidates).mockResolvedValue({
