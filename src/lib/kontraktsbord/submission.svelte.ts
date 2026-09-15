@@ -123,7 +123,9 @@ export function createFormDraft<T extends Record<string, unknown>>(
   let status = $state<UtkastStatus>('uendret');
   let konflikt = $state<ServerUtkast<T> | null>(null);
   let sistEndretAv = $state<string | null>(null);
-  let cleared = false;
+  let cleared = $state(false);
+  let lagringPagar = false;
+  let nesteLagring: T | null = null;
 
   // Versjonen vi sist så fra serveren. null betyr «utkastet finnes ikke».
   let sistVersjon: number | null = null;
@@ -140,9 +142,17 @@ export function createFormDraft<T extends Record<string, unknown>>(
   }
 
   async function lagre(data: T) {
+    if (cleared || konflikt) return;
+    if (lagringPagar) {
+      nesteLagring = data;
+      return;
+    }
+    if (!lagringPagar && JSON.stringify(data) === sistLagretJson) return;
+    lagringPagar = true;
     status = 'lagrer';
     try {
       const lagret = await lagreUtkast<T>(sakId, spor, revisjon, data, sistVersjon);
+      if (cleared) return;
       overtaServerens(lagret);
       // Skrivingen kan ha skjedd mens brukeren skrev videre; da er teksten
       // vår nyere enn den vi nettopp sendte.
@@ -150,6 +160,7 @@ export function createFormDraft<T extends Record<string, unknown>>(
       konflikt = null;
       status = 'lagret';
     } catch (feil) {
+      if (cleared) return;
       if (feil instanceof UtkastKonflikt) {
         konflikt = feil.gjeldende as ServerUtkast<T> | null;
         status = 'konflikt';
@@ -158,6 +169,17 @@ export function createFormDraft<T extends Record<string, unknown>>(
       // Nettverksfeil skal ikke stjele teksten brukeren har skrevet. Den blir
       // stående i skjemaet, og neste endring forsøker på nytt.
       status = 'frakoblet';
+    } finally {
+      lagringPagar = false;
+      const neste = nesteLagring;
+      nesteLagring = null;
+      if (cleared) {
+        // DELETE må komme etter vår siste PUT, ellers kan PUT gjenopprette utkastet.
+        void slettUtkast(sakId, spor, revisjon).catch(() => {});
+      } else if (neste && status === 'lagret') {
+        // Bare siste ventende tekst trengs, med versjonen vi nettopp fikk bekreftet.
+        void lagre(neste);
+      }
     }
   }
 
@@ -168,6 +190,7 @@ export function createFormDraft<T extends Record<string, unknown>>(
       return;
     }
     if (!enabled) return;
+    sistLagretJson = JSON.stringify(read());
     let avbrutt = false;
     void (async () => {
       try {
@@ -190,9 +213,9 @@ export function createFormDraft<T extends Record<string, unknown>>(
 
   $effect(() => {
     // read() kalles her for at effekten skal spore feltene i skjemaet.
-    const data = read();
+    const data = JSON.parse(JSON.stringify(read())) as T;
     if (!enabled || !ready || cleared) return;
-    if (JSON.stringify(data) === sistLagretJson) return;
+    if (!lagringPagar && JSON.stringify(data) === sistLagretJson) return;
     // Konflikten må avklares av brukeren før vi skriver igjen; ellers ville
     // neste tastetrykk overskrevet kollegaens tekst uten at noen valgte det.
     if (konflikt) return;
@@ -234,10 +257,12 @@ export function createFormDraft<T extends Record<string, unknown>>(
       return JSON.parse(JSON.stringify(read())) as Record<string, unknown>;
     },
     clear() {
+      if (cleared) return;
       cleared = true;
+      nesteLagring = null;
       konflikt = null;
       status = 'uendret';
-      if (enabled) void slettUtkast(sakId, spor, revisjon).catch(() => {});
+      if (enabled && !lagringPagar) void slettUtkast(sakId, spor, revisjon).catch(() => {});
     },
   };
 }

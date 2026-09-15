@@ -4,7 +4,7 @@ Tests for CSRF protection.
 Verifies that:
 1. /api/csrf-token krever innlogging
 2. Tokenet som utleveres er sesjonens eget token
-3. Token-generering og -validering (lib.auth.csrf_protection) er konsistent
+3. Tokenet er stabilt innenfor samme sesjon
 
 Merk om kontrakten: tokenet er bundet til sesjonen, ikke til forespørselen.
 `lib.auth.session.csrf_valid` sammenligner X-CSRF-Token mot det lagrede
@@ -39,8 +39,9 @@ def authed_client(app, monkeypatch):
 class TestCSRFProtection:
     """Test CSRF protection on endpoints"""
 
-    def test_csrf_token_requires_authentication(self, client):
+    def test_csrf_token_requires_authentication(self, client, monkeypatch):
         """Uten sesjon skal endepunktet avvise, ikke dele ut et token."""
+        monkeypatch.setenv("DISABLE_AUTH", "false")
         response = client.get("/api/csrf-token")
 
         assert response.status_code == 401

@@ -38,6 +38,6 @@ export default ts.config(
     },
   },
   {
-    ignores: ['build/', '.svelte-kit/', 'dist/', '.worktrees/'],
+    ignores: ['build/', '.svelte-kit/', 'dist/', '.worktrees/', '**/venv/', '**/.venv/'],
   }
 );

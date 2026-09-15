@@ -1,5 +1,8 @@
 # Audit: opprydding i tilgangslaget — CSRF og medlemskapsoppslag
 
+> **Etterprøvd samme dag:** [måling og samtidighetskontroll](audit-utkast-samtidighet-og-catenda-2026-09-15.md).
+> Catenda er målt; påstanden om manglende referanser til legacy-auth er korrigert.
+
 Dato: 2026-09-15. Utgangspunkt: `beeb015`.
 Forrige logger: [utkastlekkasje og teamavgrensede serverutkast](audit-utkast-serverlagring-2026-09-15.md),
 [intern konfidensialitet og forseringsregler](audit-backend-hendelsesflyt-2026-09-15.md),

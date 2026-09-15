@@ -74,6 +74,77 @@ afterEach(() => {
 });
 
 describe('felles arbeidsutkast', () => {
+  it('oppretter ikke et serverutkast bare fordi et tomt skjema åpnes', async () => {
+    await monter();
+    await vi.advanceTimersByTimeAsync(5000);
+    expect(lagreUtkast).not.toHaveBeenCalled();
+  });
+
+  it('venter på pågående lagring og bruker kvittert versjon for nyere tekst', async () => {
+    let fullfor!: (value: ReturnType<typeof serverUtkast>) => void;
+    vi.mocked(lagreUtkast).mockImplementationOnce(
+      () => new Promise((resolve) => (fullfor = resolve))
+    );
+    const api = await monter();
+    await skrivOgVent(api, 'Første tekst');
+    await skrivOgVent(api, 'Nyere tekst');
+    expect(lagreUtkast).toHaveBeenCalledTimes(1);
+    fullfor(serverUtkast('Første tekst', 1));
+    await vi.advanceTimersByTimeAsync(1200);
+    expect(lagreUtkast).toHaveBeenCalledTimes(2);
+    expect(lagreUtkast).toHaveBeenLastCalledWith(
+      'KOE-1',
+      'grunnlag',
+      2,
+      { tekst: 'Nyere tekst' },
+      1
+    );
+  });
+
+  it('avbryter ventende autolagring når utkastet tømmes', async () => {
+    const api = await monter();
+    api.skriv('Sendt tekst');
+    await tick();
+    api.draft.clear();
+    await vi.advanceTimersByTimeAsync(1200);
+    expect(lagreUtkast).not.toHaveBeenCalled();
+  });
+
+  it('lagrer tilbakeført tekst når en eldre endring fortsatt er på vei', async () => {
+    vi.mocked(hentUtkast).mockResolvedValue(serverUtkast('Opprinnelig', 1));
+    let fullfor!: (value: ReturnType<typeof serverUtkast>) => void;
+    vi.mocked(lagreUtkast).mockImplementationOnce(
+      () => new Promise((resolve) => (fullfor = resolve))
+    );
+    const api = await monter();
+    await skrivOgVent(api, 'Endring');
+    await skrivOgVent(api, 'Opprinnelig');
+    fullfor(serverUtkast('Endring', 2));
+    await vi.advanceTimersByTimeAsync(1200);
+    expect(lagreUtkast).toHaveBeenLastCalledWith(
+      'KOE-1',
+      'grunnlag',
+      2,
+      { tekst: 'Opprinnelig' },
+      2
+    );
+  });
+
+  it('sletter først etter at en pågående lagring er avsluttet', async () => {
+    let fullfor!: (value: ReturnType<typeof serverUtkast>) => void;
+    vi.mocked(lagreUtkast).mockImplementationOnce(
+      () => new Promise((resolve) => (fullfor = resolve))
+    );
+    const api = await monter();
+    await skrivOgVent(api, 'Sendt tekst');
+    api.draft.clear();
+    expect(slettUtkast).not.toHaveBeenCalled();
+    fullfor(serverUtkast('Sendt tekst', 1));
+    await vi.advanceTimersByTimeAsync(0);
+    expect(slettUtkast).toHaveBeenCalledTimes(1);
+    expect(api.draft.status).toBe('uendret');
+  });
+
   it('henter teamets lagrede utkast og fyller skjemaet', async () => {
     vi.mocked(hentUtkast).mockResolvedValue(serverUtkast('Kollegaens tekst', 3));
 

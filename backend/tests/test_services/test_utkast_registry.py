@@ -11,6 +11,9 @@ som team når brukeren treffer flere team på samme side, og den brukeren får d
 ingen tilgang her.
 """
 
+from concurrent.futures import ThreadPoolExecutor
+from threading import Barrier
+
 import pytest
 
 from services.utkast_registry import UtkastKonflikt, UtkastRegistry
@@ -135,3 +138,40 @@ def test_sletting_fjerner_bare_eget_teams_utkast(registry):
 
 def test_sletting_av_utkast_som_ikke_finnes_er_stille(registry):
     registry.slett("p", "S1", "grunnlag", 0, "team-bh")
+
+
+@pytest.mark.parametrize("finnes", [False, True])
+def test_parallelle_skrivinger_har_bare_en_vinner(registry, monkeypatch, finnes):
+    if finnes:
+        _lagre(registry)
+    start = Barrier(2)
+    lest = Barrier(2)
+    original = registry._hent
+
+    def hent(db, *args):
+        rad = original(db, *args)
+        # Uten en eksplisitt transaksjon kan begge lese samme versjon før
+        # noen skriver. En transaksjon må få fullføre uten denne testbarrieren.
+        if not db.in_transaction:
+            lest.wait(timeout=5)
+        return rad
+
+    monkeypatch.setattr(registry, "_hent", hent)
+
+    def skriv(navn):
+        start.wait(timeout=5)
+        try:
+            return _lagre(
+                registry,
+                innhold={"tekst": navn},
+                forventet_versjon=1 if finnes else None,
+            )
+        except UtkastKonflikt:
+            return None
+
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        resultater = list(pool.map(skriv, ["Alice", "Bob"]))
+    vinnere = [rad for rad in resultater if rad is not None]
+    assert len(vinnere) == 1
+    monkeypatch.setattr(registry, "_hent", original)
+    assert registry.hent("p", "S1", "grunnlag", 0, "team-bh") == vinnere[0]

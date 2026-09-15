@@ -135,6 +135,9 @@ class UtkastRegistry:
         """
         self._krev_team(team)
         with sqlite_connection(self.path) as db:
+            # SELECT starter ikke en transaksjon i sqlite3. Lås før lesing,
+            # slik at to redaktører ikke begge godtar samme forventede versjon.
+            db.execute("BEGIN IMMEDIATE")
             gjeldende = self._hent(db, project, case_id, spor, revisjon, team)
             lagret_versjon = gjeldende["versjon"] if gjeldende else None
             if lagret_versjon != forventet_versjon:
