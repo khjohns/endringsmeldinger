@@ -197,6 +197,15 @@ saksbehandler og krever ny godkjenning. Historikk og tidligere beslutninger beho
   `Prosjekteier` ingen beløpsfullmakt alene; `Prosjektleder` dekker inntil 200 000 kr.
 - Ingen historiske hendelser skrives om. Nye krav-/svar-ID-felt beregnes ved replay.
   Eksisterende produksjonsstreams er ikke undersøkt for tidligere feilrekkefølge.
+
+  > **Presisering 2026-09-15:** det finnes ingen produksjonsstreams å undersøke —
+  > appen er ikke i produksjon og databasen har ingen reelle data (brukeravklaring;
+  > samme forutsetning er protokollført i
+  > [persistensauditen](audit-persistens-gjenoppretting-2026-09-14.md)).
+  > Dette gjelder også AUD-05-anbefalingen om å «undersøke eksisterende strømmer før
+  > endringen rulles ut»: replay følger nå repository-rekkefølgen, og omleggingen kunne
+  > ikke endre beregnet tilstand for data som ikke finnes. Punktet gjenoppstår først
+  > dersom strømmer skrives før en tilsvarende replay-endring.
 - Delvis vellykket Catenda-levering kan gi gjentatte kommentarer/dokumenter ved retry.
   Dette er ikke løst av korrekt leveringskvittering; idempotens per ekstern operasjon
   og ende-til-ende-verifikasjon gjenstår som eget auditområde.

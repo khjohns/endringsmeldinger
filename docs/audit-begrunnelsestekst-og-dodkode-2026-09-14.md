@@ -67,6 +67,11 @@ kategori og er bevisst latt urørt. Dette er dekket av egne tester.
 listen over er fastslått ved kodelesing, ikke ved en ende-til-ende-test gjennom
 skjemaet. Eksisterende hendelser med slik tekst er ikke undersøkt eller migrert.
 
+> **Presisering 2026-09-15:** det finnes ingen slike hendelser. Appen er ikke i
+> produksjon og databasen har ingen reelle data (brukeravklaring; se
+> [persistensauditen](audit-persistens-gjenoppretting-2026-09-14.md)). Migrering av
+> lagret begrunnelsestekst er derfor ikke utestående arbeid.
+
 ### TEST-01 — Middels: testsuiten var rød på HEAD — rettet
 
 `workspace.test.ts` mocket `$lib/api/client` med kun `apiFetch`. Da

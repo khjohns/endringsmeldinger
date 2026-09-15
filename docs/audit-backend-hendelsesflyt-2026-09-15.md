@@ -208,6 +208,36 @@ avslått i testmiljøet, så kommentargrenen ble hoppet over og feilbanen aldri 
 Integrasjonen slås nå på i testen, slik at den faktisk treffer scenarioet. **Den
 underliggende mangelen er ikke rettet** — den er utsatt etter avtale (trinn 3).
 
+## Gjennomgang av produksjonsforbehold i tidligere auditlogger
+
+Forutsetningen om ikke-produksjon utløste en gjennomgang av de åtte tidligere
+auditloggene. Funnet er at forutsetningen **allerede var protokollført** 2026-09-14, i
+[persistensauditen](audit-persistens-gjenoppretting-2026-09-14.md): «Brukeren bekrefter
+én Flask-backendinstans; appen er ikke i produksjon.» Den ble ikke videreført til de
+andre loggene fra samme dato, som derfor tok forbehold om data som ikke finnes.
+
+Tre forbehold pekte på arbeid som ikke er utestående. De er presisert på stedet, med
+den opprinnelige teksten bevart:
+
+| Logg | Forbehold | Status |
+| --- | --- | --- |
+| [Godkjenning og event sourcing](audit-godkjenning-event-sourcing-2026-09-14.md) | «Eksisterende produksjonsstreams er ikke undersøkt for tidligere feilrekkefølge», og AUD-05-anbefalingen om å undersøke strømmer «før endringen rulles ut» | Ingen strømmer finnes. Verdt å merke seg: replay-omleggingen **ble** rullet ut (`compute_state` følger nå repository-rekkefølgen), mens loggen fortsatt leste som en utestående risiko. Risikoen var null fordi det ikke fantes data å beregne om. |
+| [Begrunnelsestekst og død kode](audit-begrunnelsestekst-og-dodkode-2026-09-14.md) | «Eksisterende hendelser med slik tekst er ikke undersøkt eller migrert» | Ingen slike hendelser finnes; ingen migrering utestående. |
+| [PDF og Catenda-levering](audit-pdf-catenda-2026-09-14.md) | «Historiske enkeltinnsendinger før innføringen har ingen kvitteringer og etterregistreres ikke» | Ingen slike innsendinger finnes; ingen sak mangler kvittering av denne grunnen. |
+
+To formuleringer er kontrollert og står uendret, fordi de var korrekt forsiktige og
+blir *styrket* av forutsetningen, ikke svekket: `CLIENT-02` i
+[klient/prosjekt/sesjon](audit-klient-prosjekt-sesjon-2026-09-14.md) («en faktisk
+kryssprosjekthendelse er ikke påvist») og utkastfunnet i
+[utkast og samarbeid](audit-utkast-samarbeid-2026-09-14.md) («viser ikke … en
+produksjonshendelse»). Uten produksjon kan hendelsene ikke ha inntruffet. Begge funnene
+er fortsatt reelle som kodefeil — utkastfunnet står fremdeles åpent med en `it.fails`-test.
+
+Forbehold om *fremtidig* produksjon er bevisst ikke rørt: sjekklisten «Før eventuell
+produksjonssetting» i persistensauditen, merknaden om flere produksjonsreplikaer og
+SQLite, og autentiseringsauditens beskrivelse av dev-bypass i produksjon/staging gjelder
+fortsatt fullt ut. Dette vinduet lukker seg ved første produksjonsdata.
+
 ## Kontroller som passerer / avgrensninger
 
 | Kontroll | Bevis / avgrensning |

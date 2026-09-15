@@ -141,6 +141,11 @@ Brukeravklaring 2026-09-14: «Legg til vedvarende melding nå».
   antall uavklarte leveranser sendes til case-context; privat brevinnhold eksponeres ikke.
 - Deaktivert/ikke konfigurert integrasjon regnes ikke som leveringsfeil. Historiske
   enkeltinnsendinger før innføringen har ingen kvitteringer og etterregistreres ikke.
+
+  > **Presisering 2026-09-15:** det finnes ingen slike historiske innsendinger. Appen er
+  > ikke i produksjon og databasen har ingen reelle data (brukeravklaring; se
+  > [persistensauditen](audit-persistens-gjenoppretting-2026-09-14.md)). Ingen saker
+  > mangler kvittering av denne grunnen i dag.
 - Klienten beholder også mottatt feilstatus dersom oppdateringen etter innsending
   feiler; en eldre bakgrunnsrespons kan ikke fjerne denne meldingen.
 
