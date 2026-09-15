@@ -1,5 +1,10 @@
 # Audit: utkastlekkasje og teamavgrensede serverutkast
 
+> **Etterprøvd samme dag:** [samtidighet og Catenda-kall](audit-utkast-samtidighet-og-catenda-2026-09-15.md)
+> påviste og rettet atomisk versjonskontroll, overlappende klientlagring,
+> lagring etter sletting og unødvendig førstegangslagring. Gjenoppretting ved
+> fanekrasj er ikke dekket av den opprinnelige verifikasjonen nedenfor.
+
 > **Fulgt opp samme dag:** tilgangslaget er ryddet etter denne runden — CSRF er samlet
 > i ett håndhevingspunkt og medlemskapsoppslaget halvert. Se
 > [opprydding i tilgangslaget](audit-tilgangslaget-opprydding-2026-09-15.md), som også
