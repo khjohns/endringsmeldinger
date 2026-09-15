@@ -7,7 +7,8 @@ Rettelsene fra begge arbeidsrundene og den etterfølgende synkfeilmeldingen saml
 ## Omfang
 
 Kontrollert PDF-generering fra brev og sakstilstand, PDF-transport til Catenda,
-midlertidige filer og HTTP-kvittering etter lagring. Kode og lokale tester er brukt;
+midlertidige filer og HTTP-kvittering etter lagring.
+Vedleggsflyten er senere gjennomgått i egen logg: [vedleggs- og dokumentflyt](audit-vedleggsflyt-2026-09-15.md). Kode og lokale tester er brukt;
 ingen tokens, produksjonsdata eller eksterne tjenester er lest. Supabase/RLS er
 utenfor omfang. Dette er en avgrenset delgjennomgang, ikke ferdig audit av hele
 vedleggsflyten eller alle utgående Catenda-operasjoner.
