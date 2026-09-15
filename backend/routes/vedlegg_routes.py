@@ -254,8 +254,8 @@ def slett_vedlegg(sak_id: str, vedlegg_id: str):
     return jsonify({"slettet": vedlegg_id}), 200
 
 
-def lever_vedlegg_for_hendelse(project_id: str, sak_id: str, event) -> None:
-    """Last opp mellomlagrede vedlegg som hendelsen viser til.
+def lever_vedlegg_for_hendelser(project_id: str, sak_id: str, hendelser) -> None:
+    """Last opp mellomlagrede vedlegg som hendelsene viser til.
 
     Kalles etter at hendelsen er lagret. Dette er øyeblikket vedlegget faktisk
     sendes: fram til nå har det ligget hos oss, usett av motparten.
@@ -265,8 +265,11 @@ def lever_vedlegg_for_hendelse(project_id: str, sak_id: str, event) -> None:
     (samme prinsipp som PDF-02). Vedlegget blir stående som mellomlagret, og
     sakens referanse til det består, slik at leveringen kan gjentas.
     """
-    vedlegg_ids = getattr(getattr(event, "data", None), "vedlegg_ids", None)
-    if not vedlegg_ids:
+    referert: set[str] = set()
+    for hendelse in hendelser:
+        for ref in getattr(getattr(hendelse, "data", None), "vedlegg_ids", None) or []:
+            referert.add(ref)
+    if not referert:
         return
 
     from services.vedlegg_registry import STAGED
@@ -275,7 +278,7 @@ def lever_vedlegg_for_hendelse(project_id: str, sak_id: str, event) -> None:
     ventende = [
         oppforing
         for oppforing in registry.list(project_id, sak_id)
-        if oppforing["id"] in set(vedlegg_ids) and oppforing["status"] == STAGED
+        if oppforing["id"] in referert and oppforing["status"] == STAGED
     ]
     if not ventende:
         return
@@ -329,3 +332,8 @@ def lever_vedlegg_for_hendelse(project_id: str, sak_id: str, event) -> None:
             logger.error(
                 "Hendelse lagret; vedlegg %s ble ikke lastet opp", oppforing["id"]
             )
+
+
+def lever_vedlegg_for_hendelse(project_id: str, sak_id: str, event) -> None:
+    """Enkelthendelse-variant av `lever_vedlegg_for_hendelser`."""
+    lever_vedlegg_for_hendelser(project_id, sak_id, [event])

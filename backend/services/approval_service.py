@@ -7,6 +7,7 @@ Publication uses persisted event IDs to recover after an event-store commit/cras
 import copy
 import hashlib
 import json
+import logging
 from contextlib import contextmanager
 from datetime import UTC, datetime
 from pathlib import Path
@@ -17,6 +18,8 @@ from lib.sqlite_connection import sqlite_connection
 from models.events import parse_event, parse_event_from_request
 from repositories.event_repository import ConcurrencyError
 from services.approval_authority import validate_authority
+
+logger = logging.getLogger(__name__)
 
 TRACKS = ("grunnlag", "vederlag", "frist")
 
@@ -547,9 +550,19 @@ class ApprovalService:
                 _, version = self.validate_items(case_id, p["letter"]["items"])
                 for event in p["publicationEvents"]:
                     event["tidsstempel"] = now
-                self.events.append_batch(
-                    [parse_event(e) for e in p["publicationEvents"]], version
-                )
+                publiserte = [parse_event(e) for e in p["publicationEvents"]]
+                self.events.append_batch(publiserte, version)
+                # Vedlegg sendes først når brevet faktisk publiseres. En feil
+                # her gjør ikke publiseringen mislykket: hendelsene er lagret,
+                # og vedlegget blir stående mellomlagret for ny levering.
+                try:
+                    from routes.vedlegg_routes import lever_vedlegg_for_hendelser
+
+                    lever_vedlegg_for_hendelser(project, case_id, publiserte)
+                except Exception:
+                    logger.exception(
+                        "Brev publisert; vedleggslevering feilet for %s", case_id
+                    )
             except (ValueError, ConcurrencyError) as error:
                 p.update(status="publisering_feilet", error=str(error))
                 return
