@@ -33,7 +33,11 @@ async function fetchCsrfToken(): Promise<string> {
   return data.csrfToken;
 }
 
-async function getCsrfToken(forceRefresh: boolean = false): Promise<string> {
+/**
+ * Hent gjeldende CSRF-token. Eksportert fordi opplasting av vedlegg sender
+ * multipart og derfor ikke kan gå gjennom apiFetch, som setter JSON-header.
+ */
+export async function getCsrfToken(forceRefresh: boolean = false): Promise<string> {
   if (csrfToken && !forceRefresh) {
     return csrfToken;
   }

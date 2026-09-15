@@ -133,6 +133,33 @@ class BusinessRuleValidator:
                 ("BH_HAS_RESPONDED", self._rule_bh_has_responded),
                 ("NOT_ALREADY_ACCEPTED", self._rule_not_already_accepted),
             ],
+            # ========== FORSERING RULES (§33.8) ==========
+            # Varselet oppretter forseringssporet: det krever en forseringssak
+            # og kan bare sendes én gang. CREATE_ONCE dekker ikke denne typen.
+            EventType.FORSERING_VARSEL: [
+                ("IS_FORSERING_CASE", self._rule_is_forsering_case),
+                ("NOT_ALREADY_NOTIFIED", self._rule_forsering_not_already_notified),
+            ],
+            # De øvrige forsering-hendelsene forutsetter et varslet forseringskrav.
+            EventType.FORSERING_RESPONS: [
+                ("FORSERING_NOTIFIED", self._rule_forsering_notified),
+            ],
+            EventType.FORSERING_STOPPET: [
+                ("FORSERING_NOTIFIED", self._rule_forsering_notified),
+                ("NOT_ALREADY_STOPPED", self._rule_forsering_not_already_stopped),
+            ],
+            EventType.FORSERING_KOSTNADER_OPPDATERT: [
+                ("FORSERING_NOTIFIED", self._rule_forsering_notified),
+            ],
+            # KOE-kobling krever en forseringssak, slik EO-motpartene krever en
+            # EO-sak. Koblingen kan skje før varselet sendes, så den er ikke
+            # betinget av FORSERING_NOTIFIED.
+            EventType.FORSERING_KOE_LAGT_TIL: [
+                ("IS_FORSERING_CASE", self._rule_is_forsering_case),
+            ],
+            EventType.FORSERING_KOE_FJERNET: [
+                ("IS_FORSERING_CASE", self._rule_is_forsering_case),
+            ],
             # ========== ENDRINGSORDRE RULES ==========
             # EO opprettelse - ingen spesifikke regler utover rolle-sjekk
             EventType.EO_OPPRETTET: [],
@@ -463,6 +490,56 @@ class BusinessRuleValidator:
         return ValidationResult(is_valid=True)
 
     # ========== EO RULES ==========
+
+    # ========== FORSERING RULES (§33.8) ==========
+
+    def _rule_is_forsering_case(
+        self, event: AnyEvent, state: SakState
+    ) -> ValidationResult:
+        """R: Handlingen krever en forseringssak.
+
+        TimelineService ignorerer forsering-hendelser når `forsering_data`
+        mangler. Uten denne regelen ville varselet bli lagret som en hendelse
+        uten virkning — en stille nullhendelse i en juridisk logg.
+        """
+        if state.sakstype != SaksType.FORSERING or state.forsering_data is None:
+            return ValidationResult(
+                is_valid=False, message="Denne handlingen krever en forseringssak"
+            )
+        return ValidationResult(is_valid=True)
+
+    def _rule_forsering_not_already_notified(
+        self, event: AnyEvent, state: SakState
+    ) -> ValidationResult:
+        """R: Forseringen kan bare varsles én gang; senere endringer er revisjoner."""
+        if state.forsering_data is not None and state.forsering_data.dato_varslet:
+            return ValidationResult(
+                is_valid=False, message="Forseringen er allerede varslet."
+            )
+        return ValidationResult(is_valid=True)
+
+    def _rule_forsering_notified(
+        self, event: AnyEvent, state: SakState
+    ) -> ValidationResult:
+        """R: Respons, stopp og kostnadsoppdatering forutsetter et varslet krav."""
+        if state.forsering_data is None or not state.forsering_data.dato_varslet:
+            return ValidationResult(
+                is_valid=False, message="Forseringen er ikke varslet."
+            )
+        return ValidationResult(is_valid=True)
+
+    def _rule_forsering_not_already_stopped(
+        self, event: AnyEvent, state: SakState
+    ) -> ValidationResult:
+        """R: En stoppet forsering kan ikke stoppes på nytt.
+
+        Dobbelt stopp gir to sett påløpte kostnader og to stoppdatoer i samme sak.
+        """
+        if state.forsering_data is not None and state.forsering_data.er_stoppet:
+            return ValidationResult(
+                is_valid=False, message="Forseringen er allerede stoppet."
+            )
+        return ValidationResult(is_valid=True)
 
     def _rule_is_eo_case(self, event: AnyEvent, state: SakState) -> ValidationResult:
         """R: Event requires an ENDRINGSORDRE case type."""

@@ -15,9 +15,13 @@ def require_contract_role(required=None):
                 payload = request.get_json(silent=True) or {}
                 event = payload.get("event") or (payload.get("events") or [{}])[0]
                 g.contract_role = required or event.get("aktor_rolle", "TE")
+                # Uten autentisering finnes ingen verifisert organisasjon.
+                g.contract_team = None
             else:
                 try:
-                    role = get_auth_service().contract_role(g.project_id, g.user["id"])
+                    role, team = get_auth_service().contract_membership(
+                        g.project_id, g.user["id"]
+                    )
                 except Exception:
                     return jsonify(
                         error="CONTRACT_ACCESS_UNAVAILABLE",
@@ -29,6 +33,7 @@ def require_contract_role(required=None):
                         message="Du har ikke nødvendig TE/BH-teamtilknytning.",
                     ), 403
                 g.contract_role = role
+                g.contract_team = team
             return f(*args, **kwargs)
 
         return decorated

@@ -10,7 +10,7 @@ Verifies that:
 
 import json
 import os
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 
 class TestWebhookSecurity:
@@ -44,8 +44,22 @@ class TestWebhookSecurity:
             assert response.status_code == 404
 
     @patch.dict(os.environ, {"WEBHOOK_SECRET_PATH": "test-secret-path"})
-    def test_webhook_with_valid_path_succeeds(self, client, mock_system):
-        """Test that webhook with correct path is accepted"""
+    def test_webhook_with_valid_path_succeeds(self, client, monkeypatch):
+        """Test that webhook with correct path is accepted.
+
+        Ruten bygger tjenesten via get_webhook_service (DI), ikke via app.system.
+        Erstatningen må derfor treffe det samme punktet; ellers forsøker ruten å
+        bygge en ekte Catenda-klient og svarer 500.
+        """
+        service = MagicMock()
+        service.handle_new_topic_created.return_value = {
+            "success": True,
+            "sak_id": "SAK-1",
+        }
+        monkeypatch.setattr(
+            "routes.catenda_webhook_routes.get_webhook_service", lambda: service
+        )
+
         response = client.post(
             "/webhook/catenda/test-secret-path",
             data=json.dumps(
@@ -57,8 +71,8 @@ class TestWebhookSecurity:
             content_type="application/json",
         )
 
-        # Should succeed (or return 200 with result)
         assert response.status_code == 200
+        service.handle_new_topic_created.assert_called_once()
 
     def test_webhook_validates_event_structure(self):
         """Test event structure validation"""

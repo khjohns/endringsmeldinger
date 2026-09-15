@@ -120,7 +120,7 @@ def test_grunnlag_event_creation():
             grunnlag_varsel=VarselInfo(
                 dato_sendt="2025-01-11", metode=["epost", "byggemote"]
             ),
-            vedlegg_ids=["DOK-001"],
+            vedlegg_ids=["3fa85f64-5717-4562-b3fc-2c963f66afa6"],
         ),
     )
 
@@ -342,7 +342,10 @@ def test_frist_data_with_fremdriftshindring():
         begrunnelse="Fremdriftshindring",
         fremdriftshindring_dokumentasjon="Se vedlagt fremdriftsplan",
         ny_sluttdato="2025-03-01",
-        vedlegg_ids=["DOK-001", "DOK-002"],
+        vedlegg_ids=[
+            "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+            "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+        ],
     )
     assert data.fremdriftshindring_dokumentasjon is not None
     assert data.ny_sluttdato == "2025-03-01"

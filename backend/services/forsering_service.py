@@ -661,6 +661,8 @@ class ForseringService(BaseSakService):
         )
 
         # Lagre med eksplisitt versjonskontroll
+        self._validate_event(event, sak_id)
+
         new_version = self.event_repository.append(event, expected_version)
 
         logger.info(
@@ -727,6 +729,8 @@ class ForseringService(BaseSakService):
         )
 
         # Lagre med eksplisitt versjonskontroll
+        self._validate_event(event, sak_id)
+
         new_version = self.event_repository.append(event, expected_version)
 
         logger.info(
@@ -793,6 +797,8 @@ class ForseringService(BaseSakService):
         )
 
         # Lagre med eksplisitt versjonskontroll
+        self._validate_event(event, sak_id)
+
         new_version = self.event_repository.append(event, expected_version)
 
         logger.info(
@@ -913,6 +919,34 @@ class ForseringService(BaseSakService):
             logger.warning(f"Kunne ikke beregne state for {sak_id}: {e}")
 
         return {"success": True, "message": "Event lagret"}
+
+    def _validate_event(self, event: Any, sak_id: str) -> None:
+        """Kjør forretningsreglene før hendelsen lagres.
+
+        De dedikerte forseringsrutene skrev tidligere rett til hendelseslageret,
+        mens den generiske /api/events-ruten validerte. Samme hendelse kunne
+        dermed bli avvist eller godtatt avhengig av hvilken rute klienten brukte.
+        Reglene kjøres nå på begge veier.
+
+        Raises:
+            ValueError: Ved regelbrudd. Rutene oversetter dette til HTTP 400.
+        """
+        if not self.event_repository or not self.timeline_service:
+            return
+
+        events_data, _version = self.event_repository.get_events(sak_id)
+        if not events_data:
+            return
+
+        state = self.timeline_service.compute_state(
+            [parse_event(e) for e in events_data]
+        )
+
+        from services.business_rules import BusinessRuleValidator
+
+        result = BusinessRuleValidator().validate(event, state)
+        if not result.is_valid:
+            raise ValueError(result.message or "Handlingen bryter en forretningsregel.")
 
     def _get_current_status(self, sak_id: str) -> str | None:
         """

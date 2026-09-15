@@ -27,6 +27,12 @@ def api(monkeypatch, tmp_path):
     }
     auth.role.return_value = "member"
     auth.contract_role.return_value = "TE"
+    # contract_membership er kilden rutene bruker; den følger rollen
+    # så per-test-overstyringer av contract_role fortsatt virker.
+    auth.contract_membership.side_effect = lambda p, u: (
+        auth.contract_role(p, u),
+        "test-team-id",
+    )
     app.extensions["koe_auth"] = auth
     container = Mock()
     container.metadata_repository.get.return_value = SimpleNamespace(

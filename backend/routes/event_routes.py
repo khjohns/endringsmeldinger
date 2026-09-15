@@ -30,6 +30,7 @@ from core.config import settings
 from integrations.catenda import CatendaAuthError
 from lib.auth.contract_role import require_contract_role
 from lib.auth.csrf_protection import require_csrf
+from lib.auth.event_visibility import is_internal_note, visible_events
 from lib.auth.project_access import require_project_access
 from lib.auth.session import require_auth
 from lib.catenda_factory import get_catenda_client
@@ -166,11 +167,53 @@ def _parse_authorized_event(data: dict) -> AnyEvent:
     """Bind identity and enforce contract authority even on the first event."""
     data["aktor"] = g.user.get("name") or g.user.get("email") or g.user["id"]
     data["aktor_rolle"] = g.contract_role
+    data["aktor_team_id"] = getattr(g, "contract_team", None)
+    if (
+        data.get("event_type") == EventType.INTERNT_NOTAT.value
+        and not data["aktor_team_id"]
+    ):
+        # Uten entydig organisasjon ville notatet vært ulesbart for alle,
+        # forfatteren inkludert. Da er det riktigere å avvise det.
+        raise PermissionError(
+            "Interne notater krever entydig teamtilknytning i Catenda."
+        )
     event = parse_event_from_request(data)
+    _krev_egne_vedlegg(event)
     result = validator.validate_actor_role(event)
     if not result.is_valid:
         raise PermissionError(result.message)
     return event
+
+
+def _krev_egne_vedlegg(event: AnyEvent) -> None:
+    """Vedleggsreferanser må peke på vedlegg registrert på denne saken.
+
+    Formkontrollen på modellen (UUID, maks 50) hindrer fri tekst, men en gyldig
+    UUID kan fortsatt peke på et dokument i et annet prosjekt eller på
+    ingenting. Hendelsen inngår i formelle brev, og vedleggslisten vises til
+    BH-godkjenner, så referansen må være kontrollert.
+
+    Raises:
+        ValueError: Ved ukjent referanse. Ruten oversetter dette til HTTP 400.
+    """
+    vedlegg_ids = getattr(getattr(event, "data", None), "vedlegg_ids", None)
+    if not vedlegg_ids:
+        return
+
+    from lib.auth.domain import catenda_id
+    from services.vedlegg_registry import VedleggRegistry
+
+    # Catenda returnerer kompakt hex ved opplasting, mens feltet godtar begge
+    # UUID-former. Sammenligningen normaliseres, ellers ville samme dokument
+    # blitt avvist avhengig av hvilken form klienten sendte.
+    registry = VedleggRegistry()
+    kjente = {catenda_id(v["id"]) for v in registry.list(g.project_id, event.sak_id)}
+    ukjente = [ref for ref in vedlegg_ids if catenda_id(ref) not in kjente]
+    if ukjente:
+        raise ValueError(
+            "Vedlegget hører ikke til denne saken. "
+            "Last det opp på saken før du viser til det."
+        )
 
 
 def _derive_spor_from_event(event: AnyEvent) -> str | None:
@@ -463,8 +506,13 @@ def submit_event():
         from core.config import settings
         from services.catenda_delivery_status import CatendaDeliveryStatus
 
+        # Et internt notat er ikke ment for motparten og skal derfor verken
+        # leveres til den delte Catenda-topicen eller etterlate en
+        # leveringskvittering som ville gitt et permanent synkfeil-banner.
+        internal_note = is_internal_note(event)
+
         delivery_status = None
-        if settings.is_catenda_enabled and catenda_topic_id:
+        if settings.is_catenda_enabled and catenda_topic_id and not internal_note:
             delivery_status = CatendaDeliveryStatus()
             delivery_status.record(g.project_id, sak_id, event.event_id, "pending")
 
@@ -506,6 +554,15 @@ def submit_event():
 
         logger.debug(f"Event persisted, version: {new_version}")
 
+        # Vedleggene sendes først nå. Fram til hendelsen var lagret, lå de
+        # mellomlagret hos oss og var usett av motparten.
+        try:
+            from routes.vedlegg_routes import lever_vedlegg_for_hendelse
+
+            lever_vedlegg_for_hendelse(g.project_id, sak_id, event)
+        except Exception:
+            logger.exception("Event committed; vedleggslevering feilet")
+
         # 9. Catenda Integration (PDF + Comment + Status Sync) - optional
         catenda_success = False
         pdf_source = None
@@ -515,7 +572,9 @@ def submit_event():
         from core.config import settings
 
         try:
-            if settings.is_catenda_enabled and catenda_topic_id:
+            if internal_note:
+                catenda_skipped_reason = "internal_note"
+            elif settings.is_catenda_enabled and catenda_topic_id:
                 frozen_letter = getattr(getattr(event, 'data', None), 'brev', None)
                 if frozen_letter:
                     from services.approval_letter import pdf_bytes
@@ -728,6 +787,14 @@ def submit_batch():
                 )
             except ConcurrencyError as e:
                 return handle_concurrency_error(e)
+
+            # Vedlegg sendes først nå, som ved enkeltinnsending.
+            try:
+                from routes.vedlegg_routes import lever_vedlegg_for_hendelser
+
+                lever_vedlegg_for_hendelser(g.project_id, sak_id, validated_events)
+            except Exception:
+                logger.exception("Batch committed; vedleggslevering feilet")
 
         # 6. Compute final state and update metadata cache
         all_events = existing_events + validated_events
@@ -1042,8 +1109,10 @@ def get_case_context(sak_id: str):
         logger.error(f"Failed to compute state for {sak_id}: {compute_error}", exc_info=True)
         return jsonify({"error": "Kunne ikke beregne saksstatus"}), 500
 
-    # Build timeline (CloudEvents format)
-    cloudevents_timeline = format_timeline_response(events)
+    # Build timeline (CloudEvents format). Motpartens interne notater filtreres
+    # bort her, ikke før state-beregningen: tilstanden skal utledes av hele
+    # strømmen uansett hvem som leser.
+    cloudevents_timeline = format_timeline_response(visible_events(events))
 
     # Build historikk for all three tracks
     timeline_svc = _get_timeline_service()
@@ -1115,7 +1184,7 @@ def get_case_timeline(sak_id: str):
 
     events, version = result
 
-    cloudevents_timeline = format_timeline_response(events)
+    cloudevents_timeline = format_timeline_response(visible_events(events))
     response = jsonify({"version": version, "events": cloudevents_timeline})
     response.headers["Content-Type"] = "application/cloudevents+json"
     return response

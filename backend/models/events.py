@@ -21,13 +21,50 @@ TERMINOLOGI - Versjon vs Revisjon:
 
 from datetime import UTC, datetime
 from enum import Enum
-from typing import Literal, Union
-from uuid import uuid4
+from typing import Annotated, Literal, Union
+from uuid import UUID, uuid4
 
-from pydantic import BaseModel, Field, computed_field, field_validator, model_validator
+from pydantic import (
+    AfterValidator,
+    BaseModel,
+    Field,
+    computed_field,
+    field_validator,
+    model_validator,
+)
 
 from models.cloudevents import CloudEventMixin
 from models.letter_document import LetterSnapshot
+
+# ============ VEDLEGG ============
+
+# Én hendelse skal ikke kunne bære et vilkårlig antall referanser.
+MAKS_VEDLEGG_PER_HENDELSE = 50
+
+
+def _valider_vedleggsreferanse(verdi: str) -> str:
+    """Krev at referansen er en ekte Catenda-dokument-ID.
+
+    Catenda returnerer kompakt hex fra `upload_document`, som formateres med
+    bindestreker før BCF-kallet; begge formene forekommer derfor i praksis.
+    Feltet er klientlevert og vises til BH-godkjenner under «Vedlegg» uten at
+    noe slår det opp, så fri tekst her ville vært et dokumentnavn ingen har
+    kontrollert. Verdien lagres uendret — kun formen valideres.
+    """
+    try:
+        UUID(verdi)
+    except (ValueError, AttributeError, TypeError):
+        raise ValueError(
+            "Vedleggsreferanse må være en Catenda-dokument-ID (UUID)"
+        ) from None
+    return verdi
+
+
+VedleggIds = Annotated[
+    list[Annotated[str, AfterValidator(_valider_vedleggsreferanse)]],
+    Field(max_length=MAKS_VEDLEGG_PER_HENDELSE),
+]
+
 
 # ============ ENUMS FOR EVENT TYPES ============
 
@@ -329,6 +366,14 @@ class SakEvent(CloudEventMixin, BaseModel):
     aktor_rolle: Literal["TE", "BH"] = Field(
         ..., description="Rolle til aktøren (TE=Totalentreprenør, BH=Byggherre)"
     )
+    aktor_team_id: str | None = Field(
+        default=None,
+        description=(
+            "Catenda-team-ID til aktørens organisasjon. Settes av serveren. "
+            "En kontraktsside kan ha flere team (byggherre og ekstern rådgiver), "
+            "så rollen alene identifiserer ikke organisasjonen."
+        ),
+    )
     kommentar: str | None = Field(
         default=None, description="Valgfri kommentar/begrunnelse"
     )
@@ -504,7 +549,7 @@ class GrunnlagData(BaseModel):
     )
 
     # Vedlegg
-    vedlegg_ids: list[str] = Field(
+    vedlegg_ids: VedleggIds = Field(
         default_factory=list,
         description="Referanser til vedlagte dokumenter (bilder, rapporter, etc.)",
     )
@@ -587,7 +632,7 @@ class VederlagData(VederlagKompensasjon):
     begrunnelse: str = Field(..., min_length=1, description="Begrunnelse for kravet")
 
     # Faktisk kostnadsunderlag som vedlegg
-    vedlegg_ids: list[str] = Field(
+    vedlegg_ids: VedleggIds = Field(
         default_factory=list, description="Referanser til vedlagte dokumenter"
     )
 
@@ -730,7 +775,7 @@ class FristData(BaseModel):
     )
 
     # Vedlegg (f.eks. fremdriftsplaner, analyser)
-    vedlegg_ids: list[str] = Field(
+    vedlegg_ids: VedleggIds = Field(
         default_factory=list,
         description="Referanser til vedlagte dokumenter (fremdriftsplan, fremdriftsanalyse, etc.)",
     )
@@ -834,6 +879,14 @@ class InterntNotatEvent(SakEvent):
 
     event_type: EventType = Field(default=EventType.INTERNT_NOTAT)
     data: InterntNotatData = Field(..., description="Notat-data")
+    # Innsnevret fra SakEvent: for notater er organisasjonen selve
+    # tilgangsnøkkelen. Et notat uten team kan ingen lese — heller ikke
+    # forfatteren — så det skal ikke kunne lagres i utgangspunktet.
+    aktor_team_id: str = Field(
+        ...,
+        min_length=1,
+        description="Catenda-team-ID til forfatterens organisasjon. Settes av serveren.",
+    )
 
 
 # ============ RESPONS EVENTS (BH) ============
@@ -1653,7 +1706,7 @@ class EOUtstedtData(BaseModel):
 
     # Beskrivelse
     beskrivelse: str = Field(..., description="Beskrivelse av endringen")
-    vedlegg_ids: list[str] = Field(default_factory=list, description="Vedlegg-IDer")
+    vedlegg_ids: VedleggIds = Field(default_factory=list, description="Vedlegg-IDer")
 
     # Konsekvenser
     konsekvenser: EOKonsekvenser = Field(

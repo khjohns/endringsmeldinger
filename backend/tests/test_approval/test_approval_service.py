@@ -320,3 +320,39 @@ def test_changed_claim_between_last_approval_and_publish_stays_private(setup):
     assert all(
         not e["event_type"].startswith("respons_") for e in repo.get_events("case1")[0]
     )
+
+
+def test_publisering_leverer_vedlegg(setup, monkeypatch):
+    """Brevpublisering er «sendt» for BH-siden og må levere vedlegg.
+
+    Publiseringen bruker append_batch, som er en egen vei enn enkeltinnsending.
+    Uten dette ville et vedlegg brevet viser til aldri nådd Catenda.
+    """
+    service, _repo, item = setup
+    levert = []
+    monkeypatch.setattr(
+        "routes.vedlegg_routes.lever_vedlegg_for_hendelser",
+        lambda prosjekt, sak, hendelser: levert.append((prosjekt, sak, len(hendelser))),
+    )
+
+    p = package(service, item)
+    approve(service, p["id"])
+    state = command(service, "publish", packageId=p["id"])
+
+    assert state["packages"][0]["status"] == "sendt"
+    assert levert and levert[0][0] == "p1" and levert[0][1] == "case1"
+
+
+def test_feilet_vedleggslevering_stopper_ikke_publisering(setup, monkeypatch):
+    """Hendelsene er lagret; en integrasjonsfeil skal ikke gjøre brevet usendt."""
+    service, _repo, item = setup
+    monkeypatch.setattr(
+        "routes.vedlegg_routes.lever_vedlegg_for_hendelser",
+        lambda *a, **k: (_ for _ in ()).throw(RuntimeError("Catenda nede")),
+    )
+
+    p = package(service, item)
+    approve(service, p["id"])
+    state = command(service, "publish", packageId=p["id"])
+
+    assert state["packages"][0]["status"] == "sendt"

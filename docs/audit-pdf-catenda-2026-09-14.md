@@ -7,7 +7,8 @@ Rettelsene fra begge arbeidsrundene og den etterfølgende synkfeilmeldingen saml
 ## Omfang
 
 Kontrollert PDF-generering fra brev og sakstilstand, PDF-transport til Catenda,
-midlertidige filer og HTTP-kvittering etter lagring. Kode og lokale tester er brukt;
+midlertidige filer og HTTP-kvittering etter lagring.
+Vedleggsflyten er senere gjennomgått i egen logg: [vedleggs- og dokumentflyt](audit-vedleggsflyt-2026-09-15.md). Kode og lokale tester er brukt;
 ingen tokens, produksjonsdata eller eksterne tjenester er lest. Supabase/RLS er
 utenfor omfang. Dette er en avgrenset delgjennomgang, ikke ferdig audit av hele
 vedleggsflyten eller alle utgående Catenda-operasjoner.
@@ -97,7 +98,9 @@ fortsatt; minnebruk, renderingskompleksitet og belastning er ikke lasttestet.
 - Brukeren har valgt vedvarende synkfeilmelding nå. Implementert som beskrevet
   under, uten å innføre automatisk retry eller endre det planlagte outbox-arbeidet.
 - Den eksisterende CloudEvents-skjemamapping-feilen for `internt_notat` fra forrige
-  audit er fortsatt et eget, åpent punkt.
+  audit er rettet i [auditen av intern konfidensialitet og forseringsregler](audit-backend-hendelsesflyt-2026-09-15.md).
+  Den samme gjennomgangen avdekket at `internt_notat` ikke var skjermet mot motparten
+  i det hele tatt — se BE-01 og BE-02 der.
 
 ## Verifikasjon
 
@@ -139,6 +142,11 @@ Brukeravklaring 2026-09-14: «Legg til vedvarende melding nå».
   antall uavklarte leveranser sendes til case-context; privat brevinnhold eksponeres ikke.
 - Deaktivert/ikke konfigurert integrasjon regnes ikke som leveringsfeil. Historiske
   enkeltinnsendinger før innføringen har ingen kvitteringer og etterregistreres ikke.
+
+  > **Presisering 2026-09-15:** det finnes ingen slike historiske innsendinger. Appen er
+  > ikke i produksjon og databasen har ingen reelle data (brukeravklaring; se
+  > [persistensauditen](audit-persistens-gjenoppretting-2026-09-14.md)). Ingen saker
+  > mangler kvittering av denne grunnen i dag.
 - Klienten beholder også mottatt feilstatus dersom oppdateringen etter innsending
   feiler; en eldre bakgrunnsrespons kan ikke fjerne denne meldingen.
 
