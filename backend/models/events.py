@@ -842,6 +842,14 @@ class InterntNotatEvent(SakEvent):
 
     event_type: EventType = Field(default=EventType.INTERNT_NOTAT)
     data: InterntNotatData = Field(..., description="Notat-data")
+    # Innsnevret fra SakEvent: for notater er organisasjonen selve
+    # tilgangsnøkkelen. Et notat uten team kan ingen lese — heller ikke
+    # forfatteren — så det skal ikke kunne lagres i utgangspunktet.
+    aktor_team_id: str = Field(
+        ...,
+        min_length=1,
+        description="Catenda-team-ID til forfatterens organisasjon. Settes av serveren.",
+    )
 
 
 # ============ RESPONS EVENTS (BH) ============
