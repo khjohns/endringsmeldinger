@@ -61,7 +61,7 @@
     </p>
     <p class="intro">{includeFrist ? 'Beløp og antall dager' : 'Beløp'} spesifiseres senere.</p>
     <div class="notice-list">
-      {#each rows.filter((row) => includeFrist || row.kind !== 'frist') as row}
+      {#each rows.filter((row) => includeFrist || row.kind !== 'frist') as row (row.kind)}
         {@const kind = row.kind}
         <div class="notice" class:selected={value[kind]?.valgt}>
           <label class="notice-choice">

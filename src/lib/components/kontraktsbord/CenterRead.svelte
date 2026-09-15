@@ -12,18 +12,16 @@
   import GrunnlagOverview from './GrunnlagOverview.svelte';
   import VederlagOverview from './VederlagOverview.svelte';
   import FristOverview from './FristOverview.svelte';
-  import type { SporKey, Role } from './types.js';
+  import type { SporKey } from './types.js';
   import type { TimelineEvent } from '$lib/types/timeline';
 
   let {
     sel,
-    role,
     activeEvent = null,
     onform,
     onbacktonow,
   }: {
     sel: SporKey;
-    role: Role;
     activeEvent?: TimelineEvent | null;
     onform: (key: SporKey) => void;
     onbacktonow?: () => void;
@@ -36,6 +34,8 @@
   let expandedSide: 'te' | 'bh' | null = $state(null);
 
   $effect(() => {
+    // Leses bare for å gjøre effekten avhengig av sporbyttet.
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     sel;
     untrack(() => {
       expandedSide = null;
@@ -94,7 +94,7 @@
       {#if activeEvent.data && typeof activeEvent.data === 'object'}
         {@const d = activeEvent.data as unknown as Record<string, unknown>}
         {#if d.varsler && typeof d.varsler === 'object'}
-          {#each Object.values(d.varsler) as tekst}
+          {#each Object.entries(d.varsler) as [varselKind, tekst] (varselKind)}
             {#if typeof tekst === 'string'}<p class="snap-detail-text">{tekst}</p>{/if}
           {/each}
         {/if}

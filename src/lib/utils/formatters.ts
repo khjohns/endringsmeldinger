@@ -28,6 +28,9 @@ export function isHtmlEmpty(html: string): boolean {
 }
 const NORWEGIAN_TIMEZONE = 'Europe/Oslo';
 
+// Se parseDateSafe: new Date() kaster ikke på ugyldig inndata, så et try/catch
+// rundt formateringen fanger ingenting og «Invalid Date» lekker til visningen.
+
 /**
  * Format date as day + short month (for compact timelines)
  *
@@ -36,17 +39,15 @@ const NORWEGIAN_TIMEZONE = 'Europe/Oslo';
  */
 export function formatDateDayMonth(dateStr: string | null | undefined): string {
   if (!dateStr) return '—';
-  try {
-    return new Date(dateStr)
-      .toLocaleDateString(NORWEGIAN_LOCALE, {
-        day: 'numeric',
-        month: 'short',
-        timeZone: NORWEGIAN_TIMEZONE,
-      })
-      .replace(/\.$/, '');
-  } catch {
-    return dateStr || '—';
-  }
+  const parsed = parseDateSafe(dateStr);
+  if (!parsed) return dateStr || '—';
+  return parsed
+    .toLocaleDateString(NORWEGIAN_LOCALE, {
+      day: 'numeric',
+      month: 'short',
+      timeZone: NORWEGIAN_TIMEZONE,
+    })
+    .replace(/\.$/, '');
 }
 
 /**
@@ -141,16 +142,14 @@ export function boolToSegment(value: boolean | undefined): 'ja' | 'nei' | undefi
  */
 export function formatDateShort(dateStr: string | null | undefined): string {
   if (!dateStr) return '-';
-  try {
-    return new Date(dateStr).toLocaleDateString(NORWEGIAN_LOCALE, {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      timeZone: NORWEGIAN_TIMEZONE,
-    });
-  } catch {
-    return '-';
-  }
+  const parsed = parseDateSafe(dateStr);
+  if (!parsed) return '-';
+  return parsed.toLocaleDateString(NORWEGIAN_LOCALE, {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    timeZone: NORWEGIAN_TIMEZONE,
+  });
 }
 
 /**
@@ -162,16 +161,14 @@ export function formatDateShort(dateStr: string | null | undefined): string {
  */
 export function formatDateMedium(dateStr: string | null | undefined): string {
   if (!dateStr) return '-';
-  try {
-    return new Date(dateStr).toLocaleDateString(NORWEGIAN_LOCALE, {
-      day: 'numeric',
-      month: 'short',
-      year: 'numeric',
-      timeZone: NORWEGIAN_TIMEZONE,
-    });
-  } catch {
-    return dateStr || '-';
-  }
+  const parsed = parseDateSafe(dateStr);
+  if (!parsed) return dateStr || '-';
+  return parsed.toLocaleDateString(NORWEGIAN_LOCALE, {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+    timeZone: NORWEGIAN_TIMEZONE,
+  });
 }
 
 /**
@@ -237,6 +234,7 @@ export function formatVarselType(type?: string | null): string {
 export { getVarselMetodeLabel, getVarselMetoderLabels } from '../constants/varselMetoder';
 
 import { getVarselMetodeLabel } from '../constants/varselMetoder';
+import { parseDateSafe } from './dateFormatters';
 
 export function formatVarselMetode(metode?: string | string[] | null): string {
   if (!metode) return '-';
@@ -309,32 +307,32 @@ export function getApprovalAge(submittedAt: string | undefined): {
 } | null {
   if (!submittedAt) return null;
 
-  try {
-    const submitted = new Date(submittedAt);
-    const now = new Date();
-    const diffMs = now.getTime() - submitted.getTime();
-    const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+  const submitted = parseDateSafe(submittedAt);
+  // Uten denne kontrollen blir days NaN: etiketten ble «NaN dager siden», og
+  // fordi ingen av terskelsammenligningene er sanne for NaN, falt alvorsgraden
+  // gjennom til 'overdue' — et rødt SLA-merke utløst av en ugyldig dato.
+  if (!submitted) return null;
 
-    let label: string;
-    if (days === 0) {
-      label = 'I dag';
-    } else if (days === 1) {
-      label = '1 dag siden';
-    } else {
-      label = `${days} dager siden`;
-    }
+  const diffMs = Date.now() - submitted.getTime();
+  const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
 
-    let severity: ApprovalAgeSeverity;
-    if (days <= 2) {
-      severity = 'ok';
-    } else if (days <= 5) {
-      severity = 'warning';
-    } else {
-      severity = 'overdue';
-    }
-
-    return { days, label, severity };
-  } catch {
-    return null;
+  let label: string;
+  if (days === 0) {
+    label = 'I dag';
+  } else if (days === 1) {
+    label = '1 dag siden';
+  } else {
+    label = `${days} dager siden`;
   }
+
+  let severity: ApprovalAgeSeverity;
+  if (days <= 2) {
+    severity = 'ok';
+  } else if (days <= 5) {
+    severity = 'warning';
+  } else {
+    severity = 'overdue';
+  }
+
+  return { days, label, severity };
 }

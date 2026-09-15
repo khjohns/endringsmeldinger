@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { resolve } from '$app/paths';
   import { Building2 } from 'lucide-svelte';
   import type { Snippet } from 'svelte';
   import type { Role } from '$lib/components/kontraktsbord/types';
@@ -28,11 +29,13 @@
     {#if leading}{@render leading()}{/if}
     <nav class="breadcrumbs" aria-label="Brødsmuler">
       <!-- TODO: Tilpass prosjektlisten på / til det nye designet. Enkel prosjektvelger finnes allerede. -->
-      <a class="projects-link" href="/" aria-label="Prosjekter">
+      <a class="projects-link" href={resolve('/')} aria-label="Prosjekter">
         <Building2 size={19} strokeWidth={1.6} aria-hidden="true" />
         <span>Prosjekter</span>
       </a>
       <span class="separator" aria-hidden="true">/</span>
+      <!-- projectHref resolves av kallstedet. -->
+      <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
       {#if projectHref}<a class="project-link" href={projectHref} title={projectName}
           >{projectName}</a
         >
@@ -52,7 +55,7 @@
       <div class="role-control">
         <span class="role-caption">Vis som</span>
         <div class="role-switch" role="group" aria-label="Vis som">
-          {#each [{ id: 'TE' as const, label: 'Entreprenør' }, { id: 'BH' as const, label: 'Byggherre' }] as item}
+          {#each [{ id: 'TE' as const, label: 'Entreprenør' }, { id: 'BH' as const, label: 'Byggherre' }] as item (item.id)}
             <button
               type="button"
               class:active={role === item.id}

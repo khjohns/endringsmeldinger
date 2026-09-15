@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
+  import { resolve } from '$app/paths';
   import type { Project } from '$lib/types/project';
   import { listProjects } from '$lib/api/projects';
 
@@ -12,7 +13,9 @@
     try {
       projects = await listProjects();
       if (projects.length === 1) {
-        await goto(`/${encodeURIComponent(projects[0].id)}`, { replaceState: true });
+        await goto(resolve('/[prosjektId]', { prosjektId: encodeURIComponent(projects[0].id) }), {
+          replaceState: true,
+        });
       }
     } catch (err) {
       error = err instanceof Error ? err.message : 'Kunne ikke laste prosjekter.';
@@ -37,7 +40,7 @@
       <ul class="project-list">
         {#each projects as project (project.id)}
           <li>
-            <a href="/{project.id}" class="project-card">
+            <a href={resolve('/[prosjektId]', { prosjektId: project.id })} class="project-card">
               <span class="project-name">{project.name}</span>
               {#if project.description}
                 <span class="project-desc">{project.description}</span>

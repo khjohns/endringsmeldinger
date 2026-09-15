@@ -10,7 +10,6 @@
 
 import { Node, mergeAttributes } from '@tiptap/core';
 import { NodeSelection } from '@tiptap/pm/state';
-import type { LockedValueType } from '$lib/utils/lockedValueTokens';
 
 export const LockedValueNode = Node.create({
   name: 'lockedValue',

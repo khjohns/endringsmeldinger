@@ -53,61 +53,50 @@
 }
 
 /* ── Light theme (default) ── */
+/*
+ * Fargene eies av `$lib/components/kontraktsbord/theme.css`, som lastes globalt
+ * i `+layout.svelte`. Blokkene under binder bare det eldre --koe-*-vokabularet
+ * til de tokenene, slik at råverdiene står ett sted. Den grønne paletten har
+ * erstattet det tidligere stålblå systemet i sin helhet.
+ *
+ * `vekt-dim` og `vekt-bg-strong` finnes ikke som egne toner i temaet og
+ * avledes derfor fra aksenten i stedet for å settes for hånd.
+ */
 :root {
-  --koe-canvas: #f3f1ec;
-  --koe-felt: #faf8f4;
-  --koe-felt-raised: #f3f1ec;
-  --koe-felt-hover: #efede7;
-  --koe-felt-active: #e5e2da;
+  --koe-canvas: var(--canvas);
+  --koe-felt: var(--surface);
+  --koe-felt-raised: var(--surface-inset);
+  --koe-felt-hover: var(--surface-warm);
+  --koe-felt-active: var(--surface-selected);
 
-  --koe-ink: #21201c;
-  --koe-ink-secondary: #57524b;
-  --koe-ink-muted: #655f56;
-  --koe-ink-ghost: #8d8578;
+  --koe-ink: var(--ink);
+  --koe-ink-secondary: var(--ink-2);
+  --koe-ink-muted: var(--ink-4);
+  --koe-ink-ghost: var(--ink-ghost);
 
-  --koe-wire: rgba(33, 28, 18, 0.06);
-  --koe-wire-strong: rgba(33, 28, 18, 0.12);
-  --koe-wire-focus: rgba(33, 28, 18, 0.2);
+  --koe-wire: var(--rule-color);
+  --koe-wire-strong: var(--rule-strong-color);
+  --koe-wire-focus: var(--brand-contrast);
 
-  --koe-vekt: #2c5a8c;
-  --koe-vekt-dim: #214a76;
-  --koe-vekt-bg: rgba(44, 90, 140, 0.06);
-  --koe-vekt-bg-strong: rgba(44, 90, 140, 0.12);
+  --koe-vekt: var(--brand-contrast);
+  --koe-vekt-dim: color-mix(in srgb, var(--brand-contrast) 85%, #000);
+  --koe-vekt-bg: var(--brand-bg);
+  --koe-vekt-bg-strong: color-mix(in srgb, var(--brand-contrast) 12%, transparent);
 
-  --koe-score-high: #047d56;
-  --koe-score-high-bg: #eff5ee;
-  --koe-score-mid: #655f56;
-  --koe-score-low: #c01b3d;
-  --koe-score-low-bg: #f5eeef;
+  --koe-score-high: var(--success);
+  --koe-score-high-bg: var(--success-bg);
+  --koe-score-mid: var(--ink-4);
+  --koe-score-low: var(--danger);
+  --koe-score-low-bg: var(--danger-bg);
 }
 
-/* ── Dark theme ── */
+/* ── Mørkt tema ──
+ * theme.css bytter selv tokenene på :root.dark, så bindingene over gjelder
+ * begge modi. Bare `vekt-dim` trenger en egen verdi: i mørk modus er --brand
+ * den dempede tonen og --accent den lyse (motsatt av lys modus).
+ */
 .dark {
-  --koe-canvas: #0f0d0a;
-  --koe-felt: #16140f;
-  --koe-felt-raised: #1e1b16;
-  --koe-felt-hover: #1a1815;
-  --koe-felt-active: #282520;
-
-  --koe-ink: #f5f3ee;
-  --koe-ink-secondary: #a8a29a;
-  --koe-ink-muted: #908b82;
-  --koe-ink-ghost: #666157;
-
-  --koe-wire: rgba(245, 235, 220, 0.08);
-  --koe-wire-strong: rgba(245, 235, 220, 0.15);
-  --koe-wire-focus: rgba(245, 235, 220, 0.25);
-
-  --koe-vekt: #7b9ec8;
-  --koe-vekt-dim: #5f83b0;
-  --koe-vekt-bg: rgba(123, 158, 200, 0.08);
-  --koe-vekt-bg-strong: rgba(123, 158, 200, 0.14);
-
-  --koe-score-high: #10b981;
-  --koe-score-high-bg: rgba(16, 185, 129, 0.1);
-  --koe-score-mid: #908b82;
-  --koe-score-low: #f03e5f;
-  --koe-score-low-bg: rgba(240, 62, 95, 0.08);
+  --koe-vekt-dim: var(--brand);
 }
 
 /* ── Reset ── */

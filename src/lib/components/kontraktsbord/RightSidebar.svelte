@@ -63,7 +63,7 @@
 </script>
 
 {#snippet attList(showPages: boolean)}
-  {#each ui.att as v}
+  {#each ui.att as v (v.n)}
     <div class="att" style="margin-bottom: {S.sm}px">
       <Paperclip size={14} style="color: var(--ink-4); flex-shrink: 0" />
       <div class="att-info">
@@ -77,7 +77,7 @@
 
 <aside class="right-sidebar">
   <div class="tab-bar">
-    {#each tabs as t}
+    {#each tabs as t (t)}
       <button class="tab" class:on={tab === t} onclick={() => ontabchange(t)}>
         {tabLabels[t]}
       </button>
@@ -147,7 +147,7 @@
         class="reasoning-textarea"
       ></textarea>
       <div class="toolbar">
-        {#each toolbarIcons as Icon}
+        {#each toolbarIcons as Icon, ii (ii)}
           <button class="toolbar-btn">
             <Icon size={14} />
           </button>
