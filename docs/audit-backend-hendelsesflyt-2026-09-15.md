@@ -21,7 +21,9 @@ inneholder ingen reelle data. Skjemaendringer på hendelser har derfor ingen
 migreringskostnad i denne runden, og funn som ellers ville krevd backfill kan lukkes
 strengt med én gang. Dette vinduet lukker seg ved første produksjonsdata.
 
-Utenfor omfang: Supabase/RLS, dokument- og vedleggsflyten, driftsoppsett, og
+Utenfor omfang: Supabase/RLS, driftsoppsett, og
+(dokument- og vedleggsflyten er senere dekket i
+[egen logg](audit-vedleggsflyt-2026-09-15.md))
 webhookens durable outbox (ligger til trinn 3 i [Catenda-dataflyten](catenda-dataflyt.md)
 og er utsatt etter avtale). Ingen tokens, produksjonsdata eller eksterne tjenester er
 lest; ingen live Catenda- eller Supabase-kall er gjort.
