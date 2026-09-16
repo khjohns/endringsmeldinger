@@ -1,4 +1,10 @@
 <script lang="ts">
+  import VedleggPanel from './VedleggPanel.svelte';
+  let vedleggIds = $state<string[]>([]);
+  let vedleggOpptatt = $state(false);
+  function buildEventData(...args: Parameters<typeof buildDomainData>) {
+    return { ...buildDomainData(...args), vedlegg_ids: [...vedleggIds] };
+  }
   import SegmentedControl from '$lib/components/primitives/SegmentedControl.svelte';
   import YesNoControl from './components/YesNoControl.svelte';
   import { BookOpen, Check, ChevronUp, X, Undo2 } from 'lucide-svelte';
@@ -7,7 +13,7 @@
     erPrekludert,
     getVerdictOptions,
     getDefaults,
-    buildEventData,
+    buildEventData as buildDomainData,
   } from '$lib/domain/grunnlagDomain';
   import type { GrunnlagFormState, GrunnlagDomainConfig } from '$lib/domain/grunnlagDomain';
   import RichTextEditor from '$lib/components/primitives/RichTextEditor.svelte';
@@ -73,8 +79,9 @@
       spor: 'grunnlag',
       revisjon: store.sak.grunnlag.antall_versjoner,
     },
-    () => ({ varsletITide, resultat, begrunnelseHtml }),
+    () => ({ vedleggIds, varsletITide, resultat, begrunnelseHtml }),
     (saved) => {
+      vedleggIds = saved.vedleggIds ?? [];
       varsletITide = saved.varsletITide;
       resultat = saved.resultat;
       begrunnelseHtml = saved.begrunnelseHtml ?? '';
@@ -105,8 +112,9 @@
 
   $effect(() => {
     onactions?.({
-      canSend: allAnswered && !submission.pending,
+      canSend: allAnswered && !submission.pending && !vedleggOpptatt,
       send: () => {
+        if (vedleggOpptatt) return;
         if (allAnswered)
           void submission.run(async () => {
             if (review) {
@@ -175,6 +183,20 @@
       hentInn={draft.hentInn}
     />
     <CaseAnchor />
+    {#if !store.isDemo}
+      <details>
+        <summary
+          >Vedlegg (valgfritt){vedleggIds.length ? ` · ${vedleggIds.length} valgt` : ''}</summary
+        >
+        <VedleggPanel
+          sakId={store.sak.sak_id}
+          valgbare
+          bind:valgte={vedleggIds}
+          bind:opptatt={vedleggOpptatt}
+          disabled={submission.pending}
+        />
+      </details>
+    {/if}
 
     <div class="form-title-row">
       <h1>Svar på ansvarsgrunnlag</h1>

@@ -199,20 +199,16 @@ def _krev_egne_vedlegg(event: AnyEvent) -> None:
     if not vedlegg_ids:
         return
 
-    from lib.auth.domain import catenda_id
+    from lib.auth.event_visibility import reader_contract_team
     from services.vedlegg_registry import VedleggRegistry
 
     # Catenda returnerer kompakt hex ved opplasting, mens feltet godtar begge
     # UUID-former. Sammenligningen normaliseres, ellers ville samme dokument
     # blitt avvist avhengig av hvilken form klienten sendte.
     registry = VedleggRegistry()
-    kjente = {catenda_id(v["id"]) for v in registry.list(g.project_id, event.sak_id)}
-    ukjente = [ref for ref in vedlegg_ids if catenda_id(ref) not in kjente]
-    if ukjente:
-        raise ValueError(
-            "Vedlegget hører ikke til denne saken. "
-            "Last det opp på saken før du viser til det."
-        )
+    event.data.vedlegg_ids = registry.validate_refs(
+        g.project_id, event.sak_id, vedlegg_ids, reader_contract_team()
+    )
 
 
 def _derive_spor_from_event(event: AnyEvent) -> str | None:
@@ -1226,12 +1222,13 @@ def get_case_historikk(sak_id: str):
 class CatendaContext:
     """Container for Catenda integration context."""
 
-    def __init__(self, service, project_id, board_id, library_id, folder_id):
+    def __init__(self, service, project_id, board_id, library_id, folder_id, topic_id=None):
         self.service = service
         self.project_id = project_id
         self.board_id = board_id
         self.library_id = library_id
         self.folder_id = folder_id
+        self.topic_id = topic_id
 
 
 def _prepare_catenda_context(sak_id: str) -> CatendaContext | None:
@@ -1270,7 +1267,8 @@ def _prepare_catenda_context(sak_id: str) -> CatendaContext | None:
 
     folder_id = config.get("catenda_folder_id")
 
-    return CatendaContext(catenda_service, project_id, board_id, library_id, folder_id)
+    return CatendaContext(catenda_service, project_id, board_id, library_id, folder_id,
+                          metadata.catenda_topic_id)
 
 
 def _resolve_pdf(

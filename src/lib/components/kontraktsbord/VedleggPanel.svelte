@@ -3,8 +3,8 @@
    * Vedlegg på en sak.
    *
    * Dokumentene ligger i Catendas bibliotek; appen holder ingen egen kopi.
-   * Begge kontraktsparter ser de samme vedleggene — det er hele poenget med at
-   * de deles — så panelet merker tydelig hvilken side som lastet opp hvert av dem.
+   * Usendte filer vises bare til eget team. Sendte filer deles på saken.
+   * Valget til én innsending eies av skjemaet og lagres med dets utkast.
    */
   import { Download, Loader, Paperclip, Trash2, Upload } from 'lucide-svelte';
   import {
@@ -14,10 +14,29 @@
     lastOppVedlegg,
     MAKS_VEDLEGG_BYTES,
     slettVedlegg,
+    provLevering,
     type Vedlegg,
   } from '$lib/api/vedlegg';
 
-  const { sakId, kanLasteOpp = true }: { sakId: string; kanLasteOpp?: boolean } = $props();
+  let {
+    sakId,
+    kanLasteOpp = true,
+    valgbare = false,
+    valgte = $bindable<string[]>([]),
+    opptatt = $bindable(false),
+    disabled = false,
+  }: {
+    sakId: string;
+    kanLasteOpp?: boolean;
+    valgbare?: boolean;
+    valgte?: string[];
+    opptatt?: boolean;
+    disabled?: boolean;
+  } = $props();
+  const inputId = $props.id();
+  $effect(() => {
+    opptatt = lasterOpp || fjerner !== null;
+  });
 
   let vedlegg = $state<Vedlegg[]>([]);
   let minRolle = $state<'TE' | 'BH' | null>(null);
@@ -28,6 +47,7 @@
   let feil = $state<string | null>(null);
   let dragOver = $state(false);
   let filvelger: HTMLInputElement | null = $state(null);
+  const utilgjengelige = $derived(valgte.filter((id) => !vedlegg.some((v) => v.id === id)));
 
   // Datahenting hører hjemme i onMount/last, ikke i $effect.
   import { onMount } from 'svelte';
@@ -48,13 +68,15 @@
   }
 
   async function lastOpp(filer: FileList | null) {
-    if (!filer?.length || lasterOpp) return;
+    if (!filer?.length || lasterOpp || disabled) return;
     lasterOpp = true;
     feil = null;
     try {
       // Én om gangen, slik at en feil midtveis er entydig å rapportere.
       for (const fil of Array.from(filer)) {
-        await lastOppVedlegg(sakId, fil);
+        const uploaded = await lastOppVedlegg(sakId, fil);
+        vedlegg = [...vedlegg, uploaded];
+        if (valgbare) valgte = [...valgte, uploaded.id];
       }
       await oppdater();
     } catch (e) {
@@ -71,6 +93,7 @@
     feil = null;
     try {
       await slettVedlegg(sakId, v.id);
+      valgte = valgte.filter((id) => id !== v.id);
       await oppdater();
     } catch (e) {
       // Backend forklarer hvorfor — typisk at vedlegget er brukt i en
@@ -98,9 +121,21 @@
     dragOver = false;
     lastOpp(event.dataTransfer?.files ?? null);
   }
+
+  async function retry() {
+    try {
+      await provLevering(sakId);
+      await oppdater();
+    } catch (e) {
+      feil = e instanceof Error ? e.message : 'Leveringen feilet.';
+    }
+  }
 </script>
 
 <div class="vedlegg-panel">
+  {#if valgbare}<p class="hjelp">
+      Vedlegg er valgfrie. Merk filene som skal følge denne innsendingen.
+    </p>{/if}
   {#if laster}
     <p class="tom">Henter vedlegg …</p>
   {:else if vedlegg.length === 0}
@@ -109,6 +144,18 @@
     <ul class="liste">
       {#each vedlegg as v (v.id)}
         <li class="att">
+          {#if valgbare}
+            <input
+              type="checkbox"
+              aria-label="Legg ved {v.navn}"
+              checked={valgte.includes(v.id)}
+              disabled={disabled || lasterOpp}
+              onchange={(e) =>
+                (valgte = e.currentTarget.checked
+                  ? [...valgte, v.id]
+                  : valgte.filter((id) => id !== v.id))}
+            />
+          {/if}
           <Paperclip size={14} aria-hidden="true" />
           <div class="att-info">
             <div class="att-name" title={v.navn}>{v.navn}</div>
@@ -116,6 +163,8 @@
               {formaterStorrelse(v.storrelse)} · {v.lastet_opp_rolle} · {v.lastet_opp_av}
               {#if v.status === 'staged'}
                 · <span class="usendt">ikke sendt</span>
+              {:else if v.status === 'pending'}
+                · <span class="usendt">sendt · venter på levering til Catenda</span>
               {/if}
             </div>
           </div>
@@ -135,7 +184,7 @@
             <button
               class="ikonknapp fjern"
               onclick={() => fjern(v)}
-              disabled={fjerner === v.id}
+              disabled={disabled || fjerner !== null || lasterOpp}
               aria-label="Fjern {v.navn}"
             >
               {#if fjerner === v.id}
@@ -152,6 +201,22 @@
 
   {#if feil}
     <p class="feil" role="alert">{feil}</p>
+  {/if}
+  {#if valgbare && !laster && !feil && utilgjengelige.length}
+    <p class="feil" role="alert">
+      {utilgjengelige.length} valgte vedlegg er ikke tilgjengelige.
+      <button
+        class="dashed-action-btn"
+        {disabled}
+        onclick={() => (valgte = valgte.filter((id) => !utilgjengelige.includes(id)))}
+        >Fjern utilgjengelige vedlegg fra valget</button
+      >
+    </p>
+  {/if}
+  {#if vedlegg.some((v) => v.status === 'pending')}
+    <button class="dashed-action-btn" onclick={retry} disabled={disabled || laster}
+      >Prøv levering til Catenda igjen</button
+    >
   {/if}
 
   {#if kanLasteOpp}
@@ -171,11 +236,11 @@
         type="file"
         multiple
         class="skjult-input"
-        id="vedlegg-{sakId}"
+        id={inputId}
         onchange={(e) => lastOpp(e.currentTarget.files)}
-        disabled={lasterOpp}
+        disabled={disabled || lasterOpp}
       />
-      <label for="vedlegg-{sakId}" class="dashed-action-btn" class:travel={lasterOpp}>
+      <label for={inputId} class="dashed-action-btn" class:travel={lasterOpp}>
         {#if lasterOpp}
           <Loader size={14} class="spinner" aria-hidden="true" /> Laster opp …
         {:else}
@@ -186,8 +251,7 @@
         Slipp filer her, eller velg. Maks {MAKS_VEDLEGG_BYTES / (1024 * 1024)} MB per fil.
       </p>
       <p class="hjelp">
-        Vedlegg sendes først når du sender kravet. Fram til da ligger de her og er ikke synlige for
-        motparten.
+        Velg vedlegg i skjemaet før innsending. Mellomlagrede filer er bare synlige for ditt team.
       </p>
     </div>
   {/if}

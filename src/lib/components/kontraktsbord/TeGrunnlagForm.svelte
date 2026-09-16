@@ -1,4 +1,10 @@
 <script lang="ts">
+  import VedleggPanel from './VedleggPanel.svelte';
+  let vedleggIds = $state<string[]>([]);
+  let vedleggOpptatt = $state(false);
+  function buildTeRevisionEventData(...args: Parameters<typeof buildDomainData>) {
+    return { ...buildDomainData(...args), vedlegg_ids: [...vedleggIds] };
+  }
   import { BookOpen, ChevronUp, LockKeyhole } from 'lucide-svelte';
   import RichTextEditor from '$lib/components/primitives/RichTextEditor.svelte';
   import LockedValueNode from '$lib/editor/LockedValueNode';
@@ -11,7 +17,7 @@
   import { TRACK_ICONS } from './data.js';
   import CaseAnchor from './CaseAnchor.svelte';
   import UtkastStatus from './UtkastStatus.svelte';
-  import { buildTeRevisionEventData } from '$lib/domain/grunnlagDomain';
+  import { buildTeRevisionEventData as buildDomainData } from '$lib/domain/grunnlagDomain';
   import {
     createSubmission,
     createFormDraft,
@@ -59,20 +65,24 @@
       spor: 'grunnlag',
       revisjon: store.sak.grunnlag.antall_versjoner,
     },
-    () => ({ begrunnelseHtml }),
+    () => ({ vedleggIds, begrunnelseHtml }),
     (saved) => {
+      vedleggIds = saved.vedleggIds ?? [];
       begrunnelseHtml = saved.begrunnelseHtml ?? originalBegrunnelse;
     }
   );
 
-  const erEndret = $derived(begrunnelseHtml.trim() !== originalBegrunnelse.trim());
+  const erEndret = $derived(
+    begrunnelseHtml.trim() !== originalBegrunnelse.trim() || vedleggIds.length > 0
+  );
   const kanSende = $derived(charCount >= 10 && erEndret);
 
   $effect(() => {
     onactions?.({
-      canSend: kanSende && !submission.pending,
+      canSend: kanSende && !submission.pending && !vedleggOpptatt,
       sendLabel: 'Send oppdatering',
       send: () => {
+        if (vedleggOpptatt) return;
         if (kanSende)
           void submission.run(async () => {
             if (claimReview) {
@@ -121,6 +131,20 @@
       hentInn={draft.hentInn}
     />
     <CaseAnchor />
+    {#if !store.isDemo}
+      <details>
+        <summary
+          >Vedlegg (valgfritt){vedleggIds.length ? ` · ${vedleggIds.length} valgt` : ''}</summary
+        >
+        <VedleggPanel
+          sakId={store.sak.sak_id}
+          valgbare
+          bind:valgte={vedleggIds}
+          bind:opptatt={vedleggOpptatt}
+          disabled={submission.pending}
+        />
+      </details>
+    {/if}
 
     <div class="form-title-row">
       <h1>Oppdater ansvarsgrunnlag</h1>

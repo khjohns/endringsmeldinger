@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { lastNedVedlegg } from '$lib/api/vedlegg';
   import {
     ArrowLeft,
     Check,
@@ -256,7 +257,20 @@
           {#each Array.isArray(item.data.vedlegg_ids) ? item.data.vedlegg_ids : [] as id (String(id))}<p
               class="muted small"
             >
-              {String(id)}
+              <button
+                class="btn btn-secondary"
+                onclick={async () => {
+                  try {
+                    await lastNedVedlegg(store.sak.sak_id, {
+                      id: String(id),
+                      navn: item.attachments?.find((v) => v.id === id)?.navn ?? String(id),
+                    });
+                  } catch (error) {
+                    localError =
+                      error instanceof Error ? error.message : 'Kunne ikke hente vedlegget.';
+                  }
+                }}>{item.attachments?.find((v) => v.id === id)?.navn ?? String(id)}</button
+              >
             </p>{/each}
         {/each}
         {#if !letter.items.some((i) => Array.isArray(i.data.vedlegg_ids) && i.data.vedlegg_ids.length)}<p

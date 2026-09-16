@@ -89,7 +89,10 @@ export function documentToBrev(letter: LetterDocument, id: string): BrevInnhold 
         letter.items
           .map(
             (i) =>
-              `${trackNames[i.track]}\n${decisionSummary(i)}\n\n${letterText(i.data.begrunnelse ?? i.data.beskrivelse)}`
+              `${trackNames[i.track]}\n${decisionSummary(i)}\n\n${letterText(i.data.begrunnelse ?? i.data.beskrivelse)}` +
+              (i.attachments?.length
+                ? `\n\nVedlegg\n${i.attachments.map((v) => v.navn).join('\n')}`
+                : '')
           )
           .join('\n\n')
       ),

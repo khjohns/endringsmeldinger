@@ -1,11 +1,18 @@
 <script lang="ts">
+  import VedleggPanel from './VedleggPanel.svelte';
+  let vedleggIds = $state<string[]>([]);
+  let vedleggOpptatt = $state(false);
+  function buildEventData(...args: Parameters<typeof buildDomainData>) {
+    const result = buildDomainData(...args);
+    return { ...result, data: { ...result.data, vedlegg_ids: [...vedleggIds] } };
+  }
   import PositionExplanation from './PositionExplanation.svelte';
   import SegmentedControl from '$lib/components/primitives/SegmentedControl.svelte';
   import YesNoControl from './components/YesNoControl.svelte';
   import { Check, X, CircleMinus } from 'lucide-svelte';
   import {
     beregnAlt,
-    buildEventData,
+    buildEventData as buildDomainData,
     beregnGodkjentBelop,
     getDefaults,
     erSubsidiaer as erSubsidiaerFn,
@@ -139,8 +146,9 @@
       spor: 'vederlag',
       revisjon: store.sak.vederlag.antall_versjoner,
     },
-    () => ({ ...formState, tilleggHtml }),
+    () => ({ vedleggIds, ...formState, tilleggHtml }),
     (saved) => {
+      vedleggIds = saved.vedleggIds ?? [];
       hovedkravVarsletITide = saved.hovedkravVarsletITide;
       riggVarsletITide = saved.riggVarsletITide;
       produktivitetVarsletITide = saved.produktivitetVarsletITide;
@@ -481,8 +489,9 @@
 
   $effect(() => {
     onactions?.({
-      canSend: allAnswered && !submission.pending,
+      canSend: allAnswered && !submission.pending && !vedleggOpptatt,
       send: () => {
+        if (vedleggOpptatt) return;
         if (allAnswered)
           void submission.run(async () => {
             if (review) {
@@ -590,6 +599,20 @@
       hentInn={draft.hentInn}
     />
     <CaseAnchor />
+    {#if !store.isDemo}
+      <details>
+        <summary
+          >Vedlegg (valgfritt){vedleggIds.length ? ` · ${vedleggIds.length} valgt` : ''}</summary
+        >
+        <VedleggPanel
+          sakId={store.sak.sak_id}
+          valgbare
+          bind:valgte={vedleggIds}
+          bind:opptatt={vedleggOpptatt}
+          disabled={submission.pending}
+        />
+      </details>
+    {/if}
 
     <div class="form-title-row">
       <h1>Krav om vederlagsjustering</h1>

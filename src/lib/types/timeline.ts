@@ -717,6 +717,7 @@ export type BelopVurdering = 'godkjent' | 'delvis' | 'avslatt';
 
 // Vederlag response event (Port Model)
 export interface ResponsVederlagEventData {
+  vedlegg_ids?: string[];
   // Referanse og sporbarhet
   vederlag_krav_id?: string;
   /** Hvilken TE-versjon (0-indeksert) denne responsen gjelder. Settes automatisk av backend. */
@@ -764,6 +765,7 @@ export interface ResponsVederlagEventData {
 
 // Frist response event (Port Model)
 export interface ResponsFristEventData {
+  vedlegg_ids?: string[];
   /** Hvilken TE-versjon (0-indeksert) denne responsen gjelder. Settes automatisk av backend. */
   respondert_versjon?: number;
 
@@ -800,6 +802,7 @@ export interface ResponsFristEventData {
 
 // Grunnlag response event
 export interface ResponsGrunnlagEventData {
+  vedlegg_ids?: string[];
   /** Hvilken TE-versjon (0-indeksert) denne responsen gjelder. Settes automatisk av backend. */
   respondert_versjon?: number;
   resultat: GrunnlagResponsResultat;
@@ -813,6 +816,7 @@ export interface ResponsGrunnlagEventData {
 
 // Grunnlag update event (TE updates previously sent grunnlag)
 export interface GrunnlagOppdatertEventData {
+  vedlegg_ids?: string[];
   original_event_id: string;
   tittel?: string;
   beskrivelse?: string;
@@ -824,6 +828,7 @@ export interface GrunnlagOppdatertEventData {
 
 // Grunnlag response update event (BH's "snuoperasjon")
 export interface ResponsGrunnlagOppdatertEventData {
+  vedlegg_ids?: string[];
   original_respons_id: string;
   resultat?: GrunnlagResponsResultat;
   begrunnelse?: string;
@@ -832,6 +837,7 @@ export interface ResponsGrunnlagOppdatertEventData {
 
 // Vederlag update event (TE revises claim amount)
 export interface VederlagOppdatertEventData {
+  vedlegg_ids?: string[];
   original_event_id: string;
   nytt_belop_direkte?: number; // For ENHETSPRISER/FASTPRIS_TILBUD
   nytt_kostnads_overslag?: number; // For REGNINGSARBEID (§30.2)
@@ -844,6 +850,7 @@ export interface VederlagOppdatertEventData {
 
 // Vederlag response update event (BH opphever tilbakeholdelse etc)
 export interface ResponsVederlagOppdatertEventData {
+  vedlegg_ids?: string[];
   original_respons_id: string;
   beregnings_resultat?: VederlagBeregningResultat;
 
@@ -865,6 +872,7 @@ export interface ResponsVederlagOppdatertEventData {
 
 // Frist update event (TE revises days claim)
 export interface FristOppdatertEventData {
+  vedlegg_ids?: string[];
   original_event_id: string;
   nytt_antall_dager?: number;
   begrunnelse: string;
@@ -873,6 +881,7 @@ export interface FristOppdatertEventData {
 
 // Frist specification event (TE specifies days for neutral notice - §33.6.1/§33.6.2)
 export interface FristSpesifisertEventData {
+  vedlegg_ids?: string[];
   original_event_id: string;
   antall_dager: number;
   begrunnelse: string;
@@ -884,6 +893,7 @@ export interface FristSpesifisertEventData {
 
 // Frist response update event (BH changes mind, stops forsering)
 export interface ResponsFristOppdatertEventData {
+  vedlegg_ids?: string[];
   original_respons_id: string;
   beregnings_resultat?: FristBeregningResultat;
   godkjent_dager?: number;
@@ -921,6 +931,7 @@ export interface ForseringVarselEventData {
 
 // Union type for all possible event data
 export interface VederlagVarselEventData {
+  vedlegg_ids?: string[];
   varsel_type: 'varsel';
   varsler: KonsekvensVarsler;
   begrunnelse?: string;

@@ -1,11 +1,17 @@
 <script lang="ts">
+  import VedleggPanel from './VedleggPanel.svelte';
+  let vedleggIds = $state<string[]>([]);
+  let vedleggOpptatt = $state(false);
+  function buildEventData(...args: Parameters<typeof buildDomainData>) {
+    return { ...buildDomainData(...args), vedlegg_ids: [...vedleggIds] };
+  }
   import {
     beregnVisibility,
     beregnCanSubmit,
     beregnTeStatusSummary,
     getDynamicPlaceholder,
     getDefaults,
-    buildEventData,
+    buildEventData as buildDomainData,
     getEventType,
   } from '$lib/domain/fristSubmissionDomain';
   import type {
@@ -94,8 +100,9 @@
   const draft = createFormDraft(
     !store.isDemo,
     { sakId: store.sak.sak_id, spor: 'frist', revisjon: store.sak.frist.antall_versjoner },
-    () => ({ varselType, antallDager, begrunnelse }),
+    () => ({ vedleggIds, varselType, antallDager, begrunnelse }),
     (saved) => {
+      vedleggIds = saved.vedleggIds ?? [];
       varselType = saved.varselType;
       antallDager = saved.antallDager;
       begrunnelse = saved.begrunnelse ?? '';
@@ -104,7 +111,7 @@
 
   $effect(() => {
     onactions?.({
-      canSend: kanSende && !submission.pending,
+      canSend: kanSende && !submission.pending && !vedleggOpptatt,
       sendLabel:
         scenario === 'edit'
           ? 'Send oppdatert krav'
@@ -114,6 +121,7 @@
               ? 'Send varsel'
               : 'Send fristkrav',
       send: () => {
+        if (vedleggOpptatt) return;
         if (kanSende)
           void submission.run(async () => {
             if (claimReview) {
@@ -173,6 +181,20 @@
       hentInn={draft.hentInn}
     />
     <CaseAnchor />
+    {#if !store.isDemo}
+      <details>
+        <summary
+          >Vedlegg (valgfritt){vedleggIds.length ? ` · ${vedleggIds.length} valgt` : ''}</summary
+        >
+        <VedleggPanel
+          sakId={store.sak.sak_id}
+          valgbare
+          bind:valgte={vedleggIds}
+          bind:opptatt={vedleggOpptatt}
+          disabled={submission.pending}
+        />
+      </details>
+    {/if}
 
     <FormPageHeader
       title="Krav om fristforlengelse"

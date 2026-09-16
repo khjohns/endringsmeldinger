@@ -13,7 +13,12 @@ parser dem med `UUID(...)`. Begge formene skal godtas; alt annet avvises.
 import pytest
 from pydantic import ValidationError
 
-from models.events import GrunnlagData
+from models.events import (
+    FristResponsData,
+    GrunnlagData,
+    GrunnlagResponsData,
+    VederlagResponsData,
+)
 
 GYLDIG_KOMPAKT = "3fa85f6457174562b3fc2c963f66afa6"
 GYLDIG_DASHET = "3fa85f64-5717-4562-b3fc-2c963f66afa6"
@@ -62,3 +67,15 @@ def test_ekte_dokumentreferanser_godtas(verdi):
 def test_tom_liste_er_lovlig():
     """Ingen vedlegg er normaltilfellet i dag — det finnes ingen opplastingsrute."""
     assert _grunnlag([]).vedlegg_ids == []
+
+
+@pytest.mark.parametrize(
+    "model", [GrunnlagResponsData, VederlagResponsData, FristResponsData]
+)
+def test_bh_partial_responses_preserve_optional_attachment_ids(model):
+    # Revision permits the common fields without track-specific mandatory decisions.
+    assert model(original_respons_id="response").vedlegg_ids == []
+    data = model(original_respons_id="response", vedlegg_ids=[GYLDIG_DASHET])
+    assert data.model_dump()["vedlegg_ids"] == [GYLDIG_DASHET]
+    with pytest.raises(ValidationError):
+        model(original_respons_id="response", vedlegg_ids=["not-an-id"])

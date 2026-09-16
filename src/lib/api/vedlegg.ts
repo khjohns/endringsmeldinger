@@ -20,10 +20,11 @@ export interface Vedlegg {
   lastet_opp_rolle: 'TE' | 'BH';
   tidspunkt: string;
   /**
-   * 'staged': ligger hos oss, ikke sendt, usett av motparten.
-   * 'delivered': sendt sammen med en hendelse og lastet opp til Catenda.
+   * 'staged': privat mellomlagring for eget team.
+   * 'pending': sendt i en hendelse, venter på levering til Catenda.
+   * 'delivered': lastet opp og knyttet til saken i Catenda.
    */
-  status: 'staged' | 'delivered';
+  status: 'staged' | 'pending' | 'delivered';
 }
 
 /** Filstørrelsen backend godtar. Speiler MAKS_VEDLEGG_BYTES. */
@@ -62,8 +63,8 @@ export async function hentVedlegg(sakId: string): Promise<VedleggsListe> {
 /**
  * Fjern et vedlegg som ennå ikke er brukt i en sendt hendelse.
  *
- * Backend håndhever regelen: kun egen side, og kun så lenge ingen lagret
- * hendelse viser til vedlegget.
+ * Backend håndhever regelen: kun eget team, og ikke brukt i en lagret
+ * hendelse eller ferdigstilt vurdering.
  */
 export async function slettVedlegg(sakId: string, vedleggId: string): Promise<void> {
   const response = await fetch(`${base(sakId)}/${encodeURIComponent(vedleggId)}`, {
@@ -77,7 +78,20 @@ export async function slettVedlegg(sakId: string, vedleggId: string): Promise<vo
   if (!response.ok) throw new ApiError(response.status, await feilmelding(response));
 }
 
-export async function lastOppVedlegg(sakId: string, fil: File): Promise<Vedlegg> {
+export async function provLevering(sakId: string): Promise<void> {
+  const response = await fetch(`${base(sakId)}/retry`, {
+    method: 'POST',
+    credentials: 'include',
+    headers: { 'X-Project-ID': getActiveProjectId(), 'X-CSRF-Token': await getCsrfToken() },
+  });
+  if (!response.ok) throw new ApiError(response.status, await feilmelding(response));
+}
+
+export async function lastOppVedlegg(
+  sakId: string,
+  fil: File,
+  projectId = getActiveProjectId()
+): Promise<Vedlegg> {
   if (fil.size === 0) throw new ApiError(400, 'Filen er tom.');
   if (fil.size > MAKS_VEDLEGG_BYTES) {
     throw new ApiError(413, `Filen er større enn ${MAKS_VEDLEGG_BYTES / (1024 * 1024)} MB.`);
@@ -91,7 +105,7 @@ export async function lastOppVedlegg(sakId: string, fil: File): Promise<Vedlegg>
     method: 'POST',
     credentials: 'include',
     headers: {
-      'X-Project-ID': getActiveProjectId(),
+      'X-Project-ID': projectId,
       'X-CSRF-Token': await getCsrfToken(),
     },
     body: data,
@@ -116,7 +130,10 @@ export async function hentVedleggInnhold(sakId: string, vedleggId: string): Prom
 }
 
 /** Last ned vedlegget til brukerens maskin. */
-export async function lastNedVedlegg(sakId: string, vedlegg: Vedlegg): Promise<void> {
+export async function lastNedVedlegg(
+  sakId: string,
+  vedlegg: Pick<Vedlegg, 'id' | 'navn'>
+): Promise<void> {
   const blob = await hentVedleggInnhold(sakId, vedlegg.id);
   const url = URL.createObjectURL(blob);
   try {

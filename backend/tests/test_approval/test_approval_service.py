@@ -54,7 +54,7 @@ def setup(tmp_path):
     return service, repo, item
 
 
-def command(service, action, actor=ACTOR, **kwargs):
+def command(service, action, actor=ACTOR, team="team-bh", **kwargs):
     current = service.read("p1", "case1")
     return service.command(
         "p1",
@@ -68,6 +68,7 @@ def command(service, action, actor=ACTOR, **kwargs):
             "commandId": str(uuid4()),
             **kwargs,
         },
+        team=team,
     )
 
 
@@ -108,6 +109,72 @@ def test_private_until_publication_and_retry(setup):
     assert "steps" not in str(events[-1])
     command(service, "publish", packageId=p["id"])
     assert repo.get_events("case1")[1] == 2
+
+
+def test_real_attachments_survive_approval_and_deliver_after_transaction(
+    setup, monkeypatch
+):
+    from types import SimpleNamespace
+    from unittest.mock import Mock
+
+    from services.vedlegg_registry import DELIVERED, PENDING, STAGED, VedleggRegistry
+
+    service, repo, item = setup
+    monkeypatch.setenv("BH_APPROVAL_DB", service.path)
+    registry = VedleggRegistry(service.path)
+    attached = registry.stage(
+        "p1", "case1", "vurdering.pdf", b"%PDF-test", ACTOR, "BH", "team-bh"
+    )
+    unused = registry.stage(
+        "p1", "case1", "privat.pdf", b"%PDF-private", ACTOR, "BH", "team-bh"
+    )
+    item["data"]["vedlegg_ids"] = [attached["id"]]
+    client = Mock()
+    client.upload_document.side_effect = RuntimeError("Offline")
+    monkeypatch.setattr(
+        "routes.vedlegg_routes._catenda_context",
+        lambda _: SimpleNamespace(
+            service=client, project_id="cat", folder_id="folder", topic_id="topic"
+        ),
+    )
+    p = package(service, item)
+    frozen = p["letter"]["items"][0]
+    assert frozen["data"]["vedlegg_ids"] == [attached["id"]]
+    assert frozen["attachments"] == [{"id": attached["id"], "navn": "vurdering.pdf"}]
+    assert attached["id"] in registry.approval_refs("p1", "case1")
+    approve(service, p["id"])
+    assert registry.get("p1", "case1", attached["id"])["status"] == STAGED
+    result = command(service, "publish", packageId=p["id"])
+    assert result["packages"][0]["status"] == "sendt"
+    assert registry.get("p1", "case1", attached["id"])["status"] == PENDING
+    events, version = repo.get_events("case1")
+    assert events[-1]["data"]["vedlegg_ids"] == [attached["id"]]
+    assert (
+        "vurdering.pdf"
+        in events[-1]["data"]["brev"]["seksjoner"]["begrunnelse"]["redigertTekst"]
+    )
+    client.upload_document.side_effect = None
+    client.upload_document.return_value = {"id": "3fa85f6457174562b3fc2c963f66afa6"}
+    command(service, "publish", packageId=p["id"])
+    command(service, "publish", packageId=p["id"])
+    assert repo.get_events("case1")[1] == version
+    assert registry.get("p1", "case1", attached["id"])["status"] == DELIVERED
+    assert registry.content("p1", "case1", attached["id"]) is None
+    assert registry.get("p1", "case1", unused["id"])["status"] == STAGED
+    assert client.upload_document.call_count == 2
+
+
+def test_approval_cannot_freeze_another_teams_private_attachment(setup):
+    from services.vedlegg_registry import VedleggRegistry
+
+    service, _, item = setup
+    entry = VedleggRegistry(service.path).stage(
+        "p1", "case1", "private.pdf", b"%PDF", ACTOR, "BH", "other-team"
+    )
+    item["data"]["vedlegg_ids"] = [entry["id"]]
+    with pytest.raises(ValueError, match="team"):
+        command(service, "prepare", item=item)
+    assert service.read("p1", "case1")["items"] == []
 
 
 def test_return_requires_comment_and_keeps_frozen_revision(setup):
