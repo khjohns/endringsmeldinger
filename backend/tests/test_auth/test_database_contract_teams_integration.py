@@ -4,12 +4,17 @@ Verifies the database properties requested in architectural reviews:
 1. RPC execution and atomicity (koe_set_contract_teams, koe_register_project)
 2. Rollback on incomplete configurations:
    - koe_set_contract_teams rolls back without altering existing teams
-   - koe_register_project rolls back entire project registration on invalid teams
+   - koe_register_project rolls back entire project registration on invalid teams (missing TE)
+   - koe_register_project rolls back entire project registration on empty teams ([])
 3. Access control:
    - anon role is denied direct table access (RLS)
    - anon role is denied RPC execution (42501 permission denied) for both RPCs
    - authenticated role is denied RPC execution (42501 permission denied) for both RPCs
-4. Service role client has full authorized access
+4. Service role client has full authorized access:
+   - Successful registration with initial teams
+   - Team replacement updates database
+   - Failed replacement preserves existing teams
+   - Registration with null teams leaves teams unconfigured
 5. Teardown ensures test isolation
 """
 
@@ -35,7 +40,7 @@ BH_TEAM_2 = "bbbb2222-0000-0000-0000-000000000002"
 
 
 # ---------------------------------------------------------------------------
-# Unit tests for AuthRepository RPC calling contract
+# Unit tests for AuthRepository RPC calling contract (using mocks)
 # ---------------------------------------------------------------------------
 
 def test_auth_repo_set_contract_teams_calls_rpc():
@@ -120,7 +125,7 @@ def test_auth_repo_contract_teams_normalizes_uuids():
 
 
 # ---------------------------------------------------------------------------
-# Live Supabase integration tests
+# Live Supabase integration tests (running against Supabase instance)
 # ---------------------------------------------------------------------------
 
 @pytest.fixture(scope="module")
@@ -266,6 +271,78 @@ def test_authenticated_client_denied_rpc_execution_with_permission_error(authent
     assert f"permission denied for function {rpc_name}" in msg
 
 
+def test_live_atomic_project_registration_and_contract_teams(clean_test_project):
+    """Live test of successful project registration, team update, and rollback on failed team replacement."""
+    admin_client = clean_test_project
+    repo = AuthRepository(client=admin_client)
+
+    initial_teams = [
+        {"team_id": BH_TEAM_1, "contract_role": "BH"},
+        {"team_id": TE_TEAM_1, "contract_role": "TE"},
+    ]
+
+    # 1. Atomic project registration including contract teams
+    try:
+        repo.register_project(
+            project_id=TEST_PROJ_ID,
+            name="Integration Test Project",
+            catenda_project_id=CAT_PROJ_UUID,
+            library_id=LIB_UUID,
+            folder_id=FOLDER_UUID,
+            topic_board_id=BOARD_UUID,
+            description="Opprettet under automatisert test",
+            teams=initial_teams,
+        )
+    except Exception as e:
+        if "PGRST202" in str(e) or "not find the function" in str(e).lower():
+            pytest.skip("koe_register_project not yet deployed on Supabase")
+        raise
+
+    # Verify project exists and is active
+    config = repo.project_config(TEST_PROJ_ID)
+    assert config is not None
+    assert config["internal_project_id"] == TEST_PROJ_ID
+    assert catenda_id(config["catenda_project_id"]) == catenda_id(CAT_PROJ_UUID)
+
+    # Verify initial teams exist
+    teams = repo.contract_teams(TEST_PROJ_ID)
+    assert teams["BH"] == {catenda_id(BH_TEAM_1)}
+    assert teams["TE"] == {catenda_id(TE_TEAM_1)}
+
+    # 2. Update teams: replace with new BH team
+    updated_teams = [
+        {"team_id": BH_TEAM_2, "contract_role": "BH"},
+        {"team_id": TE_TEAM_1, "contract_role": "TE"},
+    ]
+    repo.set_contract_teams(TEST_PROJ_ID, updated_teams)
+
+    teams_after = repo.contract_teams(TEST_PROJ_ID)
+    assert teams_after["BH"] == {catenda_id(BH_TEAM_2)}
+    assert teams_after["TE"] == {catenda_id(TE_TEAM_1)}
+
+    # 3. Rollback verification on incomplete teams update (missing TE)
+    invalid_teams = [
+        {"team_id": BH_TEAM_1, "contract_role": "BH"},
+    ]
+    with pytest.raises(Exception) as exc_info:
+        repo.set_contract_teams(TEST_PROJ_ID, invalid_teams)
+    assert "Både BH og TE" in str(exc_info.value)
+
+    # Verify rollback: existing teams are preserved completely intact!
+    teams_after_rollback = repo.contract_teams(TEST_PROJ_ID)
+    assert teams_after_rollback["BH"] == {catenda_id(BH_TEAM_2)}
+    assert teams_after_rollback["TE"] == {catenda_id(TE_TEAM_1)}
+
+    # 4. Rollback on empty array update
+    with pytest.raises(Exception):
+        repo.set_contract_teams(TEST_PROJ_ID, [])
+
+    # Previous teams still intact
+    teams_after_empty = repo.contract_teams(TEST_PROJ_ID)
+    assert teams_after_empty["BH"] == {catenda_id(BH_TEAM_2)}
+    assert teams_after_empty["TE"] == {catenda_id(TE_TEAM_1)}
+
+
 def test_live_registration_rollback_on_invalid_teams(clean_test_project):
     """If p_teams is invalid during registration, the ENTIRE registration must roll back."""
     admin_client = clean_test_project
@@ -306,6 +383,38 @@ def test_live_registration_rollback_on_invalid_teams(clean_test_project):
     assert len(cfg_rows) == 0, "catenda_project_configs row was not rolled back"
     assert len(board_rows) == 0, "catenda_topic_board_configs row was not rolled back"
     assert len(team_rows) == 0, "catenda_contract_teams rows were not rolled back"
+
+
+def test_live_registration_rollback_on_empty_teams(clean_test_project):
+    """Calling register_project with an empty team list [] must fail and roll back everything."""
+    admin_client = clean_test_project
+    repo = AuthRepository(client=admin_client)
+
+    try:
+        with pytest.raises(Exception) as exc_info:
+            repo.register_project(
+                project_id=FAILED_REG_PROJ_ID,
+                name="Empty Teams Rollback",
+                catenda_project_id=CAT_PROJ_UUID,
+                library_id=LIB_UUID,
+                folder_id=FOLDER_UUID,
+                topic_board_id=BOARD_UUID,
+                description="Should fail and rollback on []",
+                teams=[],
+            )
+        assert "Både BH og TE" in str(exc_info.value)
+    except pytest.skip.Exception:
+        raise
+    except Exception as e:
+        if "PGRST202" in str(e) or "not find the function" in str(e).lower():
+            pytest.skip("koe_register_project not yet deployed on Supabase")
+        raise
+
+    # Verify atomic rollback: NO traces of the project exist in any table!
+    proj_rows = admin_client.table("projects").select("id").eq("id", FAILED_REG_PROJ_ID).execute().data
+    cfg_rows = admin_client.table("catenda_project_configs").select("internal_project_id").eq("internal_project_id", FAILED_REG_PROJ_ID).execute().data
+    assert len(proj_rows) == 0, "projects row was not rolled back on empty teams"
+    assert len(cfg_rows) == 0, "catenda_project_configs row was not rolled back on empty teams"
 
 
 def test_live_registration_with_null_teams_leaves_teams_empty(clean_test_project):
