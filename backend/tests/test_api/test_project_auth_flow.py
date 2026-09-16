@@ -76,6 +76,12 @@ class FlowTestRepository:
     def configs(self):
         return self.project_configs
 
+    def project_config(self, project_id):
+        return next(
+            (c for c in self.project_configs if c["internal_project_id"] == project_id),
+            None,
+        )
+
     def memberships(self, **filters):
         return [
             row

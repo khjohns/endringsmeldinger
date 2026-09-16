@@ -127,13 +127,16 @@ def cmd_sync_name(args):
 
 
 def cmd_register(args):
-    """Registrer nytt eller oppdater eksisterende prosjekt."""
-    client = get_shared_client()
+    """Registrer nytt eller oppdater eksisterende prosjekt atomisk."""
+    repo = AuthRepository()
+    catenda_client = get_container().catenda_client
+
     cat_proj_uuid = to_uuid_str(args.catenda_project_id)
     lib_uuid = to_uuid_str(args.library_id)
     folder_uuid = to_uuid_str(args.folder_id)
     board_uuid = to_uuid_str(args.topic_board_id)
 
+    # 1. Hent navn fra Catenda dersom ikke oppgitt
     name = args.name
     if not name:
         print(f"Henter prosjektnavn automatisk fra Catenda ({cat_proj_uuid})...")
@@ -144,43 +147,73 @@ def cmd_register(args):
             name = args.id
             print(f"  Advarsel: Kunne ikke hente navn fra Catenda, bruker '{name}'.")
 
-    # 1. Upsert projects
-    client.table("projects").upsert(
-        {
-            "id": args.id,
-            "name": name,
-            "description": args.description or f"Prosjekt {name}",
-            "is_active": True,
-            "created_by": "admin_cli",
+    # 2. Valider kontraktsteams dersom oppgitt
+    db_teams = None
+    if getattr(args, "bh", None) or getattr(args, "te", None):
+        if not (args.bh and args.te):
+            print("Feil: Både --bh og --te må oppgis dersom kontraktsteams skal registreres.", file=sys.stderr)
+            return
+
+        bh_ids = [to_uuid_str(x) for x in args.bh]
+        te_ids = [to_uuid_str(x) for x in args.te]
+
+        overlap = set(bh_ids) & set(te_ids)
+        if overlap:
+            print(f"Feil: Samme team kan ikke representere både BH og TE: {overlap}", file=sys.stderr)
+            return
+
+        if not catenda_client.ensure_authenticated():
+            print("Feil: Kunne ikke autentisere mot Catenda for teamvalidering.", file=sys.stderr)
+            return
+
+        print(f"Validerer teams mot Catenda-prosjekt {cat_proj_uuid}...")
+        url = f"{catenda_client.base_url}/v2/projects/{cat_proj_uuid}/teams"
+        resp = catenda_client._safe_request("GET", url)
+        if not resp:
+            print("Feil: Kunne ikke hente teamliste fra Catenda.", file=sys.stderr)
+            return
+        available_teams = {
+            catenda_id(item["user"]["id"]): item["user"].get("name")
+            for item in resp.json()
+            if item.get("user", {}).get("type") == "team"
         }
-    ).execute()
-    print(f"  ✓ Registrert i 'projects': {args.id} ('{name}')")
 
-    # 2. Upsert catenda_project_configs
-    client.table("catenda_project_configs").upsert(
-        {
-            "internal_project_id": args.id,
-            "catenda_project_id": cat_proj_uuid,
-            "library_id": lib_uuid,
-            "folder_id": folder_uuid,
-            "is_active": True,
-        }
-    ).execute()
-    print(f"  ✓ Registrert i 'catenda_project_configs'")
+        db_teams = []
+        for tid in bh_ids:
+            norm_id = catenda_id(tid)
+            if norm_id not in available_teams:
+                print(f"Feil: Team {tid} finnes ikke i Catenda-prosjektet!", file=sys.stderr)
+                return
+            db_teams.append({"team_id": tid, "contract_role": "BH"})
+            print(f"  ✓ BH: '{available_teams[norm_id]}' ({tid})")
 
-    # 3. Upsert topic board if provided
-    if board_uuid:
-        client.table("catenda_topic_board_configs").upsert(
-            {
-                "topic_board_id": board_uuid,
-                "internal_project_id": args.id,
-                "is_active": True,
-            }
-        ).execute()
-        print(f"  ✓ Registrert topic board: {board_uuid}")
+        for tid in te_ids:
+            norm_id = catenda_id(tid)
+            if norm_id not in available_teams:
+                print(f"Feil: Team {tid} finnes ikke i Catenda-prosjektet!", file=sys.stderr)
+                return
+            db_teams.append({"team_id": tid, "contract_role": "TE"})
+            print(f"  ✓ TE: '{available_teams[norm_id]}' ({tid})")
 
-    print(f"\nProsjekt '{args.id}' er fullt registrert!")
-    print(f"Kjør 'python scripts/catenda_admin.py sync-members {args.id}' for å synke medlemmer.")
+    # 3. Utfør samlet atomisk registrering i databasen via RPC
+    print(f"Registrerer prosjekt '{args.id}' atomisk i databasen...")
+    try:
+        repo.register_project(
+            project_id=args.id,
+            name=name,
+            catenda_project_id=cat_proj_uuid,
+            library_id=lib_uuid,
+            folder_id=folder_uuid,
+            topic_board_id=board_uuid,
+            description=args.description,
+            teams=db_teams,
+        )
+        print(f"\n✓ Prosjekt '{args.id}' ('{name}') er fullt og atomisk registrert!")
+        if db_teams:
+            print(f"✓ Kontraktsteams er registrert for '{args.id}'.")
+        print(f"Kjør 'python scripts/catenda_admin.py sync-members {args.id}' for å synke medlemmer.")
+    except Exception as e:
+        print(f"Feil under atomisk registrering i databasen: {e}", file=sys.stderr)
 
 
 def cmd_sync_members(args):
@@ -373,6 +406,8 @@ def main():
     p_reg.add_argument("--topic-board-id", help="Catenda topic board UUID (valgfri)")
     p_reg.add_argument("--name", help="Valgfritt navn (hentes fra Catenda om utelatt)")
     p_reg.add_argument("--description", help="Valgfri beskrivelse")
+    p_reg.add_argument("--bh", nargs="+", help="Team ID-er for Byggherre (valgfri)")
+    p_reg.add_argument("--te", nargs="+", help="Team ID-er for Totalentreprenør (valgfri)")
     p_reg.set_defaults(func=cmd_register)
 
     # sync-members

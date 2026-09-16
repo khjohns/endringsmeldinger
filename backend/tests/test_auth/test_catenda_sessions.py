@@ -346,9 +346,9 @@ def test_pagination_and_duplicate_page_guard():
 
 def test_stale_membership_failure_denies_instead_of_using_cache():
     repo = Mock()
-    repo.configs.return_value = [
-        {"internal_project_id": "p", "catenda_project_id": PROJECT}
-    ]
+    repo.project_config.return_value = {
+        "internal_project_id": "p", "catenda_project_id": PROJECT
+    }
     repo.sync_state.return_value = {
         "catenda_project_id": PROJECT,
         "synced_at": "2000-01-01T00:00:00+00:00",
@@ -362,9 +362,9 @@ def test_stale_membership_failure_denies_instead_of_using_cache():
 
 def test_fresh_cache_does_not_call_catenda():
     repo = Mock()
-    repo.configs.return_value = [
-        {"internal_project_id": "p", "catenda_project_id": PROJECT}
-    ]
+    repo.project_config.return_value = {
+        "internal_project_id": "p", "catenda_project_id": PROJECT
+    }
     repo.sync_state.return_value = {
         "catenda_project_id": PROJECT,
         "synced_at": datetime.now(UTC).isoformat(),
