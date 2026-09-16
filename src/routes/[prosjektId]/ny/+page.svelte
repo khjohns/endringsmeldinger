@@ -11,7 +11,12 @@
   import NewCaseActionBar from '$lib/components/kontraktsbord/NewCaseActionBar.svelte';
 
   const prosjektId = $derived(page.params.prosjektId ?? '');
-  let actions = $state<{ canSend: boolean; sendLabel: string; send: () => void } | null>(null);
+  let actions = $state<{
+    canSend: boolean;
+    sendLabel: string;
+    send: () => void;
+    reviewing: boolean;
+  } | null>(null);
 
   $effect(() => {
     savePreferredRole('TE');
@@ -51,12 +56,14 @@
         />
       {/key}
     </main>
-    <NewCaseActionBar
-      canSend={actions?.canSend ?? false}
-      sendLabel={actions?.sendLabel ?? 'Send ansvarsgrunnlag'}
-      oncancel={() => goto(resolve('/[prosjektId]', { prosjektId }))}
-      onsend={() => actions?.send()}
-    />
+    {#if !actions?.reviewing}
+      <NewCaseActionBar
+        canSend={actions?.canSend ?? false}
+        sendLabel={actions?.sendLabel ?? 'Send ansvarsgrunnlag'}
+        oncancel={() => goto(resolve('/[prosjektId]', { prosjektId }))}
+        onsend={() => actions?.send()}
+      />
+    {/if}
   </div>
 </div>
 

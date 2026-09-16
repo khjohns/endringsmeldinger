@@ -46,6 +46,7 @@ export interface ApprovalPackage {
   id: string;
   status: 'til_godkjenning' | 'returnert' | 'trukket' | 'godkjent' | 'publisering_feilet' | 'sendt';
   owner: string;
+  ownerName?: string;
   createdAt: string;
   sentAt?: string;
   previousId?: string;

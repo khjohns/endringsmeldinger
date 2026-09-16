@@ -21,7 +21,7 @@
   import { letterText } from '$lib/approval/letter';
   import { projectStore } from '$lib/stores/project.svelte';
   import { formatDateNorwegian } from '$lib/utils/dateFormatters';
-  import ClaimLetterDialog from './ClaimLetterDialog.svelte';
+  import ClaimLetterView from './ClaimLetterView.svelte';
   const letterConfirmation = createLetterConfirmation();
 
   let {
@@ -33,7 +33,13 @@
     onsend: () => void;
     prosjektId?: string;
     oncreated?: (sakId: string) => void;
-    onactions?: (a: { canSend: boolean; sendLabel: string; send: () => void }) => void;
+    onactions?: (a: {
+      canSend: boolean;
+      sendLabel: string;
+      send: () => void;
+      /** The letter check is open; the host hides its send bar */
+      reviewing: boolean;
+    }) => void;
   } = $props();
 
   let varsler = $state<VarselValg>({});
@@ -151,6 +157,7 @@
 
   $effect(() => {
     onactions?.({
+      reviewing: Boolean(letterConfirmation.letter),
       canSend: canSend && !submission.pending,
       sendLabel: 'Se brev og send',
       send: () => {
@@ -266,10 +273,11 @@
   });
 </script>
 
-{#if letterConfirmation.letter}<ClaimLetterDialog review={letterConfirmation} />{/if}
+<ClaimLetterView review={letterConfirmation} stepLabel="Ansvarsgrunnlag" />
 
 {#if !prosjektId || draftReady}
-  <div class="new-case-form">
+  <!-- Hidden, not unmounted: the pending submission resumes when the letter is confirmed. -->
+  <div class="new-case-form" hidden={Boolean(letterConfirmation.letter)}>
     {#if submission.pending}<p role="status">Oppretter saken …</p>{/if}
     {#if submission.error}<p role="alert">{submission.error}</p>{/if}
     <header class="form-header">
@@ -454,6 +462,9 @@
 {/if}
 
 <style>
+  .new-case-form[hidden] {
+    display: none;
+  }
   .new-case-form {
     max-width: 840px;
     margin: 0 auto;

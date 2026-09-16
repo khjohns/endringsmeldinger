@@ -1,39 +1,34 @@
 <script lang="ts">
   import { resolve } from '$app/paths';
   import { page } from '$app/state';
-  import { goto } from '$app/navigation';
-  import { useQueryClient } from '@tanstack/svelte-query';
   import AppTopbar from '$lib/components/navigation/AppTopbar.svelte';
-  import EndringsordreForm from '$lib/components/endringsordre/EndringsordreForm.svelte';
+  import EOApprovalPage from '$lib/components/endringsordre/EOApprovalPage.svelte';
+  import { apiEOApprovals } from '$lib/approval/eoApproval.svelte';
   import { projectStore } from '$lib/stores/project.svelte';
   import '$lib/components/kontraktsbord/theme.css';
   const projectId = $derived(page.params.prosjektId ?? '');
   const projectName = $derived(projectStore.current?.name ?? projectId);
-  const queryClient = useQueryClient();
-  async function created(sakId: string) {
-    await queryClient.invalidateQueries({ queryKey: ['cases', projectId] });
-    await goto(resolve(`/${encodeURIComponent(projectId)}/${encodeURIComponent(sakId)}?rolle=BH`));
-  }
 </script>
 
-<svelte:head><title>Ny endringsordre — {projectName}</title></svelte:head>
+<svelte:head><title>Endringsordrer til godkjenning — {projectName}</title></svelte:head>
 <div class="eo-page">
   <AppTopbar
     {projectName}
     projectHref={`/${encodeURIComponent(projectId)}`}
-    caseLabel="Ny endringsordre"
+    caseLabel="Endringsordrer til godkjenning"
     role="BH"
     lockedRole
     onrolechange={() => {}}
   />
   <main>
-    {#key projectId}<EndringsordreForm
+    {#key projectId}<EOApprovalPage
+        source={apiEOApprovals(projectId)}
         {projectId}
         {projectName}
-        userId={page.data.user?.id}
-        initialKoe={page.url.searchParams.get('koe') ?? ''}
-        approvalsHref={resolve(`/${encodeURIComponent(projectId)}/endringsordre/godkjenning`)}
-        oncreated={created}
+        initialId={page.url.searchParams.get('pakke') ?? ''}
+        newOrderHref={resolve(`/${encodeURIComponent(projectId)}/endringsordre/ny`)}
+        issuedHref={(sakId) =>
+          resolve(`/${encodeURIComponent(projectId)}/${encodeURIComponent(sakId)}?rolle=BH`)}
       />{/key}
   </main>
 </div>

@@ -10,8 +10,8 @@ from services.business_rules import BusinessRuleValidator
 from services.timeline_service import TimelineService
 
 CHAIN = [
-    {"id": "manager@example.test", "name": "Leder", "role": "Prosjektleder"},
-    {"id": "owner@example.test", "name": "Eier", "role": "Prosjekteier"},
+    {"id": "manager@example.test", "name": "Leder", "role": "Byggeleder"},
+    {"id": "owner@example.test", "name": "Eier", "role": "Prosjektdirektør"},
 ]
 ACTOR = "handler@example.test"
 
@@ -423,3 +423,31 @@ def test_feilet_vedleggslevering_stopper_ikke_publisering(setup, monkeypatch):
     state = command(service, "publish", packageId=p["id"])
 
     assert state["packages"][0]["status"] == "sendt"
+
+
+def test_letter_inside_handler_authority_is_approved_without_chain(setup):
+    service, repo, item = setup
+    service.authority_policy = {
+        "handlers": [{"id": ACTOR, "name": "Saksbehandler", "role": "Prosjektleder"}]
+    }
+    p = package(service, item)
+    assert p["steps"] == []
+    assert p["status"] == "godkjent"
+    assert len(repo.get_events("case1")[0]) == 1
+    sent = command(service, "publish", packageId=p["id"])
+    assert sent["packages"][-1]["status"] == "sendt"
+    assert repo.get_events("case1")[1] == 2
+
+
+def test_route_change_returns_package_for_new_approval(setup):
+    service, repo, item = setup
+    p = package(service, item)
+    assert [s["id"] for s in p["steps"]] == [CHAIN[0]["id"], CHAIN[1]["id"]]
+    # The handler gains authority: the frozen two-step route no longer matches the policy.
+    service.authority_policy = {
+        "handlers": [{"id": ACTOR, "name": "Saksbehandler", "role": "Prosjektleder"}]
+    }
+    # Reconciliation runs before every command and returns the stale package first.
+    with pytest.raises(ConcurrencyError):
+        command(service, "approve", CHAIN[0]["id"], packageId=p["id"])
+    assert service.read("p1", "case1")["packages"][-1]["status"] == "returnert"

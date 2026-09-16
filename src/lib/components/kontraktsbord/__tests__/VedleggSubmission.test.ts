@@ -116,9 +116,18 @@ describe.each(['TE', 'BH'] as const)('%s attachment submission', (role) => {
     await waitFor(() => expect(button).toBeEnabled());
     await fireEvent.click(button);
     if (role === 'TE') {
-      const confirm = await screen.findByRole('button', { name: 'Send til byggherren' });
-      if (include) expect(screen.getByRole('dialog')).toHaveTextContent('rapport.pdf');
-      else expect(screen.getByRole('dialog')).not.toHaveTextContent('rapport.pdf');
+      await fireEvent.click(
+        await screen.findByRole('checkbox', { name: 'Jeg har kontrollert brevet og vedleggene.' })
+      );
+      const confirm = screen.getByRole('button', { name: 'Send til byggherren' });
+      if (include)
+        expect(screen.getByRole('region', { name: 'Brevkontroll' })).toHaveTextContent(
+          'rapport.pdf'
+        );
+      else
+        expect(screen.getByRole('region', { name: 'Brevkontroll' })).not.toHaveTextContent(
+          'rapport.pdf'
+        );
       await fireEvent.click(confirm);
       await waitFor(() => expect(sendEvent).toHaveBeenCalledOnce());
       expect(sendEvent.mock.calls[0][2].vedlegg_ids).toEqual(include ? [attachment.id] : []);

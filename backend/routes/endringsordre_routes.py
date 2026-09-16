@@ -11,12 +11,15 @@ Endpoints:
 - DELETE /api/endringsordre/<sak_id>/koe/<koe_sak_id> - Fjern KOE-sak
 - GET /api/endringsordre/kandidater - Hent kandidat-KOE-saker for ny EO
 - GET /api/endringsordre/by-relatert/<sak_id> - Finn EO-er for en KOE-sak
+- GET/POST /api/endringsordre/godkjenninger - Intern godkjenning før utstedelse
 """
+
+import os
 
 from flask import Blueprint, g, jsonify, request
 
-from lib.auth.project_access import require_project_access
 from lib.auth.contract_role import require_contract_role
+from lib.auth.project_access import require_project_access
 from lib.auth.session import require_auth
 from lib.decorators import handle_service_errors
 from routes.related_cases_utils import (
@@ -70,6 +73,13 @@ def opprett_endringsordresak():
         ...
     }
     """
+    from routes.approval_routes import project_policy
+
+    if project_policy(getattr(g, "project_id", "oslobygg")):
+        return jsonify(
+            message="Endringsordrer i prosjektet utstedes gjennom intern godkjenning."
+        ), 403
+
     payload = request.get_json(silent=True)
     if not isinstance(payload, dict):
         raise ValueError("Forespørselen må inneholde et JSON-objekt")
@@ -224,3 +234,64 @@ def finn_eoer_for_koe(sak_id: str):
     """Finn endringsordrer som refererer til en gitt KOE-sak."""
     service = _get_endringsordre_service()
     return jsonify(success=True, endringsordrer=service.finn_eoer_for_koe(sak_id))
+
+
+@endringsordre_bp.route("/api/endringsordre/godkjenninger", methods=["GET", "POST"])
+@require_auth
+@require_project_access(min_role="member")
+@require_contract_role("BH")
+def eo_godkjenninger():
+    """Private BH approval of change orders; identities and chain come from server policy."""
+    from repositories.event_repository import ConcurrencyError
+    from routes.approval_routes import project_policy
+    from services.approval_authority import handler_identity
+    from services.eo_approval_service import EOApprovalService
+
+    project = getattr(g, "project_id", "oslobygg")
+    identity = getattr(g, "user", {}) or {}
+    actor = (identity.get("email") or "").lower()
+    policy = project_policy(project)
+    try:
+        if not policy:
+            raise PermissionError(
+                "Intern godkjenning er ikke konfigurert for prosjektet."
+            )
+        service = EOApprovalService(
+            os.environ.get("BH_APPROVAL_DB", "koe_data/approvals.sqlite3"),
+            _get_endringsordre_service(),
+            policy,
+            # Events are the commit point of case creation, not metadata.
+            issued=lambda sak_id: _get_container().event_repository.get_events(sak_id)[
+                1
+            ]
+            > 0,
+        )
+        if not actor or not (
+            service.is_handler(actor) or any(u["id"] == actor for u in service.chain)
+        ):
+            raise PermissionError(
+                "Du har ikke tilgang til byggherrens interne behandling."
+            )
+        if request.method == "GET":
+            state = service.read(project, actor)
+        else:
+            body = request.get_json(silent=True)
+            if not isinstance(body, dict):
+                raise ValueError("Ugyldig forespørsel.")
+            state = service.command(project, actor, body, identity.get("name") or actor)
+        return jsonify(
+            state=state,
+            actor=actor,
+            sender=handler_identity(policy, actor),
+            chain=service.chain,
+            canPrepare=service.is_handler(actor),
+            dailyRate=policy.get("daily_rate"),
+        )
+    except PermissionError as error:
+        return jsonify(message=str(error)), 403
+    except ConcurrencyError:
+        return jsonify(
+            message="Behandlingen er endret av en annen bruker. Oppdater status og prøv igjen."
+        ), 409
+    except (ValueError, KeyError, TypeError) as error:
+        return jsonify(message=str(error) or "Ugyldig forespørsel."), 400
