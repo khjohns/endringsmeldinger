@@ -15,7 +15,7 @@ export interface SporUIState {
 
 export type Role = 'TE' | 'BH';
 export type Mode = 'read' | 'form';
-export type RightTab = 'bestemmelser' | 'historikk' | 'vedlegg' | 'begrunnelse' | 'filer';
+export type RightTab = 'bestemmelser' | 'historikk' | 'vedlegg' | 'filer';
 
 export interface Attachment {
   n: string;

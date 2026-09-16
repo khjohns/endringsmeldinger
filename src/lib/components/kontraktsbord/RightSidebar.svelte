@@ -1,18 +1,5 @@
 <script lang="ts">
-  import {
-    ChevronDown,
-    Paperclip,
-    ExternalLink,
-    Plus,
-    Pencil,
-    Upload,
-    Bold,
-    Italic,
-    List,
-    ListOrdered,
-    RotateCcw,
-    RotateCw,
-  } from 'lucide-svelte';
+  import { ChevronDown, Paperclip, ExternalLink, Pencil } from 'lucide-svelte';
   import { getCaseWorkspace } from '$lib/kontraktsbord/context.svelte';
   const store = getCaseWorkspace();
   import { S, sporBestemmelser } from './data.js';
@@ -25,10 +12,8 @@
     sel,
     mode,
     tab,
-    begr,
     activeEvent = null,
     ontabchange,
-    onbegrchange,
     onclose,
     oneventclick,
     onletterclick,
@@ -36,10 +21,8 @@
     sel: SporKey;
     mode: Mode;
     tab: RightTab;
-    begr: string;
     activeEvent?: TimelineEvent | null;
     ontabchange: (t: RightTab) => void;
-    onbegrchange: (v: string) => void;
     onclose?: () => void;
     oneventclick?: (ev: TimelineEvent) => void;
     onletterclick?: (ev: TimelineEvent) => void;
@@ -56,11 +39,8 @@
     bestemmelser: 'Bestemmelser',
     historikk: 'Historikk',
     vedlegg: 'Vedlegg',
-    begrunnelse: 'Begrunnelse',
     filer: 'Filer',
   };
-
-  const toolbarIcons = [Bold, Italic, List, ListOrdered, RotateCcw, RotateCw];
 </script>
 
 {#snippet attList(showPages: boolean)}
@@ -134,41 +114,11 @@
           <p class="note-text">{ui.note.t}</p>
         </div>
       {/if}
-
-      <button class="dashed-action-btn">
-        <Plus size={14} /> Nytt notat
-      </button>
-    {/if}
-
-    {#if tab === 'begrunnelse'}
-      <div class="reasoning-header">
-        <span class="reasoning-label">Ditt svar</span>
-        <span class="font-mono reasoning-count">{begr.length} tegn</span>
-      </div>
-      <textarea
-        value={begr}
-        oninput={(e) => onbegrchange(e.currentTarget.value)}
-        placeholder="Skriv din begrunnelse her..."
-        class="reasoning-textarea"
-      ></textarea>
-      <div class="toolbar">
-        {#each toolbarIcons as Icon, ii (ii)}
-          <button class="toolbar-btn">
-            <Icon size={14} />
-          </button>
-        {/each}
-      </div>
-      <p class="upload-hint">
-        <Upload size={14} /> Last opp vedlegg i Filer-fanen
-      </p>
     {/if}
 
     {#if tab === 'filer'}
       {#if store.isDemo}
         {@render attList(false)}
-        <button class="dashed-action-btn" style="margin-top: 16px; padding: 12px 16px">
-          <Upload size={14} /> Last opp nytt vedlegg
-        </button>
       {:else}
         <VedleggPanel sakId={store.sakId} />
       {/if}
@@ -317,101 +267,6 @@
     font-size: 14px;
     line-height: 1.5;
     color: var(--draft);
-  }
-  .dashed-action-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    margin-top: 12px;
-    padding: 8px 12px;
-    width: 100%;
-    font-size: 13px;
-    font-weight: 600;
-    font-family: var(--font-sans);
-    color: var(--ink-3);
-    background: var(--surface);
-    border: 1.5px dashed var(--ink-4);
-    border-radius: 4px;
-    cursor: pointer;
-    transition: all 80ms;
-  }
-  .dashed-action-btn:hover {
-    border-color: var(--ink);
-    color: var(--ink);
-  }
-
-  /* Begrunnelse */
-  .reasoning-header {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 12px;
-  }
-  .reasoning-label {
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.02em;
-    color: var(--ink-3);
-  }
-  .reasoning-count {
-    font-size: 12px;
-    color: var(--ink-4);
-  }
-  .reasoning-textarea {
-    flex: 1;
-    width: 100%;
-    padding: 16px;
-    font-family: var(--font-sans);
-    font-size: 16px;
-    line-height: 1.65;
-    resize: none;
-    background: var(--surface);
-    border: var(--control-border);
-    border-radius: 4px;
-    color: var(--ink);
-    outline: none;
-    min-height: 280px;
-    transition: border-color 120ms;
-  }
-  .reasoning-textarea:focus {
-    border-color: var(--control-focus);
-    box-shadow: var(--control-focus-ring);
-  }
-  .toolbar {
-    display: flex;
-    gap: 2px;
-    margin-top: 12px;
-    padding: 4px;
-    background: var(--surface-inset);
-    border: var(--rule-subtle);
-    border-radius: 4px;
-  }
-  .toolbar-btn {
-    width: 32px;
-    height: 32px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--ink-4);
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    border-radius: 4px;
-    transition:
-      color 80ms,
-      background 80ms;
-  }
-  .toolbar-btn:hover {
-    color: var(--ink);
-    background: var(--surface);
-  }
-  .upload-hint {
-    font-size: 12px;
-    margin-top: 12px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    color: var(--ink-4);
   }
   .mobile-close-btn {
     display: none;

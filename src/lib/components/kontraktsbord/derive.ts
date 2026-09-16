@@ -129,11 +129,3 @@ export function deriveTrackDisplay(sak: SakState, spor: SporKey): TrackDisplay {
 export function assessedGap(claimed: number, assessed: number | undefined): number | undefined {
   return assessed === undefined ? undefined : Math.max(0, claimed - assessed);
 }
-
-export function formatExposure(amount: number | undefined, days: number | undefined): string {
-  const parts = [
-    amount === undefined ? null : `${amount.toLocaleString('nb-NO')},-`,
-    days === undefined ? null : `${days} dager`,
-  ];
-  return parts.filter(Boolean).join(' + ') || 'Ikke vurdert';
-}

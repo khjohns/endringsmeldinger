@@ -1,6 +1,5 @@
 <script lang="ts">
-  import { formatExposure } from './derive';
-  import { Check, XSquare, Send, BookOpen, ArrowRight, PencilLine } from 'lucide-svelte';
+  import { XSquare, Send, BookOpen, ArrowRight, PencilLine } from 'lucide-svelte';
   import { formatDateShortNorwegian } from '$lib/utils/dateFormatters.js';
   import { fmt, sporResultatLabel } from './utils.js';
   import { getCaseWorkspace } from '$lib/kontraktsbord/context.svelte';
@@ -12,32 +11,24 @@
     role,
     sel,
     hasDraft,
-    subV,
-    subF,
-    prinV,
-    prinF,
     oncloseform,
     onform,
     ontogglecontext,
     onsend,
     canSend = false,
-    sendLabel = 'Send svar',
+    sendLabel,
     onwithdraw,
   }: {
     mode: Mode;
     role: Role;
     sel: SporKey;
     hasDraft: boolean;
-    subV: number | undefined;
-    subF: number | undefined;
-    prinV: number | undefined;
-    prinF: number | undefined;
     oncloseform: () => void;
     onform: (key: SporKey) => void;
     ontogglecontext?: () => void;
     onsend?: () => void;
     canSend?: boolean;
-    sendLabel?: string;
+    sendLabel: string;
     onwithdraw?: () => void;
   } = $props();
 
@@ -135,14 +126,6 @@
               <span style="color: var(--ink-2)">
                 {fristResultat} · {store.sak.frist.godkjent_dager ?? 0} dager godkjent
               </span>
-            {:else}
-              <span style="color: var(--green)"
-                >Bestridt subsidiært: {formatExposure(subV, subF)}</span
-              >
-              <span class="status-sep">·</span>
-              <span style="color: var(--danger)"
-                >Bestridt prinsipalt: {formatExposure(prinV, prinF)}</span
-              >
             {/if}
           </div>
         </div>
@@ -172,14 +155,6 @@
           <button class="btn btn-secondary" onclick={() => onform(sel)}>
             <PencilLine size={14} /> Oppdater begrunnelse
           </button>
-          {#if store.sak.grunnlag.bh_resultat}
-            <button class="btn btn-primary">
-              <Check size={14} />
-              {store.sak.grunnlag.bh_resultat === 'avslatt'
-                ? 'Aksepter byggherrens standpunkt'
-                : 'Bekreft enighet'}
-            </button>
-          {/if}
         {:else if sel === 'frist'}
           <button
             class:btn-secondary={hasBhFristResponse}
@@ -190,9 +165,6 @@
             <PencilLine size={14} />
             {teFristActionLabel}
           </button>
-          {#if hasBhFristResponse}
-            <button class="btn btn-primary"><Check size={14} /> Godta svar</button>
-          {/if}
         {:else if sel === 'vederlag'}
           <button class="btn btn-primary" onclick={() => onform(sel)}>
             <PencilLine size={14} />
@@ -202,8 +174,6 @@
                 ? 'Spesifiser krav'
                 : 'Varsle eller spesifiser krav'}
           </button>
-        {:else if sel !== 'vederlag' || hasBhVederlagResponse}
-          <button class="btn btn-primary"><Check size={14} /> Godta svar</button>
         {/if}
       {:else}
         <button
@@ -285,10 +255,6 @@
   .status-text {
     font-size: 14px;
     font-weight: 700;
-  }
-  .status-sep {
-    color: var(--ink-4);
-    margin: 0 8px;
   }
   .action-buttons {
     display: flex;
