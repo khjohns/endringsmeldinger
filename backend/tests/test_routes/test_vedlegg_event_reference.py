@@ -31,7 +31,9 @@ def api(monkeypatch, tmp_path):
 
     # Ett vedlegg hører til saken, ett hører til en annen sak i samme prosjekt.
     registry = VedleggRegistry()
-    eget = registry.stage("p", "case", "eget.pdf", b"%PDF-", "TE Bruker", "TE")
+    eget = registry.stage(
+        "p", "case", "eget.pdf", b"%PDF-", "TE Bruker", "TE", "team-te"
+    )
     fremmed = registry.stage("p", "annen-sak", "fremmed.pdf", b"%PDF-", "Andre", "TE")
 
     app = Flask(__name__)
@@ -127,6 +129,15 @@ def test_eget_vedlegg_godtas(api):
 
 def test_ingen_vedlegg_er_fortsatt_lovlig(api):
     assert _send(api, []).status_code == 201
+
+
+@pytest.mark.parametrize("team", ["team-bh", "other-te", None])
+def test_other_teams_staged_reference_rejected(api, team):
+    foreign = VedleggRegistry().stage(
+        "p", "case", "private.pdf", b"%PDF-", "Other", "TE", team
+    )
+    assert _send(api, [foreign["id"]]).status_code == 400
+    api.container.event_repository.append.assert_not_called()
 
 
 def test_kompakt_og_dashet_form_er_samme_vedlegg(api):

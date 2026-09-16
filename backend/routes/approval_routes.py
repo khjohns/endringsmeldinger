@@ -82,7 +82,15 @@ def approvals(case_id):
             if not isinstance(body, dict):
                 raise ValueError("Ugyldig forespørsel.")
 
-            state = service.command(project, case_id, actor, chain, can_prepare, body)
+            state = service.command(
+                project,
+                case_id,
+                actor,
+                chain,
+                can_prepare,
+                body,
+                team=getattr(g, "contract_team", None),
+            )
             if not isinstance(state, dict):
                 return state
         if request.method == "POST" and body.get("action") == "publish":

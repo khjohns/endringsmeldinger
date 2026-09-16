@@ -13,6 +13,7 @@
   import type { ValgtHjemmel } from '$lib/types/hjemmel.js';
   import { onMount } from 'svelte';
   import { submitEvent } from '$lib/api/events';
+  import { lastOppVedlegg, MAKS_VEDLEGG_BYTES } from '$lib/api/vedlegg';
   import { draftKey, loadDraft, saveDraft, clearDraft } from '$lib/utils/draft';
   import { createSubmission } from '$lib/kontraktsbord/submission.svelte';
   const submission = createSubmission();
@@ -45,6 +46,24 @@
   let begrunnelseHtml = $state('');
   let charCount = $state(0);
   let draftReady = $state(false);
+  type Filvalg = { navn: string; storrelse: number; id?: string; fil?: File };
+  let filer = $state<Filvalg[]>([]);
+  let filfeil = $state('');
+  const filutkast = () => filer.map(({ navn, storrelse, id }) => ({ navn, storrelse, id }));
+  function velgFiler(valgte: FileList | null) {
+    filfeil = '';
+    for (const fil of Array.from(valgte ?? [])) {
+      if (!fil.size || fil.size > MAKS_VEDLEGG_BYTES) {
+        filfeil = 'Hver fil må inneholde data og være høyst 15 MB.';
+        continue;
+      }
+      const mangler = filer.findIndex(
+        (v) => !v.id && !v.fil && v.navn === fil.name && v.storrelse === fil.size
+      );
+      if (mangler >= 0) filer[mangler] = { ...filer[mangler], fil };
+      else filer = [...filer, { navn: fil.name, storrelse: fil.size, fil }];
+    }
+  }
   // Keep the case identity between retries if creating the basis fails after case creation.
   let createdCase = $state<{ id: string; version: number } | null>(null);
   const dk = draftKey('kontraktsbord-ny', prosjektId);
@@ -57,6 +76,7 @@
         valgtHjemmel: ValgtHjemmel | null;
         begrunnelseHtml: string;
         createdCase: { id: string; version: number } | null;
+        filer?: Filvalg[];
       }>(dk);
       if (draft) {
         varsler = draft.varsler ?? {};
@@ -66,6 +86,7 @@
         begrunnelseHtml = draft.begrunnelseHtml ?? '';
         charCount = begrunnelseHtml.replace(/<[^>]*>/g, '').trim().length;
         createdCase = draft.createdCase ?? null;
+        filer = draft.filer ?? [];
         hjemmelvelgerApen = !valgtHjemmel;
       }
     }
@@ -73,7 +94,15 @@
   });
   $effect(() => {
     if (prosjektId && draftReady)
-      saveDraft(dk, { tittel, datoOppdaget, valgtHjemmel, begrunnelseHtml, createdCase, varsler });
+      saveDraft(dk, {
+        tittel,
+        datoOppdaget,
+        valgtHjemmel,
+        begrunnelseHtml,
+        createdCase,
+        varsler,
+        filer: filutkast(),
+      });
   });
 
   const normalizedSearch = $derived(sok.trim().toLocaleLowerCase('nb-NO'));
@@ -83,7 +112,11 @@
       : 'Send ansvarsgrunnlag'
   );
   const canSend = $derived(
-    tittel.trim().length >= 5 && datoOppdaget.length > 0 && valgtHjemmel !== null && charCount >= 10
+    tittel.trim().length >= 5 &&
+      datoOppdaget.length > 0 &&
+      valgtHjemmel !== null &&
+      charCount >= 10 &&
+      filer.every((v) => v.id || v.fil)
   );
 
   function groupMatches(group: Kontraktsforhold): boolean {
@@ -161,7 +194,7 @@
                   'Begrunnelse',
                   [letterText(basisData.beskrivelse), ...Object.values(basisData.varsler)].join(
                     '\n\n'
-                  )
+                  ) + (filer.length ? `\n\nVedlegg\n${filer.map((v) => v.navn).join('\n')}` : '')
                 ),
                 avslutning: section('Avslutning', `Med vennlig hilsen\n${sender}`),
               },
@@ -187,12 +220,32 @@
                 begrunnelseHtml,
                 createdCase,
                 varsler,
+                filer: filutkast(),
+              });
+            }
+            // Upload only after creation, before the basis event. Keep each receipt
+            // immediately so a later failed upload or submission can reuse it.
+            for (let i = 0; i < filer.length; i++) {
+              const valgt = filer[i];
+              if (valgt.id) continue;
+              if (!valgt.fil)
+                throw new Error(`Velg ${valgt.navn} på nytt eller fjern den fra innsendingen.`);
+              const uploaded = await lastOppVedlegg(createdCase.id, valgt.fil, project);
+              filer[i] = { navn: uploaded.navn, storrelse: uploaded.storrelse, id: uploaded.id };
+              saveDraft(dk, {
+                tittel,
+                datoOppdaget,
+                valgtHjemmel,
+                begrunnelseHtml,
+                createdCase,
+                varsler,
+                filer: filutkast(),
               });
             }
             const result = await submitEvent(
               createdCase.id,
               'grunnlag_opprettet',
-              { ...basisData, brev },
+              { ...basisData, brev, vedlegg_ids: filer.map((v) => v.id!) },
               {
                 projectId: project,
                 expectedVersion: createdCase.version,
@@ -226,6 +279,39 @@
         Beskriv forholdet som kan gi grunnlag for krav om vederlagsjustering eller fristforlengelse.
       </p>
     </header>
+
+    {#if prosjektId}
+      <FormSection title="Vedlegg (valgfritt)">
+        <label for="new-case-files"
+          >Velg filer som skal følge innsendingen (maks 15 MB per fil)</label
+        >
+        <input
+          id="new-case-files"
+          type="file"
+          multiple
+          disabled={submission.pending}
+          onchange={(e) => {
+            velgFiler(e.currentTarget.files);
+            e.currentTarget.value = '';
+          }}
+        />
+        {#each filer as fil, i}
+          <p>
+            {fil.navn}
+            {#if !fil.id && !fil.fil}<span role="alert">
+                – velg filen på nytt eller fjern den.</span
+              >{/if}
+            <button
+              class="change-button"
+              disabled={submission.pending}
+              onclick={() => (filer = filer.filter((_, index) => index !== i))}
+              >Fjern {fil.navn}</button
+            >
+          </p>
+        {/each}
+        {#if filfeil}<p role="alert">{filfeil}</p>{/if}
+      </FormSection>
+    {/if}
 
     <FormSection title="Saksopplysninger">
       <div class="field">

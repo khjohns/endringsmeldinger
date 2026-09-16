@@ -1,10 +1,16 @@
 <script lang="ts">
+  import VedleggPanel from './VedleggPanel.svelte';
+  let vedleggIds = $state<string[]>([]);
+  let vedleggOpptatt = $state(false);
+  function buildEventData(...args: Parameters<typeof buildDomainData>) {
+    return { ...buildDomainData(...args), vedlegg_ids: [...vedleggIds] };
+  }
   import KonsekvensVarsler from './KonsekvensVarsler.svelte';
   import { buildKonsekvensVarsler, type VarselValg } from '$lib/domain/konsekvensVarsler';
   import {
     getDefaults,
     beregnCanSubmit,
-    buildEventData,
+    buildEventData as buildDomainData,
     getEventType,
   } from '$lib/domain/vederlagSubmissionDomain';
   import type { EventType } from '$lib/types/timeline';
@@ -111,6 +117,7 @@
       revisjon: store.sak.vederlag.antall_versjoner,
     },
     () => ({
+      vedleggIds,
       mode,
       varsler,
       metode,
@@ -121,6 +128,7 @@
       begrunnelse,
     }),
     (saved) => {
+      vedleggIds = saved.vedleggIds ?? [];
       mode = saved.mode ?? mode;
       varsler = saved.varsler ?? {};
       metode = saved.metode ?? defaults.metode ?? 'REGNINGSARBEID';
@@ -134,15 +142,17 @@
 
   $effect(() => {
     onactions?.({
-      canSend: kanSende && !submission.pending,
+      canSend: kanSende && !submission.pending && !vedleggOpptatt,
       sendLabel: mode === 'varsel' ? 'Send varsel' : 'Send spesifisert krav',
       send: () => {
+        if (vedleggOpptatt) return;
         if (kanSende)
           void submission.run(async () => {
             if (claimReview) {
               const data =
                 mode === 'varsel'
                   ? {
+                      vedlegg_ids: [...vedleggIds],
                       varsel_type: 'varsel',
                       varsler: noticeData,
                       begrunnelse: Object.values(noticeData).join('\n\n'),
@@ -176,6 +186,7 @@
               if (store.isDemo) store.sendTeVederlagVarsel(noticeData);
               else
                 await store.submit('vederlag_krav_sendt', {
+                  vedlegg_ids: [...vedleggIds],
                   varsel_type: 'varsel',
                   varsler: noticeData,
                   begrunnelse: Object.values(noticeData).join('\n\n'),
@@ -222,6 +233,20 @@
       hentInn={draft.hentInn}
     />
     <CaseAnchor />
+    {#if !store.isDemo}
+      <details>
+        <summary
+          >Vedlegg (valgfritt){vedleggIds.length ? ` · ${vedleggIds.length} valgt` : ''}</summary
+        >
+        <VedleggPanel
+          sakId={store.sak.sak_id}
+          valgbare
+          bind:valgte={vedleggIds}
+          bind:opptatt={vedleggOpptatt}
+          disabled={submission.pending}
+        />
+      </details>
+    {/if}
 
     <FormPageHeader
       title="Krav om vederlagsjustering"

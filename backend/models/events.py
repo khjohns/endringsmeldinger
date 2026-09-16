@@ -917,6 +917,7 @@ class GrunnlagResponsData(BaseModel):
     """
 
     grunnlag_event_id: str | None = None
+    vedlegg_ids: VedleggIds = Field(default_factory=list)
 
     brev: LetterSnapshot | None = None
 
@@ -996,6 +997,7 @@ class VederlagResponsData(BaseModel):
 
     brev: LetterSnapshot | None = None
     tilleggs_begrunnelse: str | None = None
+    vedlegg_ids: VedleggIds = Field(default_factory=list)
 
 
     # ============ PARTIELL OPPDATERING ============
@@ -1141,6 +1143,7 @@ class FristResponsData(BaseModel):
     """
 
     frist_krav_id: str | None = None
+    vedlegg_ids: VedleggIds = Field(default_factory=list)
 
     brev: LetterSnapshot | None = None
     tilleggs_begrunnelse: str | None = None

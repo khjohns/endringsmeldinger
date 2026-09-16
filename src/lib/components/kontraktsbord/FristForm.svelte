@@ -1,10 +1,22 @@
 <script lang="ts">
+  import VedleggPanel from './VedleggPanel.svelte';
+  let vedleggIds = $state<string[]>([]);
+  let vedleggOpptatt = $state(false);
+  function buildEventData(
+    ...args: Parameters<typeof buildDomainData>
+  ): ReturnType<typeof buildDomainData> & { vedlegg_ids: string[] } {
+    return { ...buildDomainData(...args), vedlegg_ids: [...vedleggIds] };
+  }
   import PositionExplanation from './PositionExplanation.svelte';
   import YesNoControl from './components/YesNoControl.svelte';
   import { AlertTriangle, Check, CircleMinus, Clock3, X } from 'lucide-svelte';
   import ExpandableReasoning from '$lib/components/patterns/ExpandableReasoning.svelte';
   import StatementCard from '$lib/components/patterns/StatementCard.svelte';
-  import { beregnAlt, buildEventData, getDefaults } from '$lib/domain/fristDomain';
+  import {
+    beregnAlt,
+    buildEventData as buildDomainData,
+    getDefaults,
+  } from '$lib/domain/fristDomain';
   import type { ResponsFristEventData } from '$lib/types/timeline';
   import {
     createSubmission,
@@ -83,6 +95,7 @@
     !store.isDemo,
     { sakId: store.sak.sak_id, spor: 'frist', revisjon: store.sak.frist.antall_versjoner },
     () => ({
+      vedleggIds,
       fristVarselOk,
       spesifisertKravOk,
       foresporselSvarOk,
@@ -93,6 +106,7 @@
       tilleggHtml,
     }),
     (saved) => {
+      vedleggIds = saved.vedleggIds ?? [];
       fristVarselOk = saved.fristVarselOk;
       spesifisertKravOk = saved.spesifisertKravOk;
       foresporselSvarOk = saved.foresporselSvarOk;
@@ -225,8 +239,9 @@
 
   $effect(() => {
     onactions?.({
-      canSend: allAnswered && !submission.pending,
+      canSend: allAnswered && !submission.pending && !vedleggOpptatt,
       send: () => {
+        if (vedleggOpptatt) return;
         if (allAnswered)
           void submission.run(async () => {
             if (review) {
@@ -304,6 +319,20 @@
       hentInn={draft.hentInn}
     />
     <CaseAnchor />
+    {#if !store.isDemo}
+      <details>
+        <summary
+          >Vedlegg (valgfritt){vedleggIds.length ? ` · ${vedleggIds.length} valgt` : ''}</summary
+        >
+        <VedleggPanel
+          sakId={store.sak.sak_id}
+          valgbare
+          bind:valgte={vedleggIds}
+          bind:opptatt={vedleggOpptatt}
+          disabled={submission.pending}
+        />
+      </details>
+    {/if}
 
     <FormPageHeader
       title="Svar på krav om fristforlengelse"

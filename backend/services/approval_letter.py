@@ -72,6 +72,11 @@ def snapshot(letter, package_id):
     names = {"grunnlag": "Ansvarsgrunnlag", "vederlag": "Økonomi", "frist": "Frist"}
     body = "\n\n".join(
         f"{names[i['track']]}\n{decision_summary(i)}\n\n{plain_text(i['data'].get('begrunnelse') or i['data'].get('beskrivelse'))}"
+        + (
+            "\n\nVedlegg\n" + "\n".join(v["navn"] for v in i["attachments"])
+            if i.get("attachments")
+            else ""
+        )
         for i in letter["items"]
     )
     return LetterSnapshot.model_validate(

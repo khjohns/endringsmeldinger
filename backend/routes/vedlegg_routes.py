@@ -1,8 +1,8 @@
 """Vedleggsruter: opplasting, liste og nedlasting.
 
-Dokumentene lever i Catendas bibliotek — appen holder ingen egen kopi. Det gir
-én autoritativ fil per vedlegg, som er det en kontraktstvist trenger: to kopier
-kan divergere, og «hvilken fil ble faktisk sendt» må ha ett svar.
+Usendte filer mellomlagres privat for avsenders Catenda-team. Etter innsending
+lastes de opp og knyttes til saken i Catenda; opplastingskvitteringen frigir
+de lokale bytene. En feil i leveringen gjør ikke hendelsen usendt.
 
 Tilgangskontroll er vår, ikke Catendas. Backend snakker med Catenda gjennom
 appens tjenestekonto (`lib/catenda_factory.get_catenda_client`), ikke brukerens
@@ -19,6 +19,8 @@ from flask import Blueprint, g, jsonify, request
 from werkzeug.utils import secure_filename
 
 from lib.auth.contract_role import require_contract_role
+from lib.auth.domain import catenda_id
+from lib.auth.event_visibility import reader_contract_team
 from lib.auth.project_access import require_project_access
 from lib.auth.session import require_auth
 from lib.decorators import handle_service_errors
@@ -63,9 +65,14 @@ def list_vedlegg(sak_id: str):
     """
     from lib.auth.event_visibility import reader_contract_role
 
+    team = reader_contract_team()
     return jsonify(
         {
-            "vedlegg": _registry().list(g.project_id, sak_id),
+            "vedlegg": [
+                v
+                for v in _registry().list(g.project_id, sak_id)
+                if VedleggRegistry.visible(v, team)
+            ],
             "min_rolle": reader_contract_role(),
         }
     )
@@ -77,12 +84,16 @@ def list_vedlegg(sak_id: str):
 @require_contract_role()
 @handle_service_errors
 def last_opp_vedlegg(sak_id: str):
-    """Last opp et vedlegg til sakens dokumentbibliotek i Catenda."""
+    """Mellomlagre et valgfritt vedlegg privat for avsenders team."""
+    team = reader_contract_team()
+    if not team:
+        return jsonify(
+            error="MANGLER_TEAM",
+            message="Opplasting krever entydig teamtilknytning i Catenda.",
+        ), 403
     opplastet = request.files.get("file")
     if opplastet is None or not opplastet.filename:
-        return jsonify(
-            error="MANGLER_FIL", message="Velg en fil å laste opp."
-        ), 400
+        return jsonify(error="MANGLER_FIL", message="Velg en fil å laste opp."), 400
 
     # secure_filename fjerner stier og uheldige tegn. Blir navnet tomt —
     # for eksempel «..» eller bare spesialtegn — er det ikke et filnavn.
@@ -113,6 +124,7 @@ def last_opp_vedlegg(sak_id: str):
         innhold,
         g.user.get("name") or g.user.get("email") or g.user["id"],
         g.contract_role,
+        team,
     )
     logger.info(f"Vedlegg mellomlagret for sak {sak_id}: {oppforing['id']}")
 
@@ -132,7 +144,7 @@ def last_ned_vedlegg(sak_id: str, vedlegg_id: str):
     """
     registry = _registry()
     oppforing = registry.get(g.project_id, sak_id, vedlegg_id)
-    if oppforing is None:
+    if oppforing is None or not registry.visible(oppforing, reader_contract_team()):
         return jsonify(
             error="IKKE_FUNNET", message="Vedlegget finnes ikke på denne saken."
         ), 404
@@ -186,7 +198,7 @@ def _refererte_vedlegg(sak_id: str) -> set[str]:
     for rad in events_data or []:
         hendelse = parse_event(rad)
         for ref in getattr(getattr(hendelse, "data", None), "vedlegg_ids", None) or []:
-            referert.add(ref)
+            referert.add(catenda_id(ref))
     return referert
 
 
@@ -216,7 +228,10 @@ def slett_vedlegg(sak_id: str, vedlegg_id: str):
             error="IKKE_FUNNET", message="Vedlegget finnes ikke på denne saken."
         ), 404
 
-    if oppforing["lastet_opp_rolle"] != g.contract_role:
+    if (
+        not reader_contract_team()
+        or oppforing.get("lastet_opp_team") != reader_contract_team()
+    ):
         return jsonify(
             error="IKKE_EGEN_SIDE",
             message="Bare den som lastet opp vedlegget kan fjerne det.",
@@ -231,7 +246,9 @@ def slett_vedlegg(sak_id: str, vedlegg_id: str):
         ), 409
 
     try:
-        referert = _refererte_vedlegg(sak_id)
+        referert = _refererte_vedlegg(sak_id) | {
+            catenda_id(ref) for ref in registry.approval_refs(g.project_id, sak_id)
+        }
     except Exception:
         logger.exception("Kunne ikke lese hendelsene for %s", sak_id)
         return jsonify(
@@ -239,13 +256,16 @@ def slett_vedlegg(sak_id: str, vedlegg_id: str):
             message="Kunne ikke bekrefte om vedlegget er i bruk. Prøv igjen.",
         ), 503
 
-    if vedlegg_id in referert:
+    if catenda_id(vedlegg_id) in referert:
         return jsonify(
             error="VEDLEGG_I_BRUK",
-            message="Vedlegget er brukt i en sendt hendelse og kan ikke fjernes.",
+            message="Vedlegget er brukt i en hendelse eller ferdigstilt vurdering og kan ikke fjernes.",
         ), 409
 
-    registry.delete(g.project_id, sak_id, vedlegg_id)
+    try:
+        registry.delete(g.project_id, sak_id, vedlegg_id)
+    except ValueError as error:
+        return jsonify(error="VEDLEGG_I_BRUK", message=str(error)), 409
     logger.info(f"Vedlegg fjernet fra sak {sak_id}: {vedlegg_id}")
 
     return jsonify({"slettet": vedlegg_id}), 200
@@ -265,23 +285,27 @@ def lever_vedlegg_for_hendelser(project_id: str, sak_id: str, hendelser) -> None
     referert: set[str] = set()
     for hendelse in hendelser:
         for ref in getattr(getattr(hendelse, "data", None), "vedlegg_ids", None) or []:
-            referert.add(ref)
+            referert.add(catenda_id(ref))
     if not referert:
         return
 
-    from services.vedlegg_registry import STAGED
+    from services.vedlegg_registry import PENDING, STAGED
 
     registry = _registry()
     ventende = [
         oppforing
         for oppforing in registry.list(project_id, sak_id)
-        if oppforing["id"] in referert and oppforing["status"] == STAGED
+        if catenda_id(oppforing["id"]) in referert
+        and oppforing["status"] in (STAGED, PENDING)
     ]
     if not ventende:
         return
 
+    for oppforing in ventende:
+        registry.mark_pending(project_id, sak_id, oppforing["id"])
+
     ctx = _catenda_context(sak_id)
-    if ctx is None:
+    if ctx is None or not ctx.topic_id:
         logger.warning(
             "Hendelse lagret; vedlegg venter på tilgjengelig dokumentbibliotek (%s)",
             sak_id,
@@ -292,21 +316,48 @@ def lever_vedlegg_for_hendelser(project_id: str, sak_id: str, hendelser) -> None
     import tempfile
 
     for oppforing in ventende:
-        innhold = registry.content(project_id, sak_id, oppforing["id"])
-        if innhold is None:
+        token = registry.claim_delivery(project_id, sak_id, oppforing["id"])
+        if not token:
             continue
         sti = None
         try:
-            with tempfile.NamedTemporaryFile(
-                delete=False, suffix=f"-{oppforing['navn']}"
-            ) as tmp:
-                tmp.write(innhold)
-                sti = tmp.name
-            item = ctx.service.upload_document(
-                project_id=ctx.project_id,
-                file_path=sti,
-                filename=oppforing["navn"],
-                folder_id=ctx.folder_id,
+            # Re-read after claiming; another worker may have saved an upload receipt.
+            entry = registry.get(project_id, sak_id, oppforing["id"])
+            item_id = entry["catenda_item_id"]
+            if not item_id:
+                innhold = registry.content(project_id, sak_id, oppforing["id"])
+                if innhold is None:
+                    raise RuntimeError(
+                        "Vedlegget mangler både innhold og Catenda-kvittering"
+                    )
+                with tempfile.NamedTemporaryFile(
+                    delete=False, suffix=f"-{oppforing['navn']}"
+                ) as tmp:
+                    tmp.write(innhold)
+                    sti = tmp.name
+                item = ctx.service.upload_document(
+                    project_id=ctx.project_id,
+                    file_path=sti,
+                    filename=oppforing["navn"],
+                    folder_id=ctx.folder_id,
+                )
+                item_id = (item or {}).get("id") or (item or {}).get("library_item_id")
+                if not item_id:
+                    raise RuntimeError("Catenda returnerte ingen dokument-ID")
+                registry.mark_uploaded(project_id, sak_id, oppforing["id"], item_id)
+            from uuid import UUID
+
+            document_guid = str(UUID(item_id))
+            linked = ctx.service.create_document_reference(ctx.topic_id, document_guid)
+            if not linked and document_guid != item_id:
+                linked = ctx.service.create_document_reference(ctx.topic_id, item_id)
+            if not linked:
+                raise RuntimeError(
+                    "Dokumentet er lastet opp, men kunne ikke knyttes til saken i Catenda"
+                )
+            registry.mark_delivered(project_id, sak_id, oppforing["id"], item_id)
+            logger.info(
+                "Vedlegg %s levert til Catenda for sak %s", oppforing["id"], sak_id
             )
         except Exception:
             logger.exception(
@@ -314,23 +365,29 @@ def lever_vedlegg_for_hendelser(project_id: str, sak_id: str, hendelser) -> None
             )
             continue
         finally:
+            registry.release_delivery(project_id, sak_id, oppforing["id"], token)
             if sti:
                 try:
                     os.remove(sti)
                 except OSError:
                     pass
 
-        if item and item.get("id"):
-            registry.mark_delivered(project_id, sak_id, oppforing["id"], item["id"])
-            logger.info(
-                f"Vedlegg {oppforing['id']} levert til Catenda for sak {sak_id}"
-            )
-        else:
-            logger.error(
-                "Hendelse lagret; vedlegg %s ble ikke lastet opp", oppforing["id"]
-            )
-
 
 def lever_vedlegg_for_hendelse(project_id: str, sak_id: str, event) -> None:
     """Enkelthendelse-variant av `lever_vedlegg_for_hendelser`."""
     lever_vedlegg_for_hendelser(project_id, sak_id, [event])
+
+
+@vedlegg_bp.route("/api/cases/<sak_id>/vedlegg/retry", methods=["POST"])
+@require_auth
+@require_project_access(min_role="member")
+@require_contract_role()
+@handle_service_errors
+def retry_vedlegg(sak_id):
+    """Retry committed references only; never append another public event."""
+    from models.events import parse_event
+    from routes.event_routes import _get_event_repo
+
+    raw, _ = _get_event_repo().get_events(sak_id)
+    lever_vedlegg_for_hendelser(g.project_id, sak_id, [parse_event(e) for e in raw])
+    return jsonify(ok=True)

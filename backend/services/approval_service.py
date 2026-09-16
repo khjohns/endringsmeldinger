@@ -152,7 +152,10 @@ class ApprovalService:
             validated.append(enrich_event_with_version(event, state))
         return validated, version
 
-    def command(self, project, case_id, actor, chain, can_prepare, body):
+    def command(self, project, case_id, actor, chain, can_prepare, body, team=None):
+        from services.vedlegg_registry import VedleggRegistry
+
+        attachments = VedleggRegistry(self.path)
         if not can_prepare and actor not in {u["id"] for u in chain}:
             raise PermissionError("Godkjenningsfullmakten er tilbakekalt.")
         self.reconcile_policy(project, case_id, chain)
@@ -211,6 +214,14 @@ class ApprovalService:
                     id=str(uuid4()), owner=actor, status="ferdigstilt", createdAt=now
                 )
                 validated, _ = self.validate_items(case_id, [item], check_basis=False)
+                validated[0].data.vedlegg_ids = attachments.validate_refs(
+                    project, case_id, validated[0].data.vedlegg_ids, team
+                )
+                item["attachments"] = [
+                    {"id": v["id"], "navn": v["navn"]}
+                    for v in attachments.list(project, case_id)
+                    if v["id"] in validated[0].data.vedlegg_ids
+                ]
                 raw, _ = self.events.get_events(case_id)
                 ground = self.timeline.compute_state(
                     [parse_event(e) for e in raw]
@@ -464,7 +475,25 @@ class ApprovalService:
             )
             state["version"] += 1
             state["commands"][command_id] = actor
-            return self.public(state)
+            result = self.public(state)
+        # Release the SQLite approval transaction before attachment delivery writes
+        # to the same database. Also recover after an earlier event-store commit.
+        if action == "publish":
+            package = next(p for p in state["packages"] if p["id"] == body["packageId"])
+            if package["status"] == "sendt":
+                try:
+                    from routes.vedlegg_routes import lever_vedlegg_for_hendelser
+
+                    lever_vedlegg_for_hendelser(
+                        project,
+                        case_id,
+                        [parse_event(e) for e in package["publicationEvents"]],
+                    )
+                except Exception:
+                    logger.exception(
+                        "Brev publisert; vedleggslevering feilet for %s", case_id
+                    )
+        return result
 
     def reconcile_policy(self, project, case_id, chain):
         """Return uncommitted packages for fresh approval when authority changes."""
@@ -552,17 +581,6 @@ class ApprovalService:
                     event["tidsstempel"] = now
                 publiserte = [parse_event(e) for e in p["publicationEvents"]]
                 self.events.append_batch(publiserte, version)
-                # Vedlegg sendes først når brevet faktisk publiseres. En feil
-                # her gjør ikke publiseringen mislykket: hendelsene er lagret,
-                # og vedlegget blir stående mellomlagret for ny levering.
-                try:
-                    from routes.vedlegg_routes import lever_vedlegg_for_hendelser
-
-                    lever_vedlegg_for_hendelser(project, case_id, publiserte)
-                except Exception:
-                    logger.exception(
-                        "Brev publisert; vedleggslevering feilet for %s", case_id
-                    )
             except (ValueError, ConcurrencyError) as error:
                 p.update(status="publisering_feilet", error=str(error))
                 return

@@ -20,7 +20,7 @@ from flask import Flask
 from lib.auth.session import cookie_name
 from lib.project_context import init_project_context
 from routes import vedlegg_routes
-from services.vedlegg_registry import DELIVERED, STAGED, VedleggRegistry
+from services.vedlegg_registry import DELIVERED, PENDING, STAGED, VedleggRegistry
 
 CATENDA_ID = "3fa85f6457174562b3fc2c963f66afa6"
 INNHOLD = b"%PDF-1.7 testinnhold"
@@ -54,9 +54,14 @@ def api(monkeypatch, tmp_path):
 
     service = Mock()
     service.upload_document.return_value = {"id": CATENDA_ID}
+    service.create_document_reference.return_value = {"guid": "reference"}
     service.download_document.return_value = (INNHOLD, "fra-catenda.pdf")
     ctx = SimpleNamespace(
-        service=service, project_id="cat-p", folder_id="mappe-1", library_id="lib-1"
+        service=service,
+        project_id="cat-p",
+        folder_id="mappe-1",
+        library_id="lib-1",
+        topic_id="topic",
     )
     monkeypatch.setattr(vedlegg_routes, "_catenda_context", lambda sak_id: ctx)
 
@@ -344,7 +349,7 @@ def test_feilet_levering_beholder_mellomlagringen(api):
     vedlegg_routes.lever_vedlegg_for_hendelse("p", "S1", _hendelse_med([vedlegg_id]))
 
     registry = VedleggRegistry()
-    assert registry.get("p", "S1", vedlegg_id)["status"] == STAGED
+    assert registry.get("p", "S1", vedlegg_id)["status"] == PENDING
     assert registry.content("p", "S1", vedlegg_id) == INNHOLD
 
 
@@ -363,3 +368,156 @@ def test_levering_rydder_tempfilen(api, monkeypatch):
     import os
 
     assert not os.path.exists(sett["sti"])
+
+
+@pytest.mark.parametrize(
+    "membership", [("BH", "team-bh"), ("TE", "other-te"), ("TE", None)]
+)
+def test_private_staged_files_hidden_from_other_teams(api, membership):
+    vedlegg_id = _id(_last_opp(api))
+    api.auth.contract_membership.return_value = membership
+    listed = api.client.get("/api/cases/S1/vedlegg", headers={"X-Project-ID": "p"})
+    assert listed.json["vedlegg"] == []
+    download = api.client.get(
+        f"/api/cases/S1/vedlegg/{vedlegg_id}", headers={"X-Project-ID": "p"}
+    )
+    assert download.status_code == 404
+    api.service.download_document.assert_not_called()
+
+
+def test_ambiguous_team_cannot_upload(api):
+    api.auth.contract_membership.return_value = ("TE", None)
+    assert _last_opp(api).status_code == 403
+    assert VedleggRegistry().list("p", "S1") == []
+
+
+def test_legacy_staged_without_team_is_hidden(api):
+    entry = VedleggRegistry().stage("p", "S1", "old.pdf", INNHOLD, "TE Bruker", "TE")
+    assert (
+        api.client.get("/api/cases/S1/vedlegg", headers={"X-Project-ID": "p"}).json[
+            "vedlegg"
+        ]
+        == []
+    )
+    assert (
+        api.client.get(
+            f"/api/cases/S1/vedlegg/{entry['id']}", headers={"X-Project-ID": "p"}
+        ).status_code
+        == 404
+    )
+
+
+def test_pending_is_shared_but_unselected_remains_private(api):
+    sent = _id(_last_opp(api))
+    _last_opp(api, "unselected.pdf")
+    api.service.upload_document.side_effect = RuntimeError("Offline")
+    vedlegg_routes.lever_vedlegg_for_hendelse("p", "S1", _hendelse_med([sent]))
+    api.auth.contract_membership.return_value = ("BH", "team-bh")
+    listed = api.client.get("/api/cases/S1/vedlegg", headers={"X-Project-ID": "p"}).json
+    assert [v["id"] for v in listed["vedlegg"]] == [sent]
+    assert listed["vedlegg"][0]["status"] == PENDING
+    assert (
+        api.client.get(
+            f"/api/cases/S1/vedlegg/{sent}", headers={"X-Project-ID": "p"}
+        ).data
+        == INNHOLD
+    )
+
+
+def test_retry_only_committed_references_and_never_appends(api, monkeypatch):
+    from models.events import parse_event_from_request
+
+    sent = _id(_last_opp(api))
+    private = _id(_last_opp(api, "private.pdf"))
+    event = parse_event_from_request(
+        {
+            "sak_id": "S1",
+            "event_type": "respons_grunnlag",
+            "aktor": "BH",
+            "aktor_rolle": "BH",
+            "data": {
+                "resultat": "godkjent",
+                "begrunnelse": "OK",
+                "vedlegg_ids": [sent],
+            },
+        }
+    )
+    repo = _tomme_hendelser(monkeypatch)
+    repo.get_events.return_value = ([event.model_dump(mode="json")], 1)
+    api.service.upload_document.side_effect = RuntimeError("Offline")
+    url = "/api/cases/S1/vedlegg/retry"
+    headers = {"X-Project-ID": "p", "X-CSRF-Token": "csrf"}
+    assert api.client.post(url, headers=headers).status_code == 200
+    assert VedleggRegistry().get("p", "S1", sent)["status"] == PENDING
+    api.service.upload_document.side_effect = None
+    assert api.client.post(url, headers=headers).status_code == 200
+    assert VedleggRegistry().get("p", "S1", sent)["status"] == DELIVERED
+    assert VedleggRegistry().get("p", "S1", private)["status"] == STAGED
+    assert api.client.post(url, headers=headers).status_code == 200
+    assert api.service.upload_document.call_count == 2
+    repo.append.assert_not_called()
+    repo.append_batch.assert_not_called()
+
+
+def test_overlapping_delivery_workers_upload_once(api):
+    sent = _id(_last_opp(api))
+    event = _hendelse_med([sent])
+
+    def nested_upload(**kwargs):
+        vedlegg_routes.lever_vedlegg_for_hendelse("p", "S1", event)
+        return {"id": CATENDA_ID}
+
+    api.service.upload_document.side_effect = nested_upload
+    vedlegg_routes.lever_vedlegg_for_hendelse("p", "S1", event)
+    api.service.upload_document.assert_called_once()
+
+
+def test_failed_topic_link_reuses_uploaded_document(api):
+    sent = _id(_last_opp(api))
+    event = _hendelse_med([sent])
+    api.service.create_document_reference.return_value = None
+    vedlegg_routes.lever_vedlegg_for_hendelse("p", "S1", event)
+    registry = VedleggRegistry()
+    assert registry.get("p", "S1", sent)["status"] == PENDING
+    assert registry.get("p", "S1", sent)["catenda_item_id"] == CATENDA_ID
+    assert registry.content("p", "S1", sent) is None
+    api.service.create_document_reference.return_value = {"guid": "reference"}
+    vedlegg_routes.lever_vedlegg_for_hendelse("p", "S1", event)
+    api.service.upload_document.assert_called_once()
+    assert registry.get("p", "S1", sent)["status"] == DELIVERED
+    api.service.create_document_reference.assert_called_with(
+        "topic", "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+    )
+
+
+def test_prepared_approval_attachment_cannot_be_deleted(api, monkeypatch):
+    import json
+
+    from lib.sqlite_connection import sqlite_connection
+
+    entry = _id(_last_opp(api))
+    _tomme_hendelser(monkeypatch)
+    registry = VedleggRegistry()
+    with sqlite_connection(registry.path) as db:
+        db.execute("CREATE TABLE approvals(project TEXT, case_id TEXT, body TEXT)")
+        db.execute(
+            "INSERT INTO approvals VALUES(?,?,?)",
+            (
+                "p",
+                "S1",
+                json.dumps(
+                    {
+                        "items": [
+                            {"status": "ferdigstilt", "data": {"vedlegg_ids": [entry]}}
+                        ],
+                        "packages": [],
+                    }
+                ),
+            ),
+        )
+    response = api.client.delete(
+        f"/api/cases/S1/vedlegg/{entry}",
+        headers={"X-Project-ID": "p", "X-CSRF-Token": "csrf"},
+    )
+    assert response.status_code == 409
+    assert registry.content("p", "S1", entry) == INNHOLD

@@ -17,6 +17,7 @@ export interface ReviewItem {
   owner: string;
   previousId?: string;
   form?: Record<string, unknown>;
+  attachments?: { id: string; navn: string }[];
   basis?: {
     claimId: string;
     resultat: string | null;

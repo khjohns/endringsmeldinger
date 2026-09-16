@@ -1,6 +1,11 @@
 # Audit: vedleggs- og dokumentflyt
 
 Dato: 2026-09-15. Utgangspunkt: `383eed3`.
+
+> **Korrigering 2026-09-16:** Oppfølgingens konklusjon om ferdig flyt og private
+> mellomlagrede vedlegg var for sterk. Frontend manglet innsendingsreferanser,
+> BH-modellene droppet dem, og leserutene skjermet ikke usendte filer etter team.
+> Se [ny audit og retting](audit-vedleggsintegrasjon-2026-09-16.md) for gjeldende status.
 Forrige logger: [PDF og Catenda-levering](audit-pdf-catenda-2026-09-14.md) (som avgrenset
 seg eksplisitt fra denne flaten), og [intern konfidensialitet og forseringsregler](audit-backend-hendelsesflyt-2026-09-15.md).
 

@@ -9,6 +9,10 @@ import { createCaseWorkspace } from '$lib/kontraktsbord/context.svelte';
 import type { CaseContextResponse } from '$lib/types/api';
 
 import { apiFetch } from '$lib/api/client';
+vi.mock('$lib/api/vedlegg', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('$lib/api/vedlegg')>()),
+  hentVedlegg: vi.fn().mockResolvedValue({ vedlegg: [], minRolle: 'BH' }),
+}));
 // Partiell mock: behold ekte eksporter (bl.a. ApiError, som approval/context bruker
 // i instanceof-sjekk) og stub bare nettverkskallet.
 vi.mock('$lib/api/client', async (importOriginal) => ({
