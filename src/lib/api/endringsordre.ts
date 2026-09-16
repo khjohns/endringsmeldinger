@@ -1,4 +1,5 @@
 import { apiFetch } from './client';
+import type { ApprovalUser } from '$lib/approval/types';
 import type { EOKonsekvenser, SakState, VederlagsMetode } from '$lib/types/timeline';
 
 export interface EOCandidate {
@@ -49,4 +50,59 @@ export function fetchEOContext(projectId: string, sakId: string) {
     `/api/endringsordre/${encodeURIComponent(sakId)}/kontekst`,
     { headers: { 'X-Project-ID': projectId } }
   );
+}
+
+export type EOApprovalStatus =
+  | 'til_godkjenning'
+  | 'returnert'
+  | 'trukket'
+  | 'godkjent'
+  | 'utstedelse_feilet'
+  | 'utstedt';
+
+export interface EOApprovalPackage {
+  id: string;
+  status: EOApprovalStatus;
+  owner: string;
+  ownerName?: string;
+  createdAt: string;
+  previousId?: string | null;
+  request: CreateEORequest;
+  steps: (ApprovalUser & { status: 'venter' | 'aktiv' | 'godkjent'; decidedAt?: string })[];
+  comment?: string;
+  returnedBy?: string;
+  sakId?: string;
+  issuedAt?: string;
+  error?: string | null;
+}
+
+export interface EOApprovalResponse {
+  state: { version: number; packages: EOApprovalPackage[] };
+  actor: string;
+  sender: ApprovalUser | null;
+  chain: ApprovalUser[];
+  canPrepare: boolean;
+  dailyRate: number | null;
+}
+
+export type EOApprovalCommand =
+  | { action: 'submit'; request: CreateEORequest; previousId?: string }
+  | { action: 'approve' | 'withdraw' | 'retry'; packageId: string }
+  | { action: 'return'; packageId: string; comment: string };
+
+export function fetchEOApprovals(projectId: string) {
+  return apiFetch<EOApprovalResponse>('/api/endringsordre/godkjenninger', {
+    headers: { 'X-Project-ID': projectId },
+  });
+}
+
+export function sendEOApprovalCommand(
+  projectId: string,
+  command: EOApprovalCommand & { expectedVersion: number; commandId: string }
+) {
+  return apiFetch<EOApprovalResponse>('/api/endringsordre/godkjenninger', {
+    method: 'POST',
+    headers: { 'X-Project-ID': projectId },
+    body: JSON.stringify(command),
+  });
 }

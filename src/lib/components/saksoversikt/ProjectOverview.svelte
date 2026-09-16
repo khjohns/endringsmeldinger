@@ -166,7 +166,10 @@
             <a class="primary" class:secondary-action={role === 'BH'} href={resolve('/mockup')}
               >Åpne eksempelsak</a
             >
-            {#if role === 'BH'}<a class="primary" href={resolve('/mockup/endringsordre/ny')}
+            {#if role === 'BH'}<a
+                class="primary secondary-action"
+                href={resolve('/mockup/endringsordre/godkjenning')}>Til godkjenning</a
+              ><a class="primary" href={resolve('/mockup/endringsordre/ny')}
                 ><Plus size={17} />Ny endringsordre</a
               >{/if}
           </div>
@@ -177,12 +180,20 @@
             ><Plus size={17} /> Ny sak</a
           >
         {:else if role === 'BH' && activePage === 'overview'}
-          <a
-            class="primary"
-            href={resolve('/[prosjektId]/endringsordre/ny', {
-              prosjektId: encodeURIComponent(prosjektId),
-            })}><Plus size={17} /> Ny endringsordre</a
-          >
+          <div class="heading-actions">
+            <a
+              class="primary secondary-action"
+              href={resolve('/[prosjektId]/endringsordre/godkjenning', {
+                prosjektId: encodeURIComponent(prosjektId),
+              })}>Til godkjenning</a
+            >
+            <a
+              class="primary"
+              href={resolve('/[prosjektId]/endringsordre/ny', {
+                prosjektId: encodeURIComponent(prosjektId),
+              })}><Plus size={17} /> Ny endringsordre</a
+            >
+          </div>
         {/if}
       </header>
       <details class="mobile-project-info">

@@ -22,7 +22,12 @@ def number(value):
     return result
 
 
-def validate_authority(items, chain, daily_rate=None):
+def covers(role, amount):
+    return role in LIMITS and (LIMITS[role] is None or LIMITS[role] >= amount)
+
+
+def exposure(items, daily_rate=None):
+    """Highest total principal or subsidiary position; alternatives are never added."""
     principal = Decimal(0)
     subsidiary = Decimal(0)
     needs_rate = False
@@ -59,17 +64,45 @@ def validate_authority(items, chain, daily_rate=None):
             main, other = main * rate, other * rate
         principal += main
         subsidiary += other
-    amount = max(principal, subsidiary)
-    if amount > 0 and not any(
-        person.get("role") in LIMITS
-        and (LIMITS[person["role"]] is None or LIMITS[person["role"]] >= amount)
-        for person in chain
-    ):
-        raise ValueError(
-            "Godkjenningskjeden har ikke tilstrekkelig fullmakt for brevet."
-        )
+    return max(principal, subsidiary), needs_rate
+
+
+def resolve_route(amount, sender, chain):
+    """Approvers the amount requires, in chain order, ending with the one who decides.
+
+    Mirrors resolveRoute in src/lib/approval/route.ts. An empty route means the sender
+    may send within their own authority. `amount=None` requires the whole chain.
+    """
+    if amount is not None and sender and covers(sender.get("role"), amount):
+        return []
+    if amount is not None:
+        for index, person in enumerate(chain):
+            if covers(person.get("role"), amount):
+                return list(chain[: index + 1])
+    # Legacy chains without matrix roles still apply in full to zero-value letters.
+    if chain and (amount is None or amount == 0):
+        return list(chain)
+    raise ValueError("Godkjenningskjeden har ikke tilstrekkelig fullmakt for brevet.")
+
+
+def approval_route(items, chain, daily_rate=None, sender=None):
+    amount, needs_rate = exposure(items, daily_rate)
+    route = resolve_route(amount, sender, chain)
     return {
         "amount": str(amount),
         "dailyRate": str(number(daily_rate)) if needs_rate else None,
         "matrix": "2026-01",
-    }
+    }, route
+
+
+def validate_authority(items, chain, daily_rate=None, sender=None):
+    return approval_route(items, chain, daily_rate, sender)[0]
+
+
+def handler_identity(policy, actor):
+    """Handlers are e-mails, or objects with a matrix role that sets their own authority."""
+    for entry in (policy or {}).get("handlers", []):
+        person = entry if isinstance(entry, dict) else {"id": entry}
+        if str(person.get("id", "")).lower() == actor:
+            return {**person, "id": actor, "name": person.get("name") or actor}
+    return None

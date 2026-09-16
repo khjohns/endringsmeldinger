@@ -1,9 +1,16 @@
 <script lang="ts">
   import { resolve } from '$app/paths';
-  import { onMount } from 'svelte';
-  import { FileCheck2, ArrowLeft, ArrowRight, Search } from 'lucide-svelte';
+  import { onMount, untrack } from 'svelte';
+  import { ArrowRight, Search } from 'lucide-svelte';
   import FormSection from '$lib/components/kontraktsbord/components/FormSection.svelte';
   import EndringsordreDocument from './EndringsordreDocument.svelte';
+  import EOApprovalPanel from './EOApprovalPanel.svelte';
+  import { ApiError } from '$lib/api/client';
+  import {
+    apiEOApprovals,
+    createEOApprovalWorkspace,
+    type EOApprovalSource,
+  } from '$lib/approval/eoApproval.svelte';
   import {
     createEndringsordre,
     fetchEOCandidates,
@@ -15,6 +22,7 @@
     newEODraft,
     validateEODraft,
     buildEORequest,
+    requestToDocument,
     selectedEOCandidates,
     settlementLabels,
     snapshotEOEffects,
@@ -32,6 +40,8 @@
     oncreated,
     demo,
     caseHref,
+    approvalSource,
+    approvalsHref,
   }: {
     projectId: string;
     projectName: string;
@@ -48,7 +58,27 @@
       };
     };
     caseHref?: (sakId: string) => `/${string}`;
+    /** Internal approval before issuance; the demo supplies a local source */
+    approvalSource?: EOApprovalSource;
+    /** Where approvers and the handler follow orders in approval */
+    approvalsHref?: string;
   } = $props();
+
+  // A demo without an approval source issues directly, like projects without a policy.
+  // The route keys the form by project, so the source is fixed for its lifetime.
+  const approvals = createEOApprovalWorkspace(
+    untrack(
+      () =>
+        approvalSource ??
+        (demo
+          ? {
+              load: () =>
+                Promise.reject(new ApiError(403, 'Intern godkjenning er ikke konfigurert.')),
+              command: () => Promise.reject(new Error('Ikke tilgjengelig.')),
+            }
+          : apiEOApprovals(projectId))
+    )
+  );
 
   let draft = $state<EODraft>(newEODraft());
   let ready = $state(false);
@@ -58,7 +88,6 @@
   let error = $state('');
   let search = $state('');
   let reviewing = $state(false);
-  let confirmed = $state(false);
   let sending = $state(false);
   let createdId = $state('');
   const storageKey = $derived(
@@ -92,15 +121,25 @@
       days: c.godkjent_dager,
     }))
   );
-  const document = $derived.by((): EndringsordreData => {
-    const payload = buildEORequest(draft);
-    return {
-      ...payload,
-      relaterte_koe_saker: payload.koe_sak_ids,
-      revisjon_nummer: 0,
-      status: 'utkast',
-    };
+  const request = $derived(buildEORequest(draft));
+  const document = $derived<EndringsordreData>(requestToDocument(request));
+  /** The latest approval package for this order number, if it has been sent. */
+  const pkg = $derived(
+    [...approvals.packages]
+      .reverse()
+      .find((p) => p.owner === approvals.actor && p.request.eo_nummer === request.eo_nummer)
+  );
+  $effect(() => {
+    // Issued after approval, possibly by someone else: the local draft is spent.
+    if (pkg?.status === 'utstedt' && pkg.sakId && !createdId) {
+      createdId = pkg.sakId;
+      clearDraft(storageKey);
+    }
   });
+  const issuedHref = (sakId: string) =>
+    resolve(
+      `/${demo ? 'mockup/endringsordre' : encodeURIComponent(projectId)}/${encodeURIComponent(sakId)}`
+    );
 
   onMount(() => {
     const stored = loadDraft<{ version: number; draft: EODraft }>(storageKey);
@@ -194,12 +233,12 @@
     event.preventDefault();
     if (errors.length || (draft.mode === 'avtale' && (loading || loadError))) return;
     error = '';
-    confirmed = false;
     reviewing = true;
+    void approvals.load();
   }
 
   async function issue() {
-    if (sending || createdId || !confirmed || errors.length) return;
+    if (sending || createdId || errors.length) return;
     sending = true;
     error = '';
     try {
@@ -208,18 +247,21 @@
       if (!result.success || !result.sak_id)
         throw new Error('Utstedelsen kunne ikke bekreftes. Kontroller saksoversikten.');
       createdId = result.sak_id;
-      clearDraft(storageKey);
     } catch (e) {
       error = e instanceof Error ? e.message : 'Kunne ikke utstede endringsordren.';
     } finally {
       sending = false;
     }
-    if (createdId) {
-      try {
-        await oncreated(createdId);
-      } catch {
-        error = 'Endringsordren er utstedt. Åpne den med lenken nedenfor.';
-      }
+    if (createdId) await finish(createdId);
+  }
+
+  async function finish(sakId: string) {
+    createdId = sakId;
+    clearDraft(storageKey);
+    try {
+      await oncreated(sakId);
+    } catch {
+      error = 'Endringsordren er utstedt. Åpne den med lenken i panelet.';
     }
   }
 </script>
@@ -250,27 +292,20 @@
         preview
       />
       <aside class="review-actions">
-        <h2>Klar for utstedelse</h2>
-        <p>
-          Endringsordren blir registrert som utstedt i prosjektet, med eget nummer og lenker til
-          KOE-sakene som inngår.
-        </p>
-        <label class="checkbox"
-          ><input type="checkbox" bind:checked={confirmed} disabled={sending || !!createdId} /><span
-            >Jeg har kontrollert innholdet og vil utstede endringsordren.</span
-          ></label
-        >
+        <EOApprovalPanel
+          {approvals}
+          {request}
+          {pkg}
+          {issuedHref}
+          onedit={pkg?.status === 'til_godkjenning' ? undefined : () => (reviewing = false)}
+          onissued={(sakId) => void finish(sakId)}
+          legacy={{ issue, sending, createdId }}
+        />
         {#if error}<p class="error" role="alert">{error}</p>{/if}
-        {#if createdId}<a
-            class="primary"
-            href={resolve(
-              `/${demo ? 'mockup/endringsordre' : encodeURIComponent(projectId)}/${encodeURIComponent(createdId)}`
-            )}>Åpne utstedt endringsordre</a
-          >
-        {:else}<button class="primary" disabled={!confirmed || sending} onclick={issue}
-            ><FileCheck2 size={17} />{sending ? 'Utsteder …' : 'Utsted endringsordre'}</button
-          ><button class="secondary" disabled={sending} onclick={() => (reviewing = false)}
-            ><ArrowLeft size={16} />Tilbake til utfylling</button
+        {#if pkg && pkg.status !== 'utstedt' && approvalsHref}
+          <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -- the route passes a resolved path -->
+          <a class="approvals-link" href={`${approvalsHref}?pakke=${encodeURIComponent(pkg.id)}`}
+            >Følg godkjenningen</a
           >{/if}
       </aside>
     </div>
@@ -584,8 +619,8 @@
   }
   .review-layout {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 288px;
-    gap: 24px;
+    grid-template-columns: minmax(0, 1fr) 340px;
+    gap: 28px;
     align-items: start;
   }
   .mode-options {
@@ -674,8 +709,17 @@
     gap: 24px;
     flex-wrap: wrap;
   }
-  .summary,
   .review-actions {
+    position: sticky;
+    top: 24px;
+  }
+  .approvals-link {
+    display: block;
+    margin-top: 12px;
+    font-size: 12px;
+    color: var(--brand);
+  }
+  .summary {
     position: sticky;
     top: 24px;
     padding: 24px;
@@ -706,8 +750,7 @@
     color: var(--ink-3);
     margin-top: 6px;
   }
-  .helptext,
-  .review-actions p {
+  .helptext {
     color: var(--ink-3);
     font-size: 12px;
     line-height: 1.7;
@@ -748,11 +791,6 @@
   button:disabled {
     opacity: 0.5;
     cursor: not-allowed;
-  }
-  .review-actions button,
-  .review-actions > a {
-    width: 100%;
-    margin-top: 16px;
   }
   .form-footer {
     position: sticky;
@@ -849,7 +887,8 @@
       grid-template-columns: 1fr;
     }
     .summary,
-    .review-actions {
+    .review-actions,
+    .review-actions :global(.approval-panel) {
       position: static;
     }
   }

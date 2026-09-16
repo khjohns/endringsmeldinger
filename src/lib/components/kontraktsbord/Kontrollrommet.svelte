@@ -6,11 +6,11 @@
   import { getCaseWorkspace } from '$lib/kontraktsbord/context.svelte';
   const store = getCaseWorkspace();
   import { createApprovalWorkspace, setApprovalWorkspace } from '$lib/approval/context.svelte';
-  import ApprovalPanel from './ApprovalPanel.svelte';
+  import ClaimApprovalView from './ClaimApprovalView.svelte';
   import { onMount, untrack } from 'svelte';
   const approval = setApprovalWorkspace(createApprovalWorkspace(store));
   import { createClaimReview, setClaimReview } from '$lib/approval/claimReview.svelte';
-  import ClaimLetterDialog from './ClaimLetterDialog.svelte';
+  import ClaimLetterView from './ClaimLetterView.svelte';
   const claimReview = setClaimReview(createClaimReview(store));
   let showApproval = $state(false);
   onMount(() => {
@@ -71,6 +71,7 @@
     canSend: boolean;
     sendLabel: string;
     send: () => void;
+    reviewing: boolean;
   } | null>(null);
   const brevInnhold = $derived(letterEvent ? buildLetterContent(letterEvent, store.sak) : null);
 
@@ -121,18 +122,25 @@
     assessedGap(store.display('frist').krevdValue!, store.display('frist').bhPrinsipal)
   );
 
-  function goForm(key: SporKey) {
-    if (
-      role === 'BH' &&
-      approval.state.items.some(
-        (i) =>
-          i.track === (key === 'ansvar' ? 'grunnlag' : key) &&
-          ['ferdigstilt', 'til_godkjenning'].includes(i.status)
-      )
-    ) {
-      showApproval = true;
-      return;
+  async function goForm(key: SporKey) {
+    const track = key === 'ansvar' ? 'grunnlag' : key;
+    if (role === 'BH') {
+      const items = approval.state.items.filter((i) => i.track === track);
+      if (items.some((i) => i.status === 'til_godkjenning')) {
+        showApproval = true;
+        return;
+      }
+      // Back to step 1: a finished assessment reopens as an editable revision.
+      const finished = items.find((i) => i.status === 'ferdigstilt' && i.owner === approval.actor);
+      if (finished)
+        try {
+          await approval.revise(finished);
+        } catch {
+          showApproval = true; // the view shows the reason
+          return;
+        }
     }
+    showApproval = false;
     sel = key;
     mode = 'form';
     mobileView = 'detail';
@@ -221,7 +229,10 @@
     {/if}
     <div class="body">
       {#if !creatingCase}
-        <div class="left-panel" class:mobile-hidden={mobileView !== 'matrix'}>
+        <div
+          class="left-panel"
+          class:mobile-hidden={mobileView !== 'matrix' || (showApproval && role === 'BH')}
+        >
           <LeftSidebar {sel} {subV} {prinV} {subF} {prinF} onselect={selectTrack} />
         </div>
       {/if}
@@ -230,9 +241,12 @@
         <main
           class="center"
           class:center-new-case={creatingCase}
-          class:mobile-hidden={!creatingCase && mode === 'read' && mobileView === 'matrix'}
+          class:mobile-hidden={!creatingCase &&
+            !(showApproval && role === 'BH') &&
+            mode === 'read' &&
+            mobileView === 'matrix'}
         >
-          {#if role === 'BH' && !creatingCase}
+          {#if role === 'BH' && !creatingCase && !showApproval}
             <div class="approval-entry">
               <div>
                 <strong>Brev og intern godkjenning</strong><span
@@ -247,95 +261,99 @@
               >
             </div>
           {/if}
-          {#if creatingCase}
-            <NewCaseForm
-              onsend={handleNewCaseSend}
-              onactions={(actions) => (newCaseActions = actions)}
-            />
-          {:else if mode === 'read'}
-            <CenterRead
-              {sel}
-              {activeEvent}
-              onform={goForm}
-              onbacktonow={() => (activeEvent = null)}
-            />
-          {:else if role === 'BH' && (!approval.loaded || !approval.canPrepare)}
-            <div class="approval-entry">
-              <p role={approval.error ? 'alert' : 'status'}>
-                {approval.error ||
-                  (approval.loaded
-                    ? 'Åpne brev for å behandle godkjenningspakken.'
-                    : 'Henter intern behandling …')}
-              </p>
-              <button class="btn btn-secondary" onclick={() => void approval.load()}
-                >Prøv igjen</button
-              >
-            </div>
-          {:else if sel === 'frist' && role === 'BH'}
-            <FristForm
-              domainConfig={approval.fristConfig}
-              onsend={handleSend}
-              onactions={(a) => (formActions = a)}
-            />
-          {:else if sel === 'frist' && role === 'TE'}
-            <TeFristForm onsend={handleSend} onactions={(a) => (formActions = a)} />
-          {:else if sel === 'vederlag' && role === 'BH'}
-            <VederlagForm
-              domainConfig={approval.vederlagConfig}
-              onsend={handleSend}
-              onactions={(a) => (formActions = a)}
-            />
-          {:else if sel === 'vederlag' && role === 'TE'}
-            <TeVederlagForm onsend={handleSend} onactions={(a) => (formActions = a)} />
-          {:else if sel === 'ansvar' && role === 'BH'}
-            <GrunnlagForm
-              domainConfig={store.grunnlagDomainConfig}
-              onsend={handleSend}
-              onactions={(a) => (formActions = a)}
-            />
-          {:else if sel === 'ansvar' && role === 'TE'}
-            <TeGrunnlagForm onsend={handleSend} onactions={(a) => (formActions = a)} />
-          {/if}
+          <ClaimLetterView review={claimReview} />
+          <!-- Hidden, not unmounted, while the letter is checked: the form's submission resumes on confirm. -->
+          <div class="work" hidden={Boolean(claimReview.letter)}>
+            {#if showApproval && role === 'BH' && !creatingCase}
+              <ClaimApprovalView
+                onclose={() => (showApproval = false)}
+                onrevise={async (item) => {
+                  await approval.revise(item);
+                  showApproval = false;
+                  sel = item.track === 'grunnlag' ? 'ansvar' : item.track;
+                  mode = 'form';
+                  mobileView = 'detail';
+                  notifyView();
+                }}
+              />
+            {:else if creatingCase}
+              <NewCaseForm
+                onsend={handleNewCaseSend}
+                onactions={(actions) => (newCaseActions = actions)}
+              />
+            {:else if mode === 'read'}
+              <CenterRead
+                {sel}
+                {activeEvent}
+                onform={goForm}
+                onbacktonow={() => (activeEvent = null)}
+              />
+            {:else if role === 'BH' && (!approval.loaded || !approval.canPrepare)}
+              <div class="approval-entry">
+                <p role={approval.error ? 'alert' : 'status'}>
+                  {approval.error ||
+                    (approval.loaded
+                      ? 'Åpne brev for å behandle godkjenningspakken.'
+                      : 'Henter intern behandling …')}
+                </p>
+                <button class="btn btn-secondary" onclick={() => void approval.load()}
+                  >Prøv igjen</button
+                >
+              </div>
+            {:else if sel === 'frist' && role === 'BH'}
+              <FristForm
+                domainConfig={approval.fristConfig}
+                onsend={handleSend}
+                onactions={(a) => (formActions = a)}
+              />
+            {:else if sel === 'frist' && role === 'TE'}
+              <TeFristForm onsend={handleSend} onactions={(a) => (formActions = a)} />
+            {:else if sel === 'vederlag' && role === 'BH'}
+              <VederlagForm
+                domainConfig={approval.vederlagConfig}
+                onsend={handleSend}
+                onactions={(a) => (formActions = a)}
+              />
+            {:else if sel === 'vederlag' && role === 'TE'}
+              <TeVederlagForm onsend={handleSend} onactions={(a) => (formActions = a)} />
+            {:else if sel === 'ansvar' && role === 'BH'}
+              <GrunnlagForm
+                domainConfig={store.grunnlagDomainConfig}
+                onsend={handleSend}
+                onactions={(a) => (formActions = a)}
+              />
+            {:else if sel === 'ansvar' && role === 'TE'}
+              <TeGrunnlagForm onsend={handleSend} onactions={(a) => (formActions = a)} />
+            {/if}
 
-          {#if creatingCase}
-            <NewCaseActionBar
-              canSend={newCaseActions?.canSend ?? false}
-              sendLabel={newCaseActions?.sendLabel ?? 'Send ansvarsgrunnlag'}
-              oncancel={closeNewCase}
-              onsend={() => newCaseActions?.send()}
-            />
-          {:else}
-            <ActionBar
-              {mode}
-              {role}
-              {sel}
-              hasDraft={store.getUI(sel).draft !== null}
-              oncloseform={goRead}
-              onform={goForm}
-              ontogglecontext={() => (rightPanelOpen = !rightPanelOpen)}
-              onsend={() => formActions?.send()}
-              canSend={formActions?.canSend ?? false}
-              sendLabel={role === 'BH' ? 'Ferdigstill vurdering' : 'Se brev og send'}
-              onwithdraw={() => (showWithdrawModal = true)}
-            />
-          {/if}
+            {#if showApproval && role === 'BH' && !creatingCase}
+              <!-- The approval panel carries the actions in this step. -->
+            {:else if creatingCase}
+              {#if !newCaseActions?.reviewing}<NewCaseActionBar
+                  canSend={newCaseActions?.canSend ?? false}
+                  sendLabel={newCaseActions?.sendLabel ?? 'Send ansvarsgrunnlag'}
+                  oncancel={closeNewCase}
+                  onsend={() => newCaseActions?.send()}
+                />{/if}
+            {:else}
+              <ActionBar
+                {mode}
+                {role}
+                {sel}
+                hasDraft={store.getUI(sel).draft !== null}
+                oncloseform={goRead}
+                onform={goForm}
+                ontogglecontext={() => (rightPanelOpen = !rightPanelOpen)}
+                onsend={() => formActions?.send()}
+                canSend={formActions?.canSend ?? false}
+                sendLabel={role === 'BH' ? 'Ferdigstill vurdering' : 'Se brev og send'}
+                onwithdraw={() => (showWithdrawModal = true)}
+              />
+            {/if}
+          </div>
         </main>
       {/key}
 
-      {#if claimReview.letter}<ClaimLetterDialog review={claimReview} />{/if}
-      {#if showApproval && role === 'BH'}
-        <ApprovalPanel
-          onclose={() => (showApproval = false)}
-          onrevise={async (item) => {
-            await approval.revise(item);
-            showApproval = false;
-            sel = item.track === 'grunnlag' ? 'ansvar' : item.track;
-            mode = 'form';
-            mobileView = 'detail';
-            notifyView();
-          }}
-        />
-      {/if}
       {#if brevInnhold}
         <LetterPreviewModal {brevInnhold} onclose={() => (letterEvent = null)} />
       {/if}
@@ -360,7 +378,7 @@
         />
       {/if}
 
-      {#if !creatingCase}
+      {#if !creatingCase && !(showApproval && role === 'BH') && !claimReview.letter}
         <div class="right-panel" class:right-panel-open={rightPanelOpen}>
           {#if rightPanelOpen}
             <!-- svelte-ignore a11y_no_static_element_interactions a11y_click_events_have_key_events -->
@@ -390,6 +408,12 @@
 </div>
 
 <style>
+  .work {
+    display: contents;
+  }
+  .work[hidden] {
+    display: none;
+  }
   .approval-entry {
     display: flex;
     align-items: center;

@@ -9,6 +9,7 @@ from lib.auth.contract_role import require_contract_role
 from lib.auth.project_access import require_project_access
 from lib.auth.session import require_auth
 from repositories.event_repository import ConcurrencyError
+from services.approval_authority import handler_identity
 from services.approval_service import ApprovalService
 
 approval_bp = Blueprint("approvals", __name__)
@@ -34,7 +35,10 @@ def context(case_id):
     policy = project_policy(project)
     if not policy:
         raise PermissionError("Intern godkjenning er ikke konfigurert for prosjektet.")
-    handlers = [email.lower() for email in policy.get("handlers", [])]
+    handlers = [
+        (entry.get("id", "") if isinstance(entry, dict) else entry).lower()
+        for entry in policy.get("handlers", [])
+    ]
     chain = [{**user, "id": user["id"].lower()} for user in policy.get("chain", [])]
     authority_policy = dict(policy)
     if "daily_rate" not in authority_policy:
@@ -64,7 +68,7 @@ def context(case_id):
         )
     if not actor or not allowed:
         raise PermissionError("Du har ikke tilgang til byggherrens interne behandling.")
-    return service, project, actor, chain, actor in handlers
+    return service, project, actor, chain, actor in handlers, policy
 
 
 @approval_bp.route("/api/cases/<case_id>/approvals", methods=["GET", "POST"])
@@ -73,7 +77,7 @@ def context(case_id):
 @require_contract_role("BH")
 def approvals(case_id):
     try:
-        service, project, actor, chain, can_prepare = context(case_id)
+        service, project, actor, chain, can_prepare, policy = context(case_id)
         if request.method == "GET":
             service.reconcile_policy(project, case_id, chain)
             state = service.read(project, case_id)
@@ -164,6 +168,7 @@ def approvals(case_id):
             actor=actor,
             chain=chain,
             canPrepare=can_prepare,
+            sender=handler_identity(policy, actor),
             dailyRate=service.authority_policy.get("daily_rate"),
         )
     except PermissionError as error:

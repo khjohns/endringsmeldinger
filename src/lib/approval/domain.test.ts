@@ -154,6 +154,34 @@ describe('intern godkjenning', () => {
       ).toThrow('endret');
     }
   });
+  it('derives the route from the amount in the demo, and skips approval inside authority', () => {
+    const authority = { sender: demoUsers[0], dailyRate: null };
+    const pack = (data: Record<string, unknown>) => {
+      const own = { ...item, data: { ...item.data, ...data } };
+      const s = transition(
+        emptyApprovalState(),
+        { action: 'prepare', item: own },
+        owner,
+        chain,
+        claims
+      );
+      return transition(
+        s,
+        { action: 'package', letter: { ...letter, items: [s.items[0]] } },
+        owner,
+        chain,
+        claims,
+        undefined,
+        authority
+      ).packages[0];
+    };
+    expect(pack({}).steps.map((step) => step.id)).toEqual([chain[0].id]);
+    expect(pack({ subsidiaer_godkjent_belop: 2930000 }).steps).toHaveLength(2);
+    const inside = pack({ subsidiaer_godkjent_belop: 100000 });
+    expect(inside.steps).toEqual([]);
+    expect(inside.status).toBe('godkjent');
+    expect(() => pack({ subsidiaer_godkjent_belop: 3000001 })).toThrow('fullmakt');
+  });
   it('public letters contain only included assessments and no internal form values', () => {
     const publicLetter = documentToBrev(letter, 'p1');
     expect(publicLetter.seksjoner.begrunnelse.redigertTekst).toContain('150');

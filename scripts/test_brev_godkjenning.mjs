@@ -18,54 +18,61 @@ async function prepareEconomy(page) {
   for (const button of await page.getByRole('radio', { name: 'Fullt beløp', exact: true }).all()) await button.click();
   await page.locator('[contenteditable="true"]').fill('Kostnadsdokumentasjonen er kontrollert.');
   await page.getByRole('button', { name: 'Ferdigstill vurdering', exact: true }).click();
-  await page.getByRole('dialog', { name: 'Brev og godkjenning' }).waitFor();
+  await page.locator('.approval-view').waitFor();
   assert.match(await page.locator('.decision').innerText(), /Prinsipalt avslått/);
   assert.match(await page.locator('.decision').innerText(), /Subsidiært:/);
 }
-async function sendForApproval(page) { await page.getByRole('button', { name: 'Send til godkjenning', exact: true }).click(); }
+const panel = page => page.locator('.approval-panel');
+const actAs = (page, id) => page.getByLabel('Demo · vis som').selectOption(id);
+async function sendForApproval(page) {
+  const send = page.getByRole('button', { name: 'Send til godkjenning', exact: true });
+  assert.equal(await send.isDisabled(), true, 'Sending krever bekreftet kontroll');
+  await panel(page).getByRole('checkbox').check();
+  await send.click();
+  await page.getByText('behandler brevet', { exact: false }).waitFor();
+}
 async function approve(page) {
-  await page.getByLabel('Prøv godkjenningsflyten').selectOption('prosjektleder@example.test');
+  await actAs(page, 'prosjektleder@example.test');
+  await panel(page).getByRole('checkbox').check();
   await page.getByRole('button', { name: 'Godkjenn', exact: true }).click();
   assert.equal(await page.getByRole('button', { name: 'Godkjenn', exact: true }).count(), 0);
-  await page.getByLabel('Prøv godkjenningsflyten').selectOption('prosjekteier@example.test');
+  await actAs(page, 'prosjekteier@example.test');
+  await panel(page).getByRole('checkbox').check();
   await page.getByRole('button', { name: 'Godkjenn og send', exact: true }).click();
-  await page.locator('.status-chip').filter({ hasText: /^Sendt$/ }).waitFor();
+  await page.getByText('Svaret er sendt', { exact: true }).waitFor();
 }
 try {
   const page = await open();
   await prepareEconomy(page);
-  const bounds = await page.locator('.approval-dialog').boundingBox();
-  const viewport = page.viewportSize();
-  assert.ok(Math.abs(bounds.x - (viewport.width - bounds.width) / 2) < 2, 'Modalen skal være sentrert horisontalt');
-  assert.ok(Math.abs(bounds.y - (viewport.height - bounds.height) / 2) < 2, 'Modalen skal være sentrert vertikalt');
-  const authority = page.getByRole('region', { name: 'Fullmaktsgrunnlag', exact: true });
-  await authority.getByText('Se beregning og fullmaktsmatrise · januar 2026').click();
-  assert.match(await authority.innerText(), /Avdelingsleder/);
-  assert.match(await authority.innerText(), /Subsidiært|subsidiært/);
-  assert.match(await authority.innerText(), /Ubegrenset/);
-  await page.getByRole('button', { name: 'Forhåndsvis', exact: true }).click();
-  assert.equal(await page.locator('.letter-paper button, .letter-paper textarea, .letter-paper svg').count(), 0);
-  assert.match(await page.locator('.letter-paper').innerText(), /Prinsipalt avslått/);
-  await page.getByRole('button', { name: 'Rediger', exact: true }).click();
+  // No modal: the panel sits in the page's right column, beside the letter.
+  assert.equal(await page.getByRole('dialog').count(), 0);
+  const letterBox = await page.locator('.letter-paper').boundingBox();
+  const panelBox = await panel(page).boundingBox();
+  assert.ok(panelBox.x > letterBox.x + letterBox.width, 'Panelet skal stå til høyre for brevet');
+  // The chain is derived from the amount: 2 930 000 kr needs both approvers, Avdelingsleder decides.
+  assert.match(await panel(page).innerText(), /Avdelingsleder må godkjenne/);
+  assert.match(await panel(page).innerText(), /AVGJØR|Avgjør/);
+  await panel(page).getByText('Se beregning · fullmaktsmatrise januar 2026').click();
+  assert.match(await panel(page).innerText(), /Subsidiært standpunkt/);
   await page.getByRole('button', { name: 'Rediger innledning', exact: true }).click();
   await page.getByRole('textbox', { name: 'Innledning', exact: true }).fill('Vi viser til gjennomgangen av grunnforholdene.');
-  await page.locator('#approval-title').click();
+  await page.locator('.letter-paper h1').click();
   await page.getByText('Brevutkast lagret.', { exact: false }).waitFor();
   await sendForApproval(page);
   const original = await page.locator('.letter-paper').innerText();
-  await page.getByLabel('Prøv godkjenningsflyten').selectOption('prosjektleder@example.test');
+  await actAs(page, 'prosjektleder@example.test');
   await page.getByRole('button', { name: 'Returner', exact: true }).click();
   assert.equal(await page.getByRole('button', { name: 'Returner til saksbehandler', exact: true }).isDisabled(), true);
   await page.getByRole('textbox', { name: 'Hva må saksbehandler endre?' }).fill('Utdyp vurderingen av produktivitetstap.');
   await page.getByRole('button', { name: 'Returner til saksbehandler', exact: true }).click();
-  await page.getByLabel('Prøv godkjenningsflyten').selectOption('saksbehandler@example.test');
+  await actAs(page, 'saksbehandler@example.test');
   await page.getByRole('button', { name: 'Revider vurdering', exact: true }).click();
   assert.match(await page.locator('[contenteditable="true"]').innerText(), /Kostnadsdokumentasjonen er kontrollert/);
   await page.locator('[contenteditable="true"]').fill('Produktivitetstapet er dokumentert gjennom timelistene.');
   await page.getByRole('button', { name: 'Ferdigstill vurdering', exact: true }).click();
   await sendForApproval(page);
   await page.getByRole('button', { name: 'Se endringer siden forrige behandling', exact: true }).click();
-  assert.match(await page.getByRole('dialog', { name: 'Brev og godkjenning' }).innerText(), /Kostnadsdokumentasjonen er kontrollert/);
+  assert.match(await page.locator('.approval-view').innerText(), /Kostnadsdokumentasjonen er kontrollert/);
   await approve(page);
   await page.getByRole('button', { name: 'Se PDF', exact: true }).click();
   const sentText = (await page.locator('.letter-modal .letter-section-text').allTextContents()).join('\n');
@@ -74,22 +81,24 @@ try {
   assert.doesNotMatch(sentText, /Utdyp vurderingen av produktivitetstap/);
   assert.doesNotMatch(sentText, /Kostnadsdokumentasjonen er kontrollert/);
   await page.getByRole('button', { name: 'Lukk', exact: true }).click();
-  await page.getByRole('button', { name: /Brev 1.*Returnert/ }).click();
-  // Navigation labels may differ, but the recipient content remains unchanged.
-  assert.match(await page.locator('.letter-paper').innerText(), /Kostnadsdokumentasjonen er kontrollert/);
   assert.match(original, /Vi viser til gjennomgangen/);
+  assert.match(original, /Kostnadsdokumentasjonen er kontrollert/);
   await page.close();
-  console.log('PASS: ferdigstilling, lagret brevutkast, retur, ny revisjon, endringsvisning, to godkjenningstrinn, frosset brev.');
+  console.log('PASS: ferdigstilling, panel i siden, utledet kjede, lagret brevutkast, retur, ny revisjon, endringsvisning, to godkjenningstrinn, frosset brev.');
 
   const te = await open('TE', 'ansvar');
   await te.getByRole('button', { name: 'Oppdater begrunnelse', exact: true }).click();
   await te.locator('[contenteditable="true"]').fill('Nye grunnundersøkelser bekrefter avviket fra kontraktsgrunnlaget.');
   await te.getByRole('button', { name: 'Se brev og send', exact: true }).click();
-  await te.getByRole('dialog', { name: 'Kontroller brevet før sending' }).waitFor();
+  await te.getByRole('region', { name: 'Brevkontroll' }).waitFor();
+  assert.equal(await te.getByRole('dialog').count(), 0, 'Brevkontrollen er ikke en modal');
   await te.getByRole('button', { name: 'Tilbake til kravet', exact: true }).click();
   assert.match(await te.locator('[contenteditable="true"]').innerText(), /Nye grunnundersøkelser/);
   await te.getByRole('button', { name: 'Se brev og send', exact: true }).click();
-  await te.getByRole('button', { name: 'Send til byggherren', exact: true }).click();
+  const teSend = te.getByRole('button', { name: 'Send til byggherren', exact: true });
+  assert.equal(await teSend.isDisabled(), true, 'Sending krever bekreftet kontroll');
+  await te.getByRole('checkbox', { name: 'Jeg har kontrollert brevet og vedleggene.' }).check();
+  await teSend.click();
   await te.getByRole('button', { name: 'Historikk', exact: true }).click();
   await te.getByRole('button', { name: /Vis brev:/ }).last().click();
   await te.getByRole('dialog').waitFor();
@@ -104,13 +113,13 @@ try {
     await mobile.locator('.m-row').filter({ hasText: 'Vederlag' }).click();
   }
   await mobile.getByRole('button', { name: 'Åpne brev', exact: true }).click();
-  const dimensions = await mobile.locator('.approval-dialog').evaluate(el => ({ width: el.getBoundingClientRect().width, viewport: innerWidth, scroll: el.scrollWidth }));
+  const dimensions = await mobile.locator('.approval-view').evaluate(el => ({ width: el.getBoundingClientRect().width, viewport: innerWidth, scroll: el.scrollWidth }));
   assert.ok(dimensions.width <= dimensions.viewport + 1);
   assert.ok(dimensions.scroll <= dimensions.viewport + 1);
-  await mobile.keyboard.press('Escape');
-  await mobile.getByRole('dialog').waitFor({ state: 'detached' });
+  await mobile.getByRole('button', { name: 'Til saken', exact: true }).click();
+  await mobile.locator('.approval-view').waitFor({ state: 'detached' });
   await mobile.close();
-  console.log('PASS: mobilbredde og tastaturlukking.');
+  console.log('PASS: mobilbredde og tilbake til saken.');
   assert.deepEqual(errors, []);
   console.log('PASS: ingen JavaScript-feil. Ingen skjermbilder tatt.');
 } finally { await browser.close(); }
