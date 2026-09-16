@@ -75,6 +75,8 @@ def test_tomt_utkast_gir_null_uten_aa_feile(api):
     svar = _hent(api)
     assert svar.status_code == 200
     assert svar.get_json()["utkast"] is None
+    assert svar.get_json()["team_id"] == "team-bh"
+    assert svar.get_json()["user_id"] == "u"
 
 
 def test_lagret_utkast_hentes_tilbake(api):

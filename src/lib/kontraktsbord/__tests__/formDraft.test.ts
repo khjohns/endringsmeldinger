@@ -14,6 +14,8 @@ import { tick } from 'svelte';
 import UtkastHarness from './UtkastHarness.svelte';
 import { hentUtkast, lagreUtkast, slettUtkast, UtkastKonflikt } from '$lib/api/utkast';
 import type { createFormDraft } from '$lib/kontraktsbord/submission.svelte';
+import { draftOwner, setDraftOwner } from '$lib/utils/draftOwner';
+import { setActiveProjectId } from '$lib/api/client';
 
 vi.mock('$lib/api/utkast', async (importActual) => {
   // Feilklassen må være den ekte, siden koden bruker instanceof.
@@ -44,9 +46,9 @@ type Api = {
   les: () => string;
 };
 
-async function monter(): Promise<Api> {
+async function monter(flereFelt = false): Promise<Api> {
   let api: Api | undefined;
-  render(UtkastHarness, { identitet: IDENTITET, ondraft: (a: Api) => (api = a) });
+  render(UtkastHarness, { identitet: IDENTITET, flereFelt, ondraft: (a: Api) => (api = a) });
   await waitFor(() => expect(api!.draft.ready).toBe(true));
   return api!;
 }
@@ -60,7 +62,14 @@ async function skrivOgVent(api: Api, tekst: string) {
 
 beforeEach(() => {
   vi.useFakeTimers();
-  vi.mocked(hentUtkast).mockResolvedValue(null);
+  sessionStorage.clear();
+  setDraftOwner('alice');
+  setActiveProjectId('oslobygg');
+  vi.mocked(hentUtkast).mockImplementation(async () => ({
+    utkast: null,
+    team_id: 'team-bh',
+    user_id: draftOwner() ?? 'alice',
+  }));
   vi.mocked(lagreUtkast).mockImplementation(async (_s, _p, _r, innhold, forventet) =>
     serverUtkast((innhold as { tekst: string }).tekst, (forventet ?? 0) + 1, 'meg@example.test')
   );
@@ -74,6 +83,221 @@ afterEach(() => {
 });
 
 describe('felles arbeidsutkast', () => {
+  it('avslutter konfliktvalget når min tekst allerede er lik serverens', async () => {
+    const api = await monter();
+    vi.mocked(lagreUtkast).mockRejectedValueOnce(new UtkastKonflikt(serverUtkast('Deres', 1)));
+    await skrivOgVent(api, 'Min');
+    api.skriv('Deres');
+    await tick();
+    api.draft.behold();
+    await vi.advanceTimersByTimeAsync(0);
+    expect(api.draft.status).toBe('lagret');
+    expect(lagreUtkast).toHaveBeenCalledTimes(1);
+  });
+  it('avviser gjenoppretting og lagring når serversesjonen er byttet i en annen fane', async () => {
+    const api = await monter();
+    api.skriv('Alices private tekst');
+    await tick();
+    cleanup();
+    vi.mocked(hentUtkast).mockResolvedValueOnce({
+      utkast: null,
+      team_id: 'team-bh',
+      user_id: 'bob',
+    });
+    const gammelFane = await monter();
+    expect(gammelFane.les()).toBe('');
+    await skrivOgVent(gammelFane, 'Skal ikke sendes med Bobs sesjon');
+    expect(lagreUtkast).not.toHaveBeenCalled();
+  });
+  it('oppfatter ikke annen JSON-feltrekkefølge som en innholdsendring', async () => {
+    vi.mocked(hentUtkast).mockResolvedValue({
+      utkast: { ...serverUtkast('Start', 1), innhold: { valgt: true, tekst: 'Start' } },
+      team_id: 'team-bh',
+      user_id: 'alice',
+    });
+    await monter(true);
+    await vi.advanceTimersByTimeAsync(5000);
+    expect(lagreUtkast).not.toHaveBeenCalled();
+  });
+
+  it('holder konflikten åpen gjennom flere omlastinger', async () => {
+    const api = await monter();
+    api.skriv('Min tekst');
+    await tick();
+    cleanup();
+    vi.mocked(hentUtkast).mockResolvedValue({
+      utkast: serverUtkast('Deres', 1),
+      team_id: 'team-bh',
+      user_id: 'alice',
+    });
+    await monter();
+    cleanup();
+    const igjen = await monter();
+    expect(igjen.les()).toBe('Min tekst');
+    expect(igjen.draft.status).toBe('konflikt');
+    await vi.advanceTimersByTimeAsync(5000);
+    expect(lagreUtkast).not.toHaveBeenCalled();
+  });
+
+  it('gjenoppretter ikke tekst før teamtilgangen kan bekreftes', async () => {
+    const api = await monter();
+    api.skriv('Usendt tekst');
+    await tick();
+    cleanup();
+    vi.mocked(hentUtkast).mockRejectedValueOnce(new Error('Ingen tilgang'));
+    expect((await monter()).les()).toBe('');
+    cleanup();
+    expect((await monter()).les()).toBe('Usendt tekst');
+  });
+
+  it('skiller gjenoppretting mellom team på samme kontraktsside', async () => {
+    const api = await monter();
+    api.skriv('Byggherrens tekst');
+    await tick();
+    cleanup();
+    vi.mocked(hentUtkast).mockResolvedValueOnce({
+      utkast: null,
+      team_id: 'team-radgiver',
+      user_id: 'alice',
+    });
+    expect((await monter()).les()).toBe('');
+    cleanup();
+    expect((await monter()).les()).toBe('Byggherrens tekst');
+  });
+
+  it('beholder prosjektet fra montering ved en forsinket lagring', async () => {
+    const api = await monter();
+    api.skriv('Prosjektets tekst');
+    await tick();
+    setActiveProjectId('annet-prosjekt');
+    await vi.advanceTimersByTimeAsync(1200);
+    expect(lagreUtkast).toHaveBeenLastCalledWith(
+      'KOE-1',
+      'grunnlag',
+      2,
+      { tekst: 'Prosjektets tekst' },
+      null,
+      'oslobygg'
+    );
+  });
+
+  it('lar ikke sen kvittering fra et lukket skjema slette nyere lokal tekst', async () => {
+    let fullfor!: (value: ReturnType<typeof serverUtkast>) => void;
+    vi.mocked(lagreUtkast).mockImplementationOnce(
+      () => new Promise((resolve) => (fullfor = resolve))
+    );
+    const api = await monter();
+    await skrivOgVent(api, 'Første tekst');
+    cleanup();
+    const neste = await monter();
+    neste.skriv('Nyere tekst');
+    await tick();
+    fullfor(serverUtkast('Første tekst', 1));
+    await vi.advanceTimersByTimeAsync(0);
+    cleanup();
+    expect((await monter()).les()).toBe('Nyere tekst');
+  });
+
+  it('gjenoppretter ikke buffer etter vellykket innsending', async () => {
+    const api = await monter();
+    api.skriv('Sendt tekst');
+    await tick();
+    api.draft.clear();
+    cleanup();
+    expect((await monter()).les()).toBe('');
+  });
+
+  it('slutter å lagre når innlogget bruker endres mens timeren venter', async () => {
+    const api = await monter();
+    api.skriv('Alices tekst');
+    await tick();
+    setDraftOwner('bob');
+    await vi.advanceTimersByTimeAsync(1200);
+    expect(lagreUtkast).not.toHaveBeenCalled();
+  });
+
+  it('henter tilbake tekst etter ny montering før lagringstimeren har løpt ut', async () => {
+    const api = await monter();
+    api.skriv('Tekst før navigasjon');
+    await tick();
+    cleanup();
+    const gjenapnet = await monter();
+    expect(gjenapnet.les()).toBe('Tekst før navigasjon');
+    expect(lagreUtkast).not.toHaveBeenCalled();
+  });
+
+  it('beholder lokal tekst og viser konflikt når serveren er endret under fraværet', async () => {
+    vi.mocked(hentUtkast).mockResolvedValue({
+      utkast: serverUtkast('Start', 1),
+      team_id: 'team-bh',
+      user_id: 'alice',
+    });
+    const api = await monter();
+    api.skriv('Min usendte tekst');
+    await tick();
+    cleanup();
+    vi.mocked(hentUtkast).mockResolvedValue({
+      utkast: serverUtkast('Kollegaens nyere tekst', 2),
+      team_id: 'team-bh',
+      user_id: 'alice',
+    });
+    const gjenapnet = await monter();
+    expect(gjenapnet.les()).toBe('Min usendte tekst');
+    expect(gjenapnet.draft.konflikt?.innhold).toEqual({ tekst: 'Kollegaens nyere tekst' });
+    await vi.advanceTimersByTimeAsync(5000);
+    expect(lagreUtkast).not.toHaveBeenCalled();
+  });
+
+  it('viser ikke Alices gjenopprettingsbuffer til Bob', async () => {
+    const api = await monter();
+    api.skriv('Alices tekst');
+    await tick();
+    cleanup();
+    setDraftOwner('bob');
+    const bob = await monter();
+    expect(bob.les()).toBe('');
+    cleanup();
+    setDraftOwner('alice');
+    expect((await monter()).les()).toBe('Alices tekst');
+  });
+
+  it('stopper autolagring også når konflikten skyldes et slettet utkast', async () => {
+    vi.mocked(hentUtkast).mockResolvedValue({
+      utkast: serverUtkast('Start', 1),
+      team_id: 'team-bh',
+      user_id: 'alice',
+    });
+    const api = await monter();
+    vi.mocked(lagreUtkast).mockRejectedValueOnce(new UtkastKonflikt(null));
+    await skrivOgVent(api, 'Min tekst');
+    await skrivOgVent(api, 'Min tekst videre');
+    expect(lagreUtkast).toHaveBeenCalledTimes(1);
+    expect(api.draft.status).toBe('konflikt');
+    expect(api.les()).toBe('Min tekst videre');
+  });
+
+  it('lar brukeren opprette teksten på nytt etter slettingskonflikt', async () => {
+    vi.mocked(hentUtkast).mockResolvedValue({
+      utkast: serverUtkast('Start', 1),
+      team_id: 'team-bh',
+      user_id: 'alice',
+    });
+    const api = await monter();
+    vi.mocked(lagreUtkast).mockRejectedValueOnce(new UtkastKonflikt(null));
+    await skrivOgVent(api, 'Min tekst');
+    api.draft.behold();
+    await vi.advanceTimersByTimeAsync(0);
+    expect(lagreUtkast).toHaveBeenLastCalledWith(
+      'KOE-1',
+      'grunnlag',
+      2,
+      { tekst: 'Min tekst' },
+      null,
+      'oslobygg'
+    );
+    expect(api.draft.status).toBe('lagret');
+  });
+
   it('oppretter ikke et serverutkast bare fordi et tomt skjema åpnes', async () => {
     await monter();
     await vi.advanceTimersByTimeAsync(5000);
@@ -97,7 +321,8 @@ describe('felles arbeidsutkast', () => {
       'grunnlag',
       2,
       { tekst: 'Nyere tekst' },
-      1
+      1,
+      'oslobygg'
     );
   });
 
@@ -111,7 +336,11 @@ describe('felles arbeidsutkast', () => {
   });
 
   it('lagrer tilbakeført tekst når en eldre endring fortsatt er på vei', async () => {
-    vi.mocked(hentUtkast).mockResolvedValue(serverUtkast('Opprinnelig', 1));
+    vi.mocked(hentUtkast).mockResolvedValue({
+      utkast: serverUtkast('Opprinnelig', 1),
+      team_id: 'team-bh',
+      user_id: 'alice',
+    });
     let fullfor!: (value: ReturnType<typeof serverUtkast>) => void;
     vi.mocked(lagreUtkast).mockImplementationOnce(
       () => new Promise((resolve) => (fullfor = resolve))
@@ -126,7 +355,8 @@ describe('felles arbeidsutkast', () => {
       'grunnlag',
       2,
       { tekst: 'Opprinnelig' },
-      2
+      2,
+      'oslobygg'
     );
   });
 
@@ -146,16 +376,24 @@ describe('felles arbeidsutkast', () => {
   });
 
   it('henter teamets lagrede utkast og fyller skjemaet', async () => {
-    vi.mocked(hentUtkast).mockResolvedValue(serverUtkast('Kollegaens tekst', 3));
+    vi.mocked(hentUtkast).mockResolvedValue({
+      utkast: serverUtkast('Kollegaens tekst', 3),
+      team_id: 'team-bh',
+      user_id: 'alice',
+    });
 
     const api = await monter();
 
     expect(api.les()).toBe('Kollegaens tekst');
-    expect(hentUtkast).toHaveBeenCalledWith('KOE-1', 'grunnlag', 2);
+    expect(hentUtkast).toHaveBeenCalledWith('KOE-1', 'grunnlag', 2, 'oslobygg');
   });
 
   it('skriver ikke utkastet tilbake når ingenting er endret', async () => {
-    vi.mocked(hentUtkast).mockResolvedValue(serverUtkast('Uendret', 3));
+    vi.mocked(hentUtkast).mockResolvedValue({
+      utkast: serverUtkast('Uendret', 3),
+      team_id: 'team-bh',
+      user_id: 'alice',
+    });
 
     await monter();
     await vi.advanceTimersByTimeAsync(5000);
@@ -175,16 +413,34 @@ describe('felles arbeidsutkast', () => {
     await vi.advanceTimersByTimeAsync(1200);
 
     expect(lagreUtkast).toHaveBeenCalledTimes(1);
-    expect(lagreUtkast).toHaveBeenCalledWith('KOE-1', 'grunnlag', 2, { tekst: 'AB' }, null);
+    expect(lagreUtkast).toHaveBeenCalledWith(
+      'KOE-1',
+      'grunnlag',
+      2,
+      { tekst: 'AB' },
+      null,
+      'oslobygg'
+    );
   });
 
   it('sender versjonen den leste, så en samtidig skriving kan oppdages', async () => {
-    vi.mocked(hentUtkast).mockResolvedValue(serverUtkast('Start', 7));
+    vi.mocked(hentUtkast).mockResolvedValue({
+      utkast: serverUtkast('Start', 7),
+      team_id: 'team-bh',
+      user_id: 'alice',
+    });
 
     const api = await monter();
     await skrivOgVent(api, 'Endret');
 
-    expect(lagreUtkast).toHaveBeenCalledWith('KOE-1', 'grunnlag', 2, { tekst: 'Endret' }, 7);
+    expect(lagreUtkast).toHaveBeenCalledWith(
+      'KOE-1',
+      'grunnlag',
+      2,
+      { tekst: 'Endret' },
+      7,
+      'oslobygg'
+    );
   });
 
   it('melder konflikt med kollegaens tekst i stedet for å overskrive den', async () => {
@@ -220,7 +476,14 @@ describe('felles arbeidsutkast', () => {
     api.draft.behold();
     await vi.advanceTimersByTimeAsync(0);
 
-    expect(lagreUtkast).toHaveBeenLastCalledWith('KOE-1', 'grunnlag', 2, { tekst: 'Min tekst' }, 5);
+    expect(lagreUtkast).toHaveBeenLastCalledWith(
+      'KOE-1',
+      'grunnlag',
+      2,
+      { tekst: 'Min tekst' },
+      5,
+      'oslobygg'
+    );
     expect(api.les()).toBe('Min tekst');
     await waitFor(() => expect(api.draft.konflikt).toBeNull());
   });
@@ -269,7 +532,7 @@ describe('felles arbeidsutkast', () => {
     api.draft.clear();
     await skrivOgVent(api, 'Etterpå');
 
-    expect(slettUtkast).toHaveBeenCalledWith('KOE-1', 'grunnlag', 2);
+    expect(slettUtkast).toHaveBeenCalledWith('KOE-1', 'grunnlag', 2, 'oslobygg');
     expect(lagreUtkast).not.toHaveBeenCalled();
   });
 });

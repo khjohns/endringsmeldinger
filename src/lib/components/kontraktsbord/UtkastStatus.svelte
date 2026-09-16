@@ -25,19 +25,28 @@
   } = $props();
 </script>
 
-{#if konflikt}
+{#if status === 'konflikt'}
   <section class="konflikt" role="alert">
     <div class="konflikt-topp">
       <TriangleAlert size={15} />
-      <h2>{konflikt.oppdatert_av} har endret utkastet</h2>
+      <h2>{konflikt ? `${konflikt.oppdatert_av} har endret utkastet` : 'Utkastet er slettet'}</h2>
     </div>
     <p>
-      Dere har skrevet i det samme utkastet samtidig. Teksten flettes ikke automatisk — velg hvilken
-      som skal gjelde. Den andre versjonen går tapt.
+      {#if konflikt}
+        Dere har skrevet i det samme utkastet samtidig. Teksten flettes ikke automatisk — velg
+        hvilken som skal gjelde. Den andre versjonen går tapt.
+      {:else}
+        Utkastet er slettet siden du åpnet skjemaet. Din tekst står fortsatt her. Du kan lagre den
+        som et nytt utkast.
+      {/if}
     </p>
     <div class="konflikt-valg">
-      <button type="button" class="primar" onclick={behold}>Behold min tekst</button>
-      <button type="button" onclick={hentInn}>Hent inn deres</button>
+      <button type="button" class="primar" onclick={behold}
+        >{konflikt ? 'Behold min tekst' : 'Lagre min tekst på nytt'}</button
+      >
+      {#if konflikt}
+        <button type="button" onclick={hentInn}>Hent inn deres</button>
+      {/if}
     </div>
   </section>
 {:else if status !== 'uendret'}
@@ -49,6 +58,10 @@
         · sist endret av {sistEndretAv}{/if}
     {:else if status === 'frakoblet'}
       <CloudOff size={12} /> Ikke lagret — uten kontakt med serveren. Teksten blir stående her.
+    {:else if status === 'gjenopprettet'}
+      Usendt tekst er hentet tilbake fra denne fanen.
+    {:else if status === 'sesjon_endret'}
+      Innloggingen er endret. Last siden på nytt før du fortsetter.
     {/if}
   </p>
 {/if}

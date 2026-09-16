@@ -1,7 +1,10 @@
 import { orderTimeline } from '$lib/utils/timelineOrder';
 import { LetterCancelled } from '$lib/approval/claimReview.svelte';
 import type { TimelineEvent, SporType } from '$lib/types/timeline';
-import { onMount } from 'svelte';
+import { onDestroy, onMount } from 'svelte';
+import { getActiveProjectId } from '$lib/api/client';
+import { draftOwner } from '$lib/utils/draftOwner';
+import { createDraftRecovery } from '$lib/utils/draftRecovery';
 import {
   hentUtkast,
   lagreUtkast,
@@ -90,6 +93,19 @@ export function createSubmission(onSuccess?: () => void) {
 /** Hvor lenge vi venter etter siste tastetrykk før utkastet skrives. */
 const LAGRE_FORSINKELSE_MS = 1200;
 
+/** JSON-feltrekkefølge kan endres i transporten uten at teksten er endret. */
+function innholdJson(data: unknown): string {
+  return JSON.stringify(data, (_key, value: unknown) => {
+    if (!value || typeof value !== 'object' || Array.isArray(value)) return value;
+    const objekt = value as Record<string, unknown>;
+    return Object.fromEntries(
+      Object.keys(objekt)
+        .sort()
+        .map((key) => [key, objekt[key]])
+    );
+  });
+}
+
 export interface UtkastIdentitet {
   sakId: string;
   spor: SporType;
@@ -97,7 +113,14 @@ export interface UtkastIdentitet {
   revisjon: number;
 }
 
-export type UtkastStatus = 'uendret' | 'lagrer' | 'lagret' | 'frakoblet' | 'konflikt';
+export type UtkastStatus =
+  | 'uendret'
+  | 'lagrer'
+  | 'lagret'
+  | 'frakoblet'
+  | 'konflikt'
+  | 'gjenopprettet'
+  | 'sesjon_endret';
 
 /**
  * Felles arbeidsutkast for et saksskjema.
@@ -122,10 +145,16 @@ export function createFormDraft<T extends Record<string, unknown>>(
   let ready = $state(!enabled);
   let status = $state<UtkastStatus>('uendret');
   let konflikt = $state<ServerUtkast<T> | null>(null);
+  let konfliktAktiv = $state(false);
   let sistEndretAv = $state<string | null>(null);
   let cleared = $state(false);
   let lagringPagar = false;
   let nesteLagring: T | null = null;
+  let avbrutt = false;
+  let sesjonEndret = false;
+  const prosjektId = getActiveProjectId();
+  const eier = draftOwner();
+  let buffer: ReturnType<typeof createDraftRecovery<T>> | null = null;
 
   // Versjonen vi sist så fra serveren. null betyr «utkastet finnes ikke».
   let sistVersjon: number | null = null;
@@ -135,34 +164,54 @@ export function createFormDraft<T extends Record<string, unknown>>(
 
   const { sakId, spor, revisjon } = identitet;
 
+  function bevarLokalt(data: T) {
+    if (innholdJson(data) === sistLagretJson && !lagringPagar && !konfliktAktiv) {
+      buffer?.clear();
+    } else {
+      buffer?.save({ innhold: data, forventetVersjon: sistVersjon, grunnlagJson: sistLagretJson });
+    }
+  }
+
+  onDestroy(() => {
+    if (enabled && ready && !cleared) bevarLokalt(read());
+    avbrutt = true;
+    nesteLagring = null;
+  });
+
   function overtaServerens(utkast: ServerUtkast<T>) {
     sistVersjon = utkast.versjon;
-    sistLagretJson = JSON.stringify(utkast.innhold);
+    sistLagretJson = innholdJson(utkast.innhold);
     sistEndretAv = utkast.oppdatert_av;
   }
 
   async function lagre(data: T) {
-    if (cleared || konflikt) return;
+    if (cleared || avbrutt || sesjonEndret || draftOwner() !== eier || konfliktAktiv) return;
     if (lagringPagar) {
       nesteLagring = data;
       return;
     }
-    if (!lagringPagar && JSON.stringify(data) === sistLagretJson) return;
+    if (innholdJson(data) === sistLagretJson) {
+      status = 'lagret';
+      bevarLokalt(read());
+      return;
+    }
     lagringPagar = true;
     status = 'lagrer';
     try {
-      const lagret = await lagreUtkast<T>(sakId, spor, revisjon, data, sistVersjon);
-      if (cleared) return;
+      const lagret = await lagreUtkast<T>(sakId, spor, revisjon, data, sistVersjon, prosjektId);
+      if (cleared || avbrutt) return;
       overtaServerens(lagret);
       // Skrivingen kan ha skjedd mens brukeren skrev videre; da er teksten
       // vår nyere enn den vi nettopp sendte.
-      sistLagretJson = JSON.stringify(data);
+      sistLagretJson = innholdJson(data);
       konflikt = null;
+      konfliktAktiv = false;
       status = 'lagret';
     } catch (feil) {
-      if (cleared) return;
+      if (cleared || avbrutt) return;
       if (feil instanceof UtkastKonflikt) {
         konflikt = feil.gjeldende as ServerUtkast<T> | null;
+        konfliktAktiv = true;
         status = 'konflikt';
         return;
       }
@@ -173,13 +222,14 @@ export function createFormDraft<T extends Record<string, unknown>>(
       lagringPagar = false;
       const neste = nesteLagring;
       nesteLagring = null;
-      if (cleared) {
+      if (cleared && !sesjonEndret && draftOwner() === eier) {
         // DELETE må komme etter vår siste PUT, ellers kan PUT gjenopprette utkastet.
-        void slettUtkast(sakId, spor, revisjon).catch(() => {});
-      } else if (neste && status === 'lagret') {
+        void slettUtkast(sakId, spor, revisjon, prosjektId).catch(() => {});
+      } else if (!avbrutt && neste && status === 'lagret') {
         // Bare siste ventende tekst trengs, med versjonen vi nettopp fikk bekreftet.
         void lagre(neste);
       }
+      if (!cleared && !avbrutt) bevarLokalt(read());
     }
   }
 
@@ -190,15 +240,39 @@ export function createFormDraft<T extends Record<string, unknown>>(
       return;
     }
     if (!enabled) return;
-    sistLagretJson = JSON.stringify(read());
-    let avbrutt = false;
+    sistLagretJson = innholdJson(read());
     void (async () => {
       try {
-        const lagret = await hentUtkast<T>(sakId, spor, revisjon);
-        if (avbrutt) return;
+        const {
+          utkast: lagret,
+          team_id: team,
+          user_id: bruker,
+        } = await hentUtkast<T>(sakId, spor, revisjon, prosjektId);
+        if (avbrutt || draftOwner() !== eier) return;
+        if (eier && bruker !== eier) {
+          sesjonEndret = true;
+          status = 'sesjon_endret';
+          ready = true;
+          return;
+        }
+        buffer = createDraftRecovery<T>(eier, [prosjektId, team, sakId, spor, revisjon]);
+        const lokal = buffer.load();
         if (lagret) {
           restore(lagret.innhold);
           overtaServerens(lagret);
+        }
+        if (lokal && innholdJson(lokal.innhold) !== sistLagretJson) {
+          restore(lokal.innhold);
+          if (lokal.forventetVersjon !== sistVersjon || lokal.grunnlagJson !== sistLagretJson) {
+            konflikt = lagret;
+            konfliktAktiv = true;
+            status = 'konflikt';
+            // Behold konfliktens opprinnelige grunnlag også ved en ny omlasting.
+            sistVersjon = lokal.forventetVersjon;
+            sistLagretJson = lokal.grunnlagJson;
+          } else {
+            status = 'gjenopprettet';
+          }
         }
       } catch {
         // Uten kontakt med serveren skal skjemaet fortsatt kunne brukes.
@@ -213,12 +287,13 @@ export function createFormDraft<T extends Record<string, unknown>>(
 
   $effect(() => {
     // read() kalles her for at effekten skal spore feltene i skjemaet.
-    const data = JSON.parse(JSON.stringify(read())) as T;
+    const data = JSON.parse(innholdJson(read())) as T;
     if (!enabled || !ready || cleared) return;
-    if (!lagringPagar && JSON.stringify(data) === sistLagretJson) return;
+    bevarLokalt(data);
+    if (!lagringPagar && innholdJson(data) === sistLagretJson) return;
     // Konflikten må avklares av brukeren før vi skriver igjen; ellers ville
     // neste tastetrykk overskrevet kollegaens tekst uten at noen valgte det.
-    if (konflikt) return;
+    if (konfliktAktiv) return;
     const timer = setTimeout(() => void lagre(data), LAGRE_FORSINKELSE_MS);
     return () => clearTimeout(timer);
   });
@@ -239,9 +314,11 @@ export function createFormDraft<T extends Record<string, unknown>>(
     },
     /** Behold min tekst: skriv over kollegaens versjon, bevisst valgt. */
     behold() {
-      if (!konflikt) return;
-      sistVersjon = konflikt.versjon;
+      if (!konfliktAktiv) return;
+      sistVersjon = konflikt?.versjon ?? null;
+      sistLagretJson = konflikt ? innholdJson(konflikt.innhold) : null;
       konflikt = null;
+      konfliktAktiv = false;
       void lagre(read());
     },
     /** Hent inn deres: forkast min tekst til fordel for den lagrede. */
@@ -251,18 +328,22 @@ export function createFormDraft<T extends Record<string, unknown>>(
       restore(deres.innhold);
       overtaServerens(deres);
       konflikt = null;
+      konfliktAktiv = false;
       status = 'lagret';
     },
     snapshot() {
-      return JSON.parse(JSON.stringify(read())) as Record<string, unknown>;
+      return JSON.parse(innholdJson(read())) as Record<string, unknown>;
     },
     clear() {
       if (cleared) return;
       cleared = true;
+      buffer?.clear();
       nesteLagring = null;
       konflikt = null;
+      konfliktAktiv = false;
       status = 'uendret';
-      if (enabled && !lagringPagar) void slettUtkast(sakId, spor, revisjon).catch(() => {});
+      if (enabled && !lagringPagar && !sesjonEndret && draftOwner() === eier)
+        void slettUtkast(sakId, spor, revisjon, prosjektId).catch(() => {});
     },
   };
 }
