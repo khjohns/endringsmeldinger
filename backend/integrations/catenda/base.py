@@ -323,24 +323,25 @@ class CatendaClientBase:
 
     def ensure_authenticated(self) -> bool:
         """
-        Check if token is valid.
-
-        Note: Auto-refresh via client credentials is disabled because most users
-        don't have Catenda Boost. If token expires, user must get a new token
-        via Authorization Code Grant and update .env.
+        Check if token is valid, and auto-refresh using client credentials if expired or missing.
 
         Returns:
             True if authenticated, False otherwise
         """
+        if self.access_token and self.token_expiry and datetime.now() < self.token_expiry:
+            return True
+
+        if self.client_id and self.client_secret:
+            logger.info("Access token utløpt eller mangler. Fornyer automatisk via Client Credentials...")
+            if self.authenticate():
+                return True
+
         if not self.access_token or not self.token_expiry:
-            logger.warning("Ingen access token konfigurert")
-            logger.warning("    Sett CATENDA_ACCESS_TOKEN i .env")
+            logger.warning("Ingen access token konfigurert og automatisk fornyelse feilet")
             return False
 
         if datetime.now() >= self.token_expiry:
-            logger.warning("Access token har utlopt!")
-            logger.warning("    Hent nytt token via Authorization Code Grant")
-            logger.warning("    og oppdater CATENDA_ACCESS_TOKEN i .env")
+            logger.warning("Access token har utlopt og automatisk fornyelse feilet!")
             return False
 
         return True
