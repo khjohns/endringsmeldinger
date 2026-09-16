@@ -164,6 +164,36 @@ class AuthRepository:
             .data
         )
 
+    def register_project(
+        self,
+        project_id: str,
+        name: str,
+        catenda_project_id: str,
+        library_id: str,
+        folder_id: str | None = None,
+        topic_board_id: str | None = None,
+        description: str | None = None,
+        teams: list[dict] | None = None,
+    ):
+        """Atomisk registrering av prosjekt, integrasjonskonfigurasjon og eventuelle teams."""
+        return (
+            self.client.rpc(
+                "koe_register_project",
+                {
+                    "p_project_id": project_id,
+                    "p_name": name,
+                    "p_description": description,
+                    "p_catenda_project_id": catenda_project_id,
+                    "p_library_id": library_id,
+                    "p_folder_id": folder_id,
+                    "p_topic_board_id": topic_board_id,
+                    "p_teams": teams,
+                },
+            )
+            .execute()
+            .data
+        )
+
     def sync_state(self, project_id):
         rows = (
             self.client.table("app_membership_sync")

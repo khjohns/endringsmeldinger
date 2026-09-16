@@ -87,23 +87,12 @@ class AuthService:
         )
         return {"members": len(members), "deactivated": len(changes["deactivate"])}
 
-    def _project_config(self, project_id):
-        config = None
-        if hasattr(self.repo, "project_config"):
-            res = self.repo.project_config(project_id)
-            if isinstance(res, dict) or res is None:
-                config = res
-        if config is None and hasattr(self.repo, "configs"):
-            configs = self.repo.configs()
-            if isinstance(configs, list):
-                config = next(
-                    (c for c in configs if isinstance(c, dict) and c.get("internal_project_id") == project_id),
-                    None,
-                )
-        return config
+    def project_config(self, project_id):
+        """Direkte oppslag på prosjektkonfigurasjon."""
+        return self.repo.project_config(project_id)
 
     def ensure_fresh(self, project_id):
-        config = self._project_config(project_id)
+        config = self.repo.project_config(project_id)
         if config is None:
             return False
         state = self.repo.sync_state(project_id)
@@ -169,7 +158,7 @@ class AuthService:
             Treff i flere team på samme side gir entydig rolle, men ikke entydig
             organisasjon; da er team_id None.
         """
-        config = self._project_config(project_id)
+        config = self.repo.project_config(project_id)
         member = self._membership(project_id, user_id)
         if (
             not config
