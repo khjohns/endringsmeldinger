@@ -19,8 +19,9 @@ def require_contract_role(required=None):
                 g.contract_team = None
             else:
                 try:
+                    project_id = kwargs.get("project_id") or getattr(g, "project_id", None)
                     role, team = get_auth_service().contract_membership(
-                        g.project_id, g.user["id"]
+                        project_id, g.user["id"]
                     )
                 except Exception:
                     return jsonify(

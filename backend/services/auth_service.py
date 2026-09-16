@@ -87,11 +87,23 @@ class AuthService:
         )
         return {"members": len(members), "deactivated": len(changes["deactivate"])}
 
+    def _project_config(self, project_id):
+        config = None
+        if hasattr(self.repo, "project_config"):
+            res = self.repo.project_config(project_id)
+            if isinstance(res, dict) or res is None:
+                config = res
+        if config is None and hasattr(self.repo, "configs"):
+            configs = self.repo.configs()
+            if isinstance(configs, list):
+                config = next(
+                    (c for c in configs if isinstance(c, dict) and c.get("internal_project_id") == project_id),
+                    None,
+                )
+        return config
+
     def ensure_fresh(self, project_id):
-        config = next(
-            (c for c in self.repo.configs() if c["internal_project_id"] == project_id),
-            None,
-        )
+        config = self._project_config(project_id)
         if config is None:
             return False
         state = self.repo.sync_state(project_id)
@@ -147,7 +159,7 @@ class AuthService:
     def contract_membership(self, project_id, user_id):
         """Read current team membership on writes; no stale authority cache.
 
-        The mapping uses immutable team IDs, never names or user-controlled data.
+        The mapping uses immutable team IDs from the database, never names or user-controlled data.
         Missing/ambiguous membership grants neither contract side.
 
         Returns:
@@ -157,23 +169,7 @@ class AuthService:
             Treff i flere team på samme side gir entydig rolle, men ikke entydig
             organisasjon; da er team_id None.
         """
-        mapping = json.loads(os.getenv("CATENDA_CONTRACT_TEAMS", "{}"))
-        teams = mapping.get(project_id)
-        if not teams:
-            return None, None
-        if not isinstance(teams, dict) or set(teams) != {"TE", "BH"}:
-            raise ValueError("Configure TE and BH team IDs")
-        ids = {}
-        for role, values in teams.items():
-            if not isinstance(values, list) or not values:
-                raise ValueError("Each contract side needs a team ID list")
-            ids[role] = {catenda_id(value) for value in values}
-        if ids["TE"] & ids["BH"]:
-            raise ValueError("The same team cannot represent both contract sides")
-        config = next(
-            (c for c in self.repo.configs() if c["internal_project_id"] == project_id),
-            None,
-        )
+        config = self._project_config(project_id)
         member = self._membership(project_id, user_id)
         if (
             not config
@@ -182,6 +178,13 @@ class AuthService:
             or member.get("viewer_override")
         ):
             return None, None
+
+        ids = self.repo.contract_teams(project_id)
+        if not isinstance(ids, dict) or not ids.get("TE") or not ids.get("BH"):
+            return None, None
+        if ids["TE"] & ids["BH"]:
+            return None, None
+
         from core.container import get_container
 
         client = get_container().catenda_client
@@ -189,8 +192,9 @@ class AuthService:
             raise CatendaUnavailable("Team membership source unavailable")
         subject = catenda_id(member["catenda_subject"])
         matches = set()
-        for role, team_ids in ids.items():
-            for team_id in team_ids:
+        for role in ("TE", "BH"):
+            for raw_team_id in ids[role]:
+                team_id = catenda_id(str(raw_team_id))
                 members = self.oauth.team_members(
                     config["catenda_project_id"], team_id, client.access_token
                 )

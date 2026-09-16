@@ -109,6 +109,61 @@ class AuthRepository:
                 return rows
         raise RuntimeError("Project pagination limit")
 
+    def project_config(self, project_id):
+        """Direkte oppslag på ett aktivt prosjekt."""
+        rows = (
+            self.client.table("catenda_project_configs")
+            .select("internal_project_id,catenda_project_id")
+            .eq("internal_project_id", project_id)
+            .eq("is_active", True)
+            .limit(1)
+            .execute()
+            .data
+        )
+        return rows[0] if rows else None
+
+    def contract_teams(self, project_id):
+        """Hent kontraktsteam for et prosjekt fra databasen.
+
+        Returnerer:
+            {"BH": {team_id, ...}, "TE": {team_id, ...}}
+            hvor team_id er normalisert med catenda_id().
+        """
+        from lib.auth.domain import catenda_id
+
+        rows = (
+            self.client.table("catenda_contract_teams")
+            .select("team_id,contract_role")
+            .eq("internal_project_id", project_id)
+            .execute()
+            .data
+        )
+        result = {"BH": set(), "TE": set()}
+        for row in rows:
+            role = row["contract_role"]
+            if role in result:
+                result[role].add(catenda_id(str(row["team_id"])))
+        return result
+
+    def set_contract_teams(self, project_id, teams):
+        """Atomisk erstatning av kontraktsteams via RPC-funksjon.
+
+        Args:
+            project_id: Internt prosjekt-ID
+            teams: Liste av {"team_id": "<UUID>", "contract_role": "BH"|"TE"}
+        """
+        return (
+            self.client.rpc(
+                "koe_set_contract_teams",
+                {
+                    "p_project": project_id,
+                    "p_teams": teams,
+                },
+            )
+            .execute()
+            .data
+        )
+
     def sync_state(self, project_id):
         rows = (
             self.client.table("app_membership_sync")

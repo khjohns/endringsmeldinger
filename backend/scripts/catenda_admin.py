@@ -39,6 +39,7 @@ load_dotenv(Path(__file__).resolve().parents[1] / ".env")
 from core.container import get_container
 from lib.auth.domain import catenda_id
 from lib.supabase.client import get_shared_client
+from repositories.auth_repository import AuthRepository
 from services.auth_service import AuthService
 
 
@@ -230,15 +231,11 @@ def cmd_teams(args):
     raw_items = resp.json()
     teams = [item["user"] for item in raw_items if item.get("user", {}).get("type") == "team"]
 
-    # Sjekk om CATENDA_CONTRACT_TEAMS er satt
-    contract_mapping = {}
-    try:
-        contract_mapping = json.loads(os.getenv("CATENDA_CONTRACT_TEAMS", "{}")).get(target, {})
-    except Exception:
-        pass
-
-    bh_configured_ids = {catenda_id(x) for x in contract_mapping.get("BH", [])}
-    te_configured_ids = {catenda_id(x) for x in contract_mapping.get("TE", [])}
+    # Sjekk kontraktsteams fra databasen
+    repo = AuthRepository()
+    contract_mapping = repo.contract_teams(target)
+    bh_configured_ids = contract_mapping.get("BH", set())
+    te_configured_ids = contract_mapping.get("TE", set())
 
     print(f"\nCatenda Teams for prosjekt '{target}' ({len(teams)} teams funnet):")
     print(f"{'='*80}")
@@ -275,52 +272,83 @@ def cmd_teams(args):
             print(f"    - {u.get('name')} <{u.get('email')}> [ID: {u.get('id')}]")
 
     print(f"\n{'='*80}")
-    print("Nåværende CATENDA_CONTRACT_TEAMS konfigurasjon i .env:")
+    print("Nåværende kontraktsteams i databasen:")
     print(f"  BH: {list(bh_configured_ids) or '(ikke konfigurert)'}")
     print(f"  TE: {list(te_configured_ids) or '(ikke konfigurert)'}")
     print(f"{'='*80}\n")
 
 
 def cmd_contract_teams(args):
-    """Konfigurer eller vis CATENDA_CONTRACT_TEAMS for prosjekt."""
-    env_path = Path(__file__).resolve().parents[1] / ".env"
-    load_dotenv(env_path)
-
-    current_raw = os.getenv("CATENDA_CONTRACT_TEAMS", "{}")
-    try:
-        mapping = json.loads(current_raw)
-    except Exception:
-        mapping = {}
-
+    """Konfigurer eller vis CATENDA_CONTRACT_TEAMS for prosjekt i databasen."""
+    repo = AuthRepository()
     target = args.project_id
+    config = repo.project_config(target)
+    if not config:
+        print(f"Feil: Aktivt prosjekt '{target}' finnes ikke i databasen.", file=sys.stderr)
+        return
+
+    cat_pid = config["catenda_project_id"]
+    client = get_container().catenda_client
+
     if args.bh or args.te:
-        if target not in mapping:
-            mapping[target] = {"BH": [], "TE": []}
-        if args.bh:
-            mapping[target]["BH"] = [to_uuid_str(x) for x in args.bh]
-        if args.te:
-            mapping[target]["TE"] = [to_uuid_str(x) for x in args.te]
+        if not (args.bh and args.te):
+            print("Feil: Både --bh og --te må oppgis for å sette kontraktsteams.", file=sys.stderr)
+            return
 
-        json_str = json.dumps(mapping)
-        content = env_path.read_text()
-        if "CATENDA_CONTRACT_TEAMS=" in content:
-            import re
+        bh_ids = [to_uuid_str(x) for x in args.bh]
+        te_ids = [to_uuid_str(x) for x in args.te]
 
-            content = re.sub(
-                r"CATENDA_CONTRACT_TEAMS=.*",
-                f"CATENDA_CONTRACT_TEAMS='{json_str}'",
-                content,
-            )
-        else:
-            content += f"\nCATENDA_CONTRACT_TEAMS='{json_str}'\n"
-        env_path.write_text(content)
-        print(f"✓ CATENDA_CONTRACT_TEAMS oppdatert i backend/.env for '{target}':")
-        print(json.dumps({target: mapping[target]}, indent=2))
+        # 1. Sjekk overlap
+        overlap = set(bh_ids) & set(te_ids)
+        if overlap:
+            print(f"Feil: Samme team kan ikke representere både BH og TE: {overlap}", file=sys.stderr)
+            return
+
+        # 2. Valider mot Catenda API at teamene faktisk eksisterer i dette prosjektet
+        if not client.ensure_authenticated():
+            print("Feil: Kunne ikke autentisere mot Catenda for teamvalidering.", file=sys.stderr)
+            return
+
+        print(f"Validerer teams mot Catenda-prosjekt {cat_pid}...")
+        url = f"{client.base_url}/v2/projects/{cat_pid}/teams"
+        resp = client._safe_request("GET", url)
+        if not resp:
+            print("Feil: Kunne ikke hente teamliste fra Catenda.", file=sys.stderr)
+            return
+        available_teams = {
+            catenda_id(item["user"]["id"]): item["user"].get("name")
+            for item in resp.json()
+            if item.get("user", {}).get("type") == "team"
+        }
+
+        db_teams = []
+        for tid in bh_ids:
+            norm_id = catenda_id(tid)
+            if norm_id not in available_teams:
+                print(f"Feil: Team {tid} finnes ikke i Catenda-prosjektet!", file=sys.stderr)
+                return
+            db_teams.append({"team_id": tid, "contract_role": "BH"})
+            print(f"  ✓ BH: '{available_teams[norm_id]}' ({tid})")
+
+        for tid in te_ids:
+            norm_id = catenda_id(tid)
+            if norm_id not in available_teams:
+                print(f"Feil: Team {tid} finnes ikke i Catenda-prosjektet!", file=sys.stderr)
+                return
+            db_teams.append({"team_id": tid, "contract_role": "TE"})
+            print(f"  ✓ TE: '{available_teams[norm_id]}' ({tid})")
+
+        # 3. Utfør atomisk lagring i databasen via RPC
+        try:
+            repo.set_contract_teams(target, db_teams)
+            print(f"\n✓ Kontraktsteams lagret atomisk i databasen for prosjekt '{target}'!")
+        except Exception as e:
+            print(f"Feil under lagring i databasen: {e}", file=sys.stderr)
     else:
-        print(f"\nNåværende CATENDA_CONTRACT_TEAMS for '{target}':")
-        print(json.dumps(mapping.get(target, {}), indent=2))
-        print("\nAlle prosjekter i mapping:")
-        print(json.dumps(mapping, indent=2))
+        teams = repo.contract_teams(target)
+        print(f"\nNåværende kontraktsteams i databasen for '{target}':")
+        print(f"  BH: {list(teams['BH']) or '(ingen)'}")
+        print(f"  TE: {list(teams['TE']) or '(ingen)'}\n")
 
 
 def main():

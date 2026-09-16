@@ -17,13 +17,15 @@ USER = "44444444444444444444444444444444"
 
 @pytest.fixture
 def service(monkeypatch):
-    monkeypatch.setenv(
-        "CATENDA_CONTRACT_TEAMS", json.dumps({"p": {"TE": [TE], "BH": [BH]}})
-    )
     repo, oauth, client = Mock(), Mock(), Mock()
     repo.configs.return_value = [
         {"internal_project_id": "p", "catenda_project_id": PROJECT}
     ]
+    repo.project_config.return_value = {
+        "internal_project_id": "p",
+        "catenda_project_id": PROJECT,
+    }
+    repo.contract_teams.return_value = {"TE": {TE}, "BH": {BH}}
     repo.membership.return_value = {
         "active": True,
         "viewer_override": False,
@@ -56,19 +58,18 @@ def test_team_removal_takes_effect_on_next_check(service):
     assert service.contract_role("p", "internal-user") is None
 
 
-def test_missing_mapping_does_not_grant_role(service, monkeypatch):
-    monkeypatch.delenv("CATENDA_CONTRACT_TEAMS")
+def test_missing_mapping_does_not_grant_role(service):
+    service.repo.contract_teams.return_value = {"TE": set(), "BH": set()}
     assert service.contract_role("p", "internal-user") is None
     service.oauth.team_members.assert_not_called()
 
 
 @pytest.mark.parametrize(
-    "mapping", [{"TE": [TE], "BH": [TE]}, {"TE": TE, "BH": [BH]}, {"TE": [TE]}]
+    "mapping", [{"TE": {TE}, "BH": {TE}}, {"TE": set(), "BH": {BH}}, {}]
 )
-def test_invalid_team_config_is_rejected(service, monkeypatch, mapping):
-    monkeypatch.setenv("CATENDA_CONTRACT_TEAMS", json.dumps({"p": mapping}))
-    with pytest.raises(ValueError):
-        service.contract_role("p", "internal-user")
+def test_invalid_team_config_is_rejected(service, mapping):
+    service.repo.contract_teams.return_value = mapping
+    assert service.contract_role("p", "internal-user") is None
 
 
 def test_partial_provider_failure_is_not_a_successful_snapshot(service):
@@ -123,19 +124,14 @@ def test_contract_membership_gir_bade_rolle_og_team(service):
     assert service.contract_membership("p", "internal-user") == ("BH", BH)
 
 
-def test_to_team_pa_samme_side_gir_rolle_men_ikke_entydig_organisasjon(
-    service, monkeypatch
-):
+def test_to_team_pa_samme_side_gir_rolle_men_ikke_entydig_organisasjon(service):
     """En kontraktsside kan ha flere team — byggherre og ekstern rådgiver.
 
     Rollen er da fortsatt entydig, men organisasjonen er det ikke. Dette er
     grunnen til at interne notater filtreres på team og ikke på TE/BH: et
     rollefilter ville latt rådgiveren lese byggherrens interne notater.
     """
-    monkeypatch.setenv(
-        "CATENDA_CONTRACT_TEAMS",
-        json.dumps({"p": {"TE": [TE], "BH": [BH, BH_RADGIVER]}}),
-    )
+    service.repo.contract_teams.return_value = {"TE": {TE}, "BH": {BH, BH_RADGIVER}}
     service.oauth.team_members.side_effect = (
         lambda project, team, token: {USER} if team in {BH, BH_RADGIVER} else set()
     )
