@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { CalendarDays, ChevronDown, ChevronUp, Search, Upload } from 'lucide-svelte';
+  import { CalendarDays, ChevronDown, ChevronUp, Search } from 'lucide-svelte';
   import FormSection from './components/FormSection.svelte';
   import KonsekvensVarsler from './KonsekvensVarsler.svelte';
   import { buildKonsekvensVarsler, type VarselValg } from '$lib/domain/konsekvensVarsler';
@@ -364,16 +364,6 @@
       {tittel}
       disabled={submission.pending}
     />
-
-    {#if !prosjektId}
-      <FormSection title="Vedlegg">
-        <button class="upload-zone">
-          <Upload size={18} aria-hidden="true" />
-          <span>Slipp filer her eller velg fra maskinen</span>
-          <small>PDF, DOCX, XLSX og bilder</small>
-        </button>
-      </FormSection>
-    {/if}
   </div>
 {/if}
 
@@ -636,34 +626,6 @@
   .editor-wrapper {
     margin-top: 0;
   }
-  .upload-zone {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    width: 100%;
-    min-height: 104px;
-    margin-top: 14px;
-    padding: 16px;
-    font-family: var(--font-sans);
-    font-size: 12px;
-    color: var(--ink-3);
-    background: var(--surface);
-    border: 1.5px dashed var(--internal-border);
-    border-radius: 12px;
-    cursor: pointer;
-  }
-  .upload-zone:hover {
-    color: var(--ink);
-    background: var(--surface-warm);
-    border-color: var(--green);
-  }
-  .upload-zone small {
-    font-size: 10px;
-    color: var(--ink-4);
-  }
-
   @media (max-width: 768px) {
     .new-case-form {
       padding: 24px 16px 120px;

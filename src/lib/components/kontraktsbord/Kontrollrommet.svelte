@@ -310,10 +310,6 @@
               {role}
               {sel}
               hasDraft={store.getUI(sel).draft !== null}
-              {subV}
-              {subF}
-              {prinV}
-              {prinF}
               oncloseform={goRead}
               onform={goForm}
               ontogglecontext={() => (rightPanelOpen = !rightPanelOpen)}
@@ -375,10 +371,8 @@
               {sel}
               {mode}
               tab={rTab}
-              begr=""
               {activeEvent}
               ontabchange={(t) => (rTab = t)}
-              onbegrchange={() => {}}
               onclose={() => (rightPanelOpen = false)}
               oneventclick={(ev) => {
                 activeEvent = ev;

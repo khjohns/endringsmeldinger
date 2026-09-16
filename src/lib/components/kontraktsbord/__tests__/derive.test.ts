@@ -2,7 +2,6 @@ import { describe, it, expect } from 'vitest';
 import {
   deriveTrackDisplay,
   assessedGap,
-  formatExposure,
   deriveVederlagDomainConfig,
   deriveFristDomainConfig,
   deriveGrunnlagDomainConfig,
@@ -124,12 +123,5 @@ describe('vurdert omfang og eksponering', () => {
     expect(rejected.bhPrinsipal).toBe(0);
     expect(rejected.bhSubsidiaer).toBe(0);
     expect(assessedGap(rejected.krevdValue!, rejected.bhPrinsipal)).toBe(rejected.krevdValue);
-  });
-
-  it('summerer bare vurderte spor og beholder null', () => {
-    expect(formatExposure(370000, undefined)).not.toContain('dager');
-    expect(formatExposure(undefined, 45)).toBe('45 dager');
-    expect(formatExposure(undefined, undefined)).toBe('Ikke vurdert');
-    expect(formatExposure(0, 0)).toBe('0,- + 0 dager');
   });
 });
