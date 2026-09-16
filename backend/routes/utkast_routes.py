@@ -103,7 +103,9 @@ def hent_utkast(sak_id: str, spor: str):
         return avvist
 
     return jsonify(
-        utkast=_registry().hent(g.project_id, sak_id, spor, revisjon, team)
+        utkast=_registry().hent(g.project_id, sak_id, spor, revisjon, team),
+        team_id=team,
+        user_id=g.user["id"],
     )
 
 

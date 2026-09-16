@@ -11,7 +11,7 @@
  * grunnlaget som allerede er sendt.
  */
 
-import { apiFetch, ApiError } from './client';
+import { apiFetch, ApiError, getActiveProjectId } from './client';
 import type { SporType } from '$lib/types/timeline';
 
 export interface ServerUtkast<T> {
@@ -21,6 +21,12 @@ export interface ServerUtkast<T> {
   oppdatert_av: string;
   oppdatert: string;
   kontraktsside: 'TE' | 'BH';
+}
+
+export interface UtkastKontekst<T> {
+  utkast: ServerUtkast<T> | null;
+  team_id: string;
+  user_id: string;
 }
 
 /**
@@ -43,12 +49,19 @@ function sti(sakId: string, spor: SporType): string {
 export async function hentUtkast<T>(
   sakId: string,
   spor: SporType,
-  revisjon: number
-): Promise<ServerUtkast<T> | null> {
-  const svar = await apiFetch<{ utkast: ServerUtkast<T> | null }>(
-    `${sti(sakId, spor)}?revisjon=${revisjon}`
-  );
-  return svar.utkast ?? null;
+  revisjon: number,
+  prosjektId = getActiveProjectId()
+): Promise<UtkastKontekst<T>> {
+  const svar = await apiFetch<UtkastKontekst<T>>(`${sti(sakId, spor)}?revisjon=${revisjon}`, {
+    headers: { 'X-Project-ID': prosjektId },
+  });
+  if (typeof svar.team_id !== 'string' || !svar.team_id) {
+    throw new Error('Kunne ikke bekrefte teamtilgangen til utkastet.');
+  }
+  if (typeof svar.user_id !== 'string' || !svar.user_id) {
+    throw new Error('Kunne ikke bekrefte brukeren for utkastet.');
+  }
+  return svar;
 }
 
 /**
@@ -64,11 +77,13 @@ export async function lagreUtkast<T>(
   spor: SporType,
   revisjon: number,
   innhold: T,
-  forventetVersjon: number | null
+  forventetVersjon: number | null,
+  prosjektId = getActiveProjectId()
 ): Promise<ServerUtkast<T>> {
   try {
     const svar = await apiFetch<{ utkast: ServerUtkast<T> }>(sti(sakId, spor), {
       method: 'PUT',
+      headers: { 'X-Project-ID': prosjektId },
       body: JSON.stringify({ revisjon, innhold, forventet_versjon: forventetVersjon }),
     });
     return svar.utkast;
@@ -82,6 +97,14 @@ export async function lagreUtkast<T>(
 }
 
 /** Forkast teamets utkast — normalt etter at hendelsen er sendt. */
-export async function slettUtkast(sakId: string, spor: SporType, revisjon: number): Promise<void> {
-  await apiFetch(`${sti(sakId, spor)}?revisjon=${revisjon}`, { method: 'DELETE' });
+export async function slettUtkast(
+  sakId: string,
+  spor: SporType,
+  revisjon: number,
+  prosjektId = getActiveProjectId()
+): Promise<void> {
+  await apiFetch(`${sti(sakId, spor)}?revisjon=${revisjon}`, {
+    method: 'DELETE',
+    headers: { 'X-Project-ID': prosjektId },
+  });
 }

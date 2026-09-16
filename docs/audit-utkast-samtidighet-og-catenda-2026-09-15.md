@@ -1,5 +1,9 @@
 # Etterkontroll: utkast, samtidighet og Catenda-kall
 
+> **Fulgt opp 2026-09-16:** [gjenoppretting og slettingskonflikter](audit-utkast-gjenoppretting-2026-09-16.md)
+> dekker buffer i samme fane, kontroll av bruker/team før gjenoppretting og
+> konfliktvalg når serverutkastet er slettet. Varig konflikthistorikk står igjen.
+
 Dato: 2026-09-15. Utgangspunkt: `5e4f01a` (etter merge av PR #25).
 Forrige logger: [tilgangslaget](audit-tilgangslaget-opprydding-2026-09-15.md),
 [serverutkast](audit-utkast-serverlagring-2026-09-15.md) og

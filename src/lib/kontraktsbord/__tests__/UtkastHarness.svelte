@@ -5,8 +5,10 @@
   let {
     identitet,
     ondraft,
+    flereFelt = false,
   }: {
     identitet: UtkastIdentitet;
+    flereFelt?: boolean;
     ondraft: (api: {
       draft: ReturnType<typeof createFormDraft<{ tekst: string }>>;
       skriv: (verdi: string) => void;
@@ -21,7 +23,7 @@
   const draft = createFormDraft(
     true,
     identitet,
-    () => ({ tekst }),
+    () => (flereFelt ? { tekst, valgt: true } : { tekst }),
     (lagret) => {
       tekst = lagret.tekst ?? '';
     }
