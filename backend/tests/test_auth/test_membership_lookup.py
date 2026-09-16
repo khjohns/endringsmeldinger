@@ -31,11 +31,6 @@ BRUKER = "33333333333333333333333333333333"
 @pytest.fixture
 def api(monkeypatch):
     monkeypatch.delenv("DISABLE_AUTH", raising=False)
-    monkeypatch.setenv(
-        "CATENDA_CONTRACT_TEAMS",
-        f'{{"p": {{"TE": ["{TEAM_TE}"], "BH": ["{TEAM_BH}"]}}}}',
-    )
-
     repo = Mock()
     repo.session.return_value = {
         "app_users": {"id": "u", "email": "bh@example.test", "name": "BH"},
@@ -50,6 +45,11 @@ def api(monkeypatch):
     repo.configs.return_value = [
         {"internal_project_id": "p", "catenda_project_id": "cat-p"}
     ]
+    repo.project_config.return_value = {
+        "internal_project_id": "p",
+        "catenda_project_id": "cat-p",
+    }
+    repo.contract_teams.return_value = {"TE": {TEAM_TE}, "BH": {TEAM_BH}}
     repo.sync_state.return_value = {"synced_at": "2099-01-01T00:00:00Z"}
 
     oauth = Mock()
