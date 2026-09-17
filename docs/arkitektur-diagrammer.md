@@ -1,5 +1,11 @@
 # Arkitekturdiagrammer — KOE (Krav om Endringsordre)
 
+> Et alternativ til oppsettet i punkt 2 er vurdert separat: se
+> [vurdering av Power Platform](vurdering-power-platform-2026-09-17.md), som måler
+> Power Apps, Dataverse, Power Automate og lakehouse mot kontrollene auditserien i
+> denne mappen har måttet bygge. Kort konklusjon: plattformen dekker infrastrukturen,
+> men ikke domeneintegriteten, og lakehouse-delen krever en egen sikkerhetsleveranse.
+
 ## 1. Dagens oppsett (Google Cloud Platform + Supabase)
 
 ```mermaid
