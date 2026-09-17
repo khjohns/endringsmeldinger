@@ -1,6 +1,5 @@
 """Private BH endpoints; identity and chain come exclusively from server configuration."""
 
-import json
 import os
 
 from flask import Blueprint, g, jsonify, request
@@ -10,14 +9,10 @@ from lib.auth.project_access import require_project_access
 from lib.auth.session import require_auth
 from repositories.event_repository import ConcurrencyError
 from services.approval_authority import handler_identity
+from services.approval_policy import authority_policy, project_policy
 from services.approval_service import ApprovalService
 
 approval_bp = Blueprint("approvals", __name__)
-
-
-def project_policy(project):
-    # Explicit project allowlist replaces Graph until the organisation integration exists.
-    return json.loads(os.environ.get("BH_APPROVAL_POLICIES", "{}")).get(project)
 
 
 def context(case_id):
@@ -40,16 +35,9 @@ def context(case_id):
         for entry in policy.get("handlers", [])
     ]
     chain = [{**user, "id": user["id"].lower()} for user in policy.get("chain", [])]
-    authority_policy = dict(policy)
-    if "daily_rate" not in authority_policy:
-        project_repo = getattr(container, "project_repository", None)
-        record = project_repo.get(project) if project_repo is not None else None
-        settings = record.settings if record is not None else {}
-        authority_policy["daily_rate"] = (
-            (settings.get("contract") or {}).get("dagmulkt_sats")
-            if isinstance(settings, dict)
-            else None
-        )
+    resolved_policy = authority_policy(
+        policy, project, lambda: getattr(container, "project_repository", None)
+    )
     from services.business_rules import BusinessRuleValidator
 
     service = ApprovalService(
@@ -57,7 +45,7 @@ def context(case_id):
         container.event_repository,
         container.timeline_service,
         BusinessRuleValidator(),
-        authority_policy=authority_policy,
+        authority_policy=resolved_policy,
     )
     allowed = actor in handlers + [u["id"] for u in chain]
     if actor and not allowed:

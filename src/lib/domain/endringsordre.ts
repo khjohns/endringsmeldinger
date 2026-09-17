@@ -163,6 +163,9 @@ export function eoExposure(payload: CreateEORequest, dailyRate: number | null): 
   const { pris, fremdrift } = payload.konsekvenser;
   const addition = payload.kompensasjon_belop;
   const deduction = payload.fradrag_belop;
+  // Without an authoritative baseline date, supplied days cannot establish the
+  // exposure of an absolute end date. The server requires the full chain too.
+  if (payload.ny_sluttdato != null) return null;
   if (pris && addition == null && deduction == null) return null;
   if (fremdrift && payload.frist_dager == null) return null;
   const money = Math.max(addition ?? 0, deduction ?? 0);
