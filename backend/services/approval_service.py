@@ -17,7 +17,7 @@ from api.validators import validate_event_data
 from lib.sqlite_connection import sqlite_connection
 from models.events import parse_event, parse_event_from_request
 from repositories.event_repository import ConcurrencyError
-from services.approval_authority import validate_authority
+from services.approval_authority import approval_route, handler_identity
 
 logger = logging.getLogger(__name__)
 
@@ -100,6 +100,37 @@ class ApprovalService:
         for p in result["packages"]:
             p.pop("publicationEvents", None)
         return result
+
+    def route(self, owner, items, chain):
+        """Authority basis and the approvers it requires for this owner's letter."""
+        return approval_route(
+            items,
+            chain,
+            self.authority_policy.get("daily_rate"),
+            handler_identity(self.authority_policy, owner),
+        )
+
+    def stale(self, p, chain):
+        authority, route = self.route(p["owner"], p["letter"]["items"], chain)
+        return (
+            p["policy"]["version"] != digest(chain)
+            or p.get("authority") != authority
+            or [s["id"] for s in p["steps"]] != [u["id"] for u in route]
+        )
+
+    @staticmethod
+    def mark_approved(p, events):
+        p["status"] = "godkjent"
+        # Persist IDs BEFORE the separate publication operation.
+        from services.approval_letter import snapshot
+
+        public_letter = snapshot(p["letter"], p["id"])
+        p["publicationEvents"] = [
+            e.model_copy(
+                update={"data": e.data.model_copy(update={"brev": public_letter})}
+            ).model_dump(mode="json")
+            for e in events
+        ]
 
     @staticmethod
     def basis(ground, refs):
@@ -305,18 +336,12 @@ class ApprovalService:
                     i["owner"] != actor or i["status"] != "ferdigstilt" for i in items
                 ):
                     raise PermissionError("Vurderingene må være dine og ferdigstilte.")
-                if (
-                    not chain
-                    or len(set(u["id"] for u in chain)) != len(chain)
-                    or any(u["id"] == actor for u in chain)
+                if len(set(u["id"] for u in chain)) != len(chain) or any(
+                    u["id"] == actor for u in chain
                 ):
-                    raise ValueError(
-                        "Godkjenningskjeden mangler eller inneholder saksbehandleren."
-                    )
-                self.validate_items(case_id, items)
-                authority = validate_authority(
-                    items, chain, self.authority_policy.get("daily_rate")
-                )
+                    raise ValueError("Godkjenningskjeden inneholder saksbehandleren.")
+                events, _ = self.validate_items(case_id, items)
+                authority, route = self.route(actor, items, chain)
                 previous = body.get("previousId")
                 if previous and not any(
                     p["id"] == previous
@@ -354,6 +379,9 @@ class ApprovalService:
                     "id": str(uuid4()),
                     "status": "til_godkjenning",
                     "owner": actor,
+                    "ownerName": (
+                        handler_identity(self.authority_policy, actor) or {}
+                    ).get("name"),
                     "createdAt": now,
                     "previousId": previous,
                     "policy": {"type": "configured-chain", "version": digest(chain)},
@@ -362,9 +390,12 @@ class ApprovalService:
                     "contentHash": digest(letter),
                     "steps": [
                         {**u, "status": "aktiv" if index == 0 else "venter"}
-                        for index, u in enumerate(chain)
+                        for index, u in enumerate(route)
                     ],
                 }
+                if not route:
+                    # Inside the handler's own authority: approved on submission.
+                    self.mark_approved(package, events)
                 state["packages"].append(package)
             elif action in ("approve", "return", "withdraw", "publish"):
                 p = next(p for p in state["packages"] if p["id"] == body["packageId"])
@@ -373,12 +404,7 @@ class ApprovalService:
                         raise ValueError(
                             "Godkjenningskjeden er endret. Pakken må behandles på nytt."
                         )
-                    authority = validate_authority(
-                        p["letter"]["items"],
-                        chain,
-                        self.authority_policy.get("daily_rate"),
-                    )
-                    if p.get("authority") != authority:
+                    if self.stale(p, chain):
                         raise ValueError(
                             "Fullmaktsgrunnlaget er endret. Pakken må behandles på nytt."
                         )
@@ -434,21 +460,7 @@ class ApprovalService:
                             if following:
                                 following["status"] = "aktiv"
                             else:
-                                p["status"] = "godkjent"
-                                # Persist IDs BEFORE the separate publication operation.
-                                from services.approval_letter import snapshot
-
-                                public_letter = snapshot(p["letter"], p["id"])
-                                p["publicationEvents"] = [
-                                    e.model_copy(
-                                        update={
-                                            "data": e.data.model_copy(
-                                                update={"brev": public_letter}
-                                            )
-                                        }
-                                    ).model_dump(mode="json")
-                                    for e in events
-                                ]
+                                self.mark_approved(p, events)
                     if p["status"] in ("returnert", "trukket"):
                         for item in list(state["items"]):
                             if any(i["id"] == item["id"] for i in p["letter"]["items"]):
@@ -508,15 +520,7 @@ class ApprovalService:
                 }:
                     continue
                 try:
-                    authority = validate_authority(
-                        p["letter"]["items"],
-                        chain,
-                        self.authority_policy.get("daily_rate"),
-                    )
-                    stale = (
-                        p["policy"]["version"] != digest(chain)
-                        or p.get("authority") != authority
-                    )
+                    stale = self.stale(p, chain)
                 except ValueError:
                     stale = True
                 if not stale:

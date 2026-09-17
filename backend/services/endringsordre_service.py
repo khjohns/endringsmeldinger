@@ -62,6 +62,12 @@ def _get_relation_repository():
     return None
 
 
+def new_eo_sak_id(now: datetime | None = None) -> str:
+    """Local case ID for a change order; reserved up front by internal approval."""
+    now = now or datetime.now(UTC)
+    return f"EO-{now.strftime('%Y%m%d')}-{uuid4().hex[:12]}"
+
+
 class EndringsordreService(BaseSakService):
     """
     Service for å håndtere endringsordresaker (§31.3).
@@ -250,6 +256,7 @@ class EndringsordreService(BaseSakService):
         frist_dager: int | None = None,
         ny_sluttdato: str | None = None,
         utstedt_av: str | None = None,
+        sak_id: str | None = None,
     ) -> dict[str, Any]:
         """
         Oppretter en ny endringsordresak med relasjoner til KOE-saker.
@@ -269,6 +276,8 @@ class EndringsordreService(BaseSakService):
             frist_dager: Antall dager fristforlengelse
             ny_sluttdato: Ny sluttdato (YYYY-MM-DD)
             utstedt_av: Navn på person som utsteder EO (BH-representant)
+            sak_id: Reservert sak-ID. Intern godkjenning lagrer den før utstedelse, slik at
+                et nytt forsøk etter krasj gjenkjenner en allerede opprettet ordre.
 
         Returns:
             Dict med den opprettede endringsordresaken inkludert catenda_synced status
@@ -385,8 +394,14 @@ class EndringsordreService(BaseSakService):
         now = datetime.now(UTC)
         dato_utstedt = now.strftime("%Y-%m-%d")
 
-        # 1. Generer lokal sak-ID
-        sak_id = f"EO-{now.strftime('%Y%m%d')}-{uuid4().hex[:12]}"
+        # 1. Generer lokal sak-ID (eller bruk den reserverte)
+        if sak_id:
+            if self.event_repository.get_events(sak_id)[1] > 0:
+                raise ValueError("Endringsordren er allerede utstedt")
+            # Metadata without events is left by an interrupted creation under this ID.
+            if self.metadata_repository.get(sak_id) is not None:
+                self.metadata_repository.delete(sak_id)
+        sak_id = sak_id or new_eo_sak_id(now)
 
         logger.info(
             f"Oppretter endringsordresak {sak_id} (EO-{eo_nummer}) "

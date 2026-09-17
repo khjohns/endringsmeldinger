@@ -38,9 +38,21 @@ Saksregisteret har et sakstypefilter og viser EO-nummer, status, grunnlag, netto
 - Metadata og de tre opprettelseshendelsene lagres via eksisterende `SakCreationService`. Beløp, fradrag, estimat, nullverdier og sluttdato overlever hendelsesreplay, også for eldre payload-format.
 - KOE-kandidater, relasjoner og tilbakekoblinger leses fra prosjektets lokale hendelser. En feil i relasjonsindeksen kan derfor ikke skjule en allerede utstedt ordre.
 
+## Intern godkjenning
+
+Kontrollsteget bruker samme godkjenningspanel som svar på krav (`EOApprovalPanel.svelte`), i høyre kolonne ved dokumentet.
+
+- **Uten policy** i `BH_APPROVAL_POLICIES` utstedes ordren direkte, som før.
+- **Med policy** er `POST /api/endringsordre/opprett` sperret. Ordren sendes via `GET/POST /api/endringsordre/godkjenninger` (handlinger `submit`, `approve`, `return`, `withdraw`, `retry`). Innenfor saksbehandlerens fullmakt utstedes den straks; ellers går den sekvensielt gjennom kjeden beløpet krever og utstedes ved siste godkjenning.
+- **Fullmaktsgrunnlag** (foreløpig regel, bør bekreftes): det største av tillegg og fradrag – aldri netto – pluss fristforlengelse × dagmulktssats. Uavklart pris eller frist, eller manglende sats når dager er angitt, gir uberegnet grunnlag, og da må hele kjeden godkjenne. Over alle fullmakter avvises.
+- Pakker lagres privat i `eo_approvals` i `BH_APPROVAL_DB`, per prosjekt. Den frosne forespørselen utstedes med eksisterende `EndringsordreService`. Et nummer kan bare ha én åpen pakke. Endret policy eller rute returnerer åpne pakker.
+- Godkjennere behandler ordrer på `/[prosjektId]/endringsordre/godkjenning` (lenke «Til godkjenning» i byggherrens saksoversikt). Demo: `/mockup/endringsordre/godkjenning`, med «Demo · vis som».
+- Utstedelse etter godkjenning følger samme mønster som publisering av svar: sak-ID-en reserveres og lagres i pakken i samme transaksjon som godkjenningen, før selve utstedelsen. Ordren opprettes under den ID-en med hendelser fra versjon 0. Hendelsene er commit-punktet (saksopprettelsen bruker kompenserende tilbakerulling, så metadata alene beviser ingenting). Ved nytt forsøk eller neste lesing gjenkjennes en allerede opprettet ordre, og kvitteringen registreres uten ny opprettelse. Et utstedelsesforsøk holder en lease i fem minutter, slik levering av svar gjør, så to prosesser ikke oppretter samtidig. Metadata uten hendelser etter et avbrutt forsøk erstattes. Feiler utstedelsen av andre grunner, vises «Prøv utstedelse igjen».
+- Catenda-synk skjer etter opprettelsen, som ved direkte utstedelse. En ordre som gjenopprettes etter krasj, blir ikke synket på nytt automatisk; svar på krav har her en egen outbox som endringsordrer ikke har fått.
+
 ## Avgrensninger i dagens infrastruktur
 
-**Tilgang:** «Vis som BH/TE» er et visningsvalg, ikke en verifisert kontraktspart. Endepunktet krever innlogget prosjektmedlem med skriverettighet, kontrollerer prosjektet og henter avsender fra sesjonen. Separat autorisasjon som byggherre krever at kontraktspart knyttes til en betrodd bruker-/prosjektrolle. EO-utstedelse har heller ikke en ny intern godkjenningspakke/fullmaktsflyt; eksisterende KOE-vurderinger følger sin eksisterende behandling.
+**Tilgang:** «Vis som BH/TE» er et visningsvalg, ikke en verifisert kontraktspart. Endepunktet krever innlogget prosjektmedlem med skriverettighet, kontrollerer prosjektet og henter avsender fra sesjonen. Separat autorisasjon som byggherre krever at kontraktspart knyttes til en betrodd bruker-/prosjektrolle. Intern godkjenning før utstedelse er beskrevet under «Intern godkjenning» nedenfor.
 
 **Samtidighet:** Eksisterende opprettelsesmekanisme har kompenserende lagring og ingen felles transaksjon på tvers av KOE-saker. Nummer og relasjoner kontrolleres før skriving, og samme skjema blokkerer dobbel innsending, men to samtidige forespørsler i ulike prosesser kan passere samme forhåndskontroll. En streng garanti krever atomisk reservasjon av nummer og KOE-tilknytning i databasen.
 

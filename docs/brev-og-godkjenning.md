@@ -6,16 +6,26 @@ Implementert 11. september 2026. Bygger på [domenespesifikasjonen](superpowers/
 
 Åpne `/mockup?rolle=BH&spor=vederlag`.
 
-1. Åpne svarskjemaet og ferdigstill vurderingen. Dette publiserer ikke et BH-svar.
-2. I «Brev og godkjenning» velges ferdigstilte vurderinger. Innledning og avslutning kan tilpasses. Brevutkast lagres ved å forlate tekstfeltet og ved lukking.
-3. Send brevet til godkjenning. Hele pakken fryses, inkludert vurderingsdata, brevtekst, forutsetninger og godkjenningskjede.
-4. Bruk «Prøv godkjenningsflyten» til å bytte fra Kari Hansen til Ola Nilsen. Godkjenn eller returner med kommentar.
-5. Anne Berg utfører siste godkjenning. Denne starter publiseringen. «Sendt» vises først etter bekreftet publisering.
-6. Ved retur opprettes nye kladdrevisjoner. Revider vurderingene og send en ny pakke. Forrige pakke og returkommentar bevares, og endringene kan sammenlignes.
+1. Åpne svarskjemaet og ferdigstill vurderingen (steg 1). Dette publiserer ikke et BH-svar.
+2. Brevet åpnes i siden (steg 2), ikke i en modal. Alle ferdigstilte vurderinger inngår. Innledning og avslutning kan tilpasses. Brevutkast lagres ved å forlate tekstfeltet og ved «Til saken». «Endre» går tilbake til saken; å åpne en ferdigstilt vurdering gjør den til en redigerbar revisjon.
+3. Godkjenningspanelet (steg 3) står i høyre kolonne. Det viser høyeste samlede standpunkt, egen fullmakt, beregningen bak én klikk og kjeden beløpet krever. Kryss av for kontroll og send. Hele pakken fryses, inkludert vurderingsdata, brevtekst, forutsetninger og utledet kjede.
+4. Bruk «Demo · vis som» til å bytte fra Kari Hansen til Ola Nilsen. Godkjenn eller returner med kommentar.
+5. Den som avgjør (her Anne Berg) utfører siste godkjenning. Denne starter publiseringen. «Svaret er sendt» vises først etter bekreftet publisering.
+6. Ved retur opprettes nye kladdrevisjoner. Revider vurderingene og send en ny pakke. Returkommentaren vises over brevet, og endringene kan sammenlignes.
 
-Demoen har to konfigurerte godkjennere: Prosjektdirektør og Avdelingsleder. Kari Hansen er saksbehandler med rollen Prosjektleder. Demodata er lokale for den åpne saken og nullstilles ved omlasting. Demoen sender ingen eksterne meldinger.
+Demoen har to godkjennere: Prosjektdirektør og Avdelingsleder. Kari Hansen er saksbehandler med rollen Prosjektleder.
 
-Entreprenørens nye ansvarsgrunnlag, oppdateringer, vederlagskrav og fristkrav går gjennom brevkontroll før innsending. Avbryt går tilbake til skjemaet uten å miste kladden. Nye sendte brev lagres med hendelsen og åpnes uten redigeringsmulighet fra historikken. Eldre hendelser uten et lagret brev får fortsatt en lesbar brevrepresentasjon fra hendelsesdata.
+## Godkjenningspanelet
+
+Designet ligger i `docs/design/ApprovalPanel.*`. Svelte-komponenten er `src/lib/components/approval/ApprovalPanel.svelte`; reglene for ruting er `src/lib/approval/route.ts` (`resolveRoute`) og tilsvarende `resolve_route` i `backend/services/approval_authority.py`.
+
+- Én anatomi, tre tilstander: innenfor fullmakt («Send svar», ingen kjede), over fullmakt («Send til godkjenning», kjede) og under behandling (samme panel viser status, «Trekk fra godkjenning» for saksbehandler, «Godkjenn»/«Returner» for aktiv godkjenner).
+- Kjeden utledes, den velges aldri. Godkjennerne tas i konfigurert rekkefølge fram til første rolle med tilstrekkelig fullmakt, som avgjør. Innenfor saksbehandlerens egen fullmakt godkjennes pakken ved innsending og publiseres straks.
+- Beløp over alle fullmakter blokkeres eksplisitt, det sendes ikke stille til høyeste nivå. Manglende dagmulktssats blokkerer sending.
+- Roller utenfor matrisen gir ingen fullmakt. For brev uten beløp (f.eks. bare ansvarsgrunnlag) med en kjede uten matriseroller brukes hele kjeden, som før.
+- Serveren utleder samme rute ved innsending, godkjenning og publisering. Endret policy, fullmakt eller rute returnerer åpne pakker for ny godkjenning. Demodata er lokale for den åpne saken og nullstilles ved omlasting. Demoen sender ingen eksterne meldinger.
+
+Entreprenørens nye ansvarsgrunnlag, oppdateringer, vederlagskrav og fristkrav går gjennom brevkontroll før innsending. Kontrollen er et steg i siden med samme panel som byggherrens godkjenning, men uten kjede: kryss av for kontroll og «Send til byggherren». Skjemaet skjules, ikke avmonteres, så innsendingen fortsetter når brevet bekreftes. «Tilbake til kravet» og «Endre» går tilbake til skjemaet uten å miste kladden. Nye sendte brev lagres med hendelsen og åpnes uten redigeringsmulighet fra historikken. Eldre hendelser uten et lagret brev får fortsatt en lesbar brevrepresentasjon fra hendelsesdata.
 
 ## Samsvar mellom skjema og brev
 
@@ -34,7 +44,7 @@ PDF og skjermbrev bruker den lagrede teksten. PDF viser brevets avsender, ikke e
 ```json
 {
   "prosjekt-id": {
-    "handlers": ["saksbehandler@example.no"],
+    "handlers": [{ "id": "saksbehandler@example.no", "name": "Saksbehandler", "role": "Prosjektleder" }],
     "chain": [
       { "id": "prosjektleder@example.no", "name": "Prosjektleder", "role": "Prosjektleder" },
       { "id": "prosjekteier@example.no", "name": "Prosjekteier", "role": "Prosjekteier" }
@@ -42,6 +52,8 @@ PDF og skjermbrev bruker den lagrede teksten. PDF viser brevets avsender, ikke e
   }
 }
 ```
+
+`handlers` kan også være e-postadresser. Uten rolle har saksbehandleren ingen egen fullmakt, og alt med beløp går til godkjenning. Kjeden bør stå i stigende fullmaktsrekkefølge med roller fra matrisen. `chain` brukes også for endringsordrer.
 
 Saksbehandleren kan ikke godkjenne sin egen pakke. Tom kjede og dupliserte personer avvises. Prosjektmedlemskap og sakstilgang kontrolleres på serveren. UI-rollen «BH» gir ikke i seg selv tilgang til interne data. Endret policy endrer ikke en allerede innsendt kjede.
 
@@ -83,7 +95,7 @@ Matrisen for «endring i kontrakt» er oppgitt av brukeren: Prosjektleder 200 00
 
 Visningen sammenligner TEs krav for inkluderte vurderinger med BHs standpunkt. Foreløpig regel er høyeste samlede prinsipale eller subsidiære standpunkt, med vederlag og fristverdi lagt sammen innen hvert standpunkt. Fristverdi er godkjente dager × dagmulktssats i kroner per dag. Subsidiært standpunkt tas med selv når ansvarsgrunnlaget er avslått. Manglende sats gir uavklart verdi, ikke null. En sats på én promille av kontraktsverdi antas ikke automatisk; satsen må finnes i saks-/kontraktsdata.
 
-Beregningsinngangene lagres i den interne brevpakken ved innsending, og utelates fra mottakerens brev/PDF. Eldre pakker uten disse inngangene får ikke en etterberegning med dagens sats. Dette er en beregningshjelp i UI, ikke serververifisert fullmaktskontroll. Visningen varsler dersom den konfigurerte kjeden mangler en tilstrekkelig rolle. Den endrer ikke kjeden, gir ikke rettigheter og blokkerer ikke publisering. Automatisk ruting og håndheving krever serverstyrt rolle-/fullmaktstildeling og kontraktsgrunnlag.
+Beregningsinngangene lagres i den interne brevpakken ved innsending, og utelates fra mottakerens brev/PDF. Eldre pakker uten disse inngangene får ikke en etterberegning med dagens sats. Fullmakten håndheves på serveren: kjeden i pakken er den serveren utleder fra beløpet og policyens roller. Rollene er fortsatt konfigurert i `BH_APPROVAL_POLICIES`, ikke hentet fra en organisasjonskatalog.
 
 
 Driftsavklaring 2026-09-14: brukeren oppgir én Flask-backendinstans og at appen

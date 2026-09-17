@@ -22,6 +22,7 @@ export function createApprovalWorkspace(store: CaseWorkspace) {
   let state = $state<ApprovalState>(emptyApprovalState());
   let actor = $state(store.isDemo ? demoUsers[0].id : '');
   let chain = $state<ApprovalUser[]>(store.isDemo ? demoUsers.slice(1) : []);
+  let sender = $state<ApprovalUser | null>(store.isDemo ? demoUsers[0] : null);
   let canPrepare = $state(store.isDemo);
   let dailyRate = $state<number | null>(null);
   let error = $state('');
@@ -29,6 +30,7 @@ export function createApprovalWorkspace(store: CaseWorkspace) {
   let loaded = $state(store.isDemo);
   let idle: Promise<void> = Promise.resolve();
   let restoreItem = $state<ReviewItem | null>(null);
+  const demoDailyRate = () => store.sak.dagmulktsats || null;
   const endpoint = `/api/cases/${encodeURIComponent(store.sak.sak_id)}/approvals`;
   const headers: Record<string, string> = store.isDemo ? {} : { 'X-Project-ID': store.projectId };
   const claims = () =>
@@ -65,12 +67,14 @@ export function createApprovalWorkspace(store: CaseWorkspace) {
     state: ApprovalState;
     actor: string;
     chain: ApprovalUser[];
+    sender?: ApprovalUser | null;
     canPrepare: boolean;
     dailyRate?: number | null;
   }) {
     state = result.state;
     actor = result.actor;
     chain = result.chain;
+    sender = result.sender ?? null;
     canPrepare = result.canPrepare;
     dailyRate = result.dailyRate ?? null;
     loaded = true;
@@ -94,7 +98,11 @@ export function createApprovalWorkspace(store: CaseWorkspace) {
     busy = true;
     error = '';
     try {
-      if (store.isDemo) state = transition($state.snapshot(state), command, actor, chain, claims());
+      if (store.isDemo)
+        state = transition($state.snapshot(state), command, actor, chain, claims(), undefined, {
+          sender: demoUsers[0],
+          dailyRate: demoDailyRate(),
+        });
       else
         accept(
           await apiFetch(endpoint, {
@@ -133,11 +141,15 @@ export function createApprovalWorkspace(store: CaseWorkspace) {
     get chain() {
       return chain;
     },
+    /** The handler's own identity and matrix role, when the server policy defines it */
+    get sender() {
+      return sender;
+    },
     get canPrepare() {
       return canPrepare;
     },
     get dailyRate() {
-      return dailyRate;
+      return store.isDemo ? demoDailyRate() : dailyRate;
     },
     get error() {
       return error;
