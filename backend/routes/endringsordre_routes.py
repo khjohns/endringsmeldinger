@@ -28,6 +28,11 @@ from routes.related_cases_utils import (
     build_relaterte_response,
     validate_required_fields,
 )
+from services.approval_policy import (
+    authority_policy,
+    project_policy,
+    public_event_block_reason,
+)
 from utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -73,12 +78,11 @@ def opprett_endringsordresak():
         ...
     }
     """
-    from routes.approval_routes import project_policy
-
-    if project_policy(getattr(g, "project_id", "oslobygg")):
-        return jsonify(
-            message="Endringsordrer i prosjektet utstedes gjennom intern godkjenning."
-        ), 403
+    blocked = public_event_block_reason(
+        project_policy(g.project_id), {"event_type": "eo_opprettet"}
+    )
+    if blocked:
+        return jsonify(error="APPROVAL_REQUIRED", message=blocked), 403
 
     payload = request.get_json(silent=True)
     if not isinstance(payload, dict):
@@ -152,6 +156,11 @@ def hent_eo_kontekst(sak_id: str):
 @handle_service_errors
 def legg_til_koe(sak_id: str):
     """Legg til en KOE-sak til endringsordren."""
+    blocked = public_event_block_reason(
+        project_policy(g.project_id), {"event_type": "eo_koe_lagt_til"}
+    )
+    if blocked:
+        return jsonify(error="APPROVAL_REQUIRED", message=blocked), 403
     payload = request.json
 
     error = validate_required_fields(payload, ["koe_sak_id"])
@@ -184,6 +193,11 @@ def legg_til_koe(sak_id: str):
 @handle_service_errors
 def fjern_koe(sak_id: str, koe_sak_id: str):
     """Fjern en KOE-sak fra endringsordren."""
+    blocked = public_event_block_reason(
+        project_policy(g.project_id), {"event_type": "eo_koe_fjernet"}
+    )
+    if blocked:
+        return jsonify(error="APPROVAL_REQUIRED", message=blocked), 403
     service = _get_endringsordre_service()
     result = service.fjern_koe(
         sak_id, koe_sak_id, aktor=g.user.get("name") or g.user["email"]
@@ -243,7 +257,6 @@ def finn_eoer_for_koe(sak_id: str):
 def eo_godkjenninger():
     """Private BH approval of change orders; identities and chain come from server policy."""
     from repositories.event_repository import ConcurrencyError
-    from routes.approval_routes import project_policy
     from services.approval_authority import handler_identity
     from services.eo_approval_service import EOApprovalService
 
@@ -256,6 +269,11 @@ def eo_godkjenninger():
             raise PermissionError(
                 "Intern godkjenning er ikke konfigurert for prosjektet."
             )
+        policy = authority_policy(
+            policy,
+            project,
+            lambda: getattr(_get_container(), "project_repository", None),
+        )
         service = EOApprovalService(
             os.environ.get("BH_APPROVAL_DB", "koe_data/approvals.sqlite3"),
             _get_endringsordre_service(),
