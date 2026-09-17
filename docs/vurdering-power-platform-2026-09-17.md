@@ -35,6 +35,13 @@ To ting er verdt å si tydelig i tillegg, fordi de trekker i hver sin retning:
   for statistikk er et sikkerhetsbrudd på nøyaktig det BE-01 lukket, med mindre regelen
   bygges på nytt i kopien. Se [del 5](#5-der-plattformen-ville-vært-verre).
 
+> **Oppfølging samme dag:** spørsmålet om durable inbox/outbox uten Dataverse er
+> fulgt opp i [design for durable inbox og outbox](design-durable-inbox-outbox-2026-09-17.md).
+> Den runden fant den strukturelle blokkeringen som gjør outbox-mønsteret utilgjengelig i
+> dag: hendelseslageret nås over PostgREST, og et REST-kall kan ikke være med i en
+> transaksjon. Den fant også at det ikke finnes noen bakgrunnsworker i repoet — dagens
+> «retry» krever at et menneske trykker på knappen.
+
 ## Metode og forbehold
 
 Dette er den delen som avgjør hvor mye vekt resten kan bære.
