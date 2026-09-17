@@ -53,3 +53,28 @@ def test_unknown_role_does_not_grant_authority():
         ]
         == "6000000"
     )
+
+
+def test_route_stops_at_the_decider_and_skips_approval_inside_own_authority():
+    from decimal import Decimal
+
+    from services.approval_authority import handler_identity, resolve_route
+
+    sender = {"id": "pl", "role": "Prosjektleder"}
+    chain = [
+        {"id": "pd", "role": "Prosjektdirektør"},
+        {"id": "al", "role": "Avdelingsleder"},
+    ]
+    assert resolve_route(Decimal(200000), sender, chain) == []
+    assert [p["id"] for p in resolve_route(Decimal(200001), sender, chain)] == ["pd"]
+    assert [p["id"] for p in resolve_route(Decimal(2930000), sender, chain)] == [
+        "pd",
+        "al",
+    ]
+    assert [p["id"] for p in resolve_route(None, sender, chain)] == ["pd", "al"]
+    with pytest.raises(ValueError, match="fullmakt"):
+        resolve_route(Decimal(3000001), sender, chain)
+    policy = {"handlers": ["a@x", {"id": "B@x", "name": "B", "role": "Prosjektleder"}]}
+    assert handler_identity(policy, "a@x") == {"id": "a@x", "name": "a@x"}
+    assert handler_identity(policy, "b@x")["role"] == "Prosjektleder"
+    assert handler_identity(policy, "c@x") is None

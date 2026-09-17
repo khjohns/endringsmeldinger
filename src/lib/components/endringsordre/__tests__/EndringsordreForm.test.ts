@@ -4,11 +4,19 @@ import EndringsordreForm from '../EndringsordreForm.svelte';
 import { createEndringsordre, fetchEOCandidates, fetchNextEONumber } from '$lib/api/endringsordre';
 import { setDraftOwner } from '$lib/utils/draftOwner';
 
-vi.mock('$lib/api/endringsordre', () => ({
-  createEndringsordre: vi.fn(),
-  fetchEOCandidates: vi.fn(),
-  fetchNextEONumber: vi.fn(),
-}));
+vi.mock('$lib/api/endringsordre', async () => {
+  const { ApiError } = await import('$lib/api/client');
+  return {
+    createEndringsordre: vi.fn(),
+    fetchEOCandidates: vi.fn(),
+    fetchNextEONumber: vi.fn(),
+    // Prosjektet har ingen godkjenningspolicy: ordren utstedes direkte.
+    fetchEOApprovals: vi.fn(() =>
+      Promise.reject(new ApiError(403, 'Intern godkjenning er ikke konfigurert for prosjektet.'))
+    ),
+    sendEOApprovalCommand: vi.fn(),
+  };
+});
 vi.mock('$app/environment', () => ({ browser: true }));
 const props = {
   projectId: 'project',

@@ -32,6 +32,7 @@
         {projectName}
         userId={page.data.user?.id}
         initialKoe={page.url.searchParams.get('koe') ?? ''}
+        approvalsHref={resolve(`/${encodeURIComponent(projectId)}/endringsordre/godkjenning`)}
         oncreated={created}
       />{/key}
   </main>

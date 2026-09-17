@@ -61,7 +61,10 @@ describe('basis submission with optional notices', () => {
       await fireEvent.click(checkbox);
     }
     actions!.send();
-    await fireEvent.click(await screen.findByRole('button', { name: 'Send til byggherren' }));
+    await fireEvent.click(
+      await screen.findByRole('checkbox', { name: 'Jeg har kontrollert brevet og vedleggene.' })
+    );
+    await fireEvent.click(screen.getByRole('button', { name: 'Send til byggherren' }));
     await waitFor(() => expect(complete).toHaveBeenCalledOnce());
     expect(submitEvent).toHaveBeenCalledTimes(2);
     const [, eventType, data] = vi.mocked(submitEvent).mock.calls[1];
@@ -101,12 +104,18 @@ describe('basis submission with optional notices', () => {
     await waitFor(() => expect(actions?.canSend).toBe(true));
     await fireEvent.click(screen.getByRole('checkbox', { name: VARSEL_LABELS.frist }));
     actions!.send();
-    await fireEvent.click(await screen.findByRole('button', { name: 'Send til byggherren' }));
+    await fireEvent.click(
+      await screen.findByRole('checkbox', { name: 'Jeg har kontrollert brevet og vedleggene.' })
+    );
+    await fireEvent.click(screen.getByRole('button', { name: 'Send til byggherren' }));
     await screen.findByRole('alert');
     expect(complete).not.toHaveBeenCalled();
     expect(screen.getByRole('checkbox', { name: VARSEL_LABELS.frist })).toBeChecked();
     actions!.send();
-    await fireEvent.click(await screen.findByRole('button', { name: 'Send til byggherren' }));
+    await fireEvent.click(
+      await screen.findByRole('checkbox', { name: 'Jeg har kontrollert brevet og vedleggene.' })
+    );
+    await fireEvent.click(screen.getByRole('button', { name: 'Send til byggherren' }));
     await waitFor(() => expect(complete).toHaveBeenCalledOnce());
     expect(submitEvent).toHaveBeenCalledTimes(3);
     const calls = vi.mocked(submitEvent).mock.calls;
@@ -149,14 +158,20 @@ describe('basis submission with optional notices', () => {
       target: { files: [new File(['%PDF-abc'], 'rapport.pdf')] },
     });
     actions!.send();
-    const confirm = await screen.findByRole('button', { name: 'Send til byggherren' });
-    expect(screen.getByRole('dialog')).toHaveTextContent('rapport.pdf');
+    await fireEvent.click(
+      await screen.findByRole('checkbox', { name: 'Jeg har kontrollert brevet og vedleggene.' })
+    );
+    const confirm = screen.getByRole('button', { name: 'Send til byggherren' });
+    expect(screen.getByRole('region', { name: 'Brevkontroll' })).toHaveTextContent('rapport.pdf');
     expect(lastOppVedlegg).not.toHaveBeenCalled();
     await fireEvent.click(confirm);
     await screen.findByRole('alert');
     expect(vi.mocked(submitEvent).mock.calls[1][2].vedlegg_ids).toEqual(['attachment']);
     actions!.send();
-    await fireEvent.click(await screen.findByRole('button', { name: 'Send til byggherren' }));
+    await fireEvent.click(
+      await screen.findByRole('checkbox', { name: 'Jeg har kontrollert brevet og vedleggene.' })
+    );
+    await fireEvent.click(screen.getByRole('button', { name: 'Send til byggherren' }));
     await waitFor(() => expect(complete).toHaveBeenCalledOnce());
     expect(lastOppVedlegg).toHaveBeenCalledOnce();
     expect(vi.mocked(submitEvent).mock.calls[2][2].vedlegg_ids).toEqual(['attachment']);
@@ -181,7 +196,10 @@ describe('basis submission with optional notices', () => {
       target: { files: [new File(['%PDF-abc'], 'rapport.pdf')] },
     });
     actions!.send();
-    await fireEvent.click(await screen.findByRole('button', { name: 'Send til byggherren' }));
+    await fireEvent.click(
+      await screen.findByRole('checkbox', { name: 'Jeg har kontrollert brevet og vedleggene.' })
+    );
+    await fireEvent.click(screen.getByRole('button', { name: 'Send til byggherren' }));
     expect(await screen.findByRole('alert')).toHaveTextContent('Opplasting feilet');
     expect(submitEvent).toHaveBeenCalledTimes(1);
     expect(vi.mocked(submitEvent).mock.calls[0][1]).toBe('sak_opprettet');

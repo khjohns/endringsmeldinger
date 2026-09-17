@@ -437,3 +437,23 @@ def test_catenda_relation_failure_keeps_local_order_and_saved_mapping(
         environment.service._load_state(result["sak_id"]).endringsordre_data.status
         == "utstedt"
     )
+
+
+def test_reserved_case_id_is_used_once_and_orphan_metadata_is_replaced(environment):
+    reserved = "EO-20260916-reservert01"
+    # An interrupted creation left metadata without events under the reserved ID.
+    environment.metadata[reserved] = SakMetadata(
+        sak_id=reserved,
+        prosjekt_id="oslobygg",
+        created_at=datetime.now(UTC),
+        created_by="avbrutt",
+    )
+    environment.repo.delete.side_effect = lambda sak_id: environment.metadata.pop(
+        sak_id
+    )
+    assert issue(environment, sak_id=reserved)["sak_id"] == reserved
+    environment.repo.delete.assert_called_once_with(reserved)
+    assert environment.events.get_events(reserved)[1] == 3
+    with pytest.raises(ValueError, match="allerede utstedt"):
+        issue(environment, eo_nummer="EO-002", sak_id=reserved)
+    assert environment.events.get_events(reserved)[1] == 3

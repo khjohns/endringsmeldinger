@@ -5,6 +5,8 @@ import {
   type LetterDocument,
   type ReviewItem,
 } from './types';
+import { calculateAuthority } from './authority';
+import { resolveRoute, withLimit } from './route';
 
 export type ApprovalCommand =
   | { action: 'saveLetter'; draft: { introduction: string; closing: string; included: string[] } }
@@ -13,6 +15,22 @@ export type ApprovalCommand =
   | { action: 'package'; letter: LetterDocument; previousId?: string }
   | { action: 'approve' | 'return' | 'withdraw' | 'publish'; packageId: string; comment?: string };
 
+/** The approvers a letter requires; empty when it is inside the sender's own authority. */
+export function approversFor(
+  items: ReviewItem[],
+  chain: ApprovalUser[],
+  authority: { sender: ApprovalUser; dailyRate: number | null }
+): ApprovalUser[] {
+  const route = resolveRoute({
+    amount: calculateAuthority(items, authority.dailyRate).amount,
+    sender: withLimit(authority.sender),
+    chain: chain.map(withLimit),
+  });
+  if (route.exceedsAllAuthority)
+    throw new Error('Godkjenningskjeden har ikke tilstrekkelig fullmakt for brevet.');
+  return route.approvers.map((a) => chain.find((u) => u.id === a.id)!);
+}
+
 /** Demo adapter only. The live API independently enforces all transitions and identities. */
 export function transition(
   current: ApprovalState = emptyApprovalState(),
@@ -20,7 +38,8 @@ export function transition(
   actor: string,
   chain: ApprovalUser[],
   currentClaims: Record<string, string>,
-  now = new Date().toISOString()
+  now = new Date().toISOString(),
+  authority?: { sender: ApprovalUser; dailyRate: number | null }
 ): ApprovalState {
   const next = structuredClone(current);
   const assert = (condition: unknown, message: string) => {
@@ -77,23 +96,25 @@ export function transition(
       'Velg én revisjon per vurdering.'
     );
     assert(
-      chain.length &&
-        new Set(chain.map((u) => u.id)).size === chain.length &&
-        chain.every((u) => u.id !== actor),
+      new Set(chain.map((u) => u.id)).size === chain.length && chain.every((u) => u.id !== actor),
       'Godkjenningskjeden må inneholde andre personer enn saksbehandleren.'
     );
+    const approvers = authority ? approversFor(items, chain, authority) : chain;
+    assert(approvers.length || authority, 'Godkjenningskjeden mangler.');
     fresh(items);
     items.forEach((i) => {
       i.status = 'til_godkjenning';
     });
     next.packages.push({
       id: crypto.randomUUID(),
-      status: 'til_godkjenning',
+      // Inside the sender's own authority the letter is approved on submission.
+      status: approvers.length ? 'til_godkjenning' : 'godkjent',
       owner: actor,
+      ownerName: authority?.sender.name,
       createdAt: now,
       previousId: command.previousId,
       letter: { ...structuredClone(command.letter), items: structuredClone(items) },
-      steps: chain.map((u, index) => ({ ...u, status: index === 0 ? 'aktiv' : 'venter' })),
+      steps: approvers.map((u, index) => ({ ...u, status: index === 0 ? 'aktiv' : 'venter' })),
     });
   } else {
     const p = next.packages.find((p) => p.id === command.packageId);

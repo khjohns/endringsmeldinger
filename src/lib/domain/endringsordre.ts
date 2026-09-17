@@ -143,3 +143,30 @@ export function eoAmount(data: EndringsordreData): number | null {
     return (data.kompensasjon_belop ?? 0) - (data.fradrag_belop ?? 0);
   return data.konsekvenser.pris ? null : 0;
 }
+
+/** The issued document a request becomes; used for review and approval before issuance. */
+export function requestToDocument(payload: CreateEORequest): EndringsordreData {
+  return {
+    ...payload,
+    relaterte_koe_saker: payload.koe_sak_ids,
+    revisjon_nummer: 0,
+    status: 'utkast',
+  };
+}
+
+/**
+ * Authority basis for a change order, or null when it cannot be computed yet.
+ * The larger of addition and deduction is used, never the net; extension days are
+ * valued at the daily rate and added. Mirrors `order_exposure` in the backend.
+ */
+export function eoExposure(payload: CreateEORequest, dailyRate: number | null): number | null {
+  const { pris, fremdrift } = payload.konsekvenser;
+  const addition = payload.kompensasjon_belop;
+  const deduction = payload.fradrag_belop;
+  if (pris && addition == null && deduction == null) return null;
+  if (fremdrift && payload.frist_dager == null) return null;
+  const money = Math.max(addition ?? 0, deduction ?? 0);
+  const days = payload.frist_dager ?? 0;
+  if (days <= 0) return money;
+  return dailyRate && dailyRate > 0 ? money + days * dailyRate : null;
+}
