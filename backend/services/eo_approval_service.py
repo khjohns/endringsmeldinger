@@ -6,18 +6,18 @@ the last approver in the amount-derived route has approved.
 
 Like the approval of responses, issuance is recoverable: the case ID is reserved and
 persisted in the package in the same transaction that approves it, before the separate
-issuing operation. Metadata and events are created atomically at version 0 under that ID,
+issuing operation. Creation uses expected event version 0 under that ID,
 so a retry or a later read recognises an order that was already created and records the
 receipt instead of issuing it twice. The events are the commit point: case creation uses
 compensating rollback, not a database transaction, so metadata alone proves nothing. An
-issuing attempt holds a lease, as notification delivery does, so two workers never create
-under the same ID at once.
+issuing attempt holds a lease, as notification delivery does. An expired lease does not
+stop an old worker; atomic domain creation/fencing is still required (audit AP-04).
 """
 
 import copy
 import json
 from contextlib import contextmanager
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
 from uuid import uuid4
 
@@ -66,14 +66,36 @@ def order_exposure(request, daily_rate=None):
     daily rate and added. Unresolved price or time requires the whole chain.
     """
     consequences = request.get("konsekvenser") or {}
+    if not isinstance(consequences, dict):
+        raise ValueError("Ugyldige konsekvenser.")
     addition, deduction = (
         request.get("kompensasjon_belop"),
         request.get("fradrag_belop"),
     )
-    if consequences.get("pris") and addition is None and deduction is None:
-        return None
     money = max(number(addition), number(deduction))
     days = request.get("frist_dager")
+    if days is not None and (
+        isinstance(days, bool) or not isinstance(days, int) or days < 0
+    ):
+        raise ValueError("Fristforlengelse må være et helt antall dager fra null.")
+    end_date = request.get("ny_sluttdato")
+    if end_date is not None:
+        try:
+            if (
+                not isinstance(end_date, str)
+                or date.fromisoformat(end_date).isoformat() != end_date
+            ):
+                raise ValueError()
+        except ValueError as exc:
+            raise ValueError(
+                "Ny sluttdato må være en gyldig dato på formatet YYYY-MM-DD."
+            ) from exc
+        # We have no authoritative baseline date here. Client-supplied days (even 0)
+        # cannot prove the exposure implied by the absolute date. Require the full
+        # chain until a server-side contract baseline can establish consistency.
+        return None
+    if consequences.get("pris") and addition is None and deduction is None:
+        return None
     if consequences.get("fremdrift") and days is None:
         return None
     days = number(days)
@@ -105,11 +127,21 @@ class EOApprovalService:
         return handler_identity(self.policy, actor) is not None
 
     def authority(self, request, owner):
+        sender = handler_identity(self.policy, owner)
+        if sender is None:
+            raise ValueError("Saksbehandlerens fullmakt er tilbakekalt.")
         amount = order_exposure(request, self.policy.get("daily_rate"))
-        route = resolve_route(amount, handler_identity(self.policy, owner), self.chain)
+        route = resolve_route(amount, sender, self.chain)
         return {
             "amount": None if amount is None else str(amount),
             "matrix": "2026-01",
+            "senderRole": sender.get("role"),
+            "dailyRate": (
+                str(number(self.policy["daily_rate"]))
+                if request.get("frist_dager")
+                and self.policy.get("daily_rate") is not None
+                else None
+            ),
         }, route
 
     @contextmanager
@@ -172,8 +204,8 @@ class EOApprovalService:
                 if p.get("sakId") and self.issued(p["sakId"]):
                     self.record_issued(p, recovered=True)
                     state["version"] += 1
-                continue
-            if p["status"] != "til_godkjenning":
+                    continue
+            if p["status"] not in ("til_godkjenning", "godkjent", "utstedelse_feilet"):
                 continue
             try:
                 authority, route = self.authority(p["request"], p["owner"])
@@ -191,17 +223,32 @@ class EOApprovalService:
                     returnedAt=now,
                     comment="Godkjenningskjeden eller fullmaktsgrunnlaget er endret. Endringsordren krever ny godkjenning.",
                 )
+                p.pop("issuingAt", None)
+                p.pop("issuingAttempt", None)
+                state.setdefault("audit", []).append(
+                    {
+                        "action": "policy_return",
+                        "actor": "system",
+                        "at": now,
+                        "packageId": p["id"],
+                    }
+                )
                 state["version"] += 1
 
     def command(self, project, actor, body, issuer_name):
+        if not self.is_handler(actor) and actor not in {u["id"] for u in self.chain}:
+            raise PermissionError("Godkjenningsfullmakten er tilbakekalt.")
         command_id = body.get("commandId")
         if not isinstance(command_id, str) or not command_id:
             raise ValueError("Kommando-ID mangler.")
         now = datetime.now(UTC).isoformat()
         action = body.get("action")
         issue_id = None
+        # Persist policy returns even when the following command is rejected or
+        # conflicts. A rollback of that command must not resurrect old authority.
         with self.transaction(project) as state:
             self.reconcile(state)
+        with self.transaction(project) as state:
             if command_id in state["commands"]:
                 if state["commands"][command_id] != actor:
                     raise PermissionError("Kommandoen tilhører en annen bruker.")
@@ -323,6 +370,9 @@ class EOApprovalService:
         """Issue outside the approval transaction under the reserved case ID."""
         attempt = str(uuid4())
         with self.transaction(project) as state:
+            # Also enforce on direct/background issuance, not just HTTP retries.
+            # Recover committed orders before considering policy changes.
+            self.reconcile(state)
             p = next(p for p in state["packages"] if p["id"] == package_id)
             if p["status"] not in ("godkjent", "utstedelse_feilet"):
                 return

@@ -51,6 +51,7 @@ from models.events import (
 )
 from models.sak_state import SakState
 from repositories.event_repository import ConcurrencyError
+from services.approval_policy import project_policy, public_event_block_reason
 from services.business_rules import BusinessRuleValidator
 from services.catenda_service import CatendaService, map_status_to_catenda
 from services.follow_up_context import build_follow_up_context
@@ -451,9 +452,9 @@ def submit_event():
 
         # 2. Parse event (validates server-controlled fields)
         event_data["sak_id"] = sak_id
-        from routes.approval_routes import project_policy
-        if str(event_data.get('event_type', '')).startswith('respons_') and project_policy(getattr(g, 'project_id', 'oslobygg')):
-            return jsonify(message='BH-svar må publiseres gjennom intern godkjenning.'), 403
+        blocked = public_event_block_reason(project_policy(g.project_id), event_data)
+        if blocked:
+            return jsonify(error="APPROVAL_REQUIRED", message=blocked), 403
         event = _parse_authorized_event(event_data)
 
         # 3. Load current state for validation
@@ -685,9 +686,18 @@ def submit_batch():
 
         # 1. Parse all events
         events = []
-        from routes.approval_routes import project_policy
-        if project_policy(getattr(g, 'project_id', 'oslobygg')) and any(str(ed.get('event_type', '')).startswith('respons_') for ed in event_datas):
-            return jsonify(message='BH-svar må publiseres gjennom intern godkjenning.'), 403
+        policy = project_policy(g.project_id)
+        if expected_version == 0:
+            blocked = public_event_block_reason(
+                policy,
+                {"event_type": "sak_opprettet", "sakstype": data.get("sakstype")},
+            )
+            if blocked:
+                return jsonify(error="APPROVAL_REQUIRED", message=blocked), 403
+        for ed in event_datas:
+            blocked = public_event_block_reason(policy, ed)
+            if blocked:
+                return jsonify(error="APPROVAL_REQUIRED", message=blocked), 403
         for ed in event_datas:
             validate_event_data(ed.get("event_type"), ed.get("data"))
             ed["sak_id"] = sak_id  # Ensure consistent sak_id
