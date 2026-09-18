@@ -59,10 +59,16 @@ def serialize_sak_states(states: dict[str, SakState]) -> dict[str, Any]:
     Returns:
         Dict[sak_id, dict] egnet for JSON serialisering
     """
-    return {
-        sak_id: state.model_dump() if hasattr(state, "model_dump") else state
-        for sak_id, state in states.items()
-    }
+    # Aktivitetstall hører ikke hjemme i en relasjonsvisning: de teller hele
+    # strømmen, også motpartens interne notater, og røper dermed at notatet
+    # finnes (audit RV-09). Relasjonen viser sakens innhold, ikke aktiviteten.
+    result = {}
+    for sak_id, state in states.items():
+        data = state.model_dump() if hasattr(state, "model_dump") else dict(state)
+        data.pop("antall_events", None)
+        data.pop("siste_aktivitet", None)
+        result[sak_id] = data
+    return result
 
 
 def serialize_hendelser(hendelser: dict[str, list]) -> dict[str, list[dict]]:
