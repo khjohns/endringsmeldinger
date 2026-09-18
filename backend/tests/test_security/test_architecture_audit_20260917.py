@@ -1,4 +1,9 @@
-"""Reproductions for open architecture findings; no live provider calls."""
+"""Reproduksjon for åpent arkitekturfunn; ingen kall mot ekte leverandører.
+
+SA-01 (åpen Supabase-consent) er lukket ved at hele OAuth-flaten er fjernet;
+regresjonen ligger nå i test_public_route_registry.py, som holder hele
+ruteregisteret opp mot en eksplisitt liste over offentlige ruter.
+"""
 
 from types import SimpleNamespace
 from unittest.mock import Mock
@@ -8,44 +13,7 @@ from flask import Flask
 
 from lib.auth.session import cookie_name, digest
 from lib.project_context import init_project_context
-from routes import analytics_routes, oauth_auto_consent_routes, oauth_consent_routes
-
-
-@pytest.mark.xfail(strict=True, reason="SA-01: anonymous auto-consent is still exposed")
-def test_auto_consent_requires_application_session(monkeypatch):
-    monkeypatch.setenv("SUPABASE_URL", "https://provider.invalid")
-    monkeypatch.setenv("SUPABASE_PUBLISHABLE_KEY", "test-publishable")
-    monkeypatch.setenv("MCP_REQUIRE_AUTH", "false")
-    transport = Mock()
-    transport.__enter__ = Mock(return_value=transport)
-    transport.__exit__ = Mock(return_value=False)
-    transport.post.side_effect = [
-        SimpleNamespace(status_code=200, json=lambda: {"access_token": "test-token"}),
-        SimpleNamespace(
-            status_code=200,
-            json=lambda: {"redirect_to": "https://client.invalid/callback"},
-        ),
-    ]
-    monkeypatch.setattr(
-        oauth_auto_consent_routes.httpx, "Client", Mock(return_value=transport)
-    )
-    app = Flask(__name__)
-    app.register_blueprint(oauth_auto_consent_routes.oauth_auto_consent_bp)
-    response = app.test_client().get("/oauth/consent?authorization_id=test")
-    assert response.status_code in {401, 403, 404}
-    transport.post.assert_not_called()
-
-
-def test_consent_proxy_does_not_approve_without_bearer(monkeypatch):
-    monkeypatch.setenv("SUPABASE_URL", "https://provider.invalid")
-    monkeypatch.setenv("SUPABASE_SECRET_KEY", "test-secret")
-    transport = Mock()
-    monkeypatch.setattr(oauth_consent_routes.httpx, "Client", transport)
-    app = Flask(__name__)
-    app.register_blueprint(oauth_consent_routes.oauth_consent_bp)
-    response = app.test_client().post("/api/oauth/authorization/test/approve")
-    assert response.status_code == 401
-    transport.assert_not_called()
+from routes import analytics_routes
 
 
 @pytest.mark.xfail(
