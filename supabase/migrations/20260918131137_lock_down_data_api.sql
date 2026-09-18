@@ -18,11 +18,19 @@
 -- Migrasjonen rører ikke service_role, som har egne GRANTs.
 
 -- 1. Fjern lesepolicyene som bare krever "en eller annen innlogget rolle".
+--    Kontroll mot den faktiske databasen 2026-09-18 viste at hendelsestabellene
+--    har samme mønster med `USING (true)`, uten at det står i noen migrasjonsfil.
+--    Det er hele kontraktshistorikken, inkludert interne notater med tekst.
 DROP POLICY IF EXISTS "Authenticated users can read active projects" ON public.projects;
 DROP POLICY IF EXISTS "Authenticated users can read project sak_metadata" ON public.sak_metadata;
 DROP POLICY IF EXISTS "Authenticated users can read sak_metadata" ON public.sak_metadata;
 DROP POLICY IF EXISTS "Authenticated users can read sak_bim_links" ON public.sak_bim_links;
 DROP POLICY IF EXISTS "Authenticated users can read catenda_models_cache" ON public.catenda_models_cache;
+DROP POLICY IF EXISTS "Authenticated users can read koe_events" ON public.koe_events;
+DROP POLICY IF EXISTS "Authenticated users can read forsering_events" ON public.forsering_events;
+DROP POLICY IF EXISTS "Authenticated users can read endringsordre_events" ON public.endringsordre_events;
+DROP POLICY IF EXISTS "Authenticated users can read sak_relations" ON public.sak_relations;
+DROP POLICY IF EXISTS "Authenticated users can read user_groups" ON public.user_groups;
 
 -- 2. Tilbakekall tabellrettigheter. Uten SELECT hjelper det ikke om en framtidig
 --    policy skulle slippe rollen inn igjen.
