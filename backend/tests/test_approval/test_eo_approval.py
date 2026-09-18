@@ -82,6 +82,49 @@ def test_exposure_uses_larger_side_adds_days_and_flags_unresolved():
     assert order_exposure(order(konsekvenser={}, frist_dager=3)) is None
 
 
+def test_known_amount_still_binds_when_time_exposure_is_unresolved():
+    """Unknown total never makes the route weaker than the agreed amount already does."""
+    from services.eo_approval_service import order_exposure_floor
+
+    assert order_exposure_floor(order(kompensasjon_belop=100, fradrag_belop=300)) == 300
+    assert order_exposure_floor(order(kompensasjon_belop=None, fradrag_belop=None)) == 0
+    over_all = order(kompensasjon_belop=50_000_000, ny_sluttdato="2030-01-01")
+    assert order_exposure(over_all) is None
+    assert order_exposure_floor(over_all) == 50_000_000
+
+
+@pytest.mark.parametrize(
+    "unresolved",
+    [
+        {"ny_sluttdato": "2030-01-01"},
+        {"konsekvenser": {"pris": True, "fremdrift": True}, "frist_dager": None},
+        {"konsekvenser": {"pris": True, "fremdrift": True}, "frist_dager": 5},
+    ],
+)
+def test_amount_over_all_authority_is_refused_even_when_exposure_is_unresolved(
+    service, unresolved
+):
+    request = order(kompensasjon_belop=50_000_000, **unresolved)
+    if "frist_dager" in unresolved and unresolved["frist_dager"]:
+        service.policy = {**POLICY, "daily_rate": None}
+    with pytest.raises(ValueError, match="fullmakt"):
+        run(service, "submit", request=request)
+    assert service.read("p1", HANDLER)["packages"] == []
+
+
+def test_unresolved_exposure_within_the_chain_still_requires_everyone(service):
+    state = run(
+        service, "submit", request=order(ny_sluttdato="2030-01-01", frist_dager=None)
+    )
+    package = state["packages"][-1]
+    assert [step["id"] for step in package["steps"]] == [
+        "pd@example.test",
+        "al@example.test",
+    ]
+    assert package["authority"]["amount"] is None
+    assert package["authority"]["minimum"] == "150000"
+
+
 def test_inside_authority_issues_immediately(service):
     state = run(service, "submit", request=order())
     package = state["packages"][-1]

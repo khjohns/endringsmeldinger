@@ -5,6 +5,7 @@ import {
   validateEODraft,
   eoAmount,
   eoExposure,
+  eoExposureFloor,
 } from '../endringsordre';
 import type { EndringsordreData } from '$lib/types/timeline';
 
@@ -43,6 +44,21 @@ describe('endringsordre', () => {
       ).toBeNull();
     }
   );
+
+  it('reports the agreed amount as the floor when the total is unresolved', () => {
+    const request = buildEORequest({
+      ...draft(),
+      price: 'avklart',
+      method: 'ENHETSPRISER',
+      addition: 150000,
+      deduction: 400000,
+      time: 'ingen',
+    });
+    expect(eoExposureFloor(request)).toBe(400000);
+    expect(
+      eoExposureFloor({ ...request, kompensasjon_belop: undefined, fradrag_belop: undefined })
+    ).toBe(0);
+  });
   it('keeps unresolved effects distinct from zero and drops hidden, stale input', () => {
     const form = { ...draft(), addition: 9999, days: 12, selectedIds: ['KOE-1'] };
     expect(validateEODraft(form, [])).toEqual([]);

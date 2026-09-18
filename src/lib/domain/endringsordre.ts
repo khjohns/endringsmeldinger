@@ -159,6 +159,15 @@ export function requestToDocument(payload: CreateEORequest): EndringsordreData {
  * The larger of addition and deduction is used, never the net; extension days are
  * valued at the daily rate and added. Mirrors `order_exposure` in the backend.
  */
+/**
+ * The part of the exposure that is already agreed, whatever else is unresolved.
+ * Mirrors `order_exposure_floor` in the backend: the chain must cover it even when
+ * `eoExposure` returns null, or an unvalued consequence would weaken the route.
+ */
+export function eoExposureFloor(payload: CreateEORequest): number {
+  return Math.max(payload.kompensasjon_belop ?? 0, payload.fradrag_belop ?? 0);
+}
+
 export function eoExposure(payload: CreateEORequest, dailyRate: number | null): number | null {
   const { pris, fremdrift } = payload.konsekvenser;
   const addition = payload.kompensasjon_belop;

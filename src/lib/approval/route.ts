@@ -61,17 +61,20 @@ const covers = (limit: number | null | undefined, amount: number) =>
 /**
  * Derives the sequential authorisation route from an amount and the ordered chain.
  * The UI never asks the operator to pick a recipient — it states who the amount requires.
- * `amount: null` (uncomputable) requires the whole configured chain.
+ * `amount: null` (uncomputable) requires the whole configured chain, and `minimum` —
+ * the part already agreed — must still be within someone's authority.
  * Mirrors `resolve_route` in backend/services/approval_authority.py.
  */
 export function resolveRoute({
   amount,
   sender,
   chain,
+  minimum,
 }: {
   amount: number | null;
   sender: ApprovalActor;
   chain: ApprovalActor[];
+  minimum?: number;
 }): ApprovalRoute {
   const senderNode: ApprovalChainNode = {
     id: sender.id,
@@ -90,8 +93,13 @@ export function resolveRoute({
       route: [senderNode],
     };
   const deciderIndex = amount === null ? -1 : chain.findIndex((a) => covers(a.limit, amount));
+  // An unresolved total never weakens the route: the agreed part must still be covered.
+  const floorUncovered =
+    amount === null && !!minimum && minimum > 0 && !chain.some((a) => covers(a.limit, minimum));
   // Legacy chains without matrix roles still apply in full to zero-value letters.
-  const exceeds = deciderIndex === -1 && amount !== null && !(amount === 0 && chain.length > 0);
+  const exceeds =
+    floorUncovered ||
+    (deciderIndex === -1 && amount !== null && !(amount === 0 && chain.length > 0));
   const approvers = deciderIndex === -1 ? chain : chain.slice(0, deciderIndex + 1);
   return {
     requiresApproval: true,
