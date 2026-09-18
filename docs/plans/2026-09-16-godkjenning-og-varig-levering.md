@@ -9,6 +9,54 @@ Dette er den overordnede planen. [Transaksjonsplanen](2026-09-17-atomisk-utstede
 er en delplan. Nye åpne funn må lukkes eller eksplisitt avgrenses før produksjon;
 outbox alene gjør ikke appen sikker.
 
+Gjennomgått på nytt 2026-09-18 i [reviewen av sikkerhetsrunden](../audit-review-astra-2026-09-17.md).
+Statusen under viser hva den reviewen lukket, og hva som står igjen.
+
+## Status 2026-09-18
+
+Lukket med retting, regresjonstest og egen commit:
+
+| Funn | Hva som er gjort |
+| --- | --- |
+| RV-01 | Fullmaktsgulv: avtalt beløp må dekkes av kjeden også når grunnlaget er uberegnet. Speilet i frontend. |
+| RV-03 | Godkjenningsfullmakt nøkles på `user_id`. E-post alene avvises utenfor utvikling. |
+| RV-04 | `forsering_respons` er under godkjenningsporten, i både hendelsesruta og den egne ruta. |
+| RV-05 | Lesing av vedlegg krever kontraktsside. |
+| RV-06 | Migrasjon som fjerner `authenticated`-policyene og tilbakekaller Data API-rettigheter. Verifisert mot lokal Postgres. **Må kjøres mot det faktiske prosjektet.** |
+| RV-07 | Relasjoner utvider ikke lenger prosjektgrensen: kontekst filtreres før aggregering, `avslatte_fristkrav` autoriseres ved innsending, BIM-sletting er saksavgrenset, og `settings.contract` krever byggherrens kontraktsside. |
+| RV-08 | `aktor_team_id` overlever lagring i Supabase (`actorteam`), med round-trip-test per lager. |
+| RV-16 | Live-tester mot Supabase er opt-in (`RUN_LIVE_SUPABASE=1`). Standard `pytest` er uten nettverk. |
+
+Beslutninger som er tatt i disse rettingene:
+
+- **Forsering er godkjenningspliktig.** Prosjekter med policy kan inntil videre
+  ikke svare på forseringsvarsel, fordi godkjenningsflyten ikke modellerer
+  forseringssporet. Å utvide flyten hører til arbeidet med godkjenningsomfang.
+- **Policyformatet er endret.** `BH_APPROVAL_POLICIES` må bære `user_id` per
+  oppføring før produksjon; e-postmatching er en utviklingsbekvemmelighet.
+- **Vedlegg er kontraktskorrespondanse.** Prosjektdeltakere uten TE- eller
+  BH-tilknytning har ikke lesetilgang, på linje med utkast og interne notater.
+
+Åpne funn fra samme review, i prioritert rekkefølge:
+
+1. **RV-09 — eksistenslekkasje i brukerflaten.** `last_event_at`, `antall_events`
+   og `siste_aktivitet` flyttes av interne notater, så sakslisten og `/state`
+   røper at motparten har skrevet et notat, og når. Leselaget må utlede avledet
+   metadata av synlige hendelser.
+2. **RV-02 — policyretur midt i utstedelse.** En pakke kan returneres mens en
+   utstedelse pågår; ordren blir utstedt, men posten står varig som «returnert».
+3. **RV-11 — `ConcurrencyError` blir `TransientError`** i Supabase-lageret, så
+   409 blir 500 og en retry etter tapt svar er ikke idempotent. Hører til
+   RPC-kontrakten i transaksjonsplanen.
+4. **RV-10 — `/api/events/batch`** lagrer formelle hendelser uten leveringsintensjon
+   eller kvittering, og saksbanneret viser «clear».
+5. **RV-22 og RV-13 — datakvalitet og feilsvar.** Hardkodet dagmulktssats,
+   lagringsfeil som gir 200 med tomme tall, og `str(e)` i ca. 35 ruter pluss
+   uautentiserte helsesjekker.
+6. **RV-12, RV-14, RV-15, RV-19** — webhookens dedupe og hemmelighetssammenlikning,
+   GET-ruter som muterer godkjenningstilstand, hendelsestabeller uten migrasjon,
+   og pakker som godkjennes uten å være validert mot utstedelsesreglene.
+
 ## Nye arbeidspakker og produksjonskrav
 
 | Prioritet/rekkefølge | Arbeid | Ferdig når |
@@ -63,8 +111,9 @@ driftsavklaringer gjenstår.
 1. **Første leveranse:** rett AP-01 (alternative EO-innganger), AP-02
    (endret fullmakt før utstedelse), AP-03 (sluttdato/fullmaktsgrunnlag) og AP-05
    (felles satsoppslag). Gjør reproduksjonene til ordinære regresjonstester og
-   test at legitime flyter fortsatt virker. Status: implementert og lokalt testet
-   2026-09-17; ikke committet.
+   test at legitime flyter fortsatt virker. Status: implementert, testet og
+   committet 2026-09-17 (`e235412`), med en regresjon i AP-03 rettet
+   2026-09-18 (RV-01).
 2. **Arkitektur med grundig review:** konkretiser transaksjonsgrenser,
    datamodell, idempotens og feilforløp for AP-04 og felles PostgreSQL-inbox/outbox.
    Planen skal dekke autorisasjon, prosjektidentitet og worker-gjenoppretting.
