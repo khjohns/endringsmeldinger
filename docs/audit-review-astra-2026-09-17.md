@@ -19,6 +19,10 @@ lagring; probene er slettet. Ingen sporede filer er endret, og ingen kall er gjo
 mot ekte Catenda. Den planlagte adversarielle motprøvingen av hvert funn ble
 avbrutt for å spare forbruk — se «Forbehold».
 
+Status for rettingene føres i
+[masterplanen](plans/2026-09-16-godkjenning-og-varig-levering.md#status-2026-09-18):
+RV-01, RV-03 til RV-09, RV-11 og RV-16 er lukket med regresjonstest 2026-09-18.
+
 ## Sammendrag
 
 Etterprøvingen er metodisk solid: den skiller konsekvent mellom bekreftet,
