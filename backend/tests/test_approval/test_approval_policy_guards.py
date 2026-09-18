@@ -165,6 +165,92 @@ def test_te_decisions_are_not_blocked_by_bh_approval_policy(
     assert result.status_code == 409, result.json
 
 
+@pytest.mark.parametrize("batch", [False, True])
+def test_bh_forsering_response_requires_approval(event_api, monkeypatch, batch):
+    """BH's forsering answer commits money like respons_*; the gate must cover it."""
+    monkeypatch.setenv("BH_APPROVAL_POLICIES", json.dumps({"p": POLICY}))
+    event_api.auth.contract_role.return_value = "BH"
+    event = {
+        "event_type": "forsering_respons",
+        "data": {
+            "aksepterer": True,
+            "godkjent_kostnad": 9000000,
+            "begrunnelse": "Uten godkjenning",
+            "dato_respons": "2026-09-17",
+        },
+    }
+    response = event_tests.post(
+        event_api,
+        {
+            "sak_id": "case",
+            "expected_version": 1,
+            **({"events": [event]} if batch else {"event": event}),
+        },
+        batch=batch,
+    )
+    assert response.status_code == 403, response.json
+    assert response.json["error"] == "APPROVAL_REQUIRED"
+    event_api.container.event_repository.append_batch.assert_not_called()
+    event_api.container.event_repository.append.assert_not_called()
+
+
+@pytest.fixture
+def forsering_api(monkeypatch):
+    from flask import Flask
+
+    from lib.auth.session import cookie_name
+    from lib.project_context import init_project_context
+    from routes import forsering_routes
+
+    monkeypatch.delenv("DISABLE_AUTH", raising=False)
+    app = Flask(__name__)
+    app.testing = True
+    init_project_context(app)
+    app.register_blueprint(forsering_routes.forsering_bp)
+    auth = Mock()
+    auth.repo.session.return_value = {
+        "app_users": {"id": "bh-user", "email": "bh@example.test", "name": "BH"},
+        "csrf_token": "csrf",
+    }
+    auth.role.return_value = "member"
+    auth.contract_membership.return_value = ("BH", "bh-team")
+    app.extensions["koe_auth"] = auth
+    container = Mock()
+    container.metadata_repository.get.return_value = SimpleNamespace(
+        prosjekt_id="p", catenda_topic_id=None
+    )
+    monkeypatch.setattr(forsering_routes, "_get_container", lambda: container)
+    monkeypatch.setattr("lib.auth.project_access.get_container", lambda: container)
+    service = Mock()
+    service.registrer_bh_respons.return_value = {"success": True}
+    monkeypatch.setattr(forsering_routes, "_get_forsering_service", lambda: service)
+    client = app.test_client()
+    client.set_cookie(cookie_name(), "session")
+    return SimpleNamespace(client=client, service=service)
+
+
+def test_forsering_response_route_is_covered_by_the_same_gate(
+    forsering_api, monkeypatch
+):
+    body = {"aksepterer": True, "godkjent_kostnad": 9000000, "begrunnelse": "Svar"}
+    headers = {"X-Project-ID": "p", "X-CSRF-Token": "csrf"}
+    monkeypatch.setenv("BH_APPROVAL_POLICIES", json.dumps({"p": POLICY}))
+    blocked = forsering_api.client.post(
+        "/api/forsering/case/bh-respons", json=body, headers=headers
+    )
+    assert blocked.status_code == 403, blocked.json
+    assert blocked.json["error"] == "APPROVAL_REQUIRED"
+    forsering_api.service.registrer_bh_respons.assert_not_called()
+
+    # Without a policy the project answers directly, exactly as before.
+    monkeypatch.delenv("BH_APPROVAL_POLICIES")
+    allowed = forsering_api.client.post(
+        "/api/forsering/case/bh-respons", json=body, headers=headers
+    )
+    assert allowed.status_code == 200, allowed.json
+    forsering_api.service.registrer_bh_respons.assert_called_once()
+
+
 @pytest.mark.parametrize("change", ["sender", "chain", "rate", "removed_sender"])
 def test_background_issuance_rechecks_policy_and_persists_return(
     eo_service, monkeypatch, change
