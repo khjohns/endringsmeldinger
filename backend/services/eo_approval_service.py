@@ -106,6 +106,17 @@ def order_exposure(request, daily_rate=None):
     return money
 
 
+def order_exposure_floor(request):
+    """The part of the exposure that is already agreed, whatever else is unresolved.
+
+    An addition or deduction in the request binds the contract even when the time
+    consequence cannot be valued yet, so the route must still cover it (audit RV-01).
+    """
+    return max(
+        number(request.get("kompensasjon_belop")), number(request.get("fradrag_belop"))
+    )
+
+
 class EOApprovalService:
     def __init__(self, path, orders, policy, issued):
         """`issued(sak_id)` tells whether events exist for the reserved case ID."""
@@ -131,9 +142,11 @@ class EOApprovalService:
         if sender is None:
             raise ValueError("Saksbehandlerens fullmakt er tilbakekalt.")
         amount = order_exposure(request, self.policy.get("daily_rate"))
-        route = resolve_route(amount, sender, self.chain)
+        minimum = None if amount is not None else order_exposure_floor(request)
+        route = resolve_route(amount, sender, self.chain, minimum=minimum)
         return {
             "amount": None if amount is None else str(amount),
+            "minimum": None if minimum is None else str(minimum),
             "matrix": "2026-01",
             "senderRole": sender.get("role"),
             "dailyRate": (

@@ -67,11 +67,14 @@ def exposure(items, daily_rate=None):
     return max(principal, subsidiary), needs_rate
 
 
-def resolve_route(amount, sender, chain):
+def resolve_route(amount, sender, chain, minimum=None):
     """Approvers the amount requires, in chain order, ending with the one who decides.
 
     Mirrors resolveRoute in src/lib/approval/route.ts. An empty route means the sender
-    may send within their own authority. `amount=None` requires the whole chain.
+    may send within their own authority. `amount=None` requires the whole chain, but an
+    unresolved total never weakens the route: `minimum` is the part already agreed, and
+    someone in the chain must still cover it. Otherwise a letter over every limit could
+    be issued by adding an unvalued consequence.
     """
     if amount is not None and sender and covers(sender.get("role"), amount):
         return []
@@ -81,6 +84,11 @@ def resolve_route(amount, sender, chain):
                 return list(chain[: index + 1])
     # Legacy chains without matrix roles still apply in full to zero-value letters.
     if chain and (amount is None or amount == 0):
+        if amount is None and minimum is not None and minimum > 0:
+            if not any(covers(person.get("role"), minimum) for person in chain):
+                raise ValueError(
+                    "Godkjenningskjeden har ikke tilstrekkelig fullmakt for brevet."
+                )
         return list(chain)
     raise ValueError("Godkjenningskjeden har ikke tilstrekkelig fullmakt for brevet.")
 

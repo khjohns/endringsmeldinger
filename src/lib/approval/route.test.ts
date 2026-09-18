@@ -39,6 +39,15 @@ describe('resolveRoute', () => {
     expect(result.exceedsAllAuthority).toBe(false);
   });
 
+  it('still refuses an agreed amount above every limit when the total is unresolved', () => {
+    const result = resolveRoute({ amount: null, minimum: 50000000, sender, chain });
+    expect(result.exceedsAllAuthority).toBe(true);
+    expect(result.decider).toBeNull();
+    const inside = resolveRoute({ amount: null, minimum: 150000, sender, chain });
+    expect(inside.exceedsAllAuthority).toBe(false);
+    expect(inside.approvers).toHaveLength(2);
+  });
+
   it('keeps legacy chains without matrix roles for zero-value letters only', () => {
     const legacy = [{ name: 'Leder', role: 'Prosjekteier' }];
     const unknown = { name: 'Saksbehandler', role: 'Saksbehandler' };
