@@ -39,6 +39,7 @@ CREATE TABLE IF NOT EXISTS koe_events (
     -- CloudEvents Extension Attributes
     actor TEXT NOT NULL,            -- aktor
     actorrole TEXT NOT NULL CHECK (actorrole IN ('TE', 'BH')),
+    actorteam TEXT,                 -- aktor_team_id (Catenda-team, serverstemplet)
     comment TEXT,                   -- kommentar
     referstoid UUID,                -- refererer_til_event_id
 
@@ -78,6 +79,7 @@ CREATE TABLE IF NOT EXISTS forsering_events (
     -- CloudEvents Extension Attributes
     actor TEXT NOT NULL,
     actorrole TEXT NOT NULL CHECK (actorrole IN ('TE', 'BH')),
+    actorteam TEXT,
     comment TEXT,
     referstoid UUID,
 
@@ -116,6 +118,7 @@ CREATE TABLE IF NOT EXISTS endringsordre_events (
     -- CloudEvents Extension Attributes
     actor TEXT NOT NULL,
     actorrole TEXT NOT NULL CHECK (actorrole IN ('TE', 'BH')),
+    actorteam TEXT,
     comment TEXT,
     referstoid UUID,
 
@@ -295,6 +298,7 @@ class SupabaseEventRepository(EventRepository):
                 "datacontenttype": "application/json",
                 "actor": event_dict.get("aktor"),
                 "actorrole": event_dict.get("aktor_rolle"),
+                "actorteam": event_dict.get("aktor_team_id"),
                 "comment": event_dict.get("kommentar"),
                 "referstoid": event_dict.get("referrer_til_event_id"),
                 "data": event_dict.get("data"),
@@ -314,6 +318,9 @@ class SupabaseEventRepository(EventRepository):
             # CloudEvents Extension
             "actor": ce.get("actor"),
             "actorrole": ce.get("actorrole"),
+            # Server-stamped: the reader's team is compared against this when
+            # deciding who may see an internt_notat (lib/auth/event_visibility).
+            "actorteam": ce.get("actorteam"),
             "comment": ce.get("comment"),
             "referstoid": str(ce.get("referstoid")) if ce.get("referstoid") else None,
             # Data payload
@@ -353,6 +360,9 @@ class SupabaseEventRepository(EventRepository):
             "tidsstempel": time_value,
             "aktor": row.get("actor"),
             "aktor_rolle": row.get("actorrole"),
+            # Rows written before the actorteam column existed have no team.
+            # They stay None: event_visibility hides such notes from everyone.
+            "aktor_team_id": row.get("actorteam"),
             "data": row.get("data"),
             "kommentar": row.get("comment"),
             "refererer_til_event_id": row.get(
@@ -611,7 +621,8 @@ class SupabaseEventRepository(EventRepository):
                     self.client.table(table)
                     .select(
                         "specversion, event_id, source, type, time, subject, "
-                        "datacontenttype, actor, actorrole, comment, referstoid, data"
+                        "datacontenttype, actor, actorrole, actorteam, comment, "
+                        "referstoid, data"
                     )
                     .eq("sak_id", sak_id)
                     .order("versjon", desc=False)
@@ -631,6 +642,7 @@ class SupabaseEventRepository(EventRepository):
                             "datacontenttype": row["datacontenttype"],
                             "actor": row["actor"],
                             "actorrole": row["actorrole"],
+                            "actorteam": row["actorteam"],
                             "comment": row["comment"],
                             "referstoid": row["referstoid"],
                             "data": row["data"],

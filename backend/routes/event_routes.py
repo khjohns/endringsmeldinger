@@ -29,7 +29,11 @@ from api.validators import (
 from core.config import settings
 from integrations.catenda import CatendaAuthError
 from lib.auth.contract_role import require_contract_role
-from lib.auth.event_visibility import is_internal_note, visible_events
+from lib.auth.event_visibility import (
+    is_internal_note,
+    public_state,
+    visible_events,
+)
 from lib.auth.project_access import require_project_access
 from lib.auth.session import require_auth
 from lib.catenda_factory import get_catenda_client
@@ -532,7 +536,9 @@ def submit_event():
                 sak_id=sak_id,
                 cached_title=new_state.sakstittel,
                 cached_status=new_state.overordnet_status,
-                last_event_at=datetime.now(UTC),
+                # Delt cache: sakslisten sorterer på dette stempelet, så et
+                # internt notat må ikke flytte det for motparten (audit RV-09).
+                last_event_at=None if internal_note else datetime.now(UTC),
                 # Reporting fields
                 cached_sum_krevd=new_state.vederlag.krevd_belop,
                 cached_sum_godkjent=new_state.vederlag.godkjent_belop,
@@ -612,7 +618,7 @@ def submit_event():
                 "success": True,
                 "event_id": event.event_id,
                 "new_version": new_version,
-                "state": new_state.model_dump(mode="json"),
+                "state": public_state(new_state, all_events),
                 "pdf_uploaded": catenda_success,
                 "pdf_source": pdf_source,
                 "catenda_synced": catenda_success,
@@ -834,7 +840,7 @@ def submit_batch():
                 "success": True,
                 "event_ids": [e.event_id for e in events],
                 "new_version": new_version,
-                "state": final_state.model_dump(mode="json"),
+                "state": public_state(final_state, all_events),
             }
         ), 201
 
@@ -1114,8 +1120,10 @@ def get_case_context(sak_id: str):
 
     # Build timeline (CloudEvents format). Motpartens interne notater filtreres
     # bort her, ikke før state-beregningen: tilstanden skal utledes av hele
-    # strømmen uansett hvem som leser.
-    cloudevents_timeline = format_timeline_response(visible_events(events))
+    # strømmen uansett hvem som leser. Aktivitetstallene i tilstanden gjelder
+    # likevel bare det leseren ser, se redact_activity_metadata.
+    visible = visible_events(events)
+    cloudevents_timeline = format_timeline_response(visible)
 
     # Build historikk for all three tracks
     timeline_svc = _get_timeline_service()
@@ -1137,7 +1145,7 @@ def get_case_context(sak_id: str):
         {
             "version": version,
             "catenda_sync": catenda_sync,
-            "state": state.model_dump(mode="json"),
+            "state": public_state(state, events, visible),
             "timeline": cloudevents_timeline,
             "historikk": {
                 "grunnlag": grunnlag_historikk,
@@ -1169,7 +1177,7 @@ def get_case_state(sak_id: str):
         logger.error(f"Failed to compute state for {sak_id}: {compute_error}", exc_info=True)
         return jsonify({"error": "Kunne ikke beregne saksstatus"}), 500
 
-    return jsonify({"version": version, "state": state.model_dump(mode="json")})
+    return jsonify({"version": version, "state": public_state(state, events)})
 
 
 @events_bp.route("/api/cases/<sak_id>/timeline", methods=["GET"])

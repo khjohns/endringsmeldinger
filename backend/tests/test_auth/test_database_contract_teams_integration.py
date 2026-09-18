@@ -16,6 +16,11 @@ Verifies the database properties requested in architectural reviews:
    - Failed replacement preserves existing teams
    - Registration with null teams leaves teams unconfigured
 5. Teardown ensures test isolation
+
+Enhetstestene øverst i denne fila kjører alltid. De live-merkede testene
+treffer ekte Supabase og krever RUN_LIVE_SUPABASE=1:
+
+    RUN_LIVE_SUPABASE=1 python -m pytest tests/test_auth/test_database_contract_teams_integration.py
 """
 
 import os
@@ -126,6 +131,10 @@ def test_auth_repo_contract_teams_normalizes_uuids():
 
 # ---------------------------------------------------------------------------
 # Live Supabase integration tests (running against Supabase instance)
+#
+# Disse oppretter og sletter auth-brukere, prosjekter og team i det Supabase-
+# prosjektet backend/.env peker på. De er derfor merket `live` og hoppes over
+# med mindre RUN_LIVE_SUPABASE=1 er satt (se tests/conftest.py).
 # ---------------------------------------------------------------------------
 
 @pytest.fixture(scope="module")
@@ -201,6 +210,7 @@ def clean_test_project(supabase_clients):
     cleanup()
 
 
+@pytest.mark.live
 def test_anon_client_denied_direct_table_access(supabase_clients):
     """Anon client must NOT be allowed to read catenda_contract_teams."""
     _, anon_client = supabase_clients
@@ -215,6 +225,7 @@ def test_anon_client_denied_direct_table_access(supabase_clients):
         assert code in {"42501", "PGRST301"} or "permission denied" in str(e).lower()
 
 
+@pytest.mark.live
 @pytest.mark.parametrize("rpc_name,args", [
     ("koe_set_contract_teams", {"p_project": "oslobygg", "p_teams": []}),
     ("koe_register_project", {
@@ -245,6 +256,7 @@ def test_anon_client_denied_rpc_execution_with_permission_error(supabase_clients
     assert f"permission denied for function {rpc_name}" in msg
 
 
+@pytest.mark.live
 @pytest.mark.parametrize("rpc_name,args", [
     ("koe_set_contract_teams", {"p_project": "oslobygg", "p_teams": []}),
     ("koe_register_project", {
@@ -271,6 +283,7 @@ def test_authenticated_client_denied_rpc_execution_with_permission_error(authent
     assert f"permission denied for function {rpc_name}" in msg
 
 
+@pytest.mark.live
 def test_live_atomic_project_registration_and_contract_teams(clean_test_project):
     """Live test of successful project registration, team update, and rollback on failed team replacement."""
     admin_client = clean_test_project
@@ -343,6 +356,7 @@ def test_live_atomic_project_registration_and_contract_teams(clean_test_project)
     assert teams_after_empty["TE"] == {catenda_id(TE_TEAM_1)}
 
 
+@pytest.mark.live
 def test_live_registration_rollback_on_invalid_teams(clean_test_project):
     """If p_teams is invalid during registration, the ENTIRE registration must roll back."""
     admin_client = clean_test_project
@@ -385,6 +399,7 @@ def test_live_registration_rollback_on_invalid_teams(clean_test_project):
     assert len(team_rows) == 0, "catenda_contract_teams rows were not rolled back"
 
 
+@pytest.mark.live
 def test_live_registration_rollback_on_empty_teams(clean_test_project):
     """Calling register_project with an empty team list [] must fail and roll back everything."""
     admin_client = clean_test_project
@@ -417,6 +432,7 @@ def test_live_registration_rollback_on_empty_teams(clean_test_project):
     assert len(cfg_rows) == 0, "catenda_project_configs row was not rolled back on empty teams"
 
 
+@pytest.mark.live
 def test_live_registration_with_null_teams_leaves_teams_empty(clean_test_project):
     """When p_teams is None, registration succeeds and contract_teams table is not touched."""
     admin_client = clean_test_project

@@ -59,14 +59,16 @@ class BimLinkRepository:
         return BimLink(**(result.data[0]))
 
     @with_retry()
-    def delete_link(self, link_id: int) -> bool:
-        """Delete a BIM link by ID."""
-        result = (
-            self.client.table(self.TABLE_NAME)
-            .delete()
-            .eq("id", link_id)
-            .execute()
-        )
+    def delete_link(self, link_id: int, sak_id: str | None = None) -> bool:
+        """Delete a BIM link by ID, scoped to its case when the caller knows it.
+
+        The id is a bare integer, so an authorized case is otherwise enough to
+        delete a link belonging to another case — and another project (audit RV-07).
+        """
+        query = self.client.table(self.TABLE_NAME).delete().eq("id", link_id)
+        if sak_id is not None:
+            query = query.eq("sak_id", sak_id)
+        result = query.execute()
         return len(result.data or []) > 0
 
     @with_retry()

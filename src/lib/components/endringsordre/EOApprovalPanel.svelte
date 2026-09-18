@@ -16,7 +16,7 @@
     type ApprovalChainNode,
   } from '$lib/approval/route';
   import { demoUsers } from '$lib/approval/types';
-  import { eoExposure } from '$lib/domain/endringsordre';
+  import { eoExposure, eoExposureFloor } from '$lib/domain/endringsordre';
   import { formatDateNorwegian } from '$lib/utils/dateFormatters';
 
   let {
@@ -46,9 +46,20 @@
   let localError = $state('');
 
   const amount = $derived(eoExposure(request, approvals.dailyRate));
+  const minimum = $derived(eoExposureFloor(request));
   const sender = $derived(withLimit(approvals.sender ?? { name: 'Saksbehandler', role: '' }));
-  const route = $derived(resolveRoute({ amount, sender, chain: approvals.chain.map(withLimit) }));
-  const amountLabel = $derived(amount === null ? 'Uavklart' : nok(amount));
+  const route = $derived(
+    resolveRoute({ amount, minimum, sender, chain: approvals.chain.map(withLimit) })
+  );
+  const amountLabel = $derived(
+    amount === null ? (minimum > 0 ? `uavklart, minst ${nok(minimum)}` : 'uavklart') : nok(amount)
+  );
+  /** Why the basis cannot be computed — the operator needs the cause, not just the verdict. */
+  const unresolvedCause = $derived(
+    request.ny_sluttdato
+      ? 'Ny sluttdato kan ikke verdsettes uten en kontraktsfrist på serveren'
+      : 'Pris eller frist er uavklart'
+  );
   const active = $derived(pkg?.steps.find((s) => s.status === 'aktiv'));
   const canDecide = $derived(pkg?.status === 'til_godkjenning' && active?.id === approvals.actor);
   const lastStep = $derived(pkg?.steps.at(-1)?.id === approvals.actor);
@@ -75,7 +86,7 @@
               : '0 kr',
       },
     ],
-    note: 'Det største av tillegg og fradrag legges til grunn, pluss fristens verdi (dager × dagmulktssats). Uavklart pris eller frist behandles av hele fullmaktskjeden.',
+    note: 'Det største av tillegg og fradrag legges til grunn, pluss fristens verdi (dager × dagmulktssats). Uavklart pris eller frist — og enhver ny sluttdato — behandles av hele fullmaktskjeden, men det avtalte beløpet må likevel være innenfor kjedens fullmakt.',
   });
 
   const figures = $derived([
@@ -211,7 +222,10 @@
           ...base,
           eyebrow: eyebrow ?? 'Over all fullmakt',
           title: 'Ingen i kjeden kan godkjenne',
-          description: `Fullmaktsgrunnlaget ${amountLabel} overstiger fullmakten til alle i godkjenningskjeden. Kjeden må utvides før ordren kan utstedes.`,
+          description:
+            amount === null
+              ? `${unresolvedCause}, men det avtalte beløpet ${nok(minimum)} overstiger fullmakten til alle i godkjenningskjeden. Kjeden må utvides før ordren kan utstedes.`
+              : `Fullmaktsgrunnlaget ${amountLabel} overstiger fullmakten til alle i godkjenningskjeden. Kjeden må utvides før ordren kan utstedes.`,
           primary: { label: 'Send til godkjenning', action: submit, disabled: true, icon: 'send' },
         };
       if (!route.requiresApproval)
@@ -229,7 +243,7 @@
         title: `${route.decider!.role} må godkjenne`,
         description:
           amount === null
-            ? 'Pris eller frist er uavklart, så fullmaktsgrunnlaget kan ikke beregnes. Endringsordren går gjennom hele fullmaktskjeden og utstedes når siste godkjenner har godkjent.'
+            ? `${unresolvedCause}, så fullmaktsgrunnlaget kan ikke beregnes${minimum > 0 ? ` (avtalt beløp: ${nok(minimum)})` : ''}. Endringsordren går gjennom hele fullmaktskjeden og utstedes når siste godkjenner har godkjent.`
             : `Fullmaktsgrunnlaget ${amountLabel} overstiger din fullmakt. Endringsordren går sekvensielt gjennom fullmaktskjeden og utstedes når siste godkjenner har godkjent.`,
         primary: { label: 'Send til godkjenning', action: submit, icon: 'send' },
         footnote:

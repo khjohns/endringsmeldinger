@@ -10,9 +10,19 @@ import os
 from abc import ABC, abstractmethod
 from pathlib import Path
 
+from lib.supabase.exceptions import ConflictError
 
-class ConcurrencyError(Exception):
-    """Kastes når expected_version ikke matcher faktisk versjon."""
+
+class ConcurrencyError(ConflictError):
+    """Kastes når expected_version ikke matcher faktisk versjon.
+
+    Arver ConflictError (en PermanentError) med vilje. Uten det ville
+    retry-dekoratøren rundt Supabase-lageret klassifisert konflikten som en
+    ukjent, forbigående feil: den ville sovet og prøvd igjen, og deretter kastet
+    noe `except ConcurrencyError` i ruten ikke fanger — 500 i stedet for 409.
+    Et nytt forsøk kan uansett ikke hjelpe, og etter et tapt svar er skrivingen
+    kanskje allerede committet (audit RV-11).
+    """
 
     def __init__(self, expected: int, actual: int):
         self.expected = expected

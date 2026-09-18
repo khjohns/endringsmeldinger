@@ -17,6 +17,28 @@ def get_container():
     return container()
 
 
+def cases_in_project(case_ids, project_id=None):
+    """The subset of the ids that really belongs to the authorized project.
+
+    Relations are client-supplied — a forsering case lists the rejected claims it
+    builds on — so reading through one must not widen access. Cases without
+    metadata, or in another project, are dropped rather than raising: the
+    container case stays readable, its foreign relations do not (audit RV-07).
+    """
+    from lib.project_context import DEFAULT_PROJECT_ID
+
+    project_id = project_id or getattr(g, "project_id", None)
+    if not project_id:
+        return set()
+    repository = get_container().metadata_repository
+    allowed = set()
+    for case_id in set(case_ids):
+        record = repository.get(case_id)
+        if record is not None and (record.prosjekt_id or DEFAULT_PROJECT_ID) == project_id:
+            allowed.add(case_id)
+    return allowed
+
+
 def require_project_access(min_role="viewer"):
     if min_role not in ROLE_HIERARCHY:
         raise ValueError("Unknown minimum role")

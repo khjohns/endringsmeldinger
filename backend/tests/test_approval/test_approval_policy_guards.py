@@ -165,6 +165,176 @@ def test_te_decisions_are_not_blocked_by_bh_approval_policy(
     assert result.status_code == 409, result.json
 
 
+def test_authority_binds_to_user_id_not_to_a_changeable_email(monkeypatch):
+    """The provider rewrites app_users.email on every login and it is not unique,
+    so an entry that names a user_id must never match on e-mail alone."""
+    from services.approval_policy import resolve_policy_actor
+
+    policy = {
+        "handlers": [{"id": "pl@example.test", "user_id": "uuid-1", "role": "Prosjektleder"}],
+        "chain": [{"id": "dir@example.test", "user_id": "uuid-2", "role": "Divisjonsdirektør"}],
+    }
+    assert resolve_policy_actor(policy, {"id": "uuid-1", "email": "annen@x"}) == "pl@example.test"
+    assert resolve_policy_actor(policy, {"id": "uuid-2", "email": "x@x"}) == "dir@example.test"
+    # Same e-mail, different account: no authority.
+    assert resolve_policy_actor(policy, {"id": "uuid-9", "email": "dir@example.test"}) == ""
+
+
+def test_email_only_policy_is_refused_outside_development(monkeypatch):
+    from services.approval_policy import resolve_policy_actor
+
+    policy = {"handlers": ["pl@example.test"], "chain": []}
+    user = {"id": "uuid-1", "email": "pl@example.test"}
+    monkeypatch.delenv("APP_ENV", raising=False)
+    assert resolve_policy_actor(policy, user) == "pl@example.test"
+    monkeypatch.setenv("APP_ENV", "production")
+    with pytest.raises(PermissionError, match="user_id"):
+        resolve_policy_actor(policy, user)
+    # Someone who is not in the policy at all is simply not an actor.
+    assert resolve_policy_actor(policy, {"id": "uuid-2", "email": "andre@x"}) == ""
+
+
+@pytest.mark.parametrize(
+    "user_id,expected", [("uuid-1", 200), ("uuid-9", 403)]
+)
+def test_eo_approval_route_identifies_the_actor_by_user_id(
+    monkeypatch, tmp_path, user_id, expected
+):
+    """Two accounts with the same e-mail must not be interchangeable in approval."""
+    from flask import Flask
+
+    from lib.auth.session import cookie_name
+    from lib.project_context import init_project_context
+    from routes import endringsordre_routes
+
+    monkeypatch.delenv("DISABLE_AUTH", raising=False)
+    monkeypatch.setenv("BH_APPROVAL_DB", str(tmp_path / "approval.sqlite"))
+    monkeypatch.setenv(
+        "BH_APPROVAL_POLICIES",
+        json.dumps(
+            {
+                "p": {
+                    "handlers": [
+                        {"id": "bh@example.test", "user_id": "uuid-1", "role": "Prosjektleder"}
+                    ],
+                    "chain": [],
+                    "daily_rate": None,
+                }
+            }
+        ),
+    )
+    app = Flask(__name__)
+    app.testing = True
+    init_project_context(app)
+    app.register_blueprint(endringsordre_routes.endringsordre_bp)
+    auth = Mock()
+    auth.repo.session.return_value = {
+        "app_users": {"id": user_id, "email": "bh@example.test", "name": "BH"},
+        "csrf_token": "csrf",
+    }
+    auth.role.return_value = "member"
+    auth.contract_membership.return_value = ("BH", "bh-team")
+    app.extensions["koe_auth"] = auth
+    container = Mock()
+    monkeypatch.setattr(endringsordre_routes, "_get_container", lambda: container)
+    monkeypatch.setattr(endringsordre_routes, "_get_endringsordre_service", Mock())
+    monkeypatch.setattr("lib.auth.project_access.get_container", lambda: container)
+    client = app.test_client()
+    client.set_cookie(cookie_name(), "session")
+    response = client.get(
+        "/api/endringsordre/godkjenninger", headers={"X-Project-ID": "p"}
+    )
+    assert response.status_code == expected, response.json
+    if expected == 200:
+        assert response.json["actor"] == "bh@example.test"
+
+
+@pytest.mark.parametrize("batch", [False, True])
+def test_bh_forsering_response_requires_approval(event_api, monkeypatch, batch):
+    """BH's forsering answer commits money like respons_*; the gate must cover it."""
+    monkeypatch.setenv("BH_APPROVAL_POLICIES", json.dumps({"p": POLICY}))
+    event_api.auth.contract_role.return_value = "BH"
+    event = {
+        "event_type": "forsering_respons",
+        "data": {
+            "aksepterer": True,
+            "godkjent_kostnad": 9000000,
+            "begrunnelse": "Uten godkjenning",
+            "dato_respons": "2026-09-17",
+        },
+    }
+    response = event_tests.post(
+        event_api,
+        {
+            "sak_id": "case",
+            "expected_version": 1,
+            **({"events": [event]} if batch else {"event": event}),
+        },
+        batch=batch,
+    )
+    assert response.status_code == 403, response.json
+    assert response.json["error"] == "APPROVAL_REQUIRED"
+    event_api.container.event_repository.append_batch.assert_not_called()
+    event_api.container.event_repository.append.assert_not_called()
+
+
+@pytest.fixture
+def forsering_api(monkeypatch):
+    from flask import Flask
+
+    from lib.auth.session import cookie_name
+    from lib.project_context import init_project_context
+    from routes import forsering_routes
+
+    monkeypatch.delenv("DISABLE_AUTH", raising=False)
+    app = Flask(__name__)
+    app.testing = True
+    init_project_context(app)
+    app.register_blueprint(forsering_routes.forsering_bp)
+    auth = Mock()
+    auth.repo.session.return_value = {
+        "app_users": {"id": "bh-user", "email": "bh@example.test", "name": "BH"},
+        "csrf_token": "csrf",
+    }
+    auth.role.return_value = "member"
+    auth.contract_membership.return_value = ("BH", "bh-team")
+    app.extensions["koe_auth"] = auth
+    container = Mock()
+    container.metadata_repository.get.return_value = SimpleNamespace(
+        prosjekt_id="p", catenda_topic_id=None
+    )
+    monkeypatch.setattr(forsering_routes, "_get_container", lambda: container)
+    monkeypatch.setattr("lib.auth.project_access.get_container", lambda: container)
+    service = Mock()
+    service.registrer_bh_respons.return_value = {"success": True}
+    monkeypatch.setattr(forsering_routes, "_get_forsering_service", lambda: service)
+    client = app.test_client()
+    client.set_cookie(cookie_name(), "session")
+    return SimpleNamespace(client=client, service=service)
+
+
+def test_forsering_response_route_is_covered_by_the_same_gate(
+    forsering_api, monkeypatch
+):
+    body = {"aksepterer": True, "godkjent_kostnad": 9000000, "begrunnelse": "Svar"}
+    headers = {"X-Project-ID": "p", "X-CSRF-Token": "csrf"}
+    monkeypatch.setenv("BH_APPROVAL_POLICIES", json.dumps({"p": POLICY}))
+    blocked = forsering_api.client.post(
+        "/api/forsering/case/bh-respons", json=body, headers=headers
+    )
+    assert blocked.status_code == 403, blocked.json
+    assert blocked.json["error"] == "APPROVAL_REQUIRED"
+    forsering_api.service.registrer_bh_respons.assert_not_called()
+
+    # Without a policy the project answers directly, exactly as before.
+    monkeypatch.delenv("BH_APPROVAL_POLICIES")
+    allowed = forsering_api.client.post(
+        "/api/forsering/case/bh-respons", json=body, headers=headers
+    )
+    assert allowed.status_code == 200, allowed.json
+    forsering_api.service.registrer_bh_respons.assert_called_once()
+
+
 @pytest.mark.parametrize("change", ["sender", "chain", "rate", "removed_sender"])
 def test_background_issuance_rechecks_policy_and_persists_return(
     eo_service, monkeypatch, change
