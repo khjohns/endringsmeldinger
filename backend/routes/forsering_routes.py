@@ -22,7 +22,7 @@ from typing import Any
 from flask import g, Blueprint, jsonify, request
 
 from lib.auth.session import require_auth
-from lib.auth.project_access import require_project_access
+from lib.auth.project_access import cases_in_project, require_project_access
 from lib.auth.contract_role import require_contract_role
 from lib.decorators import handle_service_errors
 from lib.helpers.version_control import handle_concurrency_error
@@ -263,7 +263,9 @@ def hent_forseringskontekst(sak_id: str):
     Inkluderer relaterte saker, states, hendelser og oppsummering.
     """
     service = _get_forsering_service()
-    kontekst = service.hent_komplett_forseringskontekst(sak_id)
+    kontekst = service.hent_komplett_forseringskontekst(
+        sak_id, tillatte_saker=cases_in_project
+    )
 
     # Ekstraher forsering_hendelser til extra_fields for riktig formatering
     extra_fields = {}
