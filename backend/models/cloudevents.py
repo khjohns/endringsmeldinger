@@ -73,6 +73,7 @@ class CloudEventMixin(BaseModel):
     Extension Attributes (prosjektspesifikke):
     - actor: Hvem som utførte handlingen
     - actorrole: Rolle (TE/BH)
+    - actorteam: Catenda-team-ID til aktørens organisasjon
     - referstoid: Referanse til annen event
     """
 
@@ -179,6 +180,7 @@ class CloudEventMixin(BaseModel):
             "datacontenttype": "application/json",
             "actor": "Ola Nordmann",
             "actorrole": "TE",
+            "actorteam": "22222222222222222222222222222222",
             "data": { ... }
         }
         """
@@ -195,6 +197,9 @@ class CloudEventMixin(BaseModel):
             # Extension attributes
             "actor": getattr(self, "aktor", None),
             "actorrole": getattr(self, "aktor_rolle", None),
+            # The team is the access key for internt_notat, so it must survive
+            # the round-trip as its own attribute - not inside the data payload.
+            "actorteam": getattr(self, "aktor_team_id", None),
         }
 
         # Legg til kommentar som extension hvis den finnes
@@ -228,6 +233,7 @@ class CloudEventMixin(BaseModel):
                 "tidsstempel",
                 "aktor",
                 "aktor_rolle",
+                "aktor_team_id",
                 "kommentar",
                 "refererer_til_event_id",
                 # Computed fields from CloudEventMixin
@@ -295,6 +301,7 @@ class CloudEventMixin(BaseModel):
             "sak_id": ce.get("subject"),
             "aktor": ce.get("actor"),
             "aktor_rolle": ce.get("actorrole"),
+            "aktor_team_id": ce.get("actorteam"),
             "refererer_til_event_id": ce.get("referstoid"),
             "kommentar": ce.get("comment"),
         }

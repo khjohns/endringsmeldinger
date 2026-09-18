@@ -117,4 +117,10 @@ warn_unused_ignores = true
 testpaths = ["tests"]
 python_files = ["test_*.py", "*_test.py"]
 python_functions = ["test_*"]
-addopts = "-v --tb=short"
+addopts = "-v --tb=short --strict-markers"
+
+# Markers. --strict-markers gjør ukjente markers til feil, slik at en skrivefeil
+# i @pytest.mark.live ikke stille gjør testen til en vanlig test som treffer nett.
+markers = [
+    "live: treffer ekte Supabase (oppretter og sletter data). Hoppes over med mindre RUN_LIVE_SUPABASE=1 er satt. Skipping-logikken ligger i tests/conftest.py.",
+]
