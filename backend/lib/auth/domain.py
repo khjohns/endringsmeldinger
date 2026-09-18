@@ -58,7 +58,12 @@ def referenced_case_ids(value) -> set[str]:
     """Find case references in events as well as top-level request fields."""
     result = set()
     single = {"sak_id", "sakId", "koe_sak_id", "relatert_sak_id"}
-    multiple = {"koe_sak_ids", "avslatte_sak_ids", "relaterte_koe_saker"}
+    multiple = {
+        "koe_sak_ids",
+        "avslatte_sak_ids",
+        "avslatte_fristkrav",
+        "relaterte_koe_saker",
+    }
     if isinstance(value, dict):
         for key, item in value.items():
             if key in single and item is not None:

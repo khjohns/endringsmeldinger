@@ -84,13 +84,15 @@ def create_bim_link(sak_id: str):
 def delete_bim_link(sak_id: str, link_id: int):
     """Delete a BIM link."""
     try:
-        deleted = _get_bim_repo().delete_link(link_id)
+        deleted = _get_bim_repo().delete_link(link_id, sak_id=sak_id)
         if not deleted:
             return jsonify({"error": "NOT_FOUND", "message": "Link not found"}), 404
         return "", 204
     except Exception as e:
         logger.error(f"Failed to delete BIM link {link_id}: {e}", exc_info=True)
-        return jsonify({"error": "INTERNAL_ERROR", "message": str(e)}), 500
+        return jsonify(
+            {"error": "INTERNAL_ERROR", "message": "En uventet feil oppstod"}
+        ), 500
 
 
 RELATION_CATEGORY_LABELS = {

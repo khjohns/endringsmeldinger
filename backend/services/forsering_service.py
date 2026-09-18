@@ -179,7 +179,9 @@ class ForseringService(BaseSakService):
             },
         }
 
-    def hent_komplett_forseringskontekst(self, forsering_sak_id: str) -> dict[str, Any]:
+    def hent_komplett_forseringskontekst(
+        self, forsering_sak_id: str, tillatte_saker=None
+    ) -> dict[str, Any]:
         """
         Henter komplett kontekst for en forseringssak, inkludert:
         - Relaterte saker
@@ -223,6 +225,12 @@ class ForseringService(BaseSakService):
             ]
 
         relaterte_ids = [r.relatert_sak_id for r in relaterte]
+        if tillatte_saker is not None:
+            # Relations are client-supplied; filter before aggregating so summary
+            # totals never count a case the reader may not see (audit RV-07).
+            allowed = tillatte_saker(relaterte_ids)
+            relaterte = [r for r in relaterte if r.relatert_sak_id in allowed]
+            relaterte_ids = [i for i in relaterte_ids if i in allowed]
 
         if not relaterte_ids:
             logger.warning(f"Ingen relaterte saker funnet for {forsering_sak_id}")

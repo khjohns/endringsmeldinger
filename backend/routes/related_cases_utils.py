@@ -120,14 +120,32 @@ def build_kontekst_response(
         Hendelser formateres som CloudEvents v1.0 for konsistens
         med /api/cases/<sak_id>/timeline endepunktet.
     """
+    # A relation is client-supplied, so every referenced case is re-checked against
+    # the authorized project before anything about it is returned (audit RV-07).
+    from lib.auth.project_access import cases_in_project
+
+    relaterte = list(kontekst.get("relaterte_saker", []))
+    states = dict(kontekst.get("sak_states", {}))
+    hendelser = dict(kontekst.get("hendelser", {}))
+    referenced = (
+        {getattr(r, "relatert_sak_id", None) for r in relaterte}
+        | set(states)
+        | set(hendelser)
+    ) - {None}
+    if referenced:
+        allowed = cases_in_project(referenced)
+        relaterte = [
+            r for r in relaterte if getattr(r, "relatert_sak_id", None) in allowed
+        ]
+        states = {k: v for k, v in states.items() if k in allowed}
+        hendelser = {k: v for k, v in hendelser.items() if k in allowed}
+
     response = {
         "success": True,
         "sak_id": sak_id,
-        "relaterte_saker": serialize_relaterte_saker(
-            kontekst.get("relaterte_saker", [])
-        ),
-        "sak_states": serialize_sak_states(kontekst.get("sak_states", {})),
-        "hendelser": serialize_hendelser(kontekst.get("hendelser", {})),
+        "relaterte_saker": serialize_relaterte_saker(relaterte),
+        "sak_states": serialize_sak_states(states),
+        "hendelser": serialize_hendelser(hendelser),
         "oppsummering": kontekst.get("oppsummering", {}),
     }
 
