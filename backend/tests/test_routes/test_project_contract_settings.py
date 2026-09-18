@@ -8,6 +8,7 @@ from flask import Flask
 
 from lib.auth.session import cookie_name
 from lib.project_context import init_project_context
+from tests.test_routes.assertions import assert_ingen_intern_feiltekst
 
 HEADERS = {"X-Project-ID": "project-b", "X-CSRF-Token": "csrf"}
 
@@ -68,5 +69,4 @@ def test_uventet_feil_lekker_ikke_intern_tekst(api):
     response = api.client.patch(
         "/api/projects/project-b", json={"name": "N"}, headers=HEADERS
     )
-    assert response.status_code == 500
-    assert "password" not in response.get_data(as_text=True)
+    assert_ingen_intern_feiltekst(response)

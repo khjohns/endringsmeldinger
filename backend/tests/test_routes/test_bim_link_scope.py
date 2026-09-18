@@ -8,6 +8,7 @@ from flask import Flask
 
 from lib.auth.session import cookie_name
 from lib.project_context import init_project_context
+from tests.test_routes.assertions import assert_ingen_intern_feiltekst
 
 HEADERS = {"X-Project-ID": "project-b", "X-CSRF-Token": "csrf"}
 
@@ -58,5 +59,4 @@ def test_egen_lenke_slettes_fortsatt(api):
 def test_uventet_feil_lekker_ikke_intern_tekst(api):
     api.repo.delete_link.side_effect = RuntimeError("password authentication failed for db")
     response = api.client.delete("/api/saker/B-1/bim-links/1", headers=HEADERS)
-    assert response.status_code == 500
-    assert "password" not in response.get_data(as_text=True)
+    assert_ingen_intern_feiltekst(response)

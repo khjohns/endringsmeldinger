@@ -2,24 +2,30 @@
 
 import json
 import os
+from functools import lru_cache
+
+from models.events import BH_BINDENDE_EVENTS
+from services.approval_authority import policy_entry
+
+
+@lru_cache(maxsize=8)
+def _parse_policies(raw):
+    """Policyene er invariante for prosessen, men leses ved hver forespørsel.
+
+    Cachen er nøklet på råteksten, så en test som endrer miljøvariabelen får
+    den nye verdien uten at cachen må tømmes.
+    """
+    return json.loads(raw or "{}")
 
 
 def project_policy(project):
-    return json.loads(os.environ.get("BH_APPROVAL_POLICIES", "{}")).get(project)
+    return _parse_policies(os.environ.get("BH_APPROVAL_POLICIES", "{}")).get(project)
 
 
 def _policy_entries(policy):
-    for entry in (policy or {}).get("handlers", []):
-        yield entry if isinstance(entry, dict) else {"id": entry}
-    for entry in (policy or {}).get("chain", []):
-        yield entry if isinstance(entry, dict) else {"id": entry}
-
-
-def _email_binding_allowed():
-    return os.environ.get("APP_ENV", "development").lower() not in {
-        "production",
-        "staging",
-    }
+    for key in ("handlers", "chain"):
+        for entry in (policy or {}).get(key, []):
+            yield policy_entry(entry)
 
 
 def resolve_policy_actor(policy, user):
@@ -32,6 +38,8 @@ def resolve_policy_actor(policy, user):
     stable id only, and outside development an entry without one cannot be used at
     all — it fails closed with a configuration error instead (audit RV-03).
     """
+    from lib.auth.session import production_like
+
     email = str(user.get("email") or "").lower()
     user_id = str(user.get("id") or "")
     unbound_match = False
@@ -43,7 +51,7 @@ def resolve_policy_actor(policy, user):
                 return entry_id
             continue
         if entry_id and entry_id == email:
-            if _email_binding_allowed():
+            if not production_like():
                 return entry_id
             unbound_match = True
     if unbound_match:
@@ -86,18 +94,21 @@ def public_event_block_reason(policy, event):
     case_type = event.get(
         "sakstype", data.get("sakstype") if isinstance(data, dict) else None
     )
-    if isinstance(kind, str) and kind.startswith("respons_"):
+    if kind in {event.value for event in BH_BINDENDE_EVENTS}:
+        # Hvilke hendelser som binder byggherren økonomisk er en egenskap ved
+        # domenemodellen, ikke ved navnet: settet ligger i models/events.py, der
+        # en ny type uansett må deklareres (audit RV-04).
+        if str(kind).startswith("eo_"):
+            return (
+                "Endringsordrer i prosjektet må opprettes og endres gjennom "
+                "intern godkjenning."
+            )
+        if kind == "forsering_respons":
+            return "Svar på forseringsvarsel må publiseres gjennom intern godkjenning."
         return "BH-svar må publiseres gjennom intern godkjenning."
-    # A forsering answer commits money under NS 8407 §33.8 exactly as respons_* does,
-    # even though its type name does not share the prefix (audit RV-04).
-    if kind == "forsering_respons":
-        return "Svar på forseringsvarsel må publiseres gjennom intern godkjenning."
-    if kind in {
-        "eo_opprettet",
-        "eo_utstedt",
-        "eo_revidert",
-        "eo_koe_lagt_til",
-        "eo_koe_fjernet",
-    } or (kind == "sak_opprettet" and case_type == "endringsordre"):
-        return "Endringsordrer i prosjektet må opprettes og endres gjennom intern godkjenning."
+    if kind == "sak_opprettet" and case_type == "endringsordre":
+        return (
+            "Endringsordrer i prosjektet må opprettes og endres gjennom "
+            "intern godkjenning."
+        )
     return None

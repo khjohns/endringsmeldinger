@@ -155,11 +155,6 @@ export function requestToDocument(payload: CreateEORequest): EndringsordreData {
 }
 
 /**
- * Authority basis for a change order, or null when it cannot be computed yet.
- * The larger of addition and deduction is used, never the net; extension days are
- * valued at the daily rate and added. Mirrors `order_exposure` in the backend.
- */
-/**
  * The part of the exposure that is already agreed, whatever else is unresolved.
  * Mirrors `order_exposure_floor` in the backend: the chain must cover it even when
  * `eoExposure` returns null, or an unvalued consequence would weaken the route.
@@ -168,6 +163,11 @@ export function eoExposureFloor(payload: CreateEORequest): number {
   return Math.max(payload.kompensasjon_belop ?? 0, payload.fradrag_belop ?? 0);
 }
 
+/**
+ * Authority basis for a change order, or null when it cannot be computed yet.
+ * The larger of addition and deduction is used, never the net; extension days are
+ * valued at the daily rate and added. Mirrors `order_exposure` in the backend.
+ */
 export function eoExposure(payload: CreateEORequest, dailyRate: number | null): number | null {
   const { pris, fremdrift } = payload.konsekvenser;
   const addition = payload.kompensasjon_belop;
@@ -177,7 +177,7 @@ export function eoExposure(payload: CreateEORequest, dailyRate: number | null): 
   if (payload.ny_sluttdato != null) return null;
   if (pris && addition == null && deduction == null) return null;
   if (fremdrift && payload.frist_dager == null) return null;
-  const money = Math.max(addition ?? 0, deduction ?? 0);
+  const money = eoExposureFloor(payload);
   const days = payload.frist_dager ?? 0;
   if (days <= 0) return money;
   return dailyRate && dailyRate > 0 ? money + days * dailyRate : null;

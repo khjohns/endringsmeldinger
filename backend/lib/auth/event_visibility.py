@@ -42,6 +42,9 @@ def reader_contract_team() -> str | None:
         _role, team = get_auth_service().contract_membership(project_id, user["id"])
     except Exception:
         return None
+    # Oppslaget går mot Catenda. Flere lesepunkter i samme forespørsel spør om
+    # det samme teamet, så svaret legges der rutedekoratørene legger sitt.
+    g.contract_team = team
     return team or None
 
 
@@ -99,7 +102,7 @@ def visible_events(events: list) -> list:
     ]
 
 
-def redact_activity_metadata(state, events):
+def redact_activity_metadata(state, events, visible=None):
     """Strip activity counters down to what the reader may actually see.
 
     The domain state is derived from the whole stream on purpose — status and
@@ -108,9 +111,10 @@ def redact_activity_metadata(state, events):
     organisation writes an internal note, and the rule in this module is that the
     existence of such a note is itself confidential. The counters are therefore
     recomputed from the visible subset before the state leaves a read endpoint
-    (audit RV-09).
+    (audit RV-09). Pass `visible` when the caller has already filtered, so the
+    stream is not scanned — and the team not looked up — twice.
     """
-    visible = visible_events(events)
+    visible = visible_events(events) if visible is None else visible
     if len(visible) == len(events):
         return state
     return state.model_copy(
@@ -119,3 +123,25 @@ def redact_activity_metadata(state, events):
             "siste_aktivitet": visible[-1].tidsstempel if visible else None,
         }
     )
+
+
+def public_state(state, events, visible=None):
+    """The state as it may be serialised to this reader.
+
+    Every response that carries a SakState goes through here — reads as well as
+    the state returned after a submission — so the rule lives in one place
+    instead of at each call site.
+    """
+    return redact_activity_metadata(state, events, visible).model_dump(mode="json")
+
+
+def strip_activity_metadata(payload):
+    """Drop the activity counters entirely.
+
+    A relation view shows what a related case contains, not how active it is,
+    and the events it carries are track-filtered — so there is no honest number
+    to report. Dropping beats recomputing something the reader would misread.
+    """
+    payload.pop("antall_events", None)
+    payload.pop("siste_aktivitet", None)
+    return payload

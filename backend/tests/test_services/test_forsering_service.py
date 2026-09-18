@@ -265,7 +265,9 @@ class TestForseringService:
         mock_timeline_service.compute_state.return_value = mock_state
 
         # Act
-        result = service.hent_komplett_forseringskontekst("forsering-001")
+        result = service.hent_komplett_forseringskontekst(
+            "forsering-001", tillatte_saker=set
+        )
 
         # Assert
         assert "relaterte_saker" in result
@@ -281,7 +283,9 @@ class TestForseringService:
         mock_catenda_client.list_related_topics.return_value = []
 
         # Act
-        result = service.hent_komplett_forseringskontekst("forsering-001")
+        result = service.hent_komplett_forseringskontekst(
+            "forsering-001", tillatte_saker=set
+        )
 
         # Assert
         assert result["relaterte_saker"] == []

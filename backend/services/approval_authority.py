@@ -107,10 +107,15 @@ def validate_authority(items, chain, daily_rate=None, sender=None):
     return approval_route(items, chain, daily_rate, sender)[0]
 
 
+def policy_entry(entry):
+    """A policy entry is either a bare e-mail or an object; normalise to an object."""
+    return entry if isinstance(entry, dict) else {"id": entry}
+
+
 def handler_identity(policy, actor):
     """Handlers are e-mails, or objects with a matrix role that sets their own authority."""
     for entry in (policy or {}).get("handlers", []):
-        person = entry if isinstance(entry, dict) else {"id": entry}
+        person = policy_entry(entry)
         if str(person.get("id", "")).lower() == actor:
             return {**person, "id": actor, "name": person.get("name") or actor}
     return None
