@@ -188,13 +188,10 @@ from routes.letter_routes import letter_bp
 from routes.approval_routes import approval_bp
 from routes.membership_routes import membership_bp
 from routes.auth_routes import auth_bp
-from routes.oauth_auto_consent_routes import oauth_auto_consent_bp  # noqa: F401
-from routes.oauth_consent_routes import oauth_consent_bp  # OAuth consent API
 from routes.project_routes import projects_bp
 from routes.utility_routes import utility_bp
 from routes.utkast_routes import utkast_bp
 from routes.vedlegg_routes import vedlegg_bp
-from routes.wellknown_routes import wellknown_bp  # OAuth discovery endpoints
 
 # Register routes
 app.register_blueprint(utility_bp)
@@ -208,9 +205,6 @@ app.register_blueprint(cloudevents_bp)
 app.register_blueprint(analytics_bp)
 app.register_blueprint(letter_bp)
 app.register_blueprint(approval_bp)
-app.register_blueprint(oauth_consent_bp)
-app.register_blueprint(oauth_auto_consent_bp)
-app.register_blueprint(wellknown_bp)
 app.register_blueprint(projects_bp)
 app.register_blueprint(membership_bp)
 app.register_blueprint(auth_bp)

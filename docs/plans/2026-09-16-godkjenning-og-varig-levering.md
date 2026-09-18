@@ -22,10 +22,11 @@ Lukket med retting, regresjonstest og egen commit:
 | RV-03 | Godkjenningsfullmakt nøkles på `user_id`. E-post alene avvises utenfor utvikling. |
 | RV-04 | `forsering_respons` er under godkjenningsporten, i både hendelsesruta og den egne ruta. |
 | RV-05 | Lesing av vedlegg krever kontraktsside. |
-| RV-06 | Migrasjon som fjerner `authenticated`-policyene og tilbakekaller Data API-rettigheter. Verifisert mot lokal Postgres. **Må kjøres mot det faktiske prosjektet.** |
+| RV-06 | Data API-et er stengt for `anon` og `authenticated`. **Kjørt mot prosjektet 2026-09-18** og verifisert: null lesbare tabeller og kjørbare funksjoner for begge roller, null sikkerhetsvarsler fra Supabase-linten. Den faktiske databasen hadde i tillegg policyer som ikke sto i noen migrasjonsfil — hele hendelsesloggen var lesbar for enhver innlogget bruker. |
 | RV-07 | Relasjoner utvider ikke lenger prosjektgrensen: kontekst filtreres før aggregering, `avslatte_fristkrav` autoriseres ved innsending, BIM-sletting er saksavgrenset, og `settings.contract` krever byggherrens kontraktsside. |
 | RV-08 | `aktor_team_id` overlever lagring i Supabase (`actorteam`), med round-trip-test per lager. |
 | RV-16 | Live-tester mot Supabase er opt-in (`RUN_LIVE_SUPABASE=1`). Standard `pytest` er uten nettverk. |
+| SA-01 | Hele Supabase-OAuth-flaten er fjernet: tre blueprints, MCP-rate limit og tokenvalidatoren. Appen logger inn med Catenda alene. Ruteregisteret holdes nå opp mot en eksplisitt liste over offentlige ruter. |
 
 Beslutninger som er tatt i disse rettingene:
 
@@ -34,6 +35,9 @@ Beslutninger som er tatt i disse rettingene:
   forseringssporet. Å utvide flyten hører til arbeidet med godkjenningsomfang.
 - **Policyformatet er endret.** `BH_APPROVAL_POLICIES` må bære `user_id` per
   oppføring før produksjon; e-postmatching er en utviklingsbekvemmelighet.
+- **Bare Catenda-innlogging.** Supabase Auth brukes ikke. Flaten er fjernet fra
+  koden; anonym innlogging og OAuth-serveren må også slås av i Supabase-konsollet,
+  ellers kan tokens fortsatt utstedes selv om rettighetene er tilbakekalt.
 - **Vedlegg er kontraktskorrespondanse.** Prosjektdeltakere uten TE- eller
   BH-tilknytning har ikke lesetilgang, på linje med utkast og interne notater.
 
