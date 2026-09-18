@@ -10,7 +10,7 @@ from typing import Any
 
 from flask import jsonify
 
-from lib.auth.event_visibility import visible_events
+from lib.auth.event_visibility import strip_activity_metadata, visible_events
 from lib.cloudevents import format_timeline_response
 from models.sak_state import SakRelasjon, SakState
 from utils.logger import get_logger
@@ -60,7 +60,9 @@ def serialize_sak_states(states: dict[str, SakState]) -> dict[str, Any]:
         Dict[sak_id, dict] egnet for JSON serialisering
     """
     return {
-        sak_id: state.model_dump() if hasattr(state, "model_dump") else state
+        sak_id: strip_activity_metadata(
+            state.model_dump() if hasattr(state, "model_dump") else dict(state)
+        )
         for sak_id, state in states.items()
     }
 
@@ -120,6 +122,9 @@ def build_kontekst_response(
         Hendelser formateres som CloudEvents v1.0 for konsistens
         med /api/cases/<sak_id>/timeline endepunktet.
     """
+    # Relasjonene er klientstyrte, så prosjektgrensen håndheves der konteksten
+    # bygges: kontekstmetodene krever `tillatte_saker` og filtrerer før de
+    # aggregerer (audit RV-07). Her serialiseres det som allerede er autorisert.
     response = {
         "success": True,
         "sak_id": sak_id,

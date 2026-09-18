@@ -9,6 +9,72 @@ Dette er den overordnede planen. [Transaksjonsplanen](2026-09-17-atomisk-utstede
 er en delplan. Nye åpne funn må lukkes eller eksplisitt avgrenses før produksjon;
 outbox alene gjør ikke appen sikker.
 
+Gjennomgått på nytt 2026-09-18 i [reviewen av sikkerhetsrunden](../audit-review-astra-2026-09-17.md).
+Statusen under viser hva den reviewen lukket, og hva som står igjen.
+
+## Status 2026-09-18
+
+Lukket med retting, regresjonstest og egen commit:
+
+| Funn | Hva som er gjort |
+| --- | --- |
+| RV-01 | Fullmaktsgulv: avtalt beløp må dekkes av kjeden også når grunnlaget er uberegnet. Speilet i frontend. |
+| RV-03 | Godkjenningsfullmakt nøkles på `user_id`. E-post alene avvises utenfor utvikling. |
+| RV-04 | `forsering_respons` er under godkjenningsporten, i både hendelsesruta og den egne ruta. |
+| RV-05 | Lesing av vedlegg krever kontraktsside. |
+| RV-06 | Data API-et er stengt for `anon` og `authenticated`. **Kjørt mot prosjektet 2026-09-18** og verifisert: null lesbare tabeller og kjørbare funksjoner for begge roller, null sikkerhetsvarsler fra Supabase-linten. Den faktiske databasen hadde i tillegg policyer som ikke sto i noen migrasjonsfil — hele hendelsesloggen var lesbar for enhver innlogget bruker. |
+| RV-07 | Relasjoner utvider ikke lenger prosjektgrensen: kontekst filtreres før aggregering, `avslatte_fristkrav` autoriseres ved innsending, BIM-sletting er saksavgrenset, og `settings.contract` krever byggherrens kontraktsside. |
+| RV-08 | `aktor_team_id` overlever lagring i Supabase (`actorteam`), med round-trip-test per lager. |
+| RV-16 | Live-tester mot Supabase er opt-in (`RUN_LIVE_SUPABASE=1`). Standard `pytest` er uten nettverk. |
+| SA-01 | Hele Supabase-OAuth-flaten er fjernet: tre blueprints, MCP-rate limit og tokenvalidatoren. Appen logger inn med Catenda alene. Ruteregisteret holdes nå opp mot en eksplisitt liste over offentlige ruter. |
+| RV-09 | Aktivitetstall utledes av det leseren ser, i alle fire svarveier. Interne notater flytter ikke det delte aktivitetsstempelet. |
+| RV-11 | `ConcurrencyError` arver `ConflictError`, så en versjonskonflikt gir 409 og ingen blind retry. |
+| SA-02, SA-03, RV-22 | Analytics-blueprinten er slettet. Rutene hadde ingen forbruker i `src/`, og de var eneste kjente lekkasje av byggherrens interne aktivitet i et aggregat, samtidig som de bar hardkodet dagmulktssats og feilsvelging. Skal statistikk komme tilbake, bygges den på det autoriserte leselaget. |
+
+Beslutninger som er tatt i disse rettingene:
+
+- **Forsering er godkjenningspliktig.** Prosjekter med policy kan inntil videre
+  ikke svare på forseringsvarsel, fordi godkjenningsflyten ikke modellerer
+  forseringssporet. Å utvide flyten hører til arbeidet med godkjenningsomfang.
+- **Policyformatet er endret.** `BH_APPROVAL_POLICIES` må bære `user_id` per
+  oppføring før produksjon; e-postmatching er en utviklingsbekvemmelighet.
+- **Bare Catenda-innlogging.** Supabase Auth brukes ikke. Flaten er fjernet fra
+  koden; anonym innlogging og OAuth-serveren må også slås av i Supabase-konsollet,
+  ellers kan tokens fortsatt utstedes selv om rettighetene er tilbakekalt.
+- **Vedlegg er kontraktskorrespondanse.** Prosjektdeltakere uten TE- eller
+  BH-tilknytning har ikke lesetilgang, på linje med utkast og interne notater.
+
+Struktur som kom med opprydningen: godkjenningsporten utledes av
+`BH_BINDENDE_EVENTS` i hendelsesmodellen, og en test krever at enhver
+hendelsestype er klassifisert. Kontekstmetodene krever `tillatte_saker`.
+Skjermingen av aktivitetstall ligger i `lib/auth/event_visibility`.
+
+Åpne funn fra samme review, i prioritert rekkefølge:
+
+Prioritet 0 er dermed lukket: OAuth-flaten er fjernet, ruteregisteret er
+klassifisert og holdes av en test, og analytics er slettet.
+
+1. **RV-02 — policyretur midt i utstedelse.** En pakke kan returneres mens en
+   utstedelse pågår; ordren blir utstedt, men posten står varig som «returnert».
+2. **RV-10 — `/api/events/batch`** lagrer formelle hendelser uten leveringsintensjon
+   eller kvittering, og saksbanneret viser «clear».
+3. **RV-13 — feilsvar og åpne helsesjekker.** `str(e)` er rettet i to ruter; det
+   står igjen i sju filer, og `/api/health`, `/api/health/catenda` og `/api/routes`
+   svarer uten sesjon. De tre står oppført i `test_public_route_registry`.
+4. **RV-19, RV-20, RV-21** — pakker godkjennes uten å være validert mot
+   utstedelsesreglene, EO-godkjenning avhenger av prosjektregisteret når
+   `daily_rate` mangler, og webhooken oppretter EO-saker utenom porten.
+5. **RV-12, RV-14, RV-15** — webhookens dedupe og hemmelighetssammenlikning,
+   GET-ruter som muterer godkjenningstilstand, og hendelsestabeller som bare
+   finnes som docstring uten migrasjon.
+6. **RV-17, RV-18 — restanser.** Strenge xfail mangler `raises=`, det tilbakeviste
+   designdokumentet er ikke merket foreldet, promptens Del 3 er ubesvart, og
+   `audit-begrunnelsestekst-og-dodkode-2026-09-14.md:115` viser til en slettet fil.
+
+Utenfor koden: anonym innlogging og OAuth-serveren må slås av i Supabase-konsollet,
+og `BH_APPROVAL_POLICIES` må få `user_id` per oppføring før `APP_ENV` settes til
+produksjon.
+
 ## Nye arbeidspakker og produksjonskrav
 
 | Prioritet/rekkefølge | Arbeid | Ferdig når |
@@ -63,8 +129,9 @@ driftsavklaringer gjenstår.
 1. **Første leveranse:** rett AP-01 (alternative EO-innganger), AP-02
    (endret fullmakt før utstedelse), AP-03 (sluttdato/fullmaktsgrunnlag) og AP-05
    (felles satsoppslag). Gjør reproduksjonene til ordinære regresjonstester og
-   test at legitime flyter fortsatt virker. Status: implementert og lokalt testet
-   2026-09-17; ikke committet.
+   test at legitime flyter fortsatt virker. Status: implementert, testet og
+   committet 2026-09-17 (`e235412`), med en regresjon i AP-03 rettet
+   2026-09-18 (RV-01).
 2. **Arkitektur med grundig review:** konkretiser transaksjonsgrenser,
    datamodell, idempotens og feilforløp for AP-04 og felles PostgreSQL-inbox/outbox.
    Planen skal dekke autorisasjon, prosjektidentitet og worker-gjenoppretting.

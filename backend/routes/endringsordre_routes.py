@@ -19,7 +19,7 @@ import os
 from flask import Blueprint, g, jsonify, request
 
 from lib.auth.contract_role import require_contract_role
-from lib.auth.project_access import require_project_access
+from lib.auth.project_access import cases_in_project, require_project_access
 from lib.auth.session import require_auth
 from lib.decorators import handle_service_errors
 from routes.related_cases_utils import (
@@ -32,6 +32,7 @@ from services.approval_policy import (
     authority_policy,
     project_policy,
     public_event_block_reason,
+    resolve_policy_actor,
 )
 from utils.logger import get_logger
 
@@ -139,7 +140,9 @@ def hent_eo_kontekst(sak_id: str):
     Inkluderer relaterte KOE-saker, states, hendelser og oppsummering.
     """
     service = _get_endringsordre_service()
-    kontekst = service.hent_komplett_eo_kontekst(sak_id)
+    kontekst = service.hent_komplett_eo_kontekst(
+        sak_id, tillatte_saker=cases_in_project
+    )
 
     # EO har ekstra felt: eo_hendelser
     return build_kontekst_response(
@@ -262,13 +265,14 @@ def eo_godkjenninger():
 
     project = getattr(g, "project_id", "oslobygg")
     identity = getattr(g, "user", {}) or {}
-    actor = (identity.get("email") or "").lower()
     policy = project_policy(project)
     try:
         if not policy:
             raise PermissionError(
                 "Intern godkjenning er ikke konfigurert for prosjektet."
             )
+        # Which entry this user may act as — never the e-mail alone (audit RV-03).
+        actor = resolve_policy_actor(policy, identity)
         policy = authority_policy(
             policy,
             project,

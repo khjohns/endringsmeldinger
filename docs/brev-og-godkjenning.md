@@ -39,21 +39,23 @@ PDF og skjermbrev bruker den lagrede teksten. PDF viser brevets avsender, ikke e
 
 ## Konfigurere reelle saker uten Microsoft Graph
 
-`BH_APPROVAL_POLICIES` er et JSON-objekt med prosjekt-ID som nøkkel. Identiteter må være autentiserte e-postadresser. Eksempel (kun illustrasjon):
+`BH_APPROVAL_POLICIES` er et JSON-objekt med prosjekt-ID som nøkkel. Hver oppføring må binde fullmakten til `user_id` — brukerens ID i `app_users` — og ikke bare til e-postadressen. Leverandøren skriver e-posten på nytt ved hver innlogging, og kolonnen er verken verifisert eller unik, så den som setter sin egen adresse til en godkjenners ville arvet fullmakten. E-postadressen beholdes som lesbart navn og nøkkel i pakkene. Eksempel (kun illustrasjon):
 
 ```json
 {
   "prosjekt-id": {
-    "handlers": [{ "id": "saksbehandler@example.no", "name": "Saksbehandler", "role": "Prosjektleder" }],
+    "handlers": [
+      { "id": "saksbehandler@example.no", "user_id": "9d1b…", "name": "Saksbehandler", "role": "Prosjektleder" }
+    ],
     "chain": [
-      { "id": "prosjektleder@example.no", "name": "Prosjektleder", "role": "Prosjektleder" },
-      { "id": "prosjekteier@example.no", "name": "Prosjekteier", "role": "Prosjekteier" }
+      { "id": "prosjektleder@example.no", "user_id": "4c07…", "name": "Prosjektleder", "role": "Prosjektleder" },
+      { "id": "prosjekteier@example.no", "user_id": "b82f…", "name": "Prosjekteier", "role": "Prosjekteier" }
     ]
   }
 }
 ```
 
-`handlers` kan også være e-postadresser. Uten rolle har saksbehandleren ingen egen fullmakt, og alt med beløp går til godkjenning. Kjeden bør stå i stigende fullmaktsrekkefølge med roller fra matrisen. `chain` brukes også for endringsordrer.
+`handlers` kan også være rene e-postadresser, men da bare i utvikling: med `APP_ENV=production` eller `staging` avvises en oppføring uten `user_id` med en konfigurasjonsfeil i stedet for å gi fullmakt. Uten rolle har saksbehandleren ingen egen fullmakt, og alt med beløp går til godkjenning. Kjeden bør stå i stigende fullmaktsrekkefølge med roller fra matrisen. `chain` brukes også for endringsordrer.
 
 Saksbehandleren kan ikke godkjenne sin egen pakke. Tom kjede og dupliserte personer avvises. Prosjektmedlemskap og sakstilgang kontrolleres på serveren. UI-rollen «BH» gir ikke i seg selv tilgang til interne data. Endret policy endrer ikke en allerede innsendt kjede.
 

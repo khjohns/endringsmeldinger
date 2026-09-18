@@ -175,6 +175,17 @@ def update_project(project_id: str):
         if "description" in req.model_fields_set:
             updates["description"] = req.description
         if "settings" in req.model_fields_set:
+            # settings.contract feeds the authority matrix: the daily rate decides
+            # whether a change order needs the chain at all. Project admin is not
+            # the same authority as the employer's own team (audit RV-07).
+            if isinstance(req.settings, dict) and "contract" in req.settings:
+                from lib.auth.event_visibility import reader_contract_role
+
+                if reader_contract_role() != "BH":
+                    return jsonify({
+                        "error": "CONTRACT_ROLE_REQUIRED",
+                        "message": "Kontraktsinnstillinger endres av byggherrens team.",
+                    }), 403
             updates["settings"] = req.settings
 
         if not updates:
@@ -192,7 +203,9 @@ def update_project(project_id: str):
 
     except Exception as e:
         logger.error(f"Failed to update project {project_id}: {e}", exc_info=True)
-        return jsonify({"error": "INTERNAL_ERROR", "message": str(e)}), 500
+        return jsonify(
+            {"error": "INTERNAL_ERROR", "message": "En uventet feil oppstod"}
+        ), 500
 
 
 @projects_bp.route("/api/projects/<project_id>/deactivate", methods=["PATCH"])

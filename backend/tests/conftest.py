@@ -26,6 +26,31 @@ from app import SystemContext
 from app import app as flask_app
 from repositories.csv_repository import CSVRepository
 
+# Importen av `app` over kaller load_dotenv og legger backend/.env inn i miljøet.
+# SUPABASE_URL og SUPABASE_SECRET_KEY blir dermed satt for hele testkjøringen,
+# og en test som bygger en Supabase-klient treffer det konfigurerte prosjektet
+# — også når utvikleren bare kjørte `pytest`. Tester som faktisk skal ut mot
+# Supabase må derfor merkes `@pytest.mark.live` og bes om eksplisitt.
+LIVE_SUPABASE_ENV = "RUN_LIVE_SUPABASE"
+
+
+def pytest_collection_modifyitems(config, items):
+    """Hopp over `live`-merkede tester med mindre RUN_LIVE_SUPABASE=1 er satt.
+
+    Skippingen skjer i innsamlingen, ikke i en fixture, slik at verken klienter
+    eller opprydding kjører: standard `pytest` skal ikke gjøre nettverkskall.
+    """
+    if os.environ.get(LIVE_SUPABASE_ENV) == "1":
+        return
+
+    skip_live = pytest.mark.skip(
+        reason=f"Live Supabase-test. Sett {LIVE_SUPABASE_ENV}=1 for å kjøre."
+    )
+    for item in items:
+        if item.get_closest_marker("live") is not None:
+            item.add_marker(skip_live)
+
+
 # Legacy constants for test fixtures (from deleted generated_constants.py)
 SAK_STATUS = {
     "OPPRETTET": "100000000",

@@ -211,7 +211,9 @@ def test_formalizes_multiple_agreed_cases_and_removes_them_from_candidates(envir
         frist_dager=7,
     )
     assert environment.service.hent_kandidat_koe_saker() == []
-    context = environment.service.hent_komplett_eo_kontekst(result["sak_id"])
+    context = environment.service.hent_komplett_eo_kontekst(
+        result["sak_id"], tillatte_saker=set
+    )
     assert set(context["sak_states"]) == {"KOE-1", "KOE-2"}
     assert context["oppsummering"]["antall_koe_saker"] == 2
     assert context["oppsummering"]["total_godkjent_vederlag"] == 120000
@@ -329,7 +331,9 @@ def test_context_does_not_return_foreign_project_links(environment):
         ),
         expected_version=3,
     )
-    context = environment.service.hent_komplett_eo_kontekst(result["sak_id"])
+    context = environment.service.hent_komplett_eo_kontekst(
+        result["sak_id"], tillatte_saker=set
+    )
     assert context["relaterte_saker"] == []
     assert context["sak_states"] == {}
     with pytest.raises(ValueError, match="prosjektet"):

@@ -209,6 +209,14 @@ def get_cloudevent_envelope_schema() -> dict[str, Any]:
                 "enum": ["TE", "BH"],
                 "description": "Role: TE=Totalentreprenor, BH=Byggherre",
             },
+            "actorteam": {
+                "type": "string",
+                "description": (
+                    "Catenda team ID of the actor's organisation. Server-stamped. "
+                    "A contract side may have several teams, so the role alone "
+                    "does not identify the organisation."
+                ),
+            },
             "comment": {
                 "type": "string",
                 "description": "Optional comment on the event",

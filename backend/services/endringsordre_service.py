@@ -729,7 +729,9 @@ class EndringsordreService(BaseSakService):
             "catenda_synced": catenda_synced,
         }
 
-    def hent_komplett_eo_kontekst(self, eo_sak_id: str) -> dict[str, Any]:
+    def hent_komplett_eo_kontekst(
+        self, eo_sak_id: str, *, tillatte_saker
+    ) -> dict[str, Any]:
         """
         Henter komplett kontekst for en endringsordresak, inkludert:
         - Relaterte KOE-saker
@@ -756,6 +758,12 @@ class EndringsordreService(BaseSakService):
         relaterte = self.hent_relaterte_saker(eo_sak_id)
 
         relaterte_ids = [r.relatert_sak_id for r in relaterte]
+        # Relations are client-supplied, so the caller must say which cases this
+        # reader may see. Filtering happens before anything is aggregated, or the
+        # summary would count a case the reader never gets to see (audit RV-07).
+        allowed = tillatte_saker(relaterte_ids)
+        relaterte = [r for r in relaterte if r.relatert_sak_id in allowed]
+        relaterte_ids = [i for i in relaterte_ids if i in allowed]
 
         if not relaterte_ids:
             logger.info(f"Ingen relaterte KOE-saker for EO {eo_sak_id}")

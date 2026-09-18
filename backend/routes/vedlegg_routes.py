@@ -56,6 +56,7 @@ def _catenda_context(sak_id: str):
 @vedlegg_bp.route("/api/cases/<sak_id>/vedlegg", methods=["GET"])
 @require_auth
 @require_project_access()
+@require_contract_role()
 @handle_service_errors
 def list_vedlegg(sak_id: str):
     """Vedlegg registrert på saken.
@@ -134,6 +135,7 @@ def last_opp_vedlegg(sak_id: str):
 @vedlegg_bp.route("/api/cases/<sak_id>/vedlegg/<vedlegg_id>", methods=["GET"])
 @require_auth
 @require_project_access()
+@require_contract_role()
 @handle_service_errors
 def last_ned_vedlegg(sak_id: str, vedlegg_id: str):
     """Last ned et vedlegg som hører til saken.

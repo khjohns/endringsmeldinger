@@ -22,7 +22,7 @@ from typing import Any
 from flask import g, Blueprint, jsonify, request
 
 from lib.auth.session import require_auth
-from lib.auth.project_access import require_project_access
+from lib.auth.project_access import cases_in_project, require_project_access
 from lib.auth.contract_role import require_contract_role
 from lib.decorators import handle_service_errors
 from lib.helpers.version_control import handle_concurrency_error
@@ -36,6 +36,7 @@ from routes.related_cases_utils import (
     safe_find_related,
     validate_required_fields,
 )
+from services.approval_policy import project_policy, public_event_block_reason
 from services.catenda_sync_service import CatendaSyncResult, CatendaSyncService
 from utils.logger import get_logger
 
@@ -262,7 +263,9 @@ def hent_forseringskontekst(sak_id: str):
     Inkluderer relaterte saker, states, hendelser og oppsummering.
     """
     service = _get_forsering_service()
-    kontekst = service.hent_komplett_forseringskontekst(sak_id)
+    kontekst = service.hent_komplett_forseringskontekst(
+        sak_id, tillatte_saker=cases_in_project
+    )
 
     # Ekstraher forsering_hendelser til extra_fields for riktig formatering
     extra_fields = {}
@@ -396,6 +399,12 @@ def registrer_bh_respons(sak_id: str):
         "subsidiaer_begrunnelse"?: string
     }
     """
+    blocked = public_event_block_reason(
+        project_policy(g.project_id), {"event_type": "forsering_respons"}
+    )
+    if blocked:
+        return jsonify(error="APPROVAL_REQUIRED", message=blocked), 403
+
     payload = request.json
 
     error = validate_required_fields(payload, ["aksepterer", "begrunnelse"])

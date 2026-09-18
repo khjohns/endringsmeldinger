@@ -13,6 +13,8 @@ Dette er en avgrenset etterprøving for å utvide
 [masterplanen](plans/2026-09-16-godkjenning-og-varig-levering.md), ikke en ferdig
 produksjonsaudit. Ingen produksjonskode eller database er endret denne runden.
 Forrige: [audit av godkjenningsflyten](audit-godkjenningspanel-og-durable-levering-2026-09-16.md).
+Videre: [review av denne runden](audit-review-astra-2026-09-17.md), som opphever to av
+forbeholdene under og finner en regresjon i kodeendringene i samme commit.
 
 ## S1 — OAuth-flaten: fjern uvedkommende funksjonalitet
 

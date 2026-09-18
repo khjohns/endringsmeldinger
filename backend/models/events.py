@@ -150,6 +150,35 @@ class EventType(str, Enum):
     INTERNT_NOTAT = "internt_notat"
 
 
+# Hendelser der byggherren binder seg økonomisk overfor totalentreprenøren.
+# Godkjenningsporten (services/approval_policy) utleder sin regel av dette
+# settet i stedet for å gjette ut fra typenavnet: forsering_respons deler ikke
+# respons_-prefikset, men er den dyreste enkeltbeslutningen i modellen, og den
+# lå utenfor porten helt til en audit fant det (RV-04).
+BH_BINDENDE_EVENTS = frozenset(
+    {
+        EventType.RESPONS_GRUNNLAG,
+        EventType.RESPONS_GRUNNLAG_OPPDATERT,
+        EventType.RESPONS_VEDERLAG,
+        EventType.RESPONS_VEDERLAG_OPPDATERT,
+        EventType.RESPONS_FRIST,
+        EventType.RESPONS_FRIST_OPPDATERT,
+        EventType.FORSERING_RESPONS,
+        EventType.EO_OPPRETTET,
+        EventType.EO_UTSTEDT,
+        EventType.EO_REVIDERT,
+        EventType.EO_KOE_LAGT_TIL,
+        EventType.EO_KOE_FJERNET,
+    }
+)
+
+# Alt annet: totalentreprenørens krav og varsler, TEs svar på byggherrens
+# beslutninger, saksopprettelse og interne notater. Settet finnes for at
+# test_event_classification skal kunne kreve at enhver ny hendelsestype
+# klassifiseres av den som legger den til, framfor å falle utenfor porten.
+IKKE_BH_BINDENDE_EVENTS = frozenset(set(EventType) - BH_BINDENDE_EVENTS)
+
+
 # ============ VEDERLAG ENUMS ============
 
 

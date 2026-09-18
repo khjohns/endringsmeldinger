@@ -175,6 +175,24 @@ def test_legitime_formater_slipper_gjennom(api, filnavn, innhold):
 # ============ SAKS- OG PROSJEKTGRENSER ============
 
 
+def test_lesing_krever_kontraktsside(api, monkeypatch):
+    """Formell korrespondanse er mellom TE og BH. En prosjektdeltaker uten
+    teamtilknytning skal ikke kunne liste eller laste ned partenes vedlegg."""
+    vedlegg_id = _id(_last_opp(api))
+    api.auth.contract_membership.return_value = (None, None)
+    headers = {"X-Project-ID": "p"}
+    liste = api.client.get("/api/cases/S1/vedlegg", headers=headers)
+    assert liste.status_code == 403, liste.json
+    assert liste.json["error"] == "CONTRACT_ROLE_REQUIRED"
+    nedlasting = api.client.get(f"/api/cases/S1/vedlegg/{vedlegg_id}", headers=headers)
+    assert nedlasting.status_code == 403, nedlasting.json
+    assert api.service.download_document.call_count == 0
+
+    # Motparten beholder tilgang til det som er knyttet til en formell hendelse.
+    api.auth.contract_membership.return_value = ("BH", "team-bh")
+    assert api.client.get("/api/cases/S1/vedlegg", headers=headers).status_code == 200
+
+
 def test_vedlegg_fra_annen_sak_gir_404(api):
     vedlegg_id = _id(_last_opp(api, sak="S1"))
 
