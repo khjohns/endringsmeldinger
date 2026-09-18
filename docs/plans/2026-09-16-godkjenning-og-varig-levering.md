@@ -27,6 +27,8 @@ Lukket med retting, regresjonstest og egen commit:
 | RV-08 | `aktor_team_id` overlever lagring i Supabase (`actorteam`), med round-trip-test per lager. |
 | RV-16 | Live-tester mot Supabase er opt-in (`RUN_LIVE_SUPABASE=1`). Standard `pytest` er uten nettverk. |
 | SA-01 | Hele Supabase-OAuth-flaten er fjernet: tre blueprints, MCP-rate limit og tokenvalidatoren. Appen logger inn med Catenda alene. Ruteregisteret holdes nå opp mot en eksplisitt liste over offentlige ruter. |
+| RV-09 | Aktivitetstall utledes av det leseren ser, i alle fire svarveier. Interne notater flytter ikke det delte aktivitetsstempelet. |
+| RV-11 | `ConcurrencyError` arver `ConflictError`, så en versjonskonflikt gir 409 og ingen blind retry. |
 
 Beslutninger som er tatt i disse rettingene:
 
@@ -41,25 +43,38 @@ Beslutninger som er tatt i disse rettingene:
 - **Vedlegg er kontraktskorrespondanse.** Prosjektdeltakere uten TE- eller
   BH-tilknytning har ikke lesetilgang, på linje med utkast og interne notater.
 
+Struktur som kom med opprydningen: godkjenningsporten utledes av
+`BH_BINDENDE_EVENTS` i hendelsesmodellen, og en test krever at enhver
+hendelsestype er klassifisert. Kontekstmetodene krever `tillatte_saker`.
+Skjermingen av aktivitetstall ligger i `lib/auth/event_visibility`.
+
 Åpne funn fra samme review, i prioritert rekkefølge:
 
-1. **RV-09 — eksistenslekkasje i brukerflaten.** `last_event_at`, `antall_events`
-   og `siste_aktivitet` flyttes av interne notater, så sakslisten og `/state`
-   røper at motparten har skrevet et notat, og når. Leselaget må utlede avledet
-   metadata av synlige hendelser.
+1. **SA-02 og SA-03 — analytics.** `/actors` og `/timeline` røper fortsatt
+   byggherrens interne aktivitet, hardkodet dagmulktssats gjelder alle prosjekter,
+   og alle sju rutene gir 200 med tomme tall ved lagringsfeil. Ingen frontendkode
+   bruker disse rutene; avregistrering av blueprinten er et gyldig alternativ til
+   å bygge leselaget først. Dette er eneste gjenstående punkt på prioritet 0.
 2. **RV-02 — policyretur midt i utstedelse.** En pakke kan returneres mens en
    utstedelse pågår; ordren blir utstedt, men posten står varig som «returnert».
-3. **RV-11 — `ConcurrencyError` blir `TransientError`** i Supabase-lageret, så
-   409 blir 500 og en retry etter tapt svar er ikke idempotent. Hører til
-   RPC-kontrakten i transaksjonsplanen.
-4. **RV-10 — `/api/events/batch`** lagrer formelle hendelser uten leveringsintensjon
+3. **RV-10 — `/api/events/batch`** lagrer formelle hendelser uten leveringsintensjon
    eller kvittering, og saksbanneret viser «clear».
-5. **RV-22 og RV-13 — datakvalitet og feilsvar.** Hardkodet dagmulktssats,
-   lagringsfeil som gir 200 med tomme tall, og `str(e)` i ca. 35 ruter pluss
-   uautentiserte helsesjekker.
-6. **RV-12, RV-14, RV-15, RV-19** — webhookens dedupe og hemmelighetssammenlikning,
-   GET-ruter som muterer godkjenningstilstand, hendelsestabeller uten migrasjon,
-   og pakker som godkjennes uten å være validert mot utstedelsesreglene.
+4. **RV-13 — feilsvar og åpne helsesjekker.** `str(e)` er rettet i to ruter; det
+   står igjen i sju filer, og `/api/health`, `/api/health/catenda` og `/api/routes`
+   svarer uten sesjon. De tre står oppført i `test_public_route_registry`.
+5. **RV-19, RV-20, RV-21** — pakker godkjennes uten å være validert mot
+   utstedelsesreglene, EO-godkjenning avhenger av prosjektregisteret når
+   `daily_rate` mangler, og webhooken oppretter EO-saker utenom porten.
+6. **RV-12, RV-14, RV-15** — webhookens dedupe og hemmelighetssammenlikning,
+   GET-ruter som muterer godkjenningstilstand, og hendelsestabeller som bare
+   finnes som docstring uten migrasjon.
+7. **RV-17, RV-18 — restanser.** Strenge xfail mangler `raises=`, det tilbakeviste
+   designdokumentet er ikke merket foreldet, promptens Del 3 er ubesvart, og
+   `audit-begrunnelsestekst-og-dodkode-2026-09-14.md:115` viser til en slettet fil.
+
+Utenfor koden: anonym innlogging og OAuth-serveren må slås av i Supabase-konsollet,
+og `BH_APPROVAL_POLICIES` må få `user_id` per oppføring før `APP_ENV` settes til
+produksjon.
 
 ## Nye arbeidspakker og produksjonskrav
 
