@@ -97,3 +97,25 @@ def visible_events(events: list) -> list:
         if not is_internal_note(event)
         or (team is not None and getattr(event, "aktor_team_id", None) == team)
     ]
+
+
+def redact_activity_metadata(state, events):
+    """Strip activity counters down to what the reader may actually see.
+
+    The domain state is derived from the whole stream on purpose — status and
+    amounts are public regardless of who reads. But `antall_events` and
+    `siste_aktivitet` count every event, so they move the moment the other
+    organisation writes an internal note, and the rule in this module is that the
+    existence of such a note is itself confidential. The counters are therefore
+    recomputed from the visible subset before the state leaves a read endpoint
+    (audit RV-09).
+    """
+    visible = visible_events(events)
+    if len(visible) == len(events):
+        return state
+    return state.model_copy(
+        update={
+            "antall_events": len(visible),
+            "siste_aktivitet": visible[-1].tidsstempel if visible else None,
+        }
+    )

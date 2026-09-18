@@ -124,6 +124,53 @@ def test_eget_team_ser_eget_internt_notat(api, path):
     assert NOTAT_TEKST in _body(response)
 
 
+@pytest.mark.parametrize("path", ["state", "context"])
+def test_aktivitetstall_teller_ikke_skjulte_notater(api, path):
+    """Teksten er skjult, men tellingen røper at notatet finnes, og når.
+
+    Regelen i event_visibility er at selve eksistensen er skjermingsverdig, så
+    antall_events og siste_aktivitet må utledes av det leseren faktisk ser
+    (RV-09)."""
+    client = api("BH", "TE", BH_BYGGHERRE_TEAM, TE_TEAM)
+    response = _get(client, f"/api/cases/case/{path}")
+    assert response.status_code == 200, response.get_data(as_text=True)
+    state = response.get_json()["state"]
+    assert state["antall_events"] == 0
+    assert state["siste_aktivitet"] is None
+
+
+@pytest.mark.parametrize("path", ["state", "context"])
+def test_eget_team_ser_egen_aktivitet(api, path):
+    client = api("TE", "TE", TE_TEAM, TE_TEAM)
+    state = _get(client, f"/api/cases/case/{path}").get_json()["state"]
+    assert state["antall_events"] == 1
+    assert state["siste_aktivitet"] is not None
+
+
+def test_internt_notat_flytter_ikke_delt_aktivitetsstempel(submit_api):
+    """last_event_at ligger i en delt metadatacache som sakslisten sorterer på."""
+    response = submit_api.client.post(
+        "/api/events",
+        json={
+            "sak_id": "case",
+            "expected_version": 1,
+            "event": {
+                "event_type": "internt_notat",
+                "data": {"tekst": NOTAT_TEKST, "spor": "grunnlag"},
+            },
+        },
+        headers={"X-Project-ID": "p", "X-CSRF-Token": "csrf"},
+    )
+    assert response.status_code == 201, response.get_data(as_text=True)
+    assert submit_api.container.metadata_repository.update_cache.called
+    assert (
+        submit_api.container.metadata_repository.update_cache.call_args.kwargs[
+            "last_event_at"
+        ]
+        is None
+    )
+
+
 # ============ UTGÅENDE CATENDA-LEVERING ============
 
 
@@ -183,6 +230,7 @@ def submit_api(monkeypatch, tmp_path):
     client.set_cookie(cookie_name(), "session")
     return SimpleNamespace(
         client=client,
+        container=container,
         post_to_catenda=post_spy,
         appended=lambda: container.event_repository.append.call_args.args[0],
     )
