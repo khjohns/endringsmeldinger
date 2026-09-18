@@ -29,6 +29,7 @@ Lukket med retting, regresjonstest og egen commit:
 | SA-01 | Hele Supabase-OAuth-flaten er fjernet: tre blueprints, MCP-rate limit og tokenvalidatoren. Appen logger inn med Catenda alene. Ruteregisteret holdes nå opp mot en eksplisitt liste over offentlige ruter. |
 | RV-09 | Aktivitetstall utledes av det leseren ser, i alle fire svarveier. Interne notater flytter ikke det delte aktivitetsstempelet. |
 | RV-11 | `ConcurrencyError` arver `ConflictError`, så en versjonskonflikt gir 409 og ingen blind retry. |
+| SA-02, SA-03, RV-22 | Analytics-blueprinten er slettet. Rutene hadde ingen forbruker i `src/`, og de var eneste kjente lekkasje av byggherrens interne aktivitet i et aggregat, samtidig som de bar hardkodet dagmulktssats og feilsvelging. Skal statistikk komme tilbake, bygges den på det autoriserte leselaget. |
 
 Beslutninger som er tatt i disse rettingene:
 
@@ -50,25 +51,23 @@ Skjermingen av aktivitetstall ligger i `lib/auth/event_visibility`.
 
 Åpne funn fra samme review, i prioritert rekkefølge:
 
-1. **SA-02 og SA-03 — analytics.** `/actors` og `/timeline` røper fortsatt
-   byggherrens interne aktivitet, hardkodet dagmulktssats gjelder alle prosjekter,
-   og alle sju rutene gir 200 med tomme tall ved lagringsfeil. Ingen frontendkode
-   bruker disse rutene; avregistrering av blueprinten er et gyldig alternativ til
-   å bygge leselaget først. Dette er eneste gjenstående punkt på prioritet 0.
-2. **RV-02 — policyretur midt i utstedelse.** En pakke kan returneres mens en
+Prioritet 0 er dermed lukket: OAuth-flaten er fjernet, ruteregisteret er
+klassifisert og holdes av en test, og analytics er slettet.
+
+1. **RV-02 — policyretur midt i utstedelse.** En pakke kan returneres mens en
    utstedelse pågår; ordren blir utstedt, men posten står varig som «returnert».
-3. **RV-10 — `/api/events/batch`** lagrer formelle hendelser uten leveringsintensjon
+2. **RV-10 — `/api/events/batch`** lagrer formelle hendelser uten leveringsintensjon
    eller kvittering, og saksbanneret viser «clear».
-4. **RV-13 — feilsvar og åpne helsesjekker.** `str(e)` er rettet i to ruter; det
+3. **RV-13 — feilsvar og åpne helsesjekker.** `str(e)` er rettet i to ruter; det
    står igjen i sju filer, og `/api/health`, `/api/health/catenda` og `/api/routes`
    svarer uten sesjon. De tre står oppført i `test_public_route_registry`.
-5. **RV-19, RV-20, RV-21** — pakker godkjennes uten å være validert mot
+4. **RV-19, RV-20, RV-21** — pakker godkjennes uten å være validert mot
    utstedelsesreglene, EO-godkjenning avhenger av prosjektregisteret når
    `daily_rate` mangler, og webhooken oppretter EO-saker utenom porten.
-6. **RV-12, RV-14, RV-15** — webhookens dedupe og hemmelighetssammenlikning,
+5. **RV-12, RV-14, RV-15** — webhookens dedupe og hemmelighetssammenlikning,
    GET-ruter som muterer godkjenningstilstand, og hendelsestabeller som bare
    finnes som docstring uten migrasjon.
-7. **RV-17, RV-18 — restanser.** Strenge xfail mangler `raises=`, det tilbakeviste
+6. **RV-17, RV-18 — restanser.** Strenge xfail mangler `raises=`, det tilbakeviste
    designdokumentet er ikke merket foreldet, promptens Del 3 er ubesvart, og
    `audit-begrunnelsestekst-og-dodkode-2026-09-14.md:115` viser til en slettet fil.
 

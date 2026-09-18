@@ -176,7 +176,6 @@ init_project_context(app)
 # Register Blueprints
 # ============================================================================
 
-from routes.analytics_routes import analytics_bp
 from routes.bim_link_routes import bim_bp
 from routes.catenda_webhook_routes import webhook_bp  # Catenda-specific webhooks
 from routes.cloudevents_routes import cloudevents_bp
@@ -202,7 +201,6 @@ app.register_blueprint(webhook_bp)
 app.register_blueprint(forsering_bp)
 app.register_blueprint(endringsordre_bp)
 app.register_blueprint(cloudevents_bp)
-app.register_blueprint(analytics_bp)
 app.register_blueprint(letter_bp)
 app.register_blueprint(approval_bp)
 app.register_blueprint(projects_bp)
