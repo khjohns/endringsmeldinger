@@ -8,7 +8,7 @@ from lib.auth.contract_role import require_contract_role
 from lib.auth.project_access import require_project_access
 from lib.auth.session import require_auth
 from repositories.event_repository import ConcurrencyError
-from services.approval_authority import handler_identity
+from services.approval_authority import handler_identity, policy_entry
 from services.approval_policy import (
     authority_policy,
     project_policy,
@@ -36,7 +36,7 @@ def context(case_id):
     # Which entry this user may act as — never the e-mail on its own (audit RV-03).
     actor = resolve_policy_actor(policy, identity)
     handlers = [
-        (entry.get("id", "") if isinstance(entry, dict) else entry).lower()
+        str(policy_entry(entry).get("id", "")).lower()
         for entry in policy.get("handlers", [])
     ]
     chain = [{**user, "id": user["id"].lower()} for user in policy.get("chain", [])]

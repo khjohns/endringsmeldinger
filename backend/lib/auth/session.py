@@ -12,6 +12,20 @@ def digest(value: str) -> str:
     return hashlib.sha256(value.encode()).hexdigest()
 
 
+def production_like() -> bool:
+    """Alt som ikke uttrykkelig er utvikling eller test regnes som produksjon.
+
+    Fail-closed med vilje: en skrivefeil i APP_ENV skal ikke gjøre en
+    sikkerhetsregel mildere. Brukes der en kontroll kan slakkes i utvikling,
+    slik at «produksjonslignende» betyr det samme i hele kodebasen.
+    """
+    return os.getenv("APP_ENV", "development").strip().lower() not in {
+        "development",
+        "test",
+        "testing",
+    }
+
+
 def dev_auth_disabled() -> bool:
     return os.getenv("DISABLE_AUTH", "").lower() == "true" and (
         current_app.testing or os.getenv("APP_ENV") == "development"

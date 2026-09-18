@@ -10,7 +10,7 @@ from typing import Any
 
 from flask import jsonify
 
-from lib.auth.event_visibility import visible_events
+from lib.auth.event_visibility import strip_activity_metadata, visible_events
 from lib.cloudevents import format_timeline_response
 from models.sak_state import SakRelasjon, SakState
 from utils.logger import get_logger
@@ -59,16 +59,12 @@ def serialize_sak_states(states: dict[str, SakState]) -> dict[str, Any]:
     Returns:
         Dict[sak_id, dict] egnet for JSON serialisering
     """
-    # Aktivitetstall hører ikke hjemme i en relasjonsvisning: de teller hele
-    # strømmen, også motpartens interne notater, og røper dermed at notatet
-    # finnes (audit RV-09). Relasjonen viser sakens innhold, ikke aktiviteten.
-    result = {}
-    for sak_id, state in states.items():
-        data = state.model_dump() if hasattr(state, "model_dump") else dict(state)
-        data.pop("antall_events", None)
-        data.pop("siste_aktivitet", None)
-        result[sak_id] = data
-    return result
+    return {
+        sak_id: strip_activity_metadata(
+            state.model_dump() if hasattr(state, "model_dump") else dict(state)
+        )
+        for sak_id, state in states.items()
+    }
 
 
 def serialize_hendelser(hendelser: dict[str, list]) -> dict[str, list[dict]]:
@@ -126,32 +122,17 @@ def build_kontekst_response(
         Hendelser formateres som CloudEvents v1.0 for konsistens
         med /api/cases/<sak_id>/timeline endepunktet.
     """
-    # A relation is client-supplied, so every referenced case is re-checked against
-    # the authorized project before anything about it is returned (audit RV-07).
-    from lib.auth.project_access import cases_in_project
-
-    relaterte = list(kontekst.get("relaterte_saker", []))
-    states = dict(kontekst.get("sak_states", {}))
-    hendelser = dict(kontekst.get("hendelser", {}))
-    referenced = (
-        {getattr(r, "relatert_sak_id", None) for r in relaterte}
-        | set(states)
-        | set(hendelser)
-    ) - {None}
-    if referenced:
-        allowed = cases_in_project(referenced)
-        relaterte = [
-            r for r in relaterte if getattr(r, "relatert_sak_id", None) in allowed
-        ]
-        states = {k: v for k, v in states.items() if k in allowed}
-        hendelser = {k: v for k, v in hendelser.items() if k in allowed}
-
+    # Relasjonene er klientstyrte, så prosjektgrensen håndheves der konteksten
+    # bygges: kontekstmetodene krever `tillatte_saker` og filtrerer før de
+    # aggregerer (audit RV-07). Her serialiseres det som allerede er autorisert.
     response = {
         "success": True,
         "sak_id": sak_id,
-        "relaterte_saker": serialize_relaterte_saker(relaterte),
-        "sak_states": serialize_sak_states(states),
-        "hendelser": serialize_hendelser(hendelser),
+        "relaterte_saker": serialize_relaterte_saker(
+            kontekst.get("relaterte_saker", [])
+        ),
+        "sak_states": serialize_sak_states(kontekst.get("sak_states", {})),
+        "hendelser": serialize_hendelser(kontekst.get("hendelser", {})),
         "oppsummering": kontekst.get("oppsummering", {}),
     }
 
