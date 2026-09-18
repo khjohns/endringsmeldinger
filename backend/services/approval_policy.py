@@ -8,6 +8,52 @@ def project_policy(project):
     return json.loads(os.environ.get("BH_APPROVAL_POLICIES", "{}")).get(project)
 
 
+def _policy_entries(policy):
+    for entry in (policy or {}).get("handlers", []):
+        yield entry if isinstance(entry, dict) else {"id": entry}
+    for entry in (policy or {}).get("chain", []):
+        yield entry if isinstance(entry, dict) else {"id": entry}
+
+
+def _email_binding_allowed():
+    return os.environ.get("APP_ENV", "development").lower() not in {
+        "production",
+        "staging",
+    }
+
+
+def resolve_policy_actor(policy, user):
+    """The policy entry a signed-in user may act as, or an empty string.
+
+    Authority cannot be keyed on e-mail. The identity provider supplies it on every
+    login, `app_users.email` is overwritten each time and has no unique constraint,
+    so whoever sets their provider address to an approver's would inherit that
+    approver's limit. An entry that names `user_id` is therefore matched on that
+    stable id only, and outside development an entry without one cannot be used at
+    all — it fails closed with a configuration error instead (audit RV-03).
+    """
+    email = str(user.get("email") or "").lower()
+    user_id = str(user.get("id") or "")
+    unbound_match = False
+    for entry in _policy_entries(policy):
+        entry_id = str(entry.get("id") or "").lower()
+        configured = str(entry.get("user_id") or "")
+        if configured:
+            if user_id and configured == user_id:
+                return entry_id
+            continue
+        if entry_id and entry_id == email:
+            if _email_binding_allowed():
+                return entry_id
+            unbound_match = True
+    if unbound_match:
+        raise PermissionError(
+            "Godkjenningspolicyen må binde fullmakten til en bruker-ID (user_id), "
+            "ikke bare e-postadresse."
+        )
+    return ""
+
+
 def authority_policy(policy, project, get_project_repository):
     """Explicit override wins; resolve the project repository only for fallback."""
     result = dict(policy)

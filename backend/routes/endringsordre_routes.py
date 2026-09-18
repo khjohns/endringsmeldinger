@@ -32,6 +32,7 @@ from services.approval_policy import (
     authority_policy,
     project_policy,
     public_event_block_reason,
+    resolve_policy_actor,
 )
 from utils.logger import get_logger
 
@@ -264,13 +265,14 @@ def eo_godkjenninger():
 
     project = getattr(g, "project_id", "oslobygg")
     identity = getattr(g, "user", {}) or {}
-    actor = (identity.get("email") or "").lower()
     policy = project_policy(project)
     try:
         if not policy:
             raise PermissionError(
                 "Intern godkjenning er ikke konfigurert for prosjektet."
             )
+        # Which entry this user may act as — never the e-mail alone (audit RV-03).
+        actor = resolve_policy_actor(policy, identity)
         policy = authority_policy(
             policy,
             project,
