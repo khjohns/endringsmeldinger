@@ -502,6 +502,10 @@ what the result would be if principal position doesn't hold):
                 "enum": ["TE", "BH"],
                 "description": "Extension: Role (TE=Totalentreprenor, BH=Byggherre)",
             },
+            "actorteam": {
+                "type": "string",
+                "description": "Extension: Catenda team ID of the actor's organisation",
+            },
             "referstoid": {
                 "type": "string",
                 "description": "Extension: Reference to another event ID",
