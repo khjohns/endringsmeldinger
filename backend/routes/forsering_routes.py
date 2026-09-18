@@ -36,6 +36,7 @@ from routes.related_cases_utils import (
     safe_find_related,
     validate_required_fields,
 )
+from services.approval_policy import project_policy, public_event_block_reason
 from services.catenda_sync_service import CatendaSyncResult, CatendaSyncService
 from utils.logger import get_logger
 
@@ -396,6 +397,12 @@ def registrer_bh_respons(sak_id: str):
         "subsidiaer_begrunnelse"?: string
     }
     """
+    blocked = public_event_block_reason(
+        project_policy(g.project_id), {"event_type": "forsering_respons"}
+    )
+    if blocked:
+        return jsonify(error="APPROVAL_REQUIRED", message=blocked), 403
+
     payload = request.json
 
     error = validate_required_fields(payload, ["aksepterer", "begrunnelse"])

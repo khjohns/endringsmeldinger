@@ -42,6 +42,10 @@ def public_event_block_reason(policy, event):
     )
     if isinstance(kind, str) and kind.startswith("respons_"):
         return "BH-svar må publiseres gjennom intern godkjenning."
+    # A forsering answer commits money under NS 8407 §33.8 exactly as respons_* does,
+    # even though its type name does not share the prefix (audit RV-04).
+    if kind == "forsering_respons":
+        return "Svar på forseringsvarsel må publiseres gjennom intern godkjenning."
     if kind in {
         "eo_opprettet",
         "eo_utstedt",
