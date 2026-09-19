@@ -205,6 +205,40 @@ ikke av fundamentbyttet.
 > `AVSLATT`. Og `bh_resultat` er bevart på sporet etter aksept, så statusen kan
 > utledes av responsen uten ny hendelsestype og uten migrasjon.
 
+> **Merknad 2026-09-19 (senere samme dag): avgjort og rettet.** Modelleringen ble
+> besluttet av oppdragsgiver: **aksept bekrefter byggherrens svar og forbedrer det
+> aldri.** Ny `SporStatus.AVSLATT_AKSEPTERT` betyr *oppgjort ved enighet, på
+> byggherrens premisser* — verken innvilget krav eller gjenstående uenighet.
+>
+> | BH svarte | Etter TEs aksept | Begrunnelse |
+> | --- | --- | --- |
+> | `godkjent` | `GODKJENT` | enighet om kravet |
+> | `delvis_godkjent` | `GODKJENT` | enighet om byggherrens reduserte tall, bevart i `godkjent_belop`/`godkjent_dager` |
+> | `avslatt` | `AVSLATT_AKSEPTERT` | enighet om at intet tilkommer |
+> | `hold_tilbake`, `frafalt` | uendret | §30.2-tilbakeholdelse er en utsettelse i påvente av kostnadsoverslag, ikke et avslag; §32.3 c er byggherrens egen tilbaketrekking. Aksept kan ikke gjøre noen av dem til enighet om et krav |
+>
+> **Virkningen på `kan_utstede_eo`:** for vederlag og frist teller et godtatt avslag
+> som oppgjort, på linje med `TRUKKET`, som settet allerede godtok. Valget er tatt på
+> et konkret scenario: er ansvaret godkjent, fristen avtalt til 20 dager og
+> vederlagskravet avslått og avslaget godtatt, er partene enige om alt — og da må
+> endringsordren som registrerer det kunne utstedes, med 20 dager og 0 kroner.
+> Grunnlaget er unntatt, siden det bare godtar `GODKJENT` og `LAAST`: er ansvaret
+> avvist og avvisningen godtatt, er saken over.
+>
+> **Terminalitet.** Søk etter mønsteret ga en konsekvens funnteksten ikke nevner: de
+> tre tilbaketrekkingsreglene ville latt TE trekke et krav de formelt har godtatt
+> avslaget på. `AVSLATT_AKSEPTERT` er lagt i `blocked_statuses` sammen med `GODKJENT`
+> og `TRUKKET`.
+>
+> `bh_resultat` er uendret av aksepten, så **forseringssporet består**:
+> `valider_grunnlag_fortsatt_gyldig` leser `bh_resultat` og ikke `status`, og et
+> avslått fristkrav er forutsetningen for forsering etter § 33.8.
+>
+> Frontend speiler statusen, med etiketten «Avslag godtatt» og nøytral badge som
+> `trukket` — ikke rød, fordi avslaget ikke lenger er omtvistet. De tre
+> `xfail`-reproduksjonene er gjort om til ordinære regresjonstester, og scenarioet
+> over er lagt til som egen test.
+
 **Håndtering:** `_handle_te_aksepterer_respons` må utlede status av responsen den
 viser til. Aksept av et avslag er en egen tilstand — kravet er frafalt, ikke godkjent.
 Legg til en forretningsregel som avviser aksept der responsen er `AVSLATT`, med mindre

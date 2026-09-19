@@ -1274,26 +1274,30 @@ class TimelineService:
     ) -> SakState:
         """Håndterer TE_AKSEPTERER_RESPONS - TE godtar BHs svar på et spor.
 
-        Når TE aksepterer, er partene enige og sporet markeres som GODKJENT.
+        Aksept betyr at partene er enige, men sier ikke *hva* de er enige om.
+        Statusen utledes derfor av byggherrens svar: aksept bekrefter utfallet og
+        forbedrer det aldri. Satte man GODKJENT ubetinget, registrerte journalen
+        enighet om innvilgelse der byggherren hadde avslått (audit TFR-01).
+
         BHs verdier (godkjent_belop/godkjent_dager) beholdes som avtalt.
         """
         spor = event.spor
 
         if spor == SporType.GRUNNLAG:
             state.grunnlag.te_akseptert = True
-            state.grunnlag.status = SporStatus.GODKJENT
+            state.grunnlag.status = self._status_etter_aksept(state.grunnlag)
             state.grunnlag.siste_event_id = event.event_id
             state.grunnlag.siste_oppdatert = event.tidsstempel
 
         elif spor == SporType.VEDERLAG:
             state.vederlag.te_akseptert = True
-            state.vederlag.status = SporStatus.GODKJENT
+            state.vederlag.status = self._status_etter_aksept(state.vederlag)
             state.vederlag.siste_event_id = event.event_id
             state.vederlag.siste_oppdatert = event.tidsstempel
 
         elif spor == SporType.FRIST:
             state.frist.te_akseptert = True
-            state.frist.status = SporStatus.GODKJENT
+            state.frist.status = self._status_etter_aksept(state.frist)
             state.frist.siste_event_id = event.event_id
             state.frist.siste_oppdatert = event.tidsstempel
 
@@ -1305,6 +1309,28 @@ class TimelineService:
         return state
 
     # ============ HELPERS ============
+
+    @staticmethod
+    def _status_etter_aksept(spor_state) -> SporStatus:
+        """Sporets status når TE har godtatt byggherrens svar.
+
+        Regelen er at aksept aldri forbedrer utfallet:
+
+        - `godkjent` gir GODKJENT — partene er enige om kravet.
+        - `delvis_godkjent` gir GODKJENT — partene er enige om byggherrens
+          reduserte tall, som ligger bevart i godkjent_belop/godkjent_dager.
+        - `avslatt` gir AVSLATT_AKSEPTERT — enighet om at intet tilkommer.
+        - Alt annet lar sporet stå. Det gjelder `hold_tilbake` (§30.2
+          tilbakeholdelse i påvente av kostnadsoverslag, altså en utsettelse og
+          ikke et avslag) og `frafalt` (§32.3 c, pålegget er trukket av
+          byggherren). Aksept kan ikke gjøre noen av dem til enighet om et krav.
+        """
+        resultat = getattr(spor_state.bh_resultat, "value", spor_state.bh_resultat)
+        if resultat == "avslatt":
+            return SporStatus.AVSLATT_AKSEPTERT
+        if resultat in {"godkjent", "delvis_godkjent"}:
+            return SporStatus.GODKJENT
+        return spor_state.status
 
     def _respons_til_status(self, resultat: GrunnlagResponsResultat) -> SporStatus:
         """Mapper GrunnlagResponsResultat til SporStatus"""

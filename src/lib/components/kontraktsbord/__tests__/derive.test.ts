@@ -40,6 +40,28 @@ describe('deriveTrackDisplay', () => {
     expect(result.krevdUnit).toBe(' dager');
   });
 
+  it('skiller et godtatt avslag fra et trukket krav og fra uenighet', () => {
+    // TFR-01: TE har godtatt byggherrens avslag. Sporet er oppgjort ved enighet,
+    // ikke trukket av TE, og ikke lenger omtvistet i den forstand at partene
+    // står mot hverandre — men byggherrens standpunkt var et avslag, og det
+    // skal fortsatt kunne leses av bh_resultat.
+    const sak = structuredClone(scenario2_BlandetTilstand);
+    sak.vederlag.status = 'avslatt_akseptert';
+    sak.vederlag.bh_resultat = 'avslatt';
+    sak.vederlag.te_akseptert = true;
+
+    const result = deriveTrackDisplay(sak, 'vederlag');
+    expect(result.isRejectionAccepted).toBe(true);
+    expect(result.isWithdrawn).toBe(false);
+
+    // Et trukket krav er noe annet, og skal ikke forveksles.
+    const trukket = structuredClone(scenario2_BlandetTilstand);
+    trukket.vederlag.status = 'trukket';
+    const trukketResult = deriveTrackDisplay(trukket, 'vederlag');
+    expect(trukketResult.isRejectionAccepted).toBe(false);
+    expect(trukketResult.isWithdrawn).toBe(true);
+  });
+
   it('håndterer omforent sak med godkjent grunnlag', () => {
     const result = deriveTrackDisplay(scenario4_Omforent, 'ansvar');
     expect(result.tePosition).toBe(getHjemmelLabel('IRREG'));

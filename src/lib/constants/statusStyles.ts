@@ -119,6 +119,13 @@ export const SPOR_STATUS_STYLES: Record<SporStatus, StatusStyle> = {
     className: 'bg-pkt-grays-gray-100 text-pkt-grays-gray-700',
     label: 'Trukket',
   },
+  // Nøytral som 'trukket': sporet er oppgjort uten utestående krav. Ikke
+  // 'danger' — avslaget er ikke lenger omtvistet, partene er enige om det.
+  avslatt_akseptert: {
+    variant: 'default',
+    className: 'bg-pkt-grays-gray-100 text-pkt-grays-gray-700',
+    label: 'Avslag godtatt',
+  },
   laast: {
     variant: 'success',
     className: 'bg-badge-success-bg text-badge-success-text',
