@@ -11,6 +11,22 @@ Status for tidligere funn føres i
 Appen er ikke i produksjon og har ingen reelle data. Alvorlighet angir mulig
 konsekvens under beskrevne forutsetninger, ikke observert hendelse.
 
+> **Baselinje og avgrensning mot parallelt auditspor.** Denne vurderingen er
+> skrevet mot **`507e225`** («ta NS_8407.md ut av sporing»), som ved `git fetch`
+> 19. september også var `origin/main`. Det pågår samtidig en trinnvis
+> sikkerhetsaudit av kodebasen i et annet spor, kjørt med Gemini. Den har commits
+> som **ikke er hensyntatt her** — de fantes ikke i noen hentbar ref da denne
+> vurderingen ble skrevet. Funn, linjehenvisninger og kodesitater under gjelder
+> derfor `507e225` og kan være rettet, flyttet eller foreldet av det sporet.
+> Sammenstilling mot de auditene gjenstår, og bør gjøres før noe her legges til
+> grunn for en beslutning.
+>
+> Ett unntak gjelder: databasefunnene (AR-01, AR-02, AR-07) er spørringer mot den
+> **levende** basen 19. september, ikke mot en tilstand utledet av `507e225`. De
+> beskriver databasen slik den var på spørretidspunktet, uansett hvilket spor som
+> har formet den. Har det parallelle sporet kjørt migrasjoner samme dag, er det
+> deres resultat som er målt.
+
 **Mandatet.** Spørsmålet var ikke «hvilke hull finnes», men «burde appen vært
 bygget med en annen arkitektur for sikkerhet i flere lag, dataintegritet og
 kodekvalitet». Ressursbruk ved en eventuell refaktor skulle ikke vektlegges.
@@ -460,6 +476,24 @@ grensene var sikre. Motsatt: at denne runden bekrefter at Data API-nedstengingen
 holder, er ikke bevis for at tenant-grensen holder — AR-01 er nettopp at den
 grensen ikke finnes i databasen i det hele tatt.
 
+### Hva som er datert til hva
+
+Kontrollene har ulike baselinjer, og forskjellen har betydning når dette
+sammenstilles med det parallelle auditsporet:
+
+| Kontroll | Gjelder |
+| --- | --- |
+| Kodelesing, linjehenvisninger, filstørrelser | `507e225` |
+| `pytest`, `vitest`, `svelte-check`, `ruff`, driftskript | `507e225`, kjørt 19.09 |
+| Rettigheter, policyer, triggere, beskrankninger | **Levende database 19.09** |
+| Fravær av GitHub Actions-workflows | **Levende GitHub 19.09** |
+
+De to nederste radene kan altså vise en tilstand som er nyere enn `507e225`.
+Motsatt kan de tre øverste være foreldet av commits fra det andre sporet. Ved
+sammenstilling bør hvert funn kontrolleres på nytt mot gjeldende `main`: et funn
+som allerede er lukket der, er lukket, og et sitat som ikke lenger finnes i koden,
+er et sitat fra en tidligere tilstand — ikke et tegn på at funnet var galt.
+
 ## Gjenstående
 
 Ingen kodeendring er gjort. Dette dokumentet lukker ingen punkter i auditserien,
@@ -474,3 +508,13 @@ en opprydding etterpå.
 Åpent: om `deliver()` skal drives av Cloud Scheduler, Cloud Tasks eller en fast
 instans (se fase 2), og om vedleggsbytes skal til Cloud Storage nå eller vente til
 fase 1 er landet.
+
+Gjenstår også: **sammenstilling mot det parallelle Gemini-sporet.** De auditene
+gjennomgår kodebasen trinnvis og har commits denne vurderingen ikke kjenner. To
+utfall er mulige og må skilles. Lukker de et funn her, skal funnet lukkes — ikke
+gjentas. Finner de noe denne vurderingen ikke så, hører det inn i bildet uten at
+det svekker de fire strukturelle punktene, siden AR-01 til AR-04 handler om hvor
+grensene *ligger*, ikke om hvor mange hull som er funnet på et gitt tidspunkt. Et
+spor som lukker enkeltfunn raskere enn det andre, er ikke et argument mot å bytte
+fundament — auditserien i denne mappen viser tvert imot at samme feilform kommer
+tilbake på nye steder så lenge grensen bare finnes i applikasjonskoden.
