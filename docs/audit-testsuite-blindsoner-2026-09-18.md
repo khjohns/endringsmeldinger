@@ -7,6 +7,15 @@
 
 ---
 
+**Etterprøvd 2026-09-19** i [vurderingen av auditfunnene](vurdering-av-auditfunn-2026-09-19.md), som vurderer alle 60
+funnene fra pass 1–9 og grupperer dem i tolv rotårsaker. Funnene i dette dokumentet
+er etterprøvd for TST-02, TST-03 og TST-04, alle bekreftet. **TST-02 har en annen
+mekanisme enn beskrevet:** `fcntl.flock(LOCK_EX)` finnes på
+`event_repository.py:102`, så «mangler fillåsing» er upresist. Men
+`_load_with_lock` returnerer `(default, None)` uten lås når filen ikke finnes —
+altså nøyaktig opprettelsesveien. Fiksen er `O_CREAT|O_EXCL`, ikke å innføre
+låsing. TST-01 og TST-05 til TST-07 er kun lest.
+
 ## Metodisk presisering
 
 I tråd med revisjonskravene skiller rapporten strengt mellom tre kunnskapsnivåer:

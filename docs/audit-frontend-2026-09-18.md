@@ -9,6 +9,29 @@
 
 ---
 
+**Etterprøvd 2026-09-19** i [vurderingen av auditfunnene](vurdering-av-auditfunn-2026-09-19.md). **FE-01 er
+feilklassifisert.** Kallet mangler ikke bare CSRF-token, men også `credentials` og
+`X-Project-ID`, mot en rute med `@require_auth`. Ingen får dermed tilgang til noe:
+knappen er ødelagt (403 ved samme opphav, 401 ved kryssopphav), ikke en angrepsvei.
+Bør stå som funksjonsfeil, ikke som CSRF-sårbarhet. Det manglende `X-Project-ID`
+gjør den samtidig til et fjerde sted oslobygg-fallbacken slår inn.
+
+**FE-02 er også feilklassifisert.** `routes/event_routes.py:173` gjør
+`data["aktor_rolle"] = g.contract_role` — serveren overskriver aktørrollen med
+verifisert teamtilknytning, så en klient som påstår BH ikke kan sende inn som BH.
+Den reelle mangelen er at `/context` ikke returnerer brukerens autoriserte rolle.
+
+**Merknad om dokumentet som helhet:** FE-01 og FE-02 er begge klassifisert som
+sikkerhetsfunn, og i begge holder serveren. Klienten er lest i isolasjon og
+virkningen utledet over en laggrense. Dokumentet bør leses med det forbeholdet.
+FE-04 er bekreftet som reell — den speiler backendens `order_exposure_floor`
+nøyaktig, så driftdetektorene viser null drift mens begge er gale.
+
+**FE-03 og FE-05 er bekreftet.** FE-05 er samtidig et femte oslobygg-fallback:
+`client.ts:11` har `let activeProjectId: string = 'oslobygg'`. **FE-06 er
+inkonklusiv** — verken `{@html` eller ren interpolering av begrunnelsen lot seg
+finne i `LetterHtmlPreview.svelte`.
+
 ## Metodisk presisering
 
 I tråd med revisjonskravene skiller rapporten strengt mellom tre kunnskapsnivåer:

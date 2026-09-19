@@ -23,6 +23,20 @@ Status for rettingene føres i
 [masterplanen](plans/2026-09-16-godkjenning-og-varig-levering.md#status-2026-09-18):
 RV-01, RV-03 til RV-09, RV-11 og RV-16 er lukket med regresjonstest 2026-09-18.
 
+**Merknad 2026-09-19.** To av funnene under er senere etterprøvd i
+[vurderingen av auditfunnene](vurdering-av-auditfunn-2026-09-19.md):
+
+- **RV-07 er lukket per kallsted, ikke som klasse.** `tillatte_saker=cases_in_project`
+  ble påført to steder. `valider_grunnlag_fortsatt_gyldig`
+  (`forsering_service.py:823`) itererer fortsatt fremmede saker ufiltrert, og
+  `finn_forseringer_for_sak` returnerer relasjonsindeksen som den er. Gemini-sporet
+  fant begge uavhengig som AUT-01 og AUT-02.
+- **RV-15, viewene, er uten virkning i dagens base.** Katalogen har ingen views i
+  `public`. Docstring-delen av funnet står: SQL-en kan fortsatt gjenskape dem.
+
+Forbeholdet på linje 326 om at faktiske databaserettigheter ikke var verifisert, er
+løst i [arkitekturvurderingen](arkitekturvurdering-2026-09-19.md).
+
 ## Sammendrag
 
 Etterprøvingen er metodisk solid: den skiller konsekvent mellom bekreftet,
