@@ -158,14 +158,29 @@ class AuthService:
             Treff i flere team på samme side gir entydig rolle, men ikke entydig
             organisasjon; da er team_id None.
         """
-        config = self.repo.project_config(project_id)
         member = self._membership(project_id, user_id)
-        if (
-            not config
-            or not member
-            or not member.get("active")
-            or member.get("viewer_override")
-        ):
+        if not member or not member.get("active") or member.get("viewer_override"):
+            return None, None
+        return self.contract_membership_for_subject(
+            project_id, member.get("catenda_subject")
+        )
+
+    def contract_membership_for_subject(self, project_id, catenda_subject):
+        """Kontraktssiden et Catenda-subjekt tilhører, uten krav om app-medlemskap.
+
+        Webhooken kjenner bare topicens forfatter fra Catenda, ikke en app-bruker.
+        Attribusjonen skal likevel hvile på verifisert lagmedlemskap framfor en
+        antakelse om at oppretteren er TE (audit INT-04).
+
+        Dette gir ingen tilgang — det avgjør bare hvilken kontraktsside en hendelse
+        skrives med. Tilgang går fortsatt gjennom app-medlemskapet i
+        `contract_membership`.
+
+        Returns:
+            (rolle, team_id), begge None når siden ikke lar seg avgjøre entydig.
+        """
+        config = self.repo.project_config(project_id)
+        if not config or not catenda_subject:
             return None, None
 
         ids = self.repo.contract_teams(project_id)
@@ -179,7 +194,11 @@ class AuthService:
         client = get_container().catenda_client
         if not client.ensure_authenticated():
             raise CatendaUnavailable("Team membership source unavailable")
-        subject = catenda_id(member["catenda_subject"])
+        try:
+            subject = catenda_id(str(catenda_subject))
+        except (ValueError, AttributeError, TypeError):
+            # Ugjenkjennelig subjekt er ikke et treff i noe lag.
+            return None, None
         matches = set()
         for role in ("TE", "BH"):
             for raw_team_id in ids[role]:

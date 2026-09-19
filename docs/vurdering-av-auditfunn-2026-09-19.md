@@ -343,6 +343,32 @@ oppdatert tilsvarende.
   en EO-*sak* med TE som aktør når en Catenda-topic klassifiseres som endringsordre.
   Om det er en omgåelse avhenger av om saksopprettelse i seg selv skal være
   BH-forbeholdt — en domenebeslutning, ikke en feil å lappe.
+
+  > **Merknad 2026-09-19: avgjort og rettet.** Beslutningen ble en tredje vei:
+  > verken hardkodet TE eller BH-forbeholdt opprettelse, men **utled siden av
+  > forfatterens faktiske lagmedlemskap.** Grunnlaget er at Catenda allerede
+  > oppgir forfatterens bruker-ID i `bimsync_creation_author.user.ref`
+  > (`docs/tredjepart-api/topic-api-openapi.yaml`, skjemaet `user-ref`), og det er
+  > samme subjekt `contract_membership` matcher mot prosjektets TE/BH-lag.
+  > Webhooken leste `name` og `email` fra det objektet og kastet `ref`.
+  > Antakelsen var altså unødvendig — identiteten lå i payloaden.
+  >
+  > `AuthService.contract_membership_for_subject` er skilt ut fra
+  > `contract_membership`, som nå delegerer til den. Den nye metoden krever ikke
+  > app-medlemskap, fordi topicens forfatter er en Catenda-bruker og ikke
+  > nødvendigvis en app-bruker. **Den gir ingen tilgang** — den avgjør bare hvilken
+  > kontraktsside en hendelse skrives med; tilgang går fortsatt gjennom
+  > app-medlemskapet.
+  >
+  > Webhooken er **fail-closed**: uten entydig side opprettes ingen sak. Det gjelder
+  > også når Catenda er utilgjengelig, siden lagmedlemskapet da ikke kan slås opp.
+  > Å skrive en formell hendelse med en gjettet avsender er verre enn å ikke skrive
+  > den.
+  >
+  > **Reproduksjonen er erstattet, ikke gjort om.** Den påsto at en EO opprettet av
+  > TE omgår godkjenningskravet — rammingen dette avsnittet selv avviser. To
+  > ordinære tester prøver nå det som faktisk ble besluttet: at rollen følger
+  > medlemskapet, og at ingen sak opprettes uten entydig side.
 - **GFK-04** — `ApprovalService` har ingen forseringsstøtte; `grep forsering` i filen
   gir kun `raise ValueError("Ugyldig vurderingstype.")` på linje 228. Funnet er
   korrekt, men **masterplanen fører dette allerede som en truffet beslutning**:

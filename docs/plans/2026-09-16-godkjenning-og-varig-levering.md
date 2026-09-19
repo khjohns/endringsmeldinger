@@ -125,6 +125,12 @@ godkjenningsflyten) og er ikke en ny feil. **INT-04 trenger en domenebeslutning,
 en retting:** webhookens hardkodede `aktor_rolle="TE"` står på saksopprettelse, ikke
 på utstedelse, så spørsmålet er om opprettelse av en EO-sak skal være BH-forbeholdt.
 
+**Merknad 2026-09-19: INT-04 er avgjort og lukket.** Beslutningen ble en tredje vei —
+kontraktssiden utledes av topic-forfatterens faktiske lagmedlemskap, siden Catenda
+allerede oppgir bruker-IDen i `bimsync_creation_author.user.ref`. Opprettelse er
+altså verken BH-forbeholdt eller TE-antatt. Webhooken er fail-closed: uten entydig
+side opprettes ingen sak.
+
 Rotårsaksgrupperingen av alle 60 funnene står i
 [vurderingen av auditfunnene](../vurdering-av-auditfunn-2026-09-19.md), del 3. Tre
 saker er der anbefalt tatt uavhengig av fasene, fordi de er datafeil i den juridisk
@@ -138,7 +144,10 @@ avgjørende delen av domenet: **TFR-01** (aksept av avslag settes til GODKJENT),
 | --- | --- | --- |
 | AUT-01, AUT-02 | **Lukket** | Grensen lagt i `hent_relaterte_saker` som påkrevd `tillatte_saker`. Et tredje sted funnet og lukket i samme runde. To xfail gjort om til ordinære tester, én ny lagt til |
 | GFK-01, FE-04 | **Lukket, med restanse** | Gulvet tar dagmulktssats og verdsetter fristdagene, i backend og frontend. Restanse: uten kjent sats blir gulvet fortsatt 0, og fullmaktskontrollen hoppes fortsatt over. Det krever en domenebeslutning |
-| TFR-01 | **Åpen — venter på domenebeslutning** | Kartlagt og kjørt: feilen gjelder alle tre spor, ikke bare grunnlag. Reproduksjonen utvidet fra ett til tre spor. Ingen produksjonskode endret, fordi modelleringen av «TE godtar avslaget» er et domenevalg | Merk også at fem TFR-funn ikke løses av
+| INT-04 | **Lukket** | Kontraktssiden utledes av forfatterens lagmedlemskap; fail-closed uten entydig side. Reproduksjonen erstattet av to ordinære tester |
+| TFR-01 | **Åpen — venter på domenebeslutning** | Kartlagt og kjørt: feilen gjelder alle tre spor, ikke bare grunnlag. Reproduksjonen utvidet fra ett til tre spor. Ingen produksjonskode endret, fordi modelleringen av «TE godtar avslaget» er et domenevalg |
+
+Merk også at fem TFR-funn ikke løses av
 arkitekturarbeidet i det hele tatt — domenegjennomgang må kjøres ved siden av.
 
 Utenfor koden: anonym innlogging og OAuth-serveren må slås av i Supabase-konsollet,
