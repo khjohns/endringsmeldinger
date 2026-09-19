@@ -89,8 +89,9 @@ feilen, blir testen XPASS og skal da gjøres om til en ordinær test.
 
 ## Dokumentasjon
 
-`docs/` er en kjede av auditer og planer som viser til hverandre. Skriver du et nytt
-dokument, følg formen: dato og commit i åpningen, lenker til forrige ledd, funntabell
+`docs/` er en kjede av auditer og planer som viser til hverandre.
+[`docs/README.md`](docs/README.md) er indeksen: hva som gjelder, hva som er
+historikk, og hvor man begynner. Skriver du et nytt dokument, følg formen: dato og commit i åpningen, lenker til forrige ledd, funntabell
 med ID og alvorlighet, én seksjon per funn med fil og symbol, og **«Verifikasjon og
 grenser»** til slutt som navngir hva som *ikke* er kontrollert.
 
