@@ -34,8 +34,11 @@ preklusjonsreglene, skillet mellom kontraktsside og organisasjon, fullmaktsmatri
 gjenoppdage sikkerhetsegenskaper som har tatt måneder å etablere.
 
 Fire strukturelle valg er likevel feil, og de konvergerer ikke ved å fikses funn
-for funn. AR-01 og AR-02 er nye og verifiserte denne runden; AR-03 og AR-04 var
-kjente, men er nå målt.
+for funn. AR-01 og AR-02 er nye og verifiserte denne runden; AR-04 var kjent, men
+er nå målt. AR-03 er oppgradert til kritisk etter at driftsplattformen ble avklart
+senere samme dag: Google Cloud nå, mulig Azure Container Apps senere. Begge sletter
+den lokale SQLite-fila ved skalering til null, så godkjenninger, utkast og
+mellomlagrede vedleggsbytes tapes ved normal drift — ikke bare ved utrulling.
 
 ## Funn
 
@@ -43,7 +46,7 @@ kjente, men er nå målt.
 | --- | --- | --- | --- |
 | AR-01 | Høy | Ingen policy i databasen uttrykker prosjekt-, kontraktsside- eller teamgrense. All tenant-logikk finnes bare i Python. | Nytt, verifisert mot basen |
 | AR-02 | Høy | Hendelseslageret er ikke append-only. Ingen trigger, regel eller rettighet hindrer UPDATE eller DELETE. | Utvider S10, nå verifisert |
-| AR-03 | Høy | Kontraktsjournalen er delt mellom Postgres og en lokal SQLite-fil uten felles transaksjon. Outboxen ligger i feil database. | Kjent, nå målt |
+| AR-03 | Kritisk | Kontraktsjournalen er delt mellom Postgres og en lokal SQLite-fil uten felles transaksjon. På den valgte plattformen slettes fila ved skalering til null. | Oppgradert 19.09 etter plattformavklaring |
 | AR-04 | Middels | Domenemodellen finnes i to implementasjoner, holdt sammen av driftdetektorer som selv har forfalt. | Kjent, nå målt |
 | AR-05 | Middels | Ingen CI. Avkreftet eksternt, ikke bare fra repoet. | Lukker S9 |
 | AR-06 | Middels | `TrackingUnitOfWork` sin kompenserende rollback er usunn — reprodusert i repoets egen `xfail`. | Kjent som AP-04, uløst |
@@ -171,17 +174,54 @@ Opprettelsesveien går riktignok gjennom `TrackingUnitOfWork`
 (`services/sak_creation_service.py:128,187`) — men se AR-06 for hva den garantien
 er verdt.
 
-**Åpent, og avgjørende for alvorsgraden:** hvor kjører backend? `deploy.sh`
-deployer bare SPA-en til Cloud Run, og det ligger ingen backend-deploykonfigurasjon
-i repoet. `app.py:326` ser etter Render, Azure App Service, Heroku, GAE og AWS uten
-å avsløre hvilken. På én instans med persistent volum er SQLite teknisk gjeld. På en
-autoskalert plattform med efemer disk mistes godkjenninger, utkast og mellomlagrede
-vedleggsbytes ved hver instansutskifting, og to instanser har to ulike
-godkjenningsdatabaser. Dette må avklares før rekkefølgen under låses.
+### Plattformen avgjør, og den er avklart
+
+Spørsmålet som sto åpent i første utkast — hvor backend skal kjøre — er besvart
+19. september: **Google Cloud nå, med Azure Container Apps som mulig senere mål.**
+Det avgjør alvorsgraden, og svaret er ugunstig: begge er samme klasse, serverløse
+containere med efemer disk og horisontal autoskalering. SQLite er ikke teknisk
+gjeld på en slik plattform, den er en feil som utløses av normal drift.
+
+Tre konsekvenser følger av valget, ikke av noe repoet gjør galt i dag:
+
+1. **Skalering til null sletter fila.** `deploy.sh` bruker allerede
+   `--min-instances=0` for SPA-en. Med samme oppsett for backend forsvinner
+   `koe_data/approvals.sqlite3` hver gang trafikken stilner — ikke bare ved
+   utrulling. Godkjenninger i outboxen, utkast under arbeid og mellomlagrede
+   vedleggsbytes er borte ved neste kaldstart.
+2. **Flere instanser gir flere sannheter.** En godkjenning opprettet på instans A
+   finnes ikke for instans B. `delivery_claim` og `INSERT OR IGNORE`-dedupen
+   beskytter innenfor én prosess, så samtidige instanser kan levere samme pakke
+   to ganger — eller vise et tomt godkjenningspanel til den som skal godkjenne.
+3. **Vedleggsbytes spiser arbeidsminnet.** Cloud Runs containerfilsystem er som
+   standard minnebasert, og `vedlegg_registry` lagrer innholdet som `BLOB`
+   (`innhold BLOB`, grense 15 MiB per fil i `vedlegg_routes.py`). Bytene teller
+   altså mot instansens minnegrense. SPA-en kjører på `--memory=128Mi`; får
+   backend en tilsvarende tildeling, er noen få mellomlagrede vedlegg nok til at
+   instansen tar slutt på minne — og en OOM-drept instans tar godkjenningene med
+   seg.
+
+**Det finnes ingen god volummontering som redder mønsteret.** Cloud Storage via
+FUSE gir ikke fillåsingen SQLite krever, og NFS/Filestore og Azure Files (SMB) har
+notorisk upålitelig rådgivende låsing for SQLite. Å montere et volum bytter
+datatap mot databasekorrupsjon. Det er ikke en forbedring.
+
+**Portabilitetsargumentet peker samme vei.** Nettopp fordi Azure kan bli aktuelt
+senere, er plattformspesifikk fillagring det dårligste stedet å legge
+kontraktsdata. Postgres flyttes mellom Supabase, Cloud SQL og Azure Database for
+PostgreSQL uten at applikasjonen merker det. Et montert filvolum må bygges om ved
+hver flytting.
+
+**Timingen er god.** Det finnes ingen backend-`Dockerfile`, ingen
+`cloudbuild.yaml` og ingen Cloud Run-tjenestedefinisjon i repoet — bare SPA-ens
+`Dockerfile`. Utrullingen er altså fortsatt en beslutning, ikke en installasjon
+som må avvikles. AR-03 kan lukkes før første produksjonsdeploy i stedet for etter.
 
 **Alternativet.** Én Postgres for hendelser, godkjenninger, outbox, utkast og
 vedleggsmetadata, slik at «append hendelse OG køopp levering» er ett `COMMIT`.
-Vedleggsbytes i objektlager, med referanse og hash committet transaksjonelt.
+Vedleggsbytes i objektlager — Cloud Storage nå, Blob Storage ved en eventuell
+flytting — med referanse og hash committet transaksjonelt. Da er det eneste
+plattformavhengige leddet en adapter foran objektlageret.
 
 ## AR-04 — domenemodellen finnes to ganger
 
@@ -322,6 +362,17 @@ worker mot samme Postgres. `FOR UPDATE SKIP LOCKED`, frosset mål og innholdshas
 ved commit, eksplisitt terminalfeil med varsling. `event_routes.py` krymper fra
 1597 linjer til autoriser–valider–kommando.
 
+Plattformvalget legger én føring her. `deliver()`
+(`services/approval_service.py:612`) tar i dag en `dispatch`-callable og kjøres
+inne i en forespørsel; det finnes ingen bakgrunnsprosess. På en tjeneste som
+skalerer til null kjører ingenting mellom forespørslene, så en mislykket levering
+har ingen retry-vei før neste bruker tilfeldigvis gjør noe. Workeren må derfor
+drives av noe utenfor forespørselen: Cloud Scheduler mot et internt
+worker-endepunkt, Cloud Tasks, eller en tjeneste med `--min-instances=1`. Det
+tilsvarende på Azure Container Apps er en KEDA-skalert jobb eller en fast replika.
+Valget er ikke tatt, og bør tas sammen med fase 1 — ikke etterpå, siden outboxens
+plassering og workerens drivmekanisme er samme beslutning.
+
 **Fase 3 — ett domene, generert utover.** Lukker AR-04. Driftskriptene blir
 byggesteg eller slettes.
 
@@ -389,11 +440,17 @@ i `--ci`-modus. Testene ble kjørt i et rent virtuelt miljø utenfor repoet; ing
 ## Verifikasjon og grenser
 
 Bekreftet denne runden: AR-01, AR-02, AR-05, AR-07, AR-08 og tallene i AR-04 og
-AR-06. AR-03 er kodebekreftet, men alvorsgraden avhenger av driftsplattformen,
-som ikke er avklart.
+AR-06. AR-03 er kodebekreftet, og alvorsgraden er fastsatt etter at plattformen ble
+oppgitt. Plattformvalget er opplyst av utvikler, ikke lest ut av en
+utrullingskonfigurasjon — det finnes ingen slik konfigurasjon for backend i repoet.
+Atferden som er beskrevet (efemer disk, skalering til null, minnebasert
+containerfilsystem) følger av plattformenes dokumenterte standardoppsett og er
+ikke målt på en kjørende tjeneste, siden ingen finnes ennå. Endres oppsettet —
+`--min-instances=1`, montert volum, én fast instans — endres konsekvensen, men
+ikke anbefalingen: se avsnittet om hvorfor volummontering bytter datatap mot
+korrupsjon.
 
-**Ikke verifisert:** hvor backend kjører og om SQLite-stien har persistent volum;
-hemmelighetsrotasjon; backup og gjenoppretting; de sju kritiske funnene i
+**Ikke verifisert:** hemmelighetsrotasjon; backup og gjenoppretting; de sju kritiske funnene i
 `state_drift` enkeltvis; faktisk lastbilde; om Supabase-konsollets anonyme
 innlogging og OAuth-server er slått av (beslutningen står i masterplanen, men
 konsolltilstanden er ikke inspisert herfra).
@@ -409,5 +466,11 @@ Ingen kodeendring er gjort. Dette dokumentet lukker ingen punkter i auditserien,
 men gir svar på to som sto åpne: S9 (ekstern CI) og halve S10 (append-only).
 Begge svarene er negative.
 
-Ett spørsmål må besvares før rekkefølgen over kan låses: **hvilken plattform
-kjører backend på?** Svaret avgjør om AR-03 er teknisk gjeld eller pågående tap.
+Spørsmålet om driftsplattform, som sto åpent i første utkast, er besvart og
+innarbeidet. Det flytter AR-03 fra teknisk gjeld til en feil som utløses av normal
+drift, og gjør fase 1 til en forutsetning for første produksjonsdeploy snarere enn
+en opprydding etterpå.
+
+Åpent: om `deliver()` skal drives av Cloud Scheduler, Cloud Tasks eller en fast
+instans (se fase 2), og om vedleggsbytes skal til Cloud Storage nå eller vente til
+fase 1 er landet.
