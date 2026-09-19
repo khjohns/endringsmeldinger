@@ -316,6 +316,22 @@ allerede er grønne:
 CI er altså ikke «rydd opp først». Det er en workflow-fil, én `ruff --fix`-runde,
 og en beslutning om hvilke driftskript som skal baselines.
 
+> **Merknad 2026-09-19 (senere samme dag): AR-05 er lukket.**
+> `.github/workflows/ci.yml` finnes, med tre gatende jobber — `pytest`, `vitest` og
+> `svelte-check --threshold error`. GitHubs `total_count: 0` gjelder ikke lenger.
+>
+> Anslaget i avsnittet over holdt på ett punkt og bommet på ett. **Workflow-fila var
+> nok** — portene var grønne, og alle tre er verifisert fra ren tilstand. Men
+> **`ruff --fix`-runden er ikke riktig svar alene:** av 73 feil er 14 `UP042`, som
+> vil gjøre `class X(str, Enum)` om til `StrEnum`. Det endrer `str()` og
+> f-string-interpolering på 14 domeneenums som serialiseres inn i hendelsesloggen
+> (kontrollert kjørt: `str(...)` går fra `'Gammel.GODKJENT'` til `'godkjent'`).
+> Regelen bør slås av framfor rettes. De øvrige 59 er trygge.
+>
+> `ruff` og `eslint` er derfor holdt utenfor CI inntil videre: en ikke-gatende sjekk
+> er samme feil som driftdetektorene. En fil-basert sperrehake ble prøvd og forkastet
+> — den flagget gammel gjeld i filer endringen tilfeldigvis rørte.
+
 ## AR-06 — kompenserende rollback er usunn, og dere har bevist det
 
 `tests/test_approval/test_audit_20260916.py:114` er en `strict` xfail:
@@ -347,6 +363,13 @@ ikke bare avvæpnes.
 Ni skript kjørt i `--ci`-modus: `contract_drift`, `event_field_usage` og
 `label_coverage` passerer. `state_drift`, `validation_drift`, `category_drift`,
 `constant_drift`, `docs_drift` og `check_drift` feiler.
+
+> **Merknad 2026-09-19 (senere samme dag): bekreftet, med én presisering.** Kjørt på
+> nytt: samme tre passerer, samme seks feiler. Presiseringen gjelder **`--ci`-flagget,
+> som er avgjørende.** Uten det returnerer alle ni exit 0, også de som rapporterer
+> kritiske funn i utskriften. Kjører man dem uten flagget — som er det nærliggende —
+> ser alle ni grønne ut. Det er verdt å vite for den som kobler dem på CI, og det er
+> en felle jeg gikk i selv før jeg leste dette avsnittet.
 
 `category_drift` feiler på **sin egen parser**. Den rapporterer «0 hovedkategorier
 i frontend» mot backends fire, men `src/lib/constants/categories.ts` ligger nøyaktig
