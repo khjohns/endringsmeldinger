@@ -116,10 +116,12 @@ tom Postgres og sammenlikne skjemaene.
 
 Dette er sammenstillingens viktigste funn, og det er usynlig i hvert spor for seg.
 
-Tre uavhengige mekanismer tilordner `oslobygg` når prosjektet mangler:
+Fem uavhengige mekanismer tilordner `oslobygg` når prosjektet mangler (to av dem
+funnet ved senere etterprøving):
 
 | Lag | Mekanisme | Kilde |
 | --- | --- | --- |
+| Klient | `client.ts:11` sender `X-Project-ID: oslobygg` som standard | FE-05 (etterprøvd 19.09) |
 | HTTP | `X-Project-ID` mangler → `g.project_id = "oslobygg"` | `lib/project_context.py:14,22` (arkitekturvurderingen, fase 4) |
 | Database | `prosjekt_id` utelatt i INSERT → `DEFAULT 'oslobygg'` | DB-03, bekreftet i basen |
 | Hendelse | `prosjekt_id` er None → `ce_source` hardkoder `/projects/oslobygg/…` | OBS-04 |

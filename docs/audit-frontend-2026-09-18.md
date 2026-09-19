@@ -27,6 +27,11 @@ virkningen utledet over en laggrense. Dokumentet bør leses med det forbeholdet.
 FE-04 er bekreftet som reell — den speiler backendens `order_exposure_floor`
 nøyaktig, så driftdetektorene viser null drift mens begge er gale.
 
+**FE-03 og FE-05 er bekreftet.** FE-05 er samtidig et femte oslobygg-fallback:
+`client.ts:11` har `let activeProjectId: string = 'oslobygg'`. **FE-06 er
+inkonklusiv** — verken `{@html` eller ren interpolering av begrunnelsen lot seg
+finne i `LetterHtmlPreview.svelte`.
+
 ## Metodisk presisering
 
 I tråd med revisjonskravene skiller rapporten strengt mellom tre kunnskapsnivåer:

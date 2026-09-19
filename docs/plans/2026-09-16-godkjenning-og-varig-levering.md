@@ -103,7 +103,7 @@ over er samme sak som et funn fra pass 1–9. De skal arbeides én gang, ikke to
 | RV-12 | INT-01 | Webhookens dedupe og hemmelighetssammenlikning |
 | RV-15 | DB-01, DB-08 | DB-01 er sterkere (kjørt mot tom base). DB-08 er uten virkning: viewene finnes ikke |
 
-Alle 22 Høy-funn er nå etterprøvd (34 av 60 totalt). To av dem — GFK-03 og INT-05 —
+Alle 60 funn er nå etterprøvd på nær ett (FE-06, inkonklusiv). To av dem — GFK-03 og INT-05 —
 er duplikater av RV-02 og RV-10 over og skal ikke arbeides separat. **GFK-04 er
 allerede en truffet beslutning i dette dokumentet** (forsering utenfor
 godkjenningsflyten) og er ikke en ny feil. **INT-04 trenger en domenebeslutning, ikke
