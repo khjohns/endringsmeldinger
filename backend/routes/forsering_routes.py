@@ -248,7 +248,9 @@ def opprett_forseringssak():
 def hent_relaterte_saker(sak_id: str):
     """Hent alle saker relatert til en forseringssak."""
     service = _get_forsering_service()
-    relasjoner = service.hent_relaterte_saker(sak_id)
+    relasjoner = service.hent_relaterte_saker(
+        sak_id, tillatte_saker=cases_in_project
+    )
     return build_relaterte_response(sak_id, relasjoner)
 
 
@@ -292,7 +294,12 @@ def hent_kandidat_koe_saker():
 def finn_forseringer_for_sak(sak_id: str):
     """Finn forseringssaker som refererer til en gitt KOE-sak."""
     service = _get_forsering_service()
-    return safe_find_related(service.finn_forseringer_for_sak, sak_id, "forseringer")
+    return safe_find_related(
+        service.finn_forseringer_for_sak,
+        sak_id,
+        "forseringer",
+        tillatte_saker=cases_in_project,
+    )
 
 
 @forsering_bp.route("/api/forsering/<sak_id>/relatert", methods=["POST"])
@@ -484,7 +491,9 @@ def valider_forseringsgrunnlag(sak_id: str):
     }
     """
     service = _get_forsering_service()
-    result = service.valider_grunnlag_fortsatt_gyldig(sak_id)
+    result = service.valider_grunnlag_fortsatt_gyldig(
+        sak_id, tillatte_saker=cases_in_project
+    )
 
     return jsonify({"success": True, **result}), 200
 
