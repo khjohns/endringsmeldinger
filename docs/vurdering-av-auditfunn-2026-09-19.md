@@ -13,8 +13,9 @@ Appen er ikke i produksjon og har ingen reelle data.
 **Mandatet.** Ikke «finnes det flere hull», men: er funnene reelle, er de faktisk
 problemer, og hva er riktig håndtering. Ingen kode er endret.
 
-**Avgrensning — les denne før tallene.** Jeg har etterprøvd **22 av 60 funn** mot
-kode og database. De øvrige 38 er lest, gruppert og vurdert ut fra sporets egne
+**Avgrensning — les denne før tallene.** Jeg har etterprøvd **34 av 60 funn** mot
+kode og database: alle seks Kritisk, alle 22 Høy, alle Middels/Høy og databasefunnene.
+De øvrige 26 — Middels og Lav — er lest, gruppert og vurdert ut fra sporets egne
 beskrivelser, men ikke reprodusert uavhengig. Hvert funn under er merket
 `Etterprøvd` eller `Lest`. En vurdering merket `Lest` er en formodning, ikke en
 kontroll. **Mine egne åtte AR-funn er ikke vurdert her** — jeg skrev dem, og de
@@ -24,10 +25,11 @@ hører til Astras runde.
 
 ## Sammendrag
 
-**Funnene er i hovedsak reelle.** Av de 22 etterprøvde holdt 16 fullt ut. Ingen var
-oppspinn; ingen pekte på kode som ikke finnes.
+**Funnene er i hovedsak reelle.** Av de 34 etterprøvde holdt 25 fullt ut. Ingen var
+oppspinn; ingen pekte på kode som ikke finnes. To duplikerer funn masterplanen
+allerede fører.
 
-**Men én feilklasse går igjen, og den er systematisk.** Seks av de 22 har *riktig
+**Men én feilklasse går igjen, og den er systematisk.** Sju av de 34 har *riktig
 premiss og feil konsekvens*: påstanden om repoet stemmer, men den oppgitte
 virkningen inntreffer ikke. Årsaken er metodisk — sporet leste migrasjoner,
 docstrings og kode og utledet kjøretidsatferd uten å kjøre mot faktisk system
@@ -50,8 +52,8 @@ fiksen ikke nådde.
 
 ## Del 1: Funn som ikke holder som beskrevet
 
-Disse seks bør omklassifiseres. Ingen av dem er oppspinn — premisset stemmer i alle
-seks — men handlingen de utløser bør være en annen enn alvorligheten tilsier.
+Disse sju bør omklassifiseres. Ingen av dem er oppspinn — premisset stemmer i alle
+sju — men handlingen de utløser bør være en annen enn alvorligheten tilsier.
 
 ### DB-02 — `cached_*`-kolonnene (Høy → Lav) · Etterprøvd
 
@@ -119,6 +121,33 @@ Kritisk» leses dette som en angrepsvei; det er en funksjonsfeil.
 
 Verdt å merke: det manglende `X-Project-ID` gjør dette til et **fjerde** sted
 oslobygg-fallbacken slår inn (se RC-2).
+
+### FE-02 — klientstyrt rolle (Høy/Autorisasjon → Middels/UX) · Etterprøvd
+
+Påstand: rollen styres fra `localStorage` og `?rolle=`, slik at TE kan «presenteres
+for og sende inn BH-vedtak».
+
+Presentasjonsdelen stemmer. Innsendingsdelen gjør det ikke.
+`routes/event_routes.py:173` gjør `data["aktor_rolle"] = g.contract_role` — serveren
+**overskriver** aktørrollen med den verifiserte teamtilknytningen. En klient som
+påstår BH kan ikke sende inn som BH. Autorisasjonen holder fullt ut.
+
+Den reelle mangelen er at `/api/cases/<sak_id>/context` ikke returnerer brukerens
+autoriserte rolle, så grensesnittet ikke vet hva det skal vise. Resultatet er
+forvirrende 400-feil, ikke en tilgangsomgåelse.
+
+### Mønster: frontend-auditen klassifiserer UI-feil som tilgangsfeil
+
+FE-01 og FE-02 har samme form, og den er verdt å navngi. Begge er klassifisert som
+sikkerhetsfunn — «CSRF / Autentisering» og «Autorisasjon / Skjerming» — og i begge
+tilfeller holder serveren. FE-01 er en ødelagt knapp; FE-02 er et grensesnitt som
+tilbyr handlinger serveren avviser.
+
+Årsaken er den samme metodiske som i databasefunnene: klienten er lest i isolasjon,
+og virkningen er utledet over en laggrense uten å kontrollere at serveren håndhever
+uavhengig. **Hele `audit-frontend-2026-09-18.md` bør leses med det forbeholdet.**
+FE-04 er det eneste av de tre høyt klassifiserte frontend-funnene som er en reell
+feil i det som beregnes — og det er fordi det er samme feil som backend har.
 
 ---
 
@@ -197,6 +226,43 @@ Ingen `abort(403)` finnes i `backend/routes/`. Alle avvisninger returnerer
 `audit.log_access_denied` er uten virkning. Kombinert med OBS-01: et kryssprosjekt-
 forsøk avvises korrekt og etterlater ingen spor.
 
+### Øvrige Høy-funn — etterprøvd og bekreftet
+
+Alle 22 Høy-funn er nå kontrollert. De ni under holder, men med presiseringer som
+endrer hva som bør gjøres med dem.
+
+| Funn | Utfall | Presisering fra kontrollen |
+| --- | --- | --- |
+| **INT-02** | Bekreftet, **verre enn beskrevet** | `is_duplicate_event` bruker `SETNX` og *reserverer* nøkkelen på selve sjekken (`webhook_security.py:134`). Feiler prosesseringen etterpå, svarer Catendas retry `202 already_processed`. Saken tapes uten spor. |
+| **INT-05** | Bekreftet | `_post_to_catenda` kalles fra linje 584, inne i `submit_event`. `submit_batch` starter på 653 og kaller den ikke. Duplikat av **RV-10**, som masterplanen allerede fører. |
+| **CFG-03** | Bekreftet | `str(e)` på `utility_routes.py:130` og `:191`; `/api/routes` er udekorert. Duplikat av **RV-13**, og alle tre rutene står allerede oppført i `test_public_route_registry`. |
+| **OBS-04** | Bekreftet | `cloudevents.py:109`: `proj_id = getattr(self, "prosjekt_id", None) or "oslobygg"`, med TODO som erkjenner det. `or` slår også inn på tom streng. Tredje ledd i RC-2. |
+| **FE-04** | Bekreftet | `endringsordre.ts:162` speiler backendens `order_exposure_floor` **nøyaktig**. Driftdetektorene ville derfor vist null drift mens begge er gale — konsistens er ikke korrekthet. |
+| **TFR-02** | Bekreftet | `overordnet_status` leser bare `grunnlag`, `vederlag`, `frist` (`sak_state.py:1099`). For forsering og EO er alle tre `IKKE_RELEVANT`, så listen blir tom. |
+| **TST-02** | Bekreftet, **annen mekanisme** | «Mangler fillåsing» er upresist: `fcntl.flock(LOCK_EX)` finnes på `event_repository.py:102`. Men `_load_with_lock` returnerer `(default, None)` **uten lås** når filen ikke finnes — altså nøyaktig opprettelsesveien. Fiksen er `O_CREAT\|O_EXCL`, ikke «innfør låsing». |
+| **TST-04** | Bekreftet | `backend/docs/` finnes ikke, og ingen generert `openapi.yaml` ligger i repoet. `scripts/generate_openapi.py` er 2172 linjer som produserer noe ingen bruker. |
+| **GFK-03** | Bekreftet | `reconcile_policy` (`approval_service.py:510`) har ingen lease- eller utstedelsessjekk. Duplikat av **RV-02**, allerede prioritet 1 i masterplanen. |
+
+**To av dem er ikke nytt arbeid.** GFK-03 er RV-02 og INT-05 er RV-10; begge står
+åpne i masterplanen fra før. CFG-03 er RV-13. Overlappstabellen i masterplanen er
+oppdatert tilsvarende.
+
+**To trenger en beslutning, ikke en retting:**
+
+- **INT-04** — `catenda_webhook_service.py:260` hardkoder `aktor_rolle="TE"` med
+  kommentaren «Assume TE created the case». Det er på `SakOpprettetEvent`, altså
+  saksopprettelse, ikke `eo_utstedt`. Godkjenningsporten dekker de bindende
+  hendelsene, så webhooken utsteder ingen endringsordre. Det den gjør, er å opprette
+  en EO-*sak* med TE som aktør når en Catenda-topic klassifiseres som endringsordre.
+  Om det er en omgåelse avhenger av om saksopprettelse i seg selv skal være
+  BH-forbeholdt — en domenebeslutning, ikke en feil å lappe.
+- **GFK-04** — `ApprovalService` har ingen forseringsstøtte; `grep forsering` i filen
+  gir kun `raise ValueError("Ugyldig vurderingstype.")` på linje 228. Funnet er
+  korrekt, men **masterplanen fører dette allerede som en truffet beslutning**:
+  «Prosjekter med policy kan inntil videre ikke svare på forseringsvarsel, fordi
+  godkjenningsflyten ikke modellerer forseringssporet.» Dette er akseptert gjeld,
+  ikke en ny feil.
+
 ---
 
 ## Del 3: Tolv rotårsaker
@@ -255,15 +321,18 @@ mot en faktisk Postgres — ellers forblir de grønne uansett hva databasen gjø
 
 ## Verifikasjon og grenser
 
-**Etterprøvd mot kode eller database (22):** DB-01 til DB-08, AUT-01, AUT-02,
-AUT-05, TFR-01, FE-01, CFG-01, CFG-02, CFG-06, OBS-01, OBS-02, OBS-03, GFK-01,
-GFK-02, INT-01, TST-03.
+**Etterprøvd mot kode eller database (34):** alle seks Kritisk, alle 22 Høy, alle
+Middels/Høy og samtlige databasefunn. Navngitt: DB-01 til DB-08, AUT-01, AUT-02,
+AUT-05, TFR-01, TFR-02, FE-01, FE-02, FE-04, CFG-01, CFG-02, CFG-03, CFG-06,
+OBS-01, OBS-02, OBS-03, OBS-04, GFK-01, GFK-02, GFK-03, GFK-04, INT-01, INT-02,
+INT-04, INT-05, TST-02, TST-03, TST-04.
 
-**Kun lest (38):** alle øvrige. Grupperingen i del 3 plasserer dem etter sporets egne
-beskrivelser. Der et slikt funn er ført under en rotårsak, er det en formodning om
-slektskap — ikke en kontrollert påstand. AUT-06, TFR-02 til TFR-06, INT-02 til
-INT-07, CFG-03 til CFG-05, CFG-07, OBS-04 til OBS-07, TST-01, TST-02, TST-04 til
-TST-07, GFK-03 til GFK-06 og FE-02 til FE-06 bør etterprøves før de legges til grunn.
+**Kun lest (26):** AUT-03, AUT-04, AUT-06, GFK-05, GFK-06, TFR-03 til TFR-06,
+INT-03, INT-06, INT-07, FE-03, FE-05, FE-06, CFG-04, CFG-05, CFG-07, OBS-05 til
+OBS-07, TST-01, TST-05, TST-06, TST-07. Alle er Middels eller Lav. Der et slikt funn
+er ført under en rotårsak i del 3, er slektskapet en formodning — ikke en kontrollert
+påstand. Gitt at sju av 34 etterprøvde funn viste seg feilklassifisert, bør de 26 ikke
+legges til grunn uten samme kontroll.
 
 Databasespørringene var rene katalogslesninger; ingen saksdata er lest og ingen
 skriving utført. Testtallene er fra full kjøring etter sammenslåingen: 1440 bestått,

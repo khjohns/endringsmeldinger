@@ -16,6 +16,17 @@ knappen er ødelagt (403 ved samme opphav, 401 ved kryssopphav), ikke en angreps
 Bør stå som funksjonsfeil, ikke som CSRF-sårbarhet. Det manglende `X-Project-ID`
 gjør den samtidig til et fjerde sted oslobygg-fallbacken slår inn.
 
+**FE-02 er også feilklassifisert.** `routes/event_routes.py:173` gjør
+`data["aktor_rolle"] = g.contract_role` — serveren overskriver aktørrollen med
+verifisert teamtilknytning, så en klient som påstår BH ikke kan sende inn som BH.
+Den reelle mangelen er at `/context` ikke returnerer brukerens autoriserte rolle.
+
+**Merknad om dokumentet som helhet:** FE-01 og FE-02 er begge klassifisert som
+sikkerhetsfunn, og i begge holder serveren. Klienten er lest i isolasjon og
+virkningen utledet over en laggrense. Dokumentet bør leses med det forbeholdet.
+FE-04 er bekreftet som reell — den speiler backendens `order_exposure_floor`
+nøyaktig, så driftdetektorene viser null drift mens begge er gale.
+
 ## Metodisk presisering
 
 I tråd med revisjonskravene skiller rapporten strengt mellom tre kunnskapsnivåer:

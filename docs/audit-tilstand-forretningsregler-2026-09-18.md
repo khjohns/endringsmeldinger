@@ -24,6 +24,11 @@ som materialets alvorligste funn, med de to leddene testen ikke viser:
 vakter er `BH_HAS_RESPONDED` og `NOT_ALREADY_ACCEPTED` — ingen forretningsregel
 nevner `AVSLATT` overhodet. Løses ikke av arkitekturarbeidet.
 
+**TFR-02 er bekreftet:** `overordnet_status` (`sak_state.py:1099`) leser bare
+`grunnlag`, `vederlag` og `frist`. For forsering og EO er alle tre
+`IKKE_RELEVANT`, så listen blir tom og statusen `INGEN_AKTIVE_SPOR`.
+TFR-03 til TFR-06 er kun lest.
+
 ## Omfang
 
 **Undersøkt:**

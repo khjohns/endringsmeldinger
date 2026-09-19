@@ -24,8 +24,14 @@ konsekvens under beskrevne forutsetninger, ikke observert hendelse.
 
 **Etterprøvd 2026-09-19** i [vurderingen av auditfunnene](vurdering-av-auditfunn-2026-09-19.md), som vurderer alle 60
 funnene fra pass 1–9 og grupperer dem i tolv rotårsaker. Funnene i dette dokumentet
-er der lest og gruppert, men ikke reprodusert uavhengig — se dokumentets
-avgrensning.
+er etterprøvd for INT-01, INT-02, INT-04 og INT-05. **INT-02 er verre enn
+beskrevet:** `is_duplicate_event` bruker `SETNX` og reserverer nøkkelen på selve
+sjekken, så Catendas retry etter en feilet prosessering svarer `202
+already_processed` — saken tapes uten spor. **INT-05 er duplikat av RV-10**, som
+masterplanen allerede fører. **INT-04 trenger en beslutning, ikke en retting:**
+den hardkodede `aktor_rolle="TE"` står på `SakOpprettetEvent`, ikke `eo_utstedt`,
+så webhooken utsteder ingen endringsordre. Om saksopprettelse skal være
+BH-forbeholdt er en domenebeslutning. INT-03, INT-06 og INT-07 er kun lest.
 
 ## Omfang
 

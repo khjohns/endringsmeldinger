@@ -15,6 +15,9 @@ at ingen *forretningshendelse* revisjonslogges, og at 403-veien er død av grunn
 OBS-02 beskriver. De to er ett funn. **OBS-03 forskyver ingenting i dag**:
 `tidsstempel` settes av serveren til `datetime.now(UTC)` og kan ikke sendes av
 klienten, så tidssonekuttet gir riktig verdi. Reell kodesvakhet, men nedgradert.
+**OBS-04 er bekreftet:** `cloudevents.py:109` har `... or "oslobygg"` med TODO
+som erkjenner det, og `or` slår også inn på tom streng. OBS-05 til OBS-07 er kun
+lest.
 
 ## Metodisk presisering
 

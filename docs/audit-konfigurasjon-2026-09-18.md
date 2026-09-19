@@ -9,8 +9,9 @@
 
 **Etterprøvd 2026-09-19** i [vurderingen av auditfunnene](vurdering-av-auditfunn-2026-09-19.md), som vurderer alle 60
 funnene fra pass 1–9 og grupperer dem i tolv rotårsaker. Funnene i dette dokumentet
-er der lest og gruppert, men ikke reprodusert uavhengig — se dokumentets
-avgrensning.
+er etterprøvd for CFG-01, CFG-02, CFG-03 og CFG-06, alle bekreftet. CFG-03 er
+duplikat av RV-13, og de tre rutene står allerede oppført med begrunnelse i
+`test_public_route_registry`. CFG-04, CFG-05 og CFG-07 er kun lest.
 
 ## Metodisk presisering
 
