@@ -188,6 +188,23 @@ Kontraktsjournalen registrerer altså enighet der det var avslag. I et bevissyst
 det den alvorligste formen for datafeil, og den er ikke arkitektonisk: den løses
 ikke av fundamentbyttet.
 
+> **Merknad 2026-09-19 til TFR-01.** Funnet er kartlagt videre, og **ikke** rettet:
+> modelleringen av «TE godtar byggherrens avslag» er en åpen domenebeslutning.
+>
+> *Kjørt og observert:* feilen gjelder **alle tre spor**, ikke bare grunnlag.
+> Vederlag og frist går også fra `avslatt` til `godkjent`, og `kan_utstede_eo` går
+> fra `False` til `True` i alle tre tilfellene. Vakten (`BH_HAS_RESPONDED`,
+> `NOT_ALREADY_ACCEPTED`) slipper aksept av et avslag gjennom på alle tre.
+> Reproduksjonen fra 18.09 dekket bare grunnlag; de to andre er lagt til.
+> Fristsporet er det med størst konsekvens — et avslått fristkrav er selve
+> forutsetningen for forsering etter § 33.8.
+>
+> To observasjoner gjør en senere retting billigere. `DELVIS_GODKJENT` blir også
+> `GODKJENT` ved aksept, men det er trolig **riktig**: partene er enige om det
+> reduserte beløpet, og `godkjent_belop` bevares. Feilen gjelder derfor bare
+> `AVSLATT`. Og `bh_resultat` er bevart på sporet etter aksept, så statusen kan
+> utledes av responsen uten ny hendelsestype og uten migrasjon.
+
 **Håndtering:** `_handle_te_aksepterer_respons` må utlede status av responsen den
 viser til. Aksept av et avslag er en egen tilstand — kravet er frafalt, ikke godkjent.
 Legg til en forretningsregel som avviser aksept der responsen er `AVSLATT`, med mindre
@@ -208,6 +225,45 @@ ned i dataene (RC-1).
 
 **Masterplanen bør rettes:** RV-07 står som lukket. Den er lukket der den ble funnet.
 
+> **Merknad 2026-09-19 til AUT-01 og AUT-02.** Begge er rettet. Merknaden står
+> her fordi *rekkevidden* var vurdert ut fra lesestien alene, og de to funnene
+> viste seg å være ulike når skrivestien ble lest.
+>
+> **AUT-01 var dybdeforsvar, ikke en nåbar lekkasje.** `require_project_access`
+> samler `referenced_case_ids(payload) | referenced_case_ids(kwargs)`, og
+> `referenced_case_ids` (`lib/auth/domain.py`) rekurserer gjennom nøstede dicter
+> og lister og behandler `avslatte_fristkrav`, `avslatte_sak_ids` og `koe_sak_id`
+> som saksreferanser. Hver holdes mot `metadata.prosjekt_id`. Både
+> `/api/forsering/opprett` og den hendelsesdrevne veien
+> (`FORSERING_KOE_LAGT_TIL` → `koe_sak_id`) er dekket. En fremmed sak-ID kom
+> altså ikke inn i `avslatte_fristkrav` gjennom en dekorert rute. Reproduksjonen
+> skriver tilstanden rett i hendelseslageret og er ærlig om det.
+>
+> **AUT-02 hadde ikke det vernet.** Oppslaget går baklengs — fra en KOE-sak til
+> forseringssakene som refererer den — så dekoratoren har aldri sett de returnerte
+> IDene. `sak_relations` bærer ingen `prosjekt_id`, og
+> `backend/scripts/backfill_relations.py` fyller indeksen uten prosjektbegrep.
+>
+> **Et tredje sted ble funnet ved å søke etter mønsteret:**
+> `GET /api/forsering/<sak>/relaterte` leser relasjoner fra Catenda gjennom
+> `BaseSakService.hent_relaterte_saker`, mens `topic_board_id` er en *global*
+> innstilling og ikke forespørselens prosjekt. Catendas spesifikasjon
+> (`docs/tredjepart-api/topic-api-openapi.yaml`) er utvetydig: parameteret
+> `includeBimsyncProjectTopics` betyr «Include topics from other topic boards
+> that belong to the same Catenda project», klienten sender det som `True` som
+> standard, og svaret bærer `bimsync_issue_board_ref` — hvilket board hver
+> relatert topic hører til. Koden fanger feltet inn i `SakRelasjon` og sjekket
+> det aldri. Kontekstruta filtrerte allerede samme datakilde (RV-07); denne ruta
+> gjorde det ikke. *Kjørt og observert:* uten filteret returnerer ruta
+> sakstittelen til en sak i et annet prosjekt.
+>
+> Grensen er derfor lagt i `hent_relaterte_saker`, der `tillatte_saker` er et
+> påkrevd nøkkelordargument et nytt kallsted ikke kan glemme. **EO-sidens
+> `/relaterte` var aldri utsatt** — `EndringsordreService` overstyrer metoden med
+> en hendelsesbasert variant som allerede filtrerer. Det ble først antatt
+> sårbart fordi baseklassen ble lest uten overstyringen; det er felle 2 i
+> handoffen, og den ble fanget av testsuiten, ikke av lesingen.
+
 ### GFK-01 — fullmaktsgulvet dekker ikke tid · Etterprøvd · **Høy, står**
 
 `order_exposure_floor` (`eo_approval_service.py:61`) returnerer bare
@@ -223,6 +279,22 @@ av en prosjektleder kan godkjenne en ordre verdt millioner.
 **Håndtering:** `order_exposure_floor` må ta `daily_rate` og inkludere
 `frist_dager * daily_rate`. Signaturen må endres — den tar i dag bare `request`.
 FE-04 er samme feil i frontend-kopien og må rettes i samme runde (se RC-12).
+
+> **Merknad 2026-09-19 til GFK-01 og FE-04.** Begge er rettet slik avsnittet
+> foreskriver. `order_exposure` er skrevet om til å kalle gulvet framfor å legge
+> til dagene selv, så beløpet ikke telles to ganger, og dagene valideres før
+> gulvet beregnes så feilmeldingen om ugyldige dager beholdes.
+>
+> Begge reproduksjonene kalte gulvet med ett argument og kunne derfor ikke passere
+> uten signaturendringen; kallene er oppdatert og påstandene står uendret.
+> Backend-testen har i tillegg fått en assertion på selve sikkerhetsegenskapen —
+> en kjede som ikke dekker beløpet avvises, en som dekker det slipper gjennom —
+> framfor bare på aritmetikken.
+>
+> **Restanse.** Er `frist_dager` oppgitt uten kjent dagmulktssats, kan
+> eksponeringen fortsatt ikke verdsettes, gulvet blir 0, og `resolve_route`
+> hopper fortsatt over fullmaktskontrollen. Å kreve kjedens toppnivå for en
+> uverdsettbar ordre er en domenebeslutning og er ikke tatt.
 
 ### TST-03 — hendelsesrollback er en loggmelding · Etterprøvd · **Høy, står**
 

@@ -54,6 +54,18 @@ relasjonsindeksen som den er. Gemini-sporet fant begge uavhengig som AUT-01 og
 AUT-02. RV-07 bør stå som delvis lukket til grensen ligger i dataene. Se
 [vurderingen av auditfunnene](../vurdering-av-auditfunn-2026-09-19.md).
 
+**Merknad 2026-09-19 (senere samme dag) til RV-07, AUT-01 og AUT-02.** Rettet.
+Grensen er flyttet inn i `BaseSakService.hent_relaterte_saker`, der `tillatte_saker`
+er et påkrevd nøkkelordargument, slik at et nytt kallsted ikke kan glemme den.
+`valider_grunnlag_fortsatt_gyldig` og `finn_forseringer_for_sak` avgrenser
+kandidatene før noen state leses. Søk etter mønsteret ga et tredje sted som ingen
+av sporene hadde funnet — `GET /api/forsering/<sak>/relaterte`, der relasjonene
+kommer fra Catenda og `topic_board_id` er en global innstilling. De to strenge
+`xfail`-reproduksjonene XPASS-et og er gjort om til ordinære regresjonstester; det
+tredje stedet har fått en ny. **RV-07 kan nå stå som lukket som klasse for
+forseringens lesestier.** Den generelle mangelen består: grensen finnes fortsatt
+bare i applikasjonskoden, ikke i dataene (RC-1, fase 1).
+
 Beslutninger som er tatt i disse rettingene:
 
 - **Forsering er godkjenningspliktig.** Prosjekter med policy kan inntil videre
@@ -118,7 +130,15 @@ Rotårsaksgrupperingen av alle 60 funnene står i
 saker er der anbefalt tatt uavhengig av fasene, fordi de er datafeil i den juridisk
 avgjørende delen av domenet: **TFR-01** (aksept av avslag settes til GODKJENT),
 **GFK-01 med FE-04** (fullmaktsgulvet dekker ikke tidskonsekvens) og **AUT-01/AUT-02**
-(RV-07 lukket per kallsted). Merk også at fem TFR-funn ikke løses av
+(RV-07 lukket per kallsted).
+
+**Merknad 2026-09-19: status for de tre.**
+
+| Funn | Status | Merknad |
+| --- | --- | --- |
+| AUT-01, AUT-02 | **Lukket** | Grensen lagt i `hent_relaterte_saker` som påkrevd `tillatte_saker`. Et tredje sted funnet og lukket i samme runde. To xfail gjort om til ordinære tester, én ny lagt til |
+| GFK-01, FE-04 | **Lukket, med restanse** | Gulvet tar dagmulktssats og verdsetter fristdagene, i backend og frontend. Restanse: uten kjent sats blir gulvet fortsatt 0, og fullmaktskontrollen hoppes fortsatt over. Det krever en domenebeslutning |
+| TFR-01 | **Åpen — venter på domenebeslutning** | Kartlagt og kjørt: feilen gjelder alle tre spor, ikke bare grunnlag. Reproduksjonen utvidet fra ett til tre spor. Ingen produksjonskode endret, fordi modelleringen av «TE godtar avslaget» er et domenevalg | Merk også at fem TFR-funn ikke løses av
 arkitekturarbeidet i det hele tatt — domenegjennomgang må kjøres ved siden av.
 
 Utenfor koden: anonym innlogging og OAuth-serveren må slås av i Supabase-konsollet,
