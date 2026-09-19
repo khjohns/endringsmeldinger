@@ -19,6 +19,14 @@ konsekvens under beskrevne forutsetninger, ikke observert hendelse.
 
 ---
 
+**Etterprøvd 2026-09-19** i [vurderingen av auditfunnene](vurdering-av-auditfunn-2026-09-19.md), mot faktisk skjema i
+databasen. DB-01, DB-03, DB-04, DB-05 og DB-06 er bekreftet. **DB-02 og DB-07 har
+riktig premiss, men konsekvensen inntreffer ikke** — kolonnene finnes i databasen,
+så `update_cache()` krasjer ikke; funnene gjelder migrasjonsdrift, ikke driftsfeil.
+**DB-08 er uten virkning**: det finnes ingen views i `public`. Merk at testene som
+reproduserer DB-02 og DB-07 leser SQL-filer, ikke databasen, og derfor forblir
+`xfail` uansett hva databasen inneholder.
+
 ## Omfang
 
 **Undersøkt:**

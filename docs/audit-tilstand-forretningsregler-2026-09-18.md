@@ -17,6 +17,13 @@ konsekvens under beskrevne forutsetninger, ikke observert hendelse.
 
 ---
 
+**Etterprøvd 2026-09-19** i [vurderingen av auditfunnene](vurdering-av-auditfunn-2026-09-19.md). TFR-01 er bekreftet
+som materialets alvorligste funn, med de to leddene testen ikke viser:
+`kan_utstede_eo` krever `grunnlag.status ∈ {GODKJENT, LAAST}`
+(`sak_state.py:1172`), så virkningen følger; og hendelsen er nåbar, siden eneste
+vakter er `BH_HAS_RESPONDED` og `NOT_ALREADY_ACCEPTED` — ingen forretningsregel
+nevner `AVSLATT` overhodet. Løses ikke av arkitekturarbeidet.
+
 ## Omfang
 
 **Undersøkt:**

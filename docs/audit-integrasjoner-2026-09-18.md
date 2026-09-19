@@ -22,6 +22,11 @@ konsekvens under beskrevne forutsetninger, ikke observert hendelse.
 
 ---
 
+**Etterprøvd 2026-09-19** i [vurderingen av auditfunnene](vurdering-av-auditfunn-2026-09-19.md), som vurderer alle 60
+funnene fra pass 1–9 og grupperer dem i tolv rotårsaker. Funnene i dette dokumentet
+er der lest og gruppert, men ikke reprodusert uavhengig — se dokumentets
+avgrensning.
+
 ## Omfang
 
 **Undersøkt:**

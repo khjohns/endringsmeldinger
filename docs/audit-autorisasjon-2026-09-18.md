@@ -12,6 +12,12 @@ Kryssreferanser:
 Appen er ikke i produksjon og har ingen reelle data. Alvorlighet angir mulig
 konsekvens under beskrevne forutsetninger, ikke observert hendelse.
 
+**Etterprøvd 2026-09-19** i [vurderingen av auditfunnene](vurdering-av-auditfunn-2026-09-19.md). AUT-01 og AUT-02 er
+bekreftet, og de er ikke nye feil: `tillatte_saker=cases_in_project` ble påført to
+kallsteder da RV-07 ble lukket, og `valider_grunnlag_fortsatt_gyldig`
+(`forsering_service.py:823`) itererer fortsatt `avslatte_fristkrav` ufiltrert.
+Masterplanen er merket tilsvarende: RV-07 er lukket per kallsted, ikke som klasse.
+
 ## Omfang
 
 **Undersøkt:**
