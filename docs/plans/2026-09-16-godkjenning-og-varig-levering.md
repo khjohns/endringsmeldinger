@@ -140,6 +140,9 @@ produksjon.
 | **1 — byggreproduserbarhet og forsyningskjede** *(ny 19.09)* | Pinn Python-avhengighetene; 10 av 21 i `requirements.txt` bruker `>=`, så to bygg kan gi ulike versjoner. Innfør avhengighetsskanning for begge økosystemer i CI. | `pip install` fra repoet gir samme versjoner to ganger. Sårbarhetsskanning kjører som påkrevd sjekk, med en besluttet terskel for hva som blokkerer. Planens krav om «reproduserbar databasemigrasjon» har da en tilsvarende garanti for selve bygget. |
 | **1 — HTTP-herding av klientleveransen** *(ny 19.09)* | `nginx.conf` setter i dag bare cache-headere. Legg til CSP, HSTS, `X-Content-Type-Options` og `frame-ancestors`. | Klienten leveres med en CSP som faktisk er testet mot appen, ikke bare satt. Særlig relevant fordi brevvisningen rendrer rik tekst gjennom TipTap og DOMPurify — CSP er forsvar i dybden der sanitiseringen svikter. |
 | **2 — domenegjennomgang av NS 8407-reglene** *(ny 19.09)* | Systematisk gjennomgang av tilstandsovergangene i `timeline_service.py` (2226 linjer) og `business_rules.py` mot kontraktsstandarden. TFR-01 — at aksept av et avslag settes til `GODKJENT` — ble funnet ved en tilfeldighet, og ingen av de fire arkitekturfasene ville avdekket den. | Hver hendelsestype har en dokumentert forventet tilstandsovergang, og hver overgang har en test. Regelsettet i `business_rules.py` er holdt opp mot standardens krav, ikke bare mot seg selv. |
+| **1 — avhengigheten av Catenda** *(ny 19.09)* | Avklar hva som gjelder kontraktsmessig, ikke bare teknisk. Identitet, medlemskap, dokumenter og prosjektstruktur kommer alle derfra, og appen har ingen vei utenom. Hva er SLA-en? Kan et varsel sendes med rettsvirkning mens Catenda er nede? Hva skjer hvis prosjektet slettes, lisensen utløper eller organisasjonen bytter leverandør? | Det finnes et skriftlig svar på hva som skjer med pågående frister ved utilgjengelighet, og en besluttet håndtering av tapt eller slettet Catenda-prosjekt. Avhengigheten er dokumentert som en akseptert risiko med navngitt eier, eller redusert. |
+| **1 — universell utforming** *(ny 19.09)* | Oslobygg KF er kommunalt, og forskrift om universell utforming av IKT gjelder trolig. `svelte-check` gir i dag tre a11y-advarsler — manglende ARIA-rolle og tabindex på dialogen i `WithdrawModal`, og klikkhåndterer uten tastaturekvivalent i `Kontrollrommet`. | Kravsnivået er avklart mot forskriften, og advarslene er enten rettet eller begrunnet. `npm run check` gates på a11y, ikke bare på typefeil. Dette er et mulig rettslig krav, ikke en kvalitetsdetalj. |
+| **2 — bevisførsel og framleggelse** *(ny 19.09)* | Systemets formål er å vise hva som ble varslet når. I dag finnes **ingen eksportvei** — ingen rute, ingen funksjon. Dataene ligger bak innlogging i et format bare appen forstår. Bygg uttrekk av én sak med hendelser, tidsstempler, aktør, vedleggsreferanser og hashsummer, lesbart utenfor appen. Avklar forvaringskjede og **tidskilde**. | En sak kan framlegges for oppmann eller voldgift uten at appen kjører, med dokumentert uttrekkstidspunkt og hvem som hentet ut. Tidsstemplene har en forsvarbar kilde: `datetime.now(UTC)` på en autoskalert container uten synkroniseringsgaranti holder ikke når en preklusjonsfrist står på spill. Det er besluttet hva som skjer når motparten bestrider systemets egen framstilling. |
 
 **Presiseringer til eksisterende pakker (19.09).** To rader trenger en skjerping
 snarere enn en ny pakke:
@@ -151,6 +154,10 @@ snarere enn en ny pakke:
   er begge bekreftet lukket på funnstedet og ikke som klasse, og det ble oppdaget
   først da et annet spor fant AUT-01, AUT-02 og AUT-03. Et eksempelbasert kriterium
   fanger ikke den feilformen; et egenskapsbasert gjør det.
+- **Pakke 3, kapasitet.** «Kapasitet og rate limiting» mangler et beståttkriterium.
+  Auditen 2026-09-15 målte median 643,5 ms for to Catenda-kall. Er det innenfor?
+  Uten et tall for saker per prosjekt, samtidige brukere, autolagringsfrekvens og
+  akseptabel svartid er ytelsestesting uten bestått eller ikke bestått.
 - **Pakke 3, rate limiting.** Nå som plattformen er avklart — Google Cloud, mulig
   Azure Container Apps — er `RATE_LIMIT_STORAGE=memory://` ikke lenger bare en
   prototypeverdi. Med N instanser blir effektiv grense N ganger den konfigurerte,
@@ -186,6 +193,12 @@ skrivefunksjoner får særskilte rettigheter og et eget review.
 - **Tilbakekalling og fravær:** definer når endret medlemskap/fullmakt får
   virkning for utkast, godkjenning og allerede offentlig committede brev.
   Fravær løses med sporbar endring/ny godkjenning, ikke delt konto eller bypass.
+- **Forovervendt kompatibilitet (ny 19.09):** hendelsene er append-only, så en
+  utrulling som bryter noe kan ikke rulles tilbake på data. Skjemaendringer må derfor
+  være forovervendt kompatible i begge retninger: gammel hendelse må kunne leses av
+  ny kode, og ny kode må tåle å bli rullet tilbake til forrige versjon uten at
+  hendelser skrevet i mellomtiden blir uleselige. Det styrer hvordan fase 1 kan
+  gjennomføres, og utelukker skjemaendringer som krever samtidig kodebytte.
 - **Belastning:** mål ende-til-ende før eventuell medlemskapscache. Angi da
   eksplisitt tilbakekallingsfrist og sterkere kontroll ved formell publisering.
 
@@ -193,6 +206,20 @@ Volumet tilsier en enkel databasebasert worker med lease, backoff og synlige
 feil, ikke en ny distribuert meldingsplattform. Avstemming er ekstra vern,
 ikke erstatning for atomisk registrering. Fullstendig uavhengig sluttaudit og
 driftsavklaringer gjenstår.
+
+## Organisatoriske forutsetninger (ny 19.09)
+
+Disse er prosesser, ikke kode, og kan godt være dekket utenfor repoet. De står her
+fordi et produksjonsløp for et kommunalt foretak normalt krever dem, og fordi ingen
+av dem er nevnt i planverket. **Første oppgave er å bekrefte om de allerede kjører;**
+om de gjør det, erstatt punktet med en referanse.
+
+| Forutsetning | Hvorfor den hører hjemme her |
+| --- | --- |
+| **ROS-analyse** | Standard før produksjonssetting i norsk offentlig sektor. Auditserien er en teknisk gjennomgang, ikke en risikovurdering med sannsynlighet, konsekvens og akseptkriterier. |
+| **DPIA / vurdering av personvernkonsekvenser** | Henger direkte sammen med arbeidspakken om oppbevaring og sletting i journalen. Hendelsene bærer personnavn, og interne notater er fritekst om navngitte personer. DPIA-en er normalt stedet konflikten mellom sletteplikt og uforanderlighet avgjøres. |
+| **Ekstern sikkerhetsvurdering** | All testing hittil er intern. «Uavhengig sluttaudit» i leveranserekkefølgen under betyr en annen agent enn implementøren, ikke en tredjepart. For et system som håndterer tvistegrunnlag er en ekstern gjennomgang før produksjon vanlig praksis. |
+| **Hendelseshåndtering med navngitt eier** | Planen sier «avklar eierskap til drift og hendelser», men ikke hva prosessen er når en entreprenør hevder at systemet mistet varselet deres. Det er en annen type hendelse enn en teknisk feil: den har en kontraktsfrist, og svaret må kunne dokumenteres. Henger sammen med arbeidspakken om bevisførsel. |
 
 ## Opprinnelig leveranserekkefølge for godkjenning og outbox
 
