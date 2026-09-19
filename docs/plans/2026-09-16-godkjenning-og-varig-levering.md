@@ -12,6 +12,11 @@ outbox alene gjør ikke appen sikker.
 Gjennomgått på nytt 2026-09-18 i [reviewen av sikkerhetsrunden](../audit-review-astra-2026-09-17.md).
 Statusen under viser hva den reviewen lukket, og hva som står igjen.
 
+Fundamentet under planen er vurdert 2026-09-19 i
+[arkitekturvurderingen](../arkitekturvurdering-2026-09-19.md). Den svarer på S9 og
+halve S10, og hevder at fire av punktene under ikke konvergerer uten at
+persistenslaget og tenant-grensen byttes. Ingen beslutning er tatt.
+
 ## Status 2026-09-18
 
 Lukket med retting, regresjonstest og egen commit:
