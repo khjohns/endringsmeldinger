@@ -9,7 +9,6 @@ Testene her etterprøver funn i godkjennings- og fullmaktslaget:
 """
 
 from decimal import Decimal
-from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import Mock
 from uuid import uuid4
@@ -19,7 +18,7 @@ from flask import Flask
 
 from lib.auth.session import cookie_name
 from lib.project_context import init_project_context
-from services.approval_authority import approval_route, exposure, resolve_route
+from services.approval_authority import approval_route, resolve_route
 from services.approval_service import ApprovalService
 from services.business_rules import BusinessRuleValidator
 from services.eo_approval_service import (
@@ -27,7 +26,6 @@ from services.eo_approval_service import (
     order_exposure,
     order_exposure_floor,
 )
-
 
 # =============================================================================
 # 1. Fullmaktsomgåelse for fristdager i endringsordrer (order_exposure_floor)

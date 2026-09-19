@@ -28,6 +28,7 @@ sys.path.insert(0, str(backend_dir))
 
 # Load .env file
 from dotenv import load_dotenv
+
 load_dotenv(backend_dir / ".env")
 
 from core.container import get_container

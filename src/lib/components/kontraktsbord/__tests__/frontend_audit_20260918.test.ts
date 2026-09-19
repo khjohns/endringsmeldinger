@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { eoExposureFloor } from '$lib/domain/endringsordre';
 import type { CreateEORequest } from '$lib/api/endringsordre';
 import { readWorkspaceView } from '$lib/kontraktsbord/viewState';

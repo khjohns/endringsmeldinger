@@ -12,7 +12,7 @@ Verifies:
 from datetime import UTC, datetime
 from unittest.mock import Mock
 from urllib.parse import parse_qs, urlsplit
-from uuid import UUID
+
 import pytest
 from flask import Flask
 

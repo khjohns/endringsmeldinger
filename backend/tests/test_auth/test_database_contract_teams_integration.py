@@ -27,6 +27,7 @@ import os
 import uuid
 from types import SimpleNamespace
 from unittest.mock import Mock
+
 import pytest
 
 from lib.auth.domain import catenda_id

@@ -1,6 +1,5 @@
 # backend/magic_link.py
 import json
-import os
 import uuid
 from datetime import datetime, timedelta
 from functools import wraps

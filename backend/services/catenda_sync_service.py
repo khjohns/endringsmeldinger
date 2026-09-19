@@ -15,7 +15,6 @@ from models.events import AnyEvent
 from models.sak_state import SakState
 from services.catenda_comment_generator import CatendaCommentGenerator
 from services.catenda_service import CatendaService
-from utils.filtering_config import get_frontend_route
 from utils.logger import get_logger
 
 logger = get_logger(__name__)

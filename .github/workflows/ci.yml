@@ -3,22 +3,17 @@
 # Alle tre jobbene gater, og alle tre er grønne i dag. CI-en virker derfor fra
 # første kjøring uten at noe må ryddes først.
 #
-# To ting er bevisst utelatt:
+# Bevisst utelatt: driftskriptene i scripts/. De gater riktig — med --ci gir de
+# exit 1 — men seks av ni feiler i dag (kontrollert 2026-09-19: contract_drift,
+# event_field_usage og label_coverage passerer, resten ikke). Koblet på her ville
+# CI vært rød fra første kjøring. category_drift feiler dessuten på sin egen
+# parser. De hører hjemme her når det er avgjort hvilke som skal baselines og
+# hvilke som skal rettes.
 #
-#   Driftskriptene i scripts/. De gater riktig — med --ci gir de exit 1 — men
-#   seks av ni feiler i dag (kontrollert 2026-09-19: contract_drift,
-#   event_field_usage og label_coverage passerer, resten ikke). Koblet på her
-#   ville CI vært rød fra første kjøring. category_drift feiler dessuten på sin
-#   egen parser, så den må repareres før den kan si noe. De hører hjemme her når
-#   det er avgjort hvilke som skal baselines og hvilke som skal rettes.
-#
-#   ruff og eslint. Backend har 73 kjente ruff-feil og frontend 4 eslint-feil.
-#   En ikke-gatende sjekk er den samme feilen som driftskriptene, og en
-#   fil-basert sperrehake ville flagget gammel gjeld i filer man tilfeldigvis
-#   åpnet. Ryddes gjelden, hører de hjemme her som ordinære jobber. Se
-#   masterplanen for hva ryddingen består i — særlig at UP042 (14 av 73) bør
-#   slås av framfor rettes, fordi StrEnum endrer str() og f-string på
-#   domeneenums som serialiseres inn i hendelsesloggen.
+# Merk at ruff er deklarert som `ruff>=0.8.0`. En linter som gater bør pinnes:
+# en ny ruff-utgivelse kan aktivere regler innenfor de valgte familiene
+# (E, F, B, I, UP, SIM) og gjøre hver PR rød uten at noen har endret kode. Det
+# hører til arbeidspakken om byggreproduserbarhet i masterplanen.
 name: CI
 
 on:
@@ -36,7 +31,7 @@ concurrency:
 
 jobs:
   backend:
-    name: Backend (pytest)
+    name: Backend (pytest + ruff)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -56,9 +51,14 @@ jobs:
 
       # Standard pytest gjør ingen nettverkskall. Live-testene mot Supabase er
       # opt-in med RUN_LIVE_SUPABASE=1 (RV-16) og kjøres ikke her.
+      # Testene først: de er det mest verdifulle signalet, og en lint-feil er
+      # triviell å rette når man først ser den.
       - name: Kjør testene
         working-directory: backend
         run: python -m pytest -q -p no:cacheprovider
+
+      - name: Lint
+        run: ruff check backend/
 
   frontend:
     name: Frontend (vitest)
@@ -79,8 +79,8 @@ jobs:
       - name: Kjør testene
         run: npm test
 
-  typesjekk:
-    name: Typesjekk (svelte-check)
+  statisk:
+    name: Lint og typesjekk
     runs-on: ubuntu-latest
     env:
       HUSKY: 0
@@ -98,3 +98,8 @@ jobs:
       # hører til arbeidspakken om universell utforming.
       - name: Typesjekk
         run: npm run check:error
+
+      # prettier --check og eslint. Husky kjører prettier på staged filer
+      # lokalt, men bare på det som faktisk stages.
+      - name: Lint
+        run: npm run lint

@@ -19,11 +19,11 @@ Endpoints:
 
 from typing import Any
 
-from flask import g, Blueprint, jsonify, request
+from flask import Blueprint, g, jsonify, request
 
-from lib.auth.session import require_auth
-from lib.auth.project_access import cases_in_project, require_project_access
 from lib.auth.contract_role import require_contract_role
+from lib.auth.project_access import cases_in_project, require_project_access
+from lib.auth.session import require_auth
 from lib.decorators import handle_service_errors
 from lib.helpers.version_control import handle_concurrency_error
 from models.sak_state import SakState

@@ -12,21 +12,18 @@ Tester svakheter og avvik i:
 - CatendaCommentGenerator feilidentifiserer 'standard' sakstype (INT-07)
 """
 
-import hmac
 import inspect
 import json
-import os
-from datetime import datetime, timezone
-from unittest.mock import MagicMock, patch
+from datetime import UTC, datetime
+from unittest.mock import MagicMock
 
 import pytest
 
 from core.config import settings
-from models.events import GrunnlagEvent, SakOpprettetEvent
+from models.events import SakOpprettetEvent
 from models.sak_metadata import SakMetadata
 from services.catenda_comment_generator import CatendaCommentGenerator
 from services.catenda_delivery_status import CatendaDeliveryStatus
-
 
 VALID_SECRET = "test-secret-path-12345"
 
@@ -321,7 +318,6 @@ def test_batch_events_skips_catenda_delivery_and_reports_clear(client, monkeypat
     """
     from repositories.event_repository import JsonFileEventRepository
     from repositories.sak_metadata_repository import SakMetadataRepository
-    from routes.event_routes import _prepare_catenda_context
 
     sak_id = "SAK-BATCH-TEST"
     project_id = "oslobygg"
@@ -354,7 +350,7 @@ def test_batch_events_skips_catenda_delivery_and_reports_clear(client, monkeypat
         SakMetadata(
             sak_id=sak_id,
             prosjekt_id=project_id,
-            created_at=datetime.now(timezone.utc),
+            created_at=datetime.now(UTC),
             created_by="TE Bruker",
             catenda_topic_id="topic-batch-1",
             catenda_board_id="board-1",
@@ -453,7 +449,7 @@ def test_catenda_context_ignores_project_specific_catenda_config(monkeypatch):
     mock_meta_repo.get.return_value = SakMetadata(
         sak_id=sak_id,
         prosjekt_id=project_b_internal,
-        created_at=datetime.now(timezone.utc),
+        created_at=datetime.now(UTC),
         created_by="Bruker B",
         catenda_topic_id="topic-b-1",
         catenda_board_id=project_b_board,

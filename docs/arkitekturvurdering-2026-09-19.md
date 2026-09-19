@@ -328,9 +328,11 @@ og en beslutning om hvilke driftskript som skal baselines.
 > (kontrollert kjørt: `str(...)` går fra `'Gammel.GODKJENT'` til `'godkjent'`).
 > Regelen bør slås av framfor rettes. De øvrige 59 er trygge.
 >
-> `ruff` og `eslint` er derfor holdt utenfor CI inntil videre: en ikke-gatende sjekk
-> er samme feil som driftdetektorene. En fil-basert sperrehake ble prøvd og forkastet
-> — den flagget gammel gjeld i filer endringen tilfeldigvis rørte.
+> `ruff` og `eslint` gater nå også. Gjelden er ryddet samme dag: 59 ruff-feil rettet
+> eller slått av og 3 eslint-feil rettet, så begge står på null. En fil-basert
+> sperrehake ble prøvd først og forkastet — den flagget gammel gjeld i filer
+> endringen tilfeldigvis rørte, og en CI som er rød fra første PR lærer folk å
+> ignorere den. Ryddingen var det riktige svaret, ikke sperrehaken.
 
 ## AR-06 — kompenserende rollback er usunn, og dere har bevist det
 

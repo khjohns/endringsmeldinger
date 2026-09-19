@@ -8,7 +8,6 @@ Testene her etterprøver funn i autorisasjonslaget:
 Alle testene kjører mot ekte ruter og dekoratører med testdobler for lagring.
 """
 
-from datetime import UTC, datetime
 from types import SimpleNamespace
 from unittest.mock import Mock
 

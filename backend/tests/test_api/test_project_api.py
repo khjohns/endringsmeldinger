@@ -1,7 +1,8 @@
 """Tests for project management API."""
 
-import pytest
 from unittest.mock import MagicMock
+
+import pytest
 
 from core.container import Container, set_container
 from models.project import Project

@@ -1,6 +1,5 @@
 """Catenda adapter, identity resolution and bounded membership cache."""
 
-import json
 import os
 from datetime import UTC, datetime
 from urllib.parse import urlsplit

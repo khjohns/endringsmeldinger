@@ -16,7 +16,6 @@ from flask import Flask
 from lib.auth.session import cookie_name
 from lib.project_context import init_project_context
 
-
 # =============================================================================
 # 1. FE-01: CSRF-avvisning ved LetterPreviewModal.svelte fetch
 # =============================================================================

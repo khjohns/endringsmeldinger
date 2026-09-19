@@ -11,15 +11,14 @@ tidssonehåndtering og feilhåndtering:
 """
 
 from datetime import datetime, timedelta, timezone
-from unittest.mock import Mock, patch
+from unittest.mock import Mock
 
 import pytest
 from flask import Flask
 
 from models.cloudevents import CloudEventMixin
-from models.events import GrunnlagEvent, SakEvent
+from models.events import SakEvent
 from routes.error_handlers import register_error_handlers
-
 
 # =============================================================================
 # 1. OBS-01/02: 403-avvisninger omgår errorhandler(403) og AuditLogger
@@ -205,8 +204,9 @@ def test_request_context_aksepterer_vilkarlig_header_uten_sanitering():
     En ondsinnet klient kan sende linjeskift eller logginjeksjonstegn som
     forurenser ustrukturerte tekstlogger og HTTP-headere.
     """
-    from core.request_context import init_request_context
     from flask import g
+
+    from core.request_context import init_request_context
 
     app = Flask(__name__)
     init_request_context(app)
