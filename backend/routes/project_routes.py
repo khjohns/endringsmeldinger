@@ -13,12 +13,11 @@ Endpoints:
 
 import uuid
 
-from flask import g, Blueprint, jsonify, request
+from flask import Blueprint, g, jsonify, request
 from pydantic import ValidationError
 
-from lib.auth.session import require_auth
 from lib.auth.project_access import require_project_access
-from lib.auth.session import dev_auth_disabled, get_auth_service
+from lib.auth.session import dev_auth_disabled, get_auth_service, require_auth
 from utils.logger import get_logger
 
 logger = get_logger(__name__)

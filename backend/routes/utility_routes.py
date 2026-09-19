@@ -11,8 +11,9 @@ Endpoints for:
 import logging
 
 from flask import Blueprint, current_app, jsonify, request
-from lib.auth.session import require_auth, load_session, dev_auth_disabled
+
 from lib.auth.project_access import require_project_access
+from lib.auth.session import dev_auth_disabled, load_session, require_auth
 
 logger = logging.getLogger(__name__)
 

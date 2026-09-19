@@ -14,6 +14,7 @@ Alle testene kjører lokalt uten nettverk og analyserer repoets faktiske SQL- og
 
 import re
 from pathlib import Path
+
 import pytest
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
@@ -73,7 +74,9 @@ def test_sak_metadata_schema_drift_missing_cached_reporting_columns():
     (cached_sum_krevd, cached_sum_godkjent, cached_dager_krevd, osv.),
     men ingen av disse kolonnene er definert i noen SQL-migrasjon eller i tabell-docstringen.
     """
-    from repositories.supabase_sak_metadata_repository import SupabaseSakMetadataRepository
+    from repositories.supabase_sak_metadata_repository import (
+        SupabaseSakMetadataRepository,
+    )
 
     expected_reporting_cols = [
         "cached_sum_krevd",

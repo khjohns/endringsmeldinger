@@ -303,7 +303,7 @@
             e.currentTarget.value = '';
           }}
         />
-        {#each filer as fil, i}
+        {#each filer as fil, i (fil)}
           <p>
             {fil.navn}
             {#if !fil.id && !fil.fil}<span role="alert">

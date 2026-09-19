@@ -193,7 +193,6 @@ class WebhookService:
         try:
             # Import filtering config (local to avoid circular deps)
             from utils.filtering_config import (
-                get_frontend_route,
                 get_sakstype_from_topic_type,
                 should_process_topic,
             )
@@ -283,12 +282,6 @@ class WebhookService:
                 .get("user", {})
                 .get("name", topic_data.get("creation_author", "Unknown"))
             )
-            author_email = (
-                topic_data.get("bimsync_creation_author", {})
-                .get("user", {})
-                .get("email")
-            )
-
             # Kontraktssiden utledes av forfatterens faktiske lagmedlemskap, ikke
             # antas. `ref` er Catenda-bruker-IDen, samme subjekt som
             # contract_membership matcher mot prosjektets TE/BH-lag (audit INT-04).

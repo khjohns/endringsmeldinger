@@ -15,6 +15,7 @@ Verifies all production requirements and architectural constraints:
 
 from types import SimpleNamespace
 from unittest.mock import Mock
+
 import pytest
 from flask import Flask, jsonify
 

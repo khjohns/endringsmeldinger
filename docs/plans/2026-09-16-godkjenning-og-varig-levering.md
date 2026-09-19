@@ -179,18 +179,28 @@ gater ikke i seg selv — jobbene må settes som required checks på `main`.
   dag. Koblet på ville CI vært rød fra første kjøring. `category_drift` feiler
   dessuten på sin egen parser. Det må avgjøres hvilke som skal baselines og hvilke
   som skal rettes.
-- **`ruff` og `eslint`.** Backend har 73 ruff-feil, frontend 4 eslint-feil. En
-  ikke-gatende sjekk er samme feil som driftskriptene, og en fil-basert sperrehake
-  ville flagget gammel gjeld i filer man tilfeldigvis åpnet — prøvd, og den feilet
-  på denne grenen av den grunnen.
-
-**Veien til at ruff kan gate** er kortere enn tallet antyder, og er én commit:
+**Merknad 2026-09-19 (senere samme dag): lint gater nå også.** Gjelden er ryddet og
+`ruff` og `eslint` er lagt inn som steg i CI. Backend er på **0 ruff-feil**,
+frontend på **0 eslint-feil**, og `prettier --check` passerer.
 
 | Regel | Antall | Handling |
 | --- | --- | --- |
-| F401, I001, F541, UP017 | 56 | `ruff check --fix` — ubrukte importer, sortering, `datetime.UTC` |
-| **UP042** | **14** | **Slå av i `pyproject.toml`, ikke rett.** `class X(str, Enum)` → `StrEnum` endrer `str()` og f-string-interpolering: `str(SporStatus.GODKJENT)` går fra `'SporStatus.GODKJENT'` til `'godkjent'`. Kontrollert kjørt. JSON blir likt, men 14 domeneenums serialiseres inn i hendelsesloggen, og en slik endring hører til en bevisst gjennomgang framfor et lint-sveip |
-| E741, F841 | 3 | Manuelle, trivielle |
+| F401, I001, F541, UP017 | 56 | `ruff check --fix`. Diffen er lest linje for linje: ubrukte importer, sortering, sammenslåing av dupliserte `from`-linjer. Ingen `__init__.py` berørt, så ingen re-eksport er fjernet ved et uhell |
+| **UP042** | **14** | **Slått av i `pyproject.toml`, ikke rettet.** `class X(str, Enum)` → `StrEnum` endrer `str()` og f-string-interpolering: `str(SporStatus.GODKJENT)` går fra `'SporStatus.GODKJENT'` til `'godkjent'`. Kontrollert kjørt. JSON blir likt, men 14 domeneenums serialiseres inn i hendelsesloggen, og det hører til en bevisst domenegjennomgang |
+| E741 ×2 | 2 | `l` → `lenke` i `bim_link_routes.py` |
+| F841 ×1 | 1 | `author_email` i webhooken var en død tilordning — også på `origin/main`, ikke innført av denne runden |
+| eslint ×3 | 3 | Ubrukte `beforeEach`/`afterEach`, og manglende nøkkel på `{#each filer}` i `NewCaseForm.svelte`. Den siste er ikke bare en nitte: uten nøkkel gjenbruker Svelte DOM-noder etter indeks, og fjerning midt i en filliste kan la tilstand henge igjen på feil rad. Komponenten har ingen egen test (den er blant de 58 i TST-07), så endringen er riktig etter Sveltes regler, men ikke dekket av suiten |
+
+**To ting som følger av at lint nå gater:**
+
+- **`ruff>=0.8.0` bør pinnes.** En ny utgivelse kan aktivere regler innenfor de
+  valgte familiene (`E`, `F`, `B`, `I`, `UP`, `SIM`) og gjøre hver PR rød uten at
+  noen har endret kode. Hører til arbeidspakken om byggreproduserbarhet, men er mer
+  presserende nå enn før.
+- **`UP042` må revurderes bevisst, ikke glemmes.** Den er slått av med begrunnelse i
+  `pyproject.toml`, ikke fordi StrEnum er feil, men fordi bytte av enum-basis i en
+  append-only journal krever en gjennomgang. Hører sammen med domenegjennomgangen av
+  NS 8407-reglene.
 | 2 — atomisk domene og levering | Gjennomfør EO-referanseflyten nedenfor, så BH-svar, ordinære hendelser, vedlegg og webhook. | AP-04 lukket mot ekte Postgres, alle støttede formelle innsendingsveier har varig leveringsintensjon og gjenopptas uten brukerhandling. |
 | 2 — minst mulige privilegier og integritet | Avklar runtime-, worker-, drift- og migreringsrettigheter. Beskytt hendelser mot omskriving og uautorisert tilføying; hemmelighetslager og rotasjon. | Reelle runtime-legitimasjoner kan ikke endre/slette historikk eller omgå godkjenningskommandoen. Test også Data API med anon og anonymt innlogget authenticated. Migrering/break-glass er separat, tidsavgrenset og logget. |
 | 3 — dokumenter og sporbarhet | Frosset brev/vedlegg med hash, karantene/skanning før frigivelse, tilgangslogg for sensitive lesinger og eksport, revisjon av fullmakts- og prosjektendringer. | Bevarings-/sletteregler omfatter filer, logger og backup. Ingen tokens eller brevtekst i standardlogger. Uavhengig integritetsbevis/lagring velges ut fra trusselmodellen; hash i samme redigerbare database alene er utilstrekkelig. |

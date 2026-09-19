@@ -11,11 +11,11 @@ Endpoints:
 - GET    /api/bim/models                                   - List cached models for active project
 """
 
-from flask import g, Blueprint, jsonify, request
+from flask import Blueprint, g, jsonify, request
 from pydantic import ValidationError
 
-from lib.auth.session import require_auth
 from lib.auth.project_access import require_project_access
+from lib.auth.session import require_auth
 from utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -116,7 +116,7 @@ def get_related_bim_objects(sak_id: str, link_id: int):
         # 1. Find the link and validate it has an object_id
         bim_repo = _get_bim_repo()
         links = bim_repo.get_links_for_sak(sak_id)
-        link = next((l for l in links if l.id == link_id), None)
+        link = next((lenke for lenke in links if lenke.id == link_id), None)
         if not link:
             return jsonify({"error": "NOT_FOUND", "message": "Link not found"}), 404
         if not link.object_id:
@@ -140,7 +140,7 @@ def get_related_bim_objects(sak_id: str, link_id: int):
 
         # 4. Build set of already-linked object_ids for filtering
         linked_object_ids = {
-            l.object_id for l in links if l.object_id is not None
+            lenke.object_id for lenke in links if lenke.object_id is not None
         }
 
         # 5. Group and filter related objects

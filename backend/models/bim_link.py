@@ -3,7 +3,6 @@ BIM Link models — Pydantic v2 models for BIM-to-case linking.
 """
 
 from datetime import UTC, datetime
-
 from typing import Any
 
 from pydantic import BaseModel, Field
