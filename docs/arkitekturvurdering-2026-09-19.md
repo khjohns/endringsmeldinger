@@ -188,8 +188,23 @@ slettemodellen for journalen er besluttet. Hendelsene bærer `aktor` — personn
 og `internt_notat` er fritekst om navngitte personer. Gjøres journalen uforanderlig
 først, er sletteveien borte; beholdes sletteveien, er journalen ikke uforanderlig.
 For Oslobygg KF trekker regelsettene i hver sin retning. Masterplanen fører dette
-som egen arbeidspakke på nivå 1, altså *før* dette tiltaket. Rekkefølgen er ikke
-valgfri: å ettermontere en slettevei i en uforanderlig journal er blant de dyreste
+som egen arbeidspakke på nivå 1, altså *før* dette tiltaket.
+
+[Datakartleggingen](personopplysninger-faktagrunnlag-2026-09-19.md) gir en konkret vei ut, og den
+er billigere enn forutsetningen antyder. To endringer gjør `REVOKE UPDATE, DELETE`
+uproblematisk:
+
+1. **`aktor` lagres som bruker-ID, ikke navn.** Journalen blir pseudonym, og sletting
+   skjer ved å endre én rad i `app_users` — uten å røre den uforanderlige strømmen.
+2. **Interne notater flyttes ut av hendelsestabellene.** De er arbeidsnotater uten
+   virkning overfor motparten, ikke kontraktsvarsler, og trenger ikke samme permanens.
+   Den frie teksten — kategorien med høyest risiko — blir da slettbar.
+
+Begge koster ingenting i dag: **alle tre hendelsestabellene er tomme.** Endringen av
+`aktor` hører dessuten i samme migrasjon som `prosjekt_id` (se AR-01), siden begge
+endrer de samme tre tabellene.
+
+Rekkefølgen er likevel ikke valgfri: å ettermontere en slettevei i en uforanderlig journal er blant de dyreste
 endringene som finnes, og fristen er den samme som for tenant-attribusjonen —
 før ekte persondata finnes.
 

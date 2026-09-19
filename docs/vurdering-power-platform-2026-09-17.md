@@ -437,6 +437,10 @@ Spørsmålene som avgjør, i den rekkefølgen jeg ville stilt dem:
    [handoffen](handoff-gpt-astra-2026-09-15.md).
 4. **Hvor skal hendelsesloggen ligge?** Dataverse-revisjon dekker ikke bevisbehovet.
    Ledger-tabeller eller egen append-only-modell må besluttes først, ikke etterpå.
+   *Merknad 2026-09-19:* spørsmålet har fått et tillegg. [Datakartleggingen](personopplysninger-faktagrunnlag-2026-09-19.md)
+   viser at journalen i dag lagrer personnavn direkte, og at uforanderlighet dermed
+   kolliderer med sletteplikt. Hvilken plattform loggen ligger på endrer ikke den
+   avveiningen — den må avgjøres uansett, og helst før loggen fylles.
 5. **Hvordan holdes Catenda-teamene ferske?** Skriv ned tilbakekallingsvinduet som et
    krav med et tall, og kontroller at den valgte mekanismen feiler lukket.
 6. **Hvem skanner vedleggene?** Hvis SharePoint og Defender velges, kan

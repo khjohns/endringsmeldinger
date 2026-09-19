@@ -157,6 +157,11 @@ forarbeid arkitekturvurderingen ikke hadde med:
    trygghet, siden de neste to fortsatt slår inn.
 4. Sett `NOT NULL` uten default, slik at manglende prosjekt blir en feil.
 
+**Samme migrasjon bør bære én endring til.** [Datakartleggingen](personopplysninger-faktagrunnlag-2026-09-19.md)
+viser at `aktor` lagrer personnavn, og at bruker-ID ville gjort journalen pseudonym.
+Den endringen treffer nøyaktig de samme tre tabellene, og tabellene er tomme. Å dele
+den i to migrasjoner gir ingen gevinst og to anledninger til å gjøre feil.
+
 **Og det viktigste:** dette er den eneste anbefalingen i hele materialet som har en
 frist. I dag er databasen et utviklingsmiljø uten reelle data, så uskillelige
 oslobygg-rader koster ingenting. Etter første produksjonsbruk er de permanente —
