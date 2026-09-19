@@ -51,6 +51,7 @@ export const SPOR_STATUS_LABELS: Record<SporStatus, string> = {
   avslatt: 'Avslått',
   under_forhandling: 'Under forhandling',
   trukket: 'Trukket',
+  avslatt_akseptert: 'Avslag godtatt',
   laast: 'Låst',
 };
 

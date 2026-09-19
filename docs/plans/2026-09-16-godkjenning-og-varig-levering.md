@@ -145,7 +145,7 @@ avgjørende delen av domenet: **TFR-01** (aksept av avslag settes til GODKJENT),
 | AUT-01, AUT-02 | **Lukket** | Grensen lagt i `hent_relaterte_saker` som påkrevd `tillatte_saker`. Et tredje sted funnet og lukket i samme runde. To xfail gjort om til ordinære tester, én ny lagt til |
 | GFK-01, FE-04 | **Lukket, med restanse** | Gulvet tar dagmulktssats og verdsetter fristdagene, i backend og frontend. Restanse: uten kjent sats blir gulvet fortsatt 0, og fullmaktskontrollen hoppes fortsatt over. Det krever en domenebeslutning |
 | INT-04 | **Lukket** | Kontraktssiden utledes av forfatterens lagmedlemskap; fail-closed uten entydig side. Reproduksjonen erstattet av to ordinære tester |
-| TFR-01 | **Åpen — venter på domenebeslutning** | Kartlagt og kjørt: feilen gjelder alle tre spor, ikke bare grunnlag. Reproduksjonen utvidet fra ett til tre spor. Ingen produksjonskode endret, fordi modelleringen av «TE godtar avslaget» er et domenevalg |
+| TFR-01 | **Lukket** | Modelleringen besluttet: aksept bekrefter byggherrens svar og forbedrer det aldri. Ny `SporStatus.AVSLATT_AKSEPTERT` = oppgjort ved enighet, på byggherrens premisser. Teller som oppgjort for vederlag og frist (som `TRUKKET`), ikke for grunnlag. Tre xfail gjort om til regresjonstester |
 
 Merk også at fem TFR-funn ikke løses av
 arkitekturarbeidet i det hele tatt — domenegjennomgang må kjøres ved siden av.

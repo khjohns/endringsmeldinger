@@ -1181,6 +1181,11 @@ class SakState(BaseModel):
                 SporStatus.GODKJENT,
                 SporStatus.LAAST,
                 SporStatus.TRUKKET,
+                # Et godtatt avslag er oppgjort ved enighet: ingen utestående krav
+                # på sporet, like lite som et trukket krav. Grunnlaget er unntatt
+                # — det godtar bare GODKJENT og LAAST, så en godtatt avvisning av
+                # ansvaret stanser utstedelsen (audit TFR-01).
+                SporStatus.AVSLATT_AKSEPTERT,
             }:
                 return False
 

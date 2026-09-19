@@ -612,6 +612,9 @@ class BusinessRuleValidator:
             SporStatus.UTKAST,
             SporStatus.GODKJENT,
             SporStatus.TRUKKET,
+            # Et godtatt avslag er oppgjort ved enighet. Å trekke kravet etterpå
+            # ville skrive om et avsluttet oppgjør (audit TFR-01).
+            SporStatus.AVSLATT_AKSEPTERT,
         }
         if state.grunnlag.status in blocked_statuses:
             return ValidationResult(
@@ -631,6 +634,9 @@ class BusinessRuleValidator:
             SporStatus.UTKAST,
             SporStatus.GODKJENT,
             SporStatus.TRUKKET,
+            # Et godtatt avslag er oppgjort ved enighet. Å trekke kravet etterpå
+            # ville skrive om et avsluttet oppgjør (audit TFR-01).
+            SporStatus.AVSLATT_AKSEPTERT,
         }
         if state.vederlag.status in blocked_statuses:
             return ValidationResult(
@@ -650,6 +656,9 @@ class BusinessRuleValidator:
             SporStatus.UTKAST,
             SporStatus.GODKJENT,
             SporStatus.TRUKKET,
+            # Et godtatt avslag er oppgjort ved enighet. Å trekke kravet etterpå
+            # ville skrive om et avsluttet oppgjør (audit TFR-01).
+            SporStatus.AVSLATT_AKSEPTERT,
         }
         if state.frist.status in blocked_statuses:
             return ValidationResult(

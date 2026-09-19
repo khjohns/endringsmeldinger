@@ -39,6 +39,8 @@ export interface TrackDisplay {
   isDisputed: boolean;
   isSubsidiary: boolean;
   isWithdrawn: boolean;
+  /** TE har godtatt byggherrens avslag — sporet er oppgjort ved enighet. */
+  isRejectionAccepted: boolean;
   withdrawnReason?: string;
   withdrawnViaGrunnlag?: boolean;
   // Oppdatering
@@ -71,6 +73,7 @@ export function deriveTrackDisplay(sak: SakState, spor: SporKey): TrackDisplay {
       isDisputed: g.bh_resultat === 'avslatt',
       isSubsidiary: false,
       isWithdrawn: g.status === 'trukket',
+      isRejectionAccepted: g.status === 'avslatt_akseptert',
       withdrawnReason: g.trukket_begrunnelse,
       sisteOppdatert: g.siste_oppdatert,
       antallVersjoner: g.antall_versjoner,
@@ -94,6 +97,7 @@ export function deriveTrackDisplay(sak: SakState, spor: SporKey): TrackDisplay {
       isDisputed: v.bh_resultat === 'avslatt',
       isSubsidiary: sak.er_subsidiaert_vederlag,
       isWithdrawn: v.status === 'trukket',
+      isRejectionAccepted: v.status === 'avslatt_akseptert',
       withdrawnReason: v.trukket_begrunnelse,
       withdrawnViaGrunnlag: v.trukket_via_grunnlag,
       sisteOppdatert: v.siste_oppdatert,
@@ -118,6 +122,7 @@ export function deriveTrackDisplay(sak: SakState, spor: SporKey): TrackDisplay {
     isDisputed: f.bh_resultat === 'avslatt',
     isSubsidiary: sak.er_subsidiaert_frist,
     isWithdrawn: f.status === 'trukket',
+    isRejectionAccepted: f.status === 'avslatt_akseptert',
     withdrawnReason: f.trukket_begrunnelse,
     withdrawnViaGrunnlag: f.trukket_via_grunnlag,
     sisteOppdatert: f.siste_oppdatert,
