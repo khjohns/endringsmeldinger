@@ -11,15 +11,24 @@ Status for tidligere funn føres i
 Appen er ikke i produksjon og har ingen reelle data. Alvorlighet angir mulig
 konsekvens under beskrevne forutsetninger, ikke observert hendelse.
 
+> **Sammenstilt 19.09.** Det parallelle auditsporet er nå landet som `f1167de`, og
+> resultatet står i
+> [sammenstillingen](sammenstilling-arkitektur-og-auditspor-2026-09-19.md).
+> Kort: sporet endret ingen produksjonskode, så ingen funn under er lukket, og alle
+> linjehenvisninger er fortsatt gyldige. Fase 1 har fått et forarbeid og en frist —
+> hendelsestabellene mangler `prosjekt_id`, og tre uavhengige oslobygg-fallbacks
+> gjør tenant-attribusjonen uetterprøvbar så snart ekte data finnes. Les
+> sammenstillingen sammen med dette dokumentet.
+>
 > **Baselinje og avgrensning mot parallelt auditspor.** Denne vurderingen er
 > skrevet mot **`507e225`** («ta NS_8407.md ut av sporing»), som ved `git fetch`
 > 19. september også var `origin/main`. Det pågår samtidig en trinnvis
 > sikkerhetsaudit av kodebasen i et annet spor, kjørt med Gemini. Den har commits
 > som **ikke er hensyntatt her** — de fantes ikke i noen hentbar ref da denne
 > vurderingen ble skrevet. Funn, linjehenvisninger og kodesitater under gjelder
-> derfor `507e225` og kan være rettet, flyttet eller foreldet av det sporet.
-> Sammenstilling mot de auditene gjenstår, og bør gjøres før noe her legges til
-> grunn for en beslutning.
+> derfor `507e225`. Sammenstillingen over slår fast at sporet ikke endret
+> produksjonskode, så de er fortsatt gyldige — men det er sammenstillingen som
+> viser det, ikke dette avsnittet.
 >
 > Ett unntak gjelder: databasefunnene (AR-01, AR-02, AR-07) er spørringer mot den
 > **levende** basen 19. september, ikke mot en tilstand utledet av `507e225`. De
@@ -509,12 +518,9 @@ en opprydding etterpå.
 instans (se fase 2), og om vedleggsbytes skal til Cloud Storage nå eller vente til
 fase 1 er landet.
 
-Gjenstår også: **sammenstilling mot det parallelle Gemini-sporet.** De auditene
-gjennomgår kodebasen trinnvis og har commits denne vurderingen ikke kjenner. To
-utfall er mulige og må skilles. Lukker de et funn her, skal funnet lukkes — ikke
-gjentas. Finner de noe denne vurderingen ikke så, hører det inn i bildet uten at
-det svekker de fire strukturelle punktene, siden AR-01 til AR-04 handler om hvor
-grensene *ligger*, ikke om hvor mange hull som er funnet på et gitt tidspunkt. Et
-spor som lukker enkeltfunn raskere enn det andre, er ikke et argument mot å bytte
-fundament — auditserien i denne mappen viser tvert imot at samme feilform kommer
-tilbake på nye steder så lenge grensen bare finnes i applikasjonskoden.
+Sammenstillingen mot Gemini-sporet er **utført** og står i eget dokument. Utfallet:
+sporet lukket ingen av funnene her, fordi det ikke endret produksjonskode, og det
+fant uavhengig fire nye tilfeller av lekkasjeformen AR-01 forutsa (AUT-01, AUT-02,
+AUT-05, AUT-06). Til gjengjeld ga det fase 1 et forarbeid vurderingen ikke hadde:
+hendelsestabellene mangler `prosjekt_id`, så RLS-policyen skissert under AR-01 kan
+ikke skrives før kolonnen finnes og er backfilt fra `sak_metadata`.
