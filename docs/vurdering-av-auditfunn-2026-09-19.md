@@ -45,9 +45,16 @@ docstrings og kode og utledet kjøretidsatferd uten å kjøre mot faktisk system
 ikke leste, spriker den.
 
 **En bestått streng `xfail` beviser ikke funnet.** Den beviser at testens assertion
-feiler. DB-02 og DB-07 er begge grønne `xfail` og begge har feil konsekvens, fordi
-testene leser SQL-filer mens påstanden gjelder databasen. Dette er verdt å si høyt,
-siden 50 slike tester nå ligger i suiten og lett leses som 50 bekreftede feil.
+feiler. DB-02 og DB-07 er begge grønne `xfail` mens kolonnene finnes i databasen,
+fordi testene leser SQL-filer og påstanden i dokumentteksten gjelder basen. Dette er
+verdt å si høyt, siden 50 slike tester nå ligger i suiten og lett leses som 50
+bekreftede feil.
+
+*Presisering etter gjennomgang av testene 19.09:* feilen lå oftere i dokumentprosaen
+enn i testene. DB-02s egen `reason` sier «mangler i alle SQL-migrasjoner», som er
+riktig, og FE-02s sier nøyaktig det som viste seg å være den reelle mangelen. Bare
+fire begrunnelser var misvisende — DB-04, DB-07, OBS-03 og FE-01 — og de er skrevet
+om med hva kontrollen faktisk viste. Assertions er ikke rørt.
 
 **Den viktigste enkeltobservasjonen er ikke et funn, men et mønster.** RV-07 står
 som lukket i masterplanen. Etterprøvingen viser at fiksen ble påført **to
