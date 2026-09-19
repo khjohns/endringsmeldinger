@@ -192,7 +192,11 @@ class TestRetryLostAfterCommit:
             "title": "T",
             "topic_type": "Krav om endringsordre",
             "bimsync_creation_author": {
-                "user": {"name": "U", "email": "u@example.invalid"}
+                "user": {
+                    "name": "U",
+                    "email": "u@example.invalid",
+                    "ref": "524809076a694255b989d236517a55da",
+                }
             },
             "bimsync_custom_fields": [],
         }
@@ -207,6 +211,12 @@ class TestRetryLostAfterCommit:
         mock_filter = MagicMock()
         mock_filter.return_value = (True, "")
 
+        # Kontraktssiden utledes nå av forfatterens lagmedlemskap (INT-04).
+        # Disse testene prøver noe annet, så oppslaget stubbes til en entydig side.
+        monkeypatch.setattr(
+            "services.catenda_webhook_service.WebhookService._contract_side",
+            lambda self, project_id, subject: "TE",
+        )
         monkeypatch.setattr(
             "services.catenda_webhook_service.create_metadata_repository",
             lambda: MagicMock(),

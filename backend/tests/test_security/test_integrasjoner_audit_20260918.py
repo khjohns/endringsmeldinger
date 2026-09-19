@@ -146,15 +146,19 @@ def test_bcf_event_types_blocked_by_security_validator(client, webhook_env, monk
     )
 
 
-@pytest.mark.xfail(
-    strict=True,
-    raises=AssertionError,
-    reason="INT-04: Catenda webhook oppretter endringsordre med aktor_rolle='TE' og omgår godkjenningskravet",
-)
-def test_webhook_allows_te_to_create_endringsordre_bypassing_approval(monkeypatch):
-    """
-    INT-04: WebhookService.handle_new_topic_created oppretter SakOpprettetEvent med
-    sakstype='endringsordre' og hardkodet aktor_rolle='TE', og omgår godkjenningsporten.
+def test_webhook_utleder_kontraktsside_fra_topic_forfatteren(monkeypatch):
+    """INT-04: aktor_rolle skal følge forfatterens lagmedlemskap, ikke antas.
+
+    Rettet 2026-09-19. Webhooken hardkodet `aktor_rolle="TE"` med kommentaren
+    «Assume TE created the case». Catenda oppgir forfatterens bruker-ID i
+    `bimsync_creation_author.user.ref` — samme subjekt `contract_membership`
+    matcher mot prosjektets TE/BH-lag — så antakelsen var unødvendig.
+
+    **Den opprinnelige reproduksjonen er erstattet.** Den påsto at en EO opprettet
+    av TE omgår godkjenningskravet. Vurderingen av auditfunnene avviste den
+    rammingen: dette er saksopprettelse, ikke utstedelse, og godkjenningsporten
+    dekker de bindende hendelsene. Beslutningen som ble tatt var å utlede siden
+    framfor å gjøre opprettelse BH-forbeholdt, så testen prøver nå det.
     """
     from services.catenda_project_resolver import ResolvedProjectContext
     from services.catenda_webhook_service import WebhookService
@@ -164,7 +168,13 @@ def test_webhook_allows_te_to_create_endringsordre_bypassing_approval(monkeypatc
         "id": "topic-eo-1",
         "title": "Pålegg om endring",
         "topic_type": "Endringsordre",
-        "bimsync_creation_author": {"user": {"name": "Ola Entreprenør", "email": "ola@te.no"}},
+        "bimsync_creation_author": {
+            "user": {
+                "name": "Kari Byggherre",
+                "email": "kari@bh.no",
+                "ref": "524809076a694255b989d236517a55da",
+            }
+        },
     }
     mock_client.get_project_details.return_value = {"name": "Testprosjekt"}
 
@@ -206,18 +216,97 @@ def test_webhook_allows_te_to_create_endringsordre_bypassing_approval(monkeypatc
         "project": {"id": "11111111111111111111111111111111"},
     }
 
+    # Forfatteren sitter i byggherrens lag. Oppslaget går gjennom det ekte
+    # _contract_side, så kallet fra webhooken til AuthService er også dekket.
+    monkeypatch.setattr(
+        "services.auth_service.AuthService.__init__", lambda self: None
+    )
+    monkeypatch.setattr(
+        "services.auth_service.AuthService.contract_membership_for_subject",
+        lambda self, project_id, subject: ("BH", "team-bh"),
+    )
+
     result = service.handle_new_topic_created(payload)
     assert result["success"] is True
 
     assert len(saved_events) == 1
     event = saved_events[0]
     assert event.sakstype == "endringsordre"
-
-    # En endringsordre kan aldri opprettes av TE; TE kan ikke pålegge endringsordre etter NS 8407.
-    assert event.aktor_rolle != "TE", (
-        f"Webhook opprettet Endringsordre med aktor_rolle='{event.aktor_rolle}'. "
-        "TE kan ikke opprette endringsordre; dette omgår godkjenningskravet."
+    assert event.aktor_rolle == "BH", (
+        f"aktor_rolle ble '{event.aktor_rolle}', men forfatteren sitter i "
+        "byggherrens lag. Rollen skal følge medlemskapet, ikke antas."
     )
+
+
+def test_webhook_oppretter_ingen_sak_uten_entydig_kontraktsside(monkeypatch):
+    """INT-04, fail-closed: uten entydig kontraktsside opprettes ingen sak.
+
+    Å skrive en formell hendelse med en gjettet avsender er verre enn å ikke
+    skrive den. Gjelder også når Catenda er utilgjengelig, siden lagmedlemskapet
+    da ikke kan slås opp.
+    """
+    from services.catenda_project_resolver import ResolvedProjectContext
+    from services.catenda_webhook_service import WebhookService
+
+    mock_client = MagicMock()
+    mock_client.get_topic_details.return_value = {
+        "id": "topic-eo-2",
+        "title": "Pålegg om endring",
+        "topic_type": "Endringsordre",
+        "bimsync_creation_author": {
+            "user": {
+                "name": "Ukjent",
+                "email": "ukjent@example.invalid",
+                "ref": "524809076a694255b989d236517a55da",
+            }
+        },
+    }
+    mock_client.get_project_details.return_value = {"name": "Testprosjekt"}
+
+    mock_resolver = MagicMock()
+    mock_resolver.resolve.return_value = ResolvedProjectContext(
+        internal_project_id="oslobygg",
+        catenda_project_id="11111111-1111-1111-1111-111111111111",
+        board_id="cccccccc-cccc-cccc-cccc-cccccccccccc",
+        topic_id="dddddddd-dddd-dddd-dddd-dddddddddddd",
+        library_id="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+    )
+
+    mock_creation = MagicMock()
+    monkeypatch.setattr(
+        "services.sak_creation_service.get_sak_creation_service",
+        lambda: mock_creation,
+    )
+    # Verken TE eller BH — eller treff i begge, som gir samme utfall.
+    monkeypatch.setattr(
+        "services.auth_service.AuthService.__init__", lambda self: None
+    )
+    monkeypatch.setattr(
+        "services.auth_service.AuthService.contract_membership_for_subject",
+        lambda self, project_id, subject: (None, None),
+    )
+
+    service = WebhookService(
+        event_repository=MagicMock(),
+        catenda_client=mock_client,
+        resolver=mock_resolver,
+        config={},
+    )
+
+    result = service.handle_new_topic_created(
+        {
+            "event": {"id": "evt-eo-2", "type": "issue.created"},
+            "issue": {
+                "id": "dddddddd-dddd-dddd-dddd-dddddddddddd",
+                "boardId": "cccccccc-cccc-cccc-cccc-cccccccccccc",
+            },
+            "project": {"id": "11111111111111111111111111111111"},
+        }
+    )
+
+    assert result["success"] is False
+    assert result["action"] == "rejected_unknown_contract_side"
+    mock_creation.create_sak.assert_not_called()
 
 
 @pytest.mark.xfail(
