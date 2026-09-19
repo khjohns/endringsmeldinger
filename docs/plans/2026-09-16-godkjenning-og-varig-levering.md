@@ -136,6 +136,26 @@ produksjon.
 | 2 — minst mulige privilegier og integritet | Avklar runtime-, worker-, drift- og migreringsrettigheter. Beskytt hendelser mot omskriving og uautorisert tilføying; hemmelighetslager og rotasjon. | Reelle runtime-legitimasjoner kan ikke endre/slette historikk eller omgå godkjenningskommandoen. Test også Data API med anon og anonymt innlogget authenticated. Migrering/break-glass er separat, tidsavgrenset og logget. |
 | 3 — dokumenter og sporbarhet | Frosset brev/vedlegg med hash, karantene/skanning før frigivelse, tilgangslogg for sensitive lesinger og eksport, revisjon av fullmakts- og prosjektendringer. | Bevarings-/sletteregler omfatter filer, logger og backup. Ingen tokens eller brevtekst i standardlogger. Uavhengig integritetsbevis/lagring velges ut fra trusselmodellen; hash i samme redigerbare database alene er utilstrekkelig. |
 | 3 — faktisk gjenoppretting og drift | Restore-øvelse, avstemming mot Catenda, varsling om køalder/usikre utfall, kapasitet og rate limiting. | Dokumentert RPO/RTO og vellykket restore av hendelser, godkjenninger, utkast, filer og køer. Restore utløser ikke blind ny levering. Feil har en mottaker og en testet driftsprosedyre. |
+| **1 — oppbevaring og sletting i selve journalen** *(ny 19.09)* | Avgjør bevarings- og slettemodell for hendelsesstrømmen **før** skriverettighetene strammes. Hendelsene bærer `aktor` (personnavn), og `internt_notat` er fritekst om navngitte personer. Kartlegg hvilke regelsett som gjelder for Oslobygg KF, der personvern trekker mot sletting og arkivplikt mot bevaring. | Det finnes en besluttet og dokumentert modell for hvordan en sletteplikt oppfylles i en journal som ellers er uforanderlig — for eksempel kryptografisk sletting, pseudonymisering ved skriving, eller en begrunnet konklusjon om at sletteplikten ikke gjelder. Modellen er avklart før `REVOKE UPDATE, DELETE` kjøres, og før journalen inneholder ekte persondata. |
+| **1 — byggreproduserbarhet og forsyningskjede** *(ny 19.09)* | Pinn Python-avhengighetene; 10 av 21 i `requirements.txt` bruker `>=`, så to bygg kan gi ulike versjoner. Innfør avhengighetsskanning for begge økosystemer i CI. | `pip install` fra repoet gir samme versjoner to ganger. Sårbarhetsskanning kjører som påkrevd sjekk, med en besluttet terskel for hva som blokkerer. Planens krav om «reproduserbar databasemigrasjon» har da en tilsvarende garanti for selve bygget. |
+| **1 — HTTP-herding av klientleveransen** *(ny 19.09)* | `nginx.conf` setter i dag bare cache-headere. Legg til CSP, HSTS, `X-Content-Type-Options` og `frame-ancestors`. | Klienten leveres med en CSP som faktisk er testet mot appen, ikke bare satt. Særlig relevant fordi brevvisningen rendrer rik tekst gjennom TipTap og DOMPurify — CSP er forsvar i dybden der sanitiseringen svikter. |
+| **2 — domenegjennomgang av NS 8407-reglene** *(ny 19.09)* | Systematisk gjennomgang av tilstandsovergangene i `timeline_service.py` (2226 linjer) og `business_rules.py` mot kontraktsstandarden. TFR-01 — at aksept av et avslag settes til `GODKJENT` — ble funnet ved en tilfeldighet, og ingen av de fire arkitekturfasene ville avdekket den. | Hver hendelsestype har en dokumentert forventet tilstandsovergang, og hver overgang har en test. Regelsettet i `business_rules.py` er holdt opp mot standardens krav, ikke bare mot seg selv. |
+
+**Presiseringer til eksisterende pakker (19.09).** To rader trenger en skjerping
+snarere enn en ny pakke:
+
+- **Pakke 1, akseptkriteriet for tenant-grensen.** Kriteriet er i dag negative
+  tester per rute. Etter at grensen er flyttet til databasen bør det formuleres som
+  en *egenskap*: en rolle med prosjekt A i konteksten får null rader fra prosjekt B
+  ved direkte spørring, utenom API-et. Begrunnelsen er dokumentert: RV-07 og RV-09
+  er begge bekreftet lukket på funnstedet og ikke som klasse, og det ble oppdaget
+  først da et annet spor fant AUT-01, AUT-02 og AUT-03. Et eksempelbasert kriterium
+  fanger ikke den feilformen; et egenskapsbasert gjør det.
+- **Pakke 3, rate limiting.** Nå som plattformen er avklart — Google Cloud, mulig
+  Azure Container Apps — er `RATE_LIMIT_STORAGE=memory://` ikke lenger bare en
+  prototypeverdi. Med N instanser blir effektiv grense N ganger den konfigurerte,
+  og den nullstilles ved hver kaldstart. Delt lager hører til samme flytting som
+  resten av SQLite-lagrene i fase 1.
 
 Arbeidspakker på samme nivå kan avklares sammen, men ingen utrulling før den
 samlede produksjonsporten er passert. Før neste databasemigrasjon må tilgangs-

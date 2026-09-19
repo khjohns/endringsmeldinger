@@ -183,6 +183,16 @@ databasen. Katalogen inneholder ingen views i `public`.
 skill runtime-, worker- og migreringsrettigheter. Rettinger gjøres med
 kompenserende hendelser, ikke med UPDATE.
 
+**Forutsetning, lagt til 19.09.** Dette tiltaket kan ikke kjøres før bevarings- og
+slettemodellen for journalen er besluttet. Hendelsene bærer `aktor` — personnavn —
+og `internt_notat` er fritekst om navngitte personer. Gjøres journalen uforanderlig
+først, er sletteveien borte; beholdes sletteveien, er journalen ikke uforanderlig.
+For Oslobygg KF trekker regelsettene i hver sin retning. Masterplanen fører dette
+som egen arbeidspakke på nivå 1, altså *før* dette tiltaket. Rekkefølgen er ikke
+valgfri: å ettermontere en slettevei i en uforanderlig journal er blant de dyreste
+endringene som finnes, og fristen er den samme som for tenant-attribusjonen —
+før ekte persondata finnes.
+
 ## AR-03 — delt persistens uten felles transaksjon
 
 | Hva | Hvor |
