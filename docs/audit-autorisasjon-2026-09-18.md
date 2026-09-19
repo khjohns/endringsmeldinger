@@ -18,6 +18,11 @@ kallsteder da RV-07 ble lukket, og `valider_grunnlag_fortsatt_gyldig`
 (`forsering_service.py:823`) itererer fortsatt `avslatte_fristkrav` ufiltrert.
 Masterplanen er merket tilsvarende: RV-07 er lukket per kallsted, ikke som klasse.
 
+**AUT-03 er et andre tilfelle av samme mønster.** RV-09 ble rettet i de fire
+lesestiene, men `submit_batch` stempler fortsatt `last_event_at` ubetinget
+(`event_routes.py:819`), også for interne notater. AUT-04 og AUT-06 er også
+bekreftet; AUT-04 treffer standardoppsettet, siden `repository_type` er `"csv"`.
+
 ## Omfang
 
 **Undersøkt:**

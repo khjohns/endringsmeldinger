@@ -13,24 +13,28 @@ Appen er ikke i produksjon og har ingen reelle data.
 **Mandatet.** Ikke «finnes det flere hull», men: er funnene reelle, er de faktisk
 problemer, og hva er riktig håndtering. Ingen kode er endret.
 
-**Avgrensning — les denne før tallene.** Jeg har etterprøvd **34 av 60 funn** mot
-kode og database: alle seks Kritisk, alle 22 Høy, alle Middels/Høy og databasefunnene.
-De øvrige 26 — Middels og Lav — er lest, gruppert og vurdert ut fra sporets egne
-beskrivelser, men ikke reprodusert uavhengig. Hvert funn under er merket
-`Etterprøvd` eller `Lest`. En vurdering merket `Lest` er en formodning, ikke en
-kontroll. **Mine egne åtte AR-funn er ikke vurdert her** — jeg skrev dem, og de
-hører til Astras runde.
+**Avgrensning — les denne før tallene.** **59 av 60 funn er etterprøvd** mot kode og
+database. Det ene unntaket er FE-06, der kontrollen ble inkonklusiv. Kontrollen er
+gjort i tre runder med avtakende dybde: Kritisk og Høy med full mekanismesporing,
+Middels og Lav med kontroll av selve påstanden og plasseringen i rotårsak.
+
+*Rettelse:* en tidligere versjon av dette dokumentet oppga 34 etterprøvde og 26
+gjenstående. Riktig fordeling etter de to første rundene var 35 og 25.
+
+**Mine egne åtte AR-funn er ikke vurdert her** — jeg skrev dem, og de hører til
+Astras runde.
 
 ---
 
 ## Sammendrag
 
-**Funnene er i hovedsak reelle.** Av de 34 etterprøvde holdt 25 fullt ut. Ingen var
-oppspinn; ingen pekte på kode som ikke finnes. To duplikerer funn masterplanen
-allerede fører.
+**Funnene er i hovedsak reelle.** Av de 59 etterprøvde holdt 49 fullt ut. Ingen var
+oppspinn; ingen pekte på kode som ikke finnes. Tre duplikerer funn masterplanen
+allerede fører, og to er beslutninger snarere enn feil.
 
-**Men én feilklasse går igjen, og den er systematisk.** Sju av de 34 har *riktig
-premiss og feil konsekvens*: påstanden om repoet stemmer, men den oppgitte
+**Men én feilklasse går igjen, og den er systematisk.** Sju av de 59 har *riktig
+premiss og feil konsekvens* — og alle sju ligger blant Kritisk og Høy, altså der
+konsekvensen faktisk ble utledet. Blant Middels og Lav holdt påstandene gjennomgående: påstanden om repoet stemmer, men den oppgitte
 virkningen inntreffer ikke. Årsaken er metodisk — sporet leste migrasjoner,
 docstrings og kode og utledet kjøretidsatferd uten å kjøre mot faktisk system
 (`RUN_LIVE_SUPABASE` ble bevisst aldri satt). Der utledningen krysser et lag den
@@ -263,6 +267,40 @@ oppdatert tilsvarende.
   godkjenningsflyten ikke modellerer forseringssporet.» Dette er akseptert gjeld,
   ikke en ny feil.
 
+### Middels og Lav — kontrollert, og de holder
+
+Alle 25 gjenstående er kontrollert. 24 holder som beskrevet; FE-06 er inkonklusiv.
+Ingen feilklassifiseringer i denne gruppen — påstandene er enklere og krysser færre
+laggrenser, som er nettopp der de to foregående rundene sprakk.
+
+| Gruppe | Utfall |
+| --- | --- |
+| AUT-03, AUT-04, AUT-06 | Bekreftet. `list_by_sakstype` finnes bare på Supabase-repoet, og `repository_type` er `"csv"` som standard, så AUT-04 treffer standardoppsettet. `hent_relaterte_saker(self, sak_id)` tar ingen prosjektparameter. |
+| TFR-03 til TFR-06 | Bekreftet. TFR-04 er presis: `if require_truthy: if value:` forkaster `0` og `0.0`, og et subsidiært standpunkt på null blir da lest som «samme som prinsipalt». TFR-05 og TFR-06 er bekreftet strukturelt, ikke kjørt. |
+| CFG-04, CFG-05, CFG-07 | Bekreftet. CFG-04 er reell asymmetri: `production_like()` har `os.getenv("APP_ENV", "development")` **med** default, `cookie_name()` har `os.getenv("APP_ENV") == "development"` **uten**. Usatt miljø gir dermed «ikke produksjon» og samtidig `__Host-`-cookie, som krever HTTPS. |
+| OBS-05, OBS-06, OBS-07 | Bekreftet. `X-Request-ID` tas ordrett fra klienten uten lengdegrense, og servergenerert ID er `uuid4().hex[:8]` — 32 bit. OBS-07 gjelder bare når `app.debug`, altså den dokumenterte utviklingskonfigurasjonen. |
+| INT-03, INT-06, INT-07 | Bekreftet. Validatorens liste (`webhook_security.py:198`) har ingen `bcf.*`-oppføringer, mens rutene på `:147` og `:152` håndterer dem — handlerne er død kode. INT-07: oppslagstabellen er nøklet på `"koe"`, mens `sakstype` er `"standard"`. |
+| TST-01, TST-05, TST-06, TST-07 | Bekreftet. `grep -c outbox` i `endringsordre_service.py` gir 0, og linje 242 logger og går videre. TST-06: `list_all_sak_ids` mot `get_all_sak_ids` — samme funksjon, to navn. |
+| FE-03, FE-05 | Bekreftet. FE-03 svarer til `state_referenced_locally`-advarslene `svelte-check` allerede gir. |
+| GFK-05, GFK-06 | Bekreftet. `/api/letter/generate` har ingen `@require_contract_role`, så TE kan generere et brev med `avsender.rolle = "BH"`. GFK-06: `approval_authority.py:35` hopper over `grunnlag` i eksponeringen. |
+| **FE-06** | **Inkonklusiv.** Verken `{@html` eller en ren interpolering av begrunnelse lot seg finne i `LetterHtmlPreview.svelte` med de søkene jeg kjørte. Påstanden er hverken bekreftet eller avkreftet. |
+
+**To observasjoner fra denne runden endrer bildet et sted hver:**
+
+- **AUT-03 er et andre tilfelle av samme mønster som AUT-01/AUT-02.** RV-09 ble rettet
+  i de fire lesestiene, men `submit_batch` stempler fortsatt `last_event_at=datetime.now(UTC)`
+  ubetinget (`event_routes.py:819`) — også for interne notater. Fiksen ble altså påført
+  lesesiden, ikke skrivesiden. To uavhengige RV-funn er nå bekreftet lukket «der de ble
+  funnet» snarere enn som klasse.
+- **FE-05 gir et femte oslobygg-fallback.** `client.ts:11` har
+  `let activeProjectId: string = 'oslobygg';`. RC-2 under bør derfor leses som fem lag,
+  ikke fire: klientens standardverdi, serverens header-fallback, databasens `DEFAULT`,
+  `ce_source`, og FE-01s manglende header.
+
+**Om TST-07:** min egen opptelling gir 82 komponenter og 15 med test, mot sporets 87 og
+29. Min matching er navnebasert og grovere; retningen er den samme og sporets tall er
+trolig riktigere. Uenigheten er ikke materiell.
+
 ---
 
 ## Del 3: Tolv rotårsaker
@@ -272,7 +310,7 @@ Dette er den egentlige leveransen. 60 funn er ikke en arbeidsliste. Tolv er.
 | # | Rotårsak | Dekker | Løses av |
 | --- | --- | --- | --- |
 | RC-1 | Tenant-grensen finnes bare i applikasjonskoden | AUT-01, -02, -05, -06, DB-04, DB-06, (RV-07, RV-09) | Fase 1 |
-| RC-2 | Oslobygg-fallback i fire lag | DB-03, OBS-04, FE-01, `project_context.py:14` | Fase 1, **før ekte data** |
+| RC-2 | Oslobygg-fallback i **fem** lag | DB-03, OBS-04, FE-01, FE-05, `project_context.py:14` | Fase 1, **før ekte data** |
 | RC-3 | Skjemaet har ingen sannhetskilde | DB-01, DB-02, DB-07, DB-08, TST-06 | Fase 0 |
 | RC-4 | Ingen transaksjon rundt sammensatte skrivinger | TST-03, TST-05, TST-02, INT-05, (AP-04) | Fase 1–2 |
 | RC-5 | Fullmakt dekker ikke tidskonsekvens | GFK-01, GFK-02, FE-04 | Egen retting |
@@ -321,22 +359,17 @@ mot en faktisk Postgres — ellers forblir de grønne uansett hva databasen gjø
 
 ## Verifikasjon og grenser
 
-**Etterprøvd mot kode eller database (34):** alle seks Kritisk, alle 22 Høy, alle
-Middels/Høy og samtlige databasefunn. Navngitt: DB-01 til DB-08, AUT-01, AUT-02,
-AUT-05, TFR-01, TFR-02, FE-01, FE-02, FE-04, CFG-01, CFG-02, CFG-03, CFG-06,
-OBS-01, OBS-02, OBS-03, OBS-04, GFK-01, GFK-02, GFK-03, GFK-04, INT-01, INT-02,
-INT-04, INT-05, TST-02, TST-03, TST-04.
+**Etterprøvd (59 av 60).** Kritisk og Høy med full mekanismesporing; Middels og Lav
+med kontroll av påstanden og plasseringen i rotårsak. Fire funn er bekreftet
+strukturelt — ved lesing av kontrollflyten, ikke ved kjøring: TFR-05, TFR-06, TST-01
+og TST-07.
 
-**Kun lest (26):** AUT-03, AUT-04, AUT-06, GFK-05, GFK-06, TFR-03 til TFR-06,
-INT-03, INT-06, INT-07, FE-03, FE-05, FE-06, CFG-04, CFG-05, CFG-07, OBS-05 til
-OBS-07, TST-01, TST-05, TST-06, TST-07. Alle er Middels eller Lav. Der et slikt funn
-er ført under en rotårsak i del 3, er slektskapet en formodning — ikke en kontrollert
-påstand. Gitt at sju av 34 etterprøvde funn viste seg feilklassifisert, bør de 26 ikke
-legges til grunn uten samme kontroll.
+**Ikke avgjort (1):** FE-06.
+
+**Ikke vurdert:** mine egne AR-01 til AR-08. Samme forfatter som denne vurderingen.
 
 Databasespørringene var rene katalogslesninger; ingen saksdata er lest og ingen
 skriving utført. Testtallene er fra full kjøring etter sammenslåingen: 1440 bestått,
 9 hoppet, 51 `xfail`.
 
-**Ikke vurdert:** mine egne AR-01 til AR-08. De er skrevet av samme forfatter som
-denne vurderingen og hører til en uavhengig runde.
+
