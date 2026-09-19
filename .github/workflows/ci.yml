@@ -1,0 +1,100 @@
+# Portene som allerede er grønne, kjørt på hver endring.
+#
+# Alle tre jobbene gater, og alle tre er grønne i dag. CI-en virker derfor fra
+# første kjøring uten at noe må ryddes først.
+#
+# To ting er bevisst utelatt:
+#
+#   Driftskriptene i scripts/. De gater riktig — med --ci gir de exit 1 — men
+#   seks av ni feiler i dag (kontrollert 2026-09-19: contract_drift,
+#   event_field_usage og label_coverage passerer, resten ikke). Koblet på her
+#   ville CI vært rød fra første kjøring. category_drift feiler dessuten på sin
+#   egen parser, så den må repareres før den kan si noe. De hører hjemme her når
+#   det er avgjort hvilke som skal baselines og hvilke som skal rettes.
+#
+#   ruff og eslint. Backend har 73 kjente ruff-feil og frontend 4 eslint-feil.
+#   En ikke-gatende sjekk er den samme feilen som driftskriptene, og en
+#   fil-basert sperrehake ville flagget gammel gjeld i filer man tilfeldigvis
+#   åpnet. Ryddes gjelden, hører de hjemme her som ordinære jobber. Se
+#   masterplanen for hva ryddingen består i — særlig at UP042 (14 av 73) bør
+#   slås av framfor rettes, fordi StrEnum endrer str() og f-string på
+#   domeneenums som serialiseres inn i hendelsesloggen.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+# En ny push gjør forrige kjøring på samme gren uinteressant.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    name: Backend (pytest)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+          cache-dependency-path: |
+            backend/requirements.txt
+            backend/requirements-dev.txt
+
+      - name: Installer avhengigheter
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r backend/requirements.txt -r backend/requirements-dev.txt
+
+      # Standard pytest gjør ingen nettverkskall. Live-testene mot Supabase er
+      # opt-in med RUN_LIVE_SUPABASE=1 (RV-16) og kjøres ikke her.
+      - name: Kjør testene
+        working-directory: backend
+        run: python -m pytest -q -p no:cacheprovider
+
+  frontend:
+    name: Frontend (vitest)
+    runs-on: ubuntu-latest
+    env:
+      # husky hører til utviklermaskinen, ikke til CI.
+      HUSKY: 0
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - run: npm ci
+
+      - name: Kjør testene
+        run: npm test
+
+  typesjekk:
+    name: Typesjekk (svelte-check)
+    runs-on: ubuntu-latest
+    env:
+      HUSKY: 0
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - run: npm ci
+
+      # --threshold error: de 9 advarslene gater ikke. Tre av dem er a11y og
+      # hører til arbeidspakken om universell utforming.
+      - name: Typesjekk
+        run: npm run check:error

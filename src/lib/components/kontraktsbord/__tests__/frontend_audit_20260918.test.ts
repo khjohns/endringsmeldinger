@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { eoExposureFloor } from '$lib/domain/endringsordre';
+import type { CreateEORequest } from '$lib/api/endringsordre';
 import { readWorkspaceView } from '$lib/kontraktsbord/viewState';
 import { getActiveProjectId, setActiveProjectId } from '$lib/api/client';
 import { getDefaults as getFristDefaults } from '$lib/domain/fristDomain';
@@ -110,14 +111,15 @@ describe('Pass 6: Frontend audit (Svelte 5 runes, reaktivitet, CSRF, skjerming)'
       koe_sak_ids: [],
     };
 
-    const floor = eoExposureFloor(payload as any, 50000);
+    const request = payload as unknown as CreateEORequest;
+    const floor = eoExposureFloor(request, 50000);
 
     // Floor må ta hensyn til fristdager og ikke returnere 0
     expect(floor).toBeGreaterThan(0);
     expect(floor).toBe(3000000);
 
     // Uten kjent sats kan dagene ikke verdsettes, og gulvet blir vederlaget alene.
-    expect(eoExposureFloor(payload as any)).toBe(0);
+    expect(eoExposureFloor(request)).toBe(0);
   });
 
   // =========================================================================

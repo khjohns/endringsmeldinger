@@ -161,6 +161,36 @@ produksjon.
 | 0 — lukk eksponering før videre funksjonsarbeid | Fjern uvedkommende auto-consent/OAuth-discovery og ubrukt alternativ auth; behold Catenda-innlogging. Rett analytics-skjerming. | SA-01/02 er ordinære grønne tester. Hele ruteregisteret er klassifisert med offentlig/unntak eller påkrevd autentisering, prosjekt og kontraktsrolle. |
 | 1 — felles sikkerhetsgrenser | Eksplisitt autorisert prosjektkontekst, ingen produksjonsfallback til oslobygg. Autorisert leselag skiller offentlig innhold, teaminterne notater og private pakker før aggregering, eksport og PDF. | Negative tester for to prosjekter, motpart, to team på samme side, ukjent team og direkte ressurs-ID. UI, analytics, nedlasting og driftsvisning følger samme regler. |
 | 1 — verifiserbar leveranseprosess | CI og isolert staging, reproduserbar databasemigrasjon, nødvendige merge-sjekker. Avklar eierskap til drift og hendelser. | Tester/typesjekk/bygg og faktiske DB-integrasjonstester kjøres automatisk. Autorisasjon er ikke globalt mocket bort; live-tester er eksplisitt adskilt. |
+
+**Merknad 2026-09-19: første halvdel av «verifiserbar leveranseprosess» er levert.**
+`.github/workflows/ci.yml` kjører tre gatende jobber på push til `main` og på hver
+pull request: backend-testene (`pytest`), frontend-testene (`vitest`) og typesjekken
+(`svelte-check --threshold error`). Alle tre er grønne i dag, så CI gater fra første
+kjøring uten opprydding først. Alle tre er verifisert fra ren tilstand — nytt venv
+fra requirements-filene, og `npm ci` fra lockfila.
+
+Det som gjenstår i pakken: isolert staging, reproduserbar databasemigrasjon, faktiske
+DB-integrasjonstester og påkrevde merge-sjekker i GitHub-innstillingene. En workflow
+gater ikke i seg selv — jobbene må settes som required checks på `main`.
+
+**Ikke med, og hvorfor:**
+
+- **Driftskriptene.** De gater riktig med `--ci` (exit 1), men seks av ni feiler i
+  dag. Koblet på ville CI vært rød fra første kjøring. `category_drift` feiler
+  dessuten på sin egen parser. Det må avgjøres hvilke som skal baselines og hvilke
+  som skal rettes.
+- **`ruff` og `eslint`.** Backend har 73 ruff-feil, frontend 4 eslint-feil. En
+  ikke-gatende sjekk er samme feil som driftskriptene, og en fil-basert sperrehake
+  ville flagget gammel gjeld i filer man tilfeldigvis åpnet — prøvd, og den feilet
+  på denne grenen av den grunnen.
+
+**Veien til at ruff kan gate** er kortere enn tallet antyder, og er én commit:
+
+| Regel | Antall | Handling |
+| --- | --- | --- |
+| F401, I001, F541, UP017 | 56 | `ruff check --fix` — ubrukte importer, sortering, `datetime.UTC` |
+| **UP042** | **14** | **Slå av i `pyproject.toml`, ikke rett.** `class X(str, Enum)` → `StrEnum` endrer `str()` og f-string-interpolering: `str(SporStatus.GODKJENT)` går fra `'SporStatus.GODKJENT'` til `'godkjent'`. Kontrollert kjørt. JSON blir likt, men 14 domeneenums serialiseres inn i hendelsesloggen, og en slik endring hører til en bevisst gjennomgang framfor et lint-sveip |
+| E741, F841 | 3 | Manuelle, trivielle |
 | 2 — atomisk domene og levering | Gjennomfør EO-referanseflyten nedenfor, så BH-svar, ordinære hendelser, vedlegg og webhook. | AP-04 lukket mot ekte Postgres, alle støttede formelle innsendingsveier har varig leveringsintensjon og gjenopptas uten brukerhandling. |
 | 2 — minst mulige privilegier og integritet | Avklar runtime-, worker-, drift- og migreringsrettigheter. Beskytt hendelser mot omskriving og uautorisert tilføying; hemmelighetslager og rotasjon. | Reelle runtime-legitimasjoner kan ikke endre/slette historikk eller omgå godkjenningskommandoen. Test også Data API med anon og anonymt innlogget authenticated. Migrering/break-glass er separat, tidsavgrenset og logget. |
 | 3 — dokumenter og sporbarhet | Frosset brev/vedlegg med hash, karantene/skanning før frigivelse, tilgangslogg for sensitive lesinger og eksport, revisjon av fullmakts- og prosjektendringer. | Bevarings-/sletteregler omfatter filer, logger og backup. Ingen tokens eller brevtekst i standardlogger. Uavhengig integritetsbevis/lagring velges ut fra trusselmodellen; hash i samme redigerbare database alene er utilstrekkelig. |
