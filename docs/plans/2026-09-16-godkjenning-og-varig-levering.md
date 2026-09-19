@@ -20,9 +20,12 @@ persistenslaget og tenant-grensen byttes. Ingen beslutning er tatt.
 Den vurderingen og Gemini-sporets ni passeringer er holdt opp mot hverandre i
 [sammenstillingen](../sammenstilling-arkitektur-og-auditspor-2026-09-19.md).
 Sporene motsier ikke hverandre. Sammenstillingen avgjør seks databasefunn mot
-faktisk skjema, og finner ett forhold ingen av dem så alene: tre uavhengige
+faktisk skjema, og finner ett forhold ingen av dem så alene: fem uavhengige
 oslobygg-fallbacks gjør tenant-attribusjonen uetterprøvbar, og det lar seg ikke
 rette i ettertid når ekte saker først finnes.
+
+Overtar du dette arbeidet uten kontekst: start i
+[handoff 2026-09-19](../handoff-2026-09-19.md).
 
 ## Status 2026-09-18
 
