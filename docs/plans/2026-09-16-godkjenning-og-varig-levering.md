@@ -35,13 +35,21 @@ Lukket med retting, regresjonstest og egen commit:
 | RV-04 | `forsering_respons` er under godkjenningsporten, i både hendelsesruta og den egne ruta. |
 | RV-05 | Lesing av vedlegg krever kontraktsside. |
 | RV-06 | Data API-et er stengt for `anon` og `authenticated`. **Kjørt mot prosjektet 2026-09-18** og verifisert: null lesbare tabeller og kjørbare funksjoner for begge roller, null sikkerhetsvarsler fra Supabase-linten. Den faktiske databasen hadde i tillegg policyer som ikke sto i noen migrasjonsfil — hele hendelsesloggen var lesbar for enhver innlogget bruker. |
-| RV-07 | Relasjoner utvider ikke lenger prosjektgrensen: kontekst filtreres før aggregering, `avslatte_fristkrav` autoriseres ved innsending, BIM-sletting er saksavgrenset, og `settings.contract` krever byggherrens kontraktsside. |
+| RV-07 | **Se merknad under: lukket per kallsted, ikke som klasse.** Relasjoner utvider ikke lenger prosjektgrensen: kontekst filtreres før aggregering, `avslatte_fristkrav` autoriseres ved innsending, BIM-sletting er saksavgrenset, og `settings.contract` krever byggherrens kontraktsside. |
 | RV-08 | `aktor_team_id` overlever lagring i Supabase (`actorteam`), med round-trip-test per lager. |
 | RV-16 | Live-tester mot Supabase er opt-in (`RUN_LIVE_SUPABASE=1`). Standard `pytest` er uten nettverk. |
 | SA-01 | Hele Supabase-OAuth-flaten er fjernet: tre blueprints, MCP-rate limit og tokenvalidatoren. Appen logger inn med Catenda alene. Ruteregisteret holdes nå opp mot en eksplisitt liste over offentlige ruter. |
 | RV-09 | Aktivitetstall utledes av det leseren ser, i alle fire svarveier. Interne notater flytter ikke det delte aktivitetsstempelet. |
 | RV-11 | `ConcurrencyError` arver `ConflictError`, så en versjonskonflikt gir 409 og ingen blind retry. |
 | SA-02, SA-03, RV-22 | Analytics-blueprinten er slettet. Rutene hadde ingen forbruker i `src/`, og de var eneste kjente lekkasje av byggherrens interne aktivitet i et aggregat, samtidig som de bar hardkodet dagmulktssats og feilsvelging. Skal statistikk komme tilbake, bygges den på det autoriserte leselaget. |
+
+**Merknad 2026-09-19 til RV-07.** `tillatte_saker=cases_in_project` ble påført to
+kallsteder (`forsering_routes.py:267`, `endringsordre_routes.py:144`).
+`valider_grunnlag_fortsatt_gyldig` (`forsering_service.py:823`) itererer fortsatt
+`avslatte_fristkrav` ufiltrert, og `finn_forseringer_for_sak` returnerer
+relasjonsindeksen som den er. Gemini-sporet fant begge uavhengig som AUT-01 og
+AUT-02. RV-07 bør stå som delvis lukket til grensen ligger i dataene. Se
+[vurderingen av auditfunnene](../vurdering-av-auditfunn-2026-09-19.md).
 
 Beslutninger som er tatt i disse rettingene:
 

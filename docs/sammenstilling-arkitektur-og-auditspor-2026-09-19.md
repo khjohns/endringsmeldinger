@@ -290,6 +290,12 @@ katalogslesninger; ingen saksdata er lest og ingen skriving er utført.
 Testtallene er fra kjøring av hele suiten etter at `origin/main` var slått inn i
 arbeidsgrenen.
 
+Funnene er siden vurdert enkeltvis i
+[vurderingen av auditfunnene](vurdering-av-auditfunn-2026-09-19.md), som etterprøver
+22 av 60 mot kode og database og grupperer alle 60 i tolv rotårsaker. Den finner at
+seks av de etterprøvde har riktig premiss og feil konsekvens, og at RV-07 ble lukket
+per kallsted snarere enn som klasse.
+
 Denne sammenstillingen har **ikke** etterprøvd de 52 funnene utenfor pass 1.
 De er lest, gruppert og holdt opp mot arkitekturvurderingens påstander, men ikke
 reprodusert uavhengig. Der teksten sier at et funn bekrefter eller skjerper et
