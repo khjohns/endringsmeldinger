@@ -91,33 +91,34 @@ describe('Pass 6: Frontend audit (Svelte 5 runes, reaktivitet, CSRF, skjerming)'
   // =========================================================================
   // FE-04: Fullmaktsomgåelse i frontend (eoExposureFloor ignorerer fristdager)
   // =========================================================================
-  it.fails(
-    'FE-04: eoExposureFloor ignorerer fristdager og returnerer 0 ved fristforlengelse',
-    () => {
-      // src/lib/domain/endringsordre.ts:162-164:
-      // export function eoExposureFloor(payload: CreateEORequest): number {
-      //   return Math.max(payload.kompensasjon_belop ?? 0, payload.fradrag_belop ?? 0);
-      // }
-      //
-      // Ved 60 dagers fristforlengelse med 50 000 kr/dag i dagmulktssats,
-      // representerer ordren en eksponering på 3 000 000 kr, men floor returnerer 0.
-      const payload = {
-        tittel: 'Fristforlengelse 60 dager',
-        begrunnelse: 'Uforutsette grunnforhold',
-        kompensasjon_belop: 0,
-        fradrag_belop: 0,
-        frist_dager: 60,
-        ny_sluttdato: null,
-        konsekvenser: { pris: false, fremdrift: true },
-        koe_sak_ids: [],
-      };
+  it('FE-04: eoExposureFloor tar med fristdager i fullmaktsgulvet', () => {
+    // Rettet 2026-09-19. eoExposureFloor tok tidligere bare payload:
+    //   return Math.max(payload.kompensasjon_belop ?? 0, payload.fradrag_belop ?? 0);
+    //
+    // Ved 60 dagers fristforlengelse med 50 000 kr/dag i dagmulktssats
+    // representerer ordren en eksponering på 3 000 000 kr, men floor returnerte 0.
+    // Signaturen tar nå dagmulktssatsen, slik vurderingen av auditfunnene
+    // foreskriver for GFK-01. Påstanden under er uendret.
+    const payload = {
+      tittel: 'Fristforlengelse 60 dager',
+      begrunnelse: 'Uforutsette grunnforhold',
+      kompensasjon_belop: 0,
+      fradrag_belop: 0,
+      frist_dager: 60,
+      ny_sluttdato: null,
+      konsekvenser: { pris: false, fremdrift: true },
+      koe_sak_ids: [],
+    };
 
-      const floor = eoExposureFloor(payload as any);
+    const floor = eoExposureFloor(payload as any, 50000);
 
-      // Floor må ta hensyn til fristdager og ikke returnere 0
-      expect(floor).toBeGreaterThan(0);
-    }
-  );
+    // Floor må ta hensyn til fristdager og ikke returnere 0
+    expect(floor).toBeGreaterThan(0);
+    expect(floor).toBe(3000000);
+
+    // Uten kjent sats kan dagene ikke verdsettes, og gulvet blir vederlaget alene.
+    expect(eoExposureFloor(payload as any)).toBe(0);
+  });
 
   // =========================================================================
   // FE-05: Modul-global activeProjectId lekker på tvers av asynkrone kall
