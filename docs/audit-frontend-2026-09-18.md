@@ -9,6 +9,13 @@
 
 ---
 
+**Etterprøvd 2026-09-19** i [vurderingen av auditfunnene](vurdering-av-auditfunn-2026-09-19.md). **FE-01 er
+feilklassifisert.** Kallet mangler ikke bare CSRF-token, men også `credentials` og
+`X-Project-ID`, mot en rute med `@require_auth`. Ingen får dermed tilgang til noe:
+knappen er ødelagt (403 ved samme opphav, 401 ved kryssopphav), ikke en angrepsvei.
+Bør stå som funksjonsfeil, ikke som CSRF-sårbarhet. Det manglende `X-Project-ID`
+gjør den samtidig til et fjerde sted oslobygg-fallbacken slår inn.
+
 ## Metodisk presisering
 
 I tråd med revisjonskravene skiller rapporten strengt mellom tre kunnskapsnivåer:

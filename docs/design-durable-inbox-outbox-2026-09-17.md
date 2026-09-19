@@ -13,6 +13,25 @@ er work in progress. Appen er ikke i produksjon, og må være sikker før den se
 prod.** Dette dokumentet er derfor skrevet som et krav til produksjonssetting, ikke som
 en forbedring man kan ta senere.
 
+**Merknad 2026-09-19.** Dokumentets kjernepåstand — at det avgjørende valget er
+**én database**, ikke Azure SQL kontra Postgres — er bekreftet av
+[arkitekturvurderingen](arkitekturvurdering-2026-09-19.md), som kom til samme
+konklusjon uavhengig og la til to ting dette dokumentet ikke hadde:
+
+- **Plattformen er avklart.** Google Cloud nå, mulig Azure Container Apps senere.
+  Begge sletter den lokale SQLite-fila ved skalering til null, så tabellen i
+  avsnittet under der steg 1 og 6 går mot `BH_APPROVAL_DB`, beskriver en flyt som
+  taper leveringskvitteringer ved normal drift.
+- **Tenant-grensen kan ikke skrives ennå.** Hendelsestabellene mangler
+  `prosjekt_id` (DB-06), så en RLS-policy på prosjekt lar seg ikke formulere før
+  kolonnen finnes og er backfilt fra `sak_metadata` — aldri fra `source`, som er
+  skrevet av en av tre oslobygg-fallbacks. Se
+  [sammenstillingen](sammenstilling-arkitektur-og-auditspor-2026-09-19.md), del 3.
+
+Linje 428 under fører opp at `BH_APPROVAL_DB` trenger varig lagring og restore-test,
+med «bortfaller når SQLite-lagrene konsolideres». Plattformvalget gjør den
+konsolideringen til en forutsetning for første produksjonsdeploy, ikke en opprydding.
+
 ## Kort svar
 
 **Ja på vår side av grensen. Nei på tvers av Catenda — og det er ikke en svakhet ved

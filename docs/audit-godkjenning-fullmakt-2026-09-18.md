@@ -19,6 +19,13 @@ konsekvens under beskrevne forutsetninger, ikke observert hendelse.
 
 ---
 
+**Etterprøvd 2026-09-19** i [vurderingen av auditfunnene](vurdering-av-auditfunn-2026-09-19.md). GFK-01 er bekreftet,
+med én presisering: hele kjeden returneres, så dette er ikke selvutstedelse — men
+`minimum > 0`-kontrollen hoppes over når gulvet er 0, så kjeden slipper
+fullmaktskontrollen. `order_exposure_floor` må ta `daily_rate` og inkludere
+`frist_dager * daily_rate`; signaturen må endres. FE-04 er samme feil i
+frontend-kopien og må rettes i samme runde.
+
 ## Omfang
 
 **Undersøkt:**

@@ -91,6 +91,26 @@ klassifisert og holdes av en test, og analytics er slettet.
    designdokumentet er ikke merket foreldet, promptens Del 3 er ubesvart, og
    `audit-begrunnelsestekst-og-dodkode-2026-09-14.md:115` viser til en slettet fil.
 
+**Overlapp med Gemini-sporet (merknad 2026-09-19).** Flere av de åpne RV-funnene
+over er samme sak som et funn fra pass 1–9. De skal arbeides én gang, ikke to:
+
+| Åpent RV-funn | Samme sak som | Merknad |
+| --- | --- | --- |
+| RV-02 | GFK-03 | Sporet oppgir selv koblingen |
+| RV-10 | INT-05 | Sporet oppgir selv koblingen. INT-05 legger til at `CatendaDeliveryStatus` rapporterer «clear» |
+| RV-13 | CFG-03, OBS-07 | Rå `str(e)` og åpne driftsruter |
+| RV-21 | INT-04 | Sporet oppgir selv koblingen |
+| RV-12 | INT-01 | Webhookens dedupe og hemmelighetssammenlikning |
+| RV-15 | DB-01, DB-08 | DB-01 er sterkere (kjørt mot tom base). DB-08 er uten virkning: viewene finnes ikke |
+
+Rotårsaksgrupperingen av alle 60 funnene står i
+[vurderingen av auditfunnene](../vurdering-av-auditfunn-2026-09-19.md), del 3. Tre
+saker er der anbefalt tatt uavhengig av fasene, fordi de er datafeil i den juridisk
+avgjørende delen av domenet: **TFR-01** (aksept av avslag settes til GODKJENT),
+**GFK-01 med FE-04** (fullmaktsgulvet dekker ikke tidskonsekvens) og **AUT-01/AUT-02**
+(RV-07 lukket per kallsted). Merk også at fem TFR-funn ikke løses av
+arkitekturarbeidet i det hele tatt — domenegjennomgang må kjøres ved siden av.
+
 Utenfor koden: anonym innlogging og OAuth-serveren må slås av i Supabase-konsollet,
 og `BH_APPROVAL_POLICIES` må få `user_id` per oppføring før `APP_ENV` settes til
 produksjon.
