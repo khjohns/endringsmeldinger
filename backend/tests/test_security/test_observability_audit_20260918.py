@@ -83,7 +83,14 @@ def test_403_avvisning_omgar_errorhandler_og_audit_logging(monkeypatch):
 @pytest.mark.xfail(
     strict=True,
     raises=AssertionError,
-    reason="ce_time kutter timezone-offset med .split('+')[0] og feilrepresenterer UTC-tid",
+    reason=(
+        "OBS-03: ce_time kutter offset med .split('+')[0] og merker verdien som UTC. "
+        "Ingen forskyvning inntreffer i dag: tidsstempel er serverkontrollert og settes "
+        "til datetime.now(UTC), så kuttet gir riktig verdi (kontrollert 2026-09-19). "
+        "Svakheten er reell, men latent — den biter først om et ikke-UTC tidsstempel når "
+        "hit. Grenen for NEGATIV offset er verre: elif-en fanger ikke -05:00, som ville "
+        "gitt den ugyldige strengen '...-05:00Z'. Samme énlinjefiks lukker begge."
+    ),
 )
 def test_cloudevents_ce_time_korrumperer_tidssone_med_to_timer():
     """CloudEvents ce_time må konvertere tidssoner korrekt til UTC.
