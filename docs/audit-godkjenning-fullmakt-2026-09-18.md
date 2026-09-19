@@ -26,6 +26,17 @@ fullmaktskontrollen. `order_exposure_floor` må ta `daily_rate` og inkludere
 `frist_dager * daily_rate`; signaturen må endres. FE-04 er samme feil i
 frontend-kopien og må rettes i samme runde.
 
+**Merknad 2026-09-19 (senere samme dag): GFK-01 og FE-04 er rettet.** Gulvet tar
+dagmulktssatsen og verdsetter fristdagene, i begge kopier av domenemodellen.
+`order_exposure` kaller nå gulvet framfor å legge til dagene selv, så beløpet ikke
+telles to ganger. Reproduksjonene kalte gulvet med ett argument og kunne ikke
+passere uten signaturendringen; kallene er oppdatert og påstandene står uendret.
+
+**Restanse:** er `frist_dager` oppgitt uten kjent dagmulktssats, kan eksponeringen
+fortsatt ikke verdsettes, gulvet blir 0, og `minimum > 0`-kontrollen hoppes fortsatt
+over. Å kreve kjedens toppnivå for en uverdsettbar ordre er en domenebeslutning og
+er ikke tatt.
+
 **GFK-03 er duplikat av RV-02**, som står som åpen prioritet 1 i masterplanen.
 **GFK-04 er korrekt, men er allerede en truffet beslutning:** masterplanen fører
 at «prosjekter med policy inntil videre ikke kan svare på forseringsvarsel, fordi

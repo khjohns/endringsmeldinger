@@ -24,6 +24,19 @@ som materialets alvorligste funn, med de to leddene testen ikke viser:
 vakter er `BH_HAS_RESPONDED` og `NOT_ALREADY_ACCEPTED` — ingen forretningsregel
 nevner `AVSLATT` overhodet. Løses ikke av arkitekturarbeidet.
 
+**Merknad 2026-09-19 (senere samme dag): TFR-01 er kartlagt videre, ikke rettet.**
+Modelleringen av «TE godtar byggherrens avslag» er en åpen domenebeslutning, og
+rettingen venter på den. *Kjørt og observert:* feilen gjelder **alle tre spor**,
+ikke bare grunnlag — vederlag og frist går også fra `avslatt` til `godkjent`, og
+`kan_utstede_eo` blir `True` i alle tre. Vakten slipper aksept av et avslag gjennom
+på alle tre. Reproduksjonen er utvidet fra ett til tre spor. Fristsporet er det med
+størst konsekvens: et avslått fristkrav er forutsetningen for forsering etter § 33.8.
+
+To observasjoner gjør en senere retting billigere. `DELVIS_GODKJENT` blir også
+`GODKJENT` ved aksept, men det er trolig riktig — partene er enige om det reduserte
+beløpet — så feilen gjelder bare `AVSLATT`. Og `bh_resultat` er bevart på sporet,
+så statusen kan utledes uten ny hendelsestype og uten migrasjon.
+
 **TFR-02 er bekreftet:** `overordnet_status` (`sak_state.py:1099`) leser bare
 `grunnlag`, `vederlag` og `frist`. For forsering og EO er alle tre
 `IKKE_RELEVANT`, så listen blir tom og statusen `INGEN_AKTIVE_SPOR`.
