@@ -125,7 +125,9 @@ def opprett_endringsordresak():
 def hent_relaterte_koe_saker(sak_id: str):
     """Hent alle KOE-saker relatert til en endringsordre."""
     service = _get_endringsordre_service()
-    relasjoner = service.hent_relaterte_saker(sak_id)
+    relasjoner = service.hent_relaterte_saker(
+        sak_id, tillatte_saker=cases_in_project
+    )
     return build_relaterte_response(sak_id, relasjoner)
 
 

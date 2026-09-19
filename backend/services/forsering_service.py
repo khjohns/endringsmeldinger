@@ -205,7 +205,9 @@ class ForseringService(BaseSakService):
         # Prøv Catenda først, fall tilbake til lokale data
         relaterte = []
         try:
-            relaterte = self.hent_relaterte_saker(forsering_sak_id)
+            relaterte = self.hent_relaterte_saker(
+                forsering_sak_id, tillatte_saker=tillatte_saker
+            )
         except (RuntimeError, Exception) as e:
             logger.warning(
                 f"Catenda utilgjengelig for {forsering_sak_id}, bruker lokale data: {e}"
@@ -365,7 +367,9 @@ class ForseringService(BaseSakService):
         logger.info(f"Totalt {total_avslatte} avslåtte dager fra {len(sak_ids)} saker")
         return total_avslatte
 
-    def finn_forseringer_for_sak(self, sak_id: str) -> list[dict[str, Any]]:
+    def finn_forseringer_for_sak(
+        self, sak_id: str, *, tillatte_saker
+    ) -> list[dict[str, Any]]:
         """
         Finner alle forseringssaker som refererer til en gitt KOE-sak.
 
@@ -382,12 +386,16 @@ class ForseringService(BaseSakService):
         """
         # Fast path: Use relation repository if available (O(1))
         if self.relation_repository:
-            return self._finn_forseringer_via_index(sak_id)
+            return self._finn_forseringer_via_index(
+                sak_id, tillatte_saker=tillatte_saker
+            )
 
         # Slow path: Full scan (O(n)) - for JSON backend
-        return self._finn_forseringer_via_scan(sak_id)
+        return self._finn_forseringer_via_scan(sak_id, tillatte_saker=tillatte_saker)
 
-    def _finn_forseringer_via_index(self, sak_id: str) -> list[dict[str, Any]]:
+    def _finn_forseringer_via_index(
+        self, sak_id: str, *, tillatte_saker
+    ) -> list[dict[str, Any]]:
         """
         Find forseringer using relation index (O(1) lookup).
 
@@ -404,6 +412,13 @@ class ForseringService(BaseSakService):
             target_sak_id=sak_id,
             relation_type="forsering",
         )
+
+        # Relasjonsindeksen bærer ingen prosjekt_id, og backfill-skriptet fyller
+        # den uten prosjektbegrep. Oppslaget går dessuten baklengs, så
+        # require_project_access har aldri sett disse IDene — grensen må
+        # håndheves her (AUT-02, utvider RV-07).
+        allowed = tillatte_saker(forsering_sak_ids)
+        forsering_sak_ids = [i for i in forsering_sak_ids if i in allowed]
 
         if not forsering_sak_ids:
             logger.debug(f"No forseringer found for {sak_id} in index")
@@ -440,7 +455,9 @@ class ForseringService(BaseSakService):
         logger.info(f"Found {len(forseringer)} forseringer for {sak_id} (via index)")
         return forseringer
 
-    def _finn_forseringer_via_scan(self, sak_id: str) -> list[dict[str, Any]]:
+    def _finn_forseringer_via_scan(
+        self, sak_id: str, *, tillatte_saker
+    ) -> list[dict[str, Any]]:
         """
         Find forseringer by scanning all saker (O(n) fallback).
 
@@ -456,6 +473,11 @@ class ForseringService(BaseSakService):
         sak_ids_to_search = get_all_sak_ids(
             catenda_client=self.client, event_repository=self.event_repository
         )
+
+        # Skanningen går over alle saker repositoriet kjenner, på tvers av
+        # prosjekter. Kandidatene avgrenses før noen state leses (AUT-02).
+        allowed = tillatte_saker(sak_ids_to_search)
+        sak_ids_to_search = [i for i in sak_ids_to_search if i in allowed]
 
         if not sak_ids_to_search:
             logger.warning("Ingen saker å søke gjennom for forseringer")
@@ -820,7 +842,9 @@ class ForseringService(BaseSakService):
         result["old_status"] = old_status
         return result
 
-    def valider_grunnlag_fortsatt_gyldig(self, forsering_sak_id: str) -> dict[str, Any]:
+    def valider_grunnlag_fortsatt_gyldig(
+        self, forsering_sak_id: str, *, tillatte_saker
+    ) -> dict[str, Any]:
         """
         Sjekker om grunnlaget for forsering fortsatt er gyldig.
 
@@ -856,8 +880,14 @@ class ForseringService(BaseSakService):
         if not forsering_state.forsering_data:
             return {"er_gyldig": False, "grunn": "Saken mangler forsering_data"}
 
+        # Grunnlaget er klientoppgitt: forseringssaken lister selv fristkravene den
+        # bygger på. Å lese gjennom en relasjon skal ikke utvide prosjektgrensen,
+        # så den filtreres før noe evalueres (AUT-01, utvider RV-07).
+        avslatte = forsering_state.forsering_data.avslatte_fristkrav
+        allowed = tillatte_saker(avslatte)
+
         # Sjekk hver avslått fristsak
-        for avslatt_sak_id in forsering_state.forsering_data.avslatte_fristkrav:
+        for avslatt_sak_id in [s for s in avslatte if s in allowed]:
             koe_state = self._hent_sak_state(avslatt_sak_id)
             if not koe_state:
                 logger.warning(f"Kunne ikke hente state for {avslatt_sak_id}")

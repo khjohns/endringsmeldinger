@@ -176,7 +176,7 @@ class TestForseringService:
         }
 
         # Act
-        result = service.hent_relaterte_saker("forsering-001")
+        result = service.hent_relaterte_saker("forsering-001", tillatte_saker=set)
 
         # Assert
         assert len(result) == 2
@@ -185,7 +185,7 @@ class TestForseringService:
     def test_hent_relaterte_saker_without_client(self):
         """Test returns empty list without client."""
         service = ForseringService()
-        result = service.hent_relaterte_saker("forsering-001")
+        result = service.hent_relaterte_saker("forsering-001", tillatte_saker=set)
         assert result == []
 
     # ========================================================================
@@ -328,7 +328,9 @@ class TestForseringService:
         mock_timeline_service.compute_state.return_value = mock_state
 
         # Act
-        result = service.finn_forseringer_for_sak("SAK-001")
+        # Enhetstesten prøver oppslagsmekanikken, ikke prosjektgrensen:
+        # set er identitetsfilteret og slipper alle kandidater gjennom.
+        result = service.finn_forseringer_for_sak("SAK-001", tillatte_saker=set)
 
         # Assert
         assert len(result) == 1
@@ -361,7 +363,9 @@ class TestForseringService:
         mock_timeline_service.compute_state.return_value = mock_state
 
         # Act
-        result = service.finn_forseringer_for_sak("SAK-001")
+        # Enhetstesten prøver oppslagsmekanikken, ikke prosjektgrensen:
+        # set er identitetsfilteret og slipper alle kandidater gjennom.
+        result = service.finn_forseringer_for_sak("SAK-001", tillatte_saker=set)
 
         # Assert
         assert len(result) == 0
@@ -369,7 +373,9 @@ class TestForseringService:
     def test_finn_forseringer_for_sak_without_client(self):
         """Test returns empty without client."""
         service = ForseringService()
-        result = service.finn_forseringer_for_sak("SAK-001")
+        # Enhetstesten prøver oppslagsmekanikken, ikke prosjektgrensen:
+        # set er identitetsfilteret og slipper alle kandidater gjennom.
+        result = service.finn_forseringer_for_sak("SAK-001", tillatte_saker=set)
         assert result == []
 
     # ========================================================================

@@ -84,12 +84,21 @@ class BaseSakService:
             logger.warning(f"Kunne ikke slå opp catenda_topic_id for {sak_id}: {e}")
             return None
 
-    def hent_relaterte_saker(self, sak_id: str) -> list[SakRelasjon]:
+    def hent_relaterte_saker(
+        self, sak_id: str, *, tillatte_saker
+    ) -> list[SakRelasjon]:
         """
         Henter alle relaterte saker for en gitt sak.
 
+        Relasjonene kommer fra Catenda, og topic_board_id er en global
+        innstilling — ikke forespørselens prosjekt. Flere prosjekt_id kan
+        derfor dele ett board, så kalleren må si hvilke saker denne leseren
+        får se. Parameteret er påkrevd for at et nytt kallsted ikke skal
+        kunne glemme grensen (AUT-01/AUT-02, utvider RV-07).
+
         Args:
             sak_id: Sak-ID (lokal ID eller Catenda topic GUID)
+            tillatte_saker: Kallbar som avgrenser IDer til autorisert prosjekt
 
         Returns:
             Liste med SakRelasjon objekter
@@ -138,6 +147,11 @@ class BaseSakService:
                     catenda_topic_id=relatert_guid,  # Keep original GUID for reference
                 )
             )
+
+        # Et Catenda-topic uten lokal sak har ingen prosjekttilknytning i denne
+        # appen, og faller derfor ut sammen med saker i andre prosjekter.
+        allowed = tillatte_saker([r.relatert_sak_id for r in relasjoner])
+        relasjoner = [r for r in relasjoner if r.relatert_sak_id in allowed]
 
         logger.info(f"Hentet {len(relasjoner)} relaterte saker for {sak_id}")
         return relasjoner
