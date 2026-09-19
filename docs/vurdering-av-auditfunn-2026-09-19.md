@@ -10,6 +10,10 @@ Status for tidligere funn: [masterplanen](plans/2026-09-16-godkjenning-og-varig-
 
 Appen er ikke i produksjon og har ingen reelle data.
 
+**Overlevering:** [handoff 2026-09-19](handoff-2026-09-19.md) samler miljøoppsett, fire metodiske
+feller, etablerte fakta som ikke bør finnes ut på nytt, og de åpne beslutningene.
+Start der om du overtar arbeidet uten kontekst.
+
 **Mandatet.** Ikke «finnes det flere hull», men: er funnene reelle, er de faktisk
 problemer, og hva er riktig håndtering. Ingen kode er endret.
 

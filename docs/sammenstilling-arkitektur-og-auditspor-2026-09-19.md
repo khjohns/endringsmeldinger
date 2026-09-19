@@ -8,6 +8,10 @@ skrevet mot `507e225` uten kjennskap til dem.
 Appen er ikke i produksjon og har ingen reelle data. Alvorlighet angir mulig
 konsekvens under beskrevne forutsetninger, ikke observert hendelse.
 
+**Overlevering:** [handoff 2026-09-19](handoff-2026-09-19.md) samler miljøoppsett, fire metodiske
+feller, etablerte fakta som ikke bør finnes ut på nytt, og de åpne beslutningene.
+Start der om du overtar arbeidet uten kontekst.
+
 **Metode og hvorfor den er poenget.** De to sporene brukte motsatt framgangsmåte,
 og det er derfor sammenstillingen er verdt noe:
 

@@ -16,7 +16,7 @@ konsekvens under beskrevne forutsetninger, ikke observert hendelse.
 > [sammenstillingen](sammenstilling-arkitektur-og-auditspor-2026-09-19.md).
 > Kort: sporet endret ingen produksjonskode, så ingen funn under er lukket, og alle
 > linjehenvisninger er fortsatt gyldige. Fase 1 har fått et forarbeid og en frist —
-> hendelsestabellene mangler `prosjekt_id`, og tre uavhengige oslobygg-fallbacks
+> hendelsestabellene mangler `prosjekt_id`, og fem uavhengige oslobygg-fallbacks
 > gjør tenant-attribusjonen uetterprøvbar så snart ekte data finnes. Les
 > sammenstillingen sammen med dette dokumentet.
 >
@@ -35,6 +35,10 @@ konsekvens under beskrevne forutsetninger, ikke observert hendelse.
 > beskriver databasen slik den var på spørretidspunktet, uansett hvilket spor som
 > har formet den. Har det parallelle sporet kjørt migrasjoner samme dag, er det
 > deres resultat som er målt.
+
+**Overlevering:** [handoff 2026-09-19](handoff-2026-09-19.md) samler miljøoppsett, fire metodiske
+feller, etablerte fakta som ikke bør finnes ut på nytt, og de åpne beslutningene.
+Start der om du overtar arbeidet uten kontekst.
 
 **Mandatet.** Spørsmålet var ikke «hvilke hull finnes», men «burde appen vært
 bygget med en annen arkitektur for sikkerhet i flere lag, dataintegritet og
