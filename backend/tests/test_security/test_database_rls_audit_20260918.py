@@ -138,7 +138,13 @@ def test_sak_metadata_database_default_hardcodes_oslobygg_fallback():
 @pytest.mark.xfail(
     strict=True,
     raises=AssertionError,
-    reason="DB-04: sak_relations mangler prosjekt_id-kolonne og fremmednøkler til sak_metadata, og har RLS uten policyer",
+    reason=(
+        "DB-04: sak_relations mangler prosjekt_id-kolonne og fremmednøkler til "
+        "sak_metadata. Merk at delpåstanden om «RLS uten policyer» ikke stemmer mot "
+        "den faktiske basen: tabellen har policyen «Service role full access on "
+        "sak_relations» (kontrollert 2026-09-19). Det reelle problemet er at ingen "
+        "policy uttrykker en prosjektgrense — se AR-01 — ikke at policyer mangler."
+    ),
 )
 def test_sak_relations_missing_prosjekt_id_and_foreign_keys():
     """
@@ -231,7 +237,13 @@ def test_event_tables_missing_prosjekt_id_column_for_tenant_rls():
 @pytest.mark.xfail(
     strict=True,
     raises=AssertionError,
-    reason="DB-07: sak_bim_links mangler 'properties'-kolonne deklarert i BimLink-modellen",
+    reason=(
+        "DB-07: ingen migrasjon deklarerer 'properties' på sak_bim_links, selv om "
+        "BimLink-modellen har feltet. Testen leser migrasjonsfilene, ikke databasen — "
+        "kolonnen FINNES i den faktiske basen (kontrollert 2026-09-19), så dette er "
+        "migrasjonsdrift og ikke datatap. Testen forblir xfail til migrasjonen dekker "
+        "skjemaet, uavhengig av hva basen inneholder."
+    ),
 )
 def test_sak_bim_links_missing_properties_column_declared_in_model():
     """

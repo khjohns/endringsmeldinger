@@ -19,6 +19,19 @@ konsekvens under beskrevne forutsetninger, ikke observert hendelse.
 
 ---
 
+**Etterprøvd 2026-09-19** i [vurderingen av auditfunnene](vurdering-av-auditfunn-2026-09-19.md). GFK-01 er bekreftet,
+med én presisering: hele kjeden returneres, så dette er ikke selvutstedelse — men
+`minimum > 0`-kontrollen hoppes over når gulvet er 0, så kjeden slipper
+fullmaktskontrollen. `order_exposure_floor` må ta `daily_rate` og inkludere
+`frist_dager * daily_rate`; signaturen må endres. FE-04 er samme feil i
+frontend-kopien og må rettes i samme runde.
+
+**GFK-03 er duplikat av RV-02**, som står som åpen prioritet 1 i masterplanen.
+**GFK-04 er korrekt, men er allerede en truffet beslutning:** masterplanen fører
+at «prosjekter med policy inntil videre ikke kan svare på forseringsvarsel, fordi
+godkjenningsflyten ikke modellerer forseringssporet». Akseptert gjeld, ikke ny
+feil. GFK-05 og GFK-06 er kun lest.
+
 ## Omfang
 
 **Undersøkt:**

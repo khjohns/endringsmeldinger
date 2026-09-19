@@ -7,6 +7,18 @@
 
 ---
 
+**Etterprøvd 2026-09-19** i [vurderingen av auditfunnene](vurdering-av-auditfunn-2026-09-19.md). OBS-02 er bekreftet:
+ingen `abort(403)` finnes i `backend/routes/`, så `@app.errorhandler(403)` fyres
+aldri. **OBS-01 er for sterkt formulert** — `audit` kalles fra
+`catenda_webhook_routes.py:143` og `error_handlers.py:35,48`; det riktige funnet er
+at ingen *forretningshendelse* revisjonslogges, og at 403-veien er død av grunnen
+OBS-02 beskriver. De to er ett funn. **OBS-03 forskyver ingenting i dag**:
+`tidsstempel` settes av serveren til `datetime.now(UTC)` og kan ikke sendes av
+klienten, så tidssonekuttet gir riktig verdi. Reell kodesvakhet, men nedgradert.
+**OBS-04 er bekreftet:** `cloudevents.py:109` har `... or "oslobygg"` med TODO
+som erkjenner det, og `or` slår også inn på tom streng. OBS-05 til OBS-07 er kun
+lest.
+
 ## Metodisk presisering
 
 I tråd med revisjonskravene skiller rapporten strengt mellom tre kunnskapsnivåer:

@@ -25,7 +25,13 @@ from lib.project_context import init_project_context
 @pytest.mark.xfail(
     strict=True,
     raises=AssertionError,
-    reason="LetterPreviewModal kaller fetch uten X-CSRF-Token, men backend krever CSRF på POST",
+    reason=(
+        "FE-01: LetterPreviewModal kaller fetch uten X-CSRF-Token — og uten credentials "
+        "og X-Project-ID. Ruta har require_auth, så ingen får tilgang til noe: samme "
+        "opphav gir 403 på CSRF, kryssopphav gir 401 fordi sesjonsinformasjonskapselen "
+        "ikke sendes. Dette er en funksjonsfeil — knappen virker ikke — ikke en "
+        "angrepsvei (kontrollert 2026-09-19)."
+    ),
 )
 def test_letter_preview_mangler_csrf_og_avvises_i_produksjon(monkeypatch):
     """LetterPreviewModal.svelte:19-22 kaller fetch direkte uten X-CSRF-Token.

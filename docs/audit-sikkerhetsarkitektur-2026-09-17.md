@@ -16,6 +16,24 @@ Forrige: [audit av godkjenningsflyten](audit-godkjenningspanel-og-durable-leveri
 Videre: [review av denne runden](audit-review-astra-2026-09-17.md), som opphever to av
 forbeholdene under og finner en regresjon i kodeendringene i samme commit.
 
+**Senere svar på to av sporene (2026-09-19).**
+[Arkitekturvurderingen](arkitekturvurdering-2026-09-19.md) besvarer S9 og halve S10,
+begge negativt:
+
+- **S9 er avkreftet fra kilden.** GitHub rapporterer `total_count: 0` workflows for
+  `khjohns/endringsmeldinger`. Det finnes ingen ekstern CI. Forbeholdet om at dette
+  ikke kunne avkreftes fra repoet alene er dermed løst.
+- **S10, append-only, er verifisert — og vernet finnes ikke.** Ingen trigger, regel
+  eller tilbakekalt rettighet hindrer UPDATE eller DELETE på hendelsestabellene. De
+  eneste triggerne i `public` er fire `updated_at`-settere og én auto-medlemskaps-
+  trigger. «Append-only» er en egenskap ved at applikasjonen ikke sender UPDATE.
+- **S10, rettigheter, er kontrollert:** `anon` og `authenticated` har verken SELECT
+  eller INSERT på noen av de 20 tabellene. Men samtlige policyer er
+  `service_role / ALL / true`, og `service_role` har `BYPASSRLS` — ingen policy i
+  databasen uttrykker prosjekt-, kontraktsside- eller teamgrense.
+
+Nøkkelrotasjon og uavhengig integritetskontroll står fortsatt uundersøkt.
+
 ## S1 — OAuth-flaten: fjern uvedkommende funksjonalitet
 
 **Bekreftet SA-01:** `app.py:211–213` registrerer tre blueprints.

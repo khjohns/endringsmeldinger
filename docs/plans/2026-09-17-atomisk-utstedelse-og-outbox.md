@@ -23,6 +23,26 @@ lease eller enda en sjekk før `SakCreationService` lukker ikke feilen: en gamme
 prosess kan våkne etter at en annen har skrevet. Den nye skrivestien skal ikke
 bruke kompenserende sletting av metadata.
 
+**Merknad 2026-09-19 — plattformen er avklart, og den styrker planen.**
+Backend skal kjøre på Google Cloud, med Azure Container Apps som mulig senere mål.
+Begge er serverløse containere med efemer disk og skalering til null. Det gjør
+flyttingen fra `BH_APPROVAL_DB` under ikke bare riktig, men tidskritisk:
+SQLite-fila slettes hver gang trafikken stilner, ikke bare ved utrulling, og to
+instanser har to ulike godkjenningsdatabaser. Volummontering løser det ikke —
+GCS FUSE gir ikke fillåsingen SQLite krever, og Azure Files og NFS har upålitelig
+rådgivende låsing. Se [arkitekturvurderingen](../arkitekturvurdering-2026-09-19.md),
+AR-03.
+
+To ting til, fra [vurderingen av auditfunnene](../vurdering-av-auditfunn-2026-09-19.md):
+
+- `deliver()` kjøres i dag inne i en forespørsel. På en tjeneste som skalerer til
+  null finnes ingen retry-vei mellom forespørsler. Drivmekanismen — Cloud Scheduler,
+  Cloud Tasks eller en fast instans — må velges sammen med outboxens plassering.
+- Basisskjemaet som skal etableres under, må skrives ut fra databasens **faktiske**
+  tilstand. Migrasjonene mangler `CREATE TABLE` for kjernetabellene (DB-01), og
+  databasen har samtidig kolonner ingen migrasjon deklarerer. Docstringen er ikke
+  en pålitelig kilde.
+
 ## Lagring og forutsetninger
 
 Produksjonsgarantien gjelder PostgreSQL. Behold eksisterende hendelsesformater
