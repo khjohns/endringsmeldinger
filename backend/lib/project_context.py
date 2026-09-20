@@ -38,3 +38,32 @@ def get_project_id() -> str | None:
     except RuntimeError:
         # Utenfor Flask-forespørselskontekst
         return None
+
+
+def krev_autorisert_prosjekt(hva: str) -> str:
+    """Prosjektet denne skrivingen er autorisert for, ellers en feil.
+
+    Fail-closed: uten autorisert kontekst finnes det ikke noe prosjekt å
+    tilskrive raden, og da skal den ikke skrives. Å gjette her ville
+    gjenopprettet nøyaktig den tvetydigheten kolonnen `prosjekt_id` fjerner —
+    en rad kunne ikke i ettertid skilles fra en som virkelig hørte til.
+
+    Feilen er `PermanentError` og ikke `ValueError`, fordi skrivestiene er
+    retry-dekorert: `with_retry` klassifiserer ukjente unntak som transiente og
+    ville forsøkt på nytt, mens `PermanentError` slipper rett gjennom. Nye
+    forsøk gir uansett ikke en forespørsel en kontekst den ikke hadde.
+
+    Args:
+        hva: Hva som skrives, kun til feilmeldingen — «hendelse», «relasjon».
+    """
+    # Lazy: lib.supabase.exceptions drar inn postgrest, og denne modulen lastes
+    # av alt som trenger prosjektkontekst.
+    from lib.supabase.exceptions import PermanentError
+
+    prosjekt = get_project_id()
+    if not prosjekt:
+        raise PermanentError(
+            f"Kan ikke skrive {hva} uten autorisert prosjekt. Skrivingen "
+            "skjedde utenfor en forespørselskontekst, eller X-Project-ID manglet."
+        )
+    return prosjekt

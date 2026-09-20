@@ -189,6 +189,7 @@ except ImportError:
     SUPABASE_AVAILABLE = False
     Client = None
 
+from lib.project_context import krev_autorisert_prosjekt
 from lib.supabase import ConflictError, classify_error, with_retry
 from models.cloudevents import CLOUDEVENTS_NAMESPACE, CLOUDEVENTS_SPECVERSION
 
@@ -203,30 +204,6 @@ SAKSTYPE_TO_TABLE = {
     "forsering": "forsering_events",
     "endringsordre": "endringsordre_events",
 }
-
-
-def _autorisert_prosjekt() -> str:
-    """Prosjektet denne skrivingen er autorisert for.
-
-    Fail-closed: uten autorisert kontekst finnes det ikke noe prosjekt å
-    tilskrive hendelsen, og da skal den ikke skrives. Å gjette her ville
-    gjenopprettet nøyaktig den tvetydigheten kolonnen prosjekt_id fjerner —
-    en rad kunne ikke i ettertid skilles fra en som virkelig hørte til.
-    """
-    from lib.project_context import get_project_id
-    from lib.supabase.exceptions import PermanentError
-
-    prosjekt = get_project_id()
-    if not prosjekt:
-        # PermanentError, ikke ValueError: append_batch er retry-dekorert i sin
-        # helhet, og en manglende prosjektkontekst blir ikke bedre av nye
-        # forsøk. Docstringen der oppgir selv «PermanentError: Auth/validation
-        # errors» — dette er en av dem.
-        raise PermanentError(
-            "Kan ikke skrive hendelse uten autorisert prosjekt. Skrivingen "
-            "skjedde utenfor en forespørselskontekst, eller X-Project-ID manglet."
-        )
-    return prosjekt
 
 
 class SupabaseEventRepository(EventRepository):
@@ -364,8 +341,9 @@ class SupabaseEventRepository(EventRepository):
             "referstoid": str(ce.get("referstoid")) if ce.get("referstoid") else None,
             # Data payload
             "data": ce.get("data", {}),
-            # Tenant: stemplet av serveren fra autorisert kontekst.
-            "prosjekt_id": _autorisert_prosjekt(),
+            # Tenant: stemplet av serveren fra autorisert kontekst, aldri av
+            # klienten. Fravær er en feil, ikke en gjetning.
+            "prosjekt_id": krev_autorisert_prosjekt("hendelse"),
             # Internal fields
             "sak_id": sak_id,
             "event_type": ce.get("type", "").replace(f"{CLOUDEVENTS_NAMESPACE}.", ""),

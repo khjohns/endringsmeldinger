@@ -281,16 +281,26 @@ class SupabaseSakMetadataRepository:
         return get_project_id()
 
     @with_retry()
-    def list_all(self, prosjekt_id: str | None = None) -> list[SakMetadata]:
-        """List all cases for a project (for case list view)."""
+    def list_all(
+        self, prosjekt_id: str | None = None, *, alle_prosjekter: bool = False
+    ) -> list[SakMetadata]:
+        """List all cases for a project (for case list view).
+
+        Samme signatur og samme fail-closed-regel som fil-implementasjonen:
+        uten prosjektkontekst returneres ingenting med mindre kalleren
+        uttrykkelig ber om alle leietakere. TST-06 handler nettopp om at de to
+        lagrene har avvikende grensesnitt; her holdes de like.
+        """
         pid = self._get_project_id(prosjekt_id)
-        result = (
-            self.client.table(self.TABLE_NAME)
-            .select("*")
-            .eq("prosjekt_id", pid)
-            .order("last_event_at", desc=True, nullsfirst=False)
-            .execute()
-        )
+        if pid is None and not alle_prosjekter:
+            return []
+
+        sporring = self.client.table(self.TABLE_NAME).select("*")
+        if pid is not None:
+            sporring = sporring.eq("prosjekt_id", pid)
+        result = sporring.order(
+            "last_event_at", desc=True, nullsfirst=False
+        ).execute()
 
         return [self._row_to_metadata(row) for row in result.data]
 

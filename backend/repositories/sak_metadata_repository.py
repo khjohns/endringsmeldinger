@@ -213,9 +213,26 @@ class SakMetadataRepository:
             pass
         return None
 
-    def list_all(self, prosjekt_id: str | None = None) -> list[SakMetadata]:
-        """List all cases for a project (for case list view)."""
+    def list_all(
+        self, prosjekt_id: str | None = None, *, alle_prosjekter: bool = False
+    ) -> list[SakMetadata]:
+        """List all cases for a project (for case list view).
+
+        Fail-closed uten prosjektkontekst: filteret under hopper over rader som
+        ikke matcher, men et tomt `pid` hoppet over *filteret* og returnerte
+        alle leietakeres saker.
+
+        Dette er dybdeforsvar, ikke en lukket lekkasje: rutene som lister saker
+        ligger bak `require_project_access`, som avviser med 403 når prosjektet
+        er ukjent, så kallet nådde ikke hit uten prosjekt. Men et lager skal
+        ikke returnere alle leietakeres rader fordi en kaller glemte filteret —
+        særlig ikke når Supabase-varianten av samme metode er fail-closed og de
+        to dermed ville oppført seg ulikt. Vil en kaller virkelig ha alt — som
+        backfill-skriptene, som kjører uten forespørsel — må det sies eksplisitt.
+        """
         pid = self._get_project_id(prosjekt_id)
+        if pid is None and not alle_prosjekter:
+            return []
         with self.lock:
             if not self.csv_path.exists():
                 return []
@@ -244,9 +261,17 @@ class SakMetadataRepository:
                     )
             return cases
 
-    def count_by_sakstype(self, sakstype: str, prosjekt_id: str | None = None) -> int:
-        """Count cases by sakstype within a project."""
+    def count_by_sakstype(
+        self, sakstype: str, prosjekt_id: str | None = None, *, alle_prosjekter: bool = False
+    ) -> int:
+        """Count cases by sakstype within a project.
+
+        Samme fail-closed-regel som `list_all`: uten prosjektkontekst telles
+        ingenting, framfor å telle på tvers av leietakere.
+        """
         pid = self._get_project_id(prosjekt_id)
+        if pid is None and not alle_prosjekter:
+            return 0
         with self.lock:
             if not self.csv_path.exists():
                 return 0
