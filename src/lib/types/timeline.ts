@@ -119,7 +119,8 @@ export type OverordnetStatus =
   | 'UNDER_FORHANDLING'
   | 'OMFORENT'
   | 'LUKKET'
-  | 'LUKKET_TRUKKET';
+  | 'LUKKET_TRUKKET'
+  | 'LUKKET_AVSLATT';
 
 // ========== SAKSTYPE OG RELASJONER ==========
 
