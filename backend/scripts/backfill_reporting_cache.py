@@ -44,7 +44,9 @@ def backfill_reporting_cache(dry_run: bool = False) -> None:
 
     # Get all standard (KOE) cases
     # Use list_all and filter, since CSV repo doesn't have list_by_sakstype
-    all_metadata = metadata_repo.list_all()
+    # Skriptet kjører uten forespørselskontekst og skal bevisst se alle
+    # prosjekter. Uten flagget ville det fått null saker (fail-closed).
+    all_metadata = metadata_repo.list_all(alle_prosjekter=True)
     all_cases = [c for c in all_metadata if getattr(c, "sakstype", "standard") == "standard"]
     print(f"Found {len(all_cases)} KOE cases to backfill (of {len(all_metadata)} total)")
 

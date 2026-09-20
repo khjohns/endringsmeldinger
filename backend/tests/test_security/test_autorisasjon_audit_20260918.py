@@ -383,3 +383,68 @@ def test_sak_metadata_csv_repo_mangler_list_by_sakstype(tmp_path):
     assert hasattr(repo, "list_by_sakstype"), (
         "SakMetadataRepository mangler list_by_sakstype; /api/cases?sakstype=... krasjer med 500"
     )
+
+
+# =============================================================================
+# 4. Prosjektgrensen for saksoversikten, i begge lag
+# =============================================================================
+
+
+def test_cases_uten_prosjektheader_lister_ikke_andre_leietakere(monkeypatch, tmp_path):
+    """GET /api/cases skal ikke røpe andre leietakeres saker uten prosjekt.
+
+    To lag prøves, fordi de svarer på hvert sitt spørsmål:
+
+    1. **Ruta.** `/api/cases` har `require_project_access`, som avviser med 403
+       når prosjektet er ukjent. Det er den faktiske grensen.
+    2. **Lageret.** CSV-repoet hoppet over prosjektfilteret når `pid` var tomt,
+       og returnerte da alle leietakeres saker. Rettet 2026-09-20. Dette er
+       dybdeforsvar — ruta nådde aldri hit uten prosjekt — men de to
+       lagerimplementasjonene ville ellers oppført seg ulikt på samme kall,
+       og et lager skal ikke gi alt fordi en kaller glemte filteret.
+    """
+    from datetime import UTC, datetime
+
+    from models.sak_metadata import SakMetadata
+    from repositories.sak_metadata_repository import SakMetadataRepository
+    from routes import event_routes
+
+    repo = SakMetadataRepository(csv_path=tmp_path / "metadata.csv")
+    for sak_id, prosjekt in (("A-1", "project-a"), ("B-1", "project-b")):
+        repo.create(
+            SakMetadata(
+                sak_id=sak_id,
+                prosjekt_id=prosjekt,
+                catenda_topic_id=None,
+                catenda_project_id=None,
+                created_at=datetime.now(UTC),
+                created_by="seed",
+                cached_title=f"Sak i {prosjekt}",
+            )
+        )
+
+    # Lag 2: lageret gir ingenting uten prosjekt, og bare eget med.
+    assert repo.list_all() == []
+    assert [m.sak_id for m in repo.list_all(prosjekt_id="project-a")] == ["A-1"]
+
+    monkeypatch.setattr(event_routes, "_get_metadata_repo", lambda: repo)
+    events = Mock()
+    events.get_events.return_value = ([], 0)
+    monkeypatch.setattr(event_routes, "_get_event_repo", lambda: events)
+
+    client = _client(
+        monkeypatch, _auth(contract=("TE", "team-a")), event_routes.events_bp
+    )
+
+    # Lag 1: uten prosjekt avvises forespørselen, den svarer ikke tomt.
+    uten_header = client.get("/api/cases", headers={"X-CSRF-Token": "csrf"})
+    assert uten_header.status_code == 403, (
+        "Uten X-Project-ID skal ruta avvise, ikke svare. Fikk "
+        f"HTTP {uten_header.status_code}."
+    )
+
+    # Med prosjekt: bare det prosjektets sak.
+    med_header = client.get("/api/cases", headers=HEADERS_A)
+    assert med_header.status_code == 200
+    ider = [s.get("sak_id") for s in med_header.get_json().get("cases", [])]
+    assert ider == ["A-1"], f"Forventet kun A-1, fikk {ider}"
