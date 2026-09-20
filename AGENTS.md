@@ -72,12 +72,37 @@ er konfidensiell kontraktskorrespondanse.
 Et eldre prosjekt `unified-timeline` (`iyetsvrteyzpirygxenu`) er INACTIVE og skal
 ikke røres.
 
+**Migrasjonene kan verifiseres uten å røre basen.** PostgreSQL 16 ligger lokalt
+(`/usr/lib/postgresql/16/bin`). Sett opp et kastbart cluster med `initdb` i en
+katalog `postgres`-brukeren eier, stub Supabase-plattformen (rollene `anon`,
+`authenticated`, `service_role`, skjemaet `auth` med `users`, `auth.role()` og
+`auth.email()`), og kjør migrasjonene mot en tom base. Sammenlikn så katalogen med
+prosjektet ved å ta `md5(string_agg(...))` over kolonner, skranker, indekser og
+policyer på begge sider. Det fanger ting lesing ikke gjør: sirkulære avhengigheter,
+manglende kolonner, policyer i feil form.
+
+**Rekkefølgen er ikke utledbar av filnavnene.** `supabase/migrations/` og
+`backend/migrations/` må flettes: kjerneskjemaet først, så
+`backend/migrations/004` (som gjør `UPDATE sak_metadata`), så
+`project_memberships` (som viser til `projects`). `backend/migrations/README.md`
+sier «legacy — do not add here», men fire filer der er fortsatt nødvendige for å
+bygge basen. Skranken er festet i
+`tests/test_security/test_database_arkitektur_20260920.py`.
+
+**Testsuiten kan ikke se at basen er uenig med repoet.** Supabase-lageret dekkes
+bare av testdobler, og doblene speiler repoet — `EVENT_TABLE_COLUMNS` i
+`test_event_roundtrip.py` er tro mot migrasjonsfilene, ikke mot databasen. Da
+`actorteam` manglet i basen, var suiten grønn mens *enhver* skriving til
+Supabase-lageret feilet. Grønn suite er derfor ikke bevis for at en skjemaendring
+har nådd fram; det er katalogspørringen som er beviset.
+
 **Endrer du databasen, skriv migrasjonsfila i samme runde.** All DDL skal ligge i
 `supabase/migrations/` med samme SQL som faktisk ble kjørt, og fila skal si at den
 er anvendt. Repoet og basen har drevet fra hverandre i begge retninger før: basen
-er bygget av migrasjoner som ikke finnes i repoet, og minst én repo-migrasjon er
-aldri anvendt — med den følgen at en kolonne koden krever ikke finnes, og at
-lesinger feiler. En endring som bare finnes ett av stedene er ikke gjennomført.
+var bygget av seks migrasjoner som ikke fantes i repoet, og en repo-migrasjon lå
+to dager uten å være anvendt — med den følgen at `actorteam` ikke fantes, og at
+**enhver skriving** til Supabase-lageret ble avvist. Begge deler er rettet
+20.09. En endring som bare finnes ett av stedene er ikke gjennomført.
 
 ## Sikkerhetsinvarianter
 
@@ -122,6 +147,17 @@ leser en avkuttet del av det. To feilklassifiseringer kom av nettopp dette: et
 `grep`-vindu som stoppet én linje før `@require_project_access()`, og en baseklasse
 lest uten overstyringen i underklassen. Begge ga en selvsikker, gal påstand om
 nåbarhet, og begge ble fanget av testsuiten — ikke av lesingen.
+
+**Og ett av lagene ligger ikke i repoet i det hele tatt.** Ti funksjoner bor i
+`public` — `koe_resolve_identity`, `koe_reconcile_memberships`,
+`auto_create_project_membership` og flere. De er en del av applikasjonen, og et
+kodesøk finner dem aldri. Tabellen `app_identities` har **null treff** på sitt eget
+navn i hele repoet, og er likevel bærende: den leses og skrives ved hver
+innlogging, fra en databasefunksjon. En runde konkluderte med at den var ubrukt.
+Spør katalogen — `pg_proc`, `pg_trigger`, `pg_policy` — før du skriver at noe ikke
+er i bruk. En trigger kan også være den egentlige skriveren: `project_memberships`
+fylles av en trigger, mens koden som ser ut til å skrive den, treffer en
+unik-skranke og logger en advarsel hver gang.
 
 **Har du funnet ett tilfelle, har du ikke funnet alle.** Søket formes av det du
 allerede fant, så tellingen vokser i runder — og hver runde melder seg ferdig.
