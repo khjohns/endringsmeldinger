@@ -1,3 +1,9 @@
+-- Flyttet fra backend/migrations/003_sak_relations.sql 2026-09-20 (DA-03).
+-- Migrasjonsmappa skal være eneste kilde; den gamle mappa kunne ikke
+-- kjøres fra filnavnrekkefølge, og fire av filene der var likevel
+-- nødvendige for å bygge basen. Policyene er gjort idempotente.
+--
+
 -- ============================================================
 -- Sak Relations - Reverse Index for Case Relationships
 --

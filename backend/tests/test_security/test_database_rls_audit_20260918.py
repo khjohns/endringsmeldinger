@@ -145,22 +145,22 @@ def test_sak_metadata_database_default_hardcodes_oslobygg_fallback():
 )
 def test_sak_relations_missing_prosjekt_id_and_foreign_keys():
     """
-    DB-04: sak_relations (003_sak_relations.sql) mangler prosjekt_id-kolonne,
+    DB-04: sak_relations (20260911073700_sak_relations.sql) mangler prosjekt_id-kolonne,
     mangler fremmednøkler til sak_metadata, og har aktivert RLS uten noen tilgangspolicyer.
     """
-    relations_file = MIGRATIONS_BACKEND / "003_sak_relations.sql"
-    assert relations_file.exists(), "003_sak_relations.sql finnes ikke"
+    relations_file = MIGRATIONS_SUPABASE / "20260911073700_sak_relations.sql"
+    assert relations_file.exists(), "20260911073700_sak_relations.sql finnes ikke"
     content = relations_file.read_text(encoding="utf-8")
 
     has_project_id = bool(re.search(r"\bprosjekt_id\b", content, re.IGNORECASE))
     has_fk = bool(re.search(r"REFERENCES\s+sak_metadata", content, re.IGNORECASE))
 
     assert has_project_id, (
-        "sak_relations i 003_sak_relations.sql mangler kolonnen 'prosjekt_id'. "
+        "sak_relations i 20260911073700_sak_relations.sql mangler kolonnen 'prosjekt_id'. "
         "Det er dermed umulig å håndheve prosjektisolert RLS eller oppslag uten JOIN mot sak_metadata."
     )
     assert has_fk, (
-        "sak_relations i 003_sak_relations.sql mangler REFERENCES sak_metadata(sak_id). "
+        "sak_relations i 20260911073700_sak_relations.sql mangler REFERENCES sak_metadata(sak_id). "
         "Slettede saker etterlater foreldreløse relasjoner i tabellen."
     )
 
@@ -254,14 +254,14 @@ def test_sak_bim_links_missing_properties_column_declared_in_model():
     """
     DB-07: BimLink-modellen i backend/models/bim_link.py har feltet 'properties'
     (for IFC property sets, mengder og materialer), men sak_bim_links-tabellen
-    i backend/migrations/006_bim_tables.sql mangler denne kolonnen.
+    i supabase/migrations/20260911073800_bim_tables.sql mangler denne kolonnen.
     """
     from models.bim_link import BimLink
 
     assert "properties" in BimLink.model_fields, "BimLink mangler properties-feltet"
 
-    bim_migration = MIGRATIONS_BACKEND / "006_bim_tables.sql"
-    assert bim_migration.exists(), "006_bim_tables.sql finnes ikke"
+    bim_migration = MIGRATIONS_SUPABASE / "20260911073800_bim_tables.sql"
+    assert bim_migration.exists(), "20260911073800_bim_tables.sql finnes ikke"
     content = bim_migration.read_text(encoding="utf-8")
 
     sak_bim_links_match = re.search(r"CREATE\s+TABLE\s+IF\s+NOT\s+EXISTS\s+sak_bim_links\s*\((.*?)\);", content, re.DOTALL)
@@ -270,7 +270,7 @@ def test_sak_bim_links_missing_properties_column_declared_in_model():
 
     has_properties = bool(re.search(r"\bproperties\b", table_sql, re.IGNORECASE))
     assert has_properties, (
-        "sak_bim_links i backend/migrations/006_bim_tables.sql mangler kolonnen 'properties'. "
+        "sak_bim_links i 20260911073800_bim_tables.sql mangler kolonnen 'properties'. "
         "Modellen BimLink i backend/models/bim_link.py deklarerer properties: dict[str, Any] | None. "
         "Forsøk på å lagre eller laste IFC properties vil føre til datatap eller databasefeil."
     )

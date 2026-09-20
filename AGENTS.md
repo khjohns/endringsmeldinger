@@ -77,17 +77,26 @@ ikke røres.
 katalog `postgres`-brukeren eier, stub Supabase-plattformen (rollene `anon`,
 `authenticated`, `service_role`, skjemaet `auth` med `users`, `auth.role()` og
 `auth.email()`), og kjør migrasjonene mot en tom base. Sammenlikn så katalogen med
-prosjektet ved å ta `md5(string_agg(...))` over kolonner, skranker, indekser og
-policyer på begge sider. Det fanger ting lesing ikke gjør: sirkulære avhengigheter,
+prosjektet ved å ta `md5(string_agg(...))` over kolonner, skranker, indekser,
+policyer og rettigheter på begge sider. Det fanger ting lesing ikke gjør: sirkulære avhengigheter,
 manglende kolonner, policyer i feil form.
 
-**Rekkefølgen er ikke utledbar av filnavnene.** `supabase/migrations/` og
-`backend/migrations/` må flettes: kjerneskjemaet først, så
-`backend/migrations/004` (som gjør `UPDATE sak_metadata`), så
-`project_memberships` (som viser til `projects`). `backend/migrations/README.md`
-sier «legacy — do not add here», men fire filer der er fortsatt nødvendige for å
-bygge basen. Skranken er festet i
-`tests/test_security/test_database_arkitektur_20260920.py`.
+**Filnavnrekkefølgen *er* apply-rekkefølgen** — men det er en fersk skranke, ikke
+en naturlov. `backend/migrations/` er tømt (20.09); all DDL ligger i
+`supabase/migrations/`, og `supabase/config.toml` peker på prosjektet.
+Avhengighetene er reelle: kjerneskjemaet må komme før `20260911073600_projects`,
+som gjør `UPDATE sak_metadata`, og `project_memberships` må komme etter
+`projects`. Legger du inn en migrasjon med et versjonsnummer som sorterer feil,
+bygger ikke basen fra tom. To vakter i
+`tests/test_security/test_database_arkitektur_20260920.py` holder på det.
+
+**Stubben må gi `service_role` fulle rettigheter,** ellers er sammenlikningen
+ikke tro: `GRANT ALL ON ALL TABLES IN SCHEMA public TO service_role` pluss
+`ALTER DEFAULT PRIVILEGES … GRANT ALL ON TABLES TO service_role`. Supabase gjør
+dette ved prosjektoppsett, ikke i migrasjonene — og **åtte av tjue tabeller har
+ingen eksplisitt `GRANT` i repoet i det hele tatt.** De virker bare fordi
+plattformen deler ut rettigheter. Flyttes basen bort fra Supabase, forsvinner
+de.
 
 **Testsuiten kan ikke se at basen er uenig med repoet.** Supabase-lageret dekkes
 bare av testdobler, og doblene speiler repoet — `EVENT_TABLE_COLUMNS` i

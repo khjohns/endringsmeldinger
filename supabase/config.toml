@@ -1,0 +1,18 @@
+# Konfigurasjon for Supabase CLI. Formålet er DA-03: at migrasjonsmappa er
+# eneste kilde, og at «anvendt» kan avledes framfor å huskes.
+#
+# Basen kjører PostgreSQL 17.6 (kontrollert 2026-09-20). Lokal verifisering av
+# migrasjonssettet er gjort mot 16, som er det som finnes i utviklingsmiljøet —
+# se docs/audit-databasearkitektur-2026-09-20.md, «Verifikasjon og grenser».
+
+project_id = "gwdxadexwktegkklyobv"
+
+[db]
+major_version = 17
+
+[db.migrations]
+# Filene kjøres i filnavnrekkefølge. Rekkefølgen er en skranke: kjerneskjemaet
+# må komme før 20260911073600_projects.sql, som gjør UPDATE mot sak_metadata,
+# og project_memberships må komme etter projects. Festet i
+# backend/tests/test_security/test_database_arkitektur_20260920.py.
+schema_paths = []
