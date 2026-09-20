@@ -52,6 +52,13 @@ er konfidensiell kontraktskorrespondanse.
 Et eldre prosjekt `unified-timeline` (`iyetsvrteyzpirygxenu`) er INACTIVE og skal
 ikke røres.
 
+**Endrer du databasen, skriv migrasjonsfila i samme runde.** All DDL skal ligge i
+`supabase/migrations/` med samme SQL som faktisk ble kjørt, og fila skal si at den
+er anvendt. Repoet og basen har drevet fra hverandre i begge retninger før: basen
+er bygget av migrasjoner som ikke finnes i repoet, og minst én repo-migrasjon er
+aldri anvendt — med den følgen at en kolonne koden krever ikke finnes, og at
+lesinger feiler. En endring som bare finnes ett av stedene er ikke gjennomført.
+
 ## Sikkerhetsinvarianter
 
 Brytes en av disse, er det en sikkerhetsfeil uansett hvor liten endringen så ut.
