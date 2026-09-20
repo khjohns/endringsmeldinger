@@ -209,32 +209,40 @@ def test_project_membership_model_role_violates_database_check_constraint():
     )
 
 
-@pytest.mark.xfail(
-    strict=True,
-    raises=AssertionError,
-    reason="DB-06: koe_events mangler prosjekt_id-kolonne for effektiv leietaker-isolering og RLS",
-)
 def test_event_tables_missing_prosjekt_id_column_for_tenant_rls():
     """
-    DB-06: Hendelsestabellene (koe_events, forsering_events, endringsordre_events)
-    mangler prosjekt_id-kolonne. Prosjektet finnes kun i CloudEvents source-strengen,
-    noe som hindrer effektiv radnivåsikkerhet (RLS) per prosjekt.
+    DB-06: Hendelsestabellene skal ha prosjekt_id, ikke bare prosjektet gjemt i
+    CloudEvents' source-streng, som hindrer effektiv radnivåsikkerhet per prosjekt.
+
+    Rettet 2026-09-20. Utvidet fra koe_events til alle tre tabellene.
+
+    **Denne testen leser docstringen, ikke databasen.** Den er grønn fordi DDL-en
+    i modulens docstring nå deklarerer kolonnen. At kolonnen faktisk finnes i
+    basen er kontrollert på annet vis samme dag: migrasjonen
+    20260920060000_tenant_attribution_prosjekt_id ble anvendt mot prosjektet, en
+    katalogspørring bekreftet NOT NULL uten default på alle fire tabellene, og et
+    forsøk på å skrive en rad uten prosjekt ble avvist med 23502. En grønn test
+    her beviser altså docstringen — ikke skjemaet.
     """
     import repositories.supabase_event_repository as event_repo_module
 
     doc = event_repo_module.__doc__ or ""
 
-    # Sjekk om koe_events har prosjekt_id kolonne
-    koe_match = re.search(r"CREATE\s+TABLE\s+(IF\s+NOT\s+EXISTS\s+)?koe_events\s*\((.*?)\);", doc, re.DOTALL | re.IGNORECASE)
-    assert koe_match is not None, "koe_events tabelldefinisjon ikke funnet i docstring"
-    koe_sql = koe_match.group(2)
+    for tabell in ("koe_events", "forsering_events", "endringsordre_events"):
+        treff = re.search(
+            rf"CREATE\s+TABLE\s+(IF\s+NOT\s+EXISTS\s+)?{tabell}\s*\((.*?)\);",
+            doc,
+            re.DOTALL | re.IGNORECASE,
+        )
+        assert treff is not None, f"{tabell} tabelldefinisjon ikke funnet i docstring"
 
-    has_prosjekt_id = bool(re.search(r"^\s*prosjekt_id\s+\w+", koe_sql, re.MULTILINE | re.IGNORECASE))
-    assert has_prosjekt_id, (
-        "koe_events mangler kolonnen 'prosjekt_id'. Tabellen har kun prosjekt som en del "
-        "av kommentarene på source-kolonnen ('/projects/{prosjekt_id}/cases/{sak_id}'). "
-        "Dette umuliggjør direkte leietaker-indeksering og effektiv prosjektbasert RLS."
-    )
+        assert re.search(
+            r"^\s*prosjekt_id\s+\w+", treff.group(2), re.MULTILINE | re.IGNORECASE
+        ), (
+            f"{tabell} mangler kolonnen 'prosjekt_id'. Uten den finnes prosjektet "
+            "kun i kommentaren på source-kolonnen, og tenant-isolering kan ikke "
+            "uttrykkes som en RLS-policy."
+        )
 
 
 @pytest.mark.xfail(

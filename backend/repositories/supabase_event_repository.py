@@ -47,6 +47,11 @@ CREATE TABLE IF NOT EXISTS koe_events (
     data JSONB NOT NULL,
 
     -- Internal: For optimistic locking and queries
+    -- Tenant: settes av serveren fra autorisert kontekst, aldri av klienten
+    -- og aldri av et fallback. NOT NULL uten default med vilje — en default
+    -- ville gjort attribusjonen uetterprøvbar (se migrasjon 20260920060000).
+    prosjekt_id TEXT NOT NULL,
+
     sak_id TEXT NOT NULL,           -- Denormalized for efficient queries
     event_type TEXT NOT NULL,       -- Denormalized for filtering
     versjon INTEGER NOT NULL,
@@ -87,6 +92,11 @@ CREATE TABLE IF NOT EXISTS forsering_events (
     data JSONB NOT NULL,
 
     -- Internal
+    -- Tenant: settes av serveren fra autorisert kontekst, aldri av klienten
+    -- og aldri av et fallback. NOT NULL uten default med vilje — en default
+    -- ville gjort attribusjonen uetterprøvbar (se migrasjon 20260920060000).
+    prosjekt_id TEXT NOT NULL,
+
     sak_id TEXT NOT NULL,
     event_type TEXT NOT NULL,
     versjon INTEGER NOT NULL,
@@ -126,6 +136,11 @@ CREATE TABLE IF NOT EXISTS endringsordre_events (
     data JSONB NOT NULL,
 
     -- Internal
+    -- Tenant: settes av serveren fra autorisert kontekst, aldri av klienten
+    -- og aldri av et fallback. NOT NULL uten default med vilje — en default
+    -- ville gjort attribusjonen uetterprøvbar (se migrasjon 20260920060000).
+    prosjekt_id TEXT NOT NULL,
+
     sak_id TEXT NOT NULL,
     event_type TEXT NOT NULL,
     versjon INTEGER NOT NULL,
@@ -188,6 +203,30 @@ SAKSTYPE_TO_TABLE = {
     "forsering": "forsering_events",
     "endringsordre": "endringsordre_events",
 }
+
+
+def _autorisert_prosjekt() -> str:
+    """Prosjektet denne skrivingen er autorisert for.
+
+    Fail-closed: uten autorisert kontekst finnes det ikke noe prosjekt å
+    tilskrive hendelsen, og da skal den ikke skrives. Å gjette her ville
+    gjenopprettet nøyaktig den tvetydigheten kolonnen prosjekt_id fjerner —
+    en rad kunne ikke i ettertid skilles fra en som virkelig hørte til.
+    """
+    from lib.project_context import get_project_id
+    from lib.supabase.exceptions import PermanentError
+
+    prosjekt = get_project_id()
+    if not prosjekt:
+        # PermanentError, ikke ValueError: append_batch er retry-dekorert i sin
+        # helhet, og en manglende prosjektkontekst blir ikke bedre av nye
+        # forsøk. Docstringen der oppgir selv «PermanentError: Auth/validation
+        # errors» — dette er en av dem.
+        raise PermanentError(
+            "Kan ikke skrive hendelse uten autorisert prosjekt. Skrivingen "
+            "skjedde utenfor en forespørselskontekst, eller X-Project-ID manglet."
+        )
+    return prosjekt
 
 
 class SupabaseEventRepository(EventRepository):
@@ -325,6 +364,8 @@ class SupabaseEventRepository(EventRepository):
             "referstoid": str(ce.get("referstoid")) if ce.get("referstoid") else None,
             # Data payload
             "data": ce.get("data", {}),
+            # Tenant: stemplet av serveren fra autorisert kontekst.
+            "prosjekt_id": _autorisert_prosjekt(),
             # Internal fields
             "sak_id": sak_id,
             "event_type": ce.get("type", "").replace(f"{CLOUDEVENTS_NAMESPACE}.", ""),

@@ -109,7 +109,7 @@ class SakMetadataRepository:
             for row in rows:
                 if (
                     row["sak_id"] == sak_id
-                    and (row.get("prosjekt_id") or "oslobygg") == prosjekt_id
+                    and row.get("prosjekt_id") == prosjekt_id
                 ):
                     row.update(
                         catenda_topic_id=topic_id,
@@ -224,7 +224,7 @@ class SakMetadataRepository:
             with open(self.csv_path, encoding="utf-8") as f:
                 reader = csv.DictReader(f)
                 for row in reader:
-                    if pid and (row.get("prosjekt_id") or "oslobygg") != pid:
+                    if pid and row.get("prosjekt_id") != pid:
                         continue
                     cases.append(
                         SakMetadata(
@@ -255,7 +255,7 @@ class SakMetadataRepository:
             with open(self.csv_path, encoding="utf-8") as f:
                 reader = csv.DictReader(f)
                 for row in reader:
-                    if pid and (row.get("prosjekt_id") or "oslobygg") != pid:
+                    if pid and row.get("prosjekt_id") != pid:
                         continue
                     if row.get("sakstype", "standard") == sakstype:
                         count += 1

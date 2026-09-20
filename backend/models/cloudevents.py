@@ -99,14 +99,15 @@ class CloudEventMixin(BaseModel):
         CloudEvents source URI.
 
         Format: /projects/{prosjekt_id}/cases/{sak_id}
-        Bruker 'oslobygg' som default hvis prosjekt_id ikke er satt.
+
+        Mangler prosjekt_id, blir det 'unknown' — ikke 'oslobygg'. Feltet er en
+        CloudEvents-URI og ikke den autoritative tenant-attribusjonen; den ligger
+        i kolonnen prosjekt_id, som er NOT NULL fra 2026-09-20. Å skrive
+        'oslobygg' her gjorde `source` uetterprøvbar: en URI som sa oslobygg
+        kunne bety «hører virkelig til Oslobygg» eller «prosjektet manglet».
+        Nettopp derfor sier handoffen at backfill aldri skal hentes fra `source`.
         """
-        # TODO: prosjekt_id bør hentes fra sak-kontekst ved event-opprettelse.
-        # Mulige løsninger:
-        # 1. Hent fra database: SakRepository.get_prosjekt_id(sak_id)
-        # 2. Inkluder prosjekt_id som required felt i API-requests
-        # 3. Legg til prosjekt_id i SakState og hent derfra
-        proj_id = getattr(self, "prosjekt_id", None) or "oslobygg"
+        proj_id = getattr(self, "prosjekt_id", None) or "unknown"
         sak_id = getattr(self, "sak_id", "unknown")
         return f"/projects/{proj_id}/cases/{sak_id}"
 

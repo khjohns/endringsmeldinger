@@ -7,15 +7,33 @@
 
 export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
-// Active project ID (set by ProjectContext)
-let activeProjectId: string = 'oslobygg';
+// Aktivt prosjekt, satt av [prosjektId]/+layout.ts før prosjektspesifikke kall.
+//
+// Ingen default. Verdien var tidligere 'oslobygg', så ethvert kall gjort før et
+// prosjekt var kjent ble sendt som om det gjaldt Oslobygg — og en rad skrevet
+// etterpå kunne ikke i ettertid skilles fra en som virkelig hørte dit. De
+// prosjektuavhengige rutene (`GET /api/projects`, sesjonen) krever ingen header,
+// og `GET /api/projects/<id>` tar prosjektet fra stien, så null er trygt der.
+let activeProjectId: string | null = null;
 
 export function setActiveProjectId(projectId: string) {
   activeProjectId = projectId;
 }
 
-export function getActiveProjectId(): string {
+export function getActiveProjectId(): string | null {
   return activeProjectId;
+}
+
+/**
+ * Prosjekt-headeren, eller ingen header når prosjektet er ukjent.
+ *
+ * For de kallene som ikke kan gå gjennom apiFetch — multipart-opplasting setter
+ * sin egen Content-Type. Å sende 'X-Project-ID: null' som streng ville vært
+ * verre enn å utelate den: serveren ville da autorisert mot et prosjekt som
+ * heter «null».
+ */
+export function projectHeaders(): Record<string, string> {
+  return activeProjectId ? { 'X-Project-ID': activeProjectId } : {};
 }
 
 // CSRF token storage and fetching
@@ -130,10 +148,10 @@ export function isRetryableError(error: unknown): boolean {
 export async function apiFetch<T>(endpoint: string, options?: RequestInit): Promise<T> {
   const url = `${API_BASE_URL}${endpoint}`;
   // Snapshot the target before waiting for CSRF; navigation may change the default.
-  const headers = new Headers({
-    'Content-Type': 'application/json',
-    'X-Project-ID': activeProjectId,
-  });
+  const headers = new Headers({ 'Content-Type': 'application/json' });
+  // Uten kjent prosjekt sendes ingen header. Serveren er fail-closed og svarer
+  // 403 på ruter som krever prosjekt — det er riktigere enn å gjette.
+  if (activeProjectId) headers.set('X-Project-ID', activeProjectId);
   new Headers(options?.headers).forEach((value, key) => headers.set(key, value));
   const method = options?.method?.toUpperCase() ?? 'GET';
   const mutation = ['POST', 'PUT', 'PATCH', 'DELETE'].includes(method);

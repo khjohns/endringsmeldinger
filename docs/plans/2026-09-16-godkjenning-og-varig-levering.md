@@ -138,6 +138,54 @@ avgjørende delen av domenet: **TFR-01** (aksept av avslag settes til GODKJENT),
 **GFK-01 med FE-04** (fullmaktsgulvet dekker ikke tidskonsekvens) og **AUT-01/AUT-02**
 (RV-07 lukket per kallsted).
 
+**Merknad 2026-09-20: tenant-attribusjonen (handoffens 5a) er gjennomført.**
+
+Migrasjonen `20260920060000_tenant_attribution_prosjekt_id` er **anvendt** mot
+prosjektet og verifisert mot katalogen: `prosjekt_id TEXT NOT NULL` uten default,
+med indeks, på `koe_events`, `forsering_events`, `endringsordre_events` og
+`sak_relations`, og `DEFAULT 'oslobygg'` er fjernet fra `sak_metadata`.
+*Kjørt og observert:* et forsøk på å skrive en rad uten prosjekt avvises med
+`23502`. Grensen ligger nå i dataene, ikke bare i applikasjonskoden.
+
+**Planen antok en backfill. Den var unødvendig:** alle fire tabellene hadde
+**0 rader** (kontrollert 2026-09-20), så `NOT NULL` kunne settes direkte og
+ingen rad kunne bli feilmerket. Steg 2 i handoffens oppskrift — «backfill fra
+`sak_metadata`, aldri fra `source`» — var en nulloperasjon.
+
+**Handoffen oppgir fem oslobygg-fallbacks. Det var åtte.** Samme mønster som
+§7b beskriver: «tre» ble fem, og fem ble åtte. Alle er fjernet i samme runde:
+
+| Sted | Var | Er |
+| --- | --- | --- |
+| `project_context.py` | `DEFAULT_PROJECT_ID = "oslobygg"`, brukt i header-lesing og `get_project_id()` | Borte. `get_project_id() -> str \| None`; manglende header betyr ukjent prosjekt |
+| `project_access.py` | `record.prosjekt_id or DEFAULT_PROJECT_ID` | Ren sammenlikning |
+| `endringsordre_service.py` ×2 | `metadata.prosjekt_id or "oslobygg"` | Ren sammenlikning, og `_belongs_to_project` er fail-closed uten kontekst |
+| `sak_metadata_repository.py` ×3 | `row.get("prosjekt_id") or "oslobygg"` | Ren oppslag |
+| `cloudevents.py` | `ce_source` skrev `oslobygg` | `unknown` — et ærlig utsagn |
+| databasens `DEFAULT` | `sak_metadata.prosjekt_id` | Droppet |
+| `client.ts` | `activeProjectId = 'oslobygg'` | `null`. Headeren utelates når prosjektet er ukjent |
+| FE-01 | `LetterPreviewModal` sendte verken prosjekt, CSRF eller credentials | Alle tre settes nå |
+
+Skrivestiene stempler prosjektet fra autorisert kontekst og avviser å skrive uten
+det — som `PermanentError`, ikke `ValueError`, fordi `append_batch` er
+retry-dekorert og nye forsøk aldri gir en forespørsel en kontekst den ikke hadde.
+
+**Tre `xfail` ble XPASS og er gjort om til ordinære regresjonstester:** DB-06,
+`ce_source`-fallbacken, og FE-01. Den siste ble *erstattet* framfor snudd: den
+hevdet at et CSRF-løst mutasjonskall burde gi 200, og det er en ønskeforestilling
+som nå er direkte gal. Den nye prøver begge halvdeler — de nye headerne slipper
+gjennom, de gamle avvises fortsatt.
+
+**Merk om DB-06.** Testen leser modulens docstring, ikke databasen, så den er
+grønn fordi DDL-en der er oppdatert. At kolonnen finnes i basen vet vi fra
+katalogspørringen og den observerte `23502`-avvisningen — ikke fra testen. Det
+står skrevet inn i testen.
+
+**Hva som gjenstår for at grensen skal være i kraft:** RLS-policyen
+`USING (prosjekt_id = current_setting('app.project_id'))` lar seg nå *skrive*,
+men er ikke skrevet. Samtlige policyer er fortsatt `service_role / ALL /
+USING (true)`. Det hører til pakke 2 om minste privilegium.
+
 **Merknad 2026-09-19: status for de tre.**
 
 | Funn | Status | Merknad |
@@ -207,6 +255,45 @@ frontend på **0 eslint-feil**, og `prettier --check` passerer.
 | 2 — minst mulige privilegier og integritet | Avklar runtime-, worker-, drift- og migreringsrettigheter. Beskytt hendelser mot omskriving og uautorisert tilføying; hemmelighetslager og rotasjon. | Reelle runtime-legitimasjoner kan ikke endre/slette historikk eller omgå godkjenningskommandoen. Test også Data API med anon og anonymt innlogget authenticated. Migrering/break-glass er separat, tidsavgrenset og logget. |
 | 3 — dokumenter og sporbarhet | Frosset brev/vedlegg med hash, karantene/skanning før frigivelse, tilgangslogg for sensitive lesinger og eksport, revisjon av fullmakts- og prosjektendringer. | Bevarings-/sletteregler omfatter filer, logger og backup. Ingen tokens eller brevtekst i standardlogger. Uavhengig integritetsbevis/lagring velges ut fra trusselmodellen; hash i samme redigerbare database alene er utilstrekkelig. |
 | 3 — faktisk gjenoppretting og drift | Restore-øvelse, avstemming mot Catenda, varsling om køalder/usikre utfall, kapasitet og rate limiting. | Dokumentert RPO/RTO og vellykket restore av hendelser, godkjenninger, utkast, filer og køer. Restore utløser ikke blind ny levering. Feil har en mottaker og en testet driftsprosedyre. |
+| **1 — databasearkitektur: trenger vi alle tabellene?** *(ny 20.09)* | Full gjennomgang av skjemaet: hvilke tabeller og kolonner er i bruk, hvilke er etterlatenskaper, og hvilke finnes i basen uten å finnes i repoet. Avklar også hvordan en migrasjon skal nå databasen — i dag finnes ingen mekanisme. | Hver tabell i `public` er enten i bruk, dokumentert som bevisst reserve, eller fjernet. Repoets migrasjonsmappe og basens faktiske skjema stemmer, og det finnes en dokumentert vei fra fil til database. |
+
+**Foreløpige funn til pakken over (2026-09-20, ikke en gjennomgang — biprodukt av 5a).**
+
+Alt under er kontrollert mot prosjekt `gwdxadexwktegkklyobv`, ikke utledet av
+migrasjonene.
+
+1. **Repoet kan ikke opprette databasen.** Basens migrasjonshistorikk lister
+   `001_koe_core_tables` til `006_koe_rls_performance`. **Ingen av dem finnes i
+   repoet.** Det bekrefter DB-01 og handoffens felle 3 fra databasesiden.
+2. **En repo-migrasjon er aldri anvendt, og den er ikke harmløs.**
+   `supabase/migrations/20260918090000_event_tables_actorteam.sql` ligger i
+   repoet, er idempotent og forsiktig skrevet — og kolonnen `actorteam` finnes
+   ikke på noen av de tre hendelsestabellene. *Kjørt og observert:* den eksakte
+   spørringen `supabase_event_repository.py` sender feiler med
+   `42703: column "actorteam" does not exist`. Siden `select` navngir kolonnen,
+   feiler **enhver lesing av enhver sak** gjennom Supabase-lageret — ikke bare
+   interne notater. Ingen test fanger det, fordi `EVENT_STORE_BACKEND` er `json`
+   som standard og metadata `csv`.
+   **Dette motsier statustabellen over: RV-08 står som lukket.** Koden *er*
+   riktig; databasen fikk aldri kolonnen. Migrasjonen er ett kall unna å kunne
+   anvendes, og basen er tom, så ingen rad kan bli feilmerket.
+3. **Ingen mekanisme håndhever at en migrasjon når basen.** Det finnes ingen
+   `supabase/config.toml`, bare en `migrations`-mappe, og to parallelle
+   migrasjonssett (`supabase/migrations/` og `backend/migrations/`).
+4. **Testdobbelen kan ikke fange klassen.** `EVENT_TABLE_COLUMNS` i
+   `test_event_roundtrip.py` speiler repoet, ikke basen, og oppgir `actorteam`
+   som en eksisterende kolonne. Den er tro mot repoet, og repoet er ikke tro mot
+   basen. Notert i fila.
+5. **Tre tabeller har null referanser i produksjonskode:** `app_identities`,
+   `user_groups` og `magic_links`. Den siste er verdt et blikk — `MagicLinkManager`
+   lagrer tokens i `koe_data/magic_links.json`, altså en fil, mens tabellen står
+   ubrukt. Det er *lest ut av koden*, ikke kjørt, og kan være feil om noe når dem
+   utenom navnet.
+6. **Spørsmål gjennomgangen bør stille:** finnes det to medlemskapstabeller
+   (`project_memberships` og `app_project_memberships`), og er begge i bruk?
+   Hva er `catenda_models_cache`? DB-04 melder at `sak_relations` mangler
+   fremmednøkler — bevisst eller etterlatenskap?
+
 | **1 — oppbevaring og sletting i selve journalen** *(ny 19.09)* | Avgjør bevarings- og slettemodell for hendelsesstrømmen **før** skriverettighetene strammes. Grunnlaget ligger i [faktagrunnlag for DPIA](../personopplysninger-faktagrunnlag-2026-09-19.md); merk særlig at journalen i dag er **tom**, at `aktor` lagrer navn framfor bruker-ID, og at interne notater ikke er kontraktsvarsler og derfor ikke trenger samme permanens. Hendelsene bærer `aktor` (personnavn), og `internt_notat` er fritekst om navngitte personer. Kartlegg hvilke regelsett som gjelder for Oslobygg KF, der personvern trekker mot sletting og arkivplikt mot bevaring. | Det finnes en besluttet og dokumentert modell for hvordan en sletteplikt oppfylles i en journal som ellers er uforanderlig — for eksempel kryptografisk sletting, pseudonymisering ved skriving, eller en begrunnet konklusjon om at sletteplikten ikke gjelder. Modellen er avklart før `REVOKE UPDATE, DELETE` kjøres, og før journalen inneholder ekte persondata. |
 | **1 — byggreproduserbarhet og forsyningskjede** *(ny 19.09)* | Pinn Python-avhengighetene; 10 av 21 i `requirements.txt` bruker `>=`, så to bygg kan gi ulike versjoner. Innfør avhengighetsskanning for begge økosystemer i CI. | `pip install` fra repoet gir samme versjoner to ganger. Sårbarhetsskanning kjører som påkrevd sjekk, med en besluttet terskel for hva som blokkerer. Planens krav om «reproduserbar databasemigrasjon» har da en tilsvarende garanti for selve bygget. |
 | **1 — HTTP-herding av klientleveransen** *(ny 19.09)* | `nginx.conf` setter i dag bare cache-headere. Legg til CSP, HSTS, `X-Content-Type-Options` og `frame-ancestors`. | Klienten leveres med en CSP som faktisk er testet mot appen, ikke bare satt. Særlig relevant fordi brevvisningen rendrer rik tekst gjennom TipTap og DOMPurify — CSP er forsvar i dybden der sanitiseringen svikter. |

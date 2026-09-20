@@ -111,17 +111,19 @@ class EndringsordreService(BaseSakService):
                 for metadata in self.metadata_repository.list_all(
                     prosjekt_id=get_project_id()
                 )
-                if (metadata.prosjekt_id or "oslobygg") == get_project_id()
+                if metadata.prosjekt_id == get_project_id()
             ]
         return get_all_sak_ids(event_repository=self.event_repository)
 
     def _belongs_to_project(self, sak_id: str) -> bool:
         if not self.metadata_repository:
             return True
+        prosjekt = get_project_id()
+        if not prosjekt:
+            # Ingen autorisert prosjektkontekst: ingenting hører til noe.
+            return False
         metadata = self.metadata_repository.get(sak_id)
-        return bool(
-            metadata and (metadata.prosjekt_id or "oslobygg") == get_project_id()
-        )
+        return bool(metadata and metadata.prosjekt_id == prosjekt)
 
     def _load_state(self, sak_id: str) -> SakState | None:
         if not self._belongs_to_project(sak_id):

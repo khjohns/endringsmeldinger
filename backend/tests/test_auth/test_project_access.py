@@ -67,17 +67,27 @@ def test_minimum_role(api, role, status):
     assert client.get("/protected", headers={"X-Project-ID": "p"}).status_code == status
 
 
-def test_default_project_requires_membership(api):
+def test_foresporsel_uten_prosjekt_avvises_for_medlemskap_slas_opp(api):
+    """Uten X-Project-ID finnes ingen autorisert prosjektkontekst.
+
+    Tidligere fylte et fallback inn 'oslobygg' her, og medlemskapet ble slått
+    opp mot det prosjektet. Da kunne en rad skrevet etterpå ikke i ettertid
+    skilles fra en rad som virkelig hørte til Oslobygg. Nå avvises
+    forespørselen før medlemskapet i det hele tatt konsulteres — en strengere
+    grense enn den gamle testen beskrev.
+    """
     client, service = api
-    service.role.return_value = None
+    service.role.return_value = "admin"
     assert client.get("/protected").status_code == 403
-    service.role.assert_called_with("oslobygg", "user")
+    service.role.assert_not_called()
 
 
 def test_access_source_failure_does_not_grant_access(api):
+    # Headeren er nødvendig for å nå oppslaget i det hele tatt: uten prosjekt
+    # avvises forespørselen tidligere, og da prøves ikke kildefeilen.
     client, service = api
     service.role.side_effect = RuntimeError("source unavailable")
-    assert client.get("/protected").status_code == 503
+    assert client.get("/protected", headers={"X-Project-ID": "p"}).status_code == 503
 
 
 @pytest.mark.parametrize(
