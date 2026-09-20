@@ -35,16 +35,15 @@ def _read_all_sql_migrations() -> dict[str, str]:
     return sql_files
 
 
-@pytest.mark.xfail(
-    strict=True,
-    raises=AssertionError,
-    reason="DB-01: Migrasjonskjeden mangler CREATE TABLE for sak_metadata og event-tabeller; 004 krasjer på tom database",
-)
-def test_migration_chain_fails_on_empty_db_missing_sak_metadata_table():
+def test_migration_chain_creates_sak_metadata_table():
     """
-    DB-01: 004_projects_table.sql forutsetter at sak_metadata allerede eksisterer
-    (UPDATE sak_metadata SET prosjekt_id = 'oslobygg'), men tabellen opprettes
-    aldri i noen migrasjonsfil. En ny database feiler ved migrering.
+    DB-01, lukket 2026-09-20: sak_metadata opprettes nå av
+    20260911073512_koe_kjerneskjema_rekonstruert.sql. Testen var en xfail-
+    reproduksjon av at ingen migrasjonsfil opprettet tabellen; den er ordinær
+    fra det tidspunktet feilen ble rettet.
+
+    Rekkefølgen er en del av påstanden: kjerneskjemaet må kjøre før
+    backend/migrations/004, som gjør UPDATE mot sak_metadata.
     """
     migrations = _read_all_sql_migrations()
 
@@ -63,16 +62,11 @@ def test_migration_chain_fails_on_empty_db_missing_sak_metadata_table():
     )
 
 
-@pytest.mark.xfail(
-    strict=True,
-    raises=AssertionError,
-    reason="DB-02: SupabaseSakMetadataRepository forventer 8 reporting-kolonner som mangler i alle SQL-migrasjoner",
-)
-def test_sak_metadata_schema_drift_missing_cached_reporting_columns():
+def test_sak_metadata_reporting_columns_declared_in_migrations():
     """
-    DB-02: SupabaseSakMetadataRepository skriver og leser 8 rapporteringskolonner
-    (cached_sum_krevd, cached_sum_godkjent, cached_dager_krevd, osv.),
-    men ingen av disse kolonnene er definert i noen SQL-migrasjon eller i tabell-docstringen.
+    DB-02, lukket 2026-09-20: de åtte rapporteringskolonnene står nå i
+    20260911073512_koe_kjerneskjema_rekonstruert.sql. Testen var en xfail-
+    reproduksjon av at de manglet i alle migrasjonsfiler.
     """
     from repositories.supabase_sak_metadata_repository import (
         SupabaseSakMetadataRepository,
@@ -151,22 +145,22 @@ def test_sak_metadata_database_default_hardcodes_oslobygg_fallback():
 )
 def test_sak_relations_missing_prosjekt_id_and_foreign_keys():
     """
-    DB-04: sak_relations (003_sak_relations.sql) mangler prosjekt_id-kolonne,
+    DB-04: sak_relations (20260911073700_sak_relations.sql) mangler prosjekt_id-kolonne,
     mangler fremmednøkler til sak_metadata, og har aktivert RLS uten noen tilgangspolicyer.
     """
-    relations_file = MIGRATIONS_BACKEND / "003_sak_relations.sql"
-    assert relations_file.exists(), "003_sak_relations.sql finnes ikke"
+    relations_file = MIGRATIONS_SUPABASE / "20260911073700_sak_relations.sql"
+    assert relations_file.exists(), "20260911073700_sak_relations.sql finnes ikke"
     content = relations_file.read_text(encoding="utf-8")
 
     has_project_id = bool(re.search(r"\bprosjekt_id\b", content, re.IGNORECASE))
     has_fk = bool(re.search(r"REFERENCES\s+sak_metadata", content, re.IGNORECASE))
 
     assert has_project_id, (
-        "sak_relations i 003_sak_relations.sql mangler kolonnen 'prosjekt_id'. "
+        "sak_relations i 20260911073700_sak_relations.sql mangler kolonnen 'prosjekt_id'. "
         "Det er dermed umulig å håndheve prosjektisolert RLS eller oppslag uten JOIN mot sak_metadata."
     )
     assert has_fk, (
-        "sak_relations i 003_sak_relations.sql mangler REFERENCES sak_metadata(sak_id). "
+        "sak_relations i 20260911073700_sak_relations.sql mangler REFERENCES sak_metadata(sak_id). "
         "Slettede saker etterlater foreldreløse relasjoner i tabellen."
     )
 
@@ -260,14 +254,14 @@ def test_sak_bim_links_missing_properties_column_declared_in_model():
     """
     DB-07: BimLink-modellen i backend/models/bim_link.py har feltet 'properties'
     (for IFC property sets, mengder og materialer), men sak_bim_links-tabellen
-    i backend/migrations/006_bim_tables.sql mangler denne kolonnen.
+    i supabase/migrations/20260911073800_bim_tables.sql mangler denne kolonnen.
     """
     from models.bim_link import BimLink
 
     assert "properties" in BimLink.model_fields, "BimLink mangler properties-feltet"
 
-    bim_migration = MIGRATIONS_BACKEND / "006_bim_tables.sql"
-    assert bim_migration.exists(), "006_bim_tables.sql finnes ikke"
+    bim_migration = MIGRATIONS_SUPABASE / "20260911073800_bim_tables.sql"
+    assert bim_migration.exists(), "20260911073800_bim_tables.sql finnes ikke"
     content = bim_migration.read_text(encoding="utf-8")
 
     sak_bim_links_match = re.search(r"CREATE\s+TABLE\s+IF\s+NOT\s+EXISTS\s+sak_bim_links\s*\((.*?)\);", content, re.DOTALL)
@@ -276,7 +270,7 @@ def test_sak_bim_links_missing_properties_column_declared_in_model():
 
     has_properties = bool(re.search(r"\bproperties\b", table_sql, re.IGNORECASE))
     assert has_properties, (
-        "sak_bim_links i backend/migrations/006_bim_tables.sql mangler kolonnen 'properties'. "
+        "sak_bim_links i 20260911073800_bim_tables.sql mangler kolonnen 'properties'. "
         "Modellen BimLink i backend/models/bim_link.py deklarerer properties: dict[str, Any] | None. "
         "Forsøk på å lagre eller laste IFC properties vil føre til datatap eller databasefeil."
     )

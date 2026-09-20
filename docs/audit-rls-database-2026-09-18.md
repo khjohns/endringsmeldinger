@@ -34,6 +34,36 @@ default, med indeks (DB-06), og `sak_metadata`s `DEFAULT 'oslobygg'` er droppet
 (DB-03). *Kjørt og observert:* en rad uten prosjekt avvises med `23502`.
 Tabellene var tomme, så ingen rad kunne bli feilmerket.
 
+**Merknad 2026-09-20 (senere samme dag): DB-01 og DB-02 er lukket.**
+[Databasearkitektur-gjennomgangen](audit-databasearkitektur-2026-09-20.md) skrev
+migrasjonsfiler for de sju tabellene som bare fantes i basen. `sak_metadata`,
+de tre hendelsestabellene, `magic_links`, `user_groups` og `project_memberships`
+opprettes nå av `20260911073512_koe_kjerneskjema_rekonstruert.sql` og
+`20260911080500_project_memberships_rekonstruert.sql`, og de åtte
+rapporteringskolonnene (DB-02) står erklært der. *Kjørt og observert:* hele
+migrasjonssettet bygger en tom PostgreSQL 16, og katalogen er identisk med
+basens på kolonner, skranker, indekser og policyer.
+
+Begge xfail-reproduksjonene XPASSet og er gjort om til ordinære tester, etter
+regelen i `AGENTS.md`. De heter nå
+`test_migration_chain_creates_sak_metadata_table` og
+`test_sak_metadata_reporting_columns_declared_in_migrations`.
+
+**DB-04 og DB-07 er fortsatt `xfail`, og det er riktig.** Testene leser de to
+migrasjonene spesifikt, og innholdet deres er uendret — men filene er **flyttet**
+samme kveld (DA-03): `003_sak_relations.sql` er nå
+`supabase/migrations/20260911073700_sak_relations.sql`, og `006_bim_tables.sql`
+er `20260911073800_bim_tables.sql`. Testene peker på de nye stiene; assertionene
+er de samme. Avvikene
+de beskriver, er rettet i en egen avstemmingsmigrasjon
+(`20260920160000_avstem_backend_migrations.sql`) framfor ved å redigere de
+«legacy»-merkede filene — så påstanden om *de filene* står ved lag.
+Avstemmingen dekker `sak_bim_links.properties` (DB-07) og tre avvik til som
+denne auditen ikke fanget: `SERIAL` mot `GENERATED ALWAYS AS IDENTITY` på tre
+tabeller, tre policyer skrevet uten `TO`-ledd, og at `003` slår på RLS uten å
+opprette noen policy. **Fremmednøklene på `sak_relations` (DB-04) er ikke lagt
+på** — det er en skjemaendring, og den lå utenfor mandatet.
+
 To presiseringer. **DB-06s reproduksjonstest leser modulens docstring, ikke
 databasen** — den er grønn fordi DDL-en der er oppdatert, og beviser altså
 docstringen. Skjemaet er verifisert med katalogspørring, ikke med testen; det står

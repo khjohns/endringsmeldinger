@@ -1,3 +1,9 @@
+-- Flyttet fra backend/migrations/006_bim_tables.sql 2026-09-20 (DA-03).
+-- Migrasjonsmappa skal være eneste kilde; den gamle mappa kunne ikke
+-- kjøres fra filnavnrekkefølge, og fire av filene der var likevel
+-- nødvendige for å bygge basen. Policyene er gjort idempotente.
+--
+
 -- ============================================================
 -- BIM Link Tables
 -- Links KOE cases to Catenda BIM models and objects
@@ -49,20 +55,24 @@ CREATE INDEX IF NOT EXISTS idx_sak_bim_links_model ON sak_bim_links(model_id);
 ALTER TABLE sak_bim_links ENABLE ROW LEVEL SECURITY;
 ALTER TABLE catenda_models_cache ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Service role full access on sak_bim_links" ON sak_bim_links;
 CREATE POLICY "Service role full access on sak_bim_links"
 ON sak_bim_links FOR ALL
 USING (auth.role() = 'service_role')
 WITH CHECK (auth.role() = 'service_role');
 
+DROP POLICY IF EXISTS "Authenticated users can read sak_bim_links" ON sak_bim_links;
 CREATE POLICY "Authenticated users can read sak_bim_links"
 ON sak_bim_links FOR SELECT
 USING (auth.role() = 'authenticated');
 
+DROP POLICY IF EXISTS "Service role full access on catenda_models_cache" ON catenda_models_cache;
 CREATE POLICY "Service role full access on catenda_models_cache"
 ON catenda_models_cache FOR ALL
 USING (auth.role() = 'service_role')
 WITH CHECK (auth.role() = 'service_role');
 
+DROP POLICY IF EXISTS "Authenticated users can read catenda_models_cache" ON catenda_models_cache;
 CREATE POLICY "Authenticated users can read catenda_models_cache"
 ON catenda_models_cache FOR SELECT
 USING (auth.role() = 'authenticated');
