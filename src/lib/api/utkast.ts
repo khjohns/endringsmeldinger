@@ -53,7 +53,9 @@ export async function hentUtkast<T>(
   prosjektId = getActiveProjectId()
 ): Promise<UtkastKontekst<T>> {
   const svar = await apiFetch<UtkastKontekst<T>>(`${sti(sakId, spor)}?revisjon=${revisjon}`, {
-    headers: { 'X-Project-ID': prosjektId },
+    // apiFetch setter headeren fra aktivt prosjekt; her overstyres den bare
+    // når kalleren oppgir et eksplisitt prosjekt.
+    headers: prosjektId ? { 'X-Project-ID': prosjektId } : {},
   });
   if (typeof svar.team_id !== 'string' || !svar.team_id) {
     throw new Error('Kunne ikke bekrefte teamtilgangen til utkastet.');
@@ -83,7 +85,9 @@ export async function lagreUtkast<T>(
   try {
     const svar = await apiFetch<{ utkast: ServerUtkast<T> }>(sti(sakId, spor), {
       method: 'PUT',
-      headers: { 'X-Project-ID': prosjektId },
+      // apiFetch setter headeren fra aktivt prosjekt; her overstyres den bare
+      // når kalleren oppgir et eksplisitt prosjekt.
+      headers: prosjektId ? { 'X-Project-ID': prosjektId } : {},
       body: JSON.stringify({ revisjon, innhold, forventet_versjon: forventetVersjon }),
     });
     return svar.utkast;
@@ -105,6 +109,8 @@ export async function slettUtkast(
 ): Promise<void> {
   await apiFetch(`${sti(sakId, spor)}?revisjon=${revisjon}`, {
     method: 'DELETE',
-    headers: { 'X-Project-ID': prosjektId },
+    // apiFetch setter headeren fra aktivt prosjekt; her overstyres den bare
+    // når kalleren oppgir et eksplisitt prosjekt.
+    headers: prosjektId ? { 'X-Project-ID': prosjektId } : {},
   });
 }

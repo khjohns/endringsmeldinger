@@ -124,18 +124,16 @@ def test_cloudevents_ce_time_korrumperer_tidssone_med_to_timer():
 # =============================================================================
 
 
-@pytest.mark.xfail(
-    strict=True,
-    raises=AssertionError,
-    reason="ce_source setter 'oslobygg' som default-prosjekt når prosjekt_id er None",
-)
 def test_cloudevents_ce_source_hardkoder_oslobygg_uten_prosjekt():
     """CloudEvent ce_source må ikke hardkode 'oslobygg' for hendelser uten prosjekt_id.
 
-    I models/cloudevents.py:109:
-    proj_id = getattr(self, "prosjekt_id", None) or "oslobygg"
-    Fordi hendelsestabellene mangler prosjekt_id-kolonne (DB-06),
-    tilordnes alle saker fra andre byggherrer automatisk til Oslobygg i CloudEvents.
+    ce_source skrev tidligere `getattr(self, "prosjekt_id", None) or "oslobygg"`,
+    så enhver hendelse uten prosjekt ble tilordnet Oslobygg i kilden. Rettet
+    2026-09-20 sammen med de øvrige oslobygg-fallbackene: verdien er nå
+    'unknown', som er et ærlig utsagn om at prosjektet ikke er kjent.
+
+    Den autoritative attribusjonen ligger uansett ikke her, men i kolonnen
+    prosjekt_id, som er NOT NULL fra samme dato.
     """
     class DummyEvent(CloudEventMixin):
         sak_id: str = "KOE-BERGEN-001"

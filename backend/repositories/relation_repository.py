@@ -27,6 +27,28 @@ logger = get_logger(__name__)
 RelationType = Literal["forsering", "endringsordre"]
 
 
+def _autorisert_prosjekt() -> str:
+    """Prosjektet denne skrivingen er autorisert for.
+
+    Relasjonsindeksen bar ingen prosjekt_id før 2026-09-20, og
+    backfill_relations.py fylte den uten prosjektbegrep. Oppslaget går dessuten
+    baklengs, så ruta kan ikke kontrollere de returnerte IDene (AUT-02). Derfor
+    stemples prosjektet ved skriving, og fravær er en feil framfor en gjetning.
+    """
+    from lib.project_context import get_project_id
+    from lib.supabase.exceptions import PermanentError
+
+    prosjekt = get_project_id()
+    if not prosjekt:
+        # PermanentError: skrivingen er retry-dekorert, og nye forsøk gir ikke
+        # forespørselen en prosjektkontekst den ikke hadde.
+        raise PermanentError(
+            "Kan ikke skrive relasjon uten autorisert prosjekt. Skrivingen "
+            "skjedde utenfor en forespørselskontekst, eller X-Project-ID manglet."
+        )
+    return prosjekt
+
+
 class RelationRepository:
     """
     Repository for managing sak_relations table.
@@ -90,6 +112,7 @@ class RelationRepository:
                     "source_sak_id": source_sak_id,
                     "target_sak_id": target_sak_id,
                     "relation_type": relation_type,
+                    "prosjekt_id": _autorisert_prosjekt(),
                 },
                 on_conflict="source_sak_id,target_sak_id,relation_type",
             ).execute()
@@ -121,11 +144,13 @@ class RelationRepository:
         if not target_sak_ids:
             return 0
 
+        prosjekt = _autorisert_prosjekt()
         rows = [
             {
                 "source_sak_id": source_sak_id,
                 "target_sak_id": target_sak_id,
                 "relation_type": relation_type,
+                "prosjekt_id": prosjekt,
             }
             for target_sak_id in target_sak_ids
         ]

@@ -33,6 +33,15 @@ NOTAT_TEKST = "Internt: vi bør ikke spille ut fristkravet ennå."
 # repositories/supabase_event_repository.py og migrasjonene under
 # supabase/migrations/. Holdes i synk manuelt — det er poenget: skriver koden
 # en kolonne som ikke står her, mangler den også i databasen.
+#
+# MERK (2026-09-20): lista speiler repoet, ikke den levende basen, og de to har
+# drevet fra hverandre. `actorteam` står her og i migrasjonen
+# 20260918090000_event_tables_actorteam.sql, men migrasjonen er aldri anvendt:
+# kolonnen finnes IKKE i prosjekt gwdxadexwktegkklyobv, og den eksakte
+# select-en repoet sender feiler der med «42703: column "actorteam" does not
+# exist». Denne dobbelen kan altså ikke fange den klassen avvik — den er tro
+# mot repoet, og repoet er ikke tro mot basen. Se masterplanens arbeidspakke om
+# databasearkitektur.
 EVENT_TABLE_COLUMNS = {
     "id",
     "specversion",
@@ -48,6 +57,7 @@ EVENT_TABLE_COLUMNS = {
     "comment",
     "referstoid",
     "data",
+    "prosjekt_id",
     "sak_id",
     "event_type",
     "versjon",
@@ -136,6 +146,10 @@ def supabase_repo(monkeypatch):
         "repositories.supabase_event_repository.create_client",
         lambda url, key: client,
     )
+    # prosjekt_id stemples fra autorisert kontekst (NOT NULL fra 2026-09-20).
+    # Testene kjører uten forespørsel, så konteksten gjøres eksplisitt framfor
+    # å arves fra et fallback, slik den ble før.
+    monkeypatch.setattr("lib.project_context.get_project_id", lambda: "p-roundtrip")
     repo = SupabaseEventRepository(
         url="https://roundtrip.example.invalid", key="test-key"
     )
@@ -198,3 +212,22 @@ def test_json_roundtrip_beholder_aktor_team_id(json_repo):
     assert parsed.aktor_rolle == "TE"
     assert parsed.kommentar == "Skrevet før byggemøtet"
     assert parsed.data.tekst == NOTAT_TEKST
+
+
+def test_supabase_skriving_uten_autorisert_prosjekt_avvises(supabase_repo, monkeypatch):
+    """Fail-closed: uten autorisert prosjekt skrives ingen hendelse.
+
+    prosjekt_id er NOT NULL i databasen, men grensen skal håndheves før
+    spørringen sendes — en gjetning her ville gjenopprettet tvetydigheten
+    kolonnen fjerner. Databasen er siste skanse, ikke første.
+    """
+    repo, client = supabase_repo
+    monkeypatch.setattr("lib.project_context.get_project_id", lambda: None)
+
+    from lib.supabase.exceptions import PermanentError
+
+    with pytest.raises(PermanentError, match="uten autorisert prosjekt"):
+        repo.append(_internt_notat(), expected_version=0)
+
+    skrevet = [rad for rader in client.tables.values() for rad in rader]
+    assert skrevet == [], "En hendelse ble skrevet uten prosjekt"

@@ -2,6 +2,7 @@
   import { Download, X } from 'lucide-svelte';
   import { onMount } from 'svelte';
   import LetterHtmlPreview from './LetterHtmlPreview.svelte';
+  import { getCsrfToken, projectHeaders } from '$lib/api/client';
   import type { BrevInnhold } from './letterTypes';
   let {
     brevInnhold,
@@ -16,9 +17,18 @@
     isDownloading = true;
     error = '';
     try {
+      // Svaret er en PDF-blob, så kallet kan ikke gå gjennom apiFetch, som
+      // parser JSON. Headerne må derfor settes her: uten credentials sendes
+      // ikke sesjonsinformasjonskapselen, uten CSRF avvises mutasjonen, og uten
+      // prosjekt svarer serveren 403 — den har ingen default lenger (FE-01).
       const resp = await fetch(`${import.meta.env.VITE_API_BASE_URL || ''}/api/letter/generate`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+          ...projectHeaders(),
+          'X-CSRF-Token': await getCsrfToken(),
+        },
         body: JSON.stringify({
           brev_innhold: {
             tittel: `${draft ? 'UTKAST – ' : ''}${brevInnhold.tittel}`,

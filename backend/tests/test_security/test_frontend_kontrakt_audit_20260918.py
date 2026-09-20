@@ -21,24 +21,19 @@ from lib.project_context import init_project_context
 # =============================================================================
 
 
-@pytest.mark.xfail(
-    strict=True,
-    raises=AssertionError,
-    reason=(
-        "FE-01: LetterPreviewModal kaller fetch uten X-CSRF-Token — og uten credentials "
-        "og X-Project-ID. Ruta har require_auth, så ingen får tilgang til noe: samme "
-        "opphav gir 403 på CSRF, kryssopphav gir 401 fordi sesjonsinformasjonskapselen "
-        "ikke sendes. Dette er en funksjonsfeil — knappen virker ikke — ikke en "
-        "angrepsvei (kontrollert 2026-09-19)."
-    ),
-)
 def test_letter_preview_mangler_csrf_og_avvises_i_produksjon(monkeypatch):
-    """LetterPreviewModal.svelte:19-22 kaller fetch direkte uten X-CSRF-Token.
+    """FE-01: LetterPreviewModal sender nå det ruta krever — og bare det.
 
-    Backend-endepunktet POST /api/letter/generate er beskyttet av @require_auth,
-    som krever gyldig X-CSRF-Token på alle muterende kall.
-    I produksjon/sikret miljø blir kallet avvist med 403 Forbidden.
-    Frontend forventer derimot at kallet lykkes (eller bruker apiFetch som inkluderer token).
+    Komponenten kalte fetch direkte med kun Content-Type: ingen credentials,
+    ingen X-CSRF-Token, intet X-Project-ID. Knappen virket derfor ikke i et
+    sikret miljø. Rettet 2026-09-20: kallet kan ikke gå gjennom apiFetch, som
+    parser JSON og ikke blob, så headerne settes eksplisitt i komponenten.
+
+    Testen prøver begge halvdeler, fordi bare den ene er en retting:
+    de nye headerne slipper gjennom, og de gamle avvises fortsatt. En variant
+    som lot et CSRF-løst mutasjonskall lykke ville vært en svekkelse, ikke en
+    retting — den opprinnelige reproduksjonen hevdet nettopp det (200), og er
+    derfor erstattet framfor snudd.
     """
     from routes.letter_routes import letter_bp
 
@@ -68,9 +63,6 @@ def test_letter_preview_mangler_csrf_og_avvises_i_produksjon(monkeypatch):
     client = app.test_client()
     client.set_cookie(cookie_name(), "session")
 
-    # Slik LetterPreviewModal.svelte:19-22 utfører kallet:
-    # Kun Content-Type, ingen X-CSRF-Token eller X-Project-ID
-    headers = {"Content-Type": "application/json"}
     payload = {
         "brev_innhold": {
             "tittel": "Testbrev",
@@ -87,12 +79,23 @@ def test_letter_preview_mangler_csrf_og_avvises_i_produksjon(monkeypatch):
         }
     }
 
-    response = client.post("/api/letter/generate", json=payload, headers=headers)
+    # Slik komponenten kaller i dag.
+    nye_headere = {
+        "Content-Type": "application/json",
+        "X-CSRF-Token": "valid-secret-csrf-token",
+        "X-Project-ID": "oslobygg",
+    }
+    svar = client.post("/api/letter/generate", json=payload, headers=nye_headere)
+    assert svar.status_code == 200, (
+        f"LetterPreviewModal ble avvist med HTTP {svar.status_code}: {svar.get_json()}"
+    )
 
-    # For at LetterPreviewModal skal fungere som tiltenkt, må kallet lykkes (200 OK).
-    # Men i koden feiler det med 403 fordi komponenten omgår apiFetch og mangler X-CSRF-Token.
-    assert response.status_code == 200, (
-        f"LetterPreviewModal ble avvist med HTTP {response.status_code}: {response.get_json()}"
+    # Og slik den kalte før: uten CSRF skal mutasjonen fortsatt avvises.
+    gamle_headere = {"Content-Type": "application/json"}
+    avvist = client.post("/api/letter/generate", json=payload, headers=gamle_headere)
+    assert avvist.status_code == 403, (
+        "Et muterende kall uten X-CSRF-Token skal avvises, ikke slippe gjennom. "
+        f"Fikk HTTP {avvist.status_code}."
     )
 
 

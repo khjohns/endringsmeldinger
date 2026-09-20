@@ -255,8 +255,12 @@ export function createFormDraft<T extends Record<string, unknown>>(
           ready = true;
           return;
         }
-        buffer = createDraftRecovery<T>(eier, [prosjektId, team, sakId, spor, revisjon]);
-        const lokal = buffer.load();
+        // Uten kjent prosjekt er utkastnøkkelen tvetydig: to prosjekter ville
+        // delt samme lokale utkast. Fail-closed — ingen gjenoppretting da.
+        buffer = prosjektId
+          ? createDraftRecovery<T>(eier, [prosjektId, team, sakId, spor, revisjon])
+          : null;
+        const lokal = buffer?.load() ?? null;
         if (lagret) {
           restore(lagret.innhold);
           overtaServerens(lagret);
