@@ -24,7 +24,6 @@ def context(case_id):
     from core.container import get_container
 
     container = get_container()
-    # Ingen fallback: uten autorisert prosjekt finnes ingen policy å slå opp.
     project = get_project_id()
     identity = getattr(g, "user", {}) or {}
     if identity.get("sak_id") and identity["sak_id"] != case_id:

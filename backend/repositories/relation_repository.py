@@ -91,9 +91,6 @@ class RelationRepository:
                     "source_sak_id": source_sak_id,
                     "target_sak_id": target_sak_id,
                     "relation_type": relation_type,
-                    # Relasjonsindeksen bar ingen prosjekt_id før 2026-09-20,
-                    # og oppslaget går baklengs, så ruta kan ikke kontrollere
-                    # de returnerte IDene (AUT-02). Derfor stemples den her.
                     "prosjekt_id": krev_autorisert_prosjekt("relasjon"),
                 },
                 on_conflict="source_sak_id,target_sak_id,relation_type",

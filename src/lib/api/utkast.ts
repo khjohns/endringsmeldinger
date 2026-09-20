@@ -53,8 +53,6 @@ export async function hentUtkast<T>(
   prosjektId = getActiveProjectId()
 ): Promise<UtkastKontekst<T>> {
   const svar = await apiFetch<UtkastKontekst<T>>(`${sti(sakId, spor)}?revisjon=${revisjon}`, {
-    // apiFetch setter headeren fra aktivt prosjekt; her overstyres den bare
-    // når kalleren oppgir et eksplisitt prosjekt.
     headers: projectHeaders(prosjektId),
   });
   if (typeof svar.team_id !== 'string' || !svar.team_id) {
@@ -85,8 +83,6 @@ export async function lagreUtkast<T>(
   try {
     const svar = await apiFetch<{ utkast: ServerUtkast<T> }>(sti(sakId, spor), {
       method: 'PUT',
-      // apiFetch setter headeren fra aktivt prosjekt; her overstyres den bare
-      // når kalleren oppgir et eksplisitt prosjekt.
       headers: projectHeaders(prosjektId),
       body: JSON.stringify({ revisjon, innhold, forventet_versjon: forventetVersjon }),
     });
@@ -109,8 +105,6 @@ export async function slettUtkast(
 ): Promise<void> {
   await apiFetch(`${sti(sakId, spor)}?revisjon=${revisjon}`, {
     method: 'DELETE',
-    // apiFetch setter headeren fra aktivt prosjekt; her overstyres den bare
-    // når kalleren oppgir et eksplisitt prosjekt.
     headers: projectHeaders(prosjektId),
   });
 }

@@ -1,19 +1,5 @@
-# Portene som allerede er grønne, kjørt på hver endring.
-#
-# Alle tre jobbene gater, og alle tre er grønne i dag. CI-en virker derfor fra
-# første kjøring uten at noe må ryddes først.
-#
-# Bevisst utelatt: driftskriptene i scripts/. De gater riktig — med --ci gir de
-# exit 1 — men seks av ni feiler i dag (kontrollert 2026-09-19: contract_drift,
-# event_field_usage og label_coverage passerer, resten ikke). Koblet på her ville
-# CI vært rød fra første kjøring. category_drift feiler dessuten på sin egen
-# parser. De hører hjemme her når det er avgjort hvilke som skal baselines og
-# hvilke som skal rettes.
-#
-# Merk at ruff er deklarert som `ruff>=0.8.0`. En linter som gater bør pinnes:
-# en ny ruff-utgivelse kan aktivere regler innenfor de valgte familiene
-# (E, F, B, I, UP, SIM) og gjøre hver PR rød uten at noen har endret kode. Det
-# hører til arbeidspakken om byggreproduserbarhet i masterplanen.
+# Driftskriptene i scripts/ er bevisst utelatt: seks av ni feiler i dag.
+# Se masterplanen, «verifiserbar leveranseprosess».
 name: CI
 
 on:
@@ -24,7 +10,6 @@ on:
 permissions:
   contents: read
 
-# En ny push gjør forrige kjøring på samme gren uinteressant.
 concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
@@ -49,10 +34,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r backend/requirements.txt -r backend/requirements-dev.txt
 
-      # Standard pytest gjør ingen nettverkskall. Live-testene mot Supabase er
-      # opt-in med RUN_LIVE_SUPABASE=1 (RV-16) og kjøres ikke her.
-      # Testene først: de er det mest verdifulle signalet, og en lint-feil er
-      # triviell å rette når man først ser den.
+      # Live-testene mot Supabase er opt-in med RUN_LIVE_SUPABASE=1 (RV-16).
       - name: Kjør testene
         working-directory: backend
         run: python -m pytest -q -p no:cacheprovider
@@ -94,12 +76,9 @@ jobs:
 
       - run: npm ci
 
-      # --threshold error: de 9 advarslene gater ikke. Tre av dem er a11y og
-      # hører til arbeidspakken om universell utforming.
+      # --threshold error: de 9 advarslene gater ikke.
       - name: Typesjekk
         run: npm run check:error
 
-      # prettier --check og eslint. Husky kjører prettier på staged filer
-      # lokalt, men bare på det som faktisk stages.
       - name: Lint
         run: npm run lint

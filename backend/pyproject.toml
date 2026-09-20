@@ -60,13 +60,7 @@ ignore = [
     "B905",   # zip() without strict= (Python 3.10+ - ikke kritisk)
     "B904",   # TODO: Exception chaining (raise from) - fikses separat
     "B011",   # assert False in demo code - OK
-    # UP042: class X(str, Enum) -> StrEnum. Slått av bevisst 2026-09-19.
-    # StrEnum endrer str() og f-string-interpolering: str(SporStatus.GODKJENT)
-    # går fra 'SporStatus.GODKJENT' til 'godkjent'. JSON-serialisering blir likt,
-    # men 14 domeneenums skrives inn i en append-only hendelseslogg, og en
-    # endring av hvordan de gjengis hører til en bevisst domenegjennomgang
-    # framfor et lint-sveip. Kontrollert kjørt, ikke antatt.
-    "UP042",  # str, Enum -> StrEnum: se over
+    "UP042",  # StrEnum endrer str() på 14 enums som skrives til journalen
 ]
 
 # Allow autofix for all enabled rules

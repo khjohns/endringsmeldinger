@@ -341,8 +341,7 @@ class SupabaseEventRepository(EventRepository):
             "referstoid": str(ce.get("referstoid")) if ce.get("referstoid") else None,
             # Data payload
             "data": ce.get("data", {}),
-            # Tenant: stemplet av serveren fra autorisert kontekst, aldri av
-            # klienten. Fravær er en feil, ikke en gjetning.
+            # Stemples av serveren fra autorisert kontekst, aldri av klienten.
             "prosjekt_id": krev_autorisert_prosjekt("hendelse"),
             # Internal fields
             "sak_id": sak_id,

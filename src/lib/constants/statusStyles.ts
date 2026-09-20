@@ -68,8 +68,6 @@ export const OVERORDNET_STATUS_STYLES: Record<OverordnetStatus, StatusStyle> = {
     className: 'bg-badge-error-bg text-badge-error-text',
     label: 'Trukket',
   },
-  // Nøytral: saken er avsluttet ved enighet om at intet tilkommer, ikke ved
-  // uenighet. Samme resonnement som badgen for sporstatusen 'avslatt_akseptert'.
   LUKKET_AVSLATT: {
     variant: 'default',
     className: 'bg-pkt-grays-gray-100 text-pkt-grays-gray-700',
@@ -126,8 +124,6 @@ export const SPOR_STATUS_STYLES: Record<SporStatus, StatusStyle> = {
     className: 'bg-pkt-grays-gray-100 text-pkt-grays-gray-700',
     label: 'Trukket',
   },
-  // Nøytral som 'trukket': sporet er oppgjort uten utestående krav. Ikke
-  // 'danger' — avslaget er ikke lenger omtvistet, partene er enige om det.
   avslatt_akseptert: {
     variant: 'default',
     className: 'bg-pkt-grays-gray-100 text-pkt-grays-gray-700',

@@ -17,10 +17,7 @@
     isDownloading = true;
     error = '';
     try {
-      // Svaret er en PDF-blob, så kallet kan ikke gå gjennom apiFetch, som
-      // parser JSON. Headerne må derfor settes her: uten credentials sendes
-      // ikke sesjonsinformasjonskapselen, uten CSRF avvises mutasjonen, og uten
-      // prosjekt svarer serveren 403 — den har ingen default lenger (FE-01).
+      // PDF-blob, så kallet kan ikke gå gjennom apiFetch, som parser JSON.
       const resp = await fetch(`${import.meta.env.VITE_API_BASE_URL || ''}/api/letter/generate`, {
         method: 'POST',
         credentials: 'include',

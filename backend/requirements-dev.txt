@@ -16,11 +16,7 @@ pytest-mock>=3.10.0               # Mocking support
 # ------------------------------------------------------------------------------
 # Code Quality
 # ------------------------------------------------------------------------------
-# Pinnet 2026-09-20: ruff gater i CI, og >= betyr at en ny utgivelse kan
-# aktivere regler innenfor de valgte familiene (E, F, B, I, UP, SIM) og gjøre
-# hver PR rød uten at noen har endret kode. Oppgradering skal være en bevisst
-# handling med en runde rydding, ikke noe som skjer av seg selv.
-ruff==0.16.8                      # Fast linter + formatter (replaces flake8, black, isort)
+ruff==0.16.8                      # Pinnet: gater i CI, og nye regler ville gjort PR-er røde
 mypy>=1.0.0                       # Type checker
 
 # ------------------------------------------------------------------------------

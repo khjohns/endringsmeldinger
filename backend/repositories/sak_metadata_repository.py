@@ -214,13 +214,7 @@ class SakMetadataRepository:
         return None
 
     def probe(self) -> None:
-        """Billigst mulig kontroll av at lageret svarer. Kaster ved feil.
-
-        Helsesjekken brukte tidligere `list_all()[:1]`, som leser hele fila og
-        kaster alt unntatt første rad — og etter at `list_all` ble fail-closed
-        måtte den be om *alle* prosjekter for å få noe i det hele tatt. En probe
-        skal verken lese på tvers av leietakere eller laste hele tabellen.
-        """
+        """Billigst mulig kontroll av at lageret svarer. Kaster ved feil."""
         with self.lock:
             if not self.csv_path.exists():
                 return
@@ -230,19 +224,8 @@ class SakMetadataRepository:
     def list_all(
         self, prosjekt_id: str | None = None, *, alle_prosjekter: bool = False
     ) -> list[SakMetadata]:
-        """List all cases for a project (for case list view).
-
-        Fail-closed uten prosjektkontekst: filteret under hopper over rader som
-        ikke matcher, men et tomt `pid` hoppet over *filteret* og returnerte
-        alle leietakeres saker.
-
-        Dette er dybdeforsvar, ikke en lukket lekkasje: rutene som lister saker
-        ligger bak `require_project_access`, som avviser med 403 når prosjektet
-        er ukjent, så kallet nådde ikke hit uten prosjekt. Men et lager skal
-        ikke returnere alle leietakeres rader fordi en kaller glemte filteret —
-        særlig ikke når Supabase-varianten av samme metode er fail-closed og de
-        to dermed ville oppført seg ulikt. Vil en kaller virkelig ha alt — som
-        backfill-skriptene, som kjører uten forespørsel — må det sies eksplisitt.
+        """Saker i prosjektet. Uten prosjektkontekst: ingen, med mindre
+        `alle_prosjekter` sier noe annet.
         """
         pid = self._get_project_id(prosjekt_id)
         if pid is None and not alle_prosjekter:
@@ -276,16 +259,7 @@ class SakMetadataRepository:
             return cases
 
     def count_by_sakstype(self, sakstype: str, prosjekt_id: str | None = None) -> int:
-        """Count cases by sakstype within a project.
-
-        Samme fail-closed-regel som `list_all`: uten prosjektkontekst telles
-        ingenting, framfor å telle på tvers av leietakere. Men uten
-        `alle_prosjekter`-unntaket: `list_all` har det fordi backfill-skriptene
-        kjører uten forespørsel og virkelig skal se alt, og et telletall på
-        tvers av leietakere har ingen slik kaller. Signaturen er dermed den
-        samme som i Supabase-varianten — TST-06 handler om at de to oppfører
-        seg likt.
-        """
+        """Antall saker av typen i prosjektet. Uten prosjektkontekst: 0."""
         pid = self._get_project_id(prosjekt_id)
         if pid is None:
             return 0

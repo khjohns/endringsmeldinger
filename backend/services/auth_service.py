@@ -196,7 +196,6 @@ class AuthService:
         try:
             subject = catenda_id(str(catenda_subject))
         except (ValueError, AttributeError, TypeError):
-            # Ugjenkjennelig subjekt er ikke et treff i noe lag.
             return None, None
         matches = set()
         for role in ("TE", "BH"):
