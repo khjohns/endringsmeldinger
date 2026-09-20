@@ -13,7 +13,7 @@ Opphever du et utsagn, skriv en datert merknad, også inn i det gamle dokumentet
 
 | Dokument | Hva det gir |
 | --- | --- |
-| [handoff-2026-09-19](handoff-2026-09-19.md) | Overtakelse uten kontekst: miljø, fire metodiske feller, etablerte fakta, ting med frist |
+| [handoff-2026-09-19](handoff-2026-09-19.md) | Overtakelse uten kontekst: miljø, fire metodiske feller, etablerte fakta, ting med frist. **Les de daterte merknadene i den:** flere av tallene og alle «ting med frist» merket 5a er passert 20.09 |
 | [`../AGENTS.md`](../AGENTS.md) | Lastes automatisk i hver sesjon: språk, domeneordliste, sikkerhetsinvarianter, resonneringsregler |
 
 ## Gjeldende plan og status
@@ -24,7 +24,24 @@ Opphever du et utsagn, skriv en datert merknad, også inn i det gamle dokumentet
 | [transaksjonsplanen](plans/2026-09-17-atomisk-utstedelse-og-outbox.md) | Delplan: atomisk utstedelse og outbox |
 | [design: durable inbox og outbox](design-durable-inbox-outbox-2026-09-17.md) | Designet planen bygger på. Konkluderte uavhengig med «én database» |
 
-## Siste runde — 19. september
+## Siste runde — 20. september
+
+Ingen nytt dokument: runden leverte rettinger i produksjonskode, ikke en audit.
+Den er dokumentert som daterte merknader i kjeden — [masterplanen](plans/2026-09-16-godkjenning-og-varig-levering.md)
+er stedet å lese dem samlet.
+
+| Hva | Hvor det står |
+| --- | --- |
+| TFR-01, GFK-01/FE-04, AUT-01/AUT-02 og INT-04 lukket | Masterplanen, «status for de tre» |
+| Tenant-attribusjonen (handoffens 5a): `prosjekt_id NOT NULL` på hendelsestabellene, alle fjorten oslobygg-fallbacks fjernet | Masterplanen · [audit-rls-database](audit-rls-database-2026-09-18.md) (DB-06, DB-03) · [arkitekturvurderingen](arkitekturvurdering-2026-09-19.md) (AR-01) |
+| CI: `.github/workflows/ci.yml`, tre gatende jobber. `ruff` ryddet og pinnet | Masterplanen, «verifiserbar leveranseprosess» |
+
+**Fortsatt åpent etter runden:** RLS-policyene er uendret
+`service_role / ALL / USING (true)` — kolonnen gjør at en prosjektpolicy *lar seg*
+skrive, men ingen er skrevet. Migrasjonen som legger til `actorteam` er aldri
+anvendt. Begge hører til databasearbeidspakken.
+
+## Runden før — 19. september
 
 Arkitekturvurdering, sammenstilling mot det parallelle auditsporet, og etterprøving
 av alle funn.

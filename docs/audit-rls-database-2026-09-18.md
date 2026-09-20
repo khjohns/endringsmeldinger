@@ -27,6 +27,23 @@ så `update_cache()` krasjer ikke; funnene gjelder migrasjonsdrift, ikke driftsf
 reproduserer DB-02 og DB-07 leser SQL-filer, ikke databasen, og derfor forblir
 `xfail` uansett hva databasen inneholder.
 
+**Merknad 2026-09-20: DB-06 og DB-03 er lukket, kontrollert mot basen.**
+Migrasjonen `20260920060000_tenant_attribution_prosjekt_id` er anvendt: de tre
+hendelsestabellene og `sak_relations` har nå `prosjekt_id TEXT NOT NULL` uten
+default, med indeks (DB-06), og `sak_metadata`s `DEFAULT 'oslobygg'` er droppet
+(DB-03). *Kjørt og observert:* en rad uten prosjekt avvises med `23502`.
+Tabellene var tomme, så ingen rad kunne bli feilmerket.
+
+To presiseringer. **DB-06s reproduksjonstest leser modulens docstring, ikke
+databasen** — den er grønn fordi DDL-en der er oppdatert, og beviser altså
+docstringen. Skjemaet er verifisert med katalogspørring, ikke med testen; det står
+skrevet inn i testen. Og **DB-04 er bare delvis lukket**: `sak_relations` har fått
+`prosjekt_id`, men fremmednøklene mangler fortsatt.
+
+Merk også at dette *ikke* lukker AR-01. Kolonnen gjør at en prosjektpolicy lar seg
+skrive; ingen policy er skrevet, og samtlige er fortsatt
+`service_role / ALL / USING (true)`.
+
 ## Omfang
 
 **Undersøkt:**
