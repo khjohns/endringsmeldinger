@@ -22,6 +22,7 @@ from lib.auth.contract_role import require_contract_role
 from lib.auth.project_access import cases_in_project, require_project_access
 from lib.auth.session import require_auth
 from lib.decorators import handle_service_errors
+from lib.project_context import get_project_id
 from routes.related_cases_utils import (
     build_kandidater_response,
     build_kontekst_response,
@@ -265,7 +266,8 @@ def eo_godkjenninger():
     from services.approval_authority import handler_identity
     from services.eo_approval_service import EOApprovalService
 
-    project = getattr(g, "project_id", "oslobygg")
+    # Ingen fallback: uten autorisert prosjekt finnes ingen policy å slå opp.
+    project = get_project_id()
     identity = getattr(g, "user", {}) or {}
     policy = project_policy(project)
     try:
