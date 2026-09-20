@@ -25,6 +25,18 @@ konkludere med å fjerne noe. Det andre kan ikke — det leverer forslag.**
 > skrevet som migrasjonsfiler. Ingen tabell er slått sammen og ingen kolonne
 > fjernet; alt slikt står som forslag i DA-12 til DA-14.
 
+> **Merknad 2026-09-20 (kveld): DA-12 til DA-15 er avgjort.** De sto som
+> forslag og åpne spørsmål her, fordi en gjennomgang ikke kan avgjøre
+> designvalg alene. [Målskjemaet](design-maalskjema-database-2026-09-20.md)
+> lukker dem på premisser besluttet av utvikler: hendelsestabellene slås sammen
+> (MS-01), `sak_relations` fjernes (MS-08), `cached_*` blir en projeksjon med
+> én skriver (MS-06, MS-07), og BIM-flaten er besluttet relevant — koblingen
+> blir hendelser framfor slettbare rader (MS-13). DA-15s «mangler en
+> produkteier» gjelder altså ikke lenger.
+>
+> Notatet fant også noe denne gjennomgangen ikke så: **vedlegg har ingen hash**,
+> og det betyr noe nå som det er besluttet at bytene bare skal ligge i Catenda.
+
 ---
 
 ## De sju foreløpige punktene: hva som holdt

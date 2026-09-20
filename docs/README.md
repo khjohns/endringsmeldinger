@@ -22,13 +22,15 @@ Opphever du et utsagn, skriv en datert merknad, også inn i det gamle dokumentet
 | --- | --- |
 | [masterplanen](plans/2026-09-16-godkjenning-og-varig-levering.md) | **Autoritativ for status.** Arbeidspakker, lukkede og åpne funn, overlapp mellom sporene, organisatoriske forutsetninger |
 | [transaksjonsplanen](plans/2026-09-17-atomisk-utstedelse-og-outbox.md) | Delplan: atomisk utstedelse og outbox |
-| [design: durable inbox og outbox](design-durable-inbox-outbox-2026-09-17.md) | Designet planen bygger på. Konkluderte uavhengig med «én database» |
+| [design: durable inbox og outbox](design-durable-inbox-outbox-2026-09-17.md) | Designet planen bygger på. Konkluderte uavhengig med «én database». Har formen på `vedlegg`, `kommando`, `utgaende_levering` og `innkommende_hendelse` |
+| [design: målskjema for databasen](design-maalskjema-database-2026-09-20.md) | Hvor skjemaet skal. Forutsetter durable-inbox-notatet og bygger videre på det |
 
 ## Siste runde — 20. september
 
 | Dokument | Hva det gir |
 | --- | --- |
 | [audit: databasearkitektur](audit-databasearkitektur-2026-09-20.md) | **Trenger vi alle tabellene?** Alle tjue tabellene i `public` navngitt, med radtall, opprettende migrasjon og lesere. DA-01 til DA-15. Skiller «ubrukt» fra «i bruk, men overflødig» |
+| [design: målskjema for databasen](design-maalskjema-database-2026-09-20.md) | Lukker DA-12 til DA-15. MS-01 til MS-15, med sju premisser besluttet av utvikler. Målet er atten tabeller — poenget er at hver får én skriver, ikke at de blir færre |
 
 Samme dag, men før den gjennomgangen, leverte en egen runde rettinger i
 produksjonskode uten eget dokument. Den står som daterte merknader i kjeden —
