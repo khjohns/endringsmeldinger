@@ -13,7 +13,8 @@ Opphever du et utsagn, skriv en datert merknad, også inn i det gamle dokumentet
 
 | Dokument | Hva det gir |
 | --- | --- |
-| [handoff-2026-09-19](handoff-2026-09-19.md) | Overtakelse uten kontekst: miljø, fire metodiske feller, etablerte fakta, ting med frist. **Les de daterte merknadene i den:** flere av tallene og alle «ting med frist» merket 5a er passert 20.09 |
+| [handoff-2026-09-20](handoff-2026-09-20.md) | **Begynn her.** Overtakelse uten kontekst: hva som skjedde 20.09, fire nye feller, etablerte fakta med sjekksummer, og hva som krever et menneske |
+| [handoff-2026-09-19](handoff-2026-09-19.md) | Runden før. Fellene der gjelder fortsatt, men «ting med frist» merket 5a er passert |
 | [`../AGENTS.md`](../AGENTS.md) | Lastes automatisk i hver sesjon: språk, domeneordliste, sikkerhetsinvarianter, resonneringsregler |
 
 ## Gjeldende plan og status

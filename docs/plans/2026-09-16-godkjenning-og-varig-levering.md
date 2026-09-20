@@ -142,7 +142,7 @@ avgjørende delen av domenet: **TFR-01** (aksept av avslag settes til GODKJENT),
 
 **Merknad 2026-09-20: tenant-attribusjonen (handoffens 5a) er gjennomført.**
 
-Migrasjonen `20260920060000_tenant_attribution_prosjekt_id` er **anvendt** mot
+Migrasjonen `tenant_attribution_prosjekt_id` er **anvendt** mot
 prosjektet og verifisert mot katalogen: `prosjekt_id TEXT NOT NULL` uten default,
 med indeks, på `koe_events`, `forsering_events`, `endringsordre_events` og
 `sak_relations`, og `DEFAULT 'oslobygg'` er fjernet fra `sak_metadata`.
@@ -420,11 +420,9 @@ står:*
 
 1. **Mekanismen fra fil til base (DA-03).** Fortsatt ingen
    `supabase/config.toml` og ingen `db push`. Tre konkrete hindre er navngitt i
-   dokumentet: fem historikkrader uten fil som må avstemmes med `migration
-   repair`, et versjonsavvik på tenant-migrasjonen (DA-04: repoets
-   `20260920060000` mot basens `20260920053427`), og at `backend/migrations/` er
-   merket «legacy» men fortsatt må kjøre midt inne i sekvensen. Ingen av dem er
-   rørt — å endre migrasjonshistorikk er noe annet enn å skrive migrasjonsfiler.
+   dokumentet. **Opphevet samme kveld:** `config.toml` finnes nå,
+   `backend/migrations/` er tømt og DA-04 er rettet — se merknaden om DA-03
+   over. Bare migrasjonshistorikken gjenstår, og den krever legitimasjon.
 2. **Forslagene, som er forslag.** DA-12 (slå sammen de tre
    hendelsestabellene — **avgjøres sammen med transaksjonsplanen**, og basen er
    tom nå, så det argumentet har en utløpsdato), DA-13 (`sak_relations`: legg på
