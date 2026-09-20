@@ -712,3 +712,53 @@ def test_godkjent_grunnlag_rapporteres_som_utkast():
     assert state.overordnet_status != "UTKAST", (
         f"Sak med godkjent grunnlag rapporteres som '{state.overordnet_status}'"
     )
+
+
+def test_sak_oppgjort_ved_godtatt_avslag_rapporteres_ikke_som_ukjent():
+    """overordnet_status må kjenne AVSLATT_AKSEPTERT.
+
+    Funnet 2026-09-20 i gjennomgangen av TFR-01-runden: statusen ble lagt inn
+    hos de to nedstrøms konsumentene (kan_utstede_eo og tilbaketrekkingsreglene),
+    men ikke i rollupen som utleder sakstatus. En sak der alt var oppgjort ved
+    godtatt avslag falt derfor gjennom hver gren til «UKJENT» — og «UKJENT» er
+    ikke en tilstand en kontraktsjournal skal kunne havne i.
+    """
+    timeline = TimelineService()
+    events = _sak_med_godkjent_grunnlag()
+
+    krav = FristEvent(
+        sak_id="S-1",
+        aktor="te",
+        aktor_rolle="TE",
+        event_type="frist_krav_sendt",
+        spor=SporType.FRIST,
+        data=FristData(krevd_dager=30, begrunnelse="Krav"),
+    )
+    avslag = ResponsEvent(
+        sak_id="S-1",
+        aktor="bh",
+        aktor_rolle="BH",
+        event_type="respons_frist",
+        spor=SporType.FRIST,
+        refererer_til_event_id=krav.event_id,
+        data=FristResponsData(
+            beregnings_resultat=FristBeregningResultat.AVSLATT,
+            begrunnelse="Ingen fristforlengelse",
+        ),
+    )
+    etter = timeline.compute_state(
+        events + [krav, avslag, _aksept("frist", avslag.event_id)]
+    )
+
+    assert etter.frist.status == SporStatus.AVSLATT_AKSEPTERT
+
+    # Kjernen: statusen skal ikke falle gjennom til «UKJENT». Før rettingen
+    # gjorde den nettopp det, fordi AVSLATT_AKSEPTERT ikke var med i noe sett
+    # i rollupen — heller ikke i `ferdig_eller_utkast`.
+    assert etter.overordnet_status != "UKJENT"
+
+    # Her blir den «UTKAST», fordi vederlagssporet aldri ble opprettet. Det er
+    # TFR-06, en egen og fortsatt åpen svakhet i rollupen (se xfail-testen
+    # test_godkjent_grunnlag_rapporteres_som_utkast), ikke en følge av denne
+    # rettingen.
+    assert etter.overordnet_status == "UTKAST"

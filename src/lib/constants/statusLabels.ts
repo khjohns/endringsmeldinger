@@ -29,6 +29,7 @@ export const OVERORDNET_STATUS_LABELS: Record<OverordnetStatus, string> = {
   OMFORENT: 'Omforent',
   LUKKET: 'Lukket',
   LUKKET_TRUKKET: 'Trukket',
+  LUKKET_AVSLATT: 'Avsluttet – avslag godtatt',
 };
 
 /**

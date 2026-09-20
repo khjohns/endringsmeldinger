@@ -1111,7 +1111,15 @@ class SakState(BaseModel):
         # En sak er OMFORENT kun hvis alle aktive spor er eksplisitt avsluttet
         # (GODKJENT, LAAST, eller TRUKKET) - UTKAST betyr "kan fortsatt sendes"
         # og skal derfor hindre OMFORENT-status
-        ferdig_statuser = {SporStatus.GODKJENT, SporStatus.LAAST, SporStatus.TRUKKET}
+        # AVSLATT_AKSEPTERT hører hjemme her: sporet er oppgjort, uten
+        # utestående krav. Uten den falt en sak der alt var oppgjort ved
+        # godtatt avslag gjennom hver gren til «UKJENT».
+        ferdig_statuser = {
+            SporStatus.GODKJENT,
+            SporStatus.LAAST,
+            SporStatus.TRUKKET,
+            SporStatus.AVSLATT_AKSEPTERT,
+        }
         if all(s in ferdig_statuser for s in aktive_statuser):
             # Minst ett spor må være godkjent (ikke bare trukket)
             if any(
@@ -1123,6 +1131,14 @@ class SakState(BaseModel):
         if any(s == SporStatus.TRUKKET for s in aktive_statuser):
             if all(s == SporStatus.TRUKKET for s in aktive_statuser):
                 return "LUKKET_TRUKKET"
+
+        # Alle spor oppgjort ved godtatt avslag: saken er avsluttet ved enighet,
+        # på byggherrens premisser. Ikke «trukket» — TE trakk ingenting — og
+        # ikke «omforent», som forutsetter at noe ble innvilget.
+        if aktive_statuser and all(
+            s == SporStatus.AVSLATT_AKSEPTERT for s in aktive_statuser
+        ):
+            return "LUKKET_AVSLATT"
 
         # Sjekk om noen er under forhandling
         forhandling_statuser = {
