@@ -7,6 +7,7 @@ from flask import Blueprint, g, jsonify, request
 from lib.auth.contract_role import require_contract_role
 from lib.auth.project_access import require_project_access
 from lib.auth.session import require_auth
+from lib.project_context import get_project_id
 from repositories.event_repository import ConcurrencyError
 from services.approval_authority import handler_identity, policy_entry
 from services.approval_policy import (
@@ -23,12 +24,13 @@ def context(case_id):
     from core.container import get_container
 
     container = get_container()
-    project = getattr(g, "project_id", "oslobygg")
+    # Ingen fallback: uten autorisert prosjekt finnes ingen policy å slå opp.
+    project = get_project_id()
     identity = getattr(g, "user", {}) or {}
     if identity.get("sak_id") and identity["sak_id"] != case_id:
         raise PermissionError("Du har ikke tilgang til saken.")
     metadata = container.metadata_repository.get(case_id)
-    if metadata is None or (metadata.prosjekt_id or "oslobygg") != project:
+    if metadata is None or not project or metadata.prosjekt_id != project:
         raise PermissionError("Saken tilhører ikke prosjektet.")
     policy = project_policy(project)
     if not policy:
