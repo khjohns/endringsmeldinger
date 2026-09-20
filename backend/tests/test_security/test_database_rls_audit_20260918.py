@@ -35,16 +35,15 @@ def _read_all_sql_migrations() -> dict[str, str]:
     return sql_files
 
 
-@pytest.mark.xfail(
-    strict=True,
-    raises=AssertionError,
-    reason="DB-01: Migrasjonskjeden mangler CREATE TABLE for sak_metadata og event-tabeller; 004 krasjer på tom database",
-)
-def test_migration_chain_fails_on_empty_db_missing_sak_metadata_table():
+def test_migration_chain_creates_sak_metadata_table():
     """
-    DB-01: 004_projects_table.sql forutsetter at sak_metadata allerede eksisterer
-    (UPDATE sak_metadata SET prosjekt_id = 'oslobygg'), men tabellen opprettes
-    aldri i noen migrasjonsfil. En ny database feiler ved migrering.
+    DB-01, lukket 2026-09-20: sak_metadata opprettes nå av
+    20260911073512_koe_kjerneskjema_rekonstruert.sql. Testen var en xfail-
+    reproduksjon av at ingen migrasjonsfil opprettet tabellen; den er ordinær
+    fra det tidspunktet feilen ble rettet.
+
+    Rekkefølgen er en del av påstanden: kjerneskjemaet må kjøre før
+    backend/migrations/004, som gjør UPDATE mot sak_metadata.
     """
     migrations = _read_all_sql_migrations()
 
@@ -63,16 +62,11 @@ def test_migration_chain_fails_on_empty_db_missing_sak_metadata_table():
     )
 
 
-@pytest.mark.xfail(
-    strict=True,
-    raises=AssertionError,
-    reason="DB-02: SupabaseSakMetadataRepository forventer 8 reporting-kolonner som mangler i alle SQL-migrasjoner",
-)
-def test_sak_metadata_schema_drift_missing_cached_reporting_columns():
+def test_sak_metadata_reporting_columns_declared_in_migrations():
     """
-    DB-02: SupabaseSakMetadataRepository skriver og leser 8 rapporteringskolonner
-    (cached_sum_krevd, cached_sum_godkjent, cached_dager_krevd, osv.),
-    men ingen av disse kolonnene er definert i noen SQL-migrasjon eller i tabell-docstringen.
+    DB-02, lukket 2026-09-20: de åtte rapporteringskolonnene står nå i
+    20260911073512_koe_kjerneskjema_rekonstruert.sql. Testen var en xfail-
+    reproduksjon av at de manglet i alle migrasjonsfiler.
     """
     from repositories.supabase_sak_metadata_repository import (
         SupabaseSakMetadataRepository,
