@@ -27,13 +27,15 @@ export function getActiveProjectId(): string | null {
 /**
  * Prosjekt-headeren, eller ingen header når prosjektet er ukjent.
  *
- * For de kallene som ikke kan gå gjennom apiFetch — multipart-opplasting setter
- * sin egen Content-Type. Å sende 'X-Project-ID: null' som streng ville vært
- * verre enn å utelate den: serveren ville da autorisert mot et prosjekt som
- * heter «null».
+ * Å sende 'X-Project-ID: null' som streng ville vært verre enn å utelate den:
+ * serveren ville da autorisert mot et prosjekt som heter «null».
+ *
+ * @param projectId Overstyrer det aktive prosjektet. Utkastkallene tar
+ *   prosjektet som argument, så de kan lese en sak i et annet prosjekt enn det
+ *   fanen står i.
  */
-export function projectHeaders(): Record<string, string> {
-  return activeProjectId ? { 'X-Project-ID': activeProjectId } : {};
+export function projectHeaders(projectId: string | null = activeProjectId): Record<string, string> {
+  return projectId ? { 'X-Project-ID': projectId } : {};
 }
 
 // CSRF token storage and fetching
@@ -147,11 +149,11 @@ export function isRetryableError(error: unknown): boolean {
  */
 export async function apiFetch<T>(endpoint: string, options?: RequestInit): Promise<T> {
   const url = `${API_BASE_URL}${endpoint}`;
-  // Snapshot the target before waiting for CSRF; navigation may change the default.
-  const headers = new Headers({ 'Content-Type': 'application/json' });
+  // Prosjektet låses her, før ventingen på CSRF: navigasjon kan bytte aktivt
+  // prosjekt imens, og kallet skal gå til det prosjektet det ble startet for.
   // Uten kjent prosjekt sendes ingen header. Serveren er fail-closed og svarer
   // 403 på ruter som krever prosjekt — det er riktigere enn å gjette.
-  if (activeProjectId) headers.set('X-Project-ID', activeProjectId);
+  const headers = new Headers({ 'Content-Type': 'application/json', ...projectHeaders() });
   new Headers(options?.headers).forEach((value, key) => headers.set(key, value));
   const method = options?.method?.toUpperCase() ?? 'GET';
   const mutation = ['POST', 'PUT', 'PATCH', 'DELETE'].includes(method);

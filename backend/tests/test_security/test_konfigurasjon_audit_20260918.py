@@ -109,6 +109,10 @@ def test_api_health_lekker_intern_feilmelding_ved_databasefeil(monkeypatch):
     sensitive_error = "connection to server at 'db.supabase.co' (10.0.0.5) failed: password authentication failed for user 'postgres'"
 
     mock_repo = Mock()
+    # Helsesjekken kaller probe(); tidligere count(). Uten denne linjen ville
+    # testen sluttet å utløse feilstien og blitt grønn uten at str(e)-lekkasjen
+    # var rettet — en grønn test beviser assertion-en, ikke funnet.
+    mock_repo.probe.side_effect = RuntimeError(sensitive_error)
     mock_repo.count.side_effect = RuntimeError(sensitive_error)
     mock_container = Mock()
     mock_container.metadata_repository = mock_repo

@@ -213,6 +213,20 @@ class SakMetadataRepository:
             pass
         return None
 
+    def probe(self) -> None:
+        """Billigst mulig kontroll av at lageret svarer. Kaster ved feil.
+
+        Helsesjekken brukte tidligere `list_all()[:1]`, som leser hele fila og
+        kaster alt unntatt første rad — og etter at `list_all` ble fail-closed
+        måtte den be om *alle* prosjekter for å få noe i det hele tatt. En probe
+        skal verken lese på tvers av leietakere eller laste hele tabellen.
+        """
+        with self.lock:
+            if not self.csv_path.exists():
+                return
+            with open(self.csv_path, encoding="utf-8") as f:
+                f.readline()
+
     def list_all(
         self, prosjekt_id: str | None = None, *, alle_prosjekter: bool = False
     ) -> list[SakMetadata]:
@@ -261,16 +275,19 @@ class SakMetadataRepository:
                     )
             return cases
 
-    def count_by_sakstype(
-        self, sakstype: str, prosjekt_id: str | None = None, *, alle_prosjekter: bool = False
-    ) -> int:
+    def count_by_sakstype(self, sakstype: str, prosjekt_id: str | None = None) -> int:
         """Count cases by sakstype within a project.
 
         Samme fail-closed-regel som `list_all`: uten prosjektkontekst telles
-        ingenting, framfor å telle på tvers av leietakere.
+        ingenting, framfor å telle på tvers av leietakere. Men uten
+        `alle_prosjekter`-unntaket: `list_all` har det fordi backfill-skriptene
+        kjører uten forespørsel og virkelig skal se alt, og et telletall på
+        tvers av leietakere har ingen slik kaller. Signaturen er dermed den
+        samme som i Supabase-varianten — TST-06 handler om at de to oppfører
+        seg likt.
         """
         pid = self._get_project_id(prosjekt_id)
-        if pid is None and not alle_prosjekter:
+        if pid is None:
             return 0
         with self.lock:
             if not self.csv_path.exists():

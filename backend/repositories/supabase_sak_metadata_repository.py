@@ -272,13 +272,27 @@ class SupabaseSakMetadataRepository:
             return self._row_to_metadata(result.data[0])
         return None
 
-    def _get_project_id(self, prosjekt_id: str | None = None) -> str:
-        """Get project ID from parameter or Flask context."""
+    def _get_project_id(self, prosjekt_id: str | None = None) -> str | None:
+        """Prosjektet for denne lesingen, eller None når det er ukjent.
+
+        `None` er et gyldig svar siden defaultprosjektet forsvant. Hver kaller
+        må selv avgjøre hva et ukjent prosjekt betyr — for lesingene her er det
+        «ingenting», ikke «alle».
+        """
         if prosjekt_id:
             return prosjekt_id
         from lib.project_context import get_project_id
 
         return get_project_id()
+
+    @with_retry()
+    def probe(self) -> None:
+        """Billigst mulig kontroll av at lageret svarer. Kaster ved feil.
+
+        Én kolonne, én rad, ingen sortering — til forskjell fra `list_all`, som
+        henter alt og sorterer. Helsesjekken trenger bare å vite at basen svarer.
+        """
+        self.client.table(self.TABLE_NAME).select("sak_id").limit(1).execute()
 
     @with_retry()
     def list_all(
@@ -323,8 +337,16 @@ class SupabaseSakMetadataRepository:
 
     @with_retry()
     def count_by_sakstype(self, sakstype: str, prosjekt_id: str | None = None) -> int:
-        """Count cases by sakstype within a project. Uses indexed columns."""
+        """Count cases by sakstype within a project. Uses indexed columns.
+
+        Samme fail-closed-regel som `list_all`: uten prosjektkontekst telles
+        ingenting. Uten den eksplisitte kontrollen ble `None` sendt videre til
+        `.eq()` og filtrerte på strengen «None» — riktig svar av feil grunn, og
+        ikke noe å bygge en leietakergrense på.
+        """
         pid = self._get_project_id(prosjekt_id)
+        if pid is None:
+            return 0
         result = (
             self.client.table(self.TABLE_NAME)
             .select("sak_id", count="exact")
