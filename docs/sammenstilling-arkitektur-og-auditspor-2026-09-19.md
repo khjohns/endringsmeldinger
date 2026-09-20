@@ -44,6 +44,7 @@ sammenstilt gir de tre ting ingen av dem ga alene:
    uavhengige oslobygg-fallbacks virker samtidig, og ingen av dem etterlater spor
    av at de slo inn. Dette er bare synlig når DB-03, DB-06 og OBS-04 leses sammen,
    og det endrer rekkefølgen i arkitekturvurderingen.
+   *(Merknad 2026-09-20: det var fjorten, ikke tre. Se merknaden nederst.)*
 
 Arkitekturvurderingens konklusjon står: behold domenet, bytt fundamentet. Den
 styrkes av funn 3 og av at sporet uavhengig fant to nye tilfeller av nøyaktig den
@@ -284,6 +285,13 @@ da låser 51 dokumenterte svakheter mot stille gjeninnføring.
 hendelsestabellene og `sak_relations`, backfilles fra `sak_metadata` og ikke fra
 `source`, og de tre oslobygg-fallbackene fjernes i samme runde. Dette må skje før
 første produksjonsbruk, siden attribusjonen ikke lar seg rekonstruere etterpå.
+
+> **Merknad 2026-09-20.** Forarbeidet er gjennomført, men tallet var for lavt —
+> tre ganger. «Tre» her ble fem i handoffen, åtte i masterplanens første
+> merknad, og til slutt **fjorten**. Hver runde søkte etter de formene den
+> forrige runden hadde funnet. Backfillen var unødvendig: alle fire tabellene
+> hadde null rader. Se masterplanens merknad 2026-09-20 for hele tabellen og
+> for hvilke av de fjorten som faktisk var nåbare i drift.
 
 Fase 2, 3 og 4 er uendret, men fase 3 er billigere enn antatt: generatoren finnes
 allerede.

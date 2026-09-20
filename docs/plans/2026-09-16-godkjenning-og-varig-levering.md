@@ -20,9 +20,11 @@ persistenslaget og tenant-grensen byttes. Ingen beslutning er tatt.
 Den vurderingen og Gemini-sporets ni passeringer er holdt opp mot hverandre i
 [sammenstillingen](../sammenstilling-arkitektur-og-auditspor-2026-09-19.md).
 Sporene motsier ikke hverandre. Sammenstillingen avgjør seks databasefunn mot
-faktisk skjema, og finner ett forhold ingen av dem så alene: fem uavhengige
+faktisk skjema, og finner ett forhold ingen av dem så alene: uavhengige
 oslobygg-fallbacks gjør tenant-attribusjonen uetterprøvbar, og det lar seg ikke
-rette i ettertid når ekte saker først finnes.
+rette i ettertid når ekte saker først finnes. Sammenstillingen skrev «fem».
+Det ble fjorten; se merknaden 2026-09-20 under [status for
+5a](#status-2026-09-18).
 
 Overtar du dette arbeidet uten kontekst: start i
 [handoff 2026-09-19](../handoff-2026-09-19.md).
@@ -152,8 +154,36 @@ med indeks, på `koe_events`, `forsering_events`, `endringsordre_events` og
 ingen rad kunne bli feilmerket. Steg 2 i handoffens oppskrift — «backfill fra
 `sak_metadata`, aldri fra `source`» — var en nulloperasjon.
 
-**Handoffen oppgir fem oslobygg-fallbacks. Det var åtte.** Samme mønster som
-§7b beskriver: «tre» ble fem, og fem ble åtte. Alle er fjernet i samme runde:
+**Handoffen oppgir fem oslobygg-fallbacks. Det var fjorten.** Samme mønster som
+§7b beskriver: «tre» ble fem, fem ble åtte — og åtte ble fjorten.
+
+**Merknad 2026-09-20 til tallet «åtte».** Dette avsnittet sa først åtte, og at
+«alle er fjernet i samme runde». Begge deler var feil, og begge er rettet her.
+Gjennomgangen etter 5a fant seks til, alle i rutekode. De falt utenfor det
+første søket fordi det lette etter `or "oslobygg"` og `DEFAULT_PROJECT_ID` —
+formene de åtte første hadde — og ikke etter `getattr(g, "project_id",
+"oslobygg")` eller `request.headers.get("X-Project-ID", "oslobygg")`. Det er
+tredje gang tallet vokser, og hver gang av samme grunn: søket formes av funnene
+man allerede har. Fjorten er tallet etter at alle fire formene er søkt opp. Det
+er et argument for at ingen femte form gjenstår, ikke et bevis.
+
+**Hvor mye de seks siste faktisk betydde.** *Lest ut av koden,* ikke kjørt: bare
+én av dem var nåbar i drift. `approval_routes.py`-koalesceringen
+`(metadata.prosjekt_id or "oslobygg")` traff enhver metadatarad med tomt
+prosjekt og kalte den Oslobygg. De to `getattr`-formene var døde fordi
+`init_project_context` alltid setter attributtet — `getattr` faller først
+tilbake når attributtet *mangler*, og `None` er ikke det samme som fraværende.
+De tre i `bim_link_routes.py` leste den rå headeren bak
+`require_project_access`, som avviser med 403 før rutekroppen kjøres når
+headeren mangler (*kjørt og observert:*
+`test_foresporsel_uten_prosjekt_avvises_for_medlemskap_slas_opp`) — de var
+nåbare bare under `DISABLE_AUTH` i test og utvikling.
+
+Det er ingen grunn til å la dem stå. Fem av seks var feller: de ville blitt
+levende i samme øyeblikk som en dekoratør ble glemt, en `before_request`-hook
+endret, eller en rute flyttet. Det er nettopp slik den første av dem oppsto.
+
+Alle fjorten er fjernet:
 
 | Sted | Var | Er |
 | --- | --- | --- |
@@ -165,6 +195,9 @@ ingen rad kunne bli feilmerket. Steg 2 i handoffens oppskrift — «backfill fra
 | databasens `DEFAULT` | `sak_metadata.prosjekt_id` | Droppet |
 | `client.ts` | `activeProjectId = 'oslobygg'` | `null`. Headeren utelates når prosjektet er ukjent |
 | FE-01 | `LetterPreviewModal` sendte verken prosjekt, CSRF eller credentials | Alle tre settes nå |
+| `approval_routes.py` ×2 | `getattr(g, "project_id", "oslobygg")`, og `(metadata.prosjekt_id or "oslobygg") != project` | `get_project_id()`, og en sammenlikning som avviser når prosjektet er ukjent |
+| `endringsordre_routes.py` | `getattr(g, "project_id", "oslobygg")` i `eo_godkjenninger` | `get_project_id()`. Uten prosjekt finnes ingen policy å slå opp |
+| `bim_link_routes.py` ×3 | `request.headers.get("X-Project-ID", "oslobygg")` i `list_ifc_products`, `list_ifc_types` og `list_bim_models` | `get_project_id()` — den kontrollerte konteksten, ikke den rå headeren |
 
 Skrivestiene stempler prosjektet fra autorisert kontekst og avviser å skrive uten
 det — som `PermanentError`, ikke `ValueError`, fordi `append_batch` er

@@ -36,6 +36,14 @@ konsekvens under beskrevne forutsetninger, ikke observert hendelse.
 > har formet den. Har det parallelle sporet kjørt migrasjoner samme dag, er det
 > deres resultat som er målt.
 
+> **Merknad 2026-09-20.** Begge delene er rettet. Hendelsestabellene har
+> `prosjekt_id NOT NULL`, og fallbackene er fjernet — men det var **fjorten**,
+> ikke fem. Ut over koalesceringene `prosjekt_id or "oslobygg"` i
+> `project_access.py`, `endringsordre_service.py` og `sak_metadata_repository.py`
+> lå seks til i rutekode, på formene `getattr(g, "project_id", "oslobygg")` og
+> `request.headers.get("X-Project-ID", "oslobygg")`. Se masterplanen for hele
+> tabellen, og for hvilke av dem som var nåbare i drift.
+
 **Overlevering:** [handoff 2026-09-19](handoff-2026-09-19.md) samler miljøoppsett, fire metodiske
 feller, etablerte fakta som ikke bør finnes ut på nytt, og de åpne beslutningene.
 Start der om du overtar arbeidet uten kontekst.
@@ -134,6 +142,27 @@ dette ikke er hypotetisk: `cases_in_project()` måtte innføres fordi klientoppg
 relasjoner utvidet prosjektgrensen (RV-07), og `redact_activity_metadata()` fordi
 aktivitetstall røpet motpartens interne notater (RV-09). Det er samme feilform på
 to steder, og den formen er iboende i arkitekturen.
+
+> **Merknad 2026-09-20 til AR-01: forutsetningen er innfridd, grensen er det ikke.**
+> Tenant-attribusjonen er på plass — `prosjekt_id TEXT NOT NULL` uten default, med
+> indeks, på de tre hendelsestabellene og `sak_relations` (migrasjon
+> `20260920060000`, anvendt og verifisert). Alle fjorten oslobygg-fallbacks er
+> fjernet, så en rad uten prosjekt avvises av databasen med `23502` framfor å bli
+> tilordnet Oslobygg i stillhet.
+>
+> **Policyen som uttrykker grensen er fortsatt ikke skrevet.** Samtlige policyer er
+> uendret `service_role / ALL / USING (true)`, og `service_role` omgår RLS. Det
+> avsnittet over beskriver står altså i sin helhet. Forskjellen er at
+> `USING (prosjekt_id = current_setting('app.project_id'))` nå *lar seg skrive* —
+> før fantes ikke kolonnen å skrive den mot. Det hører til pakke 2 om minste
+> privilegium, og krever i tillegg at runtime slutter å kjøre som `service_role`.
+>
+> Diagnosen «hele tenant-modellen lever i Python-dekoratører» gjelder derfor
+> fortsatt. Runden 20.09 fant et nytt tilfelle av nøyaktig den feilformen
+> avsnittet beskriver: CSV-metadatarepoet hoppet over prosjektfilteret når
+> prosjektet var tomt, og returnerte alle leietakeres saker. Ruta stoppet det
+> (`require_project_access`), men det er tredje forekomst av «én glemt kontroll på
+> ett lesepunkt» etter RV-07 og RV-09.
 
 **Alternativet.** Koble til Postgres med en per-request rolle uten
 superrettigheter, RLS på og `FORCE`, og request-konteksten satt inne i
