@@ -60,6 +60,7 @@ ignore = [
     "B905",   # zip() without strict= (Python 3.10+ - ikke kritisk)
     "B904",   # TODO: Exception chaining (raise from) - fikses separat
     "B011",   # assert False in demo code - OK
+    "UP042",  # StrEnum endrer str() på 14 enums som skrives til journalen
 ]
 
 # Allow autofix for all enabled rules

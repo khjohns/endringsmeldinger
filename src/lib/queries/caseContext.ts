@@ -5,7 +5,7 @@ import type { CaseContextResponse } from '$lib/types/api';
 
 export function createCaseContextQuery(
   getSakId: () => string,
-  getProsjektId: () => string = getActiveProjectId
+  getProsjektId: () => string | null = getActiveProjectId
 ) {
   return createQuery<CaseContextResponse>(() => {
     const sakId = getSakId();
@@ -13,7 +13,7 @@ export function createCaseContextQuery(
     return {
       // Preserve the case prefix used by existing mutation invalidations.
       queryKey: ['case-context', sakId, prosjektId],
-      queryFn: () => fetchCaseContext(sakId, prosjektId),
+      queryFn: () => fetchCaseContext(sakId, prosjektId ?? undefined),
       enabled: !!sakId && !!prosjektId,
     };
   });

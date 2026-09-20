@@ -137,7 +137,13 @@ def mock_catenda_client(project_id: str = FIXTURE_PROJECT_ID) -> MagicMock:
         "title": "TEST-ANONYMISED-WEBHOOK",
         "topic_type": "Krav om endringsordre",
         "bimsync_creation_author": {
-            "user": {"name": "Test User", "email": "test@example.invalid"}
+            "user": {
+                "name": "Test User",
+                "email": "test@example.invalid",
+                # Ekte Catenda-svar bærer bruker-IDen; webhooken utleder
+                # kontraktssiden av den (INT-04).
+                "ref": "524809076a694255b989d236517a55da",
+            }
         },
         "bimsync_custom_fields": [],
     }
@@ -336,6 +342,12 @@ class TestWebhookServiceCreation:
         mock_filter = MagicMock()
         mock_filter.return_value = (True, "")
 
+        # Kontraktssiden utledes nå av forfatterens lagmedlemskap (INT-04).
+        # Disse testene prøver noe annet, så oppslaget stubbes til en entydig side.
+        monkeypatch.setattr(
+            "services.catenda_webhook_service.WebhookService._contract_side",
+            lambda self, project_id, subject: "TE",
+        )
         monkeypatch.setattr(
             "services.catenda_webhook_service.create_metadata_repository",
             lambda: MagicMock(),
@@ -498,6 +510,11 @@ class TestWebhookProjectRouting:
         mock_filter = MagicMock()
         mock_filter.return_value = (True, "")
 
+        # Kontraktssiden utledes nå av forfatterens lagmedlemskap (INT-04).
+        monkeypatch.setattr(
+            "services.catenda_webhook_service.WebhookService._contract_side",
+            lambda self, project_id, subject: "TE",
+        )
         monkeypatch.setattr(
             "services.catenda_webhook_service.create_metadata_repository",
             lambda: MagicMock(),

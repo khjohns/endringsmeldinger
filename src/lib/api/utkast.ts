@@ -11,7 +11,7 @@
  * grunnlaget som allerede er sendt.
  */
 
-import { apiFetch, ApiError, getActiveProjectId } from './client';
+import { apiFetch, ApiError, getActiveProjectId, projectHeaders } from './client';
 import type { SporType } from '$lib/types/timeline';
 
 export interface ServerUtkast<T> {
@@ -53,7 +53,7 @@ export async function hentUtkast<T>(
   prosjektId = getActiveProjectId()
 ): Promise<UtkastKontekst<T>> {
   const svar = await apiFetch<UtkastKontekst<T>>(`${sti(sakId, spor)}?revisjon=${revisjon}`, {
-    headers: { 'X-Project-ID': prosjektId },
+    headers: projectHeaders(prosjektId),
   });
   if (typeof svar.team_id !== 'string' || !svar.team_id) {
     throw new Error('Kunne ikke bekrefte teamtilgangen til utkastet.');
@@ -83,7 +83,7 @@ export async function lagreUtkast<T>(
   try {
     const svar = await apiFetch<{ utkast: ServerUtkast<T> }>(sti(sakId, spor), {
       method: 'PUT',
-      headers: { 'X-Project-ID': prosjektId },
+      headers: projectHeaders(prosjektId),
       body: JSON.stringify({ revisjon, innhold, forventet_versjon: forventetVersjon }),
     });
     return svar.utkast;
@@ -105,6 +105,6 @@ export async function slettUtkast(
 ): Promise<void> {
   await apiFetch(`${sti(sakId, spor)}?revisjon=${revisjon}`, {
     method: 'DELETE',
-    headers: { 'X-Project-ID': prosjektId },
+    headers: projectHeaders(prosjektId),
   });
 }

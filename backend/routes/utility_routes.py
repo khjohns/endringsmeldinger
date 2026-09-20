@@ -11,8 +11,9 @@ Endpoints for:
 import logging
 
 from flask import Blueprint, current_app, jsonify, request
-from lib.auth.session import require_auth, load_session, dev_auth_disabled
+
 from lib.auth.project_access import require_project_access
+from lib.auth.session import dev_auth_disabled, load_session, require_auth
 
 logger = logging.getLogger(__name__)
 
@@ -120,8 +121,7 @@ def health_check():
 
         start = time.time()
         repo = get_container().metadata_repository
-        # Enkel spørring for å verifisere tilkobling
-        _ = repo.count() if hasattr(repo, "count") else repo.list_all()[:1]
+        repo.probe()
         latency_ms = round((time.time() - start) * 1000, 2)
 
         checks["database"] = {"status": "healthy", "latency_ms": latency_ms}

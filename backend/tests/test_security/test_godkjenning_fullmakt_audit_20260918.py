@@ -9,7 +9,6 @@ Testene her etterprøver funn i godkjennings- og fullmaktslaget:
 """
 
 from decimal import Decimal
-from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import Mock
 from uuid import uuid4
@@ -19,7 +18,7 @@ from flask import Flask
 
 from lib.auth.session import cookie_name
 from lib.project_context import init_project_context
-from services.approval_authority import approval_route, exposure, resolve_route
+from services.approval_authority import approval_route, resolve_route
 from services.approval_service import ApprovalService
 from services.business_rules import BusinessRuleValidator
 from services.eo_approval_service import (
@@ -28,27 +27,25 @@ from services.eo_approval_service import (
     order_exposure_floor,
 )
 
-
 # =============================================================================
 # 1. Fullmaktsomgåelse for fristdager i endringsordrer (order_exposure_floor)
 # =============================================================================
 
 
-@pytest.mark.xfail(
-    strict=True,
-    raises=AssertionError,
-    reason="order_exposure_floor beregner kun vederlag og ignorerer frist_dager * daily_rate",
-)
 def test_eo_exposure_floor_mangler_fristdager():
     """order_exposure_floor må inkludere fristdager * dagmulktssats som minimumsfullmakt.
 
     Når en endringsordre inneholder en fristforlengelse (f.eks. 500 dager) og en ny
     sluttdato, returnerer order_exposure None (fordi ny_sluttdato krever full kjede).
-    Men order_exposure_floor ser KUN på kompensasjon_belop og fradrag_belop!
-    Hvis kompensasjon_belop er 0, blir floor=0.
-    I resolve_route(amount=None, minimum=0) blir sjekken `minimum > 0` False.
-    Dermed returneres bare kjeden som den er, og en Prosjektleder (grense 200 000 kr)
-    kan godkjenne en fristforlengelse verdt 5 000 000 kr!
+    order_exposure_floor så tidligere KUN på kompensasjon_belop og fradrag_belop.
+    Med kompensasjon_belop 0 ble floor 0, i resolve_route(amount=None, minimum=0)
+    ble sjekken `minimum > 0` False, og kjeden ble returnert som den er — en
+    Prosjektleder (grense 200 000 kr) kunne godkjenne en fristforlengelse verdt
+    5 000 000 kr.
+
+    Regresjonstest for GFK-01 etter at gulvet fikk daily_rate (rettet 2026-09-19).
+    Signaturendringen er den vurderingen av auditfunnene foreskriver; påstanden
+    under er uendret.
     """
     daily_rate = Decimal("10000")
     request = {
@@ -64,11 +61,25 @@ def test_eo_exposure_floor_mangler_fristdager():
     amount = order_exposure(request, daily_rate=daily_rate)
     assert amount is None, "order_exposure skal returnere None ved ny_sluttdato"
 
-    floor = order_exposure_floor(request)
-    # Feiler i dag fordi floor er 0 i stedet for 5 000 000 kr:
+    floor = order_exposure_floor(request, daily_rate)
     assert floor >= Decimal("5000000"), (
         f"order_exposure_floor ignorerte fristdager og returnerte {floor} i stedet for minst 5000000"
     )
+
+    # Selve sikkerhetsegenskapen, ikke bare aritmetikken: en kjede som ikke dekker
+    # 5 000 000 skal avvises, ikke returneres som den er.
+    for utilstrekkelig in (
+        [{"role": "Prosjektleder"}],
+        [{"role": "Prosjektleder"}, {"role": "Avdelingsleder"}],
+    ):
+        with pytest.raises(ValueError, match="tilstrekkelig fullmakt"):
+            resolve_route(None, {"role": "Prosjektleder"}, utilstrekkelig, minimum=floor)
+
+    # En kjede som dekker beløpet slipper gjennom, i sin helhet.
+    dekkende = [{"role": "Prosjektleder"}, {"role": "Divisjonsdirektør"}]
+    assert resolve_route(
+        None, {"role": "Prosjektleder"}, dekkende, minimum=floor
+    ) == dekkende
 
 
 # =============================================================================

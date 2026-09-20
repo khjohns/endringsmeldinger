@@ -11,15 +11,14 @@ tidssonehåndtering og feilhåndtering:
 """
 
 from datetime import datetime, timedelta, timezone
-from unittest.mock import Mock, patch
+from unittest.mock import Mock
 
 import pytest
 from flask import Flask
 
 from models.cloudevents import CloudEventMixin
-from models.events import GrunnlagEvent, SakEvent
+from models.events import SakEvent
 from routes.error_handlers import register_error_handlers
-
 
 # =============================================================================
 # 1. OBS-01/02: 403-avvisninger omgår errorhandler(403) og AuditLogger
@@ -125,18 +124,16 @@ def test_cloudevents_ce_time_korrumperer_tidssone_med_to_timer():
 # =============================================================================
 
 
-@pytest.mark.xfail(
-    strict=True,
-    raises=AssertionError,
-    reason="ce_source setter 'oslobygg' som default-prosjekt når prosjekt_id er None",
-)
 def test_cloudevents_ce_source_hardkoder_oslobygg_uten_prosjekt():
     """CloudEvent ce_source må ikke hardkode 'oslobygg' for hendelser uten prosjekt_id.
 
-    I models/cloudevents.py:109:
-    proj_id = getattr(self, "prosjekt_id", None) or "oslobygg"
-    Fordi hendelsestabellene mangler prosjekt_id-kolonne (DB-06),
-    tilordnes alle saker fra andre byggherrer automatisk til Oslobygg i CloudEvents.
+    ce_source skrev tidligere `getattr(self, "prosjekt_id", None) or "oslobygg"`,
+    så enhver hendelse uten prosjekt ble tilordnet Oslobygg i kilden. Rettet
+    2026-09-20 sammen med de øvrige oslobygg-fallbackene: verdien er nå
+    'unknown', som er et ærlig utsagn om at prosjektet ikke er kjent.
+
+    Den autoritative attribusjonen ligger uansett ikke her, men i kolonnen
+    prosjekt_id, som er NOT NULL fra samme dato.
     """
     class DummyEvent(CloudEventMixin):
         sak_id: str = "KOE-BERGEN-001"
@@ -205,8 +202,9 @@ def test_request_context_aksepterer_vilkarlig_header_uten_sanitering():
     En ondsinnet klient kan sende linjeskift eller logginjeksjonstegn som
     forurenser ustrukturerte tekstlogger og HTTP-headere.
     """
-    from core.request_context import init_request_context
     from flask import g
+
+    from core.request_context import init_request_context
 
     app = Flask(__name__)
     init_request_context(app)

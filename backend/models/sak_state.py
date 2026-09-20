@@ -1108,10 +1108,13 @@ class SakState(BaseModel):
         if not aktive_statuser:
             return "INGEN_AKTIVE_SPOR"
 
-        # En sak er OMFORENT kun hvis alle aktive spor er eksplisitt avsluttet
-        # (GODKJENT, LAAST, eller TRUKKET) - UTKAST betyr "kan fortsatt sendes"
-        # og skal derfor hindre OMFORENT-status
-        ferdig_statuser = {SporStatus.GODKJENT, SporStatus.LAAST, SporStatus.TRUKKET}
+        # UTKAST betyr «kan fortsatt sendes» og skal hindre OMFORENT.
+        ferdig_statuser = {
+            SporStatus.GODKJENT,
+            SporStatus.LAAST,
+            SporStatus.TRUKKET,
+            SporStatus.AVSLATT_AKSEPTERT,
+        }
         if all(s in ferdig_statuser for s in aktive_statuser):
             # Minst ett spor må være godkjent (ikke bare trukket)
             if any(
@@ -1123,6 +1126,11 @@ class SakState(BaseModel):
         if any(s == SporStatus.TRUKKET for s in aktive_statuser):
             if all(s == SporStatus.TRUKKET for s in aktive_statuser):
                 return "LUKKET_TRUKKET"
+
+        if aktive_statuser and all(
+            s == SporStatus.AVSLATT_AKSEPTERT for s in aktive_statuser
+        ):
+            return "LUKKET_AVSLATT"
 
         # Sjekk om noen er under forhandling
         forhandling_statuser = {
@@ -1181,6 +1189,7 @@ class SakState(BaseModel):
                 SporStatus.GODKJENT,
                 SporStatus.LAAST,
                 SporStatus.TRUKKET,
+                SporStatus.AVSLATT_AKSEPTERT,
             }:
                 return False
 

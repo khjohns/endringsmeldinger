@@ -154,6 +154,8 @@
           <span class="row-status">
             {#if display.isWithdrawn}
               Kravet er trukket
+            {:else if display.isRejectionAccepted}
+              Avslaget er godtatt
             {:else if display.isBinary}
               {display.isDisputed
                 ? 'BH bestrider grunnlaget'

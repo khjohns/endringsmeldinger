@@ -30,6 +30,7 @@ export type SporStatus =
   | 'avslatt'
   | 'under_forhandling'
   | 'trukket'
+  | 'avslatt_akseptert'
   | 'laast';
 
 // ========== VEDERLAG ENUMS ==========
@@ -116,7 +117,8 @@ export type OverordnetStatus =
   | 'UNDER_FORHANDLING'
   | 'OMFORENT'
   | 'LUKKET'
-  | 'LUKKET_TRUKKET';
+  | 'LUKKET_TRUKKET'
+  | 'LUKKET_AVSLATT';
 
 // ========== SAKSTYPE OG RELASJONER ==========
 

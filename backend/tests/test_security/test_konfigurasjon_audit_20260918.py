@@ -11,7 +11,7 @@ Testene her etterprøver svakheter i miljøvariabler, fallback-verdier og hemmel
 """
 
 import os
-from unittest.mock import Mock, patch
+from unittest.mock import Mock
 
 import pytest
 from flask import Flask
@@ -19,7 +19,6 @@ from flask import Flask
 from core.config import Settings, settings
 from core.cors_config import _get_allowed_origins
 from lib.auth.session import cookie_name, production_like
-
 
 # =============================================================================
 # 1. CFG-01: Flask starter i produksjon med dev-secret-key
@@ -68,13 +67,13 @@ def test_csrf_secret_i_env_er_ubrukt_og_koblet_fra_auth(monkeypatch):
     hvis CSRF_SECRET mangler. Men lib/auth/session.py:csrf_valid() sammenligner
     kun token mot session['csrf_token'] i databasen og bruker aldri CSRF_SECRET.
     """
-    from lib.auth.session import csrf_valid
 
     monkeypatch.setenv("CSRF_SECRET", "super-secret-csrf-signing-key")
 
     # Verifiser om CSRF_SECRET eller csrf_secret_key leses under csrf_valid
     # I gjeldende kode er csrf_valid() helt uavhengig av CSRF_SECRET
     import inspect
+
     import lib.auth.session as sess_module
 
     source = inspect.getsource(sess_module.csrf_valid)
@@ -110,6 +109,7 @@ def test_api_health_lekker_intern_feilmelding_ved_databasefeil(monkeypatch):
     sensitive_error = "connection to server at 'db.supabase.co' (10.0.0.5) failed: password authentication failed for user 'postgres'"
 
     mock_repo = Mock()
+    mock_repo.probe.side_effect = RuntimeError(sensitive_error)
     mock_repo.count.side_effect = RuntimeError(sensitive_error)
     mock_container = Mock()
     mock_container.metadata_repository = mock_repo

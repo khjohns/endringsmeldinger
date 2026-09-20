@@ -7,10 +7,15 @@ import {
   MAKS_VEDLEGG_BYTES,
   type Vedlegg,
 } from '../vedlegg';
-import { ApiError, clearCsrfToken } from '../client';
+import { ApiError, clearCsrfToken, setActiveProjectId } from '../client';
 
 // Tokenet caches i modulen; uten nullstilling arver testene hverandres.
-beforeEach(() => clearCsrfToken());
+// Prosjektet settes eksplisitt: klienten har ingen default lenger, så uten
+// dette ville ingen prosjekt-header blitt sendt (fjernet 2026-09-20).
+beforeEach(() => {
+  clearCsrfToken();
+  setActiveProjectId('p-vedlegg');
+});
 afterEach(() => vi.unstubAllGlobals());
 
 function svar(body: unknown, init: ResponseInit = {}) {
@@ -37,8 +42,22 @@ describe('hentVedlegg', () => {
 
     expect(resultat.vedlegg).toHaveLength(1);
     const [, init] = hent.mock.calls[0];
-    expect(init.headers['X-Project-ID']).toBeDefined();
+    expect(init.headers['X-Project-ID']).toBe('p-vedlegg');
     expect(init.credentials).toBe('include');
+  });
+
+  it('sender ingen prosjekt-header når prosjektet er ukjent', async () => {
+    // Tidligere sendte klienten 'oslobygg' her. Da kunne en rad skrevet
+    // etterpå ikke i ettertid skilles fra en som virkelig hørte dit.
+    // Serveren er fail-closed og svarer 403 — riktigere enn å gjette.
+    setActiveProjectId(null as unknown as string);
+    const hent = vi.fn().mockResolvedValue(svar({ vedlegg: [] }));
+    vi.stubGlobal('fetch', hent);
+
+    await hentVedlegg('SAK-1');
+
+    const [, init] = hent.mock.calls[0];
+    expect(init.headers['X-Project-ID']).toBeUndefined();
   });
 
   it('sak-ID-en kodes inn i URL-en', async () => {

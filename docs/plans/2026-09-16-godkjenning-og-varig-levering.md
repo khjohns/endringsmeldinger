@@ -20,9 +20,11 @@ persistenslaget og tenant-grensen byttes. Ingen beslutning er tatt.
 Den vurderingen og Gemini-sporets ni passeringer er holdt opp mot hverandre i
 [sammenstillingen](../sammenstilling-arkitektur-og-auditspor-2026-09-19.md).
 Sporene motsier ikke hverandre. Sammenstillingen avgjør seks databasefunn mot
-faktisk skjema, og finner ett forhold ingen av dem så alene: fem uavhengige
+faktisk skjema, og finner ett forhold ingen av dem så alene: uavhengige
 oslobygg-fallbacks gjør tenant-attribusjonen uetterprøvbar, og det lar seg ikke
-rette i ettertid når ekte saker først finnes.
+rette i ettertid når ekte saker først finnes. Sammenstillingen skrev «fem».
+Det ble fjorten; se merknaden 2026-09-20 under [status for
+5a](#status-2026-09-18).
 
 Overtar du dette arbeidet uten kontekst: start i
 [handoff 2026-09-19](../handoff-2026-09-19.md).
@@ -53,6 +55,18 @@ kallsteder (`forsering_routes.py:267`, `endringsordre_routes.py:144`).
 relasjonsindeksen som den er. Gemini-sporet fant begge uavhengig som AUT-01 og
 AUT-02. RV-07 bør stå som delvis lukket til grensen ligger i dataene. Se
 [vurderingen av auditfunnene](../vurdering-av-auditfunn-2026-09-19.md).
+
+**Merknad 2026-09-19 (senere samme dag) til RV-07, AUT-01 og AUT-02.** Rettet.
+Grensen er flyttet inn i `BaseSakService.hent_relaterte_saker`, der `tillatte_saker`
+er et påkrevd nøkkelordargument, slik at et nytt kallsted ikke kan glemme den.
+`valider_grunnlag_fortsatt_gyldig` og `finn_forseringer_for_sak` avgrenser
+kandidatene før noen state leses. Søk etter mønsteret ga et tredje sted som ingen
+av sporene hadde funnet — `GET /api/forsering/<sak>/relaterte`, der relasjonene
+kommer fra Catenda og `topic_board_id` er en global innstilling. De to strenge
+`xfail`-reproduksjonene XPASS-et og er gjort om til ordinære regresjonstester; det
+tredje stedet har fått en ny. **RV-07 kan nå stå som lukket som klasse for
+forseringens lesestier.** Den generelle mangelen består: grensen finnes fortsatt
+bare i applikasjonskoden, ikke i dataene (RC-1, fase 1).
 
 Beslutninger som er tatt i disse rettingene:
 
@@ -113,12 +127,108 @@ godkjenningsflyten) og er ikke en ny feil. **INT-04 trenger en domenebeslutning,
 en retting:** webhookens hardkodede `aktor_rolle="TE"` står på saksopprettelse, ikke
 på utstedelse, så spørsmålet er om opprettelse av en EO-sak skal være BH-forbeholdt.
 
+**Merknad 2026-09-19: INT-04 er avgjort og lukket.** Beslutningen ble en tredje vei —
+kontraktssiden utledes av topic-forfatterens faktiske lagmedlemskap, siden Catenda
+allerede oppgir bruker-IDen i `bimsync_creation_author.user.ref`. Opprettelse er
+altså verken BH-forbeholdt eller TE-antatt. Webhooken er fail-closed: uten entydig
+side opprettes ingen sak.
+
 Rotårsaksgrupperingen av alle 60 funnene står i
 [vurderingen av auditfunnene](../vurdering-av-auditfunn-2026-09-19.md), del 3. Tre
 saker er der anbefalt tatt uavhengig av fasene, fordi de er datafeil i den juridisk
 avgjørende delen av domenet: **TFR-01** (aksept av avslag settes til GODKJENT),
 **GFK-01 med FE-04** (fullmaktsgulvet dekker ikke tidskonsekvens) og **AUT-01/AUT-02**
-(RV-07 lukket per kallsted). Merk også at fem TFR-funn ikke løses av
+(RV-07 lukket per kallsted).
+
+**Merknad 2026-09-20: tenant-attribusjonen (handoffens 5a) er gjennomført.**
+
+Migrasjonen `20260920060000_tenant_attribution_prosjekt_id` er **anvendt** mot
+prosjektet og verifisert mot katalogen: `prosjekt_id TEXT NOT NULL` uten default,
+med indeks, på `koe_events`, `forsering_events`, `endringsordre_events` og
+`sak_relations`, og `DEFAULT 'oslobygg'` er fjernet fra `sak_metadata`.
+*Kjørt og observert:* et forsøk på å skrive en rad uten prosjekt avvises med
+`23502`. Grensen ligger nå i dataene, ikke bare i applikasjonskoden.
+
+**Planen antok en backfill. Den var unødvendig:** alle fire tabellene hadde
+**0 rader** (kontrollert 2026-09-20), så `NOT NULL` kunne settes direkte og
+ingen rad kunne bli feilmerket. Steg 2 i handoffens oppskrift — «backfill fra
+`sak_metadata`, aldri fra `source`» — var en nulloperasjon.
+
+**Handoffen oppgir fem oslobygg-fallbacks. Det var fjorten.** Samme mønster som
+§7b beskriver: «tre» ble fem, fem ble åtte — og åtte ble fjorten.
+
+**Merknad 2026-09-20 til tallet «åtte».** Dette avsnittet sa først åtte, og at
+«alle er fjernet i samme runde». Begge deler var feil, og begge er rettet her.
+Gjennomgangen etter 5a fant seks til, alle i rutekode. De falt utenfor det
+første søket fordi det lette etter `or "oslobygg"` og `DEFAULT_PROJECT_ID` —
+formene de åtte første hadde — og ikke etter `getattr(g, "project_id",
+"oslobygg")` eller `request.headers.get("X-Project-ID", "oslobygg")`. Det er
+tredje gang tallet vokser, og hver gang av samme grunn: søket formes av funnene
+man allerede har. Fjorten er tallet etter at alle fire formene er søkt opp. Det
+er et argument for at ingen femte form gjenstår, ikke et bevis.
+
+**Hvor mye de seks siste faktisk betydde.** *Lest ut av koden,* ikke kjørt: bare
+én av dem var nåbar i drift. `approval_routes.py`-koalesceringen
+`(metadata.prosjekt_id or "oslobygg")` traff enhver metadatarad med tomt
+prosjekt og kalte den Oslobygg. De to `getattr`-formene var døde fordi
+`init_project_context` alltid setter attributtet — `getattr` faller først
+tilbake når attributtet *mangler*, og `None` er ikke det samme som fraværende.
+De tre i `bim_link_routes.py` leste den rå headeren bak
+`require_project_access`, som avviser med 403 før rutekroppen kjøres når
+headeren mangler (*kjørt og observert:*
+`test_foresporsel_uten_prosjekt_avvises_for_medlemskap_slas_opp`) — de var
+nåbare bare under `DISABLE_AUTH` i test og utvikling.
+
+Det er ingen grunn til å la dem stå. Fem av seks var feller: de ville blitt
+levende i samme øyeblikk som en dekoratør ble glemt, en `before_request`-hook
+endret, eller en rute flyttet. Det er nettopp slik den første av dem oppsto.
+
+Alle fjorten er fjernet:
+
+| Sted | Var | Er |
+| --- | --- | --- |
+| `project_context.py` | `DEFAULT_PROJECT_ID = "oslobygg"`, brukt i header-lesing og `get_project_id()` | Borte. `get_project_id() -> str \| None`; manglende header betyr ukjent prosjekt |
+| `project_access.py` | `record.prosjekt_id or DEFAULT_PROJECT_ID` | Ren sammenlikning |
+| `endringsordre_service.py` ×2 | `metadata.prosjekt_id or "oslobygg"` | Ren sammenlikning, og `_belongs_to_project` er fail-closed uten kontekst |
+| `sak_metadata_repository.py` ×3 | `row.get("prosjekt_id") or "oslobygg"` | Ren oppslag |
+| `cloudevents.py` | `ce_source` skrev `oslobygg` | `unknown` — et ærlig utsagn |
+| databasens `DEFAULT` | `sak_metadata.prosjekt_id` | Droppet |
+| `client.ts` | `activeProjectId = 'oslobygg'` | `null`. Headeren utelates når prosjektet er ukjent |
+| FE-01 | `LetterPreviewModal` sendte verken prosjekt, CSRF eller credentials | Alle tre settes nå |
+| `approval_routes.py` ×2 | `getattr(g, "project_id", "oslobygg")`, og `(metadata.prosjekt_id or "oslobygg") != project` | `get_project_id()`, og en sammenlikning som avviser når prosjektet er ukjent |
+| `endringsordre_routes.py` | `getattr(g, "project_id", "oslobygg")` i `eo_godkjenninger` | `get_project_id()`. Uten prosjekt finnes ingen policy å slå opp |
+| `bim_link_routes.py` ×3 | `request.headers.get("X-Project-ID", "oslobygg")` i `list_ifc_products`, `list_ifc_types` og `list_bim_models` | `get_project_id()` — den kontrollerte konteksten, ikke den rå headeren |
+
+Skrivestiene stempler prosjektet fra autorisert kontekst og avviser å skrive uten
+det — som `PermanentError`, ikke `ValueError`, fordi `append_batch` er
+retry-dekorert og nye forsøk aldri gir en forespørsel en kontekst den ikke hadde.
+
+**Tre `xfail` ble XPASS og er gjort om til ordinære regresjonstester:** DB-06,
+`ce_source`-fallbacken, og FE-01. Den siste ble *erstattet* framfor snudd: den
+hevdet at et CSRF-løst mutasjonskall burde gi 200, og det er en ønskeforestilling
+som nå er direkte gal. Den nye prøver begge halvdeler — de nye headerne slipper
+gjennom, de gamle avvises fortsatt.
+
+**Merk om DB-06.** Testen leser modulens docstring, ikke databasen, så den er
+grønn fordi DDL-en der er oppdatert. At kolonnen finnes i basen vet vi fra
+katalogspørringen og den observerte `23502`-avvisningen — ikke fra testen. Det
+står skrevet inn i testen.
+
+**Hva som gjenstår for at grensen skal være i kraft:** RLS-policyen
+`USING (prosjekt_id = current_setting('app.project_id'))` lar seg nå *skrive*,
+men er ikke skrevet. Samtlige policyer er fortsatt `service_role / ALL /
+USING (true)`. Det hører til pakke 2 om minste privilegium.
+
+**Merknad 2026-09-19: status for de tre.**
+
+| Funn | Status | Merknad |
+| --- | --- | --- |
+| AUT-01, AUT-02 | **Lukket** | Grensen lagt i `hent_relaterte_saker` som påkrevd `tillatte_saker`. Et tredje sted funnet og lukket i samme runde. To xfail gjort om til ordinære tester, én ny lagt til |
+| GFK-01, FE-04 | **Lukket, med restanse** | Gulvet tar dagmulktssats og verdsetter fristdagene, i backend og frontend. Restanse: uten kjent sats blir gulvet fortsatt 0, og fullmaktskontrollen hoppes fortsatt over. Det krever en domenebeslutning |
+| INT-04 | **Lukket** | Kontraktssiden utledes av forfatterens lagmedlemskap; fail-closed uten entydig side. Reproduksjonen erstattet av to ordinære tester |
+| TFR-01 | **Lukket** | Modelleringen besluttet: aksept bekrefter byggherrens svar og forbedrer det aldri. Ny `SporStatus.AVSLATT_AKSEPTERT` = oppgjort ved enighet, på byggherrens premisser. Teller som oppgjort for vederlag og frist (som `TRUKKET`), ikke for grunnlag. Tre xfail gjort om til regresjonstester |
+
+Merk også at fem TFR-funn ikke løses av
 arkitekturarbeidet i det hele tatt — domenegjennomgang må kjøres ved siden av.
 
 Utenfor koden: anonym innlogging og OAuth-serveren må slås av i Supabase-konsollet,
@@ -136,6 +246,7 @@ produksjon.
 | 2 — minst mulige privilegier og integritet | Avklar runtime-, worker-, drift- og migreringsrettigheter. Beskytt hendelser mot omskriving og uautorisert tilføying; hemmelighetslager og rotasjon. | Reelle runtime-legitimasjoner kan ikke endre/slette historikk eller omgå godkjenningskommandoen. Test også Data API med anon og anonymt innlogget authenticated. Migrering/break-glass er separat, tidsavgrenset og logget. |
 | 3 — dokumenter og sporbarhet | Frosset brev/vedlegg med hash, karantene/skanning før frigivelse, tilgangslogg for sensitive lesinger og eksport, revisjon av fullmakts- og prosjektendringer. | Bevarings-/sletteregler omfatter filer, logger og backup. Ingen tokens eller brevtekst i standardlogger. Uavhengig integritetsbevis/lagring velges ut fra trusselmodellen; hash i samme redigerbare database alene er utilstrekkelig. |
 | 3 — faktisk gjenoppretting og drift | Restore-øvelse, avstemming mot Catenda, varsling om køalder/usikre utfall, kapasitet og rate limiting. | Dokumentert RPO/RTO og vellykket restore av hendelser, godkjenninger, utkast, filer og køer. Restore utløser ikke blind ny levering. Feil har en mottaker og en testet driftsprosedyre. |
+| **1 — databasearkitektur: trenger vi alle tabellene?** *(ny 20.09)* | Full gjennomgang av skjemaet, med **to spørsmål som ikke er det samme.** Det første er arkeologi: hvilke tabeller og kolonner er i bruk, hvilke er etterlatenskaper, og hvilke finnes i basen uten å finnes i repoet. Det andre er utforming: blant dem som *er* i bruk, kunne de vært færre? Tre parallelle hendelsestabeller med identisk form, en relasjonsprojeksjon av noe hendelsene alt bærer, og ti `cached_*`-kolonner er alle i bruk — og alle er kandidater. Avklar i samme pakke hvordan en migrasjon skal nå databasen; i dag finnes ingen mekanisme. **Foreslått retning:** migrasjonsmappa er eneste kilde, og anvendelsen skjer derfra — `supabase/config.toml` pluss `supabase db push`, eventuelt som et steg i CI mot staging. Da kan «anvendt» avledes framfor å huskes. Regelen om at DDL og migrasjonsfil skal skrives i samme runde står i `AGENTS.md`; den er husskikk inntil mekanismen finnes, og et dårligere vern enn automatikk. | Hver tabell i `public` er enten i bruk, dokumentert som bevisst reserve, eller fjernet — **og hver tabell som er i bruk har et svar på om den burde vært slått sammen med en annen.** Repoets migrasjonsmappe og basens faktiske skjema stemmer, og det finnes en dokumentert vei fra fil til database. |
 | **1 — oppbevaring og sletting i selve journalen** *(ny 19.09)* | Avgjør bevarings- og slettemodell for hendelsesstrømmen **før** skriverettighetene strammes. Grunnlaget ligger i [faktagrunnlag for DPIA](../personopplysninger-faktagrunnlag-2026-09-19.md); merk særlig at journalen i dag er **tom**, at `aktor` lagrer navn framfor bruker-ID, og at interne notater ikke er kontraktsvarsler og derfor ikke trenger samme permanens. Hendelsene bærer `aktor` (personnavn), og `internt_notat` er fritekst om navngitte personer. Kartlegg hvilke regelsett som gjelder for Oslobygg KF, der personvern trekker mot sletting og arkivplikt mot bevaring. | Det finnes en besluttet og dokumentert modell for hvordan en sletteplikt oppfylles i en journal som ellers er uforanderlig — for eksempel kryptografisk sletting, pseudonymisering ved skriving, eller en begrunnet konklusjon om at sletteplikten ikke gjelder. Modellen er avklart før `REVOKE UPDATE, DELETE` kjøres, og før journalen inneholder ekte persondata. |
 | **1 — byggreproduserbarhet og forsyningskjede** *(ny 19.09)* | Pinn Python-avhengighetene; 10 av 21 i `requirements.txt` bruker `>=`, så to bygg kan gi ulike versjoner. Innfør avhengighetsskanning for begge økosystemer i CI. | `pip install` fra repoet gir samme versjoner to ganger. Sårbarhetsskanning kjører som påkrevd sjekk, med en besluttet terskel for hva som blokkerer. Planens krav om «reproduserbar databasemigrasjon» har da en tilsvarende garanti for selve bygget. |
 | **1 — HTTP-herding av klientleveransen** *(ny 19.09)* | `nginx.conf` setter i dag bare cache-headere. Legg til CSP, HSTS, `X-Content-Type-Options` og `frame-ancestors`. | Klienten leveres med en CSP som faktisk er testet mot appen, ikke bare satt. Særlig relevant fordi brevvisningen rendrer rik tekst gjennom TipTap og DOMPurify — CSP er forsvar i dybden der sanitiseringen svikter. |
@@ -143,6 +254,125 @@ produksjon.
 | **1 — avhengigheten av Catenda** *(ny 19.09)* | Avklar hva som gjelder kontraktsmessig, ikke bare teknisk. Identitet, medlemskap, dokumenter og prosjektstruktur kommer alle derfra, og appen har ingen vei utenom. Hva er SLA-en? Kan et varsel sendes med rettsvirkning mens Catenda er nede? Hva skjer hvis prosjektet slettes, lisensen utløper eller organisasjonen bytter leverandør? | Det finnes et skriftlig svar på hva som skjer med pågående frister ved utilgjengelighet, og en besluttet håndtering av tapt eller slettet Catenda-prosjekt. Avhengigheten er dokumentert som en akseptert risiko med navngitt eier, eller redusert. |
 | **1 — universell utforming** *(ny 19.09)* | Oslobygg KF er kommunalt, og forskrift om universell utforming av IKT gjelder trolig. `svelte-check` gir i dag tre a11y-advarsler — manglende ARIA-rolle og tabindex på dialogen i `WithdrawModal`, og klikkhåndterer uten tastaturekvivalent i `Kontrollrommet`. | Kravsnivået er avklart mot forskriften, og advarslene er enten rettet eller begrunnet. `npm run check` gates på a11y, ikke bare på typefeil. Dette er et mulig rettslig krav, ikke en kvalitetsdetalj. |
 | **2 — bevisførsel og framleggelse** *(ny 19.09)* | Systemets formål er å vise hva som ble varslet når. I dag finnes **ingen eksportvei** — ingen rute, ingen funksjon. Dataene ligger bak innlogging i et format bare appen forstår. Bygg uttrekk av én sak med hendelser, tidsstempler, aktør, vedleggsreferanser og hashsummer, lesbart utenfor appen. Avklar forvaringskjede og **tidskilde**. | En sak kan framlegges for oppmann eller voldgift uten at appen kjører, med dokumentert uttrekkstidspunkt og hvem som hentet ut. Tidsstemplene har en forsvarbar kilde: `datetime.now(UTC)` på en autoskalert container uten synkroniseringsgaranti holder ikke når en preklusjonsfrist står på spill. Det er besluttet hva som skjer når motparten bestrider systemets egen framstilling. |
+
+**Merknad 2026-09-19: første halvdel av «verifiserbar leveranseprosess» er levert.**
+`.github/workflows/ci.yml` kjører tre gatende jobber på push til `main` og på hver
+pull request: backend-testene (`pytest`), frontend-testene (`vitest`) og typesjekken
+(`svelte-check --threshold error`). Alle tre er grønne i dag, så CI gater fra første
+kjøring uten opprydding først. Alle tre er verifisert fra ren tilstand — nytt venv
+fra requirements-filene, og `npm ci` fra lockfila.
+
+Det som gjenstår i pakken: isolert staging, reproduserbar databasemigrasjon, faktiske
+DB-integrasjonstester og påkrevde merge-sjekker i GitHub-innstillingene. En workflow
+gater ikke i seg selv — jobbene må settes som required checks på `main`.
+
+**Ikke med, og hvorfor:**
+
+- **Driftskriptene.** De gater riktig med `--ci` (exit 1), men seks av ni feiler i
+  dag. Koblet på ville CI vært rød fra første kjøring. `category_drift` feiler
+  dessuten på sin egen parser. Det må avgjøres hvilke som skal baselines og hvilke
+  som skal rettes.
+**Merknad 2026-09-19 (senere samme dag): lint gater nå også.** Gjelden er ryddet og
+`ruff` og `eslint` er lagt inn som steg i CI. Backend er på **0 ruff-feil**,
+frontend på **0 eslint-feil**, og `prettier --check` passerer.
+
+| Regel | Antall | Handling |
+| --- | --- | --- |
+| F401, I001, F541, UP017 | 56 | `ruff check --fix`. Diffen er lest linje for linje: ubrukte importer, sortering, sammenslåing av dupliserte `from`-linjer. Ingen `__init__.py` berørt, så ingen re-eksport er fjernet ved et uhell |
+| **UP042** | **14** | **Slått av i `pyproject.toml`, ikke rettet.** `class X(str, Enum)` → `StrEnum` endrer `str()` og f-string-interpolering: `str(SporStatus.GODKJENT)` går fra `'SporStatus.GODKJENT'` til `'godkjent'`. Kontrollert kjørt. JSON blir likt, men 14 domeneenums serialiseres inn i hendelsesloggen, og det hører til en bevisst domenegjennomgang |
+| E741 ×2 | 2 | `l` → `lenke` i `bim_link_routes.py` |
+| F841 ×1 | 1 | `author_email` i webhooken var en død tilordning — også på `origin/main`, ikke innført av denne runden |
+| eslint ×3 | 3 | Ubrukte `beforeEach`/`afterEach`, og manglende nøkkel på `{#each filer}` i `NewCaseForm.svelte`. Den siste er ikke bare en nitte: uten nøkkel gjenbruker Svelte DOM-noder etter indeks, og fjerning midt i en filliste kan la tilstand henge igjen på feil rad. Komponenten har ingen egen test (den er blant de 58 i TST-07), så endringen er riktig etter Sveltes regler, men ikke dekket av suiten |
+
+**To ting som følger av at lint nå gater:**
+
+- **`ruff` er pinnet (2026-09-20).** `ruff==0.16.8` i `requirements-dev.txt`. En ny
+  utgivelse kunne ellers aktivert regler innenfor de valgte familiene (`E`, `F`,
+  `B`, `I`, `UP`, `SIM`) og gjort hver PR rød uten at noen hadde endret kode.
+  Oppgradering er nå en bevisst handling. **De øvrige `>=`-kravene står igjen** —
+  10 av 21 i `requirements.txt` — og hører fortsatt til arbeidspakken om
+  byggreproduserbarhet.
+- **`UP042` må revurderes bevisst, ikke glemmes.** Den er slått av med begrunnelse i
+  `pyproject.toml`, ikke fordi StrEnum er feil, men fordi bytte av enum-basis i en
+  append-only journal krever en gjennomgang. Hører sammen med domenegjennomgangen av
+  NS 8407-reglene.
+
+**Foreløpige funn til databasearkitektur-pakken (2026-09-20, ikke en gjennomgang
+— biprodukt av 5a).**
+
+Alt under er kontrollert mot prosjekt `gwdxadexwktegkklyobv`, ikke utledet av
+migrasjonene.
+
+1. **Repoet kan ikke opprette databasen.** Basens migrasjonshistorikk lister
+   `001_koe_core_tables` til `006_koe_rls_performance`. **Ingen av dem finnes i
+   repoet.** Det bekrefter DB-01 og handoffens felle 3 fra databasesiden.
+2. **En repo-migrasjon er aldri anvendt, og den er ikke harmløs.**
+   `supabase/migrations/20260918090000_event_tables_actorteam.sql` ligger i
+   repoet, er idempotent og forsiktig skrevet — og kolonnen `actorteam` finnes
+   ikke på noen av de tre hendelsestabellene. *Kjørt og observert:* den eksakte
+   spørringen `supabase_event_repository.py` sender feiler med
+   `42703: column "actorteam" does not exist`. Siden `select` navngir kolonnen,
+   feiler **enhver lesing av enhver sak** gjennom Supabase-lageret — ikke bare
+   interne notater. Ingen test fanger det, fordi `EVENT_STORE_BACKEND` er `json`
+   som standard og metadata `csv`.
+   **Dette motsier statustabellen over: RV-08 står som lukket.** Koden *er*
+   riktig; databasen fikk aldri kolonnen. Migrasjonen er ett kall unna å kunne
+   anvendes, og basen er tom, så ingen rad kan bli feilmerket.
+3. **Ingen mekanisme håndhever at en migrasjon når basen.** Det finnes ingen
+   `supabase/config.toml`, bare en `migrations`-mappe, og to parallelle
+   migrasjonssett (`supabase/migrations/` og `backend/migrations/`).
+4. **Testdobbelen kan ikke fange klassen.** `EVENT_TABLE_COLUMNS` i
+   `test_event_roundtrip.py` speiler repoet, ikke basen, og oppgir `actorteam`
+   som en eksisterende kolonne. Den er tro mot repoet, og repoet er ikke tro mot
+   basen. Notert i fila.
+5. **Tre tabeller har null referanser i produksjonskode:** `app_identities`,
+   `user_groups` og `magic_links`. Den siste er verdt et blikk — `MagicLinkManager`
+   lagrer tokens i `koe_data/magic_links.json`, altså en fil, mens tabellen står
+   ubrukt. Det er *lest ut av koden*, ikke kjørt, og kan være feil om noe når dem
+   utenom navnet.
+6. **Spørsmål gjennomgangen bør stille:** finnes det to medlemskapstabeller
+   (`project_memberships` og `app_project_memberships`), og er begge i bruk?
+   Hva er `catenda_models_cache`? DB-04 melder at `sak_relations` mangler
+   fremmednøkler — bevisst eller etterlatenskap?
+7. **Tre kandidater som er i bruk, og likevel bør prøves.** Punktene over spør
+   om noe er ubrukt. Disse er i bruk, og spørsmålet er et annet — om formen er
+   riktig. *Hypoteser, ikke funn:* ingen av dem er undersøkt.
+   - **De tre hendelsestabellene** (`koe_events`, `forsering_events`,
+     `endringsordre_events`) har samme form og samme beskrankninger. Én tabell
+     med en sakstypekolonne ville gitt én RLS-policy å skrive framfor tre, ett
+     sted å tilbakekalle `UPDATE`/`DELETE`, og ett sted å legge en append-only-
+     trigger. Mot det står at en `UNIQUE (sak_id, versjon)` over én tabell er en
+     annen samtidighetsprofil, og at transaksjonsplanen allerede forutsetter tre.
+     Avgjøres derfor **sammen med** den planen, ikke etterpå.
+   - **`sak_relations`** er en CQRS-projeksjon: relasjonene ligger også i
+     hendelsene. Den finnes for oppslagshastighet på en base som i dag er tom.
+     Spørsmålet er om et indeksert oppslag i hendelsene holder, og hva
+     projeksjonen koster i konsistens — den må vedlikeholdes i takt, og DB-04
+     viser at den alt har drevet (manglende fremmednøkler).
+   - **De ti `cached_*`-kolonnene** på `sak_metadata` er denormaliserte
+     summeringer av hendelsesdata. DB-02 handlet om at åtte av dem manglet;
+     ingen har spurt om de bør finnes. De er skrivetidsavledninger av en
+     append-only kilde, og hver av dem kan komme ut av takt med den.
+
+**Hvordan gjennomgangen bør gjøres — punktene over er ikke den.** De er et
+biprodukt av 5a, samlet opp mens arbeidet gjaldt noe annet. En gjennomgang som
+skal kunne konkludere med å *fjerne* noe, trenger mer enn det.
+
+- **Begynn med en navngitt oversikt.** Ingen av de 20 tabellene er ramset opp
+  ved navn noe sted i `docs/`. Uten den lista er enhver konklusjon om «alle
+  tabellene» udokumentert.
+- **Per tabell:** radantall, hvilken migrasjon som opprettet den, om den
+  migrasjonen finnes i repoet, og hvilke symboler i koden som leser og skriver
+  den. Et navnesøk er ikke nok — se punkt 5, der `magic_links` ser ubrukt ut,
+  men konklusjonen er uttrykkelig merket *lest ut av koden*.
+- **Per kolonne på de store tabellene:** samme spørsmål. Kolonner er billigere å
+  overse enn tabeller, og `cached_*`-familien er ti av dem.
+- **Skill de to spørsmålene i konklusjonen.** «Ubrukt» og «i bruk, men
+  overflødig» krever ulike bevis og har ulik risiko. Det første fjernes; det
+  andre er en designbeslutning som må veies mot transaksjonsplanen.
+- **Gjør den før fundamentbyttet, ikke etter.** Arkitekturvurderingens
+  konklusjon er «behold domenet, bytt fundamentet». Et skjema som bæres over
+  urørt, bærer også med seg det som burde vært luket.
 
 **Presiseringer til eksisterende pakker (19.09).** To rader trenger en skjerping
 snarere enn en ny pakke:

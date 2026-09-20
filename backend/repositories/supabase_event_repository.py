@@ -47,6 +47,11 @@ CREATE TABLE IF NOT EXISTS koe_events (
     data JSONB NOT NULL,
 
     -- Internal: For optimistic locking and queries
+    -- Tenant: settes av serveren fra autorisert kontekst, aldri av klienten
+    -- og aldri av et fallback. NOT NULL uten default med vilje — en default
+    -- ville gjort attribusjonen uetterprøvbar (se migrasjon 20260920060000).
+    prosjekt_id TEXT NOT NULL,
+
     sak_id TEXT NOT NULL,           -- Denormalized for efficient queries
     event_type TEXT NOT NULL,       -- Denormalized for filtering
     versjon INTEGER NOT NULL,
@@ -87,6 +92,11 @@ CREATE TABLE IF NOT EXISTS forsering_events (
     data JSONB NOT NULL,
 
     -- Internal
+    -- Tenant: settes av serveren fra autorisert kontekst, aldri av klienten
+    -- og aldri av et fallback. NOT NULL uten default med vilje — en default
+    -- ville gjort attribusjonen uetterprøvbar (se migrasjon 20260920060000).
+    prosjekt_id TEXT NOT NULL,
+
     sak_id TEXT NOT NULL,
     event_type TEXT NOT NULL,
     versjon INTEGER NOT NULL,
@@ -126,6 +136,11 @@ CREATE TABLE IF NOT EXISTS endringsordre_events (
     data JSONB NOT NULL,
 
     -- Internal
+    -- Tenant: settes av serveren fra autorisert kontekst, aldri av klienten
+    -- og aldri av et fallback. NOT NULL uten default med vilje — en default
+    -- ville gjort attribusjonen uetterprøvbar (se migrasjon 20260920060000).
+    prosjekt_id TEXT NOT NULL,
+
     sak_id TEXT NOT NULL,
     event_type TEXT NOT NULL,
     versjon INTEGER NOT NULL,
@@ -174,6 +189,7 @@ except ImportError:
     SUPABASE_AVAILABLE = False
     Client = None
 
+from lib.project_context import krev_autorisert_prosjekt
 from lib.supabase import ConflictError, classify_error, with_retry
 from models.cloudevents import CLOUDEVENTS_NAMESPACE, CLOUDEVENTS_SPECVERSION
 
@@ -325,6 +341,8 @@ class SupabaseEventRepository(EventRepository):
             "referstoid": str(ce.get("referstoid")) if ce.get("referstoid") else None,
             # Data payload
             "data": ce.get("data", {}),
+            # Stemples av serveren fra autorisert kontekst, aldri av klienten.
+            "prosjekt_id": krev_autorisert_prosjekt("hendelse"),
             # Internal fields
             "sak_id": sak_id,
             "event_type": ce.get("type", "").replace(f"{CLOUDEVENTS_NAMESPACE}.", ""),

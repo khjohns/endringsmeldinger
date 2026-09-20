@@ -380,8 +380,8 @@ def main():
     print(f"  Token:        {'OK' if access_token else 'MANGLER'}")
     print(f"  Prosjekt:     {project_id or 'ikke satt'}")
     print(f"  Bibliotek:    {library_id or 'ikke satt'}")
-    print(f"\n  Konfig: backend/.env")
-    print(f"  Start:  cd backend && make run\n")
+    print("\n  Konfig: backend/.env")
+    print("  Start:  cd backend && make run\n")
 
 
 if __name__ == "__main__":

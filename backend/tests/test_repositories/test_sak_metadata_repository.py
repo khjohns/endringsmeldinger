@@ -192,7 +192,11 @@ class TestSakMetadataRepository:
         """Test listing with a single case."""
         repo.create(sample_metadata)
 
-        cases = repo.list_all()
+        # Utenfor forespørselskontekst er prosjektet ukjent, og da returnerer
+        # list_all ingenting med mindre kalleren sier at den vil ha alt.
+        assert repo.list_all() == []
+
+        cases = repo.list_all(alle_prosjekter=True)
         assert len(cases) == 1
         assert cases[0].sak_id == "TEST-001"
 
@@ -213,7 +217,17 @@ class TestSakMetadataRepository:
             )
             repo.create(metadata)
 
-        cases = repo.list_all()
+        # De fem sakene ligger i fem ulike prosjekter. At list_all() returnerte
+        # alle fem uten prosjektkontekst var fail-open, og gjorde at
+        # GET /api/cases — som bare har require_auth — kunne liste andre
+        # leietakeres saker når X-Project-ID manglet. Rettet 2026-09-20.
+        assert repo.list_all() == []
+
+        # Med et oppgitt prosjekt: bare det prosjektets sak.
+        eget = repo.list_all(prosjekt_id="PROJ-2")
+        assert [c.sak_id for c in eget] == ["TEST-002"]
+
+        cases = repo.list_all(alle_prosjekter=True)
         assert len(cases) == 5
 
         # Verify all case IDs are present

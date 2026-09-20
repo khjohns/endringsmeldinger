@@ -58,15 +58,25 @@ def order_request(payload):
     return request
 
 
-def order_exposure_floor(request):
+def order_exposure_floor(request, daily_rate=None):
     """The part of the exposure that is already agreed, whatever else is unresolved.
 
     An addition or deduction in the request binds the contract even when the time
     consequence cannot be valued yet, so the route must still cover it (audit RV-01).
+
+    Fristdager verdsettes til dagmulktssatsen og regnes med når satsen er kjent.
+    Uten det ble gulvet 0 for en ordre som bare bærer tidskonsekvens, og
+    resolve_route hoppet da over fullmaktskontrollen i sin helhet: en kjede som
+    bare består av en prosjektleder kunne godkjenne en ordre verdt millioner
+    (audit GFK-01).
     """
-    return max(
+    money = max(
         number(request.get("kompensasjon_belop")), number(request.get("fradrag_belop"))
     )
+    days = number(request.get("frist_dager"))
+    if days > 0 and daily_rate is not None and number(daily_rate) > 0:
+        money += days * number(daily_rate)
+    return money
 
 
 def order_exposure(request, daily_rate=None):
@@ -83,7 +93,6 @@ def order_exposure(request, daily_rate=None):
         request.get("kompensasjon_belop"),
         request.get("fradrag_belop"),
     )
-    money = order_exposure_floor(request)
     days = request.get("frist_dager")
     if days is not None and (
         isinstance(days, bool) or not isinstance(days, int) or days < 0
@@ -109,12 +118,9 @@ def order_exposure(request, daily_rate=None):
         return None
     if consequences.get("fremdrift") and days is None:
         return None
-    days = number(days)
-    if days > 0:
-        if daily_rate is None or number(daily_rate) <= 0:
-            return None
-        money += days * number(daily_rate)
-    return money
+    if number(days) > 0 and (daily_rate is None or number(daily_rate) <= 0):
+        return None
+    return order_exposure_floor(request, daily_rate)
 
 
 class EOApprovalService:
@@ -142,7 +148,11 @@ class EOApprovalService:
         if sender is None:
             raise ValueError("Saksbehandlerens fullmakt er tilbakekalt.")
         amount = order_exposure(request, self.policy.get("daily_rate"))
-        minimum = None if amount is not None else order_exposure_floor(request)
+        minimum = (
+            None
+            if amount is not None
+            else order_exposure_floor(request, self.policy.get("daily_rate"))
+        )
         route = resolve_route(amount, sender, self.chain, minimum=minimum)
         return {
             "amount": None if amount is None else str(amount),
