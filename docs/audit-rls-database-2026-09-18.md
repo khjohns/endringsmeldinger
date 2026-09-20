@@ -49,8 +49,12 @@ regelen i `AGENTS.md`. De heter nå
 `test_migration_chain_creates_sak_metadata_table` og
 `test_sak_metadata_reporting_columns_declared_in_migrations`.
 
-**DB-04 og DB-07 er fortsatt `xfail`, og det er riktig.** Testene leser
-`backend/migrations/003` og `006` spesifikt, og de filene er uendret. Avvikene
+**DB-04 og DB-07 er fortsatt `xfail`, og det er riktig.** Testene leser de to
+migrasjonene spesifikt, og innholdet deres er uendret — men filene er **flyttet**
+samme kveld (DA-03): `003_sak_relations.sql` er nå
+`supabase/migrations/20260911073700_sak_relations.sql`, og `006_bim_tables.sql`
+er `20260911073800_bim_tables.sql`. Testene peker på de nye stiene; assertionene
+er de samme. Avvikene
 de beskriver, er rettet i en egen avstemmingsmigrasjon
 (`20260920160000_avstem_backend_migrations.sql`) framfor ved å redigere de
 «legacy»-merkede filene — så påstanden om *de filene* står ved lag.
