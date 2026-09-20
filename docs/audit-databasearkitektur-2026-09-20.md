@@ -36,6 +36,26 @@ konkludere med å fjerne noe. Det andre kan ikke — det leverer forslag.**
 >
 > Notatet fant også noe denne gjennomgangen ikke så: **vedlegg har ingen hash**,
 > og det betyr noe nå som det er besluttet at bytene bare skal ligge i Catenda.
+>
+> **Merknad 2026-09-20 (kveld): DA-03 og DA-04 er gjennomført på repo-siden.**
+> `supabase/config.toml` finnes, `backend/migrations/` er tømt, og
+> filnavnrekkefølgen *er* nå apply-rekkefølgen. Hele settet — seksten filer —
+> bygger en tom PostgreSQL 16 i ren `sort`-rekkefølge, og katalogen er identisk
+> med basens på **fem av fem** snitt: kolonner, skranker, indekser, policyer og
+> rettigheter. DA-04 er løst ved å gi fila basens versjonsnummer
+> (`20260920053427`); det samme gjaldt `actorteam`, som lå som `20260918090000`
+> mens basen hadde registrert `20260920152042`.
+>
+> **Det som gjenstår er migrasjonshistorikken, og den kan ikke rettes herfra:**
+> `supabase migration repair` krever legitimasjon denne sesjonen ikke har.
+> Kommandoene er listet under «Veien fra fil til database». Alignmenten gikk fra
+> 4/12 til 6/16; de femten kommandoene tar den til 16/16.
+>
+> **Et nytt funn falt ut av rettighetssnittet:** åtte av tjue tabeller har ingen
+> eksplisitt `GRANT` til `service_role` i repoet. De virker bare fordi Supabase
+> deler ut rettigheter ved prosjektoppsett. Flyttes basen bort fra Supabase —
+> som arkitekturvurderingen åpner for — forsvinner de, og appen mister tilgang
+> til åtte tabeller uten at noen migrasjon sier fra.
 
 ---
 
@@ -585,22 +605,41 @@ supabase/migrations/20260902_catenda_project_registry.sql
 supabase/migrations/20260920160000_avstem_backend_migrations.sql
 ```
 
-**Andre halvdel gjenstår, og er ikke gjort her.** Tre ting mangler før veien er
-automatisk framfor dokumentert:
+**Andre halvdel er gjort samme kveld, unntatt historikken.**
+`supabase/config.toml` finnes nå og peker på prosjektet med `major_version = 17`.
+`backend/migrations/` er tømt; de fire filene er flyttet inn i
+`supabase/migrations/` med versjonsnumre som gjør filnavnrekkefølgen til
+apply-rekkefølgen. DA-04 er løst ved å gi tenant-migrasjonen basens eget
+versjonsnummer, og `actorteam` fikk samme behandling.
 
-1. **`supabase/config.toml` finnes ikke.** Uten den er `supabase db push` ikke
-   konfigurert mot prosjektet.
-2. **Fem historikkrader har ingen fil.** `002_koe_indexes` til
-   `006_koe_rls_performance` ligger i basens historikk; innholdet er foldet inn i
-   kjerneskjemafila, som bærer den første av de seks versjonene. `db push` vil
-   melde avvik til de fem er avstemt med `supabase migration repair --status
-   applied`. Det er en endring av historikk, ikke av skjema, og er bevisst ikke
-   utført.
-3. **DA-04 må avgjøres:** repoets `20260920060000` mot basens `20260920053427`.
-4. **`backend/migrations/` må enten flyttes inn eller få sin rolle skrevet ned.**
-   Mappa er merket «legacy», men fire filer der er fortsatt nødvendige for å
-   bygge basen, og to av dem må kjøre midt inne i `supabase/migrations`-sekvensen.
-   Så lenge det er tilfelle, er «migrasjonsmappa er eneste kilde» ikke sant.
+**Det som gjenstår, krever legitimasjon denne sesjonen ikke har.**
+Migrasjonshistorikken i basen stemmer ennå ikke med mappa — 6 av 16 matcher.
+Femten kommandoer retter det:
+
+```bash
+supabase migration repair --status applied 20260911073600   # projects
+supabase migration repair --status applied 20260911073700   # sak_relations
+supabase migration repair --status applied 20260911073800   # bim_tables
+supabase migration repair --status applied 20260911080500   # project_memberships
+supabase migration repair --status applied 20260911080600   # project_rls_policies
+supabase migration repair --status applied 20260912140000   # catenda_project_registry
+supabase migration repair --status applied 20260912150635   # catenda_user_sessions
+supabase migration repair --status applied 20260916130000   # catenda_contract_teams
+supabase migration repair --status applied 20260916133000   # contract_teams_rpc_fixes
+supabase migration repair --status applied 20260920160000   # avstem_backend_migrations
+
+# Historikkrader uten fil. Innholdet er foldet inn i 20260911073512, som
+# bærer den første av de seks versjonene; teksten til de fem er tapt.
+supabase migration repair --status reverted 20260911073526
+supabase migration repair --status reverted 20260911073539
+supabase migration repair --status reverted 20260911073557
+supabase migration repair --status reverted 20260911075826
+supabase migration repair --status reverted 20260911080204
+```
+
+Etterpå skal `supabase migration list` vise mappe og base som like, og
+`db push` blir et nullsteg. **Kjør dem mot basen, ikke mot en gren** — de
+endrer historikk, ikke skjema, og er ikke reverserbare gjennom `db push`.
 
 ---
 

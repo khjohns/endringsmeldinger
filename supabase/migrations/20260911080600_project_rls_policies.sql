@@ -1,3 +1,9 @@
+-- Flyttet fra backend/migrations/005_project_rls_policies.sql 2026-09-20 (DA-03).
+-- Migrasjonsmappa skal være eneste kilde; den gamle mappa kunne ikke
+-- kjøres fra filnavnrekkefølge, og fire av filene der var likevel
+-- nødvendige for å bygge basen. Policyene er gjort idempotente.
+--
+
 -- ============================================================
 -- Project-based RLS Policies (Defense Layer)
 --
@@ -16,6 +22,7 @@
 -- Drop existing read policy and replace with project-aware one
 DROP POLICY IF EXISTS "Authenticated users can read sak_metadata" ON sak_metadata;
 
+DROP POLICY IF EXISTS "Authenticated users can read project sak_metadata" ON sak_metadata;
 CREATE POLICY "Authenticated users can read project sak_metadata"
 ON sak_metadata FOR SELECT
 USING (

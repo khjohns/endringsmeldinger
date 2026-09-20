@@ -1,3 +1,14 @@
+-- Flyttet fra backend/migrations/004_projects_table.sql 2026-09-20 (DA-03).
+-- Migrasjonsmappa skal være eneste kilde; den gamle mappa kunne ikke
+-- kjøres fra filnavnrekkefølge, og fire av filene der var likevel
+-- nødvendige for å bygge basen. Policyene er gjort idempotente.
+-- Backfill-seksjonen er utelatt: den er et nullsteg mot kjerneskjemaet, som
+-- allerede oppretter prosjekt_id som NOT NULL. Den inneholdt dessuten
+-- ALTER COLUMN prosjekt_id SET DEFAULT 'oslobygg' — en defaultverdi
+-- 20260920053427 uansett fjerner, og som AGENTS.md er uttrykkelig om at
+-- ikke skal gjeninnføres. Å bære den videre er ren risiko uten virkning.
+--
+
 -- ============================================================
 -- Projects Table - Multi-Project Support (Fase 1)
 --
@@ -26,12 +37,14 @@ CREATE INDEX IF NOT EXISTS idx_projects_active ON projects(is_active) WHERE is_a
 ALTER TABLE projects ENABLE ROW LEVEL SECURITY;
 
 -- Service role (backend) has full access
+DROP POLICY IF EXISTS "Service role full access on projects" ON projects;
 CREATE POLICY "Service role full access on projects"
 ON projects FOR ALL
 USING (auth.role() = 'service_role')
 WITH CHECK (auth.role() = 'service_role');
 
 -- Authenticated users can read active projects
+DROP POLICY IF EXISTS "Authenticated users can read active projects" ON projects;
 CREATE POLICY "Authenticated users can read active projects"
 ON projects FOR SELECT
 USING (auth.role() = 'authenticated' AND is_active = TRUE);
@@ -40,15 +53,3 @@ USING (auth.role() = 'authenticated' AND is_active = TRUE);
 INSERT INTO projects (id, name, description, created_by)
 VALUES ('oslobygg', 'Oslobygg', 'Standard prosjekt', 'system')
 ON CONFLICT (id) DO NOTHING;
-
--- 3. Backfill: Ensure all existing sak_metadata rows have prosjekt_id
-UPDATE sak_metadata
-SET prosjekt_id = 'oslobygg'
-WHERE prosjekt_id IS NULL;
-
--- 4. Make prosjekt_id NOT NULL with default
-ALTER TABLE sak_metadata
-ALTER COLUMN prosjekt_id SET DEFAULT 'oslobygg';
-
-ALTER TABLE sak_metadata
-ALTER COLUMN prosjekt_id SET NOT NULL;

@@ -114,3 +114,30 @@ def test_kjerneskjemaet_kommer_for_projects_migrasjonen():
         "kjerneskjemaet refererer til projects. Da kan det ikke kjøre før "
         "backend/migrations/004, som selv krever sak_metadata — sirkulært."
     )
+
+
+def test_migrasjonsmappa_er_eneste_kilde():
+    """DA-03: all DDL skal ligge i supabase/migrations/.
+
+    `backend/migrations/` var merket «legacy», men fire filer der var fortsatt
+    nødvendige for å bygge basen — og to av dem måtte kjøres midt inne i
+    supabase-sekvensen. Da kan ikke filnavnrekkefølgen være apply-rekkefølgen,
+    og `supabase db push` kan ikke virke. Filene ble flyttet 2026-09-20.
+    """
+    etterlatt = sorted((REPO_ROOT / "backend" / "migrations").glob("*.sql"))
+    assert not etterlatt, (
+        "Disse SQL-filene ligger utenfor supabase/migrations/: "
+        f"{[f.name for f in etterlatt]}. Da er migrasjonsmappa ikke eneste "
+        "kilde, og apply-rekkefølgen lar seg ikke lese av filnavnene."
+    )
+
+
+def test_config_toml_peker_paa_riktig_prosjekt():
+    """Uten config.toml er `supabase db push` ikke konfigurert mot noe."""
+    config = REPO_ROOT / "supabase" / "config.toml"
+    assert config.exists(), "supabase/config.toml mangler"
+    innhold = config.read_text(encoding="utf-8")
+    assert 'project_id = "gwdxadexwktegkklyobv"' in innhold
+    assert "major_version = 17" in innhold, (
+        "Basen kjører PostgreSQL 17; config.toml må si det samme."
+    )

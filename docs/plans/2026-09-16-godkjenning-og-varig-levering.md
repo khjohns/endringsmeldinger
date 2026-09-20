@@ -438,6 +438,30 @@ står:*
    `sak_bim_links` er i bruk etter bokstaven, har null rader, og ingen audit har
    vurdert om flaten er besluttet. Det er et produktspørsmål.
 
+**Merknad 2026-09-20 (kveld): DA-03 er gjennomført på repo-siden.**
+Migrasjonsmappa er nå eneste kilde. `supabase/config.toml` finnes,
+`backend/migrations/` er tømt, og filnavnrekkefølgen *er* apply-rekkefølgen —
+verifisert ved å bygge alle seksten filene mot en tom PostgreSQL 16 i ren
+`sort`-rekkefølge og sammenlikne med basen på fem snitt: kolonner, skranker,
+indekser, policyer og **rettigheter**. Alle fem er identiske. DA-04 er løst ved
+å gi fila basens versjonsnummer; `actorteam` hadde samme feil og fikk samme
+behandling.
+
+**Gjenstår, og kan ikke gjøres herfra:** migrasjonshistorikken i basen stemmer
+ennå ikke med mappa (6 av 16). Femten `supabase migration repair`-kommandoer
+retter det; de er listet i
+[auditen](../audit-databasearkitektur-2026-09-20.md) under «Veien fra fil til
+database». De krever legitimasjon denne sesjonen ikke har, og de endrer
+historikk — ikke skjema.
+
+**Nytt funn, fra rettighetssnittet:** åtte av tjue tabeller har **ingen
+eksplisitt `GRANT` til `service_role`** i repoet. De virker bare fordi Supabase
+deler ut rettigheter ved prosjektoppsett. Det er en skjult plattformavhengighet,
+og den hører til arkitekturvurderingens «bytt fundamentet»: flyttes basen vekk
+fra Supabase, mister appen tilgang til åtte tabeller uten at noen migrasjon sier
+fra. Hører også til pakken om minste privilegier, som uansett må avgjøre hvilke
+rettigheter runtime skal ha.
+
 **Merknad 2026-09-20 (kveld): designspørsmålene DA-12 til DA-15 er lukket.**
 [Målskjemaet](../design-maalskjema-database-2026-09-20.md) (MS-01 til MS-15)
 avgjør dem, på sju premisser besluttet av utvikler samme dag: magic links utgår
