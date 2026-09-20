@@ -120,7 +120,6 @@ class EndringsordreService(BaseSakService):
             return True
         prosjekt = get_project_id()
         if not prosjekt:
-            # Ingen autorisert prosjektkontekst: ingenting hører til noe.
             return False
         metadata = self.metadata_repository.get(sak_id)
         return bool(metadata and metadata.prosjekt_id == prosjekt)

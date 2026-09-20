@@ -17,47 +17,31 @@ def init_project_context(app: Flask) -> None:
 
     @app.before_request
     def set_project_id():
-        # Ingen default. Et fravær av X-Project-ID betyr at forespørselen ikke
-        # oppgir noe prosjekt — ikke at den mener Oslobygg. Tidligere fylte et
-        # fallback inn her, og en rad skrevet etterpå kunne ikke i ettertid
-        # skilles fra en rad som virkelig hørte til Oslobygg.
         project_id = request.headers.get("X-Project-ID")
         g.project_id = project_id or None
 
 
 def get_project_id() -> str | None:
-    """
-    Prosjektet denne forespørselen er autorisert for, eller None.
+    """Prosjektet denne forespørselen er autorisert for, eller None.
 
-    None betyr at prosjektet er ukjent, og kallere skal behandle det som
-    «ingen tilgang» framfor å gjette. Utenfor en forespørselskontekst finnes
-    ingen autorisert kontekst i det hele tatt, og da er svaret også None.
+    None betyr ukjent prosjekt. Kallere skal behandle det som «ingen tilgang».
     """
     try:
         return getattr(g, "project_id", None)
     except RuntimeError:
-        # Utenfor Flask-forespørselskontekst
         return None
 
 
 def krev_autorisert_prosjekt(hva: str) -> str:
-    """Prosjektet denne skrivingen er autorisert for, ellers en feil.
+    """Prosjektet denne skrivingen er autorisert for, ellers `PermanentError`.
 
-    Fail-closed: uten autorisert kontekst finnes det ikke noe prosjekt å
-    tilskrive raden, og da skal den ikke skrives. Å gjette her ville
-    gjenopprettet nøyaktig den tvetydigheten kolonnen `prosjekt_id` fjerner —
-    en rad kunne ikke i ettertid skilles fra en som virkelig hørte til.
-
-    Feilen er `PermanentError` og ikke `ValueError`, fordi skrivestiene er
-    retry-dekorert: `with_retry` klassifiserer ukjente unntak som transiente og
-    ville forsøkt på nytt, mens `PermanentError` slipper rett gjennom. Nye
-    forsøk gir uansett ikke en forespørsel en kontekst den ikke hadde.
+    `PermanentError` og ikke `ValueError`: skrivestiene er retry-dekorert, og
+    `with_retry` ville forsøkt et ukjent unntak på nytt.
 
     Args:
         hva: Hva som skrives, kun til feilmeldingen — «hendelse», «relasjon».
     """
-    # Lazy: lib.supabase.exceptions drar inn postgrest, og denne modulen lastes
-    # av alt som trenger prosjektkontekst.
+    # Lazy: drar inn postgrest, og modulen lastes av alt som trenger prosjekt.
     from lib.supabase.exceptions import PermanentError
 
     prosjekt = get_project_id()

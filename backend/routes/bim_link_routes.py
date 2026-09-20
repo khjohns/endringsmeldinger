@@ -194,11 +194,6 @@ def get_related_bim_objects(sak_id: str, link_id: int):
 def list_ifc_products():
     """List IFC products with filtering, search, and fag lookup."""
     try:
-        # Den autoriserte konteksten, ikke den rå headeren. Her sto tidligere
-        # `request.headers.get("X-Project-ID", "oslobygg")`. Defaulten var
-        # utilgjengelig så lenge @require_project_access står over — den avviser
-        # med 403 når headeren mangler — men den ville slått inn i samme øyeblikk
-        # dekoratøren ble glemt, og da stille tilskrevet Oslobygg.
         prosjekt_id = get_project_id()
         ifc_type = request.args.get("ifc_type")
         search = request.args.get("search", "").strip()
@@ -305,11 +300,6 @@ def list_ifc_products():
 def list_ifc_types():
     """Get IFC type summary (type → count) for the active Catenda project."""
     try:
-        # Den autoriserte konteksten, ikke den rå headeren. Her sto tidligere
-        # `request.headers.get("X-Project-ID", "oslobygg")`. Defaulten var
-        # utilgjengelig så lenge @require_project_access står over — den avviser
-        # med 403 når headeren mangler — men den ville slått inn i samme øyeblikk
-        # dekoratøren ble glemt, og da stille tilskrevet Oslobygg.
         prosjekt_id = get_project_id()
         models = _get_bim_repo().get_cached_models(prosjekt_id)
         if not models:
@@ -334,11 +324,6 @@ def list_ifc_types():
 def list_bim_models():
     """List cached Catenda models for the active project."""
     try:
-        # Den autoriserte konteksten, ikke den rå headeren. Her sto tidligere
-        # `request.headers.get("X-Project-ID", "oslobygg")`. Defaulten var
-        # utilgjengelig så lenge @require_project_access står over — den avviser
-        # med 403 når headeren mangler — men den ville slått inn i samme øyeblikk
-        # dekoratøren ble glemt, og da stille tilskrevet Oslobygg.
         prosjekt_id = get_project_id()
         models = _get_bim_repo().get_cached_models(prosjekt_id)
         return jsonify([m.model_dump(mode="json") for m in models])

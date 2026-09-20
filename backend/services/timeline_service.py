@@ -1314,16 +1314,8 @@ class TimelineService:
     def _status_etter_aksept(spor_state) -> SporStatus:
         """Sporets status når TE har godtatt byggherrens svar.
 
-        Regelen er at aksept aldri forbedrer utfallet:
-
-        - `godkjent` gir GODKJENT — partene er enige om kravet.
-        - `delvis_godkjent` gir GODKJENT — partene er enige om byggherrens
-          reduserte tall, som ligger bevart i godkjent_belop/godkjent_dager.
-        - `avslatt` gir AVSLATT_AKSEPTERT — enighet om at intet tilkommer.
-        - Alt annet lar sporet stå. Det gjelder `hold_tilbake` (§30.2
-          tilbakeholdelse i påvente av kostnadsoverslag, altså en utsettelse og
-          ikke et avslag) og `frafalt` (§32.3 c, pålegget er trukket av
-          byggherren). Aksept kan ikke gjøre noen av dem til enighet om et krav.
+        Aksept forbedrer aldri utfallet. `hold_tilbake` (§30.2) og `frafalt`
+        (§32.3 c) lar sporet stå — ingen av dem er et avslag å være enig i.
         """
         resultat = getattr(spor_state.bh_resultat, "value", spor_state.bh_resultat)
         if resultat == "avslatt":

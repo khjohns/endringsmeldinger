@@ -30,8 +30,6 @@ export type SporStatus =
   | 'avslatt'
   | 'under_forhandling'
   | 'trukket'
-  // TE har godtatt byggherrens avslag: oppgjort ved enighet, på byggherrens
-  // premisser. Verken innvilget krav eller gjenstående uenighet.
   | 'avslatt_akseptert'
   | 'laast';
 

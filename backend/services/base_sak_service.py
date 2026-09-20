@@ -148,8 +148,7 @@ class BaseSakService:
                 )
             )
 
-        # Et Catenda-topic uten lokal sak har ingen prosjekttilknytning i denne
-        # appen, og faller derfor ut sammen med saker i andre prosjekter.
+        # Topic uten lokal sak har ingen prosjekttilknytning, og faller ut.
         allowed = tillatte_saker([r.relatert_sak_id for r in relasjoner])
         relasjoner = [r for r in relasjoner if r.relatert_sak_id in allowed]
 

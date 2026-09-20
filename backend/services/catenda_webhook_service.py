@@ -121,15 +121,8 @@ class WebhookService:
     def _contract_side(self, project_id: str, catenda_subject: str | None) -> str | None:
         """Kontraktssiden topicens forfatter tilhører, eller None.
 
-        Webhooken hardkodet tidligere `aktor_rolle="TE"` med kommentaren «Assume TE
-        created the case». Catenda oppgir forfatterens bruker-ID i
-        `bimsync_creation_author.user.ref`, og det er samme subjekt som
-        `contract_membership` matcher mot prosjektets TE/BH-lag, så antakelsen er
-        unødvendig (audit INT-04).
-
-        Returnerer None når siden ikke lar seg avgjøre entydig — også når Catenda er
-        utilgjengelig. Kalleren er fail-closed: da opprettes ingen sak. Å skrive en
-        formell hendelse med en gjettet avsender er verre enn å ikke skrive den.
+        Returnerer None når siden ikke lar seg avgjøre entydig — også når
+        Catenda er utilgjengelig. Kalleren er fail-closed (audit INT-04).
         """
         if not catenda_subject:
             return None
@@ -282,9 +275,6 @@ class WebhookService:
                 .get("user", {})
                 .get("name", topic_data.get("creation_author", "Unknown"))
             )
-            # Kontraktssiden utledes av forfatterens faktiske lagmedlemskap, ikke
-            # antas. `ref` er Catenda-bruker-IDen, samme subjekt som
-            # contract_membership matcher mot prosjektets TE/BH-lag (audit INT-04).
             author_subject = (
                 topic_data.get("bimsync_creation_author", {}).get("user", {}).get("ref")
             )
@@ -300,8 +290,7 @@ class WebhookService:
 
             aktor_rolle = self._contract_side(app_project_id, author_subject)
             if aktor_rolle is None:
-                # Fail-closed: uten entydig kontraktsside har hendelsen ingen
-                # avsender vi kan stå inne for, og saken opprettes ikke.
+                # Fail-closed: uten entydig side opprettes ingen sak.
                 logger.warning(
                     f"Avviser topic {topic_id}: kontraktssiden til forfatteren "
                     f"kunne ikke avgjøres entydig"

@@ -413,10 +413,8 @@ class ForseringService(BaseSakService):
             relation_type="forsering",
         )
 
-        # Relasjonsindeksen bærer ingen prosjekt_id, og backfill-skriptet fyller
-        # den uten prosjektbegrep. Oppslaget går dessuten baklengs, så
-        # require_project_access har aldri sett disse IDene — grensen må
-        # håndheves her (AUT-02, utvider RV-07).
+        # Baklengs oppslag: require_project_access har aldri sett disse
+        # IDene, så prosjektgrensen må håndheves her (AUT-02).
         allowed = tillatte_saker(forsering_sak_ids)
         forsering_sak_ids = [i for i in forsering_sak_ids if i in allowed]
 
@@ -474,8 +472,7 @@ class ForseringService(BaseSakService):
             catenda_client=self.client, event_repository=self.event_repository
         )
 
-        # Skanningen går over alle saker repositoriet kjenner, på tvers av
-        # prosjekter. Kandidatene avgrenses før noen state leses (AUT-02).
+        # Skanningen går på tvers av prosjekter; avgrens før state leses (AUT-02).
         allowed = tillatte_saker(sak_ids_to_search)
         sak_ids_to_search = [i for i in sak_ids_to_search if i in allowed]
 
@@ -880,9 +877,8 @@ class ForseringService(BaseSakService):
         if not forsering_state.forsering_data:
             return {"er_gyldig": False, "grunn": "Saken mangler forsering_data"}
 
-        # Grunnlaget er klientoppgitt: forseringssaken lister selv fristkravene den
-        # bygger på. Å lese gjennom en relasjon skal ikke utvide prosjektgrensen,
-        # så den filtreres før noe evalueres (AUT-01, utvider RV-07).
+        # Klientoppgitt liste: å lese gjennom en relasjon skal ikke utvide
+        # prosjektgrensen (AUT-01).
         avslatte = forsering_state.forsering_data.avslatte_fristkrav
         allowed = tillatte_saker(avslatte)
 

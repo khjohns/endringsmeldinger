@@ -11,15 +11,8 @@ from dataclasses import dataclass
 from models.events import AnyEvent, EventType, ResponsEvent, SporStatus
 from models.sak_state import EOStatus, SakState, SaksType
 
-# Statuser der tilbaketrekking ikke gir mening. Regelen er den samme for alle
-# tre sporene, så den står ett sted: tre kopier drev fra hverandre da
-# AVSLATT_AKSEPTERT kom til.
-#
-# IKKE_RELEVANT og UTKAST: det finnes ikke noe sendt krav å trekke.
-# GODKJENT og TRUKKET: kravet er allerede oppgjort eller allerede trukket.
-# AVSLATT_AKSEPTERT: et godtatt avslag er oppgjort ved enighet, på byggherrens
-# premisser. Å trekke kravet etterpå ville skrive om et avsluttet oppgjør
-# (audit TFR-01).
+# Statuser uten noe sendt krav å trekke, eller med et krav som alt er oppgjort.
+# Samme regel for alle tre sporene.
 IKKE_TRUKKET_FRA: frozenset[SporStatus] = frozenset(
     {
         SporStatus.IKKE_RELEVANT,
@@ -625,8 +618,6 @@ class BusinessRuleValidator:
                 is_valid=False, message="Grunnlag er låst og kan ikke trekkes tilbake"
             )
 
-        # TE kan ALLTID trekke tilbake, unntatt der det ikke finnes noe krav å
-        # trekke eller saken allerede er oppgjort.
         if state.grunnlag.status in IKKE_TRUKKET_FRA:
             return ValidationResult(
                 is_valid=False,
@@ -643,8 +634,6 @@ class BusinessRuleValidator:
         self, event: AnyEvent, state: SakState
     ) -> ValidationResult:
         """R: Vederlag kan trekkes tilbake i alle tilfeller unntatt godkjent eller ikke sendt."""
-        # TE kan ALLTID trekke tilbake, unntatt der det ikke finnes noe krav å
-        # trekke eller saken allerede er oppgjort.
         if state.vederlag.status in IKKE_TRUKKET_FRA:
             return ValidationResult(
                 is_valid=False,
@@ -661,8 +650,6 @@ class BusinessRuleValidator:
         self, event: AnyEvent, state: SakState
     ) -> ValidationResult:
         """R: Frist kan trekkes tilbake i alle tilfeller unntatt godkjent eller ikke sendt."""
-        # TE kan ALLTID trekke tilbake, unntatt der det ikke finnes noe krav å
-        # trekke eller saken allerede er oppgjort.
         if state.frist.status in IKKE_TRUKKET_FRA:
             return ValidationResult(
                 is_valid=False,

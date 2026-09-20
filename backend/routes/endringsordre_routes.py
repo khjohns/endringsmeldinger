@@ -266,7 +266,6 @@ def eo_godkjenninger():
     from services.approval_authority import handler_identity
     from services.eo_approval_service import EOApprovalService
 
-    # Ingen fallback: uten autorisert prosjekt finnes ingen policy å slå opp.
     project = get_project_id()
     identity = getattr(g, "user", {}) or {}
     policy = project_policy(project)

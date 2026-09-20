@@ -255,8 +255,7 @@ export function createFormDraft<T extends Record<string, unknown>>(
           ready = true;
           return;
         }
-        // Uten kjent prosjekt er utkastnøkkelen tvetydig: to prosjekter ville
-        // delt samme lokale utkast. Fail-closed — ingen gjenoppretting da.
+        // Uten prosjekt er utkastnøkkelen tvetydig; da ingen gjenoppretting.
         buffer = prosjektId
           ? createDraftRecovery<T>(eier, [prosjektId, team, sakId, spor, revisjon])
           : null;

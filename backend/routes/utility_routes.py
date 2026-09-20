@@ -121,9 +121,6 @@ def health_check():
 
         start = time.time()
         repo = get_container().metadata_repository
-        # Tilkoblingsprobe: billigst mulig kall som kaster hvis lageret er nede.
-        # Ikke list_all() — den leste hele tabellen, og etter at den ble
-        # fail-closed måtte helsesjekken be om alle prosjekter for å få noe.
         repo.probe()
         latency_ms = round((time.time() - start) * 1000, 2)
 

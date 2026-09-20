@@ -15,6 +15,13 @@ Norsk bokmål i alt: kode, kommentarer, dokumentasjon, commit-meldinger, testnav
 Commit-meldinger begynner med liten forbokstav og et verb i imperativ.
 Domenebegrepene er norske og oversettes ikke.
 
+**Koden skal være klar av seg selv — skriv få kommentarer.** Er noe uklart eller
+komplisert, hører forklaringen hjemme i `docs/`, ikke i en kommentarblokk over
+koden. En kommentar er berettiget når den sier noe leseren ikke kan lese ut av
+koden i det hele tatt: en ekstern beskrankning, en bevisst utelatelse, en
+audit-ID å slå opp. Aldri historikk («her sto tidligere …») — den står i
+dokumentkjeden — og aldri en omskrivning av linja under.
+
 ## Domenet
 
 | Begrep | Betydning |

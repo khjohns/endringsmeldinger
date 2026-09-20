@@ -715,14 +715,7 @@ def test_godkjent_grunnlag_rapporteres_som_utkast():
 
 
 def test_sak_oppgjort_ved_godtatt_avslag_rapporteres_ikke_som_ukjent():
-    """overordnet_status må kjenne AVSLATT_AKSEPTERT.
-
-    Funnet 2026-09-20 i gjennomgangen av TFR-01-runden: statusen ble lagt inn
-    hos de to nedstrøms konsumentene (kan_utstede_eo og tilbaketrekkingsreglene),
-    men ikke i rollupen som utleder sakstatus. En sak der alt var oppgjort ved
-    godtatt avslag falt derfor gjennom hver gren til «UKJENT» — og «UKJENT» er
-    ikke en tilstand en kontraktsjournal skal kunne havne i.
-    """
+    """overordnet_status må kjenne AVSLATT_AKSEPTERT (TFR-01)."""
     timeline = TimelineService()
     events = _sak_med_godkjent_grunnlag()
 
@@ -752,13 +745,8 @@ def test_sak_oppgjort_ved_godtatt_avslag_rapporteres_ikke_som_ukjent():
 
     assert etter.frist.status == SporStatus.AVSLATT_AKSEPTERT
 
-    # Kjernen: statusen skal ikke falle gjennom til «UKJENT». Før rettingen
-    # gjorde den nettopp det, fordi AVSLATT_AKSEPTERT ikke var med i noe sett
-    # i rollupen — heller ikke i `ferdig_eller_utkast`.
     assert etter.overordnet_status != "UKJENT"
 
-    # Her blir den «UTKAST», fordi vederlagssporet aldri ble opprettet. Det er
-    # TFR-06, en egen og fortsatt åpen svakhet i rollupen (se xfail-testen
-    # test_godkjent_grunnlag_rapporteres_som_utkast), ikke en følge av denne
-    # rettingen.
+    # «UTKAST» fordi vederlagssporet aldri ble opprettet — det er TFR-06,
+    # se test_godkjent_grunnlag_rapporteres_som_utkast.
     assert etter.overordnet_status == "UTKAST"

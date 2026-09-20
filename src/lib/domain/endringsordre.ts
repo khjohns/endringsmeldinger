@@ -158,10 +158,7 @@ export function requestToDocument(payload: CreateEORequest): EndringsordreData {
  * The part of the exposure that is already agreed, whatever else is unresolved.
  * Mirrors `order_exposure_floor` in the backend: the chain must cover it even when
  * `eoExposure` returns null, or an unvalued consequence would weaken the route.
- *
- * Extension days are valued at the daily rate and included once the rate is known.
- * Without that the floor was 0 for an order carrying only a time consequence, and
- * `resolveRoute` skipped the authority check entirely (audit FE-04, mirrors GFK-01).
+ * Extension days count once the daily rate is known.
  */
 export function eoExposureFloor(payload: CreateEORequest, dailyRate: number | null = null): number {
   const money = Math.max(payload.kompensasjon_belop ?? 0, payload.fradrag_belop ?? 0);
