@@ -26,20 +26,28 @@ Opphever du et utsagn, skriv en datert merknad, også inn i det gamle dokumentet
 
 ## Siste runde — 20. september
 
-Ingen nytt dokument: runden leverte rettinger i produksjonskode, ikke en audit.
-Den er dokumentert som daterte merknader i kjeden — [masterplanen](plans/2026-09-16-godkjenning-og-varig-levering.md)
-er stedet å lese dem samlet.
+| Dokument | Hva det gir |
+| --- | --- |
+| [audit: databasearkitektur](audit-databasearkitektur-2026-09-20.md) | **Trenger vi alle tabellene?** Alle tjue tabellene i `public` navngitt, med radtall, opprettende migrasjon og lesere. DA-01 til DA-15. Skiller «ubrukt» fra «i bruk, men overflødig» |
+
+Samme dag, men før den gjennomgangen, leverte en egen runde rettinger i
+produksjonskode uten eget dokument. Den står som daterte merknader i kjeden —
+[masterplanen](plans/2026-09-16-godkjenning-og-varig-levering.md) er stedet å
+lese dem samlet.
 
 | Hva | Hvor det står |
 | --- | --- |
 | TFR-01, GFK-01/FE-04, AUT-01/AUT-02 og INT-04 lukket | Masterplanen, «status for de tre» |
 | Tenant-attribusjonen (handoffens 5a): `prosjekt_id NOT NULL` på hendelsestabellene, alle fjorten oslobygg-fallbacks fjernet | Masterplanen · [audit-rls-database](audit-rls-database-2026-09-18.md) (DB-06, DB-03) · [arkitekturvurderingen](arkitekturvurdering-2026-09-19.md) (AR-01) |
 | CI: `.github/workflows/ci.yml`, tre gatende jobber. `ruff` ryddet og pinnet | Masterplanen, «verifiserbar leveranseprosess» |
+| `actorteam`-migrasjonen anvendt; sju tabeller som bare fantes i basen, skrevet som migrasjonsfiler. DB-01 og DB-02 lukket | [audit: databasearkitektur](audit-databasearkitektur-2026-09-20.md) (DA-01, DA-02, DA-05) |
 
 **Fortsatt åpent etter runden:** RLS-policyene er uendret
 `service_role / ALL / USING (true)` — kolonnen gjør at en prosjektpolicy *lar seg*
-skrive, men ingen er skrevet. Migrasjonen som legger til `actorteam` er aldri
-anvendt. Begge hører til databasearbeidspakken.
+skrive, men ingen er skrevet. Det hører til databasearbeidspakken og til pakke 1.
+**Migrasjonen som manglet `actorteam` er derimot anvendt 20.09** — står det noe
+annet i et eldre dokument, er det foreldet. Det som gjenstår i databasepakken, er
+mekanismen fra fil til base: det finnes fortsatt ingen `supabase/config.toml`.
 
 ## Runden før — 19. september
 
