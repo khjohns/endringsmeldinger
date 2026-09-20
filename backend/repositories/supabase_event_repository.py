@@ -1,182 +1,15 @@
-"""
-Supabase event store implementation med CloudEvents-støtte.
+"""Supabase-lager for hendelsesloggen, i CloudEvents v1.0-format.
 
-Støtter tre tabeller for ulike sakstyper:
-- koe_events: Standard/KOE-saker (endringsmeldinger)
-- forsering_events: Forseringssaker (§33.8)
-- endringsordre_events: Endringsordresaker (§31.3)
+Alle saker ligger i tabellen `hendelse` (MS-01). Sakstypen bestemmer ikke
+lenger hvilken tabell raden havner i — den ligger på `sak_metadata.sakstype`,
+og ruting er et filter der det trengs.
 
-Bruker CloudEvents v1.0 format for event serialisering.
-
-Setup required:
-1. Create Supabase project at supabase.com
-2. Run the SQL migration below
-3. Set environment variables
-
-SQL Migration:
-```sql
--- ============================================================
--- Unified Timeline Event Tables
--- Supports: Standard/KOE, Forsering, Endringsordre
--- Format: CloudEvents v1.0
--- ============================================================
-
--- Standard/KOE Events Table
-CREATE TABLE IF NOT EXISTS koe_events (
-    id SERIAL PRIMARY KEY,
-
-    -- CloudEvents Required Attributes (v1.0)
-    specversion TEXT NOT NULL DEFAULT '1.0',
-    event_id UUID NOT NULL UNIQUE,  -- 'id' in CloudEvents
-    source TEXT NOT NULL,           -- /projects/{prosjekt_id}/cases/{sak_id}
-    type TEXT NOT NULL,             -- no.oslo.koe.{event_type}
-
-    -- CloudEvents Optional Attributes
-    time TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    subject TEXT NOT NULL,          -- sak_id
-    datacontenttype TEXT DEFAULT 'application/json',
-
-    -- CloudEvents Extension Attributes
-    actor TEXT NOT NULL,            -- aktor
-    actorrole TEXT NOT NULL CHECK (actorrole IN ('TE', 'BH')),
-    actorteam TEXT,                 -- aktor_team_id (Catenda-team, serverstemplet)
-    comment TEXT,                   -- kommentar
-    referstoid UUID,                -- refererer_til_event_id
-
-    -- CloudEvents Data Payload
-    data JSONB NOT NULL,
-
-    -- Internal: For optimistic locking and queries
-    -- Tenant: settes av serveren fra autorisert kontekst, aldri av klienten
-    -- og aldri av et fallback. NOT NULL uten default med vilje — en default
-    -- ville gjort attribusjonen uetterprøvbar (se migrasjon 20260920060000).
-    prosjekt_id TEXT NOT NULL,
-
-    sak_id TEXT NOT NULL,           -- Denormalized for efficient queries
-    event_type TEXT NOT NULL,       -- Denormalized for filtering
-    versjon INTEGER NOT NULL,
-    created_at TIMESTAMPTZ DEFAULT NOW(),
-
-    CONSTRAINT unique_koe_sak_version UNIQUE (sak_id, versjon)
-);
-
--- Indexes for koe_events
-CREATE INDEX IF NOT EXISTS idx_koe_events_sak_id ON koe_events(sak_id);
-CREATE INDEX IF NOT EXISTS idx_koe_events_time ON koe_events(time);
-CREATE INDEX IF NOT EXISTS idx_koe_events_type ON koe_events(type);
-CREATE INDEX IF NOT EXISTS idx_koe_events_subject ON koe_events(subject);
-
--- Forsering Events Table (same structure)
-CREATE TABLE IF NOT EXISTS forsering_events (
-    id SERIAL PRIMARY KEY,
-
-    -- CloudEvents Required Attributes (v1.0)
-    specversion TEXT NOT NULL DEFAULT '1.0',
-    event_id UUID NOT NULL UNIQUE,
-    source TEXT NOT NULL,
-    type TEXT NOT NULL,
-
-    -- CloudEvents Optional Attributes
-    time TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    subject TEXT NOT NULL,
-    datacontenttype TEXT DEFAULT 'application/json',
-
-    -- CloudEvents Extension Attributes
-    actor TEXT NOT NULL,
-    actorrole TEXT NOT NULL CHECK (actorrole IN ('TE', 'BH')),
-    actorteam TEXT,
-    comment TEXT,
-    referstoid UUID,
-
-    -- CloudEvents Data Payload
-    data JSONB NOT NULL,
-
-    -- Internal
-    -- Tenant: settes av serveren fra autorisert kontekst, aldri av klienten
-    -- og aldri av et fallback. NOT NULL uten default med vilje — en default
-    -- ville gjort attribusjonen uetterprøvbar (se migrasjon 20260920060000).
-    prosjekt_id TEXT NOT NULL,
-
-    sak_id TEXT NOT NULL,
-    event_type TEXT NOT NULL,
-    versjon INTEGER NOT NULL,
-    created_at TIMESTAMPTZ DEFAULT NOW(),
-
-    CONSTRAINT unique_forsering_sak_version UNIQUE (sak_id, versjon)
-);
-
--- Indexes for forsering_events
-CREATE INDEX IF NOT EXISTS idx_forsering_events_sak_id ON forsering_events(sak_id);
-CREATE INDEX IF NOT EXISTS idx_forsering_events_time ON forsering_events(time);
-CREATE INDEX IF NOT EXISTS idx_forsering_events_type ON forsering_events(type);
-
--- Endringsordre Events Table (same structure)
-CREATE TABLE IF NOT EXISTS endringsordre_events (
-    id SERIAL PRIMARY KEY,
-
-    -- CloudEvents Required Attributes (v1.0)
-    specversion TEXT NOT NULL DEFAULT '1.0',
-    event_id UUID NOT NULL UNIQUE,
-    source TEXT NOT NULL,
-    type TEXT NOT NULL,
-
-    -- CloudEvents Optional Attributes
-    time TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    subject TEXT NOT NULL,
-    datacontenttype TEXT DEFAULT 'application/json',
-
-    -- CloudEvents Extension Attributes
-    actor TEXT NOT NULL,
-    actorrole TEXT NOT NULL CHECK (actorrole IN ('TE', 'BH')),
-    actorteam TEXT,
-    comment TEXT,
-    referstoid UUID,
-
-    -- CloudEvents Data Payload
-    data JSONB NOT NULL,
-
-    -- Internal
-    -- Tenant: settes av serveren fra autorisert kontekst, aldri av klienten
-    -- og aldri av et fallback. NOT NULL uten default med vilje — en default
-    -- ville gjort attribusjonen uetterprøvbar (se migrasjon 20260920060000).
-    prosjekt_id TEXT NOT NULL,
-
-    sak_id TEXT NOT NULL,
-    event_type TEXT NOT NULL,
-    versjon INTEGER NOT NULL,
-    created_at TIMESTAMPTZ DEFAULT NOW(),
-
-    CONSTRAINT unique_eo_sak_version UNIQUE (sak_id, versjon)
-);
-
--- Indexes for endringsordre_events
-CREATE INDEX IF NOT EXISTS idx_eo_events_sak_id ON endringsordre_events(sak_id);
-CREATE INDEX IF NOT EXISTS idx_eo_events_time ON endringsordre_events(time);
-CREATE INDEX IF NOT EXISTS idx_eo_events_type ON endringsordre_events(type);
-
--- Row Level Security (optional - for direct client access)
-ALTER TABLE koe_events ENABLE ROW LEVEL SECURITY;
-ALTER TABLE forsering_events ENABLE ROW LEVEL SECURITY;
-ALTER TABLE endringsordre_events ENABLE ROW LEVEL SECURITY;
-
--- Views for current version per case
-CREATE OR REPLACE VIEW koe_sak_versions AS
-SELECT sak_id, MAX(versjon) as current_version
-FROM koe_events
-GROUP BY sak_id;
-
-CREATE OR REPLACE VIEW forsering_sak_versions AS
-SELECT sak_id, MAX(versjon) as current_version
-FROM forsering_events
-GROUP BY sak_id;
-
-CREATE OR REPLACE VIEW endringsordre_sak_versions AS
-SELECT sak_id, MAX(versjon) as current_version
-FROM endringsordre_events
-GROUP BY sak_id;
-```
+Skjemaet står i `supabase/migrations/20260920193558_hendelse_tabell.sql` og
+ingen andre steder. Denne docstringen gjenga det tidligere selv, og var feil
+på tre punkter (DA-06); en kopi av et skjema er en kilde som kan ta feil.
 """
 
+import json
 import os
 from typing import Literal
 
@@ -195,44 +28,25 @@ from models.cloudevents import CLOUDEVENTS_NAMESPACE, CLOUDEVENTS_SPECVERSION
 
 from .event_repository import ConcurrencyError, EventRepository
 
-# Type for table selection
 SaksType = Literal["standard", "forsering", "endringsordre"]
 
-# Mapping from sakstype to table name
-SAKSTYPE_TO_TABLE = {
-    "standard": "koe_events",
-    "forsering": "forsering_events",
-    "endringsordre": "endringsordre_events",
-}
+# Én tabell for alle sakstyper (MS-01). Sakstypen tas fortsatt imot av
+# metodene under, fordi kallerne oppgir den, men den velger ikke lenger noe.
+HENDELSE_TABELL = "hendelse"
 
 
 class SupabaseEventRepository(EventRepository):
-    """
-    Supabase/PostgreSQL event store med CloudEvents-format.
+    """Hendelseslager på Supabase/PostgreSQL, i CloudEvents-format.
 
-    Støtter tre tabeller basert på sakstype:
-    - koe_events: Standard/KOE-saker
-    - forsering_events: Forseringssaker
-    - endringsordre_events: Endringsordresaker
+    Alle sakstyper ligger i `hendelse` (MS-01), så en lesing treffer én tabell
+    og en feil derfra skal nå kalleren framfor å se ut som en tom sak.
 
-    Advantages over JSON files:
-    - Native JSONB (no serialization overhead)
-    - ACID transactions
-    - Row Level Security
-    - Indexes for fast queries
-    - CloudEvents v1.0 compliant storage
-
-    Environment variables:
-    - SUPABASE_URL: Project URL (e.g., https://xxx.supabase.co)
-    - SUPABASE_SECRET_KEY: Secret key (for backend)
+    Miljøvariabler:
+    - SUPABASE_URL: prosjektets URL
+    - SUPABASE_SECRET_KEY: tjenestenøkkel (backend)
     """
 
-    def __init__(
-        self,
-        url: str | None = None,
-        key: str | None = None,
-        default_table: str = "koe_events",
-    ):
+    def __init__(self, url: str | None = None, key: str | None = None):
         if not SUPABASE_AVAILABLE:
             raise ImportError(
                 "Supabase client not installed. Run: pip install supabase"
@@ -240,7 +54,6 @@ class SupabaseEventRepository(EventRepository):
 
         self.url = url or os.environ.get("SUPABASE_URL")
         self.key = key or os.environ.get("SUPABASE_SECRET_KEY")
-        self.default_table = default_table
 
         if not self.url or not self.key:
             raise ValueError(
@@ -250,55 +63,17 @@ class SupabaseEventRepository(EventRepository):
 
         self.client: Client = create_client(self.url, self.key)
 
-    def _get_table_name(self, sakstype: SaksType | None = None) -> str:
-        """Get table name based on sakstype."""
-        if sakstype is None:
-            return self.default_table
-        return SAKSTYPE_TO_TABLE.get(sakstype, self.default_table)
-
-    def _detect_sakstype_from_event(self, event) -> SaksType:
-        """
-        Detect sakstype from event.
-
-        Checks event_type or sakstype attribute to determine correct table.
-        """
-        event_type = getattr(event, "event_type", None)
-        if event_type:
-            event_type_value = (
-                event_type.value if hasattr(event_type, "value") else str(event_type)
-            )
-
-            # Forsering events
-            if event_type_value.startswith("forsering_"):
-                return "forsering"
-
-            # Endringsordre events
-            if event_type_value.startswith("eo_"):
-                return "endringsordre"
-
-        # Check for sakstype attribute (on SakOpprettetEvent)
-        sakstype = getattr(event, "sakstype", None)
-        if sakstype:
-            if sakstype in SAKSTYPE_TO_TABLE:
-                return sakstype
-
-        # Default to standard
-        return "standard"
+    def _tabell(self):
+        return self.client.table(HENDELSE_TABELL)
 
     def _event_to_cloudevent_row(self, event, version: int) -> dict:
-        """
-        Convert event to CloudEvents-format row for database.
-
-        Uses the event's to_cloudevent() method if available,
-        otherwise constructs CloudEvents attributes manually.
-        """
+        """Gjør en hendelse om til en rad i CloudEvents-form."""
         sak_id = event.sak_id
 
-        # Try to use to_cloudevent() if available (from CloudEventMixin)
         if hasattr(event, "to_cloudevent"):
             ce = event.to_cloudevent()
         else:
-            # Manual construction for events without mixin
+            # Hendelser uten mixin: bygg attributtene for hånd.
             event_dict = event.model_dump(mode="json")
             event_type = event_dict.get("event_type")
             if hasattr(event_type, "value"):
@@ -312,59 +87,45 @@ class SupabaseEventRepository(EventRepository):
                 "time": event_dict.get("tidsstempel"),
                 "subject": sak_id,
                 "datacontenttype": "application/json",
-                "actor": event_dict.get("aktor"),
+                "actorid": event_dict.get("aktor_id"),
                 "actorrole": event_dict.get("aktor_rolle"),
                 "actorteam": event_dict.get("aktor_team_id"),
                 "comment": event_dict.get("kommentar"),
-                "referstoid": event_dict.get("referrer_til_event_id"),
+                "referstoid": event_dict.get("refererer_til_event_id"),
                 "data": event_dict.get("data"),
             }
 
-        # Build database row from CloudEvent
-        row = {
-            # CloudEvents Required
+        return {
             "specversion": ce.get("specversion", CLOUDEVENTS_SPECVERSION),
             "event_id": str(ce.get("id")),
             "source": ce.get("source"),
             "type": ce.get("type"),
-            # CloudEvents Optional
             "time": ce.get("time"),
             "subject": ce.get("subject", sak_id),
             "datacontenttype": ce.get("datacontenttype", "application/json"),
-            # CloudEvents Extension
-            "actor": ce.get("actor"),
+            # Identiteten til den som handlet, aldri navnet (MS-04).
+            "actorid": ce.get("actorid"),
             "actorrole": ce.get("actorrole"),
             # Server-stamped: the reader's team is compared against this when
             # deciding who may see an internt_notat (lib/auth/event_visibility).
             "actorteam": ce.get("actorteam"),
             "comment": ce.get("comment"),
             "referstoid": str(ce.get("referstoid")) if ce.get("referstoid") else None,
-            # Data payload
             "data": ce.get("data", {}),
             # Stemples av serveren fra autorisert kontekst, aldri av klienten.
             "prosjekt_id": krev_autorisert_prosjekt("hendelse"),
-            # Internal fields
             "sak_id": sak_id,
             "event_type": ce.get("type", "").replace(f"{CLOUDEVENTS_NAMESPACE}.", ""),
             "versjon": version,
         }
 
-        return row
-
     def _row_to_event_dict(self, row: dict) -> dict:
-        """
-        Convert database row (CloudEvents format) to internal event dict.
-
-        Transforms CloudEvents attributes back to internal model structure.
-        """
-        # Convert Supabase timestamp format to ISO 8601
-        # Supabase returns: "2025-12-22 11:33:01.352433+00"
-        # Pydantic expects: "2025-12-22T11:33:01.352433+00:00"
+        """Gjør en rad om til den interne hendelsesstrukturen."""
+        # Supabase gir "2025-12-22 11:33:01.352433+00"; Pydantic vil ha
+        # "2025-12-22T11:33:01.352433+00:00".
         time_value = row.get("time")
         if time_value and isinstance(time_value, str):
-            # Replace space with T for ISO 8601 compliance
             time_value = time_value.replace(" ", "T")
-            # Fix timezone format: +00 -> +00:00
             if time_value.endswith("+00"):
                 time_value = time_value + ":00"
             elif time_value.endswith("-00"):
@@ -376,17 +137,14 @@ class SupabaseEventRepository(EventRepository):
             "event_type": row.get("event_type")
             or row.get("type", "").replace(f"{CLOUDEVENTS_NAMESPACE}.", ""),
             "tidsstempel": time_value,
-            "aktor": row.get("actor"),
+            "aktor_id": row.get("actorid"),
             "aktor_rolle": row.get("actorrole"),
             # Rows written before the actorteam column existed have no team.
             # They stay None: event_visibility hides such notes from everyone.
             "aktor_team_id": row.get("actorteam"),
             "data": row.get("data"),
             "kommentar": row.get("comment"),
-            "refererer_til_event_id": row.get(
-                "referstoid"
-            ),  # Fixed: was "referrer_til_event_id"
-            # Include CloudEvents attributes for clients that want them
+            "refererer_til_event_id": row.get("referstoid"),
             "_cloudevents": {
                 "specversion": row.get("specversion"),
                 "source": row.get("source"),
@@ -396,33 +154,21 @@ class SupabaseEventRepository(EventRepository):
             },
         }
 
-    def append(
-        self, event, expected_version: int, sakstype: SaksType | None = None
-    ) -> int:
-        """Append single event with optimistic locking."""
-        return self.append_batch([event], expected_version, sakstype)
+    def append(self, event, expected_version: int) -> int:
+        """Legg til én hendelse med optimistisk låsing."""
+        return self.append_batch([event], expected_version)
 
     @with_retry()
-    def append_batch(
-        self, events: list, expected_version: int, sakstype: SaksType | None = None
-    ) -> int:
-        """
-        Atomically append multiple events.
+    def append_batch(self, events: list, expected_version: int) -> int:
+        """Legg til flere hendelser atomisk.
 
-        Uses PostgreSQL's unique constraint for optimistic locking:
-        - If version already exists, insert fails
-        - Transaction ensures all-or-nothing
-
-        Args:
-            events: List of events to append
-            expected_version: Expected current version (0 for new case)
-            sakstype: Optional sakstype to determine table.
-                      If None, auto-detects from first event.
+        Unik-skranken (sak_id, versjon) er den optimistiske låsen: finnes
+        versjonen, feiler innsettingen.
 
         Raises:
-            ConcurrencyError: Version conflict (optimistic locking)
-            TransientError: Network/timeout errors (after retries exhausted)
-            PermanentError: Auth/validation errors
+            ConcurrencyError: versjonskonflikt
+            TransientError: nettverk/timeout etter oppbrukte forsøk
+            PermanentError: auth- eller valideringsfeil
         """
         if not events:
             raise ValueError("Kan ikke legge til tom event-liste")
@@ -431,289 +177,158 @@ class SupabaseEventRepository(EventRepository):
         if not all(e.sak_id == sak_id for e in events):
             raise ValueError("Alle events må tilhøre samme sak_id")
 
-        # Determine table
-        if sakstype is None:
-            sakstype = self._detect_sakstype_from_event(events[0])
-        table_name = self._get_table_name(sakstype)
-
-        # Check current version first
-        current_version = self._get_current_version(sak_id, table_name)
-
+        current_version = self._get_current_version(sak_id)
         if current_version != expected_version:
             raise ConcurrencyError(expected_version, current_version)
 
-        # Prepare rows for insert
-        rows = []
-        for i, event in enumerate(events):
-            version = expected_version + i + 1
-            row = self._event_to_cloudevent_row(event, version)
-            rows.append(row)
+        rows = [
+            self._event_to_cloudevent_row(event, expected_version + i + 1)
+            for i, event in enumerate(events)
+        ]
 
         try:
-            # Insert all rows - unique constraint handles race conditions
-            self.client.table(table_name).insert(rows).execute()
+            self._tabell().insert(rows).execute()
             return expected_version + len(events)
-
         except Exception as e:
-            # Classify the error
             classified = classify_error(e)
-
-            # Check if it's a unique constraint violation (version conflict)
             if isinstance(classified, ConflictError):
-                # Re-fetch actual version
-                actual_version = self._get_current_version(sak_id, table_name)
-                raise ConcurrencyError(expected_version, actual_version)
-
-            # Re-raise classified error (TransientError will be retried by caller if decorated)
+                raise ConcurrencyError(
+                    expected_version, self._get_current_version(sak_id)
+                )
             raise classified from e
 
-    def get_events(
-        self, sak_id: str, sakstype: SaksType | None = None
-    ) -> tuple[list[dict], int]:
-        """
-        Get all events and current version for a case.
-
-        Returns events ordered by version (chronologically).
-
-        Args:
-            sak_id: Case ID to fetch events for
-            sakstype: Optional sakstype to determine table.
-                      If None, searches all tables.
-
-        Returns:
-            Tuple of (events_list, current_version)
-        """
-        if sakstype is not None:
-            # Single table lookup
-            table_name = self._get_table_name(sakstype)
-            return self._get_events_from_table(sak_id, table_name)
-
-        # Try all tables (for backwards compatibility)
-        for table in [
-            "koe_events",
-            "forsering_events",
-            "endringsordre_events",
-        ]:
-            try:
-                events, version = self._get_events_from_table(sak_id, table)
-                if events:
-                    return events, version
-            except Exception:
-                continue
-
-        return [], 0
-
     @with_retry()
-    def _get_events_from_table(
-        self, sak_id: str, table_name: str
-    ) -> tuple[list[dict], int]:
-        """Get events from a specific table."""
+    def get_events(self, sak_id: str) -> tuple[list[dict], int]:
+        """Alle hendelser på saken, sortert på versjon, og gjeldende versjon."""
         result = (
-            self.client.table(table_name)
+            self._tabell()
             .select("*")
             .eq("sak_id", sak_id)
             .order("versjon", desc=False)
             .execute()
         )
 
-        events = result.data if result.data else []
-
-        if not events:
+        rows = result.data if result.data else []
+        if not rows:
             return [], 0
 
-        # Convert to internal format
-        formatted_events = [self._row_to_event_dict(row) for row in events]
-        current_version = events[-1]["versjon"] if events else 0
-
-        return formatted_events, current_version
+        return [self._row_to_event_dict(row) for row in rows], rows[-1]["versjon"]
 
     @with_retry()
-    def _get_current_version(self, sak_id: str, table_name: str | None = None) -> int:
-        """Get current version for a case (0 if not exists)."""
-        if table_name is None:
-            table_name = self.default_table
-
+    def _get_current_version(self, sak_id: str) -> int:
+        """Gjeldende versjon, eller 0 når saken ikke finnes."""
         result = (
-            self.client.table(table_name)
+            self._tabell()
             .select("versjon")
             .eq("sak_id", sak_id)
             .order("versjon", desc=True)
             .limit(1)
             .execute()
         )
-
         if result.data:
             return result.data[0]["versjon"]
         return 0
 
+    @with_retry()
     def get_all_sak_ids(self, sakstype: SaksType | None = None) -> list[str]:
+        """Alle saks-IDer, eventuelt bare de av én sakstype.
+
+        Sakstypen lå tidligere i tabellvalget. Den utledes nå av
+        hendelsestypene på saken, slik `_detect_sakstype_from_event_type`
+        alltid har gjort for enkeltkall.
         """
-        Get all unique sak_ids.
+        result = self._tabell().select("sak_id, event_type").execute()
+        rows = result.data or []
 
-        Args:
-            sakstype: Optional filter by sakstype.
-                      If None, returns IDs from all tables.
-        """
-        if sakstype is not None:
-            table_name = self._get_table_name(sakstype)
-            return self._get_sak_ids_from_table(table_name)
-
-        # Get from all tables
-        all_ids = set()
-        for table in [
-            "koe_events",
-            "forsering_events",
-            "endringsordre_events",
-        ]:
-            try:
-                ids = self._get_sak_ids_from_table(table)
-                all_ids.update(ids)
-            except Exception:
-                continue
-
-        return list(all_ids)
-
-    @with_retry()
-    def _get_sak_ids_from_table(self, table_name: str) -> list[str]:
-        """Get unique sak_ids from a specific table."""
-        result = self.client.table(table_name).select("sak_id").execute()
-
-        return list(set(row["sak_id"] for row in result.data))
-
-    @with_retry()
-    def get_events_by_type(
-        self, sak_id: str, event_type: str, sakstype: SaksType | None = None
-    ) -> list[dict]:
-        """
-        Get events of specific type (useful for debugging).
-
-        Args:
-            sak_id: Case ID
-            event_type: Event type to filter (e.g., 'grunnlag_opprettet')
-            sakstype: Optional sakstype to determine table
-        """
         if sakstype is None:
-            sakstype = self._detect_sakstype_from_event_type(event_type)
+            return list({row["sak_id"] for row in rows})
 
-        table_name = self._get_table_name(sakstype)
+        return list(
+            {
+                row["sak_id"]
+                for row in rows
+                if self._detect_sakstype_from_event_type(row["event_type"] or "")
+                == sakstype
+            }
+        )
 
+    @with_retry()
+    def get_events_by_type(self, sak_id: str, event_type: str) -> list[dict]:
+        """Hendelser av én type på saken (nyttig ved feilsøking)."""
         result = (
-            self.client.table(table_name)
+            self._tabell()
             .select("*")
             .eq("sak_id", sak_id)
             .eq("event_type", event_type)
             .order("versjon", desc=False)
             .execute()
         )
-
-        if not result.data:
-            return []
-
-        return [self._row_to_event_dict(row) for row in result.data]
+        return [self._row_to_event_dict(row) for row in result.data or []]
 
     def _detect_sakstype_from_event_type(self, event_type: str) -> SaksType:
-        """Detect sakstype from event type string."""
+        """Sakstypen en hendelsestype hører til."""
         if event_type.startswith("forsering_"):
             return "forsering"
         if event_type.startswith("eo_"):
             return "endringsordre"
         return "standard"
 
-    def get_events_as_cloudevents(
-        self, sak_id: str, sakstype: SaksType | None = None
-    ) -> list[dict]:
-        """
-        Get events in CloudEvents format (for external integrations).
+    @with_retry()
+    def get_events_as_cloudevents(self, sak_id: str) -> list[dict]:
+        """Hendelsene i CloudEvents-format, for eksterne integrasjoner."""
+        result = (
+            self._tabell()
+            .select(
+                "specversion, event_id, source, type, time, subject, "
+                "datacontenttype, actorid, actorrole, actorteam, comment, "
+                "referstoid, data"
+            )
+            .eq("sak_id", sak_id)
+            .order("versjon", desc=False)
+            .execute()
+        )
 
-        Returns the raw CloudEvents-format data from the database.
-        """
-        if sakstype is not None:
-            table_name = self._get_table_name(sakstype)
-            tables = [table_name]
-        else:
-            tables = ["koe_events", "forsering_events", "endringsordre_events"]
+        return [
+            {
+                "specversion": row["specversion"],
+                "id": row["event_id"],
+                "source": row["source"],
+                "type": row["type"],
+                "time": row["time"],
+                "subject": row["subject"],
+                "datacontenttype": row["datacontenttype"],
+                "actorid": row["actorid"],
+                "actorrole": row["actorrole"],
+                "actorteam": row["actorteam"],
+                "comment": row["comment"],
+                "referstoid": row["referstoid"],
+                "data": row["data"],
+            }
+            for row in result.data or []
+        ]
 
-        for table in tables:
-            try:
-                result = (
-                    self.client.table(table)
-                    .select(
-                        "specversion, event_id, source, type, time, subject, "
-                        "datacontenttype, actor, actorrole, actorteam, comment, "
-                        "referstoid, data"
-                    )
-                    .eq("sak_id", sak_id)
-                    .order("versjon", desc=False)
-                    .execute()
-                )
-
-                if result.data:
-                    # Rename fields to match CloudEvents spec
-                    return [
-                        {
-                            "specversion": row["specversion"],
-                            "id": row["event_id"],
-                            "source": row["source"],
-                            "type": row["type"],
-                            "time": row["time"],
-                            "subject": row["subject"],
-                            "datacontenttype": row["datacontenttype"],
-                            "actor": row["actor"],
-                            "actorrole": row["actorrole"],
-                            "actorteam": row["actorteam"],
-                            "comment": row["comment"],
-                            "referstoid": row["referstoid"],
-                            "data": row["data"],
-                        }
-                        for row in result.data
-                    ]
-            except Exception:
-                continue
-
-        return []
-
+    @with_retry()
     def find_sak_id_by_catenda_topic(self, catenda_topic_id: str) -> str | None:
-        """
-        Find local sak_id given a Catenda topic GUID.
-
-        Searches all event tables for SAK_OPPRETTET events with matching
-        catenda_topic_id in their data field.
-
-        Args:
-            catenda_topic_id: Catenda topic GUID to look up
-
-        Returns:
-            Local sak_id if found, None otherwise
-        """
+        """Lokal sak_id for en Catenda-topic-GUID, eller None."""
         if not catenda_topic_id:
             return None
 
-        # Search all event tables
-        for table in ["koe_events", "forsering_events", "endringsordre_events"]:
-            try:
-                # Look for SAK_OPPRETTET events where data contains the topic_id
-                result = (
-                    self.client.table(table)
-                    .select("sak_id, data")
-                    .eq("event_type", "sak_opprettet")
-                    .execute()
-                )
+        result = (
+            self._tabell()
+            .select("sak_id, data")
+            .eq("event_type", "sak_opprettet")
+            .execute()
+        )
 
-                for row in result.data:
-                    data = row.get("data", {})
-                    if isinstance(data, str):
-                        import json
-
-                        try:
-                            data = json.loads(data)
-                        except json.JSONDecodeError:
-                            continue
-
-                    if data.get("catenda_topic_id") == catenda_topic_id:
-                        return row.get("sak_id")
-
-            except Exception:
-                continue
+        for row in result.data or []:
+            data = row.get("data", {})
+            if isinstance(data, str):
+                try:
+                    data = json.loads(data)
+                except json.JSONDecodeError:
+                    continue
+            if data.get("catenda_topic_id") == catenda_topic_id:
+                return row.get("sak_id")
 
         return None
 

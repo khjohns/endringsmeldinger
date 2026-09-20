@@ -74,10 +74,11 @@ def post(api, **payload):
 
 
 def test_direct_order_uses_session_actor_and_allows_no_koe(api):
-    response = post(api, utstedt_av="Forfalsket navn")
+    response = post(api, utstedt_av_id="Forfalsket navn")
     assert response.status_code == 201
     args = api.service.opprett_endringsordresak.call_args.kwargs
-    assert args["utstedt_av"] == "Saksbehandler BH"
+    # Sesjonens bruker-ID, ikke det klienten sendte og ikke navnet (MS-04).
+    assert args["utstedt_av_id"] == "user"
     assert args["koe_sak_ids"] == []
     assert args["kompensasjon_belop"] is None
 

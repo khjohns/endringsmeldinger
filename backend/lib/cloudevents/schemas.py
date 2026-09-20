@@ -200,9 +200,13 @@ def get_cloudevent_envelope_schema() -> dict[str, Any]:
                 "description": "URI to JSON Schema for data payload",
             },
             # Extension attributes (project-specific)
-            "actor": {
+            "actorid": {
                 "type": "string",
-                "description": "Name of person who performed the action",
+                "description": (
+                    "Identity of whoever performed the action: app_users.id, or "
+                    "catenda:<subject> for an author known only to Catenda. "
+                    "Never a person's name; names are resolved for display."
+                ),
             },
             "actorrole": {
                 "type": "string",

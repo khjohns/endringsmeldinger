@@ -21,6 +21,7 @@ import tempfile
 from datetime import UTC, datetime
 from typing import Any
 
+from lib.aktor_navn import CATENDA_PREFIKS
 from models.events import SakOpprettetEvent
 from repositories import create_metadata_repository
 from repositories.event_repository import JsonFileEventRepository
@@ -117,6 +118,29 @@ class WebhookService:
         from services.auth_service import AuthService
 
         return AuthService()
+
+    def _aktor_id(self, catenda_subject: str | None) -> str:
+        """Identiteten topicens forfatter skal føres på i journalen.
+
+        Er forfatteren en bruker hos oss, brukes `app_users.id`. Ellers bæres
+        Catenda-identiteten som den er. Journalen skal ikke inneholde
+        personnavn (MS-04), og subject-en er den samme kilden kontraktssiden
+        utledes av — så rollen og identiteten hviler på samme grunnlag.
+
+        Subject-en er `bimsync_creation_author.user.ref` fra topic-oppslaget,
+        ikke fra webhookens nyttelast: `topic-event.author` er et brukernavn
+        («john@doe.com» i spekken), ikke en ID.
+        """
+        if not catenda_subject:
+            return ""
+        try:
+            bruker_id = self._auth_service().repo.user_id_for_subject(
+                "catenda", catenda_subject
+            )
+        except Exception as e:
+            logger.warning(f"Identitetsoppslag for {catenda_subject} feilet: {e}")
+            bruker_id = None
+        return bruker_id or f"{CATENDA_PREFIKS}{catenda_subject}"
 
     def _contract_side(self, project_id: str, catenda_subject: str | None) -> str | None:
         """Kontraktssiden topicens forfatter tilhører, eller None.
@@ -304,11 +328,13 @@ class WebhookService:
                     ),
                 }
 
+            aktor_id = self._aktor_id(author_subject)
+
             # Create SakOpprettetEvent (Event Sourcing)
             event = SakOpprettetEvent(
                 sak_id=sak_id,
                 sakstittel=title,
-                aktor=author_name,
+                aktor_id=aktor_id,
                 aktor_rolle=aktor_rolle,
                 prosjekt_id=app_project_id,
                 catenda_topic_id=topic_id,

@@ -29,19 +29,14 @@ TE_TEAM = "22222222222222222222222222222222"
 SAK_ID = "KOE-ROUNDTRIP-001"
 NOTAT_TEKST = "Internt: vi bør ikke spille ut fristkravet ennå."
 
-# Kolonnene event-tabellene faktisk har. Speiler SQL-en i docstringen øverst i
-# repositories/supabase_event_repository.py og migrasjonene under
-# supabase/migrations/. Holdes i synk manuelt — det er poenget: skriver koden
-# en kolonne som ikke står her, mangler den også i databasen.
+# Kolonnene `hendelse` faktisk har. Speiler
+# supabase/migrations/20260920193558_hendelse_tabell.sql, og holdes i synk
+# manuelt — det er poenget: skriver koden en kolonne som ikke står her, mangler
+# den også i databasen.
 #
-# MERK (2026-09-20): lista speiler repoet, ikke den levende basen, og de to har
-# drevet fra hverandre. `actorteam` står her og i migrasjonen
-# 20260918090000_event_tables_actorteam.sql, men migrasjonen er aldri anvendt:
-# kolonnen finnes IKKE i prosjekt gwdxadexwktegkklyobv, og den eksakte
-# select-en repoet sender feiler der med «42703: column "actorteam" does not
-# exist». Denne dobbelen kan altså ikke fange den klassen avvik — den er tro
-# mot repoet, og repoet er ikke tro mot basen. Se masterplanens arbeidspakke om
-# databasearkitektur.
+# MERK: lista speiler repoet, ikke den levende basen. Den fanger at koden og
+# migrasjonsfila er uenige, aldri at fila og basen er det — det er
+# katalogspørringen som er beviset på at en skjemaendring har nådd fram.
 EVENT_TABLE_COLUMNS = {
     "id",
     "specversion",
@@ -51,7 +46,7 @@ EVENT_TABLE_COLUMNS = {
     "time",
     "subject",
     "datacontenttype",
-    "actor",
+    "actorid",
     "actorrole",
     "actorteam",
     "comment",
@@ -165,7 +160,7 @@ def json_repo():
 def _internt_notat() -> InterntNotatEvent:
     return InterntNotatEvent(
         sak_id=SAK_ID,
-        aktor="Kari Nordmann",
+        aktor_id="Kari Nordmann",
         aktor_rolle="TE",
         aktor_team_id=TE_TEAM,
         kommentar="Skrevet før byggemøtet",
@@ -183,7 +178,7 @@ def test_supabase_roundtrip_beholder_aktor_team_id(supabase_repo):
     assert versjon == 1
     parsed = parse_event(lagrede[0])
     assert parsed.aktor_team_id == TE_TEAM
-    assert parsed.aktor == "Kari Nordmann"
+    assert parsed.aktor_id == "Kari Nordmann"
     assert parsed.aktor_rolle == "TE"
     assert parsed.kommentar == "Skrevet før byggemøtet"
     assert parsed.data.tekst == NOTAT_TEKST
@@ -194,7 +189,7 @@ def test_supabase_cloudevents_eksport_tar_med_aktorteam(supabase_repo):
     repo, _client = supabase_repo
     repo.append(_internt_notat(), expected_version=0)
 
-    cloudevents = repo.get_events_as_cloudevents(SAK_ID, sakstype="standard")
+    cloudevents = repo.get_events_as_cloudevents(SAK_ID)
 
     assert cloudevents[0]["actorteam"] == TE_TEAM
 
@@ -208,7 +203,7 @@ def test_json_roundtrip_beholder_aktor_team_id(json_repo):
     assert versjon == 1
     parsed = parse_event(lagrede[0])
     assert parsed.aktor_team_id == TE_TEAM
-    assert parsed.aktor == "Kari Nordmann"
+    assert parsed.aktor_id == "Kari Nordmann"
     assert parsed.aktor_rolle == "TE"
     assert parsed.kommentar == "Skrevet før byggemøtet"
     assert parsed.data.tekst == NOTAT_TEKST

@@ -17,6 +17,7 @@ from decimal import Decimal
 from typing import Any
 from uuid import uuid4
 
+from lib.aktor_navn import navn as aktor_navn
 from lib.helpers import get_all_sak_ids
 from lib.project_context import get_project_id
 from models.events import (
@@ -248,6 +249,7 @@ class EndringsordreService(BaseSakService):
         eo_nummer: str,
         beskrivelse: str,
         koe_sak_ids: list[str],
+        utstedt_av_id: str,
         konsekvenser: dict[str, bool] | None = None,
         konsekvens_beskrivelse: str | None = None,
         oppgjorsform: str | None = None,
@@ -256,7 +258,6 @@ class EndringsordreService(BaseSakService):
         er_estimat: bool = False,
         frist_dager: int | None = None,
         ny_sluttdato: str | None = None,
-        utstedt_av: str | None = None,
         sak_id: str | None = None,
     ) -> dict[str, Any]:
         """
@@ -276,7 +277,8 @@ class EndringsordreService(BaseSakService):
             er_estimat: Om beløpet er et estimat
             frist_dager: Antall dager fristforlengelse
             ny_sluttdato: Ny sluttdato (YYYY-MM-DD)
-            utstedt_av: Navn på person som utsteder EO (BH-representant)
+            utstedt_av_id: app_users.id for BH-representanten som utsteder EO.
+                Journalen bærer identiteten; navnet slås opp ved visning (MS-04).
             sak_id: Reservert sak-ID. Intern godkjenning lagrer den før utstedelse, slik at
                 et nytt forsøk etter krasj gjenkjenner en allerede opprettet ordre.
 
@@ -428,7 +430,7 @@ class EndringsordreService(BaseSakService):
             sak_id=sak_id,
             prosjekt_id=get_project_id(),
             created_at=now,
-            created_by=utstedt_av or "BH",
+            created_by=utstedt_av_id,
             sakstype="endringsordre",
             cached_title=f"Endringsordre {eo_nummer}",
             cached_status="utstedt",
@@ -444,7 +446,7 @@ class EndringsordreService(BaseSakService):
             sak_id=sak_id,
             event_type=EventType.SAK_OPPRETTET,
             tidsstempel=now,
-            aktor=utstedt_av or "BH",
+            aktor_id=utstedt_av_id,
             aktor_rolle="BH",
             sakstittel=f"Endringsordre {eo_nummer}",
             sakstype="endringsordre",
@@ -457,7 +459,7 @@ class EndringsordreService(BaseSakService):
             sak_id=sak_id,
             event_type=EventType.EO_OPPRETTET,
             tidsstempel=now,
-            aktor=utstedt_av or "BH",
+            aktor_id=utstedt_av_id,
             aktor_rolle="BH",
             data=EOOpprettetData(
                 eo_nummer=eo_nummer,
@@ -468,7 +470,7 @@ class EndringsordreService(BaseSakService):
         )
         events.append(eo_opprettet)
 
-        # EO_UTSTEDT (hvis utstedt_av er satt, eller alltid for nå)
+        # EO_UTSTEDT
         vederlag = None
         if oppgjorsform:
             vederlag = VederlagKompensasjon(
@@ -488,7 +490,7 @@ class EndringsordreService(BaseSakService):
             sak_id=sak_id,
             event_type=EventType.EO_UTSTEDT,
             tidsstempel=now,
-            aktor=utstedt_av or "BH",
+            aktor_id=utstedt_av_id,
             aktor_rolle="BH",
             data=EOUtstedtData(
                 eo_nummer=eo_nummer,
@@ -554,7 +556,7 @@ class EndringsordreService(BaseSakService):
                 "ny_sluttdato": ny_sluttdato,
                 "status": EOStatus.UTSTEDT.value,
                 "dato_utstedt": dato_utstedt,
-                "utstedt_av": utstedt_av,
+                "utstedt_av": aktor_navn(utstedt_av_id),
                 "te_akseptert": None,
                 "te_kommentar": None,
                 "dato_te_respons": None,
@@ -566,7 +568,7 @@ class EndringsordreService(BaseSakService):
         }
 
     def legg_til_koe(
-        self, eo_sak_id: str, koe_sak_id: str, aktor: str = "BH"
+        self, eo_sak_id: str, koe_sak_id: str, aktor_id: str
     ) -> dict[str, Any]:
         """
         Legger til en KOE-sak til endringsordren.
@@ -576,7 +578,7 @@ class EndringsordreService(BaseSakService):
         Args:
             eo_sak_id: Endringsordresakens ID
             koe_sak_id: KOE-sakens ID som skal legges til
-            aktor: Hvem som utfører handlingen
+            aktor_id: app_users.id for den som utfører handlingen
 
         Returns:
             Dict med success og catenda_synced status
@@ -598,7 +600,7 @@ class EndringsordreService(BaseSakService):
             sak_id=eo_sak_id,
             event_type=EventType.EO_KOE_LAGT_TIL,
             tidsstempel=datetime.now(UTC),
-            aktor=aktor,
+            aktor_id=aktor_id,
             aktor_rolle="BH",
             data=EOKoeHandlingData(
                 koe_sak_id=koe_sak_id,
@@ -649,7 +651,7 @@ class EndringsordreService(BaseSakService):
         }
 
     def fjern_koe(
-        self, eo_sak_id: str, koe_sak_id: str, aktor: str = "BH"
+        self, eo_sak_id: str, koe_sak_id: str, aktor_id: str
     ) -> dict[str, Any]:
         """
         Fjerner en KOE-sak fra endringsordren.
@@ -659,7 +661,7 @@ class EndringsordreService(BaseSakService):
         Args:
             eo_sak_id: Endringsordresakens ID
             koe_sak_id: KOE-sakens ID som skal fjernes
-            aktor: Hvem som utfører handlingen
+            aktor_id: app_users.id for den som utfører handlingen
 
         Returns:
             Dict med success og catenda_synced status
@@ -681,7 +683,7 @@ class EndringsordreService(BaseSakService):
             sak_id=eo_sak_id,
             event_type=EventType.EO_KOE_FJERNET,
             tidsstempel=datetime.now(UTC),
-            aktor=aktor,
+            aktor_id=aktor_id,
             aktor_rolle="BH",
             data=EOKoeHandlingData(
                 koe_sak_id=koe_sak_id,

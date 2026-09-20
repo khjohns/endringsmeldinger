@@ -852,7 +852,7 @@ class BaseTester:
             event = SakOpprettetEvent(
                 sak_id=sak_id,
                 sakstittel=topic_title,
-                aktor="Test Script",
+                aktor_id="test-script-te",
                 aktor_rolle="TE",
                 prosjekt_id=self.project_id,
                 catenda_topic_id=topic_guid,
@@ -1077,7 +1077,7 @@ class BaseTester:
         magic_token: str,
         event_type: str,
         event_data: dict[str, Any],
-        aktor: str,
+        aktor_id: str,
         aktor_rolle: str,
         expected_version: int,
     ) -> tuple[bool, int, str | None]:
@@ -1093,7 +1093,7 @@ class BaseTester:
             "catenda_topic_id": topic_guid,
             "event": {
                 "event_type": event_type,
-                "aktor": aktor,
+                "aktor_id": aktor_id,
                 "aktor_rolle": aktor_rolle,
                 "data": event_data,
             },
@@ -1338,7 +1338,7 @@ class KOEFlowTester(BaseTester):
             "catenda_topic_id": self.topic_guid,  # Required for Catenda integration
             "event": {
                 "event_type": "grunnlag_opprettet",
-                "aktor": "Test Script",
+                "aktor_id": "test-script-te",
                 "aktor_rolle": "TE",
                 "data": {
                     "tittel": "Automatisk test - Irregulær endring",
@@ -1412,7 +1412,7 @@ class KOEFlowTester(BaseTester):
             "catenda_topic_id": self.topic_guid,  # Required for Catenda integration
             "event": {
                 "event_type": "vederlag_krav_sendt",
-                "aktor": "Test Script",
+                "aktor_id": "test-script-te",
                 "aktor_rolle": "TE",
                 "data": {
                     "grunnlag_event_id": self.grunnlag_event_id,
@@ -1460,7 +1460,7 @@ class KOEFlowTester(BaseTester):
             "catenda_topic_id": self.topic_guid,  # Required for Catenda integration
             "event": {
                 "event_type": "frist_krav_sendt",
-                "aktor": "Test Script",
+                "aktor_id": "test-script-te",
                 "aktor_rolle": "TE",
                 "data": {
                     "grunnlag_event_id": self.grunnlag_event_id,
@@ -1528,7 +1528,7 @@ class KOEFlowTester(BaseTester):
             "catenda_topic_id": self.topic_guid,
             "event": {
                 "event_type": "respons_grunnlag",
-                "aktor": "Test Script BH",
+                "aktor_id": "test-script-bh",
                 "aktor_rolle": "BH",
                 "data": {
                     "grunnlag_event_id": self.grunnlag_event_id,
@@ -1569,7 +1569,7 @@ class KOEFlowTester(BaseTester):
             "catenda_topic_id": self.topic_guid,
             "event": {
                 "event_type": "respons_vederlag",
-                "aktor": "Test Script BH",
+                "aktor_id": "test-script-bh",
                 "aktor_rolle": "BH",
                 "data": {
                     "vederlag_krav_id": self.vederlag_event_id,
@@ -1608,7 +1608,7 @@ class KOEFlowTester(BaseTester):
             "catenda_topic_id": self.topic_guid,
             "event": {
                 "event_type": "respons_frist",
-                "aktor": "Test Script BH",
+                "aktor_id": "test-script-bh",
                 "aktor_rolle": "BH",
                 "data": {"frist_krav_id": self.frist_event_id, **TEST_DATA["bh_frist"]},
             },
@@ -1703,7 +1703,7 @@ class KOEFlowTester(BaseTester):
                 "catenda_topic_id": self.topic_guid,
                 "event": {
                     "event_type": "vederlag_krav_oppdatert",
-                    "aktor": "Test Script",
+                    "aktor_id": "test-script-te",
                     "aktor_rolle": "TE",
                     "data": {
                         "original_event_id": vederlag_event_id,
@@ -1748,7 +1748,7 @@ class KOEFlowTester(BaseTester):
                 "catenda_topic_id": self.topic_guid,
                 "event": {
                     "event_type": "frist_krav_oppdatert",
-                    "aktor": "Test Script",
+                    "aktor_id": "test-script-te",
                     "aktor_rolle": "TE",
                     "data": {
                         "original_event_id": frist_event_id,
@@ -2071,7 +2071,7 @@ class ForseringFlowTester(BaseTester):
                         "metode": ["digital_oversendelse"],
                     },
                 },
-                aktor="Test Script",
+                aktor_id="test-script-te",
                 aktor_rolle="TE",
                 expected_version=version,
             )
@@ -2094,7 +2094,7 @@ class ForseringFlowTester(BaseTester):
                         "dato_sendt": datetime.now().strftime("%Y-%m-%d")
                     },
                 },
-                aktor="Test Script",
+                aktor_id="test-script-te",
                 aktor_rolle="TE",
                 expected_version=version,
             )
@@ -2142,7 +2142,7 @@ class ForseringFlowTester(BaseTester):
                     "frist_krav_id": koe["frist_krav_id"],
                     **FORSERING_TEST_DATA["bh_frist_avslag"],
                 },
-                aktor="Test Script BH",
+                aktor_id="test-script-bh",
                 aktor_rolle="BH",
                 expected_version=version,
             )
@@ -2285,7 +2285,7 @@ class ForseringFlowTester(BaseTester):
                 "avslatte_dager": total_rejected_days,
                 "dagmulktsats": dagmulktsats,
             },
-            aktor="Test Script",
+            aktor_id="test-script-te",
             aktor_rolle="TE",
             expected_version=version,
         )
@@ -2326,7 +2326,7 @@ class ForseringFlowTester(BaseTester):
                     "begrunnelse"
                 ],
             },
-            aktor="Test Script BH",
+            aktor_id="test-script-bh",
             aktor_rolle="BH",
             expected_version=version,
         )
@@ -2491,7 +2491,7 @@ class EOFlowTester(BaseTester):
                         "metode": ["digital_oversendelse"],
                     },
                 },
-                aktor="Test Script",
+                aktor_id="test-script-te",
                 aktor_rolle="TE",
                 expected_version=version,
             )
@@ -2511,7 +2511,7 @@ class EOFlowTester(BaseTester):
                     "grunnlag_event_id": grunnlag_event_id,
                     **koe_config["vederlag"],
                 },
-                aktor="Test Script",
+                aktor_id="test-script-te",
                 aktor_rolle="TE",
                 expected_version=version,
             )
@@ -2564,7 +2564,7 @@ class EOFlowTester(BaseTester):
                     "resultat": "godkjent",
                     "begrunnelse": "Grunnlag godkjent for EO-aggregering",
                 },
-                aktor="Test Script BH",
+                aktor_id="test-script-bh",
                 aktor_rolle="BH",
                 expected_version=version,
             )
@@ -2588,7 +2588,7 @@ class EOFlowTester(BaseTester):
                     "total_godkjent_belop": koe["belop"],
                     "begrunnelse": "Vederlag godkjent for EO-aggregering",
                 },
-                aktor="Test Script BH",
+                aktor_id="test-script-bh",
                 aktor_rolle="BH",
                 expected_version=version,
             )
@@ -2688,7 +2688,7 @@ class EOFlowTester(BaseTester):
                 "frist_dager": eo_config["frist_dager"],
                 "relaterte_sak_ids": [k["sak_id"] for k in self.koe_saker],
             },
-            aktor="Test Script BH",
+            aktor_id="test-script-bh",
             aktor_rolle="BH",
             expected_version=version,
         )
@@ -2727,7 +2727,7 @@ class EOFlowTester(BaseTester):
                 "akseptert": EO_TEST_DATA["te_aksept"]["akseptert"],
                 "kommentar": EO_TEST_DATA["te_aksept"]["kommentar"],
             },
-            aktor="Test Script",
+            aktor_id="test-script-te",
             aktor_rolle="TE",
             expected_version=version,
         )

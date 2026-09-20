@@ -71,7 +71,7 @@ class CloudEventMixin(BaseModel):
     - dataschema: URI til schema for data
 
     Extension Attributes (prosjektspesifikke):
-    - actor: Hvem som utførte handlingen
+    - actorid: Identiteten til den som utførte handlingen (aldri navn)
     - actorrole: Rolle (TE/BH)
     - actorteam: Catenda-team-ID til aktørens organisasjon
     - referstoid: Referanse til annen event
@@ -179,7 +179,7 @@ class CloudEventMixin(BaseModel):
             "time": "2025-12-20T10:30:00Z",
             "subject": "KOE-2025-042",
             "datacontenttype": "application/json",
-            "actor": "Ola Nordmann",
+            "actorid": "5f1c0f2e-2f1a-4a64-9a2e-9f0b1d2c3e4f",
             "actorrole": "TE",
             "actorteam": "22222222222222222222222222222222",
             "data": { ... }
@@ -196,7 +196,7 @@ class CloudEventMixin(BaseModel):
             "subject": self.ce_subject,
             "datacontenttype": self.ce_datacontenttype,
             # Extension attributes
-            "actor": getattr(self, "aktor", None),
+            "actorid": getattr(self, "aktor_id", None),
             "actorrole": getattr(self, "aktor_rolle", None),
             # The team is the access key for internt_notat, so it must survive
             # the round-trip as its own attribute - not inside the data payload.
@@ -232,7 +232,7 @@ class CloudEventMixin(BaseModel):
                 "sak_id",
                 "event_type",
                 "tidsstempel",
-                "aktor",
+                "aktor_id",
                 "aktor_rolle",
                 "aktor_team_id",
                 "kommentar",
@@ -288,7 +288,7 @@ class CloudEventMixin(BaseModel):
             "type": "no.oslo.koe.grunnlag_opprettet",
             "time": "2025-12-20T10:30:00Z",
             "subject": "KOE-2025-042",
-            "actor": "Ola Nordmann",
+            "actorid": "5f1c0f2e-2f1a-4a64-9a2e-9f0b1d2c3e4f",
             "actorrole": "TE",
             "data": { ... }
         }
@@ -300,7 +300,7 @@ class CloudEventMixin(BaseModel):
         mapped: dict[str, Any] = {
             "event_id": ce.get("id"),
             "sak_id": ce.get("subject"),
-            "aktor": ce.get("actor"),
+            "aktor_id": ce.get("actorid"),
             "aktor_rolle": ce.get("actorrole"),
             "aktor_team_id": ce.get("actorteam"),
             "refererer_til_event_id": ce.get("referstoid"),

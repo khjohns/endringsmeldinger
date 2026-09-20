@@ -131,8 +131,10 @@ def test_inside_authority_issues_immediately(service):
     assert package["steps"] == []
     assert package["status"] == "utstedt"
     assert package["sakId"] in service.created
+    # Journalen føres på identiteten til den som utstedte, ikke navnet (MS-04).
     assert (
-        service.orders.opprett_endringsordresak.call_args.kwargs["utstedt_av"] == "Kari"
+        service.orders.opprett_endringsordresak.call_args.kwargs["utstedt_av_id"]
+        == HANDLER
     )
 
 

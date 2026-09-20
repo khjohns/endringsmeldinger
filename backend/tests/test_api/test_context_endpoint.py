@@ -42,7 +42,7 @@ class TestFetchAndParseEvents:
         event = GrunnlagEvent(
             event_type=EventType.GRUNNLAG_OPPRETTET,
             sak_id="TEST-001",
-            aktor="Test User",
+            aktor_id="Test User",
             aktor_rolle="TE",
             data=GrunnlagData(
                 tittel="Test",
@@ -98,7 +98,7 @@ class TestContextEndpointShape:
         event = GrunnlagEvent(
             event_type=EventType.GRUNNLAG_OPPRETTET,
             sak_id="TEST-001",
-            aktor="Test User",
+            aktor_id="Test User",
             aktor_rolle="TE",
             data=GrunnlagData(
                 tittel="Test",
@@ -179,7 +179,7 @@ class TestContextEndpointShape:
         event = GrunnlagEvent(
             event_type=EventType.GRUNNLAG_OPPRETTET,
             sak_id="TEST-001",
-            aktor="Test User",
+            aktor_id="Test User",
             aktor_rolle="TE",
             data=GrunnlagData(
                 tittel="Test",
