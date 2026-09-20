@@ -121,16 +121,10 @@ def health_check():
 
         start = time.time()
         repo = get_container().metadata_repository
-        # Enkel spørring for å verifisere tilkobling. alle_prosjekter=True er
-        # nødvendig: helsesjekken er udekorert og har ingen prosjektkontekst,
-        # og uten flagget returnerer list_all tomt før den rører lageret —
-        # da ville sjekken meldt «healthy» med utilgjengelig database.
-        # Resultatet forkastes; dette er en tilkoblingsprobe, ikke en lesing.
-        _ = (
-            repo.count()
-            if hasattr(repo, "count")
-            else repo.list_all(alle_prosjekter=True)[:1]
-        )
+        # Tilkoblingsprobe: billigst mulig kall som kaster hvis lageret er nede.
+        # Ikke list_all() — den leste hele tabellen, og etter at den ble
+        # fail-closed måtte helsesjekken be om alle prosjekter for å få noe.
+        repo.probe()
         latency_ms = round((time.time() - start) * 1000, 2)
 
         checks["database"] = {"status": "healthy", "latency_ms": latency_ms}

@@ -105,7 +105,7 @@ export async function lastOppVedlegg(
     method: 'POST',
     credentials: 'include',
     headers: {
-      ...(projectId ? { 'X-Project-ID': projectId } : {}),
+      ...projectHeaders(projectId),
       'X-CSRF-Token': await getCsrfToken(),
     },
     body: data,
