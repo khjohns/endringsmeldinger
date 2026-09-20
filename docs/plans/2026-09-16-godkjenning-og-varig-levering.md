@@ -142,7 +142,7 @@ avgjørende delen av domenet: **TFR-01** (aksept av avslag settes til GODKJENT),
 
 **Merknad 2026-09-20: tenant-attribusjonen (handoffens 5a) er gjennomført.**
 
-Migrasjonen `20260920060000_tenant_attribution_prosjekt_id` er **anvendt** mot
+Migrasjonen `tenant_attribution_prosjekt_id` er **anvendt** mot
 prosjektet og verifisert mot katalogen: `prosjekt_id TEXT NOT NULL` uten default,
 med indeks, på `koe_events`, `forsering_events`, `endringsordre_events` og
 `sak_relations`, og `DEFAULT 'oslobygg'` er fjernet fra `sak_metadata`.
@@ -373,6 +373,127 @@ skal kunne konkludere med å *fjerne* noe, trenger mer enn det.
 - **Gjør den før fundamentbyttet, ikke etter.** Arkitekturvurderingens
   konklusjon er «behold domenet, bytt fundamentet». Et skjema som bæres over
   urørt, bærer også med seg det som burde vært luket.
+
+**Merknad 2026-09-20: gjennomgangen er gjennomført.** Den står i
+[audit: databasearkitektur](../audit-databasearkitektur-2026-09-20.md) (DA-01 til
+DA-15). Metodekravene over er fulgt: alle tjue tabellene er ramset opp ved navn
+med radtall, opprettende migrasjon og lesere/skrivere, og de to spørsmålene —
+«ubrukt» mot «i bruk, men overflødig» — er holdt fra hverandre i konklusjonen.
+
+**Pakken står nå på dette.**
+
+*Levert, og målt:*
+
+- **Migrasjonen som manglet `actorteam` er anvendt** (`20260920152042`).
+  Kolonnen finnes på alle tre hendelsestabellene. RV-08 er nå lukket også i
+  databasen, ikke bare i koden.
+- **Sju tabeller som bare fantes i basen, finnes nå i repoet.** Tre nye
+  migrasjonsfiler er skrevet: kjerneskjemaet, `project_memberships` og en
+  avstemming av `backend/migrations/` mot basen.
+- **Repoet kan bygge databasen.** Hele settet er kjørt mot en tom PostgreSQL 16,
+  og resultatet er katalogidentisk med `gwdxadexwktegkklyobv` på fire av fire
+  snitt — kolonner, skranker, indekser og policyer, alle like på md5. Åtte av ti
+  funksjoner er bit-identiske; de to siste avviker bare i innrykk og kommentarer.
+- **DB-01 og DB-02 er lukket.** Begge xfail-reproduksjonene XPASSet og er gjort
+  om til ordinære tester, etter regelen i `AGENTS.md`. To nye regresjonstester i
+  `test_database_arkitektur_20260920.py` vokter at hver tabell i basen har en
+  `CREATE TABLE` i repoet, og at migrasjonsrekkefølgen ikke blir sirkulær igjen.
+  Suiten: 1461 passert, 41 xfail, 0 ruff-feil.
+
+*Korreksjon til de sju foreløpige punktene over — de skal ikke leses som de
+står:*
+
+- **Punkt 5 er delvis feil, slik markeringen «lest ut av koden» åpnet for.**
+  `app_identities` er **ikke ubrukt**: den har 14 rader og leses og skrives av
+  `koe_resolve_identity` ved hver innlogging. At den har null treff i et
+  navnesøk, skyldes at logikken ligger i en databasefunksjon. `user_groups` og
+  `magic_links` holder som etterlatenskaper. Se DA-07.
+- **Punkt 2 har riktig årsak, men feil rekkevidde.** Det var ikke «enhver lesing
+  av enhver sak» som feilet. Lesinger med `select("*")` gikk bra; lesingen som
+  navngir kolonnen feilet *stille* i en `except Exception: continue`. Det som
+  faktisk brøt, var **enhver skriving** — `append_event` navngir `actorteam` i
+  raden. Verre enn opprinnelig beskrevet, ikke mildere. Se DA-02.
+- **Punkt 1 var ufullstendig.** Historikken har ti rader, ikke seks; de fire
+  nyeste har fil. Se DA-01.
+
+*Gjenstår i pakken:*
+
+1. **Mekanismen fra fil til base (DA-03).** Fortsatt ingen
+   `supabase/config.toml` og ingen `db push`. Tre konkrete hindre er navngitt i
+   dokumentet. **Opphevet samme kveld:** `config.toml` finnes nå,
+   `backend/migrations/` er tømt og DA-04 er rettet — se merknaden om DA-03
+   over. Bare migrasjonshistorikken gjenstår, og den krever legitimasjon.
+2. **Forslagene, som er forslag.** DA-12 (slå sammen de tre
+   hendelsestabellene — **avgjøres sammen med transaksjonsplanen**, og basen er
+   tom nå, så det argumentet har en utløpsdato), DA-13 (`sak_relations`: legg på
+   fremmednøklene uansett; vurder fjerning), DA-14 (de ti `cached_*`). Ingen av
+   dem er gjennomført; skjemaet er ikke endret ut over det som er nevnt over.
+3. **Tre tabeller foreslått fjernet:** `user_groups`, `magic_links` og
+   `project_memberships`. Den siste skrives av en trigger og **leses aldri** —
+   kodens egen skrivesti treffer en unik-skranke og logger en advarsel hver gang
+   (DA-10). Fjerning krever at `viewer`-rollen først avklares mot DB-05.
+4. **En eier til BIM-flaten (DA-15).** `catenda_models_cache` og
+   `sak_bim_links` er i bruk etter bokstaven, har null rader, og ingen audit har
+   vurdert om flaten er besluttet. Det er et produktspørsmål.
+
+**Merknad 2026-09-20 (kveld): DA-03 er gjennomført på repo-siden.**
+Migrasjonsmappa er nå eneste kilde. `supabase/config.toml` finnes,
+`backend/migrations/` er tømt, og filnavnrekkefølgen *er* apply-rekkefølgen —
+verifisert ved å bygge alle seksten filene mot en tom PostgreSQL 16 i ren
+`sort`-rekkefølge og sammenlikne med basen på fem snitt: kolonner, skranker,
+indekser, policyer og **rettigheter**. Alle fem er identiske. DA-04 er løst ved
+å gi fila basens versjonsnummer; `actorteam` hadde samme feil og fikk samme
+behandling.
+
+**Gjenstår, og kan ikke gjøres herfra:** migrasjonshistorikken i basen stemmer
+ennå ikke med mappa (6 av 16). Femten `supabase migration repair`-kommandoer
+retter det; de er listet i
+[auditen](../audit-databasearkitektur-2026-09-20.md) under «Veien fra fil til
+database». De krever legitimasjon denne sesjonen ikke har, og de endrer
+historikk — ikke skjema.
+
+**Nytt funn, fra rettighetssnittet:** åtte av tjue tabeller har **ingen
+eksplisitt `GRANT` til `service_role`** i repoet. De virker bare fordi Supabase
+deler ut rettigheter ved prosjektoppsett. Det er en skjult plattformavhengighet,
+og den hører til arkitekturvurderingens «bytt fundamentet»: flyttes basen vekk
+fra Supabase, mister appen tilgang til åtte tabeller uten at noen migrasjon sier
+fra. Hører også til pakken om minste privilegier, som uansett må avgjøre hvilke
+rettigheter runtime skal ha.
+
+**Merknad 2026-09-20 (kveld): designspørsmålene DA-12 til DA-15 er lukket.**
+[Målskjemaet](../design-maalskjema-database-2026-09-20.md) (MS-01 til MS-15)
+avgjør dem, på sju premisser besluttet av utvikler samme dag: magic links utgår
+(innlogging via Catenda ID / Entra ID), BIM er ikke i bruk men relevant og
+objekter hører alltid til én sak, formålet med BIM-koblingen er å se hvilke
+komponenter som fører til tvist, vedlegg lagres kun i Catenda, løsningen bør i
+prinsippet støtte andre virksomheter, og to kan arbeide i ulike spor samtidig.
+
+Hovedpunktene: de tre hendelsestabellene slås sammen, `sak_metadata` deles i
+register og projeksjon, `sak_relations` fjernes til fordel for GIN-indekser på
+hendelsenes jsonb, interne notater tas **ut** av journalen, `aktor` blir
+`aktor_id`, og BIM-kobling blir hendelser framfor slettbare rader. Målet er
+atten tabeller mot dagens tjue — poenget er ikke antallet, men at hver tabell
+får én skriver og at journalen blir uforanderlig på en måte basen håndhever.
+
+**To ting med frist, fordi basen er tom:** `aktor_id` (MS-04) og
+`organisasjon_id` på `projects` (MS-10) blir dyre eller umulige så snart ekte
+saker finnes — `projects.id` er i dag `'oslobygg'`, altså organisasjonsnavnet
+brukt som prosjekt-ID.
+
+**Ett nytt hull, funnet av premiss P4:** vedlegg har **ingen hash** noe sted.
+Lagres bytene bare i Catenda, finnes det ingen måte å vise at dokumentet der er
+det som ble sendt. Én kolonne — `innhold_sha256` på `vedlegg`-tabellen
+durable-inbox-notatet allerede har designet — lukker det. Hører til pakke 3,
+«bevisførsel og framleggelse».
+
+**Ingenting i målskjemaet er implementert.** Det er et målbilde.
+
+**Merknad til DA-11 for pakke 1:** RLS-policyene er fortsatt
+`service_role / ALL / USING (true)` — tjue av tjueén, én per tabell. Den
+tjueførste er en `authenticated`-lesepolicy på `project_memberships`. Den er **uvirksom** —
+kontrollert på laget som avgjør: `anon` og `authenticated` har null
+tabellrettigheter og null `EXECUTE` etter `20260918131137`. Det er altså ikke et
+sikkerhetsfunn, men den bør fjernes sammen med tabellen.
 
 **Presiseringer til eksisterende pakker (19.09).** To rader trenger en skjerping
 snarere enn en ny pakke:

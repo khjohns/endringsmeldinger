@@ -23,3 +23,7 @@ backend/.ruff_cache/
 backend/.mypy_cache/
 backend/.coverage
 backend/koe_data/
+
+# Supabase CLI-artefakter
+supabase/.temp/
+supabase/.branches/
