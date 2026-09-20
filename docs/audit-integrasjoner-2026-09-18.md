@@ -33,6 +33,14 @@ den hardkodede `aktor_rolle="TE"` står på `SakOpprettetEvent`, ikke `eo_utsted
 så webhooken utsteder ingen endringsordre. Om saksopprettelse skal være
 BH-forbeholdt er en domenebeslutning. INT-03, INT-06 og INT-07 er kun lest.
 
+**Merknad 2026-09-19 (senere samme dag): INT-04 er avgjort og rettet.** Verken
+hardkodet TE eller BH-forbeholdt opprettelse: kontraktssiden utledes av
+forfatterens faktiske lagmedlemskap. Catenda oppgir bruker-IDen i
+`bimsync_creation_author.user.ref`, og webhooken kastet den. Uten entydig side
+opprettes ingen sak. Den opprinnelige reproduksjonen er erstattet av to ordinære
+tester, fordi dens ramming — at TE ikke kan opprette EO — er den etterprøvingen
+avviste. Se [vurderingen av auditfunnene](vurdering-av-auditfunn-2026-09-19.md).
+
 ## Omfang
 
 **Undersøkt:**

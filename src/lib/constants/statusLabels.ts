@@ -29,6 +29,7 @@ export const OVERORDNET_STATUS_LABELS: Record<OverordnetStatus, string> = {
   OMFORENT: 'Omforent',
   LUKKET: 'Lukket',
   LUKKET_TRUKKET: 'Trukket',
+  LUKKET_AVSLATT: 'Avsluttet – avslag godtatt',
 };
 
 /**
@@ -51,6 +52,7 @@ export const SPOR_STATUS_LABELS: Record<SporStatus, string> = {
   avslatt: 'Avslått',
   under_forhandling: 'Under forhandling',
   trukket: 'Trukket',
+  avslatt_akseptert: 'Avslag godtatt',
   laast: 'Låst',
 };
 

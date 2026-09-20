@@ -111,17 +111,18 @@ class EndringsordreService(BaseSakService):
                 for metadata in self.metadata_repository.list_all(
                     prosjekt_id=get_project_id()
                 )
-                if (metadata.prosjekt_id or "oslobygg") == get_project_id()
+                if metadata.prosjekt_id == get_project_id()
             ]
         return get_all_sak_ids(event_repository=self.event_repository)
 
     def _belongs_to_project(self, sak_id: str) -> bool:
         if not self.metadata_repository:
             return True
+        prosjekt = get_project_id()
+        if not prosjekt:
+            return False
         metadata = self.metadata_repository.get(sak_id)
-        return bool(
-            metadata and (metadata.prosjekt_id or "oslobygg") == get_project_id()
-        )
+        return bool(metadata and metadata.prosjekt_id == prosjekt)
 
     def _load_state(self, sak_id: str) -> SakState | None:
         if not self._belongs_to_project(sak_id):
@@ -755,7 +756,9 @@ class EndringsordreService(BaseSakService):
         if self.event_repository:
             events_data, _ = self.event_repository.get_events(eo_sak_id)
             eo_hendelser = [parse_event(event) for event in events_data]
-        relaterte = self.hent_relaterte_saker(eo_sak_id)
+        relaterte = self.hent_relaterte_saker(
+            eo_sak_id, tillatte_saker=tillatte_saker
+        )
 
         relaterte_ids = [r.relatert_sak_id for r in relaterte]
         # Relations are client-supplied, so the caller must say which cases this
@@ -887,11 +890,20 @@ class EndringsordreService(BaseSakService):
             if self._is_agreed_koe(state) and sak_id not in linked
         ]
 
-    def hent_relaterte_saker(self, sak_id: str) -> list[SakRelasjon]:
-        """Read current links from issued events, including local-only orders."""
+    def hent_relaterte_saker(
+        self, sak_id: str, *, tillatte_saker
+    ) -> list[SakRelasjon]:
+        """Read current links from issued events, including local-only orders.
+
+        Leser fra hendelsene, ikke fra Catenda, og er derfor allerede avgrenset
+        av _belongs_to_project. Men den kontrollen er fail-open uten
+        metadata_repository, så tillatte_saker legges over: samme signatur som
+        basen, og grensen holder også når metadata mangler.
+        """
         state = self._load_state(sak_id)
         if state is None or state.endringsordre_data is None:
             return []
+        allowed = tillatte_saker(state.endringsordre_data.relaterte_koe_saker)
         return [
             SakRelasjon(
                 relatert_sak_id=koe_id,
@@ -903,7 +915,7 @@ class EndringsordreService(BaseSakService):
                 ),
             )
             for koe_id in state.endringsordre_data.relaterte_koe_saker
-            if self._belongs_to_project(koe_id)
+            if koe_id in allowed and self._belongs_to_project(koe_id)
         ]
 
     def finn_eoer_for_koe(self, koe_sak_id: str) -> list[dict[str, Any]]:

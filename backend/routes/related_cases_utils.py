@@ -206,7 +206,9 @@ def validate_required_fields(
     return None
 
 
-def safe_find_related(service_method: Callable, sak_id: str, result_key: str) -> tuple:
+def safe_find_related(
+    service_method: Callable, sak_id: str, result_key: str, **kwargs
+) -> tuple:
     """
     Trygt søk etter relaterte saker med graceful fallback.
 
@@ -216,12 +218,13 @@ def safe_find_related(service_method: Callable, sak_id: str, result_key: str) ->
         service_method: Service-metode å kalle (f.eks. service.finn_forseringer_for_sak)
         sak_id: Sak-ID å søke etter
         result_key: Nøkkel i respons (f.eks. "forseringer" eller "endringsordrer")
+        **kwargs: Videresendes til service-metoden, f.eks. tillatte_saker
 
     Returns:
         Tuple (jsonify response, status_code)
     """
     try:
-        results = service_method(sak_id)
+        results = service_method(sak_id, **kwargs)
         return jsonify({"success": True, result_key: results}), 200
     except Exception as e:
         logger.warning(f"Kunne ikke søke etter {result_key} for {sak_id}: {e}")

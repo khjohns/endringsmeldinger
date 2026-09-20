@@ -8,8 +8,6 @@ INGEN PRODUKSJONSKODE SKAL ENDRES I DETTE PASSET.
 Testene skal feile med ren AssertionError før de markeres med streng xfail.
 """
 
-import os
-import glob
 import tempfile
 import threading
 from concurrent.futures import ThreadPoolExecutor
@@ -19,12 +17,9 @@ from unittest.mock import Mock
 import pytest
 
 from core.container import Container
-from models.events import EventType, SakOpprettetEvent
-from models.sak_metadata import SakMetadata
+from models.events import SakOpprettetEvent
 from repositories.event_repository import ConcurrencyError, JsonFileEventRepository
 from repositories.sak_metadata_repository import SakMetadataRepository
-from repositories.supabase_event_repository import SupabaseEventRepository
-from repositories.supabase_sak_metadata_repository import SupabaseSakMetadataRepository
 from services.endringsordre_service import EndringsordreService
 from services.timeline_service import TimelineService
 

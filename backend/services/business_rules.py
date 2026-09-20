@@ -11,6 +11,18 @@ from dataclasses import dataclass
 from models.events import AnyEvent, EventType, ResponsEvent, SporStatus
 from models.sak_state import EOStatus, SakState, SaksType
 
+# Statuser uten noe sendt krav å trekke, eller med et krav som alt er oppgjort.
+# Samme regel for alle tre sporene.
+IKKE_TRUKKET_FRA: frozenset[SporStatus] = frozenset(
+    {
+        SporStatus.IKKE_RELEVANT,
+        SporStatus.UTKAST,
+        SporStatus.GODKJENT,
+        SporStatus.TRUKKET,
+        SporStatus.AVSLATT_AKSEPTERT,
+    }
+)
+
 
 @dataclass
 class ValidationResult:
@@ -606,17 +618,14 @@ class BusinessRuleValidator:
                 is_valid=False, message="Grunnlag er låst og kan ikke trekkes tilbake"
             )
 
-        # TE kan ALLTID trekke tilbake, unntatt når fullt godkjent, ikke sendt, eller allerede trukket
-        blocked_statuses = {
-            SporStatus.IKKE_RELEVANT,
-            SporStatus.UTKAST,
-            SporStatus.GODKJENT,
-            SporStatus.TRUKKET,
-        }
-        if state.grunnlag.status in blocked_statuses:
+        if state.grunnlag.status in IKKE_TRUKKET_FRA:
             return ValidationResult(
                 is_valid=False,
-                message="Grunnlag kan ikke trekkes tilbake når status er godkjent, ikke sendt, eller allerede trukket",
+                message=(
+                    "Grunnlag kan ikke trekkes tilbake når status er "
+                    "godkjent, ikke sendt, allerede trukket eller oppgjort "
+                    "ved godtatt avslag"
+                ),
             )
 
         return ValidationResult(is_valid=True)
@@ -625,17 +634,14 @@ class BusinessRuleValidator:
         self, event: AnyEvent, state: SakState
     ) -> ValidationResult:
         """R: Vederlag kan trekkes tilbake i alle tilfeller unntatt godkjent eller ikke sendt."""
-        # TE kan ALLTID trekke tilbake, unntatt når fullt godkjent, ikke sendt, eller allerede trukket
-        blocked_statuses = {
-            SporStatus.IKKE_RELEVANT,
-            SporStatus.UTKAST,
-            SporStatus.GODKJENT,
-            SporStatus.TRUKKET,
-        }
-        if state.vederlag.status in blocked_statuses:
+        if state.vederlag.status in IKKE_TRUKKET_FRA:
             return ValidationResult(
                 is_valid=False,
-                message="Vederlagskrav kan ikke trekkes tilbake når status er godkjent, ikke sendt, eller allerede trukket",
+                message=(
+                    "Vederlagskrav kan ikke trekkes tilbake når status er "
+                    "godkjent, ikke sendt, allerede trukket eller oppgjort "
+                    "ved godtatt avslag"
+                ),
             )
 
         return ValidationResult(is_valid=True)
@@ -644,17 +650,14 @@ class BusinessRuleValidator:
         self, event: AnyEvent, state: SakState
     ) -> ValidationResult:
         """R: Frist kan trekkes tilbake i alle tilfeller unntatt godkjent eller ikke sendt."""
-        # TE kan ALLTID trekke tilbake, unntatt når fullt godkjent, ikke sendt, eller allerede trukket
-        blocked_statuses = {
-            SporStatus.IKKE_RELEVANT,
-            SporStatus.UTKAST,
-            SporStatus.GODKJENT,
-            SporStatus.TRUKKET,
-        }
-        if state.frist.status in blocked_statuses:
+        if state.frist.status in IKKE_TRUKKET_FRA:
             return ValidationResult(
                 is_valid=False,
-                message="Fristkrav kan ikke trekkes tilbake når status er godkjent, ikke sendt, eller allerede trukket",
+                message=(
+                    "Fristkrav kan ikke trekkes tilbake når status er "
+                    "godkjent, ikke sendt, allerede trukket eller oppgjort "
+                    "ved godtatt avslag"
+                ),
             )
 
         return ValidationResult(is_valid=True)

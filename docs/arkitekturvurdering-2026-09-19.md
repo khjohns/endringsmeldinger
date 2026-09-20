@@ -36,6 +36,14 @@ konsekvens under beskrevne forutsetninger, ikke observert hendelse.
 > har formet den. Har det parallelle sporet kjørt migrasjoner samme dag, er det
 > deres resultat som er målt.
 
+> **Merknad 2026-09-20.** Begge delene er rettet. Hendelsestabellene har
+> `prosjekt_id NOT NULL`, og fallbackene er fjernet — men det var **fjorten**,
+> ikke fem. Ut over koalesceringene `prosjekt_id or "oslobygg"` i
+> `project_access.py`, `endringsordre_service.py` og `sak_metadata_repository.py`
+> lå seks til i rutekode, på formene `getattr(g, "project_id", "oslobygg")` og
+> `request.headers.get("X-Project-ID", "oslobygg")`. Se masterplanen for hele
+> tabellen, og for hvilke av dem som var nåbare i drift.
+
 **Overlevering:** [handoff 2026-09-19](handoff-2026-09-19.md) samler miljøoppsett, fire metodiske
 feller, etablerte fakta som ikke bør finnes ut på nytt, og de åpne beslutningene.
 Start der om du overtar arbeidet uten kontekst.
@@ -134,6 +142,27 @@ dette ikke er hypotetisk: `cases_in_project()` måtte innføres fordi klientoppg
 relasjoner utvidet prosjektgrensen (RV-07), og `redact_activity_metadata()` fordi
 aktivitetstall røpet motpartens interne notater (RV-09). Det er samme feilform på
 to steder, og den formen er iboende i arkitekturen.
+
+> **Merknad 2026-09-20 til AR-01: forutsetningen er innfridd, grensen er det ikke.**
+> Tenant-attribusjonen er på plass — `prosjekt_id TEXT NOT NULL` uten default, med
+> indeks, på de tre hendelsestabellene og `sak_relations` (migrasjon
+> `20260920060000`, anvendt og verifisert). Alle fjorten oslobygg-fallbacks er
+> fjernet, så en rad uten prosjekt avvises av databasen med `23502` framfor å bli
+> tilordnet Oslobygg i stillhet.
+>
+> **Policyen som uttrykker grensen er fortsatt ikke skrevet.** Samtlige policyer er
+> uendret `service_role / ALL / USING (true)`, og `service_role` omgår RLS. Det
+> avsnittet over beskriver står altså i sin helhet. Forskjellen er at
+> `USING (prosjekt_id = current_setting('app.project_id'))` nå *lar seg skrive* —
+> før fantes ikke kolonnen å skrive den mot. Det hører til pakke 2 om minste
+> privilegium, og krever i tillegg at runtime slutter å kjøre som `service_role`.
+>
+> Diagnosen «hele tenant-modellen lever i Python-dekoratører» gjelder derfor
+> fortsatt. Runden 20.09 fant et nytt tilfelle av nøyaktig den feilformen
+> avsnittet beskriver: CSV-metadatarepoet hoppet over prosjektfilteret når
+> prosjektet var tomt, og returnerte alle leietakeres saker. Ruta stoppet det
+> (`require_project_access`), men det er tredje forekomst av «én glemt kontroll på
+> ett lesepunkt» etter RV-07 og RV-09.
 
 **Alternativet.** Koble til Postgres med en per-request rolle uten
 superrettigheter, RLS på og `FORCE`, og request-konteksten satt inne i
@@ -316,6 +345,24 @@ allerede er grønne:
 CI er altså ikke «rydd opp først». Det er en workflow-fil, én `ruff --fix`-runde,
 og en beslutning om hvilke driftskript som skal baselines.
 
+> **Merknad 2026-09-19 (senere samme dag): AR-05 er lukket.**
+> `.github/workflows/ci.yml` finnes, med tre gatende jobber — `pytest`, `vitest` og
+> `svelte-check --threshold error`. GitHubs `total_count: 0` gjelder ikke lenger.
+>
+> Anslaget i avsnittet over holdt på ett punkt og bommet på ett. **Workflow-fila var
+> nok** — portene var grønne, og alle tre er verifisert fra ren tilstand. Men
+> **`ruff --fix`-runden er ikke riktig svar alene:** av 73 feil er 14 `UP042`, som
+> vil gjøre `class X(str, Enum)` om til `StrEnum`. Det endrer `str()` og
+> f-string-interpolering på 14 domeneenums som serialiseres inn i hendelsesloggen
+> (kontrollert kjørt: `str(...)` går fra `'Gammel.GODKJENT'` til `'godkjent'`).
+> Regelen bør slås av framfor rettes. De øvrige 59 er trygge.
+>
+> `ruff` og `eslint` gater nå også. Gjelden er ryddet samme dag: 59 ruff-feil rettet
+> eller slått av og 3 eslint-feil rettet, så begge står på null. En fil-basert
+> sperrehake ble prøvd først og forkastet — den flagget gammel gjeld i filer
+> endringen tilfeldigvis rørte, og en CI som er rød fra første PR lærer folk å
+> ignorere den. Ryddingen var det riktige svaret, ikke sperrehaken.
+
 ## AR-06 — kompenserende rollback er usunn, og dere har bevist det
 
 `tests/test_approval/test_audit_20260916.py:114` er en `strict` xfail:
@@ -347,6 +394,13 @@ ikke bare avvæpnes.
 Ni skript kjørt i `--ci`-modus: `contract_drift`, `event_field_usage` og
 `label_coverage` passerer. `state_drift`, `validation_drift`, `category_drift`,
 `constant_drift`, `docs_drift` og `check_drift` feiler.
+
+> **Merknad 2026-09-19 (senere samme dag): bekreftet, med én presisering.** Kjørt på
+> nytt: samme tre passerer, samme seks feiler. Presiseringen gjelder **`--ci`-flagget,
+> som er avgjørende.** Uten det returnerer alle ni exit 0, også de som rapporterer
+> kritiske funn i utskriften. Kjører man dem uten flagget — som er det nærliggende —
+> ser alle ni grønne ut. Det er verdt å vite for den som kobler dem på CI, og det er
+> en felle jeg gikk i selv før jeg leste dette avsnittet.
 
 `category_drift` feiler på **sin egen parser**. Den rapporterer «0 hovedkategorier
 i frontend» mot backends fire, men `src/lib/constants/categories.ts` ligger nøyaktig

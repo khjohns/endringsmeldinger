@@ -10,7 +10,7 @@
  * grense, og nedlasting trenger binærdata.
  */
 
-import { API_BASE_URL, ApiError, getActiveProjectId, getCsrfToken } from './client';
+import { API_BASE_URL, ApiError, getActiveProjectId, getCsrfToken, projectHeaders } from './client';
 
 export interface Vedlegg {
   id: string;
@@ -53,7 +53,7 @@ export interface VedleggsListe {
 export async function hentVedlegg(sakId: string): Promise<VedleggsListe> {
   const response = await fetch(base(sakId), {
     credentials: 'include',
-    headers: { 'X-Project-ID': getActiveProjectId() },
+    headers: projectHeaders(),
   });
   if (!response.ok) throw new ApiError(response.status, await feilmelding(response));
   const data = await response.json();
@@ -71,7 +71,7 @@ export async function slettVedlegg(sakId: string, vedleggId: string): Promise<vo
     method: 'DELETE',
     credentials: 'include',
     headers: {
-      'X-Project-ID': getActiveProjectId(),
+      ...projectHeaders(),
       'X-CSRF-Token': await getCsrfToken(),
     },
   });
@@ -82,7 +82,7 @@ export async function provLevering(sakId: string): Promise<void> {
   const response = await fetch(`${base(sakId)}/retry`, {
     method: 'POST',
     credentials: 'include',
-    headers: { 'X-Project-ID': getActiveProjectId(), 'X-CSRF-Token': await getCsrfToken() },
+    headers: { ...projectHeaders(), 'X-CSRF-Token': await getCsrfToken() },
   });
   if (!response.ok) throw new ApiError(response.status, await feilmelding(response));
 }
@@ -105,7 +105,7 @@ export async function lastOppVedlegg(
     method: 'POST',
     credentials: 'include',
     headers: {
-      'X-Project-ID': projectId,
+      ...projectHeaders(projectId),
       'X-CSRF-Token': await getCsrfToken(),
     },
     body: data,
@@ -123,7 +123,7 @@ export async function lastOppVedlegg(
 export async function hentVedleggInnhold(sakId: string, vedleggId: string): Promise<Blob> {
   const response = await fetch(`${base(sakId)}/${encodeURIComponent(vedleggId)}`, {
     credentials: 'include',
-    headers: { 'X-Project-ID': getActiveProjectId() },
+    headers: projectHeaders(),
   });
   if (!response.ok) throw new ApiError(response.status, await feilmelding(response));
   return response.blob();

@@ -1,7 +1,9 @@
 """Tilstandskonsistens og NS 8407-forretningsregler (Pass 3).
 
 Testene her etterprøver funn i tilstandsberegning og forretningsregler:
-1. TE_AKSEPTERER_RESPONS forvandler et avslag fra BH til GODKJENT grunnlag
+1. TE_AKSEPTERER_RESPONS forvandler et avslag fra BH til GODKJENT — på alle tre
+   spor. Reproduksjonen fra 18.09 dekket bare grunnlag; vederlag og frist er
+   lagt til 2026-09-19 etter at alle tre ble kjørt og observert.
 2. overordnet_status ignorerer sakstype og gir INGEN_AKTIVE_SPOR for forsering og EO
 3. _rule_vederlag_can_be_withdrawn blokkerer tilbaketrekking av subsidiært godkjente krav
 4. require_truthy=True i _copy_fields_if_present forkaster subsidiært standpunkt på 0 kr / 0 dager
@@ -30,12 +32,65 @@ from models.events import (
     VederlagBeregningResultat,
     VederlagData,
     VederlagEvent,
-    VederlagsMetode,
     VederlagResponsData,
+    VederlagsMetode,
+    WithdrawalData,
+    WithdrawalEvent,
     parse_event_from_request,
 )
 from services.business_rules import BusinessRuleValidator
 from services.timeline_service import TimelineService
+
+
+def _aksept(spor: str, refererer_til: str):
+    """TE_AKSEPTERER_RESPONS slik ruta ville ha parset den."""
+    return parse_event_from_request(
+        {
+            "sak_id": "S-1",
+            "event_type": "te_aksepterer_respons",
+            "refererer_til_event_id": refererer_til,
+            "spor": spor,
+            "aktor": "te",
+            "aktor_rolle": "TE",
+            "data": {"begrunnelse": "TE aksepterer avslaget"},
+        }
+    )
+
+
+def _sak_med_godkjent_grunnlag() -> list:
+    """Sak der grunnlaget er godkjent, så vederlag og frist kan prøves isolert."""
+    opprettet = SakOpprettetEvent(
+        sak_id="S-1",
+        sakstittel="Endring",
+        aktor="te",
+        aktor_rolle="TE",
+        prosjekt_id="p1",
+    )
+    grunnlag = GrunnlagEvent(
+        sak_id="S-1",
+        aktor="te",
+        aktor_rolle="TE",
+        data=GrunnlagData(
+            tittel="Tittel",
+            beskrivelse="Beskrivelse",
+            hovedkategori="ENDRING",
+            dato_oppdaget="2026-09-18",
+        ),
+    )
+    godkjent = ResponsEvent(
+        sak_id="S-1",
+        aktor="bh",
+        aktor_rolle="BH",
+        event_type="respons_grunnlag",
+        spor=SporType.GRUNNLAG,
+        refererer_til_event_id=grunnlag.event_id,
+        data=GrunnlagResponsData(
+            resultat=GrunnlagResponsResultat.GODKJENT,
+            begrunnelse="Byggherrens ansvar",
+        ),
+    )
+    return [opprettet, grunnlag, godkjent]
+
 
 
 # =============================================================================
@@ -43,11 +98,6 @@ from services.timeline_service import TimelineService
 # =============================================================================
 
 
-@pytest.mark.xfail(
-    strict=True,
-    raises=AssertionError,
-    reason="TimelineService setter status=GODKJENT og kan_utstede_eo=True når TE aksepterer et avslag",
-)
 def test_te_aksepterer_avslag_gjor_grunnlag_godkjent():
     """TE_AKSEPTERER_RESPONS må ikke transformere et avslag til GODKJENT status.
 
@@ -110,6 +160,244 @@ def test_te_aksepterer_avslag_gjor_grunnlag_godkjent():
     assert state2.grunnlag.status != SporStatus.GODKJENT, (
         f"Avslag på ansvarsgrunnlag ble gjort om til GODKJENT: {state2.grunnlag.status}, kan_utstede_eo={state2.kan_utstede_eo}"
     )
+
+    # Enigheten skal være dokumentert, ikke bare fraværet av godkjenning:
+    # sporet er oppgjort på byggherrens premisser.
+    assert state2.grunnlag.status == SporStatus.AVSLATT_AKSEPTERT
+    assert state2.grunnlag.te_akseptert is True
+    # Byggherrens standpunkt er bevart, så grunnlaget for forsering består.
+    assert state2.grunnlag.bh_resultat == GrunnlagResponsResultat.AVSLATT
+    # Er ansvaret avvist og avvisningen godtatt, er saken over.
+    assert state2.kan_utstede_eo is False
+
+
+def test_te_aksepterer_avslag_gjor_vederlag_godkjent():
+    """Samme feil som TFR-01, på vederlagssporet.
+
+    Reproduksjonen fra 18.09 dekket bare grunnlag. Kartleggingen 2026-09-19 kjørte
+    alle tre spor og observerte identisk utfall: avslatt -> godkjent, og
+    kan_utstede_eo fra False til True. _handle_te_aksepterer_respons setter
+    SporStatus.GODKJENT ubetinget i alle tre grener.
+    """
+    timeline = TimelineService()
+    events = _sak_med_godkjent_grunnlag()
+    krav = VederlagEvent(
+        sak_id="S-1",
+        aktor="te",
+        aktor_rolle="TE",
+        event_type="vederlag_krav_sendt",
+        spor=SporType.VEDERLAG,
+        data=VederlagData(
+            krevd_belop=1000000,
+            begrunnelse="Krav",
+            metode=VederlagsMetode.FASTPRIS_TILBUD,
+        ),
+    )
+    avslag = ResponsEvent(
+        sak_id="S-1",
+        aktor="bh",
+        aktor_rolle="BH",
+        event_type="respons_vederlag",
+        spor=SporType.VEDERLAG,
+        refererer_til_event_id=krav.event_id,
+        data=VederlagResponsData(
+            beregnings_resultat=VederlagBeregningResultat.AVSLATT,
+            begrunnelse="Ikke grunnlag for vederlag",
+        ),
+    )
+    events += [krav, avslag]
+    assert timeline.compute_state(events).vederlag.status == SporStatus.AVSLATT
+
+    etter = timeline.compute_state(events + [_aksept("vederlag", avslag.event_id)])
+    assert etter.vederlag.status != SporStatus.GODKJENT, (
+        f"Avslått vederlagskrav ble gjort om til GODKJENT: {etter.vederlag.status}, "
+        f"kan_utstede_eo={etter.kan_utstede_eo}"
+    )
+    assert etter.vederlag.status == SporStatus.AVSLATT_AKSEPTERT
+
+    # Et oppgjort pengekrav skal ikke blokkere en EO bygget på fristsporet:
+    # grunnlaget er godkjent, og det er intet utestående krav på vederlag.
+    # Samme behandling som et trukket krav (besluttet 2026-09-19).
+    assert etter.kan_utstede_eo is True
+
+
+def test_te_aksepterer_avslag_gjor_frist_godkjent():
+    """Samme feil som TFR-01, på fristsporet.
+
+    Fristsporet er det med størst konsekvens: et avslått fristkrav er selve
+    forutsetningen for forsering etter § 33.8. Registreres avslaget som enighet,
+    forsvinner grunnlaget for forseringssporet fra journalen.
+    """
+    timeline = TimelineService()
+    events = _sak_med_godkjent_grunnlag()
+    krav = FristEvent(
+        sak_id="S-1",
+        aktor="te",
+        aktor_rolle="TE",
+        event_type="frist_krav_sendt",
+        spor=SporType.FRIST,
+        data=FristData(krevd_dager=30, begrunnelse="Krav"),
+    )
+    avslag = ResponsEvent(
+        sak_id="S-1",
+        aktor="bh",
+        aktor_rolle="BH",
+        event_type="respons_frist",
+        spor=SporType.FRIST,
+        refererer_til_event_id=krav.event_id,
+        data=FristResponsData(
+            beregnings_resultat=FristBeregningResultat.AVSLATT,
+            begrunnelse="Ingen fristforlengelse",
+        ),
+    )
+    events += [krav, avslag]
+    assert timeline.compute_state(events).frist.status == SporStatus.AVSLATT
+
+    etter = timeline.compute_state(events + [_aksept("frist", avslag.event_id)])
+    assert etter.frist.status != SporStatus.GODKJENT, (
+        f"Avslått fristkrav ble gjort om til GODKJENT: {etter.frist.status}, "
+        f"kan_utstede_eo={etter.kan_utstede_eo}"
+    )
+    assert etter.frist.status == SporStatus.AVSLATT_AKSEPTERT
+
+    # bh_resultat er uendret, så forseringssporet består: et avslått fristkrav
+    # er forutsetningen for forsering etter § 33.8, og TEs aksept av avslaget
+    # endrer ikke at byggherren avslo.
+    assert etter.frist.bh_resultat == FristBeregningResultat.AVSLATT
+
+
+def test_enighet_pa_byggherrens_premisser_gir_utstedbar_eo():
+    """Hele TFR-01-beslutningen i ett scenario (KOE-118 i drøftingen 19.09).
+
+    Uforutsette grunnforhold. Byggherren godkjenner ansvaret, avslår vederlaget
+    på 800 000 i sin helhet, og gir 20 av 30 krevde dager. TE godtar begge svar.
+
+    Partene er da enige om alt: ansvaret er byggherrens, fristen er 20 dager, og
+    det tilkommer ingen penger. Systemets formål er å kunne dokumentere nettopp
+    det — og byggherren må kunne utstede endringsordren som registrerer det, med
+    20 dager og 0 kroner.
+    """
+    timeline = TimelineService()
+    events = _sak_med_godkjent_grunnlag()
+
+    v_krav = VederlagEvent(
+        sak_id="S-1",
+        aktor="te",
+        aktor_rolle="TE",
+        event_type="vederlag_krav_sendt",
+        spor=SporType.VEDERLAG,
+        data=VederlagData(
+            belop_direkte=800000,
+            metode=VederlagsMetode.FASTPRIS_TILBUD,
+            begrunnelse="Sprengning og masseutskifting",
+        ),
+    )
+    v_avslag = ResponsEvent(
+        sak_id="S-1",
+        aktor="bh",
+        aktor_rolle="BH",
+        event_type="respons_vederlag",
+        spor=SporType.VEDERLAG,
+        refererer_til_event_id=v_krav.event_id,
+        data=VederlagResponsData(
+            beregnings_resultat=VederlagBeregningResultat.AVSLATT,
+            begrunnelse="Dekkes av rigg og drift i kontraktssummen",
+        ),
+    )
+    f_krav = FristEvent(
+        sak_id="S-1",
+        aktor="te",
+        aktor_rolle="TE",
+        event_type="frist_krav_sendt",
+        spor=SporType.FRIST,
+        data=FristData(krevd_dager=30, begrunnelse="Sprengning forsinker råbygg"),
+    )
+    f_delvis = ResponsEvent(
+        sak_id="S-1",
+        aktor="bh",
+        aktor_rolle="BH",
+        event_type="respons_frist",
+        spor=SporType.FRIST,
+        refererer_til_event_id=f_krav.event_id,
+        data=FristResponsData(
+            beregnings_resultat=FristBeregningResultat.DELVIS_GODKJENT,
+            godkjent_dager=20,
+            begrunnelse="20 dager, ikke 30",
+        ),
+    )
+
+    events += [v_krav, v_avslag, f_krav, f_delvis]
+    assert timeline.compute_state(events).kan_utstede_eo is False
+
+    etter = timeline.compute_state(
+        events
+        + [
+            _aksept("frist", f_delvis.event_id),
+            _aksept("vederlag", v_avslag.event_id),
+        ]
+    )
+
+    # Delvis godkjent blir enighet om byggherrens tall, og tallet er bevart.
+    assert etter.frist.status == SporStatus.GODKJENT
+    assert etter.frist.godkjent_dager == 20
+
+    # Avslag blir enighet om at intet tilkommer — ikke om at kravet er innvilget.
+    assert etter.vederlag.status == SporStatus.AVSLATT_AKSEPTERT
+    assert etter.vederlag.godkjent_belop is None
+
+    # Og endringsordren kan utstedes: 20 dager, 0 kroner.
+    assert etter.kan_utstede_eo is True
+
+
+def test_godtatt_avslag_kan_ikke_trekkes_tilbake():
+    """AVSLATT_AKSEPTERT er terminal: kravet kan ikke trekkes etterpå.
+
+    Uten dette ville TE kunne trekke et krav de formelt har godtatt avslaget på,
+    og dermed skrive om et avsluttet oppgjør. Statusen blokkeres på linje med
+    GODKJENT og TRUKKET i de tre tilbaketrekkingsreglene.
+    """
+    timeline = TimelineService()
+    validator = BusinessRuleValidator()
+    events = _sak_med_godkjent_grunnlag()
+
+    krav = FristEvent(
+        sak_id="S-1",
+        aktor="te",
+        aktor_rolle="TE",
+        event_type="frist_krav_sendt",
+        spor=SporType.FRIST,
+        data=FristData(krevd_dager=30, begrunnelse="Krav"),
+    )
+    avslag = ResponsEvent(
+        sak_id="S-1",
+        aktor="bh",
+        aktor_rolle="BH",
+        event_type="respons_frist",
+        spor=SporType.FRIST,
+        refererer_til_event_id=krav.event_id,
+        data=FristResponsData(
+            beregnings_resultat=FristBeregningResultat.AVSLATT,
+            begrunnelse="Ingen fristforlengelse",
+        ),
+    )
+    events += [krav, avslag]
+
+    # Før aksept står avslaget, og kravet kan fortsatt trekkes.
+    trekk = WithdrawalEvent(
+        sak_id="S-1",
+        aktor="te",
+        aktor_rolle="TE",
+        event_type="frist_krav_trukket",
+        data=WithdrawalData(begrunnelse="TE trekker kravet"),
+    )
+    assert validator.validate(trekk, timeline.compute_state(events)).is_valid is True
+
+    # Etter aksept er sporet oppgjort, og tilbaketrekking avvises.
+    etter = timeline.compute_state(events + [_aksept("frist", avslag.event_id)])
+    assert etter.frist.status == SporStatus.AVSLATT_AKSEPTERT
+    resultat = validator.validate(trekk, etter)
+    assert resultat.is_valid is False
+    assert "trekkes tilbake" in resultat.message
 
 
 # =============================================================================
@@ -424,3 +712,41 @@ def test_godkjent_grunnlag_rapporteres_som_utkast():
     assert state.overordnet_status != "UTKAST", (
         f"Sak med godkjent grunnlag rapporteres som '{state.overordnet_status}'"
     )
+
+
+def test_sak_oppgjort_ved_godtatt_avslag_rapporteres_ikke_som_ukjent():
+    """overordnet_status må kjenne AVSLATT_AKSEPTERT (TFR-01)."""
+    timeline = TimelineService()
+    events = _sak_med_godkjent_grunnlag()
+
+    krav = FristEvent(
+        sak_id="S-1",
+        aktor="te",
+        aktor_rolle="TE",
+        event_type="frist_krav_sendt",
+        spor=SporType.FRIST,
+        data=FristData(krevd_dager=30, begrunnelse="Krav"),
+    )
+    avslag = ResponsEvent(
+        sak_id="S-1",
+        aktor="bh",
+        aktor_rolle="BH",
+        event_type="respons_frist",
+        spor=SporType.FRIST,
+        refererer_til_event_id=krav.event_id,
+        data=FristResponsData(
+            beregnings_resultat=FristBeregningResultat.AVSLATT,
+            begrunnelse="Ingen fristforlengelse",
+        ),
+    )
+    etter = timeline.compute_state(
+        events + [krav, avslag, _aksept("frist", avslag.event_id)]
+    )
+
+    assert etter.frist.status == SporStatus.AVSLATT_AKSEPTERT
+
+    assert etter.overordnet_status != "UKJENT"
+
+    # «UTKAST» fordi vederlagssporet aldri ble opprettet — det er TFR-06,
+    # se test_godkjent_grunnlag_rapporteres_som_utkast.
+    assert etter.overordnet_status == "UTKAST"

@@ -46,7 +46,7 @@
   let localError = $state('');
 
   const amount = $derived(eoExposure(request, approvals.dailyRate));
-  const minimum = $derived(eoExposureFloor(request));
+  const minimum = $derived(eoExposureFloor(request, approvals.dailyRate));
   const sender = $derived(withLimit(approvals.sender ?? { name: 'Saksbehandler', role: '' }));
   const route = $derived(
     resolveRoute({ amount, minimum, sender, chain: approvals.chain.map(withLimit) })

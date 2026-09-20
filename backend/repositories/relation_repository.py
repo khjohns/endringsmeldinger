@@ -19,6 +19,7 @@ except ImportError:
     SUPABASE_AVAILABLE = False
     Client = None
 
+from lib.project_context import krev_autorisert_prosjekt
 from lib.supabase import safe_execute, with_retry
 from utils.logger import get_logger
 
@@ -90,6 +91,7 @@ class RelationRepository:
                     "source_sak_id": source_sak_id,
                     "target_sak_id": target_sak_id,
                     "relation_type": relation_type,
+                    "prosjekt_id": krev_autorisert_prosjekt("relasjon"),
                 },
                 on_conflict="source_sak_id,target_sak_id,relation_type",
             ).execute()
@@ -121,11 +123,13 @@ class RelationRepository:
         if not target_sak_ids:
             return 0
 
+        prosjekt = krev_autorisert_prosjekt("relasjon")
         rows = [
             {
                 "source_sak_id": source_sak_id,
                 "target_sak_id": target_sak_id,
                 "relation_type": relation_type,
+                "prosjekt_id": prosjekt,
             }
             for target_sak_id in target_sak_ids
         ]

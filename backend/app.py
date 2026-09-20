@@ -176,6 +176,8 @@ init_project_context(app)
 # Register Blueprints
 # ============================================================================
 
+from routes.approval_routes import approval_bp
+from routes.auth_routes import auth_bp
 from routes.bim_link_routes import bim_bp
 from routes.catenda_webhook_routes import webhook_bp  # Catenda-specific webhooks
 from routes.cloudevents_routes import cloudevents_bp
@@ -184,9 +186,7 @@ from routes.error_handlers import register_error_handlers
 from routes.event_routes import events_bp
 from routes.forsering_routes import forsering_bp
 from routes.letter_routes import letter_bp
-from routes.approval_routes import approval_bp
 from routes.membership_routes import membership_bp
-from routes.auth_routes import auth_bp
 from routes.project_routes import projects_bp
 from routes.utility_routes import utility_bp
 from routes.utkast_routes import utkast_bp

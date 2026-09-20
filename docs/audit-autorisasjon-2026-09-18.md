@@ -18,6 +18,19 @@ kallsteder da RV-07 ble lukket, og `valider_grunnlag_fortsatt_gyldig`
 (`forsering_service.py:823`) itererer fortsatt `avslatte_fristkrav` ufiltrert.
 Masterplanen er merket tilsvarende: RV-07 er lukket per kallsted, ikke som klasse.
 
+**Merknad 2026-09-19 (senere samme dag): AUT-01 og AUT-02 er rettet.** Grensen er
+lagt i `BaseSakService.hent_relaterte_saker`, der `tillatte_saker` er et påkrevd
+nøkkelordargument. Et tredje sted av samme klasse ble funnet ved å søke etter
+mønsteret — `GET /api/forsering/<sak>/relaterte` — og lukket i samme runde. De to
+`xfail`-reproduksjonene er gjort om til ordinære regresjonstester.
+
+Rekkevidden var ulik for de to, og det står ikke i funnteksten under: **AUT-01 var
+dybdeforsvar**, fordi `require_project_access` allerede kontrollerte
+`avslatte_fristkrav` ved skriving gjennom `referenced_case_ids`. **AUT-02 hadde ikke
+det vernet** — oppslaget går baklengs, så dekoratoren ser aldri de returnerte IDene,
+og `sak_relations` bærer ingen `prosjekt_id`. Se merknaden i
+[vurderingen av auditfunnene](vurdering-av-auditfunn-2026-09-19.md).
+
 **AUT-03 er et andre tilfelle av samme mønster.** RV-09 ble rettet i de fire
 lesestiene, men `submit_batch` stempler fortsatt `last_event_at` ubetinget
 (`event_routes.py:819`), også for interne notater. AUT-04 og AUT-06 er også

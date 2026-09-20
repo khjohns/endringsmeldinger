@@ -99,6 +99,45 @@ class WebhookService:
         self.magic_link_generator = magic_link_generator
         self.resolver = resolver
 
+    @staticmethod
+    def _auth_service():
+        """Gjenbruk appens AuthService i en forespørsel; ellers lag en.
+
+        Webhookruta kjører inne i en Flask-forespørsel, så den vanlige veien
+        treffer den bufrede tjenesten framfor å bygge en ny Supabase-klient per
+        kall. Utenfor en forespørsel (skript, direkte tjenestebruk) finnes ingen
+        `current_app`, og da konstrueres en.
+        """
+        from flask import has_app_context
+
+        if has_app_context():
+            from lib.auth.session import get_auth_service
+
+            return get_auth_service()
+        from services.auth_service import AuthService
+
+        return AuthService()
+
+    def _contract_side(self, project_id: str, catenda_subject: str | None) -> str | None:
+        """Kontraktssiden topicens forfatter tilhører, eller None.
+
+        Returnerer None når siden ikke lar seg avgjøre entydig — også når
+        Catenda er utilgjengelig. Kalleren er fail-closed (audit INT-04).
+        """
+        if not catenda_subject:
+            return None
+        try:
+            auth = self._auth_service()
+            rolle, _team = auth.contract_membership_for_subject(
+                project_id, catenda_subject
+            )
+            return rolle
+        except Exception as e:
+            logger.warning(
+                f"Kunne ikke avgjøre kontraktsside for {catenda_subject}: {e}"
+            )
+            return None
+
     def get_react_app_base_url(self) -> str:
         """
         Determines the correct base URL for the React application.
@@ -147,7 +186,6 @@ class WebhookService:
         try:
             # Import filtering config (local to avoid circular deps)
             from utils.filtering_config import (
-                get_frontend_route,
                 get_sakstype_from_topic_type,
                 should_process_topic,
             )
@@ -237,10 +275,8 @@ class WebhookService:
                 .get("user", {})
                 .get("name", topic_data.get("creation_author", "Unknown"))
             )
-            author_email = (
-                topic_data.get("bimsync_creation_author", {})
-                .get("user", {})
-                .get("email")
+            author_subject = (
+                topic_data.get("bimsync_creation_author", {}).get("user", {}).get("ref")
             )
 
             # Generate sak_id (timestamp-based)
@@ -252,12 +288,28 @@ class WebhookService:
             app_project_id = resolved.internal_project_id
             catenda_project_id = resolved.catenda_project_id
 
+            aktor_rolle = self._contract_side(app_project_id, author_subject)
+            if aktor_rolle is None:
+                # Fail-closed: uten entydig side opprettes ingen sak.
+                logger.warning(
+                    f"Avviser topic {topic_id}: kontraktssiden til forfatteren "
+                    f"kunne ikke avgjøres entydig"
+                )
+                return {
+                    "success": False,
+                    "action": "rejected_unknown_contract_side",
+                    "error": (
+                        "Kunne ikke avgjøre om forfatteren tilhører TE eller BH. "
+                        "Saken er ikke opprettet."
+                    ),
+                }
+
             # Create SakOpprettetEvent (Event Sourcing)
             event = SakOpprettetEvent(
                 sak_id=sak_id,
                 sakstittel=title,
                 aktor=author_name,
-                aktor_rolle="TE",  # Assume TE created the case
+                aktor_rolle=aktor_rolle,
                 prosjekt_id=app_project_id,
                 catenda_topic_id=topic_id,
                 sakstype=sakstype,

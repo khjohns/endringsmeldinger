@@ -272,8 +272,8 @@ class SupabaseSakMetadataRepository:
             return self._row_to_metadata(result.data[0])
         return None
 
-    def _get_project_id(self, prosjekt_id: str | None = None) -> str:
-        """Get project ID from parameter or Flask context."""
+    def _get_project_id(self, prosjekt_id: str | None = None) -> str | None:
+        """Prosjektet for denne lesingen, eller None når det er ukjent."""
         if prosjekt_id:
             return prosjekt_id
         from lib.project_context import get_project_id
@@ -281,16 +281,27 @@ class SupabaseSakMetadataRepository:
         return get_project_id()
 
     @with_retry()
-    def list_all(self, prosjekt_id: str | None = None) -> list[SakMetadata]:
-        """List all cases for a project (for case list view)."""
+    def probe(self) -> None:
+        """Billigst mulig kontroll av at lageret svarer. Kaster ved feil."""
+        self.client.table(self.TABLE_NAME).select("sak_id").limit(1).execute()
+
+    @with_retry()
+    def list_all(
+        self, prosjekt_id: str | None = None, *, alle_prosjekter: bool = False
+    ) -> list[SakMetadata]:
+        """Saker i prosjektet. Uten prosjektkontekst: ingen, med mindre
+        `alle_prosjekter` sier noe annet. Samme kontrakt som fil-lageret.
+        """
         pid = self._get_project_id(prosjekt_id)
-        result = (
-            self.client.table(self.TABLE_NAME)
-            .select("*")
-            .eq("prosjekt_id", pid)
-            .order("last_event_at", desc=True, nullsfirst=False)
-            .execute()
-        )
+        if pid is None and not alle_prosjekter:
+            return []
+
+        sporring = self.client.table(self.TABLE_NAME).select("*")
+        if pid is not None:
+            sporring = sporring.eq("prosjekt_id", pid)
+        result = sporring.order(
+            "last_event_at", desc=True, nullsfirst=False
+        ).execute()
 
         return [self._row_to_metadata(row) for row in result.data]
 
@@ -313,8 +324,10 @@ class SupabaseSakMetadataRepository:
 
     @with_retry()
     def count_by_sakstype(self, sakstype: str, prosjekt_id: str | None = None) -> int:
-        """Count cases by sakstype within a project. Uses indexed columns."""
+        """Antall saker av typen i prosjektet. Uten prosjektkontekst: 0."""
         pid = self._get_project_id(prosjekt_id)
+        if pid is None:
+            return 0
         result = (
             self.client.table(self.TABLE_NAME)
             .select("sak_id", count="exact")

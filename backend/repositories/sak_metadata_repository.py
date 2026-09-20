@@ -109,7 +109,7 @@ class SakMetadataRepository:
             for row in rows:
                 if (
                     row["sak_id"] == sak_id
-                    and (row.get("prosjekt_id") or "oslobygg") == prosjekt_id
+                    and row.get("prosjekt_id") == prosjekt_id
                 ):
                     row.update(
                         catenda_topic_id=topic_id,
@@ -213,9 +213,23 @@ class SakMetadataRepository:
             pass
         return None
 
-    def list_all(self, prosjekt_id: str | None = None) -> list[SakMetadata]:
-        """List all cases for a project (for case list view)."""
+    def probe(self) -> None:
+        """Billigst mulig kontroll av at lageret svarer. Kaster ved feil."""
+        with self.lock:
+            if not self.csv_path.exists():
+                return
+            with open(self.csv_path, encoding="utf-8") as f:
+                f.readline()
+
+    def list_all(
+        self, prosjekt_id: str | None = None, *, alle_prosjekter: bool = False
+    ) -> list[SakMetadata]:
+        """Saker i prosjektet. Uten prosjektkontekst: ingen, med mindre
+        `alle_prosjekter` sier noe annet.
+        """
         pid = self._get_project_id(prosjekt_id)
+        if pid is None and not alle_prosjekter:
+            return []
         with self.lock:
             if not self.csv_path.exists():
                 return []
@@ -224,7 +238,7 @@ class SakMetadataRepository:
             with open(self.csv_path, encoding="utf-8") as f:
                 reader = csv.DictReader(f)
                 for row in reader:
-                    if pid and (row.get("prosjekt_id") or "oslobygg") != pid:
+                    if pid and row.get("prosjekt_id") != pid:
                         continue
                     cases.append(
                         SakMetadata(
@@ -245,8 +259,10 @@ class SakMetadataRepository:
             return cases
 
     def count_by_sakstype(self, sakstype: str, prosjekt_id: str | None = None) -> int:
-        """Count cases by sakstype within a project."""
+        """Antall saker av typen i prosjektet. Uten prosjektkontekst: 0."""
         pid = self._get_project_id(prosjekt_id)
+        if pid is None:
+            return 0
         with self.lock:
             if not self.csv_path.exists():
                 return 0
@@ -255,7 +271,7 @@ class SakMetadataRepository:
             with open(self.csv_path, encoding="utf-8") as f:
                 reader = csv.DictReader(f)
                 for row in reader:
-                    if pid and (row.get("prosjekt_id") or "oslobygg") != pid:
+                    if pid and row.get("prosjekt_id") != pid:
                         continue
                     if row.get("sakstype", "standard") == sakstype:
                         count += 1

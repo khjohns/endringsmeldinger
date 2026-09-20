@@ -25,8 +25,6 @@ def cases_in_project(case_ids, project_id=None):
     metadata, or in another project, are dropped rather than raising: the
     container case stays readable, its foreign relations do not (audit RV-07).
     """
-    from lib.project_context import DEFAULT_PROJECT_ID
-
     project_id = project_id or getattr(g, "project_id", None)
     if not project_id:
         return set()
@@ -34,7 +32,7 @@ def cases_in_project(case_ids, project_id=None):
     allowed = set()
     for case_id in set(case_ids):
         record = repository.get(case_id)
-        if record is not None and (record.prosjekt_id or DEFAULT_PROJECT_ID) == project_id:
+        if record is not None and record.prosjekt_id == project_id:
             allowed.add(case_id)
     return allowed
 

@@ -7,15 +7,21 @@
 
 export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
-// Active project ID (set by ProjectContext)
-let activeProjectId: string = 'oslobygg';
+// Aktivt prosjekt, satt av [prosjektId]/+layout.ts. Ingen default: de
+// prosjektuavhengige rutene trenger ingen header.
+let activeProjectId: string | null = null;
 
 export function setActiveProjectId(projectId: string) {
   activeProjectId = projectId;
 }
 
-export function getActiveProjectId(): string {
+export function getActiveProjectId(): string | null {
   return activeProjectId;
+}
+
+/** Prosjekt-headeren, eller ingen header når prosjektet er ukjent. */
+export function projectHeaders(projectId: string | null = activeProjectId): Record<string, string> {
+  return projectId ? { 'X-Project-ID': projectId } : {};
 }
 
 // CSRF token storage and fetching
@@ -129,11 +135,8 @@ export function isRetryableError(error: unknown): boolean {
  */
 export async function apiFetch<T>(endpoint: string, options?: RequestInit): Promise<T> {
   const url = `${API_BASE_URL}${endpoint}`;
-  // Snapshot the target before waiting for CSRF; navigation may change the default.
-  const headers = new Headers({
-    'Content-Type': 'application/json',
-    'X-Project-ID': activeProjectId,
-  });
+  // Låses før ventingen på CSRF; navigasjon kan bytte prosjekt imens.
+  const headers = new Headers({ 'Content-Type': 'application/json', ...projectHeaders() });
   new Headers(options?.headers).forEach((value, key) => headers.set(key, value));
   const method = options?.method?.toUpperCase() ?? 'GET';
   const mutation = ['POST', 'PUT', 'PATCH', 'DELETE'].includes(method);

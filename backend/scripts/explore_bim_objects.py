@@ -314,7 +314,7 @@ def main():
     # Velg modell eller se alle
     selected_model_id = None
     if len(models) > 1:
-        print(f"\n  0 = Alle modeller")
+        print("\n  0 = Alle modeller")
         try:
             choice = input(f"\nVelg modell (0-{len(models)}): ").strip()
             if choice and choice != "0":

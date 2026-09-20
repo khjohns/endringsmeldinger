@@ -89,6 +89,9 @@ class SporStatus(str, Enum):
     AVSLATT = "avslatt"
     UNDER_FORHANDLING = "under_forhandling"
     TRUKKET = "trukket"
+    # Oppgjort ved enighet, på byggherrens premisser. Verken innvilget krav
+    # (GODKJENT) eller gjenstående uenighet (AVSLATT).
+    AVSLATT_AKSEPTERT = "avslatt_akseptert"
     LAAST = "laast"  # Grunnlag kan låses etter godkjenning
 
 

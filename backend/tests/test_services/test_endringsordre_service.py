@@ -47,6 +47,13 @@ def agreed_koe(sak_id="KOE-1", amount=120000, days=None):
 @pytest.fixture
 def environment(tmp_path, monkeypatch):
     monkeypatch.setenv("EVENT_STORE_BACKEND", "json")
+    # Tjenestetestene kjører uten forespørselskontekst. Tidligere fylte et
+    # fallback inn 'oslobygg' i get_project_id(); nå er konteksten eksplisitt,
+    # så testene sier hvilket prosjekt de kjører som framfor å arve det.
+    # Enkelttester overstyrer denne for å prøve prosjektgrensen.
+    monkeypatch.setattr(
+        "services.endringsordre_service.get_project_id", lambda: "oslobygg"
+    )
     events = JsonFileEventRepository(str(tmp_path / "events"))
     metadata = {}
     koe_states = {}
