@@ -55,7 +55,7 @@ def payload():
         "expected_version": 1,
         "event": {
             "event_type": "grunnlag_opprettet",
-            "aktor": "Forged Actor",
+            "aktor_id": "Forged Actor",
             "aktor_rolle": "BH",
             "data": {
                 "tittel": "Test claim",
@@ -84,7 +84,8 @@ def test_actor_and_role_come_from_server(api, batch):
     response = post(api, body, batch)
     assert response.status_code == 409, response.json
     parsed = api.parser.call_args.args[0]
-    assert parsed["aktor"] == "Real Actor"
+    # Sesjonens bruker-ID, ikke navnet og ikke det klienten sendte (MS-04).
+    assert parsed["aktor_id"] == "user"
     assert parsed["aktor_rolle"] == "TE"
     api.container.event_repository.append.assert_not_called()
     api.container.event_repository.append_batch.assert_not_called()
@@ -187,7 +188,7 @@ def test_committed_batch_survives_cache_failure(api):
     from services.timeline_service import TimelineService
 
     created = SakOpprettetEvent(
-        sak_id="case", aktor="TE", aktor_rolle="TE", sakstittel="Sak"
+        sak_id="case", aktor_id="TE", aktor_rolle="TE", sakstittel="Sak"
     )
     api.container.event_repository.get_events.return_value = (
         [created.model_dump(mode="json")],

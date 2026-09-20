@@ -22,7 +22,7 @@ from services.timeline_service import TimelineService
 
 def grunnlag(**varsler):
     return GrunnlagEvent(
-        sak_id="NOTICE-1", aktor="TE", aktor_rolle="TE",
+        sak_id="NOTICE-1", aktor_id="TE", aktor_rolle="TE",
         tidsstempel=datetime(2026, 9, 6, 22, 30, tzinfo=UTC),
         data=GrunnlagData(tittel="Forsinket underlag", hovedkategori="SVIKT",
                           beskrivelse="Tegninger mangler", dato_oppdaget="2026-09-01",
@@ -74,10 +74,10 @@ def test_neutral_notices_do_not_assign_bh_a_calculation_response():
 def test_specification_preserves_original_notices_and_dates():
     basis = grunnlag(rigg_drift="Rigg vil påløpe", frist="Krever frist")
     later = datetime(2026, 9, 9, tzinfo=UTC)
-    money = VederlagEvent(sak_id=basis.sak_id, aktor="TE", aktor_rolle="TE",
+    money = VederlagEvent(sak_id=basis.sak_id, aktor_id="TE", aktor_rolle="TE",
         tidsstempel=later, data=VederlagData(metode="ENHETSPRISER", belop_direkte=12000,
         begrunnelse="Beregnet krav", rigg_drift_varsel=VarselInfo(dato_sendt="2026-09-09")))
-    days = FristEvent(sak_id=basis.sak_id, aktor="TE", aktor_rolle="TE",
+    days = FristEvent(sak_id=basis.sak_id, aktor_id="TE", aktor_rolle="TE",
         event_type=EventType.FRIST_KRAV_SPESIFISERT, tidsstempel=later,
         data=FristData(varsel_type="spesifisert", antall_dager=4, begrunnelse="Fire dager",
         frist_varsel=VarselInfo(dato_sendt="2026-09-09"),
@@ -95,10 +95,10 @@ def test_specification_preserves_original_notices_and_dates():
 
 def test_later_notice_does_not_replace_existing_claim_or_its_response():
     basis = grunnlag()
-    claim = VederlagEvent(sak_id=basis.sak_id, aktor="TE", aktor_rolle="TE",
+    claim = VederlagEvent(sak_id=basis.sak_id, aktor_id="TE", aktor_rolle="TE",
         tidsstempel=datetime(2026, 9, 8, tzinfo=UTC),
         data=VederlagData(metode="ENHETSPRISER", belop_direkte=12000, begrunnelse="Beregnet"))
-    notice = VederlagEvent(sak_id=basis.sak_id, aktor="TE", aktor_rolle="TE",
+    notice = VederlagEvent(sak_id=basis.sak_id, aktor_id="TE", aktor_rolle="TE",
         tidsstempel=datetime(2026, 9, 9, tzinfo=UTC),
         data=VederlagData(varsel_type="varsel", begrunnelse="Nye riggkostnader",
                          varsler=KonsekvensVarsler(rigg_drift="Rigg vil påløpe")))
@@ -133,7 +133,7 @@ def test_force_majeure_allows_initial_and_later_compensation_notices():
     state = TimelineService().compute_state([event])
     assert len(state.vederlag.varsler) == 3
     assert len(state.frist.varsler) == 1
-    later = VederlagEvent(sak_id=event.sak_id, aktor="TE", aktor_rolle="TE",
+    later = VederlagEvent(sak_id=event.sak_id, aktor_id="TE", aktor_rolle="TE",
         data=VederlagData(varsel_type="varsel", begrunnelse="Annet ansvarsgrunnlag",
                          varsler=KonsekvensVarsler(vederlag="Krever vederlag")))
     assert validator.validate(later, state).is_valid

@@ -480,6 +480,44 @@ får én skriver og at journalen blir uforanderlig på en måte basen håndhever
 saker finnes — `projects.id` er i dag `'oslobygg'`, altså organisasjonsnavnet
 brukt som prosjekt-ID.
 
+**Merknad 2026-09-20 (sent): MS-01, MS-04 og MS-10 er gjennomført.** De tre med
+frist er tatt mens basen fortsatt er tom, og kostet derfor null datamigrasjon.
+Dokumentet er [gjennomføringen](../gjennomforing-maalskjema-2026-09-20.md).
+
+*Kjørt og observert:*
+
+- **To migrasjoner anvendt** mot prosjektet: `20260920192448`
+  (`organisasjon_id` på `projects`) og `20260920193558` (`hendelse`). Katalogen
+  bekrefter begge.
+- **Basen har atten tabeller.** `koe_events`, `forsering_events` og
+  `endringsordre_events` er sluppet etter en spørring som viste null rader i
+  alle tre umiddelbart før. `hendelse` har samme skranker, fremmednøkkel,
+  indekser og policy som de tre hadde, pluss en **eksplisitt** `GRANT` til
+  `service_role`.
+- **Journalen bærer `aktor_id`**, aldri et personnavn: `app_users.id`, eller
+  `catenda:<subject>` for en Catenda-forfatter uten konto hos oss. Navnet slås
+  opp ved visning i `lib/aktor_navn.py`, og et oppslag som feiler faller tilbake
+  til identiteten framfor å velte tidslinjen eller brevet. De tre literalene
+  `"BH"`, `"Ukjent BH"` og `"Ukjent TE"` er borte fra skrivestiene.
+- **`projects.organisasjon_id` er `NOT NULL` uten default**, og står ikke blant
+  de oppdaterbare feltene. `POST /api/projects` krever den.
+- **Hele settet — atten filer — bygger en tom PostgreSQL 16 i ren
+  `sort`-rekkefølge**, og katalogen er identisk med prosjektets på fem av fem
+  snitt. Sjekksummene står i gjennomføringen. **De er ikke sammenliknbare med
+  handoffens:** spørringene er skrevet på nytt, og et annet uttrykk gir et annet
+  md5 på identisk skjema.
+- **1482 backend-tester, 590 frontend-tester, `ruff` 0, `check:error` 0.**
+
+**Gjenstår, med samme frist:** **MS-05** — interne notater ut av journalen.
+Målskjemaets rekkefølge setter den sammen med MS-04 og MS-10, og den er ikke
+gjort. Den er større enn de to: tidslinjen må flette to kilder, og
+`event_visibility` må dekke begge.
+
+**Gjenstår, uten frist:** **MS-02** (append-only håndhevet av basen) er nå
+ulåst — den ventet på at journalens form skulle bli endelig, og det er den.
+Migrasjonshistorikken stemmer fortsatt ikke med mappa: alignmenten er **8 av
+18**, og `supabase migration repair` krever legitimasjon.
+
 **Ett nytt hull, funnet av premiss P4:** vedlegg har **ingen hash** noe sted.
 Lagres bytene bare i Catenda, finnes det ingen måte å vise at dokumentet der er
 det som ble sendt. Én kolonne — `innhold_sha256` på `vedlegg`-tabellen

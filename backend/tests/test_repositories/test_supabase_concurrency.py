@@ -22,7 +22,6 @@ from repositories.supabase_event_repository import SupabaseEventRepository
 def repo(monkeypatch):
     instance = object.__new__(SupabaseEventRepository)
     instance.client = Mock()
-    instance.default_table = "koe_events"
     # Versjonen i basen er 1, kalleren tror den er 0.
     monkeypatch.setattr(
         SupabaseEventRepository, "_get_current_version", lambda self, *a: 1
@@ -34,7 +33,7 @@ def repo(monkeypatch):
 
 def _event():
     return SakOpprettetEvent(
-        sak_id="case", aktor="A", aktor_rolle="TE", sakstittel="Sak"
+        sak_id="case", aktor_id="A", aktor_rolle="TE", sakstittel="Sak"
     )
 
 

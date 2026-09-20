@@ -68,7 +68,7 @@ def test_tst_02_samtidig_saksopprettelse_krasjer_eller_overskriver_uten_concurre
         def opprett_sak(arbeider_navn):
             ev = SakOpprettetEvent(
                 sak_id="RACE-SAK-001",
-                aktor=arbeider_navn,
+                aktor_id=arbeider_navn,
                 aktor_rolle="TE",
                 sakstittel=f"Sak fra {arbeider_navn}",
             )
@@ -117,7 +117,7 @@ def test_tst_03_tracking_unit_of_work_ruller_ikke_tilbake_hendelser():
 
         sak_id = "SAK-UOW-FAIL"
         ev = SakOpprettetEvent(
-            sak_id=sak_id, aktor="TE", aktor_rolle="TE", sakstittel="UoW Test"
+            sak_id=sak_id, aktor_id="TE", aktor_rolle="TE", sakstittel="UoW Test"
         )
 
         with pytest.raises(RuntimeError):

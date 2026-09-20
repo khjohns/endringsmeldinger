@@ -98,7 +98,7 @@ def environment(tmp_path, monkeypatch):
             SakOpprettetEvent(
                 sak_id=state.sak_id,
                 event_type=EventType.SAK_OPPRETTET,
-                aktor="seed",
+                aktor_id="seed",
                 aktor_rolle="TE",
                 sakstittel=state.sakstittel,
             ),
@@ -117,7 +117,12 @@ def environment(tmp_path, monkeypatch):
 
 
 def issue(env, **overrides):
-    payload = dict(eo_nummer="EO-001", beskrivelse="Endret fundament", koe_sak_ids=[])
+    payload = dict(
+        eo_nummer="EO-001",
+        beskrivelse="Endret fundament",
+        koe_sak_ids=[],
+        utstedt_av_id="bh-saksbehandler",
+    )
     payload.update(overrides)
     return env.service.opprett_endringsordresak(**payload)
 
@@ -137,7 +142,7 @@ def test_money_and_deadline_survive_event_replay(
         er_estimat=True,
         frist_dager=0,
         ny_sluttdato="2027-01-25",
-        utstedt_av="BH Saksbehandler",
+        utstedt_av_id="bh-saksbehandler",
     )
     state = environment.service._load_state(result["sak_id"])
     data = state.endringsordre_data
@@ -147,7 +152,9 @@ def test_money_and_deadline_survive_event_replay(
     assert data.er_estimat is True
     assert data.frist_dager == 0
     assert data.ny_sluttdato == "2027-01-25"
-    assert data.utstedt_av == "BH Saksbehandler"
+    # Journalen bærer identiteten (MS-04). Uten navneoppslag — testen kjører
+    # uten app-kontekst — faller visningen tilbake på den.
+    assert data.utstedt_av == "bh-saksbehandler"
     assert data.status == "utstedt"
     assert environment.metadata[result["sak_id"]].prosjekt_id == "oslobygg"
 
@@ -320,7 +327,7 @@ def test_issued_order_cannot_be_changed_via_legacy_relation_routes(environment):
     result = issue(environment)
     for action in (environment.service.legg_til_koe, environment.service.fjern_koe):
         with pytest.raises(ValueError, match="utstedt"):
-            action(result["sak_id"], "KOE-1")
+            action(result["sak_id"], "KOE-1", aktor_id="bh-saksbehandler")
     _, version = environment.events.get_events(result["sak_id"])
     assert version == 3
 
@@ -332,7 +339,7 @@ def test_context_does_not_return_foreign_project_links(environment):
         EOKoeHandlingEvent(
             sak_id=result["sak_id"],
             event_type=EventType.EO_KOE_LAGT_TIL,
-            aktor="legacy",
+            aktor_id="legacy",
             aktor_rolle="BH",
             data=EOKoeHandlingData(koe_sak_id="OTHER"),
         ),

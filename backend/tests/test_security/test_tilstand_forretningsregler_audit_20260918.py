@@ -50,7 +50,7 @@ def _aksept(spor: str, refererer_til: str):
             "event_type": "te_aksepterer_respons",
             "refererer_til_event_id": refererer_til,
             "spor": spor,
-            "aktor": "te",
+            "aktor_id": "te",
             "aktor_rolle": "TE",
             "data": {"begrunnelse": "TE aksepterer avslaget"},
         }
@@ -62,13 +62,13 @@ def _sak_med_godkjent_grunnlag() -> list:
     opprettet = SakOpprettetEvent(
         sak_id="S-1",
         sakstittel="Endring",
-        aktor="te",
+        aktor_id="te",
         aktor_rolle="TE",
         prosjekt_id="p1",
     )
     grunnlag = GrunnlagEvent(
         sak_id="S-1",
-        aktor="te",
+        aktor_id="te",
         aktor_rolle="TE",
         data=GrunnlagData(
             tittel="Tittel",
@@ -79,7 +79,7 @@ def _sak_med_godkjent_grunnlag() -> list:
     )
     godkjent = ResponsEvent(
         sak_id="S-1",
-        aktor="bh",
+        aktor_id="bh",
         aktor_rolle="BH",
         event_type="respons_grunnlag",
         spor=SporType.GRUNNLAG,
@@ -110,13 +110,13 @@ def test_te_aksepterer_avslag_gjor_grunnlag_godkjent():
     e1 = SakOpprettetEvent(
         sak_id="S-1",
         sakstittel="Endring",
-        aktor="te",
+        aktor_id="te",
         aktor_rolle="TE",
         prosjekt_id="p1",
     )
     e2 = GrunnlagEvent(
         sak_id="S-1",
-        aktor="te",
+        aktor_id="te",
         aktor_rolle="TE",
         data=GrunnlagData(
             tittel="Tittel",
@@ -127,7 +127,7 @@ def test_te_aksepterer_avslag_gjor_grunnlag_godkjent():
     )
     e3 = ResponsEvent(
         sak_id="S-1",
-        aktor="bh",
+        aktor_id="bh",
         aktor_rolle="BH",
         event_type="respons_grunnlag",
         spor=SporType.GRUNNLAG,
@@ -148,7 +148,7 @@ def test_te_aksepterer_avslag_gjor_grunnlag_godkjent():
             "event_type": "te_aksepterer_respons",
             "refererer_til_event_id": e3.event_id,
             "spor": "grunnlag",
-            "aktor": "te",
+            "aktor_id": "te",
             "aktor_rolle": "TE",
             "data": {"begrunnelse": "TE aksepterer avslaget"},
         }
@@ -183,7 +183,7 @@ def test_te_aksepterer_avslag_gjor_vederlag_godkjent():
     events = _sak_med_godkjent_grunnlag()
     krav = VederlagEvent(
         sak_id="S-1",
-        aktor="te",
+        aktor_id="te",
         aktor_rolle="TE",
         event_type="vederlag_krav_sendt",
         spor=SporType.VEDERLAG,
@@ -195,7 +195,7 @@ def test_te_aksepterer_avslag_gjor_vederlag_godkjent():
     )
     avslag = ResponsEvent(
         sak_id="S-1",
-        aktor="bh",
+        aktor_id="bh",
         aktor_rolle="BH",
         event_type="respons_vederlag",
         spor=SporType.VEDERLAG,
@@ -232,7 +232,7 @@ def test_te_aksepterer_avslag_gjor_frist_godkjent():
     events = _sak_med_godkjent_grunnlag()
     krav = FristEvent(
         sak_id="S-1",
-        aktor="te",
+        aktor_id="te",
         aktor_rolle="TE",
         event_type="frist_krav_sendt",
         spor=SporType.FRIST,
@@ -240,7 +240,7 @@ def test_te_aksepterer_avslag_gjor_frist_godkjent():
     )
     avslag = ResponsEvent(
         sak_id="S-1",
-        aktor="bh",
+        aktor_id="bh",
         aktor_rolle="BH",
         event_type="respons_frist",
         spor=SporType.FRIST,
@@ -282,7 +282,7 @@ def test_enighet_pa_byggherrens_premisser_gir_utstedbar_eo():
 
     v_krav = VederlagEvent(
         sak_id="S-1",
-        aktor="te",
+        aktor_id="te",
         aktor_rolle="TE",
         event_type="vederlag_krav_sendt",
         spor=SporType.VEDERLAG,
@@ -294,7 +294,7 @@ def test_enighet_pa_byggherrens_premisser_gir_utstedbar_eo():
     )
     v_avslag = ResponsEvent(
         sak_id="S-1",
-        aktor="bh",
+        aktor_id="bh",
         aktor_rolle="BH",
         event_type="respons_vederlag",
         spor=SporType.VEDERLAG,
@@ -306,7 +306,7 @@ def test_enighet_pa_byggherrens_premisser_gir_utstedbar_eo():
     )
     f_krav = FristEvent(
         sak_id="S-1",
-        aktor="te",
+        aktor_id="te",
         aktor_rolle="TE",
         event_type="frist_krav_sendt",
         spor=SporType.FRIST,
@@ -314,7 +314,7 @@ def test_enighet_pa_byggherrens_premisser_gir_utstedbar_eo():
     )
     f_delvis = ResponsEvent(
         sak_id="S-1",
-        aktor="bh",
+        aktor_id="bh",
         aktor_rolle="BH",
         event_type="respons_frist",
         spor=SporType.FRIST,
@@ -362,7 +362,7 @@ def test_godtatt_avslag_kan_ikke_trekkes_tilbake():
 
     krav = FristEvent(
         sak_id="S-1",
-        aktor="te",
+        aktor_id="te",
         aktor_rolle="TE",
         event_type="frist_krav_sendt",
         spor=SporType.FRIST,
@@ -370,7 +370,7 @@ def test_godtatt_avslag_kan_ikke_trekkes_tilbake():
     )
     avslag = ResponsEvent(
         sak_id="S-1",
-        aktor="bh",
+        aktor_id="bh",
         aktor_rolle="BH",
         event_type="respons_frist",
         spor=SporType.FRIST,
@@ -385,7 +385,7 @@ def test_godtatt_avslag_kan_ikke_trekkes_tilbake():
     # Før aksept står avslaget, og kravet kan fortsatt trekkes.
     trekk = WithdrawalEvent(
         sak_id="S-1",
-        aktor="te",
+        aktor_id="te",
         aktor_rolle="TE",
         event_type="frist_krav_trukket",
         data=WithdrawalData(begrunnelse="TE trekker kravet"),
@@ -422,7 +422,7 @@ def test_overordnet_status_gir_ingen_aktive_spor_for_forsering():
     e1 = SakOpprettetEvent(
         sak_id="FORS-1",
         sakstittel="Forseringssak",
-        aktor="te",
+        aktor_id="te",
         aktor_rolle="TE",
         prosjekt_id="p1",
         sakstype="forsering",
@@ -430,7 +430,7 @@ def test_overordnet_status_gir_ingen_aktive_spor_for_forsering():
     )
     e2 = ForseringVarselEvent(
         sak_id="FORS-1",
-        aktor="te",
+        aktor_id="te",
         aktor_rolle="TE",
         data=ForseringVarselData(
             frist_krav_id="frist-1",
@@ -445,7 +445,7 @@ def test_overordnet_status_gir_ingen_aktive_spor_for_forsering():
     )
     e3 = ForseringResponsEvent(
         sak_id="FORS-1",
-        aktor="bh",
+        aktor_id="bh",
         aktor_rolle="BH",
         data=ForseringResponsData(
             aksepterer=True,
@@ -486,13 +486,13 @@ def test_vederlag_krav_trukket_blokkeres_ved_subsidiaer_enighet():
     e1 = SakOpprettetEvent(
         sak_id="S-1",
         sakstittel="Endring",
-        aktor="te",
+        aktor_id="te",
         aktor_rolle="TE",
         prosjekt_id="p1",
     )
     e2 = GrunnlagEvent(
         sak_id="S-1",
-        aktor="te",
+        aktor_id="te",
         aktor_rolle="TE",
         data=GrunnlagData(
             tittel="T",
@@ -503,7 +503,7 @@ def test_vederlag_krav_trukket_blokkeres_ved_subsidiaer_enighet():
     )
     e3 = VederlagEvent(
         sak_id="S-1",
-        aktor="te",
+        aktor_id="te",
         aktor_rolle="TE",
         data=VederlagData(
             metode=VederlagsMetode.ENHETSPRISER,
@@ -515,7 +515,7 @@ def test_vederlag_krav_trukket_blokkeres_ved_subsidiaer_enighet():
     # BH avslår grunnlag
     e4 = ResponsEvent(
         sak_id="S-1",
-        aktor="bh",
+        aktor_id="bh",
         aktor_rolle="BH",
         event_type="respons_grunnlag",
         spor=SporType.GRUNNLAG,
@@ -528,7 +528,7 @@ def test_vederlag_krav_trukket_blokkeres_ved_subsidiaer_enighet():
     # BH godkjenner beregningen subsidiært
     e5 = ResponsEvent(
         sak_id="S-1",
-        aktor="bh",
+        aktor_id="bh",
         aktor_rolle="BH",
         event_type="respons_vederlag",
         spor=SporType.VEDERLAG,
@@ -549,7 +549,7 @@ def test_vederlag_krav_trukket_blokkeres_ved_subsidiaer_enighet():
             "sak_id": "S-1",
             "event_type": "vederlag_krav_trukket",
             "refererer_til_event_id": e3.event_id,
-            "aktor": "te",
+            "aktor_id": "te",
             "aktor_rolle": "TE",
             "data": {"begrunnelse": "Trekker kravet etter grunnlagsavslag"},
         }
@@ -584,13 +584,13 @@ def test_subsidiaert_standpunkt_paa_null_forsvinner():
     e1 = SakOpprettetEvent(
         sak_id="S-1",
         sakstittel="Endring",
-        aktor="te",
+        aktor_id="te",
         aktor_rolle="TE",
         prosjekt_id="p1",
     )
     e2 = GrunnlagEvent(
         sak_id="S-1",
-        aktor="te",
+        aktor_id="te",
         aktor_rolle="TE",
         data=GrunnlagData(
             tittel="T",
@@ -601,7 +601,7 @@ def test_subsidiaert_standpunkt_paa_null_forsvinner():
     )
     e3 = VederlagEvent(
         sak_id="S-1",
-        aktor="te",
+        aktor_id="te",
         aktor_rolle="TE",
         data=VederlagData(
             metode=VederlagsMetode.ENHETSPRISER,
@@ -611,14 +611,14 @@ def test_subsidiaert_standpunkt_paa_null_forsvinner():
     )
     e4 = FristEvent(
         sak_id="S-1",
-        aktor="te",
+        aktor_id="te",
         aktor_rolle="TE",
         data=FristData(antall_dager=10, begrunnelse="Fristkrav"),
     )
 
     resp_ved = ResponsEvent(
         sak_id="S-1",
-        aktor="bh",
+        aktor_id="bh",
         aktor_rolle="BH",
         event_type="respons_vederlag",
         spor=SporType.VEDERLAG,
@@ -633,7 +633,7 @@ def test_subsidiaert_standpunkt_paa_null_forsvinner():
 
     resp_frist = ResponsEvent(
         sak_id="S-1",
-        aktor="bh",
+        aktor_id="bh",
         aktor_rolle="BH",
         event_type="respons_frist",
         spor=SporType.FRIST,
@@ -678,13 +678,13 @@ def test_godkjent_grunnlag_rapporteres_som_utkast():
     e1 = SakOpprettetEvent(
         sak_id="S-1",
         sakstittel="Endring",
-        aktor="te",
+        aktor_id="te",
         aktor_rolle="TE",
         prosjekt_id="p1",
     )
     e2 = GrunnlagEvent(
         sak_id="S-1",
-        aktor="te",
+        aktor_id="te",
         aktor_rolle="TE",
         data=GrunnlagData(
             tittel="T",
@@ -695,7 +695,7 @@ def test_godkjent_grunnlag_rapporteres_som_utkast():
     )
     e3 = ResponsEvent(
         sak_id="S-1",
-        aktor="bh",
+        aktor_id="bh",
         aktor_rolle="BH",
         event_type="respons_grunnlag",
         spor=SporType.GRUNNLAG,
@@ -721,7 +721,7 @@ def test_sak_oppgjort_ved_godtatt_avslag_rapporteres_ikke_som_ukjent():
 
     krav = FristEvent(
         sak_id="S-1",
-        aktor="te",
+        aktor_id="te",
         aktor_rolle="TE",
         event_type="frist_krav_sendt",
         spor=SporType.FRIST,
@@ -729,7 +729,7 @@ def test_sak_oppgjort_ved_godtatt_avslag_rapporteres_ikke_som_ukjent():
     )
     avslag = ResponsEvent(
         sak_id="S-1",
-        aktor="bh",
+        aktor_id="bh",
         aktor_rolle="BH",
         event_type="respons_frist",
         spor=SporType.FRIST,

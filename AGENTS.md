@@ -87,13 +87,13 @@ en naturlov. `backend/migrations/` er tømt (20.09); all DDL ligger i
 Avhengighetene er reelle: kjerneskjemaet må komme før `20260911073600_projects`,
 som gjør `UPDATE sak_metadata`, og `project_memberships` må komme etter
 `projects`. Legger du inn en migrasjon med et versjonsnummer som sorterer feil,
-bygger ikke basen fra tom. To vakter i
+bygger ikke basen fra tom. Vaktene i
 `tests/test_security/test_database_arkitektur_20260920.py` holder på det.
 
 **Stubben må gi `service_role` fulle rettigheter,** ellers er sammenlikningen
 ikke tro: `GRANT ALL ON ALL TABLES IN SCHEMA public TO service_role` pluss
 `ALTER DEFAULT PRIVILEGES … GRANT ALL ON TABLES TO service_role`. Supabase gjør
-dette ved prosjektoppsett, ikke i migrasjonene — og **åtte av tjue tabeller har
+dette ved prosjektoppsett, ikke i migrasjonene — og **åtte av atten tabeller har
 ingen eksplisitt `GRANT` i repoet i det hele tatt.** De virker bare fordi
 plattformen deler ut rettigheter. Flyttes basen bort fra Supabase, forsvinner
 de.
@@ -123,9 +123,16 @@ Brytes en av disse, er det en sikkerhetsfeil uansett hvor liten endringen så ut
   Legger du til en rute, forvent å måtte begrunne den der.
 - **CSRF håndheves inne i `require_auth`** (`lib/auth/session.py`), bevisst, slik at
   en ny mutasjonsrute ikke kan glemme den. Ikke flytt den ut.
-- **`aktor_rolle`, `aktor_team_id`, `tidsstempel` og `event_id` settes av serveren.**
-  Klienten kan ikke sende dem — `models/events.py` avviser forsøket. Stol aldri på
-  en rolle klienten oppgir.
+- **`aktor_id`, `aktor_rolle`, `aktor_team_id`, `tidsstempel` og `event_id` settes
+  av serveren.** `event_id` og `tidsstempel` avvises av
+  `parse_event_from_request`; de tre aktørfeltene overskrives i ruta før
+  parsing, så det klienten sendte, når aldri modellen. Stol aldri på en rolle
+  eller en identitet klienten oppgir.
+- **Journalen bærer `aktor_id`, aldri et personnavn.** Verdien er `app_users.id`,
+  eller `catenda:<subject>` når handlingen kom fra en Catenda-forfatter uten konto
+  hos oss. Navnet slås opp ved visning i `lib/aktor_navn.py`, og et oppslag som
+  feiler skal falle tilbake til identiteten — aldri velte tidslinjen eller brevet.
+  En hendelse er append-only: et navn som kommer inn her, kan ikke fjernes igjen.
 - **Interne notater og utkast er fail-closed.** Uten entydig team finnes det ikke noe
   å lese eller skrive. Et notat uten `aktor_team_id` vises til ingen, heller ikke
   forfatteren.
@@ -135,7 +142,7 @@ Brytes en av disse, er det en sikkerhetsfeil uansett hvor liten endringen så ut
 - **Det finnes ikke noe defaultprosjekt.** Mangler `X-Project-ID`, er prosjektet
   *ukjent* — ikke `oslobygg`. `get_project_id()` returnerer `None`, og kallere skal
   behandle det som «ingen tilgang». `prosjekt_id` er `NOT NULL` uten default på
-  hendelsestabellene og `sak_relations`, og skrivestiene stempler det fra autorisert
+  `hendelse` og `sak_relations`, og skrivestiene stempler det fra autorisert
   kontekst. Gjeninnfører du en fallback — også som et uskyldig
   `prosjekt_id or "oslobygg"` i én sammenlikning, eller som et tomt filter som
   «betyr alle» — blir attribusjonen uetterprøvbar igjen, og det lar seg ikke rette

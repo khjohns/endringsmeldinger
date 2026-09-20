@@ -37,7 +37,7 @@ def backfill_forsering_relations(
     event_repository, relation_repository, dry_run: bool = False
 ) -> tuple[int, int]:
     """
-    Backfill forsering relations from forsering_events.
+    Backfill forsering relations from the event log.
 
     Returns:
         Tuple of (saker_processed, relations_added)
@@ -53,9 +53,7 @@ def backfill_forsering_relations(
 
     for sak_id in sak_ids:
         try:
-            events_data, _version = event_repository.get_events(
-                sak_id, sakstype="forsering"
-            )
+            events_data, _version = event_repository.get_events(sak_id)
             if not events_data:
                 continue
 
@@ -112,7 +110,7 @@ def backfill_endringsordre_relations(
     event_repository, relation_repository, dry_run: bool = False
 ) -> tuple[int, int]:
     """
-    Backfill endringsordre relations from endringsordre_events.
+    Backfill endringsordre relations from the event log.
 
     Returns:
         Tuple of (saker_processed, relations_added)
@@ -128,9 +126,7 @@ def backfill_endringsordre_relations(
 
     for sak_id in sak_ids:
         try:
-            events_data, _version = event_repository.get_events(
-                sak_id, sakstype="endringsordre"
-            )
+            events_data, _version = event_repository.get_events(sak_id)
             if not events_data:
                 continue
 

@@ -355,7 +355,7 @@ what the result would be if principal position doesn't hold):
         "required": ["event_type", "aktor", "aktor_rolle", "data"],
         "properties": {
             "event_type": {"$ref": "#/components/schemas/EventType"},
-            "aktor": {
+            "aktor_id": {
                 "type": "string",
                 "description": "Name of person performing the action",
             },
@@ -813,7 +813,7 @@ Submit a single event to a case with optimistic concurrency control.
                                     "expected_version": 1,
                                     "event": {
                                         "event_type": "grunnlag_opprettet",
-                                        "aktor": "Ola Nordmann",
+                                        "aktor_id": "5f1c0f2e-2f1a-4a64-9a2e-9f0b1d2c3e4f",
                                         "aktor_rolle": "TE",
                                         "data": {
                                             "tittel": "Forsinket tegningsunderlag uke 45",
@@ -832,7 +832,7 @@ Submit a single event to a case with optimistic concurrency control.
                                     "expected_version": 2,
                                     "event": {
                                         "event_type": "vederlag_krav_sendt",
-                                        "aktor": "Ola Nordmann",
+                                        "aktor_id": "5f1c0f2e-2f1a-4a64-9a2e-9f0b1d2c3e4f",
                                         "aktor_rolle": "TE",
                                         "data": {
                                             "metode": "ENHETSPRISER",

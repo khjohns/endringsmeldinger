@@ -42,7 +42,7 @@ class TestCloudEventMixinAttributes:
         """Test that specversion is always '1.0'."""
         event = GrunnlagEvent(
             sak_id="SAK-001",
-            aktor="Test User",
+            aktor_id="Test User",
             aktor_rolle="TE",
             data=GrunnlagData(
                 tittel="Test",
@@ -59,7 +59,7 @@ class TestCloudEventMixinAttributes:
         """Test that ce_id returns the event_id."""
         event = GrunnlagEvent(
             sak_id="SAK-001",
-            aktor="Test User",
+            aktor_id="Test User",
             aktor_rolle="TE",
             data=GrunnlagData(
                 tittel="Test",
@@ -76,7 +76,7 @@ class TestCloudEventMixinAttributes:
         """Test ce_source URI format."""
         event = GrunnlagEvent(
             sak_id="KOE-2025-042",
-            aktor="Test User",
+            aktor_id="Test User",
             aktor_rolle="TE",
             prosjekt_id="P-2025-001",
             data=GrunnlagData(
@@ -93,7 +93,7 @@ class TestCloudEventMixinAttributes:
         """Test ce_source with no prosjekt_id defaults to 'unknown'."""
         event = GrunnlagEvent(
             sak_id="KOE-2025-042",
-            aktor="Test User",
+            aktor_id="Test User",
             aktor_rolle="TE",
             data=GrunnlagData(
                 tittel="Test",
@@ -109,7 +109,7 @@ class TestCloudEventMixinAttributes:
         """Test ce_type includes the no.oslo.koe namespace."""
         event = GrunnlagEvent(
             sak_id="SAK-001",
-            aktor="Test User",
+            aktor_id="Test User",
             aktor_rolle="TE",
             event_type=EventType.GRUNNLAG_OPPRETTET,
             data=GrunnlagData(
@@ -127,7 +127,7 @@ class TestCloudEventMixinAttributes:
         """Test ce_time is in ISO 8601 format with Z suffix."""
         event = GrunnlagEvent(
             sak_id="SAK-001",
-            aktor="Test User",
+            aktor_id="Test User",
             aktor_rolle="TE",
             data=GrunnlagData(
                 tittel="Test",
@@ -148,7 +148,7 @@ class TestCloudEventMixinAttributes:
         """Test ce_subject returns the sak_id."""
         event = GrunnlagEvent(
             sak_id="KOE-2025-001",
-            aktor="Test User",
+            aktor_id="Test User",
             aktor_rolle="TE",
             data=GrunnlagData(
                 tittel="Test",
@@ -164,7 +164,7 @@ class TestCloudEventMixinAttributes:
         """Test ce_datacontenttype is 'application/json'."""
         event = GrunnlagEvent(
             sak_id="SAK-001",
-            aktor="Test User",
+            aktor_id="Test User",
             aktor_rolle="TE",
             data=GrunnlagData(
                 tittel="Test",
@@ -187,7 +187,7 @@ class TestToCloudEvent:
         """Test exporting GrunnlagEvent to CloudEvents format."""
         event = GrunnlagEvent(
             sak_id="KOE-2025-001",
-            aktor="Ola Nordmann",
+            aktor_id="Ola Nordmann",
             aktor_rolle="TE",
             prosjekt_id="P-2025-001",
             data=GrunnlagData(
@@ -213,7 +213,7 @@ class TestToCloudEvent:
         assert ce["datacontenttype"] == "application/json"
 
         # Extension attributes
-        assert ce["actor"] == "Ola Nordmann"
+        assert ce["actorid"] == "Ola Nordmann"
         assert ce["actorrole"] == "TE"
 
         # Data payload
@@ -225,7 +225,7 @@ class TestToCloudEvent:
         """Test exporting VederlagEvent to CloudEvents format."""
         event = VederlagEvent(
             sak_id="KOE-2025-002",
-            aktor="Per Hansen",
+            aktor_id="Per Hansen",
             aktor_rolle="TE",
             data=VederlagData(
                 metode=VederlagsMetode.REGNINGSARBEID,
@@ -244,7 +244,7 @@ class TestToCloudEvent:
         """Test exporting FristEvent to CloudEvents format."""
         event = FristEvent(
             sak_id="KOE-2025-003",
-            aktor="Anne Olsen",
+            aktor_id="Anne Olsen",
             aktor_rolle="TE",
             data=FristData(
                 varsel_type=FristVarselType.SPESIFISERT,
@@ -266,7 +266,7 @@ class TestToCloudEvent:
         """Test that refererer_til_event_id is included as referstoid."""
         event = GrunnlagEvent(
             sak_id="SAK-001",
-            aktor="Test",
+            aktor_id="Test",
             aktor_rolle="TE",
             refererer_til_event_id="previous-event-uuid",
             data=GrunnlagData(
@@ -285,7 +285,7 @@ class TestToCloudEvent:
         """Test that kommentar is included as comment extension."""
         event = GrunnlagEvent(
             sak_id="SAK-001",
-            aktor="Test",
+            aktor_id="Test",
             aktor_rolle="TE",
             kommentar="This is an important note",
             data=GrunnlagData(
@@ -304,7 +304,7 @@ class TestToCloudEvent:
         """Test that None values are not included in the output."""
         event = GrunnlagEvent(
             sak_id="SAK-001",
-            aktor="Test",
+            aktor_id="Test",
             aktor_rolle="TE",
             # No kommentar or refererer_til_event_id
             data=GrunnlagData(
@@ -337,7 +337,7 @@ class TestFromCloudEvent:
             "time": "2025-12-20T10:30:00Z",
             "subject": "KOE-2025-001",
             "datacontenttype": "application/json",
-            "actor": "Ola Nordmann",
+            "actorid": "Ola Nordmann",
             "actorrole": "TE",
             "data": {
                 "tittel": "Forsinket tegningsunderlag",
@@ -352,7 +352,7 @@ class TestFromCloudEvent:
 
         assert event.event_id == "test-uuid-123"
         assert event.sak_id == "KOE-2025-001"
-        assert event.aktor == "Ola Nordmann"
+        assert event.aktor_id == "Ola Nordmann"
         assert event.aktor_rolle == "TE"
         assert event.event_type == "grunnlag_opprettet"
         assert event.prosjekt_id == "P-2025-001"
@@ -366,7 +366,7 @@ class TestFromCloudEvent:
             "source": "/projects/PROJ-ABC/cases/SAK-001",
             "type": "no.oslo.koe.grunnlag_opprettet",
             "subject": "SAK-001",
-            "actor": "Test",
+            "actorid": "Test",
             "actorrole": "TE",
             "data": {
                 "tittel": "Test",
@@ -388,7 +388,7 @@ class TestFromCloudEvent:
             "source": "/projects/unknown/cases/SAK-001",
             "type": "no.oslo.koe.grunnlag_opprettet",
             "subject": "SAK-001",
-            "actor": "Test",
+            "actorid": "Test",
             "actorrole": "TE",
             "data": {
                 "tittel": "Test",
@@ -410,7 +410,7 @@ class TestFromCloudEvent:
             "source": "/projects/P-001/cases/SAK-001",
             "type": "no.oslo.koe.grunnlag_oppdatert",
             "subject": "SAK-001",
-            "actor": "Test",
+            "actorid": "Test",
             "actorrole": "TE",
             "referstoid": "original-event-456",
             "data": {
@@ -434,7 +434,7 @@ class TestFromCloudEvent:
             "type": "no.oslo.koe.grunnlag_opprettet",
             "time": "2025-06-15T14:30:00Z",
             "subject": "SAK-001",
-            "actor": "Test",
+            "actorid": "Test",
             "actorrole": "TE",
             "data": {
                 "tittel": "Test",
@@ -462,7 +462,7 @@ class TestCloudEventRoundtrip:
         """Test GrunnlagEvent roundtrip (to_cloudevent -> from_cloudevent)."""
         original = GrunnlagEvent(
             sak_id="KOE-2025-001",
-            aktor="Ola Nordmann",
+            aktor_id="Ola Nordmann",
             aktor_rolle="TE",
             prosjekt_id="P-2025-001",
             kommentar="Important note",
@@ -484,7 +484,7 @@ class TestCloudEventRoundtrip:
         # Verify key fields
         assert restored.event_id == original.event_id
         assert restored.sak_id == original.sak_id
-        assert restored.aktor == original.aktor
+        assert restored.aktor_id == original.aktor_id
         assert restored.aktor_rolle == original.aktor_rolle
         assert restored.prosjekt_id == original.prosjekt_id
 
@@ -582,7 +582,7 @@ class TestCloudEventSerialization:
         """Test that model_dump includes CloudEvents computed fields."""
         event = GrunnlagEvent(
             sak_id="SAK-001",
-            aktor="Test",
+            aktor_id="Test",
             aktor_rolle="TE",
             prosjekt_id="PROJ-001",
             data=GrunnlagData(
@@ -610,7 +610,7 @@ class TestCloudEventSerialization:
         event = SakOpprettetEvent(
             sak_id="SAK-001",
             sakstittel="Test Sak",
-            aktor="System",
+            aktor_id="System",
             aktor_rolle="TE",
             prosjekt_id="PROJ-001",
         )
@@ -619,7 +619,7 @@ class TestCloudEventSerialization:
 
         assert ce["type"] == "no.oslo.koe.sak_opprettet"
         assert ce["source"] == "/projects/PROJ-001/cases/SAK-001"
-        assert ce["actor"] == "System"
+        assert ce["actorid"] == "System"
 
 
 # ============ EDGE CASE TESTS ============
@@ -632,7 +632,7 @@ class TestCloudEventEdgeCases:
         """Test handling of special characters in sak_id."""
         event = GrunnlagEvent(
             sak_id="KOE-2025/001-A",
-            aktor="Test",
+            aktor_id="Test",
             aktor_rolle="TE",
             data=GrunnlagData(
                 tittel="Test",
@@ -651,7 +651,7 @@ class TestCloudEventEdgeCases:
         """Test event with all possible extension attributes."""
         event = GrunnlagEvent(
             sak_id="SAK-001",
-            aktor="Full Extension Test",
+            aktor_id="Full Extension Test",
             aktor_rolle="BH",
             prosjekt_id="PROJ-EXT",
             kommentar="Full extension test",
@@ -668,7 +668,7 @@ class TestCloudEventEdgeCases:
         ce = event.to_cloudevent()
 
         # All extensions should be present
-        assert ce["actor"] == "Full Extension Test"
+        assert ce["actorid"] == "Full Extension Test"
         assert ce["actorrole"] == "BH"
         assert ce["comment"] == "Full extension test"
         assert ce["referstoid"] == "ref-123"

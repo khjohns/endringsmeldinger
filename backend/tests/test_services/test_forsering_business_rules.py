@@ -36,7 +36,7 @@ def timeline_service():
 def _sak_opprettet() -> SakOpprettetEvent:
     return SakOpprettetEvent(
         sak_id="FORS-001",
-        aktor="TE Bruker",
+        aktor_id="TE Bruker",
         aktor_rolle="TE",
         sakstittel="Forseringssak",
         sakstype="forsering",
@@ -46,7 +46,7 @@ def _sak_opprettet() -> SakOpprettetEvent:
 def _varsel() -> ForseringVarselEvent:
     return ForseringVarselEvent(
         sak_id="FORS-001",
-        aktor="TE Bruker",
+        aktor_id="TE Bruker",
         aktor_rolle="TE",
         data=ForseringVarselData(
             frist_krav_id="frist-1",
@@ -85,7 +85,7 @@ def test_forsering_respons_krever_varsel(validator, timeline_service):
 
     respons = ForseringResponsEvent(
         sak_id="FORS-001",
-        aktor="BH Bruker",
+        aktor_id="BH Bruker",
         aktor_rolle="BH",
         data=ForseringResponsData(aksepterer=True, begrunnelse="Akseptert"),
     )
@@ -101,7 +101,7 @@ def test_forsering_kan_ikke_stoppes_uten_varsel(validator, timeline_service):
 
     stoppet = ForseringStoppetEvent(
         sak_id="FORS-001",
-        aktor="TE Bruker",
+        aktor_id="TE Bruker",
         aktor_rolle="TE",
         data=ForseringStoppetData(
             dato_stoppet="2026-09-15",
@@ -119,7 +119,7 @@ def test_forsering_kan_ikke_stoppes_to_ganger(validator, timeline_service):
     """Dobbelt stopp gir motstridende påløpte kostnader i samme sak."""
     stoppet = ForseringStoppetEvent(
         sak_id="FORS-001",
-        aktor="TE Bruker",
+        aktor_id="TE Bruker",
         aktor_rolle="TE",
         data=ForseringStoppetData(
             dato_stoppet="2026-09-15",
@@ -140,7 +140,7 @@ def test_kostnader_kan_ikke_oppdateres_uten_varsel(validator, timeline_service):
 
     kostnader = ForseringKostnaderOppdatertEvent(
         sak_id="FORS-001",
-        aktor="TE Bruker",
+        aktor_id="TE Bruker",
         aktor_rolle="TE",
         data=ForseringKostnaderOppdatertData(paalopte_kostnader=25_000),
     )
@@ -158,7 +158,7 @@ def _koe_kobling(event_type: str) -> object:
 
     return ForseringKoeHandlingEvent(
         sak_id="FORS-001",
-        aktor="TE Bruker",
+        aktor_id="TE Bruker",
         aktor_rolle="TE",
         event_type=event_type,
         data=ForseringKoeHandlingData(koe_sak_id="KOE-1"),
@@ -168,7 +168,7 @@ def _koe_kobling(event_type: str) -> object:
 def _standard_sak() -> SakOpprettetEvent:
     return SakOpprettetEvent(
         sak_id="FORS-001",
-        aktor="TE Bruker",
+        aktor_id="TE Bruker",
         aktor_rolle="TE",
         sakstittel="Vanlig KOE-sak",
         sakstype="standard",

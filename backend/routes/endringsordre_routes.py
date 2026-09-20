@@ -109,7 +109,7 @@ def opprett_endringsordresak():
         er_estimat=payload.get("er_estimat", False),
         frist_dager=payload.get("frist_dager"),
         ny_sluttdato=payload.get("ny_sluttdato"),
-        utstedt_av=g.user.get("name") or g.user.get("email") or g.user["id"],
+        utstedt_av_id=g.user["id"],
     )
 
     logger.info(
@@ -175,7 +175,7 @@ def legg_til_koe(sak_id: str):
 
     service = _get_endringsordre_service()
     result = service.legg_til_koe(
-        sak_id, payload["koe_sak_id"], aktor=g.user.get("name") or g.user["email"]
+        sak_id, payload["koe_sak_id"], aktor_id=g.user["id"]
     )
 
     logger.info(
@@ -205,9 +205,7 @@ def fjern_koe(sak_id: str, koe_sak_id: str):
     if blocked:
         return jsonify(error="APPROVAL_REQUIRED", message=blocked), 403
     service = _get_endringsordre_service()
-    result = service.fjern_koe(
-        sak_id, koe_sak_id, aktor=g.user.get("name") or g.user["email"]
-    )
+    result = service.fjern_koe(sak_id, koe_sak_id, aktor_id=g.user["id"])
 
     logger.info(
         f"KOE {koe_sak_id} fjernet fra EO {sak_id} (catenda_synced={result.get('catenda_synced')})"

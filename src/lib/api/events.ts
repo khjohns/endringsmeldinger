@@ -11,7 +11,6 @@ import { browser } from '$app/environment';
 
 // Storage keys (MUST match their respective sources)
 const USER_ROLE_STORAGE_KEY = 'koe-user-role';
-const USER_EMAIL_STORAGE_KEY = 'koe-user-email';
 
 /**
  * Get current user role from localStorage.
@@ -24,18 +23,6 @@ function getCurrentUserRole(): 'TE' | 'BH' {
     return stored === 'BH' ? 'BH' : 'TE';
   }
   return 'TE';
-}
-
-/**
- * Get current user identifier.
- * Falls back to 'Ukjent bruker' if not authenticated.
- */
-function getCurrentAktor(): string {
-  if (browser) {
-    const email = localStorage.getItem(USER_EMAIL_STORAGE_KEY);
-    return email || 'Ukjent bruker';
-  }
-  return 'Ukjent bruker';
 }
 
 export interface EventSubmitResponse {
@@ -95,7 +82,8 @@ export async function submitEvent(
       sak_id: sakId,
       event: {
         event_type: eventType,
-        aktor: getCurrentAktor(),
+        // Aktøren stemples av serveren fra sesjonen (MS-04). Klienten sendte
+        // tidligere e-postadressen sin her; den ble forkastet uansett.
         aktor_rolle: getCurrentUserRole(),
         data: data,
       },

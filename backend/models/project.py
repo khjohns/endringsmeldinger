@@ -15,6 +15,14 @@ class Project(BaseModel):
     model_config = ConfigDict(json_encoders={datetime: lambda v: v.isoformat()})
 
     id: str = Field(..., description="Unique project identifier (UUID)")
+    organisasjon_id: str = Field(
+        ...,
+        min_length=1,
+        description=(
+            "Virksomheten prosjektet tilhører. Egen identitet fordi prosjekt-ID "
+            "ikke skal bære to betydninger; ingen defaultverdi (MS-10)."
+        ),
+    )
     name: str = Field(..., description="Human-readable project name")
     description: str | None = Field(default=None, description="Project description")
     settings: dict = Field(default_factory=dict, description="Project settings (integrations etc.)")
@@ -27,6 +35,9 @@ class CreateProjectRequest(BaseModel):
     """Request model for creating a new project. ID is server-generated."""
 
     name: str = Field(..., min_length=1, max_length=200, description="Project name")
+    organisasjon_id: str = Field(
+        ..., min_length=1, max_length=200, description="Virksomheten prosjektet tilhører"
+    )
     description: str | None = Field(default=None, max_length=2000, description="Project description")
     settings: dict = Field(default_factory=dict, description="Project settings (optional)")
 

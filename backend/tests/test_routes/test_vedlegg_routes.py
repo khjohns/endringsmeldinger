@@ -271,7 +271,7 @@ def test_referert_vedlegg_kan_ikke_fjernes_selv_om_levering_feilet(api, monkeypa
     hendelse = {
         "event_type": "grunnlag_opprettet",
         "sak_id": "S1",
-        "aktor": "TE",
+        "aktor_id": "TE",
         "aktor_rolle": "TE",
         "tidsstempel": "2026-09-15T08:00:00Z",
         "data": {
@@ -451,7 +451,7 @@ def test_retry_only_committed_references_and_never_appends(api, monkeypatch):
         {
             "sak_id": "S1",
             "event_type": "respons_grunnlag",
-            "aktor": "BH",
+            "aktor_id": "BH",
             "aktor_rolle": "BH",
             "data": {
                 "resultat": "godkjent",

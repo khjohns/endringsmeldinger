@@ -96,6 +96,13 @@ def create_project():
                 "error": "MISSING_PARAMETERS",
                 "message": "name is required",
             }), 400
+        if not payload.get("organisasjon_id"):
+            # Ingen utledning fra prosjektnavn og ingen defaultverdi: et
+            # prosjekt uten navngitt virksomhet skal ikke kunne opprettes.
+            return jsonify({
+                "error": "MISSING_PARAMETERS",
+                "message": "organisasjon_id is required",
+            }), 400
 
         # Validate request via Pydantic
         try:
@@ -112,6 +119,7 @@ def create_project():
 
         project = Project(
             id=project_id,
+            organisasjon_id=req.organisasjon_id,
             name=req.name,
             description=req.description,
             settings=req.settings,

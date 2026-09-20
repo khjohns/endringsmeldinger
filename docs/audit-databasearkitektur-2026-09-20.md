@@ -57,6 +57,23 @@ konkludere med å fjerne noe. Det andre kan ikke — det leverer forslag.**
 > som arkitekturvurderingen åpner for — forsvinner de, og appen mister tilgang
 > til åtte tabeller uten at noen migrasjon sier fra.
 
+> **Merknad 2026-09-20 (sent): DA-12 er gjennomført, og DA-06 er lukket.**
+> De tre hendelsestabellene er slått sammen til `hendelse` (MS-01), og
+> `koe_events`, `forsering_events` og `endringsordre_events` er sluppet etter at
+> en spørring viste null rader i alle tre. Basen har atten tabeller. Radtallene
+> og tabelloversikten under gjelder derfor skjemaet slik det var da
+> gjennomgangen ble gjort.
+>
+> **DA-06 falt med det samme:** docstringen øverst i
+> `supabase_event_repository.py` gjenga skjemaet og var feil på tre punkter. Den
+> er erstattet av en henvisning til migrasjonsfila, som nå er eneste kilde. Den
+> ene testen som leste docstringen som skjemakilde, leser nå fila.
+>
+> Rettighetsfunnet står: **åtte av atten tabeller** mangler fortsatt eksplisitt
+> `GRANT`. `hendelse` er ikke blant dem — migrasjonen skriver rettigheten ned.
+>
+> Gjennomføringen: [MS-01, MS-04 og MS-10](gjennomforing-maalskjema-2026-09-20.md).
+
 ---
 
 ## De sju foreløpige punktene: hva som holdt

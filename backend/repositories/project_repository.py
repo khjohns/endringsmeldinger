@@ -42,6 +42,7 @@ class SupabaseProjectRepository:
         """Convert database row to Project model."""
         return Project(
             id=row["id"],
+            organisasjon_id=row["organisasjon_id"],
             name=row["name"],
             description=row.get("description"),
             settings=row.get("settings") or {},
@@ -83,6 +84,7 @@ class SupabaseProjectRepository:
         """Create a new project."""
         row = {
             "id": project.id,
+            "organisasjon_id": project.organisasjon_id,
             "name": project.name,
             "description": project.description,
             "settings": project.settings,
