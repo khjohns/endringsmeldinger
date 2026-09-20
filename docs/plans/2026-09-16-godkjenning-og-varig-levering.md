@@ -438,6 +438,34 @@ står:*
    `sak_bim_links` er i bruk etter bokstaven, har null rader, og ingen audit har
    vurdert om flaten er besluttet. Det er et produktspørsmål.
 
+**Merknad 2026-09-20 (kveld): designspørsmålene DA-12 til DA-15 er lukket.**
+[Målskjemaet](../design-maalskjema-database-2026-09-20.md) (MS-01 til MS-15)
+avgjør dem, på sju premisser besluttet av utvikler samme dag: magic links utgår
+(innlogging via Catenda ID / Entra ID), BIM er ikke i bruk men relevant og
+objekter hører alltid til én sak, formålet med BIM-koblingen er å se hvilke
+komponenter som fører til tvist, vedlegg lagres kun i Catenda, løsningen bør i
+prinsippet støtte andre virksomheter, og to kan arbeide i ulike spor samtidig.
+
+Hovedpunktene: de tre hendelsestabellene slås sammen, `sak_metadata` deles i
+register og projeksjon, `sak_relations` fjernes til fordel for GIN-indekser på
+hendelsenes jsonb, interne notater tas **ut** av journalen, `aktor` blir
+`aktor_id`, og BIM-kobling blir hendelser framfor slettbare rader. Målet er
+atten tabeller mot dagens tjue — poenget er ikke antallet, men at hver tabell
+får én skriver og at journalen blir uforanderlig på en måte basen håndhever.
+
+**To ting med frist, fordi basen er tom:** `aktor_id` (MS-04) og
+`organisasjon_id` på `projects` (MS-10) blir dyre eller umulige så snart ekte
+saker finnes — `projects.id` er i dag `'oslobygg'`, altså organisasjonsnavnet
+brukt som prosjekt-ID.
+
+**Ett nytt hull, funnet av premiss P4:** vedlegg har **ingen hash** noe sted.
+Lagres bytene bare i Catenda, finnes det ingen måte å vise at dokumentet der er
+det som ble sendt. Én kolonne — `innhold_sha256` på `vedlegg`-tabellen
+durable-inbox-notatet allerede har designet — lukker det. Hører til pakke 3,
+«bevisførsel og framleggelse».
+
+**Ingenting i målskjemaet er implementert.** Det er et målbilde.
+
 **Merknad til DA-11 for pakke 1:** RLS-policyene er fortsatt
 `service_role / ALL / USING (true)` — tjue av tjueén, én per tabell. Den
 tjueførste er en `authenticated`-lesepolicy på `project_memberships`. Den er **uvirksom** —
