@@ -193,10 +193,12 @@ frontend på **0 eslint-feil**, og `prettier --check` passerer.
 
 **To ting som følger av at lint nå gater:**
 
-- **`ruff>=0.8.0` bør pinnes.** En ny utgivelse kan aktivere regler innenfor de
-  valgte familiene (`E`, `F`, `B`, `I`, `UP`, `SIM`) og gjøre hver PR rød uten at
-  noen har endret kode. Hører til arbeidspakken om byggreproduserbarhet, men er mer
-  presserende nå enn før.
+- **`ruff` er pinnet (2026-09-20).** `ruff==0.16.8` i `requirements-dev.txt`. En ny
+  utgivelse kunne ellers aktivert regler innenfor de valgte familiene (`E`, `F`,
+  `B`, `I`, `UP`, `SIM`) og gjort hver PR rød uten at noen hadde endret kode.
+  Oppgradering er nå en bevisst handling. **De øvrige `>=`-kravene står igjen** —
+  10 av 21 i `requirements.txt` — og hører fortsatt til arbeidspakken om
+  byggreproduserbarhet.
 - **`UP042` må revurderes bevisst, ikke glemmes.** Den er slått av med begrunnelse i
   `pyproject.toml`, ikke fordi StrEnum er feil, men fordi bytte av enum-basis i en
   append-only journal krever en gjennomgang. Hører sammen med domenegjennomgangen av
