@@ -910,7 +910,11 @@ class InterntNotatData(BaseModel):
     """Data for internt notat."""
 
     tekst: str = Field(..., description="Notat-tekst")
-    spor: str | None = Field(default=None, description="Hvilket spor notatet gjelder")
+    # SporType og ikke str: `notat.spor` har samme skranke i databasen, og en
+    # modell som godtar mer enn basen er nettopp formen DB-05 har.
+    spor: SporType | None = Field(
+        default=None, description="Hvilket spor notatet gjelder"
+    )
 
 
 class InterntNotatEvent(SakEvent):
