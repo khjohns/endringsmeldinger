@@ -185,3 +185,44 @@ def test_organisasjon_id_har_ingen_defaultverdi():
         "En defaultverdi ville gjort organisasjonstilhørigheten like "
         "uetterprøvbar som prosjekt_id var før 20260920053427."
     )
+
+
+# ---------------------------------------------------------------- MG-03
+
+
+@pytest.mark.xfail(
+    strict=True,
+    raises=AssertionError,
+    reason=(
+        "MG-03: parse_event_from_request avviser event_id og tidsstempel, men "
+        "ikke aktor_id. De tre aktørfeltene overskrives i ruta i stedet, så en "
+        "ny mutasjonsrute som kaller parse_event_from_request med klientens "
+        "nyttelast fører klientens aktor_id inn i journalen. Rettes ved å "
+        "utvide forbidden_fields og stemple aktøren inne i funksjonen — det "
+        "krever at approval_service og frontenden endres samtidig."
+    ),
+)
+def test_parsegrensen_avviser_klientoppgitt_aktor():
+    """Invarianten hører der den ikke kan glemmes, slik CSRF ligger i require_auth.
+
+    Testen i tests/test_routes/test_event_security.py verner det samme, men
+    tester *ruta*. Den fanger ikke en ny rute som glemmer overskrivingen.
+    """
+    from models.events import parse_event_from_request
+
+    avvist = False
+    try:
+        parse_event_from_request(
+            {
+                "sak_id": "SAK-MS-003",
+                "event_type": "internt_notat",
+                "aktor_id": "forfalsket-aktor",
+                "aktor_rolle": "TE",
+                "aktor_team_id": TE_TEAM,
+                "data": {"tekst": "Internt"},
+            }
+        )
+    except ValueError:
+        avvist = True
+
+    assert avvist, "parsegrensen tok imot et klientoppgitt aktor_id"

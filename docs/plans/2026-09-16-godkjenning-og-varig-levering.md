@@ -518,6 +518,38 @@ ulåst — den ventet på at journalens form skulle bli endelig, og det er den.
 Migrasjonshistorikken stemmer fortsatt ikke med mappa: alignmenten er **8 av
 18**, og `supabase migration repair` krever legitimasjon.
 
+**Merknad 2026-09-21: koden fra runden er gjennomgått, MG-01 til MG-09.**
+Fire uavhengige gjennomganger med vinkel gjenbruk, forenkling, effektivitet og
+nivå. Oppryddingen er gjennomført i `75789b8`; funnene som ble stående, står i
+[gjennomgangen](../audit-maalskjema-gjennomgang-2026-09-21.md).
+
+**Ett funn er nytt og skapt av forrige runde, og det har frist: MG-02.**
+`catenda:<subject>` er en andre verdiform i `hendelse.actorid`, så samme person
+kan føres som UUID i én hendelse og prefikset i en annen — avhengig av om de
+hadde logget inn da webhooken kom. `koe_resolve_identity` i basen ville fjernet
+formen, men gjør en ubetinget `UPDATE` av navn og e-post og trenger en
+`COALESCE`-variant først. Dette er samme klasse som MS-04 selv: uopprettelig
+når journalen bærer ekte saker.
+
+**MG-01** er middels og mindre enn den ser ut: navneoppslaget ligger i
+`compute_state` framfor i svarlaget, men *kjørt og observert* er fire av de fem
+oppslagene døde — `get_timeline` har null kallere, og ingen komponent leser
+`AktorInfo.navn`. Eneste levende forbruker er `EOData.utstedt_av`. Virkningen i
+dag er at samme EO viser navn utstedt i en forespørsel og UUID utstedt i
+bakgrunnen.
+
+**MG-03** står som streng `xfail`: parsegrensen avviser `event_id` og
+`tidsstempel`, men ikke de tre aktørfeltene, som overskrives i ruta i stedet.
+En ny mutasjonsrute kan glemme overskrivingen. Rettingen krever at
+`approval_service` og frontenden endres samtidig.
+
+Resten — MG-04 til MG-09 — er lav eller hører til MS-06. **MG-09 er ført inn i
+`AGENTS.md`:** en anvendt migrasjonsfil kan ikke rettes, heller ikke
+kommentarene, fordi `schema_migrations.statements` lagrer rågteksten.
+
+**Korrekthet er ikke gjennomgått** mot `9f70c45`. De fire vinklene ble
+uttrykkelig bedt om å ikke lete etter korrekthetsfeil.
+
 **Ett nytt hull, funnet av premiss P4:** vedlegg har **ingen hash** noe sted.
 Lagres bytene bare i Catenda, finnes det ingen måte å vise at dokumentet der er
 det som ble sendt. Én kolonne — `innhold_sha256` på `vedlegg`-tabellen

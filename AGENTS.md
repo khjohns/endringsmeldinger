@@ -99,11 +99,18 @@ plattformen deler ut rettigheter. Flyttes basen bort fra Supabase, forsvinner
 de.
 
 **Testsuiten kan ikke se at basen er uenig med repoet.** Supabase-lageret dekkes
-bare av testdobler, og doblene speiler repoet — `EVENT_TABLE_COLUMNS` i
-`test_event_roundtrip.py` er tro mot migrasjonsfilene, ikke mot databasen. Da
+bare av testdobler, og doblene speiler repoet — `HENDELSE_KOLONNER` i
+`tests/fixtures/supabase_dobbel.py` er tro mot migrasjonsfila, ikke mot
+databasen. Da
 `actorteam` manglet i basen, var suiten grønn mens *enhver* skriving til
 Supabase-lageret feilet. Grønn suite er derfor ikke bevis for at en skjemaendring
 har nådd fram; det er katalogspørringen som er beviset.
+
+**En anvendt migrasjon er uforanderlig — også kommentarene.**
+`supabase_migrations.schema_migrations.statements` lagrer rågteksten, kommentarer
+og alt. Retter du et ord i en fil som er kjørt, er fila ikke lenger det basen
+gjorde. Har innholdet blitt feil, skriv en ny migrasjon eller en datert merknad i
+`docs/` — ikke rediger historikken.
 
 **Endrer du databasen, skriv migrasjonsfila i samme runde.** All DDL skal ligge i
 `supabase/migrations/` med samme SQL som faktisk ble kjørt, og fila skal si at den
@@ -184,6 +191,13 @@ defaultverdien gjemmer seg i minst seks former: `x or "verdi"`,
 `request.headers.get("X", "verdi")`, et defaultargument i Python eller
 TypeScript, og en `DEFAULT` i databasen. Søk etter alle formene før du skriver
 «alle er fjernet» — og skriv heller hvilke former du søkte etter.
+
+**En omdøping kan snu det testen dokumenterer, uten at noe blir rødt.** Da
+`aktor` ble `aktor_id`, fulgte verdiene med: `aktor_id="Kari Nordmann"` er
+syntaktisk feilfritt og grønt, men fastslår nå at et personnavn er en gyldig
+identitet — det motsatte av regelen testen ligger ved siden av. Mekanisk søk og
+erstatt flytter navnet på feltet, ikke meningen i verdien. Etter en omdøping: les
+assertions, ikke bare kjør dem.
 
 **En grønn streng `xfail` beviser ikke funnet**, bare at testens assertion feiler.
 Suiten inneholder mange bevisste reproduksjoner av udekkede svakheter. **Ikke «rett»
