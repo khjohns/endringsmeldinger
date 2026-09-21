@@ -75,6 +75,14 @@ den.
 
 ### MG-02 — `catenda:<subject>` er en andre verdiform, i en kolonne som ikke kan rettes
 
+> **Merknad 2026-09-21 (kveld): produktbeslutningen er tatt — ja.** En webhook
+> skal opprette brukerrader for folk som aldri har logget inn hos oss, slik at
+> `koe_resolve_identity` kan kalles fra webhookstien og journalen får én
+> identitetsform. Hindring 2 under er dermed ikke lenger åpen. Hindring 1
+> (`COALESCE` rundt den ubetingede `UPDATE app_users`) og hindring 3 (identisk
+> issuer) står, og funnet er fortsatt åpent: beslutningen er tatt, koden er
+> ikke skrevet. Se masterplanens merknad samme dato.
+
 **Fil og symbol:** `backend/services/catenda_webhook_service.py:_aktor_id`,
 `backend/lib/aktor_navn.py:CATENDA_PREFIKS`,
 `supabase/migrations/20260920193558_hendelse_tabell.sql:36`.

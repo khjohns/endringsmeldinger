@@ -184,6 +184,13 @@ skrive; ingen policy er skrevet, og samtlige er fortsatt
 
 ### DB-05: Modellen `ProjectMembership` krasjer mot databasens CHECK-skranke (Middels)
 
+> **Merknad 2026-09-21 (kveld): domenebeslutningen er tatt — `viewer` skal
+> finnes.** En ren leserolle uten handlingsrett er ønsket funksjonalitet, ikke
+> en etterlatenskap. Konflikten skal derfor løses ved å utvide databasen, ikke
+> ved å snevre inn modellen. Det snur forutsetningen for å fjerne
+> `project_memberships`: den gamle tabellen er i dag eneste sted begrepet
+> finnes, og `app_project_memberships` må bære det først.
+
 - **Fil og linje:** [`backend/models/project_membership.py:20`](file:///Users/kasper/Projects/endringsmeldinger/backend/models/project_membership.py#L20) og [`supabase/migrations/20260912150635_catenda_user_sessions.sql:45`](file:///Users/kasper/Projects/endringsmeldinger/supabase/migrations/20260912150635_catenda_user_sessions.sql#L45)
 - **Status:** Kjørt og observert som feilende test; markert som streng xfail i [`test_database_rls_audit_20260918.py`](file:///Users/kasper/Projects/endringsmeldinger/backend/tests/test_security/test_database_rls_audit_20260918.py).
 - **Forutsetninger:** En bruker gis lesetilgang (`viewer`) til et prosjekt.

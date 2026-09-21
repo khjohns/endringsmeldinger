@@ -662,6 +662,36 @@ skrivefunksjoner får særskilte rettigheter og et eget review.
 - **Belastning:** mål ende-til-ende før eventuell medlemskapscache. Angi da
   eksplisitt tilbakekallingsfrist og sterkere kontroll ved formell publisering.
 
+**Merknad 2026-09-21 (kveld): tre beslutninger er tatt.** Alle tre sto oppført
+som «krever et menneske», og er avgjort av oppdragsgiver. De styrer
+implementeringen og skal ikke tas opp igjen uten at denne merknaden oppheves.
+
+- **Sletteplikt mot arkivplikt: arkivplikt går foran.** Journalen bevares. Det
+  dokumentene til nå har behandlet som arbeidshypotese — Oslobygg KF er
+  kommunalt, arkivplikt gjelder, og GDPR art. 17 nr. 3 gjør unntak for
+  rettskrav — er nå den besluttede forutsetningen. **Følgen: kryptografisk
+  sletting av journalen skal ikke bygges.** MS-04 og MS-05 er tiltakene, og de
+  ble valgt nettopp fordi de er riktige uansett utfall. Arbeidspakken
+  «oppbevaring og sletting i selve journalen» er dermed besvart for journalens
+  del: modellen er pseudonymisering ved skriving (MS-04) pluss fritekst om
+  personer utenfor den uforanderlige strømmen (MS-05). Endrer det rettslige
+  bildet seg, er det denne merknaden som må oppheves først.
+- **MG-02: ja, en webhook skal opprette brukerrader.** `koe_resolve_identity`
+  skal kalles fra webhookstien, slik at samme person alltid føres med samme
+  identitet. `catenda:<subject>` som andre verdiform skal bort, og `actorid`
+  kan bli `uuid`. De tre hindringene MG-02 navngir står fortsatt: `COALESCE`
+  rundt den ubetingede `UPDATE app_users`, identisk issuer som innloggingens,
+  og DDL for begge.
+- **DB-05: `viewer` skal finnes som begrep.** En ren leserolle — innsyn uten
+  handlingsrett, for revisor, advokat eller rådgiver — er ønsket.
+  `app_project_memberships` må derfor utvides før `project_memberships` kan
+  fjernes. Planen om å fjerne den gamle tabellen står, men forutsetningen er en
+  utvidelse av den nye, ikke en forenkling.
+
+**Bare den første er gjennomført** — gjennom MS-05, se
+[MS-05-gjennomføringen](../gjennomforing-ms05-2026-09-21.md). MG-02 og DB-05 er
+besluttet, ikke bygget.
+
 Volumet tilsier en enkel databasebasert worker med lease, backoff og synlige
 feil, ikke en ny distribuert meldingsplattform. Avstemming er ekstra vern,
 ikke erstatning for atomisk registrering. Fullstendig uavhengig sluttaudit og

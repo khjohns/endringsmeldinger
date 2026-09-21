@@ -9,6 +9,12 @@ tilgjengelige alternativer som lagrer mindre. Den rettslige vurderingen —
 behandlingsgrunnlag, nødvendighet i rettslig forstand, forholdsmessighet, risiko for
 de registrerte og tiltak — krever juridisk kompetanse og er ikke gjort her.
 
+> **Merknad 2026-09-21 (kveld): én rettslig forutsetning er nå besluttet.**
+> Arkivplikt går foran sletteplikt for kontraktsjournalen. Alternativ 3.1
+> (bruker-ID framfor navn) og 3.2 (interne notater ut av journalen) er valgt og
+> gjennomført; kryptografisk sletting skal ikke bygges. Resten av den rettslige
+> vurderingen står fortsatt ugjort — dette er én forutsetning, ikke en DPIA.
+
 Hører til [arbeidspakken om oppbevaring og sletting](plans/2026-09-16-godkjenning-og-varig-levering.md)
 og de organisatoriske forutsetningene i samme plan.
 
