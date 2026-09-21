@@ -35,7 +35,7 @@ def _service(events: list) -> tuple[ForseringService, MagicMock]:
 def _sak_opprettet() -> SakOpprettetEvent:
     return SakOpprettetEvent(
         sak_id="FORS-002",
-        aktor_id="TE Bruker",
+        aktor_id="te-bruker",
         aktor_rolle="TE",
         sakstittel="Forseringssak",
         sakstype="forsering",
@@ -45,7 +45,7 @@ def _sak_opprettet() -> SakOpprettetEvent:
 def _varsel() -> ForseringVarselEvent:
     return ForseringVarselEvent(
         sak_id="FORS-002",
-        aktor_id="TE Bruker",
+        aktor_id="te-bruker",
         aktor_rolle="TE",
         data=ForseringVarselData(
             frist_krav_id="frist-1",
@@ -69,7 +69,7 @@ def test_stopp_uten_varsel_avvises_av_tjenesten():
             sak_id="FORS-002",
             begrunnelse="Stoppet uten varsel",
             paalopte_kostnader=5_000,
-            aktor_id="TE Bruker",
+            aktor_id="te-bruker",
             expected_version=1,
         )
 
@@ -84,7 +84,7 @@ def test_stopp_etter_varsel_lagres():
         sak_id="FORS-002",
         begrunnelse="Forseringen er fullført",
         paalopte_kostnader=5_000,
-        aktor_id="TE Bruker",
+        aktor_id="te-bruker",
         expected_version=2,
     )
 
@@ -102,7 +102,7 @@ def test_kostnader_uten_varsel_avvises_av_tjenesten():
             sak_id="FORS-002",
             paalopte_kostnader=25_000,
             kommentar="Delvis påløpt",
-            aktor_id="TE Bruker",
+            aktor_id="te-bruker",
             expected_version=1,
         )
 

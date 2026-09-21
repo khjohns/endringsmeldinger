@@ -296,7 +296,7 @@ class TestCloudEventsIntegration:
         # Create event
         event = GrunnlagEvent(
             sak_id="KOE-2025-001",
-            aktor_id="Integration Test",
+            aktor_id="integrasjonstest",
             aktor_rolle="TE",
             prosjekt_id="PROJ-001",
             data=GrunnlagData(

@@ -132,7 +132,9 @@ class WebhookService:
         («john@doe.com» i spekken), ikke en ID.
         """
         if not catenda_subject:
-            return ""
+            raise ValueError(
+                "Catenda-subject mangler; kontraktssiden skulle avvist topicen"
+            )
         try:
             bruker_id = self._auth_service().repo.user_id_for_subject(
                 "catenda", catenda_subject
@@ -293,12 +295,6 @@ class WebhookService:
             # NOTE: Custom fields (Byggherre, Leverandør) extracted but not currently used
             # TODO: Consider using these fields for party identification
 
-            # Extract author
-            author_name = (
-                topic_data.get("bimsync_creation_author", {})
-                .get("user", {})
-                .get("name", topic_data.get("creation_author", "Unknown"))
-            )
             author_subject = (
                 topic_data.get("bimsync_creation_author", {}).get("user", {}).get("ref")
             )
@@ -354,7 +350,7 @@ class WebhookService:
                 catenda_project_id=catenda_project_id,
                 prosjekt_id=app_project_id,
                 metadata_kwargs={
-                    "created_by": author_name,
+                    "created_by": aktor_id,
                     "cached_title": title,
                     "cached_status": "UNDER_VARSLING",
                 },

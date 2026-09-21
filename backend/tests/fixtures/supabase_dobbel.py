@@ -15,7 +15,30 @@ og migrasjonsfila er uenige, aldri at fila og basen er det — det er
 katalogspørringen som er beviset på at en skjemaendring har nådd fram.
 """
 
+import json
 from types import SimpleNamespace
+
+
+def _felt(row: dict, field: str):
+    """Verdien et PostgREST-filter ville sammenliknet med.
+
+    `data->>nokkel` plukker ut en tekstverdi fra JSON-kolonnen, slik `->>`
+    gjør i PostgREST. Kolonnen kan ligge som dict eller som rå JSON-streng.
+    """
+    if "->>" not in field:
+        return row.get(field)
+    kolonne, nokkel = field.split("->>", 1)
+    verdi = row.get(kolonne.strip())
+    if isinstance(verdi, str):
+        try:
+            verdi = json.loads(verdi)
+        except json.JSONDecodeError:
+            return None
+    if not isinstance(verdi, dict):
+        return None
+    ut = verdi.get(nokkel.strip())
+    return None if ut is None else str(ut)
+
 
 HENDELSE_KOLONNER = {
     "id",
@@ -56,6 +79,7 @@ class FakeTable:
         self._filters: list[tuple[str, object]] = []
         self._order: tuple[str, bool] | None = None
         self._limit: int | None = None
+        self._range: tuple[int, int] | None = None
         self._pending_insert: list[dict] | None = None
 
     def insert(self, rows):
@@ -87,6 +111,10 @@ class FakeTable:
         self._limit = count
         return self
 
+    def range(self, start, end):
+        self._range = (start, end)
+        return self
+
     def execute(self):
         if self._pending_insert is not None:
             self._rows.extend(dict(row) for row in self._pending_insert)
@@ -95,11 +123,14 @@ class FakeTable:
         rows = [
             row
             for row in self._rows
-            if all(row.get(field) == value for field, value in self._filters)
+            if all(_felt(row, field) == value for field, value in self._filters)
         ]
         if self._order:
             field, desc = self._order
             rows = sorted(rows, key=lambda row: row.get(field), reverse=desc)
+        if self._range is not None:
+            start, end = self._range
+            rows = rows[start : end + 1]
         if self._limit is not None:
             rows = rows[: self._limit]
         if self._select and self._select != "*":

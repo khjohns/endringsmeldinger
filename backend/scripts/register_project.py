@@ -11,6 +11,7 @@ Usage:
         --name "Nytt Prosjekt" \
         --catenda-project-id "<UUID>" \
         --library-id "<UUID>" \
+        --organisasjon-id "<virksomhet>" \
         [--folder-id "<UUID>"] \
         [--topic-board-id "<UUID>"]
 """
@@ -41,6 +42,7 @@ def register_project(
     name: str,
     catenda_project_id: str,
     library_id: str,
+    organisasjon_id: str,
     folder_id: str | None = None,
     topic_board_id: str | None = None,
     description: str | None = None,
@@ -59,6 +61,7 @@ def register_project(
             "id": internal_id,
             "name": name,
             "description": description or f"Prosjekt {name}",
+            "organisasjon_id": organisasjon_id,
             "is_active": True,
             "created_by": "system",
         }
@@ -97,6 +100,7 @@ def main():
     parser.add_argument("--name", help="Display name for the project")
     parser.add_argument("--catenda-project-id", help="Catenda project UUID")
     parser.add_argument("--library-id", help="Catenda library UUID")
+    parser.add_argument("--organisasjon-id", help="Virksomheten prosjektet tilhører")
     parser.add_argument("--folder-id", help="Catenda folder UUID (optional)")
     parser.add_argument("--topic-board-id", help="Catenda topic board UUID (optional)")
     parser.add_argument("--description", help="Project description (optional)")
@@ -104,13 +108,16 @@ def main():
     args = parser.parse_args()
 
     if args.id:
-        if not (args.name and args.catenda_project_id and args.library_id):
-            parser.error("--name, --catenda-project-id and --library-id are required when --id is given.")
+        if not (args.name and args.catenda_project_id and args.library_id and args.organisasjon_id):
+            parser.error(
+                "--name, --catenda-project-id, --library-id og --organisasjon-id er påkrevd når --id er gitt."
+            )
         register_project(
             internal_id=args.id,
             name=args.name,
             catenda_project_id=args.catenda_project_id,
             library_id=args.library_id,
+            organisasjon_id=args.organisasjon_id,
             folder_id=args.folder_id,
             topic_board_id=args.topic_board_id,
             description=args.description,
@@ -119,8 +126,16 @@ def main():
         # Default: seed from .env
         cat_id = os.getenv("CATENDA_PROJECT_ID")
         lib_id = os.getenv("CATENDA_LIBRARY_ID")
+        org_id = os.getenv("ORGANISASJON_ID")
         if not cat_id or not lib_id:
             print("Feil: Fant ikke CATENDA_PROJECT_ID eller CATENDA_LIBRARY_ID i .env", file=sys.stderr)
+            sys.exit(1)
+        if not org_id:
+            print(
+                "Feil: Fant ikke ORGANISASJON_ID i .env. Det finnes ingen "
+                "defaultvirksomhet — se docs/design-maalskjema-database-2026-09-20.md (MS-10).",
+                file=sys.stderr,
+            )
             sys.exit(1)
 
         print("Seeding default project 'oslobygg' from backend/.env...")
@@ -129,6 +144,7 @@ def main():
             name="Oslobygg",
             catenda_project_id=cat_id,
             library_id=lib_id,
+            organisasjon_id=org_id,
             folder_id=os.getenv("CATENDA_FOLDER_ID"),
             topic_board_id=os.getenv("CATENDA_TOPIC_BOARD_ID"),
             description="Standard prosjekt",
