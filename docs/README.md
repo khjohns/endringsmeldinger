@@ -27,7 +27,7 @@ Opphever du et utsagn, skriv en datert merknad, også inn i det gamle dokumentet
 | [design: durable inbox og outbox](design-durable-inbox-outbox-2026-09-17.md) | Designet planen bygger på. Konkluderte uavhengig med «én database». Har formen på `vedlegg`, `kommando`, `utgaende_levering` og `innkommende_hendelse` |
 | [design: målskjema for databasen](design-maalskjema-database-2026-09-20.md) | Hvor skjemaet skal. Forutsetter durable-inbox-notatet og bygger videre på det |
 
-## Siste runde — 20. september
+## Siste runde — 20.–21. september
 
 | Dokument | Hva det gir |
 | --- | --- |

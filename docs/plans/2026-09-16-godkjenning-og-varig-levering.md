@@ -547,8 +547,11 @@ Resten — MG-04 til MG-09 — er lav eller hører til MS-06. **MG-09 er ført i
 `AGENTS.md`:** en anvendt migrasjonsfil kan ikke rettes, heller ikke
 kommentarene, fordi `schema_migrations.statements` lagrer rågteksten.
 
-**Korrekthet er ikke gjennomgått** mot `9f70c45`. De fire vinklene ble
-uttrykkelig bedt om å ikke lete etter korrekthetsfeil.
+**Korrekthet er ikke gjennomgått, og det er en åpen arbeidspakke.** De fire
+vinklene ble uttrykkelig bedt om å ikke lete etter korrekthetsfeil, og
+`/simplify` er kvalitet, ikke feil. Femogtjue filer produksjonskode i
+hendelsesloggen har dermed ingen sett etter bugs i. **Kjør `/code-review` mot
+`9f70c45`, `75789b8`, `70066c0` og `2655b78` før noe bygges videre på dem.**
 
 **Ett nytt hull, funnet av premiss P4:** vedlegg har **ingen hash** noe sted.
 Lagres bytene bare i Catenda, finnes det ingen måte å vise at dokumentet der er
