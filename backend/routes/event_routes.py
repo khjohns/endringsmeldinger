@@ -42,6 +42,7 @@ from lib.cloudevents import (
 )
 from lib.helpers.version_control import handle_concurrency_error
 from lib.pdf_input import decode_pdf
+from lib.project_context import krev_autorisert_prosjekt
 from models.cloudevents import CLOUDEVENTS_NAMESPACE
 from models.events import (
     AnyEvent,
@@ -53,6 +54,7 @@ from models.events import (
     parse_event,
     parse_event_from_request,
 )
+from models.notat import Notat
 from models.sak_state import SakState
 from repositories.event_repository import ConcurrencyError
 from services.approval_policy import project_policy, public_event_block_reason
@@ -156,6 +158,84 @@ def _get_event_repo():
 def _get_metadata_repo():
     """Hent SakMetadataRepository fra DI Container."""
     return _get_container().metadata_repository
+
+
+def _get_notat_repo():
+    """Hent NotatRepository fra DI Container."""
+    return _get_container().notat_repository
+
+
+def _notater_som_hendelser(sak_id: str) -> list:
+    """Sakens interne notater, formet som hendelser (MS-05).
+
+    Notatene ligger ikke i journalen, men vises i samme tidslinje. De gjøres om
+    her, slik at skjermingsfilteret, CloudEvents-formateringen og klienten er
+    uendret av flyttingen.
+
+    Prosjektet må være kjent. Uten det finnes det ikke noe å lese — det er
+    samme fail-closed-regel som gjelder alle lesepunkter, og notatene er den
+    mest følsomme delen av strømmen.
+    """
+    from lib.project_context import get_project_id
+
+    prosjekt_id = get_project_id()
+    if not prosjekt_id:
+        return []
+
+    try:
+        return [
+            notat.til_hendelse()
+            for notat in _get_notat_repo().for_sak(sak_id, prosjekt_id)
+        ]
+    except Exception:
+        # Et notat som ikke lar seg lese, skal skjules — ikke velte tidslinjen.
+        # Feilretningen er fail-closed: tapt notat, ikke lekket notat.
+        logger.exception("Kunne ikke lese interne notater for %s", sak_id)
+        return []
+
+
+def _tidsstempel_utc(hendelse) -> datetime:
+    """Tidsstempelet som noe to lagre kan sammenliknes på.
+
+    Journalen og notatlageret er to kilder, og et naivt tidsstempel fra den ene
+    kan ikke sammenliknes med et tidssonebevisst fra den andre — `sorted` ville
+    kastet TypeError midt i en lesing.
+    """
+    stempel = hendelse.tidsstempel
+    return stempel if stempel.tzinfo else stempel.replace(tzinfo=UTC)
+
+
+def _lagre_internt_notat(event: AnyEvent, sak_id: str):
+    """Skriv notatet til notatlageret framfor til journalen (MS-05).
+
+    Versjonstelleren røres ikke. Den er den optimistiske låsen på
+    kontraktshandlinger, og et notat er ikke en kontraktshandling: det avhenger
+    ikke av tilstanden det leste, og skal derfor verken sperre for en samtidig
+    innsending eller tvinge motparten til å hente saken på nytt.
+
+    Ingen Catenda-levering, ingen leveringskvittering og ingen oppdatering av
+    `last_event_at`: notatet er ikke ment for motparten.
+    """
+    _, gjeldende_versjon = _get_event_repo().get_events(sak_id)
+    if gjeldende_versjon == 0:
+        logger.warning("Internt notat mot ukjent sak: %s", sak_id)
+        return jsonify(
+            {"success": False, "error": "NOT_FOUND", "message": "Sak ikke funnet"}
+        ), 404
+
+    notat = Notat.fra_hendelse(event, krev_autorisert_prosjekt("internt notat"))
+    _get_notat_repo().lagre(notat)
+
+    return jsonify(
+        {
+            "success": True,
+            "event_id": notat.notat_id,
+            "new_version": gjeldende_versjon,
+            "internt_notat": True,
+            "catenda_synced": False,
+            "catenda_skipped_reason": "internal_note",
+        }
+    ), 201
 
 
 def _get_timeline_service():
@@ -461,6 +541,12 @@ def submit_event():
             return jsonify(error="APPROVAL_REQUIRED", message=blocked), 403
         event = _parse_authorized_event(event_data)
 
+        # 2b. MS-05: notatet hører ikke hjemme i den append-only journalen.
+        # Grenen ligger etter parsing og autorisasjon, slik at formkontrollen
+        # og aktørstemplingen er den samme som for alt annet.
+        if is_internal_note(event):
+            return _lagre_internt_notat(event, sak_id)
+
         # 3. Load current state for validation
         existing_events_data, current_version = _get_event_repo().get_events(sak_id)
 
@@ -505,13 +591,8 @@ def submit_event():
         from core.config import settings
         from services.catenda_delivery_status import CatendaDeliveryStatus
 
-        # Et internt notat er ikke ment for motparten og skal derfor verken
-        # leveres til den delte Catenda-topicen eller etterlate en
-        # leveringskvittering som ville gitt et permanent synkfeil-banner.
-        internal_note = is_internal_note(event)
-
         delivery_status = None
-        if settings.is_catenda_enabled and catenda_topic_id and not internal_note:
+        if settings.is_catenda_enabled and catenda_topic_id:
             delivery_status = CatendaDeliveryStatus()
             delivery_status.record(g.project_id, sak_id, event.event_id, "pending")
 
@@ -536,9 +617,7 @@ def submit_event():
                 sak_id=sak_id,
                 cached_title=new_state.sakstittel,
                 cached_status=new_state.overordnet_status,
-                # Delt cache: sakslisten sorterer på dette stempelet, så et
-                # internt notat må ikke flytte det for motparten (audit RV-09).
-                last_event_at=None if internal_note else datetime.now(UTC),
+                last_event_at=datetime.now(UTC),
                 # Reporting fields
                 cached_sum_krevd=new_state.vederlag.krevd_belop,
                 cached_sum_godkjent=new_state.vederlag.godkjent_belop,
@@ -573,9 +652,7 @@ def submit_event():
         from core.config import settings
 
         try:
-            if internal_note:
-                catenda_skipped_reason = "internal_note"
-            elif settings.is_catenda_enabled and catenda_topic_id:
+            if settings.is_catenda_enabled and catenda_topic_id:
                 frozen_letter = getattr(getattr(event, 'data', None), 'brev', None)
                 if frozen_letter:
                     from services.approval_letter import pdf_bytes
@@ -1065,6 +1142,14 @@ def _fetch_and_parse_events(sak_id: str):
     """
     Fetch and parse events for a case. Shared by state/timeline/historikk/context endpoints.
 
+    Interne notater ligger i sitt eget lager (MS-05) og flettes inn her, sortert
+    på tidsstempel. Versjonen teller bare journalen: notatet er ingen
+    kontraktshandling og skal ikke flytte den optimistiske låsen.
+
+    Flettingen skjer før skjermingsfilteret, ikke etter. Filteret sammenlikner
+    leserens team med notatets, og et notat fra motpartens team forsvinner der —
+    akkurat som da notatet lå i strømmen.
+
     Returns:
         Tuple of (parsed_events, version) on success.
         Tuple of (flask_response, status_code) on error.
@@ -1091,6 +1176,10 @@ def _fetch_and_parse_events(sak_id: str):
     if not events:
         logger.error(f"All events failed to parse for {sak_id}")
         return jsonify({"error": "Kunne ikke lese hendelser"}), 500
+
+    notater = _notater_som_hendelser(sak_id)
+    if notater:
+        events = sorted(events + notater, key=_tidsstempel_utc)
 
     return events, version
 
@@ -1230,6 +1319,37 @@ def get_case_historikk(sak_id: str):
             "frist": frist_historikk,
         }
     )
+
+
+@events_bp.route("/api/cases/<sak_id>/notater/<notat_id>", methods=["DELETE"])
+@require_auth
+@require_project_access()
+def slett_internt_notat(sak_id: str, notat_id: str):
+    """Slett et internt notat (MS-05).
+
+    Dette er handlingen journalen ikke har og ikke skal ha. Et notat er ikke et
+    kontraktsvarsel, og det er notatene som er fritekst om navngitte personer —
+    derfor ligger de i et lager der en oppbevaringsregel kan gjennomføres.
+
+    Bare forfatteren kan slette. Teamet alene ville latt en kollega fjerne en
+    annens vurdering, og en videre regel enn nødvendig er ikke gitt noe sted.
+    Svaret skiller ikke mellom «finnes ikke» og «ikke ditt»: at et notat finnes
+    er i seg selv opplysning, og det er den samme grunnen til at filteret
+    skjuler notatet i sin helhet framfor bare teksten.
+    """
+    notat = _get_notat_repo().hent(notat_id, g.project_id)
+
+    if notat is None or notat.sak_id != sak_id or notat.aktor_id != g.user["id"]:
+        return jsonify(
+            {"success": False, "error": "NOT_FOUND", "message": "Notat ikke funnet"}
+        ), 404
+
+    if not _get_notat_repo().slett(notat_id, g.project_id):
+        return jsonify(
+            {"success": False, "error": "NOT_FOUND", "message": "Notat ikke funnet"}
+        ), 404
+
+    return jsonify({"success": True, "notat_id": notat_id}), 200
 
 
 # ============================================================

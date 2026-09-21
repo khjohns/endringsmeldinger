@@ -38,6 +38,7 @@ if TYPE_CHECKING:
     from repositories import EventRepository, SakMetadataRepository
     from repositories.bim_link_repository import BimLinkRepository
     from repositories.membership_repository import SupabaseMembershipRepository
+    from repositories.notat_repository import NotatRepository
     from repositories.project_repository import SupabaseProjectRepository
     from services.catenda_service import CatendaService
     from services.endringsordre_service import EndringsordreService
@@ -58,6 +59,7 @@ class Container:
 
     Properties (lazy-loaded):
         event_repository: EventRepository instans
+        notat_repository: NotatRepository instans (interne notater, MS-05)
         metadata_repository: SakMetadataRepository instans
         timeline_service: TimelineService instans
         catenda_service: CatendaService instans
@@ -76,6 +78,7 @@ class Container:
     _project_repo: Optional["SupabaseProjectRepository"] = field(default=None, repr=False)
     _membership_repo: Optional["SupabaseMembershipRepository"] = field(default=None, repr=False)
     _bim_link_repo: Optional["BimLinkRepository"] = field(default=None, repr=False)
+    _notat_repo: Optional["NotatRepository"] = field(default=None, repr=False)
     _timeline_service: Optional["TimelineService"] = field(default=None, repr=False)
     _catenda_service: Optional["CatendaService"] = field(default=None, repr=False)
     _catenda_client: Optional["CatendaClient"] = field(default=None, repr=False)
@@ -99,6 +102,18 @@ class Container:
 
             self._event_repo = create_event_repository()
         return self._event_repo
+
+    @property
+    def notat_repository(self) -> "NotatRepository":
+        """Lazy-load NotatRepository — interne notater, utenfor journalen (MS-05).
+
+        Følger samme backend-bryter som hendelsene: `EVENT_STORE_BACKEND`.
+        """
+        if self._notat_repo is None:
+            from repositories import create_notat_repository
+
+            self._notat_repo = create_notat_repository()
+        return self._notat_repo
 
     @property
     def metadata_repository(self) -> "SakMetadataRepository":
@@ -263,6 +278,7 @@ class Container:
         self._project_repo = None
         self._membership_repo = None
         self._bim_link_repo = None
+        self._notat_repo = None
         self._timeline_service = None
         self._catenda_service = None
         self._catenda_client = None

@@ -19,7 +19,8 @@ MIGRATIONS = [
     REPO_ROOT / "supabase" / "migrations",
 ]
 
-# Alle 18 tabellene i public, kontrollert mot basen 2026-09-20.
+# Alle 19 tabellene i public, kontrollert mot basen 2026-09-21 (notat kom til
+# med MS-05; de øvrige atten ble kontrollert 2026-09-20).
 TABELLER_I_BASEN = [
     "app_identities",
     "app_membership_sync",
@@ -33,6 +34,7 @@ TABELLER_I_BASEN = [
     "catenda_topic_board_configs",
     "hendelse",
     "magic_links",
+    "notat",
     "project_memberships",
     "projects",
     "sak_bim_links",
