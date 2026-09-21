@@ -22,7 +22,11 @@ from lib.project_context import krev_autorisert_prosjekt
 from lib.supabase import ConflictError, alle_rader, classify_error, with_retry
 from models.cloudevents import CLOUDEVENTS_NAMESPACE
 
-from .event_repository import ConcurrencyError, EventRepository
+from .event_repository import (
+    ConcurrencyError,
+    EventRepository,
+    krev_journalhendelser,
+)
 
 HENDELSE_TABELL = "hendelse"
 
@@ -138,9 +142,12 @@ class SupabaseEventRepository(EventRepository):
             ConcurrencyError: versjonskonflikt
             TransientError: nettverk/timeout etter oppbrukte forsøk
             PermanentError: auth- eller valideringsfeil
+            ValueError: en hendelsestype som har sitt eget lager
         """
         if not events:
             raise ValueError("Kan ikke legge til tom event-liste")
+
+        krev_journalhendelser(events)
 
         sak_id = events[0].sak_id
         if not all(e.sak_id == sak_id for e in events):

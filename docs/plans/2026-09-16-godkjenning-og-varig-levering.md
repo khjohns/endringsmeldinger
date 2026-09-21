@@ -549,6 +549,16 @@ Målskjemaets rekkefølge setter den sammen med MS-04 og MS-10, og den er ikke
 gjort. Den er større enn de to: tidslinjen må flette to kilder, og
 `event_visibility` må dekke begge.
 
+> **Merknad 2026-09-21 (kveld): MS-05 er gjennomført.** Avsnittet over gjaldt
+> til `71d9115`. Notatene ligger nå i tabellen `notat`, versjonstelleren
+> flyttes ikke av et notat, og tidslinjen fletter de to kildene ved lesing.
+> Sletting er mulig og begrenset til forfatteren.
+> **Basen har dermed nitten tabeller, ikke atten** — punktet lenger opp gjaldt
+> til 20.09. Åtte av de nitten har fortsatt ingen eksplisitt `GRANT` i repoet.
+> Se [gjennomføringen](../gjennomforing-ms05-2026-09-21.md).
+> **Ingen beslutning med frist står igjen.** MG-02, den andre, er gjennomført
+> samme kveld — se [MG-02-gjennomføringen](../gjennomforing-mg02-2026-09-21.md).
+
 **Gjenstår, uten frist:** **MS-02** (append-only håndhevet av basen) er nå
 ulåst — den ventet på at journalens form skulle bli endelig, og det er den.
 Migrasjonshistorikken stemmer fortsatt ikke med mappa: alignmenten er **8 av
@@ -560,6 +570,9 @@ nivå. Oppryddingen er gjennomført i `75789b8`; funnene som ble stående, står
 [gjennomgangen](../audit-maalskjema-gjennomgang-2026-09-21.md).
 
 **Ett funn er nytt og skapt av forrige runde, og det har frist: MG-02.**
+*(Lukket 21.09 kveld — se merknaden nederst i dette avsnittet og
+[gjennomføringen](../gjennomforing-mg02-2026-09-21.md). Avsnittet under står som
+funnet ble skrevet; to av de tre hindringene det navnga, holdt ikke.)*
 `catenda:<subject>` er en andre verdiform i `hendelse.actorid`, så samme person
 kan føres som UUID i én hendelse og prefikset i en annen — avhengig av om de
 hadde logget inn da webhooken kom. `koe_resolve_identity` i basen ville fjernet
@@ -661,6 +674,43 @@ skrivefunksjoner får særskilte rettigheter og et eget review.
   gjennomføres, og utelukker skjemaendringer som krever samtidig kodebytte.
 - **Belastning:** mål ende-til-ende før eventuell medlemskapscache. Angi da
   eksplisitt tilbakekallingsfrist og sterkere kontroll ved formell publisering.
+
+**Merknad 2026-09-21 (kveld): tre beslutninger er tatt.** Alle tre sto oppført
+som «krever et menneske», og er avgjort av oppdragsgiver. De styrer
+implementeringen og skal ikke tas opp igjen uten at denne merknaden oppheves.
+
+- **Sletteplikt mot arkivplikt: arkivplikt går foran.** Journalen bevares. Det
+  dokumentene til nå har behandlet som arbeidshypotese — Oslobygg KF er
+  kommunalt, arkivplikt gjelder, og GDPR art. 17 nr. 3 gjør unntak for
+  rettskrav — er nå den besluttede forutsetningen. **Følgen: kryptografisk
+  sletting av journalen skal ikke bygges.** MS-04 og MS-05 er tiltakene, og de
+  ble valgt nettopp fordi de er riktige uansett utfall. Arbeidspakken
+  «oppbevaring og sletting i selve journalen» er dermed besvart for journalens
+  del: modellen er pseudonymisering ved skriving (MS-04) pluss fritekst om
+  personer utenfor den uforanderlige strømmen (MS-05). Endrer det rettslige
+  bildet seg, er det denne merknaden som må oppheves først.
+- **MG-02: ja, en webhook skal opprette brukerrader.** **Gjennomført samme
+  kveld** — `koe_resolve_identity` kalles nå fra webhookstien, og
+  `catenda:<subject>` finnes ikke lenger. Av de tre hindringene funnet navnga,
+  var hindring 2 (beslutningen) allerede avgjort i kode av
+  `koe_reconcile_memberships`, og hindring 3 (issueren) allerede oppfylt.
+  Hindring 1 var reell og er rettet i migrasjon `20260921164900`. `actorid` er
+  fortsatt `TEXT`; se gjennomføringen for hvorfor.
+- **DB-05: `viewer` skal finnes som begrep.** En ren leserolle — innsyn uten
+  handlingsrett, for revisor, advokat eller rådgiver — er ønsket.
+  `app_project_memberships` må derfor utvides før `project_memberships` kan
+  fjernes. Planen om å fjerne den gamle tabellen står, men forutsetningen er en
+  utvidelse av den nye, ikke en forenkling.
+
+**To av tre er gjennomført samme kveld:** den første gjennom MS-05
+([gjennomføringen](../gjennomforing-ms05-2026-09-21.md)), MG-02 gjennom
+[MG-02-gjennomføringen](../gjennomforing-mg02-2026-09-21.md). **DB-05 er
+besluttet, ikke bygget.**
+
+Merk til MG-02: to av de tre hindringene funnet navnga, holdt ikke ved
+kontroll mot katalogen. Beslutningen om å opprette brukerrader var allerede tatt
+i kode — `koe_reconcile_memberships` har gjort det ved hver
+medlemssynkronisering hele tiden.
 
 Volumet tilsier en enkel databasebasert worker med lease, backoff og synlige
 feil, ikke en ny distribuert meldingsplattform. Avstemming er ekstra vern,

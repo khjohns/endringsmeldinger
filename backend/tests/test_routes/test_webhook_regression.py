@@ -342,11 +342,16 @@ class TestWebhookServiceCreation:
         mock_filter = MagicMock()
         mock_filter.return_value = (True, "")
 
-        # Kontraktssiden utledes nå av forfatterens lagmedlemskap (INT-04).
-        # Disse testene prøver noe annet, så oppslaget stubbes til en entydig side.
+        # Kontraktssiden utledes nå av forfatterens lagmedlemskap (INT-04), og
+        # identiteten av koe_resolve_identity (MG-02). Disse testene prøver noe
+        # annet, så begge oppslagene stubbes til et entydig svar.
         monkeypatch.setattr(
             "services.catenda_webhook_service.WebhookService._contract_side",
             lambda self, project_id, subject: "TE",
+        )
+        monkeypatch.setattr(
+            "services.catenda_webhook_service.WebhookService._aktor_id",
+            lambda self, subject: "11111111-2222-3333-4444-555555555555",
         )
         monkeypatch.setattr(
             "services.catenda_webhook_service.create_metadata_repository",
@@ -510,10 +515,15 @@ class TestWebhookProjectRouting:
         mock_filter = MagicMock()
         mock_filter.return_value = (True, "")
 
-        # Kontraktssiden utledes nå av forfatterens lagmedlemskap (INT-04).
+        # Kontraktssiden utledes nå av forfatterens lagmedlemskap (INT-04), og
+        # identiteten av koe_resolve_identity (MG-02).
         monkeypatch.setattr(
             "services.catenda_webhook_service.WebhookService._contract_side",
             lambda self, project_id, subject: "TE",
+        )
+        monkeypatch.setattr(
+            "services.catenda_webhook_service.WebhookService._aktor_id",
+            lambda self, subject: "11111111-2222-3333-4444-555555555555",
         )
         monkeypatch.setattr(
             "services.catenda_webhook_service.create_metadata_repository",

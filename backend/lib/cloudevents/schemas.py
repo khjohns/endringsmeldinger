@@ -203,8 +203,7 @@ def get_cloudevent_envelope_schema() -> dict[str, Any]:
             "actorid": {
                 "type": "string",
                 "description": (
-                    "Identity of whoever performed the action: app_users.id, or "
-                    "catenda:<subject> for an author known only to Catenda. "
+                    "Identity of whoever performed the action: always app_users.id. "
                     "Never a person's name; names are resolved for display."
                 ),
             },

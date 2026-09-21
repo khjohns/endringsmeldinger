@@ -40,30 +40,13 @@ class AuthRepository:
         )
         return rader[0]["name"] if rader and rader[0].get("name") else None
 
-    def user_id_for_subject(self, provider, subject):
-        """app_users.id for en ekstern identitet, eller None når den ikke er entydig.
-
-        Leser app_identities, som skrives av databasefunksjonen
-        koe_resolve_identity ved innlogging. En Catenda-forfatter som aldri har
-        logget inn hos oss, finnes ikke der.
-        """
-        if not subject:
-            return None
-        rader = (
-            self.client.table("app_identities")
-            .select("user_id")
-            .eq("provider", provider)
-            .eq("subject", subject)
-            .limit(2)
-            .execute()
-            .data
-            or []
-        )
-        if len(rader) != 1:
-            return None
-        return rader[0]["user_id"]
-
     def identity(self, provider, issuer, subject, email, name):
+        """app_users.id for en ekstern identitet; oppretter raden om den mangler.
+
+        `koe_resolve_identity` er eneste vei inn i `app_identities`, og både
+        innloggingen, medlemssynkroniseringen og webhookstien går gjennom den —
+        med samme issuer, ellers ville samme person fått to brukerrader.
+        """
         return (
             self.client.rpc(
                 "koe_resolve_identity",
