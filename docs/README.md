@@ -27,6 +27,8 @@ Opphever du et utsagn, skriv en datert merknad, også inn i det gamle dokumentet
 | Dokument | Hva det gir |
 | --- | --- |
 | [masterplanen](plans/2026-09-16-godkjenning-og-varig-levering.md) | **Autoritativ for status.** Arbeidspakker, lukkede og åpne funn, overlapp mellom sporene, organisatoriske forutsetninger |
+| [arkitekturpresiseringer 21.09](arkitekturforinger-2026-09-21.md) | AF-01–AF-06: føringer for tilgang, transaksjoner, relasjoner, bevis, gjenoppbygging og verifikasjon. Innarbeidet som merknad i masterplanen; ikke implementert |
+| [oppdrag til Gemini: konsolidering](prompt-gemini-konsolidering-2026-09-21.md) | Metodisk gjennomgang som leverer nye dokumenter til review, med dekningsmatrise og etterprøving av usikkerhet |
 | [transaksjonsplanen](plans/2026-09-17-atomisk-utstedelse-og-outbox.md) | Delplan: atomisk utstedelse og outbox |
 | [design: durable inbox og outbox](design-durable-inbox-outbox-2026-09-17.md) | Designet planen bygger på. Konkluderte uavhengig med «én database». Har formen på `vedlegg`, `kommando`, `utgaende_levering` og `innkommende_hendelse` |
 | [design: målskjema for databasen](design-maalskjema-database-2026-09-20.md) | Hvor skjemaet skal. Forutsetter durable-inbox-notatet og bygger videre på det |
