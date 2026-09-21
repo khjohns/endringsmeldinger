@@ -109,6 +109,14 @@ sluppet.
   atferdstester.
 - **KR-14 — `DROP TABLE` uten `CASCADE`.** Blir ikke rettet: migrasjonen er
   anvendt, og en anvendt migrasjon er uforanderlig.
+**RY-01 til RY-07 (ny 21.09)** — utsatt etter oppryddingen av KR-rettingene,
+[audit-opprydding-2026-09-21](../audit-opprydding-2026-09-21.md). **RY-01 er den
+med vekt:** «hvilke saker finnes», «hvilken sak har denne topicen» og «hvilken
+type er saken» stilles alle til den append-only journalen, enda `sak_metadata`
+er projeksjonen som finnes for å svare på dem. Den lukker KR-13 og gjør både
+pagineringen og indeksen fra KR-02 unødvendige — men `sak_metadata` har ingen
+indeks på `catenda_topic_id`, så den må legges først.
+
 - **KR-15 — streng `xfail` på et kappløp (ny 21.09).** TST-02 i
   `test_testsuite_blindsoner_audit_20260918.py` er `strict=True` over en
   `threading.Barrier`-reproduksjon. Målt 1 XPASS på 20 kjøringer, og XPASS på en
