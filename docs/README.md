@@ -13,8 +13,9 @@ Opphever du et utsagn, skriv en datert merknad, også inn i det gamle dokumentet
 
 | Dokument | Hva det gir |
 | --- | --- |
-| [handoff-2026-09-20](handoff-2026-09-20.md) | **Begynn her.** Overtakelse uten kontekst: hva som skjedde 20.09, fire nye feller, etablerte fakta med sjekksummer, og hva som krever et menneske |
-| [handoff-2026-09-19](handoff-2026-09-19.md) | Runden før. Fellene der gjelder fortsatt, men «ting med frist» merket 5a er passert |
+| [handoff-2026-09-21](handoff-2026-09-21.md) | **Begynn her.** Overtakelse uten kontekst: hva som er gjennomført, tre nye feller, etablerte fakta med sjekksummer, og hva som krever et menneske |
+| [handoff-2026-09-20](handoff-2026-09-20.md) | Runden før. De fire fellene der gjelder fortsatt; «ting med frist» er delvis passert |
+| [handoff-2026-09-19](handoff-2026-09-19.md) | Eldre. Fellene der gjelder fortsatt, men «ting med frist» merket 5a er passert |
 | [`../AGENTS.md`](../AGENTS.md) | Lastes automatisk i hver sesjon: språk, domeneordliste, sikkerhetsinvarianter, resonneringsregler |
 
 ## Gjeldende plan og status
@@ -26,12 +27,14 @@ Opphever du et utsagn, skriv en datert merknad, også inn i det gamle dokumentet
 | [design: durable inbox og outbox](design-durable-inbox-outbox-2026-09-17.md) | Designet planen bygger på. Konkluderte uavhengig med «én database». Har formen på `vedlegg`, `kommando`, `utgaende_levering` og `innkommende_hendelse` |
 | [design: målskjema for databasen](design-maalskjema-database-2026-09-20.md) | Hvor skjemaet skal. Forutsetter durable-inbox-notatet og bygger videre på det |
 
-## Siste runde — 20. september
+## Siste runde — 20.–21. september
 
 | Dokument | Hva det gir |
 | --- | --- |
-| [audit: databasearkitektur](audit-databasearkitektur-2026-09-20.md) | **Trenger vi alle tabellene?** Alle tjue tabellene i `public` navngitt, med radtall, opprettende migrasjon og lesere. DA-01 til DA-15. Skiller «ubrukt» fra «i bruk, men overflødig» |
+| [audit: databasearkitektur](audit-databasearkitektur-2026-09-20.md) | **Trenger vi alle tabellene?** Alle tabellene i `public` navngitt, med radtall, opprettende migrasjon og lesere. DA-01 til DA-15. Skiller «ubrukt» fra «i bruk, men overflødig». Tjue da den ble skrevet; atten etter at MS-01 slo tre hendelsestabeller sammen |
 | [design: målskjema for databasen](design-maalskjema-database-2026-09-20.md) | Lukker DA-12 til DA-15. MS-01 til MS-15, med sju premisser besluttet av utvikler. Målet er atten tabeller — poenget er at hver får én skriver, ikke at de blir færre |
+| [gjennomføring: MS-01, MS-04 og MS-10](gjennomforing-maalskjema-2026-09-20.md) | De tre med frist, gjennomført samme kveld mens basen var tom. Én `hendelse`-tabell, `aktor_id` framfor personnavn, `organisasjon_id` på `projects`. Nye katalogsjekksummer og grensene |
+| [gjennomgang av målskjemarunden](audit-maalskjema-gjennomgang-2026-09-21.md) | MG-01 til MG-09: gjennomgang av forrige rundes egen kode, med fire vinkler. Hva som ble ryddet, og hva som ble stående. **MG-02 har frist** |
 
 Samme dag, men før den gjennomgangen, leverte en egen runde rettinger i
 produksjonskode uten eget dokument. Den står som daterte merknader i kjeden —
@@ -49,8 +52,13 @@ lese dem samlet.
 `service_role / ALL / USING (true)` — kolonnen gjør at en prosjektpolicy *lar seg*
 skrive, men ingen er skrevet. Det hører til databasearbeidspakken og til pakke 1.
 **Migrasjonen som manglet `actorteam` er derimot anvendt 20.09** — står det noe
-annet i et eldre dokument, er det foreldet. Det som gjenstår i databasepakken, er
-mekanismen fra fil til base: det finnes fortsatt ingen `supabase/config.toml`.
+annet i et eldre dokument, er det foreldet.
+
+**Senere samme kveld** kom `supabase/config.toml` og filnavnrekkefølgen som
+apply-rekkefølge (DA-03), og deretter de tre beslutningene med frist: MS-01,
+MS-04 og MS-10. Basen har nå **atten** tabeller, ikke tjue. Det som gjenstår i
+mekanismen fra fil til base, er migrasjonshistorikken — alignmenten er 8 av 18,
+og `supabase migration repair` krever legitimasjon.
 
 ## Runden før — 19. september
 

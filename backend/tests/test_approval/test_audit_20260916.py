@@ -32,14 +32,14 @@ def test_eo_policy_blocks_generic_event_api(api, monkeypatch, batch):
     initial = [
         SakOpprettetEvent(
             sak_id="case",
-            aktor="BH",
+            aktor_id="BH",
             aktor_rolle="BH",
             sakstittel="EO",
             sakstype="endringsordre",
         ),
         EOOpprettetEvent(
             sak_id="case",
-            aktor="BH",
+            aktor_id="BH",
             aktor_rolle="BH",
             data=EOOpprettetData(eo_nummer="EO-1", beskrivelse="EO"),
         ),
@@ -138,7 +138,7 @@ def test_stale_reserved_id_attempt_cannot_delete_successful_creation(
         beskrivelse="EO",
         koe_sak_ids=[],
         sak_id="EO-reserved-audit",
-        utstedt_av="BH",
+        utstedt_av_id="BH",
     )
     get_events = service.event_repository.get_events
     intercepted = False

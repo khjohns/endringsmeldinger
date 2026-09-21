@@ -161,7 +161,7 @@ class ApprovalService:
                     "sak_id": case_id,
                     "event_type": item["eventType"],
                     "refererer_til_event_id": item["claimId"],
-                    "aktor": item["owner"],
+                    "aktor_id": item["owner"],
                     "aktor_rolle": "BH",
                     "data": data,
                 }

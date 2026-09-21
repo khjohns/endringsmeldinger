@@ -37,25 +37,23 @@ def backfill_forsering_relations(
     event_repository, relation_repository, dry_run: bool = False
 ) -> tuple[int, int]:
     """
-    Backfill forsering relations from forsering_events.
+    Backfill forsering relations from the event log.
 
     Returns:
         Tuple of (saker_processed, relations_added)
     """
     logger.info("Backfilling forsering relations...")
 
-    # Get all forsering sak_ids
-    sak_ids = event_repository.get_all_sak_ids(sakstype="forsering")
-    logger.info(f"Found {len(sak_ids)} forsering saker")
+    # Løkka under plukker ut forseringssakene selv, på avslatte_fristkrav.
+    sak_ids = event_repository.get_all_sak_ids()
+    logger.info(f"Scanning {len(sak_ids)} saker for forsering relations")
 
     saker_processed = 0
     relations_added = 0
 
     for sak_id in sak_ids:
         try:
-            events_data, _version = event_repository.get_events(
-                sak_id, sakstype="forsering"
-            )
+            events_data, _version = event_repository.get_events(sak_id)
             if not events_data:
                 continue
 
@@ -112,25 +110,23 @@ def backfill_endringsordre_relations(
     event_repository, relation_repository, dry_run: bool = False
 ) -> tuple[int, int]:
     """
-    Backfill endringsordre relations from endringsordre_events.
+    Backfill endringsordre relations from the event log.
 
     Returns:
         Tuple of (saker_processed, relations_added)
     """
     logger.info("Backfilling endringsordre relations...")
 
-    # Get all endringsordre sak_ids
-    sak_ids = event_repository.get_all_sak_ids(sakstype="endringsordre")
-    logger.info(f"Found {len(sak_ids)} endringsordre saker")
+    # Løkka under plukker ut EO-sakene selv, på relaterte_koe_saker.
+    sak_ids = event_repository.get_all_sak_ids()
+    logger.info(f"Scanning {len(sak_ids)} saker for endringsordre relations")
 
     saker_processed = 0
     relations_added = 0
 
     for sak_id in sak_ids:
         try:
-            events_data, _version = event_repository.get_events(
-                sak_id, sakstype="endringsordre"
-            )
+            events_data, _version = event_repository.get_events(sak_id)
             if not events_data:
                 continue
 

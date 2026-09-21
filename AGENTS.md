@@ -87,23 +87,29 @@ en naturlov. `backend/migrations/` er tømt (20.09); all DDL ligger i
 Avhengighetene er reelle: kjerneskjemaet må komme før `20260911073600_projects`,
 som gjør `UPDATE sak_metadata`, og `project_memberships` må komme etter
 `projects`. Legger du inn en migrasjon med et versjonsnummer som sorterer feil,
-bygger ikke basen fra tom. To vakter i
+bygger ikke basen fra tom. Vaktene i
 `tests/test_security/test_database_arkitektur_20260920.py` holder på det.
 
 **Stubben må gi `service_role` fulle rettigheter,** ellers er sammenlikningen
 ikke tro: `GRANT ALL ON ALL TABLES IN SCHEMA public TO service_role` pluss
 `ALTER DEFAULT PRIVILEGES … GRANT ALL ON TABLES TO service_role`. Supabase gjør
-dette ved prosjektoppsett, ikke i migrasjonene — og **åtte av tjue tabeller har
+dette ved prosjektoppsett, ikke i migrasjonene — og **åtte av atten tabeller har
 ingen eksplisitt `GRANT` i repoet i det hele tatt.** De virker bare fordi
 plattformen deler ut rettigheter. Flyttes basen bort fra Supabase, forsvinner
 de.
 
 **Testsuiten kan ikke se at basen er uenig med repoet.** Supabase-lageret dekkes
-bare av testdobler, og doblene speiler repoet — `EVENT_TABLE_COLUMNS` i
-`test_event_roundtrip.py` er tro mot migrasjonsfilene, ikke mot databasen. Da
-`actorteam` manglet i basen, var suiten grønn mens *enhver* skriving til
+bare av testdobler, og doblene speiler repoet — `HENDELSE_KOLONNER` i
+`tests/fixtures/supabase_dobbel.py` er tro mot migrasjonsfila, ikke mot
+databasen. Da `actorteam` manglet i basen, var suiten grønn mens *enhver* skriving til
 Supabase-lageret feilet. Grønn suite er derfor ikke bevis for at en skjemaendring
 har nådd fram; det er katalogspørringen som er beviset.
+
+**En anvendt migrasjon er uforanderlig — også kommentarene.**
+`supabase_migrations.schema_migrations.statements` lagrer rågteksten, kommentarer
+og alt. Retter du et ord i en fil som er kjørt, er fila ikke lenger det basen
+gjorde. Har innholdet blitt feil, skriv en ny migrasjon eller en datert merknad i
+`docs/` — ikke rediger historikken.
 
 **Endrer du databasen, skriv migrasjonsfila i samme runde.** All DDL skal ligge i
 `supabase/migrations/` med samme SQL som faktisk ble kjørt, og fila skal si at den
@@ -123,9 +129,16 @@ Brytes en av disse, er det en sikkerhetsfeil uansett hvor liten endringen så ut
   Legger du til en rute, forvent å måtte begrunne den der.
 - **CSRF håndheves inne i `require_auth`** (`lib/auth/session.py`), bevisst, slik at
   en ny mutasjonsrute ikke kan glemme den. Ikke flytt den ut.
-- **`aktor_rolle`, `aktor_team_id`, `tidsstempel` og `event_id` settes av serveren.**
-  Klienten kan ikke sende dem — `models/events.py` avviser forsøket. Stol aldri på
-  en rolle klienten oppgir.
+- **`aktor_id`, `aktor_rolle`, `aktor_team_id`, `tidsstempel` og `event_id` settes
+  av serveren.** `event_id` og `tidsstempel` avvises av
+  `parse_event_from_request`; de tre aktørfeltene overskrives i ruta før
+  parsing, så det klienten sendte, når aldri modellen. Stol aldri på en rolle
+  eller en identitet klienten oppgir.
+- **Journalen bærer `aktor_id`, aldri et personnavn.** Verdien er `app_users.id`,
+  eller `catenda:<subject>` når handlingen kom fra en Catenda-forfatter uten konto
+  hos oss. Navnet slås opp ved visning i `lib/aktor_navn.py`, og et oppslag som
+  feiler skal falle tilbake til identiteten — aldri velte tidslinjen eller brevet.
+  En hendelse er append-only: et navn som kommer inn her, kan ikke fjernes igjen.
 - **Interne notater og utkast er fail-closed.** Uten entydig team finnes det ikke noe
   å lese eller skrive. Et notat uten `aktor_team_id` vises til ingen, heller ikke
   forfatteren.
@@ -135,13 +148,13 @@ Brytes en av disse, er det en sikkerhetsfeil uansett hvor liten endringen så ut
 - **Det finnes ikke noe defaultprosjekt.** Mangler `X-Project-ID`, er prosjektet
   *ukjent* — ikke `oslobygg`. `get_project_id()` returnerer `None`, og kallere skal
   behandle det som «ingen tilgang». `prosjekt_id` er `NOT NULL` uten default på
-  hendelsestabellene og `sak_relations`, og skrivestiene stempler det fra autorisert
+  `hendelse` og `sak_relations`, og skrivestiene stempler det fra autorisert
   kontekst. Gjeninnfører du en fallback — også som et uskyldig
   `prosjekt_id or "oslobygg"` i én sammenlikning, eller som et tomt filter som
   «betyr alle» — blir attribusjonen uetterprøvbar igjen, og det lar seg ikke rette
   i ettertid når ekte saker først finnes.
 
-## Tre resonneringsregler
+## Resonneringsregler
 
 Disse er årsaken til de fleste feilklassifiserte funnene i auditserien.
 
@@ -177,6 +190,13 @@ defaultverdien gjemmer seg i minst seks former: `x or "verdi"`,
 `request.headers.get("X", "verdi")`, et defaultargument i Python eller
 TypeScript, og en `DEFAULT` i databasen. Søk etter alle formene før du skriver
 «alle er fjernet» — og skriv heller hvilke former du søkte etter.
+
+**En omdøping kan snu det testen dokumenterer, uten at noe blir rødt.** Da
+`aktor` ble `aktor_id`, fulgte verdiene med: `aktor_id="Kari Nordmann"` er
+syntaktisk feilfritt og grønt, men fastslår nå at et personnavn er en gyldig
+identitet — det motsatte av regelen testen ligger ved siden av. Mekanisk søk og
+erstatt flytter navnet på feltet, ikke meningen i verdien. Etter en omdøping: les
+assertions, ikke bare kjør dem.
 
 **En grønn streng `xfail` beviser ikke funnet**, bare at testens assertion feiler.
 Suiten inneholder mange bevisste reproduksjoner av udekkede svakheter. **Ikke «rett»

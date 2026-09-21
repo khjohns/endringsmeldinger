@@ -1,0 +1,228 @@
+"""Målskjemaet: hendelsestabellen, aktør-identiteten og organisasjonsgrensen.
+
+Vaktene for de tre beslutningene som ble gjennomført 2026-09-20 fordi basen er
+tom og de blir dyre eller umulige når journalen først bærer ekte saker:
+MS-01 (én hendelsestabell), MS-04 (aktor_id framfor personnavn) og MS-10
+(organisasjon_id på projects). Se
+docs/design-maalskjema-database-2026-09-20.md.
+
+Testene er uten nettverk. Supabase-klienten er en tabell i minnet, slik at
+hvilken tabell koden faktisk skriver til, og hvilke kolonner den fyller, kan
+observeres framfor å utledes.
+"""
+
+from pathlib import Path
+
+import pytest
+
+from models.events import (
+    InterntNotatData,
+    InterntNotatEvent,
+    SakOpprettetEvent,
+    parse_event,
+)
+from repositories.supabase_event_repository import (
+    HENDELSE_TABELL,
+    SupabaseEventRepository,
+)
+
+from ..fixtures.supabase_dobbel import FakeSupabaseClient
+
+REPO_ROOT = Path(__file__).resolve().parents[3]
+MIGRASJONER = REPO_ROOT / "supabase" / "migrations"
+
+TE_TEAM = "22222222222222222222222222222222"
+AKTOR_ID = "5f1c0f2e-2f1a-4a64-9a2e-9f0b1d2c3e4f"
+
+
+@pytest.fixture
+def lager(monkeypatch):
+    klient = FakeSupabaseClient()
+    monkeypatch.setattr(
+        "repositories.supabase_event_repository.create_client",
+        lambda url, key: klient,
+    )
+    monkeypatch.setattr("lib.project_context.get_project_id", lambda: "p-maalskjema")
+    repo = SupabaseEventRepository(
+        url="https://maalskjema.example.invalid", key="test-key"
+    )
+    return repo, klient
+
+
+def _notat(sak_id="SAK-MS-001"):
+    return InterntNotatEvent(
+        sak_id=sak_id,
+        aktor_id=AKTOR_ID,
+        aktor_rolle="TE",
+        aktor_team_id=TE_TEAM,
+        data=InterntNotatData(tekst="Internt", spor="frist"),
+    )
+
+
+# ---------------------------------------------------------------- MS-01
+
+
+def test_alle_sakstyper_skriver_til_en_tabell(lager):
+    """Sakstypen velger ikke lenger tabell.
+
+    Forseringshendelser og endringsordrehendelser lå i hver sin tabell, og en
+    lesing uten oppgitt sakstype prøvde alle tre etter tur.
+    """
+    repo, klient = lager
+    for sak_id, sakstype in (
+        ("SAK-STD", "standard"),
+        ("SAK-FOR", "forsering"),
+        ("SAK-EO", "endringsordre"),
+    ):
+        repo.append(
+            SakOpprettetEvent(
+                sak_id=sak_id,
+                aktor_id=AKTOR_ID,
+                aktor_rolle="TE",
+                sakstittel="Sak",
+                sakstype=sakstype,
+            ),
+            expected_version=0,
+        )
+
+    assert set(klient.tables) == {HENDELSE_TABELL}
+
+
+def test_lesing_treffer_en_tabell_uten_a_prove_seg_fram(lager):
+    repo, klient = lager
+    repo.append(_notat(), expected_version=0)
+    klient.brukte_tabeller.clear()
+
+    hendelser, versjon = repo.get_events("SAK-MS-001")
+
+    assert versjon == 1
+    assert klient.brukte_tabeller == [HENDELSE_TABELL]
+
+
+def test_migrasjonen_gir_hendelse_samme_skranker_som_de_tre_hadde():
+    sql = (MIGRASJONER / "20260920193558_hendelse_tabell.sql").read_text(
+        encoding="utf-8"
+    )
+    assert "CONSTRAINT unique_hendelse_sak_versjon UNIQUE (sak_id, versjon)" in sql, (
+        "Uten unik-skranken på (sak_id, versjon) finnes ingen optimistisk lås."
+    )
+    assert "REFERENCES public.sak_metadata(sak_id) ON DELETE CASCADE" in sql
+    assert "actorrole TEXT NOT NULL CHECK (actorrole IN ('TE', 'BH'))" in sql
+    assert "ENABLE ROW LEVEL SECURITY" in sql
+    assert "GRANT SELECT, INSERT, UPDATE, DELETE, TRUNCATE, REFERENCES, TRIGGER" in sql, (
+        "Uten eksplisitt GRANT virker tabellen bare fordi plattformen deler ut "
+        "rettigheter ved prosjektoppsett."
+    )
+
+
+# ---------------------------------------------------------------- MS-04
+
+
+def test_journalen_bærer_identiteten_og_ikke_navnet(lager):
+    """Ingen kolonne i raden skal inneholde et personnavn."""
+    repo, klient = lager
+    repo.append(_notat(), expected_version=0)
+
+    rad = klient.tables[HENDELSE_TABELL][0]
+    assert rad["actorid"] == AKTOR_ID
+    assert "actor" not in rad
+
+
+def test_aktor_id_overlever_rundturen(lager):
+    repo, _klient = lager
+    repo.append(_notat(), expected_version=0)
+
+    lagrede, _versjon = repo.get_events("SAK-MS-001")
+    parsed = parse_event(lagrede[0])
+
+    assert parsed.aktor_id == AKTOR_ID
+    assert parsed.aktor_team_id == TE_TEAM
+
+
+def test_cloudevents_eksporten_bruker_actorid(lager):
+    repo, _klient = lager
+    repo.append(_notat(), expected_version=0)
+
+    eksport = repo.get_events_as_cloudevents("SAK-MS-001")
+
+    assert eksport[0]["actorid"] == AKTOR_ID
+    assert "actor" not in eksport[0]
+
+
+def test_hendelse_uten_aktor_id_avvises():
+    """Et tomt aktørfelt er ikke en gyldig identitet."""
+    with pytest.raises(ValueError):
+        InterntNotatEvent(
+            sak_id="SAK-MS-002",
+            aktor_id="",
+            aktor_rolle="TE",
+            aktor_team_id=TE_TEAM,
+            data=InterntNotatData(tekst="Internt"),
+        )
+
+
+# ---------------------------------------------------------------- MS-10
+
+
+def test_organisasjon_id_kan_ikke_oppdateres():
+    """Å flytte et prosjekt mellom virksomheter er ikke en oppdatering.
+
+    Saker, hendelser og brev viser til prosjektet. Endres virksomheten under
+    dem, blir attribusjonen uetterprøvbar på samme måte som en defaultverdi
+    ville gjort den.
+    """
+    from repositories.project_repository import SupabaseProjectRepository
+
+    assert "organisasjon_id" not in SupabaseProjectRepository.UPDATABLE_FIELDS
+
+
+def test_organisasjon_id_har_ingen_defaultverdi():
+    sql = (MIGRASJONER / "20260920192448_organisasjon_id_paa_projects.sql").read_text(
+        encoding="utf-8"
+    )
+    assert "ALTER COLUMN organisasjon_id SET NOT NULL" in sql
+    assert "SET DEFAULT" not in sql, (
+        "En defaultverdi ville gjort organisasjonstilhørigheten like "
+        "uetterprøvbar som prosjekt_id var før 20260920053427."
+    )
+
+
+# ---------------------------------------------------------------- MG-03
+
+
+@pytest.mark.xfail(
+    strict=True,
+    raises=AssertionError,
+    reason=(
+        "MG-03: parse_event_from_request avviser event_id og tidsstempel, men "
+        "ikke aktor_id. De tre aktørfeltene overskrives i ruta i stedet, så en "
+        "ny mutasjonsrute som kaller parse_event_from_request med klientens "
+        "nyttelast fører klientens aktor_id inn i journalen. Rettes ved å "
+        "utvide forbidden_fields og stemple aktøren inne i funksjonen — det "
+        "krever at approval_service og frontenden endres samtidig."
+    ),
+)
+def test_parsegrensen_avviser_klientoppgitt_aktor():
+    """Invarianten hører der den ikke kan glemmes, slik CSRF ligger i require_auth.
+
+    Testen i tests/test_routes/test_event_security.py verner det samme, men
+    tester *ruta*. Den fanger ikke en ny rute som glemmer overskrivingen.
+    """
+    from models.events import parse_event_from_request
+
+    avvist = False
+    try:
+        parse_event_from_request(
+            {
+                "sak_id": "SAK-MS-003",
+                "event_type": "internt_notat",
+                "aktor_id": "forfalsket-aktor",
+                "aktor_rolle": "TE",
+                "aktor_team_id": TE_TEAM,
+                "data": {"tekst": "Internt"},
+            }
+        )
+    except ValueError:
+        avvist = True
+
+    assert avvist, "parsegrensen tok imot et klientoppgitt aktor_id"

@@ -27,6 +27,36 @@ class AuthRepository:
                 return rows
         raise RuntimeError("Database pagination limit")
 
+    def user_name(self, user_id):
+        """Navnet på en bruker, eller None. Tom streng regnes som ikke satt."""
+        if not user_id:
+            return None
+        rader = (
+            self.client.table("app_users")
+            .select("name")
+            .eq("id", user_id)
+            .limit(1)
+            .execute()
+            .data
+        )
+        return rader[0]["name"] if rader and rader[0].get("name") else None
+
+    def user_id_for_subject(self, provider, subject):
+        """app_users.id for en ekstern identitet, eller None når den ikke er entydig.
+
+        Leser app_identities, som skrives av databasefunksjonen
+        koe_resolve_identity ved innlogging. En Catenda-forfatter som aldri har
+        logget inn hos oss, finnes ikke der.
+        """
+        if not subject:
+            return None
+        rader = self.all_rows(
+            "app_identities", "id,user_id", provider=provider, subject=subject
+        )
+        if len(rader) != 1:
+            return None
+        return rader[0]["user_id"]
+
     def identity(self, provider, issuer, subject, email, name):
         return (
             self.client.rpc(

@@ -17,7 +17,6 @@ skjemaet har kolonnen også blir fanget.
 """
 
 import tempfile
-from types import SimpleNamespace
 
 import pytest
 
@@ -25,123 +24,17 @@ from models.events import InterntNotatData, InterntNotatEvent, parse_event
 from repositories.event_repository import JsonFileEventRepository
 from repositories.supabase_event_repository import SupabaseEventRepository
 
+from ..fixtures.supabase_dobbel import FakeSupabaseClient
+
 TE_TEAM = "22222222222222222222222222222222"
 SAK_ID = "KOE-ROUNDTRIP-001"
+AKTOR_ID = "5f1c0f2e-2f1a-4a64-9a2e-9f0b1d2c3e4f"
 NOTAT_TEKST = "Internt: vi bør ikke spille ut fristkravet ennå."
-
-# Kolonnene event-tabellene faktisk har. Speiler SQL-en i docstringen øverst i
-# repositories/supabase_event_repository.py og migrasjonene under
-# supabase/migrations/. Holdes i synk manuelt — det er poenget: skriver koden
-# en kolonne som ikke står her, mangler den også i databasen.
-#
-# MERK (2026-09-20): lista speiler repoet, ikke den levende basen, og de to har
-# drevet fra hverandre. `actorteam` står her og i migrasjonen
-# 20260918090000_event_tables_actorteam.sql, men migrasjonen er aldri anvendt:
-# kolonnen finnes IKKE i prosjekt gwdxadexwktegkklyobv, og den eksakte
-# select-en repoet sender feiler der med «42703: column "actorteam" does not
-# exist». Denne dobbelen kan altså ikke fange den klassen avvik — den er tro
-# mot repoet, og repoet er ikke tro mot basen. Se masterplanens arbeidspakke om
-# databasearkitektur.
-EVENT_TABLE_COLUMNS = {
-    "id",
-    "specversion",
-    "event_id",
-    "source",
-    "type",
-    "time",
-    "subject",
-    "datacontenttype",
-    "actor",
-    "actorrole",
-    "actorteam",
-    "comment",
-    "referstoid",
-    "data",
-    "prosjekt_id",
-    "sak_id",
-    "event_type",
-    "versjon",
-    "created_at",
-}
-
-
-class _FakeTable:
-    """Én spørring mot én tabell i minnet.
-
-    Bygges på nytt per `client.table(...)`-kall, slik at filtre ikke lekker
-    mellom spørringer — som hos den ekte klienten.
-    """
-
-    def __init__(self, name: str, rows: list[dict]):
-        self._name = name
-        self._rows = rows
-        self._columns: str | None = None
-        self._filters: list[tuple[str, object]] = []
-        self._order: tuple[str, bool] | None = None
-        self._limit: int | None = None
-        self._pending_insert: list[dict] | None = None
-
-    def insert(self, rows):
-        rows = rows if isinstance(rows, list) else [rows]
-        for row in rows:
-            unknown = set(row) - EVENT_TABLE_COLUMNS
-            if unknown:
-                raise AssertionError(
-                    f"Tabellen {self._name} har ingen kolonne(r) {sorted(unknown)}"
-                )
-        self._pending_insert = rows
-        return self
-
-    def select(self, columns="*"):
-        self._columns = columns
-        return self
-
-    def eq(self, field, value):
-        self._filters.append((field, value))
-        return self
-
-    def order(self, field, desc=False):
-        self._order = (field, desc)
-        return self
-
-    def limit(self, count):
-        self._limit = count
-        return self
-
-    def execute(self):
-        if self._pending_insert is not None:
-            self._rows.extend(dict(row) for row in self._pending_insert)
-            return SimpleNamespace(data=list(self._pending_insert))
-
-        rows = [
-            row
-            for row in self._rows
-            if all(row.get(field) == value for field, value in self._filters)
-        ]
-        if self._order:
-            field, desc = self._order
-            rows = sorted(rows, key=lambda row: row.get(field), reverse=desc)
-        if self._limit is not None:
-            rows = rows[: self._limit]
-        if self._columns and self._columns != "*":
-            wanted = [part.strip() for part in self._columns.split(",")]
-            rows = [{key: row.get(key) for key in wanted} for row in rows]
-        return SimpleNamespace(data=[dict(row) for row in rows])
-
-
-class _FakeSupabaseClient:
-    """Minimal Supabase-klient uten nettverk."""
-
-    def __init__(self):
-        self.tables: dict[str, list[dict]] = {}
-
-    def table(self, name: str) -> _FakeTable:
-        return _FakeTable(name, self.tables.setdefault(name, []))
 
 
 @pytest.fixture
 def supabase_repo(monkeypatch):
-    client = _FakeSupabaseClient()
+    client = FakeSupabaseClient()
     monkeypatch.setattr(
         "repositories.supabase_event_repository.create_client",
         lambda url, key: client,
@@ -165,7 +58,7 @@ def json_repo():
 def _internt_notat() -> InterntNotatEvent:
     return InterntNotatEvent(
         sak_id=SAK_ID,
-        aktor="Kari Nordmann",
+        aktor_id=AKTOR_ID,
         aktor_rolle="TE",
         aktor_team_id=TE_TEAM,
         kommentar="Skrevet før byggemøtet",
@@ -183,7 +76,7 @@ def test_supabase_roundtrip_beholder_aktor_team_id(supabase_repo):
     assert versjon == 1
     parsed = parse_event(lagrede[0])
     assert parsed.aktor_team_id == TE_TEAM
-    assert parsed.aktor == "Kari Nordmann"
+    assert parsed.aktor_id == AKTOR_ID
     assert parsed.aktor_rolle == "TE"
     assert parsed.kommentar == "Skrevet før byggemøtet"
     assert parsed.data.tekst == NOTAT_TEKST
@@ -194,7 +87,7 @@ def test_supabase_cloudevents_eksport_tar_med_aktorteam(supabase_repo):
     repo, _client = supabase_repo
     repo.append(_internt_notat(), expected_version=0)
 
-    cloudevents = repo.get_events_as_cloudevents(SAK_ID, sakstype="standard")
+    cloudevents = repo.get_events_as_cloudevents(SAK_ID)
 
     assert cloudevents[0]["actorteam"] == TE_TEAM
 
@@ -208,7 +101,7 @@ def test_json_roundtrip_beholder_aktor_team_id(json_repo):
     assert versjon == 1
     parsed = parse_event(lagrede[0])
     assert parsed.aktor_team_id == TE_TEAM
-    assert parsed.aktor == "Kari Nordmann"
+    assert parsed.aktor_id == AKTOR_ID
     assert parsed.aktor_rolle == "TE"
     assert parsed.kommentar == "Skrevet før byggemøtet"
     assert parsed.data.tekst == NOTAT_TEKST

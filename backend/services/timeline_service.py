@@ -13,6 +13,7 @@ Design-prinsipper:
 from datetime import datetime
 from typing import Any
 
+from lib.aktor_navn import navn as aktor_navn
 from models.events import (
     AnyEvent,
     EOAkseptertEvent,
@@ -1118,7 +1119,7 @@ class TimelineService:
                 ny_sluttdato=data.ny_sluttdato,
                 status=EOStatus.UTSTEDT,
                 dato_utstedt=event.tidsstempel.strftime("%Y-%m-%d"),
-                utstedt_av=event.aktor,
+                utstedt_av=aktor_navn(event.aktor_id),
                 relaterte_koe_saker=relaterte,
             )
             logger.debug(f"EO {data.eo_nummer} utstedt med status UTSTEDT")
@@ -1451,7 +1452,7 @@ class TimelineService:
                 "tidsstempel": event.tidsstempel.isoformat(),
                 "type": self._event_type_to_label(event.event_type),
                 "event_type": event.event_type.value,  # Machine-readable type
-                "aktor": event.aktor,
+                "aktor": aktor_navn(event.aktor_id),
                 "rolle": event.aktor_rolle,
                 "spor": self._get_spor_for_event(event),
                 "sammendrag": self._get_event_summary(event),
@@ -1666,7 +1667,7 @@ class TimelineService:
             if isinstance(event, VederlagEvent) and event.data.varsel_type == "varsel":
                 continue
             aktor_info = AktorInfo(
-                navn=event.aktor,
+                navn=aktor_navn(event.aktor_id),
                 rolle=event.aktor_rolle,
                 tidsstempel=event.tidsstempel,
             )
@@ -1875,7 +1876,7 @@ class TimelineService:
 
         for event in frist_events:
             aktor_info = AktorInfo(
-                navn=event.aktor,
+                navn=aktor_navn(event.aktor_id),
                 rolle=event.aktor_rolle,
                 tidsstempel=event.tidsstempel,
             )
@@ -2078,7 +2079,7 @@ class TimelineService:
 
         for event in grunnlag_events:
             aktor_info = AktorInfo(
-                navn=event.aktor,
+                navn=aktor_navn(event.aktor_id),
                 rolle=event.aktor_rolle,
                 tidsstempel=event.tidsstempel,
             )

@@ -168,28 +168,36 @@ Ikke synlig for IKT, men påvirker Docker-oppsett.
 
 ---
 
-## 4. Datamodell (Azure SQL)
+## 4. Datamodell (PostgreSQL 17, Supabase)
 
 Event sourcing med CloudEvents v1.0. Hendelser er sannhetskilden — all tilstand beregnes ved å spille av hendelser.
 
-### Event-tabeller (3 stk, identisk struktur)
+### Hendelsestabellen
+
+Én tabell for alle sakstyper (MS-01, 2026-09-20). Sakstypen ligger på
+`sak_metadata.sakstype` og velger ikke tabell.
 
 ```
 ┌──────────────────────────────────────────────────────────┐
-│  koe_events / forsering_events / endringsordre_events    │
+│  hendelse                                                │
 ├──────────────────────────────────────────────────────────┤
-│  event_id       UNIQUEIDENTIFIER    Unik hendelse        │
-│  sak_id         NVARCHAR            Hvilken sak           │
+│  event_id       UUID                Unik hendelse         │
+│  sak_id         TEXT                Hvilken sak           │
+│  prosjekt_id    TEXT NOT NULL       Tenant, uten default  │
 │  versjon        INT                 Sekvensnr per sak     │
-│  type           NVARCHAR            no.oslo.koe.{type}    │
-│  source         NVARCHAR            /projects/X/cases/Y   │
-│  actor          NVARCHAR            Hvem                  │
-│  actorrole      NVARCHAR            TE eller BH           │
-│  data           NVARCHAR(MAX)       Hendelsens payload    │
-│  time           DATETIMEOFFSET      Når                   │
-│  UNIQUE(sak_id, versjon)           Optimistisk låsing     │
+│  type           TEXT                no.oslo.koe.{type}    │
+│  source         TEXT                /projects/X/cases/Y   │
+│  actorid        TEXT                Hvem — ID, ikke navn  │
+│  actorrole      TEXT                TE eller BH           │
+│  actorteam      TEXT                Catenda-team          │
+│  data           JSONB               Hendelsens payload    │
+│  time           TIMESTAMPTZ         Når                   │
+│  UNIQUE(sak_id, versjon)            Optimistisk låsing    │
 └──────────────────────────────────────────────────────────┘
 ```
+
+Skjemaet i sin helhet står i
+`supabase/migrations/20260920193558_hendelse_tabell.sql`.
 
 ### Støttetabeller
 

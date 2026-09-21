@@ -32,7 +32,7 @@ BH_RADGIVER_TEAM = "55555555555555555555555555555555"
 def _notat(rolle: str, team: str) -> InterntNotatEvent:
     return InterntNotatEvent(
         sak_id="case",
-        aktor="Notatskriver",
+        aktor_id="Notatskriver",
         aktor_rolle=rolle,
         aktor_team_id=team,
         tidsstempel=datetime(2026, 9, 15, 9, 0, tzinfo=UTC),
@@ -204,7 +204,7 @@ def submit_api(monkeypatch, tmp_path):
     sak_opprettet = {
         "event_type": "sak_opprettet",
         "sak_id": "case",
-        "aktor": "System",
+        "aktor_id": "system",
         "aktor_rolle": "TE",
         "tidsstempel": "2026-09-15T08:00:00Z",
         "sakstittel": "Testsak",

@@ -10,7 +10,23 @@ premisser besluttet av utvikler 20. september. Bygger på
 allerede har formen på fire av tabellene.
 
 Appen er ikke i produksjon og har ingen reelle data. Notatet beskriver et
-målbilde, ikke en gjennomført endring. **Ingenting her er implementert.**
+målbilde, ikke en gjennomført endring. **Ingenting her var implementert da det
+ble skrevet.**
+
+> **Merknad 2026-09-20 (kveld): MS-01, MS-04 og MS-10 er gjennomført.**
+> De tre er dem [handoffen](handoff-2026-09-20.md) §5 setter samme frist for —
+> når første ekte sak opprettes. Basen er tom, så de kostet null datamigrasjon.
+> Gjennomføringen, med migrasjonsversjoner, katalogsjekksummer og grenser, står
+> i [gjennomføringen](gjennomforing-maalskjema-2026-09-20.md).
+>
+> Kort: `hendelse` erstatter de tre hendelsestabellene og bærer `actorid`;
+> journalen fører `aktor_id` og aldri et personnavn, med navneoppslag i
+> `lib/aktor_navn.py`; `projects.organisasjon_id` er `NOT NULL` uten default.
+> Basen har atten tabeller.
+>
+> **Resten av notatet står som det var** — det er designgrunnlaget, ikke en
+> statusliste. MS-05, som rekkefølgen under setter sammen med MS-04 og MS-10,
+> er **ikke** gjennomført og har samme frist.
 
 ---
 
@@ -403,7 +419,8 @@ Bindingene mellom beslutningene gir en rekkefølge:
 
 1. **MS-04, MS-05, MS-10** først. De er billige, og alle tre blir umulige eller
    dyre når journalen inneholder ekte data. MS-10 blir umulig når et annet
-   prosjekt viser til `'oslobygg'`.
+   prosjekt viser til `'oslobygg'`. *(MS-04 og MS-10 gjennomført 20.09 sammen
+   med MS-01; MS-05 gjenstår — se merknaden øverst.)*
 2. **MS-01 sammen med transaksjonsplanen.** Sammenslåingen endrer formen
    innsendingstransaksjonen skrives mot.
 3. **MS-06, MS-07, MS-11** i samme runde som transaksjonsplanen, siden alle tre

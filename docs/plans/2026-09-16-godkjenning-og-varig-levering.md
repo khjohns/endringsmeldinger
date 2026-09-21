@@ -480,6 +480,79 @@ får én skriver og at journalen blir uforanderlig på en måte basen håndhever
 saker finnes — `projects.id` er i dag `'oslobygg'`, altså organisasjonsnavnet
 brukt som prosjekt-ID.
 
+**Merknad 2026-09-20 (sent): MS-01, MS-04 og MS-10 er gjennomført.** De tre med
+frist er tatt mens basen fortsatt er tom, og kostet derfor null datamigrasjon.
+Dokumentet er [gjennomføringen](../gjennomforing-maalskjema-2026-09-20.md).
+
+*Kjørt og observert:*
+
+- **To migrasjoner anvendt** mot prosjektet: `20260920192448`
+  (`organisasjon_id` på `projects`) og `20260920193558` (`hendelse`). Katalogen
+  bekrefter begge.
+- **Basen har atten tabeller.** `koe_events`, `forsering_events` og
+  `endringsordre_events` er sluppet etter en spørring som viste null rader i
+  alle tre umiddelbart før. `hendelse` har samme skranker, fremmednøkkel,
+  indekser og policy som de tre hadde, pluss en **eksplisitt** `GRANT` til
+  `service_role`.
+- **Journalen bærer `aktor_id`**, aldri et personnavn: `app_users.id`, eller
+  `catenda:<subject>` for en Catenda-forfatter uten konto hos oss. Navnet slås
+  opp ved visning i `lib/aktor_navn.py`, og et oppslag som feiler faller tilbake
+  til identiteten framfor å velte tidslinjen eller brevet. De tre literalene
+  `"BH"`, `"Ukjent BH"` og `"Ukjent TE"` er borte fra skrivestiene.
+- **`projects.organisasjon_id` er `NOT NULL` uten default**, og står ikke blant
+  de oppdaterbare feltene. `POST /api/projects` krever den.
+- **Hele settet — atten filer — bygger en tom PostgreSQL 16 i ren
+  `sort`-rekkefølge**, og katalogen er identisk med prosjektets på fem av fem
+  snitt. Sjekksummene står i gjennomføringen. **De er ikke sammenliknbare med
+  handoffens:** spørringene er skrevet på nytt, og et annet uttrykk gir et annet
+  md5 på identisk skjema.
+- **1482 backend-tester, 590 frontend-tester, `ruff` 0, `check:error` 0.**
+
+**Gjenstår, med samme frist:** **MS-05** — interne notater ut av journalen.
+Målskjemaets rekkefølge setter den sammen med MS-04 og MS-10, og den er ikke
+gjort. Den er større enn de to: tidslinjen må flette to kilder, og
+`event_visibility` må dekke begge.
+
+**Gjenstår, uten frist:** **MS-02** (append-only håndhevet av basen) er nå
+ulåst — den ventet på at journalens form skulle bli endelig, og det er den.
+Migrasjonshistorikken stemmer fortsatt ikke med mappa: alignmenten er **8 av
+18**, og `supabase migration repair` krever legitimasjon.
+
+**Merknad 2026-09-21: koden fra runden er gjennomgått, MG-01 til MG-09.**
+Fire uavhengige gjennomganger med vinkel gjenbruk, forenkling, effektivitet og
+nivå. Oppryddingen er gjennomført i `75789b8`; funnene som ble stående, står i
+[gjennomgangen](../audit-maalskjema-gjennomgang-2026-09-21.md).
+
+**Ett funn er nytt og skapt av forrige runde, og det har frist: MG-02.**
+`catenda:<subject>` er en andre verdiform i `hendelse.actorid`, så samme person
+kan føres som UUID i én hendelse og prefikset i en annen — avhengig av om de
+hadde logget inn da webhooken kom. `koe_resolve_identity` i basen ville fjernet
+formen, men gjør en ubetinget `UPDATE` av navn og e-post og trenger en
+`COALESCE`-variant først. Dette er samme klasse som MS-04 selv: uopprettelig
+når journalen bærer ekte saker.
+
+**MG-01** er middels og mindre enn den ser ut: navneoppslaget ligger i
+`compute_state` framfor i svarlaget, men *kjørt og observert* er fire av de fem
+oppslagene døde — `get_timeline` har null kallere, og ingen komponent leser
+`AktorInfo.navn`. Eneste levende forbruker er `EOData.utstedt_av`. Virkningen i
+dag er at samme EO viser navn utstedt i en forespørsel og UUID utstedt i
+bakgrunnen.
+
+**MG-03** står som streng `xfail`: parsegrensen avviser `event_id` og
+`tidsstempel`, men ikke de tre aktørfeltene, som overskrives i ruta i stedet.
+En ny mutasjonsrute kan glemme overskrivingen. Rettingen krever at
+`approval_service` og frontenden endres samtidig.
+
+Resten — MG-04 til MG-09 — er lav eller hører til MS-06. **MG-09 er ført inn i
+`AGENTS.md`:** en anvendt migrasjonsfil kan ikke rettes, heller ikke
+kommentarene, fordi `schema_migrations.statements` lagrer rågteksten.
+
+**Korrekthet er ikke gjennomgått, og det er en åpen arbeidspakke.** De fire
+vinklene ble uttrykkelig bedt om å ikke lete etter korrekthetsfeil, og
+`/simplify` er kvalitet, ikke feil. Femogtjue filer produksjonskode i
+hendelsesloggen har dermed ingen sett etter bugs i. **Kjør `/code-review` mot
+runden — `git log --oneline 9f70c45~1..main` — før noe bygges videre på den.**
+
 **Ett nytt hull, funnet av premiss P4:** vedlegg har **ingen hash** noe sted.
 Lagres bytene bare i Catenda, finnes det ingen måte å vise at dokumentet der er
 det som ble sendt. Én kolonne — `innhold_sha256` på `vedlegg`-tabellen
