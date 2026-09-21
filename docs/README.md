@@ -13,9 +13,10 @@ Opphever du et utsagn, skriv en datert merknad, også inn i det gamle dokumentet
 
 | Dokument | Hva det gir |
 | --- | --- |
-| [gjennomføring: MG-02](gjennomforing-mg02-2026-09-21.md) | **Begynn her.** Én identitetsform i journalen — den siste beslutningen med frist. To av de tre hindringene funnet navnga, holdt ikke ved kontroll mot katalogen; den som holdt, rammet innlogging og synkronisering, ikke bare webhooken |
-| [gjennomføring: MS-05](gjennomforing-ms05-2026-09-21.md) | Interne notater ut av den uforanderlige journalen — den siste beslutningen med frist som ikke ventet på et menneske. Ny tabell, versjonstelleren står stille, tidslinjen fletter to kilder, sletting er mulig. Nye katalogsummer, og spørringene bak dem |
-| [handoff-2026-09-21-korrekthet](handoff-2026-09-21-korrekthet.md) | Runden før, samme dag. Korrekthetsflaten er lukket: KR-01 til KR-15 med rettinger, tre feller og etablerte fakta. **Punkt 2 og 5 er innhentet** — se merknaden øverst |
+| [handoff-2026-09-21-frister](handoff-2026-09-21-frister.md) | **Begynn her.** Begge punktene med frist er lukket mens journalen var tom. Tre feller, tre beslutninger, og hva som står igjen — DB-05 er besluttet, ikke bygget |
+| [gjennomføring: MG-02](gjennomforing-mg02-2026-09-21.md) | Én identitetsform i journalen — det andre fristpunktet, som ventet på en beslutning. To av de tre hindringene funnet navnga, holdt ikke ved kontroll mot katalogen; den som holdt, rammet innlogging og synkronisering, ikke bare webhooken |
+| [gjennomføring: MS-05](gjennomforing-ms05-2026-09-21.md) | Interne notater ut av den uforanderlige journalen — den av de to fristpunktene som ikke ventet på en beslutning. Ny tabell, versjonstelleren står stille, tidslinjen fletter to kilder, sletting er mulig. Nye katalogsummer, og spørringene bak dem |
+| [handoff-2026-09-21-korrekthet](handoff-2026-09-21-korrekthet.md) | Runden før, samme dag. Korrekthetsflaten er lukket: KR-01 til KR-15 med rettinger, tre feller og etablerte fakta. **Punkt 2 og 5 er innhentet** — se merknaden øverst der |
 | [handoff-2026-09-21](handoff-2026-09-21.md) | Runden før, samme dag. Åpningsinstruksen er utført — se merknaden øverst. Overtakelse uten kontekst: hva som er gjennomført, tre nye feller, etablerte fakta med sjekksummer, og hva som krever et menneske |
 | [handoff-2026-09-20](handoff-2026-09-20.md) | Runden før. De fire fellene der gjelder fortsatt; «ting med frist» er delvis passert |
 | [handoff-2026-09-19](handoff-2026-09-19.md) | Eldre. Fellene der gjelder fortsatt, men «ting med frist» merket 5a er passert |

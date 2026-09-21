@@ -125,6 +125,12 @@ tilbake på.
   den kjørende kroppen til `koe_resolve_identity` og `koe_reconcile_memberships`,
   og radtall for `app_users`, `app_identities`, `app_project_memberships`,
   `app_sessions`.
+- **Migrasjonen er kontrollert mot den som kjører,** ikke bare antatt anvendt:
+  hele settet (23 filer) ble bygget fra tomt i et kastbart PostgreSQL 16-cluster,
+  og `md5(pg_get_functiondef(...))` for `koe_resolve_identity` gir
+  `b0c9227eaf65eb2d6c9d27658a3d6607` både der og i prosjektet. Migrasjonsfila er
+  altså den som faktisk kjører. De fem katalogsnittene dekker ikke
+  funksjonskropper, så dette er en egen sammenlikning.
 - Seks nye tester i `tests/test_security/test_identitet_20260921.py`: at
   hendelsen bærer `app_users.id`, at issueren er innloggingens, at subjektet
   normaliseres fra begge former, at ingen sak opprettes uten identitet, og at en
@@ -137,8 +143,8 @@ tilbake på.
   godtar begge former nettopp fordi dette ikke er observert mot en levende
   Catenda-instans.
 - At `koe_resolve_identity` kalt fra webhookstien oppfører seg likt som fra
-  innloggingen. Samme funksjon, samme argumenter — men webhookstien er ikke
-  kjørt mot den levende basen.
+  innloggingen. Samme funksjon og samme argumenter, og kroppen er verifisert
+  identisk — men selve webhookstien er ikke kjørt mot den levende basen.
 
 **Ikke gjort**
 

@@ -570,6 +570,9 @@ nivå. Oppryddingen er gjennomført i `75789b8`; funnene som ble stående, står
 [gjennomgangen](../audit-maalskjema-gjennomgang-2026-09-21.md).
 
 **Ett funn er nytt og skapt av forrige runde, og det har frist: MG-02.**
+*(Lukket 21.09 kveld — se merknaden nederst i dette avsnittet og
+[gjennomføringen](../gjennomforing-mg02-2026-09-21.md). Avsnittet under står som
+funnet ble skrevet; to av de tre hindringene det navnga, holdt ikke.)*
 `catenda:<subject>` er en andre verdiform i `hendelse.actorid`, så samme person
 kan føres som UUID i én hendelse og prefikset i en annen — avhengig av om de
 hadde logget inn da webhooken kom. `koe_resolve_identity` i basen ville fjernet
@@ -686,12 +689,13 @@ implementeringen og skal ikke tas opp igjen uten at denne merknaden oppheves.
   del: modellen er pseudonymisering ved skriving (MS-04) pluss fritekst om
   personer utenfor den uforanderlige strømmen (MS-05). Endrer det rettslige
   bildet seg, er det denne merknaden som må oppheves først.
-- **MG-02: ja, en webhook skal opprette brukerrader.** `koe_resolve_identity`
-  skal kalles fra webhookstien, slik at samme person alltid føres med samme
-  identitet. `catenda:<subject>` som andre verdiform skal bort, og `actorid`
-  kan bli `uuid`. De tre hindringene MG-02 navngir står fortsatt: `COALESCE`
-  rundt den ubetingede `UPDATE app_users`, identisk issuer som innloggingens,
-  og DDL for begge.
+- **MG-02: ja, en webhook skal opprette brukerrader.** **Gjennomført samme
+  kveld** — `koe_resolve_identity` kalles nå fra webhookstien, og
+  `catenda:<subject>` finnes ikke lenger. Av de tre hindringene funnet navnga,
+  var hindring 2 (beslutningen) allerede avgjort i kode av
+  `koe_reconcile_memberships`, og hindring 3 (issueren) allerede oppfylt.
+  Hindring 1 var reell og er rettet i migrasjon `20260921164900`. `actorid` er
+  fortsatt `TEXT`; se gjennomføringen for hvorfor.
 - **DB-05: `viewer` skal finnes som begrep.** En ren leserolle — innsyn uten
   handlingsrett, for revisor, advokat eller rådgiver — er ønsket.
   `app_project_memberships` må derfor utvides før `project_memberships` kan

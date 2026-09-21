@@ -93,6 +93,13 @@ som gjør `UPDATE sak_metadata`, og `project_memberships` må komme etter
 bygger ikke basen fra tom. Vaktene i
 `tests/test_security/test_database_arkitektur_20260920.py` holder på det.
 
+**Versjonen i basen er ikke versjonen i filnavnet.** `apply_migration` over MCP
+stempler sitt eget tidsstempel i `supabase_migrations.schema_migrations`, så en
+fil som heter `20260921153900` kan stå som en annen verdi der. Rekkefølgen er
+den samme på begge sider, så ingenting bygger feil — men den som teller
+«registrerte filer» ved å sammenlikne versjoner, teller feil. En tidligere
+handoff oppga filnavnene som om de var basens versjoner.
+
 **Stubben må gi `service_role` fulle rettigheter,** ellers er sammenlikningen
 ikke tro: `GRANT ALL ON ALL TABLES IN SCHEMA public TO service_role` pluss
 `ALTER DEFAULT PRIVILEGES … GRANT ALL ON TABLES TO service_role`. Supabase gjør
@@ -107,6 +114,14 @@ bare av testdobler, og doblene speiler repoet — `HENDELSE_KOLONNER` i
 databasen. Da `actorteam` manglet i basen, var suiten grønn mens *enhver* skriving til
 Supabase-lageret feilet. Grønn suite er derfor ikke bevis for at en skjemaendring
 har nådd fram; det er katalogspørringen som er beviset.
+
+**En avvisning fra et Supabase-lager må være en `PermanentError`.**
+Skrivemetodene er dekorert med `@with_retry()`, og `classify_error` regner et
+ukjent unntak som forbigående. Kaster du en naken `ValueError` for å avvise noe
+som aldri kan lykkes — feil hendelsestype, manglende felt — sover lageret og
+prøver igjen, og kalleren får `TransientError` framfor det ruta oversetter til
+400. `ConcurrencyError` arver `ConflictError` nettopp av denne grunnen, og
+`JournalfoeringAvvist` arver `PermanentError` og `ValueError`. Observert 21.09.
 
 **En anvendt migrasjon er uforanderlig — også kommentarene.**
 `supabase_migrations.schema_migrations.statements` lagrer rågteksten, kommentarer
@@ -137,11 +152,17 @@ Brytes en av disse, er det en sikkerhetsfeil uansett hvor liten endringen så ut
   `parse_event_from_request`; de tre aktørfeltene overskrives i ruta før
   parsing, så det klienten sendte, når aldri modellen. Stol aldri på en rolle
   eller en identitet klienten oppgir.
-- **Journalen bærer `aktor_id`, aldri et personnavn.** Verdien er `app_users.id`,
-  eller `catenda:<subject>` når handlingen kom fra en Catenda-forfatter uten konto
-  hos oss. Navnet slås opp ved visning i `lib/aktor_navn.py`, og et oppslag som
-  feiler skal falle tilbake til identiteten — aldri velte tidslinjen eller brevet.
-  En hendelse er append-only: et navn som kommer inn her, kan ikke fjernes igjen.
+- **Journalen bærer `aktor_id`, aldri et personnavn — og bare én form.**
+  Verdien er `app_users.id`, punktum. Også for en Catenda-forfatter: webhookstien
+  løser identiteten gjennom `koe_resolve_identity`, samme databasefunksjon som
+  innloggingen og medlemssynkroniseringen bruker, med samme issuer
+  (`CatendaOAuth.BASE`) og samme normaliserte subjekt (`catenda_id()`). Én annen
+  issuer eller et unormalisert subjekt gir samme person to brukerrader.
+  Lar identiteten seg ikke avgjøre, skrives ingen hendelse — fail-closed, som for
+  kontraktssiden. Navnet slås opp ved visning i `lib/aktor_navn.py`, og et oppslag
+  som feiler skal falle tilbake til identiteten — aldri velte tidslinjen eller
+  brevet. En hendelse er append-only: en verdi som kommer inn her, kan ikke
+  rettes igjen, og det er derfor en andre verdiform er dyr.
 - **Interne notater og utkast er fail-closed.** Uten entydig team finnes det ikke noe
   å lese eller skrive. Et notat uten `aktor_team_id` vises til ingen, heller ikke
   forfatteren. Notatet ligger i `notat`, ikke i journalen (MS-05): det er ikke
@@ -186,6 +207,14 @@ Spør katalogen — `pg_proc`, `pg_trigger`, `pg_policy` — før du skriver at 
 er i bruk. En trigger kan også være den egentlige skriveren: `project_memberships`
 fylles av en trigger, mens koden som ser ut til å skrive den, treffer en
 unik-skranke og logger en advarsel hver gang.
+
+**Og spør hvem *andre* som kaller funksjonen, ikke bare om den kalles.** MG-02
+slo fast at det krevdes en produktbeslutning for å la en webhook opprette
+brukerrader — fordi runden fant at innloggingen kaller `koe_resolve_identity`,
+men ikke at `koe_reconcile_memberships` kaller den for hvert prosjektmedlem ved
+hver synkronisering. Systemet gjorde det allerede: fjorten brukere, fjorten
+identiteter, én sesjon. En funksjon som kalles fra en annen databasefunksjon,
+finnes ikke i noe kodesøk.
 
 **Har du funnet ett tilfelle, har du ikke funnet alle.** Søket formes av det du
 allerede fant, så tellingen vokser i runder — og hver runde melder seg ferdig.
