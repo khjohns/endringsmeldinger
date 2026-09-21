@@ -556,8 +556,8 @@ gjort. Den er større enn de to: tidslinjen må flette to kilder, og
 > **Basen har dermed nitten tabeller, ikke atten** — punktet lenger opp gjaldt
 > til 20.09. Åtte av de nitten har fortsatt ingen eksplisitt `GRANT` i repoet.
 > Se [gjennomføringen](../gjennomforing-ms05-2026-09-21.md).
-> **Ingen beslutning med frist står nå igjen uten at den venter på et
-> menneske** — MG-02 er besluttet, men ikke bygget.
+> **Ingen beslutning med frist står igjen.** MG-02, den andre, er gjennomført
+> samme kveld — se [MG-02-gjennomføringen](../gjennomforing-mg02-2026-09-21.md).
 
 **Gjenstår, uten frist:** **MS-02** (append-only håndhevet av basen) er nå
 ulåst — den ventet på at journalens form skulle bli endelig, og det er den.
@@ -698,9 +698,15 @@ implementeringen og skal ikke tas opp igjen uten at denne merknaden oppheves.
   fjernes. Planen om å fjerne den gamle tabellen står, men forutsetningen er en
   utvidelse av den nye, ikke en forenkling.
 
-**Bare den første er gjennomført** — gjennom MS-05, se
-[MS-05-gjennomføringen](../gjennomforing-ms05-2026-09-21.md). MG-02 og DB-05 er
-besluttet, ikke bygget.
+**To av tre er gjennomført samme kveld:** den første gjennom MS-05
+([gjennomføringen](../gjennomforing-ms05-2026-09-21.md)), MG-02 gjennom
+[MG-02-gjennomføringen](../gjennomforing-mg02-2026-09-21.md). **DB-05 er
+besluttet, ikke bygget.**
+
+Merk til MG-02: to av de tre hindringene funnet navnga, holdt ikke ved
+kontroll mot katalogen. Beslutningen om å opprette brukerrader var allerede tatt
+i kode — `koe_reconcile_memberships` har gjort det ved hver
+medlemssynkronisering hele tiden.
 
 Volumet tilsier en enkel databasebasert worker med lease, backoff og synlige
 feil, ikke en ny distribuert meldingsplattform. Avstemming er ekstra vern,

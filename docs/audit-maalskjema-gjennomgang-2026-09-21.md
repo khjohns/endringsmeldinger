@@ -75,13 +75,24 @@ den.
 
 ### MG-02 — `catenda:<subject>` er en andre verdiform, i en kolonne som ikke kan rettes
 
-> **Merknad 2026-09-21 (kveld): produktbeslutningen er tatt — ja.** En webhook
-> skal opprette brukerrader for folk som aldri har logget inn hos oss, slik at
-> `koe_resolve_identity` kan kalles fra webhookstien og journalen får én
-> identitetsform. Hindring 2 under er dermed ikke lenger åpen. Hindring 1
-> (`COALESCE` rundt den ubetingede `UPDATE app_users`) og hindring 3 (identisk
-> issuer) står, og funnet er fortsatt åpent: beslutningen er tatt, koden er
-> ikke skrevet. Se masterplanens merknad samme dato.
+> **Merknad 2026-09-21 (kveld): lukket.** Se
+> [MG-02-gjennomføringen](gjennomforing-mg02-2026-09-21.md). Produktbeslutningen
+> ble ja, men to av de tre hindringene under holdt ikke ved nærmere
+> kontroll:
+>
+> - **Hindring 2 var allerede avgjort i kode.** `koe_reconcile_memberships`
+>   kaller `koe_resolve_identity` for hvert prosjektmedlem ved hver
+>   synkronisering. Katalogen: 14 brukere, 14 identiteter, **1 sesjon** — tretten
+>   av fjorten brukerrader tilhører folk som aldri har logget inn. Avsnittet
+>   under leste at innloggingen kaller funksjonen, men ikke at synkroniseringen
+>   gjør det samme; funksjonen ligger i basen, ikke i repoet.
+> - **Hindring 3 var oppfylt.** `app_identities` har én issuer, og den er
+>   identisk med `CatendaOAuth.BASE`.
+> - **Hindring 1 var reell** og er rettet i migrasjon `20260921164900`. Den
+>   rammet innlogging og synkronisering, ikke bare webhooken.
+>
+> Det som faktisk manglet, og som ikke står under: webhooken normaliserte ikke
+> subjektet, så et `ref` med bindestreker ville gitt en *tredje* verdiform.
 
 **Fil og symbol:** `backend/services/catenda_webhook_service.py:_aktor_id`,
 `backend/lib/aktor_navn.py:CATENDA_PREFIKS`,
