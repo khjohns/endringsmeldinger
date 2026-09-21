@@ -17,6 +17,20 @@ katalogspørringen som er beviset på at en skjemaendring har nådd fram.
 
 from types import SimpleNamespace
 
+
+def _felt(row: dict, field: str):
+    """Verdien et PostgREST-filter ville sammenliknet med.
+
+    `data->>nokkel` plukker en tekstverdi ut av JSON-kolonnen, slik `->>` gjør.
+    """
+    kolonne, _, nokkel = field.partition("->>")
+    verdi = row.get(kolonne)
+    if not nokkel:
+        return verdi
+    ut = (verdi or {}).get(nokkel)
+    return None if ut is None else str(ut)
+
+
 HENDELSE_KOLONNER = {
     "id",
     "specversion",
@@ -56,6 +70,7 @@ class FakeTable:
         self._filters: list[tuple[str, object]] = []
         self._order: tuple[str, bool] | None = None
         self._limit: int | None = None
+        self._range: tuple[int, int] | None = None
         self._pending_insert: list[dict] | None = None
 
     def insert(self, rows):
@@ -87,6 +102,10 @@ class FakeTable:
         self._limit = count
         return self
 
+    def range(self, start, end):
+        self._range = (start, end)
+        return self
+
     def execute(self):
         if self._pending_insert is not None:
             self._rows.extend(dict(row) for row in self._pending_insert)
@@ -95,11 +114,14 @@ class FakeTable:
         rows = [
             row
             for row in self._rows
-            if all(row.get(field) == value for field, value in self._filters)
+            if all(_felt(row, field) == value for field, value in self._filters)
         ]
         if self._order:
             field, desc = self._order
             rows = sorted(rows, key=lambda row: row.get(field), reverse=desc)
+        if self._range is not None:
+            start, end = self._range
+            rows = rows[start : end + 1]
         if self._limit is not None:
             rows = rows[: self._limit]
         if self._select and self._select != "*":

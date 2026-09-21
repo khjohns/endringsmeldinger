@@ -119,7 +119,7 @@ class WebhookService:
 
         return AuthService()
 
-    def _aktor_id(self, catenda_subject: str | None) -> str:
+    def _aktor_id(self, catenda_subject: str) -> str:
         """Identiteten topicens forfatter skal føres på i journalen.
 
         Er forfatteren en bruker hos oss, brukes `app_users.id`. Ellers bæres
@@ -131,8 +131,6 @@ class WebhookService:
         ikke fra webhookens nyttelast: `topic-event.author` er et brukernavn
         («john@doe.com» i spekken), ikke en ID.
         """
-        if not catenda_subject:
-            return ""
         try:
             bruker_id = self._auth_service().repo.user_id_for_subject(
                 "catenda", catenda_subject
@@ -290,15 +288,6 @@ class WebhookService:
             if project_details:
                 project_name = project_details.get("name", project_name)
 
-            # NOTE: Custom fields (Byggherre, Leverandør) extracted but not currently used
-            # TODO: Consider using these fields for party identification
-
-            # Extract author
-            author_name = (
-                topic_data.get("bimsync_creation_author", {})
-                .get("user", {})
-                .get("name", topic_data.get("creation_author", "Unknown"))
-            )
             author_subject = (
                 topic_data.get("bimsync_creation_author", {}).get("user", {}).get("ref")
             )
@@ -354,7 +343,7 @@ class WebhookService:
                 catenda_project_id=catenda_project_id,
                 prosjekt_id=app_project_id,
                 metadata_kwargs={
-                    "created_by": author_name,
+                    "created_by": aktor_id,
                     "cached_title": title,
                     "cached_status": "UNDER_VARSLING",
                 },

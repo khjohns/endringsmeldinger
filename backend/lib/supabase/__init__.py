@@ -17,6 +17,7 @@ from .exceptions import (
     ValidationError,
     classify_error,
 )
+from .paginering import SIDESTORRELSE, alle_rader
 from .retry import safe_execute, with_retry
 
 __all__ = [
@@ -33,6 +34,9 @@ __all__ = [
     "ValidationError",
     "RateLimitError",
     "classify_error",
+    # Paginering
+    "alle_rader",
+    "SIDESTORRELSE",
     # Retry
     "with_retry",
     "safe_execute",

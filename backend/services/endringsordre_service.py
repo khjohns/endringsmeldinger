@@ -552,7 +552,6 @@ class EndringsordreService(BaseSakService):
                 "ny_sluttdato": ny_sluttdato,
                 "status": EOStatus.UTSTEDT.value,
                 "dato_utstedt": dato_utstedt,
-                "utstedt_av": utstedt_av_id,
                 "te_akseptert": None,
                 "te_kommentar": None,
                 "dato_te_respons": None,

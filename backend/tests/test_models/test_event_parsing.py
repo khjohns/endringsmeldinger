@@ -121,7 +121,7 @@ class TestParseEvent:
             "sak_id": "TEST-005",
             "event_type": "respons_grunnlag",
             "tidsstempel": "2025-01-01T12:00:00",
-            "aktor_id": "BH User",
+            "aktor_id": "bh-user",
             "aktor_rolle": "BH",
             "spor": "grunnlag",
             "data": {"resultat": "godkjent", "begrunnelse": "Godkjent av BH"},

@@ -2,6 +2,8 @@
 
 from datetime import UTC, datetime
 
+from lib.supabase import alle_rader
+
 
 def utcnow() -> str:
     return datetime.now(UTC).isoformat()
@@ -16,16 +18,13 @@ class AuthRepository:
         self.client = client
 
     def all_rows(self, table, columns="*", **filters):
-        rows = []
-        for offset in range(0, 100000, 500):
+        def side(start, slutt):
             query = self.client.table(table).select(columns).order("id")
             for key, value in filters.items():
                 query = query.eq(key, value)
-            page = query.range(offset, offset + 499).execute().data
-            rows.extend(page)
-            if len(page) < 500:
-                return rows
-        raise RuntimeError("Database pagination limit")
+            return query.range(start, slutt).execute().data
+
+        return alle_rader(side)
 
     def user_name(self, user_id):
         """Navnet på en bruker, eller None. Tom streng regnes som ikke satt."""
@@ -50,8 +49,15 @@ class AuthRepository:
         """
         if not subject:
             return None
-        rader = self.all_rows(
-            "app_identities", "id,user_id", provider=provider, subject=subject
+        rader = (
+            self.client.table("app_identities")
+            .select("user_id")
+            .eq("provider", provider)
+            .eq("subject", subject)
+            .limit(2)
+            .execute()
+            .data
+            or []
         )
         if len(rader) != 1:
             return None
@@ -123,21 +129,18 @@ class AuthRepository:
         ).execute()
 
     def configs(self):
-        rows = []
-        for offset in range(0, 100000, 500):
-            page = (
+        def side(start, slutt):
+            return (
                 self.client.table("catenda_project_configs")
                 .select("internal_project_id,catenda_project_id")
                 .eq("is_active", True)
                 .order("internal_project_id")
-                .range(offset, offset + 499)
+                .range(start, slutt)
                 .execute()
                 .data
             )
-            rows.extend(page)
-            if len(page) < 500:
-                return rows
-        raise RuntimeError("Project pagination limit")
+
+        return alle_rader(side)
 
     def project_config(self, project_id):
         """Direkte oppslag på ett aktivt prosjekt."""
@@ -200,6 +203,7 @@ class AuthRepository:
         name: str,
         catenda_project_id: str,
         library_id: str,
+        organisasjon_id: str,
         folder_id: str | None = None,
         topic_board_id: str | None = None,
         description: str | None = None,
@@ -213,6 +217,7 @@ class AuthRepository:
                     "p_project_id": project_id,
                     "p_name": name,
                     "p_description": description,
+                    "p_organisasjon_id": organisasjon_id,
                     "p_catenda_project_id": catenda_project_id,
                     "p_library_id": library_id,
                     "p_folder_id": folder_id,
