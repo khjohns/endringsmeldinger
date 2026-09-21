@@ -13,7 +13,8 @@ Opphever du et utsagn, skriv en datert merknad, også inn i det gamle dokumentet
 
 | Dokument | Hva det gir |
 | --- | --- |
-| [handoff-2026-09-21-korrekthet](handoff-2026-09-21-korrekthet.md) | **Begynn her.** Korrekthetsflaten er lukket: KR-01 til KR-15 med rettinger, tre feller, nye katalogsummer, og hvor neste runde bør begynne |
+| [gjennomføring: MS-05](gjennomforing-ms05-2026-09-21.md) | **Begynn her.** Interne notater ut av den uforanderlige journalen — den siste beslutningen med frist som ikke ventet på et menneske. Ny tabell, versjonstelleren står stille, tidslinjen fletter to kilder, sletting er mulig. Nye katalogsummer, og spørringene bak dem |
+| [handoff-2026-09-21-korrekthet](handoff-2026-09-21-korrekthet.md) | Runden før, samme dag. Korrekthetsflaten er lukket: KR-01 til KR-15 med rettinger, tre feller og etablerte fakta. **Punkt 2 og 5 er innhentet** — se merknaden øverst |
 | [handoff-2026-09-21](handoff-2026-09-21.md) | Runden før, samme dag. Åpningsinstruksen er utført — se merknaden øverst. Overtakelse uten kontekst: hva som er gjennomført, tre nye feller, etablerte fakta med sjekksummer, og hva som krever et menneske |
 | [handoff-2026-09-20](handoff-2026-09-20.md) | Runden før. De fire fellene der gjelder fortsatt; «ting med frist» er delvis passert |
 | [handoff-2026-09-19](handoff-2026-09-19.md) | Eldre. Fellene der gjelder fortsatt, men «ting med frist» merket 5a er passert |
@@ -35,6 +36,7 @@ Opphever du et utsagn, skriv en datert merknad, også inn i det gamle dokumentet
 | [audit: databasearkitektur](audit-databasearkitektur-2026-09-20.md) | **Trenger vi alle tabellene?** Alle tabellene i `public` navngitt, med radtall, opprettende migrasjon og lesere. DA-01 til DA-15. Skiller «ubrukt» fra «i bruk, men overflødig». Tjue da den ble skrevet; atten etter at MS-01 slo tre hendelsestabeller sammen |
 | [design: målskjema for databasen](design-maalskjema-database-2026-09-20.md) | Lukker DA-12 til DA-15. MS-01 til MS-15, med sju premisser besluttet av utvikler. Målet er atten tabeller — poenget er at hver får én skriver, ikke at de blir færre |
 | [gjennomføring: MS-01, MS-04 og MS-10](gjennomforing-maalskjema-2026-09-20.md) | De tre med frist, gjennomført samme kveld mens basen var tom. Én `hendelse`-tabell, `aktor_id` framfor personnavn, `organisasjon_id` på `projects`. Nye katalogsjekksummer og grensene |
+| [gjennomføring: MS-05](gjennomforing-ms05-2026-09-21.md) | Den siste med frist. `notat` som egen tabell utenfor journalen, med de tre følgene: versjonstelleren, flettingen og sletting. Sier også hvor migrasjonsversjonene i basen ikke stemmer med filnavnene |
 | [gjennomgang av målskjemarunden](audit-maalskjema-gjennomgang-2026-09-21.md) | MG-01 til MG-09: gjennomgang av forrige rundes egen kode, med fire vinkler. Hva som ble ryddet, og hva som ble stående. **MG-02 har frist** |
 | [audit: opprydding](audit-opprydding-2026-09-21.md) | **RY-01 til RY-07:** hva som ble utsatt etter KR-rettingene, og én påstand to gjennomganger var enige om og begge tok feil i |
 | [audit: korrekthet i målskjemarunden](audit-korrekthet-2026-09-21.md) | **Korrekthetsgjennomgangen handoffen ba om.** KR-01 til KR-14 over de samme åtte commitene, med tre avviste påstander og hvorfor de ikke holdt. **KR-01 er høy** og blokkerer all prosjektregistrering |

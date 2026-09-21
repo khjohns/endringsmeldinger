@@ -96,7 +96,7 @@ bygger ikke basen fra tom. Vaktene i
 **Stubben må gi `service_role` fulle rettigheter,** ellers er sammenlikningen
 ikke tro: `GRANT ALL ON ALL TABLES IN SCHEMA public TO service_role` pluss
 `ALTER DEFAULT PRIVILEGES … GRANT ALL ON TABLES TO service_role`. Supabase gjør
-dette ved prosjektoppsett, ikke i migrasjonene — og **åtte av atten tabeller har
+dette ved prosjektoppsett, ikke i migrasjonene — og **åtte av nitten tabeller har
 ingen eksplisitt `GRANT` i repoet i det hele tatt.** De virker bare fordi
 plattformen deler ut rettigheter. Flyttes basen bort fra Supabase, forsvinner
 de.
@@ -144,7 +144,10 @@ Brytes en av disse, er det en sikkerhetsfeil uansett hvor liten endringen så ut
   En hendelse er append-only: et navn som kommer inn her, kan ikke fjernes igjen.
 - **Interne notater og utkast er fail-closed.** Uten entydig team finnes det ikke noe
   å lese eller skrive. Et notat uten `aktor_team_id` vises til ingen, heller ikke
-  forfatteren.
+  forfatteren. Notatet ligger i `notat`, ikke i journalen (MS-05): det er ikke
+  et kontraktsvarsel, det flytter ikke sakens versjon, og det kan slettes.
+  Tidslinjen fletter de to kildene ved lesing, så skjermingsfilteret i
+  `lib/auth/event_visibility.py` gjelder fortsatt begge.
 - **Prosjektgrensen må håndheves ved hvert lesepunkt**, også for saker det refereres
   til. Klientoppgitte relasjoner skal ikke utvide tilgangen — bruk
   `cases_in_project`. Dette er brutt flere ganger; se masterplanens merknad om RV-07.

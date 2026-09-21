@@ -549,6 +549,16 @@ Målskjemaets rekkefølge setter den sammen med MS-04 og MS-10, og den er ikke
 gjort. Den er større enn de to: tidslinjen må flette to kilder, og
 `event_visibility` må dekke begge.
 
+> **Merknad 2026-09-21 (kveld): MS-05 er gjennomført.** Avsnittet over gjaldt
+> til `71d9115`. Notatene ligger nå i tabellen `notat`, versjonstelleren
+> flyttes ikke av et notat, og tidslinjen fletter de to kildene ved lesing.
+> Sletting er mulig og begrenset til forfatteren.
+> **Basen har dermed nitten tabeller, ikke atten** — punktet lenger opp gjaldt
+> til 20.09. Åtte av de nitten har fortsatt ingen eksplisitt `GRANT` i repoet.
+> Se [gjennomføringen](../gjennomforing-ms05-2026-09-21.md).
+> **Ingen beslutning med frist står nå igjen uten at den venter på et
+> menneske** — MG-02 er besluttet, men ikke bygget.
+
 **Gjenstår, uten frist:** **MS-02** (append-only håndhevet av basen) er nå
 ulåst — den ventet på at journalens form skulle bli endelig, og det er den.
 Migrasjonshistorikken stemmer fortsatt ikke med mappa: alignmenten er **8 av
