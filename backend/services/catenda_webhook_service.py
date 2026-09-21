@@ -21,7 +21,8 @@ import tempfile
 from datetime import UTC, datetime
 from typing import Any
 
-from lib.aktor_navn import CATENDA_PREFIKS
+from lib.auth.catenda_oauth import CatendaOAuth
+from lib.auth.domain import catenda_id
 from models.events import SakOpprettetEvent
 from repositories import create_metadata_repository
 from repositories.event_repository import JsonFileEventRepository
@@ -119,26 +120,54 @@ class WebhookService:
 
         return AuthService()
 
-    def _aktor_id(self, catenda_subject: str) -> str:
-        """Identiteten topicens forfatter skal føres på i journalen.
+    def _aktor_id(self, catenda_subject: str) -> str | None:
+        """Identiteten topicens forfatter skal føres på i journalen, eller None.
 
-        Er forfatteren en bruker hos oss, brukes `app_users.id`. Ellers bæres
-        Catenda-identiteten som den er. Journalen skal ikke inneholde
-        personnavn (MS-04), og subject-en er den samme kilden kontraktssiden
-        utledes av — så rollen og identiteten hviler på samme grunnlag.
+        Journalen bærer én identitetsform: `app_users.id` (MS-04, MG-02).
+        `koe_resolve_identity` er den samme funksjonen innloggingen bruker, med
+        den samme issueren — kalles den med en annen, får samme person to
+        brukerrader.
+
+        Forfatteren har normalt en rad fra før: `koe_reconcile_memberships`
+        kaller den samme funksjonen for hvert prosjektmedlem ved synkronisering,
+        og kontraktssiden er allerede slått opp mot det medlemskapet før vi kommer
+        hit. Funksjonen oppretter raden om den likevel mangler.
+
+        Returnerer None når identiteten ikke lar seg avgjøre. Kalleren er
+        fail-closed, som for kontraktssiden (audit INT-04): en hendelse med en
+        aktør vi ikke kan navngi, har ingen bevisverdi — og journalen kan ikke
+        rettes i ettertid.
 
         Subject-en er `bimsync_creation_author.user.ref` fra topic-oppslaget,
         ikke fra webhookens nyttelast: `topic-event.author` er et brukernavn
         («john@doe.com» i spekken), ikke en ID.
         """
         try:
-            bruker_id = self._auth_service().repo.user_id_for_subject(
-                "catenda", catenda_subject
+            return str(
+                self._auth_service().repo.identity(
+                    "catenda", CatendaOAuth.BASE, catenda_subject, "", ""
+                )
             )
         except Exception as e:
             logger.warning(f"Identitetsoppslag for {catenda_subject} feilet: {e}")
-            bruker_id = None
-        return bruker_id or f"{CATENDA_PREFIKS}{catenda_subject}"
+            return None
+
+    @staticmethod
+    def _normalisert_subject(ref: str | None) -> str | None:
+        """Catenda-IDen på den formen `app_identities` og medlemskapene lagrer.
+
+        `catenda_id` er 32 heksadesimaler uten bindestreker. Både innloggingen
+        og medlemssynkroniseringen normaliserer; gjorde ikke webhooken det, ville
+        et `ref` med bindestreker bommet på begge oppslagene — og et bom her blir
+        stående i en journal som ikke kan rettes.
+        """
+        if not ref:
+            return None
+        try:
+            return catenda_id(ref)
+        except (ValueError, AttributeError, TypeError):
+            logger.warning(f"Topicforfatterens ref er ikke en Catenda-ID: {ref!r}")
+            return None
 
     def _contract_side(self, project_id: str, catenda_subject: str | None) -> str | None:
         """Kontraktssiden topicens forfatter tilhører, eller None.
@@ -288,7 +317,7 @@ class WebhookService:
             if project_details:
                 project_name = project_details.get("name", project_name)
 
-            author_subject = (
+            author_subject = self._normalisert_subject(
                 topic_data.get("bimsync_creation_author", {}).get("user", {}).get("ref")
             )
 
@@ -318,6 +347,19 @@ class WebhookService:
                 }
 
             aktor_id = self._aktor_id(author_subject)
+            if aktor_id is None:
+                logger.warning(
+                    f"Avviser topic {topic_id}: forfatterens identitet kunne "
+                    f"ikke avgjøres"
+                )
+                return {
+                    "success": False,
+                    "error": "UKJENT_FORFATTER",
+                    "message": (
+                        "Kunne ikke fastslå hvem som opprettet topicen. "
+                        "Saken er ikke opprettet."
+                    ),
+                }
 
             # Create SakOpprettetEvent (Event Sourcing)
             event = SakOpprettetEvent(
