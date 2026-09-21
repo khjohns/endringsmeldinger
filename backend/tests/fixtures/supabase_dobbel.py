@@ -54,6 +54,22 @@ HENDELSE_KOLONNER = {
 }
 
 
+NOTAT_KOLONNER = {
+    "notat_id",
+    "sak_id",
+    "prosjekt_id",
+    "aktor_id",
+    "aktor_rolle",
+    "aktor_team_id",
+    "tekst",
+    "spor",
+    "kommentar",
+    "refererer_til_event_id",
+    "opprettet",
+    "endret",
+}
+
+
 class FakeTable:
     """Én spørring mot én tabell i minnet.
 
@@ -72,6 +88,7 @@ class FakeTable:
         self._limit: int | None = None
         self._range: tuple[int, int] | None = None
         self._pending_insert: list[dict] | None = None
+        self._pending_delete = False
 
     def insert(self, rows):
         self._logg.append(self._name)
@@ -83,6 +100,15 @@ class FakeTable:
                     f"Tabellen {self._name} har ingen kolonne(r) {sorted(unknown)}"
                 )
         self._pending_insert = rows
+        return self
+
+    def delete(self):
+        """PostgREST svarer med de slettede radene; det er slik kallerne teller.
+
+        Notatlageret er det eneste som sletter — journalen skal ikke kunne.
+        """
+        self._logg.append(self._name)
+        self._pending_delete = True
         return self
 
     def select(self, columns="*"):
@@ -110,6 +136,16 @@ class FakeTable:
         if self._pending_insert is not None:
             self._rows.extend(dict(row) for row in self._pending_insert)
             return SimpleNamespace(data=list(self._pending_insert))
+
+        if self._pending_delete:
+            treff = [
+                row
+                for row in self._rows
+                if all(_felt(row, field) == value for field, value in self._filters)
+            ]
+            for row in treff:
+                self._rows.remove(row)
+            return SimpleNamespace(data=[dict(row) for row in treff])
 
         rows = [
             row

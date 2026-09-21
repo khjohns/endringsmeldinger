@@ -10,7 +10,43 @@ import os
 from abc import ABC, abstractmethod
 from pathlib import Path
 
-from lib.supabase.exceptions import ConflictError
+from lib.supabase.exceptions import ConflictError, PermanentError
+from models.events import EventType
+
+# Hendelsestyper som ikke hører hjemme i journalen. Interne notater er ikke
+# kontraktsvarsler og bor i `notat` (MS-05); journalen skal få
+# `REVOKE UPDATE, DELETE`, så en rad som kommer inn her, blir stående for godt.
+UTENFOR_JOURNALEN = frozenset({EventType.INTERNT_NOTAT.value})
+
+
+class JournalfoeringAvvist(PermanentError, ValueError):
+    """Hendelsestypen har sitt eget lager og skal ikke i journalen (MS-05).
+
+    Arver begge av samme grunn som `ConcurrencyError` arver `ConflictError`:
+    uten `PermanentError` ville retry-dekoratøren rundt Supabase-lageret
+    klassifisert avvisningen som en ukjent, forbigående feil — sovet, prøvd
+    igjen, og til slutt kastet noe ruta oversetter til 500. `ValueError` er det
+    rutene allerede fanger og gjør om til 400.
+    """
+
+
+def krev_journalhendelser(events: list) -> None:
+    """Avvis hendelser som har sitt eget lager.
+
+    Vakten ligger i lageret og ikke i ruta med vilje: det finnes to
+    innsendingsruter, og en tredje ville arvet regelen bare ved å huske den.
+
+    Raises:
+        JournalfoeringAvvist: Ved en hendelsestype som ikke skal journalføres.
+    """
+    for event in events:
+        event_type = getattr(event, "event_type", None)
+        navn = getattr(event_type, "value", event_type)
+        if navn in UTENFOR_JOURNALEN:
+            raise JournalfoeringAvvist(
+                f"{navn} skal ikke skrives til hendelsesloggen. "
+                "Den har sitt eget lager (MS-05)."
+            )
 
 
 class ConcurrencyError(ConflictError):
@@ -70,6 +106,14 @@ class EventRepository(ABC):
         """
         pass
 
+    def gjeldende_versjon(self, sak_id: str) -> int:
+        """Sakens versjon, uten å lese hele strømmen.
+
+        Begge lagrene har oppslaget fra før: Supabase-varianten er en
+        `select versjon … limit 1` framfor et uttrekk av hver hendelse på saken.
+        """
+        return self._get_current_version(sak_id)
+
 
 class JsonFileEventRepository(EventRepository):
     """
@@ -114,6 +158,8 @@ class JsonFileEventRepository(EventRepository):
         """
         if not events:
             raise ValueError("Kan ikke legge til tom event-liste")
+
+        krev_journalhendelser(events)
 
         sak_id = events[0].sak_id
         if not all(e.sak_id == sak_id for e in events):

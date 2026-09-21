@@ -6,6 +6,10 @@ på kontraktsside: en side kan ha flere team, og byggherren og en ekstern
 rådgiver er ulike organisasjoner selv om begge er BH. Testene her holder
 lesesiden opp mot den regelen: andre skal verken se notatteksten eller at
 notatet finnes.
+
+Etter MS-05 ligger notatet i sitt eget lager og flettes inn i tidslinjen ved
+lesing. Testene bruker derfor et ekte notatlager, ikke en dobbel: det er selve
+flettingen som er den nye måten regelen kan brytes på.
 """
 
 import json
@@ -19,6 +23,8 @@ from flask import Flask
 from lib.auth.session import cookie_name
 from lib.project_context import init_project_context
 from models.events import InterntNotatData, InterntNotatEvent
+from models.notat import Notat
+from repositories.notat_repository import JsonFileNotatRepository
 from routes import event_routes
 from services.timeline_service import TimelineService
 
@@ -27,6 +33,19 @@ NOTAT_TEKST = "Internt: vårt krav står svakt på årsakssammenheng."
 TE_TEAM = "22222222222222222222222222222222"
 BH_BYGGHERRE_TEAM = "33333333333333333333333333333333"
 BH_RADGIVER_TEAM = "55555555555555555555555555555555"
+
+# Journalen må inneholde noe: en sak uten hendelser finnes ikke, og notatet
+# ligger ikke lenger der. Stempelet er satt før notatets, slik at et notat som
+# lekker inn i `siste_aktivitet` er synlig i assertionen.
+SAK_OPPRETTET = {
+    "event_type": "sak_opprettet",
+    "sak_id": "case",
+    "aktor_id": "system",
+    "aktor_rolle": "TE",
+    "tidsstempel": "2026-09-15T08:00:00Z",
+    "sakstittel": "Testsak",
+    "catenda_topic_id": "topic",
+}
 
 
 def _notat(rolle: str, team: str) -> InterntNotatEvent:
@@ -66,10 +85,12 @@ def api(monkeypatch, tmp_path):
         container.metadata_repository.get.return_value = SimpleNamespace(
             prosjekt_id="p", catenda_topic_id="topic"
         )
-        container.event_repository.get_events.return_value = (
-            [_notat(notat_rolle, notat_team).model_dump(mode="json")],
-            1,
-        )
+        container.event_repository.get_events.return_value = ([SAK_OPPRETTET], 1)
+
+        notat_lager = JsonFileNotatRepository(str(tmp_path / "notater"))
+        notat_lager.lagre(Notat.fra_hendelse(_notat(notat_rolle, notat_team), "p"))
+        container.notat_repository = notat_lager
+
         container.timeline_service = TimelineService()
         monkeypatch.setattr(event_routes, "_get_container", lambda: container)
         monkeypatch.setattr("lib.auth.project_access.get_container", lambda: container)
@@ -130,25 +151,30 @@ def test_aktivitetstall_teller_ikke_skjulte_notater(api, path):
 
     Regelen i event_visibility er at selve eksistensen er skjermingsverdig, så
     antall_events og siste_aktivitet må utledes av det leseren faktisk ser
-    (RV-09)."""
+    (RV-09). Notatet er stemplet etter saksopprettelsen, så et notat som teller
+    med, flytter også stempelet."""
     client = api("BH", "TE", BH_BYGGHERRE_TEAM, TE_TEAM)
     response = _get(client, f"/api/cases/case/{path}")
     assert response.status_code == 200, response.get_data(as_text=True)
     state = response.get_json()["state"]
-    assert state["antall_events"] == 0
-    assert state["siste_aktivitet"] is None
+    assert state["antall_events"] == 1
+    assert state["siste_aktivitet"].startswith("2026-09-15T08:00")
 
 
 @pytest.mark.parametrize("path", ["state", "context"])
 def test_eget_team_ser_egen_aktivitet(api, path):
     client = api("TE", "TE", TE_TEAM, TE_TEAM)
     state = _get(client, f"/api/cases/case/{path}").get_json()["state"]
-    assert state["antall_events"] == 1
-    assert state["siste_aktivitet"] is not None
+    assert state["antall_events"] == 2
+    assert state["siste_aktivitet"].startswith("2026-09-15T09:00")
 
 
 def test_internt_notat_flytter_ikke_delt_aktivitetsstempel(submit_api):
-    """last_event_at ligger i en delt metadatacache som sakslisten sorterer på."""
+    """last_event_at ligger i en delt metadatacache som sakslisten sorterer på.
+
+    Etter MS-05 er stempelet ikke lenger nullet ut for notater — cachen røres
+    ikke i det hele tatt, fordi notatet aldri passerer skrivestien som
+    oppdaterer den."""
     response = submit_api.client.post(
         "/api/events",
         json={
@@ -162,13 +188,7 @@ def test_internt_notat_flytter_ikke_delt_aktivitetsstempel(submit_api):
         headers={"X-Project-ID": "p", "X-CSRF-Token": "csrf"},
     )
     assert response.status_code == 201, response.get_data(as_text=True)
-    assert submit_api.container.metadata_repository.update_cache.called
-    assert (
-        submit_api.container.metadata_repository.update_cache.call_args.kwargs[
-            "last_event_at"
-        ]
-        is None
-    )
+    submit_api.container.metadata_repository.update_cache.assert_not_called()
 
 
 # ============ UTGÅENDE CATENDA-LEVERING ============
@@ -216,6 +236,7 @@ def submit_api(monkeypatch, tmp_path):
         prosjekt_id="p", catenda_topic_id="owned-topic"
     )
     container.event_repository.get_events.return_value = ([sak_opprettet], 1)
+    container.event_repository.gjeldende_versjon.return_value = 1
     container.event_repository.append.return_value = 2
     container.timeline_service = TimelineService()
     monkeypatch.setattr(event_routes, "_get_container", lambda: container)
@@ -226,13 +247,16 @@ def submit_api(monkeypatch, tmp_path):
     post_spy = Mock(return_value=(True, "server", []))
     monkeypatch.setattr(event_routes, "_post_to_catenda", post_spy)
 
+    notat_lager = JsonFileNotatRepository(str(tmp_path / "notater"))
+    container.notat_repository = notat_lager
+
     client = app.test_client()
     client.set_cookie(cookie_name(), "session")
     return SimpleNamespace(
         client=client,
         container=container,
         post_to_catenda=post_spy,
-        appended=lambda: container.event_repository.append.call_args.args[0],
+        lagrede_notater=lambda: notat_lager.for_sak("case", "p"),
     )
 
 
@@ -307,8 +331,9 @@ def test_team_stemples_av_serveren_ikke_av_klienten(submit_api):
     )
 
     assert response.status_code == 201, response.get_data(as_text=True)
-    lagret = submit_api.appended()
-    assert lagret.aktor_team_id == TE_TEAM
+    submit_api.container.event_repository.append.assert_not_called()
+    lagret = submit_api.lagrede_notater()
+    assert [n.aktor_team_id for n in lagret] == [TE_TEAM]
 
 
 def test_notat_avvises_uten_entydig_organisasjon(monkeypatch, tmp_path):
@@ -363,3 +388,4 @@ def test_notat_avvises_uten_entydig_organisasjon(monkeypatch, tmp_path):
     assert response.status_code == 403, response.get_data(as_text=True)
     assert "teamtilknytning" in response.get_json()["message"]
     container.event_repository.append.assert_not_called()
+    container.notat_repository.lagre.assert_not_called()

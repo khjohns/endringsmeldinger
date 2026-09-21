@@ -14,6 +14,10 @@ Architecture:
     RelationRepository
         └── RelationRepository - Supabase only (CQRS projection for reverse lookups)
 
+    NotatRepository (abstract)        - interne notater, utenfor journalen (MS-05)
+        ├── JsonFileNotatRepository   - Local files (prototype)
+        └── SupabaseNotatRepository   - PostgreSQL (test/dev)
+
 Usage:
     from repositories import create_event_repository, create_metadata_repository
 
@@ -37,6 +41,11 @@ from .event_repository import (
     ConcurrencyError,
     EventRepository,
     JsonFileEventRepository,
+)
+from .notat_repository import (
+    JsonFileNotatRepository,
+    NotatRepository,
+    create_notat_repository,
 )
 from .relation_repository import (
     RelationRepository,
@@ -66,4 +75,8 @@ __all__ = [
     # Relation repository
     "RelationRepository",
     "create_relation_repository",
+    # Notat repositories
+    "NotatRepository",
+    "JsonFileNotatRepository",
+    "create_notat_repository",
 ]

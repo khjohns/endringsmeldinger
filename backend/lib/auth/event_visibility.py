@@ -1,10 +1,15 @@
 """Lesetilgang til interne notater.
 
 `internt_notat` er dokumentert som «kun synlig for egen organisasjon»
-(models/events.py). Hendelsen lagres i sakens felles hendelsesstrøm, som begge
-kontraktsparter leser fra. Filteret her er derfor det eneste som skiller
-organisasjonene på lesesiden, og det må brukes på alle punkter som returnerer
-hendelser til en klient.
+(models/events.py). Notatet lagres for seg (MS-05), men flettes inn i sakens
+tidslinje ved lesing, og tidslinjen leser begge kontraktsparter fra. Filteret
+her er derfor fortsatt det eneste som skiller organisasjonene på lesesiden, og
+det må brukes på alle punkter som returnerer hendelser til en klient.
+
+Skjermingen ligger i to lag med vilje, men de vokter hver sin grense: lageret
+tar prosjektet som påkrevd argument, og filteret her sammenlikner team. Et notat
+fra feil prosjekt men riktig team ville ikke blitt stanset her — det er lagerets
+jobb, og derfor er prosjektet et argument og ikke et filter.
 
 Skillet går på Catenda-team, ikke på kontraktsside. En side kan ha flere team —
 byggherren og en ekstern rådgiver er ulike organisasjoner på samme side — og
@@ -86,9 +91,11 @@ def visible_events(events: list) -> list:
     Notatet skjules i sin helhet, ikke bare teksten: at en organisasjon har gjort
     en intern vurdering er i seg selv opplysning de andre ikke skal ha.
 
-    Notater uten `aktor_team_id` — skrevet før organisasjonen ble registrert på
-    hendelsen — skjules for alle, også for forfatteren. Det er et bevisst valg:
-    et notat der vi ikke vet hvem som eier det, kan ikke vises til noen.
+    Notater uten `aktor_team_id` skjules for alle, også for forfatteren. Et
+    notat der vi ikke vet hvem som eier det, kan ikke vises til noen. Etter
+    MS-05 avviser både modellen og `notat`-tabellen en slik rad, så regelen er
+    et vern mot en hendelse som kom inn på et annet vis — ikke lenger den
+    eneste sperren.
     """
     if not any(is_internal_note(event) for event in events):
         return events

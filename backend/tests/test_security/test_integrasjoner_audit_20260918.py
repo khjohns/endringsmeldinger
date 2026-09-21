@@ -15,6 +15,7 @@ Tester svakheter og avvik i:
 import inspect
 import json
 from datetime import UTC, datetime
+from types import SimpleNamespace
 from unittest.mock import MagicMock
 
 import pytest
@@ -221,6 +222,13 @@ def test_webhook_utleder_kontraktsside_fra_topic_forfatteren(monkeypatch):
     monkeypatch.setattr(
         "services.auth_service.AuthService.contract_membership_for_subject",
         lambda self, project_id, subject: ("BH", "team-bh"),
+    )
+    # Identiteten går gjennom koe_resolve_identity, samme funksjon som
+    # innloggingen (MG-02). Den er stubbet her; det testen prøver er rollen.
+    monkeypatch.setattr(
+        "services.auth_service.AuthService.repo",
+        SimpleNamespace(identity=lambda *a, **k: "11111111-2222-3333-4444-555555555555"),
+        raising=False,
     )
 
     result = service.handle_new_topic_created(payload)

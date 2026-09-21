@@ -27,6 +27,12 @@ ble skrevet.**
 > **Resten av notatet står som det var** — det er designgrunnlaget, ikke en
 > statusliste. MS-05, som rekkefølgen under setter sammen med MS-04 og MS-10,
 > er **ikke** gjennomført og har samme frist.
+>
+> **Merknad 2026-09-21 (kveld): MS-05 er nå gjennomført,** i `71d9115`. Basen
+> har nitten tabeller. Setningen over om at MS-05 gjenstår, gjaldt til da.
+> Avsnittet «Hvorfor ikke kryptografisk sletting i stedet» har fått sin
+> forutsetning bekreftet: arkivplikt går foran sletteplikt, besluttet samme
+> dato. Se [gjennomføringen](gjennomforing-ms05-2026-09-21.md).
 
 ---
 
@@ -100,7 +106,7 @@ Disse er avgjort av utvikler, ikke utledet. De er premisser for alt under.
 | MS-02 | Append-only håndheves av basen, ikke av disiplin | Anbefalt |
 | MS-03 | Total orden beholdes; konflikt løses med rebase, ikke med versjon per spor | Anbefalt (følger av P6) |
 | MS-04 | `aktor_id` erstatter `aktor` som personnavn | Anbefalt (følger av P7) |
-| MS-05 | Interne notater tas ut av journalen | Anbefalt (følger av P7) |
+| MS-05 | Interne notater tas ut av journalen | **Gjennomført 21.09** (P7 besluttet samme dato) |
 | MS-06 | `sak_metadata` deles i register og projeksjon | Anbefalt |
 | MS-07 | Projeksjonen får én skriver, i hendelsens transaksjon | Anbefalt |
 | MS-08 | `sak_relations` fjernes; relasjoner utledes fra hendelsene | Anbefalt |
@@ -191,6 +197,11 @@ Dette er halvparten av det innebygde personvernet, og det er den billige
 halvparten — se MS-05 for den andre.
 
 ### MS-05 — Interne notater ut av journalen
+
+> **Gjennomført 2026-09-21.** Tabellen heter `notat`, migrasjonen er
+> `20260921153900_notat_tabell.sql`, og den er anvendt. Beskrivelsen under er
+> designgrunnlaget; hva som faktisk ble bygget — og hva som ikke ble
+> kontrollert — står i [gjennomføringen](gjennomforing-ms05-2026-09-21.md).
 
 `AGENTS.md` slår fast at et internt notat **ikke er et kontraktsvarsel**. Da
 trenger det ikke journalens permanens — men i dag arver det den, fordi det er en

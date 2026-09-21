@@ -1,5 +1,20 @@
 # Handoff 2026-09-21 (kveld): korrekthetsflaten lukket, og hva som ble stående
 
+> **Merknad 2026-09-21 (senere samme kveld): begge punktene med frist er
+> gjennomført, og tre beslutninger er tatt.** Punkt 2 under sier at MS-05 og
+> MG-02 er uberørte, og punkt 5 at fire ting venter på et menneske. Begge
+> gjaldt til `71d9115`.
+>
+> - Interne notater ligger nå utenfor journalen —
+>   [MS-05-gjennomføringen](gjennomforing-ms05-2026-09-21.md).
+> - Journalen bærer én identitetsform —
+>   [MG-02-gjennomføringen](gjennomforing-mg02-2026-09-21.md). Merk at to av de
+>   tre hindringene MG-02 navnga, ikke holdt ved kontroll mot katalogen.
+> - Sletteplikt mot arkivplikt, MG-02s produktbeslutning og DB-05 er avgjort —
+>   se masterplanens merknad samme dato. **DB-05 er besluttet, ikke bygget.**
+>
+> Resten av denne fila står, fellene i punkt 3 inkludert.
+
 Skrevet for den som overtar, i praksis en språkmodell som starter uten kontekst.
 Samme kriterium som før: **hva er dyrt å finne ut på nytt, og hvor er det lett å
 ta feil.** Fortellingen står i dokumentene; dette er det som ikke gjentas der.
@@ -27,7 +42,7 @@ en auditrunde i vanlig forstand.
 | [audit: opprydding](audit-opprydding-2026-09-21.md) | **RY-01 til RY-07.** Det som ble utsatt etter rettingene. **RY-01 er den som betyr noe** |
 | [masterplanen](plans/2026-09-16-godkjenning-og-varig-levering.md) | **Autoritativ for funnstatus** |
 | [handoff 21.09 (morgen)](handoff-2026-09-21.md) | Runden før. Fellene der gjelder fortsatt; åpningsinstruksen gjør ikke |
-| [målskjemaet](design-maalskjema-database-2026-09-20.md) | Hvor skjemaet skal. MS-05 er fortsatt uberørt |
+| [målskjemaet](design-maalskjema-database-2026-09-20.md) | Hvor skjemaet skal. MS-05 er gjennomført, se merknaden øverst |
 
 ## 2. Det som har frist
 
@@ -40,6 +55,10 @@ kan ikke restruktureres i ettertid. Begge punktene fra forrige handoff står:
   den krever en produktbeslutning (punkt 5).
 
 Ingenting i denne runden rørte dem. **Det som har frist, har ikke flyttet seg.**
+
+> **Merknad 2026-09-21 (senere samme kveld): begge er gjennomført.** Avsnittet
+> over gjaldt til `71d9115`. Ingen beslutning med frist står igjen; se
+> merknaden øverst.
 
 ## 3. Tre feller i denne runden
 

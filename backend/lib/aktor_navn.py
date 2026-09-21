@@ -1,9 +1,13 @@
 """Navneoppslag for aktør-identiteter.
 
-Journalen bærer `aktor_id` og aldri et personnavn (MS-04). Navnet hører til
-visningen og slås opp her, mot `app_users`. Slettes personen, faller visningen
-tilbake til identiteten — hendelsen beviser fortsatt hvem som handlet, uten at
-journalen selv bærer navnet.
+Journalen bærer `aktor_id` og aldri et personnavn (MS-04). Verdien er
+`app_users.id` og ingenting annet: webhookstien løser Catenda-forfatteren
+gjennom den samme identitetsfunksjonen innloggingen bruker (MG-02), så det
+finnes bare én form å slå opp.
+
+Navnet hører til visningen og slås opp her, mot `app_users`. Slettes personen,
+faller visningen tilbake til identiteten — hendelsen beviser fortsatt hvem som
+handlet, uten at journalen selv bærer navnet.
 """
 
 import logging
@@ -11,11 +15,6 @@ import logging
 from flask import g, has_app_context
 
 logger = logging.getLogger(__name__)
-
-# Aktører som bare finnes i Catenda. Webhookruta møter forfattere som aldri
-# har logget inn hos oss; da bærer journalen den eksterne identiteten framfor
-# et navn.
-CATENDA_PREFIKS = "catenda:"
 
 
 def _buffer() -> dict[str, str]:
@@ -44,13 +43,7 @@ def _slaa_opp(aktor_id: str) -> str | None:
     from lib.auth.session import get_auth_service
 
     try:
-        repo = get_auth_service().repo
-        if aktor_id.startswith(CATENDA_PREFIKS):
-            bruker_id = repo.user_id_for_subject(
-                "catenda", aktor_id[len(CATENDA_PREFIKS) :]
-            )
-            return repo.user_name(bruker_id) if bruker_id else None
-        return repo.user_name(aktor_id)
+        return get_auth_service().repo.user_name(aktor_id)
     except Exception as e:
         logger.warning(f"Navneoppslag for aktør {aktor_id} feilet: {e}")
         return None
