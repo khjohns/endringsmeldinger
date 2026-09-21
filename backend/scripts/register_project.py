@@ -28,7 +28,7 @@ from dotenv import load_dotenv
 
 load_dotenv(Path(__file__).resolve().parents[1] / ".env")
 
-from lib.supabase.client import get_shared_client
+from repositories.auth_repository import AuthRepository
 
 
 def to_uuid_str(val: str | None) -> str | None:
@@ -47,49 +47,24 @@ def register_project(
     topic_board_id: str | None = None,
     description: str | None = None,
 ):
-    client = get_shared_client()
-    cat_proj_uuid = to_uuid_str(catenda_project_id)
-    lib_uuid = to_uuid_str(library_id)
-    folder_uuid = to_uuid_str(folder_id)
-    board_uuid = to_uuid_str(topic_board_id)
+    """Registrer prosjektet atomisk gjennom `koe_register_project`.
 
+    Skriving rett i tabellene ville gått utenom skrankene RPC-en håndhever —
+    blant dem at en ny registrering ikke flytter prosjektet til en annen
+    virksomhet.
+    """
     print(f"Registering project '{internal_id}' ({name})...")
 
-    # 1. Upsert into projects
-    client.table("projects").upsert(
-        {
-            "id": internal_id,
-            "name": name,
-            "description": description or f"Prosjekt {name}",
-            "organisasjon_id": organisasjon_id,
-            "is_active": True,
-            "created_by": "system",
-        }
-    ).execute()
-    print("  ✓ Upserted into 'projects'")
-
-    # 2. Upsert into catenda_project_configs
-    client.table("catenda_project_configs").upsert(
-        {
-            "internal_project_id": internal_id,
-            "catenda_project_id": cat_proj_uuid,
-            "library_id": lib_uuid,
-            "folder_id": folder_uuid,
-            "is_active": True,
-        }
-    ).execute()
-    print("  ✓ Upserted into 'catenda_project_configs'")
-
-    # 3. Upsert into catenda_topic_board_configs if provided
-    if board_uuid:
-        client.table("catenda_topic_board_configs").upsert(
-            {
-                "topic_board_id": board_uuid,
-                "internal_project_id": internal_id,
-                "is_active": True,
-            }
-        ).execute()
-        print("  ✓ Upserted into 'catenda_topic_board_configs'")
+    AuthRepository().register_project(
+        project_id=internal_id,
+        name=name,
+        catenda_project_id=to_uuid_str(catenda_project_id),
+        library_id=to_uuid_str(library_id),
+        organisasjon_id=organisasjon_id,
+        folder_id=to_uuid_str(folder_id),
+        topic_board_id=to_uuid_str(topic_board_id),
+        description=description,
+    )
 
     print(f"Successfully registered project '{internal_id}'!\n")
 
@@ -127,16 +102,17 @@ def main():
         cat_id = os.getenv("CATENDA_PROJECT_ID")
         lib_id = os.getenv("CATENDA_LIBRARY_ID")
         org_id = os.getenv("ORGANISASJON_ID")
-        if not cat_id or not lib_id:
-            print("Feil: Fant ikke CATENDA_PROJECT_ID eller CATENDA_LIBRARY_ID i .env", file=sys.stderr)
-            sys.exit(1)
-        if not org_id:
-            print(
-                "Feil: Fant ikke ORGANISASJON_ID i .env. Det finnes ingen "
-                "defaultvirksomhet — se docs/design-maalskjema-database-2026-09-20.md (MS-10).",
-                file=sys.stderr,
+        mangler = [
+            navn
+            for navn, verdi in (
+                ("CATENDA_PROJECT_ID", cat_id),
+                ("CATENDA_LIBRARY_ID", lib_id),
+                ("ORGANISASJON_ID", org_id),
             )
-            sys.exit(1)
+            if not verdi
+        ]
+        if mangler:
+            sys.exit(f"Feil: Fant ikke {', '.join(mangler)} i .env")
 
         print("Seeding default project 'oslobygg' from backend/.env...")
         register_project(

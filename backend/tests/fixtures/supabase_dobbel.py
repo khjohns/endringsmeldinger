@@ -15,28 +15,19 @@ og migrasjonsfila er uenige, aldri at fila og basen er det — det er
 katalogspørringen som er beviset på at en skjemaendring har nådd fram.
 """
 
-import json
 from types import SimpleNamespace
 
 
 def _felt(row: dict, field: str):
     """Verdien et PostgREST-filter ville sammenliknet med.
 
-    `data->>nokkel` plukker ut en tekstverdi fra JSON-kolonnen, slik `->>`
-    gjør i PostgREST. Kolonnen kan ligge som dict eller som rå JSON-streng.
+    `data->>nokkel` plukker en tekstverdi ut av JSON-kolonnen, slik `->>` gjør.
     """
-    if "->>" not in field:
-        return row.get(field)
-    kolonne, nokkel = field.split("->>", 1)
-    verdi = row.get(kolonne.strip())
-    if isinstance(verdi, str):
-        try:
-            verdi = json.loads(verdi)
-        except json.JSONDecodeError:
-            return None
-    if not isinstance(verdi, dict):
-        return None
-    ut = verdi.get(nokkel.strip())
+    kolonne, _, nokkel = field.partition("->>")
+    verdi = row.get(kolonne)
+    if not nokkel:
+        return verdi
+    ut = (verdi or {}).get(nokkel)
     return None if ut is None else str(ut)
 
 
