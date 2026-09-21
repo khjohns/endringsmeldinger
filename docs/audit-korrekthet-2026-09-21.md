@@ -63,6 +63,7 @@ Setningen under gjaldt da protokollen ble skrevet.
 | KR-12 | Lav | `supabase_event_repository._event_to_cloudevent_row:66` | Uåpnelig `else`-gren; runden rettet en skrivefeil inne i den |
 | KR-13 | Lav | `scripts/backfill_relations.py:48,121` | Dobbel I/O og tapt typefilter etter MS-01 |
 | KR-14 | Lav | `20260920193558_hendelse_tabell.sql:81` | `DROP TABLE` uten `CASCADE`; de gamle `*_sak_versions`-viewene er ikke nevnt |
+| KR-15 | Middels | `tests/test_security/test_testsuite_blindsoner_audit_20260918.py:48` | Streng `xfail` på et kappløp: gjør porten rød i 1 av 20 kjøringer |
 
 Tre påstander fra gjennomgangen ble **avvist** — se «Avviste påstander» til slutt.
 De to som ble rettet av katalogen, ikke av lesingen, står der med begrunnelse.
@@ -362,6 +363,37 @@ it» — etter at `CREATE TABLE` og `GRANT`-ene er skrevet.
 de tre tabellene er borte. En base bygget fra migrasjonssettet alene får dem
 aldri, siden de ble laget utenfor settet. Tilfellet som faller, er en klone av en
 eldre prod-tilstand. Migrasjonen er dessuten anvendt og skal ikke redigeres.
+
+## KR-15 — streng `xfail` på et kappløp gjør porten tilfeldig rød
+
+**Middels.** Funnet under rettingen av de øvrige, ikke i gjennomgangen.
+
+`test_tst_02_samtidig_saksopprettelse_krasjer_eller_overskriver_uten_concurrency_error`
+er merket `@pytest.mark.xfail(strict=True, raises=AssertionError)` og
+reproduserer et kappløp med `threading.Barrier(2)`. Reproduksjonen er
+sannsynlighetsbasert: ved noen interleavings inntreffer ikke kappløpet,
+assertionen holder, og en streng `xfail` som består rapporteres som **FAILED**.
+
+Målt over 20 kjøringer av testen alene:
+
+| Utfall | Antall |
+| --- | --- |
+| `xfail` — kappløpet reproduserte | 19 |
+| XPASS → rød gate | 1 |
+
+Testen dokumenterer en ekte svakhet og skal ikke fjernes — `AGENTS.md` er
+tydelig på at xfail-testene er dokumentasjon. Men `strict=True` forutsetter at
+reproduksjonen er deterministisk, og denne er det ikke. Det betyr at CI blir
+rød omtrent hver tjuende kjøring av grunner som ikke har med endringen å gjøre,
+og det er nettopp slikt som lærer en leser å se bort fra en rød port.
+
+To veier, og valget er en vurdering snarere enn en retting: gjøre
+reproduksjonen deterministisk, eller la den være ikke-streng og i stedet la en
+egen vakt fange XPASS. Begge endrer en dokumentasjonstest, så den er ikke rørt
+her.
+
+*Kjørt og observert:* 20 kjøringer, 19 `xfail` og 1 XPASS. Den samme testen slo
+også ut i to av seks fulle suitekjøringer i samme økt.
 
 ---
 
