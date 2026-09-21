@@ -88,6 +88,42 @@ Skjermingen av aktivitetstall ligger i `lib/auth/event_visibility`.
 
 Åpne funn fra samme review, i prioritert rekkefølge:
 
+**KR-01 til KR-14 (ny 21.09)** — korrekthetsgjennomgang av målskjemarunden,
+[audit-korrekthet-2026-09-21](../audit-korrekthet-2026-09-21.md). Ett funn har
+høy alvorlighet og bør tas før noe annet:
+
+**Status:** KR-01 til KR-03 og KR-05 til KR-12 er lukket i `bab9679`.
+Migrasjonen `20260921091208_koe_register_project_organisasjon_id` er anvendt mot
+prosjektet; `koe_register_project` tar nå `p_organisasjon_id` som påkrevd
+parameter, og rettighetene er satt på nytt etter at den gamle signaturen ble
+sluppet.
+
+Åpne:
+
+- **KR-04 — `compute_state` er ikke en ren projeksjon.** Navneoppslaget gir nå
+  samme svar uansett kontekst, så state divergerer ikke lenger. Men oppslaget
+  ligger fortsatt inne i projeksjonen. Å flytte det til svargrensen berører hvert
+  sted `SakState` serialiseres, og hører sammen med MG-01.
+- **KR-13 — backfill-skriptet.** Dobbel I/O og et typefilter som hviler på at et
+  felt finnes, ikke på `sak_metadata.sakstype`. Lav; skriptets løkker har ingen
+  atferdstester.
+- **KR-14 — `DROP TABLE` uten `CASCADE`.** Blir ikke rettet: migrasjonen er
+  anvendt, og en anvendt migrasjon er uforanderlig.
+**RY-01 til RY-07 (ny 21.09)** — utsatt etter oppryddingen av KR-rettingene,
+[audit-opprydding-2026-09-21](../audit-opprydding-2026-09-21.md). **RY-01 er den
+med vekt:** «hvilke saker finnes», «hvilken sak har denne topicen» og «hvilken
+type er saken» stilles alle til den append-only journalen, enda `sak_metadata`
+er projeksjonen som finnes for å svare på dem. Den lukker KR-13 og gjør både
+pagineringen og indeksen fra KR-02 unødvendige — men `sak_metadata` har ingen
+indeks på `catenda_topic_id`, så den må legges først.
+
+- **KR-15 — streng `xfail` på et kappløp (ny 21.09).** TST-02 i
+  `test_testsuite_blindsoner_audit_20260918.py` er `strict=True` over en
+  `threading.Barrier`-reproduksjon. Målt 1 XPASS på 20 kjøringer, og XPASS på en
+  streng xfail er rød gate. Testen er dokumentasjon og skal bli stående; valget
+  mellom å gjøre reproduksjonen deterministisk og å slippe strengheten er en
+  vurdering for utvikler.
+
 Prioritet 0 er dermed lukket: OAuth-flaten er fjernet, ruteregisteret er
 klassifisert og holdes av en test, og analytics er slettet.
 

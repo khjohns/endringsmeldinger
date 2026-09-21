@@ -467,7 +467,7 @@ def test_respons_event_creation():
     """Test creating a ResponsEvent"""
     event = ResponsEvent(
         sak_id="SAK-001",
-        aktor_id="BH Manager",
+        aktor_id="bh-manager",
         aktor_rolle="BH",
         event_type=EventType.RESPONS_VEDERLAG,
         spor=SporType.VEDERLAG,

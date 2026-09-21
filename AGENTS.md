@@ -64,10 +64,13 @@ repoet er aldri formatert med den, og `ruff format .` ville skrevet om rundt 80
 filer. Kjør den ikke på hele treet.
 
 Databasen kan inspiseres direkte gjennom Supabase-MCP — prosjekt `endringsmeldinger`,
-ref `gwdxadexwktegkklyobv`. **Bruk det.** Å lese migrasjoner og utlede hva databasen
-inneholder er den dokumenterte årsaken til flere feilklassifiserte funn; migrasjonene
-er ufullstendige og docstringene utdaterte. Hold deg til katalogspørringer; saksdata
-er konfidensiell kontraktskorrespondanse.
+ref `gwdxadexwktegkklyobv`. **Bruk det.** Migrasjonene er innholdsmessig komplette —
+hver tabell, funksjon og trigger i `public` har sin DDL i `supabase/migrations/` — men
+de svarer ikke på det katalogen svarer på: om en fil er anvendt (ikke alle er
+registrert i basens historikk), om definisjonen i fila er den som faktisk kjører, og
+hvilke rettigheter som gjelder. Å utlede kjøretidstilstand fra migrasjonsfiler er den
+dokumenterte årsaken til flere feilklassifiserte funn, og docstringene er utdaterte.
+Hold deg til katalogspørringer; saksdata er konfidensiell kontraktskorrespondanse.
 
 Et eldre prosjekt `unified-timeline` (`iyetsvrteyzpirygxenu`) er INACTIVE og skal
 ikke røres.

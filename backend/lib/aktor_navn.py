@@ -8,7 +8,7 @@ journalen selv bærer navnet.
 
 import logging
 
-from flask import current_app, g, has_request_context
+from flask import g, has_app_context
 
 logger = logging.getLogger(__name__)
 
@@ -19,15 +19,11 @@ CATENDA_PREFIKS = "catenda:"
 
 
 def _buffer() -> dict[str, str]:
-    """Oppslagsbuffer per forespørsel, seedet med den innloggede.
+    """Oppslagsbuffer per applikasjonskontekst, seedet med den innloggede.
 
-    Én sak viser typisk to–tre aktører om og om igjen, og leseren er nesten
-    alltid en av dem — navnet hans ligger alt i sesjonen, så det skal ikke
-    koste en rundtur. Bufferet lever bare så lenge forespørselen gjør, slik at
-    et navn som endres slår gjennom ved neste visning.
+    Leseren er nesten alltid en av de to–tre aktørene en sak viser, og navnet
+    hans ligger alt i sesjonen.
     """
-    if not has_request_context():
-        return {}
     if not hasattr(g, "aktor_navn_buffer"):
         innlogget = getattr(g, "user", None) or {}
         eget_navn = innlogget.get("name")
@@ -45,8 +41,10 @@ def _slaa_opp(aktor_id: str) -> str | None:
     logges — den skal ikke være stille — og visningen faller tilbake på
     identiteten.
     """
+    from lib.auth.session import get_auth_service
+
     try:
-        repo = current_app.extensions["koe_auth"].repo
+        repo = get_auth_service().repo
         if aktor_id.startswith(CATENDA_PREFIKS):
             bruker_id = repo.user_id_for_subject(
                 "catenda", aktor_id[len(CATENDA_PREFIKS) :]
@@ -62,6 +60,8 @@ def navn(aktor_id: str | None) -> str:
     """Navnet aktøren skal vises med, eller identiteten når den ikke lar seg slå opp."""
     if not aktor_id:
         return ""
+    if not has_app_context():
+        return aktor_id
     buffer = _buffer()
     if aktor_id not in buffer:
         buffer[aktor_id] = _slaa_opp(aktor_id) or aktor_id

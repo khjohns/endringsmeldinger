@@ -52,13 +52,13 @@ class TestBusinessRuleValidator:
         events = [
             SakOpprettetEvent(
                 sak_id="TEST-001",
-                aktor_id="TE User",
+                aktor_id="te-user",
                 aktor_rolle="TE",
                 sakstittel="Test Case",
             ),
             GrunnlagEvent(
                 sak_id="TEST-001",
-                aktor_id="TE User",
+                aktor_id="te-user",
                 aktor_rolle="TE",
                 data=GrunnlagData(
                     tittel="Test grunnlag",
@@ -77,7 +77,7 @@ class TestBusinessRuleValidator:
         """Test that TE can create grunnlag."""
         event = GrunnlagEvent(
             sak_id="TEST-001",
-            aktor_id="TE User",
+            aktor_id="te-user",
             aktor_rolle="TE",
             data=GrunnlagData(
                 tittel="Test grunnlag",
@@ -95,7 +95,7 @@ class TestBusinessRuleValidator:
         """Test that BH cannot create grunnlag (TE only)."""
         event = GrunnlagEvent(
             sak_id="TEST-001",
-            aktor_id="BH User",
+            aktor_id="bh-user",
             aktor_rolle="BH",  # Wrong role!
             data=GrunnlagData(
                 tittel="Test grunnlag",
@@ -116,7 +116,7 @@ class TestBusinessRuleValidator:
         event = ResponsEvent(
             event_type=EventType.RESPONS_GRUNNLAG,
             sak_id="TEST-001",
-            aktor_id="TE User",
+            aktor_id="te-user",
             aktor_rolle="TE",  # Wrong role!
             spor=SporType.GRUNNLAG,
             data=GrunnlagResponsData(
@@ -134,7 +134,7 @@ class TestBusinessRuleValidator:
         event = ResponsEvent(
             event_type=EventType.RESPONS_GRUNNLAG,
             sak_id="TEST-001",
-            aktor_id="BH User",
+            aktor_id="bh-user",
             aktor_rolle="BH",
             spor=SporType.GRUNNLAG,
             refererer_til_event_id=base_state.grunnlag.krav_event_id,
@@ -153,7 +153,7 @@ class TestBusinessRuleValidator:
         # State with NO grunnlag
         events = [
             SakOpprettetEvent(
-                sak_id="TEST-002", aktor_id="TE User", aktor_rolle="TE", sakstittel="Test"
+                sak_id="TEST-002", aktor_id="te-user", aktor_rolle="TE", sakstittel="Test"
             )
         ]
         state = timeline_service.compute_state(events)
@@ -161,7 +161,7 @@ class TestBusinessRuleValidator:
         # Try to send vederlag without grunnlag
         vederlag_event = VederlagEvent(
             sak_id="TEST-002",
-            aktor_id="TE User",
+            aktor_id="te-user",
             aktor_rolle="TE",
             versjon=1,
             data=VederlagData(
@@ -180,7 +180,7 @@ class TestBusinessRuleValidator:
         """Test that vederlag can be sent when grunnlag exists."""
         vederlag_event = VederlagEvent(
             sak_id="TEST-001",
-            aktor_id="TE User",
+            aktor_id="te-user",
             aktor_rolle="TE",
             versjon=1,
             data=VederlagData(
@@ -198,7 +198,7 @@ class TestBusinessRuleValidator:
         # State with NO grunnlag
         events = [
             SakOpprettetEvent(
-                sak_id="TEST-003", aktor_id="TE User", aktor_rolle="TE", sakstittel="Test"
+                sak_id="TEST-003", aktor_id="te-user", aktor_rolle="TE", sakstittel="Test"
             )
         ]
         state = timeline_service.compute_state(events)
@@ -206,7 +206,7 @@ class TestBusinessRuleValidator:
         # Try to send frist without grunnlag
         frist_event = FristEvent(
             sak_id="TEST-003",
-            aktor_id="TE User",
+            aktor_id="te-user",
             aktor_rolle="TE",
             versjon=1,
             data=FristData(
@@ -232,7 +232,7 @@ class TestBusinessRuleValidator:
         response_event = ResponsEvent(
             event_type=EventType.RESPONS_VEDERLAG,
             sak_id="TEST-001",
-            aktor_id="BH User",
+            aktor_id="bh-user",
             aktor_rolle="BH",
             spor=SporType.VEDERLAG,
             data=VederlagResponsData(
@@ -252,11 +252,11 @@ class TestBusinessRuleValidator:
         # Create state with vederlag sent
         events = [
             SakOpprettetEvent(
-                sak_id="TEST-004", aktor_id="TE User", aktor_rolle="TE", sakstittel="Test"
+                sak_id="TEST-004", aktor_id="te-user", aktor_rolle="TE", sakstittel="Test"
             ),
             GrunnlagEvent(
                 sak_id="TEST-004",
-                aktor_id="TE User",
+                aktor_id="te-user",
                 aktor_rolle="TE",
                 data=GrunnlagData(
                     tittel="Test grunnlag",
@@ -268,7 +268,7 @@ class TestBusinessRuleValidator:
             ),
             VederlagEvent(
                 sak_id="TEST-004",
-                aktor_id="TE User",
+                aktor_id="te-user",
                 aktor_rolle="TE",
                 versjon=1,
                 data=VederlagData(
@@ -283,7 +283,7 @@ class TestBusinessRuleValidator:
         response_event = ResponsEvent(
             event_type=EventType.RESPONS_VEDERLAG,
             sak_id="TEST-004",
-            aktor_id="BH User",
+            aktor_id="bh-user",
             aktor_rolle="BH",
             spor=SporType.VEDERLAG,
             refererer_til_event_id=events[-1].event_id,
@@ -305,11 +305,11 @@ class TestBusinessRuleValidator:
         # This keeps the case active (not OMFORENT) while grunnlag is locked
         events = [
             SakOpprettetEvent(
-                sak_id="TEST-005", aktor_id="TE User", aktor_rolle="TE", sakstittel="Test"
+                sak_id="TEST-005", aktor_id="te-user", aktor_rolle="TE", sakstittel="Test"
             ),
             GrunnlagEvent(
                 sak_id="TEST-005",
-                aktor_id="TE User",
+                aktor_id="te-user",
                 aktor_rolle="TE",
                 data=GrunnlagData(
                     tittel="Test grunnlag",
@@ -322,7 +322,7 @@ class TestBusinessRuleValidator:
             ResponsEvent(
                 event_type=EventType.RESPONS_GRUNNLAG,
                 sak_id="TEST-005",
-                aktor_id="BH User",
+                aktor_id="bh-user",
                 aktor_rolle="BH",
                 spor=SporType.GRUNNLAG,
                 data=GrunnlagResponsData(
@@ -333,7 +333,7 @@ class TestBusinessRuleValidator:
             # Add vederlag to keep case active
             VederlagEvent(
                 sak_id="TEST-005",
-                aktor_id="TE User",
+                aktor_id="te-user",
                 aktor_rolle="TE",
                 versjon=1,
                 data=VederlagData(
@@ -351,7 +351,7 @@ class TestBusinessRuleValidator:
         update_event = GrunnlagEvent(
             event_type=EventType.GRUNNLAG_OPPDATERT,  # Update event
             sak_id="TEST-005",
-            aktor_id="TE User",
+            aktor_id="te-user",
             aktor_rolle="TE",
             data=GrunnlagData(
                 tittel="Updated grunnlag",
@@ -376,7 +376,7 @@ class TestBusinessRuleValidator:
         update_event = VederlagEvent(
             event_type=EventType.VEDERLAG_KRAV_OPPDATERT,  # Update event
             sak_id="TEST-001",
-            aktor_id="TE User",
+            aktor_id="te-user",
             aktor_rolle="TE",
             versjon=2,  # Trying to update
             data=VederlagData(
@@ -397,7 +397,7 @@ class TestBusinessRuleValidator:
         update_event = FristEvent(
             event_type=EventType.FRIST_KRAV_OPPDATERT,  # Update event
             sak_id="TEST-001",
-            aktor_id="TE User",
+            aktor_id="te-user",
             aktor_rolle="TE",
             versjon=2,  # Trying to update
             data=FristData(
@@ -422,7 +422,7 @@ class TestBusinessRuleValidator:
 
         eo_event = EOUtstedtEvent(
             sak_id="TEST-001",
-            aktor_id="BH User",
+            aktor_id="bh-user",
             aktor_rolle="BH",
             data=EOUtstedtData(
                 eo_nummer="EO-001",
@@ -440,11 +440,11 @@ class TestBusinessRuleValidator:
         # Create state with all tracks approved
         events = [
             SakOpprettetEvent(
-                sak_id="TEST-006", aktor_id="TE User", aktor_rolle="TE", sakstittel="Test"
+                sak_id="TEST-006", aktor_id="te-user", aktor_rolle="TE", sakstittel="Test"
             ),
             GrunnlagEvent(
                 sak_id="TEST-006",
-                aktor_id="TE User",
+                aktor_id="te-user",
                 aktor_rolle="TE",
                 data=GrunnlagData(
                     tittel="Test grunnlag",
@@ -457,7 +457,7 @@ class TestBusinessRuleValidator:
             ResponsEvent(
                 event_type=EventType.RESPONS_GRUNNLAG,
                 sak_id="TEST-006",
-                aktor_id="BH User",
+                aktor_id="bh-user",
                 aktor_rolle="BH",
                 spor=SporType.GRUNNLAG,
                 data=GrunnlagResponsData(
@@ -470,7 +470,7 @@ class TestBusinessRuleValidator:
 
         eo_event = EOUtstedtEvent(
             sak_id="TEST-006",
-            aktor_id="BH User",
+            aktor_id="bh-user",
             aktor_rolle="BH",
             data=EOUtstedtData(
                 eo_nummer="EO-001",

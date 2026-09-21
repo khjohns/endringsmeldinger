@@ -201,6 +201,7 @@ def cmd_register(args):
             name=name,
             catenda_project_id=cat_proj_uuid,
             library_id=lib_uuid,
+            organisasjon_id=args.organisasjon_id,
             folder_id=folder_uuid,
             topic_board_id=board_uuid,
             description=args.description,
@@ -400,6 +401,11 @@ def main():
     p_reg.add_argument("--id", required=True, help="Intern prosjekt-ID (f.eks. 'oslobygg')")
     p_reg.add_argument("--catenda-project-id", required=True, help="Catenda prosjekt UUID")
     p_reg.add_argument("--library-id", required=True, help="Catenda library UUID")
+    p_reg.add_argument(
+        "--organisasjon-id",
+        required=True,
+        help="Virksomheten prosjektet tilhører. Ingen defaultverdi (MS-10)",
+    )
     p_reg.add_argument("--folder-id", help="Catenda folder UUID (valgfri)")
     p_reg.add_argument("--topic-board-id", help="Catenda topic board UUID (valgfri)")
     p_reg.add_argument("--name", help="Valgfritt navn (hentes fra Catenda om utelatt)")
