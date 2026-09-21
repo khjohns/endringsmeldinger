@@ -44,9 +44,9 @@ def backfill_forsering_relations(
     """
     logger.info("Backfilling forsering relations...")
 
-    # Get all forsering sak_ids
-    sak_ids = event_repository.get_all_sak_ids(sakstype="forsering")
-    logger.info(f"Found {len(sak_ids)} forsering saker")
+    # Løkka under plukker ut forseringssakene selv, på avslatte_fristkrav.
+    sak_ids = event_repository.get_all_sak_ids()
+    logger.info(f"Scanning {len(sak_ids)} saker for forsering relations")
 
     saker_processed = 0
     relations_added = 0
@@ -117,9 +117,9 @@ def backfill_endringsordre_relations(
     """
     logger.info("Backfilling endringsordre relations...")
 
-    # Get all endringsordre sak_ids
-    sak_ids = event_repository.get_all_sak_ids(sakstype="endringsordre")
-    logger.info(f"Found {len(sak_ids)} endringsordre saker")
+    # Løkka under plukker ut EO-sakene selv, på relaterte_koe_saker.
+    sak_ids = event_repository.get_all_sak_ids()
+    logger.info(f"Scanning {len(sak_ids)} saker for endringsordre relations")
 
     saker_processed = 0
     relations_added = 0

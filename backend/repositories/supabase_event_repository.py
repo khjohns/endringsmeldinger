@@ -1,17 +1,14 @@
 """Supabase-lager for hendelsesloggen, i CloudEvents v1.0-format.
 
-Alle saker ligger i tabellen `hendelse` (MS-01). Sakstypen bestemmer ikke
-lenger hvilken tabell raden havner i — den ligger på `sak_metadata.sakstype`,
-og ruting er et filter der det trengs.
+Alle saker ligger i tabellen `hendelse` (MS-01). Sakstypen bor på
+`sak_metadata.sakstype` og velger ikke tabell.
 
 Skjemaet står i `supabase/migrations/20260920193558_hendelse_tabell.sql` og
-ingen andre steder. Denne docstringen gjenga det tidligere selv, og var feil
-på tre punkter (DA-06); en kopi av et skjema er en kilde som kan ta feil.
+ingen andre steder.
 """
 
 import json
 import os
-from typing import Literal
 
 # Supabase Python client
 try:
@@ -28,18 +25,14 @@ from models.cloudevents import CLOUDEVENTS_NAMESPACE, CLOUDEVENTS_SPECVERSION
 
 from .event_repository import ConcurrencyError, EventRepository
 
-SaksType = Literal["standard", "forsering", "endringsordre"]
-
-# Én tabell for alle sakstyper (MS-01). Sakstypen tas fortsatt imot av
-# metodene under, fordi kallerne oppgir den, men den velger ikke lenger noe.
 HENDELSE_TABELL = "hendelse"
 
 
 class SupabaseEventRepository(EventRepository):
     """Hendelseslager på Supabase/PostgreSQL, i CloudEvents-format.
 
-    Alle sakstyper ligger i `hendelse` (MS-01), så en lesing treffer én tabell
-    og en feil derfra skal nå kalleren framfor å se ut som en tom sak.
+    Alle sakstyper ligger i `hendelse` (MS-01). Sakstypen bor på
+    `sak_metadata.sakstype` og velger ikke tabell.
 
     Miljøvariabler:
     - SUPABASE_URL: prosjektets URL
@@ -230,27 +223,10 @@ class SupabaseEventRepository(EventRepository):
         return 0
 
     @with_retry()
-    def get_all_sak_ids(self, sakstype: SaksType | None = None) -> list[str]:
-        """Alle saks-IDer, eventuelt bare de av én sakstype.
-
-        Sakstypen lå tidligere i tabellvalget. Den utledes nå av
-        hendelsestypene på saken, slik `_detect_sakstype_from_event_type`
-        alltid har gjort for enkeltkall.
-        """
-        result = self._tabell().select("sak_id, event_type").execute()
-        rows = result.data or []
-
-        if sakstype is None:
-            return list({row["sak_id"] for row in rows})
-
-        return list(
-            {
-                row["sak_id"]
-                for row in rows
-                if self._detect_sakstype_from_event_type(row["event_type"] or "")
-                == sakstype
-            }
-        )
+    def get_all_sak_ids(self) -> list[str]:
+        """Alle saks-IDer i loggen."""
+        result = self._tabell().select("sak_id").execute()
+        return list({rad["sak_id"] for rad in result.data or []})
 
     @with_retry()
     def get_events_by_type(self, sak_id: str, event_type: str) -> list[dict]:
@@ -264,14 +240,6 @@ class SupabaseEventRepository(EventRepository):
             .execute()
         )
         return [self._row_to_event_dict(row) for row in result.data or []]
-
-    def _detect_sakstype_from_event_type(self, event_type: str) -> SaksType:
-        """Sakstypen en hendelsestype hører til."""
-        if event_type.startswith("forsering_"):
-            return "forsering"
-        if event_type.startswith("eo_"):
-            return "endringsordre"
-        return "standard"
 
     @with_retry()
     def get_events_as_cloudevents(self, sak_id: str) -> list[dict]:

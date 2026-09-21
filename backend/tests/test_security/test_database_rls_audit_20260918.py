@@ -211,11 +211,9 @@ def test_hendelsestabellen_har_prosjekt_id_for_tenant_rls():
 
     Rettet 2026-09-20.
 
-    **Testen leste tidligere docstringen i supabase_event_repository.** Den
-    docstringen gjenga skjemaet og var feil på tre punkter (DA-06); den er
-    erstattet av en henvisning til migrasjonsfila, som nå er eneste kilde.
-    Testen leser derfor fila. Den beviser at repoet *erklærer* kolonnen — at
-    basen har den, er katalogspørringen beviset på.
+    **Testen leser migrasjonsfila,** som er eneste skjemakilde. Den beviser at
+    repoet *erklærer* kolonnen — at basen har den, er katalogspørringen
+    beviset på.
     """
     migrasjon = (
         REPO_ROOT

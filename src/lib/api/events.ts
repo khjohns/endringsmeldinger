@@ -82,8 +82,7 @@ export async function submitEvent(
       sak_id: sakId,
       event: {
         event_type: eventType,
-        // Aktøren stemples av serveren fra sesjonen (MS-04). Klienten sendte
-        // tidligere e-postadressen sin her; den ble forkastet uansett.
+        // Aktøren stemples av serveren fra sesjonen (MS-04).
         aktor_rolle: getCurrentUserRole(),
         data: data,
       },

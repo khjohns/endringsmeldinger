@@ -27,6 +27,20 @@ class AuthRepository:
                 return rows
         raise RuntimeError("Database pagination limit")
 
+    def user_name(self, user_id):
+        """Navnet på en bruker, eller None. Tom streng regnes som ikke satt."""
+        if not user_id:
+            return None
+        rader = (
+            self.client.table("app_users")
+            .select("name")
+            .eq("id", user_id)
+            .limit(1)
+            .execute()
+            .data
+        )
+        return rader[0]["name"] if rader and rader[0].get("name") else None
+
     def user_id_for_subject(self, provider, subject):
         """app_users.id for en ekstern identitet, eller None når den ikke er entydig.
 

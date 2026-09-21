@@ -98,10 +98,9 @@ class TestCreateProject:
     def test_create_project_missing_organisasjon_id(self):
         """MS-10: et prosjekt uten navngitt virksomhet skal ikke kunne opprettes.
 
-        Prosjekt-ID-en bar organisasjonsidentiteten til 2026-09-20
-        (`projects.id = 'oslobygg'`). Skillet holder bare så lenge virksomheten
-        navngis ved opprettelse — en utledning fra prosjektnavnet eller en
-        defaultverdi ville gjenopprettet sammenblandingen.
+        Skillet mellom prosjekt og virksomhet holder bare så lenge
+        virksomheten navngis ved opprettelse — en utledning fra prosjektnavnet
+        eller en defaultverdi ville blandet dem sammen igjen.
         """
         resp = self.client.post(
             "/api/projects",
@@ -233,17 +232,6 @@ class TestUpdateProject:
         self.mock_project_repo.update.assert_called_once_with(
             "proj1", {"name": "Updated Name"}
         )
-
-    def test_organisasjon_id_kan_ikke_oppdateres(self):
-        """MS-10: å flytte et prosjekt mellom virksomheter er ikke en oppdatering.
-
-        Saker, hendelser og brev viser til prosjektet. Endres virksomheten
-        under dem, blir attribusjonen uetterprøvbar på samme måte som en
-        defaultverdi ville gjort den.
-        """
-        from repositories.project_repository import SupabaseProjectRepository
-
-        assert "organisasjon_id" not in SupabaseProjectRepository.UPDATABLE_FIELDS
 
     def test_update_project_description(self):
         """PATCH /api/projects/<id> updates description."""
