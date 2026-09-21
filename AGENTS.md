@@ -101,8 +101,7 @@ de.
 **Testsuiten kan ikke se at basen er uenig med repoet.** Supabase-lageret dekkes
 bare av testdobler, og doblene speiler repoet — `HENDELSE_KOLONNER` i
 `tests/fixtures/supabase_dobbel.py` er tro mot migrasjonsfila, ikke mot
-databasen. Da
-`actorteam` manglet i basen, var suiten grønn mens *enhver* skriving til
+databasen. Da `actorteam` manglet i basen, var suiten grønn mens *enhver* skriving til
 Supabase-lageret feilet. Grønn suite er derfor ikke bevis for at en skjemaendring
 har nådd fram; det er katalogspørringen som er beviset.
 
@@ -155,7 +154,7 @@ Brytes en av disse, er det en sikkerhetsfeil uansett hvor liten endringen så ut
   «betyr alle» — blir attribusjonen uetterprøvbar igjen, og det lar seg ikke rette
   i ettertid når ekte saker først finnes.
 
-## Tre resonneringsregler
+## Resonneringsregler
 
 Disse er årsaken til de fleste feilklassifiserte funnene i auditserien.
 
