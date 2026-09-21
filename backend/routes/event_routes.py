@@ -42,7 +42,7 @@ from lib.cloudevents import (
 )
 from lib.helpers.version_control import handle_concurrency_error
 from lib.pdf_input import decode_pdf
-from lib.project_context import krev_autorisert_prosjekt
+from lib.project_context import get_project_id, krev_autorisert_prosjekt
 from models.cloudevents import CLOUDEVENTS_NAMESPACE
 from models.events import (
     AnyEvent,
@@ -176,8 +176,6 @@ def _notater_som_hendelser(sak_id: str) -> list:
     samme fail-closed-regel som gjelder alle lesepunkter, og notatene er den
     mest følsomme delen av strømmen.
     """
-    from lib.project_context import get_project_id
-
     prosjekt_id = get_project_id()
     if not prosjekt_id:
         return []
@@ -215,14 +213,10 @@ def _lagre_internt_notat(event: AnyEvent, sak_id: str):
 
     Ingen Catenda-levering, ingen leveringskvittering og ingen oppdatering av
     `last_event_at`: notatet er ikke ment for motparten.
-    """
-    _, gjeldende_versjon = _get_event_repo().get_events(sak_id)
-    if gjeldende_versjon == 0:
-        logger.warning("Internt notat mot ukjent sak: %s", sak_id)
-        return jsonify(
-            {"success": False, "error": "NOT_FOUND", "message": "Sak ikke funnet"}
-        ), 404
 
+    At saken finnes, er `require_project_access` sin jobb — som for alle andre
+    ruter. Fremmednøkkelen mot `sak_metadata` er siste skanse.
+    """
     notat = Notat.fra_hendelse(event, krev_autorisert_prosjekt("internt notat"))
     _get_notat_repo().lagre(notat)
 
@@ -230,8 +224,7 @@ def _lagre_internt_notat(event: AnyEvent, sak_id: str):
         {
             "success": True,
             "event_id": notat.notat_id,
-            "new_version": gjeldende_versjon,
-            "internt_notat": True,
+            "new_version": _get_event_repo().gjeldende_versjon(sak_id),
             "catenda_synced": False,
             "catenda_skipped_reason": "internal_note",
         }
@@ -782,6 +775,20 @@ def submit_batch():
             if blocked:
                 return jsonify(error="APPROVAL_REQUIRED", message=blocked), 403
         for ed in event_datas:
+            if ed.get("event_type") == EventType.INTERNT_NOTAT.value:
+                # Lageret avviser den uansett (MS-05). Her har vi et sted å si
+                # hvor notatet skal, og en batch kan ikke spenne to lagre
+                # atomisk.
+                return jsonify(
+                    {
+                        "success": False,
+                        "error": "INTERNT_NOTAT_IKKE_I_BATCH",
+                        "message": (
+                            "Interne notater lagres for seg og kan ikke inngå i "
+                            "en batch. Send notatet som én hendelse."
+                        ),
+                    }
+                ), 400
             validate_event_data(ed.get("event_type"), ed.get("data"))
             ed["sak_id"] = sak_id  # Ensure consistent sak_id
             if ed.get("event_type") == "sak_opprettet":
@@ -1333,18 +1340,20 @@ def slett_internt_notat(sak_id: str, notat_id: str):
 
     Bare forfatteren kan slette. Teamet alene ville latt en kollega fjerne en
     annens vurdering, og en videre regel enn nødvendig er ikke gitt noe sted.
+    Eierskapet er argument til lageret og ikke en sjekk her, av samme grunn som
+    prosjektet er det: et filter kalleren kan glemme, blir glemt.
+
     Svaret skiller ikke mellom «finnes ikke» og «ikke ditt»: at et notat finnes
     er i seg selv opplysning, og det er den samme grunnen til at filteret
     skjuler notatet i sin helhet framfor bare teksten.
     """
-    notat = _get_notat_repo().hent(notat_id, g.project_id)
-
-    if notat is None or notat.sak_id != sak_id or notat.aktor_id != g.user["id"]:
-        return jsonify(
-            {"success": False, "error": "NOT_FOUND", "message": "Notat ikke funnet"}
-        ), 404
-
-    if not _get_notat_repo().slett(notat_id, g.project_id):
+    fjernet = _get_notat_repo().slett(
+        sak_id=sak_id,
+        notat_id=notat_id,
+        prosjekt_id=get_project_id(),
+        aktor_id=g.user["id"],
+    )
+    if not fjernet:
         return jsonify(
             {"success": False, "error": "NOT_FOUND", "message": "Notat ikke funnet"}
         ), 404

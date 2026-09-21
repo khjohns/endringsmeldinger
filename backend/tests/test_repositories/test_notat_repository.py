@@ -57,8 +57,8 @@ def json_lager():
 def supabase_lager(monkeypatch):
     klient = FakeSupabaseClient(kolonner=NOTAT_KOLONNER)
     monkeypatch.setattr(
-        "repositories.supabase_notat_repository.create_client",
-        lambda url, key: klient,
+        "repositories.supabase_notat_repository.create_supabase_client",
+        lambda url=None, key=None: klient,
     )
     lager = SupabaseNotatRepository(
         url="https://notat.example.invalid", key="test-key"
@@ -110,22 +110,38 @@ def test_notatet_kan_slettes(lager):
     """Handlingen journalen ikke har og ikke skal ha."""
     notat = lager.lagre(_notat())
 
-    assert lager.slett(notat.notat_id, "p") is True
+    assert lager.slett("KOE-001", notat.notat_id, "p", AKTOR_ID) is True
     assert lager.for_sak("KOE-001", "p") == []
 
 
 def test_sletting_fra_annet_prosjekt_gjor_ingenting(lager):
     notat = lager.lagre(_notat(prosjekt_id="p"))
 
-    assert lager.slett(notat.notat_id, "annet") is False
+    assert lager.slett("KOE-001", notat.notat_id, "annet", AKTOR_ID) is False
     assert len(lager.for_sak("KOE-001", "p")) == 1
 
 
-def test_hent_er_avgrenset_til_prosjektet(lager):
+def test_en_annen_forfatter_sletter_ikke(lager):
+    """Eierskapet er argument til lageret, ikke en sjekk kalleren kan glemme."""
+    notat = lager.lagre(_notat())
+
+    assert lager.slett("KOE-001", notat.notat_id, "p", "en-annen") is False
+    assert len(lager.for_sak("KOE-001", "p")) == 1
+
+
+def test_sletting_fra_annen_sak_gjor_ingenting(lager):
+    notat = lager.lagre(_notat(sak_id="KOE-001"))
+
+    assert lager.slett("KOE-002", notat.notat_id, "p", AKTOR_ID) is False
+    assert len(lager.for_sak("KOE-001", "p")) == 1
+
+
+def test_hent_er_avgrenset_til_sak_og_prosjekt(lager):
     notat = lager.lagre(_notat(prosjekt_id="p"))
 
-    assert lager.hent(notat.notat_id, "p") is not None
-    assert lager.hent(notat.notat_id, "annet") is None
+    assert lager.hent("KOE-001", notat.notat_id, "p") is not None
+    assert lager.hent("KOE-001", notat.notat_id, "annet") is None
+    assert lager.hent("KOE-002", notat.notat_id, "p") is None
 
 
 def test_notatene_kommer_i_tidsrekkefolge(lager):
@@ -150,7 +166,9 @@ def test_skriver_bare_kolonner_skjemaet_erklaerer(supabase_lager):
     lager.lagre(_notat())
 
     rad = klient.tables["notat"][0]
-    assert set(rad) <= NOTAT_KOLONNER
+    # Likhet og ikke delmengde: en kolonne for mye avvises av dobbelen, men et
+    # felt som faller ut av raden ville ellers passert i stillhet.
+    assert set(rad) == NOTAT_KOLONNER
     assert rad["aktor_team_id"] == TE_TEAM
 
 

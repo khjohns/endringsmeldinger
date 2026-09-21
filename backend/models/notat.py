@@ -78,22 +78,14 @@ class Notat(BaseModel):
         )
 
     def til_rad(self) -> dict:
-        """Raden slik `notat`-tabellen erklærer den."""
-        return {
-            "notat_id": self.notat_id,
-            "sak_id": self.sak_id,
-            "prosjekt_id": self.prosjekt_id,
-            "aktor_id": self.aktor_id,
-            "aktor_rolle": self.aktor_rolle,
-            "aktor_team_id": self.aktor_team_id,
-            "tekst": self.tekst,
-            "spor": self.spor.value if self.spor else None,
-            "kommentar": self.kommentar,
-            "refererer_til_event_id": self.refererer_til_event_id,
-            "opprettet": self.opprettet.isoformat(),
-            "endret": self.endret.isoformat() if self.endret else None,
-        }
+        """Raden slik `notat`-tabellen erklærer den.
+
+        Feltnavnene *er* kolonnenavnene. Holder de to seg like, er raden
+        modellen — og et nytt felt kan ikke bli glemt her.
+        Testdobbelens `NOTAT_KOLONNER` er vakten mot at de glir fra hverandre.
+        """
+        return self.model_dump(mode="json")
 
     @classmethod
     def fra_rad(cls, rad: dict) -> "Notat":
-        return cls(**{felt: rad.get(felt) for felt in cls.model_fields})
+        return cls.model_validate(rad)

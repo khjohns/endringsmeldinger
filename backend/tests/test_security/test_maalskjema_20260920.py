@@ -49,13 +49,18 @@ def lager(monkeypatch):
     return repo, klient
 
 
-def _notat(sak_id="SAK-MS-001"):
-    return InterntNotatEvent(
+def _hendelse(sak_id="SAK-MS-001"):
+    """En hendelse journalen tar imot.
+
+    Var et internt notat fram til MS-05. Notatene har eget lager nå, og
+    journalen avviser dem — se tests/test_repositories/test_event_roundtrip.py.
+    """
+    return SakOpprettetEvent(
         sak_id=sak_id,
+        sakstittel="Endret fundamentering",
         aktor_id=AKTOR_ID,
         aktor_rolle="TE",
         aktor_team_id=TE_TEAM,
-        data=InterntNotatData(tekst="Internt", spor="frist"),
     )
 
 
@@ -90,7 +95,7 @@ def test_alle_sakstyper_skriver_til_en_tabell(lager):
 
 def test_lesing_treffer_en_tabell_uten_a_prove_seg_fram(lager):
     repo, klient = lager
-    repo.append(_notat(), expected_version=0)
+    repo.append(_hendelse(), expected_version=0)
     klient.brukte_tabeller.clear()
 
     hendelser, versjon = repo.get_events("SAK-MS-001")
@@ -121,7 +126,7 @@ def test_migrasjonen_gir_hendelse_samme_skranker_som_de_tre_hadde():
 def test_journalen_bærer_identiteten_og_ikke_navnet(lager):
     """Ingen kolonne i raden skal inneholde et personnavn."""
     repo, klient = lager
-    repo.append(_notat(), expected_version=0)
+    repo.append(_hendelse(), expected_version=0)
 
     rad = klient.tables[HENDELSE_TABELL][0]
     assert rad["actorid"] == AKTOR_ID
@@ -130,7 +135,7 @@ def test_journalen_bærer_identiteten_og_ikke_navnet(lager):
 
 def test_aktor_id_overlever_rundturen(lager):
     repo, _klient = lager
-    repo.append(_notat(), expected_version=0)
+    repo.append(_hendelse(), expected_version=0)
 
     lagrede, _versjon = repo.get_events("SAK-MS-001")
     parsed = parse_event(lagrede[0])
@@ -141,7 +146,7 @@ def test_aktor_id_overlever_rundturen(lager):
 
 def test_cloudevents_eksporten_bruker_actorid(lager):
     repo, _klient = lager
-    repo.append(_notat(), expected_version=0)
+    repo.append(_hendelse(), expected_version=0)
 
     eksport = repo.get_events_as_cloudevents("SAK-MS-001")
 
