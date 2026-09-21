@@ -4,6 +4,31 @@ Avtalt 2026-09-16, basert på
 [auditen av 93d630a](../audit-godkjenningspanel-og-durable-levering-2026-09-16.md).
 Appen er ikke i produksjon og har ingen reelle produksjonsdata.
 
+## Merknad 2026-09-21: presisert retning før neste implementering
+
+Etter [siste handoff](../handoff-2026-09-21-frister.md) har oppdragsgiver
+sluttet seg til retningen i [arkitekturpresiseringene AF-01–AF-06](../arkitekturforinger-2026-09-21.md).
+Dette er føringer for videre design, ikke gjennomførte rettinger eller nye
+lukkinger av funn. Ved motstrid med eldre designtekst gjelder presiseringene:
+
+- **MS-09:** teaminterne data skal også vernes i datalaget. Mekanismen og
+  tillitsgrensen for identitet og prosjektkontekst må konkretiseres.
+- **MS-02/AP-04:** kommandoer, transaksjoner og begrensede runtime-/worker-
+  rettigheter utformes samlet. Postgres med RPC er fortsatt utgangspunktet.
+- **MS-08:** fjerning av relasjonstabellen er satt til **må revurderes før
+  implementering**; en atomisk vedlikeholdt relasjonsprojeksjon med
+  prosjektavgrensede fremmednøkler er foretrukket alternativ til vurdering.
+- **MS-11 og KR-04/MG-01:** dokumenthash suppleres med en konkret bevis- og
+  bevaringsmodell, og deterministisk gjenoppbygging blir et akseptkriterium.
+- **Rekkefølge:** ekte PostgreSQL-tester i CI og én komplett EO-flyt med de
+  endelige sikkerhetsgrensene prioriteres foran generell RY-opprydding.
+
+Planverket skal konsolideres i **nye dokumenter til review**, etter
+[oppdraget til Gemini](../prompt-gemini-konsolidering-2026-09-21.md).
+Konsolideringen erstatter ikke denne masterplanen før den er gjennomgått.
+
+## Bakgrunn og dokumentkjede
+
 Utvidet 2026-09-17 etter [etterprøving av sikkerhetsprompten](../audit-sikkerhetsarkitektur-2026-09-17.md).
 Dette er den overordnede planen. [Transaksjonsplanen](2026-09-17-atomisk-utstedelse-og-outbox.md)
 er en delplan. Nye åpne funn må lukkes eller eksplisitt avgrenses før produksjon;
