@@ -396,10 +396,10 @@ class SakEvent(CloudEventMixin, BaseModel):
         ...,
         min_length=1,
         description=(
-            "Identiteten til den som utførte handlingen: `app_users.id`, eller "
-            "`catenda:<subject>` når handlingen kom fra Catenda uten at "
-            "forfatteren finnes som bruker hos oss. Aldri et personnavn — "
-            "navnet slås opp ved visning (MS-04)."
+            "Identiteten til den som utførte handlingen: `app_users.id`. "
+            "Aldri et personnavn, og aldri en annen form — også en "
+            "Catenda-forfatter løses til en app-bruker (MS-04, MG-02). "
+            "Navnet slås opp ved visning."
         ),
     )
     aktor_rolle: Literal["TE", "BH"] = Field(
