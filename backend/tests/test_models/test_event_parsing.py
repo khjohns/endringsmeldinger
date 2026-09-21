@@ -31,7 +31,7 @@ class TestParseEvent:
             "sak_id": "TEST-001",
             "event_type": "sak_opprettet",
             "tidsstempel": "2025-01-01T12:00:00",
-            "aktor_id": "Test User",
+            "aktor_id": "test-user",
             "aktor_rolle": "TE",
             "sakstittel": "Test Case",
             "prosjekt_id": "PROJ-001",
@@ -50,7 +50,7 @@ class TestParseEvent:
             "sak_id": "TEST-002",
             "event_type": "grunnlag_opprettet",
             "tidsstempel": "2025-01-01T12:00:00",
-            "aktor_id": "Test User",
+            "aktor_id": "test-user",
             "aktor_rolle": "TE",
             "data": {
                 "tittel": "Test grunnlag",
@@ -74,7 +74,7 @@ class TestParseEvent:
             "sak_id": "TEST-003",
             "event_type": "vederlag_krav_sendt",
             "tidsstempel": "2025-01-01T12:00:00",
-            "aktor_id": "Test User",
+            "aktor_id": "test-user",
             "aktor_rolle": "TE",
             "versjon": 1,
             "data": {
@@ -97,7 +97,7 @@ class TestParseEvent:
             "sak_id": "TEST-004",
             "event_type": "frist_krav_sendt",
             "tidsstempel": "2025-01-01T12:00:00",
-            "aktor_id": "Test User",
+            "aktor_id": "test-user",
             "aktor_rolle": "TE",
             "versjon": 1,
             "data": {
@@ -135,7 +135,7 @@ class TestParseEvent:
 
     def test_parse_event_missing_event_type(self):
         """Test that parsing fails without event_type."""
-        data = {"sak_id": "TEST-006", "aktor_id": "Test User"}
+        data = {"sak_id": "TEST-006", "aktor_id": "test-user"}
 
         with pytest.raises(ValueError, match="Mangler event_type"):
             parse_event(data)
@@ -145,7 +145,7 @@ class TestParseEvent:
         data = {
             "event_type": "unknown_event_type",
             "sak_id": "TEST-007",
-            "aktor_id": "Test User",
+            "aktor_id": "test-user",
         }
 
         with pytest.raises(ValueError, match="Ukjent event_type"):
@@ -162,7 +162,7 @@ class TestParseEvent:
                 "sak_id": "TEST-008",
                 "event_type": event_type,
                 "tidsstempel": "2025-01-01T12:00:00",
-                "aktor_id": "Test User",
+                "aktor_id": "test-user",
                 "aktor_rolle": "TE",
                 "data": {
                     "tittel": "Test grunnlag",
@@ -189,7 +189,7 @@ class TestParseEvent:
                 "sak_id": "TEST-008",
                 "event_type": event_type,
                 "tidsstempel": "2025-01-01T12:00:00",
-                "aktor_id": "Test User",
+                "aktor_id": "test-user",
                 "aktor_rolle": "TE",
                 "data": {
                     "begrunnelse": "Trekker tilbake kravet",
@@ -210,7 +210,7 @@ class TestParseEventFromRequest:
         data = {
             "sak_id": "TEST-009",
             "event_type": "sak_opprettet",
-            "aktor_id": "Test User",
+            "aktor_id": "test-user",
             "aktor_rolle": "TE",
             "sakstittel": "Test Case",
         }
@@ -228,7 +228,7 @@ class TestParseEventFromRequest:
             "event_id": "client-provided-id",  # Should be blocked!
             "sak_id": "TEST-010",
             "event_type": "sak_opprettet",
-            "aktor_id": "Test User",
+            "aktor_id": "test-user",
             "aktor_rolle": "TE",
             "sakstittel": "Test Case",
         }
@@ -242,7 +242,7 @@ class TestParseEventFromRequest:
             "tidsstempel": "2025-01-01T12:00:00",  # Should be blocked!
             "sak_id": "TEST-011",
             "event_type": "sak_opprettet",
-            "aktor_id": "Test User",
+            "aktor_id": "test-user",
             "aktor_rolle": "TE",
             "sakstittel": "Test Case",
         }
@@ -255,7 +255,7 @@ class TestParseEventFromRequest:
         data = {
             "sak_id": "TEST-012",
             "event_type": "sak_opprettet",
-            "aktor_id": "Test User",
+            "aktor_id": "test-user",
             "aktor_rolle": "TE",
             "sakstittel": "Test Case",
         }
@@ -270,7 +270,7 @@ class TestParseEventFromRequest:
         data = {
             "sak_id": "TEST-013",
             "event_type": "vederlag_krav_sendt",
-            "aktor_id": "Test User",
+            "aktor_id": "test-user",
             "aktor_rolle": "TE",
             "versjon": 1,
             "data": {
@@ -294,7 +294,7 @@ class TestParseEventFromRequest:
         data = {
             "sak_id": "TEST-014",
             "event_type": "grunnlag_opprettet",
-            "aktor_id": "Test User",
+            "aktor_id": "test-user",
             "aktor_rolle": "TE",
             "kommentar": "Optional comment",  # Optional field
             "data": {
@@ -321,7 +321,7 @@ class TestEventParsingSecurity:
         data = {
             "sak_id": "TEST-015",
             "event_type": "grunnlag_opprettet",
-            "aktor_id": "Test User",
+            "aktor_id": "test-user",
             "aktor_rolle": "TE",
             "data": {
                 "tittel": "Test grunnlag",
@@ -341,7 +341,7 @@ class TestEventParsingSecurity:
         data = {
             "sak_id": "TEST-016",
             "event_type": "vederlag_krav_sendt",
-            "aktor_id": "Test User",
+            "aktor_id": "test-user",
             "aktor_rolle": "TE",
             "versjon": 1,
             "data": {

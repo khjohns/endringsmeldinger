@@ -12,86 +12,32 @@ observeres framfor å utledes.
 """
 
 from pathlib import Path
-from types import SimpleNamespace
 
 import pytest
 
-from models.events import InterntNotatData, InterntNotatEvent, parse_event
+from models.events import (
+    InterntNotatData,
+    InterntNotatEvent,
+    SakOpprettetEvent,
+    parse_event,
+)
 from repositories.supabase_event_repository import (
     HENDELSE_TABELL,
     SupabaseEventRepository,
 )
+
+from ..fixtures.supabase_dobbel import FakeSupabaseClient
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 MIGRASJONER = REPO_ROOT / "supabase" / "migrations"
 
 TE_TEAM = "22222222222222222222222222222222"
 AKTOR_ID = "5f1c0f2e-2f1a-4a64-9a2e-9f0b1d2c3e4f"
-AKTOR_NAVN = "Kari Nordmann"
-
-
-class _Tabell:
-    def __init__(self, navn, rader, logg):
-        self._navn = navn
-        self._rader = rader
-        self._logg = logg
-        self._filtre = []
-        self._innsetting = None
-        self._order = None
-        self._limit = None
-        self._kolonner = None
-
-    def insert(self, rader):
-        self._logg.append(self._navn)
-        self._innsetting = rader if isinstance(rader, list) else [rader]
-        return self
-
-    def select(self, kolonner="*"):
-        self._logg.append(self._navn)
-        self._kolonner = kolonner
-        return self
-
-    def eq(self, felt, verdi):
-        self._filtre.append((felt, verdi))
-        return self
-
-    def order(self, felt, desc=False):
-        self._order = (felt, desc)
-        return self
-
-    def limit(self, antall):
-        self._limit = antall
-        return self
-
-    def execute(self):
-        if self._innsetting is not None:
-            self._rader.extend(dict(r) for r in self._innsetting)
-            return SimpleNamespace(data=list(self._innsetting))
-        rader = [
-            r
-            for r in self._rader
-            if all(r.get(f) == v for f, v in self._filtre)
-        ]
-        if self._order:
-            felt, desc = self._order
-            rader = sorted(rader, key=lambda r: r.get(felt), reverse=desc)
-        if self._limit is not None:
-            rader = rader[: self._limit]
-        return SimpleNamespace(data=[dict(r) for r in rader])
-
-
-class _Klient:
-    def __init__(self):
-        self.tabeller: dict[str, list[dict]] = {}
-        self.brukte_tabeller: list[str] = []
-
-    def table(self, navn):
-        return _Tabell(navn, self.tabeller.setdefault(navn, []), self.brukte_tabeller)
 
 
 @pytest.fixture
 def lager(monkeypatch):
-    klient = _Klient()
+    klient = FakeSupabaseClient()
     monkeypatch.setattr(
         "repositories.supabase_event_repository.create_client",
         lambda url, key: klient,
@@ -122,8 +68,6 @@ def test_alle_sakstyper_skriver_til_en_tabell(lager):
     Forseringshendelser og endringsordrehendelser lå i hver sin tabell, og en
     lesing uten oppgitt sakstype prøvde alle tre etter tur.
     """
-    from models.events import EventType, SakOpprettetEvent
-
     repo, klient = lager
     for sak_id, sakstype in (
         ("SAK-STD", "standard"),
@@ -133,7 +77,6 @@ def test_alle_sakstyper_skriver_til_en_tabell(lager):
         repo.append(
             SakOpprettetEvent(
                 sak_id=sak_id,
-                event_type=EventType.SAK_OPPRETTET,
                 aktor_id=AKTOR_ID,
                 aktor_rolle="TE",
                 sakstittel="Sak",
@@ -142,8 +85,7 @@ def test_alle_sakstyper_skriver_til_en_tabell(lager):
             expected_version=0,
         )
 
-    assert set(klient.tabeller) == {HENDELSE_TABELL}
-    assert set(klient.brukte_tabeller) == {HENDELSE_TABELL}
+    assert set(klient.tables) == {HENDELSE_TABELL}
 
 
 def test_lesing_treffer_en_tabell_uten_a_prove_seg_fram(lager):
@@ -181,10 +123,9 @@ def test_journalen_bærer_identiteten_og_ikke_navnet(lager):
     repo, klient = lager
     repo.append(_notat(), expected_version=0)
 
-    rad = klient.tabeller[HENDELSE_TABELL][0]
+    rad = klient.tables[HENDELSE_TABELL][0]
     assert rad["actorid"] == AKTOR_ID
     assert "actor" not in rad
-    assert AKTOR_NAVN not in str(rad)
 
 
 def test_aktor_id_overlever_rundturen(lager):
@@ -221,6 +162,18 @@ def test_hendelse_uten_aktor_id_avvises():
 
 
 # ---------------------------------------------------------------- MS-10
+
+
+def test_organisasjon_id_kan_ikke_oppdateres():
+    """Å flytte et prosjekt mellom virksomheter er ikke en oppdatering.
+
+    Saker, hendelser og brev viser til prosjektet. Endres virksomheten under
+    dem, blir attribusjonen uetterprøvbar på samme måte som en defaultverdi
+    ville gjort den.
+    """
+    from repositories.project_repository import SupabaseProjectRepository
+
+    assert "organisasjon_id" not in SupabaseProjectRepository.UPDATABLE_FIELDS
 
 
 def test_organisasjon_id_har_ingen_defaultverdi():

@@ -204,7 +204,7 @@ def submit_api(monkeypatch, tmp_path):
     sak_opprettet = {
         "event_type": "sak_opprettet",
         "sak_id": "case",
-        "aktor_id": "System",
+        "aktor_id": "system",
         "aktor_rolle": "TE",
         "tidsstempel": "2026-09-15T08:00:00Z",
         "sakstittel": "Testsak",

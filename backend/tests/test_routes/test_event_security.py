@@ -55,7 +55,7 @@ def payload():
         "expected_version": 1,
         "event": {
             "event_type": "grunnlag_opprettet",
-            "aktor_id": "Forged Actor",
+            "aktor_id": "forfalsket-aktor",
             "aktor_rolle": "BH",
             "data": {
                 "tittel": "Test claim",

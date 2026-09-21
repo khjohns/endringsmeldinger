@@ -315,7 +315,7 @@ def test_batch_innsending_lekker_internt_notat_i_last_event_at(monkeypatch):
     sak_opprettet = {
         "event_type": "sak_opprettet",
         "sak_id": "case-1",
-        "aktor_id": "System",
+        "aktor_id": "system",
         "aktor_rolle": "TE",
         "tidsstempel": "2026-09-15T08:00:00Z",
         "sakstittel": "Sak 1",

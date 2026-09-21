@@ -7,6 +7,8 @@ lar seg lese fordi en aktør er slettet, er verre enn et brev som viser
 identiteten.
 """
 
+from types import SimpleNamespace
+
 import pytest
 
 from lib.aktor_navn import CATENDA_PREFIKS, navn
@@ -22,15 +24,11 @@ class _Repo:
         self.feiler = feiler
         self.kall = 0
 
-    def all_rows(self, tabell, kolonner="*", **filtre):
+    def user_name(self, user_id):
         self.kall += 1
         if self.feiler:
             raise RuntimeError("basen svarer ikke")
-        assert tabell == "app_users"
-        bruker_id = filtre["id"]
-        if bruker_id not in self.brukere:
-            return []
-        return [{"id": bruker_id, "name": self.brukere[bruker_id]}]
+        return self.brukere.get(user_id)
 
     def user_id_for_subject(self, provider, subject):
         return self.identiteter.get((provider, subject))
@@ -39,7 +37,7 @@ class _Repo:
 @pytest.fixture
 def med_repo(app):
     def sett(repo):
-        app.extensions["koe_auth"] = type("T", (), {"repo": repo})()
+        app.extensions["koe_auth"] = SimpleNamespace(repo=repo)
         return repo
 
     yield sett
@@ -89,6 +87,28 @@ def test_samme_aktor_slaas_opp_en_gang_per_forespørsel(app, med_repo):
     with app.test_request_context():
         for _ in range(5):
             assert navn(BRUKER_ID) == "Kari Nordmann"
+    assert repo.kall == 1
+
+
+def test_leserens_eget_navn_koster_ingen_rundtur(app, med_repo):
+    """Navnet på den innloggede ligger alt i sesjonen (`g.user`)."""
+    from flask import g
+
+    repo = med_repo(_Repo(brukere={}))
+    with app.test_request_context():
+        g.user = {"id": BRUKER_ID, "email": "kari@example.com", "name": "Kari Nordmann"}
+        assert navn(BRUKER_ID) == "Kari Nordmann"
+    assert repo.kall == 0
+
+
+def test_sesjon_uten_navn_seeder_ikke_bufferet(app, med_repo):
+    repo = med_repo(_Repo(brukere={BRUKER_ID: "Kari Nordmann"}))
+    with app.test_request_context():
+        g_user_uten_navn = {"id": BRUKER_ID, "email": "kari@example.com"}
+        from flask import g
+
+        g.user = g_user_uten_navn
+        assert navn(BRUKER_ID) == "Kari Nordmann"
     assert repo.kall == 1
 
 

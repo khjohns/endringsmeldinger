@@ -19,10 +19,7 @@ MIGRATIONS = [
     REPO_ROOT / "supabase" / "migrations",
 ]
 
-# Alle 18 tabellene i public, kontrollert mot basen 2026-09-20 etter at
-# koe_events, forsering_events og endringsordre_events ble slått sammen til
-# hendelse (MS-01). De tre opprettes fortsatt av kjerneskjemaet og slippes av
-# 20260920193558 — et sett som bygger basen fra tom, må gjøre begge deler.
+# Alle 18 tabellene i public, kontrollert mot basen 2026-09-20.
 TABELLER_I_BASEN = [
     "app_identities",
     "app_membership_sync",
@@ -44,9 +41,6 @@ TABELLER_I_BASEN = [
     "user_groups",
 ]
 
-# Tabeller repoet oppretter og siden slipper. De skal ikke stå i lista over —
-# de finnes ikke i basen — men en migrasjon må fortsatt kunne opprette dem,
-# ellers feiler de senere migrasjonene som endrer dem.
 SLUPPNE_TABELLER = [
     "koe_events",
     "forsering_events",

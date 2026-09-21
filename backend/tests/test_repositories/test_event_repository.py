@@ -32,7 +32,7 @@ class TestEventRepository:
         """Create a sample event for testing."""
         return SakOpprettetEvent(
             sak_id="TEST-001",
-            aktor_id="Test User",
+            aktor_id="test-user",
             aktor_rolle="TE",
             sakstittel="Test Case",
             prosjekt_id="PROJ-001",

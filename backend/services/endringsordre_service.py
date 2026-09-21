@@ -17,7 +17,6 @@ from decimal import Decimal
 from typing import Any
 from uuid import uuid4
 
-from lib.aktor_navn import navn as aktor_navn
 from lib.helpers import get_all_sak_ids
 from lib.project_context import get_project_id
 from models.events import (
@@ -440,7 +439,6 @@ class EndringsordreService(BaseSakService):
         # 4. Opprett events lokalt
         events = []
 
-        # SAK_OPPRETTET
         sak_event = SakOpprettetEvent(
             event_id=str(uuid4()),
             sak_id=sak_id,
@@ -453,7 +451,6 @@ class EndringsordreService(BaseSakService):
         )
         events.append(sak_event)
 
-        # EO_OPPRETTET
         eo_opprettet = EOOpprettetEvent(
             event_id=str(uuid4()),
             sak_id=sak_id,
@@ -470,7 +467,6 @@ class EndringsordreService(BaseSakService):
         )
         events.append(eo_opprettet)
 
-        # EO_UTSTEDT
         vederlag = None
         if oppgjorsform:
             vederlag = VederlagKompensasjon(
@@ -556,7 +552,7 @@ class EndringsordreService(BaseSakService):
                 "ny_sluttdato": ny_sluttdato,
                 "status": EOStatus.UTSTEDT.value,
                 "dato_utstedt": dato_utstedt,
-                "utstedt_av": aktor_navn(utstedt_av_id),
+                "utstedt_av": utstedt_av_id,
                 "te_akseptert": None,
                 "te_kommentar": None,
                 "dato_te_respons": None,
