@@ -50,8 +50,15 @@ class AuthRepository:
         """
         if not subject:
             return None
-        rader = self.all_rows(
-            "app_identities", "id,user_id", provider=provider, subject=subject
+        rader = (
+            self.client.table("app_identities")
+            .select("user_id")
+            .eq("provider", provider)
+            .eq("subject", subject)
+            .limit(2)
+            .execute()
+            .data
+            or []
         )
         if len(rader) != 1:
             return None
@@ -200,6 +207,7 @@ class AuthRepository:
         name: str,
         catenda_project_id: str,
         library_id: str,
+        organisasjon_id: str,
         folder_id: str | None = None,
         topic_board_id: str | None = None,
         description: str | None = None,
@@ -213,6 +221,7 @@ class AuthRepository:
                     "p_project_id": project_id,
                     "p_name": name,
                     "p_description": description,
+                    "p_organisasjon_id": organisasjon_id,
                     "p_catenda_project_id": catenda_project_id,
                     "p_library_id": library_id,
                     "p_folder_id": folder_id,

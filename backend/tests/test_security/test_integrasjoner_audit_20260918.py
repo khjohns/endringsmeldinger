@@ -340,7 +340,7 @@ def test_batch_events_skips_catenda_delivery_and_reports_clear(client, monkeypat
     initial_event = SakOpprettetEvent(
         sak_id=sak_id,
         sakstittel="Batch Test Sak",
-        aktor_id="TE Bruker",
+        aktor_id="te-bruker",
         aktor_rolle="TE",
         prosjekt_id=project_id,
         catenda_topic_id="topic-batch-1",
@@ -381,7 +381,7 @@ def test_batch_events_skips_catenda_delivery_and_reports_clear(client, monkeypat
             {
                 "event_type": "grunnlag_opprettet",
                 "sak_id": sak_id,
-                "aktor_id": "TE Saksbehandler",
+                "aktor_id": "te-saksbehandler",
                 "aktor_rolle": "TE",
                 "data": {
                     "tittel": "Grunnlag for krav",

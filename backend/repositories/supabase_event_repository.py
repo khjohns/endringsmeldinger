@@ -7,7 +7,6 @@ Skjemaet står i `supabase/migrations/20260920193558_hendelse_tabell.sql` og
 ingen andre steder.
 """
 
-import json
 import os
 
 # Supabase Python client
@@ -26,6 +25,10 @@ from models.cloudevents import CLOUDEVENTS_NAMESPACE, CLOUDEVENTS_SPECVERSION
 from .event_repository import ConcurrencyError, EventRepository
 
 HENDELSE_TABELL = "hendelse"
+
+# Sider ved uttrekk uten filter. PostgREST har sitt eget tak (`db-max-rows`),
+# og kallerne må tåle at serveren gir færre rader enn bedt om.
+SIDESTORRELSE = 500
 
 
 class SupabaseEventRepository(EventRepository):
@@ -63,30 +66,7 @@ class SupabaseEventRepository(EventRepository):
         """Gjør en hendelse om til en rad i CloudEvents-form."""
         sak_id = event.sak_id
 
-        if hasattr(event, "to_cloudevent"):
-            ce = event.to_cloudevent()
-        else:
-            # Hendelser uten mixin: bygg attributtene for hånd.
-            event_dict = event.model_dump(mode="json")
-            event_type = event_dict.get("event_type")
-            if hasattr(event_type, "value"):
-                event_type = event_type.value
-
-            ce = {
-                "specversion": CLOUDEVENTS_SPECVERSION,
-                "id": str(event_dict.get("event_id")),
-                "source": f"/projects/unknown/cases/{sak_id}",
-                "type": f"{CLOUDEVENTS_NAMESPACE}.{event_type}",
-                "time": event_dict.get("tidsstempel"),
-                "subject": sak_id,
-                "datacontenttype": "application/json",
-                "actorid": event_dict.get("aktor_id"),
-                "actorrole": event_dict.get("aktor_rolle"),
-                "actorteam": event_dict.get("aktor_team_id"),
-                "comment": event_dict.get("kommentar"),
-                "referstoid": event_dict.get("refererer_til_event_id"),
-                "data": event_dict.get("data"),
-            }
+        ce = event.to_cloudevent()
 
         return {
             "specversion": ce.get("specversion", CLOUDEVENTS_SPECVERSION),
@@ -224,9 +204,29 @@ class SupabaseEventRepository(EventRepository):
 
     @with_retry()
     def get_all_sak_ids(self) -> list[str]:
-        """Alle saks-IDer i loggen."""
-        result = self._tabell().select("sak_id").execute()
-        return list({rad["sak_id"] for rad in result.data or []})
+        """Alle saks-IDer i loggen.
+
+        Loggen har én rad per hendelse, ikke per sak, og PostgREST avkorter et
+        ufiltrert uttrekk uten å si fra. Sidene hentes derfor eksplisitt, og
+        neste side starter der forrige faktisk sluttet — serverens tak kan
+        være lavere enn sidestørrelsen (KR-03).
+        """
+        sak_ids: set[str] = set()
+        start = 0
+        while True:
+            rader = (
+                self._tabell()
+                .select("sak_id")
+                .order("id")
+                .range(start, start + SIDESTORRELSE - 1)
+                .execute()
+                .data
+                or []
+            )
+            if not rader:
+                return sorted(sak_ids)
+            sak_ids.update(rad["sak_id"] for rad in rader)
+            start += len(rader)
 
     @with_retry()
     def get_events_by_type(self, sak_id: str, event_type: str) -> list[dict]:
@@ -281,24 +281,17 @@ class SupabaseEventRepository(EventRepository):
         if not catenda_topic_id:
             return None
 
-        result = (
+        rader = (
             self._tabell()
-            .select("sak_id, data")
+            .select("sak_id")
             .eq("event_type", "sak_opprettet")
+            .eq("data->>catenda_topic_id", catenda_topic_id)
+            .limit(1)
             .execute()
+            .data
+            or []
         )
-
-        for row in result.data or []:
-            data = row.get("data", {})
-            if isinstance(data, str):
-                try:
-                    data = json.loads(data)
-                except json.JSONDecodeError:
-                    continue
-            if data.get("catenda_topic_id") == catenda_topic_id:
-                return row.get("sak_id")
-
-        return None
+        return rader[0]["sak_id"] if rader else None
 
 
 # Factory function for easy switching
