@@ -18,12 +18,18 @@ Forrige ledd i kjeden: [gjennomføringen](gjennomforing-maalskjema-2026-09-20.md
 `bab9679`, etter at protokollen var skrevet. **KR-01 til KR-03 og KR-05 til
 KR-12 er lukket.**
 
-To migrasjoner er anvendt mot prosjektet i samme runde:
-`20260921091208_koe_register_project_organisasjon_id` (KR-01) og
-`20260921093936_indeks_hendelse_catenda_topic`. Den siste hører til KR-02:
-oppslaget filtrerer nå på `data->>catenda_topic_id`, og seksjonen under slår
-fast at det uttrykket var uindeksert. Indeksen er delvis, på
-`event_type = 'sak_opprettet'`.
+Tre migrasjoner er anvendt mot prosjektet:
+`20260921091208_koe_register_project_organisasjon_id` (KR-01),
+`20260921093936_indeks_hendelse_catenda_topic` (KR-02 — oppslaget filtrerer nå
+på `data->>catenda_topic_id`, og seksjonen under slår fast at det uttrykket var
+uindeksert; indeksen er delvis, på `event_type = 'sak_opprettet'`) og
+`20260921102148_indeks_app_identities_provider_subject` (KR-11 — den eneste
+indeksen var `UNIQUE (provider, issuer, subject)`, og `provider` har to verdier,
+så bare ledekolonnen avgrenset).
+
+**Migrasjonssettet er bygget fra tomt etter dette** og er identisk med
+prosjektet på fem katalogsnitt; summene står i
+[oppryddingen](audit-opprydding-2026-09-21.md).
 
 To funn står åpne, begge med vilje:
 
