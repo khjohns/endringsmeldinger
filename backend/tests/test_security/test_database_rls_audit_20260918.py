@@ -203,40 +203,45 @@ def test_project_membership_model_role_violates_database_check_constraint():
     )
 
 
-def test_event_tables_missing_prosjekt_id_column_for_tenant_rls():
+def test_hendelsestabellen_har_prosjekt_id_for_tenant_rls():
     """
-    DB-06: Hendelsestabellene skal ha prosjekt_id, ikke bare prosjektet gjemt i
-    CloudEvents' source-streng, som hindrer effektiv radnivåsikkerhet per prosjekt.
+    DB-06: hendelsesloggen skal ha prosjekt_id som egen kolonne, ikke bare
+    prosjektet gjemt i CloudEvents' source-streng, som hindrer effektiv
+    radnivåsikkerhet per prosjekt.
 
-    Rettet 2026-09-20. Utvidet fra koe_events til alle tre tabellene.
+    Rettet 2026-09-20.
 
-    **Denne testen leser docstringen, ikke databasen.** Den er grønn fordi DDL-en
-    i modulens docstring nå deklarerer kolonnen. At kolonnen faktisk finnes i
-    basen er kontrollert på annet vis samme dag: migrasjonen
-    20260920060000_tenant_attribution_prosjekt_id ble anvendt mot prosjektet, en
-    katalogspørring bekreftet NOT NULL uten default på alle fire tabellene, og et
-    forsøk på å skrive en rad uten prosjekt ble avvist med 23502. En grønn test
-    her beviser altså docstringen — ikke skjemaet.
+    **Testen leser migrasjonsfila,** som er eneste skjemakilde. Den beviser at
+    repoet *erklærer* kolonnen — at basen har den, er katalogspørringen
+    beviset på.
     """
-    import repositories.supabase_event_repository as event_repo_module
+    migrasjon = (
+        REPO_ROOT
+        / "supabase"
+        / "migrations"
+        / "20260920193558_hendelse_tabell.sql"
+    )
+    assert migrasjon.exists(), "migrasjonen som oppretter hendelse mangler"
+    sql = migrasjon.read_text(encoding="utf-8")
 
-    doc = event_repo_module.__doc__ or ""
+    treff = re.search(
+        r"CREATE\s+TABLE\s+(IF\s+NOT\s+EXISTS\s+)?public\.hendelse\s*\((.*?)\n\);",
+        sql,
+        re.DOTALL | re.IGNORECASE,
+    )
+    assert treff is not None, "tabelldefinisjonen for hendelse ikke funnet"
 
-    for tabell in ("koe_events", "forsering_events", "endringsordre_events"):
-        treff = re.search(
-            rf"CREATE\s+TABLE\s+(IF\s+NOT\s+EXISTS\s+)?{tabell}\s*\((.*?)\);",
-            doc,
-            re.DOTALL | re.IGNORECASE,
-        )
-        assert treff is not None, f"{tabell} tabelldefinisjon ikke funnet i docstring"
+    assert re.search(
+        r"^\s*prosjekt_id\s+TEXT\s+NOT\s+NULL", treff.group(2), re.MULTILINE | re.IGNORECASE
+    ), (
+        "hendelse mangler 'prosjekt_id TEXT NOT NULL'. Uten den finnes "
+        "prosjektet kun i kommentaren på source-kolonnen, og tenant-isolering "
+        "kan ikke uttrykkes som en RLS-policy."
+    )
 
-        assert re.search(
-            r"^\s*prosjekt_id\s+\w+", treff.group(2), re.MULTILINE | re.IGNORECASE
-        ), (
-            f"{tabell} mangler kolonnen 'prosjekt_id'. Uten den finnes prosjektet "
-            "kun i kommentaren på source-kolonnen, og tenant-isolering kan ikke "
-            "uttrykkes som en RLS-policy."
-        )
+    assert "DEFAULT 'oslobygg'" not in sql, (
+        "En defaultverdi på prosjekt_id gjør attribusjonen uetterprøvbar."
+    )
 
 
 @pytest.mark.xfail(

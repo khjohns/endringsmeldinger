@@ -32,7 +32,7 @@ class TestEventRepository:
         """Create a sample event for testing."""
         return SakOpprettetEvent(
             sak_id="TEST-001",
-            aktor="Test User",
+            aktor_id="test-user",
             aktor_rolle="TE",
             sakstittel="Test Case",
             prosjekt_id="PROJ-001",
@@ -55,13 +55,13 @@ class TestEventRepository:
         events = [
             SakOpprettetEvent(
                 sak_id="TEST-002",
-                aktor="User1",
+                aktor_id="User1",
                 aktor_rolle="TE",
                 sakstittel="Batch Test",
             ),
             GrunnlagEvent(
                 sak_id="TEST-002",
-                aktor="User1",
+                aktor_id="User1",
                 aktor_rolle="TE",
                 data=GrunnlagData(
                     tittel="Test grunnlag",
@@ -90,7 +90,7 @@ class TestEventRepository:
         # Try to append with wrong version
         new_event = GrunnlagEvent(
             sak_id="TEST-001",
-            aktor="User2",
+            aktor_id="User2",
             aktor_rolle="TE",
             data=GrunnlagData(
                 tittel="Test grunnlag",
@@ -116,7 +116,7 @@ class TestEventRepository:
         # Append with correct version
         new_event = GrunnlagEvent(
             sak_id="TEST-001",
-            aktor="User2",
+            aktor_id="User2",
             aktor_rolle="TE",
             data=GrunnlagData(
                 tittel="Test grunnlag",
@@ -151,7 +151,7 @@ class TestEventRepository:
         # Create initial case
         initial_event = SakOpprettetEvent(
             sak_id="TEST-CONCURRENT",
-            aktor="InitialUser",
+            aktor_id="InitialUser",
             aktor_rolle="TE",
             sakstittel="Concurrency Test",
         )
@@ -161,7 +161,7 @@ class TestEventRepository:
             """Attempt to write with expected_version=1."""
             event = GrunnlagEvent(
                 sak_id="TEST-CONCURRENT",
-                aktor=f"User-{event_data}",
+                aktor_id=f"User-{event_data}",
                 aktor_rolle="TE",
                 data=GrunnlagData(
                     tittel=f"Test grunnlag {event_data}",
@@ -198,11 +198,11 @@ class TestEventRepository:
         """Test that batch events must all belong to the same case."""
         events = [
             SakOpprettetEvent(
-                sak_id="TEST-003", aktor="User1", aktor_rolle="TE", sakstittel="Test"
+                sak_id="TEST-003", aktor_id="User1", aktor_rolle="TE", sakstittel="Test"
             ),
             GrunnlagEvent(
                 sak_id="TEST-004",  # Different sak_id!
-                aktor="User1",
+                aktor_id="User1",
                 aktor_rolle="TE",
                 data=GrunnlagData(
                     tittel="Test grunnlag",
@@ -227,7 +227,7 @@ class TestEventRepository:
         # Create event with potentially problematic ID
         event = SakOpprettetEvent(
             sak_id="TEST/WITH\\SLASHES",
-            aktor="User",
+            aktor_id="User",
             aktor_rolle="TE",
             sakstittel="Test",
         )
@@ -249,7 +249,7 @@ class TestEventRepository:
         # Create initial case
         initial_event = SakOpprettetEvent(
             sak_id="TEST-INTEGRITY",
-            aktor="InitialUser",
+            aktor_id="InitialUser",
             aktor_rolle="TE",
             sakstittel="Integrity Test",
         )
@@ -264,7 +264,7 @@ class TestEventRepository:
                 _, current_version = repo.get_events("TEST-INTEGRITY")
                 event = GrunnlagEvent(
                     sak_id="TEST-INTEGRITY",
-                    aktor=f"User-{event_num}",
+                    aktor_id=f"User-{event_num}",
                     aktor_rolle="TE",
                     data=GrunnlagData(
                         tittel=f"Test grunnlag {event_num}",

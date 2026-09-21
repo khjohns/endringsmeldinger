@@ -109,7 +109,7 @@ def test_grunnlag_event_creation():
     """Test creating a complete GrunnlagEvent"""
     event = GrunnlagEvent(
         sak_id="SAK-001",
-        aktor="Ole Olsen",
+        aktor_id="te-ole",
         aktor_rolle="TE",
         data=GrunnlagData(
             tittel="Test grunnlag event",
@@ -125,7 +125,7 @@ def test_grunnlag_event_creation():
     )
 
     assert event.sak_id == "SAK-001"
-    assert event.aktor == "Ole Olsen"
+    assert event.aktor_id == "te-ole"
     assert event.aktor_rolle == "TE"
     assert event.event_type == EventType.GRUNNLAG_OPPRETTET
     assert event.data.hovedkategori == "forsinkelse_bh"
@@ -138,7 +138,7 @@ def test_grunnlag_event_invalid_type():
     with pytest.raises(ValueError, match="Ugyldig event_type"):
         GrunnlagEvent(
             sak_id="SAK-001",
-            aktor="Ole Olsen",
+            aktor_id="te-ole",
             aktor_rolle="TE",
             event_type=EventType.VEDERLAG_KRAV_SENDT,  # Wrong type!
             data=GrunnlagData(
@@ -234,7 +234,7 @@ def test_vederlag_event_creation():
     """Test creating a complete VederlagEvent"""
     event = VederlagEvent(
         sak_id="SAK-001",
-        aktor="Ole Olsen",
+        aktor_id="te-ole",
         aktor_rolle="TE",
         data=VederlagData(
             kostnads_overslag=50000,
@@ -356,7 +356,7 @@ def test_frist_event_creation():
     """Test creating a complete FristEvent"""
     event = FristEvent(
         sak_id="SAK-001",
-        aktor="Ole Olsen",
+        aktor_id="te-ole",
         aktor_rolle="TE",
         data=FristData(
             varsel_type=FristVarselType.SPESIFISERT,
@@ -467,7 +467,7 @@ def test_respons_event_creation():
     """Test creating a ResponsEvent"""
     event = ResponsEvent(
         sak_id="SAK-001",
-        aktor="BH Manager",
+        aktor_id="BH Manager",
         aktor_rolle="BH",
         event_type=EventType.RESPONS_VEDERLAG,
         spor=SporType.VEDERLAG,
@@ -492,7 +492,7 @@ def test_sak_opprettet_event():
     event = SakOpprettetEvent(
         sak_id="SAK-001",
         sakstittel="Test sak",
-        aktor="System",
+        aktor_id="system",
         aktor_rolle="TE",
         prosjekt_id="PROJ-001",
         catenda_topic_id="topic-guid-123",
@@ -511,7 +511,7 @@ def test_event_serialization():
     """Test that events can be serialized to JSON"""
     event = GrunnlagEvent(
         sak_id="SAK-001",
-        aktor="Test",
+        aktor_id="test-aktor",
         aktor_rolle="TE",
         data=GrunnlagData(
             tittel="Serialization test",
@@ -535,7 +535,7 @@ def test_event_with_varsel_serialization():
     """Test event with VarselInfo serializes correctly"""
     event = VederlagEvent(
         sak_id="SAK-001",
-        aktor="Test",
+        aktor_id="test-aktor",
         aktor_rolle="TE",
         data=VederlagData(
             kostnads_overslag=50000,

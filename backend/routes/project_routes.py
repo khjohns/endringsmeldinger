@@ -90,11 +90,15 @@ def create_project():
         from models.project import CreateProjectRequest, Project
         from models.project_membership import ProjectMembership
 
-        payload = request.json
-        if not payload or not payload.get("name"):
+        payload = request.json or {}
+        # organisasjon_id utledes ikke av prosjektnavnet og har ingen
+        # defaultverdi: et prosjekt uten navngitt virksomhet skal ikke kunne
+        # opprettes.
+        mangler = [f for f in ("name", "organisasjon_id") if not payload.get(f)]
+        if mangler:
             return jsonify({
                 "error": "MISSING_PARAMETERS",
-                "message": "name is required",
+                "message": f"{', '.join(mangler)} is required",
             }), 400
 
         # Validate request via Pydantic
@@ -112,6 +116,7 @@ def create_project():
 
         project = Project(
             id=project_id,
+            organisasjon_id=req.organisasjon_id,
             name=req.name,
             description=req.description,
             settings=req.settings,

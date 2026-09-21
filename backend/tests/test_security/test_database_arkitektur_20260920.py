@@ -19,7 +19,7 @@ MIGRATIONS = [
     REPO_ROOT / "supabase" / "migrations",
 ]
 
-# Alle 20 tabellene i public, kontrollert mot basen 2026-09-20.
+# Alle 18 tabellene i public, kontrollert mot basen 2026-09-20.
 TABELLER_I_BASEN = [
     "app_identities",
     "app_membership_sync",
@@ -31,9 +31,7 @@ TABELLER_I_BASEN = [
     "catenda_models_cache",
     "catenda_project_configs",
     "catenda_topic_board_configs",
-    "endringsordre_events",
-    "forsering_events",
-    "koe_events",
+    "hendelse",
     "magic_links",
     "project_memberships",
     "projects",
@@ -41,6 +39,12 @@ TABELLER_I_BASEN = [
     "sak_metadata",
     "sak_relations",
     "user_groups",
+]
+
+SLUPPNE_TABELLER = [
+    "koe_events",
+    "forsering_events",
+    "endringsordre_events",
 ]
 
 
@@ -86,6 +90,29 @@ def test_hver_tabell_i_basen_opprettes_av_en_migrasjonsfil():
         "Disse tabellene finnes i basen, men ingen migrasjonsfil i repoet "
         f"oppretter dem: {mangler}. En base bygget fra repoet blir ufullstendig."
     )
+
+
+def test_sluppne_tabeller_opprettes_for_de_slippes():
+    """Et sett som bygger fra tom, må kunne kjøre hele historikken.
+
+    De tre hendelsestabellene finnes ikke i basen lenger, men migrasjonene
+    mellom kjerneskjemaet og sammenslåingen endrer dem — legger til
+    prosjekt_id og actorteam. Mangler CREATE TABLE, stopper settet der.
+    """
+    opprettet = _opprettede_tabeller()
+    mangler = [t for t in SLUPPNE_TABELLER if t not in opprettet]
+    assert not mangler, (
+        f"Disse tabellene slippes av en migrasjon uten å opprettes først: {mangler}."
+    )
+
+    drop_fil = (
+        REPO_ROOT / "supabase" / "migrations" / "20260920193558_hendelse_tabell.sql"
+    )
+    sql = drop_fil.read_text(encoding="utf-8")
+    for tabell in SLUPPNE_TABELLER:
+        assert f"DROP TABLE IF EXISTS public.{tabell}" in sql, (
+            f"{tabell} står som sluppet, men {drop_fil.name} slipper den ikke."
+        )
 
 
 def test_kjerneskjemaet_kommer_for_projects_migrasjonen():

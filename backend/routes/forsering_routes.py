@@ -418,7 +418,7 @@ def registrer_bh_respons(sak_id: str):
     if error:
         return error
 
-    aktor = g.user.get("name", "Ukjent BH")
+    aktor_id = g.user["id"]
     expected_version = payload.get("expected_version")
 
     service = _get_forsering_service()
@@ -428,7 +428,7 @@ def registrer_bh_respons(sak_id: str):
             aksepterer=payload["aksepterer"],
             godkjent_kostnad=payload.get("godkjent_kostnad"),
             begrunnelse=payload["begrunnelse"],
-            aktor=aktor,
+            aktor_id=aktor_id,
             expected_version=expected_version,
             # Tre-port felter
             grunnlag_fortsatt_gyldig=payload.get("grunnlag_fortsatt_gyldig"),
@@ -515,7 +515,7 @@ def stopp_forsering(sak_id: str):
     if error:
         return error
 
-    aktor = g.user.get("name", "Ukjent TE")
+    aktor_id = g.user["id"]
     expected_version = payload.get("expected_version")
 
     service = _get_forsering_service()
@@ -524,7 +524,7 @@ def stopp_forsering(sak_id: str):
             sak_id=sak_id,
             begrunnelse=payload["begrunnelse"],
             paalopte_kostnader=payload.get("paalopte_kostnader"),
-            aktor=aktor,
+            aktor_id=aktor_id,
             expected_version=expected_version,
         )
     except ConcurrencyError as e:
@@ -569,7 +569,7 @@ def oppdater_kostnader(sak_id: str):
     if error:
         return error
 
-    aktor = g.user.get("name", "Ukjent TE")
+    aktor_id = g.user["id"]
     expected_version = payload.get("expected_version")
 
     service = _get_forsering_service()
@@ -578,7 +578,7 @@ def oppdater_kostnader(sak_id: str):
             sak_id=sak_id,
             paalopte_kostnader=float(payload["paalopte_kostnader"]),
             kommentar=payload.get("kommentar"),
-            aktor=aktor,
+            aktor_id=aktor_id,
             expected_version=expected_version,
         )
     except ConcurrencyError as e:

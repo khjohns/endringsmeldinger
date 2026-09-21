@@ -23,7 +23,7 @@ def setup(tmp_path):
         {
             "sak_id": "case1",
             "event_type": "grunnlag_opprettet",
-            "aktor": "TE",
+            "aktor_id": "TE",
             "aktor_rolle": "TE",
             "data": {
                 "tittel": "Endret grunnforhold",
@@ -227,7 +227,7 @@ def test_changed_claim_blocks_approval(setup):
         {
             "sak_id": "case1",
             "event_type": "grunnlag_oppdatert",
-            "aktor": "TE",
+            "aktor_id": "TE",
             "aktor_rolle": "TE",
             "data": old["data"],
         }
@@ -298,7 +298,7 @@ def test_package_validates_ground_dependencies_and_publishes_two_tracks_atomical
         {
             "sak_id": "case1",
             "event_type": "vederlag_krav_sendt",
-            "aktor": "TE",
+            "aktor_id": "TE",
             "aktor_rolle": "TE",
             "data": {
                 "metode": "REGNINGSARBEID",
@@ -376,7 +376,7 @@ def test_changed_claim_between_last_approval_and_publish_stays_private(setup):
         {
             "sak_id": "case1",
             "event_type": "grunnlag_oppdatert",
-            "aktor": "TE",
+            "aktor_id": "TE",
             "aktor_rolle": "TE",
             "data": previous["data"],
         }

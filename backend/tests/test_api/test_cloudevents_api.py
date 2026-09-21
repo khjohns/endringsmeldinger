@@ -129,7 +129,7 @@ class TestEnvelopeSchema:
         assert "dataschema" in props
 
         # Extension attributes
-        assert "actor" in props
+        assert "actorid" in props
         assert "actorrole" in props
         assert "referstoid" in props
 
@@ -176,7 +176,7 @@ class TestHttpBinding:
         """Test formatting a single event as CloudEvent."""
         event = GrunnlagEvent(
             sak_id="SAK-001",
-            aktor="Test User",
+            aktor_id="test-user",
             aktor_rolle="TE",
             prosjekt_id="P-001",
             data=GrunnlagData(
@@ -200,7 +200,7 @@ class TestHttpBinding:
         """Test that dataschema is included when requested."""
         event = GrunnlagEvent(
             sak_id="SAK-001",
-            aktor="Test",
+            aktor_id="test-aktor",
             aktor_rolle="TE",
             data=GrunnlagData(
                 tittel="Test",
@@ -220,7 +220,7 @@ class TestHttpBinding:
         events = [
             GrunnlagEvent(
                 sak_id="SAK-001",
-                aktor="User 1",
+                aktor_id="te-user-1",
                 aktor_rolle="TE",
                 data=GrunnlagData(
                     tittel="Event 1",
@@ -232,7 +232,7 @@ class TestHttpBinding:
             ),
             GrunnlagEvent(
                 sak_id="SAK-001",
-                aktor="User 2",
+                aktor_id="bh-user-2",
                 aktor_rolle="BH",
                 data=GrunnlagData(
                     tittel="Event 2",
@@ -248,8 +248,8 @@ class TestHttpBinding:
 
         assert len(timeline) == 2
         assert all(ce["specversion"] == "1.0" for ce in timeline)
-        assert timeline[0]["actor"] == "User 1"
-        assert timeline[1]["actor"] == "User 2"
+        assert timeline[0]["actorid"] == "te-user-1"
+        assert timeline[1]["actorid"] == "bh-user-2"
 
 
 # ============ EVENT TYPE MAPPING TESTS ============
@@ -296,7 +296,7 @@ class TestCloudEventsIntegration:
         # Create event
         event = GrunnlagEvent(
             sak_id="KOE-2025-001",
-            aktor="Integration Test",
+            aktor_id="Integration Test",
             aktor_rolle="TE",
             prosjekt_id="PROJ-001",
             data=GrunnlagData(
@@ -335,7 +335,7 @@ class TestCloudEventsIntegration:
         # Check event export
         event = GrunnlagEvent(
             sak_id="SAK-001",
-            aktor="Test",
+            aktor_id="test-aktor",
             aktor_rolle="TE",
             data=GrunnlagData(
                 tittel="Test",

@@ -47,7 +47,7 @@ def test_list_preserves_order_numbers_links_and_unspecified_amounts(
     now = datetime(2026, 9, 13, tzinfo=UTC)
     fields = {
         "sak_id": "EO-1",
-        "aktor": "Byggherre",
+        "aktor_id": "Byggherre",
         "aktor_rolle": "BH",
         "tidsstempel": now,
     }

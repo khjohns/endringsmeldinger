@@ -415,7 +415,7 @@ class EOApprovalService:
             try:
                 result = self.orders.opprett_endringsordresak(
                     **frozen["request"],
-                    utstedt_av=frozen.get("ownerName") or frozen["owner"],
+                    utstedt_av_id=frozen["owner"],
                     sak_id=sak_id,
                 )
                 update = {"catenda_synced": bool(result.get("catenda_synced"))}

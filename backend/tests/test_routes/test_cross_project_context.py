@@ -49,14 +49,14 @@ def forsering_context(monkeypatch):
     other_project = SakOpprettetEvent(
         sak_id="A-1",
         sakstittel="HEMMELIG PROSJEKT A",
-        aktor="a",
+        aktor_id="a",
         aktor_rolle="TE",
         prosjekt_id="project-a",
     ).model_dump(mode="json")
     forsering = SakOpprettetEvent(
         sak_id="B-F",
         sakstittel="Forsering B",
-        aktor="b",
+        aktor_id="b",
         aktor_rolle="TE",
         prosjekt_id="project-b",
         sakstype="forsering",
@@ -65,7 +65,7 @@ def forsering_context(monkeypatch):
     own_project = SakOpprettetEvent(
         sak_id="B-2",
         sakstittel="Eget fristkrav",
-        aktor="b",
+        aktor_id="b",
         aktor_rolle="TE",
         prosjekt_id="project-b",
     ).model_dump(mode="json")

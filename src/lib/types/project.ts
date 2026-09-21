@@ -26,6 +26,8 @@ export interface ProjectSettings {
 
 export interface Project {
   id: string;
+  /** Virksomheten prosjektet tilhører. Egen identitet fra prosjekt-ID-en (MS-10). */
+  organisasjon_id: string;
   name: string;
   description?: string | null;
   settings: ProjectSettings;
@@ -36,6 +38,7 @@ export interface Project {
 
 export interface CreateProjectPayload {
   name: string;
+  organisasjon_id: string;
   description?: string;
 }
 

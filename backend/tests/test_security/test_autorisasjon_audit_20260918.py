@@ -80,20 +80,20 @@ def test_valider_forseringsgrunnlag_evaluerer_sak_i_annet_prosjekt(monkeypatch):
     a1_opprettet = SakOpprettetEvent(
         sak_id="A-1",
         sakstittel="Hemmelig sak A",
-        aktor="te-a",
+        aktor_id="te-a",
         aktor_rolle="TE",
         prosjekt_id="project-a",
     ).model_dump(mode="json")
     a1_krav = FristEvent(
         sak_id="A-1",
-        aktor="te-a",
+        aktor_id="te-a",
         aktor_rolle="TE",
         event_type=EventType.FRIST_KRAV_SENDT,
         data=FristData(krevd_dager=10, begrunnelse="Krav"),
     ).model_dump(mode="json")
     a1_respons = ResponsEvent(
         sak_id="A-1",
-        aktor="bh-a",
+        aktor_id="bh-a",
         aktor_rolle="BH",
         event_type=EventType.RESPONS_FRIST,
         spor=SporType.FRIST,
@@ -108,7 +108,7 @@ def test_valider_forseringsgrunnlag_evaluerer_sak_i_annet_prosjekt(monkeypatch):
     bf_opprettet = SakOpprettetEvent(
         sak_id="B-F",
         sakstittel="Forsering B",
-        aktor="te-b",
+        aktor_id="te-b",
         aktor_rolle="TE",
         prosjekt_id="project-b",
         sakstype="forsering",
@@ -169,14 +169,14 @@ def test_finn_forseringer_for_sak_lekker_forsering_fra_annet_prosjekt(monkeypatc
     a1 = SakOpprettetEvent(
         sak_id="A-1",
         sakstittel="Sak i prosjekt A",
-        aktor="te-a",
+        aktor_id="te-a",
         aktor_rolle="TE",
         prosjekt_id="project-a",
     ).model_dump(mode="json")
     bf = SakOpprettetEvent(
         sak_id="B-F",
         sakstittel="Konfidensiell forsering i prosjekt B",
-        aktor="te-b",
+        aktor_id="te-b",
         aktor_rolle="TE",
         prosjekt_id="project-b",
         sakstype="forsering",
@@ -239,7 +239,7 @@ def test_relaterte_saker_lekker_ikke_topic_fra_annet_prosjekt(monkeypatch):
     af = SakOpprettetEvent(
         sak_id="A-F",
         sakstittel="Forsering i prosjekt A",
-        aktor="te-a",
+        aktor_id="te-a",
         aktor_rolle="TE",
         prosjekt_id="project-a",
         sakstype="forsering",
@@ -315,7 +315,7 @@ def test_batch_innsending_lekker_internt_notat_i_last_event_at(monkeypatch):
     sak_opprettet = {
         "event_type": "sak_opprettet",
         "sak_id": "case-1",
-        "aktor": "System",
+        "aktor_id": "system",
         "aktor_rolle": "TE",
         "tidsstempel": "2026-09-15T08:00:00Z",
         "sakstittel": "Sak 1",

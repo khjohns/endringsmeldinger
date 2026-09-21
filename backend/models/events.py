@@ -371,7 +371,7 @@ class SakEvent(CloudEventMixin, BaseModel):
     - Unik ID (for referanser)
     - Sak-ID (hvilken sak den tilhører)
     - Tidsstempel (når den skjedde)
-    - Aktør (hvem som utførte handlingen)
+    - Aktør-ID (hvem som utførte handlingen; navnet slås opp ved visning)
     - Event-type (hva som skjedde)
 
     CloudEvents-støtte:
@@ -392,8 +392,15 @@ class SakEvent(CloudEventMixin, BaseModel):
         default_factory=lambda: datetime.now(UTC),
         description="Når hendelsen skjedde (UTC)",
     )
-    aktor: str = Field(
-        ..., description="Hvem som utførte handlingen (navn eller bruker-ID)"
+    aktor_id: str = Field(
+        ...,
+        min_length=1,
+        description=(
+            "Identiteten til den som utførte handlingen: `app_users.id`, eller "
+            "`catenda:<subject>` når handlingen kom fra Catenda uten at "
+            "forfatteren finnes som bruker hos oss. Aldri et personnavn — "
+            "navnet slås opp ved visning (MS-04)."
+        ),
     )
     aktor_rolle: Literal["TE", "BH"] = Field(
         ..., description="Rolle til aktøren (TE=Totalentreprenør, BH=Byggherre)"

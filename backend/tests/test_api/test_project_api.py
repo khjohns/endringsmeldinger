@@ -49,7 +49,11 @@ class TestCreateProject:
         """POST /api/projects with valid name creates project with server-generated UUID."""
         resp = self.client.post(
             "/api/projects",
-            json={"name": "My New Project", "description": "A test project"},
+            json={
+                "name": "My New Project",
+                "organisasjon_id": "oslobygg",
+                "description": "A test project",
+            },
         )
         assert resp.status_code == 201
         data = resp.get_json()
@@ -71,7 +75,7 @@ class TestCreateProject:
         """Creator should be auto-added as admin member."""
         resp = self.client.post(
             "/api/projects",
-            json={"name": "My Project"},
+            json={"name": "My Project", "organisasjon_id": "oslobygg"},
         )
         assert resp.status_code == 201
 
@@ -90,6 +94,21 @@ class TestCreateProject:
         )
         assert resp.status_code == 400
         assert resp.get_json()["error"] == "MISSING_PARAMETERS"
+
+    def test_create_project_missing_organisasjon_id(self):
+        """MS-10: et prosjekt uten navngitt virksomhet skal ikke kunne opprettes.
+
+        Skillet mellom prosjekt og virksomhet holder bare så lenge
+        virksomheten navngis ved opprettelse — en utledning fra prosjektnavnet
+        eller en defaultverdi ville blandet dem sammen igjen.
+        """
+        resp = self.client.post(
+            "/api/projects",
+            json={"name": "Prosjekt uten virksomhet"},
+        )
+        assert resp.status_code == 400
+        assert resp.get_json()["error"] == "MISSING_PARAMETERS"
+        self.mock_project_repo.create.assert_not_called()
 
     def test_create_project_empty_body(self):
         """POST /api/projects with empty body returns 400."""
@@ -111,7 +130,11 @@ class TestCreateProject:
         """POST /api/projects can include settings."""
         resp = self.client.post(
             "/api/projects",
-            json={"name": "Settings Project", "settings": {"theme": "dark"}},
+            json={
+                "name": "Settings Project",
+                "organisasjon_id": "oslobygg",
+                "settings": {"theme": "dark"},
+            },
         )
         assert resp.status_code == 201
         created_project = self.mock_project_repo.create.call_args[0][0]
@@ -121,7 +144,11 @@ class TestCreateProject:
         """POST /api/projects ignores client-provided id (server generates UUID)."""
         resp = self.client.post(
             "/api/projects",
-            json={"name": "Project With ID", "id": "my-custom-id"},
+            json={
+                "name": "Project With ID",
+                "organisasjon_id": "oslobygg",
+                "id": "my-custom-id",
+            },
         )
         assert resp.status_code == 201
         data = resp.get_json()
@@ -135,7 +162,10 @@ class TestCreateProject:
 
         resp = self.client.post(
             "/api/projects",
-            json={"name": "Project With Membership Issue"},
+            json={
+                "name": "Project With Membership Issue",
+                "organisasjon_id": "oslobygg",
+            },
         )
         # Project creation should still succeed
         assert resp.status_code == 201
@@ -182,6 +212,7 @@ class TestUpdateProject:
     def test_update_project_name(self):
         """PATCH /api/projects/<id> updates name."""
         updated = Project(
+            organisasjon_id="oslobygg",
             id="proj1",
             name="Updated Name",
             description="Old desc",
@@ -205,6 +236,7 @@ class TestUpdateProject:
     def test_update_project_description(self):
         """PATCH /api/projects/<id> updates description."""
         updated = Project(
+            organisasjon_id="oslobygg",
             id="proj1",
             name="Name",
             description="New description",
@@ -223,6 +255,7 @@ class TestUpdateProject:
     def test_update_project_both_fields(self):
         """PATCH /api/projects/<id> updates both name and description."""
         updated = Project(
+            organisasjon_id="oslobygg",
             id="proj1",
             name="New Name",
             description="New Desc",
@@ -433,9 +466,9 @@ class TestListProjects:
             )
         ]
         self.mock_project_repo.list_active.return_value = [
-            Project(id="proj1", name="Project 1"),
-            Project(id="oslobygg", name="Oslo Bygg"),
-            Project(id="proj2", name="Project 2"),
+            Project(id="proj1", organisasjon_id="oslobygg", name="Project 1"),
+            Project(id="oslobygg", organisasjon_id="oslobygg", name="Oslo Bygg"),
+            Project(id="proj2", organisasjon_id="oslobygg", name="Project 2"),
         ]
 
         resp = self.client.get("/api/projects")
@@ -487,6 +520,7 @@ class TestGetProject:
     def test_get_project_success(self):
         """GET /api/projects/<id> returns project details."""
         self.mock_project_repo.get.return_value = Project(
+            organisasjon_id="oslobygg",
             id="proj1",
             name="Project 1",
             description="A project",

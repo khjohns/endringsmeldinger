@@ -37,7 +37,7 @@ def response(claim, *, kind="respons_grunnlag", result="godkjent"):
         {
             "sak_id": "case1",
             "event_type": kind,
-            "aktor": "BH",
+            "aktor_id": "BH",
             "aktor_rolle": "BH",
             "refererer_til_event_id": claim.event_id,
             "data": {
@@ -159,7 +159,7 @@ def test_old_reference_does_not_answer_new_claim_revision(setup):
         {
             "sak_id": "case1",
             "event_type": "grunnlag_oppdatert",
-            "aktor": "TE",
+            "aktor_id": "TE",
             "aktor_rolle": "TE",
             "data": claim.data.model_dump(),
         }
@@ -177,7 +177,7 @@ def test_replay_preserves_commit_order_when_clocks_are_skewed(setup):
         {
             "sak_id": "case1",
             "event_type": "grunnlag_oppdatert",
-            "aktor": "TE",
+            "aktor_id": "TE",
             "aktor_rolle": "TE",
             "data": {
                 **claim.data.model_dump(),
@@ -264,7 +264,7 @@ def test_project_leader_cannot_publish_above_displayed_200000_limit(setup):
         {
             "sak_id": "case1",
             "event_type": "vederlag_krav_sendt",
-            "aktor": "TE",
+            "aktor_id": "TE",
             "aktor_rolle": "TE",
             "data": {
                 "metode": "REGNINGSARBEID",
@@ -511,7 +511,7 @@ def test_server_rate_change_returns_time_package(setup, new_rate):
         {
             "sak_id": "case1",
             "event_type": "frist_krav_sendt",
-            "aktor": "TE",
+            "aktor_id": "TE",
             "aktor_rolle": "TE",
             "data": {
                 "varsel_type": "spesifisert",

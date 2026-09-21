@@ -143,9 +143,9 @@ def test_setup(monkeypatch):
     ]
 
     all_db_projects = [
-        Project(id="proj-1", name="Prosjekt 1 (Sykehus)"),
-        Project(id="proj-2", name="Prosjekt 2 (Skole)"),
-        Project(id="proj-3", name="Prosjekt 3 (Lukket prosjekt)"),
+        Project(id="proj-1", organisasjon_id="oslobygg", name="Prosjekt 1 (Sykehus)"),
+        Project(id="proj-2", organisasjon_id="oslobygg", name="Prosjekt 2 (Skole)"),
+        Project(id="proj-3", organisasjon_id="oslobygg", name="Prosjekt 3 (Lukket prosjekt)"),
     ]
 
     mock_project_repo = Mock()

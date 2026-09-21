@@ -598,7 +598,7 @@ class ForseringService(BaseSakService):
         aksepterer: bool,
         godkjent_kostnad: float | None,
         begrunnelse: str,
-        aktor: str,
+        aktor_id: str,
         expected_version: int | None = None,
         # Tre-port felter
         grunnlag_fortsatt_gyldig: bool | None = None,
@@ -623,7 +623,7 @@ class ForseringService(BaseSakService):
             aksepterer: Om BH aksepterer forseringen
             godkjent_kostnad: BHs godkjente forseringskostnad (kan være lavere enn estimert)
             begrunnelse: BHs begrunnelse
-            aktor: Navn på den som registrerer responsen
+            aktor_id: app_users.id for den som registrerer responsen
             expected_version: Forventet versjon for optimistisk låsing
             # Tre-port felter
             grunnlag_fortsatt_gyldig: Port 1 - bekrefter at frist-avslaget fortsatt gjelder
@@ -662,7 +662,7 @@ class ForseringService(BaseSakService):
         # Opprett typed event med tre-port data
         event = ForseringResponsEvent(
             sak_id=sak_id,
-            aktor=aktor,
+            aktor_id=aktor_id,
             aktor_rolle="BH",
             data=ForseringResponsData(
                 # Port 1: Grunnlagsvalidering
@@ -709,7 +709,7 @@ class ForseringService(BaseSakService):
         sak_id: str,
         begrunnelse: str,
         paalopte_kostnader: float | None,
-        aktor: str,
+        aktor_id: str,
         expected_version: int | None = None,
     ) -> dict[str, Any]:
         """
@@ -719,7 +719,7 @@ class ForseringService(BaseSakService):
             sak_id: Forseringssakens ID
             begrunnelse: Begrunnelse for stopp
             paalopte_kostnader: Påløpte kostnader ved stopp
-            aktor: Navn på den som stopper forseringen
+            aktor_id: app_users.id for den som stopper forseringen
             expected_version: Forventet versjon for optimistisk låsing
 
         Returns:
@@ -746,7 +746,7 @@ class ForseringService(BaseSakService):
         # Opprett typed event
         event = ForseringStoppetEvent(
             sak_id=sak_id,
-            aktor=aktor,
+            aktor_id=aktor_id,
             aktor_rolle="TE",
             data=ForseringStoppetData(
                 dato_stoppet=dato_stoppet,
@@ -777,7 +777,7 @@ class ForseringService(BaseSakService):
         sak_id: str,
         paalopte_kostnader: float,
         kommentar: str | None,
-        aktor: str,
+        aktor_id: str,
         expected_version: int | None = None,
     ) -> dict[str, Any]:
         """
@@ -787,7 +787,7 @@ class ForseringService(BaseSakService):
             sak_id: Forseringssakens ID
             paalopte_kostnader: Nye påløpte kostnader
             kommentar: Valgfri kommentar til oppdateringen
-            aktor: Navn på den som oppdaterer
+            aktor_id: app_users.id for den som oppdaterer
             expected_version: Forventet versjon for optimistisk låsing
 
         Returns:
@@ -815,7 +815,7 @@ class ForseringService(BaseSakService):
         # Opprett typed event
         event = ForseringKostnaderOppdatertEvent(
             sak_id=sak_id,
-            aktor=aktor,
+            aktor_id=aktor_id,
             aktor_rolle="TE",
             data=ForseringKostnaderOppdatertData(
                 paalopte_kostnader=paalopte_kostnader,
