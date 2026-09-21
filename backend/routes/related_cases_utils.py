@@ -77,6 +77,10 @@ def serialize_hendelser(hendelser: dict[str, list]) -> dict[str, list[dict]]:
     Returns:
         Dict[sak_id, List[CloudEvent dict]] egnet for JSON serialisering
     """
+    # Etter MS-05 kan journalen ikke inneholde notater, og denne stien leser
+    # bare journalen — relasjonsvisningen er et sammendrag av en annen sak, ikke
+    # dens tidslinje. Filteret blir stående som vern om en hendelse skulle komme
+    # inn på annet vis.
     result = {}
     for sak_id, events in hendelser.items():
         result[sak_id] = format_timeline_response(visible_events(events))

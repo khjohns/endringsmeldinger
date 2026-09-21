@@ -23,7 +23,6 @@ from routes import event_routes
 from services.timeline_service import TimelineService
 
 TE_TEAM = "22222222222222222222222222222222"
-ANNET_TEAM = "33333333333333333333333333333333"
 TEKST = "Internt: vurder om vi bør trekke kravet."
 
 SAK_OPPRETTET = {
@@ -64,6 +63,7 @@ def api(monkeypatch, tmp_path):
         prosjekt_id="p", catenda_topic_id="topic"
     )
     container.event_repository.get_events.return_value = ([SAK_OPPRETTET], 1)
+    container.event_repository.gjeldende_versjon.return_value = 1
     container.event_repository.append.return_value = 2
     container.timeline_service = TimelineService()
     notat_lager = JsonFileNotatRepository(str(tmp_path / "notater"))
@@ -109,12 +109,13 @@ def test_versjonen_staar_stille(api):
     en innsending som ikke kolliderte med noe, av et notat vedkommende ikke har
     lov til å se.
     """
-    _, versjon_for = api.container.event_repository.get_events("case")
+    versjon_for = api.container.event_repository.gjeldende_versjon("case")
 
     svar = _send_notat(api)
 
     assert svar.status_code == 201
     assert svar.get_json()["new_version"] == versjon_for
+    api.container.event_repository.append.assert_not_called()
 
 
 def test_notatet_hindrer_ikke_neste_innsending(api):
@@ -144,12 +145,17 @@ def test_notatet_hindrer_ikke_neste_innsending(api):
 
 
 def test_notat_mot_ukjent_sak_avvises(api):
-    """Uten saken finnes det ingen fremmednøkkel å henge notatet på."""
-    api.container.event_repository.get_events.return_value = ([], 0)
+    """Uten saken finnes det ingen fremmednøkkel å henge notatet på.
+
+    Sperren ligger i `require_project_access`, som for alle andre ruter, og
+    svarer 403 framfor 404. Ruta gjentar ikke sjekken; testen dokumenterer
+    hvor den faktisk er.
+    """
+    api.container.metadata_repository.get.return_value = None
 
     svar = _send_notat(api, sak_id="finnes-ikke", expected_version=0)
 
-    assert svar.status_code == 404, svar.get_data(as_text=True)
+    assert svar.status_code == 403, svar.get_data(as_text=True)
     assert api.notat_lager.for_sak("finnes-ikke", "p") == []
 
 
@@ -176,6 +182,29 @@ def test_forfatteren_kan_slette_sitt_notat(api):
     assert svar.status_code == 200, svar.get_data(as_text=True)
     assert api.notat_lager.for_sak("case", "p") == []
     api.container.event_repository.append.assert_not_called()
+
+
+def test_batchruta_avviser_internt_notat(api):
+    """Den andre innsendingsveien. Den gikk utenom grenen i enkeltinnsendingen."""
+    svar = api.client.post(
+        "/api/events/batch",
+        json={
+            "sak_id": "case",
+            "expected_version": 1,
+            "events": [
+                {
+                    "event_type": "internt_notat",
+                    "data": {"tekst": TEKST, "spor": "grunnlag"},
+                }
+            ],
+        },
+        headers={"X-Project-ID": "p", "X-CSRF-Token": "csrf"},
+    )
+
+    assert svar.status_code == 400, svar.get_data(as_text=True)
+    assert svar.get_json()["error"] == "INTERNT_NOTAT_IKKE_I_BATCH"
+    api.container.event_repository.append_batch.assert_not_called()
+    assert api.notat_lager.for_sak("case", "p") == []
 
 
 def test_en_annen_forfatter_kan_ikke_slette(api):

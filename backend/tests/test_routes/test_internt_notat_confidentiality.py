@@ -236,6 +236,7 @@ def submit_api(monkeypatch, tmp_path):
         prosjekt_id="p", catenda_topic_id="owned-topic"
     )
     container.event_repository.get_events.return_value = ([sak_opprettet], 1)
+    container.event_repository.gjeldende_versjon.return_value = 1
     container.event_repository.append.return_value = 2
     container.timeline_service = TimelineService()
     monkeypatch.setattr(event_routes, "_get_container", lambda: container)
@@ -255,7 +256,6 @@ def submit_api(monkeypatch, tmp_path):
         client=client,
         container=container,
         post_to_catenda=post_spy,
-        notat_lager=notat_lager,
         lagrede_notater=lambda: notat_lager.for_sak("case", "p"),
     )
 

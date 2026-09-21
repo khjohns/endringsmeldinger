@@ -6,9 +6,10 @@ tidslinje ved lesing, og tidslinjen leser begge kontraktsparter fra. Filteret
 her er derfor fortsatt det eneste som skiller organisasjonene på lesesiden, og
 det må brukes på alle punkter som returnerer hendelser til en klient.
 
-Skjermingen ligger i to lag med vilje: lageret spør på prosjekt, og filteret
-her spør på team. Et lager som ga fra seg feil rad, ville fortsatt blitt stanset
-her.
+Skjermingen ligger i to lag med vilje, men de vokter hver sin grense: lageret
+tar prosjektet som påkrevd argument, og filteret her sammenlikner team. Et notat
+fra feil prosjekt men riktig team ville ikke blitt stanset her — det er lagerets
+jobb, og derfor er prosjektet et argument og ikke et filter.
 
 Skillet går på Catenda-team, ikke på kontraktsside. En side kan ha flere team —
 byggherren og en ekstern rådgiver er ulike organisasjoner på samme side — og

@@ -131,6 +131,34 @@ når teamet ikke kan bekreftes.
 
 ---
 
+## Vakten ligger i journalen, ikke i ruta
+
+Første utkast la grenen i `submit_event`: er hendelsen et notat, skriv det til
+notatlageret. **Det dekket én av to innsendingsruter.** `submit_batch` parser
+hendelser gjennom nøyaktig samme `_parse_authorized_event` og går rett til
+`append_batch` — et internt notat sendt dit ville havnet i journalen, der det
+ikke kan fjernes igjen. Funnet kom av oppryddingsrunden etter rettingen, ikke
+av rettingen selv, og det er samme form som felle 3 i forrige handoff: en
+retting som ikke dekker hver skrivesti.
+
+Regelen ligger nå i lageret. `krev_journalhendelser` i
+`repositories/event_repository.py` avviser typen i begge lagerimplementasjoners
+`append_batch`, og `append` delegerer dit. En tredje innsendingsrute arver
+vakten ved konstruksjon framfor ved hukommelse. Batchruta avviser i tillegg
+notatet selv, med en melding som sier hvor det skal — en batch kan ikke spenne
+to lagre atomisk.
+
+**Avvisningen er en `PermanentError`, ikke en naken `ValueError`.** Det ble
+observert, ikke utledet: den første versjonen kastet `ValueError`, og
+`with_retry` rundt Supabase-lagerets `append_batch` klassifiserte den som en
+ukjent, forbigående feil — lageret sov og prøvde igjen på en skriving som aldri
+kan lykkes, og kalleren fikk `TransientError`. `JournalfoeringAvvist` arver
+`PermanentError` **og** `ValueError`, av nøyaktig samme grunn som
+`ConcurrencyError` arver `ConflictError`, og med samme følge: ruta gjør den om
+til 400.
+
+---
+
 ## Sletting
 
 `DELETE /api/cases/<sak_id>/notater/<notat_id>`, med `require_auth` og
@@ -141,6 +169,13 @@ annens vurdering, og en videre regel enn nødvendig er ikke gitt noe sted.
 Svaret skiller ikke mellom «finnes ikke» og «ikke ditt»: at et notat finnes er i
 seg selv opplysning, og det er samme grunn til at filteret skjuler notatet i sin
 helhet framfor bare teksten.
+
+**Eierskapet er argument til lageret, ikke en sjekk i ruta.**
+`slett(sak_id, notat_id, prosjekt_id, aktor_id)` tar med seg hver grense den
+skal håndheve, slik `services/utkast_registry.py` gjør. Første utkast hentet
+notatet først og sammenliknet i ruta — to rundturer, et vindu mellom kontroll og
+sletting, og en regel neste kaller kunne glemt. 404-semantikken følger nå av
+formen framfor å måtte holdes i hodet.
 
 Sletting er en ekte `DELETE`, ikke et flagg. Et sletteflagg ville latt teksten
 bli liggende, og da hadde flyttingen ikke løst noe.
@@ -165,7 +200,7 @@ det står.
 
 **Kjørt og observert**
 
-- Backend: **1514 passed, 9 skipped, 42 xfailed** (1488 før runden).
+- Backend: **1522 passed, 9 skipped, 42 xfailed** (1488 før runden).
   `ruff check backend/` rent.
 - Frontend: `npm test` **590 tester**, `npm run check:error` **0 errors** over
   4844 filer. Ingen frontend-fil er endret; kjørt for å vise at flyttingen ikke
@@ -195,8 +230,44 @@ det står.
 - `hendelse` og `sak_metadata` hadde **null rader** i prosjektet ved
   anvendelsen. Ingen datamigrasjon var nødvendig, og ingen ble skrevet.
 - **Testdobbelen er utvidet** med `NOTAT_KOLONNER` og `delete()`.
-  `test_skriver_bare_kolonner_skjemaet_erklaerer` er vakten mot at koden skriver
-  en kolonne migrasjonsfila ikke erklærer.
+  `test_skriver_bare_kolonner_skjemaet_erklaerer` krever *likhet* med
+  kolonnesettet, ikke delmengde: en kolonne for mye avvises av dobbelen uansett,
+  men et felt som faller ut av raden ville ellers passert i stillhet.
+- **Journalen avviser notatet i begge lagerimplementasjoner,** kjørt for
+  `append` og `append_batch` i hver, og batchruta avviser det med 400.
+- **Eksistenssjekken som lå i ruta, ble observert død.** Testen mot en ukjent
+  sak fikk 403 fra `require_project_access` før ruta kjørte; 404-grenen var
+  uoppnåelig og er fjernet. Testen står igjen og dokumenterer hvor sperren
+  faktisk er.
+
+**Skrevet om etter en egen oppryddingsrunde**
+
+Fire uavhengige gjennomganger (gjenbruk, forenkling, effektivitet, nivå) ble
+kjørt på diffen etter at den var grønn. Den fant hullet i batchruta over, og i
+tillegg: `Notat.til_rad`/`fra_rad` skrev for hånd det `model_dump`/
+`model_validate` gjør, Supabase-lageret bygget klienten selv framfor å bruke
+`create_supabase_client`, notatlageret kunne ikke slås opp på sak — så ett
+oppslag skannet hele katalogen — og fail-closed-regelen lå i to lag med hver sin
+loggmelding. Alt er rettet. `JsonFileNotatRepository` holder nå en eksklusiv lås
+over hele les-endre-skriv, på en egen låsefil: docstringen lovet «samme låsing
+som hendelsesfilene», og gjorde det ikke.
+
+**Vurdert og ikke gjort**
+
+- **Sammensatt indeks `(sak_id, prosjekt_id, opprettet)`** framfor de to
+  enkle. Anslaget er resonnert, ikke målt — basen er tom, det finnes ingen
+  spørreplan å lese — og `idx_notat_prosjekt_id` har en sannsynlig bruk i den
+  oppbevaringssveipen tabellen finnes for.
+- **`alle_rader` byttet mot én bundet side.** Det koster én ekstra tom
+  rundtur per lesing, men KR-03-regelen om at PostgREST avkorter i stillhet er
+  husregel, og et unntak per kallsted er verre enn rundturen.
+- **Å slutte å flette notatene inn før `compute_state`.** Det ville tatt
+  leserens egne notater ut av `antall_events`/`siste_aktivitet`. Det er en
+  beslutning om hva tallene betyr, ikke en opprydding, og hører hjemme i et
+  notat før den gjøres i kode.
+- **Felles fil- og låsehjelper** for de to JSON-lagrene, og felles
+  `EVENT_STORE_BACKEND`-bryter for de seks stedene som leser den. Begge er
+  refaktoreringer utenfor det denne runden endret.
 
 **Lest ut av koden, ikke observert**
 
