@@ -88,6 +88,16 @@ Skjermingen av aktivitetstall ligger i `lib/auth/event_visibility`.
 
 Åpne funn fra samme review, i prioritert rekkefølge:
 
+**KR-01 til KR-14 (ny 21.09)** — korrekthetsgjennomgang av målskjemarunden,
+[audit-korrekthet-2026-09-21](../audit-korrekthet-2026-09-21.md). Ett funn har
+høy alvorlighet og bør tas før noe annet:
+
+- **KR-01 — `organisasjon_id NOT NULL` bryter all prosjektregistrering.**
+  `koe_register_project` (i basen) og `scripts/register_project.py:57` inserter
+  uten kolonnen. Fordi Postgres skrankesjekker raden før `ON CONFLICT` løses,
+  feiler også oppdatering av et prosjekt som allerede finnes. Den eneste
+  omskrevne stien, `POST /api/projects`, svarer 403 utenfor dev.
+
 Prioritet 0 er dermed lukket: OAuth-flaten er fjernet, ruteregisteret er
 klassifisert og holdes av en test, og analytics er slettet.
 
