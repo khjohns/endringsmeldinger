@@ -21,14 +21,9 @@ CATENDA_PREFIKS = "catenda:"
 def _buffer() -> dict[str, str]:
     """Oppslagsbuffer per applikasjonskontekst, seedet med den innloggede.
 
-    Én sak viser typisk to–tre aktører om og om igjen, og leseren er nesten
-    alltid en av dem — navnet hans ligger alt i sesjonen, så det skal ikke
-    koste en rundtur. `g` hører til applikasjonskonteksten, ikke forespørselen,
-    så bufferet virker også for bakgrunnsarbeid og skript; der lever det så
-    lenge konteksten gjør.
+    Leseren er nesten alltid en av de to–tre aktørene en sak viser, og navnet
+    hans ligger alt i sesjonen.
     """
-    if not has_app_context():
-        return {}
     if not hasattr(g, "aktor_navn_buffer"):
         innlogget = getattr(g, "user", None) or {}
         eget_navn = innlogget.get("name")

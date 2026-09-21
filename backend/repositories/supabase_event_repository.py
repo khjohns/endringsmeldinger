@@ -19,16 +19,12 @@ except ImportError:
     Client = None
 
 from lib.project_context import krev_autorisert_prosjekt
-from lib.supabase import ConflictError, classify_error, with_retry
-from models.cloudevents import CLOUDEVENTS_NAMESPACE, CLOUDEVENTS_SPECVERSION
+from lib.supabase import ConflictError, alle_rader, classify_error, with_retry
+from models.cloudevents import CLOUDEVENTS_NAMESPACE
 
 from .event_repository import ConcurrencyError, EventRepository
 
 HENDELSE_TABELL = "hendelse"
-
-# Sider ved uttrekk uten filter. PostgREST har sitt eget tak (`db-max-rows`),
-# og kallerne må tåle at serveren gir færre rader enn bedt om.
-SIDESTORRELSE = 500
 
 
 class SupabaseEventRepository(EventRepository):
@@ -69,13 +65,13 @@ class SupabaseEventRepository(EventRepository):
         ce = event.to_cloudevent()
 
         return {
-            "specversion": ce.get("specversion", CLOUDEVENTS_SPECVERSION),
+            "specversion": ce["specversion"],
             "event_id": str(ce.get("id")),
             "source": ce.get("source"),
             "type": ce.get("type"),
             "time": ce.get("time"),
-            "subject": ce.get("subject", sak_id),
-            "datacontenttype": ce.get("datacontenttype", "application/json"),
+            "subject": ce["subject"],
+            "datacontenttype": ce["datacontenttype"],
             # Identiteten til den som handlet, aldri navnet (MS-04).
             "actorid": ce.get("actorid"),
             "actorrole": ce.get("actorrole"),
@@ -203,30 +199,19 @@ class SupabaseEventRepository(EventRepository):
         return 0
 
     @with_retry()
-    def get_all_sak_ids(self) -> list[str]:
-        """Alle saks-IDer i loggen.
+    def _sak_id_side(self, start: int, slutt: int) -> list[dict]:
+        return (
+            self._tabell()
+            .select("sak_id")
+            .order("id")
+            .range(start, slutt)
+            .execute()
+            .data
+        )
 
-        Loggen har én rad per hendelse, ikke per sak, og PostgREST avkorter et
-        ufiltrert uttrekk uten å si fra. Sidene hentes derfor eksplisitt, og
-        neste side starter der forrige faktisk sluttet — serverens tak kan
-        være lavere enn sidestørrelsen (KR-03).
-        """
-        sak_ids: set[str] = set()
-        start = 0
-        while True:
-            rader = (
-                self._tabell()
-                .select("sak_id")
-                .order("id")
-                .range(start, start + SIDESTORRELSE - 1)
-                .execute()
-                .data
-                or []
-            )
-            if not rader:
-                return sorted(sak_ids)
-            sak_ids.update(rad["sak_id"] for rad in rader)
-            start += len(rader)
+    def get_all_sak_ids(self) -> list[str]:
+        """Alle saks-IDer i loggen. Loggen har én rad per hendelse, ikke per sak."""
+        return list({rad["sak_id"] for rad in alle_rader(self._sak_id_side)})
 
     @with_retry()
     def get_events_by_type(self, sak_id: str, event_type: str) -> list[dict]:
