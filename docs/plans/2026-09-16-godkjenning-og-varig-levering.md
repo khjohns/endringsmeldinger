@@ -92,11 +92,23 @@ Skjermingen av aktivitetstall ligger i `lib/auth/event_visibility`.
 [audit-korrekthet-2026-09-21](../audit-korrekthet-2026-09-21.md). Ett funn har
 høy alvorlighet og bør tas før noe annet:
 
-- **KR-01 — `organisasjon_id NOT NULL` bryter all prosjektregistrering.**
-  `koe_register_project` (i basen) og `scripts/register_project.py:57` inserter
-  uten kolonnen. Fordi Postgres skrankesjekker raden før `ON CONFLICT` løses,
-  feiler også oppdatering av et prosjekt som allerede finnes. Den eneste
-  omskrevne stien, `POST /api/projects`, svarer 403 utenfor dev.
+**Status:** KR-01 til KR-03 og KR-05 til KR-12 er lukket i `bab9679`.
+Migrasjonen `20260921091208_koe_register_project_organisasjon_id` er anvendt mot
+prosjektet; `koe_register_project` tar nå `p_organisasjon_id` som påkrevd
+parameter, og rettighetene er satt på nytt etter at den gamle signaturen ble
+sluppet.
+
+Åpne:
+
+- **KR-04 — `compute_state` er ikke en ren projeksjon.** Navneoppslaget gir nå
+  samme svar uansett kontekst, så state divergerer ikke lenger. Men oppslaget
+  ligger fortsatt inne i projeksjonen. Å flytte det til svargrensen berører hvert
+  sted `SakState` serialiseres, og hører sammen med MG-01.
+- **KR-13 — backfill-skriptet.** Dobbel I/O og et typefilter som hviler på at et
+  felt finnes, ikke på `sak_metadata.sakstype`. Lav; skriptets løkker har ingen
+  atferdstester.
+- **KR-14 — `DROP TABLE` uten `CASCADE`.** Blir ikke rettet: migrasjonen er
+  anvendt, og en anvendt migrasjon er uforanderlig.
 
 Prioritet 0 er dermed lukket: OAuth-flaten er fjernet, ruteregisteret er
 klassifisert og holdes av en test, og analytics er slettet.

@@ -14,6 +14,33 @@ Forrige ledd i kjeden: [gjennomføringen](gjennomforing-maalskjema-2026-09-20.md
 [målskjemaet](design-maalskjema-database-2026-09-20.md),
 [masterplanen](plans/2026-09-16-godkjenning-og-varig-levering.md).
 
+**Merknad 2026-09-21 til hele dokumentet:** funnene ble rettet samme dag i
+`bab9679`, etter at protokollen var skrevet. **KR-01 til KR-03 og KR-05 til
+KR-12 er lukket.**
+
+To migrasjoner er anvendt mot prosjektet i samme runde:
+`20260921091208_koe_register_project_organisasjon_id` (KR-01) og
+`20260921093936_indeks_hendelse_catenda_topic`. Den siste hører til KR-02:
+oppslaget filtrerer nå på `data->>catenda_topic_id`, og seksjonen under slår
+fast at det uttrykket var uindeksert. Indeksen er delvis, på
+`event_type = 'sak_opprettet'`.
+
+To funn står åpne, begge med vilje:
+
+- **KR-04** — `compute_state` er fortsatt ikke ren. Den observerbare feilen er
+  borte: navneoppslaget gir nå samme svar i og utenfor en forespørsel (KR-05,
+  KR-06). Men `SakState` serialiseres flere steder, så å flytte oppslaget til
+  svargrensen er en designendring, ikke en retting — den hører sammen med MG-01.
+- **KR-13** — backfill-skriptet er urørt. `sak_metadata` er ikke koblet inn der,
+  og skriptets løkker har ingen atferdstester. KR-03 fjernet den delen som
+  gjorde noe galt (den stille avkortingen); det som står igjen, er dobbel I/O og
+  et svakere typefilter.
+
+**KR-14 er ikke en retting og blir det ikke:** migrasjonen er anvendt og skal
+ikke redigeres. De tre viewene finnes ikke i basen.
+
+Setningen under gjaldt da protokollen ble skrevet.
+
 **Ingen produksjonskode er endret av denne runden.** Dokumentet er funnprotokoll.
 
 ---
