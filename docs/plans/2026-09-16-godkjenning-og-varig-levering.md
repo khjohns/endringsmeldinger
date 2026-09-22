@@ -91,7 +91,7 @@ Dokumentredigering lukker ingen kode- eller databasefeil.
 | Webhook-mottak | Redis-/minnereservasjon før behandling (H) | Varig inbox. Foreløpig navn: `innkommende_hendelse` |
 | Tilgangslogg | Finnes ikke for forretningshendelser (OBS-01) | Logg for sensitive lesinger, eksport og endringer i fullmakt og tilgang |
 | Roller | Runtime bruker `service_role`. Alle policyer er `service_role / ALL / USING (true)` (D 20.09) | Avgrensede roller for runtime, worker, drift og migrering (AF-02) |
-| CI | Tre gatende jobber og lint. Ingen PostgreSQL-tester (L 22.09) | Ekte PostgreSQL 17 med migrasjoner og plattformroller (F0) |
+| CI | Fire jobber, påkrevde på `main`. `database` bygger migrasjonene fra tom på PostgreSQL 17 med plattformstubben og kjører katalogtester (K 22.09) | Tester som logger inn med avgrensede roller (etter B-02) |
 
 Tabellnavn i kolonnen «Planlagt» fastsettes i migrasjonene.
 Planen låser ikke et tabelltall.
@@ -343,7 +343,7 @@ Kilder: [AR](../arkitekturvurdering-2026-09-19.md),
 | AR-02 | Åpen, høy | Journalen er ikke append-only i basen. → MS-02 | D 19.09 | F1 |
 | AR-03 | Åpen, kritisk | Godkjenningspakker og andre lagre ligger i lokal SQLite på efemer disk | L 22.09 | F1, F2, F3 |
 | AR-04 | Åpen | Domenemodellen finnes i Python og TypeScript | H | F4 |
-| AR-05 | Delvis | CI finnes (19.09). PostgreSQL-tester og påkrevde sjekker mangler | L 22.09 | F0 |
+| AR-05 | Lukket | CI med PostgreSQL 17-jobb (PR #33). Regelsettet `main` krever de fire jobbene, har ingen bypass og krever oppdatert gren (lest med GitHub-API-et 22.09) | K 22.09 | — |
 | AR-06 | Duplikat | → AP-04 | — | F2 |
 | AR-07 | Åpen, lav | Inert e-postpolicy på `project_memberships`. Fjernes med tabellen | D 20.09 | F1 |
 | AR-08 | Åpen, lav | Seks av ni driftdetektorer feiler | H | H |
@@ -432,7 +432,7 @@ typesjekk og lint (19.09). Migrasjonene er bygd mot tom PostgreSQL manuelt
 > `backend/tests/test_database/` (merket `database`, styrt av
 > `KOE_TESTBASE_URL`). Kjørt lokalt mot PG 17.11 og observert grønn i CI
 > (PR #33, 22.09). T-2 er gjort for DB-03 og DB-07, T-5 er gjort. Punkt 3
-> (DA-03) er gjort 22.09. Gjenstår: punkt 2 (krever tilgang til GitHub),
+> (DA-03) og punkt 2 (påkrevde sjekker, AR-05) er gjort 22.09. Gjenstår:
 > T-1, T-3, T-4 og DB-04s fremmednøkler (B-01).
 > Rolletesten bruker `SET ROLE anon/authenticated`; en test som logger inn som
 > ikke-privilegert rolle, venter på B-02. Se
