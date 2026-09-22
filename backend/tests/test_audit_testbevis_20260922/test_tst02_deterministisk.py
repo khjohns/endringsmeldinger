@@ -1,9 +1,9 @@
 """Etterprøving av TST-02 / KR-15 i JsonFileEventRepository.
 
-Viser isolert at POSIX `rename()` overskriver en eksisterende saksfil uten feil.
-Den gjennomgående reproduksjonen av kappløpet står i
-`tests/test_security/test_testsuite_blindsoner_audit_20260918.py`; testen
-som sto her, er erstattet av den (T-4, 2026-09-22).
+Viser isolert at POSIX `rename()` overskriver en eksisterende saksfil uten feil,
+som er grunnen til at lageret publiserer med `os.link`. Kappløpet i selve
+lageret testes i `tests/test_security/test_testsuite_blindsoner_audit_20260918.py`;
+testen som sto her, er erstattet av dem (T-4, 2026-09-22).
 
 Avgrensing:
 Dette gjelder utelukkende JsonFileEventRepository (lokal reserve-backend).
