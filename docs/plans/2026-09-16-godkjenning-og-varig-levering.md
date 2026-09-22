@@ -258,7 +258,7 @@ Kilder: [AP](../audit-godkjenningspanel-og-durable-levering-2026-09-16.md),
 | RV-14 | Åpen, lav | GET-ruter som muterer godkjenningstilstand. Kravet er forbud mot skjulte domeneendringer ved lesing, ikke mot sesjonsvedlikehold og sikkerhetslogging | H | H |
 | RV-15 | Lukket | Hendelsestabeller uten migrasjon: lukket med DB-01/DA-01. Viewene finnes ikke (DB-08) | D 19.–20.09 | — |
 | RV-16 | Lukket | Live-tester er opt-in | H | — |
-| RV-17 | Delvis | 41 av 42 `xfail`-markeringer i backend-testene har `raises=`. Den ene er AP-04-testen i `test_audit_20260916.py`. Øvrige delpunkter er ikke kontrollert på nytt | L 22.09 (AST) | F0 |
+| RV-17 | Delvis | Alle 40 strenge `xfail`-markeringer i backend-testene har `raises=`; AP-04-testen fikk det i T-5 (22.09). Øvrige delpunkter er ikke kontrollert på nytt | L 22.09 (AST) | — |
 | RV-18 | Åpen, lav | Dokumenthygiene. Løpende; daterte merknader ved motstrid | H | Løpende |
 | RV-19 | Åpen | Pakker valideres ikke mot utstedelsesreglene | H | F2 |
 | RV-20 | Åpen | EO-godkjenning avhenger av prosjektregisteret når `daily_rate` mangler | H | F2 |
@@ -281,11 +281,11 @@ Der den omklassifiserte et funn, gjelder omklassifiseringen.
 | AUT-06 | Lukket | `hent_relaterte_saker` krever `tillatte_saker` | H | — |
 | DB-01 | Lukket | Repoet bygger basen fra tom (DA-01) | D 20.09 | — |
 | DB-02 | Lukket | Kolonnene fantes i basen; migrasjonene rettet | D 20.09 | — |
-| DB-03 | Lukket | `DEFAULT 'oslobygg'` droppet (`20260920053427`). Testen leser en slettet fil (T-2) | D 20.09 | F0 |
+| DB-03 | Lukket | `DEFAULT 'oslobygg'` droppet (`20260920053427`). Katalogtest i `tests/test_database/` erstatter reproduksjonen som leste en slettet fil (T-2, 22.09) | K 22.09 (PG 17 lokalt), D 22.09 | — |
 | DB-04 | Delvis | `prosjekt_id` lagt til (5a). Fremmednøkler mangler fortsatt i migrasjonskjeden. Testen leser bare den første fila (T-2) | L 22.09 | B-01, F2 |
 | DB-05 | Åpen, besluttet | `viewer` skal finnes. Ikke bygget | Streng `xfail` (statisk) | F1 |
 | DB-06 | Lukket | `prosjekt_id` på journalen (5a) | D 20.09 | — |
-| DB-07 | Lukket | `properties` på `sak_bim_links` finnes i basen (D 19.09) og er deklarert i `20260920160000` (L 22.09). Testen leser bare `20260911073800` (T-2). Testinventaret førte funnet som DB-06 | D, L | F0 |
+| DB-07 | Lukket | `properties jsonb` på `sak_bim_links` finnes i basen og bygges av `20260920160000`. Katalogtest i `tests/test_database/` erstatter reproduksjonen som bare leste `20260911073800` (T-2, 22.09). Testinventaret førte funnet som DB-06 | K 22.09 (PG 17 lokalt), D 22.09 | — |
 | DB-08 | Bortfalt | Viewene finnes ikke | D 19.09 | — |
 | TFR-01 | Lukket | `AVSLATT_AKSEPTERT`, 19.09 | H | — |
 | TFR-02 | Åpen | `overordnet_status` gir `INGEN_AKTIVE_SPOR` for forsering og EO. Testinventarets FR-01 | Streng `xfail`, K 22.09 | D |
@@ -426,6 +426,16 @@ det står.
 **Avhenger av:** ingenting. **Status:** delvis. CI kjører backend, frontend,
 typesjekk og lint (19.09). Migrasjonene er bygd mot tom PostgreSQL manuelt
 (PG16 20.–21.09, PG18 22.09; historisk).
+
+> **Merknad 2026-09-22 (F0, punkt 1):** CI-jobben `database` bygger basen fra
+> tom på PostgreSQL 17 med plattformstubben og kjører katalogtestene i
+> `backend/tests/test_database/` (merket `database`, styrt av
+> `KOE_TESTBASE_URL`). Kjørt lokalt mot PG 17.11; **CI-kjøringen er ikke
+> observert.** T-2 er gjort for DB-03 og DB-07, T-5 er gjort. Gjenstår:
+> punkt 2 og 3 (krever tilgang), T-1, T-3, T-4 og DB-04s fremmednøkler (B-01).
+> Rolletesten bruker `SET ROLE anon/authenticated`; en test som logger inn som
+> ikke-privilegert rolle, venter på B-02. Se
+> [gjennomføringsnotatet](../gjennomforing-f0-postgresql-ci-2026-09-22.md).
 
 **Leveranse:**
 
