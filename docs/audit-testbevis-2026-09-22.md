@@ -53,6 +53,8 @@ En systematisk gjennomgang av alle 42 `xfail`-markerte tester i backend-suiten v
 5. **Parse-grense vs. klientinngang (MG-03):**
    [`test_parsegrensen_avviser_klientoppgitt_aktor`](../backend/tests/test_security/test_maalskjema_20260920.py#L198-L234) beviser at hjelpefunksjonen `parse_event_from_request` isolert sett aksepterer `aktor_id`. Funnet er imidlertid **ikke nåbart fra klient i dag**, fordi alle eksisterende ruter (`submit_event`, `submit_batch`) overskriver aktørfeltene fra autorisert sesjon *før* parsing kalles. Dette er et gyldig *forsvar i dybden*-krav, ikke en demonstrert forfalskningssårbarhet.
 
+> **Merknad 2026-09-22 (testvedlikehold T-1, T-3, T-4):** Punkt 2 og 4 gjelder ikke lenger testene slik de står. AUT-03-testen er erstattet av en ordinær avvisningstest, FE-02-testen når nå målassertionen, og TST-02-testen og den første testen i `test_tst02_deterministisk.py` er erstattet av én deterministisk reproduksjon. Linjeankrene over peker på eldre versjoner av filene. Se [gjennomføringsnotatet](gjennomforing-f0-testvedlikehold-2026-09-22.md).
+
 > **Merknad 2026-09-22 (sluttredigering):** Fordelingen 25/3/14 er Geminis opptelling. Etter rettingen er 22 av de 25 åpne, reproduserte brudd: GFK-04 er en vedtatt avgrensning, MG-03 er forsvar i dybden og OBS-03 er latent. Testutfallene er uendret. Kategoriene står i [redaksjonsprotokollen](sluttredigering-hovedplan-2026-09-22.md).
 
 Fullstendig tabell over alle 42 tester ligger i vedlegget [`docs/vedlegg/testbevis-2026-09-22.csv`](vedlegg/testbevis-2026-09-22.csv).
