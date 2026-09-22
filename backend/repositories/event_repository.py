@@ -7,6 +7,7 @@ Platform: Requires Linux/macOS/WSL2 (uses fcntl for file locking)
 import fcntl  # Unix-only - see platform requirements
 import json
 import os
+import tempfile
 from abc import ABC, abstractmethod
 from pathlib import Path
 
@@ -177,11 +178,18 @@ class JsonFileEventRepository(EventRepository):
                 "events": [e.model_dump(mode="json") for e in events],
             }
 
-            # Write atomically
-            temp_path = file_path.with_suffix(".tmp")
-            with open(temp_path, "w", encoding="utf-8") as f:
-                json.dump(data, f, ensure_ascii=False, indent=2, default=str)
-            temp_path.rename(file_path)
+            fd, temp_path = tempfile.mkstemp(
+                dir=self.base_path, prefix=f".{file_path.stem}.", suffix=".tmp"
+            )
+            try:
+                with os.fdopen(fd, "w", encoding="utf-8") as f:
+                    json.dump(data, f, ensure_ascii=False, indent=2, default=str)
+                # `rename` erstatter en eksisterende saksfil i det stille; `link` feiler (TST-02).
+                os.link(temp_path, file_path)
+            except FileExistsError:
+                raise ConcurrencyError(0, self._get_current_version(sak_id)) from None
+            finally:
+                os.unlink(temp_path)
 
             return len(events)
 
