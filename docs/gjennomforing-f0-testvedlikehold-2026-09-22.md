@@ -163,7 +163,10 @@ Den nye testen styrer selv trådplanen, så den har ingen plan å variere over.
   `xfail`.
 - Målingene i avsnitt 2 og de to kontrollene mot endret kode i avsnitt 1.
 
-**Observert i CI:** ‹CI›
+**Observert i CI (22.09, [PR #35](https://github.com/khjohns/endringsmeldinger/pull/35),
+kjøring `35772620642`, commit `3f74ea0`):** alle fire påkrevde jobbene grønne.
+Backend-jobben (Linux) ga 1530 bestått, 19 hoppet over og 39 xfailed, og ruff
+ga ingen feil. Målingene i avsnitt 2 er ikke kjørt i CI.
 
 **Ikke kontrollert:**
 
