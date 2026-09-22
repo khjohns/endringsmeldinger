@@ -430,8 +430,8 @@ typesjekk og lint (19.09). Migrasjonene er bygd mot tom PostgreSQL manuelt
 > **Merknad 2026-09-22 (F0, punkt 1):** CI-jobben `database` bygger basen fra
 > tom på PostgreSQL 17 med plattformstubben og kjører katalogtestene i
 > `backend/tests/test_database/` (merket `database`, styrt av
-> `KOE_TESTBASE_URL`). Kjørt lokalt mot PG 17.11; **CI-kjøringen er ikke
-> observert.** T-2 er gjort for DB-03 og DB-07, T-5 er gjort. Gjenstår:
+> `KOE_TESTBASE_URL`). Kjørt lokalt mot PG 17.11 og observert grønn i CI
+> (PR #33, 22.09). T-2 er gjort for DB-03 og DB-07, T-5 er gjort. Gjenstår:
 > punkt 2 og 3 (krever tilgang), T-1, T-3, T-4 og DB-04s fremmednøkler (B-01).
 > Rolletesten bruker `SET ROLE anon/authenticated`; en test som logger inn som
 > ikke-privilegert rolle, venter på B-02. Se
