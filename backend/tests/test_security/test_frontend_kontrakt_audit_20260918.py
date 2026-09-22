@@ -109,16 +109,21 @@ def test_letter_preview_mangler_csrf_og_avvises_i_produksjon(monkeypatch):
     raises=AssertionError,
     reason="/api/cases/<sak_id>/context returnerer ikke brukerens faktiske kontraktsrolle",
 )
-def test_sak_context_mangler_brukerens_autoriserte_rolle(monkeypatch):
+def test_sak_context_mangler_brukerens_autoriserte_rolle(monkeypatch, tmp_path):
     """GET /api/cases/<sak_id>/context må returnere brukerens faktiske kontraktsrolle.
 
     Frontend baserer hele visningen og tilgjengelige handlinger på localStorage
     eller query-parameteren ?rolle=, fordi backend-responsen mangler informasjon
     om hvorvidt innlogget sesjon representerer TE eller BH.
+
+    Merknad 2026-09-22 (T-3): oppsettet manglet saken i prosjektet, så
+    `require_project_access` svarte 403 og testen nådde aldri assertionen om
+    rolle. Bare oppsettet er rettet; testen feiler nå på målassertionen.
     """
     from routes.event_routes import events_bp
 
     monkeypatch.delenv("DISABLE_AUTH", raising=False)
+    monkeypatch.setenv("BH_APPROVAL_DB", str(tmp_path / "approval.sqlite"))
     app = Flask(__name__)
     app.testing = True
     init_project_context(app)
@@ -134,6 +139,12 @@ def test_sak_context_mangler_brukerens_autoriserte_rolle(monkeypatch):
     auth.contract_role.return_value = "TE"
     auth.contract_membership.return_value = ("TE", "team-te")
     app.extensions["koe_auth"] = auth
+
+    container = Mock()
+    container.metadata_repository.get.return_value = SimpleNamespace(
+        prosjekt_id="oslobygg"
+    )
+    monkeypatch.setattr("lib.auth.project_access.get_container", lambda: container)
 
     # Mock _fetch_and_parse_events og timeline_service
     monkeypatch.setattr(
