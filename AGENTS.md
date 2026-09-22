@@ -93,11 +93,12 @@ Filtrer på `contype <> 'n'` og kontroller nullbarhet gjennom kolonnesummen.
 **Filnavnrekkefølgen *er* apply-rekkefølgen** — men det er en fersk skranke, ikke
 en naturlov. `backend/migrations/` er tømt (20.09); all DDL ligger i
 `supabase/migrations/`, og `supabase/config.toml` peker på prosjektet.
-Avhengighetene er reelle: kjerneskjemaet må komme før `20260911073600_projects`,
-som gjør `UPDATE sak_metadata`, og `project_memberships` må komme etter
-`projects`. Legger du inn en migrasjon med et versjonsnummer som sorterer feil,
-bygger ikke basen fra tom. Vaktene i
-`tests/test_security/test_database_arkitektur_20260920.py` holder på det.
+Avhengighetene er reelle: `project_memberships` har fremmednøkkel til
+`projects` og må komme etter den. Legger du inn en migrasjon med et
+versjonsnummer som sorterer feil, bygger ikke basen fra tom — og det fanges av
+CI-jobben `database`, som bygger hele settet mot PostgreSQL 17 ved hver PR.
+Tekstvaktene i `tests/test_security/test_database_arkitektur_20260920.py` er
+et tillegg, ikke beviset.
 
 **Versjonen i basen skal være versjonen i filnavnet.** Historikken ble avstemt
 22.09 (DA-03): hver fil i `supabase/migrations/` har én rad med samme versjon.
