@@ -48,7 +48,7 @@ DB-04s reproduksjon er urørt. Fremmednøklene venter på B-01.
 
 | ID | Alvorlighet | Kort |
 | --- | --- | --- |
-| PGC-01 | Lav (dokument) | `AGENTS.md` og `supabase/config.toml` sier at `20260911073600_projects` gjør `UPDATE sak_metadata`. Den gjør ikke det lenger |
+| PGC-01 | Lav (dokument), rettet 22.09 | `AGENTS.md` og `supabase/config.toml` sa at `20260911073600_projects` gjør `UPDATE sak_metadata`. Den gjør ikke det lenger |
 | PGC-02 | Info, kjent 20.09 | `koe_set_contract_teams` har annen tekst i basen enn den migrasjonene bygger. Bare innrykk og fire kommentarer skiller |
 | PGC-03 | Kjent (DA-03), lukket 22.09 | Basens migrasjonshistorikk hadde 18 rader, repoet 23 filer. Avstemt, se avsnitt 6 |
 | PGC-04 | Lav | Plattformens standardrettigheter for `supabase_admin` i `public` gir fortsatt `anon` og `authenticated` alt |
@@ -65,8 +65,7 @@ likevel en reell skranke: flyttes `project_memberships_rekonstruert` foran
 `projects`, stopper bygget med `relation "public.projects" does not exist`
 (exit 3). Påstanden i `AGENTS.md` (avsnittet om filnavnrekkefølgen) og i
 kommentaren i `supabase/config.toml` bør rettes til å vise til
-`project_memberships` → `projects`. Ikke rettet her; `AGENTS.md` er utenfor
-oppdraget. Vakten `test_kjerneskjemaet_kommer_for_projects_migrasjonen` leser
+`project_memberships` → `projects`. Rettet 22.09 etter at F0 var levert. Vakten `test_kjerneskjemaet_kommer_for_projects_migrasjonen` leser
 fortsatt tekst og er ikke berørt.
 
 ### PGC-02 — Én funksjonstekst avviker
@@ -122,7 +121,10 @@ katalog, ingen saksdata:
 
 ## 4. Det som må gjøres av noen med tilgang
 
-1. **Påkrevde sjekker på `main` (F0 punkt 2).** En administrator av
+1. **Påkrevde sjekker på `main` (F0 punkt 2).** Gjort 22.09: oppdragsgiver
+   opprettet regelsettet `main`, og agenten leste det tilbake med
+   GitHub-API-et (aktivt, standardgrenen, ingen bypass, de fire jobbene fra
+   GitHub Actions, oppdatert gren kreves). Opprinnelig instruks: En administrator av
    `khjohns/endringsmeldinger` legger jobbene `Backend (pytest + ruff)`,
    `Database (PostgreSQL 17 + migrasjoner)`, `Frontend (vitest)` og
    `Lint og typesjekk` inn som påkrevde statussjekker i en
@@ -139,7 +141,7 @@ katalog, ingen saksdata:
   kan nå skrives mot testbasen. Deretter en test som logger inn som en
   ikke-privilegert rolle (ikke bare `SET ROLE`) når B-02 har bestemt
   hvilken.
-- **Parallelt:** rett PGC-01 i `AGENTS.md` og `config.toml`; spor D
+- **Parallelt:** spor D
   (for eksempel TFR-04); designarbeidet for B-02.
 
 ## 6. DA-03: avstemming av migrasjonshistorikken
