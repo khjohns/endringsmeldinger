@@ -50,8 +50,10 @@ DB-04s reproduksjon er urørt. Fremmednøklene venter på B-01.
 | --- | --- | --- |
 | PGC-01 | Lav (dokument) | `AGENTS.md` og `supabase/config.toml` sier at `20260911073600_projects` gjør `UPDATE sak_metadata`. Den gjør ikke det lenger |
 | PGC-02 | Info, kjent 20.09 | `koe_set_contract_teams` har annen tekst i basen enn den migrasjonene bygger. Bare innrykk og fire kommentarer skiller |
-| PGC-03 | Kjent (DA-03) | Basens migrasjonshistorikk har 18 rader, repoet 23 filer |
+| PGC-03 | Kjent (DA-03), lukket 22.09 | Basens migrasjonshistorikk hadde 18 rader, repoet 23 filer. Avstemt, se avsnitt 6 |
 | PGC-04 | Lav | Plattformens standardrettigheter for `supabase_admin` i `public` gir fortsatt `anon` og `authenticated` alt |
+| PGC-05 | Lav (dokument) | Originalteksten til `001`–`006` fantes i basen, i motsetning til det kjerneskjemafila og auditen 20.09 sier |
+| PGC-06 | Lav | Seks migrasjonsfiler er redigert etter at de ble anvendt: kommentarer, og én `RAISE NOTICE` |
 
 ### PGC-01 — Rekkefølgebegrunnelsen er foreldet
 
@@ -87,7 +89,7 @@ som svarer til filer. Ti filer har ingen rad: `20260911073600`,
 `20260916130000`, `20260916133000` og `20260920160000`. Fem av de tolv radene
 har et annet tidsstempel enn filnavnet (`20260921091758`, `094013`, `105303`,
 `153902`, `165158`; jf. `AGENTS.md` om `apply_migration`). Dette er DA-03 og
-ikke nytt; det er rapportert, ikke rettet.
+ikke nytt. Rettet samme dag etter oppdragsgivers beslutning; se avsnitt 6.
 
 ### PGC-04 — Plattformens egne standardrettigheter
 
@@ -127,15 +129,8 @@ katalog, ingen saksdata:
    grenbeskyttelsesregel eller et ruleset for `main`. Det kan først gjøres
    etter at jobben `database` har kjørt minst én gang i GitHub, fordi GitHub
    bare tilbyr sjekker det har sett.
-2. **Migrasjonshistorikken i basen (F0 punkt 3, DA-03).** Krever
-   databaselegitimasjon til prosjektet og må gjøres av den som eier det i
-   Supabase. Kommandolista i
-   [databasearkitekturauditen](audit-databasearkitektur-2026-09-20.md#veien-fra-fil-til-database)
-   er skrevet 20.09 og må lages på nytt: fem senere migrasjoner er anvendt
-   over MCP med andre versjoner enn filnavnene (PGC-03), og de må enten
-   repareres eller filene gis basens versjon. Etterpå skal
-   `supabase migration list` vise samme versjoner på begge sider og
-   `supabase db push --dry-run` ingenting å gjøre.
+2. **Migrasjonshistorikken i basen (F0 punkt 3, DA-03).** Gjort 22.09; se
+   avsnitt 6.
 
 ## 5. Naturlig neste steg
 
@@ -146,6 +141,60 @@ katalog, ingen saksdata:
   hvilken.
 - **Parallelt:** rett PGC-01 i `AGENTS.md` og `config.toml`; spor D
   (for eksempel TFR-04); designarbeidet for B-02.
+
+## 6. DA-03: avstemming av migrasjonshistorikken
+
+Oppdragsgiver ba 22.09 om at DA-03 ble gjort. Legitimasjonen i `backend/.env`
+er API-nøkler og når ikke `supabase_migrations`. Supabase CLI (2.75.0) er
+innlogget og oppretter en midlertidig innloggingsrolle gjennom
+administrasjons-API-et, så databasepassord trengs ikke.
+
+**Arkivet først.** Radene `001`–`006` inneholder originalteksten til dumpen
+kjerneskjemafila rekonstruerer (til sammen 23 846 tegn). `002`–`006` skulle
+slettes, så alle 18 radene ble hentet med `supabase migration fetch` til
+[`docs/vedlegg/migrasjonshistorikk-2026-09-22/`](vedlegg/migrasjonshistorikk-2026-09-22/README.md)
+og committet (`cb8d9bc`) før noe ble endret. Hver fil er kontrollert byte-lik
+med raden (md5 over teksten uten `;\n` som `fetch` legger til).
+
+**Sammenlikning før endringen.** Teksten i de fem radene med avvikende
+tidsstempel er identisk med filene (`091208`, `093936`, `102148`, `153900`,
+`164900`). Å bytte versjon endrer derfor ikke hva historikken sier ble kjørt.
+Seks andre filer skiller seg fra teksten basen kjørte (PGC-06).
+
+**Avstemmingen.** [`scripts/avstem_migrasjonshistorikk.sh`](../scripts/avstem_migrasjonshistorikk.sh)
+kjører `supabase migration repair`: `reverted` for de ti radene uten fil
+(`002`–`006` og de fem feilstemplede), `applied` for de femten filene uten
+rad. Skriptet stopper hvis arkivet mangler. Oppdragsgiver kjørte det selv;
+automodusen nektet agenten å gjøre skrivingen.
+
+**Etter.** Historikken har 23 rader med nøyaktig de 23 versjonene i
+`supabase/migrations/`. `repair --status applied` fyller `statements` fra
+den lokale fila og lar `created_by` stå tom. For de ti filene som aldri ble
+kjørt som egne migrasjoner, viser raden altså filteksten, ikke det basen
+kjørte. Det basen kjørte, ligger i arkivet. Rad `001` beholder originalteksten.
+
+**Veien fra fil til base** er nå `supabase db push` fra repoet etter
+`supabase login` og `supabase link --project-ref gwdxadexwktegkklyobv`.
+Filnavnets versjon blir basens. `apply_migration` over MCP gir basen et eget
+tidsstempel og skaper samme avvik igjen; `AGENTS.md` er oppdatert med dette.
+
+### PGC-05 — Originalteksten fantes
+
+`20260911073512_koe_kjerneskjema_rekonstruert.sql` og
+[databasearkitekturauditen](audit-databasearkitektur-2026-09-20.md#da-01--repoet-kunne-ikke-opprette-databasen-kritisk-lukket-denne-runden)
+sier at teksten til `001`–`006` ikke kan gjenopprettes. Den lå i
+`statements` hele tiden. Fila er anvendt og rettes ikke; auditen har fått en
+datert merknad. Arkivet gjør det nå mulig å sammenlikne rekonstruksjonen med
+originalen. Det er ikke gjort.
+
+### PGC-06 — Anvendte filer er redigert i ettertid
+
+Med kommentarlinjene fjernet er fem av de seks filene like det basen
+kjørte. Den sjette, `20260918131137_lock_down_data_api.sql`, har i tillegg
+fått en `IF … RAISE NOTICE … END IF` i `DO`-blokken, som ikke endrer
+tilstand. Endringene er eldre enn denne runden. De bryter regelen i
+`AGENTS.md` om at en anvendt fil er uforanderlig, men har ingen virkning på
+skjemaet. De er ikke rettet.
 
 ## Verifikasjon og grenser
 
@@ -168,6 +217,13 @@ katalog, ingen saksdata:
 - AST-telling: 40 strenge `xfail`, alle med `raises=`.
 
 **Kontrollert i den levende katalogen:** avsnitt 3 og PGC-02–PGC-04.
+
+**DA-03, kjørt og observert (22.09):** før endringen md5 per historikkrad mot
+arkivfilene (18 av 18 like). Etter endringen at `schema_migrations` har 23
+rader med samme versjoner som mappa (MCP), at `supabase migration list`
+viser 23 like par, og at `supabase db push --dry-run` svarer «Remote database
+is up to date». Selve `repair`-kjøringen er gjort av oppdragsgiver; utskriften
+er ikke sett av agenten.
 
 **Observert i CI (22.09, [PR #33](https://github.com/khjohns/endringsmeldinger/pull/33),
 kjøring `35762884390`):** alle fire jobbene grønne. Jobben `database` rapporterte

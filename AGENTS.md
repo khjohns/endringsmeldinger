@@ -99,12 +99,14 @@ som gjør `UPDATE sak_metadata`, og `project_memberships` må komme etter
 bygger ikke basen fra tom. Vaktene i
 `tests/test_security/test_database_arkitektur_20260920.py` holder på det.
 
-**Versjonen i basen er ikke versjonen i filnavnet.** `apply_migration` over MCP
-stempler sitt eget tidsstempel i `supabase_migrations.schema_migrations`, så en
-fil som heter `20260921153900` kan stå som en annen verdi der. Rekkefølgen er
-den samme på begge sider, så ingenting bygger feil — men den som teller
-«registrerte filer» ved å sammenlikne versjoner, teller feil. En tidligere
-handoff oppga filnavnene som om de var basens versjoner.
+**Versjonen i basen skal være versjonen i filnavnet.** Historikken ble avstemt
+22.09 (DA-03): hver fil i `supabase/migrations/` har én rad med samme versjon.
+Anvend med `supabase db push` (etter `supabase login` og `supabase link`;
+databasepassord trengs ikke), ikke `apply_migration` over MCP. MCP stempler sitt
+eget tidsstempel, og da er fil og base uenige igjen. `supabase migration list`
+viser avviket. Radene som ble slettet i avstemmingen, ligger i
+`docs/vedlegg/migrasjonshistorikk-2026-09-22/`, med den eneste kopien av
+originalteksten bak kjerneskjemaet.
 
 **Stubben må gi `service_role` fulle rettigheter,** ellers er sammenlikningen
 ikke tro: `GRANT ALL ON ALL TABLES IN SCHEMA public TO service_role` pluss

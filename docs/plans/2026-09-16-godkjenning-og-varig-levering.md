@@ -348,7 +348,7 @@ Kilder: [AR](../arkitekturvurdering-2026-09-19.md),
 | AR-07 | Åpen, lav | Inert e-postpolicy på `project_memberships`. Fjernes med tabellen | D 20.09 | F1 |
 | AR-08 | Åpen, lav | Seks av ni driftdetektorer feiler | H | H |
 | DA-01, DA-02, DA-05, DA-06 | Lukket | 20.09 | D 20.09 | — |
-| DA-03 | Delvis | Migrasjonsmappa er eneste kilde. Basens migrasjonshistorikk er ikke avstemt med filene; krever legitimasjon | D 21.09 | F0 |
+| DA-03 | Lukket | Migrasjonsmappa er eneste kilde. Historikken avstemt 22.09: 23 rader, samme versjoner som filene; `db push --dry-run` er tom. Originalteksten til de slettede radene er arkivert | K 22.09 | — |
 | DA-04 | Lukket i repo | Fila har basens versjon. Historikken inngår i DA-03 | D 20.09 | F0 |
 | DA-07 | Korreksjon | `app_identities` er i bruk | D 20.09 | — |
 | DA-08, DA-09 | Åpen | `user_groups` og `magic_links` fjernes. → MS-15 | D 20.09 | F1 |
@@ -431,8 +431,9 @@ typesjekk og lint (19.09). Migrasjonene er bygd mot tom PostgreSQL manuelt
 > tom på PostgreSQL 17 med plattformstubben og kjører katalogtestene i
 > `backend/tests/test_database/` (merket `database`, styrt av
 > `KOE_TESTBASE_URL`). Kjørt lokalt mot PG 17.11 og observert grønn i CI
-> (PR #33, 22.09). T-2 er gjort for DB-03 og DB-07, T-5 er gjort. Gjenstår:
-> punkt 2 og 3 (krever tilgang), T-1, T-3, T-4 og DB-04s fremmednøkler (B-01).
+> (PR #33, 22.09). T-2 er gjort for DB-03 og DB-07, T-5 er gjort. Punkt 3
+> (DA-03) er gjort 22.09. Gjenstår: punkt 2 (krever tilgang til GitHub),
+> T-1, T-3, T-4 og DB-04s fremmednøkler (B-01).
 > Rolletesten bruker `SET ROLE anon/authenticated`; en test som logger inn som
 > ikke-privilegert rolle, venter på B-02. Se
 > [gjennomføringsnotatet](../gjennomforing-f0-postgresql-ci-2026-09-22.md).
