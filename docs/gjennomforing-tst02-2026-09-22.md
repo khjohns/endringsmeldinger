@@ -134,7 +134,9 @@ Ført inn i hovedplanen som anbefaling i 3.3, ikke som vedtak.
   for `ConcurrencyError` (409).
 - Negativ kontroll mot det gamle lageret, se avsnitt 3.
 
-**Observert i CI:** ‹CI›
+**Observert i CI (22.09, [PR #36](https://github.com/khjohns/endringsmeldinger/pull/36),
+kjøring `35776308467`, commit `443f4a8`):** alle fire påkrevde jobbene grønne.
+Backend-jobben (Linux): 1532 passed, 19 skipped, 38 xfailed, 5 warnings. Samtidighetsmålingene er ikke kjørt i CI.
 
 **Ikke kontrollert:**
 
