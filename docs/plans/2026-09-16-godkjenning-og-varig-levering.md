@@ -196,6 +196,7 @@ Tilsluttet av oppdragsgiver 21.09. Føringer for design, ikke implementert.
 | Forhåndsvalgte GUID-er for topic og kommentar | RGK2-01 | Kandidat. Ikke bevist idempotent (avsnitt 7) |
 | Køalarm ved 15 minutter; sletting av stagingfiler 24 timer etter kvittert levering | Konsolidering v2 | Forslag uten kilde, se B-09 |
 | Utgående kvote på 10 kall/s og innkommende grense 100 kall/s | Konsolidering v2 | Forslag uten kilde, se B-09 |
+| Fjern JSON-hendelseslageret og CSV-metadatalageret fra kjøretidsstien; tester som trenger ekte lagring, går mot PostgreSQL gjennom samme vei som produksjonen (RPC), med skrivbar testbase | [TS2-02](../gjennomforing-tst02-2026-09-22.md#ts2-02--reservelagrene-og-testene) | Forslag. Vurderes med B-02 og F1 |
 | Migrasjonsmappa som eneste kilde, anvendt med `supabase db push` | Masterplanen 20.09 | Repo-siden gjennomført (DA-03). Anvendelsesmekanismen gjenstår |
 
 ### 3.4 Åpne beslutninger
@@ -317,6 +318,7 @@ Der den omklassifiserte et funn, gjelder omklassifiseringen.
 | CFG-03 | Duplikat | → RV-13. Testinventaret førte som CFG-04 | Streng `xfail`, K 22.09 | H |
 | CFG-04 | Åpen | Usatt `APP_ENV` gir ulik tolkning. Testinventaret førte som CFG-02 | Streng `xfail`, K 22.09 | H |
 | CFG-05, CFG-06, CFG-07 | Åpen | Supabase-nøkler utenfor `Settings`; død `CORS_ORIGINS`; relativ `env_file` | Streng `xfail` | H |
+| TS2-01 | Åpen, middels | Usatt `EVENT_STORE_BACKEND` gir JSON-lageret på lokal disk uten advarsel; metadata tilsvarende CSV. Banneret viser «csv». Ført inn 22.09 fra [TST-02-notatet](../gjennomforing-tst02-2026-09-22.md#ts2-01--json-lageret-er-standardverdien) | L 22.09 | H |
 | OBS-01, OBS-02 | Åpen, høy | Ett funn (19.09): ingen forretningshendelse revisjonslogges, og 403-avvisninger når ikke feilhåndtereren | Streng `xfail`, K 22.09 | F1 |
 | OBS-03 | Åpen, lav | Latent: `ce_time` kutter offset. Ingen forskyvning i dag, siden tidsstempelet er servergenerert UTC (19.09). Testen konstruerer `+02:00` | K 22.09, L 19.09 | D |
 | OBS-04 | Lukket | `ce_source` skriver `unknown` (20.09) | H | — |
@@ -324,7 +326,7 @@ Der den omklassifiserte et funn, gjelder omklassifiseringen.
 | OBS-06 | Åpen | `X-Request-ID` uten validering; 32-bits server-ID. Testinventaret førte som OBS-01 | Streng `xfail`, K 22.09 | H |
 | OBS-07 | Åpen | Rå unntakstekst ved `app.debug`. Samme familie som RV-13. Testinventaret førte som OBS-05 | Streng `xfail`, K 22.09 | H |
 | TST-01 | Åpen | Samme mekanisme som AUT-04. Mangel på integrasjonstester dekkes i F0 | Streng `xfail` (statisk) | F0, H |
-| TST-02 | Åpen | Samtidig opprettelse i `JsonFileEventRepository`. Gjelder bare JSON-lageret; Supabase-lageret har `UNIQUE (sak_id, versjon)`. Samme sak som KR-15. Deterministisk reproduksjon fra 22.09 (T-4): når begge skriverne har passert eksistenssjekken, overskriver den andre den første saken uten `ConcurrencyError` | Streng `xfail`, K 22.09 | F0 |
+| TST-02 | Lukket | Samtidig opprettelse i `JsonFileEventRepository`, rettet 22.09: saksfilen skrives til en unik midlertidig fil og publiseres med `os.link`, som feiler når filen finnes. To samtidige opprettelser gir én sak og én `ConcurrencyError`, også når begge har passert eksistenssjekken eller skrevet ferdig. Gjelder bare JSON-lageret; Supabase-lageret er ikke kjørt. Samme sak som KR-15 | K 22.09, L | — |
 | TST-03 | Duplikat | → AP-04 | — | F2 |
 | TST-04 | Åpen | Ingen OpenAPI-kontrakt mellom frontend og backend | Streng `xfail` (statisk) | H |
 | TST-05 | Åpen | EO-opprettelse svelger Catenda-feil uten outbox | Streng `xfail` (statisk) | F2 |
@@ -384,7 +386,7 @@ Kilder: [KR](../audit-korrekthet-2026-09-21.md),
 | KR-04 | Åpen | `compute_state` gjør navneoppslag. → MG-01, AF-05 | L 22.09 | F2 |
 | KR-13 | Åpen, lav | Backfill-skriptet. Faller med RY-01 | H | F4 |
 | KR-14 | Avvist | Anvendt migrasjon er uforanderlig | H | — |
-| KR-15 | Åpen | Samme sak som TST-02. Testdelen er gjort (T-4, 22.09): den strenge `xfail` med tilfeldig XPASS (1 av 20, 21.09) og testen fra 22.09 (RTB-02) er erstattet av én deterministisk reproduksjon med `strict=True` og `raises=`, styrt ved eksistenssjekken | H, K 22.09 | F0 |
+| KR-15 | Lukket | Samme sak som TST-02. Den ustabile strenge `xfail` er erstattet av en deterministisk reproduksjon (T-4), som ble XPASS da TST-02 ble rettet 22.09, og er gjort om til en ordinær test | H, K 22.09 | — |
 | MG-01 | Åpen | Navneoppslag i beregningslaget. Oppslaget bruker `has_app_context()`, så fravær av HTTP-forespørsel betyr ikke fravær av oppslag | L 22.09 | F2 |
 | MG-02 | Lukket | Én identitetsform i journalen | D 21.09 | — |
 | MG-03 | Åpen | Forsvar i dybden: parseren avviser `event_id` og `tidsstempel`, ikke aktørfeltene. Eksisterende ruter overskriver aktørfeltene fra sesjonen, så klientforfalskning er ikke påvist | Streng `xfail`, K 22.09, L | F2 |
@@ -450,6 +452,12 @@ typesjekk og lint (19.09). Migrasjonene er bygd mot tom PostgreSQL manuelt
 > port. Anbefalingen i 3.3 om TST-02 er dermed fulgt. Funnene FE-02, TST-02 og
 > KR-15 er fortsatt åpne. Gjenstår i F0: DB-04s fremmednøkler (B-01). Se
 > [notatet](../gjennomforing-f0-testvedlikehold-2026-09-22.md).
+>
+> **Merknad 2026-09-22 (TST-02 rettet):** `JsonFileEventRepository`
+> publiserer en ny saksfil med `os.link` framfor `rename`, og TST-02 og KR-15
+> er lukket. T-4-reproduksjonen ble XPASS og er gjort om til en ordinær test,
+> med en test til for flettingen der begge skriverne har skrevet ferdig. Se
+> [notatet](../gjennomforing-tst02-2026-09-22.md).
 
 **Leveranse:**
 
@@ -638,7 +646,7 @@ lete opp alt som teller statuser.
 
 Små, uavhengige rettinger. De er krav før produksjon, men ikke forutsetning
 for F0–F2: RV-13 med CFG-03 og OBS-07; RV-14; CFG-01, CFG-02, CFG-04 til
-CFG-07; OBS-06; INT-01; GFK-05; FE-02, FE-03 og FE-06; AUT-04 og TST-01;
+CFG-07; TS2-01; OBS-06; INT-01; GFK-05; FE-02, FE-03 og FE-06; AUT-04 og TST-01;
 TST-04, TST-06, TST-07; AR-08. I tillegg: pinning av Python-avhengigheter og
 sårbarhetsskanning i CI med en besluttet terskel for hva som blokkerer;
 HTTP-herding (CSP, HSTS, `X-Content-Type-Options`, `frame-ancestors`) testet mot
