@@ -275,7 +275,7 @@ Der den omklassifiserte et funn, gjelder omklassifiseringen.
 | ID | Status | Restanse og merknad | Belegg | Pakke |
 | --- | --- | --- | --- | --- |
 | AUT-01, AUT-02 | Lukket | Prosjektgrense i forseringens lesestier, 19.09 | H | — |
-| AUT-03 | Lukket for batchruta | Batchruta avviser internt notat med `400 INTERNT_NOTAT_IKKE_I_BATCH` før skriving (`783c64d`). Den strenge `xfail` forventer 201 og når ikke lekkasjeassertionen. Restanse: testvedlikehold T-1 | K 22.09, L | F0 |
+| AUT-03 | Lukket for batchruta | Batchruta avviser internt notat med `400 INTERNT_NOTAT_IKKE_I_BATCH` før skriving (`783c64d`). Den strenge `xfail`, som forventet 201, er erstattet av en ordinær test: avvisningen skjer, og ingenting skrives, heller ikke `last_event_at` (T-1, 22.09). Påstanden gjelder bare batchruta | K 22.09, L | F0 |
 | AUT-04 | Åpen | CSV-metadatalageret mangler `list_by_sakstype`. Samme mekanisme som TST-01 | Streng `xfail` (statisk) | H |
 | AUT-05 | Åpen, lav | Kandidatliste for forsering uten prosjektfilter på Catenda-topics. Ikke kontrollert på nytt | H | F1 |
 | AUT-06 | Lukket | `hent_relaterte_saker` krever `tillatte_saker` | H | — |
@@ -307,7 +307,7 @@ Der den omklassifiserte et funn, gjelder omklassifiseringen.
 | INT-06 | Åpen | Global `.env` overstyrer sakens Catenda-prosjekt | Streng `xfail`, K 22.09 | F2, F3 |
 | INT-07 | Åpen | Kommentargeneratoren kjenner ikke `standard` | Streng `xfail`, K 22.09 | D |
 | FE-01 | Lukket | `LetterPreviewModal` sender prosjekt, CSRF og credentials (20.09) | H | — |
-| FE-02 | Åpen, middels | `/api/cases/<sak_id>/context` gir ikke autorisert rolle. Serveren holder (19.09). Testen som testinventaret førte som FE-01, feiler på 403 i sitt eget oppsett og når ikke målassertionen (T-3) | K 22.09 (testoppsett) | H |
+| FE-02 | Åpen, middels | `/api/cases/<sak_id>/context` gir ikke autorisert rolle. Serveren holder (19.09). Testen som testinventaret førte som FE-01, feilet på 403 i sitt eget oppsett. Oppsettet er rettet (T-3, 22.09); den strenge `xfail` feiler nå på målassertionen om rolle | K 22.09 (testoppsett) | H |
 | FE-03 | Åpen | Svelte-skjemafelt reagerer ikke på nye props | H | H |
 | FE-04 | Lukket | Med GFK-01 | H | — |
 | FE-05 | Lukket | `activeProjectId` er `null` ved ukjent prosjekt (20.09) | H | — |
@@ -324,7 +324,7 @@ Der den omklassifiserte et funn, gjelder omklassifiseringen.
 | OBS-06 | Åpen | `X-Request-ID` uten validering; 32-bits server-ID. Testinventaret førte som OBS-01 | Streng `xfail`, K 22.09 | H |
 | OBS-07 | Åpen | Rå unntakstekst ved `app.debug`. Samme familie som RV-13. Testinventaret førte som OBS-05 | Streng `xfail`, K 22.09 | H |
 | TST-01 | Åpen | Samme mekanisme som AUT-04. Mangel på integrasjonstester dekkes i F0 | Streng `xfail` (statisk) | F0, H |
-| TST-02 | Åpen | Samtidig opprettelse i `JsonFileEventRepository`. Gjelder bare JSON-lageret; Supabase-lageret har `UNIQUE (sak_id, versjon)`. Samme sak som KR-15 | Streng `xfail`, K 22.09 | F0 |
+| TST-02 | Åpen | Samtidig opprettelse i `JsonFileEventRepository`. Gjelder bare JSON-lageret; Supabase-lageret har `UNIQUE (sak_id, versjon)`. Samme sak som KR-15. Deterministisk reproduksjon fra 22.09 (T-4): når begge skriverne har passert eksistenssjekken, overskriver den andre den første saken uten `ConcurrencyError` | Streng `xfail`, K 22.09 | F0 |
 | TST-03 | Duplikat | → AP-04 | — | F2 |
 | TST-04 | Åpen | Ingen OpenAPI-kontrakt mellom frontend og backend | Streng `xfail` (statisk) | H |
 | TST-05 | Åpen | EO-opprettelse svelger Catenda-feil uten outbox | Streng `xfail` (statisk) | F2 |
@@ -384,7 +384,7 @@ Kilder: [KR](../audit-korrekthet-2026-09-21.md),
 | KR-04 | Åpen | `compute_state` gjør navneoppslag. → MG-01, AF-05 | L 22.09 | F2 |
 | KR-13 | Åpen, lav | Backfill-skriptet. Faller med RY-01 | H | F4 |
 | KR-14 | Avvist | Anvendt migrasjon er uforanderlig | H | — |
-| KR-15 | Åpen | Streng `xfail` på et kappløp gir tilfeldig XPASS (1 av 20, 21.09). Samme sak som TST-02. Testen fra 22.09 er ikke deterministisk (RTB-02). Behold `strict=True` til en deterministisk reproduksjon finnes | H, K 22.09 | F0 |
+| KR-15 | Åpen | Samme sak som TST-02. Testdelen er gjort (T-4, 22.09): den strenge `xfail` med tilfeldig XPASS (1 av 20, 21.09) og testen fra 22.09 (RTB-02) er erstattet av én deterministisk reproduksjon med `strict=True` og `raises=`, styrt ved eksistenssjekken | H, K 22.09 | F0 |
 | MG-01 | Åpen | Navneoppslag i beregningslaget. Oppslaget bruker `has_app_context()`, så fravær av HTTP-forespørsel betyr ikke fravær av oppslag | L 22.09 | F2 |
 | MG-02 | Lukket | Én identitetsform i journalen | D 21.09 | — |
 | MG-03 | Åpen | Forsvar i dybden: parseren avviser `event_id` og `tidsstempel`, ikke aktørfeltene. Eksisterende ruter overskriver aktørfeltene fra sesjonen, så klientforfalskning er ikke påvist | Streng `xfail`, K 22.09, L | F2 |
@@ -437,6 +437,19 @@ typesjekk og lint (19.09). Migrasjonene er bygd mot tom PostgreSQL manuelt
 > Rolletesten bruker `SET ROLE anon/authenticated`; en test som logger inn som
 > ikke-privilegert rolle, venter på B-02. Se
 > [gjennomføringsnotatet](../gjennomforing-f0-postgresql-ci-2026-09-22.md).
+>
+> **Merknad 2026-09-22 (F0, punkt 4: T-1, T-3, T-4):** T-1 er gjort: den
+> strenge `xfail` for AUT-03 er erstattet av en ordinær test som viser at
+> batchruta avviser internt notat med `400 INTERNT_NOTAT_IKKE_I_BATCH`, og at
+> verken journal, notatlager eller `last_event_at` skrives. T-3 er gjort:
+> FE-02-testen har gyldig sesjon og saken i prosjektet, og feiler nå på
+> målassertionen om rolle. T-4 er gjort: kappløpet i
+> `JsonFileEventRepository` er reprodusert deterministisk ved
+> eksistenssjekken, med reell lagring og `strict=True`. Den ustabile testen
+> og testen fra 22.09 (RTB-02) er erstattet, så TST-02 gir ingen tilfeldig rød
+> port. Anbefalingen i 3.3 om TST-02 er dermed fulgt. Funnene FE-02, TST-02 og
+> KR-15 er fortsatt åpne. Gjenstår i F0: DB-04s fremmednøkler (B-01). Se
+> [notatet](../gjennomforing-f0-testvedlikehold-2026-09-22.md).
 
 **Leveranse:**
 
