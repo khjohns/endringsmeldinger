@@ -1,0 +1,80 @@
+================================================================================
+Test: tests/test_security/test_database_rls_audit_20260918.py::test_sak_metadata_database_default_hardcodes_oslobygg_fallback
+Kommando ordinær: pytest -v tests/test_security/test_database_rls_audit_20260918.py::test_sak_metadata_database_default_hardcodes_oslobygg_fallback
+Utfall ordinær: Exit 0
+--------------------------------------------------------------------------------
+============================= test session starts ==============================
+platform darwin -- Python 3.11.9, pytest-9.0.2, pluggy-1.6.0 -- /Users/kasper/Projects/endringsmeldinger/backend/venv/bin/python
+cachedir: .pytest_cache
+rootdir: /Users/kasper/Projects/endringsmeldinger/backend
+configfile: pyproject.toml
+plugins: anyio-4.12.1, cov-7.0.0
+collecting ... collected 1 item
+
+tests/test_security/test_database_rls_audit_20260918.py::test_sak_metadata_database_default_hardcodes_oslobygg_fallback XFAILordner
+saker fra andre leietakere til Oslobygg)                                 [100%]
+
+=============================== warnings summary ===============================
+venv/lib/python3.11/site-packages/pythonjsonlogger/jsonlogger.py:11
+  /Users/kasper/Projects/endringsmeldinger/backend/venv/lib/python3.11/site-packages/pythonjsonlogger/jsonlogger.py:11: DeprecationWarning: pythonjsonlogger.jsonlogger has been moved to pythonjsonlogger.json
+    warnings.warn(
+
+venv/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:319
+venv/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:319
+  /Users/kasper/Projects/endringsmeldinger/backend/venv/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:319: PydanticDeprecatedSince20: `json_encoders` is deprecated. See https://docs.pydantic.dev/2.12/concepts/serialization/#custom-serializers for alternatives. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    warnings.warn(
+
+core/system_context.py:12
+  /Users/kasper/Projects/endringsmeldinger/backend/core/system_context.py:12: DeprecationWarning: repositories.csv_repository is deprecated. Use repositories.event_repository instead.
+    from repositories.csv_repository import CSVRepository
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+======================== 1 xfailed, 4 warnings in 0.11s ========================
+
+
+================================================================================
+Kommando --runxfail: pytest -v tests/test_security/test_database_rls_audit_20260918.py::test_sak_metadata_database_default_hardcodes_oslobygg_fallback --runxfail
+Utfall --runxfail: Exit 1
+--------------------------------------------------------------------------------
+============================= test session starts ==============================
+platform darwin -- Python 3.11.9, pytest-9.0.2, pluggy-1.6.0 -- /Users/kasper/Projects/endringsmeldinger/backend/venv/bin/python
+cachedir: .pytest_cache
+rootdir: /Users/kasper/Projects/endringsmeldinger/backend
+configfile: pyproject.toml
+plugins: anyio-4.12.1, cov-7.0.0
+collecting ... collected 1 item
+
+tests/test_security/test_database_rls_audit_20260918.py::test_sak_metadata_database_default_hardcodes_oslobygg_fallback FAILED [100%]
+
+=================================== FAILURES ===================================
+________ test_sak_metadata_database_default_hardcodes_oslobygg_fallback ________
+tests/test_security/test_database_rls_audit_20260918.py:119: in test_sak_metadata_database_default_hardcodes_oslobygg_fallback
+    assert projects_migration.exists(), "004_projects_table.sql finnes ikke"
+E   AssertionError: 004_projects_table.sql finnes ikke
+E   assert False
+E    +  where False = exists()
+E    +    where exists = PosixPath('/Users/kasper/Projects/endringsmeldinger/backend/migrations/004_projects_table.sql').exists
+=============================== warnings summary ===============================
+venv/lib/python3.11/site-packages/pythonjsonlogger/jsonlogger.py:11
+  /Users/kasper/Projects/endringsmeldinger/backend/venv/lib/python3.11/site-packages/pythonjsonlogger/jsonlogger.py:11: DeprecationWarning: pythonjsonlogger.jsonlogger has been moved to pythonjsonlogger.json
+    warnings.warn(
+
+venv/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:319
+venv/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:319
+  /Users/kasper/Projects/endringsmeldinger/backend/venv/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:319: PydanticDeprecatedSince20: `json_encoders` is deprecated. See https://docs.pydantic.dev/2.12/concepts/serialization/#custom-serializers for alternatives. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    warnings.warn(
+
+core/system_context.py:12
+  /Users/kasper/Projects/endringsmeldinger/backend/core/system_context.py:12: DeprecationWarning: repositories.csv_repository is deprecated. Use repositories.event_repository instead.
+    from repositories.csv_repository import CSVRepository
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/test_security/test_database_rls_audit_20260918.py::test_sak_metadata_database_default_hardcodes_oslobygg_fallback - AssertionError: 004_projects_table.sql finnes ikke
+assert False
+ +  where False = exists()
+ +    where exists = PosixPath('/Users/kasper/Projects/endringsmeldinger/backend/migrations/004_projects_table.sql').exists
+======================== 1 failed, 4 warnings in 0.11s =========================
+
+
+================================================================================
