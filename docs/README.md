@@ -26,6 +26,7 @@ Eldre handoffer står under [historikk](#historikk--bevart-ikke-gjeldende).
 | --- | --- |
 | [hovedplanen](plans/2026-09-16-godkjenning-og-varig-levering.md) | **Autoritativ.** Se over |
 | [oppdrag: PostgreSQL 17 i CI (F0)](prompt-f0-postgresql-i-ci-2026-09-22.md) | Neste oppgave i hovedplanen: databasetester mot ekte PostgreSQL i CI, med de første katalogtestene |
+| [oppdrag: testvedlikehold i F0](prompt-f0-testvedlikehold-2026-09-22.md) · [gjennomføring](gjennomforing-f0-testvedlikehold-2026-09-22.md) | T-1, T-3 og T-4: AUT-03-reproduksjonen erstattet, FE-02-testen når målassertionen, og TST-02/KR-15 reprodusert deterministisk ved eksistenssjekken |
 | [redaksjonsprotokoll for hovedplanen](sluttredigering-hovedplan-2026-09-22.md) | Dekningsmatrise og rettelser fra sluttredigeringen 22.09. Ikke en kilde til løpende status |
 | [arkitekturpresiseringer 21.09](arkitekturforinger-2026-09-21.md) | AF-01–AF-06: vedtatte føringer. Innarbeidet i hovedplanen; ikke implementert |
 | [transaksjonsplanen](plans/2026-09-17-atomisk-utstedelse-og-outbox.md) | Underordnet delplan. Normativ for kommando-, låse- og worker-kontrakten i F2 |

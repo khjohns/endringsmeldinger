@@ -10,7 +10,6 @@ Testene skal feile med ren AssertionError før de markeres med streng xfail.
 
 import tempfile
 import threading
-from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from unittest.mock import Mock
 
@@ -45,54 +44,111 @@ def test_tst_01_manglende_integrasjon_full_kjede_krasjer_uten_mocks():
     )
 
 
+class FlettingIkkeNaadd(RuntimeError):
+    """Trådplanen testen skal styre, ble ikke nådd. Det er ingen xfail."""
+
+
 @pytest.mark.xfail(
     strict=True,
     raises=AssertionError,
-    reason="TST-02: JsonFileEventRepository mangler låsing ved expected_version=0; samtidig opprettelse krasjer med FileNotFoundError eller overskriver",
+    reason=(
+        "TST-02/KR-15: JsonFileEventRepository låser ikke eksistenssjekken ved "
+        "expected_version=0; en samtidig opprettelse overskriver den første"
+    ),
 )
-def test_tst_02_samtidig_saksopprettelse_krasjer_eller_overskriver_uten_concurrency_error():
-    """TST-02: Samtidig saksopprettelse (expected_version=0) i JsonFileEventRepository.
+def test_tst_02_samtidig_opprettelse_overskriver_foerste_sak_uten_concurrency_error(
+    tmp_path, monkeypatch
+):
+    """TST-02/KR-15: to opprettelser av samme sak, begge forbi eksistenssjekken.
 
-    Testsuiten tester kun samtidighet på eksisterende saker (expected_version > 0).
-    Ved expected_version == 0 finnes ingen fillås: to tråder skriver begge til
-    samme .tmp-fil og kaller rename().
-    En tråd krasjer med ubehandlet FileNotFoundError i stedet for ConcurrencyError,
-    eller en av trådenes hendelser overskrives i det stille.
+    Flettingen styres ved selve sjekken, `file_path.exists()` i `append_batch`:
+    begge skriverne ser at saksfilen mangler, så fullfører skriver 1, så
+    fortsetter skriver 2. Lagringen er reell. Riktig utfall er at skriver 1s
+    sak står, og at skriver 2 får `ConcurrencyError`. I dag overskriver
+    skriver 2 den i det stille, og begge får versjon 1.
+
+    Gjelder bare `JsonFileEventRepository`. Blir trådplanen umulig — for
+    eksempel fordi sjekken er kommet under en lås — kastes `FlettingIkkeNaadd`,
+    og testen feiler i stedet for å bli XPASS; da skal den skrives om.
+
+    Merknad 2026-09-22 (T-4, RTB-02): erstatter
+    `test_tst_02_samtidig_saksopprettelse_krasjer_eller_overskriver_uten_concurrency_error`
+    og `test_tst02_samtidig_opprettelse_kolliderer_paa_felles_tmp_fil`. Begge
+    startet trådene fra en barriere før `append_batch` og lot planleggeren
+    avgjøre om de møttes ved sjekken, og begge godtok «krasj eller
+    overskriving». Den første ga tilfeldig XPASS på en streng xfail (KR-15);
+    den andre avviste det korrekte utfallet `ConcurrencyError` når trådene ikke
+    møttes.
     """
-    with tempfile.TemporaryDirectory() as tmpdir:
-        repo = JsonFileEventRepository(base_path=tmpdir)
-        barrier = threading.Barrier(2)
-        errors = []
-        successes = []
+    sak_id = "RACE-SAK-001"
+    repo = JsonFileEventRepository(base_path=str(tmp_path))
+    har_sjekket = {"skriver 1": threading.Event(), "skriver 2": threading.Event()}
+    skriver_1_ferdig = threading.Event()
+    saksfil_fantes = {}
+    traad = threading.local()
 
-        def opprett_sak(arbeider_navn):
-            ev = SakOpprettetEvent(
-                sak_id="RACE-SAK-001",
-                aktor_id=arbeider_navn,
-                aktor_rolle="TE",
-                sakstittel=f"Sak fra {arbeider_navn}",
-            )
-            barrier.wait()
-            try:
-                v = repo.append_batch([ev], expected_version=0)
-                successes.append((arbeider_navn, v))
-            except ConcurrencyError as ce:
-                errors.append(("concurrency_error", ce))
-            except Exception as e:
-                errors.append((type(e).__name__, e))
+    class StyrtSaksfil(type(Path())):
+        def exists(self):
+            finnes = super().exists()
+            navn = getattr(traad, "navn", None)
+            if navn is None or navn in saksfil_fantes:
+                return finnes
+            saksfil_fantes[navn] = finnes
+            har_sjekket[navn].set()
+            if not all(sjekket.wait(5) for sjekket in har_sjekket.values()):
+                raise FlettingIkkeNaadd("begge skriverne nådde ikke eksistenssjekken")
+            if navn == "skriver 2" and not skriver_1_ferdig.wait(5):
+                raise FlettingIkkeNaadd("skriver 1 fullførte ikke")
+            return finnes
 
-        with ThreadPoolExecutor(max_workers=2) as executor:
-            list(executor.map(opprett_sak, ["Tråd-1", "Tråd-2"]))
+    saksfil = repo._get_file_path
+    monkeypatch.setattr(repo, "_get_file_path", lambda s: StyrtSaksfil(saksfil(s)))
 
-        # Forventet adferd ved korrekt optimistisk låsing:
-        # Én vinner og én ConcurrencyError.
-        # Faktisk adferd: FileNotFoundError eller 2 suksesser med overskriving.
-        has_concurrency_error = any(err[0] == "concurrency_error" for err in errors)
-        assert has_concurrency_error, (
-            f"TST-02: Samtidig opprettelse håndterer ikke rasebetingelser med ConcurrencyError! "
-            f"Suksesser: {successes}, Feil: {errors}. "
-            "Tråder krasjer med FileNotFoundError eller overskriver hverandre uten låsing."
+    hendelser = {
+        navn: SakOpprettetEvent(
+            sak_id=sak_id,
+            aktor_id=f"te-bruker-{navn[-1]}",
+            aktor_rolle="TE",
+            sakstittel=f"Sak fra {navn}",
         )
+        for navn in har_sjekket
+    }
+    utfall = {}
+
+    def opprett(navn):
+        traad.navn = navn
+        try:
+            utfall[navn] = repo.append_batch([hendelser[navn]], expected_version=0)
+        except Exception as exc:
+            utfall[navn] = exc
+        finally:
+            if navn == "skriver 1":
+                skriver_1_ferdig.set()
+
+    traader = [threading.Thread(target=opprett, args=(navn,)) for navn in har_sjekket]
+    for t in traader:
+        t.start()
+    for t in traader:
+        t.join(timeout=15)
+
+    if any(t.is_alive() for t in traader):
+        raise FlettingIkkeNaadd("en skriver ble ikke ferdig")
+    for resultat in utfall.values():
+        if isinstance(resultat, FlettingIkkeNaadd):
+            raise resultat
+    if saksfil_fantes != {"skriver 1": False, "skriver 2": False}:
+        raise FlettingIkkeNaadd(f"begge skal ha sett at saksfilen mangler: {saksfil_fantes}")
+    if utfall["skriver 1"] != 1:
+        raise FlettingIkkeNaadd(f"skriver 1 skal ha opprettet saken: {utfall}")
+
+    lagret, versjon = repo.get_events(sak_id)
+    assert [e["event_id"] for e in lagret] == [hendelser["skriver 1"].event_id], (
+        "TST-02: skriver 1s opprettelse ble overskrevet i det stille av skriver 2. "
+        f"Lagret: {[e['sakstittel'] for e in lagret]} (versjon {versjon}). Utfall: {utfall}"
+    )
+    assert isinstance(utfall["skriver 2"], ConcurrencyError), (
+        f"TST-02: skriver 2 skulle fått ConcurrencyError. Utfall: {utfall}"
+    )
 
 
 @pytest.mark.xfail(
