@@ -16,6 +16,11 @@
 > OBS-06/05/07 og OBS-02 til OBS-01/OBS-02. Statusmerknader står der de gjelder.
 > Funnstatus står i [hovedplanen](plans/2026-09-16-godkjenning-og-varig-levering.md);
 > endringene er listet i [redaksjonsprotokollen](sluttredigering-hovedplan-2026-09-22.md).
+>
+> **Merknad 2026-09-22 (F0):** Reproduksjonene for DB-03 og DB-07 er fjernet og
+> erstattet av katalogtester mot en base bygget fra migrasjonene
+> (`backend/tests/test_database/`). Lenkene til dem nedenfor peker på teksten slik
+> den var i `0bdc1dc`. Se [gjennomføringsnotatet](gjennomforing-f0-postgresql-ci-2026-09-22.md).
 
 **Dato:** 2026-09-22.  
 **Utgangspunkt:** commit `0bdc1dc7925631a9df7264c33812f8c10ddc6fd2` (`main`).  
