@@ -2,12 +2,13 @@
 
 Testene her etterprøver funn i autorisasjonslaget:
 - IDOR og kryssprosjektlekkasje i forseringstjenesten
-- Lekkende aktivitetsstempel ved batch-innsending av interne notater
+- Batchruta avviser interne notater før noe skrives, også aktivitetsstempelet
 - Manglende metode og 500-krasj på metadata-repoet ved sakstype-filtrering
 
 Alle testene kjører mot ekte ruter og dekoratører med testdobler for lagring.
 """
 
+import copy
 from types import SimpleNamespace
 from unittest.mock import Mock
 
@@ -26,6 +27,7 @@ from models.events import (
     SakOpprettetEvent,
     SporType,
 )
+from repositories.notat_repository import JsonFileNotatRepository
 from services.timeline_service import TimelineService
 
 HEADERS_A = {"X-Project-ID": "project-a", "X-CSRF-Token": "csrf"}
@@ -293,69 +295,93 @@ def test_relaterte_saker_lekker_ikke_topic_fra_annet_prosjekt(monkeypatch):
     assert not lekkasje, f"Lekket sak fra project-b til en leser i project-a: {body}"
 
 # =============================================================================
-# 3. Batch-innsending oppdaterer last_event_at for interne notater
+# 3. Batch-innsending avviser interne notater før skriving (AUT-03)
 # =============================================================================
 
 
-@pytest.mark.xfail(
-    strict=True,
-    raises=AssertionError,
-    reason="submit_batch oppdaterer last_event_at ubetinget selv for interne notater",
-)
-def test_batch_innsending_lekker_internt_notat_i_last_event_at(monkeypatch):
-    """POST /api/events/batch oppdaterer last_event_at ubetinget,
+GRUNNLAG = {
+    "event_type": "grunnlag_opprettet",
+    "data": {
+        "tittel": "Endret fundamentering",
+        "hovedkategori": "ENDRING",
+        "underkategori": "IRREG",
+        "beskrivelse": "Beskrivelse",
+        "dato_oppdaget": "2026-09-13",
+    },
+}
+NOTAT = {
+    "event_type": "internt_notat",
+    "data": {"tekst": "Konfidensielt internt notat", "spor": "grunnlag"},
+}
 
-    også når batchen kun inneholder et internt notat (utvider RV-09).
-    submit_event (linje 531) skjermer last_event_at, men submit_batch (linje 823)
-    setter last_event_at=datetime.now(UTC) ubetinget, noe som røper internt
-    notat i sakslisten for motparten.
+
+@pytest.mark.parametrize(
+    "hendelser",
+    [[NOTAT], [GRUNNLAG, NOTAT]],
+    ids=["bare-notat", "notat-etter-kontraktshendelse"],
+)
+def test_batchruta_avviser_internt_notat_uten_aa_skrive_noe(monkeypatch, tmp_path, hendelser):
+    """AUT-03: batchruta avviser et internt notat før noe er skrevet.
+
+    Ingenting når journalen, notatlageret eller saksmetadataen — heller ikke
+    `last_event_at`, som var lekkasjen AUT-03 gjaldt. Påstanden gjelder bare
+    batchruta.
+
+    Merknad 2026-09-22 (T-1): erstatter den strenge xfail-en
+    `test_batch_innsending_lekker_internt_notat_i_last_event_at`. Den ventet 201
+    og en satt `last_event_at`. Etter `783c64d` svarer ruta
+    `400 INTERNT_NOTAT_IKKE_I_BATCH` før skriving, så den gamle testen feilet på
+    statuskoden og nådde aldri lekkasjeassertionen.
     """
     from routes import event_routes
+    from services import sak_creation_service
 
-    sak_opprettet = {
-        "event_type": "sak_opprettet",
-        "sak_id": "case-1",
-        "aktor_id": "system",
-        "aktor_rolle": "TE",
-        "tidsstempel": "2026-09-15T08:00:00Z",
-        "sakstittel": "Sak 1",
-        "prosjekt_id": "project-a",
-    }
+    monkeypatch.setenv("BH_APPROVAL_DB", str(tmp_path / "approval.sqlite"))
+    monkeypatch.delenv("BH_APPROVAL_POLICIES", raising=False)
+
+    sak_opprettet = SakOpprettetEvent(
+        sak_id="case-1", aktor_id="system", aktor_rolle="TE", sakstittel="Sak 1"
+    ).model_dump(mode="json")
 
     container = Mock()
     container.metadata_repository.get.return_value = SimpleNamespace(
         prosjekt_id="project-a", catenda_topic_id=None
     )
     container.event_repository.get_events.return_value = ([sak_opprettet], 1)
+    container.event_repository.gjeldende_versjon.return_value = 1
     container.event_repository.append_batch.return_value = 2
     container.timeline_service = TimelineService()
+    notat_lager = JsonFileNotatRepository(str(tmp_path / "notater"))
+    container.notat_repository = notat_lager
+    opprettelse = Mock()
     monkeypatch.setattr(event_routes, "_get_container", lambda: container)
     monkeypatch.setattr("lib.auth.project_access.get_container", lambda: container)
+    monkeypatch.setattr(sak_creation_service, "get_sak_creation_service", opprettelse)
 
     client = _client(monkeypatch, _auth(contract=("TE", "team-a")), event_routes.events_bp)
 
-    response = client.post(
-        "/api/events/batch",
-        json={
-            "sak_id": "case-1",
-            "expected_version": 1,
-            "events": [
-                {
-                    "event_type": "internt_notat",
-                    "data": {"tekst": "Konfidensielt internt notat", "spor": "grunnlag"},
-                }
-            ],
-        },
-        headers=HEADERS_A,
-    )
-    assert response.status_code == 201, response.get_data(as_text=True)
+    def send(batch):
+        return client.post(
+            "/api/events/batch",
+            json={"sak_id": "case-1", "expected_version": 1, "events": batch},
+            headers=HEADERS_A,
+        )
 
-    # Feiler i dag fordi submit_batch ubetinget sender last_event_at != None
-    assert container.metadata_repository.update_cache.called
-    call_kwargs = container.metadata_repository.update_cache.call_args.kwargs
-    assert call_kwargs.get("last_event_at") is None, (
-        f"last_event_at ble satt ved batch med internt notat: {call_kwargs.get('last_event_at')}"
-    )
+    svar = send(copy.deepcopy(hendelser))
+
+    assert svar.status_code == 400, svar.get_data(as_text=True)
+    assert svar.get_json()["error"] == "INTERNT_NOTAT_IKKE_I_BATCH"
+    container.event_repository.append.assert_not_called()
+    container.event_repository.append_batch.assert_not_called()
+    opprettelse.assert_not_called()
+    assert notat_lager.for_sak("case-1", "project-a") == []
+    container.metadata_repository.update_cache.assert_not_called()
+
+    # Kontroll: uten notatet skriver samme oppsett, så doblene over ser en skriving.
+    kontroll = send([copy.deepcopy(GRUNNLAG)])
+    assert kontroll.status_code == 201, kontroll.get_data(as_text=True)
+    container.event_repository.append_batch.assert_called_once()
+    assert container.metadata_repository.update_cache.call_args.kwargs["last_event_at"]
 
 
 # =============================================================================
