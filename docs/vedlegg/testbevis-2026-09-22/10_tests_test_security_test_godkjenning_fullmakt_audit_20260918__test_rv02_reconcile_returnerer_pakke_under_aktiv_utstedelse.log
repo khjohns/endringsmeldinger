@@ -1,0 +1,79 @@
+================================================================================
+Test: tests/test_security/test_godkjenning_fullmakt_audit_20260918.py::test_rv02_reconcile_returnerer_pakke_under_aktiv_utstedelse
+Kommando ordinær: pytest -v tests/test_security/test_godkjenning_fullmakt_audit_20260918.py::test_rv02_reconcile_returnerer_pakke_under_aktiv_utstedelse
+Utfall ordinær: Exit 0
+--------------------------------------------------------------------------------
+============================= test session starts ==============================
+platform darwin -- Python 3.11.9, pytest-9.0.2, pluggy-1.6.0 -- /Users/kasper/Projects/endringsmeldinger/backend/venv/bin/python
+cachedir: .pytest_cache
+rootdir: /Users/kasper/Projects/endringsmeldinger/backend
+configfile: pyproject.toml
+plugins: anyio-4.12.1, cov-7.0.0
+collecting ... collected 1 item
+
+tests/test_security/test_godkjenning_fullmakt_audit_20260918.py::test_rv02_reconcile_returnerer_pakke_under_aktiv_utstedelse XFAIL 'returnert') [100%]
+
+=============================== warnings summary ===============================
+venv/lib/python3.11/site-packages/pythonjsonlogger/jsonlogger.py:11
+  /Users/kasper/Projects/endringsmeldinger/backend/venv/lib/python3.11/site-packages/pythonjsonlogger/jsonlogger.py:11: DeprecationWarning: pythonjsonlogger.jsonlogger has been moved to pythonjsonlogger.json
+    warnings.warn(
+
+venv/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:319
+venv/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:319
+  /Users/kasper/Projects/endringsmeldinger/backend/venv/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:319: PydanticDeprecatedSince20: `json_encoders` is deprecated. See https://docs.pydantic.dev/2.12/concepts/serialization/#custom-serializers for alternatives. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    warnings.warn(
+
+core/system_context.py:12
+  /Users/kasper/Projects/endringsmeldinger/backend/core/system_context.py:12: DeprecationWarning: repositories.csv_repository is deprecated. Use repositories.event_repository instead.
+    from repositories.csv_repository import CSVRepository
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+======================== 1 xfailed, 4 warnings in 0.12s ========================
+
+
+================================================================================
+Kommando --runxfail: pytest -v tests/test_security/test_godkjenning_fullmakt_audit_20260918.py::test_rv02_reconcile_returnerer_pakke_under_aktiv_utstedelse --runxfail
+Utfall --runxfail: Exit 1
+--------------------------------------------------------------------------------
+============================= test session starts ==============================
+platform darwin -- Python 3.11.9, pytest-9.0.2, pluggy-1.6.0 -- /Users/kasper/Projects/endringsmeldinger/backend/venv/bin/python
+cachedir: .pytest_cache
+rootdir: /Users/kasper/Projects/endringsmeldinger/backend
+configfile: pyproject.toml
+plugins: anyio-4.12.1, cov-7.0.0
+collecting ... collected 1 item
+
+tests/test_security/test_godkjenning_fullmakt_audit_20260918.py::test_rv02_reconcile_returnerer_pakke_under_aktiv_utstedelse FAILED [100%]
+
+=================================== FAILURES ===================================
+_________ test_rv02_reconcile_returnerer_pakke_under_aktiv_utstedelse __________
+tests/test_security/test_godkjenning_fullmakt_audit_20260918.py:198: in test_rv02_reconcile_returnerer_pakke_under_aktiv_utstedelse
+    assert pkg.get("issuingAttempt") == attempt_id, (
+E   AssertionError: reconcile() slettet aktiv utstedelses-lease: issuingAttempt=None, status=returnert
+E   assert None == 'e1715985-8d72-4404-b41d-c76abd173cd2'
+E    +  where None = <built-in method get of dict object at 0x107df1d80>('issuingAttempt')
+E    +    where <built-in method get of dict object at 0x107df1d80> = {'id': 'ccfd2b1b-44b9-4a1f-a35d-72b896c4f504', 'status': 'returnert', 'owner': 'pl@test', 'ownerName': 'Kari', 'createdAt': '2026-09-22T16:04:07.496123+00:00', 'previousId': None, 'request': {'eo_nummer': 'EO-001', 'beskrivelse': 'Test', 'koe_sak_ids': [], 'konsekvenser': {'pris': True}, 'konsekvens_beskrivelse': None, 'oppgjorsform': None, 'kompensasjon_belop': 100000, 'fradrag_belop': None, 'er_estimat': False, 'frist_dager': None, 'ny_sluttdato': None}, 'authority': {'amount': '100000', 'minimum': None, 'matrix': '2026-01', 'senderRole': 'Prosjektleder', 'dailyRate': None}, 'policy': 'b1cbb96109c31da0bfe0957a842e0a84c772c77ec1e30826024f1e00e24ff345', 'contentHash': 'fdb1fa699a685667b123b3b327c617291aab0e006883c749375fd57f75d0848f', 'steps': [], 'sakId': 'EO-SAK-1', 'issuedAt': '2026-09-22T16:04:07.497667+00:00', 'catendaSynced': False, 'error': None, 'returnedBy': 'system', 'returnedAt': '2026-09-22T16:04:07.498762+00:00', 'comment': 'Godkjenningskjeden eller fullmaktsgrunnlaget er endret. Endringsordren krever ny godkjenning.'}.get
+=============================== warnings summary ===============================
+venv/lib/python3.11/site-packages/pythonjsonlogger/jsonlogger.py:11
+  /Users/kasper/Projects/endringsmeldinger/backend/venv/lib/python3.11/site-packages/pythonjsonlogger/jsonlogger.py:11: DeprecationWarning: pythonjsonlogger.jsonlogger has been moved to pythonjsonlogger.json
+    warnings.warn(
+
+venv/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:319
+venv/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:319
+  /Users/kasper/Projects/endringsmeldinger/backend/venv/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:319: PydanticDeprecatedSince20: `json_encoders` is deprecated. See https://docs.pydantic.dev/2.12/concepts/serialization/#custom-serializers for alternatives. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    warnings.warn(
+
+core/system_context.py:12
+  /Users/kasper/Projects/endringsmeldinger/backend/core/system_context.py:12: DeprecationWarning: repositories.csv_repository is deprecated. Use repositories.event_repository instead.
+    from repositories.csv_repository import CSVRepository
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/test_security/test_godkjenning_fullmakt_audit_20260918.py::test_rv02_reconcile_returnerer_pakke_under_aktiv_utstedelse - AssertionError: reconcile() slettet aktiv utstedelses-lease: issuingAttempt=None, status=returnert
+assert None == 'e1715985-8d72-4404-b41d-c76abd173cd2'
+ +  where None = <built-in method get of dict object at 0x107df1d80>('issuingAttempt')
+ +    where <built-in method get of dict object at 0x107df1d80> = {'id': 'ccfd2b1b-44b9-4a1f-a35d-72b896c4f504', 'status': 'returnert', 'owner': 'pl@test', 'ownerName': 'Kari', 'createdAt': '2026-09-22T16:04:07.496123+00:00', 'previousId': None, 'request': {'eo_nummer': 'EO-001', 'beskrivelse': 'Test', 'koe_sak_ids': [], 'konsekvenser': {'pris': True}, 'konsekvens_beskrivelse': None, 'oppgjorsform': None, 'kompensasjon_belop': 100000, 'fradrag_belop': None, 'er_estimat': False, 'frist_dager': None, 'ny_sluttdato': None}, 'authority': {'amount': '100000', 'minimum': None, 'matrix': '2026-01', 'senderRole': 'Prosjektleder', 'dailyRate': None}, 'policy': 'b1cbb96109c31da0bfe0957a842e0a84c772c77ec1e30826024f1e00e24ff345', 'contentHash': 'fdb1fa699a685667b123b3b327c617291aab0e006883c749375fd57f75d0848f', 'steps': [], 'sakId': 'EO-SAK-1', 'issuedAt': '2026-09-22T16:04:07.497667+00:00', 'catendaSynced': False, 'error': None, 'returnedBy': 'system', 'returnedAt': '2026-09-22T16:04:07.498762+00:00', 'comment': 'Godkjenningskjeden eller fullmaktsgrunnlaget er endret. Endringsordren krever ny godkjenning.'}.get
+======================== 1 failed, 4 warnings in 0.12s =========================
+
+
+================================================================================

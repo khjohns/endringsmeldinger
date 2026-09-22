@@ -124,4 +124,5 @@ addopts = "-v --tb=short --strict-markers"
 # i @pytest.mark.live ikke stille gjør testen til en vanlig test som treffer nett.
 markers = [
     "live: treffer ekte Supabase (oppretter og sletter data). Hoppes over med mindre RUN_LIVE_SUPABASE=1 er satt. Skipping-logikken ligger i tests/conftest.py.",
+    "database: kjører mot en kastbar PostgreSQL bygget fra supabase/migrations/. Hoppes over med mindre KOE_TESTBASE_URL er satt. Skipping-logikken ligger i tests/conftest.py.",
 ]

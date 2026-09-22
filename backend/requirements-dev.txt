@@ -12,6 +12,7 @@
 pytest>=7.0.0                     # Test framework
 pytest-cov>=4.0.0                 # Code coverage
 pytest-mock>=3.10.0               # Mocking support
+psycopg[binary]==3.3.6            # Databasetestene (tests/test_database/, KOE_TESTBASE_URL)
 
 # ------------------------------------------------------------------------------
 # Code Quality

@@ -1,5 +1,12 @@
 # Målskjema for databasen
 
+> **Merknad 2026-09-21 etter arkitekturvurdering:** MS-08 skal revurderes før
+> relasjonstabellen eventuelt fjernes. MS-09s avgrensning til prosjektvern i
+> databasen erstattes av krav om vern også for teaminterne data. MS-11s
+> hashkolonne er ett tiltak, ikke hele bevis- og bevaringsmodellen. Se
+> [gjeldende presiseringer AF-01–AF-06](arkitekturforinger-2026-09-21.md) og
+> masterplanens merknad samme dato. Den eldre designteksten under er bevart.
+
 Skrevet 20. september 2026 mot `a3f59d9` på grenen
 `claude/database-architecture-review-v61w41`. Forrige ledd i kjeden:
 [audit: databasearkitektur](audit-databasearkitektur-2026-09-20.md), som lot

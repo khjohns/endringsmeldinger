@@ -35,12 +35,61 @@ jobs:
           pip install -r backend/requirements.txt -r backend/requirements-dev.txt
 
       # Live-testene mot Supabase er opt-in med RUN_LIVE_SUPABASE=1 (RV-16).
+      # Databasetestene hoppes over her og kjøres i jobben database.
       - name: Kjør testene
         working-directory: backend
         run: python -m pytest -q -p no:cacheprovider
 
       - name: Lint
         run: ruff check backend/
+
+  database:
+    name: Database (PostgreSQL 17 + migrasjoner)
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        # Målversjonen i supabase/config.toml.
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: koe_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      KOE_TESTBASE_URL: postgresql://postgres:postgres@localhost:5432/koe_test
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+          cache-dependency-path: |
+            backend/requirements.txt
+            backend/requirements-dev.txt
+
+      - name: Installer avhengigheter
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r backend/requirements.txt -r backend/requirements-dev.txt
+
+      - name: Kontroller serverversjonen
+        run: |
+          versjon="$(psql "$KOE_TESTBASE_URL" --no-psqlrc -tAc 'SHOW server_version_num')"
+          echo "server_version_num=$versjon"
+          test "${versjon:0:2}" = "17"
+
+      - name: Bygg basen fra tom
+        run: scripts/testbase/bygg_testbase.sh
+
+      - name: Kjør databasetestene
+        working-directory: backend
+        run: python -m pytest -q -p no:cacheprovider -m database tests/test_database
 
   frontend:
     name: Frontend (vitest)

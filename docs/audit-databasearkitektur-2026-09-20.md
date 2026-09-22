@@ -200,6 +200,11 @@ Filene er **rekonstruksjon, ikke originaltekst.** Teksten til de seks er ikke
 gjenopprettbar, og fordelingen mellom dem er bevisst ikke gjenskapt. Det står i
 filhodene.
 
+> **Merknad 2026-09-22:** Teksten var gjenopprettbar. Den lå i `statements` i
+> basens historikk og er nå arkivert i
+> [`vedlegg/migrasjonshistorikk-2026-09-22/`](vedlegg/migrasjonshistorikk-2026-09-22/README.md).
+> Se PGC-05 i [F0-notatet](gjennomforing-f0-postgresql-ci-2026-09-22.md#pgc-05--originalteksten-fantes).
+
 ### DA-02 — `actorteam`-migrasjonen var aldri anvendt *(kritisk, lukket denne runden)*
 
 `supabase/migrations/20260918090000_event_tables_actorteam.sql` lå i repoet,
@@ -632,6 +637,11 @@ versjonsnummer, og `actorteam` fikk samme behandling.
 **Det som gjenstår, krever legitimasjon denne sesjonen ikke har.**
 Migrasjonshistorikken i basen stemmer ennå ikke med mappa — 6 av 16 matcher.
 Femten kommandoer retter det:
+
+> **Merknad 2026-09-22:** Lista under ble foreldet da fem nye migrasjoner fikk
+> andre versjoner i basen. Historikken er avstemt 22.09 med
+> `scripts/avstem_migrasjonshistorikk.sh`; se avsnitt 6 i
+> [F0-notatet](gjennomforing-f0-postgresql-ci-2026-09-22.md#6-da-03-avstemming-av-migrasjonshistorikken).
 
 ```bash
 supabase migration repair --status applied 20260911073600   # projects

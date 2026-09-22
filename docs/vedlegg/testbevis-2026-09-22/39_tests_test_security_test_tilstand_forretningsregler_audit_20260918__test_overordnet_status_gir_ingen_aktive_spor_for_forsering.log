@@ -1,0 +1,77 @@
+================================================================================
+Test: tests/test_security/test_tilstand_forretningsregler_audit_20260918.py::test_overordnet_status_gir_ingen_aktive_spor_for_forsering
+Kommando ordinær: pytest -v tests/test_security/test_tilstand_forretningsregler_audit_20260918.py::test_overordnet_status_gir_ingen_aktive_spor_for_forsering
+Utfall ordinær: Exit 0
+--------------------------------------------------------------------------------
+============================= test session starts ==============================
+platform darwin -- Python 3.11.9, pytest-9.0.2, pluggy-1.6.0 -- /Users/kasper/Projects/endringsmeldinger/backend/venv/bin/python
+cachedir: .pytest_cache
+rootdir: /Users/kasper/Projects/endringsmeldinger/backend
+configfile: pyproject.toml
+plugins: anyio-4.12.1, cov-7.0.0
+collecting ... collected 1 item
+
+tests/test_security/test_tilstand_forretningsregler_audit_20260918.py::test_overordnet_status_gir_ingen_aktive_spor_for_forsering XFAIL [100%]
+
+=============================== warnings summary ===============================
+venv/lib/python3.11/site-packages/pythonjsonlogger/jsonlogger.py:11
+  /Users/kasper/Projects/endringsmeldinger/backend/venv/lib/python3.11/site-packages/pythonjsonlogger/jsonlogger.py:11: DeprecationWarning: pythonjsonlogger.jsonlogger has been moved to pythonjsonlogger.json
+    warnings.warn(
+
+venv/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:319
+venv/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:319
+  /Users/kasper/Projects/endringsmeldinger/backend/venv/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:319: PydanticDeprecatedSince20: `json_encoders` is deprecated. See https://docs.pydantic.dev/2.12/concepts/serialization/#custom-serializers for alternatives. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    warnings.warn(
+
+core/system_context.py:12
+  /Users/kasper/Projects/endringsmeldinger/backend/core/system_context.py:12: DeprecationWarning: repositories.csv_repository is deprecated. Use repositories.event_repository instead.
+    from repositories.csv_repository import CSVRepository
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+======================== 1 xfailed, 4 warnings in 0.11s ========================
+
+
+================================================================================
+Kommando --runxfail: pytest -v tests/test_security/test_tilstand_forretningsregler_audit_20260918.py::test_overordnet_status_gir_ingen_aktive_spor_for_forsering --runxfail
+Utfall --runxfail: Exit 1
+--------------------------------------------------------------------------------
+============================= test session starts ==============================
+platform darwin -- Python 3.11.9, pytest-9.0.2, pluggy-1.6.0 -- /Users/kasper/Projects/endringsmeldinger/backend/venv/bin/python
+cachedir: .pytest_cache
+rootdir: /Users/kasper/Projects/endringsmeldinger/backend
+configfile: pyproject.toml
+plugins: anyio-4.12.1, cov-7.0.0
+collecting ... collected 1 item
+
+tests/test_security/test_tilstand_forretningsregler_audit_20260918.py::test_overordnet_status_gir_ingen_aktive_spor_for_forsering FAILED [100%]
+
+=================================== FAILURES ===================================
+__________ test_overordnet_status_gir_ingen_aktive_spor_for_forsering __________
+tests/test_security/test_tilstand_forretningsregler_audit_20260918.py:460: in test_overordnet_status_gir_ingen_aktive_spor_for_forsering
+    assert state.overordnet_status != "INGEN_AKTIVE_SPOR", (
+E   AssertionError: Akseptert forseringssak fikk overordnet_status='INGEN_AKTIVE_SPOR'
+E   assert 'INGEN_AKTIVE_SPOR' != 'INGEN_AKTIVE_SPOR'
+E    +  where 'INGEN_AKTIVE_SPOR' = SakState(sak_id='FORS-1', sakstittel='Forseringssak', sakstype=<SaksType.FORSERING: 'forsering'>, relaterte_saker=[], forsering_data=ForseringData(avslatte_fristkrav=['K-1'], dato_varslet='2026-09-18', estimert_kostnad=500000.0, bekreft_30_prosent_regel=True, begrunnelse='Forserer pga avslag', avslatte_dager=10, dagmulktsats=50000.0, maks_forseringskostnad=650000.0, er_iverksatt=True, dato_iverksatt='2026-09-18', er_stoppet=False, dato_stoppet=None, paalopte_kostnader=None, bh_aksepterer_forsering=True, bh_godkjent_kostnad=500000.0, bh_begrunnelse='BH aksepterer forsering', vederlag=None, bh_respons=ForseringBHRespons(vurdering_per_sak=None, dager_med_forseringsrett=None, grunnlag_fortsatt_gyldig=None, grunnlag_begrunnelse=None, trettiprosent_overholdt=None, trettiprosent_begrunnelse=None, aksepterer=True, godkjent_belop=500000.0, begrunnelse='BH aksepterer forsering', rigg_varslet_i_tide=None, produktivitet_varslet_i_tide=None, godkjent_rigg_drift=None, godkjent_produktivitet=None, subsidiaer_triggers=None, subsidiaer_godkjent_belop=None, subsidiaer_begrunnelse=None, total_godkjent=500000.0), kostnad_innenfor_grense=True), endringsordre_data=None, grunnlag=GrunnlagTilstand(krav_event_id=None, respons_event_id=None, status=<SporStatus.IKKE_RELEVANT: 'ikke_relevant'>, tittel=None, hovedkategori=None, underkategori=None, beskrivelse=None, dato_oppdaget=None, grunnlag_varsel=None, bh_resultat=None, bh_begrunnelse=None, grunnlag_varslet_i_tide=None, laast=False, bh_respondert_versjon=None, te_akseptert=False, trukket_begrunnelse=None, trukket_alle_krav=False, siste_event_id=None, siste_oppdatert=None, antall_versjoner=0), vederlag=VederlagTilstand(varsler=[], vederlag_varsel=None, krav_event_id=None, respons_event_id=None, status=<SporStatus.IKKE_RELEVANT: 'ikke_relevant'>, metode=None, belop_direkte=None, kostnads_overslag=None, krever_justert_ep=False, begrunnelse=None, saerskilt_krav=None, rigg_drift_varsel=None, justert_ep_varsel=None, varslet_for_oppstart=None, produktivitetstap_varsel=None, varsel_justert_ep_ok=None, begrunnelse_varsel=None, bh_resultat=None, bh_begrunnelse=None, bh_metode=None, godkjent_belop=None, subsidiaer_triggers=None, subsidiaer_resultat=None, subsidiaer_godkjent_belop=None, subsidiaer_begrunnelse=None, bh_respondert_versjon=None, te_akseptert=False, trukket_begrunnelse=None, trukket_via_grunnlag=False, siste_event_id=None, siste_oppdatert=None, antall_versjoner=0, krevd_belop=None, differanse=None, godkjenningsgrad_prosent=None, har_subsidiaert_standpunkt=False, visningsstatus='ikke_relevant'), frist=FristTilstand(varsler=[], krav_event_id=None, respons_event_id=None, status=<SporStatus.IKKE_RELEVANT: 'ikke_relevant'>, varsel_type=None, frist_varsel=None, spesifisert_varsel=None, krevd_dager=None, begrunnelse=None, frist_varsel_ok=None, spesifisert_krav_ok=None, foresporsel_svar_ok=None, har_bh_foresporsel=None, dato_bh_foresporsel=None, begrunnelse_varsel=None, vilkar_oppfylt=None, bh_resultat=None, bh_begrunnelse=None, godkjent_dager=None, ny_sluttdato=None, frist_for_spesifisering=None, subsidiaer_triggers=None, subsidiaer_resultat=None, subsidiaer_godkjent_dager=None, subsidiaer_begrunnelse=None, bh_respondert_versjon=None, te_akseptert=False, trukket_begrunnelse=None, trukket_via_grunnlag=False, siste_event_id=None, siste_oppdatert=None, antall_versjoner=0, differanse_dager=None, har_subsidiaert_standpunkt=False, visningsstatus='ikke_relevant'), opprettet=datetime.datetime(2026, 9, 22, 16, 5, 9, 864802, tzinfo=datetime.timezone.utc), siste_aktivitet=datetime.datetime(2026, 9, 22, 16, 5, 9, 865039, tzinfo=datetime.timezone.utc), antall_events=3, catenda_topic_id=None, catenda_project_id=None, entreprenor=None, byggherre=None, prosjekt_navn=None, er_frafalt=False, er_subsidiaert_vederlag=False, er_subsidiaert_frist=False, visningsstatus_vederlag='Ikke aktuelt', visningsstatus_frist='Ikke aktuelt', overordnet_status='INGEN_AKTIVE_SPOR', kan_utstede_eo=False, neste_handling={'rolle': None, 'handling': 'Ingen ventende handlinger', 'spor': None}, sum_krevd=0.0, sum_godkjent=0.0).overordnet_status
+=============================== warnings summary ===============================
+venv/lib/python3.11/site-packages/pythonjsonlogger/jsonlogger.py:11
+  /Users/kasper/Projects/endringsmeldinger/backend/venv/lib/python3.11/site-packages/pythonjsonlogger/jsonlogger.py:11: DeprecationWarning: pythonjsonlogger.jsonlogger has been moved to pythonjsonlogger.json
+    warnings.warn(
+
+venv/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:319
+venv/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:319
+  /Users/kasper/Projects/endringsmeldinger/backend/venv/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:319: PydanticDeprecatedSince20: `json_encoders` is deprecated. See https://docs.pydantic.dev/2.12/concepts/serialization/#custom-serializers for alternatives. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    warnings.warn(
+
+core/system_context.py:12
+  /Users/kasper/Projects/endringsmeldinger/backend/core/system_context.py:12: DeprecationWarning: repositories.csv_repository is deprecated. Use repositories.event_repository instead.
+    from repositories.csv_repository import CSVRepository
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/test_security/test_tilstand_forretningsregler_audit_20260918.py::test_overordnet_status_gir_ingen_aktive_spor_for_forsering - AssertionError: Akseptert forseringssak fikk overordnet_status='INGEN_AKTIVE_SPOR'
+assert 'INGEN_AKTIVE_SPOR' != 'INGEN_AKTIVE_SPOR'
+ +  where 'INGEN_AKTIVE_SPOR' = SakState(sak_id='FORS-1', sakstittel='Forseringssak', sakstype=<SaksType.FORSERING: 'forsering'>, relaterte_saker=[], forsering_data=ForseringData(avslatte_fristkrav=['K-1'], dato_varslet='2026-09-18', estimert_kostnad=500000.0, bekreft_30_prosent_regel=True, begrunnelse='Forserer pga avslag', avslatte_dager=10, dagmulktsats=50000.0, maks_forseringskostnad=650000.0, er_iverksatt=True, dato_iverksatt='2026-09-18', er_stoppet=False, dato_stoppet=None, paalopte_kostnader=None, bh_aksepterer_forsering=True, bh_godkjent_kostnad=500000.0, bh_begrunnelse='BH aksepterer forsering', vederlag=None, bh_respons=ForseringBHRespons(vurdering_per_sak=None, dager_med_forseringsrett=None, grunnlag_fortsatt_gyldig=None, grunnlag_begrunnelse=None, trettiprosent_overholdt=None, trettiprosent_begrunnelse=None, aksepterer=True, godkjent_belop=500000.0, begrunnelse='BH aksepterer forsering', rigg_varslet_i_tide=None, produktivitet_varslet_i_tide=None, godkjent_rigg_drift=None, godkjent_produktivitet=None, subsidiaer_triggers=None, subsidiaer_godkjent_belop=None, subsidiaer_begrunnelse=None, total_godkjent=500000.0), kostnad_innenfor_grense=True), endringsordre_data=None, grunnlag=GrunnlagTilstand(krav_event_id=None, respons_event_id=None, status=<SporStatus.IKKE_RELEVANT: 'ikke_relevant'>, tittel=None, hovedkategori=None, underkategori=None, beskrivelse=None, dato_oppdaget=None, grunnlag_varsel=None, bh_resultat=None, bh_begrunnelse=None, grunnlag_varslet_i_tide=None, laast=False, bh_respondert_versjon=None, te_akseptert=False, trukket_begrunnelse=None, trukket_alle_krav=False, siste_event_id=None, siste_oppdatert=None, antall_versjoner=0), vederlag=VederlagTilstand(varsler=[], vederlag_varsel=None, krav_event_id=None, respons_event_id=None, status=<SporStatus.IKKE_RELEVANT: 'ikke_relevant'>, metode=None, belop_direkte=None, kostnads_overslag=None, krever_justert_ep=False, begrunnelse=None, saerskilt_krav=None, rigg_drift_varsel=None, justert_ep_varsel=None, varslet_for_oppstart=None, produktivitetstap_varsel=None, varsel_justert_ep_ok=None, begrunnelse_varsel=None, bh_resultat=None, bh_begrunnelse=None, bh_metode=None, godkjent_belop=None, subsidiaer_triggers=None, subsidiaer_resultat=None, subsidiaer_godkjent_belop=None, subsidiaer_begrunnelse=None, bh_respondert_versjon=None, te_akseptert=False, trukket_begrunnelse=None, trukket_via_grunnlag=False, siste_event_id=None, siste_oppdatert=None, antall_versjoner=0, krevd_belop=None, differanse=None, godkjenningsgrad_prosent=None, har_subsidiaert_standpunkt=False, visningsstatus='ikke_relevant'), frist=FristTilstand(varsler=[], krav_event_id=None, respons_event_id=None, status=<SporStatus.IKKE_RELEVANT: 'ikke_relevant'>, varsel_type=None, frist_varsel=None, spesifisert_varsel=None, krevd_dager=None, begrunnelse=None, frist_varsel_ok=None, spesifisert_krav_ok=None, foresporsel_svar_ok=None, har_bh_foresporsel=None, dato_bh_foresporsel=None, begrunnelse_varsel=None, vilkar_oppfylt=None, bh_resultat=None, bh_begrunnelse=None, godkjent_dager=None, ny_sluttdato=None, frist_for_spesifisering=None, subsidiaer_triggers=None, subsidiaer_resultat=None, subsidiaer_godkjent_dager=None, subsidiaer_begrunnelse=None, bh_respondert_versjon=None, te_akseptert=False, trukket_begrunnelse=None, trukket_via_grunnlag=False, siste_event_id=None, siste_oppdatert=None, antall_versjoner=0, differanse_dager=None, har_subsidiaert_standpunkt=False, visningsstatus='ikke_relevant'), opprettet=datetime.datetime(2026, 9, 22, 16, 5, 9, 864802, tzinfo=datetime.timezone.utc), siste_aktivitet=datetime.datetime(2026, 9, 22, 16, 5, 9, 865039, tzinfo=datetime.timezone.utc), antall_events=3, catenda_topic_id=None, catenda_project_id=None, entreprenor=None, byggherre=None, prosjekt_navn=None, er_frafalt=False, er_subsidiaert_vederlag=False, er_subsidiaert_frist=False, visningsstatus_vederlag='Ikke aktuelt', visningsstatus_frist='Ikke aktuelt', overordnet_status='INGEN_AKTIVE_SPOR', kan_utstede_eo=False, neste_handling={'rolle': None, 'handling': 'Ingen ventende handlinger', 'spor': None}, sum_krevd=0.0, sum_godkjent=0.0).overordnet_status
+======================== 1 failed, 4 warnings in 0.11s =========================
+
+
+================================================================================

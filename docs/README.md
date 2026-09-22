@@ -3,8 +3,9 @@
 `docs/` er en kjede av auditer, planer og referanser bygget opp fra 14. september
 2026. Denne fila sier hva som gjelder, hva som er historikk, og hvor man begynner.
 
-**Masterplanen er autoritativ for funnstatus.** Sier et annet dokument noe annet om
-et funn, er det andre dokumentet foreldet — rett det, ikke gjenopprett diskusjonen.
+**Hovedplanen er autoritativ for plan og funnstatus.** Sier et annet dokument noe
+annet om et funn, er det andre dokumentet foreldet — rett det, ikke gjenopprett
+diskusjonen.
 Opphever du et utsagn, skriv en datert merknad, også inn i det gamle dokumentet.
 
 ---
@@ -13,23 +14,34 @@ Opphever du et utsagn, skriv en datert merknad, også inn i det gamle dokumentet
 
 | Dokument | Hva det gir |
 | --- | --- |
-| [handoff-2026-09-21-frister](handoff-2026-09-21-frister.md) | **Begynn her.** Begge punktene med frist er lukket mens journalen var tom. Tre feller, tre beslutninger, og hva som står igjen — DB-05 er besluttet, ikke bygget |
-| [gjennomføring: MG-02](gjennomforing-mg02-2026-09-21.md) | Én identitetsform i journalen — det andre fristpunktet, som ventet på en beslutning. To av de tre hindringene funnet navnga, holdt ikke ved kontroll mot katalogen; den som holdt, rammet innlogging og synkronisering, ikke bare webhooken |
-| [gjennomføring: MS-05](gjennomforing-ms05-2026-09-21.md) | Interne notater ut av den uforanderlige journalen — den av de to fristpunktene som ikke ventet på en beslutning. Ny tabell, versjonstelleren står stille, tidslinjen fletter to kilder, sletting er mulig. Nye katalogsummer, og spørringene bak dem |
-| [handoff-2026-09-21-korrekthet](handoff-2026-09-21-korrekthet.md) | Runden før, samme dag. Korrekthetsflaten er lukket: KR-01 til KR-15 med rettinger, tre feller og etablerte fakta. **Punkt 2 og 5 er innhentet** — se merknaden øverst der |
-| [handoff-2026-09-21](handoff-2026-09-21.md) | Runden før, samme dag. Åpningsinstruksen er utført — se merknaden øverst. Overtakelse uten kontekst: hva som er gjennomført, tre nye feller, etablerte fakta med sjekksummer, og hva som krever et menneske |
-| [handoff-2026-09-20](handoff-2026-09-20.md) | Runden før. De fire fellene der gjelder fortsatt; «ting med frist» er delvis passert |
-| [handoff-2026-09-19](handoff-2026-09-19.md) | Eldre. Fellene der gjelder fortsatt, men «ting med frist» merket 5a er passert |
+| [hovedplanen](plans/2026-09-16-godkjenning-og-varig-levering.md) | **Begynn her.** Sluttredigert 22.09. Eneste løpende kilde til plan og funnstatus: invarianter, beslutningsregister med åpne valg, funnregister, arbeidspakker og neste oppgave |
 | [`../AGENTS.md`](../AGENTS.md) | Lastes automatisk i hver sesjon: språk, domeneordliste, sikkerhetsinvarianter, resonneringsregler |
+| [handoff-2026-09-21-frister](handoff-2026-09-21-frister.md) | Siste handoff. Fellene der gjelder fortsatt; planen og statusen der er innarbeidet i hovedplanen |
+
+Eldre handoffer står under [historikk](#historikk--bevart-ikke-gjeldende).
 
 ## Gjeldende plan og status
 
 | Dokument | Hva det gir |
 | --- | --- |
-| [masterplanen](plans/2026-09-16-godkjenning-og-varig-levering.md) | **Autoritativ for status.** Arbeidspakker, lukkede og åpne funn, overlapp mellom sporene, organisatoriske forutsetninger |
-| [transaksjonsplanen](plans/2026-09-17-atomisk-utstedelse-og-outbox.md) | Delplan: atomisk utstedelse og outbox |
+| [hovedplanen](plans/2026-09-16-godkjenning-og-varig-levering.md) | **Autoritativ.** Se over |
+| [oppdrag: PostgreSQL 17 i CI (F0)](prompt-f0-postgresql-i-ci-2026-09-22.md) | Neste oppgave i hovedplanen: databasetester mot ekte PostgreSQL i CI, med de første katalogtestene |
+| [redaksjonsprotokoll for hovedplanen](sluttredigering-hovedplan-2026-09-22.md) | Dekningsmatrise og rettelser fra sluttredigeringen 22.09. Ikke en kilde til løpende status |
+| [arkitekturpresiseringer 21.09](arkitekturforinger-2026-09-21.md) | AF-01–AF-06: vedtatte føringer. Innarbeidet i hovedplanen; ikke implementert |
+| [transaksjonsplanen](plans/2026-09-17-atomisk-utstedelse-og-outbox.md) | Underordnet delplan. Normativ for kommando-, låse- og worker-kontrakten i F2 |
 | [design: durable inbox og outbox](design-durable-inbox-outbox-2026-09-17.md) | Designet planen bygger på. Konkluderte uavhengig med «én database». Har formen på `vedlegg`, `kommando`, `utgaende_levering` og `innkommende_hendelse` |
-| [design: målskjema for databasen](design-maalskjema-database-2026-09-20.md) | Hvor skjemaet skal. Forutsetter durable-inbox-notatet og bygger videre på det |
+| [design: målskjema for databasen](design-maalskjema-database-2026-09-20.md) | Hvor skjemaet skal, justert av AF-01, AF-03 og AF-04 |
+
+**Konsolideringsrunden 21.–22.09 — historisk underlag for hovedplanen.**
+
+| Dokument | Hva det gir |
+| --- | --- |
+| [testrevisjon 22.09](audit-testbevis-2026-09-22.md) · [testinventar](vedlegg/testbevis-2026-09-22.csv) | Kjøring av alle 42 `xfail`-tester. Rettet 22.09 for ID-er, status og lenker; testutfallene er uendret |
+| [review av testbevis og planstatus 22.09](review-testbevis-og-planstatus-2026-09-22.md) | RTB-01–05. Innarbeidet |
+| [konsolidert masterplan v2](konsolidering-masterplan-2026-09-22-v2.md) · [kildegrunnlag v2](konsolidering-kildegrunnlag-2026-09-22-v2.md) | Historisk forslag. Strukturen er brukt i hovedplanen |
+| [review av v2](review-gemini-konsolidering-2026-09-22-v2.md) · [første review](review-gemini-konsolidering-2026-09-22.md) | RGK2-01–05 og RGK-01–06. Innarbeidet |
+| [konsolidert masterplan v1](konsolidering-masterplan-2026-09-21.md) · [kildegrunnlag v1](konsolidering-kildegrunnlag-2026-09-21.md) | Historisk forslag, avløst av v2 |
+| [oppdrag: sluttrediger hovedplanen](prompt-sluttredigering-hovedplan-2026-09-22.md) · [oppdrag: testverifikasjon](prompt-gemini-verifikasjon-tester-2026-09-22.md) · [oppdrag: konsolidering](prompt-gemini-konsolidering-2026-09-21.md) | Arbeidsinstrukser for runden |
 
 ## Siste runde — 20.–21. september
 
@@ -45,15 +57,15 @@ Opphever du et utsagn, skriv en datert merknad, også inn i det gamle dokumentet
 | [audit: korrekthet i målskjemarunden](audit-korrekthet-2026-09-21.md) | **Korrekthetsgjennomgangen handoffen ba om.** KR-01 til KR-14 over de samme åtte commitene, med tre avviste påstander og hvorfor de ikke holdt. **KR-01 er høy** og blokkerer all prosjektregistrering |
 
 Samme dag, men før den gjennomgangen, leverte en egen runde rettinger i
-produksjonskode uten eget dokument. Den står som daterte merknader i kjeden —
-[masterplanen](plans/2026-09-16-godkjenning-og-varig-levering.md) er stedet å
-lese dem samlet.
+produksjonskode uten eget dokument. De daterte merknadene står i masterplanens
+Git-historikk (`git show 41c2a16:docs/plans/2026-09-16-godkjenning-og-varig-levering.md`);
+gjeldende status står i [hovedplanen](plans/2026-09-16-godkjenning-og-varig-levering.md).
 
 | Hva | Hvor det står |
 | --- | --- |
-| TFR-01, GFK-01/FE-04, AUT-01/AUT-02 og INT-04 lukket | Masterplanen, «status for de tre» |
-| Tenant-attribusjonen (handoffens 5a): `prosjekt_id NOT NULL` på hendelsestabellene, alle fjorten oslobygg-fallbacks fjernet | Masterplanen · [audit-rls-database](audit-rls-database-2026-09-18.md) (DB-06, DB-03) · [arkitekturvurderingen](arkitekturvurdering-2026-09-19.md) (AR-01) |
-| CI: `.github/workflows/ci.yml`, tre gatende jobber. `ruff` ryddet og pinnet | Masterplanen, «verifiserbar leveranseprosess» |
+| TFR-01, GFK-01/FE-04, AUT-01/AUT-02 og INT-04 lukket | Hovedplanen, avsnitt 4. Den opprinnelige merknaden «status for de tre» står i masterplanens Git-historikk (`41c2a16`) |
+| Tenant-attribusjonen (handoffens 5a): `prosjekt_id NOT NULL` på hendelsestabellene, alle fjorten oslobygg-fallbacks fjernet | Hovedplanen, avsnitt 4 · [audit-rls-database](audit-rls-database-2026-09-18.md) (DB-06, DB-03) · [arkitekturvurderingen](arkitekturvurdering-2026-09-19.md) (AR-01) |
+| CI: `.github/workflows/ci.yml`, tre gatende jobber. `ruff` ryddet og pinnet | Hovedplanen, F0 og AR-05 |
 | `actorteam`-migrasjonen anvendt; sju tabeller som bare fantes i basen, skrevet som migrasjonsfiler. DB-01 og DB-02 lukket | [audit: databasearkitektur](audit-databasearkitektur-2026-09-20.md) (DA-01, DA-02, DA-05) |
 
 **Fortsatt åpent etter runden:** RLS-policyene er uendret
@@ -82,7 +94,7 @@ av alle funn.
 
 ## Auditserien
 
-27 auditer i fem runder. **Funnstatus står i masterplanen** — dokumentene her er
+27 auditer i fem runder. **Funnstatus står i hovedplanen** — dokumentene her er
 protokollen over hvordan funnene ble gjort, ikke en oppdatert tilstandsbeskrivelse.
 Et lukket funn står fortsatt beskrevet som åpent i dokumentet det ble funnet i.
 
@@ -150,6 +162,8 @@ utgangspunkt som er passert.
 
 | Dokument | Hvorfor det står her |
 | --- | --- |
+| [handoff 21.09 (korrekthet)](handoff-2026-09-21-korrekthet.md) · [handoff 21.09](handoff-2026-09-21.md) | Runder samme dag. Status og neste steg er innarbeidet i hovedplanen; fellene gjelder fortsatt |
+| [handoff 20.09](handoff-2026-09-20.md) · [handoff 19.09](handoff-2026-09-19.md) | Eldre runder. Fellene gjelder fortsatt; «ting med frist» er passert |
 | [handoff 15.09](handoff-2026-09-15.md) | Avløst av handoffen fra 19.09 |
 | [handoff om Catenda-kallfrekvens](handoff-gpt-astra-2026-09-15.md) | Åpent spørsmål om kallfrekvens; målingen er fortsatt ikke gjort |
 | [prompt: svakhetsgjennomgang](prompt-svakhetsgjennomgang-2026-09-17.md) | Utgangspunktet for runden 17.09. Etterprøvingen korrigerte flere av premissene — les den sammen med [audit-sikkerhetsarkitektur](audit-sikkerhetsarkitektur-2026-09-17.md) |
@@ -175,14 +189,22 @@ Legg nye dokumenter flatt i `docs/`. Navnekonvensjonen — `audit-*`, `handoff-*
 en omorganisering ville brutt. Undermappe brukes når noe er *en annen type ting*
 (`plans/`, `adr/`), ikke når det er mange filer.
 
-Lenkekontroll, som ikke har falske positive:
+Merk belegg slik hovedplanen gjør: **K** kjørt og observert (med dato), **L** lest
+i kode eller migrasjonsfil, **D** tidligere kontrollert i databasekatalogen (med
+dato), **H** historisk dokumentert i en audit. En påstand får ikke sterkere merke
+enn kilden bærer.
+
+Lenker løses fra dokumentets egen mappe. Fra `docs/` til kode er det
+`../backend/`, fra `docs/plans/` er det `../../backend/`.
+
+Lenkekontroll, som også kontrollerer ankre etter GitHubs regler:
 
 ```bash
-python3 -c "
-import pathlib, re
-for f in pathlib.Path('docs').rglob('*.md'):
-    for m in re.finditer(r'\]\((?!https?:|file:|#)([^)#]+)', f.read_text(encoding='utf-8')):
-        if not (f.parent/m.group(1)).resolve().exists(): print('BRUTT:', f, '->', m.group(1))"
+python3 docs/verktoy/lenkekontroll.py            # alle .md under docs/
+python3 docs/verktoy/lenkekontroll.py docs/x.md  # bare disse
 ```
 
-Skal gi nøyaktig ett treff: `adr/001` → `../NS_8407.md`, som ble avsporet i `507e225`.
+Skal gi `brutte: 0`. `adr/001` lenker til `../NS_8407.md`, som ble avsporet i
+`507e225`; uten en lokal kopi av den fila gir kontrollen ett brudd der.
+Linjeankre som `#L10-L20` mot kildefiler telles, men kontrolleres ikke, og
+`file:`-lenker hoppes over.

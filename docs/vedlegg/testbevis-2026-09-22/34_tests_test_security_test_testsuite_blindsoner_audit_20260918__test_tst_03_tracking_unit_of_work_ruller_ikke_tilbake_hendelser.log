@@ -1,0 +1,82 @@
+================================================================================
+Test: tests/test_security/test_testsuite_blindsoner_audit_20260918.py::test_tst_03_tracking_unit_of_work_ruller_ikke_tilbake_hendelser
+Kommando ordinær: pytest -v tests/test_security/test_testsuite_blindsoner_audit_20260918.py::test_tst_03_tracking_unit_of_work_ruller_ikke_tilbake_hendelser
+Utfall ordinær: Exit 0
+--------------------------------------------------------------------------------
+============================= test session starts ==============================
+platform darwin -- Python 3.11.9, pytest-9.0.2, pluggy-1.6.0 -- /Users/kasper/Projects/endringsmeldinger/backend/venv/bin/python
+cachedir: .pytest_cache
+rootdir: /Users/kasper/Projects/endringsmeldinger/backend
+configfile: pyproject.toml
+plugins: anyio-4.12.1, cov-7.0.0
+collecting ... collected 1 item
+
+tests/test_security/test_testsuite_blindsoner_audit_20260918.py::test_tst_03_tracking_unit_of_work_ruller_ikke_tilbake_hendelser XFAIL er no-op
+i rollback og gir falsk transaksjonssikkerhet)                           [100%]
+
+=============================== warnings summary ===============================
+venv/lib/python3.11/site-packages/pythonjsonlogger/jsonlogger.py:11
+  /Users/kasper/Projects/endringsmeldinger/backend/venv/lib/python3.11/site-packages/pythonjsonlogger/jsonlogger.py:11: DeprecationWarning: pythonjsonlogger.jsonlogger has been moved to pythonjsonlogger.json
+    warnings.warn(
+
+venv/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:319
+venv/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:319
+  /Users/kasper/Projects/endringsmeldinger/backend/venv/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:319: PydanticDeprecatedSince20: `json_encoders` is deprecated. See https://docs.pydantic.dev/2.12/concepts/serialization/#custom-serializers for alternatives. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    warnings.warn(
+
+core/system_context.py:12
+  /Users/kasper/Projects/endringsmeldinger/backend/core/system_context.py:12: DeprecationWarning: repositories.csv_repository is deprecated. Use repositories.event_repository instead.
+    from repositories.csv_repository import CSVRepository
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+======================== 1 xfailed, 4 warnings in 0.11s ========================
+
+
+================================================================================
+Kommando --runxfail: pytest -v tests/test_security/test_testsuite_blindsoner_audit_20260918.py::test_tst_03_tracking_unit_of_work_ruller_ikke_tilbake_hendelser --runxfail
+Utfall --runxfail: Exit 1
+--------------------------------------------------------------------------------
+============================= test session starts ==============================
+platform darwin -- Python 3.11.9, pytest-9.0.2, pluggy-1.6.0 -- /Users/kasper/Projects/endringsmeldinger/backend/venv/bin/python
+cachedir: .pytest_cache
+rootdir: /Users/kasper/Projects/endringsmeldinger/backend
+configfile: pyproject.toml
+plugins: anyio-4.12.1, cov-7.0.0
+collecting ... collected 1 item
+
+tests/test_security/test_testsuite_blindsoner_audit_20260918.py::test_tst_03_tracking_unit_of_work_ruller_ikke_tilbake_hendelser FAILED [100%]
+
+=================================== FAILURES ===================================
+_______ test_tst_03_tracking_unit_of_work_ruller_ikke_tilbake_hendelser ________
+tests/test_security/test_testsuite_blindsoner_audit_20260918.py:130: in test_tst_03_tracking_unit_of_work_ruller_ikke_tilbake_hendelser
+    assert len(events) == 0 and version == 0, (
+E   AssertionError: TST-03: TrackingUnitOfWork rullet ikke tilbake hendelser ved feil! Persisterte hendelser etter rollback: 1, versjon: 1. UoW gir falsk trygghet om atomisitet.
+E   assert (1 == 0)
+E    +  where 1 = len([{'prosjekt_id': None, 'event_id': '8138ba50-ad1d-4031-9025-56d873a679c0', 'sak_id': 'SAK-UOW-FAIL', 'event_type': 'sak_opprettet', 'tidsstempel': '2026-09-22T16:04:59.169564Z', 'aktor_id': 'TE', 'aktor_rolle': 'TE', 'aktor_team_id': None, 'kommentar': None, 'refererer_til_event_id': None, 'sakstittel': 'UoW Test', 'catenda_topic_id': None, 'sakstype': 'standard', 'prosjekt_navn': None, 'byggherre': None, 'leverandor': None, 'forsering_data': None, 'specversion': '1.0', 'ce_id': '8138ba50-ad1d-4031-9025-56d873a679c0', 'ce_source': '/projects/unknown/cases/SAK-UOW-FAIL', 'ce_type': 'no.oslo.koe.sak_opprettet', 'ce_time': '2026-09-22T16:04:59.169564Z', 'ce_subject': 'SAK-UOW-FAIL', 'ce_datacontenttype': 'application/json'}])
+----------------------------- Captured stderr call -----------------------------
+18:04:59  [33mWARNING [0m    [2mcore.unit_of_work[0m  Cannot rollback event append for SAK-UOW-FAIL. Event sourcing is append-only. Consider compensating event.
+------------------------------ Captured log call -------------------------------
+WARNING  [2mcore.unit_of_work[0m:unit_of_work.py:238 Cannot rollback event append for SAK-UOW-FAIL. Event sourcing is append-only. Consider compensating event.
+=============================== warnings summary ===============================
+venv/lib/python3.11/site-packages/pythonjsonlogger/jsonlogger.py:11
+  /Users/kasper/Projects/endringsmeldinger/backend/venv/lib/python3.11/site-packages/pythonjsonlogger/jsonlogger.py:11: DeprecationWarning: pythonjsonlogger.jsonlogger has been moved to pythonjsonlogger.json
+    warnings.warn(
+
+venv/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:319
+venv/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:319
+  /Users/kasper/Projects/endringsmeldinger/backend/venv/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:319: PydanticDeprecatedSince20: `json_encoders` is deprecated. See https://docs.pydantic.dev/2.12/concepts/serialization/#custom-serializers for alternatives. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    warnings.warn(
+
+core/system_context.py:12
+  /Users/kasper/Projects/endringsmeldinger/backend/core/system_context.py:12: DeprecationWarning: repositories.csv_repository is deprecated. Use repositories.event_repository instead.
+    from repositories.csv_repository import CSVRepository
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/test_security/test_testsuite_blindsoner_audit_20260918.py::test_tst_03_tracking_unit_of_work_ruller_ikke_tilbake_hendelser - AssertionError: TST-03: TrackingUnitOfWork rullet ikke tilbake hendelser ved feil! Persisterte hendelser etter rollback: 1, versjon: 1. UoW gir falsk trygghet om atomisitet.
+assert (1 == 0)
+ +  where 1 = len([{'prosjekt_id': None, 'event_id': '8138ba50-ad1d-4031-9025-56d873a679c0', 'sak_id': 'SAK-UOW-FAIL', 'event_type': 'sak_opprettet', 'tidsstempel': '2026-09-22T16:04:59.169564Z', 'aktor_id': 'TE', 'aktor_rolle': 'TE', 'aktor_team_id': None, 'kommentar': None, 'refererer_til_event_id': None, 'sakstittel': 'UoW Test', 'catenda_topic_id': None, 'sakstype': 'standard', 'prosjekt_navn': None, 'byggherre': None, 'leverandor': None, 'forsering_data': None, 'specversion': '1.0', 'ce_id': '8138ba50-ad1d-4031-9025-56d873a679c0', 'ce_source': '/projects/unknown/cases/SAK-UOW-FAIL', 'ce_type': 'no.oslo.koe.sak_opprettet', 'ce_time': '2026-09-22T16:04:59.169564Z', 'ce_subject': 'SAK-UOW-FAIL', 'ce_datacontenttype': 'application/json'}])
+======================== 1 failed, 4 warnings in 0.12s =========================
+
+
+================================================================================
