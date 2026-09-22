@@ -169,9 +169,10 @@ katalog, ingen saksdata:
 
 **Kontrollert i den levende katalogen:** avsnitt 3 og PGC-02–PGC-04.
 
-**Ikke observert i CI.** Grenen er ikke pushet. Om tjenestecontaineren
-`postgres:17`, runnerens `psql`-klient og helsesjekken oppfører seg som lokalt,
-er ikke sett. Arbeidsflyten er bare validert som YAML.
+**Observert i CI (22.09, [PR #33](https://github.com/khjohns/endringsmeldinger/pull/33),
+kjøring `35762884390`):** alle fire jobbene grønne. Jobben `database` rapporterte
+`server_version_num=170011` (17.11, Debian-bygg), «Bygget 23 migrasjoner.» og
+10 bestått. De negative kontrollene er bare kjørt lokalt.
 
 **Ikke kontrollert:**
 
