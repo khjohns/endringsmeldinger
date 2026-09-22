@@ -8,6 +8,7 @@ INGEN PRODUKSJONSKODE SKAL ENDRES I DETTE PASSET.
 Testene skal feile med ren AssertionError før de markeres med streng xfail.
 """
 
+import os
 import tempfile
 import threading
 from pathlib import Path
@@ -45,110 +46,157 @@ def test_tst_01_manglende_integrasjon_full_kjede_krasjer_uten_mocks():
 
 
 class FlettingIkkeNaadd(RuntimeError):
-    """Trådplanen testen skal styre, ble ikke nådd. Det er ingen xfail."""
+    """Trådplanen testen skal styre, ble ikke nådd."""
 
 
-@pytest.mark.xfail(
-    strict=True,
-    raises=AssertionError,
-    reason=(
-        "TST-02/KR-15: JsonFileEventRepository låser ikke eksistenssjekken ved "
-        "expected_version=0; en samtidig opprettelse overskriver den første"
-    ),
-)
-def test_tst_02_samtidig_opprettelse_overskriver_foerste_sak_uten_concurrency_error(
+class ToSkrivere:
+    """To opprettelser av samme sak, styrt gjennom ett punkt i `append_batch`.
+
+    Begge skriverne når punktet, så fullfører skriver 1, så fortsetter
+    skriver 2. Bare første passering per tråd styres.
+    """
+
+    NAVN = ("skriver 1", "skriver 2")
+
+    def __init__(self):
+        self.naadd = {navn: threading.Event() for navn in self.NAVN}
+        self.skriver_1_ferdig = threading.Event()
+        self.traad = threading.local()
+        self.passert = set()
+
+    def navn(self):
+        return getattr(self.traad, "navn", None)
+
+    def punkt(self):
+        navn = self.navn()
+        if navn is None or navn in self.passert:
+            return
+        self.passert.add(navn)
+        self.naadd[navn].set()
+        if not all(naadd.wait(5) for naadd in self.naadd.values()):
+            raise FlettingIkkeNaadd("begge skriverne nådde ikke punktet")
+        if navn == "skriver 2" and not self.skriver_1_ferdig.wait(5):
+            raise FlettingIkkeNaadd("skriver 1 fullførte ikke")
+
+    def kjoer(self, repo, sak_id):
+        hendelser = {
+            navn: SakOpprettetEvent(
+                sak_id=sak_id,
+                aktor_id=f"te-bruker-{navn[-1]}",
+                aktor_rolle="TE",
+                sakstittel=f"Sak fra {navn}",
+            )
+            for navn in self.NAVN
+        }
+        utfall = {}
+
+        def opprett(navn):
+            self.traad.navn = navn
+            try:
+                utfall[navn] = repo.append_batch([hendelser[navn]], expected_version=0)
+            except Exception as exc:
+                utfall[navn] = exc
+            finally:
+                if navn == "skriver 1":
+                    self.skriver_1_ferdig.set()
+
+        traader = [threading.Thread(target=opprett, args=(navn,)) for navn in self.NAVN]
+        for t in traader:
+            t.start()
+        for t in traader:
+            t.join(timeout=15)
+
+        if any(t.is_alive() for t in traader):
+            raise FlettingIkkeNaadd("en skriver ble ikke ferdig")
+        for resultat in utfall.values():
+            if isinstance(resultat, FlettingIkkeNaadd):
+                raise resultat
+        if self.passert != set(self.NAVN):
+            raise FlettingIkkeNaadd(f"punktet ble passert av {self.passert}")
+        return hendelser, utfall
+
+
+def _krev_at_foerste_sak_staar(repo, sak_id, hendelser, utfall):
+    lagret, versjon = repo.get_events(sak_id)
+    assert utfall["skriver 1"] == 1, utfall
+    assert [e["event_id"] for e in lagret] == [hendelser["skriver 1"].event_id], (
+        f"Skriver 1s opprettelse ble overskrevet. Lagret: "
+        f"{[e['sakstittel'] for e in lagret]} (versjon {versjon}). Utfall: {utfall}"
+    )
+    assert isinstance(utfall["skriver 2"], ConcurrencyError), utfall
+    assert (utfall["skriver 2"].expected, utfall["skriver 2"].actual) == (0, 1)
+    assert list(repo.base_path.glob("*.tmp")) + list(repo.base_path.glob(".*.tmp")) == []
+    assert repo.list_all_sak_ids() == [sak_id]
+
+
+def test_tst_02_samtidig_opprettelse_etter_eksistenssjekken_gir_concurrency_error(
     tmp_path, monkeypatch
 ):
-    """TST-02/KR-15: to opprettelser av samme sak, begge forbi eksistenssjekken.
+    """TST-02/KR-15: begge skriverne har sett at saksfilen mangler.
 
-    Flettingen styres ved selve sjekken, `file_path.exists()` i `append_batch`:
-    begge skriverne ser at saksfilen mangler, så fullfører skriver 1, så
-    fortsetter skriver 2. Lagringen er reell. Riktig utfall er at skriver 1s
-    sak står, og at skriver 2 får `ConcurrencyError`. I dag overskriver
-    skriver 2 den i det stille, og begge får versjon 1.
+    Flettingen styres ved `file_path.exists()` i `append_batch`, med reell
+    lagring. Skriver 1s sak skal stå, og skriver 2 skal få
+    `ConcurrencyError`.
 
-    Gjelder bare `JsonFileEventRepository`. Blir trådplanen umulig — for
-    eksempel fordi sjekken er kommet under en lås — kastes `FlettingIkkeNaadd`,
-    og testen feiler i stedet for å bli XPASS; da skal den skrives om.
-
-    Merknad 2026-09-22 (T-4, RTB-02): erstatter
-    `test_tst_02_samtidig_saksopprettelse_krasjer_eller_overskriver_uten_concurrency_error`
-    og `test_tst02_samtidig_opprettelse_kolliderer_paa_felles_tmp_fil`. Begge
-    startet trådene fra en barriere før `append_batch` og lot planleggeren
-    avgjøre om de møttes ved sjekken, og begge godtok «krasj eller
-    overskriving». Den første ga tilfeldig XPASS på en streng xfail (KR-15);
-    den andre avviste det korrekte utfallet `ConcurrencyError` når trådene ikke
-    møttes.
+    Merknad 2026-09-22 (TST-02 rettet): testen var en streng xfail
+    (`test_tst_02_samtidig_opprettelse_overskriver_foerste_sak_uten_concurrency_error`)
+    som viste at skriver 2 overskrev skriver 1s sak og fikk versjon 1. Lageret
+    publiserer nå saksfilen med `os.link`, som feiler når filen finnes, og
+    testen ble XPASS. Den er gjort om til en ordinær test med de samme
+    assertionene.
     """
     sak_id = "RACE-SAK-001"
     repo = JsonFileEventRepository(base_path=str(tmp_path))
-    har_sjekket = {"skriver 1": threading.Event(), "skriver 2": threading.Event()}
-    skriver_1_ferdig = threading.Event()
+    styring = ToSkrivere()
     saksfil_fantes = {}
-    traad = threading.local()
 
     class StyrtSaksfil(type(Path())):
         def exists(self):
             finnes = super().exists()
-            navn = getattr(traad, "navn", None)
-            if navn is None or navn in saksfil_fantes:
-                return finnes
-            saksfil_fantes[navn] = finnes
-            har_sjekket[navn].set()
-            if not all(sjekket.wait(5) for sjekket in har_sjekket.values()):
-                raise FlettingIkkeNaadd("begge skriverne nådde ikke eksistenssjekken")
-            if navn == "skriver 2" and not skriver_1_ferdig.wait(5):
-                raise FlettingIkkeNaadd("skriver 1 fullførte ikke")
+            navn = styring.navn()
+            if navn is not None and navn not in saksfil_fantes:
+                saksfil_fantes[navn] = finnes
+                styring.punkt()
             return finnes
 
     saksfil = repo._get_file_path
     monkeypatch.setattr(repo, "_get_file_path", lambda s: StyrtSaksfil(saksfil(s)))
 
-    hendelser = {
-        navn: SakOpprettetEvent(
-            sak_id=sak_id,
-            aktor_id=f"te-bruker-{navn[-1]}",
-            aktor_rolle="TE",
-            sakstittel=f"Sak fra {navn}",
-        )
-        for navn in har_sjekket
-    }
-    utfall = {}
+    hendelser, utfall = styring.kjoer(repo, sak_id)
 
-    def opprett(navn):
-        traad.navn = navn
-        try:
-            utfall[navn] = repo.append_batch([hendelser[navn]], expected_version=0)
-        except Exception as exc:
-            utfall[navn] = exc
-        finally:
-            if navn == "skriver 1":
-                skriver_1_ferdig.set()
-
-    traader = [threading.Thread(target=opprett, args=(navn,)) for navn in har_sjekket]
-    for t in traader:
-        t.start()
-    for t in traader:
-        t.join(timeout=15)
-
-    if any(t.is_alive() for t in traader):
-        raise FlettingIkkeNaadd("en skriver ble ikke ferdig")
-    for resultat in utfall.values():
-        if isinstance(resultat, FlettingIkkeNaadd):
-            raise resultat
     if saksfil_fantes != {"skriver 1": False, "skriver 2": False}:
         raise FlettingIkkeNaadd(f"begge skal ha sett at saksfilen mangler: {saksfil_fantes}")
-    if utfall["skriver 1"] != 1:
-        raise FlettingIkkeNaadd(f"skriver 1 skal ha opprettet saken: {utfall}")
+    _krev_at_foerste_sak_staar(repo, sak_id, hendelser, utfall)
 
-    lagret, versjon = repo.get_events(sak_id)
-    assert [e["event_id"] for e in lagret] == [hendelser["skriver 1"].event_id], (
-        "TST-02: skriver 1s opprettelse ble overskrevet i det stille av skriver 2. "
-        f"Lagret: {[e['sakstittel'] for e in lagret]} (versjon {versjon}). Utfall: {utfall}"
-    )
-    assert isinstance(utfall["skriver 2"], ConcurrencyError), (
-        f"TST-02: skriver 2 skulle fått ConcurrencyError. Utfall: {utfall}"
-    )
+
+def test_tst_02_samtidig_opprettelse_med_to_ferdige_utkast_gir_concurrency_error(
+    tmp_path, monkeypatch
+):
+    """TST-02: begge skriverne har skrevet saksfilen ferdig før noen publiserer.
+
+    Flettingen styres ved publiseringen (`os.link`). Før rettingen skrev begge
+    til samme `{sak_id}.tmp`; den andre `rename` fant ikke filen og kastet
+    `FileNotFoundError`, som ble 500 i stedet for 409. Nå har hver skriver sin
+    egen midlertidige fil, og den andre publiseringen gir `ConcurrencyError`.
+    """
+    sak_id = "RACE-SAK-002"
+    repo = JsonFileEventRepository(base_path=str(tmp_path))
+    styring = ToSkrivere()
+    utkast_ved_publisering = []
+    ekte_link = os.link
+
+    def styrt_link(kilde, maal, *args, **kwargs):
+        styring.punkt()
+        if styring.navn() == "skriver 1":
+            utkast_ved_publisering.extend(sorted(tmp_path.glob(".*.tmp")))
+        return ekte_link(kilde, maal, *args, **kwargs)
+
+    monkeypatch.setattr(os, "link", styrt_link)
+
+    hendelser, utfall = styring.kjoer(repo, sak_id)
+
+    assert len(utkast_ved_publisering) == 2, utkast_ved_publisering
+    _krev_at_foerste_sak_staar(repo, sak_id, hendelser, utfall)
 
 
 @pytest.mark.xfail(
