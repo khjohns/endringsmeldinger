@@ -83,6 +83,10 @@ beholde reell lagring. Den andre testen demonstrerer `Path.rename` isolert;
 den er ikke en gjennomgående reproduksjon i applikasjonens repository.
 Ingen eksisterende eller nye tester er endret i dette reviewet.
 
+> **Merknad 2026-09-22 (T-4):** Testen er erstattet av en reproduksjon som
+> styrer flettingen ved eksistenssjekken, med reell lagring. Se
+> [gjennomføringsnotatet](gjennomforing-f0-testvedlikehold-2026-09-22.md).
+
 ### RTB-03 — en grønn reproduksjon er ikke hele rettingskontrakten
 
 **Sted:** testrevisjonens avsnitt 5, pulje 2; `EndringsordreService.opprett_endringsordresak`
