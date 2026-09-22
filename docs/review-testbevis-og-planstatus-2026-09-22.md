@@ -1,5 +1,10 @@
 # Review av testbevis og status for hovedplanen
 
+> **Merknad 2026-09-22:** RTB-01–05 er innarbeidet. Testinventaret og
+> testrevisjonen er rettet med daterte merknader, og den
+> [sluttredigerte hovedplanen](plans/2026-09-16-godkjenning-og-varig-levering.md) er autoritativ. Se
+> [redaksjonsprotokollen](sluttredigering-hovedplan-2026-09-22.md).
+
 **Dato:** 2026-09-22.  
 **Utgangspunkt:** `0bdc1dc7925631a9df7264c33812f8c10ddc6fd2` (`main`).  
 **Forrige ledd:** [Geminis testrevisjon](audit-testbevis-2026-09-22.md),

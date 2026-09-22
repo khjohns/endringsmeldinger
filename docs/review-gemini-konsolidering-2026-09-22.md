@@ -1,5 +1,9 @@
 # Review av Geminis konsolidering
 
+> **Merknad 2026-09-22:** RGK-01–06 er innarbeidet i den
+> [sluttredigerte hovedplanen](plans/2026-09-16-godkjenning-og-varig-levering.md); behandlingen står i
+> [redaksjonsprotokollen](sluttredigering-hovedplan-2026-09-22.md).
+
 **Dato:** 2026-09-22. **Kontrollert commit:**
 `0bdc1dc7925631a9df7264c33812f8c10ddc6fd2` (`main`).
 Gjennomgangen startet 21.09 og ble ferdigstilt 22.09.

@@ -1,5 +1,13 @@
 # Konsolidert masterplan for review (2026-09-22-v2)
 
+> **Merknad 2026-09-22 (sluttredigering):** Historisk forslag. Strukturen er
+> brukt i den [sluttredigerte hovedplanen](plans/2026-09-16-godkjenning-og-varig-levering.md), som er autoritativ. Blant
+> det som er rettet der: AF-03 og tilgangsmekanismen er åpne valg (B-01, B-02),
+> ikke vedtatt; vedleggsregister og leveringsstatus avvikles når alle flyter
+> bruker erstatningen, ikke ved slutten av fase 2; `failOnDocumentExists=true`
+> følger av dokumentmodellen (B-03); tilbakekalling og driftsverdier er åpne
+> (B-04, B-09). Se [redaksjonsprotokollen](sluttredigering-hovedplan-2026-09-22.md).
+
 **Dato:** 2026-09-22  
 **Gjeldende commit:** `0bdc1dc7925631a9df7264c33812f8c10ddc6fd2` (gren `main`)  
 **Status:** **Revidert reviewforslag (v2) — oppdatert etter oppfølgingsreview 22.09.**  

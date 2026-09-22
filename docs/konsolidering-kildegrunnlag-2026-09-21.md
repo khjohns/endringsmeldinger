@@ -1,5 +1,8 @@
 # Konsolidert kildegrunnlag og dekningsmatrise (2026-09-21)
 
+> **Merknad 2026-09-22:** Historisk forslag. Avløst av v2 og deretter av den
+> [sluttredigerte hovedplanen](plans/2026-09-16-godkjenning-og-varig-levering.md). Statusene i matrisen under gjelder ikke.
+
 **Dato:** 2026-09-21  
 **Gjeldende commit ved oppstart:** `0bdc1dc7925631a9df7264c33812f8c10ddc6fd2` (gren `main`)  
 **Utgangspunkt ved oppdragsbeskrivelsen:** `fc9b179`  
