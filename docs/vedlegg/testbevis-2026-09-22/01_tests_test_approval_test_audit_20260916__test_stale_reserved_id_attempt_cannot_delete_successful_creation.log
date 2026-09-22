@@ -1,0 +1,95 @@
+================================================================================
+Test: tests/test_approval/test_audit_20260916.py::test_stale_reserved_id_attempt_cannot_delete_successful_creation
+Kommando ordinær: pytest -v tests/test_approval/test_audit_20260916.py::test_stale_reserved_id_attempt_cannot_delete_successful_creation
+Utfall ordinær: Exit 0
+--------------------------------------------------------------------------------
+============================= test session starts ==============================
+platform darwin -- Python 3.11.9, pytest-9.0.2, pluggy-1.6.0 -- /Users/kasper/Projects/endringsmeldinger/backend/venv/bin/python
+cachedir: .pytest_cache
+rootdir: /Users/kasper/Projects/endringsmeldinger/backend
+configfile: pyproject.toml
+plugins: anyio-4.12.1, cov-7.0.0
+collecting ... collected 1 item
+
+tests/test_approval/test_audit_20260916.py::test_stale_reserved_id_attempt_cannot_delete_successful_creation XFAIL [100%]
+
+=============================== warnings summary ===============================
+venv/lib/python3.11/site-packages/pythonjsonlogger/jsonlogger.py:11
+  /Users/kasper/Projects/endringsmeldinger/backend/venv/lib/python3.11/site-packages/pythonjsonlogger/jsonlogger.py:11: DeprecationWarning: pythonjsonlogger.jsonlogger has been moved to pythonjsonlogger.json
+    warnings.warn(
+
+venv/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:319
+venv/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:319
+  /Users/kasper/Projects/endringsmeldinger/backend/venv/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:319: PydanticDeprecatedSince20: `json_encoders` is deprecated. See https://docs.pydantic.dev/2.12/concepts/serialization/#custom-serializers for alternatives. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    warnings.warn(
+
+core/system_context.py:12
+  /Users/kasper/Projects/endringsmeldinger/backend/core/system_context.py:12: DeprecationWarning: repositories.csv_repository is deprecated. Use repositories.event_repository instead.
+    from repositories.csv_repository import CSVRepository
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+======================== 1 xfailed, 4 warnings in 0.11s ========================
+
+
+================================================================================
+Kommando --runxfail: pytest -v tests/test_approval/test_audit_20260916.py::test_stale_reserved_id_attempt_cannot_delete_successful_creation --runxfail
+Utfall --runxfail: Exit 1
+--------------------------------------------------------------------------------
+============================= test session starts ==============================
+platform darwin -- Python 3.11.9, pytest-9.0.2, pluggy-1.6.0 -- /Users/kasper/Projects/endringsmeldinger/backend/venv/bin/python
+cachedir: .pytest_cache
+rootdir: /Users/kasper/Projects/endringsmeldinger/backend
+configfile: pyproject.toml
+plugins: anyio-4.12.1, cov-7.0.0
+collecting ... collected 1 item
+
+tests/test_approval/test_audit_20260916.py::test_stale_reserved_id_attempt_cannot_delete_successful_creation FAILED [100%]
+
+=================================== FAILURES ===================================
+_______ test_stale_reserved_id_attempt_cannot_delete_successful_creation _______
+tests/test_approval/test_audit_20260916.py:162: in test_stale_reserved_id_attempt_cannot_delete_successful_creation
+    assert args["sak_id"] in env.metadata, (
+E   AssertionError: Committed events survive but metadata is deleted
+E   assert 'EO-reserved-audit' in {}
+E    +  where {} = namespace(service=<services.endringsordre_service.EndringsordreService object at 0x11ce562d0>, creation=<Mock id='4400623376'>, events=<repositories.event_repository.JsonFileEventRepository object at 0x11ce56c90>, metadata={}, seed=<function environment.<locals>.seed at 0x11ce4d760>, timeline=<services.timeline_service.TimelineService object at 0x11cdaeed0>, repo=<Mock id='4779762896'>).metadata
+---------------------------- Captured stderr setup -----------------------------
+18:03:47  [33mWARNING [0m    [2mservices.base_sak_service[0m  EndringsordreService initialized without Catenda client
+------------------------------ Captured log setup ------------------------------
+WARNING  [2mservices.base_sak_service[0m:base_sak_service.py:54 EndringsordreService initialized without Catenda client
+----------------------------- Captured stderr call -----------------------------
+18:03:47  [32mINFO    [0m    [2mservices.endringsordre_service[0m  Oppretter endringsordresak EO-reserved-audit (EO-EO-1) med 0 relaterte KOE-er
+18:03:47  [32mINFO    [0m    [2mservices.sak_creation_service[0m  ✅ Metadata opprettet for EO-reserved-audit
+18:03:47  [32mINFO    [0m    [2mservices.sak_creation_service[0m  ✅ 3 event(s) lagret for EO-reserved-audit, versjon: 3
+18:03:47  [32mINFO    [0m    [2mservices.endringsordre_service[0m  Oppretter endringsordresak EO-reserved-audit (EO-EO-1) med 0 relaterte KOE-er
+18:03:47  [32mINFO    [0m    [2mservices.sak_creation_service[0m  ✅ Metadata opprettet for EO-reserved-audit
+18:03:47  [31mERROR   [0m    [2mservices.sak_creation_service[0m  ❌ Feil ved opprettelse av sak EO-reserved-audit: Versjonskonflikt: forventet 0, fikk 3
+------------------------------ Captured log call -------------------------------
+INFO     [2mservices.endringsordre_service[0m:endringsordre_service.py:408 Oppretter endringsordresak EO-reserved-audit (EO-EO-1) med 0 relaterte KOE-er
+INFO     [2mservices.sak_creation_service[0m:sak_creation_service.py:189 ✅ Metadata opprettet for EO-reserved-audit
+INFO     [2mservices.sak_creation_service[0m:sak_creation_service.py:196 ✅ 3 event(s) lagret for EO-reserved-audit, versjon: 3
+INFO     [2mservices.endringsordre_service[0m:endringsordre_service.py:408 Oppretter endringsordresak EO-reserved-audit (EO-EO-1) med 0 relaterte KOE-er
+INFO     [2mservices.sak_creation_service[0m:sak_creation_service.py:189 ✅ Metadata opprettet for EO-reserved-audit
+ERROR    [2mservices.sak_creation_service[0m:sak_creation_service.py:208 ❌ Feil ved opprettelse av sak EO-reserved-audit: Versjonskonflikt: forventet 0, fikk 3
+=============================== warnings summary ===============================
+venv/lib/python3.11/site-packages/pythonjsonlogger/jsonlogger.py:11
+  /Users/kasper/Projects/endringsmeldinger/backend/venv/lib/python3.11/site-packages/pythonjsonlogger/jsonlogger.py:11: DeprecationWarning: pythonjsonlogger.jsonlogger has been moved to pythonjsonlogger.json
+    warnings.warn(
+
+venv/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:319
+venv/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:319
+  /Users/kasper/Projects/endringsmeldinger/backend/venv/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:319: PydanticDeprecatedSince20: `json_encoders` is deprecated. See https://docs.pydantic.dev/2.12/concepts/serialization/#custom-serializers for alternatives. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    warnings.warn(
+
+core/system_context.py:12
+  /Users/kasper/Projects/endringsmeldinger/backend/core/system_context.py:12: DeprecationWarning: repositories.csv_repository is deprecated. Use repositories.event_repository instead.
+    from repositories.csv_repository import CSVRepository
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/test_approval/test_audit_20260916.py::test_stale_reserved_id_attempt_cannot_delete_successful_creation - AssertionError: Committed events survive but metadata is deleted
+assert 'EO-reserved-audit' in {}
+ +  where {} = namespace(service=<services.endringsordre_service.EndringsordreService object at 0x11ce562d0>, creation=<Mock id='4400623376'>, events=<repositories.event_repository.JsonFileEventRepository object at 0x11ce56c90>, metadata={}, seed=<function environment.<locals>.seed at 0x11ce4d760>, timeline=<services.timeline_service.TimelineService object at 0x11cdaeed0>, repo=<Mock id='4779762896'>).metadata
+======================== 1 failed, 4 warnings in 0.12s =========================
+
+
+================================================================================

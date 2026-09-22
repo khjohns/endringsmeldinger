@@ -1,0 +1,90 @@
+================================================================================
+Test: tests/test_security/test_integrasjoner_audit_20260918.py::test_webhook_failure_swallowed_with_http_200_and_drops_retry
+Kommando ordinær: pytest -v tests/test_security/test_integrasjoner_audit_20260918.py::test_webhook_failure_swallowed_with_http_200_and_drops_retry
+Utfall ordinær: Exit 0
+--------------------------------------------------------------------------------
+============================= test session starts ==============================
+platform darwin -- Python 3.11.9, pytest-9.0.2, pluggy-1.6.0 -- /Users/kasper/Projects/endringsmeldinger/backend/venv/bin/python
+cachedir: .pytest_cache
+rootdir: /Users/kasper/Projects/endringsmeldinger/backend
+configfile: pyproject.toml
+plugins: anyio-4.12.1, cov-7.0.0
+collecting ... collected 1 item
+
+tests/test_security/test_integrasjoner_audit_20260918.py::test_webhook_failure_swallowed_with_http_200_and_drops_retry XFAILer
+duplikat-ID slik at retries tapes)                                       [100%]
+
+=============================== warnings summary ===============================
+venv/lib/python3.11/site-packages/pythonjsonlogger/jsonlogger.py:11
+  /Users/kasper/Projects/endringsmeldinger/backend/venv/lib/python3.11/site-packages/pythonjsonlogger/jsonlogger.py:11: DeprecationWarning: pythonjsonlogger.jsonlogger has been moved to pythonjsonlogger.json
+    warnings.warn(
+
+venv/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:319
+venv/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:319
+  /Users/kasper/Projects/endringsmeldinger/backend/venv/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:319: PydanticDeprecatedSince20: `json_encoders` is deprecated. See https://docs.pydantic.dev/2.12/concepts/serialization/#custom-serializers for alternatives. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    warnings.warn(
+
+core/system_context.py:12
+  /Users/kasper/Projects/endringsmeldinger/backend/core/system_context.py:12: DeprecationWarning: repositories.csv_repository is deprecated. Use repositories.event_repository instead.
+    from repositories.csv_repository import CSVRepository
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+======================== 1 xfailed, 4 warnings in 0.12s ========================
+
+
+================================================================================
+Kommando --runxfail: pytest -v tests/test_security/test_integrasjoner_audit_20260918.py::test_webhook_failure_swallowed_with_http_200_and_drops_retry --runxfail
+Utfall --runxfail: Exit 1
+--------------------------------------------------------------------------------
+============================= test session starts ==============================
+platform darwin -- Python 3.11.9, pytest-9.0.2, pluggy-1.6.0 -- /Users/kasper/Projects/endringsmeldinger/backend/venv/bin/python
+cachedir: .pytest_cache
+rootdir: /Users/kasper/Projects/endringsmeldinger/backend
+configfile: pyproject.toml
+plugins: anyio-4.12.1, cov-7.0.0
+collecting ... collected 1 item
+
+tests/test_security/test_integrasjoner_audit_20260918.py::test_webhook_failure_swallowed_with_http_200_and_drops_retry FAILED [100%]
+
+=================================== FAILURES ===================================
+_________ test_webhook_failure_swallowed_with_http_200_and_drops_retry _________
+tests/test_security/test_integrasjoner_audit_20260918.py:106: in test_webhook_failure_swallowed_with_http_200_and_drops_retry
+    assert resp1.status_code in (500, 502, 503), (
+E   AssertionError: Webhook-endepunktet returnerte status 200 i stedet for 5xx ved feilet behandling: {'error': 'Database timeout under opprettelse', 'success': False}
+E   assert 200 in (500, 502, 503)
+E    +  where 200 = <WrapperTestResponse streamed [200 OK]>.status_code
+---------------------------- Captured stderr setup -----------------------------
+18:04:16  [32mINFO    [0m    [2mlib.security.webhook_security[0m  Cleared in-memory processed events
+------------------------------ Captured log setup ------------------------------
+INFO     [2mlib.security.webhook_security[0m:webhook_security.py:167 Cleared in-memory processed events
+----------------------------- Captured stderr call -----------------------------
+18:04:16  [32mINFO    [0m    [2mlib.security.webhook_security[0m  REDIS_URL ikke satt - bruker in-memory idempotency tracking
+18:04:16  [32mINFO    [0m    [2mroutes.catenda_webhook_routes[0m  ✅ Processing webhook event: issue.created (ID: evt-fail-123)
+18:04:16  [32mINFO    [0m    [2mrequest[0m  POST /webhook/catenda/test-secret-path-12345 200 0ms
+------------------------------ Captured log call -------------------------------
+INFO     [2mlib.security.webhook_security[0m:webhook_security.py:78 REDIS_URL ikke satt - bruker in-memory idempotency tracking
+INFO     [2mroutes.catenda_webhook_routes[0m:catenda_webhook_routes.py:144 ✅ Processing webhook event: issue.created (ID: evt-fail-123)
+INFO     [2mrequest[0m:request_context.py:44 POST /webhook/catenda/test-secret-path-12345 200 0ms
+=============================== warnings summary ===============================
+venv/lib/python3.11/site-packages/pythonjsonlogger/jsonlogger.py:11
+  /Users/kasper/Projects/endringsmeldinger/backend/venv/lib/python3.11/site-packages/pythonjsonlogger/jsonlogger.py:11: DeprecationWarning: pythonjsonlogger.jsonlogger has been moved to pythonjsonlogger.json
+    warnings.warn(
+
+venv/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:319
+venv/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:319
+  /Users/kasper/Projects/endringsmeldinger/backend/venv/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:319: PydanticDeprecatedSince20: `json_encoders` is deprecated. See https://docs.pydantic.dev/2.12/concepts/serialization/#custom-serializers for alternatives. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    warnings.warn(
+
+core/system_context.py:12
+  /Users/kasper/Projects/endringsmeldinger/backend/core/system_context.py:12: DeprecationWarning: repositories.csv_repository is deprecated. Use repositories.event_repository instead.
+    from repositories.csv_repository import CSVRepository
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/test_security/test_integrasjoner_audit_20260918.py::test_webhook_failure_swallowed_with_http_200_and_drops_retry - AssertionError: Webhook-endepunktet returnerte status 200 i stedet for 5xx ved feilet behandling: {'error': 'Database timeout under opprettelse', 'success': False}
+assert 200 in (500, 502, 503)
+ +  where 200 = <WrapperTestResponse streamed [200 OK]>.status_code
+======================== 1 failed, 4 warnings in 0.12s =========================
+
+
+================================================================================

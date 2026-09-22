@@ -1,5 +1,13 @@
 # Design: durable inbox og outbox før produksjon
 
+> **Merknad 2026-09-21 til del 2 og 9:** Påstanden om at PostgREST gjør
+> outbox umulig er opphevet. Flere selvstendige HTTP-kall deler ikke
+> transaksjon, men én RPC kan utføre domene- og outbox-skriving atomisk.
+> Masterplanen beholder Postgres/RPC som utgangspunkt; direkte forbindelse
+> er et alternativ. Se [AF-02](arkitekturforinger-2026-09-21.md#af-02--kommando-transaksjon-og-rettigheter).
+> Den øvrige teksten er historisk designgrunnlag og må leses sammen med
+> gjeldende masterplan og transaksjonsplan.
+
 Dato: 2026-09-17. Utgangspunkt: `b4868ca`.
 Forrige: [vurdering av Power Platform](vurdering-power-platform-2026-09-17.md).
 Målarkitekturen dette konkretiserer: trinn 2 og 3 i [Catenda-dataflyten](catenda-dataflyt.md).

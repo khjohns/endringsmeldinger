@@ -10,6 +10,10 @@ Testene her etterprøver funn i databaseskjemaet og migrasjonskjeden:
 - DB-07: sak_bim_links mangler 'properties'-kolonne deklarert i BimLink-modellen
 
 Alle testene kjører lokalt uten nettverk og analyserer repoets faktiske SQL- og kodedefinisjoner.
+
+Merknad 2026-09-22: DB-03 og DB-07 kontrolleres nå mot katalogen i en base
+bygget fra migrasjonene, i tests/test_database/test_katalog.py. Reproduksjonene
+her leste filer som var flyttet eller ufullstendige (T-2), og er fjernet.
 """
 
 import re
@@ -101,34 +105,6 @@ def test_sak_metadata_reporting_columns_declared_in_migrations():
         f"i noen migrasjonsfil eller tabell-docstring i repoet: {missing_in_sql}. "
         "Innsettinger og oppdateringer med SupabaseSakMetadataRepository eller "
         "backfill_reporting_cache.py vil krasje i PostgreSQL med 'column does not exist'."
-    )
-
-
-@pytest.mark.xfail(
-    strict=True,
-    raises=AssertionError,
-    reason="DB-03: 004_projects_table.sql har hardkodet DEFAULT 'oslobygg' som tilordner saker fra andre leietakere til Oslobygg",
-)
-def test_sak_metadata_database_default_hardcodes_oslobygg_fallback():
-    """
-    DB-03: 004_projects_table.sql setter DEFAULT 'oslobygg' på sak_metadata.prosjekt_id.
-    Dette gjør at saker opprettet uten prosjekt-ID i et multitenant-miljø
-    stille tilordnes Oslobygg KF i stedet for å feile med NOT NULL-feil.
-    """
-    projects_migration = MIGRATIONS_BACKEND / "004_projects_table.sql"
-    assert projects_migration.exists(), "004_projects_table.sql finnes ikke"
-    content = projects_migration.read_text(encoding="utf-8")
-
-    # Søk etter hardkodet DEFAULT 'oslobygg' på prosjekt_id
-    has_oslobygg_default = bool(
-        re.search(r"ALTER\s+COLUMN\s+prosjekt_id\s+SET\s+DEFAULT\s+['\"]oslobygg['\"]", content, re.IGNORECASE)
-    )
-
-    assert not has_oslobygg_default, (
-        "backend/migrations/004_projects_table.sql inneholder hardkodet "
-        "ALTER COLUMN prosjekt_id SET DEFAULT 'oslobygg'. I et flerbrukermiljø fører dette "
-        "til at saker uten eksplisitt prosjekt feilaktig havner i Oslobyggs portefølje "
-        "uten å avvises av NOT NULL-skranken."
     )
 
 
@@ -241,41 +217,4 @@ def test_hendelsestabellen_har_prosjekt_id_for_tenant_rls():
 
     assert "DEFAULT 'oslobygg'" not in sql, (
         "En defaultverdi på prosjekt_id gjør attribusjonen uetterprøvbar."
-    )
-
-
-@pytest.mark.xfail(
-    strict=True,
-    raises=AssertionError,
-    reason=(
-        "DB-07: ingen migrasjon deklarerer 'properties' på sak_bim_links, selv om "
-        "BimLink-modellen har feltet. Testen leser migrasjonsfilene, ikke databasen — "
-        "kolonnen FINNES i den faktiske basen (kontrollert 2026-09-19), så dette er "
-        "migrasjonsdrift og ikke datatap. Testen forblir xfail til migrasjonen dekker "
-        "skjemaet, uavhengig av hva basen inneholder."
-    ),
-)
-def test_sak_bim_links_missing_properties_column_declared_in_model():
-    """
-    DB-07: BimLink-modellen i backend/models/bim_link.py har feltet 'properties'
-    (for IFC property sets, mengder og materialer), men sak_bim_links-tabellen
-    i supabase/migrations/20260911073800_bim_tables.sql mangler denne kolonnen.
-    """
-    from models.bim_link import BimLink
-
-    assert "properties" in BimLink.model_fields, "BimLink mangler properties-feltet"
-
-    bim_migration = MIGRATIONS_SUPABASE / "20260911073800_bim_tables.sql"
-    assert bim_migration.exists(), "20260911073800_bim_tables.sql finnes ikke"
-    content = bim_migration.read_text(encoding="utf-8")
-
-    sak_bim_links_match = re.search(r"CREATE\s+TABLE\s+IF\s+NOT\s+EXISTS\s+sak_bim_links\s*\((.*?)\);", content, re.DOTALL)
-    assert sak_bim_links_match, "sak_bim_links ikke funnet i 006_bim_tables.sql"
-    table_sql = sak_bim_links_match.group(1)
-
-    has_properties = bool(re.search(r"\bproperties\b", table_sql, re.IGNORECASE))
-    assert has_properties, (
-        "sak_bim_links i 20260911073800_bim_tables.sql mangler kolonnen 'properties'. "
-        "Modellen BimLink i backend/models/bim_link.py deklarerer properties: dict[str, Any] | None. "
-        "Forsøk på å lagre eller laste IFC properties vil føre til datatap eller databasefeil."
     )
