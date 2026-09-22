@@ -4,10 +4,10 @@ Kontraktsadministrasjon etter NS 8407: formelle varsler mellom totalentreprenør
 byggherre, lagret som en hendelseslogg. Hendelsene har juridisk vekt — de avgjør om
 et krav er bevart eller prekludert.
 
-**Denne fila inneholder bare det som er stabilt.** Status på funn, testtall og
-faseplaner står i `docs/plans/2026-09-16-godkjenning-og-varig-levering.md`
-(masterplanen) og siste `docs/handoff-*.md`. Ikke før slikt inn hit — det blir
-foreldet, og fila lastes automatisk og blir trodd.
+**Denne fila inneholder bare det som er stabilt.** Plan, funnstatus og
+beslutninger står i `docs/plans/2026-09-16-godkjenning-og-varig-levering.md`
+(hovedplanen), og bare der. Handoffene er historiske. Ikke før slikt inn hit —
+det blir foreldet, og fila lastes automatisk og blir trodd.
 
 ## Språk
 
@@ -75,14 +75,20 @@ Hold deg til katalogspørringer; saksdata er konfidensiell kontraktskorrespondan
 Et eldre prosjekt `unified-timeline` (`iyetsvrteyzpirygxenu`) er INACTIVE og skal
 ikke røres.
 
-**Migrasjonene kan verifiseres uten å røre basen.** PostgreSQL 16 ligger lokalt
-(`/usr/lib/postgresql/16/bin`). Sett opp et kastbart cluster med `initdb` i en
-katalog `postgres`-brukeren eier, stub Supabase-plattformen (rollene `anon`,
-`authenticated`, `service_role`, skjemaet `auth` med `users`, `auth.role()` og
-`auth.email()`), og kjør migrasjonene mot en tom base. Sammenlikn så katalogen med
-prosjektet ved å ta `md5(string_agg(...))` over kolonner, skranker, indekser,
-policyer og rettigheter på begge sider. Det fanger ting lesing ikke gjør: sirkulære avhengigheter,
-manglende kolonner, policyer i feil form.
+**Migrasjonene kan verifiseres uten å røre basen.** Målversjonen er
+PostgreSQL 17 (`supabase/config.toml`). Bruk den versjonen som finnes lokalt:
+Linux-miljøet har 16 under `/usr/lib/postgresql/16/bin`, macOS har Homebrew.
+Sett opp et kastbart cluster med `initdb` i en katalog `postgres`-brukeren eier,
+stub Supabase-plattformen (rollene `anon`, `authenticated`, `service_role`,
+skjemaet `auth` med `users`, `auth.role()` og `auth.email()`), og kjør
+migrasjonene mot en tom base. Sammenlikn så katalogen med prosjektet ved å ta
+`md5(string_agg(...))` over kolonner, skranker, indekser, policyer og
+rettigheter på begge sider. Det fanger ting lesing ikke gjør: sirkulære
+avhengigheter, manglende kolonner, policyer i feil form.
+
+**Fra PostgreSQL 18 ligger NOT NULL-skranker i `pg_constraint`** (`contype = 'n'`).
+En skrankesum fra PG18 blir derfor ulik en fra 16 eller 17 på identisk skjema.
+Filtrer på `contype <> 'n'` og kontroller nullbarhet gjennom kolonnesummen.
 
 **Filnavnrekkefølgen *er* apply-rekkefølgen** — men det er en fersk skranke, ikke
 en naturlov. `backend/migrations/` er tømt (20.09); all DDL ligger i
@@ -171,7 +177,8 @@ Brytes en av disse, er det en sikkerhetsfeil uansett hvor liten endringen så ut
   `lib/auth/event_visibility.py` gjelder fortsatt begge.
 - **Prosjektgrensen må håndheves ved hvert lesepunkt**, også for saker det refereres
   til. Klientoppgitte relasjoner skal ikke utvide tilgangen — bruk
-  `cases_in_project`. Dette er brutt flere ganger; se masterplanens merknad om RV-07.
+  `cases_in_project`. Dette er brutt flere ganger; se RV-07 og AUT-01/02 i
+  hovedplanens funnregister.
 - **Det finnes ikke noe defaultprosjekt.** Mangler `X-Project-ID`, er prosjektet
   *ukjent* — ikke `oslobygg`. `get_project_id()` returnerer `None`, og kallere skal
   behandle det som «ingen tilgang». `prosjekt_id` er `NOT NULL` uten default på
@@ -233,6 +240,12 @@ identitet — det motsatte av regelen testen ligger ved siden av. Mekanisk søk 
 erstatt flytter navnet på feltet, ikke meningen i verdien. Etter en omdøping: les
 assertions, ikke bare kjør dem.
 
+**En funn-ID i et avledet dokument er en påstand.** Et testinventar, en rapport
+eller en konsolidering kan føre riktig test under feil ID. Slå ID-en opp i testens
+`reason` eller modulheader og i funntabellen i auditen der funnet ble gjort, før
+du bruker den. Da testinventaret 22.09 ble kontrollert rad for rad, var 14 av 42
+ID-er feil. Reviewet før hadde funnet seks.
+
 **En grønn streng `xfail` beviser ikke funnet**, bare at testens assertion feiler.
 Suiten inneholder mange bevisste reproduksjoner av udekkede svakheter. **Ikke «rett»
 en xfail ved å endre testen** — de er dokumentasjon. Rettes den underliggende
@@ -248,7 +261,9 @@ grenser»** til slutt som navngir hva som *ikke* er kontrollert.
 
 - **Skill mellom «Kjørt og observert» og «Lest ut av koden».** Det er ikke samme
   påstand, og forskjellen er der feilklassifiseringene oppstår.
-- **Masterplanen er autoritativ for funnstatus.** Sier et annet dokument noe annet,
+- **Lenker fra `docs/` til kode går via `../backend/`.** En lenke løses fra
+  dokumentets egen mappe. Kontrollen i `docs/README.md` sjekker også ankre.
+- **Hovedplanen er autoritativ for funnstatus.** Sier et annet dokument noe annet,
   er det andre foreldet — rett det, ikke gjenopprett diskusjonen.
 - **Opphever du et tidligere utsagn, skriv en datert merknad** («Merknad 2026-09-19
   til RV-07») — også inn i det gamle dokumentet, ellers står de to side om side uten

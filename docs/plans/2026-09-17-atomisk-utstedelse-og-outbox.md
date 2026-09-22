@@ -1,5 +1,12 @@
 # Atomisk utstedelse og varig levering
 
+> **Merknad 2026-09-22:** Delplanen er underordnet den
+> [sluttredigerte hovedplanen](2026-09-16-godkjenning-og-varig-levering.md).
+> Kommando-, låse-, worker- og akseptansetestkontrakten her er normativ for F2.
+> Rettighetsmodellen (herunder `SECURITY INVOKER` under) er åpen i B-02;
+> relasjoner, KOE-eksklusivitet, dokumentmodell og drivmekanisme er åpne i
+> B-01, B-08, B-03 og B-07.
+
 > **Merknad 2026-09-21:** Referansene under til tre hendelsestabeller er
 > innhentet av MS-01; referanseimplementasjonen skal bruke `hendelse`.
 > Rettighetsmodellen, herunder `SECURITY INVOKER`/`DEFINER`, konkretiseres

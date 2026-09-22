@@ -1,5 +1,9 @@
 # Oppfølgingsreview av Geminis konsolidering v2
 
+> **Merknad 2026-09-22:** RGK2-01–05 er innarbeidet i den
+> [sluttredigerte hovedplanen](plans/2026-09-16-godkjenning-og-varig-levering.md); behandlingen står i
+> [redaksjonsprotokollen](sluttredigering-hovedplan-2026-09-22.md).
+
 **Dato:** 2026-09-22. **Kontrollert commit:**
 `0bdc1dc7925631a9df7264c33812f8c10ddc6fd2` (`main`).
 **Status:** Arkitekturretningen støttes; konsolideringen trenger avgrensede rettelser

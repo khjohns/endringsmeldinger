@@ -1,5 +1,10 @@
 # Konsolidert kildegrunnlag og dekningsmatrise (2026-09-22-v2)
 
+> **Merknad 2026-09-22 (sluttredigering):** Historisk forslag. Funnstatus står
+> nå i den [sluttredigerte hovedplanen](plans/2026-09-16-godkjenning-og-varig-levering.md). Blant annet er AUT-03 lukket for
+> batchruta med testvedlikehold som restanse, og KR-15 står åpen fordi den nye
+> reproduksjonen ikke er deterministisk. Se [redaksjonsprotokollen](sluttredigering-hovedplan-2026-09-22.md).
+
 **Dato:** 2026-09-22  
 **Gjeldende commit:** `0bdc1dc7925631a9df7264c33812f8c10ddc6fd2` (gren `main`)  
 **Status:** **Revidert reviewforslag (v2) — oppdatert etter oppfølgingsreview 22.09.**  
