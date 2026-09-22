@@ -112,7 +112,9 @@ def test_absolute_end_date_without_days_is_not_self_approved(eo_service):
 
 
 @pytest.mark.xfail(
-    strict=True, reason="AP-04: stale creation attempt deletes committed metadata"
+    strict=True,
+    raises=AssertionError,
+    reason="AP-04: stale creation attempt deletes committed metadata",
 )
 def test_stale_reserved_id_attempt_cannot_delete_successful_creation(
     environment, monkeypatch
