@@ -1,0 +1,105 @@
+================================================================================
+Test: tests/test_security/test_observability_audit_20260918.py::test_unhandled_exception_lekker_detaljer_i_debug_modus
+Kommando ordinær: pytest -v tests/test_security/test_observability_audit_20260918.py::test_unhandled_exception_lekker_detaljer_i_debug_modus
+Utfall ordinær: Exit 0
+--------------------------------------------------------------------------------
+============================= test session starts ==============================
+platform darwin -- Python 3.11.9, pytest-9.0.2, pluggy-1.6.0 -- /Users/kasper/Projects/endringsmeldinger/backend/venv/bin/python
+cachedir: .pytest_cache
+rootdir: /Users/kasper/Projects/endringsmeldinger/backend
+configfile: pyproject.toml
+plugins: anyio-4.12.1, cov-7.0.0
+collecting ... collected 1 item
+
+tests/test_security/test_observability_audit_20260918.py::test_unhandled_exception_lekker_detaljer_i_debug_modus XFAILg=True) [100%]
+
+=============================== warnings summary ===============================
+venv/lib/python3.11/site-packages/pythonjsonlogger/jsonlogger.py:11
+  /Users/kasper/Projects/endringsmeldinger/backend/venv/lib/python3.11/site-packages/pythonjsonlogger/jsonlogger.py:11: DeprecationWarning: pythonjsonlogger.jsonlogger has been moved to pythonjsonlogger.json
+    warnings.warn(
+
+venv/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:319
+venv/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:319
+  /Users/kasper/Projects/endringsmeldinger/backend/venv/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:319: PydanticDeprecatedSince20: `json_encoders` is deprecated. See https://docs.pydantic.dev/2.12/concepts/serialization/#custom-serializers for alternatives. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    warnings.warn(
+
+core/system_context.py:12
+  /Users/kasper/Projects/endringsmeldinger/backend/core/system_context.py:12: DeprecationWarning: repositories.csv_repository is deprecated. Use repositories.event_repository instead.
+    from repositories.csv_repository import CSVRepository
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+======================== 1 xfailed, 4 warnings in 0.11s ========================
+
+
+================================================================================
+Kommando --runxfail: pytest -v tests/test_security/test_observability_audit_20260918.py::test_unhandled_exception_lekker_detaljer_i_debug_modus --runxfail
+Utfall --runxfail: Exit 1
+--------------------------------------------------------------------------------
+============================= test session starts ==============================
+platform darwin -- Python 3.11.9, pytest-9.0.2, pluggy-1.6.0 -- /Users/kasper/Projects/endringsmeldinger/backend/venv/bin/python
+cachedir: .pytest_cache
+rootdir: /Users/kasper/Projects/endringsmeldinger/backend
+configfile: pyproject.toml
+plugins: anyio-4.12.1, cov-7.0.0
+collecting ... collected 1 item
+
+tests/test_security/test_observability_audit_20260918.py::test_unhandled_exception_lekker_detaljer_i_debug_modus FAILED [100%]
+
+=================================== FAILURES ===================================
+____________ test_unhandled_exception_lekker_detaljer_i_debug_modus ____________
+tests/test_security/test_observability_audit_20260918.py:264: in test_unhandled_exception_lekker_detaljer_i_debug_modus
+    assert sensitive_internal_message not in str(data.get("detail")), (
+E   AssertionError: Feilhåndterer lakk intern unntaksmelding i HTTP-respons: {'detail': 'psycopg.errors.AdminShutdown: server closed unexpectedly on /var/run/postgresql', 'error': 'Internal Server Error'}
+E   assert 'psycopg.errors.AdminShutdown: server closed unexpectedly on /var/run/postgresql' not in 'psycopg.errors.AdminShutdown: server closed unexpectedly on /var/run/postgresql'
+E     
+E     'psycopg.errors.Adm.../var/run/postgresql' is contained here:
+E       psycopg.errors.AdminShutdown: server closed unexpectedly on /var/run/postgresql
+----------------------------- Captured stderr call -----------------------------
+18:04:52  [31mERROR   [0m    [2mtests.test_security.test_observability_audit_20260918[0m  Unhandled Exception: psycopg.errors.AdminShutdown: server closed unexpectedly on /var/run/postgresql
+Traceback (most recent call last):
+  File "/Users/kasper/Projects/endringsmeldinger/backend/venv/lib/python3.11/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kasper/Projects/endringsmeldinger/backend/venv/lib/python3.11/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kasper/Projects/endringsmeldinger/backend/tests/test_security/test_observability_audit_20260918.py", line 255, in crash_view
+    raise RuntimeError(sensitive_internal_message)
+RuntimeError: psycopg.errors.AdminShutdown: server closed unexpectedly on /var/run/postgresql
+------------------------------ Captured log call -------------------------------
+ERROR    [2mtests.test_security.test_observability_audit_20260918[0m:error_handlers.py:69 Unhandled Exception: psycopg.errors.AdminShutdown: server closed unexpectedly on /var/run/postgresql
+Traceback (most recent call last):
+  File "/Users/kasper/Projects/endringsmeldinger/backend/venv/lib/python3.11/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kasper/Projects/endringsmeldinger/backend/venv/lib/python3.11/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kasper/Projects/endringsmeldinger/backend/tests/test_security/test_observability_audit_20260918.py", line 255, in crash_view
+    raise RuntimeError(sensitive_internal_message)
+RuntimeError: psycopg.errors.AdminShutdown: server closed unexpectedly on /var/run/postgresql
+=============================== warnings summary ===============================
+venv/lib/python3.11/site-packages/pythonjsonlogger/jsonlogger.py:11
+  /Users/kasper/Projects/endringsmeldinger/backend/venv/lib/python3.11/site-packages/pythonjsonlogger/jsonlogger.py:11: DeprecationWarning: pythonjsonlogger.jsonlogger has been moved to pythonjsonlogger.json
+    warnings.warn(
+
+venv/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:319
+venv/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:319
+  /Users/kasper/Projects/endringsmeldinger/backend/venv/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:319: PydanticDeprecatedSince20: `json_encoders` is deprecated. See https://docs.pydantic.dev/2.12/concepts/serialization/#custom-serializers for alternatives. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    warnings.warn(
+
+core/system_context.py:12
+  /Users/kasper/Projects/endringsmeldinger/backend/core/system_context.py:12: DeprecationWarning: repositories.csv_repository is deprecated. Use repositories.event_repository instead.
+    from repositories.csv_repository import CSVRepository
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/test_security/test_observability_audit_20260918.py::test_unhandled_exception_lekker_detaljer_i_debug_modus - AssertionError: Feilhåndterer lakk intern unntaksmelding i HTTP-respons: {'detail': 'psycopg.errors.AdminShutdown: server closed unexpectedly on /var/run/postgresql', 'error': 'Internal Server Error'}
+assert 'psycopg.errors.AdminShutdown: server closed unexpectedly on /var/run/postgresql' not in 'psycopg.errors.AdminShutdown: server closed unexpectedly on /var/run/postgresql'
+  
+  'psycopg.errors.Adm.../var/run/postgresql' is contained here:
+    psycopg.errors.AdminShutdown: server closed unexpectedly on /var/run/postgresql
+======================== 1 failed, 4 warnings in 0.12s =========================
+
+
+================================================================================

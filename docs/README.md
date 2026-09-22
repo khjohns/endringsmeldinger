@@ -27,6 +27,8 @@ Opphever du et utsagn, skriv en datert merknad, også inn i det gamle dokumentet
 | Dokument | Hva det gir |
 | --- | --- |
 | [masterplanen](plans/2026-09-16-godkjenning-og-varig-levering.md) | **Autoritativ for status.** Arbeidspakker, lukkede og åpne funn, overlapp mellom sporene, organisatoriske forutsetninger |
+| [planstatus og review av testbevis 22.09](review-testbevis-og-planstatus-2026-09-22.md) | Avgrenset sluttkontroll: rettinger før testinventaret innarbeides, tidligere Catenda-bevis og hva som gjenstår før én hovedplan kan overta |
+| [konsolidert masterplan v2](konsolidering-masterplan-2026-09-22-v2.md) · [kildegrunnlag](konsolidering-kildegrunnlag-2026-09-22-v2.md) | Reviewforslag, ikke autoritativ erstatning ennå. Les planstatusen over før videreføring |
 | [arkitekturpresiseringer 21.09](arkitekturforinger-2026-09-21.md) | AF-01–AF-06: føringer for tilgang, transaksjoner, relasjoner, bevis, gjenoppbygging og verifikasjon. Innarbeidet som merknad i masterplanen; ikke implementert |
 | [oppdrag til Gemini: konsolidering](prompt-gemini-konsolidering-2026-09-21.md) | Metodisk gjennomgang som leverer nye dokumenter til review, med dekningsmatrise og etterprøving av usikkerhet |
 | [transaksjonsplanen](plans/2026-09-17-atomisk-utstedelse-og-outbox.md) | Delplan: atomisk utstedelse og outbox |

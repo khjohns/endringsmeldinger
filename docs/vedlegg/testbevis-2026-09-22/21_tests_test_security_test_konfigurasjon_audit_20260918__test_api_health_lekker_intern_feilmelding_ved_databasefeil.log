@@ -1,0 +1,87 @@
+================================================================================
+Test: tests/test_security/test_konfigurasjon_audit_20260918.py::test_api_health_lekker_intern_feilmelding_ved_databasefeil
+Kommando ordinær: pytest -v tests/test_security/test_konfigurasjon_audit_20260918.py::test_api_health_lekker_intern_feilmelding_ved_databasefeil
+Utfall ordinær: Exit 0
+--------------------------------------------------------------------------------
+============================= test session starts ==============================
+platform darwin -- Python 3.11.9, pytest-9.0.2, pluggy-1.6.0 -- /Users/kasper/Projects/endringsmeldinger/backend/venv/bin/python
+cachedir: .pytest_cache
+rootdir: /Users/kasper/Projects/endringsmeldinger/backend
+configfile: pyproject.toml
+plugins: anyio-4.12.1, cov-7.0.0
+collecting ... collected 1 item
+
+tests/test_security/test_konfigurasjon_audit_20260918.py::test_api_health_lekker_intern_feilmelding_ved_databasefeil XFAILmasjon) [100%]
+
+=============================== warnings summary ===============================
+venv/lib/python3.11/site-packages/pythonjsonlogger/jsonlogger.py:11
+  /Users/kasper/Projects/endringsmeldinger/backend/venv/lib/python3.11/site-packages/pythonjsonlogger/jsonlogger.py:11: DeprecationWarning: pythonjsonlogger.jsonlogger has been moved to pythonjsonlogger.json
+    warnings.warn(
+
+venv/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:319
+venv/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:319
+  /Users/kasper/Projects/endringsmeldinger/backend/venv/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:319: PydanticDeprecatedSince20: `json_encoders` is deprecated. See https://docs.pydantic.dev/2.12/concepts/serialization/#custom-serializers for alternatives. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    warnings.warn(
+
+core/system_context.py:12
+  /Users/kasper/Projects/endringsmeldinger/backend/core/system_context.py:12: DeprecationWarning: repositories.csv_repository is deprecated. Use repositories.event_repository instead.
+    from repositories.csv_repository import CSVRepository
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+======================== 1 xfailed, 4 warnings in 0.11s ========================
+
+
+================================================================================
+Kommando --runxfail: pytest -v tests/test_security/test_konfigurasjon_audit_20260918.py::test_api_health_lekker_intern_feilmelding_ved_databasefeil --runxfail
+Utfall --runxfail: Exit 1
+--------------------------------------------------------------------------------
+============================= test session starts ==============================
+platform darwin -- Python 3.11.9, pytest-9.0.2, pluggy-1.6.0 -- /Users/kasper/Projects/endringsmeldinger/backend/venv/bin/python
+cachedir: .pytest_cache
+rootdir: /Users/kasper/Projects/endringsmeldinger/backend
+configfile: pyproject.toml
+plugins: anyio-4.12.1, cov-7.0.0
+collecting ... collected 1 item
+
+tests/test_security/test_konfigurasjon_audit_20260918.py::test_api_health_lekker_intern_feilmelding_ved_databasefeil FAILED [100%]
+
+=================================== FAILURES ===================================
+__________ test_api_health_lekker_intern_feilmelding_ved_databasefeil __________
+tests/test_security/test_konfigurasjon_audit_20260918.py:125: in test_api_health_lekker_intern_feilmelding_ved_databasefeil
+    assert "db.supabase.co" not in str(db_check), (
+E   AssertionError: /api/health lekker intern databasefeilmelding: {'error': "connection to server at 'db.supabase.co' (10.0.0.5) failed: password authentication failed for user 'postgres'", 'status': 'unhealthy'}
+E   assert 'db.supabase.co' not in '{\'error\': "connection to server at \'db.supabase.co\' (10.0.0.5) failed: password authentication failed for user \'postgres\'", \'status\': \'unhealthy\'}'
+E     
+E     'db.supabase.co' is contained here:
+E       {'error': "connection to server at 'db.supabase.co' (10.0.0.5) failed: password authentication failed for user 'postgres'", 'status': 'unhealthy'}
+E     ?                                     ++++++++++++++
+----------------------------- Captured stderr call -----------------------------
+18:04:31  [33mWARNING [0m    [2mroutes.utility_routes[0m  Health check: Database unavailable - connection to server at 'db.supabase.co' (10.0.0.5) failed: password authentication failed for user 'postgres'
+------------------------------ Captured log call -------------------------------
+WARNING  [2mroutes.utility_routes[0m:utility_routes.py:129 Health check: Database unavailable - connection to server at 'db.supabase.co' (10.0.0.5) failed: password authentication failed for user 'postgres'
+=============================== warnings summary ===============================
+venv/lib/python3.11/site-packages/pythonjsonlogger/jsonlogger.py:11
+  /Users/kasper/Projects/endringsmeldinger/backend/venv/lib/python3.11/site-packages/pythonjsonlogger/jsonlogger.py:11: DeprecationWarning: pythonjsonlogger.jsonlogger has been moved to pythonjsonlogger.json
+    warnings.warn(
+
+venv/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:319
+venv/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:319
+  /Users/kasper/Projects/endringsmeldinger/backend/venv/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:319: PydanticDeprecatedSince20: `json_encoders` is deprecated. See https://docs.pydantic.dev/2.12/concepts/serialization/#custom-serializers for alternatives. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    warnings.warn(
+
+core/system_context.py:12
+  /Users/kasper/Projects/endringsmeldinger/backend/core/system_context.py:12: DeprecationWarning: repositories.csv_repository is deprecated. Use repositories.event_repository instead.
+    from repositories.csv_repository import CSVRepository
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/test_security/test_konfigurasjon_audit_20260918.py::test_api_health_lekker_intern_feilmelding_ved_databasefeil - AssertionError: /api/health lekker intern databasefeilmelding: {'error': "connection to server at 'db.supabase.co' (10.0.0.5) failed: password authentication failed for user 'postgres'", 'status': 'unhealthy'}
+assert 'db.supabase.co' not in '{\'error\': "connection to server at \'db.supabase.co\' (10.0.0.5) failed: password authentication failed for user \'postgres\'", \'status\': \'unhealthy\'}'
+  
+  'db.supabase.co' is contained here:
+    {'error': "connection to server at 'db.supabase.co' (10.0.0.5) failed: password authentication failed for user 'postgres'", 'status': 'unhealthy'}
+  ?                                     ++++++++++++++
+======================== 1 failed, 4 warnings in 0.11s =========================
+
+
+================================================================================
