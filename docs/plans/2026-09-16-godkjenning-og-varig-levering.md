@@ -243,6 +243,19 @@ Et åpent valg blokkerer bare oppgavene som er nevnt.
 > motbelegg, men vedtar ingen endring. B-02 og B-04 er fortsatt åpne;
 > beslutningsstatus og TS2-02-status er uendret.
 
+> **Merknad 2026-09-23 til B-02 (v2):**
+> [Design v2](../design-b02-tilgangsmekanisme-v2-2026-09-23.md) svarer på RB2-01–08.
+> Hovedendringene er disse. Transportvariantene er sammenliknet, med
+> forespørselsvakt i PostgREST (T1v) og direkte innlogging (T2). Skrivevakten
+> er utvidet til en operasjonsmodell for journal, saksregister og kø, med
+> skranker som binder dem til samme prosjekt. Notater skrives bare gjennom
+> kommandoer. Kontekst og argumenter kontrolleres strengere, og teamkravet må
+> være et av prosjektets kontraktsteam. Identitetsinngangene er smale, med låst
+> issuer. Prototypen er bygget som `postgres` uten superbrukerrettigheter, som i
+> Supabase (155 av 155 sjekker, tolv mutasjoner røde, K 23.09). Nye funn:
+> TM-09–TM-12. Seks punkter står igjen for oppdragsgiver (avsnitt 9 der). Et av
+> dem er om premisset i 3.1 skal endres. B-02 og B-04 er fortsatt åpne.
+
 ## 4. Funnregister
 
 <a id="status-2026-09-18"></a>
