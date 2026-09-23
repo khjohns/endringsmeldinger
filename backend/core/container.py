@@ -35,6 +35,7 @@ from core.config import settings as default_settings
 if TYPE_CHECKING:
     from core.unit_of_work import TrackingUnitOfWork
     from integrations.catenda import CatendaClient
+    from lib.db import Database
     from repositories import EventRepository, SakMetadataRepository
     from repositories.bim_link_repository import BimLinkRepository
     from repositories.membership_repository import SupabaseMembershipRepository
@@ -73,6 +74,7 @@ class Container:
     config: Settings = field(default_factory=lambda: default_settings)
 
     # Private cache for lazy-loaded instances
+    _database: Optional["Database"] = field(default=None, repr=False)
     _event_repo: Optional["EventRepository"] = field(default=None, repr=False)
     _metadata_repo: Optional["SakMetadataRepository"] = field(default=None, repr=False)
     _project_repo: Optional["SupabaseProjectRepository"] = field(default=None, repr=False)
@@ -82,6 +84,23 @@ class Container:
     _timeline_service: Optional["TimelineService"] = field(default=None, repr=False)
     _catenda_service: Optional["CatendaService"] = field(default=None, repr=False)
     _catenda_client: Optional["CatendaClient"] = field(default=None, repr=False)
+
+    # -------------------------------------------------------------------------
+    # Database (direkte tilkobling, F0b)
+    # -------------------------------------------------------------------------
+
+    @property
+    def database(self) -> "Database":
+        """Pool mot DATABASE_URL, opprettet ved første bruk.
+
+        Uten DATABASE_URL kastes `DatabaseIkkeKonfigurert`. Repositoriene over
+        direkte tilkobling tar denne som eneste avhengighet.
+        """
+        if self._database is None:
+            from lib.db import opprett_database
+
+            self._database = opprett_database(self.config)
+        return self._database
 
     # -------------------------------------------------------------------------
     # Repositories
@@ -273,6 +292,9 @@ class Container:
 
         Nyttig for testing eller når config endres runtime.
         """
+        if self._database is not None:
+            self._database.lukk()
+        self._database = None
         self._event_repo = None
         self._metadata_repo = None
         self._project_repo = None

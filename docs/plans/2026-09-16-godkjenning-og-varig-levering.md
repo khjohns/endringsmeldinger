@@ -638,6 +638,19 @@ sikkerhetskontrollene stå: `SET LOCAL` og transaksjonslokal kontekst,
 pool på én forbindelse som viser at kontekst ikke lekker; en test per
 feilklasse i driveren.
 
+> **Merknad 2026-09-23 (F0b, punkt 1): kjernen finnes og venter på review.**
+> `lib/db` har pool, `transaksjon(kontekst)` og `utfor(kontekst, arbeid)` med
+> retry for hele transaksjonen, og feilhierarkiet er felles med Supabase-lagrene.
+> `container.database`, den skrivbare fixturen og lokal oppstart
+> (`scripts/testbase/lokal_testbase.sh`) er på plass. Kravene settes i
+> `koe.krav`, ikke `request.jwt.claims`, og versjonskonflikt er SQLSTATE
+> `KO409`, ikke `PT409`. Begge valgene er begrunnet i
+> [gjennomføringsnotatet](../gjennomforing-f0b-kjernen-2026-09-23.md). 57
+> databasetester er grønne lokalt mot PostgreSQL 17, og 27 mutasjoner gir rød
+> test. PgBouncer, Supavisor og Azure er ikke prøvd. **Status endres ikke før
+> det [uavhengige reviewet](../prompt-review-f0b-kjernen-2026-09-23.md) er
+> levert**, og punkt 2 bygger ikke på kjernen før da.
+
 ### F1 — Sikkerhetsgrenser i datalaget og private lagre
 
 **Avhenger av:** F0-jobben og F0b; B-02 før rolle- og policymigrasjoner; B-04

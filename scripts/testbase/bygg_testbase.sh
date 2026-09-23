@@ -44,4 +44,8 @@ for fil in "${migrasjoner[@]}"; do
   "${psql_kjor[@]}" -f "$fil"
 done
 
+# Den skrivbare testfixturen skriver bare til en base med dette merket.
+"${psql_kjor[@]}" -c "DO \$\$ BEGIN EXECUTE format('COMMENT ON DATABASE %I IS %L',
+  current_database(), 'koe-kastbar-testbase'); END \$\$"
+
 echo "Bygget ${#migrasjoner[@]} migrasjoner."
