@@ -218,6 +218,31 @@ Et åpent valg blokkerer bare oppgavene som er nevnt.
 | B-10 | Hvordan versjoneres hendelsesformat og regler? | Versjonsfelt per hendelse; oppgraderingsfunksjoner; regelversjon i projeksjonen. `UP042` (`StrEnum`) avhenger av dette | Dokumentert strategi (AF-05) | Utvikler, ikke utpekt | Test av gamle strømmer mot ny kode og tilbakerulling | Kompatibilitetskravet i F2 |
 | B-11 | Hvilken tidskilde og forvaringskjede skal eksporten bygge på? | Servertid med synkroniseringsgaranti; ekstern tidsstempling; begge | Ingen | Oppdragsgiver med driftsansvarlig, ikke utpekt | Krav ved preklusjonstvist | Eksport i F4 |
 
+> **Merknad 2026-09-22 til B-02:** Designgrunnlaget finnes:
+> [design-b02-tilgangsmekanisme-2026-09-22.md](../design-b02-tilgangsmekanisme-2026-09-22.md).
+> Oppdragsgivers svar om plattform, Data API, trusler og review står i
+> [oppdraget](../prompt-b02-tilgangsmekanisme-2026-09-22.md).
+> Grunnlaget sammenlikner tre alternativer og anbefaler dette: RLS med kontekst
+> for lesing, avgrensede `SECURITY DEFINER`-kommandoer for bindende skriving, og
+> en skrivevakt-trigger på journalen. Prototypen kjører mot PostgreSQL 17 og
+> PostgREST (71 av 71 sjekker, K 22.09). Funnene TM-01–TM-08 står der.
+> TM-01 er grunnen til skrivevakten: den som kan signere et token for
+> PostgREST, kan velge `service_role`.
+> Beslutningsstatus er uendret. B-02 er åpen til oppdragsgiver har avgjort den
+> etter uavhengig review. TS2-02 er vurdert i avsnitt 7 der, og statusen i 3.3
+> er uendret.
+
+> **Merknad 2026-09-23 til B-02:**
+> [Uavhengig review](../review-b02-tilgangsmekanisme-2026-09-23.md) er levert.
+> Konklusjonen er at alternativ C kan legges til grunn med navngitte endringer:
+> transport og signeringsmyndighet, vern av integritetsbærende metadata og
+> leveringsdata, private skrivestier, kontekst/identitet, tilbakekalling og
+> fullstendig F1-testplan (RB2-01–08). Originalbeviset er bekreftet; fem nye
+> mutasjoner og lokale tilleggsforsøk viser grensene for beviset. Reviewet
+> anbefaler ny vurdering av transportpremisset i 3.1 med TM-01 som konkret
+> motbelegg, men vedtar ingen endring. B-02 og B-04 er fortsatt åpne;
+> beslutningsstatus og TS2-02-status er uendret.
+
 ## 4. Funnregister
 
 <a id="status-2026-09-18"></a>
