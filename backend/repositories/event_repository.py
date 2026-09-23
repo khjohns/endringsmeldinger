@@ -11,7 +11,7 @@ import tempfile
 from abc import ABC, abstractmethod
 from pathlib import Path
 
-from lib.supabase.exceptions import ConflictError, PermanentError
+from lib.db.feil import ConcurrencyError, PermanentError
 from models.events import EventType
 
 # Hendelsestyper som ikke hører hjemme i journalen. Interne notater er ikke
@@ -48,23 +48,6 @@ def krev_journalhendelser(events: list) -> None:
                 f"{navn} skal ikke skrives til hendelsesloggen. "
                 "Den har sitt eget lager (MS-05)."
             )
-
-
-class ConcurrencyError(ConflictError):
-    """Kastes når expected_version ikke matcher faktisk versjon.
-
-    Arver ConflictError (en PermanentError) med vilje. Uten det ville
-    retry-dekoratøren rundt Supabase-lageret klassifisert konflikten som en
-    ukjent, forbigående feil: den ville sovet og prøvd igjen, og deretter kastet
-    noe `except ConcurrencyError` i ruten ikke fanger — 500 i stedet for 409.
-    Et nytt forsøk kan uansett ikke hjelpe, og etter et tapt svar er skrivingen
-    kanskje allerede committet (audit RV-11).
-    """
-
-    def __init__(self, expected: int, actual: int):
-        self.expected = expected
-        self.actual = actual
-        super().__init__(f"Versjonskonflikt: forventet {expected}, fikk {actual}")
 
 
 class EventRepository(ABC):
