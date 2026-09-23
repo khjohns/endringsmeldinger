@@ -8,6 +8,7 @@ Testene her etterprøver funn i tilstandsberegning og forretningsregler:
 3. Tilbaketrekking av subsidiært godkjente krav ble blokkert (TFR-03, rettet 2026-09-23)
 4. Subsidiært standpunkt på 0 kr / 0 dager ble forkastet som falsy (TFR-04, rettet 2026-09-23)
 5. Godkjent og låst ansvarsgrunnlag rapporteres som 'UTKAST' i overordnet_status
+6. Et fullt BH-svar med dager godtas på et nøytralt fristvarsel (TFR-06)
 """
 
 import pytest
@@ -29,6 +30,7 @@ from models.events import (
     SakOpprettetEvent,
     SporStatus,
     SporType,
+    VarselInfo,
     VederlagBeregningResultat,
     VederlagData,
     VederlagEvent,
@@ -808,3 +810,57 @@ def test_sak_oppgjort_ved_godtatt_avslag_rapporteres_ikke_som_ukjent():
     # «UTKAST» fordi vederlagssporet aldri ble opprettet — det er TFR-06,
     # se test_godkjent_grunnlag_rapporteres_som_utkast.
     assert etter.overordnet_status == "UTKAST"
+
+
+# =============================================================================
+# 6. Fullt BH-svar på et nøytralt fristvarsel (TFR-06)
+# =============================================================================
+
+
+@pytest.mark.xfail(
+    strict=True,
+    raises=AssertionError,
+    reason=(
+        "TFR-06: _rule_frist_sent godtar et BH-svar som godkjenner 10 dager på et "
+        "nøytralt varsel (§ 33.4) uten krevde dager; sporet blir GODKJENT. Ikke "
+        "rettet: en sperre må slippe gjennom innsigelse mot sen varsling (§ 5) og "
+        "forespørsel (§ 33.6.2, DRF-01), og hvordan de registreres er ikke avgjort"
+    ),
+)
+def test_fullt_fristsvar_paa_noytralt_varsel():
+    timeline = TimelineService()
+    events = _sak_med_godkjent_grunnlag()
+    varsel = FristEvent(
+        sak_id="S-1",
+        aktor_id="te",
+        aktor_rolle="TE",
+        event_type="frist_krav_sendt",
+        spor=SporType.FRIST,
+        data=FristData(
+            varsel_type="varsel",
+            frist_varsel=VarselInfo(dato_sendt="2026-09-02", metode=["digital_oversendelse"]),
+        ),
+    )
+    state = timeline.compute_state(events + [varsel])
+    if state.frist.varsel_type != "varsel" or state.frist.krevd_dager is not None:
+        pytest.fail(f"Oppsettet gir ikke et nøytralt varsel: {state.frist}")
+
+    svar = ResponsEvent(
+        sak_id="S-1",
+        aktor_id="bh",
+        aktor_rolle="BH",
+        event_type="respons_frist",
+        spor=SporType.FRIST,
+        refererer_til_event_id=varsel.event_id,
+        data=FristResponsData(
+            frist_krav_id=varsel.event_id,
+            frist_varsel_ok=True,
+            spesifisert_krav_ok=True,
+            vilkar_oppfylt=True,
+            beregnings_resultat=FristBeregningResultat.GODKJENT,
+            godkjent_dager=10,
+            begrunnelse="Byggherren godkjenner 10 dager",
+        ),
+    )
+
+    assert BusinessRuleValidator().validate(svar, state).is_valid is False
