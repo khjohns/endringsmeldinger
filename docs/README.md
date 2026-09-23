@@ -26,6 +26,7 @@ Eldre handoffer står under [historikk](#historikk--bevart-ikke-gjeldende).
 | Dokument | Hva det gir |
 | --- | --- |
 | [hovedplanen](plans/2026-09-16-godkjenning-og-varig-levering.md) | **Autoritativ.** Se over |
+| [oppdrag: BR-01 og spor D](prompt-spor-d-br01-2026-09-23.md) | BR-01 reprodusert eller avvist uten retting, deretter domenefeilene TFR-02–06, GFK-02, GFK-06, INT-07 og OBS-03. Kan gå parallelt med F0b |
 | [oppdrag: kjernen i datalaget (F0b)](prompt-f0b-kjernen-2026-09-23.md) · [oppdrag: uavhengig review av kjernen](prompt-review-f0b-kjernen-2026-09-23.md) | Neste oppgave i hovedplanen: pool, transaksjonslokal kontekst, feilklassifisering og fixturer for direkte tilkobling, uten å konvertere repositorier. Reviewet gjøres i en annen tråd før fase 2 bygger på kjernen |
 | [oppdrag: PostgreSQL 17 i CI (F0)](prompt-f0-postgresql-i-ci-2026-09-22.md) | Neste oppgave i hovedplanen: databasetester mot ekte PostgreSQL i CI, med de første katalogtestene |
 | [oppdrag: testvedlikehold i F0](prompt-f0-testvedlikehold-2026-09-22.md) · [gjennomføring](gjennomforing-f0-testvedlikehold-2026-09-22.md) | T-1, T-3 og T-4: AUT-03-reproduksjonen erstattet, FE-02-testen når målassertionen, og TST-02/KR-15 reprodusert deterministisk ved eksistenssjekken |
