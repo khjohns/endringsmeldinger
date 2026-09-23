@@ -59,8 +59,10 @@ kontrollerer resultatet mot vurderingene:
 | Forretningsregler | `services/business_rules.py`, `RESPONS_VEDERLAG`, `RESPONS_FRIST` | At kravet er sendt, at svaret gjelder gjeldende krav, at BH ikke allerede har svart |
 | Godkjenningsflyten | `services/approval_service.py`, `validate_items` | De samme tre lagene, pluss at ansvarsgrunnlaget ikke er endret |
 
-**Kjørt og observert (23.09).** Tre strenge `xfail`-tester, alle med ekte
-validator, parser, forretningsregler, hendelseslager og tidslinje:
+**Kjørt og observert (23.09).** Fire strenge `xfail`-tester, alle med ekte
+validator, parser, forretningsregler, hendelseslager og tidslinje. Hvert svar
+sendes først med riktig resultat på en kontrollsak, som lagres; resultatet er
+dermed det eneste som skiller:
 
 - Vederlagssvar via `/api/events`: hovedkravet avslått, 0 kr godkjent,
   resultat «godkjent». Svar 201; sporet lagres med `bh_resultat=godkjent`,
@@ -71,9 +73,12 @@ validator, parser, forretningsregler, hendelseslager og tidslinje:
   (`/api/cases/<sak>/approvals`: `prepare`, `package`, `publish`). Pakken
   publiseres; sporet blir `GODKJENT`, og det frosne brevet sier «godkjent».
 
-Med begge svarene lagret ga et engangsskript mot samme oppsett
-`overordnet_status=OMFORENT` og `kan_utstede_eo=True` for en sak der BH har
-avslått alt i vurderingene (K 23.09, skript, ikke test).
+- Begge svarene på samme sak: `overordnet_status=OMFORENT` og
+  `kan_utstede_eo=True`, for en sak der BH har avslått alt i vurderingene.
+
+En midlertidig avvisning av svarene i validatoren gjorde alle fire til XPASS,
+så testene fanger også en retting etter alternativ (2) (K 23.09, mutasjon,
+ikke committet).
 
 **Alvorlighet: middels.** Svaret binder den som sender det; ingen part kan
 endre motpartens standpunkt på denne måten. Men journalen har juridisk vekt,
@@ -226,8 +231,8 @@ bygger på verdier fra gruppe 2, som klienten har regnet ut:
 | Handling | Backend-symbol | Bygger på klientens | Belegg |
 | --- | --- | --- | --- |
 | Sporstatus | `TimelineService._beregnings_resultat_til_status` | `beregnings_resultat` | K 23.09 |
-| Samlet status (`OMFORENT` osv.) og saksliste | `SakState.overordnet_status`, `update_cache` | Sporstatus | K 23.09 (skript) |
-| EO-adgang | `SakState.kan_utstede_eo` | Sporstatus | K 23.09 (skript) |
+| Samlet status (`OMFORENT` osv.) og saksliste | `SakState.overordnet_status`, `update_cache` | Sporstatus | K 23.09 |
+| EO-adgang | `SakState.kan_utstede_eo` | Sporstatus | K 23.09 |
 | Forsering etter § 33.8 | `ForseringService`, sjekker `frist.bh_resultat == "avslatt"` | `beregnings_resultat` | L |
 | Fullmaktsnivå for BH-svar | `approval_authority.exposure` | `total_godkjent_belop`, `godkjent_dager`, `subsidiaer_godkjent_*` | L |
 | EO-beløp mot KOE-enigheten | `EndringsordreService`, «Beløpet må samsvare med gjeldende enighet» | `SakState.sum_godkjent`, som er `total_godkjent_belop` | L |
@@ -292,7 +297,7 @@ TypeScript med typer og kommentarer; Python blir kortere.
 Til sammen **250–350 linjer Python** for gruppe 2 og 3 uten tekstene.
 Spesifikasjonen finnes: `vederlagDomain.test.ts` (101 tilfeller, 1 108
 linjer), `fristDomain.test.ts` (53 tilfeller, 603 linjer) og
-`grunnlagDomain.test.ts` (56 tilfeller, 553 linjer) kan oversettes til
+`grunnlagDomain.test.ts` (52 tilfeller, 553 linjer) kan oversettes til
 backend-tester. Inngangsdataene finnes i `SakState`: kategori, krevde beløp per
 post, varseltype og tidligere svar (L). To regler må finnes begge steder så
 lenge frontenden skal vise resultatet før innsending. Da er det backend som
@@ -324,12 +329,17 @@ Disse er uklare i NS 8407 eller i koden. Kartleggingen velger ikke tolkning.
 
 ## Verifikasjon og grenser
 
-**Kjørt og observert (23.09):** de fire strenge `xfail`-testene i
-`test_beregningsresultat_br01_20260923.py` (tre for BR-01, én for DRF-01),
-først uten `xfail` for å se feilen, deretter som `xfail`. Følgene for
-`overordnet_status` og `kan_utstede_eo` er observert med et engangsskript mot
-samme oppsett, ikke med en test. DRF-02 er kjørt ved å parse hendelsene
-direkte med `parse_event_from_request`.
+**Kjørt og observert (23.09):** de fem strenge `xfail`-testene i
+`test_beregningsresultat_br01_20260923.py` (fire for BR-01, én for DRF-01),
+først uten `xfail` for å se feilen, deretter som `xfail`. BR-01-testene er i
+tillegg kjørt mot en midlertidig mutasjon som avviser svarene; alle fire ble
+XPASS. DRF-01-testen feiler med `pytest.fail`, ikke `AssertionError`, hvis
+svaret avvises av en annen grunn enn de manglende feltene. DRF-02 er kjørt ved
+å parse hendelsene direkte med `parse_event_from_request`.
+
+**Lageret i reproduksjonene** er `JsonFileEventRepository`. Det tas ut av
+kjørestien i F0b (TS2-02), og testene må da flyttes til lageret som erstatter
+det.
 
 **Lest ut av koden (23.09):** alle filene i `src/lib/domain/`, i sin helhet,
 og kallene fra `VederlagForm.svelte`, `FristForm.svelte`,

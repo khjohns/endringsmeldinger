@@ -14,7 +14,7 @@ Opphever du et utsagn, skriv en datert merknad, også inn i det gamle dokumentet
 
 | Dokument | Hva det gir |
 | --- | --- |
-| [hovedplanen](plans/2026-09-16-godkjenning-og-varig-levering.md) | **Begynn her.** Sluttredigert 22.09, endret 23.09 med beslutningen om direkte tilkobling og den nye pakken F0b. Eneste løpende kilde til plan og funnstatus: invarianter, beslutningsregister med åpne valg, funnregister, arbeidspakker og neste oppgave |
+| [hovedplanen](plans/2026-09-16-godkjenning-og-varig-levering.md) | **Begynn her.** Sluttredigert 22.09, endret 23.09 med beslutningen om direkte tilkobling, den nye pakken F0b, B-02 punkt 3–6, B-04, B-12, B-13 og BR-01 reprodusert. Eneste løpende kilde til plan og funnstatus: invarianter, beslutningsregister med åpne valg, funnregister, arbeidspakker og neste oppgave |
 | [`../AGENTS.md`](../AGENTS.md) | Lastes automatisk i hver sesjon: språk, domeneordliste, sikkerhetsinvarianter, resonneringsregler |
 | [handoff-2026-09-23-datalag-postgresql](handoff-2026-09-23-datalag-postgresql.md) | **Siste handoff.** B-02-runden, plattformsamtalen med IKT, alternativ C over direkte PostgreSQL (bekreftet 23.09), dokumentene som måtte oppdateres, og oppsett som Claude Code-prosjekt |
 | [handoff-2026-09-21-frister](handoff-2026-09-21-frister.md) | Forrige handoff. Fellene der gjelder fortsatt; planen og statusen der er innarbeidet i hovedplanen |
