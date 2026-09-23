@@ -431,7 +431,16 @@ De er behandlet i denne redigeringen; se
 [redaksjonsprotokollen](../sluttredigering-hovedplan-2026-09-22.md).
 KONS-02 og KONS-09 var allerede dekket av daterte merknader i delplanen og målskjemaet.
 
-### 4.6 Tellinger
+### 4.6 Foreløpige funn, ikke kontrollert
+
+Registrert fra lesing uten kjøring. Statusen er «foreløpig» til funnet er
+reprodusert eller avvist. Alvorlighet settes da.
+
+| ID | Status | Funn | Belegg | Pakke |
+| --- | --- | --- | --- | --- |
+| BR-01 | Foreløpig | Serveren ser ut til å godta klientens beregnede resultat i BH-svar på vederlag og frist uten å regne det ut på nytt fra vurderingene i samme hendelse. `TimelineService` kopierer `beregnings_resultat` rett til `bh_resultat` og sporstatus. En klient som sender `godkjent` der reglene gir `avslått`, blir trolig trodd, og tilstanden viser da et resultat som ikke følger av vurderingene. Frontenden beregner resultatet i `src/lib/domain/` og sender det med i `buildEventData` | L 23.09. Søkt etter `beregnings_resultat` i `routes`, `services`, `models`, `lib` og `core`: bare kopiering, statusmapping og brevtekst. Validatorene i `models/events.py` krever bare at feltet finnes. Ikke kjørt | D. Kontrolleres før F2-kommandoene bygger videre på det |
+
+### 4.7 Tellinger
 
 Registeret har ingen samlet «antall åpne feil». Flere ID-er er samme rotårsak,
 og antall tester er ikke antall feil. Fordelingen i testinventaret står i
@@ -661,7 +670,8 @@ i så fall erstatte punktet med en referanse. Status er ikke innhentet for noen.
 ### Spor D — domenefeil
 
 Kan gå parallelt. Hver retting får regresjonstest og holdes innenfor sitt
-funn. TFR-02 til TFR-06, GFK-02, GFK-06, INT-07, OBS-03, og restansen på
+funn. TFR-02 til TFR-06, GFK-02, GFK-06, INT-07, OBS-03, BR-01 (først
+reprodusert eller avvist), og restansen på
 GFK-01 når B-06 er avgjort. Deretter systematisk gjennomgang av
 tilstandsovergangene mot NS 8407, med dokumentert forventet overgang og test
 per hendelsestype. Utvides `SporStatus`, gjelder regelen i `AGENTS.md` om å
