@@ -449,7 +449,7 @@ fordi de hører til samme domenefamilie som TFR og GFK.
 | DB-08 | Bortfalt | Viewene finnes ikke | D 19.09 | — |
 | TFR-01 | Lukket | `AVSLATT_AKSEPTERT`, 19.09 | H | — |
 | TFR-02 | Åpen | `overordnet_status` gir `INGEN_AKTIVE_SPOR` for forsering og EO. Testinventarets FR-01 | Streng `xfail`, K 22.09 | D |
-| TFR-03 | Åpen | Tilbaketrekking blokkeres ved subsidiær enighet. Testinventarets FR-02 | Streng `xfail`, K 22.09 | D |
+| TFR-03 | Lukket | Tilbaketrekking ble blokkert ved subsidiær enighet. Testinventarets FR-02. **Merknad 2026-09-23:** rettet for vederlag og frist. Et krav som bare er godkjent subsidiært (`er_subsidiaert_*`), kan trekkes til TE har godtatt svaret; da er det oppgjort. Reproduksjonen er ordinær test, med to nye for frist og for sperren etter aksept | K 23.09 | — |
 | TFR-04 | Lukket | 0 og 0,0 ble forkastet som falsy. Testinventarets FR-03. **Merknad 2026-09-23:** rettet ved at `_copy_fields_if_present` bare hopper over `None`; parameteren `require_truthy` er fjernet. Den strenge `xfail` er gjort om til ordinær test med uendrede assertions | K 23.09 | — |
 | TFR-05 | Åpen | Godkjent grunnlag rapporteres som `UTKAST`. Testinventarets FR-04 | Streng `xfail`, K 22.09 | D |
 | TFR-06 | Åpen, lav | Respons på uspesifisert fristvarsel | L 19.09 | D |
