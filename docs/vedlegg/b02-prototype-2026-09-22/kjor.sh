@@ -71,4 +71,4 @@ echo
 B02_DSN="host=$arbeid port=$port dbname=koe_b02" \
 B02_POSTGREST="http://localhost:$pgrst_port" \
 B02_JWT_SECRET="$hemmelig" \
-    "$PYTHON" "$her/bevis.py"
+    "$PYTHON" "${B02_BEVIS:-$her/bevis.py}"

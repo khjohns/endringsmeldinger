@@ -1,0 +1,55 @@
+Bygget 23 migrasjoner.
+B-02-lag 01_plattform_postgrest.sql
+B-02-lag 02_b02_lag.sql
+B-02-lag 03_testdata.sql
+PostgREST PostgREST 12.2.12 (cd3cf9e), db-pool = 1
+Server: 17.11 (Homebrew)
+
+{"forsøk": "kontroll: et lovlig notat kan skrives", "observert": "OK", "forventet_reproduksjon": "OK", "samsvar": true}
+{"forsøk": "unik-skranken røper notat-ID fra B", "observert": "23505", "forventet_reproduksjon": "23505", "samsvar": true}
+{"unikfeil": {"sqlstate": "23505", "melding": "duplicate key value violates unique constraint \"notat_pkey\"", "detalj": null}}
+{"forsøk": "referanse til eksisterende sak i B aksepteres", "observert": [["sak-b1"]], "forventet_reproduksjon": [["sak-b1"]], "samsvar": true}
+{"forsøk": "referanse til ukjent sak avvises", "observert": "23503", "forventet_reproduksjon": "23503", "samsvar": true}
+{"forsøk": "kontekst: ugyldig side", "observert": [[1]], "forventet_reproduksjon": [[1]], "samsvar": true}
+{"forsøk": "kommando avviser ugyldig side", "observert": "42501", "forventet_reproduksjon": "42501", "samsvar": true}
+{"forsøk": "kontekst: side som JSON-objekt", "observert": [[1]], "forventet_reproduksjon": [[1]], "samsvar": true}
+{"forsøk": "kommando avviser side som JSON-objekt", "observert": "42501", "forventet_reproduksjon": "42501", "samsvar": true}
+{"forsøk": "kontekst: tom side", "observert": [[1]], "forventet_reproduksjon": [[1]], "samsvar": true}
+{"forsøk": "kommando avviser tom side", "observert": "42501", "forventet_reproduksjon": "42501", "samsvar": true}
+{"forsøk": "kontekst: store bokstaver i aktørens UUID", "observert": [[0]], "forventet_reproduksjon": [[0]], "samsvar": true}
+{"forsøk": "kontekst: aktør som JSON-liste", "observert": [[0]], "forventet_reproduksjon": [[0]], "samsvar": true}
+{"forsøk": "kontekst: prosjekt som JSON-objekt", "observert": [[0]], "forventet_reproduksjon": [[0]], "samsvar": true}
+{"forsøk": "kontekst: tomt prosjekt", "observert": [[0]], "forventet_reproduksjon": [[0]], "samsvar": true}
+{"forsøk": "kontekst: team som JSON-liste", "observert": [[0]], "forventet_reproduksjon": [[0]], "samsvar": true}
+{"forsøk": "kontekst: tomt team", "observert": [[0]], "forventet_reproduksjon": [[0]], "samsvar": true}
+{"forsøk": "kontekst: ekstra krav", "observert": [[1]], "forventet_reproduksjon": [[1]], "samsvar": true}
+{"forsøk": "manglende side gir likevel privat innsyn", "observert": [[1]], "forventet_reproduksjon": [[1]], "samsvar": true}
+{"forsøk": "ukjent team kan opprette notat", "observert": "OK", "forventet_reproduksjon": "OK", "samsvar": true}
+{"forsøk": "NULL forventet versjon passerer kommandoen", "observert": "OK", "forventet_reproduksjon": "OK", "samsvar": true}
+{"forsøk": "NULL hendelsestype stoppes av NOT NULL, ikke typelisten", "observert": "23502", "forventet_reproduksjon": "23502", "samsvar": true}
+{"forsøk": "kommando gir identisk feil for B og ukjent sak", "observert": {"sqlstate": "42501", "melding": "ukjent sak", "detalj": null}, "forventet_reproduksjon": {"sqlstate": "42501", "melding": "ukjent sak", "detalj": null}, "samsvar": true}
+{"forsøk": "telling røper ingen B-rader", "observert": [[0]], "forventet_reproduksjon": [[0]], "samsvar": true}
+{"forsøk": "utløpt token", "observert": 401, "forventet_reproduksjon": 401, "samsvar": true}
+{"forsøk": "token uten exp", "observert": 200, "forventet_reproduksjon": 200, "samsvar": true}
+{"forsøk": "token med ett døgns levetid", "observert": 200, "forventet_reproduksjon": 200, "samsvar": true}
+{"forsøk": "service_role: SET ROLE kommandoeier", "observert": "42501", "forventet_reproduksjon": "42501", "samsvar": true}
+{"forsøk": "service_role: GRANT kommandoeier", "observert": "42501", "forventet_reproduksjon": "42501", "samsvar": true}
+{"forsøk": "service_role: logisk publisering", "observert": "42501", "forventet_reproduksjon": "42501", "samsvar": true}
+{"forsøk": "service_role: MERGE UPDATE", "observert": "42501", "forventet_reproduksjon": "42501", "samsvar": true}
+{"forsøk": "service_role: MERGE DELETE", "observert": "42501", "forventet_reproduksjon": "42501", "samsvar": true}
+{"forsøk": "service_role: ON CONFLICT UPDATE", "observert": "42501", "forventet_reproduksjon": "42501", "samsvar": true}
+{"forsøk": "service_role: COPY utløser skrivevakten", "observert": "42501", "forventet_reproduksjon": "42501", "samsvar": true}
+{"forsøk": "service_role: eksisterende triggerfunksjon kan monteres", "observert": "OK", "forventet_reproduksjon": "OK", "samsvar": true}
+{"forsøk": "endret metadata gir samme saksstrøm to prosjekter", "observert": [["prosjekt-b", 1], ["prosjekt-a", 2]], "forventet_reproduksjon": [["prosjekt-b", 1], ["prosjekt-a", 2]], "samsvar": true}
+{"forsøk": "service_role kan omskrive prosjekt i outbox", "observert": [["annet"], ["annet"]], "forventet_reproduksjon": [["annet"], ["annet"]], "samsvar": true}
+{"forsøk": "service_role kan legge notatreferanse i outbox", "observert": "OK", "forventet_reproduksjon": "OK", "samsvar": true}
+{"forsøk": "worker kan ikke endre hendelsesreferansen", "observert": "42501", "forventet_reproduksjon": "42501", "samsvar": true}
+{"forsøk": "endret issuer oppretter en annen bruker", "observert": true, "forventet_reproduksjon": true, "samsvar": true}
+{"forsøk": "runtime kan bruke entra som provider", "observert": "OK", "forventet_reproduksjon": "OK", "samsvar": true}
+{"forsøk": "runtime kan gi en ny identitet handlingsrett via synk", "observert": true, "forventet_reproduksjon": true, "samsvar": true}
+{"forsøk": "CREATEROLE gir ADMIN som kan gjøres til SET", "observert": [[true, false, false], "review_eier"], "forventet_reproduksjon": [[true, false, false], "review_eier"], "samsvar": true}
+{"forsøk": "FK ON DELETE SET NULL", "observert": "42501", "forventet_reproduksjon": "42501", "samsvar": true}
+{"forsøk": "FK ON DELETE SET DEFAULT", "observert": "42501", "forventet_reproduksjon": "42501", "samsvar": true}
+{"forsøk": "FK ON DELETE RESTRICT", "observert": "23503", "forventet_reproduksjon": "23503", "samsvar": true}
+{"forsøk": "FK ON DELETE NO ACTION", "observert": "23503", "forventet_reproduksjon": "23503", "samsvar": true}
+46 av 46 observasjoner samsvarer med reproduksjonen.
