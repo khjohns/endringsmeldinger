@@ -19,6 +19,14 @@ ingenting. Det svarer på hvert navngitte endringskrav fra reviewet.
 > observert som atferd. Foreløpig målplattform er Azure PostgreSQL. Der er
 > Supavisor ikke aktuelt, men poolingen fra F0b må prøves på samme måte.
 
+> **Merknad 2026-09-23: punkt 3–6 er avgjort.** Oppdragsgiver valgte
+> strukturell garanti (a) i avsnitt 5, at bare drift registrerer prosjekt og
+> kontraktsteam (TM-12), klokken «da synkroniseringen committet lokalt» i
+> avsnitt 7, med fortsatt drift og varsel når synkroniseringen er gammel, og
+> break-glass-prosedyren i avsnitt 8. Vedtakene står i hovedplanens
+> [3.1](plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger)
+> og merknaden under B-04 der.
+
 ## Sammendrag
 
 Anbefalingen er fortsatt alternativ C, med endringene reviewet krevde:
