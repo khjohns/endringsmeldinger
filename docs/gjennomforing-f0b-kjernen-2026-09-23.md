@@ -329,6 +329,13 @@ Homebrew, psycopg 3.3.6, psycopg-pool 3.3.3, ruff 0.16.8):**
 - `ruff check backend/`: ingen feil.
 - `lokal_testbase.sh start`, `url` og `stopp`, og en ombygging fra tom.
 
+**Observert i CI (23.09, [PR #42](https://github.com/khjohns/endringsmeldinger/pull/42),
+kjøring `35850648220`, commit `ff5a794`):** alle jobbene er grønne. Jobben
+`database` (Linux, `postgres:17`): 57 bestått. Backend-jobben: 1532 bestått,
+66 hoppet over, 38 xfailed. Jobben `database` kobler til som `postgres`, og det
+er en superbruker. Fixturene trenger `CREATEROLE`, `CREATEDB` og
+`session_replication_role`. Mutasjonene er ikke kjørt i CI.
+
 **Lest ut av koden, ikke kjørt:**
 
 - At `@with_retry()` slipper `UkjentUtfall` og `PermanentError` gjennom uten ny
@@ -340,9 +347,6 @@ Homebrew, psycopg 3.3.6, psycopg-pool 3.3.3, ruff 0.16.8):**
 
 **Ikke prøvd:**
 
-- **CI.** Testene er ikke kjørt i jobben `database` før PR-en. Jobben kobler til
-  som `postgres`, og det er en superbruker. Fixturene trenger `CREATEROLE`,
-  `CREATEDB` og `session_replication_role`.
 - **PgBouncer i transaksjonsmodus**, som Azure tilbyr. Kjernen holder rolle og
   kontekst innenfor transaksjonen, og det er forutsetningen for den modusen. Men
   poolens reset kjører på en annen serverforbindelse enn transaksjonen, og har
