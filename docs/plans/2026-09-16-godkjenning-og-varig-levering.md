@@ -833,6 +833,9 @@ beslutning.
 3. Deretter repositoriene, ett eller to per tråd, parallelt. TS2-02 når alle er
    inne.
 
+Oppdragene står i [oppdraget for kjernen](../prompt-f0b-kjernen-2026-09-23.md)
+og [oppdraget for reviewet](../prompt-review-f0b-kjernen-2026-09-23.md).
+
 [Prototype v2](../vedlegg/b02-prototype-v2-2026-09-23/kjor.sh) viser
 konteksthåndteringen over direkte innlogging og kan brukes som mønster, ikke
 som kode. Parallelt kan spor D gå, med BR-01 først reprodusert eller avvist, og
