@@ -6,6 +6,7 @@ Testene her etterprøver funn i godkjennings- og fullmaktslaget:
 3. RV-02 regresjon: reconcile() returnerer pakke under aktiv utstedelse, varig "returnert"
 4. Forseringsrespons er blokkert i porten, men kan ikke godkjennes i ApprovalService
 5. Uautorisert generering av formelle byggherrebrev som PDF via POST /api/letter/generate
+6. Godkjenning av ansvarsgrunnlaget alene verdsettes til 0 kr (GFK-06)
 """
 
 from decimal import Decimal
@@ -377,4 +378,112 @@ def test_te_bruker_kan_generere_bh_brev_pdf(monkeypatch):
     # Feiler i dag fordi TE mottar 200 OK og en gyldig PDF utstedt av BH
     assert response.status_code in (400, 403), (
         f"TE-bruker fikk generert formelt BH-brev: status={response.status_code}"
+    )
+
+
+# =============================================================================
+# 6. Godkjenning av ansvarsgrunnlaget alene verdsettes til 0 kr (GFK-06)
+# =============================================================================
+
+
+@pytest.mark.xfail(
+    strict=True,
+    raises=AssertionError,
+    reason=(
+        "GFK-06: en pakke som bare godkjenner ansvarsgrunnlaget verdsettes til 0 kr, "
+        "så en prosjektleder godkjenner ansvaret for et krav på 50 mill. alene. Ikke "
+        "rettet: hvordan en slik godkjenning skal verdsettes, er en fullmaktsbeslutning"
+    ),
+)
+def test_godkjent_grunnlag_alene_krever_ingen_godkjenner(tmp_path):
+    from models.events import parse_event_from_request
+    from repositories.event_repository import JsonFileEventRepository
+    from services.timeline_service import TimelineService
+
+    def hendelse(event_type, data):
+        return parse_event_from_request(
+            {
+                "sak_id": "S",
+                "event_type": event_type,
+                "aktor_id": "te",
+                "aktor_rolle": "TE",
+                "data": data,
+            }
+        )
+
+    lager = JsonFileEventRepository(str(tmp_path / "events"))
+    grunnlag = hendelse(
+        "grunnlag_opprettet",
+        {
+            "tittel": "Uforutsette grunnforhold",
+            "hovedkategori": "SVIKT",
+            "underkategori": "GRUNNFORHOLD",
+            "beskrivelse": "Fjell der det skulle være løsmasser.",
+            "dato_oppdaget": "2026-09-01",
+        },
+    )
+    lager.append(grunnlag, 0)
+    lager.append(
+        hendelse(
+            "vederlag_krav_sendt",
+            {"metode": "FASTPRIS_TILBUD", "belop_direkte": 50_000_000, "begrunnelse": "Krav"},
+        ),
+        1,
+    )
+    saksbehandler = "pl@example.test"
+    kjede = [
+        {"id": "pd@example.test", "role": "Prosjektdirektør"},
+        {"id": "adm@example.test", "role": "Adm.dir (daglig leder)"},
+    ]
+    tjeneste = ApprovalService(
+        tmp_path / "private.sqlite",
+        lager,
+        TimelineService(),
+        BusinessRuleValidator(),
+        authority_policy={"handlers": [{"id": saksbehandler, "role": "Prosjektleder"}]},
+    )
+
+    def kommando(action, **felt):
+        versjon = tjeneste.read("p1", "S")["version"]
+        return tjeneste.command(
+            "p1",
+            "S",
+            saksbehandler,
+            kjede,
+            True,
+            {"action": action, "expectedVersion": versjon, "commandId": str(uuid4()), **felt},
+            team="bh-team",
+        )
+
+    vurdering = kommando(
+        "prepare",
+        item={
+            "track": "grunnlag",
+            "eventType": "respons_grunnlag",
+            "claimId": grunnlag.event_id,
+            "data": {
+                "grunnlag_event_id": grunnlag.event_id,
+                "resultat": "godkjent",
+                "begrunnelse": "Byggherren godtar ansvaret.",
+            },
+        },
+    )["items"][-1]
+    pakke = kommando(
+        "package",
+        letter={
+            "title": "Svar på ansvarsgrunnlag",
+            "caseId": "S",
+            "caseTitle": "Uforutsette grunnforhold",
+            "sender": "BH",
+            "recipient": "TE",
+            "date": "23. september 2026",
+            "introduction": "Innledning",
+            "closing": "Hilsen",
+            "items": [{"id": vurdering["id"]}],
+        },
+    )["packages"][-1]
+
+    assert pakke["steps"], (
+        f"Godkjenning av ansvaret for et krav på 50 mill. ble godkjent ved innsending: "
+        f"status={pakke['status']}, fullmaktsgrunnlag={pakke['authority']}"
     )
