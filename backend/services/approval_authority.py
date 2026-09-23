@@ -100,11 +100,11 @@ def _endrer_sluttdato(items):
 
 
 def approval_route(items, chain, daily_rate=None, sender=None):
-    """Authority basis and route for a letter of responses.
+    """Fullmaktsgrunnlag og rute for et brev med svar.
 
-    A new completion date cannot be valued without the contract's current one,
-    which the server does not have. As for change orders, the whole chain is then
-    required, and it must still cover what can be valued (audit GFK-02).
+    En ny sluttdato kan ikke verdsettes uten kontraktens gjeldende sluttdato,
+    som serveren ikke har. Som for endringsordrer kreves da hele kjeden, og den
+    må fortsatt dekke det som lar seg verdsette (audit GFK-02).
     """
     amount, needs_rate = exposure(items, daily_rate)
     basis = {

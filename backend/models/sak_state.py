@@ -817,11 +817,12 @@ class FristTilstand(BaseModel):
 
 
 def _forseringsstatus(forsering: ForseringData) -> str:
-    """Aldri en lukket status: TE kan oppdatere kostnader og stoppe etter BHs svar."""
+    """Aldri en lukket status: TE kan oppdatere kostnader og stoppe etter BHs svar.
+
+    En stoppet forsering har fortsatt kostnader til avklaring, så BHs svar avgjør.
+    """
     if forsering.dato_varslet is None:
         return "UTKAST"
-    if forsering.er_stoppet:
-        return "UNDER_BEHANDLING"
     aksepterer = (
         forsering.bh_respons.aksepterer
         if forsering.bh_respons is not None
@@ -1121,7 +1122,7 @@ class SakState(BaseModel):
         - UNDER_BEHANDLING: BH har svart på minst ett spor
         - UNDER_FORHANDLING: BH har avslått/delvis godkjent noe
         - OMFORENT: Alle aktive spor er godkjent
-        - LUKKET: Saken er lukket (EO utstedt eller trukket)
+        - LUKKET: Endringsordren er akseptert eller bestridt
 
         Forsering og endringsordre har ikke de tre sporene og følger egne
         livsløp (audit TFR-02, statusene besluttet av oppdragsgiver 23.09).
@@ -1194,17 +1195,12 @@ class SakState(BaseModel):
                 return "VENTER_PAA_SVAR"
             return "UNDER_BEHANDLING"
 
-        # Resten av sporene er ferdige eller ikke sendt. Har BH avgjort noe, er
-        # saken i gang, selv om TE ikke har sendt alle krav (audit TFR-05).
+        # Resten av sporene er ferdige eller ikke sendt. Er grunnlaget godkjent,
+        # er saken i gang, selv om TE ikke har sendt alle krav (audit TFR-05).
         if any(s == SporStatus.UTKAST for s in aktive_statuser):
             ferdig_eller_utkast = ferdig_statuser | {SporStatus.UTKAST}
             if all(s in ferdig_eller_utkast for s in aktive_statuser):
-                avgjort_av_bh = {
-                    SporStatus.GODKJENT,
-                    SporStatus.LAAST,
-                    SporStatus.AVSLATT_AKSEPTERT,
-                }
-                if any(s in avgjort_av_bh for s in aktive_statuser):
+                if self.grunnlag.status in {SporStatus.GODKJENT, SporStatus.LAAST}:
                     return "UNDER_BEHANDLING"
                 return "UTKAST"
 

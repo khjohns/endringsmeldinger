@@ -48,7 +48,8 @@ Catenda-mappingen og PDF-etikettene dekker dem allerede (L).
   sperrer nye hendelser når statusen er `OMFORENT`, `LUKKET` eller
   `LUKKET_TRUKKET`, og TE kan oppdatere kostnader og stoppe etter at BH har
   svart. Ikke varslet: `UTKAST`. Varslet: `VENTER_PAA_SVAR`. Avslått:
-  `UNDER_FORHANDLING`. Akseptert eller stoppet: `UNDER_BEHANDLING`.
+  `UNDER_FORHANDLING`. Akseptert: `UNDER_BEHANDLING`. Stopp endrer ikke
+  statusen, fordi kostnadene fortsatt skal avklares.
 - **Endringsordre (§ 31.3)** er en ordre og forhandles ikke. Er TE uenig,
   føres det videre i en KOE. Utkast: `UTKAST`. Utstedt og revidert:
   `VENTER_PAA_SVAR`. Akseptert og bestridt: `LUKKET`. EO-hendelsene er
@@ -64,25 +65,33 @@ forsering og EO når statusen endres (`catenda_sync_service`, L).
 `services/business_rules.py`, `_kravet_er_oppgjort`, brukt av
 `_rule_vederlag_can_be_withdrawn` og `_rule_frist_can_be_withdrawn`. Et krav
 som bare er godkjent subsidiært (`er_subsidiaert_vederlag`,
-`er_subsidiaert_frist`), er prinsipalt avslått gjennom ansvarsgrunnlaget.
-Det er ikke oppgjort før TE har godtatt svaret; det følger beslutningen om
-TFR-01 fra 19.09, der aksept bekrefter byggherrens svar. NS 8407 har ingen
-bestemmelse om å trekke et krav; sperren er systemets regel. Rettingen
+`er_subsidiaert_frist`), er prinsipalt avslått gjennom ansvarsgrunnlaget
+og ikke oppgjort, så det kan trekkes. Godkjenner BH grunnlaget senere, er
+godkjenningen ikke lenger subsidiær, og sperren gjelder igjen. NS 8407 har
+ingen bestemmelse om å trekke et krav; sperren er systemets regel. Rettingen
 gjelder begge pengesporene, ikke bare vederlag som reproduksjonen viste.
+
+TE kan ikke formelt godta et subsidiært godkjent spor:
+`_rule_not_already_accepted` sperrer aksept når sporet er `GODKJENT`. En
+første versjon av rettingen lot aksept avslutte kravet, men den grenen kunne
+ikke nås og er fjernet etter code-review. Om TE skal kunne godta byggherrens
+subsidiære tall mens grunnlaget er omtvistet, er ikke avgjort.
 
 ### TFR-04: subsidiært standpunkt på 0 forsvant
 
 `services/timeline_service.py`, `_copy_fields_if_present`: hopper nå bare
 over `None`. Parameteren `require_truthy` hadde bare de to kallene som
-forårsaket feilen, og er fjernet.
+forårsaket feilen, og er fjernet. `subsidiaer_triggers` ble kopiert etter samme
+sannhetsregel i de samme håndtererne og følger nå også `is not None`.
 
 ### TFR-05: sak med avgjort grunnlag ble vist som utkast
 
-`SakState.overordnet_status`. Har BH avgjort minst ett spor (`GODKJENT`,
-`LAAST` eller `AVSLATT_AKSEPTERT`) og resten ikke er sendt, er statusen
-`UNDER_BEHANDLING`, etter oppdragsgivers valg. Ikke en lukket status, så ingen
-hendelser sperres. Et trukket grunnlag med resten i utkast gir fortsatt
-`UTKAST` (SD-02).
+`SakState.overordnet_status`. Er grunnlaget godkjent eller låst og resten
+ikke sendt, er statusen `UNDER_BEHANDLING`, etter oppdragsgivers valg. Ikke en
+lukket status, så ingen hendelser sperres. Et grunnlag som er trukket, eller der
+TE har godtatt avslaget, gir fortsatt `UTKAST` (SD-02). En første versjon
+regnet også et godtatt avslag som avgjort og ga `UNDER_BEHANDLING` for en sak
+som er over; det er rettet etter code-review.
 
 To ordinære tester låste `UTKAST` for nettopp dette tilfellet, og er endret
 etter beslutningen:
@@ -101,15 +110,18 @@ fristsvar gir `amount=None` og krever hele kjeden, og kjeden må dekke det som
 lar seg verdsette (`minimum`). Det er samme regel som for endringsordrer
 (`eo_approval_service.order_exposure`): serveren kjenner ikke kontraktens
 sluttdato og kan ikke verdsette datoen. Følgen er at heller ikke en
-saksbehandler med ubegrenset fullmakt kan sende et slikt svar alene.
+saksbehandler med ubegrenset fullmakt kan sende et slikt svar alene, og uten
+konfigurert kjede kan svaret ikke sendes. Det er beholdt fordi det låser seg
+framfor å slippe gjennom, og fordi endringsordrer gjør det samme (spørsmål 3).
 
 Uten dagmulktssats er atferden uendret: dager som ikke kan verdsettes, avvises
 som før (B-06 er åpen). Testen for det tilfellet påstår bare at ruten aldri
 blir kortere enn kjeden, uansett hvordan B-06 avgjøres.
 
-Frontendens `calculateAuthority` (`src/lib/approval/authority.ts`) speiler
-ikke dette. Det er latent: `fristDomain.buildEventData` sender ikke
-`ny_sluttdato`.
+Frontendens `calculateAuthority` (`src/lib/approval/authority.ts`) og
+`approversFor` speiler ikke dette, så forhåndsvisningen ville vist en kortere
+rute enn serveren krever. Det er latent: `fristDomain.buildEventData` sender
+ikke `ny_sluttdato`. Kobles datoen inn i skjemaet, må speilet rettes samtidig.
 
 ### INT-07: Catenda-kommentaren kjente ikke `standard`
 
@@ -166,12 +178,20 @@ Etter § 34.1.1 gir en endring krav på vederlagsjustering, og etter § 33.1
 krav på fristforlengelse når fremdriften hindres. Utmålingen godkjennes senere
 med egen fullmakt. Valget er byggherrens fullmaktsmatrise, ikke NS 8407.
 
+### Spørsmål 3: fullmakt når beløpet ikke kan verdsettes
+
+Kan en saksbehandler med ubegrenset fullmakt sende alene når beløpet ikke kan
+verdsettes (ny sluttdato)? I dag kreves hele kjeden, både for endringsordrer
+og, etter GFK-02, for fristsvar. Er ingen kjede konfigurert, kan svaret ikke
+sendes. En senior saksbehandler med en mindre senior kjede avvises også, fordi
+kjeden må dekke det som lar seg verdsette.
+
 ## Nye funn
 
 | ID | Alvorlighet | Funn | Belegg |
 | --- | --- | --- | --- |
 | SD-01 | Lav | Et nytt vederlags- eller fristsvar uten subsidiært standpunkt lar standpunktet fra forrige svar stå i tilstanden | K 23.09 |
-| SD-02 | Lav | En sak der TE har trukket grunnlaget før andre krav er sendt, vises som `UTKAST` | K 23.09 |
+| SD-02 | Lav | En sak der grunnlaget er avsluttet uten krav (trukket, eller avslaget godtatt) før andre krav er sendt, vises som `UTKAST` | K 23.09 |
 
 ### SD-01: subsidiært standpunkt fra forrige svar
 
@@ -187,20 +207,22 @@ subsidiært standpunkt BH ikke lenger har. Journalen og brevet er riktige;
 feilen er i projeksjonen. Kjørt for vederlag; fristsporet har samme kode
 (L). Streng `xfail`.
 
-### SD-02: trukket grunnlag vises som utkast
+### SD-02: avsluttet grunnlag vises som utkast
 
 `SakState.overordnet_status`: når grunnlaget er trukket, kaskaderer ikke
 `_handle_grunnlag_trukket` til spor som står som `UTKAST`, og `UTKAST` hindrer
-`LUKKET_TRUKKET`. Saken vises som utkast. Streng `xfail` med en nøytral
+`LUKKET_TRUKKET`. Det samme gjelder et grunnlag der TE har godtatt avslaget:
+`UTKAST` hindrer `LUKKET_AVSLATT`. Saken vises som utkast. Streng `xfail` med en nøytral
 påstand (`!= "UTKAST"`); riktig status er ikke avgjort.
 
 ## Verifikasjon og grenser
 
 **Kjørt og observert (23.09):** `cd backend && pytest -q` etter hver retting
-og til slutt: 1560 passed, 19 skipped, 40 xfailed. `ruff check backend/`: ren.
+og til slutt: 1562 passed, 19 skipped, 41 xfailed. `ruff check backend/`: ren.
 Hver reproduksjon i «Reprodusert, ikke rettet» og «Nye funn» er kjørt med
 `--runxfail` og feiler med `AssertionError` på målassertionen. Lenkekontrollen
-er kjørt for de endrede dokumentene.
+er kjørt for de endrede dokumentene. `/code-review high` er kjørt på PR-en;
+funnene og hva som ble gjort med dem, står i PR-beskrivelsen.
 
 **Lest ut av koden:** at de nye statusene for forsering og EO dekkes av
 frontendens typer, Catenda-mappingen og PDF-etikettene; at

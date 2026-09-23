@@ -28,9 +28,10 @@ def _kravet_er_oppgjort(spor, er_subsidiaert: bool) -> bool:
     """Om sporets krav er oppgjort, slik at det ikke lenger kan trekkes.
 
     Et krav som bare er godkjent subsidiært, er prinsipalt avslått gjennom
-    ansvarsgrunnlaget og ikke oppgjort før TE har godtatt svaret (audit TFR-03).
+    ansvarsgrunnlaget og ikke oppgjort (audit TFR-03). Godkjenner BH
+    grunnlaget senere, er godkjenningen ikke lenger subsidiær.
     """
-    if spor.status == SporStatus.GODKJENT and er_subsidiaert and not spor.te_akseptert:
+    if spor.status == SporStatus.GODKJENT and er_subsidiaert:
         return False
     return spor.status in IKKE_TRUKKET_FRA
 

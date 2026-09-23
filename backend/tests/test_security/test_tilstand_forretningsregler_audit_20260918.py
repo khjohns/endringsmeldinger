@@ -10,7 +10,7 @@ Testene her etterprøver funn i tilstandsberegning og forretningsregler:
 5. Godkjent og låst ansvarsgrunnlag ble rapportert som 'UTKAST' (TFR-05, rettet 2026-09-23)
 6. Et fullt BH-svar med dager godtas på et nøytralt fristvarsel (TFR-06)
 7. Sidefunn fra spor D 23.09: subsidiært standpunkt som henger igjen (SD-01) og
-   trukket grunnlag som vises som utkast (SD-02)
+   avsluttet grunnlag som vises som utkast (SD-02)
 """
 
 import pytest
@@ -499,29 +499,42 @@ def _forsering(**felt) -> SakState:
         ({"dato_varslet": "2026-09-18"}, "VENTER_PAA_SVAR"),
         ({"dato_varslet": "2026-09-18", "bh_aksepterer_forsering": False}, "UNDER_FORHANDLING"),
         ({"dato_varslet": "2026-09-18", "bh_aksepterer_forsering": True}, "UNDER_BEHANDLING"),
-        ({"dato_varslet": "2026-09-18", "er_stoppet": True}, "UNDER_BEHANDLING"),
+        ({"dato_varslet": "2026-09-18", "er_stoppet": True}, "VENTER_PAA_SVAR"),
+        (
+            {"dato_varslet": "2026-09-18", "er_stoppet": True, "bh_aksepterer_forsering": False},
+            "UNDER_FORHANDLING",
+        ),
+        (
+            {"dato_varslet": "2026-09-18", "er_stoppet": True, "bh_aksepterer_forsering": True},
+            "UNDER_BEHANDLING",
+        ),
     ],
 )
 def test_forseringssak_faar_aldri_lukket_status(felt, forventet):
-    """Besluttet av oppdragsgiver 23.09: forsering gis aldri en lukket status."""
+    """Besluttet av oppdragsgiver 23.09: forsering gis aldri en lukket status.
+
+    Stopp endrer ikke statusen: kostnadene skal fortsatt avklares, og BHs svar avgjør.
+    """
     assert _forsering(**felt).overordnet_status == forventet
 
 
-@pytest.mark.parametrize(
-    ("eo_status", "forventet"),
-    [
-        (EOStatus.UTKAST, "UTKAST"),
-        (EOStatus.UTSTEDT, "VENTER_PAA_SVAR"),
-        (EOStatus.REVIDERT, "VENTER_PAA_SVAR"),
-        (EOStatus.AKSEPTERT, "LUKKET"),
-        (EOStatus.BESTRIDT, "LUKKET"),
-    ],
-)
-def test_endringsordre_folger_ordrens_livslop(eo_status, forventet):
+EO_STATUS_FORVENTET = {
+    EOStatus.UTKAST: "UTKAST",
+    EOStatus.UTSTEDT: "VENTER_PAA_SVAR",
+    EOStatus.REVIDERT: "VENTER_PAA_SVAR",
+    EOStatus.AKSEPTERT: "LUKKET",
+    EOStatus.BESTRIDT: "LUKKET",
+}
+
+
+@pytest.mark.parametrize("eo_status", list(EOStatus))
+def test_endringsordre_folger_ordrens_livslop(eo_status):
     """Besluttet av oppdragsgiver 23.09: en EO er en ordre og forhandles ikke.
 
     Bestrider TE, føres uenigheten videre i en KOE, og EO-saken er lukket.
+    Testen går over alle `EOStatus`, så en ny verdi uten status blir rød her.
     """
+    forventet = EO_STATUS_FORVENTET[eo_status]
     state = SakState(
         sak_id="EO-1",
         sakstype=SaksType.ENDRINGSORDRE,
@@ -708,14 +721,21 @@ def test_frist_krav_kan_trekkes_ved_subsidiaer_enighet():
     assert BusinessRuleValidator().validate(_trekk_frist(), state).is_valid is True
 
 
-def test_subsidiaer_enighet_godtatt_av_te_kan_ikke_trekkes():
-    """Har TE godtatt svaret, er kravet oppgjort, og tilbaketrekking avvises."""
-    timeline = TimelineService()
-    events, subsidiaert = _frist_subsidiaert_godkjent()
-    etter = timeline.compute_state(events + [_aksept("frist", subsidiaert.event_id)])
-    assert etter.frist.te_akseptert is True
+def test_krav_kan_ikke_trekkes_naar_grunnlaget_senere_godkjennes():
+    """Godkjenner BH grunnlaget, er godkjenningen ikke lenger subsidiær, og kravet er oppgjort."""
+    state = SakState(
+        sak_id="S-1",
+        sakstype=SaksType.STANDARD,
+        grunnlag=GrunnlagTilstand(status=SporStatus.LAAST),
+        vederlag=VederlagTilstand(status=SporStatus.AVSLATT),
+        frist=FristTilstand(
+            status=SporStatus.GODKJENT, bh_resultat=FristBeregningResultat.GODKJENT
+        ),
+    )
+    assert state.er_subsidiaert_frist is False
+    assert state.overordnet_status == "UNDER_FORHANDLING"
 
-    resultat = BusinessRuleValidator().validate(_trekk_frist(), etter)
+    resultat = BusinessRuleValidator().validate(_trekk_frist(), state)
     assert resultat.is_valid is False
     assert "trekkes tilbake" in resultat.message
 
@@ -1028,13 +1048,19 @@ def test_nytt_svar_uten_subsidiaert_standpunkt_fjerner_det_gamle():
 @pytest.mark.xfail(
     strict=True,
     raises=AssertionError,
-    reason="SD-02: en sak der TE har trukket grunnlaget før andre krav er sendt, vises som UTKAST",
+    reason=(
+        "SD-02: en sak der grunnlaget er avsluttet uten krav (trukket, eller avslaget "
+        "godtatt) før andre krav er sendt, vises som UTKAST"
+    ),
 )
-def test_trukket_grunnlag_uten_andre_krav_vises_ikke_som_utkast():
+@pytest.mark.parametrize(
+    "grunnlag_status", [SporStatus.TRUKKET, SporStatus.AVSLATT_AKSEPTERT]
+)
+def test_avsluttet_grunnlag_uten_andre_krav_vises_ikke_som_utkast(grunnlag_status):
     state = SakState(
         sak_id="S-1",
         sakstype=SaksType.STANDARD,
-        grunnlag=GrunnlagTilstand(status=SporStatus.TRUKKET),
+        grunnlag=GrunnlagTilstand(status=grunnlag_status),
         vederlag=VederlagTilstand(status=SporStatus.UTKAST),
         frist=FristTilstand(status=SporStatus.UTKAST),
     )
