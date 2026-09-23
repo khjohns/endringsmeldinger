@@ -1,0 +1,81 @@
+Bygget 23 migrasjoner.
+B-02-lag 01_plattform_postgrest.sql
+B-02-lag 02_b02_lag.sql
+B-02-lag 03_testdata.sql
+B-02-lag worker_alle_kolonner.sql
+PostgREST PostgREST 12.2.12 (cd3cf9e), db-pool = 1
+Server: 17.11 (Homebrew)
+
+OK   | Prosjekt A i kontekst | medlem av A og B ser bare A i hendelse
+OK   | Prosjekt A i kontekst | direkte spørring etter B i hendelse gir null rader
+OK   | Prosjekt A i kontekst | direkte spørring etter B i notat gir null rader
+OK   | Prosjekt A i kontekst | direkte spørring etter B i sak_metadata gir null rader
+OK   | Prosjekt A i kontekst | ikke-medlem med A i konteksten ser ingen hendelser
+OK   | Motpart | TE ser bare TEs notat, ikke BHs
+OK   | To team på samme side | BH-rådgiveren ser ikke byggherrens notat
+OK   | Ukjent team | ukjent team gir null notater
+OK   | Ukjent team | manglende team gir null notater
+OK   | Leserolle (DB-05) | viewer leser journalen
+OK   | Leserolle (DB-05) | viewer med teamkrav ser ingen private notater
+OK   | Manglende kontekst | ingen krav: null hendelser
+OK   | Manglende kontekst | ingen krav: null notater
+OK   | Manglende kontekst | bare aktør: null hendelser
+OK   | Manglende kontekst | bare aktør: null notater
+OK   | Manglende kontekst | bare prosjekt: null hendelser
+OK   | Manglende kontekst | bare prosjekt: null notater
+OK   | Gjettet ressurs-ID | notat-ID fra B med A i konteksten gir null rader
+OK   | Gjettet ressurs-ID | varsel på sak i B med A i konteksten avvises
+OK   | Gjenbrukt forbindelse | første transaksjon ser eget notat
+OK   | Gjenbrukt forbindelse | etter commit er rollen authenticator og kravene tomme
+OK   | Gjenbrukt forbindelse | neste transaksjon uten krav ser null notater
+OK   | Gjenbrukt forbindelse | authenticator selv leser ikke notat
+OK   | Gjenbrukt forbindelse | kontroll: kontekst satt på sesjonsnivå lekker
+OK   | Gjenbrukt forbindelse | PostgREST: samme backend-pid i to forespørsler
+OK   | Gjenbrukt forbindelse | PostgREST: andre forespørsel har ikke første forespørsels krav
+OK   | Gjenbrukt forbindelse | PostgREST: GET /notat uten koe-krav gir tom liste
+OK   | Prosjekt A i kontekst | PostgREST: GET /notat med BH i A gir bare BHs notat
+OK   | Runtime skriver ikke til hendelse | UPDATE som koe_runtime avvises
+OK   | Runtime skriver ikke til hendelse | DELETE som koe_runtime avvises
+OK   | Runtime skriver ikke til hendelse | TRUNCATE som koe_runtime avvises
+OK   | Runtime skriver ikke til hendelse | INSERT som koe_runtime avvises
+OK   | Runtime skriver ikke til hendelse | PostgREST: PATCH /hendelse avvises
+OK   | Runtime skriver ikke til hendelse | PostgREST: DELETE /hendelse avvises
+OK   | service_role skriver ikke til hendelse | UPDATE som service_role avvises
+OK   | service_role skriver ikke til hendelse | DELETE som service_role avvises
+OK   | service_role skriver ikke til hendelse | TRUNCATE som service_role avvises
+OK   | service_role skriver ikke til hendelse | kaskade fra sak_metadata som service_role avvises
+OK   | service_role skriver ikke til hendelse | TRUNCATE sak_metadata CASCADE som service_role avvises
+OK   | service_role skriver ikke til hendelse | INSERT som service_role avvises
+OK   | service_role skriver ikke til hendelse | DISABLE TRIGGER som service_role avvises
+OK   | service_role skriver ikke til hendelse | session_replication_role som service_role avvises
+OK   | service_role skriver ikke til hendelse | kontroll: service_role kan endre sak_metadata, som ikke har skrivevakt
+OK   | service_role skriver ikke til hendelse | PostgREST: PATCH /hendelse med service_role-JWT avvises
+OK   | Restrisiko, akseptert | PostgREST: service_role-JWT leser alle notater (konfidensialitet ved overtatt runtime)
+OK   | Kommando | PostgREST: send_varsel som BH i A lykkes
+OK   | Kommando | aktør, side og prosjekt er stemplet fra konteksten
+OK   | Kommando | leveringsintensjonen er skrevet i samme transaksjon
+OK   | Kommando | utdatert versjon gir konflikt
+OK   | Kommando | type som krever godkjenning avvises (ingen generell append)
+OK   | Leserolle (DB-05) | viewer kan ikke sende varsel
+OK   | Worker | leser køen
+OK   | Worker | oppdaterer status
+OK   | Worker | leser ikke notat
+OK   | Worker | skriver ikke hendelse
+FEIL | Worker | endrer ikke prosjekt i køen | None
+OK   | Data API | anon (uten JWT): GET /notat avvises
+OK   | Data API | anon (uten JWT): GET /hendelse avvises
+OK   | Data API | anon (uten JWT): RPC send_varsel avvises
+OK   | Data API | anon (uten JWT): RPC koe_resolve_identity avvises
+OK   | Data API | authenticated: GET /notat avvises
+OK   | Data API | authenticated: GET /hendelse avvises
+OK   | Data API | authenticated: RPC send_varsel avvises
+OK   | Data API | authenticated: RPC koe_resolve_identity avvises
+OK   | Identitet | PostgREST: koe_resolve_identity som koe_runtime finner eksisterende bruker
+OK   | Identitet | koe_runtime kan ikke skrive app_users direkte
+OK   | Identitet | koe_runtime kan ikke lese app_identities direkte
+OK   | Tilbakekalling (B-04) | rådgiveren ser sitt notat før synkronisering
+OK   | Tilbakekalling (B-04) | PostgREST: koe_reconcile_memberships som koe_runtime lykkes
+OK   | Tilbakekalling (B-04) | rådgiveren fjernet fra øyeblikksbildet ser null notater i neste forespørsel
+OK   | Tilbakekalling (B-04) | og null hendelser
+
+70 av 71 sjekker holdt.
