@@ -2,8 +2,11 @@
 
 **Opprettet:** 2026-09-16. **Sluttredigert:** 2026-09-22, mot commit
 `41c2a16191a5aadbe611e0958db8b93090b08027` (`main`).
-**Sist endret:** 2026-09-23, mot `b63f816` (`main`): beslutningen om alternativ C
-over direkte tilkobling (T2), se [3.1](#31-vedtatte-premisser-og-beslutninger).
+**Sist endret:** 2026-09-23, mot `05b3aa7` (`main`): BR-01 reprodusert og flyttet
+til 4.2, DRF-01–DRF-03 ført inn og kartleggingen for B-13 levert. Tidligere
+samme dag: beslutningen om alternativ C over direkte tilkobling (T2), B-02
+punkt 3–6 og B-04 avgjort, B-12 og B-13 ført opp, se
+[3.1](#31-vedtatte-premisser-og-beslutninger) og [3.4](#34-åpne-beslutninger).
 **Status:** Autoritativ plan og eneste løpende kilde til funnstatus.
 Appen er ikke i produksjon og har ingen reelle data.
 
@@ -456,7 +459,7 @@ fordi de hører til samme domenefamilie som TFR og GFK.
 | GFK-04 | Avgrenset | Forsering er vedtatt utenfor godkjenningsflyten. Testen forventer støtte og feiler med `ValueError("Ugyldig vurderingstype.")`, i samsvar med avgrensningen. Ingen feilretting | K 22.09 | — |
 | GFK-05 | Åpen | TE kan generere BH-brev som PDF | Streng `xfail`, K 22.09 | H |
 | GFK-06 | Åpen, lav | Godkjent grunnlag alene verdsettes til 0 kr | L 19.09 | D |
-| BR-01 | Åpen, middels | BHs `beregnings_resultat` lagres som sendt, også når vurderingene i samme svar gir et annet resultat. Sporstatus, `overordnet_status` og `kan_utstede_eo` følger konklusjonen: et fristsvar uten fremdriftshindring (§ 33.1) og et vederlagssvar med 0 kr, begge merket «godkjent», ga `GODKJENT`, `OMFORENT` og utstedbar EO. Reprodusert gjennom `/api/events` og godkjenningsflyten. Rettes etter B-13 | Streng `xfail` ×3, K 23.09 | D |
+| BR-01 | Åpen, middels | BHs `beregnings_resultat` lagres som sendt, også når vurderingene i samme svar gir et annet resultat. Sporstatus, `overordnet_status` og `kan_utstede_eo` følger konklusjonen: et fristsvar uten fremdriftshindring (§ 33.1) og et vederlagssvar med 0 kr, begge merket «godkjent», ga `GODKJENT`, `OMFORENT` og utstedbar EO. Reprodusert gjennom `/api/events` og godkjenningsflyten, med kontrollsak. Rettes etter B-13 | Streng `xfail` ×4, K 23.09 | D |
 | DRF-01 | Åpen, middels | BHs forespørsel etter § 33.6.2 kan ikke sendes fra skjemaet. Frontenden sender `send_foresporsel`, modellen kjenner bare `har_bh_foresporsel`, og validatoren avviser svaret med 400. Må løses sammen med TFR-06 og en avklaring av hvordan forespørselen registreres | Streng `xfail`, K 23.09 | D |
 | DRF-02 | Åpen, lav | Felt med rettslig innhold fjernes uten feil ved parsing: `dager_siden_varsel` (§ 32.3), `ep_justering_varslet_i_tide` (§ 34.3.3), `er_svar_pa_foresporsel` (§ 33.6.2). Latent: skjemaene fyller dem ikke i dag | K 23.09 (parser), L | D |
 | DRF-03 | Åpen, middels | TEs varsel om justerte enhetspriser (§ 34.3.3) lagres med `dato_sendt` lik oppdagelsesdatoen, ikke sendedatoen | L 23.09 | D |

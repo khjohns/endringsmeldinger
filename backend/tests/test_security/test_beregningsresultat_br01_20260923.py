@@ -10,11 +10,13 @@ er ekte. Autentisering, metadata og Catenda er byttet ut.
 Assertionene er nøytrale mellom alternativ (1) og (2) under B-13 i hovedplanen:
 enten avvises svaret, eller tilstanden viser resultatet vurderingene gir.
 Velges alternativ (3), der begge lagres og avviket vises, må testene skrives
-om. Hvilket resultat vurderingene gir, følger reglene i `src/lib/domain/`;
-kartleggingen står i `docs/kartlegging-domeneregler-frontend-2026-09-23.md`.
+om. Hvert svar sendes først med riktig resultat på en kontrollsak. Blir
+kontrollen lagret, er resultatet det eneste som skiller, og en avvisning av
+svaret gjelder resultatet. Andre utfall gir `pytest.fail`, som en streng
+`xfail` med `raises=AssertionError` ikke skjuler.
 
-DRF-01 ble funnet i samme kartlegging og bruker samme oppsett: byggherrens
-forespørsel etter § 33.6.2, slik skjemaet sender den, når ikke journalen.
+DRF-01 ble funnet i samme kartlegging og bruker samme oppsett. Begge er
+beskrevet i `docs/kartlegging-domeneregler-frontend-2026-09-23.md`.
 """
 
 import json
@@ -40,13 +42,22 @@ from routes.approval_routes import approval_bp
 from services.timeline_service import TimelineService
 
 SAK = "KOE-BR01"
-SAK_VARSEL = "KOE-DRF01"
 HEADERS = {"X-Project-ID": "p", "X-CSRF-Token": "csrf"}
+
+SPESIFISERT_FRISTKRAV = {
+    "varsel_type": "spesifisert",
+    "antall_dager": 30,
+    "begrunnelse": "Forsinket råbygg.",
+}
+NOYTRALT_FRISTVARSEL = {
+    "varsel_type": "varsel",
+    "frist_varsel": {"dato_sendt": "2026-09-02", "metode": ["digital_oversendelse"]},
+}
 
 # Kravet er 500 000 kr i kategorien ENDRING, så § 34.1.2 gir ingen preklusjon.
 # Metoden aksepteres og ingenting holdes tilbake (§ 30.2). Med ingenting
 # godkjent gir reglene «avslått».
-VEDERLAG_AVSLATT_MELDT_GODKJENT = {
+VEDERLAG_AVSLATT = {
     "aksepterer_metode": True,
     "hold_tilbake": False,
     "hovedkrav_vurdering": "avslatt",
@@ -54,25 +65,23 @@ VEDERLAG_AVSLATT_MELDT_GODKJENT = {
     "total_godkjent_belop": 0,
     "total_krevd_belop": 500000,
     "begrunnelse": "Kravet avslås.",
-    "beregnings_resultat": "godkjent",
 }
 
 # Varslene er i tide, men forholdet har ikke hindret fremdriften (§ 33.1).
 # Da gir reglene «avslått» uansett antall dager.
-FRIST_AVSLATT_MELDT_GODKJENT = {
+FRIST_AVSLATT = {
     "frist_varsel_ok": True,
     "spesifisert_krav_ok": True,
     "vilkar_oppfylt": False,
     "godkjent_dager": 0,
     "begrunnelse": "Ingen hindring.",
-    "beregnings_resultat": "godkjent",
 }
 
 
-def _hendelse(event_type, aktor_rolle, data, **felt):
+def _hendelse(sak_id, event_type, aktor_rolle, data, **felt):
     return parse_event_from_request(
         {
-            "sak_id": SAK,
+            "sak_id": sak_id,
             "event_type": event_type,
             "aktor_id": aktor_rolle.lower(),
             "aktor_rolle": aktor_rolle,
@@ -82,25 +91,10 @@ def _hendelse(event_type, aktor_rolle, data, **felt):
     )
 
 
-@pytest.fixture
-def sak(monkeypatch, tmp_path):
+def _opprett_sak(lager, sak_id, fristkrav=SPESIFISERT_FRISTKRAV):
     """Sak med godkjent grunnlag og ett ubesvart krav i hvert pengespor."""
-    monkeypatch.setenv("BH_APPROVAL_DB", str(tmp_path / "approval.sqlite"))
-    monkeypatch.delenv("DISABLE_AUTH", raising=False)
-    monkeypatch.delenv("BH_APPROVAL_POLICIES", raising=False)
-
-    lager = JsonFileEventRepository(str(tmp_path / "events"))
-    opprettet = parse_event_from_request(
-        {
-            "sak_id": SAK,
-            "event_type": "sak_opprettet",
-            "aktor_id": "te",
-            "aktor_rolle": "TE",
-            "sakstittel": "Endret fundamentering",
-            "prosjekt_id": "p",
-        }
-    )
     grunnlag = _hendelse(
+        sak_id,
         "grunnlag_opprettet",
         "TE",
         {
@@ -111,13 +105,8 @@ def sak(monkeypatch, tmp_path):
             "dato_oppdaget": "2026-09-01",
         },
     )
-    godkjent = _hendelse(
-        "respons_grunnlag",
-        "BH",
-        {"resultat": "godkjent", "begrunnelse": "Byggherrens risiko."},
-        refererer_til_event_id=grunnlag.event_id,
-    )
     vederlag = _hendelse(
+        sak_id,
         "vederlag_krav_sendt",
         "TE",
         {
@@ -126,19 +115,41 @@ def sak(monkeypatch, tmp_path):
             "begrunnelse": "Merarbeid.",
         },
     )
-    frist = _hendelse(
-        "frist_krav_sendt",
-        "TE",
-        {
-            "varsel_type": "spesifisert",
-            "antall_dager": 30,
-            "begrunnelse": "Forsinket råbygg.",
-        },
-    )
-    for versjon, hendelse in enumerate(
-        [opprettet, grunnlag, godkjent, vederlag, frist]
-    ):
+    frist = _hendelse(sak_id, "frist_krav_sendt", "TE", fristkrav)
+    hendelser = [
+        parse_event_from_request(
+            {
+                "sak_id": sak_id,
+                "event_type": "sak_opprettet",
+                "aktor_id": "te",
+                "aktor_rolle": "TE",
+                "sakstittel": "Endret fundamentering",
+                "prosjekt_id": "p",
+            }
+        ),
+        grunnlag,
+        _hendelse(
+            sak_id,
+            "respons_grunnlag",
+            "BH",
+            {"resultat": "godkjent", "begrunnelse": "Byggherrens risiko."},
+            refererer_til_event_id=grunnlag.event_id,
+        ),
+        vederlag,
+        frist,
+    ]
+    for versjon, hendelse in enumerate(hendelser):
         lager.append(hendelse, versjon)
+    return SimpleNamespace(sak_id=sak_id, vederlag=vederlag, frist=frist)
+
+
+@pytest.fixture
+def sak(monkeypatch, tmp_path):
+    monkeypatch.setenv("BH_APPROVAL_DB", str(tmp_path / "approval.sqlite"))
+    monkeypatch.delenv("DISABLE_AUTH", raising=False)
+    monkeypatch.delenv("BH_APPROVAL_POLICIES", raising=False)
+
+    lager = JsonFileEventRepository(str(tmp_path / "events"))
 
     app = Flask(__name__)
     app.testing = True
@@ -168,19 +179,19 @@ def sak(monkeypatch, tmp_path):
 
     client = app.test_client()
     client.set_cookie(cookie_name(), "session")
-    return SimpleNamespace(client=client, lager=lager, vederlag=vederlag, frist=frist)
+    return SimpleNamespace(client=client, lager=lager)
 
 
-def _svar(sak, event_type, refererer_til, data):
-    _, versjon = sak.lager.get_events(SAK)
+def _svar(sak, sak_id, event_type, krav_id, data):
+    _, versjon = sak.lager.get_events(sak_id)
     return sak.client.post(
         "/api/events",
         json={
-            "sak_id": SAK,
+            "sak_id": sak_id,
             "expected_version": versjon,
             "event": {
                 "event_type": event_type,
-                "refererer_til_event_id": refererer_til,
+                "refererer_til_event_id": krav_id,
                 "data": data,
             },
         },
@@ -188,9 +199,38 @@ def _svar(sak, event_type, refererer_til, data):
     )
 
 
-def _lagret_tilstand(sak):
-    raw, _ = sak.lager.get_events(SAK)
+def _lagret_tilstand(sak, sak_id):
+    raw, _ = sak.lager.get_events(sak_id)
     return TimelineService().compute_state([parse_event(e) for e in raw])
+
+
+def _send_svar(sak, sak_id, spor, krav, vurderinger, resultat):
+    return _svar(
+        sak,
+        sak_id,
+        f"respons_{spor}",
+        krav.event_id,
+        {f"{spor}_krav_id": krav.event_id, **vurderinger, "beregnings_resultat": resultat},
+    )
+
+
+def _kontroller(sak, spor, vurderinger, resultat):
+    """Samme svar med riktig resultat skal lagres på en egen sak.
+
+    Da er resultatet det eneste som skiller, og en avvisning av svaret med feil
+    resultat gjelder resultatet.
+    """
+    sak_id = f"{SAK}-{spor}-kontroll"
+    krav = getattr(_opprett_sak(sak.lager, sak_id), spor)
+    svar = _send_svar(sak, sak_id, spor, krav, vurderinger, resultat)
+    if svar.status_code != 201:
+        pytest.fail(f"Kontrollen ble ikke lagret: {svar.status_code} {svar.get_json()}")
+
+
+def _avvist(svar):
+    if svar.status_code not in (201, 400):
+        pytest.fail(f"Uventet svar: {svar.status_code} {svar.get_json()}")
+    return svar.status_code == 400
 
 
 @pytest.mark.xfail(
@@ -202,17 +242,11 @@ def _lagret_tilstand(sak):
     ),
 )
 def test_vederlagssvar_med_resultat_som_ikke_folger_av_vurderingene(sak):
-    svar = _svar(
-        sak,
-        "respons_vederlag",
-        sak.vederlag.event_id,
-        {"vederlag_krav_id": sak.vederlag.event_id, **VEDERLAG_AVSLATT_MELDT_GODKJENT},
-    )
-
-    if svar.status_code != 201:
-        assert svar.status_code == 400, svar.get_json()
+    _kontroller(sak, "vederlag", VEDERLAG_AVSLATT, "avslatt")
+    krav = _opprett_sak(sak.lager, SAK).vederlag
+    if _avvist(_send_svar(sak, SAK, "vederlag", krav, VEDERLAG_AVSLATT, "godkjent")):
         return
-    vederlag = _lagret_tilstand(sak).vederlag
+    vederlag = _lagret_tilstand(sak, SAK).vederlag
     assert vederlag.bh_resultat == VederlagBeregningResultat.AVSLATT, (
         f"Vurderingene gir avslått, men sporet lagret bh_resultat={vederlag.bh_resultat}, "
         f"status={vederlag.status}, godkjent_belop={vederlag.godkjent_belop}"
@@ -229,22 +263,35 @@ def test_vederlagssvar_med_resultat_som_ikke_folger_av_vurderingene(sak):
     ),
 )
 def test_fristsvar_med_resultat_som_ikke_folger_av_vurderingene(sak):
-    svar = _svar(
-        sak,
-        "respons_frist",
-        sak.frist.event_id,
-        {"frist_krav_id": sak.frist.event_id, **FRIST_AVSLATT_MELDT_GODKJENT},
-    )
-
-    if svar.status_code != 201:
-        assert svar.status_code == 400, svar.get_json()
+    _kontroller(sak, "frist", FRIST_AVSLATT, "avslatt")
+    krav = _opprett_sak(sak.lager, SAK).frist
+    if _avvist(_send_svar(sak, SAK, "frist", krav, FRIST_AVSLATT, "godkjent")):
         return
-    frist = _lagret_tilstand(sak).frist
+    frist = _lagret_tilstand(sak, SAK).frist
     assert frist.bh_resultat == FristBeregningResultat.AVSLATT, (
         f"Vurderingene gir avslått, men sporet lagret bh_resultat={frist.bh_resultat}, "
         f"status={frist.status}, vilkar_oppfylt={frist.vilkar_oppfylt}"
     )
     assert frist.status == SporStatus.AVSLATT
+
+
+@pytest.mark.xfail(
+    strict=True,
+    raises=AssertionError,
+    reason=(
+        "BR-01: to svar der vurderingene avslår alt, men resultatet sier godkjent, "
+        "gir overordnet_status=OMFORENT og kan_utstede_eo=True"
+    ),
+)
+def test_selvmotsigende_svar_gjor_saken_omforent_og_eo_utstedbar(sak):
+    krav = _opprett_sak(sak.lager, SAK)
+    for spor, vurderinger in (("vederlag", VEDERLAG_AVSLATT), ("frist", FRIST_AVSLATT)):
+        _kontroller(sak, spor, vurderinger, "avslatt")
+        _avvist(_send_svar(sak, SAK, spor, getattr(krav, spor), vurderinger, "godkjent"))
+
+    tilstand = _lagret_tilstand(sak, SAK)
+    assert tilstand.overordnet_status != "OMFORENT"
+    assert tilstand.kan_utstede_eo is False
 
 
 @pytest.mark.xfail(
@@ -258,11 +305,7 @@ def test_fristsvar_med_resultat_som_ikke_folger_av_vurderingene(sak):
 def test_godkjenningsflyten_publiserer_resultat_som_ikke_folger_av_vurderingene(
     sak, monkeypatch
 ):
-    """Samme vederlagssvar, gjennom intern godkjenning.
-
-    Saksbehandleren har ubegrenset fullmakt, så pakken godkjennes ved
-    innsending og kan publiseres straks.
-    """
+    """Saksbehandleren har ubegrenset fullmakt, så pakken godkjennes ved innsending."""
     monkeypatch.setenv(
         "BH_APPROVAL_POLICIES",
         json.dumps(
@@ -280,14 +323,12 @@ def test_godkjenningsflyten_publiserer_resultat_som_ikke_folger_av_vurderingene(
             }
         ),
     )
-    data = {"vederlag_krav_id": sak.vederlag.event_id, **VEDERLAG_AVSLATT_MELDT_GODKJENT}
 
-    def kommando(action, **felt):
-        versjon = sak.client.get(
-            f"/api/cases/{SAK}/approvals", headers=HEADERS
-        ).get_json()["state"]["version"]
+    def kommando(sak_id, action, **felt):
+        url = f"/api/cases/{sak_id}/approvals"
+        versjon = sak.client.get(url, headers=HEADERS).get_json()["state"]["version"]
         svar = sak.client.post(
-            f"/api/cases/{SAK}/approvals",
+            url,
             json={
                 "action": action,
                 "commandId": str(uuid4()),
@@ -296,43 +337,60 @@ def test_godkjenningsflyten_publiserer_resultat_som_ikke_folger_av_vurderingene(
             },
             headers=HEADERS,
         )
-        return svar.status_code, (svar.get_json() or {}).get("state")
+        return svar.status_code, svar.get_json() or {}
 
-    status, tilstand = kommando(
-        "prepare",
-        item={
-            "track": "vederlag",
-            "eventType": "respons_vederlag",
-            "claimId": sak.vederlag.event_id,
-            "data": data,
-        },
-    )
-    if status == 200:
-        status, tilstand = kommando(
+    def publiser(sak_id, resultat):
+        """Status for første steg som ikke ga 200, eller den publiserte pakken."""
+        krav = _opprett_sak(sak.lager, sak_id).vederlag
+        status, svar = kommando(
+            sak_id,
+            "prepare",
+            item={
+                "track": "vederlag",
+                "eventType": "respons_vederlag",
+                "claimId": krav.event_id,
+                "data": {
+                    "vederlag_krav_id": krav.event_id,
+                    **VEDERLAG_AVSLATT,
+                    "beregnings_resultat": resultat,
+                },
+            },
+        )
+        if status != 200:
+            return status, svar
+        status, svar = kommando(
+            sak_id,
             "package",
             letter={
                 "title": "Svar på vederlagskrav",
-                "caseId": SAK,
+                "caseId": sak_id,
                 "caseTitle": "Endret fundamentering",
                 "sender": "BH",
                 "recipient": "TE",
                 "date": "23. september 2026",
                 "introduction": "Innledning",
                 "closing": "Hilsen",
-                "items": [{"id": tilstand["items"][-1]["id"]}],
+                "items": [{"id": svar["state"]["items"][-1]["id"]}],
             },
         )
-    if status == 200:
-        status, tilstand = kommando("publish", packageId=tilstand["packages"][-1]["id"])
-    if status != 200:
-        assert status == 400
-        return
+        if status != 200:
+            return status, svar
+        status, svar = kommando(
+            sak_id, "publish", packageId=svar["state"]["packages"][-1]["id"]
+        )
+        return status, svar["state"]["packages"][-1] if status == 200 else svar
 
-    pakke = tilstand["packages"][-1]
-    if pakke["status"] != "sendt":
-        assert pakke["status"] == "publisering_feilet", pakke
+    status, kontroll = publiser(f"{SAK}-godkjenning-kontroll", "avslatt")
+    if status != 200 or kontroll["status"] != "sendt":
+        pytest.fail(f"Kontrollen ble ikke publisert: {status} {kontroll}")
+
+    sak_id = SAK
+    status, pakke = publiser(sak_id, "godkjent")
+    if status == 400:
         return
-    vederlag = _lagret_tilstand(sak).vederlag
+    if status != 200 or pakke["status"] != "sendt":
+        pytest.fail(f"Uventet utfall: {status} {pakke}")
+    vederlag = _lagret_tilstand(sak, sak_id).vederlag
     assert vederlag.bh_resultat == VederlagBeregningResultat.AVSLATT, (
         f"Vurderingene gir avslått, men sporet lagret bh_resultat={vederlag.bh_resultat}, "
         f"status={vederlag.status}; brevet sier "
@@ -346,61 +404,6 @@ def test_godkjenningsflyten_publiserer_resultat_som_ikke_folger_av_vurderingene(
 # =============================================================================
 
 
-
-def _sak_med_noytralt_fristvarsel(lager):
-    grunnlag = _hendelse(
-        "grunnlag_opprettet",
-        "TE",
-        {
-            "tittel": "Endret fundamentering",
-            "hovedkategori": "ENDRING",
-            "underkategori": "EO",
-            "beskrivelse": "Byggherren endret fundamenteringen.",
-            "dato_oppdaget": "2026-09-01",
-        },
-        sak_id=SAK_VARSEL,
-    )
-    hendelser = [
-        parse_event_from_request(
-            {
-                "sak_id": SAK_VARSEL,
-                "event_type": "sak_opprettet",
-                "aktor_id": "te",
-                "aktor_rolle": "TE",
-                "sakstittel": "Endret fundamentering",
-                "prosjekt_id": "p",
-            }
-        ),
-        grunnlag,
-        _hendelse(
-            "respons_grunnlag",
-            "BH",
-            {"resultat": "godkjent", "begrunnelse": "Byggherrens risiko."},
-            refererer_til_event_id=grunnlag.event_id,
-            sak_id=SAK_VARSEL,
-        ),
-        _hendelse(
-            "frist_krav_sendt",
-            "TE",
-            {
-                "varsel_type": "varsel",
-                "frist_varsel": {
-                    "dato_sendt": "2026-09-02",
-                    "metode": ["digital_oversendelse"],
-                },
-            },
-            sak_id=SAK_VARSEL,
-        ),
-    ]
-    for versjon, hendelse in enumerate(hendelser):
-        lager.append(hendelse, versjon)
-    return hendelser[-1]
-
-
-# Frontenden sender `send_foresporsel`, som `FristResponsData` ikke kjenner, og
-# ikke `har_bh_foresporsel`, som modellen og tilstanden bruker. Payloaden er den
-# `fristDomain.buildEventData` bygger når BH krysser av for forespørsel på et
-# nøytralt varsel, med `undefined`-felt utelatt slik JSON gjør.
 @pytest.mark.xfail(
     strict=True,
     raises=AssertionError,
@@ -411,37 +414,35 @@ def _sak_med_noytralt_fristvarsel(lager):
     ),
 )
 def test_foresporsel_om_spesifisering_fra_skjemaet_registreres(sak):
-    varsel = _sak_med_noytralt_fristvarsel(sak.lager)
-    _, versjon = sak.lager.get_events(SAK_VARSEL)
+    """Payloaden er den `fristDomain.buildEventData` bygger for en forespørsel."""
+    sak_id = f"{SAK}-foresporsel"
+    varsel = _opprett_sak(sak.lager, sak_id, fristkrav=NOYTRALT_FRISTVARSEL).frist
+    begrunnelse = "Byggherren etterspør spesifisert krav iht. §33.6.2."
 
-    svar = sak.client.post(
-        "/api/events",
-        json={
-            "sak_id": SAK_VARSEL,
-            "expected_version": versjon,
-            "event": {
-                "event_type": "respons_frist",
-                "refererer_til_event_id": varsel.event_id,
-                "data": {
-                    "frist_krav_id": varsel.event_id,
-                    "frist_varsel_ok": True,
-                    "send_foresporsel": True,
-                    "godkjent_dager": 0,
-                    "begrunnelse": "Byggherren etterspør spesifisert krav iht. §33.6.2.",
-                    "auto_begrunnelse": "Byggherren etterspør spesifisert krav iht. §33.6.2.",
-                    "beregnings_resultat": "avslatt",
-                    "krevd_dager": 0,
-                    "subsidiaer_triggers": ["ingen_hindring"],
-                    "subsidiaer_resultat": "avslatt",
-                    "subsidiaer_begrunnelse": "Byggherren etterspør spesifisert krav iht. §33.6.2.",
-                    "vedlegg_ids": [],
-                },
-            },
+    svar = _svar(
+        sak,
+        sak_id,
+        "respons_frist",
+        varsel.event_id,
+        {
+            "frist_krav_id": varsel.event_id,
+            "frist_varsel_ok": True,
+            "send_foresporsel": True,
+            "godkjent_dager": 0,
+            "begrunnelse": begrunnelse,
+            "auto_begrunnelse": begrunnelse,
+            "beregnings_resultat": "avslatt",
+            "krevd_dager": 0,
+            "subsidiaer_triggers": ["ingen_hindring"],
+            "subsidiaer_resultat": "avslatt",
+            "subsidiaer_begrunnelse": begrunnelse,
+            "vedlegg_ids": [],
         },
-        headers=HEADERS,
     )
 
+    if svar.status_code != 201:
+        melding = (svar.get_json() or {}).get("message", "")
+        if "spesifisert_krav_ok" not in melding and "vilkar_oppfylt" not in melding:
+            pytest.fail(f"Avvist av en annen grunn enn DRF-01: {svar.status_code} {melding}")
     assert svar.status_code == 201, svar.get_json()
-    raw, _ = sak.lager.get_events(SAK_VARSEL)
-    frist = TimelineService().compute_state([parse_event(e) for e in raw]).frist
-    assert frist.har_bh_foresporsel is True
+    assert _lagret_tilstand(sak, sak_id).frist.har_bh_foresporsel is True
