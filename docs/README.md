@@ -16,7 +16,8 @@ Opphever du et utsagn, skriv en datert merknad, også inn i det gamle dokumentet
 | --- | --- |
 | [hovedplanen](plans/2026-09-16-godkjenning-og-varig-levering.md) | **Begynn her.** Sluttredigert 22.09. Eneste løpende kilde til plan og funnstatus: invarianter, beslutningsregister med åpne valg, funnregister, arbeidspakker og neste oppgave |
 | [`../AGENTS.md`](../AGENTS.md) | Lastes automatisk i hver sesjon: språk, domeneordliste, sikkerhetsinvarianter, resonneringsregler |
-| [handoff-2026-09-21-frister](handoff-2026-09-21-frister.md) | Siste handoff. Fellene der gjelder fortsatt; planen og statusen der er innarbeidet i hovedplanen |
+| [handoff-2026-09-23-datalag-postgresql](handoff-2026-09-23-datalag-postgresql.md) | **Siste handoff.** B-02-runden, plattformsamtalen med IKT, forslag om alternativ C over direkte PostgreSQL, dokumentene som må oppdateres, og oppsett som Claude Code-prosjekt |
+| [handoff-2026-09-21-frister](handoff-2026-09-21-frister.md) | Forrige handoff. Fellene der gjelder fortsatt; planen og statusen der er innarbeidet i hovedplanen |
 
 Eldre handoffer står under [historikk](#historikk--bevart-ikke-gjeldende).
 
