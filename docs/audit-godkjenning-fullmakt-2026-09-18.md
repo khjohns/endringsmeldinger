@@ -43,6 +43,8 @@ at «prosjekter med policy inntil videre ikke kan svare på forseringsvarsel, fo
 godkjenningsflyten ikke modellerer forseringssporet». Akseptert gjeld, ikke ny
 feil. GFK-05 og GFK-06 er kun lest.
 
+**Merknad 2026-09-23:** GFK-02 er rettet. GFK-06 er reprodusert, men ikke rettet. Status står i [hovedplanen](plans/2026-09-16-godkjenning-og-varig-levering.md), og rettingene er beskrevet i [gjennomføringen av spor D](gjennomforing-spor-d-2026-09-23.md).
+
 ## Omfang
 
 **Undersøkt:**

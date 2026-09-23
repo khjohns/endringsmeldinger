@@ -9,6 +9,8 @@ Testene her etterprøver funn i tilstandsberegning og forretningsregler:
 4. Subsidiært standpunkt på 0 kr / 0 dager ble forkastet som falsy (TFR-04, rettet 2026-09-23)
 5. Godkjent og låst ansvarsgrunnlag ble rapportert som 'UTKAST' (TFR-05, rettet 2026-09-23)
 6. Et fullt BH-svar med dager godtas på et nøytralt fristvarsel (TFR-06)
+7. Sidefunn fra spor D 23.09: subsidiært standpunkt som henger igjen (SD-01) og
+   trukket grunnlag som vises som utkast (SD-02)
 """
 
 import pytest
@@ -44,8 +46,11 @@ from models.sak_state import (
     EndringsordreData,
     EOStatus,
     ForseringData,
+    FristTilstand,
+    GrunnlagTilstand,
     SakState,
     SaksType,
+    VederlagTilstand,
 )
 from services.business_rules import BusinessRuleValidator
 from services.timeline_service import TimelineService
@@ -944,3 +949,93 @@ def test_fullt_fristsvar_paa_noytralt_varsel():
     )
 
     assert BusinessRuleValidator().validate(svar, state).is_valid is False
+
+
+# =============================================================================
+# 7. Sidefunn fra spor D 23.09 (docs/gjennomforing-spor-d-2026-09-23.md)
+# =============================================================================
+
+
+@pytest.mark.xfail(
+    strict=True,
+    raises=AssertionError,
+    reason=(
+        "SD-01: et nytt vederlagssvar uten subsidiært standpunkt lar det subsidiære "
+        "standpunktet fra forrige svar stå i tilstanden; frontenden viser det"
+    ),
+)
+def test_nytt_svar_uten_subsidiaert_standpunkt_fjerner_det_gamle():
+    timeline = TimelineService()
+    krav = VederlagEvent(
+        sak_id="S-1",
+        aktor_id="te",
+        aktor_rolle="TE",
+        event_type="vederlag_krav_sendt",
+        spor=SporType.VEDERLAG,
+        data=VederlagData(
+            metode=VederlagsMetode.FASTPRIS_TILBUD, belop_direkte=100000, begrunnelse="Krav"
+        ),
+    )
+    forste_svar = ResponsEvent(
+        sak_id="S-1",
+        aktor_id="bh",
+        aktor_rolle="BH",
+        event_type="respons_vederlag",
+        spor=SporType.VEDERLAG,
+        refererer_til_event_id=krav.event_id,
+        data=VederlagResponsData(
+            beregnings_resultat=VederlagBeregningResultat.AVSLATT,
+            total_godkjent_belop=0,
+            subsidiaer_resultat=VederlagBeregningResultat.GODKJENT,
+            subsidiaer_godkjent_belop=100000,
+            begrunnelse="Prekludert, subsidiært godkjent",
+        ),
+    )
+    revidert = VederlagEvent(
+        sak_id="S-1",
+        aktor_id="te",
+        aktor_rolle="TE",
+        event_type="vederlag_krav_oppdatert",
+        spor=SporType.VEDERLAG,
+        data=VederlagData(
+            metode=VederlagsMetode.FASTPRIS_TILBUD, belop_direkte=80000, begrunnelse="Revidert"
+        ),
+    )
+    nytt_svar = ResponsEvent(
+        sak_id="S-1",
+        aktor_id="bh",
+        aktor_rolle="BH",
+        event_type="respons_vederlag",
+        spor=SporType.VEDERLAG,
+        refererer_til_event_id=revidert.event_id,
+        data=VederlagResponsData(
+            beregnings_resultat=VederlagBeregningResultat.GODKJENT,
+            total_godkjent_belop=80000,
+            begrunnelse="Godkjent",
+        ),
+    )
+
+    vederlag = timeline.compute_state(
+        _sak_med_godkjent_grunnlag() + [krav, forste_svar, revidert, nytt_svar]
+    ).vederlag
+
+    assert vederlag.subsidiaer_godkjent_belop is None, (
+        f"Standpunktet fra forrige svar står igjen: {vederlag.subsidiaer_resultat}, "
+        f"{vederlag.subsidiaer_godkjent_belop}"
+    )
+
+
+@pytest.mark.xfail(
+    strict=True,
+    raises=AssertionError,
+    reason="SD-02: en sak der TE har trukket grunnlaget før andre krav er sendt, vises som UTKAST",
+)
+def test_trukket_grunnlag_uten_andre_krav_vises_ikke_som_utkast():
+    state = SakState(
+        sak_id="S-1",
+        sakstype=SaksType.STANDARD,
+        grunnlag=GrunnlagTilstand(status=SporStatus.TRUKKET),
+        vederlag=VederlagTilstand(status=SporStatus.UTKAST),
+        frist=FristTilstand(status=SporStatus.UTKAST),
+    )
+    assert state.overordnet_status != "UTKAST"

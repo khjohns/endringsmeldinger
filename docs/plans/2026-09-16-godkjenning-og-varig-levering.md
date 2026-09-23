@@ -430,6 +430,7 @@ Etterprøvd i [vurderingen av auditfunnene](../vurdering-av-auditfunn-2026-09-19
 Der den omklassifiserte et funn, gjelder omklassifiseringen.
 BR-01 og DRF-01–DRF-03 er ført inn 23.09 fra
 [kartleggingen av frontendens domeneregler](../kartlegging-domeneregler-frontend-2026-09-23.md),
+og SD-01–SD-02 fra [gjennomføringen av spor D](../gjennomforing-spor-d-2026-09-23.md),
 fordi de hører til samme domenefamilie som TFR og GFK.
 
 | ID | Status | Restanse og merknad | Belegg | Pakke |
@@ -463,6 +464,8 @@ fordi de hører til samme domenefamilie som TFR og GFK.
 | DRF-01 | Åpen, middels | BHs forespørsel etter § 33.6.2 kan ikke sendes fra skjemaet. Frontenden sender `send_foresporsel`, modellen kjenner bare `har_bh_foresporsel`, og validatoren avviser svaret med 400. Må løses sammen med TFR-06 og en avklaring av hvordan forespørselen registreres | Streng `xfail`, K 23.09 | D |
 | DRF-02 | Åpen, lav | Felt med rettslig innhold fjernes uten feil ved parsing: `dager_siden_varsel` (§ 32.3), `ep_justering_varslet_i_tide` (§ 34.3.3), `er_svar_pa_foresporsel` (§ 33.6.2). Latent: skjemaene fyller dem ikke i dag | K 23.09 (parser), L | D |
 | DRF-03 | Åpen, middels | TEs varsel om justerte enhetspriser (§ 34.3.3) lagres med `dato_sendt` lik oppdagelsesdatoen, ikke sendedatoen | L 23.09 | D |
+| SD-01 | Åpen, lav | Et nytt vederlags- eller fristsvar uten subsidiært standpunkt lar standpunktet fra forrige svar stå i tilstanden, og frontenden viser det. Journalen og brevet er riktige. Ført inn 23.09 fra [gjennomføringen av spor D](../gjennomforing-spor-d-2026-09-23.md#sd-01-subsidiært-standpunkt-fra-forrige-svar) | Streng `xfail`, K 23.09 | D |
+| SD-02 | Åpen, lav | En sak der TE har trukket grunnlaget før andre krav er sendt, vises som `UTKAST`. Ført inn 23.09 fra [gjennomføringen av spor D](../gjennomforing-spor-d-2026-09-23.md#sd-02-trukket-grunnlag-vises-som-utkast) | Streng `xfail`, K 23.09 | D |
 | INT-01 | Åpen | Webhookhemmelighet uten konstant tid; sti i logg | Streng `xfail` (statisk) | H |
 | INT-02 | Åpen, høy | Webhookfeil gir 200 og reservert duplikatnøkkel; retry tapes | Streng `xfail`, K 22.09 | F3 |
 | INT-03 | Åpen | Validatoren avviser `bcf.*` | Streng `xfail`, K 22.09 | F3 |
@@ -867,8 +870,15 @@ i så fall erstatte punktet med en referanse. Status er ikke innhentet for noen.
 
 Kan gå parallelt. Hver retting får regresjonstest og holdes innenfor sitt
 funn. TFR-02 til TFR-06, GFK-02, GFK-06, INT-07, OBS-03, BR-01 (reprodusert
-23.09, rettes etter B-13), DRF-01–DRF-03, og restansen på
-GFK-01 når B-06 er avgjort. DRF-01 og TFR-06 må løses sammen: en sperre mot
+23.09, rettes etter B-13), DRF-01–DRF-03, SD-01–SD-02, og restansen på
+GFK-01 når B-06 er avgjort.
+
+> **Merknad 2026-09-23 til spor D:** TFR-02–TFR-05, GFK-02, INT-07 og OBS-03
+> er rettet; se radene i 4.2 og
+> [gjennomføringen](../gjennomforing-spor-d-2026-09-23.md). Statusene i TFR-02
+> og TFR-05 er besluttet av oppdragsgiver. TFR-06 og GFK-06 er reprodusert,
+> men ikke rettet, fordi rettingen krever en avklaring (spørsmål 1 og 2 i
+> gjennomføringen). SD-01 og SD-02 er nye. DRF-01 og TFR-06 må løses sammen: en sperre mot
 BH-svar på et nøytralt varsel må slippe forespørselen etter § 33.6.2 gjennom. Deretter systematisk gjennomgang av
 tilstandsovergangene mot NS 8407, med dokumentert forventet overgang og test
 per hendelsestype. Utvides `SporStatus`, gjelder regelen i `AGENTS.md` om å
@@ -1007,3 +1017,8 @@ Azure, Fabric og IKTs svar er gjengitt fra handoffen og ikke kontrollert her.
 DRF-01–DRF-03 er ført inn, og B-13 har fått en merknad. Belegget er testene i
 `backend/tests/test_security/test_beregningsresultat_br01_20260923.py`, kjørt
 23.09, og kartleggingen, der det som bare er lest, er merket L.
+
+**Endringen 23.09, spor D:** radene for TFR-02–TFR-06, GFK-02, GFK-06, INT-07
+og OBS-03 er oppdatert, SD-01–SD-02 er ført inn, og spor D har fått en
+merknad. Belegget er testene som er nevnt i radene, kjørt 23.09 med hele
+backend-suiten grønn; se [gjennomføringen](../gjennomforing-spor-d-2026-09-23.md#verifikasjon-og-grenser).
