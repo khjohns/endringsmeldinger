@@ -426,6 +426,10 @@ kjøring `35850648220`, commit `ff5a794`):** alle jobbene er grønne. Jobben
 er en superbruker. Fixturene trenger `CREATEROLE`, `CREATEDB` og
 `session_replication_role`. Mutasjonene er ikke kjørt i CI.
 
+**Observert i CI etter oppfølgingen (23.09, kjøring `35859558609`, commit
+`21130e7`):** alle jobbene grønne. Jobben `database`: 59 bestått og 1 xfailed.
+Backend-jobben: 1552 bestått, 69 hoppet over, 38 xfailed.
+
 **Lest ut av koden, ikke kjørt:**
 
 - At `@with_retry()` slipper `UkjentUtfall` og `PermanentError` gjennom uten ny
