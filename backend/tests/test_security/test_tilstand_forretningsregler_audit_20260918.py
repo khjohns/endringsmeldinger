@@ -7,7 +7,7 @@ Testene her etterprøver funn i tilstandsberegning og forretningsregler:
 2. overordnet_status ignorerer sakstype og gir INGEN_AKTIVE_SPOR for forsering og EO
 3. Tilbaketrekking av subsidiært godkjente krav ble blokkert (TFR-03, rettet 2026-09-23)
 4. Subsidiært standpunkt på 0 kr / 0 dager ble forkastet som falsy (TFR-04, rettet 2026-09-23)
-5. Godkjent og låst ansvarsgrunnlag rapporteres som 'UTKAST' i overordnet_status
+5. Godkjent og låst ansvarsgrunnlag ble rapportert som 'UTKAST' (TFR-05, rettet 2026-09-23)
 6. Et fullt BH-svar med dager godtas på et nøytralt fristvarsel (TFR-06)
 """
 
@@ -722,16 +722,11 @@ def test_subsidiaert_standpunkt_paa_null_forsvinner():
 # =============================================================================
 
 
-@pytest.mark.xfail(
-    strict=True,
-    raises=AssertionError,
-    reason="overordnet_status returnerer UTKAST når grunnlag er godkjent og låst, fordi vederlag/frist er uopprettet",
-)
 def test_godkjent_grunnlag_rapporteres_som_utkast():
     """En sak der BH har godkjent grunnlaget må ikke få overordnet_status='UTKAST'.
 
-    Når grunnlag er godkjent og låst, men vederlag/frist ennå ikke er sendt inn,
-    viser saken overordnet status 'UTKAST' fordi uopprettede spor står som UTKAST.
+    Regresjonstest for TFR-05 (rettet 2026-09-23). Vederlag og frist er ikke
+    sendt, men saken er i gang. Statusen ble besluttet av oppdragsgiver 23.09.
     """
     timeline = TimelineService()
 
@@ -768,10 +763,10 @@ def test_godkjent_grunnlag_rapporteres_som_utkast():
     state = timeline.compute_state([e1, e2, e3])
     assert state.grunnlag.status == SporStatus.LAAST
 
-    # Feiler i dag fordi overordnet_status returnerer 'UTKAST'
     assert state.overordnet_status != "UTKAST", (
         f"Sak med godkjent grunnlag rapporteres som '{state.overordnet_status}'"
     )
+    assert state.overordnet_status == "UNDER_BEHANDLING"
 
 
 def test_sak_oppgjort_ved_godtatt_avslag_rapporteres_ikke_som_ukjent():
@@ -807,9 +802,8 @@ def test_sak_oppgjort_ved_godtatt_avslag_rapporteres_ikke_som_ukjent():
 
     assert etter.overordnet_status != "UKJENT"
 
-    # «UTKAST» fordi vederlagssporet aldri ble opprettet — det er TFR-06,
-    # se test_godkjent_grunnlag_rapporteres_som_utkast.
-    assert etter.overordnet_status == "UTKAST"
+    # Vederlagssporet er aldri sendt, så saken er ikke oppgjort (TFR-05).
+    assert etter.overordnet_status == "UNDER_BEHANDLING"
 
 
 # =============================================================================
