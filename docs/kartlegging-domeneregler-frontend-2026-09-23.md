@@ -307,6 +307,15 @@ post, varseltype og tidligere svar (L). To regler må finnes begge steder så
 lenge frontenden skal vise resultatet før innsending. Da er det backend som
 avgjør, og frontenden som forhåndsviser.
 
+*Merknad 2026-09-23 (designnotatet for B-13):* «tidligere svar» stemmer bare
+delvis. Tilstanden har resultatet, totalbeløpet og det subsidiære
+standpunktet fra forrige svar, men ikke byggherrens vurdering av hver post,
+varselspørsmålene, metoden eller tilbakeholdelsen
+(`_handle_respons_vederlag`, L). En delvis oppdatering kan derfor ikke regnes
+ut av `SakState` alene; se
+[designnotatet](design-b13-sannhetskilde-2026-09-23.md#4-anbefaling-2-i-streng-form),
+«Delvise oppdateringer».
+
 ## Spørsmål som må avklares
 
 Disse er uklare i NS 8407 eller i koden. Kartleggingen velger ikke tolkning.
