@@ -169,16 +169,28 @@ automatisk.
 
 **Tråder, i denne rekkefølgen:**
 
-| Fase | Tråd | Kan gå parallelt | Avhenger av |
-| --- | --- | --- | --- |
-| 0 | Beslutningen og dokumentoppdateringene i avsnitt 6 | Nei | Oppdragsgivers bekreftelse |
-| 1 | **Kjernen:** `lib/db` med pool og en `transaksjon(kontekst)`-hjelper som setter rolle og krav lokalt; miljøvalg (`DATABASE_URL`); lokal oppstart (skript eller Docker Compose) med `bygg_testbase.sh`; skrivbar testfixture ved siden av den lesende; feilklassifisering for den nye driveren (`PermanentError`, retry) | Nei | Fase 0 |
-| 2 | **Repositoriene**, ett eller to per tråd, bak dagens grensesnitt, med tester mot ekte PostgreSQL: (a) hendelse og notat, (b) saksmetadata, relasjoner og BIM, (c) identitet, sesjoner, medlemskap og prosjekter (inkludert de fire RPC-ene), (d) Catenda-konfigurasjon | Ja | Fase 1 |
-| 2 | **Container:** Dockerfile for backend og GitHub Actions for Azure | Ja | Svar fra IKT |
-| 2 | **BR-01:** reproduser eller avvis | Ja | Ingenting |
-| 3 | **TS2-02:** JSON-, CSV- og Supabase-testdoblene ut av kjøretidsstien | Nei | Alle repositoriene |
-| 4 | **F1 fra B-02 v2:** roller, kontekst, policyer, skrivevakt og kommandoer som migrasjoner; rettighetsmatrise og mutasjoner i CI | Delvis | Fase 3 og beslutningene i B-02 v2 avsnitt 9 |
-| Etter hver fase | **Uavhengig review** i egen tråd, av en annen tråd enn den som skrev | — | — |
+| Fase | Tråd | Kan gå parallelt | Avhenger av | Kontroll før neste fase |
+| --- | --- | --- | --- | --- |
+| 0 | Beslutningen og dokumentoppdateringene i avsnitt 6 | Nei | Oppdragsgivers bekreftelse | Oppdragsgiver leser |
+| 1 | **Kjernen:** `lib/db` med pool og en `transaksjon(kontekst)`-hjelper som setter rolle og krav lokalt; miljøvalg (`DATABASE_URL`); lokal oppstart (skript eller Docker Compose) med `bygg_testbase.sh`; skrivbar testfixture ved siden av den lesende; feilklassifisering for den nye driveren (`PermanentError`, retry) | Nei | Fase 0 | **Uavhengig review** i egen tråd. Alle garantiene hviler på kjernen |
+| 2 | **Repositoriene**, ett eller to per tråd, bak dagens grensesnitt, med tester mot ekte PostgreSQL: (a) hendelse og notat, (b) saksmetadata, relasjoner og BIM, (c) identitet, sesjoner, medlemskap og prosjekter (inkludert de fire RPC-ene), (d) Catenda-konfigurasjon | Ja | Fase 1 | Tester og `/code-review` per PR. `/simplify` samlet når alle er inne |
+| 2 | **Container:** Dockerfile for backend og GitHub Actions for Azure | Ja | Svar fra IKT | `/code-review` |
+| 2 | **BR-01:** reproduser eller avvis | Ja | Ingenting | Testen er beviset |
+| 3 | **TS2-02:** JSON-, CSV- og Supabase-testdoblene ut av kjøretidsstien | Nei | Alle repositoriene | CI grønn og `/simplify` |
+| 4 | **F1 fra B-02 v2:** roller, kontekst, policyer, skrivevakt og kommandoer som migrasjoner; rettighetsmatrise og mutasjoner i CI | Delvis | Fase 3 og beslutningene i B-02 v2 avsnitt 9 | **Uavhengig review**, som oppdragsgiver krevde 22.09 |
+
+Uavhengig review betyr en annen tråd enn den som skrev, med et eget oppdrag i
+formen til [reviewoppdraget for B-02](prompt-review-b02-tilgangsmekanisme-2026-09-22.md).
+`/simplify` ser etter gjenbruk og kompleksitet, ikke etter feil. Den er ikke et
+review. Gi den beskjed om å la sikkerhetskontrollene stå:
+
+- `SET LOCAL` og transaksjonslokal kontekst;
+- `nullif(..., '')`;
+- fail-closed-kontroller som ser dobbelte ut;
+- eksplisitte `REVOKE`-er;
+- like svar for «ukjent» og «ikke tilgang».
+
+Kjør testene og mutasjonene etterpå.
 
 Trådene i fase 2 berører hver sine filer. Konflikter oppstår mest i
 `core/container.py` og testfixturene. Kjernen i fase 1 bør derfor definere dem
