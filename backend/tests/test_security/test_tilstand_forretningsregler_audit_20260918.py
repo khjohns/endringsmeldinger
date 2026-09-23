@@ -6,7 +6,7 @@ Testene her etterprøver funn i tilstandsberegning og forretningsregler:
    lagt til 2026-09-19 etter at alle tre ble kjørt og observert.
 2. overordnet_status ignorerer sakstype og gir INGEN_AKTIVE_SPOR for forsering og EO
 3. _rule_vederlag_can_be_withdrawn blokkerer tilbaketrekking av subsidiært godkjente krav
-4. require_truthy=True i _copy_fields_if_present forkaster subsidiært standpunkt på 0 kr / 0 dager
+4. Subsidiært standpunkt på 0 kr / 0 dager ble forkastet som falsy (TFR-04, rettet 2026-09-23)
 5. Godkjent og låst ansvarsgrunnlag rapporteres som 'UTKAST' i overordnet_status
 """
 
@@ -568,16 +568,11 @@ def test_vederlag_krav_trukket_blokkeres_ved_subsidiaer_enighet():
 # =============================================================================
 
 
-@pytest.mark.xfail(
-    strict=True,
-    raises=AssertionError,
-    reason="_copy_fields_if_present med require_truthy=True forkaster 0 og 0.0 som falsy",
-)
 def test_subsidiaert_standpunkt_paa_null_forsvinner():
     """TimelineService må ikke forkaste subsidiaer_godkjent_belop=0 eller dager=0.
 
-    _copy_fields_if_present kalles med require_truthy=True for subsidiære felter.
-    0 og 0.0 evalueres som falsy, så verdiene blir aldri satt på state.
+    Regresjonstest for TFR-04 (rettet 2026-09-23). Et subsidiært standpunkt på
+    0 kr eller 0 dager er et standpunkt, ikke et fravær av et.
     """
     timeline = TimelineService()
 
@@ -648,7 +643,6 @@ def test_subsidiaert_standpunkt_paa_null_forsvinner():
 
     state = timeline.compute_state([e1, e2, e3, e4, resp_ved, resp_frist])
 
-    # Feiler i dag fordi 0.0 og 0 ble svelget og står som None
     assert state.vederlag.subsidiaer_godkjent_belop == 0.0, (
         f"subsidiaer_godkjent_belop ble {state.vederlag.subsidiaer_godkjent_belop} i stedet for 0.0"
     )

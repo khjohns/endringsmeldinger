@@ -450,7 +450,7 @@ fordi de hører til samme domenefamilie som TFR og GFK.
 | TFR-01 | Lukket | `AVSLATT_AKSEPTERT`, 19.09 | H | — |
 | TFR-02 | Åpen | `overordnet_status` gir `INGEN_AKTIVE_SPOR` for forsering og EO. Testinventarets FR-01 | Streng `xfail`, K 22.09 | D |
 | TFR-03 | Åpen | Tilbaketrekking blokkeres ved subsidiær enighet. Testinventarets FR-02 | Streng `xfail`, K 22.09 | D |
-| TFR-04 | Åpen | 0 og 0,0 forkastes som falsy. Testinventarets FR-03 | Streng `xfail`, K 22.09 | D |
+| TFR-04 | Lukket | 0 og 0,0 ble forkastet som falsy. Testinventarets FR-03. **Merknad 2026-09-23:** rettet ved at `_copy_fields_if_present` bare hopper over `None`; parameteren `require_truthy` er fjernet. Den strenge `xfail` er gjort om til ordinær test med uendrede assertions | K 23.09 | — |
 | TFR-05 | Åpen | Godkjent grunnlag rapporteres som `UTKAST`. Testinventarets FR-04 | Streng `xfail`, K 22.09 | D |
 | TFR-06 | Åpen, lav | Respons på uspesifisert fristvarsel | L 19.09 | D |
 | GFK-01 | Lukket med restanse | Gulvet verdsetter fristdager. Uten kjent sats er gulvet 0 (B-06) | H | D |
