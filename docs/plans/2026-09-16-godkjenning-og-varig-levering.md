@@ -232,6 +232,17 @@ Et åpent valg blokkerer bare oppgavene som er nevnt.
 > etter uavhengig review. TS2-02 er vurdert i avsnitt 7 der, og statusen i 3.3
 > er uendret.
 
+> **Merknad 2026-09-23 til B-02:**
+> [Uavhengig review](../review-b02-tilgangsmekanisme-2026-09-23.md) er levert.
+> Konklusjonen er at alternativ C kan legges til grunn med navngitte endringer:
+> transport og signeringsmyndighet, vern av integritetsbærende metadata og
+> leveringsdata, private skrivestier, kontekst/identitet, tilbakekalling og
+> fullstendig F1-testplan (RB2-01–08). Originalbeviset er bekreftet; fem nye
+> mutasjoner og lokale tilleggsforsøk viser grensene for beviset. Reviewet
+> anbefaler ny vurdering av transportpremisset i 3.1 med TM-01 som konkret
+> motbelegg, men vedtar ingen endring. B-02 og B-04 er fortsatt åpne;
+> beslutningsstatus og TS2-02-status er uendret.
+
 ## 4. Funnregister
 
 <a id="status-2026-09-18"></a>

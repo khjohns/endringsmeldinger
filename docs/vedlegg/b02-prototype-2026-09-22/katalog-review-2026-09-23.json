@@ -1,0 +1,775 @@
+{
+  "dato": "2026-09-23",
+  "prosjekt": "gwdxadexwktegkklyobv",
+  "katalog": [
+    {
+      "katalog": {
+        "roller": [
+          {
+            "rolname": "authenticated",
+            "rolsuper": false,
+            "rolinherit": true,
+            "rolcanlogin": false,
+            "rolbypassrls": false,
+            "rolcreaterole": false,
+            "rolreplication": false
+          },
+          {
+            "rolname": "anon",
+            "rolsuper": false,
+            "rolinherit": true,
+            "rolcanlogin": false,
+            "rolbypassrls": false,
+            "rolcreaterole": false,
+            "rolreplication": false
+          },
+          {
+            "rolname": "service_role",
+            "rolsuper": false,
+            "rolinherit": true,
+            "rolcanlogin": false,
+            "rolbypassrls": true,
+            "rolcreaterole": false,
+            "rolreplication": false
+          },
+          {
+            "rolname": "supabase_admin",
+            "rolsuper": true,
+            "rolinherit": true,
+            "rolcanlogin": true,
+            "rolbypassrls": true,
+            "rolcreaterole": true,
+            "rolreplication": true
+          },
+          {
+            "rolname": "authenticator",
+            "rolsuper": false,
+            "rolinherit": false,
+            "rolcanlogin": true,
+            "rolbypassrls": false,
+            "rolcreaterole": false,
+            "rolreplication": false
+          },
+          {
+            "rolname": "postgres",
+            "rolsuper": false,
+            "rolinherit": true,
+            "rolcanlogin": true,
+            "rolbypassrls": true,
+            "rolcreaterole": true,
+            "rolreplication": true
+          }
+        ],
+        "policyer": [
+          {
+            "cmd": "ALL",
+            "qual": "true",
+            "roles": [
+              "service_role"
+            ],
+            "tablename": "project_memberships",
+            "policyname": "Service role full access on project_memberships",
+            "with_check": "true"
+          },
+          {
+            "cmd": "SELECT",
+            "qual": "(user_email = ( SELECT auth.email() AS email))",
+            "roles": [
+              "authenticated"
+            ],
+            "tablename": "project_memberships",
+            "policyname": "Users can read own memberships",
+            "with_check": null
+          },
+          {
+            "cmd": "ALL",
+            "qual": "true",
+            "roles": [
+              "service_role"
+            ],
+            "tablename": "sak_metadata",
+            "policyname": "Service role full access on sak_metadata",
+            "with_check": "true"
+          },
+          {
+            "cmd": "ALL",
+            "qual": "true",
+            "roles": [
+              "service_role"
+            ],
+            "tablename": "app_identities",
+            "policyname": "backend_only",
+            "with_check": "true"
+          },
+          {
+            "cmd": "ALL",
+            "qual": "true",
+            "roles": [
+              "service_role"
+            ],
+            "tablename": "app_sessions",
+            "policyname": "backend_only",
+            "with_check": "true"
+          },
+          {
+            "cmd": "ALL",
+            "qual": "true",
+            "roles": [
+              "service_role"
+            ],
+            "tablename": "app_oauth_attempts",
+            "policyname": "backend_only",
+            "with_check": "true"
+          },
+          {
+            "cmd": "ALL",
+            "qual": "true",
+            "roles": [
+              "service_role"
+            ],
+            "tablename": "app_project_memberships",
+            "policyname": "backend_only",
+            "with_check": "true"
+          },
+          {
+            "cmd": "ALL",
+            "qual": "true",
+            "roles": [
+              "service_role"
+            ],
+            "tablename": "app_membership_sync",
+            "policyname": "backend_only",
+            "with_check": "true"
+          },
+          {
+            "cmd": "ALL",
+            "qual": "true",
+            "roles": [
+              "service_role"
+            ],
+            "tablename": "magic_links",
+            "policyname": "Service role full access on magic_links",
+            "with_check": "true"
+          },
+          {
+            "cmd": "ALL",
+            "qual": "true",
+            "roles": [
+              "service_role"
+            ],
+            "tablename": "user_groups",
+            "policyname": "Service role access on user_groups",
+            "with_check": "true"
+          },
+          {
+            "cmd": "ALL",
+            "qual": "true",
+            "roles": [
+              "service_role"
+            ],
+            "tablename": "catenda_contract_teams",
+            "policyname": "Service role full access on catenda_contract_teams",
+            "with_check": "true"
+          },
+          {
+            "cmd": "ALL",
+            "qual": "true",
+            "roles": [
+              "service_role"
+            ],
+            "tablename": "projects",
+            "policyname": "Service role full access on projects",
+            "with_check": "true"
+          },
+          {
+            "cmd": "ALL",
+            "qual": "true",
+            "roles": [
+              "service_role"
+            ],
+            "tablename": "sak_relations",
+            "policyname": "Service role full access on sak_relations",
+            "with_check": "true"
+          },
+          {
+            "cmd": "ALL",
+            "qual": "true",
+            "roles": [
+              "service_role"
+            ],
+            "tablename": "sak_bim_links",
+            "policyname": "Service role full access on sak_bim_links",
+            "with_check": "true"
+          },
+          {
+            "cmd": "ALL",
+            "qual": "true",
+            "roles": [
+              "service_role"
+            ],
+            "tablename": "catenda_models_cache",
+            "policyname": "Service role full access on catenda_models_cache",
+            "with_check": "true"
+          },
+          {
+            "cmd": "ALL",
+            "qual": "true",
+            "roles": [
+              "service_role"
+            ],
+            "tablename": "catenda_project_configs",
+            "policyname": "Service role full access on catenda_project_configs",
+            "with_check": "true"
+          },
+          {
+            "cmd": "ALL",
+            "qual": "true",
+            "roles": [
+              "service_role"
+            ],
+            "tablename": "catenda_topic_board_configs",
+            "policyname": "Service role full access on catenda_topic_board_configs",
+            "with_check": "true"
+          },
+          {
+            "cmd": "ALL",
+            "qual": "true",
+            "roles": [
+              "service_role"
+            ],
+            "tablename": "app_users",
+            "policyname": "backend_only",
+            "with_check": "true"
+          },
+          {
+            "cmd": "ALL",
+            "qual": "true",
+            "roles": [
+              "service_role"
+            ],
+            "tablename": "hendelse",
+            "policyname": "Service role full access on hendelse",
+            "with_check": "true"
+          },
+          {
+            "cmd": "ALL",
+            "qual": "true",
+            "roles": [
+              "service_role"
+            ],
+            "tablename": "notat",
+            "policyname": "Service role full access on notat",
+            "with_check": "true"
+          }
+        ],
+        "tabeller": [
+          {
+            "eier": "postgres",
+            "relacl": [
+              "postgres=arwdDxtm/postgres",
+              "service_role=arwdDxtm/postgres"
+            ],
+            "relname": "project_memberships",
+            "relrowsecurity": true,
+            "relforcerowsecurity": false
+          },
+          {
+            "eier": "postgres",
+            "relacl": [
+              "postgres=arwdDxtm/postgres",
+              "service_role=arwdDxtm/postgres"
+            ],
+            "relname": "projects",
+            "relrowsecurity": true,
+            "relforcerowsecurity": false
+          },
+          {
+            "eier": "postgres",
+            "relacl": [
+              "postgres=arwdDxtm/postgres",
+              "service_role=arwdDxtm/postgres"
+            ],
+            "relname": "sak_relations",
+            "relrowsecurity": true,
+            "relforcerowsecurity": false
+          },
+          {
+            "eier": "postgres",
+            "relacl": [
+              "postgres=arwdDxtm/postgres",
+              "service_role=arwdDxtm/postgres"
+            ],
+            "relname": "sak_metadata",
+            "relrowsecurity": true,
+            "relforcerowsecurity": false
+          },
+          {
+            "eier": "postgres",
+            "relacl": [
+              "postgres=arwdDxtm/postgres",
+              "service_role=arwdDxtm/postgres"
+            ],
+            "relname": "sak_bim_links",
+            "relrowsecurity": true,
+            "relforcerowsecurity": false
+          },
+          {
+            "eier": "postgres",
+            "relacl": [
+              "postgres=arwdDxtm/postgres",
+              "service_role=arwdDxtm/postgres"
+            ],
+            "relname": "catenda_models_cache",
+            "relrowsecurity": true,
+            "relforcerowsecurity": false
+          },
+          {
+            "eier": "postgres",
+            "relacl": [
+              "postgres=arwdDxtm/postgres",
+              "service_role=arwdDxtm/postgres"
+            ],
+            "relname": "magic_links",
+            "relrowsecurity": true,
+            "relforcerowsecurity": false
+          },
+          {
+            "eier": "postgres",
+            "relacl": [
+              "postgres=arwdDxtm/postgres",
+              "service_role=arwdDxtm/postgres"
+            ],
+            "relname": "user_groups",
+            "relrowsecurity": true,
+            "relforcerowsecurity": false
+          },
+          {
+            "eier": "postgres",
+            "relacl": [
+              "postgres=arwdDxtm/postgres",
+              "service_role=arwdDxtm/postgres"
+            ],
+            "relname": "catenda_project_configs",
+            "relrowsecurity": true,
+            "relforcerowsecurity": false
+          },
+          {
+            "eier": "postgres",
+            "relacl": [
+              "postgres=arwdDxtm/postgres",
+              "service_role=arwdDxtm/postgres"
+            ],
+            "relname": "catenda_topic_board_configs",
+            "relrowsecurity": true,
+            "relforcerowsecurity": false
+          },
+          {
+            "eier": "postgres",
+            "relacl": [
+              "postgres=arwdDxtm/postgres",
+              "service_role=arwdDxtm/postgres"
+            ],
+            "relname": "app_users",
+            "relrowsecurity": true,
+            "relforcerowsecurity": false
+          },
+          {
+            "eier": "postgres",
+            "relacl": [
+              "postgres=arwdDxtm/postgres",
+              "service_role=arwdDxtm/postgres"
+            ],
+            "relname": "app_identities",
+            "relrowsecurity": true,
+            "relforcerowsecurity": false
+          },
+          {
+            "eier": "postgres",
+            "relacl": [
+              "postgres=arwdDxtm/postgres",
+              "service_role=arwdDxtm/postgres"
+            ],
+            "relname": "app_sessions",
+            "relrowsecurity": true,
+            "relforcerowsecurity": false
+          },
+          {
+            "eier": "postgres",
+            "relacl": [
+              "postgres=arwdDxtm/postgres",
+              "service_role=arwdDxtm/postgres"
+            ],
+            "relname": "app_oauth_attempts",
+            "relrowsecurity": true,
+            "relforcerowsecurity": false
+          },
+          {
+            "eier": "postgres",
+            "relacl": [
+              "postgres=arwdDxtm/postgres",
+              "service_role=arwdDxtm/postgres"
+            ],
+            "relname": "app_project_memberships",
+            "relrowsecurity": true,
+            "relforcerowsecurity": false
+          },
+          {
+            "eier": "postgres",
+            "relacl": [
+              "postgres=arwdDxtm/postgres",
+              "service_role=arwdDxtm/postgres"
+            ],
+            "relname": "app_membership_sync",
+            "relrowsecurity": true,
+            "relforcerowsecurity": false
+          },
+          {
+            "eier": "postgres",
+            "relacl": [
+              "postgres=arwdDxtm/postgres",
+              "service_role=arwdDxtm/postgres"
+            ],
+            "relname": "catenda_contract_teams",
+            "relrowsecurity": true,
+            "relforcerowsecurity": false
+          },
+          {
+            "eier": "postgres",
+            "relacl": [
+              "postgres=arwdDxtm/postgres",
+              "service_role=arwdDxtm/postgres"
+            ],
+            "relname": "hendelse",
+            "relrowsecurity": true,
+            "relforcerowsecurity": false
+          },
+          {
+            "eier": "postgres",
+            "relacl": [
+              "postgres=arwdDxtm/postgres",
+              "service_role=arwdDxtm/postgres"
+            ],
+            "relname": "notat",
+            "relrowsecurity": true,
+            "relforcerowsecurity": false
+          }
+        ],
+        "triggere": [
+          {
+            "relname": "projects",
+            "definisjon": "CREATE TRIGGER trg_auto_membership_on_project_create AFTER INSERT ON public.projects FOR EACH ROW EXECUTE FUNCTION auto_create_project_membership()"
+          },
+          {
+            "relname": "project_memberships",
+            "definisjon": "CREATE TRIGGER update_project_memberships_updated_at BEFORE UPDATE ON public.project_memberships FOR EACH ROW EXECUTE FUNCTION update_pm_updated_at()"
+          },
+          {
+            "relname": "user_groups",
+            "definisjon": "CREATE TRIGGER update_user_groups_updated_at BEFORE UPDATE ON public.user_groups FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()"
+          },
+          {
+            "relname": "catenda_project_configs",
+            "definisjon": "CREATE TRIGGER set_catenda_project_configs_updated_at BEFORE UPDATE ON public.catenda_project_configs FOR EACH ROW EXECUTE FUNCTION set_catenda_project_registry_updated_at()"
+          },
+          {
+            "relname": "catenda_topic_board_configs",
+            "definisjon": "CREATE TRIGGER set_catenda_topic_board_configs_updated_at BEFORE UPDATE ON public.catenda_topic_board_configs FOR EACH ROW EXECUTE FUNCTION set_catenda_project_registry_updated_at()"
+          }
+        ],
+        "medlemskap": [
+          {
+            "giver": "supabase_admin",
+            "rolle": "pg_monitor",
+            "medlem": "postgres",
+            "set_option": true,
+            "admin_option": true,
+            "inherit_option": true
+          },
+          {
+            "giver": "supabase_admin",
+            "rolle": "pg_signal_backend",
+            "medlem": "postgres",
+            "set_option": true,
+            "admin_option": true,
+            "inherit_option": true
+          },
+          {
+            "giver": "supabase_admin",
+            "rolle": "pg_read_all_data",
+            "medlem": "postgres",
+            "set_option": true,
+            "admin_option": true,
+            "inherit_option": true
+          },
+          {
+            "giver": "supabase_admin",
+            "rolle": "pg_create_subscription",
+            "medlem": "postgres",
+            "set_option": true,
+            "admin_option": true,
+            "inherit_option": true
+          },
+          {
+            "giver": "supabase_admin",
+            "rolle": "anon",
+            "medlem": "postgres",
+            "set_option": true,
+            "admin_option": true,
+            "inherit_option": true
+          },
+          {
+            "giver": "supabase_admin",
+            "rolle": "anon",
+            "medlem": "authenticator",
+            "set_option": true,
+            "admin_option": false,
+            "inherit_option": false
+          },
+          {
+            "giver": "supabase_admin",
+            "rolle": "authenticated",
+            "medlem": "authenticator",
+            "set_option": true,
+            "admin_option": false,
+            "inherit_option": false
+          },
+          {
+            "giver": "supabase_admin",
+            "rolle": "authenticated",
+            "medlem": "postgres",
+            "set_option": true,
+            "admin_option": true,
+            "inherit_option": true
+          },
+          {
+            "giver": "supabase_admin",
+            "rolle": "service_role",
+            "medlem": "postgres",
+            "set_option": true,
+            "admin_option": true,
+            "inherit_option": true
+          },
+          {
+            "giver": "supabase_admin",
+            "rolle": "service_role",
+            "medlem": "authenticator",
+            "set_option": true,
+            "admin_option": false,
+            "inherit_option": false
+          },
+          {
+            "giver": "supabase_admin",
+            "rolle": "authenticator",
+            "medlem": "postgres",
+            "set_option": true,
+            "admin_option": true,
+            "inherit_option": true
+          },
+          {
+            "giver": "supabase_admin",
+            "rolle": "supabase_privileged_role",
+            "medlem": "postgres",
+            "set_option": true,
+            "admin_option": false,
+            "inherit_option": true
+          }
+        ],
+        "skjema_create": null,
+        "standardrettigheter": [
+          {
+            "eier": "supabase_admin",
+            "nspname": "public",
+            "defaclacl": [
+              "postgres=rwU/supabase_admin",
+              "anon=rwU/supabase_admin",
+              "authenticated=rwU/supabase_admin",
+              "service_role=rwU/supabase_admin"
+            ],
+            "defaclobjtype": "S"
+          },
+          {
+            "eier": "supabase_admin",
+            "nspname": "public",
+            "defaclacl": [
+              "postgres=arwdDxtm/supabase_admin",
+              "anon=arwdDxtm/supabase_admin",
+              "authenticated=arwdDxtm/supabase_admin",
+              "service_role=arwdDxtm/supabase_admin"
+            ],
+            "defaclobjtype": "r"
+          },
+          {
+            "eier": "supabase_admin",
+            "nspname": "public",
+            "defaclacl": [
+              "postgres=X/supabase_admin",
+              "anon=X/supabase_admin",
+              "authenticated=X/supabase_admin",
+              "service_role=X/supabase_admin"
+            ],
+            "defaclobjtype": "f"
+          },
+          {
+            "eier": "postgres",
+            "nspname": "public",
+            "defaclacl": [
+              "postgres=arwdDxtm/postgres",
+              "service_role=arwdDxtm/postgres"
+            ],
+            "defaclobjtype": "r"
+          },
+          {
+            "eier": "postgres",
+            "nspname": "public",
+            "defaclacl": [
+              "postgres=rwU/postgres",
+              "service_role=rwU/postgres"
+            ],
+            "defaclobjtype": "S"
+          },
+          {
+            "eier": "postgres",
+            "nspname": "public",
+            "defaclacl": [
+              "postgres=X/postgres",
+              "service_role=X/postgres"
+            ],
+            "defaclobjtype": "f"
+          }
+        ]
+      }
+    }
+  ],
+  "funksjoner": [
+    {
+      "funksjon": "auto_create_project_membership()",
+      "eier": "postgres",
+      "prosecdef": true,
+      "proconfig": [
+        "search_path=\"\""
+      ],
+      "proacl": "{postgres=X/postgres,service_role=X/postgres}",
+      "definisjon": "CREATE OR REPLACE FUNCTION public.auto_create_project_membership()\n RETURNS trigger\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO ''\nAS $function$\nBEGIN\n    IF NEW.created_by IS NOT NULL THEN\n        INSERT INTO public.project_memberships (project_id, user_email, role, invited_by)\n        VALUES (NEW.id, NEW.created_by, 'admin', NEW.created_by)\n        ON CONFLICT (project_id, user_email) DO NOTHING;\n    END IF;\n    RETURN NEW;\nEND;\n$function$\n"
+    },
+    {
+      "funksjon": "get_user_role_by_email(text)",
+      "eier": "postgres",
+      "prosecdef": true,
+      "proconfig": [
+        "search_path=\"\""
+      ],
+      "proacl": "{postgres=X/postgres,service_role=X/postgres}",
+      "definisjon": "CREATE OR REPLACE FUNCTION public.get_user_role_by_email(p_email text)\n RETURNS TABLE(user_role text, group_name text, approval_role text, display_name text, department text)\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO ''\nAS $function$\nBEGIN\n    RETURN QUERY\n    SELECT\n        ug.user_role,\n        ug.group_name,\n        ug.approval_role,\n        ug.display_name,\n        ug.department\n    FROM public.user_groups ug\n    JOIN auth.users u ON u.id = ug.user_id\n    WHERE u.email = p_email\n      AND ug.is_active = true;\nEND;\n$function$\n"
+    },
+    {
+      "funksjon": "get_user_role(uuid)",
+      "eier": "postgres",
+      "prosecdef": true,
+      "proconfig": [
+        "search_path=\"\""
+      ],
+      "proacl": "{postgres=X/postgres,service_role=X/postgres}",
+      "definisjon": "CREATE OR REPLACE FUNCTION public.get_user_role(p_user_id uuid)\n RETURNS TABLE(user_role text, group_name text, approval_role text, display_name text, department text)\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO ''\nAS $function$\nBEGIN\n    RETURN QUERY\n    SELECT\n        ug.user_role,\n        ug.group_name,\n        ug.approval_role,\n        ug.display_name,\n        ug.department\n    FROM public.user_groups ug\n    WHERE ug.user_id = p_user_id\n      AND ug.is_active = true;\nEND;\n$function$\n"
+    },
+    {
+      "funksjon": "koe_reconcile_memberships(text,uuid,jsonb,timestamp with time zone)",
+      "eier": "postgres",
+      "prosecdef": false,
+      "proconfig": [
+        "search_path=\"\""
+      ],
+      "proacl": "{postgres=X/postgres,service_role=X/postgres}",
+      "definisjon": "CREATE OR REPLACE FUNCTION public.koe_reconcile_memberships(p_project text, p_catenda_project uuid, p_members jsonb, p_started_at timestamp with time zone)\n RETURNS boolean\n LANGUAGE plpgsql\n SET search_path TO ''\nAS $function$\nDECLARE m JSONB; v_user UUID; v_previous TIMESTAMPTZ;\nBEGIN\n    IF jsonb_typeof(p_members) IS DISTINCT FROM 'array' THEN\n        RAISE EXCEPTION 'Expected complete membership snapshot';\n    END IF;\n    PERFORM pg_advisory_xact_lock(hashtextextended('membership:' || p_project, 0));\n    IF NOT EXISTS (SELECT 1 FROM public.catenda_project_configs\n        WHERE internal_project_id = p_project AND catenda_project_id = p_catenda_project AND is_active) THEN\n        RAISE EXCEPTION 'Project mapping changed';\n    END IF;\n    SELECT synced_at INTO v_previous FROM public.app_membership_sync WHERE project_id = p_project;\n    IF v_previous >= p_started_at THEN RETURN false; END IF;\n    IF p_started_at > now() + interval '30 seconds' THEN RAISE EXCEPTION 'Invalid snapshot time'; END IF;\n    IF (SELECT count(*) FROM jsonb_array_elements(p_members)) <>\n       (SELECT count(DISTINCT value->>'subject') FROM jsonb_array_elements(p_members)) THEN\n        RAISE EXCEPTION 'Duplicate or missing subject';\n    END IF;\n    FOR m IN SELECT value FROM jsonb_array_elements(p_members) ORDER BY value->>'subject' LOOP\n        IF m->>'role' IS NULL OR m->>'role' NOT IN ('admin', 'member') THEN\n            RAISE EXCEPTION 'Invalid membership role';\n        END IF;\n        v_user := public.koe_resolve_identity('catenda', 'https://api.catenda.com',\n            m->>'subject', coalesce(m->>'email', ''), coalesce(m->>'name', ''));\n        INSERT INTO public.app_project_memberships\n            (project_id, user_id, catenda_subject, user_email, display_name, role)\n        VALUES (p_project, v_user, m->>'subject', m->>'email', m->>'name', m->>'role')\n        ON CONFLICT (project_id, user_id) DO UPDATE SET\n            user_email = excluded.user_email, display_name = excluded.display_name,\n            role = excluded.role, active = true, updated_at = now();\n    END LOOP;\n    UPDATE public.app_project_memberships SET active = false, updated_at = now()\n        WHERE project_id = p_project AND active AND catenda_subject NOT IN\n            (SELECT value->>'subject' FROM jsonb_array_elements(p_members));\n    INSERT INTO public.app_membership_sync(project_id, catenda_project_id, synced_at)\n        VALUES (p_project, p_catenda_project, p_started_at)\n        ON CONFLICT (project_id) DO UPDATE SET\n            catenda_project_id = excluded.catenda_project_id, synced_at = excluded.synced_at;\n    RETURN true;\nEND;\n$function$\n"
+    },
+    {
+      "funksjon": "koe_register_project(text,text,text,text,uuid,uuid,uuid,uuid,jsonb)",
+      "eier": "postgres",
+      "prosecdef": false,
+      "proconfig": [
+        "search_path=\"\""
+      ],
+      "proacl": "{postgres=X/postgres,service_role=X/postgres}",
+      "definisjon": "CREATE OR REPLACE FUNCTION public.koe_register_project(p_project_id text, p_name text, p_description text, p_organisasjon_id text, p_catenda_project_id uuid, p_library_id uuid, p_folder_id uuid DEFAULT NULL::uuid, p_topic_board_id uuid DEFAULT NULL::uuid, p_teams jsonb DEFAULT NULL::jsonb)\n RETURNS boolean\n LANGUAGE plpgsql\n SET search_path TO ''\nAS $function$\n    BEGIN\n        IF p_organisasjon_id IS NULL OR btrim(p_organisasjon_id) = '' THEN\n            RAISE EXCEPTION 'organisasjon_id er påkrevd; det finnes ingen defaultvirksomhet';\n        END IF;\n\n        INSERT INTO public.projects (\n            id, name, description, organisasjon_id, is_active, created_by\n        )\n        VALUES (\n            p_project_id,\n            p_name,\n            COALESCE(p_description, 'Prosjekt ' || p_name),\n            btrim(p_organisasjon_id),\n            TRUE,\n            'admin_cli'\n        )\n        ON CONFLICT (id) DO UPDATE SET\n            name = EXCLUDED.name,\n            description = EXCLUDED.description,\n            is_active = TRUE;\n\n        INSERT INTO public.catenda_project_configs (\n            internal_project_id, catenda_project_id, library_id, folder_id, is_active\n        )\n        VALUES (\n            p_project_id, p_catenda_project_id, p_library_id, p_folder_id, TRUE\n        )\n        ON CONFLICT (internal_project_id) DO UPDATE SET\n            catenda_project_id = EXCLUDED.catenda_project_id,\n            library_id = EXCLUDED.library_id,\n            folder_id = EXCLUDED.folder_id,\n            is_active = TRUE;\n\n        IF p_topic_board_id IS NOT NULL THEN\n            INSERT INTO public.catenda_topic_board_configs (\n                topic_board_id, internal_project_id, is_active\n            )\n            VALUES (\n                p_topic_board_id, p_project_id, TRUE\n            )\n            ON CONFLICT (topic_board_id) DO UPDATE SET\n                internal_project_id = EXCLUDED.internal_project_id,\n                is_active = TRUE;\n        END IF;\n\n        IF p_teams IS NOT NULL THEN\n            PERFORM public.koe_set_contract_teams(p_project_id, p_teams);\n        END IF;\n\n        RETURN TRUE;\n    END;\n    $function$\n"
+    },
+    {
+      "funksjon": "koe_resolve_identity(text,text,text,text,text)",
+      "eier": "postgres",
+      "prosecdef": false,
+      "proconfig": [
+        "search_path=\"\""
+      ],
+      "proacl": "{postgres=X/postgres,service_role=X/postgres}",
+      "definisjon": "CREATE OR REPLACE FUNCTION public.koe_resolve_identity(p_provider text, p_issuer text, p_subject text, p_email text, p_name text)\n RETURNS uuid\n LANGUAGE plpgsql\n SET search_path TO ''\nAS $function$\nDECLARE v_user UUID;\nBEGIN\n    PERFORM pg_advisory_xact_lock(hashtextextended(p_provider || ':' || p_issuer || ':' || p_subject, 0));\n    SELECT user_id INTO v_user FROM public.app_identities\n        WHERE provider = p_provider AND issuer = p_issuer AND subject = p_subject;\n    IF v_user IS NULL THEN\n        INSERT INTO public.app_users(email, name)\n            VALUES (coalesce(p_email, ''), coalesce(p_name, ''))\n            RETURNING id INTO v_user;\n        INSERT INTO public.app_identities(user_id, provider, issuer, subject)\n            VALUES (v_user, p_provider, p_issuer, p_subject);\n    ELSE\n        UPDATE public.app_users\n            SET email = coalesce(nullif(p_email, ''), email),\n                name = coalesce(nullif(p_name, ''), name)\n            WHERE id = v_user;\n    END IF;\n    RETURN v_user;\nEND;\n$function$\n"
+    },
+    {
+      "funksjon": "koe_set_contract_teams(text,jsonb)",
+      "eier": "postgres",
+      "prosecdef": false,
+      "proconfig": [
+        "search_path=\"\""
+      ],
+      "proacl": "{postgres=X/postgres,service_role=X/postgres}",
+      "definisjon": "CREATE OR REPLACE FUNCTION public.koe_set_contract_teams(p_project text, p_teams jsonb)\n RETURNS boolean\n LANGUAGE plpgsql\n SET search_path TO ''\nAS $function$\n    DECLARE\n        v_item JSONB;\n        v_team_id UUID;\n        v_role TEXT;\n        v_has_bh BOOLEAN := FALSE;\n        v_has_te BOOLEAN := FALSE;\n    BEGIN\n        PERFORM 1 FROM public.catenda_project_configs\n        WHERE internal_project_id = p_project AND is_active = TRUE\n        FOR UPDATE;\n\n        IF NOT FOUND THEN\n            RAISE EXCEPTION 'Aktivt prosjekt ikke funnet: %', p_project;\n        END IF;\n\n        IF jsonb_typeof(p_teams) IS DISTINCT FROM 'array' THEN\n            RAISE EXCEPTION 'p_teams må være et JSONB array av objekter';\n        END IF;\n\n        DELETE FROM public.catenda_contract_teams\n        WHERE internal_project_id = p_project;\n\n        FOR v_item IN SELECT * FROM jsonb_array_elements(p_teams)\n        LOOP\n            v_team_id := (v_item->>'team_id')::UUID;\n            v_role := (v_item->>'contract_role')::TEXT;\n\n            IF v_role NOT IN ('BH', 'TE') THEN\n                RAISE EXCEPTION 'Ugyldig contract_role: % (må være BH eller TE)', v_role;\n            END IF;\n\n            IF v_role = 'BH' THEN\n                v_has_bh := TRUE;\n            ELSIF v_role = 'TE' THEN\n                v_has_te := TRUE;\n            END IF;\n\n            INSERT INTO public.catenda_contract_teams (internal_project_id, team_id, contract_role)\n            VALUES (p_project, v_team_id, v_role);\n        END LOOP;\n\n        IF NOT (v_has_bh AND v_has_te) THEN\n            RAISE EXCEPTION 'Både BH og TE må være representert i p_teams';\n        END IF;\n\n        RETURN TRUE;\n    END;\n    $function$\n"
+    },
+    {
+      "funksjon": "set_catenda_project_registry_updated_at()",
+      "eier": "postgres",
+      "prosecdef": false,
+      "proconfig": [
+        "search_path=\"\""
+      ],
+      "proacl": "{postgres=X/postgres,service_role=X/postgres}",
+      "definisjon": "CREATE OR REPLACE FUNCTION public.set_catenda_project_registry_updated_at()\n RETURNS trigger\n LANGUAGE plpgsql\n SET search_path TO ''\nAS $function$\nBEGIN\n    NEW.updated_at = NOW();\n    RETURN NEW;\nEND;\n$function$\n"
+    },
+    {
+      "funksjon": "update_pm_updated_at()",
+      "eier": "postgres",
+      "prosecdef": false,
+      "proconfig": [
+        "search_path=\"\""
+      ],
+      "proacl": "{postgres=X/postgres,service_role=X/postgres}",
+      "definisjon": "CREATE OR REPLACE FUNCTION public.update_pm_updated_at()\n RETURNS trigger\n LANGUAGE plpgsql\n SET search_path TO ''\nAS $function$\nBEGIN\n    NEW.updated_at = NOW();\n    RETURN NEW;\nEND;\n$function$\n"
+    },
+    {
+      "funksjon": "update_updated_at_column()",
+      "eier": "postgres",
+      "prosecdef": false,
+      "proconfig": [
+        "search_path=\"\""
+      ],
+      "proacl": "{postgres=X/postgres,service_role=X/postgres}",
+      "definisjon": "CREATE OR REPLACE FUNCTION public.update_updated_at_column()\n RETURNS trigger\n LANGUAGE plpgsql\n SET search_path TO ''\nAS $function$\nBEGIN\n    NEW.updated_at = NOW();\n    RETURN NEW;\nEND;\n$function$\n"
+    }
+  ],
+  "innstillinger": [
+    {
+      "katalog": {
+        "server": "17.6",
+        "pgaudit": 0,
+        "preload": "pg_stat_statements, pgaudit, plpgsql, plpgsql_check, pg_cron, pg_net, pgsodium, auto_explain, pg_tle, plan_filter, supabase_vault",
+        "rolleoppsett": null,
+        "sr_replikering": false,
+        "kolonner_medlemskap": [
+          "id",
+          "project_id",
+          "user_id",
+          "catenda_subject",
+          "user_email",
+          "display_name",
+          "role",
+          "viewer_override",
+          "active",
+          "created_at",
+          "updated_at"
+        ],
+        "nettroller_tabeller": null,
+        "nettroller_funksjoner": null
+      }
+    }
+  ],
+  "databaserettigheter": {
+    "service_role_temp": true,
+    "service_role_create": false
+  }
+}
