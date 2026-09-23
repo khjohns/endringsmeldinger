@@ -4,7 +4,7 @@ Testene her etterprøver funn i tilstandsberegning og forretningsregler:
 1. TE_AKSEPTERER_RESPONS forvandler et avslag fra BH til GODKJENT — på alle tre
    spor. Reproduksjonen fra 18.09 dekket bare grunnlag; vederlag og frist er
    lagt til 2026-09-19 etter at alle tre ble kjørt og observert.
-2. overordnet_status ignorerer sakstype og gir INGEN_AKTIVE_SPOR for forsering og EO
+2. overordnet_status ga INGEN_AKTIVE_SPOR for forsering og EO (TFR-02, rettet 2026-09-23)
 3. Tilbaketrekking av subsidiært godkjente krav ble blokkert (TFR-03, rettet 2026-09-23)
 4. Subsidiært standpunkt på 0 kr / 0 dager ble forkastet som falsy (TFR-04, rettet 2026-09-23)
 5. Godkjent og låst ansvarsgrunnlag ble rapportert som 'UTKAST' (TFR-05, rettet 2026-09-23)
@@ -39,6 +39,13 @@ from models.events import (
     WithdrawalData,
     WithdrawalEvent,
     parse_event_from_request,
+)
+from models.sak_state import (
+    EndringsordreData,
+    EOStatus,
+    ForseringData,
+    SakState,
+    SaksType,
 )
 from services.business_rules import BusinessRuleValidator
 from services.timeline_service import TimelineService
@@ -407,17 +414,12 @@ def test_godtatt_avslag_kan_ikke_trekkes_tilbake():
 # =============================================================================
 
 
-@pytest.mark.xfail(
-    strict=True,
-    raises=AssertionError,
-    reason="overordnet_status sjekker kun standardspor og gir INGEN_AKTIVE_SPOR for forsering og EO",
-)
 def test_overordnet_status_gir_ingen_aktive_spor_for_forsering():
     """overordnet_status må reflektere forseringstilstand i stedet for 'INGEN_AKTIVE_SPOR'.
 
-    Beregningen sjekker kun grunnlag/vederlag/frist. I forseringssaker og endringsordrer
-    er disse alltid IKKE_RELEVANT, så overordnet_status returnerer alltid INGEN_AKTIVE_SPOR,
-    selv etter varsling og aksept.
+    Regresjonstest for TFR-02 (rettet 2026-09-23). I forseringssaker og
+    endringsordrer er de tre sporene IKKE_RELEVANT, og statusen ble alltid
+    INGEN_AKTIVE_SPOR.
     """
     timeline = TimelineService()
 
@@ -458,10 +460,94 @@ def test_overordnet_status_gir_ingen_aktive_spor_for_forsering():
 
     state = timeline.compute_state([e1, e2, e3])
 
-    # Feiler i dag fordi overordnet_status returnerer 'INGEN_AKTIVE_SPOR'
     assert state.overordnet_status != "INGEN_AKTIVE_SPOR", (
         f"Akseptert forseringssak fikk overordnet_status='{state.overordnet_status}'"
     )
+    assert state.overordnet_status == "UNDER_BEHANDLING"
+
+    # Aksepten stenger ikke saken: TE kan fortsatt oppdatere påløpte kostnader.
+    kostnader = parse_event_from_request(
+        {
+            "sak_id": "FORS-1",
+            "event_type": "forsering_kostnader_oppdatert",
+            "aktor_id": "te",
+            "aktor_rolle": "TE",
+            "data": {"paalopte_kostnader": 250000, "kommentar": "Halvveis"},
+        }
+    )
+    resultat = BusinessRuleValidator().validate(kostnader, state)
+    assert resultat.violated_rule != "CASE_NOT_CLOSED", resultat.message
+
+
+def _forsering(**felt) -> SakState:
+    return SakState(
+        sak_id="FORS-1",
+        sakstype=SaksType.FORSERING,
+        forsering_data=ForseringData(avslatte_fristkrav=["K-1"], **felt),
+    )
+
+
+@pytest.mark.parametrize(
+    ("felt", "forventet"),
+    [
+        ({}, "UTKAST"),
+        ({"dato_varslet": "2026-09-18"}, "VENTER_PAA_SVAR"),
+        ({"dato_varslet": "2026-09-18", "bh_aksepterer_forsering": False}, "UNDER_FORHANDLING"),
+        ({"dato_varslet": "2026-09-18", "bh_aksepterer_forsering": True}, "UNDER_BEHANDLING"),
+        ({"dato_varslet": "2026-09-18", "er_stoppet": True}, "UNDER_BEHANDLING"),
+    ],
+)
+def test_forseringssak_faar_aldri_lukket_status(felt, forventet):
+    """Besluttet av oppdragsgiver 23.09: forsering gis aldri en lukket status."""
+    assert _forsering(**felt).overordnet_status == forventet
+
+
+@pytest.mark.parametrize(
+    ("eo_status", "forventet"),
+    [
+        (EOStatus.UTKAST, "UTKAST"),
+        (EOStatus.UTSTEDT, "VENTER_PAA_SVAR"),
+        (EOStatus.REVIDERT, "VENTER_PAA_SVAR"),
+        (EOStatus.AKSEPTERT, "LUKKET"),
+        (EOStatus.BESTRIDT, "LUKKET"),
+    ],
+)
+def test_endringsordre_folger_ordrens_livslop(eo_status, forventet):
+    """Besluttet av oppdragsgiver 23.09: en EO er en ordre og forhandles ikke.
+
+    Bestrider TE, føres uenigheten videre i en KOE, og EO-saken er lukket.
+    """
+    state = SakState(
+        sak_id="EO-1",
+        sakstype=SaksType.ENDRINGSORDRE,
+        endringsordre_data=EndringsordreData(
+            eo_nummer="EO-1", beskrivelse="Endring", status=eo_status
+        ),
+    )
+    assert state.overordnet_status == forventet
+
+
+def test_bestridt_endringsordre_kan_fortsatt_revideres():
+    """LUKKET stenger ikke EO-livsløpet: EO-hendelsene er unntatt fra sperren."""
+    state = SakState(
+        sak_id="EO-1",
+        sakstype=SaksType.ENDRINGSORDRE,
+        endringsordre_data=EndringsordreData(
+            eo_nummer="EO-1", beskrivelse="Endring", status=EOStatus.BESTRIDT
+        ),
+    )
+    assert state.overordnet_status == "LUKKET"
+    revisjon = parse_event_from_request(
+        {
+            "sak_id": "EO-1",
+            "event_type": "eo_revidert",
+            "aktor_id": "bh",
+            "aktor_rolle": "BH",
+            "data": {"ny_revisjon_nummer": 1, "endringer_beskrivelse": "Justert omfang"},
+        }
+    )
+    resultat = BusinessRuleValidator().validate(revisjon, state)
+    assert resultat.violated_rule != "CASE_NOT_CLOSED", resultat.message
 
 
 # =============================================================================

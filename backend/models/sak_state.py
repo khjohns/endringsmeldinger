@@ -816,6 +816,33 @@ class FristTilstand(BaseModel):
 # ============ HOVEDMODELL ============
 
 
+def _forseringsstatus(forsering: ForseringData) -> str:
+    """Aldri en lukket status: TE kan oppdatere kostnader og stoppe etter BHs svar."""
+    if forsering.dato_varslet is None:
+        return "UTKAST"
+    if forsering.er_stoppet:
+        return "UNDER_BEHANDLING"
+    aksepterer = (
+        forsering.bh_respons.aksepterer
+        if forsering.bh_respons is not None
+        else forsering.bh_aksepterer_forsering
+    )
+    if aksepterer is None:
+        return "VENTER_PAA_SVAR"
+    return "UNDER_BEHANDLING" if aksepterer else "UNDER_FORHANDLING"
+
+
+def _endringsordrestatus(status: EOStatus) -> str:
+    """En endringsordre forhandles ikke. Er TE uenig, føres det videre i en KOE."""
+    return {
+        EOStatus.UTKAST: "UTKAST",
+        EOStatus.UTSTEDT: "VENTER_PAA_SVAR",
+        EOStatus.REVIDERT: "VENTER_PAA_SVAR",
+        EOStatus.AKSEPTERT: "LUKKET",
+        EOStatus.BESTRIDT: "LUKKET",
+    }[status]
+
+
 class SakState(BaseModel):
     """
     Aggregert tilstand for en hel sak.
@@ -1095,7 +1122,18 @@ class SakState(BaseModel):
         - UNDER_FORHANDLING: BH har avslått/delvis godkjent noe
         - OMFORENT: Alle aktive spor er godkjent
         - LUKKET: Saken er lukket (EO utstedt eller trukket)
+
+        Forsering og endringsordre har ikke de tre sporene og følger egne
+        livsløp (audit TFR-02, statusene besluttet av oppdragsgiver 23.09).
         """
+        if self.sakstype == SaksType.FORSERING and self.forsering_data is not None:
+            return _forseringsstatus(self.forsering_data)
+        if (
+            self.sakstype == SaksType.ENDRINGSORDRE
+            and self.endringsordre_data is not None
+        ):
+            return _endringsordrestatus(self.endringsordre_data.status)
+
         statuser = [
             self.grunnlag.status,
             self.vederlag.status,
