@@ -14,9 +14,9 @@ Opphever du et utsagn, skriv en datert merknad, også inn i det gamle dokumentet
 
 | Dokument | Hva det gir |
 | --- | --- |
-| [hovedplanen](plans/2026-09-16-godkjenning-og-varig-levering.md) | **Begynn her.** Sluttredigert 22.09. Eneste løpende kilde til plan og funnstatus: invarianter, beslutningsregister med åpne valg, funnregister, arbeidspakker og neste oppgave |
+| [hovedplanen](plans/2026-09-16-godkjenning-og-varig-levering.md) | **Begynn her.** Sluttredigert 22.09, endret 23.09 med beslutningen om direkte tilkobling og den nye pakken F0b. Eneste løpende kilde til plan og funnstatus: invarianter, beslutningsregister med åpne valg, funnregister, arbeidspakker og neste oppgave |
 | [`../AGENTS.md`](../AGENTS.md) | Lastes automatisk i hver sesjon: språk, domeneordliste, sikkerhetsinvarianter, resonneringsregler |
-| [handoff-2026-09-23-datalag-postgresql](handoff-2026-09-23-datalag-postgresql.md) | **Siste handoff.** B-02-runden, plattformsamtalen med IKT, forslag om alternativ C over direkte PostgreSQL, dokumentene som må oppdateres, og oppsett som Claude Code-prosjekt |
+| [handoff-2026-09-23-datalag-postgresql](handoff-2026-09-23-datalag-postgresql.md) | **Siste handoff.** B-02-runden, plattformsamtalen med IKT, alternativ C over direkte PostgreSQL (bekreftet 23.09), dokumentene som måtte oppdateres, og oppsett som Claude Code-prosjekt |
 | [handoff-2026-09-21-frister](handoff-2026-09-21-frister.md) | Forrige handoff. Fellene der gjelder fortsatt; planen og statusen der er innarbeidet i hovedplanen |
 
 Eldre handoffer står under [historikk](#historikk--bevart-ikke-gjeldende).
@@ -32,10 +32,10 @@ Eldre handoffer står under [historikk](#historikk--bevart-ikke-gjeldende).
 | [design: tilgangsmekanisme (B-02)](design-b02-tilgangsmekanisme-2026-09-22.md) · [oppdrag](prompt-b02-tilgangsmekanisme-2026-09-22.md) · [prototype](vedlegg/b02-prototype-2026-09-22/kjor.sh) · [oppdrag: uavhengig review](prompt-review-b02-tilgangsmekanisme-2026-09-22.md) | Grunnlag for B-02, ikke en beslutning. Tre alternativer mot trusselmodellen og F1. Anbefaler RLS for lesing, kommandoer for bindende skriving og skrivevakt på journalen. Prototype mot PostgreSQL 17 og PostgREST: 71 av 71 sjekker. TM-01: et selvsignert token kan velge `service_role` |
 | [redaksjonsprotokoll for hovedplanen](sluttredigering-hovedplan-2026-09-22.md) | Dekningsmatrise og rettelser fra sluttredigeringen 22.09. Ikke en kilde til løpende status |
 | [uavhengig review: tilgangsmekanisme (B-02)](review-b02-tilgangsmekanisme-2026-09-23.md) · [bevis og kjøreoppskrift](vedlegg/b02-prototype-2026-09-22/REVIEW.md) | RB2-01–08. Alternativ C kan legges til grunn med navngitte endringer. Originalbeviset bekreftet, fem nye mutasjoner, lokale tilleggsforsøk og ny katalogkontroll. Beslutningsstatus er uendret |
-| [design v2: tilgangsmekanisme (B-02)](design-b02-tilgangsmekanisme-v2-2026-09-23.md) · [prototype v2](vedlegg/b02-prototype-v2-2026-09-23/kjor.sh) | Svar på RB2-01–08. Forespørselsvakt (T1v) og direkte innlogging (T2) prøvd, operasjonsmodell for skrivevakten, notater gjennom kommandoer, strengere kontekst og identitet. Bygget som `postgres` uten superbrukerrettigheter: 155 av 155 sjekker, tolv mutasjoner røde. Seks beslutninger gjenstår |
+| [design v2: tilgangsmekanisme (B-02)](design-b02-tilgangsmekanisme-v2-2026-09-23.md) · [prototype v2](vedlegg/b02-prototype-v2-2026-09-23/kjor.sh) | Svar på RB2-01–08. Forespørselsvakt (T1v) og direkte innlogging (T2) prøvd, operasjonsmodell for skrivevakten, notater gjennom kommandoer, strengere kontekst og identitet. Bygget som `postgres` uten superbrukerrettigheter: 155 av 155 sjekker, tolv mutasjoner røde. **Alternativ C og T2 valgt 23.09**; fire beslutninger gjenstår |
 | [arkitekturpresiseringer 21.09](arkitekturforinger-2026-09-21.md) | AF-01–AF-06: vedtatte føringer. Innarbeidet i hovedplanen; ikke implementert |
-| [transaksjonsplanen](plans/2026-09-17-atomisk-utstedelse-og-outbox.md) | Underordnet delplan. Normativ for kommando-, låse- og worker-kontrakten i F2 |
-| [design: durable inbox og outbox](design-durable-inbox-outbox-2026-09-17.md) | Designet planen bygger på. Konkluderte uavhengig med «én database». Har formen på `vedlegg`, `kommando`, `utgaende_levering` og `innkommende_hendelse` |
+| [transaksjonsplanen](plans/2026-09-17-atomisk-utstedelse-og-outbox.md) | Underordnet delplan. Normativ for kommando-, låse- og worker-kontrakten i F2. «RPC» leses som databasekommando over direkte tilkobling (merknad 23.09) |
+| [design: durable inbox og outbox](design-durable-inbox-outbox-2026-09-17.md) | Designet planen bygger på. Konkluderte uavhengig med «én database» og «bytt klient først», som nå er F0b. Har formen på `vedlegg`, `kommando`, `utgaende_levering` og `innkommende_hendelse` |
 | [design: målskjema for databasen](design-maalskjema-database-2026-09-20.md) | Hvor skjemaet skal, justert av AF-01, AF-03 og AF-04 |
 
 **Konsolideringsrunden 21.–22.09 — historisk underlag for hovedplanen.**
@@ -152,7 +152,7 @@ Beskriver funksjon og dataflyt, ikke funn. Disse eldes saktere enn auditene.
 
 | Dokument | Emne |
 | --- | --- |
-| [arkitekturdiagrammer](arkitektur-diagrammer.md) | Systemoversikt |
+| [arkitekturdiagrammer](arkitektur-diagrammer.md) | Systemoversikt. Azure-skissen viser Azure SQL; foreløpig mål er Azure PostgreSQL (merknad 23.09) |
 | [Catenda: dataflyt](catenda-dataflyt.md) | Hva som utveksles, og hvordan prosjekt og bibliotek rutes |
 | [Catenda: innlogging](catenda-innlogging.md) | OAuth-flyten og prosjekttilgang |
 | [brev og intern godkjenning](brev-og-godkjenning.md) | Godkjenningskjede, fullmakt, brevgenerering |

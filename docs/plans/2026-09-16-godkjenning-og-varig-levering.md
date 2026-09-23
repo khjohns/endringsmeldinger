@@ -2,6 +2,8 @@
 
 **Opprettet:** 2026-09-16. **Sluttredigert:** 2026-09-22, mot commit
 `41c2a16191a5aadbe611e0958db8b93090b08027` (`main`).
+**Sist endret:** 2026-09-23, mot `b63f816` (`main`): beslutningen om alternativ C
+over direkte tilkobling (T2), se [3.1](#31-vedtatte-premisser-og-beslutninger).
 **Status:** Autoritativ plan og eneste løpende kilde til funnstatus.
 Appen er ikke i produksjon og har ingen reelle data.
 
@@ -36,6 +38,7 @@ ikke er vedtatt. Slike valg står som åpne beslutninger i
 | Denne planen | Autoritativ for plan, rekkefølge og funnstatus |
 | [Arkitekturføringene AF-01–AF-06](../arkitekturforinger-2026-09-21.md) | Vedtatte føringer. Normative for design, ikke implementert |
 | [Transaksjonsplanen](2026-09-17-atomisk-utstedelse-og-outbox.md) | Underordnet delplan. Normativ for kommando-, låse-, worker- og akseptansetestkontrakten der den er mer presis enn denne planen. Merknaden 21.09 der gjelder foran eldre tekst |
+| [Design v2 for B-02](../design-b02-tilgangsmekanisme-v2-2026-09-23.md) | Grunnlaget for alternativ C og transport T2, vedtatt 23.09. Normativt for F1 der det er mer presist enn denne planen. Punktene 3–6 i avsnitt 9 der er åpne |
 | [Målskjemaet](../design-maalskjema-database-2026-09-20.md) | Retning for skjemaet, justert av AF-01, AF-03 og AF-04 |
 | [Design: durable inbox og outbox](../design-durable-inbox-outbox-2026-09-17.md) | Designgrunnlag. Tabellnavnene der er forslag |
 | [Catenda-dataflyten](../catenda-dataflyt.md) | Referanse for API-kontrakter og tidligere levende tester |
@@ -86,15 +89,20 @@ Dokumentredigering lukker ingen kode- eller databasefeil.
 | Utkast | SQLite (`utkast_registry`) (L) | PostgreSQL med teamvern (F1) |
 | Vedleggsregister | SQLite (`vedlegg_registry`), ingen hash (L) | Vedleggstabell med hash, revisjon og karantenestatus (F2) |
 | Leveringsstatus | SQLite (`catenda_delivery_status`) (L) | Erstattes av outbox-kvitteringer (F3) |
-| Sammensatt skriving | `TrackingUnitOfWork` med kompenserende sletting (L, AP-04) | Én RPC per bindende kommando (F2) |
+| Sammensatt skriving | `TrackingUnitOfWork` med kompenserende sletting (L, AP-04) | Én transaksjon per bindende kommando, over direkte tilkobling til databasekommandoer (F0b, F2) |
 | Utgående levering | Synkront i forespørselen (H) | Outbox og worker. Foreløpige navn: `kommando`, `utgaende_levering` |
 | Webhook-mottak | Redis-/minnereservasjon før behandling (H) | Varig inbox. Foreløpig navn: `innkommende_hendelse` |
 | Tilgangslogg | Finnes ikke for forretningshendelser (OBS-01) | Logg for sensitive lesinger, eksport og endringer i fullmakt og tilgang |
-| Roller | Runtime bruker `service_role`. Alle policyer er `service_role / ALL / USING (true)` (D 20.09) | Avgrensede roller for runtime, worker, drift og migrering (AF-02) |
-| CI | Fire jobber, påkrevde på `main`. `database` bygger migrasjonene fra tom på PostgreSQL 17 med plattformstubben og kjører katalogtester (K 22.09) | Tester som logger inn med avgrensede roller (etter B-02) |
+| Roller | Runtime bruker `service_role`. Alle policyer er `service_role / ALL / USING (true)` (D 20.09) | Avgrensede roller for runtime, worker, drift og migrering (AF-02). Runtime logger inn direkte med en rolle som ikke kan bli `service_role` (T2, F1) |
+| CI | Fire jobber, påkrevde på `main`. `database` bygger migrasjonene fra tom på PostgreSQL 17 med plattformstubben og kjører katalogtester (K 22.09) | Repositoriene testes mot ekte PostgreSQL over samme tilkobling som produksjonen, med skrivbar testbase (F0b). Tester som logger inn med de avgrensede rollene (F1) |
 
 Tabellnavn i kolonnen «Planlagt» fastsettes i migrasjonene.
 Planen låser ikke et tabelltall.
+
+> **Merknad 2026-09-23 til 2.2:** Radene «Sammensatt skriving», «Roller» og
+> «CI» er endret etter beslutningen om direkte tilkobling (3.1). Før stod det
+> «Én RPC per bindende kommando» og «Tester som logger inn med avgrensede
+> roller (etter B-02)». Kolonnen «I dag» er uendret.
 
 ### 2.3 Invarianter
 
@@ -168,10 +176,35 @@ eksplisitt oppheves.
 | Aksept av avslag gir `AVSLATT_AKSEPTERT` | 19.09 | TFR-01 |
 | MG-02: webhook kan opprette brukerrader gjennom `koe_resolve_identity` | 21.09 | Gjennomført |
 | DB-05: `viewer` skal finnes som ren leserolle | 21.09 | Besluttet, ikke bygget |
-| PostgreSQL og RPC over PostgREST er utgangspunkt for transaksjoner | 16.–17.09, bekreftet i AF-02 | Én RPC er én transaksjon. Tas ikke opp igjen uten nytt konkret motbelegg |
+| ~~PostgreSQL og RPC over PostgREST er utgangspunkt for transaksjoner~~ | 16.–17.09, bekreftet i AF-02. **Opphevet 23.09** med TM-01 som motbelegg | Se raden under og merknaden etter tabellen |
+| PostgreSQL over direkte tilkobling er utgangspunkt for transaksjoner (B-02 alternativ C, transport T2) | 23.09, oppdragsgiver | Én bindende kommando er én transaksjon, over direkte tilkobling til databasekommandoer. Backend når basen med en databasedriver og vanlig SQL, ikke gjennom PostgREST og `supabase-py`. Tas ikke opp igjen uten nytt konkret motbelegg |
+| B-02 hovedvalg: alternativ C. RLS med kontekst for lesing, avgrensede `SECURITY DEFINER`-kommandoer for bindende skriving, og operasjonsmodellen for journal, saksregister og kø | 23.09, oppdragsgiver | Slik [design v2](../design-b02-tilgangsmekanisme-v2-2026-09-23.md) beskriver det. Punktene 3–6 i avsnitt 9 der står åpne under B-02. Uavhengig review før første F1-migrasjon gjelder fortsatt (22.09) |
+| Designet avhenger ikke av plattformen. Foreløpig mål er Azure Database for PostgreSQL (Flexible Server, versjon 17) | 23.09, oppdragsgiver | Alternativ C skal virke likt lokalt, i CI, på Supabase og på Azure. Vernet ligger i roller, RLS og funksjoner i ren PostgreSQL (kravet fra 22.09). Endelig plattform og hosting er B-12 |
+| TS2-02: JSON-hendelseslageret, CSV-metadatalageret og Supabase-lagrene går ut av kjøretidsstien | 23.09, oppdragsgiver, med beslutningen over | Tester som trenger ekte lagring, går mot PostgreSQL over samme tilkobling som produksjonen, med skrivbar testbase. Testdoblene som speiler Supabase-klienten, faller bort med lagrene (F0b) |
 | Leveringsmål fryses; samlet status skiller lagret, venter, usikkert og levert; fravær løses med sporbar ny godkjenning, ikke delt konto eller bypass | 16.–17.09 | Del av invariantene i 2.3 |
 | En enkel databasebasert worker, ikke en distribuert meldingsplattform | 17.09 | Volumet tilsier det |
 | Ingen utrulling før den samlede produksjonsporten er passert | 17.09 | F5 |
+
+> **Merknad 2026-09-23 til 3.1: direkte tilkobling erstatter RPC over PostgREST.**
+> Oppdragsgiver bekreftet 23.09 alternativ C med transport T2 fra
+> [design v2 for B-02](../design-b02-tilgangsmekanisme-v2-2026-09-23.md#9-hva-oppdragsgiver-må-avgjøre)
+> (punkt 1 og 2), og Azure PostgreSQL som foreløpig mål. Premisset «RPC over
+> PostgREST» fra 16.–17.09 er dermed opphevet. Motbelegget er TM-01: den som kan
+> signere et token for PostgREST, kan velge `service_role`. Med direkte
+> innlogging har runtime ingen nøkkel som velger rolle, og rollen kan ikke
+> `SET ROLE` til `service_role` eller eieren (K 23.09, prototype v2).
+>
+> Følgene: TM-01 og TM-09–TM-10 treffer ikke runtime når backend verken bruker
+> PostgREST eller har nøkler til det. Forespørselsvakten (T1v) og porten mot hostet PostgREST i v2
+> avsnitt 1 bortfaller. Python får ekte transaksjoner, og databasekommandoene
+> kalles med vanlig SQL. Lokal testing mot en egen PostgreSQL blir mulig uten
+> virksomhetens base. Kostnaden er den v2 navngir: databasedriver og pool i
+> Flask, og omskriving av repositoriene. Det er arbeidspakken F0b.
+>
+> Transaksjonsinvarianten (2.3, punkt 3) er uendret. Det som er byttet, er
+> veien fra backend til basen. Vedtak som nevner Supabase-konsollet, gjelder så
+> lenge Supabase er plattformen (B-12). Kilde:
+> [handoffen 23.09](../handoff-2026-09-23-datalag-postgresql.md), avsnitt 3 og 6.
 
 ### 3.2 Føringer AF-01–AF-06
 
@@ -191,13 +224,13 @@ Tilsluttet av oppdragsgiver 21.09. Føringer for design, ikke implementert.
 | Anbefaling | Kilde | Status |
 | --- | --- | --- |
 | Relasjonsprojeksjon med prosjektavgrensede fremmednøkler og én skriver | AF-03, RGK-04 | Foretrukket til vurdering, se B-01 |
-| Avgrenset runtime-rolle uten `BYPASSRLS`, RLS for lesing og avgrensede `SECURITY DEFINER`-funksjoner med egen autorisasjon, fast `search_path` og smal `EXECUTE` | RGK-04 | Ett mulig oppsett, se B-02 |
+| Avgrenset runtime-rolle uten `BYPASSRLS`, RLS for lesing og avgrensede `SECURITY DEFINER`-funksjoner med egen autorisasjon, fast `search_path` og smal `EXECUTE` | RGK-04 | Innarbeidet i alternativ C, vedtatt 23.09 (3.1) |
 | Gjør TST-02-reproduksjonen deterministisk, framfor å fjerne `strict=True` | RGK-04 | Anbefalt. Den nye testen fra 22.09 er ikke deterministisk (RTB-02) |
 | Forhåndsvalgte GUID-er for topic og kommentar | RGK2-01 | Kandidat. Ikke bevist idempotent (avsnitt 7) |
 | Køalarm ved 15 minutter; sletting av stagingfiler 24 timer etter kvittert levering | Konsolidering v2 | Forslag uten kilde, se B-09 |
 | Utgående kvote på 10 kall/s og innkommende grense 100 kall/s | Konsolidering v2 | Forslag uten kilde, se B-09 |
-| Fjern JSON-hendelseslageret og CSV-metadatalageret fra kjøretidsstien; tester som trenger ekte lagring, går mot PostgreSQL gjennom samme vei som produksjonen (RPC), med skrivbar testbase | [TS2-02](../gjennomforing-tst02-2026-09-22.md#ts2-02--reservelagrene-og-testene) | Forslag. Vurderes med B-02 og F1 |
-| Migrasjonsmappa som eneste kilde, anvendt med `supabase db push` | Masterplanen 20.09 | Repo-siden gjennomført (DA-03). Anvendelsesmekanismen gjenstår |
+| Fjern JSON-hendelseslageret og CSV-metadatalageret fra kjøretidsstien; tester som trenger ekte lagring, går mot PostgreSQL gjennom samme vei som produksjonen, med skrivbar testbase | [TS2-02](../gjennomforing-tst02-2026-09-22.md#ts2-02--reservelagrene-og-testene) | Vedtatt 23.09, utvidet til Supabase-lagrene (3.1) |
+| Migrasjonsmappa som eneste kilde, anvendt med `supabase db push` | Masterplanen 20.09 | Repo-siden gjennomført (DA-03). Anvendelsesmekanismen gjenstår. `supabase db push` gjelder bare på Supabase; på Azure trengs en annen vei fra fil til base (B-12) |
 
 ### 3.4 Åpne beslutninger
 
@@ -207,16 +240,17 @@ Et åpent valg blokkerer bare oppgavene som er nevnt.
 | ID | Spørsmål | Alternativer | Anbefaling (kilde) | Ansvarlig | Belegg som trengs | Blokkerer |
 | --- | --- | --- | --- | --- | --- | --- |
 | B-01 | Hvordan skal relasjoner mellom saker lagres? | (a) Relasjonsprojeksjon med prosjektavgrensede fremmednøkler, én skriver. (b) Utledning fra hendelsenes jsonb med GIN-indeks. (c) Reservasjonstabell for KOE-tilknytning pluss (a) eller (b) | (a) er foretrukket til vurdering (AF-03). En GIN-indeks er ikke et revisjonsspor (RGK-04) | Utvikler, med review. Ikke utpekt | Sammenlikning mot referanseintegritet, eksklusivitet, gjenoppbygging og samtidighet | KOE-tilknytning og relasjoner i F2. DB-04, MS-08 |
-| B-02 | Hvilken tilgangsmekanisme skal datalaget ha? | RLS med kontekst, avgrensede funksjoner, eller begge. `SECURITY INVOKER` eller `DEFINER`. Hvordan identitet, prosjekt og team føres inn, og av hvem | Utform rolle, identitetskontekst og funksjoner samlet (AF-01, AF-02, RGK-04). RLS med kontekst som backend selv setter, verner ikke mot en overtatt backend | Utvikler, med uavhengig review. Ikke utpekt | Trusselmodell som skiller glemt filter, ondsinnet bruker, kompromittert runtime/worker og databaseadministrator. Test av gjenbrukte forbindelser | F1-migrasjoner for roller og private lagre. F2-kommandoens rettigheter |
+| B-02 | Hvilken tilgangsmekanisme skal datalaget ha? | RLS med kontekst, avgrensede funksjoner, eller begge. `SECURITY INVOKER` eller `DEFINER`. Hvordan identitet, prosjekt og team føres inn, og av hvem | Utform rolle, identitetskontekst og funksjoner samlet (AF-01, AF-02, RGK-04). RLS med kontekst som backend selv setter, verner ikke mot en overtatt backend | Utvikler, med uavhengig review. Ikke utpekt | Trusselmodell som skiller glemt filter, ondsinnet bruker, kompromittert runtime/worker og databaseadministrator. Test av gjenbrukte forbindelser | F1-migrasjoner for roller og private lagre. F2-kommandoens rettigheter. **Delvis avgjort 23.09:** alternativ C og T2 (3.1). Åpne: punkt 3–6 i v2 avsnitt 9 |
 | B-03 | Hvilken dokument- og brevmodell skal gjelde i Catenda? | Samlet saksdokument med revisjoner; separate brev; separate brev per part og spor ([Catenda-dataflyten, avsnitt 11](../catenda-dataflyt.md#11-åpent-adr-dokument--og-brevmodell)) | Ingen. `failOnDocumentExists` følger av valget: `true` passer en strategi med unikt navn per brev, `false` en bevisst revisjonsflyt | Produkteier med utvikler. Ikke utpekt | ADR med dokumentnøkkel, navnestandard og avstemming etter tapt svar | Dokumentoperasjonen i F2-workeren og alle senere dokumentadaptere |
 | B-04 | Når får tilbakekalt medlemskap eller fullmakt virkning? | Straks for alt; straks for nye handlinger, men ventende pakker returneres; frist før virkning | Ingen. At journalen er uforanderlig, sier ikke noe om rettslig gyldighet | Oppdragsgiver (kontraktsside), ikke utpekt | Kontraktsmessig vurdering av utkast, ventende godkjenning og allerede committede brev | Tilbakekallingsatferd i F1. Eventuell medlemskapscache |
 | B-05 | Hvilke bevaringskrav gjelder utover journalen? | Bevaringstid for journal, filer, logger, backup og stagingfiler | P7 fastsetter bare at journalen bevares uten kryptografisk sletting | Behandlingsansvarlig, med råd fra personvernombudet | DPIA og arkivfaglig vurdering | Bevarings- og sletteregler i F4. Produksjonsport |
 | B-06 | Hvilken fullmakt kreves når dagmulktssats mangler? | Kjedens toppnivå; avvisning; manuell verdsetting | Ingen | Oppdragsgiver (BH-siden), ikke utpekt | Domenevurdering | Restansen på GFK-01/FE-04 |
-| B-07 | Hvilken drivmekanisme skal workeren ha? | Tabell med `SKIP LOCKED`, `pgmq`, Cloud Tasks, Cloud Scheduler, fast instans | Én kømekanisme; tabell og `SKIP LOCKED` er beskrevet i transaksjonsplanen | Utvikler, ikke utpekt | Plattformens skalering til null og krav om start uten brukerhandling | Minimal worker i F2 |
+| B-07 | Hvilken drivmekanisme skal workeren ha? | Tabell med `SKIP LOCKED`, `pgmq`, Cloud Tasks, Cloud Scheduler, jobber i Azure Container Apps, fast instans | Én kømekanisme; tabell og `SKIP LOCKED` er beskrevet i transaksjonsplanen | Utvikler, ikke utpekt | Plattformens skalering til null og krav om start uten brukerhandling | Minimal worker i F2 |
 | B-08 | Kan en KOE tilhøre flere endringsordrer? | Eksklusiv; flere med regler | Fastsett forretningsregelen før reservasjonsskjemaet låses (transaksjonsplanen) | Domeneansvarlig, ikke utpekt | NS 8407-vurdering | KOE-reservasjon i F2 |
 | B-09 | Hvilke driftsverdier gjelder? | Kapasitet, svartid, køalarm, rate limits, oppbevaring av stagingfiler | Tall i 3.3 er forslag uten kilde | Driftsansvarlig, ikke utpekt | Lastforutsetninger, Catendas kvoter, fristkrav | Akseptkriterier for kapasitet og varsling i F3 |
 | B-10 | Hvordan versjoneres hendelsesformat og regler? | Versjonsfelt per hendelse; oppgraderingsfunksjoner; regelversjon i projeksjonen. `UP042` (`StrEnum`) avhenger av dette | Dokumentert strategi (AF-05) | Utvikler, ikke utpekt | Test av gamle strømmer mot ny kode og tilbakerulling | Kompatibilitetskravet i F2 |
 | B-11 | Hvilken tidskilde og forvaringskjede skal eksporten bygge på? | Servertid med synkroniseringsgaranti; ekstern tidsstempling; begge | Ingen | Oppdragsgiver med driftsansvarlig, ikke utpekt | Krav ved preklusjonstvist | Eksport i F4 |
+| B-12 | Hvilken plattform skal basen og backend kjøre på? | Database: Azure Database for PostgreSQL (Flexible Server, 17) eller Supabase. Backend: Azure Container Apps eller App Service (Web App for Containers) | Azure PostgreSQL er foreløpig mål (oppdragsgiver 23.09). Begge hostingvalgene virker; Container Apps har jobber som kan drive workeren (B-07). Azure SQL velges ikke uten en konkret grunn fra IKT, fordi det krever et nytt datalag i T-SQL. Fabric er rapportering, ikke backend | Oppdragsgiver med IKT | Svar fra IKT om hosting og database, og tilgang til deploy, Key Vault og en offentlig HTTPS-adresse for Catenda-webhooks | Container og utrulling i F0b. Veien fra migrasjonsfil til base. Plattformkonfigurasjon i F5 |
 
 > **Merknad 2026-09-22 til B-02:** Designgrunnlaget finnes:
 > [design-b02-tilgangsmekanisme-2026-09-22.md](../design-b02-tilgangsmekanisme-2026-09-22.md).
@@ -255,6 +289,21 @@ Et åpent valg blokkerer bare oppgavene som er nevnt.
 > Supabase (155 av 155 sjekker, tolv mutasjoner røde, K 23.09). Nye funn:
 > TM-09–TM-12. Seks punkter står igjen for oppdragsgiver (avsnitt 9 der). Et av
 > dem er om premisset i 3.1 skal endres. B-02 og B-04 er fortsatt åpne.
+
+> **Merknad 2026-09-23 til B-02 (beslutning):** Oppdragsgiver har valgt
+> alternativ C og transport T2 (v2 avsnitt 9, punkt 1 og 2). Premisset i 3.1 er
+> endret tilsvarende; se merknaden der. Med T2 bortfaller porten mot hostet
+> PostgREST. Fire punkter står åpne: godkjenning ved overtatt runtime (3),
+> kontraktsteam og prosjektregistrering (4), klokken for tilbakekalling, som
+> også er B-04 (5), og break-glass (6). De må være avgjort før første rolle-
+> eller policymigrasjon i F1. Kravet om uavhengig review før F1 står.
+
+> **Merknad 2026-09-23 til B-12:** Ny åpen beslutning. IKT svarte at både
+> Azure SQL og PostgreSQL kan brukes; oppdragsgiver har foreslått PostgreSQL.
+> Fabric kan speile fra Azure PostgreSQL (versjon 14–18, ikke Burstable-nivå).
+> Speiles basen, må interne notater holdes utenfor speilingen eller skjermes der
+> ([vurderingen av Power Platform](../vurdering-power-platform-2026-09-17.md),
+> del 5). Opplysningene om Fabric er ikke kontrollert i denne planen.
 
 ## 4. Funnregister
 
@@ -470,6 +519,10 @@ Organisatoriske avklaringer (F5) kan starte nå.
 «Tester som beviser» er planlagt kontroll. Ingenting her er utført uten at
 det står.
 
+> **Merknad 2026-09-23 til avsnitt 5:** F0b er ny og kommer mellom F0 og F1.
+> Den følger av beslutningen om direkte tilkobling (3.1). Pakkene er ikke
+> omnummerert, fordi F1–F5 er referert fra mange dokumenter.
+
 ### F0 — Verifikasjonsgrunnlag
 
 **Avhenger av:** ingenting. **Status:** delvis. CI kjører backend, frontend,
@@ -534,10 +587,61 @@ historikk og mappa stemmer.
 **Tester som beviser:** katalogtestene i T-2; en test som viser at
 `anon` og `authenticated` ikke leser tabeller eller kjører funksjoner.
 
+### F0b — Datalaget over direkte tilkobling
+
+**Avhenger av:** F0-jobben og beslutningen i 3.1 (23.09). Containerdelen
+avhenger av B-12. **Status:** ikke påbegynt.
+
+F0b bytter veien fra backend til basen, ikke rettighetene. Før F1-rollene
+finnes, kobler backend til med de rettighetene den har i dag. Det er ikke en
+produksjonstilstand; F1 og produksjonsporten gjelder uendret.
+
+**Leveranse:**
+
+1. **Kjernen:** `lib/db` med pool og en `transaksjon(kontekst)`-hjelper som
+   setter rolle og krav transaksjonslokalt (`SET LOCAL ROLE`,
+   `set_config(..., true)`) inne i en eksplisitt transaksjon. Miljøvalg med
+   `DATABASE_URL`. Lokal oppstart med `scripts/testbase/bygg_testbase.sh`, som
+   skript eller Docker Compose. En skrivbar testfixture ved siden av den
+   lesende. Feilklassifisering for driveren: en avvisning som aldri kan lykkes,
+   er `PermanentError`; versjonskonflikt får en egen SQLSTATE og prøves ikke
+   blindt på nytt. Kjernen definerer `core/container.py` og testfixturene
+   ferdig, fordi det er der trådene i punkt 2 ellers kolliderer.
+2. **Repositoriene** bak dagens grensesnitt, med tester mot ekte PostgreSQL:
+   (a) hendelse og notat, (b) saksmetadata, relasjoner og BIM, (c) identitet,
+   sesjoner, medlemskap og prosjekter, med de fire funksjonene
+   `koe_resolve_identity`, `koe_reconcile_memberships`, `koe_register_project`
+   og `koe_set_contract_teams` kalt med vanlig SQL, (d) Catenda-konfigurasjon.
+3. **TS2-02:** JSON-, CSV- og Supabase-lagrene og testdoblene som speiler
+   Supabase-klienten, ut av kjøretidsstien, når alle repositoriene er inne.
+4. **Container:** Dockerfile for backend og GitHub Actions for utrulling, når
+   B-12 er avklart.
+5. Migrasjonene forutsetter plattformrollene og skjemaet `auth` fra
+   plattformstubben. Det må løses før de kan anvendes utenfor Supabase (B-12).
+
+**Akseptkriterier:** samme kode virker lokalt, i CI og mot målplattformen;
+ingen modul i kjøretidsstien importerer `supabase`; hver repositoriemetode
+har en test mot ekte PostgreSQL i CI; en feil midt i en transaksjon etterlater
+ingen delvise skrivinger; kontekst fra én forespørsel finnes ikke på en
+gjenbrukt forbindelse etter commit eller rollback, og en variabel som har vært
+satt, leses som tom, ikke som `NULL`.
+
+**Kontroll:** kjernen får uavhengig review i en egen tråd før repositoriene
+bygges på den. Repositoriene får tester og `/code-review` per PR, og
+`/simplify` samlet når alle er inne. `/simplify` skal la
+sikkerhetskontrollene stå: `SET LOCAL` og transaksjonslokal kontekst,
+`nullif(..., '')`, fail-closed-kontroller som ser dobbelte ut, eksplisitte
+`REVOKE`-er og like svar for «ukjent» og «ikke tilgang». Oppsettet står i
+[handoffen 23.09](../handoff-2026-09-23-datalag-postgresql.md), avsnitt 7.
+
+**Tester som beviser:** repositorietestene mot PostgreSQL i CI; en test med
+pool på én forbindelse som viser at kontekst ikke lekker; en test per
+feilklasse i driveren.
+
 ### F1 — Sikkerhetsgrenser i datalaget og private lagre
 
-**Avhenger av:** F0-jobben; B-02 før rolle- og policymigrasjoner; B-04 for
-tilbakekallingsdelen. Før neste migrasjon for målmodellen må tilgangs- og
+**Avhenger av:** F0-jobben og F0b; B-02 før rolle- og policymigrasjoner; B-04
+for tilbakekallingsdelen. Før neste migrasjon for målmodellen må tilgangs- og
 skriverettigheter være konkretisert. Runtime bygges ikke på ubegrenset
 `service_role`.
 
@@ -572,14 +676,15 @@ tar ikke med kontekst til neste forespørsel. Runtime kan ikke `UPDATE`,
 ligger i PostgreSQL. Migrering og break-glass er separat, tidsavgrenset og logget.
 
 **Tester som beviser:** negative tester mot ekte PostgreSQL per scenario over;
-rettighetstester for hver rolle; Data API-test for `anon` og anonymt innlogget
-`authenticated`.
+rettighetstester for hver rolle; en test som viser at runtime-innloggingen ikke
+kan `SET ROLE` til `service_role` eller eieren (T2); Data API-test for `anon` og
+anonymt innlogget `authenticated` så lenge basen ligger hos Supabase (B-12).
 
 ### F2 — Én komplett EO-flyt med minimal worker
 
-**Avhenger av:** F1-rollene; B-01 for KOE-tilknytning og relasjoner; B-08 for
-reservasjonen; B-03 for dokumentoperasjonen; B-07 for drivmekanismen; B-10 for
-kompatibilitetskravet.
+**Avhenger av:** F0b og F1-rollene; B-01 for KOE-tilknytning og relasjoner; B-08
+for reservasjonen; B-03 for dokumentoperasjonen; B-07 for drivmekanismen; B-10
+for kompatibilitetskravet.
 
 **Leveranse:** Kontrakten i
 [transaksjonsplanen](2026-09-17-atomisk-utstedelse-og-outbox.md) er normativ.
@@ -587,12 +692,13 @@ Testkravene fastsettes før implementering, og én ansvarlig beholder oversikten
 over transaksjonsgrensene. En grønn suite erstatter ikke dokumentasjon av hva
 som er testet. Kort:
 
-1. `commit_eo_approval` som én RPC: kommandokvittering kontrolleres under lås;
-   policy, pakke og saksstrømmer låses i dokumentert rekkefølge; pakkeversjon,
-   godkjenner, fullmakt, policyversjon og frosset innhold kontrolleres (RV-02,
-   RV-19, RV-20); EO-nummer og KOE-tilknytning reserveres; hendelser, metadata,
-   relasjoner, vedleggsbinding, pakkestatus, outbox og kvittering skrives
-   samlet. Ingen kompensasjonssletting (AP-04, TST-05).
+1. `commit_eo_approval` som én databasekommando i én transaksjon over direkte
+   tilkobling (3.1, endret 23.09 fra «én RPC»): kommandokvittering kontrolleres
+   under lås; policy, pakke og saksstrømmer låses i dokumentert rekkefølge;
+   pakkeversjon, godkjenner, fullmakt, policyversjon og frosset innhold
+   kontrolleres (RV-02, RV-19, RV-20); EO-nummer og KOE-tilknytning reserveres;
+   hendelser, metadata, relasjoner, vedleggsbinding, pakkestatus, outbox og
+   kvittering skrives samlet. Ingen kompensasjonssletting (AP-04, TST-05).
 2. Vedleggstabell med hash, dokumentversjon og karantenestatus. Skanning før
    frigivelse. Staging med opprydding av foreldreløse filer.
 3. Minimal worker: `SKIP LOCKED` i kort transaksjon, lease-token, backoff med
@@ -676,7 +782,8 @@ i så fall erstatte punktet med en referanse. Status er ikke innhentet for noen.
   dokumentert RPO og RTO, uten blind ny levering.
 - Isolert staging med eget Catenda-testprosjekt.
 - Konfigurasjon utenfor koden: policy med `user_id` (RV-03), Supabase-konsollet
-  (RV-06), produksjonshemmeligheter (CFG-01).
+  (RV-06) så lenge Supabase er plattformen, eller tilsvarende på Azure (B-12),
+  produksjonshemmeligheter (CFG-01).
 - Uavhengig sluttaudit av F2 og F3: samtidige forsøk, utløpte leases, mistede
   eksterne svar.
 
@@ -711,26 +818,33 @@ RC-10 i spor H; RC-9 i F3 og spor H; RC-11 lukket med FE-01 og FE-05; RC-12 i F4
 
 ## 6. Neste gjennomførbare oppgave
 
-**Start med F0, punkt 1: PostgreSQL 17 i CI.** Oppgaven krever ingen
-beslutning. Den gir grunnlaget alle senere akseptkriterier skal kjøres på.
+> **Merknad 2026-09-23 til avsnitt 6:** Forrige neste oppgave, F0 punkt 1
+> (PostgreSQL 17 i CI), er gjort 22.09 (PR #33), og det samme er T-1 til T-5,
+> utenom DB-04s fremmednøkler (B-01).
+> Neste oppgave er nå F0b, etter beslutningen om direkte tilkobling (3.1).
 
-1. Legg til en CI-jobb som starter PostgreSQL 17, oppretter plattformstubben
-   (`anon`, `authenticated`, `service_role`, skjemaet `auth`), kjører
-   `supabase/migrations/*.sql` i sortert rekkefølge og deretter et nytt
-   testmerke for databasetester.
-2. Første test: katalogkontroll for DB-03 og DB-07 (T-2), og at `anon` og
-   `authenticated` ikke har tabellrettigheter.
-3. Deretter T-1, T-3 og T-5, som er små.
+**Start med F0b, punkt 1: kjernen.** Den avgjør formen på alt som kommer etter,
+og er det eneste i F0b som ikke bør deles mellom tråder. Den krever ingen ny
+beslutning.
 
-Parallelt kan spor D starte, for eksempel TFR-04, som har en isolert
-reproduksjon. Samtidig bør designarbeidet for B-02 begynne, fordi det
-blokkerer F1-migrasjonene.
+1. `lib/db` med pool, `transaksjon(kontekst)`, miljøvalg og feilklassifisering,
+   med lokal oppstart og skrivbar testfixture.
+2. Uavhengig review av kjernen i en egen tråd.
+3. Deretter repositoriene, ett eller to per tråd, parallelt. TS2-02 når alle er
+   inne.
+
+[Prototype v2](../vedlegg/b02-prototype-v2-2026-09-23/kjor.sh) viser
+konteksthåndteringen over direkte innlogging og kan brukes som mønster, ikke
+som kode. Parallelt kan spor D gå, med BR-01 først reprodusert eller avvist, og
+containerdelen av F0b når IKT har svart (B-12). F1-migrasjonene venter på de
+fire åpne punktene i B-02.
 
 **Beslutninger som blokkerer senere arbeid:**
 
 | Beslutning | Må være tatt før |
 | --- | --- |
-| B-02 tilgangsmekanisme | Første rolle- eller policymigrasjon i F1 |
+| B-02 punkt 3–6 i v2 avsnitt 9 (hovedvalget er tatt 23.09) | Første rolle- eller policymigrasjon i F1 |
+| B-12 plattform og hosting | Container og utrulling i F0b, veien fra migrasjonsfil til base, plattformkonfigurasjon i F5 |
 | B-04 tilbakekalling | Tilbakekallingsdelen av F1 |
 | B-01 relasjoner, B-08 KOE-eksklusivitet | Reservasjonsskjemaet i F2 |
 | B-03 dokumentmodell | Dokumentoperasjonen i F2-workeren |
@@ -802,3 +916,9 @@ Catenda-tester fra 3. september.
 levende Catenda-atferd, organisatoriske prosesser og rettslige krav.
 Funn fra auditene 14.–16.09 som ikke har vært ført i denne planen, er ikke
 registrert på nytt enkeltvis.
+
+**Endringen 23.09** er dokumentarbeid: oppdragsgivers beslutning om alternativ C
+og T2, Azure PostgreSQL som foreløpig mål, TS2-02 vedtatt, B-12 og F0b. Kilden er
+oppdragsgivers bekreftelse 23.09 og [handoffen](../handoff-2026-09-23-datalag-postgresql.md).
+Ingen kode, migrasjon eller database er endret eller lest på nytt. Påstandene om
+Azure, Fabric og IKTs svar er gjengitt fra handoffen og ikke kontrollert her.

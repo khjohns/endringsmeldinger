@@ -19,6 +19,15 @@ merget). To PR-er er åpne og grønne i CI:
 
 Ingen produksjonskode, migrasjon eller database er endret siden forrige handoff.
 
+> **Merknad 2026-09-23 (fase 0):** Oppdragsgiver har bekreftet alternativ C med
+> transport T2 og Azure PostgreSQL som foreløpig mål. Det som i avsnitt 3 står
+> som «heller mot, men har ikke formelt vedtatt», er vedtatt, og
+> dokumentoppdateringene i avsnitt 6 er gjort, bortsett fra `AGENTS.md`, som
+> venter til byttet er gjennomført. Beslutningen står i hovedplanen
+> [3.1](plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger),
+> plattformvalget som B-12, og fase 1–3 i avsnitt 7 som arbeidspakken F0b.
+> #39 og #40 er merget.
+
 ---
 
 ## 1. Les i denne rekkefølgen

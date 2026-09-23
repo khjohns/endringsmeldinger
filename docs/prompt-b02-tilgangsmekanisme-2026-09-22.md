@@ -36,6 +36,16 @@ Besvart 22.09, før designarbeidet begynte.
   standardrettigheter. Da kan det flyttes til en annen PostgreSQL.
   Azure SQL-skissen i `docs/arkitektur-diagrammer.md` er historikk og strider
   mot 3.1.
+
+  > **Merknad 2026-09-23 til plattformsvaret:** Foreløpig målplattform er nå
+  > Azure Database for PostgreSQL (Flexible Server, versjon 17), med backend i
+  > Azure Container Apps eller App Service. Endelig valg er B-12 i
+  > [hovedplanen](plans/2026-09-16-godkjenning-og-varig-levering.md#34-åpne-beslutninger).
+  > Portabilitetskravet over står: vernet skal ligge i ren PostgreSQL og kunne
+  > flyttes. Oppdragsgiver har valgt alternativ C med direkte tilkobling (T2),
+  > så backend skal ikke lenger gå gjennom PostgREST. Når byttet er gjort,
+  > faller begrunnelsen for at Data API-et forblir på, bort; om det kan slås av så lenge basen
+  > ligger hos Supabase, er ikke avgjort.
 - **Klienttilgang til Data API:** Nei. Bare backend snakker med basen. `anon`
   og `authenticated` skal ha null rettigheter på tabeller og funksjoner, og en
   test skal håndheve det. Data API-et forblir på, fordi backendens RPC går

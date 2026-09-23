@@ -8,6 +8,17 @@ Oppdragsgivers svar står i [oppdraget](prompt-b02-tilgangsmekanisme-2026-09-22.
 **Status:** revidert designgrunnlag. B-02 og B-04 er åpne. Dokumentet avgjør
 ingenting. Det svarer på hvert navngitte endringskrav fra reviewet.
 
+> **Merknad 2026-09-23: T2 er valgt.** Oppdragsgiver har valgt alternativ C og
+> transport T2 (avsnitt 9, punkt 1 og 2). Anbefalingen om T1v i sammendraget og
+> avsnitt 1 er dermed ikke fulgt. Forespørselsvakten og porten mot hostet
+> PostgREST bortfaller, og TM-09 og TM-10 gjelder ikke en backend uten
+> PostgREST. Premisset i hovedplanens 3.1 er endret; se
+> [merknaden der](plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger).
+> Punkt 3–6 i avsnitt 9 er åpne. Det som står om T2 i avsnitt 7, gjelder
+> fortsatt: Supavisor er ikke prøvd, og tidsgrensene er satt, men ikke
+> observert som atferd. Foreløpig målplattform er Azure PostgreSQL. Der er
+> Supavisor ikke aktuelt, men poolingen fra F0b må prøves på samme måte.
+
 ## Sammendrag
 
 Anbefalingen er fortsatt alternativ C, med endringene reviewet krevde:
