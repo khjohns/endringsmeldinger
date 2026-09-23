@@ -368,6 +368,16 @@ ikke et universelt vern for eksisterende sesjoner eller andre innloggingsveier;
 [PostgreSQLs rolledefinisjon](https://www.postgresql.org/docs/17/sql-createrole.html)
 må legges til grunn for en konkret prosedyre.
 
+Migreringsrettighetene har også et konkret hull i prototypen (L/Dok):
+`koe_identitet` får USAGE, men ikke CREATE i `koe_privat` og `public` før
+funksjonene overføres. For en ikke-superbruker krever
+[`ALTER FUNCTION ... OWNER`](https://www.postgresql.org/docs/17/sql-alterfunction.html)
+både mulighet til å sette den nye eierrollen og CREATE for den nye eieren i
+funksjonens skjema. Laget gir CREATE til `koe_kommando` i `koe_api`, men ikke
+til identitetseieren i de to andre skjemaene. Før migrasjonen må de nødvendige
+midlertidige rettighetene, tilbakekallingen av dem og faktisk migreringsrolle
+inngå i oppsett og test. Dette er ikke prøvd som hostet `postgres`.
+
 F1s øvrige leveranser trenger også sporbare kontroller: tilgangslogg for
 sensitive lesinger/eksport, logg ved myndighetsendringer, hemmelighetsrotasjon,
 autorisasjon før aggregering/PDF og avvikling av gamle tilgangstabeller.
