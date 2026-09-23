@@ -69,7 +69,7 @@ def _copy_fields_if_present(source: Any, target: Any, fields: list[str]) -> None
     Copy fields from source to target if they exist on source and are not None.
 
     This helper reduces repetitive hasattr/setattr patterns in event handlers.
-    0, 0.0 and False are values and are copied (audit TFR-04).
+    0, 0,0, False og tom tekst er verdier og kopieres (audit TFR-04).
 
     Args:
         source: Source object to copy from (e.g., event.data)
@@ -755,10 +755,7 @@ class TimelineService:
             vederlag.godkjent_belop = event.data.total_godkjent_belop
 
         # Subsidiært standpunkt - triggers needs .value extraction
-        if (
-            hasattr(event.data, "subsidiaer_triggers")
-            and event.data.subsidiaer_triggers
-        ):
+        if getattr(event.data, "subsidiaer_triggers", None) is not None:
             vederlag.subsidiaer_triggers = [
                 t.value if hasattr(t, "value") else t
                 for t in event.data.subsidiaer_triggers
@@ -843,10 +840,7 @@ class TimelineService:
         )
 
         # Subsidiært standpunkt - triggers needs .value extraction
-        if (
-            hasattr(event.data, "subsidiaer_triggers")
-            and event.data.subsidiaer_triggers
-        ):
+        if getattr(event.data, "subsidiaer_triggers", None) is not None:
             frist.subsidiaer_triggers = [
                 t.value if hasattr(t, "value") else t
                 for t in event.data.subsidiaer_triggers
