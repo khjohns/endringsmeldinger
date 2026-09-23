@@ -1,5 +1,16 @@
 # Atomisk utstedelse og varig levering
 
+> **Merknad 2026-09-23: direkte tilkobling.** Backend skal nå basen over
+> direkte tilkobling, ikke over PostgREST (hovedplanen
+> [3.1](2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger),
+> vedtatt 23.09). Der det under står «RPC», les en databasekommando som backend
+> kaller med vanlig SQL i én transaksjon. Kommando-, låse-, worker- og
+> akseptansetestkontrakten er uendret. Blokkeringen «et REST-kall kan ikke være
+> med i en transaksjon» faller bort: med direkte tilkobling kan Python åpne en
+> transaksjon og kjøre flere setninger i den. Invarianten om én kommando per transaksjon står
+> likevel, og rettighetsmodellen følger alternativ C (B-02), ikke
+> `SECURITY INVOKER` med backend-tilgang som i avsnittet om kommandoen.
+
 > **Merknad 2026-09-22:** Delplanen er underordnet den
 > [sluttredigerte hovedplanen](2026-09-16-godkjenning-og-varig-levering.md).
 > Kommando-, låse-, worker- og akseptansetestkontrakten her er normativ for F2.
