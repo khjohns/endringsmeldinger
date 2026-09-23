@@ -181,6 +181,10 @@ eksplisitt oppheves.
 | B-02 hovedvalg: alternativ C. RLS med kontekst for lesing, avgrensede `SECURITY DEFINER`-kommandoer for bindende skriving, og operasjonsmodellen for journal, saksregister og kø | 23.09, oppdragsgiver | Slik [design v2](../design-b02-tilgangsmekanisme-v2-2026-09-23.md) beskriver det. Punktene 3–6 i avsnitt 9 der står åpne under B-02. Uavhengig review før første F1-migrasjon gjelder fortsatt (22.09) |
 | Designet avhenger ikke av plattformen. Foreløpig mål er Azure Database for PostgreSQL (Flexible Server, versjon 17) | 23.09, oppdragsgiver | Alternativ C skal virke likt lokalt, i CI, på Supabase og på Azure. Vernet ligger i roller, RLS og funksjoner i ren PostgreSQL (kravet fra 22.09). Endelig plattform og hosting er B-12 |
 | TS2-02: JSON-hendelseslageret, CSV-metadatalageret og Supabase-lagrene går ut av kjøretidsstien | 23.09, oppdragsgiver, med beslutningen over | Tester som trenger ekte lagring, går mot PostgreSQL over samme tilkobling som produksjonen, med skrivbar testbase. Testdoblene som speiler Supabase-klienten, faller bort med lagrene (F0b) |
+| B-02 punkt 3: «ikke omgå godkjenning» betyr prosedyregaranti (v2 avsnitt 5, alternativ a) | 23.09, oppdragsgiver | En EO utstedes bare gjennom kommandoen, og kommandoens regler holder: pakke, policyversjon, fullmakt og side. At en overtatt runtime kan opptre som en godkjenner, er restrisiko. Den føres i ROS-analysen og vurderes på nytt før produksjon (F5). Bevis på menneskelig godkjenning (b) bygges ikke nå |
+| B-02 punkt 4: prosjekt og kontraktsteam registreres bare av drift (TM-12) | 23.09, oppdragsgiver | En navngitt administrator bestemmer hvilke Catenda-team som representerer TE og BH. Runtime får ikke kalle `koe_register_project` eller `koe_set_contract_teams` (F1) |
+| B-02 punkt 5 og B-04: tilbakekalling | 23.09, oppdragsgiver | Se merknaden under B-04. Rett til nye handlinger opphører straks systemet har registrert endringen; en gitt godkjenning står; utkast blir hos teamet; ved utdatert medlemsliste fortsetter appen, og drift varsles |
+| B-02 punkt 6: break-glass er navngitt, tidsbegrenset og logget | 23.09, oppdragsgiver | Prosedyren i v2 avsnitt 8: én person, én hendelse, bare de rettighetene hendelsen krever, fjernet etterpå, alt logget. To-personskontroll og varsel til motparten kreves ikke. Hvem som kan få og godkjenne nødtilgang, avklares i F5 |
 | Leveringsmål fryses; samlet status skiller lagret, venter, usikkert og levert; fravær løses med sporbar ny godkjenning, ikke delt konto eller bypass | 16.–17.09 | Del av invariantene i 2.3 |
 | En enkel databasebasert worker, ikke en distribuert meldingsplattform | 17.09 | Volumet tilsier det |
 | Ingen utrulling før den samlede produksjonsporten er passert | 17.09 | F5 |
@@ -240,9 +244,9 @@ Et åpent valg blokkerer bare oppgavene som er nevnt.
 | ID | Spørsmål | Alternativer | Anbefaling (kilde) | Ansvarlig | Belegg som trengs | Blokkerer |
 | --- | --- | --- | --- | --- | --- | --- |
 | B-01 | Hvordan skal relasjoner mellom saker lagres? | (a) Relasjonsprojeksjon med prosjektavgrensede fremmednøkler, én skriver. (b) Utledning fra hendelsenes jsonb med GIN-indeks. (c) Reservasjonstabell for KOE-tilknytning pluss (a) eller (b) | (a) er foretrukket til vurdering (AF-03). En GIN-indeks er ikke et revisjonsspor (RGK-04) | Utvikler, med review. Ikke utpekt | Sammenlikning mot referanseintegritet, eksklusivitet, gjenoppbygging og samtidighet | KOE-tilknytning og relasjoner i F2. DB-04, MS-08 |
-| B-02 | Hvilken tilgangsmekanisme skal datalaget ha? | RLS med kontekst, avgrensede funksjoner, eller begge. `SECURITY INVOKER` eller `DEFINER`. Hvordan identitet, prosjekt og team føres inn, og av hvem | Utform rolle, identitetskontekst og funksjoner samlet (AF-01, AF-02, RGK-04). RLS med kontekst som backend selv setter, verner ikke mot en overtatt backend | Utvikler, med uavhengig review. Ikke utpekt | Trusselmodell som skiller glemt filter, ondsinnet bruker, kompromittert runtime/worker og databaseadministrator. Test av gjenbrukte forbindelser | F1-migrasjoner for roller og private lagre. F2-kommandoens rettigheter. **Delvis avgjort 23.09:** alternativ C og T2 (3.1). Åpne: punkt 3–6 i v2 avsnitt 9 |
+| B-02 | Hvilken tilgangsmekanisme skal datalaget ha? | RLS med kontekst, avgrensede funksjoner, eller begge. `SECURITY INVOKER` eller `DEFINER`. Hvordan identitet, prosjekt og team føres inn, og av hvem | Utform rolle, identitetskontekst og funksjoner samlet (AF-01, AF-02, RGK-04). RLS med kontekst som backend selv setter, verner ikke mot en overtatt backend | Utvikler, med uavhengig review. Ikke utpekt | Trusselmodell som skiller glemt filter, ondsinnet bruker, kompromittert runtime/worker og databaseadministrator. Test av gjenbrukte forbindelser | F1-migrasjoner for roller og private lagre. F2-kommandoens rettigheter. **Avgjort 23.09:** alternativ C og T2, og punkt 3–6 i v2 avsnitt 9 (3.1) |
 | B-03 | Hvilken dokument- og brevmodell skal gjelde i Catenda? | Samlet saksdokument med revisjoner; separate brev; separate brev per part og spor ([Catenda-dataflyten, avsnitt 11](../catenda-dataflyt.md#11-åpent-adr-dokument--og-brevmodell)) | Ingen. `failOnDocumentExists` følger av valget: `true` passer en strategi med unikt navn per brev, `false` en bevisst revisjonsflyt | Produkteier med utvikler. Ikke utpekt | ADR med dokumentnøkkel, navnestandard og avstemming etter tapt svar | Dokumentoperasjonen i F2-workeren og alle senere dokumentadaptere |
-| B-04 | Når får tilbakekalt medlemskap eller fullmakt virkning? | Straks for alt; straks for nye handlinger, men ventende pakker returneres; frist før virkning | Ingen. At journalen er uforanderlig, sier ikke noe om rettslig gyldighet | Oppdragsgiver (kontraktsside), ikke utpekt | Kontraktsmessig vurdering av utkast, ventende godkjenning og allerede committede brev | Tilbakekallingsatferd i F1. Eventuell medlemskapscache |
+| B-04 | Når får tilbakekalt medlemskap eller fullmakt virkning? | Straks for alt; straks for nye handlinger, men ventende pakker returneres; frist før virkning | Ingen. At journalen er uforanderlig, sier ikke noe om rettslig gyldighet | Oppdragsgiver (kontraktsside), ikke utpekt | Kontraktsmessig vurdering av utkast, ventende godkjenning og allerede committede brev | Tilbakekallingsatferd i F1. Eventuell medlemskapscache. **Avgjort 23.09** (3.1 og merknaden under). Grensene for varsel ved utdatert liste hører til B-09 |
 | B-05 | Hvilke bevaringskrav gjelder utover journalen? | Bevaringstid for journal, filer, logger, backup og stagingfiler | P7 fastsetter bare at journalen bevares uten kryptografisk sletting | Behandlingsansvarlig, med råd fra personvernombudet | DPIA og arkivfaglig vurdering | Bevarings- og sletteregler i F4. Produksjonsport |
 | B-06 | Hvilken fullmakt kreves når dagmulktssats mangler? | Kjedens toppnivå; avvisning; manuell verdsetting | Ingen | Oppdragsgiver (BH-siden), ikke utpekt | Domenevurdering | Restansen på GFK-01/FE-04 |
 | B-07 | Hvilken drivmekanisme skal workeren ha? | Tabell med `SKIP LOCKED`, `pgmq`, Cloud Tasks, Cloud Scheduler, jobber i Azure Container Apps, fast instans | Én kømekanisme; tabell og `SKIP LOCKED` er beskrevet i transaksjonsplanen | Utvikler, ikke utpekt | Plattformens skalering til null og krav om start uten brukerhandling | Minimal worker i F2 |
@@ -251,6 +255,7 @@ Et åpent valg blokkerer bare oppgavene som er nevnt.
 | B-10 | Hvordan versjoneres hendelsesformat og regler? | Versjonsfelt per hendelse; oppgraderingsfunksjoner; regelversjon i projeksjonen. `UP042` (`StrEnum`) avhenger av dette | Dokumentert strategi (AF-05) | Utvikler, ikke utpekt | Test av gamle strømmer mot ny kode og tilbakerulling | Kompatibilitetskravet i F2 |
 | B-11 | Hvilken tidskilde og forvaringskjede skal eksporten bygge på? | Servertid med synkroniseringsgaranti; ekstern tidsstempling; begge | Ingen | Oppdragsgiver med driftsansvarlig, ikke utpekt | Krav ved preklusjonstvist | Eksport i F4 |
 | B-12 | Hvilken plattform skal basen og backend kjøre på? | Database: Azure Database for PostgreSQL (Flexible Server, 17) eller Supabase. Backend: Azure Container Apps eller App Service (Web App for Containers) | Azure PostgreSQL er foreløpig mål (oppdragsgiver 23.09). Begge hostingvalgene virker; Container Apps har jobber som kan drive workeren (B-07). Azure SQL velges ikke uten en konkret grunn fra IKT, fordi det krever et nytt datalag i T-SQL. Fabric er rapportering, ikke backend | Oppdragsgiver med IKT | Svar fra IKT om hosting og database, og tilgang til deploy, Key Vault og en offentlig HTTPS-adresse for Catenda-webhooks | Container og utrulling i F0b. Veien fra migrasjonsfil til base. Plattformkonfigurasjon i F5 |
+| B-13 | Hvem er sannhetskilde for NS 8407-reglene, og hva lagres når partens konklusjon og vurderingene spriker? | Backend eier alt som lagres med rettsvirkning eller styrer systemets handlinger, frontenden bare veiledning. For partens konklusjon: (1) serveren regner ut, og det gjelder; (2) serveren avviser et svar der konklusjonen ikke følger av vurderingene; (3) begge lagres, og avviket vises. Tilsvarende for rettslige konklusjoner som preklusjon: trekkes de av systemet, eller varsles de bare | Backend som sannhetskilde for det som lagres (handoffen 23.09, avsnitt 9). Ingen for (1)–(3) | Oppdragsgiver, med utvikler | Kartlegging av frontendens utregninger og hvilke som havner i det som lagres ([oppdraget for spor D](../prompt-spor-d-br01-2026-09-23.md), del 1) | Rettingen av BR-01. Kommandoene i F2 som bygger på resultatene |
 
 > **Merknad 2026-09-22 til B-02:** Designgrunnlaget finnes:
 > [design-b02-tilgangsmekanisme-2026-09-22.md](../design-b02-tilgangsmekanisme-2026-09-22.md).
@@ -297,6 +302,53 @@ Et åpent valg blokkerer bare oppgavene som er nevnt.
 > kontraktsteam og prosjektregistrering (4), klokken for tilbakekalling, som
 > også er B-04 (5), og break-glass (6). De må være avgjort før første rolle-
 > eller policymigrasjon i F1. Kravet om uavhengig review før F1 står.
+
+> **Merknad 2026-09-23 til B-02 (punkt 3–6):** Oppdragsgiver har avgjort de
+> fire punktene som stod igjen; vedtakene står i 3.1. Dermed er alle
+> beslutningene i v2 avsnitt 9 tatt. Før første rolle- eller policymigrasjon i
+> F1 gjenstår det uavhengige reviewet (22.09), tidskontrakten fra reviewet av
+> kjernen (RK-05) og, for anvendelse utenfor Supabase, B-12.
+>
+> Om punkt 4: registrering av prosjekt og kontraktsteam skjer i dag med
+> administratorskriptene `scripts/register_project.py` og
+> `scripts/catenda_admin.py`, ikke fra noen rute (L 23.09). Beslutningen gjør
+> praksisen til en grense basen håndhever.
+
+> **Merknad 2026-09-23 til B-04 (beslutning):** Oppdragsgiver har avgjort:
+>
+> 1. **Nye handlinger** opphører straks systemet har registrert at tilgangen er
+>    borte. Klokken er tidspunktet synkroniseringen committer lokalt, fordi
+>    Catenda ikke oppgir når endringen ble gjort der, og fordi det lokale
+>    tidspunktet kan dokumenteres.
+> 2. **En godkjenning** som ble gitt mens godkjenneren hadde fullmakt, står.
+>    Pakken kan utstedes. Nye godkjenninger kan personen ikke gi.
+> 3. **Utkast** blir hos teamet. En kollega kan fullføre og sende i eget navn.
+> 4. **Utdatert medlemsliste:** feiler synkroniseringen, kan alle fortsatt
+>    handle, og drift varsles. Begrunnelsen er at en tapt frist ikke kan
+>    repareres, mens et varsel fra en som ikke lenger hadde tilgang, kan
+>    bestrides og spores. Varselet skal utløses av alderen på listen, ikke bare
+>    av feil, fordi en ufullstendig liste ikke gir noen feil. Hvor gammel listen
+>    kan bli før drift varsles, og om det skal være en ytre grense, for eksempel
+>    at intern EO-godkjenning stopper mens varsler og svar aldri gjør det,
+>    fastsettes i B-09.
+>
+> Punkt 4 snur dagens atferd. `AuthService.role()` synkroniserer når listen er
+> eldre enn `AUTH_MEMBERSHIP_MAX_AGE_SECONDS` (900 s), og `require_project_access`
+> gjør et unntak fra synkroniseringen om til `503 ACCESS_UNAVAILABLE`, uten å
+> logge det. Når Catenda ikke svarer, kan da ingen handle i prosjektet, heller
+> ikke sende et varsel med frist (L 23.09, ikke kjørt). Endringen hører til F1
+> sammen med tilbakekallingen.
+
+> **Merknad 2026-09-23 til B-13:** Ny åpen beslutning, reist av BR-01.
+> Frontenden har om lag 2 400 linjer med NS 8407-regler i `src/lib/domain/`:
+> preklusjon, passivitet, reduksjon, prinsipalt og subsidiært resultat,
+> godkjent beløp og EO-eksponering. Flere resultater sendes med i hendelsene.
+> Backend har i hovedsak prosedyreregler (`services/business_rules.py`);
+> passivitet finnes ikke der (L 23.09, søk etter ordstammer, ikke kjørt).
+> Spørsmålet er ikke bare teknisk. BHs svar har rettsvirkning som BHs
+> standpunkt, og det utregnede resultatet oppsummerer vurderingene. Spriker de,
+> må det avgjøres om systemet eller parten har siste ord. Utregninger som bare
+> veileder (felt som vises, standardverdier, hjelpetekst), berøres ikke.
 
 > **Merknad 2026-09-23 til B-12:** Ny åpen beslutning. IKT svarte at både
 > Azure SQL og PostgreSQL kan brukes; oppdragsgiver har foreslått PostgreSQL.
@@ -791,7 +843,7 @@ i så fall erstatte punktet med en referanse. Status er ikke innhentet for noen.
 
 Kan gå parallelt. Hver retting får regresjonstest og holdes innenfor sitt
 funn. TFR-02 til TFR-06, GFK-02, GFK-06, INT-07, OBS-03, BR-01 (først
-reprodusert eller avvist), og restansen på
+reprodusert eller avvist, rettet etter B-13), og restansen på
 GFK-01 når B-06 er avgjort. Deretter systematisk gjennomgang av
 tilstandsovergangene mot NS 8407, med dokumentert forventet overgang og test
 per hendelsestype. Utvides `SporStatus`, gjelder regelen i `AGENTS.md` om å
@@ -839,22 +891,22 @@ og [oppdraget for reviewet](../prompt-review-f0b-kjernen-2026-09-23.md).
 [Prototype v2](../vedlegg/b02-prototype-v2-2026-09-23/kjor.sh) viser
 konteksthåndteringen over direkte innlogging og kan brukes som mønster, ikke
 som kode. Parallelt kan spor D gå, med BR-01 først reprodusert eller avvist, og
-containerdelen av F0b når IKT har svart (B-12). F1-migrasjonene venter på de
-fire åpne punktene i B-02.
+containerdelen av F0b når IKT har svart (B-12). Beslutningene F1 trengte, ble
+tatt 23.09 (B-02 og B-04 i 3.1). F1-migrasjonene venter på det uavhengige
+reviewet og RK-05.
 
 **Beslutninger som blokkerer senere arbeid:**
 
 | Beslutning | Må være tatt før |
 | --- | --- |
-| B-02 punkt 3–6 i v2 avsnitt 9 (hovedvalget er tatt 23.09) | Første rolle- eller policymigrasjon i F1 |
 | B-12 plattform og hosting | Container og utrulling i F0b, veien fra migrasjonsfil til base, plattformkonfigurasjon i F5 |
-| B-04 tilbakekalling | Tilbakekallingsdelen av F1 |
 | B-01 relasjoner, B-08 KOE-eksklusivitet | Reservasjonsskjemaet i F2 |
 | B-03 dokumentmodell | Dokumentoperasjonen i F2-workeren |
 | B-07 drivmekanisme, B-10 versjonering | Minimal worker og kompatibilitetskravet i F2 |
-| B-09 driftsverdier | Akseptkriteriene for kapasitet og varsling i F3 |
+| B-09 driftsverdier | Akseptkriteriene for kapasitet og varsling i F3, og grensene for utdatert medlemsliste (B-04) |
 | B-05 bevaring, B-11 tidskilde | Eksport og bevaring i F4, og produksjonsporten |
 | B-06 fullmakt uten sats | Restansen på GFK-01 |
+| B-13 sannhetskilde for reglene | Rettingen av BR-01 og kommandoene i F2 som bygger på resultatene |
 
 ## 7. Catenda: leveringsgarantier
 
