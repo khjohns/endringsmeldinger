@@ -22,10 +22,22 @@ det ut fra vurderingene i samme hendelse.
      `reason`. Sett alvorlighet i hovedplanen.
    - **Avvist:** vis laget som hindrer det, og gjør testen til en ordinær test
      som holder det.
-3. **Ikke rett funnet.** En retting krever et valg oppdragsgiver må ta: skal
-   serveren avvise en hendelse der resultatet ikke stemmer, eller regne ut og
-   lagre sitt eget? Beskriv begge, hva hver betyr for en part som sender, og
-   hvor mye av reglene i `src/lib/domain/` backend da må ha.
+3. **Ikke rett funnet.** Rettingen venter på B-13 i hovedplanen: hvem som er
+   sannhetskilde for reglene, og hva som lagres når partens konklusjon og
+   vurderingene spriker.
+4. **Kartlegg frontendens utregninger** i `src/lib/domain/` som grunnlag for
+   B-13. For hver utregning: hva den regner ut, om resultatet havner i det som
+   sendes og lagres (`buildEventData` og tilsvarende), og om backend regner ut
+   eller kontrollerer det samme. Sorter dem i tre grupper:
+   - **veiledning:** felt som vises, standardverdier, hjelpetekst;
+   - **lagres med rettsvirkning:** resultat, beløp, preklusjon, passivitet og
+     lignende konklusjoner;
+   - **styrer systemets handlinger:** for eksempel fullmaktsnivå.
+
+   Skriv det for en jurist: hvilken bestemmelse i NS 8407 utregningen bygger
+   på, og hva som står i journalen hvis klienten sender noe annet. Anslå hvor
+   mye som må finnes i backend dersom den skal eie de to siste gruppene. Merk
+   hver påstand med K eller L.
 
 ## Del 2 — domenefeilene
 
@@ -54,9 +66,10 @@ bare det som lar seg reprodusere.
 
 ## Lever
 
-- **PR 1, BR-01:** testen og funnet oppdatert i hovedplanen (4.6, eller
-  flyttet til 4.2 med alvorlighet), med de to rettingsvalgene beskrevet for
-  oppdragsgiver.
+- **PR 1, BR-01:** testen, funnet oppdatert i hovedplanen (4.6, eller flyttet
+  til 4.2 med alvorlighet), og kartleggingen som
+  `docs/kartlegging-domeneregler-frontend-<dato>.md`, med en datert merknad under
+  B-13 som viser dit.
 - **PR 2, spor D:** rettingene med regresjonstester og en datert merknad per
   funn i hovedplanen. Et kort gjennomføringsnotat
   (`docs/gjennomforing-spor-d-<dato>.md`) med «Verifikasjon og grenser», og

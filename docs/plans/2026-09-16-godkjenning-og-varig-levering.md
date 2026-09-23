@@ -255,6 +255,7 @@ Et åpent valg blokkerer bare oppgavene som er nevnt.
 | B-10 | Hvordan versjoneres hendelsesformat og regler? | Versjonsfelt per hendelse; oppgraderingsfunksjoner; regelversjon i projeksjonen. `UP042` (`StrEnum`) avhenger av dette | Dokumentert strategi (AF-05) | Utvikler, ikke utpekt | Test av gamle strømmer mot ny kode og tilbakerulling | Kompatibilitetskravet i F2 |
 | B-11 | Hvilken tidskilde og forvaringskjede skal eksporten bygge på? | Servertid med synkroniseringsgaranti; ekstern tidsstempling; begge | Ingen | Oppdragsgiver med driftsansvarlig, ikke utpekt | Krav ved preklusjonstvist | Eksport i F4 |
 | B-12 | Hvilken plattform skal basen og backend kjøre på? | Database: Azure Database for PostgreSQL (Flexible Server, 17) eller Supabase. Backend: Azure Container Apps eller App Service (Web App for Containers) | Azure PostgreSQL er foreløpig mål (oppdragsgiver 23.09). Begge hostingvalgene virker; Container Apps har jobber som kan drive workeren (B-07). Azure SQL velges ikke uten en konkret grunn fra IKT, fordi det krever et nytt datalag i T-SQL. Fabric er rapportering, ikke backend | Oppdragsgiver med IKT | Svar fra IKT om hosting og database, og tilgang til deploy, Key Vault og en offentlig HTTPS-adresse for Catenda-webhooks | Container og utrulling i F0b. Veien fra migrasjonsfil til base. Plattformkonfigurasjon i F5 |
+| B-13 | Hvem er sannhetskilde for NS 8407-reglene, og hva lagres når partens konklusjon og vurderingene spriker? | Backend eier alt som lagres med rettsvirkning eller styrer systemets handlinger, frontenden bare veiledning. For partens konklusjon: (1) serveren regner ut, og det gjelder; (2) serveren avviser et svar der konklusjonen ikke følger av vurderingene; (3) begge lagres, og avviket vises. Tilsvarende for rettslige konklusjoner som preklusjon: trekkes de av systemet, eller varsles de bare | Backend som sannhetskilde for det som lagres (handoffen 23.09, avsnitt 9). Ingen for (1)–(3) | Oppdragsgiver, med utvikler | Kartlegging av frontendens utregninger og hvilke som havner i det som lagres ([oppdraget for spor D](../prompt-spor-d-br01-2026-09-23.md), del 1) | Rettingen av BR-01. Kommandoene i F2 som bygger på resultatene |
 
 > **Merknad 2026-09-22 til B-02:** Designgrunnlaget finnes:
 > [design-b02-tilgangsmekanisme-2026-09-22.md](../design-b02-tilgangsmekanisme-2026-09-22.md).
@@ -337,6 +338,17 @@ Et åpent valg blokkerer bare oppgavene som er nevnt.
 > logge det. Når Catenda ikke svarer, kan da ingen handle i prosjektet, heller
 > ikke sende et varsel med frist (L 23.09, ikke kjørt). Endringen hører til F1
 > sammen med tilbakekallingen.
+
+> **Merknad 2026-09-23 til B-13:** Ny åpen beslutning, reist av BR-01.
+> Frontenden har om lag 2 400 linjer med NS 8407-regler i `src/lib/domain/`:
+> preklusjon, passivitet, reduksjon, prinsipalt og subsidiært resultat,
+> godkjent beløp og EO-eksponering. Flere resultater sendes med i hendelsene.
+> Backend har i hovedsak prosedyreregler (`services/business_rules.py`);
+> passivitet finnes ikke der (L 23.09, søk etter ordstammer, ikke kjørt).
+> Spørsmålet er ikke bare teknisk. BHs svar har rettsvirkning som BHs
+> standpunkt, og det utregnede resultatet oppsummerer vurderingene. Spriker de,
+> må det avgjøres om systemet eller parten har siste ord. Utregninger som bare
+> veileder (felt som vises, standardverdier, hjelpetekst), berøres ikke.
 
 > **Merknad 2026-09-23 til B-12:** Ny åpen beslutning. IKT svarte at både
 > Azure SQL og PostgreSQL kan brukes; oppdragsgiver har foreslått PostgreSQL.
@@ -831,7 +843,7 @@ i så fall erstatte punktet med en referanse. Status er ikke innhentet for noen.
 
 Kan gå parallelt. Hver retting får regresjonstest og holdes innenfor sitt
 funn. TFR-02 til TFR-06, GFK-02, GFK-06, INT-07, OBS-03, BR-01 (først
-reprodusert eller avvist), og restansen på
+reprodusert eller avvist, rettet etter B-13), og restansen på
 GFK-01 når B-06 er avgjort. Deretter systematisk gjennomgang av
 tilstandsovergangene mot NS 8407, med dokumentert forventet overgang og test
 per hendelsestype. Utvides `SporStatus`, gjelder regelen i `AGENTS.md` om å
@@ -894,6 +906,7 @@ reviewet og RK-05.
 | B-09 driftsverdier | Akseptkriteriene for kapasitet og varsling i F3, og grensene for utdatert medlemsliste (B-04) |
 | B-05 bevaring, B-11 tidskilde | Eksport og bevaring i F4, og produksjonsporten |
 | B-06 fullmakt uten sats | Restansen på GFK-01 |
+| B-13 sannhetskilde for reglene | Rettingen av BR-01 og kommandoene i F2 som bygger på resultatene |
 
 ## 7. Catenda: leveringsgarantier
 
