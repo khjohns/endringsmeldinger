@@ -5,7 +5,7 @@ Generates context-aware comments for Catenda based on case state and events.
 """
 
 from models.events import AnyEvent, SporStatus
-from models.sak_state import SakState
+from models.sak_state import SakState, SaksType
 from utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -95,7 +95,7 @@ class CatendaCommentGenerator:
 
         Args:
             sak_id: Internal case ID
-            sakstype: Case type (koe, forsering, endringsordre)
+            sakstype: Case type (standard, forsering, endringsordre)
             project_name: Project name from Catenda
             magic_link: Optional magic link URL for quick access
 
@@ -128,18 +128,18 @@ class CatendaCommentGenerator:
     def _format_sakstype(self, sakstype: str) -> str:
         """Format case type for display."""
         sakstype_map = {
-            "koe": "Krav om endringsordre",
-            "forsering": "Forseringssak",
-            "endringsordre": "Endringsordre",
+            SaksType.STANDARD: "Krav om endringsordre",
+            SaksType.FORSERING: "Forseringssak",
+            SaksType.ENDRINGSORDRE: "Endringsordre",
         }
         return sakstype_map.get(sakstype, "Sak")
 
     def _get_initial_next_step(self, sakstype: str) -> str:
         """Get initial next step based on case type."""
         next_step_map = {
-            "koe": "Entreprenør sender varsel (grunnlag)",
-            "forsering": "Entreprenør dokumenterer forsering",
-            "endringsordre": "Byggherre utsteder endringsordre",
+            SaksType.STANDARD: "Entreprenør sender varsel (grunnlag)",
+            SaksType.FORSERING: "Entreprenør dokumenterer forsering",
+            SaksType.ENDRINGSORDRE: "Byggherre utsteder endringsordre",
         }
         return next_step_map.get(sakstype, "Se sak for detaljer")
 

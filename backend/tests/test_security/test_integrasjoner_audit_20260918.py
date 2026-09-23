@@ -9,7 +9,7 @@ Tester svakheter og avvik i:
 - Omgåelse av godkjenningsport: TE kan opprette Endringsordre via webhook (INT-04)
 - Batch-hendelser dropper Catenda-levering og rapporterer 'clear' status (INT-05)
 - Catenda-kontekst ignorerer prosjektregister og overstyrer med global .env (INT-06)
-- CatendaCommentGenerator feilidentifiserer 'standard' sakstype (INT-07)
+- CatendaCommentGenerator feilidentifiserte 'standard' sakstype (INT-07, rettet 2026-09-23)
 """
 
 import inspect
@@ -492,15 +492,11 @@ def test_catenda_context_ignores_project_specific_catenda_config(monkeypatch):
     )
 
 
-@pytest.mark.xfail(
-    strict=True,
-    raises=AssertionError,
-    reason="INT-07: CatendaCommentGenerator slår opp 'koe' i stedet for 'standard' og gir generisk fallback-tekst",
-)
 def test_catenda_comment_generator_sakstype_standard_returns_generic_fallback():
     """
-    INT-07: CatendaCommentGenerator slår opp 'koe' i stedet for 'standard',
-    og genererer derfor 'Ny Sak opprettet' og 'Se sak for detaljer' for standard KOE-saker.
+    INT-07: CatendaCommentGenerator slo opp 'koe' i stedet for 'standard', og
+    genererte 'Ny Sak opprettet' og 'Se sak for detaljer' for standard KOE-saker.
+    Regresjonstest etter rettingen 2026-09-23.
     """
     generator = CatendaCommentGenerator()
     comment = generator.generate_creation_comment(
@@ -516,3 +512,19 @@ def test_catenda_comment_generator_sakstype_standard_returns_generic_fallback():
     assert "Entreprenør sender varsel (grunnlag)" in comment, (
         f"generate_creation_comment ga generisk neste steg for sakstype='standard':\n{comment}"
     )
+
+
+@pytest.mark.parametrize(
+    ("sakstype", "overskrift", "neste_steg"),
+    [
+        ("forsering", "Ny Forseringssak opprettet", "Entreprenør dokumenterer forsering"),
+        ("endringsordre", "Ny Endringsordre opprettet", "Byggherre utsteder endringsordre"),
+    ],
+)
+def test_catenda_comment_generator_kjenner_alle_sakstyper(sakstype, overskrift, neste_steg):
+    """Nøklene er sakstypene webhooken sender (`get_sakstype_from_topic_type`)."""
+    comment = CatendaCommentGenerator().generate_creation_comment(
+        sak_id="SAK-2026-001", sakstype=sakstype, project_name="Prosjekt"
+    )
+    assert overskrift in comment
+    assert neste_steg in comment
