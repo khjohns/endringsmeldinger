@@ -469,7 +469,7 @@ fordi de hører til samme domenefamilie som TFR og GFK.
 | INT-04 | Lukket | Siden utledes av lagmedlemskap | H | — |
 | INT-05 | Duplikat | → RV-10 | — | F3 |
 | INT-06 | Åpen | Global `.env` overstyrer sakens Catenda-prosjekt | Streng `xfail`, K 22.09 | F2, F3 |
-| INT-07 | Åpen | Kommentargeneratoren kjenner ikke `standard` | Streng `xfail`, K 22.09 | D |
+| INT-07 | Lukket | Kommentargeneratoren kjente ikke `standard`. **Merknad 2026-09-23:** oppslagene er nøklet på `SaksType`, og `koe` er fjernet; ingen kaller sender det. Reproduksjonen er ordinær test, og forsering og endringsordre er dekket. Samme nøkkel står i tittelen i `reportlab_pdf_generator`, men der gir reserveteksten nesten samme tittel | K 23.09 | — |
 | FE-01 | Lukket | `LetterPreviewModal` sender prosjekt, CSRF og credentials (20.09) | H | — |
 | FE-02 | Åpen, middels | `/api/cases/<sak_id>/context` gir ikke autorisert rolle. Serveren holder (19.09). Testen som testinventaret førte som FE-01, feilet på 403 i sitt eget oppsett. Oppsettet er rettet (T-3, 22.09); den strenge `xfail` feiler nå på målassertionen om rolle | K 22.09 (testoppsett) | H |
 | FE-03 | Åpen | Svelte-skjemafelt reagerer ikke på nye props | H | H |
