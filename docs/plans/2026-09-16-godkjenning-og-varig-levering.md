@@ -350,6 +350,20 @@ Et åpent valg blokkerer bare oppgavene som er nevnt.
 > må det avgjøres om systemet eller parten har siste ord. Utregninger som bare
 > veileder (felt som vises, standardverdier, hjelpetekst), berøres ikke.
 
+> **Merknad 2026-09-23 til B-13 (kartlegging):** Kartleggingen er levert:
+> [kartlegging-domeneregler-frontend-2026-09-23.md](../kartlegging-domeneregler-frontend-2026-09-23.md).
+> Backend regner ikke ut og kontrollerer ikke noe av det frontenden regner ut
+> og sender: resultat, beløp, dager, preklusjon, reduksjon, subsidiære grunner,
+> varseldatoer og begrunnelsestekst. For resultatet er det kjørt (BR-01,
+> reprodusert og satt til middels i 4.2); for resten er det lest. Sporstatus,
+> samlet status, EO-adgang, forsering og fullmakt regnes i backend, men av
+> klientens tall. Anslaget for å la backend eie reglene er 250–350 linjer
+> Python uten begrunnelsestekstene, med frontendens testsett som
+> spesifikasjon. Seks spørsmål står åpne i kartleggingen, blant dem
+> 99 %-terskelen for «godkjent», passivitet etter § 32.3 og om det er sum
+> eller poster som binder. Kartleggingen fant også DRF-01–DRF-03 (4.2).
+> Beslutningsstatus for B-13 er uendret.
+
 > **Merknad 2026-09-23 til B-12:** Ny åpen beslutning. IKT svarte at både
 > Azure SQL og PostgreSQL kan brukes; oppdragsgiver har foreslått PostgreSQL.
 > Fabric kan speile fra Azure PostgreSQL (versjon 14–18, ikke Burstable-nivå).
@@ -411,6 +425,9 @@ Kilder: [AP](../audit-godkjenningspanel-og-durable-levering-2026-09-16.md),
 
 Etterprøvd i [vurderingen av auditfunnene](../vurdering-av-auditfunn-2026-09-19.md).
 Der den omklassifiserte et funn, gjelder omklassifiseringen.
+BR-01 og DRF-01–DRF-03 er ført inn 23.09 fra
+[kartleggingen av frontendens domeneregler](../kartlegging-domeneregler-frontend-2026-09-23.md),
+fordi de hører til samme domenefamilie som TFR og GFK.
 
 | ID | Status | Restanse og merknad | Belegg | Pakke |
 | --- | --- | --- | --- | --- |
@@ -439,6 +456,10 @@ Der den omklassifiserte et funn, gjelder omklassifiseringen.
 | GFK-04 | Avgrenset | Forsering er vedtatt utenfor godkjenningsflyten. Testen forventer støtte og feiler med `ValueError("Ugyldig vurderingstype.")`, i samsvar med avgrensningen. Ingen feilretting | K 22.09 | — |
 | GFK-05 | Åpen | TE kan generere BH-brev som PDF | Streng `xfail`, K 22.09 | H |
 | GFK-06 | Åpen, lav | Godkjent grunnlag alene verdsettes til 0 kr | L 19.09 | D |
+| BR-01 | Åpen, middels | BHs `beregnings_resultat` lagres som sendt, også når vurderingene i samme svar gir et annet resultat. Sporstatus, `overordnet_status` og `kan_utstede_eo` følger konklusjonen: et fristsvar uten fremdriftshindring (§ 33.1) og et vederlagssvar med 0 kr, begge merket «godkjent», ga `GODKJENT`, `OMFORENT` og utstedbar EO. Reprodusert gjennom `/api/events` og godkjenningsflyten. Rettes etter B-13 | Streng `xfail` ×3, K 23.09 | D |
+| DRF-01 | Åpen, middels | BHs forespørsel etter § 33.6.2 kan ikke sendes fra skjemaet. Frontenden sender `send_foresporsel`, modellen kjenner bare `har_bh_foresporsel`, og validatoren avviser svaret med 400. Må løses sammen med TFR-06 og en avklaring av hvordan forespørselen registreres | Streng `xfail`, K 23.09 | D |
+| DRF-02 | Åpen, lav | Felt med rettslig innhold fjernes uten feil ved parsing: `dager_siden_varsel` (§ 32.3), `ep_justering_varslet_i_tide` (§ 34.3.3), `er_svar_pa_foresporsel` (§ 33.6.2). Latent: skjemaene fyller dem ikke i dag | K 23.09 (parser), L | D |
+| DRF-03 | Åpen, middels | TEs varsel om justerte enhetspriser (§ 34.3.3) lagres med `dato_sendt` lik oppdagelsesdatoen, ikke sendedatoen | L 23.09 | D |
 | INT-01 | Åpen | Webhookhemmelighet uten konstant tid; sti i logg | Streng `xfail` (statisk) | H |
 | INT-02 | Åpen, høy | Webhookfeil gir 200 og reservert duplikatnøkkel; retry tapes | Streng `xfail`, K 22.09 | F3 |
 | INT-03 | Åpen | Validatoren avviser `bcf.*` | Streng `xfail`, K 22.09 | F3 |
@@ -552,7 +573,7 @@ reprodusert eller avvist. Alvorlighet settes da.
 
 | ID | Status | Funn | Belegg | Pakke |
 | --- | --- | --- | --- | --- |
-| BR-01 | Foreløpig | Serveren ser ut til å godta klientens beregnede resultat i BH-svar på vederlag og frist uten å regne det ut på nytt fra vurderingene i samme hendelse. `TimelineService` kopierer `beregnings_resultat` rett til `bh_resultat` og sporstatus. En klient som sender `godkjent` der reglene gir `avslått`, blir trolig trodd, og tilstanden viser da et resultat som ikke følger av vurderingene. Frontenden beregner resultatet i `src/lib/domain/` og sender det med i `buildEventData` | L 23.09. Søkt etter `beregnings_resultat` i `routes`, `services`, `models`, `lib` og `core`: bare kopiering, statusmapping og brevtekst. Validatorene i `models/events.py` krever bare at feltet finnes. Ikke kjørt | D. Kontrolleres før F2-kommandoene bygger videre på det |
+| BR-01 | Reprodusert 23.09, flyttet til 4.2 | Se 4.2. Den opprinnelige påstanden (L 23.09) holdt. | K 23.09 | D |
 
 ### 4.7 Tellinger
 
@@ -842,9 +863,10 @@ i så fall erstatte punktet med en referanse. Status er ikke innhentet for noen.
 ### Spor D — domenefeil
 
 Kan gå parallelt. Hver retting får regresjonstest og holdes innenfor sitt
-funn. TFR-02 til TFR-06, GFK-02, GFK-06, INT-07, OBS-03, BR-01 (først
-reprodusert eller avvist, rettet etter B-13), og restansen på
-GFK-01 når B-06 er avgjort. Deretter systematisk gjennomgang av
+funn. TFR-02 til TFR-06, GFK-02, GFK-06, INT-07, OBS-03, BR-01 (reprodusert
+23.09, rettes etter B-13), DRF-01–DRF-03, og restansen på
+GFK-01 når B-06 er avgjort. DRF-01 og TFR-06 må løses sammen: en sperre mot
+BH-svar på et nøytralt varsel må slippe forespørselen etter § 33.6.2 gjennom. Deretter systematisk gjennomgang av
 tilstandsovergangene mot NS 8407, med dokumentert forventet overgang og test
 per hendelsestype. Utvides `SporStatus`, gjelder regelen i `AGENTS.md` om å
 lete opp alt som teller statuser.
@@ -890,7 +912,7 @@ og [oppdraget for reviewet](../prompt-review-f0b-kjernen-2026-09-23.md).
 
 [Prototype v2](../vedlegg/b02-prototype-v2-2026-09-23/kjor.sh) viser
 konteksthåndteringen over direkte innlogging og kan brukes som mønster, ikke
-som kode. Parallelt kan spor D gå, med BR-01 først reprodusert eller avvist, og
+som kode. Parallelt kan spor D gå (BR-01 reprodusert 23.09), og
 containerdelen av F0b når IKT har svart (B-12). Beslutningene F1 trengte, ble
 tatt 23.09 (B-02 og B-04 i 3.1). F1-migrasjonene venter på det uavhengige
 reviewet og RK-05.
@@ -977,3 +999,8 @@ og T2, Azure PostgreSQL som foreløpig mål, TS2-02 vedtatt, B-12 og F0b. Kilden
 oppdragsgivers bekreftelse 23.09 og [handoffen](../handoff-2026-09-23-datalag-postgresql.md).
 Ingen kode, migrasjon eller database er endret eller lest på nytt. Påstandene om
 Azure, Fabric og IKTs svar er gjengitt fra handoffen og ikke kontrollert her.
+
+**Endringen 23.09, BR-01:** BR-01 er reprodusert og flyttet fra 4.6 til 4.2,
+DRF-01–DRF-03 er ført inn, og B-13 har fått en merknad. Belegget er testene i
+`backend/tests/test_security/test_beregningsresultat_br01_20260923.py`, kjørt
+23.09, og kartleggingen, der det som bare er lest, er merket L.
