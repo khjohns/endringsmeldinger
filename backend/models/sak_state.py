@@ -1156,11 +1156,18 @@ class SakState(BaseModel):
                 return "VENTER_PAA_SVAR"
             return "UNDER_BEHANDLING"
 
-        # Sjekk om noen spor er utkast (og resten er ferdige)
-        # Dette dekker tilfellet der f.eks. grunnlag er godkjent men vederlag ikke er sendt
+        # Resten av sporene er ferdige eller ikke sendt. Har BH avgjort noe, er
+        # saken i gang, selv om TE ikke har sendt alle krav (audit TFR-05).
         if any(s == SporStatus.UTKAST for s in aktive_statuser):
             ferdig_eller_utkast = ferdig_statuser | {SporStatus.UTKAST}
             if all(s in ferdig_eller_utkast for s in aktive_statuser):
+                avgjort_av_bh = {
+                    SporStatus.GODKJENT,
+                    SporStatus.LAAST,
+                    SporStatus.AVSLATT_AKSEPTERT,
+                }
+                if any(s in avgjort_av_bh for s in aktive_statuser):
+                    return "UNDER_BEHANDLING"
                 return "UTKAST"
 
         return "UKJENT"
