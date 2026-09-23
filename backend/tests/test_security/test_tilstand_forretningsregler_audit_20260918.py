@@ -5,7 +5,7 @@ Testene her etterprøver funn i tilstandsberegning og forretningsregler:
    spor. Reproduksjonen fra 18.09 dekket bare grunnlag; vederlag og frist er
    lagt til 2026-09-19 etter at alle tre ble kjørt og observert.
 2. overordnet_status ignorerer sakstype og gir INGEN_AKTIVE_SPOR for forsering og EO
-3. _rule_vederlag_can_be_withdrawn blokkerer tilbaketrekking av subsidiært godkjente krav
+3. Tilbaketrekking av subsidiært godkjente krav ble blokkert (TFR-03, rettet 2026-09-23)
 4. Subsidiært standpunkt på 0 kr / 0 dager ble forkastet som falsy (TFR-04, rettet 2026-09-23)
 5. Godkjent og låst ansvarsgrunnlag rapporteres som 'UTKAST' i overordnet_status
 """
@@ -467,18 +467,12 @@ def test_overordnet_status_gir_ingen_aktive_spor_for_forsering():
 # =============================================================================
 
 
-@pytest.mark.xfail(
-    strict=True,
-    raises=AssertionError,
-    reason="Beregningsstatus GODKJENT blokkerer tilbaketrekking selv når kravet prinsipalt er avslått",
-)
 def test_vederlag_krav_trukket_blokkeres_ved_subsidiaer_enighet():
     """TE må kunne trekke et vederlagskrav som BH prinsipalt har avslått.
 
-    Når BH avslår grunnlag, men godkjenner beregningen subsidiært, settes
-    state.vederlag.status = GODKJENT.
-    _rule_vederlag_can_be_withdrawn blokkerer tilbaketrekking når status er GODKJENT.
-    Dermed kan ikke TE trekke et krav som er prinsipalt avslått.
+    Regresjonstest for TFR-03 (rettet 2026-09-23). Når BH avslår grunnlaget,
+    men godkjenner beregningen subsidiært, er sporstatus GODKJENT uten at
+    kravet er oppgjort.
     """
     timeline = TimelineService()
     validator = BusinessRuleValidator()
@@ -557,10 +551,80 @@ def test_vederlag_krav_trukket_blokkeres_ved_subsidiaer_enighet():
 
     res = validator.validate(withdraw, state)
 
-    # Feiler i dag fordi res.is_valid er False ('status er godkjent')
     assert res.is_valid is True, (
         f"TE ble nektet å trekke subsidiært vederlagskrav: {res.message}"
     )
+
+
+def _frist_subsidiaert_godkjent() -> tuple[list, FristEvent]:
+    """Grunnlaget avslått, fristberegningen godkjent subsidiært."""
+    opprettet, grunnlag, _ = _sak_med_godkjent_grunnlag()
+    avslag = ResponsEvent(
+        sak_id="S-1",
+        aktor_id="bh",
+        aktor_rolle="BH",
+        event_type="respons_grunnlag",
+        spor=SporType.GRUNNLAG,
+        refererer_til_event_id=grunnlag.event_id,
+        data=GrunnlagResponsData(
+            resultat=GrunnlagResponsResultat.AVSLATT, begrunnelse="Ikke ansvar"
+        ),
+    )
+    krav = FristEvent(
+        sak_id="S-1",
+        aktor_id="te",
+        aktor_rolle="TE",
+        event_type="frist_krav_sendt",
+        spor=SporType.FRIST,
+        data=FristData(krevd_dager=30, begrunnelse="Krav"),
+    )
+    subsidiaert = ResponsEvent(
+        sak_id="S-1",
+        aktor_id="bh",
+        aktor_rolle="BH",
+        event_type="respons_frist",
+        spor=SporType.FRIST,
+        refererer_til_event_id=krav.event_id,
+        data=FristResponsData(
+            beregnings_resultat=FristBeregningResultat.GODKJENT,
+            godkjent_dager=30,
+            begrunnelse="Dagene er riktige, men ansvaret avvises",
+        ),
+    )
+    return [opprettet, grunnlag, avslag, krav, subsidiaert], subsidiaert
+
+
+def _trekk_frist():
+    return WithdrawalEvent(
+        sak_id="S-1",
+        aktor_id="te",
+        aktor_rolle="TE",
+        event_type="frist_krav_trukket",
+        data=WithdrawalData(begrunnelse="TE trekker kravet"),
+    )
+
+
+def test_frist_krav_kan_trekkes_ved_subsidiaer_enighet():
+    """TFR-03 gjelder begge pengesporene: også et subsidiært godkjent fristkrav kan trekkes."""
+    timeline = TimelineService()
+    events, _ = _frist_subsidiaert_godkjent()
+    state = timeline.compute_state(events)
+    assert state.frist.status == SporStatus.GODKJENT
+    assert state.er_subsidiaert_frist is True
+
+    assert BusinessRuleValidator().validate(_trekk_frist(), state).is_valid is True
+
+
+def test_subsidiaer_enighet_godtatt_av_te_kan_ikke_trekkes():
+    """Har TE godtatt svaret, er kravet oppgjort, og tilbaketrekking avvises."""
+    timeline = TimelineService()
+    events, subsidiaert = _frist_subsidiaert_godkjent()
+    etter = timeline.compute_state(events + [_aksept("frist", subsidiaert.event_id)])
+    assert etter.frist.te_akseptert is True
+
+    resultat = BusinessRuleValidator().validate(_trekk_frist(), etter)
+    assert resultat.is_valid is False
+    assert "trekkes tilbake" in resultat.message
 
 
 # =============================================================================
