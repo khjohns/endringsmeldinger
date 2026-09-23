@@ -13,6 +13,23 @@ i en annen tråd. Status for F0b endres ikke før det er levert.
 Oppdraget konverterer ingen repositorier og skriver ingen migrasjoner. Det legger
 transporten og kontrakten som trådene i F0b punkt 2 skal bygge på.
 
+> **Merknad 2026-09-23 etter uavhengig review:**
+> [Reviewet](review-f0b-kjernen-2026-09-23.md) konkluderer med at kjernen kan
+> bygges videre på med navngitte endringer (RK-01–RK-05). De 57 testene og de
+> 27 opprinnelige mutasjonene er bekreftet, men to nye mutasjoner viser at
+> resetten kan miste enten rolle- eller kravkontrollen uten rød test (RK-03).
+> Containeren kan opprette to pooler ved samtidig første oppslag (RK-01), og
+> innkoblingen av repositoriene er ikke ferdigstilt som oppdraget krevde (RK-02).
+> Påstanden i avsnitt 2 om at rå commit fanges ved utgangen må avgrenses:
+> `COMMIT; BEGIN` passerer sluttkontrollen med innloggingsrolle og tom kontekst
+> (RK-04). Grensene omtalt i avsnitt 3 begrenser hver setning og inaktivitet,
+> ikke samlet transaksjonslevetid (RK-05). Kombinasjonsforsøket MC01 viser
+> sesjonsrester uten reset, men neste `transaksjon(Kontekst())` setter tom
+> kontekst på nytt; avsnitt 6 skal ikke leses som belegg for arvet kontekst
+> inne i neste hjelperblokk. M17 gir feil permanent underklasse, ikke
+> forbigående feil, og M08 setter en feil verdi framfor å utelate settingen.
+> Disse presiseringene erstatter de sterkere formuleringene nedenfor.
+
 ## 1. Hva som er levert
 
 | Fil | Innhold |

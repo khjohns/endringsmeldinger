@@ -293,6 +293,14 @@ Loggene ligger i [`resultater-2026-09-23/`](vedlegg/b02-prototype-v2-2026-09-23/
 
 ## 7. RB2-07 — tidskontrakten
 
+> **Merknad 2026-09-23 til tidsgrensen for T2:**
+> [Kjernereviewet, RK-05](review-f0b-kjernen-2026-09-23.md#rk-05--to-tidsgrenser-er-ikke-én-transaksjonsfrist)
+> har prøvd at kjernen bevarer begge innstillingene, og at de utløses. De gir
+> likevel ingen øvre grense for samlet transaksjonstid: mange korte setninger
+> kan holde transaksjonen og teamkonteksten levende. Raden nedenfor angir
+> setnings- og inaktivitetsgrenser, ikke en verifisert transaksjonsfrist.
+> En slik frist må fastsettes og prøves før F1s tidskontrakt er oppfylt.
+
 | Hva kan være gammelt | Øvre grense | Belegg |
 | --- | --- | --- |
 | Tokenet (T1v) | 60 s. Vakten avviser lengre og manglende `exp` | K |
