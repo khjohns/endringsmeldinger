@@ -1,5 +1,20 @@
 # Design: durable inbox og outbox før produksjon
 
+> **Merknad 2026-09-23 til del 2, 5 og 9:** Backend skal nå basen over direkte
+> tilkobling (hovedplanen
+> [3.1](plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger),
+> vedtatt 23.09). Blokkeringen i del 2, at et REST-kall ikke kan være med i en
+> transaksjon, faller dermed bort, og punkt 1 i del 9 («bytt hendelseslageret
+> fra PostgREST til en direkte databaseforbindelse») er nå planens første
+> leveranse (F0b). Merknaden 21.09 under er ikke feil, men avløst: én RPC kunne
+> gjøre skrivingen atomisk, og nå er det valgt en vei der også Python har
+> transaksjonen. Del 5 veier Azure SQL mot Postgres hos Supabase. Foreløpig mål
+> er nå en tredje variant, Azure PostgreSQL (B-12): Postgres innenfor
+> virksomhetens Azure-miljø. Konklusjonen der, «bytt klient først, database
+> senere», er fulgt. Append-only som bare konvensjon, som del 5 regner mot
+> Postgres, er ment løst av skrivevakten i alternativ C (F1) og av uavhengig
+> integritetsbevis (F4).
+
 > **Merknad 2026-09-21 til del 2 og 9:** Påstanden om at PostgREST gjør
 > outbox umulig er opphevet. Flere selvstendige HTTP-kall deler ikke
 > transaksjon, men én RPC kan utføre domene- og outbox-skriving atomisk.
