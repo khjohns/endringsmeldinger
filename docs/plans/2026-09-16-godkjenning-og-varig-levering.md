@@ -454,7 +454,7 @@ fordi de hører til samme domenefamilie som TFR og GFK.
 | TFR-05 | Åpen | Godkjent grunnlag rapporteres som `UTKAST`. Testinventarets FR-04 | Streng `xfail`, K 22.09 | D |
 | TFR-06 | Åpen, lav | Respons på uspesifisert fristvarsel | L 19.09 | D |
 | GFK-01 | Lukket med restanse | Gulvet verdsetter fristdager. Uten kjent sats er gulvet 0 (B-06) | H | D |
-| GFK-02 | Åpen, høy | `exposure()` ignorerer `ny_sluttdato` | Streng `xfail`, K 22.09 | D |
+| GFK-02 | Lukket | `exposure()` ignorerte `ny_sluttdato`. **Merknad 2026-09-23:** rettet i `approval_route`: en ny sluttdato i et fristsvar gir `amount=None`, krever hele kjeden, og kjeden må dekke det som lar seg verdsette (`minimum`), som for endringsordrer. Uten dagmulktssats er atferden uendret (B-06); testen påstår bare at ruten aldri blir kortere enn kjeden. Frontendens `calculateAuthority` speiler ikke dette, men skjemaet sender ikke `ny_sluttdato` | K 23.09 | — |
 | GFK-03 | Duplikat | → RV-02 | — | F2 |
 | GFK-04 | Avgrenset | Forsering er vedtatt utenfor godkjenningsflyten. Testen forventer støtte og feiler med `ValueError("Ugyldig vurderingstype.")`, i samsvar med avgrensningen. Ingen feilretting | K 22.09 | — |
 | GFK-05 | Åpen | TE kan generere BH-brev som PDF | Streng `xfail`, K 22.09 | H |
