@@ -9,7 +9,6 @@ Denne servicen håndterer opprettelse av forseringssaker som egne saker
 med relasjoner til de avslåtte fristforlengelsessakene.
 """
 
-import os
 from datetime import UTC, datetime
 from typing import Any
 
@@ -22,17 +21,17 @@ from utils.logger import get_logger
 logger = get_logger(__name__)
 
 
-# Check if relation repository is available (Supabase backend)
 def _get_relation_repository():
-    """Get relation repository if available."""
-    backend = os.environ.get("EVENT_STORE_BACKEND", "json")
-    if backend == "supabase":
-        try:
-            from repositories import create_relation_repository
+    """Relasjonslageret fra containeren, eller None når det ikke finnes."""
+    from core.container import get_container
 
-            return create_relation_repository()
-        except Exception as e:
-            logger.debug(f"RelationRepository not available: {e}")
+    container = get_container()
+    if container.bruker_postgres:
+        return container.relation_repository
+    try:
+        return container.relation_repository
+    except Exception as e:
+        logger.debug(f"RelationRepository not available: {e}")
     return None
 
 

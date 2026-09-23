@@ -143,7 +143,7 @@ def test_selected_supabase_backend_fails_closed_when_registry_cannot_start(
     configured_settings, monkeypatch
 ):
     monkeypatch.setattr(
-        "services.catenda_project_resolver_factory.SupabaseCatendaProjectConfigRepository",
+        "repositories.catenda_project_config_repository.SupabaseCatendaProjectConfigRepository",
         lambda: (_ for _ in ()).throw(RuntimeError("Supabase unavailable")),
     )
 

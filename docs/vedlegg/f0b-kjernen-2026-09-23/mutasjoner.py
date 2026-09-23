@@ -23,6 +23,9 @@ DB = "backend/lib/db/database.py"
 FEIL = "backend/lib/db/feil.py"
 CONFIG = "backend/core/config.py"
 FIXTURE = "backend/tests/test_database/conftest.py"
+CONTAINER = "backend/core/container.py"
+FORSERING = "backend/services/forsering_service.py"
+AUTH = "backend/services/auth_service.py"
 SJEKK = (
     "    if conn.info.transaction_status != TransactionStatus.INTRANS:\n"
     '        raise RuntimeError("Kontekst kan bare settes inne i en åpen transaksjon")\n'
@@ -49,7 +52,7 @@ MUTASJONER = [
     ("M07 SET LOCAL ROLE NONE fjernet", DB,
      '        conn.execute("SET LOCAL ROLE NONE")\n', "        pass\n",
      "test_tom_kontekst_overstyrer"),
-    ("M08 tom kontekst settes ikke", DB,
+    ("M08 tom kontekst settes til en feil verdi", DB,
      'return json.dumps(satt) if satt else ""', 'return json.dumps(satt) if satt else "lekket"',
      "test_tom_kontekst_overstyrer or test_kontekst_lekker_ikke"),
     ("M09 avsluttet transaksjon godtas", DB,
@@ -79,7 +82,7 @@ MUTASJONER = [
      "            except SerialiseringsFeil:\n", "            except TransientError:\n",
      "test_forbigaaende_feil_utenom", ("    SerialiseringsFeil,\n",
                                        "    SerialiseringsFeil,\n    TransientError,\n")),
-    ("M17 skranker er forbigående", FEIL,
+    ("M17 skranker mister ValidationError", FEIL,
      'if sqlstate.startswith(("22", "23")):', 'if False:',
      "test_avvisninger_er_permanente"),
     ("M18 ukjent SQLSTATE er forbigående", FEIL,
@@ -108,6 +111,27 @@ MUTASJONER = [
      '        raise DatabaseIkkeKonfigurert("DATABASE_URL kan ikke tolkes") from None',
      '        raise DatabaseIkkeKonfigurert(f"DATABASE_URL kan ikke tolkes: {url}")',
      "test_uleselig_database_url"),
+    ("M28 resetten ser bort fra kravene", DB,
+     "    return rad == (True, True)\n", "    return rad[0]\n",
+     "test_hver_sesjonsrest_alene"),
+    ("M29 resetten ser bort fra rollen", DB,
+     "    return rad == (True, True)\n", "    return rad[1]\n",
+     "test_hver_sesjonsrest_alene"),
+    ("M30 første oppslag av databasen uten lås", CONTAINER,
+     "            with self._database_laas:\n                if self._database is None:",
+     "            if True:\n                if self._database is None:",
+     "test_samtidig_forste_oppslag"),
+    ("M31 hendelseslageret ser bort fra DATALAG", CONTAINER,
+     "if self._event_repo is None and self.bruker_postgres:", "if False:",
+     "test_postgres_lagre_faar_containerens_database"),
+    ("M32 AuthService lager sitt eget lager", AUTH,
+     "            repo = get_container().auth_repository\n",
+     ("            from repositories.auth_repository import AuthRepository\n\n"
+      "            repo = AuthRepository()\n"),
+     "test_auth_service_henter"),
+    ("M33 manglende relasjonslager blir stille None med PostgreSQL", FORSERING,
+     "    if container.bruker_postgres:\n        return container.relation_repository\n",
+     "", "test_manglende_relasjonslager"),
     ("M25 testbasen krever ikke merket", FIXTURE,
      "    if merke != TESTBASE_MERKE:", "    if False:",
      "test_base_uten_merket"),
@@ -124,7 +148,8 @@ MUTASJONER = [
 def kjor(uttrykk: str) -> int:
     return subprocess.run(
         [sys.executable, "-m", "pytest", "-q", "-x", "-p", "no:cacheprovider",
-         "-m", "database", "tests/test_database", "-k", uttrykk],
+         "tests/test_database", "tests/test_core/test_container_postgres.py",
+         "-k", uttrykk],
         cwd=BACKEND, capture_output=True, text=True, check=False,
     ).returncode
 
@@ -133,7 +158,7 @@ def main() -> int:
     if not os.environ.get("KOE_TESTBASE_URL"):
         print("KOE_TESTBASE_URL må være satt", file=sys.stderr)
         return 2
-    if kjor("kjerne or skrivbar") != 0:
+    if kjor("kjerne or skrivbar or container") != 0:
         print("Testene er ikke grønne uten mutasjon", file=sys.stderr)
         return 2
     sys.path.insert(0, str(BACKEND))

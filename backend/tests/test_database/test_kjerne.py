@@ -237,6 +237,21 @@ def test_kontekst_satt_paa_sesjonsniva_kastes_med_forbindelsen(db, miljo, caplog
     assert "kontekst på sesjonsnivå" in caplog.text
 
 
+@pytest.mark.parametrize("rest", ["rolle", "krav"])
+def test_hver_sesjonsrest_alene_kastes_med_forbindelsen(db, miljo, rest):
+    """RK-03: rolle og krav kontrolleres hver for seg."""
+    _, _, pid = sesjonen(db)
+    with db.transaksjon(Kontekst()) as conn:
+        if rest == "rolle":
+            conn.execute(sql.SQL("SET ROLE {}").format(sql.Identifier(miljo.rolle)))
+        else:
+            conn.execute("SELECT set_config(%s, 'lekket', false)", (KONTEKSTVARIABEL,))
+
+    rolle, krav, ny_pid = sesjonen(db)
+    assert (rolle, krav or "") == (miljo.login, "")
+    assert ny_pid != pid
+
+
 def test_tom_kontekst_overstyrer_det_sesjonen_har(miljo):
     """Det første laget virker også uten poolens reset, for eksempel når en
     mellomliggende pooler gir en forbindelse med en annens sesjonstilstand."""
@@ -280,6 +295,24 @@ def test_transaksjon_som_er_avsluttet_i_blokken_avvises(db):
         Kontekst()
     ) as conn:
         conn.execute("COMMIT")
+
+
+@pytest.mark.xfail(
+    strict=True,
+    raises=AssertionError,
+    reason=(
+        "RK-04: `COMMIT; BEGIN` i blokken passerer sluttkontrollen. Det som ble "
+        "skrevet før, er committet, og resten kjører uten rolle og krav. "
+        "Kallerne skal ikke styre transaksjonen selv (gjennomføringsnotatet, 7)."
+    ),
+)
+def test_raa_commit_og_begin_i_blokken_etterlater_ingenting(db, miljo):
+    with pytest.raises(Avbrudd), db.transaksjon(Kontekst()) as conn:
+        conn.execute("INSERT INTO rad (id, verdi) VALUES (71, 'a')")
+        conn.execute("COMMIT")
+        conn.execute("BEGIN")
+        raise Avbrudd
+    assert uavhengig(miljo, "SELECT count(*) FROM rad") == [(0,)]
 
 
 def test_transaksjoner_kan_ikke_nostes_i_samme_trad(db):
