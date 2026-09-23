@@ -27,3 +27,6 @@ backend/koe_data/
 # Supabase CLI-artefakter
 supabase/.temp/
 supabase/.branches/
+
+# Lokal kopi av standarden. Spores ikke (507e225)
+docs/NS_8407.md
