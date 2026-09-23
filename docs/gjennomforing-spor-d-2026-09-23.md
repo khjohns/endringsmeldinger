@@ -186,6 +186,23 @@ og, etter GFK-02, for fristsvar. Er ingen kjede konfigurert, kan svaret ikke
 sendes. En senior saksbehandler med en mindre senior kjede avvises også, fordi
 kjeden må dekke det som lar seg verdsette.
 
+## Merknad 2026-09-23 (senere samme dag): spørsmålene er besvart
+
+Oppdragsgiver har svart; vedtakene står i
+[hovedplanen, 3.1](plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger).
+Ingen av dem er bygget.
+
+1. **Nøytralt fristvarsel:** innsigelse mot sen varsling (§ 5) og forespørsel
+   om spesifisert krav (§ 33.6.2) blir egne handlinger. De setter ikke
+   resultat, gjør ikke sporet avslått og åpner ikke forsering. Et svar med
+   dager og resultat avvises til TE har spesifisert kravet (§ 33.7). Rettingen
+   av TFR-06 og DRF-01 bygger på dette.
+2. **Godkjent ansvar:** fullmakten regnes av TEs krevde beløp, vederlag pluss
+   krevde fristdager ganget med dagmulktssatsen. Er kravet ikke tallfestet,
+   kreves hele kjeden. Mangler satsen, gjelder B-06.
+3. **Ubegrenset fullmakt** kan sende alene når beløpet ikke kan verdsettes,
+   for fristsvar med ny sluttdato og for endringsordrer.
+
 ## Nye funn
 
 | ID | Alvorlighet | Funn | Belegg |

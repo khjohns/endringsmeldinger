@@ -116,6 +116,10 @@ To forhold må avgjøres før rettingen, og de henger sammen med TFR-06:
 2. TFR-06 er at BH kan svare fullt ut på et nøytralt varsel. Rettes det med
    en sperre, må sperren slippe forespørselen gjennom.
 
+*Merknad 2026-09-23 (senere samme dag):* avgjort av oppdragsgiver.
+Forespørselen blir en egen handling som ikke gjør sporet avslått og ikke åpner
+forsering; se [hovedplanen, 3.1](plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger).
+
 ### DRF-02: felt som forsvinner uten feilmelding
 
 Svarmodellene har Pydantics standard `extra="ignore"`. Et felt modellen ikke
