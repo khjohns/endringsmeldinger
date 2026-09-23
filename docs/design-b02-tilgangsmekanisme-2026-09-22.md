@@ -12,6 +12,12 @@ oppdragsgiver etter uavhengig review.
 
 ## Sammendrag
 
+> **Merknad 2026-09-23 fra reviewet:**
+> [Uavhengig review](review-b02-tilgangsmekanisme-2026-09-23.md) konkluderer med
+> at anbefalingen kan legges til grunn med navngitte endringer. Originalbevisets
+> 71/71 og de tre mutasjonene er bekreftet. Integritetsgrensen og flere
+> F1-kontroller er likevel ufullstendige; se RB2-01–08. B-02 er fortsatt åpen.
+
 Anbefalingen er alternativ C: **RLS med kontekst for lesing, avgrensede
 `SECURITY DEFINER`-kommandoer for bindende skriving, og en skrivevakt-trigger på
 journalen.** Kommandoene går som RPC over PostgREST.
@@ -46,6 +52,14 @@ hver fjerner én regel, gjorde henholdsvis 3, 7 og 11 sjekker røde.
 
 ### TM-01 — et signert token kan velge `service_role`
 
+> **Merknad 2026-09-23 fra reviewet (RB2-01):** Rollevalget er bekreftet for
+> den valgte signeringsmodellen, men gjelder ikke uunngåelig all PostgREST-bruk.
+> Supabase dokumenterer en forespørselsvakt. Lokalt avviste den et
+> `service_role`-token og tillot `koe_runtime` med samme signeringsnøkkel.
+> T2 og et avgrenset PostgREST-oppsett må sammenliknes før transportvalget låses.
+> Hostet JWT-validering er fortsatt ikke prøvd. Se
+> [reviewet](review-b02-tilgangsmekanisme-2026-09-23.md).
+
 **Katalogen (D 22.09):** `authenticator` er `LOGIN NOINHERIT` og medlem av
 `anon`, `authenticated` og `service_role` med `SET`, gitt av `supabase_admin`.
 `service_role` har `BYPASSRLS`. Supabase-dokumentasjonen om JWT-signeringsnøkler
@@ -65,6 +79,13 @@ fjerne en trigger. Prototypen bekrefter det (K).
 avsnittet om å lage egne JWT-er.
 
 ### TM-02 — identitetsfunksjonene forutsetter `service_role`
+
+> **Merknad 2026-09-23 fra reviewet (RB2-05):** DEFINER-konverteringen virker,
+> men runtime kan også bruke annen issuer/provider og opprette medlemskap via
+> synkronisering. Dette må behandles som betrodd myndighet, ikke som et
+> uavhengig medlemskapsbevis mot overtatt runtime. Catenda-issuer/provider og
+> subjektnormalisering må låses i den planlagte inngangen. Se
+> [reviewet](review-b02-tilgangsmekanisme-2026-09-23.md).
 
 `koe_resolve_identity`, `koe_reconcile_memberships`, `koe_register_project` og
 `koe_set_contract_teams` er `SECURITY INVOKER` med `search_path=''`. `EXECUTE`
@@ -222,6 +243,16 @@ Runtime har ingen tabellrettigheter. All lesing og skriving går gjennom
 
 ### Alternativ C — RLS for lesing, kommandoer for bindende skriving, skrivevakt
 
+> **Merknad 2026-09-23 fra reviewet (RB2-02/03):** Vaktbeskrivelsen under
+> er ikke en full operasjonsmodell for alle integritetstabellene. Saksattribusjon
+> og leveringsreferanser kan endres i prototypen, og notatets sak kan høre til
+> et annet prosjekt. `koe_policy` og legitime statusendringer trenger egne regler.
+> «Ingen rolle kan bli kommandoeieren» må dessuten avgrenses mot administrator:
+> PG17 gir en ikke-superbruker med CREATEROLE ADMIN på rollen den oppretter.
+> Katalogen viser også TEMP-rettighet for service_role; fravær av CREATE i
+> eksisterende skjemaer er ikke en full kontroll av objektoppretting. Se
+> [reviewet](review-b02-tilgangsmekanisme-2026-09-23.md).
+
 - **Lesing:** runtime har `SELECT`, og RLS med `FORCE` filtrerer på kontekst og
   medlemskap. Et nytt lesepunkt arver filteret (AF-01).
 - **Bindende skriving:** journalen, godkjenningspakker, fullmakt og policy skrives
@@ -265,6 +296,13 @@ Runtime har ingen tabellrettigheter. All lesing og skriving går gjennom
 | Omskriving av backend | Liten | Stor: all lesing blir RPC | Middels: bindende skriving blir RPC, som F2 uansett krever |
 
 ## 4. Kontekstkontrakten
+
+> **Merknad 2026-09-23 fra reviewet (RB2-04):** Privat lesing lykkes lokalt
+> uten gyldig side når aktør/prosjekt/team ellers stemmer. Et vilkårlig team
+> kan brukes ved notatinnsetting, og NULL forventet versjon passerer kommandoen.
+> Sjekkene under beviser utvalgte kombinasjoner, ikke en fullstendig
+> kontekst- og argumentkontrakt. Se
+> [reviewet](review-b02-tilgangsmekanisme-2026-09-23.md).
 
 ### 4.1 Hva som føres inn
 
@@ -359,6 +397,14 @@ sier RPC over PostgREST. Prototypen viser at C holder med begge transporter
 
 ## 6. B-04: tilbakekalling
 
+> **Merknad 2026-09-23 fra reviewet (RB2-07):** «Ingen forsinkelse» er for
+> absolutt når token eller transaksjoner kan leve videre etter Catenda-oppslaget.
+> Lokal PostgREST godtok også manglende exp og lengre levetid enn 60 sekunder.
+> En frist før virkning krever endret active-/synkroniseringslogikk, ikke bare
+> en ekstra tidskolonne. B-04 er ikke avgjort, men tidskontrakten må konkretiseres.
+> Supavisor er fortsatt ikke prøvd. Se
+> [reviewet](review-b02-tilgangsmekanisme-2026-09-23.md).
+
 Designet avgjør ikke B-04, men påvirker hva som er mulig:
 
 - Medlemskap slås opp i basen ved hver spørring. Når synkroniseringen har
@@ -393,6 +439,14 @@ Rekkefølgen:
    av domenelogikk.
 
 ## 8. Testplan
+
+> **Merknad 2026-09-23 fra reviewet (RB2-06/08):** Fjerning av FORCE ga
+> fortsatt 71/71; atomicitetssjekken teller bare kø-raden etter et vellykket kall.
+> PID-sjekken må kreve gyldige svar og ikke-null PID. Prototypen gir nettrollene
+> EXECUTE på diagnostikkfunksjonen hvem, som må ut av målmodellen. Testplanen
+> mangler også F1-kriteriet om separat, tidsavgrenset og logget migrering og
+> break-glass. Resultater og nødvendige tillegg står i
+> [reviewet](review-b02-tilgangsmekanisme-2026-09-23.md).
 
 Hver test logger inn som `authenticator` og bytter rolle transaksjonslokalt,
 eller går gjennom PostgREST med et token. `SET ROLE` fra en superbrukersesjon

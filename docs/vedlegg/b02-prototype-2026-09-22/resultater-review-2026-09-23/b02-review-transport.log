@@ -1,0 +1,10 @@
+Bygget 23 migrasjoner.
+B-02-lag 01_plattform_postgrest.sql
+B-02-lag 02_b02_lag.sql
+B-02-lag 03_testdata.sql
+B-02-lag avvis_service_role.sql
+PostgREST PostgREST 12.2.12 (cd3cf9e), db-pool = 1
+Server: 17.11 (Homebrew)
+
+koe_runtime 200 [{"notat_id":"e0000000-0000-4000-8000-0000000000a1"}]
+service_role 403 {"code":"42501","details":null,"hint":null,"message":"service_role avvist av reviewets forespørselsvakt"}
