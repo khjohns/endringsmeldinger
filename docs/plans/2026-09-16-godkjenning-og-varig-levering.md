@@ -651,6 +651,19 @@ feilklasse i driveren.
 > det [uavhengige reviewet](../prompt-review-f0b-kjernen-2026-09-23.md) er
 > levert**, og punkt 2 bygger ikke på kjernen før da.
 
+> **Merknad 2026-09-23 (F0b, uavhengig review levert):**
+> [Reviewet av `55ad006`](../review-f0b-kjernen-2026-09-23.md) konkluderer med
+> **«kan bygges videre på med navngitte endringer»**. RK-01–RK-03 er åpne før
+> punkt 2: trådsikker poolopprettelse, ferdig innkoblingskontrakt i containeren
+> og separate tester for reset av rolle og krav. RK-04 krever en uttrykkelig
+> regel om at kjernen alene eier transaksjonsstyringen; rå `COMMIT; BEGIN`
+> omgår sluttkontrollen. RK-05 er åpen før F1: setnings- og inaktivitetstimeout
+> er ikke en samlet transaksjonsfrist. Backend-suiten har 1589 bestått,
+> 9 hoppet over og 38 xfailed; 57 databasetester og 27 mutasjoner er bekreftet.
+> To nye mutasjoner overlever de gamle testene og fanges av reviewtestene.
+> Kjernen er reviewet, men punkt 1 er ikke godkjent som ferdig; punkt 2 venter
+> på oppfølgingen over. Ingen produksjonskode eller delt base er endret.
+
 ### F1 — Sikkerhetsgrenser i datalaget og private lagre
 
 **Avhenger av:** F0-jobben og F0b; B-02 før rolle- og policymigrasjoner; B-04
