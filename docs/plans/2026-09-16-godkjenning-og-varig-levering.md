@@ -921,6 +921,12 @@ RC-10 i spor H; RC-9 i F3 og spor H; RC-11 lukket med FE-01 og FE-05; RC-12 i F4
 > utenom DB-04s fremmednøkler (B-01).
 > Neste oppgave er nå F0b, etter beslutningen om direkte tilkobling (3.1).
 
+> **Merknad 2026-09-23 (spor D):** Spor D er gjennomført (PR #45 og #46):
+> BR-01 reprodusert, sju domenefeil rettet, og tre spørsmål besvart som
+> vedtak i 3.1. Parallelt med F0b er nå neste domeneoppgave
+> [oppdraget for B-13](../prompt-b13-backend-eier-reglene-2026-09-23.md):
+> først et beslutningsgrunnlag for B-13, deretter vedtakene fra spor D.
+
 **Start med F0b, punkt 1: kjernen.** Den avgjør formen på alt som kommer etter,
 og er det eneste i F0b som ikke bør deles mellom tråder. Den krever ingen ny
 beslutning.
@@ -936,7 +942,7 @@ og [oppdraget for reviewet](../prompt-review-f0b-kjernen-2026-09-23.md).
 
 [Prototype v2](../vedlegg/b02-prototype-v2-2026-09-23/kjor.sh) viser
 konteksthåndteringen over direkte innlogging og kan brukes som mønster, ikke
-som kode. Parallelt kan spor D gå (BR-01 reprodusert 23.09), og
+som kode. Parallelt kan B-13-oppdraget gå, og
 containerdelen av F0b når IKT har svart (B-12). Beslutningene F1 trengte, ble
 tatt 23.09 (B-02 og B-04 i 3.1). F1-migrasjonene venter på det uavhengige
 reviewet og RK-05.
