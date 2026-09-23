@@ -2,7 +2,9 @@
 
 **Opprettet:** 2026-09-16. **Sluttredigert:** 2026-09-22, mot commit
 `41c2a16191a5aadbe611e0958db8b93090b08027` (`main`).
-**Sist endret:** 2026-09-23, mot `05b3aa7` (`main`): BR-01 reprodusert og flyttet
+**Sist endret:** 2026-09-23, mot `c708f95` (`spor-d-domenefeil`):
+beslutningsgrunnlaget for B-13 levert, se merknaden under B-13. Tidligere samme
+dag, mot `05b3aa7` (`main`): BR-01 reprodusert og flyttet
 til 4.2, DRF-01–DRF-03 ført inn og kartleggingen for B-13 levert. Tidligere
 samme dag: beslutningen om alternativ C over direkte tilkobling (T2), B-02
 punkt 3–6 og B-04 avgjort, B-12 og B-13 ført opp, se
@@ -371,6 +373,19 @@ Et åpent valg blokkerer bare oppgavene som er nevnt.
 > 99 %-terskelen for «godkjent», passivitet etter § 32.3 og om det er sum
 > eller poster som binder. Kartleggingen fant også DRF-01–DRF-03 (4.2).
 > Beslutningsstatus for B-13 er uendret.
+
+> **Merknad 2026-09-23 til B-13 (beslutningsgrunnlag):**
+> [Designnotatet](../design-b13-sannhetskilde-2026-09-23.md) sammenlikner de
+> tre alternativene punkt for punkt: journal, brev, partens tekst, frontend,
+> godkjenningsflyt og regelendring. Det anbefaler (2) i streng form: backend
+> regner ut resultatet, og et svar der klientens konklusjon ikke er lik, avvises
+> med serverens verdi. Hendelsen får en regelversjon, og projeksjonen regner
+> aldri om. Premissen er at resultatet oppsummerer vurderingene og ikke
+> uttrykker noen egen vilje. Begrunnelsesteksten forblir partens (T-a).
+> Preklusjon ut fra byggherrens egen vurdering trekkes; passivitet varsles.
+> Sju valg står for oppdragsgiver i notatets avsnitt 7, blant dem de fem
+> spørsmålene fra kartleggingen som ikke er avgjort. Beslutningsstatus for B-13
+> er uendret.
 
 > **Merknad 2026-09-23 til B-12:** Ny åpen beslutning. IKT svarte at både
 > Azure SQL og PostgreSQL kan brukes; oppdragsgiver har foreslått PostgreSQL.
