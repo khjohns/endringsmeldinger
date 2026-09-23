@@ -1,0 +1,75 @@
+== identitet_til_runtime.sql
+FEIL | Rettighetsmatrise | koe_runtime: EXECUTE bare på kommandoene, hvem og vakten | [('koe_api.catenda_identitet',), ('koe_api.hvem',), ('koe_api.opprett_sak',), ('koe_api.send_varsel',), ('koe_api.skriv_notat',), ('koe_api.slett_notat',), ('koe_api.synkroniser_medlemmer',), ('koe_vakt.foresporsel',), ('public.koe_resolve_identity',)]
+154 av 155 sjekker holdt.
+== temp_tilbake.sql
+FEIL | RB2-02 service_role | midlertidig tabell avvises | -1
+154 av 155 sjekker holdt.
+== trigger_tilbake.sql
+FEIL | RB2-02 service_role | montere triggerfunksjon (TM-07) avvises | -1
+FEIL | Rettighetsmatrise | service_role: ingen TRUNCATE, TRIGGER eller REFERENCES på integritetstabellene | [('app_identities', 'DELETE,INSERT,REFERENCES,SELECT,TRIGGER,TRUNCATE,UPDATE'), ('app_membership_sync', 'DELETE,INSERT,REFERENCES,SELECT,TRIGGER,TRUNCATE,UPDATE'), ('app_oauth_attempts', 'DELETE,INSERT,REFERENCES,SELECT,TRIGGER,TRUNCATE,UPDATE'), ('app_project_memberships', 'DELETE,INSERT,REFERENCES,SELECT,TRIGGER,TRUNCATE,UPDATE'), ('app_sessions', 'DELETE,INSERT,REFERENCES,SELECT,TRIGGER,TRUNCATE,UPDATE'), ('app_users', 'DELETE,INSERT,REFERENCES,SELECT,TRIGGER,TRUNCATE,UPDATE'), ('catenda_contract_teams', 'DELETE,INSERT,REFERENCES,SELECT,TRIGGER,TRUNCATE,UPDATE'), ('catenda_models_cache', 'DELETE,INSERT,REFERENCES,SELECT,TRIGGER,TRUNCATE,UPDATE'), ('catenda_project_configs', 'DELETE,INSERT,REFERENCES,SELECT,TRIGGER,TRUNCATE,UPDATE'), ('catenda_topic_board_configs', 'DELETE,INSERT,REFERENCES,SELECT,TRIGGER,TRUNCATE,UPDATE'), ('hendelse', 'DELETE,INSERT,SELECT,TRIGGER,UPDATE'), ('magic_links', 'DELETE,INSERT,REFERENCES,SELECT,TRIGGER,TRUNCATE,UPDATE'), ('notat', 'DELETE,INSERT,SELECT,UPDATE'), ('project_memberships', 'DELETE,INSERT,REFERENCES,SELECT,TRIGGER,TRUNCATE,UPDATE'), ('projects', 'DELETE,INSERT,REFERENCES,SELECT,TRIGGER,TRUNCATE,UPDATE'), ('sak_bim_links', 'DELETE,INSERT,REFERENCES,SELECT,TRIGGER,TRUNCATE,UPDATE'), ('sak_metadata', 'DELETE,INSERT,SELECT,UPDATE'), ('sak_relations', 'DELETE,INSERT,REFERENCES,SELECT,TRIGGER,TRUNCATE,UPDATE'), ('user_groups', 'DELETE,INSERT,REFERENCES,SELECT,TRIGGER,TRUNCATE,UPDATE'), ('utgaende_levering', 'DELETE,INSERT,SELECT,UPDATE')]
+153 av 155 sjekker holdt.
+== uten_argumentkontroll.sql
+FEIL | RB2-04 argumenter | NULL forventet versjon avvises med 22023 | [(UUID('a860f9f5-b1fd-4a1d-a6e5-ae645aefc296'),)]
+FEIL | RB2-04 argumenter | negativ forventet versjon avvises med 22023 | 'PT409'
+153 av 155 sjekker holdt.
+== uten_attribusjonsvern.sql
+FEIL | RB2-02 service_role | flytte sak til annet prosjekt avvises | '23503'
+FEIL | RB2-02 service_role | endre projeksjon i sak_metadata avvises | 2
+153 av 155 sjekker holdt.
+== uten_foresporselsvakt.sql
+FEIL | RB2-01 forespørselsvakt | service_role-token: HTTP 403 | (200, '[{"notat_id":"cbf5db04-e0b8-48e5-a729-d43f117e22d3"}, \n {"notat_id":"92b74de1-5313-4f62-bb44-5a7a86fdc421"}, \n {"notat_i')
+FEIL | RB2-01 forespørselsvakt | token uten exp: HTTP 403 | (200, '[{"notat_id":"cbf5db04-e0b8-48e5-a729-d43f117e22d3"}]')
+FEIL | RB2-01 forespørselsvakt | token med ett døgns levetid: HTTP 403 | (200, '[{"notat_id":"cbf5db04-e0b8-48e5-a729-d43f117e22d3"}]')
+FEIL | RB2-01 forespørselsvakt | token med 61 s levetid: HTTP 403 | (200, '[{"notat_id":"cbf5db04-e0b8-48e5-a729-d43f117e22d3"}]')
+FEIL | RB2-01 forespørselsvakt | service_role: PATCH /hendelse avvises av vakten | '{"code":"42501","details":null,"hint":null,"message":"UPDATE på hendelse som service_role er avvist"}'
+150 av 155 sjekker holdt.
+== uten_koevern.sql
+FEIL | RB2-02 service_role | endre prosjekt i køen avvises | '23503'
+FEIL | RB2-02 service_role | legge notat-ID i køen avvises | '23503'
+FEIL | RB2-02 service_role | slette fra køen avvises | 2
+152 av 155 sjekker holdt.
+== uten_medlemskap.sql
+FEIL | Prosjekt A i kontekst | ikke-medlem med A i konteksten ser ingen hendelser | ''
+FEIL | Manglende kontekst | bare prosjekt: null rader i hendelse | ''
+FEIL | RB2-07 tilbakekalling | og ingen hendelser i neste forespørsel | ''
+152 av 155 sjekker holdt.
+== uten_prosjektkontroll.sql
+FEIL | Gjettet ressurs-ID | varsel: sak i B og ukjent sak gir identisk avvisning | (('23503', 'insert or update on table "hendelse" violates foreign key constraint "fk_hendelse_sak_prosjekt"'), ('42501', 'ukjent sak'))
+FEIL | RB2-03 private skrivestier | notat: sak i B og ukjent sak gir identisk avvisning | (('23503', 'insert or update on table "notat" violates foreign key constraint "fk_notat_sak_prosjekt"'), ('42501', 'ukjent sak'))
+153 av 155 sjekker holdt.
+== uten_skrivevakt.sql
+FEIL | RB2-02 service_role | UPDATE hendelse avvises | 2
+FEIL | RB2-02 service_role | DELETE hendelse avvises | '23503'
+FEIL | RB2-02 service_role | INSERT hendelse avvises | 1
+FEIL | RB2-02 service_role | MERGE UPDATE avvises | 1
+FEIL | RB2-02 service_role | ON CONFLICT UPDATE avvises | 1
+FEIL | RB2-02 service_role | COPY til hendelse avvises | 'OK'
+149 av 155 sjekker holdt.
+== uten_teamgrense.sql
+FEIL | Motpart | TE ser bare TEs notat | [('ba0000000000400080000000000000a1',), ('ba0000000000400080000000000000a2',), ('ea0000000000400080000000000000a3',)]
+FEIL | To team på samme side | BH-rådgiveren ser bare sitt eget notat | [('ba0000000000400080000000000000a1',), ('ba0000000000400080000000000000a2',), ('ea0000000000400080000000000000a3',)]
+FEIL | Ukjent team | team som ikke er prosjektets kontraktsteam gir null notater | ''
+FEIL | Ukjent team | team fra prosjekt B med A i konteksten gir null notater | ''
+FEIL | Ukjent team | TE-team oppgitt med side BH gir null notater (RB2-04) | ''
+FEIL | Ukjent team | manglende team gir null notater | ''
+FEIL | Leserolle (DB-05) | viewer ser ingen private notater | ''
+FEIL | Manglende kontekst | bare prosjekt: null rader i notat | ''
+FEIL | RB2-04 kontekst | manglende side: null private notater | ''
+FEIL | RB2-04 kontekst | ugyldig side: null private notater | ''
+FEIL | RB2-04 kontekst | side som JSON-objekt: null private notater | ''
+FEIL | RB2-04 kontekst | tom side: null private notater | ''
+FEIL | RB2-04 kontekst | store bokstaver i aktørens UUID normaliseres | [(3,)]
+FEIL | RB2-04 kontekst | aktør som JSON-liste | [(3,)]
+FEIL | RB2-04 kontekst | team som JSON-liste | [(3,)]
+FEIL | RB2-04 kontekst | team med bindestreker | [(3,)]
+FEIL | RB2-04 kontekst | ekstra krav ignoreres | [(3,)]
+FEIL | Gjenbrukt forbindelse | authenticator: første transaksjon ser eget notat | 3
+FEIL | Gjenbrukt forbindelse | koe_runtime_login: første transaksjon ser eget notat | 3
+FEIL | Gjenbrukt forbindelse | kontroll: kontekst satt på sesjonsnivå lekker | 3
+FEIL | Prosjekt A i kontekst | PostgREST: BH i A ser bare BHs notat | '[{"aktor_team_id":"ba0000000000400080000000000000a1"}, \n {"aktor_team_id":"ba00000000004000800000000'
+FEIL | RB2-07 tilbakekalling | neste setning i en åpen transaksjon ser null (READ COMMITTED) | (3, 3)
+133 av 155 sjekker holdt.
+== uten_teamvalidering.sql
+FEIL | Ukjent team | TE-team oppgitt med side BH gir null notater (RB2-04) | ''
+FEIL | RB2-03 private skrivestier | notat med ukjent team avvises likt | 'OK'
+153 av 155 sjekker holdt.
