@@ -377,15 +377,17 @@ Et åpent valg blokkerer bare oppgavene som er nevnt.
 > **Merknad 2026-09-23 til B-13 (beslutningsgrunnlag):**
 > [Designnotatet](../design-b13-sannhetskilde-2026-09-23.md) sammenlikner de
 > tre alternativene punkt for punkt: journal, brev, partens tekst, frontend,
-> godkjenningsflyt og regelendring. Det anbefaler (2) i streng form: backend
-> regner ut resultatet, og et svar der klientens konklusjon ikke er lik, avvises
-> med serverens verdi. Hendelsen får en regelversjon, og projeksjonen regner
-> aldri om. Premissen er at resultatet oppsummerer vurderingene og ikke
-> uttrykker noen egen vilje. Begrunnelsesteksten forblir partens (T-a).
-> Preklusjon ut fra byggherrens egen vurdering trekkes; passivitet varsles.
-> Sju valg står for oppdragsgiver i notatets avsnitt 7, blant dem de fem
-> spørsmålene fra kartleggingen som ikke er avgjort. Beslutningsstatus for B-13
-> er uendret.
+> godkjenningsflyt og regelendring. Notatet **anbefaler**, og ingenting av
+> dette er vedtatt: (2) i streng form, der backend regner ut resultatet og
+> avviser et svar der klientens konklusjon ikke er lik; en regelversjon som
+> klienten sender og serveren lagrer, og en projeksjon som aldri regner om;
+> at begrunnelsesteksten forblir partens (T-a); at preklusjon ut fra
+> byggherrens egen vurdering trekkes av systemet, og at passivitet bare
+> varsles. Premissen er at resultatet oppsummerer vurderingene og ikke
+> uttrykker noen egen vilje. Åtte valg står for oppdragsgiver i notatets
+> avsnitt 7, blant dem de fem spørsmålene fra kartleggingen som ikke er
+> avgjort. Beslutningsstatus for B-13 er uendret. Ikke bygg etter
+> anbefalingen før valgene er ført inn i 3.1.
 
 > **Merknad 2026-09-23 til B-12:** Ny åpen beslutning. IKT svarte at både
 > Azure SQL og PostgreSQL kan brukes; oppdragsgiver har foreslått PostgreSQL.

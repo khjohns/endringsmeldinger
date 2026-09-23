@@ -22,8 +22,9 @@ konklusjonen og vurderingene i samme svar spriker.
 **Anbefalingen er alternativ (2) i streng form.** Backend får en egen
 regelmodul som regner ut resultatet av vurderingene og kravet. Er klientens
 konklusjon ikke lik serverens, avvises svaret, og feilmeldingen oppgir hva
-serveren regnet ut. Journalen inneholder da bare verdier som klient og server
-har regnet ut likt, og hendelsen får en regelversjon.
+serveren regnet ut. Er de like, lagres serverens verdier. Journalen
+inneholder da bare verdier som klient og server har regnet ut likt, og
+hendelsen får en regelversjon som klienten også må ha.
 
 Hovedgrunnen er at en part aldri blir bundet av noe den ikke har sett.
 Alternativ (1) kan lagre et annet resultat enn det byggherren så i skjemaet.
@@ -39,7 +40,7 @@ riktige valget. Da må regelen om hva systemet handler på, avgjøres i tillegg.
 Begrunnelsesteksten er fortsatt partens egen formulering. Serveren kontrollerer
 feltene, ikke prosaen (avsnitt 5). Kartleggingens spørsmål om sum mot poster
 blir borte for nye hendelser under (1) og (2), fordi serveren regner summen
-selv. Avsnitt 7 har sju valg for oppdragsgiver, hvert med konkrete
+selv. Avsnitt 7 har åtte valg for oppdragsgiver, hvert med konkrete
 alternativer og en anbefaling.
 
 ## 1. Hva valget gjelder
@@ -54,7 +55,8 @@ rettsvirkning eller styrer hva systemet gjør:
   eller avslått, med beløp; om varslene kom i tide; om det foreligger
   fremdriftshindring.
 - **Kravet det svares på:** krevde beløp per post, krevde dager og varseltype.
-  Dette står i `SakState` (L).
+  Dette står i `SakState` (L). Byggherrens vurderinger fra et tidligere svar
+  gjør det ikke; se «Delvise oppdateringer» i avsnitt 4.
 
 BR-01 er ett eksempel: hovedkravet er avslått, 0 kr er godkjent, og
 resultatet er satt til «godkjent». Sporet ble `GODKJENT`, saken `OMFORENT` og
@@ -81,6 +83,13 @@ etter den. Feltet `begrunnelse` inneholder begge delene. Gjennom
 godkjenningsflyten sendes utdypningen i tillegg for seg, som
 `tilleggs_begrunnelse`. Gjennom `/api/events` sendes den ikke for seg.
 
+**Inngangene.** Et byggherresvar kan lagres på tre veier: `/api/events`,
+`/api/events/batch` og godkjenningsflyten (`/api/cases/<sak>/approvals`). De to
+første er sperret for svar når prosjektet har godkjenningspolicy
+(`public_event_block_reason`). Alle tre kaller forretningsreglene med
+tilstanden (`validator.validate(event, state)`). `validate_respons_event` får
+bare hendelsesdataene og sportypen, ikke tilstanden.
+
 **Journalen** inneholder klientens verdier uendret. Tidslinjen gjør
 `beregnings_resultat` om til sporstatus (BR-01, K 23.09).
 
@@ -96,7 +105,9 @@ slik serveren har lagret dem, ikke på det klienten sender med pakken:
 `godkjent_dager` og de subsidiære tallene, slik klienten sendte dem.
 Grunnlaget (`basis`) setter serveren selv. `validate_items` kjøres ved
 `prepare`, `package`, ved godkjenning og ved `publish`. `stale` regner
-fullmakten om av vurderingene i pakken hver gang den kjører.
+fullmakten om av vurderingene i pakken hver gang den kjører. Men `publish`
+lagrer hendelsene som ble frosset ved godkjenningen (`publicationEvents`), og
+kontrollerer dem bare. Det `validate_items` regner ut da, kastes.
 
 **Versjonering.** Hendelsene har ingen regelversjon. Det nærmeste forbildet er
 fullmaktsgrunnlaget. Der står matriseversjonen (`"matrix": "2026-01"`,
@@ -106,16 +117,16 @@ fullmaktsgrunnlaget. Der står matriseversjonen (`"matrix": "2026-01"`,
 
 | | (1) Serveren regner ut, og det gjelder | (2) Serveren avviser et svar der konklusjonen ikke følger av vurderingene | (3) Begge lagres, og avviket vises |
 | --- | --- | --- | --- |
-| **Journalen** | Serverens verdier. Klientens verdier forkastes eller overskrives, som aktørfeltene | Klientens verdier, men bare når de er like serverens. I praksis det samme som (1) | Klientens konklusjon, serverens utregning og et avviksflagg, side om side |
+| **Journalen** | Serverens verdier. Klientens verdier forkastes eller overskrives, som aktørfeltene | Serverens verdier, lagret bare når klientens er like. Dermed det samme som (1) | Klientens konklusjon, serverens utregning og et avviksflagg, side om side |
 | **Hva systemet handler på** | Serverens | Serverens, som er lik klientens | Må avgjøres i tillegg. Handler systemet på partens konklusjon, består BR-01. Handler det på serverens, er dette (1) med et ekstra felt |
-| **Brevet** | Beslutningslinjen viser serverens resultat. Teksten er klientens og kan si noe annet hvis versjonene av reglene er ulike | Beslutningslinjen og teksten bygger på samme regelversjon, fordi et avvik stoppes før lagring | Må vise ett av resultatene, eller begge. Et brev med to konklusjoner er tvetydig, og det er avsenderen som bærer risikoen for tvetydigheten |
+| **Brevet** | Beslutningslinjen viser serverens resultat. Teksten er klientens og kan si noe annet hvis versjonene av reglene er ulike | Beslutningslinjen og teksten bygger på samme regelversjon, fordi klienten må oppgi versjonen, og en annen versjon avvises | Må vise ett av resultatene, eller begge. Et brev med to konklusjoner er tvetydig, og det er avsenderen som bærer risikoen for tvetydigheten |
 | **Partens egen formulering** | Kan si noe annet enn det serveren lagret | Kan bare si noe annet hvis klienten er endret eller har en feil. Da er feltene likevel kontrollert | Står uendret. Avviket vises ved siden av |
 | **Frontenden** | Viser fortsatt forhåndsvisningen. Etter innsending kan det lagrede resultatet være et annet, uten at noen får vite det, med mindre grensesnittet sammenlikner selv | Viser fortsatt forhåndsvisningen. Ved avvik kommer en feilmelding med serverens verdi, for eksempel «Reglene er oppdatert. Serveren regner ut *delvis godkjent*. Last inn saken på nytt». `submission.error` viser den allerede | Viser forhåndsvisningen. Tidslinjen, sporkortet og brevet trenger en ny visning av avviket |
-| **`/api/events` uten godkjenning** | Byggherren blir bundet av et resultat som ikke ble vist | Byggherren får en feilmelding. Ingenting lagres | Lagres med avvik |
+| **`/api/events` og `/api/events/batch`, uten godkjenning** | Byggherren blir bundet av et resultat som ikke ble vist | Byggherren får en feilmelding. Ingenting lagres | Lagres med avvik |
 | **Godkjenningsflyten** | Vurderingen lagres med serverens verdier ved `prepare`. Godkjennerne ser dem. Fullmakten regnes av dem | Avvises ved `prepare`, så en uverifisert konklusjon når aldri godkjennerne. Fullmakten regnes av serverens tall | Fullmakten må regnes av det høyeste av de to, ellers kan avviket brukes til å få en kortere rute |
-| **Regelendring (B-10)** | Resultatet regnes ut når svaret skrives, og det lagres. Det regnes aldri om ved lesing | Som (1). Endres reglene mellom `prepare` og `publish`, avviser `validate_items` pakken, og den må ferdigstilles og godkjennes på nytt | Avviket må regnes ut og lagres når svaret skrives. Regnes det ut ved lesing, gir en ny regel nye avvik i gamle hendelser |
+| **Regelendring (B-10)** | Resultatet regnes ut når svaret skrives, og det lagres. Det regnes aldri om ved lesing | Som (1). Endres reglene mellom `prepare` og `publish`, stopper `publish` pakken fordi regelversjonen i den er en annen enn serverens. Den må ferdigstilles og godkjennes på nytt | Avviket må regnes ut og lagres når svaret skrives. Regnes det ut ved lesing, gir en ny regel nye avvik i gamle hendelser |
 | **BR-01-testene** | Blir XPASS, fordi tilstanden viser resultatet vurderingene gir | Blir XPASS. Svaret avvises, og kontrollsaken viser at det er resultatet som er grunnen | Må skrives om (modulheaderen i testfila) |
-| **Det som må bygges** | Regelmodul, overskriving i begge inngangene, regelversjon | Regelmodul, sammenlikning i validatoren som begge inngangene kaller, feilkode, regelversjon | Regelmodul, nye felt, visning av avviket i tre flater, regelen for hva systemet handler på |
+| **Det som må bygges** | Regelmodul, overskriving i alle tre inngangene, regelversjon | Regelmodul, sammenlikning i forretningsreglene som alle tre inngangene kaller, feilkode, regelversjon fra klienten | Regelmodul, nye felt, visning av avviket i tre flater, regelen for hva systemet handler på |
 
 (1) og (2) gir samme journal. Forskjellen er hva som skjer når klient og
 server er uenige. (1) lagrer serverens svar uten at noen ser det. (2) stopper
@@ -150,16 +161,38 @@ lik den, ikke bare forenlig med den. Sammenlikningen gjelder
 `beregnings_resultat`, `subsidiaer_resultat`, `subsidiaer_triggers` som
 mengde, og beløpene og dagene i listen over. Beløp sammenliknes til hele øre
 etter avrunding, fordi klienten regner med flyttall og serveren bør regne
-med `Decimal`.
+med `Decimal`. Når verdiene er like, lagres serverens avrundede verdier og
+ikke klientens flyttall. Ellers ville journalen, tilstanden, brevet og
+EO-kontrollen bruke et annet tall enn fullmakten.
+
+**Hvor sammenlikningen gjøres.** Den trenger kravet fra tilstanden. Derfor
+hører den hjemme i forretningsreglene, som får tilstanden og kalles fra alle
+tre inngangene, og ikke i `validate_respons_event`.
 
 **Delvise oppdateringer.** `respons_*_oppdatert` kopierer bare felt som ikke er
-`None`. Utregningen må derfor gjøres på svaret slik det blir etter
-flettingen, ikke på det som sendes alene. Skjemaene sender i dag hele svaret
-(L).
+`None`. Utregningen må derfor bygge på hele svaret, ikke bare på det som
+sendes. Men tilstanden har ikke byggherrens vurderinger fra forrige svar.
+`_handle_respons_vederlag` tar vare på resultatet, totalbeløpet og det
+subsidiære standpunktet, ikke vurderingen av hver post, varselspørsmålene,
+metoden eller tilbakeholdelsen. To muligheter:
 
-**Regelversjon.** Serveren setter et felt, for eksempel `regelversjon`, i
-hendelsen, på samme måte som den overskriver aktørfeltene. Projeksjonen leser
-verdiene som ble lagret, og regner dem aldri om. Hendelser uten feltet er
+- **Krev hele svaret.** En oppdatering må ha med alle vurderingene reglene
+  leser, ellers avvises den. Skjemaene sender i dag hele svaret (L), så det
+  endrer ingenting for dem. Anbefalt.
+- **Flett fra journalen.** Serveren leser de tidligere svarhendelsene for
+  samme krav og fletter dem, slik `submissionRefs` gjør i frontenden. Det
+  koster mer, og det er ikke med i anslaget.
+
+**Regelversjon.** Frontendens regler og tekstgeneratorer får en felles
+versjon, for eksempel `regelversjon`, som klienten sender med svaret. Serveren
+avviser et svar med en annen versjon enn sin egen. Det er det som sikrer at
+teksten også kommer fra riktig versjon: sammenlikningen av feltene fanger bare
+en eldre klient som gir et annet resultat, ikke en som gir samme resultat med
+en annen tekst. Versjonen må derfor økes når en tekst endres. Serveren lagrer
+versjonen i hendelsen. I godkjenningsflyten fryses den ved `prepare`, og
+`publish` stopper pakken hvis serverens versjon er en annen. Da må pakken
+godkjennes på nytt, som ved en endret fullmakt. Projeksjonen leser verdiene
+som ble lagret, og regner dem aldri om. Hendelser uten feltet er
 skrevet før B-13, og verdiene deres gjelder som de står. Det finnes ingen
 reelle data. Mer enn dette trenger ikke B-13 fra B-10, og B-10 avgjøres ikke
 her.
@@ -174,10 +207,11 @@ bygger på:
 
 - **Preklusjon ut fra byggherrens egen vurdering** («varslet for sent») er
   byggherrens standpunkt. Det gjøres gjeldende i svaret. Systemet trekker
-  konklusjonen for byggherren, som skjemaet gjør i dag. Anbefalt: **trekkes**.
+  konklusjonen for byggherren, som skjemaet gjør i dag. Anbefalt: **trekkes**
+  (valg 4).
 - **Passivitet (§ 32.3 annet ledd)** er en virkning mot byggherren. Den
   bygger på «uten ugrunnet opphold», som ikke er et fast antall dager.
-  Anbefalt: **varsles** (valg 4).
+  Anbefalt: **varsles** (valg 5).
 
 ## 5. Partens egen formulering
 
@@ -192,7 +226,7 @@ av de samme vurderingene som resultatet, i samme klient. Tre muligheter:
 | **T-c** Serveren lager teksten og sammenlikner med klientens | Avvis hvis teksten ikke er lik | Som T-b | Skjør: formuleringer, HTML og tokens må være helt like. Anbefales ikke |
 
 **Anbefalt: T-a nå.** Under (2) er feltene som styrer systemet, kontrollert, og
-teksten kommer fra samme klient som har bestått kontrollen. Under (1) er T-a
+teksten kommer fra en klient med samme regelversjon som serveren. Under (1) er T-a
 svakere, fordi teksten kan bygge på en annen regelversjon enn resultatet.
 T-b kan komme senere, hvis oppdragsgiver vil at teksten skal være systemets
 formulering og ikke partens.
@@ -204,10 +238,11 @@ Rekkefølgen står i oppdraget, del 2. Her bare det som følger av anbefalingen:
 1. En regelmodul i backend, uten avhengighet til Flask og lagring, med
    frontendens testsett oversatt først (`vederlagDomain.test.ts`,
    `fristDomain.test.ts`, `grunnlagDomain.test.ts`: 206 tilfeller).
-2. Sammenlikning i `validate_respons_event` eller i et eget steg som både
-   `/api/events` og `ApprovalService.validate_items` går gjennom, med en egen
-   feilkode.
-3. `regelversjon` som serveren setter.
+2. Sammenlikning i forretningsreglene, som `/api/events`,
+   `/api/events/batch` og `ApprovalService.validate_items` alle kaller med
+   tilstanden. Egen feilkode. Serverens verdier lagres.
+3. `regelversjon`, sendt av klienten, kontrollert og lagret av serveren, og
+   kontrollert på nytt ved `publish`.
 4. `exposure` regnet av modulens utregning.
 5. De fire BR-01-testene blir XPASS, og gjøres om til ordinære tester.
 
@@ -256,7 +291,19 @@ Er de andre sporene også avgjort, blir saken `OMFORENT`, og
 forfølge de siste 10 000 kronene i saken (L, ikke kjørt). For frist betyr
 terskelen noe bare ved 100 krevde dager eller mer, så lenge dagene er hele.
 
-**Valg 4: passivitet etter § 32.3 annet ledd** (spørsmål 2).
+**Valg 4: preklusjon ut fra byggherrens egen vurdering** (B-13, andre del).
+Byggherren svarer at et varsel kom for sent (§ 33.4, § 34.1.2, § 34.1.3).
+
+- **(a) Systemet trekker konklusjonen: kravet er prinsipalt avslått, og det
+  subsidiære standpunktet gjelder hvis preklusjonen ikke holder (anbefalt).**
+- (b) Systemet viser bare at byggherren har gjort preklusjon gjeldende, og
+  byggherren setter resultatet selv.
+
+Grunn: konklusjonen bygger på byggherrens eget standpunkt i samme svar, og
+det er det skjemaet gjør i dag. (b) gjør resultatet uavhengig av vurderingen,
+som er det BR-01 handler om.
+
+**Valg 5: passivitet etter § 32.3 annet ledd** (spørsmål 2).
 
 - **(a) Systemet varsler når svaret drøyer, men trekker ingen konklusjon
   (anbefalt).**
@@ -267,17 +314,21 @@ terskelen noe bare ved 100 krevde dager eller mer, så lenge dagene er hele.
 Grunn: «uten ugrunnet opphold» er ikke et fast antall dager. Et fast tall ville
 bli systemets tolkning, men fremstå som kontraktens.
 
-**Valg 5: `grunnlag_varslet_i_tide` utenfor § 32.2** (spørsmål 4).
+**Valg 6: `grunnlag_varslet_i_tide` utenfor § 32.2** (spørsmål 4).
 
 - **(a) Backend avviser feltet når kategorien ikke er endring uten
   endringsordre (anbefalt).**
 - (b) Feltet godtas, men påvirker ikke status.
 - (c) Som i dag: feltet holder sporet åpent i alle kategorier.
 
-Grunn: fullmakten og brevet bruker allerede regelen bare ved endring. I dag er
-sporstatus uenig med dem.
+Grunn: bare § 32.2 gir feltet rettslig betydning, og frontenden spør bare ved
+endring uten endringsordre (`erEndringMed32_2`). Backend bruker tre ulike
+omfang i dag. Sporstatus bruker feltet i alle kategorier. Fullmakten og brevet
+bruker det for hele `hovedkategori == "ENDRING"`, også når underkategorien er
+`EO` (`approval_authority.exposure`, `approval_letter.decision_summary`). Med
+(a) må også regelen i fullmakten og brevet snevres inn.
 
-**Valg 6: «frafalt» (§ 32.3 bokstav c)** (spørsmål 5).
+**Valg 7: «frafalt» (§ 32.3 bokstav c)** (spørsmål 5).
 
 - **(a) Backend avviser `frafalt` utenfor irregulær endring og valgrett
   (anbefalt).**
@@ -286,7 +337,7 @@ sporstatus uenig med dem.
 Grunn: bokstav c forutsetter et pålegg som kan frafalles. I andre kategorier
 finnes det ikke noe pålegg å frafalle.
 
-**Valg 7: sum eller poster** (spørsmål 6). Under (1) og (2) bortfaller
+**Valg 8: sum eller poster** (spørsmål 6). Under (1) og (2) bortfaller
 spørsmålet for nye hendelser. Serveren regner summen av postene, og en sum som
 ikke er lik, avvises. Velges (3):
 
@@ -300,13 +351,24 @@ begrunnelsen settes sammen og sendes; `GeneratedReasoning.svelte`;
 `fristDomain.buildEventData`, `vederlagDomain.buildEventData` og
 `beregnPrinsipaltResultat` i begge; `approval_authority.py` og
 `approval_letter.py` i sin helhet; `approval_service.py`, `basis`,
-`validate_items`, `stale`, `prepare` og `package`; `submission.svelte.ts`,
+`validate_items`, `stale`, `prepare`, `package` og `publish`;
+`_handle_respons_vederlag`; signaturen til `validate_respons_event`; at
+`submit_batch` finnes og bruker `public_event_block_reason`; `submission.svelte.ts`,
 utdrag; modulheaderen og hjelpefunksjonene i
 `test_beregningsresultat_br01_20260923.py`; `tilleggs_begrunnelse` i modellene.
 § 5 og § 32 i den lokale kopien av NS 8407.
 
 **Kjørt:** ingenting i denne runden. Det som er merket K, er kjørt i
 kartleggingen og i spor D 23.09.
+
+**Code-review 23.09** fant ti punkter. Åtte er rettet i notatet: inngangen
+`/api/events/batch`, hvor sammenlikningen kan gjøres, delvise oppdateringer,
+at `publish` lagrer frosne hendelser, at preklusjon manglet som valg,
+avrundingen, omfanget av § 32.2-regelen i backend, og at feltsammenlikningen
+ikke fanger en eldre tekstgenerator. Ett gjaldt ordlyden i hovedplanen og er
+rettet der. Ett er avvist: `exposure` faller tilbake på `godkjent_belop`, men
+`VederlagResponsData` har ikke det feltet, så parseren fjerner det før
+fullmakten regnes (L).
 
 **Ikke kontrollert:**
 
@@ -319,4 +381,4 @@ kartleggingen og i spor D 23.09.
 - Linjeanslagene er skjønn. For T-b er det ikke gjort noe anslag i Python.
 - Tolkningene av NS 8407 er ikke juridisk kvalitetssikret. Det gjelder særlig
   risikoen ved et tvetydig brev under (3) og lesningen av § 32.3 bokstav c i
-  valg 6.
+  valg 7.
