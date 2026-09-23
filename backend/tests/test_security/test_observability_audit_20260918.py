@@ -3,7 +3,7 @@
 Testene her etterprøver svakheter i revisjonslogging, CloudEvents-sporbarhet,
 tidssonehåndtering og feilhåndtering:
 1. OBS-01/02: errorhandler(403) og audit.log_access_denied kalles aldri ved 403-avvisninger.
-2. OBS-03: CloudEventMixin.ce_time kutter timezone-offset uten justering og forskyver tid med 2 timer.
+2. OBS-03: CloudEventMixin.ce_time kuttet timezone-offset uten justering (rettet 2026-09-23).
 3. OBS-04: CloudEventMixin.ce_source hardkoder '/projects/oslobygg/cases/...' for alle saker.
 4. OBS-05: Hendelsesmodeller (SakEvent) mangler felt for request_id / traceparent-korrelasjon.
 5. OBS-06: request_context aksepterer usensurert X-Request-ID fra klient uten validering.
@@ -79,29 +79,12 @@ def test_403_avvisning_omgar_errorhandler_og_audit_logging(monkeypatch):
 # =============================================================================
 
 
-@pytest.mark.xfail(
-    strict=True,
-    raises=AssertionError,
-    reason=(
-        "OBS-03: ce_time kutter offset med .split('+')[0] og merker verdien som UTC. "
-        "Ingen forskyvning inntreffer i dag: tidsstempel er serverkontrollert og settes "
-        "til datetime.now(UTC), så kuttet gir riktig verdi (kontrollert 2026-09-19). "
-        "Svakheten er reell, men latent — den biter først om et ikke-UTC tidsstempel når "
-        "hit. Grenen for NEGATIV offset er verre: elif-en fanger ikke -05:00, som ville "
-        "gitt den ugyldige strengen '...-05:00Z'. Samme énlinjefiks lukker begge."
-    ),
-)
 def test_cloudevents_ce_time_korrumperer_tidssone_med_to_timer():
     """CloudEvents ce_time må konvertere tidssoner korrekt til UTC.
 
-    I models/cloudevents.py:146-150:
-    if '+' in iso:
-        iso = iso.split('+')[0]
-    return iso + 'Z'
-
-    Dette fjerner bare '+02:00' og henger på 'Z'!
-    Et tidsstempel kl 12:00 norsk sommertid (+02:00) er kl 10:00 UTC.
-    Koden gjør det til 12:00 UTC ('12:00:00Z'), altså 2 timer i fremtiden!
+    Regresjonstest for OBS-03 (rettet 2026-09-23). Kuttet av offset var latent:
+    tidsstempelet settes av serveren i UTC. Et tidsstempel kl 12:00 norsk
+    sommertid (+02:00) er kl 10:00 UTC.
     """
     # 15. juni kl 12:00 norsk sommertid (UTC+2)
     oslo_tz = timezone(timedelta(hours=2))
@@ -117,6 +100,18 @@ def test_cloudevents_ce_time_korrumperer_tidssone_med_to_timer():
     assert ce_time_str == "2026-06-15T10:00:00Z", (
         f"ce_time korrumperte tidssonen: Forventet '2026-06-15T10:00:00Z', men fikk '{ce_time_str}' (2 timer feil)"
     )
+
+
+def test_cloudevents_ce_time_negativ_offset_og_naiv_tid():
+    """Negativ offset ga den ugyldige strengen '...-05:00Z'; naiv tid regnes som UTC."""
+
+    class DummyEvent(CloudEventMixin):
+        tidsstempel: datetime
+
+    negativ = datetime(2026, 6, 15, 7, 0, 0, tzinfo=timezone(timedelta(hours=-5)))
+    assert DummyEvent(tidsstempel=negativ).ce_time == "2026-06-15T12:00:00Z"
+    naiv = datetime(2026, 6, 15, 12, 0, 0)
+    assert DummyEvent(tidsstempel=naiv).ce_time == "2026-06-15T12:00:00Z"
 
 
 # =============================================================================
