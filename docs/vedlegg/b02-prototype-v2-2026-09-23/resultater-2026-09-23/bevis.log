@@ -1,0 +1,164 @@
+Plattformstubb som postgres
+Bygget 23 migrasjoner som postgres (ikke superbruker)
+B-02-lag 02_b02_lag.sql som postgres
+B-02-lag 03_testdata.sql som postgres
+PostgREST PostgREST 12.2.12 (cd3cf9e), db-pool = 1
+Server: 17.11 (Homebrew)
+
+OK   | Prosjekt A i kontekst | medlem av A og B ser bare A i hendelse
+OK   | Prosjekt A i kontekst | spørring etter B i hendelse gir null rader
+OK   | Prosjekt A i kontekst | spørring etter B i notat gir null rader
+OK   | Prosjekt A i kontekst | spørring etter B i sak_metadata gir null rader
+OK   | Prosjekt A i kontekst | ikke-medlem med A i konteksten ser ingen hendelser
+OK   | Motpart | TE ser bare TEs notat
+OK   | To team på samme side | BH-rådgiveren ser bare sitt eget notat
+OK   | Ukjent team | team som ikke er prosjektets kontraktsteam gir null notater
+OK   | Ukjent team | team fra prosjekt B med A i konteksten gir null notater
+OK   | Ukjent team | TE-team oppgitt med side BH gir null notater (RB2-04)
+OK   | Ukjent team | manglende team gir null notater
+OK   | Leserolle (DB-05) | viewer leser journalen
+OK   | Leserolle (DB-05) | viewer ser ingen private notater
+OK   | Leserolle (DB-05) | viewer kan ikke sende varsel
+OK   | Manglende kontekst | ingen krav: null rader i hendelse
+OK   | Manglende kontekst | ingen krav: null rader i notat
+OK   | Manglende kontekst | bare aktør: null rader i hendelse
+OK   | Manglende kontekst | bare aktør: null rader i notat
+OK   | Manglende kontekst | bare prosjekt: null rader i hendelse
+OK   | Manglende kontekst | bare prosjekt: null rader i notat
+OK   | RB2-04 kontekst | manglende side: null private notater
+OK   | RB2-04 kontekst | manglende side: kommandoen avviser
+OK   | RB2-04 kontekst | ugyldig side: null private notater
+OK   | RB2-04 kontekst | ugyldig side: kommandoen avviser
+OK   | RB2-04 kontekst | side som JSON-objekt: null private notater
+OK   | RB2-04 kontekst | side som JSON-objekt: kommandoen avviser
+OK   | RB2-04 kontekst | tom side: null private notater
+OK   | RB2-04 kontekst | tom side: kommandoen avviser
+OK   | RB2-04 kontekst | store bokstaver i aktørens UUID normaliseres
+OK   | RB2-04 kontekst | aktør som JSON-liste
+OK   | RB2-04 kontekst | prosjekt som JSON-objekt
+OK   | RB2-04 kontekst | tomt prosjekt
+OK   | RB2-04 kontekst | team som JSON-liste
+OK   | RB2-04 kontekst | team med bindestreker
+OK   | RB2-04 kontekst | ekstra krav ignoreres
+OK   | RB2-04 argumenter | NULL forventet versjon avvises med 22023
+OK   | RB2-04 argumenter | negativ forventet versjon avvises med 22023
+OK   | RB2-04 argumenter | NULL hendelsestype avvises med 22023
+OK   | RB2-04 argumenter | data som JSON-liste avvises med 22023
+OK   | RB2-04 argumenter | NULL data avvises med 22023
+OK   | RB2-04 argumenter | tomt notat avvises med 22023
+OK   | RB2-04 argumenter | NULL sak ved opprettelse avvises med 22023
+OK   | Gjettet ressurs-ID | notat-ID fra B med A i konteksten gir null rader
+OK   | Gjettet ressurs-ID | varsel: sak i B og ukjent sak gir identisk avvisning
+OK   | RB2-03 private skrivestier | runtime kan ikke skrive notat direkte
+OK   | RB2-03 private skrivestier | runtime kan ikke slette notat direkte
+OK   | RB2-03 private skrivestier | notat: sak i B og ukjent sak gir identisk avvisning
+OK   | RB2-03 private skrivestier | notat med ukjent team avvises likt
+OK   | RB2-03 private skrivestier | skriv_notat lykkes og notatet leses av eget team
+OK   | RB2-03 private skrivestier | notatet er stemplet fra konteksten
+OK   | RB2-03 private skrivestier | slett_notat gir samme svar for andres, ukjent og annet prosjekts notat
+OK   | RB2-03 private skrivestier | andres notater står
+OK   | RB2-03 private skrivestier | slett_notat sletter eget notat
+OK   | Gjenbrukt forbindelse | authenticator: første transaksjon ser eget notat
+OK   | Gjenbrukt forbindelse | authenticator: etter commit er rolle og krav tilbake
+OK   | Gjenbrukt forbindelse | authenticator: neste transaksjon uten krav ser null
+OK   | Gjenbrukt forbindelse | koe_runtime_login: første transaksjon ser eget notat
+OK   | Gjenbrukt forbindelse | koe_runtime_login: etter commit er rolle og krav tilbake
+OK   | Gjenbrukt forbindelse | koe_runtime_login: neste transaksjon uten krav ser null
+OK   | Gjenbrukt forbindelse | kontroll: kontekst satt på sesjonsnivå lekker
+OK   | Gjenbrukt forbindelse | PostgREST: to vellykkede kall på samme backend-pid (RB2-06)
+OK   | Gjenbrukt forbindelse | PostgREST: andre kall har ikke første kalls krav
+OK   | Gjenbrukt forbindelse | PostgREST: GET /notat uten koe-krav gir tom liste
+OK   | Prosjekt A i kontekst | PostgREST: BH i A ser bare BHs notat
+OK   | Runtime skriver ikke direkte | authenticator: UPDATE avvises
+OK   | Runtime skriver ikke direkte | authenticator: DELETE avvises
+OK   | Runtime skriver ikke direkte | authenticator: TRUNCATE avvises
+OK   | Runtime skriver ikke direkte | authenticator: INSERT avvises
+OK   | Runtime skriver ikke direkte | authenticator: UPDATE sak_metadata avvises
+OK   | Runtime skriver ikke direkte | authenticator: INSERT kø avvises
+OK   | Runtime skriver ikke direkte | koe_runtime_login: UPDATE avvises
+OK   | Runtime skriver ikke direkte | koe_runtime_login: DELETE avvises
+OK   | Runtime skriver ikke direkte | koe_runtime_login: TRUNCATE avvises
+OK   | Runtime skriver ikke direkte | koe_runtime_login: INSERT avvises
+OK   | Runtime skriver ikke direkte | koe_runtime_login: UPDATE sak_metadata avvises
+OK   | Runtime skriver ikke direkte | koe_runtime_login: INSERT kø avvises
+OK   | RB2-02 service_role | UPDATE hendelse avvises
+OK   | RB2-02 service_role | DELETE hendelse avvises
+OK   | RB2-02 service_role | TRUNCATE hendelse avvises
+OK   | RB2-02 service_role | INSERT hendelse avvises
+OK   | RB2-02 service_role | MERGE UPDATE avvises
+OK   | RB2-02 service_role | ON CONFLICT UPDATE avvises
+OK   | RB2-02 service_role | flytte sak til annet prosjekt avvises
+OK   | RB2-02 service_role | endre projeksjon i sak_metadata avvises
+OK   | RB2-02 service_role | slette sak (kaskade) avvises
+OK   | RB2-02 service_role | endre prosjekt i køen avvises
+OK   | RB2-02 service_role | legge notat-ID i køen avvises
+OK   | RB2-02 service_role | slette fra køen avvises
+OK   | RB2-02 service_role | TRUNCATE sak_metadata CASCADE avvises
+OK   | RB2-02 service_role | montere triggerfunksjon (TM-07) avvises
+OK   | RB2-02 service_role | midlertidig tabell avvises
+OK   | RB2-02 service_role | DISABLE TRIGGER avvises
+OK   | RB2-02 service_role | session_replication_role avvises
+OK   | RB2-02 service_role | SET ROLE kommandoeier avvises
+OK   | RB2-02 service_role | GRANT kommandoeier avvises
+OK   | RB2-02 service_role | COPY til hendelse avvises
+OK   | RB2-02 service_role | kontroll: service_role har fortsatt tabellrettigheter (notat er ikke vernet)
+OK   | RB2-02 skranker | sak, notat og kø er bundet til samme prosjekt
+OK   | RB2-01 forespørselsvakt | service_role-token: HTTP 403
+OK   | RB2-01 forespørselsvakt | authenticated-token: HTTP 403
+OK   | RB2-01 forespørselsvakt | token uten exp: HTTP 403
+OK   | RB2-01 forespørselsvakt | token med ett døgns levetid: HTTP 403
+OK   | RB2-01 forespørselsvakt | token med 61 s levetid: HTTP 403
+OK   | RB2-01 forespørselsvakt | utløpt token: HTTP 401
+OK   | RB2-01 forespørselsvakt | gyldig runtime-token (kontroll): HTTP 200
+OK   | RB2-01 forespørselsvakt | uten token (anon) avvises
+OK   | RB2-01 forespørselsvakt | service_role: PATCH /hendelse avvises av vakten
+OK   | RB2-05 identitet | PostgREST: runtime kan ikke kalle koe_resolve_identity
+OK   | RB2-01 T2 | koe_runtime_login kan ikke bli service_role
+OK   | RB2-01 T2 | koe_runtime_login kan ikke bli authenticator
+OK   | RB2-01 T2 | koe_runtime_login kan ikke bli koe_kommando
+OK   | RB2-01 T2 | koe_runtime_login kan ikke bli postgres
+OK   | RB2-01 T2 | kommando virker over T2
+OK   | Kommando | PostgREST: send_varsel lykkes
+OK   | Kommando | aktør, side, team og prosjekt stemplet fra konteksten
+OK   | Kommando | leveringsintensjonen finnes
+OK   | Kommando | utdatert versjon gir 409
+OK   | Kommando | konflikten skrev ingenting
+OK   | Kommando | type som krever godkjenning avvises
+OK   | Kommando | feil i køinnsettingen etterlater ingen hendelse
+OK   | Worker | oppdaterer status
+OK   | Worker | leser ikke notat
+OK   | Worker | skriver ikke hendelse
+OK   | Worker | endrer ikke prosjekt i køen
+OK   | Worker | endrer ikke hendelsesreferansen
+OK   | Worker | legger ikke til jobber
+OK   | Worker | statusen ble faktisk endret
+OK   | RB2-05 identitet | catenda_identitet finner eksisterende bruker
+OK   | RB2-05 identitet | subjekt med store bokstaver avvises
+OK   | RB2-05 identitet | subjekt med bindestreker avvises
+OK   | RB2-05 identitet | subjekt med ikke Catenda-form avvises
+OK   | RB2-05 identitet | inngangen har ingen parameter for provider eller issuer
+OK   | RB2-05 identitet | runtime leser ikke app_identities
+OK   | RB2-05 identitet | runtime leser ikke app_users
+OK   | RB2-05 identitet | runtime leser ikke app_project_memberships
+OK   | RB2-05 identitet | øyeblikksbilde med unormalisert subjekt avvises
+OK   | Rettighetsmatrise | koe_runtime: bare SELECT på hendelse, notat og sak_metadata
+OK   | Rettighetsmatrise | koe_worker: bare SELECT på hendelse og køen (UPDATE er kolonnevis)
+OK   | Rettighetsmatrise | anon: ingen tabellrettigheter i public
+OK   | Rettighetsmatrise | authenticated: ingen tabellrettigheter i public
+OK   | Rettighetsmatrise | koe_runtime_login: ingen tabellrettigheter i public
+OK   | Rettighetsmatrise | authenticator: ingen tabellrettigheter i public
+OK   | Rettighetsmatrise | service_role: ingen TRUNCATE, TRIGGER eller REFERENCES på integritetstabellene
+OK   | Rettighetsmatrise | koe_runtime: EXECUTE bare på kommandoene, hvem og vakten
+OK   | Rettighetsmatrise | anon: EXECUTE bare på vakten
+OK   | Rettighetsmatrise | authenticated: EXECUTE bare på vakten
+OK   | Rettighetsmatrise | FORCE ROW LEVEL SECURITY er satt (katalog, ikke atferd)
+OK   | RB2-08 eierskifte | postgres har ikke lenger SET på funksjonseierne
+OK   | RB2-08 eierskifte | ingen funksjonseier eller runtime har CREATE i noe skjema
+OK   | RB2-08 eierskifte | kommandoene eies av funksjonseierne
+OK   | Rettighetsmatrise | innloggingsroller er bare de forventede
+OK   | RB2-07 tilbakekalling | synkronisering uten rådgiveren lykkes
+OK   | RB2-07 tilbakekalling | neste setning i en åpen transaksjon ser null (READ COMMITTED)
+OK   | RB2-07 tilbakekalling | og ingen hendelser i neste forespørsel
+OK   | RB2-07 tilbakekalling | T2-innloggingen har tidsgrenser for setninger og ledige transaksjoner
+
+155 av 155 sjekker holdt.

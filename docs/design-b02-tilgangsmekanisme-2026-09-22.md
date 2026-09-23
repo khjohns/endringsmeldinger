@@ -12,6 +12,13 @@ oppdragsgiver etter uavhengig review.
 
 ## Sammendrag
 
+> **Merknad 2026-09-23 om v2:** [Design v2](design-b02-tilgangsmekanisme-v2-2026-09-23.md)
+> svarer på reviewets RB2-01–08 og erstatter dette dokumentet der de er uenige:
+> transportvariantene med forespørselsvakt, operasjonsmodellen for skrivevakten,
+> private skrivestier gjennom kommandoer, kontekstkontrakten, identitetsinngangene
+> og tidskontrakten. Prototypen i v2 er bygget med `postgres` uten
+> superbrukerrettigheter. Prototypen her står uendret som reviewets grunnlag.
+
 > **Merknad 2026-09-23 fra reviewet:**
 > [Uavhengig review](review-b02-tilgangsmekanisme-2026-09-23.md) konkluderer med
 > at anbefalingen kan legges til grunn med navngitte endringer. Originalbevisets
