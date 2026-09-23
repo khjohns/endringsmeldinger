@@ -172,10 +172,14 @@ def skrivbar_base(testbase_url, _frodata):
 
 @pytest.fixture
 def container_mot_testbasen(testbase_url, skrivbar_base):
-    """Standardcontaineren, med `database` pekt på testbasen."""
+    """Standardcontaineren med DATALAG=postgres og `database` pekt på testbasen.
+
+    Lagrene i POSTGRES_LAGRE får denne databasen. Et lager som ikke er
+    konvertert ennå, gir `LagerIkkeKonvertert` når det brukes.
+    """
     from core.container import Container, set_container
 
-    container = Container(config=testinnstillinger(testbase_url))
+    container = Container(config=testinnstillinger(testbase_url, datalag="postgres"))
     container._database = skrivbar_base
     set_container(container)
     try:

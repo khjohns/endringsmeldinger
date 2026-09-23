@@ -30,6 +30,12 @@ transporten og kontrakten som trådene i F0b punkt 2 skal bygge på.
 > forbigående feil, og M08 setter en feil verdi framfor å utelate settingen.
 > Disse presiseringene erstatter de sterkere formuleringene nedenfor.
 
+> **Merknad 2026-09-23 etter oppfølgingen av reviewet:** RK-01–RK-04 er fulgt
+> opp i samme PR, og RK-05 står åpen før F1. Se [avsnitt 7](#7-oppfølging-av-reviewet).
+> Avsnitt 4 er skrevet om til den ferdige innkoblingen, og punktet om rå
+> `COMMIT` i avsnitt 2 er avgrenset. Tallene under «Verifikasjon og grenser»
+> gjelder etter oppfølgingen. M08 og M17 har fått navn som beskriver hva de gjør.
+
 ## 1. Hva som er levert
 
 | Fil | Innhold |
@@ -64,11 +70,14 @@ transporten og kontrakten som trådene i F0b punkt 2 skal bygge på.
 - `_sett_kontekst` avviser en forbindelse som ikke er i en åpen transaksjon
   (`RuntimeError`). Det finnes ingen offentlig vei som setter kontekst uten
   transaksjon, og den private kan ikke brukes slik heller.
-- Blokken kan ikke avslutte transaksjonen selv. `conn.commit()` avvises av
-  psycopg innenfor `conn.transaction()` (blir `PermanentError`). En rå `COMMIT`
-  eller en feil i basen som blokken svelger, fanges ved utgangen:
-  `RuntimeError`, og ingen `COMMIT` sendes. Med rå `COMMIT` er det som ble skrevet
-  før den, committet. Kjernen melder det, men kan ikke hindre det.
+- `conn.commit()` og `conn.rollback()` i blokken avvises av psycopg innenfor
+  `conn.transaction()` (blir `PermanentError`). En rå `COMMIT` alene, eller en
+  feil i basen som blokken svelger, fanges ved utgangen: `RuntimeError`, og
+  ingen `COMMIT` sendes. **Sluttkontrollen er ikke et vern mot all tidlig
+  commit.** Den ser bare transaksjonsstatusen: `COMMIT; BEGIN` i blokken
+  passerer den, med det som ble skrevet før committet og resten uten rolle og
+  krav (RK-04). Det er kallerens ansvar ikke å styre transaksjonen selv
+  (avsnitt 7).
 - Transaksjoner kan ikke nøstes i samme tråd (`RuntimeError`). En nøstet
   transaksjon ville vært en annen forbindelse og en annen transaksjon. Det bryter
   invariant 3 i 2.3 og gir vranglås mot en full pool.
@@ -239,25 +248,53 @@ er likevel ferdig for F1, når ruta sender aktør, prosjekt, side og team videre
 
 ## 4. Grensesnittet for fase 2
 
-En tråd som konverterer ett repositorium:
+Innkoblingen er ferdig (RK-02). En tråd som konverterer et lager, legger til
+**én ny fil** og **sine egne tester**, og endrer ingenting delt.
 
-1. Skriver repositoriet med `Database` som eneste avhengighet, for eksempel
-   `PostgresEventRepository(database)`. Hver metode bruker
-   `database.transaksjon(Kontekst())` for lesing og `database.utfor(...)` for
-   skriving, uten `@with_retry()`.
-2. Endrer sin egen property i `core/container.py`, eller sin egen
-   `create_*`-fabrikk, til å bruke `self.database`. `container.database` og
-   `_database` finnes allerede og skal ikke endres.
-3. Skriver testene i en egen fil under `tests/test_database/`, merket
-   `database`, med `skrivbar_base` (eller `container_mot_testbasen` for ruter).
-   Fixturene skal ikke endres.
+**Bryteren.** `DATALAG=postgres` (`Settings.datalag`) får containeren til å lage
+hvert lager fra tabellen `POSTGRES_LAGRE` i
+[`core/container.py`](../backend/core/container.py), med `container.database` som
+eneste argument. Uten bryteren er alt som før: `EVENT_STORE_BACKEND` og de andre
+bryterne velger dagens lagre. Et lager som ikke er konvertert ennå, gir
+`LagerIkkeKonvertert` når det brukes med bryteren på, ikke et stille bytte til
+det gamle lageret.
 
-**Konfliktflater som gjenstår (lest ut av koden):** to tråder som begge endrer
-`repositories/__init__.py` eller hver sin del av `core/container.py`. Hver tråd
-eier sin egen property. Endringene berører ulike linjer, men de ligger i samme
-fil. Kommer to tråder til å trenge en felles hjelper for SQL (for eksempel
-`dict_row` eller paginering), bør den legges i `lib/db/` i en egen, liten PR
-først.
+| Tråd | Property i containeren | Fil tråden legger til | Klasse |
+| --- | --- | --- | --- |
+| (a) hendelse og notat | `event_repository`, `notat_repository` | `repositories/postgres/hendelse.py`, `notat.py` | `PostgresEventRepository`, `PostgresNotatRepository` |
+| (b) saksmetadata, relasjoner og BIM | `metadata_repository`, `relation_repository`, `bim_link_repository` | `sak_metadata.py`, `relasjon.py`, `bim.py` | `PostgresSakMetadataRepository`, `PostgresRelationRepository`, `PostgresBimLinkRepository` |
+| (c) identitet, sesjoner, medlemskap og prosjekter | `auth_repository`, `membership_repository`, `project_repository` | `identitet.py`, `medlemskap.py`, `prosjekt.py` | `PostgresAuthRepository`, `PostgresMembershipRepository`, `PostgresProjectRepository` |
+| (d) Catenda-konfigurasjon | `catenda_config_repository` | `catenda_konfig.py` | `PostgresCatendaProjectConfigRepository` |
+
+Filene ligger i `repositories/postgres/`. Pakken finnes. Klassen tar
+`Database` som eneste argument og holder dagens grensesnitt for lageret den
+erstatter.
+
+**De tre som lå utenfor containeren**, går nå gjennom den:
+`AuthService` henter `get_container().auth_repository`, relasjonsoppslaget i
+`forsering_service` og `endringsordre_service` henter
+`get_container().relation_repository`, og Catenda-registeret i
+`catenda_project_resolver_factory` henter
+`get_container().catenda_config_repository`. Uten bryteren lager de tre
+propertyene en ny instans av dagens klasse ved hvert oppslag, som før.
+Relasjonslageret er fortsatt valgfritt med JSON-lageret (`None`). Med
+PostgreSQL valgt blir et manglende relasjonslager en feil, ikke `None`.
+
+**Regler for trådene:**
+
+1. Lesing med `database.transaksjon(Kontekst())`, skriving med
+   `database.utfor(Kontekst(), ...)`. Ingen `@with_retry()` (avsnitt 2, Retry).
+2. Ingen endring i `core/container.py`, `repositories/__init__.py`,
+   `lib/db/` eller fixturene. De nye klassene eksporteres ikke fra
+   `repositories/__init__.py`; containeren importerer dem fra sin egen modul.
+3. Testene i en egen fil under `tests/test_database/`, merket `database`, med
+   `skrivbar_base` for lageret direkte eller `container_mot_testbasen` for
+   tjenester og ruter. Den siste setter `DATALAG=postgres`.
+4. Kallerens ansvar i avsnitt 7 gjelder.
+
+**Konfliktflater som gjenstår:** ingen i de delte filene, så lenge reglene
+følges. Trenger to tråder en felles SQL-hjelper (for eksempel `dict_row` eller
+paginering), legges den i `lib/db/` i en egen, liten PR først.
 
 **Skrivbar fixture.** `skrivbar_base` gir en `Database` mot testbasen med ekte
 commit, som i produksjon. Etter hver test, også en som feiler, tømmes tabellene
@@ -311,6 +348,7 @@ opprettes av fixturen og slettes etterpå.
 | 5. Retry | `test_40001_kjorer_hele_transaksjonen_paa_nytt`, `test_serialiseringsfeil_gir_opp_etter_siste_forsok`, `test_versjonskonflikt_kjores_ikke_paa_nytt`, `test_ukjent_utfall_kjores_ikke_paa_nytt`, `test_forbigaaende_feil_utenom_serialisering_kjores_ikke_paa_nytt` | M11, M13, M14, M16 |
 | 6. Ingen `DATABASE_URL` | `test_uten_database_url_finnes_ingen_standardverdi`, `test_uten_database_url_ingen_tilkobling` (ingen, tom og blank; `PG*`-miljøet peker på testbasen, og `psycopg.Connection.connect` registrerer kall), `test_manglende_database_url_proves_ikke_paa_nytt`, `test_uleselig_database_url_lekker_ikke_passordet`, `test_base_som_ikke_svarer_gir_forbigaaende_feil_uten_passord` | M22–M24, M27 |
 | Fixturen | `test_base_uten_merket_avvises`, `test_ryddingen_tommer_nye_rader_og_gjenoppretter_frodata`, `test_containeren_bruker_testbasen` | M25, M26 |
+| Oppfølgingen (avsnitt 7) | `test_hver_sesjonsrest_alene_kastes_med_forbindelsen` (rolle, krav), og i [`tests/test_core/test_container_postgres.py`](../backend/tests/test_core/test_container_postgres.py): `test_samtidig_forste_oppslag_lager_en_pool`, `test_postgres_lagre_faar_containerens_database` (ett tilfelle per lager), `test_auth_service_henter_lageret_fra_containeren`, `test_relasjonslageret_hentes_fra_containeren`, `test_catenda_registeret_hentes_fra_containeren`, `test_manglende_relasjonslager_er_hoyt_naar_postgres_er_valgt` | M28–M33 |
 
 Hver mutasjon er en tekstutskifting i én fil og står med navn i
 [`mutasjoner.py`](vedlegg/f0b-kjernen-2026-09-23/mutasjoner.py). Skriptet
@@ -330,19 +368,54 @@ feiler om en mutasjon ikke gir rødt.
   viser en uavhengig forbindelse at raden ikke finnes. Utfallet var altså kjent
   for basen, men ikke for klienten, og det er det `UkjentUtfall` sier.
 
+## 7. Oppfølging av reviewet
+
+Oppdragsgiver ba 23.09 om at RK-01–RK-04 ble rettet i denne PR-en, med
+innkoblingen ferdig for fase 2, og at RK-05 ble stående åpen før F1.
+
+| ID | Hva som er gjort | Test | Mutasjon |
+| --- | --- | --- | --- |
+| [RK-01](review-f0b-kjernen-2026-09-23.md#rk-01--første-oppslag-er-ikke-trådsikkert) | `Container.database` opprettes under en lås, med ny kontroll inne i låsen. `reset()` tar samme lås og lukker poolen | `test_samtidig_forste_oppslag_lager_en_pool`: to tråder, én opprettelse, samme objekt, lukket etter `reset()` | M30 |
+| [RK-02](review-f0b-kjernen-2026-09-23.md#rk-02--innkoblingen-er-fortsatt-felles-arbeid) | `DATALAG=postgres` og `POSTGRES_LAGRE` (avsnitt 4). De tre konstruksjonsstedene utenfor containeren går gjennom den | Tester i `test_container_postgres.py` | M31–M33 |
+| [RK-03](review-f0b-kjernen-2026-09-23.md#rk-03--resettestens-to-feil-skjuler-hverandre) | Kombinasjonstesten står. Ny test med rolle alene og med krav alene | `test_hver_sesjonsrest_alene_kastes_med_forbindelsen` | M28, M29 (reviewets RM01, RM02) |
+| [RK-04](review-f0b-kjernen-2026-09-23.md#rk-04--sluttkontrollen-kjenner-bare-transaksjonsstatusen) | Kallerens ansvar skrevet inn under. Reproduksjonen står som streng `xfail`: den feiler til et smalere grensesnitt eventuelt bygges | `test_raa_commit_og_begin_i_blokken_etterlater_ingenting` (`xfail`) | — |
+| [RK-05](review-f0b-kjernen-2026-09-23.md#rk-05--to-tidsgrenser-er-ikke-én-transaksjonsfrist) | **Åpen før F1.** Ingen kodeendring. En samlet øvre grense for en transaksjon må fastsettes og prøves sammen med F1-rollen; `transaction_timeout` i PostgreSQL 17 er et mulig virkemiddel, ikke valgt | — | — |
+
+**Kallerens ansvar (RK-04).** Kjernen eier transaksjonsgrensen, og invariant 3
+i 2.3 forutsetter det. Et repositorium eller en tjeneste skal derfor ikke:
+
+- sende `BEGIN`, `COMMIT`, `ROLLBACK`, `SAVEPOINT` eller `SET TRANSACTION` som
+  SQL. Trengs en savepoint, brukes `conn.transaction()` inne i blokken;
+- sende `SET ROLE`, `RESET ROLE`, `SET SESSION AUTHORIZATION` eller
+  `set_config` på kontekstvariabelen;
+- bruke forbindelsen etter at blokken er avsluttet, eller gi den videre ut av
+  blokken;
+- pakke `utfor` inn i `@with_retry()` eller egen retry.
+
+Sluttkontrollen og resetten fanger noen brudd på dette, ikke alle. En rå
+psycopg-forbindelse er ikke en sikkerhetsgrense mot SQL fra backend selv. Det
+som hindrer at en feil her gir tilgang, er rettighetene til F1-rollen, ikke
+kjernen. Skal API-et også håndheve reglene mot feilskrevet backendkode, må et
+smalere grensesnitt designes (se reviewet).
+
+**Øvrige presiseringer fra reviewet:** den skrivbare fixturen forutsetter at
+bare én pytest-prosess bruker basen om gangen. Parallelle kjøringer mot samme
+base kan tømme hverandres data; bruk én kastbar base per prosess. Merket på
+basen er en erklæring om at den er kastbar, ikke et bevis på hvor den står.
+
 ## Verifikasjon og grenser
 
 **Kjørt og observert (23.09, macOS 26, Python 3.11.9, PostgreSQL 17.11 fra
-Homebrew, psycopg 3.3.6, psycopg-pool 3.3.3, ruff 0.16.8):**
+Homebrew, psycopg 3.3.6, psycopg-pool 3.3.3, ruff 0.16.8), etter oppfølgingen:**
 
-- `tests/test_database/`: 57 bestått, 10 av dem katalogtestene som fantes fra
-  før.
-- Hele backend-suiten med `KOE_TESTBASE_URL` satt: 1589 bestått, 9 hoppet over,
-  38 xfailed, tre ganger på rad mot samme base. Frødata var identiske etterpå,
-  med samme ID.
-- Hele backend-suiten uten `KOE_TESTBASE_URL`: 1532 bestått, 66 hoppet over,
-  38 xfailed. Tallet bestått er det samme som før. De nye testene hoppes over.
-- Alle 27 mutasjonene ga rød test på den endelige koden.
+- `tests/test_database/`: 59 bestått og 1 xfailed. 10 av dem er katalogtestene som fantes fra
+  før, og xfail-en er RK-04.
+- Hele backend-suiten med `KOE_TESTBASE_URL` satt: 1611 bestått, 9 hoppet over, 39 xfailed.
+- Hele backend-suiten uten `KOE_TESTBASE_URL`: 1552 bestått, 69 hoppet over, 38 xfailed. De nye
+  databasetestene hoppes over; containertestene kjøres.
+- Alle 33 mutasjonene ga rød test på den endelige koden.
+- Før oppfølgingen: 57 databasetester, 1589 bestått med testbasen (tre ganger på
+  rad, med identiske frødata etterpå) og 1532 uten, og 27 av 27 mutasjoner.
 - `ruff check backend/`: ingen feil.
 - `lokal_testbase.sh start`, `url` og `stopp`, og en ombygging fra tom.
 

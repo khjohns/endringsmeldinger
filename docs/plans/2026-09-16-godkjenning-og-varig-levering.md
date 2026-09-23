@@ -664,6 +664,18 @@ feilklasse i driveren.
 > Kjernen er reviewet, men punkt 1 er ikke godkjent som ferdig; punkt 2 venter
 > på oppfølgingen over. Ingen produksjonskode eller delt base er endret.
 
+> **Merknad 2026-09-23 (F0b, oppfølging av reviewet):** RK-01–RK-04 er fulgt
+> opp i [PR #42](https://github.com/khjohns/endringsmeldinger/pull/42), etter
+> oppdragsgivers valg. Poolen opprettes under lås, innkoblingen for trådene
+> (a)–(d) er ferdig bak `DATALAG=postgres` og tabellen `POSTGRES_LAGRE`, rolle og
+> krav i resetten har hver sin test, og kallerens ansvar for
+> transaksjonsgrensen står skrevet, med `COMMIT; BEGIN` som streng `xfail`.
+> 33 mutasjoner gir rød test. **RK-05 er åpen før F1:** en samlet øvre grense
+> for en transaksjon er ikke fastsatt. Se
+> [gjennomføringsnotatet, avsnitt 7](../gjennomforing-f0b-kjernen-2026-09-23.md#7-oppfølging-av-reviewet).
+> Oppfølgingen er ikke reviewet på nytt. Punkt 1 settes som gjort når
+> PR #42 er merget.
+
 ### F1 — Sikkerhetsgrenser i datalaget og private lagre
 
 **Avhenger av:** F0-jobben og F0b; B-02 før rolle- og policymigrasjoner; B-04

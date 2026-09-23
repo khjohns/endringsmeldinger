@@ -20,11 +20,11 @@ intern ID.
 from collections.abc import Callable
 
 from core.config import settings
+from core.container import get_container
 from models.catenda_project_config import CatendaProjectConfig
 from repositories.catenda_project_config_repository import (
     CatendaProjectConfigRepository,
     InMemoryCatendaProjectConfigRepository,
-    SupabaseCatendaProjectConfigRepository,
 )
 from services.catenda_project_resolver import CatendaProjectResolver
 
@@ -123,7 +123,7 @@ def build_project_resolver(
             permanent_registry = (
                 registry
                 if registry is not None
-                else SupabaseCatendaProjectConfigRepository()
+                else get_container().catenda_config_repository
             )
         except Exception as exc:
             raise ProjectResolverConfigurationError(

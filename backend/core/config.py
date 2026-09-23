@@ -5,6 +5,8 @@ All environment variables are loaded here using Pydantic Settings.
 This provides type validation and automatic .env file loading.
 """
 
+from typing import Literal
+
 from pydantic import Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -57,6 +59,10 @@ class Settings(BaseSettings):
     # PostgreSQL over direkte tilkobling (F0b). Ingen standardverdi: uten
     # DATABASE_URL finnes det ingen tilkobling.
     database_url: SecretStr | None = Field(default=None, repr=False)
+    # "postgres": repositoriene over direkte tilkobling (core/container.py,
+    # POSTGRES_LAGRE). Tom: dagens lagre, valgt av EVENT_STORE_BACKEND og de
+    # andre bryterne.
+    datalag: Literal["", "postgres"] = ""
     database_pool_min: int = 1
     database_pool_max: int = 10
     database_pool_timeout: float = 5.0
