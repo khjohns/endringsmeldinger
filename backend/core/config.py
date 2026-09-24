@@ -5,7 +5,9 @@ All environment variables are loaded here using Pydantic Settings.
 This provides type validation and automatic .env file loading.
 """
 
-from pydantic import Field
+from typing import Literal
+
+from pydantic import Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -53,6 +55,23 @@ class Settings(BaseSettings):
     supabase_retry_backoff_max: float = 30.0
     supabase_retry_jitter: bool = True
     supabase_request_timeout: int = 30
+
+    # PostgreSQL over direkte tilkobling (F0b). Ingen standardverdi: uten
+    # DATABASE_URL finnes det ingen tilkobling.
+    database_url: SecretStr | None = Field(default=None, repr=False)
+    # "postgres": repositoriene over direkte tilkobling (core/container.py,
+    # POSTGRES_LAGRE). Tom: dagens lagre, valgt av EVENT_STORE_BACKEND og de
+    # andre bryterne.
+    datalag: Literal["", "postgres"] = ""
+    database_pool_min: int = 1
+    database_pool_max: int = 10
+    database_pool_timeout: float = 5.0
+    database_pool_max_idle: float = 600.0
+    database_pool_max_lifetime: float = 3600.0
+    database_connect_timeout: int = 5
+    database_retry_max_forsok: int = 3
+    database_retry_backoff_base: float = 0.05
+    database_retry_backoff_max: float = 1.0
 
     @property
     def is_catenda_enabled(self) -> bool:
