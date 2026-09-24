@@ -297,8 +297,10 @@ grenser»** til slutt som navngir hva som *ikke* er kontrollert.
   beslutnings-ID-en og lenk til hovedplanen. Gjenta ikke alvorlighet, belegg
   eller begrunnelse; da har de to hjem.
 - **En PR som fullfører et issue, har `Closes #n` i beskrivelsen.** Endrer PR-en
-  funnstatus eller leverer en del av en arbeidspakke, får hovedplanen en datert
-  merknad i samme PR.
+  funnstatus eller en beslutning, får hovedplanen en datert merknad i samme PR.
+  Framdrift innen en arbeidspakke står i issuene; planen får én merknad når et
+  punkt i pakken er levert, ikke én per PR. Parallelle PR-er som alle skriver
+  under samme pakke, gir konflikter.
 - **Skriv ikke arbeidsstatus i hovedplanen eller `docs/README.md`**: «neste
   oppgave», «pågår», «venter på», «merges etter #45». Det hører til i issuet.
   Slik status i planen ga konflikter i nesten hver PR 23.09.
