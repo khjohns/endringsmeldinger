@@ -37,7 +37,7 @@ def test_eo_exposure_floor_mangler_fristdager():
     """order_exposure_floor må inkludere fristdager * dagmulktssats som minimumsfullmakt.
 
     Når en endringsordre inneholder en fristforlengelse (f.eks. 500 dager) og en ny
-    sluttdato, returnerer order_exposure None (fordi ny_sluttdato krever full kjede).
+    sluttdato, returnerer order_exposure None (fordi ny_sluttdato ikke kan verdsettes).
     order_exposure_floor så tidligere KUN på kompensasjon_belop og fradrag_belop.
     Med kompensasjon_belop 0 ble floor 0, i resolve_route(amount=None, minimum=0)
     ble sjekken `minimum > 0` False, og kjeden ble returnert som den er — en
@@ -165,12 +165,90 @@ def test_ny_sluttdato_uten_dagmulktssats_gir_aldri_svakere_rute_enn_kjeden():
     assert route == chain
 
 
-def test_ny_sluttdato_kan_ikke_godkjennes_av_saksbehandler_alene():
-    """Heller ikke med ubegrenset egen fullmakt, som for endringsordrer."""
-    adm = {"id": "ad", "role": "Adm.dir (daglig leder)"}
+ADM = {"id": "ad", "role": "Adm.dir (daglig leder)"}
+
+
+@pytest.mark.parametrize("dager", [0, 11])
+def test_ny_sluttdato_kan_sendes_alene_med_ubegrenset_fullmakt(dager):
+    """Vedtak 23.09 (hovedplanen, 3.1): ubegrenset fullmakt sender alene når
+    beløpet ikke kan verdsettes. Testen påstod før det motsatte."""
     chain = [{"id": "pd", "role": "Prosjektdirektør"}]
-    _, route = approval_route([_ny_sluttdato(0)], chain, 50000, sender=adm)
+    auth, route = approval_route([_ny_sluttdato(dager)], chain, 50000, sender=ADM)
+    assert auth["amount"] is None
+    assert route == []
+
+
+def test_ny_sluttdato_krever_fortsatt_kjeden_under_ubegrenset_fullmakt():
+    """Vedtaket gjelder bare ubegrenset fullmakt, ikke den nest høyeste."""
+    divisjonsdirektor = {"id": "dd", "role": "Divisjonsdirektør"}
+    chain = [{"id": "pd", "role": "Prosjektdirektør"}]
+    _, route = approval_route(
+        [_ny_sluttdato(0)], chain, 50000, sender=divisjonsdirektor
+    )
     assert route == chain
+
+
+def test_endringsordre_som_ikke_kan_verdsettes_kan_sendes_alene_med_ubegrenset_fullmakt(
+    tmp_path,
+):
+    """Samme vedtak for endringsordrer, også uten konfigurert kjede."""
+    for chain in ([{"id": "pd@test", "role": "Prosjektdirektør"}], []):
+        service = EOApprovalService(
+            tmp_path / f"eo-{len(chain)}.sqlite",
+            Mock(),
+            {"handlers": [{**ADM, "id": "ad@test"}], "chain": chain},
+            issued=lambda _: False,
+        )
+        auth, route = service.authority(
+            {"kompensasjon_belop": 40_000_000, "ny_sluttdato": "2028-12-31"},
+            "ad@test",
+        )
+        assert auth["amount"] is None
+        assert auth["minimum"] == "40000000"
+        assert route == []
+
+
+def _eo_rute(tmp_path, sender, request, daily_rate=None):
+    chain = [{"id": "pd@test", "role": "Prosjektdirektør"}, {**ADM, "id": "ad2@test"}]
+    policy = {"handlers": [{**sender, "id": "s@test"}], "chain": chain}
+    if daily_rate is not None:
+        policy["daily_rate"] = daily_rate
+    service = EOApprovalService(
+        tmp_path / "eo.sqlite", Mock(), policy, issued=lambda _: False
+    )
+    _, route = service.authority(request, "s@test")
+    return [p["id"] for p in route]
+
+
+@pytest.mark.parametrize(
+    "sender",
+    [
+        {"role": "Prosjektleder"},
+        {"role": "Divisjonsdirektør"},
+        {"role": "Ukjent rolle"},
+        {},
+    ],
+)
+def test_endringsordre_som_ikke_kan_verdsettes_krever_kjeden_uten_ubegrenset_fullmakt(
+    tmp_path, sender
+):
+    request = {"kompensasjon_belop": 100_000, "ny_sluttdato": "2028-12-31"}
+    assert _eo_rute(tmp_path, sender, request) == ["pd@test", "ad2@test"]
+
+
+def test_endringsordre_uten_dagmulktssats_krever_kjeden_ogsa_ved_ubegrenset_fullmakt(
+    tmp_path,
+):
+    """B-06 er ikke avgjort: vedtaket om ubegrenset fullmakt gjelder ikke manglende sats."""
+    request = {"konsekvenser": {"fremdrift": True}, "frist_dager": 200}
+    assert _eo_rute(tmp_path, ADM, request) == ["pd@test", "ad2@test"]
+    assert _eo_rute(tmp_path, ADM, request, daily_rate=50000) == []
+
+
+def test_resolve_route_uten_avsender_krever_kjeden():
+    chain = [{"id": "pd", "role": "Prosjektdirektør"}]
+    assert resolve_route(None, None, chain) == chain
+    assert resolve_route(None, {}, chain) == chain
 
 
 # =============================================================================

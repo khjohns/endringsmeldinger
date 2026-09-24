@@ -167,6 +167,11 @@ export function eoExposureFloor(payload: CreateEORequest, dailyRate: number | nu
   return money;
 }
 
+/** Fristdager uten dagmulktssats. Da gjelder B-06, og ubegrenset fullmakt sender ikke alene. */
+export function eoManglerSats(payload: CreateEORequest, dailyRate: number | null): boolean {
+  return (payload.frist_dager ?? 0) > 0 && !(dailyRate && dailyRate > 0);
+}
+
 /**
  * Authority basis for a change order, or null when it cannot be computed yet.
  * The larger of addition and deduction is used, never the net; extension days are
@@ -176,8 +181,8 @@ export function eoExposure(payload: CreateEORequest, dailyRate: number | null): 
   const { pris, fremdrift } = payload.konsekvenser;
   const addition = payload.kompensasjon_belop;
   const deduction = payload.fradrag_belop;
-  // Without an authoritative baseline date, supplied days cannot establish the
-  // exposure of an absolute end date. The server requires the full chain too.
+  // Serveren kjenner ikke kontraktens sluttdato, så oppgitte dager kan ikke vise
+  // hva en absolutt dato er verdt.
   if (payload.ny_sluttdato != null) return null;
   if (pris && addition == null && deduction == null) return null;
   if (fremdrift && payload.frist_dager == null) return null;
