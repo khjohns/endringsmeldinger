@@ -76,6 +76,8 @@ over er lagt til som egen test.
 `IKKE_RELEVANT`, så listen blir tom og statusen `INGEN_AKTIVE_SPOR`.
 TFR-03 til TFR-06 er kun lest.
 
+**Merknad 2026-09-23:** TFR-02, TFR-03, TFR-04 og TFR-05 er rettet. TFR-06 er reprodusert, men ikke rettet. Status står i [hovedplanen](plans/2026-09-16-godkjenning-og-varig-levering.md), og rettingene er beskrevet i [gjennomføringen av spor D](gjennomforing-spor-d-2026-09-23.md).
+
 ## Omfang
 
 **Undersøkt:**

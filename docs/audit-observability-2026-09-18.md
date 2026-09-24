@@ -19,6 +19,8 @@ klienten, så tidssonekuttet gir riktig verdi. Reell kodesvakhet, men nedgradert
 som erkjenner det, og `or` slår også inn på tom streng. OBS-05 til OBS-07 er kun
 lest.
 
+**Merknad 2026-09-23:** OBS-03 er reprodusert på enhetsnivå og rettet. Status står i [hovedplanen](plans/2026-09-16-godkjenning-og-varig-levering.md), og rettingene er beskrevet i [gjennomføringen av spor D](gjennomforing-spor-d-2026-09-23.md).
+
 ## Metodisk presisering
 
 I tråd med revisjonskravene skiller rapporten strengt mellom tre kunnskapsnivåer:

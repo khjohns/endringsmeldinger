@@ -41,6 +41,8 @@ opprettes ingen sak. Den opprinnelige reproduksjonen er erstattet av to ordinær
 tester, fordi dens ramming — at TE ikke kan opprette EO — er den etterprøvingen
 avviste. Se [vurderingen av auditfunnene](vurdering-av-auditfunn-2026-09-19.md).
 
+**Merknad 2026-09-23:** INT-07 er rettet. Status står i [hovedplanen](plans/2026-09-16-godkjenning-og-varig-levering.md), og rettingene er beskrevet i [gjennomføringen av spor D](gjennomforing-spor-d-2026-09-23.md).
+
 ## Omfang
 
 **Undersøkt:**

@@ -24,6 +24,18 @@ IKKE_TRUKKET_FRA: frozenset[SporStatus] = frozenset(
 )
 
 
+def _kravet_er_oppgjort(spor, er_subsidiaert: bool) -> bool:
+    """Om sporets krav er oppgjort, slik at det ikke lenger kan trekkes.
+
+    Et krav som bare er godkjent subsidiært, er prinsipalt avslått gjennom
+    ansvarsgrunnlaget og ikke oppgjort (audit TFR-03). Godkjenner BH
+    grunnlaget senere, er godkjenningen ikke lenger subsidiær.
+    """
+    if spor.status == SporStatus.GODKJENT and er_subsidiaert:
+        return False
+    return spor.status in IKKE_TRUKKET_FRA
+
+
 @dataclass
 class ValidationResult:
     """Result of business rule validation."""
@@ -634,7 +646,7 @@ class BusinessRuleValidator:
         self, event: AnyEvent, state: SakState
     ) -> ValidationResult:
         """R: Vederlag kan trekkes tilbake i alle tilfeller unntatt godkjent eller ikke sendt."""
-        if state.vederlag.status in IKKE_TRUKKET_FRA:
+        if _kravet_er_oppgjort(state.vederlag, state.er_subsidiaert_vederlag):
             return ValidationResult(
                 is_valid=False,
                 message=(
@@ -650,7 +662,7 @@ class BusinessRuleValidator:
         self, event: AnyEvent, state: SakState
     ) -> ValidationResult:
         """R: Frist kan trekkes tilbake i alle tilfeller unntatt godkjent eller ikke sendt."""
-        if state.frist.status in IKKE_TRUKKET_FRA:
+        if _kravet_er_oppgjort(state.frist, state.er_subsidiaert_frist):
             return ValidationResult(
                 is_valid=False,
                 message=(

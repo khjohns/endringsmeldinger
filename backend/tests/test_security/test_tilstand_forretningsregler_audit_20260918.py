@@ -4,10 +4,13 @@ Testene her etterprøver funn i tilstandsberegning og forretningsregler:
 1. TE_AKSEPTERER_RESPONS forvandler et avslag fra BH til GODKJENT — på alle tre
    spor. Reproduksjonen fra 18.09 dekket bare grunnlag; vederlag og frist er
    lagt til 2026-09-19 etter at alle tre ble kjørt og observert.
-2. overordnet_status ignorerer sakstype og gir INGEN_AKTIVE_SPOR for forsering og EO
-3. _rule_vederlag_can_be_withdrawn blokkerer tilbaketrekking av subsidiært godkjente krav
-4. require_truthy=True i _copy_fields_if_present forkaster subsidiært standpunkt på 0 kr / 0 dager
-5. Godkjent og låst ansvarsgrunnlag rapporteres som 'UTKAST' i overordnet_status
+2. overordnet_status ga INGEN_AKTIVE_SPOR for forsering og EO (TFR-02, rettet 2026-09-23)
+3. Tilbaketrekking av subsidiært godkjente krav ble blokkert (TFR-03, rettet 2026-09-23)
+4. Subsidiært standpunkt på 0 kr / 0 dager ble forkastet som falsy (TFR-04, rettet 2026-09-23)
+5. Godkjent og låst ansvarsgrunnlag ble rapportert som 'UTKAST' (TFR-05, rettet 2026-09-23)
+6. Et fullt BH-svar med dager godtas på et nøytralt fristvarsel (TFR-06)
+7. Sidefunn fra spor D 23.09: subsidiært standpunkt som henger igjen (SD-01) og
+   avsluttet grunnlag som vises som utkast (SD-02)
 """
 
 import pytest
@@ -29,6 +32,7 @@ from models.events import (
     SakOpprettetEvent,
     SporStatus,
     SporType,
+    VarselInfo,
     VederlagBeregningResultat,
     VederlagData,
     VederlagEvent,
@@ -37,6 +41,16 @@ from models.events import (
     WithdrawalData,
     WithdrawalEvent,
     parse_event_from_request,
+)
+from models.sak_state import (
+    EndringsordreData,
+    EOStatus,
+    ForseringData,
+    FristTilstand,
+    GrunnlagTilstand,
+    SakState,
+    SaksType,
+    VederlagTilstand,
 )
 from services.business_rules import BusinessRuleValidator
 from services.timeline_service import TimelineService
@@ -405,17 +419,12 @@ def test_godtatt_avslag_kan_ikke_trekkes_tilbake():
 # =============================================================================
 
 
-@pytest.mark.xfail(
-    strict=True,
-    raises=AssertionError,
-    reason="overordnet_status sjekker kun standardspor og gir INGEN_AKTIVE_SPOR for forsering og EO",
-)
 def test_overordnet_status_gir_ingen_aktive_spor_for_forsering():
     """overordnet_status må reflektere forseringstilstand i stedet for 'INGEN_AKTIVE_SPOR'.
 
-    Beregningen sjekker kun grunnlag/vederlag/frist. I forseringssaker og endringsordrer
-    er disse alltid IKKE_RELEVANT, så overordnet_status returnerer alltid INGEN_AKTIVE_SPOR,
-    selv etter varsling og aksept.
+    Regresjonstest for TFR-02 (rettet 2026-09-23). I forseringssaker og
+    endringsordrer er de tre sporene IKKE_RELEVANT, og statusen ble alltid
+    INGEN_AKTIVE_SPOR.
     """
     timeline = TimelineService()
 
@@ -456,10 +465,107 @@ def test_overordnet_status_gir_ingen_aktive_spor_for_forsering():
 
     state = timeline.compute_state([e1, e2, e3])
 
-    # Feiler i dag fordi overordnet_status returnerer 'INGEN_AKTIVE_SPOR'
     assert state.overordnet_status != "INGEN_AKTIVE_SPOR", (
         f"Akseptert forseringssak fikk overordnet_status='{state.overordnet_status}'"
     )
+    assert state.overordnet_status == "UNDER_BEHANDLING"
+
+    # Aksepten stenger ikke saken: TE kan fortsatt oppdatere påløpte kostnader.
+    kostnader = parse_event_from_request(
+        {
+            "sak_id": "FORS-1",
+            "event_type": "forsering_kostnader_oppdatert",
+            "aktor_id": "te",
+            "aktor_rolle": "TE",
+            "data": {"paalopte_kostnader": 250000, "kommentar": "Halvveis"},
+        }
+    )
+    resultat = BusinessRuleValidator().validate(kostnader, state)
+    assert resultat.violated_rule != "CASE_NOT_CLOSED", resultat.message
+
+
+def _forsering(**felt) -> SakState:
+    return SakState(
+        sak_id="FORS-1",
+        sakstype=SaksType.FORSERING,
+        forsering_data=ForseringData(avslatte_fristkrav=["K-1"], **felt),
+    )
+
+
+@pytest.mark.parametrize(
+    ("felt", "forventet"),
+    [
+        ({}, "UTKAST"),
+        ({"dato_varslet": "2026-09-18"}, "VENTER_PAA_SVAR"),
+        ({"dato_varslet": "2026-09-18", "bh_aksepterer_forsering": False}, "UNDER_FORHANDLING"),
+        ({"dato_varslet": "2026-09-18", "bh_aksepterer_forsering": True}, "UNDER_BEHANDLING"),
+        ({"dato_varslet": "2026-09-18", "er_stoppet": True}, "VENTER_PAA_SVAR"),
+        (
+            {"dato_varslet": "2026-09-18", "er_stoppet": True, "bh_aksepterer_forsering": False},
+            "UNDER_FORHANDLING",
+        ),
+        (
+            {"dato_varslet": "2026-09-18", "er_stoppet": True, "bh_aksepterer_forsering": True},
+            "UNDER_BEHANDLING",
+        ),
+    ],
+)
+def test_forseringssak_faar_aldri_lukket_status(felt, forventet):
+    """Besluttet av oppdragsgiver 23.09: forsering gis aldri en lukket status.
+
+    Stopp endrer ikke statusen: kostnadene skal fortsatt avklares, og BHs svar avgjør.
+    """
+    assert _forsering(**felt).overordnet_status == forventet
+
+
+EO_STATUS_FORVENTET = {
+    EOStatus.UTKAST: "UTKAST",
+    EOStatus.UTSTEDT: "VENTER_PAA_SVAR",
+    EOStatus.REVIDERT: "VENTER_PAA_SVAR",
+    EOStatus.AKSEPTERT: "LUKKET",
+    EOStatus.BESTRIDT: "LUKKET",
+}
+
+
+@pytest.mark.parametrize("eo_status", list(EOStatus))
+def test_endringsordre_folger_ordrens_livslop(eo_status):
+    """Besluttet av oppdragsgiver 23.09: en EO er en ordre og forhandles ikke.
+
+    Bestrider TE, føres uenigheten videre i en KOE, og EO-saken er lukket.
+    Testen går over alle `EOStatus`, så en ny verdi uten status blir rød her.
+    """
+    forventet = EO_STATUS_FORVENTET[eo_status]
+    state = SakState(
+        sak_id="EO-1",
+        sakstype=SaksType.ENDRINGSORDRE,
+        endringsordre_data=EndringsordreData(
+            eo_nummer="EO-1", beskrivelse="Endring", status=eo_status
+        ),
+    )
+    assert state.overordnet_status == forventet
+
+
+def test_bestridt_endringsordre_kan_fortsatt_revideres():
+    """LUKKET stenger ikke EO-livsløpet: EO-hendelsene er unntatt fra sperren."""
+    state = SakState(
+        sak_id="EO-1",
+        sakstype=SaksType.ENDRINGSORDRE,
+        endringsordre_data=EndringsordreData(
+            eo_nummer="EO-1", beskrivelse="Endring", status=EOStatus.BESTRIDT
+        ),
+    )
+    assert state.overordnet_status == "LUKKET"
+    revisjon = parse_event_from_request(
+        {
+            "sak_id": "EO-1",
+            "event_type": "eo_revidert",
+            "aktor_id": "bh",
+            "aktor_rolle": "BH",
+            "data": {"ny_revisjon_nummer": 1, "endringer_beskrivelse": "Justert omfang"},
+        }
+    )
+    resultat = BusinessRuleValidator().validate(revisjon, state)
+    assert resultat.violated_rule != "CASE_NOT_CLOSED", resultat.message
 
 
 # =============================================================================
@@ -467,18 +573,12 @@ def test_overordnet_status_gir_ingen_aktive_spor_for_forsering():
 # =============================================================================
 
 
-@pytest.mark.xfail(
-    strict=True,
-    raises=AssertionError,
-    reason="Beregningsstatus GODKJENT blokkerer tilbaketrekking selv når kravet prinsipalt er avslått",
-)
 def test_vederlag_krav_trukket_blokkeres_ved_subsidiaer_enighet():
     """TE må kunne trekke et vederlagskrav som BH prinsipalt har avslått.
 
-    Når BH avslår grunnlag, men godkjenner beregningen subsidiært, settes
-    state.vederlag.status = GODKJENT.
-    _rule_vederlag_can_be_withdrawn blokkerer tilbaketrekking når status er GODKJENT.
-    Dermed kan ikke TE trekke et krav som er prinsipalt avslått.
+    Regresjonstest for TFR-03 (rettet 2026-09-23). Når BH avslår grunnlaget,
+    men godkjenner beregningen subsidiært, er sporstatus GODKJENT uten at
+    kravet er oppgjort.
     """
     timeline = TimelineService()
     validator = BusinessRuleValidator()
@@ -557,10 +657,87 @@ def test_vederlag_krav_trukket_blokkeres_ved_subsidiaer_enighet():
 
     res = validator.validate(withdraw, state)
 
-    # Feiler i dag fordi res.is_valid er False ('status er godkjent')
     assert res.is_valid is True, (
         f"TE ble nektet å trekke subsidiært vederlagskrav: {res.message}"
     )
+
+
+def _frist_subsidiaert_godkjent() -> tuple[list, FristEvent]:
+    """Grunnlaget avslått, fristberegningen godkjent subsidiært."""
+    opprettet, grunnlag, _ = _sak_med_godkjent_grunnlag()
+    avslag = ResponsEvent(
+        sak_id="S-1",
+        aktor_id="bh",
+        aktor_rolle="BH",
+        event_type="respons_grunnlag",
+        spor=SporType.GRUNNLAG,
+        refererer_til_event_id=grunnlag.event_id,
+        data=GrunnlagResponsData(
+            resultat=GrunnlagResponsResultat.AVSLATT, begrunnelse="Ikke ansvar"
+        ),
+    )
+    krav = FristEvent(
+        sak_id="S-1",
+        aktor_id="te",
+        aktor_rolle="TE",
+        event_type="frist_krav_sendt",
+        spor=SporType.FRIST,
+        data=FristData(krevd_dager=30, begrunnelse="Krav"),
+    )
+    subsidiaert = ResponsEvent(
+        sak_id="S-1",
+        aktor_id="bh",
+        aktor_rolle="BH",
+        event_type="respons_frist",
+        spor=SporType.FRIST,
+        refererer_til_event_id=krav.event_id,
+        data=FristResponsData(
+            beregnings_resultat=FristBeregningResultat.GODKJENT,
+            godkjent_dager=30,
+            begrunnelse="Dagene er riktige, men ansvaret avvises",
+        ),
+    )
+    return [opprettet, grunnlag, avslag, krav, subsidiaert], subsidiaert
+
+
+def _trekk_frist():
+    return WithdrawalEvent(
+        sak_id="S-1",
+        aktor_id="te",
+        aktor_rolle="TE",
+        event_type="frist_krav_trukket",
+        data=WithdrawalData(begrunnelse="TE trekker kravet"),
+    )
+
+
+def test_frist_krav_kan_trekkes_ved_subsidiaer_enighet():
+    """TFR-03 gjelder begge pengesporene: også et subsidiært godkjent fristkrav kan trekkes."""
+    timeline = TimelineService()
+    events, _ = _frist_subsidiaert_godkjent()
+    state = timeline.compute_state(events)
+    assert state.frist.status == SporStatus.GODKJENT
+    assert state.er_subsidiaert_frist is True
+
+    assert BusinessRuleValidator().validate(_trekk_frist(), state).is_valid is True
+
+
+def test_krav_kan_ikke_trekkes_naar_grunnlaget_senere_godkjennes():
+    """Godkjenner BH grunnlaget, er godkjenningen ikke lenger subsidiær, og kravet er oppgjort."""
+    state = SakState(
+        sak_id="S-1",
+        sakstype=SaksType.STANDARD,
+        grunnlag=GrunnlagTilstand(status=SporStatus.LAAST),
+        vederlag=VederlagTilstand(status=SporStatus.AVSLATT),
+        frist=FristTilstand(
+            status=SporStatus.GODKJENT, bh_resultat=FristBeregningResultat.GODKJENT
+        ),
+    )
+    assert state.er_subsidiaert_frist is False
+    assert state.overordnet_status == "UNDER_FORHANDLING"
+
+    resultat = BusinessRuleValidator().validate(_trekk_frist(), state)
+    assert resultat.is_valid is False
+    assert "trekkes tilbake" in resultat.message
 
 
 # =============================================================================
@@ -568,16 +745,11 @@ def test_vederlag_krav_trukket_blokkeres_ved_subsidiaer_enighet():
 # =============================================================================
 
 
-@pytest.mark.xfail(
-    strict=True,
-    raises=AssertionError,
-    reason="_copy_fields_if_present med require_truthy=True forkaster 0 og 0.0 som falsy",
-)
 def test_subsidiaert_standpunkt_paa_null_forsvinner():
     """TimelineService må ikke forkaste subsidiaer_godkjent_belop=0 eller dager=0.
 
-    _copy_fields_if_present kalles med require_truthy=True for subsidiære felter.
-    0 og 0.0 evalueres som falsy, så verdiene blir aldri satt på state.
+    Regresjonstest for TFR-04 (rettet 2026-09-23). Et subsidiært standpunkt på
+    0 kr eller 0 dager er et standpunkt, ikke et fravær av et.
     """
     timeline = TimelineService()
 
@@ -648,7 +820,6 @@ def test_subsidiaert_standpunkt_paa_null_forsvinner():
 
     state = timeline.compute_state([e1, e2, e3, e4, resp_ved, resp_frist])
 
-    # Feiler i dag fordi 0.0 og 0 ble svelget og står som None
     assert state.vederlag.subsidiaer_godkjent_belop == 0.0, (
         f"subsidiaer_godkjent_belop ble {state.vederlag.subsidiaer_godkjent_belop} i stedet for 0.0"
     )
@@ -662,16 +833,11 @@ def test_subsidiaert_standpunkt_paa_null_forsvinner():
 # =============================================================================
 
 
-@pytest.mark.xfail(
-    strict=True,
-    raises=AssertionError,
-    reason="overordnet_status returnerer UTKAST når grunnlag er godkjent og låst, fordi vederlag/frist er uopprettet",
-)
 def test_godkjent_grunnlag_rapporteres_som_utkast():
     """En sak der BH har godkjent grunnlaget må ikke få overordnet_status='UTKAST'.
 
-    Når grunnlag er godkjent og låst, men vederlag/frist ennå ikke er sendt inn,
-    viser saken overordnet status 'UTKAST' fordi uopprettede spor står som UTKAST.
+    Regresjonstest for TFR-05 (rettet 2026-09-23). Vederlag og frist er ikke
+    sendt, men saken er i gang. Statusen ble besluttet av oppdragsgiver 23.09.
     """
     timeline = TimelineService()
 
@@ -708,10 +874,10 @@ def test_godkjent_grunnlag_rapporteres_som_utkast():
     state = timeline.compute_state([e1, e2, e3])
     assert state.grunnlag.status == SporStatus.LAAST
 
-    # Feiler i dag fordi overordnet_status returnerer 'UTKAST'
     assert state.overordnet_status != "UTKAST", (
         f"Sak med godkjent grunnlag rapporteres som '{state.overordnet_status}'"
     )
+    assert state.overordnet_status == "UNDER_BEHANDLING"
 
 
 def test_sak_oppgjort_ved_godtatt_avslag_rapporteres_ikke_som_ukjent():
@@ -747,6 +913,155 @@ def test_sak_oppgjort_ved_godtatt_avslag_rapporteres_ikke_som_ukjent():
 
     assert etter.overordnet_status != "UKJENT"
 
-    # «UTKAST» fordi vederlagssporet aldri ble opprettet — det er TFR-06,
-    # se test_godkjent_grunnlag_rapporteres_som_utkast.
-    assert etter.overordnet_status == "UTKAST"
+    # Vederlagssporet er aldri sendt, så saken er ikke oppgjort (TFR-05).
+    assert etter.overordnet_status == "UNDER_BEHANDLING"
+
+
+# =============================================================================
+# 6. Fullt BH-svar på et nøytralt fristvarsel (TFR-06)
+# =============================================================================
+
+
+@pytest.mark.xfail(
+    strict=True,
+    raises=AssertionError,
+    reason=(
+        "TFR-06: _rule_frist_sent godtar et BH-svar som godkjenner 10 dager på et "
+        "nøytralt varsel (§ 33.4) uten krevde dager; sporet blir GODKJENT. Ikke "
+        "rettet: en sperre må slippe gjennom innsigelse mot sen varsling (§ 5) og "
+        "forespørsel (§ 33.6.2, DRF-01), og hvordan de registreres er ikke avgjort"
+    ),
+)
+def test_fullt_fristsvar_paa_noytralt_varsel():
+    timeline = TimelineService()
+    events = _sak_med_godkjent_grunnlag()
+    varsel = FristEvent(
+        sak_id="S-1",
+        aktor_id="te",
+        aktor_rolle="TE",
+        event_type="frist_krav_sendt",
+        spor=SporType.FRIST,
+        data=FristData(
+            varsel_type="varsel",
+            frist_varsel=VarselInfo(dato_sendt="2026-09-02", metode=["digital_oversendelse"]),
+        ),
+    )
+    state = timeline.compute_state(events + [varsel])
+    if state.frist.varsel_type != "varsel" or state.frist.krevd_dager is not None:
+        pytest.fail(f"Oppsettet gir ikke et nøytralt varsel: {state.frist}")
+
+    svar = ResponsEvent(
+        sak_id="S-1",
+        aktor_id="bh",
+        aktor_rolle="BH",
+        event_type="respons_frist",
+        spor=SporType.FRIST,
+        refererer_til_event_id=varsel.event_id,
+        data=FristResponsData(
+            frist_krav_id=varsel.event_id,
+            frist_varsel_ok=True,
+            spesifisert_krav_ok=True,
+            vilkar_oppfylt=True,
+            beregnings_resultat=FristBeregningResultat.GODKJENT,
+            godkjent_dager=10,
+            begrunnelse="Byggherren godkjenner 10 dager",
+        ),
+    )
+
+    assert BusinessRuleValidator().validate(svar, state).is_valid is False
+
+
+# =============================================================================
+# 7. Sidefunn fra spor D 23.09 (docs/gjennomforing-spor-d-2026-09-23.md)
+# =============================================================================
+
+
+@pytest.mark.xfail(
+    strict=True,
+    raises=AssertionError,
+    reason=(
+        "SD-01: et nytt vederlagssvar uten subsidiært standpunkt lar det subsidiære "
+        "standpunktet fra forrige svar stå i tilstanden; frontenden viser det"
+    ),
+)
+def test_nytt_svar_uten_subsidiaert_standpunkt_fjerner_det_gamle():
+    timeline = TimelineService()
+    krav = VederlagEvent(
+        sak_id="S-1",
+        aktor_id="te",
+        aktor_rolle="TE",
+        event_type="vederlag_krav_sendt",
+        spor=SporType.VEDERLAG,
+        data=VederlagData(
+            metode=VederlagsMetode.FASTPRIS_TILBUD, belop_direkte=100000, begrunnelse="Krav"
+        ),
+    )
+    forste_svar = ResponsEvent(
+        sak_id="S-1",
+        aktor_id="bh",
+        aktor_rolle="BH",
+        event_type="respons_vederlag",
+        spor=SporType.VEDERLAG,
+        refererer_til_event_id=krav.event_id,
+        data=VederlagResponsData(
+            beregnings_resultat=VederlagBeregningResultat.AVSLATT,
+            total_godkjent_belop=0,
+            subsidiaer_resultat=VederlagBeregningResultat.GODKJENT,
+            subsidiaer_godkjent_belop=100000,
+            begrunnelse="Prekludert, subsidiært godkjent",
+        ),
+    )
+    revidert = VederlagEvent(
+        sak_id="S-1",
+        aktor_id="te",
+        aktor_rolle="TE",
+        event_type="vederlag_krav_oppdatert",
+        spor=SporType.VEDERLAG,
+        data=VederlagData(
+            metode=VederlagsMetode.FASTPRIS_TILBUD, belop_direkte=80000, begrunnelse="Revidert"
+        ),
+    )
+    nytt_svar = ResponsEvent(
+        sak_id="S-1",
+        aktor_id="bh",
+        aktor_rolle="BH",
+        event_type="respons_vederlag",
+        spor=SporType.VEDERLAG,
+        refererer_til_event_id=revidert.event_id,
+        data=VederlagResponsData(
+            beregnings_resultat=VederlagBeregningResultat.GODKJENT,
+            total_godkjent_belop=80000,
+            begrunnelse="Godkjent",
+        ),
+    )
+
+    vederlag = timeline.compute_state(
+        _sak_med_godkjent_grunnlag() + [krav, forste_svar, revidert, nytt_svar]
+    ).vederlag
+
+    assert vederlag.subsidiaer_godkjent_belop is None, (
+        f"Standpunktet fra forrige svar står igjen: {vederlag.subsidiaer_resultat}, "
+        f"{vederlag.subsidiaer_godkjent_belop}"
+    )
+
+
+@pytest.mark.xfail(
+    strict=True,
+    raises=AssertionError,
+    reason=(
+        "SD-02: en sak der grunnlaget er avsluttet uten krav (trukket, eller avslaget "
+        "godtatt) før andre krav er sendt, vises som UTKAST"
+    ),
+)
+@pytest.mark.parametrize(
+    "grunnlag_status", [SporStatus.TRUKKET, SporStatus.AVSLATT_AKSEPTERT]
+)
+def test_avsluttet_grunnlag_uten_andre_krav_vises_ikke_som_utkast(grunnlag_status):
+    state = SakState(
+        sak_id="S-1",
+        sakstype=SaksType.STANDARD,
+        grunnlag=GrunnlagTilstand(status=grunnlag_status),
+        vederlag=VederlagTilstand(status=SporStatus.UTKAST),
+        frist=FristTilstand(status=SporStatus.UTKAST),
+    )
+    assert state.overordnet_status != "UTKAST"

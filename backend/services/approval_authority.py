@@ -93,14 +93,29 @@ def resolve_route(amount, sender, chain, minimum=None):
     raise ValueError("Godkjenningskjeden har ikke tilstrekkelig fullmakt for brevet.")
 
 
+def _endrer_sluttdato(items):
+    return any(
+        item["track"] == "frist" and item["data"].get("ny_sluttdato") for item in items
+    )
+
+
 def approval_route(items, chain, daily_rate=None, sender=None):
+    """Fullmaktsgrunnlag og rute for et brev med svar.
+
+    En ny sluttdato kan ikke verdsettes uten kontraktens gjeldende sluttdato,
+    som serveren ikke har. Som for endringsordrer kreves da hele kjeden, og den
+    må fortsatt dekke det som lar seg verdsette (audit GFK-02).
+    """
     amount, needs_rate = exposure(items, daily_rate)
-    route = resolve_route(amount, sender, chain)
-    return {
+    basis = {
         "amount": str(amount),
         "dailyRate": str(number(daily_rate)) if needs_rate else None,
         "matrix": "2026-01",
-    }, route
+    }
+    if _endrer_sluttdato(items):
+        route = resolve_route(None, sender, chain, minimum=amount)
+        return {**basis, "amount": None, "minimum": str(amount)}, route
+    return basis, resolve_route(amount, sender, chain)
 
 
 def validate_authority(items, chain, daily_rate=None, sender=None):
