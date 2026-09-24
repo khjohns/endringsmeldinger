@@ -10,6 +10,13 @@ er grunnlaget. [Oppdraget](prompt-b13-backend-eier-reglene-2026-09-23.md), del 1
 **Status:** beslutningsgrunnlag. Notatet avgjør ingenting og endrer ingen kode.
 B-13 er åpen.
 
+> **Merknad 2026-09-24: B-13 er avgjort.** Oppdragsgiver har tatt alle valgene
+> i avsnitt 7 etter anbefalingen. Valg 2 er tatt med en CI-vakt: en test
+> feiler hvis `src/lib/domain/` endres uten at regelversjonen økes, og
+> merkingen i skjemaet skal si at teksten er byggherrens. Valg 8 bortfaller.
+> Vedtakene står i
+> [hovedplanen, 3.1](plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger).
+
 Appen er ikke i produksjon og har ingen reelle data.
 
 ## Sammendrag

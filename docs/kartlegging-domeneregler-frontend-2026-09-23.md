@@ -318,6 +318,13 @@ ut av `SakState` alene; se
 
 ## Spørsmål som må avklares
 
+*Merknad 2026-09-24:* alle seks er avgjort. Spørsmål 3 ble avgjort 23.09; de
+andre 24.09, etter [designnotatet for B-13](design-b13-sannhetskilde-2026-09-23.md#7-valg-for-oppdragsgiver):
+«godkjent» bare når alt er godkjent; passivitet varsles; `grunnlag_varslet_i_tide`
+og «frafalt» avvises utenfor § 32.2 og § 32.3 c; spørsmål 6 bortfaller fordi
+serveren regner summen. Vedtakene står i
+[hovedplanen, 3.1](plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger).
+
 Disse er uklare i NS 8407 eller i koden. Kartleggingen velger ikke tolkning.
 
 1. **99 %-terskelen.** Frontenden kaller et svar «godkjent» når minst 99 % av
