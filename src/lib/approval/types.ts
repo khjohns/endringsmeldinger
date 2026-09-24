@@ -1,5 +1,10 @@
 import type { EventType, SporType } from '$lib/types/timeline';
 
+/** TEs krav: kroner for vederlag, dager for frist. `null` er ikke sendt eller ikke tallfestet. */
+export interface Krav {
+  vederlag: number | null;
+  frist: number | null;
+}
 export interface ApprovalUser {
   id: string;
   name: string;
@@ -28,8 +33,8 @@ export interface ReviewItem {
 export interface LetterDocument {
   authorityContext?: {
     dailyRate: number | null;
-    claimedMoney: number;
-    claimedDays: number;
+    /** Satt av serveren når pakken lages; utkastet regner det av saken. */
+    krav?: Krav;
     matrixVersion: string;
   };
   title: string;
