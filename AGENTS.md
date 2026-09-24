@@ -6,8 +6,9 @@ et krav er bevart eller prekludert.
 
 **Denne fila inneholder bare det som er stabilt.** Plan, funnstatus og
 beslutninger står i `docs/plans/2026-09-16-godkjenning-og-varig-levering.md`
-(hovedplanen), og bare der. Handoffene er historiske. Ikke før slikt inn hit —
-det blir foreldet, og fila lastes automatisk og blir trodd.
+(hovedplanen), og bare der. Arbeid som pågår eller venter, står i GitHub-issues
+(se «Hvor hva står»). Handoffene er historiske. Ikke før slikt inn hit — det blir
+foreldet, og fila lastes automatisk og blir trodd.
 
 ## Språk
 
@@ -280,6 +281,35 @@ grenser»** til slutt som navngir hva som *ikke* er kontrollert.
 - **Opphever du et tidligere utsagn, skriv en datert merknad** («Merknad 2026-09-19
   til RV-07») — også inn i det gamle dokumentet, ellers står de to side om side uten
   at leseren vet hvilket som gjelder.
+
+## Hvor hva står
+
+**Hver opplysning har ett hjem.** Sier to steder det samme, glir de fra hverandre.
+
+| Hva | Hvor |
+| --- | --- |
+| Funnstatus og alvorlighet, beslutninger, rekkefølgen på arbeidspakkene, og det som er levert, med dato og belegg | Hovedplanen |
+| Invarianter og regler som står seg | Denne fila |
+| Beviset: auditer, design, reviewer, gjennomføringsnotater, oppdrag | `docs/` |
+| Arbeid som pågår eller venter: hva, hvem, hvilken PR, hva det venter på | GitHub-issues, samlet i én milepæl per arbeidspakke |
+
+- **Et issue viser til ID-en, ikke til vurderingen.** Skriv funn- eller
+  beslutnings-ID-en og lenk til hovedplanen. Gjenta ikke alvorlighet, belegg
+  eller begrunnelse; da har de to hjem.
+- **En PR som fullfører et issue, har `Closes #n` i beskrivelsen.** Endrer PR-en
+  funnstatus eller en beslutning, får hovedplanen en datert merknad i samme PR.
+  Framdrift innen en arbeidspakke står i issuene; planen får én merknad når et
+  punkt i pakken er levert, ikke én per PR. Parallelle PR-er som alle skriver
+  under samme pakke, gir konflikter.
+- **Skriv ikke arbeidsstatus i hovedplanen eller `docs/README.md`**: «neste
+  oppgave», «pågår», «venter på», «merges etter #45». Det hører til i issuet.
+  Slik status i planen ga konflikter i nesten hver PR 23.09.
+- **Oppfølging som ikke løses i samme PR, blir et issue.** Fra review og
+  code-review får det etiketten `review-oppfølging`. Venter det på en B-ID, får
+  det `venter-på-beslutning`.
+- **Issues er like offentlige som repoet.** Ingen saksdata, kontraktsinnhold,
+  personnavn fra prosjekter, nøkler eller tilgangsopplysninger.
+- `gh issue list --milestone "<navn>"` viser det som gjenstår i en pakke.
 
 ## Arbeidsform
 

@@ -8,6 +8,10 @@ annet om et funn, er det andre dokumentet foreldet — rett det, ikke gjenoppret
 diskusjonen.
 Opphever du et utsagn, skriv en datert merknad, også inn i det gamle dokumentet.
 
+**Arbeid som pågår eller venter, står i GitHub-issues**, samlet i milepælene
+[F0b](https://github.com/khjohns/endringsmeldinger/milestone/1) og [F1](https://github.com/khjohns/endringsmeldinger/milestone/2). Denne indeksen og hovedplanen fører ikke
+arbeidsstatus; regelen står i [`AGENTS.md`](../AGENTS.md).
+
 ---
 
 ## Start her
@@ -26,6 +30,7 @@ Eldre handoffer står under [historikk](#historikk--bevart-ikke-gjeldende).
 | Dokument | Hva det gir |
 | --- | --- |
 | [hovedplanen](plans/2026-09-16-godkjenning-og-varig-levering.md) | **Autoritativ.** Se over |
+| [designnotat: B-13, hvem avgjør resultatet](design-b13-sannhetskilde-2026-09-23.md) | Beslutningsgrunnlag for B-13. Sammenlikner de tre alternativene for journal, brev, partens tekst, frontend, godkjenning og regelendring. Anbefaler (2) i streng form, med regelversjon. **Alle åtte valgene tatt 24.09** etter anbefalingen (hovedplanen, 3.1). Ingen kode |
 | [oppdrag: B-13, backend eier reglene](prompt-b13-backend-eier-reglene-2026-09-23.md) | Neste domeneoppgave. Beslutningsgrunnlag for B-13 først, uten kode. Deretter vedtakene fra spor D (ubegrenset fullmakt, fullmakt for godkjent ansvar, innsigelse og forespørsel på nøytralt fristvarsel) og, etter beslutningen, reglene i backend. Kan gå parallelt med F0b |
 | [oppdrag: repositoriene i F0b, fase 2](prompt-f0b-fase2-repositorier-2026-09-24.md) | Fire parallelle løp (a–d) over kjernen: felles regler, eget oppsett per løp og hva hvert løp eier |
 | [oppdrag: BR-01 og spor D](prompt-spor-d-br01-2026-09-23.md) | BR-01 reprodusert eller avvist uten retting, og kartlegging av frontendens NS 8407-utregninger som grunnlag for B-13. Deretter domenefeilene TFR-02–06, GFK-02, GFK-06, INT-07 og OBS-03. Kan gå parallelt med F0b |
