@@ -121,6 +121,8 @@ en kastbar kopi og kjør testen.
 
 ### Løp a: hendelse og notat
 
+**Issue:** #55.
+
 **Eier:** `repositories/postgres/hendelse.py` (`PostgresEventRepository`) og
 `repositories/postgres/notat.py` (`PostgresNotatRepository`).
 **Erstatter:** `SupabaseEventRepository` og `SupabaseNotatRepository`.
@@ -137,6 +139,8 @@ en kastbar kopi og kjør testen.
 - Tjenestetester som trenger relasjoner, venter på løp b. Test lageret direkte.
 
 ### Løp b: saksmetadata, relasjoner og BIM
+
+**Issue:** #56.
 
 **Eier:** `sak_metadata.py` (`PostgresSakMetadataRepository`), `relasjon.py`
 (`PostgresRelationRepository`) og `bim.py` (`PostgresBimLinkRepository`).
@@ -155,6 +159,8 @@ en kastbar kopi og kjør testen.
   Hold dagens atferd; én skriver er F2.
 
 ### Løp c: identitet, sesjoner, medlemskap og prosjekter
+
+**Issue:** #57.
 
 **Eier:** `identitet.py` (`PostgresAuthRepository`), `medlemskap.py`
 (`PostgresMembershipRepository`) og `prosjekt.py` (`PostgresProjectRepository`).
@@ -179,6 +185,8 @@ en kastbar kopi og kjør testen.
   administratorskriptene bruker dem i dag.
 
 ### Løp d: Catenda-konfigurasjon
+
+**Issue:** #58.
 
 **Eier:** `catenda_konfig.py` (`PostgresCatendaProjectConfigRepository`).
 **Erstatter:** `SupabaseCatendaProjectConfigRepository`.
