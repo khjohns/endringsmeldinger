@@ -1,5 +1,4 @@
-"""Interne notater over direkte tilkobling (F0b, løp a). Erstatter
-`SupabaseNotatRepository`; skjemaet står i
+"""Interne notater over direkte tilkobling (F0b, løp a). Skjemaet står i
 `supabase/migrations/20260921153900_notat_tabell.sql`.
 
 `hent` er utelatt: ingen kaller den (docs/gjennomforing-f0b-lop-a-2026-09-24.md).
@@ -12,20 +11,15 @@ import uuid
 import psycopg
 from psycopg import sql
 from psycopg.rows import dict_row
+from psycopg.types.string import TextLoader
 
 from lib.db import Database, Kontekst
 from models.notat import Notat
 
 _KOLONNER = tuple(Notat.model_fields)
-_UUID_KOLONNER = ("notat_id", "refererer_til_event_id")
 
 _LES = sql.SQL("SELECT {} FROM notat").format(
-    sql.SQL(", ").join(
-        sql.SQL("{}::text AS {}").format(sql.Identifier(k), sql.Identifier(k))
-        if k in _UUID_KOLONNER
-        else sql.Identifier(k)
-        for k in _KOLONNER
-    )
+    sql.SQL(", ").join(map(sql.Identifier, _KOLONNER))
 )
 
 _SETT_INN = sql.SQL("INSERT INTO notat ({}) VALUES ({})").format(
@@ -50,7 +44,9 @@ class PostgresNotatRepository:
 
     def for_sak(self, sak_id: str, prosjekt_id: str) -> list[Notat]:
         with self._db.transaksjon(Kontekst()) as conn:
-            rader = conn.cursor(row_factory=dict_row).execute(
+            cur = conn.cursor(row_factory=dict_row)
+            cur.adapters.register_loader("uuid", TextLoader)
+            rader = cur.execute(
                 _LES
                 + sql.SQL(
                     " WHERE sak_id = %s AND prosjekt_id = %s"

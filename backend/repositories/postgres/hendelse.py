@@ -1,5 +1,4 @@
-"""Journalen over direkte tilkobling (F0b, løp a). Erstatter
-`SupabaseEventRepository`; skjemaet står i
+"""Journalen over direkte tilkobling (F0b, løp a). Skjemaet står i
 `supabase/migrations/20260920193558_hendelse_tabell.sql`."""
 
 from __future__ import annotations
@@ -60,7 +59,7 @@ def _lesbart_prosjekt() -> str:
 
 
 def _tidspunkt(verdi) -> str:
-    """Samme form som Supabase-lageret ga: ISO 8601 i UTC."""
+    """ISO 8601 i UTC, med `+00:00`: formen `parse_event` og klienten leser."""
     return verdi.astimezone(UTC).isoformat()
 
 
@@ -128,7 +127,8 @@ class PostgresEventRepository(EventRepository):
     def append_batch(self, events: list, expected_version: int) -> int:
         """Alle eller ingen. Raises: ConcurrencyError ved versjonskonflikt,
         JournalfoeringAvvist for en hendelsestype med eget lager, og
-        PermanentError uten autorisert prosjekt."""
+        PermanentError uten autorisert prosjekt eller når saken ikke finnes i
+        det."""
         if not events:
             raise ValueError("Kan ikke legge til tom event-liste")
 
@@ -145,7 +145,15 @@ class PostgresEventRepository(EventRepository):
         ]
 
         def arbeid(conn: psycopg.Connection) -> int:
-            faktisk = self._versjon(conn, sak_id)
+            sak = conn.execute(
+                "SELECT prosjekt_id, (SELECT coalesce(max(versjon), 0)"
+                " FROM hendelse WHERE sak_id = m.sak_id)"
+                " FROM sak_metadata m WHERE sak_id = %s",
+                (sak_id,),
+            ).fetchone()
+            if sak is None or sak[0] != prosjekt_id:
+                raise PermanentError("Saken finnes ikke i det autoriserte prosjektet.")
+            faktisk = sak[1]
             if faktisk != expected_version:
                 raise ConcurrencyError(expected_version, faktisk)
             with conn.cursor() as cur:

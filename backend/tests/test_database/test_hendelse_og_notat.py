@@ -9,6 +9,7 @@ import time
 import uuid
 from concurrent.futures import ThreadPoolExecutor
 from datetime import UTC, datetime, timedelta
+from types import SimpleNamespace
 
 import psycopg
 import pytest
@@ -279,18 +280,16 @@ def test_lesing_uten_autorisert_prosjekt_avvises(journal, monkeypatch, les):
         les(journal)
 
 
-def test_versjonskontrollen_gjelder_saken_ikke_prosjektet(
-    journal, testbase_url, monkeypatch
-):
-    """(sak_id, versjon) er unik på tvers av prosjekter, og det er kontrollen også."""
-    journal.append(_hendelse(), expected_version=0)
-    monkeypatch.setattr("lib.project_context.get_project_id", lambda: ANNET_PROSJEKT)
+@pytest.mark.parametrize("sak_id", ["SAK-LOP-A-3", "SAK-UTEN-METADATA"])
+def test_skriving_til_sak_utenfor_prosjektet_avvises(journal, testbase_url, sak_id):
+    """Samme svar for en sak i et annet prosjekt og en sak som ikke finnes."""
+    _sett_inn_saker(testbase_url, ("SAK-LOP-A-3", ANNET_PROSJEKT))
 
-    with pytest.raises(ConcurrencyError) as feil:
-        journal.append(_hendelse(), expected_version=0)
+    with pytest.raises(PermanentError, match="finnes ikke i det autoriserte") as feil:
+        journal.append(_hendelse(sak_id), expected_version=0)
 
-    assert (feil.value.expected, feil.value.actual) == (0, 1)
-    assert _rader(testbase_url) == [(SAK, 1, PROSJEKT)]
+    assert not isinstance(feil.value, ConflictError)
+    assert _rader(testbase_url) == []
 
 
 def test_journalen_har_ingen_vei_til_endring_eller_sletting():
@@ -442,7 +441,7 @@ def test_ugyldig_notat_id_er_ikke_funnet(notater):
     assert notater.slett(SAK, "ikke-en-uuid", PROSJEKT, AKTOR) is False
 
 
-# --- Containeren -------------------------------------------------------------
+# --- Containeren og skriptene ------------------------------------------------
 
 
 def test_containeren_gir_lagrene_over_samme_database(container_mot_testbasen):
@@ -452,3 +451,43 @@ def test_containeren_gir_lagrene_over_samme_database(container_mot_testbasen):
     assert container.event_repository._db is container.database
     assert container.notat_repository._db is container.database
 
+
+
+def test_rapportcachen_fylles_for_saker_i_hvert_prosjekt(
+    container_mot_testbasen, testbase_url, monkeypatch
+):
+    """Skriptet har ingen forespørsel og leser hver sak under sitt eget prosjekt.
+
+    Saksmetadataene er en dobbel: det lageret er løp b sitt.
+    """
+    from lib import project_context
+    from scripts.backfill_reporting_cache import backfill_reporting_cache
+
+    ekte = project_context.get_project_id
+    _sett_inn_saker(testbase_url, (SAK, PROSJEKT), ("SAK-LOP-A-3", ANNET_PROSJEKT))
+    journal = container_mot_testbasen.event_repository
+    for sak_id, prosjekt_id in ((SAK, PROSJEKT), ("SAK-LOP-A-3", ANNET_PROSJEKT)):
+        monkeypatch.setattr(project_context, "get_project_id", lambda p=prosjekt_id: p)
+        journal.append(_hendelse(sak_id), expected_version=0)
+    monkeypatch.setattr(project_context, "get_project_id", ekte)
+
+    oppdatert = []
+
+    class Metadata:
+        def list_all(self, alle_prosjekter=False):
+            assert alle_prosjekter
+            return [
+                SimpleNamespace(sak_id=SAK, prosjekt_id=PROSJEKT, sakstype="standard"),
+                SimpleNamespace(
+                    sak_id="SAK-LOP-A-3", prosjekt_id=ANNET_PROSJEKT, sakstype="standard"
+                ),
+            ]
+
+        def update_cache(self, sak_id, **verdier):
+            oppdatert.append(sak_id)
+
+    container_mot_testbasen._metadata_repo = Metadata()
+
+    backfill_reporting_cache()
+
+    assert oppdatert == [SAK, "SAK-LOP-A-3"]
