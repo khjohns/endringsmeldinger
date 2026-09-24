@@ -37,7 +37,7 @@ def test_eo_exposure_floor_mangler_fristdager():
     """order_exposure_floor må inkludere fristdager * dagmulktssats som minimumsfullmakt.
 
     Når en endringsordre inneholder en fristforlengelse (f.eks. 500 dager) og en ny
-    sluttdato, returnerer order_exposure None (fordi ny_sluttdato krever full kjede).
+    sluttdato, returnerer order_exposure None (fordi ny_sluttdato ikke kan verdsettes).
     order_exposure_floor så tidligere KUN på kompensasjon_belop og fradrag_belop.
     Med kompensasjon_belop 0 ble floor 0, i resolve_route(amount=None, minimum=0)
     ble sjekken `minimum > 0` False, og kjeden ble returnert som den er — en
@@ -206,6 +206,49 @@ def test_endringsordre_som_ikke_kan_verdsettes_kan_sendes_alene_med_ubegrenset_f
         assert auth["amount"] is None
         assert auth["minimum"] == "40000000"
         assert route == []
+
+
+def _eo_rute(tmp_path, sender, request, daily_rate=None):
+    chain = [{"id": "pd@test", "role": "Prosjektdirektør"}, {**ADM, "id": "ad2@test"}]
+    policy = {"handlers": [{**sender, "id": "s@test"}], "chain": chain}
+    if daily_rate is not None:
+        policy["daily_rate"] = daily_rate
+    service = EOApprovalService(
+        tmp_path / "eo.sqlite", Mock(), policy, issued=lambda _: False
+    )
+    _, route = service.authority(request, "s@test")
+    return [p["id"] for p in route]
+
+
+@pytest.mark.parametrize(
+    "sender",
+    [
+        {"role": "Prosjektleder"},
+        {"role": "Divisjonsdirektør"},
+        {"role": "Ukjent rolle"},
+        {},
+    ],
+)
+def test_endringsordre_som_ikke_kan_verdsettes_krever_kjeden_uten_ubegrenset_fullmakt(
+    tmp_path, sender
+):
+    request = {"kompensasjon_belop": 100_000, "ny_sluttdato": "2028-12-31"}
+    assert _eo_rute(tmp_path, sender, request) == ["pd@test", "ad2@test"]
+
+
+def test_endringsordre_uten_dagmulktssats_krever_kjeden_ogsa_ved_ubegrenset_fullmakt(
+    tmp_path,
+):
+    """B-06 er ikke avgjort: vedtaket om ubegrenset fullmakt gjelder ikke manglende sats."""
+    request = {"konsekvenser": {"fremdrift": True}, "frist_dager": 200}
+    assert _eo_rute(tmp_path, ADM, request) == ["pd@test", "ad2@test"]
+    assert _eo_rute(tmp_path, ADM, request, daily_rate=50000) == []
+
+
+def test_resolve_route_uten_avsender_krever_kjeden():
+    chain = [{"id": "pd", "role": "Prosjektdirektør"}]
+    assert resolve_route(None, None, chain) == chain
+    assert resolve_route(None, {}, chain) == chain
 
 
 # =============================================================================
