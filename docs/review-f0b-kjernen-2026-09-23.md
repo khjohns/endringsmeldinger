@@ -17,6 +17,13 @@ Appen er ikke i produksjon og har ingen reelle data. Alvorlighet beskriver mulig
 konsekvens under de oppgitte forutsetningene, ikke en observert produksjonshendelse.
 K betyr kjørt lokalt og observert 23.09; L betyr lest ut av koden.
 
+> **Merknad 2026-09-24:** De to restansene fra verifikasjonen i
+> [PR #47](https://github.com/khjohns/endringsmeldinger/pull/47) er fulgt opp i
+> kode `b97630f` på #42-grenen, med tekstvakt for RK-04. Resultater og grenser
+> står i [gjennomføringsnotatet, avsnitt 8](gjennomforing-f0b-kjernen-2026-09-23.md#8-restansene-fra-verifikasjonen-i-pr-47).
+> Dette er en implementeringsoppfølging, ikke et nytt uavhengig review.
+> Den opprinnelige konklusjonen nedenfor gjelder fortsatt `55ad006`.
+
 ## Konklusjon
 
 **Kjernen kan bygges videre på med navngitte endringer.** Normal bruk av

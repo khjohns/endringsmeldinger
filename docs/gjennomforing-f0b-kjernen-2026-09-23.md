@@ -36,6 +36,13 @@ transporten og kontrakten som trådene i F0b punkt 2 skal bygge på.
 > `COMMIT` i avsnitt 2 er avgrenset. Tallene under «Verifikasjon og grenser»
 > gjelder etter oppfølgingen. M08 og M17 har fått navn som beskriver hva de gjør.
 
+> **Merknad 2026-09-24 etter verifikasjonen i [PR #47](https://github.com/khjohns/endringsmeldinger/pull/47):**
+> De to restansene under RK-02 er rettet, og tekstvakten under RK-04 er lagt
+> til. Avsnitt 4 beskriver nå containereierskap og prioriteten til
+> `DATALAG=postgres`. Se avsnitt 8 og de daterte resultatene under
+> «Verifikasjon og grenser». Ingen lagre er konvertert; RK-05 står fortsatt
+> åpen før F1.
+
 ## 1. Hva som er levert
 
 | Fil | Innhold |
@@ -248,7 +255,8 @@ er likevel ferdig for F1, når ruta sender aktør, prosjekt, side og team videre
 
 ## 4. Grensesnittet for fase 2
 
-Innkoblingen er ferdig (RK-02). En tråd som konverterer et lager, legger til
+Innkoblingen er fulgt opp etter verifikasjonen av RK-02 (24.09, avsnitt 8).
+En tråd som konverterer et lager, legger til
 **én ny fil** og **sine egne tester**, og endrer ingenting delt.
 
 **Bryteren.** `DATALAG=postgres` (`Settings.datalag`) får containeren til å lage
@@ -270,15 +278,28 @@ Filene ligger i `repositories/postgres/`. Pakken finnes. Klassen tar
 `Database` som eneste argument og holder dagens grensesnitt for lageret den
 erstatter.
 
-**De tre som lå utenfor containeren**, går nå gjennom den:
-`AuthService` henter `get_container().auth_repository`, relasjonsoppslaget i
-`forsering_service` og `endringsordre_service` henter
-`get_container().relation_repository`, og Catenda-registeret i
-`catenda_project_resolver_factory` henter
-`get_container().catenda_config_repository`. Uten bryteren lager de tre
-propertyene en ny instans av dagens klasse ved hvert oppslag, som før.
-Relasjonslageret er fortsatt valgfritt med JSON-lageret (`None`). Med
-PostgreSQL valgt blir et manglende relasjonslager en feil, ikke `None`.
+**Innkobling utenfor lagerpropertyene:** `AuthService` henter
+`get_container().auth_repository`. `get_endringsordre_service()` og
+`get_forsering_service()` gir relasjonsoppslaget sin egen container og
+injiserer resultatet. Dermed får relasjons- og hendelseslageret samme
+`Database`, også hvis den globale containeren er en annen. Ved direkte
+konstruksjon uten relasjonsargument brukes fortsatt den globale containeren.
+Et eksplisitt `None` betyr intet relasjonslager og utløser ikke nytt oppslag.
+
+**Catenda-valget:** `DATALAG=postgres` overstyrer
+`CATENDA_PROJECT_REGISTRY_BACKEND`, også `legacy` og et eksplisitt
+`backend="legacy"` i fabrikkallet. `build_project_resolver()` bruker da
+`get_container().catenda_config_repository`. Mangler PostgreSQL-modulen,
+kastes `ProjectResolverConfigurationError` med `LagerIkkeKonvertert` som årsak;
+legacy-konfigurasjonen brukes aldri som reserve. Et eksplisitt injisert
+`registry` brukes fortsatt til testing.
+
+Med tomt `DATALAG` velger `legacy` fortsatt enkeltprosjektregisteret og
+`supabase` det varige Supabase-registeret; andre registerverdier avvises.
+Auth-, relasjons- og Catenda-propertyene oppretter en ny lagerinstans per
+oppslag. Relasjoner er fortsatt `None` med JSON, og en konstruksjonsfeil i det
+eldre Supabase-relasjonslageret gir fortsatt `None` gjennom tjenestehjelperen.
+PostgreSQL-feil blir ikke svelget.
 
 **Regler for trådene:**
 
@@ -290,7 +311,10 @@ PostgreSQL valgt blir et manglende relasjonslager en feil, ikke `None`.
 3. Testene i en egen fil under `tests/test_database/`, merket `database`, med
    `skrivbar_base` for lageret direkte eller `container_mot_testbasen` for
    tjenester og ruter. Den siste setter `DATALAG=postgres`.
-4. Kallerens ansvar i avsnitt 7 gjelder.
+4. Kallerens ansvar i avsnitt 7 gjelder. Tekstvakten
+   [`test_postgres_transaksjonsgrense.py`](../backend/tests/test_security/test_postgres_transaksjonsgrense.py)
+   avviser `BEGIN`, `COMMIT`, `ROLLBACK`, `SET ROLE` (og `SET LOCAL/SESSION ROLE`)
+   samt `set_config` i statisk SQL under `repositories/postgres/`.
 
 **Konfliktflater som gjenstår:** ingen i de delte filene, så lenge reglene
 følges. Trenger to tråder en felles SQL-hjelper (for eksempel `dict_row` eller
@@ -403,7 +427,72 @@ bare én pytest-prosess bruker basen om gangen. Parallelle kjøringer mot samme
 base kan tømme hverandres data; bruk én kastbar base per prosess. Merket på
 basen er en erklæring om at den er kastbar, ikke et bevis på hvor den står.
 
+## 8. Restansene fra verifikasjonen i PR #47
+
+**Dato:** 2026-09-24. **Utgangspunkt:** `754c07e`. **Kode og tester:**
+`b97630f`, på grenen for [PR #42](https://github.com/khjohns/endringsmeldinger/pull/42).
+Oppfølging av [verifikasjonen i PR #47](https://github.com/khjohns/endringsmeldinger/pull/47),
+RK-02 og anbefalingen under RK-04. Dette er implementeringsresultater, ikke
+et nytt uavhengig review. K = kjørt og observert; L = lest ut av koden.
+
+| Punkt | Endring | Belegg |
+| --- | --- | --- |
+| RK-02, relasjoner | Begge tjenestefabrikkene injiserer relasjonslageret fra egen container. Hjelperen beholder eldre feilhåndtering. Eksplisitt `None` beholdes; bare utelatt argument gir globalt oppslag. | K: fire varianter med annen global container (`DATALAG` tomt eller `postgres`) krever samme databaseobjekt for hendelser og relasjoner. Fire andre varianter beholder `None` fra lokal JSON eller utilgjengelig Supabase selv med global PostgreSQL-container. |
+| RK-02, Catenda | `DATALAG=postgres` har prioritet over den gamle registerbryteren. Manglende modul gir tydelig konfigurasjonsfeil med opprinnelig årsak. | K: både `legacy` og `supabase`, fra innstilling eller eksplisitt argument, velger PostgreSQL-klassen og containerens database. Begge innstillinger avvises når modulen mangler, selv med gyldig legacy-konfigurasjon. Tomt `DATALAG` beholder legacy og avviser registerverdien `postgres`. |
+| RK-04, tekstvakt | Statisk SQL i `.py`- og `.sql`-filer under `repositories/postgres/` kontrolleres. Python-kommentarer/docstrings, SQL-kommentarer og siterte SQL-verdier regnes ikke som kommandoer. | K: vakten blir rød for hver av de fem påkrevde formene, og grønn igjen etter at prøvelinja fjernes. Blandede bokstavstørrelser, SQL-kommentar mellom SET og ROLE og SET LOCAL ROLE er også testet. |
+
+**Mutasjonskontroll (K):** i en egen kastbar kopi ble bare én endring gjort om
+gangen. Ingen prøvefiler ble lagt til på leveransegrenen.
+
+| Mutasjon | Observert resultat |
+| --- | --- |
+| Fjern relasjonsargumentet i begge tjenestefabrikker | Fire testfeil: to finner `None` fra global JSON, to feiler på identiteten til databaseobjektet fra global PostgreSQL. Ingen oppsettsfeil. |
+| Fjern overstyringen til `selected = "postgres"` | Begge legacy-variantene feiler på forventet registerklasse: de får `InMemoryCatendaProjectConfigRepository`. De to Supabase-variantene består. |
+| Legg `conn.execute("BEGIN")` i `repositories/postgres/prove.py` | Tekstvakten feiler og navngir `prove.py:1: BEGIN`. |
+| Samme prøve med `COMMIT` | Tekstvakten feiler og navngir `prove.py:1: COMMIT`. |
+| Samme prøve med `ROLLBACK` | Tekstvakten feiler og navngir `prove.py:1: ROLLBACK`. |
+| Samme prøve med `SET ROLE koe` | Tekstvakten feiler og navngir `prove.py:1: SET ROLE`. |
+| Samme prøve med `SELECT set_config('koe.krav', '{}', true)` | Tekstvakten feiler og navngir `prove.py:1: set_config`. |
+| Fjern prøvelinja | Tekstvakten består. |
+
+Prøvelinjene leses som kildekode, ikke som SQL som kjøres. For å gjenta en
+vaktmutasjon: bruk en kastbar checkout av `b97630f`, legg en av linjene over i
+`backend/repositories/postgres/prove.py`, og kjør fra `backend`:
+
+```bash
+python -m pytest -q tests/test_security/test_postgres_transaksjonsgrense.py \
+  -k test_postgres_lagre_styrer_ikke_transaksjon_eller_kontekst
+```
+
+Fjern prøvefila og kjør igjen. De to lagerkoblingene prøves i
+[`test_container_postgres.py`](../backend/tests/test_core/test_container_postgres.py).
+Ingen lagre, Database-metoder, migrasjoner eller xfail-reproduksjoner er endret.
+
 ## Verifikasjon og grenser
+
+**Kjørt og observert 2026-09-24, kode `b97630f`:** macOS 26.2, Python 3.11.9,
+pytest 9.0.2, PostgreSQL 17.11, psycopg 3.3.6 og psycopg-pool 3.3.3.
+Ny kastbar lokalbase på port 54329, bygget fra tom med plattformstubben og
+alle 23 migrasjoner. Resultatene er fra den endelige koden:
+
+- `python -m pytest -q tests/test_database`: **59 bestått, 1 xfailed** (RK-04).
+- `python -m pytest -q`, hele backend med testbasen: **1643 bestått,
+  9 hoppet over, 39 xfailed**.
+- Fem av fem forbudte SQL-former gjorde tekstvakten rød; gjenopprettet kopi
+  ble grønn. Begge mutasjonene av innkoblingen ble også fanget (avsnitt 8).
+- `ruff check backend/`: ingen feil. Lokale lenker og ankre i dette notatet,
+  reviewrapporten og hovedplanen: ingen brutte lenker.
+
+**Grenser for 24.09-kjøringen:** innkoblingstestene bruker lagerdobler; de
+konverterer og prøver ingen framtidige lagre. Tekstvakten er ikke en SQL-parser
+eller en sikkerhetsgrense: dynamisk sammensetting på tvers av strenger og
+variabler, importert SQL og `conn.commit()`/`rollback()` dekkes ikke. Kallerregelen
+og review av hvert nytt lager gjelder fortsatt. Den strenge RK-04-xfail-en er
+uendret; kjernens tekniske begrensning består. Ingen delt base eller reelle
+Catenda-/Supabase-kall er brukt. Alle 33 eldre mutasjoner, CI og
+PgBouncer/Supavisor er ikke kjørt på nytt i denne oppfølgingen. RK-05 står
+fortsatt åpen før F1, ikke før fase 2.
+
 
 **Kjørt og observert (23.09, macOS 26, Python 3.11.9, PostgreSQL 17.11 fra
 Homebrew, psycopg 3.3.6, psycopg-pool 3.3.3, ruff 0.16.8), etter oppfølgingen:**
