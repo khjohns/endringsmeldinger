@@ -674,7 +674,8 @@ historikk og mappa stemmer.
 ### F0b — Datalaget over direkte tilkobling
 
 **Avhenger av:** F0-jobben og beslutningen i 3.1 (23.09). Containerdelen
-avhenger av B-12. **Status:** ikke påbegynt.
+avhenger av B-12. **Status:** punkt 1 (kjernen) levert 24.09 (PR #42). Det som
+gjenstår, følges i [milepælen F0b](https://github.com/khjohns/endringsmeldinger/milestone/1).
 
 F0b bytter veien fra backend til basen, ikke rettighetene. Før F1-rollene
 finnes, kobler backend til med de rettighetene den har i dag. Det er ikke en
@@ -964,36 +965,11 @@ RC-10 i spor H; RC-9 i F3 og spor H; RC-11 lukket med FE-01 og FE-05; RC-12 i F4
 
 ## 6. Neste gjennomførbare oppgave
 
-> **Merknad 2026-09-23 til avsnitt 6:** Forrige neste oppgave, F0 punkt 1
-> (PostgreSQL 17 i CI), er gjort 22.09 (PR #33), og det samme er T-1 til T-5,
-> utenom DB-04s fremmednøkler (B-01).
-> Neste oppgave er nå F0b, etter beslutningen om direkte tilkobling (3.1).
-
-> **Merknad 2026-09-23 (spor D):** Spor D er gjennomført (PR #45 og #46):
-> BR-01 reprodusert, sju domenefeil rettet, og tre spørsmål besvart som
-> vedtak i 3.1. Parallelt med F0b er nå neste domeneoppgave
-> [oppdraget for B-13](../prompt-b13-backend-eier-reglene-2026-09-23.md):
-> først et beslutningsgrunnlag for B-13, deretter vedtakene fra spor D.
-
-**Start med F0b, punkt 1: kjernen.** Den avgjør formen på alt som kommer etter,
-og er det eneste i F0b som ikke bør deles mellom tråder. Den krever ingen ny
-beslutning.
-
-1. `lib/db` med pool, `transaksjon(kontekst)`, miljøvalg og feilklassifisering,
-   med lokal oppstart og skrivbar testfixture.
-2. Uavhengig review av kjernen i en egen tråd.
-3. Deretter repositoriene, ett eller to per tråd, parallelt. TS2-02 når alle er
-   inne.
-
-Oppdragene står i [oppdraget for kjernen](../prompt-f0b-kjernen-2026-09-23.md)
-og [oppdraget for reviewet](../prompt-review-f0b-kjernen-2026-09-23.md).
-
-[Prototype v2](../vedlegg/b02-prototype-v2-2026-09-23/kjor.sh) viser
-konteksthåndteringen over direkte innlogging og kan brukes som mønster, ikke
-som kode. Parallelt kan B-13-oppdraget gå, og
-containerdelen av F0b når IKT har svart (B-12). Beslutningene F1 trengte, ble
-tatt 23.09 (B-02 og B-04 i 3.1). F1-migrasjonene venter på det uavhengige
-reviewet og RK-05.
+> **Merknad 2026-09-24 til avsnitt 6:** Avsnittet fører ikke lenger
+> arbeidsstatus. Det som pågår og venter, står i GitHub-issues, samlet i
+> milepælene [F0b](https://github.com/khjohns/endringsmeldinger/milestone/1) og [F1](https://github.com/khjohns/endringsmeldinger/milestone/2). Regelen står i `AGENTS.md` («Hvor hva
+> står») og i avsnitt 8. Rekkefølgen står i avsnitt 5, og det som er levert, i
+> merknadene der. Tidligere innhold er i Git-historikken.
 
 **Beslutninger som blokkerer senere arbeid:**
 
@@ -1052,6 +1028,9 @@ treff beviser heller ikke at en gammel workers kall ikke fullføres senere.
 - Et nytt funn får ID i sitt eget dokument og en linje i avsnitt 4.
 - En beslutning flyttes fra 3.4 til 3.1 med dato og hvem som besluttet.
 - En xfail som blir XPASS gjøres om til ordinær test, og registeret oppdateres.
+- Planen fører det som er avgjort og levert, med dato og belegg. Arbeid som
+  pågår eller venter, står i GitHub-issues, ikke her (`AGENTS.md`, «Hvor hva
+  står»). Et issue viser til ID-en i planen og gjentar ikke vurderingen.
 
 ## Verifikasjon og grenser
 
