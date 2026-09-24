@@ -395,8 +395,7 @@ Et åpent valg blokkerer bare oppgavene som er nevnt.
 > varsles. Premissen er at resultatet oppsummerer vurderingene og ikke
 > uttrykker noen egen vilje. Åtte valg står for oppdragsgiver i notatets
 > avsnitt 7, blant dem de fem spørsmålene fra kartleggingen som ikke er
-> avgjort. Beslutningsstatus for B-13 er uendret. Ikke bygg etter
-> anbefalingen før valgene er ført inn i 3.1.
+> avgjort. Beslutningsstatus for B-13 er uendret.
 
 > **Merknad 2026-09-24 til B-13 (beslutning):** Oppdragsgiver har tatt de
 > åtte valgene i designnotatets avsnitt 7, alle etter anbefalingen: (2) i
@@ -404,8 +403,7 @@ Et åpent valg blokkerer bare oppgavene som er nevnt.
 > «godkjent» bare når hele kravet er godkjent; preklusjon ut fra byggherrens
 > egen vurdering trekkes av systemet; passivitet varsles; `grunnlag_varslet_i_tide`
 > og «frafalt» avvises utenfor § 32.2 og § 32.3 c. Valg 8 (sum eller poster)
-> bortfaller med (2). Vedtakene står i 3.1. B-13 er avgjort. Del 2 av
-> [oppdraget](../prompt-b13-backend-eier-reglene-2026-09-23.md) kan bygges.
+> bortfaller med (2). Vedtakene står i 3.1. B-13 er avgjort.
 
 > **Merknad 2026-09-23 til B-12:** Ny åpen beslutning. IKT svarte at både
 > Azure SQL og PostgreSQL kan brukes; oppdragsgiver har foreslått PostgreSQL.
