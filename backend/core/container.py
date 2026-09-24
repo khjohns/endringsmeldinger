@@ -278,7 +278,7 @@ class Container:
 
     @property
     def catenda_config_repository(self) -> Any:
-        """Det varige Catenda-registeret (CATENDA_PROJECT_REGISTRY_BACKEND=supabase)."""
+        """Det varige Catenda-registeret fra valgt datalag."""
         if self.bruker_postgres:
             return self._postgres_lager("catenda_config_repository")
         from repositories.catenda_project_config_repository import (
@@ -347,9 +347,13 @@ class Container:
         Returns:
             ForseringService med event_repository, timeline_service, catenda_client
         """
-        from services.forsering_service import ForseringService
+        from services.forsering_service import (
+            ForseringService,
+            _get_relation_repository,
+        )
 
         return ForseringService(
+            relation_repository=_get_relation_repository(self),
             catenda_client=self.catenda_client,
             event_repository=self.event_repository,
             timeline_service=self.timeline_service,
@@ -362,9 +366,13 @@ class Container:
         Returns:
             EndringsordreService med event_repository, timeline_service, catenda_client
         """
-        from services.endringsordre_service import EndringsordreService
+        from services.endringsordre_service import (
+            EndringsordreService,
+            _get_relation_repository,
+        )
 
         return EndringsordreService(
+            relation_repository=_get_relation_repository(self),
             catenda_client=self.catenda_client,
             event_repository=self.event_repository,
             timeline_service=self.timeline_service,

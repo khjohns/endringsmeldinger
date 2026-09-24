@@ -157,3 +157,86 @@ def test_manglende_relasjonslager_er_hoyt_naar_postgres_er_valgt(monkeypatch, mo
             importlib.import_module(modul)._get_relation_repository()
     finally:
         set_container(None)
+
+
+@pytest.mark.parametrize("fabrikk", ["get_endringsordre_service", "get_forsering_service"])
+@pytest.mark.parametrize("globalt_datalag", ["", "postgres"])
+def test_tjenesten_bruker_sin_egen_database_for_relasjoner(
+    falske_lagre, monkeypatch, fabrikk, globalt_datalag
+):
+    monkeypatch.setenv("EVENT_STORE_BACKEND", "json")
+    standard = Container(config=Settings(_env_file=None, datalag=globalt_datalag))
+    standard._database = FalskDatabase()
+    lokal = postgres_container()
+    lokal._catenda_client = object()
+    monkeypatch.setattr("core.container._default_container", standard)
+
+    tjeneste = getattr(lokal, fabrikk)()
+
+    assert tjeneste.event_repository.db is lokal.database
+    assert tjeneste.relation_repository.db is tjeneste.event_repository.db
+    assert tjeneste.relation_repository.db is not standard.database
+
+
+@pytest.mark.parametrize("fabrikk", ["get_endringsordre_service", "get_forsering_service"])
+@pytest.mark.parametrize("gammelt_lager", ["json", "supabase"])
+def test_tomt_relasjonslager_fra_egen_container_hentes_ikke_globalt(
+    postgres_som_standard, monkeypatch, fabrikk, gammelt_lager
+):
+    monkeypatch.setenv("EVENT_STORE_BACKEND", gammelt_lager)
+    lokal = Container(config=Settings(_env_file=None, datalag=""))
+    lokal._event_repo = object()
+    lokal._metadata_repo = object()
+    lokal._catenda_client = object()
+
+    def utilgjengelig():
+        raise RuntimeError("Relasjonslageret er utilgjengelig")
+
+    monkeypatch.setattr("repositories.create_relation_repository", utilgjengelig)
+
+    tjeneste = getattr(lokal, fabrikk)()
+
+    assert tjeneste.event_repository is lokal._event_repo
+    assert tjeneste.relation_repository is None
+
+
+@pytest.mark.parametrize("registervalg", ["legacy", "supabase"])
+@pytest.mark.parametrize("eksplisitt", [False, True])
+def test_postgres_overstyrer_catenda_registervalget(
+    postgres_som_standard, monkeypatch, registervalg, eksplisitt
+):
+    from core.config import settings
+    from services.catenda_project_resolver_factory import build_project_resolver
+
+    monkeypatch.setattr(settings, "catenda_project_registry_backend", registervalg)
+    for felt in ("catenda_project_id", "catenda_topic_board_id", "catenda_library_id"):
+        monkeypatch.setattr(settings, felt, "11111111-1111-1111-1111-111111111111")
+    resolver = build_project_resolver(
+        object(), **({"backend": registervalg} if eksplisitt else {})
+    )
+
+    assert type(resolver._register).__name__ == "PostgresCatendaProjectConfigRepository"
+    assert resolver._register.db is postgres_som_standard.database
+
+
+@pytest.mark.parametrize("registervalg", ["legacy", "supabase"])
+def test_manglende_postgres_register_avvises_uten_legacy_reserve(
+    postgres_som_standard, monkeypatch, registervalg
+):
+    from core.config import settings
+    from services.catenda_project_resolver_factory import (
+        ProjectResolverConfigurationError,
+        build_project_resolver,
+    )
+
+    monkeypatch.setattr(settings, "catenda_project_registry_backend", registervalg)
+    for felt in ("catenda_project_id", "catenda_topic_board_id", "catenda_library_id"):
+        monkeypatch.setattr(settings, felt, "11111111-1111-1111-1111-111111111111")
+    monkeypatch.setitem(
+        POSTGRES_LAGRE, "catenda_config_repository", ("repositories.postgres.finnes_ikke", "X")
+    )
+
+    with pytest.raises(ProjectResolverConfigurationError, match=r"\(postgres\)") as feil:
+        build_project_resolver(object())
+
+    assert isinstance(feil.value.__cause__, LagerIkkeKonvertert)
