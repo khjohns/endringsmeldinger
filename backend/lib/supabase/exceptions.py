@@ -1,88 +1,36 @@
-"""
-Supabase Exception Hierarchy
-============================
+"""Klassifisering av feil fra supabase-py.
 
-TransientError - Retry-bare feil (nettverksproblemer, timeouts, 5xx)
-PermanentError - Ikke retry-bare feil (auth, validering, 4xx)
+Klassene bor i `lib/db/feil.py`, felles med direkte tilkobling, slik at
+`PermanentError`, `ConflictError` og `ConcurrencyError` er de samme klassene
+uansett hvilket lager som kaster dem.
 """
 
 from __future__ import annotations
 
 from postgrest import APIError
 
+from lib.db.feil import (
+    AuthenticationError,
+    ConflictError,
+    NotFoundError,
+    PermanentError,
+    RateLimitError,
+    TransientError,
+    ValidationError,
+)
+from lib.db.feil import DatalagFeil as SupabaseError
 
-class SupabaseError(Exception):
-    """Base exception for Supabase operations."""
-
-    def __init__(self, message: str, original: Exception | None = None):
-        super().__init__(message)
-        self.original = original
-
-
-class TransientError(SupabaseError):
-    """
-    Retry-bar feil - nettverksproblemer, timeouts, 5xx errors.
-
-    Disse feilene bør prøves på nytt med exponential backoff.
-    """
-
-    pass
-
-
-class PermanentError(SupabaseError):
-    """
-    Ikke retry-bar feil - auth failures, validation errors, 4xx.
-
-    Disse feilene bør IKKE prøves på nytt.
-    """
-
-    def __init__(
-        self,
-        message: str,
-        original: Exception | None = None,
-        code: str | None = None,
-        details: str | None = None,
-    ):
-        super().__init__(message, original)
-        self.code = code
-        self.details = details
-
-
-class AuthenticationError(PermanentError):
-    """401/403 - Token invalid eller mangler tilgang."""
-
-    pass
-
-
-class NotFoundError(PermanentError):
-    """404 - Ressurs finnes ikke."""
-
-    pass
-
-
-class ConflictError(PermanentError):
-    """409/Unique violation - Optimistic locking conflict."""
-
-    pass
-
-
-class ValidationError(PermanentError):
-    """400/422 - Ugyldig input."""
-
-    pass
-
-
-class RateLimitError(TransientError):
-    """429 - Rate limit exceeded."""
-
-    def __init__(
-        self,
-        message: str,
-        retry_after: int | None = None,
-        original: Exception | None = None,
-    ):
-        super().__init__(message, original)
-        self.retry_after = retry_after
+__all__ = [
+    "AuthenticationError",
+    "ConflictError",
+    "NotFoundError",
+    "PermanentError",
+    "RateLimitError",
+    "SupabaseError",
+    "TransientError",
+    "ValidationError",
+    "classify_error",
+]
 
 
 def classify_error(e: Exception) -> SupabaseError:
