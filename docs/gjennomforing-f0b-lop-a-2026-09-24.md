@@ -227,6 +227,8 @@ Kastbar testbase på port 54331, bygget fra tom av `lokal_testbase.sh` med alle
   løpet: 59 bestått og 1 xfailed i `tests/test_database`.
 - `ruff check backend/`: ingen feil.
 - 25 av 25 mutasjoner ga rød test (avsnitt 5).
+- CI på PR #67, `4c37319`: alle jobber grønne, også `database` (PostgreSQL 17 og
+  migrasjonene).
 
 **Lest ut av koden, ikke kjørt:** kallerlista i avsnitt 2, følgene av
 lesefilteret for tjenestene i avsnitt 3, og webhookstien i avsnitt 8.
@@ -235,7 +237,6 @@ lesefilteret for tjenestene i avsnitt 3, og webhookstien i avsnitt 8.
 
 - Tjenester og ruter over `DATALAG=postgres`. De trenger saksmetadata og
   relasjoner fra løp b; lagrene er testet direkte, som oppdraget sa.
-- CI. Jobben `database` er ikke kjørt for grenen ennå.
 - PgBouncer og Supavisor.
 - Ytelse. Lesingen av journalen går på `idx_hendelse_sak_id`, men ingen
   spørreplan er lest.
