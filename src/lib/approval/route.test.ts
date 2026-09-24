@@ -57,13 +57,25 @@ describe('resolveRoute', () => {
     );
   });
 
-  it('lets unlimited authority send alone when the amount cannot be computed', () => {
+  it('lar ubegrenset fullmakt sende alene når beløpet ikke kan verdsettes', () => {
     const top = withLimit({ name: 'Direktør', role: 'Adm.dir (daglig leder)' });
     const result = resolveRoute({ amount: null, minimum: 50000000, sender: top, chain });
     expect(result.requiresApproval).toBe(false);
     expect(result.approvers).toHaveLength(0);
     const below = withLimit({ name: 'Divisjon', role: 'Divisjonsdirektør' });
     expect(resolveRoute({ amount: null, sender: below, chain }).approvers).toHaveLength(2);
+    const ukjent = withLimit({ name: 'Ukjent', role: '' });
+    expect(resolveRoute({ amount: null, sender: ukjent, chain }).approvers).toHaveLength(2);
+  });
+
+  it('krever kjeden for ubegrenset fullmakt når dagmulktssatsen mangler (B-06)', () => {
+    const top = withLimit({ name: 'Direktør', role: 'Adm.dir (daglig leder)' });
+    const result = resolveRoute({ amount: null, sender: top, chain, manglerSats: true });
+    expect(result.requiresApproval).toBe(true);
+    expect(result.approvers).toHaveLength(2);
+    expect(
+      resolveRoute({ amount: 9e9, sender: top, chain, manglerSats: true }).requiresApproval
+    ).toBe(false);
   });
 
   it('treats unlimited authority as covering any amount', () => {

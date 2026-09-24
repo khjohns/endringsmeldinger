@@ -55,15 +55,17 @@ export function limitLabel(limit: number | null | undefined) {
   return limit === null ? 'Ubegrenset' : limit === undefined ? 'Ikke angitt' : nok(limit);
 }
 
-const covers = (limit: number | null | undefined, amount: number) =>
-  limit === null || (limit !== undefined && amount <= limit);
+/** `amount: null` kan ikke verdsettes, og dekkes bare av ubegrenset fullmakt. */
+const covers = (limit: number | null | undefined, amount: number | null) =>
+  limit === null || (amount !== null && limit !== undefined && amount <= limit);
 
 /**
  * Derives the sequential authorisation route from an amount and the ordered chain.
  * The UI never asks the operator to pick a recipient — it states who the amount requires.
  * `amount: null` (uncomputable) requires the whole configured chain, and `minimum` —
- * the part already agreed — must still be within someone's authority. A sender with
- * unlimited authority sends alone, also when the amount cannot be computed.
+ * the part already agreed — must still be within someone's authority.
+ * Ubegrenset fullmakt sender alene, også når beløpet ikke kan verdsettes (vedtak 23.09).
+ * Unntaket er `manglerSats`: uten dagmulktssats gjelder B-06, og da kreves kjeden.
  * Mirrors `resolve_route` in backend/services/approval_authority.py.
  */
 export function resolveRoute({
@@ -71,11 +73,13 @@ export function resolveRoute({
   sender,
   chain,
   minimum,
+  manglerSats = false,
 }: {
   amount: number | null;
   sender: ApprovalActor;
   chain: ApprovalActor[];
   minimum?: number;
+  manglerSats?: boolean;
 }): ApprovalRoute {
   const senderNode: ApprovalChainNode = {
     id: sender.id,
@@ -85,7 +89,7 @@ export function resolveRoute({
     metaLabel: limitLabel(sender.limit),
     statusLabel: 'Sender',
   };
-  if (sender.limit === null || (amount !== null && covers(sender.limit, amount)))
+  if (covers(sender.limit, amount) && !(amount === null && manglerSats))
     return {
       requiresApproval: false,
       exceedsAllAuthority: false,

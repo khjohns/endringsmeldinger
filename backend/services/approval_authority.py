@@ -23,7 +23,10 @@ def number(value):
 
 
 def covers(role, amount):
-    return role in LIMITS and (LIMITS[role] is None or LIMITS[role] >= amount)
+    """`amount=None` kan ikke verdsettes, og dekkes bare av ubegrenset fullmakt."""
+    if role not in LIMITS:
+        return False
+    return LIMITS[role] is None or (amount is not None and LIMITS[role] >= amount)
 
 
 def exposure(items, daily_rate=None):
@@ -67,20 +70,24 @@ def exposure(items, daily_rate=None):
     return max(principal, subsidiary), needs_rate
 
 
-def resolve_route(amount, sender, chain, minimum=None):
+def resolve_route(amount, sender, chain, minimum=None, mangler_sats=False):
     """Approvers the amount requires, in chain order, ending with the one who decides.
 
     Mirrors resolveRoute in src/lib/approval/route.ts. An empty route means the sender
     may send within their own authority. `amount=None` requires the whole chain, but an
     unresolved total never weakens the route: `minimum` is the part already agreed, and
     someone in the chain must still cover it. Otherwise a letter over every limit could
-    be issued by adding an unvalued consequence. A sender with unlimited authority
-    sends alone, also when the amount cannot be valued.
+    be issued by adding an unvalued consequence.
+
+    Ubegrenset fullmakt sender alene, også når beløpet ikke kan verdsettes
+    (vedtak 23.09). Unntaket er `mangler_sats`: uten dagmulktssats gjelder B-06,
+    som ikke er avgjort, og da kreves kjeden som før.
     """
-    role = (sender or {}).get("role")
-    if role in LIMITS and LIMITS[role] is None:
-        return []
-    if amount is not None and sender and covers(role, amount):
+    if (
+        sender
+        and covers(sender.get("role"), amount)
+        and not (amount is None and mangler_sats)
+    ):
         return []
     if amount is not None:
         for index, person in enumerate(chain):
