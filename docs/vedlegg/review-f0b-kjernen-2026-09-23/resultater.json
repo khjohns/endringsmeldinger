@@ -1,0 +1,336 @@
+[
+  {
+    "navn": "original",
+    "returkode": 0,
+    "tester": 57,
+    "feil": [],
+    "oppsettsfeil": []
+  },
+  {
+    "navn": "review",
+    "returkode": 0,
+    "tester": 14,
+    "feil": [],
+    "oppsettsfeil": []
+  },
+  {
+    "navn": "fixture-avbrudd",
+    "returkode": 1,
+    "tester": 2,
+    "feil": [
+      "test_01_skriv_og_feil"
+    ],
+    "oppsettsfeil": []
+  },
+  {
+    "navn": "M01",
+    "returkode": 1,
+    "tester": 3,
+    "feil": [
+      "test_kontekst_lekker_ikke_til_neste_transaksjon[commit]"
+    ],
+    "oppsettsfeil": []
+  },
+  {
+    "navn": "M02",
+    "returkode": 1,
+    "tester": 3,
+    "feil": [
+      "test_kontekst_lekker_ikke_til_neste_transaksjon[commit]"
+    ],
+    "oppsettsfeil": []
+  },
+  {
+    "navn": "M03",
+    "returkode": 1,
+    "tester": 3,
+    "feil": [
+      "test_hjelperen_aapner_transaksjonen_selv",
+      "test_feil_etter_forste_skriving_etterlater_ingenting[python]",
+      "test_feil_etter_forste_skriving_etterlater_ingenting[basen]"
+    ],
+    "oppsettsfeil": []
+  },
+  {
+    "navn": "M04",
+    "returkode": 1,
+    "tester": 6,
+    "feil": [
+      "test_kontekst_lekker_ikke_til_neste_transaksjon[commit]",
+      "test_kontekst_lekker_ikke_til_neste_transaksjon[rollback]",
+      "test_kontekst_lekker_ikke_til_neste_transaksjon[feil-i-basen]",
+      "test_hjelperen_aapner_transaksjonen_selv",
+      "test_feil_etter_forste_skriving_etterlater_ingenting[python]",
+      "test_feil_etter_forste_skriving_etterlater_ingenting[basen]"
+    ],
+    "oppsettsfeil": []
+  },
+  {
+    "navn": "M05",
+    "returkode": 1,
+    "tester": 1,
+    "feil": [
+      "test_kontekst_kan_ikke_settes_utenfor_transaksjon"
+    ],
+    "oppsettsfeil": []
+  },
+  {
+    "navn": "M06",
+    "returkode": 1,
+    "tester": 1,
+    "feil": [
+      "test_kontekst_satt_paa_sesjonsniva_kastes_med_forbindelsen"
+    ],
+    "oppsettsfeil": []
+  },
+  {
+    "navn": "M07",
+    "returkode": 1,
+    "tester": 1,
+    "feil": [
+      "test_tom_kontekst_overstyrer_det_sesjonen_har"
+    ],
+    "oppsettsfeil": []
+  },
+  {
+    "navn": "M08",
+    "returkode": 1,
+    "tester": 4,
+    "feil": [
+      "test_kontekst_lekker_ikke_til_neste_transaksjon[commit]",
+      "test_kontekst_lekker_ikke_til_neste_transaksjon[rollback]",
+      "test_kontekst_lekker_ikke_til_neste_transaksjon[feil-i-basen]",
+      "test_tom_kontekst_overstyrer_det_sesjonen_har"
+    ],
+    "oppsettsfeil": []
+  },
+  {
+    "navn": "M09",
+    "returkode": 1,
+    "tester": 1,
+    "feil": [
+      "test_transaksjon_som_er_avsluttet_i_blokken_avvises"
+    ],
+    "oppsettsfeil": []
+  },
+  {
+    "navn": "M10",
+    "returkode": 1,
+    "tester": 1,
+    "feil": [
+      "test_transaksjoner_kan_ikke_nostes_i_samme_trad"
+    ],
+    "oppsettsfeil": []
+  },
+  {
+    "navn": "M11",
+    "returkode": 1,
+    "tester": 2,
+    "feil": [
+      "test_40001_er_serialiseringsfeil",
+      "test_40001_kjorer_hele_transaksjonen_paa_nytt"
+    ],
+    "oppsettsfeil": []
+  },
+  {
+    "navn": "M12",
+    "returkode": 1,
+    "tester": 1,
+    "feil": [
+      "test_40P01_er_serialiseringsfeil"
+    ],
+    "oppsettsfeil": []
+  },
+  {
+    "navn": "M13",
+    "returkode": 1,
+    "tester": 3,
+    "feil": [
+      "test_versjonskonflikt_er_concurrency_error",
+      "test_versjonskonflikt_uten_detalj_har_ukjente_versjoner",
+      "test_versjonskonflikt_kjores_ikke_paa_nytt"
+    ],
+    "oppsettsfeil": []
+  },
+  {
+    "navn": "M14",
+    "returkode": 1,
+    "tester": 1,
+    "feil": [
+      "test_ukjent_utfall_kjores_ikke_paa_nytt"
+    ],
+    "oppsettsfeil": []
+  },
+  {
+    "navn": "M15",
+    "returkode": 1,
+    "tester": 2,
+    "feil": [
+      "test_tapt_forbindelse_under_commit_gir_ukjent_utfall",
+      "test_ukjent_utfall_kjores_ikke_paa_nytt"
+    ],
+    "oppsettsfeil": []
+  },
+  {
+    "navn": "M16",
+    "returkode": 1,
+    "tester": 1,
+    "feil": [
+      "test_forbigaaende_feil_utenom_serialisering_kjores_ikke_paa_nytt"
+    ],
+    "oppsettsfeil": []
+  },
+  {
+    "navn": "M17",
+    "returkode": 1,
+    "tester": 7,
+    "feil": [
+      "test_avvisninger_er_permanente[INSERT INTO rad (id, verdi) VALUES (1, 'ugyldig')-23514-ValidationError]",
+      "test_avvisninger_er_permanente[INSERT INTO rad (id, verdi) VALUES (1, NULL)-23502-ValidationError]",
+      "test_avvisninger_er_permanente[SELECT 'x'::uuid-22P02-ValidationError]",
+      "test_avvisninger_er_permanente[SELECT 1 / 0-22012-ValidationError]"
+    ],
+    "oppsettsfeil": []
+  },
+  {
+    "navn": "M18",
+    "returkode": 1,
+    "tester": 7,
+    "feil": [
+      "test_avvisninger_er_permanente[SELECT * FROM finnes_ikke-42P01-PermanentError]",
+      "test_avvisninger_er_permanente[SELEKT 1-42601-PermanentError]"
+    ],
+    "oppsettsfeil": []
+  },
+  {
+    "navn": "M19",
+    "returkode": 1,
+    "tester": 1,
+    "feil": [
+      "test_manglende_rettighet_er_tilgang_avvist"
+    ],
+    "oppsettsfeil": []
+  },
+  {
+    "navn": "M20",
+    "returkode": 1,
+    "tester": 1,
+    "feil": [
+      "test_feilmeldingen_gjengir_ikke_verdier"
+    ],
+    "oppsettsfeil": []
+  },
+  {
+    "navn": "M21",
+    "returkode": 1,
+    "tester": 1,
+    "feil": [
+      "test_feilmeldingen_gjengir_ikke_verdier"
+    ],
+    "oppsettsfeil": []
+  },
+  {
+    "navn": "M22",
+    "returkode": 1,
+    "tester": 4,
+    "feil": [
+      "test_uten_database_url_finnes_ingen_standardverdi"
+    ],
+    "oppsettsfeil": []
+  },
+  {
+    "navn": "M23",
+    "returkode": 1,
+    "tester": 3,
+    "feil": [
+      "test_uten_database_url_ingen_tilkobling[None]",
+      "test_uten_database_url_ingen_tilkobling[]",
+      "test_uten_database_url_ingen_tilkobling[   ]"
+    ],
+    "oppsettsfeil": []
+  },
+  {
+    "navn": "M24",
+    "returkode": 1,
+    "tester": 1,
+    "feil": [
+      "test_uleselig_database_url_lekker_ikke_passordet"
+    ],
+    "oppsettsfeil": []
+  },
+  {
+    "navn": "M25",
+    "returkode": 1,
+    "tester": 1,
+    "feil": [
+      "test_base_uten_merket_avvises"
+    ],
+    "oppsettsfeil": []
+  },
+  {
+    "navn": "M26",
+    "returkode": 1,
+    "tester": 1,
+    "feil": [
+      "test_ryddingen_tommer_nye_rader_og_gjenoppretter_frodata"
+    ],
+    "oppsettsfeil": []
+  },
+  {
+    "navn": "M27",
+    "returkode": 1,
+    "tester": 1,
+    "feil": [
+      "test_manglende_database_url_proves_ikke_paa_nytt"
+    ],
+    "oppsettsfeil": []
+  },
+  {
+    "navn": "RM01",
+    "returkode": 0,
+    "tester": 57,
+    "feil": [],
+    "oppsettsfeil": []
+  },
+  {
+    "navn": "RM01-review",
+    "returkode": 1,
+    "tester": 2,
+    "feil": [
+      "test_reset_kontrollerer_hvert_felt_alene[krav]"
+    ],
+    "oppsettsfeil": []
+  },
+  {
+    "navn": "RM02",
+    "returkode": 0,
+    "tester": 57,
+    "feil": [],
+    "oppsettsfeil": []
+  },
+  {
+    "navn": "RM02-review",
+    "returkode": 1,
+    "tester": 2,
+    "feil": [
+      "test_reset_kontrollerer_hvert_felt_alene[rolle]"
+    ],
+    "oppsettsfeil": []
+  },
+  {
+    "navn": "MC01",
+    "returkode": 1,
+    "tester": 3,
+    "feil": [
+      "test_kontekst_lekker_ikke_til_neste_transaksjon[commit]"
+    ],
+    "oppsettsfeil": []
+  },
+  {
+    "navn": "MC01-neste",
+    "returkode": 0,
+    "tester": 1,
+    "feil": [],
+    "oppsettsfeil": []
+  }
+]
