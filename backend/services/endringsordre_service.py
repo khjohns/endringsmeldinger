@@ -47,11 +47,15 @@ from utils.logger import get_logger
 logger = get_logger(__name__)
 
 
-def _get_relation_repository():
+_IKKE_OPPGITT = object()
+
+
+def _get_relation_repository(container=None):
     """Relasjonslageret fra containeren, eller None når det ikke finnes."""
     from core.container import get_container
 
-    container = get_container()
+    if container is None:
+        container = get_container()
     if container.bruker_postgres:
         return container.relation_repository
     try:
@@ -81,7 +85,7 @@ class EndringsordreService(BaseSakService):
         event_repository: Any | None = None,
         timeline_service: Any | None = None,
         metadata_repository: Any | None = None,
-        relation_repository: Any | None = None,
+        relation_repository: Any | None = _IKKE_OPPGITT,
     ):
         """
         Initialiser EndringsordreService.
@@ -99,7 +103,11 @@ class EndringsordreService(BaseSakService):
             timeline_service=timeline_service,
         )
         self.metadata_repository = metadata_repository
-        self.relation_repository = relation_repository or _get_relation_repository()
+        self.relation_repository = (
+            _get_relation_repository()
+            if relation_repository is _IKKE_OPPGITT
+            else relation_repository
+        )
         self._log_init_warnings("EndringsordreService")
 
     def _project_case_ids(self) -> list[str]:
