@@ -6,12 +6,16 @@ from urllib.parse import urlsplit
 
 from lib.auth.catenda_oauth import CatendaOAuth, CatendaUnavailable
 from lib.auth.domain import catenda_id, reconciliation_changes
-from repositories.auth_repository import AuthRepository, utcnow
+from repositories.auth_repository import utcnow
 
 
 class AuthService:
     def __init__(self, repo=None, oauth=None):
-        self.repo = repo or AuthRepository()
+        if repo is None:
+            from core.container import get_container
+
+            repo = get_container().auth_repository
+        self.repo = repo
         self.oauth = oauth or CatendaOAuth(
             os.getenv("CATENDA_CLIENT_ID", ""),
             os.getenv("CATENDA_CLIENT_SECRET", ""),
