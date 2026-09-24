@@ -29,13 +29,46 @@ def covers(role, amount):
     return LIMITS[role] is None or (amount is not None and LIMITS[role] >= amount)
 
 
-def exposure(items, daily_rate=None):
-    """Highest total principal or subsidiary position; alternatives are never added."""
+def _dager_i_kroner(dager, daily_rate):
+    rate = number(daily_rate)
+    if rate <= 0:
+        raise ValueError(
+            "Fullmakt kan ikke beregnes: dagmulktssats må konfigureres på serveren."
+        )
+    return dager * rate
+
+
+def exposure(items, daily_rate=None, krav=None):
+    """Highest total principal or subsidiary position; alternatives are never added.
+
+    Godkjent ansvarsgrunnlag verdsettes per spor (GFK-06, vedtak 23.09 og 24.09):
+    et spor som besvares i samme brev, har verdien i svaret. Ellers gjelder TEs
+    krav i `krav` (kroner for vederlag, dager for frist). `None` betyr at kravet
+    ikke er sendt eller ikke tallfestet; da er grunnlaget ukjent, og hele kjeden
+    kreves. Returnerer (grunnlag, trenger_sats, ukjent).
+    """
     principal = Decimal(0)
     subsidiary = Decimal(0)
     needs_rate = False
+    ukjent = False
+    besvart = {item["track"] for item in items}
     for item in items:
         if item["track"] == "grunnlag":
+            if item["data"].get("resultat") != "godkjent":
+                continue
+            for spor in ("vederlag", "frist"):
+                if spor in besvart:
+                    continue
+                verdi = (krav or {}).get(spor)
+                if verdi is None:
+                    ukjent = True
+                    continue
+                verdi = number(verdi)
+                if spor == "frist" and verdi > 0:
+                    needs_rate = True
+                    verdi = _dager_i_kroner(verdi, daily_rate)
+                principal += verdi
+                subsidiary += verdi
             continue
         data, basis = item["data"], item.get("basis", {})
         time = item["track"] == "frist"
@@ -59,15 +92,11 @@ def exposure(items, daily_rate=None):
         main = Decimal(0) if rejected else assessed
         if time and max(main, other) > 0:
             needs_rate = True
-            rate = number(daily_rate)
-            if rate <= 0:
-                raise ValueError(
-                    "Fullmakt kan ikke beregnes: dagmulktssats må konfigureres på serveren."
-                )
-            main, other = main * rate, other * rate
+            main = _dager_i_kroner(main, daily_rate)
+            other = _dager_i_kroner(other, daily_rate)
         principal += main
         subsidiary += other
-    return max(principal, subsidiary), needs_rate
+    return max(principal, subsidiary), needs_rate, ukjent
 
 
 def resolve_route(amount, sender, chain, minimum=None, mangler_sats=False):
@@ -110,28 +139,29 @@ def _endrer_sluttdato(items):
     )
 
 
-def approval_route(items, chain, daily_rate=None, sender=None):
+def approval_route(items, chain, daily_rate=None, sender=None, krav=None):
     """Fullmaktsgrunnlag og rute for et brev med svar.
 
     En ny sluttdato kan ikke verdsettes uten kontraktens gjeldende sluttdato,
     som serveren ikke har. Som for endringsordrer kreves da hele kjeden, og den
-    må fortsatt dekke det som lar seg verdsette (audit GFK-02). Unntaket er en
+    må fortsatt dekke det som lar seg verdsette (audit GFK-02). Det samme gjelder
+    godkjent ansvar for et krav som ikke er tallfestet (GFK-06). Unntaket er en
     saksbehandler med ubegrenset fullmakt, som sender alene.
     """
-    amount, needs_rate = exposure(items, daily_rate)
+    amount, needs_rate, ukjent = exposure(items, daily_rate, krav)
     basis = {
         "amount": str(amount),
         "dailyRate": str(number(daily_rate)) if needs_rate else None,
         "matrix": "2026-01",
     }
-    if _endrer_sluttdato(items):
+    if ukjent or _endrer_sluttdato(items):
         route = resolve_route(None, sender, chain, minimum=amount)
         return {**basis, "amount": None, "minimum": str(amount)}, route
     return basis, resolve_route(amount, sender, chain)
 
 
-def validate_authority(items, chain, daily_rate=None, sender=None):
-    return approval_route(items, chain, daily_rate, sender)[0]
+def validate_authority(items, chain, daily_rate=None, sender=None, krav=None):
+    return approval_route(items, chain, daily_rate, sender, krav)[0]
 
 
 def policy_entry(entry):

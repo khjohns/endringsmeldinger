@@ -54,6 +54,40 @@ def setup(tmp_path):
     return service, repo, item
 
 
+KRAV = {
+    "vederlag": (
+        "vederlag_krav_sendt",
+        {"metode": "FASTPRIS_TILBUD", "belop_direkte": 100000, "begrunnelse": "Krav"},
+    ),
+    "frist": (
+        "frist_krav_sendt",
+        {"varsel_type": "spesifisert", "antall_dager": 5, "begrunnelse": "Krav"},
+    ),
+}
+
+
+def send_krav(repo, spor, trukket=False):
+    """Et krav som ikke er sendt, krever hele kjeden når ansvaret godkjennes, og
+    et trukket krav verdsettes til 0 (GFK-06). Vederlagskravet er 100 000 kr."""
+    hendelser = [KRAV[spor]]
+    if trukket:
+        hendelser.append((f"{spor}_krav_trukket", {"begrunnelse": "Trukket"}))
+    for event_type, data in hendelser:
+        _, versjon = repo.get_events("case1")
+        repo.append(
+            parse_event_from_request(
+                {
+                    "sak_id": "case1",
+                    "event_type": event_type,
+                    "aktor_id": "TE",
+                    "aktor_rolle": "TE",
+                    "data": data,
+                }
+            ),
+            versjon,
+        )
+
+
 def command(service, action, actor=ACTOR, team="team-bh", **kwargs):
     current = service.read("p1", "case1")
     return service.command(
@@ -427,20 +461,63 @@ def test_feilet_vedleggslevering_stopper_ikke_publisering(setup, monkeypatch):
 
 def test_letter_inside_handler_authority_is_approved_without_chain(setup):
     service, repo, item = setup
+    send_krav(repo, "vederlag")
+    send_krav(repo, "frist", trukket=True)
+    for_pakken = len(repo.get_events("case1")[0])
     service.authority_policy = {
         "handlers": [{"id": ACTOR, "name": "Saksbehandler", "role": "Prosjektleder"}]
     }
     p = package(service, item)
     assert p["steps"] == []
     assert p["status"] == "godkjent"
-    assert len(repo.get_events("case1")[0]) == 1
+    assert len(repo.get_events("case1")[0]) == for_pakken
     sent = command(service, "publish", packageId=p["id"])
     assert sent["packages"][-1]["status"] == "sendt"
-    assert repo.get_events("case1")[1] == 2
+    assert repo.get_events("case1")[1] == for_pakken + 1
+
+
+def test_endret_krav_returnerer_pakke_med_godkjent_ansvar(setup):
+    """GFK-06: fullmakten regnes av TEs krav slik det er nå. Øker TE kravet etter
+    at pakken er laget, er grunnlaget endret, og pakken må godkjennes på nytt."""
+    service, repo, item = setup
+    send_krav(repo, "vederlag")
+    send_krav(repo, "frist", trukket=True)
+    service.authority_policy = {
+        "handlers": [{"id": ACTOR, "name": "Saksbehandler", "role": "Prosjektleder"}]
+    }
+    p = package(service, item)
+    assert p["letter"]["authorityContext"]["krav"] == {"vederlag": 100000, "frist": 0}
+    assert p["steps"] == []
+    assert p["status"] == "godkjent"
+    raw, versjon = repo.get_events("case1")
+    krav_id = next(
+        e["event_id"] for e in raw if e["event_type"] == "vederlag_krav_sendt"
+    )
+    repo.append(
+        parse_event_from_request(
+            {
+                "sak_id": "case1",
+                "event_type": "vederlag_krav_oppdatert",
+                "aktor_id": "TE",
+                "aktor_rolle": "TE",
+                "data": {
+                    "original_event_id": krav_id,
+                    "metode": "FASTPRIS_TILBUD",
+                    "belop_direkte": 400000,
+                    "begrunnelse": "Økt",
+                },
+            }
+        ),
+        versjon,
+    )
+    service.reconcile_policy("p1", "case1", CHAIN)
+    assert service.read("p1", "case1")["packages"][-1]["status"] == "returnert"
 
 
 def test_route_change_returns_package_for_new_approval(setup):
     service, repo, item = setup
+    send_krav(repo, "vederlag")
+    send_krav(repo, "frist", trukket=True)
     p = package(service, item)
     assert [s["id"] for s in p["steps"]] == [CHAIN[0]["id"], CHAIN[1]["id"]]
     # The handler gains authority: the frozen two-step route no longer matches the policy.

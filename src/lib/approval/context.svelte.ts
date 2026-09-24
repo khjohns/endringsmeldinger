@@ -8,6 +8,7 @@ import { apiFetch, ApiError } from '$lib/api/client';
 import type { CaseWorkspace } from '$lib/kontraktsbord/context.svelte';
 import { submissionRefs } from '$lib/kontraktsbord/submission.svelte';
 import type { EventType, SporType } from '$lib/types/timeline';
+import { kravFraSak } from './authority';
 import { transition, type ApprovalCommand } from './domain';
 import {
   demoUsers,
@@ -102,6 +103,7 @@ export function createApprovalWorkspace(store: CaseWorkspace) {
         state = transition($state.snapshot(state), command, actor, chain, claims(), undefined, {
           sender: demoUsers[0],
           dailyRate: demoDailyRate(),
+          krav: kravFraSak(store.sak),
         });
       else
         accept(
