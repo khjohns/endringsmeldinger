@@ -15,13 +15,39 @@ from uuid import uuid4
 
 from api.validators import validate_event_data
 from lib.sqlite_connection import sqlite_connection
-from models.events import parse_event, parse_event_from_request
+from models.events import SporStatus, parse_event, parse_event_from_request
 from repositories.event_repository import ConcurrencyError
 from services.approval_authority import approval_route, handler_identity
 
 logger = logging.getLogger(__name__)
 
 TRACKS = ("grunnlag", "vederlag", "frist")
+
+
+def krav_fra_tilstand(state):
+    """TEs krav slik fullmakten for godkjent ansvar leser det (GFK-06).
+
+    Kroner for vederlag, med særskilte krav; dager for frist. `None` er et krav
+    som ikke er sendt eller ikke tallfestet. Et trukket krav er 0.
+    """
+    ikke_sendt = {SporStatus.IKKE_RELEVANT, SporStatus.UTKAST}
+    vederlag, frist = state.vederlag, state.frist
+    if vederlag.status == SporStatus.TRUKKET:
+        kroner = 0
+    elif vederlag.status in ikke_sendt or vederlag.krevd_belop is None:
+        kroner = None
+    else:
+        saerskilt = (vederlag.saerskilt_krav or {}).values()
+        kroner = abs(vederlag.krevd_belop) + sum(
+            abs(k.get("belop") or 0) for k in saerskilt if isinstance(k, dict)
+        )
+    if frist.status == SporStatus.TRUKKET:
+        dager = 0
+    elif frist.status in ikke_sendt:
+        dager = None
+    else:
+        dager = frist.krevd_dager
+    return {"vederlag": kroner, "frist": dager}
 
 
 def digest(value):
@@ -101,17 +127,24 @@ class ApprovalService:
             p.pop("publicationEvents", None)
         return result
 
-    def route(self, owner, items, chain):
+    def krav(self, case_id):
+        raw, _ = self.events.get_events(case_id)
+        return krav_fra_tilstand(
+            self.timeline.compute_state([parse_event(e) for e in raw])
+        )
+
+    def route(self, owner, items, chain, case_id):
         """Authority basis and the approvers it requires for this owner's letter."""
         return approval_route(
             items,
             chain,
             self.authority_policy.get("daily_rate"),
             handler_identity(self.authority_policy, owner),
+            self.krav(case_id),
         )
 
-    def stale(self, p, chain):
-        authority, route = self.route(p["owner"], p["letter"]["items"], chain)
+    def stale(self, p, chain, case_id):
+        authority, route = self.route(p["owner"], p["letter"]["items"], chain, case_id)
         return (
             p["policy"]["version"] != digest(chain)
             or p.get("authority") != authority
@@ -341,7 +374,7 @@ class ApprovalService:
                 ):
                     raise ValueError("Godkjenningskjeden inneholder saksbehandleren.")
                 events, _ = self.validate_items(case_id, items)
-                authority, route = self.route(actor, items, chain)
+                authority, route = self.route(actor, items, chain, case_id)
                 previous = body.get("previousId")
                 if previous and not any(
                     p["id"] == previous
@@ -362,6 +395,7 @@ class ApprovalService:
                     "dailyRate": float(self.authority_policy["daily_rate"])
                     if self.authority_policy.get("daily_rate") is not None
                     else None,
+                    "krav": self.krav(case_id),
                     "matrixVersion": "2026-01",
                 }
                 for key in (
@@ -404,7 +438,7 @@ class ApprovalService:
                         raise ValueError(
                             "Godkjenningskjeden er endret. Pakken må behandles på nytt."
                         )
-                    if self.stale(p, chain):
+                    if self.stale(p, chain, case_id):
                         raise ValueError(
                             "Fullmaktsgrunnlaget er endret. Pakken må behandles på nytt."
                         )
@@ -520,7 +554,7 @@ class ApprovalService:
                 }:
                     continue
                 try:
-                    stale = self.stale(p, chain)
+                    stale = self.stale(p, chain, case_id)
                 except ValueError:
                     stale = True
                 if not stale:
