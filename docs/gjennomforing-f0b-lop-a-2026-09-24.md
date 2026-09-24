@@ -6,7 +6,8 @@
 **Forrige ledd:** [gjennomføringsnotatet for kjernen](gjennomforing-f0b-kjernen-2026-09-23.md),
 avsnitt 2, 4, 7 og 8, og [hovedplanen, F0b](plans/2026-09-16-godkjenning-og-varig-levering.md#f0b--datalaget-over-direkte-tilkobling).
 
-Løpet legger til to lagre over `lib/db` og en testfil. Ingenting delt er endret:
+Løpet legger til to lagre over `lib/db` og en testfil, og endrer ett skript
+(`scripts/backfill_reporting_cache.py`, avsnitt 3). Ingenting delt er endret:
 ikke `core/container.py`, `repositories/__init__.py`, `lib/db/`, fixturene eller
 de gamle lagrene. Hovedplanen og `docs/README.md` får sin merknad samlet når
 alle fire løp er inne (#49).
@@ -17,7 +18,8 @@ alle fire løp er inne (#49).
 | --- | --- |
 | [`backend/repositories/postgres/hendelse.py`](../backend/repositories/postgres/hendelse.py) | `PostgresEventRepository`, erstatter `SupabaseEventRepository` |
 | [`backend/repositories/postgres/notat.py`](../backend/repositories/postgres/notat.py) | `PostgresNotatRepository`, erstatter `SupabaseNotatRepository` |
-| [`backend/tests/test_database/test_hendelse_og_notat.py`](../backend/tests/test_database/test_hendelse_og_notat.py) | 32 tester mot testbasen, merket `database` |
+| [`backend/tests/test_database/test_hendelse_og_notat.py`](../backend/tests/test_database/test_hendelse_og_notat.py) | 34 tester mot testbasen, merket `database` |
+| [`backend/scripts/backfill_reporting_cache.py`](../backend/scripts/backfill_reporting_cache.py) | Leser hver sak under prosjektet metadataene oppgir |
 
 Containeren velger klassene med `DATALAG=postgres` gjennom `POSTGRES_LAGRE`,
 som allerede navnga modulene. Testen
@@ -28,12 +30,15 @@ som allerede navnga modulene. Testen
 
 Kallerne ble funnet ved søk i `routes/`, `services/`, `lib/`, `core/` og
 `scripts/`, også gjennom `TrackingEventRepository` i `core/unit_of_work.py`, som
-sender `append`, `append_batch` og `get_events` videre.
+sender `append`, `append_batch` og `get_events` videre. Det første søket var
+avkuttet med `head` og mistet `scripts/backfill_reporting_cache.py`.
+`/code-review` fant det. Tabellen er fra et nytt søk uten avkutting, med antall
+treff per fil.
 
 | Lager | Metode | Kalles fra | Status |
 | --- | --- | --- | --- |
 | Hendelse | `append`, `append_batch` | ruter, `sak_creation_service`, `approval_service`, unit of work, `scripts/create_test_sak.py` | Implementert |
-| Hendelse | `get_events` | ruter og tjenester, blant annet `approval_service`, `forsering_service`, `endringsordre_service` | Implementert |
+| Hendelse | `get_events` | ruter og tjenester, blant annet `approval_service`, `forsering_service`, `endringsordre_service`; skriptene `backfill_relations.py` og `backfill_reporting_cache.py` | Implementert |
 | Hendelse | `gjeldende_versjon` | `routes/event_routes.py` (etter lagret notat) | Implementert |
 | Hendelse | `get_all_sak_ids` | `lib/helpers/sak_lookup.py`, `scripts/backfill_relations.py` | Implementert |
 | Hendelse | `find_sak_id_by_catenda_topic` | `services/base_sak_service.py` | Implementert |
@@ -59,18 +64,32 @@ Følger:
 
 - `get_all_sak_ids` gir sakene i ett prosjekt, ikke alle. Forserings- og
   EO-tjenestene avgrenset allerede etterpå (AUT-02), så resultatet er det samme.
-- Versjonskontrollen i `append_batch` er *ikke* avgrenset. `(sak_id, versjon)`
-  er unik på tvers av prosjekter, og kontrollen følger skranken
-  (`test_versjonskontrollen_gjelder_saken_ikke_prosjektet`).
+- Versjonskontrollen i `append_batch` leser hele saken, som unik-skranken
+  `(sak_id, versjon)` gjør. Med skrivekontrollen under har en sak bare
+  hendelser i sitt eget prosjekt, så lesing og skriving ser samme versjon.
 - Et skript som leser gjennom containeren, trenger prosjektkontekst.
-  `scripts/backfill_relations.py` bygger i dag lageret selv med
-  `create_event_repository()` og merker ingenting før #49 fjerner de gamle
-  lagrene.
+  `scripts/backfill_reporting_cache.py` gjør det og skal bevisst se alle
+  prosjekter. Etter vedtak fra oppdragsgiver 24.09 leser skriptet hver sak i
+  en Flask-kontekst med `g.project_id` fra sakens egne metadata; lageret er
+  uendret (`test_rapportcachen_fylles_for_saker_i_hvert_prosjekt`).
+  `scripts/backfill_relations.py` bygger lageret selv med
+  `create_event_repository()` og berøres ikke før #49 fjerner de gamle lagrene.
+- Uten `X-Project-ID` gir lesing `PermanentError`, også med
+  `dev_auth_disabled`, der Supabase-lageret leste uten prosjekt. På ruter uten
+  `require_project_access` er `g.project_id` den rå headeren. Filteret er da
+  ikke en autorisasjon, men det er aldri videre enn Supabase-lageret var.
 
-**Skriving stempler prosjektet som før**, med `krev_autorisert_prosjekt`. At
-saken tilhører det prosjektet, kontrolleres av `require_project_access`, ikke
-av lageret. Oppdragsgiver valgte bort en egen kontroll mot
-`sak_metadata.prosjekt_id`.
+**Skriving krever at saken tilhører det autoriserte prosjektet.** Vedtatt av
+oppdragsgiver 24.09, etter `/code-review`. Prosjektet stemples som før med
+`krev_autorisert_prosjekt`. `append_batch` leser i tillegg
+`sak_metadata.prosjekt_id` i samme spørring som versjonen. Er saken i et annet
+prosjekt, eller finnes den ikke, kastes `PermanentError` med samme melding, og
+ingenting skrives. Uten kontrollen kunne en skriving under feil prosjekt
+splittet strømmen. Lesing under sakens eget prosjekt ville da gitt en
+versjon som `append` alltid avviser, og saken ville stått fast. For ruter
+gjorde `require_project_access` samme kontroll fra før. En sak uten metadata
+ble før stanset av fremmednøkkelen (`ValidationError`), nå av lageret
+(`PermanentError`).
 
 **Bare versjonsskranken blir `ConcurrencyError`.** Supabase-lageret gjorde
 *enhver* `ConflictError` ved innsetting til versjonskonflikt, også et brudd på
@@ -94,6 +113,12 @@ små bokstaver behandles likt, som i PostgREST.
   `utfor(Kontekst(), …)`. Ingen `@with_retry()`, ingen transaksjonsstyring i
   lagrene. Tekstvakten `test_postgres_transaksjonsgrense.py` er grønn for de to
   nye filene.
+- **Prosjekt:** hver lesing og skriving har et navngitt prosjekt. Søkt med
+  `grep` etter formene `x or "…"`, `getattr(…)`, `.get(…, …)`, `headers.get`,
+  defaultargument, `DEFAULT` og `oslobygg` i de to modulene og det endrede
+  skriptet. Treffene gjelder CloudEvents-feltene `data` og `type`,
+  diagnostikken fra driveren og skriptets utskrift og sakstype. Ingen gjelder
+  prosjektet.
 - **Versjonskonflikt:** versjonen leses inne i skrivetransaksjonen. Er den ikke
   den forventede, kastes `ConcurrencyError` før innsetting; det hindrer hull når
   forventet versjon er for høy. To skrivere som begge har lest samme versjon,
@@ -109,7 +134,7 @@ små bokstaver behandles likt, som i PostgREST.
 ## 5. Regler prøvd røde
 
 Hver regel ble fjernet i en kastbar kopi av `backend/`, én om gangen. Deretter
-ble testfila kjørt uten `-x`. Alle 23 mutasjoner ga rød test, og kopien ble
+ble testfila kjørt uten `-x`. Alle 25 mutasjoner ga rød test, og kopien ble
 gjenopprettet mellom hver. Mutasjonene i filtrene bytter kolonnen med
 `%s::text IS NOT NULL`, så parameterantallet er det samme og testen feiler på
 atferd, ikke på SQL-en. Et første forsøk uten `::text` feilet på typen til
@@ -128,7 +153,9 @@ parameteret; de radene er kjørt på nytt og står slik under.
 | M9 Journalen får en `slett` | `test_journalen_har_ingen_vei_til_endring_eller_sletting` |
 | M10–M13 Hver av de fire lesingene uten prosjektfilter | `test_lesing_ser_bare_det_autoriserte_prosjektet` |
 | M14 Lesing med `or "oslobygg"` | alle fire `test_lesing_uten_autorisert_prosjekt_avvises` |
-| M15 Versjonskontrollen avgrenset til prosjektet | `test_versjonskontrollen_gjelder_saken_ikke_prosjektet` |
+| M16 Skriving uten kontroll av sakens prosjekt | `test_skriving_til_sak_utenfor_prosjektet_avvises[SAK-LOP-A-3]` |
+| M17 Sak uten metadata slipper forbi kontrollen (fremmednøkkelen stanser den) | `…[SAK-UTEN-METADATA]` |
+| S1 Skriptet setter ikke prosjektet | `test_rapportcachen_fylles_for_saker_i_hvert_prosjekt` |
 | N1 `for_sak` uten prosjektfilter | `test_notatene_er_avgrenset_til_sak_og_prosjekt` |
 | N2 `for_sak` uten saksfilter | samme |
 | N3 `for_sak` uten rekkefølge | `test_notatene_kommer_i_tidsrekkefolge` |
@@ -137,6 +164,10 @@ parameteret; de radene er kjørt på nytt og står slik under.
 | N6 `slett` uten sak | `…[annen-sak]` |
 | N7 Notat-ID sendes rått til basen | `test_ugyldig_notat_id_er_ikke_funnet` |
 | N8 `lagre` skriver ingenting | ni tester |
+
+En tidligere M15 gjorde versjonskontrollen prosjektavgrenset. Etter
+skrivekontrollen er den ekvivalent, fordi en sak bare har hendelser i sitt eget
+prosjekt, og den er tatt ut.
 
 **Samtidighetstestene** er deterministiske. Hver skriver har sin egen pool og
 dermed sin egen forbindelse. En tredje forbindelse holder
@@ -156,7 +187,23 @@ skranker (`contype <> 'n'`), indekser, triggere og rettigheter for `hendelse` og
 `notat`, og kolonnene for `sak_metadata`, **var like på begge sider**. Ingen
 avvik å rapportere.
 
-## 7. Oppfølging
+## 7. `/code-review`
+
+Kjørt på `high` mot `222169a`. Ti funn:
+
+| Funn | Utfall |
+| --- | --- |
+| `backfill_reporting_cache.py` leser uten prosjekt | Rettet i skriptet, etter oppdragsgivers valg (avsnitt 3) |
+| Delt strøm når skriving og lesing har ulik prosjektsemantikk | Rettet med skrivekontrollen (avsnitt 3) |
+| Prosjektet leses fra `g`, ikke som argument; `dev_auth_disabled` uten header gir feil | Beholdt etter vedtaket. Følgene står i avsnitt 3 |
+| `PostgresNotatRepository` har ikke `hent` og arver ikke den abstrakte klassen | Beholdt etter vedtaket (avsnitt 2) |
+| Hardkodet liste over UUID-kolonner i notatlageret | Rettet: en tekstlaster for `uuid` på markøren |
+| Historikk i docstrings («Erstatter …», «samme form som Supabase-lageret») | Rettet (`AGENTS.md`) |
+| `_lesbart_prosjekt` gjentar `krev_autorisert_prosjekt` | Ikke endret: meldingen sier «skrive». Tas med i `/simplify` (#49) |
+| To `max(versjon)`-spørringer, og `_rad` bygger en ordbok før tuppelen | Ikke endret; `/simplify` (#49) |
+| `get_all_sak_ids` går over alle hendelser i prosjektet, ikke over `sak_metadata` | Ikke endret: `sak_metadata` er løp b, og en sak uten hendelser ville kommet med |
+
+## 8. Oppfølging
 
 - Webhookstien stempler ikke prosjektet. Det gjelder også `SupabaseEventRepository`.
   `catenda_webhook_service` oppretter saken med `prosjekt_id` fra resolveren,
@@ -175,14 +222,14 @@ PostgreSQL 17.11 (Homebrew), psycopg 3.3.6, psycopg-pool 3.3.3, ruff 0.16.8.
 Kastbar testbase på port 54331, bygget fra tom av `lokal_testbase.sh` med alle
 23 migrasjoner.
 
-- `tests/test_database/test_hendelse_og_notat.py`: 32 bestått.
-- Hele backend med testbasen: **1768 bestått, 9 hoppet over, 42 xfailed**. Før
+- `tests/test_database/test_hendelse_og_notat.py`: 34 bestått.
+- Hele backend med testbasen: **1770 bestått, 9 hoppet over, 42 xfailed**. Før
   løpet: 59 bestått og 1 xfailed i `tests/test_database`.
 - `ruff check backend/`: ingen feil.
-- 23 av 23 mutasjoner ga rød test (avsnitt 5).
+- 25 av 25 mutasjoner ga rød test (avsnitt 5).
 
-**Lest ut av koden, ikke kjørt:** kallerlista i avsnitt 2, og følgene av
-lesefilteret for tjenestene og skriptene i avsnitt 3 og 7.
+**Lest ut av koden, ikke kjørt:** kallerlista i avsnitt 2, følgene av
+lesefilteret for tjenestene i avsnitt 3, og webhookstien i avsnitt 8.
 
 **Ikke kontrollert:**
 
@@ -196,3 +243,6 @@ lesefilteret for tjenestene og skriptene i avsnitt 3 og 7.
   `PermanentError` på nytt, og da blir ingen av testene røde av at den legges
   til. Regelen holdes ved lesing og review.
 - Ingen kall mot Supabase-prosjektet utover katalogspørringen i avsnitt 6.
+- Skriptet er bare kjørt med en dobbel for saksmetadataene, ikke fra
+  kommandolinja.
+- Endringene etter `/code-review` er ikke reviewet på nytt.
