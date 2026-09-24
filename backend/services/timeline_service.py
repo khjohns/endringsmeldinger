@@ -64,19 +64,17 @@ logger = get_logger(__name__)
 # ============================================================================
 
 
-def _copy_fields_if_present(
-    source: Any, target: Any, fields: list[str], require_truthy: bool = False
-) -> None:
+def _copy_fields_if_present(source: Any, target: Any, fields: list[str]) -> None:
     """
-    Copy fields from source to target if they exist on source.
+    Copy fields from source to target if they exist on source and are not None.
 
     This helper reduces repetitive hasattr/setattr patterns in event handlers.
+    0, 0,0, False og tom tekst er verdier og kopieres (audit TFR-04).
 
     Args:
         source: Source object to copy from (e.g., event.data)
         target: Target object to copy to (e.g., state.vederlag)
         fields: List of field names to copy
-        require_truthy: If True, only copy if value is truthy (not None/empty)
 
     Example:
         _copy_fields_if_present(event.data, vederlag, [
@@ -87,12 +85,8 @@ def _copy_fields_if_present(
     for field in fields:
         if hasattr(source, field):
             value = getattr(source, field)
-            if require_truthy:
-                if value:
-                    setattr(target, field, value)
-            else:
-                if value is not None:
-                    setattr(target, field, value)
+            if value is not None:
+                setattr(target, field, value)
 
 
 def _build_state_konsekvenser(data_konsekvenser: Any) -> "EOKonsekvenser":
@@ -761,10 +755,7 @@ class TimelineService:
             vederlag.godkjent_belop = event.data.total_godkjent_belop
 
         # Subsidiært standpunkt - triggers needs .value extraction
-        if (
-            hasattr(event.data, "subsidiaer_triggers")
-            and event.data.subsidiaer_triggers
-        ):
+        if getattr(event.data, "subsidiaer_triggers", None) is not None:
             vederlag.subsidiaer_triggers = [
                 t.value if hasattr(t, "value") else t
                 for t in event.data.subsidiaer_triggers
@@ -778,7 +769,6 @@ class TimelineService:
                 "subsidiaer_godkjent_belop",
                 "subsidiaer_begrunnelse",
             ],
-            require_truthy=True,
         )
 
         # Map beregnings_resultat til status
@@ -850,10 +840,7 @@ class TimelineService:
         )
 
         # Subsidiært standpunkt - triggers needs .value extraction
-        if (
-            hasattr(event.data, "subsidiaer_triggers")
-            and event.data.subsidiaer_triggers
-        ):
+        if getattr(event.data, "subsidiaer_triggers", None) is not None:
             frist.subsidiaer_triggers = [
                 t.value if hasattr(t, "value") else t
                 for t in event.data.subsidiaer_triggers
@@ -867,7 +854,6 @@ class TimelineService:
                 "subsidiaer_godkjent_dager",
                 "subsidiaer_begrunnelse",
             ],
-            require_truthy=True,
         )
 
         # Map beregnings_resultat til status

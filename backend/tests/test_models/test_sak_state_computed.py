@@ -588,9 +588,10 @@ class TestOverordnetStatus:
             vederlag=VederlagTilstand(status=SporStatus.UTKAST),
             frist=FristTilstand(status=SporStatus.UTKAST),
         )
-        # Saken er IKKE omforent fordi vederlag/frist fortsatt kan sendes
+        # Saken er IKKE omforent fordi vederlag/frist fortsatt kan sendes,
+        # men den er i gang, siden grunnlaget er avgjort (TFR-05).
         assert sak.overordnet_status != "OMFORENT"
-        assert sak.overordnet_status == "UTKAST"
+        assert sak.overordnet_status == "UNDER_BEHANDLING"
 
 
 # ============================================================================

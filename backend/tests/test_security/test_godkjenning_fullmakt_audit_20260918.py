@@ -2,10 +2,11 @@
 
 Testene her etterprøver funn i godkjennings- og fullmaktslaget:
 1. Fullmaktsomgåelse for fristdager i endringsordrer (order_exposure_floor mangler fristdager)
-2. Fullmaktsomgåelse ved ny_sluttdato i KOE-fristrespons (exposure ignorerer ny_sluttdato)
+2. Fullmaktsomgåelse ved ny_sluttdato i KOE-fristrespons (GFK-02, rettet 2026-09-23)
 3. RV-02 regresjon: reconcile() returnerer pakke under aktiv utstedelse, varig "returnert"
 4. Forseringsrespons er blokkert i porten, men kan ikke godkjennes i ApprovalService
 5. Uautorisert generering av formelle byggherrebrev som PDF via POST /api/letter/generate
+6. Godkjenning av ansvarsgrunnlaget alene verdsettes til 0 kr (GFK-06)
 """
 
 from decimal import Decimal
@@ -87,20 +88,12 @@ def test_eo_exposure_floor_mangler_fristdager():
 # =============================================================================
 
 
-@pytest.mark.xfail(
-    strict=True,
-    raises=AssertionError,
-    reason="approval_authority.exposure() ignorerer ny_sluttdato i FristResponsData",
-)
 def test_koe_frist_ny_sluttdato_omgar_fullmakt():
-    """KOE exposure() må ikke ignorere ny_sluttdato i FristResponsData.
+    """KOE-fullmakten må ikke ignorere ny_sluttdato i FristResponsData.
 
-    I EOApprovalService krever ny_sluttdato eksplisitt full godkjenningskjede fordi
-    systemet ikke kjenner baseline-datoen.
-    I approval_authority.exposure() (for vanlige KOE-brev) sjekkes KUN godkjent_dager.
-    Dersom byggherren godkjenner en ny_sluttdato langt frem i tid uten å angi
-    godkjent_dager (eller godkjent_dager=0), returnerer exposure 0 kr, og saksbehandler
-    kan godkjenne brevet alene uten godkjenningskjede.
+    Regresjonstest for GFK-02 (rettet 2026-09-23). Som for endringsordrer kan en
+    ny sluttdato ikke verdsettes uten kontraktens sluttdato, og hele kjeden
+    kreves.
     """
     item = {
         "track": "frist",
@@ -117,10 +110,67 @@ def test_koe_frist_ny_sluttdato_omgar_fullmakt():
 
     auth, route = approval_route([item], chain, daily_rate=50000, sender=sender)
 
-    # Feiler i dag fordi exposure() setter amount=0 og route=[]:
     assert len(route) > 0 or auth["amount"] is None, (
         f"Godkjenning av 2 års ny sluttdato ga tom godkjenningsrute og 0 kr eksponering: {auth}, {route}"
     )
+
+
+def _ny_sluttdato(godkjent_dager):
+    return {
+        "track": "frist",
+        "data": {
+            "beregnings_resultat": "godkjent",
+            "ny_sluttdato": "2028-12-31",
+            "godkjent_dager": godkjent_dager,
+        },
+    }
+
+
+PL = {"id": "pl", "role": "Prosjektleder"}
+
+
+@pytest.mark.parametrize("daily_rate", [50000, None])
+def test_ny_sluttdato_krever_hele_kjeden(daily_rate):
+    """Uten dager å verdsette trengs ingen sats, men datoen krever likevel kjeden."""
+    chain = [{"id": "pd", "role": "Prosjektdirektør"}, {"id": "sl", "role": "Seksjonsleder"}]
+    auth, route = approval_route([_ny_sluttdato(0)], chain, daily_rate, sender=PL)
+    assert auth["amount"] is None
+    assert auth["minimum"] == "0"
+    assert route == chain
+
+
+def test_ny_sluttdato_krever_at_kjeden_dekker_de_verdsatte_dagene():
+    """11 dager à 50 000 kr er 550 000 kr, over prosjektdirektørens 500 000."""
+    utilstrekkelig = [{"id": "pd", "role": "Prosjektdirektør"}]
+    with pytest.raises(ValueError, match="tilstrekkelig fullmakt"):
+        approval_route([_ny_sluttdato(11)], utilstrekkelig, 50000, sender=PL)
+
+    dekkende = [{"id": "pd", "role": "Prosjektdirektør"}, {"id": "sl", "role": "Seksjonsleder"}]
+    auth, route = approval_route([_ny_sluttdato(11)], dekkende, 50000, sender=PL)
+    assert auth["minimum"] == "550000"
+    assert route == dekkende
+
+
+def test_ny_sluttdato_uten_dagmulktssats_gir_aldri_svakere_rute_enn_kjeden():
+    """B-06 er åpen: hva som kreves uten sats, avgjøres ikke her.
+
+    Påstanden er bare at en ny sluttdato med dager aldri gir kortere rute enn
+    hele kjeden, uansett hvordan B-06 avgjøres.
+    """
+    chain = [{"id": "pd", "role": "Prosjektdirektør"}]
+    try:
+        _, route = approval_route([_ny_sluttdato(10)], chain, None, sender=PL)
+    except ValueError:
+        return
+    assert route == chain
+
+
+def test_ny_sluttdato_kan_ikke_godkjennes_av_saksbehandler_alene():
+    """Heller ikke med ubegrenset egen fullmakt, som for endringsordrer."""
+    adm = {"id": "ad", "role": "Adm.dir (daglig leder)"}
+    chain = [{"id": "pd", "role": "Prosjektdirektør"}]
+    _, route = approval_route([_ny_sluttdato(0)], chain, 50000, sender=adm)
+    assert route == chain
 
 
 # =============================================================================
@@ -328,4 +378,112 @@ def test_te_bruker_kan_generere_bh_brev_pdf(monkeypatch):
     # Feiler i dag fordi TE mottar 200 OK og en gyldig PDF utstedt av BH
     assert response.status_code in (400, 403), (
         f"TE-bruker fikk generert formelt BH-brev: status={response.status_code}"
+    )
+
+
+# =============================================================================
+# 6. Godkjenning av ansvarsgrunnlaget alene verdsettes til 0 kr (GFK-06)
+# =============================================================================
+
+
+@pytest.mark.xfail(
+    strict=True,
+    raises=AssertionError,
+    reason=(
+        "GFK-06: en pakke som bare godkjenner ansvarsgrunnlaget verdsettes til 0 kr, "
+        "så en prosjektleder godkjenner ansvaret for et krav på 50 mill. alene. Ikke "
+        "rettet: hvordan en slik godkjenning skal verdsettes, er en fullmaktsbeslutning"
+    ),
+)
+def test_godkjent_grunnlag_alene_krever_ingen_godkjenner(tmp_path):
+    from models.events import parse_event_from_request
+    from repositories.event_repository import JsonFileEventRepository
+    from services.timeline_service import TimelineService
+
+    def hendelse(event_type, data):
+        return parse_event_from_request(
+            {
+                "sak_id": "S",
+                "event_type": event_type,
+                "aktor_id": "te",
+                "aktor_rolle": "TE",
+                "data": data,
+            }
+        )
+
+    lager = JsonFileEventRepository(str(tmp_path / "events"))
+    grunnlag = hendelse(
+        "grunnlag_opprettet",
+        {
+            "tittel": "Uforutsette grunnforhold",
+            "hovedkategori": "SVIKT",
+            "underkategori": "GRUNNFORHOLD",
+            "beskrivelse": "Fjell der det skulle være løsmasser.",
+            "dato_oppdaget": "2026-09-01",
+        },
+    )
+    lager.append(grunnlag, 0)
+    lager.append(
+        hendelse(
+            "vederlag_krav_sendt",
+            {"metode": "FASTPRIS_TILBUD", "belop_direkte": 50_000_000, "begrunnelse": "Krav"},
+        ),
+        1,
+    )
+    saksbehandler = "pl@example.test"
+    kjede = [
+        {"id": "pd@example.test", "role": "Prosjektdirektør"},
+        {"id": "adm@example.test", "role": "Adm.dir (daglig leder)"},
+    ]
+    tjeneste = ApprovalService(
+        tmp_path / "private.sqlite",
+        lager,
+        TimelineService(),
+        BusinessRuleValidator(),
+        authority_policy={"handlers": [{"id": saksbehandler, "role": "Prosjektleder"}]},
+    )
+
+    def kommando(action, **felt):
+        versjon = tjeneste.read("p1", "S")["version"]
+        return tjeneste.command(
+            "p1",
+            "S",
+            saksbehandler,
+            kjede,
+            True,
+            {"action": action, "expectedVersion": versjon, "commandId": str(uuid4()), **felt},
+            team="bh-team",
+        )
+
+    vurdering = kommando(
+        "prepare",
+        item={
+            "track": "grunnlag",
+            "eventType": "respons_grunnlag",
+            "claimId": grunnlag.event_id,
+            "data": {
+                "grunnlag_event_id": grunnlag.event_id,
+                "resultat": "godkjent",
+                "begrunnelse": "Byggherren godtar ansvaret.",
+            },
+        },
+    )["items"][-1]
+    pakke = kommando(
+        "package",
+        letter={
+            "title": "Svar på ansvarsgrunnlag",
+            "caseId": "S",
+            "caseTitle": "Uforutsette grunnforhold",
+            "sender": "BH",
+            "recipient": "TE",
+            "date": "23. september 2026",
+            "introduction": "Innledning",
+            "closing": "Hilsen",
+            "items": [{"id": vurdering["id"]}],
+        },
+    )["packages"][-1]
+
+    assert pakke["steps"], (
+        f"Godkjenning av ansvaret for et krav på 50 mill. ble godkjent ved innsending: "
+        f"status={pakke['status']}, fullmaktsgrunnlag={pakke['authority']}"
     )

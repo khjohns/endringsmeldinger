@@ -177,6 +177,11 @@ eksplisitt oppheves.
 | Vedlegg er kontraktskorrespondanse | 18.09 | Deltakere uten TE- eller BH-tilknytning leser ikke vedlegg |
 | Webhookens kontraktsside utledes av forfatterens lagmedlemskap | 19.09 | Fail-closed uten entydig side (INT-04) |
 | Aksept av avslag gir `AVSLATT_AKSEPTERT` | 19.09 | TFR-01 |
+| TFR-05: en sak med godkjent eller låst grunnlag der resten ikke er sendt, har samlet status `UNDER_BEHANDLING` | 23.09, oppdragsgiver | Rettet i spor D |
+| TFR-02: forsering får aldri en lukket samlet status. En endringsordre er en ordre og forhandles ikke; er TE uenig, føres det videre i en KOE | 23.09, oppdragsgiver | Rettet i spor D. Utstedt og revidert EO er `VENTER_PAA_SVAR`, akseptert og bestridt `LUKKET` |
+| Nøytralt fristvarsel (TFR-06, DRF-01): BH kan sende innsigelse mot sen varsling (§ 5) og forespørsel om spesifisert krav (§ 33.6.2) som egne handlinger. De setter ikke resultat, gjør ikke sporet avslått og åpner ikke forsering. Et svar med dager og resultat avvises til TE har spesifisert kravet (§ 33.7) | 23.09, oppdragsgiver | Ikke bygget. Krever egne hendelsestyper eller svarformer, med tidslinje, forretningsregler og skjema. Rettingen av TFR-06 og DRF-01 bygger på dette |
+| Godkjenning av ansvarsgrunnlaget (GFK-06): fullmakten regnes av TEs krevde beløp, vederlag pluss krevde fristdager ganget med dagmulktssatsen. Er kravet ikke tallfestet, kreves hele kjeden | 23.09, oppdragsgiver | Ikke bygget. Mangler dagmulktssatsen, gjelder B-06 |
+| Ubegrenset fullmakt kan sende alene når beløpet ikke kan verdsettes | 23.09, oppdragsgiver | Ikke bygget. Gjelder fristsvar med ny sluttdato (GFK-02) og endringsordrer (`resolve_route`). Alle andre trenger fortsatt hele kjeden, og kjeden må dekke det som lar seg verdsette |
 | MG-02: webhook kan opprette brukerrader gjennom `koe_resolve_identity` | 21.09 | Gjennomført |
 | DB-05: `viewer` skal finnes som ren leserolle | 21.09 | Besluttet, ikke bygget |
 | ~~PostgreSQL og RPC over PostgREST er utgangspunkt for transaksjoner~~ | 16.–17.09, bekreftet i AF-02. **Opphevet 23.09** med TM-01 som motbelegg | Se raden under og merknaden etter tabellen |
@@ -430,6 +435,7 @@ Etterprøvd i [vurderingen av auditfunnene](../vurdering-av-auditfunn-2026-09-19
 Der den omklassifiserte et funn, gjelder omklassifiseringen.
 BR-01 og DRF-01–DRF-03 er ført inn 23.09 fra
 [kartleggingen av frontendens domeneregler](../kartlegging-domeneregler-frontend-2026-09-23.md),
+og SD-01–SD-02 fra [gjennomføringen av spor D](../gjennomforing-spor-d-2026-09-23.md),
 fordi de hører til samme domenefamilie som TFR og GFK.
 
 | ID | Status | Restanse og merknad | Belegg | Pakke |
@@ -448,28 +454,30 @@ fordi de hører til samme domenefamilie som TFR og GFK.
 | DB-07 | Lukket | `properties jsonb` på `sak_bim_links` finnes i basen og bygges av `20260920160000`. Katalogtest i `tests/test_database/` erstatter reproduksjonen som bare leste `20260911073800` (T-2, 22.09). Testinventaret førte funnet som DB-06 | K 22.09 (PG 17 lokalt), D 22.09 | — |
 | DB-08 | Bortfalt | Viewene finnes ikke | D 19.09 | — |
 | TFR-01 | Lukket | `AVSLATT_AKSEPTERT`, 19.09 | H | — |
-| TFR-02 | Åpen | `overordnet_status` gir `INGEN_AKTIVE_SPOR` for forsering og EO. Testinventarets FR-01 | Streng `xfail`, K 22.09 | D |
-| TFR-03 | Åpen | Tilbaketrekking blokkeres ved subsidiær enighet. Testinventarets FR-02 | Streng `xfail`, K 22.09 | D |
-| TFR-04 | Åpen | 0 og 0,0 forkastes som falsy. Testinventarets FR-03 | Streng `xfail`, K 22.09 | D |
-| TFR-05 | Åpen | Godkjent grunnlag rapporteres som `UTKAST`. Testinventarets FR-04 | Streng `xfail`, K 22.09 | D |
-| TFR-06 | Åpen, lav | Respons på uspesifisert fristvarsel | L 19.09 | D |
+| TFR-02 | Lukket | `overordnet_status` ga `INGEN_AKTIVE_SPOR` for forsering og EO. Testinventarets FR-01. **Merknad 2026-09-23:** statusene er besluttet av oppdragsgiver. Forsering får aldri en lukket status, fordi TE kan oppdatere kostnader og stoppe etter BHs svar: ikke varslet `UTKAST`, varslet `VENTER_PAA_SVAR`, avslått `UNDER_FORHANDLING`, akseptert `UNDER_BEHANDLING`; stopp endrer ikke statusen. En EO er en ordre og forhandles ikke; uenighet føres i en KOE: `UTKAST`; utstedt og revidert `VENTER_PAA_SVAR`; akseptert og bestridt `LUKKET`. EO-hendelsene er unntatt fra sperren for lukkede saker. Ingen nye statusverdier | K 23.09 | — |
+| TFR-03 | Lukket | Tilbaketrekking ble blokkert ved subsidiær enighet. Testinventarets FR-02. **Merknad 2026-09-23:** rettet for vederlag og frist. Et krav som bare er godkjent subsidiært (`er_subsidiaert_*`), kan trekkes; godkjenner BH grunnlaget senere, er det oppgjort. Reproduksjonen er ordinær test, med nye tester for frist og for sperren etter at grunnlaget er godkjent | K 23.09 | — |
+| TFR-04 | Lukket | 0 og 0,0 ble forkastet som falsy. Testinventarets FR-03. **Merknad 2026-09-23:** rettet ved at `_copy_fields_if_present` bare hopper over `None`; parameteren `require_truthy` er fjernet, og `subsidiaer_triggers` følger samme regel. Den strenge `xfail` er gjort om til ordinær test med uendrede assertions | K 23.09 | — |
+| TFR-05 | Lukket | Godkjent grunnlag ble rapportert som `UTKAST`. Testinventarets FR-04. **Merknad 2026-09-23:** oppdragsgiver valgte `UNDER_BEHANDLING` for en sak der grunnlaget er godkjent eller låst og resten ikke er sendt. To ordinære tester som låste `UTKAST` (`test_not_omforent_with_utkast_tracks` og `test_sak_oppgjort_ved_godtatt_avslag_rapporteres_ikke_som_ukjent`), er endret etter beslutningen. Et grunnlag som er trukket, eller der avslaget er godtatt, gir fortsatt `UTKAST` (SD-02) | K 23.09 | — |
+| TFR-06 | Åpen, lav | Respons på uspesifisert fristvarsel. **Merknad 2026-09-23:** reprodusert: BH kan godkjenne 10 dager på et nøytralt varsel uten krevde dager, og sporet blir `GODKJENT`. Ikke rettet, fordi en sperre må slippe gjennom innsigelse mot sen varsling (§ 5) og forespørselen (§ 33.6.2, DRF-01), og hvordan de registreres er ikke avgjort. **Avgjort 23.09** (3.1): innsigelse og forespørsel blir egne handlinger, og et svar med dager avvises til kravet er spesifisert | Streng `xfail`, K 23.09 | D |
 | GFK-01 | Lukket med restanse | Gulvet verdsetter fristdager. Uten kjent sats er gulvet 0 (B-06) | H | D |
-| GFK-02 | Åpen, høy | `exposure()` ignorerer `ny_sluttdato` | Streng `xfail`, K 22.09 | D |
+| GFK-02 | Lukket | `exposure()` ignorerte `ny_sluttdato`. **Merknad 2026-09-23:** rettet i `approval_route`: en ny sluttdato i et fristsvar gir `amount=None`, krever hele kjeden, og kjeden må dekke det som lar seg verdsette (`minimum`), som for endringsordrer. Uten dagmulktssats er atferden uendret (B-06); testen påstår bare at ruten aldri blir kortere enn kjeden. Frontendens `calculateAuthority` speiler ikke dette, men skjemaet sender ikke `ny_sluttdato`. **Avgjort 23.09** (3.1): ubegrenset fullmakt skal kunne sende alene; ikke bygget | K 23.09 | — |
 | GFK-03 | Duplikat | → RV-02 | — | F2 |
 | GFK-04 | Avgrenset | Forsering er vedtatt utenfor godkjenningsflyten. Testen forventer støtte og feiler med `ValueError("Ugyldig vurderingstype.")`, i samsvar med avgrensningen. Ingen feilretting | K 22.09 | — |
 | GFK-05 | Åpen | TE kan generere BH-brev som PDF | Streng `xfail`, K 22.09 | H |
-| GFK-06 | Åpen, lav | Godkjent grunnlag alene verdsettes til 0 kr | L 19.09 | D |
+| GFK-06 | Åpen, lav | Godkjent grunnlag alene verdsettes til 0 kr. **Merknad 2026-09-23:** reprodusert gjennom `ApprovalService`: en prosjektleder godkjenner ansvaret for et krav på 50 mill. alene, og pakken godkjennes ved innsending. Ikke rettet: hvordan en slik godkjenning skal verdsettes, er en fullmaktsbeslutning for byggherren. **Avgjort 23.09** (3.1): TEs krevde beløp, og hele kjeden når kravet ikke er tallfestet | Streng `xfail`, K 23.09 | D |
 | BR-01 | Åpen, middels | BHs `beregnings_resultat` lagres som sendt, også når vurderingene i samme svar gir et annet resultat. Sporstatus, `overordnet_status` og `kan_utstede_eo` følger konklusjonen: et fristsvar uten fremdriftshindring (§ 33.1) og et vederlagssvar med 0 kr, begge merket «godkjent», ga `GODKJENT`, `OMFORENT` og utstedbar EO. Reprodusert gjennom `/api/events` og godkjenningsflyten, med kontrollsak. Rettes etter B-13 | Streng `xfail` ×4, K 23.09 | D |
-| DRF-01 | Åpen, middels | BHs forespørsel etter § 33.6.2 kan ikke sendes fra skjemaet. Frontenden sender `send_foresporsel`, modellen kjenner bare `har_bh_foresporsel`, og validatoren avviser svaret med 400. Må løses sammen med TFR-06 og en avklaring av hvordan forespørselen registreres | Streng `xfail`, K 23.09 | D |
+| DRF-01 | Åpen, middels | BHs forespørsel etter § 33.6.2 kan ikke sendes fra skjemaet. Frontenden sender `send_foresporsel`, modellen kjenner bare `har_bh_foresporsel`, og validatoren avviser svaret med 400. Må løses sammen med TFR-06. **Avgjort 23.09** (3.1): forespørselen blir en egen handling som ikke gjør sporet avslått | Streng `xfail`, K 23.09 | D |
 | DRF-02 | Åpen, lav | Felt med rettslig innhold fjernes uten feil ved parsing: `dager_siden_varsel` (§ 32.3), `ep_justering_varslet_i_tide` (§ 34.3.3), `er_svar_pa_foresporsel` (§ 33.6.2). Latent: skjemaene fyller dem ikke i dag | K 23.09 (parser), L | D |
 | DRF-03 | Åpen, middels | TEs varsel om justerte enhetspriser (§ 34.3.3) lagres med `dato_sendt` lik oppdagelsesdatoen, ikke sendedatoen | L 23.09 | D |
+| SD-01 | Åpen, lav | Et nytt vederlags- eller fristsvar uten subsidiært standpunkt lar standpunktet fra forrige svar stå i tilstanden, og frontenden viser det. Journalen og brevet er riktige. Ført inn 23.09 fra [gjennomføringen av spor D](../gjennomforing-spor-d-2026-09-23.md#sd-01-subsidiært-standpunkt-fra-forrige-svar) | Streng `xfail`, K 23.09 | D |
+| SD-02 | Åpen, lav | En sak der grunnlaget er avsluttet uten krav (trukket, eller avslaget godtatt) før andre krav er sendt, vises som `UTKAST`. Ført inn 23.09 fra [gjennomføringen av spor D](../gjennomforing-spor-d-2026-09-23.md#sd-02-avsluttet-grunnlag-vises-som-utkast) | Streng `xfail`, K 23.09 | D |
 | INT-01 | Åpen | Webhookhemmelighet uten konstant tid; sti i logg | Streng `xfail` (statisk) | H |
 | INT-02 | Åpen, høy | Webhookfeil gir 200 og reservert duplikatnøkkel; retry tapes | Streng `xfail`, K 22.09 | F3 |
 | INT-03 | Åpen | Validatoren avviser `bcf.*` | Streng `xfail`, K 22.09 | F3 |
 | INT-04 | Lukket | Siden utledes av lagmedlemskap | H | — |
 | INT-05 | Duplikat | → RV-10 | — | F3 |
 | INT-06 | Åpen | Global `.env` overstyrer sakens Catenda-prosjekt | Streng `xfail`, K 22.09 | F2, F3 |
-| INT-07 | Åpen | Kommentargeneratoren kjenner ikke `standard` | Streng `xfail`, K 22.09 | D |
+| INT-07 | Lukket | Kommentargeneratoren kjente ikke `standard`. **Merknad 2026-09-23:** oppslagene er nøklet på `SaksType`, og `koe` er fjernet; ingen kaller sender det. Reproduksjonen er ordinær test, og forsering og endringsordre er dekket. Samme nøkkel står i tittelen i `reportlab_pdf_generator`, men der gir reserveteksten nesten samme tittel | K 23.09 | — |
 | FE-01 | Lukket | `LetterPreviewModal` sender prosjekt, CSRF og credentials (20.09) | H | — |
 | FE-02 | Åpen, middels | `/api/cases/<sak_id>/context` gir ikke autorisert rolle. Serveren holder (19.09). Testen som testinventaret førte som FE-01, feilet på 403 i sitt eget oppsett. Oppsettet er rettet (T-3, 22.09); den strenge `xfail` feiler nå på målassertionen om rolle | K 22.09 (testoppsett) | H |
 | FE-03 | Åpen | Svelte-skjemafelt reagerer ikke på nye props | H | H |
@@ -483,7 +491,7 @@ fordi de hører til samme domenefamilie som TFR og GFK.
 | CFG-05, CFG-06, CFG-07 | Åpen | Supabase-nøkler utenfor `Settings`; død `CORS_ORIGINS`; relativ `env_file` | Streng `xfail` | H |
 | TS2-01 | Åpen, middels | Usatt `EVENT_STORE_BACKEND` gir JSON-lageret på lokal disk uten advarsel; metadata tilsvarende CSV. Banneret viser «csv». Ført inn 22.09 fra [TST-02-notatet](../gjennomforing-tst02-2026-09-22.md#ts2-01--json-lageret-er-standardverdien) | L 22.09 | H |
 | OBS-01, OBS-02 | Åpen, høy | Ett funn (19.09): ingen forretningshendelse revisjonslogges, og 403-avvisninger når ikke feilhåndtereren | Streng `xfail`, K 22.09 | F1 |
-| OBS-03 | Åpen, lav | Latent: `ce_time` kutter offset. Ingen forskyvning i dag, siden tidsstempelet er servergenerert UTC (19.09). Testen konstruerer `+02:00` | K 22.09, L 19.09 | D |
+| OBS-03 | Lukket | Latent: `ce_time` kuttet offset. **Merknad 2026-09-23:** reprodusert på enhetsnivå med `+02:00` og `-05:00` (den siste ga den ugyldige strengen `…-05:00Z`); ingen kjørested gir i dag annet enn UTC. Rettet med `astimezone(UTC)`, naiv tid regnes fortsatt som UTC. Aktuelt i F0b, der `timestamptz` kommer tilbake i øktens tidssone | K 23.09 | — |
 | OBS-04 | Lukket | `ce_source` skriver `unknown` (20.09) | H | — |
 | OBS-05 | Åpen | Hendelser mangler korrelasjons-ID. Testinventaret førte som OBS-04 | Streng `xfail` (statisk) | F1 |
 | OBS-06 | Åpen | `X-Request-ID` uten validering; 32-bits server-ID. Testinventaret førte som OBS-01 | Streng `xfail`, K 22.09 | H |
@@ -915,8 +923,21 @@ i så fall erstatte punktet med en referanse. Status er ikke innhentet for noen.
 
 Kan gå parallelt. Hver retting får regresjonstest og holdes innenfor sitt
 funn. TFR-02 til TFR-06, GFK-02, GFK-06, INT-07, OBS-03, BR-01 (reprodusert
-23.09, rettes etter B-13), DRF-01–DRF-03, og restansen på
-GFK-01 når B-06 er avgjort. DRF-01 og TFR-06 må løses sammen: en sperre mot
+23.09, rettes etter B-13), DRF-01–DRF-03, SD-01–SD-02, og restansen på
+GFK-01 når B-06 er avgjort.
+
+> **Merknad 2026-09-23 til spor D:** TFR-02–TFR-05, GFK-02, INT-07 og OBS-03
+> er rettet; se radene i 4.2 og
+> [gjennomføringen](../gjennomforing-spor-d-2026-09-23.md). Statusene i TFR-02
+> og TFR-05 er besluttet av oppdragsgiver. TFR-06 og GFK-06 er reprodusert,
+> men ikke rettet, fordi rettingen krever en avklaring (spørsmål 1 og 2 i
+> gjennomføringen). SD-01 og SD-02 er nye. Spørsmål 3 gjelder fullmakten når
+> beløpet ikke kan verdsettes, for både KOE og EO.
+>
+> **Merknad 2026-09-23 (senere samme dag):** oppdragsgiver har besvart
+> spørsmål 1–3; vedtakene står i 3.1. Ingen av dem er bygget. Spørsmål 1 er
+> det største: innsigelse og forespørsel på et nøytralt fristvarsel blir egne
+> handlinger, og rettingen av TFR-06 og DRF-01 bygger på det. DRF-01 og TFR-06 må løses sammen: en sperre mot
 BH-svar på et nøytralt varsel må slippe forespørselen etter § 33.6.2 gjennom. Deretter systematisk gjennomgang av
 tilstandsovergangene mot NS 8407, med dokumentert forventet overgang og test
 per hendelsestype. Utvides `SporStatus`, gjelder regelen i `AGENTS.md` om å
@@ -948,6 +969,12 @@ RC-10 i spor H; RC-9 i F3 og spor H; RC-11 lukket med FE-01 og FE-05; RC-12 i F4
 > utenom DB-04s fremmednøkler (B-01).
 > Neste oppgave er nå F0b, etter beslutningen om direkte tilkobling (3.1).
 
+> **Merknad 2026-09-23 (spor D):** Spor D er gjennomført (PR #45 og #46):
+> BR-01 reprodusert, sju domenefeil rettet, og tre spørsmål besvart som
+> vedtak i 3.1. Parallelt med F0b er nå neste domeneoppgave
+> [oppdraget for B-13](../prompt-b13-backend-eier-reglene-2026-09-23.md):
+> først et beslutningsgrunnlag for B-13, deretter vedtakene fra spor D.
+
 **Start med F0b, punkt 1: kjernen.** Den avgjør formen på alt som kommer etter,
 og er det eneste i F0b som ikke bør deles mellom tråder. Den krever ingen ny
 beslutning.
@@ -963,7 +990,7 @@ og [oppdraget for reviewet](../prompt-review-f0b-kjernen-2026-09-23.md).
 
 [Prototype v2](../vedlegg/b02-prototype-v2-2026-09-23/kjor.sh) viser
 konteksthåndteringen over direkte innlogging og kan brukes som mønster, ikke
-som kode. Parallelt kan spor D gå (BR-01 reprodusert 23.09), og
+som kode. Parallelt kan B-13-oppdraget gå, og
 containerdelen av F0b når IKT har svart (B-12). Beslutningene F1 trengte, ble
 tatt 23.09 (B-02 og B-04 i 3.1). F1-migrasjonene venter på det uavhengige
 reviewet og RK-05.
@@ -1055,3 +1082,8 @@ Azure, Fabric og IKTs svar er gjengitt fra handoffen og ikke kontrollert her.
 DRF-01–DRF-03 er ført inn, og B-13 har fått en merknad. Belegget er testene i
 `backend/tests/test_security/test_beregningsresultat_br01_20260923.py`, kjørt
 23.09, og kartleggingen, der det som bare er lest, er merket L.
+
+**Endringen 23.09, spor D:** radene for TFR-02–TFR-06, GFK-02, GFK-06, INT-07
+og OBS-03 er oppdatert, SD-01–SD-02 er ført inn, og spor D har fått en
+merknad. Belegget er testene som er nevnt i radene, kjørt 23.09 med hele
+backend-suiten grønn; se [gjennomføringen](../gjennomforing-spor-d-2026-09-23.md#verifikasjon-og-grenser).

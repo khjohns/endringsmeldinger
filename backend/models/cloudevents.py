@@ -141,14 +141,9 @@ class CloudEventMixin(BaseModel):
         if tidsstempel is None:
             return datetime.utcnow().isoformat() + "Z"
         if isinstance(tidsstempel, datetime):
-            # Bruk isoformat og legg til Z for UTC
-            iso = tidsstempel.isoformat()
-            # Fjern eventuell timezone info og legg til Z
-            if "+" in iso:
-                iso = iso.split("+")[0]
-            elif iso.endswith("Z"):
-                return iso
-            return iso + "Z"
+            if tidsstempel.tzinfo is None:
+                tidsstempel = tidsstempel.replace(tzinfo=UTC)
+            return tidsstempel.astimezone(UTC).isoformat().replace("+00:00", "Z")
         return str(tidsstempel)
 
     @computed_field
