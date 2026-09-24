@@ -57,6 +57,15 @@ describe('resolveRoute', () => {
     );
   });
 
+  it('lets unlimited authority send alone when the amount cannot be computed', () => {
+    const top = withLimit({ name: 'Direktør', role: 'Adm.dir (daglig leder)' });
+    const result = resolveRoute({ amount: null, minimum: 50000000, sender: top, chain });
+    expect(result.requiresApproval).toBe(false);
+    expect(result.approvers).toHaveLength(0);
+    const below = withLimit({ name: 'Divisjon', role: 'Divisjonsdirektør' });
+    expect(resolveRoute({ amount: null, sender: below, chain }).approvers).toHaveLength(2);
+  });
+
   it('treats unlimited authority as covering any amount', () => {
     const top = [withLimit({ name: 'Direktør', role: 'Adm.dir (daglig leder)' })];
     expect(resolveRoute({ amount: 9e9, sender, chain: top }).decider?.name).toBe('Direktør');

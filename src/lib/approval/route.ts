@@ -62,7 +62,8 @@ const covers = (limit: number | null | undefined, amount: number) =>
  * Derives the sequential authorisation route from an amount and the ordered chain.
  * The UI never asks the operator to pick a recipient — it states who the amount requires.
  * `amount: null` (uncomputable) requires the whole configured chain, and `minimum` —
- * the part already agreed — must still be within someone's authority.
+ * the part already agreed — must still be within someone's authority. A sender with
+ * unlimited authority sends alone, also when the amount cannot be computed.
  * Mirrors `resolve_route` in backend/services/approval_authority.py.
  */
 export function resolveRoute({
@@ -84,7 +85,7 @@ export function resolveRoute({
     metaLabel: limitLabel(sender.limit),
     statusLabel: 'Sender',
   };
-  if (amount !== null && covers(sender.limit, amount))
+  if (sender.limit === null || (amount !== null && covers(sender.limit, amount)))
     return {
       requiresApproval: false,
       exceedsAllAuthority: false,

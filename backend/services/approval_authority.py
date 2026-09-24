@@ -74,9 +74,13 @@ def resolve_route(amount, sender, chain, minimum=None):
     may send within their own authority. `amount=None` requires the whole chain, but an
     unresolved total never weakens the route: `minimum` is the part already agreed, and
     someone in the chain must still cover it. Otherwise a letter over every limit could
-    be issued by adding an unvalued consequence.
+    be issued by adding an unvalued consequence. A sender with unlimited authority
+    sends alone, also when the amount cannot be valued.
     """
-    if amount is not None and sender and covers(sender.get("role"), amount):
+    role = (sender or {}).get("role")
+    if role in LIMITS and LIMITS[role] is None:
+        return []
+    if amount is not None and sender and covers(role, amount):
         return []
     if amount is not None:
         for index, person in enumerate(chain):
@@ -104,7 +108,8 @@ def approval_route(items, chain, daily_rate=None, sender=None):
 
     En ny sluttdato kan ikke verdsettes uten kontraktens gjeldende sluttdato,
     som serveren ikke har. Som for endringsordrer kreves da hele kjeden, og den
-    må fortsatt dekke det som lar seg verdsette (audit GFK-02).
+    må fortsatt dekke det som lar seg verdsette (audit GFK-02). Unntaket er en
+    saksbehandler med ubegrenset fullmakt, som sender alene.
     """
     amount, needs_rate = exposure(items, daily_rate)
     basis = {

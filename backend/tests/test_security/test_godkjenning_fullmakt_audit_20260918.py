@@ -165,12 +165,47 @@ def test_ny_sluttdato_uten_dagmulktssats_gir_aldri_svakere_rute_enn_kjeden():
     assert route == chain
 
 
-def test_ny_sluttdato_kan_ikke_godkjennes_av_saksbehandler_alene():
-    """Heller ikke med ubegrenset egen fullmakt, som for endringsordrer."""
-    adm = {"id": "ad", "role": "Adm.dir (daglig leder)"}
+ADM = {"id": "ad", "role": "Adm.dir (daglig leder)"}
+
+
+@pytest.mark.parametrize("dager", [0, 11])
+def test_ny_sluttdato_kan_sendes_alene_med_ubegrenset_fullmakt(dager):
+    """Vedtak 23.09 (hovedplanen, 3.1): ubegrenset fullmakt sender alene når
+    beløpet ikke kan verdsettes. Testen påstod før det motsatte."""
     chain = [{"id": "pd", "role": "Prosjektdirektør"}]
-    _, route = approval_route([_ny_sluttdato(0)], chain, 50000, sender=adm)
+    auth, route = approval_route([_ny_sluttdato(dager)], chain, 50000, sender=ADM)
+    assert auth["amount"] is None
+    assert route == []
+
+
+def test_ny_sluttdato_krever_fortsatt_kjeden_under_ubegrenset_fullmakt():
+    """Vedtaket gjelder bare ubegrenset fullmakt, ikke den nest høyeste."""
+    divisjonsdirektor = {"id": "dd", "role": "Divisjonsdirektør"}
+    chain = [{"id": "pd", "role": "Prosjektdirektør"}]
+    _, route = approval_route(
+        [_ny_sluttdato(0)], chain, 50000, sender=divisjonsdirektor
+    )
     assert route == chain
+
+
+def test_endringsordre_som_ikke_kan_verdsettes_kan_sendes_alene_med_ubegrenset_fullmakt(
+    tmp_path,
+):
+    """Samme vedtak for endringsordrer, også uten konfigurert kjede."""
+    for chain in ([{"id": "pd@test", "role": "Prosjektdirektør"}], []):
+        service = EOApprovalService(
+            tmp_path / f"eo-{len(chain)}.sqlite",
+            Mock(),
+            {"handlers": [{**ADM, "id": "ad@test"}], "chain": chain},
+            issued=lambda _: False,
+        )
+        auth, route = service.authority(
+            {"kompensasjon_belop": 40_000_000, "ny_sluttdato": "2028-12-31"},
+            "ad@test",
+        )
+        assert auth["amount"] is None
+        assert auth["minimum"] == "40000000"
+        assert route == []
 
 
 # =============================================================================
