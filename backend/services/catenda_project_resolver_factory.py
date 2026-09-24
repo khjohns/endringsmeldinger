@@ -20,11 +20,11 @@ intern ID.
 from collections.abc import Callable
 
 from core.config import settings
+from core.container import get_container
 from models.catenda_project_config import CatendaProjectConfig
 from repositories.catenda_project_config_repository import (
     CatendaProjectConfigRepository,
     InMemoryCatendaProjectConfigRepository,
-    SupabaseCatendaProjectConfigRepository,
 )
 from services.catenda_project_resolver import CatendaProjectResolver
 
@@ -99,14 +99,15 @@ def build_project_resolver(
     backend: str | None = None,
     registry: CatendaProjectConfigRepository | None = None,
 ) -> CatendaProjectResolver:
-    """Build the selected routing backend without an implicit fallback.
+    """PostgreSQL overstyrer registervalget; ellers brukes legacy eller Supabase.
 
-    ``legacy`` is the local CSV-development choice. ``supabase`` reads the
-    durable multi-project registry. If Supabase is selected but unavailable,
-    construction raises; global Catenda project IDs are never used as a rescue
-    path. ``registry`` is injectable for wiring tests.
+    Et valgt varig register som ikke kan opprettes, avvises uten reserve.
+    Et eksplisitt injisert register brukes til testing av innkoblingen.
     """
+    container = get_container()
     selected = (backend or settings.catenda_project_registry_backend).strip().lower()
+    if container.bruker_postgres:
+        selected = "postgres"
     if selected == "legacy":
         if registry is not None:
             raise ProjectResolverConfigurationError(
@@ -114,7 +115,7 @@ def build_project_resolver(
             )
         return build_legacy_project_resolver(catenda_client)
 
-    if selected == "supabase":
+    if selected == "supabase" or (selected == "postgres" and container.bruker_postgres):
         if catenda_client is None:
             raise ProjectResolverConfigurationError(
                 "Catenda-klient mangler; prosjektresolver kan ikke bygges"
@@ -123,11 +124,11 @@ def build_project_resolver(
             permanent_registry = (
                 registry
                 if registry is not None
-                else SupabaseCatendaProjectConfigRepository()
+                else container.catenda_config_repository
             )
         except Exception as exc:
             raise ProjectResolverConfigurationError(
-                "Kunne ikke opprette Supabase Catenda-prosjektregister"
+                f"Kunne ikke opprette Catenda-prosjektregister ({selected})"
             ) from exc
         return CatendaProjectResolver(
             permanent_registry,

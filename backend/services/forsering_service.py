@@ -9,7 +9,6 @@ Denne servicen håndterer opprettelse av forseringssaker som egne saker
 med relasjoner til de avslåtte fristforlengelsessakene.
 """
 
-import os
 from datetime import UTC, datetime
 from typing import Any
 
@@ -22,17 +21,21 @@ from utils.logger import get_logger
 logger = get_logger(__name__)
 
 
-# Check if relation repository is available (Supabase backend)
-def _get_relation_repository():
-    """Get relation repository if available."""
-    backend = os.environ.get("EVENT_STORE_BACKEND", "json")
-    if backend == "supabase":
-        try:
-            from repositories import create_relation_repository
+_IKKE_OPPGITT = object()
 
-            return create_relation_repository()
-        except Exception as e:
-            logger.debug(f"RelationRepository not available: {e}")
+
+def _get_relation_repository(container=None):
+    """Relasjonslageret fra containeren, eller None når det ikke finnes."""
+    from core.container import get_container
+
+    if container is None:
+        container = get_container()
+    if container.bruker_postgres:
+        return container.relation_repository
+    try:
+        return container.relation_repository
+    except Exception as e:
+        logger.debug(f"RelationRepository not available: {e}")
     return None
 
 
@@ -50,7 +53,7 @@ class ForseringService(BaseSakService):
         event_repository: Any | None = None,
         timeline_service: Any | None = None,
         metadata_repository: Any | None = None,
-        relation_repository: Any | None = None,
+        relation_repository: Any | None = _IKKE_OPPGITT,
     ):
         """
         Initialiser ForseringService.
@@ -68,7 +71,11 @@ class ForseringService(BaseSakService):
             timeline_service=timeline_service,
         )
         self.metadata_repository = metadata_repository
-        self.relation_repository = relation_repository or _get_relation_repository()
+        self.relation_repository = (
+            _get_relation_repository()
+            if relation_repository is _IKKE_OPPGITT
+            else relation_repository
+        )
         self._log_init_warnings("ForseringService")
 
     def opprett_forseringssak(
