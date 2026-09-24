@@ -210,7 +210,7 @@ Kjørt på `high` mot `222169a`. Ti funn:
   men lagret stempler hendelsen fra `g.project_id`. Den settes fra
   `X-Project-ID`, som en webhook ikke sender. *Lest ut av koden, ikke kjørt:*
   hendelsen avvises da med `PermanentError`, og saken opprettes ikke.
-  Tjenestetesten må vente på løp b (`sak_metadata`). Meldt som eget issue.
+  Tjenestetesten må vente på løp b (`sak_metadata`). Meldt som #66.
 - `routes/catenda_webhook_routes.py` bygger et eget hendelseslager med
   `create_event_repository()`, utenom containeren. Tjenesten lagrer det, men
   bruker det ikke; opprettelsen går gjennom containeren. Hører til #49.
