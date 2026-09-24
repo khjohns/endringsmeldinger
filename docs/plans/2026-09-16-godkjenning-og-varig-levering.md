@@ -757,6 +757,54 @@ sikkerhetskontrollene stå: `SET LOCAL` og transaksjonslokal kontekst,
 pool på én forbindelse som viser at kontekst ikke lekker; en test per
 feilklasse i driveren.
 
+> **Merknad 2026-09-23 (F0b, punkt 1): kjernen finnes og venter på review.**
+> `lib/db` har pool, `transaksjon(kontekst)` og `utfor(kontekst, arbeid)` med
+> retry for hele transaksjonen, og feilhierarkiet er felles med Supabase-lagrene.
+> `container.database`, den skrivbare fixturen og lokal oppstart
+> (`scripts/testbase/lokal_testbase.sh`) er på plass. Kravene settes i
+> `koe.krav`, ikke `request.jwt.claims`, og versjonskonflikt er SQLSTATE
+> `KO409`, ikke `PT409`. Begge valgene er begrunnet i
+> [gjennomføringsnotatet](../gjennomforing-f0b-kjernen-2026-09-23.md). 57
+> databasetester er grønne lokalt mot PostgreSQL 17, og 27 mutasjoner gir rød
+> test. PgBouncer, Supavisor og Azure er ikke prøvd. **Status endres ikke før
+> det [uavhengige reviewet](../prompt-review-f0b-kjernen-2026-09-23.md) er
+> levert**, og punkt 2 bygger ikke på kjernen før da.
+
+> **Merknad 2026-09-23 (F0b, uavhengig review levert):**
+> [Reviewet av `55ad006`](../review-f0b-kjernen-2026-09-23.md) konkluderer med
+> **«kan bygges videre på med navngitte endringer»**. RK-01–RK-03 er åpne før
+> punkt 2: trådsikker poolopprettelse, ferdig innkoblingskontrakt i containeren
+> og separate tester for reset av rolle og krav. RK-04 krever en uttrykkelig
+> regel om at kjernen alene eier transaksjonsstyringen; rå `COMMIT; BEGIN`
+> omgår sluttkontrollen. RK-05 er åpen før F1: setnings- og inaktivitetstimeout
+> er ikke en samlet transaksjonsfrist. Backend-suiten har 1589 bestått,
+> 9 hoppet over og 38 xfailed; 57 databasetester og 27 mutasjoner er bekreftet.
+> To nye mutasjoner overlever de gamle testene og fanges av reviewtestene.
+> Kjernen er reviewet, men punkt 1 er ikke godkjent som ferdig; punkt 2 venter
+> på oppfølgingen over. Ingen produksjonskode eller delt base er endret.
+
+> **Merknad 2026-09-23 (F0b, oppfølging av reviewet):** RK-01–RK-04 er fulgt
+> opp i [PR #42](https://github.com/khjohns/endringsmeldinger/pull/42), etter
+> oppdragsgivers valg. Poolen opprettes under lås, innkoblingen for trådene
+> (a)–(d) er ferdig bak `DATALAG=postgres` og tabellen `POSTGRES_LAGRE`, rolle og
+> krav i resetten har hver sin test, og kallerens ansvar for
+> transaksjonsgrensen står skrevet, med `COMMIT; BEGIN` som streng `xfail`.
+> 33 mutasjoner gir rød test. **RK-05 er åpen før F1:** en samlet øvre grense
+> for en transaksjon er ikke fastsatt. Se
+> [gjennomføringsnotatet, avsnitt 7](../gjennomforing-f0b-kjernen-2026-09-23.md#7-oppfølging-av-reviewet).
+> Oppfølgingen er ikke reviewet på nytt. Punkt 1 settes som gjort når
+> PR #42 er merget.
+
+> **Merknad 2026-09-24 (F0b, restansene fra #47):** De to restansene i
+> verifikasjonen er rettet på #42-grenen (`b97630f`): relasjoner fra samme
+> container og PostgreSQL-register for Catenda også ved legacy-innstillingen.
+> En tekstvakt håndhever kallerregelen for statisk SQL i de kommende lagrene;
+> fem innførte forbudte utsagn gir hver rød test. Databasetestene gir 59
+> bestått og 1 xfailed, hele backend 1643 bestått, 9 hoppet over og 39 xfailed.
+> Se [gjennomføringsnotatet, avsnitt 8](../gjennomforing-f0b-kjernen-2026-09-23.md#8-restansene-fra-verifikasjonen-i-pr-47).
+> Dette er implementeringsverifikasjon. Ingen lagre er konvertert, og
+> **RK-05 står fortsatt åpen før F1**, ikke før fase 2.
+
 ### F1 — Sikkerhetsgrenser i datalaget og private lagre
 
 **Avhenger av:** F0-jobben og F0b; B-02 før rolle- og policymigrasjoner; B-04
