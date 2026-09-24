@@ -143,7 +143,7 @@ def test_selected_supabase_backend_fails_closed_when_registry_cannot_start(
     configured_settings, monkeypatch
 ):
     monkeypatch.setattr(
-        "services.catenda_project_resolver_factory.SupabaseCatendaProjectConfigRepository",
+        "repositories.catenda_project_config_repository.SupabaseCatendaProjectConfigRepository",
         lambda: (_ for _ in ()).throw(RuntimeError("Supabase unavailable")),
     )
 
@@ -151,6 +151,24 @@ def test_selected_supabase_backend_fails_closed_when_registry_cannot_start(
         build_project_resolver(make_client(), backend="supabase")
 
 
-def test_unknown_registry_backend_fails_closed(configured_settings):
+@pytest.mark.parametrize("backend", ["not-a-backend", "postgres"])
+def test_unknown_registry_backend_fails_closed(configured_settings, backend):
     with pytest.raises(ProjectResolverConfigurationError):
-        build_project_resolver(make_client(), backend="not-a-backend")
+        build_project_resolver(make_client(), backend=backend)
+
+
+def test_tomt_datalag_beholder_legacy_register(configured_settings, monkeypatch):
+    from core.config import Settings
+    from core.container import Container
+
+    monkeypatch.setattr(
+        "core.container._default_container",
+        Container(config=Settings(_env_file=None, datalag="")),
+    )
+    monkeypatch.setattr(settings, "catenda_project_registry_backend", "legacy")
+
+    resolver = build_project_resolver(make_client())
+    kontekst = resolver.resolve(project_id=PROJECT_ID, board_id=BOARD_ID, topic_id=TOPIC_ID)
+
+    assert isinstance(resolver._register, InMemoryCatendaProjectConfigRepository)
+    assert kontekst.internal_project_id == LEGACY_INTERNAL_PROJECT_ID
