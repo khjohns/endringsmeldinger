@@ -676,6 +676,16 @@ feilklasse i driveren.
 > Oppfølgingen er ikke reviewet på nytt. Punkt 1 settes som gjort når
 > PR #42 er merget.
 
+> **Merknad 2026-09-24 (F0b, restansene fra #47):** De to restansene i
+> verifikasjonen er rettet på #42-grenen (`b97630f`): relasjoner fra samme
+> container og PostgreSQL-register for Catenda også ved legacy-innstillingen.
+> En tekstvakt håndhever kallerregelen for statisk SQL i de kommende lagrene;
+> fem innførte forbudte utsagn gir hver rød test. Databasetestene gir 59
+> bestått og 1 xfailed, hele backend 1643 bestått, 9 hoppet over og 39 xfailed.
+> Se [gjennomføringsnotatet, avsnitt 8](../gjennomforing-f0b-kjernen-2026-09-23.md#8-restansene-fra-verifikasjonen-i-pr-47).
+> Dette er implementeringsverifikasjon. Ingen lagre er konvertert, og
+> **RK-05 står fortsatt åpen før F1**, ikke før fase 2.
+
 ### F1 — Sikkerhetsgrenser i datalaget og private lagre
 
 **Avhenger av:** F0-jobben og F0b; B-02 før rolle- og policymigrasjoner; B-04
