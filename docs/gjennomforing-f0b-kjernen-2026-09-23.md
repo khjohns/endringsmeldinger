@@ -405,6 +405,17 @@ innkoblingen ferdig for fase 2, og at RK-05 ble stående åpen før F1.
 | [RK-04](review-f0b-kjernen-2026-09-23.md#rk-04--sluttkontrollen-kjenner-bare-transaksjonsstatusen) | Kallerens ansvar skrevet inn under. Reproduksjonen står som streng `xfail`: den feiler til et smalere grensesnitt eventuelt bygges | `test_raa_commit_og_begin_i_blokken_etterlater_ingenting` (`xfail`) | — |
 | [RK-05](review-f0b-kjernen-2026-09-23.md#rk-05--to-tidsgrenser-er-ikke-én-transaksjonsfrist) | **Åpen før F1.** Ingen kodeendring. En samlet øvre grense for en transaksjon må fastsettes og prøves sammen med F1-rollen; `transaction_timeout` i PostgreSQL 17 er et mulig virkemiddel, ikke valgt | — | — |
 
+> **Merknad 2026-09-24 til avsnitt 7 og 8:** Tekstvakten ble utvidet i
+> `286b511`. Den avviser nå også `END`, `ABORT`, `START TRANSACTION`,
+> `SAVEPOINT`, `RELEASE SAVEPOINT`, `SET SESSION AUTHORIZATION`, `RESET ROLE`,
+> `RESET ALL`, `DISCARD ALL`, kontekst satt med `SET koe.…`, og kallene
+> `.commit()`, `.rollback()`, `.transaction()`, `.set_autocommit()` og
+> tilordning til `.autocommit` under `repositories/postgres/`. Setningen under om
+> savepoint med `conn.transaction()` gjelder derfor ikke for lagrene, og
+> grensen i avsnitt 8 om at `conn.commit()`/`rollback()` ikke dekkes, er
+> foreldet. Se [oppdraget for fase 2](prompt-f0b-fase2-repositorier-2026-09-24.md),
+> avsnitt 4.
+
 **Kallerens ansvar (RK-04).** Kjernen eier transaksjonsgrensen, og invariant 3
 i 2.3 forutsetter det. Et repositorium eller en tjeneste skal derfor ikke:
 
