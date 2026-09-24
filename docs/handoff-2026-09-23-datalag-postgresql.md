@@ -55,6 +55,9 @@ Design v1 og prototype v1 er historikk; v2 og reviewet erstatter dem.
    røde. TM-09–TM-12.
 4. **BR-01 (PR #40, åpen).** Serveren ser ut til å godta klientens
    `beregnings_resultat` uten omberegning. Lest, ikke kjørt.
+   *Merknad 2026-09-23:* reprodusert gjennom `/api/events` og
+   godkjenningsflyten, og satt til middels. Status står i
+   [hovedplanen, 4.2](plans/2026-09-16-godkjenning-og-varig-levering.md#42-gemini-sporet-1809-aut-db-tfr-gfk-int-fe-cfg-obs-tst).
 5. **Plattformsamtalen med IKT** (avsnitt 3).
 
 ## 3. Beslutninger: tatt, foreslått og ventende
