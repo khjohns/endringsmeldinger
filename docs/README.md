@@ -8,6 +8,10 @@ annet om et funn, er det andre dokumentet foreldet — rett det, ikke gjenoppret
 diskusjonen.
 Opphever du et utsagn, skriv en datert merknad, også inn i det gamle dokumentet.
 
+**Arbeid som pågår eller venter, står i GitHub-issues**, samlet i milepælene
+[F0b](https://github.com/khjohns/endringsmeldinger/milestone/1) og [F1](https://github.com/khjohns/endringsmeldinger/milestone/2). Denne indeksen og hovedplanen fører ikke
+arbeidsstatus; regelen står i [`AGENTS.md`](../AGENTS.md).
+
 ---
 
 ## Start her
