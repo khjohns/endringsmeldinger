@@ -387,15 +387,21 @@ class TimelineService:
         state.grunnlag = grunnlag
         return state
 
-    def _apply_konsekvensvarsler(self, state, event):
-        """Project notices from the same immutable submission into their tracks."""
+    @staticmethod
+    def _varsel_ved_innsending(event):
+        """Varselet er sendt den norske datoen serveren tok imot innsendingen."""
         from zoneinfo import ZoneInfo
 
         from models.events import VarselInfo
-        from models.sak_state import SendtKonsekvensVarsel
 
         dato = event.tidsstempel.astimezone(ZoneInfo("Europe/Oslo")).date().isoformat()
-        info = VarselInfo(dato_sendt=dato, metode=["Digital innsending"])
+        return VarselInfo(dato_sendt=dato, metode=["Digital innsending"])
+
+    def _apply_konsekvensvarsler(self, state, event):
+        """Project notices from the same immutable submission into their tracks."""
+        from models.sak_state import SendtKonsekvensVarsel
+
+        info = self._varsel_ved_innsending(event)
         for kind, tekst in event.data.varsler.model_dump(exclude_none=True).items():
             track = state.frist if kind == "frist" else state.vederlag
             track.varsler.append(SendtKonsekvensVarsel(
@@ -527,12 +533,8 @@ class TimelineService:
                 if hasattr(event.data.rigg_drift_varsel, "model_dump")
                 else event.data.rigg_drift_varsel
             )
-        if event.data.justert_ep_varsel:
-            vederlag.justert_ep_varsel = (
-                event.data.justert_ep_varsel.model_dump()
-                if hasattr(event.data.justert_ep_varsel, "model_dump")
-                else event.data.justert_ep_varsel
-            )
+        if event.data.krever_justert_ep and vederlag.justert_ep_varsel is None:
+            vederlag.justert_ep_varsel = self._varsel_ved_innsending(event).model_dump()
         if event.data.varslet_for_oppstart is not None:
             vederlag.varslet_for_oppstart = event.data.varslet_for_oppstart
         if event.data.produktivitetstap_varsel and not any(v.type == "produktivitet" for v in vederlag.varsler):

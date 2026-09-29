@@ -55,7 +55,6 @@ export interface VederlagSubmissionVisibility {
 export interface VederlagSubmissionBuildConfig {
   scenario: VederlagSubmissionScenario;
   grunnlagEventId: string;
-  datoOppdaget?: string;
   originalEventId?: string;
 }
 
@@ -66,7 +65,6 @@ export interface VederlagSubmissionEventData {
   kostnads_overslag: number | undefined;
   begrunnelse: string;
   krever_justert_ep: boolean | undefined;
-  justert_ep_varsel: { dato_sendt: string } | undefined;
   varslet_for_oppstart: boolean | undefined;
   saerskilt_krav: {
     rigg_drift?: { belop?: number; dato_klar_over?: string };
@@ -217,12 +215,6 @@ export function buildEventData(
   const isRegning = state.metode === 'REGNINGSARBEID';
   const isEnhetspriser = state.metode === 'ENHETSPRISER';
 
-  // Build justert_ep_varsel (§34.3.3)
-  const justertEpVarsel =
-    isEnhetspriser && state.kreverJustertEp && config.datoOppdaget
-      ? { dato_sendt: config.datoOppdaget }
-      : undefined;
-
   // Build saerskilt_krav (§34.1.3)
   const saerskiltKrav =
     state.harRiggKrav || state.harProduktivitetKrav
@@ -243,7 +235,6 @@ export function buildEventData(
     kostnads_overslag: isRegning ? state.kostnadsOverslag : undefined,
     begrunnelse: state.begrunnelse,
     krever_justert_ep: isEnhetspriser ? state.kreverJustertEp : undefined,
-    justert_ep_varsel: justertEpVarsel,
     varslet_for_oppstart: isRegning ? state.varsletForOppstart : undefined,
     saerskilt_krav: saerskiltKrav,
   };
