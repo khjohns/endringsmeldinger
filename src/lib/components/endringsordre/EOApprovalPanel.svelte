@@ -16,7 +16,7 @@
     type ApprovalChainNode,
   } from '$lib/approval/route';
   import { demoUsers } from '$lib/approval/types';
-  import { eoExposure, eoExposureFloor } from '$lib/domain/endringsordre';
+  import { eoExposure, eoExposureFloor, eoManglerSats } from '$lib/domain/endringsordre';
   import { formatDateNorwegian } from '$lib/utils/dateFormatters';
 
   let {
@@ -49,7 +49,13 @@
   const minimum = $derived(eoExposureFloor(request, approvals.dailyRate));
   const sender = $derived(withLimit(approvals.sender ?? { name: 'Saksbehandler', role: '' }));
   const route = $derived(
-    resolveRoute({ amount, minimum, sender, chain: approvals.chain.map(withLimit) })
+    resolveRoute({
+      amount,
+      minimum,
+      sender,
+      chain: approvals.chain.map(withLimit),
+      manglerSats: eoManglerSats(request, approvals.dailyRate),
+    })
   );
   const amountLabel = $derived(
     amount === null ? (minimum > 0 ? `uavklart, minst ${nok(minimum)}` : 'uavklart') : nok(amount)
@@ -233,7 +239,10 @@
           ...base,
           eyebrow: eyebrow ?? 'Klar for utstedelse',
           title: 'Du kan utstede selv',
-          description: `Fullmaktsgrunnlaget ${amountLabel} er innenfor din fullmakt. Endringsordren utstedes med én gang.`,
+          description:
+            amount === null
+              ? `${unresolvedCause}, så fullmaktsgrunnlaget kan ikke beregnes. Du har ubegrenset fullmakt, og endringsordren utstedes med én gang.`
+              : `Fullmaktsgrunnlaget ${amountLabel} er innenfor din fullmakt. Endringsordren utstedes med én gang.`,
           primary: { label: 'Utsted endringsordre', action: submit, icon: 'issue' },
           footnote: issueFootnote,
         };

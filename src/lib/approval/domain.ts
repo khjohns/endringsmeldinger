@@ -21,8 +21,11 @@ export function approversFor(
   chain: ApprovalUser[],
   authority: { sender: ApprovalUser; dailyRate: number | null }
 ): ApprovalUser[] {
+  const amount = calculateAuthority(items, authority.dailyRate).amount;
+  if (amount === null)
+    throw new Error('Fullmakt kan ikke beregnes: dagmulktssats må konfigureres på serveren.');
   const route = resolveRoute({
-    amount: calculateAuthority(items, authority.dailyRate).amount,
+    amount,
     sender: withLimit(authority.sender),
     chain: chain.map(withLimit),
   });

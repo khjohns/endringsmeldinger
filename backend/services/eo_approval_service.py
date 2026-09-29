@@ -84,7 +84,10 @@ def order_exposure(request, daily_rate=None):
 
     The larger of addition and deduction is used, never the net: an agreed deduction
     commits the contract just as an addition does. Extension days are valued at the
-    daily rate and added. Unresolved price or time requires the whole chain.
+    daily rate and added.
+
+    None krever hele kjeden, med mindre avsenderen har ubegrenset fullmakt
+    (`resolve_route`).
     """
     consequences = request.get("konsekvenser") or {}
     if not isinstance(consequences, dict):
@@ -110,9 +113,8 @@ def order_exposure(request, daily_rate=None):
             raise ValueError(
                 "Ny sluttdato må være en gyldig dato på formatet YYYY-MM-DD."
             ) from exc
-        # We have no authoritative baseline date here. Client-supplied days (even 0)
-        # cannot prove the exposure implied by the absolute date. Require the full
-        # chain until a server-side contract baseline can establish consistency.
+        # Serveren kjenner ikke kontraktens sluttdato, så dager klienten oppgir
+        # (også 0) kan ikke vise hva en absolutt dato er verdt.
         return None
     if consequences.get("pris") and addition is None and deduction is None:
         return None
@@ -153,7 +155,15 @@ class EOApprovalService:
             if amount is not None
             else order_exposure_floor(request, self.policy.get("daily_rate"))
         )
-        route = resolve_route(amount, sender, self.chain, minimum=minimum)
+        rate = self.policy.get("daily_rate")
+        route = resolve_route(
+            amount,
+            sender,
+            self.chain,
+            minimum=minimum,
+            mangler_sats=number(request.get("frist_dager")) > 0
+            and (rate is None or number(rate) <= 0),
+        )
         return {
             "amount": None if amount is None else str(amount),
             "minimum": None if minimum is None else str(minimum),
