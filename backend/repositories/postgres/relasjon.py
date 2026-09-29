@@ -54,12 +54,12 @@ class PostgresRelationRepository:
             for target in target_sak_ids
         ]
 
-        def arbeid(conn: psycopg.Connection) -> None:
+        def arbeid(conn: psycopg.Connection) -> int:
             with conn.cursor() as cur:
                 cur.executemany(_SETT_INN, rader)
+                return cur.rowcount
 
-        self._db.utfor(Kontekst(), arbeid)
-        return len(target_sak_ids)
+        return self._db.utfor(Kontekst(), arbeid)
 
     def remove_relation(
         self,
@@ -93,16 +93,19 @@ class PostgresRelationRepository:
         target_sak_id: str,
         relation_type: RelationType,
     ) -> list[str]:
-        """Sakene som viser til `target_sak_id`, i det autoriserte prosjektet.
-        Uten prosjektkontekst: ingen."""
+        """Sakene i det autoriserte prosjektet som viser til `target_sak_id`.
+        Både relasjonen og kildesaken må høre til prosjektet. Uten
+        prosjektkontekst: ingen."""
         prosjekt = get_project_id()
         if not prosjekt:
             return []
         with self._db.transaksjon(Kontekst()) as conn:
             rader = conn.execute(
-                "SELECT source_sak_id FROM sak_relations"
-                " WHERE target_sak_id = %s AND relation_type = %s"
-                " AND prosjekt_id = %s ORDER BY source_sak_id",
-                (target_sak_id, relation_type, prosjekt),
+                "SELECT r.source_sak_id FROM sak_relations r"
+                " JOIN sak_metadata m ON m.sak_id = r.source_sak_id"
+                " WHERE r.target_sak_id = %s AND r.relation_type = %s"
+                " AND r.prosjekt_id = %s AND m.prosjekt_id = %s"
+                " ORDER BY r.source_sak_id",
+                (target_sak_id, relation_type, prosjekt, prosjekt),
             ).fetchall()
         return [kilde for (kilde,) in rader]

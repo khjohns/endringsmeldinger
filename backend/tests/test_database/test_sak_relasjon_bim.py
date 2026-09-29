@@ -288,19 +288,23 @@ def test_skriving_uten_autorisert_prosjekt_avvises(relasjoner, testbase_url, pro
 
 def test_samme_relasjon_to_ganger_gir_en_rad(relasjoner, testbase_url):
     with autorisert(PROSJEKT):
-        relasjoner.add_relations_batch("FORS-1", ["KOE-1"], "forsering")
-        relasjoner.add_relations_batch("FORS-1", ["KOE-1", "KOE-1"], "forsering")
+        assert relasjoner.add_relations_batch("FORS-1", ["KOE-1"], "forsering") == 1
+        assert (
+            relasjoner.add_relations_batch("FORS-1", ["KOE-1", "KOE-1"], "forsering")
+            == 0
+        )
+        assert relasjoner.add_relation("FORS-1", "KOE-1", "forsering") is False
 
     assert len(_relasjoner(testbase_url)) == 1
 
 
 def test_en_eksisterende_relasjon_flyttes_ikke_til_et_annet_prosjekt(
-    relasjoner, testbase_url
+    relasjoner, saker, testbase_url
 ):
     with autorisert(ANNET_PROSJEKT):
         relasjoner.add_relation("FREMMED-FORS", "KOE-1", "forsering")
     with autorisert(PROSJEKT):
-        relasjoner.add_relation("FREMMED-FORS", "KOE-1", "forsering")
+        assert relasjoner.add_relation("FREMMED-FORS", "KOE-1", "forsering") is False
         assert relasjoner.get_containers_for_sak("KOE-1", "forsering") == []
 
     assert _relasjoner(testbase_url) == [
@@ -315,7 +319,10 @@ def test_ukjent_relasjonstype_avvises_av_basen(relasjoner, testbase_url):
     assert _relasjoner(testbase_url) == []
 
 
-def test_baklengs_oppslag_ser_bare_det_autoriserte_prosjektet(relasjoner):
+def test_baklengs_oppslag_ser_bare_det_autoriserte_prosjektet(
+    relasjoner, metadata, saker
+):
+    metadata.create(_sak("EO-1", sakstype="endringsordre"))
     with autorisert(PROSJEKT):
         relasjoner.add_relations_batch("FORS-1", ["KOE-1"], "forsering")
         relasjoner.add_relation("EO-1", "KOE-1", "endringsordre")
@@ -332,7 +339,7 @@ def test_baklengs_oppslag_ser_bare_det_autoriserte_prosjektet(relasjoner):
 
 
 @pytest.mark.parametrize("prosjekt", [None, ""])
-def test_baklengs_oppslag_uten_prosjekt_er_tomt(relasjoner, prosjekt):
+def test_baklengs_oppslag_uten_prosjekt_er_tomt(relasjoner, saker, prosjekt):
     with autorisert(PROSJEKT):
         relasjoner.add_relation("FORS-1", "KOE-1", "forsering")
 
@@ -345,20 +352,20 @@ def test_relasjon_til_sak_i_annet_prosjekt_utvider_ikke_tilgangen(
     container_mot_testbasen, saker
 ):
     """RV-07, AUT-01/02: klienten oppgir relasjonen. En forsering i et annet
-    prosjekt som viser til KOE-1, kan være stemplet med vårt prosjekt om den ble
-    skrevet i vår kontekst. Da er det `cases_in_project` over saksmetadataene i
-    basen som stopper den."""
+    prosjekt som viser til KOE-1, blir stemplet med vårt prosjekt om den skrives
+    i vår kontekst. Lageret stopper den på kildesakens prosjekt, og
+    `cases_in_project` over saksmetadataene i basen er grensen i tjenesten."""
     from lib.auth.project_access import cases_in_project
 
     relasjoner = container_mot_testbasen.relation_repository
     assert isinstance(relasjoner, PostgresRelationRepository)
     with autorisert(PROSJEKT):
         relasjoner.add_relations_batch("FREMMED-FORS", ["KOE-1"], "forsering")
+        relasjoner.add_relations_batch("UTEN-METADATA", ["KOE-1"], "forsering")
         relasjoner.add_relations_batch("FORS-1", ["KOE-1"], "forsering")
 
-        funnet = relasjoner.get_containers_for_sak("KOE-1", "forsering")
-        assert funnet == ["FORS-1", "FREMMED-FORS"]
-        assert cases_in_project(funnet) == {"FORS-1"}
+        assert relasjoner.get_containers_for_sak("KOE-1", "forsering") == ["FORS-1"]
+        assert cases_in_project(["FREMMED-FORS", "FORS-1"]) == {"FORS-1"}
         assert cases_in_project(["FREMMED-1", "KOE-2", "finnes-ikke"]) == {"KOE-2"}
     with autorisert(ANNET_PROSJEKT):
         assert relasjoner.get_containers_for_sak("KOE-1", "forsering") == []
