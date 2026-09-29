@@ -9,7 +9,8 @@ diskusjonen.
 Opphever du et utsagn, skriv en datert merknad, også inn i det gamle dokumentet.
 
 **Arbeid som pågår eller venter, står i GitHub-issues**, samlet i milepælene
-[F0b](https://github.com/khjohns/endringsmeldinger/milestone/1) og [F1](https://github.com/khjohns/endringsmeldinger/milestone/2). Denne indeksen og hovedplanen fører ikke
+[F0b](https://github.com/khjohns/endringsmeldinger/milestone/1) og [F1](https://github.com/khjohns/endringsmeldinger/milestone/2), og for spor M i
+[#79](https://github.com/khjohns/endringsmeldinger/issues/79). Denne indeksen og hovedplanen fører ikke
 arbeidsstatus; regelen står i [`AGENTS.md`](../AGENTS.md).
 
 ---
@@ -30,6 +31,7 @@ Eldre handoffer står under [historikk](#historikk--bevart-ikke-gjeldende).
 | Dokument | Hva det gir |
 | --- | --- |
 | [hovedplanen](plans/2026-09-16-godkjenning-og-varig-levering.md) | **Autoritativ.** Se over |
+| [oppdrag: datamodell og funksjonskart (spor M)](prompt-datamodell-og-funksjonskart-2026-09-29.md) | Tabellbeskrivelse for IKT som systemdokumentasjon, hendelseskatalog, funksjonskart og atferdstester, i faser. Avhenger ikke av B-12. Avsnitt 4 er grunnlaget for DM-01 og DM-02 |
 | [designnotat: B-13, hvem avgjør resultatet](design-b13-sannhetskilde-2026-09-23.md) | Beslutningsgrunnlag for B-13. Sammenlikner de tre alternativene for journal, brev, partens tekst, frontend, godkjenning og regelendring. Anbefaler (2) i streng form, med regelversjon. **Alle åtte valgene tatt 24.09** etter anbefalingen (hovedplanen, 3.1). Ingen kode |
 | [oppdrag: B-13, backend eier reglene](prompt-b13-backend-eier-reglene-2026-09-23.md) | Neste domeneoppgave. Beslutningsgrunnlag for B-13 først, uten kode. Deretter vedtakene fra spor D (ubegrenset fullmakt, fullmakt for godkjent ansvar, innsigelse og forespørsel på nøytralt fristvarsel) og, etter beslutningen, reglene i backend. Kan gå parallelt med F0b |
 | [oppdrag: repositoriene i F0b, fase 2](prompt-f0b-fase2-repositorier-2026-09-24.md) | Fire parallelle løp (a–d) over kjernen: felles regler, eget oppsett per løp og hva hvert løp eier |
@@ -165,7 +167,8 @@ Beskriver funksjon og dataflyt, ikke funn. Disse eldes saktere enn auditene.
 
 | Dokument | Emne |
 | --- | --- |
-| [arkitekturdiagrammer](arkitektur-diagrammer.md) | Systemoversikt. Azure-skissen viser Azure SQL; foreløpig mål er Azure PostgreSQL (merknad 23.09) |
+| [arkitekturdiagrammer](arkitektur-diagrammer.md) | Systemoversikt. Azure-skissen viser Azure SQL; foreløpig mål er Azure PostgreSQL (merknad 23.09), men en SQL Database er aktuell igjen (merknad 29.09) |
+| [tabellregisteret](datamodell/tabeller.md) | Hver tabell i PostgreSQL og SQLite, og data utenfor databasene. Generert fra [`tabeller.toml`](datamodell/tabeller.toml); rett der. Spor M, første runde 29.09 |
 | [Catenda: dataflyt](catenda-dataflyt.md) | Hva som utveksles, og hvordan prosjekt og bibliotek rutes |
 | [Catenda: innlogging](catenda-innlogging.md) | OAuth-flyten og prosjekttilgang |
 | [brev og intern godkjenning](brev-og-godkjenning.md) | Godkjenningskjede, fullmakt, brevgenerering |
@@ -206,7 +209,8 @@ auditdokumenter, fordi alvorlighet ellers leses som observert hendelse.
 Legg nye dokumenter flatt i `docs/`. Navnekonvensjonen — `audit-*`, `handoff-*`,
 `vurdering-*` — grupperer dem allerede, og korpuset har over 200 interne lenker som
 en omorganisering ville brutt. Undermappe brukes når noe er *en annen type ting*
-(`plans/`, `adr/`), ikke når det er mange filer.
+(`plans/`, `adr/`, og `datamodell/`, der filene lages fra et register), ikke når det er
+mange filer.
 
 Merk belegg slik hovedplanen gjør: **K** kjørt og observert (med dato), **L** lest
 i kode eller migrasjonsfil, **D** tidligere kontrollert i databasekatalogen (med
