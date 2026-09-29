@@ -2,7 +2,7 @@
 
 **Opprettet:** 2026-09-16. **Sluttredigert:** 2026-09-22, mot commit
 `41c2a16191a5aadbe611e0958db8b93090b08027` (`main`).
-**Sist endret:** 2026-09-24: GFK-06 rettet og presisert i 3.1; ubegrenset fullmakt bygget (GFK-02). Tidligere samme dag, mot `94ab148` (`b13-beslutningsgrunnlag`): B-13
+**Sist endret:** 2026-09-29: SD-01, SD-03 og DRF-03 rettet; sendedatoen for § 34.3.3-varselet avgjort i 3.1; SD-04 ført inn. 24.09: GFK-06 rettet og presisert i 3.1; ubegrenset fullmakt bygget (GFK-02). Tidligere samme dag, mot `94ab148` (`b13-beslutningsgrunnlag`): B-13
 avgjort av oppdragsgiver, se 3.1 og merknaden under B-13. 23.09, mot `c708f95`:
 beslutningsgrunnlaget for B-13 levert. Tidligere samme
 dag, mot `05b3aa7` (`main`): BR-01 reprodusert og flyttet
@@ -194,6 +194,7 @@ eksplisitt oppheves.
 | B-13 passivitet (§ 32.3 annet ledd) varsles, men systemet trekker ingen konklusjon | 24.09, oppdragsgiver | Ikke bygget. Frontendens faste 10 dager er bare veiledning |
 | B-13 `grunnlag_varslet_i_tide` avvises utenfor § 32.2 (endring som ikke er formell endringsordre). Fullmakt og brev snevres inn til samme omfang | 24.09, oppdragsgiver | Ikke bygget. I dag bruker status, fullmakt/brev og skjema tre ulike omfang |
 | B-13 «frafalt» (§ 32.3 c) avvises utenfor irregulær endring og valgrett | 24.09, oppdragsgiver | Ikke bygget |
+| DRF-03: sendedatoen for TEs varsel om justerte enhetspriser (§ 34.3.3) settes av serveren, som den norske datoen for innsendingen når TE krever justering. Et oppdatert krav flytter den ikke. Tar TE ut kravet om justering, faller varselet bort, og et nytt krav er et nytt varsel med ny dato. En dato fra klienten avvises | 29.09, oppdragsgiver | Bygget 29.09 (merknaden i DRF-03) |
 | MG-02: webhook kan opprette brukerrader gjennom `koe_resolve_identity` | 21.09 | Gjennomført |
 | DB-05: `viewer` skal finnes som ren leserolle | 21.09 | Besluttet, ikke bygget |
 | ~~PostgreSQL og RPC over PostgREST er utgangspunkt for transaksjoner~~ | 16.–17.09, bekreftet i AF-02. **Opphevet 23.09** med TM-01 som motbelegg | Se raden under og merknaden etter tabellen |
@@ -503,10 +504,11 @@ fra code-review av GFK-06.
 | BR-01 | Åpen, middels | BHs `beregnings_resultat` lagres som sendt, også når vurderingene i samme svar gir et annet resultat. Sporstatus, `overordnet_status` og `kan_utstede_eo` følger konklusjonen: et fristsvar uten fremdriftshindring (§ 33.1) og et vederlagssvar med 0 kr, begge merket «godkjent», ga `GODKJENT`, `OMFORENT` og utstedbar EO. Reprodusert gjennom `/api/events` og godkjenningsflyten, med kontrollsak. Rettes etter B-13. **Merknad 2026-09-24:** B-13 avgjort med (2) (3.1); svaret skal avvises. `/api/events/batch` er en tredje inngang som reproduksjonene ikke dekker | Streng `xfail` ×4, K 23.09 | D |
 | DRF-01 | Åpen, middels | BHs forespørsel etter § 33.6.2 kan ikke sendes fra skjemaet. Frontenden sender `send_foresporsel`, modellen kjenner bare `har_bh_foresporsel`, og validatoren avviser svaret med 400. Må løses sammen med TFR-06. **Avgjort 23.09** (3.1): forespørselen blir en egen handling som ikke gjør sporet avslått | Streng `xfail`, K 23.09 | D |
 | DRF-02 | Åpen, lav | Felt med rettslig innhold fjernes uten feil ved parsing: `dager_siden_varsel` (§ 32.3), `ep_justering_varslet_i_tide` (§ 34.3.3), `er_svar_pa_foresporsel` (§ 33.6.2). Latent: skjemaene fyller dem ikke i dag | K 23.09 (parser), L | D |
-| DRF-03 | Åpen, middels | TEs varsel om justerte enhetspriser (§ 34.3.3) lagres med `dato_sendt` lik oppdagelsesdatoen, ikke sendedatoen | L 23.09 | D |
-| SD-01 | Åpen, lav | Et nytt vederlags- eller fristsvar uten subsidiært standpunkt lar standpunktet fra forrige svar stå i tilstanden, og frontenden viser det. Journalen og brevet er riktige. Ført inn 23.09 fra [gjennomføringen av spor D](../gjennomforing-spor-d-2026-09-23.md#sd-01-subsidiært-standpunkt-fra-forrige-svar) | Streng `xfail`, K 23.09 | D |
+| DRF-03 | Lukket | TEs varsel om justerte enhetspriser (§ 34.3.3) lagres med `dato_sendt` lik oppdagelsesdatoen, ikke sendedatoen. **Merknad 2026-09-29:** rettet etter vedtaket samme dag (3.1). Tidslinjen setter `justert_ep_varsel` av hendelsens `tidsstempel` i norsk tid når metoden er enhetspriser og TE krever justering, og fjerner det når kravet om justering tas ut. `validate_vederlag_event` avviser en dato fra klienten, også i et rent varsel; skjemaet sender den ikke lenger. Hendelser som alt bærer en klientdato, projiseres med serverens dato | K 29.09 | — |
+| SD-01 | Lukket | Et nytt vederlags- eller fristsvar uten subsidiært standpunkt lar standpunktet fra forrige svar stå i tilstanden, og frontenden viser det. Journalen og brevet er riktige. Ført inn 23.09 fra [gjennomføringen av spor D](../gjennomforing-spor-d-2026-09-23.md#sd-01-subsidiært-standpunkt-fra-forrige-svar). **Merknad 2026-09-29:** rettet. Et svar med `beregnings_resultat` er fullt og erstatter hele det subsidiære standpunktet, også når skjemaet reviderer med `original_respons_id`; en oppdatering uten resultat endrer bare det den sender. Reproduksjonen er ordinær test, med egne tester for fristsporet, revidert svar og oppdatering uten resultat. Andre svarfelt med samme feil er SD-04 | K 29.09 | — |
 | SD-02 | Åpen, lav | En sak der grunnlaget er avsluttet uten krav (trukket, eller avslaget godtatt) før andre krav er sendt, vises som `UTKAST`. Ført inn 23.09 fra [gjennomføringen av spor D](../gjennomforing-spor-d-2026-09-23.md#sd-02-avsluttet-grunnlag-vises-som-utkast) | Streng `xfail`, K 23.09 | D |
-| SD-03 | Åpen, lav | Et oppdatert vederlagskrav uten særskilte krav (§ 34.1.3) lar de gamle stå i tilstanden: `_handle_vederlag` kopierer `saerskilt_krav` bare når feltet er satt, og skjemaet sender `null` når TE fjerner dem. Fullmakten for godkjent ansvar teller dem med (GFK-06), så verdien blir for høy og ruten lengre, ikke kortere. Funnet i code-review av GFK-06 24.09 | Streng `xfail`, K 24.09 | D |
+| SD-03 | Lukket | Et oppdatert vederlagskrav uten særskilte krav (§ 34.1.3) lar de gamle stå i tilstanden: `_handle_vederlag` kopierer `saerskilt_krav` bare når feltet er satt, og skjemaet sender `null` når TE fjerner dem. Fullmakten for godkjent ansvar teller dem med (GFK-06), så verdien blir for høy og ruten lengre, ikke kortere. Funnet i code-review av GFK-06 24.09. **Merknad 2026-09-29:** rettet. `saerskilt_krav` settes alltid, som `belop_direkte`; skjemaet for revidert krav sender alltid de særskilte kravene. Reproduksjonen er ordinær test | K 29.09 | — |
+| SD-04 | Åpen, lav | Et nytt fullt BH-svar lar andre svarfelt fra forrige svar stå når de ikke sendes, som SD-01 gjorde for det subsidiære standpunktet. Kjørt for `ny_sluttdato`, som står igjen etter et revidert avslag. Lest for `frist_for_spesifisering`, `bh_metode`, `varsel_justert_ep_ok`, `begrunnelse_varsel` og `bh_begrunnelse`. Noen felt er historiske handlinger og skal stå, som `har_bh_foresporsel` og `dato_bh_foresporsel` (§ 33.6.2). Funnet i code-review av SD-01 29.09 | Streng `xfail`, K 29.09 | D |
 | INT-01 | Åpen | Webhookhemmelighet uten konstant tid; sti i logg | Streng `xfail` (statisk) | H |
 | INT-02 | Åpen, høy | Webhookfeil gir 200 og reservert duplikatnøkkel; retry tapes | Streng `xfail`, K 22.09 | F3 |
 | INT-03 | Åpen | Validatoren avviser `bcf.*` | Streng `xfail`, K 22.09 | F3 |
@@ -960,7 +962,7 @@ i så fall erstatte punktet med en referanse. Status er ikke innhentet for noen.
 
 Kan gå parallelt. Hver retting får regresjonstest og holdes innenfor sitt
 funn. TFR-02 til TFR-06, GFK-02, GFK-06, INT-07, OBS-03, BR-01 (reprodusert
-23.09, rettes etter B-13), DRF-01–DRF-03, SD-01–SD-03, og restansen på
+23.09, rettes etter B-13), DRF-01–DRF-03, SD-01–SD-04, og restansen på
 GFK-01 når B-06 er avgjort.
 
 > **Merknad 2026-09-23 til spor D:** TFR-02–TFR-05, GFK-02, INT-07 og OBS-03

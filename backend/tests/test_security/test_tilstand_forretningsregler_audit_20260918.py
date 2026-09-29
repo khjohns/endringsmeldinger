@@ -9,10 +9,12 @@ Testene her etterprøver funn i tilstandsberegning og forretningsregler:
 4. Subsidiært standpunkt på 0 kr / 0 dager ble forkastet som falsy (TFR-04, rettet 2026-09-23)
 5. Godkjent og låst ansvarsgrunnlag ble rapportert som 'UTKAST' (TFR-05, rettet 2026-09-23)
 6. Et fullt BH-svar med dager godtas på et nøytralt fristvarsel (TFR-06)
-7. Sidefunn fra spor D 23.09: subsidiært standpunkt som henger igjen (SD-01) og
-   avsluttet grunnlag som vises som utkast (SD-02)
+7. Sidefunn fra spor D 23.09: subsidiært standpunkt som henger igjen (SD-01,
+   rettet 2026-09-29) og avsluttet grunnlag som vises som utkast (SD-02)
 8. Særskilte krav som henger igjen etter et oppdatert vederlagskrav uten dem
-   (SD-03, funnet i code-review av GFK-06 24.09)
+   (SD-03, funnet i code-review av GFK-06 24.09, rettet 2026-09-29)
+9. Andre svarfelt som henger igjen etter et nytt fullt BH-svar (SD-04, funnet
+   i code-review av SD-01 29.09)
 """
 
 import pytest
@@ -978,15 +980,8 @@ def test_fullt_fristsvar_paa_noytralt_varsel():
 # =============================================================================
 
 
-@pytest.mark.xfail(
-    strict=True,
-    raises=AssertionError,
-    reason=(
-        "SD-01: et nytt vederlagssvar uten subsidiært standpunkt lar det subsidiære "
-        "standpunktet fra forrige svar stå i tilstanden; frontenden viser det"
-    ),
-)
 def test_nytt_svar_uten_subsidiaert_standpunkt_fjerner_det_gamle():
+    """SD-01, vederlag: det nye svaret har ikke noe subsidiært standpunkt."""
     timeline = TimelineService()
     krav = VederlagEvent(
         sak_id="S-1",
@@ -1045,6 +1040,130 @@ def test_nytt_svar_uten_subsidiaert_standpunkt_fjerner_det_gamle():
         f"Standpunktet fra forrige svar står igjen: {vederlag.subsidiaer_resultat}, "
         f"{vederlag.subsidiaer_godkjent_belop}"
     )
+    assert vederlag.subsidiaer_resultat is None
+    assert vederlag.subsidiaer_begrunnelse is None
+    assert vederlag.subsidiaer_triggers is None
+    assert vederlag.visningsstatus != "avslatt_subsidiaert_godkjent"
+
+
+def _fristsvar(krav, **data):
+    return ResponsEvent(
+        sak_id="S-1",
+        aktor_id="bh",
+        aktor_rolle="BH",
+        event_type=data.pop("event_type", "respons_frist"),
+        spor=SporType.FRIST,
+        refererer_til_event_id=krav.event_id,
+        data=FristResponsData(frist_krav_id=krav.event_id, **data),
+    )
+
+
+def _fristkrav(event_type, dager):
+    return FristEvent(
+        sak_id="S-1",
+        aktor_id="te",
+        aktor_rolle="TE",
+        event_type=event_type,
+        spor=SporType.FRIST,
+        data=FristData(krevd_dager=dager, begrunnelse="Krav"),
+    )
+
+
+def _avslag_med_subsidiaert_standpunkt(krav):
+    return _fristsvar(
+        krav,
+        frist_varsel_ok=False,
+        vilkar_oppfylt=True,
+        beregnings_resultat=FristBeregningResultat.AVSLATT,
+        godkjent_dager=0,
+        subsidiaer_triggers=["preklusjon_varsel"],
+        subsidiaer_resultat=FristBeregningResultat.GODKJENT,
+        subsidiaer_godkjent_dager=30,
+        subsidiaer_begrunnelse="Prekludert, subsidiært godkjent",
+        begrunnelse="Avslått",
+    )
+
+
+def test_nytt_fristsvar_uten_subsidiaert_standpunkt_fjerner_det_gamle():
+    """SD-01, frist: samme kode som for vederlag, kjørt her."""
+    krav = _fristkrav("frist_krav_sendt", 30)
+    revidert = _fristkrav("frist_krav_oppdatert", 20)
+    nytt_svar = _fristsvar(
+        revidert,
+        spesifisert_krav_ok=True,
+        vilkar_oppfylt=True,
+        beregnings_resultat=FristBeregningResultat.GODKJENT,
+        godkjent_dager=20,
+        begrunnelse="Godkjent",
+    )
+
+    frist = TimelineService().compute_state(
+        _sak_med_godkjent_grunnlag()
+        + [krav, _avslag_med_subsidiaert_standpunkt(krav), revidert, nytt_svar]
+    ).frist
+
+    assert frist.subsidiaer_resultat is None
+    assert frist.subsidiaer_godkjent_dager is None
+    assert frist.subsidiaer_begrunnelse is None
+    assert frist.subsidiaer_triggers is None
+
+
+@pytest.mark.parametrize("subsidiaert", [False, True])
+def test_revidert_fullt_fristsvar_erstatter_subsidiaert_standpunkt(subsidiaert):
+    """SD-01: skjemaet reviderer med `original_respons_id` og sender hele svaret."""
+    krav = _fristkrav("frist_krav_sendt", 30)
+    forste_svar = _avslag_med_subsidiaert_standpunkt(krav)
+    felter = (
+        {
+            "subsidiaer_triggers": ["preklusjon_varsel"],
+            "subsidiaer_resultat": FristBeregningResultat.AVSLATT,
+        }
+        if subsidiaert
+        else {}
+    )
+    revidert = _fristsvar(
+        krav,
+        event_type="respons_frist_oppdatert",
+        original_respons_id=forste_svar.event_id,
+        frist_varsel_ok=False,
+        vilkar_oppfylt=False,
+        beregnings_resultat=FristBeregningResultat.AVSLATT,
+        godkjent_dager=0,
+        begrunnelse="Revidert",
+        **felter,
+    )
+
+    frist = TimelineService().compute_state(
+        _sak_med_godkjent_grunnlag() + [krav, forste_svar, revidert]
+    ).frist
+
+    assert frist.subsidiaer_godkjent_dager is None
+    assert frist.subsidiaer_begrunnelse is None
+    if subsidiaert:
+        assert frist.subsidiaer_resultat == FristBeregningResultat.AVSLATT
+    else:
+        assert frist.subsidiaer_resultat is None
+        assert frist.subsidiaer_triggers is None
+
+
+def test_delvis_oppdatert_fristsvar_beholder_subsidiaert_standpunkt():
+    """SD-01, avgrensning: en oppdatering uten resultat endrer bare det den sender."""
+    krav = _fristkrav("frist_krav_sendt", 30)
+    forste_svar = _avslag_med_subsidiaert_standpunkt(krav)
+    oppdatering = _fristsvar(
+        krav,
+        event_type="respons_frist_oppdatert",
+        original_respons_id=forste_svar.event_id,
+        begrunnelse="Utdypet begrunnelse",
+    )
+
+    frist = TimelineService().compute_state(
+        _sak_med_godkjent_grunnlag() + [krav, forste_svar, oppdatering]
+    ).frist
+
+    assert frist.subsidiaer_resultat == FristBeregningResultat.GODKJENT
+    assert frist.subsidiaer_godkjent_dager == 30
+    assert frist.subsidiaer_triggers == ["preklusjon_varsel"]
 
 
 @pytest.mark.xfail(
@@ -1073,11 +1192,47 @@ def test_avsluttet_grunnlag_uten_andre_krav_vises_ikke_som_utkast(grunnlag_statu
     strict=True,
     raises=AssertionError,
     reason=(
-        "SD-03: et oppdatert vederlagskrav uten særskilte krav lar de gamle stå i "
-        "tilstanden, og fullmakten for godkjent ansvar teller dem med"
+        "SD-04: et nytt fullt BH-svar lar andre svarfelt fra forrige svar stå når "
+        "de ikke sendes; her ny sluttdato etter et avslag"
     ),
 )
+def test_revidert_avslag_fjerner_ny_sluttdato_fra_forrige_svar():
+    krav = _fristkrav("frist_krav_sendt", 30)
+    godkjent = _fristsvar(
+        krav,
+        frist_varsel_ok=True,
+        spesifisert_krav_ok=True,
+        vilkar_oppfylt=True,
+        beregnings_resultat=FristBeregningResultat.GODKJENT,
+        godkjent_dager=30,
+        ny_sluttdato="2027-01-31",
+        begrunnelse="Godkjent",
+    )
+    timeline = TimelineService()
+    grunnlag = _sak_med_godkjent_grunnlag()
+    if timeline.compute_state(grunnlag + [krav, godkjent]).frist.ny_sluttdato != "2027-01-31":
+        pytest.fail("Forutsetning: den nye sluttdatoen lagres ikke i tilstanden")
+    avslag = _fristsvar(
+        krav,
+        event_type="respons_frist_oppdatert",
+        original_respons_id=godkjent.event_id,
+        frist_varsel_ok=True,
+        spesifisert_krav_ok=True,
+        vilkar_oppfylt=False,
+        beregnings_resultat=FristBeregningResultat.AVSLATT,
+        godkjent_dager=0,
+        begrunnelse="Ingen hindring",
+    )
+
+    frist = timeline.compute_state(grunnlag + [krav, godkjent, avslag]).frist
+
+    if frist.bh_resultat != FristBeregningResultat.AVSLATT:
+        pytest.fail(f"Forutsetning: avslaget ble ikke lagt til grunn ({frist.bh_resultat})")
+    assert frist.ny_sluttdato is None
+
+
 def test_oppdatert_vederlagskrav_uten_saerskilte_krav_fjerner_de_gamle():
+    """SD-03: et oppdatert krav er hele kravet, også de særskilte kravene."""
     from services.approval_service import krav_fra_tilstand
 
     def hendelse(event_type, data):
@@ -1119,3 +1274,19 @@ def test_oppdatert_vederlagskrav_uten_saerskilte_krav_fjerner_de_gamle():
     tilstand = timeline.compute_state([krav, oppdatert])
     assert not tilstand.vederlag.saerskilt_krav
     assert krav_fra_tilstand(tilstand)["vederlag"] == 100000
+
+    endret = hendelse(
+        "vederlag_krav_oppdatert",
+        {
+            "original_event_id": krav.event_id,
+            "metode": "FASTPRIS_TILBUD",
+            "belop_direkte": 100000,
+            "begrunnelse": "Lavere rigg og drift",
+            "saerskilt_krav": {
+                "rigg_drift": {"belop": 2_000_000, "dato_klar_over": "2026-09-01"}
+            },
+        },
+    )
+    tilstand = timeline.compute_state([krav, endret])
+    assert tilstand.vederlag.saerskilt_krav["rigg_drift"]["belop"] == 2_000_000
+    assert krav_fra_tilstand(tilstand)["vederlag"] == 2_100_000
