@@ -34,7 +34,8 @@ Med dette er datamodellen i fase 1 komplett, og regnearket kan sendes til IKT
   fra der handlingen starter til klienten eller databasefunksjonen.
 - [`datamodell/relasjoner.md`](datamodell/relasjoner.md), generert: to
   ER-diagrammer (PostgreSQL, og SQLite med tabellene i PostgreSQL det viser
-  til), to flytdiagrammer (inn fra og ut til Catenda), relasjonene, flytene og
+  til), tre flytdiagrammer (inn fra Catenda, ut til Catenda, og drift),
+  relasjonene, flytene og
   en oversikt over hvilke tabeller som får data fra eller sender data til
   Catenda. Diagrammene er Mermaid og lages av
   [`verktoy/relasjoner.py`](verktoy/relasjoner.py) og
@@ -79,6 +80,7 @@ i `catenda_admin.py`). De øvrige 82 er i utviklerskript, som står under
 | Spørsmål | Svar |
 | --- | --- |
 | Hvordan skal IKT få ER-diagrammet og dataflyten? | Mermaid i `relasjoner.md`, som GitHub tegner, og to nye ark i regnearket. Ikke SVG eller bilde i Excel, som ville krevd Graphviz i CI |
+| Hører skriptene hjemme i diagrammet? | Utviklerskriptene holdes utenfor. Driftsskriptene som skriver tabeller (C18–C20), tegnes i et eget diagram, ikke sammen med appens flyter |
 
 ## 2. Funn
 
@@ -183,7 +185,7 @@ navn framfor en identitet. Alvorlighet settes når funnet er reprodusert.
   funksjonene, som nevner de samme tabellene i kildeteksten, og de samme fem
   triggerne. `koe_set_contract_teams` har annen tekst,
   men bare innrykk og kommentarer (PGC-02).
-- De fire Mermaid-diagrammene rendret med `mermaid-cli` 11 og Chromium, uten
+- De fem Mermaid-diagrammene rendret med `mermaid-cli` 11 og Chromium, uten
   feil. `mermaid-cli` er ikke en avhengighet i repoet.
 - Testene for registrene, sju av dem som mutasjoner av vaktene, og hele
   backend-suiten med testbasen.

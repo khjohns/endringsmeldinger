@@ -27,6 +27,7 @@ HTTP_PRIMITIVER = frozenset({"_safe_request", "_make_request", "_request"})
 UTENFOR_SKANNING = ("backend/tests/", "backend/venv/", "backend/.venv/")
 
 FLYTFELT = ("id", "navn", "retning", "utloses_av", "beskrivelse", "steg", "funn", "belegg")
+VALGFRIE_FLYTFELT = ("drift",)
 STEGFELT = ("fra", "til", "endepunkt", "kode", "data")
 RETNINGER = ("inn", "ut", "inn og ut")
 FLYT_ID = re.compile(r"^C\d{2}$")
@@ -186,8 +187,8 @@ def valider(
             feil.append(f"catenda-ressursen {ressurs}: feltene skal være id og navn")
     for flyt in register.get("flyt", []):
         fid = flyt.get("id", "<uten id>")
-        if set(flyt) != set(FLYTFELT):
-            feil.append(f"{fid}: feltene skal være {FLYTFELT}, ikke {sorted(flyt)}")
+        if not set(FLYTFELT) <= set(flyt) <= set(FLYTFELT + VALGFRIE_FLYTFELT):
+            feil.append(f"{fid}: feltene skal være {FLYTFELT} og eventuelt {VALGFRIE_FLYTFELT}, ikke {sorted(flyt)}")
             continue
         if not FLYT_ID.match(fid) or fid in sett:
             feil.append(f"{fid}: ID-en må være C og to sifre, og unik")
@@ -283,12 +284,18 @@ def _node_id(navn: str) -> str:
 
 
 def flytdiagram(register: dict, katalog: dict, tabellregister: dict, retning: str) -> str:
-    """Mermaid. «inn»: pilene fra Catenda. «ut»: pilene til Catenda."""
+    """Mermaid. «inn»: pilene fra Catenda. «ut»: pilene til Catenda. Begge uten
+    driftsflytene. «drift»: pilene i flytene drift utløser."""
     navn = noder(katalog, tabellregister, register)
     valgt = [
         p
         for p in piler(register)
-        if (p["steg"]["fra"] if retning == "inn" else p["til"]).startswith("catenda:")
+        if (
+            p["flyt"].get("drift", False)
+            if retning == "drift"
+            else not p["flyt"].get("drift", False)
+            and (p["steg"]["fra"] if retning == "inn" else p["til"]).startswith("catenda:")
+        )
     ]
     brukt = {p["steg"]["fra"] for p in valgt} | {p["til"] for p in valgt}
     grupper = {

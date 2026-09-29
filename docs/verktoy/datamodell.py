@@ -536,6 +536,18 @@ def relasjoner_markdown(register: dict, k: dict | None = None) -> str:
         df.flytdiagram(flyt, skjema, register, "ut"),
         "```",
         "",
+        "### Drift",
+        "",
+        (
+            "Flytene bare driftsskriptene utløser. De er den eneste veien prosjekter og "
+            "kontraktsteam kommer inn i basen. Medlemssynkroniseringen (C04) står i "
+            "diagrammet over, fordi også innloggingen og tilgangskontrollen utløser den."
+        ),
+        "",
+        "```mermaid",
+        df.flytdiagram(flyt, skjema, register, "drift"),
+        "```",
+        "",
         "### Tabellene og Catenda",
         "",
         "| Tabell | Får data fra Catenda i | Sender data til Catenda i |",

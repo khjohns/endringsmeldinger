@@ -176,3 +176,17 @@ def test_kolonne_7_lages_fra_relasjonsregisteret():
     assert "sak_id → sak_metadata.sak_id (fremmednøkkel, ON DELETE CASCADE)" in rader["hendelse"][6]
     assert "Ingen relasjoner til andre tabeller." in rader["app_oauth_attempts"][6]
     assert "Dataflyt: fra Catenda i C01" in rader["sak_metadata"][5]
+
+
+def test_driftsflytene_tegnes_bare_i_driftsdiagrammet(kilder, tabellregister):
+    """Kilde: oppdragsgivers svar 29.09 (gjennomføringsnotatet for spor M, 1c)."""
+    drift = [f["id"] for f in kilder["dataflyt"]["flyt"] if f.get("drift")]
+    assert drift, "Ingen flyt er merket som drift"
+    tegnet = {
+        retning: df.flytdiagram(kilder["dataflyt"], kilder["katalog"], tabellregister, retning)
+        for retning in ("inn", "ut", "drift")
+    }
+    for fid in drift:
+        assert f'"{fid}.' in tegnet["drift"]
+        assert f'"{fid}.' not in tegnet["inn"] + tegnet["ut"]
+    assert '"C04.' in tegnet["inn"] and '"C04.' not in tegnet["drift"]

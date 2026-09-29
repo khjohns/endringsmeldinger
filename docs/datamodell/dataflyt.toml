@@ -17,6 +17,8 @@
 # er det koden som gjør kallet, på en pil inn det som skriver tabellen. Har to
 # veier ulike kjeder, eller to tabeller ulike skrivere, er de to steg. «appen» betyr at dataene brukes eller vises, men
 # ikke lagres. Retning: inn (fra Catenda), ut (til Catenda) eller begge.
+# `drift = true` merker en flyt bare driftsskript utløser; den tegnes i et eget
+# diagram. Utviklerskript står under [[uten_flyt]] og tegnes ikke.
 #
 # Endepunktene er relative til https://api.catenda.com. `topic_board_id`,
 # `library_id` og `folder_id` er de globale innstillingene i
@@ -833,6 +835,7 @@ data = "Om en e-post er medlem i det globale Catenda-prosjektet."
 
 [[flyt]]
 id = "C18"
+drift = true
 navn = "Prosjekt registreres av drift"
 retning = "inn"
 utloses_av = "`scripts/catenda_admin.py register`."
@@ -872,6 +875,7 @@ data = "Kontroll av at teamene drift oppgir, finnes i Catenda-prosjektet. ID-ene
 
 [[flyt]]
 id = "C19"
+drift = true
 navn = "Kontraktsteam endres av drift"
 retning = "inn"
 utloses_av = "`scripts/catenda_admin.py contract-teams` med `--bh` og `--te`."
@@ -892,6 +896,7 @@ data = "Kontroll av at teamene drift oppgir, finnes i Catenda-prosjektet."
 
 [[flyt]]
 id = "C20"
+drift = true
 navn = "Prosjektnavn hentes på nytt av drift"
 retning = "inn"
 utloses_av = "`scripts/catenda_admin.py sync-name`."
