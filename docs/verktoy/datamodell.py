@@ -1,15 +1,28 @@
-"""Lager tabellbeskrivelsen fra registeret i docs/datamodell/tabeller.toml.
+"""Lager tabellbeskrivelsen og hendelseskatalogen fra registrene i docs/datamodell/.
 
-Kjøres fra repo-roten: python3 docs/verktoy/datamodell.py
-Skriver docs/datamodell/tabeller.md og docs/datamodell/tabellbeskrivelse.xlsx,
-men bare når innholdet er endret. Excel-fila krever openpyxl
-(backend/requirements-dev.txt).
+Kjøres fra repo-roten: /tmp/venv/bin/python docs/verktoy/datamodell.py
+Skriver docs/datamodell/tabeller.md, hendelser.md og tabellbeskrivelse.xlsx,
+men bare når innholdet er endret. Hendelseskatalogen leser backend-modellene,
+og Excel-fila krever openpyxl, så begge trenger venv-en i AGENTS.md.
 """
 
+import importlib.util
 import pathlib
 import re
 import sys
+
 import tomllib
+
+
+def _last_hendelseskatalog():
+    sti = pathlib.Path(__file__).resolve().parent / "hendelseskatalog.py"
+    spesifikasjon = importlib.util.spec_from_file_location("hendelseskatalog", sti)
+    modul = importlib.util.module_from_spec(spesifikasjon)
+    spesifikasjon.loader.exec_module(modul)
+    return modul
+
+
+hk = _last_hendelseskatalog()
 
 ROT = pathlib.Path(__file__).resolve().parents[2]
 MAPPE = ROT / "docs" / "datamodell"
@@ -69,6 +82,10 @@ FUNN_ID = re.compile(r"^[A-Z][A-Z0-9]*-\d{2}$")
 MERKNAD = (
     "Generert fra docs/datamodell/tabeller.toml av docs/verktoy/datamodell.py. "
     "Rett i registeret, ikke her."
+)
+HENDELSESMERKNAD = (
+    "Generert fra docs/datamodell/hendelser.toml og backend-modellene av "
+    "docs/verktoy/datamodell.py. Rett i katalogen eller modellene, ikke her."
 )
 
 
@@ -195,13 +212,42 @@ def om_rader() -> list[list[str]]:
             "Hvem som skriver hver tabell, belegg og funn står i docs/datamodell/tabeller.md i repoet.",
         ]
     )
+    rader += [
+        [
+            "Hendelsestyper",
+            (
+                "Én rad per hendelsestype i tabellen hendelse. Innholdet ligger i kolonnen data "
+                "og varierer med typen. Interne notater ligger i tabellen notat."
+            ),
+        ],
+        [
+            "Hendelsesfelt",
+            (
+                "Feltene i data per hendelsestype, generert fra modellene i koden. "
+                "Delmodellene, som varselinformasjon og brev, står til slutt."
+            ),
+        ],
+        [
+            "Kilde for bestemmelsen",
+            (
+                "vedtak: et vedtak i hovedplanen eller en ADR. kode: koden oppgir bestemmelsen, "
+                "ikke kontrollert mot standardteksten. oppdragsgiver: oppdragsgivers svar."
+            ),
+        ],
+        [
+            "Detaljer om hendelsene",
+            "Innsendingsveier, forretningsregler, belegg og funn står i docs/datamodell/hendelser.md i repoet.",
+        ],
+    ]
     return rader
 
 
-def ark(register: dict) -> dict[str, list[list[str]]]:
+def ark(register: dict, katalog: dict) -> dict[str, list[list[str]]]:
     return {
         "Tabeller": tabellrader(register),
         "Utenfor databasene": utenfor_rader(register),
+        "Hendelsestyper": hk.typerader(katalog),
+        "Hendelsesfelt": hk.feltrader(katalog),
         "Om registeret": om_rader(),
     }
 
@@ -288,14 +334,18 @@ def excel_verdier(sti: pathlib.Path) -> dict[str, list[list[str]]]:
         bok.close()
 
 
-def skriv_excel(register: dict, sti: pathlib.Path) -> None:
+def skriv_excel(register: dict, katalog: dict, sti: pathlib.Path) -> None:
     from openpyxl import Workbook
     from openpyxl.styles import Alignment, Font
 
     bok = Workbook()
     bok.remove(bok.active)
-    bredder = {"Tabeller": [28, 60, 16, 50, 16, 40, 50, 12, 18, 10, 36]}
-    for tittel, rader in ark(register).items():
+    bredder = {
+        "Tabeller": [28, 60, 16, 50, 16, 40, 50, 12, 18, 10, 36],
+        "Hendelsestyper": [28, 60, 12, 16, 18, 50, 40, 60, 10],
+        "Hendelsesfelt": [30, 28, 30, 10, 60],
+    }
+    for tittel, rader in ark(register, katalog).items():
         arket = bok.create_sheet(tittel)
         for rad in rader:
             arket.append(rad)
@@ -311,20 +361,35 @@ def skriv_excel(register: dict, sti: pathlib.Path) -> None:
     bok.save(sti)
 
 
+def kontroller_hendelser(katalog: dict) -> list[str]:
+    feil = hk.valider(katalog, funnregisteret())
+    uten_oppforing, uten_type = hk.avvik(katalog, hk.typene_i_koden())
+    feil += [f"{t}: mangler oppføring i hendelser.toml" for t in uten_oppforing]
+    feil += [f"{t}: finnes ikke i EventType" for t in uten_type]
+    return feil + (hk.mot_koden(katalog) if not feil else [])
+
+
 def main() -> int:
     register = les()
-    feil = valider(register, funnregisteret())
+    katalog = hk.les()
+    feil = valider(register, funnregisteret()) + kontroller_hendelser(katalog)
     if feil:
-        print("Registeret er ikke gyldig:", *feil, sep="\n  ")
+        print("Registeret eller katalogen er ikke gyldig:", *feil, sep="\n  ")
         return 1
-    ny = markdown(register)
-    if not MARKDOWN.exists() or MARKDOWN.read_text(encoding="utf-8") != ny:
-        MARKDOWN.write_text(ny, encoding="utf-8")
-        print(f"skrev {MARKDOWN.relative_to(ROT)}")
-    if not EXCEL.exists() or excel_verdier(EXCEL) != ark(register):
-        skriv_excel(register, EXCEL)
+    for sti, ny in (
+        (MARKDOWN, markdown(register)),
+        (hk.MARKDOWN, hk.markdown(katalog, HENDELSESMERKNAD)),
+    ):
+        if not sti.exists() or sti.read_text(encoding="utf-8") != ny:
+            sti.write_text(ny, encoding="utf-8")
+            print(f"skrev {sti.relative_to(ROT)}")
+    if not EXCEL.exists() or excel_verdier(EXCEL) != ark(register, katalog):
+        skriv_excel(register, katalog, EXCEL)
         print(f"skrev {EXCEL.relative_to(ROT)}")
-    print(f"{len(register['tabell'])} tabeller, {len(register.get('utenfor', []))} utenfor databasene")
+    print(
+        f"{len(register['tabell'])} tabeller, {len(register.get('utenfor', []))} utenfor databasene, "
+        f"{len(katalog['hendelse'])} hendelsestyper"
+    )
     return 0
 
 
