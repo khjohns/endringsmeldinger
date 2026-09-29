@@ -170,6 +170,7 @@ Beskriver funksjon og dataflyt, ikke funn. Disse eldes saktere enn auditene.
 | --- | --- |
 | [arkitekturdiagrammer](arkitektur-diagrammer.md) | Systemoversikt. Azure-skissen viser Azure SQL; foreløpig mål er Azure PostgreSQL (merknad 23.09), men en SQL Database er aktuell igjen (merknad 29.09) |
 | [tabellregisteret](datamodell/tabeller.md) | Hver tabell i PostgreSQL og SQLite, og data utenfor databasene. Generert fra [`tabeller.toml`](datamodell/tabeller.toml); rett der. Spor M, første runde 29.09 |
+| [migrasjoner og testbase](migrasjoner-og-testbase.md) | Hvordan migrasjonene verifiseres mot prosjektet uten å røre basen: testbasen i PostgreSQL 17, stubben av Supabase, katalogsummene og historikken. Flyttet fra `AGENTS.md` 29.09 |
 | [Catenda: dataflyt](catenda-dataflyt.md) | Hva som utveksles, og hvordan prosjekt og bibliotek rutes |
 | [Catenda: innlogging](catenda-innlogging.md) | OAuth-flyten og prosjekttilgang |
 | [brev og intern godkjenning](brev-og-godkjenning.md) | Godkjenningskjede, fullmakt, brevgenerering |
