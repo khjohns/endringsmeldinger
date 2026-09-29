@@ -438,6 +438,11 @@ def kontroller_relasjoner(register: dict, k: dict) -> list[str]:
     feil = katalogavvik(register, k["katalog"])
     feil += rel.valider(k["relasjoner"], k["katalog"], funntekst)
     feil += df.valider(k["dataflyt"], k["katalog"], register, funntekst)
+    per_tabell = df.flyter_per_tabell(k["dataflyt"])
+    for t in register["tabell"]:
+        inn = per_tabell.get(t["navn"], {}).get("fra")
+        if inn and tekst(t["fra_catenda"]).startswith("Nei"):
+            feil.append(f"{t['navn']}: fra_catenda sier «Nei», men dataflyten henter fra Catenda i {', '.join(inn)}")
     steder = df.kallsteder(frozenset(k["dataflyt"].get("autentisering", [])))
     feil += [f"{sted}: kaller Catenda uten pil i dataflyt.toml" for sted in df.udekkede_kallsteder(k["dataflyt"], steder)]
     return feil
@@ -475,7 +480,8 @@ def relasjoner_markdown(register: dict, k: dict | None = None) -> str:
         "## ER-diagram: SQLite",
         "",
         (
-            "De seks tabellene i fila `BH_APPROVAL_DB`, og tabellene i PostgreSQL de viser til. "
+            f"De {len(skjema['sqlite']['tabeller'])} tabellene i fila `BH_APPROVAL_DB`, og "
+            "tabellene i PostgreSQL de viser til. "
             "Ingen av koblingene kan håndheves av en base, fordi de går mellom to lagre."
         ),
         "",
@@ -550,14 +556,16 @@ def relasjoner_markdown(register: dict, k: dict | None = None) -> str:
         "",
         "### Tabellene og Catenda",
         "",
-        "| Tabell | Får data fra Catenda i | Sender data til Catenda i |",
-        "| --- | --- | --- |",
+        "| Tabell | Får data fra Catenda i | Sender data til Catenda i | Kvittering for kall i |",
+        "| --- | --- | --- | --- |",
     ]
     per_tabell = df.flyter_per_tabell(flyt)
     for t in register["tabell"]:
-        flyter = per_tabell.get(t["navn"], {"fra": [], "til": []})
+        flyter = per_tabell.get(t["navn"], {"fra": [], "til": [], "kvittering": []})
         linjer.append(
-            f"| `{t['navn']}` | {', '.join(flyter['fra']) or '—'} | {', '.join(flyter['til']) or '—'} |"
+            f"| `{t['navn']}` | "
+            + " | ".join(", ".join(flyter[k]) or "—" for k in ("fra", "til", "kvittering"))
+            + " |"
         )
     linjer += ["", "## Flytene", ""]
     linjer += df.flytseksjoner(flyt, skjema, register)

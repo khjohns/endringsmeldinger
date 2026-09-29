@@ -21,14 +21,14 @@ Med dette er datamodellen i fase 1 komplett, og regnearket kan sendes til IKT
 
 - [`datamodell/katalog.json`](datamodell/katalog.json): skjemaet slik
   katalogene viser det. PostgreSQL-delen er lest fra `pg_catalog` i testbasen
-  bygget fra migrasjonene, med kolonner, primærnøkler, unike nøkler,
-  fremmednøkler, funksjoner og triggere. SQLite-delen er lest fra
+  bygget fra migrasjonene, med kolonner, primærnøkler, unike nøkler og unike
+  indekser, fremmednøkler, funksjoner og triggere. SQLite-delen er lest fra
   `sqlite_master` etter at klassene som eier tabellene, har opprettet dem i en
   tom fil. [`verktoy/katalog.py`](verktoy/katalog.py) lager fila.
 - [`datamodell/relasjoner.toml`](datamodell/relasjoner.toml): 54 relasjoner,
   15 fremmednøkler og 39 koblinger uten fremmednøkkel, med antall,
-  beskrivelse og belegg. 15 kolonner som ser ut som nøkler uten å vise til en
-  tabell, står med begrunnelse.
+  beskrivelse og belegg. 19 kolonner som ser ut som nøkler, personreferanser
+  eller e-post uten å vise til en tabell, står med begrunnelse.
 - [`datamodell/dataflyt.toml`](datamodell/dataflyt.toml): 20 flyter med 63
   piler mellom tabellene og Catenda. Hver pil har endepunktet og kallkjeden,
   fra der handlingen starter til klienten eller databasefunksjonen.
@@ -119,6 +119,13 @@ ikke skilles. Et innsyn eller en sletting etter personvernreglene må søke på
 både navn og e-post. Hvilken verdi som ble lagret, avhenger av hvilke felt
 Catenda-profilen hadde.
 
+**Søket:** kolonnenavn som slutter på `id`, `_by`, `_av`, `team` eller `email`,
+og `project`. Det fant i tillegg `magic_links.email` og
+`project_memberships.user_email`, begge i tabeller som skal fjernes (MS-15),
+og to e-postkolonner som har en ID ved siden av. Ingen av dem er tatt med i
+DM-08. Kolonner med navn (`display_name`, `name`) er ikke søkt etter, fordi de
+er kopier ved siden av en identitet eller navn på ting.
+
 **Ikke kontrollert:** hvilke former som faktisk står i basen; det krever en
 spørring mot saksdata. Om det er meningen at vedleggsregisteret skal vise et
 navn framfor en identitet. Alvorlighet settes når funnet er reprodusert.
@@ -153,6 +160,11 @@ navn framfor en identitet. Alvorlighet settes når funnet er reprodusert.
 - **Levering bruker globale innstillinger for prosjekt, bibliotek og mappe**
   (INT-06), og `catenda_project_configs.library_id` og `folder_id` leses bare
   av prosjektresolveren, som ikke laster opp noe.
+- **Nøkkelkolonnene i SQLite godtar NULL.** `project`, `case_id` og
+  `event_id` i `approvals`, `approval_outbox` og `catenda_delivery_status` er
+  del av primærnøkkelen, men ikke `NOT NULL`, og SQLite godtar da NULL. Kjørt
+  (K 29.09) av code-review med en tabell definert som `approvals`. Koden
+  skriver alltid verdiene; om noen sti kan sende NULL, er ikke kontrollert.
 - **`scripts/backfill_relations.py` kan ikke skrive over PostgreSQL.** Lageret
   krever et autorisert prosjekt, og skriptet har ingen forespørsel å hente det
   fra (L 29.09).
@@ -170,9 +182,32 @@ navn framfor en identitet. Alvorlighet settes når funnet er reprodusert.
   /api/forsering/<sak>/relatert` lager relasjoner i Catenda og i
   `sak_relations`. Ruta lager bare relasjonen i Catenda. Belegget er rettet
   med en merknad.
+- Kolonne 6 sa «Nei» for `notat`, `utkast`, `sak_relations` og `projects`,
+  men alle fire får en verdi fra Catenda: team og side (C05), topicens GUID
+  (C10) og prosjektnavnet (C18, C20). Vurderingene er rettet, og en kontroll i
+  verktøyet feiler nå når «Nei» står mot en flyt som henter fra Catenda.
+  Kvitteringene i `catenda_delivery_status`, `approval_outbox` og `vedlegg`
+  regnes ikke som data fra Catenda.
 - Oppføringene for kommentarer og dokumentbiblioteket i Catenda under «utenfor»
   sier nå hvilke flyter som skriver dem. «Hvilke hendelser som gir kommentar»
   var satt til fase 1c.
+
+## 5. Code-review av runden
+
+Code-review av grenen 29.09 ga ti punkter. Alle er rettet:
+
+| Punkt | Rettet |
+| --- | --- |
+| Kolonne 6 kunne si «Nei» og «fra Catenda» i samme celle | Fire vurderinger rettet, kvittering skilt ut, og en kontroll mot motsigelsen (avsnitt 4) |
+| SQLite-katalogen gjorde hver kolonne i primærnøkkelen `NOT NULL` | Katalogen følger bare `NOT NULL`. Observasjonen står i avsnitt 3 |
+| Unike indekser, som den på `sak_bim_links`, manglet | Katalogen leser dem, og de står under «Nøkler» |
+| Vakta for nøkkelkolonner så ikke e-post | Søket tar med `email`; fire kolonner fikk begrunnelse |
+| Et kall ved bart navn var usynlig for vakta for dataflyten | Et kall ved bart navn teller når navnet er importert fra klientlaget. Ellers ville hver `@require_project_access()` blitt et treff, fordi `integrations/catenda/auth.py` har en funksjon med samme navn |
+| ER-diagrammet for PostgreSQL merket kolonner med en kobling som bare står i SQLite-diagrammet, og kunne tegne en tabell utenfor `public` to ganger | Merkene følger koblingene som tegnes, og hver tabell tegnes én gang |
+| Antallet SQLite-tabeller og fremmednøkler var hardkodet | Hentes fra katalogen |
+| Hovedplanens «Sist endret» og endringslogg stoppet ved 1b | Oppdatert |
+| Dataflyten kontrollerte ikke formen på funn-ID-er | Kontrollert som i relasjonsregisteret |
+| Kallstedene ble lest på nytt for hvert kall | Mellomlagret. Katalogoppslagene er ikke mellomlagret, fordi testene muterer kopier av katalogen |
 
 ## Verifikasjon og grenser
 

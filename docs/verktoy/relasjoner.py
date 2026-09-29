@@ -21,7 +21,7 @@ ANTALL = ("mange til én", "én til én", "mange til mange")
 JSON_KOLONNER = ("data", "body")
 # Kolonner som ser ut som en nøkkel eller en personreferanse. Hver av dem skal
 # være med i en relasjon eller stå under [[uten_relasjon]].
-NØKKELKOLONNE = re.compile(r"(id|_by|_av|team|^project)$")
+NØKKELKOLONNE = re.compile(r"(id|_by|_av|team|^project|email)$")
 FUNN_ID = re.compile(r"^[A-Z][A-Z0-9]*-\d{2}$")
 
 
@@ -159,6 +159,7 @@ def _nøkler(innhold: dict) -> str:
     if innhold["primærnøkkel"]:
         deler.append(f"primærnøkkel ({', '.join(innhold['primærnøkkel'])})")
     deler += [f"unik ({', '.join(u)})" for u in innhold["unike"]]
+    deler += [f"unik indeks {u}" for u in innhold.get("unike_indekser", [])]
     return "; ".join(deler) or "ingen"
 
 
@@ -263,12 +264,13 @@ def _linje(r: dict, katalog: dict) -> str:
     )
 
 
-def _attributter(register: dict, katalog: dict, tabell: str, med: set[str] | None) -> list[str]:
-    """Nøkkelkolonnene og kolonnene i en relasjon; `med` begrenser til disse."""
+def _attributter(
+    relasjoner: list[dict], katalog: dict, fk: dict, tabell: str, med: set[str] | None
+) -> list[str]:
+    """Nøkkelkolonnene og kolonnene i en tegnet relasjon; `med` begrenser til disse."""
     innhold = tabeller(katalog).get(tabell)
-    fk = fremmednøkler(katalog)
-    logiske = {r["fra"] for r in register["relasjon"] if r["art"] == "logisk"}
-    i_relasjon = {r[e] for r in register["relasjon"] for e in ("fra", "til")}
+    logiske = {r["fra"] for r in relasjoner if r["art"] == "logisk"}
+    i_relasjon = {r[e] for r in relasjoner for e in ("fra", "til")}
     unike = {k for u in innhold["unike"] for k in u}
     fk_kolonner = {fra for fra, _ in fk}
     linjer = []
@@ -314,16 +316,21 @@ def er_diagram(register: dict, katalog: dict, lagring: str) -> str:
                 tabell, _, navn = r[ende].rpartition(".")
                 if alle[tabell]["lagring"] == "PostgreSQL":
                     entiteter.setdefault(tabell, set()).add(navn)
+    fk = fremmednøkler(katalog)
     linjer = ["erDiagram"]
     for tabell, med in entiteter.items():
         linjer.append(f"    {_entitet(tabell)} {{")
-        linjer += _attributter(register, katalog, tabell, med)
+        linjer += _attributter(relasjoner, katalog, fk, tabell, med)
         linjer.append("    }")
+    ytre: dict[str, dict[str, str]] = {}
     for r in relasjoner:
         tabell, _, navn = r["til"].rpartition(".")
         if tabell not in alle:
             # Utenfor `public`; typen er den fremmednøkkelen har.
-            type_ = _mermaidtype(kolonne(katalog, r["fra"])[1])
-            linjer += [f"    {_entitet(tabell)} {{", f"        {type_} {navn} PK", "    }"]
+            ytre.setdefault(tabell, {})[navn] = _mermaidtype(kolonne(katalog, r["fra"])[1])
+    for tabell, kolonner in ytre.items():
+        linjer.append(f"    {_entitet(tabell)} {{")
+        linjer += [f"        {type_} {navn} PK" for navn, type_ in kolonner.items()]
+        linjer.append("    }")
     linjer += [_linje(r, katalog) for r in relasjoner]
     return "\n".join(linjer)

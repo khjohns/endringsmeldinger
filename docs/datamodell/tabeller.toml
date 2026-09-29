@@ -66,7 +66,9 @@ notat er ikke et kontraktsvarsel og flytter ikke sakens versjon (MS-05)."""
 lagres_fra = """
 Når en bruker skriver et internt notat i en sak (hendelsesruta). Forfatteren
 kan slette notatet."""
-fra_catenda = "Nei."
+fra_catenda = """
+Delvis. `aktor_rolle` og `aktor_team_id` er utledet av teammedlemskapet i
+Catenda da notatet ble skrevet. Innholdet kommer fra brukeren."""
 kan_gjenoppbygges = "nei"
 personopplysninger = """
 `aktor_id` peker på forfatteren. `tekst` og `kommentar` er fritekst."""
@@ -127,7 +129,9 @@ endringsordre opprettes eller KOE-er legges til eller fjernes fra den
 forsering endrer bare Catenda, ikke denne tabellen (dataflyten, C11). Skriptet
 `scripts/backfill_relations.py` kaller lageret uten autorisert prosjekt, og
 over PostgreSQL avvises da hver skriving (`krev_autorisert_prosjekt`)."""
-fra_catenda = "Nei."
+fra_catenda = """
+Delvis. En forsering opprettet gjennom `/api/forsering/opprett` får topicens
+GUID fra Catenda som sak-ID. Ellers er koblingene appens egne."""
 kan_gjenoppbygges = """
 ikke kontrollert. Koblingene finnes trolig også som hendelser
 (`FORSERING_KOE_*`, `EO_KOE_*`), men det er ikke sjekket at de to alltid er
@@ -163,7 +167,8 @@ skal kunne kalle funksjonen, gjelder databaserettighetene og hører til F1 (B-02
 punkt 4). En migrasjon legger inn prosjektet `oslobygg`, og det er i dag basens
 eneste prosjekt (DM-03)."""
 fra_catenda = """
-Nei, ikke direkte. Koblingen til Catenda-prosjektet ligger i
+Delvis. Navnet kan hentes fra Catenda-prosjektet når drift registrerer
+prosjektet eller kjører `sync-name`. Koblingen til Catenda-prosjektet ligger i
 `catenda_project_configs`."""
 kan_gjenoppbygges = "nei"
 personopplysninger = "`created_by` identifiserer den som opprettet prosjektet."
@@ -475,7 +480,9 @@ Utkastet tilhører teamet, ikke personen, og er skjult for alle andre.
 lagres_fra = """
 Når en bruker skriver i et skjema: utkastrutene (`GET`, `PUT` og `DELETE` på
 `/api/cases/<sak_id>/utkast/<spor>`)."""
-fra_catenda = "Nei. Teamet er en Catenda-team-ID."
+fra_catenda = """
+Delvis. Teamet og kontraktssiden er utledet av teammedlemskapet i Catenda.
+Innholdet kommer fra brukeren."""
 kan_gjenoppbygges = "nei"
 personopplysninger = "`oppdatert_av` og fritekst i `innhold`."
 skrivere = ["backend/services/utkast_registry.py"]

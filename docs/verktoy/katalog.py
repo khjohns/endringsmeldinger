@@ -58,6 +58,14 @@ LEFT JOIN pg_namespace fn ON fn.oid = f.relnamespace
 WHERE k.conrelid = %s AND k.contype IN ('p', 'u', 'f')
 ORDER BY k.contype, k.conname
 """
+# Unike indekser som ikke hører til en skranke, som et uttrykk med COALESCE.
+_UNIKE_INDEKSER = r"""
+SELECT regexp_replace(pg_get_indexdef(i.indexrelid), '^.* USING \w+ ', '')
+FROM pg_index i
+WHERE i.indrelid = %s AND i.indisunique
+  AND NOT EXISTS (SELECT 1 FROM pg_constraint k WHERE k.conindid = i.indexrelid)
+ORDER BY 1
+"""
 _FUNKSJONER = """
 SELECT DISTINCT p.proname FROM pg_proc p
 WHERE p.pronamespace = 'public'::regnamespace ORDER BY 1
@@ -83,6 +91,9 @@ def les_postgres(tilkobling) -> dict:
             ],
             "primærnøkkel": [],
             "unike": [],
+            "unike_indekser": [
+                definisjon for (definisjon,) in tilkobling.execute(_UNIKE_INDEKSER, (oid,)).fetchall()
+            ],
             "fremmednøkler": [],
         }
         for art, _navn, kolonner, skjema, til, til_kolonner, sletting in tilkobling.execute(
@@ -146,13 +157,15 @@ def les_sqlite() -> dict:
                 info = tilkobling.execute(f"PRAGMA table_info({tabell})").fetchall()
                 tabeller[tabell] = {
                     "kolonner": [
-                        [kolonne, type_, "NOT NULL" if påkrevd or pk else "NULL"]
-                        for _, kolonne, type_, påkrevd, _, pk in info
+                        # SQLite godtar NULL i en PRIMARY KEY-kolonne uten NOT NULL.
+                        [kolonne, type_, "NOT NULL" if påkrevd else "NULL"]
+                        for _, kolonne, type_, påkrevd, _, _ in info
                     ],
                     "primærnøkkel": [
                         kolonne for _, kolonne in sorted((r[5], r[1]) for r in info if r[5])
                     ],
                     "unike": [],
+                    "unike_indekser": [],
                     "fremmednøkler": [],
                 }
             return {"tabeller": tabeller}
