@@ -387,15 +387,21 @@ class TimelineService:
         state.grunnlag = grunnlag
         return state
 
-    def _apply_konsekvensvarsler(self, state, event):
-        """Project notices from the same immutable submission into their tracks."""
+    @staticmethod
+    def _varsel_ved_innsending(event):
+        """Varselet er sendt den norske datoen serveren tok imot innsendingen."""
         from zoneinfo import ZoneInfo
 
         from models.events import VarselInfo
-        from models.sak_state import SendtKonsekvensVarsel
 
         dato = event.tidsstempel.astimezone(ZoneInfo("Europe/Oslo")).date().isoformat()
-        info = VarselInfo(dato_sendt=dato, metode=["Digital innsending"])
+        return VarselInfo(dato_sendt=dato, metode=["Digital innsending"])
+
+    def _apply_konsekvensvarsler(self, state, event):
+        """Project notices from the same immutable submission into their tracks."""
+        from models.sak_state import SendtKonsekvensVarsel
+
+        info = self._varsel_ved_innsending(event)
         for kind, tekst in event.data.varsler.model_dump(exclude_none=True).items():
             track = state.frist if kind == "frist" else state.vederlag
             track.varsler.append(SendtKonsekvensVarsel(
@@ -511,13 +517,11 @@ class TimelineService:
             else event.data.metode
         )
         vederlag.begrunnelse = event.data.begrunnelse
-        # Handle saerskilt_krav - store as dict in VederlagTilstand
-        if event.data.saerskilt_krav:
-            vederlag.saerskilt_krav = (
-                event.data.saerskilt_krav.model_dump()
-                if hasattr(event.data.saerskilt_krav, "model_dump")
-                else event.data.saerskilt_krav
-            )
+        vederlag.saerskilt_krav = (
+            event.data.saerskilt_krav.model_dump()
+            if hasattr(event.data.saerskilt_krav, "model_dump")
+            else event.data.saerskilt_krav
+        )
 
         # Handle krever_justert_ep flag
         vederlag.krever_justert_ep = event.data.krever_justert_ep
@@ -529,12 +533,13 @@ class TimelineService:
                 if hasattr(event.data.rigg_drift_varsel, "model_dump")
                 else event.data.rigg_drift_varsel
             )
-        if event.data.justert_ep_varsel:
-            vederlag.justert_ep_varsel = (
-                event.data.justert_ep_varsel.model_dump()
-                if hasattr(event.data.justert_ep_varsel, "model_dump")
-                else event.data.justert_ep_varsel
-            )
+        krever_justering = (
+            event.data.krever_justert_ep and vederlag.metode == VederlagsMetode.ENHETSPRISER.value
+        )
+        if not krever_justering:
+            vederlag.justert_ep_varsel = None
+        elif vederlag.justert_ep_varsel is None:
+            vederlag.justert_ep_varsel = self._varsel_ved_innsending(event).model_dump()
         if event.data.varslet_for_oppstart is not None:
             vederlag.varslet_for_oppstart = event.data.varslet_for_oppstart
         if event.data.produktivitetstap_varsel and not any(v.type == "produktivitet" for v in vederlag.varsler):
@@ -754,22 +759,7 @@ class TimelineService:
         ):
             vederlag.godkjent_belop = event.data.total_godkjent_belop
 
-        # Subsidiært standpunkt - triggers needs .value extraction
-        if getattr(event.data, "subsidiaer_triggers", None) is not None:
-            vederlag.subsidiaer_triggers = [
-                t.value if hasattr(t, "value") else t
-                for t in event.data.subsidiaer_triggers
-            ]
-
-        _copy_fields_if_present(
-            event.data,
-            vederlag,
-            [
-                "subsidiaer_resultat",
-                "subsidiaer_godkjent_belop",
-                "subsidiaer_begrunnelse",
-            ],
-        )
+        self._oppdater_subsidiaert_standpunkt(vederlag, event.data, "subsidiaer_godkjent_belop")
 
         # Map beregnings_resultat til status
         if (
@@ -793,6 +783,23 @@ class TimelineService:
 
         state.vederlag = vederlag
         return state
+
+    @staticmethod
+    def _oppdater_subsidiaert_standpunkt(tilstand, data, godkjent_felt: str) -> None:
+        """Et fullt svar erstatter standpunktet, også som oppdatering (SD-01).
+
+        Et svar med resultat er fullt; skjemaet sender hele svaret ved revisjon.
+        Uten resultat endrer en delvis oppdatering bare det den sender.
+        """
+        felter = ["subsidiaer_resultat", godkjent_felt, "subsidiaer_begrunnelse"]
+        if getattr(data, "beregnings_resultat", None) is not None:
+            tilstand.subsidiaer_triggers = None
+            for felt in felter:
+                setattr(tilstand, felt, None)
+        triggers = getattr(data, "subsidiaer_triggers", None)
+        if triggers is not None:
+            tilstand.subsidiaer_triggers = [t.value if hasattr(t, "value") else t for t in triggers]
+        _copy_fields_if_present(data, tilstand, felter)
 
     def _handle_respons_frist(self, state: SakState, event: ResponsEvent) -> SakState:
         """
@@ -839,22 +846,7 @@ class TimelineService:
             ],
         )
 
-        # Subsidiært standpunkt - triggers needs .value extraction
-        if getattr(event.data, "subsidiaer_triggers", None) is not None:
-            frist.subsidiaer_triggers = [
-                t.value if hasattr(t, "value") else t
-                for t in event.data.subsidiaer_triggers
-            ]
-
-        _copy_fields_if_present(
-            event.data,
-            frist,
-            [
-                "subsidiaer_resultat",
-                "subsidiaer_godkjent_dager",
-                "subsidiaer_begrunnelse",
-            ],
-        )
+        self._oppdater_subsidiaert_standpunkt(frist, event.data, "subsidiaer_godkjent_dager")
 
         # Map beregnings_resultat til status
         if (

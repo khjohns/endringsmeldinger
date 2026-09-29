@@ -308,14 +308,12 @@ describe('vederlagSubmissionDomain', () => {
       const data = domain.buildEventData(state, {
         scenario: 'new',
         grunnlagEventId: 'g-1',
-        datoOppdaget: '2026-02-15',
       });
       expect(data.grunnlag_event_id).toBe('g-1');
       expect(data.metode).toBe('ENHETSPRISER');
       expect(data.belop_direkte).toBe(250000);
       expect(data.kostnads_overslag).toBeUndefined();
       expect(data.krever_justert_ep).toBe(true);
-      expect(data.justert_ep_varsel).toEqual({ dato_sendt: '2026-02-15' });
       expect(data.varslet_for_oppstart).toBeUndefined();
       expect(data.begrunnelse).toBe('EP-basert beregning');
     });
@@ -336,7 +334,6 @@ describe('vederlagSubmissionDomain', () => {
       expect(data.belop_direkte).toBeUndefined();
       expect(data.kostnads_overslag).toBe(400000);
       expect(data.krever_justert_ep).toBeUndefined();
-      expect(data.justert_ep_varsel).toBeUndefined();
       expect(data.varslet_for_oppstart).toBe(false);
     });
 
@@ -358,35 +355,21 @@ describe('vederlagSubmissionDomain', () => {
       expect(data.varslet_for_oppstart).toBeUndefined();
     });
 
-    it('does not include justert_ep_varsel when kreverJustertEp is false', () => {
+    it('overlater datoen for §34.3.3-varselet til serveren (DRF-03)', () => {
       const state = {
-        ...domain.getDefaults({ scenario: 'new' }),
-        metode: 'ENHETSPRISER' as const,
-        belopDirekte: 100000,
-        kreverJustertEp: false,
-        begrunnelse: 'Uten EP-justering',
-      };
-      const data = domain.buildEventData(state, {
-        scenario: 'new',
-        grunnlagEventId: 'g-1',
-        datoOppdaget: '2026-02-15',
-      });
-      expect(data.justert_ep_varsel).toBeUndefined();
-    });
-
-    it('does not include justert_ep_varsel when datoOppdaget is missing', () => {
-      const state = {
-        ...domain.getDefaults({ scenario: 'new' }),
+        ...domain.getDefaults({ scenario: 'edit' }),
         metode: 'ENHETSPRISER' as const,
         belopDirekte: 100000,
         kreverJustertEp: true,
-        begrunnelse: 'Med EP-justering men uten dato',
+        begrunnelse: 'Med EP-justering',
       };
       const data = domain.buildEventData(state, {
-        scenario: 'new',
+        scenario: 'edit',
         grunnlagEventId: 'g-1',
+        originalEventId: 'v-1',
       });
-      expect(data.justert_ep_varsel).toBeUndefined();
+      expect(data.krever_justert_ep).toBe(true);
+      expect('justert_ep_varsel' in data).toBe(false);
     });
 
     it('builds saerskilt_krav with rigg_drift', () => {

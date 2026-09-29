@@ -165,7 +165,6 @@
                         scenario === 'edit'
                           ? submissionRefs(store.timeline, 'vederlag').claimId
                           : undefined,
-                      datoOppdaget: store.sak.grunnlag.dato_oppdaget,
                     });
               await claimReview.submit(
                 'vederlag',
@@ -205,7 +204,6 @@
                     scenario === 'edit'
                       ? requireEventId(submissionRefs(store.timeline, 'vederlag').claimId)
                       : undefined,
-                  datoOppdaget: store.sak.grunnlag.dato_oppdaget,
                 }),
               });
           }, onsend);
