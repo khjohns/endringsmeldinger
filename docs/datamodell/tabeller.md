@@ -112,14 +112,14 @@ Prosjektene i appen, med navn, beskrivelse, innstillinger, om prosjektet er akti
 | --- | --- |
 | Type | grunndata |
 | Status | i bruk |
-| Hvor fra appen lagres og redigeres | To veier: rutene `POST` og `PATCH /api/projects`, og databasefunksjonen `koe_register_project`, som drift kaller gjennom `scripts/catenda_admin.py`. Etter vedtaket i B-02 punkt 4 skal bare drift registrere prosjekter; det er ikke bygget (F1). En migrasjon legger inn prosjektet `oslobygg` som startrad. |
+| Hvor fra appen lagres og redigeres | Registreres av drift gjennom databasefunksjonen `koe_register_project` (`scripts/catenda_admin.py`). `POST /api/projects` svarer 403 utenfor utviklingsmodus. En prosjektadministrator kan endre navn, beskrivelse og innstillinger og deaktivere prosjektet (`PATCH`). At runtime-rollen heller ikke skal kunne kalle funksjonen, gjelder databaserettighetene og hører til F1 (B-02 punkt 4). En migrasjon legger inn prosjektet `oslobygg`, og det er i dag basens eneste prosjekt (DM-03). |
 | Data fra Catenda | Nei, ikke direkte. Koblingen til Catenda-prosjektet ligger i `catenda_project_configs`. |
 | Relasjoner | Primærnøkkel `id`. `app_project_memberships`, `app_membership_sync`, `catenda_project_configs` og `project_memberships` har fremmednøkkel hit. `prosjekt_id` i andre tabeller viser hit uten fremmednøkkel. Triggeren `trg_auto_membership_on_project_create` skriver `project_memberships` ved ny rad. |
 | Kan bygges opp igjen | nei |
 | Personopplysninger | `created_by` identifiserer den som opprettet prosjektet. |
-| Skrives av | backend/routes/project_routes.py; databasefunksjonen koe_register_project |
-| Funn | MS-10, MS-12 |
-| Belegg | K 29.09: kolonnene og fremmednøklene i testbasen. L 29.09: rutene, migrasjonene og `scripts/catenda_admin.py`. |
+| Skrives av | databasefunksjonen koe_register_project; backend/routes/project_routes.py (PATCH; POST bare i utviklingsmodus); migrasjonen 20260911073600_projects.sql (startraden) |
+| Funn | MS-10, MS-12, DM-03 |
+| Belegg | K 29.09: kolonnene og fremmednøklene i testbasen, startraden i testbasen og en telling i prosjektet. L 29.09: rutene, med vakten mot `POST` utenfor utviklingsmodus, migrasjonene og `scripts/catenda_admin.py`. |
 
 ### `project_memberships`
 

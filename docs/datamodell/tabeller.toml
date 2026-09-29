@@ -160,10 +160,13 @@ beskrivelse = """
 Prosjektene i appen, med navn, beskrivelse, innstillinger, om prosjektet er
 aktivt, og organisasjonen det hører til (MS-10)."""
 lagres_fra = """
-To veier: rutene `POST` og `PATCH /api/projects`, og databasefunksjonen
-`koe_register_project`, som drift kaller gjennom `scripts/catenda_admin.py`.
-Etter vedtaket i B-02 punkt 4 skal bare drift registrere prosjekter; det er
-ikke bygget (F1). En migrasjon legger inn prosjektet `oslobygg` som startrad."""
+Registreres av drift gjennom databasefunksjonen `koe_register_project`
+(`scripts/catenda_admin.py`). `POST /api/projects` svarer 403 utenfor
+utviklingsmodus. En prosjektadministrator kan endre navn, beskrivelse og
+innstillinger og deaktivere prosjektet (`PATCH`). At runtime-rollen heller ikke
+skal kunne kalle funksjonen, gjelder databaserettighetene og hører til F1 (B-02
+punkt 4). En migrasjon legger inn prosjektet `oslobygg`, og det er i dag basens
+eneste prosjekt (DM-03)."""
 fra_catenda = """
 Nei, ikke direkte. Koblingen til Catenda-prosjektet ligger i
 `catenda_project_configs`."""
@@ -176,13 +179,15 @@ rad."""
 kan_gjenoppbygges = "nei"
 personopplysninger = "`created_by` identifiserer den som opprettet prosjektet."
 skrivere = [
-    "backend/routes/project_routes.py",
     "databasefunksjonen koe_register_project",
+    "backend/routes/project_routes.py (PATCH; POST bare i utviklingsmodus)",
+    "migrasjonen 20260911073600_projects.sql (startraden)",
 ]
-funn = ["MS-10", "MS-12"]
+funn = ["MS-10", "MS-12", "DM-03"]
 belegg = """
-K 29.09: kolonnene og fremmednøklene i testbasen. L 29.09: rutene,
-migrasjonene og `scripts/catenda_admin.py`."""
+K 29.09: kolonnene og fremmednøklene i testbasen, startraden i testbasen og en
+telling i prosjektet. L 29.09: rutene, med vakten mot `POST` utenfor
+utviklingsmodus, migrasjonene og `scripts/catenda_admin.py`."""
 
 [[tabell]]
 navn = "project_memberships"

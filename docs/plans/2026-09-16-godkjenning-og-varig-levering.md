@@ -3,7 +3,7 @@
 **Opprettet:** 2026-09-16. **Sluttredigert:** 2026-09-22, mot commit
 `41c2a16191a5aadbe611e0958db8b93090b08027` (`main`).
 **Sist endret:** 2026-09-29, senere: merknad til B-12 om SQL Database,
-avhengigheten i F0b, spor M ført inn, DM-01 og DM-02 registrert. Tidligere samme
+avhengigheten i F0b, spor M ført inn, DM-01–DM-04 registrert. Tidligere samme
 dag: SD-01, SD-03 og DRF-03 rettet; sendedatoen for § 34.3.3-varselet avgjort i 3.1; SD-04 ført inn. 24.09: GFK-06 rettet og presisert i 3.1; ubegrenset fullmakt bygget (GFK-02). Tidligere samme dag, mot `94ab148` (`b13-beslutningsgrunnlag`): B-13
 avgjort av oppdragsgiver, se 3.1 og merknaden under B-13. 23.09, mot `c708f95`:
 beslutningsgrunnlaget for B-13 levert. Tidligere samme
@@ -579,8 +579,7 @@ fra code-review av GFK-06.
 Kilder: [AR](../arkitekturvurdering-2026-09-19.md),
 [DA](../audit-databasearkitektur-2026-09-20.md),
 [MS](../design-maalskjema-database-2026-09-20.md),
-[DM](../prompt-datamodell-og-funksjonskart-2026-09-29.md#4-utgangspunktet-2909)
-(spor M, fra 29.09).
+[DM](../gjennomforing-spor-m-1a-2026-09-29.md#2-funn) (spor M, fra 29.09).
 
 | ID | Status | Restanse og merknad | Belegg | Pakke |
 | --- | --- | --- | --- | --- |
@@ -617,6 +616,8 @@ Kilder: [AR](../arkitekturvurdering-2026-09-19.md),
 | MS-13, MS-14 | Åpen, lav | BIM som hendelser; IFC-egenskaper fryses | — | F4 |
 | MS-15 | Åpen | `magic_links`, `user_groups`; `project_memberships` etter DB-05 | D 20.09 | F1 |
 | DM-01 | Åpen, lav | Åtte kolonnekommentarer (`cached_*` i `sak_metadata`) finnes i basen, men ikke i migrasjonene. Kolonnesummen fanger det ikke. Rettes i en ny migrasjon når B-12 har avgjort hvor beskrivelser skal ligge | K 29.09 | Spor M, fase 4 |
+| DM-03 | Åpen, lav | Migrasjonene legger inn et aktivt prosjekt `oslobygg`, og det er prosjektets eneste. Hver base bygget fra tom får det, også på en ny plattform (B-12) og for en annen virksomhet (P5). Ikke en fallback i koden. Om raden skal ut av migrasjonene, avhenger av hvordan en ny base settes opp | K 29.09 | Spor M, fase 4 |
+| DM-04 | Åpen, middels | Ruteregistertesten ser bare dekoratøren `route` (sju ruter deklarert med `.get`/`.post`/`.patch` er usynlige for den), godtar `require_magic_link` og `require_entra_auth` som autentisering, og kontrollerer ikke `require_project_access`. En ny rute uten autentisering ga grønn test. Ingen eksponert rute funnet | K 29.09 | H |
 
 ### 4.4 Målskjemarunden 21.09: KR, MG, RY
 
@@ -1031,7 +1032,7 @@ lete opp alt som teller statuser.
 Små, uavhengige rettinger. De er krav før produksjon, men ikke forutsetning
 for F0–F2: RV-13 med CFG-03 og OBS-07; RV-14; CFG-01, CFG-02, CFG-04 til
 CFG-07; TS2-01; OBS-06; INT-01; GFK-05; FE-02, FE-03 og FE-06; AUT-04 og TST-01;
-TST-04, TST-06, TST-07; AR-08. I tillegg: pinning av Python-avhengigheter og
+TST-04, TST-06, TST-07; AR-08; DM-04. I tillegg: pinning av Python-avhengigheter og
 sårbarhetsskanning i CI med en besluttet terskel for hva som blokkerer;
 HTTP-herding (CSP, HSTS, `X-Content-Type-Options`, `frame-ancestors`) testet mot
 brevvisningen; lagringsfeil presenteres ikke som null krav eller komplett
@@ -1178,11 +1179,13 @@ merknad. Belegget er testene som er nevnt i radene, kjørt 23.09 med hele
 backend-suiten grønn; se [gjennomføringen](../gjennomforing-spor-d-2026-09-23.md#verifikasjon-og-grenser).
 
 **Endringen 29.09, B-12 og spor M:** merknadene under B-12 og F0b, spor M,
-DM-01 og DM-02.
+og DM-01–DM-04. Funnene er beskrevet i
+[gjennomføringsnotatet for 1a](../gjennomforing-spor-m-1a-2026-09-29.md).
 - Opplysningen om at en SQL Database er aktuell, kommer fra oppdragsgiver.
   Hva IKT har lagt til grunn, er ikke kjent.
-- DM-01 og den katalogkontrollerte delen av DM-02 er kjørt mot prosjektet og
-  testbasen 29.09.
+- DM-01, DM-03 og den katalogkontrollerte delen av DM-02 er kjørt mot
+  prosjektet og testbasen 29.09. DM-04 er vist med to mutasjoner mot
+  ruteregistertesten, begge tilbakestilt.
 - Resten er lest ut av koden; se
   [oppdraget, avsnitt 4](../prompt-datamodell-og-funksjonskart-2026-09-29.md#4-utgangspunktet-2909).
 - Ingen kode, migrasjon eller database er endret.
