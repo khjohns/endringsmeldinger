@@ -577,6 +577,12 @@ Det foreløpige punkt 6 spurte «hva er `catenda_models_cache`?». Svaret: en ca
 over Catenda-modeller per prosjekt, fylt av `upsert_cached_models` og lest av
 tre ruter. Den er altså i bruk etter bokstaven.
 
+> **Merknad 2026-09-29:** `upsert_cached_models` har ingen kaller, verken i repoet
+> eller i Git-historikken fra 18.09, og ingen funksjon, trigger eller Edge
+> Function i prosjektet skriver tabellen. Cachen leses, men ingenting fyller
+> den. Se DM-02 i
+> [gjennomføringsnotatet for spor M, 1a](gjennomforing-spor-m-1a-2026-09-29.md#dm-02--bim-modellcachen-har-ingen-skriver-foreløpig).
+
 Men **ingen audit i kjeden har vurdert BIM-flaten**, og den bærer
 `sak_bim_links.properties` — en `jsonb` for IFC property sets — som er nøyaktig
 den kolonnen som manglet i migrasjonen (DA-05). Ti av tretten kolonner på

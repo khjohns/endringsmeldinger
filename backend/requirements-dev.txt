@@ -24,3 +24,4 @@ mypy>=1.0.0                       # Type checker
 # ------------------------------------------------------------------------------
 pytest-asyncio>=0.21.0            # Async testing support
 faker>=20.0.0                     # Fake data generation for tests
+openpyxl>=3.1.0                   # Tabellbeskrivelsen i Excel (docs/verktoy/datamodell.py)
