@@ -15,7 +15,7 @@
     type ReviewItem,
   } from '$lib/approval/types';
   import { decisionSummary, documentToBrev, letterText } from '$lib/approval/letter';
-  import { calculateAuthority } from '$lib/approval/authority';
+  import { calculateAuthority, kravFraSak } from '$lib/approval/authority';
   import {
     limitLabel,
     nok,
@@ -86,8 +86,7 @@
   const draftLetter: LetterDocument = $derived({
     authorityContext: {
       dailyRate,
-      claimedMoney: store.sak.vederlag.krevd_belop ?? store.sak.vederlag.netto_belop ?? 0,
-      claimedDays: store.sak.frist.krevd_dager ?? 0,
+      krav: kravFraSak(store.sak),
       matrixVersion: '2026-01',
     },
     title: 'Svar på endringsmelding',
@@ -114,12 +113,18 @@
 
   // Authority: the highest total position, compared with the sender's own limit.
   const assessment = $derived(
-    calculateAuthority(letter.items, letter.authorityContext?.dailyRate ?? dailyRate)
+    calculateAuthority(
+      letter.items,
+      letter.authorityContext?.dailyRate ?? dailyRate,
+      // Sakens krav gjelder bare utkastet; en pakke bærer kravet den ble godkjent mot.
+      letter.authorityContext?.krav ?? (isDraft ? kravFraSak(store.sak) : undefined)
+    )
   );
   const sender = $derived(withLimit(review.sender ?? { name: 'Saksbehandler', role: '' }));
   const route = $derived(
     resolveRoute({
       amount: assessment.amount,
+      minimum: assessment.minimum,
       sender,
       chain: review.chain.map(withLimit),
     })
@@ -127,34 +132,56 @@
   const tracks = $derived(letter.items.map((i) => trackNames[i.track]).join(' · '));
   const plural = (n: number) => `${n} ${n === 1 ? 'vurdering' : 'vurderinger'}`;
   const amountLabel = $derived(
-    assessment.amount === null ? 'Kan ikke beregnes' : nok(assessment.amount)
+    assessment.ukjent
+      ? assessment.minimum
+        ? `uavklart, minst ${nok(assessment.minimum)}`
+        : 'uavklart'
+      : assessment.amount === null
+        ? 'Kan ikke beregnes'
+        : nok(assessment.amount)
   );
+
+  /** Med et krav som ikke er tallfestet, er summen bare det som er verdsatt. */
+  const standpunkt = (value: number | null) =>
+    value === null ? 'Uavklart' : assessment.ukjent ? `Minst ${nok(value)}` : nok(value);
 
   const calculation = $derived({
     summaryLabel: 'Se beregning · fullmaktsmatrise januar 2026',
     rows: [
       ...assessment.rows.flatMap((row) =>
-        row.track === 'frist'
+        row.fraKrav
           ? [
               {
-                label: `Frist · prinsipalt ${row.principal} d / subsidiært ${row.subsidiary} d`,
-                value: row.subsidiaryAmount === null ? 'Uavklart' : nok(row.subsidiaryAmount),
+                label: `${trackNames[row.track]} · krevd av TE (godkjent ansvar)`,
+                value:
+                  row.principal === null
+                    ? 'Ikke tallfestet'
+                    : row.principalAmount === null
+                      ? 'Uavklart'
+                      : nok(row.principalAmount),
               },
             ]
-          : [
-              {
-                label: `${trackNames[row.track]} · prinsipalt / subsidiært`,
-                value: `${nok(row.principal)} / ${nok(row.subsidiary)}`,
-              },
-            ]
+          : row.track === 'frist'
+            ? [
+                {
+                  label: `Frist · prinsipalt ${row.principal} d / subsidiært ${row.subsidiary} d`,
+                  value: row.subsidiaryAmount === null ? 'Uavklart' : nok(row.subsidiaryAmount),
+                },
+              ]
+            : [
+                {
+                  label: `${trackNames[row.track]} · prinsipalt / subsidiært`,
+                  value: `${nok(row.principal)} / ${nok(row.subsidiary)}`,
+                },
+              ]
       ),
       {
         label: 'Prinsipalt standpunkt',
-        value: assessment.principal === null ? 'Uavklart' : nok(assessment.principal),
+        value: standpunkt(assessment.principal),
       },
       {
         label: 'Subsidiært standpunkt',
-        value: assessment.subsidiary === null ? 'Uavklart' : nok(assessment.subsidiary),
+        value: standpunkt(assessment.subsidiary),
       },
     ],
     note: `Høyeste samlede standpunkt legges til grunn. Alternative standpunkter summeres ikke.${
@@ -283,7 +310,7 @@
         figures: true,
         secondary: pdf,
       };
-      if (assessment.amount === null)
+      if (assessment.amount === null && !assessment.ukjent)
         return {
           ...base,
           eyebrow: 'Kan ikke sendes',
@@ -305,7 +332,9 @@
           ...base,
           eyebrow: 'Klar for sending',
           title: 'Du kan sende selv',
-          description: `Samlet standpunkt ${amountLabel} er innenfor din fullmakt. Svaret sendes til entreprenøren med én gang.`,
+          description: assessment.ukjent
+            ? 'Godkjent ansvar åpner for krav som ikke er tallfestet, så fullmaktsgrunnlaget kan ikke beregnes. Du har ubegrenset fullmakt, og svaret sendes til entreprenøren med én gang.'
+            : `Samlet standpunkt ${amountLabel} er innenfor din fullmakt. Svaret sendes til entreprenøren med én gang.`,
           primary: { label: 'Send svar', action: send },
           footnote: 'Entreprenøren får svaret straks. Vurderingene låses når brevet er sendt.',
         };
@@ -313,7 +342,9 @@
         ...base,
         eyebrow: 'Krever godkjenning',
         title: `${route.decider!.role} må godkjenne`,
-        description: `Samlet standpunkt ${amountLabel} overstiger din fullmakt. Svaret går sekvensielt gjennom fullmaktskjeden og sendes til entreprenøren når siste godkjenner har godkjent.`,
+        description: assessment.ukjent
+          ? `Godkjent ansvar åpner for krav som ikke er tallfestet, så fullmaktsgrunnlaget kan ikke beregnes${assessment.minimum ? ` (verdsatt: ${nok(assessment.minimum)})` : ''}. Svaret går gjennom hele fullmaktskjeden og sendes til entreprenøren når siste godkjenner har godkjent.`
+          : `Samlet standpunkt ${amountLabel} overstiger din fullmakt. Svaret går sekvensielt gjennom fullmaktskjeden og sendes til entreprenøren når siste godkjenner har godkjent.`,
         primary: { label: 'Send til godkjenning', action: send },
         footnote:
           'Entreprenøren får tilgang først etter siste godkjenning. Vurderingene er låst mens brevet er til godkjenning.',
