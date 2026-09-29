@@ -13,6 +13,7 @@
     "unike": [
      ["provider", "issuer", "subject"]
     ],
+    "unike_indekser": [],
     "fremmednøkler": [
      {
       "kolonner": ["user_id"],
@@ -30,6 +31,7 @@
     ],
     "primærnøkkel": ["project_id"],
     "unike": [],
+    "unike_indekser": [],
     "fremmednøkler": [
      {
       "kolonner": ["project_id"],
@@ -48,6 +50,7 @@
     ],
     "primærnøkkel": ["state_hash"],
     "unike": [],
+    "unike_indekser": [],
     "fremmednøkler": []
    },
    "app_project_memberships": {
@@ -69,6 +72,7 @@
      ["project_id", "catenda_subject"],
      ["project_id", "user_id"]
     ],
+    "unike_indekser": [],
     "fremmednøkler": [
      {
       "kolonner": ["project_id"],
@@ -94,6 +98,7 @@
     ],
     "primærnøkkel": ["token_hash"],
     "unike": [],
+    "unike_indekser": [],
     "fremmednøkler": [
      {
       "kolonner": ["user_id"],
@@ -112,6 +117,7 @@
     ],
     "primærnøkkel": ["id"],
     "unike": [],
+    "unike_indekser": [],
     "fremmednøkler": []
    },
    "catenda_contract_teams": {
@@ -123,6 +129,7 @@
     ],
     "primærnøkkel": ["internal_project_id", "team_id"],
     "unike": [],
+    "unike_indekser": [],
     "fremmednøkler": [
      {
       "kolonner": ["internal_project_id"],
@@ -146,6 +153,7 @@
     "unike": [
      ["catenda_project_id", "model_id"]
     ],
+    "unike_indekser": [],
     "fremmednøkler": []
    },
    "catenda_project_configs": {
@@ -162,6 +170,7 @@
     "unike": [
      ["catenda_project_id"]
     ],
+    "unike_indekser": [],
     "fremmednøkler": [
      {
       "kolonner": ["internal_project_id"],
@@ -181,6 +190,7 @@
     ],
     "primærnøkkel": ["topic_board_id"],
     "unike": [],
+    "unike_indekser": [],
     "fremmednøkler": [
      {
       "kolonner": ["internal_project_id"],
@@ -217,6 +227,7 @@
      ["event_id"],
      ["sak_id", "versjon"]
     ],
+    "unike_indekser": [],
     "fremmednøkler": [
      {
       "kolonner": ["sak_id"],
@@ -241,6 +252,7 @@
     ],
     "primærnøkkel": ["token"],
     "unike": [],
+    "unike_indekser": [],
     "fremmednøkler": [
      {
       "kolonner": ["sak_id"],
@@ -267,6 +279,7 @@
     ],
     "primærnøkkel": ["notat_id"],
     "unike": [],
+    "unike_indekser": [],
     "fremmednøkler": [
      {
       "kolonner": ["sak_id"],
@@ -292,6 +305,7 @@
     "unike": [
      ["project_id", "user_email"]
     ],
+    "unike_indekser": [],
     "fremmednøkler": [
      {
       "kolonner": ["project_id"],
@@ -314,6 +328,7 @@
     ],
     "primærnøkkel": ["id"],
     "unike": [],
+    "unike_indekser": [],
     "fremmednøkler": []
    },
    "sak_bim_links": {
@@ -334,6 +349,7 @@
     ],
     "primærnøkkel": ["id"],
     "unike": [],
+    "unike_indekser": ["(sak_id, fag, COALESCE(model_id, ''::text), COALESCE(object_global_id, ''::text))"],
     "fremmednøkler": [
      {
       "kolonner": ["sak_id"],
@@ -367,6 +383,7 @@
     ],
     "primærnøkkel": ["sak_id"],
     "unike": [],
+    "unike_indekser": [],
     "fremmednøkler": []
    },
    "sak_relations": {
@@ -382,6 +399,7 @@
     "unike": [
      ["source_sak_id", "target_sak_id", "relation_type"]
     ],
+    "unike_indekser": [],
     "fremmednøkler": []
    },
    "user_groups": {
@@ -402,6 +420,7 @@
     "unike": [
      ["user_id"]
     ],
+    "unike_indekser": [],
     "fremmednøkler": [
      {
       "kolonner": ["manager_id"],
@@ -431,7 +450,7 @@
   "tabeller": {
    "approval_outbox": {
     "kolonner": [
-     ["id", "TEXT", "NOT NULL"],
+     ["id", "TEXT", "NULL"],
      ["project", "TEXT", "NULL"],
      ["case_id", "TEXT", "NULL"],
      ["body", "TEXT", "NOT NULL"],
@@ -439,36 +458,40 @@
     ],
     "primærnøkkel": ["id"],
     "unike": [],
+    "unike_indekser": [],
     "fremmednøkler": []
    },
    "approvals": {
     "kolonner": [
-     ["project", "TEXT", "NOT NULL"],
-     ["case_id", "TEXT", "NOT NULL"],
+     ["project", "TEXT", "NULL"],
+     ["case_id", "TEXT", "NULL"],
      ["body", "TEXT", "NOT NULL"]
     ],
     "primærnøkkel": ["project", "case_id"],
     "unike": [],
+    "unike_indekser": [],
     "fremmednøkler": []
    },
    "catenda_delivery_status": {
     "kolonner": [
-     ["project", "TEXT", "NOT NULL"],
-     ["case_id", "TEXT", "NOT NULL"],
-     ["event_id", "TEXT", "NOT NULL"],
+     ["project", "TEXT", "NULL"],
+     ["case_id", "TEXT", "NULL"],
+     ["event_id", "TEXT", "NULL"],
      ["status", "TEXT", "NOT NULL"]
     ],
     "primærnøkkel": ["project", "case_id", "event_id"],
     "unike": [],
+    "unike_indekser": [],
     "fremmednøkler": []
    },
    "eo_approvals": {
     "kolonner": [
-     ["project", "TEXT", "NOT NULL"],
+     ["project", "TEXT", "NULL"],
      ["body", "TEXT", "NOT NULL"]
     ],
     "primærnøkkel": ["project"],
     "unike": [],
+    "unike_indekser": [],
     "fremmednøkler": []
    },
    "utkast": {
@@ -486,6 +509,7 @@
     ],
     "primærnøkkel": ["project", "case_id", "spor", "revisjon", "team"],
     "unike": [],
+    "unike_indekser": [],
     "fremmednøkler": []
    },
    "vedlegg": {
@@ -507,6 +531,7 @@
     ],
     "primærnøkkel": ["project", "case_id", "vedlegg_id"],
     "unike": [],
+    "unike_indekser": [],
     "fremmednøkler": []
    }
   }

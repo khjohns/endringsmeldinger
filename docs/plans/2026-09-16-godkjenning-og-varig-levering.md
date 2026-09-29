@@ -2,7 +2,8 @@
 
 **Opprettet:** 2026-09-16. **Sluttredigert:** 2026-09-22, mot commit
 `41c2a16191a5aadbe611e0958db8b93090b08027` (`main`).
-**Sist endret:** 2026-09-29, senere: spor M 1b levert, DM-05–DM-07
+**Sist endret:** 2026-09-29, senere: spor M 1c levert, og med den
+datamodellen; DM-08 registrert som foreløpig. Tidligere samme dag: spor M 1b levert, DM-05–DM-07
 registrert, saksopprettelse fra appen og forholdet mellom EO-sak og KOE-sak
 avgjort i 3.1. Tidligere samme dag: DM-04 rettet i
 ruteregistertesten. Tidligere samme dag:
@@ -1223,4 +1224,10 @@ radene i 3.1 om saksopprettelse og om EO-sak og KOE-sak. Kilden for radene er
 oppdragsgivers svar 29.09. DM-05–DM-07 er reprodusert mot testbasen med
 kontrollsaker; se
 [gjennomføringsnotatet for 1b](../gjennomforing-spor-m-1b-2026-09-29.md#verifikasjon-og-grenser).
+Ingen produksjonskode, migrasjon eller database er endret.
+
+**Endringen 29.09, spor M 1c:** merknaden under spor M og DM-08 i 4.6. DM-08
+er lest ut av koden, ikke kjørt, og står derfor som foreløpig uten
+alvorlighet; se
+[gjennomføringsnotatet for 1c](../gjennomforing-spor-m-1c-2026-09-29.md#verifikasjon-og-grenser).
 Ingen produksjonskode, migrasjon eller database er endret.

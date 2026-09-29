@@ -61,7 +61,6 @@ erDiagram
         text actorid "uten fremmednøkkel"
         text actorteam "uten fremmednøkkel"
         uuid referstoid "uten fremmednøkkel"
-        jsonb data "uten fremmednøkkel"
         text sak_id FK, UK
         integer versjon UK
         text prosjekt_id "uten fremmednøkkel"
@@ -150,7 +149,7 @@ erDiagram
 
 ## ER-diagram: SQLite
 
-De seks tabellene i fila `BH_APPROVAL_DB`, og tabellene i PostgreSQL de viser til. Ingen av koblingene kan håndheves av en base, fordi de går mellom to lagre.
+De 6 tabellene i fila `BH_APPROVAL_DB`, og tabellene i PostgreSQL de viser til. Ingen av koblingene kan håndheves av en base, fordi de går mellom to lagre.
 
 ```mermaid
 erDiagram
@@ -301,6 +300,10 @@ Kolonner som ser ut som en nøkkel eller en personreferanse, men som ikke viser 
 | `vedlegg.lastet_opp_av` | Navn, e-post eller ID, i den rekkefølgen. Ikke en brukeridentitet (DM-08). |
 | `project_memberships.external_id` | Rest (MS-15). Ingen leser tabellen (DA-10). |
 | `project_memberships.invited_by` | Rest (MS-15). E-post. |
+| `app_users.email` | Brukerens egen e-post, oppdatert fra Catenda. Personen er `id`. |
+| `app_project_memberships.user_email` | Kopi av e-posten i medlemslisten fra Catenda. Personen er `user_id`. |
+| `magic_links.email` | Rest (MS-15). Mottakeren av lenken, som e-post. |
+| `project_memberships.user_email` | Rest (MS-15). Medlemmet, identifisert med e-post; unik per prosjekt. |
 
 ## Dataflyt mot Catenda
 
@@ -448,33 +451,33 @@ flowchart LR
 
 ### Tabellene og Catenda
 
-| Tabell | Får data fra Catenda i | Sender data til Catenda i |
-| --- | --- | --- |
-| `hendelse` | C01, C05 | C06, C07, C14, C15 |
-| `notat` | C05 | — |
-| `sak_metadata` | C01, C15 | C01, C15 |
-| `sak_relations` | C10 | — |
-| `projects` | C18, C20 | — |
-| `project_memberships` | — | — |
-| `app_users` | C01, C03, C04 | — |
-| `app_identities` | C01, C03, C04 | — |
-| `app_sessions` | — | — |
-| `app_oauth_attempts` | — | — |
-| `app_project_memberships` | C03, C04 | — |
-| `app_membership_sync` | C04 | — |
-| `catenda_project_configs` | — | — |
-| `catenda_topic_board_configs` | — | — |
-| `catenda_contract_teams` | C18, C19 | — |
-| `catenda_models_cache` | — | — |
-| `sak_bim_links` | — | — |
-| `magic_links` | — | — |
-| `user_groups` | — | — |
-| `utkast` | C05 | — |
-| `approvals` | — | — |
-| `approval_outbox` | C07 | — |
-| `eo_approvals` | — | — |
-| `vedlegg` | C05, C08 | C08 |
-| `catenda_delivery_status` | C06 | — |
+| Tabell | Får data fra Catenda i | Sender data til Catenda i | Kvittering for kall i |
+| --- | --- | --- | --- |
+| `hendelse` | C01, C05 | C06, C07, C14, C15 | — |
+| `notat` | C05 | — | — |
+| `sak_metadata` | C01, C15 | C01, C15 | — |
+| `sak_relations` | C10 | — | — |
+| `projects` | C18, C20 | — | — |
+| `project_memberships` | — | — | — |
+| `app_users` | C01, C03, C04 | — | — |
+| `app_identities` | C01, C03, C04 | — | — |
+| `app_sessions` | — | — | — |
+| `app_oauth_attempts` | — | — | — |
+| `app_project_memberships` | C03, C04 | — | — |
+| `app_membership_sync` | C04 | — | — |
+| `catenda_project_configs` | — | — | — |
+| `catenda_topic_board_configs` | — | — | — |
+| `catenda_contract_teams` | C18, C19 | — | — |
+| `catenda_models_cache` | — | — | — |
+| `sak_bim_links` | — | — | — |
+| `magic_links` | — | — | — |
+| `user_groups` | — | — | — |
+| `utkast` | C05 | — | — |
+| `approvals` | — | — | — |
+| `approval_outbox` | — | — | C07 |
+| `eo_approvals` | — | — | — |
+| `vedlegg` | C05, C08 | C08 | C08 |
+| `catenda_delivery_status` | — | — | C06 |
 
 ## Flytene
 

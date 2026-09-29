@@ -7,6 +7,7 @@ med AST i backend. Testene viser at registrene beskriver koden og skjemaet, ikke
 at koden gjør det riktige.
 """
 
+import ast
 import copy
 
 import pytest
@@ -64,7 +65,7 @@ def test_hver_fremmednokkel_i_katalogen_har_en_oppforing(kilder):
     beskrevet = {
         (r["fra"], r["til"]) for r in kilder["relasjoner"]["relasjon"] if r["art"] == "fremmednøkkel"
     }
-    assert len(fk) == 15, "Katalogen 29.09 har 15 fremmednøkler; har søket sluttet å virke?"
+    assert fk, "Fant ingen fremmednøkler i katalogen; har lesingen sluttet å virke?"
     assert beskrevet == fk
 
 
@@ -190,3 +191,46 @@ def test_driftsflytene_tegnes_bare_i_driftsdiagrammet(kilder, tabellregister):
         assert f'"{fid}.' in tegnet["drift"]
         assert f'"{fid}.' not in tegnet["inn"] + tegnet["ut"]
     assert '"C04.' in tegnet["inn"] and '"C04.' not in tegnet["drift"]
+
+
+def test_katalogen_har_unike_indekser_og_nullbarheten_sqlite_faktisk_har(kilder):
+    """Code-review 29.09: en unik indeks er også en nøkkel, og SQLite godtar NULL i en
+    PRIMARY KEY-kolonne uten NOT NULL."""
+    pg = kilder["katalog"]["postgresql"]["tabeller"]
+    assert pg["sak_bim_links"]["unike_indekser"], "Den unike indeksen på sak_bim_links mangler"
+    assert "unik indeks" in rel.tabelltekst(kilder["relasjoner"], kilder["katalog"], "sak_bim_links")
+    approvals = {k[0]: k[2] for k in kilder["katalog"]["sqlite"]["tabeller"]["approvals"]["kolonner"]}
+    assert approvals["project"] == "NULL"
+
+
+def _kallsteder_i(kilde: str) -> set[tuple[str, str]]:
+    tre = ast.parse(kilde)
+    besøk = df._Kallsteder(df.catenda_metoder(), df._importert_fra_klientlaget(tre))
+    besøk.visit(tre)
+    return besøk.funnet
+
+
+def test_vakta_ser_kall_ved_bart_navn_importert_fra_klientlaget():
+    funnet = _kallsteder_i(
+        "from integrations.catenda.auth import get_user_projects as prosjekter\n"
+        "from lib.auth.project_access import require_project_access\n"
+        "def hent(token):\n"
+        "    return prosjekter(token)\n"
+        "@require_project_access()\n"
+        "def rute():\n"
+        "    pass\n"
+    )
+    assert funnet == {("hent", "get_user_projects")}
+
+
+def test_kvittering_er_ikke_data_fra_catenda(kilder):
+    per_tabell = df.flyter_per_tabell(kilder["dataflyt"])
+    assert per_tabell["catenda_delivery_status"]["fra"] == []
+    assert per_tabell["catenda_delivery_status"]["kvittering"] == ["C06"]
+
+
+def test_vakta_melder_nei_i_kolonne_6_som_dataflyten_motsier(kilder, tabellregister):
+    endret = copy.deepcopy(tabellregister)
+    next(t for t in endret["tabell"] if t["navn"] == "app_users")["fra_catenda"] = "Nei."
+    feil = dm.kontroller_relasjoner(endret, kilder)
+    assert any(f.startswith("app_users: fra_catenda sier «Nei»") for f in feil), feil

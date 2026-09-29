@@ -7,6 +7,7 @@ skal stå som kode i en pil eller under [[uten_flyt]] med begrunnelse.
 """
 
 import ast
+import copy
 import functools
 import pathlib
 import re
@@ -23,6 +24,7 @@ KLIENTLAG = (
     "backend/services/catenda_service.py",
 )
 IKKE_KLIENTLAG = ("backend/integrations/catenda/_demo.py",)
+KLIENTMODULER = ("integrations.catenda", "lib.auth.catenda_oauth", "services.catenda_service")
 HTTP_PRIMITIVER = frozenset({"_safe_request", "_make_request", "_request"})
 UTENFOR_SKANNING = ("backend/tests/", "backend/venv/", "backend/.venv/")
 
@@ -31,6 +33,8 @@ VALGFRIE_FLYTFELT = ("drift",)
 STEGFELT = ("fra", "til", "endepunkt", "kode", "data")
 RETNINGER = ("inn", "ut", "inn og ut")
 FLYT_ID = re.compile(r"^C\d{2}$")
+FUNN_ID = re.compile(r"^[A-Z][A-Z0-9]*-\d{2}$")
+KVITTERING = "catenda:svar"
 DATABASEFUNKSJON = "databasefunksjon:"
 KODEREFERANSE = re.compile(r"^(backend/[\w/]+\.py):([\w.]+)$")
 
@@ -55,10 +59,25 @@ def _i_klientlaget(relativ: str) -> bool:
     return relativ.startswith(KLIENTLAG) and relativ not in IKKE_KLIENTLAG
 
 
-def _kallnavn(node: ast.AST) -> str | None:
-    if isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute):
+def _kallnavn(node: ast.AST, bare: frozenset[str] = frozenset()) -> str | None:
+    """Metoden et kall treffer. Et kall ved bart navn teller bare når navnet står i `bare`."""
+    if not isinstance(node, ast.Call):
+        return None
+    if isinstance(node.func, ast.Attribute):
         return node.func.attr
+    if isinstance(node.func, ast.Name) and node.func.id in bare:
+        return node.func.id
     return None
+
+
+def _importert_fra_klientlaget(tre: ast.AST) -> dict[str, str]:
+    """{lokalt navn: navnet i klientlaget} for `from <klientmodul> import …`."""
+    navn = {}
+    for node in ast.walk(tre):
+        if isinstance(node, ast.ImportFrom) and node.module and node.module.startswith(KLIENTMODULER):
+            for alias in node.names:
+                navn[alias.asname or alias.name] = alias.name
+    return navn
 
 
 def _gjor_http(node: ast.AST) -> bool:
@@ -84,21 +103,23 @@ def catenda_metoder() -> frozenset[str]:
                 funksjoner.setdefault(node.name, []).append(node)
     metoder = {navn for navn, noder in funksjoner.items() if any(_gjor_http(n) for n in noder)}
     metoder |= HTTP_PRIMITIVER
+    definert = frozenset(funksjoner)
     endret = True
     while endret:
         endret = False
         for navn, noder in funksjoner.items():
             if navn in metoder:
                 continue
-            if any(_kallnavn(k) in metoder for n in noder for k in ast.walk(n)):
+            if any(_kallnavn(k, definert) in metoder for n in noder for k in ast.walk(n)):
                 metoder.add(navn)
                 endret = True
     return frozenset(metoder)
 
 
 class _Kallsteder(ast.NodeVisitor):
-    def __init__(self, metoder: frozenset[str]):
+    def __init__(self, metoder: frozenset[str], importert: dict[str, str]):
         self.metoder = metoder
+        self.importert = importert
         self.sti: list[str] = []
         self.funnet: set[tuple[str, str]] = set()
 
@@ -112,24 +133,27 @@ class _Kallsteder(ast.NodeVisitor):
     visit_AsyncFunctionDef = _omslutt
 
     def visit_Call(self, node: ast.Call):
-        navn = _kallnavn(node)
+        navn = _kallnavn(node, frozenset(self.importert))
+        navn = self.importert.get(navn, navn) if isinstance(node.func, ast.Name) else navn
         if navn in self.metoder:
             self.funnet.add((".".join(self.sti) or "<modul>", navn))
         self.generic_visit(node)
 
 
-def kallsteder(unntak: frozenset[str] = frozenset()) -> dict[str, set[str]]:
+@functools.cache
+def kallsteder(unntak: frozenset[str] = frozenset()) -> dict[str, frozenset[str]]:
     """{'fil:funksjon': {metodene den kaller}} for hvert kall til Catenda."""
     metoder = catenda_metoder() - unntak
     resultat: dict[str, set[str]] = {}
     for relativ, fil in _python_filer():
         if _i_klientlaget(relativ):
             continue
-        besøk = _Kallsteder(metoder)
-        besøk.visit(ast.parse(fil.read_text(encoding="utf-8")))
+        tre = ast.parse(fil.read_text(encoding="utf-8"))
+        besøk = _Kallsteder(metoder, _importert_fra_klientlaget(tre))
+        besøk.visit(tre)
         for funksjon, metode in besøk.funnet:
             resultat.setdefault(f"{relativ}:{funksjon}", set()).add(metode)
-    return resultat
+    return {sted: frozenset(m) for sted, m in resultat.items()}
 
 
 @functools.cache
@@ -222,7 +246,9 @@ def valider(
                 elif treff[2] not in definisjoner(treff[1]):
                     feil.append(f"{hvor}: {treff[2]} er ikke definert i {treff[1]}")
         for funn in flyt["funn"]:
-            if funntekst is not None and not re.search(rf"\b{re.escape(funn)}\b", funntekst):
+            if not FUNN_ID.match(funn):
+                feil.append(f"{fid}: {funn!r} er ikke en funn-ID")
+            elif funntekst is not None and not re.search(rf"\b{re.escape(funn)}\b", funntekst):
                 feil.append(f"{fid}: {funn} står ikke i hovedplanens funnregister")
     for unntak in register.get("uten_flyt", []):
         if not {"fil", "begrunnelse"} <= set(unntak) <= {"fil", "funksjon", "begrunnelse"}:
@@ -248,14 +274,20 @@ def piler(register: dict) -> list[dict]:
 
 
 def flyter_per_tabell(register: dict) -> dict[str, dict[str, list[str]]]:
-    """{tabell: {'fra': [flyt-ID-er inn fra Catenda], 'til': [ut til Catenda]}}."""
+    """{tabell: {'fra': [inn fra Catenda], 'til': [ut til Catenda], 'kvittering': [utfall av kall]}}.
+
+    En pil fra «svar på kallene» er ikke data fra Catenda, bare hvordan kallene gikk.
+    """
+    tom = {"fra": [], "til": [], "kvittering": []}
     resultat: dict[str, dict[str, list[str]]] = {}
     for pil in piler(register):
         fra, til, fid = pil["steg"]["fra"], pil["til"], pil["flyt"]["id"]
-        if fra.startswith("catenda:") and not til.startswith("catenda:"):
-            liste = resultat.setdefault(til, {"fra": [], "til": []})["fra"]
+        if fra == KVITTERING:
+            liste = resultat.setdefault(til, copy.deepcopy(tom))["kvittering"]
+        elif fra.startswith("catenda:") and not til.startswith("catenda:"):
+            liste = resultat.setdefault(til, copy.deepcopy(tom))["fra"]
         elif til.startswith("catenda:") and not fra.startswith("catenda:"):
-            liste = resultat.setdefault(fra, {"fra": [], "til": []})["til"]
+            liste = resultat.setdefault(fra, copy.deepcopy(tom))["til"]
         else:
             continue
         if fid not in liste:
@@ -416,4 +448,6 @@ def tabelltekst(register: dict, tabell: str) -> str:
         deler.append("fra Catenda i " + ", ".join(flyter["fra"]))
     if flyter["til"]:
         deler.append("til Catenda i " + ", ".join(flyter["til"]))
+    if flyter["kvittering"]:
+        deler.append("kvittering for kall til Catenda i " + ", ".join(flyter["kvittering"]))
     return "Dataflyt: " + "; ".join(deler) + " (arket Dataflyt)."

@@ -639,3 +639,19 @@ begrunnelse = "Rest (MS-15). Ingen leser tabellen (DA-10)."
 [[uten_relasjon]]
 kolonne = "project_memberships.invited_by"
 begrunnelse = "Rest (MS-15). E-post."
+
+[[uten_relasjon]]
+kolonne = "app_users.email"
+begrunnelse = "Brukerens egen e-post, oppdatert fra Catenda. Personen er `id`."
+
+[[uten_relasjon]]
+kolonne = "app_project_memberships.user_email"
+begrunnelse = "Kopi av e-posten i medlemslisten fra Catenda. Personen er `user_id`."
+
+[[uten_relasjon]]
+kolonne = "magic_links.email"
+begrunnelse = "Rest (MS-15). Mottakeren av lenken, som e-post."
+
+[[uten_relasjon]]
+kolonne = "project_memberships.user_email"
+begrunnelse = "Rest (MS-15). Medlemmet, identifisert med e-post; unik per prosjekt."
