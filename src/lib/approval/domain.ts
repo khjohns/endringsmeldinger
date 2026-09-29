@@ -2,6 +2,7 @@ import {
   emptyApprovalState,
   type ApprovalState,
   type ApprovalUser,
+  type Krav,
   type LetterDocument,
   type ReviewItem,
 } from './types';
@@ -19,13 +20,18 @@ export type ApprovalCommand =
 export function approversFor(
   items: ReviewItem[],
   chain: ApprovalUser[],
-  authority: { sender: ApprovalUser; dailyRate: number | null }
+  authority: { sender: ApprovalUser; dailyRate: number | null; krav?: Krav }
 ): ApprovalUser[] {
-  const amount = calculateAuthority(items, authority.dailyRate).amount;
-  if (amount === null)
+  const { amount, ukjent, minimum } = calculateAuthority(
+    items,
+    authority.dailyRate,
+    authority.krav
+  );
+  if (amount === null && !ukjent)
     throw new Error('Fullmakt kan ikke beregnes: dagmulktssats må konfigureres på serveren.');
   const route = resolveRoute({
     amount,
+    minimum,
     sender: withLimit(authority.sender),
     chain: chain.map(withLimit),
   });
@@ -42,7 +48,7 @@ export function transition(
   chain: ApprovalUser[],
   currentClaims: Record<string, string>,
   now = new Date().toISOString(),
-  authority?: { sender: ApprovalUser; dailyRate: number | null }
+  authority?: { sender: ApprovalUser; dailyRate: number | null; krav?: Krav }
 ): ApprovalState {
   const next = structuredClone(current);
   const assert = (condition: unknown, message: string) => {
