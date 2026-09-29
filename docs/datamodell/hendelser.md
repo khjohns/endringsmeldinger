@@ -873,7 +873,7 @@ En KOE-sak med avslått fristkrav knyttes til forseringssaken.
 | Virkning på status | KOE-saken legges i listen over avslåtte fristkrav, om den ikke står der. |
 | Behandler | `TimelineService._handle_forsering_koe_lagt_til` |
 | Funn | — |
-| Belegg | L 29.09: `_handle_forsering_koe_lagt_til`. Ruta POST /api/forsering/<sak>/relatert skriver ikke denne hendelsen; den lager bare relasjoner i Catenda og i `sak_relations`. |
+| Belegg | L 29.09: `_handle_forsering_koe_lagt_til`. Ruta POST /api/forsering/<sak>/relatert skriver ikke denne hendelsen; den lager bare relasjonen i Catenda. Rettet i fase 1c: første runde sa at ruta også skriver `sak_relations`, men `BaseSakService.legg_til_relatert_sak` gjør ikke det (dataflyten, C11). |
 
 Feltene i `data`:
 

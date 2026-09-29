@@ -1,0 +1,974 @@
+# Dataflyten mellom appens tabeller og Catenda (spor M, fase 1c). Kilden for
+# arket «Dataflyt», flytdiagrammene i relasjoner.md og flyt-ID-ene i kolonne 6
+# i tabellbeskrivelsen.
+#
+# Rett her, ikke i de genererte filene. Testene i backend/tests/test_datamodell/
+# feiler når
+#   - et sted i backend kaller Catenda-klienten uten å stå som kode i en pil
+#     eller under [[uten_flyt]]
+#   - en kodereferanse ikke er definert i fila, eller en databasefunksjon ikke
+#     finnes i katalog.json
+#   - en pil går til noe som verken er en tabell, en Catenda-ressurs eller «appen»
+#
+# Én flyt er én handling. Hvert steg er en pil fra `fra` til hvert mål i `til`.
+# `kode` er én kallkjede, fra der handlingen starter til klienten eller
+# databasefunksjonen, på formen backend/…/fil.py:Klasse.funksjon eller
+# databasefunksjon:navn. Siste ledd står på pilen i diagrammet: på en pil ut
+# er det koden som gjør kallet, på en pil inn det som skriver tabellen. Har to
+# veier ulike kjeder, eller to tabeller ulike skrivere, er de to steg. «appen» betyr at dataene brukes eller vises, men
+# ikke lagres. Retning: inn (fra Catenda), ut (til Catenda) eller begge.
+# `drift = true` merker en flyt bare driftsskript utløser; den tegnes i et eget
+# diagram. Utviklerskript står under [[uten_flyt]] og tegnes ikke.
+#
+# Endepunktene er relative til https://api.catenda.com. `topic_board_id`,
+# `library_id` og `folder_id` er de globale innstillingene i
+# `settings.get_catenda_config()`, ikke prosjektets konfigurasjon, der ikke
+# annet er sagt (INT-06).
+#
+# Første runde 29.09. Belegg: L lest i koden 29.09, K kjørt og observert.
+
+autentisering = ["authenticate", "ensure_authenticated"]
+
+[[catenda]]
+id = "webhook"
+navn = "webhook-varsel"
+
+[[catenda]]
+id = "token"
+navn = "OAuth-token"
+
+[[catenda]]
+id = "bruker"
+navn = "innlogget bruker"
+
+[[catenda]]
+id = "prosjekt"
+navn = "prosjekter"
+
+[[catenda]]
+id = "medlemmer"
+navn = "prosjektmedlemmer"
+
+[[catenda]]
+id = "team"
+navn = "team og teammedlemmer"
+
+[[catenda]]
+id = "board"
+navn = "topic board"
+
+[[catenda]]
+id = "topic"
+navn = "topics"
+
+[[catenda]]
+id = "kommentar"
+navn = "kommentarer"
+
+[[catenda]]
+id = "relasjon"
+navn = "relaterte topics"
+
+[[catenda]]
+id = "dokument"
+navn = "dokumentbiblioteket"
+
+[[catenda]]
+id = "dokumentreferanse"
+navn = "dokumentreferanser"
+
+[[catenda]]
+id = "ifc"
+navn = "BIM-modeller (IFC)"
+
+[[catenda]]
+id = "svar"
+navn = "svar på kallene"
+
+# ---------------------------------------------------------------------------
+# Webhook fra Catenda
+# ---------------------------------------------------------------------------
+
+[[flyt]]
+id = "C01"
+navn = "Ny topic blir en sak"
+retning = "inn og ut"
+utloses_av = """
+Webhook `issue.created` fra Catenda til `POST /webhook/catenda/<hemmelig sti>`.
+Validatoren avviser `bcf.issue.created` (INT-03)."""
+beskrivelse = """
+Varselet rutes til et prosjekt gjennom `catenda_project_configs` og
+`catenda_topic_board_configs`, og boardet kontrolleres mot Catenda før noe
+skrives. Kan ikke forfatterens kontraktsside eller identitet avgjøres, opprettes
+ingen sak. Saken får en kommentar med lenke tilbake på topicen."""
+funn = ["INT-02", "INT-03"]
+belegg = "L 29.09: ruta, `WebhookService`, resolveren og `SakCreationService`."
+
+[[flyt.steg]]
+fra = "catenda:webhook"
+til = ["Webhook-reservasjon"]
+endepunkt = "Innkommende POST fra Catenda"
+kode = [
+    "backend/routes/catenda_webhook_routes.py:webhook",
+    "backend/lib/security/webhook_security.py:is_duplicate_event",
+]
+data = "Varselets ID, så samme varsel ikke behandles to ganger. Reserveres før behandlingen (INT-02)."
+
+[[flyt.steg]]
+fra = "catenda:board"
+til = ["appen"]
+endepunkt = "GET /opencde/bcf/3.0/projects/{topic_board_id}"
+kode = [
+    "backend/services/catenda_project_resolver.py:CatendaProjectResolver.resolve",
+    "backend/services/catenda_project_resolver_factory.py:_make_bimsync_lookup.lookup",
+]
+data = "`bimsync_project_id` for boardet i varselet, kontrollert mot prosjektet i varselet og i registeret."
+
+[[flyt.steg]]
+fra = "catenda:topic"
+til = ["sak_metadata", "hendelse"]
+endepunkt = "GET /opencde/bcf/3.0/projects/{topic_board_id}/topics/{topic_guid}"
+kode = [
+    "backend/services/catenda_webhook_service.py:WebhookService.handle_new_topic_created",
+    "backend/services/sak_creation_service.py:SakCreationService.create_sak",
+]
+data = """
+Tittel og topictype, som blir sakstypen. `sak_metadata` får også topic-,
+board- og prosjekt-ID; journalen får `sak_opprettet`. Boardet er det fra
+varselet, ikke den globale innstillingen."""
+
+[[flyt.steg]]
+fra = "catenda:topic"
+til = ["app_users", "app_identities"]
+endepunkt = "GET /opencde/bcf/3.0/projects/{topic_board_id}/topics/{topic_guid}"
+kode = [
+    "backend/services/catenda_webhook_service.py:WebhookService._aktor_id",
+    "backend/repositories/auth_repository.py:AuthRepository.identity",
+    "databasefunksjon:koe_resolve_identity",
+]
+data = """
+Forfatterens Catenda-ID (`bimsync_creation_author.user.ref`), løst til
+`app_users.id`. Raden opprettes bare om den mangler; normalt finnes den fra
+medlemssynkroniseringen (C04)."""
+
+[[flyt.steg]]
+fra = "catenda:team"
+til = ["hendelse"]
+endepunkt = "GET /v2/projects/{catenda_project_id}/teams/{team_id}/members"
+kode = [
+    "backend/services/catenda_webhook_service.py:WebhookService._contract_side",
+    "backend/services/auth_service.py:AuthService.contract_membership_for_subject",
+    "backend/lib/auth/catenda_oauth.py:CatendaOAuth.team_members",
+]
+data = """
+Hvilket kontraktsteam forfatteren sitter i, for hvert team i
+`catenda_contract_teams`. Gir `actorrole`; teamet lagres ikke for denne
+hendelsen."""
+
+[[flyt.steg]]
+fra = "catenda:prosjekt"
+til = ["appen"]
+endepunkt = "GET /v2/projects/{catenda_project_id}"
+kode = ["backend/services/catenda_webhook_service.py:WebhookService.handle_new_topic_created"]
+data = "Prosjektnavnet, brukt i kommentaren."
+
+[[flyt.steg]]
+fra = "sak_metadata"
+til = ["catenda:kommentar"]
+endepunkt = "POST /opencde/bcf/3.0/projects/{topic_board_id}/topics/{topic_guid}/comments"
+kode = ["backend/services/catenda_webhook_service.py:WebhookService.handle_new_topic_created"]
+data = "Saks-ID, sakstype og lenke til saken i appen. Feiler kallet, står saken likevel."
+
+[[flyt]]
+id = "C02"
+navn = "Endring på en topic"
+retning = "inn"
+utloses_av = "Webhook `issue.modified` eller `issue.status.changed` fra Catenda."
+beskrivelse = """
+Statusendringer og kommentarer i Catenda blir bare logget. Sakens status
+kommer fra journalen, og Catenda endrer den ikke."""
+funn = ["INT-03"]
+belegg = "L 29.09: ruta og `handle_topic_modification`."
+
+[[flyt.steg]]
+fra = "catenda:webhook"
+til = ["Webhook-reservasjon"]
+endepunkt = "Innkommende POST fra Catenda"
+kode = [
+    "backend/routes/catenda_webhook_routes.py:webhook",
+    "backend/lib/security/webhook_security.py:is_duplicate_event",
+]
+data = "Varselets ID."
+
+[[flyt.steg]]
+fra = "catenda:webhook"
+til = ["appen"]
+endepunkt = "Innkommende POST fra Catenda"
+kode = ["backend/services/catenda_webhook_service.py:WebhookService.handle_topic_modification"]
+data = "Topicens ID, slått opp i `sak_metadata`, og hva som er endret. Skrives bare til loggen."
+
+# ---------------------------------------------------------------------------
+# Innlogging, medlemskap og kontraktsside
+# ---------------------------------------------------------------------------
+
+[[flyt]]
+id = "C03"
+navn = "Innlogging"
+retning = "inn"
+utloses_av = "`GET /api/auth/catenda/callback` når Catenda sender brukeren tilbake."
+beskrivelse = """
+Innloggingen bruker brukerens eget token, som bare lever i forespørselen.
+Sesjonen og det påbegynte innloggingsforsøket (`app_sessions`,
+`app_oauth_attempts`) lages av appen og inneholder ingen data fra Catenda.
+Innloggingen utløser også C04 for hvert registrert prosjekt brukeren ser."""
+funn = []
+belegg = "L 29.09: `auth_routes.callback`, `AuthService.login` og `CatendaOAuth`."
+
+[[flyt.steg]]
+fra = "catenda:token"
+til = ["appen"]
+endepunkt = "POST /oauth2/token"
+kode = [
+    "backend/routes/auth_routes.py:callback",
+    "backend/lib/auth/catenda_oauth.py:CatendaOAuth.exchange",
+]
+data = "Brukerens tilgangstoken. Lagres ikke."
+
+[[flyt.steg]]
+fra = "catenda:bruker"
+til = ["app_users", "app_identities"]
+endepunkt = "GET /v2/user"
+kode = [
+    "backend/services/auth_service.py:AuthService.login",
+    "backend/lib/auth/catenda_oauth.py:CatendaOAuth.user",
+    "backend/repositories/auth_repository.py:AuthRepository.identity",
+    "databasefunksjon:koe_resolve_identity",
+]
+data = "Catenda-ID, e-post og navn. E-post og navn oppdateres ved hver innlogging."
+
+[[flyt.steg]]
+fra = "catenda:prosjekt"
+til = ["app_project_memberships"]
+endepunkt = "GET /v2/projects (sidevis)"
+kode = [
+    "backend/services/auth_service.py:AuthService.login",
+    "backend/lib/auth/catenda_oauth.py:CatendaOAuth.projects",
+    "backend/repositories/auth_repository.py:AuthRepository.deactivate_user_projects",
+]
+data = """
+Prosjektene brukeren ser i Catenda. Medlemskap i registrerte prosjekter
+brukeren ikke lenger ser, deaktiveres."""
+
+[[flyt]]
+id = "C04"
+navn = "Medlemslisten synkroniseres"
+retning = "inn"
+utloses_av = """
+Innlogging (C03); tilgangskontrollen, når kopien er eldre enn
+`AUTH_MEMBERSHIP_MAX_AGE_SECONDS` (standard 900 sekunder);
+`POST /api/projects/<id>/members/sync`; og driftsskriptene
+`sync_catenda_memberships.py` og `catenda_admin.py sync-members`."""
+beskrivelse = """
+Utenfor innloggingen brukes integrasjonsklientens token, aldri en brukers.
+Et medlem som mangler i Catenda, deaktiveres; `viewer_override` beholdes."""
+funn = []
+belegg = """
+L 29.09: `AuthService.sync` og `ensure_fresh`, kallerne, og
+`koe_reconcile_memberships` i migrasjonene."""
+
+[[flyt.steg]]
+fra = "catenda:medlemmer"
+til = ["app_project_memberships", "app_membership_sync"]
+endepunkt = "GET /v2/projects/{catenda_project_id}/members?userType=user (sidevis)"
+kode = [
+    "backend/services/auth_service.py:AuthService.sync",
+    "backend/lib/auth/catenda_oauth.py:CatendaOAuth.members",
+    "backend/repositories/auth_repository.py:AuthRepository.reconcile",
+    "databasefunksjon:koe_reconcile_memberships",
+]
+data = """
+Hvert medlem med Catenda-ID, e-post, navn og rolle. Catenda-prosjektet er
+prosjektets eget fra `catenda_project_configs`. Funksjonen oppdaterer
+medlemskapene og skriver tidspunktet."""
+
+[[flyt.steg]]
+fra = "catenda:medlemmer"
+til = ["app_users", "app_identities"]
+endepunkt = "GET /v2/projects/{catenda_project_id}/members?userType=user (sidevis)"
+kode = [
+    "backend/services/auth_service.py:AuthService.sync",
+    "backend/repositories/auth_repository.py:AuthRepository.reconcile",
+    "databasefunksjon:koe_reconcile_memberships",
+    "databasefunksjon:koe_resolve_identity",
+]
+data = "Hver person løst til en brukerrad. E-post og navn oppdateres fra medlemslisten."
+
+[[flyt]]
+id = "C05"
+navn = "Kontraktsside og team ved skriving"
+retning = "inn"
+utloses_av = """
+Hver rute med `require_contract_role`, og lesing av interne notater, utkast og
+vedlegg som ikke er sendt."""
+beskrivelse = """
+Kontraktssiden og teamet leses fra Catenda ved hver forespørsel, uten
+mellomlagring. Hvilke team som er TE og BH, står i `catenda_contract_teams`.
+Treffer brukeren team på begge sider, får brukeren ingen side, og treffer
+brukeren flere team på samme side, blir teamet tomt."""
+funn = []
+belegg = "L 29.09: `contract_role.py`, `event_visibility.py` og `AuthService.contract_membership`."
+
+[[flyt.steg]]
+fra = "catenda:team"
+til = ["hendelse", "notat", "utkast", "vedlegg"]
+endepunkt = "GET /v2/projects/{catenda_project_id}/teams/{team_id}/members (sidevis), for hvert kontraktsteam"
+kode = [
+    "backend/lib/auth/contract_role.py:require_contract_role",
+    "backend/lib/auth/event_visibility.py:reader_contract_team",
+    "backend/services/auth_service.py:AuthService.contract_membership",
+    "backend/services/auth_service.py:AuthService.contract_membership_for_subject",
+    "backend/lib/auth/catenda_oauth.py:CatendaOAuth.team_members",
+]
+data = """
+Side og team. Blir `actorrole` og `actorteam` i hendelsen, `aktor_rolle` og
+`aktor_team_id` i notatet, `team` og `kontraktsside` i utkastet, og
+`lastet_opp_rolle` og `lastet_opp_team` i vedlegget."""
+
+# ---------------------------------------------------------------------------
+# Levering til Catenda
+# ---------------------------------------------------------------------------
+
+[[flyt]]
+id = "C06"
+navn = "Hendelse sendes til Catenda"
+retning = "ut"
+utloses_av = """
+`POST /api/events` for en sak med topic, når Catenda er slått på.
+`POST /api/events/batch` sender ikke til Catenda (RV-10)."""
+beskrivelse = """
+Hendelsen lagres først, og en feil i Catenda gjør ikke innsendingen
+mislykket. Topic og board leses fra `sak_metadata`; prosjekt, bibliotek og
+mappe fra de globale innstillingene (INT-06). Vedleggene i hendelsen sendes i
+C08."""
+funn = ["INT-06", "RV-10"]
+belegg = "L 29.09: `submit_event` og `_post_to_catenda` med hjelpefunksjonene."
+
+[[flyt.steg]]
+fra = "hendelse"
+til = ["catenda:dokument"]
+endepunkt = "POST /v2/projects/{catenda_project_id}/libraries/{library_id}/items"
+kode = [
+    "backend/routes/event_routes.py:_post_to_catenda",
+    "backend/routes/event_routes.py:_upload_and_link_pdf",
+    "backend/services/catenda_service.py:CatendaService.upload_document",
+]
+data = """
+PDF av brevet eller saken. Et frosset brev i hendelsen gjøres til PDF og må
+komme gjennom; ellers lages PDF-en på serveren."""
+
+[[flyt.steg]]
+fra = "hendelse"
+til = ["catenda:dokumentreferanse"]
+endepunkt = "POST /opencde/bcf/3.0/projects/{topic_board_id}/topics/{topic_guid}/document_references"
+kode = [
+    "backend/routes/event_routes.py:_upload_and_link_pdf",
+    "backend/services/catenda_service.py:CatendaService.create_document_reference",
+]
+data = "Dokument-ID-en fra opplastingen, først med og så uten bindestreker."
+
+[[flyt.steg]]
+fra = "hendelse"
+til = ["catenda:kommentar"]
+endepunkt = "POST /opencde/bcf/3.0/projects/{topic_board_id}/topics/{topic_guid}/comments"
+kode = [
+    "backend/routes/event_routes.py:_post_catenda_comment",
+    "backend/services/catenda_service.py:CatendaService.create_comment",
+]
+data = "Tekst laget av hendelsen og sakens tilstand, med lenke til saken."
+
+[[flyt.steg]]
+fra = "hendelse"
+til = ["catenda:topic"]
+endepunkt = "PUT /opencde/bcf/3.0/projects/{topic_board_id}/topics/{topic_guid}"
+kode = [
+    "backend/routes/event_routes.py:_sync_topic_status",
+    "backend/services/catenda_service.py:CatendaService.update_topic_status",
+]
+data = "Ny topicstatus når sakens overordnede status er endret."
+
+[[flyt.steg]]
+fra = "catenda:svar"
+til = ["catenda_delivery_status"]
+endepunkt = "Ingen egne kall; utfallet av pilene over"
+kode = [
+    "backend/routes/event_routes.py:submit_event",
+    "backend/services/catenda_delivery_status.py:CatendaDeliveryStatus.record",
+]
+data = """
+`pending` før hendelsen lagres. Så `delivered` bare når PDF, kommentar og
+status alle lyktes, ellers `failed`."""
+
+[[flyt]]
+id = "C07"
+navn = "Godkjent BH-svar publiseres"
+retning = "ut"
+utloses_av = "`POST /api/cases/<sak_id>/approvals` med `action: publish`, etter intern godkjenning."
+beskrivelse = """
+Svarene skrives til journalen, og leveringen går gjennom de samme kallene som
+C06, med det godkjente brevet frosset i pakken. En PDF laget på serveren
+godtas ikke. Kvitteringen står i `approval_outbox`, ikke i
+`catenda_delivery_status`. Vedleggene sendes i C08."""
+funn = ["INT-06"]
+belegg = "L 29.09: `approvals` med `dispatch`, og `ApprovalService.deliver`."
+
+[[flyt.steg]]
+fra = "hendelse"
+til = ["catenda:dokument"]
+endepunkt = "POST /v2/projects/{catenda_project_id}/libraries/{library_id}/items"
+kode = [
+    "backend/routes/approval_routes.py:approvals.dispatch",
+    "backend/routes/event_routes.py:_post_to_catenda",
+    "backend/routes/event_routes.py:_upload_and_link_pdf",
+]
+data = "Det godkjente brevet som PDF."
+
+[[flyt.steg]]
+fra = "hendelse"
+til = ["catenda:dokumentreferanse"]
+endepunkt = "POST /opencde/bcf/3.0/projects/{topic_board_id}/topics/{topic_guid}/document_references"
+kode = [
+    "backend/routes/approval_routes.py:approvals.dispatch",
+    "backend/routes/event_routes.py:_upload_and_link_pdf",
+]
+data = "Dokument-ID-en fra opplastingen."
+
+[[flyt.steg]]
+fra = "hendelse"
+til = ["catenda:kommentar"]
+endepunkt = "POST /opencde/bcf/3.0/projects/{topic_board_id}/topics/{topic_guid}/comments"
+kode = [
+    "backend/routes/approval_routes.py:approvals.dispatch",
+    "backend/routes/event_routes.py:_post_catenda_comment",
+]
+data = "Kommentar laget av den siste publiserte hendelsen."
+
+[[flyt.steg]]
+fra = "hendelse"
+til = ["catenda:topic"]
+endepunkt = "PUT /opencde/bcf/3.0/projects/{topic_board_id}/topics/{topic_guid}"
+kode = [
+    "backend/routes/approval_routes.py:approvals.dispatch",
+    "backend/routes/event_routes.py:_sync_topic_status",
+]
+data = "Topicstatus når sakens status er endret."
+
+[[flyt.steg]]
+fra = "catenda:svar"
+til = ["approval_outbox"]
+endepunkt = "Ingen egne kall; utfallet av pilene over"
+kode = ["backend/services/approval_service.py:ApprovalService.deliver"]
+data = "`delivered`, `failed` eller `not_configured`."
+
+[[flyt]]
+id = "C08"
+navn = "Vedlegg sendes til Catenda"
+retning = "inn og ut"
+utloses_av = """
+Etter at en hendelse med `vedlegg_ids` er lagret: `POST /api/events`,
+`POST /api/events/batch` og publisering av en godkjent pakke.
+`POST /api/cases/<sak_id>/vedlegg/retry` prøver på nytt."""
+beskrivelse = """
+Vedlegget ligger mellomlagret i `vedlegg` til hendelsen er lagret. En feil
+gjør ikke innsendingen mislykket; vedlegget blir stående til neste forsøk.
+Bibliotek og mappe er de globale innstillingene (INT-06)."""
+funn = ["INT-06", "MS-11", "AR-03"]
+belegg = "L 29.09: `lever_vedlegg_for_hendelser` og `VedleggRegistry`."
+
+[[flyt.steg]]
+fra = "vedlegg"
+til = ["catenda:dokument"]
+endepunkt = "POST /v2/projects/{catenda_project_id}/libraries/{library_id}/items"
+kode = [
+    "backend/routes/vedlegg_routes.py:lever_vedlegg_for_hendelser",
+    "backend/services/catenda_service.py:CatendaService.upload_document",
+]
+data = "Filinnholdet i `innhold`, med filnavnet, til mappen `folder_id`."
+
+[[flyt.steg]]
+fra = "catenda:dokument"
+til = ["vedlegg"]
+endepunkt = "Svar på opplastingen"
+kode = [
+    "backend/routes/vedlegg_routes.py:lever_vedlegg_for_hendelser",
+    "backend/services/vedlegg_registry.py:VedleggRegistry.mark_uploaded",
+]
+data = """
+Dokument-ID-en i Catenda, i `catenda_item_id`. Lagres før koblingen, så et
+nytt forsøk ikke laster opp dokumentet to ganger."""
+
+[[flyt.steg]]
+fra = "vedlegg"
+til = ["catenda:dokumentreferanse"]
+endepunkt = "POST /opencde/bcf/3.0/projects/{topic_board_id}/topics/{topic_guid}/document_references"
+kode = [
+    "backend/routes/vedlegg_routes.py:lever_vedlegg_for_hendelser",
+    "backend/services/catenda_service.py:CatendaService.create_document_reference",
+]
+data = "Dokument-ID-en, koblet til sakens topic."
+
+[[flyt.steg]]
+fra = "catenda:svar"
+til = ["vedlegg"]
+endepunkt = "Svar på koblingen"
+kode = [
+    "backend/routes/vedlegg_routes.py:lever_vedlegg_for_hendelser",
+    "backend/services/vedlegg_registry.py:VedleggRegistry.mark_delivered",
+]
+data = "Status `delivered`. Det mellomlagrede innholdet slettes."
+
+[[flyt]]
+id = "C09"
+navn = "Vedlegg lastes ned"
+retning = "inn"
+utloses_av = "`GET /api/cases/<sak_id>/vedlegg/<vedlegg_id>` for et vedlegg som er levert."
+beskrivelse = """
+Er vedlegget ikke levert, kommer innholdet fra `vedlegg`. Er det levert,
+hentes det fra Catenda med `catenda_item_id`."""
+funn = ["INT-06"]
+belegg = "L 29.09: `last_ned_vedlegg`."
+
+[[flyt.steg]]
+fra = "catenda:dokument"
+til = ["appen"]
+endepunkt = "GET /v2/projects/{catenda_project_id}/libraries/{library_id}/items/{item_id}"
+kode = [
+    "backend/routes/vedlegg_routes.py:last_ned_vedlegg",
+    "backend/services/catenda_service.py:CatendaService.download_document",
+]
+data = "Filinnholdet, sendt rett til brukeren. Appen beholder ingen kopi."
+
+# ---------------------------------------------------------------------------
+# Forsering, endringsordre og relaterte saker
+# ---------------------------------------------------------------------------
+
+[[flyt]]
+id = "C10"
+navn = "Forsering opprettes"
+retning = "inn og ut"
+utloses_av = "`POST /api/forsering/opprett`. Frontenden kaller ikke ruta."
+beskrivelse = """
+Lager topicen og relasjonene i Catenda og radene i `sak_relations`, men ingen
+hendelse og ingen rad i `sak_metadata` (gjennomføringsnotatet for 1b,
+avsnitt 3). Topicen og relasjonene legges på det globale boardet."""
+funn = []
+belegg = "L 29.09: `ForseringService.opprett_forseringssak` og ruta."
+
+[[flyt.steg]]
+fra = "appen"
+til = ["catenda:topic"]
+endepunkt = "POST /opencde/bcf/3.0/projects/{topic_board_id}/topics"
+kode = ["backend/services/forsering_service.py:ForseringService.opprett_forseringssak"]
+data = "Tittel med de avslåtte sakene, begrunnelsen og typen `Forsering`."
+
+[[flyt.steg]]
+fra = "appen"
+til = ["catenda:relasjon"]
+endepunkt = "GET og PUT /opencde/bcf/3.0/projects/{topic_board_id}/topics/{topic_guid}/related_topics"
+kode = ["backend/services/forsering_service.py:ForseringService.opprett_forseringssak"]
+data = """
+Toveis relasjoner mellom forseringen og hver avslåtte sak. Sak-ID-ene sendes
+som topic-GUID-er, og klienten avviser en ID som ikke er en GUID."""
+
+[[flyt.steg]]
+fra = "catenda:topic"
+til = ["sak_relations"]
+endepunkt = "Svar på POST topics"
+kode = ["backend/services/forsering_service.py:ForseringService.opprett_forseringssak"]
+data = "Topicens GUID blir forseringens sak-ID i `source_sak_id`."
+
+[[flyt]]
+id = "C11"
+navn = "KOE legges til eller fjernes fra en forsering"
+retning = "ut"
+utloses_av = """
+`POST /api/forsering/<sak_id>/relatert` og
+`DELETE /api/forsering/<sak_id>/relatert/<koe_sak_id>`. Frontenden kaller ikke
+rutene."""
+beskrivelse = """
+Bare relasjonene i Catenda endres. Verken `sak_relations` eller journalen
+endres, så `GET /api/forsering/by-relatert/<sak_id>`, som leser
+`sak_relations`, ser ikke endringen. Endringsordren gjør alle tre (C15)."""
+funn = []
+belegg = """
+L 29.09: `BaseSakService.legg_til_relatert_sak` og `fjern_relatert_sak`, som
+`ForseringService` arver uten å overstyre."""
+
+[[flyt.steg]]
+fra = "appen"
+til = ["catenda:relasjon"]
+endepunkt = "GET og PUT /opencde/bcf/3.0/projects/{topic_board_id}/topics/{topic_guid}/related_topics"
+kode = ["backend/services/base_sak_service.py:BaseSakService.legg_til_relatert_sak"]
+data = "Toveis relasjon mellom forseringen og KOE-saken, med sak-ID-ene som topic-GUID-er."
+
+[[flyt.steg]]
+fra = "appen"
+til = ["catenda:relasjon"]
+endepunkt = "DELETE /opencde/bcf/3.0/projects/{topic_board_id}/topics/{topic_guid}/related_topics/{related_topic_guid}"
+kode = ["backend/services/base_sak_service.py:BaseSakService.fjern_relatert_sak"]
+data = "Begge retningene av relasjonen fjernes."
+
+[[flyt]]
+id = "C12"
+navn = "Relaterte saker hentes fra Catenda"
+retning = "inn"
+utloses_av = """
+`GET /api/forsering/<sak_id>/relaterte` og `/kontekst`, og
+`GET /api/endringsordre/<sak_id>/relaterte` og `/kontekst`."""
+beskrivelse = """
+Relasjonene leses fra Catenda, ikke fra `sak_relations`. Hver relatert topic
+slås opp mot journalen, og topics uten sak i det autoriserte prosjektet faller
+ut (AUT-01, AUT-02)."""
+funn = ["AUT-01", "AUT-02"]
+belegg = "L 29.09: `BaseSakService.hent_relaterte_saker` og rutene."
+
+[[flyt.steg]]
+fra = "catenda:relasjon"
+til = ["appen"]
+endepunkt = "GET /opencde/bcf/3.0/projects/{topic_board_id}/topics/{topic_guid}/related_topics?includeBimsyncProjectTopics=true"
+kode = ["backend/services/base_sak_service.py:BaseSakService.hent_relaterte_saker"]
+data = "GUID-ene til de relaterte topicene."
+
+[[flyt.steg]]
+fra = "catenda:topic"
+til = ["appen"]
+endepunkt = "GET /opencde/bcf/3.0/projects/{topic_board_id}/topics/{related_topic_guid}"
+kode = ["backend/services/base_sak_service.py:BaseSakService.hent_relaterte_saker"]
+data = "Tittelen på hver relaterte topic."
+
+[[flyt]]
+id = "C13"
+navn = "Saker fra topiclisten"
+retning = "inn"
+utloses_av = """
+`GET /api/forsering/kandidater` og `GET /api/forsering/by-relatert/<sak_id>`,
+som søker gjennom alle saker."""
+beskrivelse = """
+Alle topics på det globale boardet hentes og slås opp mot `sak_metadata` med
+topic-ID. Søket går på tvers av prosjekter og avgrenses før tilstanden leses
+(AUT-02)."""
+funn = ["AUT-02"]
+belegg = "L 29.09: `hent_kandidat_koe_saker`, `finn_forseringer_for_sak` og `get_all_sak_ids`."
+
+[[flyt.steg]]
+fra = "catenda:topic"
+til = ["appen"]
+endepunkt = "GET /opencde/bcf/3.0/projects/{topic_board_id}/topics (sidevis)"
+kode = ["backend/services/forsering_service.py:ForseringService.hent_kandidat_koe_saker"]
+data = "Topic-GUID-ene, oversatt til sak-ID-er, for å finne KOE-saker med avslått fristkrav."
+
+[[flyt.steg]]
+fra = "catenda:topic"
+til = ["appen"]
+endepunkt = "GET /opencde/bcf/3.0/projects/{topic_board_id}/topics (sidevis)"
+kode = [
+    "backend/services/forsering_service.py:ForseringService.finn_forseringer_for_sak",
+    "backend/lib/helpers/sak_lookup.py:get_all_sak_ids",
+]
+data = "Topic-GUID-ene, oversatt til sak-ID-er, for å finne forseringer som omfatter en sak."
+
+[[flyt]]
+id = "C14"
+navn = "Forseringshendelse sendes til Catenda"
+retning = "ut"
+utloses_av = """
+`POST /api/forsering/<sak_id>/bh-respons`, `POST /api/forsering/<sak_id>/stopp`
+og `PUT /api/forsering/<sak_id>/kostnader`."""
+beskrivelse = """
+Kommentar og status, uten PDF og uten kvittering. Topicen leses fra
+`sak_metadata`."""
+funn = []
+belegg = "L 29.09: `_sync_forsering_to_catenda` og `CatendaSyncService`."
+
+[[flyt.steg]]
+fra = "hendelse"
+til = ["catenda:kommentar"]
+endepunkt = "POST /opencde/bcf/3.0/projects/{topic_board_id}/topics/{topic_guid}/comments"
+kode = [
+    "backend/routes/forsering_routes.py:_sync_forsering_to_catenda",
+    "backend/services/catenda_sync_service.py:CatendaSyncService._post_comment",
+    "backend/services/catenda_service.py:CatendaService.create_comment",
+]
+data = "Tekst laget av hendelsen, med lenke til saken."
+
+[[flyt.steg]]
+fra = "hendelse"
+til = ["catenda:topic"]
+endepunkt = "PUT /opencde/bcf/3.0/projects/{topic_board_id}/topics/{topic_guid}"
+kode = [
+    "backend/services/catenda_sync_service.py:CatendaSyncService._update_status",
+    "backend/services/catenda_service.py:CatendaService.update_topic_status",
+]
+data = "Ny topicstatus når sakens status er endret."
+
+[[flyt]]
+id = "C15"
+navn = "Endringsordre opprettes eller endres"
+retning = "inn og ut"
+utloses_av = """
+`POST /api/endringsordre/opprett`, utstedelse etter godkjenning, og
+`POST /api/endringsordre/<sak_id>/koe` og `DELETE …/koe/<koe_sak_id>`."""
+beskrivelse = """
+Saken, hendelsene og `sak_relations` skrives først; Catenda er valgfritt.
+Topicen opprettes bare når prosjektet er `oslobygg`, registeret er `legacy`
+og alle KOE-sakene ligger på det globale boardet; ellers blir resultatet
+`not_configured` (auditen av godkjenningspanelet 16.09)."""
+funn = []
+belegg = "L 29.09: `EndringsordreService._sync_to_catenda`, `legg_til_koe` og `fjern_koe`."
+
+[[flyt.steg]]
+fra = "appen"
+til = ["catenda:topic"]
+endepunkt = "POST /opencde/bcf/3.0/projects/{topic_board_id}/topics"
+kode = ["backend/services/endringsordre_service.py:EndringsordreService._sync_to_catenda"]
+data = "Tittel `Endringsordre <nummer>`, beskrivelsen og typen `Endringsordre`."
+
+[[flyt.steg]]
+fra = "catenda:topic"
+til = ["sak_metadata"]
+endepunkt = "Svar på POST topics"
+kode = [
+    "backend/services/endringsordre_service.py:EndringsordreService._sync_to_catenda",
+    "backend/repositories/postgres/sak_metadata.py:PostgresSakMetadataRepository.set_catenda_mapping",
+]
+data = "Topicens GUID, boardet og Catenda-prosjektet, lagret straks, også om en relasjon senere feiler."
+
+[[flyt.steg]]
+fra = "sak_metadata"
+til = ["catenda:relasjon"]
+endepunkt = "GET og PUT /opencde/bcf/3.0/projects/{topic_board_id}/topics/{topic_guid}/related_topics"
+kode = ["backend/services/endringsordre_service.py:EndringsordreService._sync_to_catenda"]
+data = "Toveis relasjoner mellom den nye endringsordren og KOE-sakene, med KOE-sakenes topic-ID fra `sak_metadata`."
+
+[[flyt.steg]]
+fra = "hendelse"
+til = ["catenda:relasjon"]
+endepunkt = "GET og PUT /opencde/bcf/3.0/projects/{topic_board_id}/topics/{topic_guid}/related_topics"
+kode = ["backend/services/endringsordre_service.py:EndringsordreService.legg_til_koe"]
+data = """
+Toveis relasjon, etter at `eo_koe_lagt_til` og raden i `sak_relations` er
+skrevet. Sak-ID-ene sendes som topic-GUID-er."""
+
+[[flyt.steg]]
+fra = "hendelse"
+til = ["catenda:relasjon"]
+endepunkt = "DELETE /opencde/bcf/3.0/projects/{topic_board_id}/topics/{topic_guid}/related_topics/{related_topic_guid}"
+kode = ["backend/services/endringsordre_service.py:EndringsordreService.fjern_koe"]
+data = "Begge retningene fjernes, etter `eo_koe_fjernet` og slettingen i `sak_relations`."
+
+# ---------------------------------------------------------------------------
+# BIM og verktøy
+# ---------------------------------------------------------------------------
+
+[[flyt]]
+id = "C16"
+navn = "BIM-objekter vises"
+retning = "inn"
+utloses_av = """
+`GET /api/bim/ifc-products`, `GET /api/bim/ifc-types` og
+`GET /api/saker/<sak_id>/bim-links/<link_id>/related`."""
+beskrivelse = """
+De to listene finner Catenda-prosjektet i `catenda_models_cache`, som ingen
+skriver (DM-02), og gir derfor tomme lister. Relasjonene til et koblet objekt
+bruker `sak_metadata.catenda_project_id` og `sak_bim_links.object_id`."""
+funn = ["DM-02", "DA-15"]
+belegg = "L 29.09: BIM-rutene."
+
+[[flyt.steg]]
+fra = "catenda:ifc"
+til = ["appen"]
+endepunkt = """
+GET /v2/projects/{catenda_project_id}/ifc/products, POST samme sti ved søk, og
+GET …/ifc/products/ifctypes"""
+kode = ["backend/routes/bim_link_routes.py:list_ifc_products"]
+data = "Objektene i modellene, med antall per IFC-type."
+
+[[flyt.steg]]
+fra = "catenda:ifc"
+til = ["appen"]
+endepunkt = "GET /v2/projects/{catenda_project_id}/ifc/products/ifctypes"
+kode = ["backend/routes/bim_link_routes.py:list_ifc_types"]
+data = "Antall objekter per IFC-type."
+
+[[flyt.steg]]
+fra = "catenda:ifc"
+til = ["appen"]
+endepunkt = "GET /v2/projects/{catenda_project_id}/ifc/products/{object_id}/relations"
+kode = ["backend/routes/bim_link_routes.py:get_related_bim_objects"]
+data = "Objektene et koblet objekt er relatert til, gruppert."
+
+[[flyt]]
+id = "C17"
+navn = "Kontroll av tilkoblingen og en bruker"
+retning = "inn"
+utloses_av = "`GET /api/health/catenda` og `POST /api/validate-user`."
+beskrivelse = "Leser fra Catenda og svarer; ingenting lagres."
+funn = []
+belegg = "L 29.09: `utility_routes.py`."
+
+[[flyt.steg]]
+fra = "catenda:prosjekt"
+til = ["appen"]
+endepunkt = "GET /v2/projects"
+kode = ["backend/routes/utility_routes.py:catenda_health_check"]
+data = "Om integrasjonsklienten får en prosjektliste."
+
+[[flyt.steg]]
+fra = "catenda:medlemmer"
+til = ["appen"]
+endepunkt = "GET /v2/projects/{catenda_project_id}/members"
+kode = ["backend/routes/utility_routes.py:validate_user"]
+data = "Om en e-post er medlem i det globale Catenda-prosjektet."
+
+# ---------------------------------------------------------------------------
+# Drift
+# ---------------------------------------------------------------------------
+
+[[flyt]]
+id = "C18"
+drift = true
+navn = "Prosjekt registreres av drift"
+retning = "inn"
+utloses_av = "`scripts/catenda_admin.py register`."
+beskrivelse = """
+Drift oppgir Catenda-prosjekt, bibliotek, mappe, board og kontraktsteam.
+Navnet hentes fra Catenda om det ikke er oppgitt, og teamene kontrolleres mot
+Catenda. Én databasefunksjon skriver alt atomisk; triggeren på `projects`
+legger i tillegg inn en rad i `project_memberships`."""
+funn = ["MS-12"]
+belegg = """
+L 29.09: `cmd_register`, `koe_register_project` i migrasjonene, og at den kaller
+`koe_set_contract_teams`. K 29.09: triggeren i katalogen."""
+
+[[flyt.steg]]
+fra = "catenda:prosjekt"
+til = ["projects"]
+endepunkt = "GET /v2/projects/{catenda_project_id}"
+kode = [
+    "backend/scripts/catenda_admin.py:cmd_register",
+    "backend/scripts/catenda_admin.py:fetch_catenda_project_name",
+    "backend/repositories/auth_repository.py:AuthRepository.register_project",
+    "databasefunksjon:koe_register_project",
+]
+data = "Prosjektnavnet, når drift ikke har oppgitt det."
+
+[[flyt.steg]]
+fra = "catenda:team"
+til = ["catenda_contract_teams"]
+endepunkt = "GET /v2/projects/{catenda_project_id}/teams"
+kode = [
+    "backend/scripts/catenda_admin.py:cmd_register",
+    "backend/repositories/auth_repository.py:AuthRepository.register_project",
+    "databasefunksjon:koe_register_project",
+    "databasefunksjon:koe_set_contract_teams",
+]
+data = "Kontroll av at teamene drift oppgir, finnes i Catenda-prosjektet. ID-ene kommer fra drift."
+
+[[flyt]]
+id = "C19"
+drift = true
+navn = "Kontraktsteam endres av drift"
+retning = "inn"
+utloses_av = "`scripts/catenda_admin.py contract-teams` med `--bh` og `--te`."
+beskrivelse = "Samme kontroll som i C18, og funksjonen erstatter prosjektets team i én transaksjon."
+funn = []
+belegg = "L 29.09: `cmd_contract_teams` og `koe_set_contract_teams`."
+
+[[flyt.steg]]
+fra = "catenda:team"
+til = ["catenda_contract_teams"]
+endepunkt = "GET /v2/projects/{catenda_project_id}/teams"
+kode = [
+    "backend/scripts/catenda_admin.py:cmd_contract_teams",
+    "backend/repositories/auth_repository.py:AuthRepository.set_contract_teams",
+    "databasefunksjon:koe_set_contract_teams",
+]
+data = "Kontroll av at teamene drift oppgir, finnes i Catenda-prosjektet."
+
+[[flyt]]
+id = "C20"
+drift = true
+navn = "Prosjektnavn hentes på nytt av drift"
+retning = "inn"
+utloses_av = "`scripts/catenda_admin.py sync-name`."
+beskrivelse = """
+Oppdaterer `projects.name` direkte, utenom `koe_register_project`. Skriptet
+bruker Supabase-klienten."""
+funn = []
+belegg = "L 29.09: `cmd_sync_name`."
+
+[[flyt.steg]]
+fra = "catenda:prosjekt"
+til = ["projects"]
+endepunkt = "GET /v2/projects/{catenda_project_id}"
+kode = [
+    "backend/scripts/catenda_admin.py:fetch_catenda_project_name",
+    "backend/scripts/catenda_admin.py:cmd_sync_name",
+]
+data = "Prosjektnavnet i Catenda, for hvert registrert prosjekt."
+
+# ---------------------------------------------------------------------------
+# Kall til Catenda som ikke er en del av appens dataflyt
+# ---------------------------------------------------------------------------
+
+[[uten_flyt]]
+fil = "backend/services/catenda_webhook_service.py"
+funksjon = "WebhookService.handle_pdf_upload"
+begrunnelse = "Ingen kaller, heller ikke i testene (L 29.09)."
+
+[[uten_flyt]]
+fil = "backend/services/base_sak_service.py"
+funksjon = "BaseSakService._create_topic_with_relations"
+begrunnelse = "Ingen kaller, heller ikke i testene (L 29.09). Forsering og endringsordre oppretter topicen selv."
+
+[[uten_flyt]]
+fil = "backend/scripts/catenda_admin.py"
+funksjon = "cmd_teams"
+begrunnelse = "Viser teamene i et Catenda-prosjekt for drift. Skriver ingenting."
+
+[[uten_flyt]]
+fil = "backend/scripts/setup_webhooks.py"
+begrunnelse = """
+Driftsverktøy som oppretter, lister og sletter webhook-abonnementet i Catenda
+som C01 og C02 forutsetter. Skriver ingen tabell."""
+
+[[uten_flyt]]
+fil = "backend/scripts/setup_authentication.py"
+begrunnelse = "Utviklerverktøy for å hente et token og velge bibliotek. Skriver ingen tabell."
+
+[[uten_flyt]]
+fil = "backend/scripts/catenda_menu.py"
+begrunnelse = "Interaktiv meny for utviklere mot Catenda. Skriver ingen tabell."
+
+[[uten_flyt]]
+fil = "backend/scripts/explore_bim_objects.py"
+begrunnelse = "Utviklerverktøy for BIM-API-et. Skriver ingen tabell."
+
+[[uten_flyt]]
+fil = "backend/scripts/test_relations.py"
+begrunnelse = "Utviklerverktøy for IFC-relasjoner. Skriver ingen tabell."
+
+[[uten_flyt]]
+fil = "backend/scripts/measure_catenda_membership.py"
+begrunnelse = "Måler svartiden for teamoppslag. Skriver ingen tabell."
+
+[[uten_flyt]]
+fil = "backend/scripts/test_catenda_api_contracts_live.py"
+begrunnelse = "Levende kontrakttester mot et Catenda-testprosjekt (hovedplanen, avsnitt 7)."
+
+[[uten_flyt]]
+fil = "backend/scripts/test_full_flow.py"
+begrunnelse = "Manuell ende-til-ende-test mot Catenda (Catenda-dataflyten, avsnitt 7)."
+
+[[uten_flyt]]
+fil = "backend/integrations/catenda/_demo.py"
+begrunnelse = "Demonstrasjon av klienten. Importeres ikke av appen."
