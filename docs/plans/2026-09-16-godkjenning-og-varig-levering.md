@@ -4,7 +4,8 @@
 `41c2a16191a5aadbe611e0958db8b93090b08027` (`main`).
 **Sist endret:** 2026-09-29, senere: spor M 1b levert, DM-05–DM-07
 registrert, saksopprettelse fra appen og forholdet mellom EO-sak og KOE-sak
-avgjort i 3.1. Tidligere samme dag:
+avgjort i 3.1. Tidligere samme dag: DM-04 rettet i
+ruteregistertesten. Tidligere samme dag:
 merknad til B-12 om SQL Database, avhengigheten i F0b, spor M ført inn,
 DM-01–DM-04 registrert. Tidligere samme dag: SD-01, SD-03 og DRF-03 rettet; sendedatoen for § 34.3.3-varselet avgjort i 3.1; SD-04 ført inn. 24.09: GFK-06 rettet og presisert i 3.1; ubegrenset fullmakt bygget (GFK-02). Tidligere samme dag, mot `94ab148` (`b13-beslutningsgrunnlag`): B-13
 avgjort av oppdragsgiver, se 3.1 og merknaden under B-13. 23.09, mot `c708f95`:
@@ -622,7 +623,7 @@ DM ([1a](../gjennomforing-spor-m-1a-2026-09-29.md#2-funn),
 | MS-15 | Åpen | `magic_links`, `user_groups`; `project_memberships` etter DB-05 | D 20.09 | F1 |
 | DM-01 | Åpen, lav | Åtte kolonnekommentarer (`cached_*` i `sak_metadata`) finnes i basen, men ikke i migrasjonene. Kolonnesummen fanger det ikke. Rettes i en ny migrasjon når B-12 har avgjort hvor beskrivelser skal ligge | K 29.09 | Spor M, fase 4 |
 | DM-03 | Åpen, lav | Migrasjonene legger inn et aktivt prosjekt `oslobygg`, og det er prosjektets eneste. Hver base bygget fra tom får det, også på en ny plattform (B-12) og for en annen virksomhet (P5). Ikke en fallback i koden. Om raden skal ut av migrasjonene, avhenger av hvordan en ny base settes opp | K 29.09 | Spor M, fase 4 |
-| DM-04 | Åpen, middels | Ruteregistertesten ser bare dekoratøren `route` (sju ruter deklarert med `.get`/`.post`/`.patch` er usynlige for den), godtar `require_magic_link` og `require_entra_auth` som autentisering, og kontrollerer ikke `require_project_access`. En ny rute uten autentisering ga grønn test. Ingen eksponert rute funnet | K 29.09 | H |
+| DM-04 | Lukket | Ruteregistertesten så bare dekoratøren `route` (sju ruter deklarert med `.get`/`.post`/`.patch` var usynlige for den), godtok `require_magic_link` og `require_entra_auth` som autentisering, og kontrollerte ikke `require_project_access`. En ny rute uten autentisering ga grønn test. Ingen eksponert rute funnet. **Merknad 2026-09-29:** rettet i testen. Den leser alle rutedekoratørene med blueprintens `url_prefix` og sammenlikner med `app.url_map`. Bare `require_auth` teller som autentisering, og bare under rutedekoratøren. `require_project_access` kreves, med fem unntak i `UTEN_PROSJEKT`. `login`, `callback` og webhooken står i `OFFENTLIGE_RUTER` med begrunnelse; webhooken sto før som autentisert gjennom `limit_webhook`, som er en rate-begrensning. Ti mutasjoner, blant dem de to fra runden, gir rød test. `require_contract_role` kontrolleres ikke | K 29.09 | — |
 | DM-05 | Åpen, middels | Skjemaet for ny sak sender `sak_opprettet` som enkelthendelse til `POST /api/events`, men `require_project_access` godtar en sak uten metadata bare på `/api/events/batch`. Innsendingen gir 403 utenfor utviklingsmodus, så saker kan i dag bare opprettes fra Catenda. Oppdragsgiver 29.09: skjemaet skal virke (3.1). Tas batch-ruta i bruk, blir RV-10 aktuell | Streng `xfail`, K 29.09 | Spor M |
 | DM-06 | Åpen, lav | Toppnivåfelt utenfor `data` lagres ikke. Projeksjonen leser `endelig_vederlag` og `endelig_frist_dager` på `eo_utstedt` når en endringsordre lukker en KOE-sak, så svaret og `sak_metadata`-cachen viser et beløp journalen ikke har. Bryter invariant 9. Latent: skjermbildene sender ikke feltene. Motsatt for `sak_opprettet`: en `data` fra klienten lagres ordrett, med ukjente nøkler, og skjemaet for ny sak sender den slik | Streng `xfail`, K 29.09 | D |
 | DM-07 | Åpen, middels | `eo_opprettet` har ingen regel om sakstype, og behandleren gjør saken til en endringsordresak uansett. BH får 201 for `eo_opprettet` i en KOE-sak gjennom `POST /api/events` i et prosjekt uten godkjenningspolicy, og saken vises som en endringsordre med status `UTKAST`. Strider mot vedtaket 29.09 i 3.1 | Streng `xfail`, K 29.09 | D |
@@ -1202,6 +1203,13 @@ og DM-01–DM-04. Funnene er beskrevet i
 - Resten er lest ut av koden; se
   [oppdraget, avsnitt 4](../prompt-datamodell-og-funksjonskart-2026-09-29.md#4-utgangspunktet-2909).
 - Ingen kode, migrasjon eller database er endret.
+
+**Endringen 29.09, DM-04:** raden for DM-04 er lukket. Belegget er
+`backend/tests/test_security/test_public_route_registry.py`, kjørt 29.09 med
+hele backend-suiten grønn uten testbasen, og ti mutasjoner mot `routes/` og
+`app.py`, alle røde i testen de gjaldt, alle tilbakestilt; se
+[merknaden i gjennomføringsnotatet](../gjennomforing-spor-m-1a-2026-09-29.md#merknad-2026-09-29-til-dm-04).
+Ingen produksjonskode er endret.
 
 **Endringen 29.09, spor M 1b:** merknaden under spor M, DM-05–DM-07, og
 radene i 3.1 om saksopprettelse og om EO-sak og KOE-sak. Kilden for radene er
