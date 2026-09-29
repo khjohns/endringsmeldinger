@@ -63,7 +63,9 @@ PostgreSQL eller Azure SQL Database.
    mangler skriver.
 6. **Tiltenkt atferd skrives ned før testen.** Forventningen skal ha en kilde
    utenfor koden: NS 8407, et vedtak i hovedplanen eller en forventning
-   oppdragsgiver har godkjent.
+   oppdragsgiver har godkjent. Agenten foreslår forventningen med kilde og
+   spør med spørsmålsverktøyet der kilden ikke avgjør den (`AGENTS.md`,
+   «Arbeidsform»). Oppdragsgiver skal ikke måtte lese seg fram til spørsmålet.
    - Holder atferden, blir testen ordinær.
    - Avviker den, blir det et funn med ID i hovedplanen og en streng `xfail`
      etter reglene i `AGENTS.md`.
@@ -91,7 +93,12 @@ Hver fase har sitt issue under #79. Rekkefølgen innen en fase er fri.
     `sqlite_connection`.
 - Et skript som lager Excel og Markdown, og en test som feiler når de er
   utdaterte.
-- Oppdragsgiver leser beskrivelsene før fila sendes IKT.
+- Oppdragsgiver valgte 29.09 hva IKT skal få (gjennomføringsnotatet for 1a,
+  avsnitt 1):
+  - IKTs sju kolonner pluss lagring, type, status og personopplysninger
+  - alle lagre, også SQLite og data utenfor databasene
+  - typene som foreslått
+  - fila sendes når 1b og 1c er med
 
 ### Fase 1b: hendelseskatalog
 
@@ -103,8 +110,9 @@ hendelsestypen. For hver verdi i `EventType` beskriver katalogen:
 - feltene
 - hva den gjør med status
 
-Bestemmelsene kontrolleres av oppdragsgiver. En test sørger for at hver verdi
-har en oppføring.
+Der bestemmelsen ikke følger av et vedtak eller en tydelig kilde, spør agenten
+oppdragsgiver med spørsmålsverktøyet. En test sørger for at hver verdi har en
+oppføring.
 
 ### Fase 1c: relasjoner, ER-diagram og dataflyt
 
@@ -123,7 +131,8 @@ Appens funksjoner, gruppert i områder. For hver funksjon:
 - kall til Catenda
 - tiltenkt atferd med kilde
 
-Kartet bygges område for område. En test sørger for at hver rute appen
+Agenten foreslår tiltenkt atferd og spør oppdragsgiver med spørsmålsverktøyet
+der kilden ikke avgjør det. Kartet bygges område for område. En test sørger for at hver rute appen
 registrerer, står i kartet, slik ruteregisteret gjør for dekoratørene.
 
 ### Fase 3: atferdstester per område

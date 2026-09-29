@@ -104,9 +104,10 @@ def test_excel_er_generert_fra_registeret(register):
     )
 
 
-def test_excel_begynner_med_ikts_kolonner_i_ikts_rekkefolge():
+def test_excel_har_ikts_kolonner_og_de_fire_oppdragsgiver_valgte():
+    """Kilde: oppdragsgivers svar 29.09 (gjennomføringsnotatet for spor M, 1a)."""
     overskrift = dm.excel_verdier(dm.EXCEL)["Tabeller"][0]
-    assert overskrift[: len(dm.IKT_KOLONNER)] == [
+    assert overskrift == [
         "Tabellnavn",
         "Beskrivelse",
         "Er dette en transaksjonstabell?",
@@ -114,4 +115,8 @@ def test_excel_begynner_med_ikts_kolonner_i_ikts_rekkefolge():
         "Er dette en grunndatatabell?",
         "Tabell der data hentes inn, f.eks. via Catenda-API-et",
         "Beskrivelse av relasjon til en annen tabell",
+        "Lagring",
+        "Type",
+        "Status",
+        "Personopplysninger",
     ]

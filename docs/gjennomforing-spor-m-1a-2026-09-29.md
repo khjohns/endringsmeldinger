@@ -26,7 +26,18 @@ Arbeidet følges i [#80](https://github.com/khjohns/endringsmeldinger/issues/80)
   - en funn-ID ikke står i hovedplanen
   - de genererte filene er utdaterte
 
-Beskrivelsene er ikke gjennomlest av oppdragsgiver.
+**Oppdragsgivers valg 29.09,** tatt med spørsmålsverktøyet framfor
+gjennomlesing:
+
+| Spørsmål | Svar |
+| --- | --- |
+| Kolonner i fila til IKT | IKTs sju pluss lagring, type, status og personopplysninger. Belegg, funn og skrivere står bare i `tabeller.md` |
+| Når IKT får fila | Når hendelseskatalogen (1b) og relasjoner og dataflyt (1c) er med |
+| Typene | Beholdes som foreslått |
+| Omfang | Alle lagre, med lagringen merket |
+
+Beskrivelsene av hver enkelt tabell er ikke lest av oppdragsgiver. De bygger på
+lesing av koden, med belegg per oppføring.
 
 ## 2. Funn
 
