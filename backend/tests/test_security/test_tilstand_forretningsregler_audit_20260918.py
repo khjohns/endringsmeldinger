@@ -13,6 +13,8 @@ Testene her etterprøver funn i tilstandsberegning og forretningsregler:
    rettet 2026-09-29) og avsluttet grunnlag som vises som utkast (SD-02)
 8. Særskilte krav som henger igjen etter et oppdatert vederlagskrav uten dem
    (SD-03, funnet i code-review av GFK-06 24.09, rettet 2026-09-29)
+9. Andre svarfelt som henger igjen etter et nytt fullt BH-svar (SD-04, funnet
+   i code-review av SD-01 29.09)
 """
 
 import pytest
@@ -1184,6 +1186,49 @@ def test_avsluttet_grunnlag_uten_andre_krav_vises_ikke_som_utkast(grunnlag_statu
         frist=FristTilstand(status=SporStatus.UTKAST),
     )
     assert state.overordnet_status != "UTKAST"
+
+
+@pytest.mark.xfail(
+    strict=True,
+    raises=AssertionError,
+    reason=(
+        "SD-04: et nytt fullt BH-svar lar andre svarfelt fra forrige svar stå når "
+        "de ikke sendes; her ny sluttdato etter et avslag"
+    ),
+)
+def test_revidert_avslag_fjerner_ny_sluttdato_fra_forrige_svar():
+    krav = _fristkrav("frist_krav_sendt", 30)
+    godkjent = _fristsvar(
+        krav,
+        frist_varsel_ok=True,
+        spesifisert_krav_ok=True,
+        vilkar_oppfylt=True,
+        beregnings_resultat=FristBeregningResultat.GODKJENT,
+        godkjent_dager=30,
+        ny_sluttdato="2027-01-31",
+        begrunnelse="Godkjent",
+    )
+    timeline = TimelineService()
+    grunnlag = _sak_med_godkjent_grunnlag()
+    if timeline.compute_state(grunnlag + [krav, godkjent]).frist.ny_sluttdato != "2027-01-31":
+        pytest.fail("Forutsetning: den nye sluttdatoen lagres ikke i tilstanden")
+    avslag = _fristsvar(
+        krav,
+        event_type="respons_frist_oppdatert",
+        original_respons_id=godkjent.event_id,
+        frist_varsel_ok=True,
+        spesifisert_krav_ok=True,
+        vilkar_oppfylt=False,
+        beregnings_resultat=FristBeregningResultat.AVSLATT,
+        godkjent_dager=0,
+        begrunnelse="Ingen hindring",
+    )
+
+    frist = timeline.compute_state(grunnlag + [krav, godkjent, avslag]).frist
+
+    if frist.bh_resultat != FristBeregningResultat.AVSLATT:
+        pytest.fail(f"Forutsetning: avslaget ble ikke lagt til grunn ({frist.bh_resultat})")
+    assert frist.ny_sluttdato is None
 
 
 def test_oppdatert_vederlagskrav_uten_saerskilte_krav_fjerner_de_gamle():
