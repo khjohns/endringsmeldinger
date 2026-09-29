@@ -754,22 +754,7 @@ class TimelineService:
         ):
             vederlag.godkjent_belop = event.data.total_godkjent_belop
 
-        # Subsidiært standpunkt - triggers needs .value extraction
-        if getattr(event.data, "subsidiaer_triggers", None) is not None:
-            vederlag.subsidiaer_triggers = [
-                t.value if hasattr(t, "value") else t
-                for t in event.data.subsidiaer_triggers
-            ]
-
-        _copy_fields_if_present(
-            event.data,
-            vederlag,
-            [
-                "subsidiaer_resultat",
-                "subsidiaer_godkjent_belop",
-                "subsidiaer_begrunnelse",
-            ],
-        )
+        self._oppdater_subsidiaert_standpunkt(vederlag, event.data, "subsidiaer_godkjent_belop")
 
         # Map beregnings_resultat til status
         if (
@@ -793,6 +778,19 @@ class TimelineService:
 
         state.vederlag = vederlag
         return state
+
+    @staticmethod
+    def _oppdater_subsidiaert_standpunkt(tilstand, data, godkjent_felt: str) -> None:
+        """Et nytt svar erstatter standpunktet; en delvis oppdatering endrer det som sendes (SD-01)."""
+        felter = ["subsidiaer_resultat", godkjent_felt, "subsidiaer_begrunnelse"]
+        if getattr(data, "original_respons_id", None) is None:
+            tilstand.subsidiaer_triggers = None
+            for felt in felter:
+                setattr(tilstand, felt, None)
+        triggers = getattr(data, "subsidiaer_triggers", None)
+        if triggers is not None:
+            tilstand.subsidiaer_triggers = [t.value if hasattr(t, "value") else t for t in triggers]
+        _copy_fields_if_present(data, tilstand, felter)
 
     def _handle_respons_frist(self, state: SakState, event: ResponsEvent) -> SakState:
         """
@@ -839,22 +837,7 @@ class TimelineService:
             ],
         )
 
-        # Subsidiært standpunkt - triggers needs .value extraction
-        if getattr(event.data, "subsidiaer_triggers", None) is not None:
-            frist.subsidiaer_triggers = [
-                t.value if hasattr(t, "value") else t
-                for t in event.data.subsidiaer_triggers
-            ]
-
-        _copy_fields_if_present(
-            event.data,
-            frist,
-            [
-                "subsidiaer_resultat",
-                "subsidiaer_godkjent_dager",
-                "subsidiaer_begrunnelse",
-            ],
-        )
+        self._oppdater_subsidiaert_standpunkt(frist, event.data, "subsidiaer_godkjent_dager")
 
         # Map beregnings_resultat til status
         if (
