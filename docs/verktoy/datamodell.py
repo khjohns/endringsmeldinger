@@ -6,15 +6,23 @@ men bare når innholdet er endret. Hendelseskatalogen leser backend-modellene,
 og Excel-fila krever openpyxl, så begge trenger venv-en i AGENTS.md.
 """
 
+import importlib.util
 import pathlib
 import re
 import sys
 
 import tomllib
 
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 
-import hendelseskatalog as hk
+def _last_hendelseskatalog():
+    sti = pathlib.Path(__file__).resolve().parent / "hendelseskatalog.py"
+    spesifikasjon = importlib.util.spec_from_file_location("hendelseskatalog", sti)
+    modul = importlib.util.module_from_spec(spesifikasjon)
+    spesifikasjon.loader.exec_module(modul)
+    return modul
+
+
+hk = _last_hendelseskatalog()
 
 ROT = pathlib.Path(__file__).resolve().parents[2]
 MAPPE = ROT / "docs" / "datamodell"

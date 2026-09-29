@@ -133,13 +133,22 @@ backend utenom testene. Tre steder leser feltene på `eo_utstedt`:
   (L 29.09; også påvist i [målskjemagjennomgangen](audit-maalskjema-gjennomgang-2026-09-21.md)),
   og fjernes i [#95](https://github.com/khjohns/endringsmeldinger/pull/95).
 
+Motsatt for `sak_opprettet`, som ikke har egen datamodell. `SakEvent` godtar
+ukjente felt (`extra = "allow"`), så en `data` fra klienten blir stående på
+modellen og lagres slik klienten sendte den. Kjørt (K 29.09) gjennom
+`parse_event_from_request` og `to_cloudevent`: en ukjent nøkkel i `data` lagres.
+For en type med datamodell kastes den samme nøkkelen. Skjemaet for ny sak
+sender feltene i `data`, så dette blir den vanlige veien når DM-05 er rettet.
+Funnet kom fra code-review av runden.
+
 **Kjørt (K 29.09)** mot testbasen: en KOE-sak lukket av en endringsordre med
 `endelig_vederlag` gir godkjent beløp 100 000 kr i tilstanden regnet av
 hendelsene i minnet, og ingen verdi når hendelsene leses tilbake. Med samme
 beløp i `data.vederlag` er tilstanden lik før og etter.
 
 **Konsekvens:** ruta regner tilstanden og `sak_metadata`-cachen av hendelsen i
-minnet, så svaret og cachen viser et beløp journalen ikke har. Det bryter
+minnet, så svaret og cachen viser et beløp journalen ikke har. For
+`sak_opprettet` lagres innhold ingen modell har kontrollert. Det bryter
 invariant 9 i hovedplanen: tilstand beregnes fra hendelser alene. Latent,
 fordi ingen skjermbilder sender feltene; `POST /api/events` godtar dem fra BH
 i et prosjekt uten godkjenningspolicy.
@@ -161,13 +170,13 @@ og `TimelineService._handle_eo_opprettet`.
   - `POST /api/events` slipper den gjennom fra BH når prosjektet ikke har
     godkjenningspolicy. Med policy avvises den som BH-bindende.
 - **Kjørt (K 29.09)** mot testbasen, med ekte ruter, dekoratører og lagre og
-  bare innloggingstjenesten byttet ut. En KOE-sak med sendt grunnlag er
-  opprettet av TE gjennom batch-ruta.
+  bare innloggingstjenesten byttet ut. KOE-saken er opprettet av TE gjennom
+  batch-ruta.
   - BH sender `eo_opprettet` i KOE-saken og får 201.
-  - Tilstanden i svaret har sakstype `endringsordre` og samlet status `UTKAST`,
-    enda grunnlaget er `sendt`.
-  - Kontrollen: et BH-svar på grunnlaget i samme sak gir 201. BH har tilgang,
-    og ruta tar imot BHs hendelser der.
+  - Kontrollen: samme `eo_opprettet` til en sak som bare skiller seg i
+    sakstypen, `endringsordre`, gir 201. Hendelsen og BHs tilgang er i orden.
+  - En sondering med sendt grunnlag i KOE-saken ga sakstype `endringsordre` og
+    samlet status `UTKAST` i svaret, enda grunnlaget var `sendt`.
 
 **Tiltenkt atferd:** oppdragsgivers svar 29.09. En endringsordresak kan følge av
 en KOE-sak, men ikke erstatte den, verken i historikken eller som en egen
@@ -180,7 +189,8 @@ ikke fjernes.
 **Reproduksjon:** streng `xfail` i
 [`test_eo_paa_koe_sak_dm07.py`](../backend/tests/test_database/test_eo_paa_koe_sak_dm07.py).
 Den godtar bare en avvisning med `BUSINESS_RULE_VIOLATION` og en uendret
-journal, så en avvisning av en annen grunn blir ikke XPASS.
+journal; en annen avvisning gir `pytest.fail`. Kontrollsaken skiller seg bare i
+sakstypen.
 
 ## 3. Observasjoner uten eget funn
 
@@ -214,6 +224,28 @@ Til fase 2 og 3. Ingen av dem har en kilde for tiltenkt atferd ennå.
   blant annet `netto_belop` og `krevd_belop` i vederlagskravet og
   `har_priskonsekvens` i endringsordren, og `spor` flyttes inn i `data` (K
   29.09). Det har betydning ved feilsøking og ved en ny plattform.
+
+## 4. Code-review av runden
+
+Code-review av grenen 29.09 ga ni punkter. Sju er rettet:
+- DM-07-testen feiler med `pytest.fail` på en avvisning som ikke kommer fra
+  forretningsreglene, og kontrollsaken skiller seg bare i sakstypen.
+- `sak_opprettet` med klientens `data` er ført inn under DM-06.
+- `AGENTS.md` sier ikke noe om status for DM-05, bare hvordan funnet ble
+  gjort.
+- `datamodell.py` laster `hendelseskatalog` med `importlib` og legger ikke
+  `docs/verktoy` først i `sys.path` for hele testøkten.
+- Testklienten og journaloppslaget er flyttet til `tests/test_database/conftest.py`.
+- Generatoren deler én regelvalidator og regner typemengden én gang.
+
+To er ikke rettet:
+- **`prosjekt_id` trekkes fra konvolutten uten grunn.** Stemmer ikke:
+  `SakEvent.model_fields` har `prosjekt_id` (K 29.09), og uten subtraksjonen
+  ville feltlista for `sak_opprettet` mangle det.
+- **`modell_i_koden` leser klassen av `ValidationError.title`.** Skjørt, men
+  feiler høylytt, med rød test eller krasj i generatoren, aldri med feil
+  katalog. Den robuste løsningen er å løfte tabellen i `parse_event` ut av
+  funksjonen, og det er produksjonskode.
 
 ## Verifikasjon og grenser
 

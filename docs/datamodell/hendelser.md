@@ -911,7 +911,7 @@ Feltene i `data`:
 
 ### `sak_opprettet`
 
-Første hendelse i en sak: tittel, sakstype og kobling til Catenda. Feltene ligger på toppnivå i modellen og i `data` i journalen.
+Første hendelse i en sak: tittel, sakstype og kobling til Catenda. Feltene ligger på toppnivå i modellen og i `data` i journalen. Sender klienten dem i `data`, som skjemaet for ny sak gjør, lagres `data` slik klienten sendte den, også med nøkler modellen ikke kjenner (DM-06).
 
 | | |
 | --- | --- |
@@ -926,8 +926,8 @@ Første hendelse i en sak: tittel, sakstype og kobling til Catenda. Feltene ligg
 | Forretningsregler | ROLE_CHECK, CASE_NOT_CLOSED, CREATE_ONCE, RESPONSE_REFERENCE |
 | Virkning på status | Setter tittel, Catenda-topic, prosjekt- og partsnavn og sakstype. En standardsak får grunnlaget i `utkast`; en forseringssak får forseringsdata fra `forsering_data`. En ukjent sakstype blir `standard`. Forretningsreglene kjøres ikke på første hendelse i en ny sak, bare rollekontrollen i ruta. |
 | Behandler | `TimelineService._handle_sak_opprettet` |
-| Funn | DM-05 |
-| Belegg | L 29.09: `_handle_sak_opprettet`, `require_project_access` og NewCaseForm. K 29.09: POST /api/events med en ny sak gir 403. |
+| Funn | DM-05, DM-06 |
+| Belegg | L 29.09: `_handle_sak_opprettet`, `require_project_access` og NewCaseForm. K 29.09: POST /api/events med en ny sak gir 403, og `to_cloudevent` lagrer klientens `data` med en ukjent nøkkel. |
 
 Feltene i `data`:
 
