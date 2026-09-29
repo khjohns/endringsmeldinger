@@ -1,0 +1,647 @@
+# Tabellregisteret (spor M, fase 1a). Kilden for tabellbeskrivelsen til IKT.
+#
+# Rett her, ikke i Excel-fila eller tabeller.md. Begge lages av
+#   python3 docs/verktoy/datamodell.py
+# og testene i backend/tests/test_datamodell/ feiler når de er utdaterte, når
+# en tabell mangler oppføring, eller når en oppføring mangler tabell.
+#
+# Feltene og typene er forklart i docs/prompt-datamodell-og-funksjonskart-2026-09-29.md,
+# avsnitt 5. Linjeskift i tekstfeltene slås sammen til mellomrom ved eksport.
+# «ikke kontrollert» er et gyldig svar og skal stå der det er sant.
+#
+# Første runde 29.09. Belegg: K kjørt og observert, L lest i kode eller
+# migrasjon, D kontrollert i databasekatalogen tidligere, H historisk.
+
+# ---------------------------------------------------------------------------
+# PostgreSQL
+# ---------------------------------------------------------------------------
+
+[[tabell]]
+navn = "hendelse"
+lagring = "PostgreSQL"
+type = ["transaksjon"]
+status = "i bruk"
+beskrivelse = """
+Journalen. Én rad per formell hendelse i en sak: varsel, krav, svar,
+endringsordre, forsering og liknende. Innholdet ligger i `data` (JSON) og
+varierer med hendelsestypen; hendelseskatalogen i fase 1b beskriver typene.
+Sakens tilstand beregnes fra hendelsene. Radene har juridisk vekt."""
+lagres_fra = """
+Når en part sender noe i en sak: hendelsesrutene (enkeltvis og i batch), ny
+sak, forsering, endringsordre og publisering av en godkjent BH-pakke. En ny
+topic i Catenda gir også en rad, via webhook. Rader endres og slettes aldri av
+appen; en rettelse er en ny hendelse. Basen håndhever ikke det (MS-02)."""
+fra_catenda = """
+Delvis. En ny topic i Catenda oppretter en sak med første hendelse via webhook.
+Ellers kommer innholdet fra brukerne i appen."""
+relasjoner = """
+`sak_id` → `sak_metadata.sak_id` (fremmednøkkel, ON DELETE CASCADE). Én rad
+per sak og versjonsnummer (`UNIQUE (sak_id, versjon)`), og `event_id` er unik.
+`actorid` er `app_users.id`, uten fremmednøkkel. `referstoid` viser etter navnet til en
+annen hendelse, uten fremmednøkkel; bruken er ikke kontrollert."""
+kan_gjenoppbygges = "nei. Journalen er kilden alt annet regnes fra."
+personopplysninger = """
+`actorid` peker på en bruker. Fritekst i `data` og `comment` kan inneholde
+personopplysninger. Vurderingen hører til DPIA-en."""
+skrivere = [
+    "backend/routes/event_routes.py",
+    "backend/services/sak_creation_service.py",
+    "backend/services/forsering_service.py",
+    "backend/services/endringsordre_service.py",
+    "backend/services/approval_service.py",
+    "backend/services/catenda_webhook_service.py (via sak_creation_service)",
+]
+funn = ["MS-01", "MS-02", "MS-03", "AR-02"]
+belegg = """
+K 29.09: kolonnene i testbasen og prosjektet, og skrankene (også CASCADE) i
+testbasen. L 29.09: kallerne av `append`/`append_batch` og `create_sak`."""
+
+[[tabell]]
+navn = "notat"
+lagring = "PostgreSQL"
+type = ["transaksjon"]
+status = "i bruk"
+beskrivelse = """
+Interne notater i en sak. Synlige bare for forfatterens eget team, ikke for
+motparten og ikke for andre team på samme side. Ligger utenfor journalen: et
+notat er ikke et kontraktsvarsel og flytter ikke sakens versjon (MS-05)."""
+lagres_fra = """
+Når en bruker skriver et internt notat i en sak (hendelsesruta). Forfatteren
+kan slette notatet."""
+fra_catenda = "Nei."
+relasjoner = """
+`sak_id` → `sak_metadata.sak_id` (fremmednøkkel). `aktor_id` er
+`app_users.id`, `aktor_team_id` er Catenda-team-ID, begge uten fremmednøkkel.
+`refererer_til_event_id` kan vise til en hendelse, uten fremmednøkkel."""
+kan_gjenoppbygges = "nei"
+personopplysninger = """
+`aktor_id` peker på forfatteren. `tekst` og `kommentar` er fritekst."""
+skrivere = ["backend/routes/event_routes.py", "backend/repositories/postgres/notat.py"]
+funn = ["MS-05"]
+belegg = """
+K 29.09: kolonnene og fremmednøkkelen i testbasen. L 29.09: sletting i
+lageret. Skjermingen: AGENTS.md og `lib/auth/event_visibility.py`, ikke
+kontrollert på nytt 29.09."""
+
+[[tabell]]
+navn = "sak_metadata"
+lagring = "PostgreSQL"
+type = ["grunndata", "avledet"]
+status = "i bruk"
+beskrivelse = """
+Saksregisteret: én rad per sak, med prosjekt, sakstype, hvem som opprettet den,
+og koblingen til topic, board og prosjekt i Catenda. I tillegg ti
+`cached_*`-kolonner og `last_event_at` med tall regnet ut av hendelsene, til
+lister og rapportering. Tabellen blander register og projeksjon; skillet er
+planlagt (MS-06, MS-07)."""
+lagres_fra = """
+Opprettes når en sak lages, gjennom `SakCreationService`: fra hendelsesrutene,
+for endringsordrer, og fra en ny topic i Catenda via webhook. Hvordan en
+forseringssak får sin rad, er ikke kontrollert. `cached_*` oppdateres etter
+lagrede hendelser (hendelsesrutene, forsering og godkjenning)."""
+fra_catenda = """
+Delvis. `catenda_topic_id`, `catenda_board_id` og `catenda_project_id` er ID-er
+fra Catenda."""
+relasjoner = """
+Primærnøkkel `sak_id`. `hendelse`, `notat`, `sak_bim_links` og `magic_links`
+har fremmednøkkel hit. `sak_relations` viser hit uten fremmednøkkel.
+`prosjekt_id` viser til `projects.id` uten fremmednøkkel."""
+kan_gjenoppbygges = """
+delvis. `cached_*` og `last_event_at` kan regnes ut av hendelsene. Om
+registerkolonnene også kan det, er ikke kontrollert."""
+personopplysninger = "`created_by` identifiserer den som opprettet saken (tre verdiformer, MG-04)."
+skrivere = [
+    "backend/services/sak_creation_service.py",
+    "backend/services/endringsordre_service.py",
+    "backend/routes/event_routes.py (update_cache)",
+    "backend/routes/forsering_routes.py (update_cache)",
+    "backend/routes/approval_routes.py (update_cache)",
+]
+funn = ["MS-06", "MS-07", "DA-14", "MG-04", "DM-01"]
+belegg = """
+K 29.09: kolonnene i testbasen og prosjektet, og kolonnekommentarene (DM-01).
+L 29.09: kallerne av `create` og `update_cache`."""
+
+[[tabell]]
+navn = "sak_relations"
+lagring = "PostgreSQL"
+type = ["avledet"]
+status = "i bruk"
+beskrivelse = """
+Koblinger mellom saker, for eksempel hvilke KOE-er en forsering eller en
+endringsordre omfatter. Én rad per kobling, med type."""
+lagres_fra = """
+Når KOE-er legges til eller fjernes fra en forsering eller en endringsordre
+(forsering- og endringsordretjenesten)."""
+fra_catenda = "Nei."
+relasjoner = """
+`source_sak_id` og `target_sak_id` viser til `sak_metadata.sak_id`, uten
+fremmednøkler (DB-04, B-01). `prosjekt_id` settes av serveren."""
+kan_gjenoppbygges = """
+ikke kontrollert. Koblingene finnes trolig også som hendelser
+(`FORSERING_KOE_*`, `EO_KOE_*`), men det er ikke sjekket at de to alltid er
+like."""
+personopplysninger = "Ingen kjente."
+skrivere = [
+    "backend/services/forsering_service.py",
+    "backend/services/endringsordre_service.py",
+]
+funn = ["DA-13", "MS-08", "DB-04"]
+belegg = """
+K 29.09: kolonnene og fraværet av fremmednøkler i testbasen. L 29.09:
+kallerne av `add_relation`, `add_relations_batch` og `remove_relation`."""
+
+[[tabell]]
+navn = "projects"
+lagring = "PostgreSQL"
+type = ["grunndata"]
+status = "i bruk"
+beskrivelse = """
+Prosjektene i appen, med navn, beskrivelse, innstillinger, om prosjektet er
+aktivt, og organisasjonen det hører til (MS-10)."""
+lagres_fra = """
+To veier: rutene `POST` og `PATCH /api/projects`, og databasefunksjonen
+`koe_register_project`, som drift kaller gjennom `scripts/catenda_admin.py`.
+Etter vedtaket i B-02 punkt 4 skal bare drift registrere prosjekter; det er
+ikke bygget (F1). En migrasjon legger inn prosjektet `oslobygg` som startrad."""
+fra_catenda = """
+Nei, ikke direkte. Koblingen til Catenda-prosjektet ligger i
+`catenda_project_configs`."""
+relasjoner = """
+Primærnøkkel `id`. `app_project_memberships`, `app_membership_sync`,
+`catenda_project_configs` og `project_memberships` har fremmednøkkel hit.
+`prosjekt_id` i andre tabeller viser hit uten fremmednøkkel. Triggeren
+`trg_auto_membership_on_project_create` skriver `project_memberships` ved ny
+rad."""
+kan_gjenoppbygges = "nei"
+personopplysninger = "`created_by` identifiserer den som opprettet prosjektet."
+skrivere = [
+    "backend/routes/project_routes.py",
+    "databasefunksjonen koe_register_project",
+]
+funn = ["MS-10", "MS-12"]
+belegg = """
+K 29.09: kolonnene og fremmednøklene i testbasen. L 29.09: rutene,
+migrasjonene og `scripts/catenda_admin.py`."""
+
+[[tabell]]
+navn = "project_memberships"
+lagring = "PostgreSQL"
+type = ["grunndata"]
+status = "rest"
+beskrivelse = """
+Eldre medlemsliste per prosjekt, etter e-post. Erstattet av
+`app_project_memberships` og skal fjernes (MS-15) når `viewer` finnes der
+(DB-05)."""
+lagres_fra = """
+Triggeren `trg_auto_membership_on_project_create` legger inn en rad når et
+prosjekt opprettes. Koden som ser ut til å skrive tabellen, treffer en
+unik-skranke (AGENTS.md). Ingen leser den (DA-10)."""
+fra_catenda = "Nei."
+relasjoner = "`project_id` → `projects.id` (fremmednøkkel)."
+kan_gjenoppbygges = "ikke relevant; tabellen skal fjernes."
+personopplysninger = "`user_email`, `display_name`, `external_id`."
+skrivere = ["triggerfunksjonen auto_create_project_membership"]
+funn = ["DA-10", "MS-15", "AR-07"]
+belegg = """
+K 29.09: kolonnene og triggeren i testbasen. D 20.09: ingen leser
+(databaseauditen)."""
+
+[[tabell]]
+navn = "app_users"
+lagring = "PostgreSQL"
+type = ["grunndata"]
+status = "i bruk"
+beskrivelse = """
+Brukerne. Én rad per person, med e-post og navn. `id` er identiteten
+journalen bærer i `aktor_id`."""
+lagres_fra = """
+Bare gjennom databasefunksjonen `koe_resolve_identity`. Den kalles ved
+innlogging, når en webhook fra Catenda har en forfatter, og for hvert medlem
+når medlemslisten synkroniseres. E-post og navn oppdateres fra Catenda hver
+gang."""
+fra_catenda = "Ja. E-post og navn kommer fra Catenda-profilen og medlemslisten."
+relasjoner = """
+Primærnøkkel `id`. `app_identities`, `app_sessions` og
+`app_project_memberships` har fremmednøkkel hit. `hendelse.actorid` og
+`notat.aktor_id` viser hit uten fremmednøkkel."""
+kan_gjenoppbygges = "nei. `id` må være stabil, fordi journalen viser til den."
+personopplysninger = "`email` og `name`."
+skrivere = ["databasefunksjonen koe_resolve_identity"]
+funn = ["MG-02"]
+belegg = """
+K 29.09: kolonnene og fremmednøklene i testbasen. L 29.09: funksjonen i
+migrasjonene og kallerne i `auth_service`, `catenda_webhook_service` og
+`koe_reconcile_memberships`."""
+
+[[tabell]]
+navn = "app_identities"
+lagring = "PostgreSQL"
+type = ["grunndata"]
+status = "i bruk"
+beskrivelse = """
+Kobler en bruker til en ekstern identitet: tilbyder, utsteder og subjekt i
+Catenda. Sørger for at samme person får samme brukerrad uansett vei inn."""
+lagres_fra = """
+Bare gjennom `koe_resolve_identity`, som også er eneste leser. Ingen
+Python-kode leser eller skriver tabellen direkte (DA-07)."""
+fra_catenda = "Ja. Subjektet er Catenda-ID-en."
+relasjoner = "`user_id` → `app_users.id` (fremmednøkkel)."
+kan_gjenoppbygges = "nei"
+personopplysninger = "`subject` er en ekstern identifikator for en person."
+skrivere = ["databasefunksjonen koe_resolve_identity"]
+funn = ["DA-07", "MG-02"]
+belegg = """
+K 29.09: kolonnene og fremmednøkkelen i testbasen. L 29.09: funksjonen i
+migrasjonene; søket etter tabellnavnet i Python-koden gir bare to
+docstringer."""
+
+[[tabell]]
+navn = "app_sessions"
+lagring = "PostgreSQL"
+type = ["teknisk"]
+status = "i bruk"
+beskrivelse = """
+Innloggingssesjoner. Lagrer en hash av sesjonstokenet, CSRF-tokenet og når
+sesjonen utløper."""
+lagres_fra = """
+Opprettes ved innlogging og slettes ved utlogging (innloggingsrutene).
+Utløpte rader ryddes av `scripts/sync_catenda_memberships.py`. Om skriptet
+kjører noe sted, er ikke kontrollert."""
+fra_catenda = "Nei."
+relasjoner = "`user_id` → `app_users.id` (fremmednøkkel)."
+kan_gjenoppbygges = "nei, men tapet betyr bare at brukerne må logge inn igjen."
+personopplysninger = "Knyttet til en bruker gjennom `user_id`."
+skrivere = ["backend/routes/auth_routes.py", "backend/scripts/sync_catenda_memberships.py"]
+funn = []
+belegg = "K 29.09: kolonnene i testbasen. L 29.09: rutene og skriptet."
+
+[[tabell]]
+navn = "app_oauth_attempts"
+lagring = "PostgreSQL"
+type = ["teknisk"]
+status = "i bruk"
+beskrivelse = """
+Påbegynte innlogginger mot Catenda (OAuth). Kortlevde rader som binder
+tilbakekallet til nettleseren som startet innloggingen."""
+lagres_fra = """
+Opprettes når innloggingen starter, og brukes opp når Catenda sender brukeren
+tilbake (innloggingsrutene)."""
+fra_catenda = "Nei, men raden hører til en innlogging hos Catenda."
+relasjoner = "Ingen fremmednøkler."
+kan_gjenoppbygges = "nei, men radene er kortlevde."
+personopplysninger = "Ingen kjente; bare hasher og en returadresse."
+skrivere = ["backend/routes/auth_routes.py"]
+funn = []
+belegg = "K 29.09: kolonnene i testbasen. L 29.09: rutene."
+
+[[tabell]]
+navn = "app_project_memberships"
+lagring = "PostgreSQL"
+type = ["grunndata", "kopi"]
+status = "i bruk"
+beskrivelse = """
+Hvem som er medlem av hvilket prosjekt, med rolle, og om medlemskapet er
+aktivt. En kopi av medlemslisten i Catenda, pluss appens egen
+`viewer_override`."""
+lagres_fra = """
+Databasefunksjonen `koe_reconcile_memberships` synkroniserer mot Catenda ved
+innlogging, fra medlemsruta og fra skriptet
+`scripts/sync_catenda_memberships.py`. Medlemsruta setter `viewer_override`.
+Innloggingen kan også deaktivere medlemskap."""
+fra_catenda = "Ja. Medlemslisten hentes fra Catenda-prosjektet."
+relasjoner = """
+`project_id` → `projects.id` og `user_id` → `app_users.id` (fremmednøkler)."""
+kan_gjenoppbygges = "delvis. Fra Catenda, bortsett fra `viewer_override`."
+personopplysninger = "`user_email`, `display_name` og `catenda_subject`."
+skrivere = [
+    "databasefunksjonen koe_reconcile_memberships",
+    "backend/repositories/auth_repository.py (deactivate_user_projects, viewer_override)",
+    "backend/routes/membership_routes.py",
+]
+funn = ["DB-05"]
+belegg = """
+K 29.09: kolonnene og fremmednøklene i testbasen. L 29.09: funksjonen i
+migrasjonene og kallerne i `auth_service` og `membership_routes`."""
+
+[[tabell]]
+navn = "app_membership_sync"
+lagring = "PostgreSQL"
+type = ["teknisk"]
+status = "i bruk"
+beskrivelse = """
+Når medlemslisten for et prosjekt sist ble synkronisert fra Catenda. Hindrer
+at en eldre synkronisering overskriver en nyere."""
+lagres_fra = "Av `koe_reconcile_memberships`, samtidig med medlemskapene."
+fra_catenda = "Delvis. `catenda_project_id` er en Catenda-ID."
+relasjoner = "`project_id` → `projects.id` (fremmednøkkel)."
+kan_gjenoppbygges = "ja, ved neste synkronisering."
+personopplysninger = "Ingen kjente."
+skrivere = ["databasefunksjonen koe_reconcile_memberships"]
+funn = []
+belegg = "K 29.09: kolonnene i testbasen. L 29.09: funksjonen i migrasjonene."
+
+[[tabell]]
+navn = "catenda_project_configs"
+lagring = "PostgreSQL"
+type = ["grunndata"]
+status = "i bruk"
+beskrivelse = """
+Kobler et prosjekt i appen til prosjektet, dokumentbiblioteket og mappen i
+Catenda."""
+lagres_fra = """
+Av `koe_register_project`, som drift kaller gjennom
+`scripts/catenda_admin.py`."""
+fra_catenda = "Ja. ID-ene er Catenda-ID-er, oppgitt ved registrering."
+relasjoner = """
+`internal_project_id` → `projects.id` (fremmednøkkel).
+`catenda_topic_board_configs` og `catenda_contract_teams` har fremmednøkkel
+hit."""
+kan_gjenoppbygges = "nei"
+personopplysninger = "Ingen kjente."
+skrivere = ["databasefunksjonen koe_register_project"]
+funn = ["MS-12"]
+belegg = "K 29.09: kolonnene og fremmednøklene i testbasen. L 29.09: funksjonen og skriptet."
+
+[[tabell]]
+navn = "catenda_topic_board_configs"
+lagring = "PostgreSQL"
+type = ["grunndata"]
+status = "i bruk"
+beskrivelse = """
+Hvilke topic boards i Catenda som hører til et prosjekt. Brukes blant annet
+til å finne prosjektet når en webhook kommer."""
+lagres_fra = "Av `koe_register_project`, som drift kaller gjennom `scripts/catenda_admin.py`."
+fra_catenda = "Ja. `topic_board_id` er en Catenda-ID."
+relasjoner = "`internal_project_id` → `catenda_project_configs.internal_project_id` (fremmednøkkel)."
+kan_gjenoppbygges = "nei"
+personopplysninger = "Ingen kjente."
+skrivere = ["databasefunksjonen koe_register_project"]
+funn = ["MS-12"]
+belegg = """
+K 29.09: kolonnene og fremmednøkkelen i testbasen. L 29.09: funksjonen. Bruken
+ved webhook er ikke kontrollert 29.09."""
+
+[[tabell]]
+navn = "catenda_contract_teams"
+lagring = "PostgreSQL"
+type = ["grunndata"]
+status = "i bruk"
+beskrivelse = """
+Hvilke Catenda-team som representerer TE og BH i et prosjekt. Appen utleder
+en brukers kontraktsside og team herfra og fra medlemskapet i Catenda."""
+lagres_fra = """
+Av `koe_set_contract_teams` og `koe_register_project`, som drift kaller
+gjennom `scripts/catenda_admin.py`. Etter B-02 punkt 4 er det bare drift som
+skal gjøre dette."""
+fra_catenda = "Ja. `team_id` er en Catenda-ID."
+relasjoner = "`internal_project_id` → `catenda_project_configs.internal_project_id` (fremmednøkkel)."
+kan_gjenoppbygges = "nei. Hvilket team som er hvilken side, er et valg drift gjør."
+personopplysninger = "Ingen kjente."
+skrivere = [
+    "databasefunksjonen koe_set_contract_teams",
+    "databasefunksjonen koe_register_project",
+]
+funn = []
+belegg = "K 29.09: kolonnene og fremmednøkkelen i testbasen. L 29.09: funksjonene og skriptet."
+
+[[tabell]]
+navn = "catenda_models_cache"
+lagring = "PostgreSQL"
+type = ["kopi"]
+status = "uavklart"
+beskrivelse = """
+Ment som kopi av BIM-modellene i Catenda per prosjekt, med fag. Tre BIM-ruter
+leser den og gir tomme lister når den er tom."""
+lagres_fra = """
+Ikke funnet. Ingen kode, databasefunksjon eller trigger skriver tabellen, og
+`upsert_cached_models` har ingen kaller (DM-02, foreløpig)."""
+fra_catenda = "Ja, etter formålet. Hvordan den skulle fylles, er ikke kjent."
+relasjoner = "`prosjekt_id` viser til `projects.id` uten fremmednøkkel."
+kan_gjenoppbygges = "ja, i prinsippet fra Catenda."
+personopplysninger = "Ingen kjente."
+skrivere = []
+funn = ["DM-02", "DA-15"]
+belegg = """
+L 29.09: lesere og skrivere i repoet og Git-historikken. K 29.09: ingen
+funksjon, trigger eller Edge Function i prosjektet nevner tabellen, og
+statistikken viser 0 rader."""
+
+[[tabell]]
+navn = "sak_bim_links"
+lagring = "PostgreSQL"
+type = ["transaksjon"]
+status = "i bruk"
+beskrivelse = """
+Kobler en sak til et objekt i en BIM-modell, med modell, objekt-ID, IFC-type,
+egenskaper og hvem som koblet. Formålet er å se hvilke komponenter som fører
+til tvist (P2, P3)."""
+lagres_fra = "Når en bruker kobler et objekt til en sak eller fjerner koblingen (BIM-rutene)."
+fra_catenda = "Delvis. Modell- og objekt-ID-ene er fra Catenda."
+relasjoner = "`sak_id` → `sak_metadata.sak_id` (fremmednøkkel)."
+kan_gjenoppbygges = "nei"
+personopplysninger = "`linked_by` identifiserer den som koblet (e-post, lest i ruta)."
+skrivere = ["backend/routes/bim_link_routes.py"]
+funn = ["DA-15", "MS-13", "MS-14"]
+belegg = "K 29.09: kolonnene og fremmednøkkelen i testbasen. L 29.09: rutene."
+
+[[tabell]]
+navn = "magic_links"
+lagring = "PostgreSQL"
+type = ["teknisk"]
+status = "rest"
+beskrivelse = """
+Etterlatenskap fra en eldre innlogging med lenke på e-post. Magic links utgår
+(P1), og tabellen skal fjernes (MS-15)."""
+lagres_fra = """
+Ingen kode leser eller skriver tabellen (DA-09). `MagicLinkManager` i
+`lib/auth/magic_link.py` lagrer i en JSON-fil, ikke her."""
+fra_catenda = "Nei."
+relasjoner = "`sak_id` → `sak_metadata.sak_id` (fremmednøkkel)."
+kan_gjenoppbygges = "ikke relevant; tabellen skal fjernes."
+personopplysninger = "`email`."
+skrivere = []
+funn = ["DA-09", "MS-15"]
+belegg = "K 29.09: kolonnene i testbasen. D 20.09: ingen lesere. L 29.09: `MagicLinkManager`."
+
+[[tabell]]
+navn = "user_groups"
+lagring = "PostgreSQL"
+type = ["grunndata"]
+status = "rest"
+beskrivelse = """
+Etterlatenskap: brukergrupper med roller og leder. Ingen kode bruker den, og
+den skal fjernes (MS-15)."""
+lagres_fra = """
+Ingen. To databasefunksjoner, `get_user_role` og `get_user_role_by_email`,
+leser tabellen, men ingen kaller dem (DA-08)."""
+fra_catenda = "Nei."
+relasjoner = """
+`user_id` → `auth.users` (fremmednøkkel til Supabase-plattformens tabell) og
+`manager_id` → `user_groups.id`. Fremmednøkkelen til `auth.users` må løses hvis
+basen flyttes fra Supabase (B-12)."""
+kan_gjenoppbygges = "ikke relevant; tabellen skal fjernes."
+personopplysninger = "`display_name`, `department` og koblingen til en bruker."
+skrivere = []
+funn = ["DA-08", "MS-15"]
+belegg = "K 29.09: kolonnene og fremmednøklene i testbasen. D 20.09: ingen kallere."
+
+# ---------------------------------------------------------------------------
+# SQLite. Alle seks ligger i fila BH_APPROVAL_DB (standard
+# koe_data/approvals.sqlite3) og skal til PostgreSQL i F1–F3.
+# ---------------------------------------------------------------------------
+
+[[tabell]]
+navn = "utkast"
+lagring = "SQLite"
+type = ["teknisk"]
+status = "i bruk"
+beskrivelse = """
+Teamets arbeidsutkast til et svar eller krav, per sak, spor og revisjon.
+Utkastet tilhører teamet, ikke personen, og er skjult for alle andre.
+`versjon` avviser samtidige lagringer."""
+lagres_fra = """
+Når en bruker skriver i et skjema: utkastrutene (`GET`, `PUT` og `DELETE` på
+`/api/cases/<sak_id>/utkast/<spor>`)."""
+fra_catenda = "Nei. Teamet er en Catenda-team-ID."
+relasjoner = """
+Nøkkel: prosjekt, sak, spor, revisjon og team. Viser til saken og teamet uten
+fremmednøkler."""
+kan_gjenoppbygges = "nei"
+personopplysninger = "`oppdatert_av` og fritekst i `innhold`."
+skrivere = ["backend/services/utkast_registry.py"]
+funn = ["AR-03"]
+belegg = "L 29.09: tabelldefinisjonen og rutene."
+
+[[tabell]]
+navn = "approvals"
+lagring = "SQLite"
+type = ["transaksjon"]
+status = "i bruk"
+beskrivelse = """
+Byggherrens interne godkjenning av svar i en sak: poster, godkjenningspakker
+og kommandoer, lagret som ett JSON-dokument per sak. Når en pakke er godkjent
+og publisert, skrives svarene til journalen."""
+lagres_fra = "Godkjenningsrutene, gjennom `ApprovalService`."
+fra_catenda = "Nei."
+relasjoner = """
+Nøkkel: prosjekt og sak. Publiserte hendelser lagres i `hendelse`, og
+varslingsjobben i `approval_outbox`."""
+kan_gjenoppbygges = "nei"
+personopplysninger = "Godkjennere og saksbehandlere i JSON-dokumentet; ikke kontrollert i detalj."
+skrivere = ["backend/services/approval_service.py"]
+funn = ["AR-03", "MG-05"]
+belegg = "L 29.09: tabelldefinisjonen og `ApprovalService`."
+
+[[tabell]]
+navn = "approval_outbox"
+lagring = "SQLite"
+type = ["teknisk"]
+status = "i bruk"
+beskrivelse = """
+Kø for varsling etter at en godkjenningspakke er publisert. Én rad per pakke,
+med status (`pending`, `sending`, `delivered`, `failed`, `not_configured`)."""
+lagres_fra = "Av `ApprovalService` ved publisering og levering."
+fra_catenda = "Nei."
+relasjoner = "`id` er pakkens ID i `approvals`."
+kan_gjenoppbygges = "nei"
+personopplysninger = "Ingen kjente."
+skrivere = ["backend/services/approval_service.py"]
+funn = ["AR-03"]
+belegg = "L 29.09: tabelldefinisjonen og `publish`/`deliver`."
+
+[[tabell]]
+navn = "eo_approvals"
+lagring = "SQLite"
+type = ["transaksjon"]
+status = "i bruk"
+beskrivelse = """
+Godkjenning av endringsordrer før utstedelse, lagret som ett JSON-dokument per
+prosjekt."""
+lagres_fra = "Endringsordrerutene, gjennom `EOApprovalService`."
+fra_catenda = "Nei."
+relasjoner = "Nøkkel: prosjekt. Viser til endringsordresakene uten fremmednøkler."
+kan_gjenoppbygges = "nei"
+personopplysninger = "Godkjennere i JSON-dokumentet; ikke kontrollert i detalj."
+skrivere = ["backend/services/eo_approval_service.py"]
+funn = ["AR-03"]
+belegg = "L 29.09: tabelldefinisjonen og `EOApprovalService`."
+
+[[tabell]]
+navn = "vedlegg"
+lagring = "SQLite"
+type = ["transaksjon"]
+status = "i bruk"
+beskrivelse = """
+Register over vedlegg i en sak, med status: `staged` (valgt, ikke sendt),
+`pending` (sendt i en lagret hendelse, venter på Catenda) og `delivered`
+(lastet opp og koblet i Catenda). Filinnholdet mellomlagres her fram til
+opplastingen."""
+lagres_fra = "Vedleggsrutene og hendelsesrutene, gjennom `VedleggRegistry`."
+fra_catenda = "Delvis. `catenda_item_id` er Catendas ID etter opplasting."
+relasjoner = """
+Nøkkel: prosjekt, sak og `vedlegg_id`. Hendelser viser til `vedlegg_id`, uten
+fremmednøkkel."""
+kan_gjenoppbygges = "nei"
+personopplysninger = "Filinnholdet kan inneholde personopplysninger; ikke kontrollert."
+skrivere = ["backend/services/vedlegg_registry.py"]
+funn = ["AR-03", "MS-11"]
+belegg = "L 29.09: tabelldefinisjonen og modulheaderen."
+
+[[tabell]]
+navn = "catenda_delivery_status"
+lagring = "SQLite"
+type = ["teknisk"]
+status = "i bruk"
+beskrivelse = """
+Kvittering per hendelse for levering til Catenda (`pending`, `failed`,
+`delivered`), vist i banneret på saken. Ikke en kø for nye forsøk."""
+lagres_fra = "Hendelsesrutene."
+fra_catenda = "Nei, men statusen gjelder et kall til Catenda."
+relasjoner = "Nøkkel: prosjekt, sak og `event_id`. Viser til `hendelse.event_id` uten fremmednøkkel."
+kan_gjenoppbygges = "nei"
+personopplysninger = "Ingen kjente."
+skrivere = ["backend/services/catenda_delivery_status.py"]
+funn = ["AR-03"]
+belegg = "L 29.09: tabelldefinisjonen og kallerne i `event_routes`."
+
+# ---------------------------------------------------------------------------
+# Data utenfor appens databaser. Ikke tabeller, men del av datamodellen.
+# ---------------------------------------------------------------------------
+
+[[utenfor]]
+navn = "Catenda: topics og kommentarer"
+lagring = "Catenda"
+beskrivelse = """
+Hver sak er knyttet til en topic i Catenda (`sak_metadata.catenda_topic_id`).
+En ny topic kan opprette en sak via webhook. Appen oppretter selv topics og
+relasjoner mellom dem for forsering og endringsordre, og skriver kommentarer
+på topicen."""
+lagres_fra = """
+Forserings- og endringsordretjenesten (`create_topic`,
+`create_topic_relations`), webhook-tjenesten, synkroniseringstjenesten og
+hendelsesrutene (`create_comment`)."""
+belegg = """
+L 29.09: kallene i tjenestene og rutene. Hvilke hendelser som gir kommentar,
+er ikke kontrollert (fase 1c)."""
+
+[[utenfor]]
+navn = "Catenda: dokumentbiblioteket"
+lagring = "Catenda"
+beskrivelse = """
+Vedlegg og brev lagres i Catendas dokumentbibliotek og knyttes til topicen
+(P4). Appen har bare registeret i `vedlegg` og kvitteringene."""
+lagres_fra = "Hendelses- og vedleggsrutene og webhook-tjenesten."
+belegg = """
+L 29.09: kallene til `upload_document` og `create_document_reference`.
+Mappestrukturen og navngivingen er ikke kontrollert (B-03)."""
+
+[[utenfor]]
+navn = "Webhook-reservasjon"
+lagring = "Redis eller minne"
+beskrivelse = """
+Hindrer at samme webhook fra Catenda behandles to ganger. Ligger i Redis med
+utløpstid når `REDIS_URL` er satt, og ellers i minnet til prosessen, der den
+forsvinner ved omstart."""
+lagres_fra = "`lib/security/webhook_security.py`, ved hver webhook."
+belegg = "L 29.09: modulen. Om Redis brukes i et utrullet miljø, er ikke kontrollert."
