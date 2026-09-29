@@ -1,0 +1,641 @@
+# Relasjonsregisteret (spor M, fase 1c). Kilden for kolonne 7 i
+# tabellbeskrivelsen, arket «Relasjoner» og ER-diagrammet i relasjoner.md.
+#
+# Rett her, ikke i de genererte filene. Testene i backend/tests/test_datamodell/
+# feiler når
+#   - en fremmednøkkel i katalog.json mangler, eller en oppføring med art
+#     «fremmednøkkel» ikke finnes i katalogen
+#   - en kolonne som ser ut som en nøkkel eller en personreferanse, verken er
+#     med i en relasjon eller står under [[uten_relasjon]]
+#   - en tabell eller kolonne ikke finnes i katalogen
+#
+# art: «fremmednøkkel» håndheves av basen. «logisk» er en kobling koden bruker,
+# uten fremmednøkkel; ingenting hindrer en verdi som ikke finnes i måltabellen.
+# json_sti: stien inne i en JSON-kolonne, når koblingen går ut fra eller inn i en.
+# Belegg: K kjørt og observert, L lest i kode eller migrasjon.
+
+# ---------------------------------------------------------------------------
+# Fremmednøkler. Belegg for alle: K 29.09, katalogen i testbasen og i
+# prosjektet har samme sum over fremmednøkler, primærnøkler og unike nøkler.
+# ---------------------------------------------------------------------------
+
+[[relasjon]]
+fra = "hendelse.sak_id"
+til = "sak_metadata.sak_id"
+art = "fremmednøkkel"
+antall = "mange til én"
+beskrivelse = """
+Saken hendelsen hører til. Slettes saken i saksregisteret, sletter basen
+journalen med (ON DELETE CASCADE); basen verner ikke journalen (MS-02)."""
+funn = ["MS-02"]
+belegg = "K 29.09: katalogen."
+
+[[relasjon]]
+fra = "notat.sak_id"
+til = "sak_metadata.sak_id"
+art = "fremmednøkkel"
+antall = "mange til én"
+beskrivelse = "Saken notatet er skrevet i."
+funn = []
+belegg = "K 29.09: katalogen."
+
+[[relasjon]]
+fra = "sak_bim_links.sak_id"
+til = "sak_metadata.sak_id"
+art = "fremmednøkkel"
+antall = "mange til én"
+beskrivelse = "Saken BIM-objektet er koblet til."
+funn = []
+belegg = "K 29.09: katalogen."
+
+[[relasjon]]
+fra = "magic_links.sak_id"
+til = "sak_metadata.sak_id"
+art = "fremmednøkkel"
+antall = "mange til én"
+beskrivelse = "Saken lenken gjaldt. Tabellen er en rest (MS-15)."
+funn = ["MS-15"]
+belegg = "K 29.09: katalogen."
+
+[[relasjon]]
+fra = "catenda_project_configs.internal_project_id"
+til = "projects.id"
+art = "fremmednøkkel"
+antall = "én til én"
+beskrivelse = "Prosjektet koblingen til Catenda gjelder. Én konfigurasjon per prosjekt."
+funn = ["MS-12"]
+belegg = "K 29.09: katalogen. `internal_project_id` er også primærnøkkel."
+
+[[relasjon]]
+fra = "catenda_topic_board_configs.internal_project_id"
+til = "catenda_project_configs.internal_project_id"
+art = "fremmednøkkel"
+antall = "mange til én"
+beskrivelse = "Prosjektet topic boardet hører til. Et prosjekt kan ha flere boards."
+funn = []
+belegg = "K 29.09: katalogen."
+
+[[relasjon]]
+fra = "catenda_contract_teams.internal_project_id"
+til = "catenda_project_configs.internal_project_id"
+art = "fremmednøkkel"
+antall = "mange til én"
+beskrivelse = "Prosjektet teamet representerer TE eller BH i."
+funn = []
+belegg = "K 29.09: katalogen."
+
+[[relasjon]]
+fra = "app_identities.user_id"
+til = "app_users.id"
+art = "fremmednøkkel"
+antall = "mange til én"
+beskrivelse = "Brukeren den eksterne identiteten tilhører."
+funn = []
+belegg = "K 29.09: katalogen."
+
+[[relasjon]]
+fra = "app_sessions.user_id"
+til = "app_users.id"
+art = "fremmednøkkel"
+antall = "mange til én"
+beskrivelse = "Brukeren som er logget inn."
+funn = []
+belegg = "K 29.09: katalogen."
+
+[[relasjon]]
+fra = "app_project_memberships.project_id"
+til = "projects.id"
+art = "fremmednøkkel"
+antall = "mange til én"
+beskrivelse = "Prosjektet medlemskapet gjelder."
+funn = []
+belegg = "K 29.09: katalogen."
+
+[[relasjon]]
+fra = "app_project_memberships.user_id"
+til = "app_users.id"
+art = "fremmednøkkel"
+antall = "mange til én"
+beskrivelse = "Brukeren som er medlem. Én rad per prosjekt og bruker (UNIQUE)."
+funn = []
+belegg = "K 29.09: katalogen."
+
+[[relasjon]]
+fra = "app_membership_sync.project_id"
+til = "projects.id"
+art = "fremmednøkkel"
+antall = "én til én"
+beskrivelse = "Prosjektet synkroniseringen gjelder. Én rad per prosjekt."
+funn = []
+belegg = "K 29.09: katalogen. `project_id` er også primærnøkkel."
+
+[[relasjon]]
+fra = "project_memberships.project_id"
+til = "projects.id"
+art = "fremmednøkkel"
+antall = "mange til én"
+beskrivelse = "Prosjektet i den eldre medlemslisten. Tabellen er en rest (MS-15)."
+funn = ["MS-15"]
+belegg = "K 29.09: katalogen."
+
+[[relasjon]]
+fra = "user_groups.manager_id"
+til = "user_groups.id"
+art = "fremmednøkkel"
+antall = "mange til én"
+beskrivelse = "Lederen i brukergruppen. Tabellen er en rest (MS-15)."
+funn = ["MS-15"]
+belegg = "K 29.09: katalogen. Ved sletting settes verdien til NULL."
+
+[[relasjon]]
+fra = "user_groups.user_id"
+til = "auth.users.id"
+art = "fremmednøkkel"
+antall = "én til én"
+beskrivelse = """
+Brukeren i Supabase-plattformens egen tabell, ikke `app_users`. Må løses om
+basen flyttes fra Supabase (B-12). Tabellen er en rest (MS-15)."""
+funn = ["MS-15"]
+belegg = "K 29.09: katalogen. `user_id` er også unik."
+
+# ---------------------------------------------------------------------------
+# Logiske koblinger i PostgreSQL, uten fremmednøkkel
+# ---------------------------------------------------------------------------
+
+[[relasjon]]
+fra = "hendelse.prosjekt_id"
+til = "projects.id"
+art = "logisk"
+antall = "mange til én"
+beskrivelse = """
+Prosjektet hendelsen er skrevet i. Stemples av serveren fra autorisert
+kontekst, uten default (AGENTS.md, sikkerhetsinvariantene)."""
+funn = []
+belegg = "K 29.09: NOT NULL uten default i katalogen. L 29.09: lageret."
+
+[[relasjon]]
+fra = "hendelse.actorid"
+til = "app_users.id"
+art = "logisk"
+antall = "mange til én"
+beskrivelse = """
+Den som sendte hendelsen. Verdien er `app_users.id` og aldri et navn
+(AGENTS.md). Kolonnen er `text`, `id` er `uuid`."""
+funn = ["MG-02"]
+belegg = "L 29.09: rutene og webhooken setter `aktor_id` fra `app_users.id`."
+
+[[relasjon]]
+fra = "hendelse.actorteam"
+til = "catenda_contract_teams.team_id"
+art = "logisk"
+antall = "mange til én"
+beskrivelse = """
+Teamet avsenderen satt i, utledet fra teammedlemskapet i Catenda da hendelsen
+ble skrevet. Tom når teamet ikke var entydig. Lagres som 32 heksadesimaler
+uten bindestreker (`catenda_id`), mens `team_id` er `uuid`; en sammenstilling
+må normalisere."""
+funn = []
+belegg = "L 29.09: `contract_membership_for_subject` og lageret."
+
+[[relasjon]]
+fra = "hendelse.referstoid"
+til = "hendelse.event_id"
+art = "logisk"
+antall = "mange til én"
+beskrivelse = """
+Kravet et svar gjelder (`refererer_til_event_id`), i samme sak.
+Forretningsreglene for svar sammenlikner den med sporets gjeldende krav."""
+funn = []
+belegg = "L 29.09: `business_rules.py` og `approval_service.py`."
+
+[[relasjon]]
+fra = "hendelse.data"
+json_sti = "vedlegg_ids[]"
+til = "vedlegg.vedlegg_id"
+art = "logisk"
+antall = "mange til mange"
+beskrivelse = """
+Vedleggene hendelsen sender. Leveringen til Catenda starter fra disse
+referansene etter at hendelsen er lagret. Sammenlikningen normaliserer med
+`catenda_id`. Går på tvers av lagene: journalen i PostgreSQL, registeret i
+SQLite."""
+funn = ["AR-03"]
+belegg = "L 29.09: `lever_vedlegg_for_hendelser`."
+
+[[relasjon]]
+fra = "notat.prosjekt_id"
+til = "projects.id"
+art = "logisk"
+antall = "mange til én"
+beskrivelse = "Prosjektet notatet er skrevet i."
+funn = []
+belegg = "L 29.09: lageret."
+
+[[relasjon]]
+fra = "notat.aktor_id"
+til = "app_users.id"
+art = "logisk"
+antall = "mange til én"
+beskrivelse = "Forfatteren."
+funn = []
+belegg = "L 29.09: hendelsesruta."
+
+[[relasjon]]
+fra = "notat.aktor_team_id"
+til = "catenda_contract_teams.team_id"
+art = "logisk"
+antall = "mange til én"
+beskrivelse = """
+Teamet som kan lese notatet. Skjermingen går på denne verdien; uten den vises
+notatet til ingen (AGENTS.md). Samme verdiform som `hendelse.actorteam`."""
+funn = []
+belegg = "L 29.09: hendelsesruta og `event_visibility.py`."
+
+[[relasjon]]
+fra = "notat.refererer_til_event_id"
+til = "hendelse.event_id"
+art = "logisk"
+antall = "mange til én"
+beskrivelse = "Hendelsen notatet kommenterer, om noen."
+funn = []
+belegg = "L 29.09: modellen og lageret."
+
+[[relasjon]]
+fra = "sak_metadata.prosjekt_id"
+til = "projects.id"
+art = "logisk"
+antall = "mange til én"
+beskrivelse = """
+Prosjektet saken tilhører. Tilgangskontrollen holder hver forespørsel mot
+denne verdien."""
+funn = ["DB-03"]
+belegg = "K 29.09: NOT NULL uten default i katalogen. L 29.09: `require_project_access`."
+
+[[relasjon]]
+fra = "sak_metadata.created_by"
+til = "app_users.id"
+art = "logisk"
+antall = "mange til én"
+beskrivelse = """
+Den som opprettet saken. Bare delvis en kobling: verdien har tre former, og
+bare én av dem er `app_users.id` (MG-04)."""
+funn = ["MG-04"]
+belegg = "L 29.09: webhooken setter `app_users.id`. De andre formene: H, målskjemagjennomgangen 21.09."
+
+[[relasjon]]
+fra = "sak_metadata.catenda_project_id"
+til = "catenda_project_configs.catenda_project_id"
+art = "logisk"
+antall = "mange til én"
+beskrivelse = """
+Catenda-prosjektet saken ble opprettet i. Kolonnen er `text`, målet er
+`uuid`. Levering til Catenda bruker i dag den globale innstillingen, ikke
+denne verdien (INT-06)."""
+funn = ["INT-06"]
+belegg = "L 29.09: webhooken og `_prepare_catenda_context`."
+
+[[relasjon]]
+fra = "sak_metadata.catenda_board_id"
+til = "catenda_topic_board_configs.topic_board_id"
+art = "logisk"
+antall = "mange til én"
+beskrivelse = """
+Topic boardet sakens topic ligger på. Kolonnen er `text`, målet er `uuid`.
+Levering til Catenda leser boardet herfra."""
+funn = []
+belegg = "L 29.09: webhooken og `_prepare_catenda_context`."
+
+[[relasjon]]
+fra = "sak_relations.source_sak_id"
+til = "sak_metadata.sak_id"
+art = "logisk"
+antall = "mange til én"
+beskrivelse = """
+Forseringen eller endringsordren som omfatter en annen sak. Fremmednøkkelen
+mangler (DB-04); hvordan relasjoner skal lagres, er B-01. Opprettes en
+forsering gjennom `/api/forsering/opprett`, er verdien topicens GUID, og saken
+har da ingen rad i `sak_metadata`."""
+funn = ["DB-04", "DA-13", "MS-08"]
+belegg = "K 29.09: ingen fremmednøkkel i katalogen. L 29.09: forsering- og endringsordretjenesten."
+
+[[relasjon]]
+fra = "sak_relations.target_sak_id"
+til = "sak_metadata.sak_id"
+art = "logisk"
+antall = "mange til én"
+beskrivelse = "KOE-saken som inngår i forseringen eller endringsordren."
+funn = ["DB-04"]
+belegg = "K 29.09: ingen fremmednøkkel i katalogen."
+
+[[relasjon]]
+fra = "sak_relations.prosjekt_id"
+til = "projects.id"
+art = "logisk"
+antall = "mange til én"
+beskrivelse = "Prosjektet relasjonen er skrevet i, stemplet fra autorisert kontekst."
+funn = []
+belegg = "K 29.09: NOT NULL uten default i katalogen. L 29.09: `krev_autorisert_prosjekt`."
+
+[[relasjon]]
+fra = "app_project_memberships.catenda_subject"
+til = "app_identities.subject"
+art = "logisk"
+antall = "mange til én"
+beskrivelse = """
+Personen i Catenda. `koe_reconcile_memberships` løser subjektet til `user_id`
+gjennom `koe_resolve_identity`, så de to kolonnene peker på samme person.
+Kontraktssiden slås opp med subjektet."""
+funn = []
+belegg = "L 29.09: funksjonene i migrasjonene og `contract_membership`."
+
+[[relasjon]]
+fra = "app_membership_sync.catenda_project_id"
+til = "catenda_project_configs.catenda_project_id"
+art = "logisk"
+antall = "én til én"
+beskrivelse = """
+Catenda-prosjektet synkroniseringen hentet fra. `ensure_fresh` godtar bare en
+synkronisering av prosjektets nåværende Catenda-prosjekt."""
+funn = []
+belegg = "L 29.09: `AuthService.ensure_fresh`."
+
+[[relasjon]]
+fra = "catenda_models_cache.prosjekt_id"
+til = "projects.id"
+art = "logisk"
+antall = "mange til én"
+beskrivelse = "Prosjektet modellene gjelder. BIM-rutene slår opp på denne. Tabellen fylles ikke (DM-02)."
+funn = ["DM-02"]
+belegg = "L 29.09: BIM-rutene."
+
+[[relasjon]]
+fra = "catenda_models_cache.catenda_project_id"
+til = "catenda_project_configs.catenda_project_id"
+art = "logisk"
+antall = "mange til én"
+beskrivelse = "Catenda-prosjektet modellene ligger i. Kolonnen er `text`, målet er `uuid`."
+funn = ["DM-02"]
+belegg = "L 29.09: BIM-rutene."
+
+# ---------------------------------------------------------------------------
+# Logiske koblinger fra SQLite. Alle seks tabellene ligger i fila BH_APPROVAL_DB,
+# så en kobling til en tabell i PostgreSQL kan ikke håndheves av noen base.
+# ---------------------------------------------------------------------------
+
+[[relasjon]]
+fra = "utkast.project"
+til = "projects.id"
+art = "logisk"
+antall = "mange til én"
+beskrivelse = "Prosjektet utkastet er skrevet i."
+funn = ["AR-03"]
+belegg = "L 29.09: `utkast_routes.py`."
+
+[[relasjon]]
+fra = "utkast.case_id"
+til = "sak_metadata.sak_id"
+art = "logisk"
+antall = "mange til én"
+beskrivelse = "Saken utkastet gjelder."
+funn = ["AR-03"]
+belegg = "L 29.09: `utkast_routes.py`."
+
+[[relasjon]]
+fra = "utkast.team"
+til = "catenda_contract_teams.team_id"
+art = "logisk"
+antall = "mange til én"
+beskrivelse = """
+Teamet som eier utkastet. Uten entydig team finnes det ikke noe utkast.
+Samme verdiform som `hendelse.actorteam`."""
+funn = []
+belegg = "L 29.09: `utkast_routes._team_eller_avvis`."
+
+[[relasjon]]
+fra = "approvals.project"
+til = "projects.id"
+art = "logisk"
+antall = "mange til én"
+beskrivelse = "Prosjektet godkjenningen hører til."
+funn = ["AR-03"]
+belegg = "L 29.09: `ApprovalService`."
+
+[[relasjon]]
+fra = "approvals.case_id"
+til = "sak_metadata.sak_id"
+art = "logisk"
+antall = "én til én"
+beskrivelse = "Saken. Ett dokument per prosjekt og sak."
+funn = ["AR-03"]
+belegg = "L 29.09: tabelldefinisjonen."
+
+[[relasjon]]
+fra = "approvals.body"
+json_sti = "items[].claimId"
+til = "hendelse.event_id"
+art = "logisk"
+antall = "mange til én"
+beskrivelse = """
+Kravet en forberedt svarpost gjelder. Posten er ugyldig om et nyere krav eller
+en tilbaketrekking er kommet i sporet. Ved publisering blir verdien
+`refererer_til_event_id` i svaret."""
+funn = []
+belegg = "L 29.09: `ApprovalService`."
+
+[[relasjon]]
+fra = "approvals.body"
+json_sti = "packages[].eventIds[]"
+til = "hendelse.event_id"
+art = "logisk"
+antall = "mange til mange"
+beskrivelse = "Hendelsene en publisert pakke ble til i journalen."
+funn = []
+belegg = "L 29.09: `ApprovalService.publish` og levering i `approval_routes.py`."
+
+[[relasjon]]
+fra = "approval_outbox.id"
+til = "approvals.body"
+json_sti = "packages[].id"
+art = "logisk"
+antall = "én til én"
+beskrivelse = "Pakken varslingsjobben gjelder. Én jobb per pakke."
+funn = ["AR-03"]
+belegg = "L 29.09: `ApprovalService.publish` og `deliver`."
+
+[[relasjon]]
+fra = "approval_outbox.project"
+til = "projects.id"
+art = "logisk"
+antall = "mange til én"
+beskrivelse = "Prosjektet."
+funn = []
+belegg = "L 29.09: tabelldefinisjonen."
+
+[[relasjon]]
+fra = "approval_outbox.case_id"
+til = "sak_metadata.sak_id"
+art = "logisk"
+antall = "mange til én"
+beskrivelse = "Saken."
+funn = []
+belegg = "L 29.09: tabelldefinisjonen."
+
+[[relasjon]]
+fra = "eo_approvals.project"
+til = "projects.id"
+art = "logisk"
+antall = "én til én"
+beskrivelse = "Prosjektet. Ett dokument per prosjekt med alle endringsordrene til godkjenning."
+funn = ["AR-03"]
+belegg = "L 29.09: tabelldefinisjonen."
+
+[[relasjon]]
+fra = "eo_approvals.body"
+json_sti = "packages[].sakId"
+til = "sak_metadata.sak_id"
+art = "logisk"
+antall = "én til én"
+beskrivelse = """
+Saks-ID-en endringsordren er reservert under. Saken finnes først når ordren
+er utstedt; fram til da peker verdien på en sak som ikke finnes."""
+funn = []
+belegg = "L 29.09: `EOApprovalService` og `new_eo_sak_id`."
+
+[[relasjon]]
+fra = "eo_approvals.body"
+json_sti = "packages[].request.koe_sak_ids[]"
+til = "sak_metadata.sak_id"
+art = "logisk"
+antall = "mange til mange"
+beskrivelse = "KOE-sakene endringsordren skal omfatte."
+funn = []
+belegg = "L 29.09: `order_request`."
+
+[[relasjon]]
+fra = "vedlegg.project"
+til = "projects.id"
+art = "logisk"
+antall = "mange til én"
+beskrivelse = "Prosjektet."
+funn = ["AR-03"]
+belegg = "L 29.09: `VedleggRegistry`."
+
+[[relasjon]]
+fra = "vedlegg.case_id"
+til = "sak_metadata.sak_id"
+art = "logisk"
+antall = "mange til én"
+beskrivelse = "Saken vedlegget er lastet opp i. Nedlasting krever at vedlegget står på nøyaktig denne saken."
+funn = ["AR-03"]
+belegg = "L 29.09: `last_ned_vedlegg`."
+
+[[relasjon]]
+fra = "vedlegg.lastet_opp_team"
+til = "catenda_contract_teams.team_id"
+art = "logisk"
+antall = "mange til én"
+beskrivelse = """
+Teamet som lastet opp. Et vedlegg som ikke er sendt, er synlig bare for dette
+teamet. Samme verdiform som `hendelse.actorteam`."""
+funn = []
+belegg = "L 29.09: `VedleggRegistry.visible`."
+
+[[relasjon]]
+fra = "catenda_delivery_status.project"
+til = "projects.id"
+art = "logisk"
+antall = "mange til én"
+beskrivelse = "Prosjektet."
+funn = []
+belegg = "L 29.09: tabelldefinisjonen."
+
+[[relasjon]]
+fra = "catenda_delivery_status.case_id"
+til = "sak_metadata.sak_id"
+art = "logisk"
+antall = "mange til én"
+beskrivelse = "Saken banneret vises på."
+funn = []
+belegg = "L 29.09: `get_case_context`."
+
+[[relasjon]]
+fra = "catenda_delivery_status.event_id"
+til = "hendelse.event_id"
+art = "logisk"
+antall = "én til én"
+beskrivelse = """
+Hendelsen kvitteringen gjelder. Kvitteringen skrives før hendelsen lagres;
+ved lesing teller bare kvitteringer for hendelser som finnes i journalen."""
+funn = []
+belegg = "L 29.09: `submit_event`."
+
+# ---------------------------------------------------------------------------
+# Kolonner som ser ut som nøkler eller personreferanser, men som ikke viser
+# til en tabell i appen. Testen krever en begrunnelse for hver.
+# ---------------------------------------------------------------------------
+
+[[uten_relasjon]]
+kolonne = "sak_metadata.catenda_topic_id"
+begrunnelse = "ID-en til topicen i Catenda. Se dataflyten."
+
+[[uten_relasjon]]
+kolonne = "catenda_project_configs.library_id"
+begrunnelse = """
+Dokumentbiblioteket i Catenda. Leses av prosjektresolveren, men leveringen
+bruker den globale innstillingen (INT-06)."""
+
+[[uten_relasjon]]
+kolonne = "catenda_project_configs.folder_id"
+begrunnelse = "Mappen i Catenda. Samme som `library_id`."
+
+[[uten_relasjon]]
+kolonne = "catenda_models_cache.model_id"
+begrunnelse = "ID-en til modellen i Catenda."
+
+[[uten_relasjon]]
+kolonne = "sak_bim_links.model_id"
+begrunnelse = """
+ID-en til modellen i Catenda. Samme ID-rom som `catenda_models_cache.model_id`,
+men koden slår ikke opp mellom dem."""
+
+[[uten_relasjon]]
+kolonne = "sak_bim_links.object_id"
+begrunnelse = "ID-en til objektet i modellen i Catenda."
+
+[[uten_relasjon]]
+kolonne = "sak_bim_links.object_global_id"
+begrunnelse = "IFC-GUID-en til objektet."
+
+[[uten_relasjon]]
+kolonne = "vedlegg.catenda_item_id"
+begrunnelse = "ID-en til dokumentet i Catendas bibliotek etter opplasting."
+
+[[uten_relasjon]]
+kolonne = "projects.organisasjon_id"
+begrunnelse = "Virksomheten prosjektet tilhører. Det finnes ingen tabell for virksomheter (MS-10)."
+
+[[uten_relasjon]]
+kolonne = "projects.created_by"
+begrunnelse = """
+`admin_cli` når drift registrerer prosjektet, ellers e-posten til den som
+opprettet det i utviklingsmodus. Ikke en brukeridentitet (DM-08)."""
+
+[[uten_relasjon]]
+kolonne = "sak_bim_links.linked_by"
+begrunnelse = "E-posten til den som koblet, eller `unknown`. Ikke en brukeridentitet (DM-08)."
+
+[[uten_relasjon]]
+kolonne = "utkast.oppdatert_av"
+begrunnelse = "E-post, navn eller ID, i den rekkefølgen. Ikke en brukeridentitet (DM-08)."
+
+[[uten_relasjon]]
+kolonne = "vedlegg.lastet_opp_av"
+begrunnelse = "Navn, e-post eller ID, i den rekkefølgen. Ikke en brukeridentitet (DM-08)."
+
+[[uten_relasjon]]
+kolonne = "project_memberships.external_id"
+begrunnelse = "Rest (MS-15). Ingen leser tabellen (DA-10)."
+
+[[uten_relasjon]]
+kolonne = "project_memberships.invited_by"
+begrunnelse = "Rest (MS-15). E-post."

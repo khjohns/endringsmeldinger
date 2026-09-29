@@ -300,6 +300,7 @@ grenser»** til slutt som navngir hva som *ikke* er kontrollert.
 | Beviset: auditer, design, reviewer, gjennomføringsnotater, oppdrag | `docs/` |
 | Hva hver tabell er, hvem som skriver den, og hvor dataene kommer fra | `docs/datamodell/tabeller.toml`. Excel-fila og `tabeller.md` lages av `docs/verktoy/datamodell.py`, og en test feiler når en tabell mangler |
 | Hva hver hendelsestype er, hvem som sender den, bestemmelsen i NS 8407 og hva den gjør med status | `docs/datamodell/hendelser.toml`. Feltene i `data` hentes fra modellene. `hendelser.md` og arkene i Excel-fila lages av samme verktøy, og en test feiler når en type mangler eller katalogen avviker fra koden |
+| Hvordan tabellene henger sammen, og hvilke kall til Catenda som leser eller skriver dem | `docs/datamodell/relasjoner.toml` og `dataflyt.toml`, med skjemaet i `katalog.json`. `relasjoner.md` lages av samme verktøy. En test feiler når en fremmednøkkel eller et kall til Catenda mangler, og når `katalog.json` avviker fra en base bygget fra migrasjonene |
 | Arbeid som pågår eller venter: hva, hvem, hvilken PR, hva det venter på | GitHub-issues, samlet i én milepæl per arbeidspakke |
 
 - **Et issue viser til ID-en, ikke til vurderingen.** Skriv funn- eller

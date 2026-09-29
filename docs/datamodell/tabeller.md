@@ -45,8 +45,8 @@ Journalen. Én rad per formell hendelse i en sak: varsel, krav, svar, endringsor
 | Type | transaksjon |
 | Status | i bruk |
 | Hvor fra appen lagres og redigeres | Når en part sender noe i en sak: hendelsesrutene (enkeltvis og i batch), ny sak, forsering, endringsordre og publisering av en godkjent BH-pakke. En ny topic i Catenda gir også en rad, via webhook. Rader endres og slettes aldri av appen; en rettelse er en ny hendelse. Basen håndhever ikke det (MS-02). |
-| Data fra Catenda | Delvis. En ny topic i Catenda oppretter en sak med første hendelse via webhook. Ellers kommer innholdet fra brukerne i appen. |
-| Relasjoner | `sak_id` → `sak_metadata.sak_id` (fremmednøkkel, ON DELETE CASCADE). Én rad per sak og versjonsnummer (`UNIQUE (sak_id, versjon)`), og `event_id` er unik. `actorid` er `app_users.id`, uten fremmednøkkel. `referstoid` viser etter navnet til en annen hendelse, uten fremmednøkkel; bruken er ikke kontrollert. |
+| Data fra Catenda | Delvis. En ny topic i Catenda oppretter en sak med første hendelse via webhook. Ellers kommer innholdet fra brukerne i appen. Dataflyt: fra Catenda i C01, C05; til Catenda i C06, C07, C14, C15 (arket Dataflyt). |
+| Relasjoner | Nøkler: primærnøkkel (id); unik (event_id); unik (sak_id, versjon). Viser til: sak_id → sak_metadata.sak_id (fremmednøkkel, ON DELETE CASCADE); prosjekt_id → projects.id (uten fremmednøkkel); actorid → app_users.id (uten fremmednøkkel); actorteam → catenda_contract_teams.team_id (uten fremmednøkkel); referstoid → hendelse.event_id (uten fremmednøkkel); data → vedlegg_ids[] → vedlegg.vedlegg_id (uten fremmednøkkel). Vises til fra: approvals.body → items[].claimId (uten fremmednøkkel); approvals.body → packages[].eventIds[] (uten fremmednøkkel); catenda_delivery_status.event_id (uten fremmednøkkel); notat.refererer_til_event_id (uten fremmednøkkel). |
 | Kan bygges opp igjen | nei. Journalen er kilden alt annet regnes fra. |
 | Personopplysninger | `actorid` peker på en bruker. Fritekst i `data` og `comment` kan inneholde personopplysninger. Vurderingen hører til DPIA-en. |
 | Skrives av | backend/routes/event_routes.py; backend/services/sak_creation_service.py; backend/services/forsering_service.py; backend/services/endringsordre_service.py; backend/services/approval_service.py; backend/services/catenda_webhook_service.py (via sak_creation_service) |
@@ -62,8 +62,8 @@ Interne notater i en sak. Synlige bare for forfatterens eget team, ikke for motp
 | Type | transaksjon |
 | Status | i bruk |
 | Hvor fra appen lagres og redigeres | Når en bruker skriver et internt notat i en sak (hendelsesruta). Forfatteren kan slette notatet. |
-| Data fra Catenda | Nei. |
-| Relasjoner | `sak_id` → `sak_metadata.sak_id` (fremmednøkkel). `aktor_id` er `app_users.id`, `aktor_team_id` er Catenda-team-ID, begge uten fremmednøkkel. `refererer_til_event_id` kan vise til en hendelse, uten fremmednøkkel. |
+| Data fra Catenda | Nei. Dataflyt: fra Catenda i C05 (arket Dataflyt). |
+| Relasjoner | Nøkler: primærnøkkel (notat_id). Viser til: sak_id → sak_metadata.sak_id (fremmednøkkel, ON DELETE CASCADE); prosjekt_id → projects.id (uten fremmednøkkel); aktor_id → app_users.id (uten fremmednøkkel); aktor_team_id → catenda_contract_teams.team_id (uten fremmednøkkel); refererer_til_event_id → hendelse.event_id (uten fremmednøkkel). |
 | Kan bygges opp igjen | nei |
 | Personopplysninger | `aktor_id` peker på forfatteren. `tekst` og `kommentar` er fritekst. |
 | Skrives av | backend/routes/event_routes.py; backend/repositories/postgres/notat.py |
@@ -79,8 +79,8 @@ Saksregisteret: én rad per sak, med prosjekt, sakstype, hvem som opprettet den,
 | Type | grunndata, avledet |
 | Status | i bruk |
 | Hvor fra appen lagres og redigeres | Opprettes når en sak lages, gjennom `SakCreationService`: fra hendelsesrutene, for endringsordrer, og fra en ny topic i Catenda via webhook. Hvordan en forseringssak får sin rad, er ikke kontrollert. `cached_*` oppdateres etter lagrede hendelser (hendelsesrutene, forsering og godkjenning). |
-| Data fra Catenda | Delvis. `catenda_topic_id`, `catenda_board_id` og `catenda_project_id` er ID-er fra Catenda. |
-| Relasjoner | Primærnøkkel `sak_id`. `hendelse`, `notat`, `sak_bim_links` og `magic_links` har fremmednøkkel hit. `sak_relations` viser hit uten fremmednøkkel. `prosjekt_id` viser til `projects.id` uten fremmednøkkel. |
+| Data fra Catenda | Delvis. `catenda_topic_id`, `catenda_board_id` og `catenda_project_id` er ID-er fra Catenda. Dataflyt: fra Catenda i C01, C15; til Catenda i C01, C15 (arket Dataflyt). |
+| Relasjoner | Nøkler: primærnøkkel (sak_id). Viser til: prosjekt_id → projects.id (uten fremmednøkkel); created_by → app_users.id (uten fremmednøkkel); catenda_project_id → catenda_project_configs.catenda_project_id (uten fremmednøkkel); catenda_board_id → catenda_topic_board_configs.topic_board_id (uten fremmednøkkel). Vises til fra: approval_outbox.case_id (uten fremmednøkkel); approvals.case_id (uten fremmednøkkel); catenda_delivery_status.case_id (uten fremmednøkkel); eo_approvals.body → packages[].sakId (uten fremmednøkkel); eo_approvals.body → packages[].request.koe_sak_ids[] (uten fremmednøkkel); hendelse.sak_id (fremmednøkkel, ON DELETE CASCADE); magic_links.sak_id (fremmednøkkel, ON DELETE CASCADE); notat.sak_id (fremmednøkkel, ON DELETE CASCADE); sak_bim_links.sak_id (fremmednøkkel, ON DELETE CASCADE); sak_relations.source_sak_id (uten fremmednøkkel); sak_relations.target_sak_id (uten fremmednøkkel); utkast.case_id (uten fremmednøkkel); vedlegg.case_id (uten fremmednøkkel). |
 | Kan bygges opp igjen | delvis. `cached_*` og `last_event_at` kan regnes ut av hendelsene. Om registerkolonnene også kan det, er ikke kontrollert. |
 | Personopplysninger | `created_by` identifiserer den som opprettet saken (tre verdiformer, MG-04). |
 | Skrives av | backend/services/sak_creation_service.py; backend/services/endringsordre_service.py; backend/routes/event_routes.py (update_cache); backend/routes/forsering_routes.py (update_cache); backend/routes/approval_routes.py (update_cache) |
@@ -95,14 +95,14 @@ Koblinger mellom saker, for eksempel hvilke KOE-er en forsering eller en endring
 | --- | --- |
 | Type | avledet |
 | Status | i bruk |
-| Hvor fra appen lagres og redigeres | Når KOE-er legges til eller fjernes fra en forsering eller en endringsordre (forsering- og endringsordretjenesten). |
-| Data fra Catenda | Nei. |
-| Relasjoner | `source_sak_id` og `target_sak_id` viser til `sak_metadata.sak_id`, uten fremmednøkler (DB-04, B-01). `prosjekt_id` settes av serveren. |
+| Hvor fra appen lagres og redigeres | Når en forsering opprettes gjennom `/api/forsering/opprett`, og når en endringsordre opprettes eller KOE-er legges til eller fjernes fra den (forsering- og endringsordretjenesten). Å legge til eller fjerne KOE-er fra en forsering endrer bare Catenda, ikke denne tabellen (dataflyten, C11). Skriptet `scripts/backfill_relations.py` kaller lageret uten autorisert prosjekt, og over PostgreSQL avvises da hver skriving (`krev_autorisert_prosjekt`). |
+| Data fra Catenda | Nei. Dataflyt: fra Catenda i C10 (arket Dataflyt). |
+| Relasjoner | Nøkler: primærnøkkel (id); unik (source_sak_id, target_sak_id, relation_type). Viser til: source_sak_id → sak_metadata.sak_id (uten fremmednøkkel); target_sak_id → sak_metadata.sak_id (uten fremmednøkkel); prosjekt_id → projects.id (uten fremmednøkkel). |
 | Kan bygges opp igjen | ikke kontrollert. Koblingene finnes trolig også som hendelser (`FORSERING_KOE_*`, `EO_KOE_*`), men det er ikke sjekket at de to alltid er like. |
 | Personopplysninger | Ingen kjente. |
 | Skrives av | backend/services/forsering_service.py; backend/services/endringsordre_service.py |
 | Funn | DA-13, MS-08, DB-04 |
-| Belegg | K 29.09: kolonnene og fraværet av fremmednøkler i testbasen. L 29.09: kallerne av `add_relation`, `add_relations_batch` og `remove_relation`. |
+| Belegg | K 29.09: kolonnene og fraværet av fremmednøkler i testbasen. L 29.09: kallerne av `add_relation`, `add_relations_batch` og `remove_relation`; at forseringsrutene for relaterte saker ikke skriver tabellen, og skriptet, i fase 1c. |
 
 ### `projects`
 
@@ -112,14 +112,14 @@ Prosjektene i appen, med navn, beskrivelse, innstillinger, om prosjektet er akti
 | --- | --- |
 | Type | grunndata |
 | Status | i bruk |
-| Hvor fra appen lagres og redigeres | Registreres av drift gjennom databasefunksjonen `koe_register_project` (`scripts/catenda_admin.py`). `POST /api/projects` svarer 403 utenfor utviklingsmodus. En prosjektadministrator kan endre navn, beskrivelse og innstillinger og deaktivere prosjektet (`PATCH`). At runtime-rollen heller ikke skal kunne kalle funksjonen, gjelder databaserettighetene og hører til F1 (B-02 punkt 4). En migrasjon legger inn prosjektet `oslobygg`, og det er i dag basens eneste prosjekt (DM-03). |
-| Data fra Catenda | Nei, ikke direkte. Koblingen til Catenda-prosjektet ligger i `catenda_project_configs`. |
-| Relasjoner | Primærnøkkel `id`. `app_project_memberships`, `app_membership_sync`, `catenda_project_configs` og `project_memberships` har fremmednøkkel hit. `prosjekt_id` i andre tabeller viser hit uten fremmednøkkel. Triggeren `trg_auto_membership_on_project_create` skriver `project_memberships` ved ny rad. |
+| Hvor fra appen lagres og redigeres | Registreres av drift gjennom databasefunksjonen `koe_register_project` (`scripts/catenda_admin.py`). `POST /api/projects` svarer 403 utenfor utviklingsmodus. En prosjektadministrator kan endre navn, beskrivelse og innstillinger og deaktivere prosjektet (`PATCH`). Driftsskriptet `catenda_admin.py sync-name` oppdaterer navnet direkte fra Catenda, utenom databasefunksjonen. At runtime-rollen heller ikke skal kunne kalle funksjonen, gjelder databaserettighetene og hører til F1 (B-02 punkt 4). En migrasjon legger inn prosjektet `oslobygg`, og det er i dag basens eneste prosjekt (DM-03). |
+| Data fra Catenda | Nei, ikke direkte. Koblingen til Catenda-prosjektet ligger i `catenda_project_configs`. Dataflyt: fra Catenda i C18, C20 (arket Dataflyt). |
+| Relasjoner | Nøkler: primærnøkkel (id). Vises til fra: app_membership_sync.project_id (fremmednøkkel, ON DELETE CASCADE); app_project_memberships.project_id (fremmednøkkel, ON DELETE CASCADE); approval_outbox.project (uten fremmednøkkel); approvals.project (uten fremmednøkkel); catenda_delivery_status.project (uten fremmednøkkel); catenda_models_cache.prosjekt_id (uten fremmednøkkel); catenda_project_configs.internal_project_id (fremmednøkkel, ON DELETE CASCADE); eo_approvals.project (uten fremmednøkkel); hendelse.prosjekt_id (uten fremmednøkkel); notat.prosjekt_id (uten fremmednøkkel); project_memberships.project_id (fremmednøkkel, ON DELETE CASCADE); sak_metadata.prosjekt_id (uten fremmednøkkel); sak_relations.prosjekt_id (uten fremmednøkkel); utkast.project (uten fremmednøkkel); vedlegg.project (uten fremmednøkkel). |
 | Kan bygges opp igjen | nei |
 | Personopplysninger | `created_by` identifiserer den som opprettet prosjektet. |
-| Skrives av | databasefunksjonen koe_register_project; backend/routes/project_routes.py (PATCH; POST bare i utviklingsmodus); migrasjonen 20260911073600_projects.sql (startraden) |
+| Skrives av | databasefunksjonen koe_register_project; backend/routes/project_routes.py (PATCH; POST bare i utviklingsmodus); backend/scripts/catenda_admin.py (sync-name, direkte oppdatering av navnet); migrasjonen 20260911073600_projects.sql (startraden) |
 | Funn | MS-10, MS-12, DM-03 |
-| Belegg | K 29.09: kolonnene og fremmednøklene i testbasen, startraden i testbasen og en telling i prosjektet. L 29.09: rutene, med vakten mot `POST` utenfor utviklingsmodus, migrasjonene og `scripts/catenda_admin.py`. |
+| Belegg | K 29.09: kolonnene og fremmednøklene i testbasen, startraden i testbasen og en telling i prosjektet. L 29.09: rutene, med vakten mot `POST` utenfor utviklingsmodus, migrasjonene og `scripts/catenda_admin.py`; `sync-name` funnet i fase 1c. |
 
 ### `project_memberships`
 
@@ -130,8 +130,8 @@ Eldre medlemsliste per prosjekt, etter e-post. Erstattet av `app_project_members
 | Type | grunndata |
 | Status | rest |
 | Hvor fra appen lagres og redigeres | Triggeren `trg_auto_membership_on_project_create` legger inn en rad når et prosjekt opprettes. Koden som ser ut til å skrive tabellen, treffer en unik-skranke (AGENTS.md). Ingen leser den (DA-10). |
-| Data fra Catenda | Nei. |
-| Relasjoner | `project_id` → `projects.id` (fremmednøkkel). |
+| Data fra Catenda | Nei. Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
+| Relasjoner | Nøkler: primærnøkkel (id); unik (project_id, user_email). Viser til: project_id → projects.id (fremmednøkkel, ON DELETE CASCADE). |
 | Kan bygges opp igjen | ikke relevant; tabellen skal fjernes. |
 | Personopplysninger | `user_email`, `display_name`, `external_id`. |
 | Skrives av | triggerfunksjonen auto_create_project_membership |
@@ -147,8 +147,8 @@ Brukerne. Én rad per person, med e-post og navn. `id` er identiteten journalen 
 | Type | grunndata |
 | Status | i bruk |
 | Hvor fra appen lagres og redigeres | Bare gjennom databasefunksjonen `koe_resolve_identity`. Den kalles ved innlogging, når en webhook fra Catenda har en forfatter, og for hvert medlem når medlemslisten synkroniseres. E-post og navn oppdateres fra Catenda hver gang. |
-| Data fra Catenda | Ja. E-post og navn kommer fra Catenda-profilen og medlemslisten. |
-| Relasjoner | Primærnøkkel `id`. `app_identities`, `app_sessions` og `app_project_memberships` har fremmednøkkel hit. `hendelse.actorid` og `notat.aktor_id` viser hit uten fremmednøkkel. |
+| Data fra Catenda | Ja. E-post og navn kommer fra Catenda-profilen og medlemslisten. Dataflyt: fra Catenda i C01, C03, C04 (arket Dataflyt). |
+| Relasjoner | Nøkler: primærnøkkel (id). Vises til fra: app_identities.user_id (fremmednøkkel, ON DELETE CASCADE); app_project_memberships.user_id (fremmednøkkel, ON DELETE CASCADE); app_sessions.user_id (fremmednøkkel, ON DELETE CASCADE); hendelse.actorid (uten fremmednøkkel); notat.aktor_id (uten fremmednøkkel); sak_metadata.created_by (uten fremmednøkkel). |
 | Kan bygges opp igjen | nei. `id` må være stabil, fordi journalen viser til den. |
 | Personopplysninger | `email` og `name`. |
 | Skrives av | databasefunksjonen koe_resolve_identity |
@@ -164,8 +164,8 @@ Kobler en bruker til en ekstern identitet: tilbyder, utsteder og subjekt i Caten
 | Type | grunndata |
 | Status | i bruk |
 | Hvor fra appen lagres og redigeres | Bare gjennom `koe_resolve_identity`, som også er eneste leser. Ingen Python-kode leser eller skriver tabellen direkte (DA-07). |
-| Data fra Catenda | Ja. Subjektet er Catenda-ID-en. |
-| Relasjoner | `user_id` → `app_users.id` (fremmednøkkel). |
+| Data fra Catenda | Ja. Subjektet er Catenda-ID-en. Dataflyt: fra Catenda i C01, C03, C04 (arket Dataflyt). |
+| Relasjoner | Nøkler: primærnøkkel (id); unik (provider, issuer, subject). Viser til: user_id → app_users.id (fremmednøkkel, ON DELETE CASCADE). Vises til fra: app_project_memberships.catenda_subject (uten fremmednøkkel). |
 | Kan bygges opp igjen | nei |
 | Personopplysninger | `subject` er en ekstern identifikator for en person. |
 | Skrives av | databasefunksjonen koe_resolve_identity |
@@ -181,8 +181,8 @@ Innloggingssesjoner. Lagrer en hash av sesjonstokenet, CSRF-tokenet og når sesj
 | Type | teknisk |
 | Status | i bruk |
 | Hvor fra appen lagres og redigeres | Opprettes ved innlogging og slettes ved utlogging (innloggingsrutene). Utløpte rader ryddes av `scripts/sync_catenda_memberships.py`. Om skriptet kjører noe sted, er ikke kontrollert. |
-| Data fra Catenda | Nei. |
-| Relasjoner | `user_id` → `app_users.id` (fremmednøkkel). |
+| Data fra Catenda | Nei. Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
+| Relasjoner | Nøkler: primærnøkkel (token_hash). Viser til: user_id → app_users.id (fremmednøkkel, ON DELETE CASCADE). |
 | Kan bygges opp igjen | nei, men tapet betyr bare at brukerne må logge inn igjen. |
 | Personopplysninger | Knyttet til en bruker gjennom `user_id`. |
 | Skrives av | backend/routes/auth_routes.py; backend/scripts/sync_catenda_memberships.py |
@@ -198,8 +198,8 @@ Påbegynte innlogginger mot Catenda (OAuth). Kortlevde rader som binder tilbakek
 | Type | teknisk |
 | Status | i bruk |
 | Hvor fra appen lagres og redigeres | Opprettes når innloggingen starter, og brukes opp når Catenda sender brukeren tilbake (innloggingsrutene). |
-| Data fra Catenda | Nei, men raden hører til en innlogging hos Catenda. |
-| Relasjoner | Ingen fremmednøkler. |
+| Data fra Catenda | Nei, men raden hører til en innlogging hos Catenda. Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
+| Relasjoner | Nøkler: primærnøkkel (state_hash). Ingen relasjoner til andre tabeller. |
 | Kan bygges opp igjen | nei, men radene er kortlevde. |
 | Personopplysninger | Ingen kjente; bare hasher og en returadresse. |
 | Skrives av | backend/routes/auth_routes.py |
@@ -215,8 +215,8 @@ Hvem som er medlem av hvilket prosjekt, med rolle, og om medlemskapet er aktivt.
 | Type | grunndata, kopi |
 | Status | i bruk |
 | Hvor fra appen lagres og redigeres | Databasefunksjonen `koe_reconcile_memberships` synkroniserer mot Catenda ved innlogging, fra medlemsruta og fra skriptet `scripts/sync_catenda_memberships.py`. Medlemsruta setter `viewer_override`. Innloggingen kan også deaktivere medlemskap. |
-| Data fra Catenda | Ja. Medlemslisten hentes fra Catenda-prosjektet. |
-| Relasjoner | `project_id` → `projects.id` og `user_id` → `app_users.id` (fremmednøkler). |
+| Data fra Catenda | Ja. Medlemslisten hentes fra Catenda-prosjektet. Dataflyt: fra Catenda i C03, C04 (arket Dataflyt). |
+| Relasjoner | Nøkler: primærnøkkel (id); unik (project_id, catenda_subject); unik (project_id, user_id). Viser til: project_id → projects.id (fremmednøkkel, ON DELETE CASCADE); user_id → app_users.id (fremmednøkkel, ON DELETE CASCADE); catenda_subject → app_identities.subject (uten fremmednøkkel). |
 | Kan bygges opp igjen | delvis. Fra Catenda, bortsett fra `viewer_override`. |
 | Personopplysninger | `user_email`, `display_name` og `catenda_subject`. |
 | Skrives av | databasefunksjonen koe_reconcile_memberships; backend/repositories/auth_repository.py (deactivate_user_projects, viewer_override); backend/routes/membership_routes.py |
@@ -232,8 +232,8 @@ Når medlemslisten for et prosjekt sist ble synkronisert fra Catenda. Hindrer at
 | Type | teknisk |
 | Status | i bruk |
 | Hvor fra appen lagres og redigeres | Av `koe_reconcile_memberships`, samtidig med medlemskapene. |
-| Data fra Catenda | Delvis. `catenda_project_id` er en Catenda-ID. |
-| Relasjoner | `project_id` → `projects.id` (fremmednøkkel). |
+| Data fra Catenda | Delvis. `catenda_project_id` er en Catenda-ID. Dataflyt: fra Catenda i C04 (arket Dataflyt). |
+| Relasjoner | Nøkler: primærnøkkel (project_id). Viser til: project_id → projects.id (fremmednøkkel, ON DELETE CASCADE); catenda_project_id → catenda_project_configs.catenda_project_id (uten fremmednøkkel). |
 | Kan bygges opp igjen | ja, ved neste synkronisering. |
 | Personopplysninger | Ingen kjente. |
 | Skrives av | databasefunksjonen koe_reconcile_memberships |
@@ -249,8 +249,8 @@ Kobler et prosjekt i appen til prosjektet, dokumentbiblioteket og mappen i Caten
 | Type | grunndata |
 | Status | i bruk |
 | Hvor fra appen lagres og redigeres | Av `koe_register_project`, som drift kaller gjennom `scripts/catenda_admin.py`. |
-| Data fra Catenda | Ja. ID-ene er Catenda-ID-er, oppgitt ved registrering. |
-| Relasjoner | `internal_project_id` → `projects.id` (fremmednøkkel). `catenda_topic_board_configs` og `catenda_contract_teams` har fremmednøkkel hit. |
+| Data fra Catenda | Ja. ID-ene er Catenda-ID-er, oppgitt ved registrering. Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
+| Relasjoner | Nøkler: primærnøkkel (internal_project_id); unik (catenda_project_id). Viser til: internal_project_id → projects.id (fremmednøkkel, ON DELETE CASCADE). Vises til fra: app_membership_sync.catenda_project_id (uten fremmednøkkel); catenda_contract_teams.internal_project_id (fremmednøkkel, ON DELETE CASCADE); catenda_models_cache.catenda_project_id (uten fremmednøkkel); catenda_topic_board_configs.internal_project_id (fremmednøkkel, ON DELETE CASCADE); sak_metadata.catenda_project_id (uten fremmednøkkel). |
 | Kan bygges opp igjen | nei |
 | Personopplysninger | Ingen kjente. |
 | Skrives av | databasefunksjonen koe_register_project |
@@ -266,8 +266,8 @@ Hvilke topic boards i Catenda som hører til et prosjekt. Brukes blant annet til
 | Type | grunndata |
 | Status | i bruk |
 | Hvor fra appen lagres og redigeres | Av `koe_register_project`, som drift kaller gjennom `scripts/catenda_admin.py`. |
-| Data fra Catenda | Ja. `topic_board_id` er en Catenda-ID. |
-| Relasjoner | `internal_project_id` → `catenda_project_configs.internal_project_id` (fremmednøkkel). |
+| Data fra Catenda | Ja. `topic_board_id` er en Catenda-ID. Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
+| Relasjoner | Nøkler: primærnøkkel (topic_board_id). Viser til: internal_project_id → catenda_project_configs.internal_project_id (fremmednøkkel, ON DELETE CASCADE). Vises til fra: sak_metadata.catenda_board_id (uten fremmednøkkel). |
 | Kan bygges opp igjen | nei |
 | Personopplysninger | Ingen kjente. |
 | Skrives av | databasefunksjonen koe_register_project |
@@ -283,8 +283,8 @@ Hvilke Catenda-team som representerer TE og BH i et prosjekt. Appen utleder en b
 | Type | grunndata |
 | Status | i bruk |
 | Hvor fra appen lagres og redigeres | Av `koe_set_contract_teams` og `koe_register_project`, som drift kaller gjennom `scripts/catenda_admin.py`. Etter B-02 punkt 4 er det bare drift som skal gjøre dette. |
-| Data fra Catenda | Ja. `team_id` er en Catenda-ID. |
-| Relasjoner | `internal_project_id` → `catenda_project_configs.internal_project_id` (fremmednøkkel). |
+| Data fra Catenda | Ja. `team_id` er en Catenda-ID. Dataflyt: fra Catenda i C18, C19 (arket Dataflyt). |
+| Relasjoner | Nøkler: primærnøkkel (internal_project_id, team_id). Viser til: internal_project_id → catenda_project_configs.internal_project_id (fremmednøkkel, ON DELETE CASCADE). Vises til fra: hendelse.actorteam (uten fremmednøkkel); notat.aktor_team_id (uten fremmednøkkel); utkast.team (uten fremmednøkkel); vedlegg.lastet_opp_team (uten fremmednøkkel). |
 | Kan bygges opp igjen | nei. Hvilket team som er hvilken side, er et valg drift gjør. |
 | Personopplysninger | Ingen kjente. |
 | Skrives av | databasefunksjonen koe_set_contract_teams; databasefunksjonen koe_register_project |
@@ -300,8 +300,8 @@ Ment som kopi av BIM-modellene i Catenda per prosjekt, med fag. Tre BIM-ruter le
 | Type | kopi |
 | Status | uavklart |
 | Hvor fra appen lagres og redigeres | Ikke funnet. Ingen kode, databasefunksjon eller trigger skriver tabellen, og `upsert_cached_models` har ingen kaller (DM-02, foreløpig). |
-| Data fra Catenda | Ja, etter formålet. Hvordan den skulle fylles, er ikke kjent. |
-| Relasjoner | `prosjekt_id` viser til `projects.id` uten fremmednøkkel. |
+| Data fra Catenda | Ja, etter formålet. Hvordan den skulle fylles, er ikke kjent. Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
+| Relasjoner | Nøkler: primærnøkkel (id); unik (catenda_project_id, model_id). Viser til: prosjekt_id → projects.id (uten fremmednøkkel); catenda_project_id → catenda_project_configs.catenda_project_id (uten fremmednøkkel). |
 | Kan bygges opp igjen | ja, i prinsippet fra Catenda. |
 | Personopplysninger | Ingen kjente. |
 | Skrives av | Ingen funnet |
@@ -317,8 +317,8 @@ Kobler en sak til et objekt i en BIM-modell, med modell, objekt-ID, IFC-type, eg
 | Type | transaksjon |
 | Status | i bruk |
 | Hvor fra appen lagres og redigeres | Når en bruker kobler et objekt til en sak eller fjerner koblingen (BIM-rutene). |
-| Data fra Catenda | Delvis. Modell- og objekt-ID-ene er fra Catenda. |
-| Relasjoner | `sak_id` → `sak_metadata.sak_id` (fremmednøkkel). |
+| Data fra Catenda | Delvis. Modell- og objekt-ID-ene er fra Catenda. Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
+| Relasjoner | Nøkler: primærnøkkel (id). Viser til: sak_id → sak_metadata.sak_id (fremmednøkkel, ON DELETE CASCADE). |
 | Kan bygges opp igjen | nei |
 | Personopplysninger | `linked_by` identifiserer den som koblet (e-post, lest i ruta). |
 | Skrives av | backend/routes/bim_link_routes.py |
@@ -334,8 +334,8 @@ Etterlatenskap fra en eldre innlogging med lenke på e-post. Magic links utgår 
 | Type | teknisk |
 | Status | rest |
 | Hvor fra appen lagres og redigeres | Ingen kode leser eller skriver tabellen (DA-09). `MagicLinkManager` i `lib/auth/magic_link.py` lagrer i en JSON-fil, ikke her. |
-| Data fra Catenda | Nei. |
-| Relasjoner | `sak_id` → `sak_metadata.sak_id` (fremmednøkkel). |
+| Data fra Catenda | Nei. Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
+| Relasjoner | Nøkler: primærnøkkel (token). Viser til: sak_id → sak_metadata.sak_id (fremmednøkkel, ON DELETE CASCADE). |
 | Kan bygges opp igjen | ikke relevant; tabellen skal fjernes. |
 | Personopplysninger | `email`. |
 | Skrives av | Ingen funnet |
@@ -351,8 +351,8 @@ Etterlatenskap: brukergrupper med roller og leder. Ingen kode bruker den, og den
 | Type | grunndata |
 | Status | rest |
 | Hvor fra appen lagres og redigeres | Ingen. To databasefunksjoner, `get_user_role` og `get_user_role_by_email`, leser tabellen, men ingen kaller dem (DA-08). |
-| Data fra Catenda | Nei. |
-| Relasjoner | `user_id` → `auth.users` (fremmednøkkel til Supabase-plattformens tabell) og `manager_id` → `user_groups.id`. Fremmednøkkelen til `auth.users` må løses hvis basen flyttes fra Supabase (B-12). |
+| Data fra Catenda | Nei. Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
+| Relasjoner | Nøkler: primærnøkkel (id); unik (user_id). Viser til: manager_id → user_groups.id (fremmednøkkel, ON DELETE SET NULL); user_id → auth.users.id (fremmednøkkel, ON DELETE CASCADE). |
 | Kan bygges opp igjen | ikke relevant; tabellen skal fjernes. |
 | Personopplysninger | `display_name`, `department` og koblingen til en bruker. |
 | Skrives av | Ingen funnet |
@@ -370,8 +370,8 @@ Teamets arbeidsutkast til et svar eller krav, per sak, spor og revisjon. Utkaste
 | Type | teknisk |
 | Status | i bruk |
 | Hvor fra appen lagres og redigeres | Når en bruker skriver i et skjema: utkastrutene (`GET`, `PUT` og `DELETE` på `/api/cases/<sak_id>/utkast/<spor>`). |
-| Data fra Catenda | Nei. Teamet er en Catenda-team-ID. |
-| Relasjoner | Nøkkel: prosjekt, sak, spor, revisjon og team. Viser til saken og teamet uten fremmednøkler. |
+| Data fra Catenda | Nei. Teamet er en Catenda-team-ID. Dataflyt: fra Catenda i C05 (arket Dataflyt). |
+| Relasjoner | Nøkler: primærnøkkel (project, case_id, spor, revisjon, team). Viser til: project → projects.id (uten fremmednøkkel); case_id → sak_metadata.sak_id (uten fremmednøkkel); team → catenda_contract_teams.team_id (uten fremmednøkkel). |
 | Kan bygges opp igjen | nei |
 | Personopplysninger | `oppdatert_av` og fritekst i `innhold`. |
 | Skrives av | backend/services/utkast_registry.py |
@@ -387,8 +387,8 @@ Byggherrens interne godkjenning av svar i en sak: poster, godkjenningspakker og 
 | Type | transaksjon |
 | Status | i bruk |
 | Hvor fra appen lagres og redigeres | Godkjenningsrutene, gjennom `ApprovalService`. |
-| Data fra Catenda | Nei. |
-| Relasjoner | Nøkkel: prosjekt og sak. Publiserte hendelser lagres i `hendelse`, og varslingsjobben i `approval_outbox`. |
+| Data fra Catenda | Nei. Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
+| Relasjoner | Nøkler: primærnøkkel (project, case_id). Viser til: project → projects.id (uten fremmednøkkel); case_id → sak_metadata.sak_id (uten fremmednøkkel); body → items[].claimId → hendelse.event_id (uten fremmednøkkel); body → packages[].eventIds[] → hendelse.event_id (uten fremmednøkkel). Vises til fra: approval_outbox.id (uten fremmednøkkel). |
 | Kan bygges opp igjen | nei |
 | Personopplysninger | Godkjennere og saksbehandlere i JSON-dokumentet; ikke kontrollert i detalj. |
 | Skrives av | backend/services/approval_service.py |
@@ -404,8 +404,8 @@ Kø for varsling etter at en godkjenningspakke er publisert. Én rad per pakke, 
 | Type | teknisk |
 | Status | i bruk |
 | Hvor fra appen lagres og redigeres | Av `ApprovalService` ved publisering og levering. |
-| Data fra Catenda | Nei. |
-| Relasjoner | `id` er pakkens ID i `approvals`. |
+| Data fra Catenda | Nei. Dataflyt: fra Catenda i C07 (arket Dataflyt). |
+| Relasjoner | Nøkler: primærnøkkel (id). Viser til: id → approvals.body → packages[].id (uten fremmednøkkel); project → projects.id (uten fremmednøkkel); case_id → sak_metadata.sak_id (uten fremmednøkkel). |
 | Kan bygges opp igjen | nei |
 | Personopplysninger | Ingen kjente. |
 | Skrives av | backend/services/approval_service.py |
@@ -421,8 +421,8 @@ Godkjenning av endringsordrer før utstedelse, lagret som ett JSON-dokument per 
 | Type | transaksjon |
 | Status | i bruk |
 | Hvor fra appen lagres og redigeres | Endringsordrerutene, gjennom `EOApprovalService`. |
-| Data fra Catenda | Nei. |
-| Relasjoner | Nøkkel: prosjekt. Viser til endringsordresakene uten fremmednøkler. |
+| Data fra Catenda | Nei. Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
+| Relasjoner | Nøkler: primærnøkkel (project). Viser til: project → projects.id (uten fremmednøkkel); body → packages[].sakId → sak_metadata.sak_id (uten fremmednøkkel); body → packages[].request.koe_sak_ids[] → sak_metadata.sak_id (uten fremmednøkkel). |
 | Kan bygges opp igjen | nei |
 | Personopplysninger | Godkjennere i JSON-dokumentet; ikke kontrollert i detalj. |
 | Skrives av | backend/services/eo_approval_service.py |
@@ -438,8 +438,8 @@ Register over vedlegg i en sak, med status: `staged` (valgt, ikke sendt), `pendi
 | Type | transaksjon |
 | Status | i bruk |
 | Hvor fra appen lagres og redigeres | Vedleggsrutene og hendelsesrutene, gjennom `VedleggRegistry`. |
-| Data fra Catenda | Delvis. `catenda_item_id` er Catendas ID etter opplasting. |
-| Relasjoner | Nøkkel: prosjekt, sak og `vedlegg_id`. Hendelser viser til `vedlegg_id`, uten fremmednøkkel. |
+| Data fra Catenda | Delvis. `catenda_item_id` er Catendas ID etter opplasting. Dataflyt: fra Catenda i C05, C08; til Catenda i C08 (arket Dataflyt). |
+| Relasjoner | Nøkler: primærnøkkel (project, case_id, vedlegg_id). Viser til: project → projects.id (uten fremmednøkkel); case_id → sak_metadata.sak_id (uten fremmednøkkel); lastet_opp_team → catenda_contract_teams.team_id (uten fremmednøkkel). Vises til fra: hendelse.data → vedlegg_ids[] (uten fremmednøkkel). |
 | Kan bygges opp igjen | nei |
 | Personopplysninger | Filinnholdet kan inneholde personopplysninger; ikke kontrollert. |
 | Skrives av | backend/services/vedlegg_registry.py |
@@ -455,8 +455,8 @@ Kvittering per hendelse for levering til Catenda (`pending`, `failed`, `delivere
 | Type | teknisk |
 | Status | i bruk |
 | Hvor fra appen lagres og redigeres | Hendelsesrutene. |
-| Data fra Catenda | Nei, men statusen gjelder et kall til Catenda. |
-| Relasjoner | Nøkkel: prosjekt, sak og `event_id`. Viser til `hendelse.event_id` uten fremmednøkkel. |
+| Data fra Catenda | Nei, men statusen gjelder et kall til Catenda. Dataflyt: fra Catenda i C06 (arket Dataflyt). |
+| Relasjoner | Nøkler: primærnøkkel (project, case_id, event_id). Viser til: project → projects.id (uten fremmednøkkel); case_id → sak_metadata.sak_id (uten fremmednøkkel); event_id → hendelse.event_id (uten fremmednøkkel). |
 | Kan bygges opp igjen | nei |
 | Personopplysninger | Ingen kjente. |
 | Skrives av | backend/services/catenda_delivery_status.py |
@@ -467,8 +467,8 @@ Kvittering per hendelse for levering til Catenda (`pending`, `failed`, `delivere
 
 | Navn | Lagring | Beskrivelse | Lagres fra | Belegg |
 | --- | --- | --- | --- | --- |
-| Catenda: topics og kommentarer | Catenda | Hver sak er knyttet til en topic i Catenda (`sak_metadata.catenda_topic_id`). En ny topic kan opprette en sak via webhook. Appen oppretter selv topics og relasjoner mellom dem for forsering og endringsordre, og skriver kommentarer på topicen. | Forserings- og endringsordretjenesten (`create_topic`, `create_topic_relations`), webhook-tjenesten, synkroniseringstjenesten og hendelsesrutene (`create_comment`). | L 29.09: kallene i tjenestene og rutene. Hvilke hendelser som gir kommentar, er ikke kontrollert (fase 1c). |
-| Catenda: dokumentbiblioteket | Catenda | Vedlegg og brev lagres i Catendas dokumentbibliotek og knyttes til topicen (P4). Appen har bare registeret i `vedlegg` og kvitteringene. | Hendelses- og vedleggsrutene og webhook-tjenesten. | L 29.09: kallene til `upload_document` og `create_document_reference`. Mappestrukturen og navngivingen er ikke kontrollert (B-03). |
+| Catenda: topics og kommentarer | Catenda | Hver sak er knyttet til en topic i Catenda (`sak_metadata.catenda_topic_id`). En ny topic kan opprette en sak via webhook. Appen oppretter selv topics og relasjoner mellom dem for forsering og endringsordre, og skriver kommentarer på topicen. | Forserings- og endringsordretjenesten (`create_topic`, `create_topic_relations`), webhook-tjenesten, synkroniseringstjenesten og hendelsesrutene (`create_comment`). Kommentar skrives når en topic blir en sak (C01), når en hendelse sendes med `POST /api/events` (C06), når et godkjent BH-svar publiseres (C07), og etter tre av forseringsrutene (C14); se `relasjoner.md`. | L 29.09: kallene i tjenestene og rutene, og i fase 1c hvert kallsted mot Catenda, kontrollert av testen for dataflyten. |
+| Catenda: dokumentbiblioteket | Catenda | Vedlegg og brev lagres i Catendas dokumentbibliotek og knyttes til topicen (P4). Appen har bare registeret i `vedlegg` og kvitteringene. | Hendelsesruta, publisering av godkjente BH-svar og leveringen av vedlegg (C06, C07, C08). Opplastingen i webhook-tjenesten har ingen kaller. | L 29.09: kallene til `upload_document` og `create_document_reference`. Mappestrukturen og navngivingen er ikke kontrollert (B-03). |
 | Webhook-reservasjon | Redis eller minne | Hindrer at samme webhook fra Catenda behandles to ganger. Ligger i Redis med utløpstid når `REDIS_URL` er satt, og ellers i minnet til prosessen, der den forsvinner ved omstart. | `lib/security/webhook_security.py`, ved hver webhook. | L 29.09: modulen. Om Redis brukes i et utrullet miljø, er ikke kontrollert. |
 
 ## Typer og belegg

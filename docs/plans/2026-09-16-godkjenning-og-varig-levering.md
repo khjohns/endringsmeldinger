@@ -669,6 +669,7 @@ reprodusert eller avvist. Alvorlighet settes da.
 | --- | --- | --- | --- | --- |
 | BR-01 | Reprodusert 23.09, flyttet til 4.2 | Se 4.2. Den opprinnelige påstanden (L 23.09) holdt. | K 23.09 | D |
 | DM-02 | Foreløpig | `catenda_models_cache` leses av tre BIM-ruter, som gir tomme lister når den er tom. Ingen kode, funksjon eller trigger skriver den, og `upsert_cached_models` har ingen kaller. Om cachen var ment fylt på en annen måte, er ikke kjent. Hører til flaten i DA-15 | L 29.09, katalogen K 29.09 | Spor M |
+| DM-08 | Foreløpig | Fem kolonner viser til en person med navn eller e-post, ikke `app_users.id`: `vedlegg.lastet_opp_av`, `utkast.oppdatert_av`, `sak_bim_links.linked_by`, `projects.created_by` og `project_memberships.invited_by`. Samme klasse som MG-04. Kan ikke kobles sikkert til en bruker, og et innsyn må søke på navn og e-post | L 29.09 | Spor M |
 
 ### 4.7 Tellinger
 
@@ -1079,6 +1080,12 @@ Arbeidet følges i
 > [hendelseskatalogen](../datamodell/hendelser.md) med vakttest og to nye ark
 > i Excel-fila. DM-05–DM-07 er funnet under kartleggingen; se
 > [gjennomføringsnotatet for 1b](../gjennomforing-spor-m-1b-2026-09-29.md).
+
+> **Merknad 2026-09-29:** fase 1c er levert, og med den punkt 1, datamodellen:
+> [relasjonene og dataflyten mot Catenda](../datamodell/relasjoner.md), med
+> ER-diagram generert fra katalogen, vakttester og to nye ark i Excel-fila.
+> DM-08 er funnet under kartleggingen; se
+> [gjennomføringsnotatet for 1c](../gjennomforing-spor-m-1c-2026-09-29.md).
 
 ### Rotårsakene
 
