@@ -1,0 +1,894 @@
+# Hendelseskatalogen (spor M, fase 1b). Én oppføring per verdi i EventType.
+#
+# Rett her, ikke i hendelser.md eller Excel-fila. Begge lages av
+#   /tmp/venv/bin/python docs/verktoy/datamodell.py
+# og testene i backend/tests/test_datamodell/ feiler når en type mangler
+# oppføring, når en oppføring er til overs, når avsender, modell eller
+# behandler ikke stemmer med koden, og når de genererte filene er utdaterte.
+#
+# Feltene i `data` skrives ikke her. De genereres fra Pydantic-modellene i
+# backend/models/events.py, og forretningsreglene fra BusinessRuleValidator.
+#
+# `ns8407_kilde` sier hvor bestemmelsen er hentet fra: «vedtak: …»
+# (hovedplanen 3.1 eller en ADR), «kode: …» (koden oppgir den; ikke
+# kontrollert mot standardteksten, som ikke ligger i repoet), «oppdragsgiver,
+# dato» eller «ikke kontrollert». Flere kilder skilles med semikolon.
+#
+# Første runde 29.09. Belegg: K kjørt og observert, L lest i kode.
+
+# ---------------------------------------------------------------------------
+# Konvolutten: felles for alle hendelser, i egne kolonner i `hendelse`.
+# L 29.09: SakEvent, CloudEventMixin.to_cloudevent og PostgresEventRepository._rad.
+# ---------------------------------------------------------------------------
+
+[[konvolutt]]
+felt = "event_id"
+kolonne = "event_id"
+beskrivelse = "Unik ID. Settes av serveren; en verdi fra klienten avvises."
+
+[[konvolutt]]
+felt = "sak_id"
+kolonne = "sak_id, subject"
+beskrivelse = "Saken hendelsen hører til."
+
+[[konvolutt]]
+felt = "event_type"
+kolonne = "event_type, type"
+beskrivelse = "Hendelsestypen. `type` har i tillegg prefikset `no.oslo.koe.` (CloudEvents)."
+
+[[konvolutt]]
+felt = "tidsstempel"
+kolonne = "time"
+beskrivelse = "Når serveren tok imot hendelsen, i UTC. Settes av serveren; en verdi fra klienten avvises."
+
+[[konvolutt]]
+felt = "aktor_id"
+kolonne = "actorid"
+beskrivelse = "`app_users.id`, aldri et navn. Settes av serveren."
+
+[[konvolutt]]
+felt = "aktor_rolle"
+kolonne = "actorrole"
+beskrivelse = """
+TE eller BH. Settes av serveren: kontraktsrollen i sesjonen, forfatterens
+side for webhooken, og fast rolle i tjenestene som bare skriver den ene
+sidens hendelser."""
+
+[[konvolutt]]
+felt = "aktor_team_id"
+kolonne = "actorteam"
+beskrivelse = "Catenda-team-ID til aktørens organisasjon. Settes av serveren."
+
+[[konvolutt]]
+felt = "kommentar"
+kolonne = "comment"
+beskrivelse = "Valgfri kommentar."
+
+[[konvolutt]]
+felt = "refererer_til_event_id"
+kolonne = "referstoid"
+beskrivelse = "Hendelsen dette er et svar på, for eksempel kravet et BH-svar gjelder."
+
+[[konvolutt]]
+felt = "(ingen)"
+kolonne = "versjon"
+beskrivelse = """
+Løpenummeret i saken, satt av lageret. Det er ikke feltet `versjon` på
+kravhendelsene, som ikke lagres."""
+
+[[konvolutt]]
+felt = "(ingen)"
+kolonne = "prosjekt_id"
+beskrivelse = "Stemples av lageret fra det autoriserte prosjektet."
+
+# ---------------------------------------------------------------------------
+# Grunnlag (ansvar)
+# ---------------------------------------------------------------------------
+
+[[hendelse]]
+navn = "grunnlag_opprettet"
+beskrivelse = """
+TE varsler forholdet og sitt syn på ansvaret: kategori, beskrivelse og når
+forholdet ble oppdaget. Varsler om vederlag, rigg/drift, produktivitet og frist
+kan sendes i samme hendelse (ADR-001)."""
+avsender = "TE"
+spor = "grunnlag"
+sakstype = ["standard"]
+ns8407 = """
+Avhenger av kategorien. Grunnlaget er § 33.1 a–c eller § 33.3, med utløsende
+bestemmelse og varselkrav per underkategori i kategoritabellen, for eksempel
+§ 32.2 for irregulær endring. Varslene i samme hendelse viser til § 34.1,
+§ 34.1.3 og § 33.4."""
+ns8407_kilde = "kode: backend/constants/grunnlag_categories.py; vedtak: ADR-001, beslutning 4"
+modell = "GrunnlagEvent"
+data = "GrunnlagData"
+lagres_i = "hendelse"
+innsending = [
+    "POST /api/events og /api/events/batch",
+    "Frontend: skjemaet for ny sak (NewCaseForm)",
+]
+tilstand = """
+Grunnlaget blir `sendt`, versjon 1. Vederlag og frist går fra `ikke_relevant`
+til `utkast`. Hvert varsel i `varsler` føres inn på vederlags- eller
+fristsporet med innsendingsdatoen, og et spor som var `ikke_relevant` eller
+`utkast`, blir `sendt`. Sakstittelen settes om den mangler."""
+behandler = "_handle_grunnlag"
+funn = []
+belegg = "L 29.09: modellen, reglene, `_handle_grunnlag` og `_apply_konsekvensvarsler`, og kallet i NewCaseForm."
+
+[[hendelse]]
+navn = "grunnlag_oppdatert"
+beskrivelse = """
+TE reviderer grunnlaget: ny tittel, kategori, beskrivelse eller dato. Hele
+grunnlaget sendes på nytt."""
+avsender = "TE"
+spor = "grunnlag"
+sakstype = ["standard"]
+ns8407 = "Som `grunnlag_opprettet`, uten varslene."
+ns8407_kilde = "kode: backend/constants/grunnlag_categories.py"
+modell = "GrunnlagEvent"
+data = "GrunnlagData"
+lagres_i = "hendelse"
+innsending = [
+    "POST /api/events og /api/events/batch",
+    "Frontend: TeGrunnlagForm, eventuelt gjennom TEs interne kontroll (claimReview)",
+]
+tilstand = """
+Versjonen øker. Et `avslatt` grunnlag går tilbake til `sendt`; andre statuser
+står. Nye varsler avvises: de sendes fra vederlags- eller fristsporet
+(NOTICE_TRACK, som `validate` sjekker før reglene)."""
+behandler = "_handle_grunnlag"
+funn = []
+belegg = "L 29.09: modellen, `validate` og `_handle_grunnlag`."
+
+[[hendelse]]
+navn = "grunnlag_trukket"
+beskrivelse = "TE trekker ansvarsgrunnlaget, og med det kravene i saken."
+avsender = "TE"
+spor = "grunnlag"
+sakstype = ["standard"]
+ns8407 = "Ingen egen bestemmelse."
+ns8407_kilde = "oppdragsgiver, 29.09"
+modell = "WithdrawalEvent"
+data = "WithdrawalData"
+lagres_i = "hendelse"
+innsending = [
+    "POST /api/events og /api/events/batch",
+    "Frontend: Kontrollrommet",
+]
+tilstand = """
+Grunnlaget blir `trukket`. Vederlag og frist som er aktive, det vil si ikke
+`ikke_relevant`, `utkast` eller `trukket`, blir også `trukket` (kaskade).
+Avvises når grunnlaget er låst, godkjent, ikke sendt, allerede trukket eller
+oppgjort ved godtatt avslag."""
+behandler = "_handle_grunnlag_trukket"
+funn = ["SD-02"]
+belegg = "L 29.09: `_handle_grunnlag_trukket` og `_rule_grunnlag_can_be_withdrawn`."
+
+# ---------------------------------------------------------------------------
+# Vederlag (penger)
+# ---------------------------------------------------------------------------
+
+[[hendelse]]
+navn = "vederlag_krav_sendt"
+beskrivelse = """
+TE varsler eller spesifiserer et vederlagskrav. Med `varsel_type = varsel` er
+det et rent varsel uten metode og beløp; med `spesifisert` er det et krav med
+metode, beløp og eventuelle særskilte krav."""
+avsender = "TE"
+spor = "vederlag"
+sakstype = ["standard"]
+ns8407 = """
+§ 34 (vederlagsjustering): § 34.1 varsel, § 34.1.3 særskilte krav for
+rigg/drift og produktivitet, § 34.2.1 fastpris eller tilbud, § 34.3
+enhetspriser med § 34.3.3 justerte enhetspriser, § 30.2 og § 34.4
+regningsarbeid, § 34.4 fradrag."""
+ns8407_kilde = "kode: backend/models/events.py (VederlagData, VederlagsMetode, VederlagKompensasjon); vedtak: ADR-001, DRF-03 i 3.1 (29.09)"
+modell = "VederlagEvent"
+data = "VederlagData"
+lagres_i = "hendelse"
+innsending = [
+    "POST /api/events og /api/events/batch",
+    "Frontend: TeVederlagForm, eventuelt gjennom TEs interne kontroll (claimReview)",
+]
+tilstand = """
+Et rent varsel fører bare varslene inn på sporet, og sporet blir `sendt` om
+det var `ikke_relevant` eller `utkast`. Et spesifisert krav setter metode,
+beløp, begrunnelse og særskilte krav, og sporet blir `sendt`, versjon 1.
+Sendedatoen for varselet om justerte enhetspriser settes av serveren
+(DRF-03)."""
+behandler = "_handle_vederlag"
+funn = []
+belegg = "L 29.09: modellen, `_handle_vederlag`, `_rule_create_once`. K 29.09: `data` lagres med de beregnede feltene `netto_belop` og `krevd_belop`."
+
+[[hendelse]]
+navn = "vederlag_krav_oppdatert"
+beskrivelse = "TE reviderer vederlagskravet. Hele kravet sendes på nytt."
+avsender = "TE"
+spor = "vederlag"
+sakstype = ["standard"]
+ns8407 = "Som `vederlag_krav_sendt`."
+ns8407_kilde = "kode: backend/models/events.py (VederlagData)"
+modell = "VederlagEvent"
+data = "VederlagData"
+lagres_i = "hendelse"
+innsending = [
+    "POST /api/events og /api/events/batch",
+    "Frontend: TeVederlagForm",
+]
+tilstand = """
+Som et spesifisert krav, men versjonen øker. Et spor som er `avslatt`,
+`under_forhandling` eller `delvis_godkjent`, går tilbake til `sendt`."""
+behandler = "_handle_vederlag"
+funn = []
+belegg = "L 29.09: `_handle_vederlag`."
+
+[[hendelse]]
+navn = "vederlag_krav_trukket"
+beskrivelse = "TE trekker vederlagskravet."
+avsender = "TE"
+spor = "vederlag"
+sakstype = ["standard"]
+ns8407 = "Ingen egen bestemmelse."
+ns8407_kilde = "oppdragsgiver, 29.09"
+modell = "WithdrawalEvent"
+data = "WithdrawalData"
+lagres_i = "hendelse"
+innsending = [
+    "POST /api/events og /api/events/batch",
+    "Frontend: Kontrollrommet",
+]
+tilstand = """
+Vederlag blir `trukket`. Er frist også `ikke_relevant`, `utkast` eller
+`trukket`, blir grunnlaget `trukket` (omvendt kaskade). Avvises når kravet
+er oppgjort; et krav som bare er godkjent subsidiært, kan trekkes (TFR-03)."""
+behandler = "_handle_vederlag_trukket"
+funn = []
+belegg = "L 29.09: `_handle_vederlag_trukket`, `_check_alle_krav_trukket` og `_kravet_er_oppgjort`."
+
+# ---------------------------------------------------------------------------
+# Frist (tid)
+# ---------------------------------------------------------------------------
+
+[[hendelse]]
+navn = "frist_krav_sendt"
+beskrivelse = """
+TE varsler om fristforlengelse eller sender et spesifisert krav. `varsel_type`
+skiller varsel, spesifisert krav og begrunnelse for at beregning ikke er
+mulig."""
+avsender = "TE"
+spor = "frist"
+sakstype = ["standard"]
+ns8407 = """
+§ 33.4 varsel om fristforlengelse, § 33.6.1 spesifisert krav, § 33.6.2
+bokstav b begrunnelse for at beregning ikke er mulig. Vilkåret er § 33.1."""
+ns8407_kilde = "kode: backend/models/events.py (FristVarselType, FristData); vedtak: ADR-001"
+modell = "FristEvent"
+data = "FristData"
+lagres_i = "hendelse"
+innsending = [
+    "POST /api/events og /api/events/batch",
+    "Frontend: TeFristForm",
+]
+tilstand = """
+Setter varseltype, varsel- og spesifiseringsdato, krevde dager og begrunnelse.
+Sporet blir `sendt`, versjon 1. Et spesifisert krav uten tidligere varsel
+regnes også som varsel."""
+behandler = "_handle_frist"
+funn = ["DRF-02"]
+belegg = "L 29.09: modellen og `_handle_frist`."
+
+[[hendelse]]
+navn = "frist_krav_oppdatert"
+beskrivelse = "TE reviderer fristkravet."
+avsender = "TE"
+spor = "frist"
+sakstype = ["standard"]
+ns8407 = "Som `frist_krav_sendt`."
+ns8407_kilde = "kode: backend/models/events.py (FristData)"
+modell = "FristEvent"
+data = "FristData"
+lagres_i = "hendelse"
+innsending = [
+    "POST /api/events og /api/events/batch",
+    "Frontend: TeFristForm",
+]
+tilstand = """
+Versjonen øker, og kravet settes på nytt. Et spor som er `avslatt`,
+`under_forhandling` eller `delvis_godkjent`, går tilbake til `sendt`."""
+behandler = "_handle_frist"
+funn = ["DRF-02"]
+belegg = "L 29.09: `_handle_frist`."
+
+[[hendelse]]
+navn = "frist_krav_spesifisert"
+beskrivelse = """
+TE spesifiserer antall dager etter et varsel om fristforlengelse, eventuelt som
+svar på BHs forespørsel."""
+avsender = "TE"
+spor = "frist"
+sakstype = ["standard"]
+ns8407 = "§ 33.6.1 og § 33.6.2."
+ns8407_kilde = "kode: kommentaren ved EventType.FRIST_KRAV_SPESIFISERT"
+modell = "FristEvent"
+data = "FristData"
+lagres_i = "hendelse"
+innsending = [
+    "POST /api/events og /api/events/batch",
+    "Frontend: TeFristForm",
+]
+tilstand = "Samme behandling som `frist_krav_oppdatert`: versjonen øker, og krevde dager settes."
+behandler = "_handle_frist"
+funn = ["DRF-02"]
+belegg = "L 29.09: `_handle_frist`, der de to typene behandles likt."
+
+[[hendelse]]
+navn = "frist_krav_trukket"
+beskrivelse = "TE trekker fristkravet."
+avsender = "TE"
+spor = "frist"
+sakstype = ["standard"]
+ns8407 = "Ingen egen bestemmelse."
+ns8407_kilde = "oppdragsgiver, 29.09"
+modell = "WithdrawalEvent"
+data = "WithdrawalData"
+lagres_i = "hendelse"
+innsending = [
+    "POST /api/events og /api/events/batch",
+    "Frontend: Kontrollrommet",
+]
+tilstand = """
+Frist blir `trukket`. Er vederlag også `ikke_relevant`, `utkast` eller
+`trukket`, blir grunnlaget `trukket` (omvendt kaskade)."""
+behandler = "_handle_frist_trukket"
+funn = []
+belegg = "L 29.09: `_handle_frist_trukket` og `_check_alle_krav_trukket`."
+
+# ---------------------------------------------------------------------------
+# BHs svar
+# ---------------------------------------------------------------------------
+
+[[hendelse]]
+navn = "respons_grunnlag"
+beskrivelse = """
+BH svarer på ansvarsgrunnlaget: godkjent, avslått eller frafalt pålegg, og om
+grunnlaget er varslet i tide."""
+avsender = "BH"
+spor = "grunnlag"
+sakstype = ["standard"]
+ns8407 = """
+§ 32.2 (varslet i tide, bare ved endring), § 32.3 bokstav c (frafall av
+pålegg). Passivitet etter § 32.3 annet ledd varsles, men trekkes ikke av
+systemet."""
+ns8407_kilde = "kode: backend/models/events.py (GrunnlagResponsData, GrunnlagResponsResultat); vedtak: B-13 i 3.1 (24.09)"
+modell = "ResponsEvent"
+data = "GrunnlagResponsData"
+lagres_i = "hendelse"
+innsending = [
+    "POST /api/events og /api/events/batch, når prosjektet ikke har godkjenningspolicy",
+    "BHs godkjenningspakke (POST /api/cases/<sak>/approvals, action publish)",
+    "Frontend: GrunnlagForm",
+]
+tilstand = """
+`godkjent` gir `laast` når grunnlaget ikke er merket for sent varslet;
+merket for sent varslet gir `under_forhandling`. `avslatt` gir `avslatt`, og
+`frafalt` gir `trukket`. Svaret knyttes til gjeldende versjon av grunnlaget."""
+behandler = "_handle_respons_grunnlag"
+funn = ["DRF-02"]
+belegg = "L 29.09: `_handle_respons_grunnlag`, `_respons_til_status` og `public_event_block_reason`."
+
+[[hendelse]]
+navn = "respons_grunnlag_oppdatert"
+beskrivelse = "BH endrer sitt svar på ansvarsgrunnlaget («snuoperasjon»)."
+avsender = "BH"
+spor = "grunnlag"
+sakstype = ["standard"]
+ns8407 = "Som `respons_grunnlag`."
+ns8407_kilde = "kode: samme datamodell som respons_grunnlag"
+modell = "ResponsEvent"
+data = "GrunnlagResponsData"
+lagres_i = "hendelse"
+innsending = [
+    "POST /api/events og /api/events/batch, når prosjektet ikke har godkjenningspolicy",
+    "BHs godkjenningspakke",
+    "Frontend: GrunnlagForm",
+]
+tilstand = """
+Samme behandling som `respons_grunnlag`. Krever et tidligere svar på
+gjeldende versjon (PREVIOUS_RESPONSE)."""
+behandler = "_handle_respons_grunnlag"
+funn = ["DRF-02"]
+belegg = "L 29.09: handlertabellen i `_apply_event` og `_rule_previous_response`."
+
+[[hendelse]]
+navn = "respons_vederlag"
+beskrivelse = """
+BH svarer på vederlagskravet: varsler i tide, metode, beløp per post, samlet
+resultat og eventuelt subsidiært standpunkt."""
+avsender = "BH"
+spor = "vederlag"
+sakstype = ["standard"]
+ns8407 = """
+§ 34.1.2 og § 34.1.3 (preklusjon), § 34.3.3 (justerte enhetspriser), § 30.2
+(tilbakeholdelse ved manglende overslag)."""
+ns8407_kilde = "kode: backend/models/events.py (VederlagResponsData, SubsidiaerTrigger); vedtak: B-13 i 3.1 (24.09)"
+modell = "ResponsEvent"
+data = "VederlagResponsData"
+lagres_i = "hendelse"
+innsending = [
+    "POST /api/events og /api/events/batch, når prosjektet ikke har godkjenningspolicy",
+    "BHs godkjenningspakke",
+    "Frontend: VederlagForm",
+]
+tilstand = """
+Status følger `beregnings_resultat`: `godkjent`, `delvis_godkjent` eller
+`avslatt`; `hold_tilbake` gir `under_behandling`. Godkjent beløp, metode,
+varselvurderinger og subsidiært standpunkt settes. Resultatet lagres slik det
+er sendt, også når vurderingene i samme svar gir et annet (BR-01)."""
+behandler = "_handle_respons_vederlag"
+funn = ["BR-01", "SD-04", "DRF-02"]
+belegg = "L 29.09: `_handle_respons_vederlag`, `_beregnings_resultat_til_status` og `_oppdater_subsidiaert_standpunkt`."
+
+[[hendelse]]
+navn = "respons_vederlag_oppdatert"
+beskrivelse = "BH endrer sitt svar på vederlagskravet, for eksempel ved å oppheve en tilbakeholdelse."
+avsender = "BH"
+spor = "vederlag"
+sakstype = ["standard"]
+ns8407 = "Som `respons_vederlag`. Kommentaren ved typen nevner opphevet tilbakeholdelse (§ 30.2)."
+ns8407_kilde = "kode: kommentaren ved EventType.RESPONS_VEDERLAG_OPPDATERT"
+modell = "ResponsEvent"
+data = "VederlagResponsData"
+lagres_i = "hendelse"
+innsending = [
+    "POST /api/events og /api/events/batch, når prosjektet ikke har godkjenningspolicy",
+    "BHs godkjenningspakke",
+    "Frontend: VederlagForm",
+]
+tilstand = """
+Samme behandling som `respons_vederlag`. Uten `beregnings_resultat` står
+statusen, og bare feltene som sendes, endres."""
+behandler = "_handle_respons_vederlag"
+funn = ["BR-01", "SD-04", "DRF-02"]
+belegg = "L 29.09: `_handle_respons_vederlag`; `VederlagResponsData` har ikke feltet `resultat`, så grenen for det gjør ingenting."
+
+[[hendelse]]
+navn = "respons_frist"
+beskrivelse = """
+BH svarer på fristkravet: varsler i tide, om forholdet har hindret
+fremdriften, antall dager og eventuelt subsidiært standpunkt."""
+avsender = "BH"
+spor = "frist"
+sakstype = ["standard"]
+ns8407 = """
+§ 33.1 (fremdriftshindring), § 33.4 og § 33.6 (preklusjon og reduksjon),
+§ 33.6.2 (forespørsel om spesifisering), § 33.7 (svarplikt ved spesifisert
+krav) og § 5 (innsigelse mot sen varsling)."""
+ns8407_kilde = "kode: backend/models/events.py (FristResponsData, SubsidiaerTrigger); vedtak: ADR-001, nøytralt fristvarsel i 3.1 (23.09), B-13 i 3.1 (24.09)"
+modell = "ResponsEvent"
+data = "FristResponsData"
+lagres_i = "hendelse"
+innsending = [
+    "POST /api/events og /api/events/batch, når prosjektet ikke har godkjenningspolicy",
+    "BHs godkjenningspakke",
+    "Frontend: FristForm",
+]
+tilstand = """
+Status følger `beregnings_resultat`: `godkjent`, `delvis_godkjent` eller
+`avslatt`. Godkjente dager, ny sluttdato, varselvurderinger, vilkåret og
+subsidiært standpunkt settes. Et svar med dager på et nøytralt varsel godtas
+(TFR-06)."""
+behandler = "_handle_respons_frist"
+funn = ["BR-01", "SD-04", "TFR-06", "DRF-01"]
+belegg = "L 29.09: `_handle_respons_frist` og `_beregnings_resultat_til_status`."
+
+[[hendelse]]
+navn = "respons_frist_oppdatert"
+beskrivelse = "BH endrer sitt svar på fristkravet."
+avsender = "BH"
+spor = "frist"
+sakstype = ["standard"]
+ns8407 = "Som `respons_frist`."
+ns8407_kilde = "kode: samme datamodell som respons_frist"
+modell = "ResponsEvent"
+data = "FristResponsData"
+lagres_i = "hendelse"
+innsending = [
+    "POST /api/events og /api/events/batch, når prosjektet ikke har godkjenningspolicy",
+    "BHs godkjenningspakke",
+    "Frontend: FristForm",
+]
+tilstand = """
+Samme behandling som `respons_frist`. Uten `beregnings_resultat` står
+statusen."""
+behandler = "_handle_respons_frist"
+funn = ["BR-01", "SD-04", "TFR-06"]
+belegg = "L 29.09: `_handle_respons_frist`."
+
+[[hendelse]]
+navn = "te_aksepterer_respons"
+beskrivelse = "TE godtar BHs svar på ett spor, angitt i `spor`."
+avsender = "TE"
+spor = "valgt i hendelsen"
+sakstype = ["standard"]
+ns8407 = "Ingen egen bestemmelse."
+ns8407_kilde = "oppdragsgiver, 29.09"
+modell = "TEAkseptererResponsEvent"
+data = "TEAkseptererResponsData"
+lagres_i = "hendelse"
+innsending = [
+    "POST /api/events og /api/events/batch",
+    "Frontend: sendes ikke fra noe skjermbilde i dag",
+]
+tilstand = """
+TEs aksept settes på sporet. Statusen følger BHs svar og forbedrer det aldri:
+avslag gir `avslatt_akseptert`, godkjent og delvis godkjent gir `godkjent`,
+og `hold_tilbake` og `frafalt` lar statusen stå (vedtaket 19.09, TFR-01)."""
+behandler = "_handle_te_aksepterer_respons"
+funn = ["SD-02"]
+belegg = "L 29.09: `_handle_te_aksepterer_respons` og `_status_etter_aksept`; søk i src/ etter typen utenom typer, etiketter og mockdata."
+
+# ---------------------------------------------------------------------------
+# Forsering (§ 33.8)
+# ---------------------------------------------------------------------------
+
+[[hendelse]]
+navn = "forsering_varsel"
+beskrivelse = """
+TE varsler at arbeidet forseres etter avslått fristforlengelse, med estimert
+kostnad, avslåtte dager og dagmulktsats."""
+avsender = "TE"
+spor = "ingen"
+sakstype = ["forsering"]
+ns8407 = "§ 33.8."
+ns8407_kilde = "kode: backend/models/events.py (EventType, ForseringVarselData)"
+modell = "ForseringVarselEvent"
+data = "ForseringVarselData"
+lagres_i = "hendelse"
+innsending = [
+    "POST /api/events og /api/events/batch",
+    "Frontend: sendes ikke fra noe skjermbilde i dag",
+]
+tilstand = """
+Fyller forseringsdataene: varslet og iverksatt dato (begge fra
+`dato_iverksettelse`), estimert kostnad, avslåtte dager, dagmulktsats og
+maksimal kostnad, dagmulkt × dager × 1,3. Ingen sporstatus endres. Kan bare
+sendes én gang."""
+behandler = "_handle_forsering_varsel"
+funn = []
+belegg = "L 29.09: `_handle_forsering_varsel`, `_rule_is_forsering_case` og `_rule_forsering_not_already_notified`."
+
+[[hendelse]]
+navn = "forsering_respons"
+beskrivelse = """
+BH svarer på forseringsvarselet: forseringsrett per sak, 30 %-grensen,
+godkjent kostnad og særskilte krav."""
+avsender = "BH"
+spor = "ingen"
+sakstype = ["forsering"]
+ns8407 = "§ 33.8, med særskilte krav etter § 34.1.3."
+ns8407_kilde = "kode: backend/models/events.py (ForseringResponsData)"
+modell = "ForseringResponsEvent"
+data = "ForseringResponsData"
+lagres_i = "hendelse"
+innsending = [
+    "POST /api/forsering/<sak>/bh-respons",
+    "POST /api/events og /api/events/batch, når prosjektet ikke har godkjenningspolicy",
+    "Frontend: sendes ikke fra noe skjermbilde i dag",
+]
+tilstand = "Lagrer BHs svar i forseringsdataene. Ingen status endres."
+behandler = "_handle_forsering_respons"
+funn = ["GFK-04"]
+belegg = "L 29.09: `registrer_bh_respons`, `_handle_forsering_respons` og `public_event_block_reason`."
+
+[[hendelse]]
+navn = "forsering_stoppet"
+beskrivelse = "TE stopper forseringen og oppgir påløpte kostnader."
+avsender = "TE"
+spor = "ingen"
+sakstype = ["forsering"]
+ns8407 = "§ 33.8."
+ns8407_kilde = "kode: backend/models/events.py (ForseringStoppetData)"
+modell = "ForseringStoppetEvent"
+data = "ForseringStoppetData"
+lagres_i = "hendelse"
+innsending = [
+    "POST /api/forsering/<sak>/stopp",
+    "POST /api/events og /api/events/batch",
+    "Frontend: sendes ikke fra noe skjermbilde i dag",
+]
+tilstand = """
+Forseringen merkes stoppet med dato; påløpte kostnader settes når de er
+oppgitt. Kan bare skje én gang."""
+behandler = "_handle_forsering_stoppet"
+funn = []
+belegg = "L 29.09: `stopp_forsering`, `_handle_forsering_stoppet` og `_rule_forsering_not_already_stopped`."
+
+[[hendelse]]
+navn = "forsering_kostnader_oppdatert"
+beskrivelse = "TE oppdaterer påløpte kostnader underveis i forseringen."
+avsender = "TE"
+spor = "ingen"
+sakstype = ["forsering"]
+ns8407 = "§ 33.8."
+ns8407_kilde = "kode: backend/models/events.py (ForseringKostnaderOppdatertData)"
+modell = "ForseringKostnaderOppdatertEvent"
+data = "ForseringKostnaderOppdatertData"
+lagres_i = "hendelse"
+innsending = [
+    "PUT /api/forsering/<sak>/kostnader",
+    "POST /api/events og /api/events/batch",
+    "Frontend: sendes ikke fra noe skjermbilde i dag",
+]
+tilstand = "Påløpte kostnader settes. Ingen status endres."
+behandler = "_handle_forsering_kostnader_oppdatert"
+funn = []
+belegg = "L 29.09: `oppdater_kostnader` og `_handle_forsering_kostnader_oppdatert`."
+
+[[hendelse]]
+navn = "forsering_koe_lagt_til"
+beskrivelse = "En KOE-sak med avslått fristkrav knyttes til forseringssaken."
+avsender = "TE"
+spor = "ingen"
+sakstype = ["forsering"]
+ns8407 = "Ingen. Appens egen registrering."
+ns8407_kilde = "oppdragsgiver, 29.09"
+modell = "ForseringKoeHandlingEvent"
+data = "ForseringKoeHandlingData"
+lagres_i = "hendelse"
+innsending = [
+    "POST /api/events og /api/events/batch",
+    "Frontend: sendes ikke fra noe skjermbilde i dag",
+]
+tilstand = "KOE-saken legges i listen over avslåtte fristkrav, om den ikke står der."
+behandler = "_handle_forsering_koe_lagt_til"
+funn = []
+belegg = """
+L 29.09: `_handle_forsering_koe_lagt_til`. Ruta POST
+/api/forsering/<sak>/relatert skriver ikke denne hendelsen; den lager bare
+relasjoner i Catenda og i `sak_relations`."""
+
+[[hendelse]]
+navn = "forsering_koe_fjernet"
+beskrivelse = "En KOE-sak tas ut av forseringssaken."
+avsender = "TE"
+spor = "ingen"
+sakstype = ["forsering"]
+ns8407 = "Ingen. Appens egen registrering."
+ns8407_kilde = "oppdragsgiver, 29.09"
+modell = "ForseringKoeHandlingEvent"
+data = "ForseringKoeHandlingData"
+lagres_i = "hendelse"
+innsending = [
+    "POST /api/events og /api/events/batch",
+    "Frontend: sendes ikke fra noe skjermbilde i dag",
+]
+tilstand = "KOE-saken fjernes fra listen over avslåtte fristkrav."
+behandler = "_handle_forsering_koe_fjernet"
+funn = []
+belegg = "L 29.09: `_handle_forsering_koe_fjernet`. Ruta DELETE /api/forsering/<sak>/relatert/<koe> skriver ikke denne hendelsen."
+
+# ---------------------------------------------------------------------------
+# Saken
+# ---------------------------------------------------------------------------
+
+[[hendelse]]
+navn = "sak_opprettet"
+beskrivelse = """
+Første hendelse i en sak: tittel, sakstype og kobling til Catenda. Feltene
+ligger på toppnivå i modellen og i `data` i journalen."""
+avsender = "TE eller BH"
+spor = "ingen"
+sakstype = ["standard", "forsering", "endringsordre"]
+ns8407 = "Ingen. Appens egen registrering."
+ns8407_kilde = "oppdragsgiver, 29.09"
+modell = "SakOpprettetEvent"
+data = ""
+lagres_i = "hendelse"
+innsending = [
+    "POST /api/events/batch med forventet versjon 0",
+    "Catenda-webhook for ny topic, med forfatterens side (catenda_webhook_service)",
+    "POST /api/endringsordre/opprett og utstedelse fra EO-godkjenningen (endringsordre_service)",
+    "Frontend: skjemaet for ny sak sender den til POST /api/events, som avviser en ukjent sak (DM-05)",
+]
+tilstand = """
+Setter tittel, Catenda-topic, prosjekt- og partsnavn og sakstype. En
+standardsak får grunnlaget i `utkast`; en forseringssak får forseringsdata fra
+`forsering_data`. En ukjent sakstype blir `standard`. Forretningsreglene
+kjøres ikke på første hendelse i en ny sak, bare rollekontrollen i ruta."""
+behandler = "_handle_sak_opprettet"
+funn = ["DM-05"]
+belegg = "L 29.09: `_handle_sak_opprettet`, `require_project_access` og NewCaseForm. K 29.09: POST /api/events med en ny sak gir 403."
+
+[[hendelse]]
+navn = "internt_notat"
+beskrivelse = """
+Internt notat, synlig bare for forfatterens eget team. Er en hendelsestype i
+API-et, men lagres i `notat`, ikke i journalen."""
+avsender = "TE eller BH"
+spor = "valgt i hendelsen"
+sakstype = ["standard", "forsering", "endringsordre"]
+ns8407 = "Ingen. Et notat er ikke et kontraktsvarsel."
+ns8407_kilde = "oppdragsgiver, 29.09; vedtak: MS-05"
+modell = "InterntNotatEvent"
+data = "InterntNotatData"
+lagres_i = "notat"
+innsending = [
+    "POST /api/events; avvises i batch og av journalen (JournalfoeringAvvist)",
+    "Frontend: sendes ikke fra noe skjermbilde i dag",
+]
+tilstand = """
+Ingen. Notatet flytter ikke sakens versjon, sendes ikke til Catenda og
+avvises uten entydig team (MS-05)."""
+behandler = "_handle_internt_notat"
+funn = ["MS-05"]
+belegg = "L 29.09: `_lagre_internt_notat`, `_parse_authorized_event` og `krev_journalhendelser`."
+
+# ---------------------------------------------------------------------------
+# Endringsordre (§ 31.3)
+# ---------------------------------------------------------------------------
+
+[[hendelse]]
+navn = "eo_opprettet"
+beskrivelse = "BH oppretter en endringsordresak med nummer, beskrivelse og KOE-saker som inngår."
+avsender = "BH"
+spor = "ingen"
+sakstype = ["endringsordre"]
+ns8407 = "§ 31.3."
+ns8407_kilde = "kode: overskriften over EO-verdiene i EventType, og kategoritabellen (EO)"
+modell = "EOOpprettetEvent"
+data = "EOOpprettetData"
+lagres_i = "hendelse"
+innsending = [
+    "POST /api/endringsordre/opprett, når prosjektet ikke har godkjenningspolicy",
+    "Utstedelse fra EO-godkjenningen (eo_approval_service.issue)",
+    "POST /api/events og /api/events/batch, når prosjektet ikke har godkjenningspolicy",
+    "Frontend: EndringsordreForm og EO-godkjenningspanelet",
+]
+tilstand = """
+Saken blir en endringsordresak, og endringsordren får status `utkast`.
+Skrives i samme transaksjon som `sak_opprettet` og `eo_utstedt`."""
+behandler = "_handle_eo_opprettet"
+funn = ["TST-05", "RV-19"]
+belegg = "L 29.09: `opprett_endringsordresak` og `_handle_eo_opprettet`."
+
+[[hendelse]]
+navn = "eo_koe_lagt_til"
+beskrivelse = "BH knytter en KOE-sak til endringsordren."
+avsender = "BH"
+spor = "ingen"
+sakstype = ["endringsordre"]
+ns8407 = "Ingen. Appens egen registrering."
+ns8407_kilde = "oppdragsgiver, 29.09"
+modell = "EOKoeHandlingEvent"
+data = "EOKoeHandlingData"
+lagres_i = "hendelse"
+innsending = [
+    "POST /api/endringsordre/<sak>/koe, når prosjektet ikke har godkjenningspolicy",
+    "POST /api/events og /api/events/batch, når prosjektet ikke har godkjenningspolicy",
+    "Frontend: sendes ikke fra noe skjermbilde i dag",
+]
+tilstand = "KOE-saken legges til endringsordrens relaterte saker, om den ikke står der."
+behandler = "_handle_eo_koe_lagt_til"
+funn = []
+belegg = "L 29.09: `legg_til_koe` og `_handle_eo_koe_lagt_til`."
+
+[[hendelse]]
+navn = "eo_koe_fjernet"
+beskrivelse = "BH tar en KOE-sak ut av endringsordren."
+avsender = "BH"
+spor = "ingen"
+sakstype = ["endringsordre"]
+ns8407 = "Ingen. Appens egen registrering."
+ns8407_kilde = "oppdragsgiver, 29.09"
+modell = "EOKoeHandlingEvent"
+data = "EOKoeHandlingData"
+lagres_i = "hendelse"
+innsending = [
+    "DELETE /api/endringsordre/<sak>/koe/<koe>, når prosjektet ikke har godkjenningspolicy",
+    "POST /api/events og /api/events/batch, når prosjektet ikke har godkjenningspolicy",
+    "Frontend: sendes ikke fra noe skjermbilde i dag",
+]
+tilstand = "KOE-saken fjernes fra endringsordrens relaterte saker."
+behandler = "_handle_eo_koe_fjernet"
+funn = []
+belegg = "L 29.09: `fjern_koe` og `_handle_eo_koe_fjernet`."
+
+[[hendelse]]
+navn = "eo_utstedt"
+beskrivelse = """
+BH utsteder endringsordren formelt: beskrivelse, konsekvenser, vederlag og
+fristforlengelse. Proaktivt i en endringsordresak, eller reaktivt i en
+KOE-sak der alle aktive spor er godkjent."""
+avsender = "BH"
+spor = "ingen"
+sakstype = ["endringsordre", "standard"]
+ns8407 = "§ 31.3, med vederlag etter § 34 og frist etter § 33."
+ns8407_kilde = "kode: backend/models/events.py (EOUtstedtData, VederlagKompensasjon)"
+modell = "EOUtstedtEvent"
+data = "EOUtstedtData"
+lagres_i = "hendelse"
+innsending = [
+    "POST /api/endringsordre/opprett og utstedelse fra EO-godkjenningen (proaktiv)",
+    "POST /api/events og /api/events/batch, når prosjektet ikke har godkjenningspolicy (også reaktiv)",
+    "Frontend: EndringsordreForm og EO-godkjenningspanelet",
+]
+tilstand = """
+I en endringsordresak bygges endringsordren fra hendelsen, med status
+`utstedt`. I en KOE-sak (reaktiv) blir grunnlaget `laast`, og vederlag og
+frist blir `godkjent` med beløp og dager fra endringsordren; spor som er
+`ikke_relevant` eller `trukket`, står. De utgåtte toppnivåfeltene
+`endelig_vederlag` og `endelig_frist_dager` leses av projeksjonen, men lagres
+ikke (DM-06)."""
+behandler = "_handle_eo_utstedt"
+funn = ["DM-06", "RV-19"]
+belegg = "L 29.09: `_handle_eo_utstedt`, `_close_spor_for_reactive_eo` og `_rule_eo_can_be_issued`. K 29.09: tilstanden før og etter lagring (DM-06)."
+
+[[hendelse]]
+navn = "eo_akseptert"
+beskrivelse = "TE aksepterer endringsordren."
+avsender = "TE"
+spor = "ingen"
+sakstype = ["endringsordre"]
+ns8407 = "§ 31.3."
+ns8407_kilde = "kode: overskriften over EO-verdiene i EventType"
+modell = "EOAkseptertEvent"
+data = "EOAkseptertData"
+lagres_i = "hendelse"
+innsending = [
+    "POST /api/events og /api/events/batch",
+    "Frontend: sendes ikke fra noe skjermbilde i dag",
+]
+tilstand = """
+Endringsordren blir `akseptert`, med TEs kommentar og dato. Saken får samlet
+status `LUKKET` (vedtaket om TFR-02, 23.09)."""
+behandler = "_handle_eo_akseptert"
+funn = []
+belegg = "L 29.09: `_handle_eo_akseptert` og `_rule_eo_is_issued`."
+
+[[hendelse]]
+navn = "eo_bestridt"
+beskrivelse = """
+TE bestrider endringsordren. En endringsordre forhandles ikke; er TE uenig,
+føres det videre i en KOE (vedtaket om TFR-02, 23.09)."""
+avsender = "TE"
+spor = "ingen"
+sakstype = ["endringsordre"]
+ns8407 = "§ 31.3."
+ns8407_kilde = "kode: overskriften over EO-verdiene i EventType"
+modell = "EOBestridtEvent"
+data = "EOBestridtData"
+lagres_i = "hendelse"
+innsending = [
+    "POST /api/events og /api/events/batch",
+    "Frontend: sendes ikke fra noe skjermbilde i dag",
+]
+tilstand = """
+Endringsordren blir `bestridt`, med TEs begrunnelse som kommentar. Saken får
+samlet status `LUKKET` (TFR-02)."""
+behandler = "_handle_eo_bestridt"
+funn = []
+belegg = "L 29.09: `_handle_eo_bestridt`."
+
+[[hendelse]]
+navn = "eo_revidert"
+beskrivelse = "BH reviderer en utstedt eller bestridt endringsordre."
+avsender = "BH"
+spor = "ingen"
+sakstype = ["endringsordre"]
+ns8407 = "§ 31.3."
+ns8407_kilde = "kode: overskriften over EO-verdiene i EventType"
+modell = "EORevidertEvent"
+data = "EORevidertData"
+lagres_i = "hendelse"
+innsending = [
+    "POST /api/events og /api/events/batch, når prosjektet ikke har godkjenningspolicy",
+    "Frontend: sendes ikke fra noe skjermbilde i dag",
+]
+tilstand = """
+Revisjonsnummeret settes, status blir `revidert`, og TEs svar nullstilles.
+Beskrivelse, kompensasjon, fradrag, frist og sluttdato oppdateres fra
+`oppdatert_data` når de er satt; `oppdatert_data.vederlag` leses ikke."""
+behandler = "_handle_eo_revidert"
+funn = []
+belegg = "L 29.09: `_handle_eo_revidert` og `_rule_eo_is_issued`, som godtar `utstedt`, `bestridt` og `revidert`."
