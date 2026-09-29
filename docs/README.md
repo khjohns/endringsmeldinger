@@ -174,6 +174,7 @@ Beskriver funksjon og dataflyt, ikke funn. Disse eldes saktere enn auditene.
 | [hendelseskatalogen](datamodell/hendelser.md) | Hver hendelsestype: hvem som sender, spor, NS 8407 med kilde, feltene i `data` og virkning på status. Generert fra [`hendelser.toml`](datamodell/hendelser.toml) og modellene; rett der. Spor M, 1b 29.09 |
 | [Catenda: dataflyt](catenda-dataflyt.md) | Hva som utveksles, og hvordan prosjekt og bibliotek rutes |
 | [Catenda: innlogging](catenda-innlogging.md) | OAuth-flyten og prosjekttilgang |
+| [migrasjoner og testbase](migrasjoner-og-testbase.md) | Hvordan migrasjonene verifiseres mot prosjektet uten å røre basen: testbasen i PostgreSQL 17, stubben av Supabase, katalogsummene og historikken. Flyttet fra `AGENTS.md` 29.09 |
 | [brev og intern godkjenning](brev-og-godkjenning.md) | Godkjenningskjede, fullmakt, brevgenerering |
 | [endringsordre](endringsordre.md) | EO-flyten i grensesnittet |
 | [Kontraktsbordet](frontend-kontraktsbord.md) | Hovedgrensesnittet |
