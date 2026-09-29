@@ -1,7 +1,7 @@
 # Gjennomføring: saksmetadata, relasjoner og BIM over direkte tilkobling (F0b, løp b)
 
-**Dato:** 2026-09-24. **Utgangspunkt:** `main` på `0de5244` (etter PR #42 og
-#59). Gren: `f0b-lop-b-sak-relasjon-bim`. **Issue:** #56.
+**Dato:** 2026-09-24, levert 2026-09-29. **Utgangspunkt:** `main` på
+`0de5244` (etter PR #42 og #59), rebaset på `4b28cf7`. Gren: `f0b-lop-b-sak-relasjon-bim`. **Issue:** #56.
 **Oppdrag:** [løp b i oppdraget for fase 2](prompt-f0b-fase2-repositorier-2026-09-24.md#løp-b-saksmetadata-relasjoner-og-bim).
 **Forrige ledd:** [gjennomføringsnotatet for kjernen](gjennomforing-f0b-kjernen-2026-09-23.md),
 avsnitt 2, 4, 7 og 8, og [hovedplanen, F0b](plans/2026-09-16-godkjenning-og-varig-levering.md#f0b--datalaget-over-direkte-tilkobling).
@@ -36,7 +36,7 @@ meldt som #70.
 
 | Lager | Metode | Kalles fra | Status |
 | --- | --- | --- | --- |
-| Metadata | `create`, `delete`, `get` | unit of work, `sak_creation_service`, `endringsordre_service`, `project_access`, ruter | Implementert |
+| Metadata | `create`, `delete`, `get` | unit of work, `sak_creation_service`, `endringsordre_service`, `project_access`, `integrations/catenda/auth.py`, ruter | Implementert |
 | Metadata | `update_cache` | `event_routes`, `forsering_routes`, `approval_routes`, unit of work, `scripts/backfill_reporting_cache.py` | Implementert |
 | Metadata | `get_by_topic_id` | `forsering_service`, `lib/helpers/sak_lookup.py` | Implementert |
 | Metadata | `set_catenda_mapping` | `endringsordre_service` | Implementert |
@@ -68,9 +68,12 @@ saks-ID alene. Her:
 - `add_relation` og `add_relations_batch` stempler med
   `krev_autorisert_prosjekt`, som før.
 - `get_containers_for_sak` leser bare rader med
-  `prosjekt_id = get_project_id()`. Uten prosjekt: tom liste, som `list_all`.
-  `forsering_service` filtrerer fortsatt resultatet gjennom `cases_in_project`
-  (AUT-02). Den grensen er urørt; filteret i lageret er et lag til.
+  `prosjekt_id = get_project_id()`, og slår sammen med `sak_metadata` slik at
+  også *kildesaken* må høre til prosjektet. Stempelet alene er ikke nok: en
+  relasjon fra en sak i et annet prosjekt, skrevet i vår kontekst, bærer vårt
+  prosjekt. En kilde uten saksmetadata kommer heller ikke med. Uten prosjekt:
+  tom liste, som `list_all`. `forsering_service` filtrerer fortsatt resultatet
+  gjennom `cases_in_project` (AUT-02). Den grensen er urørt.
 - `remove_relation` sletter bare i det autoriserte prosjektet. Uten prosjekt:
   `PermanentError`.
 
@@ -80,7 +83,16 @@ av samme relasjon under et annet prosjekt flyttet raden dit. Her er det
 `ON CONFLICT … DO NOTHING`. Unik-nøkkelen har ikke `prosjekt_id`, og uten
 dette kunne en relasjon skrevet i ett prosjekt stjele raden fra et annet
 (`test_en_eksisterende_relasjon_flyttes_ikke_til_et_annet_prosjekt`).
-Returverdiene er som før: `True`, og antall oppgitte mål.
+Returverdien er antall rader som faktisk ble satt inn, og `add_relation` gir
+`True` bare når raden er ny. Supabase-lageret ga alltid `True` og antall
+oppgitte mål. Ingen kaller bruker verdien.
+
+Følgen er at den første skriveren eier prosjektet til en relasjon. En rad som
+en gang er stemplet feil, kan ikke rettes gjennom lageret: den er usynlig og
+kan ikke fjernes fra det riktige prosjektet. Det er valgt med vilje. Å stemple
+på nytt ved skriving er nettopp veien en relasjon kunne flyttes til et annet
+prosjekt, og retting av feilstemplede rader er en datarettelse, ikke en
+lagermetode.
 
 **Relasjonslageret kaster.** Supabase-lageret pakket hvert kall i
 `safe_execute` og ga `False`, `0` eller `[]` ved enhver feil, også når
@@ -197,8 +209,8 @@ Kopien ble gjenopprettet mellom hver, og var grønn til slutt (37 bestått).
 | M05 `update_cache` skriver også `None` | `test_cachen_oppdaterer_bare_oppgitte_felt` |
 | M06 Tidspunkt uten sone lagres uten UTC | `test_tidspunkt_uten_sone_lagres_som_utc` og cachetesten |
 | M07 Relasjon skrives med `get_project_id() or "oslobygg"` | begge `test_skriving_uten_autorisert_prosjekt_avvises` |
-| M08 `ON CONFLICT` flytter prosjektet (Supabase-atferden) | `test_en_eksisterende_relasjon_flyttes_ikke_til_et_annet_prosjekt` |
-| M09 Baklengs oppslag uten prosjektfilter | tre tester, blant dem `test_relasjon_til_sak_i_annet_prosjekt_utvider_ikke_tilgangen` |
+| M08 `ON CONFLICT` flytter prosjektet (Supabase-atferden) | `test_en_eksisterende_relasjon_flyttes_ikke_til_et_annet_prosjekt`, `test_samme_relasjon_to_ganger_gir_en_rad` |
+| M09 Baklengs oppslag uten filter på relasjonens prosjekt | `test_relasjon_til_sak_i_annet_prosjekt_utvider_ikke_tilgangen` |
 | M10 `remove_relation` uten prosjektfilter | `test_fjerning_er_avgrenset_til_prosjektet` |
 | M11 `remove_relation` uten prosjektkrav | begge `test_skriving_uten_autorisert_prosjekt_avvises` |
 | M12 BIM-lesing uten prosjektfilter | `test_koblinger_leses_bare_i_sakens_prosjekt` |
@@ -211,6 +223,9 @@ Kopien ble gjenopprettet mellom hver, og var grønn til slutt (37 bestått).
 | M19 BIM-sletting uten prosjektkrav | `test_sletting_er_avgrenset_til_sak_og_prosjekt` |
 | M20 Topic-oppslag uten prosjektfilter | `test_topic_slaas_opp_bare_i_det_autoriserte_prosjektet` |
 | M21 Topic-oppslag uten kontekst leser et fast prosjekt | samme |
+| M22 Baklengs oppslag uten filter på kildesakens prosjekt | `test_relasjon_til_sak_i_annet_prosjekt_utvider_ikke_tilgangen` |
+| M23 Baklengs oppslag uten sammenslåing med `sak_metadata` | samme, og `test_baklengs_oppslag_ser_bare_det_autoriserte_prosjektet` |
+| M24 Antall oppgitte mål i stedet for antall satt inn | `test_samme_relasjon_to_ganger_gir_en_rad`, `test_en_eksisterende_relasjon_flyttes_ikke_til_et_annet_prosjekt` |
 
 **M16 var grønn i første runde.** Uten prosjekt stanset SQL-betingelsen mot
 `sak_metadata` innsettingen likevel, som `NotFoundError`, og testen godtok
@@ -223,7 +238,7 @@ ikke at saken mangler. M16 er kjørt på nytt og står slik over.
 for `None` og `''`.
 Uten det sammenlikner SQL-en med `NULL` eller `''` og gir heller ingen rader,
 så ingen test kan skille dem. Det er filteret som bærer regelen, og det er prøvd
-(M09, M12, M17).
+(M09, M12, M17, M22).
 
 ## 6. Kolonnene i prosjektet
 
@@ -236,8 +251,19 @@ sider**. Ingen avvik å rapportere. Rettigheter er ikke tatt med i summen.
 
 ## 7. `/code-review`
 
-Se avsnittet med samme navn i PR-en. Funnene som ble rettet, står i
-commit-historikken på grenen.
+Kjørt på `high` mot `08acecf`. Funnene er ikke verifisert hver for seg av
+reviewet; vurderingen under er løpets.
+
+| Funn | Utfall |
+| --- | --- |
+| `get_containers_for_sak` avgrenser på stempelet, ikke på kildesakens prosjekt | Rettet: sammenslåing med `sak_metadata` (avsnitt 3, M22, M23) |
+| `add_relation` og `add_relations_batch` melder suksess når `DO NOTHING` ikke skrev noe | Rettet: antall satt inn (M24) |
+| En feilstemplet relasjon kan ikke rettes gjennom lageret | Beholdt med vilje (avsnitt 3) |
+| `get`, `update_cache` og `delete` uten prosjektfilter | Beholdt (avsnitt 3). Kalleren reviewet nevner, `integrations/catenda/auth.py`, bruker `get` for å *finne* sakens prosjekt, som `require_project_access` |
+| Én transaksjon per ID i `cases_in_project` og topic-oppslagene | Ikke endret. Supabase-lageret gjorde ett HTTP-kall per ID. Et samlet oppslag endrer grensesnittet; tas i `/simplify` eller F2 (#49) |
+| Vernet mot tomt prosjekt gjentas per metode, og `Kontekst()` bærer ikke prosjektet | Ikke endret. Løp a gjør det samme; samles i `/simplify` (#49). Kravene i `Kontekst` hører til F1 |
+| Kolonnelister og lesemønster gjentas i tre filer | Ikke endret; `/simplify` (#49) |
+| Utgangspunktet i åpningen var `0de5244`, ikke `4b28cf7` | Rettet |
 
 ## 8. Oppfølging
 
@@ -253,18 +279,21 @@ commit-historikken på grenen.
 
 ## Verifikasjon og grenser
 
-**Kjørt og observert 24.09:** macOS 26.2, Python 3.11.9, pytest 9.0.2,
+**Kjørt og observert 24.09 og 29.09:** macOS 26.2, Python 3.11.9, pytest 9.0.2,
 PostgreSQL 17 (Homebrew, `postgresql@17`), psycopg 3.3.6. Kastbar testbase på
 port 54332 (`$TMPDIR/koe-testbase-b`), bygget fra tom av `lokal_testbase.sh`
-med alle 23 migrasjoner.
+med alle 23 migrasjoner. macOS ryddet klyngen under `$TMPDIR` mellom de to
+dagene; den ble bygget på nytt fra tom 29.09, og tallene under er derfra.
 
 - `tests/test_database/test_sak_relasjon_bim.py`: 37 bestått.
 - `tests/test_database/`: 96 bestått, 1 xfailed (RK-04). Før løpet: 59 bestått
   og 1 xfailed.
-- Hele backend med testbasen: **1773 bestått, 9 hoppet over, 42 xfailed**.
-  Uten `KOE_TESTBASE_URL`: 1677 bestått, 106 hoppet over, 41 xfailed.
-- `ruff check backend/`: ingen feil.
-- 21 av 21 mutasjoner ga rød test (avsnitt 5).
+- Hele backend med testbasen, på `4b28cf7` pluss grenen: **1782 bestått,
+  9 hoppet over, 42 xfailed**. Uten `KOE_TESTBASE_URL`: 1686 bestått,
+  106 hoppet over, 41 xfailed.
+- `ruff check backend/`: ingen feil. `docs/verktoy/lenkekontroll.py` på notatet:
+  ingen brutte lenker eller ankre.
+- 24 av 24 mutasjoner ga rød test (avsnitt 5), på koden etter `/code-review`.
 
 **Lest ut av koden, ikke kjørt:** kallerlista i avsnitt 2, at
 `safe_find_related` gjør et unntak fra relasjonslageret til tom liste, og
@@ -278,7 +307,8 @@ webhookstien i #70.
 - Samtidige skrivere til `cached_*` (MS-06). Siste skriver vinner per kolonne,
   som før; det er ikke prøvd.
 - PgBouncer og Supavisor.
-- Ytelse. Ingen spørreplan er lest. `get_by_topic_id` har ingen indeks på
+- Ytelse. Ingen spørreplan er lest. Hvert oppslag er én transaksjon, også i
+  løkkene i `cases_in_project` og topic-oppslagene (avsnitt 7). `get_by_topic_id` har ingen indeks på
   `catenda_topic_id`, i testbasen eller i prosjektet.
 - At `@with_retry()` mangler, er ikke prøvd rødt. Regelen holdes ved lesing og
   review.
