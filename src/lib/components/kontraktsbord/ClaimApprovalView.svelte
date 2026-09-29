@@ -116,7 +116,8 @@
     calculateAuthority(
       letter.items,
       letter.authorityContext?.dailyRate ?? dailyRate,
-      letter.authorityContext?.krav ?? kravFraSak(store.sak)
+      // Sakens krav gjelder bare utkastet; en pakke bærer kravet den ble godkjent mot.
+      letter.authorityContext?.krav ?? (isDraft ? kravFraSak(store.sak) : undefined)
     )
   );
   const sender = $derived(withLimit(review.sender ?? { name: 'Saksbehandler', role: '' }));
@@ -139,6 +140,10 @@
         ? 'Kan ikke beregnes'
         : nok(assessment.amount)
   );
+
+  /** Med et krav som ikke er tallfestet, er summen bare det som er verdsatt. */
+  const standpunkt = (value: number | null) =>
+    value === null ? 'Uavklart' : assessment.ukjent ? `Minst ${nok(value)}` : nok(value);
 
   const calculation = $derived({
     summaryLabel: 'Se beregning · fullmaktsmatrise januar 2026',
@@ -172,11 +177,11 @@
       ),
       {
         label: 'Prinsipalt standpunkt',
-        value: assessment.principal === null ? 'Uavklart' : nok(assessment.principal),
+        value: standpunkt(assessment.principal),
       },
       {
         label: 'Subsidiært standpunkt',
-        value: assessment.subsidiary === null ? 'Uavklart' : nok(assessment.subsidiary),
+        value: standpunkt(assessment.subsidiary),
       },
     ],
     note: `Høyeste samlede standpunkt legges til grunn. Alternative standpunkter summeres ikke.${

@@ -133,20 +133,21 @@ class ApprovalService:
             self.timeline.compute_state([parse_event(e) for e in raw])
         )
 
-    def route(self, owner, items, chain, case_id):
+    def route(self, owner, items, chain, krav):
         """Authority basis and the approvers it requires for this owner's letter."""
         return approval_route(
             items,
             chain,
             self.authority_policy.get("daily_rate"),
             handler_identity(self.authority_policy, owner),
-            self.krav(case_id),
+            krav,
         )
 
-    def stale(self, p, chain, case_id):
-        authority, route = self.route(p["owner"], p["letter"]["items"], chain, case_id)
+    def stale(self, p, chain, krav):
+        authority, route = self.route(p["owner"], p["letter"]["items"], chain, krav)
         return (
             p["policy"]["version"] != digest(chain)
+            or (p["letter"].get("authorityContext") or {}).get("krav") != krav
             or p.get("authority") != authority
             or [s["id"] for s in p["steps"]] != [u["id"] for u in route]
         )
@@ -374,7 +375,8 @@ class ApprovalService:
                 ):
                     raise ValueError("Godkjenningskjeden inneholder saksbehandleren.")
                 events, _ = self.validate_items(case_id, items)
-                authority, route = self.route(actor, items, chain, case_id)
+                krav = self.krav(case_id)
+                authority, route = self.route(actor, items, chain, krav)
                 previous = body.get("previousId")
                 if previous and not any(
                     p["id"] == previous
@@ -395,7 +397,7 @@ class ApprovalService:
                     "dailyRate": float(self.authority_policy["daily_rate"])
                     if self.authority_policy.get("daily_rate") is not None
                     else None,
-                    "krav": self.krav(case_id),
+                    "krav": krav,
                     "matrixVersion": "2026-01",
                 }
                 for key in (
@@ -438,7 +440,7 @@ class ApprovalService:
                         raise ValueError(
                             "Godkjenningskjeden er endret. Pakken må behandles på nytt."
                         )
-                    if self.stale(p, chain, case_id):
+                    if self.stale(p, chain, self.krav(case_id)):
                         raise ValueError(
                             "Fullmaktsgrunnlaget er endret. Pakken må behandles på nytt."
                         )
@@ -544,6 +546,7 @@ class ApprovalService:
     def reconcile_policy(self, project, case_id, chain):
         """Return uncommitted packages for fresh approval when authority changes."""
         now = datetime.now(UTC).isoformat()
+        krav = None
         with self.transaction(project, case_id) as (state, db):
             changed = False
             for p in state["packages"]:
@@ -553,8 +556,10 @@ class ApprovalService:
                     "publisering_feilet",
                 }:
                     continue
+                if krav is None:
+                    krav = self.krav(case_id)
                 try:
-                    stale = self.stale(p, chain, case_id)
+                    stale = self.stale(p, chain, krav)
                 except ValueError:
                     stale = True
                 if not stale:

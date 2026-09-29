@@ -67,6 +67,9 @@ export function calculateAuthority(items: ReviewItem[], dailyRate: number | null
   const number = (value: unknown) =>
     typeof value === 'number' && Number.isFinite(value) && value >= 0 ? value : 0;
   const rate = dailyRate !== null && Number.isFinite(dailyRate) && dailyRate > 0 ? dailyRate : null;
+  /** Dager verdsettes med dagmulktssatsen; `null` når satsen mangler og det er dager å verdsette. */
+  const kroner = (track: 'vederlag' | 'frist', value: number) =>
+    track === 'frist' ? (value === 0 ? 0 : rate === null ? null : value * rate) : value;
   const rows: SvarRad[] = items
     .filter((item) => item.track !== 'grunnlag')
     .map((item) => {
@@ -83,15 +86,13 @@ export function calculateAuthority(items: ReviewItem[], dailyRate: number | null
       const track = item.track as SvarRad['track'];
       // A subsidiary assessment replaces the principal one; the two are never added.
       const subsidiary = subsidiaryValue == null ? assessed : number(subsidiaryValue);
-      const amount = (value: number) =>
-        item.track === 'frist' ? (value === 0 ? 0 : rate === null ? null : value * rate) : value;
       return {
         track,
         fraKrav: false as const,
         principal,
         subsidiary,
-        principalAmount: amount(principal),
-        subsidiaryAmount: amount(subsidiary),
+        principalAmount: kroner(track, principal),
+        subsidiaryAmount: kroner(track, subsidiary),
       };
     });
   const besvart = new Set(items.map((item) => item.track));
@@ -103,23 +104,14 @@ export function calculateAuthority(items: ReviewItem[], dailyRate: number | null
         .filter((track) => !besvart.has(track))
         .map((track) => {
           const value = krav?.[track] ?? null;
-          const kroner =
-            value === null
-              ? null
-              : track === 'frist'
-                ? value === 0
-                  ? 0
-                  : rate === null
-                    ? null
-                    : value * rate
-                : value;
+          const amount = value === null ? null : kroner(track, value);
           return {
             track,
             fraKrav: true as const,
             principal: value,
             subsidiary: value,
-            principalAmount: kroner,
-            subsidiaryAmount: kroner,
+            principalAmount: amount,
+            subsidiaryAmount: amount,
           };
         })
     : [];
