@@ -1,0 +1,514 @@
+{
+ "postgresql": {
+  "tabeller": {
+   "app_identities": {
+    "kolonner": [
+     ["id", "uuid", "NOT NULL"],
+     ["user_id", "uuid", "NOT NULL"],
+     ["provider", "text", "NOT NULL"],
+     ["issuer", "text", "NOT NULL"],
+     ["subject", "text", "NOT NULL"]
+    ],
+    "primærnøkkel": ["id"],
+    "unike": [
+     ["provider", "issuer", "subject"]
+    ],
+    "fremmednøkler": [
+     {
+      "kolonner": ["user_id"],
+      "til": "app_users",
+      "til_kolonner": ["id"],
+      "ved_sletting": "CASCADE"
+     }
+    ]
+   },
+   "app_membership_sync": {
+    "kolonner": [
+     ["project_id", "text", "NOT NULL"],
+     ["catenda_project_id", "uuid", "NOT NULL"],
+     ["synced_at", "timestamp with time zone", "NOT NULL"]
+    ],
+    "primærnøkkel": ["project_id"],
+    "unike": [],
+    "fremmednøkler": [
+     {
+      "kolonner": ["project_id"],
+      "til": "projects",
+      "til_kolonner": ["id"],
+      "ved_sletting": "CASCADE"
+     }
+    ]
+   },
+   "app_oauth_attempts": {
+    "kolonner": [
+     ["state_hash", "text", "NOT NULL"],
+     ["browser_hash", "text", "NOT NULL"],
+     ["return_path", "text", "NOT NULL"],
+     ["expires_at", "timestamp with time zone", "NOT NULL"]
+    ],
+    "primærnøkkel": ["state_hash"],
+    "unike": [],
+    "fremmednøkler": []
+   },
+   "app_project_memberships": {
+    "kolonner": [
+     ["id", "uuid", "NOT NULL"],
+     ["project_id", "text", "NOT NULL"],
+     ["user_id", "uuid", "NOT NULL"],
+     ["catenda_subject", "text", "NOT NULL"],
+     ["user_email", "text", "NOT NULL"],
+     ["display_name", "text", "NOT NULL"],
+     ["role", "text", "NOT NULL"],
+     ["viewer_override", "boolean", "NOT NULL"],
+     ["active", "boolean", "NOT NULL"],
+     ["created_at", "timestamp with time zone", "NOT NULL"],
+     ["updated_at", "timestamp with time zone", "NOT NULL"]
+    ],
+    "primærnøkkel": ["id"],
+    "unike": [
+     ["project_id", "catenda_subject"],
+     ["project_id", "user_id"]
+    ],
+    "fremmednøkler": [
+     {
+      "kolonner": ["project_id"],
+      "til": "projects",
+      "til_kolonner": ["id"],
+      "ved_sletting": "CASCADE"
+     },
+     {
+      "kolonner": ["user_id"],
+      "til": "app_users",
+      "til_kolonner": ["id"],
+      "ved_sletting": "CASCADE"
+     }
+    ]
+   },
+   "app_sessions": {
+    "kolonner": [
+     ["token_hash", "text", "NOT NULL"],
+     ["user_id", "uuid", "NOT NULL"],
+     ["csrf_token", "text", "NOT NULL"],
+     ["expires_at", "timestamp with time zone", "NOT NULL"],
+     ["created_at", "timestamp with time zone", "NOT NULL"]
+    ],
+    "primærnøkkel": ["token_hash"],
+    "unike": [],
+    "fremmednøkler": [
+     {
+      "kolonner": ["user_id"],
+      "til": "app_users",
+      "til_kolonner": ["id"],
+      "ved_sletting": "CASCADE"
+     }
+    ]
+   },
+   "app_users": {
+    "kolonner": [
+     ["id", "uuid", "NOT NULL"],
+     ["email", "text", "NOT NULL"],
+     ["name", "text", "NOT NULL"],
+     ["created_at", "timestamp with time zone", "NOT NULL"]
+    ],
+    "primærnøkkel": ["id"],
+    "unike": [],
+    "fremmednøkler": []
+   },
+   "catenda_contract_teams": {
+    "kolonner": [
+     ["internal_project_id", "text", "NOT NULL"],
+     ["team_id", "uuid", "NOT NULL"],
+     ["contract_role", "text", "NOT NULL"],
+     ["created_at", "timestamp with time zone", "NOT NULL"]
+    ],
+    "primærnøkkel": ["internal_project_id", "team_id"],
+    "unike": [],
+    "fremmednøkler": [
+     {
+      "kolonner": ["internal_project_id"],
+      "til": "catenda_project_configs",
+      "til_kolonner": ["internal_project_id"],
+      "ved_sletting": "CASCADE"
+     }
+    ]
+   },
+   "catenda_models_cache": {
+    "kolonner": [
+     ["id", "integer", "NOT NULL"],
+     ["prosjekt_id", "text", "NOT NULL"],
+     ["catenda_project_id", "text", "NOT NULL"],
+     ["model_id", "text", "NOT NULL"],
+     ["model_name", "text", "NOT NULL"],
+     ["fag", "text", "NULL"],
+     ["updated_at", "timestamp with time zone", "NOT NULL"]
+    ],
+    "primærnøkkel": ["id"],
+    "unike": [
+     ["catenda_project_id", "model_id"]
+    ],
+    "fremmednøkler": []
+   },
+   "catenda_project_configs": {
+    "kolonner": [
+     ["internal_project_id", "text", "NOT NULL"],
+     ["catenda_project_id", "uuid", "NOT NULL"],
+     ["library_id", "uuid", "NOT NULL"],
+     ["folder_id", "uuid", "NULL"],
+     ["is_active", "boolean", "NOT NULL"],
+     ["created_at", "timestamp with time zone", "NOT NULL"],
+     ["updated_at", "timestamp with time zone", "NOT NULL"]
+    ],
+    "primærnøkkel": ["internal_project_id"],
+    "unike": [
+     ["catenda_project_id"]
+    ],
+    "fremmednøkler": [
+     {
+      "kolonner": ["internal_project_id"],
+      "til": "projects",
+      "til_kolonner": ["id"],
+      "ved_sletting": "CASCADE"
+     }
+    ]
+   },
+   "catenda_topic_board_configs": {
+    "kolonner": [
+     ["topic_board_id", "uuid", "NOT NULL"],
+     ["internal_project_id", "text", "NOT NULL"],
+     ["is_active", "boolean", "NOT NULL"],
+     ["created_at", "timestamp with time zone", "NOT NULL"],
+     ["updated_at", "timestamp with time zone", "NOT NULL"]
+    ],
+    "primærnøkkel": ["topic_board_id"],
+    "unike": [],
+    "fremmednøkler": [
+     {
+      "kolonner": ["internal_project_id"],
+      "til": "catenda_project_configs",
+      "til_kolonner": ["internal_project_id"],
+      "ved_sletting": "CASCADE"
+     }
+    ]
+   },
+   "hendelse": {
+    "kolonner": [
+     ["id", "integer", "NOT NULL"],
+     ["specversion", "text", "NOT NULL"],
+     ["event_id", "uuid", "NOT NULL"],
+     ["source", "text", "NOT NULL"],
+     ["type", "text", "NOT NULL"],
+     ["time", "timestamp with time zone", "NOT NULL"],
+     ["subject", "text", "NOT NULL"],
+     ["datacontenttype", "text", "NULL"],
+     ["actorid", "text", "NOT NULL"],
+     ["actorrole", "text", "NOT NULL"],
+     ["actorteam", "text", "NULL"],
+     ["comment", "text", "NULL"],
+     ["referstoid", "uuid", "NULL"],
+     ["data", "jsonb", "NOT NULL"],
+     ["sak_id", "text", "NOT NULL"],
+     ["event_type", "text", "NOT NULL"],
+     ["versjon", "integer", "NOT NULL"],
+     ["created_at", "timestamp with time zone", "NULL"],
+     ["prosjekt_id", "text", "NOT NULL"]
+    ],
+    "primærnøkkel": ["id"],
+    "unike": [
+     ["event_id"],
+     ["sak_id", "versjon"]
+    ],
+    "fremmednøkler": [
+     {
+      "kolonner": ["sak_id"],
+      "til": "sak_metadata",
+      "til_kolonner": ["sak_id"],
+      "ved_sletting": "CASCADE"
+     }
+    ]
+   },
+   "magic_links": {
+    "kolonner": [
+     ["token", "uuid", "NOT NULL"],
+     ["sak_id", "text", "NOT NULL"],
+     ["email", "text", "NULL"],
+     ["created_at", "timestamp with time zone", "NOT NULL"],
+     ["expires_at", "timestamp with time zone", "NOT NULL"],
+     ["used", "boolean", "NULL"],
+     ["used_at", "timestamp with time zone", "NULL"],
+     ["revoked", "boolean", "NULL"],
+     ["revoked_at", "timestamp with time zone", "NULL"],
+     ["last_accessed", "timestamp with time zone", "NULL"]
+    ],
+    "primærnøkkel": ["token"],
+    "unike": [],
+    "fremmednøkler": [
+     {
+      "kolonner": ["sak_id"],
+      "til": "sak_metadata",
+      "til_kolonner": ["sak_id"],
+      "ved_sletting": "CASCADE"
+     }
+    ]
+   },
+   "notat": {
+    "kolonner": [
+     ["notat_id", "uuid", "NOT NULL"],
+     ["sak_id", "text", "NOT NULL"],
+     ["prosjekt_id", "text", "NOT NULL"],
+     ["aktor_id", "text", "NOT NULL"],
+     ["aktor_rolle", "text", "NOT NULL"],
+     ["aktor_team_id", "text", "NOT NULL"],
+     ["tekst", "text", "NOT NULL"],
+     ["spor", "text", "NULL"],
+     ["kommentar", "text", "NULL"],
+     ["refererer_til_event_id", "uuid", "NULL"],
+     ["opprettet", "timestamp with time zone", "NOT NULL"],
+     ["endret", "timestamp with time zone", "NULL"]
+    ],
+    "primærnøkkel": ["notat_id"],
+    "unike": [],
+    "fremmednøkler": [
+     {
+      "kolonner": ["sak_id"],
+      "til": "sak_metadata",
+      "til_kolonner": ["sak_id"],
+      "ved_sletting": "CASCADE"
+     }
+    ]
+   },
+   "project_memberships": {
+    "kolonner": [
+     ["id", "uuid", "NOT NULL"],
+     ["project_id", "text", "NOT NULL"],
+     ["user_email", "text", "NOT NULL"],
+     ["external_id", "text", "NULL"],
+     ["role", "text", "NOT NULL"],
+     ["display_name", "text", "NULL"],
+     ["invited_by", "text", "NULL"],
+     ["created_at", "timestamp with time zone", "NULL"],
+     ["updated_at", "timestamp with time zone", "NULL"]
+    ],
+    "primærnøkkel": ["id"],
+    "unike": [
+     ["project_id", "user_email"]
+    ],
+    "fremmednøkler": [
+     {
+      "kolonner": ["project_id"],
+      "til": "projects",
+      "til_kolonner": ["id"],
+      "ved_sletting": "CASCADE"
+     }
+    ]
+   },
+   "projects": {
+    "kolonner": [
+     ["id", "text", "NOT NULL"],
+     ["name", "text", "NOT NULL"],
+     ["description", "text", "NULL"],
+     ["settings", "jsonb", "NULL"],
+     ["created_at", "timestamp with time zone", "NOT NULL"],
+     ["created_by", "text", "NULL"],
+     ["is_active", "boolean", "NOT NULL"],
+     ["organisasjon_id", "text", "NOT NULL"]
+    ],
+    "primærnøkkel": ["id"],
+    "unike": [],
+    "fremmednøkler": []
+   },
+   "sak_bim_links": {
+    "kolonner": [
+     ["id", "integer", "NOT NULL"],
+     ["sak_id", "text", "NOT NULL"],
+     ["fag", "text", "NOT NULL"],
+     ["model_id", "text", "NULL"],
+     ["model_name", "text", "NULL"],
+     ["object_id", "bigint", "NULL"],
+     ["object_global_id", "text", "NULL"],
+     ["object_name", "text", "NULL"],
+     ["object_ifc_type", "text", "NULL"],
+     ["linked_by", "text", "NOT NULL"],
+     ["linked_at", "timestamp with time zone", "NOT NULL"],
+     ["kommentar", "text", "NULL"],
+     ["properties", "jsonb", "NULL"]
+    ],
+    "primærnøkkel": ["id"],
+    "unike": [],
+    "fremmednøkler": [
+     {
+      "kolonner": ["sak_id"],
+      "til": "sak_metadata",
+      "til_kolonner": ["sak_id"],
+      "ved_sletting": "CASCADE"
+     }
+    ]
+   },
+   "sak_metadata": {
+    "kolonner": [
+     ["sak_id", "text", "NOT NULL"],
+     ["prosjekt_id", "text", "NOT NULL"],
+     ["catenda_topic_id", "text", "NULL"],
+     ["catenda_board_id", "text", "NULL"],
+     ["catenda_project_id", "text", "NULL"],
+     ["created_at", "timestamp with time zone", "NOT NULL"],
+     ["created_by", "text", "NOT NULL"],
+     ["sakstype", "text", "NULL"],
+     ["cached_title", "text", "NULL"],
+     ["cached_status", "text", "NULL"],
+     ["last_event_at", "timestamp with time zone", "NULL"],
+     ["cached_sum_krevd", "numeric", "NULL"],
+     ["cached_sum_godkjent", "numeric", "NULL"],
+     ["cached_dager_krevd", "integer", "NULL"],
+     ["cached_dager_godkjent", "integer", "NULL"],
+     ["cached_hovedkategori", "text", "NULL"],
+     ["cached_underkategori", "text", "NULL"],
+     ["cached_forsering_paalopt", "numeric", "NULL"],
+     ["cached_forsering_maks", "numeric", "NULL"]
+    ],
+    "primærnøkkel": ["sak_id"],
+    "unike": [],
+    "fremmednøkler": []
+   },
+   "sak_relations": {
+    "kolonner": [
+     ["id", "integer", "NOT NULL"],
+     ["source_sak_id", "text", "NOT NULL"],
+     ["target_sak_id", "text", "NOT NULL"],
+     ["relation_type", "text", "NOT NULL"],
+     ["created_at", "timestamp with time zone", "NULL"],
+     ["prosjekt_id", "text", "NOT NULL"]
+    ],
+    "primærnøkkel": ["id"],
+    "unike": [
+     ["source_sak_id", "target_sak_id", "relation_type"]
+    ],
+    "fremmednøkler": []
+   },
+   "user_groups": {
+    "kolonner": [
+     ["id", "uuid", "NOT NULL"],
+     ["user_id", "uuid", "NOT NULL"],
+     ["group_name", "text", "NOT NULL"],
+     ["user_role", "text", "NULL"],
+     ["approval_role", "text", "NULL"],
+     ["display_name", "text", "NULL"],
+     ["department", "text", "NULL"],
+     ["manager_id", "uuid", "NULL"],
+     ["is_active", "boolean", "NULL"],
+     ["created_at", "timestamp with time zone", "NULL"],
+     ["updated_at", "timestamp with time zone", "NULL"]
+    ],
+    "primærnøkkel": ["id"],
+    "unike": [
+     ["user_id"]
+    ],
+    "fremmednøkler": [
+     {
+      "kolonner": ["manager_id"],
+      "til": "user_groups",
+      "til_kolonner": ["id"],
+      "ved_sletting": "SET NULL"
+     },
+     {
+      "kolonner": ["user_id"],
+      "til": "auth.users",
+      "til_kolonner": ["id"],
+      "ved_sletting": "CASCADE"
+     }
+    ]
+   }
+  },
+  "funksjoner": ["auto_create_project_membership", "get_user_role", "get_user_role_by_email", "koe_reconcile_memberships", "koe_register_project", "koe_resolve_identity", "koe_set_contract_teams", "set_catenda_project_registry_updated_at", "update_pm_updated_at", "update_updated_at_column"],
+  "triggere": [
+   ["catenda_project_configs", "set_catenda_project_configs_updated_at", "set_catenda_project_registry_updated_at"],
+   ["catenda_topic_board_configs", "set_catenda_topic_board_configs_updated_at", "set_catenda_project_registry_updated_at"],
+   ["project_memberships", "update_project_memberships_updated_at", "update_pm_updated_at"],
+   ["projects", "trg_auto_membership_on_project_create", "auto_create_project_membership"],
+   ["user_groups", "update_user_groups_updated_at", "update_updated_at_column"]
+  ]
+ },
+ "sqlite": {
+  "tabeller": {
+   "approval_outbox": {
+    "kolonner": [
+     ["id", "TEXT", "NOT NULL"],
+     ["project", "TEXT", "NULL"],
+     ["case_id", "TEXT", "NULL"],
+     ["body", "TEXT", "NOT NULL"],
+     ["status", "TEXT", "NOT NULL"]
+    ],
+    "primærnøkkel": ["id"],
+    "unike": [],
+    "fremmednøkler": []
+   },
+   "approvals": {
+    "kolonner": [
+     ["project", "TEXT", "NOT NULL"],
+     ["case_id", "TEXT", "NOT NULL"],
+     ["body", "TEXT", "NOT NULL"]
+    ],
+    "primærnøkkel": ["project", "case_id"],
+    "unike": [],
+    "fremmednøkler": []
+   },
+   "catenda_delivery_status": {
+    "kolonner": [
+     ["project", "TEXT", "NOT NULL"],
+     ["case_id", "TEXT", "NOT NULL"],
+     ["event_id", "TEXT", "NOT NULL"],
+     ["status", "TEXT", "NOT NULL"]
+    ],
+    "primærnøkkel": ["project", "case_id", "event_id"],
+    "unike": [],
+    "fremmednøkler": []
+   },
+   "eo_approvals": {
+    "kolonner": [
+     ["project", "TEXT", "NOT NULL"],
+     ["body", "TEXT", "NOT NULL"]
+    ],
+    "primærnøkkel": ["project"],
+    "unike": [],
+    "fremmednøkler": []
+   },
+   "utkast": {
+    "kolonner": [
+     ["project", "TEXT", "NOT NULL"],
+     ["case_id", "TEXT", "NOT NULL"],
+     ["spor", "TEXT", "NOT NULL"],
+     ["revisjon", "INTEGER", "NOT NULL"],
+     ["team", "TEXT", "NOT NULL"],
+     ["kontraktsside", "TEXT", "NOT NULL"],
+     ["innhold", "TEXT", "NOT NULL"],
+     ["versjon", "INTEGER", "NOT NULL"],
+     ["oppdatert_av", "TEXT", "NOT NULL"],
+     ["oppdatert", "TEXT", "NOT NULL"]
+    ],
+    "primærnøkkel": ["project", "case_id", "spor", "revisjon", "team"],
+    "unike": [],
+    "fremmednøkler": []
+   },
+   "vedlegg": {
+    "kolonner": [
+     ["project", "TEXT", "NOT NULL"],
+     ["case_id", "TEXT", "NOT NULL"],
+     ["vedlegg_id", "TEXT", "NOT NULL"],
+     ["navn", "TEXT", "NOT NULL"],
+     ["storrelse", "INTEGER", "NOT NULL"],
+     ["lastet_opp_av", "TEXT", "NOT NULL"],
+     ["lastet_opp_rolle", "TEXT", "NOT NULL"],
+     ["tidspunkt", "TEXT", "NOT NULL"],
+     ["status", "TEXT", "NOT NULL"],
+     ["innhold", "BLOB", "NULL"],
+     ["catenda_item_id", "TEXT", "NULL"],
+     ["lastet_opp_team", "TEXT", "NULL"],
+     ["delivery_claim", "TEXT", "NULL"],
+     ["delivery_started", "TEXT", "NULL"]
+    ],
+    "primærnøkkel": ["project", "case_id", "vedlegg_id"],
+    "unike": [],
+    "fremmednøkler": []
+   }
+  }
+ }
+}

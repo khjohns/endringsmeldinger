@@ -1,9 +1,11 @@
 """Lager tabellbeskrivelsen og hendelseskatalogen fra registrene i docs/datamodell/.
 
 Kjøres fra repo-roten: /tmp/venv/bin/python docs/verktoy/datamodell.py
-Skriver docs/datamodell/tabeller.md, hendelser.md og tabellbeskrivelse.xlsx,
-men bare når innholdet er endret. Hendelseskatalogen leser backend-modellene,
-og Excel-fila krever openpyxl, så begge trenger venv-en i AGENTS.md.
+Skriver docs/datamodell/tabeller.md, hendelser.md, relasjoner.md og
+tabellbeskrivelse.xlsx, men bare når innholdet er endret. Hendelseskatalogen
+leser backend-modellene, og Excel-fila krever openpyxl, så begge trenger
+venv-en i AGENTS.md. Katalogen over skjemaet, katalog.json, lages av
+katalog.py mot en testbase.
 """
 
 import importlib.util
@@ -14,21 +16,25 @@ import sys
 import tomllib
 
 
-def _last_hendelseskatalog():
-    sti = pathlib.Path(__file__).resolve().parent / "hendelseskatalog.py"
-    spesifikasjon = importlib.util.spec_from_file_location("hendelseskatalog", sti)
+def _last(navn: str):
+    sti = pathlib.Path(__file__).resolve().parent / f"{navn}.py"
+    spesifikasjon = importlib.util.spec_from_file_location(navn, sti)
     modul = importlib.util.module_from_spec(spesifikasjon)
     spesifikasjon.loader.exec_module(modul)
     return modul
 
 
-hk = _last_hendelseskatalog()
+hk = _last("hendelseskatalog")
+kat = _last("katalog")
+rel = _last("relasjoner")
+df = _last("dataflyt")
 
 ROT = pathlib.Path(__file__).resolve().parents[2]
 MAPPE = ROT / "docs" / "datamodell"
 REGISTER = MAPPE / "tabeller.toml"
 MARKDOWN = MAPPE / "tabeller.md"
 EXCEL = MAPPE / "tabellbeskrivelse.xlsx"
+RELASJONER = MAPPE / "relasjoner.md"
 HOVEDPLAN = ROT / "docs" / "plans" / "2026-09-16-godkjenning-og-varig-levering.md"
 
 IKT_KOLONNER = [
@@ -69,7 +75,6 @@ TABELLFELT = (
     "beskrivelse",
     "lagres_fra",
     "fra_catenda",
-    "relasjoner",
     "kan_gjenoppbygges",
     "personopplysninger",
     "skrivere",
@@ -82,6 +87,10 @@ FUNN_ID = re.compile(r"^[A-Z][A-Z0-9]*-\d{2}$")
 MERKNAD = (
     "Generert fra docs/datamodell/tabeller.toml av docs/verktoy/datamodell.py. "
     "Rett i registeret, ikke her."
+)
+RELASJONSMERKNAD = (
+    "Generert fra docs/datamodell/relasjoner.toml, dataflyt.toml og katalog.json av "
+    "docs/verktoy/datamodell.py. Rett i registrene, ikke her."
 )
 HENDELSESMERKNAD = (
     "Generert fra docs/datamodell/hendelser.toml og backend-modellene av "
@@ -138,7 +147,7 @@ def valider(register: dict, funntekst: str | None = None) -> list[str]:
             feil.append(f"{navn}: type {typer!r} må være en ikke-tom del av {sorted(TYPER)}")
         if not tekst(oppføring["kan_gjenoppbygges"]).startswith(GJENOPPBYGGING):
             feil.append(f"{navn}: kan_gjenoppbygges må begynne med en av {GJENOPPBYGGING}")
-        for felt in ("beskrivelse", "lagres_fra", "fra_catenda", "relasjoner", "personopplysninger", "belegg"):
+        for felt in ("beskrivelse", "lagres_fra", "fra_catenda", "personopplysninger", "belegg"):
             if not tekst(oppføring[felt]):
                 feil.append(f"{navn}: {felt} er tomt; skriv «ikke kontrollert» hvis det er svaret")
         if oppføring["status"] == "i bruk" and not oppføring["skrivere"]:
@@ -163,7 +172,23 @@ def avvik(register: dict, lagring: str, faktiske: set[str]) -> tuple[list[str], 
     return sorted(faktiske - ført), sorted(ført - faktiske)
 
 
-def tabellrader(register: dict) -> list[list[str]]:
+def kilder() -> dict:
+    """Relasjonsregisteret, dataflyten og katalogen, lest fra disk."""
+    return {"relasjoner": rel.les(), "dataflyt": df.les(), "katalog": kat.les()}
+
+
+def catenda_tekst(t: dict, k: dict) -> str:
+    """Kolonne 6: vurderingen i tabellregisteret, og flytene som berører tabellen."""
+    return f"{tekst(t['fra_catenda'])} {df.tabelltekst(k['dataflyt'], t['navn'])}"
+
+
+def relasjonstekst(t: dict, k: dict) -> str:
+    """Kolonne 7: nøkler og relasjoner, fra relasjonsregisteret og katalogen."""
+    return rel.tabelltekst(k["relasjoner"], k["katalog"], t["navn"])
+
+
+def tabellrader(register: dict, k: dict | None = None) -> list[list[str]]:
+    k = k or kilder()
     rader = [IKT_KOLONNER + TILLEGGSKOLONNER]
     for t in register["tabell"]:
         rader.append(
@@ -173,8 +198,8 @@ def tabellrader(register: dict) -> list[list[str]]:
                 ja_delvis_nei(t["type"], "transaksjon"),
                 tekst(t["lagres_fra"]),
                 ja_delvis_nei(t["type"], "grunndata"),
-                tekst(t["fra_catenda"]),
-                tekst(t["relasjoner"]),
+                catenda_tekst(t, k),
+                relasjonstekst(t, k),
                 t["lagring"],
                 ", ".join(t["type"]),
                 t["status"],
@@ -214,6 +239,29 @@ def om_rader() -> list[list[str]]:
     )
     rader += [
         [
+            "Relasjoner",
+            (
+                "Én rad per kobling mellom to tabeller. «Fremmednøkkel» håndheves av basen; "
+                "«Uten fremmednøkkel» er en kobling koden bruker, som ingenting i basen håndhever. "
+                "Nøklene og fremmednøklene er lest fra databasekatalogen."
+            ),
+        ],
+        [
+            "Dataflyt",
+            (
+                "Én rad per pil mellom en tabell og Catenda, med endepunktet og koden eller "
+                "databasefunksjonen som gjør kallet. «Appen, lagres ikke» betyr at dataene "
+                "brukes eller vises uten å bli lagret."
+            ),
+        ],
+        [
+            "Diagrammer",
+            (
+                "ER-diagrammene og flytdiagrammene står i docs/datamodell/relasjoner.md i repoet, "
+                "generert fra de samme registrene."
+            ),
+        ],
+        [
             "Hendelsestyper",
             (
                 "Én rad per hendelsestype i tabellen hendelse. Innholdet ligger i kolonnen data "
@@ -242,9 +290,12 @@ def om_rader() -> list[list[str]]:
     return rader
 
 
-def ark(register: dict, katalog: dict) -> dict[str, list[list[str]]]:
+def ark(register: dict, katalog: dict, k: dict | None = None) -> dict[str, list[list[str]]]:
+    k = k or kilder()
     return {
-        "Tabeller": tabellrader(register),
+        "Tabeller": tabellrader(register, k),
+        "Relasjoner": rel.relasjonsrader(k["relasjoner"], k["katalog"]),
+        "Dataflyt": df.dataflytrader(k["dataflyt"], k["katalog"], register),
         "Utenfor databasene": utenfor_rader(register),
         "Hendelsestyper": hk.typerader(katalog),
         "Hendelsesfelt": hk.feltrader(katalog),
@@ -256,7 +307,8 @@ def _celle(verdi: str) -> str:
     return verdi.replace("|", "\\|")
 
 
-def markdown(register: dict) -> str:
+def markdown(register: dict, k: dict | None = None) -> str:
+    k = k or kilder()
     linjer = [
         "# Tabellregisteret",
         "",
@@ -296,8 +348,8 @@ def markdown(register: dict) -> str:
                 f"| Type | {', '.join(t['type'])} |",
                 f"| Status | {t['status']} |",
                 f"| Hvor fra appen lagres og redigeres | {_celle(tekst(t['lagres_fra']))} |",
-                f"| Data fra Catenda | {_celle(tekst(t['fra_catenda']))} |",
-                f"| Relasjoner | {_celle(tekst(t['relasjoner']))} |",
+                f"| Data fra Catenda | {_celle(catenda_tekst(t, k))} |",
+                f"| Relasjoner | {_celle(relasjonstekst(t, k))} |",
                 f"| Kan bygges opp igjen | {_celle(tekst(t['kan_gjenoppbygges']))} |",
                 f"| Personopplysninger | {_celle(tekst(t['personopplysninger']))} |",
                 f"| Skrives av | {_celle(tekst(t['skrivere']) or 'Ingen funnet')} |",
@@ -334,7 +386,7 @@ def excel_verdier(sti: pathlib.Path) -> dict[str, list[list[str]]]:
         bok.close()
 
 
-def skriv_excel(register: dict, katalog: dict, sti: pathlib.Path) -> None:
+def skriv_excel(register: dict, katalog: dict, sti: pathlib.Path, k: dict | None = None) -> None:
     from openpyxl import Workbook
     from openpyxl.styles import Alignment, Font
 
@@ -342,10 +394,12 @@ def skriv_excel(register: dict, katalog: dict, sti: pathlib.Path) -> None:
     bok.remove(bok.active)
     bredder = {
         "Tabeller": [28, 60, 16, 50, 16, 40, 50, 12, 18, 10, 36],
+        "Relasjoner": [24, 30, 24, 24, 18, 16, 14, 70],
+        "Dataflyt": [8, 30, 10, 40, 24, 24, 50, 60, 60],
         "Hendelsestyper": [28, 60, 12, 16, 18, 50, 40, 60, 10],
         "Hendelsesfelt": [30, 28, 30, 10, 60],
     }
-    for tittel, rader in ark(register, katalog).items():
+    for tittel, rader in ark(register, katalog, k).items():
         arket = bok.create_sheet(tittel)
         for rad in rader:
             arket.append(rad)
@@ -369,26 +423,176 @@ def kontroller_hendelser(katalog: dict) -> list[str]:
     return feil + (hk.mot_koden(katalog) if not feil else [])
 
 
+def katalogavvik(register: dict, skjema: dict) -> list[str]:
+    """Tabellene i katalog.json mot tabellregisteret. Et avvik betyr at en av dem er utdatert."""
+    feil = []
+    for lag, lagring in (("postgresql", "PostgreSQL"), ("sqlite", "SQLite")):
+        uten_oppforing, uten_tabell = avvik(register, lagring, set(skjema[lag]["tabeller"]))
+        feil += [f"{t}: står i katalog.json, men ikke i tabeller.toml" for t in uten_oppforing]
+        feil += [f"{t}: står i tabeller.toml, men ikke i katalog.json" for t in uten_tabell]
+    return feil
+
+
+def kontroller_relasjoner(register: dict, k: dict) -> list[str]:
+    funntekst = funnregisteret()
+    feil = katalogavvik(register, k["katalog"])
+    feil += rel.valider(k["relasjoner"], k["katalog"], funntekst)
+    feil += df.valider(k["dataflyt"], k["katalog"], register, funntekst)
+    steder = df.kallsteder(frozenset(k["dataflyt"].get("autentisering", [])))
+    feil += [f"{sted}: kaller Catenda uten pil i dataflyt.toml" for sted in df.udekkede_kallsteder(k["dataflyt"], steder)]
+    return feil
+
+
+def relasjoner_markdown(register: dict, k: dict | None = None) -> str:
+    k = k or kilder()
+    relasjoner, flyt, skjema = k["relasjoner"], k["dataflyt"], k["katalog"]
+    fk = rel.fremmednøkler(skjema)
+    linjer = [
+        "# Relasjoner og dataflyt",
+        "",
+        f"> {RELASJONSMERKNAD}",
+        "",
+        (
+            "Hvordan tabellene henger sammen, og hvilke av dem som henter fra eller sender til "
+            "Catenda. Nøklene og fremmednøklene er lest fra databasekatalogen "
+            "([`katalog.json`](katalog.json)); koblingene uten fremmednøkkel og dataflyten er "
+            "lest ut av koden. Tabellene er beskrevet i [tabellregisteret](tabeller.md). "
+            "Registeret bygges i runder; «ikke kontrollert» betyr det det sier."
+        ),
+        "",
+        "## ER-diagram: PostgreSQL",
+        "",
+        (
+            "Heltrukken linje er en fremmednøkkel. Stiplet linje er en kobling uten "
+            "fremmednøkkel, som basen ikke håndhever. `auth_users` er tabellen `auth.users` "
+            "i Supabase-plattformen."
+        ),
+        "",
+        "```mermaid",
+        rel.er_diagram(relasjoner, skjema, "PostgreSQL"),
+        "```",
+        "",
+        "## ER-diagram: SQLite",
+        "",
+        (
+            "De seks tabellene i fila `BH_APPROVAL_DB`, og tabellene i PostgreSQL de viser til. "
+            "Ingen av koblingene kan håndheves av en base, fordi de går mellom to lagre."
+        ),
+        "",
+        "```mermaid",
+        rel.er_diagram(relasjoner, skjema, "SQLite"),
+        "```",
+        "",
+        "## Relasjonene",
+        "",
+        "| Fra | Til | Art | Antall | Beskrivelse | Funn | Belegg |",
+        "| --- | --- | --- | --- | --- | --- | --- |",
+    ]
+    for r in relasjoner["relasjon"]:
+        art = (
+            f"fremmednøkkel, ON DELETE {fk[(r['fra'], r['til'])]}"
+            if r["art"] == "fremmednøkkel"
+            else "uten fremmednøkkel"
+        )
+        linjer.append(
+            f"| `{rel._side(r, 'fra')}` | `{rel._side(r, 'til')}` | {art} | {r['antall']} | "
+            f"{_celle(tekst(r['beskrivelse']))} | {', '.join(r['funn']) or '—'} | {_celle(tekst(r['belegg']))} |"
+        )
+    linjer += [
+        "",
+        "## Nøkkelkolonner uten relasjon",
+        "",
+        (
+            "Kolonner som ser ut som en nøkkel eller en personreferanse, men som ikke viser til en "
+            "tabell i appen. Testen krever en begrunnelse for hver."
+        ),
+        "",
+        "| Kolonne | Begrunnelse |",
+        "| --- | --- |",
+    ]
+    linjer += [
+        f"| `{u['kolonne']}` | {_celle(tekst(u['begrunnelse']))} |" for u in relasjoner["uten_relasjon"]
+    ]
+    linjer += [
+        "",
+        "## Dataflyt mot Catenda",
+        "",
+        (
+            "Hver pil er nummerert med flyten og steget, og viser siste ledd i kallkjeden: "
+            "koden som gjør kallet, eller databasefunksjonen som skriver. Hele kjeden og "
+            "endepunktet står i flytene under. «Appen, lagres ikke» betyr at dataene brukes "
+            "eller vises uten å bli lagret."
+        ),
+        "",
+        "### Inn fra Catenda",
+        "",
+        "```mermaid",
+        df.flytdiagram(flyt, skjema, register, "inn"),
+        "```",
+        "",
+        "### Ut til Catenda",
+        "",
+        "```mermaid",
+        df.flytdiagram(flyt, skjema, register, "ut"),
+        "```",
+        "",
+        "### Tabellene og Catenda",
+        "",
+        "| Tabell | Får data fra Catenda i | Sender data til Catenda i |",
+        "| --- | --- | --- |",
+    ]
+    per_tabell = df.flyter_per_tabell(flyt)
+    for t in register["tabell"]:
+        flyter = per_tabell.get(t["navn"], {"fra": [], "til": []})
+        linjer.append(
+            f"| `{t['navn']}` | {', '.join(flyter['fra']) or '—'} | {', '.join(flyter['til']) or '—'} |"
+        )
+    linjer += ["", "## Flytene", ""]
+    linjer += df.flytseksjoner(flyt, skjema, register)
+    linjer += [
+        "## Kall til Catenda utenfor dataflyten",
+        "",
+        (
+            "Steder i backend som kaller Catenda-klienten, men ikke er en del av appens dataflyt. "
+            f"Autentiseringskallene ({', '.join(f'`{a}`' for a in flyt['autentisering'])}) henter "
+            "bare et token og er ikke tatt med."
+        ),
+        "",
+        "| Fil | Funksjon | Begrunnelse |",
+        "| --- | --- | --- |",
+    ]
+    linjer += [
+        f"| [`{u['fil'].removeprefix('backend/')}`](../../{u['fil']}) | "
+        f"{('`' + u['funksjon'] + '`') if 'funksjon' in u else 'hele fila'} | {_celle(tekst(u['begrunnelse']))} |"
+        for u in flyt["uten_flyt"]
+    ]
+    return "\n".join(linjer) + "\n"
+
+
 def main() -> int:
     register = les()
     katalog = hk.les()
+    k = kilder()
     feil = valider(register, funnregisteret()) + kontroller_hendelser(katalog)
+    feil += kontroller_relasjoner(register, k)
     if feil:
         print("Registeret eller katalogen er ikke gyldig:", *feil, sep="\n  ")
         return 1
     for sti, ny in (
-        (MARKDOWN, markdown(register)),
+        (MARKDOWN, markdown(register, k)),
+        (RELASJONER, relasjoner_markdown(register, k)),
         (hk.MARKDOWN, hk.markdown(katalog, HENDELSESMERKNAD)),
     ):
         if not sti.exists() or sti.read_text(encoding="utf-8") != ny:
             sti.write_text(ny, encoding="utf-8")
             print(f"skrev {sti.relative_to(ROT)}")
-    if not EXCEL.exists() or excel_verdier(EXCEL) != ark(register, katalog):
-        skriv_excel(register, katalog, EXCEL)
+    if not EXCEL.exists() or excel_verdier(EXCEL) != ark(register, katalog, k):
+        skriv_excel(register, katalog, EXCEL, k)
         print(f"skrev {EXCEL.relative_to(ROT)}")
     print(
         f"{len(register['tabell'])} tabeller, {len(register.get('utenfor', []))} utenfor databasene, "
-        f"{len(katalog['hendelse'])} hendelsestyper"
+        f"{len(katalog['hendelse'])} hendelsestyper, {len(k['relasjoner']['relasjon'])} relasjoner, "
+        f"{len(df.piler(k['dataflyt']))} piler i dataflyten"
     )
     return 0
 

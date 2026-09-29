@@ -230,7 +230,7 @@ blir to tester av samme regel.
 | `type` | 3 og 5 | En eller flere av typene under. IKTs ja/nei avledes |
 | `lagres_fra` | 4 | Hvilke handlinger og hvilken kode som skriver, og om rader endres |
 | `fra_catenda` | 6 | Om dataene kommer fra Catenda, og hvordan |
-| `relasjoner` | 7 | Fremmednøkler og andre koblinger |
+| `relasjoner` | 7 | Fremmednøkler og andre koblinger. Se merknaden under |
 | `lagring` | tillegg | PostgreSQL, SQLite eller utenfor databasene |
 | `status` | tillegg | `i bruk`, `rest` (skal fjernes) eller `uavklart` |
 | `kan_gjenoppbygges` | tillegg | Om radene kan lages på nytt fra andre data |
@@ -238,6 +238,12 @@ blir to tester av samme regel.
 | `skrivere` | tillegg | Filer og databasefunksjoner som skriver, for sporbarhet |
 | `funn` | tillegg | ID-er i hovedplanen |
 | `belegg` | tillegg | Hva som er kontrollert, hvordan og når |
+
+> **Merknad 2026-09-29 til `relasjoner`:** feltet er fjernet fra
+> `tabeller.toml` i fase 1c. Kolonne 7 lages fra
+> [`relasjoner.toml`](datamodell/relasjoner.toml) og katalogen, og kolonne 6
+> får flyt-ID-ene fra [`dataflyt.toml`](datamodell/dataflyt.toml)
+> ([gjennomføringsnotatet for 1c](gjennomforing-spor-m-1c-2026-09-29.md)).
 
 **Typene er et forslag for IKT, ikke en vedtatt klassifisering:**
 
