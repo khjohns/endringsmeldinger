@@ -127,7 +127,8 @@ backend utenom testene. Tre steder leser feltene på `eo_utstedt`:
 - `lib/cloudevents/http_binding.py` bruker `eo_nummer` og `endelig_vederlag`
   i sammendraget, med `data` som reserve.
 - `TimelineService._serialize_event_data` og `_get_event_summary`, som bare
-  kalles fra `get_timeline`. Den har ingen kaller utenom testene.
+  kalles fra `get_timeline`. Den har ingen kaller, heller ikke i testene
+  (L 29.09; også påvist i [målskjemagjennomgangen](audit-maalskjema-gjennomgang-2026-09-21.md)).
 
 **Kjørt (K 29.09)** mot testbasen: en KOE-sak lukket av en endringsordre med
 `endelig_vederlag` gir godkjent beløp 100 000 kr i tilstanden regnet av
