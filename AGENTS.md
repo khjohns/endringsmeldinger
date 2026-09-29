@@ -60,6 +60,17 @@ npm test && npm run check:error                      # ~49 s, 0 errors i dag
 
 Testene er raske. Kjør dem ofte.
 
+**I skyøktene gjør `.claude/hooks/session-start.sh` oppsettet over.** Den lager
+venv-en, kjører `npm install`, starter Docker-daemonen og en testbase i
+PostgreSQL 17 med `scripts/testbase/docker_testbase.sh`, og setter
+`KOE_TESTBASE_URL`. Da kjører databasetestene med vanlig `pytest`. Maskinen har
+bare PostgreSQL 16, så testbasen må gå i Docker. Står det en advarsel om
+testbasen i øktstarten, er variabelen ikke satt, og databasetestene hoppes over
+uten å feile. Grønn suite betyr da ingenting om datalaget. Kjør hooken på nytt
+med `CLAUDE_CODE_REMOTE=true`, og se loggen i `/tmp/koe-session-start.log`.
+Endrer du en migrasjon, bygg basen på nytt med `stopp` og `start`, og sett
+`KOE_TESTBASE_URL` til den nye URL-en.
+
 `ruff check backend/` er porten og skal være 0. **`ruff format` er det ikke** —
 repoet er aldri formatert med den, og `ruff format .` ville skrevet om rundt 80
 filer. Kjør den ikke på hele treet.
@@ -77,11 +88,14 @@ Et eldre prosjekt `unified-timeline` (`iyetsvrteyzpirygxenu`) er INACTIVE og ska
 ikke røres.
 
 **Migrasjonene kan verifiseres uten å røre basen.** Målversjonen er
-PostgreSQL 17 (`supabase/config.toml`). Bruk den versjonen som finnes lokalt:
-Linux-miljøet har 16 under `/usr/lib/postgresql/16/bin`, macOS har Homebrew.
-Sett opp et kastbart cluster med `initdb` i en katalog `postgres`-brukeren eier,
-stub Supabase-plattformen (rollene `anon`, `authenticated`, `service_role`,
-skjemaet `auth` med `users`, `auth.role()` og `auth.email()`), og kjør
+PostgreSQL 17 (`supabase/config.toml`), og testbasen skal kjøre på 17, som
+CI-jobben `database`. Versjonen er ikke likegyldig: `transaction_timeout`
+finnes fra 17, og 18 gir andre katalogsummer (under). På macOS gir
+`scripts/testbase/lokal_testbase.sh` en base med Homebrews 17. Uten 17
+installert gir `scripts/testbase/docker_testbase.sh` en base i bildet
+`postgres:17`. `bygg_testbase.sh` sjekker ikke versjonen selv. Den stubber
+Supabase-plattformen (rollene `anon`, `authenticated`, `service_role`,
+skjemaet `auth` med `users`, `auth.role()` og `auth.email()`) og kjører
 migrasjonene mot en tom base. Sammenlikn så katalogen med prosjektet ved å ta
 `md5(string_agg(...))` over kolonner, skranker, indekser, policyer og
 rettigheter på begge sider. Det fanger ting lesing ikke gjør: sirkulære
