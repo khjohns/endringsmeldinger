@@ -329,10 +329,8 @@ flowchart LR
         t_app_membership_sync["app_membership_sync"]
         t_app_project_memberships["app_project_memberships"]
         t_app_users["app_users"]
-        t_catenda_contract_teams["catenda_contract_teams"]
         t_hendelse["hendelse"]
         t_notat["notat"]
-        t_projects["projects"]
         t_sak_metadata["sak_metadata"]
         t_sak_relations["sak_relations"]
     end
@@ -384,10 +382,6 @@ flowchart LR
     c_ifc -->|"C16.3 get_related_bim_objects"| t_appen
     c_prosjekt -->|"C17.1 catenda_health_check"| t_appen
     c_medlemmer -->|"C17.2 validate_user"| t_appen
-    c_prosjekt -->|"C18.1 koe_register_project"| t_projects
-    c_team -->|"C18.2 koe_set_contract_teams"| t_catenda_contract_teams
-    c_team -->|"C19.1 koe_set_contract_teams"| t_catenda_contract_teams
-    c_prosjekt -->|"C20.1 cmd_sync_name"| t_projects
 ```
 
 ### Ut til Catenda
@@ -430,6 +424,26 @@ flowchart LR
     t_sak_metadata -->|"C15.3 EndringsordreService._sync_to_catenda"| c_relasjon
     t_hendelse -->|"C15.4 EndringsordreService.legg_til_koe"| c_relasjon
     t_hendelse -->|"C15.5 EndringsordreService.fjern_koe"| c_relasjon
+```
+
+### Drift
+
+Flytene bare driftsskriptene utløser. De er den eneste veien prosjekter og kontraktsteam kommer inn i basen. Medlemssynkroniseringen (C04) står i diagrammet over, fordi også innloggingen og tilgangskontrollen utløser den.
+
+```mermaid
+flowchart LR
+    subgraph g0["Catenda"]
+        c_prosjekt["prosjekter"]
+        c_team["team og teammedlemmer"]
+    end
+    subgraph g1["PostgreSQL"]
+        t_catenda_contract_teams["catenda_contract_teams"]
+        t_projects["projects"]
+    end
+    c_prosjekt -->|"C18.1 koe_register_project"| t_projects
+    c_team -->|"C18.2 koe_set_contract_teams"| t_catenda_contract_teams
+    c_team -->|"C19.1 koe_set_contract_teams"| t_catenda_contract_teams
+    c_prosjekt -->|"C20.1 cmd_sync_name"| t_projects
 ```
 
 ### Tabellene og Catenda
