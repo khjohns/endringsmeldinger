@@ -16,6 +16,8 @@ backend/__pycache__/
 backend/**/__pycache__/
 docs/**/__pycache__/
 backend/*.log
+# AuditLogger lager fila i mappa prosessen startes fra.
+audit.log
 backend/.env
 backend/.env.test
 backend/venv/
