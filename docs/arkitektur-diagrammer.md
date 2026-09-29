@@ -19,6 +19,12 @@
 > Diagrammene under er ikke tegnet om. De viser også innlogging og e-post som
 > ikke er vurdert i denne runden.
 
+> **Merknad 2026-09-29 til merknaden over:** En SQL Database, antatt Azure SQL
+> Database, er aktuell igjen av kostnadsgrunner. Azure PostgreSQL er fortsatt foreløpig mål til B-12 er
+> avgjort. Om punkt 7 blir gjeldende igjen, avhenger av det valget; se
+> merknaden samme dag under B-12 i
+> [hovedplanen](plans/2026-09-16-godkjenning-og-varig-levering.md#34-åpne-beslutninger).
+
 ## 1. Dagens oppsett (Google Cloud Platform + Supabase)
 
 ```mermaid
