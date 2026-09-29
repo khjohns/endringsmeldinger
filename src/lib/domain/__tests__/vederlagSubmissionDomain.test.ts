@@ -355,7 +355,7 @@ describe('vederlagSubmissionDomain', () => {
       expect(data.varslet_for_oppstart).toBeUndefined();
     });
 
-    it('leaves the §34.3.3 notice date to the server (DRF-03)', () => {
+    it('overlater datoen for §34.3.3-varselet til serveren (DRF-03)', () => {
       const state = {
         ...domain.getDefaults({ scenario: 'edit' }),
         metode: 'ENHETSPRISER' as const,

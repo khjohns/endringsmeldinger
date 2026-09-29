@@ -583,8 +583,8 @@ class TestValidateVederlagEvent:
             )
         assert "Rigg/drift-kostnader krever særskilt varsel" in str(exc_info.value)
 
-    def test_justert_ep_varsel_from_client_is_rejected(self):
-        """The server sets the §34.3.3 notice date (DRF-03); a client date is rejected."""
+    def test_dato_for_justert_ep_varsel_fra_klienten_avvises(self):
+        """Serveren setter datoen for §34.3.3-varselet (DRF-03)."""
         with pytest.raises(ValidationError) as exc_info:
             validate_vederlag_event(
                 {
