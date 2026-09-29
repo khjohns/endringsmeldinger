@@ -170,13 +170,15 @@ def modell_i_koden(navn: str) -> str:
     raise AssertionError(f"{navn}: en tom hendelse ble godtatt")
 
 
+REGLER = BusinessRuleValidator()
+
+
 def avsender_i_koden(navn: str) -> str:
     """Hvem rollekontrollen (ROLE_CHECK) slipper gjennom."""
-    kontroll = BusinessRuleValidator()
     tillatt = [
         rolle
         for rolle in ("TE", "BH")
-        if kontroll.validate_actor_role(
+        if REGLER.validate_actor_role(
             SimpleNamespace(event_type=events.EventType(navn), aktor_rolle=rolle)
         ).is_valid
     ]
@@ -187,7 +189,7 @@ def regler_i_koden(navn: str) -> list[str]:
     """Reglene `validate` kjører. Et notat lagres før de kjøres (MS-05)."""
     return [
         regel
-        for regel, _ in BusinessRuleValidator()._get_rules_for_event(events.EventType(navn))
+        for regel, _ in REGLER._get_rules_for_event(events.EventType(navn))
     ]
 
 
@@ -205,9 +207,10 @@ def mot_koden(katalog: dict) -> list[str]:
     Det viser at katalogen beskriver koden, ikke at koden er riktig.
     """
     feil = []
+    typer = typene_i_koden()
     for h in katalog.get("hendelse", []):
         navn = h["navn"]
-        if navn not in typene_i_koden():
+        if navn not in typer:
             continue
         if (faktisk := avsender_i_koden(navn)) != h["avsender"]:
             feil.append(f"{navn}: katalogen sier avsender {h['avsender']}, rollekontrollen {faktisk}")
