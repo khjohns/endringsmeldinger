@@ -533,7 +533,12 @@ class TimelineService:
                 if hasattr(event.data.rigg_drift_varsel, "model_dump")
                 else event.data.rigg_drift_varsel
             )
-        if event.data.krever_justert_ep and vederlag.justert_ep_varsel is None:
+        krever_justering = (
+            event.data.krever_justert_ep and vederlag.metode == VederlagsMetode.ENHETSPRISER.value
+        )
+        if not krever_justering:
+            vederlag.justert_ep_varsel = None
+        elif vederlag.justert_ep_varsel is None:
             vederlag.justert_ep_varsel = self._varsel_ved_innsending(event).model_dump()
         if event.data.varslet_for_oppstart is not None:
             vederlag.varslet_for_oppstart = event.data.varslet_for_oppstart

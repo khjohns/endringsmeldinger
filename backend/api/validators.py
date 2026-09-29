@@ -375,6 +375,12 @@ def validate_vederlag_event(data: dict[str, Any]) -> None:
     if not data:
         raise ValidationError("Vederlag data mangler")
 
+    if data.get("justert_ep_varsel") is not None:
+        raise ValidationError(
+            "justert_ep_varsel settes av serveren ut fra når kravet sendes (§34.3.3)",
+            field="justert_ep_varsel",
+        )
+
     if data.get("varsel_type") == "varsel":
         # The event model validates selected notices and rejects amounts/methods.
         from models.events import VederlagData
@@ -423,11 +429,6 @@ def validate_vederlag_event(data: dict[str, Any]) -> None:
         "rigg_drift_varsel",
         "Rigg/drift-kostnader krever særskilt varsel (§34.1.3)",
     )
-    if data.get("justert_ep_varsel") is not None:
-        raise ValidationError(
-            "justert_ep_varsel settes av serveren ut fra når kravet sendes (§34.3.3)",
-            field="justert_ep_varsel",
-        )
     _validate_varsel_requirement(
         data,
         "inkluderer_produktivitetstap",
