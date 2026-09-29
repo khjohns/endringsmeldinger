@@ -171,14 +171,12 @@ Brytes en av disse, er det en sikkerhetsfeil uansett hvor liten endringen så ut
 
 - **Enhver rute har `require_auth` + `require_project_access` + eventuelt
   `require_contract_role`.** `tests/test_security/test_public_route_registry.py`
-  håndhever en del av det: en rute uten autentiseringsdekoratør må stå oppført
-  med skriftlig begrunnelse. Legger du til en rute, forvent å måtte begrunne den
-  der. Testen er ikke bevis for hele invarianten (DM-04):
-  - den ser ikke ruter deklarert med `.get` eller `.post`
-  - den godtar de utgåtte `require_magic_link` og `require_entra_auth`
-  - den kontrollerer ikke `require_project_access`
-
-  Les dekoratørene på en ny rute selv.
+  håndhever de to første: en rute uten `require_auth` må stå i
+  `OFFENTLIGE_RUTER`, og en autentisert rute uten `require_project_access` i
+  `UTEN_PROSJEKT`, begge med skriftlig begrunnelse. Legger du til en rute,
+  forvent å måtte begrunne den der. Dekoratørene teller bare under
+  rutedekoratøren, og en rute testen ikke kan lese ut av `routes/`, gir rød
+  test mot `app.url_map`. `require_contract_role` kontrolleres ikke.
 - **CSRF håndheves inne i `require_auth`** (`lib/auth/session.py`), bevisst, slik at
   en ny mutasjonsrute ikke kan glemme den. Ikke flytt den ut.
 - **`aktor_id`, `aktor_rolle`, `aktor_team_id`, `tidsstempel` og `event_id` settes
