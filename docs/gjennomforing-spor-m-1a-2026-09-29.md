@@ -171,6 +171,34 @@ i appen gjennom ti auditrunder.
 - Kreve `require_project_access` med en uttrykkelig unntaksliste.
 - Føre opp `login` og `callback` med begrunnelse.
 
+#### Merknad 2026-09-29 til DM-04
+
+Rettet i testen, i issue #88. Ingen produksjonskode er endret.
+- Rutene leses fra `route` og `.get`/`.post`/`.put`/`.patch`/`.delete` med
+  blueprintens `url_prefix`, og sammenliknes med `app.url_map` per metode og
+  sti. Flasks egen `/static/<path:filename>` står i `RAMMEVERKETS_RUTER`; en
+  egen test kontrollerer at appen ikke har noen statisk mappe.
+- Bare `require_auth` teller som autentisering, og bare når den står under
+  rutedekoratøren. En dekoratør over den virker ikke på det Flask registrerer.
+- `OFFENTLIGE_RUTER` og den nye `UTEN_PROSJEKT` er nøklet på metode og sti,
+  slik at en ny metode på en kjent sti må klassifiseres.
+- `login`, `callback` og webhooken står i `OFFENTLIGE_RUTER`. Webhooken ble
+  før regnet som autentisert fordi den har `limit_webhook`, som er en
+  rate-begrensning. Den avviser feil hemmelig sti i ruta selv.
+- `require_contract_role` kontrolleres fortsatt ikke.
+
+**Kjørt (K 29.09):** ti mutasjoner, hver tilbakestilt, ga rød test i testen
+de gjaldt:
+- ny `@utility_bp.post` uten autentisering, og nye ruter med bare
+  `@require_magic_link` eller bare `@require_entra_auth`
+- en `require_auth` over rutedekoratøren, og `POST` lagt til på `/api/health`
+- ny rute med `require_auth` uten `require_project_access`, `require_project_access`
+  fjernet fra en medlemsrute, og `DELETE` lagt til på `/api/auth/logout`
+- en rute registrert med `add_url_rule`, og en blueprint registrert med et
+  annet `url_prefix` i `app.py`
+
+Appen har 74 par av metode og sti, og testen klassifiserer hvert av dem.
+
 ## 3. Rettet i runden
 
 Første utkast av registeret sa at `projects` har «to veier» inn, rutene `POST`
