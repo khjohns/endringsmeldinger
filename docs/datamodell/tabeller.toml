@@ -24,7 +24,8 @@ status = "i bruk"
 beskrivelse = """
 Journalen. Én rad per formell hendelse i en sak: varsel, krav, svar,
 endringsordre, forsering og liknende. Innholdet ligger i `data` (JSON) og
-varierer med hendelsestypen; hendelseskatalogen i fase 1b beskriver typene.
+varierer med hendelsestypen; hendelseskatalogen (`hendelser.md`) beskriver
+typene og feltene.
 Sakens tilstand beregnes fra hendelsene. Radene har juridisk vekt."""
 lagres_fra = """
 Når en part sender noe i en sak: hendelsesrutene (enkeltvis og i batch), ny
@@ -51,7 +52,7 @@ skrivere = [
     "backend/services/approval_service.py",
     "backend/services/catenda_webhook_service.py (via sak_creation_service)",
 ]
-funn = ["MS-01", "MS-02", "MS-03", "AR-02"]
+funn = ["MS-01", "MS-02", "MS-03", "AR-02", "DM-06"]
 belegg = """
 K 29.09: kolonnene i testbasen og prosjektet, og skrankene (også CASCADE) i
 testbasen. L 29.09: kallerne av `append`/`append_batch` og `create_sak`."""

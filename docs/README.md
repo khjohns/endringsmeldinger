@@ -33,6 +33,7 @@ Eldre handoffer står under [historikk](#historikk--bevart-ikke-gjeldende).
 | [hovedplanen](plans/2026-09-16-godkjenning-og-varig-levering.md) | **Autoritativ.** Se over |
 | [oppdrag: datamodell og funksjonskart (spor M)](prompt-datamodell-og-funksjonskart-2026-09-29.md) | Tabellbeskrivelse for IKT som systemdokumentasjon, hendelseskatalog, funksjonskart og atferdstester, i faser. Avhenger ikke av B-12. Avsnitt 4 er utgangspunktet |
 | [gjennomføring: tabellregisteret, første runde (spor M, 1a)](gjennomforing-spor-m-1a-2026-09-29.md) | Registeret, eksporten og vakttesten. DM-01–DM-04, blant dem at ruteregistertesten ikke ser alle ruter (DM-04, middels). Ett utsagn i registeret rettet i runden |
+| [gjennomføring: hendelseskatalogen, første runde (spor M, 1b)](gjennomforing-spor-m-1b-2026-09-29.md) | Katalogen over de 32 hendelsestypene, med vakttest mot koden. Oppdragsgivers svar om bestemmelsene og regnearket. DM-05 (skjemaet for ny sak får 403, middels), DM-06 og DM-07 (`eo_opprettet` gjør en KOE-sak til en EO-sak, middels) |
 | [designnotat: B-13, hvem avgjør resultatet](design-b13-sannhetskilde-2026-09-23.md) | Beslutningsgrunnlag for B-13. Sammenlikner de tre alternativene for journal, brev, partens tekst, frontend, godkjenning og regelendring. Anbefaler (2) i streng form, med regelversjon. **Alle åtte valgene tatt 24.09** etter anbefalingen (hovedplanen, 3.1). Ingen kode |
 | [oppdrag: B-13, backend eier reglene](prompt-b13-backend-eier-reglene-2026-09-23.md) | Neste domeneoppgave. Beslutningsgrunnlag for B-13 først, uten kode. Deretter vedtakene fra spor D (ubegrenset fullmakt, fullmakt for godkjent ansvar, innsigelse og forespørsel på nøytralt fristvarsel) og, etter beslutningen, reglene i backend. Kan gå parallelt med F0b |
 | [oppdrag: repositoriene i F0b, fase 2](prompt-f0b-fase2-repositorier-2026-09-24.md) | Fire parallelle løp (a–d) over kjernen: felles regler, eget oppsett per løp og hva hvert løp eier |
@@ -170,6 +171,7 @@ Beskriver funksjon og dataflyt, ikke funn. Disse eldes saktere enn auditene.
 | --- | --- |
 | [arkitekturdiagrammer](arkitektur-diagrammer.md) | Systemoversikt. Azure-skissen viser Azure SQL; foreløpig mål er Azure PostgreSQL (merknad 23.09), men en SQL Database er aktuell igjen (merknad 29.09) |
 | [tabellregisteret](datamodell/tabeller.md) | Hver tabell i PostgreSQL og SQLite, og data utenfor databasene. Generert fra [`tabeller.toml`](datamodell/tabeller.toml); rett der. Spor M, første runde 29.09 |
+| [hendelseskatalogen](datamodell/hendelser.md) | Hver hendelsestype: hvem som sender, spor, NS 8407 med kilde, feltene i `data` og virkning på status. Generert fra [`hendelser.toml`](datamodell/hendelser.toml) og modellene; rett der. Spor M, 1b 29.09 |
 | [Catenda: dataflyt](catenda-dataflyt.md) | Hva som utveksles, og hvordan prosjekt og bibliotek rutes |
 | [Catenda: innlogging](catenda-innlogging.md) | OAuth-flyten og prosjekttilgang |
 | [migrasjoner og testbase](migrasjoner-og-testbase.md) | Hvordan migrasjonene verifiseres mot prosjektet uten å røre basen: testbasen i PostgreSQL 17, stubben av Supabase, katalogsummene og historikken. Flyttet fra `AGENTS.md` 29.09 |
