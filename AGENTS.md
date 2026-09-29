@@ -50,6 +50,10 @@ som er oppgjort. Det skjedde da `AVSLATT_AKSEPTERT` kom til.
 
 ## Miljø
 
+**Plattformen er ikke endelig valgt.** Hvilken database og hosting appen skal
+kjøre på, er B-12 i hovedplanen. Det som står om PostgreSQL og Supabase her,
+beskriver dagens oppsett.
+
 ```bash
 # Systempython mangler pytest, og pip install systemvidt feiler på debian-PyJWT.
 python3 -m venv /tmp/venv && /tmp/venv/bin/pip install -q \
@@ -167,8 +171,14 @@ Brytes en av disse, er det en sikkerhetsfeil uansett hvor liten endringen så ut
 
 - **Enhver rute har `require_auth` + `require_project_access` + eventuelt
   `require_contract_role`.** `tests/test_security/test_public_route_registry.py`
-  håndhever det: en udekorert rute må stå oppført med skriftlig begrunnelse.
-  Legger du til en rute, forvent å måtte begrunne den der.
+  håndhever en del av det: en rute uten autentiseringsdekoratør må stå oppført
+  med skriftlig begrunnelse. Legger du til en rute, forvent å måtte begrunne den
+  der. Testen er ikke bevis for hele invarianten (DM-04):
+  - den ser ikke ruter deklarert med `.get` eller `.post`
+  - den godtar de utgåtte `require_magic_link` og `require_entra_auth`
+  - den kontrollerer ikke `require_project_access`
+
+  Les dekoratørene på en ny rute selv.
 - **CSRF håndheves inne i `require_auth`** (`lib/auth/session.py`), bevisst, slik at
   en ny mutasjonsrute ikke kan glemme den. Ikke flytt den ut.
 - **`aktor_id`, `aktor_rolle`, `aktor_team_id`, `tidsstempel` og `event_id` settes
@@ -225,8 +235,8 @@ nåbarhet, og begge ble fanget av testsuiten — ikke av lesingen.
 **Og ett av lagene ligger ikke i repoet i det hele tatt.** Ti funksjoner bor i
 `public` — `koe_resolve_identity`, `koe_reconcile_memberships`,
 `auto_create_project_membership` og flere. De er en del av applikasjonen, og et
-kodesøk finner dem aldri. Tabellen `app_identities` har **null treff** på sitt eget
-navn i hele repoet, og er likevel bærende: den leses og skrives ved hver
+kodesøk finner dem aldri. Tabellen `app_identities` leses og skrives **ikke av
+noen Python-kode**, og er likevel bærende: den leses og skrives ved hver
 innlogging, fra en databasefunksjon. En runde konkluderte med at den var ubrukt.
 Spør katalogen — `pg_proc`, `pg_trigger`, `pg_policy` — før du skriver at noe ikke
 er i bruk. En trigger kan også være den egentlige skriveren: `project_memberships`
@@ -278,6 +288,12 @@ eksempel med en kontrollsak som bare skiller seg i det ene feltet. Ellers blir
 en avvisning av en annen grunn til XPASS. Code-review fant begge feilene i
 reproduksjonene av BR-01 23.09.
 
+**En test skrevet ut fra koden bekrefter koden, ikke hensikten.** Skal en test
+vise at en funksjon virker som tiltenkt, må forventningen ha en kilde utenfor
+koden: NS 8407, et vedtak i hovedplanen eller en forventning oppdragsgiver har
+godkjent. Testen skal vise til kilden. En test som bare fastholder dagens
+atferd, er nyttig ved en omskriving, men skal si at det er det den gjør.
+
 ## Dokumentasjon
 
 `docs/` er en kjede av auditer og planer som viser til hverandre.
@@ -305,6 +321,7 @@ grenser»** til slutt som navngir hva som *ikke* er kontrollert.
 | Funnstatus og alvorlighet, beslutninger, rekkefølgen på arbeidspakkene, og det som er levert, med dato og belegg | Hovedplanen |
 | Invarianter og regler som står seg | Denne fila |
 | Beviset: auditer, design, reviewer, gjennomføringsnotater, oppdrag | `docs/` |
+| Hva hver tabell er, hvem som skriver den, og hvor dataene kommer fra | `docs/datamodell/tabeller.toml`. Excel-fila og `tabeller.md` lages av `docs/verktoy/datamodell.py`, og en test feiler når en tabell mangler |
 | Arbeid som pågår eller venter: hva, hvem, hvilken PR, hva det venter på | GitHub-issues, samlet i én milepæl per arbeidspakke |
 
 - **Et issue viser til ID-en, ikke til vurderingen.** Skriv funn- eller
@@ -332,3 +349,12 @@ mulig konsekvens under beskrevne forutsetninger, ikke observert hendelse.
 
 Ingen produksjonskode endres uten at det er bedt om det. Auditrunder leverer
 dokumenter og reproduksjonstester, ikke rettinger.
+
+**Oppdragsgiver vil ha spørsmål, ikke dokumenter å lese.** Kartlegg selv. Der
+noe bare oppdragsgiver kan avgjøre, still konkrete spørsmål med
+spørsmålsverktøyet (i Claude Code: `AskUserQuestion`), med alternativer og en
+anbefaling. Det gjelder tiltenkt atferd, NS 8407, prioritering og hva som skal
+gå til andre. Be ikke om gjennomlesing for å finne ut hva oppdragsgiver mener.
+Det som kan avgjøres ved å lese koden eller spørre katalogen, avgjør du selv.
+Svarene føres inn der de hører hjemme: vedtak i hovedplanen, arbeidsvalg i
+issuet eller oppdraget.
