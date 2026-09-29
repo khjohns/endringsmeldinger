@@ -12,12 +12,16 @@ Tests cover:
 """
 
 import json
+import pathlib
+import uuid
 from datetime import datetime
 from unittest.mock import MagicMock, patch
 
 import pytest
 
 from lib.monitoring.audit import AuditLogger, audit, search_audit_log
+
+BACKEND = pathlib.Path(__file__).resolve().parents[2]
 
 
 class TestAuditLoggerInitialization:
@@ -55,6 +59,33 @@ class TestAuditLoggerInitialization:
         """Test that global audit instance is available."""
         assert audit is not None
         assert isinstance(audit, AuditLogger)
+
+    def test_relativ_sti_regnes_fra_backend_uansett_arbeidsmappe(
+        self, tmp_path, monkeypatch
+    ):
+        """Docstringen til AuditLogger lover en sti relativ til backend/."""
+        monkeypatch.chdir(tmp_path)
+        navn = f"test-relativ-{uuid.uuid4().hex}.log"
+        try:
+            logger = AuditLogger(navn)
+
+            assert logger.log_file == str(BACKEND / navn)
+            assert (BACKEND / navn).exists()
+            assert not (tmp_path / navn).exists()
+        finally:
+            (BACKEND / navn).unlink(missing_ok=True)
+
+    def test_den_globale_loggen_ligger_i_backend(self):
+        assert audit.log_file == str(BACKEND / "audit.log")
+
+    def test_sok_med_relativ_sti_leser_fra_backend(self, tmp_path, monkeypatch):
+        navn = f"test-relativ-{uuid.uuid4().hex}.log"
+        (BACKEND / navn).write_text(json.dumps({"event_type": "auth"}) + "\n")
+        monkeypatch.chdir(tmp_path)
+        try:
+            assert search_audit_log(navn) == [{"event_type": "auth"}]
+        finally:
+            (BACKEND / navn).unlink(missing_ok=True)
 
 
 class TestLogEvent:

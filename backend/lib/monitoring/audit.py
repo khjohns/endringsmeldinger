@@ -38,6 +38,8 @@ from typing import Any
 
 from flask import g, request
 
+BACKEND_DIR = Path(__file__).resolve().parents[2]
+
 
 class AuditLogger:
     """
@@ -70,7 +72,7 @@ class AuditLogger:
         Args:
             log_file: Path til log-fil (relativ til backend/)
         """
-        self.log_file = log_file
+        self.log_file = str(BACKEND_DIR / log_file)
 
         # Ensure log file exists and is writable
         self._ensure_log_file()
@@ -281,7 +283,7 @@ def search_audit_log(
     Søk i audit log (for debugging/analysis).
 
     Args:
-        log_file: Path til log-fil
+        log_file: Path til log-fil (relativ til backend/)
         event_type: Filter på event_type (optional)
         user: Filter på user (optional)
         result: Filter på result (optional)
@@ -299,7 +301,7 @@ def search_audit_log(
     matches = []
 
     try:
-        with open(log_file, encoding="utf-8") as f:
+        with open(BACKEND_DIR / log_file, encoding="utf-8") as f:
             for line in f:
                 try:
                     entry = json.loads(line)
