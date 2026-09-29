@@ -1106,8 +1106,46 @@ def test_nytt_fristsvar_uten_subsidiaert_standpunkt_fjerner_det_gamle():
     assert frist.subsidiaer_triggers is None
 
 
+@pytest.mark.parametrize("subsidiaert", [False, True])
+def test_revidert_fullt_fristsvar_erstatter_subsidiaert_standpunkt(subsidiaert):
+    """SD-01: skjemaet reviderer med `original_respons_id` og sender hele svaret."""
+    krav = _fristkrav("frist_krav_sendt", 30)
+    forste_svar = _avslag_med_subsidiaert_standpunkt(krav)
+    felter = (
+        {
+            "subsidiaer_triggers": ["preklusjon_varsel"],
+            "subsidiaer_resultat": FristBeregningResultat.AVSLATT,
+        }
+        if subsidiaert
+        else {}
+    )
+    revidert = _fristsvar(
+        krav,
+        event_type="respons_frist_oppdatert",
+        original_respons_id=forste_svar.event_id,
+        frist_varsel_ok=False,
+        vilkar_oppfylt=False,
+        beregnings_resultat=FristBeregningResultat.AVSLATT,
+        godkjent_dager=0,
+        begrunnelse="Revidert",
+        **felter,
+    )
+
+    frist = TimelineService().compute_state(
+        _sak_med_godkjent_grunnlag() + [krav, forste_svar, revidert]
+    ).frist
+
+    assert frist.subsidiaer_godkjent_dager is None
+    assert frist.subsidiaer_begrunnelse is None
+    if subsidiaert:
+        assert frist.subsidiaer_resultat == FristBeregningResultat.AVSLATT
+    else:
+        assert frist.subsidiaer_resultat is None
+        assert frist.subsidiaer_triggers is None
+
+
 def test_delvis_oppdatert_fristsvar_beholder_subsidiaert_standpunkt():
-    """SD-01, avgrensning: en delvis oppdatering endrer bare det den sender."""
+    """SD-01, avgrensning: en oppdatering uten resultat endrer bare det den sender."""
     krav = _fristkrav("frist_krav_sendt", 30)
     forste_svar = _avslag_med_subsidiaert_standpunkt(krav)
     oppdatering = _fristsvar(

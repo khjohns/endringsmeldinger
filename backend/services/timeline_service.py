@@ -781,9 +781,13 @@ class TimelineService:
 
     @staticmethod
     def _oppdater_subsidiaert_standpunkt(tilstand, data, godkjent_felt: str) -> None:
-        """Et nytt svar erstatter standpunktet; en delvis oppdatering endrer det som sendes (SD-01)."""
+        """Et fullt svar erstatter standpunktet, også som oppdatering (SD-01).
+
+        Et svar med resultat er fullt; skjemaet sender hele svaret ved revisjon.
+        Uten resultat endrer en delvis oppdatering bare det den sender.
+        """
         felter = ["subsidiaer_resultat", godkjent_felt, "subsidiaer_begrunnelse"]
-        if getattr(data, "original_respons_id", None) is None:
+        if getattr(data, "beregnings_resultat", None) is not None:
             tilstand.subsidiaer_triggers = None
             for felt in felter:
                 setattr(tilstand, felt, None)
