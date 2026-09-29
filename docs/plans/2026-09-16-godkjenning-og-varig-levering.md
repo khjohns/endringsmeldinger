@@ -2,7 +2,9 @@
 
 **Opprettet:** 2026-09-16. **Sluttredigert:** 2026-09-22, mot commit
 `41c2a16191a5aadbe611e0958db8b93090b08027` (`main`).
-**Sist endret:** 2026-09-29: SD-01, SD-03 og DRF-03 rettet; sendedatoen for § 34.3.3-varselet avgjort i 3.1; SD-04 ført inn. 24.09: GFK-06 rettet og presisert i 3.1; ubegrenset fullmakt bygget (GFK-02). Tidligere samme dag, mot `94ab148` (`b13-beslutningsgrunnlag`): B-13
+**Sist endret:** 2026-09-29, senere: merknad til B-12 om SQL Database,
+avhengigheten i F0b, spor M ført inn, DM-01 og DM-02 registrert. Tidligere samme
+dag: SD-01, SD-03 og DRF-03 rettet; sendedatoen for § 34.3.3-varselet avgjort i 3.1; SD-04 ført inn. 24.09: GFK-06 rettet og presisert i 3.1; ubegrenset fullmakt bygget (GFK-02). Tidligere samme dag, mot `94ab148` (`b13-beslutningsgrunnlag`): B-13
 avgjort av oppdragsgiver, se 3.1 og merknaden under B-13. 23.09, mot `c708f95`:
 beslutningsgrunnlaget for B-13 levert. Tidligere samme
 dag, mot `05b3aa7` (`main`): BR-01 reprodusert og flyttet
@@ -414,6 +416,36 @@ Et åpent valg blokkerer bare oppgavene som er nevnt.
 > ([vurderingen av Power Platform](../vurdering-power-platform-2026-09-17.md),
 > del 5). Opplysningene om Fabric er ikke kontrollert i denne planen.
 
+> **Merknad 2026-09-29 til B-12: en SQL Database er aktuell igjen.**
+> Oppdragsgiver opplyste 29.09 at en SQL Database igjen er aktuell, av
+> kostnadsgrunner. Det er antatt at det menes Azure SQL Database. Anbefalingen
+> i raden for B-12 i tabellen over forutsatte «en konkret grunn fra IKT».
+> Kostnad er en slik grunn. Hva sammenlikningen bygger på, er ikke kjent:
+> nivå, speiling til Fabric, og om engangskostnaden ved et nytt datalag er med.
+> Spørsmålene står i [#78](https://github.com/khjohns/endringsmeldinger/issues/78).
+> Beslutningsstatus er uendret: åpen.
+>
+> **Hva som avhenger av valget** (lest ut av koden 29.09, L):
+> - **PostgreSQL-spesifikt:** `lib/db`, `repositories/postgres/` og
+>   databasetestene (om lag 3 200 linjer), de 23 migrasjonene med 10
+>   databasefunksjoner og 5 triggere, og mekanismen i B-02 alternativ C.
+> - **Ikke avhengig av valget:** domenet, rutene, grensesnittene mot lagrene og
+>   den logiske datamodellen.
+>
+> **To rader i 3.1 bygger på PostgreSQL.** Det er «PostgreSQL over direkte
+> tilkobling» og «Foreløpig mål er Azure Database for PostgreSQL». Den delen av
+> den første som gjelder direkte tilkobling framfor PostgREST, gjelder også for
+> Azure SQL Database. Den delen som gjelder PostgreSQL, må tas opp igjen hvis
+> B-12 lander på Azure SQL.
+>
+> **Ikke undersøkt:** hvordan alternativ C lar seg uttrykke i Azure SQL.
+> Uavklart er særlig om kontekst som bare gjelder transaksjonen, har en motpart
+> der. `SESSION_CONTEXT` gjelder sesjonen, og akseptkriteriet i F0b om at
+> kontekst ikke følger en gjenbrukt forbindelse, må i så fall bevises på nytt.
+> [Designnotatet om inbox og outbox](../design-durable-inbox-outbox-2026-09-17.md#5-azure-sql-eller-bli-på-postgres)
+> nevner ledger-tabeller og Managed Identity som fordeler ved Azure SQL.
+> Heller ikke det er kontrollert på denne stacken.
+
 ## 4. Funnregister
 
 <a id="status-2026-09-18"></a>
@@ -546,7 +578,9 @@ fra code-review av GFK-06.
 
 Kilder: [AR](../arkitekturvurdering-2026-09-19.md),
 [DA](../audit-databasearkitektur-2026-09-20.md),
-[MS](../design-maalskjema-database-2026-09-20.md).
+[MS](../design-maalskjema-database-2026-09-20.md),
+[DM](../prompt-datamodell-og-funksjonskart-2026-09-29.md#4-utgangspunktet-2909)
+(spor M, fra 29.09).
 
 | ID | Status | Restanse og merknad | Belegg | Pakke |
 | --- | --- | --- | --- | --- |
@@ -568,7 +602,7 @@ Kilder: [AR](../arkitekturvurdering-2026-09-19.md),
 | DA-12 | Lukket | Gjennomført som MS-01 | D 20.09 | — |
 | DA-13 | Åpen | → B-01 | — | F2 |
 | DA-14 | Åpen | `cached_*`-kolonnene → MS-06, MS-07 | — | F2 |
-| DA-15 | Åpen, lav | BIM-flaten har ingen eier. P2 og P3 sier at den er relevant | — | F4 |
+| DA-15 | Åpen, lav | BIM-flaten har ingen eier. P2 og P3 sier at den er relevant. Se også DM-02 i 4.6 (29.09) | — | F4 |
 | MS-01 | Gjennomført | `hendelse` | D 20.09 | — |
 | MS-02 | Åpen | Append-only håndhevet av basen, mot omskriving og uautorisert tilføying. Merk at `hendelse` og `notat` har fremmednøkkel til `sak_metadata` med `ON DELETE CASCADE`; kaskaden må inngå i rettighetsmodellen | L 22.09 | F1 |
 | MS-03 | Delvis | `UNIQUE (sak_id, versjon)` finnes i migrasjonen. Regler for rebase ved konflikt mangler | L 22.09 | F2 |
@@ -582,6 +616,7 @@ Kilder: [AR](../arkitekturvurdering-2026-09-19.md),
 | MS-12 | Åpen | Prosjektkonfigurasjon inn i `projects`. Må ikke hindre frosset mål og konfigurasjonsversjon i F2 | — | F3 |
 | MS-13, MS-14 | Åpen, lav | BIM som hendelser; IFC-egenskaper fryses | — | F4 |
 | MS-15 | Åpen | `magic_links`, `user_groups`; `project_memberships` etter DB-05 | D 20.09 | F1 |
+| DM-01 | Åpen, lav | Åtte kolonnekommentarer (`cached_*` i `sak_metadata`) finnes i basen, men ikke i migrasjonene. Kolonnesummen fanger det ikke. Rettes i en ny migrasjon når B-12 har avgjort hvor beskrivelser skal ligge | K 29.09 | Spor M, fase 4 |
 
 ### 4.4 Målskjemarunden 21.09: KR, MG, RY
 
@@ -623,6 +658,7 @@ reprodusert eller avvist. Alvorlighet settes da.
 | ID | Status | Funn | Belegg | Pakke |
 | --- | --- | --- | --- | --- |
 | BR-01 | Reprodusert 23.09, flyttet til 4.2 | Se 4.2. Den opprinnelige påstanden (L 23.09) holdt. | K 23.09 | D |
+| DM-02 | Foreløpig | `catenda_models_cache` leses av tre BIM-ruter, som gir tomme lister når den er tom. Ingen kode, funksjon eller trigger skriver den, og `upsert_cached_models` har ingen kaller. Om cachen var ment fylt på en annen måte, er ikke kjent. Hører til flaten i DA-15 | L 29.09, katalogen K 29.09 | Spor M |
 
 ### 4.7 Tellinger
 
@@ -634,8 +670,8 @@ redaksjonsprotokollen, med forklarte kategorier.
 
 <a id="nye-arbeidspakker-og-produksjonskrav"></a>
 Rekkefølgen følger AF-06: verifikasjon mot ekte PostgreSQL, datalagets grenser
-og én komplett EO-flyt før flere adaptere og generell opprydding. To parallelle
-spor, D og H, kan gå samtidig når de ikke tar kapasitet fra F0–F2.
+og én komplett EO-flyt før flere adaptere og generell opprydding. Tre parallelle
+spor, D, H og M, kan gå samtidig når de ikke tar kapasitet fra F0–F2.
 Organisatoriske avklaringer (F5) kan starte nå.
 
 «Tester som beviser» er planlagt kontroll. Ingenting her er utført uten at
@@ -808,6 +844,14 @@ feilklasse i driveren.
 > Se [gjennomføringsnotatet, avsnitt 8](../gjennomforing-f0b-kjernen-2026-09-23.md#8-restansene-fra-verifikasjonen-i-pr-47).
 > Dette er implementeringsverifikasjon. Ingen lagre er konvertert, og
 > **RK-05 står fortsatt åpen før F1**, ikke før fase 2.
+
+> **Merknad 2026-09-29 (F0b, avhengighet av B-12):** Fra 29.09 avhenger også
+> dette av B-12: løp c og d i punkt 2, punkt 3 (TS2-02) og RK-05. Grunnen står
+> i merknaden samme dag under B-12.
+> - **Blir plattformen Azure SQL Database,** må også det som alt er skrevet over
+>   `lib/db`, skrives om. Å fullføre løpene eller slette de gamle lagrene nå
+>   ville i praksis ta valget.
+> - **Blir PostgreSQL valgt,** gjelder pakken uendret.
 
 ### F1 — Sikkerhetsgrenser i datalaget og private lagre
 
@@ -993,6 +1037,34 @@ HTTP-herding (CSP, HSTS, `X-Content-Type-Options`, `frame-ancestors`) testet mot
 brevvisningen; lagringsfeil presenteres ikke som null krav eller komplett
 statistikk.
 
+### Spor M — datamodell og funksjonskart
+
+**Avhenger av:** ingenting. B-12 avgjør bare fase 4. **Ført inn:** 29.09, etter
+oppdragsgivers ønske og IKTs forespørsel om en tabellbeskrivelse som
+systemdokumentasjon.
+
+**Leveranse:**
+1. **Datamodellen.** Et tabellregister med vakttest og eksport til IKTs
+   regneark, en hendelseskatalog, og relasjoner og dataflyt mot Catenda.
+2. **Funksjonskart.** For hver funksjon: hva brukeren gjør, hva som skjer bak
+   kulissene, og hva som er tiltenkt, med kilde.
+3. **Atferdstester per område.** Ordinære tester der atferden holder. Avvik
+   blir funn med ID og streng `xfail`.
+4. **Etter B-12:** beskrivelsene inn i databasen.
+
+Kartleggingen går i faser, og en senere fase kan rette en tidligere.
+
+**Samordning med spor D:** områdene for varsel, frist, vederlag, svar,
+forsering og EO i fase 3 er den systematiske gjennomgangen av
+tilstandsovergangene som spor D beskriver.
+
+**Testene går gjennom rutene og containeren**, ikke mot SQL, slik at de kan
+kjøres mot et annet datalag.
+
+Oppdraget er [spor M](../prompt-datamodell-og-funksjonskart-2026-09-29.md).
+Arbeidet følges i
+[#79](https://github.com/khjohns/endringsmeldinger/issues/79).
+
 ### Rotårsakene
 
 De tolv rotårsakene i
@@ -1013,7 +1085,7 @@ RC-10 i spor H; RC-9 i F3 og spor H; RC-11 lukket med FE-01 og FE-05; RC-12 i F4
 
 | Beslutning | Må være tatt før |
 | --- | --- |
-| B-12 plattform og hosting | Container og utrulling i F0b, veien fra migrasjonsfil til base, plattformkonfigurasjon i F5 |
+| B-12 plattform og hosting | Container og utrulling i F0b, veien fra migrasjonsfil til base, plattformkonfigurasjon i F5. Fra 29.09 også løp c og d og TS2-02 i F0b, RK-05 og dermed F1, og fase 4 i spor M |
 | B-01 relasjoner, B-08 KOE-eksklusivitet | Reservasjonsskjemaet i F2 |
 | B-03 dokumentmodell | Dokumentoperasjonen i F2-workeren |
 | B-07 drivmekanisme, B-10 versjonering | Minimal worker og kompatibilitetskravet i F2 |
@@ -1104,3 +1176,13 @@ DRF-01–DRF-03 er ført inn, og B-13 har fått en merknad. Belegget er testene 
 og OBS-03 er oppdatert, SD-01–SD-02 er ført inn, og spor D har fått en
 merknad. Belegget er testene som er nevnt i radene, kjørt 23.09 med hele
 backend-suiten grønn; se [gjennomføringen](../gjennomforing-spor-d-2026-09-23.md#verifikasjon-og-grenser).
+
+**Endringen 29.09, B-12 og spor M:** merknadene under B-12 og F0b, spor M,
+DM-01 og DM-02.
+- Opplysningen om at en SQL Database er aktuell, kommer fra oppdragsgiver.
+  Hva IKT har lagt til grunn, er ikke kjent.
+- DM-01 og den katalogkontrollerte delen av DM-02 er kjørt mot prosjektet og
+  testbasen 29.09.
+- Resten er lest ut av koden; se
+  [oppdraget, avsnitt 4](../prompt-datamodell-og-funksjonskart-2026-09-29.md#4-utgangspunktet-2909).
+- Ingen kode, migrasjon eller database er endret.
