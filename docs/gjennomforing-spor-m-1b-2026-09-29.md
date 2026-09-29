@@ -50,6 +50,7 @@ Hvem som *skal* kunne sende hva, prøves mot NS 8407 og vedtakene i fase 3.
 | Skal skjemaet for ny sak kunne opprette saker? | Ja. Saker skal kunne opprettes både fra appen og fra en topic i Catenda (DM-05) |
 | Bestemmelse for de seks app-interne typene: `sak_opprettet`, `forsering_koe_lagt_til`, `forsering_koe_fjernet`, `eo_koe_lagt_til`, `eo_koe_fjernet` og `internt_notat` | Ingen bestemmelse i NS 8407 |
 | Bestemmelse for `grunnlag_trukket`, `vederlag_krav_trukket`, `frist_krav_trukket` og `te_aksepterer_respons` | Ingen egen bestemmelse |
+| Er det meningen at `eo_opprettet` på en KOE-sak gjør den om til en endringsordresak? | Nei. En endringsordresak kan følge av en KOE-sak, men ikke erstatte den, verken i historikken eller som en egen hendelse i KOE-saken (DM-07) |
 | Hva IKT får av katalogen | To nye ark: «Hendelsestyper» med én rad per type, og «Hendelsesfelt» med feltene. Innsendingsveier, regler, belegg og funn står bare i `hendelser.md` |
 
 ### Kildene for bestemmelsene
@@ -73,6 +74,7 @@ over EO-verdiene i `EventType`. Det er den svakeste kilden i katalogen.
 | --- | --- | --- | --- |
 | DM-05 | Skjemaet for ny sak får 403: `POST /api/events` avviser `sak_opprettet` for en ny sak | Middels | K 29.09 |
 | DM-06 | Felt projeksjonen leser, men som journalen ikke lagrer | Lav | K 29.09 |
+| DM-07 | `eo_opprettet` på en KOE-sak gjør den om til en endringsordresak | Middels | K 29.09 |
 
 ### DM-05 — skjemaet for ny sak kan ikke opprette saken *(middels)*
 
@@ -128,7 +130,8 @@ backend utenom testene. Tre steder leser feltene på `eo_utstedt`:
   i sammendraget, med `data` som reserve.
 - `TimelineService._serialize_event_data` og `_get_event_summary`, som bare
   kalles fra `get_timeline`. Den har ingen kaller, heller ikke i testene
-  (L 29.09; også påvist i [målskjemagjennomgangen](audit-maalskjema-gjennomgang-2026-09-21.md)).
+  (L 29.09; også påvist i [målskjemagjennomgangen](audit-maalskjema-gjennomgang-2026-09-21.md)),
+  og fjernes i [#95](https://github.com/khjohns/endringsmeldinger/pull/95).
 
 **Kjørt (K 29.09)** mot testbasen: en KOE-sak lukket av en endringsordre med
 `endelig_vederlag` gir godkjent beløp 100 000 kr i tilstanden regnet av
@@ -145,16 +148,44 @@ i et prosjekt uten godkjenningspolicy.
 [`test_hendelse_rundtur_dm06.py`](../backend/tests/test_database/test_hendelse_rundtur_dm06.py),
 med `data.vederlag` som kontrollsak.
 
+### DM-07 — `eo_opprettet` på en KOE-sak gjør den om til en endringsordresak *(middels)*
+
+**Sted:** reglene for `eo_opprettet` i `BusinessRuleValidator._get_rules_for_event`
+og `TimelineService._handle_eo_opprettet`.
+
+- **Lest ut av koden (L 29.09):**
+  - `eo_opprettet` har ingen regel om sakstype, bare de felles reglene.
+    `CREATE_ONCE` stopper den bare når saken allerede har en endringsordre.
+  - Behandleren setter sakstypen til endringsordre og lager en endringsordre
+    med status `utkast`, uansett hvilken sak hendelsen kommer i.
+  - `POST /api/events` slipper den gjennom fra BH når prosjektet ikke har
+    godkjenningspolicy. Med policy avvises den som BH-bindende.
+- **Kjørt (K 29.09)** mot testbasen, med ekte ruter, dekoratører og lagre og
+  bare innloggingstjenesten byttet ut. En KOE-sak med sendt grunnlag er
+  opprettet av TE gjennom batch-ruta.
+  - BH sender `eo_opprettet` i KOE-saken og får 201.
+  - Tilstanden i svaret har sakstype `endringsordre` og samlet status `UTKAST`,
+    enda grunnlaget er `sendt`.
+  - Kontrollen: et BH-svar på grunnlaget i samme sak gir 201. BH har tilgang,
+    og ruta tar imot BHs hendelser der.
+
+**Tiltenkt atferd:** oppdragsgivers svar 29.09. En endringsordresak kan følge av
+en KOE-sak, men ikke erstatte den, verken i historikken eller som en egen
+hendelse i KOE-saken.
+
+**Konsekvens:** KOE-saken vises som en endringsordre, og kravene i den faller ut
+av sporstatusene som styrer samlet status. Hendelsen står i journalen og kan
+ikke fjernes.
+
+**Reproduksjon:** streng `xfail` i
+[`test_eo_paa_koe_sak_dm07.py`](../backend/tests/test_database/test_eo_paa_koe_sak_dm07.py).
+Den godtar bare en avvisning med `BUSINESS_RULE_VIOLATION` og en uendret
+journal, så en avvisning av en annen grunn blir ikke XPASS.
+
 ## 3. Observasjoner uten eget funn
 
 Til fase 2 og 3. Ingen av dem har en kilde for tiltenkt atferd ennå.
 
-- **`eo_opprettet` gjør en KOE-sak om til en endringsordresak.** Typen har
-  ingen regel om sakstype (IS_EO_CASE), og behandleren setter sakstypen til
-  endringsordre uansett. Kjørt i validatoren og projeksjonen (K 29.09), ikke
-  gjennom ruta: en KOE-sak med sendt grunnlag godtar hendelsen og får samlet
-  status som en endringsordre. Ruta slipper den gjennom fra BH i et prosjekt
-  uten godkjenningspolicy (L). Område 5.
 - **Grunnlags-, krav- og svartypene er ikke sperret til KOE-saker.**
   Forsering- og EO-typene har regler for sakstype, disse har ikke (L 29.09).
 - **Forseringsflyten skriver ikke sine egne hendelser** (L 29.09). Område 4.
@@ -187,10 +218,9 @@ Til fase 2 og 3. Ingen av dem har en kilde for tiltenkt atferd ennå.
 ## Verifikasjon og grenser
 
 **Kjørt og observert 29.09:**
-- DM-05 og DM-06 mot testbasen (PostgreSQL 17), med kontrollsaker, og begge
+- DM-05, DM-06 og DM-07 mot testbasen (PostgreSQL 17), med kontrollsaker, og
   reproduksjonene med `--runxfail` for å se at de feiler på det de skal
 - `to_cloudevent` for et krav, et svar, en endringsordre og en ny sak
-- `eo_opprettet` på en KOE-sak, i validatoren og projeksjonen
 - testene for katalogen, fire av dem som mutasjoner av vakta
 - hele backend-suiten med testbasen
 
