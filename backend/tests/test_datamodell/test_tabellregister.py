@@ -94,13 +94,13 @@ def test_en_funn_id_som_ikke_finnes_i_hovedplanen_avvises(register):
 
 def test_markdown_er_generert_fra_registeret(register):
     assert dm.MARKDOWN.read_text(encoding="utf-8") == dm.markdown(register), (
-        "tabeller.md er utdatert. Kjør python3 docs/verktoy/datamodell.py fra repo-roten."
+        "tabeller.md er utdatert. Kjør /tmp/venv/bin/python docs/verktoy/datamodell.py fra repo-roten."
     )
 
 
 def test_excel_er_generert_fra_registeret(register):
-    assert dm.excel_verdier(dm.EXCEL) == dm.ark(register), (
-        "tabellbeskrivelse.xlsx er utdatert. Kjør python3 docs/verktoy/datamodell.py fra repo-roten."
+    assert dm.excel_verdier(dm.EXCEL) == dm.ark(register, dm.hk.les()), (
+        "tabellbeskrivelse.xlsx er utdatert. Kjør /tmp/venv/bin/python docs/verktoy/datamodell.py fra repo-roten."
     )
 
 
