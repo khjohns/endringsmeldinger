@@ -583,8 +583,8 @@ class TestValidateVederlagEvent:
             )
         assert "Rigg/drift-kostnader krever særskilt varsel" in str(exc_info.value)
 
-    def test_justert_ep_requires_varsel(self):
-        """Raises ValidationError when justerte EP lacks required varsel."""
+    def test_justert_ep_varsel_from_client_is_rejected(self):
+        """The server sets the §34.3.3 notice date (DRF-03); a client date is rejected."""
         with pytest.raises(ValidationError) as exc_info:
             validate_vederlag_event(
                 {
@@ -592,9 +592,10 @@ class TestValidateVederlagEvent:
                     "belop_direkte": 100000,
                     "begrunnelse": "Test",
                     "krever_justert_ep": True,
+                    "justert_ep_varsel": {"dato_sendt": "2026-09-01"},
                 }
             )
-        assert "Justerte enhetspriser krever varsel" in str(exc_info.value)
+        assert "settes av serveren" in str(exc_info.value)
 
     def test_produktivitetstap_requires_varsel(self):
         """Raises ValidationError when produktivitetstap lacks varsel."""
