@@ -2,7 +2,8 @@
 
 **Opprettet:** 2026-09-16. **Sluttredigert:** 2026-09-22, mot commit
 `41c2a16191a5aadbe611e0958db8b93090b08027` (`main`).
-**Sist endret:** 2026-09-29, senere: spor M 1b levert, DM-05–DM-07
+**Sist endret:** 2026-09-29, senere: spor M 1c levert, og med den
+datamodellen; DM-08 registrert som foreløpig. Tidligere samme dag: spor M 1b levert, DM-05–DM-07
 registrert, saksopprettelse fra appen og forholdet mellom EO-sak og KOE-sak
 avgjort i 3.1. Tidligere samme dag: DM-04 rettet i
 ruteregistertesten. Tidligere samme dag:
@@ -669,6 +670,7 @@ reprodusert eller avvist. Alvorlighet settes da.
 | --- | --- | --- | --- | --- |
 | BR-01 | Reprodusert 23.09, flyttet til 4.2 | Se 4.2. Den opprinnelige påstanden (L 23.09) holdt. | K 23.09 | D |
 | DM-02 | Foreløpig | `catenda_models_cache` leses av tre BIM-ruter, som gir tomme lister når den er tom. Ingen kode, funksjon eller trigger skriver den, og `upsert_cached_models` har ingen kaller. Om cachen var ment fylt på en annen måte, er ikke kjent. Hører til flaten i DA-15 | L 29.09, katalogen K 29.09 | Spor M |
+| DM-08 | Foreløpig | Fem kolonner viser til en person med navn eller e-post, ikke `app_users.id`: `vedlegg.lastet_opp_av`, `utkast.oppdatert_av`, `sak_bim_links.linked_by`, `projects.created_by` og `project_memberships.invited_by`. Samme klasse som MG-04. Kan ikke kobles sikkert til en bruker, og et innsyn må søke på navn og e-post | L 29.09 | Spor M |
 
 ### 4.7 Tellinger
 
@@ -1080,6 +1082,12 @@ Arbeidet følges i
 > i Excel-fila. DM-05–DM-07 er funnet under kartleggingen; se
 > [gjennomføringsnotatet for 1b](../gjennomforing-spor-m-1b-2026-09-29.md).
 
+> **Merknad 2026-09-29:** fase 1c er levert, og med den punkt 1, datamodellen:
+> [relasjonene og dataflyten mot Catenda](../datamodell/relasjoner.md), med
+> ER-diagram generert fra katalogen, vakttester og to nye ark i Excel-fila.
+> DM-08 er funnet under kartleggingen; se
+> [gjennomføringsnotatet for 1c](../gjennomforing-spor-m-1c-2026-09-29.md).
+
 ### Rotårsakene
 
 De tolv rotårsakene i
@@ -1216,4 +1224,10 @@ radene i 3.1 om saksopprettelse og om EO-sak og KOE-sak. Kilden for radene er
 oppdragsgivers svar 29.09. DM-05–DM-07 er reprodusert mot testbasen med
 kontrollsaker; se
 [gjennomføringsnotatet for 1b](../gjennomforing-spor-m-1b-2026-09-29.md#verifikasjon-og-grenser).
+Ingen produksjonskode, migrasjon eller database er endret.
+
+**Endringen 29.09, spor M 1c:** merknaden under spor M og DM-08 i 4.6. DM-08
+er lest ut av koden, ikke kjørt, og står derfor som foreløpig uten
+alvorlighet; se
+[gjennomføringsnotatet for 1c](../gjennomforing-spor-m-1c-2026-09-29.md#verifikasjon-og-grenser).
 Ingen produksjonskode, migrasjon eller database er endret.
