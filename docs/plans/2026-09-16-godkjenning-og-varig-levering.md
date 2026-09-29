@@ -2,9 +2,10 @@
 
 **Opprettet:** 2026-09-16. **Sluttredigert:** 2026-09-22, mot commit
 `41c2a16191a5aadbe611e0958db8b93090b08027` (`main`).
-**Sist endret:** 2026-09-29, senere: merknad til B-12 om SQL Database,
-avhengigheten i F0b, spor M ført inn, DM-01–DM-04 registrert. Tidligere samme
-dag: SD-01, SD-03 og DRF-03 rettet; sendedatoen for § 34.3.3-varselet avgjort i 3.1; SD-04 ført inn. 24.09: GFK-06 rettet og presisert i 3.1; ubegrenset fullmakt bygget (GFK-02). Tidligere samme dag, mot `94ab148` (`b13-beslutningsgrunnlag`): B-13
+**Sist endret:** 2026-09-29, senere: spor M 1b levert, DM-05 og DM-06
+registrert, saksopprettelse fra appen avgjort i 3.1. Tidligere samme dag:
+merknad til B-12 om SQL Database, avhengigheten i F0b, spor M ført inn,
+DM-01–DM-04 registrert. Tidligere samme dag: SD-01, SD-03 og DRF-03 rettet; sendedatoen for § 34.3.3-varselet avgjort i 3.1; SD-04 ført inn. 24.09: GFK-06 rettet og presisert i 3.1; ubegrenset fullmakt bygget (GFK-02). Tidligere samme dag, mot `94ab148` (`b13-beslutningsgrunnlag`): B-13
 avgjort av oppdragsgiver, se 3.1 og merknaden under B-13. 23.09, mot `c708f95`:
 beslutningsgrunnlaget for B-13 levert. Tidligere samme
 dag, mot `05b3aa7` (`main`): BR-01 reprodusert og flyttet
@@ -196,6 +197,7 @@ eksplisitt oppheves.
 | B-13 passivitet (§ 32.3 annet ledd) varsles, men systemet trekker ingen konklusjon | 24.09, oppdragsgiver | Ikke bygget. Frontendens faste 10 dager er bare veiledning |
 | B-13 `grunnlag_varslet_i_tide` avvises utenfor § 32.2 (endring som ikke er formell endringsordre). Fullmakt og brev snevres inn til samme omfang | 24.09, oppdragsgiver | Ikke bygget. I dag bruker status, fullmakt/brev og skjema tre ulike omfang |
 | B-13 «frafalt» (§ 32.3 c) avvises utenfor irregulær endring og valgrett | 24.09, oppdragsgiver | Ikke bygget |
+| Saker opprettes både fra skjemaet i appen og fra en topic i Catenda | 29.09, oppdragsgiver | Ikke bygget: skjemaet får 403 (DM-05) |
 | DRF-03: sendedatoen for TEs varsel om justerte enhetspriser (§ 34.3.3) settes av serveren, som den norske datoen for innsendingen når TE krever justering. Et oppdatert krav flytter den ikke. Tar TE ut kravet om justering, faller varselet bort, og et nytt krav er et nytt varsel med ny dato. En dato fra klienten avvises | 29.09, oppdragsgiver | Bygget 29.09 (merknaden i DRF-03) |
 | MG-02: webhook kan opprette brukerrader gjennom `koe_resolve_identity` | 21.09 | Gjennomført |
 | DB-05: `viewer` skal finnes som ren leserolle | 21.09 | Besluttet, ikke bygget |
@@ -579,7 +581,8 @@ fra code-review av GFK-06.
 Kilder: [AR](../arkitekturvurdering-2026-09-19.md),
 [DA](../audit-databasearkitektur-2026-09-20.md),
 [MS](../design-maalskjema-database-2026-09-20.md),
-[DM](../gjennomforing-spor-m-1a-2026-09-29.md#2-funn) (spor M, fra 29.09).
+DM ([1a](../gjennomforing-spor-m-1a-2026-09-29.md#2-funn),
+[1b](../gjennomforing-spor-m-1b-2026-09-29.md#2-funn); spor M, fra 29.09).
 
 | ID | Status | Restanse og merknad | Belegg | Pakke |
 | --- | --- | --- | --- | --- |
@@ -618,6 +621,8 @@ Kilder: [AR](../arkitekturvurdering-2026-09-19.md),
 | DM-01 | Åpen, lav | Åtte kolonnekommentarer (`cached_*` i `sak_metadata`) finnes i basen, men ikke i migrasjonene. Kolonnesummen fanger det ikke. Rettes i en ny migrasjon når B-12 har avgjort hvor beskrivelser skal ligge | K 29.09 | Spor M, fase 4 |
 | DM-03 | Åpen, lav | Migrasjonene legger inn et aktivt prosjekt `oslobygg`, og det er prosjektets eneste. Hver base bygget fra tom får det, også på en ny plattform (B-12) og for en annen virksomhet (P5). Ikke en fallback i koden. Om raden skal ut av migrasjonene, avhenger av hvordan en ny base settes opp | K 29.09 | Spor M, fase 4 |
 | DM-04 | Åpen, middels | Ruteregistertesten ser bare dekoratøren `route` (sju ruter deklarert med `.get`/`.post`/`.patch` er usynlige for den), godtar `require_magic_link` og `require_entra_auth` som autentisering, og kontrollerer ikke `require_project_access`. En ny rute uten autentisering ga grønn test. Ingen eksponert rute funnet | K 29.09 | H |
+| DM-05 | Åpen, middels | Skjemaet for ny sak sender `sak_opprettet` som enkelthendelse til `POST /api/events`, men `require_project_access` godtar en sak uten metadata bare på `/api/events/batch`. Innsendingen gir 403 utenfor utviklingsmodus, så saker kan i dag bare opprettes fra Catenda. Oppdragsgiver 29.09: skjemaet skal virke (3.1). Tas batch-ruta i bruk, blir RV-10 aktuell | Streng `xfail`, K 29.09 | Spor M |
+| DM-06 | Åpen, lav | Toppnivåfelt utenfor `data` lagres ikke. Projeksjonen leser `endelig_vederlag` og `endelig_frist_dager` på `eo_utstedt` når en endringsordre lukker en KOE-sak, så svaret og `sak_metadata`-cachen viser et beløp journalen ikke har. Bryter invariant 9. Latent: skjermbildene sender ikke feltene | Streng `xfail`, K 29.09 | D |
 
 ### 4.4 Målskjemarunden 21.09: KR, MG, RY
 
@@ -1066,6 +1071,11 @@ Oppdraget er [spor M](../prompt-datamodell-og-funksjonskart-2026-09-29.md).
 Arbeidet følges i
 [#79](https://github.com/khjohns/endringsmeldinger/issues/79).
 
+> **Merknad 2026-09-29:** fase 1b er levert:
+> [hendelseskatalogen](../datamodell/hendelser.md) med vakttest og to nye ark
+> i Excel-fila. DM-05 og DM-06 er funnet under kartleggingen; se
+> [gjennomføringsnotatet for 1b](../gjennomforing-spor-m-1b-2026-09-29.md).
+
 ### Rotårsakene
 
 De tolv rotårsakene i
@@ -1189,3 +1199,9 @@ og DM-01–DM-04. Funnene er beskrevet i
 - Resten er lest ut av koden; se
   [oppdraget, avsnitt 4](../prompt-datamodell-og-funksjonskart-2026-09-29.md#4-utgangspunktet-2909).
 - Ingen kode, migrasjon eller database er endret.
+
+**Endringen 29.09, spor M 1b:** merknaden under spor M, DM-05 og DM-06, og
+raden i 3.1 om saksopprettelse. Kilden for raden er oppdragsgivers svar 29.09.
+DM-05 og DM-06 er reprodusert mot testbasen med kontrollsaker; se
+[gjennomføringsnotatet for 1b](../gjennomforing-spor-m-1b-2026-09-29.md#verifikasjon-og-grenser).
+Ingen produksjonskode, migrasjon eller database er endret.
