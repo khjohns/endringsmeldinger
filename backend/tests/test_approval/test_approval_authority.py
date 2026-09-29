@@ -78,3 +78,110 @@ def test_route_stops_at_the_decider_and_skips_approval_inside_own_authority():
     assert handler_identity(policy, "a@x") == {"id": "a@x", "name": "a@x"}
     assert handler_identity(policy, "b@x")["role"] == "Prosjektleder"
     assert handler_identity(policy, "c@x") is None
+
+
+GODKJENT_ANSVAR = {"track": "grunnlag", "data": {"resultat": "godkjent"}}
+KJEDE = [
+    {"id": "pd", "role": "Prosjektdirektør"},
+    {"id": "ad", "role": "Adm.dir (daglig leder)"},
+]
+PL = {"id": "pl", "role": "Prosjektleder"}
+
+
+def test_godkjent_ansvar_verdsettes_per_spor_etter_krav_eller_svar():
+    """GFK-06: besvart spor har svarets verdi, ubesvart spor TEs krav."""
+    from decimal import Decimal
+
+    from services.approval_authority import approval_route
+
+    krav = {"vederlag": 50_000_000, "frist": 20}
+    alene, _ = approval_route([GODKJENT_ANSVAR], KJEDE, 10_000, PL, krav)
+    assert Decimal(alene["amount"]) == 50_000_000 + 20 * 10_000
+    med_svar, _ = approval_route(
+        [GODKJENT_ANSVAR, money(30_000_000)], KJEDE, 10_000, PL, krav
+    )
+    assert Decimal(med_svar["amount"]) == 30_000_000 + 20 * 10_000
+
+
+@pytest.mark.parametrize("resultat", ["avslatt", "frafalt"])
+def test_avslatt_eller_frafalt_ansvar_verdsettes_til_null(resultat):
+    from services.approval_authority import approval_route
+
+    ansvar = {"track": "grunnlag", "data": {"resultat": resultat}}
+    grunnlag, rute = approval_route(
+        [ansvar], KJEDE, 10_000, PL, {"vederlag": 9e9, "frist": None}
+    )
+    assert grunnlag["amount"] == "0"
+    assert rute == []
+
+
+@pytest.mark.parametrize(
+    "krav",
+    [None, {"vederlag": None, "frist": 0}, {"vederlag": 100_000, "frist": None}],
+)
+def test_godkjent_ansvar_for_krav_som_ikke_er_tallfestet_krever_hele_kjeden(krav):
+    from services.approval_authority import approval_route
+
+    grunnlag, rute = approval_route([GODKJENT_ANSVAR], KJEDE, 10_000, PL, krav)
+    assert grunnlag["amount"] is None
+    assert rute == KJEDE
+
+
+def test_ukjent_krav_krever_at_kjeden_dekker_det_som_er_verdsatt():
+    from services.approval_authority import approval_route
+
+    krav = {"vederlag": 2_000_000, "frist": None}
+    grunnlag, _ = approval_route([GODKJENT_ANSVAR], KJEDE, 10_000, PL, krav)
+    assert grunnlag["minimum"] == "2000000"
+    with pytest.raises(ValueError, match="tilstrekkelig fullmakt"):
+        approval_route([GODKJENT_ANSVAR], KJEDE[:1], 10_000, PL, krav)
+
+
+def test_krevde_dager_uten_dagmulktssats_avvises_som_for_svar():
+    """B-06 er ikke avgjort; atferden er den samme som for et fristsvar uten sats."""
+    from services.approval_authority import approval_route
+
+    with pytest.raises(ValueError, match="dagmulktssats"):
+        approval_route([GODKJENT_ANSVAR], KJEDE, None, PL, {"vederlag": 0, "frist": 5})
+    grunnlag, _ = approval_route(
+        [GODKJENT_ANSVAR], KJEDE, None, PL, {"vederlag": 0, "frist": 0}
+    )
+    assert grunnlag["amount"] == "0"
+
+
+def test_krav_fra_tilstand():
+    from types import SimpleNamespace
+
+    from models.events import SporStatus
+    from models.sak_state import FristTilstand, VederlagTilstand
+    from services.approval_service import krav_fra_tilstand
+
+    def tilstand(vederlag, frist):
+        return SimpleNamespace(
+            vederlag=VederlagTilstand(**vederlag), frist=FristTilstand(**frist)
+        )
+
+    sendt = {
+        "status": SporStatus.SENDT,
+        "metode": "FASTPRIS_TILBUD",
+        "belop_direkte": -100_000,
+        "saerskilt_krav": {
+            "rigg_drift": {"belop": 20_000},
+            "produktivitet": {"belop": 5_000},
+        },
+    }
+    assert krav_fra_tilstand(
+        tilstand(sendt, {"status": SporStatus.SENDT, "krevd_dager": 7})
+    ) == {"vederlag": 125_000, "frist": 7}
+    assert krav_fra_tilstand(
+        tilstand(
+            {"status": SporStatus.UTKAST},
+            {"status": SporStatus.TRUKKET, "krevd_dager": 7},
+        )
+    ) == {"vederlag": None, "frist": 0}
+    noytralt = {"status": SporStatus.SENDT, "varsel_type": "varsel"}
+    regning = {"status": SporStatus.SENDT, "metode": "REGNINGSARBEID"}
+    assert krav_fra_tilstand(tilstand(regning, noytralt)) == {
+        "vederlag": None,
+        "frist": None,
+    }
