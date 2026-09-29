@@ -8,7 +8,7 @@ import {
 } from '$lib/api/endringsordre';
 import { SvelteDate } from 'svelte/reactivity';
 import { ApiError } from '$lib/api/client';
-import { eoExposure } from '$lib/domain/endringsordre';
+import { eoExposure, eoManglerSats } from '$lib/domain/endringsordre';
 import { resolveRoute, withLimit } from './route';
 import { demoUsers, type ApprovalUser } from './types';
 
@@ -96,6 +96,7 @@ export function demoEOApprovals(
           throw new Error(`${number} er allerede til godkjenning.`);
         const route = resolveRoute({
           amount: eoExposure(command.request, DEMO_DAILY_RATE),
+          manglerSats: eoManglerSats(command.request, DEMO_DAILY_RATE),
           sender: withLimit(sender),
           chain: chain.map(withLimit),
         });
