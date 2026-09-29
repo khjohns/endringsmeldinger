@@ -23,8 +23,10 @@ start_testbase() {
   if ! docker info > /dev/null 2>&1; then
     # En gjenopptatt økt arver pid-filer fra øyeblikksbildet, og dockerd venter
     # da på en containerd som ikke finnes.
-    pgrep -x containerd > /dev/null || rm -f /var/run/docker/containerd/containerd.pid
-    pgrep -x dockerd > /dev/null || rm -f /var/run/docker.pid
+    if command -v pgrep > /dev/null; then
+      pgrep -x containerd > /dev/null || rm -f /var/run/docker/containerd/containerd.pid
+      pgrep -x dockerd > /dev/null || rm -f /var/run/docker.pid
+    fi
     setsid nohup dockerd > /tmp/dockerd.log 2>&1 < /dev/null &
     for _ in $(seq 1 30); do
       docker info > /dev/null 2>&1 && break
