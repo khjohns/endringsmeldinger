@@ -511,13 +511,11 @@ class TimelineService:
             else event.data.metode
         )
         vederlag.begrunnelse = event.data.begrunnelse
-        # Handle saerskilt_krav - store as dict in VederlagTilstand
-        if event.data.saerskilt_krav:
-            vederlag.saerskilt_krav = (
-                event.data.saerskilt_krav.model_dump()
-                if hasattr(event.data.saerskilt_krav, "model_dump")
-                else event.data.saerskilt_krav
-            )
+        vederlag.saerskilt_krav = (
+            event.data.saerskilt_krav.model_dump()
+            if hasattr(event.data.saerskilt_krav, "model_dump")
+            else event.data.saerskilt_krav
+        )
 
         # Handle krever_justert_ep flag
         vederlag.krever_justert_ep = event.data.krever_justert_ep

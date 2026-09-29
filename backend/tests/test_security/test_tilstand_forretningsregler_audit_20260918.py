@@ -12,7 +12,7 @@ Testene her etterprøver funn i tilstandsberegning og forretningsregler:
 7. Sidefunn fra spor D 23.09: subsidiært standpunkt som henger igjen (SD-01,
    rettet 2026-09-29) og avsluttet grunnlag som vises som utkast (SD-02)
 8. Særskilte krav som henger igjen etter et oppdatert vederlagskrav uten dem
-   (SD-03, funnet i code-review av GFK-06 24.09)
+   (SD-03, funnet i code-review av GFK-06 24.09, rettet 2026-09-29)
 """
 
 import pytest
@@ -1148,15 +1148,8 @@ def test_avsluttet_grunnlag_uten_andre_krav_vises_ikke_som_utkast(grunnlag_statu
     assert state.overordnet_status != "UTKAST"
 
 
-@pytest.mark.xfail(
-    strict=True,
-    raises=AssertionError,
-    reason=(
-        "SD-03: et oppdatert vederlagskrav uten særskilte krav lar de gamle stå i "
-        "tilstanden, og fullmakten for godkjent ansvar teller dem med"
-    ),
-)
 def test_oppdatert_vederlagskrav_uten_saerskilte_krav_fjerner_de_gamle():
+    """SD-03: et oppdatert krav er hele kravet, også de særskilte kravene."""
     from services.approval_service import krav_fra_tilstand
 
     def hendelse(event_type, data):
@@ -1198,3 +1191,19 @@ def test_oppdatert_vederlagskrav_uten_saerskilte_krav_fjerner_de_gamle():
     tilstand = timeline.compute_state([krav, oppdatert])
     assert not tilstand.vederlag.saerskilt_krav
     assert krav_fra_tilstand(tilstand)["vederlag"] == 100000
+
+    endret = hendelse(
+        "vederlag_krav_oppdatert",
+        {
+            "original_event_id": krav.event_id,
+            "metode": "FASTPRIS_TILBUD",
+            "belop_direkte": 100000,
+            "begrunnelse": "Lavere rigg og drift",
+            "saerskilt_krav": {
+                "rigg_drift": {"belop": 2_000_000, "dato_klar_over": "2026-09-01"}
+            },
+        },
+    )
+    tilstand = timeline.compute_state([krav, endret])
+    assert tilstand.vederlag.saerskilt_krav["rigg_drift"]["belop"] == 2_000_000
+    assert krav_fra_tilstand(tilstand)["vederlag"] == 2_100_000
