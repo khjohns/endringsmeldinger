@@ -514,6 +514,19 @@ def test_endret_krav_returnerer_pakke_med_godkjent_ansvar(setup):
     assert service.read("p1", "case1")["packages"][-1]["status"] == "returnert"
 
 
+def test_pakke_er_utdatert_naar_kravet_endres_selv_med_samme_grunnlag(setup):
+    """Godkjennerne ser kravet pakken ble laget mot (GFK-06). Et annet krav gjør
+    pakken utdatert, også når fullmaktsgrunnlaget og ruten blir de samme."""
+    service, repo, item = setup
+    send_krav(repo, "vederlag")
+    send_krav(repo, "frist", trukket=True)
+    p = package(service, item)
+    krav = service.krav("case1")
+    assert not service.stale(p, CHAIN, krav)
+    eldre = {**p, "letter": {**p["letter"], "authorityContext": {}}}
+    assert service.stale(eldre, CHAIN, krav)
+
+
 def test_route_change_returns_package_for_new_approval(setup):
     service, repo, item = setup
     send_krav(repo, "vederlag")
