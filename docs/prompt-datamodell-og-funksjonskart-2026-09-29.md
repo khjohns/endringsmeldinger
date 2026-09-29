@@ -2,8 +2,9 @@
 
 **Dato:** 2026-09-29. **Utgangspunkt:** `main` på `fb278d8`. Kontroller HEAD og
 Git-status selv. Dette er en arbeidsinstruks. Den endrer ikke beslutninger.
-Avsnitt 4 er grunnlaget for de to funnene DM-01 og DM-02, som står i
-hovedplanen.
+Avsnitt 4 er utgangspunktet. Funnene fra første runde, DM-01–DM-04, er
+beskrevet i [gjennomføringsnotatet for 1a](gjennomforing-spor-m-1a-2026-09-29.md),
+og status står i hovedplanen.
 
 **Forrige ledd:** [hovedplanen](plans/2026-09-16-godkjenning-og-varig-levering.md)
 (B-12, spor D og spor M i avsnitt 5),
@@ -189,10 +190,10 @@ blir to tester av samme regel.
   - `koe_set_contract_teams` skriver `catenda_contract_teams`.
   - Triggeren `trg_auto_membership_on_project_create` skriver
     `project_memberships`.
-- **`projects` har to skrivere:** rutene `POST` og `PATCH /api/projects`
-  gjennom `ProjectRepository`, og `koe_register_project` gjennom
-  `scripts/catenda_admin.py`. En migrasjon legger inn prosjektet `oslobygg`
-  som startrad.
+- **`projects` registreres av drift** gjennom `koe_register_project`
+  (`scripts/catenda_admin.py`). `POST /api/projects` svarer 403 utenfor
+  utviklingsmodus, og `PATCH` endrer bare navn, beskrivelse og innstillinger.
+  En migrasjon legger inn prosjektet `oslobygg` som startrad (DM-03).
 - **DM-02, den kodelesne delen:** tre BIM-ruter leser `catenda_models_cache`
   og gir tomme lister når den er tom. `upsert_cached_models` har ingen
   kaller, verken i repoet eller i Git-historikken, som begynner 18.09. Om
@@ -208,8 +209,8 @@ blir to tester av samme regel.
     ([#49](https://github.com/khjohns/endringsmeldinger/issues/49)) og er ikke
     med i registeret.
 - **Tallene:** 32 verdier i `EventType`. Appen, startet i testoppsettet,
-  registrerte 71 URL-regler. Webhook-ruta var slått av fordi
-  `WEBHOOK_SECRET_PATH` ikke var satt, så tallet kan være ett for lavt.
+  registrerte 71 URL-regler over 64 ulike stier, både med og uten
+  `WEBHOOK_SECRET_PATH`. Ruteregistertesten ser 57 av stiene (DM-04).
 
 ## 5. Feltene i registeret
 
