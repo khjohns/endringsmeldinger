@@ -747,10 +747,12 @@ innsending = [
 ]
 tilstand = """
 Saken blir en endringsordresak, og endringsordren får status `utkast`.
-Skrives i samme transaksjon som `sak_opprettet` og `eo_utstedt`."""
+Skrives i samme transaksjon som `sak_opprettet` og `eo_utstedt`. Sakstypen
+settes også når hendelsen kommer i en KOE-sak, og ingen regel stopper det
+(DM-07)."""
 behandler = "_handle_eo_opprettet"
-funn = ["TST-05", "RV-19"]
-belegg = "L 29.09: `opprett_endringsordresak` og `_handle_eo_opprettet`."
+funn = ["DM-07", "TST-05", "RV-19"]
+belegg = "L 29.09: `opprett_endringsordresak` og `_handle_eo_opprettet`. K 29.09: `eo_opprettet` i en KOE-sak gjennom POST /api/events (DM-07)."
 
 [[hendelse]]
 navn = "eo_koe_lagt_til"

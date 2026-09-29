@@ -48,6 +48,12 @@ stilltiende faller gjennom — rollupen `overordnet_status`
 status som mangler i rollupen gir ingen feilmelding, den gir «UKJENT» på en sak
 som er oppgjort. Det skjedde da `AVSLATT_AKSEPTERT` kom til.
 
+**Nytt innhold i en hendelse hører hjemme i datamodellen.** Har hendelsen en
+datamodell, lagrer `to_cloudevent` bare `data`. Et felt ved siden av `data`
+forsvinner ved lagring, men projeksjonen kan lese det i minnet, så svaret og
+cachen viser noe journalen ikke har (DM-06). `docs/datamodell/hendelser.md`
+lister toppnivåfeltene som ikke lagres.
+
 ## Miljø
 
 **Plattformen er ikke endelig valgt.** Hvilken database og hosting appen skal
@@ -231,6 +237,12 @@ leser en avkuttet del av det. To feilklassifiseringer kom av nettopp dette: et
 `grep`-vindu som stoppet én linje før `@require_project_access()`, og en baseklasse
 lest uten overstyringen i underklassen. Begge ga en selvsikker, gal påstand om
 nåbarhet, og begge ble fanget av testsuiten — ikke av lesingen.
+
+**Et skjermbilde som finnes, beviser ikke at flyten virker.** Skjemaet for ny
+sak fikk 403 hver gang utenfor utviklingsmodus (DM-05), fordi kallet det
+faktisk gjør, aldri var prøvd mot tilgangsdekoratøren. Følg kallet fra
+frontenden, med rute, metode og nyttelast, gjennom dekoratørene til lageret, og
+kjør det uten `DISABLE_AUTH`.
 
 **Og ett av lagene ligger ikke i repoet i det hele tatt.** Ti funksjoner bor i
 `public` — `koe_resolve_identity`, `koe_reconcile_memberships`,
