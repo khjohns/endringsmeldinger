@@ -38,7 +38,7 @@ Hver tabell i appens databaser, og data som ligger utenfor dem. Feltene og typen
 
 ### `hendelse`
 
-Journalen. Én rad per formell hendelse i en sak: varsel, krav, svar, endringsordre, forsering og liknende. Innholdet ligger i `data` (JSON) og varierer med hendelsestypen; hendelseskatalogen i fase 1b beskriver typene. Sakens tilstand beregnes fra hendelsene. Radene har juridisk vekt.
+Journalen. Én rad per formell hendelse i en sak: varsel, krav, svar, endringsordre, forsering og liknende. Innholdet ligger i `data` (JSON) og varierer med hendelsestypen; hendelseskatalogen (`hendelser.md`) beskriver typene og feltene. Sakens tilstand beregnes fra hendelsene. Radene har juridisk vekt.
 
 | Felt | Innhold |
 | --- | --- |
@@ -50,7 +50,7 @@ Journalen. Én rad per formell hendelse i en sak: varsel, krav, svar, endringsor
 | Kan bygges opp igjen | nei. Journalen er kilden alt annet regnes fra. |
 | Personopplysninger | `actorid` peker på en bruker. Fritekst i `data` og `comment` kan inneholde personopplysninger. Vurderingen hører til DPIA-en. |
 | Skrives av | backend/routes/event_routes.py; backend/services/sak_creation_service.py; backend/services/forsering_service.py; backend/services/endringsordre_service.py; backend/services/approval_service.py; backend/services/catenda_webhook_service.py (via sak_creation_service) |
-| Funn | MS-01, MS-02, MS-03, AR-02 |
+| Funn | MS-01, MS-02, MS-03, AR-02, DM-06 |
 | Belegg | K 29.09: kolonnene i testbasen og prosjektet, og skrankene (også CASCADE) i testbasen. L 29.09: kallerne av `append`/`append_batch` og `create_sak`. |
 
 ### `notat`

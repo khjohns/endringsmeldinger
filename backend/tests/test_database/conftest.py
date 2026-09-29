@@ -186,3 +186,53 @@ def container_mot_testbasen(testbase_url, skrivbar_base):
         yield container
     finally:
         set_container(None)
+
+
+BRUKER_I_RUTETESTER = "5f1c0f2e-2f1a-4a64-9a2e-9f0b1d2c3e4f"
+
+
+@pytest.fixture
+def innlogging():
+    """Innloggingstjenesten, byttet ut. Kontraktssiden settes per forespørsel."""
+    from unittest.mock import Mock
+
+    innlogging = Mock()
+    innlogging.repo.session.return_value = {
+        "app_users": {"id": BRUKER_I_RUTETESTER, "email": "part@example.com", "name": "Part"},
+        "csrf_token": "csrf",
+    }
+    innlogging.role.return_value = "member"
+    innlogging.contract_membership.return_value = ("TE", "team-te")
+    return innlogging
+
+
+@pytest.fixture
+def hendelsesklient(container_mot_testbasen, innlogging, monkeypatch):
+    """Hendelsesrutene med ekte dekoratører og lagre mot testbasen, uten godkjenningspolicy."""
+    from flask import Flask
+
+    from lib.auth.session import cookie_name
+    from lib.project_context import init_project_context
+    from routes import event_routes
+
+    monkeypatch.delenv("DISABLE_AUTH", raising=False)
+    monkeypatch.delenv("BH_APPROVAL_POLICIES", raising=False)
+    app = Flask(__name__)
+    app.testing = True
+    init_project_context(app)
+    app.register_blueprint(event_routes.events_bp)
+    app.extensions["koe_auth"] = innlogging
+    klient = app.test_client()
+    klient.set_cookie(cookie_name(), "session")
+    return klient
+
+
+def journalen(url: str, sak_id: str) -> list[str]:
+    """Hendelsestypene i saken, i strømrekkefølge."""
+    import psycopg
+
+    with psycopg.connect(url, autocommit=True) as c:
+        rader = c.execute(
+            "SELECT event_type FROM hendelse WHERE sak_id = %s ORDER BY versjon", (sak_id,)
+        ).fetchall()
+    return [r[0] for r in rader]
