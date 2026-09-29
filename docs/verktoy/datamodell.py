@@ -27,17 +27,10 @@ IKT_KOLONNER = [
     "Tabell der data hentes inn, f.eks. via Catenda-API-et",
     "Beskrivelse av relasjon til en annen tabell",
 ]
-TILLEGGSKOLONNER = [
-    "Lagring",
-    "Type",
-    "Status",
-    "Kan bygges opp igjen",
-    "Personopplysninger",
-    "Skrives av",
-    "Funn i hovedplanen",
-    "Belegg",
-]
-UTENFOR_KOLONNER = ["Navn", "Lagring", "Beskrivelse", "Hvor fra appen lagres", "Belegg"]
+# Valgt av oppdragsgiver 29.09. Belegg, funn og skrivere står bare i tabeller.md.
+TILLEGGSKOLONNER = ["Lagring", "Type", "Status", "Personopplysninger"]
+UTENFOR_KOLONNER = ["Navn", "Lagring", "Beskrivelse", "Hvor fra appen lagres"]
+UTENFOR_EXCEL = ("navn", "lagring", "beskrivelse", "lagres_fra")
 
 TYPER = {
     "transaksjon": "Rader som registrerer noe en part eller bruker har gjort",
@@ -168,11 +161,7 @@ def tabellrader(register: dict) -> list[list[str]]:
                 t["lagring"],
                 ", ".join(t["type"]),
                 t["status"],
-                tekst(t["kan_gjenoppbygges"]),
                 tekst(t["personopplysninger"]),
-                tekst(t["skrivere"]) or "Ingen funnet",
-                ", ".join(t["funn"]),
-                tekst(t["belegg"]),
             ]
         )
     return rader
@@ -181,7 +170,7 @@ def tabellrader(register: dict) -> list[list[str]]:
 def utenfor_rader(register: dict) -> list[list[str]]:
     rader = [UTENFOR_KOLONNER]
     for u in register.get("utenfor", []):
-        rader.append([tekst(u[f]) for f in UTENFOR_FELT])
+        rader.append([tekst(u[f]) for f in UTENFOR_EXCEL])
     return rader
 
 
@@ -194,11 +183,16 @@ def om_rader() -> list[list[str]]:
             "Ja når typen er den eneste, Delvis når den er én av flere, ellers Nei.",
         ]
     )
-    rader += [[f"Belegg: {kode}", forklaring] for kode, forklaring in BELEGG.items()]
     rader.append(
         [
             "Ikke kontrollert",
             "Står der påstanden ikke er kontrollert. Registeret bygges i runder.",
+        ]
+    )
+    rader.append(
+        [
+            "Detaljer",
+            "Hvem som skriver hver tabell, belegg og funn står i docs/datamodell/tabeller.md i repoet.",
         ]
     )
     return rader
@@ -300,7 +294,7 @@ def skriv_excel(register: dict, sti: pathlib.Path) -> None:
 
     bok = Workbook()
     bok.remove(bok.active)
-    bredder = {"Tabeller": [28, 60, 16, 50, 16, 40, 50, 12, 18, 10, 30, 36, 40, 20, 50]}
+    bredder = {"Tabeller": [28, 60, 16, 50, 16, 40, 50, 12, 18, 10, 36]}
     for tittel, rader in ark(register).items():
         arket = bok.create_sheet(tittel)
         for rad in rader:

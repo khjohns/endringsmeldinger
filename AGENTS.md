@@ -349,3 +349,12 @@ mulig konsekvens under beskrevne forutsetninger, ikke observert hendelse.
 
 Ingen produksjonskode endres uten at det er bedt om det. Auditrunder leverer
 dokumenter og reproduksjonstester, ikke rettinger.
+
+**Oppdragsgiver vil ha spørsmål, ikke dokumenter å lese.** Kartlegg selv. Der
+noe bare oppdragsgiver kan avgjøre, still konkrete spørsmål med
+spørsmålsverktøyet (i Claude Code: `AskUserQuestion`), med alternativer og en
+anbefaling. Det gjelder tiltenkt atferd, NS 8407, prioritering og hva som skal
+gå til andre. Be ikke om gjennomlesing for å finne ut hva oppdragsgiver mener.
+Det som kan avgjøres ved å lese koden eller spørre katalogen, avgjør du selv.
+Svarene føres inn der de hører hjemme: vedtak i hovedplanen, arbeidsvalg i
+issuet eller oppdraget.
