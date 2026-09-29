@@ -11,6 +11,8 @@ Testene her etterprøver funn i tilstandsberegning og forretningsregler:
 6. Et fullt BH-svar med dager godtas på et nøytralt fristvarsel (TFR-06)
 7. Sidefunn fra spor D 23.09: subsidiært standpunkt som henger igjen (SD-01) og
    avsluttet grunnlag som vises som utkast (SD-02)
+8. Særskilte krav som henger igjen etter et oppdatert vederlagskrav uten dem
+   (SD-03, funnet i code-review av GFK-06 24.09)
 """
 
 import pytest
@@ -1065,3 +1067,55 @@ def test_avsluttet_grunnlag_uten_andre_krav_vises_ikke_som_utkast(grunnlag_statu
         frist=FristTilstand(status=SporStatus.UTKAST),
     )
     assert state.overordnet_status != "UTKAST"
+
+
+@pytest.mark.xfail(
+    strict=True,
+    raises=AssertionError,
+    reason=(
+        "SD-03: et oppdatert vederlagskrav uten særskilte krav lar de gamle stå i "
+        "tilstanden, og fullmakten for godkjent ansvar teller dem med"
+    ),
+)
+def test_oppdatert_vederlagskrav_uten_saerskilte_krav_fjerner_de_gamle():
+    from services.approval_service import krav_fra_tilstand
+
+    def hendelse(event_type, data):
+        return parse_event_from_request(
+            {
+                "sak_id": "S-1",
+                "event_type": event_type,
+                "aktor_id": "te",
+                "aktor_rolle": "TE",
+                "data": data,
+            }
+        )
+
+    krav = hendelse(
+        "vederlag_krav_sendt",
+        {
+            "metode": "FASTPRIS_TILBUD",
+            "belop_direkte": 100000,
+            "begrunnelse": "Krav",
+            "saerskilt_krav": {
+                "rigg_drift": {"belop": 5_000_000, "dato_klar_over": "2026-09-01"}
+            },
+        },
+    )
+    timeline = TimelineService()
+    for_oppdatering = timeline.compute_state([krav])
+    if not for_oppdatering.vederlag.saerskilt_krav:
+        pytest.fail("Forutsetning: de særskilte kravene lagres ikke i tilstanden")
+    oppdatert = hendelse(
+        "vederlag_krav_oppdatert",
+        {
+            "original_event_id": krav.event_id,
+            "metode": "FASTPRIS_TILBUD",
+            "belop_direkte": 100000,
+            "begrunnelse": "Uten rigg og drift",
+            "saerskilt_krav": None,
+        },
+    )
+    tilstand = timeline.compute_state([krav, oppdatert])
+    assert not tilstand.vederlag.saerskilt_krav
+    assert krav_fra_tilstand(tilstand)["vederlag"] == 100000

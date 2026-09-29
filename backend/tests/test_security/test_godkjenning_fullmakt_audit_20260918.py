@@ -6,7 +6,7 @@ Testene her etterprøver funn i godkjennings- og fullmaktslaget:
 3. RV-02 regresjon: reconcile() returnerer pakke under aktiv utstedelse, varig "returnert"
 4. Forseringsrespons er blokkert i porten, men kan ikke godkjennes i ApprovalService
 5. Uautorisert generering av formelle byggherrebrev som PDF via POST /api/letter/generate
-6. Godkjenning av ansvarsgrunnlaget alene verdsettes til 0 kr (GFK-06)
+6. Godkjenning av ansvarsgrunnlaget alene verdsettes til 0 kr (GFK-06, rettet 2026-09-24)
 """
 
 from decimal import Decimal
@@ -460,20 +460,16 @@ def test_te_bruker_kan_generere_bh_brev_pdf(monkeypatch):
 
 
 # =============================================================================
-# 6. Godkjenning av ansvarsgrunnlaget alene verdsettes til 0 kr (GFK-06)
+# 6. Godkjent ansvarsgrunnlag verdsettes til TEs krav (GFK-06, rettet 2026-09-24)
 # =============================================================================
 
 
-@pytest.mark.xfail(
-    strict=True,
-    raises=AssertionError,
-    reason=(
-        "GFK-06: en pakke som bare godkjenner ansvarsgrunnlaget verdsettes til 0 kr, "
-        "så en prosjektleder godkjenner ansvaret for et krav på 50 mill. alene. Ikke "
-        "rettet: hvordan en slik godkjenning skal verdsettes, er en fullmaktsbeslutning"
-    ),
-)
-def test_godkjent_grunnlag_alene_krever_ingen_godkjenner(tmp_path):
+def test_godkjent_grunnlag_alene_krever_fullmakt_for_kravet(tmp_path):
+    """GFK-06, rettet 24.09: godkjent ansvar verdsettes til TEs krav.
+
+    Fristkravet er trukket og teller 0, så grunnlaget er vederlagskravet på
+    50 mill. Bare administrerende direktør dekker det.
+    """
     from models.events import parse_event_from_request
     from repositories.event_repository import JsonFileEventRepository
     from services.timeline_service import TimelineService
@@ -508,6 +504,14 @@ def test_godkjent_grunnlag_alene_krever_ingen_godkjenner(tmp_path):
         ),
         1,
     )
+    lager.append(
+        hendelse(
+            "frist_krav_sendt",
+            {"varsel_type": "spesifisert", "antall_dager": 5, "begrunnelse": "Krav"},
+        ),
+        2,
+    )
+    lager.append(hendelse("frist_krav_trukket", {"begrunnelse": "Trukket"}), 3)
     saksbehandler = "pl@example.test"
     kjede = [
         {"id": "pd@example.test", "role": "Prosjektdirektør"},
@@ -565,3 +569,9 @@ def test_godkjent_grunnlag_alene_krever_ingen_godkjenner(tmp_path):
         f"Godkjenning av ansvaret for et krav på 50 mill. ble godkjent ved innsending: "
         f"status={pakke['status']}, fullmaktsgrunnlag={pakke['authority']}"
     )
+    assert [steg["id"] for steg in pakke["steps"]] == [p["id"] for p in kjede]
+    assert Decimal(pakke["authority"]["amount"]) == 50_000_000
+    assert pakke["letter"]["authorityContext"]["krav"] == {
+        "vederlag": 50_000_000,
+        "frist": 0,
+    }

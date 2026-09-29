@@ -507,6 +507,7 @@ def test_delivery_requires_all_catenda_operations(
 def test_server_rate_change_returns_time_package(setup, new_rate):
     service, repo, item = setup
     service.authority_policy = {"daily_rate": 10000}
+    approval_fixtures.send_krav(repo, "vederlag", trukket=True)
     claim = parse_event_from_request(
         {
             "sak_id": "case1",
@@ -520,7 +521,7 @@ def test_server_rate_change_returns_time_package(setup, new_rate):
             },
         }
     )
-    repo.append(claim, 1)
+    repo.append(claim, repo.get_events("case1")[1])
     ground = command(service, "prepare", item=item)["items"][-1]
     time = command(
         service,
@@ -551,6 +552,7 @@ def test_server_rate_change_returns_time_package(setup, new_rate):
         "items": [ground, time],
         "authorityContext": {"dailyRate": 1},
     }
+    versjon_for_pakken = repo.get_events("case1")[1]
     p = command(service, "package", letter=letter)["packages"][-1]
     assert p["letter"]["authorityContext"]["dailyRate"] == 10000
     assert float(p["authority"]["amount"]) == 50000
@@ -561,7 +563,7 @@ def test_server_rate_change_returns_time_package(setup, new_rate):
     assert returned["status"] == "returnert"
     assert returned["steps"][0]["status"] == "godkjent"
     assert returned["letter"] == p["letter"]
-    assert repo.get_events("case1")[1] == 2
+    assert repo.get_events("case1")[1] == versjon_for_pakken
 
 
 def test_response_track_cannot_override_event_type(setup):
