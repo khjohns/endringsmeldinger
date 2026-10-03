@@ -256,40 +256,7 @@ export const KRAV_STRUKTUR_NS8407: Kontraktsforhold[] = [
   },
 ];
 
-// ========== LEGACY DROPDOWN OPTIONS (for backwards compatibility) ==========
-
-export const HOVEDKATEGORI_OPTIONS: DropdownOption[] = [
-  { value: '', label: '— Velg —' },
-  ...KRAV_STRUKTUR_NS8407.map((k) => ({
-    value: k.kode,
-    label: k.label,
-  })),
-];
-
-// Generate HJEMMEL_MAP (kontraktshjemler per kontraktsforhold) from structure
-export const HJEMMEL_MAP: Record<string, DropdownOption[]> = KRAV_STRUKTUR_NS8407.reduce(
-  (acc, forhold) => {
-    acc[forhold.kode] = forhold.hjemler.map((h) => ({
-      value: h.kode,
-      label: `${h.label} (§${h.hjemmel_basis})`,
-    }));
-    return acc;
-  },
-  {} as Record<string, DropdownOption[]>
-);
-
-// Legacy alias
-export const UNDERKATEGORI_MAP = HJEMMEL_MAP;
-
 // ========== HELPER FUNCTIONS ==========
-
-// Get hjemler (kontraktshjemler) for a given kontraktsforhold
-export function getHjemler(kontraktsforholdKode: string): DropdownOption[] {
-  return HJEMMEL_MAP[kontraktsforholdKode] || [];
-}
-
-// Legacy alias
-export const getUnderkategorier = getHjemler;
 
 // Get kontraktsforhold label from code (case-insensitive)
 export function getKontraktsforholdLabel(code: string | string[] | undefined | null): string {
@@ -300,9 +267,6 @@ export function getKontraktsforholdLabel(code: string | string[] | undefined | n
   const forhold = KRAV_STRUKTUR_NS8407.find((k) => k.kode.toUpperCase() === upperCode);
   return forhold?.label || codeStr;
 }
-
-// Legacy alias
-export const getHovedkategoriLabel = getKontraktsforholdLabel;
 
 // Get kontraktshjemmel label from code (case-insensitive)
 export function getHjemmelLabel(code: string | string[] | undefined | null): string {
@@ -316,9 +280,6 @@ export function getHjemmelLabel(code: string | string[] | undefined | null): str
   }
   return codeStr;
 }
-
-// Legacy alias
-export const getUnderkategoriLabel = getHjemmelLabel;
 
 // Get combined "Kontraktsforhold — Hjemmel" label (e.g. "Forsinkelse eller svikt ved byggherrens ytelser — Grunnforhold")
 export function getKombinertKategoriLabel(
@@ -344,9 +305,6 @@ export function getKontraktsforhold(
   return KRAV_STRUKTUR_NS8407.find((k) => k.kode.toUpperCase() === upperCode);
 }
 
-// Legacy alias
-export const getHovedkategori = getKontraktsforhold;
-
 // Get full kontraktshjemmel object by code (case-insensitive)
 export function getHjemmelObj(
   code: string | string[] | undefined | null
@@ -361,9 +319,6 @@ export function getHjemmelObj(
   }
   return undefined;
 }
-
-// Legacy alias
-export const getUnderkategoriObj = getHjemmelObj;
 
 // Group hjemler by their gruppe field for UI display
 // Returns a Map preserving insertion order (groups appear in the order they first occur)
@@ -382,9 +337,6 @@ export function getGrupperteHjemler(
 
   return grupper;
 }
-
-// Legacy alias
-export const getGrupperteUnderkategorier = getGrupperteHjemler;
 
 // Check if hjemmel is a law change (requires special handling)
 export function erLovendring(hjemmelKode: string): boolean {
