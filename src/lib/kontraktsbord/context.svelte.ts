@@ -1,5 +1,5 @@
 import { orderTimeline } from '$lib/utils/timelineOrder';
-import { getContext, setContext } from 'svelte';
+import { getContext, setContext, untrack } from 'svelte';
 import { fetchCaseContext } from '$lib/api/state';
 import { submitEvent } from '$lib/api/events';
 import type { CaseContextResponse } from '$lib/types/api';
@@ -53,14 +53,17 @@ export function createCaseWorkspace(initial: CaseContextResponse, options: Works
   const bhNavn = $derived(getPartsNavn('BH', response.state.entreprenor, response.state.byggherre));
   const timeline = $derived(orderTimeline(response.timeline));
 
+  // Kalles fra en effekt i CaseWorkspace. Lesingene av egen tilstand må ikke bli avhengigheter der.
   function replace(next: CaseContextResponse) {
-    if (next.state.sak_id !== sakId)
-      throw new Error('Kan ikke bytte sak i en eksisterende sakskontekst.');
-    // A slower request must never roll the workspace back after a confirmed update.
-    if (next.version < response.version) return;
-    response = next;
-    if (next.catenda_sync && syncFailureVersion !== null && next.version >= syncFailureVersion)
-      syncFailureVersion = null;
+    untrack(() => {
+      if (next.state.sak_id !== sakId)
+        throw new Error('Kan ikke bytte sak i en eksisterende sakskontekst.');
+      // A slower request must never roll the workspace back after a confirmed update.
+      if (next.version < response.version) return;
+      response = next;
+      if (next.catenda_sync && syncFailureVersion !== null && next.version >= syncFailureVersion)
+        syncFailureVersion = null;
+    });
   }
 
   async function refresh() {
