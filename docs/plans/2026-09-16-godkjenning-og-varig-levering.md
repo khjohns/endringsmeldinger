@@ -252,6 +252,13 @@ Tilsluttet av oppdragsgiver 21.09. Føringer for design, ikke implementert.
 | AF-05 | Deterministisk gjenoppbygging uten eksterne oppslag | F2, invariant 9 |
 | AF-06 | Ekte PostgreSQL-tester og én komplett EO-flyt før generell opprydding og flere adaptere | Rekkefølgen i avsnitt 5 |
 
+> **Merknad 2026-10-03 til AF-06:** Oppdragsgiver har godkjent et avgrenset
+> unntak: oppryddingene som ikke rører datalaget, autentiseringen eller
+> webhookstien, kan tas før F0b er ferdig. Det gjelder #106, #107, #108,
+> frontenddelen av #110 og feilrettingen #72. Unntaket gjelder ikke #102, #109,
+> #111 eller logger-delen av #110. Disse endrer de samme backendfilene som
+> #49, #66 og #70, og følger rekkefølgen i avsnitt 5.
+
 ### 3.3 Anbefalinger som ikke er vedtatt
 
 | Anbefaling | Kilde | Status |
