@@ -5,3 +5,5 @@ build
 *.md
 tests
 e2e
+.playwright-mcp
+.superpowers
