@@ -370,6 +370,28 @@ class TestForseringService:
         # Assert
         assert len(result) == 0
 
+    def test_skanning_skjuler_ikke_en_sak_med_feil_i_projeksjonen(
+        self, mock_event_repository, mock_timeline_service
+    ):
+        """Beslutning 03.10 i #123: uten indeksen kan ingen se om saken er en
+        forsering, så feilen går videre i stedet for å skjule den."""
+        service = ForseringService(
+            event_repository=mock_event_repository,
+            timeline_service=mock_timeline_service,
+            relation_repository=None,
+        )
+        mock_event_repository.get_events.return_value = ([{"event_type": "x"}], 1)
+        mock_timeline_service.compute_state.side_effect = RuntimeError("projeksjon")
+        with (
+            patch(
+                "services.forsering_service.get_all_sak_ids",
+                return_value=["forsering-001"],
+            ),
+            patch("services.forsering_service.parse_event"),
+            pytest.raises(RuntimeError, match="projeksjon"),
+        ):
+            service.finn_forseringer_for_sak("SAK-001", tillatte_saker=set)
+
     def test_finn_forseringer_for_sak_without_client(self):
         """Test returns empty without client."""
         service = ForseringService()
