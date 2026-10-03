@@ -123,8 +123,6 @@ def approvals(case_id):
         if request.method == "POST" and body.get("action") == "publish":
 
             def dispatch(package):
-                import base64
-
                 from core.config import settings
                 from models.events import parse_event
                 from routes.event_routes import (
@@ -147,11 +145,8 @@ def approvals(case_id):
                     public,
                     event,
                     metadata.catenda_topic_id,
-                    client_pdf_base64=base64.b64encode(
-                        pdf_bytes(snapshot(package["letter"], package["id"]))
-                    ).decode("ascii"),
-                    client_pdf_filename=f"brev-{case_id}-{package['id']}.pdf",
-                    require_supplied_pdf=True,
+                    letter_pdf=pdf_bytes(snapshot(package["letter"], package["id"])),
+                    letter_filename=f"brev-{case_id}-{package['id']}.pdf",
                 )
                 return "delivered" if success else "failed"
 

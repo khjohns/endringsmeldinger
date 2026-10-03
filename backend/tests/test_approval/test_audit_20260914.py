@@ -5,6 +5,7 @@ stores and mocks are used; no external services are contacted.
 """
 
 import json
+import os
 from datetime import timedelta
 from types import SimpleNamespace
 from unittest.mock import Mock
@@ -201,7 +202,6 @@ def test_missing_pdf_and_failed_comment_are_not_successful_delivery(setup, monke
     ctx = SimpleNamespace(service=Mock())
     ctx.service.create_comment.return_value = None
     monkeypatch.setattr(event_routes, "_prepare_catenda_context", lambda _: ctx)
-    monkeypatch.setattr(event_routes, "_resolve_pdf", lambda *args: (None, None, None))
     monkeypatch.setattr(event_routes, "_sync_topic_status", Mock())
     monkeypatch.setattr(
         event_routes,
@@ -485,12 +485,7 @@ def test_delivery_requires_all_catenda_operations(
     _, repo, _ = setup
     claim = parse_event(repo.get_events("case1")[0][0])
     state = TimelineService().compute_state([claim])
-    path = tmp_path / "letter.pdf"
-    path.write_bytes(b"%PDF-test")
     monkeypatch.setattr(event_routes, "_prepare_catenda_context", lambda _: Mock())
-    monkeypatch.setattr(
-        event_routes, "_resolve_pdf", lambda *args: (str(path), "letter.pdf", "client")
-    )
     monkeypatch.setattr(
         event_routes,
         "_upload_and_link_pdf",
@@ -498,9 +493,9 @@ def test_delivery_requires_all_catenda_operations(
     )
     monkeypatch.setattr(event_routes, "_post_catenda_comment", lambda *args: comment)
     monkeypatch.setattr(event_routes, "_sync_topic_status", lambda *args: status)
-    assert event_routes._post_to_catenda("case1", state, claim, "topic")[0] is (
-        pdf and comment and status
-    )
+    assert event_routes._post_to_catenda(
+        "case1", state, claim, "topic", letter_pdf=b"%PDF-test"
+    )[0] is (pdf and comment and status)
 
 
 @pytest.mark.parametrize("new_rate", [15000, 50000, None])
@@ -579,26 +574,45 @@ def test_response_track_cannot_override_event_type(setup):
     )
 
 
-def test_frozen_letter_delivery_rejects_regenerated_case_pdf(
-    setup, monkeypatch, tmp_path
-):
+def test_frozen_letter_is_the_uploaded_pdf(setup, monkeypatch):
+    """B-03 (vedtak 03.10, #140): det frosne brevet lastes opp, ingen saksrapport."""
     from routes import event_routes
 
     _, repo, _ = setup
     claim = parse_event(repo.get_events("case1")[0][0])
     state = TimelineService().compute_state([claim])
-    path = tmp_path / "fallback.pdf"
-    path.write_bytes(b"%PDF-unapproved-case-report")
+    uploaded = {}
+
+    def upload(ctx, topic_id, pdf_path, filename):
+        with open(pdf_path, "rb") as f:
+            uploaded.update(path=pdf_path, filename=filename, data=f.read())
+        return {"id": "document", "filename": filename, "source": "brev"}
+
     monkeypatch.setattr(event_routes, "_prepare_catenda_context", lambda _: Mock())
-    monkeypatch.setattr(
-        event_routes,
-        "_resolve_pdf",
-        lambda *args: (str(path), "fallback.pdf", "server"),
+    monkeypatch.setattr(event_routes, "_upload_and_link_pdf", upload)
+    monkeypatch.setattr(event_routes, "_post_catenda_comment", lambda *args: True)
+    monkeypatch.setattr(event_routes, "_sync_topic_status", lambda *args: True)
+    success, pdf_uploaded, docs = event_routes._post_to_catenda(
+        "case1", state, claim, "topic",
+        letter_pdf=b"%PDF-frosset-brev", letter_filename="brev-case1.pdf",
     )
+    assert (success, pdf_uploaded) == (True, True)
+    assert uploaded["data"] == b"%PDF-frosset-brev"
+    assert uploaded["filename"] == "brev-case1.pdf"
+    assert docs == [{"id": "document", "filename": "brev-case1.pdf", "source": "brev"}]
+    assert not os.path.exists(uploaded["path"])
+
+
+def test_empty_letter_is_not_uploaded_or_delivered(setup, monkeypatch):
+    from routes import event_routes
+
+    _, repo, _ = setup
+    claim = parse_event(repo.get_events("case1")[0][0])
+    state = TimelineService().compute_state([claim])
+    monkeypatch.setattr(event_routes, "_prepare_catenda_context", lambda _: Mock())
     upload = Mock()
     monkeypatch.setattr(event_routes, "_upload_and_link_pdf", upload)
-    assert not event_routes._post_to_catenda(
-        "case1", state, claim, "topic", require_supplied_pdf=True
-    )[0]
+    assert event_routes._post_to_catenda(
+        "case1", state, claim, "topic", letter_pdf=b""
+    ) == (False, False, [])
     upload.assert_not_called()
-    assert not path.exists()

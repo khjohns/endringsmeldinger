@@ -244,7 +244,7 @@ def submit_api(monkeypatch, tmp_path):
 
     # Catenda-preflight og -levering erstattes: testen måler om levering forsøkes.
     monkeypatch.setattr(event_routes, "_ensure_catenda_auth", lambda *a, **k: None)
-    post_spy = Mock(return_value=(True, "server", []))
+    post_spy = Mock(return_value=(True, False, []))
     monkeypatch.setattr(event_routes, "_post_to_catenda", post_spy)
 
     notat_lager = JsonFileNotatRepository(str(tmp_path / "notater"))

@@ -12,7 +12,6 @@ with full support for:
 - CloudEvents v1.0 format for all event responses
 """
 
-import base64
 import os
 import tempfile
 from datetime import UTC, datetime
@@ -41,7 +40,6 @@ from lib.cloudevents import (
     format_timeline_response,
 )
 from lib.helpers.version_control import handle_concurrency_error
-from lib.pdf_input import decode_pdf
 from lib.project_context import get_project_id, krev_autorisert_prosjekt
 from models.cloudevents import CLOUDEVENTS_NAMESPACE
 from models.events import (
@@ -443,7 +441,10 @@ def _ensure_catenda_auth(catenda_topic_id: str | None) -> None:
 @require_contract_role()
 def submit_event():
     """
-    Submit a single event with optional client-generated PDF.
+    Submit a single event.
+
+    Bare et frosset brev (``data.brev``) blir PDF i Catenda. En PDF fra
+    klienten avvises.
 
     Request:
     {
@@ -453,9 +454,7 @@ def submit_event():
         },
         "sak_id": "KOE-20251201-001",
         "expected_version": 3,
-        "catenda_topic_id": "optional-topic-guid",
-        "pdf_base64": "optional-base64-pdf",
-        "pdf_filename": "optional-filename.pdf"
+        "catenda_topic_id": "optional-topic-guid"
     }
 
     Response 201:
@@ -464,8 +463,10 @@ def submit_event():
         "event_id": "uuid",
         "new_version": 4,
         "state": { ... computed SakState ... },
-        "pdf_uploaded": true,
-        "pdf_source": "client" | "server"
+        "pdf_uploaded": false,
+        "catenda_synced": true,
+        "catenda_skipped_reason": null,
+        "catenda_documents": []
     }
 
     Response 409 (Conflict):
@@ -493,11 +494,12 @@ def submit_event():
                 message="Catenda-topic tilhører ikke saken.",
             ), 400
 
-        # Optional client-generated PDF (PREFERRED)
-        client_pdf_base64 = payload.get("pdf_base64")
-        client_pdf_filename = payload.get("pdf_filename")
-        if client_pdf_base64 is not None:
-            decode_pdf(client_pdf_base64)  # Reject malformed attachments before event commit.
+        if "pdf_base64" in payload or "pdf_filename" in payload:
+            return jsonify(
+                success=False,
+                error="CLIENT_PDF_NOT_ACCEPTED",
+                message="Bare et frosset brev kan bli PDF i Catenda.",
+            ), 400
 
         if not sak_id or expected_version is None or not event_data:
             return jsonify(
@@ -511,11 +513,6 @@ def submit_event():
         logger.info(
             f"📥 Event submission for case {sak_id}, expected version: {expected_version}"
         )
-
-        if client_pdf_base64:
-            logger.debug(f"Client provided PDF: {client_pdf_filename}")
-        else:
-            logger.debug("No client PDF, using server fallback")
 
         # 1. Validate event data against constants BEFORE parsing
         event_type = event_data.get("event_type")
@@ -638,7 +635,7 @@ def submit_event():
 
         # 9. Catenda Integration (PDF + Comment + Status Sync) - optional
         catenda_success = False
-        pdf_source = None
+        pdf_uploaded = False
         catenda_documents: list[dict[str, Any]] = []
         catenda_skipped_reason = None
 
@@ -647,19 +644,18 @@ def submit_event():
         try:
             if settings.is_catenda_enabled and catenda_topic_id:
                 frozen_letter = getattr(getattr(event, 'data', None), 'brev', None)
+                letter_pdf = None
                 if frozen_letter:
                     from services.approval_letter import pdf_bytes
-                    client_pdf_base64 = base64.b64encode(pdf_bytes(frozen_letter)).decode('ascii')
-                    client_pdf_filename = f'brev-{sak_id}-{event.event_id}.pdf'
-                catenda_success, pdf_source, catenda_documents = _post_to_catenda(
+                    letter_pdf = pdf_bytes(frozen_letter)
+                catenda_success, pdf_uploaded, catenda_documents = _post_to_catenda(
                     sak_id=sak_id,
                     state=new_state,
                     event=event,
                     topic_id=catenda_topic_id,
-                    client_pdf_base64=client_pdf_base64,
-                    client_pdf_filename=client_pdf_filename,
+                    letter_pdf=letter_pdf,
+                    letter_filename=f'brev-{sak_id}-{event.event_id}.pdf',
                     old_status=old_status,
-                    require_supplied_pdf=bool(frozen_letter),
                 )
                 if not catenda_success:
                     catenda_skipped_reason = "error"
@@ -689,8 +685,7 @@ def submit_event():
                 "event_id": event.event_id,
                 "new_version": new_version,
                 "state": public_state(new_state, all_events),
-                "pdf_uploaded": catenda_success,
-                "pdf_source": pdf_source,
+                "pdf_uploaded": pdf_uploaded,
                 "catenda_synced": catenda_success,
                 "catenda_skipped_reason": catenda_skipped_reason,
                 "catenda_documents": catenda_documents,
@@ -1418,87 +1413,8 @@ def _prepare_catenda_context(sak_id: str) -> CatendaContext | None:
                           metadata.catenda_topic_id)
 
 
-def _resolve_pdf(
-    sak_id: str, state, client_pdf_base64: str | None, client_pdf_filename: str | None
-) -> tuple[str | None, str | None, str | None]:
-    """
-    Resolve PDF for Catenda upload.
-
-    Priority: client-generated PDF > server-generated PDF
-
-    Args:
-        sak_id: Case identifier
-        state: Current SakState
-        client_pdf_base64: Optional base64 PDF from client
-        client_pdf_filename: Optional filename from client
-
-    Returns:
-        (pdf_path, filename, pdf_source) where pdf_source is "client" or "server"
-    """
-    # PRIORITY 1: Try client-generated PDF
-    if client_pdf_base64:
-        pdf_path = None
-        try:
-            pdf_data = decode_pdf(client_pdf_base64)
-            with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as temp_pdf:
-                pdf_path = temp_pdf.name
-                temp_pdf.write(pdf_data)
-            filename = client_pdf_filename or f"KOE_{sak_id}.pdf"
-            logger.debug(f"Client PDF decoded: {len(pdf_data)} bytes")
-            return pdf_path, filename, "client"
-        except Exception as e:
-            logger.error(f"Failed to decode client PDF: {e}")
-            if pdf_path:
-                try:
-                    os.remove(pdf_path)
-                except OSError:
-                    pass
-            return None, None, None
-
-    # PRIORITY 2: Fallback to server generation
-    pdf_path = None
-    try:
-        from services.reportlab_pdf_generator import ReportLabPdfGenerator
-
-        events_list = []
-        try:
-            events_data, _ = _get_event_repo().get_events(sak_id)
-            events_list = events_data
-        except Exception as e:
-            logger.warning(f"Could not get events for PDF: {e}")
-
-        pdf_generator = ReportLabPdfGenerator()
-        filename = f"KOE_{sak_id}.pdf"
-
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as temp_pdf:
-            pdf_path = temp_pdf.name
-
-        pdf_bytes = pdf_generator.generate_pdf(state, events_list, pdf_path)
-
-        if pdf_bytes is None and pdf_path:
-            logger.debug(f"Server PDF generated: {filename}")
-            return pdf_path, filename, "server"
-        elif pdf_bytes:
-            with open(pdf_path, "wb") as f:
-                f.write(pdf_bytes)
-            logger.debug(f"Server PDF generated: {filename}")
-            return pdf_path, filename, "server"
-
-    except ImportError as e:
-        logger.warning(f"ReportLab not installed: {e}")
-    except Exception as e:
-        logger.error(f"Failed to generate PDF: {e}", exc_info=True)
-
-    if pdf_path:
-        try:
-            os.remove(pdf_path)
-        except OSError:
-            pass
-    return None, None, None
-
-
 def _upload_and_link_pdf(
-    ctx: CatendaContext, topic_id: str, pdf_path: str, filename: str, source: str
+    ctx: CatendaContext, topic_id: str, pdf_path: str, filename: str
 ) -> dict[str, Any] | None:
     """
     Upload PDF to Catenda and link to topic.
@@ -1508,14 +1424,13 @@ def _upload_and_link_pdf(
         topic_id: Catenda topic GUID
         pdf_path: Path to PDF file
         filename: Filename for upload
-        source: PDF source ("client" or "server")
 
     Returns:
         Document info dict if successful, None otherwise:
         {
             "id": "catenda-document-id",
             "filename": "uploaded-filename.pdf",
-            "source": "client" | "server"
+            "source": "brev"
         }
     """
     doc_result = ctx.service.upload_document(
@@ -1545,7 +1460,7 @@ def _upload_and_link_pdf(
             ref_result = ctx.service.create_document_reference(topic_id, compact_guid)
 
         if ref_result is not None:
-            return {"id": compact_guid, "filename": filename, "source": source}
+            return {"id": compact_guid, "filename": filename, "source": "brev"}
 
     return None
 
@@ -1628,64 +1543,40 @@ def _post_to_catenda(
     state,
     event,
     topic_id: str,
-    client_pdf_base64: str | None = None,
-    client_pdf_filename: str | None = None,
+    letter_pdf: bytes | None = None,
+    letter_filename: str | None = None,
     old_status: str | None = None,
-    require_supplied_pdf: bool = False,
-) -> tuple[bool, str | None, list[dict[str, Any]]]:
+) -> tuple[bool, bool, list[dict[str, Any]]]:
     """
-    Post PDF and comment to Catenda (hybrid approach) + sync status.
+    Lever en hendelse til Catenda: det frosne brevet som PDF, kommentar og statussynk.
 
-    Priority:
-    1. Use client-generated PDF if provided (PREFERRED)
-    2. Generate PDF on server as fallback (ReportLab)
-    3. Sync topic status if changed
+    Bare et frosset brev blir PDF. En hendelse uten brev får kommentar og
+    statussynk, og ingenting lastes opp.
 
-    Args:
-        sak_id: Case identifier
-        state: Current SakState
-        event: The event that triggered this
-        topic_id: Catenda topic GUID
-        client_pdf_base64: Optional base64 PDF from client
-        client_pdf_filename: Optional filename from client
-        old_status: Previous overordnet_status for status sync
-        require_supplied_pdf: Reject a fallback PDF for a frozen approved letter
-
-    Returns:
-        (success, pdf_source, catenda_documents)
-        - success: True only when PDF, comment and status sync all succeeded
-        - pdf_source: "client" | "server" | None
-        - catenda_documents: List of uploaded document info dicts
+    Returnerer (vellykket, pdf_lastet_opp, catenda_dokumenter). Leveringen er
+    vellykket når kommentaren og statussynken lykkes, og brevet er lastet opp
+    når hendelsen har et.
     """
     try:
         logger.debug(f"Posting to Catenda: case={sak_id}, topic={topic_id}")
 
         catenda_documents: list[dict[str, Any]] = []
 
-        # 1. Prepare Catenda context (service, config, IDs)
         ctx = _prepare_catenda_context(sak_id)
         if not ctx:
-            return False, None, []
+            return False, False, []
 
-        # 2. Resolve PDF (client or server-generated)
-        pdf_path, filename, pdf_source = _resolve_pdf(
-            sak_id, state, client_pdf_base64, client_pdf_filename
-        )
-
-        if require_supplied_pdf and pdf_source != "client":
-            if pdf_path:
-                try:
-                    os.remove(pdf_path)
-                except OSError:
-                    pass
-            return False, pdf_source, []
-
-        # 3. Upload and link PDF to topic
         pdf_uploaded = False
-        if pdf_path:
+        if letter_pdf is not None:
+            if not letter_pdf:
+                return False, False, []
+            with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as temp_pdf:
+                pdf_path = temp_pdf.name
             try:
+                with open(pdf_path, "wb") as f:
+                    f.write(letter_pdf)
                 doc_info = _upload_and_link_pdf(
-                    ctx, topic_id, pdf_path, filename, pdf_source
+                    ctx, topic_id, pdf_path, letter_filename or f"brev-{sak_id}.pdf"
                 )
                 pdf_uploaded = doc_info is not None
                 if doc_info:
@@ -1697,21 +1588,19 @@ def _post_to_catenda(
                 except OSError:
                     pass
 
-        # 4. Post comment (always try, regardless of PDF status)
         comment_posted = _post_catenda_comment(ctx, topic_id, sak_id, state, event)
-
-        # 5. Sync topic status if changed
         status_synced = _sync_topic_status(ctx, topic_id, old_status, state.overordnet_status)
 
-        # A comment alone is not delivery of the approved letter.
-        return (pdf_uploaded and comment_posted and status_synced), pdf_source, catenda_documents
+        # En kommentar alene er ikke levering av et brev.
+        letter_delivered = pdf_uploaded or letter_pdf is None
+        return (letter_delivered and comment_posted and status_synced), pdf_uploaded, catenda_documents
 
     except CatendaAuthError:
         # Re-raise auth errors to trigger proper error handling upstream
         raise
     except Exception as e:
         logger.error(f"Failed to post to Catenda: {e}", exc_info=True)
-        return False, None, []
+        return False, False, []
 
 
 def get_catenda_service() -> CatendaService | None:
