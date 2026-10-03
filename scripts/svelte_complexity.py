@@ -16,6 +16,9 @@ Bruk:
   python scripts/svelte_complexity.py --functions      # vis per-funksjon CC
   python scripts/svelte_complexity.py --threshold 10   # bare filer over grensen
   python scripts/svelte_complexity.py --json           # JSON-output
+  python scripts/svelte_complexity.py --src src/lib    # annen kildemappe
+
+Standard kildemappe er src/ i repoet, uavhengig av hvor skriptet kjøres fra.
 """
 
 import argparse
@@ -26,7 +29,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 ROOT = Path(__file__).parent.parent
-FRONTEND_SRC = ROOT / "src" / "frontend" / "src"
+FRONTEND_SRC = ROOT / "src"
 
 # ── Beslutningspunkter i JS/TS-kode ─────────────────────────────────────────
 
@@ -413,17 +416,20 @@ def main() -> None:
     )
     parser.add_argument(
         "--src", type=Path, default=FRONTEND_SRC,
-        help=f"Kildemappe (default: {FRONTEND_SRC})"
+        help="Kildemappe (default: src/ i repoet)"
     )
     args = parser.parse_args()
 
-    if not args.src.exists():
-        print(f"Feil: Mappen {args.src} finnes ikke.", file=sys.stderr)
+    if not args.src.is_dir():
+        print(f"Feil: Kildemappen {args.src} finnes ikke eller er ikke en mappe.", file=sys.stderr)
         sys.exit(1)
 
     files = sorted(
         list(args.src.rglob("*.svelte")) + list(args.src.rglob("*.ts"))
     )
+    if not files:
+        print(f"Feil: Fant ingen .svelte- eller .ts-filer i {args.src}.", file=sys.stderr)
+        sys.exit(1)
 
     results = [analyse_file(f) for f in files]
 
