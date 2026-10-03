@@ -83,7 +83,7 @@
 {#if failed}
   <div class="eo-banner" role="alert">
     <FileText size={17} aria-hidden="true" />
-    <p>Tilknyttede endringsordrer kunne ikke lastes.</p>
+    <p>Kunne ikke hente relaterte saker.</p>
     <button type="button" onclick={loadOrders}>
       <RotateCw size={14} aria-hidden="true" /> Prøv igjen
     </button>
