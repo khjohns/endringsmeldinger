@@ -781,3 +781,8 @@ Valget påvirker filnavn, unik dokumentnøkkel, når document references opprett
 PDF-innhold, kommentarformat og hvordan appen kobler domene-event til Catenda
 library item og revisjon. Det bør derfor besluttes i et ADR før kodeendringene
 for PDF-upload gjennomføres.
+
+> **Merknad 2026-10-03:** Oppdragsgiver har valgt brev framfor et samlet
+> saksdokument (B-03 i hovedplanen, 3.1). Saksrapporten sendes ikke lenger
+> automatisk. Valget mellom de to brevalternativene i tabellen og resten av ADR-en
+> står åpent.
