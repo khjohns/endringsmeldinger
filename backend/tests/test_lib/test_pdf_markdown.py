@@ -15,7 +15,7 @@ forventningen, og kilden er issuet, ikke koden.
 import pytest
 
 from lib.pdf_markdown import markdown_to_reportlab
-from services import letter_pdf_generator, reportlab_pdf_generator
+from services import letter_pdf_generator
 
 KODE = '<font face="Courier" color="#C7254E">'
 
@@ -122,7 +122,7 @@ OVERSKRIFT_NIVA_4_TIL_6 = [
 ]
 
 
-@pytest.mark.parametrize("generator", [letter_pdf_generator, reportlab_pdf_generator])
+@pytest.mark.parametrize("generator", [letter_pdf_generator])
 def test_begge_generatorene_bruker_den_felles_konverteringen(generator):
     assert generator.markdown_to_reportlab is markdown_to_reportlab
 

@@ -339,14 +339,8 @@ what the result would be if principal position doesn't hold):
             "catenda_topic_id": {
                 "type": "string",
                 "format": "uuid",
-                "description": "Optional Catenda topic GUID for PDF upload",
+                "description": "Optional Catenda topic GUID; must match the case",
             },
-            "pdf_base64": {
-                "type": "string",
-                "format": "byte",
-                "description": "Optional client-generated PDF (base64)",
-            },
-            "pdf_filename": {"type": "string", "description": "Optional PDF filename"},
         },
     }
 
@@ -377,12 +371,13 @@ what the result would be if principal position doesn't hold):
                 "type": "object",
                 "description": "Computed case state after event",
             },
-            "pdf_uploaded": {"type": "boolean"},
-            "pdf_source": {
-                "type": "string",
-                "enum": ["client", "server"],
-                "nullable": True,
+            "pdf_uploaded": {
+                "type": "boolean",
+                "description": "A frozen letter was uploaded. False for events without a letter",
             },
+            "catenda_synced": {"type": "boolean"},
+            "catenda_skipped_reason": {"type": "string", "nullable": True},
+            "catenda_documents": {"type": "array", "items": {"type": "object"}},
         },
     }
 

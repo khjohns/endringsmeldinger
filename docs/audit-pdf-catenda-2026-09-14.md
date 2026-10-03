@@ -75,6 +75,12 @@ Dette er en transportkontroll, ikke full PDF-validering eller sanering av aktivt
 PDF-innhold. Den eksisterende standardgrensen på 16 MiB for hele HTTP-body gjelder
 fortsatt; minnebruk, renderingskompleksitet og belastning er ikke lasttestet.
 
+> **Merknad 2026-10-03 til PDF-01 og PDF-04:** Saksrapporten og klient-PDF-en er
+> fjernet etter B-03 (#140). `ReportLabPdfGenerator` og `lib/pdf_input.py` er
+> slettet, og `POST /api/events` avviser `pdf_base64` og `pdf_filename`. Bare et
+> frosset brev blir PDF i Catenda. Brevgeneratoren er fortsatt dekket av testene
+> for PDF-01.
+
 ## Kontroller som passerer / avgrensninger
 
 | Kontroll | Bevis / avgrensning |

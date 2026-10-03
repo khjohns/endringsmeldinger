@@ -555,23 +555,23 @@ Kontraktssiden og teamet leses fra Catenda ved hver forespørsel, uten mellomlag
 
 **Retning:** ut. **Utløses av:** `POST /api/events` for en sak med topic, når Catenda er slått på. `POST /api/events/batch` sender ikke til Catenda (RV-10).
 
-Hendelsen lagres først, og en feil i Catenda gjør ikke innsendingen mislykket. Topic og board leses fra `sak_metadata`; prosjekt, bibliotek og mappe fra de globale innstillingene (INT-06). Vedleggene i hendelsen sendes i C08.
+Hendelsen lagres først, og en feil i Catenda gjør ikke innsendingen mislykket. Topic og board leses fra `sak_metadata`; prosjekt, bibliotek og mappe fra de globale innstillingene (INT-06). Vedleggene i hendelsen sendes i C08. Bare et frosset brev blir PDF; en hendelse uten brev får kommentar og statussynk (B-03).
 
 | Pil | Fra | Til | Endepunkt | Kode | Data |
 | --- | --- | --- | --- | --- | --- |
-| C06.1 | hendelse | Catenda: dokumentbiblioteket | POST /v2/projects/{catenda_project_id}/libraries/{library_id}/items | [`_post_to_catenda`](../../backend/routes/event_routes.py) → [`_upload_and_link_pdf`](../../backend/routes/event_routes.py) → [`CatendaService.upload_document`](../../backend/services/catenda_service.py) | PDF av brevet eller saken. Et frosset brev i hendelsen gjøres til PDF og må komme gjennom; ellers lages PDF-en på serveren. |
+| C06.1 | hendelse | Catenda: dokumentbiblioteket | POST /v2/projects/{catenda_project_id}/libraries/{library_id}/items | [`_post_to_catenda`](../../backend/routes/event_routes.py) → [`_upload_and_link_pdf`](../../backend/routes/event_routes.py) → [`CatendaService.upload_document`](../../backend/services/catenda_service.py) | Det frosne brevet i hendelsen som PDF, og bare det. En hendelse uten brev laster ikke opp noe. |
 | C06.2 | hendelse | Catenda: dokumentreferanser | POST /opencde/bcf/3.0/projects/{topic_board_id}/topics/{topic_guid}/document_references | [`_upload_and_link_pdf`](../../backend/routes/event_routes.py) → [`CatendaService.create_document_reference`](../../backend/services/catenda_service.py) | Dokument-ID-en fra opplastingen, først med og så uten bindestreker. |
 | C06.3 | hendelse | Catenda: kommentarer | POST /opencde/bcf/3.0/projects/{topic_board_id}/topics/{topic_guid}/comments | [`_post_catenda_comment`](../../backend/routes/event_routes.py) → [`CatendaService.create_comment`](../../backend/services/catenda_service.py) | Tekst laget av hendelsen og sakens tilstand, med lenke til saken. |
 | C06.4 | hendelse | Catenda: topics | PUT /opencde/bcf/3.0/projects/{topic_board_id}/topics/{topic_guid} | [`_sync_topic_status`](../../backend/routes/event_routes.py) → [`CatendaService.update_topic_status`](../../backend/services/catenda_service.py) | Ny topicstatus når sakens overordnede status er endret. |
-| C06.5 | Catenda: svar på kallene | catenda_delivery_status | Ingen egne kall; utfallet av pilene over | [`submit_event`](../../backend/routes/event_routes.py) → [`CatendaDeliveryStatus.record`](../../backend/services/catenda_delivery_status.py) | `pending` før hendelsen lagres. Så `delivered` bare når PDF, kommentar og status alle lyktes, ellers `failed`. |
+| C06.5 | Catenda: svar på kallene | catenda_delivery_status | Ingen egne kall; utfallet av pilene over | [`submit_event`](../../backend/routes/event_routes.py) → [`CatendaDeliveryStatus.record`](../../backend/services/catenda_delivery_status.py) | `pending` før hendelsen lagres. Så `delivered` når kommentar og status lyktes, og brevet er lastet opp når hendelsen har et; ellers `failed`. |
 
-**Funn:** INT-06, RV-10. **Belegg:** L 29.09: `submit_event` og `_post_to_catenda` med hjelpefunksjonene.
+**Funn:** INT-06, RV-10. **Belegg:** L 03.10: `submit_event` og `_post_to_catenda` med hjelpefunksjonene.
 
 ### C07 Godkjent BH-svar publiseres
 
 **Retning:** ut. **Utløses av:** `POST /api/cases/<sak_id>/approvals` med `action: publish`, etter intern godkjenning.
 
-Svarene skrives til journalen, og leveringen går gjennom de samme kallene som C06, med det godkjente brevet frosset i pakken. En PDF laget på serveren godtas ikke. Kvitteringen står i `approval_outbox`, ikke i `catenda_delivery_status`. Vedleggene sendes i C08.
+Svarene skrives til journalen, og leveringen går gjennom de samme kallene som C06, med det godkjente brevet frosset i pakken. Leveringen krever at brevet lastes opp. Kvitteringen står i `approval_outbox`, ikke i `catenda_delivery_status`. Vedleggene sendes i C08.
 
 | Pil | Fra | Til | Endepunkt | Kode | Data |
 | --- | --- | --- | --- | --- | --- |
