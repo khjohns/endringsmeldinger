@@ -660,8 +660,8 @@ export interface SaerskiltKravItem {
 export interface GrunnlagEventData {
   varsler?: KonsekvensVarsler;
   tittel: string; // Kort beskrivende tittel for varselet
-  hovedkategori: string; // Code from HOVEDKATEGORI_OPTIONS (e.g., "ENDRING")
-  underkategori: string | string[]; // Code(s) from UNDERKATEGORI_MAP
+  hovedkategori: string; // Kode fra KRAV_STRUKTUR_NS8407 (f.eks. "ENDRING")
+  underkategori: string | string[]; // Hjemmelkode(r) fra KRAV_STRUKTUR_NS8407
   beskrivelse: string;
   dato_oppdaget: string;
   grunnlag_varsel?: VarselInfo; // Structured varsel info
