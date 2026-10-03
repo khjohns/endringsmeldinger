@@ -4,7 +4,7 @@
   let { varsler = [] }: { varsler?: SendtKonsekvensVarsel[] } = $props();
 </script>
 
-{#each varsler as varsel (varsel.event_id)}
+{#each varsler as varsel (`${varsel.event_id}:${varsel.type}`)}
   <article>
     <strong>{VARSEL_LABELS[varsel.type]}</strong>
     <time datetime={varsel.tidsstempel}>{formatDateTimeNorwegian(varsel.tidsstempel)}</time>
