@@ -408,6 +408,10 @@ der skriptet leter (`scripts/category_drift.py:302`) og inneholder kategoriene.
 Verktøyet klarer ikke lenger å lese filen, og ingen har oppdaget det — fordi
 ingenting kjører det.
 
+> **Merknad 2026-10-03:** Årsaken var at feltet heter `hjemler` i frontend, ikke
+> `underkategorier`. Rettet i #122, med test i
+> `backend/tests/test_scripts/test_category_drift.py`.
+
 Det er den presise grunnen til at driftdeteksjon er feil svar på to sannhetskilder:
 detektoren forfaller like stille som driften den skulle fange. `state_drift`
 rapporterer for øvrig 7 kritiske og 106 advarsler, der advarslene i hovedsak er
