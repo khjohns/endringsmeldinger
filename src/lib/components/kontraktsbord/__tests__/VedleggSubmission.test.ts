@@ -148,3 +148,35 @@ describe.each(['TE', 'BH'] as const)('%s attachment submission', (role) => {
     }
   });
 });
+
+describe.each(['TE', 'BH'] as const)('%s attachment upload', (role) => {
+  it.each(['ansvar', 'vederlag', 'frist'] as const)(
+    'blokkerer innsending av %s mens et vedlegg lastes opp',
+    async (track) => {
+      let fullfor!: (v: typeof attachment) => void;
+      vi.mocked(hentVedlegg).mockResolvedValue({ vedlegg: [], minRolle: role });
+      vi.mocked(lastOppVedlegg).mockImplementation(
+        () => new Promise((resolve) => (fullfor = resolve))
+      );
+      const demo = createDemoStore();
+      const response: CaseContextResponse = {
+        state: JSON.parse(JSON.stringify(demo.sak)),
+        timeline: JSON.parse(JSON.stringify(demo.timeline)),
+        version: 4,
+        historikk: { grunnlag: [], vederlag: [], frist: [] },
+      };
+      const workspace = createCaseWorkspace(response, { projectId: 'p', sendEvent: vi.fn() });
+      const screen = render(WorkspaceHarness, { workspace, view: { track, role, mode: 'form' } });
+      const button = screen.getByRole('button', {
+        name: role === 'BH' ? 'Ferdigstill vurdering' : /Se brev og send/,
+      });
+      await waitFor(() => expect(button).toBeEnabled());
+      const input = await screen.findByLabelText('Last opp nytt vedlegg');
+      await fireEvent.change(input, { target: { files: [new File(['%PDF-abc'], 'rapport.pdf')] } });
+      await waitFor(() => expect(button).toBeDisabled());
+      vi.mocked(hentVedlegg).mockResolvedValue({ vedlegg: [attachment], minRolle: role });
+      fullfor(attachment);
+      await waitFor(() => expect(button).toBeEnabled());
+    }
+  );
+});
