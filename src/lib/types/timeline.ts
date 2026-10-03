@@ -1029,24 +1029,6 @@ export function extractSpor(ceType: string): SporType | null {
  */
 export type TimelineEvent = CloudEvent<EventData>;
 
-// ========== LEGACY TIMELINE ENTRY (deprecated) ==========
-
-/**
- * @deprecated Use CloudEvent<EventData> instead.
- * This interface is kept for backward compatibility during migration.
- */
-export interface TimelineEntry {
-  event_id: string;
-  tidsstempel: string;
-  type: string;
-  event_type?: EventType; // Machine-readable event type
-  aktor: string;
-  rolle: 'TE' | 'BH';
-  spor: SporType | null;
-  sammendrag: string;
-  event_data?: EventData; // Full submitted form data
-}
-
 // ============================================================
 // BIM Link Types
 // ============================================================
