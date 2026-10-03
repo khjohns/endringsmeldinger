@@ -1,5 +1,5 @@
 <script lang="ts">
-  import VedleggPanel from './VedleggPanel.svelte';
+  import SkjemaStatus from './SkjemaStatus.svelte';
   let vedleggIds = $state<string[]>([]);
   let vedleggOpptatt = $state(false);
   function buildEventData(...args: Parameters<typeof buildDomainData>) {
@@ -45,8 +45,6 @@
   import { getApprovalWorkspace } from '$lib/approval/context.svelte';
   import { fmt, sporResultatLabel } from './utils.js';
   import Stamp from './Stamp.svelte';
-  import CaseAnchor from './CaseAnchor.svelte';
-  import UtkastStatus from './UtkastStatus.svelte';
   import type { EventType, ResponsVederlagEventData } from '$lib/types/timeline';
   import {
     createSubmission,
@@ -589,30 +587,19 @@
 
 {#if draft.ready}
   <div class="form-content">
-    {#if submission.pending}<p role="status">Sender …</p>{/if}
-    {#if submission.error}<p role="alert">{submission.error}</p>{/if}
-    <UtkastStatus
-      status={draft.status}
+    <SkjemaStatus
+      sender={submission.pending}
+      feil={submission.error}
+      utkastStatus={draft.status}
       konflikt={draft.konflikt}
       sistEndretAv={draft.sistEndretAv}
       behold={draft.behold}
       hentInn={draft.hentInn}
+      sakId={store.sak.sak_id}
+      visVedlegg={!store.isDemo}
+      bind:vedleggIds
+      bind:vedleggOpptatt
     />
-    <CaseAnchor />
-    {#if !store.isDemo}
-      <details>
-        <summary
-          >Vedlegg (valgfritt){vedleggIds.length ? ` · ${vedleggIds.length} valgt` : ''}</summary
-        >
-        <VedleggPanel
-          sakId={store.sak.sak_id}
-          valgbare
-          bind:valgte={vedleggIds}
-          bind:opptatt={vedleggOpptatt}
-          disabled={submission.pending}
-        />
-      </details>
-    {/if}
 
     <div class="form-title-row">
       <h1>Krav om vederlagsjustering</h1>
@@ -1363,28 +1350,6 @@
     background: var(--surface);
     border: var(--rule);
     border-radius: 12px;
-  }
-  .begrunnelse-section .editor-wrapper {
-    margin-top: 12px;
-    overflow: hidden;
-    border: var(--rule-strong);
-    border-radius: 8px;
-  }
-  .begrunnelse-section .editor-wrapper:focus-within {
-    border-color: var(--control-focus);
-    box-shadow: var(--control-focus-ring);
-  }
-  .begrunnelse-section .regenerate-btn {
-    padding: 5px 10px;
-    background: var(--surface);
-    border: var(--control-border);
-    border-radius: 999px;
-    color: var(--ink-3);
-  }
-  .begrunnelse-section .regenerate-btn:hover {
-    color: var(--ink);
-    background: var(--surface-inset);
-    border-color: var(--ink-3);
   }
 
   .preklusjon-section {
