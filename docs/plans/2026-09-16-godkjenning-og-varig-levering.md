@@ -260,6 +260,12 @@ Tilsluttet av oppdragsgiver 21.09. Føringer for design, ikke implementert.
 > åpent). Unntaket gjelder ikke #102, #109, #111 eller logger-delen av #110.
 > Disse endrer de samme backendfilene som #49, #66 og #70, og følger
 > rekkefølgen i avsnitt 5.
+>
+> **Merknad 2026-10-03 til AF-06 (#111):** Oppdragsgiver har utvidet
+> unntaket til frontenddelen av #111: modulbeskrivelsene i `fristDomain.ts`,
+> `grunnlagDomain.ts`, `vederlagDomain.ts`, `fristSubmissionDomain.ts` og
+> `vederlagSubmissionDomain.ts`. Den rører ingen av filene til #49, #66, #70
+> eller #109. Backenddelen av #111 følger fortsatt rekkefølgen i avsnitt 5.
 
 ### 3.3 Anbefalinger som ikke er vedtatt
 
