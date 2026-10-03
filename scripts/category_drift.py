@@ -65,7 +65,7 @@ def parse_typescript_categories(file_path: Path) -> Dict[str, Dict[str, Any]]:
         r"kode:\s*['\"](\w+)['\"].*?"
         r"label:\s*['\"]([^'\"]+)['\"].*?"
         r"hjemmel_frist:.*?"  # Kun hovedkategorier har dette
-        r"underkategorier:\s*\[(.*?)\]",
+        r"hjemler:\s*\[(.*?)\]",
         re.DOTALL
     )
 
