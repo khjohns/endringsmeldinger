@@ -76,9 +76,13 @@ def post(api, body, batch=False):
     )
 
 
+@pytest.mark.parametrize("uten_aktorfelt", [False, True])
 @pytest.mark.parametrize("batch", [False, True])
-def test_actor_and_role_come_from_server(api, batch):
+def test_actor_and_role_come_from_server(api, batch, uten_aktorfelt):
     body = payload()
+    if uten_aktorfelt:
+        # Slik frontenden sender hendelsen (#110).
+        del body["event"]["aktor_id"], body["event"]["aktor_rolle"]
     if batch:
         body["events"] = [body.pop("event")]
     response = post(api, body, batch)

@@ -33,6 +33,48 @@ def test_report_body_does_not_load_images(image_reader):
     assert "& 1 < 2" in paragraph.getPlainText()
 
 
+MARKDOWN_MED_MARKUP = [
+    '<img src="https://example.invalid/image.png"/>',
+    '**<img src="/private/tmp/private-image.png"/>**',
+    '[<img src="https://example.invalid/a.png"/>](https://example.invalid)',
+    '- `<img src="https://example.invalid/b.png"/>`',
+    '# <img src="https://example.invalid/c.png"/>',
+]
+
+
+@pytest.mark.parametrize("text", MARKDOWN_MED_MARKUP)
+def test_letter_sections_do_not_load_images(image_reader, text):
+    from services.letter_pdf_generator import (
+        BrevInnhold,
+        BrevReferanser,
+        BrevSeksjoner,
+    )
+
+    part = BrevPart(navn="Part", rolle="TE")
+    brev = BrevInnhold(
+        tittel="Brev",
+        mottaker=part,
+        avsender=part,
+        referanser=BrevReferanser(
+            sak_id="SAK-1",
+            sakstittel="Sak",
+            event_id="hendelse-1",
+            spor_type="grunnlag",
+            dato="2026-10-01",
+        ),
+        seksjoner=BrevSeksjoner(innledning=text, begrunnelse=text, avslutning=text),
+    )
+    assert LetterPdfGenerator().generate_letter_pdf(brev).startswith(b"%PDF")
+    image_reader.assert_not_called()
+
+
+@pytest.mark.parametrize("text", MARKDOWN_MED_MARKUP)
+def test_report_markdown_does_not_load_images(image_reader, text):
+    paragraph = ReportLabPdfGenerator()._wrap_text(text)
+    image_reader.assert_not_called()
+    assert "<img" in paragraph.getPlainText()
+
+
 @pytest.mark.parametrize("field", ["navn", "rolle", "dato"])
 def test_report_signatures_are_plain_text(image_reader, field):
     person = {"navn": "Ansatt", "rolle": "Leder", "dato": "2026-09-14"}
