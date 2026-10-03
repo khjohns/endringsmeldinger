@@ -1649,9 +1649,27 @@ A KOE is a candidate if:
                                             "type": "object",
                                             "properties": {
                                                 "forsering_sak_id": {"type": "string"},
-                                                "tittel": {"type": "string"},
-                                                "status": {"type": "string"},
-                                                "estimert_kostnad": {"type": "number"},
+                                                "forsering_sak_tittel": {
+                                                    "type": "string",
+                                                    "nullable": True,
+                                                },
+                                                "dato_varslet": {
+                                                    "type": "string",
+                                                    "format": "date",
+                                                    "nullable": True,
+                                                },
+                                                "er_iverksatt": {
+                                                    "type": "boolean",
+                                                    "nullable": True,
+                                                },
+                                                "er_stoppet": {
+                                                    "type": "boolean",
+                                                    "nullable": True,
+                                                },
+                                                "tilstand_feilet": {
+                                                    "type": "boolean",
+                                                    "description": "True when the state of the forsering could not be computed. The case is still listed; the other fields are then null.",
+                                                },
                                             },
                                         },
                                     },
@@ -1659,7 +1677,20 @@ A KOE is a candidate if:
                             }
                         }
                     },
-                }
+                },
+                "503": {
+                    "description": "Related cases could not be fetched (transient data store failure). Error code RELATED_UNAVAILABLE; never an empty list.",
+                    "content": {
+                        "application/json": {
+                            "schema": {"$ref": "#/components/schemas/Error"},
+                            "example": {
+                                "success": False,
+                                "error": "RELATED_UNAVAILABLE",
+                                "message": "Kunne ikke hente relaterte saker. Prøv igjen senere.",
+                            },
+                        }
+                    },
+                },
             },
         }
     }
@@ -1930,7 +1961,20 @@ Get KOE cases that can be added to an endringsordre.
                             }
                         }
                     },
-                }
+                },
+                "503": {
+                    "description": "Related cases could not be fetched (transient data store failure). Error code RELATED_UNAVAILABLE; never an empty list.",
+                    "content": {
+                        "application/json": {
+                            "schema": {"$ref": "#/components/schemas/Error"},
+                            "example": {
+                                "success": False,
+                                "error": "RELATED_UNAVAILABLE",
+                                "message": "Kunne ikke hente relaterte saker. Prøv igjen senere.",
+                            },
+                        }
+                    },
+                },
             },
         }
     }

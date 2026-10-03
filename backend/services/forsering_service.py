@@ -12,7 +12,6 @@ med relasjoner til de avslåtte fristforlengelsessakene.
 from datetime import UTC, datetime
 from typing import Any
 
-from lib.db.feil import DatalagFeil
 from lib.helpers import get_all_sak_ids
 from models.events import parse_event
 from models.sak_state import SakRelasjon, SakState, SaksType
@@ -23,6 +22,28 @@ logger = get_logger(__name__)
 
 
 _IKKE_OPPGITT = object()
+
+
+def _forsering_oppslag(forsering_sak_id: str, state: SakState) -> dict[str, Any]:
+    return {
+        "forsering_sak_id": forsering_sak_id,
+        "forsering_sak_tittel": state.sakstittel,
+        "dato_varslet": state.forsering_data.dato_varslet,
+        "er_iverksatt": state.forsering_data.er_iverksatt or False,
+        "er_stoppet": state.forsering_data.er_stoppet or False,
+        "tilstand_feilet": False,
+    }
+
+
+def _forsering_med_feilet_tilstand(forsering_sak_id: str) -> dict[str, Any]:
+    return {
+        "forsering_sak_id": forsering_sak_id,
+        "forsering_sak_tittel": None,
+        "dato_varslet": None,
+        "er_iverksatt": None,
+        "er_stoppet": None,
+        "tilstand_feilet": True,
+    }
 
 
 def _get_relation_repository(container=None):
@@ -430,35 +451,26 @@ class ForseringService(BaseSakService):
             logger.debug(f"No forseringer found for {sak_id} in index")
             return []
 
-        # Fetch state for each forsering
         for forsering_sak_id in forsering_sak_ids:
-            if self.event_repository and self.timeline_service:
-                try:
-                    events_data, _version = self.event_repository.get_events(
-                        forsering_sak_id
-                    )
-                    if events_data:
-                        events = [parse_event(e) for e in events_data]
-                        state = self.timeline_service.compute_state(events)
-
-                        if state.sakstype == "forsering" and state.forsering_data:
-                            forseringer.append(
-                                {
-                                    "forsering_sak_id": forsering_sak_id,
-                                    "forsering_sak_tittel": state.sakstittel,
-                                    "dato_varslet": state.forsering_data.dato_varslet,
-                                    "er_iverksatt": state.forsering_data.er_iverksatt
-                                    or False,
-                                    "er_stoppet": state.forsering_data.er_stoppet
-                                    or False,
-                                }
-                            )
-                except DatalagFeil:
-                    raise
-                except Exception as e:
-                    logger.debug(
-                        f"Could not fetch state for forsering {forsering_sak_id}: {e}"
-                    )
+            if not (self.event_repository and self.timeline_service):
+                continue
+            events_data, _version = self.event_repository.get_events(forsering_sak_id)
+            if not events_data:
+                continue
+            try:
+                state = self.timeline_service.compute_state(
+                    [parse_event(e) for e in events_data]
+                )
+            except Exception:
+                # Indeksen sier at saken er en forsering; en feil i projeksjonen
+                # skal ikke skjule den (beslutning 03.10 i #123).
+                logger.exception(
+                    "Kunne ikke beregne tilstanden til forsering %s", forsering_sak_id
+                )
+                forseringer.append(_forsering_med_feilet_tilstand(forsering_sak_id))
+                continue
+            if state.sakstype == "forsering" and state.forsering_data:
+                forseringer.append(_forsering_oppslag(forsering_sak_id, state))
 
         logger.info(f"Found {len(forseringer)} forseringer for {sak_id} (via index)")
         return forseringer
@@ -490,35 +502,20 @@ class ForseringService(BaseSakService):
             logger.warning("Ingen saker å søke gjennom for forseringer")
             return []
 
-        # Søk gjennom sakene
         for candidate_sak_id in sak_ids_to_search:
-            if self.event_repository and self.timeline_service:
-                try:
-                    events_data, _version = self.event_repository.get_events(
-                        candidate_sak_id
-                    )
-                    if events_data:
-                        events = [parse_event(e) for e in events_data]
-                        state = self.timeline_service.compute_state(events)
-
-                        if state.sakstype == "forsering" and state.forsering_data:
-                            relaterte = state.forsering_data.avslatte_fristkrav or []
-                            if sak_id in relaterte:
-                                forseringer.append(
-                                    {
-                                        "forsering_sak_id": candidate_sak_id,
-                                        "forsering_sak_tittel": state.sakstittel,
-                                        "dato_varslet": state.forsering_data.dato_varslet,
-                                        "er_iverksatt": state.forsering_data.er_iverksatt
-                                        or False,
-                                        "er_stoppet": state.forsering_data.er_stoppet
-                                        or False,
-                                    }
-                                )
-                except DatalagFeil:
-                    raise
-                except Exception as e:
-                    logger.debug(f"Kunne ikke evaluere sak {candidate_sak_id}: {e}")
+            if not (self.event_repository and self.timeline_service):
+                continue
+            events_data, _version = self.event_repository.get_events(candidate_sak_id)
+            if not events_data:
+                continue
+            # Uten indeksen vet ingen om en sak som ikke lar seg projisere, er
+            # en forsering. Feilen går videre, som for endringsordrer (#123).
+            state = self.timeline_service.compute_state(
+                [parse_event(e) for e in events_data]
+            )
+            if state.sakstype == "forsering" and state.forsering_data:
+                if sak_id in (state.forsering_data.avslatte_fristkrav or []):
+                    forseringer.append(_forsering_oppslag(candidate_sak_id, state))
 
         logger.info(
             f"Fant {len(forseringer)} forseringer som refererer til {sak_id} (via scan)"
