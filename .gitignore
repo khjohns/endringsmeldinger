@@ -11,6 +11,11 @@ build
 # codegrasp index
 .codegrasp/
 
+# Lokale arbeidsmapper for Playwright- og brainstormverktøy.
+# Bevaringsverdig materiale ligger i docs/design/.
+.playwright-mcp/
+.superpowers/
+
 # Backend Python artifacts
 backend/__pycache__/
 backend/**/__pycache__/
