@@ -36,7 +36,7 @@
 
   let element = $state<HTMLDivElement>();
   let editor = $state<Editor>();
-  const charCount = $derived(editor?.storage.characterCount?.characters() ?? 0);
+  let charCount = $state(0);
 
   $effect(() => {
     if (!editor) return;
@@ -53,8 +53,8 @@
         ...extraExtensions,
       ],
       content: body,
-      onTransaction: () => {
-        editor = editor;
+      onTransaction: ({ editor: e }) => {
+        charCount = e.storage.characterCount.characters();
       },
       onUpdate: ({ editor: e }) => {
         const newHtml = e.getHTML();
@@ -62,6 +62,7 @@
         onchange?.(newHtml);
       },
     });
+    charCount = editor.storage.characterCount.characters();
 
     onready?.({
       setContent: (content: string) => {
