@@ -56,6 +56,48 @@ from constants.vederlag_methods import VEDERLAG_METODER
 
 logger = get_logger(__name__)
 
+# ReportLab deler en tabell bare mellom rader. En celle som er høyere enn
+# rammen (716 pt på A4 med disse margene), gir LayoutError. CELLEPADDING er
+# ReportLabs standard venstre- og høyrepadding i en tabellcelle.
+MAKS_UDELT_CELLE = 600
+DELHOYDE = 200
+CELLEPADDING = 12
+
+
+def _del_celle(celle, bredde: float) -> list:
+    if not isinstance(celle, Paragraph):
+        return [celle]
+    _, hoyde = celle.wrap(bredde, MAKS_UDELT_CELLE)
+    if hoyde <= MAKS_UDELT_CELLE:
+        return [celle]
+    deler = []
+    rest = celle
+    while True:
+        _, hoyde = rest.wrap(bredde, DELHOYDE)
+        if hoyde <= DELHOYDE:
+            return [*deler, rest]
+        biter = rest.split(bredde, DELHOYDE)
+        if len(biter) < 2:
+            return [*deler, rest]
+        deler.append(biter[0])
+        rest = biter[1]
+
+
+def _delte_rader(data: list, kolonnebredder: list) -> list:
+    rader = []
+    for rad in data:
+        celler = [
+            _del_celle(celle, bredde - CELLEPADDING)
+            for celle, bredde in zip(rad, kolonnebredder, strict=True)
+        ]
+        for i in range(max(len(deler) for deler in celler)):
+            rader.append([deler[i] if i < len(deler) else "" for deler in celler])
+    return rader
+
+
+def _tabell(data: list, kolonnebredder: list) -> Table:
+    return Table(_delte_rader(data, kolonnebredder), colWidths=kolonnebredder)
+
 
 class ReportLabPdfGenerator:
     """
@@ -351,7 +393,7 @@ class ReportLabPdfGenerator:
             ["Overordnet status:", self._format_status(state.overordnet_status)],
         ]
 
-        table = Table(data, colWidths=[4 * cm, 12 * cm])
+        table = _tabell(data, [4 * cm, 12 * cm])
         table.setStyle(
             TableStyle(
                 [
@@ -414,7 +456,7 @@ class ReportLabPdfGenerator:
             te_data.append(["Beskrivelse:", self._wrap_text(grunnlag.beskrivelse)])
 
         if te_data:
-            table = Table(te_data, colWidths=[3.5 * cm, 12.5 * cm])
+            table = _tabell(te_data, [3.5 * cm, 12.5 * cm])
             table.setStyle(
                 TableStyle(
                     [
@@ -446,7 +488,7 @@ class ReportLabPdfGenerator:
                     ["Begrunnelse:", self._wrap_text(grunnlag.bh_begrunnelse)]
                 )
 
-            table = Table(bh_data, colWidths=[3.5 * cm, 12.5 * cm])
+            table = _tabell(bh_data, [3.5 * cm, 12.5 * cm])
             table.setStyle(
                 TableStyle(
                     [
@@ -522,7 +564,7 @@ class ReportLabPdfGenerator:
             te_data.append(["Begrunnelse:", self._wrap_text(vederlag.begrunnelse)])
 
         if te_data:
-            table = Table(te_data, colWidths=[3.5 * cm, 12.5 * cm])
+            table = _tabell(te_data, [3.5 * cm, 12.5 * cm])
             table.setStyle(
                 TableStyle(
                     [
@@ -559,7 +601,7 @@ class ReportLabPdfGenerator:
                     ["Begrunnelse:", self._wrap_text(vederlag.bh_begrunnelse)]
                 )
 
-            table = Table(bh_data, colWidths=[3.5 * cm, 12.5 * cm])
+            table = _tabell(bh_data, [3.5 * cm, 12.5 * cm])
             table.setStyle(
                 TableStyle(
                     [
@@ -620,7 +662,7 @@ class ReportLabPdfGenerator:
             te_data.append(["Begrunnelse:", self._wrap_text(frist.begrunnelse)])
 
         if te_data:
-            table = Table(te_data, colWidths=[3.5 * cm, 12.5 * cm])
+            table = _tabell(te_data, [3.5 * cm, 12.5 * cm])
             table.setStyle(
                 TableStyle(
                     [
@@ -653,7 +695,7 @@ class ReportLabPdfGenerator:
             if frist.bh_begrunnelse:
                 bh_data.append(["Begrunnelse:", self._wrap_text(frist.bh_begrunnelse)])
 
-            table = Table(bh_data, colWidths=[3.5 * cm, 12.5 * cm])
+            table = _tabell(bh_data, [3.5 * cm, 12.5 * cm])
             table.setStyle(
                 TableStyle(
                     [
@@ -703,7 +745,7 @@ class ReportLabPdfGenerator:
             ["= Maks forsering:", self._format_currency(fd.maks_forseringskostnad)],
         ]
 
-        table = Table(calc_data, colWidths=[4 * cm, 12 * cm])
+        table = _tabell(calc_data, [4 * cm, 12 * cm])
         table.setStyle(
             TableStyle(
                 [
@@ -748,7 +790,7 @@ class ReportLabPdfGenerator:
         if fd.avslatte_fristkrav:
             te_data.append(["Relaterte saker:", ", ".join(fd.avslatte_fristkrav)])
 
-        table = Table(te_data, colWidths=[4 * cm, 12 * cm])
+        table = _tabell(te_data, [4 * cm, 12 * cm])
         table.setStyle(
             TableStyle(
                 [
@@ -784,7 +826,7 @@ class ReportLabPdfGenerator:
             if fd.bh_begrunnelse:
                 bh_data.append(["Begrunnelse:", self._wrap_text(fd.bh_begrunnelse)])
 
-            table = Table(bh_data, colWidths=[4 * cm, 12 * cm])
+            table = _tabell(bh_data, [4 * cm, 12 * cm])
             table.setStyle(
                 TableStyle(
                     [
@@ -878,7 +920,7 @@ class ReportLabPdfGenerator:
         if eo.relaterte_koe_saker:
             bh_data.append(["Relaterte KOE:", ", ".join(eo.relaterte_koe_saker)])
 
-        table = Table(bh_data, colWidths=[4 * cm, 12 * cm])
+        table = _tabell(bh_data, [4 * cm, 12 * cm])
         table.setStyle(
             TableStyle(
                 [
@@ -918,7 +960,7 @@ class ReportLabPdfGenerator:
             if eo.te_kommentar:
                 te_data.append(["Kommentar:", self._wrap_text(eo.te_kommentar)])
 
-            table = Table(te_data, colWidths=[4 * cm, 12 * cm])
+            table = _tabell(te_data, [4 * cm, 12 * cm])
             table.setStyle(
                 TableStyle(
                     [
