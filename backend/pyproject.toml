@@ -76,8 +76,6 @@ dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 "function_app.py" = ["E402"]
 # Scripts har ofte path-setup før imports og demo-kode
 "scripts/*.py" = ["E402", "F841"]
-# Services med conditional imports
-"services/reportlab_pdf_generator.py" = ["E402"]
 # Test-filer har ofte setup før imports, ubrukte variabler, og brede exceptions
 "tests/**/*.py" = ["E402", "F841", "B007", "B017"]
 "conftest.py" = ["E402"]

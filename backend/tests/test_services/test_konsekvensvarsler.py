@@ -137,16 +137,3 @@ def test_force_majeure_allows_initial_and_later_compensation_notices():
         data=VederlagData(varsel_type="varsel", begrunnelse="Annet ansvarsgrunnlag",
                          varsler=KonsekvensVarsler(vederlag="Krever vederlag")))
     assert validator.validate(later, state).is_valid
-
-
-def test_pdf_contains_each_notice_and_can_be_generated():
-    from services.reportlab_pdf_generator import ReportLabPdfGenerator
-    event = grunnlag(vederlag="Vederlag for underlag", rigg_drift="Rigg & drift vil påløpe",
-                     produktivitet="Forstyrrelser på annet arbeid", frist="Krever frist")
-    state = TimelineService().compute_state([event])
-    generator = ReportLabPdfGenerator()
-    paragraphs = generator._build_vederlag_section(state) + generator._build_frist_section(state)
-    text = " ".join(p.getPlainText() for p in paragraphs if hasattr(p, "getPlainText"))
-    for notice in state.vederlag.varsler + state.frist.varsler:
-        assert notice.tekst in text
-    assert generator.generate_pdf(state).startswith(b"%PDF")

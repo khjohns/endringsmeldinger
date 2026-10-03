@@ -1112,7 +1112,7 @@ class BaseTester:
                 new_version = result.get("new_version", expected_version + 1)
                 event_id = result.get("event_id")
                 if result.get("pdf_uploaded"):
-                    print_ok(f"  PDF lastet opp (kilde: {result.get('pdf_source')})")
+                    print_ok("  Brev lastet opp som PDF")
                 return True, new_version, event_id
             else:
                 print_fail(f"Feil ved sending: {response.status_code}")
@@ -1369,11 +1369,9 @@ class KOEFlowTester(BaseTester):
                 print_info(f"  Event ID: {self.grunnlag_event_id}")
                 print_info(f"  Versjon: {result.get('new_version')}")
                 if result.get("pdf_uploaded"):
-                    print_ok(
-                        f"  PDF lastet opp til Catenda (kilde: {result.get('pdf_source')})"
-                    )
+                    print_ok("  Brev lastet opp til Catenda som PDF")
                 else:
-                    print_warn("  PDF ble ikke lastet opp")
+                    print_info("  Ingen PDF: hendelsen har ikke et frosset brev")
 
                 # Verifiser Catenda-integrasjon
                 print_subheader("Verifiserer Catenda-integrasjon for grunnlag")
@@ -1438,7 +1436,7 @@ class KOEFlowTester(BaseTester):
                 print_info(f"  Event ID: {self.vederlag_event_id}")
                 current_version = result.get("new_version", current_version + 1)
                 if result.get("pdf_uploaded"):
-                    print_ok(f"  PDF lastet opp (kilde: {result.get('pdf_source')})")
+                    print_ok("  Brev lastet opp som PDF")
 
                 # Verifiser Catenda-integrasjon
                 print_subheader("Verifiserer Catenda-integrasjon for vederlag")
@@ -1488,7 +1486,7 @@ class KOEFlowTester(BaseTester):
                 print_ok("Fristkrav sendt!")
                 print_info(f"  Event ID: {self.frist_event_id}")
                 if result.get("pdf_uploaded"):
-                    print_ok(f"  PDF lastet opp (kilde: {result.get('pdf_source')})")
+                    print_ok("  Brev lastet opp som PDF")
 
                 # Verifiser Catenda-integrasjon
                 print_subheader("Verifiserer Catenda-integrasjon for frist")

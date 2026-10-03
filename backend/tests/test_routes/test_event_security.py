@@ -154,7 +154,7 @@ def test_committed_event_is_successful_when_secondary_work_fails(
     monkeypatch.setattr(
         "core.config.settings", SimpleNamespace(is_catenda_enabled=True)
     )
-    sync = Mock(return_value=(True, "server", []))
+    sync = Mock(return_value=(True, False, []))
     monkeypatch.setattr(event_routes, "_post_to_catenda", sync)
     if failure == "cache":
         api.container.metadata_repository.update_cache.side_effect = RuntimeError(
@@ -177,14 +177,51 @@ def test_committed_event_is_successful_when_secondary_work_fails(
         assert response.json["catenda_synced"] is False
 
 
-@pytest.mark.parametrize("encoded", ["not base64", "aGVsbG8=", "", 123])
-def test_invalid_pdf_is_rejected_before_event_commit(api, encoded):
+@pytest.mark.parametrize(
+    ("field", "value"),
+    [
+        ("pdf_base64", "JVBERi0xLjQKZWtzZW1wZWw="),
+        ("pdf_base64", "not base64"),
+        ("pdf_base64", None),
+        ("pdf_filename", "brev.pdf"),
+    ],
+)
+def test_client_pdf_is_rejected_before_event_commit(api, field, value):
+    """B-03 (hovedplanen 3.1, vedtak 03.10): bare et frosset brev blir PDF i Catenda."""
     body = payload()
-    body["pdf_base64"] = encoded
+    body[field] = value
     response = post(api, body)
     assert response.status_code == 400
+    assert response.json["error"] == "CLIENT_PDF_NOT_ACCEPTED"
     api.parser.assert_not_called()
     api.container.event_repository.append.assert_not_called()
+
+
+def test_event_without_letter_is_delivered_without_pdf(api, monkeypatch):
+    """B-03 (vedtak 03.10, #140): uten brev bare kommentar og statussynk."""
+    from services.timeline_service import TimelineService
+
+    api.container.event_repository.get_events.return_value = ([], 0)
+    api.container.event_repository.append.return_value = 1
+    api.container.timeline_service = TimelineService()
+    monkeypatch.setattr(event_routes, "_ensure_catenda_auth", lambda _: None)
+    monkeypatch.setattr(
+        "core.config.settings", SimpleNamespace(is_catenda_enabled=True)
+    )
+    monkeypatch.setattr(event_routes, "_prepare_catenda_context", lambda _: Mock())
+    upload = Mock()
+    monkeypatch.setattr(event_routes, "_upload_and_link_pdf", upload)
+    monkeypatch.setattr(event_routes, "_post_catenda_comment", lambda *args: True)
+    monkeypatch.setattr(event_routes, "_sync_topic_status", lambda *args: True)
+    body = payload()
+    body["expected_version"] = 0
+    response = post(api, body)
+    assert response.status_code == 201, response.json
+    upload.assert_not_called()
+    assert response.json["pdf_uploaded"] is False
+    assert response.json["catenda_synced"] is True
+    assert response.json["catenda_skipped_reason"] is None
+    assert response.json["catenda_documents"] == []
 
 
 def test_committed_batch_survives_cache_failure(api):
