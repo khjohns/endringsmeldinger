@@ -1,10 +1,5 @@
 /**
- * vederlagDomain.ts — Ren NS 8407 domenelogikk for vederlag (kompensasjon).
- *
- * Ingen React-avhengigheter. Alle funksjoner er rene (input → output).
- * Importeres av useVederlagBridge.ts (fremtidig) og RespondVederlagModal.
- *
- * Ref: ADR-003 L14, §34 / §30.2 NS 8407:2011
+ * Domenelogikk for byggherrens svar på vederlagskrav, NS 8407:2011 § 34 og § 30.2.
  */
 
 import type {
@@ -13,15 +8,10 @@ import type {
   SubsidiaerTrigger,
 } from '../types/timeline';
 
-// ============================================================================
-// TYPES
-// ============================================================================
-
 export type BelopVurdering = 'godkjent' | 'delvis' | 'avslatt';
 
 /**
- * Flat representasjon av alle BH-valg i vederlagsresponsen.
- * Speiler wizard-portene 1–4 i RespondVederlagModal.
+ * Flat representasjon av alle BH-valg i vederlagsresponsen, gruppert etter port.
  */
 export interface VederlagFormState {
   // Port 1: Preklusjon
@@ -131,10 +121,6 @@ export interface VurderingBadge {
   label: string;
 }
 
-// ============================================================================
-// DEFAULTS
-// ============================================================================
-
 export function getDefaults(config: VederlagDefaultsConfig): VederlagFormState {
   if (config.isUpdateMode && config.lastResponseEvent) {
     const prev = config.lastResponseEvent;
@@ -168,9 +154,7 @@ export function getDefaults(config: VederlagDefaultsConfig): VederlagFormState {
   };
 }
 
-// ============================================================================
-// PRECLUSION (§34.1.2, §34.1.3, §32.2)
-// ============================================================================
+// Preklusjon (§ 34.1.2, § 34.1.3, § 32.2)
 
 /**
  * §34.1.2 preklusjon gjelder KUN for SVIKT/ANDRE kategorier.
@@ -227,10 +211,6 @@ export function harPreklusjonsSteg(config: VederlagDomainConfig): boolean {
   return config.harRiggKrav || config.harProduktivitetKrav || har34_1_2Preklusjon(config);
 }
 
-// ============================================================================
-// METHOD DERIVATIONS
-// ============================================================================
-
 /** §30.2: BH kan holde tilbake betaling for regningsarbeid uten kostnadsoverslag */
 export function kanHoldeTilbake(
   config: Pick<VederlagDomainConfig, 'metode' | 'kostnadsOverslag'>
@@ -245,13 +225,6 @@ export function maSvarePaJustering(
   return config.metode === 'ENHETSPRISER' && config.kreverJustertEp === true;
 }
 
-// ============================================================================
-// AMOUNT CALCULATIONS
-// ============================================================================
-
-/**
- * Beregn godkjent beløp for et enkelt krav basert på vurdering.
- */
 export function beregnGodkjentBelop(
   vurdering: BelopVurdering | undefined,
   krevdBelop: number,
@@ -279,8 +252,7 @@ export interface VederlagTotaler {
 }
 
 /**
- * Beregn alle beløp-totaler (principal og subsidiary).
- * Flytt fra RespondVederlagModal computed useMemo (linje 553–643).
+ * Beregn alle beløp-totaler (prinsipalt og subsidiært).
  */
 export function beregnTotaler(
   state: VederlagFormState,
@@ -359,14 +331,6 @@ export function beregnTotaler(
   };
 }
 
-// ============================================================================
-// RESULT COMPUTATION
-// ============================================================================
-
-/**
- * Beregn prinsipalt resultat basert på wizard-inputs.
- * Følger NS 8407 logikk fra Datasett_varslingsregler_8407.py.
- */
 export function beregnPrinsipaltResultat(computed: {
   totalKrevdInklPrekludert: number;
   totalGodkjent: number;
@@ -413,10 +377,6 @@ export function beregnSubsidiaertResultat(computed: {
   return 'delvis_godkjent';
 }
 
-// ============================================================================
-// SUBSIDIARY TRIGGERS
-// ============================================================================
-
 export function beregnSubsidiaerTriggers(
   state: VederlagFormState,
   config: VederlagDomainConfig,
@@ -438,14 +398,6 @@ export function beregnSubsidiaerTriggers(
   return triggers;
 }
 
-// ============================================================================
-// VALIDATION HELPERS
-// ============================================================================
-
-/**
- * Sjekk om en kravlinje har gyldig vurdering.
- * Krever at vurdering er satt, og at godkjentBelop er satt ved 'delvis'.
- */
 export function erKravlinjeGyldig(
   vurdering: BelopVurdering | undefined,
   godkjentBelop: number | undefined
@@ -455,10 +407,6 @@ export function erKravlinjeGyldig(
     return false;
   return true;
 }
-
-// ============================================================================
-// BADGE HELPERS
-// ============================================================================
 
 export function getVurderingBadge(
   vurdering: BelopVurdering | undefined,
@@ -476,10 +424,6 @@ export function getVurderingBadge(
   }
 }
 
-// ============================================================================
-// DYNAMIC PLACEHOLDER
-// ============================================================================
-
 export function getDynamicPlaceholder(resultat: VederlagBeregningResultat | undefined): string {
   if (!resultat) return 'Gjør valgene i wizarden, deretter skriv begrunnelse...';
   if (resultat === 'godkjent') return 'Begrunn din godkjenning av vederlagskravet...';
@@ -488,10 +432,6 @@ export function getDynamicPlaceholder(resultat: VederlagBeregningResultat | unde
   if (resultat === 'hold_tilbake') return 'Begrunn tilbakeholdelsen av betaling (§30.2)...';
   return 'Begrunn ditt avslag på vederlagskravet...';
 }
-
-// ============================================================================
-// BUILD EVENT DATA
-// ============================================================================
 
 export function buildEventData(
   state: VederlagFormState,
@@ -516,7 +456,6 @@ export function buildEventData(
 ): { eventType: string; data: Record<string, unknown> } {
   const begrunnelseTekst = state.begrunnelse || autoBegrunnelse;
 
-  // Beregn godkjente beløp per krav
   const hovedkravGodkjentBelop =
     state.hovedkravVurdering === 'godkjent'
       ? config.hovedkravBelop
@@ -538,7 +477,6 @@ export function buildEventData(
         ? state.produktivitetGodkjentBelop
         : 0;
 
-  // Felles data for begge modi
   const commonData: Record<string, unknown> = {
     // Port 1: Preklusjon
     hovedkrav_varslet_i_tide: computed.har34_1_2_Preklusjon
@@ -601,24 +539,12 @@ export function buildEventData(
   };
 }
 
-// ============================================================================
-// DISPLAY HELPERS (L14: ren domenelogikk, ingen React)
-// ============================================================================
-
-/**
- * Avled vurdering fra godkjent vs krevd beløp.
- * Brukes av bridge-hook for å oppdatere vurdering når bruker endrer beløp.
- */
 export function deriveVurdering(godkjent: number, krevd: number): BelopVurdering {
   if (godkjent >= krevd && krevd > 0) return 'godkjent';
   if (godkjent > 0) return 'delvis';
   return 'avslatt';
 }
 
-/**
- * Beregn visningsverdi for godkjent-beløp basert på vurdering.
- * Returnerer krevd ved 'godkjent', bruker-input ved 'delvis', 0 ved 'avslatt'.
- */
 export function getGodkjentForDisplay(
   vurdering: BelopVurdering | undefined,
   krevdBelop: number,
@@ -628,10 +554,6 @@ export function getGodkjentForDisplay(
   if (vurdering === 'delvis') return godkjentBelop ?? 0;
   return 0;
 }
-
-// ============================================================================
-// CONVENIENCE: beregnAlt
-// ============================================================================
 
 export function beregnAlt(
   state: VederlagFormState,

@@ -1,16 +1,9 @@
 /**
- * fristSubmissionDomain.ts — TE's frist submission logic (NS 8407 §33).
- *
- * Pure TypeScript — no React dependencies. Imported by useFristSubmissionBridge.ts.
- * Ref: ADR-003 L14
+ * Domenelogikk for totalentreprenørens krav om fristforlengelse, NS 8407:2011 § 33.
  */
 
 import { differenceInDays } from 'date-fns';
 import type { FristVarselType, VarselInfo } from '../types/timeline';
-
-// ============================================================================
-// TYPES
-// ============================================================================
 
 export type SubmissionScenario = 'new' | 'spesifisering' | 'foresporsel' | 'edit';
 
@@ -72,10 +65,6 @@ export interface FristSubmissionEventData {
   dato_spesifisert?: string;
 }
 
-// ============================================================================
-// DEFAULTS
-// ============================================================================
-
 export function getDefaults(config: FristSubmissionDefaultsConfig): FristSubmissionFormState {
   if (config.scenario === 'edit' && config.existing) {
     return {
@@ -115,10 +104,6 @@ export function getDefaults(config: FristSubmissionDefaultsConfig): FristSubmiss
   };
 }
 
-// ============================================================================
-// VISIBILITY
-// ============================================================================
-
 const NEW_SEGMENTS = [
   { value: 'varsel', label: 'Foreløpig varsel' },
   { value: 'spesifisert', label: 'Spesifisert krav' },
@@ -152,10 +137,6 @@ export function beregnVisibility(
   };
 }
 
-// ============================================================================
-// PREKLUSION WARNING
-// ============================================================================
-
 export function beregnPreklusjonsvarsel(config: {
   datoOppdaget?: string;
 }): { variant: 'warning' | 'danger'; dager: number } | null {
@@ -165,10 +146,6 @@ export function beregnPreklusjonsvarsel(config: {
   if (dager > 7) return { variant: 'warning', dager };
   return null;
 }
-
-// ============================================================================
-// VALIDATION
-// ============================================================================
 
 export function beregnCanSubmit(
   state: FristSubmissionFormState,
@@ -191,10 +168,6 @@ export function beregnCanSubmit(
   return false;
 }
 
-// ============================================================================
-// DYNAMIC PLACEHOLDER
-// ============================================================================
-
 export function getDynamicPlaceholder(varselType: FristVarselType | undefined): string {
   if (!varselType) return 'Velg kravtype i kortet for å begynne...';
   if (varselType === 'varsel')
@@ -204,17 +177,13 @@ export function getDynamicPlaceholder(varselType: FristVarselType | undefined): 
   return 'Begrunn hvorfor grunnlaget for å beregne kravet ikke foreligger (§ 33.6.2 b)...';
 }
 
-// ============================================================================
-// BUILD EVENT DATA
-// ============================================================================
-
 export function buildEventData(
   state: FristSubmissionFormState,
   config: FristSubmissionBuildConfig
 ): FristSubmissionEventData {
   const today = new Date().toISOString().split('T')[0];
 
-  // Build frist_varsel (§33.4 notice)
+  // § 33.4
   const fristVarsel: VarselInfo | undefined =
     state.tidligereVarslet && state.varselDato
       ? { dato_sendt: state.varselDato, metode: ['digital_oversendelse'] }
@@ -222,7 +191,7 @@ export function buildEventData(
         ? { dato_sendt: today, metode: ['digital_oversendelse'] }
         : undefined;
 
-  // Build spesifisert_varsel (§33.6.1) — for specified claims
+  // § 33.6.1
   const spesifisertVarsel: VarselInfo | undefined =
     state.varselType === 'spesifisert'
       ? { dato_sendt: today, metode: ['digital_oversendelse'] }
@@ -252,10 +221,6 @@ export function buildEventData(
   return result;
 }
 
-// ============================================================================
-// EVENT TYPE
-// ============================================================================
-
 export function getEventType(config: { scenario: SubmissionScenario }): string {
   switch (config.scenario) {
     case 'new':
@@ -269,10 +234,6 @@ export function getEventType(config: { scenario: SubmissionScenario }): string {
   }
 }
 
-// ============================================================================
-// REVISION CONTEXT — types
-// ============================================================================
-
 export interface RevisionContextConfig {
   scenario?: SubmissionScenario;
   foresporselDeadline?: string;
@@ -283,10 +244,6 @@ export interface RevisionContext {
   isForesporsel: boolean;
   foresporselDeadline?: string;
 }
-
-// ============================================================================
-// TE STATUS SUMMARY
-// ============================================================================
 
 export interface TeStatusSummaryConfig {
   scenario: SubmissionScenario;
@@ -326,7 +283,6 @@ export function beregnTeStatusSummary(
     return 'Svarer på forespørsel';
   }
 
-  // new scenario
   if (state.varselType === 'varsel') {
     return 'Sender foreløpig varsel om fristforlengelse';
   }
@@ -339,10 +295,6 @@ export function beregnTeStatusSummary(
 
   return null;
 }
-
-// ============================================================================
-// REVISION CONTEXT — computation
-// ============================================================================
 
 export function beregnRevisionContext(config: RevisionContextConfig): RevisionContext {
   const isSpec = config.scenario === 'spesifisering' || config.scenario === 'foresporsel';
