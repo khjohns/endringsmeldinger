@@ -104,6 +104,10 @@ som gjør ethvert unntak til `200` med tom liste. For ruta er utfallet derfor de
 samme. Forskjellen er at feilen nå er logget som feil i ruta, ikke gjemt i
 lageret.
 
+> **Merknad 2026-10-03:** `safe_find_related` svelger ikke lenger (#72). En
+> `TransientError` gir `503`, andre unntak går til `handle_service_errors`.
+> Begge by-relatert-rutene, også endringsordrenes, går nå gjennom den.
+
 **BIM-koblingene er avgrenset gjennom saken.** `sak_bim_links` har ingen
 `prosjekt_id`. Hver spørring slår sammen med `sak_metadata` og krever
 `prosjekt_id = get_project_id()`:

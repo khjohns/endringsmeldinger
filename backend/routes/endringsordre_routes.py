@@ -27,6 +27,7 @@ from routes.related_cases_utils import (
     build_kandidater_response,
     build_kontekst_response,
     build_relaterte_response,
+    safe_find_related,
     validate_required_fields,
 )
 from services.approval_policy import (
@@ -251,7 +252,7 @@ def hent_kandidat_koe_saker():
 def finn_eoer_for_koe(sak_id: str):
     """Finn endringsordrer som refererer til en gitt KOE-sak."""
     service = _get_endringsordre_service()
-    return jsonify(success=True, endringsordrer=service.finn_eoer_for_koe(sak_id))
+    return safe_find_related(service.finn_eoer_for_koe, sak_id, "endringsordrer")
 
 
 @endringsordre_bp.route("/api/endringsordre/godkjenninger", methods=["GET", "POST"])
