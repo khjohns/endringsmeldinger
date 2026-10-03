@@ -25,7 +25,6 @@ export type {
   FristBeregningResultat,
   VederlagsMetode,
   FristVarselType,
-  TimelineEntry,
 } from './timeline';
 
 // API types (requests and responses)
