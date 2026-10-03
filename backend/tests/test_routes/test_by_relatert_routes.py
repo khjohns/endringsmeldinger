@@ -3,6 +3,10 @@
 Kilden for forventningen er oppdragsgivers beslutning 03.10 i #72: en
 forbigående feil i datalaget gir 503, ikke 200 med tom liste. Dataene er
 lagerdobler som kaster feilklassene fra kjernen, uavhengig av database.
+
+Testene for feil i projeksjonen har kilden i oppdragsgivers beslutning 03.10
+i #123: forsering skal oppføre seg som endringsordre, og en forsering hvis
+tilstand ikke kan beregnes, vises med et feilflagg i stedet for å skjules.
 """
 
 from types import SimpleNamespace
@@ -65,10 +69,14 @@ def api(monkeypatch):
     metadata = {
         "KOE-1": SimpleNamespace(prosjekt_id="p"),
         "F-1": SimpleNamespace(prosjekt_id="p"),
+        "F-2": SimpleNamespace(prosjekt_id="p"),
         "KOE-X": SimpleNamespace(prosjekt_id="annet"),
     }
     events = Mock()
-    store = {"F-1": [_forsering_event("F-1", "KOE-1")]}
+    store = {
+        "F-1": [_forsering_event("F-1", "KOE-1")],
+        "F-2": [{"event_type": "ukjent_hendelse", "sak_id": "F-2"}],
+    }
     events.get_events.side_effect = lambda sak: (store.get(sak, []), 1)
     relasjoner = Relasjonslager(svar=["F-1"])
     container = Mock()
@@ -128,6 +136,42 @@ def test_permanent_feil_gir_500_ikke_tom_liste(api):
     response = api.client.get("/api/forsering/by-relatert/KOE-1", headers=HEADERS)
     assert response.status_code == 500
     assert "forseringer" not in response.get_json()
+
+
+def test_forsering_med_feil_i_projeksjonen_vises_med_flagg(api):
+    """Beslutning 03.10 i #123: forseringen skal ikke skjules."""
+    api.relasjoner.svar = ["F-1", "F-2"]
+    response = api.client.get("/api/forsering/by-relatert/KOE-1", headers=HEADERS)
+    assert response.status_code == 200
+    forseringer = {f["forsering_sak_id"]: f for f in response.get_json()["forseringer"]}
+    assert set(forseringer) == {"F-1", "F-2"}
+    assert forseringer["F-1"]["tilstand_feilet"] is False
+    assert forseringer["F-1"]["forsering_sak_tittel"] == "Forsering"
+    assert forseringer["F-2"] == {
+        "forsering_sak_id": "F-2",
+        "forsering_sak_tittel": None,
+        "dato_varslet": None,
+        "er_iverksatt": None,
+        "er_stoppet": None,
+        "tilstand_feilet": True,
+    }
+
+
+def test_lagerfeil_gir_fortsatt_503_ved_siden_av_feil_i_projeksjonen(api):
+    """#123 endrer ikke #72: lagerfeilen skjules ikke bak feilflagget."""
+    api.relasjoner.svar = ["F-2", "F-1"]
+
+    def get_events(sak):
+        if sak == "F-1":
+            raise TransientError("Databasen svarte ikke")
+        return [{"event_type": "ukjent_hendelse", "sak_id": sak}], 1
+
+    api.events.get_events.side_effect = get_events
+    response = api.client.get("/api/forsering/by-relatert/KOE-1", headers=HEADERS)
+    assert response.status_code == 503
+    body = response.get_json()
+    assert body["error"] == "RELATED_UNAVAILABLE"
+    assert "forseringer" not in body
 
 
 def test_sak_i_annet_prosjekt_avvises_fortsatt_med_403(api):
