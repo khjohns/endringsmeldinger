@@ -1,21 +1,18 @@
 """Karakterisering av Markdown-konverteringen til ReportLab-markup i PDF-ene.
 
 Testene fastholder dagens atferd, slik den var i både brev- og
-rapportgeneratoren på 799619d1 (#107). Forventningene er lest ut av koden,
-ikke av en Markdown-standard eller NS 8407, og de sier ingenting om hvorvidt
-atferden er riktig. Flere rader viser særheter som er beholdt med vilje,
-for eksempel at `snake_case` gir kursiv.
+rapportgeneratoren på 799619d1 før konverteringen ble samlet (#107). De ble
+kjørt grønt mot begge de gamle implementasjonene før flyttingen.
+Forventningene er lest ut av koden, ikke av en Markdown-standard eller
+NS 8407, og de sier ingenting om hvorvidt atferden er riktig. Flere rader
+viser særheter som er beholdt med vilje, for eksempel at `snake_case` gir
+kursiv.
 """
 
 import pytest
 
-from services.letter_pdf_generator import _markdown_to_reportlab
-from services.reportlab_pdf_generator import ReportLabPdfGenerator
-
-IMPLEMENTASJONER = {
-    "brev": _markdown_to_reportlab,
-    "rapport": ReportLabPdfGenerator()._markdown_to_reportlab,
-}
+from lib.pdf_markdown import markdown_to_reportlab
+from services import letter_pdf_generator, reportlab_pdf_generator
 
 KODE = '<font face="Courier" color="#C7254E">'
 
@@ -79,16 +76,19 @@ TILFELLER = [
 ]
 
 
-@pytest.mark.parametrize("konverter", IMPLEMENTASJONER.values(), ids=IMPLEMENTASJONER)
+@pytest.mark.parametrize("generator", [letter_pdf_generator, reportlab_pdf_generator])
+def test_begge_generatorene_bruker_den_felles_konverteringen(generator):
+    assert generator.markdown_to_reportlab is markdown_to_reportlab
+
+
 @pytest.mark.parametrize(("inndata", "forventet"), TILFELLER)
-def test_konvertering_fastholder_dagens_atferd(konverter, inndata, forventet):
-    assert konverter(inndata) == forventet
+def test_konvertering_fastholder_dagens_atferd(inndata, forventet):
+    assert markdown_to_reportlab(inndata) == forventet
 
 
-@pytest.mark.parametrize("konverter", IMPLEMENTASJONER.values(), ids=IMPLEMENTASJONER)
-def test_flere_linjer_konverteres_hver_for_seg(konverter):
+def test_flere_linjer_konverteres_hver_for_seg():
     tekst = "# Varsel\nVi viser til **krav**.\n- punkt _a_\n1. punkt b"
-    assert konverter(tekst) == (
+    assert markdown_to_reportlab(tekst) == (
         '<font size="14"><b>Varsel</b></font><br/>'
         "Vi viser til <b>krav</b>.<br/>"
         "    • punkt <i>a</i><br/>"
