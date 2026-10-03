@@ -7,23 +7,6 @@
 
 import { apiFetch } from './client';
 import type { EventType } from '../types/timeline';
-import { browser } from '$app/environment';
-
-// Storage keys (MUST match their respective sources)
-const USER_ROLE_STORAGE_KEY = 'koe-user-role';
-
-/**
- * Get current user role from localStorage.
- * In production, this will come from Catenda API team membership.
- */
-function getCurrentUserRole(): 'TE' | 'BH' {
-  // TODO: I produksjon hentes rolle fra Catenda API basert på team-tilhørighet
-  if (browser) {
-    const stored = localStorage.getItem(USER_ROLE_STORAGE_KEY);
-    return stored === 'BH' ? 'BH' : 'TE';
-  }
-  return 'TE';
-}
 
 export interface EventSubmitResponse {
   event_id: string;
@@ -82,8 +65,7 @@ export async function submitEvent(
       sak_id: sakId,
       event: {
         event_type: eventType,
-        // Aktøren stemples av serveren fra sesjonen (MS-04).
-        aktor_rolle: getCurrentUserRole(),
+        // Aktør og rolle stemples av serveren fra sesjonen (MS-04).
         data: data,
       },
       expected_version: options?.expectedVersion ?? 0,
