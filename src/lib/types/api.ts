@@ -5,7 +5,7 @@
  * These types define the contract between frontend and backend.
  */
 
-import type { SakState, EventType, EventData, SporType, TimelineEvent } from './timeline';
+import type { SakState, EventType, TimelineEvent } from './timeline';
 
 // ========== API RESPONSES ==========
 
@@ -21,22 +21,6 @@ export interface EventSubmitResponse {
   state?: SakState;
   error?: string;
   message?: string;
-}
-
-/**
- * @deprecated Use TimelineEvent from timeline.ts (CloudEvents format) instead.
- * This interface is kept for backward compatibility during migration.
- */
-export interface LegacyTimelineEvent {
-  event_id: string;
-  tidsstempel: string;
-  type: string;
-  event_type?: EventType;
-  aktor: string;
-  rolle: 'TE' | 'BH';
-  spor: SporType | null;
-  sammendrag: string;
-  event_data?: EventData;
 }
 
 /**

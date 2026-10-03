@@ -660,8 +660,8 @@ export interface SaerskiltKravItem {
 export interface GrunnlagEventData {
   varsler?: KonsekvensVarsler;
   tittel: string; // Kort beskrivende tittel for varselet
-  hovedkategori: string; // Code from HOVEDKATEGORI_OPTIONS (e.g., "ENDRING")
-  underkategori: string | string[]; // Code(s) from UNDERKATEGORI_MAP
+  hovedkategori: string; // Kode fra KRAV_STRUKTUR_NS8407 (f.eks. "ENDRING")
+  underkategori: string | string[]; // Hjemmelkode(r) fra KRAV_STRUKTUR_NS8407
   beskrivelse: string;
   dato_oppdaget: string;
   grunnlag_varsel?: VarselInfo; // Structured varsel info
@@ -1028,24 +1028,6 @@ export function extractSpor(ceType: string): SporType | null {
  * Type alias for timeline events (CloudEvents format).
  */
 export type TimelineEvent = CloudEvent<EventData>;
-
-// ========== LEGACY TIMELINE ENTRY (deprecated) ==========
-
-/**
- * @deprecated Use CloudEvent<EventData> instead.
- * This interface is kept for backward compatibility during migration.
- */
-export interface TimelineEntry {
-  event_id: string;
-  tidsstempel: string;
-  type: string;
-  event_type?: EventType; // Machine-readable event type
-  aktor: string;
-  rolle: 'TE' | 'BH';
-  spor: SporType | null;
-  sammendrag: string;
-  event_data?: EventData; // Full submitted form data
-}
 
 // ============================================================
 // BIM Link Types
