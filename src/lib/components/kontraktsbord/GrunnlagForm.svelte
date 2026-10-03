@@ -1,5 +1,5 @@
 <script lang="ts">
-  import VedleggPanel from './VedleggPanel.svelte';
+  import SkjemaStatus from './SkjemaStatus.svelte';
   let vedleggIds = $state<string[]>([]);
   let vedleggOpptatt = $state(false);
   function buildEventData(...args: Parameters<typeof buildDomainData>) {
@@ -24,8 +24,6 @@
   const review = getApprovalWorkspace();
   import { getApprovalWorkspace } from '$lib/approval/context.svelte';
   import { TRACK_ICONS } from './data.js';
-  import CaseAnchor from './CaseAnchor.svelte';
-  import UtkastStatus from './UtkastStatus.svelte';
   import {
     createSubmission,
     createFormDraft,
@@ -173,30 +171,19 @@
 
 {#if draft.ready}
   <div class="form-content">
-    {#if submission.pending}<p role="status">Sender …</p>{/if}
-    {#if submission.error}<p role="alert">{submission.error}</p>{/if}
-    <UtkastStatus
-      status={draft.status}
+    <SkjemaStatus
+      sender={submission.pending}
+      feil={submission.error}
+      utkastStatus={draft.status}
       konflikt={draft.konflikt}
       sistEndretAv={draft.sistEndretAv}
       behold={draft.behold}
       hentInn={draft.hentInn}
+      sakId={store.sak.sak_id}
+      visVedlegg={!store.isDemo}
+      bind:vedleggIds
+      bind:vedleggOpptatt
     />
-    <CaseAnchor />
-    {#if !store.isDemo}
-      <details>
-        <summary
-          >Vedlegg (valgfritt){vedleggIds.length ? ` · ${vedleggIds.length} valgt` : ''}</summary
-        >
-        <VedleggPanel
-          sakId={store.sak.sak_id}
-          valgbare
-          bind:valgte={vedleggIds}
-          bind:opptatt={vedleggOpptatt}
-          disabled={submission.pending}
-        />
-      </details>
-    {/if}
 
     <div class="form-title-row">
       <h1>Svar på ansvarsgrunnlag</h1>
