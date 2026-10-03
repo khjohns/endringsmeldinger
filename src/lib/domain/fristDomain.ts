@@ -1,17 +1,10 @@
 /**
- * fristDomain.ts — Ren NS 8407 domenelogikk for fristforlengelse.
+ * Domenelogikk for byggherrens svar på krav om fristforlengelse, NS 8407:2011 § 33.
  *
- * Ingen React-avhengigheter. Alle funksjoner er rene (input → output).
- * Importeres av useFristBridge.ts som tynn React-adapter.
- *
- * Ref: ADR-003 L14, §33 NS 8407:2011
+ * Alle funksjoner er rene (input → output).
  */
 
 import type { FristBeregningResultat, SubsidiaerTrigger } from '../types/timeline';
-
-// ============================================================================
-// TYPES
-// ============================================================================
 
 export interface FristFormState {
   fristVarselOk: boolean | undefined;
@@ -69,10 +62,6 @@ export interface FristDefaultsConfig {
   }>;
 }
 
-// ============================================================================
-// DEFAULTS
-// ============================================================================
-
 export function getDefaults(config: FristDefaultsConfig): FristFormState {
   if (config.isUpdateMode && config.lastResponseEvent && config.fristTilstand) {
     return {
@@ -98,10 +87,6 @@ export function getDefaults(config: FristDefaultsConfig): FristFormState {
     begrunnelseValidationError: undefined,
   };
 }
-
-// ============================================================================
-// VISIBILITY
-// ============================================================================
 
 export function beregnVisibility(
   state: Pick<FristFormState, 'fristVarselOk'>,
@@ -137,10 +122,6 @@ export function beregnVisibility(
   return { showFristVarselOk, showSpesifisertKravOk, showForesporselSvarOk, showSendForesporsel };
 }
 
-// ============================================================================
-// PRECLUSION & REDUCTION
-// ============================================================================
-
 export function beregnPreklusjon(
   state: Pick<FristFormState, 'fristVarselOk' | 'foresporselSvarOk'>,
   config: FristDomainConfig
@@ -167,10 +148,6 @@ export function beregnReduksjon(
   }
   return false;
 }
-
-// ============================================================================
-// RESULT COMPUTATION
-// ============================================================================
 
 export function beregnPrinsipaltResultat(data: {
   erPrekludert: boolean;
@@ -206,10 +183,6 @@ export function beregnSubsidiaertResultat(data: {
   return 'delvis_godkjent';
 }
 
-// ============================================================================
-// SUBSIDIARY TRIGGERS
-// ============================================================================
-
 export function beregnSubsidiaerTriggers(data: {
   erGrunnlagSubsidiaer: boolean;
   erPrekludert: boolean;
@@ -224,10 +197,6 @@ export function beregnSubsidiaerTriggers(data: {
   return triggers;
 }
 
-// ============================================================================
-// DYNAMIC PLACEHOLDER
-// ============================================================================
-
 export function getDynamicPlaceholder(resultat: FristBeregningResultat | undefined): string {
   if (!resultat) return 'Gjør valgene i kortet, deretter skriv begrunnelse...';
   if (resultat === 'godkjent') return 'Begrunn din godkjenning av fristforlengelsen...';
@@ -235,10 +204,6 @@ export function getDynamicPlaceholder(resultat: FristBeregningResultat | undefin
     return 'Forklar hvorfor du kun godkjenner deler av fristforlengelsen...';
   return 'Begrunn ditt avslag på fristforlengelsen...';
 }
-
-// ============================================================================
-// BUILD EVENT DATA
-// ============================================================================
 
 export function buildEventData(
   state: FristFormState,
@@ -278,10 +243,6 @@ export function buildEventData(
       : undefined,
   };
 }
-
-// ============================================================================
-// CONVENIENCE: beregnAlt
-// ============================================================================
 
 export function beregnAlt(state: FristFormState, config: FristDomainConfig): FristComputedValues {
   const visibility = beregnVisibility(state, config);
