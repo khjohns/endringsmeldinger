@@ -6,6 +6,9 @@ Uttrykkene kjøres i fast rekkefølge; atferden er fastholdt i
 
 Fet og kursiv krever ordgrense utenfor markøren og ikke-mellomrom innenfor
 (#124), slik at `snake_case` og `a * b * c` blir stående som tekst.
+
+Kodespenn er bokstavelige (#133): de tas ut før de andre uttrykkene og settes
+tilbake til slutt. Plassholderen `<n>` kan ikke stå i en escapet linje.
 """
 
 import re
@@ -15,6 +18,13 @@ FET_STJERNE = re.compile(r"(?<!\w)\*\*([^\s*](?:[^*]*[^\s*])?)\*\*(?!\w)")
 FET_UNDERSTREK = re.compile(r"(?<!\w)__([^\s_](?:.*?[^\s_])??)__(?!\w)")
 KURSIV_STJERNE = re.compile(r"(?<![\w*])\*([^\s*](?:[^*]*[^\s*])?)\*(?![\w*])")
 KURSIV_UNDERSTREK = re.compile(r"(?<!\w)_([^\s_](?:.*?[^\s_])??)_(?!\w)")
+KODESPENN = re.compile(r"`([^`]+)`")
+PLASSHOLDER = re.compile(r"<(\d+)>")
+KODE_FONT = '<font face="Courier" color="#C7254E">{}</font>'
+
+
+def _sett_tilbake(kodespenn: list[str]):
+    return lambda match: KODE_FONT.format(kodespenn[int(match.group(1))])
 
 
 def markdown_to_reportlab(text: str) -> str:
@@ -22,6 +32,12 @@ def markdown_to_reportlab(text: str) -> str:
 
     for line in text.replace("\r\n", "\n").replace("\r", "\n").split("\n"):
         line = escape(line)
+        deler = KODESPENN.split(line)
+        kodespenn = deler[1::2]
+        line = "".join(
+            del_ if i % 2 == 0 else f"<{i // 2}>" for i, del_ in enumerate(deler)
+        )
+
         if line.startswith("### "):
             line = f'<font size="11"><b>{line[4:]}</b></font>'
         elif line.startswith("## "):
@@ -45,9 +61,7 @@ def markdown_to_reportlab(text: str) -> str:
 
         line = re.sub(r"~~([^~]+)~~", r"<strike>\1</strike>", line)
 
-        line = re.sub(
-            r"`([^`]+)`", r'<font face="Courier" color="#C7254E">\1</font>', line
-        )
+        line = PLASSHOLDER.sub(_sett_tilbake(kodespenn), line)
 
         result_lines.append(line)
 
