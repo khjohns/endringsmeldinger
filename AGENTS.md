@@ -316,7 +316,9 @@ grenser»** til slutt som navngir hva som *ikke* er kontrollert.
   Slik status i planen ga konflikter i nesten hver PR 23.09.
 - **Oppfølging som ikke løses i samme PR, blir et issue.** Fra review og
   code-review får det etiketten `review-oppfølging`. Venter det på en B-ID, får
-  det `venter-på-beslutning`.
+  det `venter-på-beslutning`. Det gjelder også feil du oppdager underveis
+  utenfor oppdraget. Å nevne dem i PR-beskrivelsen er ikke nok. Tilskriver du
+  en feil testmiljøet, er det en påstand. Kontroller den, eller meld den.
 - **Issues er like offentlige som repoet.** Ingen saksdata, kontraktsinnhold,
   personnavn fra prosjekter, nøkler eller tilgangsopplysninger.
 - `gh issue list --milestone "<navn>"` viser det som gjenstår i en pakke.
