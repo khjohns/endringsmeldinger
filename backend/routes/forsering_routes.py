@@ -291,6 +291,7 @@ def hent_kandidat_koe_saker():
 @forsering_bp.route("/api/forsering/by-relatert/<sak_id>", methods=["GET"])
 @require_auth
 @require_project_access()
+@handle_service_errors
 def finn_forseringer_for_sak(sak_id: str):
     """Finn forseringssaker som refererer til en gitt KOE-sak."""
     service = _get_forsering_service()

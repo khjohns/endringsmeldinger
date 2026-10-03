@@ -12,6 +12,7 @@ med relasjoner til de avslåtte fristforlengelsessakene.
 from datetime import UTC, datetime
 from typing import Any
 
+from lib.db.feil import DatalagFeil
 from lib.helpers import get_all_sak_ids
 from models.events import parse_event
 from models.sak_state import SakRelasjon, SakState, SaksType
@@ -452,6 +453,8 @@ class ForseringService(BaseSakService):
                                     or False,
                                 }
                             )
+                except DatalagFeil:
+                    raise
                 except Exception as e:
                     logger.debug(
                         f"Could not fetch state for forsering {forsering_sak_id}: {e}"
@@ -512,6 +515,8 @@ class ForseringService(BaseSakService):
                                         or False,
                                     }
                                 )
+                except DatalagFeil:
+                    raise
                 except Exception as e:
                     logger.debug(f"Kunne ikke evaluere sak {candidate_sak_id}: {e}")
 
