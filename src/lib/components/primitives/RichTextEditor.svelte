@@ -37,6 +37,28 @@
   let element = $state<HTMLDivElement>();
   let editor = $state<Editor>();
   let charCount = $state(0);
+  let verktoy = $state({
+    bold: false,
+    italic: false,
+    bulletList: false,
+    orderedList: false,
+    blockquote: false,
+    undo: false,
+    redo: false,
+  });
+
+  function lesTilstand(e: Editor) {
+    charCount = e.storage.characterCount.characters();
+    verktoy = {
+      bold: e.isActive('bold'),
+      italic: e.isActive('italic'),
+      bulletList: e.isActive('bulletList'),
+      orderedList: e.isActive('orderedList'),
+      blockquote: e.isActive('blockquote'),
+      undo: e.can().undo(),
+      redo: e.can().redo(),
+    };
+  }
 
   $effect(() => {
     if (!editor) return;
@@ -53,16 +75,14 @@
         ...extraExtensions,
       ],
       content: body,
-      onTransaction: ({ editor: e }) => {
-        charCount = e.storage.characterCount.characters();
-      },
+      onTransaction: ({ editor: e }) => lesTilstand(e),
       onUpdate: ({ editor: e }) => {
         const newHtml = e.getHTML();
         html = newHtml;
         onchange?.(newHtml);
       },
     });
-    charCount = editor.storage.characterCount.characters();
+    lesTilstand(editor);
 
     onready?.({
       setContent: (content: string) => {
@@ -88,7 +108,7 @@
       <div class="rte-toolbar">
         <button
           type="button"
-          class:active={editor.isActive('bold')}
+          class:active={verktoy.bold}
           onclick={() => editor?.chain().focus().toggleBold().run()}
           aria-label="Fet"
         >
@@ -96,7 +116,7 @@
         </button>
         <button
           type="button"
-          class:active={editor.isActive('italic')}
+          class:active={verktoy.italic}
           onclick={() => editor?.chain().focus().toggleItalic().run()}
           aria-label="Kursiv"
         >
@@ -105,7 +125,7 @@
         <div class="rte-toolbar-sep"></div>
         <button
           type="button"
-          class:active={editor.isActive('bulletList')}
+          class:active={verktoy.bulletList}
           onclick={() => editor?.chain().focus().toggleBulletList().run()}
           aria-label="Punktliste"
         >
@@ -113,7 +133,7 @@
         </button>
         <button
           type="button"
-          class:active={editor.isActive('orderedList')}
+          class:active={verktoy.orderedList}
           onclick={() => editor?.chain().focus().toggleOrderedList().run()}
           aria-label="Nummerert liste"
         >
@@ -121,7 +141,7 @@
         </button>
         <button
           type="button"
-          class:active={editor.isActive('blockquote')}
+          class:active={verktoy.blockquote}
           onclick={() => editor?.chain().focus().toggleBlockquote().run()}
           aria-label="Sitat"
         >
@@ -131,7 +151,7 @@
         <button
           type="button"
           onclick={() => editor?.chain().focus().undo().run()}
-          disabled={!editor.can().undo()}
+          disabled={!verktoy.undo}
           aria-label="Angre"
         >
           <Undo2 size={16} strokeWidth={2} />
@@ -139,7 +159,7 @@
         <button
           type="button"
           onclick={() => editor?.chain().focus().redo().run()}
-          disabled={!editor.can().redo()}
+          disabled={!verktoy.redo}
           aria-label="Gjør om"
         >
           <Redo2 size={16} strokeWidth={2} />
