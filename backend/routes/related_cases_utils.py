@@ -12,6 +12,7 @@ from flask import jsonify
 
 from lib.auth.event_visibility import strip_activity_metadata, visible_events
 from lib.cloudevents import format_timeline_response
+from lib.db.feil import TransientError
 from models.sak_state import SakRelasjon, SakState
 from utils.logger import get_logger
 
@@ -214,9 +215,11 @@ def safe_find_related(
     service_method: Callable, sak_id: str, result_key: str, **kwargs
 ) -> tuple:
     """
-    Trygt søk etter relaterte saker med graceful fallback.
+    Søk etter saker som viser til `sak_id`, for by-relatert-rutene.
 
-    Brukes for by-relatert endepunkter som ikke bør feile med 500.
+    En forbigående feil i datalaget gir 503, aldri en tom liste: en tom liste
+    sier at det ikke finnes noen kobling. Andre unntak slipper gjennom til
+    `handle_service_errors`.
 
     Args:
         service_method: Service-metode å kalle (f.eks. service.finn_forseringer_for_sak)
@@ -229,7 +232,13 @@ def safe_find_related(
     """
     try:
         results = service_method(sak_id, **kwargs)
-        return jsonify({"success": True, result_key: results}), 200
-    except Exception as e:
+    except TransientError as e:
         logger.warning(f"Kunne ikke søke etter {result_key} for {sak_id}: {e}")
-        return jsonify({"success": True, result_key: []}), 200
+        return jsonify(
+            {
+                "success": False,
+                "error": "RELATED_UNAVAILABLE",
+                "message": "Kunne ikke hente relaterte saker. Prøv igjen senere.",
+            }
+        ), 503
+    return jsonify({"success": True, result_key: results}), 200
