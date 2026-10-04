@@ -359,6 +359,10 @@ export function createDemoStore(initial: Scenario = DEFAULT_SCENARIO) {
     }
     frist.begrunnelse = begrunnelse || undefined;
     frist.antall_versjoner = currentVersionCount + 1;
+    const foresporselVenterSvar =
+      Boolean(frist.foresporsel_krav_id) && frist.foresporsel_krav_id === frist.krav_event_id;
+    frist.kravet_besvarer_foresporselen = foresporselVenterSvar && frist.krevd_dager !== undefined;
+    frist.krav_event_id = eventId;
     frist.siste_event_id = eventId;
     frist.siste_oppdatert = now;
     scenario.ui.frist.draft = null;

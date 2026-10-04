@@ -199,12 +199,13 @@ export function buildEventData(
 ): Record<string, unknown> {
   const effectiveGodkjentDager =
     computed.prinsipaltResultat !== 'avslatt' ? (state.godkjentDager ?? 0) : 0;
+  const synlig = beregnVisibility(state, config);
   return {
     regelversjon: REGELVERSJON,
     frist_krav_id: fristKravId,
-    frist_varsel_ok: state.fristVarselOk,
-    spesifisert_krav_ok: state.spesifisertKravOk,
-    foresporsel_svar_ok: state.foresporselSvarOk,
+    frist_varsel_ok: synlig.showFristVarselOk ? state.fristVarselOk : undefined,
+    spesifisert_krav_ok: synlig.showSpesifisertKravOk ? state.spesifisertKravOk : undefined,
+    foresporsel_svar_ok: synlig.showForesporselSvarOk ? state.foresporselSvarOk : undefined,
     vilkar_oppfylt: state.vilkarOppfylt,
     godkjent_dager: effectiveGodkjentDager,
     begrunnelse: state.begrunnelse || autoBegrunnelse,
