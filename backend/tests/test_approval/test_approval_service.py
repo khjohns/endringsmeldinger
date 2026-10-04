@@ -4,6 +4,7 @@ from uuid import uuid4
 import pytest
 
 from models.events import parse_event_from_request
+from regler import REGELVERSJON
 from repositories.event_repository import ConcurrencyError, JsonFileEventRepository
 from services.approval_service import ApprovalService
 from services.business_rules import BusinessRuleValidator
@@ -46,6 +47,7 @@ def setup(tmp_path):
         "claimVersion": 1,
         "data": {
             "grunnlag_event_id": claim.event_id,
+            "regelversjon": REGELVERSJON,
             "resultat": "godkjent",
             "begrunnelse": "Vi godtar ansvarsgrunnlaget.",
         },
@@ -353,8 +355,14 @@ def test_package_validates_ground_dependencies_and_publishes_two_tracks_atomical
             "claimVersion": 1,
             "data": {
                 "vederlag_krav_id": claim.event_id,
+                "regelversjon": REGELVERSJON,
+                "hovedkrav_vurdering": "godkjent",
+                "hovedkrav_varslet_i_tide": True,
+                "aksepterer_metode": True,
                 "beregnings_resultat": "godkjent",
+                "hovedkrav_godkjent_belop": 100,
                 "total_godkjent_belop": 100,
+                "total_krevd_belop": 100,
                 "begrunnelse": "Dokumentert kostnad.",
             },
         },

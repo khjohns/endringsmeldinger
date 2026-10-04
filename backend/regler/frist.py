@@ -11,13 +11,14 @@ from dataclasses import dataclass
 
 from models.events import (
     FristBeregningResultat,
+    FristResponsData,
     FristVarselType,
     GrunnlagResponsResultat,
     SubsidiaerTrigger,
 )
 from models.sak_state import SakState
 from regler import UgyldigVurdering
-from regler.grunnlag import er_prekludert
+from regler.grunnlag import er_prekludert, forste_underkategori
 
 VARSEL = FristVarselType.VARSEL.value
 SPESIFISERT = FristVarselType.SPESIFISERT.value
@@ -40,9 +41,6 @@ class Fristkrav:
     @classmethod
     def fra_tilstand(cls, sak: SakState) -> "Fristkrav":
         f, g = sak.frist, sak.grunnlag
-        underkategori = g.underkategori
-        if isinstance(underkategori, list):
-            underkategori = underkategori[0] if underkategori else None
         return cls(
             krevd_dager=f.krevd_dager or 0,
             varsel_type=f.varsel_type,
@@ -53,7 +51,7 @@ class Fristkrav:
             or (f.bh_respondert_versjon is not None and f.frist_varsel_ok is not False),
             er_grunnlag_subsidiaert=g.bh_resultat == GrunnlagResponsResultat.AVSLATT,
             er_hele_fristen_subsidiaer_pga_grunnlag=er_prekludert(
-                g.hovedkategori, underkategori, g.grunnlag_varslet_i_tide
+                g.hovedkategori, forste_underkategori(g.underkategori), g.grunnlag_varslet_i_tide
             ),
         )
 
@@ -67,6 +65,12 @@ class Fristvurdering:
     foresporsel_svar_ok: bool | None = None
     vilkar_oppfylt: bool | None = None
     godkjent_dager: int | None = None
+
+    @classmethod
+    def fra_data(cls, data: FristResponsData) -> "Fristvurdering":
+        """Et felt modellen har fylt med standardverdien, er ikke en vurdering."""
+        sendt = data.model_fields_set
+        return cls(**{f: getattr(data, f) if f in sendt else None for f in cls.__dataclass_fields__})
 
 
 @dataclass(frozen=True)

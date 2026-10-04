@@ -42,6 +42,7 @@ from models.events import (
     parse_event,
 )
 from models.letter_document import LetterSnapshot
+from regler import REGELVERSJON
 from services.approval_policy import public_event_block_reason
 from services.business_rules import BusinessRuleValidator
 from services.catenda_comment_generator import CatendaCommentGenerator
@@ -137,7 +138,7 @@ def _foresporsel(krav_id, svarfrist=None):
     )
 
 
-def _fullt_svar(krav_id):
+def _fullt_svar(krav_id, godkjent_dager=10):
     return ResponsEvent(
         sak_id="S-1",
         aktor_id="bh",
@@ -146,12 +147,14 @@ def _fullt_svar(krav_id):
         spor=SporType.FRIST,
         refererer_til_event_id=krav_id,
         data=FristResponsData(
+            regelversjon=REGELVERSJON,
             frist_krav_id=krav_id,
             frist_varsel_ok=True,
             spesifisert_krav_ok=True,
+            foresporsel_svar_ok=True,
             vilkar_oppfylt=True,
             beregnings_resultat=FristBeregningResultat.GODKJENT,
-            godkjent_dager=10,
+            godkjent_dager=godkjent_dager,
             begrunnelse="Godkjent",
         ),
     )
@@ -254,7 +257,7 @@ def test_fullt_svar_godtas_etter_spesifiseringen():
     )
     hendelser += [varsel, foresporsel, spesifisert]
 
-    assert _godtatt(_fullt_svar(spesifisert.event_id), hendelser)
+    assert _godtatt(_fullt_svar(spesifisert.event_id, godkjent_dager=30), hendelser)
     assert timeline.compute_state(hendelser).overordnet_status == "VENTER_PAA_SVAR"
 
 

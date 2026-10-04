@@ -493,8 +493,8 @@ BH svarer på ansvarsgrunnlaget: godkjent, avslått eller frafalt pålegg, og om
 | Modell | `ResponsEvent`, data `GrunnlagResponsData` |
 | Lagres i | `hendelse` |
 | Sendes fra | POST /api/events og /api/events/batch, når prosjektet ikke har godkjenningspolicy; BHs godkjenningspakke (POST /api/cases/<sak>/approvals, action publish); Frontend: GrunnlagForm |
-| Forretningsregler | ROLE_CHECK, CASE_NOT_CLOSED, CREATE_ONCE, RESPONSE_REFERENCE, TRACK_SENT, NOT_LOCKED, NOT_ALREADY_RESPONDED |
-| Virkning på status | `godkjent` gir `laast` når grunnlaget ikke er merket for sent varslet; merket for sent varslet gir `under_forhandling`. `avslatt` gir `avslatt`, og `frafalt` gir `trukket`. Svaret knyttes til gjeldende versjon av grunnlaget. |
+| Forretningsregler | ROLE_CHECK, CASE_NOT_CLOSED, CREATE_ONCE, RESPONSE_REFERENCE, TRACK_SENT, NOT_LOCKED, NOT_ALREADY_RESPONDED, COMPUTED_RESULT |
+| Virkning på status | `godkjent` gir `laast` når grunnlaget ikke er merket for sent varslet; merket for sent varslet gir `under_forhandling`. `avslatt` gir `avslatt`, og `frafalt` gir `trukket`. Svaret knyttes til gjeldende versjon av grunnlaget. Serveren avviser et svar med en annen `regelversjon` enn sin egen, `grunnlag_varslet_i_tide` utenfor § 32.2 og `frafalt` utenfor pålegg (B-13). |
 | Behandler | `TimelineService._handle_respons_grunnlag` |
 | Funn | DRF-02 |
 | Belegg | L 29.09: `_handle_respons_grunnlag`, `_respons_til_status` og `public_event_block_reason`. |
@@ -505,6 +505,7 @@ Feltene i `data`:
 | --- | --- | --- | --- |
 | `grunnlag_event_id` | tekst | nei | — |
 | `vedlegg_ids` | liste av tekst | nei | — |
+| `regelversjon` | heltall | nei | Versjonen av reglene klienten regnet med (B-13). Kontrolleres mot regler.REGELVERSJON |
 | `brev` | LetterSnapshot | nei | — |
 | `resultat` | GrunnlagResponsResultat | nei | BHs vurdering av ansvarsgrunnlaget |
 | `begrunnelse` | tekst | nei | BHs begrunnelse for vurderingen |
@@ -528,7 +529,7 @@ BH endrer sitt svar på ansvarsgrunnlaget («snuoperasjon»).
 | Modell | `ResponsEvent`, data `GrunnlagResponsData` |
 | Lagres i | `hendelse` |
 | Sendes fra | POST /api/events og /api/events/batch, når prosjektet ikke har godkjenningspolicy; BHs godkjenningspakke; Frontend: GrunnlagForm |
-| Forretningsregler | ROLE_CHECK, CASE_NOT_CLOSED, CREATE_ONCE, RESPONSE_REFERENCE, TRACK_SENT, NOT_LOCKED, PREVIOUS_RESPONSE |
+| Forretningsregler | ROLE_CHECK, CASE_NOT_CLOSED, CREATE_ONCE, RESPONSE_REFERENCE, TRACK_SENT, NOT_LOCKED, PREVIOUS_RESPONSE, COMPUTED_RESULT |
 | Virkning på status | Samme behandling som `respons_grunnlag`. Krever et tidligere svar på gjeldende versjon (PREVIOUS_RESPONSE). |
 | Behandler | `TimelineService._handle_respons_grunnlag` |
 | Funn | DRF-02 |
@@ -540,6 +541,7 @@ Feltene i `data`:
 | --- | --- | --- | --- |
 | `grunnlag_event_id` | tekst | nei | — |
 | `vedlegg_ids` | liste av tekst | nei | — |
+| `regelversjon` | heltall | nei | Versjonen av reglene klienten regnet med (B-13). Kontrolleres mot regler.REGELVERSJON |
 | `brev` | LetterSnapshot | nei | — |
 | `resultat` | GrunnlagResponsResultat | nei | BHs vurdering av ansvarsgrunnlaget |
 | `begrunnelse` | tekst | nei | BHs begrunnelse for vurderingen |
@@ -563,8 +565,8 @@ BH svarer på vederlagskravet: varsler i tide, metode, beløp per post, samlet r
 | Modell | `ResponsEvent`, data `VederlagResponsData` |
 | Lagres i | `hendelse` |
 | Sendes fra | POST /api/events og /api/events/batch, når prosjektet ikke har godkjenningspolicy; BHs godkjenningspakke; Frontend: VederlagForm |
-| Forretningsregler | ROLE_CHECK, CASE_NOT_CLOSED, CREATE_ONCE, RESPONSE_REFERENCE, TRACK_SENT, NOT_ALREADY_RESPONDED |
-| Virkning på status | Status følger `beregnings_resultat`: `godkjent`, `delvis_godkjent` eller `avslatt`; `hold_tilbake` gir `under_behandling`. Godkjent beløp, metode, varselvurderinger og subsidiært standpunkt settes. Resultatet lagres slik det er sendt, også når vurderingene i samme svar gir et annet (BR-01). |
+| Forretningsregler | ROLE_CHECK, CASE_NOT_CLOSED, CREATE_ONCE, RESPONSE_REFERENCE, TRACK_SENT, NOT_ALREADY_RESPONDED, COMPUTED_RESULT |
+| Virkning på status | Status følger `beregnings_resultat`: `godkjent`, `delvis_godkjent` eller `avslatt`; `hold_tilbake` gir `under_behandling`. Godkjent beløp, metode, varselvurderinger og subsidiært standpunkt settes. Serveren regner ut resultat, beløp og subsidiært standpunkt av vurderingene og kravet, og avviser et svar der klientens verdier, eller `regelversjon`, ikke er like serverens (B-13, BR-01). Hele svaret kreves. Serverens verdier, avrundet til øre, lagres. |
 | Behandler | `TimelineService._handle_respons_vederlag` |
 | Funn | BR-01, SD-04, DRF-02 |
 | Belegg | L 29.09: `_handle_respons_vederlag`, `_beregnings_resultat_til_status` og `_oppdater_subsidiaert_standpunkt`. |
@@ -576,6 +578,7 @@ Feltene i `data`:
 | `brev` | LetterSnapshot | nei | — |
 | `tilleggs_begrunnelse` | tekst | nei | — |
 | `vedlegg_ids` | liste av tekst | nei | — |
+| `regelversjon` | heltall | nei | Versjonen av reglene klienten regnet med (B-13). Kontrolleres mot regler.REGELVERSJON |
 | `original_respons_id` | tekst | nei | Event-ID til original respons som oppdateres (for RESPONS_*_OPPDATERT) |
 | `vederlag_krav_id` | tekst | nei | Event-ID til vederlagskravet som besvares |
 | `respondert_versjon` | heltall | nei | Hvilken TE-versjon (0-indeksert) denne responsen gjelder. Settes automatisk av backend. |
@@ -620,8 +623,8 @@ BH endrer sitt svar på vederlagskravet, for eksempel ved å oppheve en tilbakeh
 | Modell | `ResponsEvent`, data `VederlagResponsData` |
 | Lagres i | `hendelse` |
 | Sendes fra | POST /api/events og /api/events/batch, når prosjektet ikke har godkjenningspolicy; BHs godkjenningspakke; Frontend: VederlagForm |
-| Forretningsregler | ROLE_CHECK, CASE_NOT_CLOSED, CREATE_ONCE, RESPONSE_REFERENCE, TRACK_SENT, PREVIOUS_RESPONSE |
-| Virkning på status | Samme behandling som `respons_vederlag`. Uten `beregnings_resultat` står statusen, og bare feltene som sendes, endres. |
+| Forretningsregler | ROLE_CHECK, CASE_NOT_CLOSED, CREATE_ONCE, RESPONSE_REFERENCE, TRACK_SENT, PREVIOUS_RESPONSE, COMPUTED_RESULT |
+| Virkning på status | Samme behandling som `respons_vederlag`, også kravet om hele svaret (B-13). |
 | Behandler | `TimelineService._handle_respons_vederlag` |
 | Funn | BR-01, SD-04, DRF-02 |
 | Belegg | L 29.09: `_handle_respons_vederlag`; `VederlagResponsData` har ikke feltet `resultat`, så grenen for det gjør ingenting. |
@@ -633,6 +636,7 @@ Feltene i `data`:
 | `brev` | LetterSnapshot | nei | — |
 | `tilleggs_begrunnelse` | tekst | nei | — |
 | `vedlegg_ids` | liste av tekst | nei | — |
+| `regelversjon` | heltall | nei | Versjonen av reglene klienten regnet med (B-13). Kontrolleres mot regler.REGELVERSJON |
 | `original_respons_id` | tekst | nei | Event-ID til original respons som oppdateres (for RESPONS_*_OPPDATERT) |
 | `vederlag_krav_id` | tekst | nei | Event-ID til vederlagskravet som besvares |
 | `respondert_versjon` | heltall | nei | Hvilken TE-versjon (0-indeksert) denne responsen gjelder. Settes automatisk av backend. |
@@ -677,8 +681,8 @@ BH svarer på fristkravet: varsler i tide, om forholdet har hindret fremdriften,
 | Modell | `ResponsEvent`, data `FristResponsData` |
 | Lagres i | `hendelse` |
 | Sendes fra | POST /api/events og /api/events/batch, når prosjektet ikke har godkjenningspolicy; BHs godkjenningspakke; Frontend: FristForm |
-| Forretningsregler | ROLE_CHECK, CASE_NOT_CLOSED, CREATE_ONCE, RESPONSE_REFERENCE, TRACK_SENT, CLAIM_SPECIFIED, REQUEST_ANSWERED, SPECIFICATION_ASSESSED, NOT_ALREADY_RESPONDED |
-| Virkning på status | Status følger `beregnings_resultat`: `godkjent`, `delvis_godkjent` eller `avslatt`. Godkjente dager, ny sluttdato, varselvurderinger, vilkåret og subsidiært standpunkt settes. Et svar på et krav uten dager avvises (§ 33.7, TFR-06); før det sendes `frist_innsigelse_sendt` eller `frist_foresporsel_sendt`. På kravet som besvarte forespørselen med dager, avvises `spesifisert_krav_ok=false` (§ 33.6.2 fjerde ledd, #172). En senere revisjon av kravet kan møtes med § 33.6.1 (oppdragsgiver 04.10). Der § 33.6.1-spørsmålet stilles, må `spesifisert_krav_ok` sendes; ellers ville modellens standardverdi `true` bli lagret som BHs vurdering. |
+| Forretningsregler | ROLE_CHECK, CASE_NOT_CLOSED, CREATE_ONCE, RESPONSE_REFERENCE, TRACK_SENT, CLAIM_SPECIFIED, NOT_ALREADY_RESPONDED, COMPUTED_RESULT |
+| Virkning på status | Status følger `beregnings_resultat`: `godkjent`, `delvis_godkjent` eller `avslatt`. Godkjente dager, ny sluttdato, varselvurderinger, vilkåret og subsidiært standpunkt settes. Et svar på et krav uten dager avvises (§ 33.7, TFR-06); før det sendes `frist_innsigelse_sendt` eller `frist_foresporsel_sendt`. Serveren regner ut resultat, dager og subsidiært standpunkt av vurderingene og kravet, og avviser et svar der klientens verdier, eller `regelversjon`, ikke er like serverens (B-13, BR-01). Hele svaret kreves: et varselspørsmål som stilles, må besvares, også `spesifisert_krav_ok`, som modellen ellers ville satt til `true`. På kravet som besvarte forespørselen med dager, avvises `spesifisert_krav_ok=false` (§ 33.6.2 fjerde ledd, #172). En senere revisjon av kravet kan møtes med § 33.6.1 (oppdragsgiver 04.10). |
 | Behandler | `TimelineService._handle_respons_frist` |
 | Funn | BR-01, SD-04, TFR-06, DRF-01 |
 | Belegg | L 29.09: `_handle_respons_frist` og `_beregnings_resultat_til_status`. |
@@ -689,6 +693,7 @@ Feltene i `data`:
 | --- | --- | --- | --- |
 | `frist_krav_id` | tekst | nei | — |
 | `vedlegg_ids` | liste av tekst | nei | — |
+| `regelversjon` | heltall | nei | Versjonen av reglene klienten regnet med (B-13). Kontrolleres mot regler.REGELVERSJON |
 | `brev` | LetterSnapshot | nei | — |
 | `tilleggs_begrunnelse` | tekst | nei | — |
 | `original_respons_id` | tekst | nei | Event-ID til original respons som oppdateres (for RESPONS_*_OPPDATERT) |
@@ -725,8 +730,8 @@ BH endrer sitt svar på fristkravet.
 | Modell | `ResponsEvent`, data `FristResponsData` |
 | Lagres i | `hendelse` |
 | Sendes fra | POST /api/events og /api/events/batch, når prosjektet ikke har godkjenningspolicy; BHs godkjenningspakke; Frontend: FristForm |
-| Forretningsregler | ROLE_CHECK, CASE_NOT_CLOSED, CREATE_ONCE, RESPONSE_REFERENCE, TRACK_SENT, CLAIM_SPECIFIED, REQUEST_ANSWERED, SPECIFICATION_ASSESSED, PREVIOUS_RESPONSE |
-| Virkning på status | Samme behandling som `respons_frist`, også sperren mot et krav uten dager og mot § 33.6.1 på kravet som besvarte forespørselen. Uten `beregnings_resultat` står statusen. |
+| Forretningsregler | ROLE_CHECK, CASE_NOT_CLOSED, CREATE_ONCE, RESPONSE_REFERENCE, TRACK_SENT, CLAIM_SPECIFIED, PREVIOUS_RESPONSE, COMPUTED_RESULT |
+| Virkning på status | Samme behandling som `respons_frist`, også sperren mot et krav uten dager, mot § 33.6.1 på kravet som besvarte forespørselen, og kravet om hele svaret (B-13). |
 | Behandler | `TimelineService._handle_respons_frist` |
 | Funn | BR-01, SD-04, TFR-06 |
 | Belegg | L 29.09: `_handle_respons_frist`. |
@@ -737,6 +742,7 @@ Feltene i `data`:
 | --- | --- | --- | --- |
 | `frist_krav_id` | tekst | nei | — |
 | `vedlegg_ids` | liste av tekst | nei | — |
+| `regelversjon` | heltall | nei | Versjonen av reglene klienten regnet med (B-13). Kontrolleres mot regler.REGELVERSJON |
 | `brev` | LetterSnapshot | nei | — |
 | `tilleggs_begrunnelse` | tekst | nei | — |
 | `original_respons_id` | tekst | nei | Event-ID til original respons som oppdateres (for RESPONS_*_OPPDATERT) |

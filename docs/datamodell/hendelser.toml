@@ -426,7 +426,9 @@ innsending = [
 tilstand = """
 `godkjent` gir `laast` når grunnlaget ikke er merket for sent varslet;
 merket for sent varslet gir `under_forhandling`. `avslatt` gir `avslatt`, og
-`frafalt` gir `trukket`. Svaret knyttes til gjeldende versjon av grunnlaget."""
+`frafalt` gir `trukket`. Svaret knyttes til gjeldende versjon av grunnlaget.
+Serveren avviser et svar med en annen `regelversjon` enn sin egen,
+`grunnlag_varslet_i_tide` utenfor § 32.2 og `frafalt` utenfor pålegg (B-13)."""
 behandler = "_handle_respons_grunnlag"
 funn = ["DRF-02"]
 belegg = "L 29.09: `_handle_respons_grunnlag`, `_respons_til_status` og `public_event_block_reason`."
@@ -477,8 +479,11 @@ innsending = [
 tilstand = """
 Status følger `beregnings_resultat`: `godkjent`, `delvis_godkjent` eller
 `avslatt`; `hold_tilbake` gir `under_behandling`. Godkjent beløp, metode,
-varselvurderinger og subsidiært standpunkt settes. Resultatet lagres slik det
-er sendt, også når vurderingene i samme svar gir et annet (BR-01)."""
+varselvurderinger og subsidiært standpunkt settes. Serveren regner ut
+resultat, beløp og subsidiært standpunkt av vurderingene og kravet, og avviser
+et svar der klientens verdier, eller `regelversjon`, ikke er like serverens
+(B-13, BR-01). Hele svaret kreves. Serverens verdier, avrundet til øre,
+lagres."""
 behandler = "_handle_respons_vederlag"
 funn = ["BR-01", "SD-04", "DRF-02"]
 belegg = "L 29.09: `_handle_respons_vederlag`, `_beregnings_resultat_til_status` og `_oppdater_subsidiaert_standpunkt`."
@@ -500,8 +505,7 @@ innsending = [
     "Frontend: VederlagForm",
 ]
 tilstand = """
-Samme behandling som `respons_vederlag`. Uten `beregnings_resultat` står
-statusen, og bare feltene som sendes, endres."""
+Samme behandling som `respons_vederlag`, også kravet om hele svaret (B-13)."""
 behandler = "_handle_respons_vederlag"
 funn = ["BR-01", "SD-04", "DRF-02"]
 belegg = "L 29.09: `_handle_respons_vederlag`; `VederlagResponsData` har ikke feltet `resultat`, så grenen for det gjør ingenting."
@@ -532,11 +536,14 @@ Status følger `beregnings_resultat`: `godkjent`, `delvis_godkjent` eller
 `avslatt`. Godkjente dager, ny sluttdato, varselvurderinger, vilkåret og
 subsidiært standpunkt settes. Et svar på et krav uten dager avvises (§ 33.7,
 TFR-06); før det sendes `frist_innsigelse_sendt` eller
-`frist_foresporsel_sendt`. På kravet som besvarte forespørselen med dager,
-avvises `spesifisert_krav_ok=false` (§ 33.6.2 fjerde ledd, #172). En senere
-revisjon av kravet kan møtes med § 33.6.1 (oppdragsgiver 04.10). Der
-§ 33.6.1-spørsmålet stilles, må `spesifisert_krav_ok` sendes; ellers ville
-modellens standardverdi `true` bli lagret som BHs vurdering."""
+`frist_foresporsel_sendt`. Serveren regner ut resultat, dager og subsidiært
+standpunkt av vurderingene og kravet, og avviser et svar der klientens
+verdier, eller `regelversjon`, ikke er like serverens (B-13, BR-01). Hele
+svaret kreves: et varselspørsmål som stilles, må besvares, også
+`spesifisert_krav_ok`, som modellen ellers ville satt til `true`. På kravet
+som besvarte forespørselen med dager, avvises `spesifisert_krav_ok=false`
+(§ 33.6.2 fjerde ledd, #172). En senere revisjon av kravet kan møtes med
+§ 33.6.1 (oppdragsgiver 04.10)."""
 behandler = "_handle_respons_frist"
 funn = ["BR-01", "SD-04", "TFR-06", "DRF-01"]
 belegg = "L 29.09: `_handle_respons_frist` og `_beregnings_resultat_til_status`."
@@ -558,9 +565,9 @@ innsending = [
     "Frontend: FristForm",
 ]
 tilstand = """
-Samme behandling som `respons_frist`, også sperren mot et krav uten dager og
-mot § 33.6.1 på kravet som besvarte forespørselen. Uten `beregnings_resultat`
-står statusen."""
+Samme behandling som `respons_frist`, også sperren mot et krav uten dager,
+mot § 33.6.1 på kravet som besvarte forespørselen, og kravet om hele svaret
+(B-13)."""
 behandler = "_handle_respons_frist"
 funn = ["BR-01", "SD-04", "TFR-06"]
 belegg = "L 29.09: `_handle_respons_frist`."
