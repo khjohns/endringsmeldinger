@@ -12,7 +12,7 @@
  */
 
 import type { BelopVurdering } from './shared';
-import { formatCurrency } from './shared';
+import { andelProsent, formatCurrency } from './shared';
 
 // ============================================================================
 // TYPES
@@ -199,10 +199,7 @@ function generateForseringBelopSection(input: ForseringResponseInput): string {
       );
       break;
     case 'delvis': {
-      const prosent =
-        hovedkravBelop && hovedkravBelop > 0
-          ? (((godkjentBelop ?? 0) / hovedkravBelop) * 100).toFixed(0)
-          : 0;
+      const prosent = andelProsent(godkjentBelop ?? 0, hovedkravBelop ?? 0);
       lines.push(
         `Forseringskostnadene godkjennes delvis med ${formatCurrency(godkjentBelop ?? 0)} ` +
           `av krevde ${formatCurrency(hovedkravBelop ?? 0)} (${prosent}%).`
@@ -398,10 +395,7 @@ function generateForseringSubsidiaerSection(input: ForseringResponseInput): stri
       );
       break;
     case 'delvis': {
-      const prosent =
-        hovedkravBelop && hovedkravBelop > 0
-          ? (((godkjentBelop ?? 0) / hovedkravBelop) * 100).toFixed(0)
-          : 0;
+      const prosent = andelProsent(godkjentBelop ?? 0, hovedkravBelop ?? 0);
       lines.push(
         `Forseringskostnadene ville blitt godkjent delvis med ${formatCurrency(godkjentBelop ?? 0)} ` +
           `av krevde ${formatCurrency(hovedkravBelop ?? 0)} (${prosent}%).`
