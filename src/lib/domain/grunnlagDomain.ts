@@ -1,18 +1,9 @@
 /**
- * grunnlagDomain.ts — Ren NS 8407 domenelogikk for kontraktsforhold (grunnlag).
- *
- * Ingen React-avhengigheter. Alle funksjoner er rene (input → output).
- * Importeres av useGrunnlagBridge.ts som tynn React-adapter.
- *
- * Ref: ADR-003 L14, §25.2 / §32.2 NS 8407:2011
+ * Domenelogikk for kontraktsforhold (grunnlag), NS 8407:2011 § 25.2 og § 32.2.
  */
 
 import { differenceInDays } from 'date-fns';
 import type { GrunnlagResponsResultat } from '../types/timeline';
-
-// ============================================================================
-// TYPES
-// ============================================================================
 
 export interface GrunnlagFormState {
   varsletITide: boolean | undefined;
@@ -48,10 +39,6 @@ export interface GrunnlagDefaultsConfig {
   };
 }
 
-// ============================================================================
-// DEFAULTS
-// ============================================================================
-
 export function getDefaults(config: GrunnlagDefaultsConfig): GrunnlagFormState {
   if (config.isUpdateMode && config.lastResponseEvent) {
     return {
@@ -72,10 +59,6 @@ export function getDefaults(config: GrunnlagDefaultsConfig): GrunnlagFormState {
   };
 }
 
-// ============================================================================
-// CATEGORY CHECKS
-// ============================================================================
-
 export function erEndringMed32_2(event?: {
   hovedkategori?: string;
   underkategori?: string;
@@ -94,10 +77,6 @@ export function erForceMajeure(event?: { hovedkategori?: string }): boolean {
   return event?.hovedkategori === 'FORCE_MAJEURE';
 }
 
-// ============================================================================
-// PRECLUSION
-// ============================================================================
-
 export function erPrekludert(
   state: Pick<GrunnlagFormState, 'varsletITide'>,
   config: GrunnlagDomainConfig
@@ -105,10 +84,7 @@ export function erPrekludert(
   return erEndringMed32_2(config.grunnlagEvent) && state.varsletITide === false;
 }
 
-// ============================================================================
-// PASSIVITY (§32.3)
-// ============================================================================
-
+// Passivitet (§ 32.3)
 export function beregnPassivitet(event?: {
   hovedkategori?: string;
   underkategori?: string;
@@ -123,10 +99,6 @@ export function beregnPassivitet(event?: {
   return { erPassiv, dagerSidenVarsel };
 }
 
-// ============================================================================
-// SNUOPERASJON
-// ============================================================================
-
 export function erSnuoperasjon(
   state: Pick<GrunnlagFormState, 'resultat'>,
   config: GrunnlagDomainConfig
@@ -134,10 +106,6 @@ export function erSnuoperasjon(
   if (!config.isUpdateMode || config.forrigeResultat !== 'avslatt') return false;
   return state.resultat === 'godkjent';
 }
-
-// ============================================================================
-// VERDICT OPTIONS
-// ============================================================================
 
 export function getVerdictOptions(config: GrunnlagDomainConfig): VerdictOption[] {
   const opts: VerdictOption[] = [
@@ -168,10 +136,6 @@ export function getVerdictOptions(config: GrunnlagDomainConfig): VerdictOption[]
   return opts;
 }
 
-// ============================================================================
-// DYNAMIC PLACEHOLDER
-// ============================================================================
-
 export function getDynamicPlaceholder(resultat: string | undefined, prekludert: boolean): string {
   if (!resultat) return 'Velg resultat i kortet til venstre, deretter skriv begrunnelse...';
   if (prekludert && resultat === 'godkjent')
@@ -183,10 +147,6 @@ export function getDynamicPlaceholder(resultat: string | undefined, prekludert: 
   if (resultat === 'frafalt') return 'Begrunn hvorfor pålegget frafalles...';
   return 'Begrunn din vurdering...';
 }
-
-// ============================================================================
-// BUILD EVENT DATA
-// ============================================================================
 
 export function buildEventData(
   state: GrunnlagFormState,
@@ -217,20 +177,12 @@ export function buildEventData(
   };
 }
 
-// ============================================================================
-// BH UPDATE DEFAULTS
-// ============================================================================
-
 export interface BhUpdateConfig {
   forrigeResultat: GrunnlagResponsResultat;
   forrigeVarsletITide?: boolean;
   forrigeBegrunnelseHtml?: string;
 }
 
-/**
- * Pre-fill form state for BH update mode.
- * Includes varsling and begrunnelse from previous response.
- */
 export function getBhUpdateDefaults(config: BhUpdateConfig): GrunnlagFormState {
   return {
     varsletITide: config.forrigeVarsletITide ?? true,
@@ -240,10 +192,6 @@ export function getBhUpdateDefaults(config: BhUpdateConfig): GrunnlagFormState {
     begrunnelseValidationError: undefined,
   };
 }
-
-// ============================================================================
-// ENDRINGSDETEKSJON (BH oppdatering)
-// ============================================================================
 
 export interface EndringItem {
   felt: 'resultat' | 'varsletITide' | 'begrunnelse';
@@ -271,7 +219,6 @@ export function detekterEndringer(
 ): EndringsInfo {
   const endringer: EndringItem[] = [];
 
-  // Resultat changes
   if (state.resultat && state.resultat !== forrige.resultat) {
     if (forrige.resultat === 'avslatt' && state.resultat === 'godkjent') {
       endringer.push({
@@ -294,7 +241,6 @@ export function detekterEndringer(
     }
   }
 
-  // Varsling changes
   if (forrige.varsletITide !== undefined && state.varsletITide !== forrige.varsletITide) {
     if (forrige.varsletITide === false && state.varsletITide === true) {
       endringer.push({
@@ -311,7 +257,6 @@ export function detekterEndringer(
     }
   }
 
-  // Begrunnelse changes (simple text comparison)
   if (forrige.begrunnelse && state.begrunnelse !== forrige.begrunnelse) {
     endringer.push({
       felt: 'begrunnelse',
@@ -326,13 +271,6 @@ export function detekterEndringer(
   };
 }
 
-// ============================================================================
-// TE REVISION EVENT DATA
-// ============================================================================
-
-/**
- * Build event payload for TE revising their grunnlag begrunnelse.
- */
 export function buildTeRevisionEventData(config: {
   originalEventId: string;
   begrunnelseHtml: string;
