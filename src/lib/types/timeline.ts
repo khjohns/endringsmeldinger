@@ -258,6 +258,7 @@ export interface VederlagTilstand {
 
 export interface FristTilstand {
   varsler?: SendtKonsekvensVarsel[];
+  krav_event_id?: string | null;
   status: SporStatus;
 
   // TE's krav
@@ -278,6 +279,8 @@ export interface FristTilstand {
   har_bh_foresporsel?: boolean;
   /** Dato BH sendte forespørsel om spesifisering (§33.6.2) - YYYY-MM-DD */
   dato_bh_foresporsel?: string;
+  /** TE-hendelsen siste forespørsel gjaldt. Lik `krav_event_id` mens den venter svar */
+  foresporsel_krav_id?: string | null;
   begrunnelse_varsel?: string;
 
   // BH respons - Port 2 (Vilkår/Årsakssammenheng)
@@ -622,6 +625,8 @@ export type EventType =
   | 'frist_krav_oppdatert'
   | 'frist_krav_spesifisert' // TE specifies days for neutral notice (§33.6.1/§33.6.2)
   | 'frist_krav_trukket'
+  | 'frist_innsigelse_sendt' // BH: § 5 mot sent § 33.4-varsel, før kravet har dager
+  | 'frist_foresporsel_sendt' // BH: § 33.6.2 forespørsel om spesifisert krav
   | 'respons_grunnlag'
   | 'respons_grunnlag_oppdatert' // BH's "snuoperasjon" - endrer standpunkt
   | 'respons_vederlag'
@@ -916,6 +921,21 @@ export interface ResponsFristOppdatertEventData {
   dato_endret?: string;
 }
 
+// BH på et fristkrav uten dager (vedtak 3.1, 23.09): setter ikke resultat
+export interface FristInnsigelseEventData {
+  frist_krav_id: string;
+  begrunnelse: string;
+  vedlegg_ids?: string[];
+}
+
+export interface FristForesporselEventData {
+  frist_krav_id: string;
+  begrunnelse: string;
+  /** YYYY-MM-DD. Uten dato gjelder «uten ugrunnet opphold» (§ 33.6.2 annet ledd) */
+  svarfrist?: string;
+  vedlegg_ids?: string[];
+}
+
 // Forsering varsel event (§33.8 - TE varsler om forsering)
 export interface ForseringVarselEventData {
   frist_krav_id: string; // Reference to the rejected frist claim
@@ -948,6 +968,8 @@ export type EventData =
   | FristEventData
   | FristOppdatertEventData
   | FristSpesifisertEventData
+  | FristInnsigelseEventData
+  | FristForesporselEventData
   | ResponsGrunnlagEventData
   | ResponsGrunnlagOppdatertEventData
   | ResponsVederlagEventData

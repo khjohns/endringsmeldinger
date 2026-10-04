@@ -23,7 +23,6 @@ function makeState(overrides: Partial<FristFormState> = {}): FristFormState {
     spesifisertKravOk: true,
     foresporselSvarOk: true,
     vilkarOppfylt: true,
-    sendForesporsel: false,
     godkjentDager: 10,
     begrunnelse: '',
     begrunnelseValidationError: undefined,
@@ -54,7 +53,6 @@ describe('getDefaults', () => {
     expect(defaults.spesifisertKravOk).toBeUndefined();
     expect(defaults.vilkarOppfylt).toBeUndefined();
     expect(defaults.godkjentDager).toBeUndefined();
-    expect(defaults.sendForesporsel).toBe(false);
     expect(defaults.begrunnelse).toBe('');
   });
 
@@ -130,28 +128,11 @@ describe('beregnVisibility', () => {
     expect(vis.showForesporselSvarOk).toBe(true);
   });
 
-  it('shows sendForesporsel when varsel type and fristVarselOk is true', () => {
-    const vis = beregnVisibility(
-      makeState({ fristVarselOk: true }),
-      makeConfig({ varselType: 'varsel' })
-    );
-    expect(vis.showSendForesporsel).toBe(true);
-  });
-
-  it('hides sendForesporsel when fristVarselOk is false', () => {
-    const vis = beregnVisibility(
-      makeState({ fristVarselOk: false }),
-      makeConfig({ varselType: 'varsel' })
-    );
-    expect(vis.showSendForesporsel).toBe(false);
-  });
-
   it('hides all controls for begrunnelse_utsatt', () => {
     const vis = beregnVisibility(makeState(), makeConfig({ varselType: 'begrunnelse_utsatt' }));
     expect(vis.showFristVarselOk).toBe(false);
     expect(vis.showSpesifisertKravOk).toBe(false);
     expect(vis.showForesporselSvarOk).toBe(false);
-    expect(vis.showSendForesporsel).toBe(false);
   });
 });
 
@@ -264,7 +245,6 @@ describe('beregnPrinsipaltResultat', () => {
     expect(
       beregnPrinsipaltResultat({
         erPrekludert: false,
-        sendForesporsel: false,
         harHindring: true,
         krevdDager: 10,
         godkjentDager: 10,
@@ -276,19 +256,6 @@ describe('beregnPrinsipaltResultat', () => {
     expect(
       beregnPrinsipaltResultat({
         erPrekludert: true,
-        sendForesporsel: false,
-        harHindring: true,
-        krevdDager: 10,
-        godkjentDager: 10,
-      })
-    ).toBe('avslatt');
-  });
-
-  it('returns avslatt when sendForesporsel', () => {
-    expect(
-      beregnPrinsipaltResultat({
-        erPrekludert: false,
-        sendForesporsel: true,
         harHindring: true,
         krevdDager: 10,
         godkjentDager: 10,
@@ -300,7 +267,6 @@ describe('beregnPrinsipaltResultat', () => {
     expect(
       beregnPrinsipaltResultat({
         erPrekludert: false,
-        sendForesporsel: false,
         harHindring: false,
         krevdDager: 10,
         godkjentDager: 10,
@@ -312,7 +278,6 @@ describe('beregnPrinsipaltResultat', () => {
     expect(
       beregnPrinsipaltResultat({
         erPrekludert: false,
-        sendForesporsel: false,
         harHindring: true,
         krevdDager: 10,
         godkjentDager: 5,
@@ -324,7 +289,6 @@ describe('beregnPrinsipaltResultat', () => {
     expect(
       beregnPrinsipaltResultat({
         erPrekludert: false,
-        sendForesporsel: false,
         harHindring: true,
         krevdDager: 0,
         godkjentDager: 0,
@@ -336,7 +300,6 @@ describe('beregnPrinsipaltResultat', () => {
     expect(
       beregnPrinsipaltResultat({
         erPrekludert: false,
-        sendForesporsel: false,
         harHindring: true,
         krevdDager: 100,
         godkjentDager: 99,

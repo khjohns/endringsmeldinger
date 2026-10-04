@@ -32,7 +32,6 @@ export interface FristResponseInput {
   fristVarselOk?: boolean; // §33.4: Varsel om fristforlengelse rettidig?
   spesifisertKravOk?: boolean;
   foresporselSvarOk?: boolean; // §33.6.2/§5: Svar på forespørsel i tide?
-  sendForesporsel?: boolean;
 
   // Vilkår (Port 2)
   vilkarOppfylt: boolean;
@@ -80,14 +79,6 @@ export function getPreklusjonParagraf(varselType?: FristVarselType): string {
 // ============================================================================
 
 function generateFristPreklusjonSection(input: FristResponseInput): string {
-  if (input.sendForesporsel) {
-    return (
-      'Byggherren etterspør spesifisert krav iht. §33.6.2. ' +
-      'Entreprenøren må «uten ugrunnet opphold» angi og begrunne antall dager fristforlengelse. ' +
-      'Dersom dette ikke gjøres, tapes kravet.'
-    );
-  }
-
   if (input.erForesporselSvarForSent) {
     return (
       'Kravet avvises som prekludert iht. §33.6.2 tredje ledd, jf. §5. ' +
@@ -156,12 +147,11 @@ function generateFristBeregningSection(
     erPrekludert,
     vilkarOppfylt,
     varselType,
-    sendForesporsel,
     erGrunnlagSubsidiaer,
   } = input;
   const { useTokens = false } = options;
 
-  if (sendForesporsel || (varselType === 'varsel' && krevdDager === 0)) {
+  if (varselType === 'varsel' && krevdDager === 0) {
     return '';
   }
 
@@ -192,20 +182,10 @@ function generateFristKonklusjonSection(
   input: FristResponseInput,
   options: BegrunnelseGeneratorOptions = {}
 ): string {
-  const {
-    krevdDager,
-    godkjentDager,
-    prinsipaltResultat,
-    visSubsidiaertResultat,
-    varselType,
-    sendForesporsel,
-  } = input;
+  const { krevdDager, godkjentDager, prinsipaltResultat, visSubsidiaertResultat, varselType } =
+    input;
   const { useTokens = false } = options;
   const lines: string[] = [];
-
-  if (sendForesporsel) {
-    return '';
-  }
 
   if (varselType === 'varsel' && krevdDager === 0) {
     lines.push('Antall dager kan først vurderes når entreprenøren spesifiserer kravet.');
@@ -271,10 +251,6 @@ export function generateFristResponseBegrunnelse(
   options: BegrunnelseGeneratorOptions = {}
 ): string {
   const sections: string[] = [];
-
-  if (input.sendForesporsel) {
-    return generateFristPreklusjonSection(input);
-  }
 
   if (input.varselType === 'begrunnelse_utsatt') {
     return (

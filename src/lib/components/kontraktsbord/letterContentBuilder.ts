@@ -78,8 +78,14 @@ export function buildLetterContent(event: TimelineEvent, sak: SakState): BrevInn
 
   const avslutningTekst = `Med vennlig hilsen\n${avsenderNavn}\n\n${dato}`;
 
+  const tittelForType = event.type.endsWith('frist_foresporsel_sendt')
+    ? 'Forespørsel om spesifisert krav om fristforlengelse'
+    : event.type.endsWith('frist_innsigelse_sendt')
+      ? 'Innsigelse mot sen varsling av fristforlengelse'
+      : `${isTE ? 'Krav om' : 'Svar på krav om'} ${sporLabel}`;
+
   return {
-    tittel: `${isTE ? 'Krav om' : 'Svar på krav om'} ${sporLabel} \u2014 ${sakstittel}`,
+    tittel: `${tittelForType} \u2014 ${sakstittel}`,
     mottaker: { navn: mottakerNavn, rolle: isTE ? 'BH' : 'TE' },
     avsender: { navn: avsenderNavn, rolle: isTE ? 'TE' : 'BH' },
     referanser: {

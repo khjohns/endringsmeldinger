@@ -21,6 +21,8 @@
   import LeftSidebar from './LeftSidebar.svelte';
   import CenterRead from './CenterRead.svelte';
   import FristForm from './FristForm.svelte';
+  import FristVarselForm from './FristVarselForm.svelte';
+  import { kravetErSpesifisert } from '$lib/domain/fristVarselDomain';
   import TeFristForm from './TeFristForm.svelte';
   import VederlagForm from './VederlagForm.svelte';
   import TeVederlagForm from './TeVederlagForm.svelte';
@@ -73,6 +75,9 @@
     send: () => void;
     reviewing: boolean;
   } | null>(null);
+  const bhSvarerPaaFristvarsel = $derived(
+    sel === 'frist' && role === 'BH' && !kravetErSpesifisert(store.sak.frist)
+  );
   const brevInnhold = $derived(letterEvent ? buildLetterContent(letterEvent, store.sak) : null);
 
   $effect(() => {
@@ -300,6 +305,8 @@
                   >Prøv igjen</button
                 >
               </div>
+            {:else if bhSvarerPaaFristvarsel}
+              <FristVarselForm onsend={handleSend} onactions={(a) => (formActions = a)} />
             {:else if sel === 'frist' && role === 'BH'}
               <FristForm
                 domainConfig={approval.fristConfig}
@@ -346,7 +353,9 @@
                 ontogglecontext={() => (rightPanelOpen = !rightPanelOpen)}
                 onsend={() => formActions?.send()}
                 canSend={formActions?.canSend ?? false}
-                sendLabel={role === 'BH' ? 'Ferdigstill vurdering' : 'Se brev og send'}
+                sendLabel={role === 'BH' && !bhSvarerPaaFristvarsel
+                  ? 'Ferdigstill vurdering'
+                  : 'Se brev og send'}
                 onwithdraw={() => (showWithdrawModal = true)}
               />
             {/if}

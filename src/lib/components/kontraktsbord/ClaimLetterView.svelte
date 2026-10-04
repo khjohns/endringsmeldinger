@@ -21,13 +21,14 @@
   // The letter replaces the form in the same scroll container: start at its top.
   const toTop = (node: HTMLElement) => node.scrollIntoView?.({ block: 'start' });
   const recipient = $derived(review.letter?.mottaker.navn ?? 'byggherren');
+  const tilTe = $derived(review.letter?.mottaker.rolle === 'TE');
 </script>
 
 {#if review.letter}
   <section class="letter-view" aria-label="Brevkontroll" use:toTop>
     <div class="toolbar">
       <button type="button" class="text-button" onclick={() => review.cancel()}
-        ><ArrowLeft size={15} />Tilbake til kravet</button
+        ><ArrowLeft size={15} />{tilTe ? 'Tilbake til skjemaet' : 'Tilbake til kravet'}</button
       >
       <ol class="steps" aria-label="Fremdrift">
         <li>1 <span>{stepLabel}</span></li>
@@ -42,7 +43,7 @@
         <ApprovalPanel
           eyebrow="Utkast · ikke sendt"
           title="Du sender brevet"
-          description="Brevet henter opplysninger og begrunnelse fra kravet. Endringer gjøres i skjemaet."
+          description={`Brevet henter opplysninger og begrunnelse fra ${tilTe ? 'skjemaet' : 'kravet'}. Endringer gjøres i skjemaet.`}
           content={{
             label: 'Innhold:',
             value: review.letter.tittel,
@@ -51,7 +52,7 @@
           }}
           confirmLabel="Jeg har kontrollert brevet og vedleggene."
           bind:confirmed
-          primaryLabel="Send til byggherren"
+          primaryLabel={tilTe ? 'Send til entreprenøren' : 'Send til byggherren'}
           onprimary={() => review.confirm()}
           footnote={`${recipient} får brevet straks. Innsendt brev kan ikke endres, bare følges opp med en ny revisjon.`}
         >

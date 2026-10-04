@@ -67,7 +67,6 @@
   let spesifisertKravOk = $state<boolean | undefined>(initialDefaults.spesifisertKravOk);
   let foresporselSvarOk = $state<boolean | undefined>(initialDefaults.foresporselSvarOk);
   let vilkarOppfylt = $state<boolean | undefined>(initialDefaults.vilkarOppfylt);
-  let sendForesporsel = $state(false);
   let godkjentDager = $state<number | undefined>(initialDefaults.godkjentDager);
 
   // The generator consumes formState, so assigning its result avoids a derived dependency cycle.
@@ -82,7 +81,6 @@
     spesifisertKravOk,
     foresporselSvarOk,
     vilkarOppfylt,
-    sendForesporsel,
     godkjentDager,
     begrunnelse: begrunnelseHtml,
     begrunnelseValidationError: undefined,
@@ -98,7 +96,6 @@
       spesifisertKravOk,
       foresporselSvarOk,
       vilkarOppfylt,
-      sendForesporsel,
       godkjentDager,
       begrunnelseHtml,
       tilleggHtml,
@@ -109,7 +106,6 @@
       spesifisertKravOk = saved.spesifisertKravOk;
       foresporselSvarOk = saved.foresporselSvarOk;
       vilkarOppfylt = saved.vilkarOppfylt;
-      sendForesporsel = saved.sendForesporsel ?? false;
       godkjentDager = saved.godkjentDager;
       begrunnelseHtml = saved.begrunnelseHtml ?? '';
       tilleggHtml =
@@ -167,13 +163,6 @@
   });
 
   const resultat = $derived.by(() => {
-    if (sendForesporsel) {
-      return {
-        ikon: CircleMinus,
-        konklusjon: 'Forespørsel om spesifisering',
-        variant: 'neutral' as const,
-      };
-    }
     const r = computed.prinsipaltResultat;
     const konklusjon =
       r === 'avslatt'
@@ -193,7 +182,6 @@
   );
 
   const allAnswered = $derived.by(() => {
-    if (sendForesporsel) return true;
     if (computed.visibility.showFristVarselOk && fristVarselOk === undefined) return false;
     if (computed.visibility.showSpesifisertKravOk && spesifisertKravOk === undefined) return false;
     if (computed.visibility.showForesporselSvarOk && foresporselSvarOk === undefined) return false;
@@ -204,14 +192,13 @@
   });
 
   const autoBegrunnelseHtml = $derived.by(() => {
-    if (!sendForesporsel && (vilkarOppfylt === undefined || godkjentDager === undefined)) return '';
+    if (vilkarOppfylt === undefined || godkjentDager === undefined) return '';
     const input: FristResponseInput = {
       varselType: domainConfig.varselType,
       krevdDager: domainConfig.krevdDager,
       fristVarselOk,
       spesifisertKravOk,
       foresporselSvarOk,
-      sendForesporsel,
       vilkarOppfylt: vilkarOppfylt ?? false,
       godkjentDager: godkjentDager ?? 0,
       erPrekludert: computed.erPrekludert,
@@ -265,13 +252,11 @@
                 fristVarselOk,
                 spesifisertKravOk,
                 foresporselSvarOk,
-                sendForesporsel,
                 vilkarOppfylt,
                 subsidiaerTriggers: computed.subsidiaerTriggers,
-                subsidiaerGodkjentDager:
-                  !sendForesporsel && computed.visSubsidiaertResultat
-                    ? subsidiaertGodkjent
-                    : undefined,
+                subsidiaerGodkjentDager: computed.visSubsidiaertResultat
+                  ? subsidiaertGodkjent
+                  : undefined,
                 begrunnelse: begrunnelseHtml,
               });
             } else {
@@ -454,62 +439,40 @@
       </div>
     {/if}
 
-    {#if computed.visibility.showSendForesporsel}
-      <QuestionCard
-        title="Spesifisering"
-        paragrafRef="§ 33.6.2"
-        description="Dersom kravet ikke er tilstrekkelig spesifisert, kan byggherren be om antall dager og nærmere begrunnelse."
-      >
-        <label class="checkbox-row">
-          <input
-            type="checkbox"
-            checked={sendForesporsel}
-            onchange={(event) => (sendForesporsel = event.currentTarget.checked)}
-          />
-          <span>
-            <strong>Send forespørsel om spesifisering</strong>
-            <small>TE må spesifisere kravet før byggherren tar endelig stilling.</small>
-          </span>
-        </label>
-      </QuestionCard>
-    {/if}
+    <QuestionCard
+      title="Årsakssammenheng"
+      paragrafRef="§ 33.1"
+      description="Foreligger det en hindring på fremdriften som følge av det påberopte kontraktsforholdet?"
+      subsidiary={isSubsidiaer}
+    >
+      {@render answerButtons(
+        'Årsakssammenheng (§ 33.1)',
+        vilkarOppfylt,
+        'Ja, hindring',
+        'Nei, ingen hindring',
+        (value) => (vilkarOppfylt = value)
+      )}
+    </QuestionCard>
 
-    {#if !sendForesporsel}
+    {#if computed.showGodkjentDager}
       <QuestionCard
-        title="Årsakssammenheng"
-        paragrafRef="§ 33.1"
-        description="Foreligger det en hindring på fremdriften som følge av det påberopte kontraktsforholdet?"
+        title="Utmåling"
+        paragrafRef="§ 33.5"
+        description="Fristforlengelsen skal svare til virkningen kontraktsforholdet har hatt på fremdriften."
         subsidiary={isSubsidiaer}
       >
-        {@render answerButtons(
-          'Årsakssammenheng (§ 33.1)',
-          vilkarOppfylt,
-          'Ja, hindring',
-          'Nei, ingen hindring',
-          (value) => (vilkarOppfylt = value)
-        )}
+        <NumberField
+          id="bh-frist-godkjent-dager"
+          label={isSubsidiaer || computed.port3ErSubsidiaer
+            ? 'Subsidiært vurdert fristforlengelse'
+            : 'Godkjent fristforlengelse'}
+          suffix="kalenderdager"
+          value={godkjentDager}
+          max={domainConfig.krevdDager}
+          hint={`Av ${domainConfig.krevdDager} dager krevd`}
+          onchange={(value) => (godkjentDager = value)}
+        />
       </QuestionCard>
-
-      {#if computed.showGodkjentDager}
-        <QuestionCard
-          title="Utmåling"
-          paragrafRef="§ 33.5"
-          description="Fristforlengelsen skal svare til virkningen kontraktsforholdet har hatt på fremdriften."
-          subsidiary={isSubsidiaer}
-        >
-          <NumberField
-            id="bh-frist-godkjent-dager"
-            label={isSubsidiaer || computed.port3ErSubsidiaer
-              ? 'Subsidiært vurdert fristforlengelse'
-              : 'Godkjent fristforlengelse'}
-            suffix="kalenderdager"
-            value={godkjentDager}
-            max={domainConfig.krevdDager}
-            hint={`Av ${domainConfig.krevdDager} dager krevd`}
-            onchange={(value) => (godkjentDager = value)}
-          />
-        </QuestionCard>
-      {/if}
     {/if}
 
     {#if allAnswered}
@@ -519,49 +482,43 @@
           <span>{resultat.konklusjon}</span>
         </div>
 
-        {#if sendForesporsel}
-          <p class="result-help">
-            Endelig vurdering av fristkravet avventes til TE har spesifisert kravet.
-          </p>
-        {:else}
-          <PositionExplanation
-            subsidiary={computed.visSubsidiaertResultat}
-            value={`fristforlengelsen til ${subsidiaertGodkjent} kalenderdager`}
-            rejected={computed.prinsipaltResultat === 'avslatt'}
-            triggers={[
-              ...computed.subsidiaerTriggers,
-              ...(domainConfig.erHelFristSubsidiaerPgaGrunnlag
-                ? ['grunnlag_prekludert_32_2' as const]
-                : []),
-            ]}
-          />
-          <div class="result-tabell">
-            <div class="result-cell">
-              <span>Krevd</span>
-              <strong class="font-mono">{domainConfig.krevdDager} dager</strong>
-            </div>
-            <div class="result-cell">
-              <span>Prinsipalt godkjent</span>
-              <strong class="font-mono">{prinsipaltGodkjent} dager</strong>
-            </div>
-            {#if computed.visSubsidiaertResultat}
-              <div class="result-cell">
-                <span>Subsidiært vurdert</span>
-                <strong class="font-mono">{subsidiaertGodkjent} dager</strong>
-              </div>
-            {/if}
+        <PositionExplanation
+          subsidiary={computed.visSubsidiaertResultat}
+          value={`fristforlengelsen til ${subsidiaertGodkjent} kalenderdager`}
+          rejected={computed.prinsipaltResultat === 'avslatt'}
+          triggers={[
+            ...computed.subsidiaerTriggers,
+            ...(domainConfig.erHelFristSubsidiaerPgaGrunnlag
+              ? ['grunnlag_prekludert_32_2' as const]
+              : []),
+          ]}
+        />
+        <div class="result-tabell">
+          <div class="result-cell">
+            <span>Krevd</span>
+            <strong class="font-mono">{domainConfig.krevdDager} dager</strong>
           </div>
-          {#if computed.erRedusert}
-            <p class="result-help">
-              {computed.erPrekludert
-                ? 'Subsidiært begrenses kravet til den fristforlengelsen byggherren måtte forstå (§ 33.6.1).'
-                : 'Kravet begrenses til den fristforlengelsen byggherren måtte forstå (§ 33.6.1).'}
-            </p>
+          <div class="result-cell">
+            <span>Prinsipalt godkjent</span>
+            <strong class="font-mono">{prinsipaltGodkjent} dager</strong>
+          </div>
+          {#if computed.visSubsidiaertResultat}
+            <div class="result-cell">
+              <span>Subsidiært vurdert</span>
+              <strong class="font-mono">{subsidiaertGodkjent} dager</strong>
+            </div>
           {/if}
+        </div>
+        {#if computed.erRedusert}
+          <p class="result-help">
+            {computed.erPrekludert
+              ? 'Subsidiært begrenses kravet til den fristforlengelsen byggherren måtte forstå (§ 33.6.1).'
+              : 'Kravet begrenses til den fristforlengelsen byggherren måtte forstå (§ 33.6.1).'}
+          </p>
         {/if}
       </section>
 
-      {#if computed.prinsipaltResultat === 'avslatt' && !sendForesporsel}
+      {#if computed.prinsipaltResultat === 'avslatt'}
         <div class="risk-notice">
           <AlertTriangle size={16} />
           <p>
@@ -703,35 +660,6 @@
     background: var(--brand);
     border-radius: 1px;
     transform: rotate(45deg);
-  }
-
-  .checkbox-row {
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
-    padding: 12px;
-    background: var(--surface-inset);
-    border-radius: 8px;
-    cursor: pointer;
-  }
-  .checkbox-row input {
-    flex: none;
-    width: 18px;
-    height: 18px;
-    margin-top: 1px;
-    accent-color: var(--brand);
-  }
-  .checkbox-row span {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    font-size: 13px;
-    color: var(--ink-2);
-  }
-  .checkbox-row small {
-    font-size: 12px;
-    line-height: 1.45;
-    color: var(--ink-3);
   }
 
   .result-box {
