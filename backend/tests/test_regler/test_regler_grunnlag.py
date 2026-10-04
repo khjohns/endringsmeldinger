@@ -108,7 +108,7 @@ class TestBeregnPassivitet:
         assert p.bor_varsles is False
 
     def test_grensen_er_over_10(self):
-        # Samme regel som `dagerSidenVarsel > 10` i grunnlagDomain.ts. Ingen TS-test.
+        # Ingen TS-test. Fastholder dagens regel, `dagerSidenVarsel > 10` i grunnlagDomain.ts.
         assert beregn_passivitet("ENDRING", "ANNEN", IDAG - timedelta(days=10), IDAG).bor_varsles is False
         assert beregn_passivitet("ENDRING", "ANNEN", IDAG - timedelta(days=11), IDAG).bor_varsles is True
 

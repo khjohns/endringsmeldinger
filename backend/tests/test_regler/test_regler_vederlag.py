@@ -668,8 +668,11 @@ class TestScenarier:
 
 class TestKontroll:
     """Ingen TS-test. Vedtaket om B-13 (3.1, 24.09): en oppdatering må ha med hele
-    svaret, og serveren regner av vurderingene. Et svar reglene ikke kan regne ut,
-    avvises framfor å regnes som 0 kr."""
+    svaret, og serveren regner av vurderingene. Oppdragsgiver bekreftet 04.10
+    (kommentar på PR #169) at et svar der en vurdering eller et varselspørsmål
+    mangler, avvises. Avvisningen av delvise beløp over det krevde, negative
+    beløp og beløp som ikke er tall har ingen kilde utenfor koden; testene
+    fastholder et konservativt valg som står under «Åpne spørsmål» i PR #169."""
 
     def test_mangler_vurdering_av_hovedkravet(self):
         with pytest.raises(UgyldigVurdering, match="hovedkrav_vurdering"):
