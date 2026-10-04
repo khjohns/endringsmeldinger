@@ -260,6 +260,9 @@ def _kontroller(vurdering: Vederlagsvurdering, krav: Vederlagskrav) -> None:
             feil[f"{navn}_godkjent_belop"] = "mangler ved delvis godkjenning"
             return
         if v == BelopVurdering.DELVIS:
+            if not Decimal(str(godkjent)).is_finite():
+                feil[f"{navn}_godkjent_belop"] = "er ikke et tall"
+                return
             g = belop(godkjent)
             if g < NULL:
                 feil[f"{navn}_godkjent_belop"] = "kan ikke være negativt"
@@ -287,8 +290,9 @@ def _kontroller(vurdering: Vederlagsvurdering, krav: Vederlagskrav) -> None:
         (krav.har_rigg_krav, "rigg_varslet_i_tide", "§ 34.1.3"),
         (krav.har_produktivitet_krav, "produktivitet_varslet_i_tide", "§ 34.1.3"),
         (True, "aksepterer_metode", "§ 34.2.2"),
-        (krav.krever_justert_ep, "varsel_justert_ep_ok", "§ 34.3.3"),
     )
+    # `varsel_justert_ep_ok` kreves ikke: skjemaet stiller ikke § 34.3.3-spørsmålet,
+    # og feltet det sender, fjernes av parseren (DRF-02).
     for gjelder, felt, hjemmel in spoersmaal:
         if gjelder and getattr(vurdering, felt) is None:
             feil[felt] = f"mangler ({hjemmel})"
