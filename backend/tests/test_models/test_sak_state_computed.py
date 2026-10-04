@@ -462,12 +462,16 @@ class TestVisningsstatusFrist:
         assert sak.visningsstatus_frist == "Avvist"
 
     def test_sendt(self):
-        """visningsstatus_frist returns waiting message for SENDT."""
+        """visningsstatus_frist returns waiting message for SENDT.
+
+        Kravet har dager: uten dager venter ingenting på BH (§ 33.7, TFR-06).
+        """
         sak = SakState(
             sak_id="TEST",
             sakstype=SaksType.STANDARD,
             frist=FristTilstand(
                 status=SporStatus.SENDT,
+                krevd_dager=10,
             ),
         )
         assert "venter" in sak.visningsstatus_frist.lower()

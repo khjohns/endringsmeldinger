@@ -712,6 +712,10 @@ class FristTilstand(BaseModel):
         default=None,
         description="Dato BH sendte forespørsel om spesifisering (§33.6.2) - YYYY-MM-DD",
     )
+    foresporsel_krav_id: str | None = Field(
+        default=None,
+        description="TE-hendelsen siste forespørsel (§33.6.2) gjaldt",
+    )
     begrunnelse_varsel: str | None = Field(default=None)
 
     # BH respons - Port 2 (Vilkår/Årsakssammenheng)
@@ -742,6 +746,18 @@ class FristTilstand(BaseModel):
     subsidiaer_begrunnelse: str | None = Field(
         default=None, description="BH's begrunnelse for subsidiær vurdering"
     )
+
+    @property
+    def kravet_er_spesifisert(self) -> bool:
+        """§ 33.7: svarplikten oppstår ved et begrunnet krav med antall dager."""
+        return self.krevd_dager is not None
+
+    @property
+    def foresporsel_venter_svar(self) -> bool:
+        return (
+            self.foresporsel_krav_id is not None
+            and self.foresporsel_krav_id == self.krav_event_id
+        )
 
     # Differanse-info
     @computed_field
@@ -1101,7 +1117,9 @@ class SakState(BaseModel):
         elif self.frist.status == SporStatus.AVSLATT:
             return "Avvist"
         elif self.frist.status == SporStatus.SENDT:
-            if self.frist.varsel_type == "varsel":
+            if self.frist.foresporsel_venter_svar:
+                return "Forespørsel om spesifisert krav sendt"
+            if not self.frist.kravet_er_spesifisert:
                 return "Varslet – ikke spesifisert"
             return "Sendt - venter på svar"
         elif self.frist.status == SporStatus.UNDER_BEHANDLING:
@@ -1190,7 +1208,7 @@ class SakState(BaseModel):
                 self.grunnlag.status == SporStatus.SENDT
                 or (self.vederlag.status == SporStatus.SENDT
                     and not (self.vederlag.varsler and not self.vederlag.metode))
-                or (self.frist.status == SporStatus.SENDT and self.frist.varsel_type != "varsel")
+                or (self.frist.status == SporStatus.SENDT and self.frist.kravet_er_spesifisert)
             ):
                 return "VENTER_PAA_SVAR"
             return "UNDER_BEHANDLING"
@@ -1290,7 +1308,10 @@ class SakState(BaseModel):
         if self.frist.status == SporStatus.UTKAST:
             return {"rolle": "TE", "handling": "Send fristkrav", "spor": "frist"}
 
-        if self.frist.status == SporStatus.SENDT and self.frist.varsel_type == "varsel":
+        if self.frist.status == SporStatus.SENDT and self.frist.foresporsel_venter_svar:
+            return {"rolle": "TE", "handling": "Svar på forespørselen om spesifisert fristkrav (§ 33.6.2)", "spor": "frist"}
+
+        if self.frist.status == SporStatus.SENDT and not self.frist.kravet_er_spesifisert:
             return {"rolle": "TE", "handling": "Spesifiser fristkravet når beregningsgrunnlaget foreligger", "spor": "frist"}
 
         if self.frist.status == SporStatus.SENDT:

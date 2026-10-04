@@ -283,7 +283,15 @@ class FristHistorikkEntry(BaseModel):
     tidsstempel: datetime
     aktor: AktorInfo
     endring_type: Literal[
-        "sendt", "oppdatert", "trukket", "respons", "respons_oppdatert", "spesifisert", "akseptert"
+        "sendt",
+        "oppdatert",
+        "trukket",
+        "respons",
+        "respons_oppdatert",
+        "spesifisert",
+        "akseptert",
+        "innsigelse",
+        "foresporsel",
     ]
     event_id: str
 

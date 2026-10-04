@@ -223,6 +223,8 @@ class CatendaCommentGenerator:
             "frist_krav_sendt": "Fristkrav sendt",
             "frist_krav_oppdatert": "Fristkrav oppdatert",
             "frist_krav_trukket": "Fristkrav trukket",
+            "frist_innsigelse_sendt": "Innsigelse mot sen varsling av fristforlengelse",
+            "frist_foresporsel_sendt": "Forespørsel om spesifisert fristkrav",
             "respons_grunnlag": "Respons på grunnlag",
             "respons_vederlag": "Respons på vederlag",
             "respons_frist": "Respons på frist",
@@ -265,9 +267,19 @@ class CatendaCommentGenerator:
             if status != SporStatus.IKKE_RELEVANT:
                 status_display = self._format_status(status.value)
                 if (track_name == "Vederlag" and track.varsler and not track.metode
-                        or track_name == "Frist" and track.varsel_type == "varsel"):
+                        or track_name == "Frist" and status == SporStatus.SENDT
+                        and not track.kravet_er_spesifisert):
                     status_display = "Varslet – ikke spesifisert"
                 lines.append(f"- {track_name}: {status_display}")
+                if track_name == "Frist" and track.foresporsel_venter_svar:
+                    svarfrist = (
+                        f", svarfrist {track.frist_for_spesifisering}"
+                        if track.frist_for_spesifisering
+                        else ""
+                    )
+                    lines.append(
+                        f"  - BH har bedt om spesifisert krav (§ 33.6.2){svarfrist}"
+                    )
 
                 # Add details if available
                 if track_name == "Vederlag":
