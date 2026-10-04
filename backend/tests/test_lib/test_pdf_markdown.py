@@ -122,6 +122,31 @@ OVERSKRIFT_NIVA_4_TIL_6 = [
 ]
 
 
+# Innholdet i et kodespenn er bokstavelig. Kilde: CommonMark 0.31.2, §6.1
+# «Code spans»: «Code span backticks have higher precedence than any other
+# inline constructs except HTML tags and autolinks». Før #133 ble fet og kursiv
+# tolket inne i backticks. HTML-tagger blir tekst her (escapes), som før.
+KODESPENN_133 = [
+    ("`_x_`", f"{KODE}_x_</font>"),
+    ("`**y**`", f"{KODE}**y**</font>"),
+    ("`*z*`", f"{KODE}*z*</font>"),
+    ("`__w__`", f"{KODE}__w__</font>"),
+    ("`~~v~~`", f"{KODE}~~v~~</font>"),
+    ("`[a](b)`", f"{KODE}[a](b)</font>"),
+    ("`a & <b>`", f"{KODE}a &amp; &lt;b&gt;</font>"),
+    ("`<0>`", f"{KODE}&lt;0&gt;</font>"),
+    ("<0> `x`", f"&lt;0&gt; {KODE}x</font>"),
+    # Fet og kursiv rett utenfor et kodespenn virker som før.
+    ("**fet** `_x_`", f"<b>fet</b> {KODE}_x_</font>"),
+    ("`**y**` _kursiv_", f"{KODE}**y**</font> <i>kursiv</i>"),
+    ("**`kode`**", f"<b>{KODE}kode</font></b>"),
+    ("_`kode`_", f"<i>{KODE}kode</font></i>"),
+    ("`a` *b* `c`", f"{KODE}a</font> <i>b</i> {KODE}c</font>"),
+    ("- `_x_`", f"    • {KODE}_x_</font>"),
+    ("# `**y**`", f'<font size="14"><b>{KODE}**y**</font></b></font>'),
+]
+
+
 @pytest.mark.parametrize("generator", [letter_pdf_generator, reportlab_pdf_generator])
 def test_begge_generatorene_bruker_den_felles_konverteringen(generator):
     assert generator.markdown_to_reportlab is markdown_to_reportlab
@@ -151,4 +176,9 @@ def test_ingen_fet_eller_kursiv_inne_i_ord_eller_mellom_mellomrom_124(
 
 @pytest.mark.parametrize(("inndata", "forventet"), OVERSKRIFT_NIVA_4_TIL_6)
 def test_overskrift_niva_4_til_6_blir_fet_tekst_124(inndata, forventet):
+    assert markdown_to_reportlab(inndata) == forventet
+
+
+@pytest.mark.parametrize(("inndata", "forventet"), KODESPENN_133)
+def test_kodespenn_er_bokstavelige_133(inndata, forventet):
     assert markdown_to_reportlab(inndata) == forventet
