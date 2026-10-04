@@ -15,6 +15,7 @@ import pytest
 from flask import Flask, g
 
 from models.events import parse_event, parse_event_from_request
+from regler import REGELVERSJON
 from services.business_rules import BusinessRuleValidator
 from services.timeline_service import TimelineService
 from tests.test_approval import test_approval_service as approval_fixtures
@@ -43,6 +44,7 @@ def response(claim, *, kind="respons_grunnlag", result="godkjent"):
             "refererer_til_event_id": claim.event_id,
             "data": {
                 "grunnlag_event_id": claim.event_id,
+                "regelversjon": REGELVERSJON,
                 "resultat": result,
                 "begrunnelse": "Audit response",
             },
@@ -283,8 +285,14 @@ def test_project_leader_cannot_publish_above_displayed_200000_limit(setup):
             "claimId": claim.event_id,
             "data": {
                 "vederlag_krav_id": claim.event_id,
+                "regelversjon": REGELVERSJON,
+                "hovedkrav_vurdering": "godkjent",
+                "hovedkrav_varslet_i_tide": True,
+                "aksepterer_metode": True,
                 "beregnings_resultat": "godkjent",
+                "hovedkrav_godkjent_belop": 300000,
                 "total_godkjent_belop": 300000,
+                "total_krevd_belop": 300000,
                 "begrunnelse": "Godkjent",
             },
         },
@@ -527,8 +535,10 @@ def test_server_rate_change_returns_time_package(setup, new_rate):
             "claimId": claim.event_id,
             "data": {
                 "frist_krav_id": claim.event_id,
+                "regelversjon": REGELVERSJON,
                 "beregnings_resultat": "godkjent",
                 "godkjent_dager": 5,
+                "frist_varsel_ok": True,
                 "spesifisert_krav_ok": True,
                 "vilkar_oppfylt": True,
                 "begrunnelse": "Godkjent",

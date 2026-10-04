@@ -13,7 +13,8 @@ de kan flyttes når `JsonFileEventRepository` går ut i F0b. Testene mot
 
 import pytest
 
-from models.events import EventType, FristVarselType
+from models.events import EventType, FristVarselType, SubsidiaerTrigger
+from regler import REGELVERSJON
 from tests.test_security.test_beregningsresultat_br01_20260923 import (  # noqa: F401
     HEADERS,
     NOYTRALT_FRISTVARSEL,
@@ -35,9 +36,12 @@ from tests.test_services.test_noytralt_fristvarsel import (
 )
 
 
-def _bh_svar(krav_id, spesifisert_krav_ok, event_type=EventType.RESPONS_FRIST):
-    svar = _fullt_svar(krav_id)
-    data = svar.data.model_copy(update={"spesifisert_krav_ok": spesifisert_krav_ok})
+def _bh_svar(krav_id, spesifisert_krav_ok, event_type=EventType.RESPONS_FRIST, dager=10):
+    svar = _fullt_svar(krav_id, godkjent_dager=dager)
+    triggere = None if spesifisert_krav_ok else [SubsidiaerTrigger.REDUKSJON_SPESIFISERT]
+    data = svar.data.model_copy(
+        update={"spesifisert_krav_ok": spesifisert_krav_ok, "subsidiaer_triggers": triggere}
+    )
     return svar.model_copy(update={"data": data, "event_type": event_type})
 
 
@@ -67,7 +71,7 @@ def test_33_6_1_avvises_paa_kravet_som_besvarte_foresporselen():
     resultat = regler.validate(
         _bh_svar(krav.event_id, False), timeline.compute_state(hendelser)
     )
-    assert resultat.violated_rule == "REQUEST_ANSWERED"
+    assert resultat.violated_rule == "ASSESSMENT_INVALID"
     assert "§ 33.6.2 fjerde ledd" in resultat.message
 
 
@@ -87,7 +91,7 @@ def test_kontrollsak_uten_foresporsel_kan_paaberope_33_6_1():
 def test_gjelder_ogsaa_et_endret_svar():
     hendelser, krav = _spesifisert_etter_foresporsel()
     hendelser.append(_bh_svar(krav.event_id, True))
-    assert _avvist_av(_endret_svar(hendelser[-1], False), hendelser) == "REQUEST_ANSWERED"
+    assert _avvist_av(_endret_svar(hendelser[-1], False), hendelser) == "ASSESSMENT_INVALID"
 
 
 def test_en_senere_revisjon_kan_moetes_med_33_6_1():
@@ -97,7 +101,7 @@ def test_en_senere_revisjon_kan_moetes_med_33_6_1():
     revisjon = _spesifisert(dager=40, event_type=EventType.FRIST_KRAV_OPPDATERT)
     hendelser.append(revisjon)
     assert timeline.compute_state(hendelser).frist.kravet_besvarer_foresporselen is False
-    assert _godtatt(_bh_svar(revisjon.event_id, False), hendelser)
+    assert _godtatt(_bh_svar(revisjon.event_id, False, dager=40), hendelser)
 
 
 def test_et_svar_etter_bokstav_b_er_ikke_svaret_paa_foresporselen():
@@ -189,6 +193,7 @@ def _skjemaets_svar(krav_id, **endringer):
     """`fristDomain.buildEventData` når spørsmålet om § 33.6.1 er skjult:
     `spesifisert_krav_ok` er `undefined` og faller bort i JSON."""
     return {
+        "regelversjon": REGELVERSJON,
         "frist_krav_id": krav_id,
         "foresporsel_svar_ok": True,
         "vilkar_oppfylt": True,
@@ -238,7 +243,9 @@ def test_manglende_33_6_1_vurdering_avvises_paa_et_vanlig_krav():
     krav = _spesifisert(event_type=EventType.FRIST_KRAV_SENDT)
     svar = _uten_spesifisert_krav_ok(_bh_svar(krav.event_id, True))
     assert svar.data.spesifisert_krav_ok is True
-    assert _avvist_av(svar, hendelser + [krav]) == "SPECIFICATION_ASSESSED"
+    resultat = regler.validate(svar, timeline.compute_state(hendelser + [krav]))
+    assert resultat.violated_rule == "ASSESSMENT_INVALID"
+    assert "spesifisert_krav_ok: mangler" in resultat.message
 
 
 def test_33_6_1_vurdering_kreves_ikke_paa_svaret_paa_foresporselen():

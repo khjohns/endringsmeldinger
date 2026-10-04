@@ -9,6 +9,13 @@ from regler import UgyldigVurdering
 PASSIVITET_VEILEDENDE_DAGER = 10
 
 
+def forste_underkategori(underkategori: str | list[str] | None) -> str | None:
+    """Eldre saker har underkategorien som liste; frontenden bruker første."""
+    if isinstance(underkategori, list):
+        return underkategori[0] if underkategori else None
+    return underkategori
+
+
 def er_endring_med_32_2(hovedkategori: str | None, underkategori: str | None) -> bool:
     return hovedkategori == "ENDRING" and underkategori != "EO"
 

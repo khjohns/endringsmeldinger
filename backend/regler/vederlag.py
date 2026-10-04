@@ -12,10 +12,12 @@ from models.events import (
     GrunnlagResponsResultat,
     SubsidiaerTrigger,
     VederlagBeregningResultat,
+    VederlagResponsData,
     VederlagsMetode,
 )
+from models.sak_state import SakState
 from regler import UgyldigVurdering, belop, til_krone
-from regler.grunnlag import er_endring_med_32_2
+from regler.grunnlag import er_endring_med_32_2, forste_underkategori
 
 NULL = Decimal("0.00")
 
@@ -35,6 +37,29 @@ class Vederlagskrav:
     underkategori: str | None = None
     grunnlag_varslet_i_tide: bool | None = None
     grunnlag_resultat: GrunnlagResponsResultat | None = None
+
+    @classmethod
+    def fra_tilstand(cls, sak: SakState) -> "Vederlagskrav":
+        """Som `deriveVederlagDomainConfig` i frontenden."""
+        v, g = sak.vederlag, sak.grunnlag
+        saerskilt = v.saerskilt_krav or {}
+
+        def saerskilt_belop(navn: str):
+            post = saerskilt.get(navn)
+            return (post.get("belop") or 0) if isinstance(post, dict) else None
+
+        return cls(
+            hovedkrav_belop=v.krevd_belop or 0,
+            metode=VederlagsMetode(v.metode) if v.metode else None,
+            rigg_belop=saerskilt_belop("rigg_drift"),
+            produktivitet_belop=saerskilt_belop("produktivitet"),
+            krever_justert_ep=bool(v.krever_justert_ep),
+            kostnads_overslag=v.kostnads_overslag,
+            hovedkategori=g.hovedkategori,
+            underkategori=forste_underkategori(g.underkategori),
+            grunnlag_varslet_i_tide=g.grunnlag_varslet_i_tide,
+            grunnlag_resultat=g.bh_resultat,
+        )
 
     @property
     def har_rigg_krav(self) -> bool:
@@ -62,6 +87,11 @@ class Vederlagsvurdering:
     oensket_metode: VederlagsMetode | None = None
     varsel_justert_ep_ok: bool | None = None
     hold_tilbake: bool = False
+
+    @classmethod
+    def fra_data(cls, data: VederlagResponsData) -> "Vederlagsvurdering":
+        felt = {f: getattr(data, f) for f in cls.__dataclass_fields__ if f != "hold_tilbake"}
+        return cls(**felt, hold_tilbake=bool(data.hold_tilbake))
 
 
 @dataclass(frozen=True)
@@ -93,8 +123,8 @@ class Vederlagsresultat:
     total_godkjent_belop: Decimal
     total_krevd_belop: Decimal
     hovedkrav_godkjent_belop: Decimal
-    rigg_godkjent_belop: Decimal
-    produktivitet_godkjent_belop: Decimal
+    rigg_godkjent_belop: Decimal | None
+    produktivitet_godkjent_belop: Decimal | None
     subsidiaer_triggers: tuple[SubsidiaerTrigger, ...]
     subsidiaer_resultat: VederlagBeregningResultat | None
     subsidiaer_godkjent_belop: Decimal | None
@@ -314,8 +344,8 @@ def beregn_vederlag(krav: Vederlagskrav, vurdering: Vederlagsvurdering) -> Veder
     totaler = beregn_totaler(vurdering, krav, preklusjon)
     ingen_preklusjon = Preklusjon(hovedkrav=False, rigg=False, produktivitet=False)
     per_post = [g for _, g, _ in _poster(vurdering, krav, ingen_preklusjon)]
-    rigg = per_post[1] if krav.har_rigg_krav else NULL
-    produktivitet = per_post[-1] if krav.har_produktivitet_krav else NULL
+    rigg = per_post[1] if krav.har_rigg_krav else None
+    produktivitet = per_post[-1] if krav.har_produktivitet_krav else None
     vis_subsidiaert = totaler.har_prekludert_krav
 
     return Vederlagsresultat(

@@ -8,6 +8,7 @@ before events can be persisted.
 import pytest
 
 from models.events import (
+    BelopVurdering,
     EOUtstedtData,
     EOUtstedtEvent,
     EventType,
@@ -29,6 +30,7 @@ from models.events import (
     VederlagsMetode,
 )
 from models.sak_state import SakState
+from regler import REGELVERSJON
 from services.business_rules import BusinessRuleValidator, ValidationResult
 from services.timeline_service import TimelineService
 
@@ -139,7 +141,9 @@ class TestBusinessRuleValidator:
             spor=SporType.GRUNNLAG,
             refererer_til_event_id=base_state.grunnlag.krav_event_id,
             data=GrunnlagResponsData(
-                resultat=GrunnlagResponsResultat.GODKJENT, begrunnelse="Test"
+                resultat=GrunnlagResponsResultat.GODKJENT,
+                begrunnelse="Test",
+                regelversjon=REGELVERSJON,
             ),
         )
 
@@ -288,9 +292,14 @@ class TestBusinessRuleValidator:
             spor=SporType.VEDERLAG,
             refererer_til_event_id=events[-1].event_id,
             data=VederlagResponsData(
+                regelversjon=REGELVERSJON,
+                hovedkrav_vurdering=BelopVurdering.GODKJENT,
+                aksepterer_metode=True,
                 beregnings_resultat=VederlagBeregningResultat.GODKJENT,
                 begrunnelse="Approved",
+                hovedkrav_godkjent_belop=100000.0,
                 total_godkjent_belop=100000.0,
+                total_krevd_belop=100000.0,
             ),
         )
 

@@ -1,4 +1,4 @@
-"""BR-01: BHs beregnede resultat lagres slik klienten sendte det.
+"""BR-01: et svar der resultatet ikke følger av vurderingene, avvises.
 
 Et BH-svar på vederlag eller frist bærer både vurderingene (portene) og
 `beregnings_resultat`, som frontenden regner ut av dem. Testene sender et svar
@@ -7,13 +7,11 @@ prosjektet har godkjenningspolicy, `/api/cases/<sak>/approvals`. Validator,
 parser, forretningsregler, godkjenningstjeneste, hendelseslager og tidslinje
 er ekte. Autentisering, metadata og Catenda er byttet ut.
 
-Assertionene er nøytrale mellom alternativ (1) og (2) under B-13 i hovedplanen:
-enten avvises svaret, eller tilstanden viser resultatet vurderingene gir.
-Velges alternativ (3), der begge lagres og avviket vises, må testene skrives
-om. Hvert svar sendes først med riktig resultat på en kontrollsak. Blir
-kontrollen lagret, er resultatet det eneste som skiller, og en avvisning av
-svaret gjelder resultatet. Andre utfall gir `pytest.fail`, som en streng
-`xfail` med `raises=AssertionError` ikke skjuler.
+Reprodusert 23.09 som streng `xfail`; rettet med B-13, alternativ (2) i streng
+form (hovedplanen 3.1, 24.09): serveren regner ut svaret og avviser det med
+`RESULT_MISMATCH` og serverens verdi. Hvert svar sendes først med riktig
+resultat på en kontrollsak. Blir kontrollen lagret, er resultatet det eneste
+som skiller, og avvisningen gjelder resultatet.
 
 DRF-01 ble funnet i samme kartlegging og bruker samme oppsett. Begge er
 beskrevet i `docs/kartlegging-domeneregler-frontend-2026-09-23.md`.
@@ -30,12 +28,11 @@ from flask import Flask
 from lib.auth.session import cookie_name
 from lib.project_context import init_project_context
 from models.events import (
-    FristBeregningResultat,
     SporStatus,
-    VederlagBeregningResultat,
     parse_event,
     parse_event_from_request,
 )
+from regler import REGELVERSJON
 from repositories.event_repository import JsonFileEventRepository
 from routes import event_routes
 from routes.approval_routes import approval_bp
@@ -58,6 +55,7 @@ NOYTRALT_FRISTVARSEL = {
 # Metoden aksepteres og ingenting holdes tilbake (§ 30.2). Med ingenting
 # godkjent gir reglene «avslått».
 VEDERLAG_AVSLATT = {
+    "regelversjon": REGELVERSJON,
     "aksepterer_metode": True,
     "hold_tilbake": False,
     "hovedkrav_vurdering": "avslatt",
@@ -70,10 +68,13 @@ VEDERLAG_AVSLATT = {
 # Varslene er i tide, men forholdet har ikke hindret fremdriften (§ 33.1).
 # Da gir reglene «avslått» uansett antall dager.
 FRIST_AVSLATT = {
+    "regelversjon": REGELVERSJON,
     "frist_varsel_ok": True,
     "spesifisert_krav_ok": True,
     "vilkar_oppfylt": False,
     "godkjent_dager": 0,
+    "subsidiaer_resultat": "avslatt",
+    "subsidiaer_triggers": ["ingen_hindring"],
     "begrunnelse": "Ingen hindring.",
 }
 
@@ -223,11 +224,7 @@ def _lagret_tilstand(sak, sak_id):
 
 def _send_svar(sak, sak_id, spor, krav, vurderinger, resultat):
     return _svar(
-        sak,
-        sak_id,
-        f"respons_{spor}",
-        krav.event_id,
-        {f"{spor}_krav_id": krav.event_id, **vurderinger, "beregnings_resultat": resultat},
+        sak, sak_id, f"respons_{spor}", krav.event_id, _svardata(spor, krav, vurderinger, resultat)
     )
 
 
@@ -244,85 +241,9 @@ def _kontroller(sak, spor, vurderinger, resultat):
         pytest.fail(f"Kontrollen ble ikke lagret: {svar.status_code} {svar.get_json()}")
 
 
-def _avvist(svar):
-    if svar.status_code not in (201, 400):
-        pytest.fail(f"Uventet svar: {svar.status_code} {svar.get_json()}")
-    return svar.status_code == 400
-
-
-@pytest.mark.xfail(
-    strict=True,
-    raises=AssertionError,
-    reason=(
-        "BR-01: /api/events lagrer beregnings_resultat=godkjent på et vederlagssvar "
-        "der hovedkravet er avslått og godkjent beløp er 0; sporet blir GODKJENT"
-    ),
-)
-def test_vederlagssvar_med_resultat_som_ikke_folger_av_vurderingene(sak):
-    _kontroller(sak, "vederlag", VEDERLAG_AVSLATT, "avslatt")
-    krav = _opprett_sak(sak.lager, SAK).vederlag
-    if _avvist(_send_svar(sak, SAK, "vederlag", krav, VEDERLAG_AVSLATT, "godkjent")):
-        return
-    vederlag = _lagret_tilstand(sak, SAK).vederlag
-    assert vederlag.bh_resultat == VederlagBeregningResultat.AVSLATT, (
-        f"Vurderingene gir avslått, men sporet lagret bh_resultat={vederlag.bh_resultat}, "
-        f"status={vederlag.status}, godkjent_belop={vederlag.godkjent_belop}"
-    )
-    assert vederlag.status == SporStatus.AVSLATT
-
-
-@pytest.mark.xfail(
-    strict=True,
-    raises=AssertionError,
-    reason=(
-        "BR-01: /api/events lagrer beregnings_resultat=godkjent på et fristsvar "
-        "der vilkåret i § 33.1 ikke er oppfylt; sporet blir GODKJENT"
-    ),
-)
-def test_fristsvar_med_resultat_som_ikke_folger_av_vurderingene(sak):
-    _kontroller(sak, "frist", FRIST_AVSLATT, "avslatt")
-    krav = _opprett_sak(sak.lager, SAK).frist
-    if _avvist(_send_svar(sak, SAK, "frist", krav, FRIST_AVSLATT, "godkjent")):
-        return
-    frist = _lagret_tilstand(sak, SAK).frist
-    assert frist.bh_resultat == FristBeregningResultat.AVSLATT, (
-        f"Vurderingene gir avslått, men sporet lagret bh_resultat={frist.bh_resultat}, "
-        f"status={frist.status}, vilkar_oppfylt={frist.vilkar_oppfylt}"
-    )
-    assert frist.status == SporStatus.AVSLATT
-
-
-@pytest.mark.xfail(
-    strict=True,
-    raises=AssertionError,
-    reason=(
-        "BR-01: to svar der vurderingene avslår alt, men resultatet sier godkjent, "
-        "gir overordnet_status=OMFORENT og kan_utstede_eo=True"
-    ),
-)
-def test_selvmotsigende_svar_gjor_saken_omforent_og_eo_utstedbar(sak):
-    krav = _opprett_sak(sak.lager, SAK)
-    for spor, vurderinger in (("vederlag", VEDERLAG_AVSLATT), ("frist", FRIST_AVSLATT)):
-        _kontroller(sak, spor, vurderinger, "avslatt")
-        _avvist(_send_svar(sak, SAK, spor, getattr(krav, spor), vurderinger, "godkjent"))
-
-    tilstand = _lagret_tilstand(sak, SAK)
-    assert tilstand.overordnet_status != "OMFORENT"
-    assert tilstand.kan_utstede_eo is False
-
-
-@pytest.mark.xfail(
-    strict=True,
-    raises=AssertionError,
-    reason=(
-        "BR-01: godkjenningsflyten publiserer beregnings_resultat=godkjent på et "
-        "vederlagssvar der hovedkravet er avslått; sporet blir GODKJENT"
-    ),
-)
-def test_godkjenningsflyten_publiserer_resultat_som_ikke_folger_av_vurderingene(
-    sak, monkeypatch
-):
-    """Saksbehandleren har ubegrenset fullmakt, så pakken godkjennes ved innsending."""
+def godkjenningsflyt(sak, monkeypatch):  # noqa: F811
+    """Saksbehandleren har ubegrenset fullmakt. Returnerer `kommando(sak_id,
+    action, **felt)` mot godkjenningsruta, med status og svar."""
     monkeypatch.setenv(
         "BH_APPROVAL_POLICIES",
         json.dumps(
@@ -355,6 +276,61 @@ def test_godkjenningsflyten_publiserer_resultat_som_ikke_folger_av_vurderingene(
             headers=HEADERS,
         )
         return svar.status_code, svar.get_json() or {}
+
+    return kommando
+
+
+def _svardata(spor, krav, vurderinger, resultat):
+    return {f"{spor}_krav_id": krav.event_id, **vurderinger, "beregnings_resultat": resultat}
+
+
+def _avvist_med_serverens_resultat(svar, resultat="avslatt"):
+    assert svar.status_code == 400, svar.get_json()
+    feil = svar.get_json()
+    assert feil["rule"] == "RESULT_MISMATCH", feil
+    assert f"beregnings_resultat={resultat} (sendt: godkjent)" in feil["message"], feil
+
+
+def test_vederlagssvar_med_resultat_som_ikke_folger_av_vurderingene(sak):
+    _kontroller(sak, "vederlag", VEDERLAG_AVSLATT, "avslatt")
+    krav = _opprett_sak(sak.lager, SAK).vederlag
+    _avvist_med_serverens_resultat(
+        _send_svar(sak, SAK, "vederlag", krav, VEDERLAG_AVSLATT, "godkjent")
+    )
+    vederlag = _lagret_tilstand(sak, SAK).vederlag
+    assert vederlag.bh_resultat is None
+    assert vederlag.status == SporStatus.SENDT
+
+
+def test_fristsvar_med_resultat_som_ikke_folger_av_vurderingene(sak):
+    _kontroller(sak, "frist", FRIST_AVSLATT, "avslatt")
+    krav = _opprett_sak(sak.lager, SAK).frist
+    _avvist_med_serverens_resultat(
+        _send_svar(sak, SAK, "frist", krav, FRIST_AVSLATT, "godkjent")
+    )
+    frist = _lagret_tilstand(sak, SAK).frist
+    assert frist.bh_resultat is None
+    assert frist.status == SporStatus.SENDT
+
+
+def test_selvmotsigende_svar_gjor_ikke_saken_omforent_eller_eo_utstedbar(sak):
+    krav = _opprett_sak(sak.lager, SAK)
+    for spor, vurderinger in (("vederlag", VEDERLAG_AVSLATT), ("frist", FRIST_AVSLATT)):
+        _kontroller(sak, spor, vurderinger, "avslatt")
+        _avvist_med_serverens_resultat(
+            _send_svar(sak, SAK, spor, getattr(krav, spor), vurderinger, "godkjent")
+        )
+
+    tilstand = _lagret_tilstand(sak, SAK)
+    assert tilstand.overordnet_status != "OMFORENT"
+    assert tilstand.kan_utstede_eo is False
+
+
+def test_godkjenningsflyten_avviser_resultat_som_ikke_folger_av_vurderingene(
+    sak, monkeypatch
+):
+    """Saksbehandleren har ubegrenset fullmakt, så pakken godkjennes ved innsending."""
+    kommando = godkjenningsflyt(sak, monkeypatch)
 
     def publiser(sak_id, resultat):
         """Status for første steg som ikke ga 200, eller den publiserte pakken."""
@@ -401,19 +377,10 @@ def test_godkjenningsflyten_publiserer_resultat_som_ikke_folger_av_vurderingene(
     if status != 200 or kontroll["status"] != "sendt":
         pytest.fail(f"Kontrollen ble ikke publisert: {status} {kontroll}")
 
-    sak_id = SAK
-    status, pakke = publiser(sak_id, "godkjent")
-    if status == 400:
-        return
-    if status != 200 or pakke["status"] != "sendt":
-        pytest.fail(f"Uventet utfall: {status} {pakke}")
-    vederlag = _lagret_tilstand(sak, sak_id).vederlag
-    assert vederlag.bh_resultat == VederlagBeregningResultat.AVSLATT, (
-        f"Vurderingene gir avslått, men sporet lagret bh_resultat={vederlag.bh_resultat}, "
-        f"status={vederlag.status}; brevet sier "
-        f"«{pakke['letter']['items'][0]['data']['beregnings_resultat']}»"
-    )
-    assert vederlag.status == SporStatus.AVSLATT
+    status, svar = publiser(SAK, "godkjent")
+    assert status == 400, svar
+    assert "beregnings_resultat=avslatt (sendt: godkjent)" in svar["message"], svar
+    assert _lagret_tilstand(sak, SAK).vederlag.bh_resultat is None
 
 
 # =============================================================================
