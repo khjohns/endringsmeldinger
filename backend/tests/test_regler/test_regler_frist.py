@@ -16,14 +16,10 @@ Fire forventninger skiller seg fra TS-fila, og alle viser til et vedtak:
   TS-fila har ingen tester for det.
 
 Kravet slik saken står (`Fristkrav.fra_tilstand`, `deriveFristDomainConfig`)
-skiller seg på tre punkter:
-
-- Svaret på forespørselen er bare kravet som besvarte den. Frontenden bruker
-  `har_bh_foresporsel` for hele sporet (oppdragsgiver 04.10, § 33.6.2 fjerde
-  ledd).
-- § 32.2 gjelder ikke formell endringsordre (B-13, 3.1, 24.09).
-- Et tidligere svar finnes når `bh_respondert_versjon` ikke er `None`.
-  Frontenden sammenlikner med `undefined`, og API-et sender `null`.
+skiller seg på ett punkt: § 32.2 gjelder ikke formell endringsordre (B-13,
+3.1, 24.09). Det påvirker bare `hele_fristen_subsidiaer`, som ikke sammenliknes.
+Svaret på forespørselen er bare kravet som besvarte den (oppdragsgiver 04.10,
+§ 33.6.2 fjerde ledd), og det er begge sider enige om etter #181.
 
 Ikke oversatt, fordi de er veiledning (gruppe 1 i kartleggingen) eller bygger
 nyttelasten og ikke resultatet: `getDefaults`, portflaggene i `beregnAlt`, og i
@@ -527,7 +523,7 @@ class TestFraTilstand:
 
     def test_en_revisjon_er_ikke_svaret_paa_foresporselen(self):
         # Oppdragsgiver 04.10: § 33.6.2 fjerde ledd gjelder kravet som besvarte
-        # forespørselen. Frontenden bruker `har_bh_foresporsel` for hele sporet.
+        # forespørselen.
         k = Fristkrav.fra_tilstand(
             sak(
                 {
