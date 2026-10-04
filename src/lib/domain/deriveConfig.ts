@@ -55,7 +55,7 @@ export function deriveFristDomainConfig(sak: SakState): FristDomainConfig {
     // Et innsendt varsel uten svar er fortsatt ikke vurdert.
     harTidligereVarselITide:
       f.frist_varsel_ok === true ||
-      (f.bh_respondert_versjon !== undefined && f.frist_varsel_ok !== false),
+      (typeof f.bh_respondert_versjon === 'number' && f.frist_varsel_ok !== false),
     erGrunnlagSubsidiaer: g.bh_resultat === 'avslatt',
     erHelFristSubsidiaerPgaGrunnlag: g.grunnlag_varslet_i_tide === false,
   };

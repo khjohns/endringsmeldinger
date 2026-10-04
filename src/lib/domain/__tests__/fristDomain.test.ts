@@ -506,6 +506,41 @@ describe('buildEventData', () => {
     expect(data.regelversjon).toBe(REGELVERSJON);
   });
 
+  it('omits answers to hidden questions (#181)', () => {
+    const state = makeState({
+      fristVarselOk: true,
+      spesifisertKravOk: false,
+      foresporselSvarOk: true,
+    });
+    const computed = {
+      prinsipaltResultat: 'godkjent' as const,
+      subsidiaertResultat: 'godkjent' as const,
+      visSubsidiaertResultat: false,
+      subsidiaerTriggers: [],
+    };
+    const svar = buildEventData(
+      state,
+      makeConfig({ erSvarPaForesporsel: true }),
+      computed,
+      'frist-1',
+      'auto-tekst'
+    );
+    expect(svar.spesifisert_krav_ok).toBeUndefined();
+    expect(svar.frist_varsel_ok).toBeUndefined();
+    expect(svar.foresporsel_svar_ok).toBe(true);
+
+    const tidligere = buildEventData(
+      state,
+      makeConfig({ harTidligereVarselITide: true }),
+      computed,
+      'frist-1',
+      'auto-tekst'
+    );
+    expect(tidligere.frist_varsel_ok).toBeUndefined();
+    expect(tidligere.spesifisert_krav_ok).toBe(false);
+    expect(tidligere.foresporsel_svar_ok).toBeUndefined();
+  });
+
   it('sends the subsidiary days when principally rejected (#176)', () => {
     const state = makeState({ godkjentDager: 7 });
     const computed = {
