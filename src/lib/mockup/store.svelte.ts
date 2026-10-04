@@ -169,6 +169,7 @@ export function createDemoStore(initial: Scenario = DEFAULT_SCENARIO) {
     } else {
       frist.har_bh_foresporsel = true;
       frist.dato_bh_foresporsel = now.slice(0, 10);
+      frist.krav_event_id ??= frist.siste_event_id ?? 'demo-fristvarsel';
       frist.foresporsel_krav_id = frist.krav_event_id;
       frist.frist_for_spesifisering = data.svarfrist;
     }

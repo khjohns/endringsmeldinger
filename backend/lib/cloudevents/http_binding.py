@@ -139,6 +139,8 @@ def _get_event_summary(event) -> str:
         EOUtstedtEvent,
         ForseringVarselEvent,
         FristEvent,
+        FristForesporselEvent,
+        FristInnsigelseEvent,
         GrunnlagEvent,
         InterntNotatEvent,
         ResponsEvent,
@@ -157,6 +159,12 @@ def _get_event_summary(event) -> str:
         return f"Krav: {belop:,.0f} NOK"
     elif isinstance(event, FristEvent):
         return f"Krav: {event.data.antall_dager} dager"
+    elif isinstance(event, FristInnsigelseEvent):
+        return "Innsigelse: varselet kom for sent (§ 5)"
+    elif isinstance(event, FristForesporselEvent):
+        if event.data.svarfrist:
+            return f"Ber om spesifisert krav innen {event.data.svarfrist.isoformat()} (§ 33.6.2)"
+        return "Ber om spesifisert krav (§ 33.6.2)"
     elif isinstance(event, ForseringVarselEvent):
         return f"Forsering: {event.data.estimert_kostnad:,.0f} NOK"
     elif isinstance(event, ResponsEvent):

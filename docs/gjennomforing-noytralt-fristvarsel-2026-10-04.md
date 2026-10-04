@@ -86,13 +86,24 @@ tilstanden sa at varselet kom for sent. Funnet i code-review av PR #174.
 `FristDomainConfig.harInnsigelseMotVarsel` viser nå spørsmålet og fyller inn
 innsigelsen som standpunkt.
 
+**Code-review på nivå high** fant i tillegg, rettet i samme PR:
+TEs svar etter § 33.6.2 annet ledd bokstav b ble avvist av API-validatoren,
+som krevde dager for `frist_krav_spesifisert` (reprodusert med test før
+rettingen); `dato_bh_foresporsel` var UTC-dato framfor norsk dato; skjemaet ble
+skjult for BH uten godkjenningsrett og førte etter sending til
+godkjenningsvisningen; skjemaet ble vist når sporet ikke hadde et sendt varsel;
+tidslinjen manglet oppsummering for de to hendelsene; og stemplingen av
+brevreferanser følger nå klassifiseringen (`BH_BINDENDE_EVENTS`) framfor en egen
+liste. Ett funn er avvist: å slå sammen referanseregelen for de nye hendelsene
+med `_rule_response_reference`, som også håndterer `original_respons_id`.
+
 **Ellers:** tidslinjehistorikken (`innsigelse`, `foresporsel`), etikettene i
 backend og frontend, Catenda-kommentaren (egen tittel, og en linje om
 forespørselen og svarfristen), CloudEvents-skjemaet og hendelseskatalogen.
 
 ## Tester
 
-- `backend/tests/test_services/test_noytralt_fristvarsel.py`, 22 tester mot
+- `backend/tests/test_services/test_noytralt_fristvarsel.py`, 24 tester mot
   regler, tilstand, historikk, Catenda og `/api/events` med
   godkjenningspolicy. Hver viser til vedtaket eller bestemmelsen.
 - TFR-06 (`test_fullt_fristsvar_paa_noytralt_varsel`) er ordinær test,

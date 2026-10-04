@@ -413,3 +413,65 @@ def test_neste_handling_er_tes_svar_paa_foresporselen():
 
     assert tilstand.neste_handling["rolle"] == "TE"
     assert "33.6.2" in tilstand.neste_handling["handling"]
+
+
+def test_foresporselsdatoen_er_norsk_dato():
+    """Datoen TEs «uten ugrunnet opphold» regnes fra (§ 33.6.2 annet ledd)."""
+    from datetime import UTC, datetime
+
+    hendelser = _sak_med_godkjent_grunnlag()
+    varsel = _varsel()
+    foresporsel = _foresporsel(varsel.event_id).model_copy(
+        update={"tidsstempel": datetime(2026, 10, 4, 22, 30, tzinfo=UTC)}
+    )
+
+    frist = timeline.compute_state(hendelser + [varsel, foresporsel]).frist
+
+    assert frist.dato_bh_foresporsel == "2026-10-05"
+
+
+def test_te_kan_svare_paa_foresporselen_etter_bokstav_b(sak):  # noqa: F811
+    """§ 33.6.2 annet ledd b: TE begrunner hvorfor grunnlaget for å beregne
+    kravet ikke foreligger. Svaret har ingen dager og skal godtas."""
+    sak_id = "KOE-62-bokstav-b"
+    varsel = _opprett_sak(sak.lager, sak_id, fristkrav=NOYTRALT_FRISTVARSEL).frist
+    svar = _svar(
+        sak,
+        sak_id,
+        "frist_foresporsel_sendt",
+        varsel.event_id,
+        {
+            "frist_krav_id": varsel.event_id,
+            "begrunnelse": "Spesifiser kravet.",
+            "brev": _brev(sak_id, "Spesifiser kravet."),
+        },
+    )
+    assert svar.status_code == 201, svar.get_json()
+
+    sak.client.application.extensions["koe_auth"].contract_role.return_value = "TE"
+    sak.client.application.extensions["koe_auth"].contract_membership.return_value = (
+        "TE",
+        "te-team",
+    )
+    _, versjon = sak.lager.get_events(sak_id)
+    utsatt = sak.client.post(
+        "/api/events",
+        json={
+            "sak_id": sak_id,
+            "expected_version": versjon,
+            "event": {
+                "event_type": "frist_krav_spesifisert",
+                "data": {
+                    "varsel_type": "begrunnelse_utsatt",
+                    "begrunnelse": "Fremdriftsplanen er ikke revidert ennå.",
+                    "er_svar_pa_foresporsel": True,
+                },
+            },
+        },
+        headers=HEADERS,
+    )
+
+    assert utsatt.status_code == 201, utsatt.get_json()
+    frist = _lagret_tilstand(sak, sak_id).frist
+    assert frist.varsel_type == "begrunnelse_utsatt"
+    assert frist.foresporsel_venter_svar is False

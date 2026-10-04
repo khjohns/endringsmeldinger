@@ -39,7 +39,6 @@ export interface FristComputedValues {
   prinsipaltResultat: FristBeregningResultat;
   subsidiaertResultat: FristBeregningResultat;
   visSubsidiaertResultat: boolean;
-  showGodkjentDager: boolean;
   port1bErSubsidiaer: boolean;
   port2ErSubsidiaer: boolean;
   port3ErSubsidiaer: boolean;
@@ -249,7 +248,6 @@ export function beregnAlt(state: FristFormState, config: FristDomainConfig): Fri
   });
 
   const visSubsidiaertResultat = prinsipaltResultat === 'avslatt';
-  const showGodkjentDager = true;
 
   const port1bErSubsidiaer = erPrekludert;
   const port2ErSubsidiaer = erPrekludert || config.erGrunnlagSubsidiaer;
@@ -268,7 +266,6 @@ export function beregnAlt(state: FristFormState, config: FristDomainConfig): Fri
     prinsipaltResultat,
     subsidiaertResultat,
     visSubsidiaertResultat,
-    showGodkjentDager,
     port1bErSubsidiaer,
     port2ErSubsidiaer,
     port3ErSubsidiaer,
