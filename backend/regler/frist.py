@@ -246,7 +246,8 @@ def beregn_frist(krav: Fristkrav, vurdering: Fristvurdering) -> Fristresultat:
     subsidiaert = subsidiaert_resultat(
         har_hindring=har_hindring, krevd_dager=krav.krevd_dager, godkjent_dager=dager
     )
-    vis_subsidiaert = prinsipalt == FristBeregningResultat.AVSLATT
+    # Subsidiært standpunkt bare når avslaget har en annen grunn enn dagene.
+    vis_subsidiaert = er_prekludert_ or not har_hindring
 
     return Fristresultat(
         beregnings_resultat=prinsipalt,

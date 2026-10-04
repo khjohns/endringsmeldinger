@@ -407,12 +407,19 @@ class TestBeregnFrist:
         assert REDUKSJON in r.subsidiaer_triggers
 
     def test_null_dager_med_hindring(self):
-        # Oppdragsgiver 04.10.
+        # Oppdragsgiver 04.10. Avslaget gjelder dagene selv, så det finnes ikke
+        # noe subsidiært standpunkt (som `beregnAlt` etter #167).
         r = beregn_frist(krav(), vurdering(godkjent_dager=0))
         assert r.beregnings_resultat == AVSLATT
-        assert r.subsidiaer_resultat == AVSLATT
+        assert r.godkjent_dager == 0
+        assert r.subsidiaer_resultat is None
         assert r.subsidiaer_godkjent_dager is None
         assert r.subsidiaer_triggers == ()
+
+    def test_null_dager_ved_preklusjon(self):
+        r = beregn_frist(krav(varsel_type="varsel"), vurdering(frist_varsel_ok=False, godkjent_dager=0))
+        assert r.subsidiaer_resultat == AVSLATT
+        assert r.subsidiaer_godkjent_dager is None
 
     @pytest.mark.parametrize(
         ("grunnlag_avslatt", "prekludert_32_2", "forventet"),
