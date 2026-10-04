@@ -2,7 +2,6 @@
  * Domenelogikk for totalentreprenørens krav om fristforlengelse, NS 8407:2011 § 33.
  */
 
-import { differenceInDays } from 'date-fns';
 import type { FristVarselType, VarselInfo } from '../types/timeline';
 
 export type SubmissionScenario = 'new' | 'spesifisering' | 'foresporsel' | 'edit';
@@ -137,16 +136,6 @@ export function beregnVisibility(
   };
 }
 
-export function beregnPreklusjonsvarsel(config: {
-  datoOppdaget?: string;
-}): { variant: 'warning' | 'danger'; dager: number } | null {
-  if (!config.datoOppdaget) return null;
-  const dager = differenceInDays(new Date(), new Date(config.datoOppdaget));
-  if (dager > 14) return { variant: 'danger', dager };
-  if (dager > 7) return { variant: 'warning', dager };
-  return null;
-}
-
 export function beregnCanSubmit(
   state: FristSubmissionFormState,
   _config: FristSubmissionVisibilityConfig
@@ -234,17 +223,6 @@ export function getEventType(config: { scenario: SubmissionScenario }): string {
   }
 }
 
-export interface RevisionContextConfig {
-  scenario?: SubmissionScenario;
-  foresporselDeadline?: string;
-}
-
-export interface RevisionContext {
-  isSpecification: boolean;
-  isForesporsel: boolean;
-  foresporselDeadline?: string;
-}
-
 export interface TeStatusSummaryConfig {
   scenario: SubmissionScenario;
   existingAntallDager?: number;
@@ -294,14 +272,4 @@ export function beregnTeStatusSummary(
   }
 
   return null;
-}
-
-export function beregnRevisionContext(config: RevisionContextConfig): RevisionContext {
-  const isSpec = config.scenario === 'spesifisering' || config.scenario === 'foresporsel';
-
-  return {
-    isSpecification: isSpec,
-    isForesporsel: config.scenario === 'foresporsel',
-    foresporselDeadline: config.foresporselDeadline,
-  };
 }

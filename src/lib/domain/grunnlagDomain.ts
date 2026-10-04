@@ -73,10 +73,6 @@ export function erPaalegg(event?: { hovedkategori?: string; underkategori?: stri
   );
 }
 
-export function erForceMajeure(event?: { hovedkategori?: string }): boolean {
-  return event?.hovedkategori === 'FORCE_MAJEURE';
-}
-
 export function erPrekludert(
   state: Pick<GrunnlagFormState, 'varsletITide'>,
   config: GrunnlagDomainConfig
@@ -97,14 +93,6 @@ export function beregnPassivitet(event?: {
   const erPassiv = erEndringMed32_2(event) && dagerSidenVarsel > 10;
 
   return { erPassiv, dagerSidenVarsel };
-}
-
-export function erSnuoperasjon(
-  state: Pick<GrunnlagFormState, 'resultat'>,
-  config: GrunnlagDomainConfig
-): boolean {
-  if (!config.isUpdateMode || config.forrigeResultat !== 'avslatt') return false;
-  return state.resultat === 'godkjent';
 }
 
 export function getVerdictOptions(config: GrunnlagDomainConfig): VerdictOption[] {
@@ -136,18 +124,6 @@ export function getVerdictOptions(config: GrunnlagDomainConfig): VerdictOption[]
   return opts;
 }
 
-export function getDynamicPlaceholder(resultat: string | undefined, prekludert: boolean): string {
-  if (!resultat) return 'Velg resultat i kortet til venstre, deretter skriv begrunnelse...';
-  if (prekludert && resultat === 'godkjent')
-    return 'Begrunn din preklusjonsinnsigelse og din subsidiære godkjenning...';
-  if (prekludert && resultat === 'avslatt')
-    return 'Begrunn din preklusjonsinnsigelse og ditt subsidiære avslag...';
-  if (resultat === 'godkjent') return 'Begrunn din vurdering av kontraktsforholdet...';
-  if (resultat === 'avslatt') return 'Forklar hvorfor forholdet ikke gir grunnlag for krav...';
-  if (resultat === 'frafalt') return 'Begrunn hvorfor pålegget frafalles...';
-  return 'Begrunn din vurdering...';
-}
-
 export function buildEventData(
   state: GrunnlagFormState,
   config: GrunnlagDomainConfig & {
@@ -174,100 +150,6 @@ export function buildEventData(
     begrunnelse: state.begrunnelse,
     grunnlag_varslet_i_tide: isEndring ? state.varsletITide : undefined,
     dager_siden_varsel: dagerSidenVarsel > 0 ? dagerSidenVarsel : undefined,
-  };
-}
-
-export interface BhUpdateConfig {
-  forrigeResultat: GrunnlagResponsResultat;
-  forrigeVarsletITide?: boolean;
-  forrigeBegrunnelseHtml?: string;
-}
-
-export function getBhUpdateDefaults(config: BhUpdateConfig): GrunnlagFormState {
-  return {
-    varsletITide: config.forrigeVarsletITide ?? true,
-    resultat: config.forrigeResultat,
-    resultatError: false,
-    begrunnelse: config.forrigeBegrunnelseHtml ?? '',
-    begrunnelseValidationError: undefined,
-  };
-}
-
-export interface EndringItem {
-  felt: 'resultat' | 'varsletITide' | 'begrunnelse';
-  type:
-    | 'snuoperasjon'
-    | 'trekker_godkjenning'
-    | 'frafaller_innsigelse'
-    | 'ny_innsigelse'
-    | 'endret';
-  beskrivelse: string;
-}
-
-export interface EndringsInfo {
-  harEndring: boolean;
-  endringer: EndringItem[];
-}
-
-/**
- * Detect what BH has changed compared to their previous response.
- * Used for inline warnings (snuoperasjon, frafaller innsigelse, etc.)
- */
-export function detekterEndringer(
-  state: Pick<GrunnlagFormState, 'resultat' | 'varsletITide' | 'begrunnelse'>,
-  forrige: { resultat: GrunnlagResponsResultat; varsletITide?: boolean; begrunnelse?: string }
-): EndringsInfo {
-  const endringer: EndringItem[] = [];
-
-  if (state.resultat && state.resultat !== forrige.resultat) {
-    if (forrige.resultat === 'avslatt' && state.resultat === 'godkjent') {
-      endringer.push({
-        felt: 'resultat',
-        type: 'snuoperasjon',
-        beskrivelse: 'Snuoperasjon: endrer fra avslått til godkjent',
-      });
-    } else if (forrige.resultat === 'godkjent' && state.resultat === 'avslatt') {
-      endringer.push({
-        felt: 'resultat',
-        type: 'trekker_godkjenning',
-        beskrivelse: 'Trekker tilbake godkjenning',
-      });
-    } else {
-      endringer.push({
-        felt: 'resultat',
-        type: 'endret',
-        beskrivelse: `Endrer resultat fra ${forrige.resultat} til ${state.resultat}`,
-      });
-    }
-  }
-
-  if (forrige.varsletITide !== undefined && state.varsletITide !== forrige.varsletITide) {
-    if (forrige.varsletITide === false && state.varsletITide === true) {
-      endringer.push({
-        felt: 'varsletITide',
-        type: 'frafaller_innsigelse',
-        beskrivelse: 'Frafaller innsigelse om varsling (§32.2)',
-      });
-    } else if (forrige.varsletITide === true && state.varsletITide === false) {
-      endringer.push({
-        felt: 'varsletITide',
-        type: 'ny_innsigelse',
-        beskrivelse: 'Ny innsigelse om varsling (§32.2)',
-      });
-    }
-  }
-
-  if (forrige.begrunnelse && state.begrunnelse !== forrige.begrunnelse) {
-    endringer.push({
-      felt: 'begrunnelse',
-      type: 'endret',
-      beskrivelse: 'Begrunnelse er endret',
-    });
-  }
-
-  return {
-    harEndring: endringer.length > 0,
-    endringer,
   };
 }
 

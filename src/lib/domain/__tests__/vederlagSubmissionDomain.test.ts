@@ -93,41 +93,6 @@ describe('vederlagSubmissionDomain', () => {
     });
   });
 
-  // ── beregnVisibility ──
-  describe('beregnVisibility', () => {
-    it('shows belopDirekte for ENHETSPRISER', () => {
-      const v = domain.beregnVisibility({ metode: 'ENHETSPRISER' });
-      expect(v.showBelopDirekte).toBe(true);
-      expect(v.showKostnadsOverslag).toBe(false);
-      expect(v.showJustertEp).toBe(true);
-      expect(v.showVarsletForOppstart).toBe(false);
-    });
-
-    it('shows kostnadsOverslag for REGNINGSARBEID', () => {
-      const v = domain.beregnVisibility({ metode: 'REGNINGSARBEID' });
-      expect(v.showBelopDirekte).toBe(false);
-      expect(v.showKostnadsOverslag).toBe(true);
-      expect(v.showJustertEp).toBe(false);
-      expect(v.showVarsletForOppstart).toBe(true);
-    });
-
-    it('shows belopDirekte for FASTPRIS_TILBUD', () => {
-      const v = domain.beregnVisibility({ metode: 'FASTPRIS_TILBUD' });
-      expect(v.showBelopDirekte).toBe(true);
-      expect(v.showKostnadsOverslag).toBe(false);
-      expect(v.showJustertEp).toBe(false);
-      expect(v.showVarsletForOppstart).toBe(false);
-    });
-
-    it('hides all for undefined metode', () => {
-      const v = domain.beregnVisibility({ metode: undefined });
-      expect(v.showBelopDirekte).toBe(false);
-      expect(v.showKostnadsOverslag).toBe(false);
-      expect(v.showJustertEp).toBe(false);
-      expect(v.showVarsletForOppstart).toBe(false);
-    });
-  });
-
   // ── beregnCanSubmit ──
   describe('beregnCanSubmit', () => {
     it('cannot submit without metode', () => {
@@ -198,90 +163,6 @@ describe('vederlagSubmissionDomain', () => {
         begrunnelse: '1234567890',
       };
       expect(domain.beregnCanSubmit(state)).toBe(true);
-    });
-  });
-
-  // ── getDynamicPlaceholder ──
-  describe('getDynamicPlaceholder', () => {
-    it('returns generic placeholder for undefined metode', () => {
-      expect(domain.getDynamicPlaceholder(undefined)).toContain('Velg beregningsmetode');
-    });
-
-    it('returns EP placeholder for ENHETSPRISER', () => {
-      expect(domain.getDynamicPlaceholder('ENHETSPRISER')).toContain('enhetspriser');
-    });
-
-    it('returns regning placeholder for REGNINGSARBEID', () => {
-      expect(domain.getDynamicPlaceholder('REGNINGSARBEID')).toContain('regningsarbeid');
-    });
-
-    it('returns fastpris placeholder for FASTPRIS_TILBUD', () => {
-      expect(domain.getDynamicPlaceholder('FASTPRIS_TILBUD')).toContain('fastpris');
-    });
-  });
-
-  // ── beregnTeStatusSummary ──
-  describe('beregnTeStatusSummary', () => {
-    it('returns null when no metode', () => {
-      expect(
-        domain.beregnTeStatusSummary(
-          { metode: undefined, belopDirekte: undefined, kostnadsOverslag: undefined },
-          { scenario: 'new' }
-        )
-      ).toBeNull();
-    });
-
-    it('returns krav text with amount for new ENHETSPRISER', () => {
-      const result = domain.beregnTeStatusSummary(
-        { metode: 'ENHETSPRISER', belopDirekte: 250000, kostnadsOverslag: undefined },
-        { scenario: 'new' }
-      );
-      expect(result).toContain('250');
-      expect(result).toContain('vederlag');
-    });
-
-    it('returns krav text with kostnadsOverslag for new REGNINGSARBEID', () => {
-      const result = domain.beregnTeStatusSummary(
-        { metode: 'REGNINGSARBEID', belopDirekte: undefined, kostnadsOverslag: 400000 },
-        { scenario: 'new' }
-      );
-      expect(result).toContain('400');
-      expect(result).toContain('vederlag');
-    });
-
-    it('returns generic text when no amount in new scenario', () => {
-      const result = domain.beregnTeStatusSummary(
-        { metode: 'REGNINGSARBEID', belopDirekte: undefined, kostnadsOverslag: undefined },
-        { scenario: 'new' }
-      );
-      expect(result).toBe('Sender vederlagskrav');
-    });
-
-    it('returns justerer text for edit with changed amount', () => {
-      const result = domain.beregnTeStatusSummary(
-        { metode: 'ENHETSPRISER', belopDirekte: 300000, kostnadsOverslag: undefined },
-        { scenario: 'edit', existingBelop: 200000 }
-      );
-      expect(result).toContain('Justerer');
-      expect(result).toContain('200');
-      expect(result).toContain('300');
-    });
-
-    it('returns oppdaterer text for edit with same amount', () => {
-      const result = domain.beregnTeStatusSummary(
-        { metode: 'ENHETSPRISER', belopDirekte: 200000, kostnadsOverslag: undefined },
-        { scenario: 'edit', existingBelop: 200000 }
-      );
-      expect(result).toContain('Oppdaterer');
-      expect(result).toContain('200');
-    });
-
-    it('returns generic oppdaterer text for edit without amount', () => {
-      const result = domain.beregnTeStatusSummary(
-        { metode: 'REGNINGSARBEID', belopDirekte: undefined, kostnadsOverslag: undefined },
-        { scenario: 'edit' }
-      );
-      expect(result).toBe('Oppdaterer vederlagskrav');
     });
   });
 

@@ -7,7 +7,6 @@ import {
   beregnPrinsipaltResultat,
   beregnSubsidiaertResultat,
   beregnSubsidiaerTriggers,
-  getDynamicPlaceholder,
   buildEventData,
   beregnAlt,
   type FristFormState,
@@ -455,28 +454,6 @@ describe('beregnSubsidiaerTriggers', () => {
     expect(triggers).toContain('grunnlag_avslatt');
     expect(triggers).toContain('preklusjon_varsel');
     expect(triggers).toContain('ingen_hindring');
-  });
-});
-
-// ============================================================================
-// getDynamicPlaceholder
-// ============================================================================
-
-describe('getDynamicPlaceholder', () => {
-  it('returns default when no resultat', () => {
-    expect(getDynamicPlaceholder(undefined)).toContain('Gjør valgene');
-  });
-
-  it('returns godkjent placeholder', () => {
-    expect(getDynamicPlaceholder('godkjent')).toContain('godkjenning');
-  });
-
-  it('returns delvis_godkjent placeholder', () => {
-    expect(getDynamicPlaceholder('delvis_godkjent')).toContain('deler');
-  });
-
-  it('returns avslatt placeholder', () => {
-    expect(getDynamicPlaceholder('avslatt')).toContain('avslag');
   });
 });
 

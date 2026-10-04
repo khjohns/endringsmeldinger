@@ -68,89 +68,6 @@ export const BH_FRISTSVAR_OPTIONS: DropdownOption[] = [
   },
 ];
 
-// ========== HELPER FUNCTIONS ==========
-
-export function getBhGrunnlagssvarLabel(code: string): string {
-  const option = BH_GRUNNLAGSVAR_OPTIONS.find((opt) => opt.value === code);
-  return option?.label || code;
-}
-
-export function getBhVederlagssvarLabel(code: string): string {
-  const option = BH_VEDERLAGSSVAR_OPTIONS.find((opt) => opt.value === code);
-  return option?.label || code;
-}
-
-export function getBhFristsvarLabel(code: string): string {
-  const option = BH_FRISTSVAR_OPTIONS.find((opt) => opt.value === code);
-  return option?.label || code;
-}
-
-// ========== HELPER FUNCTIONS FOR ZOD SCHEMAS ==========
-
-/**
- * Get enum values for Zod schema (filters out empty placeholder)
- */
-export function getBhGrunnlagssvarValues(): [string, ...string[]] {
-  const values = BH_GRUNNLAGSVAR_OPTIONS.filter((opt) => opt.value !== '').map((opt) => opt.value);
-
-  if (values.length === 0) {
-    throw new Error('BH_GRUNNLAGSVAR_OPTIONS must have at least one non-empty value');
-  }
-
-  return values as [string, ...string[]];
-}
-
-export function getBhVederlagssvarValues(): [string, ...string[]] {
-  const values = BH_VEDERLAGSSVAR_OPTIONS.filter((opt) => opt.value !== '').map((opt) => opt.value);
-
-  if (values.length === 0) {
-    throw new Error('BH_VEDERLAGSSVAR_OPTIONS must have at least one non-empty value');
-  }
-
-  return values as [string, ...string[]];
-}
-
-export function getBhFristsvarValues(): [string, ...string[]] {
-  const values = BH_FRISTSVAR_OPTIONS.filter((opt) => opt.value !== '').map((opt) => opt.value);
-
-  if (values.length === 0) {
-    throw new Error('BH_FRISTSVAR_OPTIONS must have at least one non-empty value');
-  }
-
-  return values as [string, ...string[]];
-}
-
-// ========== DESCRIPTIVE HELP TEXT ==========
-
-export const BH_GRUNNLAGSVAR_DESCRIPTIONS: Record<string, string> = {
-  godkjent:
-    'Byggherren aksepterer kontraktsforholdet. Endringsordre (EO) kan utstedes når vederlag og frist også er avklart.',
-  avslatt:
-    'Byggherren avslår kontraktsforholdet. Vederlag og frist vurderes subsidiært (hvis ansvar hadde foreligget).',
-  frafalt:
-    'Byggherren frafaller pålegget (§32.3 c). Kun for irregulære endringer. Arbeidet trenger ikke utføres.',
-};
-
-export const BH_VEDERLAGSSVAR_DESCRIPTIONS: Record<string, string> = {
-  godkjent:
-    'Enighet om sum og metode. Beløpet utbetales hvis grunnlag også godkjennes (prinsipalt) eller som subsidiær enighet.',
-  delvis_godkjent:
-    'Enighet om at det skal betales (prinsipalt eller subsidiært), men uenighet om beløpet (f.eks. antall timer eller påslag).',
-  avslatt:
-    'BH avviser kravet. Årsaken (preklusjon, metode, etc.) spesifiseres via subsidiaer_triggers. Kan avslås midlertidig pga manglende dokumentasjon.',
-  hold_tilbake:
-    '§30.2: BH holder tilbake betaling inntil kostnadsoverslag for regningsarbeid mottas. Kun for regningsarbeid uten overslag.',
-};
-
-export const BH_FRISTSVAR_DESCRIPTIONS: Record<string, string> = {
-  godkjent:
-    'Enighet om antall dager (prinsipalt eller subsidiært). Dagene innvilges hvis grunnlag også godkjennes.',
-  delvis_godkjent:
-    'BH mener forsinkelsen er kortere enn TE krever; uenighet om hvor mye fremdriften hindres.',
-  avslatt:
-    'BH avviser kravet. Årsaken (preklusjon, ingen hindring, etc.) spesifiseres via subsidiaer_triggers. Kan avslås midlertidig pga manglende dokumentasjon.',
-};
-
 // ========== SUBSIDIÆR TRIGGER LABELS ==========
 
 export const SUBSIDIAER_TRIGGER_LABELS: Record<SubsidiaerTrigger, string> = {
@@ -166,7 +83,3 @@ export const SUBSIDIAER_TRIGGER_LABELS: Record<SubsidiaerTrigger, string> = {
   ingen_hindring: 'Ingen reell fremdriftshindring (§33.5)',
   metode_avslatt: 'Metode ikke akseptert',
 };
-
-export function getSubsidiaerTriggerLabel(trigger: SubsidiaerTrigger): string {
-  return SUBSIDIAER_TRIGGER_LABELS[trigger] || trigger;
-}

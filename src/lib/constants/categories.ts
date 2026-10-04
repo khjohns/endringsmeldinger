@@ -281,19 +281,6 @@ export function getHjemmelLabel(code: string | string[] | undefined | null): str
   return codeStr;
 }
 
-// Get combined "Kontraktsforhold — Hjemmel" label (e.g. "Forsinkelse eller svikt ved byggherrens ytelser — Grunnforhold")
-export function getKombinertKategoriLabel(
-  hovedkategori: string | string[] | undefined | null,
-  underkategori?: string | string[] | undefined | null
-): string {
-  const hk = getKontraktsforholdLabel(hovedkategori);
-  if (!underkategori) return hk;
-  const uk = getHjemmelLabel(underkategori);
-  return uk && uk !== (Array.isArray(underkategori) ? underkategori[0] : underkategori)
-    ? `${hk} — ${uk}`
-    : hk;
-}
-
 // Get full kontraktsforhold object by code (case-insensitive)
 export function getKontraktsforhold(
   code: string | string[] | undefined | null
@@ -318,72 +305,4 @@ export function getHjemmelObj(
     if (hjemmel) return hjemmel;
   }
   return undefined;
-}
-
-// Group hjemler by their gruppe field for UI display
-// Returns a Map preserving insertion order (groups appear in the order they first occur)
-export function getGrupperteHjemler(
-  hjemler: Kontraktshjemmel[]
-): Map<string | null, Kontraktshjemmel[]> {
-  const grupper = new Map<string | null, Kontraktshjemmel[]>();
-
-  for (const h of hjemler) {
-    const gruppeNavn = h.gruppe ?? null;
-    if (!grupper.has(gruppeNavn)) {
-      grupper.set(gruppeNavn, []);
-    }
-    grupper.get(gruppeNavn)!.push(h);
-  }
-
-  return grupper;
-}
-
-// Check if hjemmel is a law change (requires special handling)
-export function erLovendring(hjemmelKode: string): boolean {
-  return ['LOV_GJENSTAND', 'LOV_PROSESS', 'GEBYR'].includes(hjemmelKode);
-}
-
-// Get the correct paragraph reference for law change hjemler
-export function getLovendringParagraf(hjemmelKode: string): string | null {
-  switch (hjemmelKode) {
-    case 'LOV_GJENSTAND':
-      return '14.4';
-    case 'LOV_PROSESS':
-      return '15.2';
-    case 'GEBYR':
-      return '26.3';
-    default:
-      return null;
-  }
-}
-
-// Check if hovedkategori is Force Majeure (no compensation, only time)
-export function erForceMajeure(hovedkategoriKode: string): boolean {
-  return hovedkategoriKode === 'FORCE_MAJEURE';
-}
-
-// Check if this is an irregular change (special passivity rules apply)
-export function erIrregulaerEndring(kontraktsforholdKode: string, hjemmelKode: string): boolean {
-  return kontraktsforholdKode === 'ENDRING' && hjemmelKode === 'IRREG';
-}
-
-// Get type krav for a kontraktsforhold
-export function getTypeKrav(kontraktsforholdKode: string): TypeKrav | undefined {
-  const forhold = getKontraktsforhold(kontraktsforholdKode);
-  return forhold?.type_krav;
-}
-
-// Get hjemmel references for a claim
-export function getHjemmelReferanser(
-  kontraktsforholdKode: string,
-  hjemmelKode?: string
-): { frist: string; vederlag: string | null; varsel: string } {
-  const forhold = getKontraktsforhold(kontraktsforholdKode);
-  const hjemmel = hjemmelKode ? getHjemmelObj(hjemmelKode) : undefined;
-
-  return {
-    frist: forhold?.hjemmel_frist || '',
-    vederlag: forhold?.hjemmel_vederlag || null,
-    varsel: hjemmel?.varselkrav_ref || '',
-  };
 }
