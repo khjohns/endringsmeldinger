@@ -319,6 +319,12 @@ grenser»** til slutt som navngir hva som *ikke* er kontrollert.
   det `venter-på-beslutning`. Det gjelder også feil du oppdager underveis
   utenfor oppdraget. Å nevne dem i PR-beskrivelsen er ikke nok. Tilskriver du
   en feil testmiljøet, er det en påstand. Kontroller den, eller meld den.
+- **Hvert issue har en milepæl eller en sporetikett.** Milepælen er
+  arbeidspakken (F0b, F1 …) eller «Opprydding etter AF-06»; de parallelle
+  sporene har `spor-d`, `spor-h` og `spor-m` i stedet. Venter et issue på
+  rekkefølgen i AF-06, får det `venter-på-rekkefølge`. Etiketten fjernes når
+  hovedplanen har en datert merknad om unntak; unntaket står i planen, ikke i
+  issuet. Et issue som samler grunnlaget for en B-ID, får `beslutning`.
 - **Issues er like offentlige som repoet.** Ingen saksdata, kontraktsinnhold,
   personnavn fra prosjekter, nøkler eller tilgangsopplysninger.
 - `gh issue list --milestone "<navn>"` viser det som gjenstår i en pakke.
