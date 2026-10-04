@@ -155,53 +155,6 @@ class BaseSakService:
         logger.info(f"Hentet {len(relasjoner)} relaterte saker for {sak_id}")
         return relasjoner
 
-    def _create_topic_with_relations(
-        self, title: str, description: str, topic_type: str, related_sak_ids: list[str]
-    ) -> dict[str, Any] | None:
-        """
-        Oppretter topic i Catenda med toveis-relasjoner.
-
-        Args:
-            title: Tittel på topic
-            description: Beskrivelse
-            topic_type: Type topic (f.eks. "Forsering", "Endringsordre")
-            related_sak_ids: Liste med sak-IDs å opprette relasjoner til
-
-        Returns:
-            Topic-dict fra Catenda, eller None hvis opprettelse feilet
-
-        Raises:
-            RuntimeError: Hvis opprettelse feiler
-        """
-        if not self.client:
-            logger.warning("Ingen Catenda client - kan ikke opprette topic")
-            return None
-
-        topic = self.client.create_topic(
-            title=title,
-            description=description,
-            topic_type=topic_type,
-            topic_status="Open",
-        )
-
-        if not topic:
-            raise RuntimeError("Kunne ikke opprette topic i Catenda")
-
-        # Opprett toveis-relasjoner
-        if related_sak_ids:
-            # Container → Relaterte (containersaken peker på relaterte saker)
-            self.client.create_topic_relations(
-                topic_id=topic["guid"], related_topic_guids=related_sak_ids
-            )
-            # Relaterte → Container (hver relatert sak peker tilbake)
-            for sak_id in related_sak_ids:
-                self.client.create_topic_relations(
-                    topic_id=sak_id, related_topic_guids=[topic["guid"]]
-                )
-
-        logger.info(f"✅ {topic_type} opprettet: {topic['guid']}")
-        return topic
-
     def hent_hendelser_fra_relaterte_saker(
         self, sak_ids: list[str], spor_filter: list[str] | None = None
     ) -> dict[str, list[AnyEvent]]:
