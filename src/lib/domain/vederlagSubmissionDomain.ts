@@ -1,15 +1,8 @@
 /**
- * vederlagSubmissionDomain.ts — TE's vederlag submission logic (NS 8407 §34).
- *
- * Pure TypeScript — no React dependencies. Imported by useVederlagSubmissionBridge.ts.
- * Ref: ADR-003 L14, L20
+ * Domenelogikk for totalentreprenørens vederlagskrav, NS 8407:2011 § 34.
  */
 
 import type { VederlagsMetode } from '../constants/paymentMethods';
-
-// ============================================================================
-// TYPES
-// ============================================================================
 
 export type VederlagSubmissionScenario = 'new' | 'edit';
 
@@ -73,10 +66,6 @@ export interface VederlagSubmissionEventData {
   original_event_id?: string;
 }
 
-// ============================================================================
-// DEFAULTS
-// ============================================================================
-
 export function getDefaults(config: VederlagSubmissionDefaultsConfig): VederlagSubmissionFormState {
   if (config.scenario === 'edit' && config.existing) {
     const e = config.existing;
@@ -114,10 +103,6 @@ export function getDefaults(config: VederlagSubmissionDefaultsConfig): VederlagS
   };
 }
 
-// ============================================================================
-// VISIBILITY
-// ============================================================================
-
 export function beregnVisibility(
   state: Pick<VederlagSubmissionFormState, 'metode'>
 ): VederlagSubmissionVisibility {
@@ -130,30 +115,19 @@ export function beregnVisibility(
   };
 }
 
-// ============================================================================
-// VALIDATION
-// ============================================================================
-
 export function beregnCanSubmit(state: VederlagSubmissionFormState): boolean {
   if (!state.metode) return false;
 
-  // Check amount
   if (state.metode === 'REGNINGSARBEID') {
     // Kostnadsoverslag is optional per §30.2 but begrunnelse is required
   } else {
-    // ENHETSPRISER / FASTPRIS_TILBUD need belop_direkte
     if (state.belopDirekte === undefined) return false;
   }
 
-  // Begrunnelse required (min 10 chars)
   if (state.begrunnelse.length < 10) return false;
 
   return true;
 }
-
-// ============================================================================
-// DYNAMIC PLACEHOLDER
-// ============================================================================
 
 export function getDynamicPlaceholder(metode: VederlagsMetode | undefined): string {
   if (!metode) return 'Velg beregningsmetode for å begynne...';
@@ -163,10 +137,6 @@ export function getDynamicPlaceholder(metode: VederlagsMetode | undefined): stri
     return 'Begrunn behovet for regningsarbeid og estimer omfanget (§34.4)...';
   return 'Begrunn tilbudt fastpris (§34.2.1)...';
 }
-
-// ============================================================================
-// TE STATUS SUMMARY
-// ============================================================================
 
 export interface TeStatusSummaryConfig {
   scenario: VederlagSubmissionScenario;
@@ -191,7 +161,6 @@ export function beregnTeStatusSummary(
     return 'Oppdaterer vederlagskrav';
   }
 
-  // new scenario
   if (belop !== undefined && belop > 0) {
     return `Krav om kr ${formatCompact(belop)} i vederlag`;
   }
@@ -202,10 +171,6 @@ function formatCompact(n: number): string {
   return n.toLocaleString('nb-NO', { maximumFractionDigits: 0 });
 }
 
-// ============================================================================
-// BUILD EVENT DATA
-// ============================================================================
-
 export function buildEventData(
   state: VederlagSubmissionFormState,
   config: VederlagSubmissionBuildConfig
@@ -215,7 +180,7 @@ export function buildEventData(
   const isRegning = state.metode === 'REGNINGSARBEID';
   const isEnhetspriser = state.metode === 'ENHETSPRISER';
 
-  // Build saerskilt_krav (§34.1.3)
+  // § 34.1.3
   const saerskiltKrav =
     state.harRiggKrav || state.harProduktivitetKrav
       ? {
@@ -245,10 +210,6 @@ export function buildEventData(
 
   return result;
 }
-
-// ============================================================================
-// EVENT TYPE
-// ============================================================================
 
 export function getEventType(config: { scenario: VederlagSubmissionScenario }): string {
   switch (config.scenario) {
