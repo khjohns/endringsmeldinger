@@ -837,13 +837,13 @@ class TestValidateResponsEvent:
             )
         assert "beregnings_resultat er påkrevd" in str(exc_info.value)
 
-    def test_frist_missing_spesifisert_krav_ok(self):
-        """Frist response requires 'spesifisert_krav_ok' field."""
-        with pytest.raises(ValidationError) as exc_info:
-            validate_respons_event(
-                {"beregnings_resultat": "godkjent", "vilkar_oppfylt": True}, "frist"
-            )
-        assert "spesifisert_krav_ok er påkrevd" in str(exc_info.value)
+    def test_frist_uten_spesifisert_krav_ok(self):
+        """§ 33.6.1-spørsmålet stilles ikke ved svar på forespørselen (§ 33.6.2
+        fjerde ledd) eller på et varsel. Om feltet kreves, avgjør
+        forretningsreglene ut fra saken (SPECIFICATION_ASSESSED, #172)."""
+        validate_respons_event(
+            {"beregnings_resultat": "godkjent", "vilkar_oppfylt": True}, "frist"
+        )
 
     def test_frist_missing_vilkar_oppfylt(self):
         """Frist response requires 'vilkar_oppfylt' field."""
