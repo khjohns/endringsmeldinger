@@ -38,13 +38,6 @@ export interface VederlagSubmissionDefaultsConfig {
   };
 }
 
-export interface VederlagSubmissionVisibility {
-  showBelopDirekte: boolean;
-  showKostnadsOverslag: boolean;
-  showJustertEp: boolean;
-  showVarsletForOppstart: boolean;
-}
-
 export interface VederlagSubmissionBuildConfig {
   scenario: VederlagSubmissionScenario;
   grunnlagEventId: string;
@@ -103,18 +96,6 @@ export function getDefaults(config: VederlagSubmissionDefaultsConfig): VederlagS
   };
 }
 
-export function beregnVisibility(
-  state: Pick<VederlagSubmissionFormState, 'metode'>
-): VederlagSubmissionVisibility {
-  const metode = state.metode;
-  return {
-    showBelopDirekte: metode === 'ENHETSPRISER' || metode === 'FASTPRIS_TILBUD',
-    showKostnadsOverslag: metode === 'REGNINGSARBEID',
-    showJustertEp: metode === 'ENHETSPRISER',
-    showVarsletForOppstart: metode === 'REGNINGSARBEID',
-  };
-}
-
 export function beregnCanSubmit(state: VederlagSubmissionFormState): boolean {
   if (!state.metode) return false;
 
@@ -127,48 +108,6 @@ export function beregnCanSubmit(state: VederlagSubmissionFormState): boolean {
   if (state.begrunnelse.length < 10) return false;
 
   return true;
-}
-
-export function getDynamicPlaceholder(metode: VederlagsMetode | undefined): string {
-  if (!metode) return 'Velg beregningsmetode for å begynne...';
-  if (metode === 'ENHETSPRISER')
-    return 'Begrunn kravets omfang med referanse til kontraktens enhetspriser (§34.3)...';
-  if (metode === 'REGNINGSARBEID')
-    return 'Begrunn behovet for regningsarbeid og estimer omfanget (§34.4)...';
-  return 'Begrunn tilbudt fastpris (§34.2.1)...';
-}
-
-export interface TeStatusSummaryConfig {
-  scenario: VederlagSubmissionScenario;
-  existingBelop?: number;
-}
-
-export function beregnTeStatusSummary(
-  state: Pick<VederlagSubmissionFormState, 'metode' | 'belopDirekte' | 'kostnadsOverslag'>,
-  config: TeStatusSummaryConfig
-): string | null {
-  if (!state.metode) return null;
-
-  const belop = state.metode === 'REGNINGSARBEID' ? state.kostnadsOverslag : state.belopDirekte;
-
-  if (config.scenario === 'edit') {
-    if (belop !== undefined && belop > 0) {
-      if (config.existingBelop && config.existingBelop !== belop) {
-        return `Justerer krav fra kr ${formatCompact(config.existingBelop)} til kr ${formatCompact(belop)}`;
-      }
-      return `Oppdaterer krav om kr ${formatCompact(belop)}`;
-    }
-    return 'Oppdaterer vederlagskrav';
-  }
-
-  if (belop !== undefined && belop > 0) {
-    return `Krav om kr ${formatCompact(belop)} i vederlag`;
-  }
-  return 'Sender vederlagskrav';
-}
-
-function formatCompact(n: number): string {
-  return n.toLocaleString('nb-NO', { maximumFractionDigits: 0 });
 }
 
 export function buildEventData(

@@ -77,31 +77,6 @@ describe('fristSubmissionDomain', () => {
     });
   });
 
-  // ── beregnPreklusjonsvarsel ──
-  describe('beregnPreklusjonsvarsel', () => {
-    it('returns null when no dato_oppdaget', () => {
-      expect(domain.beregnPreklusjonsvarsel({})).toBeNull();
-    });
-
-    it('returns warning after 7 days', () => {
-      const sevenDaysAgo = new Date();
-      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 8);
-      const result = domain.beregnPreklusjonsvarsel({
-        datoOppdaget: sevenDaysAgo.toISOString().split('T')[0],
-      });
-      expect(result?.variant).toBe('warning');
-    });
-
-    it('returns danger after 14 days', () => {
-      const fifteenDaysAgo = new Date();
-      fifteenDaysAgo.setDate(fifteenDaysAgo.getDate() - 15);
-      const result = domain.beregnPreklusjonsvarsel({
-        datoOppdaget: fifteenDaysAgo.toISOString().split('T')[0],
-      });
-      expect(result?.variant).toBe('danger');
-    });
-  });
-
   // ── beregnCanSubmit ──
   describe('beregnCanSubmit', () => {
     it('cannot submit without varselType', () => {
@@ -312,37 +287,6 @@ describe('fristSubmissionDomain', () => {
           { scenario: 'foresporsel' }
         )
       ).toBe('Svarer på forespørsel: utsatt beregning');
-    });
-  });
-
-  // ── beregnRevisionContext ──
-  describe('beregnRevisionContext', () => {
-    it('returns non-specification context for new scenario', () => {
-      const ctx = domain.beregnRevisionContext({ scenario: 'new' });
-      expect(ctx.isSpecification).toBe(false);
-      expect(ctx.isForesporsel).toBe(false);
-    });
-
-    it('returns non-specification context for edit scenario', () => {
-      const ctx = domain.beregnRevisionContext({ scenario: 'edit' });
-      expect(ctx.isSpecification).toBe(false);
-      expect(ctx.isForesporsel).toBe(false);
-    });
-
-    it('returns specification context for spesifisering', () => {
-      const ctx = domain.beregnRevisionContext({ scenario: 'spesifisering' });
-      expect(ctx.isSpecification).toBe(true);
-      expect(ctx.isForesporsel).toBe(false);
-    });
-
-    it('returns foresporsel context with deadline', () => {
-      const ctx = domain.beregnRevisionContext({
-        scenario: 'foresporsel',
-        foresporselDeadline: '2026-03-15',
-      });
-      expect(ctx.isSpecification).toBe(true);
-      expect(ctx.isForesporsel).toBe(true);
-      expect(ctx.foresporselDeadline).toBe('2026-03-15');
     });
   });
 });
