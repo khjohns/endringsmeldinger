@@ -11,15 +11,12 @@ BR-01-testene og flyttes med dem når `JsonFileEventRepository` går ut i F0b.
 
 import json
 from pathlib import Path
-from uuid import uuid4
 
 import pytest
 
-from models.events import parse_event
 from regler import REGELVERSJON
 from regler.sammenlikning import Avvik, FeilRegelversjon, kontroller_svar
 from services.business_rules import BusinessRuleValidator
-from services.timeline_service import TimelineService
 from tests.test_security.test_beregningsresultat_br01_20260923 import (  # noqa: F401
     FRIST_AVSLATT,
     HEADERS,
@@ -27,16 +24,17 @@ from tests.test_security.test_beregningsresultat_br01_20260923 import (  # noqa:
     _hendelse,
     _lagret_tilstand,
     _opprett_sak,
+    _svar,
+    _svardata,
+    godkjenningsflyt,
     sak,
 )
 
 regler = BusinessRuleValidator()
 
 
-def _krav_og_tilstand(lager, sak_id):
-    krav = _opprett_sak(lager, sak_id)
-    raw, _ = lager.get_events(sak_id)
-    return krav, TimelineService().compute_state([parse_event(e) for e in raw])
+def _krav_og_tilstand(sak, sak_id):  # noqa: F811
+    return _opprett_sak(sak.lager, sak_id), _lagret_tilstand(sak, sak_id)
 
 
 def _vederlagssvar(krav, **endringer):
@@ -65,7 +63,7 @@ def _vederlagssvar(krav, **endringer):
 
 
 def test_like_verdier_godtas_og_serverens_avrundede_verdier_lagres(sak):  # noqa: F811
-    krav, tilstand = _krav_og_tilstand(sak.lager, "S-like")
+    krav, tilstand = _krav_og_tilstand(sak, "S-like")
     svar = _vederlagssvar(krav.vederlag)
     assert regler.validate(svar, tilstand).is_valid
     assert svar.data.hovedkrav_godkjent_belop == 123456.79
@@ -75,7 +73,7 @@ def test_like_verdier_godtas_og_serverens_avrundede_verdier_lagres(sak):  # noqa
 
 def test_flyttall_sammenliknes_til_hele_oere(sak):  # noqa: F811
     """Designnotatet avsnitt 4: klienten regner med flyttall, serveren med Decimal."""
-    krav, tilstand = _krav_og_tilstand(sak.lager, "S-flyt")
+    krav, tilstand = _krav_og_tilstand(sak, "S-flyt")
     svar = _vederlagssvar(
         krav.vederlag,
         hovedkrav_godkjent_belop=0.1 + 0.2,
@@ -86,7 +84,7 @@ def test_flyttall_sammenliknes_til_hele_oere(sak):  # noqa: F811
 
 
 def test_avvik_avvises_med_serverens_verdi(sak):  # noqa: F811
-    krav, tilstand = _krav_og_tilstand(sak.lager, "S-avvik")
+    krav, tilstand = _krav_og_tilstand(sak, "S-avvik")
     svar = _vederlagssvar(krav.vederlag, total_godkjent_belop=123457)
     resultat = regler.validate(svar, tilstand)
     assert resultat.violated_rule == "RESULT_MISMATCH"
@@ -96,7 +94,7 @@ def test_avvik_avvises_med_serverens_verdi(sak):  # noqa: F811
 
 
 def test_triggere_sammenliknes_som_mengde(sak):  # noqa: F811
-    krav, tilstand = _krav_og_tilstand(sak.lager, "S-triggere")
+    krav, tilstand = _krav_og_tilstand(sak, "S-triggere")
     data = {**FRIST_AVSLATT, "frist_varsel_ok": False, "vilkar_oppfylt": False}
     data["subsidiaer_triggers"] = ["ingen_hindring", "preklusjon_varsel"]
     svar = _hendelse(
@@ -109,9 +107,17 @@ def test_triggere_sammenliknes_som_mengde(sak):  # noqa: F811
     assert regler.validate(svar, tilstand).is_valid
 
 
+def test_triggere_serveren_ikke_har_avvises(sak):  # noqa: F811
+    krav, tilstand = _krav_og_tilstand(sak, "S-ekstra-trigger")
+    svar = _vederlagssvar(krav.vederlag, subsidiaer_triggers=["metode_avslatt"])
+    resultat = regler.validate(svar, tilstand)
+    assert resultat.violated_rule == "RESULT_MISMATCH"
+    assert "subsidiaer_triggers=ingen (sendt: [metode_avslatt])" in resultat.message
+
+
 @pytest.mark.parametrize("versjon", [None, REGELVERSJON - 1, REGELVERSJON + 1])
 def test_annen_regelversjon_avvises(sak, versjon):  # noqa: F811
-    krav, tilstand = _krav_og_tilstand(sak.lager, "S-versjon")
+    krav, tilstand = _krav_og_tilstand(sak, "S-versjon")
     svar = _vederlagssvar(krav.vederlag, regelversjon=versjon)
     resultat = regler.validate(svar, tilstand)
     assert resultat.violated_rule == "RULE_VERSION"
@@ -120,7 +126,7 @@ def test_annen_regelversjon_avvises(sak, versjon):  # noqa: F811
 
 
 def test_regelversjonen_lagres_i_hendelsen(sak):  # noqa: F811
-    krav, tilstand = _krav_og_tilstand(sak.lager, "S-lagres")
+    krav, tilstand = _krav_og_tilstand(sak, "S-lagres")
     svar = _vederlagssvar(krav.vederlag)
     assert regler.validate(svar, tilstand).is_valid
     lagret = json.loads(svar.model_dump_json())
@@ -129,7 +135,7 @@ def test_regelversjonen_lagres_i_hendelsen(sak):  # noqa: F811
 
 def test_en_delvis_oppdatering_avvises(sak):  # noqa: F811
     """B-13: en oppdatering må ha med hele svaret."""
-    krav, tilstand = _krav_og_tilstand(sak.lager, "S-delvis")
+    krav, tilstand = _krav_og_tilstand(sak, "S-delvis")
     svar = _vederlagssvar(krav.vederlag, hovedkrav_vurdering=None)
     resultat = regler.validate(svar, tilstand)
     assert resultat.violated_rule == "ASSESSMENT_INVALID"
@@ -154,7 +160,7 @@ def _batchsvar(spor, krav, data, resultat):
     return {
         "event_type": f"respons_{spor}",
         "refererer_til_event_id": krav.event_id,
-        "data": {f"{spor}_krav_id": krav.event_id, **data, "beregnings_resultat": resultat},
+        "data": _svardata(spor, krav, data, resultat),
     }
 
 
@@ -197,38 +203,6 @@ def test_batch_lagrer_like_svar(sak):  # noqa: F811
 # =============================================================================
 
 
-def _godkjenningsflyt(sak, monkeypatch):  # noqa: F811
-    monkeypatch.setenv(
-        "BH_APPROVAL_POLICIES",
-        json.dumps(
-            {
-                "p": {
-                    "handlers": [
-                        {
-                            "id": "bh@example.test",
-                            "user_id": "bh-bruker",
-                            "role": "Adm.dir (daglig leder)",
-                        }
-                    ],
-                    "chain": [],
-                }
-            }
-        ),
-    )
-
-    def kommando(sak_id, action, **felt):
-        url = f"/api/cases/{sak_id}/approvals"
-        versjon = sak.client.get(url, headers=HEADERS).get_json()["state"]["version"]
-        svar = sak.client.post(
-            url,
-            json={"action": action, "commandId": str(uuid4()), "expectedVersion": versjon, **felt},
-            headers=HEADERS,
-        )
-        return svar.status_code, svar.get_json() or {}
-
-    return kommando
-
-
 def _godkjent_pakke(kommando, krav, sak_id):
     status, svar = kommando(
         sak_id,
@@ -269,7 +243,7 @@ def _godkjent_pakke(kommando, krav, sak_id):
 def test_publish_stopper_en_pakke_med_annen_regelversjon(sak, monkeypatch):  # noqa: F811
     """Vedtaket om regelversjon (3.1, 24.09): endres reglene mellom `prepare`
     og `publish`, stopper `publish` pakken, og den må godkjennes på nytt."""
-    kommando = _godkjenningsflyt(sak, monkeypatch)
+    kommando = godkjenningsflyt(sak, monkeypatch)
     krav = _opprett_sak(sak.lager, "S-publish").vederlag
     pakke = _godkjent_pakke(kommando, krav, "S-publish")
 
@@ -284,7 +258,7 @@ def test_publish_stopper_en_pakke_med_annen_regelversjon(sak, monkeypatch):  # n
 
 def test_publish_med_samme_regelversjon_sendes(sak, monkeypatch):  # noqa: F811
     """Kontrollsaken: uten endret regelversjon publiseres pakken."""
-    kommando = _godkjenningsflyt(sak, monkeypatch)
+    kommando = godkjenningsflyt(sak, monkeypatch)
     krav = _opprett_sak(sak.lager, "S-publish-kontroll").vederlag
     pakke = _godkjent_pakke(kommando, krav, "S-publish-kontroll")
     status, svar = kommando("S-publish-kontroll", "publish", packageId=pakke["id"])
@@ -299,28 +273,28 @@ def test_publish_med_samme_regelversjon_sendes(sak, monkeypatch):  # noqa: F811
 # =============================================================================
 
 
-def test_fullmakten_regnes_av_serverens_tall(sak, tmp_path):  # noqa: F811
-    """Designnotatet avsnitt 4: `exposure` regnes av modulens utregning, ikke
-    av tallene i pakken."""
-    from services.approval_service import ApprovalService
-
+def test_pakken_baerer_serverens_tall_til_fullmakten(sak, monkeypatch):  # noqa: F811
+    """Designnotatet avsnitt 4: fullmakten regnes av modulens utregning.
+    `prepare` lagrer serverens verdier i vurderingen, og det er dem
+    `exposure` leser."""
+    kommando = godkjenningsflyt(sak, monkeypatch)
     krav = _opprett_sak(sak.lager, "S-fullmakt").vederlag
-    tjeneste = ApprovalService(
-        tmp_path / "fullmakt.sqlite", sak.lager, TimelineService(), regler
-    )
-    data = _vederlagssvar(krav, total_godkjent_belop=123456.7899).data.model_dump(
+    data = _vederlagssvar(krav, hovedkrav_godkjent_belop=123456.785).data.model_dump(
         mode="json", exclude_none=True
     )
-    item = {
-        "track": "vederlag",
-        "eventType": "respons_vederlag",
-        "claimId": krav.event_id,
-        "owner": "bh",
-        "data": data,
-    }
-    [serverens] = tjeneste.med_serverens_utregning("S-fullmakt", [item])
-    assert data["total_godkjent_belop"] == 123456.7899
-    assert serverens["data"]["total_godkjent_belop"] == 123456.79
+    status, svar = kommando(
+        "S-fullmakt",
+        "prepare",
+        item={
+            "track": "vederlag",
+            "eventType": "respons_vederlag",
+            "claimId": krav.event_id,
+            "data": data,
+        },
+    )
+    assert status == 200, svar
+    assert data["hovedkrav_godkjent_belop"] == 123456.785
+    assert svar["state"]["items"][-1]["data"]["hovedkrav_godkjent_belop"] == 123456.79
 
 
 # =============================================================================
@@ -351,20 +325,7 @@ def test_skjemaets_svar_lagres_med_regelversjonen_i_journalen(sak, navn):  # noq
     spor = "frist" if "frist" in navn else "vederlag"
     krav_id = getattr(krav, spor).event_id
     data = {**NYTTELAST["svar"][navn], f"{spor}_krav_id": krav_id}
-    _, versjon = sak.lager.get_events(sak_id)
-    svar = sak.client.post(
-        "/api/events",
-        json={
-            "sak_id": sak_id,
-            "expected_version": versjon,
-            "event": {
-                "event_type": f"respons_{spor}",
-                "refererer_til_event_id": krav_id,
-                "data": data,
-            },
-        },
-        headers=HEADERS,
-    )
+    svar = _svar(sak, sak_id, f"respons_{spor}", krav_id, data)
     assert svar.status_code == 201, svar.get_json()
 
     lagret, _ = sak.lager.get_events(sak_id)
