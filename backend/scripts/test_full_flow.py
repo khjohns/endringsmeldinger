@@ -705,13 +705,15 @@ class BaseTester:
             pass
         return False
 
-    def _get_auth_headers(self, magic_token: str | None = None) -> dict[str, str]:
-        """Bygg headers med CSRF og magic token (Bearer format)"""
+    def _get_auth_headers(self) -> dict[str, str]:
+        """Headers med CSRF-token.
+
+        Scriptet har ingen Catenda-sesjon. Backend må kjøre med
+        DISABLE_AUTH=true og APP_ENV=development.
+        """
         headers = {"Content-Type": "application/json"}
         if self.csrf_token:
             headers["X-CSRF-Token"] = self.csrf_token
-        if magic_token:
-            headers["Authorization"] = f"Bearer {magic_token}"
         return headers
 
     # =========================================================================
@@ -792,16 +794,15 @@ class BaseTester:
         topic_title: str,
         sakstype: str = "koe",
         forsering_data: dict | None = None,
-    ) -> tuple[str | None, str | None]:
+    ) -> str | None:
         """
         Opprett sak direkte via backend.
 
         Returns:
-            Tuple[sak_id, magic_token] eller (None, None) ved feil
+            sak_id, eller None ved feil
         """
         from datetime import datetime
 
-        from lib.auth.magic_link import get_magic_link_manager
         from models.events import SakOpprettetEvent
         from repositories import create_event_repository, create_metadata_repository
         from repositories.sak_metadata_repository import SakMetadata
@@ -887,9 +888,8 @@ class BaseTester:
             new_version = event_repo.append(event, expected_version=0)
             print_ok(f"SakOpprettetEvent lagret (versjon: {new_version})")
 
-            # Generer magic link og post kommentar til Catenda
-            magic_link_manager = get_magic_link_manager()
-            magic_token = magic_link_manager.generate(sak_id=sak_id)
+            # Vanlig sakslenke; åpning krever Catenda-innlogging
+            from urllib.parse import quote
 
             base_url = (
                 os.getenv("DEV_REACT_APP_URL")
@@ -897,15 +897,9 @@ class BaseTester:
                 or "http://localhost:5173"
             )
 
-            # Bruk riktig frontend-rute basert på sakstype
-            frontend_routes = {
-                "standard": f"/saker/{sak_id}",
-                "koe": f"/saker/{sak_id}",
-                "forsering": f"/forsering/{sak_id}",
-                "endringsordre": f"/endringsordre/{sak_id}",
-            }
-            frontend_route = frontend_routes.get(sakstype, f"/saker/{sak_id}")
-            magic_link = f"{base_url}{frontend_route}?magicToken={magic_token}"
+            sakslenke = (
+                f"{base_url}/{quote(self.project_id, safe='')}/{quote(sak_id, safe='')}"
+            )
 
             # Post initial kommentar
             dato = datetime.now().strftime("%Y-%m-%d")
@@ -920,7 +914,7 @@ class BaseTester:
                 f"**Ny {sakstype_label} opprettet**\n\n"
                 f"Intern saks-ID: `{sak_id}`\n"
                 f"Dato: {dato}\n\n"
-                f"[Apne skjema]({magic_link})"
+                f"[Apne sak]({sakslenke})"
             )
 
             self.client.create_comment(topic_guid, comment_text)
@@ -941,14 +935,14 @@ class BaseTester:
             if self._fetch_csrf_token():
                 print_ok("CSRF-token hentet")
 
-            return sak_id, magic_token
+            return sak_id
 
         except Exception as e:
             print_fail(f"Feil ved opprettelse av sak: {e}")
             import traceback
 
             traceback.print_exc()
-            return None, None
+            return None
 
     # =========================================================================
     # Verifikasjon av Catenda-integrasjon
@@ -1048,9 +1042,7 @@ class BaseTester:
     # State-håndtering
     # =========================================================================
 
-    def _get_state_and_version(
-        self, sak_id: str, magic_token: str
-    ) -> tuple[dict | None, int]:
+    def _get_state_and_version(self, sak_id: str) -> tuple[dict | None, int]:
         """
         Hent state og versjon for en sak.
 
@@ -1060,7 +1052,7 @@ class BaseTester:
         try:
             response = requests.get(
                 f"{BACKEND_URL}/api/cases/{sak_id}/state",
-                headers=self._get_auth_headers(magic_token),
+                headers=self._get_auth_headers(),
                 timeout=5,
             )
             if response.status_code == 200:
@@ -1074,7 +1066,6 @@ class BaseTester:
         self,
         sak_id: str,
         topic_guid: str,
-        magic_token: str,
         event_type: str,
         event_data: dict[str, Any],
         aktor_id: str,
@@ -1103,7 +1094,7 @@ class BaseTester:
             response = requests.post(
                 f"{BACKEND_URL}/api/events",
                 json=payload,
-                headers=self._get_auth_headers(magic_token),
+                headers=self._get_auth_headers(),
                 timeout=10,
             )
 
@@ -1145,7 +1136,6 @@ class KOEFlowTester(BaseTester):
         self.topic_guid: str | None = None
         self.sak_id: str | None = None
         self.topic_title: str | None = None
-        self.magic_token: str | None = None
 
         # Event IDs for linking events
         self.grunnlag_event_id: str | None = None
@@ -1157,8 +1147,7 @@ class KOEFlowTester(BaseTester):
         self.initial_document_count: int = 0
 
     def _get_auth_headers_local(self) -> dict[str, str]:
-        """Lokale auth headers med instansens magic_token"""
-        return self._get_auth_headers(self.magic_token)
+        return self._get_auth_headers()
 
     def _get_comment_count_local(self) -> int:
         """Hent antall kommentarer på instansens topic"""
@@ -1190,20 +1179,6 @@ class KOEFlowTester(BaseTester):
         )
         self.initial_document_count = new_count
         return success
-
-    def _extract_magic_token_from_comments(self) -> bool:
-        """Hent magic token fra Catenda-kommentar"""
-        import re
-
-        comments = self.client.get_comments(self.topic_guid)
-        for comment in comments:
-            text = comment.get("comment", "")
-            # Søk etter magicToken i URL
-            match = re.search(r"magicToken=([a-zA-Z0-9_-]+)", text)
-            if match:
-                self.magic_token = match.group(1)
-                return True
-        return False
 
     def create_test_topic(self) -> bool:
         """Steg 2.1: Opprett test-topic i Catenda"""
@@ -1258,13 +1233,12 @@ class KOEFlowTester(BaseTester):
         print_info("Oppretter sak direkte via backend...")
 
         # Bruk BaseTester._create_case_directly()
-        sak_id, magic_token = super()._create_case_directly(
+        sak_id = super()._create_case_directly(
             topic_guid=self.topic_guid, topic_title=self.topic_title, sakstype="koe"
         )
 
-        if sak_id and magic_token:
+        if sak_id:
             self.sak_id = sak_id
-            self.magic_token = magic_token
             return True
 
         return False
@@ -1304,8 +1278,8 @@ class KOEFlowTester(BaseTester):
             if comments:
                 last_comment = comments[-1]
                 comment_text = last_comment.get("comment", "")
-                if "magicToken" in comment_text or "saker/" in comment_text:
-                    print_ok("Magic link-kommentar verifisert!")
+                if self.sak_id and self.sak_id in comment_text:
+                    print_ok("Sakslenke-kommentar verifisert!")
                     lines = comment_text.split("\n")[:3]
                     for line in lines:
                         print(f"    {line}")
@@ -1330,7 +1304,7 @@ class KOEFlowTester(BaseTester):
         print_info(f"  Underkategori: {TEST_DATA['grunnlag']['underkategori']}")
 
         # Hent versjon først
-        _, current_version = self._get_state_and_version(self.sak_id, self.magic_token)
+        _, current_version = self._get_state_and_version(self.sak_id)
 
         event_data = {
             "sak_id": self.sak_id,
@@ -1397,7 +1371,7 @@ class KOEFlowTester(BaseTester):
         print_header("STEG 2.7: Send vederlag og fristkrav")
 
         # Hent gjeldende versjon
-        _, current_version = self._get_state_and_version(self.sak_id, self.magic_token)
+        _, current_version = self._get_state_and_version(self.sak_id)
 
         # Vederlagskrav
         print_info("Sender vederlag_krav_sendt...")
@@ -1509,9 +1483,7 @@ class KOEFlowTester(BaseTester):
         print_header("FASE 3: BH RESPONSES")
 
         # Hent gjeldende versjon
-        state, current_version = self._get_state_and_version(
-            self.sak_id, self.magic_token
-        )
+        state, current_version = self._get_state_and_version(self.sak_id)
         if state is None:
             print_fail("Kunne ikke hente state")
             return False
@@ -1648,9 +1620,7 @@ class KOEFlowTester(BaseTester):
         print_header("FASE 4: TE REVISIONS")
 
         # Hent gjeldende versjon
-        state, current_version = self._get_state_and_version(
-            self.sak_id, self.magic_token
-        )
+        state, current_version = self._get_state_and_version(self.sak_id)
         if state is None:
             print_fail("Kunne ikke hente state")
             return False
@@ -1969,7 +1939,7 @@ class ForseringFlowTester(BaseTester):
         # KOE-saker som opprettes for forsering
         self.koe_saker: list[
             dict[str, Any]
-        ] = []  # [{sak_id, topic_guid, magic_token, frist_dager}]
+        ] = []  # [{sak_id, topic_guid, frist_dager}]
 
         # Forsering-sak
         self.forsering_sak: dict[str, Any] | None = None
@@ -2043,7 +2013,7 @@ class ForseringFlowTester(BaseTester):
             print_ok(f"Topic opprettet: {topic_guid}")
 
             # Opprett sak
-            sak_id, magic_token = self._create_case_directly(
+            sak_id = self._create_case_directly(
                 topic_guid=topic_guid, topic_title=koe_config["tittel"], sakstype="koe"
             )
 
@@ -2054,11 +2024,10 @@ class ForseringFlowTester(BaseTester):
             print_ok(f"Sak opprettet: {sak_id}")
 
             # Send grunnlag
-            _, version = self._get_state_and_version(sak_id, magic_token)
+            _, version = self._get_state_and_version(sak_id)
             success, version, grunnlag_event_id = self._send_event(
                 sak_id=sak_id,
                 topic_guid=topic_guid,
-                magic_token=magic_token,
                 event_type="grunnlag_opprettet",
                 event_data={
                     "tittel": koe_config["tittel"],
@@ -2083,7 +2052,6 @@ class ForseringFlowTester(BaseTester):
             success, version, frist_krav_id = self._send_event(
                 sak_id=sak_id,
                 topic_guid=topic_guid,
-                magic_token=magic_token,
                 event_type="frist_krav_sendt",
                 event_data={
                     "grunnlag_event_id": grunnlag_event_id,
@@ -2109,7 +2077,6 @@ class ForseringFlowTester(BaseTester):
                 {
                     "sak_id": sak_id,
                     "topic_guid": topic_guid,
-                    "magic_token": magic_token,
                     "frist_dager": koe_config["frist"]["antall_dager"],
                     "frist_krav_id": frist_krav_id,
                     "version": version,
@@ -2129,12 +2096,11 @@ class ForseringFlowTester(BaseTester):
             print_subheader(f"Avslår frist på KOE-{i}")
 
             # Hent nyeste versjon
-            _, version = self._get_state_and_version(koe["sak_id"], koe["magic_token"])
+            _, version = self._get_state_and_version(koe["sak_id"])
 
             success, new_version, respons_frist_id = self._send_event(
                 sak_id=koe["sak_id"],
                 topic_guid=koe["topic_guid"],
-                magic_token=koe["magic_token"],
                 event_type="respons_frist",
                 event_data={
                     "frist_krav_id": koe["frist_krav_id"],
@@ -2230,7 +2196,7 @@ class ForseringFlowTester(BaseTester):
         # Opprett forsering-sak med riktig sakstype og relaterte KOE-saker
         # avslatte_fristkrav inneholder SAK-IDene til KOE-sakene som utløste forseringen
         koe_sak_ids = [k["sak_id"] for k in self.koe_saker]
-        sak_id, magic_token = self._create_case_directly(
+        sak_id = self._create_case_directly(
             topic_guid=self.forsering_topic_guid,
             topic_title=f"FORSERING - {datetime.now().strftime('%Y%m%d')}",
             sakstype="forsering",
@@ -2252,13 +2218,12 @@ class ForseringFlowTester(BaseTester):
         self.forsering_sak = {
             "sak_id": sak_id,
             "topic_guid": self.forsering_topic_guid,
-            "magic_token": magic_token,
         }
 
         # Send forsering-varsel event
         # Bruk første KOE-sak som referanse for forsering
         # (I praksis ville forsering kunne referere til flere avslåtte krav)
-        _, version = self._get_state_and_version(sak_id, magic_token)
+        _, version = self._get_state_and_version(sak_id)
 
         total_rejected_days = sum(k["frist_dager"] for k in self.koe_saker)
         dagmulktsats = FORSERING_TEST_DATA["forsering"]["dagmulktsats"]
@@ -2269,7 +2234,6 @@ class ForseringFlowTester(BaseTester):
         success, _, _ = self._send_event(
             sak_id=sak_id,
             topic_guid=self.forsering_topic_guid,
-            magic_token=magic_token,
             event_type="forsering_varsel",
             event_data={
                 "frist_krav_id": first_koe["frist_krav_id"],
@@ -2306,14 +2270,12 @@ class ForseringFlowTester(BaseTester):
 
         sak_id = self.forsering_sak["sak_id"]
         topic_guid = self.forsering_sak["topic_guid"]
-        magic_token = self.forsering_sak["magic_token"]
 
-        _, version = self._get_state_and_version(sak_id, magic_token)
+        _, version = self._get_state_and_version(sak_id)
 
         success, _, _ = self._send_event(
             sak_id=sak_id,
             topic_guid=topic_guid,
-            magic_token=magic_token,
             event_type="forsering_respons",
             event_data={
                 "aksepterer": FORSERING_TEST_DATA["bh_forsering_aksept"]["aksepterer"],
@@ -2463,7 +2425,7 @@ class EOFlowTester(BaseTester):
             print_ok(f"Topic opprettet: {topic_guid}")
 
             # Opprett sak
-            sak_id, magic_token = self._create_case_directly(
+            sak_id = self._create_case_directly(
                 topic_guid=topic_guid, topic_title=koe_config["tittel"], sakstype="koe"
             )
 
@@ -2474,11 +2436,10 @@ class EOFlowTester(BaseTester):
             print_ok(f"Sak opprettet: {sak_id}")
 
             # Send grunnlag
-            _, version = self._get_state_and_version(sak_id, magic_token)
+            _, version = self._get_state_and_version(sak_id)
             success, version, grunnlag_event_id = self._send_event(
                 sak_id=sak_id,
                 topic_guid=topic_guid,
-                magic_token=magic_token,
                 event_type="grunnlag_opprettet",
                 event_data={
                     "tittel": koe_config["tittel"],
@@ -2503,7 +2464,6 @@ class EOFlowTester(BaseTester):
             success, version, vederlag_event_id = self._send_event(
                 sak_id=sak_id,
                 topic_guid=topic_guid,
-                magic_token=magic_token,
                 event_type="vederlag_krav_sendt",
                 event_data={
                     "grunnlag_event_id": grunnlag_event_id,
@@ -2526,7 +2486,6 @@ class EOFlowTester(BaseTester):
                 {
                     "sak_id": sak_id,
                     "topic_guid": topic_guid,
-                    "magic_token": magic_token,
                     "grunnlag_event_id": grunnlag_event_id,
                     "vederlag_event_id": vederlag_event_id,
                     "belop": koe_config["vederlag"]["belop_direkte"],
@@ -2548,14 +2507,12 @@ class EOFlowTester(BaseTester):
 
             sak_id = koe["sak_id"]
             topic_guid = koe["topic_guid"]
-            magic_token = koe["magic_token"]
 
             # Godkjenn grunnlag
-            _, version = self._get_state_and_version(sak_id, magic_token)
+            _, version = self._get_state_and_version(sak_id)
             success, version, _ = self._send_event(
                 sak_id=sak_id,
                 topic_guid=topic_guid,
-                magic_token=magic_token,
                 event_type="respons_grunnlag",
                 event_data={
                     "grunnlag_event_id": koe["grunnlag_event_id"],
@@ -2576,7 +2533,6 @@ class EOFlowTester(BaseTester):
             success, version, _ = self._send_event(
                 sak_id=sak_id,
                 topic_guid=topic_guid,
-                magic_token=magic_token,
                 event_type="respons_vederlag",
                 event_data={
                     "vederlag_krav_id": koe["vederlag_event_id"],
@@ -2638,7 +2594,7 @@ class EOFlowTester(BaseTester):
         print_ok(f"Opprettet relasjoner: {len(koe_topic_guids)} KOE-saker → EO")
 
         # Opprett EO-sak med riktig sakstype
-        sak_id, magic_token = self._create_case_directly(
+        sak_id = self._create_case_directly(
             topic_guid=self.eo_topic_guid,
             topic_title=f"ENDRINGSORDRE {eo_config['eo_nummer']}",
             sakstype="endringsordre",
@@ -2653,7 +2609,6 @@ class EOFlowTester(BaseTester):
         self.eo_sak = {
             "sak_id": sak_id,
             "topic_guid": self.eo_topic_guid,
-            "magic_token": magic_token,
         }
 
         return True
@@ -2668,15 +2623,13 @@ class EOFlowTester(BaseTester):
 
         sak_id = self.eo_sak["sak_id"]
         topic_guid = self.eo_sak["topic_guid"]
-        magic_token = self.eo_sak["magic_token"]
         eo_config = EO_TEST_DATA["endringsordre"]
 
-        _, version = self._get_state_and_version(sak_id, magic_token)
+        _, version = self._get_state_and_version(sak_id)
 
         success, _, _ = self._send_event(
             sak_id=sak_id,
             topic_guid=topic_guid,
-            magic_token=magic_token,
             event_type="eo_utstedt",
             event_data={
                 "eo_nummer": eo_config["eo_nummer"],
@@ -2712,14 +2665,12 @@ class EOFlowTester(BaseTester):
 
         sak_id = self.eo_sak["sak_id"]
         topic_guid = self.eo_sak["topic_guid"]
-        magic_token = self.eo_sak["magic_token"]
 
-        _, version = self._get_state_and_version(sak_id, magic_token)
+        _, version = self._get_state_and_version(sak_id)
 
         success, _, _ = self._send_event(
             sak_id=sak_id,
             topic_guid=topic_guid,
-            magic_token=magic_token,
             event_type="eo_akseptert",
             event_data={
                 "akseptert": EO_TEST_DATA["te_aksept"]["akseptert"],

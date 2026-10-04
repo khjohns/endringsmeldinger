@@ -47,7 +47,7 @@ class TestWebhookSecurity:
     def test_webhook_with_valid_path_succeeds(self, client, monkeypatch):
         """Test that webhook with correct path is accepted.
 
-        Ruten bygger tjenesten via get_webhook_service (DI), ikke via app.system.
+        Ruten bygger tjenesten via get_webhook_service (DI).
         Erstatningen må derfor treffe det samme punktet; ellers forsøker ruten å
         bygge en ekte Catenda-klient og svarer 500.
         """

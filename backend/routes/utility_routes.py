@@ -3,14 +3,13 @@ Utility Routes Blueprint
 
 Endpoints for:
 - CSRF token generation
-- Magic link verification
+- Pensjonert magic-link-rute (svarer 410)
 - Health checks
-- User validation (Catenda project membership)
 """
 
 import logging
 
-from flask import Blueprint, current_app, jsonify, request
+from flask import Blueprint, current_app, jsonify
 
 from lib.auth.project_access import require_project_access
 from lib.auth.session import dev_auth_disabled, load_session, require_auth
@@ -74,10 +73,7 @@ def get_csrf_token():
 
 @utility_bp.route("/api/magic-link/verify", methods=["GET"])
 def verify_magic_link():
-    """
-    Verifiserer et Magic Link token.
-    Returnerer den interne sakId-en hvis token er gyldig.
-    """
+    """Pensjonert. Magic links er erstattet av Catenda-innlogging; svarer 410."""
     return jsonify(error="GONE", message="Logg inn med Catenda."), 410
 
 
@@ -160,19 +156,17 @@ def catenda_health_check():
             {"status": "disabled", "message": "Catenda-integrasjon er deaktivert"}
         ), 200
 
-    from app import get_system
+    from lib.catenda_factory import get_catenda_client
 
     try:
-        sys = get_system()
+        client = get_catenda_client()
 
-        # Sjekk om Catenda er konfigurert
-        if not sys.catenda or not sys.catenda.access_token:
+        if client is None or not client.access_token:
             return jsonify(
                 {"status": "unconfigured", "message": "Catenda er ikke konfigurert"}
             ), 200
 
-        # Prøv å liste prosjekter for å verifisere tilkobling
-        projects = sys.catenda.list_projects()
+        projects = client.list_projects()
 
         if projects is not None:
             return jsonify(
@@ -220,55 +214,3 @@ def get_metadata_by_topic(topic_id: str):
             else None,
         }
     ), 200
-
-
-@utility_bp.route("/api/validate-user", methods=["POST"])
-@require_auth
-@require_project_access(min_role="member")
-def validate_user():
-    """
-    Validerer om en e-post tilhører en bruker i prosjektet
-    og returnerer navnet.
-
-    This endpoint is used to validate that a user email exists in the Catenda project
-    before allowing them to sign forms.
-    """
-    # Import here to avoid circular imports
-    from app import get_system
-
-    sys = get_system()
-    payload = request.get_json()
-    email = payload.get("email")
-    sak_id = payload.get("sakId")
-
-    if not email or not sak_id:
-        return jsonify({"error": "Mangler 'email' eller 'sakId'"}), 400
-
-    # Finn prosjekt-ID fra saken
-    sak_data = sys.db.get_form_data(sak_id)
-    if not sak_data:
-        return jsonify({"error": "Finner ikke sak"}), 404
-
-    project_id = sak_data.get("sak", {}).get("catenda_project_id")
-    if not project_id:
-        return jsonify({"error": "Finner ikke prosjekt-ID for saken"}), 404
-
-    # Kall den nye metoden for å finne brukeren
-    user_details = sys.catenda.find_user_in_project(project_id, email)
-
-    if user_details and user_details.get("name"):
-        return jsonify(
-            {
-                "success": True,
-                "name": user_details["name"],
-                "email": user_details.get("username", email),
-                "company": user_details.get("company", ""),
-            }
-        ), 200
-    else:
-        return jsonify(
-            {
-                "success": False,
-                "error": "Brukeren er ikke medlem i dette Catenda-prosjektet.",
-            }
-        ), 404

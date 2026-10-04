@@ -274,6 +274,12 @@ Tilsluttet av oppdragsgiver 21.09. Føringer for design, ikke implementert.
 > PDF-parameterne i #146. Ingen av dem rører datalaget. Backfill-skriptet i
 > #102, #109, backenddelen av #111 og logger-delen av #110 følger fortsatt
 > rekkefølgen i avsnitt 5.
+>
+> **Merknad 2026-10-04 til AF-06 (#109, #49):** Oppdragsgiver har utvidet
+> unntaket til #109 og den avgrensede deloppgaven i #49 (SystemContext,
+> `/api/validate-user` og `CSVRepository`). Ingen av dem rører de aktive
+> metadata-, hendelses- eller autentiseringslagrene, og ingen forutsetter et
+> databasevalg. Selve lagerovergangen i TS2-02 venter fortsatt på B-12.
 
 ### 3.3 Anbefalinger som ikke er vedtatt
 

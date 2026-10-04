@@ -250,7 +250,6 @@ class TestRetryLostAfterCommit:
                 )
             ),
             config={"react_app_url": "http://localhost:3000"},
-            magic_link_generator=MagicMock(),
         )
 
         result = svc.handle_new_topic_created(load_fixture())
