@@ -58,85 +58,25 @@ toppnivåfeltene som ikke lagres.
 
 ## Miljø
 
-**Plattformen er ikke endelig valgt.** Hvilken database og hosting appen skal
-kjøre på, er B-12 i hovedplanen. Det som står om PostgreSQL og Supabase her,
-beskriver dagens oppsett.
-
 ```bash
-# Systempython mangler pytest, og pip install systemvidt feiler på debian-PyJWT.
-python3 -m venv /tmp/venv && /tmp/venv/bin/pip install -q \
-  -r backend/requirements.txt -r backend/requirements-dev.txt
-cd backend && /tmp/venv/bin/python -m pytest -q      # ~9 s
-npm test && npm run check:error                      # ~49 s, 0 errors i dag
+cd backend && /tmp/venv/bin/python -m pytest -q
+npm test && npm run check:error      # skal gi 0 errors
+ruff check backend/                  # porten, skal være 0
 ```
 
-Testene er raske. Kjør dem ofte.
+Testene er raske. Kjør dem ofte. I skyøktene lager `.claude/hooks/session-start.sh`
+venv-en og testbasen, og meldingen fra hooken sier om databasetestene kjører.
+Utenfor skyøktene: `python3 -m venv /tmp/venv` og `pip install -r` begge
+`backend/requirements*.txt` (systempython mangler pytest).
 
-**I skyøktene gjør `.claude/hooks/session-start.sh` oppsettet over.** Den lager
-venv-en, kjører `npm install`, starter Docker-daemonen og en testbase i
-PostgreSQL 17 med `scripts/testbase/docker_testbase.sh`, og setter
-`KOE_TESTBASE_URL`. Da kjører databasetestene med vanlig `pytest`. Maskinen har
-bare PostgreSQL 16, så testbasen må gå i Docker. Står det en advarsel om
-testbasen i øktstarten, er variabelen ikke satt, og databasetestene hoppes over
-uten å feile. Grønn suite betyr da ingenting om datalaget. Kjør hooken på nytt
-med `CLAUDE_CODE_REMOTE=true`, og se loggen i `/tmp/koe-session-start.log`.
-Endrer du en migrasjon, bygg basen på nytt med `stopp` og `start`, og sett
-`KOE_TESTBASE_URL` til den nye URL-en.
+**`ruff format` er ikke en port.** Repoet er aldri formatert med den, og
+`ruff format .` ville skrevet om rundt 80 filer. Kjør den ikke på hele treet.
 
-`ruff check backend/` er porten og skal være 0. **`ruff format` er det ikke** —
-repoet er aldri formatert med den, og `ruff format .` ville skrevet om rundt 80
-filer. Kjør den ikke på hele treet.
-
-Databasen kan inspiseres direkte gjennom Supabase-MCP — prosjekt `endringsmeldinger`,
-ref `gwdxadexwktegkklyobv`. **Bruk det.** Migrasjonene er innholdsmessig komplette —
-hver tabell, funksjon og trigger i `public` har sin DDL i `supabase/migrations/` — men
-de svarer ikke på det katalogen svarer på: om en fil er anvendt (ikke alle er
-registrert i basens historikk), om definisjonen i fila er den som faktisk kjører, og
-hvilke rettigheter som gjelder. Å utlede kjøretidstilstand fra migrasjonsfiler er den
-dokumenterte årsaken til flere feilklassifiserte funn, og docstringene er utdaterte.
-Hold deg til katalogspørringer; saksdata er konfidensiell kontraktskorrespondanse.
-
-Et eldre prosjekt `unified-timeline` (`iyetsvrteyzpirygxenu`) er INACTIVE og skal
-ikke røres.
-
-**Migrasjoner anvendes med `supabase db push`, aldri med `apply_migration`
-over MCP.** MCP stempler sitt eget tidsstempel, og versjonen i basen skal være
-versjonen i filnavnet (DA-03). Filnavnrekkefølgen er apply-rekkefølgen, og
-CI-jobben `database` bygger hele settet mot PostgreSQL 17 ved hver PR. Åtte av
-nitten tabeller har ingen eksplisitt `GRANT` i repoet og virker bare fordi
-Supabase deler ut rettigheter. Hvordan migrasjonene verifiseres mot prosjektet
-uten å røre basen, med testbasen, stubben av plattformen, katalogsummene og
-fallgruvene i PostgreSQL 18, står i
-[`docs/migrasjoner-og-testbase.md`](docs/migrasjoner-og-testbase.md).
-
-**Testsuiten kan ikke se at basen er uenig med repoet.** Supabase-lageret dekkes
-bare av testdobler, og doblene speiler repoet — `HENDELSE_KOLONNER` i
-`tests/fixtures/supabase_dobbel.py` er tro mot migrasjonsfila, ikke mot
-databasen. Da `actorteam` manglet i basen, var suiten grønn mens *enhver* skriving til
-Supabase-lageret feilet. Grønn suite er derfor ikke bevis for at en skjemaendring
-har nådd fram; det er katalogspørringen som er beviset.
-
-**En avvisning fra et Supabase-lager må være en `PermanentError`.**
-Skrivemetodene er dekorert med `@with_retry()`, og `classify_error` regner et
-ukjent unntak som forbigående. Kaster du en naken `ValueError` for å avvise noe
-som aldri kan lykkes — feil hendelsestype, manglende felt — sover lageret og
-prøver igjen, og kalleren får `TransientError` framfor det ruta oversetter til
-400. `ConcurrencyError` arver `ConflictError` nettopp av denne grunnen, og
-`JournalfoeringAvvist` arver `PermanentError` og `ValueError`. Observert 21.09.
-
-**En anvendt migrasjon er uforanderlig — også kommentarene.**
-`supabase_migrations.schema_migrations.statements` lagrer rågteksten, kommentarer
-og alt. Retter du et ord i en fil som er kjørt, er fila ikke lenger det basen
-gjorde. Har innholdet blitt feil, skriv en ny migrasjon eller en datert merknad i
-`docs/` — ikke rediger historikken.
-
-**Endrer du databasen, skriv migrasjonsfila i samme runde.** All DDL skal ligge i
-`supabase/migrations/` med samme SQL som faktisk ble kjørt, og fila skal si at den
-er anvendt. Repoet og basen har drevet fra hverandre i begge retninger før: basen
-var bygget av seks migrasjoner som ikke fantes i repoet, og en repo-migrasjon lå
-to dager uten å være anvendt — med den følgen at `actorteam` ikke fantes, og at
-**enhver skriving** til Supabase-lageret ble avvist. Begge deler er rettet
-20.09. En endring som bare finnes ett av stedene er ikke gjennomført.
+**Kjøretidstilstanden i basen avgjøres av katalogen, ikke av migrasjonsfilene,
+og endringer i basen går gjennom en migrasjonsfil og `supabase db push` — aldri
+`apply_migration` over Supabase-MCP.** Reglene står i
+[`.claude/rules/database.md`](.claude/rules/database.md). De lastes når du
+arbeider i `supabase/` eller lagrene; les dem før du endrer basen over MCP.
 
 ## Sikkerhetsinvarianter
 
@@ -238,57 +178,6 @@ defaultverdien gjemmer seg i minst seks former: `x or "verdi"`,
 TypeScript, og en `DEFAULT` i databasen. Søk etter alle formene før du skriver
 «alle er fjernet» — og skriv heller hvilke former du søkte etter.
 
-**En omdøping kan snu det testen dokumenterer, uten at noe blir rødt.** Da
-`aktor` ble `aktor_id`, fulgte verdiene med: `aktor_id="Kari Nordmann"` er
-syntaktisk feilfritt og grønt, men fastslår nå at et personnavn er en gyldig
-identitet — det motsatte av regelen testen ligger ved siden av. Mekanisk søk og
-erstatt flytter navnet på feltet, ikke meningen i verdien. Etter en omdøping: les
-assertions, ikke bare kjør dem.
-
-**En funn-ID i et avledet dokument er en påstand.** Et testinventar, en rapport
-eller en konsolidering kan føre riktig test under feil ID. Slå ID-en opp i testens
-`reason` eller modulheader og i funntabellen i auditen der funnet ble gjort, før
-du bruker den. Da testinventaret 22.09 ble kontrollert rad for rad, var 14 av 42
-ID-er feil. Reviewet før hadde funnet seks.
-
-**En grønn streng `xfail` beviser ikke funnet**, bare at testens assertion feiler.
-Suiten inneholder mange bevisste reproduksjoner av udekkede svakheter. **Ikke «rett»
-en xfail ved å endre testen** — de er dokumentasjon. Rettes den underliggende
-feilen, blir testen XPASS og skal da gjøres om til en ordinær test.
-
-**Og den kan være grønn av feil grunn.** Med `raises=AssertionError` teller
-enhver `assert` i testen som forventet, også en forutsetning som har sluttet å
-holde. Da reproduserer testen ingenting lenger, og ingen ser det. Forutsetninger
-og uventede svar i en streng `xfail` skal feile med `pytest.fail`. Godtar testen
-en avvisning som riktig utfall, må den vise at avvisningen gjelder funnet, for
-eksempel med en kontrollsak som bare skiller seg i det ene feltet. Ellers blir
-en avvisning av en annen grunn til XPASS. Code-review fant begge feilene i
-reproduksjonene av BR-01 23.09.
-
-**En test skrevet ut fra koden bekrefter koden, ikke hensikten.** Skal en test
-vise at en funksjon virker som tiltenkt, må forventningen ha en kilde utenfor
-koden: NS 8407, et vedtak i hovedplanen eller en forventning oppdragsgiver har
-godkjent. Testen skal vise til kilden. En test som bare fastholder dagens
-atferd, er nyttig ved en omskriving, men skal si at det er det den gjør.
-
-## Dokumentasjon
-
-`docs/` er en kjede av auditer og planer som viser til hverandre.
-[`docs/README.md`](docs/README.md) er indeksen: hva som gjelder, hva som er
-historikk, og hvor man begynner. Skriver du et nytt dokument, følg formen: dato og commit i åpningen, lenker til forrige ledd, funntabell
-med ID og alvorlighet, én seksjon per funn med fil og symbol, og **«Verifikasjon og
-grenser»** til slutt som navngir hva som *ikke* er kontrollert.
-
-- **Skill mellom «Kjørt og observert» og «Lest ut av koden».** Det er ikke samme
-  påstand, og forskjellen er der feilklassifiseringene oppstår.
-- **Lenker fra `docs/` til kode går via `../backend/`.** En lenke løses fra
-  dokumentets egen mappe. Kontrollen i `docs/README.md` sjekker også ankre.
-- **Hovedplanen er autoritativ for funnstatus.** Sier et annet dokument noe annet,
-  er det andre foreldet — rett det, ikke gjenopprett diskusjonen.
-- **Opphever du et tidligere utsagn, skriv en datert merknad** («Merknad 2026-09-19
-  til RV-07») — også inn i det gamle dokumentet, ellers står de to side om side uten
-  at leseren vet hvilket som gjelder.
-
 ## Hvor hva står
 
 **Hver opplysning har ett hjem.** Sier to steder det samme, glir de fra hverandre.
@@ -297,12 +186,15 @@ grenser»** til slutt som navngir hva som *ikke* er kontrollert.
 | --- | --- |
 | Funnstatus og alvorlighet, beslutninger, rekkefølgen på arbeidspakkene, og det som er levert, med dato og belegg | Hovedplanen |
 | Invarianter og regler som står seg | Denne fila |
-| Beviset: auditer, design, reviewer, gjennomføringsnotater, oppdrag | `docs/` |
+| Beviset: auditer, design, reviewer, gjennomføringsnotater, oppdrag | `docs/`, i formen [`.claude/rules/dokumentasjon.md`](.claude/rules/dokumentasjon.md) beskriver |
+| Regler som bare gjelder én del av treet: databasen, testene, `docs/` | `.claude/rules/`, som lastes når du arbeider der |
 | Hva hver tabell er, hvem som skriver den, og hvor dataene kommer fra | `docs/datamodell/tabeller.toml`. Excel-fila og `tabeller.md` lages av `docs/verktoy/datamodell.py`, og en test feiler når en tabell mangler |
 | Hva hver hendelsestype er, hvem som sender den, bestemmelsen i NS 8407 og hva den gjør med status | `docs/datamodell/hendelser.toml`. Feltene i `data` hentes fra modellene. `hendelser.md` og arkene i Excel-fila lages av samme verktøy, og en test feiler når en type mangler eller katalogen avviker fra koden |
 | Hvordan tabellene henger sammen, og hvilke kall til Catenda som leser eller skriver dem | `docs/datamodell/relasjoner.toml` og `dataflyt.toml`, med skjemaet i `katalog.json`. `relasjoner.md` lages av samme verktøy. En test feiler når en fremmednøkkel eller et kall til Catenda mangler, og når `katalog.json` avviker fra en base bygget fra migrasjonene |
 | Arbeid som pågår eller venter: hva, hvem, hvilken PR, hva det venter på | GitHub-issues, samlet i én milepæl per arbeidspakke |
 
+- **Hovedplanen er autoritativ for funnstatus.** Sier et annet dokument noe annet,
+  er det andre foreldet — rett det, ikke gjenopprett diskusjonen.
 - **Et issue viser til ID-en, ikke til vurderingen.** Skriv funn- eller
   beslutnings-ID-en og lenk til hovedplanen. Gjenta ikke alvorlighet, belegg
   eller begrunnelse; da har de to hjem.
@@ -325,9 +217,15 @@ grenser»** til slutt som navngir hva som *ikke* er kontrollert.
   rekkefølgen i AF-06, får det `venter-på-rekkefølge`. Etiketten fjernes når
   hovedplanen har en datert merknad om unntak; unntaket står i planen, ikke i
   issuet. Et issue som samler grunnlaget for en B-ID, får `beslutning`.
+- **Det som sinker arbeidet, blir et issue med etiketten `papercut`**: et verktøy
+  som feiler, et oppsett som må gjøres for hånd, en test som henger. Skriv
+  symptom og løsning eller omvei. Feiler noe uforklarlig, søk i `papercut`-issuene
+  først, og kommenter et som finnes framfor å lage et nytt. `papercut` teller som
+  sporetikett.
 - **Issues er like offentlige som repoet.** Ingen saksdata, kontraktsinnhold,
   personnavn fra prosjekter, nøkler eller tilgangsopplysninger.
-- `gh issue list --milestone "<navn>"` viser det som gjenstår i en pakke.
+- Det som gjenstår i en pakke, er de åpne issuene i milepælen — med
+  `gh issue list --milestone "<navn>"` eller GitHub-MCP i skyøktene.
 
 ## Arbeidsform
 
@@ -336,6 +234,13 @@ mulig konsekvens under beskrevne forutsetninger, ikke observert hendelse.
 
 Ingen produksjonskode endres uten at det er bedt om det. Auditrunder leverer
 dokumenter og reproduksjonstester, ikke rettinger.
+
+**Kjør `/code-review` på egen diff før en PR meldes klar.** Nivå `high` når
+diffen rører `routes/`, `lib/auth/`, lagrene eller migrasjonene, ellers
+`medium`; en diff som bare rører `docs/`, trenger ingen. Reviewet går i egen
+kontekst, så det ser diffen uten forfatterens antakelser. Rett funnene; et
+funn du avviser, står med begrunnelse under «Åpne spørsmål» i PR-beskrivelsen.
+`/simplify` kjøres bare når oppdragsgiver ber om det.
 
 **Oppdragsgiver vil ha spørsmål, ikke dokumenter å lese.** Kartlegg selv. Der
 noe bare oppdragsgiver kan avgjøre, still konkrete spørsmål med

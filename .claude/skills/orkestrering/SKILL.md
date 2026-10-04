@@ -51,7 +51,7 @@ og review over timer. En subagent deler i tillegg checkout med orkestratoren.
   hva det venter på (B-ID, annet issue, rekkefølgen i hovedplanen, særlig AF-06).
 - Må koden leses for å avgrense et issue, for eksempel hvilke kallere eller
   hendelsestyper som berøres, la en Explore-subagent gjøre det og levere
-  konklusjonen. Orkestratoren leser selv bare diffene den skal godkjenne.
+  konklusjonen. Orkestratoren leser ikke kode eller differ selv (punkt 3).
 - Er rekkefølgen i hovedplanen til hinder, spør oppdragsgiver. Godkjenner hen et
   avvik, får hovedplanen en datert merknad i en egen liten PR.
 - Del arbeidet i runder etter filoverlapp. Issues som rører samme filer, tas
@@ -76,7 +76,10 @@ issue. Oppdraget skal inneholde:
   en liten retting koster mer i kontekst enn rettingen. Funn i andre øktes
   filer eller som krever en avgjørelse, blir bare issues;
 - hvilke sjekker som skal kjøres før push, og nettleserkontroll der issuet
-  krever det;
+  krever det; `/code-review` kjøres etter regelen i `AGENTS.md`;
+- at PR-beskrivelsen er rapporten til orkestratoren: hva som er endret,
+  sjekkene som er kjørt med resultat, utfallet av `/code-review`, funn utenfor
+  oppdraget med issuenummer, og «Åpne spørsmål»;
 - PR mot `main` med `Closes #n`, eller «Del av #n» når bare en del leveres,
   og at økta ikke merger;
 - at økta abonnerer på PR-en og driver den til grønn CI;
@@ -92,8 +95,10 @@ et annet nivå, må det settes i økta i appen.
 `send_later` som sikkerhetsnett, innen en time mens noe venter. Gjør dette for
 hver PR:
 
-1. Les PR-beskrivelsen og de siste meldingene fra økta (`list_events` med
-   `kinds: ["assistant"]`).
+1. Les PR-beskrivelsen. Mangler den noe av det punkt 2 krever, hent de
+   siste meldingene fra økta (`list_events` med `kinds: ["assistant"]` og lav
+   `limit`). Les ikke diffen selv: skal den vurderes ut over reviewet økta har
+   kjørt, la en subagent lese den og levere konklusjon og funn.
 2. Funn som ikke er meldt som issue, kontrolleres og meldes. Finnes det et
    issue for samme rotårsak, legg funnet som kommentar der. Et funn som økta
    har tilskrevet testmiljøet, sjekkes før det avskrives.
@@ -101,7 +106,8 @@ hver PR:
    ett kall med spørsmålsverktøyet. Gi alternativer og en anbefaling.
 4. Før svarene inn som kommentar i PR-en eller issuet de gjelder. Ny oppfølging
    blir et nytt issue.
-5. Kontroller CI på siste commit.
+5. Kontroller CI på siste commit. Er den rød, la subagenten `ci-logg` finne
+   første feilende steg, og send funnet til økta som eier PR-en.
 
 ## 4. Merge
 
