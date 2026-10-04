@@ -224,11 +224,7 @@ def _lagret_tilstand(sak, sak_id):
 
 def _send_svar(sak, sak_id, spor, krav, vurderinger, resultat):
     return _svar(
-        sak,
-        sak_id,
-        f"respons_{spor}",
-        krav.event_id,
-        {f"{spor}_krav_id": krav.event_id, **vurderinger, "beregnings_resultat": resultat},
+        sak, sak_id, f"respons_{spor}", krav.event_id, _svardata(spor, krav, vurderinger, resultat)
     )
 
 
@@ -243,6 +239,49 @@ def _kontroller(sak, spor, vurderinger, resultat):
     svar = _send_svar(sak, sak_id, spor, krav, vurderinger, resultat)
     if svar.status_code != 201:
         pytest.fail(f"Kontrollen ble ikke lagret: {svar.status_code} {svar.get_json()}")
+
+
+def godkjenningsflyt(sak, monkeypatch):  # noqa: F811
+    """Saksbehandleren har ubegrenset fullmakt. Returnerer `kommando(sak_id,
+    action, **felt)` mot godkjenningsruta, med status og svar."""
+    monkeypatch.setenv(
+        "BH_APPROVAL_POLICIES",
+        json.dumps(
+            {
+                "p": {
+                    "handlers": [
+                        {
+                            "id": "bh@example.test",
+                            "user_id": "bh-bruker",
+                            "role": "Adm.dir (daglig leder)",
+                        }
+                    ],
+                    "chain": [],
+                }
+            }
+        ),
+    )
+
+    def kommando(sak_id, action, **felt):
+        url = f"/api/cases/{sak_id}/approvals"
+        versjon = sak.client.get(url, headers=HEADERS).get_json()["state"]["version"]
+        svar = sak.client.post(
+            url,
+            json={
+                "action": action,
+                "commandId": str(uuid4()),
+                "expectedVersion": versjon,
+                **felt,
+            },
+            headers=HEADERS,
+        )
+        return svar.status_code, svar.get_json() or {}
+
+    return kommando
+
+
+def _svardata(spor, krav, vurderinger, resultat):
+    return {f"{spor}_krav_id": krav.event_id, **vurderinger, "beregnings_resultat": resultat}
 
 
 def _avvist_med_serverens_resultat(svar, resultat="avslatt"):
@@ -291,38 +330,7 @@ def test_godkjenningsflyten_avviser_resultat_som_ikke_folger_av_vurderingene(
     sak, monkeypatch
 ):
     """Saksbehandleren har ubegrenset fullmakt, så pakken godkjennes ved innsending."""
-    monkeypatch.setenv(
-        "BH_APPROVAL_POLICIES",
-        json.dumps(
-            {
-                "p": {
-                    "handlers": [
-                        {
-                            "id": "bh@example.test",
-                            "user_id": "bh-bruker",
-                            "role": "Adm.dir (daglig leder)",
-                        }
-                    ],
-                    "chain": [],
-                }
-            }
-        ),
-    )
-
-    def kommando(sak_id, action, **felt):
-        url = f"/api/cases/{sak_id}/approvals"
-        versjon = sak.client.get(url, headers=HEADERS).get_json()["state"]["version"]
-        svar = sak.client.post(
-            url,
-            json={
-                "action": action,
-                "commandId": str(uuid4()),
-                "expectedVersion": versjon,
-                **felt,
-            },
-            headers=HEADERS,
-        )
-        return svar.status_code, svar.get_json() or {}
+    kommando = godkjenningsflyt(sak, monkeypatch)
 
     def publiser(sak_id, resultat):
         """Status for første steg som ikke ga 200, eller den publiserte pakken."""

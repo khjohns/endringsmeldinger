@@ -10,12 +10,8 @@ from dataclasses import dataclass
 
 from models.events import AnyEvent, EventType, ResponsEvent, SporStatus
 from models.sak_state import EOStatus, SakState, SaksType
-from regler.sammenlikning import (
-    Avvik,
-    FeilRegelversjon,
-    UgyldigVurdering,
-    kontroller_svar,
-)
+from regler import UgyldigVurdering
+from regler.sammenlikning import Avvik, FeilRegelversjon, kontroller_svar
 
 # Statuser uten noe sendt krav å trekke, eller med et krav som alt er oppgjort.
 # Samme regel for alle tre sporene.

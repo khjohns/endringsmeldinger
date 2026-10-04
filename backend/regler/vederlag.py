@@ -43,15 +43,16 @@ class Vederlagskrav:
         """Som `deriveVederlagDomainConfig` i frontenden."""
         v, g = sak.vederlag, sak.grunnlag
         saerskilt = v.saerskilt_krav or {}
-        rigg = saerskilt.get("rigg_drift")
-        produktivitet = saerskilt.get("produktivitet")
+
+        def saerskilt_belop(navn: str):
+            post = saerskilt.get(navn)
+            return (post.get("belop") or 0) if isinstance(post, dict) else None
+
         return cls(
             hovedkrav_belop=v.krevd_belop or 0,
             metode=VederlagsMetode(v.metode) if v.metode else None,
-            rigg_belop=(rigg.get("belop") or 0) if isinstance(rigg, dict) else None,
-            produktivitet_belop=(produktivitet.get("belop") or 0)
-            if isinstance(produktivitet, dict)
-            else None,
+            rigg_belop=saerskilt_belop("rigg_drift"),
+            produktivitet_belop=saerskilt_belop("produktivitet"),
             krever_justert_ep=bool(v.krever_justert_ep),
             kostnads_overslag=v.kostnads_overslag,
             hovedkategori=g.hovedkategori,
@@ -122,8 +123,8 @@ class Vederlagsresultat:
     total_godkjent_belop: Decimal
     total_krevd_belop: Decimal
     hovedkrav_godkjent_belop: Decimal
-    rigg_godkjent_belop: Decimal
-    produktivitet_godkjent_belop: Decimal
+    rigg_godkjent_belop: Decimal | None
+    produktivitet_godkjent_belop: Decimal | None
     subsidiaer_triggers: tuple[SubsidiaerTrigger, ...]
     subsidiaer_resultat: VederlagBeregningResultat | None
     subsidiaer_godkjent_belop: Decimal | None
@@ -343,8 +344,8 @@ def beregn_vederlag(krav: Vederlagskrav, vurdering: Vederlagsvurdering) -> Veder
     totaler = beregn_totaler(vurdering, krav, preklusjon)
     ingen_preklusjon = Preklusjon(hovedkrav=False, rigg=False, produktivitet=False)
     per_post = [g for _, g, _ in _poster(vurdering, krav, ingen_preklusjon)]
-    rigg = per_post[1] if krav.har_rigg_krav else NULL
-    produktivitet = per_post[-1] if krav.har_produktivitet_krav else NULL
+    rigg = per_post[1] if krav.har_rigg_krav else None
+    produktivitet = per_post[-1] if krav.har_produktivitet_krav else None
     vis_subsidiaert = totaler.har_prekludert_krav
 
     return Vederlagsresultat(

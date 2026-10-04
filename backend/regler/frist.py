@@ -183,18 +183,6 @@ def subsidiaer_triggers(
     return tuple(trigger for gjelder, trigger in kandidater if gjelder)
 
 
-PAABEROPT_33_6_1_ETTER_SVAR = (
-    "§ 33.6.1 kan ikke påberopes når TE har svart på forespørselen "
-    "(§ 33.6.2 fjerde ledd)"
-)
-
-
-def paaberoper_33_6_1_etter_svar_paa_foresporsel(
-    er_svar_paa_foresporsel: bool, spesifisert_krav_ok: bool | None
-) -> bool:
-    return er_svar_paa_foresporsel and spesifisert_krav_ok is False
-
-
 def _er_heltall(verdi) -> bool:
     return isinstance(verdi, int) and not isinstance(verdi, bool)
 
@@ -213,10 +201,11 @@ def kontroller(vurdering: Fristvurdering, krav: Fristkrav) -> None:
         if gjelder and getattr(vurdering, felt) is None:
             feil[felt] = f"mangler ({hjemmel})"
 
-    if paaberoper_33_6_1_etter_svar_paa_foresporsel(
-        krav.er_svar_paa_foresporsel, vurdering.spesifisert_krav_ok
-    ):
-        feil["spesifisert_krav_ok"] = PAABEROPT_33_6_1_ETTER_SVAR
+    if krav.er_svar_paa_foresporsel and vurdering.spesifisert_krav_ok is False:
+        feil["spesifisert_krav_ok"] = (
+            "§ 33.6.1 kan ikke påberopes når TE har svart på forespørselen "
+            "(§ 33.6.2 fjerde ledd)"
+        )
 
     dager = vurdering.godkjent_dager
     if dager is None:

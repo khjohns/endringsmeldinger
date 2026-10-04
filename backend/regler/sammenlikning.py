@@ -10,11 +10,13 @@ from decimal import Decimal, InvalidOperation
 
 from models.events import FristResponsData, GrunnlagResponsData, VederlagResponsData
 from models.sak_state import SakState
-from regler import REGELVERSJON, UgyldigVurdering, belop
+from regler import REGELVERSJON, belop
 from regler.frist import Fristkrav, Fristvurdering, beregn_frist
 from regler.grunnlag import forste_underkategori, kontroller_grunnlagssvar
 from regler.vederlag import Vederlagskrav, Vederlagsvurdering, beregn_vederlag
 
+RESULTAT = ("beregnings_resultat", "subsidiaer_resultat")
+ALLTID = (*RESULTAT, "subsidiaer_triggers")
 VEDERLAG_BELOP = (
     "total_godkjent_belop",
     "total_krevd_belop",
@@ -56,76 +58,53 @@ class FeilRegelversjon(Exception):
 def _vis(verdi) -> str:
     if verdi is None:
         return "ingen"
-    if isinstance(verdi, frozenset | set | tuple | list):
+    if isinstance(verdi, frozenset):
         return "[" + ", ".join(sorted(_vis(v) for v in verdi)) + "]"
-    return str(getattr(verdi, "value", verdi))
+    return str(verdi)
 
 
-def _enum(verdi):
-    return getattr(verdi, "value", verdi)
+def _normaliser(verdi):
+    """Enum til verdi, triggere til mengde, tall til hele øre."""
+    if isinstance(verdi, list | tuple):
+        return frozenset(_normaliser(v) for v in verdi) or None
+    verdi = getattr(verdi, "value", verdi)
+    if isinstance(verdi, int | float | Decimal) and not isinstance(verdi, bool):
+        try:
+            return belop(verdi)
+        except InvalidOperation:
+            return verdi
+    return verdi
 
 
-def _triggere(verdier) -> frozenset:
-    return frozenset(_enum(v) for v in verdier or ())
+def _kontroller(data, r, felt) -> dict:
+    """Sammenlikn klientens verdier med serverens for `felt`, og returner
+    serverens, med beløp som flyttall slik modellen lagrer dem.
 
-
-def _som_belop(verdi):
-    try:
-        return belop(verdi)
-    except (InvalidOperation, ValueError, TypeError):
-        return verdi
-
-
-def kontroller_regelversjon(data) -> None:
-    if data.regelversjon != REGELVERSJON:
-        raise FeilRegelversjon(data.regelversjon)
-
-
-def _sammenlikn(par: dict) -> None:
-    avvik = {navn: (k, s) for navn, (k, s) in par.items() if k != s}
+    Et tall serveren ikke har, for eksempel for et særskilt krav som ikke er
+    fremsatt, sammenliknes ikke, og klientens verdi erstattes av `None`.
+    Resultatene og triggerne sammenliknes alltid.
+    """
+    server = {f: getattr(r, f) for f in felt}
+    server["subsidiaer_triggers"] = list(r.subsidiaer_triggers) or None
+    par = {
+        f: (_normaliser(getattr(data, f)), _normaliser(v))
+        for f, v in server.items()
+        if v is not None or f in ALLTID
+    }
+    avvik = {f: (k, s) for f, (k, s) in par.items() if k != s}
     if avvik:
         raise Avvik(avvik)
-
-
-def _kontroller_tall(data, r, tallfelt, som_tall) -> dict:
-    """Sammenlikn resultatene, triggerne og `tallfelt`, og returner serverens verdier."""
-    server = {
-        "beregnings_resultat": r.beregnings_resultat,
-        "subsidiaer_resultat": r.subsidiaer_resultat,
-        "subsidiaer_triggers": list(r.subsidiaer_triggers) or None,
-        **tallfelt,
-    }
-    _sammenlikn(
-        {
-            "beregnings_resultat": (_enum(data.beregnings_resultat), _enum(r.beregnings_resultat)),
-            "subsidiaer_resultat": (_enum(data.subsidiaer_resultat), _enum(r.subsidiaer_resultat)),
-            "subsidiaer_triggers": (
-                _triggere(data.subsidiaer_triggers),
-                _triggere(r.subsidiaer_triggers),
-            ),
-            **{f: (som_tall(getattr(data, f)), v) for f, v in tallfelt.items() if v is not None},
-        }
-    )
-    return server
+    return {f: float(v) if isinstance(v, Decimal) else v for f, v in server.items()}
 
 
 def kontroller_vederlagssvar(data: VederlagResponsData, sak: SakState) -> dict:
-    krav = Vederlagskrav.fra_tilstand(sak)
-    r = beregn_vederlag(krav, Vederlagsvurdering.fra_data(data))
-    # Et særskilt krav som ikke er fremsatt, har ikke noe godkjent beløp.
-    ikke_krevd = {
-        "rigg_godkjent_belop": not krav.har_rigg_krav,
-        "produktivitet_godkjent_belop": not krav.har_produktivitet_krav,
-    }
-    belop_ = {f: None if ikke_krevd.get(f) else getattr(r, f) for f in VEDERLAG_BELOP}
-    belop_["subsidiaer_godkjent_belop"] = r.subsidiaer_godkjent_belop
-    server = _kontroller_tall(data, r, belop_, _som_belop)
-    return {f: float(v) if isinstance(v, Decimal) else v for f, v in server.items()}
+    r = beregn_vederlag(Vederlagskrav.fra_tilstand(sak), Vederlagsvurdering.fra_data(data))
+    return _kontroller(data, r, RESULTAT + VEDERLAG_BELOP)
 
 
 def kontroller_fristsvar(data: FristResponsData, sak: SakState) -> dict:
     r = beregn_frist(Fristkrav.fra_tilstand(sak), Fristvurdering.fra_data(data))
-    return _kontroller_tall(data, r, {f: getattr(r, f) for f in FRIST_DAGER}, lambda v: v)
+    return _kontroller(data, r, RESULTAT + FRIST_DAGER)
 
 
 def kontroller_grunnlag(data: GrunnlagResponsData, sak: SakState) -> dict:
@@ -151,13 +130,6 @@ def kontroller_svar(spor: str, data, sak: SakState) -> dict:
 
     Kaster `FeilRegelversjon`, `UgyldigVurdering` eller `Avvik`.
     """
-    kontroller_regelversjon(data)
+    if data.regelversjon != REGELVERSJON:
+        raise FeilRegelversjon(data.regelversjon)
     return KONTROLLER[spor](data, sak)
-
-
-__all__ = [
-    "Avvik",
-    "FeilRegelversjon",
-    "UgyldigVurdering",
-    "kontroller_svar",
-]
