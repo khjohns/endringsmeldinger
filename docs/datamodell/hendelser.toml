@@ -323,6 +323,58 @@ funn = ["DRF-02"]
 belegg = "L 29.09: `_handle_frist`, der de to typene behandles likt."
 
 [[hendelse]]
+navn = "frist_innsigelse_sendt"
+beskrivelse = """
+BH gjør gjeldende at varselet om fristforlengelse kom for sent, før TE har
+spesifisert kravet. En egen handling: den setter ikke resultat, gjør ikke
+sporet avslått og åpner ikke forsering."""
+avsender = "BH"
+spor = "frist"
+sakstype = ["standard"]
+ns8407 = "§ 5 tredje ledd (innsigelse uten ugrunnet opphold) mot varsel etter § 33.4."
+ns8407_kilde = "vedtak: nøytralt fristvarsel i 3.1 (23.09); oppdragsgiver, 2026-10-04"
+modell = "FristInnsigelseEvent"
+data = "FristInnsigelseData"
+lagres_i = "hendelse"
+innsending = [
+    "POST /api/events og /api/events/batch, også når prosjektet har godkjenningspolicy",
+    "Frontend: FristVarselForm",
+]
+tilstand = """
+`frist_varsel_ok` blir `false` og `begrunnelse_varsel` settes. Status,
+`bh_resultat` og `respons_event_id` står urørt."""
+behandler = "_handle_frist_innsigelse"
+funn = ["TFR-06"]
+belegg = "K 2026-10-04: `test_noytralt_fristvarsel.py`."
+
+[[hendelse]]
+navn = "frist_foresporsel_sendt"
+beskrivelse = """
+BH ber TE spesifisere fristkravet. TE må da uten ugrunnet opphold angi dager
+eller begrunne hvorfor grunnlaget mangler, ellers tapes kravet. En egen
+handling: den setter ikke resultat, gjør ikke sporet avslått og åpner ikke
+forsering. Forespørselen sendes per brev, så `brev` er påkrevd."""
+avsender = "BH"
+spor = "frist"
+sakstype = ["standard"]
+ns8407 = "§ 33.6.2 første til tredje ledd."
+ns8407_kilde = "vedtak: nøytralt fristvarsel i 3.1 (23.09); oppdragsgiver, 2026-10-04"
+modell = "FristForesporselEvent"
+data = "FristForesporselData"
+lagres_i = "hendelse"
+innsending = [
+    "POST /api/events og /api/events/batch, også når prosjektet har godkjenningspolicy",
+    "Frontend: FristVarselForm",
+]
+tilstand = """
+`har_bh_foresporsel` blir `true`, `dato_bh_foresporsel` og
+`foresporsel_krav_id` settes, og `frist_for_spesifisering` får svarfristen.
+Status, `bh_resultat` og `respons_event_id` står urørt."""
+behandler = "_handle_frist_foresporsel"
+funn = ["DRF-01"]
+belegg = "K 2026-10-04: `test_noytralt_fristvarsel.py` og DRF-01-testen i `test_beregningsresultat_br01_20260923.py`."
+
+[[hendelse]]
 navn = "frist_krav_trukket"
 beskrivelse = "TE trekker fristkravet."
 avsender = "TE"
@@ -476,8 +528,9 @@ innsending = [
 tilstand = """
 Status følger `beregnings_resultat`: `godkjent`, `delvis_godkjent` eller
 `avslatt`. Godkjente dager, ny sluttdato, varselvurderinger, vilkåret og
-subsidiært standpunkt settes. Et svar med dager på et nøytralt varsel godtas
-(TFR-06)."""
+subsidiært standpunkt settes. Et svar på et krav uten dager avvises (§ 33.7,
+TFR-06); før det sendes `frist_innsigelse_sendt` eller
+`frist_foresporsel_sendt`."""
 behandler = "_handle_respons_frist"
 funn = ["BR-01", "SD-04", "TFR-06", "DRF-01"]
 belegg = "L 29.09: `_handle_respons_frist` og `_beregnings_resultat_til_status`."
@@ -499,8 +552,8 @@ innsending = [
     "Frontend: FristForm",
 ]
 tilstand = """
-Samme behandling som `respons_frist`. Uten `beregnings_resultat` står
-statusen."""
+Samme behandling som `respons_frist`, også sperren mot et krav uten dager.
+Uten `beregnings_resultat` står statusen."""
 behandler = "_handle_respons_frist"
 funn = ["BR-01", "SD-04", "TFR-06"]
 belegg = "L 29.09: `_handle_respons_frist`."

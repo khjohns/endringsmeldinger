@@ -199,6 +199,23 @@ def _svar(sak, sak_id, event_type, krav_id, data):
     )
 
 
+def _brev(sak_id, tekst):
+    seksjon = {"tittel": "Begrunnelse", "originalTekst": tekst, "redigertTekst": tekst}
+    return {
+        "tittel": "Forespørsel om spesifisert krav om fristforlengelse",
+        "mottaker": {"navn": "TE", "rolle": "TE"},
+        "avsender": {"navn": "BH", "rolle": "BH"},
+        "referanser": {
+            "sakId": sak_id,
+            "sakstittel": "Endret fundamentering",
+            "eventId": "utkast",
+            "sporType": "frist",
+            "dato": "2026-10-04",
+        },
+        "seksjoner": {"innledning": seksjon, "begrunnelse": seksjon, "avslutning": seksjon},
+    }
+
+
 def _lagret_tilstand(sak, sak_id):
     raw, _ = sak.lager.get_events(sak_id)
     return TimelineService().compute_state([parse_event(e) for e in raw])
@@ -404,17 +421,15 @@ def test_godkjenningsflyten_publiserer_resultat_som_ikke_folger_av_vurderingene(
 # =============================================================================
 
 
-@pytest.mark.xfail(
-    strict=True,
-    raises=AssertionError,
-    reason=(
-        "DRF-01: skjemaet sender send_foresporsel, som modellen ikke kjenner; "
-        "API-validatoren avviser svaret fordi spesifisert_krav_ok og "
-        "vilkar_oppfylt mangler, og forespørselen etter § 33.6.2 blir aldri lagret"
-    ),
-)
 def test_foresporsel_om_spesifisering_fra_skjemaet_registreres(sak):
-    """Payloaden er den `fristDomain.buildEventData` bygger for en forespørsel."""
+    """DRF-01, rettet 2026-10-04. Forespørselen er en egen handling som ikke
+    setter resultat og ikke gjør sporet avslått (vedtak om nøytralt fristvarsel
+    i hovedplanen 3.1, 23.09), og den sendes per brev (§ 33.6.2 første ledd).
+
+    Payloaden er den `FristVarselForm` sender. Før rettingen sendte skjemaet
+    forespørselen som et fristsvar med `send_foresporsel` og
+    `beregnings_resultat="avslatt"`, og den ble avvist med 400.
+    """
     sak_id = f"{SAK}-foresporsel"
     varsel = _opprett_sak(sak.lager, sak_id, fristkrav=NOYTRALT_FRISTVARSEL).frist
     begrunnelse = "Byggherren etterspør spesifisert krav iht. §33.6.2."
@@ -422,27 +437,18 @@ def test_foresporsel_om_spesifisering_fra_skjemaet_registreres(sak):
     svar = _svar(
         sak,
         sak_id,
-        "respons_frist",
+        "frist_foresporsel_sendt",
         varsel.event_id,
         {
             "frist_krav_id": varsel.event_id,
-            "frist_varsel_ok": True,
-            "send_foresporsel": True,
-            "godkjent_dager": 0,
             "begrunnelse": begrunnelse,
-            "auto_begrunnelse": begrunnelse,
-            "beregnings_resultat": "avslatt",
-            "krevd_dager": 0,
-            "subsidiaer_triggers": ["ingen_hindring"],
-            "subsidiaer_resultat": "avslatt",
-            "subsidiaer_begrunnelse": begrunnelse,
             "vedlegg_ids": [],
+            "brev": _brev(sak_id, begrunnelse),
         },
     )
 
-    if svar.status_code != 201:
-        melding = (svar.get_json() or {}).get("message", "")
-        if "spesifisert_krav_ok" not in melding and "vilkar_oppfylt" not in melding:
-            pytest.fail(f"Avvist av en annen grunn enn DRF-01: {svar.status_code} {melding}")
     assert svar.status_code == 201, svar.get_json()
-    assert _lagret_tilstand(sak, sak_id).frist.har_bh_foresporsel is True
+    frist = _lagret_tilstand(sak, sak_id).frist
+    assert frist.har_bh_foresporsel is True
+    assert frist.bh_resultat is None
+    assert frist.status == SporStatus.SENDT

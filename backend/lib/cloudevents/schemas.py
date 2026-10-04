@@ -30,6 +30,8 @@ from models.events import (
     ForseringStoppetData,
     ForseringVarselData,
     FristData,
+    FristForesporselData,
+    FristInnsigelseData,
     FristResponsData,
     GrunnlagData,
     GrunnlagResponsData,
@@ -63,6 +65,8 @@ EVENT_TYPE_TO_DATA_MODEL = {
     EventType.FRIST_KRAV_OPPDATERT.value: FristData,
     EventType.FRIST_KRAV_SPESIFISERT.value: FristData,
     EventType.FRIST_KRAV_TRUKKET.value: None,
+    EventType.FRIST_INNSIGELSE_SENDT.value: FristInnsigelseData,
+    EventType.FRIST_FORESPORSEL_SENDT.value: FristForesporselData,
     # Respons events
     EventType.RESPONS_GRUNNLAG.value: GrunnlagResponsData,
     EventType.RESPONS_GRUNNLAG_OPPDATERT.value: GrunnlagResponsData,

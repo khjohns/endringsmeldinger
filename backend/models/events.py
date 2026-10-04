@@ -19,7 +19,7 @@ TERMINOLOGI - Versjon vs Revisjon:
   respondert_versjon=0 betyr respons på versjon 1 (original).
 """
 
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 from enum import Enum
 from typing import Annotated, Literal, Union
 from uuid import UUID, uuid4
@@ -114,6 +114,10 @@ class EventType(str, Enum):
     FRIST_KRAV_SPESIFISERT = "frist_krav_spesifisert"  # TE specifies days for neutral notice (§33.6.1/§33.6.2)
     FRIST_KRAV_TRUKKET = "frist_krav_trukket"
 
+    # BHs handlinger på et fristkrav uten antall dager (vedtak 3.1, 23.09)
+    FRIST_INNSIGELSE_SENDT = "frist_innsigelse_sendt"  # §5 tredje ledd mot sent §33.4-varsel
+    FRIST_FORESPORSEL_SENDT = "frist_foresporsel_sendt"  # §33.6.2 første ledd
+
     # Respons-events (BH)
     RESPONS_GRUNNLAG = "respons_grunnlag"
     RESPONS_GRUNNLAG_OPPDATERT = "respons_grunnlag_oppdatert"  # BH's "snuoperasjon"
@@ -176,7 +180,9 @@ BH_BINDENDE_EVENTS = frozenset(
 )
 
 # Alt annet: totalentreprenørens krav og varsler, TEs svar på byggherrens
-# beslutninger, saksopprettelse og interne notater. Settet finnes for at
+# beslutninger, saksopprettelse og interne notater. Byggherrens innsigelse og
+# forespørsel på et uspesifisert fristkrav setter ikke resultat og binder ikke
+# (vedtak 3.1, 23.09), så de sendes uten intern godkjenning. Settet finnes for at
 # test_event_classification skal kunne kreve at enhver ny hendelsestype
 # klassifiseres av den som legger den til, framfor å falle utenfor porten.
 IKKE_BH_BINDENDE_EVENTS = frozenset(set(EventType) - BH_BINDENDE_EVENTS)
@@ -1371,6 +1377,61 @@ class ResponsEvent(SakEvent):
         return self
 
 
+# ============ BHS HANDLINGER PÅ ET USPESIFISERT FRISTKRAV ============
+# Vedtak 3.1, 23.09 (TFR-06, DRF-01): innsigelse og forespørsel er egne
+# handlinger. De setter ikke resultat, gjør ikke sporet avslått og åpner ikke
+# forsering. Svarplikten etter § 33.7 oppstår først ved et krav med dager.
+
+
+class FristInnsigelseData(BaseModel):
+    """BHs innsigelse mot at varselet etter § 33.4 kom for sent (§ 5 tredje ledd)."""
+
+    frist_krav_id: str | None = None
+    begrunnelse: str = Field(..., min_length=1)
+    vedlegg_ids: VedleggIds = Field(default_factory=list)
+    brev: LetterSnapshot | None = None
+
+
+class FristForesporselData(BaseModel):
+    """BHs forespørsel om spesifisert fristkrav (§ 33.6.2 første ledd).
+
+    Forespørselen skal sendes per brev, så brevet er påkrevd.
+    """
+
+    frist_krav_id: str | None = None
+    begrunnelse: str = Field(..., min_length=1)
+    svarfrist: date | None = Field(
+        default=None,
+        description="Valgfri svarfrist BH oppgir. Uten den gjelder «uten ugrunnet opphold»",
+    )
+    vedlegg_ids: VedleggIds = Field(default_factory=list)
+    brev: LetterSnapshot
+
+
+class FristInnsigelseEvent(SakEvent):
+    event_type: EventType = Field(default=EventType.FRIST_INNSIGELSE_SENDT)
+    data: FristInnsigelseData
+
+    @field_validator("event_type")
+    @classmethod
+    def validate_event_type(cls, v):
+        if v != EventType.FRIST_INNSIGELSE_SENDT:
+            raise ValueError(f"Ugyldig event_type for FristInnsigelseEvent: {v}")
+        return v
+
+
+class FristForesporselEvent(SakEvent):
+    event_type: EventType = Field(default=EventType.FRIST_FORESPORSEL_SENDT)
+    data: FristForesporselData
+
+    @field_validator("event_type")
+    @classmethod
+    def validate_event_type(cls, v):
+        if v != EventType.FRIST_FORESPORSEL_SENDT:
+            raise ValueError(f"Ugyldig event_type for FristForesporselEvent: {v}")
+        return v
+
+
 # ============ FORSERING EVENTS (§33.8) ============
 
 
@@ -1982,6 +2043,8 @@ AnyEvent = Union[
     VederlagEvent,
     FristEvent,
     ResponsEvent,
+    FristInnsigelseEvent,
+    FristForesporselEvent,
     ForseringVarselEvent,
     ForseringResponsEvent,
     ForseringStoppetEvent,
@@ -2027,6 +2090,8 @@ def parse_event(data: dict) -> AnyEvent:
         EventType.FRIST_KRAV_OPPDATERT.value: FristEvent,
         EventType.FRIST_KRAV_SPESIFISERT.value: FristEvent,
         EventType.FRIST_KRAV_TRUKKET.value: WithdrawalEvent,
+        EventType.FRIST_INNSIGELSE_SENDT.value: FristInnsigelseEvent,
+        EventType.FRIST_FORESPORSEL_SENDT.value: FristForesporselEvent,
         EventType.RESPONS_GRUNNLAG.value: ResponsEvent,
         EventType.RESPONS_GRUNNLAG_OPPDATERT.value: ResponsEvent,
         EventType.RESPONS_VEDERLAG.value: ResponsEvent,
@@ -2189,7 +2254,11 @@ def parse_event_from_request(request_data: dict) -> AnyEvent:
             request_data["spor"] = spor_map.get(event_type)
 
     letter = request_data.get('data', {}).get('brev')
-    if letter and request_data.get('aktor_rolle') == 'TE':
+    # Et BH-brev som binder, får referansene sine i godkjenningspakken.
+    if letter and (
+        request_data.get('aktor_rolle') == 'TE'
+        or event_type not in {e.value for e in BH_BINDENDE_EVENTS}
+    ):
         letter = LetterSnapshot.model_validate(letter)
         letter.referanser.eventId = request_data['event_id']
         letter.referanser.sakId = request_data['sak_id']

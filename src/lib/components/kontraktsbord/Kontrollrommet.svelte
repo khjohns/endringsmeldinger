@@ -21,6 +21,8 @@
   import LeftSidebar from './LeftSidebar.svelte';
   import CenterRead from './CenterRead.svelte';
   import FristForm from './FristForm.svelte';
+  import FristVarselForm from './FristVarselForm.svelte';
+  import { kravetErSpesifisert } from '$lib/domain/fristVarselDomain';
   import TeFristForm from './TeFristForm.svelte';
   import VederlagForm from './VederlagForm.svelte';
   import TeVederlagForm from './TeVederlagForm.svelte';
@@ -73,6 +75,13 @@
     send: () => void;
     reviewing: boolean;
   } | null>(null);
+  const bhSvarerPaaFristvarsel = $derived.by(
+    () =>
+      sel === 'frist' &&
+      role === 'BH' &&
+      store.sak.frist.status === 'sendt' &&
+      !kravetErSpesifisert(store.sak.frist)
+  );
   const brevInnhold = $derived(letterEvent ? buildLetterContent(letterEvent, store.sak) : null);
 
   $effect(() => {
@@ -288,6 +297,8 @@
                 onform={goForm}
                 onbacktonow={() => (activeEvent = null)}
               />
+            {:else if bhSvarerPaaFristvarsel}
+              <FristVarselForm onsend={goMatrix} onactions={(a) => (formActions = a)} />
             {:else if role === 'BH' && (!approval.loaded || !approval.canPrepare)}
               <div class="approval-entry">
                 <p role={approval.error ? 'alert' : 'status'}>
@@ -346,7 +357,9 @@
                 ontogglecontext={() => (rightPanelOpen = !rightPanelOpen)}
                 onsend={() => formActions?.send()}
                 canSend={formActions?.canSend ?? false}
-                sendLabel={role === 'BH' ? 'Ferdigstill vurdering' : 'Se brev og send'}
+                sendLabel={role === 'BH' && !bhSvarerPaaFristvarsel
+                  ? 'Ferdigstill vurdering'
+                  : 'Se brev og send'}
                 onwithdraw={() => (showWithdrawModal = true)}
               />
             {/if}

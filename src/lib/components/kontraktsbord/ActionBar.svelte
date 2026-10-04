@@ -5,6 +5,7 @@
   import { getCaseWorkspace } from '$lib/kontraktsbord/context.svelte';
   const store = getCaseWorkspace();
   import type { Mode, Role, SporKey } from './types.js';
+  import { foresporselVenterSvar, kravetErSpesifisert } from '$lib/domain/fristVarselDomain';
 
   let {
     mode,
@@ -53,9 +54,7 @@
       store.sak.frist.krevd_dager !== undefined
     )
   );
-  const hasSpecifiedFristClaim = $derived(
-    store.sak.frist.varsel_type === 'spesifisert' && store.sak.frist.krevd_dager !== undefined
-  );
+  const hasSpecifiedFristClaim = $derived(kravetErSpesifisert(store.sak.frist));
   const teFristActionLabel = $derived(
     !hasFristSubmission
       ? 'Send fristvarsel'
@@ -112,7 +111,9 @@
                   ? 'Autolagret — ikke sendt'
                   : !hasSpecifiedFristClaim
                     ? hasFristSubmission
-                      ? 'Varslet – ikke spesifisert'
+                      ? foresporselVenterSvar(store.sak.frist)
+                        ? 'Forespørsel om spesifisert krav sendt'
+                        : 'Varslet – ikke spesifisert'
                       : 'Ikke varslet'
                     : role === 'BH'
                       ? 'Kravet er ikke besvart'
@@ -188,11 +189,13 @@
                 ? 'Fortsett utfylling'
                 : 'Svar på kravet'
             : sel === 'frist'
-              ? hasBhFristResponse
-                ? 'Oppdater svar'
-                : hasDraft
-                  ? 'Fortsett utfylling'
-                  : 'Svar på kravet'
+              ? hasFristSubmission && !hasSpecifiedFristClaim
+                ? 'Svar på varselet'
+                : hasBhFristResponse
+                  ? 'Oppdater svar'
+                  : hasDraft
+                    ? 'Fortsett utfylling'
+                    : 'Svar på kravet'
               : 'Fortsett til utfylling'}
           <ArrowRight size={14} />
         </button>

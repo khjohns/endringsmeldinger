@@ -40,7 +40,6 @@ const saved = {
   spesifisertKravOk: true,
   foresporselSvarOk: true,
   vilkarOppfylt: true,
-  sendForesporsel: false,
   godkjentDager: 30,
   hovedkravVarsletITide: true,
   riggVarsletITide: true,

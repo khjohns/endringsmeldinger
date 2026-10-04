@@ -46,6 +46,8 @@ Konvolutten, som `to_cloudevent` legger i egne kolonner, ikke i `data`.
 | [`frist_krav_sendt`](#frist_krav_sendt) | TE | frist | standard | `hendelse` |
 | [`frist_krav_oppdatert`](#frist_krav_oppdatert) | TE | frist | standard | `hendelse` |
 | [`frist_krav_spesifisert`](#frist_krav_spesifisert) | TE | frist | standard | `hendelse` |
+| [`frist_innsigelse_sendt`](#frist_innsigelse_sendt) | BH | frist | standard | `hendelse` |
+| [`frist_foresporsel_sendt`](#frist_foresporsel_sendt) | BH | frist | standard | `hendelse` |
 | [`frist_krav_trukket`](#frist_krav_trukket) | TE | frist | standard | `hendelse` |
 | [`respons_grunnlag`](#respons_grunnlag) | BH | grunnlag | standard | `hendelse` |
 | [`respons_grunnlag_oppdatert`](#respons_grunnlag_oppdatert) | BH | grunnlag | standard | `hendelse` |
@@ -392,6 +394,65 @@ Feltene i `data`:
 
 Toppnivåfelt i modellen som ikke lagres: `versjon`.
 
+### `frist_innsigelse_sendt`
+
+BH gjør gjeldende at varselet om fristforlengelse kom for sent, før TE har spesifisert kravet. En egen handling: den setter ikke resultat, gjør ikke sporet avslått og åpner ikke forsering.
+
+| | |
+| --- | --- |
+| Hvem sender | BH |
+| Spor | frist |
+| Sakstype | standard |
+| NS 8407 | § 5 tredje ledd (innsigelse uten ugrunnet opphold) mot varsel etter § 33.4. |
+| Kilde for bestemmelsen | vedtak: nøytralt fristvarsel i 3.1 (23.09); oppdragsgiver, 2026-10-04 |
+| Modell | `FristInnsigelseEvent`, data `FristInnsigelseData` |
+| Lagres i | `hendelse` |
+| Sendes fra | POST /api/events og /api/events/batch, også når prosjektet har godkjenningspolicy; Frontend: FristVarselForm |
+| Forretningsregler | ROLE_CHECK, CASE_NOT_CLOSED, CREATE_ONCE, RESPONSE_REFERENCE, CLAIM_UNSPECIFIED, CLAIM_REFERENCE, NOT_ALREADY_OBJECTED |
+| Virkning på status | `frist_varsel_ok` blir `false` og `begrunnelse_varsel` settes. Status, `bh_resultat` og `respons_event_id` står urørt. |
+| Behandler | `TimelineService._handle_frist_innsigelse` |
+| Funn | TFR-06 |
+| Belegg | K 2026-10-04: `test_noytralt_fristvarsel.py`. |
+
+Feltene i `data`:
+
+| Felt | Type | Påkrevd | Beskrivelse |
+| --- | --- | --- | --- |
+| `frist_krav_id` | tekst | nei | — |
+| `begrunnelse` | tekst | ja | — |
+| `vedlegg_ids` | liste av tekst | nei | — |
+| `brev` | LetterSnapshot | nei | — |
+
+### `frist_foresporsel_sendt`
+
+BH ber TE spesifisere fristkravet. TE må da uten ugrunnet opphold angi dager eller begrunne hvorfor grunnlaget mangler, ellers tapes kravet. En egen handling: den setter ikke resultat, gjør ikke sporet avslått og åpner ikke forsering. Forespørselen sendes per brev, så `brev` er påkrevd.
+
+| | |
+| --- | --- |
+| Hvem sender | BH |
+| Spor | frist |
+| Sakstype | standard |
+| NS 8407 | § 33.6.2 første til tredje ledd. |
+| Kilde for bestemmelsen | vedtak: nøytralt fristvarsel i 3.1 (23.09); oppdragsgiver, 2026-10-04 |
+| Modell | `FristForesporselEvent`, data `FristForesporselData` |
+| Lagres i | `hendelse` |
+| Sendes fra | POST /api/events og /api/events/batch, også når prosjektet har godkjenningspolicy; Frontend: FristVarselForm |
+| Forretningsregler | ROLE_CHECK, CASE_NOT_CLOSED, CREATE_ONCE, RESPONSE_REFERENCE, CLAIM_UNSPECIFIED, CLAIM_REFERENCE, REQUEST_PENDING |
+| Virkning på status | `har_bh_foresporsel` blir `true`, `dato_bh_foresporsel` og `foresporsel_krav_id` settes, og `frist_for_spesifisering` får svarfristen. Status, `bh_resultat` og `respons_event_id` står urørt. |
+| Behandler | `TimelineService._handle_frist_foresporsel` |
+| Funn | DRF-01 |
+| Belegg | K 2026-10-04: `test_noytralt_fristvarsel.py` og DRF-01-testen i `test_beregningsresultat_br01_20260923.py`. |
+
+Feltene i `data`:
+
+| Felt | Type | Påkrevd | Beskrivelse |
+| --- | --- | --- | --- |
+| `frist_krav_id` | tekst | nei | — |
+| `begrunnelse` | tekst | ja | — |
+| `svarfrist` | dato | nei | Valgfri svarfrist BH oppgir. Uten den gjelder «uten ugrunnet opphold» |
+| `vedlegg_ids` | liste av tekst | nei | — |
+| `brev` | LetterSnapshot | ja | — |
+
 ### `frist_krav_trukket`
 
 TE trekker fristkravet.
@@ -616,8 +677,8 @@ BH svarer på fristkravet: varsler i tide, om forholdet har hindret fremdriften,
 | Modell | `ResponsEvent`, data `FristResponsData` |
 | Lagres i | `hendelse` |
 | Sendes fra | POST /api/events og /api/events/batch, når prosjektet ikke har godkjenningspolicy; BHs godkjenningspakke; Frontend: FristForm |
-| Forretningsregler | ROLE_CHECK, CASE_NOT_CLOSED, CREATE_ONCE, RESPONSE_REFERENCE, TRACK_SENT, NOT_ALREADY_RESPONDED |
-| Virkning på status | Status følger `beregnings_resultat`: `godkjent`, `delvis_godkjent` eller `avslatt`. Godkjente dager, ny sluttdato, varselvurderinger, vilkåret og subsidiært standpunkt settes. Et svar med dager på et nøytralt varsel godtas (TFR-06). |
+| Forretningsregler | ROLE_CHECK, CASE_NOT_CLOSED, CREATE_ONCE, RESPONSE_REFERENCE, TRACK_SENT, CLAIM_SPECIFIED, NOT_ALREADY_RESPONDED |
+| Virkning på status | Status følger `beregnings_resultat`: `godkjent`, `delvis_godkjent` eller `avslatt`. Godkjente dager, ny sluttdato, varselvurderinger, vilkåret og subsidiært standpunkt settes. Et svar på et krav uten dager avvises (§ 33.7, TFR-06); før det sendes `frist_innsigelse_sendt` eller `frist_foresporsel_sendt`. |
 | Behandler | `TimelineService._handle_respons_frist` |
 | Funn | BR-01, SD-04, TFR-06, DRF-01 |
 | Belegg | L 29.09: `_handle_respons_frist` og `_beregnings_resultat_til_status`. |
@@ -664,8 +725,8 @@ BH endrer sitt svar på fristkravet.
 | Modell | `ResponsEvent`, data `FristResponsData` |
 | Lagres i | `hendelse` |
 | Sendes fra | POST /api/events og /api/events/batch, når prosjektet ikke har godkjenningspolicy; BHs godkjenningspakke; Frontend: FristForm |
-| Forretningsregler | ROLE_CHECK, CASE_NOT_CLOSED, CREATE_ONCE, RESPONSE_REFERENCE, TRACK_SENT, PREVIOUS_RESPONSE |
-| Virkning på status | Samme behandling som `respons_frist`. Uten `beregnings_resultat` står statusen. |
+| Forretningsregler | ROLE_CHECK, CASE_NOT_CLOSED, CREATE_ONCE, RESPONSE_REFERENCE, TRACK_SENT, CLAIM_SPECIFIED, PREVIOUS_RESPONSE |
+| Virkning på status | Samme behandling som `respons_frist`, også sperren mot et krav uten dager. Uten `beregnings_resultat` står statusen. |
 | Behandler | `TimelineService._handle_respons_frist` |
 | Funn | BR-01, SD-04, TFR-06 |
 | Belegg | L 29.09: `_handle_respons_frist`. |

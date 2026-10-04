@@ -123,7 +123,18 @@ class BusinessRuleValidator:
             ],
             EventType.RESPONS_FRIST: [
                 ("TRACK_SENT", self._rule_frist_sent),
+                ("CLAIM_SPECIFIED", self._rule_frist_spesifisert),
                 ("NOT_ALREADY_RESPONDED", self._rule_frist_not_already_responded),
+            ],
+            EventType.FRIST_INNSIGELSE_SENDT: [
+                ("CLAIM_UNSPECIFIED", self._rule_frist_uspesifisert),
+                ("CLAIM_REFERENCE", self._rule_frist_krav_referanse),
+                ("NOT_ALREADY_OBJECTED", self._rule_frist_ikke_innsigelse_fra_for),
+            ],
+            EventType.FRIST_FORESPORSEL_SENDT: [
+                ("CLAIM_UNSPECIFIED", self._rule_frist_uspesifisert),
+                ("CLAIM_REFERENCE", self._rule_frist_krav_referanse),
+                ("REQUEST_PENDING", self._rule_frist_foresporsel_ikke_ubesvart),
             ],
             EventType.RESPONS_GRUNNLAG_OPPDATERT: [
                 ("TRACK_SENT", self._rule_grunnlag_sent),
@@ -136,6 +147,7 @@ class BusinessRuleValidator:
             ],
             EventType.RESPONS_FRIST_OPPDATERT: [
                 ("TRACK_SENT", self._rule_frist_sent),
+                ("CLAIM_SPECIFIED", self._rule_frist_spesifisert),
                 ("PREVIOUS_RESPONSE", self._rule_previous_response),
             ],
             # Cannot update locked grunnlag
@@ -253,6 +265,8 @@ class BusinessRuleValidator:
             EventType.RESPONS_GRUNNLAG_OPPDATERT,
             EventType.RESPONS_VEDERLAG_OPPDATERT,
             EventType.RESPONS_FRIST_OPPDATERT,
+            EventType.FRIST_INNSIGELSE_SENDT,
+            EventType.FRIST_FORESPORSEL_SENDT,
             EventType.FORSERING_RESPONS,
             # EO BH-handlinger
             EventType.EO_OPPRETTET,
@@ -483,6 +497,68 @@ class BusinessRuleValidator:
             )
 
         return ValidationResult(is_valid=True)
+
+    def _rule_frist_spesifisert(
+        self, event: AnyEvent, state: SakState
+    ) -> ValidationResult:
+        """§ 33.7: et svar med dager og resultat forutsetter et krav med dager.
+
+        Vedtak 3.1, 23.09 (TFR-06). Før det sender BH innsigelse eller
+        forespørsel.
+        """
+        if not state.frist.kravet_er_spesifisert:
+            return ValidationResult(
+                False,
+                "Fristkravet er ikke spesifisert med antall dager (§ 33.7). "
+                "Send innsigelse mot sen varsling (§ 5) eller forespørsel om "
+                "spesifisert krav (§ 33.6.2).",
+            )
+        return ValidationResult(True)
+
+    def _rule_frist_uspesifisert(
+        self, event: AnyEvent, state: SakState
+    ) -> ValidationResult:
+        """§ 33.6.2 første ledd: «så lenge TE ikke har fremmet krav etter 33.6.1»."""
+        if state.frist.status != SporStatus.SENDT:
+            return ValidationResult(False, "Det finnes ikke noe sendt fristvarsel.")
+        if state.frist.kravet_er_spesifisert:
+            return ValidationResult(
+                False,
+                "Fristkravet er spesifisert. Svar på kravet (§ 33.7).",
+            )
+        return ValidationResult(True)
+
+    def _rule_frist_krav_referanse(
+        self, event: AnyEvent, state: SakState
+    ) -> ValidationResult:
+        references = {
+            ref
+            for ref in (event.refererer_til_event_id, event.data.frist_krav_id)
+            if ref
+        }
+        if references != {state.frist.krav_event_id}:
+            return ValidationResult(
+                False, "Handlingen må gjelde gjeldende fristvarsel."
+            )
+        return ValidationResult(True)
+
+    def _rule_frist_ikke_innsigelse_fra_for(
+        self, event: AnyEvent, state: SakState
+    ) -> ValidationResult:
+        if state.frist.frist_varsel_ok is False:
+            return ValidationResult(
+                False, "Innsigelsen mot sen varsling er allerede sendt."
+            )
+        return ValidationResult(True)
+
+    def _rule_frist_foresporsel_ikke_ubesvart(
+        self, event: AnyEvent, state: SakState
+    ) -> ValidationResult:
+        if state.frist.foresporsel_venter_svar:
+            return ValidationResult(
+                False, "Forespørselen er sendt, og TE har ikke svart ennå."
+            )
+        return ValidationResult(True)
 
     def _rule_active_frist_exists(
         self, event: AnyEvent, state: SakState
