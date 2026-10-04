@@ -22,6 +22,7 @@ import {
   type VederlagFormState,
   type VederlagDomainConfig,
 } from '../vederlagDomain';
+import { REGELVERSJON } from '../regelversjon';
 
 // ============================================================================
 // HELPERS
@@ -447,15 +448,56 @@ describe('beregnPrinsipaltResultat', () => {
     ).toBe('avslatt');
   });
 
-  it('handles 99% threshold for godkjent', () => {
+  it('returns delvis_godkjent at 99,5 % (B-13: no threshold)', () => {
     expect(
       beregnPrinsipaltResultat({
         totalKrevdInklPrekludert: 100000,
-        totalGodkjent: 99000,
+        totalGodkjent: 99500,
+        harMetodeendring: false,
+        holdTilbake: false,
+      })
+    ).toBe('delvis_godkjent');
+  });
+
+  it('returns godkjent when equal to the nearest krone (ROUND_HALF_UP)', () => {
+    expect(
+      beregnPrinsipaltResultat({
+        totalKrevdInklPrekludert: 100000.4,
+        totalGodkjent: 99999.5,
         harMetodeendring: false,
         holdTilbake: false,
       })
     ).toBe('godkjent');
+    expect(
+      beregnPrinsipaltResultat({
+        totalKrevdInklPrekludert: 100000.5,
+        totalGodkjent: 100000.49,
+        harMetodeendring: false,
+        holdTilbake: false,
+      })
+    ).toBe('delvis_godkjent');
+  });
+
+  it('rounds to øre before krone, like the backend', () => {
+    expect(
+      beregnPrinsipaltResultat({
+        totalKrevdInklPrekludert: 2,
+        totalGodkjent: 1.495,
+        harMetodeendring: false,
+        holdTilbake: false,
+      })
+    ).toBe('godkjent');
+  });
+
+  it('returns avslatt when less than half an øre is approved', () => {
+    expect(
+      beregnPrinsipaltResultat({
+        totalKrevdInklPrekludert: 100,
+        totalGodkjent: 0.004,
+        harMetodeendring: false,
+        holdTilbake: false,
+      })
+    ).toBe('avslatt');
   });
 });
 
@@ -470,7 +512,6 @@ describe('beregnSubsidiaertResultat', () => {
         totalKrevdInklPrekludert: 130000,
         totalGodkjentInklPrekludert: 130000,
         harMetodeendring: false,
-        hovedkravVurdering: 'godkjent',
       })
     ).toBe('godkjent');
   });
@@ -481,7 +522,6 @@ describe('beregnSubsidiaertResultat', () => {
         totalKrevdInklPrekludert: 130000,
         totalGodkjentInklPrekludert: 0,
         harMetodeendring: false,
-        hovedkravVurdering: 'avslatt',
       })
     ).toBe('avslatt');
   });
@@ -492,7 +532,26 @@ describe('beregnSubsidiaertResultat', () => {
         totalKrevdInklPrekludert: 130000,
         totalGodkjentInklPrekludert: 80000,
         harMetodeendring: false,
-        hovedkravVurdering: 'delvis',
+      })
+    ).toBe('delvis_godkjent');
+  });
+
+  it('returns avslatt for 0 kr regardless of how the claims are marked', () => {
+    expect(
+      beregnSubsidiaertResultat({
+        totalKrevdInklPrekludert: 130000,
+        totalGodkjentInklPrekludert: 0,
+        harMetodeendring: false,
+      })
+    ).toBe('avslatt');
+  });
+
+  it('returns delvis_godkjent at 99,5 %', () => {
+    expect(
+      beregnSubsidiaertResultat({
+        totalKrevdInklPrekludert: 100000,
+        totalGodkjentInklPrekludert: 99500,
+        harMetodeendring: false,
       })
     ).toBe('delvis_godkjent');
   });
@@ -503,7 +562,6 @@ describe('beregnSubsidiaertResultat', () => {
         totalKrevdInklPrekludert: 100000,
         totalGodkjentInklPrekludert: 100000,
         harMetodeendring: true,
-        hovedkravVurdering: 'godkjent',
       })
     ).toBe('delvis_godkjent');
   });
@@ -605,6 +663,7 @@ describe('buildEventData', () => {
     expect(result.data.total_godkjent_belop).toBe(100000);
     expect(result.data.total_krevd_belop).toBe(100000);
     expect(result.data.subsidiaer_triggers).toBeUndefined();
+    expect(result.data.regelversjon).toBe(REGELVERSJON);
   });
 
   it('builds update response event', () => {

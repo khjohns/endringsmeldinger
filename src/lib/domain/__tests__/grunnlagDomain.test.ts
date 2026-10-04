@@ -11,6 +11,7 @@ import {
   type GrunnlagFormState,
   type GrunnlagDomainConfig,
 } from '../grunnlagDomain';
+import { REGELVERSJON } from '../regelversjon';
 
 // ============================================================================
 // HELPERS
@@ -264,6 +265,7 @@ describe('buildEventData', () => {
     expect(data.resultat).toBe('godkjent');
     expect(data.begrunnelse).toBe('Test begrunnelse');
     expect(data.grunnlag_varslet_i_tide).toBe(true);
+    expect(data.regelversjon).toBe(REGELVERSJON);
   });
 
   it('builds update mode event data', () => {
@@ -279,6 +281,7 @@ describe('buildEventData', () => {
     expect(data.begrunnelse).toBe('Oppdatert');
     expect(data.dato_endret).toBeDefined();
     expect(data.grunnlag_event_id).toBeUndefined();
+    expect(data.regelversjon).toBe(REGELVERSJON);
   });
 
   it('omits grunnlag_varslet_i_tide for EO', () => {

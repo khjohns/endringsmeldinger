@@ -12,6 +12,7 @@ import {
   type FristFormState,
   type FristDomainConfig,
 } from '../fristDomain';
+import { REGELVERSJON } from '../regelversjon';
 
 // ============================================================================
 // HELPERS
@@ -329,7 +330,7 @@ describe('beregnPrinsipaltResultat', () => {
     ).toBe('godkjent');
   });
 
-  it('returns godkjent when godkjent >= 99% of krevd', () => {
+  it('returns delvis_godkjent at 99 of 100 days (B-13: no threshold)', () => {
     expect(
       beregnPrinsipaltResultat({
         erPrekludert: false,
@@ -337,7 +338,18 @@ describe('beregnPrinsipaltResultat', () => {
         krevdDager: 100,
         godkjentDager: 99,
       })
-    ).toBe('godkjent');
+    ).toBe('delvis_godkjent');
+  });
+
+  it('returns avslatt for 0 days even when hindring is accepted', () => {
+    expect(
+      beregnPrinsipaltResultat({
+        erPrekludert: false,
+        harHindring: true,
+        krevdDager: 10,
+        godkjentDager: 0,
+      })
+    ).toBe('avslatt');
   });
 });
 
@@ -374,6 +386,26 @@ describe('beregnSubsidiaertResultat', () => {
         godkjentDager: 5,
       })
     ).toBe('delvis_godkjent');
+  });
+
+  it('returns delvis_godkjent at 199 of 200 days', () => {
+    expect(
+      beregnSubsidiaertResultat({
+        harHindring: true,
+        krevdDager: 200,
+        godkjentDager: 199,
+      })
+    ).toBe('delvis_godkjent');
+  });
+
+  it('returns avslatt for 0 days', () => {
+    expect(
+      beregnSubsidiaertResultat({
+        harHindring: true,
+        krevdDager: 10,
+        godkjentDager: 0,
+      })
+    ).toBe('avslatt');
   });
 
   it('returns godkjent when krevdDager is 0', () => {
@@ -471,6 +503,7 @@ describe('buildEventData', () => {
     expect(data.subsidiaer_triggers).toEqual(['preklusjon_varsel']);
     expect(data.subsidiaer_resultat).toBe('godkjent');
     expect(data.subsidiaer_begrunnelse).toBe('Test begrunnelse');
+    expect(data.regelversjon).toBe(REGELVERSJON);
   });
 
   it('omits subsidiaer fields when prinsipalt is not avslatt', () => {
@@ -544,6 +577,14 @@ describe('beregnAlt', () => {
     expect(computed.prinsipaltResultat).toBe('godkjent');
     expect(computed.visSubsidiaertResultat).toBe(false);
     expect(computed.visibility.showSpesifisertKravOk).toBe(true);
+  });
+
+  it('rejects 0 days without a subsidiary standpoint when hindring is accepted', () => {
+    const computed = beregnAlt(makeState({ godkjentDager: 0 }), makeConfig());
+
+    expect(computed.prinsipaltResultat).toBe('avslatt');
+    expect(computed.visSubsidiaertResultat).toBe(false);
+    expect(computed.subsidiaerTriggers).toEqual([]);
   });
 
   it('reflects preclusion in all derived values', () => {
