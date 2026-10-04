@@ -1,0 +1,44 @@
+# B-13 (hovedplanen 3.1, 24.09): endres reglene eller tekstgeneratorene i
+# src/lib/domain/, må REGELVERSJON økes. Serveren avviser svar med en annen
+# versjon enn sin egen, og speilet i backend/regler/ holdes likt av en test.
+name: Regelversjon
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: regelversjon-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  regelversjon:
+    name: Regelversjon økt ved endring i src/lib/domain
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Kontroller regelversjonen
+        env:
+          BASE: ${{ github.event.pull_request.base.sha }}
+        run: |
+          fil=src/lib/domain/regelversjon.ts
+          endret=$(git diff --name-only "$BASE"...HEAD -- src/lib/domain \
+            ":(exclude)src/lib/domain/__tests__" ":(exclude)$fil")
+          if [ -z "$endret" ]; then
+            echo "Ingen endring i src/lib/domain/ utenom testene."
+            exit 0
+          fi
+          les() { sed -n 's/^export const REGELVERSJON = \([0-9][0-9]*\);$/\1/p'; }
+          for=$(git show "$BASE:$fil" 2>/dev/null | les)
+          etter=$(les < "$fil")
+          echo "Endret:"; echo "$endret"
+          echo "REGELVERSJON: ${for:-ingen} -> ${etter:-ingen}"
+          if [ -z "$etter" ] || [ "$etter" -le "${for:-0}" ]; then
+            echo "::error file=$fil::src/lib/domain/ er endret. Øk REGELVERSJON her og i backend/regler/__init__.py."
+            exit 1
+          fi

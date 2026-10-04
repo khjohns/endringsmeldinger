@@ -12,10 +12,12 @@ from models.events import (
     GrunnlagResponsResultat,
     SubsidiaerTrigger,
     VederlagBeregningResultat,
+    VederlagResponsData,
     VederlagsMetode,
 )
+from models.sak_state import SakState
 from regler import UgyldigVurdering, belop, til_krone
-from regler.grunnlag import er_endring_med_32_2
+from regler.grunnlag import er_endring_med_32_2, forste_underkategori
 
 NULL = Decimal("0.00")
 
@@ -35,6 +37,28 @@ class Vederlagskrav:
     underkategori: str | None = None
     grunnlag_varslet_i_tide: bool | None = None
     grunnlag_resultat: GrunnlagResponsResultat | None = None
+
+    @classmethod
+    def fra_tilstand(cls, sak: SakState) -> "Vederlagskrav":
+        """Som `deriveVederlagDomainConfig` i frontenden."""
+        v, g = sak.vederlag, sak.grunnlag
+        saerskilt = v.saerskilt_krav or {}
+        rigg = saerskilt.get("rigg_drift")
+        produktivitet = saerskilt.get("produktivitet")
+        return cls(
+            hovedkrav_belop=v.krevd_belop or 0,
+            metode=VederlagsMetode(v.metode) if v.metode else None,
+            rigg_belop=(rigg.get("belop") or 0) if isinstance(rigg, dict) else None,
+            produktivitet_belop=(produktivitet.get("belop") or 0)
+            if isinstance(produktivitet, dict)
+            else None,
+            krever_justert_ep=bool(v.krever_justert_ep),
+            kostnads_overslag=v.kostnads_overslag,
+            hovedkategori=g.hovedkategori,
+            underkategori=forste_underkategori(g.underkategori),
+            grunnlag_varslet_i_tide=g.grunnlag_varslet_i_tide,
+            grunnlag_resultat=g.bh_resultat,
+        )
 
     @property
     def har_rigg_krav(self) -> bool:
@@ -62,6 +86,11 @@ class Vederlagsvurdering:
     oensket_metode: VederlagsMetode | None = None
     varsel_justert_ep_ok: bool | None = None
     hold_tilbake: bool = False
+
+    @classmethod
+    def fra_data(cls, data: VederlagResponsData) -> "Vederlagsvurdering":
+        felt = {f: getattr(data, f) for f in cls.__dataclass_fields__ if f != "hold_tilbake"}
+        return cls(**felt, hold_tilbake=bool(data.hold_tilbake))
 
 
 @dataclass(frozen=True)

@@ -133,18 +133,38 @@ class ApprovalService:
             self.timeline.compute_state([parse_event(e) for e in raw])
         )
 
-    def route(self, owner, items, chain, krav):
+    def route(self, case_id, owner, items, chain, krav, events=None):
         """Authority basis and the approvers it requires for this owner's letter."""
         return approval_route(
-            items,
+            self.med_serverens_utregning(case_id, items, events),
             chain,
             self.authority_policy.get("daily_rate"),
             handler_identity(self.authority_policy, owner),
             krav,
         )
 
+    def med_serverens_utregning(self, case_id, items, events=None):
+        """Fullmakten regnes av regelmodulens tall, ikke av tallene i pakken (B-13).
+
+        `events` er hendelsene `validate_items` nettopp har regnet ut. Holder ikke
+        vurderingene lenger, gjelder tallene i pakken, som er serverens fra
+        `prepare`. Pakken kan da uansett ikke godkjennes eller publiseres, fordi
+        `validate_items` avviser den der.
+        """
+        if events is None:
+            try:
+                events, _ = self.validate_items(case_id, items, check_basis=False)
+            except ValueError:
+                return items
+        data = {
+            e.spor.value: e.data.model_dump(mode="json", exclude_none=True) for e in events
+        }
+        return [{**item, "data": data[item["track"]]} for item in items]
+
     def stale(self, p, chain, krav):
-        authority, route = self.route(p["owner"], p["letter"]["items"], chain, krav)
+        authority, route = self.route(
+            p["letter"]["caseId"], p["owner"], p["letter"]["items"], chain, krav
+        )
         return (
             p["policy"]["version"] != digest(chain)
             or (p["letter"].get("authorityContext") or {}).get("krav") != krav
@@ -376,7 +396,7 @@ class ApprovalService:
                     raise ValueError("Godkjenningskjeden inneholder saksbehandleren.")
                 events, _ = self.validate_items(case_id, items)
                 krav = self.krav(case_id)
-                authority, route = self.route(actor, items, chain, krav)
+                authority, route = self.route(case_id, actor, items, chain, krav, events)
                 previous = body.get("previousId")
                 if previous and not any(
                     p["id"] == previous
