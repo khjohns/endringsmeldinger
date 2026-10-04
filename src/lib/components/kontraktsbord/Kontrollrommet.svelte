@@ -311,8 +311,6 @@
                   >Prøv igjen</button
                 >
               </div>
-            {:else if bhSvarerPaaFristvarsel}
-              <FristVarselForm onsend={handleSend} onactions={(a) => (formActions = a)} />
             {:else if sel === 'frist' && role === 'BH'}
               <FristForm
                 domainConfig={approval.fristConfig}
