@@ -840,7 +840,7 @@ class TestValidateResponsEvent:
     def test_frist_uten_spesifisert_krav_ok(self):
         """§ 33.6.1-spørsmålet stilles ikke ved svar på forespørselen (§ 33.6.2
         fjerde ledd) eller på et varsel. Om feltet kreves, avgjør
-        forretningsreglene ut fra saken (SPECIFICATION_ASSESSED, #172)."""
+        forretningsreglene ut fra saken (B-13, #172)."""
         validate_respons_event(
             {"beregnings_resultat": "godkjent", "vilkar_oppfylt": True}, "frist"
         )

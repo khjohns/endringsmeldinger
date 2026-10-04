@@ -19,6 +19,7 @@ from flask import Flask
 
 from lib.auth.session import cookie_name
 from lib.project_context import init_project_context
+from regler import REGELVERSJON
 from services.approval_authority import approval_route, resolve_route
 from services.approval_service import ApprovalService
 from services.business_rules import BusinessRuleValidator
@@ -545,6 +546,7 @@ def test_godkjent_grunnlag_alene_krever_fullmakt_for_kravet(tmp_path):
             "claimId": grunnlag.event_id,
             "data": {
                 "grunnlag_event_id": grunnlag.event_id,
+                "regelversjon": REGELVERSJON,
                 "resultat": "godkjent",
                 "begrunnelse": "Byggherren godtar ansvaret.",
             },

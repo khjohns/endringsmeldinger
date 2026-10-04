@@ -134,7 +134,11 @@ class ApprovalService:
         )
 
     def route(self, owner, items, chain, krav):
-        """Authority basis and the approvers it requires for this owner's letter."""
+        """Authority basis and the approvers it requires for this owner's letter.
+
+        Vurderingene bærer serverens tall (B-13): `prepare` lagrer det reglene
+        regnet ut, og `validate_items` avviser en pakke der tallene ikke lenger holder.
+        """
         return approval_route(
             items,
             chain,
@@ -278,7 +282,24 @@ class ApprovalService:
                 item.update(
                     id=str(uuid4()), owner=actor, status="ferdigstilt", createdAt=now
                 )
-                validated, _ = self.validate_items(case_id, [item], check_basis=False)
+                pending_ground = next(
+                    (
+                        i
+                        for i in reversed(state["items"])
+                        if i["track"] == "grunnlag"
+                        and i["owner"] == actor
+                        and i["status"] in ("ferdigstilt", "til_godkjenning")
+                    ),
+                    None,
+                )
+                # Svaret regnes mot grunnlaget det skal sendes med, som ved `package`.
+                with_ground = item["track"] != "grunnlag" and pending_ground
+                validated, _ = self.validate_items(
+                    case_id,
+                    [pending_ground, item] if with_ground else [item],
+                    check_basis=False,
+                )
+                validated = [e for e in validated if e.spor.value == item["track"]]
                 validated[0].data.vedlegg_ids = attachments.validate_refs(
                     project, case_id, validated[0].data.vedlegg_ids, team
                 )
@@ -291,17 +312,7 @@ class ApprovalService:
                 ground = self.timeline.compute_state(
                     [parse_event(e) for e in raw]
                 ).grunnlag
-                pending_ground = next(
-                    (
-                        i
-                        for i in reversed(state["items"])
-                        if i["track"] == "grunnlag"
-                        and i["owner"] == actor
-                        and i["status"] in ("ferdigstilt", "til_godkjenning")
-                    ),
-                    None,
-                )
-                if item["track"] != "grunnlag" and pending_ground:
+                if with_ground:
                     ground = ground.model_copy(
                         update={
                             "bh_resultat": pending_ground["data"].get("resultat"),

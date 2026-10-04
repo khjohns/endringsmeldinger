@@ -11,13 +11,14 @@ from dataclasses import dataclass
 
 from models.events import (
     FristBeregningResultat,
+    FristResponsData,
     FristVarselType,
     GrunnlagResponsResultat,
     SubsidiaerTrigger,
 )
 from models.sak_state import SakState
 from regler import UgyldigVurdering
-from regler.grunnlag import er_prekludert
+from regler.grunnlag import er_prekludert, forste_underkategori
 
 VARSEL = FristVarselType.VARSEL.value
 SPESIFISERT = FristVarselType.SPESIFISERT.value
@@ -40,9 +41,6 @@ class Fristkrav:
     @classmethod
     def fra_tilstand(cls, sak: SakState) -> "Fristkrav":
         f, g = sak.frist, sak.grunnlag
-        underkategori = g.underkategori
-        if isinstance(underkategori, list):
-            underkategori = underkategori[0] if underkategori else None
         return cls(
             krevd_dager=f.krevd_dager or 0,
             varsel_type=f.varsel_type,
@@ -53,7 +51,7 @@ class Fristkrav:
             or (f.bh_respondert_versjon is not None and f.frist_varsel_ok is not False),
             er_grunnlag_subsidiaert=g.bh_resultat == GrunnlagResponsResultat.AVSLATT,
             er_hele_fristen_subsidiaer_pga_grunnlag=er_prekludert(
-                g.hovedkategori, underkategori, g.grunnlag_varslet_i_tide
+                g.hovedkategori, forste_underkategori(g.underkategori), g.grunnlag_varslet_i_tide
             ),
         )
 
@@ -67,6 +65,19 @@ class Fristvurdering:
     foresporsel_svar_ok: bool | None = None
     vilkar_oppfylt: bool | None = None
     godkjent_dager: int | None = None
+
+    @classmethod
+    def fra_data(cls, data: FristResponsData) -> "Fristvurdering":
+        """Et felt modellen har fylt med standardverdien, er ikke en vurdering.
+
+        Dagene BH har vurdert, står i `subsidiaer_godkjent_dager` når det
+        prinsipale resultatet er avslått, og ellers i `godkjent_dager`.
+        """
+        sendt = data.model_fields_set
+        felt = {f: getattr(data, f) if f in sendt else None for f in cls.__dataclass_fields__}
+        if data.subsidiaer_godkjent_dager is not None:
+            felt["godkjent_dager"] = data.subsidiaer_godkjent_dager
+        return cls(**felt)
 
 
 @dataclass(frozen=True)
@@ -179,18 +190,6 @@ def subsidiaer_triggers(
     return tuple(trigger for gjelder, trigger in kandidater if gjelder)
 
 
-PAABEROPT_33_6_1_ETTER_SVAR = (
-    "§ 33.6.1 kan ikke påberopes når TE har svart på forespørselen "
-    "(§ 33.6.2 fjerde ledd)"
-)
-
-
-def paaberoper_33_6_1_etter_svar_paa_foresporsel(
-    er_svar_paa_foresporsel: bool, spesifisert_krav_ok: bool | None
-) -> bool:
-    return er_svar_paa_foresporsel and spesifisert_krav_ok is False
-
-
 def _er_heltall(verdi) -> bool:
     return isinstance(verdi, int) and not isinstance(verdi, bool)
 
@@ -209,10 +208,11 @@ def kontroller(vurdering: Fristvurdering, krav: Fristkrav) -> None:
         if gjelder and getattr(vurdering, felt) is None:
             feil[felt] = f"mangler ({hjemmel})"
 
-    if paaberoper_33_6_1_etter_svar_paa_foresporsel(
-        krav.er_svar_paa_foresporsel, vurdering.spesifisert_krav_ok
-    ):
-        feil["spesifisert_krav_ok"] = PAABEROPT_33_6_1_ETTER_SVAR
+    if krav.er_svar_paa_foresporsel and vurdering.spesifisert_krav_ok is False:
+        feil["spesifisert_krav_ok"] = (
+            "§ 33.6.1 kan ikke påberopes når TE har svart på forespørselen "
+            "(§ 33.6.2 fjerde ledd)"
+        )
 
     dager = vurdering.godkjent_dager
     if dager is None:

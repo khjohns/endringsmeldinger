@@ -65,6 +65,13 @@ VedleggIds = Annotated[
     Field(max_length=MAKS_VEDLEGG_PER_HENDELSE),
 ]
 
+Regelversjon = Annotated[
+    int | None,
+    Field(
+        description="Versjonen av reglene klienten regnet med (B-13). Kontrolleres mot regler.REGELVERSJON"
+    ),
+]
+
 
 # ============ ENUMS FOR EVENT TYPES ============
 
@@ -967,6 +974,7 @@ class GrunnlagResponsData(BaseModel):
 
     grunnlag_event_id: str | None = None
     vedlegg_ids: VedleggIds = Field(default_factory=list)
+    regelversjon: Regelversjon = None
 
     brev: LetterSnapshot | None = None
 
@@ -1047,6 +1055,7 @@ class VederlagResponsData(BaseModel):
     brev: LetterSnapshot | None = None
     tilleggs_begrunnelse: str | None = None
     vedlegg_ids: VedleggIds = Field(default_factory=list)
+    regelversjon: Regelversjon = None
 
 
     # ============ PARTIELL OPPDATERING ============
@@ -1193,6 +1202,7 @@ class FristResponsData(BaseModel):
 
     frist_krav_id: str | None = None
     vedlegg_ids: VedleggIds = Field(default_factory=list)
+    regelversjon: Regelversjon = None
 
     brev: LetterSnapshot | None = None
     tilleggs_begrunnelse: str | None = None

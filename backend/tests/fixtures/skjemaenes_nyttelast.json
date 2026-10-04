@@ -1,0 +1,89 @@
+{
+  "sak": {
+    "grunnlag": {
+      "hovedkategori": "ENDRING",
+      "underkategori": "EO",
+      "bh_resultat": "godkjent",
+      "grunnlag_varslet_i_tide": null,
+      "bh_respondert_versjon": 0
+    },
+    "vederlag": {
+      "metode": "FASTPRIS_TILBUD",
+      "belop_direkte": 500000,
+      "kostnads_overslag": null,
+      "krever_justert_ep": false,
+      "saerskilt_krav": null
+    },
+    "frist": {
+      "varsel_type": "spesifisert",
+      "krevd_dager": 30,
+      "frist_varsel_ok": null,
+      "bh_respondert_versjon": null,
+      "kravet_besvarer_foresporselen": false
+    }
+  },
+  "svar": {
+    "respons_frist_delvis": {
+      "regelversjon": 1,
+      "frist_krav_id": "KRAV",
+      "frist_varsel_ok": true,
+      "spesifisert_krav_ok": true,
+      "vilkar_oppfylt": true,
+      "godkjent_dager": 20,
+      "begrunnelse": "Begrunnelse.",
+      "auto_begrunnelse": "Auto.",
+      "beregnings_resultat": "delvis_godkjent",
+      "krevd_dager": 30
+    },
+    "respons_frist_prekludert": {
+      "regelversjon": 1,
+      "frist_krav_id": "KRAV",
+      "frist_varsel_ok": false,
+      "spesifisert_krav_ok": true,
+      "vilkar_oppfylt": true,
+      "godkjent_dager": 0,
+      "begrunnelse": "Begrunnelse.",
+      "auto_begrunnelse": "Auto.",
+      "beregnings_resultat": "avslatt",
+      "krevd_dager": 30,
+      "subsidiaer_triggers": [
+        "preklusjon_varsel"
+      ],
+      "subsidiaer_resultat": "delvis_godkjent",
+      "subsidiaer_godkjent_dager": 20,
+      "subsidiaer_begrunnelse": "Begrunnelse."
+    },
+    "respons_frist_uten_hindring": {
+      "regelversjon": 1,
+      "frist_krav_id": "KRAV",
+      "frist_varsel_ok": true,
+      "spesifisert_krav_ok": true,
+      "vilkar_oppfylt": false,
+      "godkjent_dager": 0,
+      "begrunnelse": "Begrunnelse.",
+      "auto_begrunnelse": "Auto.",
+      "beregnings_resultat": "avslatt",
+      "krevd_dager": 30,
+      "subsidiaer_triggers": [
+        "ingen_hindring"
+      ],
+      "subsidiaer_resultat": "avslatt",
+      "subsidiaer_begrunnelse": "Begrunnelse."
+    },
+    "respons_vederlag_delvis": {
+      "vederlag_krav_id": "KRAV",
+      "regelversjon": 1,
+      "aksepterer_metode": true,
+      "hold_tilbake": false,
+      "hovedkrav_vurdering": "delvis",
+      "hovedkrav_godkjent_belop": 123456.785,
+      "rigg_godkjent_belop": 0,
+      "produktivitet_godkjent_belop": 0,
+      "begrunnelse": "Begrunnelse.",
+      "auto_begrunnelse": "Auto.",
+      "beregnings_resultat": "delvis_godkjent",
+      "total_godkjent_belop": 123456.79,
+      "total_krevd_belop": 500000
+    }
+  }
+}

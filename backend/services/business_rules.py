@@ -10,12 +10,8 @@ from dataclasses import dataclass
 
 from models.events import AnyEvent, EventType, ResponsEvent, SporStatus
 from models.sak_state import EOStatus, SakState, SaksType
-from regler.frist import (
-    PAABEROPT_33_6_1_ETTER_SVAR,
-    Fristkrav,
-    beregn_synlighet,
-    paaberoper_33_6_1_etter_svar_paa_foresporsel,
-)
+from regler import UgyldigVurdering
+from regler.sammenlikning import Avvik, FeilRegelversjon, kontroller_svar
 
 # Statuser uten noe sendt krav å trekke, eller med et krav som alt er oppgjort.
 # Samme regel for alle tre sporene.
@@ -80,7 +76,7 @@ class BusinessRuleValidator:
         for rule_name, rule_fn in rules:
             result = rule_fn(event, current_state)
             if not result.is_valid:
-                result.violated_rule = rule_name
+                result.violated_rule = result.violated_rule or rule_name
                 return result
 
         return ValidationResult(is_valid=True)
@@ -122,17 +118,18 @@ class BusinessRuleValidator:
                 ("TRACK_SENT", self._rule_grunnlag_sent),
                 ("NOT_LOCKED", self._rule_grunnlag_not_locked),
                 ("NOT_ALREADY_RESPONDED", self._rule_grunnlag_not_already_responded),
+                ("COMPUTED_RESULT", self._rule_serverens_utregning),
             ],
             EventType.RESPONS_VEDERLAG: [
                 ("TRACK_SENT", self._rule_vederlag_sent),
                 ("NOT_ALREADY_RESPONDED", self._rule_vederlag_not_already_responded),
+                ("COMPUTED_RESULT", self._rule_serverens_utregning),
             ],
             EventType.RESPONS_FRIST: [
                 ("TRACK_SENT", self._rule_frist_sent),
                 ("CLAIM_SPECIFIED", self._rule_frist_spesifisert),
-                ("REQUEST_ANSWERED", self._rule_frist_svar_paa_foresporsel),
-                ("SPECIFICATION_ASSESSED", self._rule_frist_spesifisert_krav_vurdert),
                 ("NOT_ALREADY_RESPONDED", self._rule_frist_not_already_responded),
+                ("COMPUTED_RESULT", self._rule_serverens_utregning),
             ],
             EventType.FRIST_INNSIGELSE_SENDT: [
                 ("CLAIM_UNSPECIFIED", self._rule_frist_uspesifisert),
@@ -148,17 +145,18 @@ class BusinessRuleValidator:
                 ("TRACK_SENT", self._rule_grunnlag_sent),
                 ("NOT_LOCKED", self._rule_grunnlag_not_locked),
                 ("PREVIOUS_RESPONSE", self._rule_previous_response),
+                ("COMPUTED_RESULT", self._rule_serverens_utregning),
             ],
             EventType.RESPONS_VEDERLAG_OPPDATERT: [
                 ("TRACK_SENT", self._rule_vederlag_sent),
                 ("PREVIOUS_RESPONSE", self._rule_previous_response),
+                ("COMPUTED_RESULT", self._rule_serverens_utregning),
             ],
             EventType.RESPONS_FRIST_OPPDATERT: [
                 ("TRACK_SENT", self._rule_frist_sent),
                 ("CLAIM_SPECIFIED", self._rule_frist_spesifisert),
-                ("REQUEST_ANSWERED", self._rule_frist_svar_paa_foresporsel),
-                ("SPECIFICATION_ASSESSED", self._rule_frist_spesifisert_krav_vurdert),
                 ("PREVIOUS_RESPONSE", self._rule_previous_response),
+                ("COMPUTED_RESULT", self._rule_serverens_utregning),
             ],
             # Cannot update locked grunnlag
             EventType.GRUNNLAG_OPPDATERT: [
@@ -394,6 +392,25 @@ class BusinessRuleValidator:
 
         return ValidationResult(is_valid=True)
 
+    def _rule_serverens_utregning(
+        self, event: AnyEvent, state: SakState
+    ) -> ValidationResult:
+        """B-13: serveren regner ut svaret av vurderingene og kravet, og et svar
+        der klientens verdier ikke er like, avvises. Er de like, skrives
+        serverens verdier inn i hendelsen, så det er de som lagres. Regelen står
+        sist, så hendelsen bare endres når alle andre regler holder."""
+        try:
+            verdier = kontroller_svar(event.spor.value, event.data, state)
+        except FeilRegelversjon as feil:
+            return ValidationResult(False, str(feil), "RULE_VERSION")
+        except UgyldigVurdering as feil:
+            return ValidationResult(False, f"Vurderingene kan ikke regnes ut: {feil}.", "ASSESSMENT_INVALID")
+        except Avvik as feil:
+            return ValidationResult(False, str(feil), "RESULT_MISMATCH")
+        for felt, verdi in verdier.items():
+            setattr(event.data, felt, verdi)
+        return ValidationResult(True)
+
     # ========== GRUNNLAG RULES ==========
 
     def _rule_grunnlag_required(
@@ -523,28 +540,6 @@ class BusinessRuleValidator:
                 "Send innsigelse mot sen varsling (§ 5) eller forespørsel om "
                 "spesifisert krav (§ 33.6.2).",
             )
-        return ValidationResult(True)
-
-    def _rule_frist_svar_paa_foresporsel(
-        self, event: AnyEvent, state: SakState
-    ) -> ValidationResult:
-        if paaberoper_33_6_1_etter_svar_paa_foresporsel(
-            state.frist.kravet_besvarer_foresporselen, event.data.spesifisert_krav_ok
-        ):
-            return ValidationResult(False, f"{PAABEROPT_33_6_1_ETTER_SVAR}.")
-        return ValidationResult(True)
-
-    def _rule_frist_spesifisert_krav_vurdert(
-        self, event: AnyEvent, state: SakState
-    ) -> ValidationResult:
-        """Modellen setter `spesifisert_krav_ok=True` når feltet mangler. Der
-        § 33.6.1-spørsmålet stilles, ville journalen da si at BH har vurdert
-        kravet som i tide uten å ha gjort det."""
-        if (
-            beregn_synlighet(Fristkrav.fra_tilstand(state)).spesifisert_krav_ok
-            and "spesifisert_krav_ok" not in event.data.model_fields_set
-        ):
-            return ValidationResult(False, "spesifisert_krav_ok mangler (§ 33.6.1).")
         return ValidationResult(True)
 
     def _rule_frist_uspesifisert(
