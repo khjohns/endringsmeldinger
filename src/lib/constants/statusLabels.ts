@@ -8,16 +8,6 @@
 import type { OverordnetStatus, SporStatus } from '../types/timeline';
 
 /**
- * Statuser som regnes som aktive (ikke avsluttet/lukket)
- */
-export const AKTIVE_OVERORDNET_STATUSER: OverordnetStatus[] = [
-  'UTKAST',
-  'SENDT',
-  'VENTER_PAA_SVAR',
-  'UNDER_BEHANDLING',
-];
-
-/**
  * Overordnet saks-status til lesbar label
  */
 export const OVERORDNET_STATUS_LABELS: Record<OverordnetStatus, string> = {
@@ -55,10 +45,3 @@ export const SPOR_STATUS_LABELS: Record<SporStatus, string> = {
   avslatt_akseptert: 'Avslag godtatt',
   laast: 'Låst',
 };
-
-/**
- * Hent lesbar label for spor-status
- */
-export function getSporStatusLabel(status: SporStatus): string {
-  return SPOR_STATUS_LABELS[status] || status;
-}
