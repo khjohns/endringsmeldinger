@@ -90,4 +90,21 @@ describe('BH på et fristvarsel uten dager', () => {
       'tapes kravet på fristforlengelse'
     );
   });
+
+  it('vises uten godkjenningsrett, fordi handlingene går utenom godkjenningen', async () => {
+    // Oppdragsgiver 2026-10-04: innsigelse og forespørsel sendes uten intern godkjenning.
+    vi.mocked(apiFetch).mockResolvedValue({
+      state: { version: 0, items: [], packages: [] },
+      actor: 'leser@test',
+      chain: [],
+      canPrepare: false,
+    } as never);
+    const screen = render(WorkspaceHarness, {
+      workspace: arbeidsflate(vi.fn()),
+      view: { track: 'frist', role: 'BH', mode: 'form' },
+    });
+
+    expect(await screen.findByRole('radio', { name: 'Be om spesifisert krav' })).toBeTruthy();
+    expect(screen.queryByText('Åpne brev for å behandle godkjenningspakken.')).toBeNull();
+  });
 });

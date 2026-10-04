@@ -187,15 +187,6 @@ BH_BINDENDE_EVENTS = frozenset(
 # klassifiseres av den som legger den til, framfor å falle utenfor porten.
 IKKE_BH_BINDENDE_EVENTS = frozenset(set(EventType) - BH_BINDENDE_EVENTS)
 
-# BH-brev som ikke går gjennom godkjenningspakken, og som derfor får
-# referansene stemplet her, slik TEs brev får.
-BREV_FRA_BH_UTEN_GODKJENNING = frozenset(
-    {
-        EventType.FRIST_INNSIGELSE_SENDT.value,
-        EventType.FRIST_FORESPORSEL_SENDT.value,
-    }
-)
-
 
 # ============ VEDERLAG ENUMS ============
 
@@ -2263,9 +2254,10 @@ def parse_event_from_request(request_data: dict) -> AnyEvent:
             request_data["spor"] = spor_map.get(event_type)
 
     letter = request_data.get('data', {}).get('brev')
+    # Et BH-brev som binder, får referansene sine i godkjenningspakken.
     if letter and (
         request_data.get('aktor_rolle') == 'TE'
-        or event_type in BREV_FRA_BH_UTEN_GODKJENNING
+        or event_type not in {e.value for e in BH_BINDENDE_EVENTS}
     ):
         letter = LetterSnapshot.model_validate(letter)
         letter.referanser.eventId = request_data['event_id']

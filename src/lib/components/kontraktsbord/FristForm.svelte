@@ -189,7 +189,7 @@
     if (computed.visibility.showSpesifisertKravOk && spesifisertKravOk === undefined) return false;
     if (computed.visibility.showForesporselSvarOk && foresporselSvarOk === undefined) return false;
     if (vilkarOppfylt === undefined) return false;
-    if (computed.showGodkjentDager && godkjentDager === undefined) return false;
+    if (godkjentDager === undefined) return false;
     if (isHtmlEmpty(begrunnelseHtml)) return false;
     return true;
   });
@@ -457,26 +457,24 @@
       )}
     </QuestionCard>
 
-    {#if computed.showGodkjentDager}
-      <QuestionCard
-        title="Utmåling"
-        paragrafRef="§ 33.5"
-        description="Fristforlengelsen skal svare til virkningen kontraktsforholdet har hatt på fremdriften."
-        subsidiary={isSubsidiaer}
-      >
-        <NumberField
-          id="bh-frist-godkjent-dager"
-          label={isSubsidiaer || computed.port3ErSubsidiaer
-            ? 'Subsidiært vurdert fristforlengelse'
-            : 'Godkjent fristforlengelse'}
-          suffix="kalenderdager"
-          value={godkjentDager}
-          max={domainConfig.krevdDager}
-          hint={`Av ${domainConfig.krevdDager} dager krevd`}
-          onchange={(value) => (godkjentDager = value)}
-        />
-      </QuestionCard>
-    {/if}
+    <QuestionCard
+      title="Utmåling"
+      paragrafRef="§ 33.5"
+      description="Fristforlengelsen skal svare til virkningen kontraktsforholdet har hatt på fremdriften."
+      subsidiary={isSubsidiaer}
+    >
+      <NumberField
+        id="bh-frist-godkjent-dager"
+        label={isSubsidiaer || computed.port3ErSubsidiaer
+          ? 'Subsidiært vurdert fristforlengelse'
+          : 'Godkjent fristforlengelse'}
+        suffix="kalenderdager"
+        value={godkjentDager}
+        max={domainConfig.krevdDager}
+        hint={`Av ${domainConfig.krevdDager} dager krevd`}
+        onchange={(value) => (godkjentDager = value)}
+      />
+    </QuestionCard>
 
     {#if allAnswered}
       <section class="result-box konsekvens-{resultat.variant}">

@@ -76,7 +76,11 @@
     reviewing: boolean;
   } | null>(null);
   const bhSvarerPaaFristvarsel = $derived.by(
-    () => sel === 'frist' && role === 'BH' && !kravetErSpesifisert(store.sak.frist)
+    () =>
+      sel === 'frist' &&
+      role === 'BH' &&
+      store.sak.frist.status === 'sendt' &&
+      !kravetErSpesifisert(store.sak.frist)
   );
   const brevInnhold = $derived(letterEvent ? buildLetterContent(letterEvent, store.sak) : null);
 
@@ -293,6 +297,8 @@
                 onform={goForm}
                 onbacktonow={() => (activeEvent = null)}
               />
+            {:else if bhSvarerPaaFristvarsel}
+              <FristVarselForm onsend={goMatrix} onactions={(a) => (formActions = a)} />
             {:else if role === 'BH' && (!approval.loaded || !approval.canPrepare)}
               <div class="approval-entry">
                 <p role={approval.error ? 'alert' : 'status'}>

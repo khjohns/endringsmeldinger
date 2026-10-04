@@ -891,7 +891,11 @@ class TimelineService:
         """Forespørselen gir TE svarplikt (§ 33.6.2); resultat og status står."""
         frist = state.frist
         frist.har_bh_foresporsel = True
-        frist.dato_bh_foresporsel = event.tidsstempel.date().isoformat()
+        from zoneinfo import ZoneInfo
+
+        frist.dato_bh_foresporsel = (
+            event.tidsstempel.astimezone(ZoneInfo("Europe/Oslo")).date().isoformat()
+        )
         frist.foresporsel_krav_id = frist.krav_event_id
         frist.frist_for_spesifisering = (
             event.data.svarfrist.isoformat() if event.data.svarfrist else None
