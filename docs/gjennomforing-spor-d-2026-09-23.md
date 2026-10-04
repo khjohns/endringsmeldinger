@@ -166,6 +166,9 @@ ingen egen form for noen av dem: begge må sendes som et fristsvar med
 venter derfor på hvordan innsigelsen og forespørselen skal registreres, som
 henger sammen med DRF-01 og B-13.
 
+*Merknad 2026-10-04:* rettet; se TFR-06 i [hovedplanen, 4.2](plans/2026-09-16-godkjenning-og-varig-levering.md)
+og [gjennomføringen](gjennomforing-noytralt-fristvarsel-2026-10-04.md).
+
 ### GFK-06: godkjent ansvar verdsettes til 0 kr
 
 Reprodusert gjennom `ApprovalService`: en prosjektleder (200 000 kr) godkjenner

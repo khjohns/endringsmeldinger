@@ -120,6 +120,10 @@ To forhold må avgjøres før rettingen, og de henger sammen med TFR-06:
 Forespørselen blir en egen handling som ikke gjør sporet avslått og ikke åpner
 forsering; se [hovedplanen, 3.1](plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger).
 
+*Merknad 2026-10-04:* rettet. Forespørselen er hendelsen
+`frist_foresporsel_sendt`; se DRF-01 i hovedplanen, 4.2, og
+[gjennomføringen](gjennomforing-noytralt-fristvarsel-2026-10-04.md).
+
 ### DRF-02: felt som forsvinner uten feilmelding
 
 Svarmodellene har Pydantics standard `extra="ignore"`. Et felt modellen ikke
