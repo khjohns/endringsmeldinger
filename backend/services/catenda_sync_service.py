@@ -26,7 +26,6 @@ class CatendaSyncResult:
     success: bool
     comment_posted: bool
     status_updated: bool
-    pdf_uploaded: bool = False
     error: str | None = None
     skipped_reason: str | None = None  # 'no_topic_id', 'not_authenticated', 'no_client'
 
