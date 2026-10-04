@@ -70,7 +70,11 @@ issue. Oppdraget skal inneholde:
 - avgjørelser oppdragsgiver allerede har tatt, ordrett;
 - at ingen følger økta: den stiller ikke spørsmål, velger det konservative
   alternativet og fører valget under «Åpne spørsmål» i PR-beskrivelsen;
-- at funn utenfor oppdraget blir egne issues (regelen i `AGENTS.md`);
+- at funn utenfor oppdraget blir egne issues (regelen i `AGENTS.md`), og at
+  økta løser et slikt funn i samme PR med `Closes #n` når det er lite og
+  ligger i filene den allerede endrer eller har samme rotårsak. En ny økt for
+  en liten retting koster mer i kontekst enn rettingen. Funn i andre øktes
+  filer eller som krever en avgjørelse, blir bare issues;
 - hvilke sjekker som skal kjøres før push, og nettleserkontroll der issuet
   krever det;
 - PR mot `main` med `Closes #n`, eller «Del av #n» når bare en del leveres,
