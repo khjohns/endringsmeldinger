@@ -506,6 +506,30 @@ describe('buildEventData', () => {
     expect(data.regelversjon).toBe(REGELVERSJON);
   });
 
+  it('sends the subsidiary days when principally rejected (#176)', () => {
+    const state = makeState({ godkjentDager: 7 });
+    const computed = {
+      prinsipaltResultat: 'avslatt' as const,
+      subsidiaertResultat: 'delvis_godkjent' as const,
+      visSubsidiaertResultat: true,
+      subsidiaerTriggers: ['preklusjon_varsel' as const],
+    };
+    const data = buildEventData(state, makeConfig(), computed, 'frist-1', 'auto-tekst');
+    expect(data.godkjent_dager).toBe(0);
+    expect(data.subsidiaer_godkjent_dager).toBe(7);
+  });
+
+  it('omits subsidiary days when the subsidiary result is avslatt', () => {
+    const computed = {
+      prinsipaltResultat: 'avslatt' as const,
+      subsidiaertResultat: 'avslatt' as const,
+      visSubsidiaertResultat: true,
+      subsidiaerTriggers: ['ingen_hindring' as const],
+    };
+    const data = buildEventData(makeState(), makeConfig(), computed, 'frist-1', 'auto-tekst');
+    expect(data.subsidiaer_godkjent_dager).toBeUndefined();
+  });
+
   it('omits subsidiaer fields when prinsipalt is not avslatt', () => {
     const state = makeState({ begrunnelse: 'Test begrunnelse' });
     const config = makeConfig();
