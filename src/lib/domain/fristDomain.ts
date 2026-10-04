@@ -216,7 +216,7 @@ export function buildEventData(
     subsidiaer_resultat: computed.visSubsidiaertResultat ? computed.subsidiaertResultat : undefined,
     subsidiaer_godkjent_dager:
       computed.visSubsidiaertResultat && computed.subsidiaertResultat !== 'avslatt'
-        ? effectiveGodkjentDager
+        ? (state.godkjentDager ?? 0)
         : undefined,
     subsidiaer_begrunnelse: computed.visSubsidiaertResultat
       ? state.begrunnelse || autoBegrunnelse
