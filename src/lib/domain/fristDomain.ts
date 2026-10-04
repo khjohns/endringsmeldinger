@@ -20,6 +20,8 @@ export interface FristDomainConfig {
   varselType?: 'varsel' | 'spesifisert' | 'begrunnelse_utsatt';
   krevdDager: number;
   erSvarPaForesporsel: boolean;
+  /** BH har gjort innsigelse mot § 33.4-varselet før kravet fikk dager (§ 5) */
+  harInnsigelseMotVarsel?: boolean;
   harTidligereVarselITide: boolean;
   erGrunnlagSubsidiaer: boolean;
   erHelFristSubsidiaerPgaGrunnlag: boolean;
@@ -48,6 +50,8 @@ export interface FristComputedValues {
 export interface FristDefaultsConfig {
   krevdDager: number;
   isUpdateMode: boolean;
+  /** Innsigelsen etter § 5 er BHs standpunkt til § 33.4 og fylles inn */
+  harInnsigelseMotVarsel?: boolean;
   lastResponseEvent?: {
     godkjent_dager?: number;
   };
@@ -73,7 +77,7 @@ export function getDefaults(config: FristDefaultsConfig): FristFormState {
   }
   // New mode: no pre-selection — user must make explicit choices
   return {
-    fristVarselOk: undefined,
+    fristVarselOk: config.harInnsigelseMotVarsel ? false : undefined,
     spesifisertKravOk: undefined,
     foresporselSvarOk: undefined,
     vilkarOppfylt: undefined,
@@ -91,7 +95,7 @@ export function beregnVisibility(
 
   const showFristVarselOk = (() => {
     if (erBegrunnelseUtsatt) return false;
-    if (config.erSvarPaForesporsel) return false;
+    if (config.erSvarPaForesporsel) return Boolean(config.harInnsigelseMotVarsel);
     if (config.varselType === 'varsel') return true;
     if (config.varselType === 'spesifisert') return !config.harTidligereVarselITide;
     return false;

@@ -75,8 +75,8 @@
     send: () => void;
     reviewing: boolean;
   } | null>(null);
-  const bhSvarerPaaFristvarsel = $derived(
-    sel === 'frist' && role === 'BH' && !kravetErSpesifisert(store.sak.frist)
+  const bhSvarerPaaFristvarsel = $derived.by(
+    () => sel === 'frist' && role === 'BH' && !kravetErSpesifisert(store.sak.frist)
   );
   const brevInnhold = $derived(letterEvent ? buildLetterContent(letterEvent, store.sak) : null);
 

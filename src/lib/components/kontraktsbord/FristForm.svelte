@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { untrack } from 'svelte';
   import SkjemaStatus from './SkjemaStatus.svelte';
   let vedleggIds = $state<string[]>([]);
   let vedleggOpptatt = $state(false);
@@ -55,9 +56,11 @@
   const previous = store.isDemo
     ? undefined
     : (submissionRefs(store.timeline, 'frist').response?.data as ResponsFristEventData | undefined);
+  const startConfig = untrack(() => domainConfig);
   const initialDefaults = getDefaults({
-    krevdDager: domainConfig.krevdDager,
+    krevdDager: startConfig.krevdDager,
     isUpdateMode: Boolean(previous),
+    harInnsigelseMotVarsel: startConfig.harInnsigelseMotVarsel,
     lastResponseEvent: previous
       ? { godkjent_dager: previous.subsidiaer_godkjent_dager ?? previous.godkjent_dager }
       : undefined,
