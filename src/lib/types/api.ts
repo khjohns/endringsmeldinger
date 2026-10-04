@@ -77,7 +77,9 @@ export type FristEndringType =
   | 'respons'
   | 'respons_oppdatert'
   | 'spesifisert'
-  | 'akseptert';
+  | 'akseptert'
+  | 'innsigelse'
+  | 'foresporsel';
 
 export interface GrunnlagHistorikkEntry {
   versjon: number;

@@ -17,6 +17,8 @@ export const EVENT_TYPE_LABELS: Record<EventType, string> = {
   frist_krav_oppdatert: 'Fristkrav oppdatert',
   frist_krav_spesifisert: 'Fristkrav fremsatt',
   frist_krav_trukket: 'Fristkrav trukket',
+  frist_innsigelse_sendt: 'Innsigelse mot sen varsling',
+  frist_foresporsel_sendt: 'Forespørsel om spesifisert krav',
   respons_grunnlag: 'Svar på kontraktsforhold',
   respons_grunnlag_oppdatert: 'Svar på kontraktsforhold oppdatert',
   respons_vederlag: 'Svar på vederlagskrav',
