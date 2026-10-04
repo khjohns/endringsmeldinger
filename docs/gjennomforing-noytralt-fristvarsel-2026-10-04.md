@@ -79,6 +79,13 @@ mangler (`fristVarselDomain.foresporselTekst`). Serveren stempler
 begrunnelsesgeneratoren. Brevkontrollen sier «Send til entreprenøren» når
 mottakeren er TE.
 
+**Innsigelsen i det fulle svaret.** Har BH gjort innsigelse og sendt
+forespørsel, og TE så spesifiserer, skjulte skjemaet § 33.4-spørsmålet fordi
+kravet er et svar på forespørselen, og svaret ble prinsipalt godkjent mens
+tilstanden sa at varselet kom for sent. Funnet i code-review av PR #174.
+`FristDomainConfig.harInnsigelseMotVarsel` viser nå spørsmålet og fyller inn
+innsigelsen som standpunkt.
+
 **Ellers:** tidslinjehistorikken (`innsigelse`, `foresporsel`), etikettene i
 backend og frontend, Catenda-kommentaren (egen tittel, og en linje om
 forespørselen og svarfristen), CloudEvents-skjemaet og hendelseskatalogen.
@@ -130,4 +137,4 @@ koden.
 - Testene mot `/api/events` går mot `JsonFileEventRepository` gjennom
   oppsettet i BR-01-testene. Regel- og tilstandstestene har ingen lageravhengighet.
 
-Oppfølgingen står i issues med etiketten `review-oppfølging`.
+Oppfølgingen står i #172 og #173.

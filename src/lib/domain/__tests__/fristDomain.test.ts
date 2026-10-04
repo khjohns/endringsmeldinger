@@ -140,6 +140,39 @@ describe('beregnVisibility', () => {
 // beregnPreklusjon
 // ============================================================================
 
+describe('innsigelse og forespørsel før spesifiseringen', () => {
+  // Vedtak om nøytralt fristvarsel (hovedplanen 3.1, 23.09) og NS 8407 § 5 tredje
+  // ledd: innsigelsen mot § 33.4-varselet gjelder også når TE senere svarer på
+  // forespørselen med dager.
+  const config = makeConfig({ erSvarPaForesporsel: true, harInnsigelseMotVarsel: true });
+
+  it('viser § 33.4-spørsmålet ved siden av svaret på forespørselen', () => {
+    const vis = beregnVisibility(makeState(), config);
+    expect(vis.showFristVarselOk).toBe(true);
+    expect(vis.showForesporselSvarOk).toBe(true);
+  });
+
+  it('gir prinsipalt avslag når varselet er for sent', () => {
+    const resultat = beregnAlt(makeState({ fristVarselOk: false }), config);
+    expect(resultat.erPrekludert).toBe(true);
+    expect(resultat.prinsipaltResultat).toBe('avslatt');
+  });
+
+  it('fyller inn innsigelsen som standpunkt til § 33.4', () => {
+    const defaults = getDefaults({
+      krevdDager: 10,
+      isUpdateMode: false,
+      harInnsigelseMotVarsel: true,
+    });
+    expect(defaults.fristVarselOk).toBe(false);
+  });
+
+  it('uten innsigelse er spørsmålet skjult som før', () => {
+    const vis = beregnVisibility(makeState(), makeConfig({ erSvarPaForesporsel: true }));
+    expect(vis.showFristVarselOk).toBe(false);
+  });
+});
+
 describe('beregnPreklusjon', () => {
   it('returns true for varsel when fristVarselOk is false', () => {
     expect(
