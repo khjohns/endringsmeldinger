@@ -9,7 +9,7 @@ BACKEND = Path(__file__).resolve().parents[2]
 
 def test_regelmodulen_laster_verken_flask_eller_lagring():
     kode = (
-        "import sys, regler.vederlag, regler.grunnlag; "
+        "import sys, regler.vederlag, regler.grunnlag, regler.frist; "
         "forbudt = ('flask', 'repositories', 'services', 'routes', 'lib', 'core', 'supabase', 'psycopg'); "
         "print(sorted({m.split('.')[0] for m in sys.modules} & set(forbudt)))"
     )

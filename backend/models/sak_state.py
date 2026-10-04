@@ -716,6 +716,10 @@ class FristTilstand(BaseModel):
         default=None,
         description="TE-hendelsen siste forespørsel (§33.6.2) gjaldt",
     )
+    foresporsel_besvart_krav_id: str | None = Field(
+        default=None,
+        description="TE-kravet med dager som besvarte forespørselen (§ 33.6.2 annet ledd a)",
+    )
     begrunnelse_varsel: str | None = Field(default=None)
 
     # BH respons - Port 2 (Vilkår/Årsakssammenheng)
@@ -757,6 +761,15 @@ class FristTilstand(BaseModel):
         return (
             self.foresporsel_krav_id is not None
             and self.foresporsel_krav_id == self.krav_event_id
+        )
+
+    @computed_field
+    @property
+    def kravet_besvarer_foresporselen(self) -> bool:
+        """§ 33.6.2 fjerde ledd gjelder kravet som svarte, ikke senere revisjoner."""
+        return (
+            self.foresporsel_besvart_krav_id is not None
+            and self.foresporsel_besvart_krav_id == self.krav_event_id
         )
 
     # Differanse-info

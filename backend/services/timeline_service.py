@@ -639,6 +639,8 @@ class TimelineService:
             }:
                 frist.status = SporStatus.SENDT
 
+        if frist.foresporsel_venter_svar and frist.krevd_dager is not None:
+            frist.foresporsel_besvart_krav_id = event.event_id
         frist.krav_event_id = event.event_id
 
         # Metadata
