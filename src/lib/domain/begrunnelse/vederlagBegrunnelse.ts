@@ -17,7 +17,7 @@ import type { VederlagsMetode } from '../../types/timeline';
 import type { VederlagDomainConfig } from '../vederlagDomain';
 import { har34_1_2Preklusjon } from '../vederlagDomain';
 import type { BelopVurdering, BegrunnelseGeneratorOptions } from './shared';
-import { formatCurrency, formatProsent, getVurderingVerb } from './shared';
+import { andelProsent, formatCurrency, formatProsent, getVurderingVerb } from './shared';
 
 // ============================================================================
 // TYPES
@@ -235,7 +235,7 @@ function generateHovedkravSection(
 
     case 'delvis': {
       const godkjent = hovedkravGodkjentBelop ?? 0;
-      const prosentValue = hovedkravBelop > 0 ? Math.round((godkjent / hovedkravBelop) * 100) : 0;
+      const prosentValue = andelProsent(godkjent, hovedkravBelop);
       return (
         `${terminologi.kravLabel} ${terminologi.akseptVerb} delvis med ${formatCurrency(godkjent, useTokens)} ` +
         `av krevde ${formatCurrency(hovedkravBelop, useTokens)} (${formatProsent(prosentValue, useTokens)}).`

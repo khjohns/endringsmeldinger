@@ -4,6 +4,7 @@
 
 import { differenceInDays } from 'date-fns';
 import type { GrunnlagResponsResultat } from '../types/timeline';
+import { REGELVERSJON } from './regelversjon';
 
 export interface GrunnlagFormState {
   varsletITide: boolean | undefined;
@@ -136,6 +137,7 @@ export function buildEventData(
 
   if (config.isUpdateMode && config.lastResponseEventId) {
     return {
+      regelversjon: REGELVERSJON,
       original_respons_id: config.lastResponseEventId,
       resultat: state.resultat,
       begrunnelse: state.begrunnelse,
@@ -145,6 +147,7 @@ export function buildEventData(
   }
 
   return {
+    regelversjon: REGELVERSJON,
     grunnlag_event_id: config.grunnlagEventId,
     resultat: state.resultat,
     begrunnelse: state.begrunnelse,

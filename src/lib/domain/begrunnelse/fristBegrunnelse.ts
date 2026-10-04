@@ -17,7 +17,7 @@
 
 import type { FristVarselType } from '../../types/timeline';
 import type { BegrunnelseGeneratorOptions } from './shared';
-import { formatDager, formatProsent } from './shared';
+import { andelProsent, formatDager, formatProsent } from './shared';
 
 // ============================================================================
 // TYPES
@@ -171,7 +171,7 @@ function generateFristBeregningSection(
     return prefix + `Kravet om ${fmtKrevd}s fristforlengelse godkjennes i sin helhet.`;
   }
 
-  const prosentValue = krevdDager > 0 ? Math.round((godkjentDager / krevdDager) * 100) : 0;
+  const prosentValue = andelProsent(godkjentDager, krevdDager);
   const fmtProsent = formatProsent(prosentValue, useTokens);
   return (
     prefix + `Kravet godkjennes delvis med ${fmtGodkjent} av krevde ${fmtKrevd} (${fmtProsent}).`

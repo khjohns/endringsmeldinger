@@ -49,13 +49,13 @@ export function deriveFristDomainConfig(sak: SakState): FristDomainConfig {
   return {
     varselType: f.varsel_type,
     krevdDager: f.krevd_dager ?? 0,
-    erSvarPaForesporsel: !!f.har_bh_foresporsel,
+    erSvarPaForesporsel: f.kravet_besvarer_foresporselen === true,
     harInnsigelseMotVarsel: f.frist_varsel_ok === false,
     // Bare et uttrykkelig tidligere BH-standpunkt kan gjøre § 33.4-vurderingen overflødig.
     // Et innsendt varsel uten svar er fortsatt ikke vurdert.
     harTidligereVarselITide:
       f.frist_varsel_ok === true ||
-      (f.bh_respondert_versjon !== undefined && f.frist_varsel_ok !== false),
+      (typeof f.bh_respondert_versjon === 'number' && f.frist_varsel_ok !== false),
     erGrunnlagSubsidiaer: g.bh_resultat === 'avslatt',
     erHelFristSubsidiaerPgaGrunnlag: g.grunnlag_varslet_i_tide === false,
   };

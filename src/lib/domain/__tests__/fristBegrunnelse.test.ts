@@ -24,4 +24,25 @@ describe('generateFristResponseBegrunnelse', () => {
     expect(begrunnelse).toContain('fremsatt for sent iht. §33.6.1');
     expect(begrunnelse).toContain('Subsidiært');
   });
+
+  it('viser aldri 100 % ved delvis godkjenning (#177)', () => {
+    const begrunnelse = generateFristResponseBegrunnelse({
+      varselType: 'spesifisert',
+      krevdDager: 200,
+      fristVarselOk: true,
+      spesifisertKravOk: true,
+      vilkarOppfylt: true,
+      godkjentDager: 199,
+      erPrekludert: false,
+      erRedusert_33_6_1: false,
+      harTidligereVarselITide: true,
+      erGrunnlagSubsidiaer: false,
+      erGrunnlagPrekludert: false,
+      prinsipaltResultat: 'delvis_godkjent',
+      subsidiaertResultat: 'delvis_godkjent',
+      visSubsidiaertResultat: false,
+    });
+
+    expect(begrunnelse).toContain('199 dager av krevde 200 dager (99%)');
+  });
 });
