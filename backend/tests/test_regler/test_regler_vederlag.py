@@ -696,10 +696,12 @@ class TestKontroll:
         with pytest.raises(UgyldigVurdering, match="aksepterer_metode"):
             beregn_vederlag(krav(), vurdering(aksepterer_metode=None))
 
-    def test_mangler_ep_varselspoersmaal(self):
-        # NS 8407 § 34.3.3 første ledd.
-        with pytest.raises(UgyldigVurdering, match="varsel_justert_ep_ok"):
-            beregn_vederlag(krav(krever_justert_ep=True), vurdering())
+    def test_ep_varselspoersmaal_kan_mangle(self):
+        # NS 8407 § 34.3.3 første ledd. Skjemaet stiller ikke spørsmålet, og
+        # feltet det sender, fjernes ved parsing (DRF-02). Uten svar er det
+        # ingen reduksjon å regne inn.
+        r = beregn_vederlag(krav(krever_justert_ep=True), vurdering())
+        assert SubsidiaerTrigger.REDUKSJON_EP_JUSTERING not in r.subsidiaer_triggers
 
     def test_delvis_over_krevd_belop(self):
         with pytest.raises(UgyldigVurdering, match="hovedkrav_godkjent_belop"):
@@ -711,6 +713,15 @@ class TestKontroll:
         with pytest.raises(UgyldigVurdering, match="hovedkrav_godkjent_belop"):
             beregn_vederlag(
                 krav(), vurdering(hovedkrav_vurdering=D, hovedkrav_godkjent_belop=-1)
+            )
+
+    @pytest.mark.parametrize("verdi", [float("nan"), float("inf"), float("-inf")])
+    def test_delvis_belop_som_ikke_er_et_tall(self, verdi):
+        # JSON-parseren godtar NaN og Infinity. Avvisningen skal være en
+        # `UgyldigVurdering`, ikke en `decimal.InvalidOperation`.
+        with pytest.raises(UgyldigVurdering, match="hovedkrav_godkjent_belop"):
+            beregn_vederlag(
+                krav(), vurdering(hovedkrav_vurdering=D, hovedkrav_godkjent_belop=verdi)
             )
 
     def test_hold_tilbake_bare_ved_regningsarbeid_uten_overslag(self):
