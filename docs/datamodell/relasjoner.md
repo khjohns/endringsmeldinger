@@ -762,8 +762,6 @@ Steder i backend som kaller Catenda-klienten, men ikke er en del av appens dataf
 
 | Fil | Funksjon | Begrunnelse |
 | --- | --- | --- |
-| [`services/catenda_webhook_service.py`](../../backend/services/catenda_webhook_service.py) | `WebhookService.handle_pdf_upload` | Ingen kaller, heller ikke i testene (L 29.09). |
-| [`services/base_sak_service.py`](../../backend/services/base_sak_service.py) | `BaseSakService._create_topic_with_relations` | Ingen kaller, heller ikke i testene (L 29.09). Forsering og endringsordre oppretter topicen selv. |
 | [`scripts/catenda_admin.py`](../../backend/scripts/catenda_admin.py) | `cmd_teams` | Viser teamene i et Catenda-prosjekt for drift. Skriver ingenting. |
 | [`scripts/setup_webhooks.py`](../../backend/scripts/setup_webhooks.py) | hele fila | Driftsverktøy som oppretter, lister og sletter webhook-abonnementet i Catenda som C01 og C02 forutsetter. Skriver ingen tabell. |
 | [`scripts/setup_authentication.py`](../../backend/scripts/setup_authentication.py) | hele fila | Utviklerverktøy for å hente et token og velge bibliotek. Skriver ingen tabell. |

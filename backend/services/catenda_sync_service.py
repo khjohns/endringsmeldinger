@@ -2,7 +2,6 @@
 CatendaSyncService - Gjenbrukbar service for synkronisering av events til Catenda.
 
 Håndterer posting av kommentarer og oppdatering av status for alle sakstyper.
-Designet for å kunne utvides med PDF-støtte i fremtiden.
 """
 
 from dataclasses import dataclass
@@ -27,8 +26,6 @@ class CatendaSyncResult:
     success: bool
     comment_posted: bool
     status_updated: bool
-    pdf_uploaded: bool = False
-    pdf_source: str | None = None  # 'client', 'server', eller None
     error: str | None = None
     skipped_reason: str | None = None  # 'no_topic_id', 'not_authenticated', 'no_client'
 
@@ -39,8 +36,6 @@ class CatendaSyncService:
 
     Gjenbrukbar service som kan brukes av alle routes som trenger
     å poste kommentarer og oppdatere status i Catenda.
-
-    Designet for fremtidig PDF-støtte.
     """
 
     def __init__(
@@ -82,16 +77,11 @@ class CatendaSyncService:
         event: AnyEvent,
         topic_id: str,
         old_status: str | None = None,
-        # Reservert for fremtidig PDF-støtte
-        pdf_base64: str | None = None,
-        _pdf_filename: str | None = None,
-        _generate_pdf_on_server: bool = False,
     ) -> CatendaSyncResult:
         """
         Synkroniser et event til Catenda.
 
-        Poster kommentar og oppdaterer status. PDF-parametrene er
-        reservert for fremtidig bruk.
+        Poster kommentar og oppdaterer status.
 
         Args:
             sak_id: Sak-ID
@@ -99,9 +89,6 @@ class CatendaSyncService:
             event: Eventet som skal synkroniseres
             topic_id: Catenda topic GUID
             old_status: Gammel overordnet_status (for å detektere endring)
-            pdf_base64: (Fremtidig) Base64-kodet PDF fra klient
-            pdf_filename: (Fremtidig) Filnavn for PDF
-            generate_pdf_on_server: (Fremtidig) Om server skal generere PDF
 
         Returns:
             CatendaSyncResult med status for hver operasjon
@@ -132,9 +119,6 @@ class CatendaSyncService:
                 status_updated = self._update_status(
                     catenda_service, topic_id, state.overordnet_status
                 )
-
-            # 3. (Fremtidig) PDF-håndtering
-            # TODO: Implementer PDF-upload når det blir nødvendig for forsering
 
             success = comment_posted  # Minimum: kommentar postet
             logger.info(

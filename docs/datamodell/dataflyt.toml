@@ -922,16 +922,6 @@ data = "Prosjektnavnet i Catenda, for hvert registrert prosjekt."
 # ---------------------------------------------------------------------------
 
 [[uten_flyt]]
-fil = "backend/services/catenda_webhook_service.py"
-funksjon = "WebhookService.handle_pdf_upload"
-begrunnelse = "Ingen kaller, heller ikke i testene (L 29.09)."
-
-[[uten_flyt]]
-fil = "backend/services/base_sak_service.py"
-funksjon = "BaseSakService._create_topic_with_relations"
-begrunnelse = "Ingen kaller, heller ikke i testene (L 29.09). Forsering og endringsordre oppretter topicen selv."
-
-[[uten_flyt]]
 fil = "backend/scripts/catenda_admin.py"
 funksjon = "cmd_teams"
 begrunnelse = "Viser teamene i et Catenda-prosjekt for drift. Skriver ingenting."
