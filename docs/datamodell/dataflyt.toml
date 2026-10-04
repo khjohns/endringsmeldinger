@@ -349,9 +349,10 @@ beskrivelse = """
 Hendelsen lagres først, og en feil i Catenda gjør ikke innsendingen
 mislykket. Topic og board leses fra `sak_metadata`; prosjekt, bibliotek og
 mappe fra de globale innstillingene (INT-06). Vedleggene i hendelsen sendes i
-C08."""
+C08. Bare et frosset brev blir PDF; en hendelse uten brev får kommentar og
+statussynk (B-03)."""
 funn = ["INT-06", "RV-10"]
-belegg = "L 29.09: `submit_event` og `_post_to_catenda` med hjelpefunksjonene."
+belegg = "L 03.10: `submit_event` og `_post_to_catenda` med hjelpefunksjonene."
 
 [[flyt.steg]]
 fra = "hendelse"
@@ -363,8 +364,8 @@ kode = [
     "backend/services/catenda_service.py:CatendaService.upload_document",
 ]
 data = """
-PDF av brevet eller saken. Et frosset brev i hendelsen gjøres til PDF og må
-komme gjennom; ellers lages PDF-en på serveren."""
+Det frosne brevet i hendelsen som PDF, og bare det. En hendelse uten brev
+laster ikke opp noe."""
 
 [[flyt.steg]]
 fra = "hendelse"
@@ -405,8 +406,8 @@ kode = [
     "backend/services/catenda_delivery_status.py:CatendaDeliveryStatus.record",
 ]
 data = """
-`pending` før hendelsen lagres. Så `delivered` bare når PDF, kommentar og
-status alle lyktes, ellers `failed`."""
+`pending` før hendelsen lagres. Så `delivered` når kommentar og status
+lyktes, og brevet er lastet opp når hendelsen har et; ellers `failed`."""
 
 [[flyt]]
 id = "C07"
@@ -415,8 +416,8 @@ retning = "ut"
 utloses_av = "`POST /api/cases/<sak_id>/approvals` med `action: publish`, etter intern godkjenning."
 beskrivelse = """
 Svarene skrives til journalen, og leveringen går gjennom de samme kallene som
-C06, med det godkjente brevet frosset i pakken. En PDF laget på serveren
-godtas ikke. Kvitteringen står i `approval_outbox`, ikke i
+C06, med det godkjente brevet frosset i pakken. Leveringen krever at brevet
+lastes opp. Kvitteringen står i `approval_outbox`, ikke i
 `catenda_delivery_status`. Vedleggene sendes i C08."""
 funn = ["INT-06"]
 belegg = "L 29.09: `approvals` med `dispatch`, og `ApprovalService.deliver`."

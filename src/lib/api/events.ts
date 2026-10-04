@@ -13,8 +13,8 @@ export interface EventSubmitResponse {
   tidsstempel: string;
   success: boolean;
   message?: string;
+  /** Om et frosset brev ble lastet opp som PDF. Hendelser uten brev får ingen PDF. */
   pdf_uploaded?: boolean;
-  pdf_source?: 'client' | 'server';
   new_version?: number;
   /** Whether the event was synced to Catenda (prosjekthotellet) */
   catenda_synced?: boolean;
@@ -33,8 +33,6 @@ export interface EventPayload {
   data: Record<string, unknown>;
   expected_version?: number;
   catenda_topic_id?: string;
-  pdf_base64?: string;
-  pdf_filename?: string;
 }
 
 /**
@@ -43,7 +41,7 @@ export interface EventPayload {
  * @param sakId - The case ID
  * @param eventType - The type of event to submit
  * @param data - The event payload data
- * @param options - Optional submission parameters (version, PDF, etc.)
+ * @param options - Optional submission parameters (version, topic)
  * @returns The event submission result
  */
 export async function submitEvent(
@@ -54,8 +52,6 @@ export async function submitEvent(
     projectId?: string;
     expectedVersion?: number;
     catendaTopicId?: string;
-    pdfBase64?: string;
-    pdfFilename?: string;
   }
 ): Promise<EventSubmitResponse> {
   return apiFetch<EventSubmitResponse>(`/api/events`, {
@@ -70,8 +66,6 @@ export async function submitEvent(
       },
       expected_version: options?.expectedVersion ?? 0,
       catenda_topic_id: options?.catendaTopicId,
-      pdf_base64: options?.pdfBase64,
-      pdf_filename: options?.pdfFilename,
     }),
   });
 }
