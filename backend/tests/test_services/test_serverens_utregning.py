@@ -10,6 +10,7 @@ BR-01-testene og flyttes med dem når `JsonFileEventRepository` går ut i F0b.
 """
 
 import json
+from pathlib import Path
 from uuid import uuid4
 
 import pytest
@@ -320,3 +321,52 @@ def test_fullmakten_regnes_av_serverens_tall(sak, tmp_path):  # noqa: F811
     [serverens] = tjeneste.med_serverens_utregning("S-fullmakt", [item])
     assert data["total_godkjent_belop"] == 123456.7899
     assert serverens["data"]["total_godkjent_belop"] == 123456.79
+
+
+# =============================================================================
+# Nyttelasten skjemaene sender, gjennom /api/events og lest tilbake fra lageret
+# =============================================================================
+
+NYTTELAST = json.loads(
+    (Path(__file__).resolve().parents[1] / "fixtures/skjemaenes_nyttelast.json").read_text()
+)
+
+
+def _som_skjemaet_ser_saken(sak, sak_id):  # noqa: F811
+    tilstand = sak.client.get(f"/api/cases/{sak_id}/state", headers=HEADERS).get_json()
+    tilstand = tilstand.get("state", tilstand)
+    return {
+        spor: {felt: tilstand[spor][felt] for felt in felter}
+        for spor, felter in NYTTELAST["sak"].items()
+    }
+
+
+@pytest.mark.parametrize("navn", sorted(NYTTELAST["svar"]))
+def test_skjemaets_svar_lagres_med_regelversjonen_i_journalen(sak, navn):  # noqa: F811
+    """Fixturen lages av `buildEventData` i `src/lib/kontraktsbord/skjemanyttelast.test.ts`."""
+    sak_id = f"S-skjema-{navn}"
+    krav = _opprett_sak(sak.lager, sak_id)
+    assert _som_skjemaet_ser_saken(sak, sak_id) == NYTTELAST["sak"]
+
+    spor = "frist" if "frist" in navn else "vederlag"
+    krav_id = getattr(krav, spor).event_id
+    data = {**NYTTELAST["svar"][navn], f"{spor}_krav_id": krav_id}
+    _, versjon = sak.lager.get_events(sak_id)
+    svar = sak.client.post(
+        "/api/events",
+        json={
+            "sak_id": sak_id,
+            "expected_version": versjon,
+            "event": {
+                "event_type": f"respons_{spor}",
+                "refererer_til_event_id": krav_id,
+                "data": data,
+            },
+        },
+        headers=HEADERS,
+    )
+    assert svar.status_code == 201, svar.get_json()
+
+    lagret, _ = sak.lager.get_events(sak_id)
+    assert lagret[-1]["data"]["regelversjon"] == REGELVERSJON
+    assert lagret[-1]["data"]["beregnings_resultat"] == data["beregnings_resultat"]
