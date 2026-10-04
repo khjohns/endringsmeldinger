@@ -8,7 +8,8 @@ Testene her etterprøver funn i tilstandsberegning og forretningsregler:
 3. Tilbaketrekking av subsidiært godkjente krav ble blokkert (TFR-03, rettet 2026-09-23)
 4. Subsidiært standpunkt på 0 kr / 0 dager ble forkastet som falsy (TFR-04, rettet 2026-09-23)
 5. Godkjent og låst ansvarsgrunnlag ble rapportert som 'UTKAST' (TFR-05, rettet 2026-09-23)
-6. Et fullt BH-svar med dager godtas på et nøytralt fristvarsel (TFR-06)
+6. Et fullt BH-svar med dager godtas på et nøytralt fristvarsel (TFR-06,
+   rettet 2026-10-04)
 7. Sidefunn fra spor D 23.09: subsidiært standpunkt som henger igjen (SD-01,
    rettet 2026-09-29) og avsluttet grunnlag som vises som utkast (SD-02)
 8. Særskilte krav som henger igjen etter et oppdatert vederlagskrav uten dem
@@ -926,17 +927,10 @@ def test_sak_oppgjort_ved_godtatt_avslag_rapporteres_ikke_som_ukjent():
 # =============================================================================
 
 
-@pytest.mark.xfail(
-    strict=True,
-    raises=AssertionError,
-    reason=(
-        "TFR-06: _rule_frist_sent godtar et BH-svar som godkjenner 10 dager på et "
-        "nøytralt varsel (§ 33.4) uten krevde dager; sporet blir GODKJENT. Ikke "
-        "rettet: en sperre må slippe gjennom innsigelse mot sen varsling (§ 5) og "
-        "forespørsel (§ 33.6.2, DRF-01), og hvordan de registreres er ikke avgjort"
-    ),
-)
 def test_fullt_fristsvar_paa_noytralt_varsel():
+    """TFR-06, rettet 2026-10-04: svarplikten oppstår først ved et krav med
+    dager (§ 33.7), og et svar med dager og resultat avvises til da (vedtak
+    om nøytralt fristvarsel i hovedplanen 3.1, 23.09)."""
     timeline = TimelineService()
     events = _sak_med_godkjent_grunnlag()
     varsel = FristEvent(

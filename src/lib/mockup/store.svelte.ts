@@ -43,7 +43,6 @@ export interface FristSvarDetaljer {
   fristVarselOk?: boolean;
   spesifisertKravOk?: boolean;
   foresporselSvarOk?: boolean;
-  sendForesporsel?: boolean;
   vilkarOppfylt?: boolean;
   subsidiaerTriggers?: SubsidiaerTrigger[];
   subsidiaerGodkjentDager?: number;
@@ -158,6 +157,25 @@ export function createDemoStore(initial: Scenario = DEFAULT_SCENARIO) {
     });
   }
 
+  function sendFristVarselHandling(
+    handling: 'innsigelse' | 'foresporsel',
+    data: { begrunnelse: string; svarfrist?: string }
+  ) {
+    const frist = scenario.sak.frist;
+    const now = new SvelteDate().toISOString();
+    if (handling === 'innsigelse') {
+      frist.frist_varsel_ok = false;
+      frist.begrunnelse_varsel = data.begrunnelse;
+    } else {
+      frist.har_bh_foresporsel = true;
+      frist.dato_bh_foresporsel = now.slice(0, 10);
+      frist.krav_event_id ??= frist.siste_event_id ?? 'demo-fristvarsel';
+      frist.foresporsel_krav_id = frist.krav_event_id;
+      frist.frist_for_spesifisering = data.svarfrist;
+    }
+    frist.siste_oppdatert = now;
+  }
+
   function sendFristSvar(godkjentDager: number, detaljer?: FristSvarDetaljer) {
     const frist = scenario.sak.frist;
     const krevd = frist.krevd_dager ?? 0;
@@ -184,8 +202,6 @@ export function createDemoStore(initial: Scenario = DEFAULT_SCENARIO) {
     frist.frist_varsel_ok = detaljer?.fristVarselOk;
     frist.spesifisert_krav_ok = detaljer?.spesifisertKravOk;
     frist.foresporsel_svar_ok = detaljer?.foresporselSvarOk;
-    frist.har_bh_foresporsel = detaljer?.sendForesporsel;
-    frist.dato_bh_foresporsel = detaljer?.sendForesporsel ? now.slice(0, 10) : undefined;
     frist.vilkar_oppfylt = detaljer?.vilkarOppfylt;
     frist.bh_resultat = resultat;
     frist.godkjent_dager = godkjentDager;
@@ -209,16 +225,12 @@ export function createDemoStore(initial: Scenario = DEFAULT_SCENARIO) {
       actorrole: 'BH',
       actor: scenario.sak.byggherre ?? 'BH',
       spor: 'frist',
-      summary: detaljer?.sendForesporsel
-        ? 'Byggherren ba om spesifisering av fristkravet'
-        : `Byggherren ${resultat === 'godkjent' ? 'godkjente' : resultat === 'avslatt' ? 'avslo' : 'godkjente deler av'} fristkravet`,
+      summary: `Byggherren ${resultat === 'godkjent' ? 'godkjente' : resultat === 'avslatt' ? 'avslo' : 'godkjente deler av'} fristkravet`,
       data: {
         respondert_versjon: respondertVersjon,
         frist_varsel_ok: detaljer?.fristVarselOk,
         spesifisert_krav_ok: detaljer?.spesifisertKravOk,
         foresporsel_svar_ok: detaljer?.foresporselSvarOk,
-        har_bh_foresporsel: detaljer?.sendForesporsel,
-        dato_bh_foresporsel: detaljer?.sendForesporsel ? now.slice(0, 10) : undefined,
         vilkar_oppfylt: detaljer?.vilkarOppfylt,
         beregnings_resultat: resultat,
         godkjent_dager: godkjentDager,
@@ -538,7 +550,8 @@ export function createDemoStore(initial: Scenario = DEFAULT_SCENARIO) {
       type: import('$lib/types/timeline').EventType,
       data: Record<string, unknown>,
       brev: import('$lib/components/kontraktsbord/letterTypes').BrevInnhold,
-      previousCount: number
+      previousCount: number,
+      actorrole: 'TE' | 'BH' = 'TE'
     ) {
       scenario.timeline.splice(previousCount);
       const id = crypto.randomUUID();
@@ -549,8 +562,8 @@ export function createDemoStore(initial: Scenario = DEFAULT_SCENARIO) {
         id,
         type: `no.oslo.koe.${type}`,
         time: new SvelteDate().toISOString(),
-        actorrole: 'TE',
-        actor: teNavn,
+        actorrole,
+        actor: actorrole === 'TE' ? teNavn : bhNavn,
         spor: track,
         summary: brev.tittel,
         data: { ...data, brev },
@@ -560,6 +573,7 @@ export function createDemoStore(initial: Scenario = DEFAULT_SCENARIO) {
     sendGrunnlagSvar,
     sendVederlagSvar,
     sendFristSvar,
+    sendFristVarselHandling,
     sendTeGrunnlag,
     sendTeVederlag,
     sendTeVederlagVarsel,

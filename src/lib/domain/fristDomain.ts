@@ -11,7 +11,6 @@ export interface FristFormState {
   spesifisertKravOk: boolean | undefined;
   foresporselSvarOk: boolean | undefined;
   vilkarOppfylt: boolean | undefined;
-  sendForesporsel: boolean;
   godkjentDager: number | undefined;
   begrunnelse: string;
   begrunnelseValidationError: string | undefined;
@@ -21,6 +20,8 @@ export interface FristDomainConfig {
   varselType?: 'varsel' | 'spesifisert' | 'begrunnelse_utsatt';
   krevdDager: number;
   erSvarPaForesporsel: boolean;
+  /** BH har gjort innsigelse mot § 33.4-varselet før kravet fikk dager (§ 5) */
+  harInnsigelseMotVarsel?: boolean;
   harTidligereVarselITide: boolean;
   erGrunnlagSubsidiaer: boolean;
   erHelFristSubsidiaerPgaGrunnlag: boolean;
@@ -30,7 +31,6 @@ export interface FristVisibilityFlags {
   showFristVarselOk: boolean;
   showSpesifisertKravOk: boolean;
   showForesporselSvarOk: boolean;
-  showSendForesporsel: boolean;
 }
 
 export interface FristComputedValues {
@@ -39,7 +39,6 @@ export interface FristComputedValues {
   prinsipaltResultat: FristBeregningResultat;
   subsidiaertResultat: FristBeregningResultat;
   visSubsidiaertResultat: boolean;
-  showGodkjentDager: boolean;
   port1bErSubsidiaer: boolean;
   port2ErSubsidiaer: boolean;
   port3ErSubsidiaer: boolean;
@@ -50,6 +49,8 @@ export interface FristComputedValues {
 export interface FristDefaultsConfig {
   krevdDager: number;
   isUpdateMode: boolean;
+  /** Innsigelsen etter § 5 er BHs standpunkt til § 33.4 og fylles inn */
+  harInnsigelseMotVarsel?: boolean;
   lastResponseEvent?: {
     godkjent_dager?: number;
   };
@@ -68,7 +69,6 @@ export function getDefaults(config: FristDefaultsConfig): FristFormState {
       spesifisertKravOk: config.fristTilstand.spesifisert_krav_ok ?? true,
       foresporselSvarOk: config.fristTilstand.foresporsel_svar_ok ?? true,
       vilkarOppfylt: config.fristTilstand.vilkar_oppfylt ?? true,
-      sendForesporsel: false,
       godkjentDager: config.lastResponseEvent.godkjent_dager ?? config.krevdDager,
       begrunnelse: '',
       begrunnelseValidationError: undefined,
@@ -76,11 +76,10 @@ export function getDefaults(config: FristDefaultsConfig): FristFormState {
   }
   // New mode: no pre-selection — user must make explicit choices
   return {
-    fristVarselOk: undefined,
+    fristVarselOk: config.harInnsigelseMotVarsel ? false : undefined,
     spesifisertKravOk: undefined,
     foresporselSvarOk: undefined,
     vilkarOppfylt: undefined,
-    sendForesporsel: false,
     godkjentDager: undefined,
     begrunnelse: '',
     begrunnelseValidationError: undefined,
@@ -95,7 +94,7 @@ export function beregnVisibility(
 
   const showFristVarselOk = (() => {
     if (erBegrunnelseUtsatt) return false;
-    if (config.erSvarPaForesporsel) return false;
+    if (config.erSvarPaForesporsel) return Boolean(config.harInnsigelseMotVarsel);
     if (config.varselType === 'varsel') return true;
     if (config.varselType === 'spesifisert') return !config.harTidligereVarselITide;
     return false;
@@ -113,12 +112,7 @@ export function beregnVisibility(
     return config.erSvarPaForesporsel;
   })();
 
-  const showSendForesporsel = (() => {
-    if (erBegrunnelseUtsatt) return false;
-    return config.varselType === 'varsel' && state.fristVarselOk === true;
-  })();
-
-  return { showFristVarselOk, showSpesifisertKravOk, showForesporselSvarOk, showSendForesporsel };
+  return { showFristVarselOk, showSpesifisertKravOk, showForesporselSvarOk };
 }
 
 export function beregnPreklusjon(
@@ -150,12 +144,10 @@ export function beregnReduksjon(
 
 export function beregnPrinsipaltResultat(data: {
   erPrekludert: boolean;
-  sendForesporsel: boolean;
   harHindring: boolean;
   krevdDager: number;
   godkjentDager: number;
 }): FristBeregningResultat {
-  if (data.sendForesporsel) return 'avslatt';
   if (data.erPrekludert) return 'avslatt';
   if (!data.harHindring) return 'avslatt';
 
@@ -215,7 +207,6 @@ export function buildEventData(
     frist_varsel_ok: state.fristVarselOk,
     spesifisert_krav_ok: state.spesifisertKravOk,
     foresporsel_svar_ok: state.foresporselSvarOk,
-    send_foresporsel: state.sendForesporsel,
     vilkar_oppfylt: state.vilkarOppfylt,
     godkjent_dager: effectiveGodkjentDager,
     begrunnelse: state.begrunnelse || autoBegrunnelse,
@@ -245,7 +236,6 @@ export function beregnAlt(state: FristFormState, config: FristDomainConfig): Fri
 
   const prinsipaltResultat = beregnPrinsipaltResultat({
     erPrekludert,
-    sendForesporsel: state.sendForesporsel,
     harHindring,
     krevdDager: config.krevdDager,
     godkjentDager: effectiveGodkjentDager,
@@ -258,12 +248,10 @@ export function beregnAlt(state: FristFormState, config: FristDomainConfig): Fri
   });
 
   const visSubsidiaertResultat = prinsipaltResultat === 'avslatt';
-  const showGodkjentDager = !state.sendForesporsel;
 
-  const port1bErSubsidiaer = erPrekludert && !state.sendForesporsel;
-  const port2ErSubsidiaer = (erPrekludert || config.erGrunnlagSubsidiaer) && !state.sendForesporsel;
-  const port3ErSubsidiaer =
-    (erPrekludert || !harHindring || config.erGrunnlagSubsidiaer) && !state.sendForesporsel;
+  const port1bErSubsidiaer = erPrekludert;
+  const port2ErSubsidiaer = erPrekludert || config.erGrunnlagSubsidiaer;
+  const port3ErSubsidiaer = erPrekludert || !harHindring || config.erGrunnlagSubsidiaer;
 
   const subsidiaerTriggers = beregnSubsidiaerTriggers({
     erGrunnlagSubsidiaer: config.erGrunnlagSubsidiaer,
@@ -278,7 +266,6 @@ export function beregnAlt(state: FristFormState, config: FristDomainConfig): Fri
     prinsipaltResultat,
     subsidiaertResultat,
     visSubsidiaertResultat,
-    showGodkjentDager,
     port1bErSubsidiaer,
     port2ErSubsidiaer,
     port3ErSubsidiaer,

@@ -52,7 +52,13 @@ export function createClaimReview(store: CaseWorkspace) {
     },
     confirm: confirmation.confirm,
     cancel: confirmation.cancel,
-    async submit(track: SporType, type: EventType, data: object, demoSend: () => void) {
+    async submit(
+      track: SporType,
+      type: EventType,
+      data: object,
+      demoSend: () => void,
+      actorrole: 'TE' | 'BH' = 'TE'
+    ) {
       const snapshot = JSON.parse(JSON.stringify(data));
       const letter = buildLetterContent(
         {
@@ -60,7 +66,7 @@ export function createClaimReview(store: CaseWorkspace) {
           source: '/case',
           id: 'utkast',
           type,
-          actorrole: 'TE',
+          actorrole,
           time: new SvelteDate().toISOString(),
           spor: track,
           data: snapshot,
@@ -83,7 +89,7 @@ export function createClaimReview(store: CaseWorkspace) {
       if (store.isDemo) {
         const previousCount = store.timeline.length;
         demoSend();
-        store.recordClaimLetter(track, type, snapshot, approved, previousCount);
+        store.recordClaimLetter(track, type, snapshot, approved, previousCount, actorrole);
       } else await store.submit(type, { ...snapshot, brev: approved });
     },
   };

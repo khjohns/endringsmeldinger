@@ -468,6 +468,9 @@ def validate_frist_event(
     # Specification events: TE specifies days for neutral notice (§33.6.1/§33.6.2)
     if is_specification:
         _validate_begrunnelse(data)
+        # § 33.6.2 annet ledd b: svaret er en begrunnelse uten dager.
+        if data.get("varsel_type") == FristVarselType.BEGRUNNELSE_UTSATT.value:
+            return
         _validate_antall_dager(
             data, required=True, allow_zero=False, context="for spesifisering"
         )
