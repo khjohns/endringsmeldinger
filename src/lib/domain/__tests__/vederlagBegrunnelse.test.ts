@@ -214,6 +214,17 @@ describe('generateVederlagResponseBegrunnelse — konklusjon', () => {
     expect(tekst).toContain('Samlet godkjent beløp utgjør etter dette kr 60 000,-');
   });
 
+  it('viser aldri 100 % ved delvis godkjenning (#177)', () => {
+    const tekst = gen(
+      baseInput({
+        hovedkravVurdering: 'delvis',
+        hovedkravGodkjentBelop: 99_600,
+        totalGodkjent: 99_600,
+      })
+    );
+    expect(tekst).toContain('av krevde kr 100 000,- (99%)');
+  });
+
   it('oppgir subsidiært samlet beløp når noe er prekludert', () => {
     const tekst = gen(
       baseInput({

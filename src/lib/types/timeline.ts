@@ -303,6 +303,8 @@ export interface FristTilstand {
   differanse_dager?: number;
   har_subsidiaert_standpunkt?: boolean;
   visningsstatus?: string;
+  /** § 33.6.2 fjerde ledd: gjeldende krav er svaret på BHs forespørsel, ikke en senere revisjon */
+  kravet_besvarer_foresporselen?: boolean;
 
   /** Which version of the claim BH last responded to (0-indexed: 0 = original, 1 = rev 1, etc.) */
   bh_respondert_versjon?: number;

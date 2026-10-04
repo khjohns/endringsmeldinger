@@ -5,6 +5,7 @@
  */
 
 import type { FristBeregningResultat, SubsidiaerTrigger } from '../types/timeline';
+import { REGELVERSJON } from './regelversjon';
 
 export interface FristFormState {
   fristVarselOk: boolean | undefined;
@@ -142,6 +143,14 @@ export function beregnReduksjon(
   return false;
 }
 
+/** B-13 (3.1, 24.09): «godkjent» krever alle dagene, og 0 dager er «avslått» (#167). */
+function resultatAvDager(krevdDager: number, godkjentDager: number): FristBeregningResultat {
+  if (krevdDager === 0) return 'godkjent';
+  if (godkjentDager <= 0) return 'avslatt';
+  if (godkjentDager >= krevdDager) return 'godkjent';
+  return 'delvis_godkjent';
+}
+
 export function beregnPrinsipaltResultat(data: {
   erPrekludert: boolean;
   harHindring: boolean;
@@ -150,13 +159,7 @@ export function beregnPrinsipaltResultat(data: {
 }): FristBeregningResultat {
   if (data.erPrekludert) return 'avslatt';
   if (!data.harHindring) return 'avslatt';
-
-  if (data.krevdDager === 0) return 'godkjent';
-
-  const godkjentProsent = data.godkjentDager / data.krevdDager;
-  if (godkjentProsent >= 0.99) return 'godkjent';
-
-  return 'delvis_godkjent';
+  return resultatAvDager(data.krevdDager, data.godkjentDager);
 }
 
 export function beregnSubsidiaertResultat(data: {
@@ -165,13 +168,7 @@ export function beregnSubsidiaertResultat(data: {
   godkjentDager: number;
 }): FristBeregningResultat {
   if (!data.harHindring) return 'avslatt';
-
-  if (data.krevdDager === 0) return 'godkjent';
-
-  const godkjentProsent = data.godkjentDager / data.krevdDager;
-  if (godkjentProsent >= 0.99) return 'godkjent';
-
-  return 'delvis_godkjent';
+  return resultatAvDager(data.krevdDager, data.godkjentDager);
 }
 
 export function beregnSubsidiaerTriggers(data: {
@@ -202,11 +199,13 @@ export function buildEventData(
 ): Record<string, unknown> {
   const effectiveGodkjentDager =
     computed.prinsipaltResultat !== 'avslatt' ? (state.godkjentDager ?? 0) : 0;
+  const synlig = beregnVisibility(state, config);
   return {
+    regelversjon: REGELVERSJON,
     frist_krav_id: fristKravId,
-    frist_varsel_ok: state.fristVarselOk,
-    spesifisert_krav_ok: state.spesifisertKravOk,
-    foresporsel_svar_ok: state.foresporselSvarOk,
+    frist_varsel_ok: synlig.showFristVarselOk ? state.fristVarselOk : undefined,
+    spesifisert_krav_ok: synlig.showSpesifisertKravOk ? state.spesifisertKravOk : undefined,
+    foresporsel_svar_ok: synlig.showForesporselSvarOk ? state.foresporselSvarOk : undefined,
     vilkar_oppfylt: state.vilkarOppfylt,
     godkjent_dager: effectiveGodkjentDager,
     begrunnelse: state.begrunnelse || autoBegrunnelse,
@@ -218,7 +217,7 @@ export function buildEventData(
     subsidiaer_resultat: computed.visSubsidiaertResultat ? computed.subsidiaertResultat : undefined,
     subsidiaer_godkjent_dager:
       computed.visSubsidiaertResultat && computed.subsidiaertResultat !== 'avslatt'
-        ? effectiveGodkjentDager
+        ? (state.godkjentDager ?? 0)
         : undefined,
     subsidiaer_begrunnelse: computed.visSubsidiaertResultat
       ? state.begrunnelse || autoBegrunnelse
@@ -247,7 +246,7 @@ export function beregnAlt(state: FristFormState, config: FristDomainConfig): Fri
     godkjentDager: effectiveGodkjentDager,
   });
 
-  const visSubsidiaertResultat = prinsipaltResultat === 'avslatt';
+  const visSubsidiaertResultat = erPrekludert || !harHindring;
 
   const port1bErSubsidiaer = erPrekludert;
   const port2ErSubsidiaer = erPrekludert || config.erGrunnlagSubsidiaer;
