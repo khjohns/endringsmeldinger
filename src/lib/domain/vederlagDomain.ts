@@ -85,9 +85,6 @@ export interface VederlagComputedValues {
   subsidiaertResultat: VederlagBeregningResultat;
   visSubsidiaertResultat: boolean;
   subsidiaerTriggers: SubsidiaerTrigger[];
-
-  // Placeholder
-  dynamicPlaceholder: string;
 }
 
 /** Subset av forrige respons-event for update mode */
@@ -113,12 +110,6 @@ export interface VederlagLastResponseData {
 export interface VederlagDefaultsConfig {
   isUpdateMode: boolean;
   lastResponseEvent?: VederlagLastResponseData;
-}
-
-/** Badge-visning for vurdering */
-export interface VurderingBadge {
-  variant: 'success' | 'warning' | 'danger';
-  label: string;
 }
 
 export function getDefaults(config: VederlagDefaultsConfig): VederlagFormState {
@@ -408,31 +399,6 @@ export function erKravlinjeGyldig(
   return true;
 }
 
-export function getVurderingBadge(
-  vurdering: BelopVurdering | undefined,
-  prekludert?: boolean
-): VurderingBadge {
-  if (prekludert) return { variant: 'danger', label: 'Prekludert' };
-  switch (vurdering) {
-    case 'godkjent':
-      return { variant: 'success', label: 'Godkjent' };
-    case 'delvis':
-      return { variant: 'warning', label: 'Delvis' };
-    case 'avslatt':
-    default:
-      return { variant: 'danger', label: 'Avvist' };
-  }
-}
-
-export function getDynamicPlaceholder(resultat: VederlagBeregningResultat | undefined): string {
-  if (!resultat) return 'Gjør valgene i wizarden, deretter skriv begrunnelse...';
-  if (resultat === 'godkjent') return 'Begrunn din godkjenning av vederlagskravet...';
-  if (resultat === 'delvis_godkjent')
-    return 'Forklar hvorfor du kun godkjenner deler av vederlagskravet...';
-  if (resultat === 'hold_tilbake') return 'Begrunn tilbakeholdelsen av betaling (§30.2)...';
-  return 'Begrunn ditt avslag på vederlagskravet...';
-}
-
 export function buildEventData(
   state: VederlagFormState,
   config: VederlagDomainConfig,
@@ -539,22 +505,6 @@ export function buildEventData(
   };
 }
 
-export function deriveVurdering(godkjent: number, krevd: number): BelopVurdering {
-  if (godkjent >= krevd && krevd > 0) return 'godkjent';
-  if (godkjent > 0) return 'delvis';
-  return 'avslatt';
-}
-
-export function getGodkjentForDisplay(
-  vurdering: BelopVurdering | undefined,
-  krevdBelop: number,
-  godkjentBelop: number | undefined
-): number {
-  if (vurdering === 'godkjent' || vurdering === undefined) return krevdBelop;
-  if (vurdering === 'delvis') return godkjentBelop ?? 0;
-  return 0;
-}
-
 export function beregnAlt(
   state: VederlagFormState,
   config: VederlagDomainConfig
@@ -594,8 +544,6 @@ export function beregnAlt(
 
   const subsidiaerTriggers = beregnSubsidiaerTriggers(state, config, preklusjon);
 
-  const dynamicPlaceholder = getDynamicPlaceholder(prinsipaltResultat);
-
   return {
     har34_1_2_Preklusjon: _har34_1_2,
     erHelVederlagSubsidiaerPgaGrunnlag: _erHelSubsidiaer,
@@ -616,6 +564,5 @@ export function beregnAlt(
     subsidiaertResultat,
     visSubsidiaertResultat,
     subsidiaerTriggers,
-    dynamicPlaceholder,
   };
 }

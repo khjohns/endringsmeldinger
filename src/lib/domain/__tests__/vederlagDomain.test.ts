@@ -16,10 +16,6 @@ import {
   beregnPrinsipaltResultat,
   beregnSubsidiaertResultat,
   beregnSubsidiaerTriggers,
-  getVurderingBadge,
-  getDynamicPlaceholder,
-  deriveVurdering,
-  getGodkjentForDisplay,
   erKravlinjeGyldig,
   buildEventData,
   beregnAlt,
@@ -576,54 +572,6 @@ describe('beregnSubsidiaerTriggers', () => {
 });
 
 // ============================================================================
-// getVurderingBadge
-// ============================================================================
-
-describe('getVurderingBadge', () => {
-  it('returns success for godkjent', () => {
-    expect(getVurderingBadge('godkjent')).toEqual({ variant: 'success', label: 'Godkjent' });
-  });
-
-  it('returns warning for delvis', () => {
-    expect(getVurderingBadge('delvis')).toEqual({ variant: 'warning', label: 'Delvis' });
-  });
-
-  it('returns danger for avslatt', () => {
-    expect(getVurderingBadge('avslatt')).toEqual({ variant: 'danger', label: 'Avvist' });
-  });
-
-  it('returns danger prekludert when prekludert flag is set', () => {
-    expect(getVurderingBadge('godkjent', true)).toEqual({ variant: 'danger', label: 'Prekludert' });
-  });
-});
-
-// ============================================================================
-// getDynamicPlaceholder
-// ============================================================================
-
-describe('getDynamicPlaceholder', () => {
-  it('returns generic placeholder when no resultat', () => {
-    expect(getDynamicPlaceholder(undefined)).toContain('Gjør valgene');
-  });
-
-  it('returns godkjenning text', () => {
-    expect(getDynamicPlaceholder('godkjent')).toContain('godkjenning');
-  });
-
-  it('returns delvis text', () => {
-    expect(getDynamicPlaceholder('delvis_godkjent')).toContain('deler');
-  });
-
-  it('returns avslag text', () => {
-    expect(getDynamicPlaceholder('avslatt')).toContain('avslag');
-  });
-
-  it('returns hold_tilbake text', () => {
-    expect(getDynamicPlaceholder('hold_tilbake')).toContain('§30.2');
-  });
-});
-
-// ============================================================================
 // buildEventData
 // ============================================================================
 
@@ -765,58 +713,6 @@ describe('buildEventData', () => {
 });
 
 // ============================================================================
-// deriveVurdering
-// ============================================================================
-
-describe('deriveVurdering', () => {
-  it('returns godkjent when godkjent >= krevd and krevd > 0', () => {
-    expect(deriveVurdering(100000, 100000)).toBe('godkjent');
-  });
-
-  it('returns godkjent when godkjent > krevd', () => {
-    expect(deriveVurdering(120000, 100000)).toBe('godkjent');
-  });
-
-  it('returns delvis when godkjent > 0 but < krevd', () => {
-    expect(deriveVurdering(50000, 100000)).toBe('delvis');
-  });
-
-  it('returns avslatt when godkjent is 0', () => {
-    expect(deriveVurdering(0, 100000)).toBe('avslatt');
-  });
-
-  it('returns avslatt when both are 0', () => {
-    expect(deriveVurdering(0, 0)).toBe('avslatt');
-  });
-});
-
-// ============================================================================
-// getGodkjentForDisplay
-// ============================================================================
-
-describe('getGodkjentForDisplay', () => {
-  it('returns krevd when vurdering is godkjent', () => {
-    expect(getGodkjentForDisplay('godkjent', 100000, 50000)).toBe(100000);
-  });
-
-  it('returns krevd when vurdering is undefined (default)', () => {
-    expect(getGodkjentForDisplay(undefined, 100000, undefined)).toBe(100000);
-  });
-
-  it('returns godkjentBelop when vurdering is delvis', () => {
-    expect(getGodkjentForDisplay('delvis', 100000, 60000)).toBe(60000);
-  });
-
-  it('returns 0 when vurdering is delvis but godkjentBelop is undefined', () => {
-    expect(getGodkjentForDisplay('delvis', 100000, undefined)).toBe(0);
-  });
-
-  it('returns 0 when vurdering is avslatt', () => {
-    expect(getGodkjentForDisplay('avslatt', 100000, 60000)).toBe(0);
-  });
-});
-
-// ============================================================================
 // beregnAlt (integration)
 // ============================================================================
 
@@ -831,7 +727,6 @@ describe('beregnAlt', () => {
     expect(result.harPrekludertKrav).toBe(false);
     expect(result.visSubsidiaertResultat).toBe(false);
     expect(result.subsidiaerTriggers).toEqual([]);
-    expect(result.dynamicPlaceholder).toContain('godkjenning');
   });
 
   it('computes subsidiary for SVIKT with precluded rigg', () => {

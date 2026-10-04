@@ -272,6 +272,12 @@ fordi B-13 sier at de ikke berøres.
 | `endringsordre.ts` | `validateEODraft` (backend kontrollerer beløpet mot KOE-enigheten selv), `buildEORequest`, `eoAmount`, `eoExposure`, `eoExposureFloor` |
 | `followUp.ts`, `deriveConfig.ts` | Oppfølgingsoppgaver og avledning av skjemakonfigurasjon fra tilstanden |
 
+*Merknad 2026-10-04 (#147):* `getVurderingBadge`, `deriveVurdering`,
+`getGodkjentForDisplay` og `getDynamicPlaceholder` i `vederlagDomain.ts`,
+`erSnuoperasjon`, `getBhUpdateDefaults` og `detekterEndringer` i
+`grunnlagDomain.ts`, og `beregnPreklusjonsvarsel` og `beregnRevisionContext` i
+`fristSubmissionDomain.ts` er fjernet. Ingen skjema kalte dem.
+
 To av dem har rettslig betydning selv om de bare er veiledning:
 
 - **Standardverdier ved endring av svar.** `fristDomain.getDefaults` og
