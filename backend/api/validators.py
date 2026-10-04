@@ -524,9 +524,6 @@ def validate_respons_event(data: dict[str, Any], spor_type: str) -> None:
         if not data.get("beregnings_resultat"):
             raise ValidationError("beregnings_resultat er påkrevd")
 
-        if data.get("spesifisert_krav_ok") is None:
-            raise ValidationError("spesifisert_krav_ok er påkrevd")
-
         if data.get("vilkar_oppfylt") is None:
             raise ValidationError("vilkar_oppfylt er påkrevd")
 

@@ -295,7 +295,9 @@ innsending = [
 ]
 tilstand = """
 Versjonen øker, og kravet settes på nytt. Et spor som er `avslatt`,
-`under_forhandling` eller `delvis_godkjent`, går tilbake til `sendt`."""
+`under_forhandling` eller `delvis_godkjent`, går tilbake til `sendt`. Har
+kravet dager og venter en forespørsel på svar, merkes kravet som svaret på den
+(`foresporsel_besvart_krav_id`, § 33.6.2 fjerde ledd)."""
 behandler = "_handle_frist"
 funn = ["DRF-02"]
 belegg = "L 29.09: `_handle_frist`."
@@ -530,7 +532,11 @@ Status følger `beregnings_resultat`: `godkjent`, `delvis_godkjent` eller
 `avslatt`. Godkjente dager, ny sluttdato, varselvurderinger, vilkåret og
 subsidiært standpunkt settes. Et svar på et krav uten dager avvises (§ 33.7,
 TFR-06); før det sendes `frist_innsigelse_sendt` eller
-`frist_foresporsel_sendt`."""
+`frist_foresporsel_sendt`. På kravet som besvarte forespørselen med dager,
+avvises `spesifisert_krav_ok=false` (§ 33.6.2 fjerde ledd, #172). En senere
+revisjon av kravet kan møtes med § 33.6.1 (oppdragsgiver 04.10). Der
+§ 33.6.1-spørsmålet stilles, må `spesifisert_krav_ok` sendes; ellers ville
+modellens standardverdi `true` bli lagret som BHs vurdering."""
 behandler = "_handle_respons_frist"
 funn = ["BR-01", "SD-04", "TFR-06", "DRF-01"]
 belegg = "L 29.09: `_handle_respons_frist` og `_beregnings_resultat_til_status`."
@@ -552,8 +558,9 @@ innsending = [
     "Frontend: FristForm",
 ]
 tilstand = """
-Samme behandling som `respons_frist`, også sperren mot et krav uten dager.
-Uten `beregnings_resultat` står statusen."""
+Samme behandling som `respons_frist`, også sperren mot et krav uten dager og
+mot § 33.6.1 på kravet som besvarte forespørselen. Uten `beregnings_resultat`
+står statusen."""
 behandler = "_handle_respons_frist"
 funn = ["BR-01", "SD-04", "TFR-06"]
 belegg = "L 29.09: `_handle_respons_frist`."

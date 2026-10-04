@@ -10,6 +10,12 @@ from dataclasses import dataclass
 
 from models.events import AnyEvent, EventType, ResponsEvent, SporStatus
 from models.sak_state import EOStatus, SakState, SaksType
+from regler.frist import (
+    PAABEROPT_33_6_1_ETTER_SVAR,
+    Fristkrav,
+    beregn_synlighet,
+    paaberoper_33_6_1_etter_svar_paa_foresporsel,
+)
 
 # Statuser uten noe sendt krav å trekke, eller med et krav som alt er oppgjort.
 # Samme regel for alle tre sporene.
@@ -124,6 +130,8 @@ class BusinessRuleValidator:
             EventType.RESPONS_FRIST: [
                 ("TRACK_SENT", self._rule_frist_sent),
                 ("CLAIM_SPECIFIED", self._rule_frist_spesifisert),
+                ("REQUEST_ANSWERED", self._rule_frist_svar_paa_foresporsel),
+                ("SPECIFICATION_ASSESSED", self._rule_frist_spesifisert_krav_vurdert),
                 ("NOT_ALREADY_RESPONDED", self._rule_frist_not_already_responded),
             ],
             EventType.FRIST_INNSIGELSE_SENDT: [
@@ -148,6 +156,8 @@ class BusinessRuleValidator:
             EventType.RESPONS_FRIST_OPPDATERT: [
                 ("TRACK_SENT", self._rule_frist_sent),
                 ("CLAIM_SPECIFIED", self._rule_frist_spesifisert),
+                ("REQUEST_ANSWERED", self._rule_frist_svar_paa_foresporsel),
+                ("SPECIFICATION_ASSESSED", self._rule_frist_spesifisert_krav_vurdert),
                 ("PREVIOUS_RESPONSE", self._rule_previous_response),
             ],
             # Cannot update locked grunnlag
@@ -513,6 +523,28 @@ class BusinessRuleValidator:
                 "Send innsigelse mot sen varsling (§ 5) eller forespørsel om "
                 "spesifisert krav (§ 33.6.2).",
             )
+        return ValidationResult(True)
+
+    def _rule_frist_svar_paa_foresporsel(
+        self, event: AnyEvent, state: SakState
+    ) -> ValidationResult:
+        if paaberoper_33_6_1_etter_svar_paa_foresporsel(
+            state.frist.kravet_besvarer_foresporselen, event.data.spesifisert_krav_ok
+        ):
+            return ValidationResult(False, f"{PAABEROPT_33_6_1_ETTER_SVAR}.")
+        return ValidationResult(True)
+
+    def _rule_frist_spesifisert_krav_vurdert(
+        self, event: AnyEvent, state: SakState
+    ) -> ValidationResult:
+        """Modellen setter `spesifisert_krav_ok=True` når feltet mangler. Der
+        § 33.6.1-spørsmålet stilles, ville journalen da si at BH har vurdert
+        kravet som i tide uten å ha gjort det."""
+        if (
+            beregn_synlighet(Fristkrav.fra_tilstand(state)).spesifisert_krav_ok
+            and "spesifisert_krav_ok" not in event.data.model_fields_set
+        ):
+            return ValidationResult(False, "spesifisert_krav_ok mangler (§ 33.6.1).")
         return ValidationResult(True)
 
     def _rule_frist_uspesifisert(

@@ -337,7 +337,7 @@ TE reviderer fristkravet.
 | Lagres i | `hendelse` |
 | Sendes fra | POST /api/events og /api/events/batch; Frontend: TeFristForm |
 | Forretningsregler | ROLE_CHECK, CASE_NOT_CLOSED, CREATE_ONCE, RESPONSE_REFERENCE, GRUNNLAG_REQUIRED, ACTIVE_CLAIM_EXISTS |
-| Virkning på status | Versjonen øker, og kravet settes på nytt. Et spor som er `avslatt`, `under_forhandling` eller `delvis_godkjent`, går tilbake til `sendt`. |
+| Virkning på status | Versjonen øker, og kravet settes på nytt. Et spor som er `avslatt`, `under_forhandling` eller `delvis_godkjent`, går tilbake til `sendt`. Har kravet dager og venter en forespørsel på svar, merkes kravet som svaret på den (`foresporsel_besvart_krav_id`, § 33.6.2 fjerde ledd). |
 | Behandler | `TimelineService._handle_frist` |
 | Funn | DRF-02 |
 | Belegg | L 29.09: `_handle_frist`. |
@@ -677,8 +677,8 @@ BH svarer på fristkravet: varsler i tide, om forholdet har hindret fremdriften,
 | Modell | `ResponsEvent`, data `FristResponsData` |
 | Lagres i | `hendelse` |
 | Sendes fra | POST /api/events og /api/events/batch, når prosjektet ikke har godkjenningspolicy; BHs godkjenningspakke; Frontend: FristForm |
-| Forretningsregler | ROLE_CHECK, CASE_NOT_CLOSED, CREATE_ONCE, RESPONSE_REFERENCE, TRACK_SENT, CLAIM_SPECIFIED, NOT_ALREADY_RESPONDED |
-| Virkning på status | Status følger `beregnings_resultat`: `godkjent`, `delvis_godkjent` eller `avslatt`. Godkjente dager, ny sluttdato, varselvurderinger, vilkåret og subsidiært standpunkt settes. Et svar på et krav uten dager avvises (§ 33.7, TFR-06); før det sendes `frist_innsigelse_sendt` eller `frist_foresporsel_sendt`. |
+| Forretningsregler | ROLE_CHECK, CASE_NOT_CLOSED, CREATE_ONCE, RESPONSE_REFERENCE, TRACK_SENT, CLAIM_SPECIFIED, REQUEST_ANSWERED, SPECIFICATION_ASSESSED, NOT_ALREADY_RESPONDED |
+| Virkning på status | Status følger `beregnings_resultat`: `godkjent`, `delvis_godkjent` eller `avslatt`. Godkjente dager, ny sluttdato, varselvurderinger, vilkåret og subsidiært standpunkt settes. Et svar på et krav uten dager avvises (§ 33.7, TFR-06); før det sendes `frist_innsigelse_sendt` eller `frist_foresporsel_sendt`. På kravet som besvarte forespørselen med dager, avvises `spesifisert_krav_ok=false` (§ 33.6.2 fjerde ledd, #172). En senere revisjon av kravet kan møtes med § 33.6.1 (oppdragsgiver 04.10). Der § 33.6.1-spørsmålet stilles, må `spesifisert_krav_ok` sendes; ellers ville modellens standardverdi `true` bli lagret som BHs vurdering. |
 | Behandler | `TimelineService._handle_respons_frist` |
 | Funn | BR-01, SD-04, TFR-06, DRF-01 |
 | Belegg | L 29.09: `_handle_respons_frist` og `_beregnings_resultat_til_status`. |
@@ -725,8 +725,8 @@ BH endrer sitt svar på fristkravet.
 | Modell | `ResponsEvent`, data `FristResponsData` |
 | Lagres i | `hendelse` |
 | Sendes fra | POST /api/events og /api/events/batch, når prosjektet ikke har godkjenningspolicy; BHs godkjenningspakke; Frontend: FristForm |
-| Forretningsregler | ROLE_CHECK, CASE_NOT_CLOSED, CREATE_ONCE, RESPONSE_REFERENCE, TRACK_SENT, CLAIM_SPECIFIED, PREVIOUS_RESPONSE |
-| Virkning på status | Samme behandling som `respons_frist`, også sperren mot et krav uten dager. Uten `beregnings_resultat` står statusen. |
+| Forretningsregler | ROLE_CHECK, CASE_NOT_CLOSED, CREATE_ONCE, RESPONSE_REFERENCE, TRACK_SENT, CLAIM_SPECIFIED, REQUEST_ANSWERED, SPECIFICATION_ASSESSED, PREVIOUS_RESPONSE |
+| Virkning på status | Samme behandling som `respons_frist`, også sperren mot et krav uten dager og mot § 33.6.1 på kravet som besvarte forespørselen. Uten `beregnings_resultat` står statusen. |
 | Behandler | `TimelineService._handle_respons_frist` |
 | Funn | BR-01, SD-04, TFR-06 |
 | Belegg | L 29.09: `_handle_respons_frist`. |
