@@ -3,11 +3,9 @@ import {
   getDefaults,
   erEndringMed32_2,
   erPaalegg,
-  erForceMajeure,
   erPrekludert,
   beregnPassivitet,
   getVerdictOptions,
-  getDynamicPlaceholder,
   buildEventData,
   buildTeRevisionEventData,
   type GrunnlagFormState,
@@ -100,16 +98,6 @@ describe('erPaalegg', () => {
 
   it('returns false for EO', () => {
     expect(erPaalegg({ hovedkategori: 'ENDRING', underkategori: 'EO' })).toBe(false);
-  });
-});
-
-describe('erForceMajeure', () => {
-  it('returns true for FORCE_MAJEURE', () => {
-    expect(erForceMajeure({ hovedkategori: 'FORCE_MAJEURE' })).toBe(true);
-  });
-
-  it('returns false for ENDRING', () => {
-    expect(erForceMajeure({ hovedkategori: 'ENDRING' })).toBe(false);
   });
 });
 
@@ -252,38 +240,6 @@ describe('getVerdictOptions', () => {
       })
     );
     expect(opts).toHaveLength(2);
-  });
-});
-
-// ============================================================================
-// getDynamicPlaceholder
-// ============================================================================
-
-describe('getDynamicPlaceholder', () => {
-  it('returns default when no resultat', () => {
-    expect(getDynamicPlaceholder(undefined, false)).toContain('Velg resultat');
-  });
-
-  it('returns prekludert + godkjent placeholder', () => {
-    expect(getDynamicPlaceholder('godkjent', true)).toContain('preklusjonsinnsigelse');
-    expect(getDynamicPlaceholder('godkjent', true)).toContain('godkjenning');
-  });
-
-  it('returns prekludert + avslatt placeholder', () => {
-    expect(getDynamicPlaceholder('avslatt', true)).toContain('preklusjonsinnsigelse');
-    expect(getDynamicPlaceholder('avslatt', true)).toContain('avslag');
-  });
-
-  it('returns godkjent placeholder', () => {
-    expect(getDynamicPlaceholder('godkjent', false)).toContain('vurdering');
-  });
-
-  it('returns avslatt placeholder', () => {
-    expect(getDynamicPlaceholder('avslatt', false)).toContain('grunnlag for krav');
-  });
-
-  it('returns frafalt placeholder', () => {
-    expect(getDynamicPlaceholder('frafalt', false)).toContain('frafalles');
   });
 });
 

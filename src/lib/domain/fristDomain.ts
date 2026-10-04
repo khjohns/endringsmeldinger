@@ -44,7 +44,6 @@ export interface FristComputedValues {
   port2ErSubsidiaer: boolean;
   port3ErSubsidiaer: boolean;
   subsidiaerTriggers: SubsidiaerTrigger[];
-  dynamicPlaceholder: string;
   visibility: FristVisibilityFlags;
 }
 
@@ -197,14 +196,6 @@ export function beregnSubsidiaerTriggers(data: {
   return triggers;
 }
 
-export function getDynamicPlaceholder(resultat: FristBeregningResultat | undefined): string {
-  if (!resultat) return 'Gjør valgene i kortet, deretter skriv begrunnelse...';
-  if (resultat === 'godkjent') return 'Begrunn din godkjenning av fristforlengelsen...';
-  if (resultat === 'delvis_godkjent')
-    return 'Forklar hvorfor du kun godkjenner deler av fristforlengelsen...';
-  return 'Begrunn ditt avslag på fristforlengelsen...';
-}
-
 export function buildEventData(
   state: FristFormState,
   config: FristDomainConfig,
@@ -281,8 +272,6 @@ export function beregnAlt(state: FristFormState, config: FristDomainConfig): Fri
     harHindring,
   });
 
-  const dynamicPlaceholder = getDynamicPlaceholder(prinsipaltResultat);
-
   return {
     erPrekludert,
     erRedusert,
@@ -294,7 +283,6 @@ export function beregnAlt(state: FristFormState, config: FristDomainConfig): Fri
     port2ErSubsidiaer,
     port3ErSubsidiaer,
     subsidiaerTriggers,
-    dynamicPlaceholder,
     visibility,
   };
 }

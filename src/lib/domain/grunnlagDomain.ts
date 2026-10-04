@@ -73,10 +73,6 @@ export function erPaalegg(event?: { hovedkategori?: string; underkategori?: stri
   );
 }
 
-export function erForceMajeure(event?: { hovedkategori?: string }): boolean {
-  return event?.hovedkategori === 'FORCE_MAJEURE';
-}
-
 export function erPrekludert(
   state: Pick<GrunnlagFormState, 'varsletITide'>,
   config: GrunnlagDomainConfig
@@ -126,18 +122,6 @@ export function getVerdictOptions(config: GrunnlagDomainConfig): VerdictOption[]
     });
   }
   return opts;
-}
-
-export function getDynamicPlaceholder(resultat: string | undefined, prekludert: boolean): string {
-  if (!resultat) return 'Velg resultat i kortet til venstre, deretter skriv begrunnelse...';
-  if (prekludert && resultat === 'godkjent')
-    return 'Begrunn din preklusjonsinnsigelse og din subsidiære godkjenning...';
-  if (prekludert && resultat === 'avslatt')
-    return 'Begrunn din preklusjonsinnsigelse og ditt subsidiære avslag...';
-  if (resultat === 'godkjent') return 'Begrunn din vurdering av kontraktsforholdet...';
-  if (resultat === 'avslatt') return 'Forklar hvorfor forholdet ikke gir grunnlag for krav...';
-  if (resultat === 'frafalt') return 'Begrunn hvorfor pålegget frafalles...';
-  return 'Begrunn din vurdering...';
 }
 
 export function buildEventData(
