@@ -9,10 +9,49 @@ Oppdragsgiver ser over PR-ene, svarer på spørsmål og godkjenner merge.
 Orkestreringsøkta fordeler arbeidet, går gjennom resultatet og fører det inn
 der det hører hjemme. Den skriver ikke koden selv.
 
+## Runden
+
+En runde er én orkestreringsøkt. Den velger et sett issues, fordeler dem,
+går gjennom PR-ene, merger og melder fra. Når alle PR-ene i runden er merget
+eller lukket og oppdragsgiver har fått avslutningen (punkt 5), er runden over
+og økta ferdig. Neste runde starter i en ny økt. Det som skal videre, står i
+issuene, ikke i økta.
+
+Grunnen er kostnad. Hele konteksten sendes på nytt ved hver hendelse i økta,
+og etter en time uten aktivitet er hurtigbufferen borte. Da betaler neste
+vekking for hele konteksten. En økt som lever over natta, blir dyrere for hver
+sjekk.
+
+**Størrelse.** Høyst fire arbeidsøkter samtidig. Grensen settes av hvor mye
+oppdragsgiver kan gå gjennom og av konflikter ved merge, ikke av antall issues.
+Ber oppdragsgiver om en etikett («ta review-oppfølging»), velg runden slik:
+
+1. Ta bort issues med `venter-på-beslutning`, og issues som rekkefølgen i
+   hovedplanen holder igjen. Merknadene til AF-06 sier hvilke. Ett spørsmål om
+   et avvik er greit, mer enn det hører til en egen runde.
+2. Feil som stopper appen eller gir gale data, går foran opprydding.
+3. Grupper etter filoverlapp (punkt 1). Det som ikke får plass, venter til
+   neste runde. Si hvilke issues det gjelder, og hvorfor.
+
+**Flere issues i én økt.** Én økt tar flere issues når de rører de samme
+filene eller har samme rotårsak, og leverer én PR med `Closes` for hvert av
+dem. To issues i samme fil går aldri i to parallelle økter. Høyst tre små
+issues per økt. Et issue som krever kartlegging eller spørsmål til
+oppdragsgiver, får egen økt.
+
+**Subagent eller økt.** Det som blir ferdig i samme tur, gjøres av en
+subagent: kartlegging, kontroll av en påstand, gjennomlesing av en diff. Bare
+sluttrapporten kommer tilbake, så orkestratorens kontekst holder seg liten.
+Arbeid som gir en PR, får egen økt, fordi den må abonnere på PR-en og følge CI
+og review over timer. En subagent deler i tillegg checkout med orkestratoren.
+
 ## 1. Kartlegg før du fordeler
 
 - Les hvert issue og avgrens det: hva det endrer, hvilke filer det rører, og
   hva det venter på (B-ID, annet issue, rekkefølgen i hovedplanen, særlig AF-06).
+- Må koden leses for å avgrense et issue, for eksempel hvilke kallere eller
+  hendelsestyper som berøres, la en Explore-subagent gjøre det og levere
+  konklusjonen. Orkestratoren leser selv bare diffene den skal godkjenne.
 - Er rekkefølgen i hovedplanen til hinder, spør oppdragsgiver. Godkjenner hen et
   avvik, får hovedplanen en datert merknad i en egen liten PR.
 - Del arbeidet i runder etter filoverlapp. Issues som rører samme filer, tas
@@ -22,9 +61,10 @@ der det hører hjemme. Den skriver ikke koden selv.
 
 ## 2. Oppdraget til hver økt
 
-Én økt per issue, eller per del av et issue. Oppdraget skal inneholde:
+Én økt per issue, per gruppe av issues (se «Runden») eller per del av et
+issue. Oppdraget skal inneholde:
 
-- issuenummeret, og at økta skal lese issuet og `AGENTS.md` først;
+- issuenummerne, og at økta skal lese issuene og `AGENTS.md` først;
 - branchnavn (`claude/<kort-navn>-<issue>`);
 - hvilke filer de parallelle øktene arbeider i, og at de ikke skal røres;
 - avgjørelser oppdragsgiver allerede har tatt, ordrett;
@@ -35,15 +75,18 @@ der det hører hjemme. Den skriver ikke koden selv.
   krever det;
 - PR mot `main` med `Closes #n`, eller «Del av #n» når bare en del leveres,
   og at økta ikke merger;
-- at økta abonnerer på PR-en og driver den til grønn CI.
+- at økta abonnerer på PR-en og driver den til grønn CI;
+- at økta melder fra med `send_message` til `@parent` når PR-en er grønn og
+  klar for gjennomgang.
 
 `create_session` lar deg velge modell, ikke innsatsnivå. Vil oppdragsgiver ha
 et annet nivå, må det settes i økta i appen.
 
 ## 3. Gjennomgang når øktene er ferdige
 
-Øktene melder ikke fra selv. Sett opp en sjekk med `send_later`, og gjør dette
-for hver PR:
+Øktene melder fra når de er bedt om det (punkt 2). Sett i tillegg én sjekk med
+`send_later` som sikkerhetsnett, innen en time mens noe venter. Gjør dette for
+hver PR:
 
 1. Les PR-beskrivelsen og de siste meldingene fra økta (`list_events` med
    `kinds: ["assistant"]`).
@@ -67,4 +110,5 @@ mergen. Avvises mergen av regelsettet, sjekk om grenen må oppdateres mot
 
 Si til oppdragsgiver hva som er merget, hvilke issues som er lukket, hvilke nye
 issues som er opprettet, og hva som gjenstår. Arbeidsstatus står i issuene, ikke
-i hovedplanen eller `docs/README.md`.
+i hovedplanen eller `docs/README.md`. Slett sjekker som ikke har gått, og ta
+ikke en ny runde i samme økt.
