@@ -235,6 +235,13 @@ mulig konsekvens under beskrevne forutsetninger, ikke observert hendelse.
 Ingen produksjonskode endres uten at det er bedt om det. Auditrunder leverer
 dokumenter og reproduksjonstester, ikke rettinger.
 
+**Kjør `/code-review` på egen diff før en PR meldes klar.** Nivå `high` når
+diffen rører `routes/`, `lib/auth/`, lagrene eller migrasjonene, ellers
+`medium`; en diff som bare rører `docs/`, trenger ingen. Reviewet går i egen
+kontekst, så det ser diffen uten forfatterens antakelser. Rett funnene; et
+funn du avviser, står med begrunnelse under «Åpne spørsmål» i PR-beskrivelsen.
+`/simplify` kjøres bare når oppdragsgiver ber om det.
+
 **Oppdragsgiver vil ha spørsmål, ikke dokumenter å lese.** Kartlegg selv. Der
 noe bare oppdragsgiver kan avgjøre, still konkrete spørsmål med
 spørsmålsverktøyet (i Claude Code: `AskUserQuestion`), med alternativer og en
