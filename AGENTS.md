@@ -222,6 +222,9 @@ TypeScript, og en `DEFAULT` i databasen. Søk etter alle formene før du skriver
   symptom og løsning eller omvei. Feiler noe uforklarlig, søk i `papercut`-issuene
   først, og kommenter et som finnes framfor å lage et nytt. `papercut` teller som
   sporetikett.
+- **Funn fra designreview av frontend får etiketten `design`** og én av
+  `design-blokker`, `design-bør` eller `design-merknad` for alvorlighet.
+  `design` teller som sporetikett.
 - **Issues er like offentlige som repoet.** Ingen saksdata, kontraktsinnhold,
   personnavn fra prosjekter, nøkler eller tilgangsopplysninger.
 - Det som gjenstår i en pakke, er de åpne issuene i milepælen — med
