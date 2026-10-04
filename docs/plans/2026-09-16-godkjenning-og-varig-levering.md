@@ -266,6 +266,14 @@ Tilsluttet av oppdragsgiver 21.09. Føringer for design, ikke implementert.
 > `grunnlagDomain.ts`, `vederlagDomain.ts`, `fristSubmissionDomain.ts` og
 > `vederlagSubmissionDomain.ts`. Den rører ingen av filene til #49, #66, #70
 > eller #109. Backenddelen av #111 følger fortsatt rekkefølgen i avsnitt 5.
+>
+> **Merknad 2026-10-04 til AF-06 (#102, #146):** Oppdragsgiver har utvidet
+> unntaket til de to Catenda-metodene uten kallere i #102
+> (`WebhookService.handle_pdf_upload` og
+> `BaseSakService._create_topic_with_relations`) og til de reserverte
+> PDF-parameterne i #146. Ingen av dem rører datalaget. Backfill-skriptet i
+> #102, #109, backenddelen av #111 og logger-delen av #110 følger fortsatt
+> rekkefølgen i avsnitt 5.
 
 ### 3.3 Anbefalinger som ikke er vedtatt
 
