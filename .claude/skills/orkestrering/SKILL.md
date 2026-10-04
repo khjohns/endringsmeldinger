@@ -39,6 +39,11 @@ dem. To issues i samme fil går aldri i to parallelle økter. Høyst tre små
 issues per økt. Et issue som krever kartlegging eller spørsmål til
 oppdragsgiver, får egen økt.
 
+**Én økt, én PR.** En arbeidsøkt leverer én PR og tar ikke nye oppgaver etter
+at den er åpnet. Har arbeidet to naturlige PR-er, blir det to økter, i hver
+sin runde når den ene bygger på den andre. Hver ny oppgave i en lang økt sender
+hele den voksende konteksten på nytt, og det koster fort mer enn rettingen.
+
 **Subagent eller økt.** Det som blir ferdig i samme tur, gjøres av en
 subagent: kartlegging, kontroll av en påstand, gjennomlesing av en diff. Bare
 sluttrapporten kommer tilbake, så orkestratorens kontekst holder seg liten.
@@ -69,14 +74,20 @@ issue. Oppdraget skal inneholde:
 - hvilke filer de parallelle øktene arbeider i, og at de ikke skal røres;
 - avgjørelser oppdragsgiver allerede har tatt, ordrett;
 - at ingen følger økta: den stiller ikke spørsmål, velger det konservative
-  alternativet og fører valget under «Åpne spørsmål» i PR-beskrivelsen;
+  alternativet og fører valget under «Åpne spørsmål» i PR-beskrivelsen. Sier
+  oppdragsgiver at hen følger øktene, stiller økta spørsmålene samlet etter
+  kartleggingen og før implementeringen, ikke underveis;
 - at funn utenfor oppdraget blir egne issues (regelen i `AGENTS.md`), og at
-  økta løser et slikt funn i samme PR med `Closes #n` når det er lite og
-  ligger i filene den allerede endrer eller har samme rotårsak. En ny økt for
-  en liten retting koster mer i kontekst enn rettingen. Funn i andre øktes
-  filer eller som krever en avgjørelse, blir bare issues;
+  økta løser et slikt funn i samme PR med `Closes #n` bare når rettingen er
+  noen få linjer i en fil den allerede endrer. Alt annet venter til neste
+  runde, også funn i andre øktes filer og funn som krever en avgjørelse;
 - hvilke sjekker som skal kjøres før push, og nettleserkontroll der issuet
-  krever det; `/code-review` kjøres etter regelen i `AGENTS.md`;
+  krever det. Kontrollen går mot den ekte saksruta, ikke `/mockup`, som har
+  andre data og en egen statusregel. Lar den seg ikke kjøre, står grunnen i
+  PR-beskrivelsen;
+- at `/code-review` kjøres etter regelen i `AGENTS.md`, én runde før PR-en
+  åpnes og én kontroll av rettingene. `/simplify` bare når oppdragsgiver ber
+  om det;
 - at PR-beskrivelsen er rapporten til orkestratoren: hva som er endret,
   sjekkene som er kjørt med resultat, utfallet av `/code-review`, funn utenfor
   oppdraget med issuenummer, og «Åpne spørsmål»;
@@ -84,7 +95,9 @@ issue. Oppdraget skal inneholde:
   og at økta ikke merger;
 - at økta abonnerer på PR-en og driver den til grønn CI;
 - at økta melder fra med `send_message` til `@parent` når PR-en er grønn og
-  klar for gjennomgang.
+  klar for gjennomgang, og at den ikke pusher etter det uten at orkestratoren
+  ber om det. En push etter meldingen kan komme etter mergen og bli stående
+  utenfor `main`.
 
 `create_session` lar deg velge modell, ikke innsatsnivå. Vil oppdragsgiver ha
 et annet nivå, må det settes i økta i appen.
@@ -92,8 +105,13 @@ et annet nivå, må det settes i økta i appen.
 ## 3. Gjennomgang når øktene er ferdige
 
 Øktene melder fra når de er bedt om det (punkt 2). Sett i tillegg én sjekk med
-`send_later` som sikkerhetsnett, innen en time mens noe venter. Gjør dette for
-hver PR:
+`send_later` som sikkerhetsnett, innen en time mens noe venter.
+
+Send ikke nye issues til en økt som er i gang. De venter til neste runde.
+Samle det en økt skal ha, i én melding, og vent på svaret før neste. Meldinger
+som krysser hverandre, gir dobbelt arbeid.
+
+Gjør dette for hver PR:
 
 1. Les PR-beskrivelsen. Mangler den noe av det punkt 2 krever, hent de
    siste meldingene fra økta (`list_events` med `kinds: ["assistant"]` og lav
