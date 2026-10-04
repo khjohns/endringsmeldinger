@@ -49,7 +49,7 @@ export function deriveFristDomainConfig(sak: SakState): FristDomainConfig {
   return {
     varselType: f.varsel_type,
     krevdDager: f.krevd_dager ?? 0,
-    erSvarPaForesporsel: !!f.har_bh_foresporsel,
+    erSvarPaForesporsel: f.kravet_besvarer_foresporselen === true,
     harInnsigelseMotVarsel: f.frist_varsel_ok === false,
     // Bare et uttrykkelig tidligere BH-standpunkt kan gjøre § 33.4-vurderingen overflødig.
     // Et innsendt varsel uten svar er fortsatt ikke vurdert.

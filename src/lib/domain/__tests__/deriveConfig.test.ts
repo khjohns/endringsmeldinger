@@ -24,3 +24,15 @@ describe('deriveFristDomainConfig — tidligere svar (#181)', () => {
     expect(deriveFristDomainConfig(sak).harTidligereVarselITide).toBe(true);
   });
 });
+
+describe('deriveFristDomainConfig — svar på forespørselen (#181)', () => {
+  it('gjelder bare kravet som besvarte forespørselen', () => {
+    const svaret = medFrist({ har_bh_foresporsel: true, kravet_besvarer_foresporselen: true });
+    expect(deriveFristDomainConfig(svaret).erSvarPaForesporsel).toBe(true);
+  });
+
+  it('gjelder ikke en senere revisjon, selv om forespørselen finnes', () => {
+    const revisjon = medFrist({ har_bh_foresporsel: true, kravet_besvarer_foresporselen: false });
+    expect(deriveFristDomainConfig(revisjon).erSvarPaForesporsel).toBe(false);
+  });
+});
