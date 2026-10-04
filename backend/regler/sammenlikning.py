@@ -16,7 +16,6 @@ from regler.grunnlag import forste_underkategori, kontroller_grunnlagssvar
 from regler.vederlag import Vederlagskrav, Vederlagsvurdering, beregn_vederlag
 
 RESULTAT = ("beregnings_resultat", "subsidiaer_resultat")
-ALLTID = (*RESULTAT, "subsidiaer_triggers")
 VEDERLAG_BELOP = (
     "total_godkjent_belop",
     "total_krevd_belop",
@@ -63,12 +62,12 @@ def _vis(verdi) -> str:
     return str(verdi)
 
 
-def _normaliser(verdi):
-    """Enum til verdi, triggere til mengde, tall til hele øre."""
+def _normaliser(verdi, er_belop: bool):
+    """Enum til verdi, triggere til mengde og beløp til hele øre."""
     if isinstance(verdi, list | tuple):
-        return frozenset(_normaliser(v) for v in verdi) or None
+        return frozenset(_normaliser(v, False) for v in verdi) or None
     verdi = getattr(verdi, "value", verdi)
-    if isinstance(verdi, int | float | Decimal) and not isinstance(verdi, bool):
+    if er_belop and isinstance(verdi, int | float | Decimal) and not isinstance(verdi, bool):
         try:
             return belop(verdi)
         except InvalidOperation:
@@ -76,20 +75,19 @@ def _normaliser(verdi):
     return verdi
 
 
-def _kontroller(data, r, felt) -> dict:
+def _kontroller(data, r, felt, belopsfelt=(), ikke_fremsatt=()) -> dict:
     """Sammenlikn klientens verdier med serverens for `felt`, og returner
     serverens, med beløp som flyttall slik modellen lagrer dem.
 
-    Et tall serveren ikke har, for eksempel for et særskilt krav som ikke er
-    fremsatt, sammenliknes ikke, og klientens verdi erstattes av `None`.
-    Resultatene og triggerne sammenliknes alltid.
+    Et særskilt krav som ikke er fremsatt, har ikke noe godkjent beløp hos
+    serveren. Skjemaet sender 0, så feltet sammenliknes ikke og lagres som `None`.
     """
     server = {f: getattr(r, f) for f in felt}
     server["subsidiaer_triggers"] = list(r.subsidiaer_triggers) or None
     par = {
-        f: (_normaliser(getattr(data, f)), _normaliser(v))
+        f: (_normaliser(getattr(data, f), f in belopsfelt), _normaliser(v, f in belopsfelt))
         for f, v in server.items()
-        if v is not None or f in ALLTID
+        if f not in ikke_fremsatt
     }
     avvik = {f: (k, s) for f, (k, s) in par.items() if k != s}
     if avvik:
@@ -98,8 +96,19 @@ def _kontroller(data, r, felt) -> dict:
 
 
 def kontroller_vederlagssvar(data: VederlagResponsData, sak: SakState) -> dict:
-    r = beregn_vederlag(Vederlagskrav.fra_tilstand(sak), Vederlagsvurdering.fra_data(data))
-    return _kontroller(data, r, RESULTAT + VEDERLAG_BELOP)
+    krav = Vederlagskrav.fra_tilstand(sak)
+    r = beregn_vederlag(krav, Vederlagsvurdering.fra_data(data))
+    ikke_fremsatt = {
+        "rigg_godkjent_belop": not krav.har_rigg_krav,
+        "produktivitet_godkjent_belop": not krav.har_produktivitet_krav,
+    }
+    return _kontroller(
+        data,
+        r,
+        RESULTAT + VEDERLAG_BELOP,
+        belopsfelt=VEDERLAG_BELOP,
+        ikke_fremsatt={f for f, gjelder in ikke_fremsatt.items() if gjelder},
+    )
 
 
 def kontroller_fristsvar(data: FristResponsData, sak: SakState) -> dict:

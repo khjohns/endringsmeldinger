@@ -68,9 +68,16 @@ class Fristvurdering:
 
     @classmethod
     def fra_data(cls, data: FristResponsData) -> "Fristvurdering":
-        """Et felt modellen har fylt med standardverdien, er ikke en vurdering."""
+        """Et felt modellen har fylt med standardverdien, er ikke en vurdering.
+
+        Dagene BH har vurdert, står i `subsidiaer_godkjent_dager` når det
+        prinsipale resultatet er avslått, og ellers i `godkjent_dager`.
+        """
         sendt = data.model_fields_set
-        return cls(**{f: getattr(data, f) if f in sendt else None for f in cls.__dataclass_fields__})
+        felt = {f: getattr(data, f) if f in sendt else None for f in cls.__dataclass_fields__}
+        if data.subsidiaer_godkjent_dager is not None:
+            felt["godkjent_dager"] = data.subsidiaer_godkjent_dager
+        return cls(**felt)
 
 
 @dataclass(frozen=True)

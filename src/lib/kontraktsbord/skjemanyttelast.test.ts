@@ -87,6 +87,12 @@ describe('nyttelasten skjemaene sender', () => {
           vilkarOppfylt: true,
           godkjentDager: 20,
         }),
+        respons_frist_prekludert: fristsvar({
+          fristVarselOk: false,
+          spesifisertKravOk: true,
+          vilkarOppfylt: true,
+          godkjentDager: 20,
+        }),
         respons_frist_uten_hindring: fristsvar({
           fristVarselOk: true,
           spesifisertKravOk: true,
