@@ -776,6 +776,19 @@ describe('buildEventData', () => {
 // ============================================================================
 
 describe('beregnAlt', () => {
+  it('rounds each claim to øre before summing, like the backend', () => {
+    const state = makeState({
+      hovedkravVurdering: 'delvis',
+      hovedkravGodkjentBelop: 0.004,
+      riggVurdering: 'delvis',
+      riggGodkjentBelop: 0.004,
+    });
+    const config = makeConfig({ hovedkravBelop: 100, harRiggKrav: true, riggBelop: 100 });
+    const computed = beregnAlt(state, config);
+    expect(computed.totalGodkjent).toBe(0);
+    expect(computed.prinsipaltResultat).toBe('avslatt');
+  });
+
   it('computes all values for simple godkjent case', () => {
     const state = makeState({ hovedkravVurdering: 'godkjent' });
     const config = makeConfig({ hovedkravBelop: 100000 });
