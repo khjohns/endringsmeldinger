@@ -1,18 +1,14 @@
 """Auth-boundary tests without live identity providers or database access."""
 
-from types import SimpleNamespace
 from unittest.mock import Mock
 
 import pytest
 from flask import Flask, g, jsonify
 
-from lib.auth.entra_id import require_entra_auth
-from lib.auth.magic_link import require_magic_link
 from lib.auth.session import cookie_name, digest, require_auth
 from routes.utility_routes import utility_bp
 
 
-@pytest.mark.parametrize("decorator", [require_magic_link, require_entra_auth])
 @pytest.mark.parametrize(
     "environment,testing,disabled,expected",
     [
@@ -23,20 +19,17 @@ from routes.utility_routes import utility_bp
         ("development", True, "false", 401),
     ],
 )
-def test_legacy_bypass_requires_explicit_development_or_testing(
-    monkeypatch, decorator, environment, testing, disabled, expected
+def test_bypass_requires_explicit_development_or_testing(
+    monkeypatch, environment, testing, disabled, expected
 ):
     monkeypatch.setenv("APP_ENV", environment)
     monkeypatch.setenv("DISABLE_AUTH", disabled)
-    monkeypatch.setattr(
-        "lib.auth.entra_id.settings", SimpleNamespace(entra_enabled=False)
-    )
     app = Flask(__name__)
     app.testing = testing
     # Flask's test client does not imply the application is in test mode;
     # keep this explicit so the production/staging matrix is meaningful.
     app.config["TESTING"] = testing
-    app.add_url_rule("/protected", view_func=decorator(lambda: "ok"))
+    app.add_url_rule("/protected", view_func=require_auth(lambda: "ok"))
     assert app.test_client().get("/protected").status_code == expected
 
 
@@ -62,9 +55,7 @@ def api(monkeypatch):
     return app.test_client(), auth
 
 
-@pytest.mark.parametrize("entra_enabled", ["true", "false"])
-def test_bearer_cannot_replace_cookie_session(api, monkeypatch, entra_enabled):
-    monkeypatch.setenv("ENTRA_ENABLED", entra_enabled)
+def test_bearer_cannot_replace_cookie_session(api):
     client, auth = api
     headers = {"Authorization": "Bearer alice", "X-User-ID": "alice", "X-Role": "BH"}
     assert client.get("/identity", headers=headers).status_code == 401

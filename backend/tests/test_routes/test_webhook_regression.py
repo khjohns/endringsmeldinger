@@ -275,7 +275,6 @@ class TestWebhookRuntimeWiring:
     """The Flask factory must select the permanent resolver through its factory."""
 
     def test_get_webhook_service_uses_selected_resolver_factory(self, monkeypatch):
-        import app
         from routes import catenda_webhook_routes
         from services import catenda_project_resolver_factory
 
@@ -283,9 +282,7 @@ class TestWebhookRuntimeWiring:
         resolver = MagicMock()
         service_type = MagicMock()
         event_repository = MagicMock()
-        magic_links = MagicMock()
 
-        monkeypatch.setattr(app, "get_magic_link_manager", lambda: magic_links)
         monkeypatch.setattr(catenda_webhook_routes, "get_catenda_client", lambda: client)
         monkeypatch.setattr(
             catenda_webhook_routes,
@@ -370,7 +367,6 @@ class TestWebhookServiceCreation:
             event_repository=MagicMock(),
             catenda_client=mock_client,
             config={"react_app_url": "http://localhost:3000"},
-            magic_link_generator=MagicMock(),
             resolver=make_resolver(),
         )
 
@@ -542,7 +538,6 @@ class TestWebhookProjectRouting:
             event_repository=MagicMock(),
             catenda_client=mock_client,
             config={"react_app_url": "http://localhost:3000"},
-            magic_link_generator=MagicMock(),
             resolver=resolver,
         )
         return svc, mock_client, mock_creation

@@ -67,7 +67,7 @@ Event Sourcing API for NS 8407 change order claims (Krav om Endringsordre).
 
 ## Authentication
 - **CSRF Token**: Required for POST/PUT/DELETE via `X-CSRF-Token` header
-- **Magic Link**: Required for case operations via `Authorization: Bearer <token>` header
+- **Sesjon**: Catenda-innlogging gir sesjonscookien `__Host-koe_session` (`koe_session` i utvikling), og prosjektet angis med `X-Project-ID`
 
 ## Event Sourcing
 All state changes are recorded as immutable events. State is computed by replaying events.
@@ -562,36 +562,22 @@ def generate_paths() -> dict[str, Any]:
     paths["/api/magic-link/verify"] = {
         "get": {
             "tags": ["Utility"],
-            "summary": "Verify magic link token",
+            "summary": "Pensjonert magic-link-verifisering",
+            "description": "Magic links er erstattet av Catenda-innlogging. Ruta svarer alltid 410.",
             "operationId": "verifyMagicLink",
-            "parameters": [
-                {
-                    "name": "token",
-                    "in": "query",
-                    "required": True,
-                    "schema": {"type": "string"},
-                }
-            ],
+            "deprecated": True,
             "responses": {
-                "200": {
-                    "description": "Token is valid",
+                "410": {
+                    "description": "Pensjonert; logg inn med Catenda",
                     "content": {
                         "application/json": {
                             "schema": {
                                 "type": "object",
                                 "properties": {
-                                    "success": {"type": "boolean"},
-                                    "sakId": {"type": "string"},
+                                    "error": {"type": "string", "example": "GONE"},
+                                    "message": {"type": "string"},
                                 },
                             }
-                        }
-                    },
-                },
-                "403": {
-                    "description": "Invalid or expired token",
-                    "content": {
-                        "application/json": {
-                            "schema": {"$ref": "#/components/schemas/Error"}
                         }
                     },
                 },
@@ -696,88 +682,6 @@ def generate_paths() -> dict[str, Any]:
         }
     }
 
-    paths["/api/validate-user"] = {
-        "post": {
-            "tags": ["Utility"],
-            "summary": "Validate user in Catenda project",
-            "description": "Validates if an email belongs to a user in the Catenda project. Used to verify users before allowing them to sign forms.",
-            "operationId": "validateUser",
-            "security": [{"csrfToken": []}],
-            "requestBody": {
-                "required": True,
-                "content": {
-                    "application/json": {
-                        "schema": {
-                            "type": "object",
-                            "required": ["email", "sakId"],
-                            "properties": {
-                                "email": {
-                                    "type": "string",
-                                    "format": "email",
-                                    "description": "User email to validate",
-                                },
-                                "sakId": {
-                                    "type": "string",
-                                    "description": "Case ID to check project membership against",
-                                },
-                            },
-                        }
-                    }
-                },
-            },
-            "responses": {
-                "200": {
-                    "description": "User found in project",
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "type": "object",
-                                "properties": {
-                                    "success": {"type": "boolean", "example": True},
-                                    "name": {
-                                        "type": "string",
-                                        "description": "User's full name",
-                                    },
-                                    "email": {"type": "string", "format": "email"},
-                                    "company": {
-                                        "type": "string",
-                                        "description": "User's company",
-                                    },
-                                },
-                            }
-                        }
-                    },
-                },
-                "400": {
-                    "description": "Missing required parameters",
-                    "content": {
-                        "application/json": {
-                            "schema": {"$ref": "#/components/schemas/Error"}
-                        }
-                    },
-                },
-                "404": {
-                    "description": "User not found in project or case not found",
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "type": "object",
-                                "properties": {
-                                    "success": {"type": "boolean", "example": False},
-                                    "error": {
-                                        "type": "string",
-                                        "example": "Brukeren er ikke medlem i dette Catenda-prosjektet.",
-                                    },
-                                },
-                            }
-                        }
-                    },
-                },
-            },
-        }
-    }
-
-    # Events API
     paths["/api/events"] = {
         "post": {
             "tags": ["Events"],
@@ -790,7 +694,7 @@ Submit a single event to a case with optimistic concurrency control.
 - Version must match current state version
 """.strip(),
             "operationId": "submitEvent",
-            "security": [{"csrfToken": []}, {"magicLink": []}],
+            "security": [{"csrfToken": []}, {"session": []}],
             "requestBody": {
                 "required": True,
                 "content": {
@@ -916,7 +820,7 @@ Submit a single event to a case with optimistic concurrency control.
             "summary": "Submit batch of events",
             "description": "Submit multiple events atomically (all-or-nothing)",
             "operationId": "submitEventBatch",
-            "security": [{"csrfToken": []}, {"magicLink": []}],
+            "security": [{"csrfToken": []}, {"session": []}],
             "requestBody": {
                 "required": True,
                 "content": {
@@ -956,7 +860,7 @@ Supports filtering by case type (sakstype).
 Results are sorted by last_event_at descending (most recent first).
 """.strip(),
             "operationId": "listCases",
-            "security": [{"magicLink": []}],
+            "security": [{"session": []}],
             "parameters": [
                 {
                     "name": "sakstype",
@@ -989,7 +893,7 @@ Results are sorted by last_event_at descending (most recent first).
             "summary": "Get case state",
             "description": "Get computed state for a case",
             "operationId": "getCaseState",
-            "security": [{"magicLink": []}],
+            "security": [{"session": []}],
             "parameters": [
                 {
                     "name": "sak_id",
@@ -1019,7 +923,7 @@ Results are sorted by last_event_at descending (most recent first).
             "summary": "Get case timeline",
             "description": "Get full event timeline for UI display",
             "operationId": "getCaseTimeline",
-            "security": [{"magicLink": []}],
+            "security": [{"session": []}],
             "parameters": [
                 {
                     "name": "sak_id",
@@ -1041,7 +945,7 @@ Results are sorted by last_event_at descending (most recent first).
             "summary": "Get case history",
             "description": "Get revision history for vederlag and frist tracks",
             "operationId": "getCaseHistory",
-            "security": [{"magicLink": []}],
+            "security": [{"session": []}],
             "parameters": [
                 {
                     "name": "sak_id",
@@ -1103,7 +1007,7 @@ TE can treat it as an order to accelerate if the cost is within 30% of
 the liquidated damages that would have accrued.
 """.strip(),
             "operationId": "createForsering",
-            "security": [{"csrfToken": []}, {"magicLink": []}],
+            "security": [{"csrfToken": []}, {"session": []}],
             "requestBody": {
                 "required": True,
                 "content": {
@@ -1202,7 +1106,7 @@ A KOE is a candidate if:
             "summary": "Get forsering context",
             "description": "Get complete context including related cases, states, and events",
             "operationId": "getForseringKontekst",
-            "security": [{"magicLink": []}],
+            "security": [{"session": []}],
             "parameters": [
                 {
                     "name": "sak_id",
@@ -1223,7 +1127,7 @@ A KOE is a candidate if:
             "summary": "Validate 30% rule",
             "description": "Check if estimated cost is within the 30% limit (dagmulkt + 30%)",
             "operationId": "validateForsering",
-            "security": [{"magicLink": []}],
+            "security": [{"session": []}],
             "requestBody": {
                 "required": True,
                 "content": {
@@ -1271,7 +1175,7 @@ A KOE is a candidate if:
             "summary": "Get related cases for forsering",
             "description": "Get all KOE cases related to a forsering case (rejected frist claims)",
             "operationId": "getForseringRelaterte",
-            "security": [{"magicLink": []}],
+            "security": [{"session": []}],
             "parameters": [
                 {
                     "name": "sak_id",
@@ -1323,7 +1227,7 @@ A KOE is a candidate if:
             "summary": "Add related case to forsering",
             "description": "Add a KOE case as related to the forsering",
             "operationId": "addForseringRelatert",
-            "security": [{"csrfToken": []}, {"magicLink": []}],
+            "security": [{"csrfToken": []}, {"session": []}],
             "parameters": [
                 {
                     "name": "sak_id",
@@ -1358,7 +1262,7 @@ A KOE is a candidate if:
             "tags": ["Forsering"],
             "summary": "Remove related case from forsering",
             "operationId": "removeForseringRelatert",
-            "security": [{"csrfToken": []}, {"magicLink": []}],
+            "security": [{"csrfToken": []}, {"session": []}],
             "parameters": [
                 {
                     "name": "sak_id",
@@ -1383,7 +1287,7 @@ A KOE is a candidate if:
             "summary": "Register BH response to forsering",
             "description": "BH accepts or rejects the forsering claim",
             "operationId": "bhResponsForsering",
-            "security": [{"csrfToken": []}, {"magicLink": []}],
+            "security": [{"csrfToken": []}, {"session": []}],
             "parameters": [
                 {
                     "name": "sak_id",
@@ -1463,7 +1367,7 @@ A KOE is a candidate if:
             "summary": "Stop active forsering",
             "description": "Stop an ongoing forsering and record incurred costs",
             "operationId": "stoppForsering",
-            "security": [{"csrfToken": []}, {"magicLink": []}],
+            "security": [{"csrfToken": []}, {"session": []}],
             "parameters": [
                 {
                     "name": "sak_id",
@@ -1543,7 +1447,7 @@ A KOE is a candidate if:
             "summary": "Update incurred costs",
             "description": "Update the incurred costs for an active forsering",
             "operationId": "oppdaterForseringKostnader",
-            "security": [{"csrfToken": []}, {"magicLink": []}],
+            "security": [{"csrfToken": []}, {"session": []}],
             "parameters": [
                 {
                     "name": "sak_id",
@@ -1619,7 +1523,7 @@ A KOE is a candidate if:
             "summary": "Find forsering cases referencing a KOE",
             "description": "Find all forsering cases that reference a given KOE case. Used for back-links.",
             "operationId": "findForseringerForSak",
-            "security": [{"magicLink": []}],
+            "security": [{"session": []}],
             "parameters": [
                 {
                     "name": "sak_id",
@@ -1705,7 +1609,7 @@ Per NS 8407 §31.3: An endringsordre is the formal document confirming
 a contract change. It can aggregate multiple KOE cases.
 """.strip(),
             "operationId": "createEndringsordre",
-            "security": [{"csrfToken": []}, {"magicLink": []}],
+            "security": [{"csrfToken": []}, {"session": []}],
             "requestBody": {
                 "required": True,
                 "content": {
@@ -1791,7 +1695,7 @@ Get KOE cases that can be added to an endringsordre.
             "summary": "Get endringsordre context",
             "description": "Get complete context including related KOE cases, states, and events",
             "operationId": "getEOKontekst",
-            "security": [{"magicLink": []}],
+            "security": [{"session": []}],
             "parameters": [
                 {
                     "name": "sak_id",
@@ -1811,7 +1715,7 @@ Get KOE cases that can be added to an endringsordre.
             "tags": ["Endringsordre"],
             "summary": "Add KOE to endringsordre",
             "operationId": "addKOEToEO",
-            "security": [{"csrfToken": []}, {"magicLink": []}],
+            "security": [{"csrfToken": []}, {"session": []}],
             "parameters": [
                 {
                     "name": "sak_id",
@@ -1841,7 +1745,7 @@ Get KOE cases that can be added to an endringsordre.
             "tags": ["Endringsordre"],
             "summary": "Remove KOE from endringsordre",
             "operationId": "removeKOEFromEO",
-            "security": [{"csrfToken": []}, {"magicLink": []}],
+            "security": [{"csrfToken": []}, {"session": []}],
             "parameters": [
                 {
                     "name": "sak_id",
@@ -1866,7 +1770,7 @@ Get KOE cases that can be added to an endringsordre.
             "summary": "Get related KOE cases for endringsordre",
             "description": "Get all KOE cases included in an endringsordre",
             "operationId": "getEORelaterte",
-            "security": [{"magicLink": []}],
+            "security": [{"session": []}],
             "parameters": [
                 {
                     "name": "sak_id",
@@ -1918,7 +1822,7 @@ Get KOE cases that can be added to an endringsordre.
             "summary": "Find endringsordre cases referencing a KOE",
             "description": "Find all endringsordre cases that include a given KOE case. Used for back-links.",
             "operationId": "findEOerForKOE",
-            "security": [{"magicLink": []}],
+            "security": [{"session": []}],
             "parameters": [
                 {
                     "name": "sak_id",
@@ -2147,7 +2051,11 @@ def generate_openapi_spec() -> dict[str, Any]:
         "components": {
             "securitySchemes": {
                 "csrfToken": {"type": "apiKey", "in": "header", "name": "X-CSRF-Token"},
-                "magicLink": {"type": "http", "scheme": "bearer"},
+                "session": {
+                    "type": "apiKey",
+                    "in": "cookie",
+                    "name": "__Host-koe_session",
+                },
             },
             "schemas": generate_schemas(),
         },

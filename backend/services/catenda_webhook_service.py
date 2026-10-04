@@ -8,7 +8,6 @@ Handles Catenda webhook events by generating appropriate domain events
 instead of directly manipulating state.
 
 Architecture:
-- Uses EventRepository instead of CSVRepository
 - Generates domain events (SakOpprettetEvent) instead of documents
 - State is computed from events, not stored directly
 - Uses Unit of Work for atomic metadata + event operations
@@ -75,7 +74,6 @@ class WebhookService:
         catenda_client: Any,
         resolver: CatendaProjectResolver,
         config: dict[str, Any] | None = None,
-        magic_link_generator: Any | None = None,
     ):
         """
         Initialize WebhookService.
@@ -84,7 +82,6 @@ class WebhookService:
             event_repository: Event store for persisting events
             catenda_client: Authenticated Catenda API client
             config: Optional configuration dict (project_id, library_id, etc.)
-            magic_link_generator: Optional magic link generator for URLs
             resolver: Obligatorisk CatendaProjectResolver for fail-closed
                 prosjektruting.
         """
@@ -95,7 +92,6 @@ class WebhookService:
         self.timeline_service = TimelineService()
         self.catenda = catenda_client
         self.config = config or {}
-        self.magic_link_generator = magic_link_generator
         self.resolver = resolver
 
     @staticmethod

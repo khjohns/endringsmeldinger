@@ -48,7 +48,6 @@ def get_webhook_service() -> WebhookService:
     - EventRepository for event persistence
     - CatendaClient for Catenda API integration
     - Config from settings
-    - MagicLinkManager for generating links
 
     Returns:
         Configured WebhookService instance

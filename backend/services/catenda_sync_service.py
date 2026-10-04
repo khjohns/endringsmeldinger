@@ -5,10 +5,8 @@ Håndterer posting av kommentarer og oppdatering av status for alle sakstyper.
 """
 
 from dataclasses import dataclass
-from typing import Any
 
 from core.config import settings
-from lib.auth import get_magic_link_manager
 from lib.catenda_factory import get_catenda_client
 from models.events import AnyEvent
 from models.sak_state import SakState
@@ -42,7 +40,6 @@ class CatendaSyncService:
         self,
         catenda_service: CatendaService | None = None,
         comment_generator: CatendaCommentGenerator | None = None,
-        magic_link_manager: Any | None = None,
     ):
         """
         Initialiser CatendaSyncService.
@@ -50,11 +47,9 @@ class CatendaSyncService:
         Args:
             catenda_service: CatendaService-instans (opprettes automatisk hvis None)
             comment_generator: CatendaCommentGenerator-instans (opprettes automatisk hvis None)
-            magic_link_manager: MagicLinkManager-instans (opprettes automatisk hvis None)
         """
         self._catenda_service = catenda_service
         self._comment_generator = comment_generator or CatendaCommentGenerator()
-        self._magic_link_manager = magic_link_manager
 
     def _get_catenda_service(self) -> CatendaService | None:
         """Lazy-load CatendaService."""
@@ -63,12 +58,6 @@ class CatendaSyncService:
             if client:
                 self._catenda_service = CatendaService(client)
         return self._catenda_service
-
-    def _get_magic_link_manager(self) -> Any:
-        """Lazy-load MagicLinkManager."""
-        if self._magic_link_manager is None:
-            self._magic_link_manager = get_magic_link_manager()
-        return self._magic_link_manager
 
     def sync_event_to_catenda(
         self,

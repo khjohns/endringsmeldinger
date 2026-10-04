@@ -384,7 +384,6 @@ flowchart LR
     c_ifc -->|"C16.2 list_ifc_types"| t_appen
     c_ifc -->|"C16.3 get_related_bim_objects"| t_appen
     c_prosjekt -->|"C17.1 catenda_health_check"| t_appen
-    c_medlemmer -->|"C17.2 validate_user"| t_appen
 ```
 
 ### Ut til Catenda
@@ -706,18 +705,17 @@ De to listene finner Catenda-prosjektet i `catenda_models_cache`, som ingen skri
 
 **Funn:** DM-02, DA-15. **Belegg:** L 29.09: BIM-rutene.
 
-### C17 Kontroll av tilkoblingen og en bruker
+### C17 Kontroll av tilkoblingen
 
-**Retning:** inn. **Utløses av:** `GET /api/health/catenda` og `POST /api/validate-user`.
+**Retning:** inn. **Utløses av:** `GET /api/health/catenda`.
 
 Leser fra Catenda og svarer; ingenting lagres.
 
 | Pil | Fra | Til | Endepunkt | Kode | Data |
 | --- | --- | --- | --- | --- | --- |
 | C17.1 | Catenda: prosjekter | Appen, lagres ikke | GET /v2/projects | [`catenda_health_check`](../../backend/routes/utility_routes.py) | Om integrasjonsklienten får en prosjektliste. |
-| C17.2 | Catenda: prosjektmedlemmer | Appen, lagres ikke | GET /v2/projects/{catenda_project_id}/members | [`validate_user`](../../backend/routes/utility_routes.py) | Om en e-post er medlem i det globale Catenda-prosjektet. |
 
-**Funn:** —. **Belegg:** L 29.09: `utility_routes.py`.
+**Funn:** —. **Belegg:** L 04.10: `utility_routes.py`.
 
 ### C18 Prosjekt registreres av drift
 
