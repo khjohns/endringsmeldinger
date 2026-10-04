@@ -331,3 +331,58 @@ def test_skjemaets_svar_lagres_med_regelversjonen_i_journalen(sak, navn):  # noq
     lagret, _ = sak.lager.get_events(sak_id)
     assert lagret[-1]["data"]["regelversjon"] == REGELVERSJON
     assert lagret[-1]["data"]["beregnings_resultat"] == data["beregnings_resultat"]
+
+
+# =============================================================================
+# Godkjenningsflyten: grunnlag og frist i samme pakke
+# =============================================================================
+
+
+def test_frist_vurderes_mot_grunnlaget_i_samme_pakke(tmp_path):
+    """Avslår BH grunnlaget i samme pakke, er fristen subsidiær
+    (`grunnlag_avslatt`). `prepare` og `package` må regne mot det samme
+    grunnlaget, ellers avvises pakken ved `package`."""
+    from tests.test_approval import test_approval_service as godkjenning
+
+    tjeneste, lager, grunnlag = godkjenning.setup.__wrapped__(tmp_path)
+    tjeneste.authority_policy = {"daily_rate": 10000}
+    godkjenning.send_krav(lager, "frist")
+    frist_krav = lager.get_events("case1")[0][-1]
+    grunnlag["data"] = {**grunnlag["data"], "resultat": "avslatt"}
+    grunnlag_item = godkjenning.command(tjeneste, "prepare", item=grunnlag)["items"][-1]
+    frist_item = godkjenning.command(
+        tjeneste,
+        "prepare",
+        item={
+            "track": "frist",
+            "eventType": "respons_frist",
+            "claimId": frist_krav["event_id"],
+            "data": {
+                "regelversjon": REGELVERSJON,
+                "frist_krav_id": frist_krav["event_id"],
+                "frist_varsel_ok": True,
+                "spesifisert_krav_ok": True,
+                "vilkar_oppfylt": True,
+                "godkjent_dager": frist_krav["data"]["antall_dager"],
+                "beregnings_resultat": "godkjent",
+                "subsidiaer_triggers": ["grunnlag_avslatt"],
+                "begrunnelse": "Subsidiært godkjent.",
+            },
+        },
+    )["items"][-1]
+    pakke = godkjenning.command(
+        tjeneste,
+        "package",
+        letter={
+            "title": "Svar",
+            "caseId": "case1",
+            "caseTitle": "Endring",
+            "sender": "BH",
+            "recipient": "TE",
+            "date": "4. oktober 2026",
+            "introduction": "",
+            "closing": "",
+            "items": [grunnlag_item, frist_item],
+        },
+    )["packages"][-1]
+    assert pakke["status"] in ("til_godkjenning", "godkjent")

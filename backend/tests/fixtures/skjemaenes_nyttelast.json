@@ -35,6 +35,24 @@
       "beregnings_resultat": "delvis_godkjent",
       "krevd_dager": 30
     },
+    "respons_frist_prekludert": {
+      "regelversjon": 1,
+      "frist_krav_id": "KRAV",
+      "frist_varsel_ok": false,
+      "spesifisert_krav_ok": true,
+      "vilkar_oppfylt": true,
+      "godkjent_dager": 0,
+      "begrunnelse": "Begrunnelse.",
+      "auto_begrunnelse": "Auto.",
+      "beregnings_resultat": "avslatt",
+      "krevd_dager": 30,
+      "subsidiaer_triggers": [
+        "preklusjon_varsel"
+      ],
+      "subsidiaer_resultat": "delvis_godkjent",
+      "subsidiaer_godkjent_dager": 20,
+      "subsidiaer_begrunnelse": "Begrunnelse."
+    },
     "respons_frist_uten_hindring": {
       "regelversjon": 1,
       "frist_krav_id": "KRAV",
