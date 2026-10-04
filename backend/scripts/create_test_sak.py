@@ -45,7 +45,6 @@ from dotenv import load_dotenv
 backend_dir = Path(__file__).parent.parent
 load_dotenv(backend_dir / ".env")
 
-from lib.auth.magic_link import MagicLinkManager
 from models.events import (
     EOKonsekvenser,
     EOOpprettetData,
@@ -962,7 +961,7 @@ def ensure_sak_metadata(sak_id: str, sakstype: str, tittel: str = None):
 
 def create_test_sak(
     preset: Preset = Preset.KOMPLETT, sak_id: str = None
-) -> tuple[str, str, dict]:
+) -> tuple[str, dict]:
     """
     Oppretter en test-sak basert på valgt preset.
 
@@ -971,7 +970,7 @@ def create_test_sak(
         sak_id: Sak-ID, genereres automatisk hvis ikke oppgitt
 
     Returns:
-        tuple: (sak_id, magic_token, metadata)
+        tuple: (sak_id, metadata)
     """
     repo = create_event_repository()
     metadata = {"preset": preset.value, "relaterte_saker": []}
@@ -1030,12 +1029,18 @@ def create_test_sak(
     if events:
         repo.append_batch(events, expected_version=0)
 
-    # Generer magic link for enkel tilgang
-    backend_dir = Path(__file__).parent.parent
-    magic_manager = MagicLinkManager(storage_dir=str(backend_dir / "koe_data"))
-    magic_token = magic_manager.generate(sak_id=sak_id, ttl_hours=72)
+    return sak_id, metadata
 
-    return sak_id, magic_token, metadata
+
+def sakslenke(sak_id: str, prosjekt_id: str | None) -> str:
+    """Vanlig sakslenke. Åpning krever Catenda-innlogging og tilgang til prosjektet."""
+    from urllib.parse import quote
+
+    if not prosjekt_id:
+        return f"http://localhost:3000/<prosjekt-id>/{quote(sak_id, safe='')}"
+    return (
+        f"http://localhost:3000/{quote(prosjekt_id, safe='')}/{quote(sak_id, safe='')}"
+    )
 
 
 def interactive_mode():
@@ -1107,9 +1112,9 @@ def interactive_mode():
     print(f"Oppretter test-sak med preset '{selected_preset.value}'...")
     print()
 
-    created_sak_id, magic_token, metadata = create_test_sak(
-        preset=selected_preset, sak_id=sak_id
-    )
+    prosjekt_id = input("Prosjekt-ID for lenken (Enter for å hoppe over): ").strip()
+
+    created_sak_id, metadata = create_test_sak(preset=selected_preset, sak_id=sak_id)
 
     print()
     print("=" * 60)
@@ -1122,17 +1127,7 @@ def interactive_mode():
     if metadata.get("relaterte_saker"):
         print(f"  Relaterte: {', '.join(metadata['relaterte_saker'])}")
 
-    # URL basert på sakstype
-    if metadata.get("sakstype") == "forsering":
-        url = f"http://localhost:3000/forsering/{created_sak_id}?token={magic_token}"
-    elif metadata.get("sakstype") == "endringsordre":
-        url = (
-            f"http://localhost:3000/endringsordre/{created_sak_id}?token={magic_token}"
-        )
-    else:
-        url = f"http://localhost:3000/saker/{created_sak_id}?token={magic_token}"
-
-    print(f"  URL:       {url}")
+    print(f"  URL:       {sakslenke(created_sak_id, prosjekt_id)}")
     print()
 
     # Spør om brukeren vil lage flere
@@ -1200,6 +1195,11 @@ Eksempler:
         help="Spesifiser sak-ID (genereres automatisk hvis ikke oppgitt)",
     )
     parser.add_argument(
+        "--prosjekt",
+        type=str,
+        help="Prosjekt-ID som brukes i sakslenken",
+    )
+    parser.add_argument(
         "--list",
         "-l",
         action="store_true",
@@ -1216,7 +1216,7 @@ Eksempler:
         # Direkte modus med argumenter
         print(f"\nOppretter test-sak med preset '{args.preset}'...")
         print()
-        sak_id, magic_token, metadata = create_test_sak(
+        sak_id, metadata = create_test_sak(
             preset=Preset(args.preset),
             sak_id=args.sak_id,
         )
@@ -1227,15 +1227,7 @@ Eksempler:
         if metadata.get("relaterte_saker"):
             print(f"Relaterte saker: {', '.join(metadata['relaterte_saker'])}")
 
-        # URL basert på sakstype
-        if metadata.get("sakstype") == "forsering":
-            url = f"http://localhost:3000/forsering/{sak_id}?token={magic_token}"
-        elif metadata.get("sakstype") == "endringsordre":
-            url = f"http://localhost:3000/endringsordre/{sak_id}?token={magic_token}"
-        else:
-            url = f"http://localhost:3000/saker/{sak_id}?token={magic_token}"
-
-        print(f"URL: {url}")
+        print(f"URL: {sakslenke(sak_id, args.prosjekt)}")
     else:
         # Interaktiv modus
         interactive_mode()

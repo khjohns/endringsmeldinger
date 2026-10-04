@@ -1,7 +1,7 @@
 """
 Project membership model for access control.
 
-Email-based membership compatible with magic links and future Entra ID.
+E-postbasert medlemskap. Identiteten løses ved Catenda-innlogging.
 """
 
 from datetime import datetime

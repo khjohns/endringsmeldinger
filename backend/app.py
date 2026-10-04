@@ -13,7 +13,7 @@ Functionality:
 Architecture:
 - routes/event_routes.py: Event submission and state retrieval
 - routes/webhook_routes.py: Catenda webhook integration
-- routes/utility_routes.py: Health, CSRF, magic links
+- routes/utility_routes.py: Health, CSRF
 - services/: Business logic (framework-agnostic)
 - repositories/: Event store with optimistic locking
 - models/: Domain models (Pydantic) - events and state
@@ -51,15 +51,10 @@ from core.logging_config import setup_logging
 
 # Request context
 from core.request_context import init_request_context
-from core.system_context import SystemContext
-from lib.auth.magic_link import MagicLinkManager
 from lib.project_context import init_project_context
 
 # Security
 from lib.security.rate_limiter import init_limiter
-
-# Filtering
-from utils.filtering_config import get_filter_summary
 
 
 def get_uptime() -> str:
@@ -82,46 +77,6 @@ def get_uptime() -> str:
 # ============================================================================
 
 logger = setup_logging("endringsmeldinger.log")
-
-
-# ============================================================================
-# Global System Instance & Singletons
-# ============================================================================
-
-system: SystemContext | None = None
-magic_link_manager: MagicLinkManager | None = None
-
-
-def get_magic_link_manager() -> MagicLinkManager:
-    """Get or initialize the global MagicLinkManager singleton."""
-    global magic_link_manager
-    if magic_link_manager is None:
-        magic_link_manager = MagicLinkManager()
-        logger.info("🪄 MagicLinkManager singleton initialized.")
-    return magic_link_manager
-
-
-def get_system() -> SystemContext:
-    """
-    Get or initialize global SystemContext instance.
-    """
-    global system
-    if system is None:
-        try:
-            config = settings.get_catenda_config()
-            if not config.get("catenda_client_id"):
-                logger.warning(
-                    "⚠️  CATENDA_CLIENT_ID missing in .env - running without Catenda integration"
-                )
-
-            # Pass the singleton manager to the context
-            system = SystemContext(config, magic_link_manager=get_magic_link_manager())
-            logger.info(f"System started. {get_filter_summary()}")
-        except Exception as e:
-            logger.error(f"Could not start system: {e}")
-            sys.exit(1)
-    assert system is not None  # Guaranteed by sys.exit(1) above
-    return system
 
 
 # ============================================================================
@@ -279,7 +234,10 @@ if __name__ == "__main__":
     log_level = os.getenv("LOG_LEVEL", "INFO")
     log_format = os.getenv("LOG_FORMAT", "json")
     event_store = os.getenv("EVENT_STORE_BACKEND", "csv")
-    entra_enabled = os.getenv("ENTRA_ENABLED", "false").lower() == "true"
+    auth_disabled = (
+        os.getenv("DISABLE_AUTH", "").lower() == "true"
+        and os.getenv("APP_ENV") == "development"
+    )
     catenda_ok = settings.is_catenda_enabled
 
     def status_color(enabled: bool) -> str:
@@ -300,9 +258,9 @@ if __name__ == "__main__":
         print(f"  {DIM}Log level{RESET}    {log_level} {DIM}({log_format}){RESET}")
         print(f"  {DIM}Data store{RESET}   {event_store}")
         print(
-            f"  {DIM}Auth{RESET}         {GREEN}Entra ID{RESET}"
-            if entra_enabled
-            else f"  {DIM}Auth{RESET}         {DIM}Disabled{RESET}"
+            f"  {DIM}Auth{RESET}         {YELLOW}Deaktivert (DISABLE_AUTH){RESET}"
+            if auth_disabled
+            else f"  {DIM}Auth{RESET}         {GREEN}Catenda-innlogging{RESET}"
         )
         print(f"\n  {DIM}Integrations{RESET}")
         print(f"    Catenda    {status_color(catenda_ok)}")
