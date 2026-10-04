@@ -40,6 +40,14 @@ export function formatDager(dager: number, useTokens = false): string {
   return `${dager} dager`;
 }
 
+/** Avrundet andel som aldri viser 0 % eller 100 % for en delvis godkjenning (#177). */
+export function andelProsent(godkjent: number, krevd: number): number {
+  if (krevd <= 0) return 0;
+  const prosent = Math.round((godkjent / krevd) * 100);
+  if (godkjent > 0 && godkjent < krevd) return Math.min(99, Math.max(1, prosent));
+  return prosent;
+}
+
 export function formatProsent(prosent: number, useTokens = false): string {
   if (useTokens) {
     return lockedValueFormatters.prosent(prosent);

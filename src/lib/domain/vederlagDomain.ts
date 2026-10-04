@@ -7,6 +7,7 @@ import type {
   VederlagBeregningResultat,
   SubsidiaerTrigger,
 } from '../types/timeline';
+import { REGELVERSJON } from './regelversjon';
 
 export type BelopVurdering = 'godkjent' | 'delvis' | 'avslatt';
 
@@ -233,6 +234,14 @@ export function beregnGodkjentBelop(
   }
 }
 
+function rundHalvOpp(verdi: number): number {
+  return Math.sign(verdi) * Math.round(Math.abs(verdi));
+}
+
+function tilOre(belop: number): number {
+  return rundHalvOpp(Number((belop * 100).toPrecision(15))) / 100;
+}
+
 export interface VederlagTotaler {
   totalKrevd: number;
   totalKrevdInklPrekludert: number;
@@ -250,19 +259,22 @@ export function beregnTotaler(
   config: VederlagDomainConfig,
   preklusjon: { hovedkrav: boolean; rigg: boolean; produktivitet: boolean }
 ): VederlagTotaler {
-  const { hovedkravBelop, harRiggKrav, harProduktivitetKrav } = config;
-  const riggBelop = config.riggBelop ?? 0;
-  const produktivitetBelop = config.produktivitetBelop ?? 0;
+  const { harRiggKrav, harProduktivitetKrav } = config;
+  const riggBelop = tilOre(config.riggBelop ?? 0);
+  const produktivitetBelop = tilOre(config.produktivitetBelop ?? 0);
+  const hovedkravBelop = tilOre(config.hovedkravBelop || 0);
+  const godkjent = (vurdering: BelopVurdering | undefined, krevd: number, delvis?: number) =>
+    tilOre(beregnGodkjentBelop(vurdering, krevd, delvis));
 
   // Total krevd (principal — respekterer preklusjon)
   const totalKrevd =
-    (hovedkravBelop || 0) +
+    hovedkravBelop +
     (harRiggKrav && !preklusjon.rigg ? riggBelop : 0) +
     (harProduktivitetKrav && !preklusjon.produktivitet ? produktivitetBelop : 0);
 
   // Total krevd inkl. prekluderte (for subsidiary)
   const totalKrevdInklPrekludert =
-    (hovedkravBelop || 0) +
+    hovedkravBelop +
     (harRiggKrav ? riggBelop : 0) +
     (harProduktivitetKrav ? produktivitetBelop : 0);
 
@@ -270,17 +282,17 @@ export function beregnTotaler(
   let totalGodkjent = 0;
 
   if (!preklusjon.hovedkrav) {
-    totalGodkjent += beregnGodkjentBelop(
+    totalGodkjent += godkjent(
       state.hovedkravVurdering,
       hovedkravBelop,
       state.hovedkravGodkjentBelop
     );
   }
   if (harRiggKrav && !preklusjon.rigg) {
-    totalGodkjent += beregnGodkjentBelop(state.riggVurdering, riggBelop, state.riggGodkjentBelop);
+    totalGodkjent += godkjent(state.riggVurdering, riggBelop, state.riggGodkjentBelop);
   }
   if (harProduktivitetKrav && !preklusjon.produktivitet) {
-    totalGodkjent += beregnGodkjentBelop(
+    totalGodkjent += godkjent(
       state.produktivitetVurdering,
       produktivitetBelop,
       state.produktivitetGodkjentBelop
@@ -291,21 +303,21 @@ export function beregnTotaler(
   let totalGodkjentInklPrekludert = totalGodkjent;
 
   if (preklusjon.hovedkrav) {
-    totalGodkjentInklPrekludert += beregnGodkjentBelop(
+    totalGodkjentInklPrekludert += godkjent(
       state.hovedkravVurdering,
       hovedkravBelop,
       state.hovedkravGodkjentBelop
     );
   }
   if (harRiggKrav && preklusjon.rigg) {
-    totalGodkjentInklPrekludert += beregnGodkjentBelop(
+    totalGodkjentInklPrekludert += godkjent(
       state.riggVurdering,
       riggBelop,
       state.riggGodkjentBelop
     );
   }
   if (harProduktivitetKrav && preklusjon.produktivitet) {
-    totalGodkjentInklPrekludert += beregnGodkjentBelop(
+    totalGodkjentInklPrekludert += godkjent(
       state.produktivitetVurdering,
       produktivitetBelop,
       state.produktivitetGodkjentBelop
@@ -313,13 +325,31 @@ export function beregnTotaler(
   }
 
   return {
-    totalKrevd,
-    totalKrevdInklPrekludert,
-    totalGodkjent,
-    totalGodkjentInklPrekludert,
+    totalKrevd: tilOre(totalKrevd),
+    totalKrevdInklPrekludert: tilOre(totalKrevdInklPrekludert),
+    totalGodkjent: tilOre(totalGodkjent),
+    totalGodkjentInklPrekludert: tilOre(totalGodkjentInklPrekludert),
     harMetodeendring: state.akseptererMetode === false,
     harPrekludertKrav: preklusjon.hovedkrav || preklusjon.rigg || preklusjon.produktivitet,
   };
+}
+
+/**
+ * B-13 (3.1, 24.09): «godkjent» bare når hele kravet er godkjent, til nærmeste
+ * krone (ROUND_HALF_UP via øre, som `backend/regler/vederlag.py`). 0 kr er
+ * «avslått».
+ */
+function resultatAvBelop(
+  krevd: number,
+  godkjent: number,
+  harMetodeendring: boolean
+): VederlagBeregningResultat {
+  const godkjentOre = tilOre(godkjent);
+  if (godkjentOre === 0) return 'avslatt';
+  if (rundHalvOpp(godkjentOre) >= rundHalvOpp(tilOre(krevd)) && !harMetodeendring) {
+    return 'godkjent';
+  }
+  return 'delvis_godkjent';
 }
 
 export function beregnPrinsipaltResultat(computed: {
@@ -328,23 +358,12 @@ export function beregnPrinsipaltResultat(computed: {
   harMetodeendring: boolean;
   holdTilbake: boolean;
 }): VederlagBeregningResultat {
-  // 1. Tilbakeholdelse (§30.2) har prioritet
   if (computed.holdTilbake) return 'hold_tilbake';
-
-  // 2. Godkjenningsprosent (relativ til totalt krevd, ikke bare kvalifisert)
-  const godkjentProsent =
-    computed.totalKrevdInklPrekludert > 0
-      ? computed.totalGodkjent / computed.totalKrevdInklPrekludert
-      : 0;
-
-  // 3. Totalt avslag — ingenting godkjent prinsipalt
-  if (computed.totalGodkjent === 0) return 'avslatt';
-
-  // 4. Full godkjenning
-  if (godkjentProsent >= 0.99 && !computed.harMetodeendring) return 'godkjent';
-
-  // 5. Metodeendring eller delvis godkjenning
-  return 'delvis_godkjent';
+  return resultatAvBelop(
+    computed.totalKrevdInklPrekludert,
+    computed.totalGodkjent,
+    computed.harMetodeendring
+  );
 }
 
 /**
@@ -355,17 +374,12 @@ export function beregnSubsidiaertResultat(computed: {
   totalKrevdInklPrekludert: number;
   totalGodkjentInklPrekludert: number;
   harMetodeendring: boolean;
-  hovedkravVurdering: BelopVurdering | undefined;
 }): VederlagBeregningResultat {
-  const godkjentProsent =
-    computed.totalKrevdInklPrekludert > 0
-      ? computed.totalGodkjentInklPrekludert / computed.totalKrevdInklPrekludert
-      : 0;
-
-  if (godkjentProsent === 0 && computed.hovedkravVurdering === 'avslatt') return 'avslatt';
-  if (godkjentProsent >= 0.99 && !computed.harMetodeendring) return 'godkjent';
-
-  return 'delvis_godkjent';
+  return resultatAvBelop(
+    computed.totalKrevdInklPrekludert,
+    computed.totalGodkjentInklPrekludert,
+    computed.harMetodeendring
+  );
 }
 
 export function beregnSubsidiaerTriggers(
@@ -444,6 +458,7 @@ export function buildEventData(
         : 0;
 
   const commonData: Record<string, unknown> = {
+    regelversjon: REGELVERSJON,
     // Port 1: Preklusjon
     hovedkrav_varslet_i_tide: computed.har34_1_2_Preklusjon
       ? state.hovedkravVarsletITide
@@ -537,7 +552,6 @@ export function beregnAlt(
     totalKrevdInklPrekludert: totaler.totalKrevdInklPrekludert,
     totalGodkjentInklPrekludert: totaler.totalGodkjentInklPrekludert,
     harMetodeendring: totaler.harMetodeendring,
-    hovedkravVurdering: state.hovedkravVurdering,
   });
 
   const visSubsidiaertResultat = totaler.harPrekludertKrav;
