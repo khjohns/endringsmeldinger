@@ -29,6 +29,8 @@ from models.events import (
     ForseringStoppetEvent,
     ForseringVarselEvent,
     FristEvent,
+    FristForesporselEvent,
+    FristInnsigelseEvent,
     GrunnlagEvent,
     GrunnlagResponsResultat,
     ResponsEvent,
@@ -253,6 +255,8 @@ class TimelineService:
             EventType.FRIST_KRAV_OPPDATERT: self._handle_frist,
             EventType.FRIST_KRAV_SPESIFISERT: self._handle_frist,  # Same handler - updates days
             EventType.FRIST_KRAV_TRUKKET: self._handle_frist_trukket,
+            EventType.FRIST_INNSIGELSE_SENDT: self._handle_frist_innsigelse,
+            EventType.FRIST_FORESPORSEL_SENDT: self._handle_frist_foresporsel,
             EventType.RESPONS_GRUNNLAG: self._handle_respons_grunnlag,
             EventType.RESPONS_GRUNNLAG_OPPDATERT: self._handle_respons_grunnlag,  # Re-use handler
             EventType.RESPONS_VEDERLAG: self._handle_respons_vederlag,
@@ -868,6 +872,32 @@ class TimelineService:
         frist.siste_oppdatert = event.tidsstempel
 
         state.frist = frist
+        return state
+
+    def _handle_frist_innsigelse(
+        self, state: SakState, event: FristInnsigelseEvent
+    ) -> SakState:
+        """Innsigelsen bevarer BHs påstand etter § 5; resultat og status står."""
+        frist = state.frist
+        frist.frist_varsel_ok = False
+        frist.begrunnelse_varsel = event.data.begrunnelse
+        frist.siste_event_id = event.event_id
+        frist.siste_oppdatert = event.tidsstempel
+        return state
+
+    def _handle_frist_foresporsel(
+        self, state: SakState, event: FristForesporselEvent
+    ) -> SakState:
+        """Forespørselen gir TE svarplikt (§ 33.6.2); resultat og status står."""
+        frist = state.frist
+        frist.har_bh_foresporsel = True
+        frist.dato_bh_foresporsel = event.tidsstempel.date().isoformat()
+        frist.foresporsel_krav_id = frist.krav_event_id
+        frist.frist_for_spesifisering = (
+            event.data.svarfrist.isoformat() if event.data.svarfrist else None
+        )
+        frist.siste_event_id = event.event_id
+        frist.siste_oppdatert = event.tidsstempel
         return state
 
     def _handle_forsering_varsel(
@@ -1643,6 +1673,8 @@ class TimelineService:
                 EventType.FRIST_KRAV_OPPDATERT,
                 EventType.FRIST_KRAV_SPESIFISERT,
                 EventType.FRIST_KRAV_TRUKKET,
+                EventType.FRIST_INNSIGELSE_SENDT,
+                EventType.FRIST_FORESPORSEL_SENDT,
                 EventType.RESPONS_FRIST,
                 EventType.RESPONS_FRIST_OPPDATERT,
             }
@@ -1762,6 +1794,22 @@ class TimelineService:
                     aktor=aktor_info,
                     endring_type="trukket",
                     event_id=event.event_id,
+                )
+                historikk.append(entry.model_dump(mode="json"))
+
+            elif event.event_type in {
+                EventType.FRIST_INNSIGELSE_SENDT,
+                EventType.FRIST_FORESPORSEL_SENDT,
+            }:
+                entry = FristHistorikkEntry(
+                    versjon=te_versjon,
+                    tidsstempel=event.tidsstempel,
+                    aktor=aktor_info,
+                    endring_type="innsigelse"
+                    if event.event_type == EventType.FRIST_INNSIGELSE_SENDT
+                    else "foresporsel",
+                    event_id=event.event_id,
+                    bh_begrunnelse=event.data.begrunnelse,
                 )
                 historikk.append(entry.model_dump(mode="json"))
 

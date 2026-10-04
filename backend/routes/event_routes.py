@@ -969,6 +969,8 @@ _HENDELSE_LABELS: dict[str, str] = {
     "frist_krav_oppdatert": "Oppdaterte fristkrav",
     "frist_krav_spesifisert": "Spesifiserte fristkrav",
     "frist_krav_trukket": "Trakk fristkrav",
+    "frist_innsigelse_sendt": "Gjorde innsigelse mot sen varsling",
+    "frist_foresporsel_sendt": "Ba om spesifisert fristkrav",
     "respons_grunnlag": "Svarte på kontraktsforhold",
     "respons_grunnlag_oppdatert": "Oppdaterte svar på kontraktsforhold",
     "respons_vederlag": "Svarte på vederlagskrav",
