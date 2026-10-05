@@ -9,6 +9,7 @@ SakState er READ-ONLY og regenereres hver gang fra events.
 
 from datetime import datetime
 from enum import Enum
+from typing import Literal
 
 from pydantic import BaseModel, Field, computed_field
 
@@ -120,6 +121,13 @@ class GrunnlagTilstand(BaseModel):
     bh_respondert_versjon: int | None = Field(
         default=None,
         description="Hvilken versjon av kravet BH sist responderte på (0-indeksert)",
+    )
+    subsidiaert_til_nytt_svar: Literal["avslatt", "prekludert"] | None = Field(
+        default=None,
+        description=(
+            "Grunnen til at vederlag og frist var subsidiære da TE endret underkategorien "
+            "etter BHs svar. Står til BH svarer på grunnlaget igjen (#215, B-13)"
+        ),
     )
 
     # TE aksept av BH respons
@@ -966,6 +974,8 @@ class SakState(BaseModel):
     @property
     def _grunnlag_er_prekludert(self) -> bool:
         g = self.grunnlag
+        if g.subsidiaert_til_nytt_svar is not None:
+            return g.subsidiaert_til_nytt_svar == "prekludert"
         return er_prekludert(
             g.hovedkategori, forste_underkategori(g.underkategori), g.grunnlag_varslet_i_tide
         )
@@ -973,7 +983,7 @@ class SakState(BaseModel):
     @property
     def _grunnlag_er_subsidiaert(self) -> bool:
         g = self.grunnlag
-        return er_grunnlag_subsidiaert(
+        return g.subsidiaert_til_nytt_svar is not None or er_grunnlag_subsidiaert(
             g.bh_resultat, g.hovedkategori, g.underkategori, g.grunnlag_varslet_i_tide
         )
 
@@ -985,7 +995,8 @@ class SakState(BaseModel):
 
         Returns True hvis:
         - BH har avslått grunnlaget (`bh_resultat`, også mens TE oppdaterer det), ELLER
-        - Grunnlag er prekludert etter § 32.2 (endring uten formell endringsordre)
+        - Grunnlag er prekludert etter § 32.2 (endring uten formell endringsordre), ELLER
+        - et slikt svar falt fordi TE endret underkategorien (`subsidiaert_til_nytt_svar`)
         Regelen er `regler.grunnlag.er_grunnlag_subsidiaert`.
         OG
         - Vederlag-beregningen er godkjent (fullt/delvis/annen metode)
@@ -1018,7 +1029,8 @@ class SakState(BaseModel):
 
         Returns True hvis:
         - BH har avslått grunnlaget (`bh_resultat`, også mens TE oppdaterer det), ELLER
-        - Grunnlag er prekludert etter § 32.2 (endring uten formell endringsordre)
+        - Grunnlag er prekludert etter § 32.2 (endring uten formell endringsordre), ELLER
+        - et slikt svar falt fordi TE endret underkategorien (`subsidiaert_til_nytt_svar`)
         Regelen er `regler.grunnlag.er_grunnlag_subsidiaert`.
         OG
         - Frist-beregningen er godkjent (fullt/delvis)
