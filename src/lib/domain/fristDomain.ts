@@ -162,12 +162,11 @@ export function beregnPrinsipaltResultat(data: {
   return resultatAvDager(data.krevdDager, data.godkjentDager);
 }
 
+/** Dagene er et subsidiært standpunkt også når hindringen bestrides (§ 33.7 annet ledd, #211). */
 export function beregnSubsidiaertResultat(data: {
-  harHindring: boolean;
   krevdDager: number;
   godkjentDager: number;
 }): FristBeregningResultat {
-  if (!data.harHindring) return 'avslatt';
   return resultatAvDager(data.krevdDager, data.godkjentDager);
 }
 
@@ -241,7 +240,6 @@ export function beregnAlt(state: FristFormState, config: FristDomainConfig): Fri
   });
 
   const subsidiaertResultat = beregnSubsidiaertResultat({
-    harHindring,
     krevdDager: config.krevdDager,
     godkjentDager: effectiveGodkjentDager,
   });
