@@ -25,6 +25,7 @@ from uuid import uuid4
 import pytest
 from flask import Flask
 
+from constants.frist_foresporsel import FAST_TEKST
 from lib.auth.session import cookie_name
 from lib.project_context import init_project_context
 from models.events import (
@@ -399,7 +400,7 @@ def test_foresporsel_om_spesifisering_fra_skjemaet_registreres(sak):
     """
     sak_id = f"{SAK}-foresporsel"
     varsel = _opprett_sak(sak.lager, sak_id, fristkrav=NOYTRALT_FRISTVARSEL).frist
-    begrunnelse = "Byggherren etterspør spesifisert krav iht. §33.6.2."
+    begrunnelse = f"<p>{FAST_TEKST}</p><p>Byggherren trenger fremdriftsplanen.</p>"
 
     svar = _svar(
         sak,

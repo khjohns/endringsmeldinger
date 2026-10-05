@@ -8,6 +8,7 @@
  */
 
 import type { FristTilstand } from '../types/timeline';
+import foresporsel from '../../../backend/constants/frist_foresporsel.json';
 
 export type FristVarselHandling = 'innsigelse' | 'foresporsel';
 
@@ -52,19 +53,13 @@ export function innsigelseTekst(varselDato?: string): string {
 /**
  * § 33.6.2 første ledd: forespørselen skal gi beskjed om at manglende svar fører
  * til at kravet tapes, og angi at TE eventuelt skal begrunne hvorfor grunnlaget
- * for å beregne kravet ikke foreligger.
+ * for å beregne kravet ikke foreligger. Serveren avviser en forespørsel der den
+ * faste teksten mangler eller er endret.
  */
+export const FORESPORSEL_FAST_TEKST: string = foresporsel.fast_tekst;
+
 export function foresporselTekst(svarfrist?: string): string {
-  return [
-    'Byggherren ber totalentreprenøren angi og begrunne det antall dager som kreves ' +
-      'som fristforlengelse, jf. NS 8407 § 33.6.2 første ledd.',
-    'Totalentreprenøren skal uten ugrunnet opphold enten a) angi og begrunne det antall ' +
-      'dager som kreves, eller b) begrunne hvorfor grunnlaget for å beregne kravet ikke ' +
-      'foreligger.' +
-      (svarfrist ? ` Byggherren ber om svar innen ${svarfrist}.` : ''),
-    'Gjør totalentreprenøren ingen av delene, tapes kravet på fristforlengelse ' +
-      '(§ 33.6.2 tredje ledd).',
-  ].join(' ');
+  return FORESPORSEL_FAST_TEKST + (svarfrist ? ` Byggherren ber om svar innen ${svarfrist}.` : '');
 }
 
 export function buildEventData(

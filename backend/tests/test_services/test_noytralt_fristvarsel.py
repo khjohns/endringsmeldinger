@@ -18,6 +18,7 @@ from datetime import date
 import pytest
 from pydantic import ValidationError
 
+from constants.frist_foresporsel import FAST_TEKST
 from models.events import (
     BH_BINDENDE_EVENTS,
     EventType,
@@ -108,7 +109,7 @@ def _varsel(varsel_type="varsel", antall_dager=None, event_type=EventType.FRIST_
 
 
 def _brevmodell() -> LetterSnapshot:
-    return LetterSnapshot.model_validate(_brev("S-1", "Byggherren ber om spesifisert krav."))
+    return LetterSnapshot.model_validate(_brev("S-1", FAST_TEKST))
 
 
 def _innsigelse(krav_id, aktor_rolle="BH"):
@@ -131,7 +132,7 @@ def _foresporsel(krav_id, svarfrist=None):
         refererer_til_event_id=krav_id,
         data=FristForesporselData(
             frist_krav_id=krav_id,
-            begrunnelse="Byggherren ber om spesifisert krav.",
+            begrunnelse=f"<p>{FAST_TEKST}</p>",
             svarfrist=svarfrist,
             brev=_brevmodell(),
         ),
@@ -222,6 +223,69 @@ def test_foresporselen_skal_sendes_per_brev():
     """§ 33.6.2 første ledd: «Byggherrens forespørsel skal sendes per brev»."""
     with pytest.raises(ValidationError):
         FristForesporselData(frist_krav_id="k", begrunnelse="Spesifiser kravet.")
+
+
+def _foresporselsdata(begrunnelse, brevtekst):
+    return FristForesporselData(
+        frist_krav_id="k",
+        begrunnelse=begrunnelse,
+        brev=LetterSnapshot.model_validate(_brev("S-1", brevtekst)),
+    )
+
+
+def test_foresporselen_kan_utdypes_rundt_den_faste_teksten():
+    """#173: BH kan legge til tekst før og etter den faste teksten."""
+    _foresporselsdata(
+        f"<p>{FAST_TEKST} Byggherren ber om svar innen 20. oktober 2026.</p>"
+        "<p>Vi trenger fremdriftsplanen.</p>",
+        f"Vi viser til varselet.\n\n{FAST_TEKST}\n\nVi trenger fremdriftsplanen.",
+    )
+
+
+@pytest.mark.parametrize(
+    "begrunnelse, brevtekst",
+    [
+        ("<p>Spesifiser kravet.</p>", FAST_TEKST),
+        (f"<p>{FAST_TEKST}</p>", "Spesifiser kravet."),
+        (f"<p>{FAST_TEKST}</p>", FAST_TEKST.replace("tapes kravet", "kan kravet tapes")),
+    ],
+    ids=["mangler-i-begrunnelsen", "mangler-i-brevet", "redigert-i-brevet"],
+)
+def test_den_faste_teksten_maa_staa_uendret(begrunnelse, brevtekst):
+    """§ 33.6.2 første ledd: forespørselen skal si at kravet tapes uten svar (#173)."""
+    with pytest.raises(ValidationError, match="33.6.2 første ledd"):
+        _foresporselsdata(begrunnelse, brevtekst)
+
+
+def test_en_lagret_forespoersel_uten_den_faste_teksten_kan_leses():
+    """Journalen kan ikke rettes, så kravet fra #173 gjelder bare nye hendelser."""
+    hendelse = _foresporsel("k").model_dump(mode="json")
+    hendelse["data"]["begrunnelse"] = "Spesifiser kravet."
+    hendelse["data"]["brev"] = _brev("S-1", "Spesifiser kravet.")
+
+    assert parse_event(hendelse).data.begrunnelse == "Spesifiser kravet."
+    with pytest.raises(ValidationError, match="33.6.2 første ledd"):
+        parse_event(hendelse, lagret=False)
+
+
+def test_forespoersel_uten_den_faste_teksten_avvises_gjennom_ruta(sak):  # noqa: F811
+    sak_id = "KOE-173-fast-tekst"
+    varsel = _opprett_sak(sak.lager, sak_id, fristkrav=NOYTRALT_FRISTVARSEL).frist
+
+    svar = _svar(
+        sak,
+        sak_id,
+        "frist_foresporsel_sendt",
+        varsel.event_id,
+        {
+            "frist_krav_id": varsel.event_id,
+            "begrunnelse": f"<p>{FAST_TEKST}</p>",
+            "brev": _brev(sak_id, "Spesifiser kravet."),
+        },
+    )
+
+    assert svar.status_code == 400, svar.get_json()
+    assert _lagret_tilstand(sak, sak_id).frist.har_bh_foresporsel is not True
 
 
 def test_handlingene_binder_ikke_byggherren():
@@ -388,8 +452,8 @@ def test_brevet_faar_serverens_referanser(sak):  # noqa: F811
         varsel.event_id,
         {
             "frist_krav_id": varsel.event_id,
-            "begrunnelse": "Spesifiser kravet.",
-            "brev": _brev("feil-sak", "Spesifiser kravet."),
+            "begrunnelse": FAST_TEKST,
+            "brev": _brev("feil-sak", FAST_TEKST),
         },
     )
 
@@ -445,8 +509,8 @@ def test_te_kan_svare_paa_foresporselen_etter_bokstav_b(sak):  # noqa: F811
         varsel.event_id,
         {
             "frist_krav_id": varsel.event_id,
-            "begrunnelse": "Spesifiser kravet.",
-            "brev": _brev(sak_id, "Spesifiser kravet."),
+            "begrunnelse": FAST_TEKST,
+            "brev": _brev(sak_id, FAST_TEKST),
         },
     )
     assert svar.status_code == 201, svar.get_json()
