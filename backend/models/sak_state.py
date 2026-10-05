@@ -1306,6 +1306,9 @@ class SakState(BaseModel):
         if self.grunnlag.status == SporStatus.SENDT:
             return {"rolle": "BH", "handling": "Vurder grunnlag", "spor": "grunnlag"}
 
+        if self.grunnlag.status == SporStatus.AVSLATT_AKSEPTERT:
+            return {"rolle": None, "handling": "Ingen ventende handlinger", "spor": None}
+
         if self.grunnlag.status == SporStatus.AVSLATT:
             return {
                 "rolle": "TE",
