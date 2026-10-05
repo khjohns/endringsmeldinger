@@ -87,6 +87,9 @@ describe('generateFristResponseBegrunnelse', () => {
         'ikke har hindret fremdriften, kan entreprenøren maksimalt ha krav på 30 dager ' +
         '(atter subsidiært standpunkt).'
     );
+    expect(begrunnelse).toContain(
+      'Atter subsidiært, hva gjelder antall dager: Kravet godkjennes delvis med 30 dager'
+    );
   });
 
   it('gjør dagene til subsidiært standpunkt når bare hindringen bestrides (#211)', () => {
@@ -104,6 +107,8 @@ describe('generateFristResponseBegrunnelse', () => {
       'Dersom byggherren ikke får medhold i at forholdet ikke har hindret fremdriften, ' +
         'kan entreprenøren maksimalt ha krav på 30 dager (subsidiært standpunkt).'
     );
+    expect(begrunnelse).toContain('Subsidiært, hva gjelder antall dager:');
+    expect(begrunnelse).not.toContain('Atter subsidiært');
   });
 
   it('begrunner 0 dager med §33.5 når hindringen erkjennes (#180)', () => {
