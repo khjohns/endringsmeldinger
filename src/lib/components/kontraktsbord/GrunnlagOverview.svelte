@@ -5,6 +5,7 @@
   import { getHjemmelObj, getKontraktsforhold } from '$lib/constants/categories.js';
   import { formatDateShortNorwegian } from '$lib/utils/dateFormatters.js';
   import { getCaseWorkspace } from '$lib/kontraktsbord/context.svelte';
+  import { grunnlagetErPrekludert } from './derive.js';
   const store = getCaseWorkspace();
 
   let { onform }: { onform: () => void } = $props();
@@ -17,6 +18,13 @@
   let expandedSide: 'te' | 'bh' | null = $state(null);
 
   const status = $derived.by(() => {
+    if (grunnlag.bh_resultat !== 'frafalt' && grunnlagetErPrekludert(store.sak)) {
+      return {
+        icon: X,
+        text: 'Ansvarsgrunnlaget er prekludert (§ 32.2)',
+        variant: 'negative' as const,
+      };
+    }
     if (grunnlag.bh_resultat === 'avslatt') {
       return {
         icon: X,

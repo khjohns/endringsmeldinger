@@ -12,6 +12,7 @@
   import FristOverview from './FristOverview.svelte';
   import type { SporKey } from './types.js';
   import type { TimelineEvent } from '$lib/types/timeline';
+  import { grunnlagetErPrekludert } from './derive.js';
 
   let {
     sel,
@@ -130,8 +131,10 @@
       <div class="sub-notice-top">
         <div class="sub-diamond-inline"></div>
         <span class="sub-notice-top-text">
-          Ansvarsgrunnlaget er bestridt. {store.bhNavn}s posisjon på dette sporet er subsidiær —
-          betinget av at ansvar foreligger.
+          {grunnlagetErPrekludert(store.sak)
+            ? 'Ansvarsgrunnlaget er prekludert (§ 32.2).'
+            : 'Ansvarsgrunnlaget er bestridt.'}
+          {store.bhNavn}s posisjon på dette sporet er subsidiær — betinget av at ansvar foreligger.
         </span>
       </div>
     {/if}
