@@ -1,8 +1,8 @@
-"""DM-07: `eo_opprettet` på en eksisterende KOE-sak gjør den om til en endringsordresak.
+"""DM-07: `eo_opprettet` på en eksisterende KOE-sak avvises (rettet 05.10, #97).
 
-`eo_opprettet` har ingen regel om sakstype, og behandleren setter sakstypen til
-endringsordre uansett hvilken sak hendelsen kommer i. BH kan sende den gjennom
-`POST /api/events` i et prosjekt uten godkjenningspolicy.
+Før rettingen hadde `eo_opprettet` ingen regel om sakstype, og behandleren satte
+sakstypen til endringsordre uansett hvilken sak hendelsen kom i. Nå krever
+forretningsregelen `IS_EO_CASE` en endringsordresak.
 
 Kilden for forventningen er oppdragsgivers svar 29.09: en endringsordresak kan
 følge av en KOE-sak, men ikke erstatte den, verken i historikken eller som en
@@ -67,19 +67,10 @@ def test_dm07_kontroll_eo_opprettet_godtas_i_en_endringsordresak(
     assert journalen(testbase_url, sak_id) == ["sak_opprettet", "eo_opprettet"]
 
 
-@pytest.mark.xfail(
-    strict=True,
-    raises=AssertionError,
-    reason="DM-07: eo_opprettet godtas i en KOE-sak og gjør den til en endringsordresak",
-)
 def test_dm07_eo_opprettet_avvises_i_en_koe_sak(hendelsesklient, innlogging, testbase_url):
     sak_id = _ny_sak(hendelsesklient, innlogging, "standard")
 
     svar = _send(hendelsesklient, sak_id)
-    if svar.status_code not in (201, 400):
-        pytest.fail(f"Uventet svar {svar.status_code}: {svar.get_json()}")
-    if svar.status_code == 400 and svar.get_json().get("error") != "BUSINESS_RULE_VIOLATION":
-        pytest.fail(f"Avvist av en annen grunn enn forretningsreglene: {svar.get_json()}")
-
     assert svar.status_code == 400, svar.get_json()
+    assert svar.get_json().get("rule") == "IS_EO_CASE", svar.get_json()
     assert journalen(testbase_url, sak_id) == ["sak_opprettet"]

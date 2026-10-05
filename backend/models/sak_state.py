@@ -1165,6 +1165,8 @@ class SakState(BaseModel):
         - UNDER_BEHANDLING: BH har svart på minst ett spor
         - UNDER_FORHANDLING: BH har avslått/delvis godkjent noe
         - OMFORENT: Alle aktive spor er godkjent
+        - LUKKET_AVSLATT: TE har godtatt avslaget på grunnlaget, uansett
+          vederlag og frist (vedtak 05.10, #213)
         - LUKKET: Endringsordren er akseptert eller bestridt
 
         Forsering og endringsordre har ikke de tre sporene og følger egne
@@ -1189,6 +1191,9 @@ class SakState(BaseModel):
 
         if not aktive_statuser:
             return "INGEN_AKTIVE_SPOR"
+
+        if self.grunnlag.status == SporStatus.AVSLATT_AKSEPTERT:
+            return "LUKKET_AVSLATT"
 
         # UTKAST betyr «kan fortsatt sendes» og skal hindre OMFORENT.
         ferdig_statuser = {
