@@ -4,6 +4,7 @@ import {
   assessedGap,
   bhStandpunkt,
   grunnlagTriggers,
+  svaretErSubsidiaert,
   deriveVederlagDomainConfig,
   deriveFristDomainConfig,
   deriveGrunnlagDomainConfig,
@@ -141,6 +142,32 @@ describe('svar på vederlag og frist når ansvarsgrunnlaget er avslått eller pr
     expect(vederlag.isDisputed).toBe(false);
     expect(vederlag.bhPrinsipal).toBe(500000);
     expect(grunnlagTriggers(sak, 'vederlag')).toEqual([]);
+  });
+
+  it('ser på grunnlaget alene, også når beløpet er avslått, som brevet', () => {
+    const sak = sakMedGodkjentBelopOgDager();
+    sak.grunnlag.bh_resultat = 'avslatt';
+    sak.vederlag.bh_resultat = 'avslatt';
+    sak.vederlag.godkjent_belop = 0;
+    sak.vederlag.subsidiaer_godkjent_belop = 300000;
+    // Serveren setter flagget bare når beløpet er godkjent.
+    sak.er_subsidiaert_vederlag = false;
+
+    expect(svaretErSubsidiaert(sak, 'vederlag')).toBe(true);
+    const vederlag = deriveTrackDisplay(sak, 'vederlag');
+    expect(vederlag.isDisputed).toBe(true);
+    expect(vederlag.bhPrinsipal).toBe(0);
+    expect(vederlag.bhSubsidiaer).toBe(0);
+    expect(grunnlagTriggers(sak, 'vederlag')).toEqual(['grunnlag_avslatt']);
+  });
+
+  it('gjelder ikke før byggherren har svart på sporet', () => {
+    const sak = sakMedGodkjentBelopOgDager();
+    sak.grunnlag.bh_resultat = 'avslatt';
+    sak.frist.bh_resultat = undefined;
+
+    expect(svaretErSubsidiaert(sak, 'frist')).toBe(false);
+    expect(grunnlagTriggers(sak, 'frist')).toEqual([]);
   });
 
   it('setter et eget subsidiært standpunkt i svaret atter subsidiært', () => {

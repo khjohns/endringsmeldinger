@@ -10,14 +10,14 @@
   import { getCaseWorkspace } from '$lib/kontraktsbord/context.svelte';
   const store = getCaseWorkspace();
   import { fmt, sporResultatLabel } from './utils.js';
-  import { bhStandpunkt, grunnlagTriggers } from './derive.js';
+  import { bhStandpunkt, grunnlagTriggers, svaretErSubsidiaert } from './derive.js';
 
   let { onform }: { onform: () => void } = $props();
 
   const frist = $derived(store.sak.frist);
   const ui = $derived(store.getUI('frist'));
   const krevdDager = $derived(frist.krevd_dager ?? 0);
-  const avslattPaaGrunnlag = $derived(store.sak.er_subsidiaert_frist);
+  const avslattPaaGrunnlag = $derived(svaretErSubsidiaert(store.sak, 'frist'));
   const standpunkt = $derived(
     bhStandpunkt(avslattPaaGrunnlag, frist.godkjent_dager, frist.subsidiaer_godkjent_dager)
   );

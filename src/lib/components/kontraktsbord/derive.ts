@@ -5,7 +5,7 @@
  * Domain config-avledninger er delt via $lib/domain/deriveConfig.
  */
 import type { SakState, SubsidiaerTrigger } from '$lib/types/timeline';
-import { erPrekludertEtter32_2 } from '$lib/domain/grunnlagDomain';
+import { erGrunnlagetSubsidiaert, erPrekludertEtter32_2 } from '$lib/domain/grunnlagDomain';
 import { getHjemmelLabel, getHjemmelObj } from '$lib/constants/categories.js';
 import { GRUNNLAG_RESULTAT_LABELS } from '$lib/constants/responseOptions.js';
 import type { SporKey } from './types.js';
@@ -89,19 +89,31 @@ function bhPosisjon(
   return { bhPrinsipal: standpunkt.prinsipalt, bhSubsidiaer: standpunkt.subsidiaert };
 }
 
-/** Årsaken i grunnlaget utledes av saken og lagres ikke i svaret (B-13, 05.10). */
-export function grunnlagTriggers(sak: SakState, spor: 'vederlag' | 'frist'): SubsidiaerTrigger[] {
-  const subsidiaert = spor === 'vederlag' ? sak.er_subsidiaert_vederlag : sak.er_subsidiaert_frist;
-  if (!subsidiaert) return [];
+function grunnlagetFor(sak: SakState) {
   const g = sak.grunnlag;
-  const prekludert = erPrekludertEtter32_2({
+  return {
+    resultat: g.bh_resultat,
     hovedkategori: g.hovedkategori,
     underkategori: g.underkategori,
     varsletITide: g.grunnlag_varslet_i_tide,
-  });
+  };
+}
+
+/**
+ * Hele svaret er subsidiært når ansvarsgrunnlaget er avslått eller prekludert,
+ * også når beløpet eller dagene er avslått. `er_subsidiaert_*` fra serveren
+ * gjelder bare et godkjent beløp; brevet og fullmakten ser på grunnlaget alene.
+ */
+export function svaretErSubsidiaert(sak: SakState, spor: 'vederlag' | 'frist'): boolean {
+  return Boolean(sak[spor].bh_resultat) && erGrunnlagetSubsidiaert(grunnlagetFor(sak));
+}
+
+/** Årsaken i grunnlaget utledes av saken og lagres ikke i svaret (B-13, 05.10). */
+export function grunnlagTriggers(sak: SakState, spor: 'vederlag' | 'frist'): SubsidiaerTrigger[] {
+  if (!svaretErSubsidiaert(sak, spor)) return [];
   return [
-    ...(g.bh_resultat === 'avslatt' ? (['grunnlag_avslatt'] as const) : []),
-    ...(prekludert ? (['grunnlag_prekludert_32_2'] as const) : []),
+    ...(sak.grunnlag.bh_resultat === 'avslatt' ? (['grunnlag_avslatt'] as const) : []),
+    ...(erPrekludertEtter32_2(grunnlagetFor(sak)) ? (['grunnlag_prekludert_32_2'] as const) : []),
   ];
 }
 
@@ -142,12 +154,16 @@ export function deriveTrackDisplay(sak: SakState, spor: SporKey): TrackDisplay {
       krevdUnit: ',-',
       ...bhPosisjon(
         v.bh_resultat,
-        bhStandpunkt(sak.er_subsidiaert_vederlag, v.godkjent_belop, v.subsidiaer_godkjent_belop)
+        bhStandpunkt(
+          svaretErSubsidiaert(sak, 'vederlag'),
+          v.godkjent_belop,
+          v.subsidiaer_godkjent_belop
+        )
       ),
       bhUnit: ',-',
       teText: v.begrunnelse ?? '',
       bhText: v.bh_begrunnelse ?? '',
-      isDisputed: v.bh_resultat === 'avslatt' || sak.er_subsidiaert_vederlag,
+      isDisputed: v.bh_resultat === 'avslatt' || svaretErSubsidiaert(sak, 'vederlag'),
       isSubsidiary: sak.er_subsidiaert_vederlag,
       isWithdrawn: v.status === 'trukket',
       isRejectionAccepted: v.status === 'avslatt_akseptert',
@@ -169,12 +185,12 @@ export function deriveTrackDisplay(sak: SakState, spor: SporKey): TrackDisplay {
     krevdUnit: ' dager',
     ...bhPosisjon(
       f.bh_resultat,
-      bhStandpunkt(sak.er_subsidiaert_frist, f.godkjent_dager, f.subsidiaer_godkjent_dager)
+      bhStandpunkt(svaretErSubsidiaert(sak, 'frist'), f.godkjent_dager, f.subsidiaer_godkjent_dager)
     ),
     bhUnit: ' dager',
     teText: f.begrunnelse ?? '',
     bhText: f.bh_begrunnelse ?? '',
-    isDisputed: f.bh_resultat === 'avslatt' || sak.er_subsidiaert_frist,
+    isDisputed: f.bh_resultat === 'avslatt' || svaretErSubsidiaert(sak, 'frist'),
     isSubsidiary: sak.er_subsidiaert_frist,
     isWithdrawn: f.status === 'trukket',
     isRejectionAccepted: f.status === 'avslatt_akseptert',
