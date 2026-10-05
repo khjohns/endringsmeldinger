@@ -224,8 +224,10 @@ TypeScript, og en `DEFAULT` i databasen. Søk etter alle formene før du skriver
   sporetikett.
 - **Issues er like offentlige som repoet.** Ingen saksdata, kontraktsinnhold,
   personnavn fra prosjekter, nøkler eller tilgangsopplysninger.
-- Det som gjenstår i en pakke, er de åpne issuene i milepælen — med
-  `gh issue list --milestone "<navn>"` eller GitHub-MCP i skyøktene.
+- Det som gjenstår i en pakke, er de åpne issuene i milepælen — med GitHub-MCP
+  eller `gh api "repos/khjohns/endringsmeldinger/issues?milestone=<nummer>&state=open"`.
+  `gh issue`, `gh pr` og `gh label` går over GraphQL, som gir 403 i skyøktene;
+  bruk REST-formen med `gh api`.
 
 ## Arbeidsform
 
