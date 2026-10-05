@@ -3,7 +3,8 @@
 Serveren avviser et svar med en annen versjon enn `regler.REGELVERSJON`. Økes
 versjonen i `src/lib/domain/regelversjon.ts` uten at speilet følger, avvises
 hvert svar fra skjemaene. CI-vakten i `.github/workflows/regelversjon.yml`
-krever at versjonen økes når `src/lib/domain/` endres.
+krever at versjonen økes i begge når `src/lib/domain/` eller `backend/regler/`
+endres (#191).
 """
 
 import re
