@@ -1,6 +1,6 @@
 # B-13 (hovedplanen 3.1, 24.09) og #191: endres reglene i src/lib/domain/ eller
-# backend/regler/, må REGELVERSJON økes i begge speilene. Serveren avviser svar
-# med en annen versjon enn sin egen, og en test holder speilene like.
+# backend/regler/, må REGELVERSJON økes i begge speilene. Kontrollen står i
+# .github/scripts/regelversjon.sh, som også kan kjøres lokalt med BASE=<sha>.
 name: Regelversjon
 
 on:
@@ -25,27 +25,4 @@ jobs:
       - name: Kontroller regelversjonen
         env:
           BASE: ${{ github.event.pull_request.base.sha }}
-        run: |
-          ts=src/lib/domain/regelversjon.ts
-          py=backend/regler/__init__.py
-          endret=$(git diff --name-only "$BASE"...HEAD -- src/lib/domain backend/regler \
-            ":(exclude)src/lib/domain/__tests__")
-          if [ -z "$endret" ]; then
-            echo "Ingen endring i src/lib/domain/ eller backend/regler/ utenom testene."
-            exit 0
-          fi
-          echo "Endret:"; echo "$endret"
-          les_ts() { sed -n 's/^export const REGELVERSJON = \([0-9][0-9]*\);$/\1/p'; }
-          les_py() { sed -n 's/^REGELVERSJON = \([0-9][0-9]*\)$/\1/p'; }
-          feil=0
-          kontroller() {
-            fil=$1; for=$(git show "$BASE:$fil" 2>/dev/null | $2); etter=$($2 < "$fil")
-            echo "$fil: ${for:-ingen} -> ${etter:-ingen}"
-            if [ -z "$etter" ] || [ "$etter" -le "${for:-0}" ]; then
-              echo "::error file=$fil::Reglene er endret. Øk REGELVERSJON i $ts og $py."
-              feil=1
-            fi
-          }
-          kontroller "$ts" les_ts
-          kontroller "$py" les_py
-          exit $feil
+        run: .github/scripts/regelversjon.sh
