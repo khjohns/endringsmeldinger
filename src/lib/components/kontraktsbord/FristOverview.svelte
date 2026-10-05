@@ -10,19 +10,29 @@
   import { getCaseWorkspace } from '$lib/kontraktsbord/context.svelte';
   const store = getCaseWorkspace();
   import { fmt, sporResultatLabel } from './utils.js';
+  import { bhStandpunkt, grunnlagTriggers, svaretErSubsidiaert } from './derive.js';
 
   let { onform }: { onform: () => void } = $props();
 
   const frist = $derived(store.sak.frist);
   const ui = $derived(store.getUI('frist'));
   const krevdDager = $derived(frist.krevd_dager ?? 0);
-  const prinsipaltGodkjent = $derived(frist.godkjent_dager ?? 0);
-  const subsidiaertGodkjent = $derived(frist.subsidiaer_godkjent_dager ?? prinsipaltGodkjent);
+  const avslattPaaGrunnlag = $derived(svaretErSubsidiaert(store.sak, 'frist'));
+  const standpunkt = $derived(
+    bhStandpunkt(avslattPaaGrunnlag, frist.godkjent_dager, frist.subsidiaer_godkjent_dager)
+  );
+  const prinsipaltGodkjent = $derived(standpunkt.prinsipalt);
+  const subsidiaertGodkjent = $derived(standpunkt.subsidiaert);
+  const atterSubsidiaert = $derived(standpunkt.atterSubsidiaert);
   const hasBhResponse = $derived(Boolean(frist.bh_resultat));
   const hasSubsidiaryPosition = $derived(
     hasBhResponse &&
-      (frist.har_subsidiaert_standpunkt || frist.subsidiaer_godkjent_dager !== undefined)
+      (avslattPaaGrunnlag ||
+        frist.har_subsidiaert_standpunkt ||
+        frist.subsidiaer_godkjent_dager != null)
   );
+  const hasAtterSubsidiary = $derived(hasBhResponse && atterSubsidiaert !== undefined);
+  const prinsipaltAvslatt = $derived(frist.bh_resultat === 'avslatt' || avslattPaaGrunnlag);
 
   const fristEvents = $derived(store.timeline.filter((event) => event.spor === 'frist'));
   const teEvents = $derived(
@@ -98,13 +108,17 @@
     hasBhResponse &&
       krevdDager > 0 &&
       (prinsipaltGodkjent !== krevdDager ||
-        (hasSubsidiaryPosition && subsidiaertGodkjent !== prinsipaltGodkjent))
+        (hasSubsidiaryPosition && subsidiaertGodkjent !== prinsipaltGodkjent) ||
+        hasAtterSubsidiary)
   );
   const prinsipaltPct = $derived(
     krevdDager > 0 ? Math.min(100, Math.max(0, (prinsipaltGodkjent / krevdDager) * 100)) : 0
   );
   const subsidiaertPct = $derived(
     krevdDager > 0 ? Math.min(100, Math.max(0, (subsidiaertGodkjent / krevdDager) * 100)) : 0
+  );
+  const atterSubsidiaertPct = $derived(
+    krevdDager > 0 ? Math.min(100, Math.max(0, ((atterSubsidiaert ?? 0) / krevdDager) * 100)) : 0
   );
 </script>
 
@@ -185,23 +199,31 @@
     <PositionExplanation
       subsidiary={hasSubsidiaryPosition}
       value={`fristforlengelsen til ${fmt(subsidiaertGodkjent)} kalenderdager`}
-      rejected={frist.bh_resultat === 'avslatt'}
-      triggers={latestBhResponseData?.subsidiaer_triggers ??
-        frist.subsidiaer_triggers ?? [
-          ...(hasSubsidiaryPosition && store.sak.grunnlag.bh_resultat === 'avslatt'
-            ? ['grunnlag_avslatt' as const]
-            : []),
-          ...(fristVarselOk === false ? ['preklusjon_varsel' as const] : []),
-          ...(spesifisertKravOk === false ? ['reduksjon_spesifisert' as const] : []),
-          ...(vilkarOppfylt === false ? ['ingen_hindring' as const] : []),
-        ]}
+      rejected={prinsipaltAvslatt}
+      triggers={[
+        ...grunnlagTriggers(store.sak, 'frist'),
+        ...(latestBhResponseData?.subsidiaer_triggers ??
+          frist.subsidiaer_triggers ?? [
+            ...(fristVarselOk === false ? ['preklusjon_varsel' as const] : []),
+            ...(spesifisertKravOk === false ? ['reduksjon_spesifisert' as const] : []),
+            ...(vilkarOppfylt === false ? ['ingen_hindring' as const] : []),
+          ]),
+      ]}
     />
 
-    <div class="response-summary" class:with-subsidiary={hasSubsidiaryPosition}>
+    <div
+      class="response-summary"
+      class:with-subsidiary={hasSubsidiaryPosition}
+      class:with-atter={hasAtterSubsidiary}
+    >
       <div>
         <span class="eyebrow">Resultat</span>
         <strong
-          >{frist.bh_resultat === 'avslatt' ? 'BH avslår kravet prinsipalt' : bhResultLabel}</strong
+          >{avslattPaaGrunnlag
+            ? 'Prinsipalt avslått (ansvarsgrunnlaget)'
+            : frist.bh_resultat === 'avslatt'
+              ? 'BH avslår kravet prinsipalt'
+              : bhResultLabel}</strong
         >
       </div>
       <div class="approved-days">
@@ -212,6 +234,12 @@
         <div class="approved-days">
           <span class="eyebrow">Subsidiært vurdert</span>
           <strong class="font-mono">{fmt(subsidiaertGodkjent)} dager</strong>
+        </div>
+      {/if}
+      {#if hasAtterSubsidiary}
+        <div class="approved-days">
+          <span class="eyebrow">Atter subsidiært</span>
+          <strong class="font-mono">{fmt(atterSubsidiaert ?? 0)} dager</strong>
         </div>
       {/if}
     </div>
@@ -246,7 +274,11 @@
 {#if hasUsefulPositionOverview}
   <section class="position-card">
     <span class="eyebrow">Posisjonsoversikt</span>
-    <div class="position-values" class:has-subsidiary={hasSubsidiaryPosition}>
+    <div
+      class="position-values"
+      class:has-subsidiary={hasSubsidiaryPosition}
+      class:has-atter={hasAtterSubsidiary}
+    >
       <div>
         <span>Krevd</span>
         <strong class="font-mono">{fmt(krevdDager)} dager</strong>
@@ -259,6 +291,12 @@
         <div>
           <span>Subsidiært vurdert</span>
           <strong class="font-mono">{fmt(subsidiaertGodkjent)} dager</strong>
+        </div>
+      {/if}
+      {#if hasAtterSubsidiary}
+        <div>
+          <span>Atter subsidiært</span>
+          <strong class="font-mono">{fmt(atterSubsidiaert ?? 0)} dager</strong>
         </div>
       {/if}
     </div>
@@ -283,6 +321,19 @@
         <div class="position-bar" aria-hidden="true">
           <span class="position-approved subsidiary" style:width="{subsidiaertPct}%"></span>
           <span class="position-gap" style:width="{100 - subsidiaertPct}%"></span>
+        </div>
+      </div>
+    {/if}
+
+    {#if hasAtterSubsidiary && atterSubsidiaert !== subsidiaertGodkjent}
+      <div class="position-row subsidiary-row">
+        <div class="position-row-label">
+          <span>Atter subsidiært</span>
+          <span>{fmt(atterSubsidiaert ?? 0)} av {fmt(krevdDager)} dager vurdert betinget</span>
+        </div>
+        <div class="position-bar" aria-hidden="true">
+          <span class="position-approved subsidiary" style:width="{atterSubsidiaertPct}%"></span>
+          <span class="position-gap" style:width="{100 - atterSubsidiaertPct}%"></span>
         </div>
       </div>
     {/if}
@@ -322,6 +373,9 @@
   }
   .response-summary.with-subsidiary {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .response-summary.with-atter {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
   .response-summary strong {
     display: block;
@@ -444,6 +498,9 @@
   .position-values.has-subsidiary {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
+  .position-values.has-atter {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
   .position-values > div + div {
     padding-left: 20px;
     border-left: var(--rule);
@@ -502,9 +559,11 @@
     .claim-summary,
     .response-summary,
     .response-summary.with-subsidiary,
+    .response-summary.with-atter,
     .notice-dates,
     .position-values,
-    .position-values.has-subsidiary {
+    .position-values.has-subsidiary,
+    .position-values.has-atter {
       grid-template-columns: 1fr;
       gap: 15px;
     }
