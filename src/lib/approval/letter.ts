@@ -31,29 +31,38 @@ const resultater: Record<string, string> = {
   avslatt: 'Avslått',
   frafalt: 'Innsigelsen er frafalt',
   foresporsel: 'Ber om spesifisert krav',
+  hold_tilbake: 'Betaling holdes tilbake (§ 30.2)',
 };
 const resultatTekst = (value: unknown) =>
   resultater[String(value)] ?? (value == null ? '' : String(value));
-/** Hele svaret er subsidiært; et subsidiært standpunkt i svaret selv går foran. */
-function subsidiaertVedAvslattGrunnlag(item: ReviewItem): string {
+/**
+ * Hele svaret er subsidiært. Et subsidiært standpunkt i svaret selv, for eksempel ved
+ * preklusjon etter § 33.4, står etter det som atter subsidiært.
+ */
+function subsidiaertVedAvslattGrunnlag(item: ReviewItem): string[] {
   const d = item.data;
   const vederlag = item.track === 'vederlag';
+  const standpunkt = (prefiks: string, result: unknown, value: unknown) => {
+    const text = `${prefiks} ${resultatTekst(result).toLowerCase()}`.trimEnd();
+    if (typeof value !== 'number') return text;
+    return `${text}: ${vederlag ? money(value) : `${value} dager`}`;
+  };
+  const parts = [
+    standpunkt(
+      'Subsidiært',
+      d.beregnings_resultat,
+      vederlag ? (d.total_godkjent_belop ?? d.godkjent_belop) : d.godkjent_dager
+    ),
+  ];
   const subsidiaer = vederlag ? d.subsidiaer_godkjent_belop : d.subsidiaer_godkjent_dager;
-  const harSubsidiaer = subsidiaer != null;
-  const result = harSubsidiaer ? d.subsidiaer_resultat : d.beregnings_resultat;
-  const value = harSubsidiaer
-    ? subsidiaer
-    : vederlag
-      ? (d.total_godkjent_belop ?? d.godkjent_belop)
-      : d.godkjent_dager;
-  const text = `Subsidiært ${resultatTekst(result).toLowerCase()}`.trimEnd();
-  if (typeof value !== 'number') return text;
-  return `${text}: ${vederlag ? money(value) : `${value} dager`}`;
+  if (subsidiaer != null)
+    parts.push(standpunkt('Atter subsidiært', d.subsidiaer_resultat, subsidiaer));
+  return parts;
 }
 export function decisionSummary(item: ReviewItem): string {
   const d = item.data;
   if (item.track !== 'grunnlag' && item.basis && erGrunnlagetSubsidiaert(item.basis)) {
-    return ['Prinsipalt avslått (ansvarsgrunnlaget)', subsidiaertVedAvslattGrunnlag(item)].join(
+    return ['Prinsipalt avslått (ansvarsgrunnlaget)', ...subsidiaertVedAvslattGrunnlag(item)].join(
       ' · '
     );
   }

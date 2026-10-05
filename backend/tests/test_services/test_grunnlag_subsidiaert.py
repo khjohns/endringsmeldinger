@@ -114,3 +114,22 @@ def test_projeksjonen_folger_regelen(underkategori, forventet):
     )
     assert sak.er_subsidiaert_vederlag is forventet
     assert sak.visningsstatus_vederlag.startswith("Prekludert") is forventet
+
+
+def test_avslaget_staar_mens_te_oppdaterer_grunnlaget():
+    """Byggherrens standpunkt gjelder til nytt svar; brev og fullmakt leser også `bh_resultat`."""
+    sak = SakState(
+        sak_id="S-1",
+        sakstype=SaksType.STANDARD,
+        grunnlag=GrunnlagTilstand(
+            status=SporStatus.SENDT,
+            hovedkategori="SVIKT",
+            bh_resultat=GrunnlagResponsResultat.AVSLATT,
+        ),
+        vederlag=VederlagTilstand(
+            status=SporStatus.GODKJENT,
+            bh_resultat=VederlagBeregningResultat.GODKJENT,
+            godkjent_belop=100000,
+        ),
+    )
+    assert sak.er_subsidiaert_vederlag is True

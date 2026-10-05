@@ -31,7 +31,7 @@ describe('decisionSummary ved avslått eller prekludert grunnlag (#168, #186)', 
     ).toBe('Prinsipalt avslått (ansvarsgrunnlaget) · Subsidiært godkjent: 10 dager');
   });
 
-  it('lar et subsidiært standpunkt i svaret gå foran', () => {
+  it('lar et subsidiært standpunkt i svaret stå etter som atter subsidiært', () => {
     expect(
       decisionSummary(
         item(
@@ -45,7 +45,9 @@ describe('decisionSummary ved avslått eller prekludert grunnlag (#168, #186)', 
           { resultat: 'avslatt' }
         )
       )
-    ).toBe('Prinsipalt avslått (ansvarsgrunnlaget) · Subsidiært delvis godkjent: 4 dager');
+    ).toBe(
+      'Prinsipalt avslått (ansvarsgrunnlaget) · Subsidiært avslått: 0 dager · Atter subsidiært delvis godkjent: 4 dager'
+    );
   });
 
   it.each([

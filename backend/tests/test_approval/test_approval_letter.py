@@ -15,7 +15,8 @@ def test_principal_and_subsidiary_amounts_are_not_conflated():
     }
     assert (
         decision_summary(item)
-        == "Prinsipalt avslått (ansvarsgrunnlaget) · Subsidiært: 500 000 kr"
+        == "Prinsipalt avslått (ansvarsgrunnlaget) · Subsidiært godkjent: 150 000 kr"
+        " · Atter subsidiært: 500 000 kr"
     )
 
 
@@ -42,7 +43,7 @@ def test_hele_svaret_er_subsidiaert_naar_grunnlaget_er_avslatt():
     )
 
 
-def test_subsidiaert_standpunkt_i_svaret_gaar_foran_ved_avslatt_grunnlag():
+def test_subsidiaert_standpunkt_i_svaret_staar_etter_som_atter_subsidiaert():
     item = ved_grunnlag(
         "frist",
         {
@@ -54,8 +55,18 @@ def test_subsidiaert_standpunkt_i_svaret_gaar_foran_ved_avslatt_grunnlag():
         resultat="avslatt",
     )
     assert decision_summary(item) == (
-        "Prinsipalt avslått (ansvarsgrunnlaget) · Subsidiært delvis godkjent: 4 dager"
+        "Prinsipalt avslått (ansvarsgrunnlaget) · Subsidiært avslått: 0 dager"
+        " · Atter subsidiært delvis godkjent: 4 dager"
     )
+
+
+def test_ukjent_kode_vises_ikke_raatt_i_brevet():
+    item = ved_grunnlag(
+        "vederlag",
+        {"beregnings_resultat": "hold_tilbake", "total_godkjent_belop": 0},
+        resultat="avslatt",
+    )
+    assert "hold_tilbake" not in decision_summary(item)
 
 
 @pytest.mark.parametrize(

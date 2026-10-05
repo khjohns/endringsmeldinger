@@ -60,6 +60,11 @@ export function getDefaults(config: GrunnlagDefaultsConfig): GrunnlagFormState {
   };
 }
 
+/** Eldre saker har underkategorien som liste; første gjelder. Speiler `forste_underkategori`. */
+export function forsteUnderkategori(underkategori?: string | string[] | null): string | undefined {
+  return (Array.isArray(underkategori) ? underkategori[0] : underkategori) ?? undefined;
+}
+
 export function erEndringMed32_2(event?: {
   hovedkategori?: string;
   underkategori?: string;
@@ -74,14 +79,11 @@ export function erGrunnlagetSubsidiaert(grunnlag: {
   underkategori?: string | string[] | null;
   varsletITide?: boolean | null;
 }): boolean {
-  const underkategori = Array.isArray(grunnlag.underkategori)
-    ? grunnlag.underkategori[0]
-    : grunnlag.underkategori;
   return (
     grunnlag.resultat === 'avslatt' ||
     (erEndringMed32_2({
       hovedkategori: grunnlag.hovedkategori ?? undefined,
-      underkategori: underkategori ?? undefined,
+      underkategori: forsteUnderkategori(grunnlag.underkategori),
     }) &&
       grunnlag.varsletITide === false)
   );

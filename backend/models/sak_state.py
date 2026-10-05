@@ -980,8 +980,9 @@ class SakState(BaseModel):
         Sjekker om vederlag er vurdert subsidiært.
 
         Returns True hvis:
-        - Grunnlag er AVSLATT av BH, ELLER
-        - Grunnlag er prekludert pga §32.2 (grunnlag_varslet_i_tide == False)
+        - BH har avslått grunnlaget (`bh_resultat`, også mens TE oppdaterer det), ELLER
+        - Grunnlag er prekludert etter § 32.2 (endring uten formell endringsordre)
+        Regelen er `regler.grunnlag.er_grunnlag_subsidiaert`.
         OG
         - Vederlag-beregningen er godkjent (fullt/delvis/annen metode)
 
@@ -990,8 +991,8 @@ class SakState(BaseModel):
         Dette betyr: "BH mener TE ikke har krav (enten pga avslag eller preklusjon),
         men erkjenner at beløpet ville vært riktig hvis BH hadde tatt feil."
 
-        FRONTEND: Bruk dette for å vise subsidiær status.
-        Ikke implementer denne logikken selv i frontend.
+        FRONTEND: Bruk dette for å vise subsidiær status. Skjemaet har speilet
+        `erGrunnlagetSubsidiaert` i `grunnlagDomain.ts`.
         """
         # Frafall håndteres separat
         if self.er_frafalt:
@@ -1012,16 +1013,17 @@ class SakState(BaseModel):
         Sjekker om frist er vurdert subsidiært.
 
         Returns True hvis:
-        - Grunnlag er AVSLATT av BH, ELLER
-        - Grunnlag er prekludert pga §32.2 (grunnlag_varslet_i_tide == False)
+        - BH har avslått grunnlaget (`bh_resultat`, også mens TE oppdaterer det), ELLER
+        - Grunnlag er prekludert etter § 32.2 (endring uten formell endringsordre)
+        Regelen er `regler.grunnlag.er_grunnlag_subsidiaert`.
         OG
         - Frist-beregningen er godkjent (fullt/delvis)
 
         Dette betyr: "BH mener TE ikke har krav (enten pga avslag eller preklusjon),
         men erkjenner at dagene ville vært riktige hvis BH hadde tatt feil."
 
-        FRONTEND: Bruk dette for å vise subsidiær status.
-        Ikke implementer denne logikken selv i frontend.
+        FRONTEND: Bruk dette for å vise subsidiær status. Skjemaet har speilet
+        `erGrunnlagetSubsidiaert` i `grunnlagDomain.ts`.
         """
         grunnlag_er_subsidiaer = self._grunnlag_er_subsidiaert
 
