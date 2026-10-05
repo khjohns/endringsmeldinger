@@ -11,6 +11,20 @@ fi
 rot="${CLAUDE_PROJECT_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}"
 logg=/tmp/koe-session-start.log
 
+# Økta starter på en løsrevet HEAD, mens lokal main ligger der øyeblikksbildet
+# ble tatt, så `main...HEAD` blir hele historikken. Bare fremoverspoling:
+# lokale commits på main blir stående.
+oppdater_main() {
+  timeout 60 git -C "$rot" fetch --quiet origin main || return 0
+  [ "$(git -C "$rot" symbolic-ref -q --short HEAD)" = main ] && return 0
+  if ! git -C "$rot" rev-parse -q --verify refs/heads/main > /dev/null; then
+    git -C "$rot" branch main origin/main
+  elif git -C "$rot" merge-base --is-ancestor main origin/main; then
+    git -C "$rot" branch -f main origin/main
+  fi
+}
+oppdater_main >> "$logg" 2>&1 || true
+
 if [ ! -x /tmp/venv/bin/python ]; then
   python3 -m venv /tmp/venv
 fi
