@@ -425,7 +425,7 @@ Feltene i `data`:
 
 ### `frist_foresporsel_sendt`
 
-BH ber TE spesifisere fristkravet. TE må da uten ugrunnet opphold angi dager eller begrunne hvorfor grunnlaget mangler, ellers tapes kravet. En egen handling: den setter ikke resultat, gjør ikke sporet avslått og åpner ikke forsering. Forespørselen sendes per brev, så `brev` er påkrevd.
+BH ber TE spesifisere fristkravet. TE må da uten ugrunnet opphold angi dager eller begrunne hvorfor grunnlaget mangler, ellers tapes kravet. En egen handling: den setter ikke resultat, gjør ikke sporet avslått og åpner ikke forsering. Forespørselen sendes per brev, så `brev` er påkrevd. Den faste teksten i `backend/constants/frist_foresporsel.json` må stå uendret i både `begrunnelse` og brevets begrunnelse (#173).
 
 | | |
 | --- | --- |
@@ -433,7 +433,7 @@ BH ber TE spesifisere fristkravet. TE må da uten ugrunnet opphold angi dager el
 | Spor | frist |
 | Sakstype | standard |
 | NS 8407 | § 33.6.2 første til tredje ledd. |
-| Kilde for bestemmelsen | vedtak: nøytralt fristvarsel i 3.1 (23.09); oppdragsgiver, 2026-10-04 |
+| Kilde for bestemmelsen | vedtak: nøytralt fristvarsel i 3.1 (23.09); oppdragsgiver, 2026-10-04 og 2026-10-05 |
 | Modell | `FristForesporselEvent`, data `FristForesporselData` |
 | Lagres i | `hendelse` |
 | Sendes fra | POST /api/events og /api/events/batch, også når prosjektet har godkjenningspolicy; Frontend: FristVarselForm |
@@ -701,8 +701,6 @@ Feltene i `data`:
 | `frist_varsel_ok` | ja/nei | nei | Er varsel om fristforlengelse sendt i tide? (§33.4). None hvis ikke relevant. |
 | `spesifisert_krav_ok` | ja/nei | nei | Er spesifisert krav sendt i tide? (§33.6) |
 | `foresporsel_svar_ok` | ja/nei | nei | Er svar på forespørsel sendt i tide? (§33.6.2/§5). None hvis ikke relevant. |
-| `har_bh_foresporsel` | ja/nei | nei | Har BH sendt forespørsel om spesifisering? (§33.6.2). Relevant kun hvis krav er sent. |
-| `dato_bh_foresporsel` | tekst | nei | Dato BH sendte forespørsel om spesifisering (§33.6.2) - YYYY-MM-DD. Brukes for å beregne om TEs svar kom i tide. |
 | `begrunnelse_varsel` | tekst | nei | BHs begrunnelse for vurdering av varsling |
 | `vilkar_oppfylt` | ja/nei | nei | Har forholdet medført en faktisk fremdriftshindring? (§33.1) |
 | `beregnings_resultat` | FristBeregningResultat | nei | BHs vurdering av antall dager (ren beregning) |
@@ -750,8 +748,6 @@ Feltene i `data`:
 | `frist_varsel_ok` | ja/nei | nei | Er varsel om fristforlengelse sendt i tide? (§33.4). None hvis ikke relevant. |
 | `spesifisert_krav_ok` | ja/nei | nei | Er spesifisert krav sendt i tide? (§33.6) |
 | `foresporsel_svar_ok` | ja/nei | nei | Er svar på forespørsel sendt i tide? (§33.6.2/§5). None hvis ikke relevant. |
-| `har_bh_foresporsel` | ja/nei | nei | Har BH sendt forespørsel om spesifisering? (§33.6.2). Relevant kun hvis krav er sent. |
-| `dato_bh_foresporsel` | tekst | nei | Dato BH sendte forespørsel om spesifisering (§33.6.2) - YYYY-MM-DD. Brukes for å beregne om TEs svar kom i tide. |
 | `begrunnelse_varsel` | tekst | nei | BHs begrunnelse for vurdering av varsling |
 | `vilkar_oppfylt` | ja/nei | nei | Har forholdet medført en faktisk fremdriftshindring? (§33.1) |
 | `beregnings_resultat` | FristBeregningResultat | nei | BHs vurdering av antall dager (ren beregning) |

@@ -355,12 +355,14 @@ beskrivelse = """
 BH ber TE spesifisere fristkravet. TE må da uten ugrunnet opphold angi dager
 eller begrunne hvorfor grunnlaget mangler, ellers tapes kravet. En egen
 handling: den setter ikke resultat, gjør ikke sporet avslått og åpner ikke
-forsering. Forespørselen sendes per brev, så `brev` er påkrevd."""
+forsering. Forespørselen sendes per brev, så `brev` er påkrevd. Den faste
+teksten i `backend/constants/frist_foresporsel.json` må stå uendret i både
+`begrunnelse` og brevets begrunnelse (#173)."""
 avsender = "BH"
 spor = "frist"
 sakstype = ["standard"]
 ns8407 = "§ 33.6.2 første til tredje ledd."
-ns8407_kilde = "vedtak: nøytralt fristvarsel i 3.1 (23.09); oppdragsgiver, 2026-10-04"
+ns8407_kilde = "vedtak: nøytralt fristvarsel i 3.1 (23.09); oppdragsgiver, 2026-10-04 og 2026-10-05"
 modell = "FristForesporselEvent"
 data = "FristForesporselData"
 lagres_i = "hendelse"

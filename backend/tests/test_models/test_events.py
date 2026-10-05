@@ -6,6 +6,7 @@ Ensures that validators work correctly and that the Port model logic is sound.
 """
 
 import pytest
+from pydantic import ValidationError
 
 from models.events import (
     EOKonsekvenser,
@@ -433,34 +434,14 @@ def test_frist_respons_data():
     assert data.godkjent_dager == 14
 
 
-def test_frist_respons_har_bh_foresporsel_validator():
-    """Test that har_bh_foresporsel is allowed even when krav came on time.
-
-    This is valid because BH may have sent an inquiry before TE responded,
-    so spesifisert_krav_ok=True just means TE responded within deadline.
-    The validator was relaxed to allow this combination.
-    """
-    # This should NOT raise - the strict validation was removed
-    data = FristResponsData(
-        spesifisert_krav_ok=True,  # Krav kom i tide
-        har_bh_foresporsel=True,  # OK! BH kan ha forespurt før TE responderte
-        vilkar_oppfylt=True,
-        beregnings_resultat=FristBeregningResultat.GODKJENT,
-    )
-    assert data.har_bh_foresporsel is True
-    assert data.spesifisert_krav_ok is True
-
-
-def test_frist_respons_foresporsel_allowed_when_late():
-    """Test that har_bh_foresporsel is allowed when krav is late"""
-    data = FristResponsData(
-        spesifisert_krav_ok=False,  # Krav kom for sent
-        har_bh_foresporsel=True,  # OK! BH forespurte
-        vilkar_oppfylt=True,
-        beregnings_resultat=FristBeregningResultat.DELVIS_GODKJENT,
-        godkjent_dager=10,
-    )
-    assert data.har_bh_foresporsel is True
+@pytest.mark.parametrize("felt", ["har_bh_foresporsel", "dato_bh_foresporsel"])
+def test_fristsvaret_kan_ikke_sette_foresporselen(felt):
+    """Forespørselen er en egen hendelse med brev (#182)."""
+    with pytest.raises(ValidationError, match=felt):
+        FristResponsData(
+            beregnings_resultat=FristBeregningResultat.GODKJENT,
+            **{felt: True if felt.startswith("har") else "2026-10-05"},
+        )
 
 
 def test_respons_event_creation():

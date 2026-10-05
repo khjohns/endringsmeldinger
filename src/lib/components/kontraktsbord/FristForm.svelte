@@ -326,24 +326,10 @@
         {#snippet icon()}<Clock3 size={14} />{/snippet}
 
         <div class="claim-summary">
-          {#if domainConfig.varselType === 'spesifisert'}
-            <div class="primary-days">
-              <span class="sammendrag-label">Krevd fristforlengelse</span>
-              <strong class="font-mono">{domainConfig.krevdDager} dager</strong>
-            </div>
-          {:else if domainConfig.varselType === 'begrunnelse_utsatt'}
-            <div class="notice-hero">
-              <span class="sammendrag-label">Foreløpig krav om fristforlengelse</span>
-              <strong>Fristvirkningen beregnes senere</strong>
-              <p>Entreprenøren har begrunnet hvorfor antall dager ennå ikke kan spesifiseres.</p>
-            </div>
-          {:else}
-            <div class="notice-hero">
-              <span class="sammendrag-label">Varsel om fristforlengelse</span>
-              <strong>Foreløpig varsel</strong>
-              <p>Antall dager er ikke spesifisert ennå.</p>
-            </div>
-          {/if}
+          <div class="primary-days">
+            <span class="sammendrag-label">Krevd fristforlengelse</span>
+            <strong class="font-mono">{domainConfig.krevdDager} dager</strong>
+          </div>
         </div>
 
         {#if submissionMeta.forelopig || submissionMeta.spesifisert || submissionMeta.latest}
@@ -577,19 +563,6 @@
     font-size: 30px;
     line-height: 1.1;
     letter-spacing: 0.02em;
-  }
-  .notice-hero strong {
-    display: block;
-    margin-top: 7px;
-    font-size: 20px;
-    line-height: 1.3;
-    color: var(--ink);
-  }
-  .notice-hero p {
-    margin: 6px 0 0;
-    font-size: 13px;
-    line-height: 1.5;
-    color: var(--ink-3);
   }
   .sammendrag-datoer {
     display: flex;

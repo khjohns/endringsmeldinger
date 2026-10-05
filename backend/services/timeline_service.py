@@ -826,8 +826,6 @@ class TimelineService:
                 "frist_varsel_ok",
                 "spesifisert_krav_ok",
                 "foresporsel_svar_ok",
-                "har_bh_foresporsel",
-                "dato_bh_foresporsel",
                 "begrunnelse_varsel",
             ],
         )
