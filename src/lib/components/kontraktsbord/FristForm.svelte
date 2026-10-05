@@ -251,12 +251,15 @@
               return;
             }
             if (store.isDemo) {
-              store.sendFristSvar(prinsipaltGodkjent, {
+              store.sendFristSvar(computed.prinsipaltResultat, prinsipaltGodkjent, {
                 fristVarselOk,
                 spesifisertKravOk,
                 foresporselSvarOk,
                 vilkarOppfylt,
                 subsidiaerTriggers: computed.subsidiaerTriggers,
+                subsidiaerResultat: computed.visSubsidiaertResultat
+                  ? computed.subsidiaertResultat
+                  : undefined,
                 subsidiaerGodkjentDager: computed.visSubsidiaertResultat
                   ? subsidiaertGodkjent
                   : undefined,

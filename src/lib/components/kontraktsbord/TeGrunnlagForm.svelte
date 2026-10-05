@@ -174,7 +174,7 @@
             <h2>{store.bhNavn}</h2>
             <div class="response-meta">
               {#if bhDate}<span>Svart {bhDate}</span>{/if}
-              {#if bhAnsweredRevision !== undefined}
+              {#if bhAnsweredRevision != null}
                 <span>
                   {bhAnsweredRevision === 0
                     ? 'Svar på opprinnelig innsending'
