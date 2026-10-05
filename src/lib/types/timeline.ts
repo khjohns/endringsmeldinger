@@ -167,7 +167,7 @@ export interface GrunnlagTilstand {
   grunnlag_varslet_i_tide?: boolean;
   laast: boolean;
   /** Which version of the claim BH last responded to (0-indexed: 0 = original, 1 = rev 1, etc.) */
-  bh_respondert_versjon?: number;
+  bh_respondert_versjon?: number | null;
 
   /** True hvis entreprenør har akseptert byggherrens respons (partene er enige) */
   te_akseptert?: boolean;
@@ -226,7 +226,7 @@ export interface VederlagTilstand {
   bh_metode?: VederlagsMetode;
   godkjent_belop?: number;
   /** Which version of the claim BH last responded to (0-indexed: 0 = original, 1 = rev 1, etc.) */
-  bh_respondert_versjon?: number;
+  bh_respondert_versjon?: number | null;
 
   // Subsidiært standpunkt (når BH tar prinsipalt avslag men subsidiært godkjenner)
   subsidiaer_triggers?: SubsidiaerTrigger[];
@@ -307,7 +307,7 @@ export interface FristTilstand {
   kravet_besvarer_foresporselen?: boolean;
 
   /** Which version of the claim BH last responded to (0-indexed: 0 = original, 1 = rev 1, etc.) */
-  bh_respondert_versjon?: number;
+  bh_respondert_versjon?: number | null;
 
   /** True hvis entreprenør har akseptert byggherrens respons (partene er enige) */
   te_akseptert?: boolean;

@@ -120,3 +120,22 @@ it('viser subsidiær vurdering og flere grunner til prinsipalt avslag sammen', (
     screen.getByText(/bestridt ansvarsgrunnlag, for sen varsling av fristkravet/)
   ).toHaveTextContent('Prinsipalt avslag bygger på');
 });
+
+it('leser bh_respondert_versjon = null fra API-et som ubesvart', () => {
+  const state = structuredClone(scenario1_3AktiveSpor);
+  for (const spor of [state.grunnlag, state.vederlag, state.frist]) {
+    spor.bh_respondert_versjon = null;
+    spor.antall_versjoner = 3;
+    spor.bh_resultat = undefined;
+  }
+  const workspace = createCaseWorkspace(
+    { state, timeline: [], version: 1, historikk: { grunnlag: [], vederlag: [], frist: [] } },
+    { projectId: 'p' }
+  );
+  const { container } = render(WorkspaceHarness, {
+    workspace,
+    view: { track: 'ansvar', mode: 'read', role: 'BH' },
+  });
+  expect(container.querySelector('.new-revision')).toBeNull();
+  expect(container).not.toHaveTextContent(/Svar på (tidligere )?versjon/);
+});

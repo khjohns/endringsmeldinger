@@ -53,7 +53,7 @@
   const teVersionCount = $derived(Math.max(grunnlag.antall_versjoner, teEvents.length, 1));
   const teRevision = $derived(teVersionCount - 1);
   const bhAnsweredVersion = $derived(
-    grunnlag.bh_respondert_versjon === undefined ? null : grunnlag.bh_respondert_versjon + 1
+    grunnlag.bh_respondert_versjon == null ? null : grunnlag.bh_respondert_versjon + 1
   );
   const bhSvarErEldre = $derived(bhAnsweredVersion !== null && teVersionCount > bhAnsweredVersion);
   const teDate = $derived(
