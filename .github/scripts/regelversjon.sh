@@ -33,11 +33,12 @@ kontroller() {
 }
 kontroller "$ts" les_ts
 kontroller "$py" les_py
-if [ "$feil" -ne 0 ]; then
-  echo
-  echo "Når REGELVERSJON er økt, må fixturen $fixtur regenereres,"
-  echo "ellers feiler npm test. Backend-testene leser samme fixture:"
-  echo "  npx vitest run -u src/lib/kontraktsbord/skjemanyttelast.test.ts"
-  echo "  cd backend && /tmp/venv/bin/python -m pytest -q"
+if [ "$feil" -eq 0 ]; then
+  echo "::notice file=$fixtur::REGELVERSJON er økt. Regenerer $fixtur med npx vitest run -u src/lib/kontraktsbord/skjemanyttelast.test.ts."
 fi
+echo
+echo "Når REGELVERSJON er økt, må fixturen $fixtur regenereres,"
+echo "ellers feiler npm test. Backend-testene leser samme fixture:"
+echo "  npx vitest run -u src/lib/kontraktsbord/skjemanyttelast.test.ts"
+echo "  cd backend && /tmp/venv/bin/python -m pytest -q"
 exit $feil

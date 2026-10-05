@@ -67,17 +67,21 @@ def test_versjon_okt_bare_i_ett_speil_feiler(repo):
     assert _kjor(sti, base).returncode == 1
 
 
-def test_regelendring_med_okt_versjon_i_begge_passerer(repo):
+def test_regelendring_med_okt_versjon_i_begge_passerer_og_minner_om_fixturen(repo):
     sti, base = repo
     _skriv(sti, {"src/lib/domain/regel.ts": "b\n", **_versjoner(4, 4)})
     svar = _kjor(sti, base)
     assert svar.returncode == 0, svar.stdout + svar.stderr
+    assert "::notice file=backend/tests/fixtures/skjemaenes_nyttelast.json::" in svar.stdout
+    assert "npx vitest run -u src/lib/kontraktsbord/skjemanyttelast.test.ts" in svar.stdout
 
 
-def test_endring_bare_i_domenetestene_passerer(repo):
+def test_endring_bare_i_domenetestene_passerer_uten_fixturhint(repo):
     sti, base = repo
     _skriv(sti, {"src/lib/domain/__tests__/regel.test.ts": "b\n"})
-    assert _kjor(sti, base).returncode == 0
+    svar = _kjor(sti, base)
+    assert svar.returncode == 0
+    assert "skjemaenes_nyttelast" not in svar.stdout
 
 
 def test_mangler_base_gir_bruksmelding(repo):
