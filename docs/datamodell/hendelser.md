@@ -780,7 +780,7 @@ TE godtar BHs svar på ett spor, angitt i `spor`.
 | Lagres i | `hendelse` |
 | Sendes fra | POST /api/events og /api/events/batch; Frontend: sendes ikke fra noe skjermbilde i dag |
 | Forretningsregler | ROLE_CHECK, CASE_NOT_CLOSED, CREATE_ONCE, RESPONSE_REFERENCE, BH_HAS_RESPONDED, NOT_ALREADY_ACCEPTED |
-| Virkning på status | TEs aksept settes på sporet. Statusen følger BHs svar og forbedrer det aldri: avslag gir `avslatt_akseptert`, godkjent og delvis godkjent gir `godkjent`, og `hold_tilbake` og `frafalt` lar statusen stå (vedtaket 19.09, TFR-01). |
+| Virkning på status | TEs aksept settes på sporet. Statusen følger BHs svar og forbedrer det aldri: avslag gir `avslatt_akseptert`, godkjent og delvis godkjent gir `godkjent`, og `hold_tilbake` og `frafalt` lar statusen stå (vedtaket 19.09, TFR-01). Godtar TE avslaget på grunnlaget, blir saken `LUKKET_AVSLATT`, uansett vederlag og frist, og lukket for alle hendelser utenom endringsordrens (vedtaket 05.10, #213). |
 | Behandler | `TimelineService._handle_te_aksepterer_respons` |
 | Funn | SD-02 |
 | Belegg | L 29.09: `_handle_te_aksepterer_respons` og `_status_etter_aksept`; søk i src/ etter typen utenom typer, etiketter og mockdata. |
@@ -1050,8 +1050,8 @@ BH oppretter en endringsordresak med nummer, beskrivelse og KOE-saker som inngå
 | Modell | `EOOpprettetEvent`, data `EOOpprettetData` |
 | Lagres i | `hendelse` |
 | Sendes fra | POST /api/endringsordre/opprett, når prosjektet ikke har godkjenningspolicy; Utstedelse fra EO-godkjenningen (eo_approval_service.issue); POST /api/events og /api/events/batch, når prosjektet ikke har godkjenningspolicy; Frontend: EndringsordreForm og EO-godkjenningspanelet |
-| Forretningsregler | ROLE_CHECK, CASE_NOT_CLOSED, CREATE_ONCE, RESPONSE_REFERENCE |
-| Virkning på status | Saken blir en endringsordresak, og endringsordren får status `utkast`. Skrives i samme transaksjon som `sak_opprettet` og `eo_utstedt`. Sakstypen settes også når hendelsen kommer i en KOE-sak, og ingen regel stopper det (DM-07). |
+| Forretningsregler | ROLE_CHECK, CASE_NOT_CLOSED, CREATE_ONCE, RESPONSE_REFERENCE, IS_EO_CASE |
+| Virkning på status | Saken blir en endringsordresak, og endringsordren får status `utkast`. Skrives i samme transaksjon som `sak_opprettet` og `eo_utstedt`. I en KOE-sak avvises hendelsen av `IS_EO_CASE` (DM-07, rettet 05.10). |
 | Behandler | `TimelineService._handle_eo_opprettet` |
 | Funn | DM-07, TST-05, RV-19 |
 | Belegg | L 29.09: `opprett_endringsordresak` og `_handle_eo_opprettet`. K 29.09: `eo_opprettet` i en KOE-sak gjennom POST /api/events (DM-07). |
