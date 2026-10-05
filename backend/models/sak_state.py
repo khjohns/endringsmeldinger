@@ -878,6 +878,9 @@ def _endringsordrestatus(status: EOStatus) -> str:
     }[status]
 
 
+LUKKEDE_STATUSER = frozenset({"OMFORENT", "LUKKET", "LUKKET_TRUKKET", "LUKKET_AVSLATT"})
+
+
 class SakState(BaseModel):
     """
     Aggregert tilstand for en hel sak.
@@ -1291,7 +1294,7 @@ class SakState(BaseModel):
         Foreslår neste handling basert på tilstand.
 
         Returnerer dict med:
-        - rolle: "TE" eller "BH"
+        - rolle: "TE", "BH" eller None når ingen handling venter
         - handling: beskrivelse av hva som bør gjøres
         - spor: hvilket spor handlingen gjelder (eller None)
         """

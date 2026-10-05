@@ -11,6 +11,7 @@ from models.events import (
     SporType,
 )
 from models.sak_state import (
+    LUKKEDE_STATUSER,
     FristTilstand,
     GrunnlagTilstand,
     SakState,
@@ -50,7 +51,11 @@ def test_godtatt_avslag_paa_grunnlaget_lukker_saken(vederlag, frist):
 
     assert sak.overordnet_status == "LUKKET_AVSLATT"
     assert sak.kan_utstede_eo is False
-    assert sak.neste_handling["rolle"] is None
+    assert sak.neste_handling == {
+        "rolle": None,
+        "handling": "Ingen ventende handlinger",
+        "spor": None,
+    }
 
 
 def test_lukket_avslatt_avviser_nye_krav():
@@ -71,7 +76,8 @@ def test_lukket_avslatt_avviser_nye_krav():
 
 
 def test_lukket_avslatt_vises_som_lukket_i_catenda():
-    assert map_status_to_catenda("LUKKET_AVSLATT") == "Lukket"
+    for status in LUKKEDE_STATUSER - {"OMFORENT"}:
+        assert map_status_to_catenda(status) == "Lukket"
     assert (
         CatendaCommentGenerator()._format_overordnet_status("LUKKET_AVSLATT")
         == "Avsluttet – avslag godtatt"
