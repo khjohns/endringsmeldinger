@@ -1160,16 +1160,23 @@ def test_delvis_oppdatert_fristsvar_beholder_subsidiaert_standpunkt():
     assert frist.subsidiaer_triggers == ["preklusjon_varsel"]
 
 
-@pytest.mark.xfail(
-    strict=True,
-    raises=AssertionError,
-    reason=(
-        "SD-02: en sak der grunnlaget er avsluttet uten krav (trukket, eller avslaget "
-        "godtatt) før andre krav er sendt, vises som UTKAST"
-    ),
-)
 @pytest.mark.parametrize(
-    "grunnlag_status", [SporStatus.TRUKKET, SporStatus.AVSLATT_AKSEPTERT]
+    "grunnlag_status",
+    [
+        pytest.param(
+            SporStatus.TRUKKET,
+            marks=pytest.mark.xfail(
+                strict=True,
+                raises=AssertionError,
+                reason=(
+                    "SD-02: en sak der grunnlaget er trukket før andre krav er "
+                    "sendt, vises som UTKAST"
+                ),
+            ),
+        ),
+        # Godtatt avslag gir LUKKET_AVSLATT (vedtak 05.10, #213).
+        SporStatus.AVSLATT_AKSEPTERT,
+    ],
 )
 def test_avsluttet_grunnlag_uten_andre_krav_vises_ikke_som_utkast(grunnlag_status):
     state = SakState(
