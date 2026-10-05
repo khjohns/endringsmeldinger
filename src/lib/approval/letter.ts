@@ -31,7 +31,7 @@ const resultater: Record<string, string> = {
   avslatt: 'Avslått',
   frafalt: 'Innsigelsen er frafalt',
   foresporsel: 'Ber om spesifisert krav',
-  hold_tilbake: 'Betaling holdes tilbake (§ 30.2)',
+  hold_tilbake: 'Holdes tilbake (§30.2)',
 };
 const resultatTekst = (value: unknown) =>
   resultater[String(value)] ?? (value == null ? '' : String(value));

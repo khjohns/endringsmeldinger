@@ -24,7 +24,7 @@ RESULTATER = {
     "avslatt": "Avslått",
     "frafalt": "Innsigelsen er frafalt",
     "foresporsel": "Ber om spesifisert krav",
-    "hold_tilbake": "Betaling holdes tilbake (§ 30.2)",
+    "hold_tilbake": "Holdes tilbake (§30.2)",
 }
 
 
@@ -42,7 +42,11 @@ def _subsidiaert_ved_avslatt_grunnlag(d, track):
         standpunkt(
             "Subsidiært",
             d.get("beregnings_resultat"),
-            d.get("total_godkjent_belop", d.get("godkjent_belop"))
+            (
+                d["total_godkjent_belop"]
+                if d.get("total_godkjent_belop") is not None
+                else d.get("godkjent_belop")
+            )
             if vederlag
             else d.get("godkjent_dager"),
         )
