@@ -28,13 +28,21 @@ from pydantic import (
     AfterValidator,
     BaseModel,
     Field,
+    ValidationInfo,
     computed_field,
     field_validator,
     model_validator,
 )
 
+from constants.frist_foresporsel import har_fast_tekst
 from models.cloudevents import CloudEventMixin
 from models.letter_document import LetterSnapshot
+
+
+def _ny_hendelse(info: ValidationInfo) -> bool:
+    """Krav som kom etter at hendelser ble lagret, gjelder bare nye (se `parse_event`)."""
+    return not (info.context or {}).get("lagret", False)
+
 
 # ============ VEDLEGG ============
 
@@ -1240,17 +1248,6 @@ class FristResponsData(BaseModel):
         description="Er svar på forespørsel sendt i tide? (§33.6.2/§5). None hvis ikke relevant.",
     )
 
-    # Har BH sendt forespørsel om spesifisering?
-    har_bh_foresporsel: bool | None = Field(
-        default=None,
-        description="Har BH sendt forespørsel om spesifisering? (§33.6.2). Relevant kun hvis krav er sent.",
-    )
-
-    dato_bh_foresporsel: str | None = Field(
-        default=None,
-        description="Dato BH sendte forespørsel om spesifisering (§33.6.2) - YYYY-MM-DD. Brukes for å beregne om TEs svar kom i tide.",
-    )
-
     begrunnelse_varsel: str | None = Field(
         default=None, description="BHs begrunnelse for vurdering av varsling"
     )
@@ -1304,23 +1301,18 @@ class FristResponsData(BaseModel):
         default=None, description="BH's begrunnelse for subsidiær vurdering"
     )
 
-    @field_validator("har_bh_foresporsel")
+    @model_validator(mode="before")
     @classmethod
-    def validate_foresporsel(cls, v, info):
-        """
-        Valider at har_bh_foresporsel brukes korrekt.
-
-        har_bh_foresporsel har to bruksområder:
-        1. Når TE kun har sendt varsel om fristforlengelse: BH sender forespørsel om spesifisering (§33.6.2)
-           - I dette tilfellet er spesifisert_krav_ok irrelevant (TE har ikke sendt spesifisert)
-        2. Når TE har sendt spesifisert krav som var for sent: BH har sendt forespørsel tidligere
-           - I dette tilfellet skal spesifisert_krav_ok=False
-
-        Valideringen tillater nå har_bh_foresporsel=True selv når spesifisert_krav_ok=True,
-        fordi dette kan skje når BH sender forespørsel og TE responderer i tide.
-        """
-        # Fjernet streng validering - har_bh_foresporsel kan være True i flere scenarier
-        return v
+    def avvis_foresporselsfelt(cls, data, info: ValidationInfo):
+        """Forespørselen er en egen hendelse med brev, `frist_foresporsel_sendt` (#182)."""
+        if isinstance(data, dict) and _ny_hendelse(info):
+            felt = sorted({"har_bh_foresporsel", "dato_bh_foresporsel"} & data.keys())
+            if felt:
+                raise ValueError(
+                    f"{', '.join(felt)} settes av forespørselen (frist_foresporsel_sendt), "
+                    "ikke av fristsvaret"
+                )
+        return data
 
     @model_validator(mode="after")
     def validate_full_eller_partiell(self):
@@ -1370,6 +1362,23 @@ class ResponsEvent(SakEvent):
             raise ValueError(f"Ugyldig event_type for ResponsEvent: {v}")
         return v
 
+    @model_validator(mode="before")
+    @classmethod
+    def valider_data_etter_spor(cls, values, info: ValidationInfo):
+        """Uten dette prøves `data` mot alle tre typene, og feilen fra riktig type går tapt."""
+        if isinstance(values, dict) and isinstance(values.get("data"), dict):
+            datatype = {
+                SporType.GRUNNLAG.value: GrunnlagResponsData,
+                SporType.VEDERLAG.value: VederlagResponsData,
+                SporType.FRIST.value: FristResponsData,
+            }.get(getattr(values.get("spor"), "value", values.get("spor")))
+            if datatype:
+                values = {
+                    **values,
+                    "data": datatype.model_validate(values["data"], context=info.context),
+                }
+        return values
+
     @model_validator(mode="after")
     def validate_data_matches_spor(self):
         """Valider at data-typen matcher spor."""
@@ -1416,6 +1425,20 @@ class FristForesporselData(BaseModel):
     )
     vedlegg_ids: VedleggIds = Field(default_factory=list)
     brev: LetterSnapshot
+
+    @model_validator(mode="after")
+    def validate_fast_tekst(self, info: ValidationInfo):
+        """BH kan legge til tekst, men ikke fjerne det § 33.6.2 første ledd krever (#173)."""
+        if not _ny_hendelse(info):
+            return self
+        if not har_fast_tekst(self.begrunnelse) or not har_fast_tekst(
+            self.brev.seksjoner.begrunnelse.redigertTekst
+        ):
+            raise ValueError(
+                "Forespørselen må gjengi den faste teksten etter § 33.6.2 første ledd "
+                "uendret, både i begrunnelsen og i brevet"
+            )
+        return self
 
 
 class FristInnsigelseEvent(SakEvent):
@@ -2074,9 +2097,12 @@ AnyEvent = Union[
 # ============ EVENT PARSING ============
 
 
-def parse_event(data: dict) -> AnyEvent:
+def parse_event(data: dict, *, lagret: bool = True) -> AnyEvent:
     """
     Parse a dict into the correct event type.
+
+    `lagret=False` gjelder en ny hendelse. En lagret hendelse kan ikke rettes, så
+    krav som kom etter at den ble skrevet, prøves bare på nye (`_ny_hendelse`).
 
     Uses event_type field to determine which model to instantiate.
     Auto-derives 'spor' for ResponsEvent if not present (for backwards compatibility
@@ -2200,7 +2226,7 @@ def parse_event(data: dict) -> AnyEvent:
                 data["data"] = dict(event_data)
                 data["data"]["subsidiaer_triggers"] = migrated
 
-    return event_class.model_validate(data)
+    return event_class.model_validate(data, context={"lagret": lagret})
 
 
 def parse_event_from_request(request_data: dict) -> AnyEvent:
@@ -2273,4 +2299,4 @@ def parse_event_from_request(request_data: dict) -> AnyEvent:
         letter.referanser.eventId = request_data['event_id']
         letter.referanser.sakId = request_data['sak_id']
         request_data['data']['brev'] = letter.model_dump(mode='json')
-    return parse_event(request_data)
+    return parse_event(request_data, lagret=False)

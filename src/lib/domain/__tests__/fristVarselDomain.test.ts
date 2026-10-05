@@ -6,6 +6,7 @@ import { describe, it, expect } from 'vitest';
 import {
   buildEventData,
   eventTypeFor,
+  FORESPORSEL_FAST_TEKST,
   foresporselTekst,
   foresporselVenterSvar,
   innsigelseTekst,
@@ -53,8 +54,10 @@ describe('teksten i brevet', () => {
     expect(tekst).not.toContain('innen');
   });
 
-  it('forespørselen nevner svarfristen når den er satt', () => {
-    expect(foresporselTekst('20. oktober 2026')).toContain('svar innen 20. oktober 2026');
+  it('forespørselen nevner svarfristen etter den faste teksten, som serveren kontrollerer', () => {
+    expect(foresporselTekst('20. oktober 2026')).toBe(
+      `${FORESPORSEL_FAST_TEKST} Byggherren ber om svar innen 20. oktober 2026.`
+    );
   });
 
   it('innsigelsen viser til § 5 tredje ledd og § 33.4', () => {
