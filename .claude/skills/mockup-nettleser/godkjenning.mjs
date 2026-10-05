@@ -39,6 +39,10 @@ async function svarer(url) {
   }
 }
 
+function stopp(vite) {
+  if (vite?.exitCode === null) process.kill(-vite.pid);
+}
+
 async function startVite(url) {
   if (await svarer(url)) return null;
   const port = new URL(url).port || '5173';
@@ -50,18 +54,19 @@ async function startVite(url) {
     if (await svarer(url)) return vite;
     await new Promise((r) => setTimeout(r, 1000));
   }
-  process.kill(-vite.pid);
+  stopp(vite);
   throw new Error(`vite svarte ikke på ${url} innen 60 s`);
 }
 
 const mockup = `${arg.url}/mockup?scenario=${arg.scenario}`;
-const vite = await startVite(mockup);
 const { chromium } = globalPlaywright();
-const browser = await chromium.launch();
 mkdirSync(arg.utdata, { recursive: true });
+const vite = await startVite(mockup);
+let browser;
 const feil = [];
 
 try {
+  browser = await chromium.launch();
   const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
   page.setDefaultTimeout(15000);
   page.on('pageerror', (e) => feil.push(e.message));
@@ -121,6 +126,6 @@ try {
   if (feil.length) throw new Error(`JavaScript-feil i siden:\n${feil.join('\n')}`);
   console.log('OK: svaret er sendt.');
 } finally {
-  await browser.close();
-  if (vite) process.kill(-vite.pid);
+  await browser?.close();
+  stopp(vite);
 }
