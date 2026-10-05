@@ -33,6 +33,7 @@ from pydantic import (
     model_validator,
 )
 
+from constants.frist_foresporsel import har_fast_tekst
 from models.cloudevents import CloudEventMixin
 from models.letter_document import LetterSnapshot
 
@@ -1240,17 +1241,6 @@ class FristResponsData(BaseModel):
         description="Er svar på forespørsel sendt i tide? (§33.6.2/§5). None hvis ikke relevant.",
     )
 
-    # Har BH sendt forespørsel om spesifisering?
-    har_bh_foresporsel: bool | None = Field(
-        default=None,
-        description="Har BH sendt forespørsel om spesifisering? (§33.6.2). Relevant kun hvis krav er sent.",
-    )
-
-    dato_bh_foresporsel: str | None = Field(
-        default=None,
-        description="Dato BH sendte forespørsel om spesifisering (§33.6.2) - YYYY-MM-DD. Brukes for å beregne om TEs svar kom i tide.",
-    )
-
     begrunnelse_varsel: str | None = Field(
         default=None, description="BHs begrunnelse for vurdering av varsling"
     )
@@ -1304,23 +1294,18 @@ class FristResponsData(BaseModel):
         default=None, description="BH's begrunnelse for subsidiær vurdering"
     )
 
-    @field_validator("har_bh_foresporsel")
+    @model_validator(mode="before")
     @classmethod
-    def validate_foresporsel(cls, v, info):
-        """
-        Valider at har_bh_foresporsel brukes korrekt.
-
-        har_bh_foresporsel har to bruksområder:
-        1. Når TE kun har sendt varsel om fristforlengelse: BH sender forespørsel om spesifisering (§33.6.2)
-           - I dette tilfellet er spesifisert_krav_ok irrelevant (TE har ikke sendt spesifisert)
-        2. Når TE har sendt spesifisert krav som var for sent: BH har sendt forespørsel tidligere
-           - I dette tilfellet skal spesifisert_krav_ok=False
-
-        Valideringen tillater nå har_bh_foresporsel=True selv når spesifisert_krav_ok=True,
-        fordi dette kan skje når BH sender forespørsel og TE responderer i tide.
-        """
-        # Fjernet streng validering - har_bh_foresporsel kan være True i flere scenarier
-        return v
+    def avvis_foresporselsfelt(cls, data):
+        """Forespørselen er en egen hendelse med brev, `frist_foresporsel_sendt` (#182)."""
+        if isinstance(data, dict):
+            felt = sorted({"har_bh_foresporsel", "dato_bh_foresporsel"} & data.keys())
+            if felt:
+                raise ValueError(
+                    f"{', '.join(felt)} settes av forespørselen (frist_foresporsel_sendt), "
+                    "ikke av fristsvaret"
+                )
+        return data
 
     @model_validator(mode="after")
     def validate_full_eller_partiell(self):
@@ -1370,6 +1355,20 @@ class ResponsEvent(SakEvent):
             raise ValueError(f"Ugyldig event_type for ResponsEvent: {v}")
         return v
 
+    @model_validator(mode="before")
+    @classmethod
+    def valider_data_etter_spor(cls, values):
+        """Uten dette prøves `data` mot alle tre typene, og feilen fra riktig type går tapt."""
+        if isinstance(values, dict) and isinstance(values.get("data"), dict):
+            datatype = {
+                SporType.GRUNNLAG.value: GrunnlagResponsData,
+                SporType.VEDERLAG.value: VederlagResponsData,
+                SporType.FRIST.value: FristResponsData,
+            }.get(getattr(values.get("spor"), "value", values.get("spor")))
+            if datatype:
+                values = {**values, "data": datatype.model_validate(values["data"])}
+        return values
+
     @model_validator(mode="after")
     def validate_data_matches_spor(self):
         """Valider at data-typen matcher spor."""
@@ -1416,6 +1415,18 @@ class FristForesporselData(BaseModel):
     )
     vedlegg_ids: VedleggIds = Field(default_factory=list)
     brev: LetterSnapshot
+
+    @model_validator(mode="after")
+    def validate_fast_tekst(self):
+        """BH kan legge til tekst, men ikke fjerne det § 33.6.2 første ledd krever (#173)."""
+        if not har_fast_tekst(self.begrunnelse) or not har_fast_tekst(
+            self.brev.seksjoner.begrunnelse.redigertTekst
+        ):
+            raise ValueError(
+                "Forespørselen må gjengi den faste teksten etter § 33.6.2 første ledd "
+                "uendret, både i begrunnelsen og i brevet"
+            )
+        return self
 
 
 class FristInnsigelseEvent(SakEvent):

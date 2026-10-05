@@ -13,6 +13,7 @@ de kan flyttes når `JsonFileEventRepository` går ut i F0b. Testene mot
 
 import pytest
 
+from constants.frist_foresporsel import FAST_TEKST
 from models.events import EventType, FristVarselType, SubsidiaerTrigger
 from regler import REGELVERSJON
 from tests.test_security.test_beregningsresultat_br01_20260923 import (  # noqa: F401
@@ -154,8 +155,8 @@ def _besvart_foresporsel(sak, sak_id):  # noqa: F811
         varsel.event_id,
         {
             "frist_krav_id": varsel.event_id,
-            "begrunnelse": "Spesifiser kravet.",
-            "brev": _brev(sak_id, "Spesifiser kravet."),
+            "begrunnelse": FAST_TEKST,
+            "brev": _brev(sak_id, FAST_TEKST),
         },
     )
     assert foresporsel.status_code == 201, foresporsel.get_json()
@@ -224,6 +225,24 @@ def test_33_6_1_avvises_gjennom_ruta(sak):  # noqa: F811
     assert svar.status_code == 400, svar.get_json()
     assert "§ 33.6.2 fjerde ledd" in svar.get_json()["message"]
     assert _lagret_tilstand(sak, sak_id).frist.bh_resultat is None
+
+
+@pytest.mark.parametrize(
+    "felt", [{"har_bh_foresporsel": False}, {"dato_bh_foresporsel": "2026-01-01"}]
+)
+def test_fristsvaret_kan_ikke_endre_foresporselen(sak, felt):  # noqa: F811
+    """#182: forespørselen settes bare av `frist_foresporsel_sendt`, med brev."""
+    sak_id = f"KOE-182-{next(iter(felt))}"
+    krav_id = _besvart_foresporsel(sak, sak_id)
+    for_svaret = _lagret_tilstand(sak, sak_id).frist
+
+    svar = _svar(sak, sak_id, "respons_frist", krav_id, _skjemaets_svar(krav_id, **felt))
+
+    assert svar.status_code == 400, svar.get_json()
+    assert "settes av forespørselen" in svar.get_json()["message"]
+    frist = _lagret_tilstand(sak, sak_id).frist
+    assert frist.har_bh_foresporsel is True
+    assert frist.dato_bh_foresporsel == for_svaret.dato_bh_foresporsel
 
 
 # =============================================================================
