@@ -128,7 +128,7 @@
         {@const hasDraft = store.getUI(t.id).draft !== null}
         {@const hasNewRevision =
           !display.isWithdrawn &&
-          track.bh_respondert_versjon !== undefined &&
+          track.bh_respondert_versjon != null &&
           display.antallVersjoner - 1 > track.bh_respondert_versjon}
         {@const unit = t.id === 'frist' ? ' dager' : ' kr'}
         <button

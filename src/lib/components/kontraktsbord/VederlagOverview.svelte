@@ -203,7 +203,7 @@
     reference="§ 34.1"
     submittedAt={bhDate}
     submittedLabel="Svart"
-    revisionLabel={bhAnsweredRevision === undefined
+    revisionLabel={bhAnsweredRevision == null
       ? undefined
       : bhAnsweredRevision === 0
         ? 'Svar på opprinnelig krav'
