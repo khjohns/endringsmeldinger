@@ -103,8 +103,11 @@ function grunnlagetFor(sak: SakState) {
  * Hele svaret er subsidiært når ansvarsgrunnlaget er avslått eller prekludert,
  * også når beløpet eller dagene er avslått. `er_subsidiaert_*` fra serveren
  * gjelder bare et godkjent beløp; brevet og fullmakten ser på grunnlaget alene.
+ * Ved frafall (§ 32.3 c) kan TE kreve påløpte kostnader, og vederlaget er ikke
+ * subsidiært, som i `er_subsidiaert_vederlag`.
  */
 export function svaretErSubsidiaert(sak: SakState, spor: 'vederlag' | 'frist'): boolean {
+  if (spor === 'vederlag' && sak.grunnlag.bh_resultat === 'frafalt') return false;
   return Boolean(sak[spor].bh_resultat) && erGrunnlagetSubsidiaert(grunnlagetFor(sak));
 }
 
@@ -164,7 +167,7 @@ export function deriveTrackDisplay(sak: SakState, spor: SporKey): TrackDisplay {
       teText: v.begrunnelse ?? '',
       bhText: v.bh_begrunnelse ?? '',
       isDisputed: v.bh_resultat === 'avslatt' || svaretErSubsidiaert(sak, 'vederlag'),
-      isSubsidiary: sak.er_subsidiaert_vederlag,
+      isSubsidiary: svaretErSubsidiaert(sak, 'vederlag'),
       isWithdrawn: v.status === 'trukket',
       isRejectionAccepted: v.status === 'avslatt_akseptert',
       withdrawnReason: v.trukket_begrunnelse,
@@ -191,7 +194,7 @@ export function deriveTrackDisplay(sak: SakState, spor: SporKey): TrackDisplay {
     teText: f.begrunnelse ?? '',
     bhText: f.bh_begrunnelse ?? '',
     isDisputed: f.bh_resultat === 'avslatt' || svaretErSubsidiaert(sak, 'frist'),
-    isSubsidiary: sak.er_subsidiaert_frist,
+    isSubsidiary: svaretErSubsidiaert(sak, 'frist'),
     isWithdrawn: f.status === 'trukket',
     isRejectionAccepted: f.status === 'avslatt_akseptert',
     withdrawnReason: f.trukket_begrunnelse,
