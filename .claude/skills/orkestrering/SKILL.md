@@ -62,6 +62,10 @@ og review over timer. En subagent deler i tillegg checkout med orkestratoren.
 - Del arbeidet i runder etter filoverlapp. Issues som rører samme filer, tas
   etter hverandre i én økt eller i senere runder. Parallelle PR-er i samme fil
   gir konflikter ved hver merge.
+- Filoverlapp mellom PR-er kontrolleres med
+  `git fetch origin <branch> && git diff --name-only origin/main...origin/<branch>`,
+  ikke med `get_files` fra GitHub-MCP. Det svaret har patchene med og blir for
+  stort på en stor PR.
 - Feil som stopper appen, går foran opprydding.
 
 ## 2. Oppdraget til hver økt
@@ -131,8 +135,13 @@ Gjør dette for hver PR:
 
 Merge bare når oppdragsgiver har godkjent det og CI er grønn på siste commit.
 Bruk `expectedHeadSha`, slik at en push som kom etter gjennomgangen, stopper
-mergen. Avvises mergen av regelsettet, sjekk om grenen må oppdateres mot
-`main`, oppdater den og vent på CI.
+mergen.
+
+Når en PR i runden er merget, oppdateres hver av de neste mot `main`
+(`update_pull_request_branch`) og må ha grønn CI på den nye committen før den
+merges. Regelsettet krever ikke at grenen er à jour, og ingen konflikt betyr
+ikke at kombinasjonen er testet: to PR-er uten felles filer kan endre
+hverandres oppførsel. Bruk den nye committen som `expectedHeadSha`.
 
 ## 5. Avslutning
 
