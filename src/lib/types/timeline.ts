@@ -231,7 +231,7 @@ export interface VederlagTilstand {
   // Subsidiært standpunkt (når BH tar prinsipalt avslag men subsidiært godkjenner)
   subsidiaer_triggers?: SubsidiaerTrigger[];
   subsidiaer_resultat?: VederlagBeregningResultat;
-  subsidiaer_godkjent_belop?: number;
+  subsidiaer_godkjent_belop?: number | null;
   subsidiaer_begrunnelse?: string;
 
   // Computed
@@ -296,7 +296,7 @@ export interface FristTilstand {
   // Subsidiært standpunkt (når BH tar prinsipalt avslag men subsidiært godkjenner)
   subsidiaer_triggers?: SubsidiaerTrigger[];
   subsidiaer_resultat?: FristBeregningResultat;
-  subsidiaer_godkjent_dager?: number;
+  subsidiaer_godkjent_dager?: number | null;
   subsidiaer_begrunnelse?: string;
 
   // Computed
@@ -784,10 +784,6 @@ export interface ResponsFristEventData {
   spesifisert_krav_ok?: boolean;
   /** §33.6.2/§5: Var svar på forespørsel rettidig? */
   foresporsel_svar_ok?: boolean;
-  /** Har BH sendt forespørsel om spesifisering (§33.6.2)? */
-  har_bh_foresporsel?: boolean;
-  /** Dato BH sendte forespørsel om spesifisering (§33.6.2) - YYYY-MM-DD */
-  dato_bh_foresporsel?: string;
   begrunnelse_varsel?: string;
 
   // Port 2: Vilkår (Årsakssammenheng)
