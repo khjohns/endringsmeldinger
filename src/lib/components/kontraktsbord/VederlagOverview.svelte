@@ -11,23 +11,31 @@
   import { getCaseWorkspace } from '$lib/kontraktsbord/context.svelte';
   const store = getCaseWorkspace();
   import { fmt, sporResultatLabel } from './utils.js';
+  import { bhStandpunkt, grunnlagTriggers } from './derive.js';
 
   let { onform }: { onform: () => void } = $props();
 
   const vederlag = $derived(store.sak.vederlag);
   const ui = $derived(store.getUI('vederlag'));
   const totalKrevd = $derived(vederlag.krevd_belop ?? vederlag.netto_belop ?? 0);
-  const prinsipaltGodkjent = $derived(vederlag.godkjent_belop ?? 0);
-  const subsidiaertGodkjent = $derived(vederlag.subsidiaer_godkjent_belop ?? prinsipaltGodkjent);
+  const avslattPaaGrunnlag = $derived(store.sak.er_subsidiaert_vederlag);
+  const standpunkt = $derived(
+    bhStandpunkt(avslattPaaGrunnlag, vederlag.godkjent_belop, vederlag.subsidiaer_godkjent_belop)
+  );
+  const prinsipaltGodkjent = $derived(standpunkt.prinsipalt);
+  const subsidiaertGodkjent = $derived(standpunkt.subsidiaert);
+  const atterSubsidiaert = $derived(standpunkt.atterSubsidiaert);
   const hasBhResponse = $derived(Boolean(vederlag.bh_resultat));
   const hasSubsidiaryPosition = $derived(
-    hasBhResponse &&
-      (store.sak.er_subsidiaert_vederlag || vederlag.subsidiaer_godkjent_belop !== undefined)
+    hasBhResponse && (avslattPaaGrunnlag || vederlag.subsidiaer_godkjent_belop != null)
   );
+  const hasAtterSubsidiary = $derived(hasBhResponse && atterSubsidiaert !== undefined);
+  const prinsipaltAvslatt = $derived(vederlag.bh_resultat === 'avslatt' || avslattPaaGrunnlag);
   const hasUsefulPositionOverview = $derived(
     hasBhResponse &&
       (prinsipaltGodkjent !== totalKrevd ||
-        (hasSubsidiaryPosition && subsidiaertGodkjent !== prinsipaltGodkjent))
+        (hasSubsidiaryPosition && subsidiaertGodkjent !== prinsipaltGodkjent) ||
+        hasAtterSubsidiary)
   );
   const godkjentAndel = $derived(
     totalKrevd > 0 ? Math.min(100, Math.max(0, (prinsipaltGodkjent / totalKrevd) * 100)) : 0
@@ -133,11 +141,20 @@
     return definitions
       .filter((row) => row.visible)
       .map((row) => {
-        const subsidiaert = assessedAmount(row.assessment, row.claimed, row.approved);
+        const vurdert = assessedAmount(row.assessment, row.claimed, row.approved);
+        if (avslattPaaGrunnlag) {
+          return {
+            ...row,
+            prinsipalt: 0,
+            subsidiaert: row.precluded ? 0 : vurdert,
+            atterSubsidiaert: vurdert,
+          };
+        }
         return {
           ...row,
-          prinsipalt: store.sak.er_subsidiaert_vederlag || row.precluded ? 0 : subsidiaert,
-          subsidiaert,
+          prinsipalt: row.precluded ? 0 : vurdert,
+          subsidiaert: vurdert,
+          atterSubsidiaert: undefined,
         };
       });
   });
@@ -214,36 +231,41 @@
     <PositionExplanation
       subsidiary={hasSubsidiaryPosition}
       value={`vederlaget til ${fmt(subsidiaertGodkjent)} kr`}
-      rejected={vederlag.bh_resultat === 'avslatt'}
-      triggers={latestBhResponseData?.subsidiaer_triggers ??
-        vederlag.subsidiaer_triggers ?? [
-          ...(hasSubsidiaryPosition && store.sak.grunnlag.bh_resultat === 'avslatt'
-            ? ['grunnlag_avslatt' as const]
-            : []),
-          ...(latestBhResponseData?.hovedkrav_varslet_i_tide === false
-            ? ['preklusjon_hovedkrav' as const]
-            : []),
-          ...(latestBhResponseData?.rigg_varslet_i_tide === false
-            ? ['preklusjon_rigg' as const]
-            : []),
-          ...(latestBhResponseData?.produktivitet_varslet_i_tide === false
-            ? ['preklusjon_produktivitet' as const]
-            : []),
-          ...(latestBhResponseData?.aksepterer_metode === false ? ['metode_avslatt' as const] : []),
-        ]}
+      rejected={prinsipaltAvslatt}
+      triggers={[
+        ...grunnlagTriggers(store.sak, 'vederlag'),
+        ...(latestBhResponseData?.subsidiaer_triggers ??
+          vederlag.subsidiaer_triggers ?? [
+            ...(latestBhResponseData?.hovedkrav_varslet_i_tide === false
+              ? ['preklusjon_hovedkrav' as const]
+              : []),
+            ...(latestBhResponseData?.rigg_varslet_i_tide === false
+              ? ['preklusjon_rigg' as const]
+              : []),
+            ...(latestBhResponseData?.produktivitet_varslet_i_tide === false
+              ? ['preklusjon_produktivitet' as const]
+              : []),
+            ...(latestBhResponseData?.aksepterer_metode === false
+              ? ['metode_avslatt' as const]
+              : []),
+          ]),
+      ]}
     />
 
     <div
       class="response-summary"
       class:with-subsidiary={hasSubsidiaryPosition && !hasDetailedBhResponse}
+      class:with-atter={hasAtterSubsidiary && !hasDetailedBhResponse}
       class:detailed={hasDetailedBhResponse}
     >
       <div>
         <span class="eyebrow">Resultat</span>
         <strong
-          >{vederlag.bh_resultat === 'avslatt'
-            ? 'BH avslår kravet prinsipalt'
-            : bhResultLabel}</strong
+          >{avslattPaaGrunnlag
+            ? 'Prinsipalt avslått (ansvarsgrunnlaget)'
+            : vederlag.bh_resultat === 'avslatt'
+              ? 'BH avslår kravet prinsipalt'
+              : bhResultLabel}</strong
         >
       </div>
       {#if !hasDetailedBhResponse}
@@ -255,6 +277,12 @@
           <div class="approved-amount">
             <span class="eyebrow">Subsidiært vurdert</span>
             <strong class="font-mono">{fmt(subsidiaertGodkjent)},-</strong>
+          </div>
+        {/if}
+        {#if hasAtterSubsidiary}
+          <div class="approved-amount">
+            <span class="eyebrow">Atter subsidiært</span>
+            <strong class="font-mono">{fmt(atterSubsidiaert ?? 0)},-</strong>
           </div>
         {/if}
       {/if}
@@ -269,6 +297,7 @@
               <th class="numeric">Krevd</th>
               <th class="numeric">Prinsipalt godkjent</th>
               {#if hasSubsidiaryPosition}<th class="numeric">Subsidiært vurdert</th>{/if}
+              {#if hasAtterSubsidiary}<th class="numeric">Atter subsidiært</th>{/if}
             </tr>
           </thead>
           <tbody>
@@ -286,6 +315,9 @@
                 {#if hasSubsidiaryPosition}
                   <td class="numeric font-mono">{fmt(row.subsidiaert)},-</td>
                 {/if}
+                {#if hasAtterSubsidiary}
+                  <td class="numeric font-mono">{fmt(row.atterSubsidiaert ?? 0)},-</td>
+                {/if}
               </tr>
             {/each}
           </tbody>
@@ -296,6 +328,9 @@
               <th class="numeric font-mono">{fmt(prinsipaltGodkjent)},-</th>
               {#if hasSubsidiaryPosition}
                 <th class="numeric font-mono">{fmt(subsidiaertGodkjent)},-</th>
+              {/if}
+              {#if hasAtterSubsidiary}
+                <th class="numeric font-mono">{fmt(atterSubsidiaert ?? 0)},-</th>
               {/if}
             </tr>
           </tfoot>
@@ -319,7 +354,11 @@
 {#if hasUsefulPositionOverview}
   <section class="position-card">
     <span class="eyebrow">Posisjonsoversikt</span>
-    <div class="position-values" class:has-subsidiary={hasSubsidiaryPosition}>
+    <div
+      class="position-values"
+      class:has-subsidiary={hasSubsidiaryPosition}
+      class:has-atter={hasAtterSubsidiary}
+    >
       <div>
         <span>Krevd</span>
         <strong class="font-mono">{fmt(totalKrevd)},-</strong>
@@ -332,6 +371,12 @@
         <div>
           <span>Subsidiært vurdert</span>
           <strong class="font-mono">{fmt(subsidiaertGodkjent)},-</strong>
+        </div>
+      {/if}
+      {#if hasAtterSubsidiary}
+        <div>
+          <span>Atter subsidiært</span>
+          <strong class="font-mono">{fmt(atterSubsidiaert ?? 0)},-</strong>
         </div>
       {/if}
     </div>
@@ -392,6 +437,9 @@
   }
   .response-summary.with-subsidiary {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .response-summary.with-atter {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
   .response-summary.detailed {
     display: block;
@@ -514,6 +562,9 @@
   .position-values.has-subsidiary {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
+  .position-values.has-atter {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
   .position-values > div + div {
     padding-left: 20px;
     border-left: var(--rule);
@@ -561,8 +612,10 @@
     .claim-summary,
     .response-summary,
     .response-summary.with-subsidiary,
+    .response-summary.with-atter,
     .position-values,
-    .position-values.has-subsidiary {
+    .position-values.has-subsidiary,
+    .position-values.has-atter {
       grid-template-columns: 1fr;
       gap: 15px;
     }

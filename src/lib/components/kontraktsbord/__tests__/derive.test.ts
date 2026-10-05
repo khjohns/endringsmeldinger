@@ -2,6 +2,8 @@ import { describe, it, expect } from 'vitest';
 import {
   deriveTrackDisplay,
   assessedGap,
+  bhStandpunkt,
+  grunnlagTriggers,
   deriveVederlagDomainConfig,
   deriveFristDomainConfig,
   deriveGrunnlagDomainConfig,
@@ -74,6 +76,93 @@ describe('deriveTrackDisplay', () => {
     const result = deriveTrackDisplay(scenario2_BlandetTilstand, 'frist');
     expect(result.krevdValue).toBe(30);
     expect(result.bhPrinsipal).toBe(20);
+  });
+});
+
+describe('svar på vederlag og frist når ansvarsgrunnlaget er avslått eller prekludert', () => {
+  // #214, B-13 (05.10): hele svaret er subsidiært, som i brevet og fullmakten.
+  function sakMedGodkjentBelopOgDager() {
+    const sak = structuredClone(scenario2_BlandetTilstand);
+    sak.vederlag.bh_resultat = 'godkjent';
+    sak.vederlag.krevd_belop = 500000;
+    sak.vederlag.godkjent_belop = 500000;
+    sak.vederlag.subsidiaer_godkjent_belop = undefined;
+    sak.frist.bh_resultat = 'godkjent';
+    sak.frist.krevd_dager = 30;
+    sak.frist.godkjent_dager = 30;
+    sak.frist.subsidiaer_godkjent_dager = undefined;
+    return sak;
+  }
+
+  it('viser prinsipalt avslag og beløpet som subsidiært når grunnlaget er avslått', () => {
+    const sak = sakMedGodkjentBelopOgDager();
+    sak.grunnlag.bh_resultat = 'avslatt';
+    sak.er_subsidiaert_vederlag = true;
+    sak.er_subsidiaert_frist = true;
+
+    const vederlag = deriveTrackDisplay(sak, 'vederlag');
+    expect(vederlag.isDisputed).toBe(true);
+    expect(vederlag.isSubsidiary).toBe(true);
+    expect(vederlag.bhPrinsipal).toBe(0);
+    expect(vederlag.bhSubsidiaer).toBe(500000);
+
+    const frist = deriveTrackDisplay(sak, 'frist');
+    expect(frist.isDisputed).toBe(true);
+    expect(frist.bhPrinsipal).toBe(0);
+    expect(frist.bhSubsidiaer).toBe(30);
+
+    expect(grunnlagTriggers(sak, 'vederlag')).toEqual(['grunnlag_avslatt']);
+    expect(grunnlagTriggers(sak, 'frist')).toEqual(['grunnlag_avslatt']);
+  });
+
+  it('gjør det samme ved preklusjon etter § 32.2, selv om grunnlaget er godkjent', () => {
+    const sak = sakMedGodkjentBelopOgDager();
+    sak.grunnlag.bh_resultat = 'godkjent';
+    sak.grunnlag.hovedkategori = 'ENDRING';
+    sak.grunnlag.underkategori = 'IRREG';
+    sak.grunnlag.grunnlag_varslet_i_tide = false;
+    sak.er_subsidiaert_vederlag = true;
+    sak.er_subsidiaert_frist = true;
+
+    const vederlag = deriveTrackDisplay(sak, 'vederlag');
+    expect(vederlag.isDisputed).toBe(true);
+    expect(vederlag.bhPrinsipal).toBe(0);
+    expect(vederlag.bhSubsidiaer).toBe(500000);
+    expect(grunnlagTriggers(sak, 'frist')).toEqual(['grunnlag_prekludert_32_2']);
+  });
+
+  it('følger serverfeltet og viser «Godkjent» når grunnlaget står', () => {
+    const sak = sakMedGodkjentBelopOgDager();
+    sak.grunnlag.bh_resultat = 'godkjent';
+    sak.er_subsidiaert_vederlag = false;
+    sak.er_subsidiaert_frist = false;
+
+    const vederlag = deriveTrackDisplay(sak, 'vederlag');
+    expect(vederlag.isDisputed).toBe(false);
+    expect(vederlag.bhPrinsipal).toBe(500000);
+    expect(grunnlagTriggers(sak, 'vederlag')).toEqual([]);
+  });
+
+  it('setter et eget subsidiært standpunkt i svaret atter subsidiært', () => {
+    expect(bhStandpunkt(true, 400000, 500000)).toEqual({
+      prinsipalt: 0,
+      subsidiaert: 400000,
+      atterSubsidiaert: 500000,
+    });
+    expect(bhStandpunkt(false, 400000, 500000)).toEqual({
+      prinsipalt: 400000,
+      subsidiaert: 500000,
+    });
+    // API-svaret har null, ikke undefined, når svaret mangler et eget subsidiært standpunkt.
+    expect(bhStandpunkt(true, 400000, null)).toEqual({
+      prinsipalt: 0,
+      subsidiaert: 400000,
+      atterSubsidiaert: undefined,
+    });
+    expect(bhStandpunkt(false, 400000, undefined)).toEqual({
+      prinsipalt: 400000,
+      subsidiaert: 400000,
+    });
   });
 });
 
