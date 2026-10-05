@@ -10,7 +10,7 @@ og [4.2](plans/2026-09-16-godkjenning-og-varig-levering.md#42-gemini-sporet-1809
 [kartleggingen av domenereglene i frontend](kartlegging-domeneregler-frontend-2026-09-23.md)
 og [oppdraget for spor D](prompt-spor-d-br01-2026-09-23.md).
 **Oppdraget:** [prompt-strukturkartlegging-spor-d-2026-10-05.md](prompt-strukturkartlegging-spor-d-2026-10-05.md).
-**Status:** kartlegging. Dokumentet endrer ingen produksjonskode. Fire vedtak
+**Status:** kartlegging. Dokumentet endrer ingen produksjonskode. Vedtakene
 oppdragsgiver tok underveis, står i hovedplanen 3.1. Om målformene i
 avsnitt 7 legges til grunn, er B-14 (3.4, #263).
 
@@ -48,12 +48,13 @@ fire rettelser:
 Av de 19 åpne issuene med `spor-d` hører 13 til et av mønstrene. Fem
 forsvinner med målformene og tre delvis. Elleve må rettes eller avgjøres
 uansett form: fem er spørsmål om NS 8407 eller tiltenkt atferd, tre er nye
-funksjoner, og tre er rettinger som står for seg (avsnitt 6). Hypotesen
-plasserer tre issues feil.
+funksjoner, og tre er rettinger som står for seg (avsnitt 6). Ett av
+spørsmålene (#231) ble avgjort underveis. Hypotesen plasserer tre issues feil.
 
 Kartleggingen ga elleve nye funn, SK-01–SK-11 (avsnitt 5). Oppdragsgiver
 avgjorde underveis hva SK-01, SK-02, SK-03 og #235 skal gi, og valgte
-rekkefølgen M2, M1, M4, M5, M3.
+rekkefølgen M2, M1, M4, M5, M3. Etter en ekstern vurdering av forslagene tok
+oppdragsgiver sju vedtak til samme dag (7.0).
 
 ## Belegg
 
@@ -63,7 +64,7 @@ som hendelser gjennom `BusinessRuleValidator.validate` og
 uten lagring. Svarene bærer verdiene regelmodulen regner ut, så de passerer
 `COMPUTED_RESULT`. Reproduksjonene står i
 [`test_strukturkartlegging_spor_d.py`](../backend/tests/test_services/test_strukturkartlegging_spor_d.py)
-(sju strenge `xfail`) og
+(åtte strenge `xfail`) og
 [`strukturkartlegging_spor_d.test.ts`](../src/lib/components/kontraktsbord/__tests__/strukturkartlegging_spor_d.test.ts)
 (fire `it.fails`). Hver er kjørt med `--runxfail` og som vanlig `it` for å se
 at den feiler på målassertionen. Eierskapstabellen i avsnitt 2 er laget med et
@@ -405,7 +406,7 @@ typene har felt API-et aldri sender (`fradrag_belop`, `er_estimat` og
 | ID | Alvorlighet | Mønster | Kort | Belegg | Issue |
 | --- | --- | --- | --- | --- | --- |
 | SK-01 | middels | M2, M4 | TE kan godta en § 32.2-preklusjon; saken blir `OMFORENT` med utstedbar EO | Streng `xfail`, K | #255 |
-| SK-02 | middels | M2 | Et oppdatert krav åpner ikke sporet; status og aksept fra forrige svar står | To strenge `xfail`, K | #256 |
+| SK-02 | middels | M2 | Et oppdatert krav åpner ikke sporet; status og aksept fra forrige svar står | Tre strenge `xfail`, én med kontrollsak, K | #256 |
 | SK-03 | lav | M2 | Byggherren kan revidere et svar TE har godtatt | Streng `xfail` med kontrollsak, K | #256 |
 | SK-04 | lav | M4 | Frafall gir `TRUKKET`; godtatte avslag gir `UKJENT` | Streng `xfail`, K | #257 |
 | SK-05 | lav | M4 | `neste_handling` håndterer ikke et prekludert grunnlag | K | #255 |
@@ -454,10 +455,13 @@ oppdatering fra alle statuser utenom `IKKE_RELEVANT` og `UTKAST`. Forløp (K):
   oppdatere kravet.
 
 **Vedtak 05.10 (3.1):** et oppdatert krav fra TE åpner sporet igjen, og
-aksepten faller. Om et trukket krav kan tas opp igjen, er ikke avgjort.
+aksepten faller. Hver oppdatering er en ny kravversjon, også med uendrede
+verdier. Et trukket krav kan ikke tas opp igjen; oppdateringen avvises.
 Reproduksjonene er
-`test_oppdatert_krav_etter_full_godkjenning_venter_paa_nytt_svar` og
-`test_oppdatert_krav_etter_aksept_opphever_aksepten`.
+`test_oppdatert_krav_etter_full_godkjenning_venter_paa_nytt_svar`,
+`test_oppdatert_krav_etter_aksept_opphever_aksepten` og
+`test_trukket_krav_kan_ikke_oppdateres`, den siste med samme oppdatering uten
+tilbaketrekking som kontrollsak.
 
 ### SK-03 — byggherren kan revidere et godtatt svar (lav)
 
@@ -479,7 +483,9 @@ godtar begge. Sporene er `TRUKKET`, `AVSLATT_AKSEPTERT`,
 mot. Med vederlag og frist godkjent blir saken `OMFORENT`, mens
 `visningsstatus_vederlag` sier «Avventer (pålegg frafalt)». Mengdene i 1.5
 forklarer resten: kaskaden ved trukket grunnlag overskriver et godtatt avslag
-til `TRUKKET`, og reaktiv EO overskriver det til `GODKJENT`.
+til `TRUKKET`, og reaktiv EO overskriver det til `GODKJENT`. **Vedtak 05.10
+(3.1):** frafall gir grunnlaget en egen sporstatus, `FRAFALT`, som rollupen
+regner som avklart grunnlag på linje med godkjent.
 
 ### SK-05 — neste handling ved prekludert grunnlag (lav)
 
@@ -551,7 +557,7 @@ den må rettes eller avgjøres uansett form.
 | #237 | M3 | forsvinner | En modell per varseltype i `FristData` |
 | #235 | M1 | uansett, nå avgjort | Vedtak 05.10: kombinasjonen avvises |
 | #234 | M1 | forsvinner | Grunnlagsårsaken hører til standpunktet, ikke til svaret |
-| #231 | M4 | uansett | Hvilken status et trukket grunnlag gir, er et valg |
+| #231 | M4 | uansett, nå avgjort | Vedtak 05.10: `LUKKET_TRUKKET` |
 | #230 | M1 og M4 | delvis | Kandidatsøket bør lese standpunktet og lukket-settet; SK-06 |
 | #229 | M4 | forsvinner | Lukket-settet fra backend |
 | #220 | ingen | uansett | Omfanget av § 32.2 er et spørsmål om NS 8407. Teksten i § 32.1–32.3 er nå gitt (vedtaket 05.10), men § 14.6, § 21.4, § 24.2.2 og § 26.3 mangler. Hypotesen plasserer den i M1; regelen ligger alt ett sted |
@@ -566,9 +572,9 @@ den må rettes eller avgjøres uansett form.
 | #64 | M3 og M4 | delvis | Paraply: DRF-02 forsvinner med `extra="forbid"`; SD-02 er #231 |
 
 **Fordelingen.** Forsvinner: #229, #234, #237, #250, #76. Delvis: #94, #230,
-#64. Spørsmål om NS 8407 eller tiltenkt atferd: #175, #179, #189, #220, #231.
-Nye funksjoner: #69, #142, #192. Rettinger som står for seg: #235 (etter
-vedtaket 05.10), #246, #252.
+#64. Spørsmål om NS 8407 eller tiltenkt atferd: #175, #179, #189, #220, og
+#231 til den ble avgjort 05.10. Nye funksjoner: #69, #142, #192. Rettinger
+som står for seg: #235 (etter vedtaket 05.10), #246, #252.
 
 **Der hypotesen plasserer issues feil:**
 - **#220** står i M1, men er et spørsmål om innholdet i regelen, ikke om hvor
@@ -586,8 +592,79 @@ serveren; de blir lettere.
 
 ## 7. Forslag
 
-Rekkefølgen oppdragsgiver valgte 05.10, dersom målformene legges til grunn
-(B-14): M2, M1, M4, M5, M3. Hvert punkt under er tenkt som én PR.
+Avsnittet ble utvidet 05.10 etter en ekstern vurdering av første utkast.
+Kodepåstandene i vurderingen er kontrollert (7.1); det som ikke holdt, er
+rettet. Spørsmålene den reiste, er besvart av oppdragsgiver og står som vedtak
+i hovedplanen 3.1. Resten er forslag under B-14.
+
+**Arbeidsregelen:** uavklart domenespørsmål → avgjørelse → invariant →
+bevis-sak → implementasjon. Ingen PR avgjør et spørsmål om NS 8407 i
+forbifarten.
+
+### 7.0 Status
+
+**Avgjort** (hovedplanen 3.1):
+- rekkefølgen M2, M1, M4, M5, M3, dersom målformene legges til grunn;
+- SK-01, SK-02 og SK-03, og #235;
+- hver oppdatering fra TE er en ny kravversjon; et trukket krav kan ikke tas
+  opp igjen; frafall gir sporstatusen `FRAFALT`; trukket grunnlag før andre
+  krav gir `LUKKET_TRUKKET`; avslag sammen med § 32.2 er lovlig, med
+  preklusjonen som hovedgrunn;
+- null-policyen for API-et; et evalueringsendepunkt utredes ikke nå;
+- fra før, B-13: backend eier det som lagres med rettsvirkning eller styrer
+  systemets handlinger, projeksjonen regner aldri om reglene, og teksten er
+  partens (T-a).
+
+**Foreslått, ikke avgjort** (B-14): målformene under, med bindinger mellom
+krav, svar og aksept i stedet for en felles tilstandsmaskin; standpunktet fra
+serveren; `pending_actions` skilt fra `capabilities`; offentlige DTO-er bare
+der formen skiller seg; ingen kontraktstesting med Pact nå.
+
+**Må avgjøres før en bestemt PR:** 7.2.
+
+### 7.1 Kontrollert mot koden
+
+| Påstand i vurderingen | Utfall |
+| --- | --- |
+| Hendelsesloggen er sannhetskilden for tilstanden | Holder for saken: `compute_state` bygger alt av hendelsene. Ved siden av ligger `cached_*` i metadata (lister og visning; ingen regel leser dem), notater (MS-05, ikke tilstand), godkjenningspakkene til `publish`, og relasjonsprojeksjonen (B-01). L |
+| `/api/events` returnerer tilstanden | Holder: svaret har `state` fra `public_state` og `new_version`. L |
+| Frontenden lapper tilstanden lokalt etter en innsending | Holder ikke. `submit` i `src/lib/kontraktsbord/context.svelte.ts` henter saken på nytt (`refresh`) og erstatter hele tilstanden, med en versjonsvakt. Bare mockup lapper lokalt. Det som gjenstår, er å bruke tilstanden i svaret i stedet for en ny henting. L |
+| Hva `public_state` er | `redact_activity_metadata(...).model_dump(mode="json")`, uten `exclude_none`, ett sted for alle svar med tilstand. L |
+| `BusinessRuleValidator` kan deles i regler for tilstand og for nyttelast | Holder. 29 av 33 registrerte regler leser bare tilstanden, hendelsestypen, sporet og rollen. Fire leser nyttelasten: `CREATE_ONCE` (bare unntaket for rent varsel), `RESPONSE_REFERENCE`, `CLAIM_REFERENCE` og `COMPUTED_RESULT`; i tillegg varselkontrollen i `validate` (`NOTICE_TRACK`). Kjørt som AST-skript. Delingen er en merking av reglene, ikke en omskriving |
+| `krav_event_id` og `respons_event_id` er autoritative | Delvis. Begge settes for alle tre sporene, og `RESPONSE_REFERENCE` sammenlikner svarets referanse med `krav_event_id`. Men koblingen mellom svar og kravversjon går gjennom tall (`bh_respondert_versjon` mot `antall_versjoner`), og aksepten har ingen referanse. L |
+| Hvilke felt frontenden sender | Fixturen `skjemaenes_nyttelast.json`, som frontendens byggere skriver: fristsvaret sender `auto_begrunnelse` og `krevd_dager`, vederlagssvaret `auto_begrunnelse`. Ingen av dem finnes i modellene. K |
+| Avslag sammen med `grunnlag_varslet_i_tide=false` | Godtas. Grunnlaget blir `UNDER_FORHANDLING`, og `neste_handling` går videre til vederlaget (SK-05). K |
+| `visningsstatus_*` og `neste_handling` leverer norsk tekst | Holder. L |
+
+### 7.2 Beslutningsport per PR
+
+Hvert spørsmål avgjøres som én forventet atferd og ett eksempelforløp, og
+forløpet blir bevis-saken.
+
+| PR | Må være avgjort først | Status |
+| --- | --- | --- |
+| M2 PR 1–3 | hva som er en ny kravversjon; trukket krav som oppdateres | avgjort 05.10 |
+| M2 PR 4 | status ved trukket grunnlag (#231) | avgjort 05.10 |
+| M2 PR 5 | status ved frafall (SK-04) | avgjort 05.10 |
+| M1 PR 1–2 | flere grunner samtidig (avslag og § 32.2) | avgjort 05.10 |
+| M1 PR 4 og videre | omfanget av § 32.2 (#220), for så vidt standpunktet avhenger av det | åpent; teksten til § 14.6, § 21.4, § 24.2.2 og § 26.3 mangler |
+| M3, svarmodellene | delvis godkjenning av fradrag (#189); § 5 og § 33.6.2 b (#175) | åpent |
+| — | krav på 0 (#179) | åpent; blokkerer ingen PR i planen |
+
+### 7.3 Bevis-saker
+
+- Utgangspunktet er de åtte strenge `xfail`, de fire `it.fails` og
+  kontrollsakene, navngitt med funn-ID eller issue.
+- De løftes fra forretningsreglene og projeksjonen til HTTP (`/api/events`)
+  og godkjenningsflyten (`ApprovalService.validate_items`) før M2 PR 2. Ingen
+  av dem er kjørt der i dag.
+- Mangler: SK-05 (kjørt, uten test), SK-08 (lest; trenger en komponenttest)
+  og forløp B i 1.1 på backendsiden.
+- Kontrakts- og gylne tester av hele `public_state` for 5–10 representative
+  saker. Felt, typer og nullverdier dekkes av generatoren i M5a.
+- En bevis-sak endres bare når et vedtak endrer forventet atferd, i egen PR
+  med vedtaket som kilde. En refaktorering endrer ikke atferd uten at en
+  bevis-sak viser det.
 
 ### M2 — sporstatus avledet av krav, svar og aksept
 
@@ -597,17 +674,25 @@ felt den ikke eier. Men feilene i SK-01–SK-04 ligger i felt som er avledet og
 skrives av mange: `status` og `te_akseptert`. Dem kan ingen tabell gi én eier.
 
 **Målform.** Hvert spor holder tre referanser og innholdet de peker på:
-gjeldende krav (TEs siste krav), svaret (byggherrens siste fulle svar, med
-hvilken kravversjon det gjelder) og aksepten (TEs aksept, med hvilket svar den
-gjelder). `status` og `te_akseptert` regnes ved lesing av dem:
+gjeldende krav, svaret og aksepten. Bindingen er eksplisitt, ikke «siste
+hendelse vinner»: svaret peker på kravets `event_id`, aksepten på svarets.
+`status` og `te_akseptert` regnes ved lesing:
 - et krav uten svar på gjeldende versjon venter på svar;
 - et svar på gjeldende versjon gir resultatets status;
 - en aksept av gjeldende svar gir `GODKJENT` eller `AVSLATT_AKSEPTERT`, og ved
-  § 32.2-preklusjon `AVSLATT_AKSEPTERT` (vedtak 05.10);
-- et nytt krav gjør svaret og aksepten til historikk (vedtak 05.10).
+  § 32.2-preklusjon `AVSLATT_AKSEPTERT`;
+- et nytt krav gjør svaret og aksepten til historikk.
+
+**Hva som er en ny kravversjon,** avgjøres i én funksjon i `backend/regler/`
+(for eksempel `er_ny_kravversjon`), med tabellen som data. Ingen andre steder
+tolker hendelsestypen. Etter vedtakene 05.10 gir hver `vederlag_krav_*` og
+`frist_krav_*` som ikke er et rent varsel, en ny versjon, også med uendrede
+verdier. Konsekvensvarsler, innsigelse og forespørsel gjør det ikke. En
+oppdatering av et trukket krav avvises.
 
 Svaret erstattes helt, fordi alle nye svar er fulle (avsnitt 3). Det fjerner
-`_copy_fields_if_present` fra svarhandlerne og dermed SD-04.
+`_copy_fields_if_present` fra svarhandlerne og dermed SD-04. Ikke lag én stor
+`SporStatus` for alle kombinasjoner: den regnes av de tre referansene.
 
 **Erstatter:** overgangene i `_handle_vederlag`, `_handle_frist`,
 `_handle_respons_*`, `_handle_te_aksepterer_respons` og
@@ -620,12 +705,18 @@ Svaret erstattes helt, fordi alle nye svar er fulle (avsnitt 3). Det fjerner
    som kjente unntak med funn-ID.
 2. Aksepten bindes til svaret (`akseptert_respons_id`), og forretningsreglene
    avviser revisjon av et godtatt svar (SK-03).
-3. Sporstatus avledes ved lesing for vederlag og frist (SK-02, #76).
-4. Grunnlaget samme vei, med preklusjonen (SK-01, SK-05).
-5. Frafall får egen status eller egen regel i rollupen (SK-04, etter
-   spørsmålet i #257).
+3. Sporstatus avledes ved lesing for vederlag og frist, med
+   `er_ny_kravversjon` og avvisning av oppdatert trukket krav (SK-02, #76).
+4. Grunnlaget samme vei, med preklusjonen (SK-01, SK-05) og
+   `LUKKET_TRUKKET` ved trukket grunnlag (#231).
+5. `FRAFALT` som sporstatus (SK-04), med regelen i `AGENTS.md` om å lete opp
+   alt som teller statuser.
 
-**Frontend:** ingen endring utover at feltene får riktige verdier.
+SK-01 og SK-04 får kontrollsaker før PR 4 og 5: et godtatt avslag uten
+preklusjon, og frafall med godkjente svar, skal virke som før.
+
+**Frontend:** ingen endring utover at feltene får riktige verdier, og
+`FRAFALT` i de uttømmende kartene.
 
 ### M1 — standpunktet per spor fra serveren
 
@@ -638,17 +729,19 @@ presiseringer.**
    svaret. Grunnlagstriggerne tas ut av det lagrede svaret (#234).
 2. Brevet og fullmakten kan ikke lese tilstanden alene. En pakke kan ha et
    grunnlagssvar som ikke er sendt ennå (`basis`, `effectiveGrunnlag`).
-   Standpunktet må derfor være én funksjon i `backend/regler/` som tar
-   grunnlaget som argument: tilstanden kaller den med sitt grunnlag, brevet og
-   fullmakten med pakkens.
+   Funksjonen tar derfor grunnlaget som argument, ikke tilstanden.
 
-**Målform.** `regler.grunnlag.standpunkt(grunnlag, spor) -> Standpunkt` med
-`subsidiaert: bool`, `grunn: "avslatt" | "prekludert" | None`, og det
-prinsipale og subsidiære resultatet med verdiene. Den leser
-`subsidiaert_til_nytt_svar` og tar frafall med etter vedtaket 05.10.
+**Målform.** `regler.grunnlag.standpunkt(grunnlag, spor) -> Standpunkt`. I
+første PR har den `subsidiaert: bool`, `hovedgrunn` og `arsaker` (en mengde av
+«avslått» og «prekludert»). Flere grunner samtidig finnes alt: tabell 1.1 har
+to prioriteringer, og vedtaket 05.10 gjør avslag sammen med § 32.2 lovlig med
+preklusjonen først. Prioriteringen defineres ett sted. Brevteksten og
+skjemaene eier bare presentasjonen. Resultatfeltene (prinsipalt og
+subsidiært) legges til når en forbruker trenger dem. Funksjonen leser
+`subsidiaert_til_nytt_svar` og tar frafall med etter vedtakene 05.10.
 `SakState` eksponerer `standpunkt_vederlag` og `standpunkt_frist`.
-`er_subsidiaert_*` beholdes under det navnet de har i dag eller får et navn
-som sier «subsidiær enighet» (1.2).
+`er_subsidiaert_*` beholder navnet eller får et som sier «subsidiær enighet»
+(1.2).
 
 **Erstatter:** `_subsidiaer_grunn`, `grunnlag_er_subsidiaert` i fullmakten,
 `decision_summary`s egen avgjørelse, `svaretErSubsidiaert`,
@@ -660,15 +753,18 @@ oversiktene, `LeftSidebar`, `CenterRead`) leser standpunktet og regner ikke.
 Skjemaet og brevteksten må fortsatt regne for et svar som ikke er sendt: de
 viser et forslag før serveren har sett det, og teksten er byggherrens (T-a).
 Der blir `erGrunnlagetSubsidiaert` stående som speil under
-regelversjonsvakten, og serveren kontrollerer det indirekte gjennom
-resultatet. Fullmakten i frontenden (`authority.ts`, `letter.ts`) kan lese
-pakkens standpunkt fra serveren i stedet for å regne, fordi pakken alltid går
-gjennom `prepare`.
+regelversjonsvakten; et evalueringsendepunkt utredes ikke nå (vedtak 05.10).
+Frontenden kan forhåndsvise, men fastsetter aldri autoritativ tilstand eller
+lovlige overganger. Fullmakten i frontenden (`authority.ts`, `letter.ts`) kan
+lese pakkens standpunkt fra serveren, fordi pakken alltid går gjennom
+`prepare`.
 
 **PR-er:**
-1. `standpunkt` i `backend/regler/` med testsettet fra `grunnlagDomain.test.ts`,
-   og `SakState` som eksponerer det. Ingen endring i atferd.
-2. Brevet og fullmakten bruker det (#235-avvisningen kommer i samme runde).
+1. `standpunkt` i `backend/regler/` med testsettet fra `grunnlagDomain.test.ts`
+   og en ny bevis-sak med avslag og § 32.2 samtidig. `SakState` eksponerer det.
+   Ingen endring i atferd.
+2. Brevet og fullmakten bruker det. Avvisningen av frafall med preklusjon
+   (#235) kommer i samme runde.
 3. Saksvisningen bruker det (#250, SK-07 for oversikten).
 4. Triggerne ut av det lagrede fristsvaret (#234). Ny regelversjon.
 5. Forseringen (SK-06, #230).
@@ -676,52 +772,141 @@ gjennom `prepare`.
 **Forhold til B-13.** Går opp med vedtakene. Backend eier standpunktet, som
 styrer systemets handlinger. Teksten er fortsatt partens (T-a).
 
-### M4 — statusmengdene i backend, eksportert til frontend
+### M4 — statusmengder, `pending_actions` og `capabilities`
 
 **Orkestratorens alternativ:** mengdene ligger i backend og eksporteres slik
-`frist_foresporsel.json` gjør. **Holder.** Forutsetningen er #246: importen fra
-`backend/constants/` feiler i `vite dev` (K i #246; Vite-koden ble lest
-annerledes av agenten, se Verifikasjon og grenser).
+`frist_foresporsel.json` gjør. **Holder, men dekker bare halve mønsteret.**
+Den andre halvdelen er de to rollupene for neste handling. Forutsetningen for
+eksporten er #246: importen fra `backend/constants/` feiler i `vite dev` (K i
+#246).
 
-**Målform.** En enum for samlet status i backend (i dag `str`), med `lukket`
-som egenskap, og én mengde for «inaktiv» og én for «ferdig» spor. Begge
-eksporteres som JSON. `followUp.ts`, `overview.ts` og `CaseListRow.svelte`
-importerer dem. `neste_handling` og `caseFollowUp` slås sammen til én
-utregning i backend per spor og rolle, levert i `follow_up_context`.
+**Målform.**
+- En enum for samlet status i backend (i dag `str`), med `lukket` som
+  egenskap, og én mengde for «inaktiv» og én for «ferdig» spor, eksportert
+  som JSON.
+- `pending_actions`: hva noen må gjøre, som
+  `{type, target_id, eligible_roles, metadata}` med maskinelle typer. Rollen
+  er ikke en del av oppgavens identitet; `neste_handling_rolle` blir
+  `eligible_roles`. Erstatter `neste_handling` (i dag en `dict`) og
+  `caseFollowUp`.
+- `capabilities`: hva denne rollen kan gjøre nå. Ikke et nytt regelsett. Den
+  evaluerer tilstandsreglene i `BusinessRuleValidator` for (tilstand, rolle,
+  hendelsestype, spor), uten nyttelast; en innsending evaluerer i tillegg
+  nyttelastreglene. Én regelkilde, to evalueringer (7.1).
+- Ingen norsk tekst i domenemodellen. `visningsstatus_*` og `neste_handling`
+  blir koder, og teksten flyttes til frontenden. Catenda-kommentaren er
+  presentasjon i integrasjonslaget og kan beholde tekst, men leser kodene.
+
+**Rekkefølge:** etter M2, fordi alt dette leser den avledede statusen.
 
 **PR-er:** 1) enum og eksport (SK-09); 2) frontendens lukket-sett (#229);
-3) mengdene i kaskadene og reaktiv EO (SK-04); 4) én neste handling.
+3) mengdene i kaskadene og reaktiv EO (SK-04); 4) reglene merkes som
+tilstand eller nyttelast; 5) `capabilities`; 6) `pending_actions` erstatter
+`neste_handling` og `caseFollowUp`.
 
-### M5 — genererte typer
+### M5 — kontrakten, i to deler
 
 **Orkestratorens alternativ:** genererte frontendtyper. **Holder** for
-lesesiden. Kostnaden er anslått i avsnitt 4.
+lesesiden, og deles i to.
 
-**Målform.** `src/lib/types/generated/` fra Pydantic, med `null` der
-modellen har `None`, og en CI-sjekk som feiler ved diff. `timeline.ts`
-re-eksporterer de genererte typene der de finnes. TST-04 får en ny
-reproduksjon (SK-10) eller blir ordinær test.
+**M5a, kontraktshygiene.** `src/lib/types/generated/` fra Pydantic etter
+null-policyen (vedtak 05.10): `X | null` i tilstanden, valgfrie felt i
+tidslinjens hendelser. En CI-sjekk som feiler ved diff. `timeline.ts`
+re-eksporterer de genererte typene der de finnes. `overordnet_status` som enum
+(SK-09), `ActionBar` (SK-08), manglende felt, og TST-04 (SK-10). Kostnaden er
+anslått i avsnitt 4.
 
-**PR-er:** 1) generatoren og CI-sjekken for `SakState` og tilstandene; 2) de
-stedene `check:error` da viser (SK-08 og resten av null-avvikene);
-3) tidslinjens hendelsesdata; 4) skrivesiden.
+**M5b, DTO-grense.** Eksplisitte offentlige typer bare der intern og offentlig
+form skiller seg: `Standpunkt`, `Capabilities`, `PendingAction`. `public_state`
+får en eksplisitt returtype som første steg. Mapperen skrives felt for felt,
+så et nytt påkrevd felt knekker den med én gang, og en test viser at alle
+påkrevde offentlige felt leveres. Frontenden bruker tilstanden i svaret fra
+`/api/events` i stedet for en ny henting (7.1).
+
+**Ikke nå:** kontraktstesting med Pact. OpenAPI eller JSON Schema, genererte
+typer og endepunktstester er nok så lenge backend og frontend slippes
+sammen. Egne endepunkter per domenekommando er også utenfor planen:
+hendelsestypene er kommandoene, og fixturen `skjemaenes_nyttelast.json`
+vokter dem gjennom `/api/events`.
+
+**PR-er:** M5a: 1) generatoren og CI-sjekken for `SakState` og tilstandene;
+2) stedene `check:error` da viser (SK-08 og resten av null-avvikene);
+3) tidslinjens hendelsesdata; 4) skrivesiden. M5b: 5) returtype for
+`public_state`; 6) de offentlige typene fra M1 og M4; 7) tilstanden fra
+svaret.
 
 ### M3 — datamodellen for hendelsene, løpende
 
 **Orkestratorens alternativ:** en datamodell per varseltype. **Holder for
 `FristData`, ikke som generell form** (avsnitt 3).
 
+**Fast rekkefølge for hvert felt som ryddes:** frontenden slutter å sende
+feltet; en test gjennom HTTP bekrefter det; `extra="forbid"` slås på;
+feltet fjernes fra modellen. Først ut er `auto_begrunnelse` og `krevd_dager`
+i svarene (7.1).
+
 **PR-er:** 1) `FristData` som diskriminert union (#237); 2) delvis-semantikken
-fjernes fra svarmodellene, sammen med M2-PR 3; 3) felt uten virkning
-(SK-11); 4) `extra="forbid"` når frontenden har sluttet å sende ukjente felt
-(DRF-02); 5) `api/validators.py` krymper til det modellene ikke kan uttrykke.
+fjernes fra svarmodellene, sammen med M2 PR 3; 3) felt uten virkning
+(SK-11); 4) `extra="forbid"` etter rekkefølgen over (DRF-02);
+5) `api/validators.py` krymper til det modellene ikke kan uttrykke.
+
+### 7.4 Hvem eier hva
+
+| Spørsmål | Eier |
+| --- | --- |
+| Hva skjedde? | Hendelsesloggen |
+| Hvilken tilstand følger av det? | Projeksjonen (`sak_state.py`, `timeline_service.py`). Leser lagret resultat og regner aldri om reglene (B-13) |
+| Hvilket krav, svar og aksept hører sammen? | Bindingene i M2 |
+| Hva er tillatt etter kontrakten? | Backend: `backend/regler/` og forretningsreglene |
+| Hva må noen gjøre? | `pending_actions` |
+| Hva kan rollen gjøre nå? | `capabilities`, utledet av forretningsreglene |
+| Hvordan eksponeres det? | Offentlige typer (M5b) |
+| Hvordan presenteres det? | Frontenden |
+| Forslag før sending | Frontenden, med speilet under regelversjonsvakten |
+| Teksten i brevet | Parten (T-a): lages i klienten og lagres (#192) |
+
+### 7.5 Ikke gjør
+
+- Én stor `SporStatus` for alle juridiske kombinasjoner, eller et generelt
+  rammeverk for tilstandsmaskiner.
+- Frontend som fastsetter autoritativ tilstand eller lovlige overganger.
+- Et API som eksponerer `SakState` rått etter M5b.
+- Norsk tekst i domenemodellen.
+- Pact nå.
+- Omskriving av historiske hendelser etter produksjonssetting.
+- En refaktorering som avgjør et uavklart spørsmål om NS 8407.
+
+### 7.6 Sekvens
+
+0. Beslutningsporten (7.2). Avgjort for M2 og M1 PR 1–2.
+1. Bevis-sakene løftet til HTTP og godkjenning (7.3).
+2. M2 PR 1–5.
+3. M1.
+4. M4, med merkingen av reglene før `capabilities`.
+5. M5a, deretter M5b.
+6. M3 løpende, med rekkefølgen per felt.
+
+### 7.7 Før første produksjonssetting
+
+Utenfor spor D, men ført her så det ikke glemmes. Hører til F5 og B-10.
+
+- **Nå:** `extra="forbid"` på `*Data`, døde felt ut, strengere skrivemodeller
+  (M3). Appen har ingen reelle data, så det koster ingen migrering.
+- **Før produksjon:** versjonering av hendelsene med oppgradering til
+  gjeldende modell, tolerant lesing av historiske hendelser, tester som
+  bygger dagens tilstand av representative hendelsesstrømmer, og en strategi
+  for migrering og bevaring (B-05). Kravene gjelder fullt, fordi tilstanden
+  regnes av loggen (7.1).
 
 ## Verifikasjon og grenser
 
 **Kjørt.** Backend-suiten før arbeidet: 2 296 bestått, 9 hoppet over,
-36 `xfail` (K 2026-10-05, PostgreSQL 17 i Docker). De sju nye reproduksjonene
-er strenge `xfail` og feiler på målassertionen med `--runxfail`. SK-03 og #235
-har kontrollsaker som består. De fire `it.fails` feiler på målassertionen når
+36 `xfail` (K 2026-10-05, PostgreSQL 17 i Docker). De åtte nye reproduksjonene
+er strenge `xfail` og feiler på målassertionen med `--runxfail`. SK-03, #235
+og testen for trukket krav (SK-02) har kontrollsaker som består. Kontrollene
+i 7.1 er gjort etter den eksterne vurderingen: to er kjørt (fixturen og
+kombinasjonen avslag og § 32.2), ett er et AST-skript over
+forretningsreglene, resten er lest. De fire `it.fails` feiler på målassertionen når
 de kjøres som vanlig `it`. Alle forløp i avsnitt 1 og 5 som er merket K, er
 kjørt gjennom forretningsreglene og projeksjonen, ikke gjennom HTTP, lagring
 eller godkjenningsflyten.
