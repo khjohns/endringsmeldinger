@@ -9,7 +9,7 @@ from collections.abc import Callable
 from dataclasses import dataclass
 
 from models.events import AnyEvent, EventType, ResponsEvent, SporStatus
-from models.sak_state import EOStatus, SakState, SaksType
+from models.sak_state import LUKKEDE_STATUSER, EOStatus, SakState, SaksType
 from regler import UgyldigVurdering
 from regler.sammenlikning import Avvik, FeilRegelversjon, kontroller_svar
 
@@ -384,9 +384,7 @@ class BusinessRuleValidator:
         if event.event_type in eo_events:
             return ValidationResult(is_valid=True)
 
-        closed_statuses = {"OMFORENT", "LUKKET", "LUKKET_TRUKKET", "LUKKET_AVSLATT"}
-
-        if state.overordnet_status in closed_statuses:
+        if state.overordnet_status in LUKKEDE_STATUSER:
             # Allow only viewing, not modifications
             return ValidationResult(
                 is_valid=False, message="Saken er lukket og kan ikke endres"
