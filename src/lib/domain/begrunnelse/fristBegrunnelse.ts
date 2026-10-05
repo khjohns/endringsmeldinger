@@ -156,12 +156,24 @@ function generateFristBeregningSection(
   }
 
   const erSubsidiaer = erPrekludert || !vilkarOppfylt || erGrunnlagSubsidiaer;
-  const prefix = erSubsidiaer
-    ? 'Subsidiært, hva gjelder antall dager: '
-    : 'Hva gjelder antall dager: ';
+  const prefix =
+    erPrekludert && !vilkarOppfylt
+      ? 'Atter subsidiært, hva gjelder antall dager: '
+      : erSubsidiaer
+        ? 'Subsidiært, hva gjelder antall dager: '
+        : 'Hva gjelder antall dager: ';
 
   const fmtKrevd = formatDager(krevdDager, useTokens);
   const fmtGodkjent = formatDager(godkjentDager, useTokens);
+
+  if (godkjentDager === 0 && vilkarOppfylt) {
+    return (
+      prefix +
+      'Byggherren gjør gjeldende at hindringen ikke har hatt virkning på fremdriften som ' +
+      `gir rett til fristforlengelse, jf. §33.5. Kravet om ${fmtKrevd} fristforlengelse ` +
+      'kan derfor ikke imøtekommes.'
+    );
+  }
 
   if (godkjentDager === 0) {
     return prefix + `Kravet om ${fmtKrevd} fristforlengelse kan ikke imøtekommes.`;
@@ -182,8 +194,15 @@ function generateFristKonklusjonSection(
   input: FristResponseInput,
   options: BegrunnelseGeneratorOptions = {}
 ): string {
-  const { krevdDager, godkjentDager, prinsipaltResultat, visSubsidiaertResultat, varselType } =
-    input;
+  const {
+    krevdDager,
+    godkjentDager,
+    prinsipaltResultat,
+    visSubsidiaertResultat,
+    varselType,
+    erPrekludert,
+    vilkarOppfylt,
+  } = input;
   const { useTokens = false } = options;
   const lines: string[] = [];
 
@@ -204,7 +223,16 @@ function generateFristKonklusjonSection(
   }
 
   if (visSubsidiaertResultat && prinsipaltResultat === 'avslatt') {
-    if (godkjentDager > 0) {
+    if (godkjentDager > 0 && !vilkarOppfylt) {
+      lines.push(
+        erPrekludert
+          ? 'Dersom byggherren verken får medhold i preklusjonsinnsigelsen eller i at ' +
+              'forholdet ikke har hindret fremdriften, kan entreprenøren maksimalt ha krav på ' +
+              `${fmtGodkjent} (atter subsidiært standpunkt).`
+          : 'Dersom byggherren ikke får medhold i at forholdet ikke har hindret fremdriften, ' +
+              `kan entreprenøren maksimalt ha krav på ${fmtGodkjent} (subsidiært standpunkt).`
+      );
+    } else if (godkjentDager > 0) {
       lines.push(
         `Dersom byggherren ikke får medhold i sin prinsipale avvisning, ` +
           `kan entreprenøren maksimalt ha krav på ${fmtGodkjent} (subsidiært standpunkt).`
