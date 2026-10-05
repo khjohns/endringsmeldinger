@@ -38,6 +38,8 @@ export interface TrackDisplay {
   unspecified?: boolean;
   hasNotice?: boolean;
   isDisputed: boolean;
+  /** Grunnlaget er prekludert etter § 32.2, ikke avslått. Gjelder bare ansvar. */
+  isPrecluded?: boolean;
   isSubsidiary: boolean;
   isWithdrawn: boolean;
   /** TE har godtatt byggherrens avslag — sporet er oppgjort ved enighet. */
@@ -111,6 +113,11 @@ export function svaretErSubsidiaert(sak: SakState, spor: 'vederlag' | 'frist'): 
   return Boolean(sak[spor].bh_resultat) && erGrunnlagetSubsidiaert(grunnlagetFor(sak));
 }
 
+/** Byggherren har svart at grunnlaget er varslet for sent (§ 32.2), uansett resultat. */
+export function grunnlagetErPrekludert(sak: SakState): boolean {
+  return Boolean(sak.grunnlag.bh_resultat) && erPrekludertEtter32_2(grunnlagetFor(sak));
+}
+
 /** Årsaken i grunnlaget utledes av saken og lagres ikke i svaret (B-13, 05.10). */
 export function grunnlagTriggers(sak: SakState, spor: 'vederlag' | 'frist'): SubsidiaerTrigger[] {
   if (!svaretErSubsidiaert(sak, spor)) return [];
@@ -126,17 +133,21 @@ export function deriveTrackDisplay(sak: SakState, spor: SporKey): TrackDisplay {
   if (spor === 'ansvar') {
     const g = sak.grunnlag;
     const hjemmel = getHjemmelObj(g.underkategori);
+    const prekludert = g.bh_resultat !== 'frafalt' && grunnlagetErPrekludert(sak);
     return {
       ...meta,
       isBinary: true,
       tePosition: getHjemmelLabel(g.underkategori),
       teRef: hjemmel ? `§ ${hjemmel.hjemmel_basis}` : undefined,
-      bhPosition: g.bh_resultat
-        ? (GRUNNLAG_RESULTAT_LABELS[g.bh_resultat] ?? g.bh_resultat)
-        : 'Ikke besvart',
+      bhPosition: prekludert
+        ? 'Prekludert (§ 32.2)'
+        : g.bh_resultat
+          ? (GRUNNLAG_RESULTAT_LABELS[g.bh_resultat] ?? g.bh_resultat)
+          : 'Ikke besvart',
       teText: g.beskrivelse ?? '',
       bhText: g.bh_begrunnelse ?? '',
-      isDisputed: g.bh_resultat === 'avslatt',
+      isDisputed: g.bh_resultat === 'avslatt' || prekludert,
+      isPrecluded: prekludert,
       isSubsidiary: false,
       isWithdrawn: g.status === 'trukket',
       isRejectionAccepted: g.status === 'avslatt_akseptert',

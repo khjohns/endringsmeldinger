@@ -157,7 +157,7 @@
             {:else if display.isRejectionAccepted}
               Avslaget er godtatt
             {:else if display.isBinary}
-              {display.isDisputed
+              {display.isDisputed && !display.isPrecluded
                 ? 'BH bestrider grunnlaget'
                 : track.bh_resultat
                   ? `BH: ${display.bhPosition}`
