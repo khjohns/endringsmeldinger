@@ -408,10 +408,9 @@ class TimelineService:
     def _svaret_faller_bort(state: SakState) -> None:
         """Ny underkategori krever nytt BH-svar (B-13, vedtak 05.10, #215)."""
         grunnlag = state.grunnlag
-        if state._grunnlag_er_subsidiaert:
-            grunnlag.subsidiaert_til_nytt_svar = (
-                "prekludert" if state._grunnlag_er_prekludert else "avslatt"
-            )
+        for spor in (state.vederlag, state.frist):
+            if spor.bh_resultat is not None:
+                spor.subsidiaert_til_nytt_svar = state._subsidiaer_grunn(spor)
         grunnlag.bh_resultat = None
         grunnlag.bh_begrunnelse = None
         grunnlag.grunnlag_varslet_i_tide = None
@@ -712,7 +711,8 @@ class TimelineService:
         grunnlag = state.grunnlag
 
         # Lagre BH respons
-        grunnlag.subsidiaert_til_nytt_svar = None
+        state.vederlag.subsidiaert_til_nytt_svar = None
+        state.frist.subsidiaert_til_nytt_svar = None
         grunnlag.bh_resultat = event.data.resultat
         grunnlag.bh_begrunnelse = event.data.begrunnelse
 
@@ -761,6 +761,7 @@ class TimelineService:
         Denne handlerne extraherer både Port 1 (varsling) og Port 2 (beregning) data.
         """
         vederlag = state.vederlag
+        vederlag.subsidiaert_til_nytt_svar = None
 
         # Port 1: Varselvurderinger (copy boolean fields)
         _copy_fields_if_present(
@@ -847,6 +848,7 @@ class TimelineService:
         Denne handlerne extraherer Port 1 (varsling), Port 2 (vilkår), og Port 3 (beregning) data.
         """
         frist = state.frist
+        frist.subsidiaert_til_nytt_svar = None
 
         # Port 1: Varselvurderinger
         _copy_fields_if_present(

@@ -17,6 +17,7 @@ from models.events import (
     SporStatus,
     SporType,
     VederlagBeregningResultat,
+    VederlagResponsData,
 )
 from regler import REGELVERSJON
 from services.business_rules import BusinessRuleValidator
@@ -73,50 +74,76 @@ def _med_godkjent_vederlag(tilstand):
     return tilstand
 
 
-def test_prekludert_svar_faller_ved_ny_underkategori():
-    hendelser = _besvart("ENDRING", "IRREG", GrunnlagResponsResultat.GODKJENT, False)
-    assert timeline.compute_state(hendelser).grunnlag.status == SporStatus.UNDER_FORHANDLING
-    oppdatert = _grunnlag(EventType.GRUNNLAG_OPPDATERT, "ENDRING", "EO")
+def _vederlagssvar():
+    return ResponsEvent(
+        sak_id="S-1",
+        aktor_id="bh",
+        aktor_rolle="BH",
+        event_type=EventType.RESPONS_VEDERLAG,
+        spor=SporType.VEDERLAG,
+        refererer_til_event_id="krav",
+        data=VederlagResponsData.model_construct(
+            beregnings_resultat=VederlagBeregningResultat.GODKJENT,
+            total_godkjent_belop=100000,
+        ),
+    )
 
-    grunnlag = timeline.compute_state(hendelser + [oppdatert]).grunnlag
 
-    assert grunnlag.status == SporStatus.SENDT
-    assert grunnlag.bh_resultat is None
-    assert grunnlag.bh_begrunnelse is None
-    assert grunnlag.grunnlag_varslet_i_tide is None
-    assert grunnlag.laast is False
-    assert grunnlag.respons_event_id is None
+def _vederlag_besvart_for_endringen(resultat, varslet_i_tide, underkategori="EO"):
+    """Vederlaget er besvart mens det forrige grunnlagssvaret gjaldt."""
+    hendelser = _besvart("ENDRING", "IRREG", resultat, varslet_i_tide)
+    tilstand = _med_godkjent_vederlag(timeline.compute_state(hendelser))
+    oppdatert = _grunnlag(EventType.GRUNNLAG_OPPDATERT, "ENDRING", underkategori)
+    return timeline._apply_event(tilstand, oppdatert), oppdatert
 
 
 def test_vederlaget_er_subsidiaert_til_nytt_svar_paa_grunnlaget():
-    hendelser = _besvart("ENDRING", "IRREG", GrunnlagResponsResultat.GODKJENT, False)
-    oppdatert = _grunnlag(EventType.GRUNNLAG_OPPDATERT, "ENDRING", "EO")
+    tilstand, oppdatert = _vederlag_besvart_for_endringen(
+        GrunnlagResponsResultat.GODKJENT, False
+    )
 
-    tilstand = _med_godkjent_vederlag(timeline.compute_state(hendelser + [oppdatert]))
-
+    assert tilstand.grunnlag.bh_resultat is None
     assert tilstand.er_subsidiaert_vederlag is True
     assert tilstand.visningsstatus_vederlag.startswith("Prekludert")
 
-    nytt_svar = _svar(oppdatert, GrunnlagResponsResultat.GODKJENT)
-    tilstand = _med_godkjent_vederlag(
-        timeline.compute_state(hendelser + [oppdatert, nytt_svar])
+    tilstand = timeline._apply_event(
+        tilstand, _svar(oppdatert, GrunnlagResponsResultat.GODKJENT)
     )
 
     assert tilstand.grunnlag.status == SporStatus.LAAST
-    assert tilstand.grunnlag.subsidiaert_til_nytt_svar is None
+    assert tilstand.vederlag.subsidiaert_til_nytt_svar is None
     assert tilstand.er_subsidiaert_vederlag is False
 
 
 def test_avslaatt_svar_faller_og_vederlaget_forblir_subsidiaert():
-    hendelser = _besvart("ENDRING", "IRREG", GrunnlagResponsResultat.AVSLATT, True)
-    oppdatert = _grunnlag(EventType.GRUNNLAG_OPPDATERT, "ENDRING", ["EO"])
-
-    tilstand = _med_godkjent_vederlag(timeline.compute_state(hendelser + [oppdatert]))
+    tilstand, _ = _vederlag_besvart_for_endringen(
+        GrunnlagResponsResultat.AVSLATT, True, underkategori=["EO"]
+    )
 
     assert tilstand.grunnlag.status == SporStatus.SENDT
     assert tilstand.grunnlag.bh_resultat is None
-    assert tilstand.grunnlag.subsidiaert_til_nytt_svar == "avslatt"
+    assert tilstand.vederlag.subsidiaert_til_nytt_svar == "avslatt"
     assert tilstand.visningsstatus_vederlag.startswith("Avslått pga. ansvar")
+
+
+def test_svar_gitt_etter_at_grunnlagssvaret_falt_er_prinsipalt():
+    """Uten et grunnlagssvar regner reglene vederlagssvaret som prinsipalt; projeksjonen følger."""
+    tilstand, _ = _vederlag_besvart_for_endringen(GrunnlagResponsResultat.AVSLATT, True)
+
+    tilstand = timeline._apply_event(tilstand, _vederlagssvar())
+
+    assert tilstand.vederlag.subsidiaert_til_nytt_svar is None
+    assert tilstand.er_subsidiaert_vederlag is False
+
+
+def test_ubesvart_spor_faar_ikke_subsidiaert_standpunkt():
+    hendelser = _besvart("ENDRING", "IRREG", GrunnlagResponsResultat.AVSLATT, True)
+    oppdatert = _grunnlag(EventType.GRUNNLAG_OPPDATERT, "ENDRING", "EO")
+
+    tilstand = timeline.compute_state(hendelser + [oppdatert])
+
+    assert tilstand.vederlag.subsidiaert_til_nytt_svar is None
+    assert tilstand.frist.subsidiaert_til_nytt_svar is None
 
 
 def test_byggherren_kan_svare_paa_nytt():
