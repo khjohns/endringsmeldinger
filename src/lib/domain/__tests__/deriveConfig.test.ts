@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { deriveFristDomainConfig } from '../deriveConfig';
+import { deriveFristDomainConfig, deriveVederlagDomainConfig } from '../deriveConfig';
 import { beregnVisibility, buildEventData, getDefaults } from '../fristDomain';
 import { scenario1_3AktiveSpor } from '$lib/mocks/caseState';
 import type { SakState } from '$lib/types/timeline';
@@ -151,6 +151,7 @@ describe('deriveFristDomainConfig — § 32.2 (#186)', () => {
         },
       };
       expect(deriveFristDomainConfig(sak).erHelFristSubsidiaerPgaGrunnlag).toBe(forventet);
+      expect(deriveVederlagDomainConfig(sak).grunnlagVarsletForSent).toBe(forventet);
     }
   );
 });

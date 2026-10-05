@@ -24,27 +24,35 @@ RESULTATER = {
     "avslatt": "Avslått",
     "frafalt": "Innsigelsen er frafalt",
     "foresporsel": "Ber om spesifisert krav",
+    "hold_tilbake": "Betaling holdes tilbake (§ 30.2)",
 }
 
 
 def _subsidiaert_ved_avslatt_grunnlag(d, track):
-    """Hele svaret er subsidiært; et subsidiært standpunkt i svaret selv går foran."""
-    felt, enhet = (
-        ("subsidiaer_godkjent_belop", "kr")
-        if track == "vederlag"
-        else ("subsidiaer_godkjent_dager", "dager")
-    )
-    if d.get(felt) is not None:
-        result, value = d.get("subsidiaer_resultat"), d[felt]
-    else:
-        result = d.get("beregnings_resultat")
-        value = (
+    """Hele svaret er subsidiært. Et subsidiært standpunkt i svaret selv, for
+    eksempel ved preklusjon etter § 33.4, står etter det som atter subsidiært."""
+    vederlag = track == "vederlag"
+    enhet = "kr" if vederlag else "dager"
+
+    def standpunkt(prefiks, result, value):
+        text = f"{prefiks} {RESULTATER.get(result, result or '').lower()}".rstrip()
+        return text if value is None else f"{text}: {number(value)} {enhet}"
+
+    parts = [
+        standpunkt(
+            "Subsidiært",
+            d.get("beregnings_resultat"),
             d.get("total_godkjent_belop", d.get("godkjent_belop"))
-            if track == "vederlag"
-            else d.get("godkjent_dager")
+            if vederlag
+            else d.get("godkjent_dager"),
         )
-    text = f"Subsidiært {RESULTATER.get(result, result or '').lower()}".rstrip()
-    return text if value is None else f"{text}: {number(value)} {enhet}"
+    ]
+    felt = "subsidiaer_godkjent_belop" if vederlag else "subsidiaer_godkjent_dager"
+    if d.get(felt) is not None:
+        parts.append(
+            standpunkt("Atter subsidiært", d.get("subsidiaer_resultat"), d[felt])
+        )
+    return parts
 
 
 def decision_summary(item):
@@ -53,7 +61,7 @@ def decision_summary(item):
         return " · ".join(
             [
                 "Prinsipalt avslått (ansvarsgrunnlaget)",
-                _subsidiaert_ved_avslatt_grunnlag(d, item["track"]),
+                *_subsidiaert_ved_avslatt_grunnlag(d, item["track"]),
             ]
         )
     result = d.get("resultat") or d.get("beregnings_resultat", "")
