@@ -20,6 +20,11 @@ from models.events import (
     VarselInfo,
     VederlagBeregningResultat,
 )
+from regler.grunnlag import (
+    er_grunnlag_subsidiaert,
+    er_prekludert,
+    forste_underkategori,
+)
 
 # ============ SAKSTYPE OG RELASJONER ============
 
@@ -937,7 +942,8 @@ class SakState(BaseModel):
     # 1. Bruke disse computed fields for å detektere subsidiær godkjenning
     # 2. Vise kombinert status: "Avslått pga. ansvar (Subsidiært enighet om X kr/dager)"
     # 3. Ikke legge til logikk i Vederlag/Frist-komponenter som refererer til Grunnlag
-    # 4. La SakState være "sannheten" - ikke dupliser logikken i frontend
+    # 4. La SakState være "sannheten" for visningen. Skjemaet regner samme regel
+    #    med speilet `erGrunnlagetSubsidiaert` (grunnlagDomain.ts)
 
     @computed_field
     @property
@@ -954,6 +960,20 @@ class SakState(BaseModel):
         """
         return self.grunnlag.bh_resultat == GrunnlagResponsResultat.FRAFALT
 
+    @property
+    def _grunnlag_er_prekludert(self) -> bool:
+        g = self.grunnlag
+        return er_prekludert(
+            g.hovedkategori, forste_underkategori(g.underkategori), g.grunnlag_varslet_i_tide
+        )
+
+    @property
+    def _grunnlag_er_subsidiaert(self) -> bool:
+        g = self.grunnlag
+        return er_grunnlag_subsidiaert(
+            g.bh_resultat, g.hovedkategori, g.underkategori, g.grunnlag_varslet_i_tide
+        )
+
     @computed_field
     @property
     def er_subsidiaert_vederlag(self) -> bool:
@@ -961,8 +981,9 @@ class SakState(BaseModel):
         Sjekker om vederlag er vurdert subsidiært.
 
         Returns True hvis:
-        - Grunnlag er AVSLATT av BH, ELLER
-        - Grunnlag er prekludert pga §32.2 (grunnlag_varslet_i_tide == False)
+        - BH har avslått grunnlaget (`bh_resultat`, også mens TE oppdaterer det), ELLER
+        - Grunnlag er prekludert etter § 32.2 (endring uten formell endringsordre)
+        Regelen er `regler.grunnlag.er_grunnlag_subsidiaert`.
         OG
         - Vederlag-beregningen er godkjent (fullt/delvis/annen metode)
 
@@ -971,17 +992,14 @@ class SakState(BaseModel):
         Dette betyr: "BH mener TE ikke har krav (enten pga avslag eller preklusjon),
         men erkjenner at beløpet ville vært riktig hvis BH hadde tatt feil."
 
-        FRONTEND: Bruk dette for å vise subsidiær status.
-        Ikke implementer denne logikken selv i frontend.
+        FRONTEND: Bruk dette for å vise subsidiær status. Skjemaet har speilet
+        `erGrunnlagetSubsidiaert` i `grunnlagDomain.ts`.
         """
         # Frafall håndteres separat
         if self.er_frafalt:
             return False
 
-        # Grunnlag er subsidiært hvis avslått ELLER prekludert (§32.2)
-        grunnlag_avslatt = self.grunnlag.status == SporStatus.AVSLATT
-        grunnlag_prekludert = self.grunnlag.grunnlag_varslet_i_tide is False
-        grunnlag_er_subsidiaer = grunnlag_avslatt or grunnlag_prekludert
+        grunnlag_er_subsidiaer = self._grunnlag_er_subsidiaert
 
         beregning_godkjent = self.vederlag.bh_resultat in {
             VederlagBeregningResultat.GODKJENT,
@@ -996,21 +1014,19 @@ class SakState(BaseModel):
         Sjekker om frist er vurdert subsidiært.
 
         Returns True hvis:
-        - Grunnlag er AVSLATT av BH, ELLER
-        - Grunnlag er prekludert pga §32.2 (grunnlag_varslet_i_tide == False)
+        - BH har avslått grunnlaget (`bh_resultat`, også mens TE oppdaterer det), ELLER
+        - Grunnlag er prekludert etter § 32.2 (endring uten formell endringsordre)
+        Regelen er `regler.grunnlag.er_grunnlag_subsidiaert`.
         OG
         - Frist-beregningen er godkjent (fullt/delvis)
 
         Dette betyr: "BH mener TE ikke har krav (enten pga avslag eller preklusjon),
         men erkjenner at dagene ville vært riktige hvis BH hadde tatt feil."
 
-        FRONTEND: Bruk dette for å vise subsidiær status.
-        Ikke implementer denne logikken selv i frontend.
+        FRONTEND: Bruk dette for å vise subsidiær status. Skjemaet har speilet
+        `erGrunnlagetSubsidiaert` i `grunnlagDomain.ts`.
         """
-        # Grunnlag er subsidiært hvis avslått ELLER prekludert (§32.2)
-        grunnlag_avslatt = self.grunnlag.status == SporStatus.AVSLATT
-        grunnlag_prekludert = self.grunnlag.grunnlag_varslet_i_tide is False
-        grunnlag_er_subsidiaer = grunnlag_avslatt or grunnlag_prekludert
+        grunnlag_er_subsidiaer = self._grunnlag_er_subsidiaert
 
         beregning_godkjent = self.frist.bh_resultat in {
             FristBeregningResultat.GODKJENT,
@@ -1044,9 +1060,7 @@ class SakState(BaseModel):
             )
             # Skille mellom preklusjon (§32.2) og avslag
             grunn = (
-                "Prekludert"
-                if self.grunnlag.grunnlag_varslet_i_tide is False
-                else "Avslått pga. ansvar"
+                "Prekludert" if self._grunnlag_er_prekludert else "Avslått pga. ansvar"
             )
             if self.vederlag.bh_resultat == VederlagBeregningResultat.GODKJENT:
                 return f"{grunn} (Subsidiært enighet om {belop})"
@@ -1103,9 +1117,7 @@ class SakState(BaseModel):
             )
             # Skille mellom preklusjon (§32.2) og avslag
             grunn = (
-                "Prekludert"
-                if self.grunnlag.grunnlag_varslet_i_tide is False
-                else "Avslått pga. ansvar"
+                "Prekludert" if self._grunnlag_er_prekludert else "Avslått pga. ansvar"
             )
             if self.frist.bh_resultat == FristBeregningResultat.GODKJENT:
                 return f"{grunn} (Subsidiært enighet om {dager})"

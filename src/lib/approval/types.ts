@@ -28,6 +28,7 @@ export interface ReviewItem {
     resultat: string | null;
     varsletITide: boolean | null;
     hovedkategori: string | null;
+    underkategori: string | null;
   };
 }
 export interface LetterDocument {

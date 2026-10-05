@@ -4,6 +4,7 @@ import re
 from html import unescape
 
 from models.letter_document import LetterSnapshot
+from services.approval_authority import grunnlag_er_subsidiaert
 
 
 def plain_text(value):
@@ -17,47 +18,63 @@ def number(value):
     return f"{value:,.2f}".rstrip("0").rstrip(".").replace(",", " ").replace(".", ",")
 
 
+RESULTATER = {
+    "godkjent": "Godkjent",
+    "delvis_godkjent": "Delvis godkjent",
+    "avslatt": "Avslått",
+    "frafalt": "Innsigelsen er frafalt",
+    "foresporsel": "Ber om spesifisert krav",
+    "hold_tilbake": "Holdes tilbake (§30.2)",
+}
+
+
+def _subsidiaert_ved_avslatt_grunnlag(d, track):
+    """Hele svaret er subsidiært. Et subsidiært standpunkt i svaret selv, for
+    eksempel ved preklusjon etter § 33.4, står etter det som atter subsidiært."""
+    vederlag = track == "vederlag"
+    enhet = "kr" if vederlag else "dager"
+
+    def standpunkt(prefiks, result, value):
+        text = f"{prefiks} {RESULTATER.get(result, result or '').lower()}".rstrip()
+        return text if value is None else f"{text}: {number(value)} {enhet}"
+
+    parts = [
+        standpunkt(
+            "Subsidiært",
+            d.get("beregnings_resultat"),
+            (
+                d["total_godkjent_belop"]
+                if d.get("total_godkjent_belop") is not None
+                else d.get("godkjent_belop")
+            )
+            if vederlag
+            else d.get("godkjent_dager"),
+        )
+    ]
+    felt = "subsidiaer_godkjent_belop" if vederlag else "subsidiaer_godkjent_dager"
+    if d.get(felt) is not None:
+        parts.append(
+            standpunkt("Atter subsidiært", d.get("subsidiaer_resultat"), d[felt])
+        )
+    return parts
+
+
 def decision_summary(item):
     d = item["data"]
-    basis = item.get("basis", {})
-    rejected = item["track"] != "grunnlag" and (
-        basis.get("resultat") == "avslatt"
-        or (
-            basis.get("hovedkategori") == "ENDRING"
-            and basis.get("varsletITide") is False
+    if item["track"] != "grunnlag" and grunnlag_er_subsidiaert(item.get("basis", {})):
+        return " · ".join(
+            [
+                "Prinsipalt avslått (ansvarsgrunnlaget)",
+                *_subsidiaert_ved_avslatt_grunnlag(d, item["track"]),
+            ]
         )
-    )
     result = d.get("resultat") or d.get("beregnings_resultat", "")
-    parts = [
-        {
-            "godkjent": "Godkjent",
-            "delvis_godkjent": "Delvis godkjent",
-            "avslatt": "Avslått",
-            "frafalt": "Innsigelsen er frafalt",
-            "foresporsel": "Ber om spesifisert krav",
-        }.get(result, result)
-    ]
-    if rejected:
-        parts = ["Prinsipalt avslått"]
+    parts = [RESULTATER.get(result, result)]
     amount = d.get("total_godkjent_belop", d.get("godkjent_belop"))
     if item["track"] == "vederlag" and amount is not None:
-        parts.append(f"{number(0 if rejected else amount)} kr")
+        parts.append(f"{number(amount)} kr")
     if item["track"] == "frist" and d.get("godkjent_dager") is not None:
-        parts.append(f"{number(0 if rejected else d['godkjent_dager'])} dager")
-    if (
-        rejected
-        and item["track"] == "vederlag"
-        and d.get("subsidiaer_godkjent_belop") is None
-        and amount is not None
-    ):
-        parts.append(f"Subsidiært: {number(amount)} kr")
-    if (
-        rejected
-        and item["track"] == "frist"
-        and d.get("subsidiaer_godkjent_dager") is None
-        and d.get("godkjent_dager") is not None
-    ):
-        parts.append(f"Subsidiært: {number(d['godkjent_dager'])} dager")
+        parts.append(f"{number(d['godkjent_dager'])} dager")
     if d.get("subsidiaer_godkjent_belop") is not None:
         parts.append(f"Subsidiært: {number(d['subsidiaer_godkjent_belop'])} kr")
     if d.get("subsidiaer_godkjent_dager") is not None:

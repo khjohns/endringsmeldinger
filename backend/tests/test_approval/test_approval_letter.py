@@ -1,3 +1,5 @@
+import pytest
+
 from services.approval_letter import decision_summary, pdf_bytes, snapshot
 
 
@@ -12,8 +14,78 @@ def test_principal_and_subsidiary_amounts_are_not_conflated():
         },
     }
     assert (
-        decision_summary(item) == "Prinsipalt avslått · 0 kr · Subsidiært: 500 000 kr"
+        decision_summary(item)
+        == "Prinsipalt avslått (ansvarsgrunnlaget) · Subsidiært godkjent: 150 000 kr"
+        " · Atter subsidiært: 500 000 kr"
     )
+
+
+def ved_grunnlag(track, data, **basis):
+    return {"track": track, "basis": basis, "data": data}
+
+
+def test_hele_svaret_er_subsidiaert_naar_grunnlaget_er_avslatt():
+    vederlag = ved_grunnlag(
+        "vederlag",
+        {"beregnings_resultat": "delvis_godkjent", "total_godkjent_belop": 150000},
+        resultat="avslatt",
+    )
+    frist = ved_grunnlag(
+        "frist",
+        {"beregnings_resultat": "godkjent", "godkjent_dager": 10},
+        resultat="avslatt",
+    )
+    assert decision_summary(vederlag) == (
+        "Prinsipalt avslått (ansvarsgrunnlaget) · Subsidiært delvis godkjent: 150 000 kr"
+    )
+    assert decision_summary(frist) == (
+        "Prinsipalt avslått (ansvarsgrunnlaget) · Subsidiært godkjent: 10 dager"
+    )
+
+
+def test_subsidiaert_standpunkt_i_svaret_staar_etter_som_atter_subsidiaert():
+    item = ved_grunnlag(
+        "frist",
+        {
+            "beregnings_resultat": "avslatt",
+            "godkjent_dager": 0,
+            "subsidiaer_resultat": "delvis_godkjent",
+            "subsidiaer_godkjent_dager": 4,
+        },
+        resultat="avslatt",
+    )
+    assert decision_summary(item) == (
+        "Prinsipalt avslått (ansvarsgrunnlaget) · Subsidiært avslått: 0 dager"
+        " · Atter subsidiært delvis godkjent: 4 dager"
+    )
+
+
+def test_ukjent_kode_vises_ikke_raatt_i_brevet():
+    item = ved_grunnlag(
+        "vederlag",
+        {"beregnings_resultat": "hold_tilbake", "total_godkjent_belop": 0},
+        resultat="avslatt",
+    )
+    assert "hold_tilbake" not in decision_summary(item)
+
+
+@pytest.mark.parametrize(
+    ("underkategori", "forventet"),
+    [
+        ("EO", "Godkjent · 150 000 kr"),
+        ("IRREG", "Prinsipalt avslått (ansvarsgrunnlaget) · Subsidiært godkjent: 150 000 kr"),
+    ],
+)
+def test_32_2_gjelder_bare_endring_uten_formell_endringsordre(underkategori, forventet):
+    item = ved_grunnlag(
+        "vederlag",
+        {"beregnings_resultat": "godkjent", "total_godkjent_belop": 150000},
+        resultat="godkjent",
+        varsletITide=False,
+        hovedkategori="ENDRING",
+        underkategori=underkategori,
+    )
+    assert decision_summary(item) == forventet
 
 
 def test_pdf_is_generated_from_frozen_recipient_text():

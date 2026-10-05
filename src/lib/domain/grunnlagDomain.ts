@@ -60,11 +60,40 @@ export function getDefaults(config: GrunnlagDefaultsConfig): GrunnlagFormState {
   };
 }
 
+/** Eldre saker har underkategorien som liste; første gjelder. Speiler `forste_underkategori`. */
+export function forsteUnderkategori(underkategori?: string | string[] | null): string | undefined {
+  return (Array.isArray(underkategori) ? underkategori[0] : underkategori) ?? undefined;
+}
+
 export function erEndringMed32_2(event?: {
   hovedkategori?: string;
   underkategori?: string;
 }): boolean {
   return event?.hovedkategori === 'ENDRING' && event?.underkategori !== 'EO';
+}
+
+/** Hele vederlaget og hele fristen er subsidiære. Speiler `er_grunnlag_subsidiaert` i backend. */
+export function erGrunnlagetSubsidiaert(grunnlag: {
+  resultat?: string | null;
+  hovedkategori?: string | null;
+  underkategori?: string | string[] | null;
+  varsletITide?: boolean | null;
+}): boolean {
+  return grunnlag.resultat === 'avslatt' || erPrekludertEtter32_2(grunnlag);
+}
+
+/** § 32.2: varslet for sent ved endring uten formell endringsordre. Speiler `er_prekludert`. */
+export function erPrekludertEtter32_2(grunnlag: {
+  hovedkategori?: string | null;
+  underkategori?: string | string[] | null;
+  varsletITide?: boolean | null;
+}): boolean {
+  return (
+    erEndringMed32_2({
+      hovedkategori: grunnlag.hovedkategori ?? undefined,
+      underkategori: forsteUnderkategori(grunnlag.underkategori),
+    }) && grunnlag.varsletITide === false
+  );
 }
 
 export function erPaalegg(event?: { hovedkategori?: string; underkategori?: string }): boolean {
