@@ -69,6 +69,10 @@ venv-en og testbasen, og meldingen fra hooken sier om databasetestene kjører.
 Utenfor skyøktene: `python3 -m venv /tmp/venv` og `pip install -r` begge
 `backend/requirements*.txt` (systempython mangler pytest).
 
+**Nettleserkontroll av `/mockup` går gjennom skillen `mockup-nettleser`.** Den
+bruker den globale playwright-pakken, som passer med nettleserne i
+`/opt/pw-browsers`. Kjør aldri `npm i playwright` eller `playwright install`.
+
 **`ruff format` er ikke en port.** Repoet er aldri formatert med den, og
 `ruff format .` ville skrevet om rundt 80 filer. Kjør den ikke på hele treet.
 
