@@ -14,7 +14,7 @@ de kan flyttes når `JsonFileEventRepository` går ut i F0b. Testene mot
 import pytest
 
 from constants.frist_foresporsel import FAST_TEKST
-from models.events import EventType, FristVarselType, SubsidiaerTrigger
+from models.events import EventType, FristVarselType, SubsidiaerTrigger, parse_event
 from regler import REGELVERSJON
 from tests.test_security.test_beregningsresultat_br01_20260923 import (  # noqa: F401
     HEADERS,
@@ -243,6 +243,22 @@ def test_fristsvaret_kan_ikke_endre_foresporselen(sak, felt):  # noqa: F811
     frist = _lagret_tilstand(sak, sak_id).frist
     assert frist.har_bh_foresporsel is True
     assert frist.dato_bh_foresporsel == for_svaret.dato_bh_foresporsel
+
+
+def test_et_lagret_fristsvar_med_foresporselsfeltene_kan_leses():
+    """#182 gjelder nye svar. Et lagret svar leses, og feltene overses."""
+    hendelser = _sak_med_godkjent_grunnlag()
+    varsel = _varsel()
+    foresporsel = _foresporsel(varsel.event_id)
+    spesifisert = _varsel("spesifisert", 10, EventType.FRIST_KRAV_SPESIFISERT)
+    svar = _fullt_svar(spesifisert.event_id).model_dump(mode="json")
+    svar["data"]["har_bh_foresporsel"] = False
+
+    frist = timeline.compute_state(
+        hendelser + [varsel, foresporsel, spesifisert, parse_event(svar)]
+    ).frist
+
+    assert frist.har_bh_foresporsel is True
 
 
 # =============================================================================

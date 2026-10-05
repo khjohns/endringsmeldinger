@@ -28,6 +28,7 @@ from pydantic import (
     AfterValidator,
     BaseModel,
     Field,
+    ValidationInfo,
     computed_field,
     field_validator,
     model_validator,
@@ -36,6 +37,12 @@ from pydantic import (
 from constants.frist_foresporsel import har_fast_tekst
 from models.cloudevents import CloudEventMixin
 from models.letter_document import LetterSnapshot
+
+
+def _ny_hendelse(info: ValidationInfo) -> bool:
+    """Krav som kom etter at hendelser ble lagret, gjelder bare nye (se `parse_event`)."""
+    return not (info.context or {}).get("lagret", False)
+
 
 # ============ VEDLEGG ============
 
@@ -1296,9 +1303,9 @@ class FristResponsData(BaseModel):
 
     @model_validator(mode="before")
     @classmethod
-    def avvis_foresporselsfelt(cls, data):
+    def avvis_foresporselsfelt(cls, data, info: ValidationInfo):
         """Forespørselen er en egen hendelse med brev, `frist_foresporsel_sendt` (#182)."""
-        if isinstance(data, dict):
+        if isinstance(data, dict) and _ny_hendelse(info):
             felt = sorted({"har_bh_foresporsel", "dato_bh_foresporsel"} & data.keys())
             if felt:
                 raise ValueError(
@@ -1357,7 +1364,7 @@ class ResponsEvent(SakEvent):
 
     @model_validator(mode="before")
     @classmethod
-    def valider_data_etter_spor(cls, values):
+    def valider_data_etter_spor(cls, values, info: ValidationInfo):
         """Uten dette prøves `data` mot alle tre typene, og feilen fra riktig type går tapt."""
         if isinstance(values, dict) and isinstance(values.get("data"), dict):
             datatype = {
@@ -1366,7 +1373,10 @@ class ResponsEvent(SakEvent):
                 SporType.FRIST.value: FristResponsData,
             }.get(getattr(values.get("spor"), "value", values.get("spor")))
             if datatype:
-                values = {**values, "data": datatype.model_validate(values["data"])}
+                values = {
+                    **values,
+                    "data": datatype.model_validate(values["data"], context=info.context),
+                }
         return values
 
     @model_validator(mode="after")
@@ -1417,8 +1427,10 @@ class FristForesporselData(BaseModel):
     brev: LetterSnapshot
 
     @model_validator(mode="after")
-    def validate_fast_tekst(self):
+    def validate_fast_tekst(self, info: ValidationInfo):
         """BH kan legge til tekst, men ikke fjerne det § 33.6.2 første ledd krever (#173)."""
+        if not _ny_hendelse(info):
+            return self
         if not har_fast_tekst(self.begrunnelse) or not har_fast_tekst(
             self.brev.seksjoner.begrunnelse.redigertTekst
         ):
@@ -2085,9 +2097,12 @@ AnyEvent = Union[
 # ============ EVENT PARSING ============
 
 
-def parse_event(data: dict) -> AnyEvent:
+def parse_event(data: dict, *, lagret: bool = True) -> AnyEvent:
     """
     Parse a dict into the correct event type.
+
+    `lagret=False` gjelder en ny hendelse. En lagret hendelse kan ikke rettes, så
+    krav som kom etter at den ble skrevet, prøves bare på nye (`_ny_hendelse`).
 
     Uses event_type field to determine which model to instantiate.
     Auto-derives 'spor' for ResponsEvent if not present (for backwards compatibility
@@ -2211,7 +2226,7 @@ def parse_event(data: dict) -> AnyEvent:
                 data["data"] = dict(event_data)
                 data["data"]["subsidiaer_triggers"] = migrated
 
-    return event_class.model_validate(data)
+    return event_class.model_validate(data, context={"lagret": lagret})
 
 
 def parse_event_from_request(request_data: dict) -> AnyEvent:
@@ -2284,4 +2299,4 @@ def parse_event_from_request(request_data: dict) -> AnyEvent:
         letter.referanser.eventId = request_data['event_id']
         letter.referanser.sakId = request_data['sak_id']
         request_data['data']['brev'] = letter.model_dump(mode='json')
-    return parse_event(request_data)
+    return parse_event(request_data, lagret=False)
