@@ -33,6 +33,7 @@ from models.events import (
     WithdrawalData,
     WithdrawalEvent,
 )
+from models.sak_state import LUKKEDE_STATUSER
 from regler import REGELVERSJON
 from regler.frist import Fristkrav, Fristvurdering, beregn_frist
 from regler.vederlag import Vederlagskrav, Vederlagsvurdering, beregn_vederlag
@@ -369,7 +370,8 @@ def test_byggherren_kan_ikke_revidere_et_godtatt_svar():
 def test_frafall_med_godtatte_avslag_gir_ikke_ukjent():
     """AGENTS.md: en status som mangler i rollupen, gir «UKJENT» på en sak som
     er oppgjort. Aksept av avslag gir AVSLATT_AKSEPTERT (hovedplanen 3.1,
-    TFR-01)."""
+    TFR-01). Vedtak 05.10 (3.1): frafall er avklart grunnlag, så saken er
+    oppgjort og lukket."""
     forlop = _sak_med_svar("IRREG", GrunnlagResponsResultat.FRAFALT, True)
     forlop.vederlagssvar("avslatt")
     forlop.fristsvar(vilkar_oppfylt=False)
@@ -381,7 +383,7 @@ def test_frafall_med_godtatte_avslag_gir_ikke_ukjent():
         SporStatus.AVSLATT_AKSEPTERT,
     ):
         pytest.fail("Forutsetning: avslagene er ikke godtatt")
-    assert sak.overordnet_status != "UKJENT"
+    assert sak.overordnet_status in LUKKEDE_STATUSER
 
 
 @pytest.mark.xfail(
@@ -431,3 +433,47 @@ def test_frafall_kan_ikke_kombineres_med_preklusjon_etter_32_2():
         pytest.fail("Kontrollsak: frafall avvises også når grunnlaget er varslet i tide")
     svar = forlop.grunnlagssvar_hendelse(GrunnlagResponsResultat.FRAFALT, False)
     assert not forlop.valider(svar).is_valid
+
+
+def _fristvarsel(event_type, varsel_type, dato, dager=None):
+    data = {
+        "varsel_type": varsel_type,
+        "begrunnelse": "Hindret",
+        "frist_varsel": VarselInfo(dato_sendt=dato, metode=["epost"]),
+    }
+    if dager is not None:
+        data["antall_dager"] = dager
+        data["spesifisert_varsel"] = VarselInfo(dato_sendt="2026-09-20", metode=["epost"])
+    return FristEvent(
+        sak_id=SAK,
+        aktor_id="te",
+        aktor_rolle="TE",
+        event_type=event_type,
+        data=FristData(**data),
+    )
+
+
+@pytest.mark.xfail(
+    strict=True,
+    raises=AssertionError,
+    reason="SK-12: et senere fristkrav kan flytte datoen for varselet etter § 33.4",
+)
+def test_varseldatoen_kan_ikke_flyttes_av_et_senere_krav():
+    """Vedtak 05.10 (oppdragsgiver, hovedplanen 3.1): datoen og metoden for et
+    varsel settes én gang, og et senere krav med en annen dato avvises.
+    Kontrollsaken er samme spesifisering med uendret varseldato, som skal
+    godtas."""
+    forlop = Forlop()
+    forlop.grunnlag("EO")
+    forlop.legg_til(
+        _fristvarsel(EventType.FRIST_KRAV_SENDT, FristVarselType.VARSEL, "2026-09-02")
+    )
+    kontroll = _fristvarsel(
+        EventType.FRIST_KRAV_SPESIFISERT, FristVarselType.SPESIFISERT, "2026-09-02", 20
+    )
+    if not forlop.valider(kontroll).is_valid:
+        pytest.fail("Kontrollsak: spesifiseringen avvises også med uendret varseldato")
+    flyttet = _fristvarsel(
+        EventType.FRIST_KRAV_SPESIFISERT, FristVarselType.SPESIFISERT, "2026-08-01", 20
+    )
+    assert not forlop.valider(flyttet).is_valid
