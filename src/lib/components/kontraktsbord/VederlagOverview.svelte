@@ -11,14 +11,14 @@
   import { getCaseWorkspace } from '$lib/kontraktsbord/context.svelte';
   const store = getCaseWorkspace();
   import { fmt, sporResultatLabel } from './utils.js';
-  import { bhStandpunkt, grunnlagTriggers } from './derive.js';
+  import { bhStandpunkt, grunnlagTriggers, svaretErSubsidiaert } from './derive.js';
 
   let { onform }: { onform: () => void } = $props();
 
   const vederlag = $derived(store.sak.vederlag);
   const ui = $derived(store.getUI('vederlag'));
   const totalKrevd = $derived(vederlag.krevd_belop ?? vederlag.netto_belop ?? 0);
-  const avslattPaaGrunnlag = $derived(store.sak.er_subsidiaert_vederlag);
+  const avslattPaaGrunnlag = $derived(svaretErSubsidiaert(store.sak, 'vederlag'));
   const standpunkt = $derived(
     bhStandpunkt(avslattPaaGrunnlag, vederlag.godkjent_belop, vederlag.subsidiaer_godkjent_belop)
   );
