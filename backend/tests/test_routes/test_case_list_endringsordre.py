@@ -7,7 +7,7 @@ from unittest.mock import Mock
 import pytest
 from flask import Flask
 
-from models.events import EOOpprettetEvent, EOUtstedtEvent
+from models.events import EOOpprettetEvent, EOUtstedtEvent, SakOpprettetEvent
 from models.sak_metadata import SakMetadata
 from routes import event_routes as routes
 from services.timeline_service import TimelineService
@@ -57,6 +57,7 @@ def test_list_preserves_order_numbers_links_and_unspecified_amounts(
         "relaterte_koe_saker": ["KOE-1", "KOE-2"],
     }
     events = [
+        SakOpprettetEvent(**fields, sakstittel="Endringsordre EO-042", sakstype="endringsordre"),
         EOOpprettetEvent(**fields, data=data),
         EOUtstedtEvent(**fields, data={**data, **amounts, "er_estimat": estimate}),
     ]
@@ -74,7 +75,7 @@ def test_list_preserves_order_numbers_links_and_unspecified_amounts(
     event_repo = Mock()
     event_repo.get_events.return_value = (
         [event.model_dump(mode="json") for event in events],
-        2,
+        3,
     )
     monkeypatch.setattr(routes, "_get_metadata_repo", lambda: metadata)
     monkeypatch.setattr(routes, "_get_event_repo", lambda: event_repo)
