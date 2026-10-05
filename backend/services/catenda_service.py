@@ -22,6 +22,7 @@ OVERORDNET_TO_CATENDA_STATUS = {
     "OMFORENT": "Omforent",
     "LUKKET": "Lukket",
     "LUKKET_TRUKKET": "Lukket",
+    "LUKKET_AVSLATT": "Lukket",
     "UTKAST": "Under varsling",  # Utkast mappes til Under varsling
 }
 
