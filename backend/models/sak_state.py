@@ -9,6 +9,7 @@ SakState er READ-ONLY og regenereres hver gang fra events.
 
 from datetime import datetime
 from enum import Enum
+from typing import Literal
 
 from pydantic import BaseModel, Field, computed_field
 
@@ -286,6 +287,14 @@ class VederlagTilstand(BaseModel):
         return self.bh_resultat.value
 
     # BH respons-versjon tracking
+    subsidiaert_til_nytt_svar: Literal["avslatt", "prekludert"] | None = Field(
+        default=None,
+        description=(
+            "BHs svar på sporet var subsidiært da grunnlagssvaret falt ved endret "
+            "underkategori, og grunnen. Står til sporet eller grunnlaget besvares igjen "
+            "(#215, B-13)"
+        ),
+    )
     bh_respondert_versjon: int | None = Field(
         default=None,
         description="Hvilken versjon av kravet BH sist responderte på (0-indeksert)",
@@ -821,6 +830,14 @@ class FristTilstand(BaseModel):
         return self.bh_resultat.value
 
     # BH respons-versjon tracking
+    subsidiaert_til_nytt_svar: Literal["avslatt", "prekludert"] | None = Field(
+        default=None,
+        description=(
+            "BHs svar på sporet var subsidiært da grunnlagssvaret falt ved endret "
+            "underkategori, og grunnen. Står til sporet eller grunnlaget besvares igjen "
+            "(#215, B-13)"
+        ),
+    )
     bh_respondert_versjon: int | None = Field(
         default=None,
         description="Hvilken versjon av kravet BH sist responderte på (0-indeksert)",
@@ -977,6 +994,14 @@ class SakState(BaseModel):
             g.bh_resultat, g.hovedkategori, g.underkategori, g.grunnlag_varslet_i_tide
         )
 
+    def _subsidiaer_grunn(self, spor) -> str | None:
+        """Hvorfor sporets svar er subsidiært: «avslatt», «prekludert» eller None."""
+        if spor.subsidiaert_til_nytt_svar is not None:
+            return spor.subsidiaert_til_nytt_svar
+        if not self._grunnlag_er_subsidiaert:
+            return None
+        return "prekludert" if self._grunnlag_er_prekludert else "avslatt"
+
     @computed_field
     @property
     def er_subsidiaert_vederlag(self) -> bool:
@@ -985,7 +1010,8 @@ class SakState(BaseModel):
 
         Returns True hvis:
         - BH har avslått grunnlaget (`bh_resultat`, også mens TE oppdaterer det), ELLER
-        - Grunnlag er prekludert etter § 32.2 (endring uten formell endringsordre)
+        - Grunnlag er prekludert etter § 32.2 (endring uten formell endringsordre), ELLER
+        - sporet ble besvart subsidiært før grunnlagssvaret falt (`subsidiaert_til_nytt_svar`)
         Regelen er `regler.grunnlag.er_grunnlag_subsidiaert`.
         OG
         - Vederlag-beregningen er godkjent (fullt/delvis/annen metode)
@@ -1002,7 +1028,7 @@ class SakState(BaseModel):
         if self.er_frafalt:
             return False
 
-        grunnlag_er_subsidiaer = self._grunnlag_er_subsidiaert
+        grunnlag_er_subsidiaer = self._subsidiaer_grunn(self.vederlag) is not None
 
         beregning_godkjent = self.vederlag.bh_resultat in {
             VederlagBeregningResultat.GODKJENT,
@@ -1018,7 +1044,8 @@ class SakState(BaseModel):
 
         Returns True hvis:
         - BH har avslått grunnlaget (`bh_resultat`, også mens TE oppdaterer det), ELLER
-        - Grunnlag er prekludert etter § 32.2 (endring uten formell endringsordre)
+        - Grunnlag er prekludert etter § 32.2 (endring uten formell endringsordre), ELLER
+        - sporet ble besvart subsidiært før grunnlagssvaret falt (`subsidiaert_til_nytt_svar`)
         Regelen er `regler.grunnlag.er_grunnlag_subsidiaert`.
         OG
         - Frist-beregningen er godkjent (fullt/delvis)
@@ -1029,7 +1056,7 @@ class SakState(BaseModel):
         FRONTEND: Bruk dette for å vise subsidiær status. Skjemaet har speilet
         `erGrunnlagetSubsidiaert` i `grunnlagDomain.ts`.
         """
-        grunnlag_er_subsidiaer = self._grunnlag_er_subsidiaert
+        grunnlag_er_subsidiaer = self._subsidiaer_grunn(self.frist) is not None
 
         beregning_godkjent = self.frist.bh_resultat in {
             FristBeregningResultat.GODKJENT,
@@ -1063,7 +1090,9 @@ class SakState(BaseModel):
             )
             # Skille mellom preklusjon (§32.2) og avslag
             grunn = (
-                "Prekludert" if self._grunnlag_er_prekludert else "Avslått pga. ansvar"
+                "Prekludert"
+                if self._subsidiaer_grunn(self.vederlag) == "prekludert"
+                else "Avslått pga. ansvar"
             )
             if self.vederlag.bh_resultat == VederlagBeregningResultat.GODKJENT:
                 return f"{grunn} (Subsidiært enighet om {belop})"
@@ -1120,7 +1149,9 @@ class SakState(BaseModel):
             )
             # Skille mellom preklusjon (§32.2) og avslag
             grunn = (
-                "Prekludert" if self._grunnlag_er_prekludert else "Avslått pga. ansvar"
+                "Prekludert"
+                if self._subsidiaer_grunn(self.frist) == "prekludert"
+                else "Avslått pga. ansvar"
             )
             if self.frist.bh_resultat == FristBeregningResultat.GODKJENT:
                 return f"{grunn} (Subsidiært enighet om {dager})"

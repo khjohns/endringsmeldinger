@@ -1279,11 +1279,6 @@ class FristResponsData(BaseModel):
 
     begrunnelse: str | None = Field(default=None, description="Samlet begrunnelse")
 
-    frist_for_spesifisering: str | None = Field(
-        default=None,
-        description="Frist for TE å levere ytterligere spesifikasjon/fremdriftsplan (YYYY-MM-DD)",
-    )
-
     # ============ SUBSIDIÆRT STANDPUNKT ============
     # Brukes når BH tar et prinsipalt standpunkt (f.eks. avslag pga preklusjon)
     # men også vil angi hva resultatet ville vært subsidiært.
@@ -1304,9 +1299,12 @@ class FristResponsData(BaseModel):
     @model_validator(mode="before")
     @classmethod
     def avvis_foresporselsfelt(cls, data, info: ValidationInfo):
-        """Forespørselen er en egen hendelse med brev, `frist_foresporsel_sendt` (#182)."""
+        """Forespørselen er en egen hendelse med brev, `frist_foresporsel_sendt` (#182, #238)."""
         if isinstance(data, dict) and _ny_hendelse(info):
-            felt = sorted({"har_bh_foresporsel", "dato_bh_foresporsel"} & data.keys())
+            felt = sorted(
+                {"har_bh_foresporsel", "dato_bh_foresporsel", "frist_for_spesifisering"}
+                & data.keys()
+            )
             if felt:
                 raise ValueError(
                     f"{', '.join(felt)} settes av forespørselen (frist_foresporsel_sendt), "

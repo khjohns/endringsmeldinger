@@ -11,6 +11,8 @@ de kan flyttes når `JsonFileEventRepository` går ut i F0b. Testene mot
 `/api/events` bruker oppsettet i BR-01-testene.
 """
 
+from datetime import date
+
 import pytest
 
 from constants.frist_foresporsel import FAST_TEKST
@@ -157,6 +159,7 @@ def _besvart_foresporsel(sak, sak_id):  # noqa: F811
             "frist_krav_id": varsel.event_id,
             "begrunnelse": FAST_TEKST,
             "brev": _brev(sak_id, FAST_TEKST),
+            "svarfrist": "2026-10-20",
         },
     )
     assert foresporsel.status_code == 201, foresporsel.get_json()
@@ -228,11 +231,17 @@ def test_33_6_1_avvises_gjennom_ruta(sak):  # noqa: F811
 
 
 @pytest.mark.parametrize(
-    "felt", [{"har_bh_foresporsel": False}, {"dato_bh_foresporsel": "2026-01-01"}]
+    "felt",
+    [
+        {"har_bh_foresporsel": False},
+        {"dato_bh_foresporsel": "2026-01-01"},
+        {"frist_for_spesifisering": None},
+        {"frist_for_spesifisering": "2026-12-24"},
+    ],
 )
 def test_fristsvaret_kan_ikke_endre_foresporselen(sak, felt):  # noqa: F811
-    """#182: forespørselen settes bare av `frist_foresporsel_sendt`, med brev."""
-    sak_id = f"KOE-182-{next(iter(felt))}"
+    """#182, #238: forespørselen settes bare av `frist_foresporsel_sendt`, med brev."""
+    sak_id = f"KOE-182-{next(iter(felt))}-{next(iter(felt.values()))}"
     krav_id = _besvart_foresporsel(sak, sak_id)
     for_svaret = _lagret_tilstand(sak, sak_id).frist
 
@@ -243,22 +252,25 @@ def test_fristsvaret_kan_ikke_endre_foresporselen(sak, felt):  # noqa: F811
     frist = _lagret_tilstand(sak, sak_id).frist
     assert frist.har_bh_foresporsel is True
     assert frist.dato_bh_foresporsel == for_svaret.dato_bh_foresporsel
+    assert frist.frist_for_spesifisering == for_svaret.frist_for_spesifisering == "2026-10-20"
 
 
 def test_et_lagret_fristsvar_med_foresporselsfeltene_kan_leses():
     """#182 gjelder nye svar. Et lagret svar leses, og feltene overses."""
     hendelser = _sak_med_godkjent_grunnlag()
     varsel = _varsel()
-    foresporsel = _foresporsel(varsel.event_id)
+    foresporsel = _foresporsel(varsel.event_id, svarfrist=date(2026, 10, 20))
     spesifisert = _varsel("spesifisert", 10, EventType.FRIST_KRAV_SPESIFISERT)
     svar = _fullt_svar(spesifisert.event_id).model_dump(mode="json")
     svar["data"]["har_bh_foresporsel"] = False
+    svar["data"]["frist_for_spesifisering"] = None
 
     frist = timeline.compute_state(
         hendelser + [varsel, foresporsel, spesifisert, parse_event(svar)]
     ).frist
 
     assert frist.har_bh_foresporsel is True
+    assert frist.frist_for_spesifisering == "2026-10-20"
 
 
 # =============================================================================
