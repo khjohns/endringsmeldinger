@@ -1,5 +1,5 @@
 """Godtatt avslag på grunnlaget lukker saken (vedtak 05.10, #213), og
-`eo_opprettet` krever en endringsordresak (DM-07, #97)."""
+`eo_opprettet` krever en endringsordresak (DM-07, #97, #233)."""
 
 import pytest
 
@@ -8,6 +8,7 @@ from models.events import (
     EOOpprettetEvent,
     FristData,
     FristEvent,
+    SakOpprettetEvent,
     SporType,
 )
 from models.sak_state import (
@@ -22,6 +23,7 @@ from models.sak_state import (
 from services.business_rules import BusinessRuleValidator
 from services.catenda_comment_generator import CatendaCommentGenerator
 from services.catenda_service import map_status_to_catenda
+from services.timeline_service import TimelineService
 
 
 def _sak(vederlag: SporStatus, frist: SporStatus) -> SakState:
@@ -106,3 +108,36 @@ def test_eo_opprettet_godtas_i_en_endringsordresak():
     sak = SakState(sak_id="S-1", sakstype=SaksType.ENDRINGSORDRE)
 
     assert BusinessRuleValidator().validate(_eo_opprettet(), sak).is_valid
+
+
+def _sak_opprettet(sakstype: str) -> SakOpprettetEvent:
+    return SakOpprettetEvent(
+        sak_id="S-1", aktor_id="te", aktor_rolle="TE", sakstittel="Sak", sakstype=sakstype
+    )
+
+
+@pytest.mark.parametrize("sakstype", ["standard", "forsering"])
+def test_projeksjonen_gjor_ikke_saken_om_til_en_endringsordresak(sakstype):
+    """Vedtaket 29.09 (DM-07, #233): også ved gjenspilling av eldre journal."""
+    for_eo = TimelineService().compute_state([_sak_opprettet(sakstype)])
+
+    tilstand = TimelineService().compute_state([_sak_opprettet(sakstype), _eo_opprettet()])
+
+    assert tilstand.sakstype == for_eo.sakstype
+    assert tilstand.endringsordre_data is None
+
+
+def test_eo_opprettet_som_forste_hendelse_gir_ingen_endringsordresak():
+    tilstand = TimelineService().compute_state([_eo_opprettet()])
+
+    assert tilstand.sakstype == SaksType.STANDARD
+    assert tilstand.endringsordre_data is None
+
+
+def test_eo_opprettet_i_en_endringsordresak():
+    tilstand = TimelineService().compute_state(
+        [_sak_opprettet("endringsordre"), _eo_opprettet()]
+    )
+
+    assert tilstand.sakstype == SaksType.ENDRINGSORDRE
+    assert tilstand.endringsordre_data.eo_nummer == "EO-1"
