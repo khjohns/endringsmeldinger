@@ -168,10 +168,11 @@ def prinsipalt_resultat(
     return _resultat_av_dager(har_hindring, krevd_dager, godkjent_dager)
 
 
-def subsidiaert_resultat(
-    *, har_hindring: bool, krevd_dager: int, godkjent_dager: int
-) -> FristBeregningResultat:
-    return _resultat_av_dager(har_hindring, krevd_dager, godkjent_dager)
+def subsidiaert_resultat(*, krevd_dager: int, godkjent_dager: int) -> FristBeregningResultat:
+    """Dagene er et subsidiært standpunkt også når hindringen bestrides
+    (vedtak 05.10, #211): etter § 33.7 annet ledd tapes en innsigelse som ikke
+    fremsettes i tide."""
+    return _resultat_av_dager(True, krevd_dager, godkjent_dager)
 
 
 def subsidiaer_triggers(
@@ -243,9 +244,7 @@ def beregn_frist(krav: Fristkrav, vurdering: Fristvurdering) -> Fristresultat:
         krevd_dager=krav.krevd_dager,
         godkjent_dager=dager,
     )
-    subsidiaert = subsidiaert_resultat(
-        har_hindring=har_hindring, krevd_dager=krav.krevd_dager, godkjent_dager=dager
-    )
+    subsidiaert = subsidiaert_resultat(krevd_dager=krav.krevd_dager, godkjent_dager=dager)
     # Subsidiært standpunkt bare når avslaget har en annen grunn enn dagene.
     vis_subsidiaert = er_prekludert_ or not har_hindring
 

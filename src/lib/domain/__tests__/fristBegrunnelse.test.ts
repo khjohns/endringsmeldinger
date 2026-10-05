@@ -1,5 +1,28 @@
 import { describe, expect, it } from 'vitest';
-import { generateFristResponseBegrunnelse } from '../begrunnelse/fristBegrunnelse';
+import {
+  type FristResponseInput,
+  generateFristResponseBegrunnelse,
+} from '../begrunnelse/fristBegrunnelse';
+
+function input(overrides: Partial<FristResponseInput> = {}): FristResponseInput {
+  return {
+    varselType: 'spesifisert',
+    krevdDager: 45,
+    fristVarselOk: true,
+    spesifisertKravOk: true,
+    vilkarOppfylt: true,
+    godkjentDager: 45,
+    erPrekludert: false,
+    erRedusert_33_6_1: false,
+    harTidligereVarselITide: false,
+    erGrunnlagSubsidiaer: false,
+    erGrunnlagPrekludert: false,
+    prinsipaltResultat: 'godkjent',
+    subsidiaertResultat: 'godkjent',
+    visSubsidiaertResultat: false,
+    ...overrides,
+  };
+}
 
 describe('generateFristResponseBegrunnelse', () => {
   it('omtaler både prinsipalt §33.4-rettstap og subsidiær §33.6.1-begrensning', () => {
@@ -44,5 +67,70 @@ describe('generateFristResponseBegrunnelse', () => {
     });
 
     expect(begrunnelse).toContain('199 dager av krevde 200 dager (99%)');
+  });
+
+  it('navngir begge innsigelsene når dagene er atter subsidiære (#211)', () => {
+    const begrunnelse = generateFristResponseBegrunnelse(
+      input({
+        fristVarselOk: false,
+        vilkarOppfylt: false,
+        godkjentDager: 30,
+        erPrekludert: true,
+        prinsipaltResultat: 'avslatt',
+        subsidiaertResultat: 'delvis_godkjent',
+        visSubsidiaertResultat: true,
+      })
+    );
+
+    expect(begrunnelse).toContain(
+      'Dersom byggherren verken får medhold i preklusjonsinnsigelsen eller i at forholdet ' +
+        'ikke har hindret fremdriften, kan entreprenøren maksimalt ha krav på 30 dager ' +
+        '(atter subsidiært standpunkt).'
+    );
+  });
+
+  it('gjør dagene til subsidiært standpunkt når bare hindringen bestrides (#211)', () => {
+    const begrunnelse = generateFristResponseBegrunnelse(
+      input({
+        vilkarOppfylt: false,
+        godkjentDager: 30,
+        prinsipaltResultat: 'avslatt',
+        subsidiaertResultat: 'delvis_godkjent',
+        visSubsidiaertResultat: true,
+      })
+    );
+
+    expect(begrunnelse).toContain(
+      'Dersom byggherren ikke får medhold i at forholdet ikke har hindret fremdriften, ' +
+        'kan entreprenøren maksimalt ha krav på 30 dager (subsidiært standpunkt).'
+    );
+  });
+
+  it('begrunner 0 dager med §33.5 når hindringen erkjennes (#180)', () => {
+    const begrunnelse = generateFristResponseBegrunnelse(
+      input({ godkjentDager: 0, prinsipaltResultat: 'avslatt', subsidiaertResultat: 'avslatt' })
+    );
+
+    expect(begrunnelse).toContain('Det erkjennes at forholdet har hindret fremdriften');
+    expect(begrunnelse).toContain(
+      'Hva gjelder antall dager: Byggherren gjør gjeldende at hindringen ikke har hatt ' +
+        'virkning på fremdriften som gir rett til fristforlengelse, jf. §33.5. Kravet om ' +
+        '45 dager fristforlengelse kan derfor ikke imøtekommes.'
+    );
+  });
+
+  it('gjentar ikke §33.5 når hindringen bestrides og dagene er 0', () => {
+    const begrunnelse = generateFristResponseBegrunnelse(
+      input({
+        vilkarOppfylt: false,
+        godkjentDager: 0,
+        prinsipaltResultat: 'avslatt',
+        subsidiaertResultat: 'avslatt',
+        visSubsidiaertResultat: true,
+      })
+    );
+
+    expect(begrunnelse).not.toContain('§33.5');
+    expect(begrunnelse).toContain('Kravet om 45 dager fristforlengelse kan ikke imøtekommes.');
   });
 });
