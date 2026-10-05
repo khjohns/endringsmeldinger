@@ -20,6 +20,11 @@ from models.events import (
     VarselInfo,
     VederlagBeregningResultat,
 )
+from regler.grunnlag import (
+    er_grunnlag_subsidiaert,
+    er_prekludert,
+    forste_underkategori,
+)
 
 # ============ SAKSTYPE OG RELASJONER ============
 
@@ -954,6 +959,20 @@ class SakState(BaseModel):
         """
         return self.grunnlag.bh_resultat == GrunnlagResponsResultat.FRAFALT
 
+    @property
+    def _grunnlag_er_prekludert(self) -> bool:
+        g = self.grunnlag
+        return er_prekludert(
+            g.hovedkategori, forste_underkategori(g.underkategori), g.grunnlag_varslet_i_tide
+        )
+
+    @property
+    def _grunnlag_er_subsidiaert(self) -> bool:
+        g = self.grunnlag
+        return er_grunnlag_subsidiaert(
+            g.bh_resultat, g.hovedkategori, g.underkategori, g.grunnlag_varslet_i_tide
+        )
+
     @computed_field
     @property
     def er_subsidiaert_vederlag(self) -> bool:
@@ -978,10 +997,7 @@ class SakState(BaseModel):
         if self.er_frafalt:
             return False
 
-        # Grunnlag er subsidiært hvis avslått ELLER prekludert (§32.2)
-        grunnlag_avslatt = self.grunnlag.status == SporStatus.AVSLATT
-        grunnlag_prekludert = self.grunnlag.grunnlag_varslet_i_tide is False
-        grunnlag_er_subsidiaer = grunnlag_avslatt or grunnlag_prekludert
+        grunnlag_er_subsidiaer = self._grunnlag_er_subsidiaert
 
         beregning_godkjent = self.vederlag.bh_resultat in {
             VederlagBeregningResultat.GODKJENT,
@@ -1007,10 +1023,7 @@ class SakState(BaseModel):
         FRONTEND: Bruk dette for å vise subsidiær status.
         Ikke implementer denne logikken selv i frontend.
         """
-        # Grunnlag er subsidiært hvis avslått ELLER prekludert (§32.2)
-        grunnlag_avslatt = self.grunnlag.status == SporStatus.AVSLATT
-        grunnlag_prekludert = self.grunnlag.grunnlag_varslet_i_tide is False
-        grunnlag_er_subsidiaer = grunnlag_avslatt or grunnlag_prekludert
+        grunnlag_er_subsidiaer = self._grunnlag_er_subsidiaert
 
         beregning_godkjent = self.frist.bh_resultat in {
             FristBeregningResultat.GODKJENT,
@@ -1044,9 +1057,7 @@ class SakState(BaseModel):
             )
             # Skille mellom preklusjon (§32.2) og avslag
             grunn = (
-                "Prekludert"
-                if self.grunnlag.grunnlag_varslet_i_tide is False
-                else "Avslått pga. ansvar"
+                "Prekludert" if self._grunnlag_er_prekludert else "Avslått pga. ansvar"
             )
             if self.vederlag.bh_resultat == VederlagBeregningResultat.GODKJENT:
                 return f"{grunn} (Subsidiært enighet om {belop})"
@@ -1103,9 +1114,7 @@ class SakState(BaseModel):
             )
             # Skille mellom preklusjon (§32.2) og avslag
             grunn = (
-                "Prekludert"
-                if self.grunnlag.grunnlag_varslet_i_tide is False
-                else "Avslått pga. ansvar"
+                "Prekludert" if self._grunnlag_er_prekludert else "Avslått pga. ansvar"
             )
             if self.frist.bh_resultat == FristBeregningResultat.GODKJENT:
                 return f"{grunn} (Subsidiært enighet om {dager})"

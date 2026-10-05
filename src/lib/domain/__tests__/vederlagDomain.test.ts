@@ -148,6 +148,16 @@ describe('erHelVederlagSubsidiaerPgaGrunnlag', () => {
     ).toBe(false);
   });
 
+  it('returns false for EO even with grunnlagVarsletForSent (§ 32.2, B-13)', () => {
+    expect(
+      erHelVederlagSubsidiaerPgaGrunnlag({
+        hovedkategori: 'ENDRING',
+        underkategori: 'EO',
+        grunnlagVarsletForSent: true,
+      })
+    ).toBe(false);
+  });
+
   it('returns false for SVIKT even with grunnlagVarsletForSent', () => {
     expect(
       erHelVederlagSubsidiaerPgaGrunnlag({

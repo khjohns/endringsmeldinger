@@ -16,6 +16,7 @@ from uuid import uuid4
 from api.validators import validate_event_data
 from lib.sqlite_connection import sqlite_connection
 from models.events import SporStatus, parse_event, parse_event_from_request
+from regler.grunnlag import forste_underkategori
 from repositories.event_repository import ConcurrencyError
 from services.approval_authority import approval_route, handler_identity
 
@@ -177,6 +178,7 @@ class ApprovalService:
             "resultat": ground.bh_resultat,
             "varsletITide": ground.grunnlag_varslet_i_tide,
             "hovedkategori": ground.hovedkategori,
+            "underkategori": forste_underkategori(ground.underkategori),
         }
 
     def validate_items(self, case_id, items, check_basis=True):

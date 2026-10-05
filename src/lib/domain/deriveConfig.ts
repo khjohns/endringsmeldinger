@@ -7,7 +7,7 @@
 import type { SakState } from '$lib/types/timeline';
 import type { VederlagDomainConfig } from './vederlagDomain';
 import type { FristDomainConfig } from './fristDomain';
-import type { GrunnlagDomainConfig } from './grunnlagDomain';
+import { erEndringMed32_2, type GrunnlagDomainConfig } from './grunnlagDomain';
 
 /**
  * Avleder VederlagDomainConfig fra SakState.
@@ -32,6 +32,7 @@ export function deriveVederlagDomainConfig(sak: SakState): VederlagDomainConfig 
     kreverJustertEp: v.krever_justert_ep ?? false,
     kostnadsOverslag: v.kostnads_overslag,
     hovedkategori: g.hovedkategori as VederlagDomainConfig['hovedkategori'],
+    underkategori: Array.isArray(g.underkategori) ? g.underkategori[0] : g.underkategori,
     grunnlagVarsletForSent: g.grunnlag_varslet_i_tide === false,
     grunnlagStatus: g.bh_resultat as VederlagDomainConfig['grunnlagStatus'],
   };
@@ -57,7 +58,11 @@ export function deriveFristDomainConfig(sak: SakState): FristDomainConfig {
       f.frist_varsel_ok === true ||
       (typeof f.bh_respondert_versjon === 'number' && f.frist_varsel_ok !== false),
     erGrunnlagSubsidiaer: g.bh_resultat === 'avslatt',
-    erHelFristSubsidiaerPgaGrunnlag: g.grunnlag_varslet_i_tide === false,
+    erHelFristSubsidiaerPgaGrunnlag:
+      erEndringMed32_2({
+        hovedkategori: g.hovedkategori,
+        underkategori: Array.isArray(g.underkategori) ? g.underkategori[0] : g.underkategori,
+      }) && g.grunnlag_varslet_i_tide === false,
   };
 }
 

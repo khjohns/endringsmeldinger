@@ -245,6 +245,10 @@ export function createApprovalWorkspace(store: CaseWorkspace) {
             resultat: effectiveGrunnlag.bh_resultat ?? null,
             varsletITide: effectiveGrunnlag.grunnlag_varslet_i_tide ?? null,
             hovedkategori: effectiveGrunnlag.hovedkategori ?? null,
+            underkategori:
+              (Array.isArray(effectiveGrunnlag.underkategori)
+                ? effectiveGrunnlag.underkategori[0]
+                : effectiveGrunnlag.underkategori) ?? null,
           },
           status: 'ferdigstilt',
           owner: actor,

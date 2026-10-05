@@ -55,6 +55,7 @@ from models.sak_state import (
     SporOversikt,
     VederlagTilstand,
 )
+from regler import grunnlag as grunnlagsregler
 from utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -694,9 +695,12 @@ class TimelineService:
 
         # Hvis godkjent OG ikke prekludert (§32.2), lås grunnlaget
         # Preklusjon betyr tvist - selv om subsidiært resultat er "godkjent"
-        er_prekludert = (
-            hasattr(event.data, "grunnlag_varslet_i_tide")
-            and event.data.grunnlag_varslet_i_tide is False
+        er_prekludert = hasattr(event.data, "grunnlag_varslet_i_tide") and (
+            grunnlagsregler.er_prekludert(
+                grunnlag.hovedkategori,
+                grunnlagsregler.forste_underkategori(grunnlag.underkategori),
+                event.data.grunnlag_varslet_i_tide,
+            )
         )
         if event.data.resultat == GrunnlagResponsResultat.GODKJENT and not er_prekludert:
             grunnlag.laast = True
