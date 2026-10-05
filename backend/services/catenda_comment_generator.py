@@ -437,6 +437,8 @@ class CatendaCommentGenerator:
             "OMFORENT": "Omforent",
             "AVSLUTTET": "Avsluttet",
             "LUKKET": "Lukket",
+            "LUKKET_TRUKKET": "Trukket",
+            "LUKKET_AVSLATT": "Avsluttet – avslag godtatt",
         }
         return status_map.get(status, status.replace("_", " ").title())
 
@@ -451,6 +453,7 @@ class CatendaCommentGenerator:
             "godkjent": "Godkjent",
             "delvis_godkjent": "Delvis godkjent",
             "avslatt": "Avslått",
+            "avslatt_akseptert": "Avslag godtatt",
             "under_forhandling": "Under forhandling",
             "trukket": "Trukket",
             "laast": "Låst",
