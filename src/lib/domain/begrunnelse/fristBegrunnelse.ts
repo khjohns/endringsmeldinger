@@ -52,6 +52,29 @@ export interface FristResponseInput {
 }
 
 // ============================================================================
+// EXPORTED HELPERS
+// ============================================================================
+
+export function getVarselTypeLabel(varselType?: FristVarselType): string {
+  if (!varselType) return 'varsel';
+  const labels: Record<FristVarselType, string> = {
+    varsel: 'varsel om fristforlengelse (§33.4)',
+    spesifisert: 'spesifisert krav (§33.6)',
+    begrunnelse_utsatt: 'begrunnelse for utsettelse (§33.6.2 b)',
+  };
+  return labels[varselType] || varselType;
+}
+
+export function getPreklusjonParagraf(varselType?: FristVarselType): string {
+  switch (varselType) {
+    case 'varsel':
+      return '§33.4';
+    default:
+      return '§33.6';
+  }
+}
+
+// ============================================================================
 // SECTION GENERATORS
 // ============================================================================
 
@@ -118,8 +141,19 @@ function generateFristBeregningSection(
   input: FristResponseInput,
   options: BegrunnelseGeneratorOptions = {}
 ): string {
-  const { krevdDager, godkjentDager, erPrekludert, vilkarOppfylt, erGrunnlagSubsidiaer } = input;
+  const {
+    krevdDager,
+    godkjentDager,
+    erPrekludert,
+    vilkarOppfylt,
+    varselType,
+    erGrunnlagSubsidiaer,
+  } = input;
   const { useTokens = false } = options;
+
+  if (varselType === 'varsel' && krevdDager === 0) {
+    return '';
+  }
 
   const erSubsidiaer = erPrekludert || !vilkarOppfylt || erGrunnlagSubsidiaer;
   const prefix = erSubsidiaer
@@ -148,9 +182,15 @@ function generateFristKonklusjonSection(
   input: FristResponseInput,
   options: BegrunnelseGeneratorOptions = {}
 ): string {
-  const { krevdDager, godkjentDager, prinsipaltResultat, visSubsidiaertResultat } = input;
+  const { krevdDager, godkjentDager, prinsipaltResultat, visSubsidiaertResultat, varselType } =
+    input;
   const { useTokens = false } = options;
   const lines: string[] = [];
+
+  if (varselType === 'varsel' && krevdDager === 0) {
+    lines.push('Antall dager kan først vurderes når entreprenøren spesifiserer kravet.');
+    return lines.join(' ');
+  }
 
   const fmtKrevd = formatDager(krevdDager, useTokens);
   const fmtGodkjent = formatDager(godkjentDager, useTokens);
@@ -211,6 +251,16 @@ export function generateFristResponseBegrunnelse(
   options: BegrunnelseGeneratorOptions = {}
 ): string {
   const sections: string[] = [];
+
+  if (input.varselType === 'begrunnelse_utsatt') {
+    return (
+      'Byggherren bekrefter mottak av begrunnelse for hvorfor grunnlaget for å beregne ' +
+      'fristforlengelseskravet ikke foreligger (§33.6.2 annet ledd bokstav b).\n\n' +
+      'I henhold til §33.6.2 femte ledd gjelder bestemmelsen i §33.6.1 videre. ' +
+      'Entreprenøren må fremsette spesifisert krav med antall dager «uten ugrunnet opphold» ' +
+      'når grunnlaget for å beregne kravet foreligger.'
+    );
+  }
 
   if (input.erGrunnlagPrekludert) {
     sections.push(

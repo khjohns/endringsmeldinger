@@ -130,6 +130,7 @@ describe('fristsporet med null fra API-et (#181)', () => {
   it('et foreløpig varsel uten dager gir 0 krevde dager', () => {
     const config = deriveFristDomainConfig(fristFraApi({ varsel_type: 'varsel' }));
     expect(config.krevdDager).toBe(0);
+    expect(beregnVisibility({ fristVarselOk: undefined }, config).showFristVarselOk).toBe(true);
   });
 });
 

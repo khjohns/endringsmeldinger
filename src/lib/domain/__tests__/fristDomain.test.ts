@@ -85,6 +85,11 @@ describe('getDefaults', () => {
 // ============================================================================
 
 describe('beregnVisibility', () => {
+  it('shows fristVarselOk for varsel type', () => {
+    const vis = beregnVisibility(makeState(), makeConfig({ varselType: 'varsel' }));
+    expect(vis.showFristVarselOk).toBe(true);
+  });
+
   it('shows fristVarselOk for spesifisert without prior varsel', () => {
     const vis = beregnVisibility(
       makeState(),
@@ -106,6 +111,11 @@ describe('beregnVisibility', () => {
     expect(vis.showSpesifisertKravOk).toBe(true);
   });
 
+  it('hides spesifisertKravOk for varsel type', () => {
+    const vis = beregnVisibility(makeState(), makeConfig({ varselType: 'varsel' }));
+    expect(vis.showSpesifisertKravOk).toBe(false);
+  });
+
   it('hides spesifisertKravOk when svar pa foresporsel', () => {
     const vis = beregnVisibility(
       makeState(),
@@ -117,6 +127,13 @@ describe('beregnVisibility', () => {
   it('shows foresporselSvarOk when svar pa foresporsel', () => {
     const vis = beregnVisibility(makeState(), makeConfig({ erSvarPaForesporsel: true }));
     expect(vis.showForesporselSvarOk).toBe(true);
+  });
+
+  it('hides all controls for begrunnelse_utsatt', () => {
+    const vis = beregnVisibility(makeState(), makeConfig({ varselType: 'begrunnelse_utsatt' }));
+    expect(vis.showFristVarselOk).toBe(false);
+    expect(vis.showSpesifisertKravOk).toBe(false);
+    expect(vis.showForesporselSvarOk).toBe(false);
   });
 });
 
@@ -158,6 +175,18 @@ describe('innsigelse og forespørsel før spesifiseringen', () => {
 });
 
 describe('beregnPreklusjon', () => {
+  it('returns true for varsel when fristVarselOk is false', () => {
+    expect(
+      beregnPreklusjon(makeState({ fristVarselOk: false }), makeConfig({ varselType: 'varsel' }))
+    ).toBe(true);
+  });
+
+  it('returns false for varsel when fristVarselOk is true', () => {
+    expect(
+      beregnPreklusjon(makeState({ fristVarselOk: true }), makeConfig({ varselType: 'varsel' }))
+    ).toBe(false);
+  });
+
   it('returns true for spesifisert without prior varsel when fristVarselOk is false', () => {
     expect(
       beregnPreklusjon(
@@ -183,6 +212,15 @@ describe('beregnPreklusjon', () => {
         makeConfig({ erSvarPaForesporsel: true })
       )
     ).toBe(true);
+  });
+
+  it('returns false for begrunnelse_utsatt', () => {
+    expect(
+      beregnPreklusjon(
+        makeState({ fristVarselOk: false }),
+        makeConfig({ varselType: 'begrunnelse_utsatt' })
+      )
+    ).toBe(false);
   });
 });
 
@@ -225,6 +263,10 @@ describe('beregnReduksjon', () => {
         makeConfig({ varselType: 'spesifisert', erSvarPaForesporsel: true })
       )
     ).toBe(false);
+  });
+
+  it('returns false for varsel type', () => {
+    expect(beregnReduksjon(makeState(), makeConfig({ varselType: 'varsel' }))).toBe(false);
   });
 });
 
@@ -606,7 +648,7 @@ describe('beregnAlt', () => {
 
   it('reflects preclusion in all derived values', () => {
     const state = makeState({ fristVarselOk: false });
-    const config = makeConfig({ varselType: 'spesifisert', harTidligereVarselITide: false });
+    const config = makeConfig({ varselType: 'varsel' });
     const computed = beregnAlt(state, config);
 
     expect(computed.erPrekludert).toBe(true);
