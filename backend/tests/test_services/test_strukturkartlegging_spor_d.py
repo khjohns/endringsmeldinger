@@ -30,6 +30,8 @@ from models.events import (
     VederlagEvent,
     VederlagResponsData,
     VederlagsMetode,
+    WithdrawalData,
+    WithdrawalEvent,
 )
 from regler import REGELVERSJON
 from regler.frist import Fristkrav, Fristvurdering, beregn_frist
@@ -304,6 +306,36 @@ def test_oppdatert_krav_etter_aksept_opphever_aksepten():
     sak = forlop.state
     assert sak.vederlag.te_akseptert is False
     assert sak.vederlag.status == SporStatus.SENDT
+
+
+@pytest.mark.xfail(
+    strict=True,
+    raises=AssertionError,
+    reason="SK-02: et trukket krav kan oppdateres, og sporet står som TRUKKET",
+)
+def test_trukket_krav_kan_ikke_oppdateres():
+    """Vedtak 05.10 (oppdragsgiver, hovedplanen 3.1): et krav TE har trukket,
+    kan ikke tas opp igjen med en oppdatering. Kontrollsaken er samme
+    oppdatering uten tilbaketrekking, som skal godtas."""
+    forlop = Forlop()
+    forlop.grunnlag("EO")
+    forlop.legg_til(forlop.vederlagskrav(100000.0))
+    forlop.fristkrav(20)
+    if not forlop.valider(forlop.vederlagskrav(50000.0, oppdatert=True)).is_valid:
+        pytest.fail("Kontrollsak: oppdateringen avvises også uten tilbaketrekking")
+
+    forlop.legg_til(
+        WithdrawalEvent(
+            sak_id=SAK,
+            aktor_id="te",
+            aktor_rolle="TE",
+            event_type=EventType.VEDERLAG_KRAV_TRUKKET,
+            data=WithdrawalData(),
+        )
+    )
+    if forlop.state.vederlag.status != SporStatus.TRUKKET:
+        pytest.fail("Forutsetning: vederlagskravet er ikke trukket")
+    assert not forlop.valider(forlop.vederlagskrav(50000.0, oppdatert=True)).is_valid
 
 
 @pytest.mark.xfail(
