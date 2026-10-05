@@ -358,30 +358,18 @@ describe('beregnPrinsipaltResultat', () => {
 // ============================================================================
 
 describe('beregnSubsidiaertResultat', () => {
-  it('returns godkjent when hindring and full days', () => {
+  it('returns godkjent for full days', () => {
     expect(
       beregnSubsidiaertResultat({
-        harHindring: true,
         krevdDager: 10,
         godkjentDager: 10,
       })
     ).toBe('godkjent');
   });
 
-  it('returns avslatt when no hindring (ignores preclusion)', () => {
-    expect(
-      beregnSubsidiaertResultat({
-        harHindring: false,
-        krevdDager: 10,
-        godkjentDager: 10,
-      })
-    ).toBe('avslatt');
-  });
-
   it('returns delvis_godkjent when partial days', () => {
     expect(
       beregnSubsidiaertResultat({
-        harHindring: true,
         krevdDager: 10,
         godkjentDager: 5,
       })
@@ -391,7 +379,6 @@ describe('beregnSubsidiaertResultat', () => {
   it('returns delvis_godkjent at 199 of 200 days', () => {
     expect(
       beregnSubsidiaertResultat({
-        harHindring: true,
         krevdDager: 200,
         godkjentDager: 199,
       })
@@ -401,7 +388,6 @@ describe('beregnSubsidiaertResultat', () => {
   it('returns avslatt for 0 days', () => {
     expect(
       beregnSubsidiaertResultat({
-        harHindring: true,
         krevdDager: 10,
         godkjentDager: 0,
       })
@@ -411,7 +397,6 @@ describe('beregnSubsidiaertResultat', () => {
   it('returns godkjent when krevdDager is 0', () => {
     expect(
       beregnSubsidiaertResultat({
-        harHindring: true,
         krevdDager: 0,
         godkjentDager: 0,
       })
@@ -644,6 +629,21 @@ describe('beregnAlt', () => {
     expect(computed.prinsipaltResultat).toBe('avslatt');
     expect(computed.visSubsidiaertResultat).toBe(false);
     expect(computed.subsidiaerTriggers).toEqual([]);
+  });
+
+  it('keeps the days as a further subsidiary standpoint without hindring (#211)', () => {
+    const state = makeState({ fristVarselOk: false, vilkarOppfylt: false, godkjentDager: 30 });
+    const config = makeConfig({ krevdDager: 45 });
+    const computed = beregnAlt(state, config);
+
+    expect(computed.prinsipaltResultat).toBe('avslatt');
+    expect(computed.subsidiaertResultat).toBe('delvis_godkjent');
+    expect(computed.subsidiaerTriggers).toEqual(['preklusjon_varsel', 'ingen_hindring']);
+
+    const data = buildEventData(state, config, computed, 'frist-1', 'auto-tekst');
+    expect(data.godkjent_dager).toBe(0);
+    expect(data.subsidiaer_resultat).toBe('delvis_godkjent');
+    expect(data.subsidiaer_godkjent_dager).toBe(30);
   });
 
   it('reflects preclusion in all derived values', () => {

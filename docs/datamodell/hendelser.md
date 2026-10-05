@@ -707,7 +707,6 @@ Feltene i `data`:
 | `godkjent_dager` | heltall | nei | Godkjent antall dager. Innvilges kun hvis Grunnlag også godkjennes. |
 | `ny_sluttdato` | tekst | nei | BH-godkjent ny sluttdato (YYYY-MM-DD) |
 | `begrunnelse` | tekst | nei | Samlet begrunnelse |
-| `frist_for_spesifisering` | tekst | nei | Frist for TE å levere ytterligere spesifikasjon/fremdriftsplan (YYYY-MM-DD) |
 | `subsidiaer_triggers` | liste av SubsidiaerTrigger | nei | Liste over årsaker til subsidiær vurdering |
 | `subsidiaer_resultat` | FristBeregningResultat | nei | Subsidiært beregningsresultat |
 | `subsidiaer_godkjent_dager` | heltall | nei | Subsidiært godkjent antall dager |
@@ -754,7 +753,6 @@ Feltene i `data`:
 | `godkjent_dager` | heltall | nei | Godkjent antall dager. Innvilges kun hvis Grunnlag også godkjennes. |
 | `ny_sluttdato` | tekst | nei | BH-godkjent ny sluttdato (YYYY-MM-DD) |
 | `begrunnelse` | tekst | nei | Samlet begrunnelse |
-| `frist_for_spesifisering` | tekst | nei | Frist for TE å levere ytterligere spesifikasjon/fremdriftsplan (YYYY-MM-DD) |
 | `subsidiaer_triggers` | liste av SubsidiaerTrigger | nei | Liste over årsaker til subsidiær vurdering |
 | `subsidiaer_resultat` | FristBeregningResultat | nei | Subsidiært beregningsresultat |
 | `subsidiaer_godkjent_dager` | heltall | nei | Subsidiært godkjent antall dager |
