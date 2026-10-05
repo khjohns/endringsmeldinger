@@ -4,6 +4,7 @@ import {
   assessedGap,
   bhStandpunkt,
   grunnlagTriggers,
+  grunnlagetErPrekludert,
   svaretErSubsidiaert,
   deriveVederlagDomainConfig,
   deriveFristDomainConfig,
@@ -130,6 +131,40 @@ describe('svar på vederlag og frist når ansvarsgrunnlaget er avslått eller pr
     expect(vederlag.bhPrinsipal).toBe(0);
     expect(vederlag.bhSubsidiaer).toBe(500000);
     expect(grunnlagTriggers(sak, 'frist')).toEqual(['grunnlag_prekludert_32_2']);
+  });
+
+  it('skiller preklusjon fra avslag på grunnlagslinjen (#236)', () => {
+    const sak = sakMedGodkjentBelopOgDager();
+    sak.grunnlag.hovedkategori = 'ENDRING';
+    sak.grunnlag.underkategori = 'IRREG';
+    sak.grunnlag.grunnlag_varslet_i_tide = false;
+
+    for (const resultat of ['godkjent', 'avslatt'] as const) {
+      sak.grunnlag.bh_resultat = resultat;
+      const ansvar = deriveTrackDisplay(sak, 'ansvar');
+      expect(ansvar.bhPosition).toBe('Prekludert (§ 32.2)');
+      expect(ansvar.isDisputed).toBe(true);
+      expect(ansvar.isPrecluded).toBe(true);
+      expect(grunnlagetErPrekludert(sak)).toBe(true);
+    }
+
+    sak.grunnlag.grunnlag_varslet_i_tide = true;
+    sak.grunnlag.bh_resultat = 'avslatt';
+    const avslatt = deriveTrackDisplay(sak, 'ansvar');
+    expect(avslatt.bhPosition).toBe(GRUNNLAG_RESULTAT_LABELS.avslatt);
+    expect(avslatt.isDisputed).toBe(true);
+    expect(avslatt.isPrecluded).toBe(false);
+    expect(grunnlagetErPrekludert(sak)).toBe(false);
+  });
+
+  it('regner ikke grunnlaget som prekludert før byggherren har svart', () => {
+    const sak = sakMedGodkjentBelopOgDager();
+    sak.grunnlag.hovedkategori = 'ENDRING';
+    sak.grunnlag.underkategori = 'IRREG';
+    sak.grunnlag.grunnlag_varslet_i_tide = false;
+    sak.grunnlag.bh_resultat = undefined;
+    expect(grunnlagetErPrekludert(sak)).toBe(false);
+    expect(deriveTrackDisplay(sak, 'ansvar').isDisputed).toBe(false);
   });
 
   it('følger serverfeltet og viser «Godkjent» når grunnlaget står', () => {
