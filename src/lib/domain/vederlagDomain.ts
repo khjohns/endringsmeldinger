@@ -8,6 +8,7 @@ import type {
   SubsidiaerTrigger,
 } from '../types/timeline';
 import { REGELVERSJON } from './regelversjon';
+import { erEndringMed32_2 } from './grunnlagDomain';
 
 export type BelopVurdering = 'godkjent' | 'delvis' | 'avslatt';
 
@@ -52,6 +53,7 @@ export interface VederlagDomainConfig {
   kreverJustertEp: boolean;
   kostnadsOverslag?: number;
   hovedkategori?: 'ENDRING' | 'SVIKT' | 'ANDRE' | 'FORCE_MAJEURE';
+  underkategori?: string;
   grunnlagVarsletForSent: boolean;
   grunnlagStatus?: 'godkjent' | 'avslatt' | 'frafalt';
 }
@@ -157,13 +159,13 @@ export function har34_1_2Preklusjon(config: Pick<VederlagDomainConfig, 'hovedkat
 }
 
 /**
- * §32.2: Når BH har påberopt at grunnlagsvarselet kom for sent (ENDRING-kategori),
- * er hele vederlagskravet automatisk subsidiært.
+ * §32.2: Når BH har påberopt at grunnlagsvarselet kom for sent (endring som ikke er
+ * formell endringsordre), er hele vederlagskravet automatisk subsidiært.
  */
 export function erHelVederlagSubsidiaerPgaGrunnlag(
-  config: Pick<VederlagDomainConfig, 'hovedkategori' | 'grunnlagVarsletForSent'>
+  config: Pick<VederlagDomainConfig, 'hovedkategori' | 'underkategori' | 'grunnlagVarsletForSent'>
 ): boolean {
-  return config.hovedkategori === 'ENDRING' && config.grunnlagVarsletForSent === true;
+  return erEndringMed32_2(config) && config.grunnlagVarsletForSent === true;
 }
 
 /**
@@ -172,7 +174,10 @@ export function erHelVederlagSubsidiaerPgaGrunnlag(
  * 2. Grunnlag er prekludert pga §32.2
  */
 export function erSubsidiaer(
-  config: Pick<VederlagDomainConfig, 'grunnlagStatus' | 'hovedkategori' | 'grunnlagVarsletForSent'>
+  config: Pick<
+    VederlagDomainConfig,
+    'grunnlagStatus' | 'hovedkategori' | 'underkategori' | 'grunnlagVarsletForSent'
+  >
 ): boolean {
   return config.grunnlagStatus === 'avslatt' || erHelVederlagSubsidiaerPgaGrunnlag(config);
 }

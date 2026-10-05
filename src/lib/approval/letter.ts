@@ -1,5 +1,6 @@
 import type { LetterDocument, ReviewItem } from './types';
 import { trackNames } from './types';
+import { erGrunnlagetSubsidiaert } from '$lib/domain/grunnlagDomain';
 import type { BrevInnhold } from '$lib/components/kontraktsbord/letterTypes';
 
 /** Plain text is shared by the on-screen document and PDF; no executable HTML. */
@@ -24,39 +25,51 @@ export function letterText(value: unknown): string {
 }
 const money = (value: unknown) =>
   typeof value === 'number' ? `${value.toLocaleString('nb-NO')} kr` : undefined;
+const resultater: Record<string, string> = {
+  godkjent: 'Godkjent',
+  delvis_godkjent: 'Delvis godkjent',
+  avslatt: 'Avslått',
+  frafalt: 'Innsigelsen er frafalt',
+  foresporsel: 'Ber om spesifisert krav',
+  hold_tilbake: 'Holdes tilbake (§30.2)',
+};
+const resultatTekst = (value: unknown) =>
+  resultater[String(value)] ?? (value == null ? '' : String(value));
+/**
+ * Hele svaret er subsidiært. Et subsidiært standpunkt i svaret selv, for eksempel ved
+ * preklusjon etter § 33.4, står etter det som atter subsidiært.
+ */
+function subsidiaertVedAvslattGrunnlag(item: ReviewItem): string[] {
+  const d = item.data;
+  const vederlag = item.track === 'vederlag';
+  const standpunkt = (prefiks: string, result: unknown, value: unknown) => {
+    const text = `${prefiks} ${resultatTekst(result).toLowerCase()}`.trimEnd();
+    if (typeof value !== 'number') return text;
+    return `${text}: ${vederlag ? money(value) : `${value} dager`}`;
+  };
+  const parts = [
+    standpunkt(
+      'Subsidiært',
+      d.beregnings_resultat,
+      vederlag ? (d.total_godkjent_belop ?? d.godkjent_belop) : d.godkjent_dager
+    ),
+  ];
+  const subsidiaer = vederlag ? d.subsidiaer_godkjent_belop : d.subsidiaer_godkjent_dager;
+  if (subsidiaer != null)
+    parts.push(standpunkt('Atter subsidiært', d.subsidiaer_resultat, subsidiaer));
+  return parts;
+}
 export function decisionSummary(item: ReviewItem): string {
   const d = item.data;
-  const groundRejected =
-    item.track !== 'grunnlag' &&
-    (item.basis?.resultat === 'avslatt' ||
-      (item.basis?.hovedkategori === 'ENDRING' && item.basis.varsletITide === false));
-  const result = groundRejected
-    ? 'Prinsipalt avslått'
-    : ((
-        {
-          godkjent: 'Godkjent',
-          delvis_godkjent: 'Delvis godkjent',
-          avslatt: 'Avslått',
-          frafalt: 'Innsigelsen er frafalt',
-          foresporsel: 'Ber om spesifisert krav',
-        } as Record<string, string>
-      )[String(d.resultat ?? d.beregnings_resultat)] ??
-      String(d.resultat ?? d.beregnings_resultat ?? ''));
+  if (item.track !== 'grunnlag' && item.basis && erGrunnlagetSubsidiaert(item.basis)) {
+    return ['Prinsipalt avslått (ansvarsgrunnlaget)', ...subsidiaertVedAvslattGrunnlag(item)].join(
+      ' · '
+    );
+  }
   return [
-    result,
-    item.track === 'vederlag' &&
-      money(groundRejected ? 0 : (d.total_godkjent_belop ?? d.godkjent_belop)),
-    item.track === 'frist' &&
-      typeof d.godkjent_dager === 'number' &&
-      `${groundRejected ? 0 : d.godkjent_dager} dager`,
-    groundRejected &&
-      item.track === 'vederlag' &&
-      d.subsidiaer_godkjent_belop === undefined &&
-      `Subsidiært: ${money(d.total_godkjent_belop ?? d.godkjent_belop)}`,
-    groundRejected &&
-      item.track === 'frist' &&
-      d.subsidiaer_godkjent_dager === undefined &&
-      `Subsidiært: ${d.godkjent_dager} dager`,
+    resultatTekst(d.resultat ?? d.beregnings_resultat),
+    item.track === 'vederlag' && money(d.total_godkjent_belop ?? d.godkjent_belop),
+    item.track === 'frist' && typeof d.godkjent_dager === 'number' && `${d.godkjent_dager} dager`,
     typeof d.subsidiaer_godkjent_belop === 'number' &&
       `Subsidiært: ${money(d.subsidiaer_godkjent_belop)}`,
     typeof d.subsidiaer_godkjent_dager === 'number' &&

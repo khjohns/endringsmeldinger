@@ -1,4 +1,5 @@
 import type { SporStatus } from '$lib/types/timeline';
+import { erGrunnlagetSubsidiaert } from '$lib/domain/grunnlagDomain';
 import type { Krav, ReviewItem } from './types';
 
 /** User-provided matrix: endring i kontrakt, januar 2026. All limits are NOK. */
@@ -74,9 +75,7 @@ export function calculateAuthority(items: ReviewItem[], dailyRate: number | null
     .filter((item) => item.track !== 'grunnlag')
     .map((item) => {
       const d = item.data;
-      const rejected =
-        item.basis?.resultat === 'avslatt' ||
-        (item.basis?.hovedkategori === 'ENDRING' && item.basis.varsletITide === false);
+      const rejected = !!item.basis && erGrunnlagetSubsidiaert(item.basis);
       const assessed = number(
         item.track === 'vederlag' ? (d.total_godkjent_belop ?? d.godkjent_belop) : d.godkjent_dager
       );

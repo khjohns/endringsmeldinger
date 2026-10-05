@@ -1,6 +1,9 @@
+
+from decimal import Decimal
+
 import pytest
 
-from services.approval_authority import validate_authority
+from services.approval_authority import exposure, validate_authority
 
 CHAIN = [{"role": "Prosjektleder"}]
 
@@ -185,3 +188,19 @@ def test_krav_fra_tilstand():
         "vederlag": None,
         "frist": None,
     }
+
+
+@pytest.mark.parametrize(
+    ("underkategori", "forventet"),
+    [("EO", Decimal(300000)), ("IRREG", Decimal(100000)), (None, Decimal(100000))],
+)
+def test_32_2_gjelder_bare_endring_uten_formell_endringsordre(underkategori, forventet):
+    item = money(300000, 100000) | {
+        "basis": {
+            "resultat": "godkjent",
+            "varsletITide": False,
+            "hovedkategori": "ENDRING",
+            "underkategori": underkategori,
+        }
+    }
+    assert exposure([item])[0] == forventet

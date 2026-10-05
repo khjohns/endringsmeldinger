@@ -2,6 +2,8 @@
 
 from decimal import Decimal, InvalidOperation
 
+from regler.grunnlag import er_grunnlag_subsidiaert
+
 LIMITS = {
     "Prosjektleder": Decimal("200000"),
     "Prosjektdirektør": Decimal("500000"),
@@ -36,6 +38,15 @@ def _dager_i_kroner(dager, daily_rate):
             "Fullmakt kan ikke beregnes: dagmulktssats må konfigureres på serveren."
         )
     return dager * rate
+
+
+def grunnlag_er_subsidiaert(basis):
+    return er_grunnlag_subsidiaert(
+        basis.get("resultat"),
+        basis.get("hovedkategori"),
+        basis.get("underkategori"),
+        basis.get("varsletITide"),
+    )
 
 
 def exposure(items, daily_rate=None, krav=None):
@@ -85,10 +96,7 @@ def exposure(items, daily_rate=None, krav=None):
             "subsidiaer_godkjent_dager" if time else "subsidiaer_godkjent_belop"
         )
         other = assessed if other is None else number(other)
-        rejected = basis.get("resultat") == "avslatt" or (
-            basis.get("hovedkategori") == "ENDRING"
-            and basis.get("varsletITide") is False
-        )
+        rejected = grunnlag_er_subsidiaert(basis)
         main = Decimal(0) if rejected else assessed
         if time and max(main, other) > 0:
             needs_rate = True

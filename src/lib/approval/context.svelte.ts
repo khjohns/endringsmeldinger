@@ -8,6 +8,7 @@ import { apiFetch, ApiError } from '$lib/api/client';
 import type { CaseWorkspace } from '$lib/kontraktsbord/context.svelte';
 import { submissionRefs } from '$lib/kontraktsbord/submission.svelte';
 import type { EventType, SporType } from '$lib/types/timeline';
+import { forsteUnderkategori } from '$lib/domain/grunnlagDomain';
 import { kravFraSak } from './authority';
 import { transition, type ApprovalCommand } from './domain';
 import {
@@ -245,6 +246,7 @@ export function createApprovalWorkspace(store: CaseWorkspace) {
             resultat: effectiveGrunnlag.bh_resultat ?? null,
             varsletITide: effectiveGrunnlag.grunnlag_varslet_i_tide ?? null,
             hovedkategori: effectiveGrunnlag.hovedkategori ?? null,
+            underkategori: forsteUnderkategori(effectiveGrunnlag.underkategori) ?? null,
           },
           status: 'ferdigstilt',
           owner: actor,

@@ -7,7 +7,11 @@
 import type { SakState } from '$lib/types/timeline';
 import type { VederlagDomainConfig } from './vederlagDomain';
 import type { FristDomainConfig } from './fristDomain';
-import type { GrunnlagDomainConfig } from './grunnlagDomain';
+import {
+  erPrekludertEtter32_2,
+  forsteUnderkategori,
+  type GrunnlagDomainConfig,
+} from './grunnlagDomain';
 
 /**
  * Avleder VederlagDomainConfig fra SakState.
@@ -18,6 +22,11 @@ import type { GrunnlagDomainConfig } from './grunnlagDomain';
 export function deriveVederlagDomainConfig(sak: SakState): VederlagDomainConfig {
   const v = sak.vederlag;
   const g = sak.grunnlag;
+  const prekludert = erPrekludertEtter32_2({
+    hovedkategori: g.hovedkategori,
+    underkategori: g.underkategori,
+    varsletITide: g.grunnlag_varslet_i_tide,
+  });
   return {
     metode: v.metode,
     hovedkravBelop:
@@ -32,7 +41,8 @@ export function deriveVederlagDomainConfig(sak: SakState): VederlagDomainConfig 
     kreverJustertEp: v.krever_justert_ep ?? false,
     kostnadsOverslag: v.kostnads_overslag,
     hovedkategori: g.hovedkategori as VederlagDomainConfig['hovedkategori'],
-    grunnlagVarsletForSent: g.grunnlag_varslet_i_tide === false,
+    underkategori: forsteUnderkategori(g.underkategori),
+    grunnlagVarsletForSent: prekludert,
     grunnlagStatus: g.bh_resultat as VederlagDomainConfig['grunnlagStatus'],
   };
 }
@@ -57,7 +67,11 @@ export function deriveFristDomainConfig(sak: SakState): FristDomainConfig {
       f.frist_varsel_ok === true ||
       (typeof f.bh_respondert_versjon === 'number' && f.frist_varsel_ok !== false),
     erGrunnlagSubsidiaer: g.bh_resultat === 'avslatt',
-    erHelFristSubsidiaerPgaGrunnlag: g.grunnlag_varslet_i_tide === false,
+    erHelFristSubsidiaerPgaGrunnlag: erPrekludertEtter32_2({
+      hovedkategori: g.hovedkategori,
+      underkategori: g.underkategori,
+      varsletITide: g.grunnlag_varslet_i_tide,
+    }),
   };
 }
 
@@ -72,7 +86,7 @@ export function deriveGrunnlagDomainConfig(sak: SakState): GrunnlagDomainConfig 
   return {
     grunnlagEvent: {
       hovedkategori: g.hovedkategori,
-      underkategori: Array.isArray(g.underkategori) ? g.underkategori[0] : g.underkategori,
+      underkategori: forsteUnderkategori(g.underkategori),
     },
     isUpdateMode: (g.bh_respondert_versjon ?? -1) >= 0,
     forrigeResultat: g.bh_resultat,

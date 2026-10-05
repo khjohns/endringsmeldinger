@@ -17,7 +17,7 @@ from models.events import (
 )
 from models.sak_state import SakState
 from regler import UgyldigVurdering, belop, til_krone
-from regler.grunnlag import er_endring_med_32_2, forste_underkategori
+from regler.grunnlag import er_grunnlag_subsidiaert, forste_underkategori
 
 NULL = Decimal("0.00")
 
@@ -137,9 +137,11 @@ def har_34_1_2_preklusjon(hovedkategori: str | None) -> bool:
 
 
 def er_hele_vederlaget_subsidiaert(krav: Vederlagskrav) -> bool:
-    return krav.grunnlag_resultat == GrunnlagResponsResultat.AVSLATT or (
-        er_endring_med_32_2(krav.hovedkategori, krav.underkategori)
-        and krav.grunnlag_varslet_i_tide is False
+    return er_grunnlag_subsidiaert(
+        krav.grunnlag_resultat,
+        krav.hovedkategori,
+        krav.underkategori,
+        krav.grunnlag_varslet_i_tide,
     )
 
 
