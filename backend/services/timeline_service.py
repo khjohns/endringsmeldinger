@@ -145,6 +145,12 @@ def _extract_vederlag_from_eo_data(vederlag: Any) -> tuple:
     return (oppgjorsform, kompensasjon_belop, fradrag_belop, er_estimat)
 
 
+def _underkategorier(underkategori: str | list[str] | None) -> set[str]:
+    if underkategori is None:
+        return set()
+    return {underkategori} if isinstance(underkategori, str) else set(underkategori)
+
+
 def _close_spor_for_reactive_eo(
     state: "SakState", data: Any, event: "EOUtstedtEvent"
 ) -> None:
@@ -352,6 +358,13 @@ class TimelineService:
     def _handle_grunnlag(self, state: SakState, event: GrunnlagEvent) -> SakState:
         """Håndterer GRUNNLAG_OPPRETTET og GRUNNLAG_OPPDATERT"""
         grunnlag = state.grunnlag
+        if (
+            event.event_type == EventType.GRUNNLAG_OPPDATERT
+            and grunnlag.bh_resultat is not None
+            and _underkategorier(event.data.underkategori)
+            != _underkategorier(grunnlag.underkategori)
+        ):
+            self._svaret_faller_bort(state)
 
         # Oppdater data
         grunnlag.tittel = event.data.tittel
@@ -390,6 +403,22 @@ class TimelineService:
             self._apply_konsekvensvarsler(state, event)
         state.grunnlag = grunnlag
         return state
+
+    @staticmethod
+    def _svaret_faller_bort(state: SakState) -> None:
+        """Ny underkategori krever nytt BH-svar (B-13, vedtak 05.10, #215)."""
+        grunnlag = state.grunnlag
+        if state._grunnlag_er_subsidiaert:
+            grunnlag.subsidiaert_til_nytt_svar = (
+                "prekludert" if state._grunnlag_er_prekludert else "avslatt"
+            )
+        grunnlag.bh_resultat = None
+        grunnlag.bh_begrunnelse = None
+        grunnlag.grunnlag_varslet_i_tide = None
+        grunnlag.laast = False
+        grunnlag.te_akseptert = False
+        grunnlag.respons_event_id = None
+        grunnlag.status = SporStatus.SENDT
 
     @staticmethod
     def _varsel_ved_innsending(event):
@@ -683,6 +712,7 @@ class TimelineService:
         grunnlag = state.grunnlag
 
         # Lagre BH respons
+        grunnlag.subsidiaert_til_nytt_svar = None
         grunnlag.bh_resultat = event.data.resultat
         grunnlag.bh_begrunnelse = event.data.begrunnelse
 
@@ -849,7 +879,6 @@ class TimelineService:
             [
                 "godkjent_dager",
                 "ny_sluttdato",
-                "frist_for_spesifisering",
             ],
         )
 
@@ -1082,8 +1111,10 @@ class TimelineService:
         """
         data = event.data
 
-        # Sett sakstype til ENDRINGSORDRE
-        state.sakstype = SaksType.ENDRINGSORDRE
+        # Sakstypen settes bare av sak_opprettet (DM-07, #233)
+        if state.sakstype != SaksType.ENDRINGSORDRE:
+            logger.warning(f"eo_opprettet i en {state.sakstype.value}-sak er ignorert")
+            return state
 
         # Initialiser endringsordre_data med basisinfo
         state.endringsordre_data = EndringsordreData(
