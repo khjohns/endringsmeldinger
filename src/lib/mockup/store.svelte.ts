@@ -18,8 +18,10 @@ import type { Draft } from '$lib/components/kontraktsbord/types';
 import { getPartsNavn } from '$lib/utils/partsNavn.js';
 import type {
   BelopVurdering,
+  FristBeregningResultat,
   FristVarselType,
   SubsidiaerTrigger,
+  VederlagBeregningResultat,
   VederlagsMetode,
 } from '$lib/types/timeline.js';
 
@@ -35,6 +37,7 @@ export interface VederlagSvarDetaljer {
   riggGodkjentBelop?: number;
   produktivitetVurdering?: BelopVurdering;
   produktivitetGodkjentBelop?: number;
+  subsidiaerResultat?: VederlagBeregningResultat;
   subsidiaerGodkjentBelop?: number;
   begrunnelse?: string;
 }
@@ -45,6 +48,7 @@ export interface FristSvarDetaljer {
   foresporselSvarOk?: boolean;
   vilkarOppfylt?: boolean;
   subsidiaerTriggers?: SubsidiaerTrigger[];
+  subsidiaerResultat?: FristBeregningResultat;
   subsidiaerGodkjentDager?: number;
   begrunnelse?: string;
 }
@@ -92,11 +96,14 @@ export function createDemoStore(initial: Scenario = DEFAULT_SCENARIO) {
     scenario.ui.ansvar.draft = null;
   }
 
-  function sendVederlagSvar(godkjentBelop: number, detaljer?: VederlagSvarDetaljer) {
+  function sendVederlagSvar(
+    resultat: VederlagBeregningResultat,
+    godkjentBelop: number,
+    detaljer?: VederlagSvarDetaljer
+  ) {
     const vederlag = scenario.sak.vederlag;
     const krevd = vederlag.krevd_belop ?? 0;
-    const resultat =
-      godkjentBelop >= krevd ? 'godkjent' : godkjentBelop > 0 ? 'delvis_godkjent' : 'avslatt';
+    const subsidiaerResultat = detaljer?.subsidiaerResultat;
     const teVersionCount = Math.max(
       vederlag.antall_versjoner,
       scenario.timeline.filter((event) => event.spor === 'vederlag' && event.actorrole === 'TE')
@@ -111,7 +118,9 @@ export function createDemoStore(initial: Scenario = DEFAULT_SCENARIO) {
     vederlag.godkjent_belop = godkjentBelop;
     vederlag.bh_begrunnelse = detaljer?.begrunnelse;
     vederlag.bh_respondert_versjon = respondertVersjon;
+    vederlag.subsidiaer_resultat = subsidiaerResultat;
     vederlag.subsidiaer_godkjent_belop = detaljer?.subsidiaerGodkjentBelop;
+    vederlag.har_subsidiaert_standpunkt = subsidiaerResultat !== undefined;
     vederlag.siste_event_id = eventId;
     vederlag.siste_oppdatert = now;
     scenario.ui.vederlag.draft = null;
@@ -126,7 +135,10 @@ export function createDemoStore(initial: Scenario = DEFAULT_SCENARIO) {
       actorrole: 'BH',
       actor: scenario.sak.byggherre ?? 'BH',
       spor: 'vederlag',
-      summary: `Byggherren ${resultat === 'godkjent' ? 'godkjente' : resultat === 'avslatt' ? 'avslo' : 'godkjente deler av'} kravet om vederlagsjustering`,
+      summary:
+        resultat === 'hold_tilbake'
+          ? 'Byggherren holdt tilbake betaling etter § 30.2'
+          : `Byggherren ${resultat === 'godkjent' ? 'godkjente' : resultat === 'avslatt' ? 'avslo' : 'godkjente deler av'} kravet om vederlagsjustering`,
       data: {
         respondert_versjon: respondertVersjon,
         hovedkrav_varslet_i_tide: detaljer?.hovedkravVarsletITide,
@@ -143,14 +155,7 @@ export function createDemoStore(initial: Scenario = DEFAULT_SCENARIO) {
         beregnings_resultat: resultat,
         total_godkjent_belop: godkjentBelop,
         total_krevd_belop: krevd,
-        subsidiaer_resultat:
-          detaljer?.subsidiaerGodkjentBelop === undefined
-            ? undefined
-            : detaljer.subsidiaerGodkjentBelop >= krevd
-              ? 'godkjent'
-              : detaljer.subsidiaerGodkjentBelop > 0
-                ? 'delvis_godkjent'
-                : 'avslatt',
+        subsidiaer_resultat: subsidiaerResultat,
         subsidiaer_godkjent_belop: detaljer?.subsidiaerGodkjentBelop,
         begrunnelse: detaljer?.begrunnelse,
       } as unknown as import('$lib/types/timeline').EventData,
@@ -176,11 +181,12 @@ export function createDemoStore(initial: Scenario = DEFAULT_SCENARIO) {
     frist.siste_oppdatert = now;
   }
 
-  function sendFristSvar(godkjentDager: number, detaljer?: FristSvarDetaljer) {
+  function sendFristSvar(
+    resultat: FristBeregningResultat,
+    godkjentDager: number,
+    detaljer?: FristSvarDetaljer
+  ) {
     const frist = scenario.sak.frist;
-    const krevd = frist.krevd_dager ?? 0;
-    const resultat =
-      godkjentDager >= krevd ? 'godkjent' : godkjentDager > 0 ? 'delvis_godkjent' : 'avslatt';
     const teVersionCount = Math.max(
       frist.antall_versjoner,
       scenario.timeline.filter((event) => event.spor === 'frist' && event.actorrole === 'TE')
@@ -190,14 +196,7 @@ export function createDemoStore(initial: Scenario = DEFAULT_SCENARIO) {
     const respondertVersjon = teVersionCount - 1;
     const now = new SvelteDate().toISOString();
     const eventId = `evt-frist-response-${Date.now()}`;
-    const subsidiaerResultat =
-      detaljer?.subsidiaerGodkjentDager === undefined
-        ? undefined
-        : detaljer.subsidiaerGodkjentDager >= krevd
-          ? 'godkjent'
-          : detaljer.subsidiaerGodkjentDager > 0
-            ? 'delvis_godkjent'
-            : 'avslatt';
+    const subsidiaerResultat = detaljer?.subsidiaerResultat;
 
     frist.frist_varsel_ok = detaljer?.fristVarselOk;
     frist.spesifisert_krav_ok = detaljer?.spesifisertKravOk;
@@ -478,15 +477,25 @@ export function createDemoStore(initial: Scenario = DEFAULT_SCENARIO) {
       if (item.track === 'grunnlag')
         sendGrunnlagSvar(d.resultat as 'godkjent' | 'avslatt' | 'frafalt');
       else if (item.track === 'vederlag')
-        sendVederlagSvar(Number(d.total_godkjent_belop ?? d.godkjent_belop ?? 0), {
-          begrunnelse: String(d.begrunnelse ?? ''),
-          subsidiaerGodkjentBelop: d.subsidiaer_godkjent_belop as number | undefined,
-        });
+        sendVederlagSvar(
+          d.beregnings_resultat as VederlagBeregningResultat,
+          Number(d.total_godkjent_belop ?? 0),
+          {
+            begrunnelse: String(d.begrunnelse ?? ''),
+            subsidiaerResultat: d.subsidiaer_resultat as VederlagBeregningResultat | undefined,
+            subsidiaerGodkjentBelop: d.subsidiaer_godkjent_belop as number | undefined,
+          }
+        );
       else
-        sendFristSvar(Number(d.godkjent_dager ?? 0), {
-          begrunnelse: String(d.begrunnelse ?? ''),
-          subsidiaerGodkjentDager: d.subsidiaer_godkjent_dager as number | undefined,
-        });
+        sendFristSvar(
+          d.beregnings_resultat as FristBeregningResultat,
+          Number(d.godkjent_dager ?? 0),
+          {
+            begrunnelse: String(d.begrunnelse ?? ''),
+            subsidiaerResultat: d.subsidiaer_resultat as FristBeregningResultat | undefined,
+            subsidiaerGodkjentDager: d.subsidiaer_godkjent_dager as number | undefined,
+          }
+        );
       scenario.timeline.splice(previousCount);
       scenario.timeline.push({
         specversion: '1.0',

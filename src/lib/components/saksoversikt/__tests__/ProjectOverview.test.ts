@@ -68,7 +68,7 @@ it('carries the selected role from the overview into a case and back', async () 
   await user.click(screen.getByLabelText('Demoverktøy'));
   expect(screen.getByRole('combobox', { name: 'Scenario' })).toBeVisible();
   const original = workspace.sak.vederlag.godkjent_belop;
-  workspace.sendVederlagSvar(123);
+  workspace.sendVederlagSvar('delvis_godkjent', 123);
   await user.click(screen.getByRole('button', { name: 'Nullstill eksempelsaken' }));
   expect(workspace.sak.vederlag.godkjent_belop).toBe(original);
   await user.keyboard('{Escape}');
