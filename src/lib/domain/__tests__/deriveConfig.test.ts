@@ -133,3 +133,24 @@ describe('fristsporet med null fra API-et (#181)', () => {
     expect(beregnVisibility({ fristVarselOk: undefined }, config).showFristVarselOk).toBe(true);
   });
 });
+
+describe('deriveFristDomainConfig — § 32.2 (#186)', () => {
+  it.each([
+    ['EO', false],
+    ['IRREG', true],
+  ])(
+    'hele fristen er subsidiær bare utenfor formell endringsordre (%s)',
+    (underkategori, forventet) => {
+      const sak: SakState = {
+        ...scenario1_3AktiveSpor,
+        grunnlag: {
+          ...scenario1_3AktiveSpor.grunnlag,
+          hovedkategori: 'ENDRING',
+          underkategori,
+          grunnlag_varslet_i_tide: false,
+        },
+      };
+      expect(deriveFristDomainConfig(sak).erHelFristSubsidiaerPgaGrunnlag).toBe(forventet);
+    }
+  );
+});

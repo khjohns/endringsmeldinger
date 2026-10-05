@@ -111,3 +111,28 @@ describe('fullmaktsgrunnlag januar 2026', () => {
     });
   });
 });
+
+describe('§ 32.2 i fullmakten (#186)', () => {
+  it.each([
+    ['EO', 300000],
+    ['IRREG', 100000],
+  ])('prekluderer bare endring uten formell endringsordre (%s)', (underkategori, forventet) => {
+    const result = calculateAuthority(
+      [
+        {
+          track: 'vederlag',
+          data: { total_godkjent_belop: 300000, subsidiaer_godkjent_belop: 100000 },
+          basis: {
+            claimId: 'g',
+            resultat: 'godkjent',
+            hovedkategori: 'ENDRING',
+            underkategori,
+            varsletITide: false,
+          },
+        } as unknown as ReviewItem,
+      ],
+      null
+    );
+    expect(result.amount).toBe(forventet);
+  });
+});

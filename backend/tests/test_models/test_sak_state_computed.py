@@ -13,6 +13,7 @@ import pytest
 
 from models.events import (
     FristBeregningResultat,
+    GrunnlagResponsResultat,
     SporStatus,
     VederlagBeregningResultat,
 )
@@ -340,6 +341,7 @@ class TestVisningsstatusVederlag:
             sakstype=SaksType.STANDARD,
             grunnlag=GrunnlagTilstand(
                 status=SporStatus.AVSLATT,
+                bh_resultat=GrunnlagResponsResultat.AVSLATT,
             ),
             vederlag=VederlagTilstand(
                 status=SporStatus.AVSLATT,  # Will be recalculated
@@ -357,6 +359,7 @@ class TestVisningsstatusVederlag:
             sakstype=SaksType.STANDARD,
             grunnlag=GrunnlagTilstand(
                 status=SporStatus.AVSLATT,
+                bh_resultat=GrunnlagResponsResultat.AVSLATT,
             ),
             vederlag=VederlagTilstand(
                 status=SporStatus.AVSLATT,
@@ -483,6 +486,7 @@ class TestVisningsstatusFrist:
             sakstype=SaksType.STANDARD,
             grunnlag=GrunnlagTilstand(
                 status=SporStatus.AVSLATT,
+                bh_resultat=GrunnlagResponsResultat.AVSLATT,
             ),
             frist=FristTilstand(
                 status=SporStatus.AVSLATT,
@@ -500,6 +504,7 @@ class TestVisningsstatusFrist:
             sakstype=SaksType.STANDARD,
             grunnlag=GrunnlagTilstand(
                 status=SporStatus.AVSLATT,
+                bh_resultat=GrunnlagResponsResultat.AVSLATT,
             ),
             frist=FristTilstand(
                 status=SporStatus.AVSLATT,
@@ -611,7 +616,10 @@ class TestErSubsidiaert:
         sak = SakState(
             sak_id="TEST",
             sakstype=SaksType.STANDARD,
-            grunnlag=GrunnlagTilstand(status=SporStatus.AVSLATT),
+            grunnlag=GrunnlagTilstand(
+                status=SporStatus.AVSLATT,
+                bh_resultat=GrunnlagResponsResultat.AVSLATT,
+            ),
             vederlag=VederlagTilstand(
                 status=SporStatus.DELVIS_GODKJENT,
                 bh_resultat=VederlagBeregningResultat.DELVIS_GODKJENT,
@@ -636,7 +644,10 @@ class TestErSubsidiaert:
         sak = SakState(
             sak_id="TEST",
             sakstype=SaksType.STANDARD,
-            grunnlag=GrunnlagTilstand(status=SporStatus.AVSLATT),
+            grunnlag=GrunnlagTilstand(
+                status=SporStatus.AVSLATT,
+                bh_resultat=GrunnlagResponsResultat.AVSLATT,
+            ),
             frist=FristTilstand(
                 bh_resultat=FristBeregningResultat.GODKJENT,
             ),

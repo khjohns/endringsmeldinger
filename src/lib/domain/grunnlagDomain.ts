@@ -67,6 +67,26 @@ export function erEndringMed32_2(event?: {
   return event?.hovedkategori === 'ENDRING' && event?.underkategori !== 'EO';
 }
 
+/** Hele vederlaget og hele fristen er subsidiære. Speiler `er_grunnlag_subsidiaert` i backend. */
+export function erGrunnlagetSubsidiaert(grunnlag: {
+  resultat?: string | null;
+  hovedkategori?: string | null;
+  underkategori?: string | string[] | null;
+  varsletITide?: boolean | null;
+}): boolean {
+  const underkategori = Array.isArray(grunnlag.underkategori)
+    ? grunnlag.underkategori[0]
+    : grunnlag.underkategori;
+  return (
+    grunnlag.resultat === 'avslatt' ||
+    (erEndringMed32_2({
+      hovedkategori: grunnlag.hovedkategori ?? undefined,
+      underkategori: underkategori ?? undefined,
+    }) &&
+      grunnlag.varsletITide === false)
+  );
+}
+
 export function erPaalegg(event?: { hovedkategori?: string; underkategori?: string }): boolean {
   return (
     event?.hovedkategori === 'ENDRING' &&

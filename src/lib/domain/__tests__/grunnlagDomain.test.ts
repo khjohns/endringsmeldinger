@@ -4,6 +4,7 @@ import {
   erEndringMed32_2,
   erPaalegg,
   erPrekludert,
+  erGrunnlagetSubsidiaert,
   beregnPassivitet,
   getVerdictOptions,
   buildEventData,
@@ -105,6 +106,46 @@ describe('erPaalegg', () => {
 // ============================================================================
 // erPrekludert
 // ============================================================================
+
+describe('erGrunnlagetSubsidiaert', () => {
+  it.each([
+    [{ resultat: 'avslatt', hovedkategori: 'SVIKT' }, true],
+    [
+      {
+        resultat: 'godkjent',
+        hovedkategori: 'ENDRING',
+        underkategori: 'IRREG',
+        varsletITide: false,
+      },
+      true,
+    ],
+    [
+      {
+        resultat: 'godkjent',
+        hovedkategori: 'ENDRING',
+        underkategori: ['IRREG'],
+        varsletITide: false,
+      },
+      true,
+    ],
+    [
+      { resultat: 'godkjent', hovedkategori: 'ENDRING', underkategori: 'EO', varsletITide: false },
+      false,
+    ],
+    [
+      {
+        resultat: 'godkjent',
+        hovedkategori: 'ENDRING',
+        underkategori: 'IRREG',
+        varsletITide: true,
+      },
+      false,
+    ],
+    [{ resultat: 'godkjent', hovedkategori: 'SVIKT', varsletITide: false }, false],
+  ])('%o gir %s', (grunnlag, forventet) => {
+    expect(erGrunnlagetSubsidiaert(grunnlag)).toBe(forventet);
+  });
+});
 
 describe('erPrekludert', () => {
   it('returns true for ENDRING when varsletITide is false', () => {

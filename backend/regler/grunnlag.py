@@ -30,6 +30,19 @@ def er_prekludert(
     return er_endring_med_32_2(hovedkategori, underkategori) and varslet_i_tide is False
 
 
+def er_grunnlag_subsidiaert(
+    resultat: GrunnlagResponsResultat | str | None,
+    hovedkategori: str | None,
+    underkategori: str | list[str] | None,
+    varslet_i_tide: bool | None,
+) -> bool:
+    """Hele vederlaget og hele fristen er subsidiære: ansvarsgrunnlaget er
+    avslått, eller prekludert etter § 32.2."""
+    return resultat == GrunnlagResponsResultat.AVSLATT or er_prekludert(
+        hovedkategori, forste_underkategori(underkategori), varslet_i_tide
+    )
+
+
 @dataclass(frozen=True)
 class Passivitet:
     dager_siden_varsel: int
