@@ -91,16 +91,27 @@ export function beregnVisibility(
   state: Pick<FristFormState, 'fristVarselOk'>,
   config: FristDomainConfig
 ): FristVisibilityFlags {
-  const erSpesifisert = config.varselType === 'spesifisert';
+  const erBegrunnelseUtsatt = config.varselType === 'begrunnelse_utsatt';
 
   const showFristVarselOk = (() => {
+    if (erBegrunnelseUtsatt) return false;
     if (config.erSvarPaForesporsel) return Boolean(config.harInnsigelseMotVarsel);
-    return erSpesifisert && !config.harTidligereVarselITide;
+    if (config.varselType === 'varsel') return true;
+    if (config.varselType === 'spesifisert') return !config.harTidligereVarselITide;
+    return false;
   })();
 
-  const showSpesifisertKravOk = erSpesifisert && !config.erSvarPaForesporsel;
+  const showSpesifisertKravOk = (() => {
+    if (erBegrunnelseUtsatt) return false;
+    if (config.varselType !== 'spesifisert') return false;
+    if (config.erSvarPaForesporsel) return false;
+    return true;
+  })();
 
-  const showForesporselSvarOk = config.erSvarPaForesporsel;
+  const showForesporselSvarOk = (() => {
+    if (erBegrunnelseUtsatt) return false;
+    return config.erSvarPaForesporsel;
+  })();
 
   return { showFristVarselOk, showSpesifisertKravOk, showForesporselSvarOk };
 }
@@ -111,6 +122,7 @@ export function beregnPreklusjon(
 ): boolean {
   const erForesporselSvarForSent = config.erSvarPaForesporsel && state.foresporselSvarOk === false;
   if (erForesporselSvarForSent) return true;
+  if (config.varselType === 'varsel') return state.fristVarselOk === false;
   if (config.varselType === 'spesifisert') {
     if (config.harTidligereVarselITide) return false;
     return state.fristVarselOk === false;
