@@ -878,6 +878,9 @@ def _endringsordrestatus(status: EOStatus) -> str:
     }[status]
 
 
+LUKKEDE_STATUSER = frozenset({"OMFORENT", "LUKKET", "LUKKET_TRUKKET", "LUKKET_AVSLATT"})
+
+
 class SakState(BaseModel):
     """
     Aggregert tilstand for en hel sak.
@@ -1165,6 +1168,8 @@ class SakState(BaseModel):
         - UNDER_BEHANDLING: BH har svart på minst ett spor
         - UNDER_FORHANDLING: BH har avslått/delvis godkjent noe
         - OMFORENT: Alle aktive spor er godkjent
+        - LUKKET_AVSLATT: TE har godtatt avslaget på grunnlaget, uansett
+          vederlag og frist (vedtak 05.10, #213)
         - LUKKET: Endringsordren er akseptert eller bestridt
 
         Forsering og endringsordre har ikke de tre sporene og følger egne
@@ -1189,6 +1194,9 @@ class SakState(BaseModel):
 
         if not aktive_statuser:
             return "INGEN_AKTIVE_SPOR"
+
+        if self.grunnlag.status == SporStatus.AVSLATT_AKSEPTERT:
+            return "LUKKET_AVSLATT"
 
         # UTKAST betyr «kan fortsatt sendes» og skal hindre OMFORENT.
         ferdig_statuser = {
@@ -1286,7 +1294,7 @@ class SakState(BaseModel):
         Foreslår neste handling basert på tilstand.
 
         Returnerer dict med:
-        - rolle: "TE" eller "BH"
+        - rolle: "TE", "BH" eller None når ingen handling venter
         - handling: beskrivelse av hva som bør gjøres
         - spor: hvilket spor handlingen gjelder (eller None)
         """
@@ -1300,6 +1308,9 @@ class SakState(BaseModel):
 
         if self.grunnlag.status == SporStatus.SENDT:
             return {"rolle": "BH", "handling": "Vurder grunnlag", "spor": "grunnlag"}
+
+        if self.grunnlag.status == SporStatus.AVSLATT_AKSEPTERT:
+            return {"rolle": None, "handling": "Ingen ventende handlinger", "spor": None}
 
         if self.grunnlag.status == SporStatus.AVSLATT:
             return {

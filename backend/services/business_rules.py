@@ -9,7 +9,7 @@ from collections.abc import Callable
 from dataclasses import dataclass
 
 from models.events import AnyEvent, EventType, ResponsEvent, SporStatus
-from models.sak_state import EOStatus, SakState, SaksType
+from models.sak_state import LUKKEDE_STATUSER, EOStatus, SakState, SaksType
 from regler import UgyldigVurdering
 from regler.sammenlikning import Avvik, FeilRegelversjon, kontroller_svar
 
@@ -205,8 +205,10 @@ class BusinessRuleValidator:
                 ("IS_FORSERING_CASE", self._rule_is_forsering_case),
             ],
             # ========== ENDRINGSORDRE RULES ==========
-            # EO opprettelse - ingen spesifikke regler utover rolle-sjekk
-            EventType.EO_OPPRETTET: [],
+            # En endringsordresak kan følge av en KOE-sak, ikke erstatte den (DM-07)
+            EventType.EO_OPPRETTET: [
+                ("IS_EO_CASE", self._rule_is_eo_case),
+            ],
             # EO KOE-håndtering - må være i ENDRINGSORDRE-sak
             EventType.EO_KOE_LAGT_TIL: [
                 ("IS_EO_CASE", self._rule_is_eo_case),
@@ -382,9 +384,7 @@ class BusinessRuleValidator:
         if event.event_type in eo_events:
             return ValidationResult(is_valid=True)
 
-        closed_statuses = {"OMFORENT", "LUKKET", "LUKKET_TRUKKET"}
-
-        if state.overordnet_status in closed_statuses:
+        if state.overordnet_status in LUKKEDE_STATUSER:
             # Allow only viewing, not modifications
             return ValidationResult(
                 is_valid=False, message="Saken er lukket og kan ikke endres"
