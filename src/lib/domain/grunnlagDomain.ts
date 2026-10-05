@@ -79,13 +79,20 @@ export function erGrunnlagetSubsidiaert(grunnlag: {
   underkategori?: string | string[] | null;
   varsletITide?: boolean | null;
 }): boolean {
+  return grunnlag.resultat === 'avslatt' || erPrekludertEtter32_2(grunnlag);
+}
+
+/** § 32.2: varslet for sent ved endring uten formell endringsordre. Speiler `er_prekludert`. */
+export function erPrekludertEtter32_2(grunnlag: {
+  hovedkategori?: string | null;
+  underkategori?: string | string[] | null;
+  varsletITide?: boolean | null;
+}): boolean {
   return (
-    grunnlag.resultat === 'avslatt' ||
-    (erEndringMed32_2({
+    erEndringMed32_2({
       hovedkategori: grunnlag.hovedkategori ?? undefined,
       underkategori: forsteUnderkategori(grunnlag.underkategori),
-    }) &&
-      grunnlag.varsletITide === false)
+    }) && grunnlag.varsletITide === false
   );
 }
 

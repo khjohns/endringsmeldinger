@@ -7,7 +7,11 @@
 import type { SakState } from '$lib/types/timeline';
 import type { VederlagDomainConfig } from './vederlagDomain';
 import type { FristDomainConfig } from './fristDomain';
-import { erEndringMed32_2, forsteUnderkategori, type GrunnlagDomainConfig } from './grunnlagDomain';
+import {
+  erPrekludertEtter32_2,
+  forsteUnderkategori,
+  type GrunnlagDomainConfig,
+} from './grunnlagDomain';
 
 /**
  * Avleder VederlagDomainConfig fra SakState.
@@ -18,6 +22,11 @@ import { erEndringMed32_2, forsteUnderkategori, type GrunnlagDomainConfig } from
 export function deriveVederlagDomainConfig(sak: SakState): VederlagDomainConfig {
   const v = sak.vederlag;
   const g = sak.grunnlag;
+  const prekludert = erPrekludertEtter32_2({
+    hovedkategori: g.hovedkategori,
+    underkategori: g.underkategori,
+    varsletITide: g.grunnlag_varslet_i_tide,
+  });
   return {
     metode: v.metode,
     hovedkravBelop:
@@ -33,12 +42,7 @@ export function deriveVederlagDomainConfig(sak: SakState): VederlagDomainConfig 
     kostnadsOverslag: v.kostnads_overslag,
     hovedkategori: g.hovedkategori as VederlagDomainConfig['hovedkategori'],
     underkategori: forsteUnderkategori(g.underkategori),
-    // § 32.2 gjelder bare endring uten formell endringsordre (B-13).
-    grunnlagVarsletForSent:
-      erEndringMed32_2({
-        hovedkategori: g.hovedkategori,
-        underkategori: forsteUnderkategori(g.underkategori),
-      }) && g.grunnlag_varslet_i_tide === false,
+    grunnlagVarsletForSent: prekludert,
     grunnlagStatus: g.bh_resultat as VederlagDomainConfig['grunnlagStatus'],
   };
 }
@@ -63,11 +67,11 @@ export function deriveFristDomainConfig(sak: SakState): FristDomainConfig {
       f.frist_varsel_ok === true ||
       (typeof f.bh_respondert_versjon === 'number' && f.frist_varsel_ok !== false),
     erGrunnlagSubsidiaer: g.bh_resultat === 'avslatt',
-    erHelFristSubsidiaerPgaGrunnlag:
-      erEndringMed32_2({
-        hovedkategori: g.hovedkategori,
-        underkategori: forsteUnderkategori(g.underkategori),
-      }) && g.grunnlag_varslet_i_tide === false,
+    erHelFristSubsidiaerPgaGrunnlag: erPrekludertEtter32_2({
+      hovedkategori: g.hovedkategori,
+      underkategori: g.underkategori,
+      varsletITide: g.grunnlag_varslet_i_tide,
+    }),
   };
 }
 

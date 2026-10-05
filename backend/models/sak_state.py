@@ -942,7 +942,8 @@ class SakState(BaseModel):
     # 1. Bruke disse computed fields for å detektere subsidiær godkjenning
     # 2. Vise kombinert status: "Avslått pga. ansvar (Subsidiært enighet om X kr/dager)"
     # 3. Ikke legge til logikk i Vederlag/Frist-komponenter som refererer til Grunnlag
-    # 4. La SakState være "sannheten" - ikke dupliser logikken i frontend
+    # 4. La SakState være "sannheten" for visningen. Skjemaet regner samme regel
+    #    med speilet `erGrunnlagetSubsidiaert` (grunnlagDomain.ts)
 
     @computed_field
     @property
