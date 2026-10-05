@@ -158,7 +158,22 @@ describe('svar på vederlag og frist når ansvarsgrunnlaget er avslått eller pr
     expect(vederlag.isDisputed).toBe(true);
     expect(vederlag.bhPrinsipal).toBe(0);
     expect(vederlag.bhSubsidiaer).toBe(0);
+    expect(vederlag.isSubsidiary).toBe(true);
     expect(grunnlagTriggers(sak, 'vederlag')).toEqual(['grunnlag_avslatt']);
+  });
+
+  it('gjør ikke vederlaget subsidiært ved frafall (§ 32.3 c), som serveren', () => {
+    const sak = sakMedGodkjentBelopOgDager();
+    sak.grunnlag.bh_resultat = 'frafalt';
+    sak.grunnlag.hovedkategori = 'ENDRING';
+    sak.grunnlag.underkategori = 'IRREG';
+    sak.grunnlag.grunnlag_varslet_i_tide = false;
+
+    const vederlag = deriveTrackDisplay(sak, 'vederlag');
+    expect(vederlag.isDisputed).toBe(false);
+    expect(vederlag.isSubsidiary).toBe(false);
+    expect(vederlag.bhPrinsipal).toBe(500000);
+    expect(grunnlagTriggers(sak, 'vederlag')).toEqual([]);
   });
 
   it('gjelder ikke før byggherren har svart på sporet', () => {
