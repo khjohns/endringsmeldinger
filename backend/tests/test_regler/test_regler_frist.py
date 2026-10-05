@@ -275,21 +275,17 @@ class TestSubsidiaertResultat:
     """fristDomain.test.ts › beregnSubsidiaertResultat."""
 
     @pytest.mark.parametrize(
-        ("hindring", "krevd", "godkjent", "forventet"),
+        ("krevd", "godkjent", "forventet"),
         [
-            (True, 10, 10, GODKJENT),  # 'returns godkjent when hindring and full days'
-            (False, 10, 10, AVSLATT),  # 'returns avslatt when no hindring (ignores preclusion)'
-            (True, 10, 5, DELVIS),  # 'returns delvis_godkjent when partial days'
-            (True, 0, 0, GODKJENT),  # 'returns godkjent when krevdDager is 0'
-            (True, 100, 99, DELVIS),  # Ingen TS-test. B-13 (3.1, 24.09)
-            (True, 10, 0, AVSLATT),  # Ingen TS-test. Oppdragsgiver 04.10
+            (10, 10, GODKJENT),  # 'returns godkjent for full days'
+            (10, 5, DELVIS),  # 'returns delvis_godkjent when partial days'
+            (200, 199, DELVIS),  # 'returns delvis_godkjent at 199 of 200 days'
+            (10, 0, AVSLATT),  # 'returns avslatt for 0 days'
+            (0, 0, GODKJENT),  # 'returns godkjent when krevdDager is 0'
         ],
     )
-    def test_resultat(self, hindring, krevd, godkjent, forventet):
-        assert (
-            subsidiaert_resultat(har_hindring=hindring, krevd_dager=krevd, godkjent_dager=godkjent)
-            == forventet
-        )
+    def test_resultat(self, krevd, godkjent, forventet):
+        assert subsidiaert_resultat(krevd_dager=krevd, godkjent_dager=godkjent) == forventet
 
 
 class TestSubsidiaerTriggers:
@@ -381,11 +377,31 @@ class TestBeregnFrist:
 
     def test_subsidiaert_avslatt_har_ingen_dager(self):
         # buildEventData: `subsidiaer_godkjent_dager` utelates når subsidiært er avslått.
-        r = beregn_frist(krav(), vurdering(vilkar_oppfylt=False))
+        r = beregn_frist(krav(), vurdering(vilkar_oppfylt=False, godkjent_dager=0))
         assert r.beregnings_resultat == AVSLATT
         assert r.subsidiaer_resultat == AVSLATT
         assert r.subsidiaer_godkjent_dager is None
         assert r.subsidiaer_triggers == (INGEN_HINDRING,)
+
+    def test_dagene_er_subsidiaert_standpunkt_uten_hindring(self):
+        # Vedtak 05.10 (#211), § 33.7 annet ledd.
+        r = beregn_frist(krav(), vurdering(vilkar_oppfylt=False))
+        assert r.beregnings_resultat == AVSLATT
+        assert r.godkjent_dager == 0
+        assert r.subsidiaer_resultat == GODKJENT
+        assert r.subsidiaer_godkjent_dager == 10
+        assert r.subsidiaer_triggers == (INGEN_HINDRING,)
+
+    def test_dagene_er_atter_subsidiaere_ved_preklusjon_og_uten_hindring(self):
+        # beregnAlt › 'keeps the days as a further subsidiary standpoint without hindring (#211)'
+        r = beregn_frist(
+            krav(krevd_dager=45),
+            vurdering(frist_varsel_ok=False, vilkar_oppfylt=False, godkjent_dager=30),
+        )
+        assert r.beregnings_resultat == AVSLATT
+        assert r.subsidiaer_resultat == DELVIS
+        assert r.subsidiaer_godkjent_dager == 30
+        assert r.subsidiaer_triggers == (PREKLUSJON_VARSEL, INGEN_HINDRING)
 
     def test_ikke_subsidiaert_naar_prinsipalt_ikke_er_avslatt(self):
         # buildEventData › 'omits subsidiaer fields when prinsipalt is not avslatt'
