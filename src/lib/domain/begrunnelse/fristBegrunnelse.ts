@@ -156,9 +156,12 @@ function generateFristBeregningSection(
   }
 
   const erSubsidiaer = erPrekludert || !vilkarOppfylt || erGrunnlagSubsidiaer;
-  const prefix = erSubsidiaer
-    ? 'Subsidiært, hva gjelder antall dager: '
-    : 'Hva gjelder antall dager: ';
+  const prefix =
+    erPrekludert && !vilkarOppfylt
+      ? 'Atter subsidiært, hva gjelder antall dager: '
+      : erSubsidiaer
+        ? 'Subsidiært, hva gjelder antall dager: '
+        : 'Hva gjelder antall dager: ';
 
   const fmtKrevd = formatDager(krevdDager, useTokens);
   const fmtGodkjent = formatDager(godkjentDager, useTokens);
