@@ -40,7 +40,7 @@ async function svarer(url) {
 }
 
 function stopp(vite) {
-  if (vite?.exitCode === null) process.kill(-vite.pid);
+  if (vite && vite.exitCode === null && vite.signalCode === null) process.kill(-vite.pid);
 }
 
 async function startVite(url) {
