@@ -257,6 +257,17 @@ def test_den_faste_teksten_maa_staa_uendret(begrunnelse, brevtekst):
         _foresporselsdata(begrunnelse, brevtekst)
 
 
+def test_en_lagret_forespoersel_uten_den_faste_teksten_kan_leses():
+    """Journalen kan ikke rettes, så kravet fra #173 gjelder bare nye hendelser."""
+    hendelse = _foresporsel("k").model_dump(mode="json")
+    hendelse["data"]["begrunnelse"] = "Spesifiser kravet."
+    hendelse["data"]["brev"] = _brev("S-1", "Spesifiser kravet.")
+
+    assert parse_event(hendelse).data.begrunnelse == "Spesifiser kravet."
+    with pytest.raises(ValidationError, match="33.6.2 første ledd"):
+        parse_event(hendelse, lagret=False)
+
+
 def test_forespoersel_uten_den_faste_teksten_avvises_gjennom_ruta(sak):  # noqa: F811
     sak_id = "KOE-173-fast-tekst"
     varsel = _opprett_sak(sak.lager, sak_id, fristkrav=NOYTRALT_FRISTVARSEL).frist
