@@ -515,7 +515,7 @@
               return;
             }
             if (store.isDemo) {
-              store.sendVederlagSvar(computed.totalGodkjent, {
+              store.sendVederlagSvar(computed.prinsipaltResultat, computed.totalGodkjent, {
                 hovedkravVarsletITide,
                 riggVarsletITide,
                 produktivitetVarsletITide,
@@ -527,7 +527,10 @@
                 riggGodkjentBelop,
                 produktivitetVurdering,
                 produktivitetGodkjentBelop,
-                subsidiaerGodkjentBelop: isSubsidiaer
+                subsidiaerResultat: computed.visSubsidiaertResultat
+                  ? computed.subsidiaertResultat
+                  : undefined,
+                subsidiaerGodkjentBelop: computed.visSubsidiaertResultat
                   ? computed.totalGodkjentInklPrekludert
                   : undefined,
                 begrunnelse: begrunnelseHtml,
