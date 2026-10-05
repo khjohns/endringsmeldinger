@@ -1,8 +1,4 @@
-"""DM-07: `eo_opprettet` på en eksisterende KOE-sak avvises (rettet 05.10, #97).
-
-Før rettingen hadde `eo_opprettet` ingen regel om sakstype, og behandleren satte
-sakstypen til endringsordre uansett hvilken sak hendelsen kom i. Nå krever
-forretningsregelen `IS_EO_CASE` en endringsordresak.
+"""DM-07: `eo_opprettet` på en eksisterende KOE-sak avvises av `IS_EO_CASE`.
 
 Kilden for forventningen er oppdragsgivers svar 29.09: en endringsordresak kan
 følge av en KOE-sak, men ikke erstatte den, verken i historikken eller som en

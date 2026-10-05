@@ -50,6 +50,7 @@ def test_godtatt_avslag_paa_grunnlaget_lukker_saken(vederlag, frist):
 
     assert sak.overordnet_status == "LUKKET_AVSLATT"
     assert sak.kan_utstede_eo is False
+    assert sak.neste_handling["rolle"] is None
 
 
 def test_lukket_avslatt_avviser_nye_krav():
