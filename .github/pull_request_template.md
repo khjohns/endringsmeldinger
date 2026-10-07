@@ -17,6 +17,7 @@ Ved avhengighet av uflettet PR: nummer, kontrollert commit, base og flettingsrek
 
 <!-- For kode: regelens/kontraktens eier og berørte innganger.
 Hva fjernes? Midlertidige rester: lenk til issue med ansvarlig og fjerningskriterium.
+Endrede begreper: kilde til betydning, gamle/nye navn og kontraktskonsekvenser.
 Nye pakker/abstraksjoner: konkret behov. Endret modulgrense: automatisk kontroll
 og bevis på at den avviser en forbudt avhengighet. -->
 
@@ -27,6 +28,10 @@ når relevant. Review: kontrollert diff, resultat og håndtering av funn.
 Skill historiske resultater fra egne kjøringer. Oppgi uprøvde innganger,
 lagring/gjenlesing, historikk og utrulling/tilbakerulling der dette berøres.
 En manglende påkrevd sjekk eller review betyr fortsatt utkast. -->
+
+<!-- Dokumentasjon: lenk til oppdaterte referanser/kilderegistre, eller begrunn
+hvorfor PR-en alene er tilstrekkelig. Ikke lag en egen gjennomføringsrapport
+bare for å fylle dette punktet. -->
 
 ## Åpne spørsmål
 

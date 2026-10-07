@@ -17,6 +17,9 @@ rekkefølge; denne regelen bestemmer hvordan en avgrenset oppgave leveres.
 - Navngi hvor den berørte domeneregelen eller kontrakten skal eies, og kartlegg
   kallere og innganger som berøres. Oppgi hva som skal fjernes, og hva som må
   bestå. For uendret atferd: si hvilke observerbare resultater som skal bevares.
+  Ved begrepsendring: følg språkregelen i `AGENTS.md` og bruk oppgavens felles
+  begrepsavklaring. Les `.claude/rules/dokumentasjon.md` for å avgjøre hva som
+  trenger varig dokumentasjon, også når oppgaven starter uten endringer i `docs/`.
 - Avklar bare uavklart tiltenkt atferd med oppdragsgiver. Tekniske arbeidsvalg
   innen oppgaven avgjøres selv. En uløst domenebeslutning blokkerer den berørte
   implementeringen, ikke uavhengig arbeid.
