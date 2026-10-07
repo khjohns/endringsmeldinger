@@ -23,6 +23,11 @@ rekkefølge; denne regelen bestemmer hvordan en avgrenset oppgave leveres.
 - Avklar bare uavklart tiltenkt atferd med oppdragsgiver. Tekniske arbeidsvalg
   innen oppgaven avgjøres selv. En uløst domenebeslutning blokkerer den berørte
   implementeringen, ikke uavhengig arbeid.
+- Ved vesentlige arkitektur- eller domeneendringer: navngi personen som har
+  myndighet til å godkjenne tiltenkt atferd og akseptere gjenværende risiko i
+  oppgaven/PR-en. Dette er et menneskelig beslutningsansvar, ikke modulens
+  tekniske eier eller agentrevieweren. Eksisterende vedtak og fullmakter gjelder;
+  kravet innfører ikke en ny godkjenningsrunde for allerede autorisert arbeid.
 
 ## Under implementering
 
@@ -44,11 +49,30 @@ rekkefølge; denne regelen bestemmer hvordan en avgrenset oppgave leveres.
   adapter får et koblet issue med ansvarlig, berørte filer og et observerbart
   fjerningskriterium. «Ryddes senere» er ikke tilstrekkelig.
 
+## Vedlikeholds- og driftsverktøy
+
+- Nye eller vesentlig endrede verktøy har konkret formål, vedlikeholdsansvarlig,
+  dokumenterte avhengigheter, kjørekommando, forventet resultat og egnet
+  verifikasjon. Bruk eksisterende oppskrift eller verktøyets hjelpetekst;
+  ingen separat rapport kreves.
+- Gjentakbare kvalitetskontroller inngår i CI med både et gyldig tilfelle og et
+  representativt avvik. Et verktøy mot ekstern drift trenger ikke kjøres mot
+  det levende systemet i CI; prøv kontrollogikken isolert og dokumenter hva
+  bare en autorisert driftskjøring kan bevise.
+- Engangsverktøy fjernes når oppgaven er avsluttet, eller merkes som historisk
+  bevis med formål og kontrollert grunnlag. Anvendte migrasjoner og nødvendig
+  gjenopprettingsverktøy beholdes. Eksisterende skript vurderes etter bruk og
+  verifikasjon, ikke en vilkårlig aldersgrense; kontroller behov og konsumenter
+  før sletting. Dødkodeverktøy gir kandidater, ikke selvstendig slettebevis.
+
 ## Før en PR meldes klar
 
 - Prøv akseptkriteriene med forventninger fra vedtak eller annen uttrykkelig
   kilde. Følg `.claude/rules/tester.md`; likhet mellom gammel og ny kode er
   ikke fasit der dagens atferd er en kjent feil.
+  Ved nye eller vesentlig endrede domeneregler og sikkerhetsinvarianter skal
+  representative tester også vises å oppdage relevante feil etter metoden i
+  `.claude/rules/tester.md`.
 - Ved endret domeneregel eller kontrakt: prøv de berørte inngangene, inkludert
   vanlig innsending, batch og godkjenning der de bruker regelen. Ved endret
   hendelsesdata eller serialisering: prøv faktisk lagring og gjenlesing. Vurder
@@ -60,6 +84,9 @@ rekkefølge; denne regelen bestemmer hvordan en avgrenset oppgave leveres.
   alene krever ikke applikasjonsbygg eller full testsuite.
 - Gjennomfør uavhengig review etter `AGENTS.md`, med akseptkriteriene som
   grunnlag. Kontroller særlig ny duplisering, regelens eier og planlagt utfasing.
+  Leveransen skal kunne forklares og etterprøves fra kode, tester og varige
+  referanser uten den opprinnelige chatten. Enighet mellom agenter er ikke et
+  testbevis og overtar ikke menneskelig beslutningsansvar.
   Ikke svekk assertions, legg til skip/xfail eller utvid lint-unntak for å få
   grønt. Nye reproduksjoner av kjente feil følger testreglene.
 - Fyll ut PR-malen med kjørt kommando, resultat og kontrollert commit/diff.

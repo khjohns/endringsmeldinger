@@ -33,3 +33,27 @@ vise at en funksjon virker som tiltenkt, må forventningen ha en kilde utenfor
 koden: NS 8407, et vedtak i hovedplanen eller en forventning oppdragsgiver har
 godkjent. Testen skal vise til kilden. En test som bare fastholder dagens
 atferd, er nyttig ved en omskriving, men skal si at det er det den gjør.
+
+## Vis at kritiske tester oppdager feil
+
+Ved nye eller vesentlig endrede domeneregler og sikkerhetsinvarianter: velg et
+avgrenset sett representative feilklasser ut fra forventningen. Prøv målrettede
+feilinnføringer eller mutasjonstesting mot de relevante testene. Ingen generell
+mutasjonsscore eller nytt verktøy kreves for alle endringer.
+
+- Vis først at det korrekte kontrolltilfellet passerer. Innfør én relevant feil
+  om gangen og kontroller at testen feiler på den forventede virkningen, ikke
+  på import, oppsett eller en uvedkommende forutsetning.
+- For kjente feil med `xfail`/`it.fails`: behold reproduksjonen og kontrollsaken.
+  Ikke krev en grønn korrekthetsbaseline før rettingen finnes. Vis at selve
+  målassertionen feiler; etter retting kjøres testen ordinært og prøves mot en
+  relevant feilinnføring. Reglene om `pytest.fail` for forutsetninger gjelder.
+- En overlevende mutasjon undersøkes: manglende dekning, tilsvarende atferd,
+  unåbar kode eller ugyldig mutasjon må begrunnes. En verktøyrapport alene
+  avgjør ikke dette. Udekket forventet atferd rettes eller spores som restanse,
+  uten å erklære det berørte akseptkriteriet oppfylt.
+- Feilinnføring skjer bare i isolert testkode/arbeidskopi, aldri mot levende
+  data. Fjern mutasjonene etterpå og kjør de berørte testene på ren kode igjen.
+  PR-en oppgir kontrollert commit/diff, feilklasse, test, observert feil og
+  eventuelle overlevende mutasjoner med begrunnelse. Gjenbruk samme feilklasser
+  når to implementasjoner sammenliknes.
