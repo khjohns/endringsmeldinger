@@ -12,16 +12,37 @@ foreldet, og fila lastes automatisk og blir trodd.
 
 ## Språk
 
-Norsk bokmål i alt: kode, kommentarer, dokumentasjon, commit-meldinger, testnavn.
-Commit-meldinger begynner med liten forbokstav og et verb i imperativ.
-Domenebegrepene er norske og oversettes ikke.
+Norsk bokmål i brukergrensesnitt, kommentarer, dokumentasjon, PR-er,
+commit-meldinger og testbeskrivelser. Domenebegrepene er norske og presise etter
+NS 8407 og vedtatt produktatferd. Samme begrep skal ha samme betydning i kode,
+tester og dokumentasjon. Ikke oversett domenet bare for å tilpasse det til en LLM.
 
-**Koden skal være klar av seg selv — skriv få kommentarer.** Er noe uklart eller
-komplisert, hører forklaringen hjemme i `docs/`, ikke i en kommentarblokk over
-koden. En kommentar er berettiget når den sier noe leseren ikke kan lese ut av
-koden i det hele tatt: en ekstern beskrankning, en bevisst utelatelse, en
-audit-ID å slå opp. Aldri historikk («her sto tidligere …») — den står i
-dokumentkjeden — og aldri en omskrivning av linja under.
+Tekniske navn følger etablerte begreper og valgt språk/rammeverk. Behold navn i
+biblioteker, protokoller og eksterne API-er; `Request`, `retry` og `commit` trenger
+ingen norsk erstatning. Bruk `snake_case` i Python, `camelCase` i TypeScript og
+`PascalCase` for typer der rammeverket ikke bestemmer annet. For norske tegn i
+identifikatorer: følg konvensjonen i den berørte modulen; ikke bland skrivemåter.
+Commit-meldinger begynner med liten forbokstav og et verb i imperativ.
+
+**Eksisterende navn er utgangspunkt, ikke fasit.** Forbedre upresise eller
+tvetydige navn innenfor oppgaven, særlig når en modul bygges om. Avklar betydning,
+foretrukket navn og hvilke gamle navn det erstatter i oppgavens domenetabell
+eller begrepsavklaring. Ikke opprett en parallell ordliste. Skill navneendring fra
+endret atferd; uavklart domenesemantikk avgjøres etter arbeidsformen nedenfor.
+Oppdater berørte kallere, tester og referanser samlet. Lagrede hendelsesnavn,
+enumverdier, databasefelt og API-felt er kontrakter: vurder kompatibilitet og
+migrering uttrykkelig, også ved en backend-omskriving.
+
+**Koden skal være klar av seg selv — skriv få kommentarer.** Forklar en lokal
+begrensning eller et overraskende valg kort ved koden når det hjelper neste
+endring. Bruk docstring når kalleren trenger en kontrakt som signaturen ikke
+uttrykker. Lengre forklaringer som brukes på tvers av moduler, hører hjemme i en
+eksisterende referanse i `docs/`. Ikke opprett et dokument bare fordi koden er
+komplisert; vurder først om koden kan forenkles. Unngå kommentarer som gjentar
+koden eller forteller endringshistorikk — historikken står i Git og PR-en.
+
+Skriv korte, konkrete setninger. Skill mellom vedtatt, implementert og verifisert,
+og mellom kontraktens ordlyd, vår tolkning og appens atferd.
 
 ## Domenet
 

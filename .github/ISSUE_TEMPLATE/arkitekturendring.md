@@ -17,7 +17,9 @@ commits. Uavklart tiltenkt atferd listes uttrykkelig. -->
 
 <!-- Hvor eies regelen/kontrakten etterpå? Hvilke kallere og innganger berøres?
 Hva slettes? Midlertidige rester: ansvarlig og observerbart fjerningskriterium,
-med koblet oppfølgingsissue dersom de må bestå etter leveransen. -->
+med koblet oppfølgingsissue dersom de må bestå etter leveransen.
+Ved begrepsendring: betydning, foretrukket navn, gamle navn og berørte kontrakter.
+Gjenbruk oppgavens domenetabell fremfor å opprette en parallell ordliste. -->
 
 ## Akseptkriterier
 
@@ -28,6 +30,7 @@ Kryss av først når beviset er kjørt. Dokumentoppgaver bruker relevante kriter
 - [ ] Endrede modulgrenser håndheves automatisk, med et prøvd forbudt importforsøk.
 - [ ] Berørt lagring, historikk og kompatibilitet er prøvd, eller utenfor med begrunnelse.
 - [ ] Erstattet kode er fjernet; nødvendige midlertidige rester har sporet utfasing.
+- [ ] Berørte begreper og varige referanser/kilderegistre er oppdatert, eller PR-en alene er tilstrekkelig med begrunnelse.
 
 ## Bevis
 
