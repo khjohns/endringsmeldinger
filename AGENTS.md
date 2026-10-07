@@ -241,6 +241,15 @@ mulig konsekvens under beskrevne forutsetninger, ikke observert hendelse.
 Ingen produksjonskode endres uten at det er bedt om det. Auditrunder leverer
 dokumenter og reproduksjonstester, ikke rettinger.
 
+**Før implementering: følg [leveransereglene](.claude/rules/leveranse.md).**
+Claude laster regelen uten stifilter; andre agenter leser den eksplisitt.
+Den angir akseptkriterier, eierskap, utfasing og bevis før en PR meldes klar.
+Bruk [PR-malen](.github/pull_request_template.md), også ved opprettelse via
+CLI eller API. Arkitekturoppgaver kan bruke
+[oppgavemalen](.github/ISSUE_TEMPLATE/arkitekturendring.md); eksisterende
+issues suppleres i stedet for å dupliseres. Vedtak og arbeidsrekkefølge
+står fortsatt bare i hovedplanen.
+
 **Kjør `/code-review` på egen diff før en PR meldes klar.** Nivå `high` når
 diffen rører `routes/`, `lib/auth/`, lagrene eller migrasjonene, ellers
 `medium`; en diff som bare rører `docs/`, trenger ingen. Reviewet går i egen
