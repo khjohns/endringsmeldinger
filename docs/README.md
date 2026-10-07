@@ -31,6 +31,7 @@ Eldre handoffer står under [historikk](#historikk--bevart-ikke-gjeldende).
 
 | Dokument | Hva det gir |
 | --- | --- |
+| [reviewoppfølging: målarkitektur og gjennomføring](review-oppfolging-arkitektur-2026-10-07.md) | Presiseringer etter review av #266/#270, kobling til hovedplanens B-14/B-10 og åpne B-15/B-16, samt dokumenterte GitHub-begrensninger |
 | [forslag: målarkitektur og beslutningsprøve](forslag-maalarkitektur-og-beslutningsproeve-2026-10-07.md) · [opprinnelig forslag](vedlegg/arkitekturvalg-2026-10-07/README.md) | Oppdragsgivers forslag bearbeidet mot PR #266, med eksplisitte servergrenser og en avgrenset prøve av delt TypeScript-kjerne; ikke et vedtak om språkbytte |
 | [vurdering: avhengigheter og arkitekturvalg](vurdering-avhengigheter-og-arkitekturvalg-2026-10-07.md) · [backend](vedlegg/avhengigheter-2026-10-07/backend.md), [frontend](vedlegg/avhengigheter-2026-10-07/frontend.md) og [arkitektur](vedlegg/avhengigheter-2026-10-07/arkitektur.md) | Datert vedlikeholdsvurdering med pakkegrupper, runtimegrenser og beviskrav for en delt ren TypeScript-kjerne; skiller anbefalinger fra auditfunn |
 | [hovedplanen](plans/2026-09-16-godkjenning-og-varig-levering.md) | **Autoritativ.** Se over |
@@ -243,3 +244,4 @@ Skal gi `brutte: 0`. `adr/001` lenker til `../NS_8407.md`, som ble avsporet i
 `507e225`; uten en lokal kopi av den fila gir kontrollen ett brudd der.
 Linjeankre som `#L10-L20` mot kildefiler telles, men kontrolleres ikke, og
 `file:`-lenker hoppes over.
+

@@ -4,8 +4,11 @@
 **Forrige ledd:** [PR #266](https://github.com/khjohns/endringsmeldinger/pull/266),
 [strukturkartleggingen på PR-head `4c8860a`](https://github.com/khjohns/endringsmeldinger/blob/4c8860a84a4aa9f388818b38471593e5592fcfb8/docs/kartlegging-struktur-spor-d-2026-10-05.md)
 og [hovedplanen på samme head](https://github.com/khjohns/endringsmeldinger/blob/4c8860a84a4aa9f388818b38471593e5592fcfb8/docs/plans/2026-09-16-godkjenning-og-varig-levering.md).
-**Status:** forslag til beslutningsgrunnlag, ikke vedtak om språkbytte,
-prototypestart, ny arbeidsrekkefølge eller full omskriving.
+**Status:** bearbeidet arkitekturgrunnlag. **Merknad 2026-10-07 etter review:**
+Oppdragsgiver har tilsluttet seg målretning og justert rekkefølge under B-14
+i hovedplanen. Dette erstatter dokumentets tidligere åpne prioriteringsstatus.
+Språkvalg og full portering er ikke vedtatt; ingen prototype er gjennomført
+av denne dokumentasjonsleveransen. B-15 og B-16 er separate åpne beslutninger.
 
 Dokumentet bearbeider [oppdragsgivers innlimte forslag](vedlegg/arkitekturvalg-2026-10-07/opprinnelig-forslag.md)
 med kodegjennomgangen og justeringene fra samtalen 07.10. Originalen er bevart
@@ -61,6 +64,25 @@ M2 bør uttrykke bindingene eksplisitt, for eksempel `svar.krav_event_id` og
 gjelder, og hvilket svar aksepten gjelder. «Siste relevante hendelse» er ikke
 en tilstrekkelig relasjon. Kravversjon, tilbaketrekking, frafall og godtatt
 preklusjon følger vedtakene i hovedplanen på PR #266.
+
+**Presisering etter review 07.10:** Klienten sender ID-en til svaret brukeren
+aksepterer. Serveren validerer sak, spor, gjeldende svar og forventet saksversjon,
+og bindingen lagres i hendelsens data gjennom den faktiske serialiseringsstien.
+Serveren skal ikke erstatte brukerens referanse med «siste svar».
+
+De tre referansene er ikke hele livsløpsmodellen. Tilbaketrekking, frafall,
+låsing og grunnlagsavhengighet er eksplisitte fakta som statusen utledes fra.
+En beslutningstabell med bevis-saker skal dekke grunnlagsendringer med og uten
+endret underkategori, subsidiært svar mens grunnlaget venter på nytt svar,
+trukket krav og aksept av tidligere/revidert svar. At en endring i grunnlaget
+er en ny kravversjon, kan ikke antas bare fordi vederlag og frist har denne
+regelen; uavklart atferd avgjøres før den aktuelle implementeringen.
+
+Definisjonen av gjeldende krav skal brukes også i
+[claims i approval_service.py](../backend/services/approval_service.py), som i dag
+klassifiserer hendelser etter navn. En lokal ombygging av projeksjonen alene
+er ikke tilstrekkelig. Reaktiv EO og andre særforløp må omfattes av tabellen
+der de påvirker sporene; de skal ikke skjult overstyre den nye utledningen.
 
 M1 bør samle `standpunkt(grunnlag, spor)` med hovedgrunn, subsidiær karakter
 og årsaker. Flere resultatfelt innføres når en konkret forbruker trenger dem.
@@ -121,6 +143,20 @@ anta at hele applikasjonen kan gjenopprettes fra den.
 Projeksjoner er avledet tilstand. Snapshots kan innføres hvis replay blir
 målt for dyrt, og må da kunne forkastes og bygges på nytt.
 
+En regelendring kan endre dagens standpunkt uten ny sakshendelse. Derfor
+identifiseres også versjonen som beregnet en projeksjon; saksversjonen alene
+beviser ikke at en lagret oversikt følger dagens regler. B-10 skal konkretisere
+merking, invalidasjon og gjenoppbygging, og F2 skal prøve samme historiske
+strøm før og etter endringen. Konsekvenser for gamle saker dokumenteres før
+utrulling etter B-13. Frosne brev og beslutninger gjenberegnes ikke.
+
+Kompatibilitetsmatrisen skal vise hvilke skrivere og lesere som kan kjøre
+sammen, og hva tilbakerulling tillater etter at nytt format er skrevet.
+Tolerant lesing innebærer ikke at ukjente rettslig relevante hendelser kan
+hoppes over mens bindende kommandoer fortsatt tillates. Ved ukjent semantikk
+stanser skrivestien; historikkinnsyn kan bestå med en uttrykkelig begrensning.
+Dette prøves i F2 og kontrolleres i produksjonsporten F5.
+
 `/api/events` returnerer allerede `public_state` og ny saksversjon. Klientens
 [refresh](../src/lib/kontraktsbord/context.svelte.ts) henter også tidslinje,
 historikk og Catenda-status. En ekstra GET kan fjernes først når
@@ -144,10 +180,19 @@ kontraktsside, handlingsrett, godkjenningspolicy og fullmakt. Klienten kan
 forhåndsvurdere domenet uten å ha hele autorisasjonsgrunnlaget. Innsendingen
 kontrollerer alltid gjeldende kontekst og nyttelast på nytt.
 
-Offentlige DTO-er skal være eksplisitte der de avviker fra intern tilstand,
-og ligge etter tilgangs- og skjermingskontrollene. Delt TypeScript gir ikke
-validering av JSON ved kjøretid. M3/M5 må fortsatt skille mellom strenge nye
-kommandoer og kompatibel lesing av eldre hendelser. Tilstandens felt finnes
+En smal offentlig kontrakt defineres før typegenerering, etter tilgangs- og
+skjermingskontrollene. Genererte typer følger det serialiserte API-svaret,
+ikke automatisk hele `SakState`. Offentlige felt velges uttrykkelig, også
+når formen foreløpig ligner den interne. Stabile verdityper kan gjenbrukes;
+alle interne modeller trenger ikke en kopi. Et nytt internt felt blir ikke
+offentlig uten en kontraktsendring.
+
+Kommandoen klienten får sende, hendelsen serveren lagrer og tilstanden
+klienten får lese er tre grenser. De kan fortsatt bruke `/api/events`.
+`extra="forbid"` gjelder den strenge kommando-/skrivemodellen, inkludert
+nøstet data. Historikkleseren har en uttrykkelig kompatibilitetskontrakt.
+Delt TypeScript og genererte typer erstatter ikke validering av JSON ved kjøretid.
+Tilstandens felt finnes
 med `null` når verdien mangler; hendelsesdata kan utelate usatte felt etter
 den vedtatte nullpolitikken.
 
@@ -186,10 +231,26 @@ mulig å måle gevinsten av delt kode uavhengig av en databasemigrering.
 
 ## 7. MA-07: en tidsbegrenset beslutningsprøve
 
-Foreslått første ramme er én arbeidsuke med stopp og vurdering etterpå.
+Rammen etter B-14 er én arbeidsuke med stopp og vurdering etterpå.
 Dette er en undersøkelsesramme, ikke et estimat for backend-portering.
 En uferdig prøve skal beskrive usikkerheten, ikke automatisk utvides til
-en omskriving. Endring av arbeidsrekkefølgen må avklares mot B-14 og AF-06.
+en omskriving. B-14 og merknaden 07.10 til AF-06 plasserer prøven etter
+domenetabellen, bevis-sakene og en smal kommando-/API-kontrakt, men før
+større språkspesifikk implementasjon av M2/M1.
+
+Prøven har to porter innen samme tidsramme:
+
+1. **Semantikk og dobbeltarbeid:** samme vedtatte forventninger, en konkret
+   forbedret Python-baseline og én kontrollert regelendring i begge alternativer.
+   Vis hvilke semantiske endringssteder TS faktisk fjerner. Modellforbedring
+   som begge alternativer får, teller ikke som språkgevinst.
+2. **Server og integrasjon:** den representative flyten gjennom konkret
+   TS-serverutførelse, eksisterende testdatabase og godkjenningsgrense.
+   Dokumenter adaptere, sikkerhetsbevis som må erstattes, og driftskostnad.
+
+Begge porter må gi tilstrekkelig bevis før TS anbefales. Manglende bevis
+ved stopp gir «ikke tilstrekkelig grunnlag». Et negativt resultat på første
+port kan avslutte prøven tidlig; ingen full portering følger automatisk.
 
 ### Bevis-saker før språk sammenliknes
 
@@ -199,8 +260,14 @@ sluttresultater. Knyt forventningene til vedtak og invarianter. Dagens Python
 er ikke fasit der en kjent feil er reprodusert. For slike forløp skilles
 dagens observerte resultat fra vedtatt forventning.
 
-De samme sakene skal kunne kjøres gjennom domenet, HTTP, lagring/gjenlesing
-og godkjenningsflyten. En forventning endres bare ved en uttrykkelig endring
+De samme sakene skal kunne kjøres gjennom domenet, vanlig HTTP-innsending,
+`/api/events/batch`, lagring/gjenlesing og godkjenningsflyten.
+Suppler kjente reproduksjoner med et lite sett genererte hendelsesforløp:
+aksept gjelder alltid riktig svar; et ubesvart nytt krav blir aldri omforent;
+avvisning endrer ikke journalen; og tilstanden før lagring er lik den etter
+gjenlesing. Sammenlikn forløpenes observerbare resultat og avvisninger.
+Likhet mellom Python og TS er ikke selv fasit: begge kan dele samme feil.
+En forventning endres bare ved en uttrykkelig endring
 av tiltenkt atferd. Små predikater, beslutningstabeller, norske begreper og
 koblingen bestemmelse → invariant → bevis-sak gjør reglene etterprøvbare.
 
@@ -244,9 +311,10 @@ Velg TS-retningen hvis samme modul faktisk erstatter klient- og serverregler,
 forenkler representative endringer og kan brukes gjennom lagring og
 godkjenning med forsvarlig samlet kostnad. Velg forbedret Python hvis
 gevinsten hovedsakelig er delte typer eller noen få beregningsfunksjoner,
-mens adapter- og driftskostnaden dominerer. Dersom serverbasert evaluering
-skal sammenliknes senere, krever det at beslutningen om å utsette den tas
-opp uttrykkelig; B-13 er ikke endret av dette forslaget.
+mens adapter- og driftskostnaden dominerer. En eventuell tidligere
+sammenlikning med serverbasert forhåndsvurdering
+behandles under B-15. Vedtaket om utsettelse gjelder til et nytt vedtak
+foreligger; det blokkerer ikke Python–TS-prøven. B-13 er uendret.
 
 Ved TS-valg anbefales avgrenset portering med én autoritativ skrivesti for
 hver kommando. Et eventuelt midlertidig skille mellom Python og TS må ha
@@ -261,9 +329,13 @@ mellom semantikk og brevtekst er nyttige i begge alternativer. Implementasjonen
 av M2 i Python er likevel ikke kostnadsfri å portere; det er beslutningene,
 kontraktene og bevisene som er mest gjenbrukbare.
 
-M5a er et naturlig kontrollpunkt før større Python-spesifikke investeringer,
-men kommende arbeid i godkjenning og datalag må vurderes også. Unngå en
-ubestemt pause i alt arbeid. Små kontraktsrettinger og nødvendige
+**Merknad etter review 07.10:** M5a er ikke lenger kontrollpunktet for
+språkvalget. Det kommer for sent dersom M2/M1/M4 allerede er bygget om.
+Gjeldende rekkefølge står under B-14: domenetabell og bevis-saker, smal
+kommando-/API-kontrakt, språkprøve, deretter M2/M1 og M4/videre kontraktsarbeid.
+Dette flytter bare den nødvendige delen av M5b frem; resten kan tas trinnvis.
+Kommende arbeid i godkjenning og datalag vurderes i samme kostnadsbilde.
+Unngå en ubestemt pause i alt arbeid. Små kontraktsrettinger og nødvendige
 sikkerhetsoppdateringer kan fortsatt ha verdi før språkvalget. Ikke bygg nye
 speilregler eller en omfattende generatorplattform uten å vurdere levetiden.
 
@@ -272,6 +344,15 @@ Den konkretiserer pakkegrupper og
 testkrav; den avgjør ikke språk eller database. Flask, Svelte og eksisterende
 lagrings-/PDF-adaptere kan beholdes mens kjernen prøves. Et rammeverksbytte,
 ny database og en ny dokumentmotor bør ikke blandes inn i samme prøve.
+
+### Korrigering av låste opplysninger
+
+Låsing etter SK-12 består. B-16 skal avklare hvordan feil dato, metode eller
+referanse dokumenteres, hvem som kan korrigere, og hva motparten ser.
+En eventuell rettelseshendelse peker på originalen og bevarer den;
+rettslig virkning må avgjøres uttrykkelig. En registreringsrettelse flytter
+ikke automatisk en frist eller omskriver et sendt brev. Ingen slik funksjon
+er vedtatt her, og den skal ikke snike seg inn i M2 som en teknisk detalj.
 
 ## 9. Hva er endret fra originalen?
 
@@ -282,9 +363,15 @@ ny database og en ny dokumentmotor bør ikke blandes inn i samme prøve.
 | 14–16 | Journalautoritet er kontrollert for saken; øvrige lagre og klientens refresh-behov er synliggjort |
 | 5–6, 33 | Transaksjon, worker og varig levering lagt til; databasen holdes fast i språkprøven |
 | 24–25 | Beregningsprototype utvidet til representativ flyt og kontrollert regelendring |
-| 26–32, 35–36 | Valg etter målt merverdi, avgrenset tidsramme og migrering; M5a er ett av flere kostnadspunkter |
+| 26–32, 35–36 | Valg etter målt merverdi, avgrenset tidsramme og migrering; etter review kommer prøven før større språkspesifikk ombygging |
 
 ## Verifikasjon og grenser
+
+**Dokumentoppfølging etter review 07.10:** Presiseringene over bygger på
+reviewet av #266/#270 og oppdragsgivers tilslutning. B-14 og rekkefølgen er
+ført i hovedplanen; B-15/B-16 er åpne. Se [reviewnotatet](review-oppfolging-arkitektur-2026-10-07.md)
+for lenkekontroll, issues og GitHub-begrensninger. Ingen nye applikasjonstester
+eller prototype er kjørt i dokumentoppfølgingen.
 
 **Kjørt og observert 07.10:** PR #266s ni backend-reproduksjoner ble hentet fra
 `4c8860a` og kjørt isolert mot lokal produksjonskode på `68ca0ea` med
@@ -302,5 +389,5 @@ ikke foretatt en ny juridisk vurdering av NS 8407.
 **Ikke kontrollert:** live databasekatalog, komplett HTTP-/godkjenningsflyt
 for reproduksjonene, full testsuite, en faktisk TypeScript-prototype,
 porteringstid, ytelse, IKT-kostnader eller driftsvalg. Dette dokumentet
-bevarer og bearbeider forslaget; ingen ny arkitekturbeslutning eller endring
-av produksjonskode følger av at dokumentasjonen committes.
+bevarer og bearbeider forslaget. Senere tilslutning til målretning og
+rekkefølge står i hovedplanen; ingen produksjonskode er endret.
