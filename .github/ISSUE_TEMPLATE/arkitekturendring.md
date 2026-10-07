@@ -16,6 +16,8 @@ commits. Uavklart tiltenkt atferd listes uttrykkelig. -->
 ## Eierskap og utfasing
 
 <!-- Hvor eies regelen/kontrakten etterpå? Hvilke kallere og innganger berøres?
+Hvem har menneskelig beslutningsansvar for tiltenkt atferd og gjenværende risiko?
+Vis til eksisterende vedtak der godkjenning allerede er gitt.
 Hva slettes? Midlertidige rester: ansvarlig og observerbart fjerningskriterium,
 med koblet oppfølgingsissue dersom de må bestå etter leveransen.
 Ved begrepsendring: betydning, foretrukket navn, gamle navn og berørte kontrakter.
@@ -27,6 +29,7 @@ Gjenbruk oppgavens domenetabell fremfor å opprette en parallell ordliste. -->
 Kryss av først når beviset er kjørt. Dokumentoppgaver bruker relevante kriterier. -->
 
 - [ ] Forventet atferd/avvisning er prøvd mot navngitt kilde, med berørte innganger.
+- [ ] Kritiske tester oppdager representative feilinnføringer; overlevende mutasjoner er vurdert og ren kode er prøvd igjen.
 - [ ] Endrede modulgrenser håndheves automatisk, med et prøvd forbudt importforsøk.
 - [ ] Berørt lagring, historikk og kompatibilitet er prøvd, eller utenfor med begrunnelse.
 - [ ] Erstattet kode er fjernet; nødvendige midlertidige rester har sporet utfasing.

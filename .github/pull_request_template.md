@@ -16,15 +16,22 @@ Ved avhengighet av uflettet PR: nummer, kontrollert commit, base og flettingsrek
 ## Eierskap og utfasing
 
 <!-- For kode: regelens/kontraktens eier og berørte innganger.
+Vesentlige arkitektur-/domeneendringer: navngitt menneskelig beslutningsansvarlig
+og lenke til gjeldende vedtak; ikke be om samme godkjenning på nytt.
 Hva fjernes? Midlertidige rester: lenk til issue med ansvarlig og fjerningskriterium.
 Endrede begreper: kilde til betydning, gamle/nye navn og kontraktskonsekvenser.
 Nye pakker/abstraksjoner: konkret behov. Endret modulgrense: automatisk kontroll
 og bevis på at den avviser en forbudt avhengighet. -->
 
+<!-- Nye/endrede verktøy: formål, vedlikeholdsansvarlig, avhengigheter,
+kjørekommando og verifikasjon/CI. Engangsverktøy: sletting eller historisk bevis. -->
+
 ## Verifikasjon og grenser
 
 <!-- Kontrollert commit/diff, faktisk kjørte kommandoer og resultater; også bygg
 når relevant. Review: kontrollert diff, resultat og håndtering av funn.
+Kritiske regelendringer: representative feilinnføringer, målassertion, kjøring
+etter at mutasjonene er fjernet og vurdering av eventuelle overlevende mutasjoner.
 Skill historiske resultater fra egne kjøringer. Oppgi uprøvde innganger,
 lagring/gjenlesing, historikk og utrulling/tilbakerulling der dette berøres.
 En manglende påkrevd sjekk eller review betyr fortsatt utkast. -->
