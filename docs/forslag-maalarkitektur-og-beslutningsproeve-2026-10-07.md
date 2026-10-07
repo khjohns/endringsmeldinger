@@ -267,8 +267,8 @@ ubestemt pause i alt arbeid. Små kontraktsrettinger og nødvendige
 sikkerhetsoppdateringer kan fortsatt ha verdi før språkvalget. Ikke bygg nye
 speilregler eller en omfattende generatorplattform uten å vurdere levetiden.
 
-Avhengighetsarbeidet behandles i en separat vedlikeholdsvurdering som
-publiseres sammen med dette forslaget. Den konkretiserer pakkegrupper og
+Avhengighetsarbeidet behandles i [vedlikeholdsvurderingen](vurdering-avhengigheter-og-arkitekturvalg-2026-10-07.md).
+Den konkretiserer pakkegrupper og
 testkrav; den avgjør ikke språk eller database. Flask, Svelte og eksisterende
 lagrings-/PDF-adaptere kan beholdes mens kjernen prøves. Et rammeverksbytte,
 ny database og en ny dokumentmotor bør ikke blandes inn i samme prøve.
