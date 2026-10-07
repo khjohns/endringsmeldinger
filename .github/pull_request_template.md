@@ -1,0 +1,34 @@
+<!-- Bruk også malen ved opprettelse via CLI/API. Slett irrelevante punkter;
+rene dokumentendringer trenger ikke kode-, migrerings- eller byggbevis.
+Instruksjonene står i AGENTS.md og .claude/rules/leveranse.md. -->
+
+## Endring
+
+<!-- Problem og konkret atferd før/etter. For dokumenter: hva presiseres? -->
+
+## Grunnlag og aksept
+
+<!-- Lenk til eksisterende issue og vedtak/forventning; gjenta ikke funnregisteret.
+Bruk Closes #n bare når oppgaven fullføres. Vis akseptkriteriene og beviset for dem
+her, eller lenk til kriteriene i issuet og oppgi resultatet per kriterium.
+Ved avhengighet av uflettet PR: nummer, kontrollert commit, base og flettingsrekkefølge. -->
+
+## Eierskap og utfasing
+
+<!-- For kode: regelens/kontraktens eier og berørte innganger.
+Hva fjernes? Midlertidige rester: lenk til issue med ansvarlig og fjerningskriterium.
+Nye pakker/abstraksjoner: konkret behov. Endret modulgrense: automatisk kontroll
+og bevis på at den avviser en forbudt avhengighet. -->
+
+## Verifikasjon og grenser
+
+<!-- Kontrollert commit/diff, faktisk kjørte kommandoer og resultater; også bygg
+når relevant. Review: kontrollert diff, resultat og håndtering av funn.
+Skill historiske resultater fra egne kjøringer. Oppgi uprøvde innganger,
+lagring/gjenlesing, historikk og utrulling/tilbakerulling der dette berøres.
+En manglende påkrevd sjekk eller review betyr fortsatt utkast. -->
+
+## Åpne spørsmål
+
+<!-- Uløste beslutninger, begrunnede avvisninger av reviewfunn og koblede
+oppfølgingsissues. Slett seksjonen hvis det ikke er noen. -->
