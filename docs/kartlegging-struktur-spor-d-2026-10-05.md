@@ -10,9 +10,12 @@ og [4.2](plans/2026-09-16-godkjenning-og-varig-levering.md#42-gemini-sporet-1809
 [kartleggingen av domenereglene i frontend](kartlegging-domeneregler-frontend-2026-09-23.md)
 og [oppdraget for spor D](prompt-spor-d-br01-2026-09-23.md).
 **Oppdraget:** [prompt-strukturkartlegging-spor-d-2026-10-05.md](prompt-strukturkartlegging-spor-d-2026-10-05.md).
-**Status:** kartlegging. Dokumentet endrer ingen produksjonskode. Vedtakene
-oppdragsgiver tok underveis, står i hovedplanen 3.1. Om målformene i
-avsnitt 7 legges til grunn, er B-14 (3.4, #263).
+**Status:** kartlegging og historisk forslag fra 05.10; funn og belegg er bevart.
+**Merknad 2026-10-07 til avsnitt 7:** Målformene er tilsluttet med justeringer
+etter review av #266 og #270. Gjeldende vedtak og rekkefølge står i
+[hovedplanens merknad til B-14](plans/2026-09-16-godkjenning-og-varig-levering.md#34-åpne-beslutninger),
+og presiseringene i [arkitekturforslaget](forslag-maalarkitektur-og-beslutningsproeve-2026-10-07.md).
+Forslagets opprinnelige PR-inndeling under er historisk, ikke ny arbeidsordre.
 
 Appen er ikke i produksjon og har ingen reelle data.
 
@@ -625,6 +628,14 @@ serveren; de blir lettere.
 
 ## 7. Forslag
 
+**Merknad 2026-10-07:** Les dette som forslaget fra 05.10. B-14 er senere
+vedtatt med presiseringer; særlig er språkprøven flyttet foran større
+språkspesifikk ombygging, og en smal offentlig kontrakt kommer før
+typegenerering. Aksept krever klientens konkrete svarreferanse; utsagnet om
+«ingen frontendendring» under M2 gjelder derfor ikke denne kontrakten.
+M3s strenge skrivemodeller må skilles fra historikkleseren. B-10-porten har
+fått plass i F2/F5. Se [reviewoppfølgingen](review-oppfolging-arkitektur-2026-10-07.md).
+
 Avsnittet ble utvidet 05.10 etter en ekstern vurdering av første utkast.
 Kodepåstandene i vurderingen er kontrollert (7.1); det som ikke holdt, er
 rettet. Spørsmålene den reiste, er besvart av oppdragsgiver og står som vedtak
@@ -1013,3 +1024,4 @@ går gjennom samme kontroll (L, `api/validators.py`).
 Kontrollen leste ikke 1.6, 2.5, `ForseringVarselData` eller
 `EOUtstedtData`, og kontrollerte ikke påstandene om `generate_openapi.py`,
 `state_drift` og `/api/cloudevents/schemas`.
+
