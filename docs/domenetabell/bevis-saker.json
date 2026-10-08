@@ -1,0 +1,355 @@
+{
+  "formatversjon": 1,
+  "omfang": "Bevis-saker for radene i regler.json. Forventningene er skrevet ut fra kildene i radene, ikke ut fra koden. Kjente avvik er merket med funn-ID.",
+  "grunnpremisser": [
+    "Grunnlaget er en endring etter formell endringsordre (underkategori EO), med mindre forløpet sier noe annet.",
+    "Beløp, dager og datoer er faste modellverdier. De er ikke rettslige forventninger.",
+    "Byggherrens svar har vurderingene i handlingen, og resultatet regnes av serverens regler (B-13).",
+    "Rettidighet er byggherrens vurdering slik svaret oppgir den. Korpuset avgjør ikke om noe faktisk kom i tide."
+  ],
+  "prefikser": {
+    "godkjent_grunnlag": [
+      { "handling": "grunnlag", "underkategori": "EO" },
+      { "handling": "grunnlagssvar", "resultat": "godkjent" }
+    ],
+    "basis": [
+      { "handling": "grunnlag", "underkategori": "EO" },
+      { "handling": "grunnlagssvar", "resultat": "godkjent" },
+      { "handling": "vederlagskrav", "belop": 100000 },
+      { "handling": "fristkrav", "dager": 20 }
+    ]
+  },
+  "forlop": [
+    {
+      "id": "F-KA-01",
+      "rader": ["KA-01"],
+      "start": "basis",
+      "steg": [{ "handling": "vederlagssvar", "vurdering": "delvis", "godkjent_belop": 60000 }],
+      "kontroller": [
+        { "etter": 1, "rolle": "mal", "forventet": { "vederlag.status": "delvis_godkjent", "vederlag.bh_respondert_versjon": 0, "vederlag.godkjent_belop": 60000 } }
+      ],
+      "forventningsgrunnlag": "avklart_tolkning"
+    },
+    {
+      "id": "F-KA-02",
+      "rader": ["KA-02"],
+      "start": "basis",
+      "steg": [
+        { "handling": "vederlagssvar", "vurdering": "delvis", "godkjent_belop": 60000 },
+        { "handling": "vederlagskrav_ny_versjon", "belop": 80000 }
+      ],
+      "kontroller": [
+        { "etter": 1, "rolle": "forutsetning", "forventet": { "vederlag.status": "delvis_godkjent" } },
+        { "etter": 2, "rolle": "mal", "forventet": { "vederlag.status": "sendt", "vederlag.antall_versjoner": 2, "vederlag.krevd_belop": 80000 } }
+      ],
+      "forventningsgrunnlag": "avklart_tolkning"
+    },
+    {
+      "id": "F-KA-03",
+      "rader": ["KA-03"],
+      "start": "basis",
+      "steg": [
+        { "handling": "vederlagssvar", "vurdering": "godkjent" },
+        { "handling": "vederlagskrav_ny_versjon", "belop": 250000 },
+        { "handling": "fristsvar", "varsel_i_tide": true, "spesifisering_i_tide": true, "hindring": true }
+      ],
+      "kontroller": [
+        { "etter": 1, "rolle": "forutsetning", "forventet": { "vederlag.status": "godkjent" } },
+        { "etter": 3, "rolle": "forutsetning", "forventet": { "vederlag.krevd_belop": 250000, "frist.status": "godkjent" } },
+        { "etter": 3, "rolle": "mal", "forventet": { "vederlag.status": "sendt", "overordnet_status": { "ikke": "OMFORENT" }, "kan_utstede_eo": false } }
+      ],
+      "forventningsgrunnlag": "avklart_tolkning",
+      "kjent_avvik": { "funn": "SK-02", "issue": 256 }
+    },
+    {
+      "id": "F-KA-04",
+      "rader": ["KA-04"],
+      "start": "basis",
+      "steg": [
+        { "handling": "vederlagssvar", "vurdering": "delvis", "godkjent_belop": 50000 },
+        { "handling": "aksept", "spor": "vederlag" },
+        { "handling": "vederlagskrav_ny_versjon", "belop": 80000 }
+      ],
+      "kontroller": [
+        { "etter": 2, "rolle": "forutsetning", "forventet": { "vederlag.te_akseptert": true } },
+        { "etter": 3, "rolle": "mal", "forventet": { "vederlag.te_akseptert": false, "vederlag.status": "sendt" } }
+      ],
+      "forventningsgrunnlag": "avklart_tolkning",
+      "kjent_avvik": { "funn": "SK-02", "issue": 256 }
+    },
+    {
+      "id": "F-KA-05",
+      "rader": ["KA-05"],
+      "start": "basis",
+      "steg": [
+        { "handling": "vederlagssvar", "vurdering": "avslatt" },
+        { "handling": "aksept", "spor": "vederlag" },
+        { "handling": "vederlagskrav_ny_versjon", "belop": 90000 }
+      ],
+      "kontroller": [
+        { "etter": 2, "rolle": "forutsetning", "forventet": { "vederlag.status": "avslatt_akseptert" } },
+        { "etter": 3, "rolle": "mal", "forventet": { "vederlag.te_akseptert": false, "vederlag.status": "sendt" } }
+      ],
+      "forventningsgrunnlag": "avklart_tolkning",
+      "kjent_avvik": { "funn": "SK-02", "issue": 256 }
+    },
+    {
+      "id": "F-KA-06",
+      "rader": ["KA-06"],
+      "start": "basis",
+      "steg": [
+        { "handling": "vederlagssvar", "vurdering": "delvis", "godkjent_belop": 60000 },
+        { "handling": "vederlagskrav_ny_versjon", "belop": 100000 }
+      ],
+      "kontroller": [
+        { "etter": 2, "rolle": "mal", "forventet": { "vederlag.status": "sendt", "vederlag.antall_versjoner": 2, "vederlag.krevd_belop": 100000 } }
+      ],
+      "forventningsgrunnlag": "avklart_tolkning"
+    },
+    {
+      "id": "F-KA-07",
+      "rader": ["KA-07"],
+      "start": "basis",
+      "steg": [
+        { "handling": "vederlagssvar", "vurdering": "delvis", "godkjent_belop": 60000 },
+        { "handling": "vederlagskrav_ny_versjon", "belop": 80000 },
+        { "handling": "aksept", "spor": "vederlag" }
+      ],
+      "kontroller": [
+        { "etter": 1, "rolle": "kontroll", "prov": { "handling": "aksept", "spor": "vederlag" }, "forventet": { "avvist": false } },
+        { "etter": 2, "rolle": "forutsetning", "forventet": { "vederlag.status": "sendt" } },
+        { "etter": 3, "rolle": "mal", "forventet": { "avvist": true, "vederlag.te_akseptert": false, "vederlag.status": "sendt" } }
+      ],
+      "forventningsgrunnlag": "avklart_tolkning",
+      "kjent_avvik": { "funn": "DT-01", "issue": 256 }
+    },
+    {
+      "id": "F-KA-08a",
+      "rader": ["KA-08a"],
+      "start": "basis",
+      "steg": [
+        { "handling": "vederlagssvar", "vurdering": "avslatt" },
+        { "handling": "aksept", "spor": "vederlag" }
+      ],
+      "kontroller": [
+        { "etter": 2, "rolle": "mal", "forventet": { "vederlag.status": "avslatt_akseptert", "vederlag.te_akseptert": true } }
+      ],
+      "forventningsgrunnlag": "avklart_tolkning"
+    },
+    {
+      "id": "F-KA-08b",
+      "rader": ["KA-08b"],
+      "start": "basis",
+      "steg": [
+        { "handling": "vederlagssvar", "vurdering": "delvis", "godkjent_belop": 60000 },
+        { "handling": "aksept", "spor": "vederlag" }
+      ],
+      "kontroller": [
+        { "etter": 2, "rolle": "mal", "forventet": { "vederlag.status": "godkjent", "vederlag.te_akseptert": true, "vederlag.godkjent_belop": 60000 } }
+      ],
+      "forventningsgrunnlag": "arbeidshypotese"
+    },
+    {
+      "id": "F-KA-09",
+      "rader": ["KA-09"],
+      "start": "basis",
+      "steg": [
+        { "handling": "fristsvar", "varsel_i_tide": false, "spesifisering_i_tide": true, "hindring": true },
+        { "handling": "aksept", "spor": "frist" }
+      ],
+      "kontroller": [
+        { "etter": 1, "rolle": "forutsetning", "forventet": { "frist.bh_resultat": "avslatt", "frist.subsidiaer_resultat": "godkjent" } },
+        { "etter": 2, "rolle": "mal", "forventet": { "frist.status": "avslatt_akseptert", "frist.te_akseptert": true } }
+      ],
+      "forventningsgrunnlag": "avklart_tolkning"
+    },
+    {
+      "id": "F-KA-10",
+      "rader": ["KA-10"],
+      "start": null,
+      "steg": [
+        { "handling": "grunnlag", "underkategori": "IRREG" },
+        { "handling": "vederlagskrav", "belop": 100000 },
+        { "handling": "fristkrav", "dager": 20 },
+        { "handling": "grunnlagssvar", "resultat": "godkjent", "varslet_i_tide": false },
+        { "handling": "vederlagssvar", "vurdering": "godkjent" },
+        { "handling": "fristsvar", "varsel_i_tide": true, "spesifisering_i_tide": true, "hindring": true },
+        { "handling": "aksept", "spor": "grunnlag" }
+      ],
+      "kontroller": [
+        { "etter": 6, "rolle": "forutsetning", "forventet": { "grunnlag.status": "under_forhandling", "er_subsidiaert_vederlag": true } },
+        { "etter": 7, "rolle": "mal", "forventet": { "grunnlag.status": "avslatt_akseptert", "overordnet_status": "LUKKET_AVSLATT", "kan_utstede_eo": false } }
+      ],
+      "forventningsgrunnlag": "avklart_tolkning",
+      "kjent_avvik": { "funn": "SK-01", "issue": 255 }
+    },
+    {
+      "id": "F-KA-11",
+      "rader": ["KA-11"],
+      "start": "basis",
+      "steg": [
+        { "handling": "vederlagssvar", "vurdering": "delvis", "godkjent_belop": 50000 },
+        { "handling": "aksept", "spor": "vederlag" },
+        { "handling": "vederlagssvar_revidert", "vurdering": "delvis", "godkjent_belop": 20000 }
+      ],
+      "kontroller": [
+        { "etter": 1, "rolle": "kontroll", "prov": { "handling": "vederlagssvar_revidert", "vurdering": "delvis", "godkjent_belop": 20000 }, "forventet": { "avvist": false } },
+        { "etter": 2, "rolle": "forutsetning", "forventet": { "vederlag.te_akseptert": true } },
+        { "etter": 3, "rolle": "mal", "forventet": { "avvist": true, "vederlag.godkjent_belop": 50000 } }
+      ],
+      "forventningsgrunnlag": "avklart_tolkning",
+      "kjent_avvik": { "funn": "SK-03", "issue": 256 }
+    },
+    {
+      "id": "F-KA-12",
+      "rader": ["KA-12"],
+      "start": "basis",
+      "steg": [
+        { "handling": "vederlagssvar", "vurdering": "delvis", "godkjent_belop": 50000 },
+        { "handling": "vederlagssvar_revidert", "vurdering": "delvis", "godkjent_belop": 20000 }
+      ],
+      "kontroller": [
+        { "etter": 2, "rolle": "mal", "forventet": { "avvist": false, "vederlag.godkjent_belop": 20000 } }
+      ],
+      "forventningsgrunnlag": "arbeidshypotese"
+    },
+    {
+      "id": "F-KA-13",
+      "rader": ["KA-13"],
+      "start": "basis",
+      "steg": [
+        { "handling": "vederlagssvar", "vurdering": "delvis", "godkjent_belop": 50000 },
+        { "handling": "aksept", "spor": "vederlag" },
+        { "handling": "vederlagskrav_ny_versjon", "belop": 80000 },
+        { "handling": "vederlagssvar", "vurdering": "delvis", "godkjent_belop": 70000 },
+        { "handling": "aksept", "spor": "vederlag" }
+      ],
+      "kontroller": [
+        { "etter": 4, "rolle": "forutsetning", "forventet": { "vederlag.bh_respondert_versjon": 1, "vederlag.godkjent_belop": 70000 } },
+        { "etter": 5, "rolle": "mal", "forventet": { "avvist": false, "vederlag.te_akseptert": true, "vederlag.status": "godkjent" } }
+      ],
+      "forventningsgrunnlag": "avklart_tolkning",
+      "kjent_avvik": { "funn": "SK-03", "issue": 256 }
+    },
+    {
+      "id": "F-KA-14",
+      "rader": ["KA-14"],
+      "start": "basis",
+      "steg": [
+        { "handling": "trekk", "spor": "vederlag" },
+        { "handling": "vederlagskrav_ny_versjon", "belop": 50000 }
+      ],
+      "kontroller": [
+        { "etter": 0, "rolle": "kontroll", "prov": { "handling": "vederlagskrav_ny_versjon", "belop": 50000 }, "forventet": { "avvist": false } },
+        { "etter": 1, "rolle": "forutsetning", "forventet": { "vederlag.status": "trukket" } },
+        { "etter": 2, "rolle": "mal", "forventet": { "avvist": true, "vederlag.status": "trukket" } }
+      ],
+      "forventningsgrunnlag": "avklart_tolkning",
+      "kjent_avvik": { "funn": "SK-02", "issue": 256 }
+    },
+    {
+      "id": "F-KA-15",
+      "rader": ["KA-15"],
+      "start": "basis",
+      "steg": [
+        { "handling": "konsekvensvarsel", "type": "rigg_drift" },
+        { "handling": "vederlagssvar", "vurdering": "godkjent" }
+      ],
+      "kontroller": [
+        { "etter": 1, "rolle": "mal", "forventet": { "vederlag.status": "sendt", "vederlag.antall_versjoner": 1, "vederlag.krevd_belop": 100000 } },
+        { "etter": 2, "rolle": "mal", "forventet": { "avvist": false, "vederlag.status": "godkjent" } }
+      ],
+      "forventningsgrunnlag": "avklart_tolkning"
+    },
+    {
+      "id": "F-KA-16",
+      "rader": ["KA-16"],
+      "start": "godkjent_grunnlag",
+      "steg": [
+        { "handling": "fristvarsel", "varseldato": "2026-09-02" },
+        { "handling": "foresporsel" },
+        { "handling": "fristkrav_spesifisert", "dager": 10 }
+      ],
+      "kontroller": [
+        { "etter": 3, "rolle": "mal", "forventet": { "frist.status": "sendt", "frist.kravet_besvarer_foresporselen": true, "frist.krevd_dager": 10 } }
+      ],
+      "forventningsgrunnlag": "avklart_tolkning"
+    },
+    {
+      "id": "F-KA-17",
+      "rader": ["KA-17"],
+      "start": "basis",
+      "steg": [
+        { "handling": "vederlagssvar", "vurdering": "godkjent" },
+        { "handling": "fristsvar", "varsel_i_tide": true, "spesifisering_i_tide": true, "hindring": true },
+        { "handling": "vederlagskrav_ny_versjon", "belop": 150000 }
+      ],
+      "kontroller": [
+        { "etter": 1, "rolle": "kontroll", "prov": { "handling": "vederlagskrav_ny_versjon", "belop": 150000 }, "forventet": { "avvist": false } },
+        { "etter": 2, "rolle": "forutsetning", "forventet": { "overordnet_status": "OMFORENT" } },
+        { "etter": 3, "rolle": "mal", "forventet": { "avvist": true, "vederlag.krevd_belop": 100000 } }
+      ],
+      "forventningsgrunnlag": "avklart_tolkning"
+    },
+    {
+      "id": "F-KA-18a",
+      "rader": ["KA-18a"],
+      "start": "godkjent_grunnlag",
+      "steg": [
+        { "handling": "fristvarsel", "varseldato": "2026-09-02" },
+        { "handling": "foresporsel" },
+        { "handling": "fristkrav_spesifisert", "dager": 10 },
+        { "handling": "fristsvar", "foresporselssvar_i_tide": true, "hindring": true }
+      ],
+      "kontroller": [
+        { "etter": 3, "rolle": "forutsetning", "forventet": { "frist.kravet_besvarer_foresporselen": true } },
+        { "etter": 4, "rolle": "mal", "forventet": { "avvist": false, "frist.spesifisert_krav_ok": null, "lagret.respons_frist.spesifisert_krav_ok": "utelatt" } }
+      ],
+      "forventningsgrunnlag": "avklart_tolkning",
+      "kjent_avvik": { "funn": "DT-03", "issue": 286 }
+    },
+    {
+      "id": "F-KA-18b",
+      "rader": ["KA-18b"],
+      "start": "basis",
+      "steg": [{ "handling": "fristsvar", "varsel_i_tide": true, "spesifisering_i_tide": true, "hindring": true }],
+      "kontroller": [
+        { "etter": 1, "rolle": "mal", "forventet": { "frist.spesifisert_krav_ok": true, "lagret.respons_frist.spesifisert_krav_ok": true } }
+      ],
+      "forventningsgrunnlag": "avklart_tolkning"
+    },
+    {
+      "id": "F-KA-18c",
+      "rader": ["KA-18c"],
+      "start": "basis",
+      "steg": [{ "handling": "fristsvar", "varsel_i_tide": true, "spesifisering_i_tide": false, "hindring": true }],
+      "kontroller": [
+        { "etter": 1, "rolle": "mal", "forventet": { "frist.spesifisert_krav_ok": false, "frist.subsidiaer_triggers": { "inneholder": "reduksjon_spesifisert" }, "lagret.respons_frist.spesifisert_krav_ok": false } }
+      ],
+      "forventningsgrunnlag": "avklart_tolkning"
+    },
+    {
+      "id": "F-KA-19",
+      "rader": ["KA-19"],
+      "start": "godkjent_grunnlag",
+      "steg": [
+        { "handling": "fristvarsel", "varseldato": "2026-09-02" },
+        { "handling": "fristkrav_spesifisert", "dager": 20, "varseldato": "2026-08-01" }
+      ],
+      "kontroller": [
+        { "etter": 1, "rolle": "kontroll", "prov": { "handling": "fristkrav_spesifisert", "dager": 20, "varseldato": "2026-09-02" }, "forventet": { "avvist": false } },
+        { "etter": 2, "rolle": "mal", "forventet": { "avvist": true, "frist.frist_varsel.dato_sendt": "2026-09-02" } }
+      ],
+      "forventningsgrunnlag": "avklart_tolkning",
+      "kjent_avvik": { "funn": "SK-12", "issue": 264 }
+    }
+  ],
+  "invarianter": [
+    {
+      "id": "INV-GJELDENDE-KRAV",
+      "rader": ["KA-15", "KA-16"],
+      "beskrivelse": "Når sporets gjeldende krav kan besvares, er gjeldende krav i godkjenningsflyten (`claims()`) det samme som i projeksjonen (`krav_event_id`). Prøves etter hvert steg i hvert forløp.",
+      "kjente_avvik": [{ "forlop": "F-KA-15", "funn": "DT-02", "issue": 256 }]
+    }
+  ]
+}

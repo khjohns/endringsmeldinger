@@ -1,0 +1,447 @@
+{
+  "formatversjon": 1,
+  "omfang": "Kravversjon og aksept i vederlags- og fristsporet (SK-02, SK-03), med tilgrensende rader om godtatt preklusjon (SK-01), låste varsler (SK-12) og byggherrens vurdering av rettidighet. Grunnlagsendring, frafall, subsidiært svar mens grunnlaget venter og EO-særforløp er ikke dekket.",
+  "tolkningsstatuser": {
+    "avklart_tolkning": "Forventningen følger av et vedtak i hovedplanen 3.1. Vedtaket er kilden; tabellen gjentar det ikke.",
+    "arbeidshypotese": "Forventningen er utledet av vedtak eller standardtekst, men slutningen er ikke selv vedtatt. Må avklares før den brukes som bindende produktkrav.",
+    "modellkonvensjon": "Et valg i korpuset, for eksempel faste beløp og datoer. Ingen rettslig forventning.",
+    "karakterisering": "Fastholder dagens atferd uten selvstendig kilde. Nyttig ved omskriving, men ikke en fasit."
+  },
+  "kilder": [
+    {
+      "id": "V-KRAVVERSJON",
+      "type": "vedtak",
+      "dato": "2026-10-05",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger",
+      "radetikett": "Hver oppdatering fra TE av et vederlags- eller fristkrav er en ny kravversjon"
+    },
+    {
+      "id": "V-SK02-SK03",
+      "type": "vedtak",
+      "dato": "2026-10-05",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger",
+      "radetikett": "SK-02 og SK-03: et oppdatert krav fra TE åpner sporet igjen"
+    },
+    {
+      "id": "V-TRUKKET",
+      "type": "vedtak",
+      "dato": "2026-10-05",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger",
+      "radetikett": "Et krav TE har trukket, kan ikke tas opp igjen med en oppdatering"
+    },
+    {
+      "id": "V-SK01",
+      "type": "vedtak",
+      "dato": "2026-10-05",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger",
+      "radetikett": "SK-01: godtar TE byggherrens svar om at grunnlaget er varslet for sent"
+    },
+    {
+      "id": "V-SK12",
+      "type": "vedtak",
+      "dato": "2026-10-05",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger",
+      "radetikett": "SK-12: datoen og metoden for et varsel fra TE settes én gang"
+    },
+    {
+      "id": "V-TFR01",
+      "type": "vedtak",
+      "dato": "2026-09-19",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger",
+      "radetikett": "Aksept av avslag gir `AVSLATT_AKSEPTERT`"
+    },
+    {
+      "id": "V-B13",
+      "type": "vedtak",
+      "dato": "2026-09-24",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger",
+      "radetikett": "B-13 hovedvalg: alternativ (2) i streng form"
+    },
+    {
+      "id": "V-B13-PREKLUSJON",
+      "type": "vedtak",
+      "dato": "2026-09-24",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger",
+      "radetikett": "B-13 preklusjon ut fra byggherrens egen vurdering"
+    },
+    {
+      "id": "V-API-NULL",
+      "type": "vedtak",
+      "dato": "2026-10-05",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger",
+      "radetikett": "API-et: tilstanden sender alltid alle felt"
+    },
+    {
+      "id": "KA-U1",
+      "type": "vedtak",
+      "dato": "2026-10-08",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u1",
+      "radetikett": "KA-U1: TEs aksept gjelder hele det konkrete svaret"
+    },
+    {
+      "id": "KA-U2",
+      "type": "vedtak",
+      "dato": "2026-10-08",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u2",
+      "radetikett": "KA-U2: kravversjonene er de hendelsene projeksjonen og frontenden regner som krav"
+    },
+    {
+      "id": "KA-U3",
+      "type": "vedtak",
+      "dato": "2026-10-08",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u3",
+      "radetikett": "KA-U3: vedtaket om ny kravversjon gjelder til saken er `OMFORENT`"
+    },
+    {
+      "id": "KA-U4",
+      "type": "vedtak",
+      "dato": "2026-10-08",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u4",
+      "radetikett": "KA-U4: i byggherrens vurderinger av varsel og rettidighet"
+    },
+    {
+      "id": "NS-5-3",
+      "type": "standard",
+      "punkt": "5 tredje ledd",
+      "merknad": "Tekst: den som vil gjøre gjeldende at den andre parten har varslet eller svart for sent, må gjøre det skriftlig uten ugrunnet opphold etter å ha mottatt varselet eller svaret; ellers anses det gitt i tide. Brukt som premiss: tabellen avgjør ikke om en innsigelse kom i tide."
+    },
+    {
+      "id": "NS-33.4-2",
+      "type": "standard",
+      "punkt": "33.4 annet ledd",
+      "merknad": "Tekst: krav på fristforlengelse tapes dersom det ikke varsles innen utløpet av fristen. Slutning i KA-09: å godta et svar som påberoper dette, er å godta at kravet er tapt."
+    },
+    {
+      "id": "NS-33.6.1",
+      "type": "standard",
+      "punkt": "33.6.1",
+      "merknad": "Tekst: angir og begrunner ikke parten dagene uten ugrunnet opphold, har han bare krav på slik fristforlengelse som den andre parten måtte forstå at han hadde krav på. Virkningen er en begrensning, ikke tap av kravet."
+    },
+    {
+      "id": "NS-33.6.2-1",
+      "type": "standard",
+      "punkt": "33.6.2 første ledd",
+      "merknad": "Tekst: så lenge TE ikke har fremmet krav etter 33.6.1, kan byggherren be om at TE gjør det. Forespørselen er byggherrens handling, ikke et krav fra TE."
+    },
+    {
+      "id": "NS-33.6.2-4",
+      "type": "standard",
+      "punkt": "33.6.2 fjerde ledd",
+      "merknad": "Tekst: angir og begrunner TE dagene etter bokstav a, skal byggherren svare etter 33.7 og kan da ikke påberope at fristen i 33.6.1 er oversittet. Etter femte ledd gjelder 33.6.1 når TE har svart etter bokstav b."
+    },
+    {
+      "id": "NS-33.7-2",
+      "type": "standard",
+      "punkt": "33.7 annet ledd",
+      "merknad": "Tekst: innsigelser mot kravet tapes dersom de ikke fremsettes innen fristen (uten ugrunnet opphold etter mottatt begrunnet krav med dager, første ledd). Brukt som premiss, som NS-5-3."
+    }
+  ],
+  "rader": [
+    {
+      "id": "KA-01",
+      "tilfelle": "Byggherren svarer på gjeldende kravversjon.",
+      "forventet": "Svaret gjelder den versjonen, og sporet får status etter serverens resultat.",
+      "bh_standpunkt": "Resultat, beløp eller dager og subsidiært standpunkt regnet av serveren.",
+      "rettslig_virkning": "Byggherrens standpunkt til versjonen er tatt.",
+      "rettidighet": "Byggherrens vurderinger i svaret; se KA-18a–KA-18c.",
+      "tidsakse": "registrering",
+      "kilder": [
+        "V-B13"
+      ],
+      "tolkningsstatus": "avklart_tolkning"
+    },
+    {
+      "id": "KA-02",
+      "tilfelle": "TE sender en ny kravversjon etter et svar som ikke er godtatt (delvis godkjent).",
+      "forventet": "Sporet venter på svar (`SENDT`).",
+      "bh_standpunkt": "Ikke vurdert for den nye versjonen. Forrige svar gjelder forrige versjon.",
+      "rettslig_virkning": "Ingen enighet om den nye versjonen.",
+      "rettidighet": "Byggherrens svar på den nye versjonen: ikke vurdert.",
+      "tidsakse": "registrering",
+      "kilder": [
+        "V-KRAVVERSJON",
+        "V-SK02-SK03"
+      ],
+      "tolkningsstatus": "avklart_tolkning"
+    },
+    {
+      "id": "KA-03",
+      "tilfelle": "TE sender en ny kravversjon etter et fullt godkjent svar.",
+      "forventet": "Sporet venter på svar. Saken blir ikke `OMFORENT` og EO kan ikke utstedes før byggherren har svart.",
+      "bh_standpunkt": "Ikke vurdert for den nye versjonen.",
+      "rettslig_virkning": "Godkjenningen gjaldt forrige versjon. Den nye versjonen er ikke avgjort.",
+      "rettidighet": "Byggherrens svar på den nye versjonen: ikke vurdert.",
+      "tidsakse": "registrering",
+      "kilder": [
+        "V-SK02-SK03",
+        "V-KRAVVERSJON"
+      ],
+      "tolkningsstatus": "avklart_tolkning"
+    },
+    {
+      "id": "KA-04",
+      "tilfelle": "TE sender en ny kravversjon etter å ha godtatt svaret.",
+      "forventet": "Aksepten faller, og sporet venter på svar.",
+      "bh_standpunkt": "Ikke vurdert for den nye versjonen.",
+      "rettslig_virkning": "Enigheten gjaldt forrige versjon.",
+      "rettidighet": "Byggherrens svar på den nye versjonen: ikke vurdert.",
+      "tidsakse": "registrering",
+      "kilder": [
+        "V-SK02-SK03"
+      ],
+      "tolkningsstatus": "avklart_tolkning"
+    },
+    {
+      "id": "KA-05",
+      "tilfelle": "TE sender en ny kravversjon etter å ha godtatt et avslag.",
+      "forventet": "Aksepten faller, og sporet venter på svar.",
+      "bh_standpunkt": "Ikke vurdert for den nye versjonen.",
+      "rettslig_virkning": "Det godtatte avslaget gjaldt forrige versjon.",
+      "rettidighet": "Byggherrens svar på den nye versjonen: ikke vurdert.",
+      "tidsakse": "registrering",
+      "kilder": [
+        "V-SK02-SK03"
+      ],
+      "tolkningsstatus": "avklart_tolkning"
+    },
+    {
+      "id": "KA-06",
+      "tilfelle": "TE sender en ny kravversjon med uendrede verdier.",
+      "forventet": "Ny kravversjon, som KA-02: sporet venter på svar.",
+      "bh_standpunkt": "Ikke vurdert for den nye versjonen.",
+      "rettslig_virkning": "Som KA-02.",
+      "rettidighet": "Byggherrens svar på den nye versjonen: ikke vurdert.",
+      "tidsakse": "registrering",
+      "kilder": [
+        "V-KRAVVERSJON"
+      ],
+      "tolkningsstatus": "avklart_tolkning"
+    },
+    {
+      "id": "KA-07",
+      "tilfelle": "TE godtar mens sporet venter på svar på en ny kravversjon.",
+      "forventet": "Aksepten avvises, og journalen er uendret.",
+      "bh_standpunkt": "Ingen svar på gjeldende versjon.",
+      "rettslig_virkning": "Ingen enighet. Svaret på forrige versjon kan ikke godtas.",
+      "rettidighet": "—",
+      "tidsakse": "registrering",
+      "kilder": [
+        "KA-U1",
+        "V-SK02-SK03"
+      ],
+      "tolkningsstatus": "avklart_tolkning"
+    },
+    {
+      "id": "KA-08a",
+      "tilfelle": "TE godtar et gjeldende svar som er avslått.",
+      "forventet": "Aksepten registreres. Sporet blir `AVSLATT_AKSEPTERT`.",
+      "bh_standpunkt": "Uendret: avslått.",
+      "rettslig_virkning": "Kravet er oppgjort på byggherrens premisser.",
+      "rettidighet": "—",
+      "tidsakse": "registrering",
+      "kilder": [
+        "V-TFR01",
+        "KA-U1"
+      ],
+      "tolkningsstatus": "avklart_tolkning"
+    },
+    {
+      "id": "KA-08b",
+      "tilfelle": "TE godtar et gjeldende svar som er delvis godkjent.",
+      "forventet": "Aksepten registreres. Sporet blir `GODKJENT`, med byggherrens beløp.",
+      "bh_standpunkt": "Uendret: delvis godkjent.",
+      "rettslig_virkning": "Enighet om byggherrens beløp.",
+      "rettidighet": "—",
+      "tidsakse": "registrering",
+      "kilder": [
+        "KA-U1"
+      ],
+      "tolkningsstatus": "arbeidshypotese"
+    },
+    {
+      "id": "KA-09",
+      "tilfelle": "TE godtar et fristsvar som er prinsipalt avslått fordi varselet etter § 33.4 kom for sent, med subsidiært godkjente dager.",
+      "forventet": "Godtatt avslag (`AVSLATT_AKSEPTERT`). De subsidiære dagene gjør ikke sporet `GODKJENT`.",
+      "bh_standpunkt": "Prinsipalt avslått (preklusjon trukket av systemet), subsidiært godkjente dager.",
+      "rettslig_virkning": "Aksepten gjelder hele svaret, også preklusjonen (KA-U1). Etter § 33.4 annet ledd er kravet da tapt, og de subsidiære dagene får ingen virkning. Om byggherrens innsigelse kom i tide (§ 5 tredje ledd), er uten betydning når TE godtar den.",
+      "rettidighet": "Byggherrens vurdering av varselet: for sent.",
+      "tidsakse": "registrering",
+      "kilder": [
+        "KA-U1",
+        "NS-33.4-2",
+        "V-B13-PREKLUSJON",
+        "V-TFR01",
+        "NS-5-3"
+      ],
+      "tolkningsstatus": "avklart_tolkning"
+    },
+    {
+      "id": "KA-10",
+      "tilfelle": "TE godtar et grunnlagssvar som påberoper at grunnlaget er varslet for sent (§ 32.2).",
+      "forventet": "Godtatt avslag: grunnlaget `AVSLATT_AKSEPTERT`, saken `LUKKET_AVSLATT`, EO kan ikke utstedes.",
+      "bh_standpunkt": "Prinsipalt prekludert, subsidiært godkjent grunnlag.",
+      "rettslig_virkning": "Godtatt avslag.",
+      "rettidighet": "Byggherrens vurdering av grunnlagsvarselet: for sent.",
+      "tidsakse": "registrering",
+      "kilder": [
+        "V-SK01",
+        "KA-U1"
+      ],
+      "tolkningsstatus": "avklart_tolkning"
+    },
+    {
+      "id": "KA-11",
+      "tilfelle": "Byggherren reviderer et svar TE har godtatt.",
+      "forventet": "Revisjonen avvises, og journalen er uendret.",
+      "bh_standpunkt": "Det godtatte svaret står.",
+      "rettslig_virkning": "Enigheten står.",
+      "rettidighet": "—",
+      "tidsakse": "registrering",
+      "kilder": [
+        "V-SK02-SK03"
+      ],
+      "tolkningsstatus": "avklart_tolkning"
+    },
+    {
+      "id": "KA-12",
+      "tilfelle": "Byggherren reviderer et svar som ikke er godtatt, på gjeldende kravversjon.",
+      "forventet": "Revisjonen godtas.",
+      "bh_standpunkt": "Det reviderte svaret.",
+      "rettslig_virkning": "Byggherrens nye standpunkt til versjonen.",
+      "rettidighet": "—",
+      "tidsakse": "registrering",
+      "kilder": [
+        "V-SK02-SK03",
+        "V-B13"
+      ],
+      "tolkningsstatus": "arbeidshypotese"
+    },
+    {
+      "id": "KA-13",
+      "tilfelle": "TE har godtatt et svar, sender en ny kravversjon og godtar byggherrens svar på den.",
+      "forventet": "Den nye aksepten godtas.",
+      "bh_standpunkt": "Svaret på den nye versjonen.",
+      "rettslig_virkning": "Enighet om den nye versjonen.",
+      "rettidighet": "—",
+      "tidsakse": "registrering",
+      "kilder": [
+        "V-SK02-SK03",
+        "KA-U1"
+      ],
+      "tolkningsstatus": "avklart_tolkning"
+    },
+    {
+      "id": "KA-14",
+      "tilfelle": "TE oppdaterer et krav som er trukket.",
+      "forventet": "Oppdateringen avvises, og journalen er uendret. Et nytt krav om samme forhold går i en ny sak.",
+      "bh_standpunkt": "—",
+      "rettslig_virkning": "Et trukket krav kan ikke tas opp igjen.",
+      "rettidighet": "—",
+      "tidsakse": "registrering",
+      "kilder": [
+        "V-TRUKKET"
+      ],
+      "tolkningsstatus": "avklart_tolkning"
+    },
+    {
+      "id": "KA-15",
+      "tilfelle": "TE sender et frittstående konsekvensvarsel (rigg og drift) etter et spesifisert vederlagskrav.",
+      "forventet": "Ingen ny kravversjon. Gjeldende krav er det samme i projeksjonen og i godkjenningsflyten, og byggherren kan svare på det.",
+      "bh_standpunkt": "Uendret.",
+      "rettslig_virkning": "Varselet er et eget varsel, ikke et nytt krav.",
+      "rettidighet": "—",
+      "tidsakse": "registrering",
+      "kilder": [
+        "KA-U2"
+      ],
+      "tolkningsstatus": "avklart_tolkning"
+    },
+    {
+      "id": "KA-16",
+      "tilfelle": "Byggherren sender forespørsel om spesifisert fristkrav, og TE spesifiserer.",
+      "forventet": "Forespørselen er ingen kravversjon. Når kravet kan besvares, er gjeldende krav det samme i projeksjonen og godkjenningsflyten.",
+      "bh_standpunkt": "—",
+      "rettslig_virkning": "—",
+      "rettidighet": "—",
+      "tidsakse": "registrering",
+      "kilder": [
+        "KA-U2",
+        "NS-33.6.2-1"
+      ],
+      "tolkningsstatus": "avklart_tolkning"
+    },
+    {
+      "id": "KA-17",
+      "tilfelle": "TE sender en ny kravversjon etter at saken er `OMFORENT`.",
+      "forventet": "Kravversjonen avvises, og journalen er uendret.",
+      "bh_standpunkt": "—",
+      "rettslig_virkning": "Saken er oppgjort. Et nytt krav går i en ny sak.",
+      "rettidighet": "—",
+      "tidsakse": "registrering",
+      "kilder": [
+        "KA-U3"
+      ],
+      "tolkningsstatus": "avklart_tolkning"
+    },
+    {
+      "id": "KA-18a",
+      "tilfelle": "Byggherren svarer på et fristkrav som besvarte forespørselen etter § 33.6.2. Spørsmålet etter § 33.6.1 gjelder ikke og vurderes ikke.",
+      "forventet": "`spesifisert_krav_ok` er utelatt i hendelsen og `null` i tilstanden.",
+      "bh_standpunkt": "Ingen begrensning etter § 33.6.1.",
+      "rettslig_virkning": "Byggherren skal svare etter § 33.7 og kan ikke påberope at fristen i § 33.6.1 er oversittet (§ 33.6.2 fjerde ledd).",
+      "rettidighet": "Ikke vurdert.",
+      "tidsakse": "registrering",
+      "kilder": [
+        "KA-U4",
+        "V-API-NULL",
+        "NS-33.6.2-4"
+      ],
+      "tolkningsstatus": "avklart_tolkning"
+    },
+    {
+      "id": "KA-18b",
+      "tilfelle": "Byggherren vurderer spesifiseringen som i tide.",
+      "forventet": "`spesifisert_krav_ok` er `true` i hendelsen og tilstanden.",
+      "bh_standpunkt": "Ingen begrensning etter § 33.6.1.",
+      "rettslig_virkning": "Kravet begrenses ikke etter § 33.6.1. Har byggherren ikke gjort sen spesifisering gjeldende i tide, anses den gitt i tide (§ 5 tredje ledd).",
+      "rettidighet": "I tide.",
+      "tidsakse": "registrering",
+      "kilder": [
+        "KA-U4",
+        "NS-33.6.1",
+        "NS-5-3"
+      ],
+      "tolkningsstatus": "avklart_tolkning"
+    },
+    {
+      "id": "KA-18c",
+      "tilfelle": "Byggherren vurderer spesifiseringen som for sent.",
+      "forventet": "`spesifisert_krav_ok` er `false`, og svaret har utløseren `reduksjon_spesifisert`.",
+      "bh_standpunkt": "Begrensning etter § 33.6.1, regnet av serveren.",
+      "rettslig_virkning": "TE har bare krav på slik fristforlengelse som byggherren måtte forstå (§ 33.6.1). Forutsetter at innsigelsen er fremsatt i tide (§ 5 tredje ledd, § 33.7 annet ledd); det avgjør ikke produktet.",
+      "rettidighet": "For sent.",
+      "tidsakse": "registrering",
+      "kilder": [
+        "KA-U4",
+        "NS-33.6.1",
+        "NS-5-3",
+        "NS-33.7-2",
+        "V-B13"
+      ],
+      "tolkningsstatus": "avklart_tolkning"
+    },
+    {
+      "id": "KA-19",
+      "tilfelle": "TE spesifiserer fristkravet med en annen dato for varselet etter § 33.4 enn det registrerte.",
+      "forventet": "Spesifiseringen avvises, og varselet står med datoen og metoden det fikk første gang.",
+      "bh_standpunkt": "—",
+      "rettslig_virkning": "Varselet er sendt én gang. Datoen kan ikke flyttes av en senere kravversjon.",
+      "rettidighet": "—",
+      "tidsakse": "sendt_mottatt",
+      "kilder": [
+        "V-SK12"
+      ],
+      "tolkningsstatus": "avklart_tolkning"
+    }
+  ]
+}
