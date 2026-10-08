@@ -761,7 +761,7 @@ Feltene i `data`:
 
 ### `te_aksepterer_respons`
 
-TE godtar BHs svar på ett spor, angitt i `spor`.
+TE godtar BHs svar på ett spor, angitt i `spor`. `refererer_til_event_id` (kolonnen `referstoid`) er svaret som godtas, og det må være sporets gjeldende svar (KA-U1). Kommandoen er streng: et ukjent felt avvises. En aksept lagret før #272 har ingen referanse og leses som før. Kontrakten står i docs/domenetabell/kontrakt.json.
 
 | | |
 | --- | --- |
