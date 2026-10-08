@@ -1,6 +1,6 @@
 {
   "formatversjon": 1,
-  "status": "Metodeprøve med avklart deltolkning MP-U4; øvrige forventninger er arbeidshypoteser eller modellkonvensjoner.",
+  "status": "Metodeprøve med avklarte deltolkninger MP-U4–MP-U7; øvrige forventninger er arbeidshypoteser eller modellkonvensjoner.",
   "grunnpremisser": [
     "Rettidig nøytralt varsel er forutsatt.",
     "Utenfor sluttoppgjør; ingen kontraktsavvik.",
@@ -8,7 +8,8 @@
     "Spesifisering inneholder begrunnet antall dager.",
     "Vurderinger er syntetiske premisser; ingen automatisk beregning av uten ugrunnet opphold.",
     "Avklart fravær av tidsinnsigelse er et uttrykkelig premiss, ikke en tom journal.",
-    "Prøven avgjør ikke samlet krav, dagtall eller appens handlingstilgang."
+    "Prøven avgjør ikke samlet krav, dagtall eller appens handlingstilgang.",
+    "Et sendt brev og en senere dokumentert melding er syntetiske handlinger; prøven avgjør ikke bevisverdien av dokumentasjonen."
   ],
   "historisk_sammenlikning": {
     "status": "karakterisering av første Python-prøve, ikke uavhengig juridisk bevis",
@@ -702,6 +703,236 @@
         "TE": true,
         "BH": true
       }
+    },
+    "BRV1": {
+      "type": "brev",
+      "id": "br1",
+      "sak": "prove",
+      "part": "BH",
+      "innsigelser": [
+        {
+          "id": "i1",
+          "til": "k1",
+          "grunn": "sen_spesifisering",
+          "rettidig": {
+            "TE": false,
+            "BH": false
+          }
+        },
+        {
+          "id": "o1",
+          "til": "k1",
+          "grunn": "omfang",
+          "rettidig": {
+            "TE": true,
+            "BH": true
+          }
+        }
+      ]
+    },
+    "BRV2": {
+      "type": "brev",
+      "id": "br1",
+      "sak": "prove",
+      "part": "BH",
+      "innsigelser": [
+        {
+          "id": "i1",
+          "til": "k1",
+          "grunn": "sen_spesifisering",
+          "rettidig": {
+            "TE": true,
+            "BH": true
+          }
+        },
+        {
+          "id": "o1",
+          "til": "k1",
+          "grunn": "omfang",
+          "rettidig": {
+            "TE": false,
+            "BH": false
+          }
+        }
+      ]
+    },
+    "TB": {
+      "type": "innsigelse",
+      "id": "tb1",
+      "sak": "prove",
+      "til": "br1",
+      "part": "TE",
+      "grunn": "sen_melding",
+      "rettidig": {
+        "TE": true,
+        "BH": true
+      }
+    },
+    "TBS": {
+      "type": "innsigelse",
+      "id": "tb1",
+      "sak": "prove",
+      "til": "br1",
+      "part": "TE",
+      "grunn": "sen_melding",
+      "rettidig": {
+        "TE": false,
+        "BH": false
+      }
+    },
+    "ABR": {
+      "type": "avklart_ingen_tidsinnsigelse",
+      "id": "abr1",
+      "sak": "prove",
+      "til": "br1"
+    },
+    "TI": {
+      "type": "innsigelse",
+      "id": "ti1",
+      "sak": "prove",
+      "til": "i1",
+      "part": "TE",
+      "grunn": "sen_melding",
+      "rettidig": {
+        "TE": true,
+        "BH": true
+      }
+    },
+    "XBRDUP": {
+      "type": "brev",
+      "id": "br2",
+      "sak": "prove",
+      "part": "BH",
+      "innsigelser": [
+        {
+          "id": "o2",
+          "til": "k1",
+          "grunn": "omfang",
+          "rettidig": {
+            "TE": true,
+            "BH": true
+          }
+        },
+        {
+          "id": "o2",
+          "til": "k1",
+          "grunn": "omfang",
+          "rettidig": {
+            "TE": true,
+            "BH": true
+          }
+        }
+      ]
+    },
+    "XBROMF": {
+      "type": "innsigelse",
+      "id": "tb1",
+      "sak": "prove",
+      "til": "br1",
+      "part": "TE",
+      "grunn": "omfang",
+      "rettidig": {
+        "TE": true,
+        "BH": true
+      }
+    },
+    "XBRPART": {
+      "type": "innsigelse",
+      "id": "tb1",
+      "sak": "prove",
+      "til": "br1",
+      "part": "BH",
+      "grunn": "sen_melding",
+      "rettidig": {
+        "TE": true,
+        "BH": true
+      }
+    },
+    "AK": {
+      "type": "avklart_ingen_tidsinnsigelse",
+      "id": "ak1",
+      "sak": "prove",
+      "til": "k1"
+    },
+    "AK2": {
+      "type": "avklart_ingen_tidsinnsigelse",
+      "id": "ak2",
+      "sak": "prove",
+      "til": "k1"
+    },
+    "E": {
+      "type": "innsigelse",
+      "id": "e1",
+      "sak": "prove",
+      "til": "k1",
+      "part": "BH",
+      "grunn": "sen_spesifisering",
+      "rettidig": {
+        "TE": true,
+        "BH": true
+      },
+      "senere_dokumentert": true
+    },
+    "EU": {
+      "type": "innsigelse",
+      "id": "e1",
+      "sak": "prove",
+      "til": "k1",
+      "part": "BH",
+      "grunn": "sen_spesifisering",
+      "rettidig": {
+        "TE": true,
+        "BH": true
+      }
+    },
+    "U1": {
+      "type": "utsendt",
+      "id": "u1",
+      "sak": "prove",
+      "part": "TE",
+      "gjelder": "k1",
+      "gjengitt": false
+    },
+    "XU": {
+      "type": "utsendt",
+      "id": "u2",
+      "sak": "prove",
+      "part": "TE",
+      "gjelder": "k1",
+      "gjengitt": true
+    },
+    "MA": {
+      "type": "motstrid_avgjort",
+      "id": "m1",
+      "sak": "prove",
+      "til": "k1",
+      "gjelder": "e1"
+    },
+    "MP": {
+      "type": "motstrid_avgjort",
+      "id": "m1",
+      "sak": "prove",
+      "til": "k1",
+      "gjelder": "ak1"
+    },
+    "XMFEIL": {
+      "type": "motstrid_avgjort",
+      "id": "m2",
+      "sak": "prove",
+      "til": "k1",
+      "gjelder": "u1"
+    },
+    "TO1": {
+      "type": "innsigelse",
+      "id": "to1",
+      "sak": "prove",
+      "til": "o1",
+      "part": "TE",
+      "grunn": "sen_melding",
+      "rettidig": {
+        "TE": true,
+        "BH": true
+      }
     }
   },
   "forlop": [
@@ -1211,6 +1442,351 @@
           }
         }
       ]
+    },
+    {
+      "id": "P3-01",
+      "navn": "ett brev: sen punkt 5-innsigelse og rettidig innsigelse mot omfanget",
+      "kilder": ["R3362-B", "R3361", "R5", "R5-IKKE-REKURSJON", "R337", "M-BREV", "M-UAVKLART"],
+      "forventningsgrunnlag": "arbeidshypotese",
+      "tolkningssporsmal": [],
+      "avklarte_tolkninger": ["U4", "U5"],
+      "steg": ["F", "B", "S", "BRV1"],
+      "kontroller": [
+        {
+          "etter": 4,
+          "forventet": {
+            "journal": ["f1", "b1", "k1", "br1"],
+            "dokumenter": {
+              "br1": ["i1", "o1"]
+            },
+            "begrensning_33_6_1": false,
+            "innsigelser": {
+              "i1": "tapt_paa_tidsgrunnlag",
+              "o1": "ikke_tapt_paa_tidsgrunnlag"
+            },
+            "innsigelsesgrunnlag": {
+              "i1": "punkt_5",
+              "o1": "33.7"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "P3-02",
+      "navn": "ett brev: rettidig punkt 5-innsigelse og sen innsigelse mot omfanget",
+      "kilder": ["R3362-B", "R3361", "R5", "R5-IKKE-REKURSJON", "R337", "M-BREV", "M-UAVKLART"],
+      "forventningsgrunnlag": "arbeidshypotese",
+      "tolkningssporsmal": ["U3"],
+      "avklarte_tolkninger": ["U5"],
+      "steg": ["F", "B", "S", "BRV2"],
+      "kontroller": [
+        {
+          "etter": 4,
+          "forventet": {
+            "begrensning_33_6_1": true,
+            "innsigelser": {
+              "i1": "ikke_tapt_paa_tidsgrunnlag",
+              "o1": "uavklart"
+            },
+            "vurderinger": {
+              "i1": {
+                "TE": true,
+                "BH": true
+              },
+              "o1": {
+                "TE": false,
+                "BH": false
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "P3-03",
+      "navn": "TE-protest mot brevet rammer innsigelsen mot omfanget",
+      "kilder": [
+        "R3362-B",
+        "R3361",
+        "R5",
+        "R5-IKKE-REKURSJON",
+        "R337",
+        "M-BREV",
+        "M-UAVKLART",
+        "R5-SVAR"
+      ],
+      "forventningsgrunnlag": "arbeidshypotese",
+      "tolkningssporsmal": [],
+      "avklarte_tolkninger": ["U4", "U5", "U6"],
+      "steg": ["F", "B", "S", "BRV2", "TB"],
+      "kontroller": [
+        {
+          "etter": 5,
+          "forventet": {
+            "begrensning_33_6_1": true,
+            "innsigelser": {
+              "i1": "ikke_tapt_paa_tidsgrunnlag",
+              "o1": "tapt_paa_tidsgrunnlag",
+              "tb1": "ikke_tapt_paa_tidsgrunnlag"
+            },
+            "innsigelsesgrunnlag": {
+              "tb1": "punkt_5"
+            },
+            "virker_mot": {
+              "tb1": {
+                "i1": "ingen_ny_frist_etter_punkt_5",
+                "o1": "punkt_5"
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "P3-04",
+      "navn": "kontroll: protest mot én innsigelse i brevet gir samme virkning for den",
+      "kilder": ["R3362-B", "R3361", "R5", "R5-IKKE-REKURSJON", "R337", "M-BREV", "M-UAVKLART"],
+      "forventningsgrunnlag": "arbeidshypotese",
+      "tolkningssporsmal": [],
+      "avklarte_tolkninger": ["U4", "U5"],
+      "steg": ["F", "B", "S", "BRV2", "TO1"],
+      "kontroller": [
+        {
+          "etter": 5,
+          "forventet": {
+            "innsigelser": {
+              "o1": "tapt_paa_tidsgrunnlag",
+              "to1": "ikke_tapt_paa_tidsgrunnlag"
+            },
+            "virker_mot": {}
+          }
+        }
+      ]
+    },
+    {
+      "id": "P3-05",
+      "navn": "avklart fravær av protest mot brevet gjør innsigelsen mot omfanget rettidig",
+      "kilder": [
+        "R3362-B",
+        "R3361",
+        "R5",
+        "R5-IKKE-REKURSJON",
+        "R337",
+        "M-BREV",
+        "M-UAVKLART",
+        "R5-SVAR"
+      ],
+      "forventningsgrunnlag": "arbeidshypotese",
+      "tolkningssporsmal": ["U3"],
+      "avklarte_tolkninger": ["U5", "U6"],
+      "steg": ["F", "B", "S", "BRV2", "ABR"],
+      "kontroller": [
+        {
+          "etter": 5,
+          "forventet": {
+            "begrensning_33_6_1": true,
+            "innsigelser": {
+              "i1": "ikke_tapt_paa_tidsgrunnlag",
+              "o1": "ikke_tapt_paa_tidsgrunnlag"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "P3-06",
+      "navn": "sen TE-protest mot brevet er ikke virksom",
+      "kilder": [
+        "R3362-B",
+        "R3361",
+        "R5",
+        "R5-IKKE-REKURSJON",
+        "R337",
+        "M-BREV",
+        "M-UAVKLART",
+        "R5-SVAR"
+      ],
+      "forventningsgrunnlag": "arbeidshypotese",
+      "tolkningssporsmal": [],
+      "avklarte_tolkninger": ["U4", "U5", "U6"],
+      "steg": ["F", "B", "S", "BRV2", "TBS"],
+      "kontroller": [
+        {
+          "etter": 5,
+          "forventet": {
+            "innsigelser": {
+              "o1": "ikke_tapt_paa_tidsgrunnlag",
+              "tb1": "tapt_paa_tidsgrunnlag"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "P3-07",
+      "navn": "protest mot brevet gjenoppliver ikke en sen punkt 5-innsigelse",
+      "kilder": [
+        "R3362-B",
+        "R3361",
+        "R5",
+        "R5-IKKE-REKURSJON",
+        "R337",
+        "M-BREV",
+        "M-UAVKLART",
+        "R5-SVAR"
+      ],
+      "forventningsgrunnlag": "arbeidshypotese",
+      "tolkningssporsmal": [],
+      "avklarte_tolkninger": ["U4", "U5", "U6"],
+      "steg": ["F", "B", "S", "BRV1", "TB"],
+      "kontroller": [
+        {
+          "etter": 5,
+          "forventet": {
+            "begrensning_33_6_1": false,
+            "innsigelser": {
+              "i1": "tapt_paa_tidsgrunnlag",
+              "o1": "ikke_tapt_paa_tidsgrunnlag"
+            },
+            "virker_mot": {
+              "tb1": {
+                "i1": "ingen_ny_frist_etter_punkt_5",
+                "o1": "punkt_5"
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "P4-01",
+      "navn": "kontroll: senere dokumentert innsigelse uten motstrid virker vanlig",
+      "kilder": ["R3362-B", "R3361", "R5", "M-MOTSTRID", "M-UTSENDT", "M-UAVKLART"],
+      "forventningsgrunnlag": "arbeidshypotese",
+      "tolkningssporsmal": [],
+      "avklarte_tolkninger": ["U7"],
+      "steg": ["F", "B", "S", "E"],
+      "kontroller": [
+        {
+          "etter": 4,
+          "forventet": {
+            "begrensning_33_6_1": true,
+            "innsigelser": {
+              "e1": "ikke_tapt_paa_tidsgrunnlag"
+            },
+            "motstrid": {}
+          }
+        }
+      ]
+    },
+    {
+      "id": "P4-02",
+      "navn": "senere dokumentert innsigelse mot avklart fravær gir motstrid, og sendt brev står",
+      "kilder": ["R3362-B", "R3361", "R5", "M-MOTSTRID", "M-UTSENDT", "M-UAVKLART"],
+      "forventningsgrunnlag": "arbeidshypotese",
+      "tolkningssporsmal": ["U3"],
+      "avklarte_tolkninger": ["U7"],
+      "steg": ["F", "B", "S", "AK", "U1", "E"],
+      "kontroller": [
+        {
+          "etter": 5,
+          "forventet": {
+            "journal": ["f1", "b1", "k1", "ak1", "u1"],
+            "begrensning_33_6_1": false,
+            "motstrid": {},
+            "utsendelser": {
+              "u1": {
+                "gjengitt": false,
+                "gjeldende": false,
+                "utdatert": false
+              }
+            }
+          }
+        },
+        {
+          "etter": 6,
+          "forventet": {
+            "journal": ["f1", "b1", "k1", "ak1", "u1", "e1"],
+            "begrensning_33_6_1": null,
+            "innsigelser": {
+              "e1": "uavklart"
+            },
+            "motstrid": {
+              "k1": ["ak1", "e1"]
+            },
+            "utsendelser": {
+              "u1": {
+                "gjengitt": false,
+                "gjeldende": null,
+                "utdatert": true
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "P4-03",
+      "navn": "motstrid avgjort for innsigelsen",
+      "kilder": ["R3362-B", "R3361", "R5", "M-MOTSTRID", "M-UTSENDT", "M-UAVKLART"],
+      "forventningsgrunnlag": "arbeidshypotese",
+      "tolkningssporsmal": ["U3"],
+      "avklarte_tolkninger": ["U7"],
+      "steg": ["F", "B", "S", "AK", "U1", "E", "MA"],
+      "kontroller": [
+        {
+          "etter": 7,
+          "forventet": {
+            "begrensning_33_6_1": true,
+            "innsigelser": {
+              "e1": "ikke_tapt_paa_tidsgrunnlag"
+            },
+            "motstrid": {},
+            "avgjort": {
+              "k1": "e1"
+            },
+            "utsendelser": {
+              "u1": {
+                "gjengitt": false,
+                "gjeldende": true,
+                "utdatert": true
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "P4-04",
+      "navn": "motstrid avgjort for premisset",
+      "kilder": ["R3362-B", "R3361", "R5", "M-MOTSTRID", "M-UTSENDT", "M-UAVKLART"],
+      "forventningsgrunnlag": "arbeidshypotese",
+      "tolkningssporsmal": ["U3"],
+      "avklarte_tolkninger": ["U7"],
+      "steg": ["F", "B", "S", "AK", "U1", "E", "MP"],
+      "kontroller": [
+        {
+          "etter": 7,
+          "forventet": {
+            "begrensning_33_6_1": false,
+            "innsigelser": {
+              "e1": "tilsidesatt"
+            },
+            "motstrid": {},
+            "avgjort": {
+              "k1": "ak1"
+            },
+            "utsendelser": {
+              "u1": {
+                "gjengitt": false,
+                "gjeldende": false,
+                "utdatert": false
+              }
+            }
+          }
+        }
+      ]
     }
   ],
   "avvisninger": [
@@ -1290,6 +1866,105 @@
       "forventningsgrunnlag": "modellkonvensjon",
       "tolkningssporsmal": [],
       "avklarte_tolkninger": []
+    },
+    {
+      "id": "P3-A1",
+      "navn": "duplikat innsigelses-ID i samme brev",
+      "kilder": ["M-BREV", "M-REFERANSE"],
+      "start": ["F", "B", "S"],
+      "handling": "XBRDUP",
+      "forventet_feil": "duplikat_id",
+      "forventningsgrunnlag": "modellkonvensjon",
+      "tolkningssporsmal": [],
+      "avklarte_tolkninger": []
+    },
+    {
+      "id": "P3-A2",
+      "navn": "protest mot brevet må gjelde rettidighet",
+      "kilder": ["R5-SVAR", "M-REFERANSE"],
+      "start": ["F", "B", "S", "BRV2"],
+      "handling": "XBROMF",
+      "forventet_feil": "feil_referansetype",
+      "forventningsgrunnlag": "modellkonvensjon",
+      "tolkningssporsmal": [],
+      "avklarte_tolkninger": []
+    },
+    {
+      "id": "P3-A3",
+      "navn": "protest mot brevet må komme fra mottakeren",
+      "kilder": ["R5-SVAR", "M-REFERANSE"],
+      "start": ["F", "B", "S", "BRV2"],
+      "handling": "XBRPART",
+      "forventet_feil": "feil_part",
+      "forventningsgrunnlag": "modellkonvensjon",
+      "tolkningssporsmal": [],
+      "avklarte_tolkninger": []
+    },
+    {
+      "id": "P3-A4",
+      "navn": "protest mot én innsigelse etter protest mot hele brevet",
+      "kilder": ["R5-SVAR", "M-BREV"],
+      "start": ["F", "B", "S", "BRV2", "TB"],
+      "handling": "TO1",
+      "forventet_feil": "utenfor_provens_omfang",
+      "forventningsgrunnlag": "modellkonvensjon",
+      "tolkningssporsmal": [],
+      "avklarte_tolkninger": []
+    },
+    {
+      "id": "P4-A1",
+      "navn": "motstridende innsigelse uten merket senere dokumentasjon",
+      "kilder": ["M-MOTSTRID"],
+      "start": ["F", "B", "S", "AK"],
+      "handling": "EU",
+      "forventet_feil": "utenfor_provens_omfang",
+      "forventningsgrunnlag": "modellkonvensjon",
+      "tolkningssporsmal": [],
+      "avklarte_tolkninger": []
+    },
+    {
+      "id": "P4-A2",
+      "navn": "nytt fraværspremiss mens motstriden står",
+      "kilder": ["M-MOTSTRID"],
+      "start": ["F", "B", "S", "AK", "E"],
+      "handling": "AK2",
+      "forventet_feil": "motstridende_premiss",
+      "forventningsgrunnlag": "modellkonvensjon",
+      "tolkningssporsmal": [],
+      "avklarte_tolkninger": []
+    },
+    {
+      "id": "P4-A3",
+      "navn": "sendt brev som ikke gjengir utledningen",
+      "kilder": ["M-UTSENDT"],
+      "start": ["F", "B", "S", "AK"],
+      "handling": "XU",
+      "forventet_feil": "gjengivelse_avviker",
+      "forventningsgrunnlag": "modellkonvensjon",
+      "tolkningssporsmal": [],
+      "avklarte_tolkninger": []
+    },
+    {
+      "id": "P4-A4",
+      "navn": "avgjørelse uten motstrid",
+      "kilder": ["M-MOTSTRID"],
+      "start": ["F", "B", "S", "AK"],
+      "handling": "MA",
+      "forventet_feil": "ingen_motstrid",
+      "forventningsgrunnlag": "modellkonvensjon",
+      "tolkningssporsmal": [],
+      "avklarte_tolkninger": []
+    },
+    {
+      "id": "P4-A5",
+      "navn": "avgjørelse for en post utenfor motstriden",
+      "kilder": ["M-MOTSTRID"],
+      "start": ["F", "B", "S", "AK", "U1", "E"],
+      "handling": "XMFEIL",
+      "forventet_feil": "feil_referansetype",
+      "forventningsgrunnlag": "modellkonvensjon",
+      "tolkningssporsmal": [],
+      "avklarte_tolkninger": []
     }
   ],
   "feilinnforinger": [
@@ -1328,6 +2003,42 @@
       "mal": "innsigelser.o1",
       "forventet": "tapt_paa_tidsgrunnlag",
       "kilder": ["R5", "R337"]
+    },
+    {
+      "id": "MUT-BREV-PROTEST",
+      "sak": "P3-03",
+      "etter": 5,
+      "endring": "protest_til_forste_innsigelse",
+      "mal": "innsigelser.o1",
+      "forventet": "tapt_paa_tidsgrunnlag",
+      "kilder": ["R5-SVAR"]
+    },
+    {
+      "id": "MUT-BREV-FELLES",
+      "sak": "P3-01",
+      "etter": 4,
+      "endring": "felles_rettidighet_i_brev",
+      "mal": "innsigelser.o1",
+      "forventet": "ikke_tapt_paa_tidsgrunnlag",
+      "kilder": ["M-BREV"]
+    },
+    {
+      "id": "MUT-DOK",
+      "sak": "P4-02",
+      "etter": 6,
+      "endring": "ny_dokumentasjon_vinner",
+      "mal": "begrensning_33_6_1",
+      "forventet": null,
+      "kilder": ["M-MOTSTRID"]
+    },
+    {
+      "id": "MUT-UTSENDT",
+      "sak": "P4-02",
+      "etter": 6,
+      "endring": "omskriv_utsendt",
+      "mal": "utsendelser.u1.utdatert",
+      "forventet": true,
+      "kilder": ["M-UTSENDT"]
     }
   ]
 }
