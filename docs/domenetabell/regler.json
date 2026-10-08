@@ -1,6 +1,6 @@
 {
   "formatversjon": 1,
-  "omfang": "Kravversjon og aksept i vederlags- og fristsporet (SK-02, SK-03), med tilgrensende rader om godtatt preklusjon (SK-01), låste varsler (SK-12) og byggherrens vurdering av rettidighet. Grunnlagsavhengigheten: grunnlagsendring med og uten endret underkategori, subsidiært svar mens grunnlaget venter på nytt svar, frafall (§ 32.3 c) og trukket grunnlag. EO-særforløp og forsering er ikke dekket.",
+  "omfang": "Kravversjon og aksept i vederlags- og fristsporet (SK-02, SK-03), med tilgrensende rader om godtatt preklusjon (SK-01), låste varsler (SK-12) og byggherrens vurdering av rettidighet. Grunnlagsavhengigheten: grunnlagsendring med og uten endret underkategori, subsidiært svar mens grunnlaget venter på nytt svar, frafall (§ 32.3 c) og trukket grunnlag. EO-særforløpene: endringsordre i KOE-saken, når en KOE-sak kan inngå i en endringsordre, EO-sakens livsløp og koblingen mellom EO-sak og KOE-sak. Forsering er ikke dekket.",
   "tolkningsstatuser": {
     "avklart_tolkning": "Forventningen følger av et vedtak i hovedplanen 3.1. Vedtaket er kilden; tabellen gjentar det ikke.",
     "arbeidshypotese": "Forventningen er utledet av vedtak eller standardtekst, men slutningen er ikke selv vedtatt. Må avklares før den brukes som bindende produktkrav.",
@@ -189,6 +189,55 @@
       "dato": "2026-10-08",
       "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u5",
       "radetikett": "GR-U5: trekker TE grunnlaget, trekkes alle krav som er sendt"
+    },
+    {
+      "id": "EO-U1",
+      "type": "vedtak",
+      "dato": "2026-10-08",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#eo-u1",
+      "radetikett": "EO-U1: en endringsordre utstedes bare som EO-sak"
+    },
+    {
+      "id": "EO-U2",
+      "type": "vedtak",
+      "dato": "2026-10-08",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#eo-u2",
+      "radetikett": "EO-U2: en KOE-sak kan inngå i en endringsordre når saken er `OMFORENT`"
+    },
+    {
+      "id": "EO-U3",
+      "type": "vedtak",
+      "dato": "2026-10-08",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#eo-u3",
+      "radetikett": "EO-U3: en KOE-sak inngår i høyst én endringsordre"
+    },
+    {
+      "id": "EO-U4",
+      "type": "vedtak",
+      "dato": "2026-10-08",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#eo-u4",
+      "radetikett": "EO-U4: EO-sakens livsløp er strengt"
+    },
+    {
+      "id": "V-TFR02",
+      "type": "vedtak",
+      "dato": "2026-09-23",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger",
+      "radetikett": "TFR-02: forsering får aldri en lukket samlet status. En endringsordre er en ordre og forhandles ikke"
+    },
+    {
+      "id": "V-B02-3",
+      "type": "vedtak",
+      "dato": "2026-09-23",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger",
+      "radetikett": "B-02 punkt 3: «ikke omgå godkjenning» betyr prosedyregaranti"
+    },
+    {
+      "id": "V-EO-KOE",
+      "type": "vedtak",
+      "dato": "2026-09-29",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger",
+      "radetikett": "En endringsordresak kan følge av en KOE-sak, men ikke erstatte den"
     },
     {
       "id": "NS-5-3",
@@ -815,6 +864,328 @@
         "NS-32.3-1c"
       ],
       "tolkningsstatus": "avklart_tolkning"
+    },
+    {
+      "id": "EO-01",
+      "tilfelle": "Byggherren utsteder en endringsordre i en KOE-sak som er `OMFORENT` (`eo_utstedt` i KOE-saken).",
+      "forventet": "Utstedelsen avvises, og journalen er uendret. Sporene står med de avtalte beløpene og dagene.",
+      "bh_standpunkt": "—",
+      "rettslig_virkning": "En endringsordre utstedes som EO-sak, der TE kan godta eller bestride den. Enigheten i KOE-saken står.",
+      "rettidighet": "—",
+      "tidsakse": "registrering",
+      "kilder": [
+        "EO-U1",
+        "V-B02-3",
+        "V-EO-KOE"
+      ],
+      "tolkningsstatus": "avklart_tolkning"
+    },
+    {
+      "id": "EO-02",
+      "tilfelle": "Byggherren har godkjent grunnlaget, og TE har ikke sendt vederlag eller frist.",
+      "forventet": "Saken er `UNDER_BEHANDLING`, og `kan_utstede_eo` er `false`.",
+      "bh_standpunkt": "Godkjent grunnlag.",
+      "rettslig_virkning": "Ansvaret er avklart, men det finnes ikke noe krav å formalisere. TE kan fortsatt sende vederlag og frist.",
+      "rettidighet": "—",
+      "tidsakse": "registrering",
+      "kilder": [
+        "EO-U2",
+        "V-TFR05"
+      ],
+      "tolkningsstatus": "avklart_tolkning"
+    },
+    {
+      "id": "EO-03",
+      "tilfelle": "Byggherren har godkjent grunnlaget og vederlaget, og TE har ikke sendt frist.",
+      "forventet": "`kan_utstede_eo` er `false`. Saken er ikke `OMFORENT`.",
+      "bh_standpunkt": "Godkjent grunnlag og vederlag.",
+      "rettslig_virkning": "Et spor TE fortsatt kan sende, hindrer endringsordre.",
+      "rettidighet": "—",
+      "tidsakse": "registrering",
+      "kilder": [
+        "EO-U2",
+        "V-TFR05"
+      ],
+      "tolkningsstatus": "avklart_tolkning"
+    },
+    {
+      "id": "EO-04",
+      "tilfelle": "TE trekker vederlag og frist etter at byggherren har godkjent grunnlaget.",
+      "forventet": "`kan_utstede_eo` er `false`.",
+      "bh_standpunkt": "Godkjent grunnlag.",
+      "rettslig_virkning": "Ingen godkjent vederlag eller frist å formalisere.",
+      "rettidighet": "—",
+      "tidsakse": "registrering",
+      "kilder": [
+        "EO-U2"
+      ],
+      "tolkningsstatus": "avklart_tolkning"
+    },
+    {
+      "id": "EO-05",
+      "tilfelle": "Byggherren godkjenner vederlaget og avslår fristen, og TE godtar avslaget.",
+      "forventet": "Saken er `OMFORENT`, og `kan_utstede_eo` er `true`.",
+      "bh_standpunkt": "Godkjent vederlag. Avslått frist.",
+      "rettslig_virkning": "Fristen er oppgjort ved godtatt avslag; vederlaget kan formaliseres.",
+      "rettidighet": "—",
+      "tidsakse": "registrering",
+      "kilder": [
+        "EO-U2",
+        "V-TFR01"
+      ],
+      "tolkningsstatus": "avklart_tolkning"
+    },
+    {
+      "id": "EO-06",
+      "tilfelle": "TE godtar et delvis godkjent vederlagssvar, og byggherren godkjenner fristen.",
+      "forventet": "Saken er `OMFORENT`, og `kan_utstede_eo` er `true`.",
+      "bh_standpunkt": "Delvis godkjent vederlag, godtatt av TE. Godkjent frist.",
+      "rettslig_virkning": "Byggherrens beløp er avtalt (KA-U5) og kan formaliseres.",
+      "rettidighet": "—",
+      "tidsakse": "registrering",
+      "kilder": [
+        "EO-U2",
+        "KA-U5"
+      ],
+      "tolkningsstatus": "avklart_tolkning"
+    },
+    {
+      "id": "EO-07",
+      "tilfelle": "Byggherren knytter en KOE-sak som ikke er `OMFORENT`, til en EO-sak gjennom `/api/events` (`eo_koe_lagt_til`).",
+      "forventet": "Tilknytningen avvises, og journalen er uendret. Når KOE-saken er `OMFORENT`, godtas samme tilknytning.",
+      "bh_standpunkt": "—",
+      "rettslig_virkning": "Bare et omforent krav kan formaliseres.",
+      "rettidighet": "—",
+      "tidsakse": "registrering",
+      "kilder": [
+        "EO-U2"
+      ],
+      "tolkningsstatus": "avklart_tolkning"
+    },
+    {
+      "id": "EO-08",
+      "tilfelle": "Byggherren oppretter en EO-sak med en omforent KOE-sak.",
+      "forventet": "`kan_utstede_eo` er `false` i KOE-saken.",
+      "bh_standpunkt": "—",
+      "rettslig_virkning": "KOE-saken inngår i en endringsordre og kan ikke inngå i en annen.",
+      "rettidighet": "—",
+      "tidsakse": "registrering",
+      "kilder": [
+        "EO-U3"
+      ],
+      "tolkningsstatus": "avklart_tolkning"
+    },
+    {
+      "id": "EO-09",
+      "tilfelle": "Byggherren knytter en KOE-sak til en EO-sak mens den inngår i en annen EO-sak som TE har bestridt.",
+      "forventet": "Tilknytningen avvises, og journalen er uendret.",
+      "bh_standpunkt": "—",
+      "rettslig_virkning": "KOE-saken inngår i høyst én endringsordre, også når den er bestridt. TEs uenighet føres i en ny KOE.",
+      "rettidighet": "—",
+      "tidsakse": "registrering",
+      "kilder": [
+        "EO-U3",
+        "V-TFR02"
+      ],
+      "tolkningsstatus": "avklart_tolkning"
+    },
+    {
+      "id": "EO-10",
+      "tilfelle": "Byggherren oppretter en EO-sak (`eo_opprettet`).",
+      "forventet": "Endringsordren er `UTKAST`, og saken er `UTKAST`.",
+      "bh_standpunkt": "—",
+      "rettslig_virkning": "Endringsordren er ikke utstedt.",
+      "rettidighet": "—",
+      "tidsakse": "registrering",
+      "kilder": [
+        "V-TFR02"
+      ],
+      "tolkningsstatus": "avklart_tolkning"
+    },
+    {
+      "id": "EO-11",
+      "tilfelle": "Byggherren utsteder endringsordren.",
+      "forventet": "Endringsordren er `UTSTEDT`, og saken `VENTER_PAA_SVAR`.",
+      "bh_standpunkt": "Endringsordrens beløp og dager.",
+      "rettslig_virkning": "Byggherren har pålagt endringen. TE har ikke svart.",
+      "rettidighet": "—",
+      "tidsakse": "registrering",
+      "kilder": [
+        "V-TFR02"
+      ],
+      "tolkningsstatus": "avklart_tolkning"
+    },
+    {
+      "id": "EO-12",
+      "tilfelle": "TE godtar endringsordren.",
+      "forventet": "Endringsordren er `AKSEPTERT`, og saken `LUKKET`.",
+      "bh_standpunkt": "—",
+      "rettslig_virkning": "Endringsordren er avtalt.",
+      "rettidighet": "—",
+      "tidsakse": "registrering",
+      "kilder": [
+        "V-TFR02"
+      ],
+      "tolkningsstatus": "avklart_tolkning"
+    },
+    {
+      "id": "EO-13",
+      "tilfelle": "TE bestrider endringsordren.",
+      "forventet": "Endringsordren er `BESTRIDT`, og saken `LUKKET`.",
+      "bh_standpunkt": "—",
+      "rettslig_virkning": "En endringsordre forhandles ikke. TEs uenighet føres i en KOE.",
+      "rettidighet": "—",
+      "tidsakse": "registrering",
+      "kilder": [
+        "V-TFR02"
+      ],
+      "tolkningsstatus": "avklart_tolkning"
+    },
+    {
+      "id": "EO-14",
+      "tilfelle": "Byggherren reviderer en bestridt endringsordre, og TE godtar revisjonen.",
+      "forventet": "Etter revisjonen er endringsordren `REVIDERT` med revisjon 1, TEs svar er nullstilt, og saken `VENTER_PAA_SVAR`. Etter aksepten er saken `LUKKET`.",
+      "bh_standpunkt": "Den reviderte endringsordren.",
+      "rettslig_virkning": "TE svarer på den nye utgaven.",
+      "rettidighet": "—",
+      "tidsakse": "registrering",
+      "kilder": [
+        "V-TFR02",
+        "EO-U4"
+      ],
+      "tolkningsstatus": "avklart_tolkning"
+    },
+    {
+      "id": "EO-15",
+      "tilfelle": "TE godtar en endringsordre som ikke er utstedt.",
+      "forventet": "Aksepten avvises, og journalen er uendret.",
+      "bh_standpunkt": "—",
+      "rettslig_virkning": "Det finnes ingen utstedt endringsordre å godta.",
+      "rettidighet": "—",
+      "tidsakse": "registrering",
+      "kilder": [
+        "V-TFR02",
+        "EO-U4"
+      ],
+      "tolkningsstatus": "avklart_tolkning"
+    },
+    {
+      "id": "EO-16",
+      "tilfelle": "Byggherren utsteder samme endringsordre på nytt før TE har svart.",
+      "forventet": "Utstedelsen avvises, og endringsordren står med beløpet fra første utstedelse.",
+      "bh_standpunkt": "Første utstedelse.",
+      "rettslig_virkning": "Endringsordren utstedes én gang. En ny utgave er en revisjon.",
+      "rettidighet": "—",
+      "tidsakse": "registrering",
+      "kilder": [
+        "EO-U4"
+      ],
+      "tolkningsstatus": "avklart_tolkning"
+    },
+    {
+      "id": "EO-17",
+      "tilfelle": "Byggherren utsteder endringsordren på nytt etter at TE har godtatt den.",
+      "forventet": "Utstedelsen avvises. Endringsordren står som `AKSEPTERT`, med TEs aksept og det avtalte beløpet.",
+      "bh_standpunkt": "Den godtatte endringsordren.",
+      "rettslig_virkning": "En akseptert endringsordre er endelig.",
+      "rettidighet": "—",
+      "tidsakse": "registrering",
+      "kilder": [
+        "EO-U4"
+      ],
+      "tolkningsstatus": "avklart_tolkning"
+    },
+    {
+      "id": "EO-18",
+      "tilfelle": "Byggherren reviderer en utstedt endringsordre som TE ikke har bestridt.",
+      "forventet": "Revisjonen avvises, og endringsordren står som `UTSTEDT` med revisjon 0. En bestridt endringsordre kan revideres.",
+      "bh_standpunkt": "Den utstedte endringsordren.",
+      "rettslig_virkning": "Byggherren reviderer bare en bestridt endringsordre.",
+      "rettidighet": "—",
+      "tidsakse": "registrering",
+      "kilder": [
+        "EO-U4"
+      ],
+      "tolkningsstatus": "avklart_tolkning"
+    },
+    {
+      "id": "EO-19",
+      "tilfelle": "TE bestrider endringsordren en gang til.",
+      "forventet": "Den andre bestridelsen avvises, og journalen er uendret.",
+      "bh_standpunkt": "—",
+      "rettslig_virkning": "TE svarer én gang på hver utgave.",
+      "rettidighet": "—",
+      "tidsakse": "registrering",
+      "kilder": [
+        "EO-U4"
+      ],
+      "tolkningsstatus": "avklart_tolkning"
+    },
+    {
+      "id": "EO-20",
+      "tilfelle": "TE godtar endringsordren etter å ha bestridt den.",
+      "forventet": "Aksepten avvises, og endringsordren står som `BESTRIDT`.",
+      "bh_standpunkt": "—",
+      "rettslig_virkning": "TE svarer én gang på hver utgave. En revisjon gir TE et nytt svar.",
+      "rettidighet": "—",
+      "tidsakse": "registrering",
+      "kilder": [
+        "EO-U4"
+      ],
+      "tolkningsstatus": "avklart_tolkning"
+    },
+    {
+      "id": "EO-21",
+      "tilfelle": "Byggherren knytter en omforent KOE-sak til en EO-sak etter utstedelsen.",
+      "forventet": "Tilknytningen avvises, og journalen er uendret. Før utstedelsen godtas den.",
+      "bh_standpunkt": "—",
+      "rettslig_virkning": "KOE-tilknytningen endres bare før utstedelse.",
+      "rettidighet": "—",
+      "tidsakse": "registrering",
+      "kilder": [
+        "EO-U4"
+      ],
+      "tolkningsstatus": "avklart_tolkning"
+    },
+    {
+      "id": "EO-22",
+      "tilfelle": "Byggherren fjerner en KOE-sak fra en utstedt endringsordre.",
+      "forventet": "Fjerningen avvises, og KOE-saken inngår fortsatt. Før utstedelsen godtas den.",
+      "bh_standpunkt": "—",
+      "rettslig_virkning": "KOE-tilknytningen endres bare før utstedelse.",
+      "rettidighet": "—",
+      "tidsakse": "registrering",
+      "kilder": [
+        "EO-U4"
+      ],
+      "tolkningsstatus": "avklart_tolkning"
+    },
+    {
+      "id": "EO-23",
+      "tilfelle": "Byggherren oppretter en endringsordre i en KOE-sak (`eo_opprettet`).",
+      "forventet": "Opprettelsen avvises, og journalen er uendret. Samme opprettelse godtas i en EO-sak.",
+      "bh_standpunkt": "—",
+      "rettslig_virkning": "En endringsordresak kan følge av en KOE-sak, men ikke erstatte den.",
+      "rettidighet": "—",
+      "tidsakse": "registrering",
+      "kilder": [
+        "V-EO-KOE",
+        "EO-U1"
+      ],
+      "tolkningsstatus": "avklart_tolkning"
+    },
+    {
+      "id": "EO-24",
+      "tilfelle": "Byggherren utsteder en EO-sak med en KOE-sak i utkastet, og utstedelsen nevner ikke KOE-sakene.",
+      "forventet": "KOE-saken inngår fortsatt i endringsordren.",
+      "bh_standpunkt": "—",
+      "rettslig_virkning": "Tilknytningen er registrert før utstedelse (EO-U4). At en utstedelse uten KOE-liste ikke fjerner den, er ikke vedtatt.",
+      "rettidighet": "—",
+      "tidsakse": "registrering",
+      "kilder": [
+        "EO-U4"
+      ],
+      "tolkningsstatus": "arbeidshypotese"
     }
   ]
 }

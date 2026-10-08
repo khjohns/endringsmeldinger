@@ -32,17 +32,21 @@ AVVISNINGER = {"BUSINESS_RULE_VIOLATION", "VALIDATION_ERROR"}
 class Rutebane:
     rute = "/api/events"
 
-    def __init__(self, klient, innlogging, lager, forste=()):
-        """`forste` er TE-handlinger som sendes i samme batch som `sak_opprettet`."""
+    def __init__(self, klient, innlogging, lager, forste=(), sakstype="standard"):
+        """`forste` er TE-handlinger som sendes i samme batch som `sak_opprettet`.
+        Byggherren oppretter en EO-sak, slik `opprett_endringsordresak` gjør."""
         self.klient, self.innlogging, self.lager = klient, innlogging, lager
         self.sak_id = str(uuid4())
-        self._som("TE")
+        if forste and sakstype != "standard":
+            raise ValueError("TE-handlinger sendes sammen med sak_opprettet bare for en KOE-sak")
+        self._som("BH" if sakstype == "endringsordre" else "TE")
         svar = klient.post(
             "/api/events/batch",
             json={
                 "sak_id": self.sak_id,
                 "expected_version": 0,
-                "events": [{"event_type": "sak_opprettet", "sakstittel": "Domenetabell"}]
+                "sakstype": sakstype,
+                "events": [{"event_type": "sak_opprettet", "sakstittel": "Domenetabell", "sakstype": sakstype}]
                 + [korpus.foresporsel(h, None, self.sak_id)[1] for h in forste],
             },
             headers=HEADERS,
@@ -55,9 +59,14 @@ class Rutebane:
 
     @contextmanager
     def lesing(self):
-        """Lageret leser bare i prosjektet forespørselen er autorisert for."""
+        """Lageret leser bare i prosjektet forespørselen er autorisert for.
+
+        Projeksjonen slår opp navn (`utstedt_av`) for den innloggede (KR-04,
+        MG-01), så gjenlesingen skjer som samme bruker som ruta.
+        """
         with self.klient.application.test_request_context():
             g.project_id = PROSJEKT
+            g.user = self.innlogging.repo.session.return_value["app_users"]
             yield
 
     def raa_hendelser(self):
@@ -68,7 +77,9 @@ class Rutebane:
         return [parse_event(h) for h in self.raa_hendelser()]
 
     def sak(self):
-        return TimelineService().compute_state(self._hendelser())
+        hendelser = self._hendelser()
+        with self.lesing():
+            return TimelineService().compute_state(hendelser)
 
     def tilstand(self):
         return public_state(self.sak(), self._hendelser())
@@ -113,24 +124,27 @@ class Batchbane(Rutebane):
 
 
 @pytest.fixture(params=[Rutebane, Batchbane], ids=["events", "batch"])
-def bane(request, hendelsesklient, innlogging, container_mot_testbasen):
-    return request.param(hendelsesklient, innlogging, container_mot_testbasen.event_repository)
+def ny_bane(request, hendelsesklient, innlogging, container_mot_testbasen):
+    """`ny_bane(sakstype)` oppretter én sak; et forløp kan ha flere saker."""
+    lager = container_mot_testbasen.event_repository
+    return lambda sakstype: request.param(hendelsesklient, innlogging, lager, sakstype=sakstype)
 
 
 @pytest.fixture
-def rutebane(hendelsesklient, innlogging, container_mot_testbasen):
-    return Rutebane(hendelsesklient, innlogging, container_mot_testbasen.event_repository)
+def ny_rutebane(hendelsesklient, innlogging, container_mot_testbasen):
+    lager = container_mot_testbasen.event_repository
+    return lambda sakstype="standard": Rutebane(hendelsesklient, innlogging, lager, sakstype=sakstype)
 
 
 @pytest.mark.parametrize("forlop", korpus.forlop_parametre())
-def test_forlop_gjennom_ruta(forlop, bane):
-    korpus.kjor(forlop, bane)
+def test_forlop_gjennom_ruta(forlop, ny_bane):
+    korpus.kjor(forlop, ny_bane)
 
 
 @pytest.mark.parametrize("forlop", korpus.invariant_parametre())
-def test_gjeldende_krav_er_det_samme_i_godkjenningen(forlop, rutebane):
+def test_gjeldende_krav_er_det_samme_i_godkjenningen(forlop, ny_rutebane):
     """En batch med én hendelse lagrer det samme, så invarianten prøves bare én gang."""
-    korpus.kjor_invariant(forlop, rutebane)
+    korpus.kjor_invariant(forlop, ny_rutebane)
 
 
 def _vederlagssvar_til_godkjenning(bane, tmp_path):
@@ -159,9 +173,9 @@ def _vederlagssvar_til_godkjenning(bane, tmp_path):
     raises=AssertionError,
     reason="DT-02 (#256): claims() regner konsekvensvarselet som krav, og godkjenningsflyten avviser svaret",
 )
-def test_godkjenningsflyten_kan_svare_etter_et_konsekvensvarsel(rutebane, tmp_path):
+def test_godkjenningsflyten_kan_svare_etter_et_konsekvensvarsel(ny_rutebane, tmp_path):
     """KA-15 og KA-U2. Kontrollsaken er samme svar før konsekvensvarselet."""
-    bane = rutebane
+    bane = ny_rutebane()
     for h in korpus.KORPUS["prefikser"]["basis"]:
         if not bane.send(h)[0]:
             pytest.fail(f"Forutsetning: {h['handling']} avvist")
@@ -180,7 +194,10 @@ def test_godkjenningsflyten_kan_svare_etter_et_konsekvensvarsel(rutebane, tmp_pa
 TE_HANDLINGER = {
     "grunnlag", "grunnlag_ny_versjon", "vederlagskrav", "vederlagskrav_ny_versjon",
     "konsekvensvarsel", "fristvarsel", "fristkrav", "fristkrav_spesifisert", "aksept", "trekk",
+    "eo_aksept", "eo_bestridelse",
 }
+# Batchtestene sender én sak. Forløp med flere saker prøves bare enkeltvis.
+EN_SAK = [f for f in korpus.forlop_parametre(marker_avvik=False) if not korpus.er_flersak(f.values[0])]
 SERVERTID = {"tidsstempel", "siste_oppdatert", "opprettet", "siste_aktivitet"}
 UTEN_SAMMENLIKNING = SERVERTID | {"event_id"}
 
@@ -224,7 +241,7 @@ def _send_batch(bane, gruppe):
     )
 
 
-@pytest.mark.parametrize("forlop", korpus.forlop_parametre(marker_avvik=False))
+@pytest.mark.parametrize("forlop", EN_SAK)
 def test_forlop_i_batcher_gir_samme_journal_og_tilstand(forlop, hendelsesklient, innlogging, container_mot_testbasen):
     """Kontrakten i `submit_batch`: hendelsene valideres i rekkefølge mot tilstanden
     etter de foregående og lagres samlet. Forløpet sendt i batcher skal derfor gi
@@ -234,12 +251,13 @@ def test_forlop_i_batcher_gir_samme_journal_og_tilstand(forlop, hendelsesklient,
     utelates fra batchene."""
     lager = container_mot_testbasen.event_repository
     prefiks, steg = korpus.steg_med_prefiks(forlop)
-    enkeltvis = Rutebane(hendelsesklient, innlogging, lager)
+    sakstype = forlop.get("sakstype", "standard")
+    enkeltvis = Rutebane(hendelsesklient, innlogging, lager, sakstype=sakstype)
     godtatt = [h for h in prefiks + steg if enkeltvis.send(h)[0]]
 
     grupper = _grupper(godtatt)
-    forste = grupper.pop(0) if grupper and grupper[0][0]["handling"] in TE_HANDLINGER else []
-    batch = Rutebane(hendelsesklient, innlogging, lager, forste=forste)
+    forste = grupper.pop(0) if sakstype == "standard" and grupper and grupper[0][0]["handling"] in TE_HANDLINGER else []
+    batch = Rutebane(hendelsesklient, innlogging, lager, forste=forste, sakstype=sakstype)
     for gruppe in grupper:
         svar = _send_batch(batch, gruppe)
         if svar.status_code != 201:
@@ -255,9 +273,9 @@ def _avvisninger_i_te_grupper():
     from tests.test_domenetabell.test_kravversjon_og_aksept import Domenebane
 
     tilfeller = []
-    for forlop in korpus.KORPUS["forlop"]:
+    for forlop in (f.values[0] for f in EN_SAK):
         prefiks, steg = korpus.steg_med_prefiks(forlop)
-        bane, start, antall = Domenebane(), 0, 0
+        bane, start, antall = Domenebane(forlop.get("sakstype", "standard")), 0, 0
         for i, h in enumerate(prefiks + steg):
             rolle, _ = korpus.foresporsel(h, bane.sak(), "S")
             if (rolle == "TE") != (h["handling"] in TE_HANDLINGER):
@@ -283,7 +301,8 @@ def test_batch_med_en_avvist_hendelse_lagrer_ingenting(
     Kontrollsaken er samme batch uten den avviste, som skal godtas."""
     prefiks, steg = korpus.steg_med_prefiks(forlop)
     alle = prefiks + steg
-    bane = Rutebane(hendelsesklient, innlogging, container_mot_testbasen.event_repository)
+    lager = container_mot_testbasen.event_repository
+    bane = Rutebane(hendelsesklient, innlogging, lager, sakstype=forlop.get("sakstype", "standard"))
     for h in alle[:start]:
         bane.send(h)
     gruppe = alle[start : start + antall + 1]
