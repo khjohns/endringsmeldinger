@@ -12,16 +12,42 @@ foreldet, og fila lastes automatisk og blir trodd.
 
 ## Språk
 
-Norsk bokmål i alt: kode, kommentarer, dokumentasjon, commit-meldinger, testnavn.
-Commit-meldinger begynner med liten forbokstav og et verb i imperativ.
-Domenebegrepene er norske og oversettes ikke.
+Norsk bokmål i brukergrensesnitt, kommentarer, dokumentasjon, PR-er,
+commit-meldinger, testnavn og testbeskrivelser. Domenebegrepene er norske og
+presise etter NS 8407 og vedtatt produktatferd. Samme begrep skal ha samme
+betydning i kode, tester og dokumentasjon. Ikke oversett domenet bare for å
+tilpasse det til en LLM.
 
-**Koden skal være klar av seg selv — skriv få kommentarer.** Er noe uklart eller
-komplisert, hører forklaringen hjemme i `docs/`, ikke i en kommentarblokk over
-koden. En kommentar er berettiget når den sier noe leseren ikke kan lese ut av
-koden i det hele tatt: en ekstern beskrankning, en bevisst utelatelse, en
-audit-ID å slå opp. Aldri historikk («her sto tidligere …») — den står i
-dokumentkjeden — og aldri en omskrivning av linja under.
+Egne funksjoner, klasser og variabler har norske navn: `hent_saker`, ikke
+`fetch_cases`. Det gjelder også tekniske hjelpenavn. Engelsk brukes bare der
+navnet kommer utenfra eller er et etablert teknisk begrep: navn i biblioteker, protokollfelt, eksterne
+API-er og ord som `Request`, `retry` og `commit`. Bruk `snake_case` i Python,
+`camelCase` i TypeScript og `PascalCase` for typer der rammeverket ikke bestemmer
+annet. For norske tegn i identifikatorer: følg konvensjonen i den berørte
+modulen; ikke bland skrivemåter.
+Commit-meldinger begynner med liten forbokstav og et verb i imperativ.
+
+**Eksisterende navn er utgangspunkt, ikke fasit.** Forbedre upresise eller
+tvetydige navn innenfor oppgaven, særlig når en modul bygges om. Avklar betydning,
+foretrukket navn og hvilke gamle navn det erstatter i oppgavens domenetabell
+eller begrepsavklaring. Ikke opprett en parallell ordliste. Skill navneendring fra
+endret atferd; uavklart domenesemantikk avgjøres etter arbeidsformen nedenfor.
+Oppdater berørte kallere, tester og referanser samlet. Lagrede hendelsesnavn,
+enumverdier, databasefelt og API-felt er kontrakter: vurder kompatibilitet og
+migrering uttrykkelig, også ved en backend-omskriving.
+
+**Koden skal være klar av seg selv — skriv få kommentarer.** Forklar en lokal
+begrensning eller et overraskende valg kort ved koden når det hjelper neste
+endring. En funn-ID å slå opp i hovedplanen (RV-07, SK-02) er også en berettiget
+kommentar. Bruk docstring når kalleren trenger en kontrakt som signaturen ikke
+uttrykker. Lengre forklaringer som brukes på tvers av moduler, hører hjemme i en
+eksisterende referanse i `docs/`. Ikke opprett et dokument bare fordi koden er
+komplisert; vurder først om koden kan forenkles. Unngå kommentarer som gjentar
+koden, og aldri endringshistorikk («her sto tidligere …») — den står i Git og
+PR-en.
+
+Skriv korte, konkrete setninger. Skill mellom vedtatt, implementert og verifisert,
+og mellom kontraktens ordlyd, vår tolkning og appens atferd.
 
 ## Domenet
 
@@ -194,8 +220,9 @@ TypeScript, og en `DEFAULT` i databasen. Søk etter alle formene før du skriver
 | --- | --- |
 | Funnstatus og alvorlighet, beslutninger, rekkefølgen på arbeidspakkene, og det som er levert, med dato og belegg | Hovedplanen |
 | Invarianter og regler som står seg | Denne fila |
-| Beviset: auditer, design, reviewer, gjennomføringsnotater, oppdrag | `docs/`, i formen [`.claude/rules/dokumentasjon.md`](.claude/rules/dokumentasjon.md) beskriver |
+| Beviset: auditer, design, reviewer, oppdrag, og gjennomføringsnotater ved særskilt behov eller bestilling | `docs/`, i formen [`.claude/rules/dokumentasjon.md`](.claude/rules/dokumentasjon.md) beskriver |
 | Regler som bare gjelder én del av treet: databasen, testene, `docs/` | `.claude/rules/`, som lastes når du arbeider der |
+| Leveranseprosedyren: akseptkriterier, eierskap, utfasing og bevis før en PR er klar | [Leveranseskillen](.claude/skills/leveranse/SKILL.md). PR- og oppgavemalene i `.github/` samler beviset, men eier ingen regler |
 | Hva hver tabell er, hvem som skriver den, og hvor dataene kommer fra | `docs/datamodell/tabeller.toml`. Excel-fila og `tabeller.md` lages av `docs/verktoy/datamodell.py`, og en test feiler når en tabell mangler |
 | Hva hver hendelsestype er, hvem som sender den, bestemmelsen i NS 8407 og hva den gjør med status | `docs/datamodell/hendelser.toml`. Feltene i `data` hentes fra modellene. `hendelser.md` og arkene i Excel-fila lages av samme verktøy, og en test feiler når en type mangler eller katalogen avviker fra koden |
 | Hvordan tabellene henger sammen, og hvilke kall til Catenda som leser eller skriver dem | `docs/datamodell/relasjoner.toml` og `dataflyt.toml`, med skjemaet i `katalog.json`. `relasjoner.md` lages av samme verktøy. En test feiler når en fremmednøkkel eller et kall til Catenda mangler, og når `katalog.json` avviker fra en base bygget fra migrasjonene |
@@ -244,6 +271,18 @@ mulig konsekvens under beskrevne forutsetninger, ikke observert hendelse.
 
 Ingen produksjonskode endres uten at det er bedt om det. Auditrunder leverer
 dokumenter og reproduksjonstester, ikke rettinger.
+
+**Les og følg [leveranseskillen](.claude/skills/leveranse/SKILL.md) to ganger:
+før kode endres i en implementerings- eller refaktoreringsoppgave, og igjen før
+en PR meldes klar.** I Claude Code heter skillen `leveranse`. Andre agenter
+åpner fila direkte. Skillen angir akseptkriterier, eierskap, utfasing, når en
+endring er vesentlig, og hvilket bevis som kreves. En PR som ikke har gått
+gjennom den, er ikke klar.
+Bruk [PR-malen](.github/pull_request_template.md), også ved opprettelse via
+CLI eller API. Arkitekturoppgaver kan bruke
+[oppgavemalen](.github/ISSUE_TEMPLATE/arkitekturendring.md); eksisterende
+issues suppleres i stedet for å dupliseres. Vedtak og arbeidsrekkefølge
+står fortsatt bare i hovedplanen.
 
 **Kjør `/code-review` på egen diff før en PR meldes klar.** Nivå `high` når
 diffen rører `routes/`, `lib/auth/`, lagrene eller migrasjonene, ellers
