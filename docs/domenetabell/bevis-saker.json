@@ -140,8 +140,7 @@
         { "etter": 2, "rolle": "forutsetning", "forventet": { "vederlag.status": "sendt" } },
         { "etter": 3, "rolle": "mal", "forventet": { "avvist": true, "vederlag.te_akseptert": false, "vederlag.status": "sendt" } }
       ],
-      "forventningsgrunnlag": "avklart_tolkning",
-      "kjent_avvik": { "funn": "DT-01", "issue": 256 }
+      "forventningsgrunnlag": "avklart_tolkning"
     },
     {
       "id": "F-KA-08a",
@@ -325,8 +324,7 @@
         { "etter": 3, "rolle": "forutsetning", "forventet": { "frist.kravet_besvarer_foresporselen": true } },
         { "etter": 4, "rolle": "mal", "forventet": { "avvist": false, "frist.spesifisert_krav_ok": null, "lagret.respons_frist.spesifisert_krav_ok": "utelatt" } }
       ],
-      "forventningsgrunnlag": "avklart_tolkning",
-      "kjent_avvik": { "funn": "DT-03", "issue": 286 }
+      "forventningsgrunnlag": "avklart_tolkning"
     },
     {
       "id": "F-KA-18b",
@@ -461,8 +459,7 @@
         { "etter": 2, "rolle": "forutsetning", "forventet": { "grunnlag.status": "sendt", "grunnlag.antall_versjoner": 2 } },
         { "etter": 3, "rolle": "mal", "forventet": { "avvist": true, "grunnlag.te_akseptert": false, "overordnet_status": { "ikke": "LUKKET_AVSLATT" } } }
       ],
-      "forventningsgrunnlag": "avklart_tolkning",
-      "kjent_avvik": { "funn": "DT-04", "issue": 256 }
+      "forventningsgrunnlag": "avklart_tolkning"
     },
     {
       "id": "F-GR-07",

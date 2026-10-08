@@ -175,6 +175,7 @@ class BusinessRuleValidator:
             # ========== TE AKSEPTERER RESPONS ==========
             EventType.TE_AKSEPTERER_RESPONS: [
                 ("BH_HAS_RESPONDED", self._rule_bh_has_responded),
+                ("CURRENT_RESPONSE", self._rule_gjeldende_svar),
                 ("NOT_ALREADY_ACCEPTED", self._rule_not_already_accepted),
             ],
             # ========== FORSERING RULES (§33.8) ==========
@@ -806,6 +807,17 @@ class BusinessRuleValidator:
                 )
 
         return ValidationResult(is_valid=True)
+
+    def _rule_gjeldende_svar(self, event, state):
+        """KA-U1: aksepten gjelder det gjeldende svaret i sporet. Et svar i en
+        annen sak eller et annet spor, et revidert svar og et svar på en
+        tidligere kravversjon er ikke gjeldende."""
+        gjeldende = getattr(state, event.spor.value).gjeldende_respons_event_id
+        if gjeldende is None or event.refererer_til_event_id != gjeldende:
+            return ValidationResult(
+                False, "Aksepten må gjelde gjeldende svar i dette sporet."
+            )
+        return ValidationResult(True)
 
     def _rule_not_already_accepted(
         self, event: AnyEvent, state: SakState

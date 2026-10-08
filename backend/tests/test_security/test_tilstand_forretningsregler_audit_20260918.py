@@ -71,7 +71,7 @@ def _aksept(spor: str, refererer_til: str):
             "spor": spor,
             "aktor_id": "te",
             "aktor_rolle": "TE",
-            "data": {"begrunnelse": "TE aksepterer avslaget"},
+            "data": {"kommentar": "TE aksepterer avslaget"},
         }
     )
 
@@ -169,7 +169,7 @@ def test_te_aksepterer_avslag_gjor_grunnlag_godkjent():
             "spor": "grunnlag",
             "aktor_id": "te",
             "aktor_rolle": "TE",
-            "data": {"begrunnelse": "TE aksepterer avslaget"},
+            "data": {"kommentar": "TE aksepterer avslaget"},
         }
     )
 

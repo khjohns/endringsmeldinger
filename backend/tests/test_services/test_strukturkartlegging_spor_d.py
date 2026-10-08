@@ -220,6 +220,7 @@ class Forlop:
                 aktor_id="te",
                 aktor_rolle="TE",
                 spor=spor,
+                refererer_til_event_id=getattr(self.state, spor.value).respons_event_id,
                 data=TEAkseptererResponsData(),
             )
         )

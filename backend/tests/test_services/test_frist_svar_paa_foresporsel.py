@@ -284,12 +284,12 @@ def _uten_spesifisert_krav_ok(svar):
 
 
 def test_manglende_33_6_1_vurdering_avvises_paa_et_vanlig_krav():
-    """Uten feltet setter modellen `true`, og journalen ville si at BH har
-    vurdert kravet som i tide (§ 33.6.1)."""
+    """Uten feltet har byggherren ikke vurdert kravet (KA-U4). Et vanlig
+    spesifisert krav krever vurderingen etter § 33.6.1."""
     hendelser = _sak_med_godkjent_grunnlag()
     krav = _spesifisert(event_type=EventType.FRIST_KRAV_SENDT)
     svar = _uten_spesifisert_krav_ok(_bh_svar(krav.event_id, True))
-    assert svar.data.spesifisert_krav_ok is True
+    assert svar.data.spesifisert_krav_ok is None
     resultat = regler.validate(svar, timeline.compute_state(hendelser + [krav]))
     assert resultat.violated_rule == "ASSESSMENT_INVALID"
     assert "spesifisert_krav_ok: mangler" in resultat.message

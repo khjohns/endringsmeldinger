@@ -1,0 +1,472 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "kontrakt.json",
+  "title": "Kommando, lagret hendelse og offentlig tilstand for flyten i språkprøven",
+  "description": "Kontrakten fra #272 for den representative flyten i #274: vederlag med grunnlagsavhengighet, et fristscenario med spesifisert krav og TEs aksept. Tre grenser: kommandoen klienten sender til /api/events og /api/events/batch, raden i tabellen `hendelse`, og tilstanden API-et sender. Beskrivelsen står i README.md, avsnittet «Kontrakten for flyten». Annotasjonene x-* er kontraktens egne og ignoreres av en validator.",
+  "x-formatversjon": 1,
+  "x-rader": [
+    "KA-01", "KA-02", "KA-03", "KA-04", "KA-05", "KA-06", "KA-07", "KA-08a", "KA-08b", "KA-09", "KA-10",
+    "KA-11", "KA-12", "KA-13", "KA-18b", "KA-18c", "GR-01", "GR-03", "GR-04", "GR-06", "GR-08"
+  ],
+  "$defs": {
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Hendelses-ID, en UUID satt av serveren."
+    },
+    "spor": { "enum": ["grunnlag", "vederlag", "frist"] },
+    "sporstatus": {
+      "enum": [
+        "ikke_relevant", "utkast", "sendt", "under_behandling", "godkjent", "delvis_godkjent",
+        "avslatt", "under_forhandling", "trukket", "avslatt_akseptert", "laast"
+      ],
+      "x-python": "models.events.SporStatus"
+    },
+    "saksstatus": {
+      "enum": [
+        "UTKAST", "VENTER_PAA_SVAR", "UNDER_BEHANDLING", "UNDER_FORHANDLING", "OMFORENT",
+        "LUKKET_AVSLATT", "LUKKET_TRUKKET", "INGEN_AKTIVE_SPOR", "UKJENT"
+      ],
+      "description": "`overordnet_status` for en KOE-sak. EO- og forseringssaker har egne verdier og er utenfor flyten."
+    },
+    "grunnlagsresultat": {
+      "enum": ["godkjent", "avslatt", "frafalt"],
+      "x-python": "models.events.GrunnlagResponsResultat"
+    },
+    "vederlagsresultat": {
+      "enum": ["godkjent", "delvis_godkjent", "avslatt", "hold_tilbake"],
+      "x-python": "models.events.VederlagBeregningResultat"
+    },
+    "fristresultat": {
+      "enum": ["godkjent", "delvis_godkjent", "avslatt"],
+      "x-python": "models.events.FristBeregningResultat"
+    },
+    "subsidiaer_utloser": {
+      "enum": [
+        "grunnlag_avslatt", "grunnlag_prekludert_32_2", "forseringsrett_avslatt", "preklusjon_hovedkrav",
+        "preklusjon_rigg", "preklusjon_produktivitet", "reduksjon_ep_justering", "preklusjon_varsel",
+        "reduksjon_spesifisert", "ingen_hindring", "metode_avslatt"
+      ],
+      "x-python": "models.events.SubsidiaerTrigger"
+    },
+    "belopsvurdering": {
+      "enum": ["godkjent", "delvis", "avslatt"],
+      "x-python": "models.events.BelopVurdering"
+    },
+    "varselinfo": {
+      "type": "object",
+      "properties": {
+        "dato_sendt": { "type": "string", "description": "YYYY-MM-DD. Tidsaksen sendt/mottatt." },
+        "metode": { "type": "array", "items": { "type": "string" } }
+      },
+      "required": ["dato_sendt"],
+      "additionalProperties": false
+    },
+
+    "konvolutt": {
+      "description": "Forespørselen til POST /api/events. Ukjente felt på dette nivået ignoreres.",
+      "type": "object",
+      "properties": {
+        "sak_id": { "type": "string", "minLength": 1 },
+        "expected_version": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Antall hendelser i journalen klienten har sett. Annen verdi gir 409 VERSION_CONFLICT, og journalen er uendret."
+        },
+        "event": { "type": "object" },
+        "catenda_topic_id": { "type": ["string", "null"], "description": "Må være sakens egen eller utelatt (CATENDA_TOPIC_MISMATCH)." }
+      },
+      "required": ["sak_id", "expected_version", "event"],
+      "x-ukjente-felt": "ignoreres"
+    },
+    "batchkonvolutt": {
+      "description": "Forespørselen til POST /api/events/batch. Hendelsene valideres i rekkefølge og lagres samlet eller ikke i det hele tatt.",
+      "type": "object",
+      "properties": {
+        "sak_id": { "type": "string", "minLength": 1 },
+        "expected_version": { "type": "integer", "minimum": 0 },
+        "events": { "type": "array", "items": { "type": "object" } }
+      },
+      "required": ["sak_id", "expected_version", "events"],
+      "x-ukjente-felt": "ignoreres"
+    },
+    "serverfelt": {
+      "description": "Felt klienten ikke bestemmer. `event_id` og `tidsstempel` avvises (400). `aktor_id`, `aktor_rolle` og `aktor_team_id` overskrives med innloggingen og kontraktsrollen. `sak_id` settes fra konvolutten.",
+      "x-avvises": ["event_id", "tidsstempel"],
+      "x-overskrives": ["aktor_id", "aktor_rolle", "aktor_team_id", "sak_id"]
+    },
+
+    "grunnlagsdata": {
+      "type": "object",
+      "properties": {
+        "tittel": { "type": "string" },
+        "hovedkategori": { "type": "string" },
+        "underkategori": { "type": "string", "description": "Flyten bruker EO og IRREG." },
+        "beskrivelse": { "type": "string" },
+        "dato_oppdaget": { "type": "string" }
+      }
+    },
+
+    "kommando.te_aksepterer_respons": {
+      "description": "TE godtar hele det gjeldende svaret i sporet (KA-U1). Streng: et ukjent felt i kommandoen eller i `data` avvises.",
+      "x-rolle": "TE",
+      "x-kilde": ["KA-U1", "KA-U5"],
+      "type": "object",
+      "properties": {
+        "event_type": { "const": "te_aksepterer_respons" },
+        "spor": { "$ref": "#/$defs/spor" },
+        "refererer_til_event_id": {
+          "$ref": "#/$defs/id",
+          "x-begrep": "Gjeldende svar",
+          "description": "Svaret TE godtar. Må være `<spor>.gjeldende_respons_event_id` i tilstanden. Et svar i en annen sak eller et annet spor, et revidert svar og et svar på en tidligere kravversjon avvises (CURRENT_RESPONSE)."
+        },
+        "data": {
+          "type": "object",
+          "properties": { "kommentar": { "type": ["string", "null"] } },
+          "additionalProperties": false
+        }
+      },
+      "required": ["event_type", "spor", "refererer_til_event_id", "data"],
+      "additionalProperties": false,
+      "x-ukjente-felt": "avvises"
+    },
+    "kommando.grunnlag_opprettet": {
+      "description": "TEs krav om ansvarsgrunnlag. Tolerant: ukjente felt i `data` forkastes ved lagring.",
+      "x-rolle": "TE",
+      "type": "object",
+      "properties": {
+        "event_type": { "const": "grunnlag_opprettet" },
+        "data": {
+          "$ref": "#/$defs/grunnlagsdata",
+          "required": ["tittel", "hovedkategori", "underkategori", "beskrivelse", "dato_oppdaget"]
+        }
+      },
+      "required": ["event_type", "data"],
+      "x-ukjente-felt": "forkastes"
+    },
+    "kommando.grunnlag_oppdatert": {
+      "description": "En ny kravversjon av grunnlaget. Bare feltene som endres, sendes. Endret underkategori, og etter GR-U1 enhver ny versjon, gjør at grunnlaget venter på nytt svar.",
+      "x-rolle": "TE",
+      "x-kilde": ["V-215", "GR-U1"],
+      "type": "object",
+      "properties": {
+        "event_type": { "const": "grunnlag_oppdatert" },
+        "data": { "$ref": "#/$defs/grunnlagsdata" }
+      },
+      "required": ["event_type", "data"],
+      "x-ukjente-felt": "forkastes"
+    },
+    "kommando.respons_grunnlag": {
+      "description": "Byggherrens svar på ansvarsgrunnlaget. Et avslag eller en preklusjon gjør svarene på vederlag og frist subsidiære.",
+      "x-rolle": "BH",
+      "x-kilde": ["B-13"],
+      "type": "object",
+      "properties": {
+        "event_type": { "const": "respons_grunnlag" },
+        "refererer_til_event_id": { "$ref": "#/$defs/id", "description": "`grunnlag.krav_event_id`." },
+        "data": {
+          "type": "object",
+          "properties": {
+            "resultat": { "$ref": "#/$defs/grunnlagsresultat" },
+            "begrunnelse": { "type": "string" },
+            "regelversjon": { "type": "integer" },
+            "grunnlag_varslet_i_tide": { "type": "boolean", "description": "§ 32.2. Utelatt når den ikke er vurdert (KA-U4)." }
+          },
+          "required": ["resultat", "begrunnelse", "regelversjon"]
+        }
+      },
+      "required": ["event_type", "refererer_til_event_id", "data"],
+      "x-ukjente-felt": "forkastes"
+    },
+    "kommando.vederlag_krav_sendt": {
+      "description": "TEs første kravversjon av vederlaget.",
+      "x-rolle": "TE",
+      "type": "object",
+      "properties": {
+        "event_type": { "const": "vederlag_krav_sendt" },
+        "data": {
+          "type": "object",
+          "properties": {
+            "metode": { "const": "FASTPRIS_TILBUD", "description": "Flyten bruker bare fastpris." },
+            "belop_direkte": { "type": "number" },
+            "begrunnelse": { "type": "string" }
+          },
+          "required": ["metode", "belop_direkte", "begrunnelse"]
+        }
+      },
+      "required": ["event_type", "data"],
+      "x-ukjente-felt": "forkastes"
+    },
+    "kommando.vederlag_krav_oppdatert": {
+      "description": "En ny kravversjon av vederlaget, også med uendrede verdier.",
+      "x-rolle": "TE",
+      "x-kilde": ["V-KRAVVERSJON", "KA-U2"],
+      "type": "object",
+      "properties": {
+        "event_type": { "const": "vederlag_krav_oppdatert" },
+        "data": { "$ref": "#/$defs/kommando.vederlag_krav_sendt/properties/data" }
+      },
+      "required": ["event_type", "data"],
+      "x-ukjente-felt": "forkastes"
+    },
+    "kommando.respons_vederlag": {
+      "description": "Byggherrens svar på gjeldende kravversjon av vederlaget. Serveren regner resultatet av vurderingene og avviser et annet (B-13, RESULT_MISMATCH).",
+      "x-rolle": "BH",
+      "x-kilde": ["B-13"],
+      "type": "object",
+      "properties": {
+        "event_type": { "const": "respons_vederlag" },
+        "refererer_til_event_id": { "$ref": "#/$defs/id", "description": "`vederlag.krav_event_id`." },
+        "data": {
+          "type": "object",
+          "properties": {
+            "vederlag_krav_id": { "$ref": "#/$defs/id", "description": "Samme som `refererer_til_event_id`." },
+            "hovedkrav_vurdering": { "$ref": "#/$defs/belopsvurdering" },
+            "aksepterer_metode": { "type": "boolean" },
+            "hovedkrav_godkjent_belop": { "type": "number" },
+            "beregnings_resultat": { "$ref": "#/$defs/vederlagsresultat" },
+            "total_godkjent_belop": { "type": "number" },
+            "total_krevd_belop": { "type": "number" },
+            "subsidiaer_triggers": { "type": "array", "items": { "$ref": "#/$defs/subsidiaer_utloser" } },
+            "regelversjon": { "type": "integer" },
+            "begrunnelse": { "type": "string" }
+          },
+          "required": ["hovedkrav_vurdering", "beregnings_resultat", "regelversjon"]
+        }
+      },
+      "required": ["event_type", "refererer_til_event_id", "data"],
+      "x-ukjente-felt": "forkastes"
+    },
+    "kommando.respons_vederlag_oppdatert": {
+      "description": "Byggherren reviderer svaret på gjeldende kravversjon. Revisjonen erstatter svaret og får en ny ID; den gamle kan ikke lenger godtas.",
+      "x-rolle": "BH",
+      "type": "object",
+      "properties": {
+        "event_type": { "const": "respons_vederlag_oppdatert" },
+        "refererer_til_event_id": { "$ref": "#/$defs/id", "description": "`vederlag.krav_event_id`." },
+        "data": {
+          "type": "object",
+          "properties": {
+            "original_respons_id": { "$ref": "#/$defs/id", "description": "`vederlag.gjeldende_respons_event_id`." },
+            "hovedkrav_vurdering": { "$ref": "#/$defs/belopsvurdering" },
+            "aksepterer_metode": { "type": "boolean" },
+            "hovedkrav_godkjent_belop": { "type": "number" },
+            "beregnings_resultat": { "$ref": "#/$defs/vederlagsresultat" },
+            "total_godkjent_belop": { "type": "number" },
+            "total_krevd_belop": { "type": "number" },
+            "subsidiaer_triggers": { "type": "array", "items": { "$ref": "#/$defs/subsidiaer_utloser" } },
+            "regelversjon": { "type": "integer" },
+            "begrunnelse": { "type": "string" }
+          },
+          "required": ["original_respons_id", "hovedkrav_vurdering", "beregnings_resultat", "regelversjon"]
+        }
+      },
+      "required": ["event_type", "data"],
+      "x-ukjente-felt": "forkastes"
+    },
+    "kommando.frist_krav_sendt": {
+      "description": "TEs spesifiserte krav om fristforlengelse (§ 33.6.1). Flyten sender kravet spesifisert fra start.",
+      "x-rolle": "TE",
+      "type": "object",
+      "properties": {
+        "event_type": { "const": "frist_krav_sendt" },
+        "data": {
+          "type": "object",
+          "properties": {
+            "varsel_type": { "const": "spesifisert" },
+            "antall_dager": { "type": "integer", "minimum": 0 },
+            "begrunnelse": { "type": "string" },
+            "spesifisert_varsel": { "$ref": "#/$defs/varselinfo" },
+            "frist_varsel": { "$ref": "#/$defs/varselinfo", "description": "Varselet etter § 33.4 når det ble sendt før kravet." }
+          },
+          "required": ["varsel_type", "antall_dager", "begrunnelse", "spesifisert_varsel"]
+        }
+      },
+      "required": ["event_type", "data"],
+      "x-ukjente-felt": "forkastes"
+    },
+    "kommando.respons_frist": {
+      "description": "Byggherrens svar på det spesifiserte fristkravet. En vurdering som ikke er gjort, utelates (KA-U4). Serveren krever vurderingene kravet gjør aktuelle og regner resultatet (B-13).",
+      "x-rolle": "BH",
+      "x-kilde": ["B-13", "KA-U4"],
+      "type": "object",
+      "properties": {
+        "event_type": { "const": "respons_frist" },
+        "refererer_til_event_id": { "$ref": "#/$defs/id", "description": "`frist.krav_event_id`." },
+        "data": {
+          "type": "object",
+          "properties": {
+            "frist_krav_id": { "$ref": "#/$defs/id", "description": "Samme som `refererer_til_event_id`." },
+            "frist_varsel_ok": { "type": "boolean", "description": "§ 33.4. `true` i tide, `false` for sent." },
+            "spesifisert_krav_ok": { "type": "boolean", "description": "§ 33.6.1. Kreves for et spesifisert krav som ikke besvarer en forespørsel." },
+            "foresporsel_svar_ok": { "type": "boolean", "description": "§ 33.6.2. Gjelder ikke i flyten og er utelatt." },
+            "vilkar_oppfylt": { "type": "boolean", "description": "§ 33.1." },
+            "godkjent_dager": { "type": "integer", "minimum": 0 },
+            "beregnings_resultat": { "$ref": "#/$defs/fristresultat" },
+            "subsidiaer_triggers": { "type": "array", "items": { "$ref": "#/$defs/subsidiaer_utloser" } },
+            "subsidiaer_resultat": { "$ref": "#/$defs/fristresultat" },
+            "subsidiaer_godkjent_dager": { "type": "integer", "minimum": 0 },
+            "regelversjon": { "type": "integer" },
+            "begrunnelse": { "type": "string" }
+          },
+          "required": ["vilkar_oppfylt", "godkjent_dager", "beregnings_resultat", "regelversjon"]
+        }
+      },
+      "required": ["event_type", "refererer_til_event_id", "data"],
+      "x-ukjente-felt": "forkastes"
+    },
+
+    "rad": {
+      "description": "Kolonnene i `hendelse` som flyten leser. Hele tabellen står i docs/datamodell/tabeller.md. `data` er bare satte felt: et felt uten verdi er utelatt, aldri `null` (API-vedtaket 05.10).",
+      "type": "object",
+      "properties": {
+        "event_id": { "$ref": "#/$defs/id" },
+        "sak_id": { "type": "string" },
+        "event_type": { "type": "string" },
+        "versjon": { "type": "integer", "minimum": 1 },
+        "actorid": { "type": "string", "minLength": 1, "description": "`app_users.id`, aldri et navn." },
+        "actorrole": { "enum": ["TE", "BH"] },
+        "actorteam": { "type": ["string", "null"] },
+        "referstoid": { "type": ["string", "null"] },
+        "data": { "type": "object" }
+      },
+      "required": ["event_id", "sak_id", "event_type", "versjon", "actorid", "actorrole", "referstoid", "data"]
+    },
+    "hendelse.te_aksepterer_respons": {
+      "description": "En aksept lagret etter #272 har `referstoid`. En eldre har ingen og leses som før; projeksjonen ser ikke på referansen.",
+      "type": "object",
+      "properties": {
+        "event_type": { "const": "te_aksepterer_respons" },
+        "actorrole": { "const": "TE" },
+        "referstoid": { "$ref": "#/$defs/id", "description": "Svaret som ble godtatt." },
+        "data": {
+          "type": "object",
+          "properties": {
+            "spor": { "$ref": "#/$defs/spor", "description": "Lagres i `data`; kommandoen har det på toppnivå." },
+            "kommentar": { "type": "string" }
+          },
+          "required": ["spor"],
+          "additionalProperties": false
+        }
+      },
+      "required": ["event_type", "referstoid", "data"],
+      "x-historikk": "Lagret før #272: `referstoid` er null."
+    },
+    "hendelse.respons_frist": {
+      "description": "Vurderingene er lagret bare når de er gjort (KA-U4).",
+      "type": "object",
+      "properties": {
+        "event_type": { "const": "respons_frist" },
+        "actorrole": { "const": "BH" },
+        "referstoid": { "$ref": "#/$defs/id" },
+        "data": {
+          "type": "object",
+          "properties": {
+            "frist_varsel_ok": { "type": "boolean" },
+            "spesifisert_krav_ok": { "type": "boolean" },
+            "foresporsel_svar_ok": { "type": "boolean" },
+            "vilkar_oppfylt": { "type": "boolean" },
+            "godkjent_dager": { "type": "integer" },
+            "beregnings_resultat": { "$ref": "#/$defs/fristresultat" },
+            "regelversjon": { "type": "integer" }
+          },
+          "required": ["vilkar_oppfylt", "godkjent_dager", "beregnings_resultat", "regelversjon"]
+        }
+      },
+      "required": ["event_type", "referstoid", "data"],
+      "x-historikk": "Lagret før #272 kan et svar ha `\"spesifisert_krav_ok\": true` uten at vurderingen er gjort (DT-03)."
+    },
+    "hendelse.respons_vederlag": {
+      "type": "object",
+      "properties": {
+        "event_type": { "enum": ["respons_vederlag", "respons_vederlag_oppdatert"] },
+        "actorrole": { "const": "BH" },
+        "referstoid": { "$ref": "#/$defs/id" },
+        "data": {
+          "type": "object",
+          "properties": {
+            "beregnings_resultat": { "$ref": "#/$defs/vederlagsresultat" },
+            "total_godkjent_belop": { "type": "number" },
+            "regelversjon": { "type": "integer" }
+          },
+          "required": ["beregnings_resultat", "regelversjon"]
+        }
+      },
+      "required": ["event_type", "referstoid", "data"]
+    },
+
+    "tilstand": {
+      "description": "Feltene flyten bruker i tilstanden API-et sender (`state` i svaret fra /api/events og /api/cases/<sak_id>/state). Alle finnes alltid; `null` betyr at feltet ikke har verdi (API-vedtaket 05.10). Andre felt i tilstanden er utenfor kontrakten (#292). x-bruk «forventning»: en rad i tabellen krever opplysningen. «kommando»: klienten trenger den for å bygge en kommando. «adapter»: bare kjøreren i backend/tests/test_domenetabell/korpus.py leser den, med dagens navn.",
+      "type": "object",
+      "properties": {
+        "sak_id": { "type": "string", "x-bruk": "kommando" },
+        "overordnet_status": { "$ref": "#/$defs/saksstatus", "x-bruk": "forventning" },
+        "er_subsidiaert_vederlag": { "type": "boolean", "x-bruk": "forventning", "x-begrep": "Subsidiært: grunnlaget er avslått eller prekludert" },
+        "er_subsidiaert_frist": { "type": "boolean", "x-bruk": "forventning" },
+        "kan_utstede_eo": { "type": "boolean", "x-bruk": "forventning", "x-begrep": "Klar for endringsordre" },
+        "grunnlag": { "$ref": "#/$defs/tilstand.grunnlag" },
+        "vederlag": { "$ref": "#/$defs/tilstand.vederlag" },
+        "frist": { "$ref": "#/$defs/tilstand.frist" }
+      },
+      "required": [
+        "sak_id", "overordnet_status", "er_subsidiaert_vederlag", "er_subsidiaert_frist", "kan_utstede_eo",
+        "grunnlag", "vederlag", "frist"
+      ]
+    },
+    "tilstand.grunnlag": {
+      "type": "object",
+      "properties": {
+        "status": { "$ref": "#/$defs/sporstatus", "x-bruk": "forventning" },
+        "bh_resultat": { "anyOf": [{ "$ref": "#/$defs/grunnlagsresultat" }, { "type": "null" }], "x-bruk": "forventning" },
+        "te_akseptert": { "type": "boolean", "x-bruk": "forventning" },
+        "krav_event_id": { "type": ["string", "null"], "x-bruk": "kommando", "x-begrep": "Gjeldende krav" },
+        "gjeldende_respons_event_id": { "type": ["string", "null"], "x-bruk": "kommando", "x-begrep": "Gjeldende svar" },
+        "respons_event_id": { "type": ["string", "null"], "x-bruk": "adapter", "description": "Siste svar, også på en tidligere kravversjon." }
+      },
+      "required": ["status", "bh_resultat", "te_akseptert", "krav_event_id", "gjeldende_respons_event_id", "respons_event_id"]
+    },
+    "tilstand.vederlag": {
+      "type": "object",
+      "properties": {
+        "status": { "$ref": "#/$defs/sporstatus", "x-bruk": "forventning" },
+        "krevd_belop": { "type": ["number", "null"], "x-bruk": "forventning", "description": "Gjeldende kravversjon." },
+        "godkjent_belop": { "type": ["number", "null"], "x-bruk": "forventning", "description": "Byggherrens beløp i siste svar. Står igjen når sporet venter på svar på en ny versjon." },
+        "bh_resultat": { "anyOf": [{ "$ref": "#/$defs/vederlagsresultat" }, { "type": "null" }], "x-bruk": "forventning" },
+        "te_akseptert": { "type": "boolean", "x-bruk": "forventning" },
+        "antall_versjoner": { "type": "integer", "minimum": 0, "x-bruk": "forventning", "x-begrep": "Kravversjon (antallet)" },
+        "krav_event_id": { "type": ["string", "null"], "x-bruk": "kommando", "x-begrep": "Gjeldende krav" },
+        "gjeldende_respons_event_id": { "type": ["string", "null"], "x-bruk": "kommando", "x-begrep": "Gjeldende svar" },
+        "respons_event_id": { "type": ["string", "null"], "x-bruk": "adapter" },
+        "bh_respondert_versjon": { "type": ["integer", "null"], "x-bruk": "adapter", "description": "0-indeksert. Erstattes i kontrakten av `gjeldende_respons_event_id`." }
+      },
+      "required": [
+        "status", "krevd_belop", "godkjent_belop", "bh_resultat", "te_akseptert", "antall_versjoner",
+        "krav_event_id", "gjeldende_respons_event_id", "respons_event_id", "bh_respondert_versjon"
+      ]
+    },
+    "tilstand.frist": {
+      "type": "object",
+      "properties": {
+        "status": { "$ref": "#/$defs/sporstatus", "x-bruk": "forventning" },
+        "krevd_dager": { "type": ["integer", "null"], "x-bruk": "forventning" },
+        "godkjent_dager": { "type": ["integer", "null"], "x-bruk": "forventning" },
+        "bh_resultat": { "anyOf": [{ "$ref": "#/$defs/fristresultat" }, { "type": "null" }], "x-bruk": "forventning" },
+        "frist_varsel_ok": { "type": ["boolean", "null"], "x-bruk": "forventning", "x-begrep": "Rettidighetsvurdering" },
+        "spesifisert_krav_ok": { "type": ["boolean", "null"], "x-bruk": "forventning", "x-begrep": "Rettidighetsvurdering" },
+        "foresporsel_svar_ok": { "type": ["boolean", "null"], "x-bruk": "forventning", "x-begrep": "Rettidighetsvurdering" },
+        "vilkar_oppfylt": { "type": ["boolean", "null"], "x-bruk": "forventning" },
+        "subsidiaer_resultat": { "anyOf": [{ "$ref": "#/$defs/fristresultat" }, { "type": "null" }], "x-bruk": "forventning" },
+        "subsidiaer_godkjent_dager": { "type": ["integer", "null"], "x-bruk": "forventning" },
+        "subsidiaer_triggers": { "anyOf": [{ "type": "array", "items": { "$ref": "#/$defs/subsidiaer_utloser" } }, { "type": "null" }], "x-bruk": "forventning" },
+        "te_akseptert": { "type": "boolean", "x-bruk": "forventning" },
+        "krav_event_id": { "type": ["string", "null"], "x-bruk": "kommando", "x-begrep": "Gjeldende krav" },
+        "gjeldende_respons_event_id": { "type": ["string", "null"], "x-bruk": "kommando", "x-begrep": "Gjeldende svar" }
+      },
+      "required": [
+        "status", "krevd_dager", "godkjent_dager", "bh_resultat", "frist_varsel_ok", "spesifisert_krav_ok",
+        "foresporsel_svar_ok", "vilkar_oppfylt", "subsidiaer_resultat", "subsidiaer_godkjent_dager",
+        "subsidiaer_triggers", "te_akseptert", "krav_event_id", "gjeldende_respons_event_id"
+      ]
+    }
+  }
+}

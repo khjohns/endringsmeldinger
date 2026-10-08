@@ -188,9 +188,9 @@ def test_godkjenningsflyten_kan_svare_etter_et_konsekvensvarsel(ny_rutebane, tmp
     assert feil is None, feil
 
 
-# Handlingene til TE leser ikke tilstanden, så flere kan gå i én batch; de bygges
-# med `sak=None`, så en som begynner å lese den, feiler. En batch har én
-# kontraktsrolle, og byggherrens svar viser til hendelser i tilstanden.
+# Handlingene til TE kan gå flere i én batch. Bare aksepten leser tilstanden før
+# batchen: svaret TE godtar (KA-U1), som en TE-handling ikke kan endre. En batch
+# har én kontraktsrolle, og byggherrens svar viser til hendelser i tilstanden.
 TE_HANDLINGER = {
     "grunnlag", "grunnlag_ny_versjon", "vederlagskrav", "vederlagskrav_ny_versjon",
     "konsekvensvarsel", "fristvarsel", "fristkrav", "fristkrav_spesifisert", "aksept", "trekk",
@@ -231,8 +231,13 @@ def _normalisert(bane):
 
 
 def _send_batch(bane, gruppe):
-    sak = None if gruppe[0]["handling"] in TE_HANDLINGER else bane.sak()
-    foresporsler = [korpus.foresporsel(h, sak, bane.sak_id) for h in gruppe]
+    sak = bane.sak()
+
+    def tilstand_for(h):
+        leser = h["handling"] == "aksept" or h["handling"] not in TE_HANDLINGER
+        return sak if leser else None
+
+    foresporsler = [korpus.foresporsel(h, tilstand_for(h), bane.sak_id) for h in gruppe]
     bane._som(foresporsler[0][0])
     return bane.klient.post(
         "/api/events/batch",
@@ -310,7 +315,7 @@ def test_batch_med_en_avvist_hendelse_lagrer_ingenting(
     svar = _send_batch(bane, gruppe)
     feil = svar.get_json() or {}
     # Avvisningen skal gjelde den siste hendelsen, av en forretningsregel.
-    sist = korpus.foresporsel(gruppe[-1], None, bane.sak_id)[1]["event_type"]
+    sist = korpus.foresporsel(gruppe[-1], bane.sak(), bane.sak_id)[1]["event_type"]
     if svar.status_code != 400 or feil.get("error") != "BUSINESS_RULE_VIOLATION" or feil.get("failed_event_type") != sist:
         pytest.fail(f"Ventet at forretningsreglene avviste {sist}: {svar.status_code} {feil}")
     assert bane.journal() == journal_for, "En avvist batch skrev hendelser"
