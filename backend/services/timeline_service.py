@@ -229,6 +229,10 @@ class TimelineService:
         for event in ordered_events:
             state = self._apply_event(state, event)
 
+        # Avhenger av grunnlagssporet, så det regnes når hele journalen er lest.
+        for spor in (state.vederlag, state.frist):
+            spor.oppgjort = state._oppgjort(spor)
+
         # Oppdater metadata
         state.antall_events = len(ordered_events)
         state.opprettet = ordered_events[0].tidsstempel

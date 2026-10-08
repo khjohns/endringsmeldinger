@@ -592,8 +592,7 @@
         { "etter": 5, "rolle": "forutsetning", "forventet": { "vederlag.status": "avslatt_akseptert", "frist.status": "avslatt_akseptert" } },
         { "etter": 5, "rolle": "mal", "forventet": { "overordnet_status": "OMFORENT", "kan_utstede_eo": false } }
       ],
-      "forventningsgrunnlag": "avklart_tolkning",
-      "kjent_avvik": { "funn": "SK-04", "issue": 257 }
+      "forventningsgrunnlag": "avklart_tolkning"
     },
     {
       "id": "F-GR-16",
@@ -607,8 +606,7 @@
         { "etter": 2, "rolle": "forutsetning", "forventet": { "grunnlag.bh_resultat": "frafalt" } },
         { "etter": 2, "rolle": "mal", "forventet": { "overordnet_status": "UNDER_BEHANDLING" } }
       ],
-      "forventningsgrunnlag": "avklart_tolkning",
-      "kjent_avvik": { "funn": "SK-04", "issue": 257 }
+      "forventningsgrunnlag": "avklart_tolkning"
     },
     {
       "id": "F-GR-17",
