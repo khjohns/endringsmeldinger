@@ -18,9 +18,9 @@ presise etter NS 8407 og vedtatt produktatferd. Samme begrep skal ha samme
 betydning i kode, tester og dokumentasjon. Ikke oversett domenet bare for å
 tilpasse det til en LLM.
 
-Egne funksjoner, klasser og variabler med domeneinnhold har norske navn:
-`hent_saker`, ikke `fetch_cases`. Engelsk brukes bare der navnet kommer utenfra
-eller er et etablert teknisk begrep: navn i biblioteker, protokollfelt, eksterne
+Egne funksjoner, klasser og variabler har norske navn: `hent_saker`, ikke
+`fetch_cases`. Det gjelder også tekniske hjelpenavn. Engelsk brukes bare der
+navnet kommer utenfra eller er et etablert teknisk begrep: navn i biblioteker, protokollfelt, eksterne
 API-er og ord som `Request`, `retry` og `commit`. Bruk `snake_case` i Python,
 `camelCase` i TypeScript og `PascalCase` for typer der rammeverket ikke bestemmer
 annet. For norske tegn i identifikatorer: følg konvensjonen i den berørte
@@ -38,11 +38,13 @@ migrering uttrykkelig, også ved en backend-omskriving.
 
 **Koden skal være klar av seg selv — skriv få kommentarer.** Forklar en lokal
 begrensning eller et overraskende valg kort ved koden når det hjelper neste
-endring. Bruk docstring når kalleren trenger en kontrakt som signaturen ikke
+endring. En funn-ID å slå opp i hovedplanen (RV-07, SK-02) er også en berettiget
+kommentar. Bruk docstring når kalleren trenger en kontrakt som signaturen ikke
 uttrykker. Lengre forklaringer som brukes på tvers av moduler, hører hjemme i en
 eksisterende referanse i `docs/`. Ikke opprett et dokument bare fordi koden er
 komplisert; vurder først om koden kan forenkles. Unngå kommentarer som gjentar
-koden eller forteller endringshistorikk — historikken står i Git og PR-en.
+koden, og aldri endringshistorikk («her sto tidligere …») — den står i Git og
+PR-en.
 
 Skriv korte, konkrete setninger. Skill mellom vedtatt, implementert og verifisert,
 og mellom kontraktens ordlyd, vår tolkning og appens atferd.
@@ -216,6 +218,7 @@ TypeScript, og en `DEFAULT` i databasen. Søk etter alle formene før du skriver
 | Invarianter og regler som står seg | Denne fila |
 | Beviset: auditer, design, reviewer, oppdrag, og gjennomføringsnotater ved særskilt behov eller bestilling | `docs/`, i formen [`.claude/rules/dokumentasjon.md`](.claude/rules/dokumentasjon.md) beskriver |
 | Regler som bare gjelder én del av treet: databasen, testene, `docs/` | `.claude/rules/`, som lastes når du arbeider der |
+| Leveranseprosedyren: akseptkriterier, eierskap, utfasing og bevis før en PR er klar | [Leveranseskillen](.claude/skills/leveranse/SKILL.md). PR- og oppgavemalene i `.github/` samler beviset, men eier ingen regler |
 | Hva hver tabell er, hvem som skriver den, og hvor dataene kommer fra | `docs/datamodell/tabeller.toml`. Excel-fila og `tabeller.md` lages av `docs/verktoy/datamodell.py`, og en test feiler når en tabell mangler |
 | Hva hver hendelsestype er, hvem som sender den, bestemmelsen i NS 8407 og hva den gjør med status | `docs/datamodell/hendelser.toml`. Feltene i `data` hentes fra modellene. `hendelser.md` og arkene i Excel-fila lages av samme verktøy, og en test feiler når en type mangler eller katalogen avviker fra koden |
 | Hvordan tabellene henger sammen, og hvilke kall til Catenda som leser eller skriver dem | `docs/datamodell/relasjoner.toml` og `dataflyt.toml`, med skjemaet i `katalog.json`. `relasjoner.md` lages av samme verktøy. En test feiler når en fremmednøkkel eller et kall til Catenda mangler, og når `katalog.json` avviker fra en base bygget fra migrasjonene |
