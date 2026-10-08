@@ -210,29 +210,17 @@ utgangspunkt som er passert.
 
 ## Konvensjoner for nye dokumenter
 
-Dato og commit i åpningen. Lenker til forrige ledd i kjeden. Funntabell med ID og
-alvorlighet. Én seksjon per funn, med fil og symbol — ikke linjenummer, som eldes.
-**«Verifikasjon og grenser»** til slutt, som navngir hva som *ikke* er kontrollert.
+**Merknad 2026-10-07:** Det tidligere generelle auditformatet er erstattet av
+[reglene for dokumentasjon](../.claude/rules/dokumentasjon.md). De er den
+autoritative skrivekonvensjonen og skiller varige referanser, prøvbare
+oppskrifter og historiske undersøkelser. En vanlig implementerings-PR trenger
+ikke et eget gjennomføringsnotat.
 
-Skill mellom **«Kjørt og observert»** og **«Lest ut av koden»**. Det er ikke samme
-påstand, og forskjellen er der feilklassifiseringene oppstår.
-
-Setningen «Appen er ikke i produksjon og har ingen reelle data» står i alle
-auditdokumenter, fordi alvorlighet ellers leses som observert hendelse.
-
-Legg nye dokumenter flatt i `docs/`. Navnekonvensjonen — `audit-*`, `handoff-*`,
-`vurdering-*` — grupperer dem allerede, og korpuset har over 200 interne lenker som
-en omorganisering ville brutt. Undermappe brukes når noe er *en annen type ting*
-(`plans/`, `adr/`, og `datamodell/`, der filene lages fra et register), ikke når det er
-mange filer.
-
-Merk belegg slik hovedplanen gjør: **K** kjørt og observert (med dato), **L** lest
-i kode eller migrasjonsfil, **D** tidligere kontrollert i databasekatalogen (med
-dato), **H** historisk dokumentert i en audit. En påstand får ikke sterkere merke
-enn kilden bærer.
-
-Lenker løses fra dokumentets egen mappe. Fra `docs/` til kode er det
-`../backend/`, fra `docs/plans/` er det `../../backend/`.
+Språk og navngivning følger [AGENTS.md](../AGENTS.md#språk).
+Kilderegistre og genererte beskrivelser er samlet under
+[datamodellen](#referanse--hvordan-systemet-virker). Denne indeksen peker til
+dokumentene; arbeidsstatus og testresultater vedlikeholdes i sine egne kilder.
+Eksisterende historiske beskrivelser ryddes når de berøres, uten bred flytting.
 
 Lenkekontroll, som også kontrollerer ankre etter GitHubs regler:
 
