@@ -136,10 +136,14 @@ Prøvemodellen er ikke gjenbrukt: forventningene kjøres mot applikasjonen.
 | Domenet | Validering av data, parsing, forretningsreglene og projeksjonen i minnet, i samme rekkefølge som `/api/events`. Hendelsen journalen ville fått, er `to_cloudevent()` i minnet | `backend/tests/test_domenetabell/`, i CI |
 | `/api/events` og testbasen | Ruta med ekte dekoratører og lagre mot PostgreSQL. Avvisning gir uendret journal, og tilstanden i svaret er lik tilstanden regnet av journalen etter gjenlesing | `backend/tests/test_database/test_domenetabell_lagring.py`, i CI-jobben `database` |
 | `/api/events/batch` og testbasen | Som over, med hver handling som eneste hendelse i en batch | Samme fil, parameteren `batch` |
+| Batcher med flere hendelser | Forløpet sendt med TEs påfølgende handlinger i én batch, den første sammen med `sak_opprettet`, gir samme journal og tilstand som enkeltvis. En batch med en avvist TE-handling lagrer ingenting, og samme batch uten den godtas. Likhet mellom to innganger, ikke en domenefasit | Samme fil, `test_forlop_i_batcher_gir_samme_journal_og_tilstand` og `test_batch_med_en_avvist_hendelse_lagrer_ingenting` |
 | Godkjenningsflyten | Bare invarianten om gjeldende krav mot `claims()` | Begge banene over |
 
-Ikke kjørt: batcher med flere hendelser, hele godkjenningsflyten med pakker og
-publisering, Catenda, frontendens skjemaer og en TypeScript-kjører.
+Ikke kjørt: byggherrens svar i batch med andre hendelser (et svar viser til
+hendelser i tilstanden, og en batch har én kontraktsrolle), hele
+godkjenningsflyten med pakker og publisering, Catenda, frontendens skjemaer og
+en TypeScript-kjører. Tilfellene av en avvist hendelse i en batch utledes av
+korpuset; testen feiler hvis det ikke finnes noen.
 Kontrollsakene (`prov`) prøves mot forretningsreglene også i databasebanen,
 fordi en prøve gjennom ruta ville skrevet hendelsen.
 
