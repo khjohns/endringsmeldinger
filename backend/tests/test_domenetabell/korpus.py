@@ -293,7 +293,7 @@ def steg_med_prefiks(forlop: dict) -> tuple[list, list]:
     return copy.deepcopy(prefiks), copy.deepcopy(forlop["steg"])
 
 
-HOVED = "hoved"
+HOVED = verktoy.HOVED
 
 
 def er_flersak(forlop: dict) -> bool:

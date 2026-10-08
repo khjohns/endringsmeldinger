@@ -7,7 +7,7 @@ og regner tilstanden med `TimelineService`. Det journalen ville fått, er
 avvik er strenge `xfail` med funn-ID fra hovedplanen.
 """
 
-from uuid import uuid4
+from itertools import count
 
 import pytest
 
@@ -16,16 +16,20 @@ from models.events import SakOpprettetEvent
 from services.timeline_service import TimelineService
 from tests.test_domenetabell import korpus
 
+_LOPENUMMER = count(1)
+
 
 class Domenebane:
     def __init__(self, sakstype="standard"):
-        self.sak_id = f"S-271-{uuid4().hex[:8]}"
+        """Byggherren oppretter en EO-sak, som i databasebanen."""
+        self.sak_id = f"S-271-{next(_LOPENUMMER)}"
+        rolle = "BH" if sakstype == "endringsordre" else "TE"
         self.timeline = TimelineService()
         self.hendelser = [
             SakOpprettetEvent(
                 sak_id=self.sak_id,
-                aktor_id="te",
-                aktor_rolle="TE",
+                aktor_id=rolle.lower(),
+                aktor_rolle=rolle,
                 sakstittel="Domenetabell",
                 prosjekt_id="p",
                 sakstype=sakstype,
