@@ -31,6 +31,7 @@ Eldre handoffer står under [historikk](#historikk--bevart-ikke-gjeldende).
 
 | Dokument | Hva det gir |
 | --- | --- |
+| [domenetabell](domenetabell/README.md) | Vedtatt forventet atferd med kilde og tolkningsstatus per rad, begrepene krav, kravversjon, svar, standpunkt og aksept, og språkuavhengige bevis-saker som kjøres mot Python-projeksjonen og gjennom `/api/events`. Første del: kravversjon og aksept (#271). Vedtak og funnstatus står i hovedplanen |
 | [metodeprøve: fristkrav og tidsinnsigelser](vedlegg/metodeprove-frist-2026-10-08/README.md) | Isolert JSON/TypeScript-prøve for #271 med kilder, forløp, feilinnføringer og skillet mellom avklarte tolkninger og arbeidshypoteser, også for brev med flere innsigelser og senere dokumentert korrespondanse. Vedtak: hovedplanens MP-U4–MP-U7 |
 | [reviewoppfølging: målarkitektur og gjennomføring](review-oppfolging-arkitektur-2026-10-07.md) | Presiseringer etter review av #266/#270, kobling til hovedplanens B-14/B-10 og åpne B-15/B-16, samt dokumenterte GitHub-begrensninger |
 | [forslag: målarkitektur og beslutningsprøve](forslag-maalarkitektur-og-beslutningsproeve-2026-10-07.md) · [opprinnelig forslag](vedlegg/arkitekturvalg-2026-10-07/README.md) | Oppdragsgivers forslag bearbeidet mot PR #266, med eksplisitte servergrenser og en avgrenset prøve av delt TypeScript-kjerne; ikke et vedtak om språkbytte |
