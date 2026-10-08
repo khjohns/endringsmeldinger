@@ -69,6 +69,7 @@
   const fristVarselOk = $derived(responseData.frist_varsel_ok ?? frist.frist_varsel_ok);
   const spesifisertKravOk = $derived(responseData.spesifisert_krav_ok ?? frist.spesifisert_krav_ok);
   const vilkarOppfylt = $derived(responseData.vilkar_oppfylt ?? frist.vilkar_oppfylt);
+  // En vurdering som ikke er gjort, er utelatt i hendelsen og null i tilstanden (KA-U4).
   const assessmentRows = $derived.by(() => {
     const rows: Array<{
       label: string;
@@ -77,7 +78,7 @@
       tone: 'positive' | 'warning' | 'negative';
     }> = [];
 
-    if (fristVarselOk !== undefined) {
+    if (typeof fristVarselOk === 'boolean') {
       rows.push({
         label: 'Foreløpig varsel',
         ref: '§ 33.4',
@@ -85,7 +86,7 @@
         tone: fristVarselOk ? 'positive' : 'negative',
       });
     }
-    if (spesifisertKravOk !== undefined) {
+    if (typeof spesifisertKravOk === 'boolean') {
       rows.push({
         label: 'Spesifisert krav',
         ref: '§ 33.6.1',
@@ -93,7 +94,7 @@
         tone: spesifisertKravOk ? 'positive' : 'warning',
       });
     }
-    if (vilkarOppfylt !== undefined) {
+    if (typeof vilkarOppfylt === 'boolean') {
       rows.push({
         label: 'Årsakssammenheng',
         ref: '§ 33.1',

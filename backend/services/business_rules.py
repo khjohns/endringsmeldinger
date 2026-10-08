@@ -810,8 +810,8 @@ class BusinessRuleValidator:
 
     def _rule_gjeldende_svar(self, event, state):
         """KA-U1: aksepten gjelder det gjeldende svaret i sporet. Et svar i en
-        annen sak eller et annet spor, et revidert svar og et svar på en
-        tidligere kravversjon er ikke gjeldende."""
+        annen sak eller et annet spor, et svar som er erstattet av en revisjon,
+        og et svar på en tidligere kravversjon er ikke gjeldende."""
         gjeldende = getattr(state, event.spor.value).gjeldende_respons_event_id
         if gjeldende is None or event.refererer_til_event_id != gjeldende:
             return ValidationResult(

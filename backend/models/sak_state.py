@@ -85,18 +85,23 @@ class SendtKonsekvensVarsel(BaseModel):
     event_id: str
 
 
-def _gjeldende_respons(spor) -> str | None:
-    """Svaret på sporets gjeldende kravversjon, eller `None` når sporet venter på
-    svar. TE kan bare godta dette svaret (KA-U1). `bh_respondert_versjon` er
-    0-indeksert."""
-    if spor.respons_event_id and spor.bh_respondert_versjon == max(
-        0, spor.antall_versjoner - 1
-    ):
-        return spor.respons_event_id
-    return None
+class _SvarPaaKrav(BaseModel):
+    """Felles for sporene som har krav og svar."""
+
+    @computed_field
+    @property
+    def gjeldende_respons_event_id(self) -> str | None:
+        """Svaret på sporets gjeldende kravversjon, eller `None` når sporet
+        venter på svar. TE kan bare godta dette svaret (KA-U1, KT-U1).
+        `bh_respondert_versjon` er 0-indeksert."""
+        if self.respons_event_id and self.bh_respondert_versjon == max(
+            0, self.antall_versjoner - 1
+        ):
+            return self.respons_event_id
+        return None
 
 
-class GrunnlagTilstand(BaseModel):
+class GrunnlagTilstand(_SvarPaaKrav):
     """Aggregert tilstand for grunnlag-sporet"""
 
     krav_event_id: str | None = None
@@ -154,13 +159,8 @@ class GrunnlagTilstand(BaseModel):
     siste_oppdatert: datetime | None = Field(default=None)
     antall_versjoner: int = Field(default=0)
 
-    @computed_field
-    @property
-    def gjeldende_respons_event_id(self) -> str | None:
-        return _gjeldende_respons(self)
 
-
-class VederlagTilstand(BaseModel):
+class VederlagTilstand(_SvarPaaKrav):
     """
     Aggregert tilstand for vederlag-sporet.
 
@@ -335,11 +335,6 @@ class VederlagTilstand(BaseModel):
     siste_event_id: str | None = Field(default=None)
     siste_oppdatert: datetime | None = Field(default=None)
     antall_versjoner: int = Field(default=0)
-
-    @computed_field
-    @property
-    def gjeldende_respons_event_id(self) -> str | None:
-        return _gjeldende_respons(self)
 
 
 # ============ FORSERING VEDERLAG (§33.8 + §34.1.3) ============
@@ -708,7 +703,7 @@ class EndringsordreData(BaseModel):
         )
 
 
-class FristTilstand(BaseModel):
+class FristTilstand(_SvarPaaKrav):
     """Aggregert tilstand for frist-sporet"""
 
     varsler: list[SendtKonsekvensVarsel] = Field(default_factory=list)
@@ -883,11 +878,6 @@ class FristTilstand(BaseModel):
     siste_event_id: str | None = Field(default=None)
     siste_oppdatert: datetime | None = Field(default=None)
     antall_versjoner: int = Field(default=0)
-
-    @computed_field
-    @property
-    def gjeldende_respons_event_id(self) -> str | None:
-        return _gjeldende_respons(self)
 
 
 # ============ HOVEDMODELL ============

@@ -131,7 +131,7 @@
       "x-ukjente-felt": "avvises"
     },
     "kommando.grunnlag_opprettet": {
-      "description": "TEs krav om ansvarsgrunnlag. Tolerant: ukjente felt i `data` forkastes ved lagring.",
+      "description": "TEs krav om ansvarsgrunnlag. Tolerant, som de andre eksisterende kommandoene: ukjente felt i `data` forkastes ved lagring, og skjemaet beskriver det flyten sender, ikke alt serveren godtar.",
       "x-rolle": "TE",
       "type": "object",
       "properties": {
@@ -170,7 +170,7 @@
             "resultat": { "$ref": "#/$defs/grunnlagsresultat" },
             "begrunnelse": { "type": "string" },
             "regelversjon": { "type": "integer" },
-            "grunnlag_varslet_i_tide": { "type": "boolean", "description": "§ 32.2. Utelatt når den ikke er vurdert (KA-U4)." }
+            "grunnlag_varslet_i_tide": { "type": ["boolean", "null"], "description": "§ 32.2. Utelatt eller `null` når den ikke er vurdert (KA-U4); lagres som utelatt." }
           },
           "required": ["resultat", "begrunnelse", "regelversjon"]
         }
@@ -297,9 +297,9 @@
           "type": "object",
           "properties": {
             "frist_krav_id": { "$ref": "#/$defs/id", "description": "Samme som `refererer_til_event_id`." },
-            "frist_varsel_ok": { "type": "boolean", "description": "§ 33.4. `true` i tide, `false` for sent." },
-            "spesifisert_krav_ok": { "type": "boolean", "description": "§ 33.6.1. Kreves for et spesifisert krav som ikke besvarer en forespørsel." },
-            "foresporsel_svar_ok": { "type": "boolean", "description": "§ 33.6.2. Gjelder ikke i flyten og er utelatt." },
+            "frist_varsel_ok": { "type": ["boolean", "null"], "description": "§ 33.4. `true` i tide, `false` for sent, utelatt eller `null` når den ikke er vurdert (KA-U4). Lagres som utelatt." },
+            "spesifisert_krav_ok": { "type": ["boolean", "null"], "description": "§ 33.6.1. Kreves for et spesifisert krav som ikke besvarer en forespørsel (ASSESSMENT_INVALID)." },
+            "foresporsel_svar_ok": { "type": ["boolean", "null"], "description": "§ 33.6.2. Gjelder ikke i flyten og er utelatt eller `null`." },
             "vilkar_oppfylt": { "type": "boolean", "description": "§ 33.1." },
             "godkjent_dager": { "type": "integer", "minimum": 0 },
             "beregnings_resultat": { "$ref": "#/$defs/fristresultat" },
@@ -333,24 +333,23 @@
       "required": ["event_id", "sak_id", "event_type", "versjon", "actorid", "actorrole", "referstoid", "data"]
     },
     "hendelse.te_aksepterer_respons": {
-      "description": "En aksept lagret etter #272 har `referstoid`. En eldre har ingen og leses som før; projeksjonen ser ikke på referansen.",
+      "description": "Det en leser må godta. En aksept skrevet etter #272 har svarets ID i `referstoid`, og `data` har bare `spor` og eventuelt `kommentar`. En eldre har `referstoid` lik `null` og kan ha andre felt i `data`; den leses som før, og projeksjonen ser ikke på referansen.",
       "type": "object",
       "properties": {
         "event_type": { "const": "te_aksepterer_respons" },
         "actorrole": { "const": "TE" },
-        "referstoid": { "$ref": "#/$defs/id", "description": "Svaret som ble godtatt." },
+        "referstoid": { "type": ["string", "null"], "description": "Svaret som ble godtatt. `null` i en aksept lagret før #272." },
         "data": {
           "type": "object",
           "properties": {
             "spor": { "$ref": "#/$defs/spor", "description": "Lagres i `data`; kommandoen har det på toppnivå." },
             "kommentar": { "type": "string" }
           },
-          "required": ["spor"],
-          "additionalProperties": false
+          "required": ["spor"]
         }
       },
       "required": ["event_type", "referstoid", "data"],
-      "x-historikk": "Lagret før #272: `referstoid` er null."
+      "x-skrives": "Etter #272: `referstoid` er svarets ID, og `data` har bare `spor` og eventuelt `kommentar`."
     },
     "hendelse.respons_frist": {
       "description": "Vurderingene er lagret bare når de er gjort (KA-U4).",
