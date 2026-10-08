@@ -126,6 +126,10 @@ const korpusskjema = z
               'fjern_te_innsigelse',
               'bh_vurdering_vinner',
               'gjeninnfor_rekursiv_punkt_5',
+              'protest_til_forste_innsigelse',
+              'felles_rettidighet_i_brev',
+              'ny_dokumentasjon_vinner',
+              'omskriv_utsendt',
             ]),
             mal: z.string(),
             forventet: z.unknown(),
@@ -397,6 +401,35 @@ for (const prove of korpus.feilinnforinger) {
     endret = historikk.map((h) =>
       'rettidig' in h ? { ...h, rettidig: { TE: h.rettidig.BH, BH: h.rettidig.BH } } : h
     );
+  else if (prove.endring === 'protest_til_forste_innsigelse') {
+    const brev = new Map(historikk.filter((h) => h.type === 'brev').map((h) => [h.id, h]));
+    endret = historikk.map((h) =>
+      h.type === 'innsigelse' && brev.has(h.til)
+        ? { ...h, til: brev.get(h.til).innsigelser[0].id }
+        : h
+    );
+  } else if (prove.endring === 'felles_rettidighet_i_brev')
+    endret = historikk.map((h) =>
+      h.type === 'brev'
+        ? {
+            ...h,
+            innsigelser: h.innsigelser.map((i) => ({ ...i, rettidig: h.innsigelser[0].rettidig })),
+          }
+        : h
+    );
+  else if (prove.endring === 'ny_dokumentasjon_vinner') {
+    const dokumentert = new Set(
+      historikk.filter((h) => h.type === 'innsigelse' && h.senere_dokumentert).map((h) => h.til)
+    );
+    endret = historikk.filter(
+      (h) => !(h.type === 'avklart_ingen_tidsinnsigelse' && dokumentert.has(h.til))
+    );
+  } else if (prove.endring === 'omskriv_utsendt') {
+    const naa = utled(historikk).utsendelser;
+    endret = historikk.map((h) =>
+      h.type === 'utsendt' ? { ...h, gjengitt: naa[h.id].gjeldende } : h
+    );
+  }
   const medFeil = felt(
     prove.endring === 'gjeninnfor_rekursiv_punkt_5'
       ? await medRekursivPunkt5(historikk)
@@ -454,7 +487,8 @@ const rapport = {
   grenser: [
     'Isolert prøvemodell, ingen applikasjonskode importert.',
     'JSON-rundtur er ikke database- eller API-bevis.',
-    'MP-U4 er avklart for prøven; øvrige arbeidshypoteser er ikke godkjent gjennom dette.',
+    'MP-U4–MP-U7 er avklart for prøven; øvrige arbeidshypoteser er ikke godkjent gjennom dette.',
+    'Sendte brev og senere dokumentasjon er syntetiske handlinger; bevisverdien vurderes ikke.',
     'Ingen påstand om alle mulige forløp.',
   ],
   enkeltsaker,
