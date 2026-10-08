@@ -2,7 +2,10 @@
 
 **Opprettet:** 2026-09-16. **Sluttredigert:** 2026-09-22, mot commit
 `41c2a16191a5aadbe611e0958db8b93090b08027` (`main`).
-**Sist endret:** 2026-10-05: strukturkartleggingen av spor D levert, elleve
+**Sist endret:** 2026-10-07: B-14 vedtatt med presisert målform og rekkefølge,
+B-10 konkretisert i F2/F5, og B-15/B-16 registrert som åpne beslutninger etter
+oppdragsgivers tilslutning til reviewet av PR #266 og #270. Ingen implementering.
+2026-10-05: strukturkartleggingen av spor D levert, elleve
 vedtak og en presisering av B-13 ført inn i 3.1, B-14 ført opp i 3.4 og
 SK-01–SK-13 registrert i 4.2.
 2026-09-29, senere: spor M 1c levert, og med den
@@ -219,7 +222,8 @@ eksplisitt oppheves.
 | Byggherren kan svare «avslått» og samtidig påberope at grunnlaget er varslet for sent (§ 32.2). Begge grunner gjelder; preklusjonen er hovedgrunnen, og avslaget gjelder subsidiært | 05.10, oppdragsgiver | Godtas i dag (K 05.10). Brev, visning og standpunkt må vise begge, med preklusjonen først (B-14, M1) |
 | SK-12: datoen og metoden for et varsel fra TE settes én gang. Et senere krav med en annen dato avvises. Gjelder varselet om fristforlengelse (§ 33.4) og varslene om rigg/drift og produktivitetstap (§ 34.1.3), som DRF-03 | 05.10, oppdragsgiver | Ikke bygget. I dag overskriver hvert nytt krav varselet (SK-12) |
 | API-et: tilstanden sender alltid alle felt, og `null` betyr at feltet finnes uten verdi. Hendelsesdata i tidslinjen utelater felt som ikke er satt. Frontendtypene følger: `X \| null` i tilstanden, valgfrie felt i hendelsene | 05.10, oppdragsgiver | Serialiseringen er slik i dag; typene er det ikke (SK-08, SK-09, M5) |
-| Et tilstandsløst endepunkt som regner ut et utkast med serverens regler, utredes ikke nå. Speilet i `src/lib/domain/` står under regelversjonsvakten, og B-13 er uendret. Vurderes på nytt når M1 er levert | 05.10, oppdragsgiver | — |
+| Et tilstandsløst endepunkt som regner ut et utkast med serverens regler, utredes ikke nå. Speilet i `src/lib/domain/` står under regelversjonsvakten, og B-13 er uendret. Vurderes på nytt når M1 er levert | 05.10, oppdragsgiver | **Merknad 07.10:** eventuell tidligere utredning behandles separat under B-15; utsettelsen gjelder til nytt vedtak |
+| B-14: målformene for M2, M1, M4 og M5 legges til grunn med presiseringene 07.10; M3 følger grensene som endres. Modulær monolitt og serverautoritet beholdes. Domenetabell og bevis-saker → smal kommando-/API-kontrakt → tidsbegrenset språkprøve → M2/M1 → M4 og videre kontraktsarbeid | 07.10, oppdragsgiver etter review av PR #266 og #270 | Vedtak om retning og prioritering, ikke gjennomført kode eller valgt backendspråk. Detaljer i merknaden til B-14 i 3.4 og [arkitekturforslaget](../forslag-maalarkitektur-og-beslutningsproeve-2026-10-07.md). B-15 og B-16 står åpne |
 | DRF-03: sendedatoen for TEs varsel om justerte enhetspriser (§ 34.3.3) settes av serveren, som den norske datoen for innsendingen når TE krever justering. Et oppdatert krav flytter den ikke. Tar TE ut kravet om justering, faller varselet bort, og et nytt krav er et nytt varsel med ny dato. En dato fra klienten avvises | 29.09, oppdragsgiver | Bygget 29.09 (merknaden i DRF-03) |
 | B-03 hovedvalg: hver innsending får sitt eget brev, som gjelder én part og ett spor, og brevet er det autoritative uttrykket for partens standpunkt. Saksrapporten sendes ikke lenger automatisk til Catenda. En rapport kan senere legges ved et brev, men bare hvis den er feilfri eller har et tydelig forbehold om at brevet gjelder | 03.10, oppdragsgiver | **Merknad 2026-10-03:** saksrapporten er pensjonert (#140). En hendelse uten brev får bare kommentar og statussynk i Catenda, og en PDF fra klienten avvises. Om hvert brev blir et eget dokument i Catenda eller en revisjon av ett dokument per part og spor, står åpent under B-03 |
 | MG-02: webhook kan opprette brukerrader gjennom `koe_resolve_identity` | 21.09 | Gjennomført |
@@ -299,6 +303,14 @@ Tilsluttet av oppdragsgiver 21.09. Føringer for design, ikke implementert.
 > metadata-, hendelses- eller autentiseringslagrene, og ingen forutsetter et
 > databasevalg. Selve lagerovergangen i TS2-02 venter fortsatt på B-12.
 
+> **Merknad 2026-10-07 til AF-06:** B-14 gir et avgrenset unntak for
+> domenetabell, bevis-saker, smal kommando-/API-kontrakt og beslutningsprøven
+> før større språkspesifikk ombygging. Prøven bruker eksisterende PostgreSQL
+> og en isolert teststi. Den erstatter ingen autoritativ produksjonssti,
+> åpner ikke database-/hostingvalget og godkjenner ingen full portering.
+> Sikkerhetsvedlikehold og små uavhengige rettinger kan fortsette innen sine
+> eksisterende føringer. F1/F2s sikkerhets- og transaksjonskrav gjelder fortsatt.
+
 ### 3.3 Anbefalinger som ikke er vedtatt
 
 | Anbefaling | Kilde | Status |
@@ -332,7 +344,9 @@ Et åpent valg blokkerer bare oppgavene som er nevnt.
 | B-11 | Hvilken tidskilde og forvaringskjede skal eksporten bygge på? | Servertid med synkroniseringsgaranti; ekstern tidsstempling; begge | Ingen | Oppdragsgiver med driftsansvarlig, ikke utpekt | Krav ved preklusjonstvist | Eksport i F4 |
 | B-12 | Hvilken plattform skal basen og backend kjøre på? | Database: Azure Database for PostgreSQL (Flexible Server, 17) eller Supabase. Backend: Azure Container Apps eller App Service (Web App for Containers) | Azure PostgreSQL er foreløpig mål (oppdragsgiver 23.09). Begge hostingvalgene virker; Container Apps har jobber som kan drive workeren (B-07). Azure SQL velges ikke uten en konkret grunn fra IKT, fordi det krever et nytt datalag i T-SQL. Fabric er rapportering, ikke backend | Oppdragsgiver med IKT | Svar fra IKT om hosting og database, og tilgang til deploy, Key Vault og en offentlig HTTPS-adresse for Catenda-webhooks | Container og utrulling i F0b. Veien fra migrasjonsfil til base. Plattformkonfigurasjon i F5 |
 | B-13 | Hvem er sannhetskilde for NS 8407-reglene, og hva lagres når partens konklusjon og vurderingene spriker? | Backend eier alt som lagres med rettsvirkning eller styrer systemets handlinger, frontenden bare veiledning. For partens konklusjon: (1) serveren regner ut, og det gjelder; (2) serveren avviser et svar der konklusjonen ikke følger av vurderingene; (3) begge lagres, og avviket vises. Tilsvarende for rettslige konklusjoner som preklusjon: trekkes de av systemet, eller varsles de bare | Backend som sannhetskilde for det som lagres (handoffen 23.09, avsnitt 9). Ingen for (1)–(3) | Oppdragsgiver, med utvikler | Kartlegging av frontendens utregninger og hvilke som havner i det som lagres ([oppdraget for spor D](../prompt-spor-d-br01-2026-09-23.md), del 1) | Rettingen av BR-01. Kommandoene i F2 som bygger på resultatene. **Avgjort 24.09** (3.1 og merknaden under) |
-| B-14 | Skal målformene i [strukturkartleggingen av spor D](../kartlegging-struktur-spor-d-2026-10-05.md#7-forslag) legges til grunn for videre arbeid i spor D? | Målformene for M1, M2, M4 og M5 helt eller delvis; M3 som løpende opprydding; fortsette med retting issue for issue | Målformene, i rekkefølgen M2, M1, M4, M5, M3 (kartleggingen, avsnitt 7) | Oppdragsgiver | Gjennomgang av kartleggingen | Retterundene i spor D. Rekkefølgen er valgt (merknaden under) |
+| B-14 | Målformer og gjennomføringsrekkefølge for spor D og språkprøven | Målformene med presiseringene 07.10 | **Avgjort 07.10:** se 3.1 og merknaden under. Beslutningsport for språk etter prøven; forbedret Python er sammenlikningsgrunnlag | Oppdragsgiver | Review av PR #266 og #270, tilsluttet i samtalen 07.10 | Domenetabell/bevis → smal kontrakt → språkprøve → M2/M1 → M4/videre kontraktsarbeid. M3 løpende |
+| B-15 | Skal serverbasert forhåndsvurdering utredes før M1 som sammenlikningsalternativ i språkprøven? | Behold utsettelsen fra 05.10; tillat en avgrenset sammenlikning | Vurder en avgrenset sammenlikning dersom fjerning av klientens regelspeil er hovedargumentet for språkbytte. Ingen endring av B-13 uten nytt vedtak | Oppdragsgiver | Avgrensning, svartids-/feilatferd, vedlikeholdskostnad og ett eksempelforløp | Bare den ekstra serverevalueringsprøven; ikke bevisgrunnlaget eller Python–TS-prøven |
+| B-16 | Hvordan dokumenteres og behandles feilregistrerte, låste opplysninger? | Dokumentert manuell prosess; eksplisitt rettelseshendelse med referanse til originalen; annen avklart prosess | Bevar originalen og skill korrigert opplysning fra rettslig virkning. Ingen automatisk flytting av frist eller omgjøring av sendt brev | Oppdragsgiver med domeneansvarlig | Eksempler på feil dato/metode/referanse, aktørrettigheter, godkjenning, motpartsinnsyn og virkning | Korrigeringsfunksjon og produksjonsport. Blokkerer ikke låsingen etter SK-12 |
 
 > **Merknad 2026-09-22 til B-02:** Designgrunnlaget finnes:
 > [design-b02-tilgangsmekanisme-2026-09-22.md](../design-b02-tilgangsmekanisme-2026-09-22.md).
@@ -478,6 +492,38 @@ Et åpent valg blokkerer bare oppgavene som er nevnt.
 > avslag sammen med § 32.2, null-policy, og at et evalueringsendepunkt ikke
 > utredes nå. Etter kontrollen i egen kontekst kom vedtaket om låste varsler
 > (SK-12) og en presisering av vedtaket om regelversjon under B-13.
+
+> **Merknad 2026-10-07 til B-14:** Oppdragsgiver tilsluttet seg reviewets
+> justeringer og ba om dokumentasjons-PR og issues. Denne merknaden erstatter
+> den betingede rekkefølgen og den åpne målformstatusen fra 05.10.
+>
+> Før større språkspesifikk ombygging etableres domenetabell og et
+> språkuavhengig bevisgrunnlag, deretter en smal kommando-/API-kontrakt.
+> Språkprøven har én arbeidsuke som stoppgrense og to porter: semantikk og
+> reduksjon av dobbeltarbeid, deretter konkret server-/integrasjonskostnad.
+> Ufullstendig bevis gir «ikke tilstrekkelig grunnlag», ikke automatisk
+> utvidelse eller TS-valg. Etter språkvedtak følger M2/M1, M4 og videre
+> kontraktsarbeid; M3 følger de grensene som endres.
+>
+> M2 binder brukerens aksept til et konkret svar og samler livsløpsfakta,
+> også tilbaketrekking og grunnlagsavhengighet. Hva som er gjeldende krav,
+> skal brukes likt i projeksjon og godkjenning. Offentlig serialisert kontrakt
+> defineres før typegenerering; nye kommandoer, lagrede hendelser og lesemodeller
+> har ulike grenser. Bevisene omfatter vanlig innsending, batch, godkjenning
+> og lagring/gjenlesing, med uavhengige domeneinvarianter.
+>
+> Språk, database og rammeverk er ikke valgt. Utredning av serverbasert
+> forhåndsvurdering og korrigeringsprosessen er åpne under B-15 og B-16.
+> Gjennomføringsdetaljene står i [arkitekturforslaget](../forslag-maalarkitektur-og-beslutningsproeve-2026-10-07.md);
+> oppfølgingen er koblet i [reviewnotatet](../review-oppfolging-arkitektur-2026-10-07.md).
+
+> **Merknad 2026-10-07 til B-10:** Strategien skal skille saksversjon fra
+> versjonen som beregnet en projeksjon, og vise invalidasjon/gjenoppbygging
+> når regler endrer gamle saker uten nye hendelser. Frosne brev og beslutninger
+> beholdes. Utrulling og tilbakerulling skal ha en eksplisitt kompatibilitetsmatrise;
+> ukjente rettslig relevante hendelser kan ikke hoppes over mens nye bindende
+> kommandoer tillates. Implementering og bevis hører til F2; F5 kontrollerer
+> at porten er bestått. B-10s konkrete format-/versjoneringsstrategi er fortsatt åpen.
 
 > **Merknad 2026-09-23 til B-12:** Ny åpen beslutning. IKT svarte at både
 > Azure SQL og PostgreSQL kan brukes; oppdragsgiver har foreslått PostgreSQL.
@@ -1030,6 +1076,14 @@ database eller nett. AP-04 regnes ikke som løst med lengre lease.
 om til ordinære tester; nye PostgreSQL-tester for samtidighet og feilpunkter;
 lokale feiltester for Catenda i avsnitt 7.
 
+**Presisering 07.10, B-10:** Bevis gjenoppbygging etter regel-/projeksjonsendring
+uten nye sakshendelser, også for lagrede oversikter. Dokumenter versjonen som
+beregnet visningen, hvordan foreldet innhold oppdages, og når det bygges på nytt.
+Prøv gamle og nye skrivere/lesere, utrulling og tilbakerulling. En leser som ikke
+forstår en rettslig relevant hendelse, må stanse bindende kommandoer; historikken
+kan fortsatt gjøres tilgjengelig med uttrykkelig begrensning. Frosne brev,
+beslutninger og leveringsdokumenter endres ikke ved gjenoppbygging.
+
 ### F3 — Øvrige adaptere og drift
 
 **Avhenger av:** F2 grønn. Utvid én adapter om gangen.
@@ -1085,6 +1139,11 @@ i så fall erstatte punktet med en referanse. Status er ikke innhentet for noen.
   risiko med ansvarlig, eller redusert.
 - Restore-øvelse av hendelser, godkjenninger, utkast, filer og køer, med
   dokumentert RPO og RTO, uten blind ny levering.
+- B-10-porten fra F2: historiske strømmer, versjonerte formater/projeksjoner,
+  gjenoppbygging ved regelendring og kompatibilitet ved utrulling/tilbakerulling
+  er dokumentert og prøvd. Ingen stille bortfiltrering av ukjente rettslige hendelser.
+- Korrigeringsprosessen for feilregistrerte, låste opplysninger er avklart
+  og dokumentert (B-16), også hvis løsningen er en manuell prosess.
 - Isolert staging med eget Catenda-testprosjekt.
 - Konfigurasjon utenfor koden: policy med `user_id` (RV-03), Supabase-konsollet
   (RV-06) så lenge Supabase er plattformen, eller tilsvarende på Azure (B-12),
@@ -1120,6 +1179,11 @@ lete opp alt som teller statuser.
 > [kartlegging-struktur-spor-d-2026-10-05.md](../kartlegging-struktur-spor-d-2026-10-05.md).
 > Den registrerer SK-01–SK-13 (4.2) og foreslår målformer for mønstrene M1–M5.
 > Om de legges til grunn, er B-14 (3.4).
+
+> **Merknad 2026-10-07 til spor D:** Målretningen er vedtatt med
+> presiseringene under B-14. Gjennomføringen følger domenetabell og bevis,
+> smal kontrakt og språkprøve før større ombygging av M2/M1. Små uavhengige
+> rettinger beholder sin avgrensning. Ingen av SK-funnene lukkes av vedtaket.
 
 ### Spor H — herding og konfigurasjon
 
@@ -1199,6 +1263,9 @@ RC-10 i spor H; RC-9 i F3 og spor H; RC-11 lukket med FE-01 og FE-05; RC-12 i F4
 | B-05 bevaring, B-11 tidskilde | Eksport og bevaring i F4, og produksjonsporten |
 | B-06 fullmakt uten sats | Restansen på GFK-01 |
 | B-13 sannhetskilde for reglene | Rettingen av BR-01 og kommandoene i F2 som bygger på resultatene |
+| Språkvalg etter B-14-prøven | Større språkspesifikk implementasjon av M2/M1; selve prøven er prioritert i B-14 |
+| B-15 serverbasert forhåndsvurdering | Bare en eventuell ekstra sammenlikningsprøve |
+| B-16 korrigering av låste opplysninger | Korrigeringsfunksjon og avklaring før produksjon |
 
 ## 7. Catenda: leveringsgarantier
 
@@ -1314,3 +1381,10 @@ er lest ut av koden, ikke kjørt, og står derfor som foreløpig uten
 alvorlighet; se
 [gjennomføringsnotatet for 1c](../gjennomforing-spor-m-1c-2026-09-29.md#verifikasjon-og-grenser).
 Ingen produksjonskode, migrasjon eller database er endret.
+
+
+**Endringen 07.10, review av #266 og #270:** B-14, AF-06-unntaket, B-10/F2/F5
+og de åpne B-15/B-16 er dokumentert etter oppdragsgivers tilslutning i samtalen.
+Arbeidet omfatter dokumenter og GitHub-oppfølging, ikke implementering.
+Kontrollgrunnlag og verktøygrenser står i
+[reviewnotatet](../review-oppfolging-arkitektur-2026-10-07.md#verifikasjon-og-grenser).
