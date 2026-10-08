@@ -7,10 +7,11 @@
 import { UgyldigVurdering } from './regler/feil.ts';
 import { Avvik, FeilRegelversjon, kontrollerSvar } from './sammenlikning.ts';
 import {
+  erEnighet,
   gjeldendeSvar,
+  grunnlagetErAvklart,
   grunnlagetErLaast,
   samletStatus,
-  sporstatus,
   teHarAkseptert,
   type Sak,
 } from './sak.ts';
@@ -154,14 +155,15 @@ const gjeldendeSvarRegel: Regel = (h, sak) => {
     : avvis('CURRENT_RESPONSE', 'Aksepten må gjelde gjeldende svar i dette sporet.');
 };
 
-const ikkeAlleredeGodtatt: Regel = (h, sak) => {
+/** GR-U7: er partene allerede enige, er det ikke noe å godta. */
+const ikkeAlleredeEnige: Regel = (h, sak) => {
   const navn = h.data.spor as Spor;
-  if (teHarAkseptert(sak[navn]))
-    return avvis('NOT_ALREADY_ACCEPTED', `Entreprenør har allerede akseptert svaret på ${navn}`);
-  const avsluttet =
-    navn === 'grunnlag' ? ['godkjent', 'laast', 'trukket'] : ['godkjent', 'trukket'];
-  return avsluttet.includes(sporstatus(sak, navn))
-    ? avvis('NOT_ALREADY_ACCEPTED', `${navn} er allerede avsluttet`)
+  const enige =
+    navn === 'grunnlag'
+      ? teHarAkseptert(sak.grunnlag) || grunnlagetErAvklart(sak)
+      : erEnighet(sak, navn);
+  return enige
+    ? avvis('NOT_ALREADY_ACCEPTED', `Partene er allerede enige om svaret på ${navn}`)
     : null;
 };
 
@@ -209,7 +211,7 @@ const SPESIFIKKE: Partial<Record<Hendelsestype, Regel[]>> = {
     ikkeBesvart('frist'),
     serverensUtregning,
   ],
-  te_aksepterer_respons: [byggherrenHarSvart, gjeldendeSvarRegel, ikkeAlleredeGodtatt],
+  te_aksepterer_respons: [byggherrenHarSvart, gjeldendeSvarRegel, ikkeAlleredeEnige],
 };
 
 /** Første brudd, eller `null`. Hendelsens `data` får serverens verdier når svaret holder. */
