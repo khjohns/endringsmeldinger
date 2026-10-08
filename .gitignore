@@ -15,6 +15,12 @@ build
 # Bevaringsverdig materiale ligger i docs/design/.
 .playwright-mcp/
 .superpowers/
+# Lokal oppsett for Codex og installerte agentskills.
+.codex/
+.agents/
+skills-lock.json
+# Planen fra scripts/rydd_grener.py.
+/kandidater.json
 
 # Backend Python artifacts
 __pycache__/
@@ -30,6 +36,9 @@ backend/.ruff_cache/
 backend/.mypy_cache/
 backend/.coverage
 backend/koe_data/
+# Logg og lokale data når backend eller testene startes fra repoets rot.
+/endringsmeldinger.log
+/koe_data/
 
 # Supabase CLI-artefakter
 supabase/.temp/
