@@ -1,0 +1,1333 @@
+{
+  "formatversjon": 1,
+  "status": "Metodeprøve med avklart deltolkning MP-U4; øvrige forventninger er arbeidshypoteser eller modellkonvensjoner.",
+  "grunnpremisser": [
+    "Rettidig nøytralt varsel er forutsatt.",
+    "Utenfor sluttoppgjør; ingen kontraktsavvik.",
+    "Mottak og grunnleggende formkrav etter punkt 5 er forutsatt.",
+    "Spesifisering inneholder begrunnet antall dager.",
+    "Vurderinger er syntetiske premisser; ingen automatisk beregning av uten ugrunnet opphold.",
+    "Avklart fravær av tidsinnsigelse er et uttrykkelig premiss, ikke en tom journal.",
+    "Prøven avgjør ikke samlet krav, dagtall eller appens handlingstilgang."
+  ],
+  "historisk_sammenlikning": {
+    "status": "karakterisering av første Python-prøve, ikke uavhengig juridisk bevis",
+    "antall_premisser": 297,
+    "sha256_premisser": "e1d81fe429deb368a32378091e3128dac7e3961e277824a39bf30e472d02e0ce",
+    "antall_foresporsler": 81,
+    "sha256_foresporsler": "d27f8c410756014b88c8f49d4dc50b814f5cc093673924fcb643d293dba0ee4e"
+  },
+  "enkeltsaker": [
+    {
+      "id": "P1-01",
+      "navn": "nøytralt varsel alene",
+      "kilder": ["R337"],
+      "metode": "grunnmodell",
+      "premisser": {
+        "foresporsel": "ingen",
+        "te_svar": "ingen",
+        "te_rettidig": null,
+        "bh_innsigelse_mot_sen_te": null,
+        "svarfrist_oversittet": null
+      },
+      "forventet": {
+        "svarplikt_33_7": false,
+        "avskjaering_33_6_1": false,
+        "begrensning_33_6_1": false,
+        "kravstap_33_6_2": false,
+        "videre_33_6_1": false,
+        "uavklart": []
+      },
+      "forventningsgrunnlag": "arbeidshypotese",
+      "tolkningssporsmal": [],
+      "avklarte_tolkninger": []
+    },
+    {
+      "id": "P1-02",
+      "navn": "forespørsel før svarfristen",
+      "kilder": ["R3362"],
+      "metode": "grunnmodell",
+      "premisser": {
+        "foresporsel": "gyldig",
+        "te_svar": "ingen",
+        "te_rettidig": null,
+        "bh_innsigelse_mot_sen_te": null,
+        "svarfrist_oversittet": false
+      },
+      "forventet": {
+        "svarplikt_33_7": false,
+        "avskjaering_33_6_1": false,
+        "begrensning_33_6_1": false,
+        "kravstap_33_6_2": false,
+        "videre_33_6_1": false,
+        "uavklart": []
+      },
+      "forventningsgrunnlag": "arbeidshypotese",
+      "tolkningssporsmal": [],
+      "avklarte_tolkninger": []
+    },
+    {
+      "id": "P1-03",
+      "navn": "ubesvart forespørsel etter vurdert fristbrudd",
+      "kilder": ["R3362"],
+      "metode": "grunnmodell",
+      "premisser": {
+        "foresporsel": "gyldig",
+        "te_svar": "ingen",
+        "te_rettidig": null,
+        "bh_innsigelse_mot_sen_te": null,
+        "svarfrist_oversittet": true
+      },
+      "forventet": {
+        "svarplikt_33_7": false,
+        "avskjaering_33_6_1": false,
+        "begrensning_33_6_1": false,
+        "kravstap_33_6_2": true,
+        "videre_33_6_1": false,
+        "uavklart": []
+      },
+      "forventningsgrunnlag": "arbeidshypotese",
+      "tolkningssporsmal": [],
+      "avklarte_tolkninger": []
+    },
+    {
+      "id": "P1-04",
+      "navn": "ubesvart forespørsel med ukjent frist",
+      "kilder": ["R3362", "M-UAVKLART"],
+      "metode": "grunnmodell",
+      "premisser": {
+        "foresporsel": "gyldig",
+        "te_svar": "ingen",
+        "te_rettidig": null,
+        "bh_innsigelse_mot_sen_te": null,
+        "svarfrist_oversittet": null
+      },
+      "forventet": {
+        "svarplikt_33_7": false,
+        "avskjaering_33_6_1": false,
+        "begrensning_33_6_1": false,
+        "kravstap_33_6_2": null,
+        "videre_33_6_1": false,
+        "uavklart": []
+      },
+      "forventningsgrunnlag": "arbeidshypotese",
+      "tolkningssporsmal": [],
+      "avklarte_tolkninger": []
+    },
+    {
+      "id": "P1-05",
+      "navn": "rettidig direkte spesifisering",
+      "kilder": ["R3361", "R337"],
+      "metode": "grunnmodell",
+      "premisser": {
+        "foresporsel": "ingen",
+        "te_svar": "spesifisert",
+        "te_rettidig": true,
+        "bh_innsigelse_mot_sen_te": null,
+        "svarfrist_oversittet": null
+      },
+      "forventet": {
+        "svarplikt_33_7": true,
+        "avskjaering_33_6_1": false,
+        "begrensning_33_6_1": false,
+        "kravstap_33_6_2": false,
+        "videre_33_6_1": false,
+        "uavklart": []
+      },
+      "forventningsgrunnlag": "arbeidshypotese",
+      "tolkningssporsmal": [],
+      "avklarte_tolkninger": []
+    },
+    {
+      "id": "P1-06",
+      "navn": "sen direkte spesifisering med virksom innsigelse",
+      "kilder": ["R3361", "R5"],
+      "metode": "grunnmodell",
+      "premisser": {
+        "foresporsel": "ingen",
+        "te_svar": "spesifisert",
+        "te_rettidig": false,
+        "bh_innsigelse_mot_sen_te": true,
+        "svarfrist_oversittet": null
+      },
+      "forventet": {
+        "svarplikt_33_7": true,
+        "avskjaering_33_6_1": false,
+        "begrensning_33_6_1": true,
+        "kravstap_33_6_2": false,
+        "videre_33_6_1": false,
+        "uavklart": []
+      },
+      "forventningsgrunnlag": "arbeidshypotese",
+      "tolkningssporsmal": [],
+      "avklarte_tolkninger": []
+    },
+    {
+      "id": "P1-07",
+      "navn": "sen direkte spesifisering uten virksom innsigelse",
+      "kilder": ["R3361", "R5"],
+      "metode": "grunnmodell",
+      "premisser": {
+        "foresporsel": "ingen",
+        "te_svar": "spesifisert",
+        "te_rettidig": false,
+        "bh_innsigelse_mot_sen_te": false,
+        "svarfrist_oversittet": null
+      },
+      "forventet": {
+        "svarplikt_33_7": true,
+        "avskjaering_33_6_1": false,
+        "begrensning_33_6_1": false,
+        "kravstap_33_6_2": false,
+        "videre_33_6_1": false,
+        "uavklart": []
+      },
+      "forventningsgrunnlag": "arbeidshypotese",
+      "tolkningssporsmal": ["U3"],
+      "avklarte_tolkninger": []
+    },
+    {
+      "id": "P1-08",
+      "navn": "rettidig svar a",
+      "kilder": ["R3362-A", "R337"],
+      "metode": "grunnmodell",
+      "premisser": {
+        "foresporsel": "gyldig",
+        "te_svar": "spesifisert",
+        "te_rettidig": true,
+        "bh_innsigelse_mot_sen_te": null,
+        "svarfrist_oversittet": null
+      },
+      "forventet": {
+        "svarplikt_33_7": true,
+        "avskjaering_33_6_1": true,
+        "begrensning_33_6_1": false,
+        "kravstap_33_6_2": false,
+        "videre_33_6_1": false,
+        "uavklart": []
+      },
+      "forventningsgrunnlag": "arbeidshypotese",
+      "tolkningssporsmal": [],
+      "avklarte_tolkninger": []
+    },
+    {
+      "id": "P1-09",
+      "navn": "rettidig svar b",
+      "kilder": ["R3362-B"],
+      "metode": "grunnmodell",
+      "premisser": {
+        "foresporsel": "gyldig",
+        "te_svar": "begrunnelse",
+        "te_rettidig": true,
+        "bh_innsigelse_mot_sen_te": null,
+        "svarfrist_oversittet": null
+      },
+      "forventet": {
+        "svarplikt_33_7": false,
+        "avskjaering_33_6_1": false,
+        "begrensning_33_6_1": false,
+        "kravstap_33_6_2": false,
+        "videre_33_6_1": true,
+        "uavklart": []
+      },
+      "forventningsgrunnlag": "arbeidshypotese",
+      "tolkningssporsmal": [],
+      "avklarte_tolkninger": []
+    },
+    {
+      "id": "P1-10",
+      "navn": "sent svar a uten virksom innsigelse",
+      "kilder": ["R5", "R3362-A"],
+      "metode": "grunnmodell",
+      "premisser": {
+        "foresporsel": "gyldig",
+        "te_svar": "spesifisert",
+        "te_rettidig": false,
+        "bh_innsigelse_mot_sen_te": false,
+        "svarfrist_oversittet": null
+      },
+      "forventet": {
+        "svarplikt_33_7": true,
+        "avskjaering_33_6_1": true,
+        "begrensning_33_6_1": false,
+        "kravstap_33_6_2": false,
+        "videre_33_6_1": false,
+        "uavklart": []
+      },
+      "forventningsgrunnlag": "arbeidshypotese",
+      "tolkningssporsmal": ["U3"],
+      "avklarte_tolkninger": []
+    },
+    {
+      "id": "P1-11",
+      "navn": "33.7 krever spesifisert krav",
+      "kilder": ["R337", "R5", "M-UAVKLART"],
+      "metode": "bh_innsigelse",
+      "premisser": {
+        "spesifisert_krav_mottatt": false,
+        "innsigelse_mottatt": false,
+        "innsigelse_rettidig": null,
+        "te_innsigelse_mot_sen_bh": null,
+        "svarfrist_oversittet": true,
+        "grunn": "omfang"
+      },
+      "forventet": "spesifisert krav ikke mottatt",
+      "forventningsgrunnlag": "arbeidshypotese",
+      "tolkningssporsmal": [],
+      "avklarte_tolkninger": []
+    },
+    {
+      "id": "P1-12",
+      "navn": "ubesvart krav før vurdert fristbrudd",
+      "kilder": ["R337", "R5", "M-UAVKLART"],
+      "metode": "bh_innsigelse",
+      "premisser": {
+        "spesifisert_krav_mottatt": true,
+        "innsigelse_mottatt": false,
+        "innsigelse_rettidig": null,
+        "te_innsigelse_mot_sen_bh": null,
+        "svarfrist_oversittet": false,
+        "grunn": "omfang"
+      },
+      "forventet": "avventer",
+      "forventningsgrunnlag": "arbeidshypotese",
+      "tolkningssporsmal": [],
+      "avklarte_tolkninger": []
+    },
+    {
+      "id": "P1-13",
+      "navn": "ubesvart krav etter vurdert fristbrudd",
+      "kilder": ["R337", "R5", "M-UAVKLART"],
+      "metode": "bh_innsigelse",
+      "premisser": {
+        "spesifisert_krav_mottatt": true,
+        "innsigelse_mottatt": false,
+        "innsigelse_rettidig": null,
+        "te_innsigelse_mot_sen_bh": null,
+        "svarfrist_oversittet": true,
+        "grunn": "omfang"
+      },
+      "forventet": "tapt etter 33.7",
+      "forventningsgrunnlag": "arbeidshypotese",
+      "tolkningssporsmal": [],
+      "avklarte_tolkninger": []
+    },
+    {
+      "id": "P1-14",
+      "navn": "sen BH-innsigelse mot omfanget med virksom TE-innsigelse",
+      "kilder": ["R337", "R5", "M-UAVKLART"],
+      "metode": "bh_innsigelse",
+      "premisser": {
+        "spesifisert_krav_mottatt": true,
+        "innsigelse_mottatt": true,
+        "innsigelse_rettidig": false,
+        "te_innsigelse_mot_sen_bh": true,
+        "svarfrist_oversittet": null,
+        "grunn": "omfang"
+      },
+      "forventet": "tapt etter 33.7",
+      "forventningsgrunnlag": "arbeidshypotese",
+      "tolkningssporsmal": [],
+      "avklarte_tolkninger": []
+    },
+    {
+      "id": "P1-15",
+      "navn": "sen BH-innsigelse mot omfanget uten virksom TE-innsigelse",
+      "kilder": ["R337", "R5", "M-UAVKLART"],
+      "metode": "bh_innsigelse",
+      "premisser": {
+        "spesifisert_krav_mottatt": true,
+        "innsigelse_mottatt": true,
+        "innsigelse_rettidig": false,
+        "te_innsigelse_mot_sen_bh": false,
+        "svarfrist_oversittet": null,
+        "grunn": "omfang"
+      },
+      "forventet": "ikke tapt på dette grunnlaget",
+      "forventningsgrunnlag": "arbeidshypotese",
+      "tolkningssporsmal": ["U3"],
+      "avklarte_tolkninger": []
+    },
+    {
+      "id": "P1-16",
+      "navn": "sen BH-innsigelse mot omfanget med uavklart TE-innsigelse",
+      "kilder": ["R337", "R5", "M-UAVKLART"],
+      "metode": "bh_innsigelse",
+      "premisser": {
+        "spesifisert_krav_mottatt": true,
+        "innsigelse_mottatt": true,
+        "innsigelse_rettidig": false,
+        "te_innsigelse_mot_sen_bh": null,
+        "svarfrist_oversittet": null,
+        "grunn": "omfang"
+      },
+      "forventet": "uavklart",
+      "forventningsgrunnlag": "arbeidshypotese",
+      "tolkningssporsmal": [],
+      "avklarte_tolkninger": []
+    },
+    {
+      "id": "P1-17",
+      "navn": "sen innsigelse mot spesifisering: TE-protest virksom",
+      "kilder": ["R5", "R5-IKKE-REKURSJON"],
+      "forventningsgrunnlag": "avklart_tolkning",
+      "tolkningssporsmal": [],
+      "avklarte_tolkninger": ["U4"],
+      "metode": "bh_innsigelse",
+      "premisser": {
+        "grunn": "sen_spesifisering",
+        "spesifisert_krav_mottatt": true,
+        "innsigelse_mottatt": true,
+        "innsigelse_rettidig": false,
+        "te_innsigelse_mot_sen_bh": true,
+        "svarfrist_oversittet": null
+      },
+      "forventet": "tapt etter punkt 5"
+    },
+    {
+      "id": "P1-18",
+      "navn": "sen innsigelse mot spesifisering: TE-protest fraværende",
+      "kilder": ["R5", "R5-IKKE-REKURSJON"],
+      "forventningsgrunnlag": "avklart_tolkning",
+      "tolkningssporsmal": [],
+      "avklarte_tolkninger": ["U4"],
+      "metode": "bh_innsigelse",
+      "premisser": {
+        "grunn": "sen_spesifisering",
+        "spesifisert_krav_mottatt": true,
+        "innsigelse_mottatt": true,
+        "innsigelse_rettidig": false,
+        "te_innsigelse_mot_sen_bh": false,
+        "svarfrist_oversittet": null
+      },
+      "forventet": "tapt etter punkt 5"
+    },
+    {
+      "id": "P1-19",
+      "navn": "sen innsigelse mot spesifisering: TE-protest uavklart",
+      "kilder": ["R5", "R5-IKKE-REKURSJON"],
+      "forventningsgrunnlag": "avklart_tolkning",
+      "tolkningssporsmal": [],
+      "avklarte_tolkninger": ["U4"],
+      "metode": "bh_innsigelse",
+      "premisser": {
+        "grunn": "sen_spesifisering",
+        "spesifisert_krav_mottatt": true,
+        "innsigelse_mottatt": true,
+        "innsigelse_rettidig": false,
+        "te_innsigelse_mot_sen_bh": null,
+        "svarfrist_oversittet": null
+      },
+      "forventet": "tapt etter punkt 5"
+    }
+  ],
+  "handlinger": {
+    "F": {
+      "type": "foresporsel",
+      "id": "f1",
+      "sak": "prove",
+      "vilkar": {
+        "ingen_spesifisering_ved_foresporsel": true,
+        "brevkrav_oppfylt": true,
+        "kravstap_opplyst": true,
+        "alternativ_begrunnelse_etterspurt": true
+      }
+    },
+    "FM": {
+      "type": "foresporsel",
+      "id": "f1",
+      "sak": "prove",
+      "vilkar": {
+        "ingen_spesifisering_ved_foresporsel": true,
+        "brevkrav_oppfylt": true,
+        "kravstap_opplyst": false,
+        "alternativ_begrunnelse_etterspurt": true
+      }
+    },
+    "B": {
+      "type": "begrunnelse",
+      "id": "b1",
+      "sak": "prove",
+      "til": "f1",
+      "rettidig": {
+        "TE": true,
+        "BH": true
+      },
+      "innhold_tilstrekkelig": {
+        "TE": true,
+        "BH": true
+      }
+    },
+    "BU": {
+      "type": "begrunnelse",
+      "id": "b1",
+      "sak": "prove",
+      "til": "f1",
+      "rettidig": {
+        "TE": true,
+        "BH": true
+      },
+      "innhold_tilstrekkelig": {
+        "TE": true,
+        "BH": false
+      }
+    },
+    "BS": {
+      "type": "begrunnelse",
+      "id": "b1",
+      "sak": "prove",
+      "til": "f1",
+      "rettidig": {
+        "TE": false,
+        "BH": false
+      },
+      "innhold_tilstrekkelig": {
+        "TE": true,
+        "BH": true
+      }
+    },
+    "S": {
+      "type": "spesifisering",
+      "id": "k1",
+      "sak": "prove",
+      "til": "f1",
+      "dager": 10,
+      "rettidig": {
+        "TE": false,
+        "BH": false
+      }
+    },
+    "SR": {
+      "type": "spesifisering",
+      "id": "k1",
+      "sak": "prove",
+      "til": "f1",
+      "dager": 10,
+      "rettidig": {
+        "TE": true,
+        "BH": true
+      }
+    },
+    "SF": {
+      "type": "spesifisering",
+      "id": "k1",
+      "sak": "prove",
+      "til": "f1",
+      "dager": 10,
+      "rettidig": {
+        "TE": false,
+        "BH": true
+      }
+    },
+    "I": {
+      "type": "innsigelse",
+      "id": "i1",
+      "sak": "prove",
+      "til": "k1",
+      "part": "BH",
+      "grunn": "sen_spesifisering",
+      "rettidig": {
+        "TE": false,
+        "BH": false
+      }
+    },
+    "IR": {
+      "type": "innsigelse",
+      "id": "i1",
+      "sak": "prove",
+      "til": "k1",
+      "part": "BH",
+      "grunn": "sen_spesifisering",
+      "rettidig": {
+        "TE": true,
+        "BH": true
+      }
+    },
+    "IU": {
+      "type": "innsigelse",
+      "id": "i1",
+      "sak": "prove",
+      "til": "k1",
+      "part": "BH",
+      "grunn": "sen_spesifisering",
+      "rettidig": {
+        "TE": false,
+        "BH": true
+      }
+    },
+    "T": {
+      "type": "innsigelse",
+      "id": "t1",
+      "sak": "prove",
+      "til": "i1",
+      "part": "TE",
+      "grunn": "sen_melding",
+      "rettidig": {
+        "TE": true,
+        "BH": true
+      }
+    },
+    "TS": {
+      "type": "innsigelse",
+      "id": "t1",
+      "sak": "prove",
+      "til": "i1",
+      "part": "TE",
+      "grunn": "sen_melding",
+      "rettidig": {
+        "TE": false,
+        "BH": false
+      }
+    },
+    "A": {
+      "type": "avklart_ingen_tidsinnsigelse",
+      "id": "a1",
+      "sak": "prove",
+      "til": "i1"
+    },
+    "AB": {
+      "type": "avklart_ingen_tidsinnsigelse",
+      "id": "a1",
+      "sak": "prove",
+      "til": "b1"
+    },
+    "AT": {
+      "type": "avklart_ingen_tidsinnsigelse",
+      "id": "a1",
+      "sak": "prove",
+      "til": "t1"
+    },
+    "XREF": {
+      "type": "innsigelse",
+      "id": "t1",
+      "sak": "prove",
+      "til": "ukjent",
+      "part": "TE",
+      "grunn": "sen_melding",
+      "rettidig": {
+        "TE": true,
+        "BH": true
+      }
+    },
+    "XSAK": {
+      "type": "innsigelse",
+      "id": "t1",
+      "sak": "annen",
+      "til": "i1",
+      "part": "TE",
+      "grunn": "sen_melding",
+      "rettidig": {
+        "TE": true,
+        "BH": true
+      }
+    },
+    "XPART": {
+      "type": "innsigelse",
+      "id": "t1",
+      "sak": "prove",
+      "til": "i1",
+      "part": "BH",
+      "grunn": "sen_melding",
+      "rettidig": {
+        "TE": true,
+        "BH": true
+      }
+    },
+    "XTYPE": {
+      "type": "innsigelse",
+      "id": "t1",
+      "sak": "prove",
+      "til": "f1",
+      "part": "TE",
+      "grunn": "sen_melding",
+      "rettidig": {
+        "TE": true,
+        "BH": true
+      }
+    },
+    "XREV": {
+      "type": "spesifisering",
+      "id": "k2",
+      "sak": "prove",
+      "til": null,
+      "dager": 12,
+      "rettidig": {
+        "TE": true,
+        "BH": true
+      }
+    },
+    "XUKJENT": {
+      "type": "ukjent",
+      "id": "x1",
+      "sak": "prove"
+    },
+    "O": {
+      "type": "innsigelse",
+      "id": "o1",
+      "sak": "prove",
+      "til": "k1",
+      "part": "BH",
+      "grunn": "omfang",
+      "rettidig": {
+        "TE": false,
+        "BH": false
+      }
+    },
+    "TO": {
+      "type": "innsigelse",
+      "id": "to1",
+      "sak": "prove",
+      "til": "o1",
+      "part": "TE",
+      "grunn": "sen_melding",
+      "rettidig": {
+        "TE": true,
+        "BH": true
+      }
+    },
+    "AO": {
+      "type": "avklart_ingen_tidsinnsigelse",
+      "id": "ao1",
+      "sak": "prove",
+      "til": "o1"
+    },
+    "OR": {
+      "type": "innsigelse",
+      "id": "o1",
+      "sak": "prove",
+      "til": "k1",
+      "part": "BH",
+      "grunn": "omfang",
+      "rettidig": {
+        "TE": true,
+        "BH": true
+      }
+    }
+  },
+  "forlop": [
+    {
+      "id": "P2-01",
+      "navn": "svar b, senere spesifisering, sen BH-innsigelse og rettidig TE-innsigelse",
+      "kilder": [
+        "R3362-B",
+        "R3361",
+        "R337",
+        "R5",
+        "M-REFERANSE",
+        "M-UAVKLART",
+        "R5-IKKE-REKURSJON"
+      ],
+      "steg": ["F", "B", "S", "I", "T"],
+      "kontroller": [
+        {
+          "etter": 1,
+          "forventet": {
+            "journal": ["f1"],
+            "vei": "avventer",
+            "svarplikt_33_7": false
+          }
+        },
+        {
+          "etter": 2,
+          "forventet": {
+            "journal": ["f1", "b1"],
+            "svar_b": "b1",
+            "vei": "33.6.1",
+            "svarplikt_33_7": false,
+            "avskjaering_33_6_1": false
+          }
+        },
+        {
+          "etter": 3,
+          "forventet": {
+            "gjeldende_krav": "k1",
+            "vei": "33.6.1",
+            "svarplikt_33_7": true,
+            "avskjaering_33_6_1": false,
+            "begrensning_33_6_1": null
+          }
+        },
+        {
+          "etter": 4,
+          "forventet": {
+            "begrensning_33_6_1": false,
+            "innsigelser": {
+              "i1": "tapt_paa_tidsgrunnlag"
+            },
+            "innsigelsesgrunnlag": {
+              "i1": "punkt_5"
+            }
+          }
+        },
+        {
+          "etter": 5,
+          "forventet": {
+            "journal": ["f1", "b1", "k1", "i1", "t1"],
+            "vei": "33.6.1",
+            "avskjaering_33_6_1": false,
+            "begrensning_33_6_1": false,
+            "innsigelser": {
+              "i1": "tapt_paa_tidsgrunnlag",
+              "t1": "ingen_ny_frist_etter_punkt_5"
+            }
+          }
+        }
+      ],
+      "tolkningssporsmal": [],
+      "forventningsgrunnlag": "arbeidshypotese",
+      "avklarte_tolkninger": ["U4"]
+    },
+    {
+      "id": "P2-02",
+      "navn": "kontroll: rettidig BH-innsigelse bevarer begrensningen",
+      "kilder": [
+        "R3362-B",
+        "R3361",
+        "R337",
+        "R5",
+        "M-REFERANSE",
+        "M-UAVKLART",
+        "R5-IKKE-REKURSJON"
+      ],
+      "steg": ["F", "B", "S", "IR"],
+      "kontroller": [
+        {
+          "etter": 4,
+          "forventet": {
+            "vei": "33.6.1",
+            "begrensning_33_6_1": true,
+            "innsigelser": {
+              "i1": "ikke_tapt_paa_tidsgrunnlag"
+            }
+          }
+        }
+      ],
+      "forventningsgrunnlag": "arbeidshypotese",
+      "tolkningssporsmal": [],
+      "avklarte_tolkninger": ["U4"]
+    },
+    {
+      "id": "P2-03",
+      "navn": "fravær av TE-protest gjenoppliver ikke BHs sene punkt 5-innsigelse",
+      "kilder": [
+        "R3362-B",
+        "R3361",
+        "R337",
+        "R5",
+        "M-REFERANSE",
+        "M-UAVKLART",
+        "R5-IKKE-REKURSJON"
+      ],
+      "steg": ["F", "B", "S", "I", "A"],
+      "kontroller": [
+        {
+          "etter": 5,
+          "forventet": {
+            "begrensning_33_6_1": false,
+            "innsigelser": {
+              "i1": "tapt_paa_tidsgrunnlag"
+            }
+          }
+        }
+      ],
+      "forventningsgrunnlag": "arbeidshypotese",
+      "tolkningssporsmal": [],
+      "avklarte_tolkninger": ["U4"]
+    },
+    {
+      "id": "P2-04",
+      "navn": "kontroll: direkte svar a avskjærer 33.6.1",
+      "kilder": ["R3362-A", "R337"],
+      "steg": ["F", "SR", "IR"],
+      "kontroller": [
+        {
+          "etter": 3,
+          "forventet": {
+            "svar_b": null,
+            "vei": "33.6.2_a",
+            "avskjaering_33_6_1": true,
+            "begrensning_33_6_1": false,
+            "innsigelser": {
+              "i1": "avskaaret_33_6_1"
+            }
+          }
+        }
+      ],
+      "forventningsgrunnlag": "arbeidshypotese",
+      "tolkningssporsmal": [],
+      "avklarte_tolkninger": []
+    },
+    {
+      "id": "P2-05",
+      "navn": "uenighet om BH-svarets rettidighet beholdes",
+      "kilder": [
+        "R3362-B",
+        "R3361",
+        "R337",
+        "R5",
+        "M-REFERANSE",
+        "M-UAVKLART",
+        "R5-IKKE-REKURSJON"
+      ],
+      "steg": ["F", "B", "S", "IU", "T"],
+      "kontroller": [
+        {
+          "etter": 5,
+          "forventet": {
+            "begrensning_33_6_1": null,
+            "innsigelser": {
+              "i1": "uavklart"
+            },
+            "vurderinger": {
+              "i1": {
+                "TE": false,
+                "BH": true
+              }
+            }
+          }
+        }
+      ],
+      "forventningsgrunnlag": "arbeidshypotese",
+      "tolkningssporsmal": [],
+      "avklarte_tolkninger": ["U4"]
+    },
+    {
+      "id": "P2-06",
+      "navn": "uenighet om innholdet i svar b avgjøres ikke automatisk",
+      "kilder": ["R3362-B", "R3361", "R337", "R5", "M-REFERANSE", "M-UAVKLART"],
+      "steg": ["F", "BU", "SR", "IR"],
+      "kontroller": [
+        {
+          "etter": 4,
+          "forventet": {
+            "vei": "uavklart",
+            "avskjaering_33_6_1": null,
+            "begrensning_33_6_1": null,
+            "innholdsvurderinger": {
+              "b1": {
+                "TE": true,
+                "BH": false
+              }
+            }
+          }
+        }
+      ],
+      "forventningsgrunnlag": "arbeidshypotese",
+      "tolkningssporsmal": ["U1"],
+      "avklarte_tolkninger": []
+    },
+    {
+      "id": "P2-07",
+      "navn": "mangelfull forespørsel gir ingen sikker a- eller b-virkning",
+      "kilder": ["R3362-B", "R3361", "R337", "R5", "M-REFERANSE", "M-UAVKLART"],
+      "steg": ["FM", "B", "SR"],
+      "kontroller": [
+        {
+          "etter": 3,
+          "forventet": {
+            "foresporsel": "ugyldig",
+            "vei": "uavklart",
+            "avskjaering_33_6_1": null,
+            "begrensning_33_6_1": null
+          }
+        }
+      ],
+      "forventningsgrunnlag": "arbeidshypotese",
+      "tolkningssporsmal": ["U2"],
+      "avklarte_tolkninger": []
+    },
+    {
+      "id": "P2-08",
+      "navn": "sent svar b kan ikke stilltiende behandles som rettidig",
+      "kilder": ["R3362-B", "R3361", "R337", "R5", "M-REFERANSE", "M-UAVKLART"],
+      "steg": ["F", "BS", "SR"],
+      "kontroller": [
+        {
+          "etter": 3,
+          "forventet": {
+            "vei": "uavklart",
+            "avskjaering_33_6_1": null
+          }
+        }
+      ],
+      "forventningsgrunnlag": "arbeidshypotese",
+      "tolkningssporsmal": ["U1"],
+      "avklarte_tolkninger": []
+    },
+    {
+      "id": "P2-09",
+      "navn": "punkt 5 kan avklare rettidigheten for svar b",
+      "kilder": ["R3362-B", "R3361", "R337", "R5", "M-REFERANSE", "M-UAVKLART"],
+      "steg": ["F", "BS", "AB", "SR"],
+      "kontroller": [
+        {
+          "etter": 4,
+          "forventet": {
+            "vei": "33.6.1",
+            "avskjaering_33_6_1": false,
+            "begrensning_33_6_1": false
+          }
+        }
+      ],
+      "forventningsgrunnlag": "arbeidshypotese",
+      "tolkningssporsmal": ["U1", "U3"],
+      "avklarte_tolkninger": []
+    },
+    {
+      "id": "P2-10",
+      "navn": "sen TE-protest endrer ikke tapet av BHs punkt 5-innsigelse",
+      "kilder": [
+        "R3362-B",
+        "R3361",
+        "R337",
+        "R5",
+        "M-REFERANSE",
+        "M-UAVKLART",
+        "R5-IKKE-REKURSJON"
+      ],
+      "steg": ["F", "B", "S", "I", "TS"],
+      "kontroller": [
+        {
+          "etter": 5,
+          "forventet": {
+            "begrensning_33_6_1": false,
+            "innsigelser": {
+              "i1": "tapt_paa_tidsgrunnlag",
+              "t1": "ingen_ny_frist_etter_punkt_5"
+            }
+          }
+        }
+      ],
+      "tolkningssporsmal": [],
+      "forventningsgrunnlag": "arbeidshypotese",
+      "avklarte_tolkninger": ["U4"]
+    },
+    {
+      "id": "P2-11",
+      "navn": "fravær av svar på TE-protesten oppretter ingen ny punkt 5-frist",
+      "kilder": [
+        "R3362-B",
+        "R3361",
+        "R337",
+        "R5",
+        "M-REFERANSE",
+        "M-UAVKLART",
+        "R5-IKKE-REKURSJON"
+      ],
+      "steg": ["F", "B", "S", "I", "TS", "AT"],
+      "kontroller": [
+        {
+          "etter": 6,
+          "forventet": {
+            "begrensning_33_6_1": false,
+            "innsigelser": {
+              "i1": "tapt_paa_tidsgrunnlag",
+              "t1": "ingen_ny_frist_etter_punkt_5"
+            }
+          }
+        }
+      ],
+      "tolkningssporsmal": [],
+      "forventningsgrunnlag": "arbeidshypotese",
+      "avklarte_tolkninger": ["U4"]
+    },
+    {
+      "id": "P2-12",
+      "navn": "uenighet om spesifiseringens rettidighet beholdes",
+      "kilder": ["R3362-B", "R3361", "R337", "R5", "M-REFERANSE", "M-UAVKLART"],
+      "steg": ["F", "B", "SF", "IR"],
+      "kontroller": [
+        {
+          "etter": 4,
+          "forventet": {
+            "begrensning_33_6_1": null,
+            "vurderinger": {
+              "k1": {
+                "TE": false,
+                "BH": true
+              }
+            }
+          }
+        }
+      ],
+      "forventningsgrunnlag": "arbeidshypotese",
+      "tolkningssporsmal": [],
+      "avklarte_tolkninger": []
+    },
+    {
+      "id": "P2-13",
+      "navn": "samme rettidige krav etter svar b gir ikke svar a-virkning",
+      "kilder": ["R3362-B", "R3362-A"],
+      "steg": ["F", "B", "SR"],
+      "kontroller": [
+        {
+          "etter": 3,
+          "forventet": {
+            "vei": "33.6.1",
+            "avskjaering_33_6_1": false,
+            "begrensning_33_6_1": false
+          }
+        }
+      ],
+      "forventningsgrunnlag": "arbeidshypotese",
+      "tolkningssporsmal": [],
+      "avklarte_tolkninger": []
+    },
+    {
+      "id": "P2-14",
+      "navn": "sen punkt 5-innsigelse er tapt allerede før TE protesterer",
+      "kilder": ["R3362-B", "R3361", "R5", "R5-IKKE-REKURSJON", "R337", "M-UAVKLART"],
+      "forventningsgrunnlag": "arbeidshypotese",
+      "tolkningssporsmal": [],
+      "avklarte_tolkninger": ["U4"],
+      "steg": ["F", "B", "S", "I"],
+      "kontroller": [
+        {
+          "etter": 4,
+          "forventet": {
+            "begrensning_33_6_1": false,
+            "innsigelser": {
+              "i1": "tapt_paa_tidsgrunnlag"
+            },
+            "innsigelsesgrunnlag": {
+              "i1": "punkt_5"
+            },
+            "vurderinger": {
+              "k1": {
+                "TE": false,
+                "BH": false
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "P2-15",
+      "navn": "tidsinnsigelse og innsigelse mot omfanget har forskjellig grunnlag",
+      "kilder": ["R3362-B", "R3361", "R5", "R5-IKKE-REKURSJON", "R337", "M-UAVKLART"],
+      "forventningsgrunnlag": "arbeidshypotese",
+      "tolkningssporsmal": [],
+      "avklarte_tolkninger": ["U4"],
+      "steg": ["F", "B", "S", "I", "O"],
+      "kontroller": [
+        {
+          "etter": 5,
+          "forventet": {
+            "begrensning_33_6_1": false,
+            "innsigelser": {
+              "i1": "tapt_paa_tidsgrunnlag",
+              "o1": "uavklart"
+            },
+            "innsigelsesgrunnlag": {
+              "i1": "punkt_5",
+              "o1": "33.7"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "P2-16",
+      "navn": "TE-protest har selvstendig betydning for sen innsigelse mot omfanget",
+      "kilder": ["R3362-B", "R3361", "R5", "R5-IKKE-REKURSJON", "R337", "M-UAVKLART"],
+      "forventningsgrunnlag": "arbeidshypotese",
+      "tolkningssporsmal": [],
+      "avklarte_tolkninger": ["U4"],
+      "steg": ["F", "B", "S", "I", "O", "TO"],
+      "kontroller": [
+        {
+          "etter": 6,
+          "forventet": {
+            "begrensning_33_6_1": false,
+            "innsigelser": {
+              "i1": "tapt_paa_tidsgrunnlag",
+              "o1": "tapt_paa_tidsgrunnlag",
+              "to1": "ikke_tapt_paa_tidsgrunnlag"
+            },
+            "innsigelsesgrunnlag": {
+              "i1": "punkt_5",
+              "o1": "33.7",
+              "to1": "punkt_5"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "P2-17",
+      "navn": "fravær av TE-protest får forskjellig virkning for de to innsigelsene",
+      "kilder": ["R3362-B", "R3361", "R5", "R5-IKKE-REKURSJON", "R337", "M-UAVKLART"],
+      "forventningsgrunnlag": "arbeidshypotese",
+      "tolkningssporsmal": ["U3"],
+      "avklarte_tolkninger": ["U4"],
+      "steg": ["F", "B", "S", "I", "O", "AO"],
+      "kontroller": [
+        {
+          "etter": 6,
+          "forventet": {
+            "begrensning_33_6_1": false,
+            "innsigelser": {
+              "i1": "tapt_paa_tidsgrunnlag",
+              "o1": "ikke_tapt_paa_tidsgrunnlag"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "P2-18",
+      "navn": "rettidig innsigelse om omfanget erstatter ikke punkt 5-innsigelsen",
+      "kilder": ["R3362-B", "R3361", "R5", "R5-IKKE-REKURSJON", "R337", "M-UAVKLART"],
+      "forventningsgrunnlag": "arbeidshypotese",
+      "tolkningssporsmal": [],
+      "avklarte_tolkninger": ["U4"],
+      "steg": ["F", "B", "S", "OR", "I"],
+      "kontroller": [
+        {
+          "etter": 4,
+          "forventet": {
+            "begrensning_33_6_1": null,
+            "innsigelser": {
+              "o1": "ikke_tapt_paa_tidsgrunnlag"
+            },
+            "innsigelsesgrunnlag": {
+              "o1": "33.7"
+            }
+          }
+        },
+        {
+          "etter": 5,
+          "forventet": {
+            "begrensning_33_6_1": false,
+            "innsigelser": {
+              "i1": "tapt_paa_tidsgrunnlag",
+              "o1": "ikke_tapt_paa_tidsgrunnlag"
+            },
+            "innsigelsesgrunnlag": {
+              "i1": "punkt_5",
+              "o1": "33.7"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "avvisninger": [
+    {
+      "id": "P2-A1",
+      "navn": "ukjent referanse",
+      "kilder": ["M-REFERANSE"],
+      "start": ["F", "B", "S", "I"],
+      "handling": "XREF",
+      "forventet_feil": "ukjent_referanse",
+      "forventningsgrunnlag": "modellkonvensjon",
+      "tolkningssporsmal": [],
+      "avklarte_tolkninger": []
+    },
+    {
+      "id": "P2-A2",
+      "navn": "annen sak",
+      "kilder": ["M-REFERANSE"],
+      "start": ["F", "B", "S", "I"],
+      "handling": "XSAK",
+      "forventet_feil": "annen_sak",
+      "forventningsgrunnlag": "modellkonvensjon",
+      "tolkningssporsmal": [],
+      "avklarte_tolkninger": []
+    },
+    {
+      "id": "P2-A3",
+      "navn": "feil part",
+      "kilder": ["M-REFERANSE"],
+      "start": ["F", "B", "S", "I"],
+      "handling": "XPART",
+      "forventet_feil": "feil_part",
+      "forventningsgrunnlag": "modellkonvensjon",
+      "tolkningssporsmal": [],
+      "avklarte_tolkninger": []
+    },
+    {
+      "id": "P2-A4",
+      "navn": "feil referansetype",
+      "kilder": ["M-REFERANSE"],
+      "start": ["F", "B", "S", "I"],
+      "handling": "XTYPE",
+      "forventet_feil": "feil_referansetype",
+      "forventningsgrunnlag": "modellkonvensjon",
+      "tolkningssporsmal": [],
+      "avklarte_tolkninger": []
+    },
+    {
+      "id": "P2-A5",
+      "navn": "duplikat",
+      "kilder": ["M-REFERANSE"],
+      "start": ["F", "B", "S", "I"],
+      "handling": "I",
+      "forventet_feil": "duplikat_id",
+      "forventningsgrunnlag": "modellkonvensjon",
+      "tolkningssporsmal": [],
+      "avklarte_tolkninger": []
+    },
+    {
+      "id": "P2-A6",
+      "navn": "revisjon er utenfor prøvens omfang",
+      "kilder": ["M-REFERANSE"],
+      "start": ["F", "B", "S", "I"],
+      "handling": "XREV",
+      "forventet_feil": "utenfor_provens_omfang",
+      "forventningsgrunnlag": "modellkonvensjon",
+      "tolkningssporsmal": [],
+      "avklarte_tolkninger": []
+    },
+    {
+      "id": "P2-A7",
+      "navn": "ukjent handling",
+      "kilder": ["M-REFERANSE"],
+      "start": ["F"],
+      "handling": "XUKJENT",
+      "forventet_feil": "ugyldig_handling",
+      "forventningsgrunnlag": "modellkonvensjon",
+      "tolkningssporsmal": [],
+      "avklarte_tolkninger": []
+    }
+  ],
+  "feilinnforinger": [
+    {
+      "id": "MUT-B",
+      "sak": "P2-13",
+      "etter": 3,
+      "endring": "glem_svar_b",
+      "mal": "avskjaering_33_6_1",
+      "forventet": false,
+      "kilder": ["R3362-B"]
+    },
+    {
+      "id": "MUT-5",
+      "sak": "P2-14",
+      "etter": 4,
+      "endring": "gjeninnfor_rekursiv_punkt_5",
+      "mal": "begrensning_33_6_1",
+      "forventet": false,
+      "kilder": ["R5-IKKE-REKURSJON"]
+    },
+    {
+      "id": "MUT-U",
+      "sak": "P2-05",
+      "etter": 5,
+      "endring": "bh_vurdering_vinner",
+      "mal": "innsigelser.i1",
+      "forventet": "uavklart",
+      "kilder": ["M-UAVKLART"]
+    },
+    {
+      "id": "MUT-337",
+      "sak": "P2-16",
+      "etter": 6,
+      "endring": "fjern_te_innsigelse",
+      "mal": "innsigelser.o1",
+      "forventet": "tapt_paa_tidsgrunnlag",
+      "kilder": ["R5", "R337"]
+    }
+  ]
+}

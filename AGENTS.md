@@ -135,6 +135,10 @@ Brytes en av disse, er det en sikkerhetsfeil uansett hvor liten endringen så ut
 
 Disse er årsaken til de fleste feilklassifiserte funnene i auditserien.
 
+**Les [testinstruksjonene](.claude/rules/tester.md) før domenetabeller,
+bevis-saker og metodeprøver**, også når arbeidet bare ligger i `docs/`.
+De angir kravene til forventningsgrunnlag og grensene for hva testene beviser.
+
 **Ikke utled kjøretidsatferd fra ett lag.** Ser du en påstand på formen «krasjer»,
 «lekker», «returnerer» eller «omgår» — finn laget som faktisk ville produsert
 virkningen, og les det. For frontend: kontroller alltid om serveren håndhever
