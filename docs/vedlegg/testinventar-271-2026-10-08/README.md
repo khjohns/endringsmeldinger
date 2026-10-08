@@ -47,7 +47,7 @@ Følgende tester inngår i totalinventaret, men ble prioritert bort fra 8-testut
 
 Utvalget er prioritert etter kravene i #271: varsellåsing, kravets livssyklus, oppheving av aksept ved nytt krav, låsing av svar mot revisjon, aksept av § 32.2-preklusjon, samt svarkombinasjoner og tilstandsutledning.
 
-Alle forventninger er knyttet til dokumenterte vedtak i hovedplanen (avsnitt 3.1) eller testens eksplisitte begrunnelse.
+Forventningens kilde skilles fra testens interne begrunnelse (som kun dokumenterer hva testforfatteren mente). Hver forventning viser til et konkret vedtak eller en bestemmelse i hovedplanen (avsnitt 3.1), og angir om tolkningen er avklart, foreløpig eller mangler grunnlag.
 
 ### Beleggsformer
 I tråd med prosjektets dokumentasjonsregler angis belegg for hver test:
@@ -70,28 +70,29 @@ I tråd med prosjektets dokumentasjonsregler angis belegg for hver test:
 
 ## 3. Faktiske testkjøringer
 
-To backend-reproduksjoner ble kjørt isolert i minnet mot nøyaktig node-ID. Kjøringene krever ingen database eller nettverkstilgang. Rålogger og traceback finnes i `kjoringer.txt`.
+To backend-reproduksjoner ble kjørt isolert i minnet mot nøyaktig node-ID. Kjøringene krever ingen database eller nettverkstilgang. Et bearbeidet kjørereferat med traceback-utdrag finnes i `kjoringer.txt`.
 
 ### Test 1: `test_varseldatoen_kan_ikke_flyttes_av_et_senere_krav` (SK-12)
 - **Node-ID:** `tests/test_services/test_strukturkartlegging_spor_d.py::test_varseldatoen_kan_ikke_flyttes_av_et_senere_krav`
-- **Normal kjøring:** Exitkode `0`, oppsummering: `1 xfailed`.
-- **Kjøring med `--runxfail`:** Exitkode `1`, oppsummering: `1 failed`.
-- **Hva som ble passert:** Kontrollsaken på L474 (`forlop.valider(kontroll).is_valid`) passerte; valideringen godtar spesifisering når datoen ikke er flyttet.
-- **Faktisk feil:** Målassertion på L479 feilet med `AssertionError: assert not True` (`ValidationResult.is_valid == True`).
-- **Observasjon:** Feil på målassertionen. **Observert reproduksjon.**
+- **Normal kjøring:** Exitkode `0` (`1 xfailed`). **Med `--runxfail`:** Exitkode `1` (`1 failed`).
+- **Forutsetninger:** Sak med EO-grunnlag. Varsel sendt 2026-09-02. Kontrollsaken (uendret varseldato) passeres.
+- **Handlinger:** En spesifisering med endret varseldato (2026-08-01) fremsettes.
+- **Forventet resultat:** Valideringen avviser spesifiseringen (skal returnere `is_valid=False`).
+- **Observert avvik:** Spesifiseringen ble godkjent. Målassertion feilet på L479 med `AssertionError: assert not True` (hvor `True` er `is_valid`). **Observert reproduksjon.**
 
 ### Test 2: `test_oppdatert_krav_etter_full_godkjenning_venter_paa_nytt_svar` (SK-02)
 - **Node-ID:** `tests/test_services/test_strukturkartlegging_spor_d.py::test_oppdatert_krav_etter_full_godkjenning_venter_paa_nytt_svar`
-- **Normal kjøring:** Exitkode `0`, oppsummering: `1 xfailed`.
-- **Kjøring med `--runxfail`:** Exitkode `1`, oppsummering: `1 failed`.
-- **Hva som ble passert:** Forutsetningskontrollene på L276 (`vederlag.status == GODKJENT`) og L282 (`krevd_belop == 250000.0` og `frist.status == GODKJENT`) passerte.
-- **Faktisk feil:** Første målassertion på L284 feilet med `AssertionError: assert <SporStatus.GODKJENT: 'godkjent'> == <SporStatus.SENDT: 'sendt'>`.
-- **Hva som ikke ble nådd:** Assertions på L285 (`assert sak.overordnet_status != "OMFORENT"`) og L286 (`assert sak.kan_utstede_eo is False`) ble **ikke nådd** under testkjøringen.
-- **Observasjon:** Feil på første målassertion (sporstatus). **Observert reproduksjon av at sporet forblir godkjent.** Virkningene på overordnet status og `kan_utstede_eo` er underbygget av kodelesing av projeksjonen, men ikke isolert bevist av denne kjøringen alene.
+- **Normal kjøring:** Exitkode `0` (`1 xfailed`). **Med `--runxfail`:** Exitkode `1` (`1 failed`).
+- **Forutsetninger:** Sak med godkjent grunnlag og fullt godkjent vederlag (100 000 kr, `SporStatus.GODKJENT`).
+- **Handlinger:** TE sender et oppdatert krav på vederlag (250 000 kr).
+- **Forventet resultat:** Vederlagsstatus går tilbake til `SENDT`. Saken er ikke lenger `OMFORENT`, og kan ikke utstede EO.
+- **Observert avvik:** Vederlagsstatus forble `GODKJENT`. Første målassertion feilet på L284 med `AssertionError: assert <SporStatus.GODKJENT: 'godkjent'> == <SporStatus.SENDT: 'sendt'>`. Påstandene om overordnet status og `kan_utstede_eo` ble ikke nådd i kjøringen, og bygger på kodelesing.
 
 ---
 
 ## 4. Begrepsavklaring som grunnlag for domenetabellen (#271)
+
+*Dette er en foreløpig og avgrenset oversikt. Definisjonene av krav, svar og sporstatus må ikke leses som autoritative gjennom dette inventaret. Særlig eksemplet med preklusjon etter § 32.2 må fremstå utelukkende som ett undersøkt tilfelle.*
 
 En sentral årsak til feilene identifisert i reproduksjonene er uklar begrepsbruk i dagens kodebase. Domenetabellen i #271 eier definisjonen av disse begrepene:
 
@@ -108,7 +109,7 @@ Dette viser hvorfor begrepsavklaringen i #271 må etableres før ny logikk imple
 
 ## 5. Feilklasser og isolert feilinnføring for Claude Opus
 
-I tråd med `.claude/rules/tester.md` («Vis at kritiske tester oppdager feil») skal Claude Opus ikke bare gjøre disse testene ordinære (grønne) ved retting, men også etterprøve dem med **målrettet feilinnføring (mutasjon)** i en isolert arbeidskopi:
+I tråd med prosjektets krav om at testbevis skal bekrefte testens følsomhet (jf. mutasjonskravet i issue #271), skal Claude Opus ikke bare gjøre disse testene ordinære (grønne) ved retting, men også etterprøve dem med **målrettet feilinnføring (mutasjon)** i en isolert arbeidskopi:
 
 1. **Feilklasse 1 (Varsellåsing, SK-12):**
    - *Test:* `test_varseldatoen_kan_ikke_flyttes_av_et_senere_krav`.
