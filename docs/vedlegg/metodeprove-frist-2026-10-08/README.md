@@ -30,7 +30,14 @@ den første Python-prøven. Sammenlikningen er karakterisering av prøve 1, ikke
 et selvstendig bevis på juridisk riktighet.
 
 Prøve 2 har 18 forløp, 80 prefikser, sju forventede avvisninger og fire isolerte
-feilinnføringer. Alle forventningene består. Feilinnføringene gir avvik på de
+feilinnføringer. Alle forventningene består.
+
+**Merknad 2026-10-08 til videre prøve 1 og 2 (#284):** Prøve 3 (ett brev med
+flere innsigelser) og prøve 4 (senere dokumentert korrespondanse) bygger på
+samme modell og kjører. De har til sammen 11 forløp, ni avvisninger og fire
+nye feilinnføringer. Forventningene bygger på MP-U5–MP-U7, som oppdragsgiver
+avklarte samme dag. Resultatene for prøve 2 er uendret; utledningen har fått
+nye felt (`dokumenter`, `virker_mot`, `motstrid`, `avgjort`, `utsendelser`). Feilinnføringene gir avvik på de
 utpekte målassertionene; kontrollene er grønne igjen uten feilinnføringene.
 [Resultatfilen](resultater.json) angir faktisk utfall, forventning og filhasher.
 
@@ -107,6 +114,18 @@ input-/forventningsformat; modellen og kjøreren er fortsatt kjørbar JS/TS-kode
   tidsinnsigelsen, ikke samlet krav eller antall dager.
 - `avvisninger`: forventet feilkode og kontroll av uendret prøvehistorikk.
   `utenfor_provens_omfang` betyr ingen vurdering av juridisk lovlighet.
+- `brev`: én journalpost med felles part og mottak og en liste innsigelser.
+  Hver innsigelse har egen `id`, `til`, `grunn` og `rettidig` (MP-U5). Et brev
+  får ingen samlet status; `dokumenter` viser hvilke innsigelser det inneholder.
+- En innsigelse med `til` lik et brev er en protest mot hele brevet (MP-U6).
+  `virker_mot` viser virkningen for hver innsigelse i brevet.
+- `senere_dokumentert`: en innsigelse registrert etter et premiss om fravær av
+  virksom tidsinnsigelse mot samme melding. Uten merket avvises den som før.
+  Med merket står begge, og `motstrid` viser dem til `motstrid_avgjort`
+  utpeker den som gjelder (MP-U7). Den andre blir `tilsidesatt`.
+- `utsendt`: et sendt brev som gjengir utledningen for en spesifisering
+  (`begrensning_33_6_1`) eller en innsigelse. Gjengivelsen må stemme ved
+  sending og endres aldri. `utsendelser` viser om dagens utledning avviker.
 - `feilinnforinger`: kontrollsak, målassertion og konkret endring. Forventningen
   må bestå før endringen og feile på målfeltet med endringen. MUT-5 kjører en
   midlertidig kopi av modellen med rekursjonssperren fjernet; kopien slettes
@@ -122,6 +141,8 @@ produksjonsfeil er derfor ikke klassifisert.
 | MP-01 | Forespørselens svarhistorikk må bevares | Ikke relevant | P2-04, P2-13, MUT-B |
 | MP-02 | Innsigelser må skilles etter rettsgrunnlag; punkt 5 er ikke rekursiv | Ikke relevant | P2-01–P2-03, P2-10/P2-11, P2-14–P2-18, MUT-5, MUT-337 |
 | MP-03 | Uenighet må skilles fra avklart premiss | Ikke relevant | P2-05, P2-06, P2-12, MUT-U |
+| MP-04 | Et brev er ett dokument, men ikke én rettslig handling | Ikke relevant | P3-01–P3-07, MUT-BREV-PROTEST, MUT-BREV-FELLES |
+| MP-05 | Senere kunnskap endrer utledningen, ikke journalen eller sendte brev | Ikke relevant | P4-01–P4-04, MUT-DOK, MUT-UTSENDT |
 
 ### MP-01: samme spesifisering, forskjellig forhistorie
 
@@ -170,6 +191,43 @@ klassifisert som ikke tapt på tidsgrunnlaget.
 Dette er en undersøkelse av hvordan uenighet kan representeres, ikke et vedtak
 om å endre appens beregning av BHs eget standpunkt. Prøven beregner heller ikke
 alternative resultater fullt ut for hver part.
+
+### Prøve 3: ett brev med flere innsigelser
+
+BH sender ett brev, `br1`, med en punkt 5-innsigelse mot sen spesifisering
+(`i1`) og en innsigelse mot omfanget etter 33.7 (`o1`). I P3-01 er `i1` for
+sen og `o1` rettidig. I P3-02 er det motsatt. Virkningene følger hver
+innsigelse: i P3-01 faller begrensningen etter 33.6.1 bort mens `o1` står, og
+i P3-02 gjelder begrensningen mens `o1` er uavklart til fravær av protest er
+avklart (U3). En samlet status for brevet ville skjult begge forskjellene.
+MUT-BREV-FELLES gir alle innsigelsene i brevet den første innsigelsens
+vurdering, og P3-01 oppdager det.
+
+En TE-protest mot hele brevet (P3-03) rammer `o1` og gir ingen ny frist mot
+`i1` (MP-U6). P3-04 er kontrollen med protest mot bare `o1`, og gir samme
+virkning for den. P3-05 avklarer fravær av protest mot brevet. P3-06 viser at
+en sen protest ikke er virksom, og P3-07 at protesten ikke gjenoppliver en sen
+punkt 5-innsigelse. MUT-BREV-PROTEST knytter protesten til brevets første
+innsigelse i stedet for brevet, og P3-03 oppdager at `o1` da blir uavklart.
+
+### Prøve 4: senere dokumentert korrespondanse
+
+I P4-02 er det avklart at BH ikke har noen virksom tidsinnsigelse mot TEs sene
+spesifisering (`ak1`). TE sender et brev (`u1`) som gjengir at begrensningen
+etter 33.6.1 ikke gjelder. Deretter dokumenterer BH en tidligere e-post med en
+rettidig punkt 5-innsigelse (`e1`, `senere_dokumentert`). Prefikset før
+registreringen gir fortsatt `false`. Etter registreringen er begrensningen
+uavklart, `motstrid` viser `ak1` og `e1`, og `u1` står uendret, men merket
+som utdatert (MP-U7). P4-03 og P4-04 avgjør motstriden hver sin vei. Bare
+avgjørelsen for innsigelsen gjør `u1` utdatert. P4-01 viser at merket alene,
+uten motstrid, ikke endrer virkningen.
+
+MUT-DOK lar dokumentasjonen vinne automatisk, og P4-02 oppdager at
+begrensningen da blir `true` i stedet for uavklart. MUT-UTSENDT skriver det
+sendte brevet om til dagens utledning, og kontrollen oppdager at merket for
+utdatert forsvinner. Avvisningene P4-A1–P4-A5 viser at motstrid krever merket,
+at et nytt premiss ikke kan legges oppå motstriden, at et brev ikke kan gjengi
+noe annet enn utledningen, og at en avgjørelse krever motstrid og en part i den.
 
 <a id="metodelardommer"></a>
 
@@ -221,6 +279,10 @@ til sporbare premisser. Fire avgrensede undersøkelser peker seg ut:
    senere gå gjennom faktisk lagring og gjenlesing; en JSON-rundtur i minnet er
    ikke tilstrekkelig.
 
+**Merknad 2026-10-08:** Punkt 1 og 2 er prøvd i prøve 3 og 4 (#284). Hvordan
+virkelige brev blir til premisser, er fortsatt ikke prøvd: prøvene starter med
+innsigelsene ferdig klassifisert. Punkt 3 og 4 står åpne.
+
 Start med punkt 1 og deretter punkt 2. De utfordrer hvordan byggeklossene
 hentes fra dokumenter og hvordan ny kunnskap forholder seg til en allerede
 ført journal. Punkt 3 og 4 følger når den avgrensede forløpsmodellen er
@@ -229,8 +291,8 @@ og lagringsgrensene er avklart.
 
 ## Spørsmål og videre bevisbehov
 
-U1–U3 i [regelgrunnlaget](regler.json) er fortsatt åpne spørsmål. U4 viser til
-den avgrensede avklaringen MP-U4 i hovedplanen. Det er mulig å prøve kjente,
+U1–U3 i [regelgrunnlaget](regler.json) er fortsatt åpne spørsmål. U4–U7 viser
+til de avgrensede avklaringene MP-U4–MP-U7 i hovedplanen. Det er mulig å prøve kjente,
 avklarte forutsetninger uten å avgjøre disse. Før de aktuelle situasjonene
 brukes som bindende produktforventninger, må det avklares hvordan mangelfullt
 eller bestridt svar b, mangelfull forespørsel og dokumentert fravær av virksom
@@ -242,6 +304,16 @@ som egne objekter. Det er ikke nok med en samlet status for «kravet» eller
 «svaret».
 
 ## Verifikasjon og grenser
+
+**Kjørt og observert 08.10 for prøve 3 og 4:** samme kontroller som under
+gir 29 forløp, 137 prefikser, 16 avvisninger og åtte feilinnføringer som blir
+oppdaget. I tillegg ble fem feil innført midlertidig i en kopi av
+`forlopsmodell.ts`: motstrid gir ikke `null`, protest mot brevet når ikke
+innsigelsene, gjengivelsen kontrolleres ikke, senere dokumentasjon slipper
+gjennom uten merket, og avgjørelsen tilsidesetter ikke. Hver ble fanget av
+henholdsvis P4-02, P3-03, P4-A3, P4-A1 og P4-03, og resultatene var
+byte-identiske etter tilbakestilling. Prøven avgjør ikke bevisverdien av en
+senere dokumentert e-post, hvem som kan avgjøre motstrid, eller B-16.
 
 **Kjørt og observert 08.10:** kontrollene i [kjøreren](kjor.mjs), typekontroll
 av de to TypeScript-modellene, gjenoppbygging av hvert prøvd prefiks og

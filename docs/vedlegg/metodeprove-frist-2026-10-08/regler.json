@@ -1,6 +1,6 @@
 {
   "formatversjon": 1,
-  "status": "Kildehenvisninger identifiserer tekstgrunnlaget. Avklarte deltolkninger viser til vedtak i hovedplanen; øvrige forventninger er arbeidshypoteser eller modellkonvensjoner.",
+  "status": "Kildehenvisninger identifiserer tekstgrunnlaget. Avklarte deltolkninger (MP-U4–MP-U7) viser til vedtak i hovedplanen; øvrige forventninger er arbeidshypoteser eller modellkonvensjoner.",
   "standard": {
     "utgave": "NS 8407:2011",
     "lokal": "../../NS_8407.md",
@@ -62,6 +62,27 @@
       "dato": "2020-01-13",
       "side": 24,
       "forventning": "Sen innsigelse etter punkt 5 mot sen spesifisering etter 33.6.1 kan ikke gjenopplives ved å anvende punkt 5 på innsigelsen selv. TE trenger ikke en ny rettidig protest. Denne virkningen avgjør ikke i seg selv øvrige innsigelser etter 33.7 eller kravets størrelse."
+    },
+    {
+      "id": "R5-SVAR",
+      "type": "standard",
+      "punkt": "5 tredje ledd",
+      "forventning": "Protesten gjelder at den andre parten «har svart for sent», altså svaret. En protest mot et brev rammer hvert svar i brevet som har en frist. Mot en punkt 5-innsigelse i samme brev gir den ingen ny frist, se R5-IKKE-REKURSJON."
+    },
+    {
+      "id": "M-BREV",
+      "type": "modellvalg",
+      "forventning": "Et brev er én journalpost med felles mottak. Hver innsigelse i brevet har egen identitet, eget rettsgrunnlag, egen vurdering av rettidighet og egen virkning. Brevet får ingen samlet status."
+    },
+    {
+      "id": "M-MOTSTRID",
+      "type": "modellvalg",
+      "forventning": "En senere dokumentert innsigelse som strider mot et premiss om fravær av virksom tidsinnsigelse mot samme melding, gjør begge uavklart til en egen avgjørelse foreligger. Avgjørelsen er et syntetisk premiss; hvem som kan treffe den, og hvordan rettelser behandles (B-16), avgjøres ikke."
+    },
+    {
+      "id": "M-UTSENDT",
+      "type": "modellvalg",
+      "forventning": "Et sendt brev gjengir utledningen da det ble sendt, og endres aldri. Når dagens utledning avviker, merkes brevet som utdatert. Gjengivelsen må stemme med utledningen ved sending."
     }
   ],
   "uavklarte_sporsmal": [
@@ -86,6 +107,21 @@
       "id": "U4",
       "vedtak": "../../plans/2026-09-16-godkjenning-og-varig-levering.md#mp-u4",
       "kilder": ["R5-IKKE-REKURSJON"]
+    },
+    {
+      "id": "U5",
+      "vedtak": "../../plans/2026-09-16-godkjenning-og-varig-levering.md#mp-u5",
+      "kilder": ["R5", "R337", "M-BREV"]
+    },
+    {
+      "id": "U6",
+      "vedtak": "../../plans/2026-09-16-godkjenning-og-varig-levering.md#mp-u6",
+      "kilder": ["R5-SVAR", "R5-IKKE-REKURSJON"]
+    },
+    {
+      "id": "U7",
+      "vedtak": "../../plans/2026-09-16-godkjenning-og-varig-levering.md#mp-u7",
+      "kilder": ["M-MOTSTRID"]
     }
   ]
 }
