@@ -1238,8 +1238,9 @@ class FristResponsData(BaseModel):
     )
 
     # Spesifisert krav (§33.6)
-    spesifisert_krav_ok: bool = Field(
-        default=True, description="Er spesifisert krav sendt i tide? (§33.6)"
+    spesifisert_krav_ok: bool | None = Field(
+        default=None,
+        description="Er spesifisert krav sendt i tide? (§33.6). None hvis ikke vurdert (KA-U4).",
     )
 
     # Svar på forespørsel (§33.6.2/§5)
@@ -2038,6 +2039,21 @@ class EORevidertEvent(SakEvent):
 # ============ TE AKSEPTERER RESPONS ============
 
 
+# Feltene ruta og `parse_event_from_request` setter før parsing (AGENTS.md).
+SERVERFELT = frozenset(
+    {"sak_id", "aktor_id", "aktor_rolle", "aktor_team_id", "event_id", "tidsstempel"}
+)
+
+
+def _avvis_ukjente_felt(tillatte: set[str], verdier, info: ValidationInfo):
+    """En ny kommando er streng; lagret historikk leses tolerant (#272)."""
+    if isinstance(verdier, dict) and _ny_hendelse(info):
+        ukjente = sorted(set(verdier) - tillatte)
+        if ukjente:
+            raise ValueError(f"Ukjente felt: {', '.join(ukjente)}")
+    return verdier
+
+
 class TEAkseptererResponsData(BaseModel):
     """Data for TEs aksept av byggherrens respons på et spor."""
 
@@ -2045,9 +2061,19 @@ class TEAkseptererResponsData(BaseModel):
         default=None, description="Valgfri kommentar fra entreprenør"
     )
 
+    @model_validator(mode="before")
+    @classmethod
+    def _streng_kommando(cls, verdier, info: ValidationInfo):
+        return _avvis_ukjente_felt(set(cls.model_fields), verdier, info)
+
 
 class TEAkseptererResponsEvent(SakEvent):
-    """Event når TE aksepterer BHs respons på et spor (grunnlag/vederlag/frist)."""
+    """Event når TE aksepterer BHs respons på et spor (grunnlag/vederlag/frist).
+
+    `refererer_til_event_id` er svaret TE godtar (KA-U1). Det er påkrevd for en
+    ny aksept; en lagret aksept fra før #272 har ingen referanse. Feltene en ny
+    aksept kan ha, er dem i docs/domenetabell/kontrakt.json og serverfeltene.
+    """
 
     event_type: EventType = Field(
         default=EventType.TE_AKSEPTERER_RESPONS,
@@ -2055,6 +2081,19 @@ class TEAkseptererResponsEvent(SakEvent):
     )
     spor: SporType = Field(..., description="Hvilket spor aksepten gjelder")
     data: TEAkseptererResponsData = Field(..., description="Akseptdata")
+
+    @model_validator(mode="before")
+    @classmethod
+    def _streng_kommando(cls, verdier, info: ValidationInfo):
+        kommandofelt = {"event_type", "spor", "refererer_til_event_id", "data"}
+        verdier = _avvis_ukjente_felt(kommandofelt | SERVERFELT, verdier, info)
+        if (
+            isinstance(verdier, dict)
+            and _ny_hendelse(info)
+            and not verdier.get("refererer_til_event_id")
+        ):
+            raise ValueError("Aksepten må vise til svaret som godtas.")
+        return verdier
 
     @field_validator("event_type")
     @classmethod

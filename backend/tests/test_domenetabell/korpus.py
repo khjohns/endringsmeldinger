@@ -230,7 +230,15 @@ def foresporsel(h: dict, sak, sak_id: str) -> tuple[str, dict]:
     if navn in EO_HANDLINGER:
         return _endringsordre(h)
     if navn == "aksept":
-        return "TE", {"event_type": "te_aksepterer_respons", "spor": h["spor"], "data": {}}
+        # TE godtar svaret TE har sett: det siste i sporet, også når det
+        # gjelder en tidligere kravversjon (KA-07). Regelen avgjør om det er
+        # gjeldende (KA-U1).
+        return "TE", {
+            "event_type": "te_aksepterer_respons",
+            "spor": h["spor"],
+            "refererer_til_event_id": getattr(sak, h["spor"]).respons_event_id,
+            "data": {},
+        }
     if navn == "trekk":
         hendelse = "grunnlag_trukket" if h["spor"] == "grunnlag" else f"{h['spor']}_krav_trukket"
         return "TE", {"event_type": hendelse, "data": {"begrunnelse": "Trukket"}}

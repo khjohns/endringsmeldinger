@@ -24,6 +24,7 @@ EO-sakens livsløp (EO-10–EO-20) og KOE-tilknytningen (EO-21, EO-22, EO-24).
 | [`domenetabell.py`](../verktoy/domenetabell.py) | Kontrollerer referansene og skriver tabellen under |
 | [`test_domenetabell/`](../../backend/tests/test_domenetabell/) | Kjører bevis-sakene mot Python-projeksjonen i minnet |
 | [`test_domenetabell_lagring.py`](../../backend/tests/test_database/test_domenetabell_lagring.py) | Kjører dem gjennom `/api/events` og `/api/events/batch` mot testbasen, med gjenlesing |
+| [kontrakt.json](kontrakt.json) | Kommando, lagret hendelse og offentlig tilstand for flyten i språkprøven (#272), som JSON Schema; se [Kontrakten for flyten](#kontrakten-for-flyten) |
 
 ## Begreper
 
@@ -37,10 +38,10 @@ og beholdes; tabellen bestiller ingen omdøping.
 | **Kravversjon** | Én innsending av kravet. Hver innsending er en ny versjon, også med uendrede verdier. Et frittstående konsekvensvarsel, et trekk og byggherrens innsigelse eller forespørsel er ikke kravversjoner | `antall_versjoner` (antallet), `versjon` på hendelsen | Vedtaket om kravversjon 05.10, [KA-U2](../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u2) |
 | **Gjeldende krav** | Sporets siste kravversjon | `krav_event_id` i projeksjonen, `claimId` fra `submissionRefs` i frontenden, `claims()` i godkjenningsflyten (avviker: DT-02) | KA-U2 |
 | **Svar** | Byggherrens hendelse og brev om én kravversjon. En revisjon erstatter svaret på samme versjon | `respons_*`, `respons_*_oppdatert`, `respons_event_id`, `bh_respondert_versjon` (0-indeksert) | B-13, B-03 |
-| **Gjeldende svar** | Svaret på gjeldende kravversjon. Finnes ikke når sporet venter på svar | Ikke eget felt. `bh_resultat` står igjen i tilstanden etter en ny kravversjon | KA-U1 |
+| **Gjeldende svar** | Svaret på gjeldende kravversjon. Finnes ikke når sporet venter på svar | `gjeldende_respons_event_id` i tilstanden, `null` når sporet venter på svar. `respons_event_id` og `bh_resultat` står igjen etter en ny kravversjon | KA-U1, [KT-U1](../plans/2026-09-16-godkjenning-og-varig-levering.md#kt-u1) |
 | **Standpunkt** | Byggherrens stilling til ett spørsmål i svaret: rettidighet, vilkår, beløp eller dager, subsidiært standpunkt. Ett svar har flere standpunkter | Felt i `GrunnlagResponsData`, `VederlagResponsData` og `FristResponsData` | B-13, [metodeprøven](../vedlegg/metodeprove-frist-2026-10-08/README.md) |
 | **Innsigelse** | Et standpunkt som bestrider kravet eller rettidigheten, i et svar eller som egen handling | `frist_innsigelse_sendt`, `*_ok: false` | Vedtaket om nøytralt fristvarsel 23.09 |
-| **Aksept** | TEs godtakelse av hele det gjeldende svaret, med alle standpunktene. Delvis enighet er ikke aksept | `te_aksepterer_respons`, `te_akseptert` | [KA-U1](../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u1) |
+| **Aksept** | TEs godtakelse av hele det gjeldende svaret, med alle standpunktene. Delvis enighet er ikke aksept | `te_aksepterer_respons` med svaret i `refererer_til_event_id`, `te_akseptert` | [KA-U1](../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u1) |
 | **Rettidighetsvurdering** | Byggherrens vurdering i svaret: i tide (`true`), for sent (`false`) eller ikke vurdert (utelatt i hendelsen, `null` i tilstanden). Om spørsmålet gjelder kravet, utledes av kravet | `frist_varsel_ok`, `spesifisert_krav_ok`, `foresporsel_svar_ok`, `grunnlag_varslet_i_tide` | [KA-U4](../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u4) |
 | **Subsidiært til nytt svar** | Et svar på vederlag eller frist som var subsidiært fordi grunnlaget var avslått eller prekludert, og som forblir det mens grunnlaget venter på nytt svar. Et nytt svar på sporet eller grunnlaget avslutter det | `subsidiaert_til_nytt_svar` | Vedtaket om endret underkategori 05.10, [GR-U1](../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u1), [GR-U4](../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u4) |
 | **Frafall** | Byggherrens svar på grunnlaget etter § 32.3 c: pålegget frafalles mot endringsordre for utført arbeid. Ikke et trekk fra TE | `GrunnlagResponsResultat.FRAFALT` (`frafalt`); sporstatusen er `TRUKKET` i dag (SK-04) | Vedtaket om `FRAFALT` 05.10, [GR-U3](../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u3) |
@@ -70,7 +71,7 @@ issuenummeret til et vedtak i 3.1.
 | KA-04 | TE sender en ny kravversjon etter å ha godtatt svaret. | Aksepten faller, og sporet venter på svar. | Ikke vurdert for den nye versjonen. | Enigheten gjaldt forrige versjon. | Byggherrens svar på den nye versjonen: ikke vurdert. | registrering | [V-SK02-SK03](../plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger) | avklart tolkning | F-KA-04 | SK-02 |
 | KA-05 | TE sender en ny kravversjon etter å ha godtatt et avslag. | Aksepten faller, og sporet venter på svar. | Ikke vurdert for den nye versjonen. | Det godtatte avslaget gjaldt forrige versjon. | Byggherrens svar på den nye versjonen: ikke vurdert. | registrering | [V-SK02-SK03](../plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger) | avklart tolkning | F-KA-05 | SK-02 |
 | KA-06 | TE sender en ny kravversjon med uendrede verdier. | Ny kravversjon, som KA-02: sporet venter på svar. | Ikke vurdert for den nye versjonen. | Som KA-02. | Byggherrens svar på den nye versjonen: ikke vurdert. | registrering | [V-KRAVVERSJON](../plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger) | avklart tolkning | F-KA-06 | — |
-| KA-07 | TE godtar mens sporet venter på svar på en ny kravversjon. | Aksepten avvises, og journalen er uendret. | Ingen svar på gjeldende versjon. | Ingen enighet. Svaret på forrige versjon kan ikke godtas. | — | registrering | [KA-U1](../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u1), [V-SK02-SK03](../plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger) | avklart tolkning | F-KA-07 | DT-01 |
+| KA-07 | TE godtar mens sporet venter på svar på en ny kravversjon. | Aksepten avvises, og journalen er uendret. | Ingen svar på gjeldende versjon. | Ingen enighet. Svaret på forrige versjon kan ikke godtas. | — | registrering | [KA-U1](../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u1), [V-SK02-SK03](../plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger) | avklart tolkning | F-KA-07 | — |
 | KA-08a | TE godtar et gjeldende svar som er avslått. | Aksepten registreres. Sporet blir `AVSLATT_AKSEPTERT`. | Uendret: avslått. | Kravet er oppgjort på byggherrens premisser. | — | registrering | [V-TFR01](../plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger), [KA-U1](../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u1) | avklart tolkning | F-KA-08a | — |
 | KA-08b | TE godtar et gjeldende svar som er delvis godkjent. | Aksepten registreres. Sporet blir `GODKJENT`, med byggherrens beløp. | Uendret: delvis godkjent. | Enighet om byggherrens beløp. | — | registrering | [KA-U5](../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u5), [KA-U1](../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u1) | avklart tolkning | F-KA-08b | — |
 | KA-09 | TE godtar et fristsvar som er prinsipalt avslått fordi varselet etter § 33.4 kom for sent, med subsidiært godkjente dager. | Godtatt avslag (`AVSLATT_AKSEPTERT`). De subsidiære dagene gjør ikke sporet `GODKJENT`. | Prinsipalt avslått (preklusjon trukket av systemet), subsidiært godkjente dager. | Aksepten gjelder hele svaret, også preklusjonen (KA-U1). Etter § 33.4 annet ledd er kravet da tapt, og de subsidiære dagene får ingen virkning. Om byggherrens innsigelse kom i tide (§ 5 tredje ledd), er uten betydning når TE godtar den. | Byggherrens vurdering av varselet: for sent. | registrering | [KA-U1](../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u1), NS 33.4 annet ledd, [V-B13-PREKLUSJON](../plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger), [V-TFR01](../plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger), NS 5 tredje ledd | avklart tolkning | F-KA-09 | — |
@@ -82,7 +83,7 @@ issuenummeret til et vedtak i 3.1.
 | KA-15 | TE sender et frittstående konsekvensvarsel (rigg og drift) etter et spesifisert vederlagskrav. | Ingen ny kravversjon. Gjeldende krav er det samme i projeksjonen og i godkjenningsflyten, og byggherren kan svare på det. | Uendret. | Varselet er et eget varsel, ikke et nytt krav. | — | registrering | [KA-U2](../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u2) | avklart tolkning | F-KA-15 | DT-02 |
 | KA-16 | Byggherren sender forespørsel om spesifisert fristkrav, og TE spesifiserer. | Forespørselen er ingen kravversjon. Når kravet kan besvares, er gjeldende krav det samme i projeksjonen og godkjenningsflyten. | — | — | — | registrering | [KA-U2](../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u2), NS 33.6.2 første ledd | avklart tolkning | F-KA-16 | — |
 | KA-17 | TE sender en ny kravversjon etter at saken er `OMFORENT`. | Kravversjonen avvises, og journalen er uendret. | — | Saken er oppgjort. Et nytt krav går i en ny sak. | — | registrering | [KA-U3](../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u3) | avklart tolkning | F-KA-17 | — |
-| KA-18a | Byggherren svarer på et fristkrav som besvarte forespørselen etter § 33.6.2. Spørsmålet etter § 33.6.1 gjelder ikke og vurderes ikke. | `spesifisert_krav_ok` er utelatt i hendelsen og `null` i tilstanden. | Ingen begrensning etter § 33.6.1. | Byggherren skal svare etter § 33.7 og kan ikke påberope at fristen i § 33.6.1 er oversittet (§ 33.6.2 fjerde ledd). | Ikke vurdert. | registrering | [KA-U4](../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u4), [V-API-NULL](../plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger), NS 33.6.2 fjerde ledd | avklart tolkning | F-KA-18a | DT-03 |
+| KA-18a | Byggherren svarer på et fristkrav som besvarte forespørselen etter § 33.6.2. Spørsmålet etter § 33.6.1 gjelder ikke og vurderes ikke. | `spesifisert_krav_ok` er utelatt i hendelsen og `null` i tilstanden. | Ingen begrensning etter § 33.6.1. | Byggherren skal svare etter § 33.7 og kan ikke påberope at fristen i § 33.6.1 er oversittet (§ 33.6.2 fjerde ledd). | Ikke vurdert. | registrering | [KA-U4](../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u4), [V-API-NULL](../plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger), NS 33.6.2 fjerde ledd | avklart tolkning | F-KA-18a | — |
 | KA-18b | Byggherren vurderer spesifiseringen som i tide. | `spesifisert_krav_ok` er `true` i hendelsen og tilstanden. | Ingen begrensning etter § 33.6.1. | Kravet begrenses ikke etter § 33.6.1. Har byggherren ikke gjort sen spesifisering gjeldende i tide, anses den gitt i tide (§ 5 tredje ledd). | I tide. | registrering | [KA-U4](../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u4), NS 33.6.1, NS 5 tredje ledd | avklart tolkning | F-KA-18b | — |
 | KA-18c | Byggherren vurderer spesifiseringen som for sent. | `spesifisert_krav_ok` er `false`, og svaret har utløseren `reduksjon_spesifisert`. | Begrensning etter § 33.6.1, regnet av serveren. | TE har bare krav på slik fristforlengelse som byggherren måtte forstå (§ 33.6.1). Forutsetter at innsigelsen er fremsatt i tide (§ 5 tredje ledd, § 33.7 annet ledd); det avgjør ikke produktet. | For sent. | registrering | [KA-U4](../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u4), NS 33.6.1, NS 5 tredje ledd, NS 33.7 annet ledd, [V-B13](../plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger) | avklart tolkning | F-KA-18c | — |
 | KA-19 | TE spesifiserer fristkravet med en annen dato for varselet etter § 33.4 enn det registrerte. | Spesifiseringen avvises, og varselet står med datoen og metoden det fikk første gang. | — | Varselet er sendt én gang. Datoen kan ikke flyttes av en senere kravversjon. | — | sendt/mottatt | [V-SK12](../plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger) | avklart tolkning | F-KA-19 | SK-12 |
@@ -91,7 +92,7 @@ issuenummeret til et vedtak i 3.1.
 | GR-03 | TE godtar grunnlagssvaret etter å ha endret underkategorien, før byggherren har svart igjen. | Aksepten avvises, og journalen er uendret. | Ingen svar på gjeldende versjon. | Ingen enighet. Svaret på forrige versjon kan ikke godtas. | — | registrering | [KA-U1](../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u1), [V-215](../plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger) | avklart tolkning | F-GR-03 | — |
 | GR-04 | TE sender en ny kravversjon av grunnlaget med uendret underkategori etter et avslag. | Som GR-01: grunnlagssvaret faller i tilstanden, grunnlaget venter på svar, og svarene på vederlag og frist forblir subsidiære. | Ikke vurdert for den nye versjonen. | Avslaget gjaldt forrige versjon. | — | registrering | [GR-U1](../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u1) | avklart tolkning | F-GR-04 | DT-04 |
 | GR-05 | TE sender en ny kravversjon av grunnlaget med uendret underkategori etter et svar som påberoper preklusjon etter § 32.2. | Svaret og § 32.2-vurderingen faller, grunnlaget venter på svar (`SENDT`), og svarene på vederlag og frist forblir subsidiære. | Ikke vurdert for den nye versjonen. | Preklusjonen gjaldt forrige versjon. Byggherren må ta stilling på nytt. | Byggherrens § 32.2-vurdering for den nye versjonen: ikke vurdert. | registrering | [GR-U1](../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u1), [V-215](../plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger), NS 32.2 første ledd | avklart tolkning | F-GR-05 | DT-04 |
-| GR-06 | TE godtar forrige grunnlagssvar etter en ny kravversjon av grunnlaget med uendret underkategori. | Aksepten avvises, og journalen er uendret. Saken blir ikke `LUKKET_AVSLATT`. | Ingen svar på gjeldende versjon. | Ingen enighet. Svaret på forrige versjon kan ikke godtas. | — | registrering | [KA-U1](../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u1), [GR-U1](../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u1) | avklart tolkning | F-GR-06 | DT-04 |
+| GR-06 | TE godtar forrige grunnlagssvar etter en ny kravversjon av grunnlaget med uendret underkategori. | Aksepten avvises, og journalen er uendret. Saken blir ikke `LUKKET_AVSLATT`. | Ingen svar på gjeldende versjon. | Ingen enighet. Svaret på forrige versjon kan ikke godtas. | — | registrering | [KA-U1](../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u1), [GR-U1](../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u1) | avklart tolkning | F-GR-06 | — |
 | GR-07 | TE endrer underkategorien etter at byggherren har godkjent og låst grunnlaget. | Endringen avvises, og journalen er uendret. | Det godkjente grunnlaget står. | Ansvaret er avklart. Grunnlaget kan ikke endres. | — | registrering | [GR-U2](../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u2) | avklart tolkning | F-GR-07 | — |
 | GR-08 | Byggherren reviderer vederlagssvaret mens grunnlaget venter på nytt svar etter endret underkategori, og avslår deretter grunnlaget igjen. | Det reviderte svaret er prinsipalt så lenge grunnlaget ikke har svar. Når grunnlaget avslås, er vederlagssvaret subsidiært. | Først prinsipalt delvis godkjent, deretter subsidiært, utledet av grunnlaget. | Byggherrens standpunkt til beløpet står. Om det er prinsipalt eller subsidiært, følger av grunnlagssvaret. | — | registrering | [GR-U4](../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u4), [V-215](../plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger), [V-B13-GRUNNLAG-AVSLATT](../plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger) | avklart tolkning | F-GR-08 | — |
 | GR-09 | TE trekker grunnlaget før vederlag eller frist er sendt. | Saken er `LUKKET_TRUKKET`. | — | Kravet er trukket. Spor som ikke er sendt, regnes som trukket. | — | registrering | [V-SD02](../plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger) | avklart tolkning | F-GR-09 | SD-02 |
@@ -173,8 +174,9 @@ avvist eller godtatt, status, beløp, dager, tilknytning. Stiene i kontrollene
 i `korpus.py` er dagens API og journal. De hører til adapteren, ikke til
 forventningen. En kjører mot en annen implementering oversetter dem, og den
 skal ikke gjenbruke Python-reglene som bygger svarene (`beregn_vederlag`,
-`beregn_frist`). Aksepten sender bare sporet, uten svarets hendelse, fordi
-dagens API ikke tar imot mer (DT-01).
+`beregn_frist`). Aksepten viser til det siste svaret i sporet
+(`respons_event_id`), altså svaret TE har sett, også når det gjelder en
+tidligere kravversjon. Om det er gjeldende svar, avgjør serveren (KA-U1).
 
 ## Baner
 
@@ -196,6 +198,50 @@ Kontrollsakene (`prov`) prøves mot forretningsreglene også i databasebanen,
 fordi en prøve gjennom ruta ville skrevet hendelsen. Gjenlesingen regner
 tilstanden som samme innloggede bruker som ruta, fordi projeksjonen slår opp
 navnet i `utstedt_av` (KR-04, MG-01).
+
+## Kontrakten for flyten
+
+[kontrakt.json](kontrakt.json) er kontrakten fra #272 for den representative
+flyten i språkprøven (#274): vederlag med grunnlagsavhengighet, et fristscenario
+med spesifisert krav og TEs aksept. Radene den dekker, står i `x-rader`. Den
+skiller tre grenser:
+
+| Grense | Definisjon i skjemaet | Hva den sier |
+| --- | --- | --- |
+| Kommando | `konvolutt`, `batchkonvolutt`, `kommando.*`, `serverfelt` | Det klienten sender til `/api/events` og `/api/events/batch`, med svar- og kravreferanser og `expected_version` |
+| Lagret hendelse | `rad`, `hendelse.*` | Raden i `hendelse`. `data` har bare satte felt, og `referstoid` er referansen |
+| Offentlig tilstand | `tilstand`, `tilstand.*` | Feltene flyten bruker. Alle finnes alltid, `null` når de mangler verdi |
+
+Aksepten er den eneste nye kommandoen, og den er streng: et ukjent felt i
+kommandoen eller i `data` avvises, og svaret TE godtar, må være
+`<spor>.gjeldende_respons_event_id` ([KT-U1](../plans/2026-09-16-godkjenning-og-varig-levering.md#kt-u1)).
+De andre kommandoene i flyten er tolerante som før: et ukjent felt i `data`
+forkastes ved lagring, og `null` i et valgfritt felt lagres som utelatt.
+Skjemaet beskriver det flyten sender i dem, ikke alt serveren godtar. Historikken leses tolerant, og `hendelse.*` beskriver det en leser må
+godta: en aksept lagret før #272 har `referstoid` lik `null`, og et fristsvar fra før kan ha `spesifisert_krav_ok`
+lik `true` uten at vurderingen er gjort (DT-03).
+
+`x-bruk` på tilstandsfeltene skiller tre ting. «forventning» er en opplysning en
+rad i tabellen krever. «kommando» trengs for å bygge en kommando. «adapter»
+leses bare av kjøreren i `korpus.py`, med dagens navn, og er ikke noe en annen
+implementering må tilby. `x-begrep` viser til begrepene over.
+
+I fristscenariet er kravet spesifisert uten forespørsel, så byggherren skal
+vurdere spesifiseringen etter § 33.6.1. Vurderingen som er utelatt og `null`, er
+§ 33.6.2 (`foresporsel_svar_ok`). At `spesifisert_krav_ok` er utelatt når
+spørsmålet ikke gjelder (KA-18a, DT-03), prøves av korpuset med forespørselen.
+
+Skjemaet bruker et lite utvalg av JSON Schema 2020-12. Validatoren i
+[`kontrakt.py`](../../backend/tests/test_domenetabell/kontrakt.py) kan akkurat
+det utvalget, og et annet nøkkelord gir rød test. Testene står i
+[`test_kontrakt.py`](../../backend/tests/test_domenetabell/test_kontrakt.py)
+(skjemaet mot modellene, korpusets kommandoer, data og tilstand i minnet) og
+[`test_kontrakt_aksept.py`](../../backend/tests/test_database/test_kontrakt_aksept.py)
+(aksept, avvisninger, versjonskonflikt, nullpolitikk og historikk gjennom begge
+rutene mot testbasen).
+
+Ikke i kontrakten: grensen for godkjenningspakker, kommandoene utenfor flyten,
+genererte typer (#274) og en hviteliste for hele tilstanden (#292).
 
 ## Dekning og grenser
 

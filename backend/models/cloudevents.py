@@ -338,7 +338,8 @@ class CloudEventMixin(BaseModel):
         # Filtrer ut None-verdier
         mapped = {k: v for k, v in mapped.items() if v is not None}
 
-        return cls.model_validate(mapped)
+        # En CloudEvent som importeres, er skrevet før; den leses som historikk.
+        return cls.model_validate(mapped, context={"lagret": True})
 
 
 def validate_cloudevent(ce: dict[str, Any]) -> bool:
