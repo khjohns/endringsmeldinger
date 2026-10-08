@@ -527,7 +527,6 @@
       ],
       "kontroller": [
         { "etter": 1, "rolle": "forutsetning", "forventet": { "vederlag.status": "godkjent", "grunnlag.bh_resultat": null } },
-        { "etter": 1, "rolle": "kontroll", "prov": { "handling": "trekk", "spor": "vederlag" }, "forventet": { "avvist": true } },
         { "etter": 2, "rolle": "mal", "forventet": { "vederlag.status": "trukket", "frist.status": "trukket", "overordnet_status": "LUKKET_TRUKKET" } }
       ],
       "forventningsgrunnlag": "avklart_tolkning"
@@ -623,11 +622,18 @@
     {
       "id": "F-GR-18",
       "rader": ["GR-18"],
-      "start": "krav_eo",
-      "steg": [{ "handling": "grunnlagssvar", "resultat": "frafalt" }],
+      "start": null,
+      "steg": [
+        { "handling": "grunnlag", "underkategori": "IRREG" },
+        { "handling": "vederlagskrav", "belop": 100000 },
+        { "handling": "fristkrav", "dager": 20 },
+        { "handling": "grunnlag_ny_versjon", "underkategori": "EO" },
+        { "handling": "grunnlagssvar", "resultat": "frafalt" }
+      ],
       "kontroller": [
-        { "etter": 0, "rolle": "kontroll", "prov": { "handling": "grunnlagssvar", "resultat": "avslatt" }, "forventet": { "avvist": false } },
-        { "etter": 1, "rolle": "mal", "forventet": { "avvist": true, "grunnlag.bh_resultat": null } }
+        { "etter": 3, "rolle": "kontroll", "prov": { "handling": "grunnlagssvar", "resultat": "frafalt", "varslet_i_tide": true }, "forventet": { "avvist": false } },
+        { "etter": 4, "rolle": "forutsetning", "forventet": { "grunnlag.underkategori": "EO" } },
+        { "etter": 5, "rolle": "mal", "forventet": { "avvist": true, "grunnlag.bh_resultat": null } }
       ],
       "forventningsgrunnlag": "avklart_tolkning"
     }

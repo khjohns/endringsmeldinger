@@ -90,6 +90,9 @@ class Rutebane:
             # Bare en avvisning fra validering eller forretningsregler er et domeneutfall.
             if svar.status_code != 400 or feil.get("error") not in AVVISNINGER:
                 pytest.fail(f"{h['handling']}: {svar.status_code} {feil}")
+            # Batchruta gjør også et krasj i projeksjonen til VALIDATION_ERROR.
+            if self.prov(h)[0]:
+                pytest.fail(f"{h['handling']}: ruta avviste det forretningsreglene godtar: {feil}")
             return False, f"{feil.get('error')}: {feil.get('message')}"
         gjenlest = public_state(self.sak(), self._hendelser())
         if svar.get_json()["state"] != gjenlest:
@@ -123,8 +126,9 @@ def test_forlop_gjennom_ruta(forlop, bane):
 
 
 @pytest.mark.parametrize("forlop", korpus.invariant_parametre())
-def test_gjeldende_krav_er_det_samme_i_godkjenningen(forlop, bane):
-    korpus.kjor_invariant(forlop, bane)
+def test_gjeldende_krav_er_det_samme_i_godkjenningen(forlop, rutebane):
+    """En batch med én hendelse lagrer det samme, så invarianten prøves bare én gang."""
+    korpus.kjor_invariant(forlop, rutebane)
 
 
 def _vederlagssvar_til_godkjenning(bane, tmp_path):

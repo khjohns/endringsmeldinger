@@ -103,15 +103,16 @@ def _valider_rader(regler: dict) -> list[str]:
     return feil
 
 
-def _valider_forlop(regler: dict, korpus: dict, funntekst: str) -> list[str]:
+def _valider_forlop(regler: dict, korpus: dict, funntekst: str, vedtak: str) -> list[str]:
     feil, sett = [], set()
     rader = {r["id"]: r for r in regler["rader"]}
     bevist = set()
 
     def funnet(avvik):
-        """Et avvik uten funn-ID er et vedtatt issue (#235); da er `funn` issuenummeret."""
-        if avvik["funn"] == f"#{avvik.get('issue')}":
-            return True
+        """Et avvik uten funn-ID er et vedtatt issue (#235); da er `funn` issuenummeret,
+        og issuet har en vedtaksrad i hovedplanen 3.1."""
+        if avvik["funn"].startswith("#"):
+            return avvik["funn"] == f"#{avvik.get('issue')}" and f"| {avvik['funn']}:" in vedtak
         return re.search(rf"^\| {re.escape(avvik['funn'])} \|", funntekst, re.MULTILINE)
 
     for forlop in korpus["forlop"]:
@@ -144,7 +145,7 @@ def _valider_forlop(regler: dict, korpus: dict, funntekst: str) -> list[str]:
             feil.append(f"{navn}: mangler målkontroll")
         avvik = forlop.get("kjent_avvik")
         if avvik and not funnet(avvik):
-            feil.append(f"{navn}: funnet {avvik['funn']} står ikke i hovedplanens funnregister")
+            feil.append(f"{navn}: funnet {avvik['funn']} står ikke i hovedplanens funnregister eller 3.1")
 
     for inv in korpus["invarianter"]:
         feil += [f"{inv['id']}: ukjent rad {r}" for r in inv["rader"] if r not in rader]
@@ -165,7 +166,7 @@ def valider(regler: dict, korpus: dict, plan: str | None = None) -> list[str]:
     return (
         _valider_kilder(regler, plan)
         + _valider_rader(regler)
-        + _valider_forlop(regler, korpus, funntekst)
+        + _valider_forlop(regler, korpus, funntekst, _avsnitt(plan, "### 3.1 Vedtatte premisser", "### 3.2 "))
     )
 
 
