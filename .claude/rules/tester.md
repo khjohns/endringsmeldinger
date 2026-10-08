@@ -3,6 +3,7 @@ paths:
   - "backend/tests/**"
   - "src/**/__tests__/**"
   - "src/**/*.test.ts"
+  - "docs/vedlegg/**"
 ---
 
 # Tester
@@ -107,3 +108,49 @@ Ingen generell mutasjonsscore eller nytt verktøy kreves for alle endringer.
   PR-en oppgir kontrollert commit/diff, feilklasse, test, observert feil og
   eventuelle overlevende mutasjoner med begrunnelse. Gjenbruk samme feilklasser
   når to implementasjoner sammenliknes.
+- En oppdaget feilinnføring viser at testen er følsom for feilen, ikke at
+  forventningen er riktig. Forventningens grunnlag kontrolleres etter
+  [domeneforventningene](#domeneforventninger-og-metodeprover) nedenfor.
+
+<a id="domeneforventninger-og-metodeprover"></a>
+
+## Domeneforventninger og metodeprøver
+
+**Kildehenvisning er ikke det samme som avklart tolkning.** Knytt den konkrete
+forventede virkningen til bestemmelse eller avgjørelse, presist avsnitt og de
+forutsetningene kilden dekker. Skill tekstgrunnlaget fra slutningen som trekkes.
+Les relevant rettspraksis ved tvil om samspillet mellom regler; en annen
+modells tilslutning er ikke en uavhengig rettskilde. Uavklart tiltenkt atferd
+eller tolkning tas som et konkret spørsmål til oppdragsgiver. Eksisterende
+vedtak brukes uten ny godkjenning; nye vedtak føres i hovedplanen.
+
+**Kode, testfasit og feilinnføring kan dele samme feilaktige antakelse.** En
+oppdaget mutasjon beviser testens følsomhet for den valgte feilen, ikke at
+forventningen er juridisk riktig. Skill avklart tolkning, arbeidshypotese,
+modellkonvensjon og karakterisering av dagens atferd. En tom liste over åpne
+spørsmål betyr ikke godkjenning. Når en tolkning endres, kontroller også
+avhengige forventninger, kontrollsaker og mutasjoner; dokumenter hvorfor den
+gamle forventningen utgår. Sammenlikning mellom to implementasjoner er heller
+ikke en selvstendig fasit.
+
+**Skill fakta, vurderinger og rettsvirkninger.** Syntetiske premisser som
+«rettidig», «tilstrekkelig» og «ingen virksom innsigelse» er forutsetninger for
+beregningen, ikke bevis for at produktet kan fastslå dem. Fravær i journalen
+beviser ikke at en melding aldri er sendt eller mottatt. Hold manglende
+opplysninger, partsuenighet og åpen rettstolkning atskilt. Partenes enighet
+som prøvepremiss er ikke automatisk et produktkrav eller en domstolsavgjørelse.
+
+**En melding er ikke nødvendigvis én rettslig handling.** Undersøk om samme
+brev inneholder flere innsigelser med ulike rettsgrunnlag og virkninger.
+Generalisering, også gjentatt anvendelse av en regel på seg selv, krever eget
+belegg. En avklart virkning for én innsigelse godkjenner ikke alle virkninger
+for hele svaret, kravet eller saken.
+
+**Dekningspåstander må angi hva modellen utelater.** Oppgi prøvde regelgrener,
+unntak, forløp og integrasjonsgrenser. Antall kombinasjoner i en avgrenset
+modell beviser ikke full dekning av domenet. «Utenfor prøvens omfang» er ikke
+«ulovlig etter kontrakten». JSON-rundtur i minnet er ikke bevis for lagring,
+levering eller gjenoppbygging i applikasjonen.
+
+Bakgrunnen er dokumentert i
+[metodeprøvens lærdommer](../../docs/vedlegg/metodeprove-frist-2026-10-08/README.md#metodelardommer).

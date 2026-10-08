@@ -180,6 +180,7 @@ eksplisitt oppheves.
 
 | Beslutning | Vedtatt | Følge |
 | --- | --- | --- |
+| <a id="mp-u4"></a>MP-U4: I metodeprøven etter rettidig og tilstrekkelig svar b etter 33.6.2 fører BHs sene punkt 5-innsigelse mot sen spesifisering til at spesifiseringen anses rettidig, uten begrensningen etter 33.6.1. TE trenger ikke en ny rettidig protest mot oversittelsen av punkt 5-fristen; regelen anvendes ikke rekursivt. Dette avgjør ikke øvrige innsigelser etter 33.7 eller antall dager | 08.10, oppdragsgiver etter vurderingen av LB-2017-177705 side 24 | Avklarer U4 i [metodeprøven](../vedlegg/metodeprove-frist-2026-10-08/README.md). Erstatter prøvens rekursive arbeidshypotese. Avgrenset til prøven med oppgitte premisser; ingen endring av produksjonsregler eller øvrige åpne tolkninger |
 | P1: magic links utgår | 20.09 | `magic_links` fjernes (MS-15) |
 | P2, P3: BIM er relevant; et objekt hører til én sak; formålet er å se hvilke komponenter som fører til tvist | 20.09 | Retning MS-13, MS-14. Ikke prioritert |
 | P4: vedlegg lagres bare i Catenda | 20.09 | Hash og frosset grunnlag hos oss (MS-11, AF-04) |
@@ -516,6 +517,14 @@ Et åpent valg blokkerer bare oppgavene som er nevnt.
 > forhåndsvurdering og korrigeringsprosessen er åpne under B-15 og B-16.
 > Gjennomføringsdetaljene står i [arkitekturforslaget](../forslag-maalarkitektur-og-beslutningsproeve-2026-10-07.md);
 > oppfølgingen er koblet i [reviewnotatet](../review-oppfolging-arkitektur-2026-10-07.md).
+
+> **Merknad 2026-10-08 til B-14 (bevisgrunnlag):**
+> [Metodeprøvens lærdommer](../vedlegg/metodeprove-frist-2026-10-08/README.md#metodelardommer)
+> dokumenterer hvordan samme antakelse kunne styre modell, forventninger og
+> feilinnføring. Varige føringer er presisert i
+> [testinstruksjonene](../../.claude/rules/tester.md#domeneforventninger-og-metodeprover).
+> MP-U4 i 3.1 avklarer bare den angitte deltolkningen. Retning og rekkefølge
+> under B-14 er uendret; arbeid og videre bevisbehov eies fortsatt av #271.
 
 > **Merknad 2026-10-07 til B-10:** Strategien skal skille saksversjon fra
 > versjonen som beregnet en projeksjon, og vise invalidasjon/gjenoppbygging
