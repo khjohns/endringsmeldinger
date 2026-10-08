@@ -1024,4 +1024,3 @@ går gjennom samme kontroll (L, `api/validators.py`).
 Kontrollen leste ikke 1.6, 2.5, `ForseringVarselData` eller
 `EOUtstedtData`, og kontrollerte ikke påstandene om `generate_openapi.py`,
 `state_drift` og `/api/cloudevents/schemas`.
-

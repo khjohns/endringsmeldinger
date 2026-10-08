@@ -244,4 +244,3 @@ Skal gi `brutte: 0`. `adr/001` lenker til `../NS_8407.md`, som ble avsporet i
 `507e225`; uten en lokal kopi av den fila gir kontrollen ett brudd der.
 Linjeankre som `#L10-L20` mot kildefiler telles, men kontrolleres ikke, og
 `file:`-lenker hoppes over.
-
