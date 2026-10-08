@@ -38,6 +38,7 @@ TIDSAKSER = {"registrering": "registrering", "sendt_mottatt": "sendt/mottatt"}
 ROLLER = {"forutsetning", "mal", "kontroll"}
 HANDLINGER = {
     "grunnlag",
+    "grunnlag_ny_versjon",
     "grunnlagssvar",
     "vederlagskrav",
     "vederlagskrav_ny_versjon",
@@ -76,7 +77,7 @@ def _valider_kilder(regler: dict, plan: str) -> list[str]:
         if kilde["radetikett"] not in vedtak:
             feil.append(f"{kilde['id']}: radetiketten står ikke i hovedplanen 3.1")
         anker = kilde["ref"].partition("#")[2]
-        if anker.startswith("ka-u") and f'<a id="{anker}"></a>' not in vedtak:
+        if anker != "31-vedtatte-premisser-og-beslutninger" and f'<a id="{anker}"></a>' not in vedtak:
             feil.append(f"{kilde['id']}: ankeret #{anker} finnes ikke i hovedplanen 3.1")
     return feil
 
@@ -107,8 +108,11 @@ def _valider_forlop(regler: dict, korpus: dict, funntekst: str) -> list[str]:
     rader = {r["id"]: r for r in regler["rader"]}
     bevist = set()
 
-    def funnet(funn):
-        return re.search(rf"^\| {re.escape(funn)} \|", funntekst, re.MULTILINE)
+    def funnet(avvik):
+        """Et avvik uten funn-ID er et vedtatt issue (#235); da er `funn` issuenummeret."""
+        if avvik["funn"] == f"#{avvik.get('issue')}":
+            return True
+        return re.search(rf"^\| {re.escape(avvik['funn'])} \|", funntekst, re.MULTILINE)
 
     for forlop in korpus["forlop"]:
         navn = forlop["id"]
@@ -139,7 +143,7 @@ def _valider_forlop(regler: dict, korpus: dict, funntekst: str) -> list[str]:
         if not any(k["rolle"] == "mal" for k in forlop["kontroller"]):
             feil.append(f"{navn}: mangler målkontroll")
         avvik = forlop.get("kjent_avvik")
-        if avvik and not funnet(avvik["funn"]):
+        if avvik and not funnet(avvik):
             feil.append(f"{navn}: funnet {avvik['funn']} står ikke i hovedplanens funnregister")
 
     for inv in korpus["invarianter"]:
@@ -147,7 +151,7 @@ def _valider_forlop(regler: dict, korpus: dict, funntekst: str) -> list[str]:
         for avvik in inv["kjente_avvik"]:
             if avvik["forlop"] not in sett:
                 feil.append(f"{inv['id']}: ukjent forløp {avvik['forlop']}")
-            if not funnet(avvik["funn"]):
+            if not funnet(avvik):
                 feil.append(f"{inv['id']}: funnet {avvik['funn']} står ikke i funnregisteret")
     feil += [f"{r}: ingen bevis-sak" for r in rader if r not in bevist]
     return feil

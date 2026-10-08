@@ -2,7 +2,9 @@
 
 **Opprettet:** 2026-09-16. **Sluttredigert:** 2026-09-22, mot commit
 `41c2a16191a5aadbe611e0958db8b93090b08027` (`main`).
-**Sist endret:** 2026-10-08: KA-U1–KA-U4 om kravversjon og aksept vedtatt for
+**Sist endret:** 2026-10-08, senere: KA-U5 og GR-U1–GR-U5 om grunnlagsavhengigheten
+vedtatt for [domenetabellen](../domenetabell/README.md) (#271), og DT-04 registrert i 4.2.
+Tidligere samme dag: KA-U1–KA-U4 om kravversjon og aksept vedtatt for
 [domenetabellen](../domenetabell/README.md) (#271), og DT-01–DT-03 registrert i 4.2.
 2026-10-07: B-14 vedtatt med presisert målform og rekkefølge,
 B-10 konkretisert i F2/F5, og B-15/B-16 registrert som åpne beslutninger etter
@@ -190,6 +192,12 @@ eksplisitt oppheves.
 | <a id="ka-u2"></a>KA-U2: kravversjonene er de hendelsene projeksjonen og frontenden regner som krav: `grunnlag_opprettet` og `grunnlag_oppdatert`, `vederlag_krav_sendt` med kravinnhold og `vederlag_krav_oppdatert`, `frist_krav_sendt`, `frist_krav_oppdatert` og `frist_krav_spesifisert`. Et frittstående konsekvensvarsel (`vederlag_krav_sendt` med `varsel_type` «varsel»), et trekk og byggherrens innsigelse eller forespørsel er ikke kravversjoner. Godkjenningsflyten skal bruke samme definisjon | 08.10, oppdragsgiver | Presiserer vedtaket om ny kravversjon 05.10. Projeksjonen og `submissionRefs` følger det; `claims()` i godkjenningsflyten gjør det ikke (DT-02) |
 | <a id="ka-u3"></a>KA-U3: vedtaket om ny kravversjon gjelder til saken er `OMFORENT`. Deretter avvises en ny kravversjon, og et nytt krav om samme forhold går i en ny sak, som ved et trukket krav | 08.10, oppdragsgiver | Som i dag: `CASE_NOT_CLOSED` avviser oppdateringen (K 08.10). TE kan altså revidere et fullt godkjent krav bare så lenge et annet spor er åpent |
 | <a id="ka-u4"></a>KA-U4: i byggherrens vurderinger av varsel og rettidighet betyr `true` i tide og `false` for sent. Et spørsmål byggherren ikke har vurdert, utelates i hendelsen og er `null` i tilstanden. Om spørsmålet gjelder kravet, utledes av kravet og lagres ikke. Modellen har ingen standardverdi for slike vurderinger | 08.10, oppdragsgiver | Ikke bygget for `spesifisert_krav_ok`, som lagres som `true` når feltet mangler (DT-03). Følger API-vedtaket 05.10. Gjelder en vurdering som mangler i et svar, ikke fravær av en innsigelse (U3 i [metodeprøven](../vedlegg/metodeprove-frist-2026-10-08/README.md)) |
+| <a id="ka-u5"></a>KA-U5: godtar TE et svar som er delvis godkjent, blir sporet `GODKJENT` med byggherrens beløp eller dager. Byggherrens tall er da avtalt, og sporet er oppgjort på linje med et fullt godkjent krav | 08.10, oppdragsgiver | Som i dag (rad KA-08b i [domenetabellen](../domenetabell/README.md)). Avklarer arbeidshypotesen fra første del |
+| <a id="gr-u1"></a>GR-U1: en ny kravversjon av grunnlaget åpner sporet også når underkategorien er uendret, som for vederlag og frist. Svaret på forrige versjon faller i tilstanden og står i journalen, grunnlaget venter på nytt svar, og en aksept av forrige svar avvises (KA-U1). Et svar på vederlag eller frist som var subsidiært, forblir subsidiært til sporet eller grunnlaget besvares igjen, som ved endret underkategori | 08.10, oppdragsgiver | Ikke bygget (DT-04). Utvider vedtaket om endret underkategori 05.10 (#215) til alle grunnlagsversjoner etter et svar som ikke er låst |
+| <a id="gr-u2"></a>GR-U2: et grunnlag byggherren har godkjent og som er låst, kan ikke endres, heller ikke underkategorien. Vedtaket om endret underkategori 05.10 (#215) gjelder svar som ikke er låst: avslått, prekludert etter § 32.2 og frafalt | 08.10, oppdragsgiver | Som i dag: `NOT_LOCKED` avviser oppdateringen |
+| <a id="gr-u3"></a>GR-U3: etter frafall (§ 32.3 c) blir saken `OMFORENT` når vederlag og frist er oppgjort, ved godkjenning eller godtatt avslag. Endringsordren for utført arbeid utstedes i en egen EO-sak (#69) med egen fullmakt (GFK-06), ikke reaktivt fra KOE-saken; `kan_utstede_eo` er `false` i KOE-saken | 08.10, oppdragsgiver | Presiserer vedtaket om `FRAFALT` 05.10. `OMFORENT` med godkjente krav og `kan_utstede_eo` er som i dag; godtatte avslag gir `UKJENT` (SK-04) |
+| <a id="gr-u4"></a>GR-U4: reviderer byggherren svaret på vederlag eller frist mens grunnlaget venter på nytt svar, er det nye svaret prinsipalt. Det blir subsidiært når grunnlaget avslås eller prekluderes, fordi det utledes av grunnlaget (vedtaket om svar når grunnlaget er avslått, 05.10) | 08.10, oppdragsgiver | Som i dag i projeksjonen, fullmakten og brevet |
+| <a id="gr-u5"></a>GR-U5: trekker TE grunnlaget, trekkes alle krav som er sendt, også et vederlag eller en frist byggherren har godkjent, fordi ansvarsgrunnlaget bærer dem. Saken blir `LUKKET_TRUKKET` | 08.10, oppdragsgiver | Som i dag (kaskaden i `_handle_grunnlag_trukket`). Spor som ikke er sendt: SD-02 |
 | P1: magic links utgår | 20.09 | `magic_links` fjernes (MS-15) |
 | P2, P3: BIM er relevant; et objekt hører til én sak; formålet er å se hvilke komponenter som fører til tvist | 20.09 | Retning MS-13, MS-14. Ikke prioritert |
 | P4: vedlegg lagres bare i Catenda | 20.09 | Hash og frosset grunnlag hos oss (MS-11, AF-04) |
@@ -546,6 +554,12 @@ Et åpent valg blokkerer bare oppgavene som er nevnt.
 > vedtatt som KA-U1–KA-U4 i 3.1. Grunnlagsendring, frafall, subsidiært svar mens
 > grunnlaget venter og EO-særforløp er ikke dekket ennå; det eies av #271.
 
+> **Merknad 2026-10-08 til B-14 (domenetabell, grunnlag):** Domenetabellen
+> dekker nå grunnlagsendring med og uten endret underkategori, frafall,
+> subsidiært svar mens grunnlaget venter, og trukket grunnlag. Tolkningene som
+> manglet, er vedtatt som KA-U5 og GR-U1–GR-U5 i 3.1. EO-særforløp og forsering
+> er ikke dekket ennå; det eies av #271.
+
 > **Merknad 2026-10-07 til B-10:** Strategien skal skille saksversjon fra
 > versjonen som beregnet en projeksjon, og vise invalidasjon/gjenoppbygging
 > når regler endrer gamle saker uten nye hendelser. Frosne brev og beslutninger
@@ -652,7 +666,7 @@ fordi de hører til samme domenefamilie som TFR og GFK. SD-03 er ført inn 24.09
 fra code-review av GFK-06. SK-01–SK-13 er ført inn 05.10 fra
 [strukturkartleggingen av spor D](../kartlegging-struktur-spor-d-2026-10-05.md#5-funn).
 DT-01–DT-03 er ført inn 08.10 fra [domenetabellen](../domenetabell/README.md)
-for kravversjon og aksept (#271).
+for kravversjon og aksept (#271), DT-04 samme dag fra grunnlagsdelen.
 
 | ID | Status | Restanse og merknad | Belegg | Pakke |
 | --- | --- | --- | --- | --- |
@@ -705,6 +719,7 @@ for kravversjon og aksept (#271).
 | DT-01 | Åpen, middels | TE kan godta byggherrens svar på en tidligere kravversjon. Etter et delvis godkjent svar på 60 000 kr og en ny kravversjon på 80 000 kr godtas aksepten, sporet blir `GODKJENT` og 60 000 kr står som avtalt, uten at byggherren har svart på 80 000 kr. Aksepten (`te_aksepterer_respons`) peker ikke på noe svar, og `BH_HAS_RESPONDED` ser bare at et svar finnes. Frontenden sender ikke aksept i dag; ruta tar imot den. Tiltenkt atferd er KA-U1 (3.1) | Streng `xfail`, K 2026-10-08 | D |
 | DT-02 | Åpen, lav | `claims()` i `approval_service.py` regner enhver hendelse som begynner med sporets navn som krav, også et frittstående konsekvensvarsel på vederlag, trekk og byggherrens innsigelse og forespørsel. Projeksjonen og frontenden gjør det ikke. Etter et konsekvensvarsel på et spesifisert vederlagskrav avviser `validate_items` begge mulige `claimId`: kravet gir «Kravet er endret», varselet gir «Svaret må gjelde gjeldende krav». Byggherren kan da ikke sende vederlagssvar gjennom godkjenningsflyten før TE sender en ny kravversjon. For innsigelse og forespørsel er avviket ikke nåbart, fordi fristsporet da ikke kan besvares. Tiltenkt atferd er KA-U2 (3.1) | Streng `xfail`, K 2026-10-08 | D |
 | DT-03 | Åpen, lav | `FristResponsData.spesifisert_krav_ok` har standardverdien `true`. Et fristsvar der spørsmålet ikke gjelder, lagres med `"spesifisert_krav_ok": true` i journalen, og `FristOverview` viser «Fremsatt i tide». Kjørt for svar på forespørselen etter § 33.6.2 annet ledd a, der byggherren etter fjerde ledd ikke kan påberope § 33.6.1. Lest for et oppdatert krav med dager der `varsel_type` ikke er «spesifisert»; validatoren for oppdateringer sjekker ikke typen. Regelmodulen ser bort fra standardverdien (`Fristvurdering.fra_data`), så resultatet påvirkes ikke. Journalen er append-only, så verdien kan ikke rettes i ettertid. `vilkar_oppfylt` har samme standardverdi, men kreves alltid av validatoren. Tiltenkt atferd er KA-U4 (3.1) | Streng `xfail` mot testbasen, K 2026-10-08 | D |
+| DT-04 | Åpen, lav | En ny kravversjon av grunnlaget med uendret underkategori åpner ikke sporet. Etter et avslag blir grunnlaget `SENDT`, men svaret står i tilstanden (`bh_resultat`, `respons_event_id`), og TE kan godta det: saken blir `LUKKET_AVSLATT` uten at byggherren har svart på versjonen. Etter preklusjon etter § 32.2 blir grunnlaget stående i `UNDER_FORHANDLING`. `_handle_grunnlag` lar bare endret underkategori (#215) og status `AVSLATT` gi nytt svar. Tiltenkt atferd er GR-U1 (3.1) | Streng `xfail`, K 2026-10-08 | D |
 | INT-01 | Åpen | Webhookhemmelighet uten konstant tid; sti i logg | Streng `xfail` (statisk) | H |
 | INT-02 | Åpen, høy | Webhookfeil gir 200 og reservert duplikatnøkkel; retry tapes | Streng `xfail`, K 22.09 | F3 |
 | INT-03 | Åpen | Validatoren avviser `bcf.*` | Streng `xfail`, K 22.09 | F3 |
