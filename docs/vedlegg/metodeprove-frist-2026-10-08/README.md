@@ -252,7 +252,7 @@ TE-protest mot den gamle modellen: `null` i stedet for `false`. Filhashene i
 [resultatene](resultater.json) identifiserer den kjørte koden og korpuset.
 
 **Lest:** punkt 5, 33.6.1, 33.6.2 og 33.7 i
-[repoets standardtekst](../../NS_8407.md), kontrollert mot den eksterne
+den lokale standardteksten `docs/NS_8407.md` (usporet, se `.gitignore`), kontrollert mot den eksterne
 standardgjengivelsen angitt i [regler.json](regler.json), samt LB-2017-177705
 side 23–24. Forutsetningene rundt
 33.4 er avgrenset; appens produksjonsregler er ikke en forventningsgenerator.
