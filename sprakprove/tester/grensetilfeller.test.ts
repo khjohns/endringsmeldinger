@@ -60,23 +60,30 @@ describe('nærmeste krone', () => {
 });
 
 describe('vederlag', () => {
-  it.each(tabell.vederlag.tilfeller.map((t, i) => [i, t as Rad] as const))('tilfelle %i', (_i, t) => {
-    const vurdering = {
-      hovedkrav_vurdering: (t.vurdering ?? null) as never,
-      hovedkrav_godkjent_belop: (t.godkjent ?? null) as number | null,
-      aksepterer_metode: ('aksepterer_metode' in t ? t.aksepterer_metode : true) as boolean | null,
-    };
-    const regn = () => beregnVederlag(vederlagskrav(t.krevd as number), vurdering);
-    if ('feil' in t) expect(feltetSomFeiler(regn)).toContain(t.feil);
-    else expect(regn().beregnings_resultat).toBe(t.resultat);
-  });
+  it.each(tabell.vederlag.tilfeller.map((t, i) => [i, t as Rad] as const))(
+    'tilfelle %i',
+    (_i, t) => {
+      const vurdering = {
+        hovedkrav_vurdering: (t.vurdering ?? null) as never,
+        hovedkrav_godkjent_belop: (t.godkjent ?? null) as number | null,
+        aksepterer_metode: ('aksepterer_metode' in t ? t.aksepterer_metode : true) as
+          | boolean
+          | null,
+      };
+      const regn = () => beregnVederlag(vederlagskrav(t.krevd as number), vurdering);
+      if ('feil' in t) expect(feltetSomFeiler(regn)).toContain(t.feil);
+      else expect(regn().beregnings_resultat).toBe(t.resultat);
+    }
+  );
 });
 
 describe('frist', () => {
   it.each(tabell.frist.tilfeller.map((t, i) => [i, t as Rad] as const))('tilfelle %i', (_i, t) => {
     const vurdering = {
       frist_varsel_ok: true,
-      spesifisert_krav_ok: ('spesifisering_i_tide' in t ? t.spesifisering_i_tide : true) as boolean | null,
+      spesifisert_krav_ok: ('spesifisering_i_tide' in t ? t.spesifisering_i_tide : true) as
+        | boolean
+        | null,
       vilkar_oppfylt: ('hindring' in t ? t.hindring : true) as boolean | null,
       godkjent_dager: t.dager,
     };
