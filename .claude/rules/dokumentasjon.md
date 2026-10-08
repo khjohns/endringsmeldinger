@@ -38,8 +38,10 @@ forklaring. Ingen gjennomføringsrapport eller handoff kreves for hver PR.
   forutsetninger og relevante begrensninger. Ingen funntabell, alvorlighet eller
   auditformat kreves. Oppdater berørt referanse i samme PR som atferden endres.
 - **Audit/review/undersøkelse:** dato og kontrollert commit, kildegrunnlag og
-  relevante lenker. Funn har ID, belegg og fil/symbol; alvorlighet der det er
-  relevant. Avslutt med «Verifikasjon og grenser». Skill «Kjørt og observert» fra
+  relevante lenker. Funn har ID, belegg merket etter
+  [hovedplanen](../../docs/plans/2026-09-16-godkjenning-og-varig-levering.md#13-begreper-som-holdes-adskilt)
+  og fil/symbol; alvorlighet der det er relevant. Avslutt med «Verifikasjon og
+  grenser». Skill «Kjørt og observert» fra
   «Lest ut av koden» og historiske resultater. Skriv hva som ikke er kontrollert.
 - **Historikk:** bevar daterte undersøkelser som bevis på hva som ble undersøkt.
   Ved erstattet konklusjon: legg en datert merknad ved den gamle konklusjonen
