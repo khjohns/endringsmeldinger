@@ -93,6 +93,10 @@ To backend-reproduksjoner ble kjørt isolert i minnet mot nøyaktig node-ID. Kj�
 
 ## 4. Begrepsavklaring som grunnlag for domenetabellen (#271)
 
+> **Merknad 2026-10-08:** Begrepene under er erstattet av begrepstabellen i
+> [domenetabellen](../../domenetabell/README.md#begreper), med vedtakene KA-U1–KA-U4 i
+> hovedplanen 3.1. Avsnittet står som historisk grunnlag.
+
 *Dette er en foreløpig og avgrenset oversikt. Definisjonene av krav, svar og sporstatus må ikke leses som autoritative gjennom dette inventaret. Særlig eksemplet med preklusjon etter § 32.2 må fremstå utelukkende som ett undersøkt tilfelle.*
 
 En sentral årsak til feilene identifisert i reproduksjonene er uklar begrepsbruk i dagens kodebase. Domenetabellen i #271 eier definisjonen av disse begrepene:
