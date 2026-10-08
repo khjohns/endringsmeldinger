@@ -11,9 +11,10 @@ Ansvarlig: khjohns. Avhengigheter: git og en innlogget `gh` med `--slurp`
      ingenting.
   2. Les kandidater.json. Fjern grener du vil beholde.
   3. python3 scripts/rydd_grener.py slett --plan kandidater.json
-     Kontrollerer åpne PR-er på nytt og sletter hver gren med
-     `--force-with-lease` mot SHA-en fra planen. En gren som har fått nye
-     commits siden planen, avvises av GitHub og blir stående.
+     Avviser en plan som er eldre enn ett døgn. Hopper over beskyttede og faste
+     grener og grener i åpne PR-er, og sletter resten med `--force-with-lease`
+     mot SHA-en fra planen. En gren som har fått nye commits siden planen,
+     avvises av GitHub og blir stående.
 
 En gren er kandidat når SHA-en er en forfar til hovedgrenen, eller når den er
 head i en flettet PR fra samme repo med uendret SHA og merge-commiten finnes i
@@ -32,6 +33,7 @@ import subprocess
 from typing import Any
 
 ALLTID_BEHOLD = {"main", "master", "develop", "staging"}
+MAKS_ALDER_PAA_PLAN = datetime.timedelta(days=1)
 
 
 class GitFeil(RuntimeError):
@@ -93,6 +95,21 @@ def er_forfar(commit: str, maal: str) -> bool:
     )
 
 
+def merge_commit_i(sha: str, maal: str) -> bool:
+    """En merge-commit som ikke kan hentes, regnes som ikke flettet."""
+    try:
+        return er_forfar(sha, maal)
+    except GitFeil:
+        return False
+
+
+def faste_grener(repo: str) -> tuple[str, set[str]]:
+    """Hovedgrenen og alle grener som aldri skal slettes."""
+    hovedgren = json.loads(kjor(["gh", "api", f"/repos/{repo}"])).get("default_branch", "main")
+    beskyttet = {g["name"] for g in hent_fra_github(repo, "branches?protected=true&per_page=100")}
+    return hovedgren, beskyttet | ALLTID_BEHOLD | {hovedgren}
+
+
 def grener_i_aapne_pr(repo: str) -> dict[str, int]:
     """Både head og base, slik at en gren som er base for en åpen PR, beholdes."""
     i_bruk: dict[str, int] = {}
@@ -108,6 +125,7 @@ def klassifiser(
     repo: str,
     hovedgren: str,
     grener: dict[str, str],
+    faste: set[str],
     i_aapne_pr: dict[str, int],
     flettede_pr: list[dict[str, Any]],
 ) -> tuple[list[dict[str, str]], list[tuple[str, str]]]:
@@ -120,6 +138,9 @@ def klassifiser(
     kandidater: list[dict[str, str]] = []
     beholdes: list[tuple[str, str]] = []
     for gren, sha in sorted(grener.items()):
+        if gren in faste:
+            beholdes.append((gren, "Beskyttet eller fast gren"))
+            continue
         if gren in i_aapne_pr:
             beholdes.append((gren, f"I bruk av åpen PR #{i_aapne_pr[gren]}"))
             continue
@@ -133,7 +154,7 @@ def klassifiser(
                 if (pr["head"].get("repo") or {}).get("full_name", "").lower() == repo
                 and pr["head"].get("sha") == sha
                 and pr.get("merge_commit_sha")
-                and er_forfar(pr["merge_commit_sha"], maal)
+                and merge_commit_i(pr["merge_commit_sha"], maal)
             ),
             None,
         )
@@ -156,25 +177,22 @@ def plan(args: argparse.Namespace) -> None:
     print(f"Låst til repository: {repo}")
     kjor(["git", "fetch", "origin", "--prune"])
 
-    hovedgren = json.loads(kjor(["gh", "api", f"/repos/{repo}"])).get("default_branch", "main")
+    hovedgren, faste = faste_grener(repo)
     sikre_commit(kjor(["git", "rev-parse", f"origin/{hovedgren}"]))
-    beskyttet = {g["name"] for g in hent_fra_github(repo, "branches?protected=true&per_page=100")}
-    beskyttet |= ALLTID_BEHOLD | {hovedgren}
-    print(f"Hovedgren: {hovedgren}. Beskyttede og faste grener ignoreres: {sorted(beskyttet)}")
+    print(f"Hovedgren: {hovedgren}. Beskyttede og faste grener beholdes: {sorted(faste)}")
 
     grener: dict[str, str] = {}
     for linje in kjor(["git", "ls-remote", "--heads", "origin"]).splitlines():
         if linje.strip():
             sha, ref = linje.split("\t")
-            gren = ref.removeprefix("refs/heads/")
-            if gren not in beskyttet:
-                grener[gren] = sha
-    print(f"Fant {len(grener)} ubeskyttede grener på origin.")
+            grener[ref.removeprefix("refs/heads/")] = sha
+    print(f"Fant {len(grener)} grener på origin.")
 
     kandidater, beholdes = klassifiser(
         repo,
         hovedgren,
         grener,
+        faste,
         grener_i_aapne_pr(repo),
         hent_fra_github(repo, f"pulls?state=closed&base={hovedgren}&per_page=100"),
     )
@@ -190,7 +208,7 @@ def plan(args: argparse.Namespace) -> None:
         json.dump(
             {
                 "repo": repo,
-                "created_at": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+                "created_at": datetime.datetime.now(datetime.UTC).isoformat(),
                 "candidates": kandidater,
             },
             f,
@@ -207,15 +225,26 @@ def slett(args: argparse.Namespace) -> None:
     if manifest.get("repo", "").lower() != repo:
         raise ValueError(f"Planen gjelder {manifest.get('repo')!r}, men origin er {repo!r}.")
 
+    alder = datetime.datetime.now(datetime.UTC) - datetime.datetime.fromisoformat(
+        manifest["created_at"]
+    )
+    if alder > MAKS_ALDER_PAA_PLAN:
+        raise ValueError(f"Planen er {alder} gammel. Kjør `plan` på nytt.")
+
     kandidater = manifest.get("candidates", [])
     if not kandidater:
         print("Ingen kandidater i planen.")
         return
 
+    _, faste = faste_grener(repo)
     i_aapne_pr = grener_i_aapne_pr(repo)
     slettet = hoppet_over = feilet = 0
     for k in kandidater:
         gren, sha = k["branch"], k["sha"]
+        if gren in faste:
+            print(f"  ⚠ Hopper over {gren}: beskyttet eller fast gren.")
+            hoppet_over += 1
+            continue
         if gren in i_aapne_pr:
             print(f"  ⚠ Hopper over {gren}: tatt i bruk i åpen PR #{i_aapne_pr[gren]} etter planen.")
             hoppet_over += 1
