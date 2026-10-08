@@ -131,6 +131,44 @@ def _fristsvar(h, sak):
     }
 
 
+EO_HANDLINGER = {
+    "eo_utkast": ("BH", "eo_opprettet"),
+    "eo_utstedelse": ("BH", "eo_utstedt"),
+    "eo_aksept": ("TE", "eo_akseptert"),
+    "eo_bestridelse": ("TE", "eo_bestridt"),
+    "eo_revisjon": ("BH", "eo_revidert"),
+    "eo_tilknytning": ("BH", "eo_koe_lagt_til"),
+    "eo_frakobling": ("BH", "eo_koe_fjernet"),
+}
+
+
+def _endringsordre(h: dict) -> tuple[str, dict]:
+    """KOE-sakene i `h["koe"]` er sak-ID-er; `kjor` har byttet ut `$navn`."""
+    rolle, hendelse = EO_HANDLINGER[h["handling"]]
+    navn = h["handling"]
+    ordre = {"eo_nummer": h.get("nummer", "EO-001"), "beskrivelse": "Endret fundamentering"}
+    if navn == "eo_utkast":
+        data = {**ordre, "relaterte_koe_saker": h.get("koe", [])}
+    elif navn == "eo_utstedelse":
+        data = {**ordre, "revisjon_nummer": 0}
+        if "belop" in h:
+            data["vederlag"] = {"metode": "FASTPRIS_TILBUD", "belop_direkte": h["belop"]}
+        if "dager" in h:
+            data["frist_dager"] = h["dager"]
+        data["konsekvenser"] = {"pris": "belop" in h, "fremdrift": "dager" in h}
+        if "koe" in h:
+            data["relaterte_koe_saker"] = h["koe"]
+    elif navn == "eo_aksept":
+        data = {"akseptert": True}
+    elif navn == "eo_bestridelse":
+        data = {"begrunnelse": "Uenig i beløpet"}
+    elif navn == "eo_revisjon":
+        data = {"ny_revisjon_nummer": h["revisjon"], "endringer_beskrivelse": "Revidert beløp"}
+    else:
+        data = {"koe_sak_id": h["koe"]}
+    return rolle, {"event_type": hendelse, "data": data}
+
+
 def foresporsel(h: dict, sak, sak_id: str) -> tuple[str, dict]:
     """Rollen og forespørselen `/api/events` tar imot for handlingen `h`."""
     navn = h["handling"]
@@ -189,6 +227,8 @@ def foresporsel(h: dict, sak, sak_id: str) -> tuple[str, dict]:
                 "brev": _brev(sak_id, tekst),
             },
         }
+    if navn in EO_HANDLINGER:
+        return _endringsordre(h)
     if navn == "aksept":
         return "TE", {"event_type": "te_aksepterer_respons", "spor": h["spor"], "data": {}}
     if navn == "trekk":
@@ -253,17 +293,53 @@ def steg_med_prefiks(forlop: dict) -> tuple[list, list]:
     return copy.deepcopy(prefiks), copy.deepcopy(forlop["steg"])
 
 
-def kjor(forlop: dict, bane) -> None:
+HOVED = "hoved"
+
+
+def er_flersak(forlop: dict) -> bool:
+    return bool(forlop.get("saker"))
+
+
+def saker(forlop: dict, ny_bane) -> dict:
+    """Én bane per sak i forløpet. `ny_bane(sakstype)` oppretter saken.
+
+    Hovedsaken har forløpets `sakstype` og prefikset; de andre står i `saker`.
+    """
+    baner = {HOVED: ny_bane(forlop.get("sakstype", "standard"))}
+    for navn, sakstype in forlop.get("saker", {}).items():
+        baner[navn] = ny_bane(sakstype)
+    return baner
+
+
+def med_sak_id(verdi, baner: dict):
+    """`$navn` i en handling eller en forventning er sak-ID-en til saken `navn`."""
+    if isinstance(verdi, str) and verdi.startswith("$"):
+        return baner[verdi[1:]].sak_id
+    if isinstance(verdi, list):
+        return [med_sak_id(v, baner) for v in verdi]
+    if isinstance(verdi, dict):
+        return {k: med_sak_id(v, baner) for k, v in verdi.items()}
+    return verdi
+
+
+def _uten_sak(h: dict) -> dict:
+    return {k: v for k, v in h.items() if k != "sak"}
+
+
+def kjor(forlop: dict, ny_bane) -> None:
     """Kjør forløpet i banen og kontroller forventningene.
 
-    `bane` har `send(h) -> (godtatt, melding)`, `prov(h)`, `tilstand()` som
-    tilstanden API-et sender (`public_state`), `journal()` og `lagret(hendelsestype)`. En forutsetning
-    eller kontrollsak som ikke holder, feiler med `pytest.fail`, så en streng
-    `xfail` bare blir grønn når målet feiler (.claude/rules/tester.md).
+    En bane har `sak_id`, `send(h) -> (godtatt, melding)`, `prov(h)`,
+    `tilstand()` som tilstanden API-et sender (`public_state`), `journal()` og
+    `lagret(hendelsestype)`. `ny_bane(sakstype)` gir én bane per sak; et steg
+    eller en kontroll med `sak` gjelder den saken, ellers hovedsaken. En
+    forutsetning eller kontrollsak som ikke holder, feiler med `pytest.fail`,
+    så en streng `xfail` bare blir grønn når målet feiler (.claude/rules/tester.md).
     """
+    baner = saker(forlop, ny_bane)
     prefiks, steg = steg_med_prefiks(forlop)
     for h in prefiks:
-        godtatt, melding = bane.send(h)
+        godtatt, melding = baner[HOVED].send(h)
         if not godtatt:
             pytest.fail(f"Forutsetning: prefikset avviste {h['handling']}: {melding}")
     kontroller = forlop["kontroller"]
@@ -271,13 +347,14 @@ def kjor(forlop: dict, bane) -> None:
 
     def sjekk(etter):
         for k in (k for k in kontroller if k["etter"] == etter):
+            bane = baner[k.get("sak", HOVED)]
             if k["rolle"] == "kontroll":
-                godtatt, melding = bane.prov(k["prov"])
+                godtatt, melding = bane.prov(med_sak_id(k["prov"], baner))
                 if godtatt != (not k["forventet"]["avvist"]):
                     pytest.fail(f"Kontrollsak etter steg {etter}: {k['prov']['handling']} ga {melding!r}")
                 continue
             tilstand = bane.tilstand()
-            for sti, forventet in k["forventet"].items():
+            for sti, forventet in med_sak_id(k["forventet"], baner).items():
                 if sti == "avvist":
                     faktisk = sist is not None and not sist[0]
                 elif sti.startswith("lagret."):
@@ -292,13 +369,16 @@ def kjor(forlop: dict, bane) -> None:
                 else:
                     assert stemmer(faktisk, forventet), f"{forlop['id']} etter steg {etter}: {sti} er {faktisk!r}, ventet {forventet!r}"
 
+    def journaler():
+        return {navn: bane.journal() for navn, bane in baner.items()}
+
     sjekk(0)
     for i, h in enumerate(steg, start=1):
-        journal_for = bane.journal()
-        sist = bane.send(h)
+        journal_for = journaler()
+        sist = baner[h.get("sak", HOVED)].send(med_sak_id(_uten_sak(h), baner))
         if not sist[0]:
-            if bane.journal() != journal_for:
-                pytest.fail(f"Steg {i} ble avvist, men journalen endret seg")
+            if journaler() != journal_for:
+                pytest.fail(f"Steg {i} ble avvist, men en journal endret seg")
             if not any(
                 k["etter"] == i and k["rolle"] != "kontroll" and "avvist" in k["forventet"]
                 for k in kontroller
@@ -337,11 +417,13 @@ def invariant_parametre():
     return parametre
 
 
-def kjor_invariant(forlop: dict, bane) -> None:
+def kjor_invariant(forlop: dict, ny_bane) -> None:
     """Gjeldende krav i godkjenningsflyten er projeksjonens etter hvert godtatt steg."""
+    baner = saker(forlop, ny_bane)
     prefiks, steg = steg_med_prefiks(forlop)
     for i, h in enumerate(prefiks + steg, start=1):
-        godtatt, melding = bane.send(h)
+        bane = baner[h.get("sak", HOVED)]
+        godtatt, melding = bane.send(med_sak_id(_uten_sak(h), baner))
         if not godtatt:
             if i <= len(prefiks):
                 pytest.fail(f"Forutsetning: prefikset avviste {h['handling']}: {melding}")

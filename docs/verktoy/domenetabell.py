@@ -52,7 +52,15 @@ HANDLINGER = {
     "foresporsel",
     "aksept",
     "trekk",
+    "eo_utkast",
+    "eo_utstedelse",
+    "eo_aksept",
+    "eo_bestridelse",
+    "eo_revisjon",
+    "eo_tilknytning",
+    "eo_frakobling",
 }
+SAKSTYPER = {"standard", "endringsordre"}
 # Et forløps forventningsgrunnlag er den svakeste tolkningsstatusen blant radene det beviser.
 STYRKE = {"avklart_tolkning": 3, "arbeidshypotese": 2, "modellkonvensjon": 1, "karakterisering": 0}
 
@@ -103,6 +111,39 @@ def _valider_rader(regler: dict) -> list[str]:
     return feil
 
 
+def _sakreferanser(verdi) -> list[str]:
+    """`$navn` i en handling eller forventning viser til en sak i forløpet."""
+    if isinstance(verdi, str):
+        return [verdi[1:]] if verdi.startswith("$") else []
+    if isinstance(verdi, list):
+        return [r for v in verdi for r in _sakreferanser(v)]
+    if isinstance(verdi, dict):
+        return [r for v in verdi.values() for r in _sakreferanser(v)]
+    return []
+
+
+def _valider_saker(navn: str, forlop: dict) -> list[str]:
+    """Hovedsaken heter `hoved`; de andre står i `saker` med sakstype."""
+    feil = []
+    saker = {"hoved": forlop.get("sakstype", "standard"), **forlop.get("saker", {})}
+    if forlop.get("saker", {}).get("hoved"):
+        feil.append(f"{navn}: `hoved` er hovedsaken og står ikke i `saker`")
+    feil += [f"{navn}: ukjent sakstype {t!r}" for t in saker.values() if t not in SAKSTYPER]
+    if forlop["start"] is not None and saker["hoved"] != "standard":
+        feil.append(f"{navn}: prefikset gjelder bare en KOE-sak")
+    for del_ in forlop["steg"] + forlop["kontroller"]:
+        brukt = [del_.get("sak", "hoved")] + _sakreferanser({k: v for k, v in del_.items() if k != "sak"})
+        feil += [f"{navn}: ukjent sak {s!r}" for s in brukt if s not in saker]
+    for del_ in forlop["steg"] + [k["prov"] for k in forlop["kontroller"] if "prov" in k]:
+        koe = del_.get("koe", [])
+        for s in _sakreferanser(koe):
+            if saker.get(s) != "standard":
+                feil.append(f"{navn}: `koe` viser til {s!r}, som ikke er en KOE-sak")
+        if koe and not _sakreferanser(koe):
+            feil.append(f"{navn}: `koe` må vise til en sak med `$navn`")
+    return feil
+
+
 def _valider_forlop(regler: dict, korpus: dict, funntekst: str, vedtak: str) -> list[str]:
     feil, sett = [], set()
     rader = {r["id"]: r for r in regler["rader"]}
@@ -136,6 +177,7 @@ def _valider_forlop(regler: dict, korpus: dict, funntekst: str, vedtak: str) -> 
         handlinger = [s["handling"] for s in forlop["steg"]]
         handlinger += [k["prov"]["handling"] for k in forlop["kontroller"] if "prov" in k]
         feil += [f"{navn}: ukjent handling {h!r}" for h in handlinger if h not in HANDLINGER]
+        feil += _valider_saker(navn, forlop)
         for k in forlop["kontroller"]:
             if k["rolle"] not in ROLLER or not 0 <= k["etter"] <= len(forlop["steg"]):
                 feil.append(f"{navn}: ugyldig kontroll {k}")
