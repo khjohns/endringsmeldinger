@@ -1,7 +1,8 @@
-"""Domenetabellen gjennom `/api/events` og testbasen (#271).
+"""Domenetabellen gjennom `/api/events`, `/api/events/batch` og testbasen (#271).
 
 Samme bevis-saker som `tests/test_domenetabell/`, men hver handling sendes
-gjennom ruta med ekte dekoratører og lagre mot PostgreSQL. Tilstanden leses av
+gjennom ruta med ekte dekoratører og lagre mot PostgreSQL. Batchbanen sender
+hver handling som eneste hendelse i en batch. Tilstanden leses av
 journalen etter gjenlesing, og tilstanden ruta returnerte, skal være lik den.
 En avvist handling skal la journalen stå uendret. Kontrollsakene (`prov`)
 prøves med `korpus.bygg_hendelse` på den gjenleste tilstanden, fordi en prøve
@@ -29,6 +30,8 @@ AVVISNINGER = {"BUSINESS_RULE_VIOLATION", "VALIDATION_ERROR"}
 
 
 class Rutebane:
+    rute = "/api/events"
+
     def __init__(self, klient, innlogging, lager):
         self.klient, self.innlogging, self.lager = klient, innlogging, lager
         self.sak_id = str(uuid4())
@@ -81,25 +84,39 @@ class Rutebane:
     def send(self, h):
         rolle, foresporsel = korpus.foresporsel(h, self.sak(), self.sak_id)
         self._som(rolle)
-        svar = self.klient.post(
-            "/api/events",
-            json={"sak_id": self.sak_id, "expected_version": len(self.journal()), "event": foresporsel},
-            headers=HEADERS,
-        )
+        svar = self.klient.post(self.rute, json=self._nyttelast(foresporsel), headers=HEADERS)
         if svar.status_code != 201:
             feil = svar.get_json() or {}
             # Bare en avvisning fra validering eller forretningsregler er et domeneutfall.
             if svar.status_code != 400 or feil.get("error") not in AVVISNINGER:
                 pytest.fail(f"{h['handling']}: {svar.status_code} {feil}")
+            # Batchruta gjør også et krasj i projeksjonen til VALIDATION_ERROR.
+            if self.prov(h)[0]:
+                pytest.fail(f"{h['handling']}: ruta avviste det forretningsreglene godtar: {feil}")
             return False, f"{feil.get('error')}: {feil.get('message')}"
         gjenlest = public_state(self.sak(), self._hendelser())
         if svar.get_json()["state"] != gjenlest:
             pytest.fail(f"{h['handling']}: tilstanden fra ruta er ikke lik tilstanden etter gjenlesing")
         return True, None
 
+    def _nyttelast(self, foresporsel):
+        return {"sak_id": self.sak_id, "expected_version": len(self.journal()), "event": foresporsel}
+
+
+class Batchbane(Rutebane):
+    rute = "/api/events/batch"
+
+    def _nyttelast(self, foresporsel):
+        return {"sak_id": self.sak_id, "expected_version": len(self.journal()), "events": [foresporsel]}
+
+
+@pytest.fixture(params=[Rutebane, Batchbane], ids=["events", "batch"])
+def bane(request, hendelsesklient, innlogging, container_mot_testbasen):
+    return request.param(hendelsesklient, innlogging, container_mot_testbasen.event_repository)
+
 
 @pytest.fixture
-def bane(hendelsesklient, innlogging, container_mot_testbasen):
+def rutebane(hendelsesklient, innlogging, container_mot_testbasen):
     return Rutebane(hendelsesklient, innlogging, container_mot_testbasen.event_repository)
 
 
@@ -109,8 +126,9 @@ def test_forlop_gjennom_ruta(forlop, bane):
 
 
 @pytest.mark.parametrize("forlop", korpus.invariant_parametre())
-def test_gjeldende_krav_er_det_samme_i_godkjenningen(forlop, bane):
-    korpus.kjor_invariant(forlop, bane)
+def test_gjeldende_krav_er_det_samme_i_godkjenningen(forlop, rutebane):
+    """En batch med én hendelse lagrer det samme, så invarianten prøves bare én gang."""
+    korpus.kjor_invariant(forlop, rutebane)
 
 
 def _vederlagssvar_til_godkjenning(bane, tmp_path):
@@ -139,8 +157,9 @@ def _vederlagssvar_til_godkjenning(bane, tmp_path):
     raises=AssertionError,
     reason="DT-02 (#256): claims() regner konsekvensvarselet som krav, og godkjenningsflyten avviser svaret",
 )
-def test_godkjenningsflyten_kan_svare_etter_et_konsekvensvarsel(bane, tmp_path):
+def test_godkjenningsflyten_kan_svare_etter_et_konsekvensvarsel(rutebane, tmp_path):
     """KA-15 og KA-U2. Kontrollsaken er samme svar før konsekvensvarselet."""
+    bane = rutebane
     for h in korpus.KORPUS["prefikser"]["basis"]:
         if not bane.send(h)[0]:
             pytest.fail(f"Forutsetning: {h['handling']} avvist")

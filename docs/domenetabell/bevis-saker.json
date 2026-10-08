@@ -5,7 +5,8 @@
     "Grunnlaget er en endring etter formell endringsordre (underkategori EO), med mindre forløpet sier noe annet.",
     "Beløp, dager og datoer er faste modellverdier. De er ikke rettslige forventninger.",
     "Byggherrens svar har vurderingene i handlingen, og resultatet regnes av serverens regler (B-13).",
-    "Rettidighet er byggherrens vurdering slik svaret oppgir den. Korpuset avgjør ikke om noe faktisk kom i tide."
+    "Rettidighet er byggherrens vurdering slik svaret oppgir den. Korpuset avgjør ikke om noe faktisk kom i tide.",
+    "Prefiksene `krav_eo` og `krav_irreg` sender grunnlag, vederlag og frist før byggherren svarer; underkategorien står i navnet."
   ],
   "prefikser": {
     "godkjent_grunnlag": [
@@ -15,6 +16,16 @@
     "basis": [
       { "handling": "grunnlag", "underkategori": "EO" },
       { "handling": "grunnlagssvar", "resultat": "godkjent" },
+      { "handling": "vederlagskrav", "belop": 100000 },
+      { "handling": "fristkrav", "dager": 20 }
+    ],
+    "krav_eo": [
+      { "handling": "grunnlag", "underkategori": "EO" },
+      { "handling": "vederlagskrav", "belop": 100000 },
+      { "handling": "fristkrav", "dager": 20 }
+    ],
+    "krav_irreg": [
+      { "handling": "grunnlag", "underkategori": "IRREG" },
       { "handling": "vederlagskrav", "belop": 100000 },
       { "handling": "fristkrav", "dager": 20 }
     ]
@@ -147,7 +158,7 @@
       "kontroller": [
         { "etter": 2, "rolle": "mal", "forventet": { "vederlag.status": "godkjent", "vederlag.te_akseptert": true, "vederlag.godkjent_belop": 60000 } }
       ],
-      "forventningsgrunnlag": "arbeidshypotese"
+      "forventningsgrunnlag": "avklart_tolkning"
     },
     {
       "id": "F-KA-09",
@@ -342,6 +353,289 @@
       ],
       "forventningsgrunnlag": "avklart_tolkning",
       "kjent_avvik": { "funn": "SK-12", "issue": 264 }
+    },
+    {
+      "id": "F-GR-01",
+      "rader": ["GR-01"],
+      "start": "krav_eo",
+      "steg": [
+        { "handling": "grunnlagssvar", "resultat": "avslatt" },
+        { "handling": "vederlagssvar", "vurdering": "godkjent" },
+        { "handling": "fristsvar", "varsel_i_tide": true, "spesifisering_i_tide": true, "hindring": true },
+        { "handling": "grunnlag_ny_versjon", "underkategori": "IRREG" }
+      ],
+      "kontroller": [
+        { "etter": 3, "rolle": "forutsetning", "forventet": { "er_subsidiaert_vederlag": true, "er_subsidiaert_frist": true } },
+        { "etter": 4, "rolle": "mal", "forventet": { "grunnlag.status": "sendt", "grunnlag.bh_resultat": null, "grunnlag.respons_event_id": null, "er_subsidiaert_vederlag": true, "er_subsidiaert_frist": true } }
+      ],
+      "forventningsgrunnlag": "avklart_tolkning"
+    },
+    {
+      "id": "F-GR-02",
+      "rader": ["GR-02"],
+      "start": "krav_irreg",
+      "steg": [
+        { "handling": "grunnlagssvar", "resultat": "godkjent", "varslet_i_tide": false },
+        { "handling": "vederlagssvar", "vurdering": "godkjent" },
+        { "handling": "fristsvar", "varsel_i_tide": true, "spesifisering_i_tide": true, "hindring": true },
+        { "handling": "grunnlag_ny_versjon", "underkategori": "EO" },
+        { "handling": "grunnlagssvar", "resultat": "godkjent" }
+      ],
+      "kontroller": [
+        { "etter": 3, "rolle": "forutsetning", "forventet": { "grunnlag.status": "under_forhandling", "er_subsidiaert_vederlag": true } },
+        { "etter": 4, "rolle": "mal", "forventet": { "grunnlag.status": "sendt", "grunnlag.grunnlag_varslet_i_tide": null, "grunnlag.laast": false, "er_subsidiaert_vederlag": true, "er_subsidiaert_frist": true } },
+        { "etter": 5, "rolle": "mal", "forventet": { "grunnlag.status": "laast", "er_subsidiaert_vederlag": false, "er_subsidiaert_frist": false, "vederlag.status": "godkjent", "overordnet_status": "OMFORENT", "kan_utstede_eo": true } }
+      ],
+      "forventningsgrunnlag": "avklart_tolkning"
+    },
+    {
+      "id": "F-GR-03",
+      "rader": ["GR-03"],
+      "start": "krav_eo",
+      "steg": [
+        { "handling": "grunnlagssvar", "resultat": "avslatt" },
+        { "handling": "grunnlag_ny_versjon", "underkategori": "IRREG" },
+        { "handling": "aksept", "spor": "grunnlag" }
+      ],
+      "kontroller": [
+        { "etter": 1, "rolle": "kontroll", "prov": { "handling": "aksept", "spor": "grunnlag" }, "forventet": { "avvist": false } },
+        { "etter": 2, "rolle": "forutsetning", "forventet": { "grunnlag.status": "sendt" } },
+        { "etter": 3, "rolle": "mal", "forventet": { "avvist": true, "grunnlag.te_akseptert": false, "overordnet_status": { "ikke": "LUKKET_AVSLATT" } } }
+      ],
+      "forventningsgrunnlag": "avklart_tolkning"
+    },
+    {
+      "id": "F-GR-04",
+      "rader": ["GR-04"],
+      "start": "krav_eo",
+      "steg": [
+        { "handling": "grunnlagssvar", "resultat": "avslatt" },
+        { "handling": "vederlagssvar", "vurdering": "godkjent" },
+        { "handling": "fristsvar", "varsel_i_tide": true, "spesifisering_i_tide": true, "hindring": true },
+        { "handling": "grunnlag_ny_versjon", "underkategori": "EO" }
+      ],
+      "kontroller": [
+        { "etter": 3, "rolle": "forutsetning", "forventet": { "er_subsidiaert_vederlag": true } },
+        { "etter": 4, "rolle": "mal", "forventet": { "grunnlag.status": "sendt", "grunnlag.bh_resultat": null, "grunnlag.respons_event_id": null, "er_subsidiaert_vederlag": true, "er_subsidiaert_frist": true } }
+      ],
+      "forventningsgrunnlag": "avklart_tolkning",
+      "kjent_avvik": { "funn": "DT-04", "issue": 256 }
+    },
+    {
+      "id": "F-GR-05",
+      "rader": ["GR-05"],
+      "start": "krav_irreg",
+      "steg": [
+        { "handling": "grunnlagssvar", "resultat": "godkjent", "varslet_i_tide": false },
+        { "handling": "vederlagssvar", "vurdering": "godkjent" },
+        { "handling": "fristsvar", "varsel_i_tide": true, "spesifisering_i_tide": true, "hindring": true },
+        { "handling": "grunnlag_ny_versjon", "underkategori": "IRREG" }
+      ],
+      "kontroller": [
+        { "etter": 3, "rolle": "forutsetning", "forventet": { "grunnlag.status": "under_forhandling" } },
+        { "etter": 4, "rolle": "mal", "forventet": { "grunnlag.status": "sendt", "grunnlag.grunnlag_varslet_i_tide": null, "er_subsidiaert_vederlag": true, "er_subsidiaert_frist": true } }
+      ],
+      "forventningsgrunnlag": "avklart_tolkning",
+      "kjent_avvik": { "funn": "DT-04", "issue": 256 }
+    },
+    {
+      "id": "F-GR-06",
+      "rader": ["GR-06"],
+      "start": "krav_eo",
+      "steg": [
+        { "handling": "grunnlagssvar", "resultat": "avslatt" },
+        { "handling": "grunnlag_ny_versjon", "underkategori": "EO" },
+        { "handling": "aksept", "spor": "grunnlag" }
+      ],
+      "kontroller": [
+        { "etter": 1, "rolle": "kontroll", "prov": { "handling": "aksept", "spor": "grunnlag" }, "forventet": { "avvist": false } },
+        { "etter": 2, "rolle": "forutsetning", "forventet": { "grunnlag.status": "sendt", "grunnlag.antall_versjoner": 2 } },
+        { "etter": 3, "rolle": "mal", "forventet": { "avvist": true, "grunnlag.te_akseptert": false, "overordnet_status": { "ikke": "LUKKET_AVSLATT" } } }
+      ],
+      "forventningsgrunnlag": "avklart_tolkning",
+      "kjent_avvik": { "funn": "DT-04", "issue": 256 }
+    },
+    {
+      "id": "F-GR-07",
+      "rader": ["GR-07"],
+      "start": "krav_eo",
+      "steg": [
+        { "handling": "grunnlagssvar", "resultat": "godkjent" },
+        { "handling": "grunnlag_ny_versjon", "underkategori": "IRREG" }
+      ],
+      "kontroller": [
+        { "etter": 0, "rolle": "kontroll", "prov": { "handling": "grunnlag_ny_versjon", "underkategori": "IRREG" }, "forventet": { "avvist": false } },
+        { "etter": 1, "rolle": "forutsetning", "forventet": { "grunnlag.status": "laast" } },
+        { "etter": 2, "rolle": "mal", "forventet": { "avvist": true, "grunnlag.status": "laast", "grunnlag.underkategori": "EO" } }
+      ],
+      "forventningsgrunnlag": "avklart_tolkning"
+    },
+    {
+      "id": "F-GR-08",
+      "rader": ["GR-08"],
+      "start": "krav_eo",
+      "steg": [
+        { "handling": "grunnlagssvar", "resultat": "avslatt" },
+        { "handling": "vederlagssvar", "vurdering": "godkjent" },
+        { "handling": "grunnlag_ny_versjon", "underkategori": "IRREG" },
+        { "handling": "vederlagssvar_revidert", "vurdering": "delvis", "godkjent_belop": 70000 },
+        { "handling": "grunnlagssvar", "resultat": "avslatt", "varslet_i_tide": true }
+      ],
+      "kontroller": [
+        { "etter": 3, "rolle": "forutsetning", "forventet": { "er_subsidiaert_vederlag": true, "grunnlag.status": "sendt" } },
+        { "etter": 4, "rolle": "mal", "forventet": { "er_subsidiaert_vederlag": false, "vederlag.status": "delvis_godkjent", "vederlag.godkjent_belop": 70000 } },
+        { "etter": 5, "rolle": "mal", "forventet": { "er_subsidiaert_vederlag": true, "vederlag.godkjent_belop": 70000 } }
+      ],
+      "forventningsgrunnlag": "avklart_tolkning"
+    },
+    {
+      "id": "F-GR-09",
+      "rader": ["GR-09"],
+      "start": null,
+      "steg": [
+        { "handling": "grunnlag", "underkategori": "EO" },
+        { "handling": "trekk", "spor": "grunnlag" }
+      ],
+      "kontroller": [
+        { "etter": 2, "rolle": "mal", "forventet": { "grunnlag.status": "trukket", "overordnet_status": "LUKKET_TRUKKET" } }
+      ],
+      "forventningsgrunnlag": "avklart_tolkning",
+      "kjent_avvik": { "funn": "SD-02", "issue": 231 }
+    },
+    {
+      "id": "F-GR-10",
+      "rader": ["GR-10"],
+      "start": null,
+      "steg": [
+        { "handling": "grunnlag", "underkategori": "EO" },
+        { "handling": "vederlagskrav", "belop": 100000 },
+        { "handling": "trekk", "spor": "grunnlag" }
+      ],
+      "kontroller": [
+        { "etter": 3, "rolle": "mal", "forventet": { "vederlag.status": "trukket", "overordnet_status": "LUKKET_TRUKKET" } }
+      ],
+      "forventningsgrunnlag": "avklart_tolkning",
+      "kjent_avvik": { "funn": "SD-02", "issue": 231 }
+    },
+    {
+      "id": "F-GR-11",
+      "rader": ["GR-11"],
+      "start": "krav_eo",
+      "steg": [
+        { "handling": "vederlagssvar", "vurdering": "godkjent" },
+        { "handling": "trekk", "spor": "grunnlag" }
+      ],
+      "kontroller": [
+        { "etter": 1, "rolle": "forutsetning", "forventet": { "vederlag.status": "godkjent", "grunnlag.bh_resultat": null } },
+        { "etter": 2, "rolle": "mal", "forventet": { "vederlag.status": "trukket", "frist.status": "trukket", "overordnet_status": "LUKKET_TRUKKET" } }
+      ],
+      "forventningsgrunnlag": "avklart_tolkning"
+    },
+    {
+      "id": "F-GR-12",
+      "rader": ["GR-12"],
+      "start": null,
+      "steg": [
+        { "handling": "grunnlag", "underkategori": "EO" },
+        { "handling": "trekk", "spor": "grunnlag" },
+        { "handling": "grunnlag_ny_versjon", "underkategori": "EO" }
+      ],
+      "kontroller": [
+        { "etter": 1, "rolle": "kontroll", "prov": { "handling": "grunnlag_ny_versjon", "underkategori": "EO" }, "forventet": { "avvist": false } },
+        { "etter": 2, "rolle": "forutsetning", "forventet": { "grunnlag.status": "trukket" } },
+        { "etter": 3, "rolle": "mal", "forventet": { "avvist": true, "grunnlag.antall_versjoner": 1 } }
+      ],
+      "forventningsgrunnlag": "avklart_tolkning",
+      "kjent_avvik": { "funn": "SD-02", "issue": 231 }
+    },
+    {
+      "id": "F-GR-13",
+      "rader": ["GR-13"],
+      "start": "krav_irreg",
+      "steg": [{ "handling": "grunnlagssvar", "resultat": "frafalt", "varslet_i_tide": true }],
+      "kontroller": [
+        { "etter": 1, "rolle": "mal", "forventet": { "grunnlag.status": "frafalt" } }
+      ],
+      "forventningsgrunnlag": "avklart_tolkning",
+      "kjent_avvik": { "funn": "SK-04", "issue": 257 }
+    },
+    {
+      "id": "F-GR-14",
+      "rader": ["GR-14"],
+      "start": "krav_irreg",
+      "steg": [
+        { "handling": "grunnlagssvar", "resultat": "frafalt", "varslet_i_tide": true },
+        { "handling": "vederlagssvar", "vurdering": "godkjent" },
+        { "handling": "fristsvar", "varsel_i_tide": true, "spesifisering_i_tide": true, "hindring": true }
+      ],
+      "kontroller": [
+        { "etter": 1, "rolle": "forutsetning", "forventet": { "grunnlag.bh_resultat": "frafalt" } },
+        { "etter": 3, "rolle": "mal", "forventet": { "er_subsidiaert_vederlag": false, "er_subsidiaert_frist": false, "overordnet_status": "OMFORENT", "kan_utstede_eo": false } }
+      ],
+      "forventningsgrunnlag": "avklart_tolkning"
+    },
+    {
+      "id": "F-GR-15",
+      "rader": ["GR-15"],
+      "start": "krav_irreg",
+      "steg": [
+        { "handling": "grunnlagssvar", "resultat": "frafalt", "varslet_i_tide": true },
+        { "handling": "vederlagssvar", "vurdering": "avslatt" },
+        { "handling": "fristsvar", "varsel_i_tide": true, "spesifisering_i_tide": true, "hindring": false },
+        { "handling": "aksept", "spor": "vederlag" },
+        { "handling": "aksept", "spor": "frist" }
+      ],
+      "kontroller": [
+        { "etter": 5, "rolle": "forutsetning", "forventet": { "vederlag.status": "avslatt_akseptert", "frist.status": "avslatt_akseptert" } },
+        { "etter": 5, "rolle": "mal", "forventet": { "overordnet_status": "OMFORENT", "kan_utstede_eo": false } }
+      ],
+      "forventningsgrunnlag": "avklart_tolkning",
+      "kjent_avvik": { "funn": "SK-04", "issue": 257 }
+    },
+    {
+      "id": "F-GR-16",
+      "rader": ["GR-16"],
+      "start": null,
+      "steg": [
+        { "handling": "grunnlag", "underkategori": "IRREG" },
+        { "handling": "grunnlagssvar", "resultat": "frafalt", "varslet_i_tide": true }
+      ],
+      "kontroller": [
+        { "etter": 2, "rolle": "forutsetning", "forventet": { "grunnlag.bh_resultat": "frafalt" } },
+        { "etter": 2, "rolle": "mal", "forventet": { "overordnet_status": "UNDER_BEHANDLING" } }
+      ],
+      "forventningsgrunnlag": "avklart_tolkning",
+      "kjent_avvik": { "funn": "SK-04", "issue": 257 }
+    },
+    {
+      "id": "F-GR-17",
+      "rader": ["GR-17"],
+      "start": "krav_irreg",
+      "steg": [{ "handling": "grunnlagssvar", "resultat": "frafalt", "varslet_i_tide": false }],
+      "kontroller": [
+        { "etter": 0, "rolle": "kontroll", "prov": { "handling": "grunnlagssvar", "resultat": "frafalt", "varslet_i_tide": true }, "forventet": { "avvist": false } },
+        { "etter": 1, "rolle": "mal", "forventet": { "avvist": true, "grunnlag.bh_resultat": null } }
+      ],
+      "forventningsgrunnlag": "avklart_tolkning",
+      "kjent_avvik": { "funn": "#235", "issue": 235 }
+    },
+    {
+      "id": "F-GR-18",
+      "rader": ["GR-18"],
+      "start": null,
+      "steg": [
+        { "handling": "grunnlag", "underkategori": "IRREG" },
+        { "handling": "vederlagskrav", "belop": 100000 },
+        { "handling": "fristkrav", "dager": 20 },
+        { "handling": "grunnlag_ny_versjon", "underkategori": "EO" },
+        { "handling": "grunnlagssvar", "resultat": "frafalt" }
+      ],
+      "kontroller": [
+        { "etter": 3, "rolle": "kontroll", "prov": { "handling": "grunnlagssvar", "resultat": "frafalt", "varslet_i_tide": true }, "forventet": { "avvist": false } },
+        { "etter": 4, "rolle": "forutsetning", "forventet": { "grunnlag.underkategori": "EO" } },
+        { "etter": 5, "rolle": "mal", "forventet": { "avvist": true, "grunnlag.bh_resultat": null } }
+      ],
+      "forventningsgrunnlag": "avklart_tolkning"
     }
   ],
   "invarianter": [
