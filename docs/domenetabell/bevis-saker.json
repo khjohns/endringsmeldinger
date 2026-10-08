@@ -653,11 +653,11 @@
       "saker": { "eo": "endringsordre" },
       "steg": [
         { "sak": "eo", "handling": "eo_utkast" },
-        { "handling": "eo_utstedelse", "belop": 100000, "dager": 20 }
+        { "handling": "eo_utstedelse", "belop": 90000, "dager": 15 }
       ],
       "kontroller": [
         { "etter": 0, "rolle": "forutsetning", "forventet": { "overordnet_status": "OMFORENT", "kan_utstede_eo": true } },
-        { "etter": 1, "sak": "eo", "rolle": "kontroll", "prov": { "handling": "eo_utstedelse", "belop": 100000, "dager": 20 }, "forventet": { "avvist": false } },
+        { "etter": 1, "sak": "eo", "rolle": "kontroll", "prov": { "handling": "eo_utstedelse", "belop": 90000, "dager": 15 }, "forventet": { "avvist": false } },
         { "etter": 2, "rolle": "mal", "forventet": { "avvist": true, "vederlag.godkjent_belop": 100000, "frist.godkjent_dager": 20 } }
       ],
       "forventningsgrunnlag": "avklart_tolkning",

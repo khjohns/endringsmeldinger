@@ -37,7 +37,9 @@ class Rutebane:
         Byggherren oppretter en EO-sak, slik `opprett_endringsordresak` gjør."""
         self.klient, self.innlogging, self.lager = klient, innlogging, lager
         self.sak_id = str(uuid4())
-        self._som("BH" if sakstype == "endringsordre" and not forste else "TE")
+        if forste and sakstype != "standard":
+            raise ValueError("TE-handlinger sendes sammen med sak_opprettet bare for en KOE-sak")
+        self._som("BH" if sakstype == "endringsordre" else "TE")
         svar = klient.post(
             "/api/events/batch",
             json={
@@ -254,7 +256,7 @@ def test_forlop_i_batcher_gir_samme_journal_og_tilstand(forlop, hendelsesklient,
     godtatt = [h for h in prefiks + steg if enkeltvis.send(h)[0]]
 
     grupper = _grupper(godtatt)
-    forste = grupper.pop(0) if grupper and grupper[0][0]["handling"] in TE_HANDLINGER else []
+    forste = grupper.pop(0) if sakstype == "standard" and grupper and grupper[0][0]["handling"] in TE_HANDLINGER else []
     batch = Rutebane(hendelsesklient, innlogging, lager, forste=forste, sakstype=sakstype)
     for gruppe in grupper:
         svar = _send_batch(batch, gruppe)

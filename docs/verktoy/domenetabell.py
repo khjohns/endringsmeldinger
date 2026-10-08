@@ -61,6 +61,9 @@ HANDLINGER = {
     "eo_frakobling",
 }
 SAKSTYPER = {"standard", "endringsordre"}
+HOVED = "hoved"
+# Felt `korpus.py` leser uten standardverdi.
+PAKREVD = {"eo_tilknytning": {"koe"}, "eo_frakobling": {"koe"}, "eo_revisjon": {"revisjon"}}
 # Et forløps forventningsgrunnlag er den svakeste tolkningsstatusen blant radene det beviser.
 STYRKE = {"avklart_tolkning": 3, "arbeidshypotese": 2, "modellkonvensjon": 1, "karakterisering": 0}
 
@@ -125,16 +128,26 @@ def _sakreferanser(verdi) -> list[str]:
 def _valider_saker(navn: str, forlop: dict) -> list[str]:
     """Hovedsaken heter `hoved`; de andre står i `saker` med sakstype."""
     feil = []
-    saker = {"hoved": forlop.get("sakstype", "standard"), **forlop.get("saker", {})}
-    if forlop.get("saker", {}).get("hoved"):
+    saker = {HOVED: forlop.get("sakstype", "standard"), **forlop.get("saker", {})}
+    if forlop.get("saker", {}).get(HOVED):
         feil.append(f"{navn}: `hoved` er hovedsaken og står ikke i `saker`")
     feil += [f"{navn}: ukjent sakstype {t!r}" for t in saker.values() if t not in SAKSTYPER]
     if forlop["start"] is not None and saker["hoved"] != "standard":
         feil.append(f"{navn}: prefikset gjelder bare en KOE-sak")
     for del_ in forlop["steg"] + forlop["kontroller"]:
-        brukt = [del_.get("sak", "hoved")] + _sakreferanser({k: v for k, v in del_.items() if k != "sak"})
+        brukt = [del_.get("sak", HOVED)] + _sakreferanser({k: v for k, v in del_.items() if k != "sak"})
         feil += [f"{navn}: ukjent sak {s!r}" for s in brukt if s not in saker]
+    for k in forlop["kontroller"]:
+        if "sak" in k.get("prov", {}):
+            feil.append(f"{navn}: `sak` står på kontrollen, ikke i `prov`")
+        # `avvist` gjelder steget som nettopp ble sendt, og skal leses i samme sak.
+        if "avvist" in k["forventet"] and k["rolle"] != "kontroll" and 1 <= k["etter"] <= len(forlop["steg"]):
+            steg = forlop["steg"][k["etter"] - 1]
+            if steg.get("sak", HOVED) != k.get("sak", HOVED):
+                feil.append(f"{navn}: `avvist` etter steg {k['etter']} leses i en annen sak enn steget ble sendt til")
     for del_ in forlop["steg"] + [k["prov"] for k in forlop["kontroller"] if "prov" in k]:
+        mangler = PAKREVD.get(del_["handling"], set()) - set(del_)
+        feil += [f"{navn}: {del_['handling']} mangler {f!r}" for f in sorted(mangler)]
         koe = del_.get("koe", [])
         for s in _sakreferanser(koe):
             if saker.get(s) != "standard":
