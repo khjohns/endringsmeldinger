@@ -13,12 +13,15 @@ import pathlib
 
 import pytest
 
+from api.validators import ValidationError, validate_event_data
 from constants.frist_foresporsel import FAST_TEKST
-from models.events import SporStatus
+from models.events import SporStatus, parse_event_from_request
 from regler import REGELVERSJON
 from regler.frist import Fristkrav, Fristvurdering, beregn_frist
 from regler.vederlag import Vederlagskrav, Vederlagsvurdering, beregn_vederlag
+from routes.event_routes import enrich_event_with_version
 from services.approval_service import claims
+from services.business_rules import BusinessRuleValidator
 
 ROT = pathlib.Path(__file__).resolve().parents[3]
 
@@ -194,6 +197,27 @@ def foresporsel(h: dict, sak, sak_id: str) -> tuple[str, dict]:
     raise ValueError(f"Ukjent handling {navn!r}")
 
 
+def bygg_hendelse(h: dict, sak, sak_id: str):
+    """Det `/api/events` gjør før lagring: validering av data, parsing med
+    serverstemplede felt, forretningsreglene og versjonsfeltene.
+
+    Gir `(hendelse, None)` eller `(None, melding)` ved avvisning.
+    """
+    rolle, foresporsel_ = foresporsel(h, sak, sak_id)
+    data = copy.deepcopy(foresporsel_["data"])
+    try:
+        validate_event_data(foresporsel_["event_type"], data)
+        hendelse = parse_event_from_request(
+            {**foresporsel_, "data": data, "sak_id": sak_id, "aktor_id": rolle.lower(), "aktor_rolle": rolle}
+        )
+    except (ValidationError, ValueError) as feil:
+        return None, str(feil)
+    resultat = BusinessRuleValidator().validate(hendelse, sak)
+    if not resultat.is_valid:
+        return None, f"{resultat.violated_rule}: {resultat.message}"
+    return enrich_event_with_version(hendelse, sak), None
+
+
 def les_sti(tilstand: dict, sti: str):
     verdi = tilstand
     for del_ in sti.split("."):
@@ -214,7 +238,7 @@ def godkjenningens_krav_avviker(sak, hendelser: list[dict]) -> dict:
     kravet kan besvares (INV-GJELDENDE-KRAV, KA-U2)."""
     refs = claims(hendelser)
     avvik = {}
-    for navn in ("vederlag", "frist"):
+    for navn in ("grunnlag", "vederlag", "frist"):
         spor = getattr(sak, navn)
         besvarbart = spor.krav_event_id and spor.status not in INAKTIV
         if navn == "frist":
@@ -233,7 +257,7 @@ def kjor(forlop: dict, bane) -> None:
     """Kjør forløpet i banen og kontroller forventningene.
 
     `bane` har `send(h) -> (godtatt, melding)`, `prov(h)`, `tilstand()` som
-    API-ets tilstand, `journal()` og `lagret(hendelsestype)`. En forutsetning
+    tilstanden API-et sender (`public_state`), `journal()` og `lagret(hendelsestype)`. En forutsetning
     eller kontrollsak som ikke holder, feiler med `pytest.fail`, så en streng
     `xfail` bare blir grønn når målet feiler (.claude/rules/tester.md).
     """
@@ -275,7 +299,10 @@ def kjor(forlop: dict, bane) -> None:
         if not sist[0]:
             if bane.journal() != journal_for:
                 pytest.fail(f"Steg {i} ble avvist, men journalen endret seg")
-            if not any(k["etter"] == i and "avvist" in k["forventet"] for k in kontroller):
+            if not any(
+                k["etter"] == i and k["rolle"] != "kontroll" and "avvist" in k["forventet"]
+                for k in kontroller
+            ):
                 pytest.fail(f"Forutsetning: steg {i} ({h['handling']}) avvist: {sist[1]}")
         sjekk(i)
 
