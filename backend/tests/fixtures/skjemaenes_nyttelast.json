@@ -24,7 +24,7 @@
   },
   "svar": {
     "respons_frist_delvis": {
-      "regelversjon": 4,
+      "regelversjon": 5,
       "frist_krav_id": "KRAV",
       "frist_varsel_ok": true,
       "spesifisert_krav_ok": true,
@@ -36,7 +36,7 @@
       "krevd_dager": 30
     },
     "respons_frist_prekludert": {
-      "regelversjon": 4,
+      "regelversjon": 5,
       "frist_krav_id": "KRAV",
       "frist_varsel_ok": false,
       "spesifisert_krav_ok": true,
@@ -54,7 +54,7 @@
       "subsidiaer_begrunnelse": "Begrunnelse."
     },
     "respons_frist_uten_hindring": {
-      "regelversjon": 4,
+      "regelversjon": 5,
       "frist_krav_id": "KRAV",
       "frist_varsel_ok": true,
       "spesifisert_krav_ok": true,
@@ -73,7 +73,7 @@
     },
     "respons_vederlag_delvis": {
       "vederlag_krav_id": "KRAV",
-      "regelversjon": 4,
+      "regelversjon": 5,
       "aksepterer_metode": true,
       "hold_tilbake": false,
       "hovedkrav_vurdering": "delvis",

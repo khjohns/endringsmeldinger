@@ -78,8 +78,7 @@
         { "etter": 3, "rolle": "forutsetning", "forventet": { "vederlag.krevd_belop": 250000, "frist.status": "godkjent" } },
         { "etter": 3, "rolle": "mal", "forventet": { "vederlag.status": "sendt", "overordnet_status": { "ikke": "OMFORENT" }, "kan_utstede_eo": false } }
       ],
-      "forventningsgrunnlag": "avklart_tolkning",
-      "kjent_avvik": { "funn": "SK-02", "issue": 256 }
+      "forventningsgrunnlag": "avklart_tolkning"
     },
     {
       "id": "F-KA-04",
@@ -94,8 +93,7 @@
         { "etter": 2, "rolle": "forutsetning", "forventet": { "vederlag.te_akseptert": true } },
         { "etter": 3, "rolle": "mal", "forventet": { "vederlag.te_akseptert": false, "vederlag.status": "sendt" } }
       ],
-      "forventningsgrunnlag": "avklart_tolkning",
-      "kjent_avvik": { "funn": "SK-02", "issue": 256 }
+      "forventningsgrunnlag": "avklart_tolkning"
     },
     {
       "id": "F-KA-05",
@@ -110,8 +108,7 @@
         { "etter": 2, "rolle": "forutsetning", "forventet": { "vederlag.status": "avslatt_akseptert" } },
         { "etter": 3, "rolle": "mal", "forventet": { "vederlag.te_akseptert": false, "vederlag.status": "sendt" } }
       ],
-      "forventningsgrunnlag": "avklart_tolkning",
-      "kjent_avvik": { "funn": "SK-02", "issue": 256 }
+      "forventningsgrunnlag": "avklart_tolkning"
     },
     {
       "id": "F-KA-06",
@@ -199,8 +196,7 @@
         { "etter": 6, "rolle": "forutsetning", "forventet": { "grunnlag.status": "under_forhandling", "er_subsidiaert_vederlag": true } },
         { "etter": 7, "rolle": "mal", "forventet": { "grunnlag.status": "avslatt_akseptert", "overordnet_status": "LUKKET_AVSLATT", "kan_utstede_eo": false } }
       ],
-      "forventningsgrunnlag": "avklart_tolkning",
-      "kjent_avvik": { "funn": "SK-01", "issue": 255 }
+      "forventningsgrunnlag": "avklart_tolkning"
     },
     {
       "id": "F-KA-11",
@@ -216,8 +212,7 @@
         { "etter": 2, "rolle": "forutsetning", "forventet": { "vederlag.te_akseptert": true } },
         { "etter": 3, "rolle": "mal", "forventet": { "avvist": true, "vederlag.godkjent_belop": 50000 } }
       ],
-      "forventningsgrunnlag": "avklart_tolkning",
-      "kjent_avvik": { "funn": "SK-03", "issue": 256 }
+      "forventningsgrunnlag": "avklart_tolkning"
     },
     {
       "id": "F-KA-12",
@@ -247,8 +242,7 @@
         { "etter": 4, "rolle": "forutsetning", "forventet": { "vederlag.bh_respondert_versjon": 1, "vederlag.godkjent_belop": 70000 } },
         { "etter": 5, "rolle": "mal", "forventet": { "avvist": false, "vederlag.te_akseptert": true, "vederlag.status": "godkjent" } }
       ],
-      "forventningsgrunnlag": "avklart_tolkning",
-      "kjent_avvik": { "funn": "SK-03", "issue": 256 }
+      "forventningsgrunnlag": "avklart_tolkning"
     },
     {
       "id": "F-KA-14",
@@ -425,8 +419,7 @@
         { "etter": 3, "rolle": "forutsetning", "forventet": { "er_subsidiaert_vederlag": true } },
         { "etter": 4, "rolle": "mal", "forventet": { "grunnlag.status": "sendt", "grunnlag.bh_resultat": null, "grunnlag.respons_event_id": null, "er_subsidiaert_vederlag": true, "er_subsidiaert_frist": true } }
       ],
-      "forventningsgrunnlag": "avklart_tolkning",
-      "kjent_avvik": { "funn": "DT-04", "issue": 256 }
+      "forventningsgrunnlag": "avklart_tolkning"
     },
     {
       "id": "F-GR-05",
@@ -442,8 +435,7 @@
         { "etter": 3, "rolle": "forutsetning", "forventet": { "grunnlag.status": "under_forhandling" } },
         { "etter": 4, "rolle": "mal", "forventet": { "grunnlag.status": "sendt", "grunnlag.grunnlag_varslet_i_tide": null, "er_subsidiaert_vederlag": true, "er_subsidiaert_frist": true } }
       ],
-      "forventningsgrunnlag": "avklart_tolkning",
-      "kjent_avvik": { "funn": "DT-04", "issue": 256 }
+      "forventningsgrunnlag": "avklart_tolkning"
     },
     {
       "id": "F-GR-06",
@@ -712,8 +704,7 @@
         { "etter": 4, "rolle": "forutsetning", "forventet": { "vederlag.te_akseptert": true, "grunnlag.status": "sendt" } },
         { "etter": 5, "rolle": "mal", "forventet": { "avvist": true, "vederlag.godkjent_belop": 60000 } }
       ],
-      "forventningsgrunnlag": "avklart_tolkning",
-      "kjent_avvik": { "funn": "SK-03", "issue": 256 }
+      "forventningsgrunnlag": "avklart_tolkning"
     },
     {
       "id": "F-EO-01",

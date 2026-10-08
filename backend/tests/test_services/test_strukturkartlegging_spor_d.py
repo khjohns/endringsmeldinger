@@ -235,14 +235,6 @@ def _sak_med_svar(underkategori, resultat, varslet_i_tide):
     return forlop
 
 
-@pytest.mark.xfail(
-    strict=True,
-    raises=AssertionError,
-    reason=(
-        "SK-01: TE kan godta en § 32.2-preklusjon; grunnlaget blir GODKJENT, saken "
-        "OMFORENT og EO kan utstedes mens vederlag og frist er subsidiære"
-    ),
-)
 def test_godtatt_preklusjon_etter_32_2_er_godtatt_avslag():
     """Vedtak 05.10 (oppdragsgiver, hovedplanen 3.1): godtar TE byggherrens svar
     om at grunnlaget er varslet for sent etter § 32.2, er det et godtatt avslag.
@@ -261,14 +253,6 @@ def test_godtatt_preklusjon_etter_32_2_er_godtatt_avslag():
     assert sak.kan_utstede_eo is False
 
 
-@pytest.mark.xfail(
-    strict=True,
-    raises=AssertionError,
-    reason=(
-        "SK-02: et oppdatert krav etter full godkjenning beholder status GODKJENT, "
-        "og saken blir OMFORENT med et krav byggherren ikke har svart på"
-    ),
-)
 def test_oppdatert_krav_etter_full_godkjenning_venter_paa_nytt_svar():
     """Vedtak 05.10 (oppdragsgiver, hovedplanen 3.1): et oppdatert krav fra TE
     åpner sporet igjen, og det venter på nytt svar."""
@@ -287,14 +271,6 @@ def test_oppdatert_krav_etter_full_godkjenning_venter_paa_nytt_svar():
     assert sak.kan_utstede_eo is False
 
 
-@pytest.mark.xfail(
-    strict=True,
-    raises=AssertionError,
-    reason=(
-        "SK-02: et oppdatert krav etter at TE har godtatt svaret, lar status "
-        "GODKJENT og aksepten stå"
-    ),
-)
 def test_oppdatert_krav_etter_aksept_opphever_aksepten():
     """Vedtak 05.10 (oppdragsgiver, hovedplanen 3.1): et oppdatert krav fra TE
     åpner sporet igjen, og aksepten faller."""
@@ -340,11 +316,6 @@ def test_trukket_krav_kan_ikke_oppdateres():
     assert not forlop.valider(forlop.vederlagskrav(50000.0, oppdatert=True)).is_valid
 
 
-@pytest.mark.xfail(
-    strict=True,
-    raises=AssertionError,
-    reason="SK-03: byggherren kan revidere et svar TE har godtatt",
-)
 def test_byggherren_kan_ikke_revidere_et_godtatt_svar():
     """Vedtak 05.10 (oppdragsgiver, hovedplanen 3.1): et svar TE har godtatt,
     kan byggherren ikke revidere. Kontrollsaken er den samme revisjonen før
