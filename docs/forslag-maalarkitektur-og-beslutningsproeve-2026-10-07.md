@@ -322,6 +322,88 @@ tydelig eierskap og utfasing. Full greenfield er ikke begrunnet av at systemet
 ennå mangler produksjonsdata; testet atferd, integrasjoner og sikkerhetsbevis
 har fortsatt verdi.
 
+### Resultat av port 1 (2026-10-08, #274)
+
+**Status:** port 1 er gjennomført. Port 2 venter på klarsignal. Dette er et
+delresultat, ikke en anbefaling om språk. Kjøringene står i
+[PR-en for prøven](https://github.com/khjohns/endringsmeldinger/pulls?q=head%3Aclaude%2Fsprakprove-274)
+med kontrollert commit.
+
+**Hva som ble sammenliknet:**
+- **Forbedret Python** er dagens backend med M2 og M1 for flyten:
+  - aksepten bundet til svaret;
+  - en ny kravversjon åpner sporet;
+  - GR-U1, SK-01 og SK-03;
+  - standpunktet per spor i tilstanden.
+- **TS-kjernen** i [`sprakprove/kjerne/`](../sprakprove/kjerne/) er bygget i
+  samme målform fra start, med beløp i hele øre og kommandoer validert mot
+  `kontrakt.json`. Node 22 kjører den uten byggesteg.
+- **Flyten** er 31 rader og 30 forløp i [domenetabellen](domenetabell/README.md),
+  pluss den kontrollerte regelendringen: enighet og oppgjort som egne
+  begreper (GR-U7).
+
+| Måling | Forbedret Python | TS-kjernen | Belegg |
+| --- | --- | --- | --- |
+| Felles forventninger | 30 av 30 forløp, i domenebanen, `/api/events` og batch mot testbasen. 9 av dem er kjente avvik på `main` | 30 av 30, i minnet | Domenetabellen, `sprakprove/tester/korpus.test.ts` |
+| Kontrakt | Pydantic-modellene og `test_kontrakt*` | Skjemaet validert ved kjøretid. Aksepten er streng, og serverfeltene avvises eller overskrives | `sprakprove/tester/kontrakt.test.ts` |
+| Tall, dager, fravær | 50 tilfeller grønne | 51 tilfeller grønne | [`sprakprove/grensetilfeller.json`](../sprakprove/grensetilfeller.json) |
+| Genererte forløp | 300 forløp på 8 steg, fire invarianter holder | Samme 300, samme utfall | [`sprakprove/genererte-forlop.json`](../sprakprove/genererte-forlop.json), seed 274 |
+| Feilinnføring M1–M8 | Alle oppdaget, på målassertionen | Alle oppdaget, på målassertionen | [`sprakprove/feilinnforing.py`](../sprakprove/feilinnforing.py) |
+| Regelendringen (enighet) | 3 produksjonsfiler (+74/−78). I tillegg fikk 2 testfiler nytt oppsett (+56/−10), og én xfail ble ordinær | 3 filer (+50/−22) | Commitene `4cdd012` og `28e5c2c` |
+
+**Gevinst fra begrepene, som begge alternativene får:**
+- Bindingen mellom krav, svar og aksept retter SK-01, SK-02, SK-03 og DT-04
+  (GR-04, GR-05) i begge.
+- Enighet og oppgjort retter samlet status `UKJENT` etter frafall (SK-04, GR-15).
+- `gjeldende_respons_event_id` og standpunktet fra serveren gjør disse
+  klientadapterne overflødige i begge alternativene (lest, ikke bygget):
+  - `submissionRefs`, som velger gjeldende svar fra tidslinjen;
+  - `svaretErSubsidiaert` og `grunnlagTriggers` i `derive.ts`;
+  - `claimId` i godkjenningskonteksten;
+  - versjonsetikettene i oversiktene.
+- Regelendringen trengte ingen klientregel i noen av alternativene. Klienten
+  leser feltene fra serveren.
+
+**Gevinst fra språket, som bare TS gir:**
+- **Speilet forsvinner.** Speilet av B-13-utregningen i `src/lib/domain/` er
+  omtrent 29 eksporterte funksjoner i `vederlagDomain`, `fristDomain`,
+  `grunnlagDomain` og `deriveConfig`. Med TS blir de én implementasjon
+  sammen med `backend/regler/` (926 linjer).
+- **Testene og vaktene mot drift blir én.** De speilede testene er 177 Vitest-
+  og 148 pytest-testfunksjoner. Likhetsvakten for regelversjonen og kryssjekken med
+  `skjemaenes_nyttelast.json` blir overflødige. Regelversjonen trengs fortsatt
+  mot en utdatert klient.
+- **Kjente avvik mellom speilet og serveren forsvinner:**
+  - avrundingen (SP-01);
+  - feltnavnet for EP-justering (DRF-02);
+  - `<= 0` mot `== 0` for dager;
+  - kontrollen av svaret, som bare finnes på serveren.
+- **Historikken bekrefter dobbeltarbeidet.** Fire PR-er har rørt regelfilene
+  siden de ble opprettet 04.10:
+  - #219 og #247 endret regelen i begge språk;
+  - #242 måtte øke regelversjonen i begge uten regelendring i Python;
+  - #185 rettet bare speilet.
+
+**Kostnader og forskjeller som skyldes språket eller rammeverket:**
+- **TS:**
+  - `Decimal` måtte erstattes av en egen beløpsmodul i hele øre (66 linjer);
+  - JSON skiller ikke 5 fra 5,0;
+  - kontrakten trengte en egen validator (130 linjer).
+- **Python:**
+  - Et felt som avhenger av et annet spor (`oppgjort`), kan ikke være et
+    beregnet felt i Pydantic, så projeksjonen setter det etter siste hendelse.
+  - Sporstatusen blander frafall og trukne krav, så `avklart` må skille dem
+    (SK-04).
+
+**Usikkerhet:**
+- TS-kjernen dekker bare flyten: 10 hendelsestyper, uten trekk, EO, forsering,
+  forespørsel, innsigelse og konsekvensvarsel. Python-baselinen dekker alt.
+- Samme agent skrev begge implementasjonene og adapteren som bygger
+  byggherrens svar. Forventningene er uavhengige, men feil i utregningen fanges
+  bare gjennom status, beløp og grensetabellen.
+- Server, autorisasjon, lagring, godkjenning og drift for TS er ikke prøvd. Det
+  er port 2.
+
 ## 8. MA-08: vedlikehold og rekkefølge
 
 Bevis-saker, domenebeslutninger, relasjonsmodell, nullpolitikk og skillet
