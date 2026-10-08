@@ -13,6 +13,9 @@ tilgrensende rader om godtatt preklusjon, låste varsler og byggherrens vurderin
 av rettidighet. Radene GR-01–GR-18 gjelder grunnlagsavhengigheten:
 grunnlagsendring med og uten endret underkategori, subsidiært svar mens
 grunnlaget venter på nytt svar, frafall (§ 32.3 c) og trukket grunnlag.
+Radene EO-01–EO-24 gjelder endringsordrene: endringsordre i KOE-saken (EO-01,
+EO-23), når en KOE-sak kan inngå i en endringsordre (EO-02–EO-09),
+EO-sakens livsløp (EO-10–EO-20) og KOE-tilknytningen (EO-21, EO-22, EO-24).
 
 | Fil | Innhold |
 | --- | --- |
@@ -41,6 +44,10 @@ og beholdes; tabellen bestiller ingen omdøping.
 | **Rettidighetsvurdering** | Byggherrens vurdering i svaret: i tide (`true`), for sent (`false`) eller ikke vurdert (utelatt i hendelsen, `null` i tilstanden). Om spørsmålet gjelder kravet, utledes av kravet | `frist_varsel_ok`, `spesifisert_krav_ok`, `foresporsel_svar_ok`, `grunnlag_varslet_i_tide` | [KA-U4](../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u4) |
 | **Subsidiært til nytt svar** | Et svar på vederlag eller frist som var subsidiært fordi grunnlaget var avslått eller prekludert, og som forblir det mens grunnlaget venter på nytt svar. Et nytt svar på sporet eller grunnlaget avslutter det | `subsidiaert_til_nytt_svar` | Vedtaket om endret underkategori 05.10, [GR-U1](../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u1), [GR-U4](../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u4) |
 | **Frafall** | Byggherrens svar på grunnlaget etter § 32.3 c: pålegget frafalles mot endringsordre for utført arbeid. Ikke et trekk fra TE | `GrunnlagResponsResultat.FRAFALT` (`frafalt`); sporstatusen er `TRUKKET` i dag (SK-04) | Vedtaket om `FRAFALT` 05.10, [GR-U3](../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u3) |
+| **Endringsordre (EO)** | Byggherrens ordre om en endring (§ 31.3), utstedt i en egen EO-sak. TE godtar eller bestrider den; den forhandles ikke | Sakstypen `endringsordre`, `endringsordre_data`, hendelsene `eo_*` | V-TFR02, [EO-U1](../plans/2026-09-16-godkjenning-og-varig-levering.md#eo-u1) |
+| **Utgave** | Endringsordren slik den er utstedt eller revidert. TE svarer én gang på hver | `revisjon_nummer` | [EO-U4](../plans/2026-09-16-godkjenning-og-varig-levering.md#eo-u4) |
+| **KOE-tilknytning** | At en KOE-sak inngår i en endringsordre. Står i EO-saken, høyst én per KOE-sak | `relaterte_koe_saker`, `eo_koe_lagt_til`, `eo_koe_fjernet`, `sak_relations` | [EO-U3](../plans/2026-09-16-godkjenning-og-varig-levering.md#eo-u3) |
+| **Klar for endringsordre** | KOE-saken kan inngå i en endringsordre | `kan_utstede_eo`, kandidatene i `EndringsordreService` (avviker: DT-06) | [EO-U2](../plans/2026-09-16-godkjenning-og-varig-levering.md#eo-u2) |
 | **Sporstatus**, **samlet status** | Oppsummering for visning og regler. Ikke en rettslig konklusjon i seg selv | `SporStatus`, `overordnet_status` | AGENTS.md |
 
 **To tidsakser.** *Registrering* er rekkefølgen i journalen, med `tidsstempel`
@@ -97,6 +104,30 @@ issuenummeret til et vedtak i 3.1.
 | GR-16 | Byggherren frafaller pålegget før vederlag eller frist er sendt. | Saken er `UNDER_BEHANDLING`, som ved godkjent grunnlag der resten ikke er sendt. | Frafalt grunnlag. | Grunnlaget er avklart. TE kan fortsatt sende vederlag og frist. | — | registrering | [V-FRAFALT](../plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger), [V-TFR05](../plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger), NS 32.3 første ledd bokstav c | avklart tolkning | F-GR-16 | SK-04 |
 | GR-17 | Byggherren frafaller pålegget og påberoper samtidig at grunnlaget er varslet for sent (§ 32.2). | Svaret avvises, og journalen er uendret. | — | Frafall skjer mot endringsordre og kan ikke kombineres med preklusjon. | Byggherrens § 32.2-vurdering: for sent. Det er kombinasjonen som avvises. | registrering | [V-235](../plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger), NS 32.3 første ledd bokstav c, NS 32.2 første ledd | avklart tolkning | F-GR-17 | #235 |
 | GR-18 | TE har endret grunnlaget fra pålegg (IRREG) til endringsordre (EO), og byggherren svarer «frafalt». | Svaret avvises, og journalen er uendret. | — | Svarvalgene i 32.3, også frafall, gjelder et varsel etter 32.2 om et pålegg etter 32.1. Et grunnlag med endringsordre har ikke noe pålegg å frafalle. | — | registrering | [V-B13-FRAFALL](../plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger), NS 32.1, NS 32.3 første ledd bokstav c | avklart tolkning | F-GR-18 | — |
+| EO-01 | Byggherren utsteder en endringsordre i en KOE-sak som er `OMFORENT` (`eo_utstedt` i KOE-saken). | Utstedelsen avvises, og journalen er uendret. Sporene står med de avtalte beløpene og dagene. | — | En endringsordre utstedes som EO-sak, der TE kan godta eller bestride den. Enigheten i KOE-saken står. | — | registrering | [EO-U1](../plans/2026-09-16-godkjenning-og-varig-levering.md#eo-u1), [V-B02-3](../plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger), [V-EO-KOE](../plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger) | avklart tolkning | F-EO-01 | DT-05 |
+| EO-02 | Byggherren har godkjent grunnlaget, og TE har ikke sendt vederlag eller frist. | Saken er `UNDER_BEHANDLING`, og `kan_utstede_eo` er `false`. | Godkjent grunnlag. | Ansvaret er avklart, men det finnes ikke noe krav å formalisere. TE kan fortsatt sende vederlag og frist. | — | registrering | [EO-U2](../plans/2026-09-16-godkjenning-og-varig-levering.md#eo-u2), [V-TFR05](../plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger) | avklart tolkning | F-EO-02 | DT-06 |
+| EO-03 | Byggherren har godkjent grunnlaget og vederlaget, og TE har ikke sendt frist. | `kan_utstede_eo` er `false`. Saken er ikke `OMFORENT`. | Godkjent grunnlag og vederlag. | Et spor TE fortsatt kan sende, hindrer endringsordre. | — | registrering | [EO-U2](../plans/2026-09-16-godkjenning-og-varig-levering.md#eo-u2), [V-TFR05](../plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger) | avklart tolkning | F-EO-03 | DT-06 |
+| EO-04 | TE trekker vederlag og frist etter at byggherren har godkjent grunnlaget. | `kan_utstede_eo` er `false`. | Godkjent grunnlag. | Ingen godkjent vederlag eller frist å formalisere. | — | registrering | [EO-U2](../plans/2026-09-16-godkjenning-og-varig-levering.md#eo-u2) | avklart tolkning | F-EO-04 | — |
+| EO-05 | Byggherren godkjenner vederlaget og avslår fristen, og TE godtar avslaget. | Saken er `OMFORENT`, og `kan_utstede_eo` er `true`. | Godkjent vederlag. Avslått frist. | Fristen er oppgjort ved godtatt avslag; vederlaget kan formaliseres. | — | registrering | [EO-U2](../plans/2026-09-16-godkjenning-og-varig-levering.md#eo-u2), [V-TFR01](../plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger) | avklart tolkning | F-EO-05 | — |
+| EO-06 | TE godtar et delvis godkjent vederlagssvar, og byggherren godkjenner fristen. | Saken er `OMFORENT`, og `kan_utstede_eo` er `true`. | Delvis godkjent vederlag, godtatt av TE. Godkjent frist. | Byggherrens beløp er avtalt (KA-U5) og kan formaliseres. | — | registrering | [EO-U2](../plans/2026-09-16-godkjenning-og-varig-levering.md#eo-u2), [KA-U5](../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u5) | avklart tolkning | F-EO-06 | — |
+| EO-07 | Byggherren knytter en KOE-sak som ikke er `OMFORENT`, til en EO-sak gjennom `/api/events` (`eo_koe_lagt_til`). | Tilknytningen avvises, og journalen er uendret. Når KOE-saken er `OMFORENT`, godtas samme tilknytning. | — | Bare et omforent krav kan formaliseres. | — | registrering | [EO-U2](../plans/2026-09-16-godkjenning-og-varig-levering.md#eo-u2) | avklart tolkning | F-EO-07 | DT-08 |
+| EO-08 | Byggherren oppretter en EO-sak med en omforent KOE-sak. | `kan_utstede_eo` er `false` i KOE-saken. | — | KOE-saken inngår i en endringsordre og kan ikke inngå i en annen. | — | registrering | [EO-U3](../plans/2026-09-16-godkjenning-og-varig-levering.md#eo-u3) | avklart tolkning | F-EO-08 | DT-07 |
+| EO-09 | Byggherren knytter en KOE-sak til en EO-sak mens den inngår i en annen EO-sak som TE har bestridt. | Tilknytningen avvises, og journalen er uendret. | — | KOE-saken inngår i høyst én endringsordre, også når den er bestridt. TEs uenighet føres i en ny KOE. | — | registrering | [EO-U3](../plans/2026-09-16-godkjenning-og-varig-levering.md#eo-u3), [V-TFR02](../plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger) | avklart tolkning | F-EO-09 | DT-08 |
+| EO-10 | Byggherren oppretter en EO-sak (`eo_opprettet`). | Endringsordren er `UTKAST`, og saken er `UTKAST`. | — | Endringsordren er ikke utstedt. | — | registrering | [V-TFR02](../plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger) | avklart tolkning | F-EO-10 | — |
+| EO-11 | Byggherren utsteder endringsordren. | Endringsordren er `UTSTEDT`, og saken `VENTER_PAA_SVAR`. | Endringsordrens beløp og dager. | Byggherren har pålagt endringen. TE har ikke svart. | — | registrering | [V-TFR02](../plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger) | avklart tolkning | F-EO-11 | — |
+| EO-12 | TE godtar endringsordren. | Endringsordren er `AKSEPTERT`, og saken `LUKKET`. | — | Endringsordren er avtalt. | — | registrering | [V-TFR02](../plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger) | avklart tolkning | F-EO-12 | — |
+| EO-13 | TE bestrider endringsordren. | Endringsordren er `BESTRIDT`, og saken `LUKKET`. | — | En endringsordre forhandles ikke. TEs uenighet føres i en KOE. | — | registrering | [V-TFR02](../plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger) | avklart tolkning | F-EO-13 | — |
+| EO-14 | Byggherren reviderer en bestridt endringsordre, og TE godtar revisjonen. | Etter revisjonen er endringsordren `REVIDERT` med revisjon 1, TEs svar er nullstilt, og saken `VENTER_PAA_SVAR`. Etter aksepten er saken `LUKKET`. | Den reviderte endringsordren. | TE svarer på den nye utgaven. | — | registrering | [V-TFR02](../plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger), [EO-U4](../plans/2026-09-16-godkjenning-og-varig-levering.md#eo-u4) | avklart tolkning | F-EO-14 | — |
+| EO-15 | TE godtar en endringsordre som ikke er utstedt. | Aksepten avvises, og journalen er uendret. | — | Det finnes ingen utstedt endringsordre å godta. | — | registrering | [V-TFR02](../plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger), [EO-U4](../plans/2026-09-16-godkjenning-og-varig-levering.md#eo-u4) | avklart tolkning | F-EO-15 | — |
+| EO-16 | Byggherren utsteder samme endringsordre på nytt før TE har svart. | Utstedelsen avvises, og endringsordren står med beløpet fra første utstedelse. | Første utstedelse. | Endringsordren utstedes én gang. En ny utgave er en revisjon. | — | registrering | [EO-U4](../plans/2026-09-16-godkjenning-og-varig-levering.md#eo-u4) | avklart tolkning | F-EO-16 | DT-09 |
+| EO-17 | Byggherren utsteder endringsordren på nytt etter at TE har godtatt den. | Utstedelsen avvises. Endringsordren står som `AKSEPTERT`, med TEs aksept og det avtalte beløpet. | Den godtatte endringsordren. | En akseptert endringsordre er endelig. | — | registrering | [EO-U4](../plans/2026-09-16-godkjenning-og-varig-levering.md#eo-u4) | avklart tolkning | F-EO-17 | DT-09 |
+| EO-18 | Byggherren reviderer en utstedt endringsordre som TE ikke har bestridt. | Revisjonen avvises, og endringsordren står som `UTSTEDT` med revisjon 0. En bestridt endringsordre kan revideres. | Den utstedte endringsordren. | Byggherren reviderer bare en bestridt endringsordre. | — | registrering | [EO-U4](../plans/2026-09-16-godkjenning-og-varig-levering.md#eo-u4) | avklart tolkning | F-EO-18 | DT-09 |
+| EO-19 | TE bestrider endringsordren en gang til. | Den andre bestridelsen avvises, og journalen er uendret. | — | TE svarer én gang på hver utgave. | — | registrering | [EO-U4](../plans/2026-09-16-godkjenning-og-varig-levering.md#eo-u4) | avklart tolkning | F-EO-19 | DT-09 |
+| EO-20 | TE godtar endringsordren etter å ha bestridt den. | Aksepten avvises, og endringsordren står som `BESTRIDT`. | — | TE svarer én gang på hver utgave. En revisjon gir TE et nytt svar. | — | registrering | [EO-U4](../plans/2026-09-16-godkjenning-og-varig-levering.md#eo-u4) | avklart tolkning | F-EO-20 | DT-09 |
+| EO-21 | Byggherren knytter en omforent KOE-sak til en EO-sak etter utstedelsen. | Tilknytningen avvises, og journalen er uendret. Før utstedelsen godtas den. | — | KOE-tilknytningen endres bare før utstedelse. | — | registrering | [EO-U4](../plans/2026-09-16-godkjenning-og-varig-levering.md#eo-u4) | avklart tolkning | F-EO-21 | DT-09 |
+| EO-22 | Byggherren fjerner en KOE-sak fra en utstedt endringsordre. | Fjerningen avvises, og KOE-saken inngår fortsatt. Før utstedelsen godtas den. | — | KOE-tilknytningen endres bare før utstedelse. | — | registrering | [EO-U4](../plans/2026-09-16-godkjenning-og-varig-levering.md#eo-u4) | avklart tolkning | F-EO-22 | DT-09 |
+| EO-23 | Byggherren oppretter en endringsordre i en KOE-sak (`eo_opprettet`). | Opprettelsen avvises, og journalen er uendret. Samme opprettelse godtas i en EO-sak. | — | En endringsordresak kan følge av en KOE-sak, men ikke erstatte den. | — | registrering | [V-EO-KOE](../plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger), [EO-U1](../plans/2026-09-16-godkjenning-og-varig-levering.md#eo-u1) | avklart tolkning | F-EO-23 | — |
+| EO-24 | Byggherren utsteder en EO-sak med en KOE-sak i utkastet, og utstedelsen nevner ikke KOE-sakene. | KOE-saken inngår fortsatt i endringsordren. | — | Tilknytningen er registrert før utstedelse (EO-U4). At en utstedelse uten KOE-liste ikke fjerner den, er ikke vedtatt. | — | registrering | [EO-U4](../plans/2026-09-16-godkjenning-og-varig-levering.md#eo-u4) | arbeidshypotese | F-EO-24 | DT-10 |
 <!-- domenetabell:slutt -->
 
 ## Formatet
@@ -128,6 +159,22 @@ Prøvemodellen er ikke gjenbrukt: forventningene kjøres mot applikasjonen.
   funn (`"funn": "#235"`), og kontrollen krever en vedtaksrad for issuet i 3.1. Kjøreren gjør det til en streng `xfail`; avviket
   normaliseres ikke bort.
 - `invarianter` prøves etter hvert steg i alle forløp, med egne kjente avvik.
+- Et forløp gjelder én KOE-sak, `hoved`. `sakstype` gir hovedsaken en annen
+  sakstype (`endringsordre`), og `saker` navngir flere saker med sakstype. Et
+  steg eller en kontroll med `sak` gjelder den saken. `$navn` i en handling
+  eller forventning er sakens ID, for eksempel `"koe": "$hoved"`. Prefikset
+  gjelder bare en hovedsak av typen `standard`. Kontrollen i
+  `domenetabell.py` avviser ukjente saker og en `koe` som ikke viser til en
+  KOE-sak.
+
+**Domenekrav og dagens kontrakt.** Forventningen er virkningen i raden:
+avvist eller godtatt, status, beløp, dager, tilknytning. Stiene i kontrollene
+(`kan_utstede_eo`, `endringsordre_data.status`), `lagret.*` og hendelsesnavnene
+i `korpus.py` er dagens API og journal. De hører til adapteren, ikke til
+forventningen. En kjører mot en annen implementering oversetter dem, og den
+skal ikke gjenbruke Python-reglene som bygger svarene (`beregn_vederlag`,
+`beregn_frist`). Aksepten sender bare sporet, uten svarets hendelse, fordi
+dagens API ikke tar imot mer (DT-01).
 
 ## Baner
 
@@ -138,6 +185,7 @@ Prøvemodellen er ikke gjenbrukt: forventningene kjøres mot applikasjonen.
 | `/api/events/batch` og testbasen | Som over, med hver handling som eneste hendelse i en batch | Samme fil, parameteren `batch` |
 | Batcher med flere hendelser | Forløpet sendt med TEs påfølgende handlinger i én batch, den første sammen med `sak_opprettet`, gir samme journal og tilstand som enkeltvis. En batch med en avvist TE-handling lagrer ingenting, og samme batch uten den godtas. Likhet mellom to innganger, ikke en domenefasit | Samme fil, `test_forlop_i_batcher_gir_samme_journal_og_tilstand` og `test_batch_med_en_avvist_hendelse_lagrer_ingenting` |
 | Godkjenningsflyten | Bare invarianten om gjeldende krav mot `claims()` | Begge banene over |
+| Flere saker | Hver sak er en egen bane av samme slag. En avvisning skal la journalen i alle sakene stå uendret | Domenebanen og begge rutebanene. Ikke i batchtestene, som sender én sak |
 
 Ikke kjørt: byggherrens svar i batch med andre hendelser (et svar viser til
 hendelser i tilstanden, og en batch har én kontraktsrolle), hele
@@ -145,17 +193,31 @@ godkjenningsflyten med pakker og publisering, Catenda, frontendens skjemaer og
 en TypeScript-kjører. Tilfellene av en avvist hendelse i en batch utledes av
 korpuset; testen feiler hvis det ikke finnes noen.
 Kontrollsakene (`prov`) prøves mot forretningsreglene også i databasebanen,
-fordi en prøve gjennom ruta ville skrevet hendelsen.
+fordi en prøve gjennom ruta ville skrevet hendelsen. Gjenlesingen regner
+tilstanden som samme innloggede bruker som ruta, fordi projeksjonen slår opp
+navnet i `utstedt_av` (KR-04, MG-01).
 
 ## Dekning og grenser
 
 Tabellen dekker radene over, ikke hele livsløpet. Ikke dekket ennå:
-EO-særforløp og forsering. I grunnlagsdelen er ikke prøvd: revisjon av
+forsering. I grunnlagsdelen er ikke prøvd: revisjon av
 grunnlagssvaret (`respons_grunnlag_oppdatert`), frafall ved valgrett
 (`VALGRETT`), andre hovedkategorier enn endring, endret underkategori mellom
 to pålegg, og passivitet etter § 32.3 annet ledd. Flere
 innsigelser i ett brev og senere dokumentert korrespondanse er avgrenset i
 metodeprøvene, ikke her.
+
+I endringsordredelen er EO-sakene sendt gjennom `/api/events` og
+`/api/events/batch`, som kjører forretningsreglene. Ikke prøvd:
+`/api/endringsordre/opprett` og godkjenningskommandoen
+(`EOApprovalService`), som skriver opprettelse og utstedelse i samme
+transaksjon og kontrollerer kandidatene og beløpet; at en
+godkjenningspolicy stopper `eo_*` i de offentlige rutene; at beløpet i
+endringsordren samsvarer med enigheten i KOE-sakene; en aksept med
+`akseptert: false`; KOE-hendelser i en EO-sak; en EO-sak før `eo_opprettet`
+(samlet status `INGEN_AKTIVE_SPOR`); og endringsordren for utført arbeid etter
+frafall (#69). Endringsordre i KOE-saken er prøvd med én forløpsvariant,
+selv om dagens kode avviker på flere måter (DT-05).
 
 Én forløpsvariant per rad er prøvd, med faste beløp og datoer. Antall forløp
 beviser ikke dekning av domenet. Kontrollen i `domenetabell.py` viser at
@@ -172,6 +234,9 @@ Vederlagsbestemmelsene er ikke lest; radene KA-02–KA-08 bygger på vedtakene
 alene. Radene GR-01–GR-18 bygger på vedtakene i 3.1. Der teksten i punkt 31.3 og
 32.1–32.3 bærer forventningen, står punktet som egen kilde. Passivitet etter
 § 32.3 annet ledd og valgrett (som ikke står i punkt 32) brukes ikke i noen rad.
+Radene EO-01–EO-24 bygger på vedtakene i 3.1 alene; punkt 31 brukes ikke som
+egen kilde der. Punkt 34 (vederlagsjustering) og 35 (uenighet om endringer)
+er ikke lest og brukes ikke.
 
 Begrepslisten i [testinventaret](../vedlegg/testinventar-271-2026-10-08/README.md#4-begrepsavklaring-som-grunnlag-for-domenetabellen-271)
 var foreløpig og er erstattet av denne.
