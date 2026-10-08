@@ -678,7 +678,9 @@ fra code-review av GFK-06. SK-01–SK-13 er ført inn 05.10 fra
 [strukturkartleggingen av spor D](../kartlegging-struktur-spor-d-2026-10-05.md#5-funn).
 DT-01–DT-03 er ført inn 08.10 fra [domenetabellen](../domenetabell/README.md)
 for kravversjon og aksept (#271), DT-04 samme dag fra grunnlagsdelen og
-DT-05–DT-10 fra endringsordredelen.
+DT-05–DT-10 fra endringsordredelen. **Merknad 2026-10-08:** DT-05–DT-10 rettes ikke i dagens
+backend med mindre baselinen i #274 trenger det. De er krav til en ny kjerne,
+og strenge `xfail` er beviset (oppdragsgiver).
 
 | ID | Status | Restanse og merknad | Belegg | Pakke |
 | --- | --- | --- | --- | --- |
