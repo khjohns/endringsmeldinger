@@ -1,0 +1,91 @@
+{
+  "formatversjon": 1,
+  "status": "Kildehenvisninger identifiserer tekstgrunnlaget. Avklarte deltolkninger viser til vedtak i hovedplanen; øvrige forventninger er arbeidshypoteser eller modellkonvensjoner.",
+  "standard": {
+    "utgave": "NS 8407:2011",
+    "lokal": "../../NS_8407.md",
+    "kontrollkilde": "https://www.mercell.com/m/file/GetFile.ashx?id=234860577&version=0",
+    "kontrollert": "2026-10-08"
+  },
+  "regler": [
+    {
+      "id": "R5",
+      "type": "standard",
+      "punkt": "5 tredje ledd",
+      "forventning": "Fravær av virksom innsigelse etter punkt 5 gir rettidighetsvirkning for mottatt varsel eller ordinært svar. Punkt 5 anvendes ikke rekursivt på fristen for selve punkt 5-innsigelsen, se R5-IKKE-REKURSJON. Sluttoppgjørsunntaket ligger utenfor prøven."
+    },
+    {
+      "id": "R3361",
+      "type": "standard",
+      "punkt": "33.6.1",
+      "forventning": "Sen spesifisering kan begrense omfanget; dette er ikke samme virkning som tap av hele kravet."
+    },
+    {
+      "id": "R3362",
+      "type": "standard",
+      "punkt": "33.6.2 første til tredje ledd",
+      "forventning": "Forespørsel forutsetter manglende spesifisering og bestemte brevopplysninger. Manglende rettidig svar a eller b kan gi kravstap."
+    },
+    {
+      "id": "R3362-A",
+      "type": "standard",
+      "punkt": "33.6.2 fjerde ledd",
+      "forventning": "Kvalifisert svar a utløser 33.7 og avskjærer innsigelsen om oversittelse etter 33.6.1."
+    },
+    {
+      "id": "R3362-B",
+      "type": "standard",
+      "punkt": "33.6.2 femte ledd",
+      "forventning": "Et kvalifisert svar b leder videre til 33.6.1. Senere spesifisering får ikke automatisk svar a-virkning fra den tidligere forespørselen."
+    },
+    {
+      "id": "R337",
+      "type": "standard",
+      "punkt": "33.7",
+      "forventning": "Mottatt begrunnet krav med dager utløser svarplikt. Innsigelser som ikke fremsettes rettidig, tapes."
+    },
+    {
+      "id": "M-UAVKLART",
+      "type": "modellvalg",
+      "forventning": "Begge parters vurderinger bevares. Enighet i syntetiske premisser brukes til betinget utledning; uenighet eller manglende premiss gir null. Dette endrer ikke B-13s regel om beregning av BHs eget svar."
+    },
+    {
+      "id": "M-REFERANSE",
+      "type": "modellvalg",
+      "forventning": "En melding viser til et tidligere, typemessig riktig objekt i samme prøvesak. En avvisning endrer ikke prøvens journal. Nye revisjoner og forespørsler etter første runde avvises som utenfor prøven, ikke som ulovlige etter NS 8407."
+    },
+    {
+      "id": "R5-IKKE-REKURSJON",
+      "type": "rettspraksis",
+      "kilde": "https://cms.law/en/media/local/cms-kluge/files/dommer/lb-2017-177705#page=24",
+      "avgjorelse": "LB-2017-177705",
+      "dato": "2020-01-13",
+      "side": 24,
+      "forventning": "Sen innsigelse etter punkt 5 mot sen spesifisering etter 33.6.1 kan ikke gjenopplives ved å anvende punkt 5 på innsigelsen selv. TE trenger ikke en ny rettidig protest. Denne virkningen avgjør ikke i seg selv øvrige innsigelser etter 33.7 eller kravets størrelse."
+    }
+  ],
+  "uavklarte_sporsmal": [
+    {
+      "id": "U1",
+      "sporsmal": "Hvordan skal uenighet om tilstrekkeligheten eller rettidigheten til begrunnelsen etter bokstav b behandles i produktet?",
+      "provens_atferd": "Bevar vurderingene og gi uavklart vei. Ingen samlet rettslig konklusjon."
+    },
+    {
+      "id": "U2",
+      "sporsmal": "Hvilke virkninger skal en forespørsel med manglende formkrav få utover at prøven ikke tillegger den sikker 33.6.2-virkning?",
+      "provens_atferd": "Uavklart videre vei; ikke sletting eller generell ugyldiggjøring av meldingen."
+    },
+    {
+      "id": "U3",
+      "sporsmal": "Hvordan skal fravær av virksom tidsinnsigelse mot et varsel eller ordinært svar dokumenteres i produktet? Gjelder ikke en ny frist mot punkt 5-innsigelsen selv.",
+      "provens_atferd": "Krever uttrykkelig syntetisk premiss. Taushet eller antall dager alene er ikke tilstrekkelig."
+    }
+  ],
+  "avklarte_tolkninger": [
+    {
+      "id": "U4",
+      "vedtak": "../../plans/2026-09-16-godkjenning-og-varig-levering.md#mp-u4",
+      "kilder": ["R5-IKKE-REKURSJON"]
+    }
+  ]
+}
