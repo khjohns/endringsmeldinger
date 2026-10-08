@@ -1,21 +1,16 @@
 """Domenetabellen for kravversjon og aksept, kjørt mot Python-projeksjonen (#271).
 
 Forventningene står i docs/domenetabell/ med kilde og tolkningsstatus per rad.
-Domenebanen gjør det `/api/events` gjør før lagring: validering av data,
-parsing med serverstemplede felt, forretningsreglene og versjonsfeltene, og
-regner tilstanden med `TimelineService`. Det journalen ville fått, er
+Domenebanen gjør det `/api/events` gjør før lagring (`korpus.bygg_hendelse`)
+og regner tilstanden med `TimelineService`. Det journalen ville fått, er
 `to_cloudevent()` i minnet; faktisk lagring prøves i databasebanen. Kjente
 avvik er strenge `xfail` med funn-ID fra hovedplanen.
 """
 
-import copy
-
 import pytest
 
-from api.validators import ValidationError, validate_event_data
-from models.events import SakOpprettetEvent, parse_event_from_request
-from routes.event_routes import enrich_event_with_version
-from services.business_rules import BusinessRuleValidator
+from lib.auth.event_visibility import public_state
+from models.events import SakOpprettetEvent
 from services.timeline_service import TimelineService
 from tests.test_domenetabell import korpus
 
@@ -25,7 +20,6 @@ SAK = "S-271"
 class Domenebane:
     def __init__(self):
         self.timeline = TimelineService()
-        self.regler = BusinessRuleValidator()
         self.hendelser = [
             SakOpprettetEvent(
                 sak_id=SAK, aktor_id="te", aktor_rolle="TE", sakstittel="Domenetabell", prosjekt_id="p"
@@ -36,7 +30,7 @@ class Domenebane:
         return self.timeline.compute_state(self.hendelser)
 
     def tilstand(self):
-        return self.sak().model_dump(mode="json")
+        return public_state(self.sak(), self.hendelser)
 
     def journal(self):
         return [h.event_id for h in self.hendelser]
@@ -48,28 +42,12 @@ class Domenebane:
         siste = next(h for h in reversed(self.hendelser) if h.event_type.value == hendelsestype)
         return siste.to_cloudevent()["data"]
 
-    def _hendelse(self, h):
-        sak = self.sak()
-        rolle, foresporsel = korpus.foresporsel(h, sak, SAK)
-        data = copy.deepcopy(foresporsel["data"])
-        try:
-            validate_event_data(foresporsel["event_type"], data)
-            hendelse = parse_event_from_request(
-                {**foresporsel, "data": data, "sak_id": SAK, "aktor_id": rolle.lower(), "aktor_rolle": rolle}
-            )
-        except (ValidationError, ValueError) as feil:
-            return None, str(feil)
-        resultat = self.regler.validate(hendelse, sak)
-        if not resultat.is_valid:
-            return None, f"{resultat.violated_rule}: {resultat.message}"
-        return enrich_event_with_version(hendelse, sak), None
-
     def prov(self, h):
-        hendelse, melding = self._hendelse(h)
+        hendelse, melding = korpus.bygg_hendelse(h, self.sak(), SAK)
         return hendelse is not None, melding
 
     def send(self, h):
-        hendelse, melding = self._hendelse(h)
+        hendelse, melding = korpus.bygg_hendelse(h, self.sak(), SAK)
         if hendelse is None:
             return False, melding
         self.hendelser.append(hendelse)

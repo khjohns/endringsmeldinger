@@ -4,11 +4,10 @@ Samme bevis-saker som `tests/test_domenetabell/`, men hver handling sendes
 gjennom ruta med ekte dekoratører og lagre mot PostgreSQL. Tilstanden leses av
 journalen etter gjenlesing, og tilstanden ruta returnerte, skal være lik den.
 En avvist handling skal la journalen stå uendret. Kontrollsakene (`prov`)
-prøves mot forretningsreglene på den gjenleste tilstanden, fordi en prøve
+prøves med `korpus.bygg_hendelse` på den gjenleste tilstanden, fordi en prøve
 gjennom ruta ville skrevet hendelsen. Bare innloggingstjenesten er byttet ut.
 """
 
-import copy
 from contextlib import contextmanager
 from uuid import uuid4
 
@@ -26,6 +25,7 @@ pytestmark = pytest.mark.database
 
 PROSJEKT = "p-domenetabell"
 HEADERS = {"X-Project-ID": PROSJEKT, "X-CSRF-Token": "csrf"}
+AVVISNINGER = {"BUSINESS_RULE_VIOLATION", "VALIDATION_ERROR"}
 
 
 class Rutebane:
@@ -66,7 +66,7 @@ class Rutebane:
         return TimelineService().compute_state(self._hendelser())
 
     def tilstand(self):
-        return self.sak().model_dump(mode="json")
+        return public_state(self.sak(), self._hendelser())
 
     def journal(self):
         return [h["event_id"] for h in self.raa_hendelser()]
@@ -75,21 +75,8 @@ class Rutebane:
         return next(h for h in reversed(self.raa_hendelser()) if h["event_type"] == hendelsestype)["data"]
 
     def prov(self, h):
-        from api.validators import ValidationError, validate_event_data
-        from models.events import parse_event_from_request
-
-        sak = self.sak()
-        rolle, foresporsel = korpus.foresporsel(h, sak, self.sak_id)
-        data = copy.deepcopy(foresporsel["data"])
-        try:
-            validate_event_data(foresporsel["event_type"], data)
-            hendelse = parse_event_from_request(
-                {**foresporsel, "data": data, "sak_id": self.sak_id, "aktor_id": "x", "aktor_rolle": rolle}
-            )
-        except (ValidationError, ValueError) as feil:
-            return False, str(feil)
-        resultat = BusinessRuleValidator().validate(hendelse, sak)
-        return resultat.is_valid, resultat.message
+        hendelse, melding = korpus.bygg_hendelse(h, self.sak(), self.sak_id)
+        return hendelse is not None, melding
 
     def send(self, h):
         rolle, foresporsel = korpus.foresporsel(h, self.sak(), self.sak_id)
@@ -100,7 +87,11 @@ class Rutebane:
             headers=HEADERS,
         )
         if svar.status_code != 201:
-            return False, f"{svar.status_code} {svar.get_json()}"
+            feil = svar.get_json() or {}
+            # Bare en avvisning fra validering eller forretningsregler er et domeneutfall.
+            if svar.status_code != 400 or feil.get("error") not in AVVISNINGER:
+                pytest.fail(f"{h['handling']}: {svar.status_code} {feil}")
+            return False, f"{feil.get('error')}: {feil.get('message')}"
         gjenlest = public_state(self.sak(), self._hendelser())
         if svar.get_json()["state"] != gjenlest:
             pytest.fail(f"{h['handling']}: tilstanden fra ruta er ikke lik tilstanden etter gjenlesing")

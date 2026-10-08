@@ -52,8 +52,8 @@ HANDLINGER = {
     "aksept",
     "trekk",
 }
-# Et forløp kan ikke ha sterkere grunnlag enn den svakeste raden det beviser.
-STYRKE = {"avklart_tolkning": 3, "arbeidshypotese": 2, "modellkonvensjon": 1, "karakterisering": 1}
+# Et forløps forventningsgrunnlag er den svakeste tolkningsstatusen blant radene det beviser.
+STYRKE = {"avklart_tolkning": 3, "arbeidshypotese": 2, "modellkonvensjon": 1, "karakterisering": 0}
 
 
 def les() -> tuple[dict, dict]:
@@ -122,8 +122,11 @@ def _valider_forlop(regler: dict, korpus: dict, funntekst: str) -> list[str]:
             feil.append(f"{navn}: ukjente eller manglende rader {ukjente}")
             continue
         bevist.update(forlop["rader"])
-        svakeste = min(STYRKE[rader[r]["tolkningsstatus"]] for r in forlop["rader"])
-        if STYRKE.get(forlop["forventningsgrunnlag"], 0) != svakeste:
+        statuser = [rader[r].get("tolkningsstatus") for r in forlop["rader"]]
+        if any(s not in STYRKE for s in statuser):
+            continue  # Rapportert av _valider_rader.
+        svakeste = min(statuser, key=STYRKE.__getitem__)
+        if forlop.get("forventningsgrunnlag") != svakeste:
             feil.append(f"{navn}: forventningsgrunnlaget samsvarer ikke med radenes tolkningsstatus")
         handlinger = [s["handling"] for s in forlop["steg"]]
         handlinger += [k["prov"]["handling"] for k in forlop["kontroller"] if "prov" in k]
@@ -219,6 +222,8 @@ def main() -> int:
     feil = valider(regler, korpus)
     for linje in feil:
         print(f"feil: {linje}", file=sys.stderr)
+    if feil:
+        return 1
     readme = README.read_text(encoding="utf-8")
     ny = med_tabell(readme, regler, korpus)
     if "--skriv" in sys.argv[1:]:
@@ -226,7 +231,7 @@ def main() -> int:
     elif ny != readme:
         print("feil: tabellen i README.md er utdatert; kjør med --skriv", file=sys.stderr)
         return 1
-    return 1 if feil else 0
+    return 0
 
 
 if __name__ == "__main__":
