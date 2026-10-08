@@ -167,6 +167,15 @@ Prøvemodellen er ikke gjenbrukt: forventningene kjøres mot applikasjonen.
   `domenetabell.py` avviser ukjente saker og en `koe` som ikke viser til en
   KOE-sak.
 
+**Domenekrav og dagens kontrakt.** Forventningen er virkningen i raden:
+avvist eller godtatt, status, beløp, dager, tilknytning. Stiene i kontrollene
+(`kan_utstede_eo`, `endringsordre_data.status`), `lagret.*` og hendelsesnavnene
+i `korpus.py` er dagens API og journal. De hører til adapteren, ikke til
+forventningen. En kjører mot en annen implementering oversetter dem, og den
+skal ikke gjenbruke Python-reglene som bygger svarene (`beregn_vederlag`,
+`beregn_frist`). Aksepten sender bare sporet, uten svarets hendelse, fordi
+dagens API ikke tar imot mer (DT-01).
+
 ## Baner
 
 | Bane | Hva den prøver | Kjøres |
