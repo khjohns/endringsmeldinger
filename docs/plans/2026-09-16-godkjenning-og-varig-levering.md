@@ -181,6 +181,9 @@ eksplisitt oppheves.
 | Beslutning | Vedtatt | Følge |
 | --- | --- | --- |
 | <a id="mp-u4"></a>MP-U4: I metodeprøven etter rettidig og tilstrekkelig svar b etter 33.6.2 fører BHs sene punkt 5-innsigelse mot sen spesifisering til at spesifiseringen anses rettidig, uten begrensningen etter 33.6.1. TE trenger ikke en ny rettidig protest mot oversittelsen av punkt 5-fristen; regelen anvendes ikke rekursivt. Dette avgjør ikke øvrige innsigelser etter 33.7 eller antall dager | 08.10, oppdragsgiver etter vurderingen av LB-2017-177705 side 24 | Avklarer U4 i [metodeprøven](../vedlegg/metodeprove-frist-2026-10-08/README.md). Erstatter prøvens rekursive arbeidshypotese. Avgrenset til prøven med oppgitte premisser; ingen endring av produksjonsregler eller øvrige åpne tolkninger |
+| <a id="mp-u5"></a>MP-U5: Når ett brev inneholder flere innsigelser, vurderes rettidigheten («uten ugrunnet opphold») for hver innsigelse. Brevet og mottaket er felles, men en innsigelse mot omfanget etter 33.7 og en punkt 5-innsigelse kan få ulik vurdering | 08.10, oppdragsgiver | Avklarer U5 i [metodeprøven](../vedlegg/metodeprove-frist-2026-10-08/README.md#prøve-3-ett-brev-med-flere-innsigelser) (#284). Gjelder prøven; ingen endring av produksjonsregler |
+| <a id="mp-u6"></a>MP-U6: En TE-protest mot at BHs brev kom for sent, uten at innsigelsene skilles, gjelder alle innsigelsene i brevet (punkt 5: «har svart for sent»). Mot en punkt 5-innsigelse i brevet gir den fortsatt ingen ny frist (MP-U4) | 08.10, oppdragsgiver | Avklarer U6 i metodeprøven (#284). Gjelder prøven |
+| <a id="mp-u7"></a>MP-U7: En senere dokumentert innsigelse som strider mot premisset om at det ikke finnes noen virksom tidsinnsigelse, gir «uavklart: motstridende dokumentasjon» til en egen handling avgjør motstriden. Begge opplysningene står i journalen. Tidligere utledninger og sendte brev endres ikke, men et sendt brev som avviker fra dagens utledning, merkes som utdatert | 08.10, oppdragsgiver | Avklarer U7 i [metodeprøven](../vedlegg/metodeprove-frist-2026-10-08/README.md#prøve-4-senere-dokumentert-korrespondanse) (#284). Tiltenkt atferd for prøven. Hvem som kan avgjøre motstriden, og rettelser av låste opplysninger, avgjøres ikke (B-16) |
 | P1: magic links utgår | 20.09 | `magic_links` fjernes (MS-15) |
 | P2, P3: BIM er relevant; et objekt hører til én sak; formålet er å se hvilke komponenter som fører til tvist | 20.09 | Retning MS-13, MS-14. Ikke prioritert |
 | P4: vedlegg lagres bare i Catenda | 20.09 | Hash og frosset grunnlag hos oss (MS-11, AF-04) |
@@ -525,6 +528,10 @@ Et åpent valg blokkerer bare oppgavene som er nevnt.
 > [testinstruksjonene](../../.claude/rules/tester.md#domeneforventninger-og-metodeprover).
 > MP-U4 i 3.1 avklarer bare den angitte deltolkningen. Retning og rekkefølge
 > under B-14 er uendret; arbeid og videre bevisbehov eies fortsatt av #271.
+>
+> **Merknad 2026-10-08 til B-14 (videre prøver):** Metodeprøven er utvidet
+> med ett brev med flere innsigelser og senere dokumentert korrespondanse
+> (#284). Det ga MP-U5–MP-U7 i 3.1. Retning og rekkefølge er uendret.
 
 > **Merknad 2026-10-07 til B-10:** Strategien skal skille saksversjon fra
 > versjonen som beregnet en projeksjon, og vise invalidasjon/gjenoppbygging
