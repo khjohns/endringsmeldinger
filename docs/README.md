@@ -31,6 +31,8 @@ Eldre handoffer står under [historikk](#historikk--bevart-ikke-gjeldende).
 
 | Dokument | Hva det gir |
 | --- | --- |
+| [forslag: målarkitektur og beslutningsprøve](forslag-maalarkitektur-og-beslutningsproeve-2026-10-07.md) · [opprinnelig forslag](vedlegg/arkitekturvalg-2026-10-07/README.md) | Oppdragsgivers forslag bearbeidet mot PR #266, med eksplisitte servergrenser og en avgrenset prøve av delt TypeScript-kjerne; ikke et vedtak om språkbytte |
+| [vurdering: avhengigheter og arkitekturvalg](vurdering-avhengigheter-og-arkitekturvalg-2026-10-07.md) · [backend](vedlegg/avhengigheter-2026-10-07/backend.md), [frontend](vedlegg/avhengigheter-2026-10-07/frontend.md) og [arkitektur](vedlegg/avhengigheter-2026-10-07/arkitektur.md) | Datert vedlikeholdsvurdering med pakkegrupper, runtimegrenser og beviskrav for en delt ren TypeScript-kjerne; skiller anbefalinger fra auditfunn |
 | [hovedplanen](plans/2026-09-16-godkjenning-og-varig-levering.md) | **Autoritativ.** Se over |
 | [oppdrag: datamodell og funksjonskart (spor M)](prompt-datamodell-og-funksjonskart-2026-09-29.md) | Tabellbeskrivelse for IKT som systemdokumentasjon, hendelseskatalog, funksjonskart og atferdstester, i faser. Avhenger ikke av B-12. Avsnitt 4 er utgangspunktet |
 | [gjennomføring: tabellregisteret, første runde (spor M, 1a)](gjennomforing-spor-m-1a-2026-09-29.md) | Registeret, eksporten og vakttesten. DM-01–DM-04, blant dem at ruteregistertesten ikke ser alle ruter (DM-04, middels). Ett utsagn i registeret rettet i runden |
