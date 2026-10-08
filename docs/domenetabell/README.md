@@ -5,7 +5,8 @@ rad og bevis-saker som kan kjøres mot en implementering. Tabellen er
 referansen for begrepene under B-14 og [#271](https://github.com/khjohns/endringsmeldinger/issues/271).
 [Hovedplanen](../plans/2026-09-16-godkjenning-og-varig-levering.md) er fortsatt
 autoritativ for vedtak og funnstatus. Radene viser til vedtakene og gjentar dem
-ikke. Kjente avvik står bare som funn-ID.
+ikke. Kjente avvik står bare som funn-ID, eller som issuenummer når et vedtak i
+3.1 ikke har noen funn-ID (#235).
 
 Radene KA-01–KA-19 gjelder kravversjon og aksept (SK-02, SK-03), med
 tilgrensende rader om godtatt preklusjon, låste varsler og byggherrens vurdering
@@ -50,7 +51,8 @@ hvilken raden bygger på.
 ## Tabellen
 
 Skrevet av `python3 docs/verktoy/domenetabell.py --skriv`. Rett i JSON-filene,
-ikke her. «Kjent avvik» er funn-ID-en i hovedplanens funnregister.
+ikke her. «Kjent avvik» er funn-ID-en i hovedplanens funnregister, eller
+issuenummeret til et vedtak i 3.1.
 
 <!-- domenetabell:start -->
 | ID | Tilfelle | Forventet | BHs standpunkt (B-13) | Rettslig virkning | Rettidighet | Tidsakse | Kilder | Tolkningsstatus | Bevis-saker | Kjent avvik |
@@ -87,14 +89,14 @@ ikke her. «Kjent avvik» er funn-ID-en i hovedplanens funnregister.
 | GR-08 | Byggherren reviderer vederlagssvaret mens grunnlaget venter på nytt svar etter endret underkategori, og avslår deretter grunnlaget igjen. | Det reviderte svaret er prinsipalt så lenge grunnlaget ikke har svar. Når grunnlaget avslås, er vederlagssvaret subsidiært. | Først prinsipalt delvis godkjent, deretter subsidiært, utledet av grunnlaget. | Byggherrens standpunkt til beløpet står. Om det er prinsipalt eller subsidiært, følger av grunnlagssvaret. | — | registrering | [GR-U4](../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u4), [V-215](../plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger), [V-B13-GRUNNLAG-AVSLATT](../plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger) | avklart tolkning | F-GR-08 | — |
 | GR-09 | TE trekker grunnlaget før vederlag eller frist er sendt. | Saken er `LUKKET_TRUKKET`. | — | Kravet er trukket. Spor som ikke er sendt, regnes som trukket. | — | registrering | [V-SD02](../plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger) | avklart tolkning | F-GR-09 | SD-02 |
 | GR-10 | TE trekker grunnlaget når bare vederlaget er sendt. | Vederlaget trekkes med, og saken er `LUKKET_TRUKKET`. | — | Fristen er ikke sendt og regnes som trukket. | — | registrering | [V-SD02](../plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger), [GR-U5](../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u5) | avklart tolkning | F-GR-10 | SD-02 |
-| GR-11 | TE trekker grunnlaget etter at byggherren har godkjent vederlaget prinsipalt mens grunnlaget ventet på svar. | Vederlag og frist trekkes med, også det godkjente vederlaget, og saken er `LUKKET_TRUKKET`. Vederlaget kan ikke trekkes alene. | Godkjent vederlag. Grunnlaget er ikke besvart. | Ansvarsgrunnlaget bærer kravene. Trekkes det, faller de. | — | registrering | [GR-U5](../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u5) | avklart tolkning | F-GR-11 | — |
+| GR-11 | TE trekker grunnlaget etter at byggherren har godkjent vederlaget prinsipalt mens grunnlaget ventet på svar. | Vederlag og frist trekkes med, også det godkjente vederlaget, og saken er `LUKKET_TRUKKET`. | Godkjent vederlag. Grunnlaget er ikke besvart. | Ansvarsgrunnlaget bærer kravene. Trekkes det, faller de. | — | registrering | [GR-U5](../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u5) | avklart tolkning | F-GR-11 | — |
 | GR-12 | TE oppdaterer grunnlaget etter å ha trukket det, før vederlag eller frist er sendt. | Oppdateringen avvises, og journalen er uendret. | — | Et trukket krav kan ikke tas opp igjen. Saken er lukket. | — | registrering | [V-TRUKKET](../plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger), [V-SD02](../plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger) | avklart tolkning | F-GR-12 | SD-02 |
 | GR-13 | Byggherren frafaller pålegget (§ 32.3 c). | Grunnlaget får status `FRAFALT`, ikke `TRUKKET`. | Frafalt, med grunnlaget varslet i tide. | Pålegget er frafalt mot endringsordre for utført arbeid. TE har ikke trukket noe. | Byggherrens § 32.2-vurdering: i tide. | registrering | [V-FRAFALT](../plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger) | avklart tolkning | F-GR-13 | SK-04 |
 | GR-14 | Byggherren frafaller pålegget og godkjenner deretter vederlag og frist. | Svarene er prinsipale. Saken er `OMFORENT`, og EO utstedes ikke fra KOE-saken (`kan_utstede_eo` er `false`). | Frafalt grunnlag. Prinsipalt godkjent vederlag og frist. | Avklart grunnlag. Endringsordren for utført arbeid går i en egen EO-sak (#69). | — | registrering | [GR-U3](../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u3), [V-235](../plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger) | avklart tolkning | F-GR-14 | — |
 | GR-15 | Byggherren frafaller pålegget og avslår vederlag og frist, og TE godtar begge avslagene. | Saken er `OMFORENT`, ikke `UKJENT`. EO utstedes ikke fra KOE-saken. | Frafalt grunnlag. Avslått vederlag og frist. | Kravene er oppgjort ved godtatt avslag. | — | registrering | [GR-U3](../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u3), [V-FRAFALT](../plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger), [V-TFR01](../plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger) | avklart tolkning | F-GR-15 | SK-04 |
 | GR-16 | Byggherren frafaller pålegget før vederlag eller frist er sendt. | Saken er `UNDER_BEHANDLING`, som ved godkjent grunnlag der resten ikke er sendt. | Frafalt grunnlag. | Grunnlaget er avklart. TE kan fortsatt sende vederlag og frist. | — | registrering | [V-FRAFALT](../plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger), [V-TFR05](../plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger) | avklart tolkning | F-GR-16 | SK-04 |
 | GR-17 | Byggherren frafaller pålegget og påberoper samtidig at grunnlaget er varslet for sent (§ 32.2). | Svaret avvises, og journalen er uendret. | — | Frafall skjer mot endringsordre og kan ikke kombineres med preklusjon. | Byggherrens § 32.2-vurdering: for sent. Det er kombinasjonen som avvises. | registrering | [V-235](../plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger) | avklart tolkning | F-GR-17 | #235 |
-| GR-18 | Byggherren svarer «frafalt» på et grunnlag som er endringsordre (EO), ikke pålegg. | Svaret avvises, og journalen er uendret. | — | Frafall forutsetter et pålegg (§ 32.3 c). | — | registrering | [V-B13-FRAFALL](../plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger) | avklart tolkning | F-GR-18 | — |
+| GR-18 | TE har endret grunnlaget fra pålegg (IRREG) til endringsordre (EO), og byggherren svarer «frafalt». | Svaret avvises, og journalen er uendret. | — | Frafall forutsetter et pålegg (§ 32.3 c). | — | registrering | [V-B13-FRAFALL](../plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger) | avklart tolkning | F-GR-18 | — |
 <!-- domenetabell:slutt -->
 
 ## Formatet
@@ -123,7 +125,7 @@ Prøvemodellen er ikke gjenbrukt: forventningene kjøres mot applikasjonen.
   forløpet beviser.
 - `kjent_avvik` merker et forløp der dagens kode avviker, med funn-ID og issue.
   Et vedtatt issue uten funn-ID i funnregisteret står med issuenummeret som
-  funn (`"funn": "#235"`). Kjøreren gjør det til en streng `xfail`; avviket
+  funn (`"funn": "#235"`), og kontrollen krever en vedtaksrad for issuet i 3.1. Kjøreren gjør det til en streng `xfail`; avviket
   normaliseres ikke bort.
 - `invarianter` prøves etter hvert steg i alle forløp, med egne kjente avvik.
 

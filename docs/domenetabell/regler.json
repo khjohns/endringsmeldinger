@@ -675,7 +675,7 @@
     {
       "id": "GR-11",
       "tilfelle": "TE trekker grunnlaget etter at byggherren har godkjent vederlaget prinsipalt mens grunnlaget ventet på svar.",
-      "forventet": "Vederlag og frist trekkes med, også det godkjente vederlaget, og saken er `LUKKET_TRUKKET`. Vederlaget kan ikke trekkes alene.",
+      "forventet": "Vederlag og frist trekkes med, også det godkjente vederlaget, og saken er `LUKKET_TRUKKET`.",
       "bh_standpunkt": "Godkjent vederlag. Grunnlaget er ikke besvart.",
       "rettslig_virkning": "Ansvarsgrunnlaget bærer kravene. Trekkes det, faller de.",
       "rettidighet": "—",
@@ -770,7 +770,7 @@
     },
     {
       "id": "GR-18",
-      "tilfelle": "Byggherren svarer «frafalt» på et grunnlag som er endringsordre (EO), ikke pålegg.",
+      "tilfelle": "TE har endret grunnlaget fra pålegg (IRREG) til endringsordre (EO), og byggherren svarer «frafalt».",
       "forventet": "Svaret avvises, og journalen er uendret.",
       "bh_standpunkt": "—",
       "rettslig_virkning": "Frafall forutsetter et pålegg (§ 32.3 c).",
