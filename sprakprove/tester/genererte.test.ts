@@ -23,7 +23,10 @@ export function forlopene(): Handling[][] {
   const tall = lcg(oppsett.seed);
   const handlinger = oppsett.handlinger as Handling[];
   return Array.from({ length: oppsett.antall }, () =>
-    Array.from({ length: oppsett.lengde }, () => handlinger[(tall.next().value >> 16) % handlinger.length])
+    Array.from(
+      { length: oppsett.lengde },
+      () => handlinger[(tall.next().value >> 16) % handlinger.length]
+    )
   );
 }
 
@@ -49,15 +52,25 @@ describe('genererte forløp mot TS-kjernen', () => {
         expect(u.hendelse.refererer_til_event_id, `INV-AKSEPT-GJELDENDE ${hvor}`).toBe(
           gjeldendeSvar(for_[spor])?.eventId
         );
-        expect(offentligTilstand(bane.sak())[spor].te_akseptert, `INV-AKSEPT-GJELDENDE ${hvor}`).toBe(true);
+        expect(
+          offentligTilstand(bane.sak())[spor].te_akseptert,
+          `INV-AKSEPT-GJELDENDE ${hvor}`
+        ).toBe(true);
       }
       const tilstand = offentligTilstand(bane.sak());
       const venter = (['grunnlag', 'vederlag', 'frist'] as const).some(
         (s) => tilstand[s].krav_event_id !== null && tilstand[s].gjeldende_respons_event_id === null
       );
-      if (venter) expect(tilstand.overordnet_status, `INV-UBESVART-IKKE-OMFORENT ${hvor}`).not.toBe('OMFORENT');
-      const gjenlest = JSON.parse(JSON.stringify(bane.journal.map((h) => tilRad(h, 'p')))).map(fraRad);
-      expect(offentligTilstand(projiser(bane.sakId, gjenlest)), `INV-GJENLESING ${hvor}`).toEqual(tilstand);
+      if (venter)
+        expect(tilstand.overordnet_status, `INV-UBESVART-IKKE-OMFORENT ${hvor}`).not.toBe(
+          'OMFORENT'
+        );
+      const gjenlest = JSON.parse(JSON.stringify(bane.journal.map((h) => tilRad(h, 'p')))).map(
+        fraRad
+      );
+      expect(offentligTilstand(projiser(bane.sakId, gjenlest)), `INV-GJENLESING ${hvor}`).toEqual(
+        tilstand
+      );
     });
   });
 });
