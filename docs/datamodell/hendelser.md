@@ -699,7 +699,7 @@ Feltene i `data`:
 | `original_respons_id` | tekst | nei | Event-ID til original respons som oppdateres (for RESPONS_*_OPPDATERT) |
 | `respondert_versjon` | heltall | nei | Hvilken TE-versjon (0-indeksert) denne responsen gjelder. Settes automatisk av backend. |
 | `frist_varsel_ok` | ja/nei | nei | Er varsel om fristforlengelse sendt i tide? (§33.4). None hvis ikke relevant. |
-| `spesifisert_krav_ok` | ja/nei | nei | Er spesifisert krav sendt i tide? (§33.6) |
+| `spesifisert_krav_ok` | ja/nei | nei | Er spesifisert krav sendt i tide? (§33.6). None hvis ikke vurdert (KA-U4). |
 | `foresporsel_svar_ok` | ja/nei | nei | Er svar på forespørsel sendt i tide? (§33.6.2/§5). None hvis ikke relevant. |
 | `begrunnelse_varsel` | tekst | nei | BHs begrunnelse for vurdering av varsling |
 | `vilkar_oppfylt` | ja/nei | nei | Har forholdet medført en faktisk fremdriftshindring? (§33.1) |
@@ -745,7 +745,7 @@ Feltene i `data`:
 | `original_respons_id` | tekst | nei | Event-ID til original respons som oppdateres (for RESPONS_*_OPPDATERT) |
 | `respondert_versjon` | heltall | nei | Hvilken TE-versjon (0-indeksert) denne responsen gjelder. Settes automatisk av backend. |
 | `frist_varsel_ok` | ja/nei | nei | Er varsel om fristforlengelse sendt i tide? (§33.4). None hvis ikke relevant. |
-| `spesifisert_krav_ok` | ja/nei | nei | Er spesifisert krav sendt i tide? (§33.6) |
+| `spesifisert_krav_ok` | ja/nei | nei | Er spesifisert krav sendt i tide? (§33.6). None hvis ikke vurdert (KA-U4). |
 | `foresporsel_svar_ok` | ja/nei | nei | Er svar på forespørsel sendt i tide? (§33.6.2/§5). None hvis ikke relevant. |
 | `begrunnelse_varsel` | tekst | nei | BHs begrunnelse for vurdering av varsling |
 | `vilkar_oppfylt` | ja/nei | nei | Har forholdet medført en faktisk fremdriftshindring? (§33.1) |
@@ -761,7 +761,7 @@ Feltene i `data`:
 
 ### `te_aksepterer_respons`
 
-TE godtar BHs svar på ett spor, angitt i `spor`.
+TE godtar BHs svar på ett spor, angitt i `spor`. `refererer_til_event_id` (kolonnen `referstoid`) er svaret som godtas, og det må være sporets gjeldende svar (KA-U1). Kommandoen er streng: et ukjent felt avvises. En aksept lagret før #272 har ingen referanse og leses som før. Kontrakten står i docs/domenetabell/kontrakt.json.
 
 | | |
 | --- | --- |
@@ -773,7 +773,7 @@ TE godtar BHs svar på ett spor, angitt i `spor`.
 | Modell | `TEAkseptererResponsEvent`, data `TEAkseptererResponsData` |
 | Lagres i | `hendelse` |
 | Sendes fra | POST /api/events og /api/events/batch; Frontend: sendes ikke fra noe skjermbilde i dag |
-| Forretningsregler | ROLE_CHECK, CASE_NOT_CLOSED, CREATE_ONCE, RESPONSE_REFERENCE, BH_HAS_RESPONDED, NOT_ALREADY_ACCEPTED |
+| Forretningsregler | ROLE_CHECK, CASE_NOT_CLOSED, CREATE_ONCE, RESPONSE_REFERENCE, BH_HAS_RESPONDED, CURRENT_RESPONSE, NOT_ALREADY_ACCEPTED |
 | Virkning på status | TEs aksept settes på sporet. Statusen følger BHs svar og forbedrer det aldri: avslag gir `avslatt_akseptert`, godkjent og delvis godkjent gir `godkjent`, og `hold_tilbake` og `frafalt` lar statusen stå (vedtaket 19.09, TFR-01). Godtar TE avslaget på grunnlaget, blir saken `LUKKET_AVSLATT`, uansett vederlag og frist, og lukket for alle hendelser utenom endringsordrens (vedtaket 05.10, #213). |
 | Behandler | `TimelineService._handle_te_aksepterer_respons` |
 | Funn | SD-02 |

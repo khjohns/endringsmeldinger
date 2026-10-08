@@ -85,7 +85,23 @@ class SendtKonsekvensVarsel(BaseModel):
     event_id: str
 
 
-class GrunnlagTilstand(BaseModel):
+class _SvarPaaKrav(BaseModel):
+    """Felles for sporene som har krav og svar."""
+
+    @computed_field
+    @property
+    def gjeldende_respons_event_id(self) -> str | None:
+        """Svaret på sporets gjeldende kravversjon, eller `None` når sporet
+        venter på svar. TE kan bare godta dette svaret (KA-U1, KT-U1).
+        `bh_respondert_versjon` er 0-indeksert."""
+        if self.respons_event_id and self.bh_respondert_versjon == max(
+            0, self.antall_versjoner - 1
+        ):
+            return self.respons_event_id
+        return None
+
+
+class GrunnlagTilstand(_SvarPaaKrav):
     """Aggregert tilstand for grunnlag-sporet"""
 
     krav_event_id: str | None = None
@@ -144,7 +160,7 @@ class GrunnlagTilstand(BaseModel):
     antall_versjoner: int = Field(default=0)
 
 
-class VederlagTilstand(BaseModel):
+class VederlagTilstand(_SvarPaaKrav):
     """
     Aggregert tilstand for vederlag-sporet.
 
@@ -687,7 +703,7 @@ class EndringsordreData(BaseModel):
         )
 
 
-class FristTilstand(BaseModel):
+class FristTilstand(_SvarPaaKrav):
     """Aggregert tilstand for frist-sporet"""
 
     varsler: list[SendtKonsekvensVarsel] = Field(default_factory=list)
