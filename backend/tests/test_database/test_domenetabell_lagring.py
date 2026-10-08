@@ -32,7 +32,8 @@ AVVISNINGER = {"BUSINESS_RULE_VIOLATION", "VALIDATION_ERROR"}
 class Rutebane:
     rute = "/api/events"
 
-    def __init__(self, klient, innlogging, lager):
+    def __init__(self, klient, innlogging, lager, forste=()):
+        """`forste` er TE-handlinger som sendes i samme batch som `sak_opprettet`."""
         self.klient, self.innlogging, self.lager = klient, innlogging, lager
         self.sak_id = str(uuid4())
         self._som("TE")
@@ -41,7 +42,8 @@ class Rutebane:
             json={
                 "sak_id": self.sak_id,
                 "expected_version": 0,
-                "events": [{"event_type": "sak_opprettet", "sakstittel": "Domenetabell"}],
+                "events": [{"event_type": "sak_opprettet", "sakstittel": "Domenetabell"}]
+                + [korpus.foresporsel(h, None, self.sak_id)[1] for h in forste],
             },
             headers=HEADERS,
         )
@@ -170,3 +172,136 @@ def test_godkjenningsflyten_kan_svare_etter_et_konsekvensvarsel(rutebane, tmp_pa
         pytest.fail("Forutsetning: konsekvensvarselet avvist")
     feil = _vederlagssvar_til_godkjenning(bane, tmp_path)
     assert feil is None, feil
+
+
+# Handlingene til TE leser ikke tilstanden, så flere kan gå i én batch; de bygges
+# med `sak=None`, så en som begynner å lese den, feiler. En batch har én
+# kontraktsrolle, og byggherrens svar viser til hendelser i tilstanden.
+TE_HANDLINGER = {
+    "grunnlag", "grunnlag_ny_versjon", "vederlagskrav", "vederlagskrav_ny_versjon",
+    "konsekvensvarsel", "fristvarsel", "fristkrav", "fristkrav_spesifisert", "aksept", "trekk",
+}
+SERVERTID = {"tidsstempel", "siste_oppdatert", "opprettet", "siste_aktivitet"}
+UTEN_SAMMENLIKNING = SERVERTID | {"event_id"}
+
+
+def _grupper(steg):
+    """Påfølgende TE-handlinger i én gruppe; byggherrens handlinger hver for seg."""
+    grupper = []
+    for h in steg:
+        if h["handling"] in TE_HANDLINGER and grupper and grupper[-1][0]["handling"] in TE_HANDLINGER:
+            grupper[-1].append(h)
+        else:
+            grupper.append([h])
+    return grupper
+
+
+def _normalisert(bane):
+    """Journal og tilstand uten serverens ID-er og klokkeslett, så to saker kan sammenliknes."""
+    raa = bane.raa_hendelser()
+    navn = {h["event_id"]: f"hendelse-{i}" for i, h in enumerate(raa)}
+    navn[bane.sak_id] = "sak"
+
+    def rens(v):
+        if isinstance(v, dict):
+            return {k: rens(x) for k, x in v.items() if k not in SERVERTID}
+        if isinstance(v, list):
+            return [rens(x) for x in v]
+        return navn.get(v, v).replace(bane.sak_id, "sak") if isinstance(v, str) else v
+
+    journal = [{k: v for k, v in h.items() if k not in UTEN_SAMMENLIKNING} for h in raa]
+    return rens(journal), rens(bane.tilstand())
+
+
+def _send_batch(bane, gruppe):
+    sak = None if gruppe[0]["handling"] in TE_HANDLINGER else bane.sak()
+    foresporsler = [korpus.foresporsel(h, sak, bane.sak_id) for h in gruppe]
+    bane._som(foresporsler[0][0])
+    return bane.klient.post(
+        "/api/events/batch",
+        json={"sak_id": bane.sak_id, "expected_version": len(bane.journal()), "events": [f for _, f in foresporsler]},
+        headers=HEADERS,
+    )
+
+
+@pytest.mark.parametrize("forlop", korpus.forlop_parametre(marker_avvik=False))
+def test_forlop_i_batcher_gir_samme_journal_og_tilstand(forlop, hendelsesklient, innlogging, container_mot_testbasen):
+    """Kontrakten i `submit_batch`: hendelsene valideres i rekkefølge mot tilstanden
+    etter de foregående og lagres samlet. Forløpet sendt i batcher skal derfor gi
+    samme journal og tilstand som sendt hendelse for hendelse. Dette er likhet
+    mellom to innganger i samme implementasjon, ikke en domenefasit; kjente avvik
+    gir samme utfall i begge og merkes ikke. Handlinger som avvises enkeltvis,
+    utelates fra batchene."""
+    lager = container_mot_testbasen.event_repository
+    prefiks, steg = korpus.steg_med_prefiks(forlop)
+    enkeltvis = Rutebane(hendelsesklient, innlogging, lager)
+    godtatt = [h for h in prefiks + steg if enkeltvis.send(h)[0]]
+
+    grupper = _grupper(godtatt)
+    forste = grupper.pop(0) if grupper and grupper[0][0]["handling"] in TE_HANDLINGER else []
+    batch = Rutebane(hendelsesklient, innlogging, lager, forste=forste)
+    for gruppe in grupper:
+        svar = _send_batch(batch, gruppe)
+        if svar.status_code != 201:
+            pytest.fail(f"Batchen {[h['handling'] for h in gruppe]} ble avvist: {svar.status_code} {svar.get_json()}")
+        if svar.get_json()["state"] != batch.tilstand():
+            pytest.fail("Tilstanden fra ruta er ikke lik tilstanden etter gjenlesing")
+    assert _normalisert(batch) == _normalisert(enkeltvis)
+
+
+def _avvisninger_i_te_grupper():
+    """Hver TE-handling som domenebanen avviser rett etter godtatte TE-handlinger:
+    (forløp, indeksen der gruppen starter, antall godtatte i gruppen)."""
+    from tests.test_domenetabell.test_kravversjon_og_aksept import Domenebane
+
+    tilfeller = []
+    for forlop in korpus.KORPUS["forlop"]:
+        prefiks, steg = korpus.steg_med_prefiks(forlop)
+        bane, start, antall = Domenebane(), 0, 0
+        for i, h in enumerate(prefiks + steg):
+            rolle, _ = korpus.foresporsel(h, bane.sak(), "S")
+            if (rolle == "TE") != (h["handling"] in TE_HANDLINGER):
+                raise AssertionError(f"TE_HANDLINGER stemmer ikke med rollen for {h['handling']}")
+            godtatt, _ = bane.send(h)
+            if h["handling"] not in TE_HANDLINGER:
+                antall = 0
+            elif not godtatt:
+                if antall:
+                    tilfeller.append(pytest.param(forlop, start, antall, id=f"{forlop['id']}-steg{i}"))
+                antall = 0
+            else:
+                start, antall = (start, antall + 1) if antall else (i, 1)
+    return tilfeller
+
+
+@pytest.mark.parametrize(("forlop", "start", "antall"), _avvisninger_i_te_grupper())
+def test_batch_med_en_avvist_hendelse_lagrer_ingenting(
+    forlop, start, antall, hendelsesklient, innlogging, container_mot_testbasen
+):
+    """`submit_batch`: avvises én hendelse, lagres ingen. Batchen er TE-handlingene
+    som ble godtatt rett før en avvist TE-handling i forløpet, pluss den avviste.
+    Kontrollsaken er samme batch uten den avviste, som skal godtas."""
+    prefiks, steg = korpus.steg_med_prefiks(forlop)
+    alle = prefiks + steg
+    bane = Rutebane(hendelsesklient, innlogging, container_mot_testbasen.event_repository)
+    for h in alle[:start]:
+        bane.send(h)
+    gruppe = alle[start : start + antall + 1]
+    journal_for = bane.journal()
+    svar = _send_batch(bane, gruppe)
+    feil = svar.get_json() or {}
+    # Avvisningen skal gjelde den siste hendelsen, av en forretningsregel.
+    sist = korpus.foresporsel(gruppe[-1], None, bane.sak_id)[1]["event_type"]
+    if svar.status_code != 400 or feil.get("error") != "BUSINESS_RULE_VIOLATION" or feil.get("failed_event_type") != sist:
+        pytest.fail(f"Ventet at forretningsreglene avviste {sist}: {svar.status_code} {feil}")
+    assert bane.journal() == journal_for, "En avvist batch skrev hendelser"
+    kontroll = _send_batch(bane, gruppe[:-1])
+    if kontroll.status_code != 201:
+        pytest.fail(f"Kontrollsak: batchen uten den avviste ble også avvist: {kontroll.get_json()}")
+    if len(bane.journal()) != len(journal_for) + antall:
+        pytest.fail("Kontrollsak: batchen lagret ikke alle hendelsene")
+
+
+def test_korpuset_har_en_avvist_hendelse_i_en_batch():
+    """Ellers blir atomisitetstesten over en tom parameterliste og hoppes over."""
+    assert _avvisninger_i_te_grupper()
