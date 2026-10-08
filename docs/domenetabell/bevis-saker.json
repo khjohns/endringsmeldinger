@@ -161,7 +161,7 @@
         { "etter": 1, "rolle": "forutsetning", "forventet": { "frist.bh_resultat": "avslatt", "frist.subsidiaer_resultat": "godkjent" } },
         { "etter": 2, "rolle": "mal", "forventet": { "frist.status": "avslatt_akseptert", "frist.te_akseptert": true } }
       ],
-      "forventningsgrunnlag": "arbeidshypotese"
+      "forventningsgrunnlag": "avklart_tolkning"
     },
     {
       "id": "F-KA-10",

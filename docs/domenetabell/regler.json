@@ -100,16 +100,40 @@
       "radetikett": "KA-U4: i byggherrens vurderinger av varsel og rettidighet"
     },
     {
+      "id": "NS-5-3",
+      "type": "standard",
+      "punkt": "5 tredje ledd",
+      "merknad": "Tekst: den som vil gjøre gjeldende at den andre parten har varslet eller svart for sent, må gjøre det skriftlig uten ugrunnet opphold etter å ha mottatt varselet eller svaret; ellers anses det gitt i tide. Brukt som premiss: tabellen avgjør ikke om en innsigelse kom i tide."
+    },
+    {
+      "id": "NS-33.4-2",
+      "type": "standard",
+      "punkt": "33.4 annet ledd",
+      "merknad": "Tekst: krav på fristforlengelse tapes dersom det ikke varsles innen utløpet av fristen. Slutning i KA-09: å godta et svar som påberoper dette, er å godta at kravet er tapt."
+    },
+    {
       "id": "NS-33.6.1",
       "type": "standard",
       "punkt": "33.6.1",
-      "merknad": "Sen spesifisering kan begrense kravet. Teksten er ikke lest i denne runden; virkningen er den regelmodulen bygger på (B-13, `regler/frist.py`)."
+      "merknad": "Tekst: angir og begrunner ikke parten dagene uten ugrunnet opphold, har han bare krav på slik fristforlengelse som den andre parten måtte forstå at han hadde krav på. Virkningen er en begrensning, ikke tap av kravet."
+    },
+    {
+      "id": "NS-33.6.2-1",
+      "type": "standard",
+      "punkt": "33.6.2 første ledd",
+      "merknad": "Tekst: så lenge TE ikke har fremmet krav etter 33.6.1, kan byggherren be om at TE gjør det. Forespørselen er byggherrens handling, ikke et krav fra TE."
     },
     {
       "id": "NS-33.6.2-4",
       "type": "standard",
       "punkt": "33.6.2 fjerde ledd",
-      "merknad": "Svarer TE på forespørselen med et spesifisert krav, kan BH ikke påberope § 33.6.1 mot det kravet. Teksten er ikke lest i denne runden; gjengitt fra `test_frist_svar_paa_foresporsel.py` og oppdragsgivers presisering 04.10 (#63)."
+      "merknad": "Tekst: angir og begrunner TE dagene etter bokstav a, skal byggherren svare etter 33.7 og kan da ikke påberope at fristen i 33.6.1 er oversittet. Etter femte ledd gjelder 33.6.1 når TE har svart etter bokstav b."
+    },
+    {
+      "id": "NS-33.7-2",
+      "type": "standard",
+      "punkt": "33.7 annet ledd",
+      "merknad": "Tekst: innsigelser mot kravet tapes dersom de ikke fremsettes innen fristen (uten ugrunnet opphold etter mottatt begrunnet krav med dager, første ledd). Brukt som premiss, som NS-5-3."
     }
   ],
   "rader": [
@@ -239,15 +263,17 @@
       "tilfelle": "TE godtar et fristsvar som er prinsipalt avslått fordi varselet etter § 33.4 kom for sent, med subsidiært godkjente dager.",
       "forventet": "Godtatt avslag (`AVSLATT_AKSEPTERT`). De subsidiære dagene gjør ikke sporet `GODKJENT`.",
       "bh_standpunkt": "Prinsipalt avslått (preklusjon trukket av systemet), subsidiært godkjente dager.",
-      "rettslig_virkning": "Aksepten gjelder hele svaret, også preklusjonen.",
+      "rettslig_virkning": "Aksepten gjelder hele svaret, også preklusjonen (KA-U1). Etter § 33.4 annet ledd er kravet da tapt, og de subsidiære dagene får ingen virkning. Om byggherrens innsigelse kom i tide (§ 5 tredje ledd), er uten betydning når TE godtar den.",
       "rettidighet": "Byggherrens vurdering av varselet: for sent.",
       "tidsakse": "registrering",
       "kilder": [
         "KA-U1",
+        "NS-33.4-2",
         "V-B13-PREKLUSJON",
-        "V-SK01"
+        "V-TFR01",
+        "NS-5-3"
       ],
-      "tolkningsstatus": "arbeidshypotese"
+      "tolkningsstatus": "avklart_tolkning"
     },
     {
       "id": "KA-10",
@@ -339,7 +365,8 @@
       "rettidighet": "—",
       "tidsakse": "registrering",
       "kilder": [
-        "KA-U2"
+        "KA-U2",
+        "NS-33.6.2-1"
       ],
       "tolkningsstatus": "avklart_tolkning"
     },
@@ -361,7 +388,7 @@
       "tilfelle": "Byggherren svarer på et fristkrav som besvarte forespørselen etter § 33.6.2. Spørsmålet etter § 33.6.1 gjelder ikke og vurderes ikke.",
       "forventet": "`spesifisert_krav_ok` er utelatt i hendelsen og `null` i tilstanden.",
       "bh_standpunkt": "Ingen begrensning etter § 33.6.1.",
-      "rettslig_virkning": "Spesifiseringen kan ikke møtes med § 33.6.1.",
+      "rettslig_virkning": "Byggherren skal svare etter § 33.7 og kan ikke påberope at fristen i § 33.6.1 er oversittet (§ 33.6.2 fjerde ledd).",
       "rettidighet": "Ikke vurdert.",
       "tidsakse": "registrering",
       "kilder": [
@@ -376,12 +403,13 @@
       "tilfelle": "Byggherren vurderer spesifiseringen som i tide.",
       "forventet": "`spesifisert_krav_ok` er `true` i hendelsen og tilstanden.",
       "bh_standpunkt": "Ingen begrensning etter § 33.6.1.",
-      "rettslig_virkning": "Kravet begrenses ikke etter § 33.6.1.",
+      "rettslig_virkning": "Kravet begrenses ikke etter § 33.6.1. Har byggherren ikke gjort sen spesifisering gjeldende i tide, anses den gitt i tide (§ 5 tredje ledd).",
       "rettidighet": "I tide.",
       "tidsakse": "registrering",
       "kilder": [
         "KA-U4",
-        "NS-33.6.1"
+        "NS-33.6.1",
+        "NS-5-3"
       ],
       "tolkningsstatus": "avklart_tolkning"
     },
@@ -390,12 +418,14 @@
       "tilfelle": "Byggherren vurderer spesifiseringen som for sent.",
       "forventet": "`spesifisert_krav_ok` er `false`, og svaret har utløseren `reduksjon_spesifisert`.",
       "bh_standpunkt": "Begrensning etter § 33.6.1, regnet av serveren.",
-      "rettslig_virkning": "Kravet kan begrenses etter § 33.6.1.",
+      "rettslig_virkning": "TE har bare krav på slik fristforlengelse som byggherren måtte forstå (§ 33.6.1). Forutsetter at innsigelsen er fremsatt i tide (§ 5 tredje ledd, § 33.7 annet ledd); det avgjør ikke produktet.",
       "rettidighet": "For sent.",
       "tidsakse": "registrering",
       "kilder": [
         "KA-U4",
         "NS-33.6.1",
+        "NS-5-3",
+        "NS-33.7-2",
         "V-B13"
       ],
       "tolkningsstatus": "avklart_tolkning"
