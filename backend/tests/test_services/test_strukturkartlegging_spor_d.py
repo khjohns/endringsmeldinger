@@ -331,14 +331,6 @@ def test_byggherren_kan_ikke_revidere_et_godtatt_svar():
     assert not forlop.valider(revisjon).is_valid
 
 
-@pytest.mark.xfail(
-    strict=True,
-    raises=AssertionError,
-    reason=(
-        "SK-04: frafall gir grunnlaget TRUKKET; når TE godtar avslagene på vederlag "
-        "og frist, blir samlet status UKJENT"
-    ),
-)
 def test_frafall_med_godtatte_avslag_gir_ikke_ukjent():
     """AGENTS.md: en status som mangler i rollupen, gir «UKJENT» på en sak som
     er oppgjort. Aksept av avslag gir AVSLATT_AKSEPTERT (hovedplanen 3.1,

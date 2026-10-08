@@ -10,7 +10,10 @@ from models.events import (
     EOKoeHandlingData,
     EOKoeHandlingEvent,
     EventType,
+    FristBeregningResultat,
+    GrunnlagResponsResultat,
     SakOpprettetEvent,
+    VederlagBeregningResultat,
 )
 from models.sak_metadata import SakMetadata
 from models.sak_state import (
@@ -25,21 +28,38 @@ from services.endringsordre_service import EndringsordreService
 from services.timeline_service import TimelineService
 
 
+def _besvart(godkjent, navn, resultat):
+    """Krav og godkjent svar på gjeldende kravversjon; enigheten regnes av dem (GR-U7)."""
+    if not godkjent:
+        return {}
+    return {
+        "bh_resultat": resultat,
+        "krav_event_id": f"{navn}-krav",
+        "respons_event_id": f"{navn}-svar",
+        "antall_versjoner": 1,
+        "bh_respondert_versjon": 0,
+    }
+
+
 def agreed_koe(sak_id="KOE-1", amount=120000, days=None):
     return SakState(
         sak_id=sak_id,
         sakstittel=f"Krav {sak_id}",
-        grunnlag=GrunnlagTilstand(status=SporStatus.GODKJENT),
+        grunnlag=GrunnlagTilstand(
+            status=SporStatus.GODKJENT, **_besvart(True, "grunnlag", GrunnlagResponsResultat.GODKJENT)
+        ),
         vederlag=VederlagTilstand(
             status=SporStatus.GODKJENT if amount is not None else SporStatus.UTKAST,
             metode="FASTPRIS_TILBUD" if amount is not None else None,
             belop_direkte=amount,
             godkjent_belop=amount,
+            **_besvart(amount is not None, "vederlag", VederlagBeregningResultat.GODKJENT),
         ),
         frist=FristTilstand(
             status=SporStatus.GODKJENT if days is not None else SporStatus.UTKAST,
             krevd_dager=days,
             godkjent_dager=days,
+            **_besvart(days is not None, "frist", FristBeregningResultat.GODKJENT),
         ),
     )
 

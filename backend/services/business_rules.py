@@ -834,46 +834,12 @@ class BusinessRuleValidator:
     def _rule_not_already_accepted(
         self, event: AnyEvent, state: SakState
     ) -> ValidationResult:
-        """R: Cannot accept if already accepted or track is settled."""
-        from models.events import SporType
-
-        spor = getattr(event, "spor", None)
-        if spor == SporType.GRUNNLAG:
-            if state.grunnlag.te_akseptert:
-                return ValidationResult(
-                    is_valid=False,
-                    message="Entreprenør har allerede akseptert svaret på grunnlag",
-                )
-            if state.grunnlag.status in {
-                SporStatus.GODKJENT,
-                SporStatus.LAAST,
-                SporStatus.TRUKKET,
-            }:
-                return ValidationResult(
-                    is_valid=False,
-                    message="Grunnlag er allerede avsluttet",
-                )
-        elif spor == SporType.VEDERLAG:
-            if state.vederlag.te_akseptert:
-                return ValidationResult(
-                    is_valid=False,
-                    message="Entreprenør har allerede akseptert svaret på vederlag",
-                )
-            if state.vederlag.status in {SporStatus.GODKJENT, SporStatus.TRUKKET}:
-                return ValidationResult(
-                    is_valid=False,
-                    message="Vederlag er allerede avsluttet",
-                )
-        elif spor == SporType.FRIST:
-            if state.frist.te_akseptert:
-                return ValidationResult(
-                    is_valid=False,
-                    message="Entreprenør har allerede akseptert svaret på frist",
-                )
-            if state.frist.status in {SporStatus.GODKJENT, SporStatus.TRUKKET}:
-                return ValidationResult(
-                    is_valid=False,
-                    message="Frist er allerede avsluttet",
-                )
-
-        return ValidationResult(is_valid=True)
+        """GR-U7: er partene allerede enige, er det ikke noe å godta."""
+        spor = event.spor.value
+        if spor == "grunnlag":
+            enige = state.grunnlag.te_akseptert or state.grunnlag.avklart
+        else:
+            enige = getattr(state, spor).enighet
+        if enige:
+            return ValidationResult(False, f"Partene er allerede enige om svaret på {spor}")
+        return ValidationResult(True)
