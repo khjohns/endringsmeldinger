@@ -46,7 +46,8 @@
       "start": "basis",
       "steg": [{ "handling": "vederlagssvar", "vurdering": "delvis", "godkjent_belop": 60000 }],
       "kontroller": [
-        { "etter": 1, "rolle": "mal", "forventet": { "vederlag.status": "delvis_godkjent", "vederlag.bh_respondert_versjon": 0, "vederlag.godkjent_belop": 60000 } }
+        { "etter": 1, "rolle": "mal", "forventet": { "vederlag.status": "delvis_godkjent", "vederlag.bh_respondert_versjon": 0, "vederlag.godkjent_belop": 60000 } },
+        { "etter": 1, "rolle": "mal", "forventet": { "vederlag.enighet": false, "vederlag.oppgjort": false } }
       ],
       "forventningsgrunnlag": "avklart_tolkning"
     },
@@ -91,7 +92,9 @@
       ],
       "kontroller": [
         { "etter": 2, "rolle": "forutsetning", "forventet": { "vederlag.te_akseptert": true } },
-        { "etter": 3, "rolle": "mal", "forventet": { "vederlag.te_akseptert": false, "vederlag.status": "sendt" } }
+        { "etter": 3, "rolle": "mal", "forventet": { "vederlag.te_akseptert": false, "vederlag.status": "sendt" } },
+        { "etter": 2, "rolle": "mal", "forventet": { "vederlag.enighet": true, "vederlag.oppgjort": true } },
+        { "etter": 3, "rolle": "mal", "forventet": { "vederlag.enighet": false, "vederlag.oppgjort": false } }
       ],
       "forventningsgrunnlag": "avklart_tolkning"
     },
@@ -161,7 +164,8 @@
         { "handling": "aksept", "spor": "vederlag" }
       ],
       "kontroller": [
-        { "etter": 2, "rolle": "mal", "forventet": { "vederlag.status": "godkjent", "vederlag.te_akseptert": true, "vederlag.godkjent_belop": 60000 } }
+        { "etter": 2, "rolle": "mal", "forventet": { "vederlag.status": "godkjent", "vederlag.te_akseptert": true, "vederlag.godkjent_belop": 60000 } },
+        { "etter": 2, "rolle": "mal", "forventet": { "vederlag.enighet": true, "vederlag.oppgjort": true, "grunnlag.avklart": true } }
       ],
       "forventningsgrunnlag": "avklart_tolkning"
     },
@@ -175,7 +179,8 @@
       ],
       "kontroller": [
         { "etter": 1, "rolle": "forutsetning", "forventet": { "frist.bh_resultat": "avslatt", "frist.subsidiaer_resultat": "godkjent" } },
-        { "etter": 2, "rolle": "mal", "forventet": { "frist.status": "avslatt_akseptert", "frist.te_akseptert": true } }
+        { "etter": 2, "rolle": "mal", "forventet": { "frist.status": "avslatt_akseptert", "frist.te_akseptert": true } },
+        { "etter": 2, "rolle": "mal", "forventet": { "frist.enighet": true, "frist.oppgjort": true } }
       ],
       "forventningsgrunnlag": "avklart_tolkning"
     },
@@ -648,7 +653,8 @@
       "kontroller": [
         { "etter": 2, "rolle": "forutsetning", "forventet": { "er_subsidiaert_vederlag": true, "grunnlag.status": "avslatt" } },
         { "etter": 3, "rolle": "mal", "forventet": { "avvist": false, "vederlag.te_akseptert": true, "vederlag.godkjent_belop": 60000, "overordnet_status": { "ikke": "OMFORENT" }, "kan_utstede_eo": false } },
-        { "etter": 4, "rolle": "mal", "forventet": { "avvist": false, "overordnet_status": "LUKKET_AVSLATT", "kan_utstede_eo": false } }
+        { "etter": 4, "rolle": "mal", "forventet": { "avvist": false, "overordnet_status": "LUKKET_AVSLATT", "kan_utstede_eo": false } },
+        { "etter": 3, "rolle": "mal", "forventet": { "vederlag.enighet": true, "vederlag.oppgjort": false, "grunnlag.avklart": false } }
       ],
       "forventningsgrunnlag": "avklart_tolkning"
     },
@@ -667,7 +673,9 @@
       "kontroller": [
         { "etter": 4, "rolle": "forutsetning", "forventet": { "grunnlag.status": "sendt", "er_subsidiaert_vederlag": true } },
         { "etter": 5, "rolle": "mal", "forventet": { "avvist": false, "vederlag.te_akseptert": true, "overordnet_status": { "ikke": "OMFORENT" } } },
-        { "etter": 6, "rolle": "mal", "forventet": { "er_subsidiaert_vederlag": false, "vederlag.godkjent_belop": 60000, "vederlag.te_akseptert": true, "overordnet_status": "OMFORENT", "kan_utstede_eo": true } }
+        { "etter": 6, "rolle": "mal", "forventet": { "er_subsidiaert_vederlag": false, "vederlag.godkjent_belop": 60000, "vederlag.te_akseptert": true, "overordnet_status": "OMFORENT", "kan_utstede_eo": true } },
+        { "etter": 5, "rolle": "mal", "forventet": { "vederlag.enighet": true, "vederlag.oppgjort": false } },
+        { "etter": 6, "rolle": "mal", "forventet": { "vederlag.oppgjort": true, "frist.oppgjort": true, "grunnlag.avklart": true } }
       ],
       "forventningsgrunnlag": "avklart_tolkning"
     },
@@ -684,7 +692,9 @@
       "kontroller": [
         { "etter": 1, "rolle": "forutsetning", "forventet": { "grunnlag.status": "sendt" } },
         { "etter": 3, "rolle": "mal", "forventet": { "vederlag.te_akseptert": true, "overordnet_status": { "ikke": "OMFORENT" } } },
-        { "etter": 4, "rolle": "mal", "forventet": { "vederlag.godkjent_belop": 60000, "vederlag.te_akseptert": true, "overordnet_status": "OMFORENT" } }
+        { "etter": 4, "rolle": "mal", "forventet": { "vederlag.godkjent_belop": 60000, "vederlag.te_akseptert": true, "overordnet_status": "OMFORENT" } },
+        { "etter": 3, "rolle": "mal", "forventet": { "vederlag.enighet": true, "vederlag.oppgjort": false } },
+        { "etter": 4, "rolle": "mal", "forventet": { "vederlag.oppgjort": true } }
       ],
       "forventningsgrunnlag": "avklart_tolkning"
     },
@@ -705,6 +715,37 @@
         { "etter": 5, "rolle": "mal", "forventet": { "avvist": true, "vederlag.godkjent_belop": 60000 } }
       ],
       "forventningsgrunnlag": "avklart_tolkning"
+    },
+    {
+      "id": "F-GR-24",
+      "rader": ["GR-24"],
+      "start": "krav_eo",
+      "steg": [
+        { "handling": "grunnlagssvar", "resultat": "avslatt" },
+        { "handling": "fristsvar", "varsel_i_tide": true, "spesifisering_i_tide": true, "hindring": true },
+        { "handling": "grunnlag_ny_versjon", "underkategori": "EO" },
+        { "handling": "grunnlagssvar", "resultat": "godkjent" }
+      ],
+      "kontroller": [
+        { "etter": 2, "rolle": "forutsetning", "forventet": { "frist.bh_resultat": "godkjent", "er_subsidiaert_frist": true } },
+        { "etter": 2, "rolle": "mal", "forventet": { "frist.enighet": true, "frist.oppgjort": false, "frist.te_akseptert": false } },
+        { "etter": 4, "rolle": "mal", "forventet": { "frist.enighet": true, "frist.oppgjort": true, "grunnlag.avklart": true } }
+      ],
+      "forventningsgrunnlag": "avklart_tolkning"
+    },
+    {
+      "id": "F-GR-25",
+      "rader": ["GR-25"],
+      "start": "basis",
+      "steg": [
+        { "handling": "vederlagssvar", "vurdering": "godkjent" },
+        { "handling": "aksept", "spor": "vederlag" }
+      ],
+      "kontroller": [
+        { "etter": 1, "rolle": "forutsetning", "forventet": { "vederlag.enighet": true } },
+        { "etter": 2, "rolle": "mal", "forventet": { "avvist": true, "vederlag.te_akseptert": false, "vederlag.enighet": true } }
+      ],
+      "forventningsgrunnlag": "arbeidshypotese"
     },
     {
       "id": "F-EO-01",
