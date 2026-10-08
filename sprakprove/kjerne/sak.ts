@@ -154,8 +154,32 @@ export function grunnlagetErLaast(sak: Sak): boolean {
 
 const FERDIG: Sporstatus[] = ['godkjent', 'laast', 'trukket', 'avslatt_akseptert'];
 const FORHANDLING: Sporstatus[] = ['under_forhandling', 'delvis_godkjent', 'avslatt'];
+const KRAVSPOR = ['vederlag', 'frist'] as const;
 
-/** Samlet status for KOE-saken. Samme oppsummering som `overordnet_status` i Python for sporene i flyten. */
+/** GR-U7: byggherren har godkjent grunnlaget uten preklusjon etter § 32.2, eller frafalt pålegget. */
+export function grunnlagetErAvklart(sak: Sak): boolean {
+  const resultat = gjeldendeSvar(sak.grunnlag)?.data.resultat;
+  return resultat === 'frafalt' || (resultat === 'godkjent' && !grunnlagetErPrekludert(sak));
+}
+
+/** GR-U7: standpunktene i sporet faller sammen. TE har godtatt gjeldende svar, eller svaret godkjenner hele kravet. */
+export function erEnighet(sak: Sak, navn: 'vederlag' | 'frist'): boolean {
+  const svar = gjeldendeSvar(sak[navn]);
+  return (
+    svar !== null && (teHarAkseptert(sak[navn]) || svar.data.beregnings_resultat === 'godkjent')
+  );
+}
+
+/** GR-U7, KA-U5: enighet i sporet og avklart grunnlag. */
+export function erOppgjort(sak: Sak, navn: 'vederlag' | 'frist'): boolean {
+  return erEnighet(sak, navn) && grunnlagetErAvklart(sak);
+}
+
+/**
+ * Samlet status for KOE-saken. Saken er omforent når grunnlaget er avklart og
+ * hvert sendt krav er oppgjort; et spor TE fortsatt kan sende, hindrer (EO-U2).
+ * Resten er oppsummeringen `overordnet_status` har i Python.
+ */
 export function samletStatus(sak: Sak): Saksstatus {
   const g = sporstatus(sak, 'grunnlag');
   const statuser = [g, sporstatus(sak, 'vederlag'), sporstatus(sak, 'frist')].filter(
@@ -163,10 +187,7 @@ export function samletStatus(sak: Sak): Saksstatus {
   );
   if (!statuser.length) return 'INGEN_AKTIVE_SPOR';
   if (g === 'avslatt_akseptert') return 'LUKKET_AVSLATT';
-  if (
-    statuser.every((s) => FERDIG.includes(s)) &&
-    statuser.some((s) => s === 'godkjent' || s === 'laast')
-  ) {
+  if (grunnlagetErAvklart(sak) && KRAVSPOR.every((n) => sak[n].krav && erOppgjort(sak, n))) {
     return 'OMFORENT';
   }
   if (statuser.every((s) => s === 'trukket')) return 'LUKKET_TRUKKET';
@@ -175,19 +196,16 @@ export function samletStatus(sak: Sak): Saksstatus {
   if (statuser.includes('under_behandling')) return 'UNDER_BEHANDLING';
   if (statuser.includes('sendt')) return 'VENTER_PAA_SVAR';
   if (statuser.includes('utkast') && statuser.every((s) => FERDIG.includes(s) || s === 'utkast')) {
-    return g === 'godkjent' || g === 'laast' ? 'UNDER_BEHANDLING' : 'UTKAST';
+    return grunnlagetErAvklart(sak) ? 'UNDER_BEHANDLING' : 'UTKAST';
   }
   return 'UKJENT';
 }
 
-/** Saken kan inngå i en endringsordre. Som `kan_utstede_eo` i Python; EO-U2 er utenfor flyten (DT-06). */
+/** Saken kan inngå i en endringsordre. Etter frafall går endringsordren i en egen EO-sak (GR-U3). EO-U2 er utenfor flyten (DT-06). */
 export function kanUtstedeEo(sak: Sak): boolean {
-  const g = sporstatus(sak, 'grunnlag');
-  if (g !== 'godkjent' && g !== 'laast') return false;
-  return (['vederlag', 'frist'] as const).every((navn) => {
-    const s = sporstatus(sak, navn);
-    return s === 'ikke_relevant' || s === 'utkast' || FERDIG.includes(s);
-  });
+  if (!grunnlagetErAvklart(sak) || gjeldendeSvar(sak.grunnlag)?.data.resultat === 'frafalt')
+    return false;
+  return KRAVSPOR.every((n) => !sak[n].krav || erOppgjort(sak, n));
 }
 
 // ---------- Projeksjonen ----------

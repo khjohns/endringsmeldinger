@@ -6,7 +6,10 @@
  */
 
 import {
+  erEnighet,
+  erOppgjort,
   gjeldendeSvar,
+  grunnlagetErAvklart,
   grunnlagetErLaast,
   grunnlagsvurdering,
   kanUtstedeEo,
@@ -58,6 +61,7 @@ export function offentligTilstand(sak: Sak) {
       status: sporstatus(sak, 'grunnlag'),
       bh_resultat: ellerNull(gSvar?.data.resultat),
       ...svarfelt(g),
+      avklart: grunnlagetErAvklart(sak),
       respons_event_id: gSvar?.eventId ?? null,
       antall_versjoner: g.krav?.versjon ?? 0,
       laast: grunnlagetErLaast(sak),
@@ -71,6 +75,8 @@ export function offentligTilstand(sak: Sak) {
       bh_resultat: ellerNull(vData.beregnings_resultat),
       antall_versjoner: v.krav?.versjon ?? 0,
       ...svarfelt(v),
+      enighet: erEnighet(sak, 'vederlag'),
+      oppgjort: erOppgjort(sak, 'vederlag'),
       respons_event_id: v.svar?.eventId ?? null,
       bh_respondert_versjon: v.svar ? v.svar.kravversjon - 1 : null,
     },
@@ -87,6 +93,8 @@ export function offentligTilstand(sak: Sak) {
       subsidiaer_godkjent_dager: ellerNull(fData.subsidiaer_godkjent_dager),
       subsidiaer_triggers: ellerNull(fData.subsidiaer_triggers),
       ...svarfelt(f),
+      enighet: erEnighet(sak, 'frist'),
+      oppgjort: erOppgjort(sak, 'frist'),
     },
   };
 }
