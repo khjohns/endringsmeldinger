@@ -7,6 +7,7 @@ Den beregnes fra event-loggen og representerer "nå-situasjonen".
 SakState er READ-ONLY og regenereres hver gang fra events.
 """
 
+from dataclasses import asdict
 from datetime import datetime
 from enum import Enum
 from typing import Literal
@@ -22,9 +23,10 @@ from models.events import (
     VederlagBeregningResultat,
 )
 from regler.grunnlag import (
-    er_grunnlag_subsidiaert,
+    Standpunkt,
     er_prekludert,
     forste_underkategori,
+    standpunkt,
 )
 
 # ============ SAKSTYPE OG RELASJONER ============
@@ -88,6 +90,19 @@ class SendtKonsekvensVarsel(BaseModel):
 class _SvarPaaKrav(BaseModel):
     """Felles for sporene som har krav og svar."""
 
+    akseptert_respons_event_id: str | None = Field(
+        default=None,
+        description="Svaret TE har godtatt. Aksepten gjelder dette svaret og ingen andre (M2, KA-U1)",
+    )
+
+    @computed_field
+    @property
+    def te_akseptert(self) -> bool:
+        """TE har godtatt gjeldende svar. En ny kravversjon eller et nytt svar
+        gjør aksepten til historikk (SK-02, SK-03)."""
+        gjeldende = self.gjeldende_respons_event_id
+        return gjeldende is not None and self.akseptert_respons_event_id == gjeldende
+
     @computed_field
     @property
     def gjeldende_respons_event_id(self) -> str | None:
@@ -139,11 +154,6 @@ class GrunnlagTilstand(_SvarPaaKrav):
         description="Hvilken versjon av kravet BH sist responderte på (0-indeksert)",
     )
 
-    # TE aksept av BH respons
-    te_akseptert: bool = Field(
-        default=False,
-        description="True hvis TE har akseptert BHs respons (partene er enige)",
-    )
 
     # Tilbaketrekking
     trukket_begrunnelse: str | None = Field(
@@ -316,11 +326,6 @@ class VederlagTilstand(_SvarPaaKrav):
         description="Hvilken versjon av kravet BH sist responderte på (0-indeksert)",
     )
 
-    # TE aksept av BH respons
-    te_akseptert: bool = Field(
-        default=False,
-        description="True hvis TE har akseptert BHs respons (partene er enige)",
-    )
 
     # Tilbaketrekking
     trukket_begrunnelse: str | None = Field(
@@ -859,11 +864,6 @@ class FristTilstand(_SvarPaaKrav):
         description="Hvilken versjon av kravet BH sist responderte på (0-indeksert)",
     )
 
-    # TE aksept av BH respons
-    te_akseptert: bool = Field(
-        default=False,
-        description="True hvis TE har akseptert BHs respons (partene er enige)",
-    )
 
     # Tilbaketrekking
     trukket_begrunnelse: str | None = Field(
@@ -1003,20 +1003,31 @@ class SakState(BaseModel):
             g.hovedkategori, forste_underkategori(g.underkategori), g.grunnlag_varslet_i_tide
         )
 
-    @property
-    def _grunnlag_er_subsidiaert(self) -> bool:
+    def _standpunkt(self, spor) -> Standpunkt:
         g = self.grunnlag
-        return er_grunnlag_subsidiaert(
-            g.bh_resultat, g.hovedkategori, g.underkategori, g.grunnlag_varslet_i_tide
+        return standpunkt(
+            g.bh_resultat,
+            g.hovedkategori,
+            g.underkategori,
+            g.grunnlag_varslet_i_tide,
+            spor.subsidiaert_til_nytt_svar,
         )
 
     def _subsidiaer_grunn(self, spor) -> str | None:
         """Hvorfor sporets svar er subsidiært: «avslatt», «prekludert» eller None."""
-        if spor.subsidiaert_til_nytt_svar is not None:
-            return spor.subsidiaert_til_nytt_svar
-        if not self._grunnlag_er_subsidiaert:
-            return None
-        return "prekludert" if self._grunnlag_er_prekludert else "avslatt"
+        return self._standpunkt(spor).hovedgrunn
+
+    @computed_field
+    @property
+    def standpunkt_vederlag(self) -> dict:
+        """M1: om svaret på vederlaget er subsidiært, hovedgrunnen og årsakene."""
+        return asdict(self._standpunkt(self.vederlag))
+
+    @computed_field
+    @property
+    def standpunkt_frist(self) -> dict:
+        """M1: om svaret på fristen er subsidiært, hovedgrunnen og årsakene."""
+        return asdict(self._standpunkt(self.frist))
 
     @computed_field
     @property

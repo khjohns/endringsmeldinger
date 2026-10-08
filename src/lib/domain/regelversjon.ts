@@ -3,4 +3,4 @@
  * som `regelversjon` med byggherrens svar; serveren skal avvise en annen versjon (#63).
  * Økes ved hver endring som kan gi et annet resultat eller en annen tekst.
  */
-export const REGELVERSJON = 4;
+export const REGELVERSJON = 5;

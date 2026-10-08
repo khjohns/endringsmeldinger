@@ -145,17 +145,20 @@ class BusinessRuleValidator:
                 ("TRACK_SENT", self._rule_grunnlag_sent),
                 ("NOT_LOCKED", self._rule_grunnlag_not_locked),
                 ("PREVIOUS_RESPONSE", self._rule_previous_response),
+                ("RESPONSE_ACCEPTED", self._rule_svaret_er_ikke_godtatt),
                 ("COMPUTED_RESULT", self._rule_serverens_utregning),
             ],
             EventType.RESPONS_VEDERLAG_OPPDATERT: [
                 ("TRACK_SENT", self._rule_vederlag_sent),
                 ("PREVIOUS_RESPONSE", self._rule_previous_response),
+                ("RESPONSE_ACCEPTED", self._rule_svaret_er_ikke_godtatt),
                 ("COMPUTED_RESULT", self._rule_serverens_utregning),
             ],
             EventType.RESPONS_FRIST_OPPDATERT: [
                 ("TRACK_SENT", self._rule_frist_sent),
                 ("CLAIM_SPECIFIED", self._rule_frist_spesifisert),
                 ("PREVIOUS_RESPONSE", self._rule_previous_response),
+                ("RESPONSE_ACCEPTED", self._rule_svaret_er_ikke_godtatt),
                 ("COMPUTED_RESULT", self._rule_serverens_utregning),
             ],
             # Cannot update locked grunnlag
@@ -365,6 +368,15 @@ class BusinessRuleValidator:
         ):
             return ValidationResult(
                 False, "Ingen tidligere respons på gjeldende krav å revidere."
+            )
+        return ValidationResult(True)
+
+    def _rule_svaret_er_ikke_godtatt(self, event, state):
+        """SK-03 (vedtaket 05.10) og GR-U7: en enighet står. Byggherren kan ikke
+        revidere et svar TE har godtatt, heller ikke mens grunnlaget venter."""
+        if getattr(state, event.spor.value).te_akseptert:
+            return ValidationResult(
+                False, "TE har godtatt svaret. Et godtatt svar kan ikke revideres."
             )
         return ValidationResult(True)
 
