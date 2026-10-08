@@ -2039,10 +2039,16 @@ class EORevidertEvent(SakEvent):
 # ============ TE AKSEPTERER RESPONS ============
 
 
-def _avvis_ukjente_felt(modell: type[BaseModel], verdier, info: ValidationInfo):
+# Feltene ruta og `parse_event_from_request` setter før parsing (AGENTS.md).
+SERVERFELT = frozenset(
+    {"sak_id", "aktor_id", "aktor_rolle", "aktor_team_id", "event_id", "tidsstempel"}
+)
+
+
+def _avvis_ukjente_felt(tillatte: set[str], verdier, info: ValidationInfo):
     """En ny kommando er streng; lagret historikk leses tolerant (#272)."""
     if isinstance(verdier, dict) and _ny_hendelse(info):
-        ukjente = sorted(set(verdier) - set(modell.model_fields))
+        ukjente = sorted(set(verdier) - tillatte)
         if ukjente:
             raise ValueError(f"Ukjente felt: {', '.join(ukjente)}")
     return verdier
@@ -2058,14 +2064,15 @@ class TEAkseptererResponsData(BaseModel):
     @model_validator(mode="before")
     @classmethod
     def _streng_kommando(cls, verdier, info: ValidationInfo):
-        return _avvis_ukjente_felt(cls, verdier, info)
+        return _avvis_ukjente_felt(set(cls.model_fields), verdier, info)
 
 
 class TEAkseptererResponsEvent(SakEvent):
     """Event når TE aksepterer BHs respons på et spor (grunnlag/vederlag/frist).
 
     `refererer_til_event_id` er svaret TE godtar (KA-U1). Det er påkrevd for en
-    ny aksept; en lagret aksept fra før #272 har ingen referanse.
+    ny aksept; en lagret aksept fra før #272 har ingen referanse. Feltene en ny
+    aksept kan ha, er dem i docs/domenetabell/kontrakt.json og serverfeltene.
     """
 
     event_type: EventType = Field(
@@ -2078,7 +2085,8 @@ class TEAkseptererResponsEvent(SakEvent):
     @model_validator(mode="before")
     @classmethod
     def _streng_kommando(cls, verdier, info: ValidationInfo):
-        verdier = _avvis_ukjente_felt(cls, verdier, info)
+        kommandofelt = {"event_type", "spor", "refererer_til_event_id", "data"}
+        verdier = _avvis_ukjente_felt(kommandofelt | SERVERFELT, verdier, info)
         if (
             isinstance(verdier, dict)
             and _ny_hendelse(info)

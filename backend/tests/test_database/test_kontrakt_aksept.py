@@ -131,6 +131,11 @@ def _ukjent_felt(ny_bane, bane):
     return _aksept(_gjeldende(bane), svar_id=_gjeldende(bane)), None
 
 
+def _kommentar_paa_toppnivaa(ny_bane, bane):
+    """`kommentar` finnes i `SakEvent`, men ikke i akseptkommandoen; den står i `data`."""
+    return _aksept(_gjeldende(bane), kommentar="Enig"), None
+
+
 @pytest.mark.parametrize(
     ("tilfelle", "avvisning"),
     [
@@ -141,6 +146,7 @@ def _ukjent_felt(ny_bane, bane):
         (_uten_referanse, "vise til svaret"),
         (_ukjent_felt_i_data, "Ukjente felt: begrunnelse"),
         (_ukjent_felt, "Ukjente felt: svar_id"),
+        (_kommentar_paa_toppnivaa, "Ukjente felt: kommentar"),
     ],
     ids=lambda v: v.__name__.lstrip("_") if callable(v) else None,
 )
@@ -189,6 +195,21 @@ def test_fristsvar_lagrer_bare_vurderingene_som_er_gjort(ny_bane, testbase, spes
     frist = bane.tilstand()["frist"]
     assert frist["foresporsel_svar_ok"] is None
     assert frist["spesifisert_krav_ok"] is spesifisering_i_tide
+
+
+def test_null_i_en_vurdering_lagres_som_utelatt(ny_bane, testbase):
+    """KA-U4: `null` og utelatt betyr begge «ikke vurdert», og hendelsen får ikke feltet."""
+    bane = _bane(ny_bane)
+    _, kommando = korpus.foresporsel(
+        {"handling": "fristsvar", "varsel_i_tide": True, "spesifisering_i_tide": True, "hindring": True},
+        bane.sak(),
+        bane.sak_id,
+    )
+    kommando["data"]["foresporsel_svar_ok"] = None
+    assert kontrakt.valider(kommando, "kommando.respons_frist") == []
+    _godtatt_og_lik_gjenlesingen(bane, _send(bane, kommando, rolle="BH"))
+    assert "foresporsel_svar_ok" not in _rader(testbase, bane.sak_id)[-1]["data"]
+    assert bane.tilstand()["frist"]["foresporsel_svar_ok"] is None
 
 
 def test_ukjent_felt_i_en_tolerant_kommando_forkastes(ny_bane, testbase):

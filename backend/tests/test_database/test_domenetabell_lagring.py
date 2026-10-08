@@ -188,9 +188,11 @@ def test_godkjenningsflyten_kan_svare_etter_et_konsekvensvarsel(ny_rutebane, tmp
     assert feil is None, feil
 
 
-# Handlingene til TE kan gå flere i én batch. Bare aksepten leser tilstanden før
-# batchen: svaret TE godtar (KA-U1), som en TE-handling ikke kan endre. En batch
-# har én kontraktsrolle, og byggherrens svar viser til hendelser i tilstanden.
+# Handlingene til TE kan gå flere i én batch. Bare aksepten leser tilstanden: den
+# viser til svaret TE så før batchen. En ny kravversjon tidligere i samme batch
+# gjør svaret foreldet, og da avvises aksepten (KA-U1), som når den sendes for
+# seg. En batch har én kontraktsrolle, og byggherrens svar viser til hendelser i
+# tilstanden.
 TE_HANDLINGER = {
     "grunnlag", "grunnlag_ny_versjon", "vederlagskrav", "vederlagskrav_ny_versjon",
     "konsekvensvarsel", "fristvarsel", "fristkrav", "fristkrav_spesifisert", "aksept", "trekk",

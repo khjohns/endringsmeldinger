@@ -216,8 +216,9 @@ Aksepten er den eneste nye kommandoen, og den er streng: et ukjent felt i
 kommandoen eller i `data` avvises, og svaret TE godtar, må være
 `<spor>.gjeldende_respons_event_id` ([KT-U1](../plans/2026-09-16-godkjenning-og-varig-levering.md#kt-u1)).
 De andre kommandoene i flyten er tolerante som før: et ukjent felt i `data`
-forkastes ved lagring. Historikken leses tolerant: en aksept lagret før #272 har
-`referstoid` lik `null`, og et fristsvar fra før kan ha `spesifisert_krav_ok`
+forkastes ved lagring, og `null` i et valgfritt felt lagres som utelatt.
+Skjemaet beskriver det flyten sender i dem, ikke alt serveren godtar. Historikken leses tolerant, og `hendelse.*` beskriver det en leser må
+godta: en aksept lagret før #272 har `referstoid` lik `null`, og et fristsvar fra før kan ha `spesifisert_krav_ok`
 lik `true` uten at vurderingen er gjort (DT-03).
 
 `x-bruk` på tilstandsfeltene skiller tre ting. «forventning» er en opplysning en
