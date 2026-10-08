@@ -8,30 +8,55 @@
       "kilder": [
         "R5-IKKE-REKURSJON"
       ]
+    },
+    {
+      "id": "U5",
+      "vedtak": "../../plans/2026-09-16-godkjenning-og-varig-levering.md#mp-u5",
+      "kilder": [
+        "R5",
+        "R337",
+        "M-BREV"
+      ]
+    },
+    {
+      "id": "U6",
+      "vedtak": "../../plans/2026-09-16-godkjenning-og-varig-levering.md#mp-u6",
+      "kilder": [
+        "R5-SVAR",
+        "R5-IKKE-REKURSJON"
+      ]
+    },
+    {
+      "id": "U7",
+      "vedtak": "../../plans/2026-09-16-godkjenning-og-varig-levering.md#mp-u7",
+      "kilder": [
+        "M-MOTSTRID"
+      ]
     }
   ],
   "node": "v22.17.1",
   "filhasher": {
-    "bevis-saker.json": "c7a8b5b93dbf5e20810663ba8c0beabb70b0c31307550a6276cb99afd711e112",
-    "regler.json": "ae29e1dd7925dffbf35630fa77a83e4b996649bca49ee5dbf1f6bc919bb8973a",
+    "bevis-saker.json": "7a58b43f5721d492c07c4490d8acbd017f4bd21ef4e89589224fe1fc9624359a",
+    "regler.json": "7f94b07112d151029035f038cda7e3cb19b33a70e68de0c3b53af7f74c0d374f",
     "grunnmodell.ts": "ef8f5bb1c075a6506ef52c6038b786f1cbb49a15668a555d6f39cafed909ed0f",
-    "forlopsmodell.ts": "7ee87704db0c9a5a0ced5edfb5eff2498443e1bc7578ce87d7d0a2e142ea8aa0",
-    "kjor.mjs": "57d0491e0df74801d47929620511d696cdd29c0f8704a5e36adda1cd3407ff8c"
+    "forlopsmodell.ts": "3964374e88fb45ba23b1dc91827100826614aa5e63ccb7ce925edc31745663ab",
+    "kjor.mjs": "e3acea3e3913eb6c4e81753a15a808c70fce1e0ecf11b3a5cf41d4b096ac274a"
   },
   "antall": {
     "enkeltsaker": 19,
     "premisskombinasjoner": 297,
     "foresporselsvilkar": 81,
-    "forlop": 18,
-    "prefikser": 80,
-    "avvisninger": 7,
-    "feilinnforinger": 4
+    "forlop": 29,
+    "prefikser": 137,
+    "avvisninger": 16,
+    "feilinnforinger": 8
   },
   "historisk_sammenlikning": "samme resultater som første prøve for 297 + 81 kombinasjoner; karakterisering, ikke juridisk validering",
   "grenser": [
     "Isolert prøvemodell, ingen applikasjonskode importert.",
     "JSON-rundtur er ikke database- eller API-bevis.",
-    "MP-U4 er avklart for prøven; øvrige arbeidshypoteser er ikke godkjent gjennom dette.",
+    "MP-U4–MP-U7 er avklart for prøven; øvrige arbeidshypoteser er ikke godkjent gjennom dette.",
+    "Sendte brev og senere dokumentasjon er syntetiske handlinger; bevisverdien vurderes ikke.",
     "Ingen påstand om alle mulige forløp."
   ],
   "enkeltsaker": [
@@ -479,8 +504,13 @@
             "begrensning_33_6_1": false,
             "innsigelser": {},
             "innsigelsesgrunnlag": {},
+            "dokumenter": {},
+            "virker_mot": {},
+            "motstrid": {},
+            "avgjort": {},
             "innholdsvurderinger": {},
-            "vurderinger": {}
+            "vurderinger": {},
+            "utsendelser": {}
           }
         },
         {
@@ -509,6 +539,10 @@
             "begrensning_33_6_1": false,
             "innsigelser": {},
             "innsigelsesgrunnlag": {},
+            "dokumenter": {},
+            "virker_mot": {},
+            "motstrid": {},
+            "avgjort": {},
             "innholdsvurderinger": {
               "b1": {
                 "TE": true,
@@ -520,7 +554,8 @@
                 "TE": true,
                 "BH": true
               }
-            }
+            },
+            "utsendelser": {}
           }
         },
         {
@@ -547,6 +582,10 @@
             "begrensning_33_6_1": null,
             "innsigelser": {},
             "innsigelsesgrunnlag": {},
+            "dokumenter": {},
+            "virker_mot": {},
+            "motstrid": {},
+            "avgjort": {},
             "innholdsvurderinger": {
               "b1": {
                 "TE": true,
@@ -562,7 +601,8 @@
                 "TE": false,
                 "BH": false
               }
-            }
+            },
+            "utsendelser": {}
           }
         },
         {
@@ -596,6 +636,10 @@
             "innsigelsesgrunnlag": {
               "i1": "punkt_5"
             },
+            "dokumenter": {},
+            "virker_mot": {},
+            "motstrid": {},
+            "avgjort": {},
             "innholdsvurderinger": {
               "b1": {
                 "TE": true,
@@ -615,7 +659,8 @@
                 "TE": false,
                 "BH": false
               }
-            }
+            },
+            "utsendelser": {}
           }
         },
         {
@@ -659,6 +704,10 @@
               "i1": "punkt_5",
               "t1": "ingen_ny_frist_etter_punkt_5"
             },
+            "dokumenter": {},
+            "virker_mot": {},
+            "motstrid": {},
+            "avgjort": {},
             "innholdsvurderinger": {
               "b1": {
                 "TE": true,
@@ -682,7 +731,8 @@
                 "TE": true,
                 "BH": true
               }
-            }
+            },
+            "utsendelser": {}
           }
         }
       ]
@@ -735,6 +785,10 @@
             "innsigelsesgrunnlag": {
               "i1": "punkt_5"
             },
+            "dokumenter": {},
+            "virker_mot": {},
+            "motstrid": {},
+            "avgjort": {},
             "innholdsvurderinger": {
               "b1": {
                 "TE": true,
@@ -754,7 +808,8 @@
                 "TE": true,
                 "BH": true
               }
-            }
+            },
+            "utsendelser": {}
           }
         }
       ]
@@ -807,6 +862,10 @@
             "innsigelsesgrunnlag": {
               "i1": "punkt_5"
             },
+            "dokumenter": {},
+            "virker_mot": {},
+            "motstrid": {},
+            "avgjort": {},
             "innholdsvurderinger": {
               "b1": {
                 "TE": true,
@@ -826,7 +885,8 @@
                 "TE": false,
                 "BH": false
               }
-            }
+            },
+            "utsendelser": {}
           }
         }
       ]
@@ -873,6 +933,10 @@
             "innsigelsesgrunnlag": {
               "i1": "punkt_5"
             },
+            "dokumenter": {},
+            "virker_mot": {},
+            "motstrid": {},
+            "avgjort": {},
             "innholdsvurderinger": {},
             "vurderinger": {
               "k1": {
@@ -883,7 +947,8 @@
                 "TE": true,
                 "BH": true
               }
-            }
+            },
+            "utsendelser": {}
           }
         }
       ]
@@ -944,6 +1009,10 @@
               "i1": "punkt_5",
               "t1": "ingen_ny_frist_etter_punkt_5"
             },
+            "dokumenter": {},
+            "virker_mot": {},
+            "motstrid": {},
+            "avgjort": {},
             "innholdsvurderinger": {
               "b1": {
                 "TE": true,
@@ -967,7 +1036,8 @@
                 "TE": true,
                 "BH": true
               }
-            }
+            },
+            "utsendelser": {}
           }
         }
       ]
@@ -1023,6 +1093,10 @@
             "innsigelsesgrunnlag": {
               "i1": "punkt_5"
             },
+            "dokumenter": {},
+            "virker_mot": {},
+            "motstrid": {},
+            "avgjort": {},
             "innholdsvurderinger": {
               "b1": {
                 "TE": true,
@@ -1042,7 +1116,8 @@
                 "TE": true,
                 "BH": true
               }
-            }
+            },
+            "utsendelser": {}
           }
         }
       ]
@@ -1088,6 +1163,10 @@
             "begrensning_33_6_1": null,
             "innsigelser": {},
             "innsigelsesgrunnlag": {},
+            "dokumenter": {},
+            "virker_mot": {},
+            "motstrid": {},
+            "avgjort": {},
             "innholdsvurderinger": {
               "b1": {
                 "TE": true,
@@ -1103,7 +1182,8 @@
                 "TE": true,
                 "BH": true
               }
-            }
+            },
+            "utsendelser": {}
           }
         }
       ]
@@ -1147,6 +1227,10 @@
             "begrensning_33_6_1": null,
             "innsigelser": {},
             "innsigelsesgrunnlag": {},
+            "dokumenter": {},
+            "virker_mot": {},
+            "motstrid": {},
+            "avgjort": {},
             "innholdsvurderinger": {
               "b1": {
                 "TE": true,
@@ -1162,7 +1246,8 @@
                 "TE": true,
                 "BH": true
               }
-            }
+            },
+            "utsendelser": {}
           }
         }
       ]
@@ -1209,6 +1294,10 @@
             "begrensning_33_6_1": false,
             "innsigelser": {},
             "innsigelsesgrunnlag": {},
+            "dokumenter": {},
+            "virker_mot": {},
+            "motstrid": {},
+            "avgjort": {},
             "innholdsvurderinger": {
               "b1": {
                 "TE": true,
@@ -1224,7 +1313,8 @@
                 "TE": true,
                 "BH": true
               }
-            }
+            },
+            "utsendelser": {}
           }
         }
       ]
@@ -1280,6 +1370,10 @@
               "i1": "punkt_5",
               "t1": "ingen_ny_frist_etter_punkt_5"
             },
+            "dokumenter": {},
+            "virker_mot": {},
+            "motstrid": {},
+            "avgjort": {},
             "innholdsvurderinger": {
               "b1": {
                 "TE": true,
@@ -1303,7 +1397,8 @@
                 "TE": false,
                 "BH": false
               }
-            }
+            },
+            "utsendelser": {}
           }
         }
       ]
@@ -1360,6 +1455,10 @@
               "i1": "punkt_5",
               "t1": "ingen_ny_frist_etter_punkt_5"
             },
+            "dokumenter": {},
+            "virker_mot": {},
+            "motstrid": {},
+            "avgjort": {},
             "innholdsvurderinger": {
               "b1": {
                 "TE": true,
@@ -1383,7 +1482,8 @@
                 "TE": false,
                 "BH": false
               }
-            }
+            },
+            "utsendelser": {}
           }
         }
       ]
@@ -1435,6 +1535,10 @@
             "innsigelsesgrunnlag": {
               "i1": "punkt_5"
             },
+            "dokumenter": {},
+            "virker_mot": {},
+            "motstrid": {},
+            "avgjort": {},
             "innholdsvurderinger": {
               "b1": {
                 "TE": true,
@@ -1454,7 +1558,8 @@
                 "TE": true,
                 "BH": true
               }
-            }
+            },
+            "utsendelser": {}
           }
         }
       ]
@@ -1493,6 +1598,10 @@
             "begrensning_33_6_1": false,
             "innsigelser": {},
             "innsigelsesgrunnlag": {},
+            "dokumenter": {},
+            "virker_mot": {},
+            "motstrid": {},
+            "avgjort": {},
             "innholdsvurderinger": {
               "b1": {
                 "TE": true,
@@ -1508,7 +1617,8 @@
                 "TE": true,
                 "BH": true
               }
-            }
+            },
+            "utsendelser": {}
           }
         }
       ]
@@ -1568,6 +1678,10 @@
             "innsigelsesgrunnlag": {
               "i1": "punkt_5"
             },
+            "dokumenter": {},
+            "virker_mot": {},
+            "motstrid": {},
+            "avgjort": {},
             "innholdsvurderinger": {
               "b1": {
                 "TE": true,
@@ -1587,7 +1701,8 @@
                 "TE": false,
                 "BH": false
               }
-            }
+            },
+            "utsendelser": {}
           }
         }
       ]
@@ -1646,6 +1761,10 @@
               "i1": "punkt_5",
               "o1": "33.7"
             },
+            "dokumenter": {},
+            "virker_mot": {},
+            "motstrid": {},
+            "avgjort": {},
             "innholdsvurderinger": {
               "b1": {
                 "TE": true,
@@ -1669,7 +1788,8 @@
                 "TE": false,
                 "BH": false
               }
-            }
+            },
+            "utsendelser": {}
           }
         }
       ]
@@ -1733,6 +1853,10 @@
               "o1": "33.7",
               "to1": "punkt_5"
             },
+            "dokumenter": {},
+            "virker_mot": {},
+            "motstrid": {},
+            "avgjort": {},
             "innholdsvurderinger": {
               "b1": {
                 "TE": true,
@@ -1760,7 +1884,8 @@
                 "TE": true,
                 "BH": true
               }
-            }
+            },
+            "utsendelser": {}
           }
         }
       ]
@@ -1818,6 +1943,10 @@
               "i1": "punkt_5",
               "o1": "33.7"
             },
+            "dokumenter": {},
+            "virker_mot": {},
+            "motstrid": {},
+            "avgjort": {},
             "innholdsvurderinger": {
               "b1": {
                 "TE": true,
@@ -1841,7 +1970,8 @@
                 "TE": false,
                 "BH": false
               }
-            }
+            },
+            "utsendelser": {}
           }
         }
       ]
@@ -1895,6 +2025,10 @@
             "innsigelsesgrunnlag": {
               "o1": "33.7"
             },
+            "dokumenter": {},
+            "virker_mot": {},
+            "motstrid": {},
+            "avgjort": {},
             "innholdsvurderinger": {
               "b1": {
                 "TE": true,
@@ -1914,7 +2048,8 @@
                 "TE": true,
                 "BH": true
               }
-            }
+            },
+            "utsendelser": {}
           }
         },
         {
@@ -1953,6 +2088,10 @@
               "o1": "33.7",
               "i1": "punkt_5"
             },
+            "dokumenter": {},
+            "virker_mot": {},
+            "motstrid": {},
+            "avgjort": {},
             "innholdsvurderinger": {
               "b1": {
                 "TE": true,
@@ -1975,6 +2114,1176 @@
               "i1": {
                 "TE": false,
                 "BH": false
+              }
+            },
+            "utsendelser": {}
+          }
+        }
+      ]
+    },
+    {
+      "id": "P3-01",
+      "navn": "ett brev: sen punkt 5-innsigelse og rettidig innsigelse mot omfanget",
+      "kilder": [
+        "R3362-B",
+        "R3361",
+        "R5",
+        "R5-IKKE-REKURSJON",
+        "R337",
+        "M-BREV",
+        "M-UAVKLART"
+      ],
+      "forventningsgrunnlag": "arbeidshypotese",
+      "tolkningssporsmal": [],
+      "avklarte_tolkninger": [
+        "U4",
+        "U5"
+      ],
+      "tolkningsstatus": "delvis_avklart",
+      "kontroller": [
+        {
+          "etter": 4,
+          "forventet": {
+            "journal": [
+              "f1",
+              "b1",
+              "k1",
+              "br1"
+            ],
+            "dokumenter": {
+              "br1": [
+                "i1",
+                "o1"
+              ]
+            },
+            "begrensning_33_6_1": false,
+            "innsigelser": {
+              "i1": "tapt_paa_tidsgrunnlag",
+              "o1": "ikke_tapt_paa_tidsgrunnlag"
+            },
+            "innsigelsesgrunnlag": {
+              "i1": "punkt_5",
+              "o1": "33.7"
+            }
+          },
+          "faktisk": {
+            "journal": [
+              "f1",
+              "b1",
+              "k1",
+              "br1"
+            ],
+            "foresporsel": "gyldig",
+            "svar_b": "b1",
+            "gjeldende_krav": "k1",
+            "vei": "33.6.1",
+            "svarplikt_33_7": true,
+            "avskjaering_33_6_1": false,
+            "begrensning_33_6_1": false,
+            "innsigelser": {
+              "i1": "tapt_paa_tidsgrunnlag",
+              "o1": "ikke_tapt_paa_tidsgrunnlag"
+            },
+            "innsigelsesgrunnlag": {
+              "i1": "punkt_5",
+              "o1": "33.7"
+            },
+            "dokumenter": {
+              "br1": [
+                "i1",
+                "o1"
+              ]
+            },
+            "virker_mot": {},
+            "motstrid": {},
+            "avgjort": {},
+            "innholdsvurderinger": {
+              "b1": {
+                "TE": true,
+                "BH": true
+              }
+            },
+            "vurderinger": {
+              "b1": {
+                "TE": true,
+                "BH": true
+              },
+              "k1": {
+                "TE": false,
+                "BH": false
+              },
+              "i1": {
+                "TE": false,
+                "BH": false
+              },
+              "o1": {
+                "TE": true,
+                "BH": true
+              }
+            },
+            "utsendelser": {}
+          }
+        }
+      ]
+    },
+    {
+      "id": "P3-02",
+      "navn": "ett brev: rettidig punkt 5-innsigelse og sen innsigelse mot omfanget",
+      "kilder": [
+        "R3362-B",
+        "R3361",
+        "R5",
+        "R5-IKKE-REKURSJON",
+        "R337",
+        "M-BREV",
+        "M-UAVKLART"
+      ],
+      "forventningsgrunnlag": "arbeidshypotese",
+      "tolkningssporsmal": [
+        "U3"
+      ],
+      "avklarte_tolkninger": [
+        "U5"
+      ],
+      "tolkningsstatus": "delvis_avklart",
+      "kontroller": [
+        {
+          "etter": 4,
+          "forventet": {
+            "begrensning_33_6_1": true,
+            "innsigelser": {
+              "i1": "ikke_tapt_paa_tidsgrunnlag",
+              "o1": "uavklart"
+            },
+            "vurderinger": {
+              "i1": {
+                "TE": true,
+                "BH": true
+              },
+              "o1": {
+                "TE": false,
+                "BH": false
+              }
+            }
+          },
+          "faktisk": {
+            "journal": [
+              "f1",
+              "b1",
+              "k1",
+              "br1"
+            ],
+            "foresporsel": "gyldig",
+            "svar_b": "b1",
+            "gjeldende_krav": "k1",
+            "vei": "33.6.1",
+            "svarplikt_33_7": true,
+            "avskjaering_33_6_1": false,
+            "begrensning_33_6_1": true,
+            "innsigelser": {
+              "i1": "ikke_tapt_paa_tidsgrunnlag",
+              "o1": "uavklart"
+            },
+            "innsigelsesgrunnlag": {
+              "i1": "punkt_5",
+              "o1": "33.7"
+            },
+            "dokumenter": {
+              "br1": [
+                "i1",
+                "o1"
+              ]
+            },
+            "virker_mot": {},
+            "motstrid": {},
+            "avgjort": {},
+            "innholdsvurderinger": {
+              "b1": {
+                "TE": true,
+                "BH": true
+              }
+            },
+            "vurderinger": {
+              "b1": {
+                "TE": true,
+                "BH": true
+              },
+              "k1": {
+                "TE": false,
+                "BH": false
+              },
+              "i1": {
+                "TE": true,
+                "BH": true
+              },
+              "o1": {
+                "TE": false,
+                "BH": false
+              }
+            },
+            "utsendelser": {}
+          }
+        }
+      ]
+    },
+    {
+      "id": "P3-03",
+      "navn": "TE-protest mot brevet rammer innsigelsen mot omfanget",
+      "kilder": [
+        "R3362-B",
+        "R3361",
+        "R5",
+        "R5-IKKE-REKURSJON",
+        "R337",
+        "M-BREV",
+        "M-UAVKLART",
+        "R5-SVAR"
+      ],
+      "forventningsgrunnlag": "arbeidshypotese",
+      "tolkningssporsmal": [],
+      "avklarte_tolkninger": [
+        "U4",
+        "U5",
+        "U6"
+      ],
+      "tolkningsstatus": "delvis_avklart",
+      "kontroller": [
+        {
+          "etter": 5,
+          "forventet": {
+            "begrensning_33_6_1": true,
+            "innsigelser": {
+              "i1": "ikke_tapt_paa_tidsgrunnlag",
+              "o1": "tapt_paa_tidsgrunnlag",
+              "tb1": "ikke_tapt_paa_tidsgrunnlag"
+            },
+            "innsigelsesgrunnlag": {
+              "tb1": "punkt_5"
+            },
+            "virker_mot": {
+              "tb1": {
+                "i1": "ingen_ny_frist_etter_punkt_5",
+                "o1": "punkt_5"
+              }
+            }
+          },
+          "faktisk": {
+            "journal": [
+              "f1",
+              "b1",
+              "k1",
+              "br1",
+              "tb1"
+            ],
+            "foresporsel": "gyldig",
+            "svar_b": "b1",
+            "gjeldende_krav": "k1",
+            "vei": "33.6.1",
+            "svarplikt_33_7": true,
+            "avskjaering_33_6_1": false,
+            "begrensning_33_6_1": true,
+            "innsigelser": {
+              "i1": "ikke_tapt_paa_tidsgrunnlag",
+              "o1": "tapt_paa_tidsgrunnlag",
+              "tb1": "ikke_tapt_paa_tidsgrunnlag"
+            },
+            "innsigelsesgrunnlag": {
+              "i1": "punkt_5",
+              "o1": "33.7",
+              "tb1": "punkt_5"
+            },
+            "dokumenter": {
+              "br1": [
+                "i1",
+                "o1"
+              ]
+            },
+            "virker_mot": {
+              "tb1": {
+                "i1": "ingen_ny_frist_etter_punkt_5",
+                "o1": "punkt_5"
+              }
+            },
+            "motstrid": {},
+            "avgjort": {},
+            "innholdsvurderinger": {
+              "b1": {
+                "TE": true,
+                "BH": true
+              }
+            },
+            "vurderinger": {
+              "b1": {
+                "TE": true,
+                "BH": true
+              },
+              "k1": {
+                "TE": false,
+                "BH": false
+              },
+              "i1": {
+                "TE": true,
+                "BH": true
+              },
+              "o1": {
+                "TE": false,
+                "BH": false
+              },
+              "tb1": {
+                "TE": true,
+                "BH": true
+              }
+            },
+            "utsendelser": {}
+          }
+        }
+      ]
+    },
+    {
+      "id": "P3-04",
+      "navn": "kontroll: protest mot én innsigelse i brevet gir samme virkning for den",
+      "kilder": [
+        "R3362-B",
+        "R3361",
+        "R5",
+        "R5-IKKE-REKURSJON",
+        "R337",
+        "M-BREV",
+        "M-UAVKLART"
+      ],
+      "forventningsgrunnlag": "arbeidshypotese",
+      "tolkningssporsmal": [],
+      "avklarte_tolkninger": [
+        "U4",
+        "U5"
+      ],
+      "tolkningsstatus": "delvis_avklart",
+      "kontroller": [
+        {
+          "etter": 5,
+          "forventet": {
+            "innsigelser": {
+              "o1": "tapt_paa_tidsgrunnlag",
+              "to1": "ikke_tapt_paa_tidsgrunnlag"
+            },
+            "virker_mot": {}
+          },
+          "faktisk": {
+            "journal": [
+              "f1",
+              "b1",
+              "k1",
+              "br1",
+              "to1"
+            ],
+            "foresporsel": "gyldig",
+            "svar_b": "b1",
+            "gjeldende_krav": "k1",
+            "vei": "33.6.1",
+            "svarplikt_33_7": true,
+            "avskjaering_33_6_1": false,
+            "begrensning_33_6_1": true,
+            "innsigelser": {
+              "i1": "ikke_tapt_paa_tidsgrunnlag",
+              "o1": "tapt_paa_tidsgrunnlag",
+              "to1": "ikke_tapt_paa_tidsgrunnlag"
+            },
+            "innsigelsesgrunnlag": {
+              "i1": "punkt_5",
+              "o1": "33.7",
+              "to1": "punkt_5"
+            },
+            "dokumenter": {
+              "br1": [
+                "i1",
+                "o1"
+              ]
+            },
+            "virker_mot": {},
+            "motstrid": {},
+            "avgjort": {},
+            "innholdsvurderinger": {
+              "b1": {
+                "TE": true,
+                "BH": true
+              }
+            },
+            "vurderinger": {
+              "b1": {
+                "TE": true,
+                "BH": true
+              },
+              "k1": {
+                "TE": false,
+                "BH": false
+              },
+              "i1": {
+                "TE": true,
+                "BH": true
+              },
+              "o1": {
+                "TE": false,
+                "BH": false
+              },
+              "to1": {
+                "TE": true,
+                "BH": true
+              }
+            },
+            "utsendelser": {}
+          }
+        }
+      ]
+    },
+    {
+      "id": "P3-05",
+      "navn": "avklart fravær av protest mot brevet gjør innsigelsen mot omfanget rettidig",
+      "kilder": [
+        "R3362-B",
+        "R3361",
+        "R5",
+        "R5-IKKE-REKURSJON",
+        "R337",
+        "M-BREV",
+        "M-UAVKLART",
+        "R5-SVAR"
+      ],
+      "forventningsgrunnlag": "arbeidshypotese",
+      "tolkningssporsmal": [
+        "U3"
+      ],
+      "avklarte_tolkninger": [
+        "U5",
+        "U6"
+      ],
+      "tolkningsstatus": "delvis_avklart",
+      "kontroller": [
+        {
+          "etter": 5,
+          "forventet": {
+            "begrensning_33_6_1": true,
+            "innsigelser": {
+              "i1": "ikke_tapt_paa_tidsgrunnlag",
+              "o1": "ikke_tapt_paa_tidsgrunnlag"
+            }
+          },
+          "faktisk": {
+            "journal": [
+              "f1",
+              "b1",
+              "k1",
+              "br1",
+              "abr1"
+            ],
+            "foresporsel": "gyldig",
+            "svar_b": "b1",
+            "gjeldende_krav": "k1",
+            "vei": "33.6.1",
+            "svarplikt_33_7": true,
+            "avskjaering_33_6_1": false,
+            "begrensning_33_6_1": true,
+            "innsigelser": {
+              "i1": "ikke_tapt_paa_tidsgrunnlag",
+              "o1": "ikke_tapt_paa_tidsgrunnlag"
+            },
+            "innsigelsesgrunnlag": {
+              "i1": "punkt_5",
+              "o1": "33.7"
+            },
+            "dokumenter": {
+              "br1": [
+                "i1",
+                "o1"
+              ]
+            },
+            "virker_mot": {},
+            "motstrid": {},
+            "avgjort": {},
+            "innholdsvurderinger": {
+              "b1": {
+                "TE": true,
+                "BH": true
+              }
+            },
+            "vurderinger": {
+              "b1": {
+                "TE": true,
+                "BH": true
+              },
+              "k1": {
+                "TE": false,
+                "BH": false
+              },
+              "i1": {
+                "TE": true,
+                "BH": true
+              },
+              "o1": {
+                "TE": false,
+                "BH": false
+              }
+            },
+            "utsendelser": {}
+          }
+        }
+      ]
+    },
+    {
+      "id": "P3-06",
+      "navn": "sen TE-protest mot brevet er ikke virksom",
+      "kilder": [
+        "R3362-B",
+        "R3361",
+        "R5",
+        "R5-IKKE-REKURSJON",
+        "R337",
+        "M-BREV",
+        "M-UAVKLART",
+        "R5-SVAR"
+      ],
+      "forventningsgrunnlag": "arbeidshypotese",
+      "tolkningssporsmal": [],
+      "avklarte_tolkninger": [
+        "U4",
+        "U5",
+        "U6"
+      ],
+      "tolkningsstatus": "delvis_avklart",
+      "kontroller": [
+        {
+          "etter": 5,
+          "forventet": {
+            "innsigelser": {
+              "o1": "ikke_tapt_paa_tidsgrunnlag",
+              "tb1": "tapt_paa_tidsgrunnlag"
+            }
+          },
+          "faktisk": {
+            "journal": [
+              "f1",
+              "b1",
+              "k1",
+              "br1",
+              "tb1"
+            ],
+            "foresporsel": "gyldig",
+            "svar_b": "b1",
+            "gjeldende_krav": "k1",
+            "vei": "33.6.1",
+            "svarplikt_33_7": true,
+            "avskjaering_33_6_1": false,
+            "begrensning_33_6_1": true,
+            "innsigelser": {
+              "i1": "ikke_tapt_paa_tidsgrunnlag",
+              "o1": "ikke_tapt_paa_tidsgrunnlag",
+              "tb1": "tapt_paa_tidsgrunnlag"
+            },
+            "innsigelsesgrunnlag": {
+              "i1": "punkt_5",
+              "o1": "33.7",
+              "tb1": "punkt_5"
+            },
+            "dokumenter": {
+              "br1": [
+                "i1",
+                "o1"
+              ]
+            },
+            "virker_mot": {
+              "tb1": {
+                "i1": "ingen_ny_frist_etter_punkt_5",
+                "o1": "punkt_5"
+              }
+            },
+            "motstrid": {},
+            "avgjort": {},
+            "innholdsvurderinger": {
+              "b1": {
+                "TE": true,
+                "BH": true
+              }
+            },
+            "vurderinger": {
+              "b1": {
+                "TE": true,
+                "BH": true
+              },
+              "k1": {
+                "TE": false,
+                "BH": false
+              },
+              "i1": {
+                "TE": true,
+                "BH": true
+              },
+              "o1": {
+                "TE": false,
+                "BH": false
+              },
+              "tb1": {
+                "TE": false,
+                "BH": false
+              }
+            },
+            "utsendelser": {}
+          }
+        }
+      ]
+    },
+    {
+      "id": "P3-07",
+      "navn": "protest mot brevet gjenoppliver ikke en sen punkt 5-innsigelse",
+      "kilder": [
+        "R3362-B",
+        "R3361",
+        "R5",
+        "R5-IKKE-REKURSJON",
+        "R337",
+        "M-BREV",
+        "M-UAVKLART",
+        "R5-SVAR"
+      ],
+      "forventningsgrunnlag": "arbeidshypotese",
+      "tolkningssporsmal": [],
+      "avklarte_tolkninger": [
+        "U4",
+        "U5",
+        "U6"
+      ],
+      "tolkningsstatus": "delvis_avklart",
+      "kontroller": [
+        {
+          "etter": 5,
+          "forventet": {
+            "begrensning_33_6_1": false,
+            "innsigelser": {
+              "i1": "tapt_paa_tidsgrunnlag",
+              "o1": "ikke_tapt_paa_tidsgrunnlag"
+            },
+            "virker_mot": {
+              "tb1": {
+                "i1": "ingen_ny_frist_etter_punkt_5",
+                "o1": "punkt_5"
+              }
+            }
+          },
+          "faktisk": {
+            "journal": [
+              "f1",
+              "b1",
+              "k1",
+              "br1",
+              "tb1"
+            ],
+            "foresporsel": "gyldig",
+            "svar_b": "b1",
+            "gjeldende_krav": "k1",
+            "vei": "33.6.1",
+            "svarplikt_33_7": true,
+            "avskjaering_33_6_1": false,
+            "begrensning_33_6_1": false,
+            "innsigelser": {
+              "i1": "tapt_paa_tidsgrunnlag",
+              "o1": "ikke_tapt_paa_tidsgrunnlag",
+              "tb1": "ikke_tapt_paa_tidsgrunnlag"
+            },
+            "innsigelsesgrunnlag": {
+              "i1": "punkt_5",
+              "o1": "33.7",
+              "tb1": "punkt_5"
+            },
+            "dokumenter": {
+              "br1": [
+                "i1",
+                "o1"
+              ]
+            },
+            "virker_mot": {
+              "tb1": {
+                "i1": "ingen_ny_frist_etter_punkt_5",
+                "o1": "punkt_5"
+              }
+            },
+            "motstrid": {},
+            "avgjort": {},
+            "innholdsvurderinger": {
+              "b1": {
+                "TE": true,
+                "BH": true
+              }
+            },
+            "vurderinger": {
+              "b1": {
+                "TE": true,
+                "BH": true
+              },
+              "k1": {
+                "TE": false,
+                "BH": false
+              },
+              "i1": {
+                "TE": false,
+                "BH": false
+              },
+              "o1": {
+                "TE": true,
+                "BH": true
+              },
+              "tb1": {
+                "TE": true,
+                "BH": true
+              }
+            },
+            "utsendelser": {}
+          }
+        }
+      ]
+    },
+    {
+      "id": "P4-01",
+      "navn": "kontroll: senere dokumentert innsigelse uten motstrid virker vanlig",
+      "kilder": [
+        "R3362-B",
+        "R3361",
+        "R5",
+        "M-MOTSTRID",
+        "M-UTSENDT",
+        "M-UAVKLART"
+      ],
+      "forventningsgrunnlag": "arbeidshypotese",
+      "tolkningssporsmal": [],
+      "avklarte_tolkninger": [
+        "U7"
+      ],
+      "tolkningsstatus": "delvis_avklart",
+      "kontroller": [
+        {
+          "etter": 4,
+          "forventet": {
+            "begrensning_33_6_1": true,
+            "innsigelser": {
+              "e1": "ikke_tapt_paa_tidsgrunnlag"
+            },
+            "motstrid": {}
+          },
+          "faktisk": {
+            "journal": [
+              "f1",
+              "b1",
+              "k1",
+              "e1"
+            ],
+            "foresporsel": "gyldig",
+            "svar_b": "b1",
+            "gjeldende_krav": "k1",
+            "vei": "33.6.1",
+            "svarplikt_33_7": true,
+            "avskjaering_33_6_1": false,
+            "begrensning_33_6_1": true,
+            "innsigelser": {
+              "e1": "ikke_tapt_paa_tidsgrunnlag"
+            },
+            "innsigelsesgrunnlag": {
+              "e1": "punkt_5"
+            },
+            "dokumenter": {},
+            "virker_mot": {},
+            "motstrid": {},
+            "avgjort": {},
+            "innholdsvurderinger": {
+              "b1": {
+                "TE": true,
+                "BH": true
+              }
+            },
+            "vurderinger": {
+              "b1": {
+                "TE": true,
+                "BH": true
+              },
+              "k1": {
+                "TE": false,
+                "BH": false
+              },
+              "e1": {
+                "TE": true,
+                "BH": true
+              }
+            },
+            "utsendelser": {}
+          }
+        }
+      ]
+    },
+    {
+      "id": "P4-02",
+      "navn": "senere dokumentert innsigelse mot avklart fravær gir motstrid, og sendt brev står",
+      "kilder": [
+        "R3362-B",
+        "R3361",
+        "R5",
+        "M-MOTSTRID",
+        "M-UTSENDT",
+        "M-UAVKLART"
+      ],
+      "forventningsgrunnlag": "arbeidshypotese",
+      "tolkningssporsmal": [
+        "U3"
+      ],
+      "avklarte_tolkninger": [
+        "U7"
+      ],
+      "tolkningsstatus": "delvis_avklart",
+      "kontroller": [
+        {
+          "etter": 5,
+          "forventet": {
+            "journal": [
+              "f1",
+              "b1",
+              "k1",
+              "ak1",
+              "u1"
+            ],
+            "begrensning_33_6_1": false,
+            "motstrid": {},
+            "utsendelser": {
+              "u1": {
+                "gjengitt": false,
+                "gjeldende": false,
+                "utdatert": false
+              }
+            }
+          },
+          "faktisk": {
+            "journal": [
+              "f1",
+              "b1",
+              "k1",
+              "ak1",
+              "u1"
+            ],
+            "foresporsel": "gyldig",
+            "svar_b": "b1",
+            "gjeldende_krav": "k1",
+            "vei": "33.6.1",
+            "svarplikt_33_7": true,
+            "avskjaering_33_6_1": false,
+            "begrensning_33_6_1": false,
+            "innsigelser": {},
+            "innsigelsesgrunnlag": {},
+            "dokumenter": {},
+            "virker_mot": {},
+            "motstrid": {},
+            "avgjort": {},
+            "innholdsvurderinger": {
+              "b1": {
+                "TE": true,
+                "BH": true
+              }
+            },
+            "vurderinger": {
+              "b1": {
+                "TE": true,
+                "BH": true
+              },
+              "k1": {
+                "TE": false,
+                "BH": false
+              }
+            },
+            "utsendelser": {
+              "u1": {
+                "gjengitt": false,
+                "gjeldende": false,
+                "utdatert": false
+              }
+            }
+          }
+        },
+        {
+          "etter": 6,
+          "forventet": {
+            "journal": [
+              "f1",
+              "b1",
+              "k1",
+              "ak1",
+              "u1",
+              "e1"
+            ],
+            "begrensning_33_6_1": null,
+            "innsigelser": {
+              "e1": "uavklart"
+            },
+            "motstrid": {
+              "k1": [
+                "ak1",
+                "e1"
+              ]
+            },
+            "utsendelser": {
+              "u1": {
+                "gjengitt": false,
+                "gjeldende": null,
+                "utdatert": true
+              }
+            }
+          },
+          "faktisk": {
+            "journal": [
+              "f1",
+              "b1",
+              "k1",
+              "ak1",
+              "u1",
+              "e1"
+            ],
+            "foresporsel": "gyldig",
+            "svar_b": "b1",
+            "gjeldende_krav": "k1",
+            "vei": "33.6.1",
+            "svarplikt_33_7": true,
+            "avskjaering_33_6_1": false,
+            "begrensning_33_6_1": null,
+            "innsigelser": {
+              "e1": "uavklart"
+            },
+            "innsigelsesgrunnlag": {
+              "e1": "punkt_5"
+            },
+            "dokumenter": {},
+            "virker_mot": {},
+            "motstrid": {
+              "k1": [
+                "ak1",
+                "e1"
+              ]
+            },
+            "avgjort": {},
+            "innholdsvurderinger": {
+              "b1": {
+                "TE": true,
+                "BH": true
+              }
+            },
+            "vurderinger": {
+              "b1": {
+                "TE": true,
+                "BH": true
+              },
+              "k1": {
+                "TE": false,
+                "BH": false
+              },
+              "e1": {
+                "TE": true,
+                "BH": true
+              }
+            },
+            "utsendelser": {
+              "u1": {
+                "gjengitt": false,
+                "gjeldende": null,
+                "utdatert": true
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "P4-03",
+      "navn": "motstrid avgjort for innsigelsen",
+      "kilder": [
+        "R3362-B",
+        "R3361",
+        "R5",
+        "M-MOTSTRID",
+        "M-UTSENDT",
+        "M-UAVKLART"
+      ],
+      "forventningsgrunnlag": "arbeidshypotese",
+      "tolkningssporsmal": [
+        "U3"
+      ],
+      "avklarte_tolkninger": [
+        "U7"
+      ],
+      "tolkningsstatus": "delvis_avklart",
+      "kontroller": [
+        {
+          "etter": 7,
+          "forventet": {
+            "begrensning_33_6_1": true,
+            "innsigelser": {
+              "e1": "ikke_tapt_paa_tidsgrunnlag"
+            },
+            "motstrid": {},
+            "avgjort": {
+              "k1": "e1"
+            },
+            "utsendelser": {
+              "u1": {
+                "gjengitt": false,
+                "gjeldende": true,
+                "utdatert": true
+              }
+            }
+          },
+          "faktisk": {
+            "journal": [
+              "f1",
+              "b1",
+              "k1",
+              "ak1",
+              "u1",
+              "e1",
+              "m1"
+            ],
+            "foresporsel": "gyldig",
+            "svar_b": "b1",
+            "gjeldende_krav": "k1",
+            "vei": "33.6.1",
+            "svarplikt_33_7": true,
+            "avskjaering_33_6_1": false,
+            "begrensning_33_6_1": true,
+            "innsigelser": {
+              "e1": "ikke_tapt_paa_tidsgrunnlag"
+            },
+            "innsigelsesgrunnlag": {
+              "e1": "punkt_5"
+            },
+            "dokumenter": {},
+            "virker_mot": {},
+            "motstrid": {},
+            "avgjort": {
+              "k1": "e1"
+            },
+            "innholdsvurderinger": {
+              "b1": {
+                "TE": true,
+                "BH": true
+              }
+            },
+            "vurderinger": {
+              "b1": {
+                "TE": true,
+                "BH": true
+              },
+              "k1": {
+                "TE": false,
+                "BH": false
+              },
+              "e1": {
+                "TE": true,
+                "BH": true
+              }
+            },
+            "utsendelser": {
+              "u1": {
+                "gjengitt": false,
+                "gjeldende": true,
+                "utdatert": true
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "P4-04",
+      "navn": "motstrid avgjort for premisset",
+      "kilder": [
+        "R3362-B",
+        "R3361",
+        "R5",
+        "M-MOTSTRID",
+        "M-UTSENDT",
+        "M-UAVKLART"
+      ],
+      "forventningsgrunnlag": "arbeidshypotese",
+      "tolkningssporsmal": [
+        "U3"
+      ],
+      "avklarte_tolkninger": [
+        "U7"
+      ],
+      "tolkningsstatus": "delvis_avklart",
+      "kontroller": [
+        {
+          "etter": 7,
+          "forventet": {
+            "begrensning_33_6_1": false,
+            "innsigelser": {
+              "e1": "tilsidesatt"
+            },
+            "motstrid": {},
+            "avgjort": {
+              "k1": "ak1"
+            },
+            "utsendelser": {
+              "u1": {
+                "gjengitt": false,
+                "gjeldende": false,
+                "utdatert": false
+              }
+            }
+          },
+          "faktisk": {
+            "journal": [
+              "f1",
+              "b1",
+              "k1",
+              "ak1",
+              "u1",
+              "e1",
+              "m1"
+            ],
+            "foresporsel": "gyldig",
+            "svar_b": "b1",
+            "gjeldende_krav": "k1",
+            "vei": "33.6.1",
+            "svarplikt_33_7": true,
+            "avskjaering_33_6_1": false,
+            "begrensning_33_6_1": false,
+            "innsigelser": {
+              "e1": "tilsidesatt"
+            },
+            "innsigelsesgrunnlag": {
+              "e1": "punkt_5"
+            },
+            "dokumenter": {},
+            "virker_mot": {},
+            "motstrid": {},
+            "avgjort": {
+              "k1": "ak1"
+            },
+            "innholdsvurderinger": {
+              "b1": {
+                "TE": true,
+                "BH": true
+              }
+            },
+            "vurderinger": {
+              "b1": {
+                "TE": true,
+                "BH": true
+              },
+              "k1": {
+                "TE": false,
+                "BH": false
+              },
+              "e1": {
+                "TE": true,
+                "BH": true
+              }
+            },
+            "utsendelser": {
+              "u1": {
+                "gjengitt": false,
+                "gjeldende": false,
+                "utdatert": false
               }
             }
           }
@@ -2066,6 +3375,118 @@
       "tolkningsstatus": "ingen_juridisk_konklusjon",
       "forventet": "ugyldig_handling",
       "faktisk": "ugyldig_handling"
+    },
+    {
+      "id": "P3-A1",
+      "kilder": [
+        "M-BREV",
+        "M-REFERANSE"
+      ],
+      "forventningsgrunnlag": "modellkonvensjon",
+      "tolkningssporsmal": [],
+      "avklarte_tolkninger": [],
+      "tolkningsstatus": "ingen_juridisk_konklusjon",
+      "forventet": "duplikat_id",
+      "faktisk": "duplikat_id"
+    },
+    {
+      "id": "P3-A2",
+      "kilder": [
+        "R5-SVAR",
+        "M-REFERANSE"
+      ],
+      "forventningsgrunnlag": "modellkonvensjon",
+      "tolkningssporsmal": [],
+      "avklarte_tolkninger": [],
+      "tolkningsstatus": "ingen_juridisk_konklusjon",
+      "forventet": "feil_referansetype",
+      "faktisk": "feil_referansetype"
+    },
+    {
+      "id": "P3-A3",
+      "kilder": [
+        "R5-SVAR",
+        "M-REFERANSE"
+      ],
+      "forventningsgrunnlag": "modellkonvensjon",
+      "tolkningssporsmal": [],
+      "avklarte_tolkninger": [],
+      "tolkningsstatus": "ingen_juridisk_konklusjon",
+      "forventet": "feil_part",
+      "faktisk": "feil_part"
+    },
+    {
+      "id": "P3-A4",
+      "kilder": [
+        "R5-SVAR",
+        "M-BREV"
+      ],
+      "forventningsgrunnlag": "modellkonvensjon",
+      "tolkningssporsmal": [],
+      "avklarte_tolkninger": [],
+      "tolkningsstatus": "ingen_juridisk_konklusjon",
+      "forventet": "utenfor_provens_omfang",
+      "faktisk": "utenfor_provens_omfang"
+    },
+    {
+      "id": "P4-A1",
+      "kilder": [
+        "M-MOTSTRID"
+      ],
+      "forventningsgrunnlag": "modellkonvensjon",
+      "tolkningssporsmal": [],
+      "avklarte_tolkninger": [],
+      "tolkningsstatus": "ingen_juridisk_konklusjon",
+      "forventet": "utenfor_provens_omfang",
+      "faktisk": "utenfor_provens_omfang"
+    },
+    {
+      "id": "P4-A2",
+      "kilder": [
+        "M-MOTSTRID"
+      ],
+      "forventningsgrunnlag": "modellkonvensjon",
+      "tolkningssporsmal": [],
+      "avklarte_tolkninger": [],
+      "tolkningsstatus": "ingen_juridisk_konklusjon",
+      "forventet": "motstridende_premiss",
+      "faktisk": "motstridende_premiss"
+    },
+    {
+      "id": "P4-A3",
+      "kilder": [
+        "M-UTSENDT"
+      ],
+      "forventningsgrunnlag": "modellkonvensjon",
+      "tolkningssporsmal": [],
+      "avklarte_tolkninger": [],
+      "tolkningsstatus": "ingen_juridisk_konklusjon",
+      "forventet": "gjengivelse_avviker",
+      "faktisk": "gjengivelse_avviker"
+    },
+    {
+      "id": "P4-A4",
+      "kilder": [
+        "M-MOTSTRID"
+      ],
+      "forventningsgrunnlag": "modellkonvensjon",
+      "tolkningssporsmal": [],
+      "avklarte_tolkninger": [],
+      "tolkningsstatus": "ingen_juridisk_konklusjon",
+      "forventet": "ingen_motstrid",
+      "faktisk": "ingen_motstrid"
+    },
+    {
+      "id": "P4-A5",
+      "kilder": [
+        "M-MOTSTRID"
+      ],
+      "forventningsgrunnlag": "modellkonvensjon",
+      "tolkningssporsmal": [],
+      "avklarte_tolkninger": [],
+      "tolkningsstatus": "ingen_juridisk_konklusjon",
+      "forventet": "feil_referansetype",
+      "faktisk": "feil_referansetype"
     }
   ],
   "mutasjoner": [
@@ -2164,6 +3585,116 @@
       "forventet": "tapt_paa_tidsgrunnlag",
       "med_feil": "uavklart",
       "kontroll_etter": "tapt_paa_tidsgrunnlag"
+    },
+    {
+      "id": "MUT-BREV-PROTEST",
+      "sak": "P3-03",
+      "kilder": [
+        "R3362-B",
+        "R3361",
+        "R5",
+        "R5-IKKE-REKURSJON",
+        "R337",
+        "M-BREV",
+        "M-UAVKLART",
+        "R5-SVAR"
+      ],
+      "forventningsgrunnlag": "arbeidshypotese",
+      "tolkningssporsmal": [],
+      "avklarte_tolkninger": [
+        "U4",
+        "U5",
+        "U6"
+      ],
+      "tolkningsstatus": "delvis_avklart",
+      "kontrollkilder": [
+        "R5-SVAR"
+      ],
+      "mal": "innsigelser.o1",
+      "forventet": "tapt_paa_tidsgrunnlag",
+      "med_feil": "uavklart",
+      "kontroll_etter": "tapt_paa_tidsgrunnlag"
+    },
+    {
+      "id": "MUT-BREV-FELLES",
+      "sak": "P3-01",
+      "kilder": [
+        "R3362-B",
+        "R3361",
+        "R5",
+        "R5-IKKE-REKURSJON",
+        "R337",
+        "M-BREV",
+        "M-UAVKLART"
+      ],
+      "forventningsgrunnlag": "arbeidshypotese",
+      "tolkningssporsmal": [],
+      "avklarte_tolkninger": [
+        "U4",
+        "U5"
+      ],
+      "tolkningsstatus": "delvis_avklart",
+      "kontrollkilder": [
+        "M-BREV"
+      ],
+      "mal": "innsigelser.o1",
+      "forventet": "ikke_tapt_paa_tidsgrunnlag",
+      "med_feil": "uavklart",
+      "kontroll_etter": "ikke_tapt_paa_tidsgrunnlag"
+    },
+    {
+      "id": "MUT-DOK",
+      "sak": "P4-02",
+      "kilder": [
+        "R3362-B",
+        "R3361",
+        "R5",
+        "M-MOTSTRID",
+        "M-UTSENDT",
+        "M-UAVKLART"
+      ],
+      "forventningsgrunnlag": "arbeidshypotese",
+      "tolkningssporsmal": [
+        "U3"
+      ],
+      "avklarte_tolkninger": [
+        "U7"
+      ],
+      "tolkningsstatus": "delvis_avklart",
+      "kontrollkilder": [
+        "M-MOTSTRID"
+      ],
+      "mal": "begrensning_33_6_1",
+      "forventet": null,
+      "med_feil": true,
+      "kontroll_etter": null
+    },
+    {
+      "id": "MUT-UTSENDT",
+      "sak": "P4-02",
+      "kilder": [
+        "R3362-B",
+        "R3361",
+        "R5",
+        "M-MOTSTRID",
+        "M-UTSENDT",
+        "M-UAVKLART"
+      ],
+      "forventningsgrunnlag": "arbeidshypotese",
+      "tolkningssporsmal": [
+        "U3"
+      ],
+      "avklarte_tolkninger": [
+        "U7"
+      ],
+      "tolkningsstatus": "delvis_avklart",
+      "kontrollkilder": [
+        "M-UTSENDT"
+      ],
+      "mal": "utsendelser.u1.utdatert",
+      "forventet": true,
+      "med_feil": false,
+      "kontroll_etter": true
     }
   ]
 }
