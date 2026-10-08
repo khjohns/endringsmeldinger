@@ -134,9 +134,9 @@ def _fristsvar(h, sak):
 def foresporsel(h: dict, sak, sak_id: str) -> tuple[str, dict]:
     """Rollen og forespørselen `/api/events` tar imot for handlingen `h`."""
     navn = h["handling"]
-    if navn == "grunnlag":
+    if navn in ("grunnlag", "grunnlag_ny_versjon"):
         return "TE", {
-            "event_type": "grunnlag_opprettet",
+            "event_type": "grunnlag_oppdatert" if navn == "grunnlag_ny_versjon" else "grunnlag_opprettet",
             "data": {
                 "tittel": "Endret fundamentering",
                 "hovedkategori": "ENDRING",
@@ -307,6 +307,12 @@ def kjor(forlop: dict, bane) -> None:
         sjekk(i)
 
 
+def _avvik(avvik: dict, hva: str):
+    """Streng `xfail` for et kjent avvik; et vedtatt issue uten funn-ID har `#n` som funn."""
+    issue = f" (#{avvik['issue']})" if avvik.get("issue") and not avvik["funn"].startswith("#") else ""
+    return pytest.mark.xfail(strict=True, raises=AssertionError, reason=f"{avvik['funn']}{issue}: {hva}")
+
+
 def forlop_parametre(marker_avvik=True):
     """Ett `pytest.param` per forløp; kjente avvik blir streng `xfail`."""
     parametre = []
@@ -314,14 +320,7 @@ def forlop_parametre(marker_avvik=True):
         avvik = forlop.get("kjent_avvik")
         marks = []
         if avvik and marker_avvik:
-            issue = f" (#{avvik['issue']})" if avvik.get("issue") else ""
-            marks.append(
-                pytest.mark.xfail(
-                    strict=True,
-                    raises=AssertionError,
-                    reason=f"{avvik['funn']}{issue}: dagens kode avviker fra {', '.join(forlop['rader'])}",
-                )
-            )
+            marks.append(_avvik(avvik, f"dagens kode avviker fra {', '.join(forlop['rader'])}"))
         parametre.append(pytest.param(forlop, id=forlop["id"], marks=marks))
     return parametre
 
@@ -333,15 +332,7 @@ def invariant_parametre():
     for forlop in KORPUS["forlop"]:
         marks = []
         if forlop["id"] in kjente:
-            avvik = kjente[forlop["id"]]
-            issue = f" (#{avvik['issue']})" if avvik.get("issue") else ""
-            marks.append(
-                pytest.mark.xfail(
-                    strict=True,
-                    raises=AssertionError,
-                    reason=f"{avvik['funn']}{issue}: claims() og projeksjonen er uenige om gjeldende krav",
-                )
-            )
+            marks.append(_avvik(kjente[forlop["id"]], "claims() og projeksjonen er uenige om gjeldende krav"))
         parametre.append(pytest.param(forlop, id=forlop["id"], marks=marks))
     return parametre
 
