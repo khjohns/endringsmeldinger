@@ -174,13 +174,15 @@ def test_godkjenningsflyten_kan_svare_etter_et_konsekvensvarsel(rutebane, tmp_pa
     assert feil is None, feil
 
 
-# Handlingene til TE leser ikke tilstanden, så flere kan gå i én batch. En batch
-# har én kontraktsrolle, og byggherrens svar viser til hendelser i tilstanden.
+# Handlingene til TE leser ikke tilstanden, så flere kan gå i én batch; de bygges
+# med `sak=None`, så en som begynner å lese den, feiler. En batch har én
+# kontraktsrolle, og byggherrens svar viser til hendelser i tilstanden.
 TE_HANDLINGER = {
     "grunnlag", "grunnlag_ny_versjon", "vederlagskrav", "vederlagskrav_ny_versjon",
     "konsekvensvarsel", "fristvarsel", "fristkrav", "fristkrav_spesifisert", "aksept", "trekk",
 }
 SERVERTID = {"tidsstempel", "siste_oppdatert", "opprettet", "siste_aktivitet"}
+UTEN_SAMMENLIKNING = SERVERTID | {"event_id"}
 
 
 def _grupper(steg):
@@ -205,21 +207,19 @@ def _normalisert(bane):
             return {k: rens(x) for k, x in v.items() if k not in SERVERTID}
         if isinstance(v, list):
             return [rens(x) for x in v]
-        return navn.get(v, v) if isinstance(v, str) else v
+        return navn.get(v, v).replace(bane.sak_id, "sak") if isinstance(v, str) else v
 
-    return rens([[h["event_type"], h["data"]] for h in raa]), rens(bane.tilstand())
+    journal = [{k: v for k, v in h.items() if k not in UTEN_SAMMENLIKNING} for h in raa]
+    return rens(journal), rens(bane.tilstand())
 
 
 def _send_batch(bane, gruppe):
-    rolle, _ = korpus.foresporsel(gruppe[0], bane.sak(), bane.sak_id)
-    bane._som(rolle)
+    sak = None if gruppe[0]["handling"] in TE_HANDLINGER else bane.sak()
+    foresporsler = [korpus.foresporsel(h, sak, bane.sak_id) for h in gruppe]
+    bane._som(foresporsler[0][0])
     return bane.klient.post(
         "/api/events/batch",
-        json={
-            "sak_id": bane.sak_id,
-            "expected_version": len(bane.journal()),
-            "events": [korpus.foresporsel(h, bane.sak(), bane.sak_id)[1] for h in gruppe],
-        },
+        json={"sak_id": bane.sak_id, "expected_version": len(bane.journal()), "events": [f for _, f in foresporsler]},
         headers=HEADERS,
     )
 
@@ -259,6 +259,9 @@ def _avvisninger_i_te_grupper():
         prefiks, steg = korpus.steg_med_prefiks(forlop)
         bane, start, antall = Domenebane(), 0, 0
         for i, h in enumerate(prefiks + steg):
+            rolle, _ = korpus.foresporsel(h, bane.sak(), "S")
+            if (rolle == "TE") != (h["handling"] in TE_HANDLINGER):
+                raise AssertionError(f"TE_HANDLINGER stemmer ikke med rollen for {h['handling']}")
             godtatt, _ = bane.send(h)
             if h["handling"] not in TE_HANDLINGER:
                 antall = 0
@@ -286,9 +289,19 @@ def test_batch_med_en_avvist_hendelse_lagrer_ingenting(
     gruppe = alle[start : start + antall + 1]
     journal_for = bane.journal()
     svar = _send_batch(bane, gruppe)
-    if svar.status_code != 400 or (svar.get_json() or {}).get("error") not in AVVISNINGER:
-        pytest.fail(f"Ventet avvisning av batchen: {svar.status_code} {svar.get_json()}")
+    feil = svar.get_json() or {}
+    # Avvisningen skal gjelde den siste hendelsen, av en forretningsregel.
+    sist = korpus.foresporsel(gruppe[-1], None, bane.sak_id)[1]["event_type"]
+    if svar.status_code != 400 or feil.get("error") != "BUSINESS_RULE_VIOLATION" or feil.get("failed_event_type") != sist:
+        pytest.fail(f"Ventet at forretningsreglene avviste {sist}: {svar.status_code} {feil}")
     assert bane.journal() == journal_for, "En avvist batch skrev hendelser"
     kontroll = _send_batch(bane, gruppe[:-1])
     if kontroll.status_code != 201:
         pytest.fail(f"Kontrollsak: batchen uten den avviste ble også avvist: {kontroll.get_json()}")
+    if len(bane.journal()) != len(journal_for) + antall:
+        pytest.fail("Kontrollsak: batchen lagret ikke alle hendelsene")
+
+
+def test_korpuset_har_en_avvist_hendelse_i_en_batch():
+    """Ellers blir atomisitetstesten over en tom parameterliste og hoppes over."""
+    assert _avvisninger_i_te_grupper()

@@ -142,8 +142,8 @@ Prøvemodellen er ikke gjenbrukt: forventningene kjøres mot applikasjonen.
 Ikke kjørt: byggherrens svar i batch med andre hendelser (et svar viser til
 hendelser i tilstanden, og en batch har én kontraktsrolle), hele
 godkjenningsflyten med pakker og publisering, Catenda, frontendens skjemaer og
-en TypeScript-kjører. Korpuset gir bare ett tilfelle av en avvist hendelse i en
-batch (F-GR-03).
+en TypeScript-kjører. Tilfellene av en avvist hendelse i en batch utledes av
+korpuset; testen feiler hvis det ikke finnes noen.
 Kontrollsakene (`prov`) prøves mot forretningsreglene også i databasebanen,
 fordi en prøve gjennom ruta ville skrevet hendelsen.
 
