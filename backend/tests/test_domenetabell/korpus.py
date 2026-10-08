@@ -134,9 +134,9 @@ def _fristsvar(h, sak):
 def foresporsel(h: dict, sak, sak_id: str) -> tuple[str, dict]:
     """Rollen og forespørselen `/api/events` tar imot for handlingen `h`."""
     navn = h["handling"]
-    if navn == "grunnlag":
+    if navn in ("grunnlag", "grunnlag_ny_versjon"):
         return "TE", {
-            "event_type": "grunnlag_opprettet",
+            "event_type": "grunnlag_oppdatert" if navn == "grunnlag_ny_versjon" else "grunnlag_opprettet",
             "data": {
                 "tittel": "Endret fundamentering",
                 "hovedkategori": "ENDRING",
@@ -314,7 +314,7 @@ def forlop_parametre(marker_avvik=True):
         avvik = forlop.get("kjent_avvik")
         marks = []
         if avvik and marker_avvik:
-            issue = f" (#{avvik['issue']})" if avvik.get("issue") else ""
+            issue = f" (#{avvik['issue']})" if avvik.get("issue") and not avvik["funn"].startswith("#") else ""
             marks.append(
                 pytest.mark.xfail(
                     strict=True,

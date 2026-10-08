@@ -1,6 +1,6 @@
 {
   "formatversjon": 1,
-  "omfang": "Kravversjon og aksept i vederlags- og fristsporet (SK-02, SK-03), med tilgrensende rader om godtatt preklusjon (SK-01), låste varsler (SK-12) og byggherrens vurdering av rettidighet. Grunnlagsendring, frafall, subsidiært svar mens grunnlaget venter og EO-særforløp er ikke dekket.",
+  "omfang": "Kravversjon og aksept i vederlags- og fristsporet (SK-02, SK-03), med tilgrensende rader om godtatt preklusjon (SK-01), låste varsler (SK-12) og byggherrens vurdering av rettidighet. Grunnlagsavhengigheten: grunnlagsendring med og uten endret underkategori, subsidiært svar mens grunnlaget venter på nytt svar, frafall (§ 32.3 c) og trukket grunnlag. EO-særforløp og forsering er ikke dekket.",
   "tolkningsstatuser": {
     "avklart_tolkning": "Forventningen følger av et vedtak i hovedplanen 3.1. Vedtaket er kilden; tabellen gjentar det ikke.",
     "arbeidshypotese": "Forventningen er utledet av vedtak eller standardtekst, men slutningen er ikke selv vedtatt. Må avklares før den brukes som bindende produktkrav.",
@@ -98,6 +98,97 @@
       "dato": "2026-10-08",
       "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u4",
       "radetikett": "KA-U4: i byggherrens vurderinger av varsel og rettidighet"
+    },
+    {
+      "id": "V-215",
+      "type": "vedtak",
+      "dato": "2026-10-05",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger",
+      "radetikett": "B-13 endret underkategori etter byggherrens svar på grunnlaget krever nytt svar"
+    },
+    {
+      "id": "V-B13-GRUNNLAG-AVSLATT",
+      "type": "vedtak",
+      "dato": "2026-10-05",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger",
+      "radetikett": "B-13 svar på vederlag og frist når ansvarsgrunnlaget er avslått eller prekludert"
+    },
+    {
+      "id": "V-B13-FRAFALL",
+      "type": "vedtak",
+      "dato": "2026-09-24",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger",
+      "radetikett": "B-13 «frafalt» (§ 32.3 c) avvises utenfor irregulær endring og valgrett"
+    },
+    {
+      "id": "V-235",
+      "type": "vedtak",
+      "dato": "2026-10-05",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger",
+      "radetikett": "#235: frafall (§ 32.3 c) kan ikke kombineres med at grunnlaget er varslet for sent"
+    },
+    {
+      "id": "V-FRAFALT",
+      "type": "vedtak",
+      "dato": "2026-10-05",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger",
+      "radetikett": "Frafall (§ 32.3 c) gir grunnlaget en egen sporstatus, `FRAFALT`"
+    },
+    {
+      "id": "V-SD02",
+      "type": "vedtak",
+      "dato": "2026-10-05",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger",
+      "radetikett": "SD-02: trekker TE grunnlaget før vederlag eller frist er sendt"
+    },
+    {
+      "id": "V-TFR05",
+      "type": "vedtak",
+      "dato": "2026-09-23",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger",
+      "radetikett": "TFR-05: en sak med godkjent eller låst grunnlag der resten ikke er sendt"
+    },
+    {
+      "id": "KA-U5",
+      "type": "vedtak",
+      "dato": "2026-10-08",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u5",
+      "radetikett": "KA-U5: godtar TE et svar som er delvis godkjent"
+    },
+    {
+      "id": "GR-U1",
+      "type": "vedtak",
+      "dato": "2026-10-08",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u1",
+      "radetikett": "GR-U1: en ny kravversjon av grunnlaget åpner sporet"
+    },
+    {
+      "id": "GR-U2",
+      "type": "vedtak",
+      "dato": "2026-10-08",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u2",
+      "radetikett": "GR-U2: et grunnlag byggherren har godkjent og som er låst, kan ikke endres"
+    },
+    {
+      "id": "GR-U3",
+      "type": "vedtak",
+      "dato": "2026-10-08",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u3",
+      "radetikett": "GR-U3: etter frafall (§ 32.3 c) blir saken `OMFORENT`"
+    },
+    {
+      "id": "GR-U4",
+      "type": "vedtak",
+      "dato": "2026-10-08",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u4",
+      "radetikett": "GR-U4: reviderer byggherren svaret på vederlag eller frist mens grunnlaget venter"
+    },
+    {
+      "id": "GR-U5",
+      "type": "vedtak",
+      "dato": "2026-10-08",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u5",
+      "radetikett": "GR-U5: trekker TE grunnlaget, trekkes alle krav som er sendt"
     },
     {
       "id": "NS-5-3",
@@ -254,9 +345,10 @@
       "rettidighet": "—",
       "tidsakse": "registrering",
       "kilder": [
+        "KA-U5",
         "KA-U1"
       ],
-      "tolkningsstatus": "arbeidshypotese"
+      "tolkningsstatus": "avklart_tolkning"
     },
     {
       "id": "KA-09",
@@ -440,6 +532,252 @@
       "tidsakse": "sendt_mottatt",
       "kilder": [
         "V-SK12"
+      ],
+      "tolkningsstatus": "avklart_tolkning"
+    },
+    {
+      "id": "GR-01",
+      "tilfelle": "TE endrer underkategorien etter at byggherren har avslått grunnlaget og svart subsidiært på vederlag og frist.",
+      "forventet": "Grunnlagssvaret faller i tilstanden, og grunnlaget venter på svar (`SENDT`). Svarene på vederlag og frist forblir subsidiære.",
+      "bh_standpunkt": "Ikke vurdert for den nye versjonen. Svarene på vederlag og frist står som subsidiære standpunkter.",
+      "rettslig_virkning": "Byggherren har ikke tatt stilling til ansvaret for den nye underkategorien. Det forrige svaret står i journalen som historikk.",
+      "rettidighet": "—",
+      "tidsakse": "registrering",
+      "kilder": [
+        "V-215"
+      ],
+      "tolkningsstatus": "avklart_tolkning"
+    },
+    {
+      "id": "GR-02",
+      "tilfelle": "TE endrer underkategorien fra pålegg (IRREG) til endringsordre (EO) etter et svar som påberoper preklusjon etter § 32.2, og byggherren godkjenner deretter grunnlaget.",
+      "forventet": "Svaret og § 32.2-vurderingen faller, og vederlag og frist forblir subsidiære til grunnlaget besvares. Når grunnlaget godkjennes, er vederlag og frist prinsipalt godkjent, saken `OMFORENT` og EO kan utstedes.",
+      "bh_standpunkt": "Først prinsipalt prekludert, subsidiært godkjent. Etter det nye svaret: godkjent grunnlag, og de subsidiære standpunktene får virkning.",
+      "rettslig_virkning": "Det subsidiære standpunktet får virkning når grunnlaget godkjennes.",
+      "rettidighet": "Byggherrens § 32.2-vurdering (for sent) faller med svaret.",
+      "tidsakse": "registrering",
+      "kilder": [
+        "V-215",
+        "V-B13-GRUNNLAG-AVSLATT"
+      ],
+      "tolkningsstatus": "avklart_tolkning"
+    },
+    {
+      "id": "GR-03",
+      "tilfelle": "TE godtar grunnlagssvaret etter å ha endret underkategorien, før byggherren har svart igjen.",
+      "forventet": "Aksepten avvises, og journalen er uendret.",
+      "bh_standpunkt": "Ingen svar på gjeldende versjon.",
+      "rettslig_virkning": "Ingen enighet. Svaret på forrige versjon kan ikke godtas.",
+      "rettidighet": "—",
+      "tidsakse": "registrering",
+      "kilder": [
+        "KA-U1",
+        "V-215"
+      ],
+      "tolkningsstatus": "avklart_tolkning"
+    },
+    {
+      "id": "GR-04",
+      "tilfelle": "TE sender en ny kravversjon av grunnlaget med uendret underkategori etter et avslag.",
+      "forventet": "Som GR-01: grunnlagssvaret faller i tilstanden, grunnlaget venter på svar, og svarene på vederlag og frist forblir subsidiære.",
+      "bh_standpunkt": "Ikke vurdert for den nye versjonen.",
+      "rettslig_virkning": "Avslaget gjaldt forrige versjon.",
+      "rettidighet": "—",
+      "tidsakse": "registrering",
+      "kilder": [
+        "GR-U1"
+      ],
+      "tolkningsstatus": "avklart_tolkning"
+    },
+    {
+      "id": "GR-05",
+      "tilfelle": "TE sender en ny kravversjon av grunnlaget med uendret underkategori etter et svar som påberoper preklusjon etter § 32.2.",
+      "forventet": "Svaret og § 32.2-vurderingen faller, grunnlaget venter på svar (`SENDT`), og svarene på vederlag og frist forblir subsidiære.",
+      "bh_standpunkt": "Ikke vurdert for den nye versjonen.",
+      "rettslig_virkning": "Preklusjonen gjaldt forrige versjon. Byggherren må ta stilling på nytt.",
+      "rettidighet": "Byggherrens § 32.2-vurdering for den nye versjonen: ikke vurdert.",
+      "tidsakse": "registrering",
+      "kilder": [
+        "GR-U1",
+        "V-215"
+      ],
+      "tolkningsstatus": "avklart_tolkning"
+    },
+    {
+      "id": "GR-06",
+      "tilfelle": "TE godtar forrige grunnlagssvar etter en ny kravversjon av grunnlaget med uendret underkategori.",
+      "forventet": "Aksepten avvises, og journalen er uendret. Saken blir ikke `LUKKET_AVSLATT`.",
+      "bh_standpunkt": "Ingen svar på gjeldende versjon.",
+      "rettslig_virkning": "Ingen enighet. Svaret på forrige versjon kan ikke godtas.",
+      "rettidighet": "—",
+      "tidsakse": "registrering",
+      "kilder": [
+        "KA-U1",
+        "GR-U1"
+      ],
+      "tolkningsstatus": "avklart_tolkning"
+    },
+    {
+      "id": "GR-07",
+      "tilfelle": "TE endrer underkategorien etter at byggherren har godkjent og låst grunnlaget.",
+      "forventet": "Endringen avvises, og journalen er uendret.",
+      "bh_standpunkt": "Det godkjente grunnlaget står.",
+      "rettslig_virkning": "Ansvaret er avklart. Grunnlaget kan ikke endres.",
+      "rettidighet": "—",
+      "tidsakse": "registrering",
+      "kilder": [
+        "GR-U2"
+      ],
+      "tolkningsstatus": "avklart_tolkning"
+    },
+    {
+      "id": "GR-08",
+      "tilfelle": "Byggherren reviderer vederlagssvaret mens grunnlaget venter på nytt svar etter endret underkategori, og avslår deretter grunnlaget igjen.",
+      "forventet": "Det reviderte svaret er prinsipalt så lenge grunnlaget ikke har svar. Når grunnlaget avslås, er vederlagssvaret subsidiært.",
+      "bh_standpunkt": "Først prinsipalt delvis godkjent, deretter subsidiært, utledet av grunnlaget.",
+      "rettslig_virkning": "Byggherrens standpunkt til beløpet står. Om det er prinsipalt eller subsidiært, følger av grunnlagssvaret.",
+      "rettidighet": "—",
+      "tidsakse": "registrering",
+      "kilder": [
+        "GR-U4",
+        "V-215",
+        "V-B13-GRUNNLAG-AVSLATT"
+      ],
+      "tolkningsstatus": "avklart_tolkning"
+    },
+    {
+      "id": "GR-09",
+      "tilfelle": "TE trekker grunnlaget før vederlag eller frist er sendt.",
+      "forventet": "Saken er `LUKKET_TRUKKET`.",
+      "bh_standpunkt": "—",
+      "rettslig_virkning": "Kravet er trukket. Spor som ikke er sendt, regnes som trukket.",
+      "rettidighet": "—",
+      "tidsakse": "registrering",
+      "kilder": [
+        "V-SD02"
+      ],
+      "tolkningsstatus": "avklart_tolkning"
+    },
+    {
+      "id": "GR-10",
+      "tilfelle": "TE trekker grunnlaget når bare vederlaget er sendt.",
+      "forventet": "Vederlaget trekkes med, og saken er `LUKKET_TRUKKET`.",
+      "bh_standpunkt": "—",
+      "rettslig_virkning": "Fristen er ikke sendt og regnes som trukket.",
+      "rettidighet": "—",
+      "tidsakse": "registrering",
+      "kilder": [
+        "V-SD02",
+        "GR-U5"
+      ],
+      "tolkningsstatus": "avklart_tolkning"
+    },
+    {
+      "id": "GR-11",
+      "tilfelle": "TE trekker grunnlaget etter at byggherren har godkjent vederlaget prinsipalt mens grunnlaget ventet på svar.",
+      "forventet": "Vederlag og frist trekkes med, også det godkjente vederlaget, og saken er `LUKKET_TRUKKET`. Vederlaget kan ikke trekkes alene.",
+      "bh_standpunkt": "Godkjent vederlag. Grunnlaget er ikke besvart.",
+      "rettslig_virkning": "Ansvarsgrunnlaget bærer kravene. Trekkes det, faller de.",
+      "rettidighet": "—",
+      "tidsakse": "registrering",
+      "kilder": [
+        "GR-U5"
+      ],
+      "tolkningsstatus": "avklart_tolkning"
+    },
+    {
+      "id": "GR-12",
+      "tilfelle": "TE oppdaterer grunnlaget etter å ha trukket det, før vederlag eller frist er sendt.",
+      "forventet": "Oppdateringen avvises, og journalen er uendret.",
+      "bh_standpunkt": "—",
+      "rettslig_virkning": "Et trukket krav kan ikke tas opp igjen. Saken er lukket.",
+      "rettidighet": "—",
+      "tidsakse": "registrering",
+      "kilder": [
+        "V-TRUKKET",
+        "V-SD02"
+      ],
+      "tolkningsstatus": "avklart_tolkning"
+    },
+    {
+      "id": "GR-13",
+      "tilfelle": "Byggherren frafaller pålegget (§ 32.3 c).",
+      "forventet": "Grunnlaget får status `FRAFALT`, ikke `TRUKKET`.",
+      "bh_standpunkt": "Frafalt, med grunnlaget varslet i tide.",
+      "rettslig_virkning": "Pålegget er frafalt mot endringsordre for utført arbeid. TE har ikke trukket noe.",
+      "rettidighet": "Byggherrens § 32.2-vurdering: i tide.",
+      "tidsakse": "registrering",
+      "kilder": [
+        "V-FRAFALT"
+      ],
+      "tolkningsstatus": "avklart_tolkning"
+    },
+    {
+      "id": "GR-14",
+      "tilfelle": "Byggherren frafaller pålegget og godkjenner deretter vederlag og frist.",
+      "forventet": "Svarene er prinsipale. Saken er `OMFORENT`, og EO utstedes ikke fra KOE-saken (`kan_utstede_eo` er `false`).",
+      "bh_standpunkt": "Frafalt grunnlag. Prinsipalt godkjent vederlag og frist.",
+      "rettslig_virkning": "Avklart grunnlag. Endringsordren for utført arbeid går i en egen EO-sak (#69).",
+      "rettidighet": "—",
+      "tidsakse": "registrering",
+      "kilder": [
+        "GR-U3",
+        "V-235"
+      ],
+      "tolkningsstatus": "avklart_tolkning"
+    },
+    {
+      "id": "GR-15",
+      "tilfelle": "Byggherren frafaller pålegget og avslår vederlag og frist, og TE godtar begge avslagene.",
+      "forventet": "Saken er `OMFORENT`, ikke `UKJENT`. EO utstedes ikke fra KOE-saken.",
+      "bh_standpunkt": "Frafalt grunnlag. Avslått vederlag og frist.",
+      "rettslig_virkning": "Kravene er oppgjort ved godtatt avslag.",
+      "rettidighet": "—",
+      "tidsakse": "registrering",
+      "kilder": [
+        "GR-U3",
+        "V-FRAFALT",
+        "V-TFR01"
+      ],
+      "tolkningsstatus": "avklart_tolkning"
+    },
+    {
+      "id": "GR-16",
+      "tilfelle": "Byggherren frafaller pålegget før vederlag eller frist er sendt.",
+      "forventet": "Saken er `UNDER_BEHANDLING`, som ved godkjent grunnlag der resten ikke er sendt.",
+      "bh_standpunkt": "Frafalt grunnlag.",
+      "rettslig_virkning": "Grunnlaget er avklart. TE kan fortsatt sende vederlag og frist.",
+      "rettidighet": "—",
+      "tidsakse": "registrering",
+      "kilder": [
+        "V-FRAFALT",
+        "V-TFR05"
+      ],
+      "tolkningsstatus": "avklart_tolkning"
+    },
+    {
+      "id": "GR-17",
+      "tilfelle": "Byggherren frafaller pålegget og påberoper samtidig at grunnlaget er varslet for sent (§ 32.2).",
+      "forventet": "Svaret avvises, og journalen er uendret.",
+      "bh_standpunkt": "—",
+      "rettslig_virkning": "Frafall skjer mot endringsordre og kan ikke kombineres med preklusjon.",
+      "rettidighet": "Byggherrens § 32.2-vurdering: for sent. Det er kombinasjonen som avvises.",
+      "tidsakse": "registrering",
+      "kilder": [
+        "V-235"
+      ],
+      "tolkningsstatus": "avklart_tolkning"
+    },
+    {
+      "id": "GR-18",
+      "tilfelle": "Byggherren svarer «frafalt» på et grunnlag som er endringsordre (EO), ikke pålegg.",
+      "forventet": "Svaret avvises, og journalen er uendret.",
+      "bh_standpunkt": "—",
+      "rettslig_virkning": "Frafall forutsetter et pålegg (§ 32.3 c).",
+      "rettidighet": "—",
+      "tidsakse": "registrering",
+      "kilder": [
+        "V-B13-FRAFALL"
       ],
       "tolkningsstatus": "avklart_tolkning"
     }
