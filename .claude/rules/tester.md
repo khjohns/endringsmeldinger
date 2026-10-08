@@ -47,8 +47,9 @@ Ingen generell prosentgrense eller test per fil kreves. Vurder særlig udekkede
 grener i kritisk kode; begrunn relevante utelatelser i PR-en. Ikke slett tester
 bare for å redusere antall, og ikke fjern kjente feilreproduksjoner som «trivielle».
 
-Bruk eksisterende verktøy: pytest for Python og Vitest for TypeScript, også for
-en eventuell TS-serverkjerne. Komponenttester bruker Testing Library; komplette
+Bruk eksisterende verktøy: pytest for Python og Vitest for TypeScript. Verktøy
+for en eventuell ny serverkjerne avgjøres sammen med språkvalget under B-14 og
+B-15 i hovedplanen. Komponenttester bruker Testing Library; komplette
 nettleserflyter bruker Playwright etter repoets miljø- og skillregler. Typesjekk
 og bygg kommer i tillegg: de erstatter ikke tester av kjøretidsatferd. Ikke
 innfør nytt testverktøy eller installer nettlesere uten et konkret behov.

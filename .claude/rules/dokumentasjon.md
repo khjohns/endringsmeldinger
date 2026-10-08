@@ -43,6 +43,9 @@ forklaring. Ingen gjennomføringsrapport eller handoff kreves for hver PR.
   og fil/symbol; alvorlighet der det er relevant. Avslutt med «Verifikasjon og
   grenser». Skill «Kjørt og observert» fra
   «Lest ut av koden» og historiske resultater. Skriv hva som ikke er kontrollert.
+  Angis alvorlighet, skal dokumentet si at appen ikke er i produksjon og ikke har
+  reelle data, ellers leses alvorlighet som observert hendelse. Navnet begynner
+  med typen: `audit-*`, `vurdering-*`, `review-*`.
 - **Historikk:** bevar daterte undersøkelser som bevis på hva som ble undersøkt.
   Ved erstattet konklusjon: legg en datert merknad ved den gamle konklusjonen
   eller øverst med lenke til gjeldende kilde. Ikke omskriv historiske kjøringer
