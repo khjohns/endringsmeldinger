@@ -6,7 +6,8 @@
   "x-formatversjon": 1,
   "x-rader": [
     "KA-01", "KA-02", "KA-03", "KA-04", "KA-05", "KA-06", "KA-07", "KA-08a", "KA-08b", "KA-09", "KA-10",
-    "KA-11", "KA-12", "KA-13", "KA-18b", "KA-18c", "GR-01", "GR-03", "GR-04", "GR-06", "GR-08"
+    "KA-11", "KA-12", "KA-13", "KA-18b", "KA-18c", "GR-01", "GR-03", "GR-04", "GR-06", "GR-08",
+    "GR-19", "GR-20", "GR-21", "GR-22", "GR-23"
   ],
   "$defs": {
     "id": {
@@ -108,9 +109,9 @@
     },
 
     "kommando.te_aksepterer_respons": {
-      "description": "TE godtar hele det gjeldende svaret i sporet (KA-U1). Streng: et ukjent felt i kommandoen eller i `data` avvises.",
+      "description": "TE godtar hele det gjeldende svaret i sporet (KA-U1). For vederlag og frist er aksepten enighet om sporets egne spørsmål og avhenger ikke av grunnlaget (GR-U7). Streng: et ukjent felt i kommandoen eller i `data` avvises.",
       "x-rolle": "TE",
-      "x-kilde": ["KA-U1", "KA-U5"],
+      "x-kilde": ["KA-U1", "KA-U5", "GR-U7"],
       "type": "object",
       "properties": {
         "event_type": { "const": "te_aksepterer_respons" },
