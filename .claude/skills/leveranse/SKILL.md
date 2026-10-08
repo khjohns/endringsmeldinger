@@ -1,0 +1,117 @@
+---
+name: leveranse
+description: Leveranseprosedyren for implementering og refaktorering. Brukes når en kodeoppgave starter, før akseptkriteriene skrives, og igjen før en PR meldes klar. Rene dokumentendringer bruker bare de relevante kontrollene.
+---
+
+# Leveranse og vedlikehold
+
+Hovedplanen bestemmer målarkitektur, beslutninger og rekkefølge. Denne
+prosedyren bestemmer hvordan en avgrenset oppgave leveres. Den brukes to ganger:
+før kode endres, og før en PR meldes klar.
+
+## Når en endring regnes som vesentlig
+
+To krav har hver sin utløser. Filområdet er et eksempel, ikke utløseren.
+
+- **Feilinnføring** (se `.claude/rules/tester.md`) kreves når endringen gir en
+  endret tilgangsavgjørelse, statusovergang, beregningsregel, serialisering
+  eller transaksjonsgaranti. Typiske steder er `lib/auth/`, `routes/`,
+  `services/business_rules.py`, `SporStatus`, hendelsesmodellene og lagrene. En
+  kommentarendring eller ren flytting der utfallet er det samme, utløser det ikke.
+- **Beslutningsansvar** kreves når tiltenkt atferd, en tolkning av NS 8407 eller
+  godtatt restrisiko endres. En omstrukturering som beholder atferden, utløser
+  det ikke.
+
+## Før kode endres
+
+- Les oppgaven, berørte vedtak i hovedplanen og aktuelle regler i `.claude/rules/`.
+  Bygger oppgaven på en uflettet PR: les den ved en bestemt commit, og oppgi
+  avhengigheten i oppgaven eller PR-en. Skill vedtatt retning fra implementert
+  atferd. En eldre PR-beskrivelse veier ikke tyngre enn et nyere vedtak.
+- Les `.claude/rules/tester.md` **før** akseptkriteriene skrives, også om ingen
+  testfil er åpnet ennå. Regelen lastes ellers først når en testfil åpnes.
+- Skriv konkrete akseptkriterier i det eksisterende issuet. En liten oppgave uten
+  issue får dem i arbeidsplanen, og de tas med i PR-beskrivelsen. Hvert kriterium
+  beskriver input eller forløp, forventet resultat eller avvisning, kilden til
+  forventningen og testlaget som skal bevise det. «Tester grønne» er ikke nok
+  som akseptkriterium.
+- Avgjør hvor den berørte domeneregelen eller kontrakten skal eies, og kartlegg
+  kallerne og inngangene som berøres. Skriv hva som skal fjernes og hva som må
+  bestå. Skal atferden være uendret, skriv hvilke observerbare resultater som
+  skal bevares. Ved begrepsendring: følg språkregelen i `AGENTS.md`. Les
+  `.claude/rules/dokumentasjon.md` for å avgjøre hva som trenger varig
+  dokumentasjon.
+- Avklar bare uavklart tiltenkt atferd med oppdragsgiver. Tekniske valg innenfor
+  oppgaven avgjør du selv. En uløst domenebeslutning blokkerer bare den
+  implementeringen den gjelder.
+- Utløser endringen beslutningsansvar: oppgi GitHub-brukeren eller den entydig
+  ansvarlige rollen som kan godkjenne tiltenkt atferd og godta restrisikoen, i
+  oppgaven eller PR-en. Det er et menneskelig ansvar. Modulens tekniske eier eller
+  agentrevieweren kan ikke bære det. Gjeldende vedtak og fullmakter gjelder, og
+  arbeid som allerede er autorisert, trenger ingen ny godkjenning.
+
+## Under implementering
+
+- Én sammenhengende endring per PR. Skill atferdsendring fra mekanisk flytting
+  der det gjør reviewet lettere å etterprøve. Ingen uvedkommende opprydding.
+- Legg regelen der den er avtalt å eies. Ingen ny juridisk slutning i visning,
+  brevtekst eller adapter. Felles kode erstatter ikke servervalidering eller
+  tilgangskontroll. Nye pakker og abstraksjoner krever et konkret behov i
+  oppgaven, ikke hypotetiske framtidige brukere.
+- Når en modulgrense etableres eller endres: håndhev de forbudte avhengighetene
+  med lint eller en arkitekturtest i CI. Vis at minst ett representativt forbudt
+  importforsøk gir feil, og fjern forsøket etterpå. En tekstvakt som bare
+  kjenner igjen én stavemåte, er ikke nok. Må kontrollen utsettes, får den et
+  issue og omtales som uprøvd, ikke som håndhevet.
+- En migrering har én autoritativ skrivesti per kommando. Fjern erstattet kode,
+  utdaterte tester og konfigurasjon når de ikke trengs lenger, men behold
+  domenebevis og nødvendig bakoverkompatibilitet med historikken. Midlertidig
+  dobbeltkode eller adapter får et koblet issue med ansvarlig, berørte filer og et
+  observerbart fjerningskriterium. «Ryddes senere» holder ikke.
+
+## Vedlikeholds- og driftsverktøy
+
+- Et nytt eller vesentlig endret verktøy har et konkret formål, en ansvarlig for
+  vedlikeholdet, dokumenterte avhengigheter, kjørekommando, forventet resultat og
+  egnet verifikasjon. Bruk den eksisterende oppskriften eller verktøyets
+  hjelpetekst. Det trengs ingen egen rapport.
+- Kontroller som kan gjentas, kjører i CI med både et gyldig tilfelle og et
+  representativt avvik. Et verktøy mot ekstern drift trenger ikke kjøres mot det
+  levende systemet i CI. Prøv kontrollogikken isolert, og skriv hva bare en
+  autorisert driftskjøring kan bevise.
+- Et engangsverktøy fjernes når oppgaven er avsluttet, eller merkes som historisk
+  bevis med formål og hva det ble kontrollert mot. Migrasjoner som er tatt i
+  bruk, og nødvendige gjenopprettingsverktøy beholdes. Et eksisterende skript
+  vurderes etter bruk og verifikasjon, ikke etter alder. Kontroller behov og
+  konsumenter før sletting. Et verktøy for død kode gir kandidater, ikke bevis
+  for at noe kan slettes.
+
+## Før en PR meldes klar
+
+- Prøv akseptkriteriene mot forventninger fra et vedtak eller en annen uttrykkelig
+  kilde, etter `.claude/rules/tester.md`. Der dagens atferd er en kjent feil, er
+  likhet mellom gammel og ny kode ikke fasit. Utløser endringen feilinnføring:
+  vis at de representative testene oppdager relevante feil.
+- Ved endret domeneregel eller kontrakt: prøv de berørte inngangene, også vanlig
+  innsending, batch og godkjenning der de bruker regelen. Ved endret
+  hendelsesdata eller serialisering: prøv faktisk lagring og gjenlesing. Vurder
+  historiske data og gamle og nye lesere og skrivere når kompatibiliteten
+  berøres. Oppgi begrensningene. En test i minnet beviser ikke lagringsstien.
+- Kjør de relevante CI-sjekkene. Kjør også `npm run build` når frontendkode,
+  frontendavhengigheter eller byggoppsettet endres. Andre berørte artefakter
+  bygges med sine dokumenterte kommandoer. Dokumentendringer alene krever ikke
+  applikasjonsbygg eller full testsuite.
+- Gjennomfør uavhengig review etter `AGENTS.md`, med akseptkriteriene som
+  grunnlag. Se særlig etter ny duplisering, om regelen ligger der den skal eies,
+  og om utfasingen er planlagt. Leveransen skal kunne forklares og etterprøves
+  fra kode, tester og varige referanser uten den opprinnelige chatten. At
+  agenter er enige, er ikke testbevis og erstatter ikke det menneskelige
+  beslutningsansvaret.
+- Svekk ikke assertions, og legg ikke til skip/xfail eller nye lint-unntak for å
+  få grønt. Nye reproduksjoner av kjente feil følger testreglene.
+- Fyll ut [PR-malen](../../../.github/pull_request_template.md) med kjørt
+  kommando, resultat og kontrollert commit eller diff. Skill egne kjøringer fra
+  historiske resultater. Kontroller som ikke er gjennomført eller ikke var
+  tilgjengelige, oppgis uttrykkelig. Mangler en påkrevd sjekk eller review, er
+  PR-en fortsatt utkast. Restanser får issues etter `AGENTS.md`. Et issue gjør
+  ikke et uoppfylt akseptkriterium oppfylt.

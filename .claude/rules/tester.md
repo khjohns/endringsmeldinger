@@ -82,10 +82,12 @@ atferd, er nyttig ved en omskriving, men skal si at det er det den gjør.
 
 ## Vis at kritiske tester oppdager feil
 
-Ved nye eller vesentlig endrede domeneregler og sikkerhetsinvarianter: velg et
-avgrenset sett representative feilklasser ut fra forventningen. Prøv målrettede
-feilinnføringer eller mutasjonstesting mot de relevante testene. Ingen generell
-mutasjonsscore eller nytt verktøy kreves for alle endringer.
+Når endringen gir en endret tilgangsavgjørelse, statusovergang, beregningsregel,
+serialisering eller transaksjonsgaranti (utløseren står i
+[leveranseskillen](../skills/leveranse/SKILL.md#når-en-endring-regnes-som-vesentlig)):
+velg et avgrenset sett representative feilklasser ut fra forventningen. Prøv
+målrettede feilinnføringer eller mutasjonstesting mot de relevante testene.
+Ingen generell mutasjonsscore eller nytt verktøy kreves for alle endringer.
 
 - Vis først at det korrekte kontrolltilfellet passerer. Innfør én relevant feil
   om gangen og kontroller at testen feiler på den forventede virkningen, ikke
@@ -98,8 +100,9 @@ mutasjonsscore eller nytt verktøy kreves for alle endringer.
   unåbar kode eller ugyldig mutasjon må begrunnes. En verktøyrapport alene
   avgjør ikke dette. Udekket forventet atferd rettes eller spores som restanse,
   uten å erklære det berørte akseptkriteriet oppfylt.
-- Feilinnføring skjer bare i isolert testkode/arbeidskopi, aldri mot levende
-  data. Fjern mutasjonene etterpå og kjør de berørte testene på ren kode igjen.
+- Innfør feilen midlertidig i en isolert arbeidskopi av koden som testes, aldri
+  mot levende data. Testens forventning beholdes. Mutert produksjonskode skal
+  ikke committes eller pushes. Fjern mutasjonen og kjør testene igjen.
   PR-en oppgir kontrollert commit/diff, feilklasse, test, observert feil og
   eventuelle overlevende mutasjoner med begrunnelse. Gjenbruk samme feilklasser
   når to implementasjoner sammenliknes.

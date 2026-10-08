@@ -1,6 +1,6 @@
 <!-- Bruk også malen ved opprettelse via CLI/API. Slett irrelevante punkter;
 rene dokumentendringer trenger ikke kode-, migrerings- eller byggbevis.
-Instruksjonene står i AGENTS.md og .claude/rules/leveranse.md. -->
+Instruksjonene står i AGENTS.md og .claude/skills/leveranse/SKILL.md. -->
 
 ## Endring
 
@@ -16,8 +16,9 @@ Ved avhengighet av uflettet PR: nummer, kontrollert commit, base og flettingsrek
 ## Eierskap og utfasing
 
 <!-- For kode: regelens/kontraktens eier og berørte innganger.
-Vesentlige arkitektur-/domeneendringer: navngitt menneskelig beslutningsansvarlig
-og lenke til gjeldende vedtak; ikke be om samme godkjenning på nytt.
+Endret tiltenkt atferd, NS 8407-tolkning eller restrisiko: GitHub-bruker eller
+entydig ansvarlig rolle med beslutningsansvar, og lenke til gjeldende vedtak;
+ikke be om samme godkjenning på nytt.
 Hva fjernes? Midlertidige rester: lenk til issue med ansvarlig og fjerningskriterium.
 Endrede begreper: kilde til betydning, gamle/nye navn og kontraktskonsekvenser.
 Nye pakker/abstraksjoner: konkret behov. Endret modulgrense: automatisk kontroll

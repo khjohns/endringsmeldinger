@@ -16,7 +16,8 @@ commits. Uavklart tiltenkt atferd listes uttrykkelig. -->
 ## Eierskap og utfasing
 
 <!-- Hvor eies regelen/kontrakten etterpå? Hvilke kallere og innganger berøres?
-Hvem har menneskelig beslutningsansvar for tiltenkt atferd og gjenværende risiko?
+Hvilken GitHub-bruker eller entydig ansvarlig rolle har beslutningsansvar for
+tiltenkt atferd og gjenværende risiko?
 Vis til eksisterende vedtak der godkjenning allerede er gitt.
 Hva slettes? Midlertidige rester: ansvarlig og observerbart fjerningskriterium,
 med koblet oppfølgingsissue dersom de må bestå etter leveransen.
