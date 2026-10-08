@@ -1,0 +1,86 @@
+# Testkjøringslogg for strukturkartlegging spor D (#271)
+Dato: 2026-10-08
+Undersøkt commit: 98a06534cb0b447b30fff00e4a9c84bc861e2c77
+Arbeidskatalog: backend (i isolert arbeidskopi)
+Python: Python 3.11.9 (/Users/kasper/Projects/endringsmeldinger/backend/venv/bin/python3.11)
+pytest: pytest 9.0.2
+
+Importverifikasjon:
+Alle applikasjonsmoduler (models.events, regler, services.timeline_service) ble importert
+fra den isolerte arbeidskopien (/private/tmp/endringsmeldinger-kartlegging-271/backend).
+
+
+================================================================================
+Test 1: test_varseldatoen_kan_ikke_flyttes_av_et_senere_krav
+Node-ID: tests/test_services/test_strukturkartlegging_spor_d.py::test_varseldatoen_kan_ikke_flyttes_av_et_senere_krav
+Funn-ID: SK-12 (Issue #264)
+================================================================================
+
+--- 1A. Normal kjøring ---
+Kommando:
+PYTHONPATH=. /Users/kasper/Projects/endringsmeldinger/backend/venv/bin/pytest tests/test_services/test_strukturkartlegging_spor_d.py::test_varseldatoen_kan_ikke_flyttes_av_et_senere_krav
+
+Exitkode: 0
+Oppsummering: 1 xfailed in 0.09s
+Resultat: Testen er markert strict xfail og feilet som forventet under standard kjøring.
+
+--- 1B. Kjøring med --runxfail ---
+Kommando:
+PYTHONPATH=. /Users/kasper/Projects/endringsmeldinger/backend/venv/bin/pytest --runxfail tests/test_services/test_strukturkartlegging_spor_d.py::test_varseldatoen_kan_ikke_flyttes_av_et_senere_krav
+
+Exitkode: 1
+Oppsummering: 1 failed in 0.08s
+
+Traceback og feilende assertion:
+___________________ test_varseldatoen_kan_ikke_flyttes_av_et_senere_krav ___________________
+tests/test_services/test_strukturkartlegging_spor_d.py:479: in test_varseldatoen_kan_ikke_flyttes_av_et_senere_krav
+    assert not forlop.valider(flyttet).is_valid
+E   AssertionError: assert not True
+E    +  where True = ValidationResult(is_valid=True, message=None, violated_rule=None).is_valid
+
+Status og observasjon:
+- Kontrollsak passert: Linje 474 bekrefter at samme spesifisering med uendret varseldato godtas.
+- Første feilende assertion: Linje 479 (målassertion). Valideringen godtok flytting av varseldatoen.
+- Senere assertions: Ingen (avsluttende assertion i testen).
+- Klassifisering: Observert reproduksjon.
+
+
+================================================================================
+Test 2: test_oppdatert_krav_etter_full_godkjenning_venter_paa_nytt_svar
+Node-ID: tests/test_services/test_strukturkartlegging_spor_d.py::test_oppdatert_krav_etter_full_godkjenning_venter_paa_nytt_svar
+Funn-ID: SK-02 (Issue #256)
+================================================================================
+
+--- 2A. Normal kjøring ---
+Kommando:
+PYTHONPATH=. /Users/kasper/Projects/endringsmeldinger/backend/venv/bin/pytest tests/test_services/test_strukturkartlegging_spor_d.py::test_oppdatert_krav_etter_full_godkjenning_venter_paa_nytt_svar
+
+Exitkode: 0
+Oppsummering: 1 xfailed in 0.08s
+Resultat: Testen er markert strict xfail og feilet som forventet under standard kjøring.
+
+--- 2B. Kjøring med --runxfail ---
+Kommando:
+PYTHONPATH=. /Users/kasper/Projects/endringsmeldinger/backend/venv/bin/pytest --runxfail tests/test_services/test_strukturkartlegging_spor_d.py::test_oppdatert_krav_etter_full_godkjenning_venter_paa_nytt_svar
+
+Exitkode: 1
+Oppsummering: 1 failed in 0.08s
+
+Traceback og feilende assertion:
+_________ test_oppdatert_krav_etter_full_godkjenning_venter_paa_nytt_svar _________
+tests/test_services/test_strukturkartlegging_spor_d.py:284: in test_oppdatert_krav_etter_full_godkjenning_venter_paa_nytt_svar
+    assert sak.vederlag.status == SporStatus.SENDT
+E   AssertionError: assert <SporStatus.GODKJENT: 'godkjent'> == <SporStatus.SENDT: 'sendt'>
+E     
+E     - sendt
+E     + godkjent
+
+Status og observasjon:
+- Forutsetninger passert: Linje 276 (vederlag godkjent) og linje 282 (kravbeløp 250 000 og frist godkjent).
+- Første feilende assertion: Linje 284 (målassertion). Vederlagsstatus forble GODKJENT i stedet for SENDT.
+- Senere assertions ikke nådd:
+    Linje 285: assert sak.overordnet_status != "OMFORENT"
+    Linje 286: assert sak.kan_utstede_eo is False
+- Viktig avgrensning: Kjøringen alene beviser kun at sporstatusen forble GODKJENT. Påstandene om
+  overordnet status og kan_utstede_eo ble ikke nådd i testkjøringen, og er basert på kodelesing.
+- Klassifisering: Observert reproduksjon (på sporstatus).
