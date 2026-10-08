@@ -197,6 +197,30 @@
       "merknad": "Tekst: den som vil gjøre gjeldende at den andre parten har varslet eller svart for sent, må gjøre det skriftlig uten ugrunnet opphold etter å ha mottatt varselet eller svaret; ellers anses det gitt i tide. Brukt som premiss: tabellen avgjør ikke om en innsigelse kom i tide."
     },
     {
+      "id": "NS-31.3-1",
+      "type": "standard",
+      "punkt": "31.3 første ledd",
+      "merknad": "Tekst: en endringsordre skal være skriftlig og gi beskjed om at det kreves en endring og hva den går ut på. Slutning i GR-02: et grunnlag med underkategori EO bygger på en endringsordre og er ikke et pålegg etter 32.1, så varslingsplikten i 32.2 gjelder ikke."
+    },
+    {
+      "id": "NS-32.1",
+      "type": "standard",
+      "punkt": "32.1",
+      "merknad": "Tekst: pålegg uten endringsordre, gitt av en person med fullmakt etter bokstav a eller b, eller gjennom byggherrens arbeidstegninger og beskrivelser etter bokstav c. Slutning: underkategoriene for pålegg (IRREG) er irregulær endring; EO er det ikke."
+    },
+    {
+      "id": "NS-32.2-1",
+      "type": "standard",
+      "punkt": "32.2 første ledd",
+      "merknad": "Tekst: mottar TE pålegg etter 32.1, skal han varsle uten ugrunnet opphold hvis han vil påberope seg det som en endring; ellers taper han retten til det. Brukt som premiss: tabellen registrerer byggherrens vurdering (`grunnlag_varslet_i_tide`) og avgjør ikke om varselet kom i tide."
+    },
+    {
+      "id": "NS-32.3-1c",
+      "type": "standard",
+      "punkt": "32.3 første ledd bokstav c",
+      "merknad": "Tekst: byggherren besvarer varselet etter 32.2 ved å frafalle pålegget mot å utstede endringsordre for allerede utført arbeid. Slutning: frafall er byggherrens svar på et pålegg, ikke et trekk fra TE, og forutsetter et varsel som ikke er prekludert (#235). At endringsordren går i en egen EO-sak, er GR-U3, ikke teksten."
+    },
+    {
       "id": "NS-33.4-2",
       "type": "standard",
       "punkt": "33.4 annet ledd",
@@ -377,7 +401,8 @@
       "tidsakse": "registrering",
       "kilder": [
         "V-SK01",
-        "KA-U1"
+        "KA-U1",
+        "NS-32.2-1"
       ],
       "tolkningsstatus": "avklart_tolkning"
     },
@@ -554,11 +579,13 @@
       "forventet": "Svaret og § 32.2-vurderingen faller, og vederlag og frist forblir subsidiære til grunnlaget besvares. Når grunnlaget godkjennes, er vederlag og frist prinsipalt godkjent, saken `OMFORENT` og EO kan utstedes.",
       "bh_standpunkt": "Først prinsipalt prekludert, subsidiært godkjent. Etter det nye svaret: godkjent grunnlag, og de subsidiære standpunktene får virkning.",
       "rettslig_virkning": "Det subsidiære standpunktet får virkning når grunnlaget godkjennes.",
-      "rettidighet": "Byggherrens § 32.2-vurdering (for sent) faller med svaret.",
+      "rettidighet": "Byggherrens § 32.2-vurdering (for sent) faller med svaret. Med underkategori EO gjelder ikke varslingsplikten i 32.2.",
       "tidsakse": "registrering",
       "kilder": [
         "V-215",
-        "V-B13-GRUNNLAG-AVSLATT"
+        "V-B13-GRUNNLAG-AVSLATT",
+        "NS-31.3-1",
+        "NS-32.2-1"
       ],
       "tolkningsstatus": "avklart_tolkning"
     },
@@ -599,7 +626,8 @@
       "tidsakse": "registrering",
       "kilder": [
         "GR-U1",
-        "V-215"
+        "V-215",
+        "NS-32.2-1"
       ],
       "tolkningsstatus": "avklart_tolkning"
     },
@@ -708,7 +736,8 @@
       "rettidighet": "Byggherrens § 32.2-vurdering: i tide.",
       "tidsakse": "registrering",
       "kilder": [
-        "V-FRAFALT"
+        "V-FRAFALT",
+        "NS-32.3-1c"
       ],
       "tolkningsstatus": "avklart_tolkning"
     },
@@ -722,7 +751,8 @@
       "tidsakse": "registrering",
       "kilder": [
         "GR-U3",
-        "V-235"
+        "V-235",
+        "NS-32.3-1c"
       ],
       "tolkningsstatus": "avklart_tolkning"
     },
@@ -751,7 +781,8 @@
       "tidsakse": "registrering",
       "kilder": [
         "V-FRAFALT",
-        "V-TFR05"
+        "V-TFR05",
+        "NS-32.3-1c"
       ],
       "tolkningsstatus": "avklart_tolkning"
     },
@@ -764,7 +795,9 @@
       "rettidighet": "Byggherrens § 32.2-vurdering: for sent. Det er kombinasjonen som avvises.",
       "tidsakse": "registrering",
       "kilder": [
-        "V-235"
+        "V-235",
+        "NS-32.3-1c",
+        "NS-32.2-1"
       ],
       "tolkningsstatus": "avklart_tolkning"
     },
@@ -773,11 +806,13 @@
       "tilfelle": "TE har endret grunnlaget fra pålegg (IRREG) til endringsordre (EO), og byggherren svarer «frafalt».",
       "forventet": "Svaret avvises, og journalen er uendret.",
       "bh_standpunkt": "—",
-      "rettslig_virkning": "Frafall forutsetter et pålegg (§ 32.3 c).",
+      "rettslig_virkning": "Svarvalgene i 32.3, også frafall, gjelder et varsel etter 32.2 om et pålegg etter 32.1. Et grunnlag med endringsordre har ikke noe pålegg å frafalle.",
       "rettidighet": "—",
       "tidsakse": "registrering",
       "kilder": [
-        "V-B13-FRAFALL"
+        "V-B13-FRAFALL",
+        "NS-32.1",
+        "NS-32.3-1c"
       ],
       "tolkningsstatus": "avklart_tolkning"
     }
