@@ -128,7 +128,7 @@ gjennom én kompatibilitetsleser, som gjør hver lagret hendelse om til denne
 formen. Lagrede hendelsesnavn beholdes; de er kontrakter. Et nytt lagringsformat
 er et valg under B-10. Nytt innhold i en hendelse, som enighetsgrunnlaget, hører
 hjemme i datamodellen og `docs/datamodell/hendelser.toml` når det bygges
-(`AGENTS.md`).
+(DM-06).
 
 > **Merknad 2026-10-09:** [B-17](plans/2026-09-16-godkjenning-og-varig-levering.md#b-17) forkaster dagens testsaker og bygger
 > ingen kompatibilitetsleser for gamle Python-rader. Setningen om én
@@ -385,8 +385,8 @@ virkning for ansvaret. Mengdene for «ferdig» og «inaktiv», som SK-04 fant ul
 kaskadene, `kan_utstede_eo`, reaktiv EO og aksepten, blir predikater som
 defineres én gang. `FRAFALT` blir en etikett i visningen. Den kan legges til uten
 å endre forretningsreglene eller samlet status, fordi ingen av dem leser
-sporstatusen. Advarselen i `AGENTS.md` om å utvide `SporStatus` gjelder da bare
-visningen.
+sporstatusen. Advarselen om å utvide `SporStatus`
+(`.claude/rules/python-domene.md`) gjelder da bare visningen.
 
 ### Forløp C: ett brev med preklusjon og avslag
 

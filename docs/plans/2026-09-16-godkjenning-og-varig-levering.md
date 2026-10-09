@@ -93,7 +93,7 @@ Dokumentredigering lukker ingen kode- eller databasefeil.
 | Lag | Ansvar | Hvorfor grensen trengs |
 | --- | --- | --- |
 | Klient | Viser det serveren tillater. Setter aldri aktør, rolle, tidsstempel eller hendelses-ID | Klienten kan forfalskes. FE-01 og FE-02 viste at serveren må holde uavhengig |
-| Serverinngang | Hver inngang krever autentisering (med CSRF), prosjekttilgang og eventuelt kontraktsrolle, i Python-rutene og i TS-stien. Stempler aktørfelt fra sesjonen. Unntak står i et register med begrunnelse, og en test feiler når en inngang mangler en kontroll | Én glemt kontroll skal gi rød test, ikke en åpen inngang. Registertesten finnes i dag bare for Python-rutene (DM-04) |
+| Serverinngang | Hver inngang krever autentisering (med CSRF), prosjekttilgang og eventuelt kontraktsrolle, i Python-rutene og i TS-stien. Stempler aktørfelt fra sesjonen. Unntak står i et register med begrunnelse, og en test feiler når en inngang mangler en kontroll. Invariantene står i `AGENTS.md`, mekanismene i `.claude/rules/tilgang.md` | Én glemt kontroll skal gi rød test, ikke en åpen inngang. Registertesten finnes i dag bare for Python-rutene (DM-04) |
 | Svar- og lesegrense | Navneoppslag, fletting av `hendelse` og `notat`, skjerming av interne notater, aktivitetstall etter det leseren ser | Navn og skjerming er presentasjon. De skal ikke påvirke domenetilstanden (AF-05) |
 | Domene | NS 8407-regler og ren utledning fra journalen. For KOE-, EO- og forseringssakene eier TS-kjernen kommandoene, valideringen, utledningen, journalhendelsene, beslutningsgrunnlaget og enighetsgrunnlaget (B-17 med merknaden 09.10) | Samme journal skal gi samme utledning, uten server, database eller nett |
 | Datalag | Prosjekt-, side- og teamgrense for private data. Uforanderlig journal. Én transaksjon per bindende kommando | Grensen må holde også når et nytt lesepunkt glemmer filteret (AF-01, AF-02) |
@@ -273,7 +273,7 @@ eksplisitt oppheves.
 | B-13 «frafalt» (§ 32.3 c) avvises utenfor irregulær endring og valgrett | 24.09, oppdragsgiver | Ikke bygget. **Merknad 2026-10-04:** bygget i forretningsreglene (#63) |
 | Byggherren kan svare «avslått» og samtidig påberope at grunnlaget er varslet for sent (§ 32.2). Begge grunner gjelder; preklusjonen er hovedgrunnen, og avslaget gjelder subsidiært | 05.10, oppdragsgiver | Godtas i dag (K 05.10). Brev, visning og standpunkt må vise begge, med preklusjonen først (B-14, M1) |
 | #235: frafall (§ 32.3 c) kan ikke kombineres med at grunnlaget er varslet for sent (§ 32.2). Frafall skjer mot endringsordre for allerede utført arbeid, og byggherren kan da ikke samtidig påberope at TE har tapt retten til å kalle pålegget en endring. Et frafalt pålegg gjør svaret på vederlag og frist prinsipalt, i status, brev og fullmakt | 05.10, oppdragsgiver, etter teksten i § 32.1–32.3 | Ikke bygget. Serveren godtar kombinasjonen i dag (#235) |
-| Frafall (§ 32.3 c) gir grunnlaget en egen sporstatus, `FRAFALT`, som rollupen regner som avklart grunnlag på linje med godkjent. Endringsordren for utført arbeid følger av #69 | 05.10, oppdragsgiver | Ikke bygget. I dag blir grunnlaget `TRUKKET` (SK-04). **Merknad 2026-10-09:** rollupen regner frafall som avklart grunnlag (SK-04). Den egne statusen er ikke bygget. En ny `SporStatus` krever at alt som teller statuser, oppdateres (`AGENTS.md`) |
+| Frafall (§ 32.3 c) gir grunnlaget en egen sporstatus, `FRAFALT`, som rollupen regner som avklart grunnlag på linje med godkjent. Endringsordren for utført arbeid følger av #69 | 05.10, oppdragsgiver | Ikke bygget. I dag blir grunnlaget `TRUKKET` (SK-04). **Merknad 2026-10-09:** rollupen regner frafall som avklart grunnlag (SK-04). Den egne statusen er ikke bygget. En ny `SporStatus` krever at alt som teller statuser, oppdateres (`.claude/rules/python-domene.md`) |
 | SD-02: trekker TE grunnlaget før vederlag eller frist er sendt, er saken `LUKKET_TRUKKET`. Spor som ikke er sendt, regnes som trukket | 05.10, oppdragsgiver | Ikke bygget (#231) |
 | #213: har TE godtatt avslaget på grunnlaget (`AVSLATT_AKSEPTERT`), er saken `LUKKET_AVSLATT`, uansett vederlag og frist, også når beløp eller dager er godkjent subsidiært. `LUKKET_AVSLATT` regnes som lukket for nye hendelser og i Catenda | 05.10, oppdragsgiver | Bygget i backend (#213). Frontendens lukket-sett: #229 |
 | SK-01: godtar TE byggherrens svar om at grunnlaget er varslet for sent etter § 32.2, er det et godtatt avslag. Grunnlaget blir `AVSLATT_AKSEPTERT`, saken `LUKKET_AVSLATT`, og EO kan ikke utstedes | 05.10, oppdragsgiver | Ikke bygget. I dag blir grunnlaget `GODKJENT`, saken `OMFORENT` og EO utstedbar (SK-01 i 4.2). **Merknad 2026-10-09:** bygget (SK-01) |
@@ -528,8 +528,10 @@ Et åpent valg blokkerer bare oppgavene som er nevnt.
 stod i 3.4 før sluttredigeringen 09.10, er i Git (se toppteksten).
 
 - **B-02** tilgangsmekanisme: alternativ C med transport T2 og punkt 3–6,
-  avgjort 23.09. Grunnlaget er [design v2](../design-b02-tilgangsmekanisme-v2-2026-09-23.md)
-  og [reviewet](../review-b02-tilgangsmekanisme-2026-09-23.md).
+  avgjort 23.09. Grunnlaget er [det første designgrunnlaget](../design-b02-tilgangsmekanisme-2026-09-22.md)
+  (TM-01–TM-08), [reviewet](../review-b02-tilgangsmekanisme-2026-09-23.md)
+  (RB2-01–08) og [design v2](../design-b02-tilgangsmekanisme-v2-2026-09-23.md)
+  (TM-09–TM-12).
 - **B-04** tilbakekalling: avgjort 23.09. Vedtaket står i merknaden til B-04 i 3.1.
 - **B-08** KOE-eksklusivitet: avgjort 08.10 med [EO-U3](#eo-u3).
 - **B-13** sannhetskilde for NS 8407-reglene: avgjort 24.09 etter
@@ -585,7 +587,7 @@ stod i 3.4 før sluttredigeringen 09.10, er i Git (se toppteksten).
 >   det videre arbeidet. Der lagring trengs, brukes lokal PostgreSQL inntil
 >   videre, som testbasen. Vedtak og krav som nevner Supabase, gjelder så lenge
 >   Supabase er plattformen (merknaden 23.09 i 3.1): raden «Bare
->   Catenda-innlogging» i 3.1, RV-06, CFG-05 og Data API-testen i F1.
+>   Catenda-innlogging» i 3.1, restansen i RV-06 og Data API-testen i F1.
 > - **09.10, ved sluttredigeringen:** hvor TS-kjernen kjører på serveren, er
 >   B-18. Hostingen for backend i B-12 avhenger av B-18. Et alternativ til egen
 >   drift i Azure vurderes i
@@ -847,7 +849,7 @@ Kilder: [KR](../audit-korrekthet-2026-09-21.md),
 | MG-06 | Lukket | Indeksen fra KR-11 (`20260921102148`). Fila sier at den er anvendt 21.09 | H, L | — |
 | MG-07 | Lukket | Serverfilter og indeks fra KR-02 (`20260921093936`). Fila sier at den er anvendt 21.09 | H, L | — |
 | MG-08 | Åpen, lav | Serielle navneoppslag. Faller med MG-01 | H | F2 |
-| MG-09 | Regel | I `AGENTS.md` | — | — |
+| MG-09 | Regel | I `.claude/rules/database.md` | — | — |
 | RY-01 | Åpen | Oppslag som bør gå mot `sak_metadata`, ikke journalen; krever indeks på `catenda_topic_id` først. Tas når den støtter EO-flyten (AF-06) | H | F2 eller F4 |
 | RY-02 til RY-07 | Åpen, lav | Paginering, buffer, N+1, oppslag, testdobbel, KR-09 mot identitet | H | F4 |
 
@@ -934,7 +936,7 @@ typesjekk og lint (19.09). Migrasjonene er bygd mot tom PostgreSQL manuelt
 **Leveranse:**
 
 1. En CI-jobb som bygger alle migrasjoner mot tom PostgreSQL 17 (målversjonen
-   i `supabase/config.toml`) med plattformstubben fra `AGENTS.md`, og kjører
+   i `supabase/config.toml`) med plattformstubben (`scripts/testbase/`), og kjører
    databasetester mot den. Stubben dokumenterer hvilke rettigheter som kommer
    fra plattformen.
 2. Påkrevde sjekker på `main` i GitHub-innstillingene.
@@ -1309,8 +1311,8 @@ GFK-01 når B-06 er avgjort.
 > handlinger, og rettingen av TFR-06 og DRF-01 bygger på det. DRF-01 og TFR-06 må løses sammen: en sperre mot
 BH-svar på et nøytralt varsel må slippe forespørselen etter § 33.6.2 gjennom. Deretter systematisk gjennomgang av
 tilstandsovergangene mot NS 8407, med dokumentert forventet overgang og test
-per hendelsestype. Utvides `SporStatus`, gjelder regelen i `AGENTS.md` om å
-lete opp alt som teller statuser.
+per hendelsestype. Utvides `SporStatus`, gjelder regelen i
+`.claude/rules/python-domene.md` om å lete opp alt som teller statuser.
 
 > **Merknad 2026-10-05 til spor D:** Strukturkartleggingen er levert:
 > [kartlegging-struktur-spor-d-2026-10-05.md](../kartlegging-struktur-spor-d-2026-10-05.md).
