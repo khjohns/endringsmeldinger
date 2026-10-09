@@ -1,6 +1,6 @@
 {
   "formatversjon": 1,
-  "omfang": "Kravversjon og aksept i vederlags- og fristsporet (SK-02, SK-03), med tilgrensende rader om godtatt preklusjon (SK-01), låste varsler (SK-12) og byggherrens vurdering av rettidighet. Grunnlagsavhengigheten: grunnlagsendring med og uten endret underkategori, subsidiært svar mens grunnlaget venter på nytt svar, frafall (§ 32.3 c) og trukket grunnlag. EO-særforløpene: endringsordre i KOE-saken, når en KOE-sak kan inngå i en endringsordre, EO-sakens livsløp og koblingen mellom EO-sak og KOE-sak. Forsering er ikke dekket.",
+  "omfang": "Kravversjon og aksept i vederlags- og fristsporet (SK-02, SK-03), med tilgrensende rader om godtatt preklusjon (SK-01), låste varsler (SK-12) og byggherrens vurdering av rettidighet. Grunnlagsavhengigheten: grunnlagsendring med og uten endret underkategori, subsidiært svar mens grunnlaget venter på nytt svar, frafall (§ 32.3 c) og trukket grunnlag. EO-særforløpene: endringsordre i KOE-saken, når en KOE-sak kan inngå i en endringsordre, EO-sakens livsløp og koblingen mellom EO-sak og KOE-sak. Forsering er ikke dekket. Radene KA-20–KA-26 gjelder målmodellen etter MM-U1–MM-U8 og KA-U6: et varsel registrert etter et senere krav, en bestridelse, en godtatt preklusjon etter en regelendring, et svar som avviker fra dagens utledning, en sak kjernen ikke kan tolke, et avvikende grunnlagssvar mens beløp og dager er avtalt, og trekk av et krav partene er enige om. Bevis-sakene deres står i bevis-saker-maalmodell.json og kjøres mot målmodellen i sprakprove/maalmodell/ (#304).",
   "tolkningsstatuser": {
     "avklart_tolkning": "Forventningen følger av et vedtak i hovedplanen 3.1. Vedtaket er kilden; tabellen gjentar det ikke.",
     "arbeidshypotese": "Forventningen er utledet av vedtak eller standardtekst, men slutningen er ikke selv vedtatt. Må avklares før den brukes som bindende produktkrav.",
@@ -305,6 +305,111 @@
       "type": "standard",
       "punkt": "33.7 annet ledd",
       "merknad": "Tekst: innsigelser mot kravet tapes dersom de ikke fremsettes innen fristen (uten ugrunnet opphold etter mottatt begrunnet krav med dager, første ledd). Brukt som premiss, som NS-5-3."
+    },
+    {
+      "id": "MM-U1",
+      "type": "vedtak",
+      "dato": "2026-10-09",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u1",
+      "radetikett": "MM-U1: SK-12 låser et varsel som er registrert"
+    },
+    {
+      "id": "MM-U2",
+      "type": "vedtak",
+      "dato": "2026-10-09",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u2",
+      "radetikett": "MM-U2: kan ikke kjernen tolke en hendelse på saken"
+    },
+    {
+      "id": "MM-U3",
+      "type": "vedtak",
+      "dato": "2026-10-09",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u3",
+      "radetikett": "MM-U3: virkningen av en enighet fastsettes når den inngås"
+    },
+    {
+      "id": "MM-U4",
+      "type": "vedtak",
+      "dato": "2026-10-09",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u4",
+      "radetikett": "MM-U4: TE kan bare godta et svar når brevet stemmer med dagens utledning"
+    },
+    {
+      "id": "KT-U1",
+      "type": "vedtak",
+      "dato": "2026-10-08",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#kt-u1",
+      "radetikett": "KT-U1: hvert spor i den offentlige tilstanden har"
+    },
+    {
+      "id": "V-32-2-AVSLAG",
+      "type": "vedtak",
+      "dato": "2026-10-05",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger",
+      "radetikett": "Byggherren kan svare «avslått» og samtidig påberope at grunnlaget er varslet for sent (§ 32.2)"
+    },
+    {
+      "id": "V-B13-REGELVERSJON",
+      "type": "vedtak",
+      "dato": "2026-09-24",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger",
+      "radetikett": "B-13 regelversjon: klienten sender versjonen av reglene"
+    },
+    {
+      "id": "V-B13-32-2",
+      "type": "vedtak",
+      "dato": "2026-09-24",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger",
+      "radetikett": "B-13 `grunnlag_varslet_i_tide` avvises utenfor § 32.2"
+    },
+    {
+      "id": "MM-U5",
+      "type": "vedtak",
+      "dato": "2026-10-09",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u5",
+      "radetikett": "MM-U5: avviker byggherrens svar på grunnlaget fra brevet etter en regelendring"
+    },
+    {
+      "id": "MM-U6",
+      "type": "vedtak",
+      "dato": "2026-10-09",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u6",
+      "radetikett": "MM-U6: TE kan ikke godta et svar uten lagret beslutningsgrunnlag"
+    },
+    {
+      "id": "MM-U7",
+      "type": "vedtak",
+      "dato": "2026-10-09",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u7",
+      "radetikett": "MM-U7: en part kan bestride en opplysning fra motparten"
+    },
+    {
+      "id": "MM-U8",
+      "type": "vedtak",
+      "dato": "2026-10-09",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u8",
+      "radetikett": "MM-U8: MM-U4 gjelder også når en ny opplysning"
+    },
+    {
+      "id": "GR-U8",
+      "type": "vedtak",
+      "dato": "2026-10-09",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u8",
+      "radetikett": "GR-U8: TE kan ikke godta et svar som godkjenner hele kravet"
+    },
+    {
+      "id": "GR-U9",
+      "type": "vedtak",
+      "dato": "2026-10-09",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u9",
+      "radetikett": "GR-U9: TE kan ikke godta byggherrens frafall"
+    },
+    {
+      "id": "KA-U6",
+      "type": "vedtak",
+      "dato": "2026-10-09",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u6",
+      "radetikett": "KA-U6: TE kan trekke et krav i et spor der partene er enige"
     }
   ],
   "rader": [
@@ -605,14 +710,117 @@
     },
     {
       "id": "KA-19",
-      "tilfelle": "TE spesifiserer fristkravet med en annen dato for varselet etter § 33.4 enn det registrerte.",
-      "forventet": "Spesifiseringen avvises, og varselet står med datoen og metoden det fikk første gang.",
+      "tilfelle": "TE spesifiserer fristkravet, eller registrerer varselet etter § 33.4 på nytt, med en annen dato enn den registrerte.",
+      "forventet": "Spesifiseringen eller registreringen avvises, og varselet står med datoen og metoden det fikk første gang. Låsen gjelder et registrert varsel, ikke et varsel som bare er utledet av det spesifiserte kravet (KA-20).",
       "bh_standpunkt": "—",
       "rettslig_virkning": "Varselet er sendt én gang. Datoen kan ikke flyttes av en senere kravversjon.",
       "rettidighet": "—",
       "tidsakse": "sendt_mottatt",
       "kilder": [
-        "V-SK12"
+        "V-SK12",
+        "MM-U1"
+      ],
+      "tolkningsstatus": "avklart_tolkning"
+    },
+    {
+      "id": "KA-20",
+      "tilfelle": "TE har sendt et spesifisert fristkrav uten registrert varsel etter § 33.4, og byggherren har påberopt at varselet kom for sent. TE registrerer deretter varselet med en tidligere sendedato.",
+      "forventet": "Registreringen godtas som første registrering, uten ny kravversjon. Byggherrens svar står og er fortsatt gjeldende svar. Preklusjonen i svaret gjaldt varselet slik det var registrert da, og er uavklart til byggherren tar stilling. Har TE godtatt svaret før registreringen, står enigheten. TE kan ikke godta svaret før byggherren har svart på nytt (MM-U8).",
+      "bh_standpunkt": "Svaret står uendret. Byggherren har ikke tatt stilling til rettidigheten av det registrerte varselet.",
+      "rettslig_virkning": "Varselet er registrert for første gang. Preklusjonen faller ikke av seg selv.",
+      "rettidighet": "Byggherrens vurdering av varselet utledet av kravet: for sent. Det registrerte varselet: ikke vurdert.",
+      "tidsakse": "sendt_mottatt",
+      "kilder": [
+        "MM-U1",
+        "V-SK12",
+        "KA-U1",
+        "MM-U8"
+      ],
+      "tolkningsstatus": "avklart_tolkning"
+    },
+    {
+      "id": "KA-21",
+      "tilfelle": "Byggherren bestrider at et varsel TE har registrert, ble mottatt, også etter at saken er avsluttet.",
+      "forventet": "Bestridelsen lagres som byggherrens utsagn om opplysningen. Opplysningen om sendingen står, og preklusjonen verken faller eller oppstår av seg selv. Visningen viser både TEs opplysning og bestridelsen. I en avsluttet sak registreres bestridelsen uten virkning på utfallet, og andre kommandoer avvises fortsatt.",
+      "bh_standpunkt": "Bestrider mottaket. Rettidigheten er ikke vurdert.",
+      "rettslig_virkning": "Systemet avgjør ikke hvem som har rett.",
+      "rettidighet": "Ikke vurdert.",
+      "tidsakse": "sendt_mottatt",
+      "kilder": [
+        "MM-U1",
+        "MM-U7"
+      ],
+      "tolkningsstatus": "avklart_tolkning"
+    },
+    {
+      "id": "KA-22",
+      "tilfelle": "TE har godtatt et grunnlagssvar som påberoper at grunnlaget er varslet for sent (§ 32.2), og en senere regelendring gjør at § 32.2 ikke gjelder kategorien.",
+      "forventet": "Saken forblir avslått. Enigheten gjelder svaret med virkningen standpunktene hadde etter reglene da TE godtok det. Dagens utledning viser at regelen er endret.",
+      "bh_standpunkt": "Prinsipalt prekludert, med ansvaret som subsidiært standpunkt, slik svaret ble godtatt.",
+      "rettslig_virkning": "Virkningen av enigheten ble fastsatt da den ble inngått.",
+      "rettidighet": "Byggherrens vurdering av grunnlagsvarselet: for sent.",
+      "tidsakse": "registrering",
+      "kilder": [
+        "MM-U3",
+        "KA-U1",
+        "V-SK01"
+      ],
+      "tolkningsstatus": "avklart_tolkning"
+    },
+    {
+      "id": "KA-23",
+      "tilfelle": "En regelendring gir et standpunkt i byggherrens sendte svar en annen virkning før TE har godtatt det.",
+      "forventet": "Dagens utledning av svaret følger de nye reglene, og svaret merkes som avvikende fra brevet. Brevet og beslutningsgrunnlaget står uendret. TEs aksept avvises, og journalen er uendret; byggherren har revisjon som ventende handling. Et svar der brevet stemmer med dagens utledning, kan godtas, også når regelversjonen er nyere enn da svaret ble sendt. En aksept med en annen regelversjon eller et annet enighetsgrunnlag enn serverens avvises.",
+      "bh_standpunkt": "Svaret slik brevet uttrykte det. Dagens utledning kan avvike.",
+      "rettslig_virkning": "TE godtar hele svaret slik brevet uttrykker det.",
+      "rettidighet": "—",
+      "tidsakse": "registrering",
+      "kilder": [
+        "MM-U4",
+        "MM-U3",
+        "V-B13-REGELVERSJON"
+      ],
+      "tolkningsstatus": "avklart_tolkning"
+    },
+    {
+      "id": "KA-24",
+      "tilfelle": "Kjernen kan ikke tolke en hendelse på saken: en ukjent type eller et ukjent format, en referanse som ikke finnes i saken, eller svar på samme kravversjon som ikke er én kjede der hver revisjon erstatter det forrige (to første svar, en forgrening, en selvreferanse eller en sirkel).",
+      "forventet": "Ingen bindende kommando godtas fra noen part, og ingen handlinger tilbys. Journalen kan leses. Visningen sier at saken ikke kan utledes, hvilke hendelser som ikke er tolket, og at et varsel med frist må sendes utenfor appen.",
+      "bh_standpunkt": "—",
+      "rettslig_virkning": "—",
+      "rettidighet": "—",
+      "tidsakse": "registrering",
+      "kilder": [
+        "MM-U2"
+      ],
+      "tolkningsstatus": "avklart_tolkning"
+    },
+    {
+      "id": "KA-25",
+      "tilfelle": "Byggherren har svart på grunnlaget med preklusjon etter § 32.2 og subsidiært godkjent, og partene er enige om beløp og dager på vilkår av at grunnlaget avklares. En regelendring gjør at § 32.2 ikke gjelder kategorien før TE har godtatt svaret på grunnlaget.",
+      "forventet": "Svaret merkes som avvikende fra brevet, og grunnlaget er uavklart til byggherren svarer på nytt. Enighetene forblir betinget, saken avsluttes ikke, og byggherren kan revidere svaret. Når byggherren godkjenner grunnlaget på nytt, blir enighetene virksomme med uendret innhold.",
+      "bh_standpunkt": "Svaret slik brevet uttrykte det: prinsipalt prekludert, subsidiært godkjent. Dagens utledning avviker.",
+      "rettslig_virkning": "Byggherren bindes ikke til et utfall brevet ikke uttrykte.",
+      "rettidighet": "Byggherrens vurdering av grunnlagsvarselet: for sent. Uten virkning etter regelendringen.",
+      "tidsakse": "registrering",
+      "kilder": [
+        "MM-U5",
+        "MM-U4",
+        "GR-U7"
+      ],
+      "tolkningsstatus": "avklart_tolkning"
+    },
+    {
+      "id": "KA-26",
+      "tilfelle": "TE trekker vederlagskravet etter at byggherren har godkjent hele kravet, mens saken ikke er avsluttet.",
+      "forventet": "Trekket godtas. Enigheten om beløpet får ingen virkning, og vederlaget er trukket. Saken er ikke avsluttet så lenge grunnlag og frist står åpne.",
+      "bh_standpunkt": "Godkjent vederlag.",
+      "rettslig_virkning": "Kravet er trukket. Enigheten gjaldt et krav som ikke lenger er fremmet.",
+      "rettidighet": "—",
+      "tidsakse": "registrering",
+      "kilder": [
+        "KA-U6",
+        "V-SK02-SK03"
       ],
       "tolkningsstatus": "avklart_tolkning"
     },
@@ -962,13 +1170,28 @@
       "tilfelle": "TE godtar et vederlagssvar som godkjenner hele kravet.",
       "forventet": "Aksepten avvises, og journalen er uendret: partene er allerede enige.",
       "bh_standpunkt": "Godkjent vederlag.",
-      "rettslig_virkning": "Enigheten finnes uten aksept. Om en slik aksept bør godtas uten virkning i stedet, er ikke avgjort.",
+      "rettslig_virkning": "Enigheten finnes uten aksept.",
       "rettidighet": "—",
       "tidsakse": "registrering",
       "kilder": [
-        "GR-U7"
+        "GR-U7",
+        "GR-U8"
       ],
-      "tolkningsstatus": "arbeidshypotese"
+      "tolkningsstatus": "avklart_tolkning"
+    },
+    {
+      "id": "GR-26",
+      "tilfelle": "TE godtar byggherrens frafall av pålegget (§ 32.3 c).",
+      "forventet": "Aksepten avvises, og journalen er uendret. Grunnlaget er avklart uten aksept, og byggherren kan fortsatt revidere frafallet.",
+      "bh_standpunkt": "Frafalt, med grunnlaget varslet i tide.",
+      "rettslig_virkning": "Frafallet er byggherrens standpunkt, ikke en enighet.",
+      "rettidighet": "—",
+      "tidsakse": "registrering",
+      "kilder": [
+        "GR-U9",
+        "GR-U3"
+      ],
+      "tolkningsstatus": "avklart_tolkning"
     },
     {
       "id": "EO-01",

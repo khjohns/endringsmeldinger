@@ -7,6 +7,7 @@ og regner tilstanden med `TimelineService`. Det journalen ville fått, er
 avvik er strenge `xfail` med funn-ID fra hovedplanen.
 """
 
+import copy
 from itertools import count
 
 import pytest
@@ -66,6 +67,21 @@ class Domenebane:
 
 def test_tabellen_og_bevis_sakene_henger_sammen():
     assert korpus.verktoy.valider(korpus.REGLER, korpus.KORPUS) == []
+
+
+def test_kontrollen_finner_feil_i_bevis_sakene_for_maalmodellen():
+    """Bevis-sakene for målmodellen (#304) kontrolleres med resten: en kontroll
+    uten kilde, en ukjent handling og en rad uten bevis-sak gir feil."""
+    maal = copy.deepcopy(korpus.verktoy.les_maalmodell())
+    assert korpus.verktoy.valider(korpus.REGLER, korpus.KORPUS, maalmodell=maal) == []
+    forlop = maal["forlop"][0]
+    forlop["kontroller"][0]["kilde"] = []
+    forlop["steg"][0]["handling"] = "ukjent"
+    maal["forlop"] = [f for f in maal["forlop"] if "KA-21" not in f["rader"]] + [forlop]
+    feil = korpus.verktoy.valider(korpus.REGLER, korpus.KORPUS, maalmodell=maal)
+    assert any("mangler kilde" in f for f in feil)
+    assert any("ukjent handling 'ukjent'" in f for f in feil)
+    assert "KA-21: ingen bevis-sak" in feil
 
 
 def test_tabellen_i_readme_er_skrevet_av_verktoyet():
