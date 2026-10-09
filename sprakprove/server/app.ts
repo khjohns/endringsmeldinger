@@ -4,7 +4,7 @@
  * 1. tilgang (401, 403, 503);
  * 2. konvolutten (400);
  * 3. kontrakten og serverfeltene (400), kontraktssiden mot hendelsestypen (403);
- * 4. versjonen klienten så (409);
+ * 4. journalen: en hendelsestype kjernen ikke kjenner (422), og versjonen klienten så (409);
  * 5. forretningsreglene med serverens utregning og regelversjonen (400);
  * 6. lagring, med versjonskonflikt fra basen (409).
  *
@@ -21,6 +21,7 @@ import type { Pool } from 'pg';
 import { forstebrudd, rollebrudd } from '../kjerne/forretningsregler.ts';
 import { vurderPakke, type Pakkeelement } from '../kjerne/godkjenning.ts';
 import { tolkKommando } from '../kjerne/kommando.ts';
+import { KOMMANDOER } from '../kjerne/kontrakt.ts';
 import { offentligTilstand } from '../kjerne/offentlig.ts';
 import { anvend, projiser, type Sak } from '../kjerne/sak.ts';
 import type { Hendelse, Kontekst } from '../kjerne/typer.ts';
@@ -42,6 +43,15 @@ export interface Avhengigheter {
 }
 
 type Svar = [number, Record<string, unknown>];
+
+/**
+ * Hendelsene kjernen forstår. B-10: en ukjent rettslig relevant hendelse kan
+ * ikke overses mens bindende kommandoer tillates. En sak med en annen
+ * hendelsestype, for eksempel trekk eller EO skrevet av Flask, får derfor
+ * verken tilstand eller kommandoer her. Et internt notat har ingen
+ * domenevirkning (MS-05).
+ */
+const KJENTE_HENDELSER = new Set([...KOMMANDOER, 'sak_opprettet', 'internt_notat']);
 
 const STORSTE_KROPP = 1_000_000;
 
@@ -125,9 +135,20 @@ export function lagServer(avh: Avhengigheter) {
 
   async function lesSak(
     sakId: string,
-    prosjektId: string
+    prosjektId: string,
+    { godtaUkjente = false } = {}
   ): Promise<{ sak: Sak; journal: Hendelse[]; versjon: number }> {
     const { hendelser, versjon } = await lesJournal(pool, sakId, prosjektId);
+    const ukjente = [...new Set(hendelser.map((h) => h.event_type as string))].filter(
+      (t) => !KJENTE_HENDELSER.has(t)
+    );
+    if (ukjente.length && !godtaUkjente) {
+      throw new Nektet(
+        422,
+        'UNKNOWN_EVENTS',
+        `Saken har hendelser TS-serveren ikke forstår: ${ukjente.join(', ')}.`
+      );
+    }
     return { sak: projiser(sakId, hendelser), journal: hendelser, versjon };
   }
 
@@ -347,7 +368,13 @@ export function lagServer(avh: Avhengigheter) {
     }
     if (sak && metode === 'GET' && sak[2] !== 'godkjenningspakke') {
       const { prosjekt } = await tilgang(foresporsel, { verdi: {} }, sakId, false);
-      const { sak: s, journal, versjon } = await lesSak(sakId, prosjekt.prosjektId);
+      const {
+        sak: s,
+        journal,
+        versjon,
+      } = await lesSak(sakId, prosjekt.prosjektId, {
+        godtaUkjente: sak[2] === 'journal',
+      });
       if (!journal.length) return [404, { error: 'Sak ikke funnet' }];
       // Synlighetsfilteret i `lib/auth/event_visibility.py` er ikke portet. Et internt
       // notat i journalen vises derfor til ingen, fail-closed.
