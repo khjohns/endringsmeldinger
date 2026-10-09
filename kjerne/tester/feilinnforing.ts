@@ -1,7 +1,7 @@
 /**
  * Feilinnføringene for kjernen (#304, #308). F1–F7 er avsnitt 4 i modellforslaget,
  * F8–F10 feilklassene reviewet av PR #306 fant, skrevet om etter MM-U9 og
- * GR-U10, og F11–F16 grensene #308 la til. Én mutasjon om gangen i
+ * GR-U10, og F11–F17 grensene #308 la til. Én mutasjon om gangen i
  * arbeidskopien, Vitest over `kjerne/` og `sprakprove/kjernelagring/`, og
  * originalteksten settes tilbake etterpå. For hver mutasjon kreves det at de
  * forventede målassertions feiler, og at alle feil er assertions, ikke import,
@@ -145,7 +145,7 @@ const MUTASJONER: Mutasjon[] = [
     endringer: [['    if (hindring !== null)\n', '    if (hindring === undefined)\n']],
     mal: ['avslår prinsipalt, med dagene som subsidiært standpunkt'],
   },
-  // F11–F16 er grensene #308 la til.
+  // F11–F17 er grensene #308 la til.
   {
     id: 'F11',
     feilklasse: 'kjernen importerer fra språkprøven og pg',
@@ -174,7 +174,12 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F13',
     feilklasse: 'et trukket spor hindrer endringsordre (EO-U2, #312)',
     fil: `${K}/utled.ts`,
-    endringer: [['KRAVSPOR.some(godkjent)', 'KRAVSPOR.every(godkjent)']],
+    endringer: [
+      [
+        'KRAVSPOR.some((n) => !u.spor[n].trukket && u.spor[n].enighet !== null)',
+        'KRAVSPOR.every((n) => !u.spor[n].trukket && u.spor[n].enighet !== null)',
+      ],
+    ],
     mal: ['F-MM-EO1'],
   },
   {
@@ -204,6 +209,18 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utled.ts`,
     endringer: [['else if (g.beslutningsgrunnlag.sammenfall)', 'else if (g.utsagn.length < 0)']],
     mal: ['F-MM-A', 'F-MM-G10', 'F-MM-K1'],
+  },
+  {
+    id: 'F17',
+    feilklasse: 'et trukket spor gir alene grunnlag for endringsordre (EO-U5)',
+    fil: `${K}/utled.ts`,
+    endringer: [
+      [
+        'KRAVSPOR.some((n) => !u.spor[n].trukket && u.spor[n].enighet !== null)',
+        'KRAVSPOR.some((n) => u.spor[n].trukket || u.spor[n].enighet !== null)',
+      ],
+    ],
+    mal: ['F-MM-EO3'],
   },
 ];
 
