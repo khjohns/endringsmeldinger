@@ -743,7 +743,7 @@
         { "etter": 1, "rolle": "forutsetning", "forventet": { "vederlag.enighet": true } },
         { "etter": 2, "rolle": "mal", "forventet": { "avvist": true, "vederlag.te_akseptert": false, "vederlag.enighet": true } }
       ],
-      "forventningsgrunnlag": "arbeidshypotese"
+      "forventningsgrunnlag": "avklart_tolkning"
     },
     {
       "id": "F-EO-01",

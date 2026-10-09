@@ -1,6 +1,6 @@
 {
   "formatversjon": 1,
-  "omfang": "Kravversjon og aksept i vederlags- og fristsporet (SK-02, SK-03), med tilgrensende rader om godtatt preklusjon (SK-01), låste varsler (SK-12) og byggherrens vurdering av rettidighet. Grunnlagsavhengigheten: grunnlagsendring med og uten endret underkategori, subsidiært svar mens grunnlaget venter på nytt svar, frafall (§ 32.3 c) og trukket grunnlag. EO-særforløpene: endringsordre i KOE-saken, når en KOE-sak kan inngå i en endringsordre, EO-sakens livsløp og koblingen mellom EO-sak og KOE-sak. Forsering er ikke dekket. Radene KA-20–KA-25 gjelder målmodellen etter MM-U1–MM-U5 og MM-U7: et varsel registrert etter et senere krav, en bestridelse, en godtatt preklusjon etter en regelendring, et svar som avviker fra dagens utledning, en sak kjernen ikke kan tolke, og et avvikende grunnlagssvar mens beløp og dager er avtalt. Bevis-sakene deres står i bevis-saker-maalmodell.json og kjøres mot målmodellen i sprakprove/maalmodell/ (#304).",
+  "omfang": "Kravversjon og aksept i vederlags- og fristsporet (SK-02, SK-03), med tilgrensende rader om godtatt preklusjon (SK-01), låste varsler (SK-12) og byggherrens vurdering av rettidighet. Grunnlagsavhengigheten: grunnlagsendring med og uten endret underkategori, subsidiært svar mens grunnlaget venter på nytt svar, frafall (§ 32.3 c) og trukket grunnlag. EO-særforløpene: endringsordre i KOE-saken, når en KOE-sak kan inngå i en endringsordre, EO-sakens livsløp og koblingen mellom EO-sak og KOE-sak. Forsering er ikke dekket. Radene KA-20–KA-26 gjelder målmodellen etter MM-U1–MM-U8 og KA-U6: et varsel registrert etter et senere krav, en bestridelse, en godtatt preklusjon etter en regelendring, et svar som avviker fra dagens utledning, en sak kjernen ikke kan tolke, et avvikende grunnlagssvar mens beløp og dager er avtalt, og trekk av et krav partene er enige om. Bevis-sakene deres står i bevis-saker-maalmodell.json og kjøres mot målmodellen i sprakprove/maalmodell/ (#304).",
   "tolkningsstatuser": {
     "avklart_tolkning": "Forventningen følger av et vedtak i hovedplanen 3.1. Vedtaket er kilden; tabellen gjentar det ikke.",
     "arbeidshypotese": "Forventningen er utledet av vedtak eller standardtekst, men slutningen er ikke selv vedtatt. Må avklares før den brukes som bindende produktkrav.",
@@ -382,6 +382,34 @@
       "dato": "2026-10-09",
       "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u7",
       "radetikett": "MM-U7: en part kan bestride en opplysning fra motparten"
+    },
+    {
+      "id": "MM-U8",
+      "type": "vedtak",
+      "dato": "2026-10-09",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u8",
+      "radetikett": "MM-U8: MM-U4 gjelder også når en ny opplysning"
+    },
+    {
+      "id": "GR-U8",
+      "type": "vedtak",
+      "dato": "2026-10-09",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u8",
+      "radetikett": "GR-U8: TE kan ikke godta et svar som godkjenner hele kravet"
+    },
+    {
+      "id": "GR-U9",
+      "type": "vedtak",
+      "dato": "2026-10-09",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u9",
+      "radetikett": "GR-U9: TE kan ikke godta byggherrens frafall"
+    },
+    {
+      "id": "KA-U6",
+      "type": "vedtak",
+      "dato": "2026-10-09",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u6",
+      "radetikett": "KA-U6: TE kan trekke et krav i et spor der partene er enige"
     }
   ],
   "rader": [
@@ -697,7 +725,7 @@
     {
       "id": "KA-20",
       "tilfelle": "TE har sendt et spesifisert fristkrav uten registrert varsel etter § 33.4, og byggherren har påberopt at varselet kom for sent. TE registrerer deretter varselet med en tidligere sendedato.",
-      "forventet": "Registreringen godtas som første registrering, uten ny kravversjon. Byggherrens svar står og er fortsatt gjeldende svar. Preklusjonen i svaret gjaldt varselet slik det var registrert da, og er uavklart til byggherren tar stilling. Har TE godtatt svaret før registreringen, står enigheten.",
+      "forventet": "Registreringen godtas som første registrering, uten ny kravversjon. Byggherrens svar står og er fortsatt gjeldende svar. Preklusjonen i svaret gjaldt varselet slik det var registrert da, og er uavklart til byggherren tar stilling. Har TE godtatt svaret før registreringen, står enigheten. TE kan ikke godta svaret før byggherren har svart på nytt (MM-U8).",
       "bh_standpunkt": "Svaret står uendret. Byggherren har ikke tatt stilling til rettidigheten av det registrerte varselet.",
       "rettslig_virkning": "Varselet er registrert for første gang. Preklusjonen faller ikke av seg selv.",
       "rettidighet": "Byggherrens vurdering av varselet utledet av kravet: for sent. Det registrerte varselet: ikke vurdert.",
@@ -705,7 +733,8 @@
       "kilder": [
         "MM-U1",
         "V-SK12",
-        "KA-U1"
+        "KA-U1",
+        "MM-U8"
       ],
       "tolkningsstatus": "avklart_tolkning"
     },
@@ -778,6 +807,20 @@
         "MM-U5",
         "MM-U4",
         "GR-U7"
+      ],
+      "tolkningsstatus": "avklart_tolkning"
+    },
+    {
+      "id": "KA-26",
+      "tilfelle": "TE trekker vederlagskravet etter at byggherren har godkjent hele kravet, mens saken ikke er avsluttet.",
+      "forventet": "Trekket godtas. Enigheten om beløpet får ingen virkning, og vederlaget er trukket. Saken er ikke avsluttet så lenge grunnlag og frist står åpne.",
+      "bh_standpunkt": "Godkjent vederlag.",
+      "rettslig_virkning": "Kravet er trukket. Enigheten gjaldt et krav som ikke lenger er fremmet.",
+      "rettidighet": "—",
+      "tidsakse": "registrering",
+      "kilder": [
+        "KA-U6",
+        "V-SK02-SK03"
       ],
       "tolkningsstatus": "avklart_tolkning"
     },
@@ -1127,13 +1170,28 @@
       "tilfelle": "TE godtar et vederlagssvar som godkjenner hele kravet.",
       "forventet": "Aksepten avvises, og journalen er uendret: partene er allerede enige.",
       "bh_standpunkt": "Godkjent vederlag.",
-      "rettslig_virkning": "Enigheten finnes uten aksept. Om en slik aksept bør godtas uten virkning i stedet, er ikke avgjort.",
+      "rettslig_virkning": "Enigheten finnes uten aksept.",
       "rettidighet": "—",
       "tidsakse": "registrering",
       "kilder": [
-        "GR-U7"
+        "GR-U7",
+        "GR-U8"
       ],
-      "tolkningsstatus": "arbeidshypotese"
+      "tolkningsstatus": "avklart_tolkning"
+    },
+    {
+      "id": "GR-26",
+      "tilfelle": "TE godtar byggherrens frafall av pålegget (§ 32.3 c).",
+      "forventet": "Aksepten avvises, og journalen er uendret. Grunnlaget er avklart uten aksept, og byggherren kan fortsatt revidere frafallet.",
+      "bh_standpunkt": "Frafalt, med grunnlaget varslet i tide.",
+      "rettslig_virkning": "Frafallet er byggherrens standpunkt, ikke en enighet.",
+      "rettidighet": "—",
+      "tidsakse": "registrering",
+      "kilder": [
+        "GR-U9",
+        "GR-U3"
+      ],
+      "tolkningsstatus": "avklart_tolkning"
     },
     {
       "id": "EO-01",
