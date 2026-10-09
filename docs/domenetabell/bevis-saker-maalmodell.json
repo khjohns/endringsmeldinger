@@ -1,6 +1,6 @@
 {
   "formatversjon": 1,
-  "omfang": "Forløp A–E fra modellforslaget (docs/forslag-maalmodell-2026-10-09.md, avsnitt 3) som bevis-saker for målmodellen i sprakprove/maalmodell/ (#304). Forventningene er skrevet ut fra vedtakene og kildene i hver kontroll, ikke ut fra dagens kode. Bevis-sakene kjøres bare mot målmodellen, i minnet og mot testbasen; Python-projeksjonen kan ikke uttrykke handlingene `varsel`, `bestridelse`, `regelendring` og `rad`.",
+  "omfang": "Forløp A–E fra modellforslaget (docs/forslag-maalmodell-2026-10-09.md, avsnitt 3) som bevis-saker for TS-kjernen i kjerne/ (#304, #308). Forventningene er skrevet ut fra vedtakene og kildene i hver kontroll, ikke ut fra dagens kode. Bevis-sakene kjøres bare mot kjernen, i minnet og mot testbasen; Python-projeksjonen kan ikke uttrykke handlingene `varsel`, `bestridelse`, `regelendring` og `rad`.",
   "grunnpremisser": [
     "Grunnlaget er en endring (hovedkategori ENDRING). Underkategorien står i prefikset eller steget.",
     "Beløp, dager og datoer er faste modellverdier. De er ikke rettslige forventninger.",

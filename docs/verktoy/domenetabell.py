@@ -1,8 +1,9 @@
 """Kontroller domenetabellen i docs/domenetabell/ og skriv tabellen i README.md.
 
 Radene står i `regler.json`, bevis-sakene i `bevis-saker.json`. Bevis-sakene for
-målmodellen (#304) står i `bevis-saker-maalmodell.json` og kjøres bare mot
-`sprakprove/maalmodell/`. Tabellen i README.md lages herfra og rettes ikke for hånd. Kjøring fra repoets rot:
+målmodellen (#304, #308) står i `bevis-saker-maalmodell.json` og kjøres bare mot
+TS-kjernen i `kjerne/`, i minnet og gjennom testbasen (`sprakprove/kjernelagring/`).
+Tabellen i README.md lages herfra og rettes ikke for hånd. Kjøring fra repoets rot:
 
     python3 docs/verktoy/domenetabell.py          # kontroller; 1 ved feil eller utdatert tabell
     python3 docs/verktoy/domenetabell.py --skriv  # skriv tabellen på nytt

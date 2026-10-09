@@ -8,6 +8,7 @@ paths:
   - "scripts/avstem_migrasjonshistorikk.sh"
   - "docs/migrasjoner-og-testbase.md"
   - "sprakprove/**/server/**"
+  - "sprakprove/kjernelagring/**"
 ---
 
 # Database og migrasjoner

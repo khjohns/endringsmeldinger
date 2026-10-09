@@ -11,12 +11,13 @@
 		"check:error": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --threshold error",
 		"test": "vitest run",
 		"test:watch": "vitest",
-		"lint": "prettier --check src/ 'sprakprove/**/*.ts' 'scripts/**/*.{js,mjs,cjs}' '*.{js,ts}' && eslint .",
-		"format": "prettier --write src/ 'sprakprove/**/*.ts' 'scripts/**/*.{js,mjs,cjs}' '*.{js,ts}'",
+		"lint": "prettier --check src/ 'kjerne/**/*.ts' 'sprakprove/**/*.ts' 'scripts/**/*.{js,mjs,cjs}' '*.{js,ts}' && eslint .",
+		"format": "prettier --write src/ 'kjerne/**/*.ts' 'sprakprove/**/*.ts' 'scripts/**/*.{js,mjs,cjs}' '*.{js,ts}'",
 		"prepare": "husky"
 	},
 	"lint-staged": {
 		"src/**/*.{ts,js,svelte,css,json}": "prettier --write",
+		"kjerne/**/*.ts": "prettier --write",
 		"sprakprove/**/*.ts": "prettier --write",
 		"scripts/**/*.{js,mjs,cjs}": "prettier --write",
 		"*.{js,ts}": "prettier --write"

@@ -34,7 +34,7 @@ en enighet. GR-U10 gjør «låst» til enighet. Radene og bevis-sakene skrives o
 | --- | --- |
 | [regler.json](regler.json) | Kilder, tolkningsstatuser og radene i tabellen |
 | [bevis-saker.json](bevis-saker.json) | Forløp med handlinger, kontroller, kjente avvik og invarianter |
-| [bevis-saker-maalmodell.json](bevis-saker-maalmodell.json) | Forløp A–E fra [modellforslaget](../forslag-maalmodell-2026-10-09.md) med kilde per kontroll. Kjøres bare mot målmodellen i [`sprakprove/maalmodell/`](../../sprakprove/maalmodell/) (#304), merket «(målmodellen)» i tabellen |
+| [bevis-saker-maalmodell.json](bevis-saker-maalmodell.json) | Forløp A–E fra [modellforslaget](../forslag-maalmodell-2026-10-09.md) med kilde per kontroll. Kjøres bare mot TS-kjernen i [`kjerne/`](../../kjerne/) (#304, #308), merket «(målmodellen)» i tabellen |
 | [`domenetabell.py`](../verktoy/domenetabell.py) | Kontrollerer referansene og skriver tabellen under |
 | [`test_domenetabell/`](../../backend/tests/test_domenetabell/) | Kjører bevis-sakene mot Python-projeksjonen i minnet |
 | [`test_domenetabell_lagring.py`](../../backend/tests/test_database/test_domenetabell_lagring.py) | Kjører dem gjennom `/api/events` og `/api/events/batch` mot testbasen, med gjenlesing |
