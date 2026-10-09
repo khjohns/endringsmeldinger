@@ -1005,8 +1005,8 @@
         {
           "etter": 2,
           "rolle": "kontroll",
-          "kilde": ["KA-U1"],
-          "prov": { "handling": "aksept", "spor": "vederlag" },
+          "kilde": ["MM-U2"],
+          "prov": { "handling": "krav", "spor": "vederlag", "belop": 120000 },
           "forventet": { "avvist": false }
         },
         {
@@ -1024,7 +1024,7 @@
           "etter": 3,
           "rolle": "mal",
           "kilde": ["MM-U2", "#304"],
-          "prov": { "handling": "aksept", "spor": "vederlag", "svar": "S-v2" },
+          "prov": { "handling": "krav", "spor": "vederlag", "belop": 120000 },
           "forventet": { "avvist": true, "regel": "CASE_NOT_UNDERSTOOD" }
         }
       ],

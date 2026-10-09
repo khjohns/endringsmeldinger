@@ -261,9 +261,10 @@ def _valider_maalmodell(regler: dict, korpus: dict, maal: dict) -> list[str]:
             feil.append(f"{navn}: ukjente eller manglende rader {ukjente}")
             continue
         statuser = [rader[r]["tolkningsstatus"] for r in forlop["rader"]]
-        if all(s in STYRKE for s in statuser):
-            if forlop.get("forventningsgrunnlag") != min(statuser, key=STYRKE.__getitem__):
-                feil.append(f"{navn}: forventningsgrunnlaget samsvarer ikke med radenes tolkningsstatus")
+        if all(s in STYRKE for s in statuser) and forlop.get("forventningsgrunnlag") != min(
+            statuser, key=STYRKE.__getitem__
+        ):
+            feil.append(f"{navn}: forventningsgrunnlaget samsvarer ikke med radenes tolkningsstatus")
         handlinger = [s["handling"] for s in forlop["steg"]]
         handlinger += [k["prov"]["handling"] for k in forlop["kontroller"] if "prov" in k]
         feil += [f"{navn}: ukjent handling {h!r}" for h in handlinger if h not in MAALMODELL_HANDLINGER]
