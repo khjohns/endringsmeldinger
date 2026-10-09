@@ -41,6 +41,12 @@ export class Navn {
     return [id, ...hale].join('#');
   }
 
+  /** ID-en til etiketten, ny om den ikke finnes. En rad kan da vise til seg selv eller til en senere rad. */
+  reserver(navn: string): string {
+    if (!this.tilId.has(navn)) this.sett(navn, randomUUID());
+    return this.tilId.get(navn)!;
+  }
+
   /** Verdien med hver kjent ID erstattet av etiketten. */
   navngi(verdi: unknown): unknown {
     if (typeof verdi === 'string') {
@@ -236,13 +242,13 @@ export function radFor(
       regelversjon: GJELDENDE_REGLER.versjon,
       vederlag_krav_id: gjelder,
     };
-    if (typeof h.erstatter === 'string') data.original_respons_id = navn.id(h.erstatter);
+    if (typeof h.erstatter === 'string') data.original_respons_id = navn.reserver(h.erstatter);
   } else {
     data.frist_krav_id = gjelder;
   }
   return {
     ...felles,
-    event_id: randomUUID(),
+    event_id: typeof h.navn === 'string' ? navn.reserver(h.navn) : randomUUID(),
     event_type: type as Hendelse['event_type'],
     aktor_rolle: 'BH',
     refererer_til_event_id: gjelder,

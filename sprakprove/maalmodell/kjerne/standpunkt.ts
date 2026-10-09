@@ -67,6 +67,11 @@ export function standpunkter(
       }
       if (virkning === 'hovedgrunn' || virkning === 'uavklart') grunn = virkning;
       ut.push({ utsagn: u.id, art: u.art, virkning });
+    } else if (u.art === 'hindring') {
+      // Vedtaket 05.10 (#211): uten fremdriftshindring står dagene som et videre subsidiært standpunkt.
+      const virkning = u.oppfylt ? 'uten_virkning' : etterGrunn();
+      if (!u.oppfylt && grunn === 'ingen') grunn = 'hovedgrunn';
+      ut.push({ utsagn: u.id, art: u.art, virkning });
     } else {
       ut.push({ utsagn: u.id, art: u.art, virkning: etterGrunn() });
     }
@@ -75,6 +80,9 @@ export function standpunkter(
 }
 
 const hovedgrunn = (s: Standpunkt[]) => s.find((p) => p.virkning === 'hovedgrunn');
+/** Et standpunkt som avviser kravet uavhengig av beløpet eller dagene. */
+const AVVISENDE = new Set(['rettidighet', 'hindring']);
+const avvisendeHovedgrunn = (s: Standpunkt[]) => AVVISENDE.has(hovedgrunn(s)?.art ?? '');
 
 function utsagnet<A extends Utsagn['art']>(svar: Svar, art: A) {
   return svar.utsagn.find((u): u is Extract<Utsagn, { art: A }> => u.art === art);
@@ -82,7 +90,7 @@ function utsagnet<A extends Utsagn['art']>(svar: Svar, art: A) {
 
 /** Det svaret gir i sporet når standpunktene har denne virkningen. */
 export function utfall(svar: Svar, s: Standpunkt[]): Utfall {
-  const prekludert = hovedgrunn(s)?.art === 'rettidighet';
+  const prekludert = avvisendeHovedgrunn(s);
   if (svar.spor === 'grunnlag') {
     const ansvar = utsagnet(svar, 'ansvar')!;
     return { grunnlag: prekludert || ansvar.resultat === 'avslatt' ? 'avvist' : 'avklart' };
@@ -99,7 +107,7 @@ export function godkjennerHeleKravet(svar: Svar, s: Standpunkt[]): boolean {
   return (
     svar.spor !== 'grunnlag' &&
     !uavklart(s) &&
-    !hovedgrunn(s.filter((p) => p.art === 'rettidighet')) &&
+    !avvisendeHovedgrunn(s) &&
     svar.utregning.beregnings_resultat === 'godkjent'
   );
 }
@@ -125,8 +133,14 @@ const kroner = (n: number) => `${n.toLocaleString('nb-NO')} kr`;
 
 /** Linjen i brevet for svaret, med hovedgrunnen først (vedtaket 05.10 om avslag sammen med § 32.2). */
 export function beslutningslinje(svar: Svar, s: Standpunkt[]): string {
-  const prekludert = hovedgrunn(s)?.art === 'rettidighet';
   const hjemmel = svar.spor === 'grunnlag' ? '§ 32.2' : '§ 33.4';
+  const grunntekst: Record<string, string> = {
+    rettidighet: `prekludert (${hjemmel})`,
+    hindring: 'avslått uten fremdriftshindring (§ 33.1)',
+  };
+  const grunner = s.filter(
+    (p) => AVVISENDE.has(p.art) && (p.virkning === 'hovedgrunn' || p.virkning === 'subsidiaer')
+  );
   let standpunkt: string;
   if (svar.spor === 'grunnlag') {
     standpunkt = { godkjent: 'godkjent', avslatt: 'avslått', frafalt: 'frafalt (§ 32.3 c)' }[
@@ -139,8 +153,11 @@ export function beslutningslinje(svar: Svar, s: Standpunkt[]): string {
     const d = utsagnet(svar, 'dager')!;
     standpunkt = d.resultat === 'avslatt' ? 'avslått' : `godkjent med ${d.vurdert} dager`;
   }
-  if (prekludert) return `Prinsipalt prekludert (${hjemmel}), subsidiært ${standpunkt}.`;
-  return `${standpunkt[0].toUpperCase()}${standpunkt.slice(1)}.`;
+  if (!grunner.length) return `${standpunkt[0].toUpperCase()}${standpunkt.slice(1)}.`;
+  const ledd = grunner.map(
+    (p, i) => `${i === 0 ? 'Prinsipalt' : 'subsidiært'} ${grunntekst[p.art]}`
+  );
+  return `${ledd.join(', ')}, ${grunner.length > 1 ? 'videre ' : ''}subsidiært ${standpunkt}.`;
 }
 
 export function beslutningsgrunnlag(
@@ -157,6 +174,31 @@ export function avviker(svar: Svar, s: Standpunkt[]): boolean | null {
   if (!frosset) return null;
   const na = new Map(s.map((p) => [p.utsagn, p.virkning]));
   return frosset.length !== s.length || frosset.some((p) => na.get(p.utsagn) !== p.virkning);
+}
+
+/**
+ * En vurdering i svaret som prøven ikke har et utsagn for. Den kan ikke godtas
+ * og forenkles til et annet standpunkt, så kommandoen avvises og en lagret rad
+ * leses som ikke forstått (#304, review av PR #306).
+ */
+export function utenforProven(spor: Spor, v: Record<string, unknown>): string | null {
+  if (spor === 'frist' && v.spesifisert_krav_ok === false)
+    return 'reduksjon etter § 33.6.1 er ikke i prøven';
+  if (spor === 'frist' && v.foresporsel_svar_ok === false)
+    return 'svar på forespørsel etter § 33.6.2 er ikke i prøven';
+  if (spor === 'vederlag') {
+    if (v.aksepterer_metode === false) return 'avslått metode (§ 34.2.2) er ikke i prøven';
+    if (v.hold_tilbake === true) return 'tilbakeholdelse (§ 30.2) er ikke i prøven';
+    for (const felt of [
+      'hovedkrav_varslet_i_tide',
+      'rigg_varslet_i_tide',
+      'produktivitet_varslet_i_tide',
+    ])
+      if (v[felt] === false) return `preklusjon etter § 34.1 (${felt}) er ikke i prøven`;
+    if (v.rigg_vurdering !== undefined || v.produktivitet_vurdering !== undefined)
+      return 'særskilte krav (§ 34.1.3) er ikke i prøven';
+  }
+  return null;
 }
 
 // ---------- Utregningen av svaret (B-13) ----------

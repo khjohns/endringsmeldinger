@@ -1,6 +1,6 @@
 /**
- * Feilinnføringene for målmodellen (#304, avsnitt 4 i modellforslaget). Én
- * mutasjon om gangen i arbeidskopien, Vitest over `sprakprove/maalmodell/`, og
+ * Feilinnføringene for målmodellen (#304). F1–F7 er avsnitt 4 i modellforslaget,
+ * F8–F10 feilklassene reviewet av PR #306 fant. Én mutasjon om gangen i arbeidskopien, Vitest over `sprakprove/maalmodell/`, og
  * originalteksten settes tilbake etterpå. For hver mutasjon kreves det at de
  * forventede målassertions feiler, og at alle feil er assertions, ikke import,
  * oppsett eller en brutt forutsetning (`.claude/rules/tester.md`).
@@ -79,7 +79,7 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/nyttelast.ts`,
     endringer: [
       [
-        '!likeVerdier(k.enighetsgrunnlag, forhandsvisAksept(u, k.svar, regler))',
+        '!likeVerdier(k.enighetsgrunnlag, server)',
         '!likeVerdier(k.enighetsgrunnlag, k.enighetsgrunnlag)',
       ],
     ],
@@ -102,6 +102,35 @@ const MUTASJONER: Mutasjon[] = [
       'brukes ikke med nyere regelversjon',
       'brukes ikke med nyere format',
     ],
+  },
+  // F8–F10 er feilklassene reviewet av PR #306 fant i samspillet mellom reglene.
+  {
+    id: 'F8',
+    feilklasse: 'et avvikende grunnlagssvar avklarer grunnlaget (MM-U5)',
+    fil: `${K}/utled.ts`,
+    endringer: [
+      [
+        'const gAvviker = !eg && gSvar !== null && svar[gSvar.id].avvik === true;',
+        'const gAvviker = false;',
+      ],
+    ],
+    mal: ['F-MM-AC'],
+  },
+  {
+    id: 'F9',
+    feilklasse: 'en revisjonskjede med selvreferanse eller sirkel stopper ikke saken',
+    fil: `${K}/utled.ts`,
+    endringer: [
+      ['if (neste.length > 0 || kjede.size !== paaKravet.length)', 'if (neste.length > 1)'],
+    ],
+    mal: ['F-MM-E6', 'F-MM-E7'],
+  },
+  {
+    id: 'F10',
+    feilklasse: 'innsigelsen om fremdriftshindring (§ 33.1) forsvinner ved lesing',
+    fil: `${K}/leser.ts`,
+    endringer: [['    if (hindring !== null)\n', '    if (hindring === undefined)\n']],
+    mal: ['avslår prinsipalt, med dagene som subsidiært standpunkt'],
   },
 ];
 

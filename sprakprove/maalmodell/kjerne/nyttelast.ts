@@ -8,7 +8,7 @@ import { UgyldigVurdering } from '../../kjerne/regler/feil.ts';
 import { avvis } from './forutsetninger.ts';
 import type { Kommando, Svarutkast } from './kommando.ts';
 import type { Regelsett } from './regelsett.ts';
-import { likeResultatfelt, regnUtSvar, SAMMENLIKNES } from './standpunkt.ts';
+import { likeResultatfelt, regnUtSvar, SAMMENLIKNES, utenforProven } from './standpunkt.ts';
 import { forhandsvisAksept, type Utledning } from './utled.ts';
 import type { Avvisning } from './typer.ts';
 
@@ -36,6 +36,9 @@ function kontrollerSvar(s: Svarutkast, u: Utledning, regler: Regelsett): Avvisni
       'RULE_VERSION',
       `Svaret er regnet ut med regelversjon ${s.regelversjon}, serveren bruker ${regler.versjon}.`
     );
+  const utenfor = utenforProven(s.spor, s.vurderinger as Record<string, unknown>);
+  if (utenfor)
+    return avvis('ASSESSMENT_UNSUPPORTED', `Vurderingen kan ikke lagres i prøven: ${utenfor}.`);
   let server: Record<string, unknown>;
   try {
     server = regnUtSvar(
@@ -92,7 +95,8 @@ export function nyttelastkontroll(k: Kommando, u: Utledning, regler: Regelsett):
           `Aksepten er forhåndsvist med regelversjon ${k.regelversjon}, serveren bruker ${regler.versjon}. Last inn saken på nytt.`
         );
       // 2.5: serveren fryser bare det TE fikk se.
-      if (!likeVerdier(k.enighetsgrunnlag, forhandsvisAksept(u, k.svar, regler)))
+      const server = forhandsvisAksept(u, k.svar, regler);
+      if (server === null || !likeVerdier(k.enighetsgrunnlag, server))
         return avvis(
           'RESULT_MISMATCH',
           'Enighetsgrunnlaget avviker fra serverens. Last inn saken på nytt.'

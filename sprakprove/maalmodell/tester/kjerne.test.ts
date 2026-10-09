@@ -7,7 +7,6 @@
 import { randomUUID } from 'node:crypto';
 import { describe, expect, it } from 'vitest';
 import type { Hendelse } from '../../kjerne/typer.ts';
-import { forutsetninger } from '../kjerne/forutsetninger.ts';
 import { handlinger } from '../kjerne/handlinger.ts';
 import { formfeil } from '../kjerne/kommando.ts';
 import { lesJournal } from '../kjerne/leser.ts';
@@ -98,53 +97,151 @@ describe('kompatibilitetsleseren', () => {
   });
 });
 
-describe('et standpunkt som er uavklart, kan ikke godtas (MM-U1, MM-U3)', () => {
-  it('avviser aksepten av et svar uten beslutningsgrunnlag når preklusjonen er uavklart', async () => {
-    const bane = minnebane();
-    const k = await bygg(bane, [
-      'godkjent_grunnlag',
-      { handling: 'krav', spor: 'frist', dager: 20, navn: 'K-f1' },
-    ]);
-    // Et svar fra en eldre skriver, uten beslutningsgrunnlag: prinsipalt prekludert etter § 33.4.
-    const journal = await bane.journal();
-    const krav = k.navn.id('K-f1');
-    await bane.skriv(
-      [
-        {
-          ...journal.at(-1)!,
-          event_id: randomUUID(),
-          event_type: 'respons_frist',
-          versjon: journal.at(-1)!.versjon + 1,
-          aktor_rolle: 'BH',
-          refererer_til_event_id: krav,
-          data: {
-            frist_varsel_ok: false,
-            spesifisert_krav_ok: true,
-            vilkar_oppfylt: true,
-            beregnings_resultat: 'avslatt',
-            godkjent_dager: 0,
-            subsidiaer_resultat: 'godkjent',
-            subsidiaer_godkjent_dager: 20,
-            frist_krav_id: krav,
-          },
+/** Et fristsvar fra en eldre skriver, uten beslutningsgrunnlag: 15 av 20 dager. */
+async function medEldreFristsvar() {
+  const bane = minnebane();
+  const k = await bygg(bane, [
+    'godkjent_grunnlag',
+    { handling: 'krav', spor: 'frist', dager: 20, navn: 'K-f1' },
+  ]);
+  const journal = await bane.journal();
+  const krav = k.navn.id('K-f1');
+  await bane.skriv(
+    [
+      {
+        ...journal.at(-1)!,
+        event_id: randomUUID(),
+        event_type: 'respons_frist',
+        versjon: journal.at(-1)!.versjon + 1,
+        aktor_rolle: 'BH',
+        refererer_til_event_id: krav,
+        data: {
+          frist_varsel_ok: true,
+          spesifisert_krav_ok: true,
+          vilkar_oppfylt: true,
+          beregnings_resultat: 'delvis_godkjent',
+          godkjent_dager: 15,
+          frist_krav_id: krav,
         },
-      ],
-      journal.at(-1)!.versjon
-    );
-    const godta = { type: 'godta', spor: 'frist' } as const;
-    const for_ = await k.utledning();
-    expect(forutsetninger(godta, 'TE', for_)?.regel).not.toBe('RESPONSE_UNRESOLVED');
+      },
+    ],
+    journal.at(-1)!.versjon
+  );
+  return { bane, k };
+}
 
-    expect(
-      (await k.send({ handling: 'varsel', spor: 'frist', sendt: '2026-09-02' }))?.godtatt
-    ).toBe(true);
+describe('MM-U6: et svar uten lagret beslutningsgrunnlag kan ikke godtas', () => {
+  it('avviser aksepten og tilbyr den ikke, og journalen er uendret', async () => {
+    const { bane, k } = await medEldreFristsvar();
     const u = await k.utledning();
-    const svar = u.svar[u.spor.frist.gjeldendeSvar!.id];
-    if (svar.avvik !== null) throw new Error('Forutsetning: svaret har beslutningsgrunnlag');
-    const etter = await bane.journal();
+    if (u.svar[u.spor.frist.gjeldendeSvar!.id].avvik !== null)
+      throw new Error('Forutsetning: svaret har beslutningsgrunnlag');
+    const for_ = await bane.journal();
     const aksept = await k.send({ handling: 'aksept', spor: 'frist' });
-    expect(aksept?.godtatt ? 'godtatt' : aksept?.avvisning.regel).toBe('RESPONSE_UNRESOLVED');
-    expect(await bane.journal()).toEqual(etter);
+    expect(aksept?.godtatt ? 'godtatt' : aksept?.avvisning.regel).toBe('DECISION_BASIS_MISSING');
+    expect(await bane.journal()).toEqual(for_);
     expect(handlinger(u, 'TE')).not.toContain('godta:frist');
+    expect(handlinger(u, 'BH')).toContain('revidere:frist');
+  });
+
+  it('kontrollsak: etter byggherrens revisjon har svaret beslutningsgrunnlag og kan godtas', async () => {
+    const { k } = await medEldreFristsvar();
+    const revisjon = {
+      handling: 'revisjon',
+      spor: 'frist',
+      varsel_i_tide: true,
+      spesifisering_i_tide: true,
+      hindring: true,
+      dager: 15,
+    };
+    expect((await k.send(revisjon))?.godtatt).toBe(true);
+    const aksept = await k.send({ handling: 'aksept', spor: 'frist' });
+    expect(aksept?.godtatt ? 'godtatt' : aksept?.avvisning.regel).toBe('godtatt');
+    expect((await k.utledning()).spor.frist.enighet?.grunnlag.utfall.dager).toBe(15);
+  });
+});
+
+describe('fristsvaret uten fremdriftshindring (§ 33.1; B-13, vedtaket 05.10, #211)', () => {
+  const svar = (hindring: boolean) => ({
+    handling: 'brev',
+    svar: [
+      {
+        spor: 'frist',
+        navn: 'S-f1',
+        varsel_i_tide: true,
+        spesifisering_i_tide: true,
+        hindring,
+        dager: 20,
+      },
+    ],
+  });
+
+  it('avslår prinsipalt, med dagene som subsidiært standpunkt, og en aksept gir 0 dager', async () => {
+    const k = await bygg(minnebane(), [
+      'godkjent_grunnlag',
+      { handling: 'krav', spor: 'frist', dager: 20 },
+      svar(false),
+    ]);
+    const s = (await k.utledning()).svar[k.navn.id('S-f1')];
+    expect(s.svar.utregning.beregnings_resultat).toBe('avslatt');
+    expect(s.standpunkter.map((p) => [p.art, p.virkning])).toEqual([
+      ['rettidighet', 'uten_virkning'],
+      ['hindring', 'hovedgrunn'],
+      ['dager', 'subsidiaer'],
+    ]);
+    expect(s.svar.beslutningsgrunnlag?.linje).toBe(
+      'Prinsipalt avslått uten fremdriftshindring (§ 33.1), subsidiært godkjent med 20 dager.'
+    );
+    expect((await k.send({ handling: 'aksept', spor: 'frist' }))?.godtatt).toBe(true);
+    expect((await k.utledning()).spor.frist.enighet?.grunnlag.utfall.dager).toBe(0);
+  });
+
+  it('kontrollsak: med fremdriftshindring er de 20 dagene enighet ved sammenfall', async () => {
+    const k = await bygg(minnebane(), [
+      'godkjent_grunnlag',
+      { handling: 'krav', spor: 'frist', dager: 20 },
+      svar(true),
+    ]);
+    const u = await k.utledning();
+    expect(u.spor.frist.enighet?.grunnlag.kilde).toBe('sammenfall');
+    expect(u.spor.frist.enighet?.grunnlag.utfall.dager).toBe(20);
+  });
+});
+
+describe('en vurdering prøven ikke har et utsagn for, avvises', () => {
+  it.each([
+    ['frist', { spor: 'frist', varsel_i_tide: true, spesifisering_i_tide: false, hindring: true }],
+  ])('%s: reduksjon etter § 33.6.1', async (_spor, s) => {
+    const k = await bygg(minnebane(), [
+      'godkjent_grunnlag',
+      { handling: 'krav', spor: 'frist', dager: 20 },
+    ]);
+    const u = await k.prov({ handling: 'brev', svar: [s] });
+    expect(u.godtatt ? 'godtatt' : u.avvisning.regel).toBe('ASSESSMENT_UNSUPPORTED');
+    // Kontrollsak: samme svar med spesifiseringen i tide.
+    const ok = await k.prov({ handling: 'brev', svar: [{ ...s, spesifisering_i_tide: true }] });
+    expect(ok.godtatt).toBe(true);
+  });
+
+  it('en lagret rad med en slik vurdering leses som ikke forstått', () => {
+    const rad = (spesifisert: boolean): Hendelse => ({
+      event_id: randomUUID(),
+      sak_id: 'S',
+      event_type: 'respons_frist',
+      versjon: 2,
+      tidsstempel: '2026-10-09T08:00:00Z',
+      aktor_id: 'bh',
+      aktor_rolle: 'BH',
+      aktor_team_id: null,
+      refererer_til_event_id: 'K',
+      data: {
+        spesifisert_krav_ok: spesifisert,
+        vilkar_oppfylt: true,
+        beregnings_resultat: 'godkjent',
+        godkjent_dager: 20,
+      },
+    });
+    expect(lesJournal([rad(false)], 1)[0].art).toBe('ukjent');
+    expect(lesJournal([rad(true)], 1)[0].art).toBe('dokument');
   });
 });
