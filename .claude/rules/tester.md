@@ -3,6 +3,8 @@ paths:
   - "backend/tests/**"
   - "src/**/__tests__/**"
   - "src/**/*.test.ts"
+  - "sprakprove/**"
+  - "docs/domenetabell/**"
   - "docs/vedlegg/**"
 ---
 
@@ -48,9 +50,8 @@ Ingen generell prosentgrense eller test per fil kreves. Vurder særlig udekkede
 grener i kritisk kode; begrunn relevante utelatelser i PR-en. Ikke slett tester
 bare for å redusere antall, og ikke fjern kjente feilreproduksjoner som «trivielle».
 
-Bruk eksisterende verktøy: pytest for Python og Vitest for TypeScript. Verktøy
-for en eventuell ny serverkjerne avgjøres sammen med språkvalget under B-14 og
-B-15 i hovedplanen. Komponenttester bruker Testing Library; komplette
+Bruk eksisterende verktøy: pytest for Python og Vitest for TypeScript, også for
+TS-kjernen (B-14). Komponenttester bruker Testing Library; komplette
 nettleserflyter bruker Playwright etter repoets miljø- og skillregler. Typesjekk
 og bygg kommer i tillegg: de erstatter ikke tester av kjøretidsatferd. Ikke
 innfør nytt testverktøy eller installer nettlesere uten et konkret behov.
@@ -107,7 +108,9 @@ Ingen generell mutasjonsscore eller nytt verktøy kreves for alle endringer.
   ikke committes eller pushes. Fjern mutasjonen og kjør testene igjen.
   PR-en oppgir kontrollert commit/diff, feilklasse, test, observert feil og
   eventuelle overlevende mutasjoner med begrunnelse. Gjenbruk samme feilklasser
-  når to implementasjoner sammenliknes.
+  når to implementasjoner sammenliknes. En ny feilklasse for språkprøven eller
+  målmodellen legges i `sprakprove/feilinnforing.py` eller
+  `sprakprove/maalmodell/feilinnforing.ts`, så den kan kjøres igjen.
 - En oppdaget feilinnføring viser at testen er følsom for feilen, ikke at
   forventningen er riktig. Forventningens grunnlag kontrolleres etter
   [domeneforventningene](#domeneforventninger-og-metodeprover) nedenfor.

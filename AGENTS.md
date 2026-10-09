@@ -58,10 +58,10 @@ og mellom kontraktens ordlyd, vår tolkning og appens atferd.
 | **TE** / **BH** | Totalentreprenør / byggherre. Kontraktens to sider |
 | **sak** | Én endringssak, med en egen hendelsesstrøm |
 | **spor** | `grunnlag` (ansvar), `vederlag` (penger), `frist` (tid). Går parallelt |
-| **varsel** | Formell melding med frist. For sent varsel kan preskludere kravet |
+| **varsel** | Formell melding med frist. For sent varsel kan prekludere kravet |
 | **forsering** | §33.8. TE fremskynder arbeid etter avslått fristforlengelse |
 | **endringsordre (EO)** | §31.3. BH pålegger formelt en endring |
-| **internt notat** | Kun synlig for forfatterens egen organisasjon |
+| **internt notat** | Kun synlig for forfatterens eget team |
 
 **Kontraktsside (TE/BH) er ikke det samme som organisasjon.** Én side kan ha flere
 Catenda-team — byggherren og en ekstern rådgiver er ulike organisasjoner på samme
@@ -96,30 +96,28 @@ ruff check backend/                  # porten, skal være 0
 
 Testene er raske. Kjør dem ofte. I skyøktene lager `.claude/hooks/session-start.sh`
 venv-en og testbasen, og meldingen fra hooken sier om databasetestene kjører.
-Med `KOE_TESTBASE_URL` kjører `npm test` også TS-databasetestene i `sprakprove/`.
-Kjør dem ikke samtidig med pytest mot samme base: oppryddingen i pytest setter
-basen tilbake.
+Med `KOE_TESTBASE_URL` kjører `npm test` også TS-databasetestene. Kjør dem ikke
+samtidig med pytest mot samme base: oppryddingen i pytest setter basen tilbake.
 Utenfor skyøktene: `python3 -m venv /tmp/venv` og `pip install -r` begge
 `backend/requirements*.txt` (systempython mangler pytest).
 
-**Nettleserkontroll av `/mockup` går gjennom skillen `mockup-nettleser`.** Den
-bruker den globale playwright-pakken, som passer med nettleserne i
-`/opt/pw-browsers`. Kjør aldri `npm i playwright` eller `playwright install`.
+**Nettleserkontroll av `/mockup` går gjennom skillen `mockup-nettleser`.** Kjør
+aldri `npm i playwright` eller `playwright install`; skillen sier hvorfor.
 
-**`npm run lint` håndhever prettier for koden** i `src/`, `sprakprove/`, `scripts/`
-og konfigurasjonsfilene i roten; `npm run format` skriver den. JSON som et verktøy
-skriver (`regler.json`, `package-lock.json`), tsconfig-filene og `docs/` er utenfor:
-der ville prettier og verktøyet skrevet om hverandres form.
+**`npm run lint` håndhever prettier** for omfanget i `package.json`, og
+`npm run format` skriver den. Utenfor er JSON som et verktøy skriver (som
+`regler.json`), tsconfig-filene og `docs/`: der ville prettier og verktøyet
+skrevet om hverandres form.
 
 **`ruff format` er ikke en port.** Repoet er aldri formatert med den, og
-`ruff format .` ville skrevet om rundt 80 filer. Kjør den ikke på hele treet.
+`ruff format .` ville skrevet om en stor del av treet. Kjør den ikke på hele
+treet.
 
 **Kjøretidstilstanden i basen avgjøres av katalogen, ikke av migrasjonsfilene,
 og skjemaet endres bare gjennom en migrasjonsfil — aldri med DDL rett mot en
-base eller med et verktøy som stempler sin egen versjon.** Plattformen er åpen
-(B-12). Reglene står i [`.claude/rules/database.md`](.claude/rules/database.md).
-De lastes når du arbeider i `supabase/`, lagrene eller TS-serveren; les dem før
-du endrer en base.
+base eller et verktøy som stempler sin egen versjon.** Reglene står i
+[`.claude/rules/database.md`](.claude/rules/database.md), som lastes for
+`supabase/`, lagrene og TS-serveren; les den før du endrer en base.
 
 ## Sikkerhetsinvarianter
 
@@ -170,9 +168,8 @@ registertest (#310).
 
 Disse er årsaken til de fleste feilklassifiserte funnene i auditserien.
 
-**Les [testinstruksjonene](.claude/rules/tester.md) før domenetabeller,
-bevis-saker og metodeprøver**, også når arbeidet bare ligger i `docs/`.
-De angir kravene til forventningsgrunnlag og grensene for hva testene beviser.
+**Les [testinstruksjonene](.claude/rules/tester.md) før du skriver
+domeneforventninger, bevis-saker eller metodeprøver**, også i `docs/`.
 
 **Ikke utled kjøretidsatferd fra ett lag.** Ser du en påstand på formen «krasjer»,
 «lekker», «returnerer» eller «omgår» — finn laget som faktisk ville produsert
@@ -209,8 +206,7 @@ slo fast at det krevdes en produktbeslutning for å la en webhook opprette
 brukerrader — fordi runden fant at innloggingen kaller `koe_resolve_identity`,
 men ikke at `koe_reconcile_memberships` kaller den for hvert prosjektmedlem ved
 hver synkronisering. Systemet gjorde det allerede: fjorten brukere, fjorten
-identiteter, én sesjon. En funksjon som kalles fra en annen databasefunksjon,
-finnes ikke ved å søke etter kallere i Python eller TS.
+identiteter, én sesjon.
 
 **Har du funnet ett tilfelle, har du ikke funnet alle.** Søket formes av det du
 allerede fant, så tellingen vokser i runder — og hver runde melder seg ferdig.
@@ -233,9 +229,7 @@ TypeScript, og en `DEFAULT` i databasen. Søk etter alle formene før du skriver
 | Beviset: auditer, design, reviewer, oppdrag, og gjennomføringsnotater ved særskilt behov eller bestilling | `docs/`, i formen [`.claude/rules/dokumentasjon.md`](.claude/rules/dokumentasjon.md) beskriver |
 | Regler som bare gjelder én del av treet: databasen, testene, tilgangen, Python-domenet, `docs/` | `.claude/rules/`, som lastes når du arbeider der |
 | Leveranseprosedyren: akseptkriterier, eierskap, utfasing og bevis før en PR er klar | [Leveranseskillen](.claude/skills/leveranse/SKILL.md). PR- og oppgavemalene i `.github/` samler beviset, men eier ingen regler |
-| Hva hver tabell er, hvem som skriver den, og hvor dataene kommer fra | `docs/datamodell/tabeller.toml`. Excel-fila og `tabeller.md` lages av `docs/verktoy/datamodell.py`, og en test feiler når en tabell mangler |
-| Hva hver hendelsestype er, hvem som sender den, bestemmelsen i NS 8407 og hva den gjør med status | `docs/datamodell/hendelser.toml`. Feltene i `data` hentes fra modellene. `hendelser.md` og arkene i Excel-fila lages av samme verktøy, og en test feiler når en type mangler eller katalogen avviker fra koden |
-| Hvordan tabellene henger sammen, og hvilke kall til Catenda som leser eller skriver dem | `docs/datamodell/relasjoner.toml` og `dataflyt.toml`, med skjemaet i `katalog.json`. `relasjoner.md` lages av samme verktøy. En test feiler når en fremmednøkkel eller et kall til Catenda mangler, og når `katalog.json` avviker fra en base bygget fra migrasjonene |
+| Datamodellen: hver tabell, hendelsestype og relasjon, hvem som skriver, og hvilke kall til Catenda som leser eller skriver | Kilderegistrene `tabeller.toml`, `hendelser.toml`, `relasjoner.toml` og `dataflyt.toml` i `docs/datamodell/`, med skjemaet i `katalog.json`. Markdown og Excel lages av `docs/verktoy/datamodell.py`. Vakttester feiler når et register mangler en tabell, en type, en fremmednøkkel eller et kall, eller avviker fra koden eller migrasjonene |
 | Arbeid som pågår eller venter: hva, hvem, hvilken PR, hva det venter på | GitHub-issues, samlet i én milepæl per arbeidspakke |
 
 - **Hovedplanen er autoritativ for funnstatus.** Sier et annet dokument noe annet,
@@ -257,11 +251,9 @@ TypeScript, og en `DEFAULT` i databasen. Søk etter alle formene før du skriver
   utenfor oppdraget. Å nevne dem i PR-beskrivelsen er ikke nok. Tilskriver du
   en feil testmiljøet, er det en påstand. Kontroller den, eller meld den.
 - **Hvert issue har en milepæl eller en sporetikett.** Milepælen er
-  arbeidspakken (F0b, F1 …) eller «Opprydding etter AF-06»; de parallelle
-  sporene har `spor-d`, `spor-h` og `spor-m` i stedet. Venter et issue på
-  rekkefølgen i AF-06, får det `venter-på-rekkefølge`. Etiketten fjernes når
-  hovedplanen har en datert merknad om unntak; unntaket står i planen, ikke i
-  issuet. Et issue som samler grunnlaget for en B-ID, får `beslutning`.
+  arbeidspakken i hovedplanen. Sporetikettene, `venter-på-rekkefølge` og
+  `beslutning` står i
+  [orkestreringsskillen](.claude/skills/orkestrering/SKILL.md#milepæler-og-etiketter).
 - **Det som sinker arbeidet, blir et issue med etiketten `papercut`**: et verktøy
   som feiler, et oppsett som må gjøres for hånd, en test som henger. Skriv
   symptom og løsning eller omvei. Feiler noe uforklarlig, søk i `papercut`-issuene
@@ -291,8 +283,7 @@ gjennom den, er ikke klar.
 Bruk [PR-malen](.github/pull_request_template.md), også ved opprettelse via
 CLI eller API. Arkitekturoppgaver kan bruke
 [oppgavemalen](.github/ISSUE_TEMPLATE/arkitekturendring.md); eksisterende
-issues suppleres i stedet for å dupliseres. Vedtak og arbeidsrekkefølge
-står fortsatt bare i hovedplanen.
+issues suppleres i stedet for å dupliseres.
 
 **Kjør `/code-review` på egen diff før en PR meldes klar.** Nivå `high` når
 diffen rører `routes/`, `lib/auth/`, lagrene eller migrasjonene, ellers

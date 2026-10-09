@@ -146,6 +146,14 @@ hverandres oppførsel. Bruk den nye committen som `expectedHeadSha`.
 ## 5. Avslutning
 
 Si til oppdragsgiver hva som er merget, hvilke issues som er lukket, hvilke nye
-issues som er opprettet, og hva som gjenstår. Arbeidsstatus står i issuene, ikke
-i hovedplanen eller `docs/README.md`. Slett sjekker som ikke har gått, og ta
-ikke en ny runde i samme økt.
+issues som er opprettet, og hva som gjenstår. Slett sjekker som ikke har gått,
+og ta ikke en ny runde i samme økt.
+
+## Milepæler og etiketter
+
+- Milepælen er arbeidspakken i hovedplanen (F0b, F1 …) eller «Opprydding etter
+  AF-06». De parallelle sporene har `spor-d`, `spor-h` og `spor-m` i stedet.
+- Venter et issue på rekkefølgen i AF-06, får det `venter-på-rekkefølge`.
+  Etiketten fjernes når hovedplanen har en datert merknad om unntak; unntaket
+  står i planen, ikke i issuet.
+- Et issue som samler grunnlaget for en B-ID, får `beslutning`.
