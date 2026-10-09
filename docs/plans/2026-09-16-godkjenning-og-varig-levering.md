@@ -186,112 +186,202 @@ Disse kravene gjelder alle faser. Kilden står i parentes.
 Disse styrer implementeringen. De tas ikke opp igjen uten at beslutningen
 eksplisitt oppheves.
 
+> **Merknad 2026-10-09 til 3.1: statusnavn og «Følge».** Flere vedtak bruker
+> navn fra Python-koden: sporstatuser som `GODKJENT`, `AVSLATT_AKSEPTERT` og
+> `FRAFALT`, samlede statuser som `OMFORENT`, `LUKKET_AVSLATT` og
+> `LUKKET_TRUKKET`, `kan_utstede_eo` og «låst». Navnet er en visningsetikett.
+> Det bindende er innholdet vedtaket beskriver: hvem som har sagt hva om hvilket
+> krav, og hvilken virkning det har etter kontrakten. «Låst» betyr enighet
+> ([GR-U10](#gr-u10)). Vedtakstekstene skrives ikke om (oppdragsgiver 09.10).
+> Et nytt vedtak formuleres i kontraktens begreper (avsnitt 8).
+>
+> Kolonnen «Følge» viser byggestatus på vedtaksdatoen og i de daterte
+> merknadene, i Python-koden der ikke annet står. Har en celle flere daterte
+> merknader, gjelder den siste. For KOE-, EO- og forseringssakene er
+> byggestatusen i Python historisk etter B-17: TS-kjernen bygges etter
+> vedtakene og domenetabellen, og Python-koden rettes ikke etter dem
+> (merknaden 09.10 i 4.2, med unntakene der).
+>
+> Radene er ordnet etter kontraktstema ved sluttredigeringen 09.10.
+> Vedtakstekstene er ikke endret.
+
+#### Krav, kravversjon og trekk
+
 | Beslutning | Vedtatt | Følge |
 | --- | --- | --- |
-| <a id="mp-u4"></a>MP-U4: I metodeprøven etter rettidig og tilstrekkelig svar b etter 33.6.2 fører BHs sene punkt 5-innsigelse mot sen spesifisering til at spesifiseringen anses rettidig, uten begrensningen etter 33.6.1. TE trenger ikke en ny rettidig protest mot oversittelsen av punkt 5-fristen; regelen anvendes ikke rekursivt. Dette avgjør ikke øvrige innsigelser etter 33.7 eller antall dager | 08.10, oppdragsgiver etter vurderingen av LB-2017-177705 side 24 | Avklarer U4 i [metodeprøven](../vedlegg/metodeprove-frist-2026-10-08/README.md). Erstatter prøvens rekursive arbeidshypotese. Avgrenset til prøven med oppgitte premisser; ingen endring av produksjonsregler eller øvrige åpne tolkninger |
-| <a id="mp-u5"></a>MP-U5: Når ett brev inneholder flere innsigelser, vurderes rettidigheten («uten ugrunnet opphold») for hver innsigelse. Brevet og mottaket er felles, men en innsigelse mot omfanget etter 33.7 og en punkt 5-innsigelse kan få ulik vurdering | 08.10, oppdragsgiver | Avklarer U5 i [metodeprøven](../vedlegg/metodeprove-frist-2026-10-08/README.md#prøve-3-ett-brev-med-flere-innsigelser) (#284). Gjelder prøven; ingen endring av produksjonsregler |
-| <a id="mp-u6"></a>MP-U6: En TE-protest mot at BHs brev kom for sent, uten at innsigelsene skilles, gjelder alle innsigelsene i brevet (punkt 5: «har svart for sent»). Mot en punkt 5-innsigelse i brevet gir den fortsatt ingen ny frist (MP-U4) | 08.10, oppdragsgiver | Avklarer U6 i metodeprøven (#284). Gjelder prøven |
-| <a id="mp-u7"></a>MP-U7: En senere dokumentert innsigelse som strider mot premisset om at det ikke finnes noen virksom tidsinnsigelse, gir «uavklart: motstridende dokumentasjon» til en egen handling avgjør motstriden. Begge opplysningene står i journalen. Tidligere utledninger og sendte brev endres ikke, men et sendt brev som avviker fra dagens utledning, merkes som utdatert | 08.10, oppdragsgiver | Avklarer U7 i [metodeprøven](../vedlegg/metodeprove-frist-2026-10-08/README.md#prøve-4-senere-dokumentert-korrespondanse) (#284). Tiltenkt atferd for prøven. Hvem som kan avgjøre motstriden, og rettelser av låste opplysninger, avgjøres ikke (B-16) |
-| <a id="ka-u1"></a>KA-U1: TEs aksept gjelder hele det konkrete svaret byggherren har gitt på gjeldende kravversjon i sporet, med alle standpunktene i det: preklusjon, vilkår, beløp eller dager og subsidiære standpunkter. Aksepten peker på svarets hendelse. Venter sporet på svar, eller gjelder svaret en tidligere kravversjon, avvises aksepten. Delvis enighet er ikke aksept | 08.10, oppdragsgiver | Ikke bygget. I dag peker aksepten ikke på noe svar, og TE kan godta svaret på en tidligere kravversjon (DT-01). Presiserer SK-02 og SK-03 og målformen M2 under B-14. Radene står i [domenetabellen](../domenetabell/README.md). **Merknad 2026-10-08:** bygget for aksepten (#272). Aksepten viser til svaret i `refererer_til_event_id`, og regelen `CURRENT_RESPONSE` avviser alt annet enn sporets gjeldende svar, også i grunnlaget. At en ny kravversjon opphever en aksept (SK-02), er ikke bygget. **Merknad 2026-10-09:** oppdragsgiver godtar restrisikoen at en eldre aksept uten referanse bindes ved lesing til svaret som var gjeldende da den ble lest, også når de gamle reglene tillot en revisjon etterpå. Appen har ingen reelle data. Spørsmålet kom fra code-review i #297 (#274). At en ny kravversjon opphever en aksept, er bygget (SK-02) |
+| SK-02 og SK-03: et oppdatert krav fra TE åpner sporet igjen. Det venter på nytt svar, og en aksept av forrige svar faller. Et svar TE har godtatt, kan byggherren ikke revidere | 05.10, oppdragsgiver | Ikke bygget (SK-02, SK-03 i 4.2). **Merknad 2026-10-09:** bygget for godkjent og godtatt svar (SK-02, SK-03). Hva som er en ny kravversjon, og et trukket krav: se de to radene under. **Merknad 2026-10-09:** endret av [KA-U7](#ka-u7) for spor med enighet: der avvises en ny kravversjon, og enigheten står |
+| Hver oppdatering fra TE av et vederlags- eller fristkrav er en ny kravversjon, også når verdiene er uendret. Den åpner sporet igjen etter vedtaket over | 05.10, oppdragsgiver | Som i dag for versjonstellingen; virkningen på status og aksept er ikke bygget (SK-02). **Merknad 2026-10-09:** virkningen er bygget (SK-02). **Merknad 2026-10-09:** endret av [KA-U7](#ka-u7): i et spor med enighet avvises oppdateringen |
+| Et krav TE har trukket, kan ikke tas opp igjen med en oppdatering. Serveren avviser oppdateringen; et nytt krav om samme forhold går i en ny sak | 05.10, oppdragsgiver | Ikke bygget. I dag godtas oppdateringen, og sporet står som `TRUKKET` (SK-02) |
 | <a id="ka-u2"></a>KA-U2: kravversjonene er de hendelsene projeksjonen og frontenden regner som krav: `grunnlag_opprettet` og `grunnlag_oppdatert`, `vederlag_krav_sendt` med kravinnhold og `vederlag_krav_oppdatert`, `frist_krav_sendt`, `frist_krav_oppdatert` og `frist_krav_spesifisert`. Et frittstående konsekvensvarsel (`vederlag_krav_sendt` med `varsel_type` «varsel»), et trekk og byggherrens innsigelse eller forespørsel er ikke kravversjoner. Godkjenningsflyten skal bruke samme definisjon | 08.10, oppdragsgiver | Presiserer vedtaket om ny kravversjon 05.10. Projeksjonen og `submissionRefs` følger det; `claims()` i godkjenningsflyten gjør det ikke (DT-02) |
 | <a id="ka-u3"></a>KA-U3: vedtaket om ny kravversjon gjelder til saken er `OMFORENT`. Deretter avvises en ny kravversjon, og et nytt krav om samme forhold går i en ny sak, som ved et trukket krav | 08.10, oppdragsgiver | Som i dag: `CASE_NOT_CLOSED` avviser oppdateringen (K 08.10). TE kan altså revidere et fullt godkjent krav bare så lenge et annet spor er åpent. **Merknad 2026-10-09:** etter [KA-U7](#ka-u7) kan TE ikke revidere et krav partene er enige om, heller ikke mens et annet spor er åpent |
-| <a id="ka-u4"></a>KA-U4: i byggherrens vurderinger av varsel og rettidighet betyr `true` i tide og `false` for sent. Et spørsmål byggherren ikke har vurdert, utelates i hendelsen og er `null` i tilstanden. Om spørsmålet gjelder kravet, utledes av kravet og lagres ikke. Modellen har ingen standardverdi for slike vurderinger | 08.10, oppdragsgiver | Ikke bygget for `spesifisert_krav_ok`, som lagres som `true` når feltet mangler (DT-03). Følger API-vedtaket 05.10. Gjelder en vurdering som mangler i et svar, ikke fravær av en innsigelse (U3 i [metodeprøven](../vedlegg/metodeprove-frist-2026-10-08/README.md)). **Merknad 2026-10-08:** bygget for `spesifisert_krav_ok` (#272, DT-03). Hendelser lagret før står med `true` |
-| <a id="ka-u5"></a>KA-U5: godtar TE et svar som er delvis godkjent, blir sporet `GODKJENT` med byggherrens beløp eller dager. Byggherrens tall er da avtalt, og sporet er oppgjort på linje med et fullt godkjent krav | 08.10, oppdragsgiver | Som i dag (rad KA-08b i [domenetabellen](../domenetabell/README.md)). Avklarer arbeidshypotesen fra første del. **Merknad 2026-10-08:** presisert av GR-U7: aksepten gir enighet om byggherrens beløp eller dager, og sporet er oppgjort når grunnlaget også er avklart |
-| <a id="gr-u1"></a>GR-U1: en ny kravversjon av grunnlaget åpner sporet også når underkategorien er uendret, som for vederlag og frist. Svaret på forrige versjon faller i tilstanden og står i journalen, grunnlaget venter på nytt svar, og en aksept av forrige svar avvises (KA-U1). Et svar på vederlag eller frist som var subsidiært, forblir subsidiært til sporet eller grunnlaget besvares igjen, som ved endret underkategori | 08.10, oppdragsgiver | Ikke bygget (DT-04). Utvider vedtaket om endret underkategori 05.10 (#215) til alle grunnlagsversjoner etter et svar som ikke er låst |
-| <a id="gr-u2"></a>GR-U2: et grunnlag byggherren har godkjent og som er låst, kan ikke endres, heller ikke underkategorien. Vedtaket om endret underkategori 05.10 (#215) gjelder svar som ikke er låst: avslått, prekludert etter § 32.2 og frafalt | 08.10, oppdragsgiver | Som i dag: `NOT_LOCKED` avviser oppdateringen. **Merknad 2026-10-09:** «låst» er enighet ved sammenfall ([GR-U10](#gr-u10)) |
-| <a id="gr-u3"></a>GR-U3: etter frafall (§ 32.3 c) blir saken `OMFORENT` når vederlag og frist er oppgjort, ved godkjenning eller godtatt avslag. Endringsordren for utført arbeid utstedes i en egen EO-sak (#69) med egen fullmakt (GFK-06), ikke reaktivt fra KOE-saken; `kan_utstede_eo` er `false` i KOE-saken | 08.10, oppdragsgiver | Presiserer vedtaket om `FRAFALT` 05.10. `OMFORENT` med godkjente krav og `kan_utstede_eo` er som i dag; godtatte avslag gir `UKJENT` (SK-04). **Merknad 2026-10-09:** godtatte avslag gir `OMFORENT` (SK-04) |
-| <a id="gr-u4"></a>GR-U4: reviderer byggherren svaret på vederlag eller frist mens grunnlaget venter på nytt svar, er det nye svaret prinsipalt. Det blir subsidiært når grunnlaget avslås eller prekluderes, fordi det utledes av grunnlaget (vedtaket om svar når grunnlaget er avslått, 05.10) | 08.10, oppdragsgiver | Som i dag i projeksjonen, fullmakten og brevet |
-| <a id="gr-u5"></a>GR-U5: trekker TE grunnlaget, trekkes alle krav som er sendt, også et vederlag eller en frist byggherren har godkjent, fordi ansvarsgrunnlaget bærer dem. Saken blir `LUKKET_TRUKKET` | 08.10, oppdragsgiver | Som i dag (kaskaden i `_handle_grunnlag_trukket`). Spor som ikke er sendt: SD-02 |
-| <a id="gr-u6"></a>GR-U6: venter grunnlaget på nytt svar, avvises TEs aksept av et svar på vederlag eller frist som er subsidiært til nytt svar. Når byggherren har svart på grunnlaget, også med avslag, kan TE godta svaret, også et subsidiært. Byggherren beholder revisjonsretten etter GR-U4 mens grunnlaget venter, og SK-03 gjelder når standpunktene ligger fast. Forkastet: å la aksepten gjelde (rekkefølgen mellom aksept og revisjon ville avgjort utfallet), og en aksept som faller ved revisjon (betinget aksept, i strid med KA-U1) | 08.10, oppdragsgiver | **Erstattet 2026-10-08 av [GR-U7](#gr-u7)** før det ble bygget. Vinduet konstruerte en regel modellen trengte, ikke kontrakten |
-| <a id="gr-u7"></a>GR-U7: TE kan godta byggherrens gjeldende svar på vederlag eller frist uavhengig av grunnlaget. Aksepten er enighet om sporets egne spørsmål: beløp eller dager, og varslingen i sporet. Den er ikke enighet om ansvaret. Kravet er oppgjort først når grunnlaget også er avklart: godkjent uten preklusjon etter § 32.2, eller frafalt. Godtar TE avslaget på grunnlaget, lukkes saken, og enigheten om beløp eller dager får ingen virkning. En enighet står: byggherren kan ikke revidere et godtatt svar (SK-03), heller ikke mens grunnlaget venter på svar. Revisjonsretten etter GR-U4 gjelder svar som ikke er godtatt. Godkjenner byggherren hele kravet i sporet, er partene enige uten aksept: standpunktene faller sammen (presisert av oppdragsgiver samme dag, #274). Et slikt svar er låst for revisjon på samme måte som et godtatt svar (presisert av oppdragsgiver 09.10, #274). Prinsippet er at partene kan legge beløpet dødt mens de er uenige om grunnlaget; et subsidiært standpunkt er et avslag som viser hvor nær partene er. Forkastet: GR-U6, og å avvise aksept av vederlag og frist til grunnlaget er godkjent (det ville hindret sakens fremdrift) | 08.10, oppdragsgiver (#274) | Aksepten godtas allerede uavhengig av grunnlaget (K 08.10). Statusen kaller enigheten `godkjent`, som om kravet var oppgjort, og et svar som godkjenner hele kravet, gir «allerede avsluttet» ved aksept; enighet og oppgjort som egne begreper prøves i språkprøven (#274). At en enighet står mens grunnlaget venter, er ikke bygget (SK-03, rad GR-23). Erstatter GR-U6. DT-11 er lukket. **Merknad 2026-10-09:** at et fullt godkjent svar er låst for revisjon, er ikke bygget (#298). At en enighet står mens grunnlaget venter, er bygget (SK-03, rad GR-23). **Merknad 2026-10-09:** for grunnlaget er en godkjenning uten påberopt preklusjon enighet ved sammenfall ([GR-U10](#gr-u10)) |
-| <a id="eo-u1"></a>EO-U1: en endringsordre utstedes bare som EO-sak, gjennom kommandoen (B-02 punkt 3). `eo_utstedt` i en KOE-sak avvises. En omforent KOE-sak formaliseres ved å inngå i en EO-sak, der TE godtar eller bestrider endringsordren (TFR-02). `kan_utstede_eo` betyr at KOE-saken kan inngå i en EO-sak | 08.10, oppdragsgiver | Ikke bygget. I dag godtas `eo_utstedt` i en KOE-sak når `kan_utstede_eo` er `true`, og `_close_spor_for_reactive_eo` skriver sporene om (DT-05). Frontenden og godkjenningskommandoen bruker ikke den veien. Presiserer GR-U3. Radene står i [domenetabellen](../domenetabell/README.md) |
-| <a id="eo-u2"></a>EO-U2: en KOE-sak kan inngå i en endringsordre når saken er `OMFORENT`, grunnlaget er godkjent eller låst, og minst ett av vederlag og frist er godkjent eller låst. Et godtatt avslag eller et trukket spor teller som oppgjort; et spor TE fortsatt kan sende, hindrer, som i rollupen. Frafalt grunnlag gir ikke endringsordre fra KOE-saken (GR-U3). Samme sett gjelder for `kan_utstede_eo`, kandidatene til en EO-sak og rollupen | 08.10, oppdragsgiver | Ikke bygget. `kan_utstede_eo` ser bort fra spor som ikke er sendt; kandidatregelen `_is_agreed_koe` krever i tillegg et godkjent vederlag eller en godkjent frist (DT-06) |
-| <a id="eo-u3"></a>EO-U3: en KOE-sak inngår i høyst én endringsordre, også når den er bestridt. En revisjon er samme endringsordre, og TEs uenighet føres i en ny KOE (TFR-02). Mens KOE-saken inngår i en EO-sak, er `kan_utstede_eo` `false` i KOE-saken, og den er ikke kandidat til en annen | 08.10, oppdragsgiver | Avgjør B-08. Kandidatregelen i `EndringsordreService` holder det for `/api/endringsordre`; KOE-saken viser det ikke (DT-07), og `/api/events` kontrollerer det ikke (DT-08) |
-| <a id="eo-u4"></a>EO-U4: EO-sakens livsløp er strengt. Endringsordren utstedes én gang, og en ny utgave er `eo_revidert`. Byggherren reviderer bare en bestridt endringsordre. TE svarer én gang på hver utgave, med aksept eller bestridelse. En akseptert endringsordre er endelig. KOE-tilknytningen endres bare før utstedelse | 08.10, oppdragsgiver | Ikke bygget. `EO_IS_ISSUED` krever bare at endringsordren er utstedt, bestridt eller revidert, og `eo_utstedt` i en EO-sak har ingen regel (DT-09). `legg_til_koe` og `fjern_koe` krever `UTKAST`; `/api/events` gjør det ikke |
-| <a id="kt-u1"></a>KT-U1: hvert spor i den offentlige tilstanden har `gjeldende_respons_event_id`: ID-en til svaret på gjeldende kravversjon, ellers `null`, også når sporet venter på svar på en ny versjon. TEs aksept viser til dette svaret i `refererer_til_event_id`, og serveren avviser en aksept av et annet svar med samme definisjon. Forkastet: at klienten avgjør det av `respons_event_id`, `bh_respondert_versjon` og `antall_versjoner` | 08.10, oppdragsgiver | Bygget (#272). Utfører KA-U1 i kontrakten. `respons_event_id` er uendret og står igjen etter en ny kravversjon |
-| <a id="kt-u2"></a>KT-U2: den smale kontrakten under B-14 (#272) gjelder den representative flyten i språkprøven: vederlag med grunnlagsavhengighet, et fristscenario med spesifisert krav og TEs aksept. Den står i ett JSON-skjema med kommando, lagret hendelse og offentlig tilstand. En ny kommando er streng, de eksisterende kommandoene i flyten er tolerante, og historikken leses tolerant. Typegenerering og grensen for godkjenningspakker følger #274. En hviteliste for hele den offentlige tilstanden er #292 | 08.10, oppdragsgiver | Bygget (#272): [kontrakten](../domenetabell/README.md#kontrakten-for-flyten). Aksepten er den eneste nye kommandoen |
-| P1: magic links utgår | 20.09 | `magic_links` fjernes (MS-15) |
-| P2, P3: BIM er relevant; et objekt hører til én sak; formålet er å se hvilke komponenter som fører til tvist | 20.09 | Retning MS-13, MS-14. Ikke prioritert |
-| P4: vedlegg lagres bare i Catenda | 20.09 | Hash og frosset grunnlag hos oss (MS-11, AF-04) |
-| P5: løsningen skal i prinsippet støtte andre virksomheter | 20.09 | `organisasjon_id` (MS-10, gjennomført) |
-| P6: to kan arbeide i ulike spor samtidig | 20.09 | Total orden beholdes (MS-03) |
-| P7: arkivplikt går foran sletteplikt for journalen | 21.09 | Journalen bevares. Kryptografisk sletting bygges ikke. Tiltakene er MS-04 og MS-05. Bevaringstid og øvrige regler er ikke fastsatt (B-05) |
-| Forsering er utenfor godkjenningsflyten | 18.09 | Prosjekter med policy kan inntil videre ikke svare på forseringsvarsel (GFK-04). Utvidelse er et produktvalg om godkjenningsomfang |
-| Policy nøkles på `user_id` | 18.09 | `BH_APPROVAL_POLICIES` må ha `user_id` per oppføring før produksjon |
-| Bare Catenda-innlogging | 18.09 | Anonym innlogging og OAuth-serveren slås av i Supabase-konsollet før produksjon |
-| Vedlegg er kontraktskorrespondanse | 18.09 | Deltakere uten TE- eller BH-tilknytning leser ikke vedlegg |
-| Webhookens kontraktsside utledes av forfatterens lagmedlemskap | 19.09 | Fail-closed uten entydig side (INT-04) |
-| Aksept av avslag gir `AVSLATT_AKSEPTERT` | 19.09 | TFR-01 |
-| TFR-05: en sak med godkjent eller låst grunnlag der resten ikke er sendt, har samlet status `UNDER_BEHANDLING` | 23.09, oppdragsgiver | Rettet i spor D |
-| TFR-02: forsering får aldri en lukket samlet status. En endringsordre er en ordre og forhandles ikke; er TE uenig, føres det videre i en KOE | 23.09, oppdragsgiver | Rettet i spor D. Utstedt og revidert EO er `VENTER_PAA_SVAR`, akseptert og bestridt `LUKKET` |
-| Nøytralt fristvarsel (TFR-06, DRF-01): BH kan sende innsigelse mot sen varsling (§ 5) og forespørsel om spesifisert krav (§ 33.6.2) som egne handlinger. De setter ikke resultat, gjør ikke sporet avslått og åpner ikke forsering. Et svar med dager og resultat avvises til TE har spesifisert kravet (§ 33.7) | 23.09, oppdragsgiver | Ikke bygget. Krever egne hendelsestyper eller svarformer, med tidslinje, forretningsregler og skjema. Rettingen av TFR-06 og DRF-01 bygger på dette. **Merknad 2026-10-04:** bygget som to hendelsestyper (#62); se TFR-06 og DRF-01 i 4.2. Oppdragsgiver presiserte samme dag: svarfristen i forespørselen er valgfri, og handlingene går utenom intern godkjenning |
-| Godkjenning av ansvarsgrunnlaget (GFK-06): fullmakten regnes av TEs krevde beløp, vederlag pluss krevde fristdager ganget med dagmulktssatsen. Er kravet ikke tallfestet, kreves hele kjeden | 23.09, oppdragsgiver | Bygget 24.09 (merknaden i GFK-06). Mangler dagmulktssatsen, gjelder B-06 |
-| GFK-06 presisert: ansvar har ingen egen verdi, fullmakten regnes per spor. Et spor som besvares i samme brev, har verdien i svaret; ellers gjelder TEs krav. Et krav som ikke er sendt, krever hele kjeden som et krav som ikke er tallfestet; et trukket krav er 0. Avslått og frafalt ansvar er 0 | 24.09, oppdragsgiver | Bygget 24.09. Ved «frafalt» (§ 32.3 c) må byggherren utstede en endringsordre for det utførte arbeidet, med egen fullmakt; varsel eller tom EO-sak i frontenden er ikke bygget |
-| Ubegrenset fullmakt kan sende alene når beløpet ikke kan verdsettes | 23.09, oppdragsgiver | Bygget 24.09 i `resolve_route` og speilet `resolveRoute` (merknaden i GFK-02). Gjelder fristsvar med ny sluttdato (GFK-02) og endringsordrer (`resolve_route`). Alle andre trenger fortsatt hele kjeden, og kjeden må dekke det som lar seg verdsette |
+| <a id="ka-u8"></a>KA-U8: en kravversjon på 0 dager eller 0 kr avvises. 0 er ikke et krav om noe (§ 33.6.1: «det antall dager han krever»). TE trekker kravet eller sender det ikke | 09.10, oppdragsgiver etter lesning av NS 8407 § 5 og §§ 31–35 | Avgjør #179 |
+
+#### Svar og standpunkt
+
+| Beslutning | Vedtatt | Følge |
+| --- | --- | --- |
 | B-13 hovedvalg: alternativ (2) i streng form. Backend regner ut resultat, beløp, dager og subsidiært standpunkt av vurderingene og kravet. Et svar der klientens verdier ikke er like, avvises med serverens verdi; er de like, lagres serverens. Premissen er at resultatet oppsummerer vurderingene og ikke uttrykker noen egen vilje | 24.09, oppdragsgiver | Ikke bygget. Sammenlikningen gjøres i forretningsreglene, som alle tre inngangene kaller. En delvis oppdatering må ha med hele svaret. Rettingen av BR-01 bygger på dette ([designnotatet](../design-b13-sannhetskilde-2026-09-23.md), avsnitt 4). **Merknad 2026-10-04:** bygget (#63); se BR-01 i 4.2 |
 | B-13 regelversjon: klienten sender versjonen av reglene og tekstgeneratorene, serveren avviser en annen versjon og lagrer den i hendelsen. Projeksjonen regner aldri om. `publish` stopper en pakke med annen versjon | 24.09, oppdragsgiver | Ikke bygget. Avgjør ikke B-10. **Merknad 2026-10-04:** bygget (#63). Feltet heter `regelversjon` og ligger i `data` på alle BH-svar; konstanten er i `src/lib/domain/regelversjon.ts` og speilet i `backend/regler/`. **Merknad 2026-10-05:** presisert av oppdragsgiver: «regner aldri om» gjelder de lagrede resultatene (resultat, beløp, dager). Standpunkt som utledes ved lesing, som subsidiært standpunkt og godtatt preklusjon, regnes med gjeldende regler. En regelendring som endrer gamle saker, skal si det og krever eget vedtak. **Merknad 2026-10-09:** snevret inn av [MM-U9](#mm-u9). Det som regnes med gjeldende regler ved lesing, er relasjonen mellom brev, for eksempel at et vederlagssvar er subsidiært fordi grunnlagssvaret er avslått. Standpunktene i ett sendt brev vurderes ikke på nytt |
 | B-13 begrunnelsestekst (T-a): den låste teksten er partens, og byggherren er bundet av den fordi byggherren sender den. Serveren kontrollerer feltene, ikke prosaen. En CI-test feiler hvis `src/lib/domain/` endres uten at regelversjonen økes. Merkingen i skjemaet skal si at teksten er byggherrens | 24.09, oppdragsgiver | Ikke bygget. Den låste delen og utdypningen lagres hver for seg i alle inngangene |
 | B-13 «godkjent» bare når hele kravet er godkjent, til nærmeste krone eller dag. 99 %-terskelen utgår | 24.09, oppdragsgiver | Ikke bygget. Gjelder både vederlag og frist. **Merknad 2026-10-04:** bygget i backend og frontend (#63, #167) |
+| <a id="ka-u9"></a>KA-U9: byggherrens standpunkt om beløp er et beløp med fortegn som ikke kan være gunstigere for TE enn kravet. Det er «godkjent» når beløpene er like, og «delvis» når byggherrens beløp er mindre gunstig for TE. Regelen er den samme for tillegg og fradrag (§ 34.1.1 «partene», § 34.4 annet ledd). For et fradrag på −100 000 kr betyr «delvis» et større fradrag, for eksempel −150 000 kr | 09.10, oppdragsgiver etter lesning av NS 8407 § 5 og §§ 31–35 | Avgjør #189 |
 | B-13 preklusjon ut fra byggherrens egen vurdering (§ 33.4, § 34.1.2, § 34.1.3) trekkes av systemet: prinsipalt avslått, med subsidiært standpunkt | 24.09, oppdragsgiver | Som skjemaet gjør i dag, nå eid av backend |
 | B-13 frist uten fremdriftshindring (§ 33.1): dagene byggherren har vurdert, står som et videre subsidiært standpunkt i både brevet og hendelsen, også ved preklusjon etter § 33.4. Etter § 33.7 annet ledd tapes en innsigelse som ikke fremsettes i tide, og faller «ingen hindring», er dagene byggherrens eneste innsigelse mot omfanget | 05.10, oppdragsgiver | **Merknad 2026-10-05:** bygget (#211). `subsidiaer_resultat` og `subsidiaer_godkjent_dager` regnes av dagene uansett hindring; regelversjon 4 |
-| B-13 passivitet (§ 32.3 annet ledd) varsles, men systemet trekker ingen konklusjon | 24.09, oppdragsgiver | Ikke bygget. Frontendens faste 10 dager er bare veiledning. **Merknad 2026-10-09:** utvidet av [VS-U2](#vs-u2) til § 33.6.2 tredje ledd, § 33.7 annet ledd, § 34.3.3 annet ledd og § 35.2 |
+| <a id="ka-u4"></a>KA-U4: i byggherrens vurderinger av varsel og rettidighet betyr `true` i tide og `false` for sent. Et spørsmål byggherren ikke har vurdert, utelates i hendelsen og er `null` i tilstanden. Om spørsmålet gjelder kravet, utledes av kravet og lagres ikke. Modellen har ingen standardverdi for slike vurderinger | 08.10, oppdragsgiver | Ikke bygget for `spesifisert_krav_ok`, som lagres som `true` når feltet mangler (DT-03). Følger API-vedtaket 05.10. Gjelder en vurdering som mangler i et svar, ikke fravær av en innsigelse (U3 i [metodeprøven](../vedlegg/metodeprove-frist-2026-10-08/README.md)). **Merknad 2026-10-08:** bygget for `spesifisert_krav_ok` (#272, DT-03). Hendelser lagret før står med `true` |
+
+#### Aksept og enighet
+
+| Beslutning | Vedtatt | Følge |
+| --- | --- | --- |
+| <a id="ka-u1"></a>KA-U1: TEs aksept gjelder hele det konkrete svaret byggherren har gitt på gjeldende kravversjon i sporet, med alle standpunktene i det: preklusjon, vilkår, beløp eller dager og subsidiære standpunkter. Aksepten peker på svarets hendelse. Venter sporet på svar, eller gjelder svaret en tidligere kravversjon, avvises aksepten. Delvis enighet er ikke aksept | 08.10, oppdragsgiver | Ikke bygget. I dag peker aksepten ikke på noe svar, og TE kan godta svaret på en tidligere kravversjon (DT-01). Presiserer SK-02 og SK-03 og målformen M2 under B-14. Radene står i [domenetabellen](../domenetabell/README.md). **Merknad 2026-10-08:** bygget for aksepten (#272). Aksepten viser til svaret i `refererer_til_event_id`, og regelen `CURRENT_RESPONSE` avviser alt annet enn sporets gjeldende svar, også i grunnlaget. At en ny kravversjon opphever en aksept (SK-02), er ikke bygget. **Merknad 2026-10-09:** oppdragsgiver godtar restrisikoen at en eldre aksept uten referanse bindes ved lesing til svaret som var gjeldende da den ble lest, også når de gamle reglene tillot en revisjon etterpå. Appen har ingen reelle data. Spørsmålet kom fra code-review i #297 (#274). At en ny kravversjon opphever en aksept, er bygget (SK-02) |
+| <a id="ka-u5"></a>KA-U5: godtar TE et svar som er delvis godkjent, blir sporet `GODKJENT` med byggherrens beløp eller dager. Byggherrens tall er da avtalt, og sporet er oppgjort på linje med et fullt godkjent krav | 08.10, oppdragsgiver | Som i dag (rad KA-08b i [domenetabellen](../domenetabell/README.md)). Avklarer arbeidshypotesen fra første del. **Merknad 2026-10-08:** presisert av GR-U7: aksepten gir enighet om byggherrens beløp eller dager, og sporet er oppgjort når grunnlaget også er avklart |
+| <a id="gr-u7"></a>GR-U7: TE kan godta byggherrens gjeldende svar på vederlag eller frist uavhengig av grunnlaget. Aksepten er enighet om sporets egne spørsmål: beløp eller dager, og varslingen i sporet. Den er ikke enighet om ansvaret. Kravet er oppgjort først når grunnlaget også er avklart: godkjent uten preklusjon etter § 32.2, eller frafalt. Godtar TE avslaget på grunnlaget, lukkes saken, og enigheten om beløp eller dager får ingen virkning. En enighet står: byggherren kan ikke revidere et godtatt svar (SK-03), heller ikke mens grunnlaget venter på svar. Revisjonsretten etter GR-U4 gjelder svar som ikke er godtatt. Godkjenner byggherren hele kravet i sporet, er partene enige uten aksept: standpunktene faller sammen (presisert av oppdragsgiver samme dag, #274). Et slikt svar er låst for revisjon på samme måte som et godtatt svar (presisert av oppdragsgiver 09.10, #274). Prinsippet er at partene kan legge beløpet dødt mens de er uenige om grunnlaget; et subsidiært standpunkt er et avslag som viser hvor nær partene er. Forkastet: GR-U6, og å avvise aksept av vederlag og frist til grunnlaget er godkjent (det ville hindret sakens fremdrift) | 08.10, oppdragsgiver (#274) | Aksepten godtas allerede uavhengig av grunnlaget (K 08.10). Statusen kaller enigheten `godkjent`, som om kravet var oppgjort, og et svar som godkjenner hele kravet, gir «allerede avsluttet» ved aksept; enighet og oppgjort som egne begreper prøves i språkprøven (#274). At en enighet står mens grunnlaget venter, er ikke bygget (SK-03, rad GR-23). Erstatter GR-U6. DT-11 er lukket. **Merknad 2026-10-09:** at et fullt godkjent svar er låst for revisjon, er ikke bygget (#298). At en enighet står mens grunnlaget venter, er bygget (SK-03, rad GR-23). **Merknad 2026-10-09:** for grunnlaget er en godkjenning uten påberopt preklusjon enighet ved sammenfall ([GR-U10](#gr-u10)) |
+| <a id="gr-u6"></a>GR-U6: venter grunnlaget på nytt svar, avvises TEs aksept av et svar på vederlag eller frist som er subsidiært til nytt svar. Når byggherren har svart på grunnlaget, også med avslag, kan TE godta svaret, også et subsidiært. Byggherren beholder revisjonsretten etter GR-U4 mens grunnlaget venter, og SK-03 gjelder når standpunktene ligger fast. Forkastet: å la aksepten gjelde (rekkefølgen mellom aksept og revisjon ville avgjort utfallet), og en aksept som faller ved revisjon (betinget aksept, i strid med KA-U1) | 08.10, oppdragsgiver | **Erstattet 2026-10-08 av [GR-U7](#gr-u7)** før det ble bygget. Vinduet konstruerte en regel modellen trengte, ikke kontrakten |
+| <a id="gr-u8"></a>GR-U8: TE kan ikke godta et svar som godkjenner hele kravet. Partene er alt enige ved sammenfall (GR-U7), og aksepten avvises uten at journalen endres. Forkastet: å godta aksepten uten virkning | 09.10, oppdragsgiver etter review av PR #306 | Avgjør arbeidshypotesen i rad GR-25. Som i dag (`NOT_ALREADY_ACCEPTED`) i Python og i målmodellen |
+| <a id="ka-u6"></a>KA-U6: TE kan trekke et krav i et spor der partene er enige, betinget eller virksomt, så lenge saken ikke er avsluttet. Enigheten får da ingen virkning, på samme måte som en ny kravversjon opphever den (SK-02). Forkastet: at en enighet låser kravet mot trekk | 09.10, oppdragsgiver etter review av PR #306 | Bygget i målmodellen i språkprøven (#304), rad KA-26. **Merknad 2026-10-09:** etter [KA-U7](#ka-u7) avvises en ny kravversjon i et spor med enighet. Trekket står |
+| <a id="ka-u7"></a>KA-U7: en enighet binder begge parter. En ny kravversjon i et spor med enighet, betinget eller virksom, avvises. TE kan trekke kravet (KA-U6). Et krav på nytt grunnlag, for eksempel kostnader som ikke var kjent, går i en ny sak, som etter KA-U3. En åpenbar skrivefeil hører til B-16. Forkastet: at TE kan oppheve enigheten med en ny kravversjon, som i dag, og en ny kravversjon bare med byggherrens samtykke | 09.10, oppdragsgiver etter lesning av NS 8407 § 5 og §§ 31–35 | Endrer SK-02 og vedtaket om ny kravversjon 05.10 for spor med enighet, og gjør det overflødig at KA-U3 avhenger av om andre spor er åpne. Grunnlaget er § 34.2.2 første ledd (et akseptert tilbud er avtalt vederlag); ingenting i § 33 eller § 34 lar TE gå fra en avtale ensidig. Ikke bygget: i dag opphever en ny kravversjon enigheten (SK-02) |
+| <a id="mm-u3"></a>MM-U3: virkningen av en enighet fastsettes når den inngås. Har TE godtatt et svar, gjelder enigheten svaret med alle standpunktene slik det ble godtatt (KA-U1), også når en senere regelendring ville gitt et standpunkt i svaret en annen virkning. Dagens utledning kan vise at regelen er endret. Regelendringer som endrer avledet standpunkt i saker uten enighet, følger B-13 | 09.10, oppdragsgiver | Presiserer B-13 (merknaden 05.10) for enigheter. Ikke bygget. I dag går et godtatt svar som var prinsipalt prekludert og subsidiært godkjent, fra `LUKKET_AVSLATT` til grunnlag `godkjent` når § 32.2 ikke gjelder kategorien (K 09.10, kjernen). Gjelder innsnevringen i #220. Forløp C i modellforslaget. **Merknad 2026-10-09:** presisert av oppdragsgiver etter review samme dag: innholdet i en enighet fastsettes når den inngås: svaret, standpunktene og virkningen de hadde etter reglene da. Om vilkåret for virkning er oppfylt, utledes løpende (GR-U7), så en betinget enighet blir virksom når grunnlaget avklares. Første formulering, «virkningen av en enighet fastsettes når den inngås», kunne leses som at en betinget enighet ble stående betinget. Modellforslaget foreslår at innholdet lagres som et enighetsgrunnlag i hendelsen som skaper enigheten |
+| Aksept av avslag gir `AVSLATT_AKSEPTERT` | 19.09 | TFR-01 |
+
+#### Grunnlag, frafall og trekk av grunnlaget
+
+| Beslutning | Vedtatt | Følge |
+| --- | --- | --- |
+| <a id="gr-u1"></a>GR-U1: en ny kravversjon av grunnlaget åpner sporet også når underkategorien er uendret, som for vederlag og frist. Svaret på forrige versjon faller i tilstanden og står i journalen, grunnlaget venter på nytt svar, og en aksept av forrige svar avvises (KA-U1). Et svar på vederlag eller frist som var subsidiært, forblir subsidiært til sporet eller grunnlaget besvares igjen, som ved endret underkategori | 08.10, oppdragsgiver | Ikke bygget (DT-04). Utvider vedtaket om endret underkategori 05.10 (#215) til alle grunnlagsversjoner etter et svar som ikke er låst |
+| <a id="gr-u2"></a>GR-U2: et grunnlag byggherren har godkjent og som er låst, kan ikke endres, heller ikke underkategorien. Vedtaket om endret underkategori 05.10 (#215) gjelder svar som ikke er låst: avslått, prekludert etter § 32.2 og frafalt | 08.10, oppdragsgiver | Som i dag: `NOT_LOCKED` avviser oppdateringen. **Merknad 2026-10-09:** «låst» er enighet ved sammenfall ([GR-U10](#gr-u10)) |
+| <a id="gr-u10"></a>GR-U10: har byggherren godkjent grunnlaget uten å påberope preklusjon, er partene enige ved sammenfall, og byggherren er bundet. Byggherren kan ikke revidere godkjenningen. Etter § 32.3 a er svaret en endringsordre. «Låst» er ikke lenger et eget begrep, men enighet. Frafall (GR-U9) er byggherrens standpunkt og kan fortsatt revideres | 09.10, oppdragsgiver | Presiserer GR-U2 og GR-U7. Retter avviket i målmodellen som #312 beskriver |
+| <a id="gr-u3"></a>GR-U3: etter frafall (§ 32.3 c) blir saken `OMFORENT` når vederlag og frist er oppgjort, ved godkjenning eller godtatt avslag. Endringsordren for utført arbeid utstedes i en egen EO-sak (#69) med egen fullmakt (GFK-06), ikke reaktivt fra KOE-saken; `kan_utstede_eo` er `false` i KOE-saken | 08.10, oppdragsgiver | Presiserer vedtaket om `FRAFALT` 05.10. `OMFORENT` med godkjente krav og `kan_utstede_eo` er som i dag; godtatte avslag gir `UKJENT` (SK-04). **Merknad 2026-10-09:** godtatte avslag gir `OMFORENT` (SK-04) |
+| <a id="gr-u4"></a>GR-U4: reviderer byggherren svaret på vederlag eller frist mens grunnlaget venter på nytt svar, er det nye svaret prinsipalt. Det blir subsidiært når grunnlaget avslås eller prekluderes, fordi det utledes av grunnlaget (vedtaket om svar når grunnlaget er avslått, 05.10) | 08.10, oppdragsgiver | Som i dag i projeksjonen, fullmakten og brevet |
+| <a id="gr-u5"></a>GR-U5: trekker TE grunnlaget, trekkes alle krav som er sendt, også et vederlag eller en frist byggherren har godkjent, fordi ansvarsgrunnlaget bærer dem. Saken blir `LUKKET_TRUKKET` | 08.10, oppdragsgiver | Som i dag (kaskaden i `_handle_grunnlag_trukket`). Spor som ikke er sendt: SD-02 |
+| <a id="gr-u9"></a>GR-U9: TE kan ikke godta byggherrens frafall (§ 32.3 c). Frafallet er byggherrens standpunkt, ikke en enighet; grunnlaget er avklart uten aksept (GR-U7), byggherren beholder revisjonsretten, og TE kan sende ny kravversjon (GR-U2). Forkastet: å la aksepten låse frafallet for revisjon | 09.10, oppdragsgiver etter review av PR #306 | Bygget i målmodellen i språkprøven (#304), rad GR-26 |
+| <a id="gr-u11"></a>GR-U11: § 32.2 gjelder alle underkategorier under ENDRING unntatt EO, som i dag. Hver bestemmelse viser selv til § 32.2: § 14.4 (LOV_GJENSTAND), § 14.6 annet ledd (VALGRETT), § 15.2 (LOV_PROSESS), § 21.4 annet ledd (SAMORD), § 24.2.2 fjerde ledd (SVAR_VARSEL) og § 26.3 (GEBYR). IRREG er § 32.1 direkte. Henvisningen tar med preklusjonen i § 32.2 og byggherrens svarplikt i § 32.3, med passivitetsregelen | 09.10, oppdragsgiver etter lesning av NS 8407 § 5 og §§ 31–35 | Avgjør #220, uten innsnevring. Vedtaket om `grunnlag_varslet_i_tide` under B-13 er uendret |
+| B-13 endret underkategori etter byggherrens svar på grunnlaget krever nytt svar. Låsingen og § 32.2-vurderingen fra det forrige svaret faller bort, og grunnlaget venter på svaret igjen. Journalen beholder det forrige svaret som historikk. Forkastet: å avvise endringen, og å la projeksjonen regne det gamle svaret av gjeldende underkategori | 05.10, oppdragsgiver | **Merknad 2026-10-05:** bygget i projeksjonen (#215). Hele svaret faller i tilstanden, også resultatet. Et svar på vederlag eller frist som var gitt subsidiært, forblir subsidiært til sporet eller grunnlaget besvares igjen (oppdragsgiver 05.10) |
+| B-13 svar på vederlag og frist når ansvarsgrunnlaget er avslått eller prekludert (§ 32.2): journalen og sporstatusen har resultatet av beløpene og dagene, som et subsidiært standpunkt som får virkning hvis grunnlaget senere godkjennes. Brev og fullmakt sier «prinsipalt avslått (ansvarsgrunnlaget)» med det subsidiære resultatet med det subsidiære resultatet. At hele svaret er subsidiært, utledes av grunnlaget og lagres ikke i hendelsen | 05.10, oppdragsgiver | Bygget i brev og fullmakt (#168). Saksvisningen i frontend: #214 |
 | B-13 `grunnlag_varslet_i_tide` avvises utenfor § 32.2 (endring som ikke er formell endringsordre). Fullmakt og brev snevres inn til samme omfang | 24.09, oppdragsgiver | Ikke bygget. I dag bruker status, fullmakt/brev og skjema tre ulike omfang. **Merknad 2026-10-04:** forretningsreglene avviser feltet utenfor § 32.2 (#63); fullmakt og brev er ikke snevret inn (#186). **Merknad 2026-10-05:** fullmakt, brev, projeksjonen og skjemaet bruker samme regel, `regler.grunnlag.er_grunnlag_subsidiaert` og speilet `erGrunnlagetSubsidiaert` (#186). En eldre hendelse med feltet `false` ved EO prekluderer ikke |
 | B-13 «frafalt» (§ 32.3 c) avvises utenfor irregulær endring og valgrett | 24.09, oppdragsgiver | Ikke bygget. **Merknad 2026-10-04:** bygget i forretningsreglene (#63) |
-| B-13 svar på vederlag og frist når ansvarsgrunnlaget er avslått eller prekludert (§ 32.2): journalen og sporstatusen har resultatet av beløpene og dagene, som et subsidiært standpunkt som får virkning hvis grunnlaget senere godkjennes. Brev og fullmakt sier «prinsipalt avslått (ansvarsgrunnlaget)» med det subsidiære resultatet med det subsidiære resultatet. At hele svaret er subsidiært, utledes av grunnlaget og lagres ikke i hendelsen | 05.10, oppdragsgiver | Bygget i brev og fullmakt (#168). Saksvisningen i frontend: #214 |
-| B-13 endret underkategori etter byggherrens svar på grunnlaget krever nytt svar. Låsingen og § 32.2-vurderingen fra det forrige svaret faller bort, og grunnlaget venter på svaret igjen. Journalen beholder det forrige svaret som historikk. Forkastet: å avvise endringen, og å la projeksjonen regne det gamle svaret av gjeldende underkategori | 05.10, oppdragsgiver | **Merknad 2026-10-05:** bygget i projeksjonen (#215). Hele svaret faller i tilstanden, også resultatet. Et svar på vederlag eller frist som var gitt subsidiært, forblir subsidiært til sporet eller grunnlaget besvares igjen (oppdragsgiver 05.10) |
-| Saker opprettes både fra skjemaet i appen og fra en topic i Catenda | 29.09, oppdragsgiver | Ikke bygget: skjemaet får 403 (DM-05) |
-| En endringsordresak kan følge av en KOE-sak, men ikke erstatte den, verken i historikken eller som en egen hendelse i KOE-saken | 29.09, oppdragsgiver | Ikke bygget: `eo_opprettet` godtas i en KOE-sak (DM-07). **Merknad 2026-10-05:** bygget (#97); se DM-07 i 4.3 |
-| #213: har TE godtatt avslaget på grunnlaget (`AVSLATT_AKSEPTERT`), er saken `LUKKET_AVSLATT`, uansett vederlag og frist, også når beløp eller dager er godkjent subsidiært. `LUKKET_AVSLATT` regnes som lukket for nye hendelser og i Catenda | 05.10, oppdragsgiver | Bygget i backend (#213). Frontendens lukket-sett: #229 |
-| SK-01: godtar TE byggherrens svar om at grunnlaget er varslet for sent etter § 32.2, er det et godtatt avslag. Grunnlaget blir `AVSLATT_AKSEPTERT`, saken `LUKKET_AVSLATT`, og EO kan ikke utstedes | 05.10, oppdragsgiver | Ikke bygget. I dag blir grunnlaget `GODKJENT`, saken `OMFORENT` og EO utstedbar (SK-01 i 4.2). **Merknad 2026-10-09:** bygget (SK-01) |
-| SK-02 og SK-03: et oppdatert krav fra TE åpner sporet igjen. Det venter på nytt svar, og en aksept av forrige svar faller. Et svar TE har godtatt, kan byggherren ikke revidere | 05.10, oppdragsgiver | Ikke bygget (SK-02, SK-03 i 4.2). **Merknad 2026-10-09:** bygget for godkjent og godtatt svar (SK-02, SK-03). Hva som er en ny kravversjon, og et trukket krav: se de to radene under. **Merknad 2026-10-09:** endret av [KA-U7](#ka-u7) for spor med enighet: der avvises en ny kravversjon, og enigheten står |
+| Byggherren kan svare «avslått» og samtidig påberope at grunnlaget er varslet for sent (§ 32.2). Begge grunner gjelder; preklusjonen er hovedgrunnen, og avslaget gjelder subsidiært | 05.10, oppdragsgiver | Godtas i dag (K 05.10). Brev, visning og standpunkt må vise begge, med preklusjonen først (B-14, M1) |
 | #235: frafall (§ 32.3 c) kan ikke kombineres med at grunnlaget er varslet for sent (§ 32.2). Frafall skjer mot endringsordre for allerede utført arbeid, og byggherren kan da ikke samtidig påberope at TE har tapt retten til å kalle pålegget en endring. Et frafalt pålegg gjør svaret på vederlag og frist prinsipalt, i status, brev og fullmakt | 05.10, oppdragsgiver, etter teksten i § 32.1–32.3 | Ikke bygget. Serveren godtar kombinasjonen i dag (#235) |
-| Hver oppdatering fra TE av et vederlags- eller fristkrav er en ny kravversjon, også når verdiene er uendret. Den åpner sporet igjen etter vedtaket over | 05.10, oppdragsgiver | Som i dag for versjonstellingen; virkningen på status og aksept er ikke bygget (SK-02). **Merknad 2026-10-09:** virkningen er bygget (SK-02). **Merknad 2026-10-09:** endret av [KA-U7](#ka-u7): i et spor med enighet avvises oppdateringen |
-| Et krav TE har trukket, kan ikke tas opp igjen med en oppdatering. Serveren avviser oppdateringen; et nytt krav om samme forhold går i en ny sak | 05.10, oppdragsgiver | Ikke bygget. I dag godtas oppdateringen, og sporet står som `TRUKKET` (SK-02) |
 | Frafall (§ 32.3 c) gir grunnlaget en egen sporstatus, `FRAFALT`, som rollupen regner som avklart grunnlag på linje med godkjent. Endringsordren for utført arbeid følger av #69 | 05.10, oppdragsgiver | Ikke bygget. I dag blir grunnlaget `TRUKKET` (SK-04). **Merknad 2026-10-09:** rollupen regner frafall som avklart grunnlag (SK-04). Den egne statusen er ikke bygget. En ny `SporStatus` krever at alt som teller statuser, oppdateres (`AGENTS.md`) |
 | SD-02: trekker TE grunnlaget før vederlag eller frist er sendt, er saken `LUKKET_TRUKKET`. Spor som ikke er sendt, regnes som trukket | 05.10, oppdragsgiver | Ikke bygget (#231) |
-| Byggherren kan svare «avslått» og samtidig påberope at grunnlaget er varslet for sent (§ 32.2). Begge grunner gjelder; preklusjonen er hovedgrunnen, og avslaget gjelder subsidiært | 05.10, oppdragsgiver | Godtas i dag (K 05.10). Brev, visning og standpunkt må vise begge, med preklusjonen først (B-14, M1) |
+| #213: har TE godtatt avslaget på grunnlaget (`AVSLATT_AKSEPTERT`), er saken `LUKKET_AVSLATT`, uansett vederlag og frist, også når beløp eller dager er godkjent subsidiært. `LUKKET_AVSLATT` regnes som lukket for nye hendelser og i Catenda | 05.10, oppdragsgiver | Bygget i backend (#213). Frontendens lukket-sett: #229 |
+| SK-01: godtar TE byggherrens svar om at grunnlaget er varslet for sent etter § 32.2, er det et godtatt avslag. Grunnlaget blir `AVSLATT_AKSEPTERT`, saken `LUKKET_AVSLATT`, og EO kan ikke utstedes | 05.10, oppdragsgiver | Ikke bygget. I dag blir grunnlaget `GODKJENT`, saken `OMFORENT` og EO utstedbar (SK-01 i 4.2). **Merknad 2026-10-09:** bygget (SK-01) |
+| TFR-05: en sak med godkjent eller låst grunnlag der resten ikke er sendt, har samlet status `UNDER_BEHANDLING` | 23.09, oppdragsgiver | Rettet i spor D |
+
+#### Varsler, frister og innsigelser
+
+| Beslutning | Vedtatt | Følge |
+| --- | --- | --- |
 | SK-12: datoen og metoden for et varsel fra TE settes én gang. Et senere krav med en annen dato avvises. Gjelder varselet om fristforlengelse (§ 33.4) og varslene om rigg/drift og produktivitetstap (§ 34.1.3), som DRF-03 | 05.10, oppdragsgiver | Ikke bygget. I dag overskriver hvert nytt krav varselet (SK-12) |
-| API-et: tilstanden sender alltid alle felt, og `null` betyr at feltet finnes uten verdi. Hendelsesdata i tidslinjen utelater felt som ikke er satt. Frontendtypene følger: `X \| null` i tilstanden, valgfrie felt i hendelsene | 05.10, oppdragsgiver | Serialiseringen er slik i dag; typene er det ikke (SK-08, SK-09, M5) |
-| Et tilstandsløst endepunkt som regner ut et utkast med serverens regler, utredes ikke nå. Speilet i `src/lib/domain/` står under regelversjonsvakten, og B-13 er uendret. Vurderes på nytt når M1 er levert | 05.10, oppdragsgiver | **Merknad 07.10:** eventuell tidligere utredning behandles separat under B-15; utsettelsen gjelder til nytt vedtak |
-| B-14: målformene for M2, M1, M4 og M5 legges til grunn med presiseringene 07.10; M3 følger grensene som endres. Modulær monolitt og serverautoritet beholdes. Domenetabell og bevis-saker → smal kommando-/API-kontrakt → tidsbegrenset språkprøve → M2/M1 → M4 og videre kontraktsarbeid | 07.10, oppdragsgiver etter review av PR #266 og #270 | Vedtak om retning og prioritering, ikke gjennomført kode eller valgt backendspråk. Detaljer i merknaden til B-14 i 3.4 og [arkitekturforslaget](../forslag-maalarkitektur-og-beslutningsproeve-2026-10-07.md). B-15 og B-16 står åpne |
-| B-14, språket: TypeScript er retning for den delte domenekjernen, som brukes både i nettleseren og på serveren. Valget godkjenner ikke `sprakprove/kjerne/` som produksjonskjerne. Deler kan gjenbrukes, og andre formes på nytt etter modellforslaget i #300. Valget mellom serverlaget i SvelteKit, en egen backend og en eventuell permanent Python-worker tas ikke her. Før en større portering kommer gjennomgangen av målmodellen og overgangsgrensene (#300) | 09.10, oppdragsgiver etter språkprøven (#274) | Vedtak om retning. Ingen produksjonskode er portet. Grunnlaget er [arkitekturforslaget, avsnitt 7](../forslag-maalarkitektur-og-beslutningsproeve-2026-10-07.md#anbefaling) og B-15. **Merknad 2026-10-09:** TS-kjernen bygges i en egen permanent mappe fra #308, for eksempel `kjerne/` i roten, med typesjekk, prettier, arkitekturtest og regelversjonsvakt i CI. Kjernen er ren kode og avhenger ikke av B-18. #308 flytter målmodellen dit. Valget godkjenner fortsatt ikke prøvekoden som produksjonskjerne (oppdragsgiver) |
-| <a id="b-17"></a>B-17: TS tar over skrivingen i KOE-saker samlet, ikke én kommando om gangen. TS eier KOE-domenet: kommandoene, valideringen, utledningen, journalhendelsene, beslutningsgrunnlaget og enighetsgrunnlaget. Byttet omfatter alle som skriver i eller påvirker en KOE-sak: skjemaer, API, batch, godkjenningspublisering, webhooks og bakgrunnsjobber. Ingen Python-funksjon skal endre KOE-journalen etter byttet, heller ikke indirekte gjennom endringsordre eller forsering. Python kan beholde levering og integrasjon: gjengi og levere frosne brev, Catenda og tekniske leveringsresultater. Python tolker ikke KOE-journalen for å avgjøre hva et brev betyr eller hva partene kan gjøre. Andre sakstyper kan bli i Python med en uttrykkelig kontrakt mot TS. Dagens testsaker forkastes, og det bygges ingen kompatibilitetsleser for gamle Python-rader; bevis-sakene og domenetabellen føres videre. TS-kjernen bygges og prøves trinnvis, men skrivestien aktiveres samlet. Forkastet: gradvis overtakelse av enkeltkommandoer med to skrivere i samme sak (2.8 i [modellforslaget](../forslag-maalmodell-2026-10-09.md#28-overgangsgrensen)), fordi kompatibilitet begge veier koster mer enn den gir uten reelle data | 09.10, oppdragsgiver etter målmodellen (#304) | Erstatter overgangsgrensen i 2.8 som arbeidshypotese. B-10 (#273) gjelder fortsatt, men formatet velges uten hensyn til at dagens Python-kjerne skal lese det. Serverplasseringen er B-18. **Merknad 2026-10-09:** endringsordre- og forseringssakene går til TS sammen med KOE-sakene (oppdragsgiver samme dag). EO-U2 og EO-U3 krever at kandidatkontrollen og eksklusiviteten avgjøres i samme transaksjon som KOE-saken, og B-17 forbyr Python å endre KOE-saken indirekte. F2 slik den er skrevet, utgår, og #309 og #310 utvides. Arbeidspakken er FK (avsnitt 5) |
 | <a id="mm-u1"></a>MM-U1: SK-12 låser et varsel som er registrert, ikke et varsel som bare er utledet. Er et fristkrav sendt uten registrert varsel etter § 33.4, kan TE senere registrere varselet med datoen det ble sendt, også når den er tidligere enn kravet. Det er første registrering, ikke en flytting. Byggherrens svar står. En preklusjon i svaret gjaldt varselet slik det var registrert da, og er uavklart til byggherren tar stilling. Byggherren kan bestride at varselet ble sendt eller mottatt. Preklusjonen faller ikke av seg selv. Forkastet: å regne det utledede varselet som satt, og å la preklusjonen falle uten byggherrens standpunkt | 09.10, oppdragsgiver | Presiserer vedtaket om SK-12 05.10 for [#264](https://github.com/khjohns/endringsmeldinger/issues/264). Ikke bygget. I dag regner `_handle_frist` det spesifiserte kravet som varsel når varselet mangler. Forløp D i [modellforslaget](../forslag-maalmodell-2026-10-09.md#forløp-d-et-varsel-registrert-etter-et-senere-krav) |
-| <a id="mm-u2"></a>MM-U2: kan ikke kjernen tolke en hendelse på saken, godtas ingen bindende kommando fra noen part før en kjerne som forstår den, er rullet ut. Journalen og interne notater kan fortsatt leses. Visningen sier at et varsel med frist må sendes utenfor appen og registreres senere, og drift varsles. Forkastet: å la TE sende varsler i en slik sak, fordi kontrollen av varselet trenger tilstanden | 09.10, oppdragsgiver | Konkretiserer B-10 og merknaden 07.10 for [#273](https://github.com/khjohns/endringsmeldinger/issues/273): det brukeren ser mens saken stopper. Ikke bygget. Prøveserveren svarer 422; Python hopper over en kjent type uten behandler. Forløp E i modellforslaget |
-| <a id="mm-u3"></a>MM-U3: virkningen av en enighet fastsettes når den inngås. Har TE godtatt et svar, gjelder enigheten svaret med alle standpunktene slik det ble godtatt (KA-U1), også når en senere regelendring ville gitt et standpunkt i svaret en annen virkning. Dagens utledning kan vise at regelen er endret. Regelendringer som endrer avledet standpunkt i saker uten enighet, følger B-13 | 09.10, oppdragsgiver | Presiserer B-13 (merknaden 05.10) for enigheter. Ikke bygget. I dag går et godtatt svar som var prinsipalt prekludert og subsidiært godkjent, fra `LUKKET_AVSLATT` til grunnlag `godkjent` når § 32.2 ikke gjelder kategorien (K 09.10, kjernen). Gjelder innsnevringen i #220. Forløp C i modellforslaget. **Merknad 2026-10-09:** presisert av oppdragsgiver etter review samme dag: innholdet i en enighet fastsettes når den inngås: svaret, standpunktene og virkningen de hadde etter reglene da. Om vilkåret for virkning er oppfylt, utledes løpende (GR-U7), så en betinget enighet blir virksom når grunnlaget avklares. Første formulering, «virkningen av en enighet fastsettes når den inngås», kunne leses som at en betinget enighet ble stående betinget. Modellforslaget foreslår at innholdet lagres som et enighetsgrunnlag i hendelsen som skaper enigheten |
+| <a id="mm-u8"></a>MM-U8: MM-U4 gjelder også når en ny opplysning, ikke bare en regelendring, gjør at dagens utledning av svaret avviker fra brevet. Registrerer TE et varsel etter at byggherren har påberopt preklusjon for det utledede varselet, er preklusjonen uavklart, og TE kan ikke godta svaret før byggherren har svart på nytt. En enighet inngått før opplysningen står (MM-U3). Forkastet: å la TE godta svaret slik brevet uttrykte det | 09.10, oppdragsgiver etter review av PR #306 | Presiserer MM-U4 og MM-U1. Bygget i målmodellen i språkprøven (#304), forløp D. **Merknad 2026-10-09:** MM-U4 er opphevet av [MM-U9](#mm-u9), som gjelder regelendringer. MM-U8 gjelder en ny opplysning og står. Den presiserer MM-U1, ikke MM-U4 |
+| <a id="mm-u7"></a>MM-U7: en part kan bestride en opplysning fra motparten, for eksempel at et varsel ble mottatt, også etter at saken er avsluttet. Bestridelsen registreres uten virkning på utfallet. At saken er avsluttet, sperrer kommandoer som kan endre utfallet, ikke partenes standpunkt til en opplysning. Forkastet: å la en avsluttet sak sperre alle handlinger | 09.10, oppdragsgiver etter review av PR #306 | Presiserer MM-U1. Bygget i målmodellen i språkprøven (#304), rad KA-21 |
+| Nøytralt fristvarsel (TFR-06, DRF-01): BH kan sende innsigelse mot sen varsling (§ 5) og forespørsel om spesifisert krav (§ 33.6.2) som egne handlinger. De setter ikke resultat, gjør ikke sporet avslått og åpner ikke forsering. Et svar med dager og resultat avvises til TE har spesifisert kravet (§ 33.7) | 23.09, oppdragsgiver | Ikke bygget. Krever egne hendelsestyper eller svarformer, med tidslinje, forretningsregler og skjema. Rettingen av TFR-06 og DRF-01 bygger på dette. **Merknad 2026-10-04:** bygget som to hendelsestyper (#62); se TFR-06 og DRF-01 i 4.2. Oppdragsgiver presiserte samme dag: svarfristen i forespørselen er valgfri, og handlingene går utenom intern godkjenning |
+| <a id="vs-u1"></a>VS-U1: en innsigelse etter § 5 tredje ledd registreres som ett utsagn med sendetid. Den kan gjelde ethvert varsel, krav eller svar fra motparten, også et svar etter § 33.6.2 annet ledd bokstav b. En protest mot innsigelsen registreres og vises ved siden av. Appen avgjør ikke om innsigelsen kom i tide. Forkastet: å avvise en § 5-innsigelse som kommer etter at TE har spesifisert kravet | 09.10, oppdragsgiver etter lesning av NS 8407 § 5 og §§ 31–35 | Avgjør #175. I tråd med MP-U5, MP-U7 og vedtaket om passivitet under B-13 |
+| B-13 passivitet (§ 32.3 annet ledd) varsles, men systemet trekker ingen konklusjon | 24.09, oppdragsgiver | Ikke bygget. Frontendens faste 10 dager er bare veiledning. **Merknad 2026-10-09:** utvidet av [VS-U2](#vs-u2) til § 33.6.2 tredje ledd, § 33.7 annet ledd, § 34.3.3 annet ledd og § 35.2 |
+| <a id="vs-u2"></a>VS-U2: passivitet og søksmålsfrist vises som veiledning. § 32.3 annet ledd, § 33.6.2 tredje ledd, § 33.7 annet ledd, § 34.3.3 annet ledd og § 35.2 vises med frist og bestemmelse, uten at appen trekker konklusjonen | 09.10, oppdragsgiver etter lesning av NS 8407 § 5 og §§ 31–35 | Utvider vedtaket om passivitet under B-13 (§ 32.3 annet ledd) til de andre bestemmelsene |
+| DRF-03: sendedatoen for TEs varsel om justerte enhetspriser (§ 34.3.3) settes av serveren, som den norske datoen for innsendingen når TE krever justering. Et oppdatert krav flytter den ikke. Tar TE ut kravet om justering, faller varselet bort, og et nytt krav er et nytt varsel med ny dato. En dato fra klienten avvises | 29.09, oppdragsgiver | Bygget 29.09 (merknaden i DRF-03) |
+| <a id="mp-u4"></a>MP-U4: I metodeprøven etter rettidig og tilstrekkelig svar b etter 33.6.2 fører BHs sene punkt 5-innsigelse mot sen spesifisering til at spesifiseringen anses rettidig, uten begrensningen etter 33.6.1. TE trenger ikke en ny rettidig protest mot oversittelsen av punkt 5-fristen; regelen anvendes ikke rekursivt. Dette avgjør ikke øvrige innsigelser etter 33.7 eller antall dager | 08.10, oppdragsgiver etter vurderingen av LB-2017-177705 side 24 | Avklarer U4 i [metodeprøven](../vedlegg/metodeprove-frist-2026-10-08/README.md). Erstatter prøvens rekursive arbeidshypotese. Avgrenset til prøven med oppgitte premisser; ingen endring av produksjonsregler eller øvrige åpne tolkninger |
+| <a id="mp-u5"></a>MP-U5: Når ett brev inneholder flere innsigelser, vurderes rettidigheten («uten ugrunnet opphold») for hver innsigelse. Brevet og mottaket er felles, men en innsigelse mot omfanget etter 33.7 og en punkt 5-innsigelse kan få ulik vurdering | 08.10, oppdragsgiver | Avklarer U5 i [metodeprøven](../vedlegg/metodeprove-frist-2026-10-08/README.md#prøve-3-ett-brev-med-flere-innsigelser) (#284). Gjelder prøven; ingen endring av produksjonsregler |
+| <a id="mp-u6"></a>MP-U6: En TE-protest mot at BHs brev kom for sent, uten at innsigelsene skilles, gjelder alle innsigelsene i brevet (punkt 5: «har svart for sent»). Mot en punkt 5-innsigelse i brevet gir den fortsatt ingen ny frist (MP-U4) | 08.10, oppdragsgiver | Avklarer U6 i metodeprøven (#284). Gjelder prøven |
+| <a id="mp-u7"></a>MP-U7: En senere dokumentert innsigelse som strider mot premisset om at det ikke finnes noen virksom tidsinnsigelse, gir «uavklart: motstridende dokumentasjon» til en egen handling avgjør motstriden. Begge opplysningene står i journalen. Tidligere utledninger og sendte brev endres ikke, men et sendt brev som avviker fra dagens utledning, merkes som utdatert | 08.10, oppdragsgiver | Avklarer U7 i [metodeprøven](../vedlegg/metodeprove-frist-2026-10-08/README.md#prøve-4-senere-dokumentert-korrespondanse) (#284). Tiltenkt atferd for prøven. Hvem som kan avgjøre motstriden, og rettelser av låste opplysninger, avgjøres ikke (B-16) |
+
+#### Endringsordre og forsering
+
+| Beslutning | Vedtatt | Følge |
+| --- | --- | --- |
+| <a id="eo-u1"></a>EO-U1: en endringsordre utstedes bare som EO-sak, gjennom kommandoen (B-02 punkt 3). `eo_utstedt` i en KOE-sak avvises. En omforent KOE-sak formaliseres ved å inngå i en EO-sak, der TE godtar eller bestrider endringsordren (TFR-02). `kan_utstede_eo` betyr at KOE-saken kan inngå i en EO-sak | 08.10, oppdragsgiver | Ikke bygget. I dag godtas `eo_utstedt` i en KOE-sak når `kan_utstede_eo` er `true`, og `_close_spor_for_reactive_eo` skriver sporene om (DT-05). Frontenden og godkjenningskommandoen bruker ikke den veien. Presiserer GR-U3. Radene står i [domenetabellen](../domenetabell/README.md) |
+| <a id="eo-u2"></a>EO-U2: en KOE-sak kan inngå i en endringsordre når saken er `OMFORENT`, grunnlaget er godkjent eller låst, og minst ett av vederlag og frist er godkjent eller låst. Et godtatt avslag eller et trukket spor teller som oppgjort; et spor TE fortsatt kan sende, hindrer, som i rollupen. Frafalt grunnlag gir ikke endringsordre fra KOE-saken (GR-U3). Samme sett gjelder for `kan_utstede_eo`, kandidatene til en EO-sak og rollupen | 08.10, oppdragsgiver | Ikke bygget. `kan_utstede_eo` ser bort fra spor som ikke er sendt; kandidatregelen `_is_agreed_koe` krever i tillegg et godkjent vederlag eller en godkjent frist (DT-06) |
+| <a id="eo-u3"></a>EO-U3: en KOE-sak inngår i høyst én endringsordre, også når den er bestridt. En revisjon er samme endringsordre, og TEs uenighet føres i en ny KOE (TFR-02). Mens KOE-saken inngår i en EO-sak, er `kan_utstede_eo` `false` i KOE-saken, og den er ikke kandidat til en annen | 08.10, oppdragsgiver | Avgjør B-08. Kandidatregelen i `EndringsordreService` holder det for `/api/endringsordre`; KOE-saken viser det ikke (DT-07), og `/api/events` kontrollerer det ikke (DT-08) |
+| <a id="eo-u4"></a>EO-U4: EO-sakens livsløp er strengt. Endringsordren utstedes én gang, og en ny utgave er `eo_revidert`. Byggherren reviderer bare en bestridt endringsordre. TE svarer én gang på hver utgave, med aksept eller bestridelse. En akseptert endringsordre er endelig. KOE-tilknytningen endres bare før utstedelse | 08.10, oppdragsgiver | Ikke bygget. `EO_IS_ISSUED` krever bare at endringsordren er utstedt, bestridt eller revidert, og `eo_utstedt` i en EO-sak har ingen regel (DT-09). `legg_til_koe` og `fjern_koe` krever `UTKAST`; `/api/events` gjør det ikke |
+| En endringsordresak kan følge av en KOE-sak, men ikke erstatte den, verken i historikken eller som en egen hendelse i KOE-saken | 29.09, oppdragsgiver | Ikke bygget: `eo_opprettet` godtas i en KOE-sak (DM-07). **Merknad 2026-10-05:** bygget (#97); se DM-07 i 4.3 |
+| TFR-02: forsering får aldri en lukket samlet status. En endringsordre er en ordre og forhandles ikke; er TE uenig, føres det videre i en KOE | 23.09, oppdragsgiver | Rettet i spor D. Utstedt og revidert EO er `VENTER_PAA_SVAR`, akseptert og bestridt `LUKKET` |
+| <a id="fo-u1"></a>FO-U1: TE kan velge å anse byggherrens avslag som et pålegg om forsering (§ 33.8) når byggherren prinsipalt har avslått fristkravet helt eller delvis, også gjennom grunnlaget eller ved preklusjon, og TE ikke har godtatt avslaget. Valgretten gjelder de avslåtte dagene. TE varsler med antatt kostnad før forseringen iverksettes (§ 33.8 annet ledd). Appen avgjør ikke om kravet var berettiget eller om 30 %-grensen er overskredet, men viser grensen. Forkastet: valgrett bare ved avslag i fristsvaret selv, og valgrett også etter godtatt avslag (kommentaren i TFR-01-testen) | 09.10, oppdragsgiver etter lesning av NS 8407 § 5 og §§ 31–35 | Avgjør #230 og #258. Ikke bygget: forseringskandidatene regnes av fristens eget resultat (SK-06) |
+| Forsering er utenfor godkjenningsflyten | 18.09 | Prosjekter med policy kan inntil videre ikke svare på forseringsvarsel (GFK-04). Utvidelse er et produktvalg om godkjenningsomfang |
+
+#### Sendte brev, regelendring og saker kjernen ikke forstår
+
+| Beslutning | Vedtatt | Følge |
+| --- | --- | --- |
+| B-03 hovedvalg: hver innsending får sitt eget brev, som gjelder én part og ett spor, og brevet er det autoritative uttrykket for partens standpunkt. Saksrapporten sendes ikke lenger automatisk til Catenda. En rapport kan senere legges ved et brev, men bare hvis den er feilfri eller har et tydelig forbehold om at brevet gjelder | 03.10, oppdragsgiver | **Merknad 2026-10-03:** saksrapporten er pensjonert (#140). En hendelse uten brev får bare kommentar og statussynk i Catenda, og en PDF fra klienten avvises. Om hvert brev blir et eget dokument i Catenda eller en revisjon av ett dokument per part og spor, står åpent under B-03 |
+| <a id="mm-u9"></a>MM-U9: et sendt brev beholder virkningen det hadde da det ble sendt. En endring i appens regler endrer ikke virkningen av et brev som allerede er sendt: virkningen leses fra beslutningsgrunnlaget i brevet, og nye regler gjelder bare nye brev. Gir dagens regler et standpunkt i brevet en annen virkning, vises avviket som en merknad som oppfordrer byggherren til å revidere svaret (GR-U4). Forkastet: at dagens regler vurderer sendte brev på nytt, og at et avvik sperrer aksepten (MM-U4–MM-U6); og å fryse virkningen, men gi byggherren «vurder revisjon» som ventende handling | 09.10, oppdragsgiver | Opphever MM-U4, MM-U5 og MM-U6. Snevrer inn merknaden 05.10 til vedtaket om regelversjon under B-13. MM-U3 og MM-U8 står. Ikke avgjort: hvordan virkningen leses for et svar uten lagret beslutningsgrunnlag, for eksempel registrert korrespondanse. Målmodellen i språkprøven (#304) bygger MM-U4–MM-U6 |
 | <a id="mm-u4"></a>MM-U4: TE kan bare godta et svar når brevet stemmer med dagens utledning av svaret. Har en regelendring etter sendingen gitt et standpunkt i svaret en annen virkning enn beslutningsgrunnlaget i brevet, avvises aksepten. Byggherren får revisjon som ventende handling og må svare på nytt etter gjeldende regler, så lenge svaret ikke er godtatt (GR-U4). Byggherren blir dermed aldri bundet til et utfall brevet ikke uttrykte (B-03), og TE godtar alltid hele svaret slik det står (KA-U1). Kostnaden er at saken venter på byggherren. Forkastet: å la TE godta med utfallet etter dagens regler, og å fryse utfallet etter reglene da svaret ble sendt (det ville endret MM-U3) | 09.10, oppdragsgiver etter review av modellforslaget | **Opphevet 2026-10-09 av [MM-U9](#mm-u9).** Presiserer KA-U1 og MM-U3. Med MM-U4 stemmer brevet og reglene ved aksepten alltid overens. Ikke bygget: aksepten har i dag ingen regelversjon, og utfallet regnes av gjeldende regler ved hver lesing. Hvordan avvik avgjøres for et svar uten lagret beslutningsgrunnlag, er ikke avklart. Forløp C, steg 3d, i [modellforslaget](../forslag-maalmodell-2026-10-09.md#forløp-c-ett-brev-med-preklusjon-og-avslag) |
 | <a id="mm-u5"></a>MM-U5: avviker byggherrens svar på grunnlaget fra brevet etter en regelendring, og TE har ikke godtatt det, er grunnlaget uavklart til byggherren svarer på nytt. Det er verken avklart eller avvist: en betinget enighet om beløp eller dager forblir betinget, saken avsluttes ikke, og byggherren har revisjon som ventende handling. Forkastet: å la dagens utledning avklare grunnlaget, fordi byggherren da ble bundet til et utfall brevet ikke uttrykte og saken kunne lukkes før revisjonen; og å la brevets virkning gjelde til byggherren svarer | 09.10, oppdragsgiver etter review av PR #306 | **Opphevet 2026-10-09 av [MM-U9](#mm-u9).** Presiserer MM-U4 og B-13 (merknaden 05.10) for grunnlaget. Bygget i målmodellen i språkprøven (#304), rad KA-25 i [domenetabellen](../domenetabell/README.md) |
 | <a id="mm-u6"></a>MM-U6: TE kan ikke godta et svar uten lagret beslutningsgrunnlag, for eksempel et eldre svar eller registrert korrespondanse, før det er vedtatt hvordan avvik avgjøres for slike svar (MM-U4). Byggherren kan revidere svaret, og revisjonen får beslutningsgrunnlag. Forkastet foreløpig: å godta aksepten og fryse enighetsgrunnlaget med dagens utledning, fordi et manglende grunnlag ikke betyr at brevet stemmer | 09.10, oppdragsgiver etter review av PR #306 | **Opphevet 2026-10-09 av [MM-U9](#mm-u9).** Foreløpig sperre. Bygget i målmodellen i språkprøven (#304) |
-| <a id="mm-u7"></a>MM-U7: en part kan bestride en opplysning fra motparten, for eksempel at et varsel ble mottatt, også etter at saken er avsluttet. Bestridelsen registreres uten virkning på utfallet. At saken er avsluttet, sperrer kommandoer som kan endre utfallet, ikke partenes standpunkt til en opplysning. Forkastet: å la en avsluttet sak sperre alle handlinger | 09.10, oppdragsgiver etter review av PR #306 | Presiserer MM-U1. Bygget i målmodellen i språkprøven (#304), rad KA-21 |
-| <a id="mm-u8"></a>MM-U8: MM-U4 gjelder også når en ny opplysning, ikke bare en regelendring, gjør at dagens utledning av svaret avviker fra brevet. Registrerer TE et varsel etter at byggherren har påberopt preklusjon for det utledede varselet, er preklusjonen uavklart, og TE kan ikke godta svaret før byggherren har svart på nytt. En enighet inngått før opplysningen står (MM-U3). Forkastet: å la TE godta svaret slik brevet uttrykte det | 09.10, oppdragsgiver etter review av PR #306 | Presiserer MM-U4 og MM-U1. Bygget i målmodellen i språkprøven (#304), forløp D. **Merknad 2026-10-09:** MM-U4 er opphevet av [MM-U9](#mm-u9), som gjelder regelendringer. MM-U8 gjelder en ny opplysning og står. Den presiserer MM-U1, ikke MM-U4 |
-| <a id="gr-u8"></a>GR-U8: TE kan ikke godta et svar som godkjenner hele kravet. Partene er alt enige ved sammenfall (GR-U7), og aksepten avvises uten at journalen endres. Forkastet: å godta aksepten uten virkning | 09.10, oppdragsgiver etter review av PR #306 | Avgjør arbeidshypotesen i rad GR-25. Som i dag (`NOT_ALREADY_ACCEPTED`) i Python og i målmodellen |
-| <a id="gr-u9"></a>GR-U9: TE kan ikke godta byggherrens frafall (§ 32.3 c). Frafallet er byggherrens standpunkt, ikke en enighet; grunnlaget er avklart uten aksept (GR-U7), byggherren beholder revisjonsretten, og TE kan sende ny kravversjon (GR-U2). Forkastet: å la aksepten låse frafallet for revisjon | 09.10, oppdragsgiver etter review av PR #306 | Bygget i målmodellen i språkprøven (#304), rad GR-26 |
-| <a id="ka-u6"></a>KA-U6: TE kan trekke et krav i et spor der partene er enige, betinget eller virksomt, så lenge saken ikke er avsluttet. Enigheten får da ingen virkning, på samme måte som en ny kravversjon opphever den (SK-02). Forkastet: at en enighet låser kravet mot trekk | 09.10, oppdragsgiver etter review av PR #306 | Bygget i målmodellen i språkprøven (#304), rad KA-26. **Merknad 2026-10-09:** etter [KA-U7](#ka-u7) avvises en ny kravversjon i et spor med enighet. Trekket står |
-| <a id="mm-u9"></a>MM-U9: et sendt brev beholder virkningen det hadde da det ble sendt. En endring i appens regler endrer ikke virkningen av et brev som allerede er sendt: virkningen leses fra beslutningsgrunnlaget i brevet, og nye regler gjelder bare nye brev. Gir dagens regler et standpunkt i brevet en annen virkning, vises avviket som en merknad som oppfordrer byggherren til å revidere svaret (GR-U4). Forkastet: at dagens regler vurderer sendte brev på nytt, og at et avvik sperrer aksepten (MM-U4–MM-U6); og å fryse virkningen, men gi byggherren «vurder revisjon» som ventende handling | 09.10, oppdragsgiver | Opphever MM-U4, MM-U5 og MM-U6. Snevrer inn merknaden 05.10 til vedtaket om regelversjon under B-13. MM-U3 og MM-U8 står. Ikke avgjort: hvordan virkningen leses for et svar uten lagret beslutningsgrunnlag, for eksempel registrert korrespondanse. Målmodellen i språkprøven (#304) bygger MM-U4–MM-U6 |
-| <a id="gr-u10"></a>GR-U10: har byggherren godkjent grunnlaget uten å påberope preklusjon, er partene enige ved sammenfall, og byggherren er bundet. Byggherren kan ikke revidere godkjenningen. Etter § 32.3 a er svaret en endringsordre. «Låst» er ikke lenger et eget begrep, men enighet. Frafall (GR-U9) er byggherrens standpunkt og kan fortsatt revideres | 09.10, oppdragsgiver | Presiserer GR-U2 og GR-U7. Retter avviket i målmodellen som #312 beskriver |
-| <a id="ka-u7"></a>KA-U7: en enighet binder begge parter. En ny kravversjon i et spor med enighet, betinget eller virksom, avvises. TE kan trekke kravet (KA-U6). Et krav på nytt grunnlag, for eksempel kostnader som ikke var kjent, går i en ny sak, som etter KA-U3. En åpenbar skrivefeil hører til B-16. Forkastet: at TE kan oppheve enigheten med en ny kravversjon, som i dag, og en ny kravversjon bare med byggherrens samtykke | 09.10, oppdragsgiver etter lesning av NS 8407 § 5 og §§ 31–35 | Endrer SK-02 og vedtaket om ny kravversjon 05.10 for spor med enighet, og gjør det overflødig at KA-U3 avhenger av om andre spor er åpne. Grunnlaget er § 34.2.2 første ledd (et akseptert tilbud er avtalt vederlag); ingenting i § 33 eller § 34 lar TE gå fra en avtale ensidig. Ikke bygget: i dag opphever en ny kravversjon enigheten (SK-02) |
-| <a id="ka-u8"></a>KA-U8: en kravversjon på 0 dager eller 0 kr avvises. 0 er ikke et krav om noe (§ 33.6.1: «det antall dager han krever»). TE trekker kravet eller sender det ikke | 09.10, oppdragsgiver etter lesning av NS 8407 § 5 og §§ 31–35 | Avgjør #179 |
-| <a id="ka-u9"></a>KA-U9: byggherrens standpunkt om beløp er et beløp med fortegn som ikke kan være gunstigere for TE enn kravet. Det er «godkjent» når beløpene er like, og «delvis» når byggherrens beløp er mindre gunstig for TE. Regelen er den samme for tillegg og fradrag (§ 34.1.1 «partene», § 34.4 annet ledd). For et fradrag på −100 000 kr betyr «delvis» et større fradrag, for eksempel −150 000 kr | 09.10, oppdragsgiver etter lesning av NS 8407 § 5 og §§ 31–35 | Avgjør #189 |
-| <a id="gr-u11"></a>GR-U11: § 32.2 gjelder alle underkategorier under ENDRING unntatt EO, som i dag. Hver bestemmelse viser selv til § 32.2: § 14.4 (LOV_GJENSTAND), § 14.6 annet ledd (VALGRETT), § 15.2 (LOV_PROSESS), § 21.4 annet ledd (SAMORD), § 24.2.2 fjerde ledd (SVAR_VARSEL) og § 26.3 (GEBYR). IRREG er § 32.1 direkte. Henvisningen tar med preklusjonen i § 32.2 og byggherrens svarplikt i § 32.3, med passivitetsregelen | 09.10, oppdragsgiver etter lesning av NS 8407 § 5 og §§ 31–35 | Avgjør #220, uten innsnevring. Vedtaket om `grunnlag_varslet_i_tide` under B-13 er uendret |
-| <a id="fo-u1"></a>FO-U1: TE kan velge å anse byggherrens avslag som et pålegg om forsering (§ 33.8) når byggherren prinsipalt har avslått fristkravet helt eller delvis, også gjennom grunnlaget eller ved preklusjon, og TE ikke har godtatt avslaget. Valgretten gjelder de avslåtte dagene. TE varsler med antatt kostnad før forseringen iverksettes (§ 33.8 annet ledd). Appen avgjør ikke om kravet var berettiget eller om 30 %-grensen er overskredet, men viser grensen. Forkastet: valgrett bare ved avslag i fristsvaret selv, og valgrett også etter godtatt avslag (kommentaren i TFR-01-testen) | 09.10, oppdragsgiver etter lesning av NS 8407 § 5 og §§ 31–35 | Avgjør #230 og #258. Ikke bygget: forseringskandidatene regnes av fristens eget resultat (SK-06) |
-| <a id="vs-u1"></a>VS-U1: en innsigelse etter § 5 tredje ledd registreres som ett utsagn med sendetid. Den kan gjelde ethvert varsel, krav eller svar fra motparten, også et svar etter § 33.6.2 annet ledd bokstav b. En protest mot innsigelsen registreres og vises ved siden av. Appen avgjør ikke om innsigelsen kom i tide. Forkastet: å avvise en § 5-innsigelse som kommer etter at TE har spesifisert kravet | 09.10, oppdragsgiver etter lesning av NS 8407 § 5 og §§ 31–35 | Avgjør #175. I tråd med MP-U5, MP-U7 og vedtaket om passivitet under B-13 |
-| <a id="vs-u2"></a>VS-U2: passivitet og søksmålsfrist vises som veiledning. § 32.3 annet ledd, § 33.6.2 tredje ledd, § 33.7 annet ledd, § 34.3.3 annet ledd og § 35.2 vises med frist og bestemmelse, uten at appen trekker konklusjonen | 09.10, oppdragsgiver etter lesning av NS 8407 § 5 og §§ 31–35 | Utvider vedtaket om passivitet under B-13 (§ 32.3 annet ledd) til de andre bestemmelsene |
-| DRF-03: sendedatoen for TEs varsel om justerte enhetspriser (§ 34.3.3) settes av serveren, som den norske datoen for innsendingen når TE krever justering. Et oppdatert krav flytter den ikke. Tar TE ut kravet om justering, faller varselet bort, og et nytt krav er et nytt varsel med ny dato. En dato fra klienten avvises | 29.09, oppdragsgiver | Bygget 29.09 (merknaden i DRF-03) |
-| B-03 hovedvalg: hver innsending får sitt eget brev, som gjelder én part og ett spor, og brevet er det autoritative uttrykket for partens standpunkt. Saksrapporten sendes ikke lenger automatisk til Catenda. En rapport kan senere legges ved et brev, men bare hvis den er feilfri eller har et tydelig forbehold om at brevet gjelder | 03.10, oppdragsgiver | **Merknad 2026-10-03:** saksrapporten er pensjonert (#140). En hendelse uten brev får bare kommentar og statussynk i Catenda, og en PDF fra klienten avvises. Om hvert brev blir et eget dokument i Catenda eller en revisjon av ett dokument per part og spor, står åpent under B-03 |
-| MG-02: webhook kan opprette brukerrader gjennom `koe_resolve_identity` | 21.09 | Gjennomført |
-| DB-05: `viewer` skal finnes som ren leserolle | 21.09 | Besluttet, ikke bygget |
+| <a id="mm-u2"></a>MM-U2: kan ikke kjernen tolke en hendelse på saken, godtas ingen bindende kommando fra noen part før en kjerne som forstår den, er rullet ut. Journalen og interne notater kan fortsatt leses. Visningen sier at et varsel med frist må sendes utenfor appen og registreres senere, og drift varsles. Forkastet: å la TE sende varsler i en slik sak, fordi kontrollen av varselet trenger tilstanden | 09.10, oppdragsgiver | Konkretiserer B-10 og merknaden 07.10 for [#273](https://github.com/khjohns/endringsmeldinger/issues/273): det brukeren ser mens saken stopper. Ikke bygget. Prøveserveren svarer 422; Python hopper over en kjent type uten behandler. Forløp E i modellforslaget |
+
+#### Fullmakt og intern godkjenning
+
+| Beslutning | Vedtatt | Følge |
+| --- | --- | --- |
+| Godkjenning av ansvarsgrunnlaget (GFK-06): fullmakten regnes av TEs krevde beløp, vederlag pluss krevde fristdager ganget med dagmulktssatsen. Er kravet ikke tallfestet, kreves hele kjeden | 23.09, oppdragsgiver | Bygget 24.09 (merknaden i GFK-06). Mangler dagmulktssatsen, gjelder B-06 |
+| GFK-06 presisert: ansvar har ingen egen verdi, fullmakten regnes per spor. Et spor som besvares i samme brev, har verdien i svaret; ellers gjelder TEs krav. Et krav som ikke er sendt, krever hele kjeden som et krav som ikke er tallfestet; et trukket krav er 0. Avslått og frafalt ansvar er 0 | 24.09, oppdragsgiver | Bygget 24.09. Ved «frafalt» (§ 32.3 c) må byggherren utstede en endringsordre for det utførte arbeidet, med egen fullmakt; varsel eller tom EO-sak i frontenden er ikke bygget |
+| Ubegrenset fullmakt kan sende alene når beløpet ikke kan verdsettes | 23.09, oppdragsgiver | Bygget 24.09 i `resolve_route` og speilet `resolveRoute` (merknaden i GFK-02). Gjelder fristsvar med ny sluttdato (GFK-02) og endringsordrer (`resolve_route`). Alle andre trenger fortsatt hele kjeden, og kjeden må dekke det som lar seg verdsette |
+| B-02 punkt 3: «ikke omgå godkjenning» betyr prosedyregaranti (v2 avsnitt 5, alternativ a) | 23.09, oppdragsgiver | En EO utstedes bare gjennom kommandoen, og kommandoens regler holder: pakke, policyversjon, fullmakt og side. At en overtatt runtime kan opptre som en godkjenner, er restrisiko. Den føres i ROS-analysen og vurderes på nytt før produksjon (F5). Bevis på menneskelig godkjenning (b) bygges ikke nå |
+| Policy nøkles på `user_id` | 18.09 | `BH_APPROVAL_POLICIES` må ha `user_id` per oppføring før produksjon |
+
+#### Kontrakt, API og saksopprettelse
+
+| Beslutning | Vedtatt | Følge |
+| --- | --- | --- |
+| <a id="kt-u1"></a>KT-U1: hvert spor i den offentlige tilstanden har `gjeldende_respons_event_id`: ID-en til svaret på gjeldende kravversjon, ellers `null`, også når sporet venter på svar på en ny versjon. TEs aksept viser til dette svaret i `refererer_til_event_id`, og serveren avviser en aksept av et annet svar med samme definisjon. Forkastet: at klienten avgjør det av `respons_event_id`, `bh_respondert_versjon` og `antall_versjoner` | 08.10, oppdragsgiver | Bygget (#272). Utfører KA-U1 i kontrakten. `respons_event_id` er uendret og står igjen etter en ny kravversjon |
+| <a id="kt-u2"></a>KT-U2: den smale kontrakten under B-14 (#272) gjelder den representative flyten i språkprøven: vederlag med grunnlagsavhengighet, et fristscenario med spesifisert krav og TEs aksept. Den står i ett JSON-skjema med kommando, lagret hendelse og offentlig tilstand. En ny kommando er streng, de eksisterende kommandoene i flyten er tolerante, og historikken leses tolerant. Typegenerering og grensen for godkjenningspakker følger #274. En hviteliste for hele den offentlige tilstanden er #292 | 08.10, oppdragsgiver | Bygget (#272): [kontrakten](../domenetabell/README.md#kontrakten-for-flyten). Aksepten er den eneste nye kommandoen |
+| API-et: tilstanden sender alltid alle felt, og `null` betyr at feltet finnes uten verdi. Hendelsesdata i tidslinjen utelater felt som ikke er satt. Frontendtypene følger: `X \| null` i tilstanden, valgfrie felt i hendelsene | 05.10, oppdragsgiver | Serialiseringen er slik i dag; typene er det ikke (SK-08, SK-09, M5) |
+| Et tilstandsløst endepunkt som regner ut et utkast med serverens regler, utredes ikke nå. Speilet i `src/lib/domain/` står under regelversjonsvakten, og B-13 er uendret. Vurderes på nytt når M1 er levert | 05.10, oppdragsgiver | **Merknad 07.10:** eventuell tidligere utredning behandles separat under B-15; utsettelsen gjelder til nytt vedtak **Merknad 2026-10-09:** B-15 er avgjort ([B-15](#b-15)): serverbasert forhåndsvurdering utredes ikke som erstatning |
+| <a id="b-15"></a>B-15: når nødvendig saksgrunnlag er lastet, skal brukeren kunne utforske vurderinger og se tilhørende beregninger og brevutkast uten å vente på serverkall. Ved innsending validerer serveren på nytt. Serverbasert forhåndsvurdering utredes derfor ikke som erstatning. B-13 er uendret | 09.10, oppdragsgiver (#274) | Flyttet fra 3.4 ved sluttredigeringen 09.10 |
+| Saker opprettes både fra skjemaet i appen og fra en topic i Catenda | 29.09, oppdragsgiver | Ikke bygget: skjemaet får 403 (DM-05) |
+
+#### Arkitektur, språk og overgang
+
+| Beslutning | Vedtatt | Følge |
+| --- | --- | --- |
+| B-14: målformene for M2, M1, M4 og M5 legges til grunn med presiseringene 07.10; M3 følger grensene som endres. Modulær monolitt og serverautoritet beholdes. Domenetabell og bevis-saker → smal kommando-/API-kontrakt → tidsbegrenset språkprøve → M2/M1 → M4 og videre kontraktsarbeid | 07.10, oppdragsgiver etter review av PR #266 og #270 | Vedtak om retning og prioritering, ikke gjennomført kode eller valgt backendspråk. Detaljer i merknaden 07.10 til B-14 under tabellen og [arkitekturforslaget](../forslag-maalarkitektur-og-beslutningsproeve-2026-10-07.md). B-15 og B-16 står åpne. **Merknad 2026-10-09:** B-15 er avgjort ([B-15](#b-15)) |
+| B-14, språket: TypeScript er retning for den delte domenekjernen, som brukes både i nettleseren og på serveren. Valget godkjenner ikke `sprakprove/kjerne/` som produksjonskjerne. Deler kan gjenbrukes, og andre formes på nytt etter modellforslaget i #300. Valget mellom serverlaget i SvelteKit, en egen backend og en eventuell permanent Python-worker tas ikke her. Før en større portering kommer gjennomgangen av målmodellen og overgangsgrensene (#300) | 09.10, oppdragsgiver etter språkprøven (#274) | Vedtak om retning. Ingen produksjonskode er portet. Grunnlaget er [arkitekturforslaget, avsnitt 7](../forslag-maalarkitektur-og-beslutningsproeve-2026-10-07.md#anbefaling) og B-15. **Merknad 2026-10-09:** TS-kjernen bygges i en egen permanent mappe fra #308, for eksempel `kjerne/` i roten, med typesjekk, prettier, arkitekturtest og regelversjonsvakt i CI. Kjernen er ren kode og avhenger ikke av B-18. #308 flytter målmodellen dit. Valget godkjenner fortsatt ikke prøvekoden som produksjonskjerne (oppdragsgiver) |
+| <a id="b-17"></a>B-17: TS tar over skrivingen i KOE-saker samlet, ikke én kommando om gangen. TS eier KOE-domenet: kommandoene, valideringen, utledningen, journalhendelsene, beslutningsgrunnlaget og enighetsgrunnlaget. Byttet omfatter alle som skriver i eller påvirker en KOE-sak: skjemaer, API, batch, godkjenningspublisering, webhooks og bakgrunnsjobber. Ingen Python-funksjon skal endre KOE-journalen etter byttet, heller ikke indirekte gjennom endringsordre eller forsering. Python kan beholde levering og integrasjon: gjengi og levere frosne brev, Catenda og tekniske leveringsresultater. Python tolker ikke KOE-journalen for å avgjøre hva et brev betyr eller hva partene kan gjøre. Andre sakstyper kan bli i Python med en uttrykkelig kontrakt mot TS. Dagens testsaker forkastes, og det bygges ingen kompatibilitetsleser for gamle Python-rader; bevis-sakene og domenetabellen føres videre. TS-kjernen bygges og prøves trinnvis, men skrivestien aktiveres samlet. Forkastet: gradvis overtakelse av enkeltkommandoer med to skrivere i samme sak (2.8 i [modellforslaget](../forslag-maalmodell-2026-10-09.md#28-overgangsgrensen)), fordi kompatibilitet begge veier koster mer enn den gir uten reelle data | 09.10, oppdragsgiver etter målmodellen (#304) | Erstatter overgangsgrensen i 2.8 som arbeidshypotese. B-10 (#273) gjelder fortsatt, men formatet velges uten hensyn til at dagens Python-kjerne skal lese det. Serverplasseringen er B-18. **Merknad 2026-10-09:** endringsordre- og forseringssakene går til TS sammen med KOE-sakene (oppdragsgiver samme dag). EO-U2 og EO-U3 krever at kandidatkontrollen og eksklusiviteten avgjøres i samme transaksjon som KOE-saken, og B-17 forbyr Python å endre KOE-saken indirekte. F2 slik den er skrevet, utgår, og #309 og #310 utvides. Arbeidspakken er FK (avsnitt 5) |
+| Leveringsmål fryses; samlet status skiller lagret, venter, usikkert og levert; fravær løses med sporbar ny godkjenning, ikke delt konto eller bypass | 16.–17.09 | Del av invariantene i 2.3 |
+| En enkel databasebasert worker, ikke en distribuert meldingsplattform | 17.09 | Volumet tilsier det |
+| Ingen utrulling før den samlede produksjonsporten er passert | 17.09 | F5 |
+
+> **Merknad 2026-10-07 til B-14, flyttet fra 3.4 ved sluttredigeringen 09.10:** Oppdragsgiver tilsluttet seg reviewets
+> justeringer og ba om dokumentasjons-PR og issues. Denne merknaden erstatter
+> den betingede rekkefølgen og den åpne målformstatusen fra 05.10.
+>
+> Før større språkspesifikk ombygging etableres domenetabell og et
+> språkuavhengig bevisgrunnlag, deretter en smal kommando-/API-kontrakt.
+> Språkprøven har én arbeidsuke som stoppgrense og to porter: semantikk og
+> reduksjon av dobbeltarbeid, deretter konkret server-/integrasjonskostnad.
+> Ufullstendig bevis gir «ikke tilstrekkelig grunnlag», ikke automatisk
+> utvidelse eller TS-valg. Etter språkvedtak følger M2/M1, M4 og videre
+> kontraktsarbeid; M3 følger de grensene som endres.
+>
+> M2 binder brukerens aksept til et konkret svar og samler livsløpsfakta,
+> også tilbaketrekking og grunnlagsavhengighet. Hva som er gjeldende krav,
+> skal brukes likt i projeksjon og godkjenning. Offentlig serialisert kontrakt
+> defineres før typegenerering; nye kommandoer, lagrede hendelser og lesemodeller
+> har ulike grenser. Bevisene omfatter vanlig innsending, batch, godkjenning
+> og lagring/gjenlesing, med uavhengige domeneinvarianter.
+>
+> Språk, database og rammeverk er ikke valgt. Utredning av serverbasert
+> forhåndsvurdering og korrigeringsprosessen er åpne under B-15 og B-16.
+> Gjennomføringsdetaljene står i [arkitekturforslaget](../forslag-maalarkitektur-og-beslutningsproeve-2026-10-07.md);
+> oppfølgingen er koblet i [reviewnotatet](../review-oppfolging-arkitektur-2026-10-07.md).
+
+#### Plattform, datalag, tilgang og identitet
+
+| Beslutning | Vedtatt | Følge |
+| --- | --- | --- |
 | ~~PostgreSQL og RPC over PostgREST er utgangspunkt for transaksjoner~~ | 16.–17.09, bekreftet i AF-02. **Opphevet 23.09** med TM-01 som motbelegg | Se raden under og merknaden etter tabellen |
 | PostgreSQL over direkte tilkobling er utgangspunkt for transaksjoner (B-02 alternativ C, transport T2) | 23.09, oppdragsgiver | Én bindende kommando er én transaksjon, over direkte tilkobling til databasekommandoer. Backend når basen med en databasedriver og vanlig SQL, ikke gjennom PostgREST og `supabase-py`. Tas ikke opp igjen uten nytt konkret motbelegg |
 | B-02 hovedvalg: alternativ C. RLS med kontekst for lesing, avgrensede `SECURITY DEFINER`-kommandoer for bindende skriving, og operasjonsmodellen for journal, saksregister og kø | 23.09, oppdragsgiver | Slik [design v2](../design-b02-tilgangsmekanisme-v2-2026-09-23.md) beskriver det. Punktene 3–6 i avsnitt 9 der står åpne under B-02. Uavhengig review før første F1-migrasjon gjelder fortsatt (22.09) |
 | Designet avhenger ikke av plattformen. Foreløpig mål er Azure Database for PostgreSQL (Flexible Server, versjon 17) | 23.09, oppdragsgiver | Alternativ C skal virke likt lokalt, i CI, på Supabase og på Azure. Vernet ligger i roller, RLS og funksjoner i ren PostgreSQL (kravet fra 22.09). Endelig plattform og hosting er B-12 |
 | TS2-02: JSON-hendelseslageret, CSV-metadatalageret og Supabase-lagrene går ut av kjøretidsstien | 23.09, oppdragsgiver, med beslutningen over | Tester som trenger ekte lagring, går mot PostgreSQL over samme tilkobling som produksjonen, med skrivbar testbase. Testdoblene som speiler Supabase-klienten, faller bort med lagrene (F0b) |
-| B-02 punkt 3: «ikke omgå godkjenning» betyr prosedyregaranti (v2 avsnitt 5, alternativ a) | 23.09, oppdragsgiver | En EO utstedes bare gjennom kommandoen, og kommandoens regler holder: pakke, policyversjon, fullmakt og side. At en overtatt runtime kan opptre som en godkjenner, er restrisiko. Den føres i ROS-analysen og vurderes på nytt før produksjon (F5). Bevis på menneskelig godkjenning (b) bygges ikke nå |
 | B-02 punkt 4: prosjekt og kontraktsteam registreres bare av drift (TM-12) | 23.09, oppdragsgiver | En navngitt administrator bestemmer hvilke Catenda-team som representerer TE og BH. Runtime får ikke kalle `koe_register_project` eller `koe_set_contract_teams` (F1) |
-| B-02 punkt 5 og B-04: tilbakekalling | 23.09, oppdragsgiver | Se merknaden under B-04. Rett til nye handlinger opphører straks systemet har registrert endringen; en gitt godkjenning står; utkast blir hos teamet; ved utdatert medlemsliste fortsetter appen, og drift varsles |
+| B-02 punkt 5 og B-04: tilbakekalling | 23.09, oppdragsgiver | Se merknaden til B-04 under tabellen. Rett til nye handlinger opphører straks systemet har registrert endringen; en gitt godkjenning står; utkast blir hos teamet; ved utdatert medlemsliste fortsetter appen, og drift varsles |
 | B-02 punkt 6: break-glass er navngitt, tidsbegrenset og logget | 23.09, oppdragsgiver | Prosedyren i v2 avsnitt 8: én person, én hendelse, bare de rettighetene hendelsen krever, fjernet etterpå, alt logget. To-personskontroll og varsel til motparten kreves ikke. Hvem som kan få og godkjenne nødtilgang, avklares i F5 |
-| Leveringsmål fryses; samlet status skiller lagret, venter, usikkert og levert; fravær løses med sporbar ny godkjenning, ikke delt konto eller bypass | 16.–17.09 | Del av invariantene i 2.3 |
-| En enkel databasebasert worker, ikke en distribuert meldingsplattform | 17.09 | Volumet tilsier det |
-| Ingen utrulling før den samlede produksjonsporten er passert | 17.09 | F5 |
+| Bare Catenda-innlogging | 18.09 | Anonym innlogging og OAuth-serveren slås av i Supabase-konsollet før produksjon |
+| MG-02: webhook kan opprette brukerrader gjennom `koe_resolve_identity` | 21.09 | Gjennomført |
+| DB-05: `viewer` skal finnes som ren leserolle | 21.09 | Besluttet, ikke bygget |
+| Webhookens kontraktsside utledes av forfatterens lagmedlemskap | 19.09 | Fail-closed uten entydig side (INT-04) |
+| Vedlegg er kontraktskorrespondanse | 18.09 | Deltakere uten TE- eller BH-tilknytning leser ikke vedlegg |
 
 > **Merknad 2026-09-23 til 3.1: direkte tilkobling erstatter RPC over PostgREST.**
 > Oppdragsgiver bekreftet 23.09 alternativ C med transport T2 fra
@@ -314,152 +404,7 @@ eksplisitt oppheves.
 > lenge Supabase er plattformen (B-12). Kilde:
 > [handoffen 23.09](../handoff-2026-09-23-datalag-postgresql.md), avsnitt 3 og 6.
 
-### 3.2 Føringer AF-01–AF-06
-
-Tilsluttet av oppdragsgiver 21.09. Føringer for design, ikke implementert.
-
-| ID | Føring | Hvor i planen |
-| --- | --- | --- |
-| AF-01 | Teaminternt innhold vernes i datalaget; prosjekt, side, team og handlingsrett modelleres hver for seg | F1, invariant 1 |
-| AF-02 | Kommandoer, rettigheter og transaksjonsgrenser utformes samlet; append-only mot omskriving og tilføying | F1, F2, invariant 2–3 |
-| AF-03 | Fjerning av relasjonsprojeksjonen er ikke fastlagt | B-01 |
-| AF-04 | Hash suppleres med dokumentversjon, bevaring, leveringsbevis og eksport | F2, F4, invariant 10 |
-| AF-05 | Deterministisk gjenoppbygging uten eksterne oppslag | F2, invariant 9 |
-| AF-06 | Ekte PostgreSQL-tester og én komplett EO-flyt før generell opprydding og flere adaptere | Rekkefølgen i avsnitt 5 |
-
-> **Merknad 2026-10-03 til AF-06:** Oppdragsgiver har godkjent et avgrenset
-> unntak: oppryddingene som ikke rører datalaget, autentiseringen eller
-> webhookstien, kan tas nå. Det gjelder #106, #107, #108, frontenddelen av
-> #110 og feilrettingen #72. Ingen av dem forutsetter et databasevalg (B-12 er
-> åpent). Unntaket gjelder ikke #102, #109, #111 eller logger-delen av #110.
-> Disse endrer de samme backendfilene som #49, #66 og #70, og følger
-> rekkefølgen i avsnitt 5.
->
-> **Merknad 2026-10-03 til AF-06 (#111):** Oppdragsgiver har utvidet
-> unntaket til frontenddelen av #111: modulbeskrivelsene i `fristDomain.ts`,
-> `grunnlagDomain.ts`, `vederlagDomain.ts`, `fristSubmissionDomain.ts` og
-> `vederlagSubmissionDomain.ts`. Den rører ingen av filene til #49, #66, #70
-> eller #109. Backenddelen av #111 følger fortsatt rekkefølgen i avsnitt 5.
->
-> **Merknad 2026-10-04 til AF-06 (#102, #146):** Oppdragsgiver har utvidet
-> unntaket til de to Catenda-metodene uten kallere i #102
-> (`WebhookService.handle_pdf_upload` og
-> `BaseSakService._create_topic_with_relations`) og til de reserverte
-> PDF-parameterne i #146. Ingen av dem rører datalaget. Backfill-skriptet i
-> #102, #109, backenddelen av #111 og logger-delen av #110 følger fortsatt
-> rekkefølgen i avsnitt 5.
->
-> **Merknad 2026-10-04 til AF-06 (#109, #49):** Oppdragsgiver har utvidet
-> unntaket til #109 og den avgrensede deloppgaven i #49 (SystemContext,
-> `/api/validate-user` og `CSVRepository`). Ingen av dem rører de aktive
-> metadata-, hendelses- eller autentiseringslagrene, og ingen forutsetter et
-> databasevalg. Selve lagerovergangen i TS2-02 venter fortsatt på B-12.
-
-> **Merknad 2026-10-07 til AF-06:** B-14 gir et avgrenset unntak for
-> domenetabell, bevis-saker, smal kommando-/API-kontrakt og beslutningsprøven
-> før større språkspesifikk ombygging. Prøven bruker eksisterende PostgreSQL
-> og en isolert teststi. Den erstatter ingen autoritativ produksjonssti,
-> åpner ikke database-/hostingvalget og godkjenner ingen full portering.
-> Sikkerhetsvedlikehold og små uavhengige rettinger kan fortsette innen sine
-> eksisterende føringer. F1/F2s sikkerhets- og transaksjonskrav gjelder fortsatt.
-
-### 3.3 Anbefalinger som ikke er vedtatt
-
-| Anbefaling | Kilde | Status |
-| --- | --- | --- |
-| Relasjonsprojeksjon med prosjektavgrensede fremmednøkler og én skriver | AF-03, RGK-04 | Foretrukket til vurdering, se B-01 |
-| Avgrenset runtime-rolle uten `BYPASSRLS`, RLS for lesing og avgrensede `SECURITY DEFINER`-funksjoner med egen autorisasjon, fast `search_path` og smal `EXECUTE` | RGK-04 | Innarbeidet i alternativ C, vedtatt 23.09 (3.1) |
-| Gjør TST-02-reproduksjonen deterministisk, framfor å fjerne `strict=True` | RGK-04 | Anbefalt. Den nye testen fra 22.09 er ikke deterministisk (RTB-02) |
-| Forhåndsvalgte GUID-er for topic og kommentar | RGK2-01 | Kandidat. Ikke bevist idempotent (avsnitt 7) |
-| Køalarm ved 15 minutter; sletting av stagingfiler 24 timer etter kvittert levering | Konsolidering v2 | Forslag uten kilde, se B-09 |
-| Utgående kvote på 10 kall/s og innkommende grense 100 kall/s | Konsolidering v2 | Forslag uten kilde, se B-09 |
-| Fjern JSON-hendelseslageret og CSV-metadatalageret fra kjøretidsstien; tester som trenger ekte lagring, går mot PostgreSQL gjennom samme vei som produksjonen, med skrivbar testbase | [TS2-02](../gjennomforing-tst02-2026-09-22.md#ts2-02--reservelagrene-og-testene) | Vedtatt 23.09, utvidet til Supabase-lagrene (3.1) |
-| Migrasjonsmappa som eneste kilde, anvendt med `supabase db push` | Masterplanen 20.09 | Repo-siden gjennomført (DA-03). Anvendelsesmekanismen gjenstår. `supabase db push` gjelder bare på Supabase; på Azure trengs en annen vei fra fil til base (B-12) |
-
-### 3.4 Åpne beslutninger
-
-«Ansvarlig» angir rollen som må avklare. Der ingen er utpekt, står det.
-Et åpent valg blokkerer bare oppgavene som er nevnt.
-
-| ID | Spørsmål | Alternativer | Anbefaling (kilde) | Ansvarlig | Belegg som trengs | Blokkerer |
-| --- | --- | --- | --- | --- | --- | --- |
-| B-01 | Hvordan skal relasjoner mellom saker lagres? | (a) Relasjonsprojeksjon med prosjektavgrensede fremmednøkler, én skriver. (b) Utledning fra hendelsenes jsonb med GIN-indeks. (c) Reservasjonstabell for KOE-tilknytning pluss (a) eller (b) | (a) er foretrukket til vurdering (AF-03). En GIN-indeks er ikke et revisjonsspor (RGK-04) | Utvikler, med review. Ikke utpekt | Sammenlikning mot referanseintegritet, eksklusivitet, gjenoppbygging og samtidighet | KOE-tilknytning og relasjoner i F2. DB-04, MS-08 |
-| B-02 | Hvilken tilgangsmekanisme skal datalaget ha? | RLS med kontekst, avgrensede funksjoner, eller begge. `SECURITY INVOKER` eller `DEFINER`. Hvordan identitet, prosjekt og team føres inn, og av hvem | Utform rolle, identitetskontekst og funksjoner samlet (AF-01, AF-02, RGK-04). RLS med kontekst som backend selv setter, verner ikke mot en overtatt backend | Utvikler, med uavhengig review. Ikke utpekt | Trusselmodell som skiller glemt filter, ondsinnet bruker, kompromittert runtime/worker og databaseadministrator. Test av gjenbrukte forbindelser | F1-migrasjoner for roller og private lagre. F2-kommandoens rettigheter. **Avgjort 23.09:** alternativ C og T2, og punkt 3–6 i v2 avsnitt 9 (3.1) |
-| B-03 | Hvilken dokument- og brevmodell skal gjelde i Catenda? | Samlet saksdokument med revisjoner; separate brev; separate brev per part og spor ([Catenda-dataflyten, avsnitt 11](../catenda-dataflyt.md#11-åpent-adr-dokument--og-brevmodell)) | Ingen. `failOnDocumentExists` følger av valget: `true` passer en strategi med unikt navn per brev, `false` en bevisst revisjonsflyt | Produkteier med utvikler. Ikke utpekt | ADR med dokumentnøkkel, navnestandard og avstemming etter tapt svar | Dokumentoperasjonen i F2-workeren og alle senere dokumentadaptere. **Delvis avgjort 03.10:** hovedvalget er brev, ikke samlet saksdokument (3.1). Dokumentnøkkel, navnestandard, avstemming og valget mellom eget dokument per brev og revisjon per part og spor står åpne |
-| B-04 | Når får tilbakekalt medlemskap eller fullmakt virkning? | Straks for alt; straks for nye handlinger, men ventende pakker returneres; frist før virkning | Ingen. At journalen er uforanderlig, sier ikke noe om rettslig gyldighet | Oppdragsgiver (kontraktsside), ikke utpekt | Kontraktsmessig vurdering av utkast, ventende godkjenning og allerede committede brev | Tilbakekallingsatferd i F1. Eventuell medlemskapscache. **Avgjort 23.09** (3.1 og merknaden under). Grensene for varsel ved utdatert liste hører til B-09 |
-| B-05 | Hvilke bevaringskrav gjelder utover journalen? | Bevaringstid for journal, filer, logger, backup og stagingfiler | P7 fastsetter bare at journalen bevares uten kryptografisk sletting | Behandlingsansvarlig, med råd fra personvernombudet | DPIA og arkivfaglig vurdering | Bevarings- og sletteregler i F4. Produksjonsport |
-| B-06 | Hvilken fullmakt kreves når dagmulktssats mangler? | Kjedens toppnivå; avvisning; manuell verdsetting | Ingen | Oppdragsgiver (BH-siden), ikke utpekt | Domenevurdering | Restansen på GFK-01/FE-04 |
-| B-07 | Hvilken drivmekanisme skal workeren ha? | Tabell med `SKIP LOCKED`, `pgmq`, Cloud Tasks, Cloud Scheduler, jobber i Azure Container Apps, fast instans | Én kømekanisme; tabell og `SKIP LOCKED` er beskrevet i transaksjonsplanen | Utvikler, ikke utpekt | Plattformens skalering til null og krav om start uten brukerhandling | Minimal worker i F2 |
-| B-08 | Kan en KOE tilhøre flere endringsordrer? | Eksklusiv; flere med regler | Fastsett forretningsregelen før reservasjonsskjemaet låses (transaksjonsplanen) | Domeneansvarlig, ikke utpekt | NS 8407-vurdering | KOE-reservasjon i F2. **Avgjort 08.10:** eksklusiv, også når endringsordren er bestridt ([EO-U3](#eo-u3)) |
-| B-09 | Hvilke driftsverdier gjelder? | Kapasitet, svartid, køalarm, rate limits, oppbevaring av stagingfiler | Tall i 3.3 er forslag uten kilde | Driftsansvarlig, ikke utpekt | Lastforutsetninger, Catendas kvoter, fristkrav | Akseptkriterier for kapasitet og varsling i F3 |
-| B-10 | Hvordan versjoneres hendelsesformat og regler? | Versjonsfelt per hendelse; oppgraderingsfunksjoner; regelversjon i projeksjonen. `UP042` (`StrEnum`) avhenger av dette | Dokumentert strategi (AF-05) | Utvikler, ikke utpekt | Test av gamle strømmer mot ny kode og tilbakerulling | Kompatibilitetskravet i F2 |
-| B-11 | Hvilken tidskilde og forvaringskjede skal eksporten bygge på? | Servertid med synkroniseringsgaranti; ekstern tidsstempling; begge | Ingen | Oppdragsgiver med driftsansvarlig, ikke utpekt | Krav ved preklusjonstvist | Eksport i F4 |
-| B-12 | Hvilken plattform skal basen og backend kjøre på? | Database: Azure Database for PostgreSQL (Flexible Server, 17) eller Supabase. Backend: Azure Container Apps eller App Service (Web App for Containers) | Azure PostgreSQL er foreløpig mål (oppdragsgiver 23.09). Begge hostingvalgene virker; Container Apps har jobber som kan drive workeren (B-07). Azure SQL velges ikke uten en konkret grunn fra IKT, fordi det krever et nytt datalag i T-SQL. Fabric er rapportering, ikke backend | Oppdragsgiver med IKT | Svar fra IKT om hosting og database, og tilgang til deploy, Key Vault og en offentlig HTTPS-adresse for Catenda-webhooks | Container og utrulling i F0b. Veien fra migrasjonsfil til base. Plattformkonfigurasjon i F5 |
-| B-13 | Hvem er sannhetskilde for NS 8407-reglene, og hva lagres når partens konklusjon og vurderingene spriker? | Backend eier alt som lagres med rettsvirkning eller styrer systemets handlinger, frontenden bare veiledning. For partens konklusjon: (1) serveren regner ut, og det gjelder; (2) serveren avviser et svar der konklusjonen ikke følger av vurderingene; (3) begge lagres, og avviket vises. Tilsvarende for rettslige konklusjoner som preklusjon: trekkes de av systemet, eller varsles de bare | Backend som sannhetskilde for det som lagres (handoffen 23.09, avsnitt 9). Ingen for (1)–(3) | Oppdragsgiver, med utvikler | Kartlegging av frontendens utregninger og hvilke som havner i det som lagres ([oppdraget for spor D](../prompt-spor-d-br01-2026-09-23.md), del 1) | Rettingen av BR-01. Kommandoene i F2 som bygger på resultatene. **Avgjort 24.09** (3.1 og merknaden under) |
-| B-14 | Målformer og gjennomføringsrekkefølge for spor D og språkprøven | Målformene med presiseringene 07.10 | **Avgjort 07.10:** se 3.1 og merknaden under. Beslutningsport for språk etter prøven; forbedret Python er sammenlikningsgrunnlag. **Språket valgt 09.10:** TS for den delte domenekjernen; se 3.1 | Oppdragsgiver | Review av PR #266 og #270, tilsluttet i samtalen 07.10 | Domenetabell/bevis → smal kontrakt → språkprøve → M2/M1 → M4/videre kontraktsarbeid. M3 løpende |
-| B-15 | Skal serverbasert forhåndsvurdering utredes før M1 som sammenlikningsalternativ i språkprøven? | Behold utsettelsen fra 05.10; tillat en avgrenset sammenlikning | Vurder en avgrenset sammenlikning dersom fjerning av klientens regelspeil er hovedargumentet for språkbytte. Ingen endring av B-13 uten nytt vedtak. **Avgjort 09.10:** når nødvendig saksgrunnlag er lastet, skal brukeren kunne utforske vurderinger og se tilhørende beregninger og brevutkast uten å vente på serverkall. Ved innsending validerer serveren på nytt. Serverbasert forhåndsvurdering utredes derfor ikke som erstatning. B-13 er uendret (#274) | Oppdragsgiver | Avgrensning, svartids-/feilatferd, vedlikeholdskostnad og ett eksempelforløp | Bare den ekstra serverevalueringsprøven; ikke bevisgrunnlaget eller Python–TS-prøven |
-| B-16 | Hvordan dokumenteres og behandles feilregistrerte, låste opplysninger? | Dokumentert manuell prosess; eksplisitt rettelseshendelse med referanse til originalen; annen avklart prosess | Bevar originalen og skill korrigert opplysning fra rettslig virkning. Ingen automatisk flytting av frist eller omgjøring av sendt brev | Oppdragsgiver med domeneansvarlig | Eksempler på feil dato/metode/referanse, aktørrettigheter, godkjenning, motpartsinnsyn og virkning | Korrigeringsfunksjon og produksjonsport. Blokkerer ikke låsingen etter SK-12 |
-| B-17 | Skal TS ta over skrivingen i KOE-saker én kommando om gangen eller samlet? | Gradvis overtakelse med to skrivere i samme sak; samlet bytte for KOE-saker | Samlet bytte (#304). **Avgjort 09.10:** se 3.1 | Oppdragsgiver | Målmodellen i kode (#304) | Utvidelsen av kjernen (#309) og overtakelsen (#310) |
-| B-18 | Hvor kjører TS-kjernen på serveren? | Serverlaget i SvelteKit; en egen Node/TS-backend; Python som bare leverer brev og håndterer Catenda ved siden av | Beslutningsgrunnlag i [#311](https://github.com/khjohns/endringsmeldinger/issues/311) | Oppdragsgiver, med utvikler | Tilgang og CSRF, transaksjoner med `expected_version`, levering og retry, drift og utrulling | Overtakelsen av skrivestien for KOE-saker (#310) |
-
-> **Merknad 2026-09-22 til B-02:** Designgrunnlaget finnes:
-> [design-b02-tilgangsmekanisme-2026-09-22.md](../design-b02-tilgangsmekanisme-2026-09-22.md).
-> Oppdragsgivers svar om plattform, Data API, trusler og review står i
-> [oppdraget](../prompt-b02-tilgangsmekanisme-2026-09-22.md).
-> Grunnlaget sammenlikner tre alternativer og anbefaler dette: RLS med kontekst
-> for lesing, avgrensede `SECURITY DEFINER`-kommandoer for bindende skriving, og
-> en skrivevakt-trigger på journalen. Prototypen kjører mot PostgreSQL 17 og
-> PostgREST (71 av 71 sjekker, K 22.09). Funnene TM-01–TM-08 står der.
-> TM-01 er grunnen til skrivevakten: den som kan signere et token for
-> PostgREST, kan velge `service_role`.
-> Beslutningsstatus er uendret. B-02 er åpen til oppdragsgiver har avgjort den
-> etter uavhengig review. TS2-02 er vurdert i avsnitt 7 der, og statusen i 3.3
-> er uendret.
-
-> **Merknad 2026-09-23 til B-02:**
-> [Uavhengig review](../review-b02-tilgangsmekanisme-2026-09-23.md) er levert.
-> Konklusjonen er at alternativ C kan legges til grunn med navngitte endringer:
-> transport og signeringsmyndighet, vern av integritetsbærende metadata og
-> leveringsdata, private skrivestier, kontekst/identitet, tilbakekalling og
-> fullstendig F1-testplan (RB2-01–08). Originalbeviset er bekreftet; fem nye
-> mutasjoner og lokale tilleggsforsøk viser grensene for beviset. Reviewet
-> anbefaler ny vurdering av transportpremisset i 3.1 med TM-01 som konkret
-> motbelegg, men vedtar ingen endring. B-02 og B-04 er fortsatt åpne;
-> beslutningsstatus og TS2-02-status er uendret.
-
-> **Merknad 2026-09-23 til B-02 (v2):**
-> [Design v2](../design-b02-tilgangsmekanisme-v2-2026-09-23.md) svarer på RB2-01–08.
-> Hovedendringene er disse. Transportvariantene er sammenliknet, med
-> forespørselsvakt i PostgREST (T1v) og direkte innlogging (T2). Skrivevakten
-> er utvidet til en operasjonsmodell for journal, saksregister og kø, med
-> skranker som binder dem til samme prosjekt. Notater skrives bare gjennom
-> kommandoer. Kontekst og argumenter kontrolleres strengere, og teamkravet må
-> være et av prosjektets kontraktsteam. Identitetsinngangene er smale, med låst
-> issuer. Prototypen er bygget som `postgres` uten superbrukerrettigheter, som i
-> Supabase (155 av 155 sjekker, tolv mutasjoner røde, K 23.09). Nye funn:
-> TM-09–TM-12. Seks punkter står igjen for oppdragsgiver (avsnitt 9 der). Et av
-> dem er om premisset i 3.1 skal endres. B-02 og B-04 er fortsatt åpne.
-
-> **Merknad 2026-09-23 til B-02 (beslutning):** Oppdragsgiver har valgt
-> alternativ C og transport T2 (v2 avsnitt 9, punkt 1 og 2). Premisset i 3.1 er
-> endret tilsvarende; se merknaden der. Med T2 bortfaller porten mot hostet
-> PostgREST. Fire punkter står åpne: godkjenning ved overtatt runtime (3),
-> kontraktsteam og prosjektregistrering (4), klokken for tilbakekalling, som
-> også er B-04 (5), og break-glass (6). De må være avgjort før første rolle-
-> eller policymigrasjon i F1. Kravet om uavhengig review før F1 står.
-
-> **Merknad 2026-09-23 til B-02 (punkt 3–6):** Oppdragsgiver har avgjort de
-> fire punktene som stod igjen; vedtakene står i 3.1. Dermed er alle
-> beslutningene i v2 avsnitt 9 tatt. Før første rolle- eller policymigrasjon i
-> F1 gjenstår det uavhengige reviewet (22.09), tidskontrakten fra reviewet av
-> kjernen (RK-05) og, for anvendelse utenfor Supabase, B-12.
->
-> Om punkt 4: registrering av prosjekt og kontraktsteam skjer i dag med
-> administratorskriptene `scripts/register_project.py` og
-> `scripts/catenda_admin.py`, ikke fra noen rute (L 23.09). Beslutningen gjør
-> praksisen til en grense basen håndhever.
-
-> **Merknad 2026-09-23 til B-04 (beslutning):** Oppdragsgiver har avgjort:
+> **Merknad 2026-09-23 til B-04 (beslutning), flyttet fra 3.4 ved sluttredigeringen 09.10:** Oppdragsgiver har avgjort:
 >
 > 1. **Nye handlinger** opphører straks systemet har registrert at tilgangen er
 >    borte. Klokken er tidspunktet synkroniseringen committer lokalt, fordi
@@ -484,166 +429,110 @@ Et åpent valg blokkerer bare oppgavene som er nevnt.
 > ikke sende et varsel med frist (L 23.09, ikke kjørt). Endringen hører til F1
 > sammen med tilbakekallingen.
 
-> **Merknad 2026-09-23 til B-13:** Ny åpen beslutning, reist av BR-01.
-> Frontenden har om lag 2 400 linjer med NS 8407-regler i `src/lib/domain/`:
-> preklusjon, passivitet, reduksjon, prinsipalt og subsidiært resultat,
-> godkjent beløp og EO-eksponering. Flere resultater sendes med i hendelsene.
-> Backend har i hovedsak prosedyreregler (`services/business_rules.py`);
-> passivitet finnes ikke der (L 23.09, søk etter ordstammer, ikke kjørt).
-> Spørsmålet er ikke bare teknisk. BHs svar har rettsvirkning som BHs
-> standpunkt, og det utregnede resultatet oppsummerer vurderingene. Spriker de,
-> må det avgjøres om systemet eller parten har siste ord. Utregninger som bare
-> veileder (felt som vises, standardverdier, hjelpetekst), berøres ikke.
+#### Premissene P1–P7
 
-> **Merknad 2026-09-23 til B-13 (kartlegging):** Kartleggingen er levert:
-> [kartlegging-domeneregler-frontend-2026-09-23.md](../kartlegging-domeneregler-frontend-2026-09-23.md).
-> Backend regner ikke ut og kontrollerer ikke noe av det frontenden regner ut
-> og sender: resultat, beløp, dager, preklusjon, reduksjon, subsidiære grunner,
-> varseldatoer og begrunnelsestekst. For resultatet er det kjørt (BR-01,
-> reprodusert og satt til middels i 4.2); for resten er det lest. Sporstatus,
-> samlet status, EO-adgang, forsering og fullmakt regnes i backend, men av
-> klientens tall. Anslaget for å la backend eie reglene er 250–350 linjer
-> Python uten begrunnelsestekstene, med frontendens testsett som
-> spesifikasjon. Seks spørsmål står åpne i kartleggingen, blant dem
-> 99 %-terskelen for «godkjent», passivitet etter § 32.3 og om det er sum
-> eller poster som binder. Kartleggingen fant også DRF-01–DRF-03 (4.2).
-> Beslutningsstatus for B-13 er uendret.
+| Beslutning | Vedtatt | Følge |
+| --- | --- | --- |
+| P1: magic links utgår | 20.09 | `magic_links` fjernes (MS-15) |
+| P2, P3: BIM er relevant; et objekt hører til én sak; formålet er å se hvilke komponenter som fører til tvist | 20.09 | Retning MS-13, MS-14. Ikke prioritert |
+| P4: vedlegg lagres bare i Catenda | 20.09 | Hash og frosset grunnlag hos oss (MS-11, AF-04) |
+| P5: løsningen skal i prinsippet støtte andre virksomheter | 20.09 | `organisasjon_id` (MS-10, gjennomført) |
+| P6: to kan arbeide i ulike spor samtidig | 20.09 | Total orden beholdes (MS-03) |
+| P7: arkivplikt går foran sletteplikt for journalen | 21.09 | Journalen bevares. Kryptografisk sletting bygges ikke. Tiltakene er MS-04 og MS-05. Bevaringstid og øvrige regler er ikke fastsatt (B-05) |
 
-> **Merknad 2026-09-23 til B-13 (beslutningsgrunnlag):**
-> [Designnotatet](../design-b13-sannhetskilde-2026-09-23.md) sammenlikner de
-> tre alternativene punkt for punkt: journal, brev, partens tekst, frontend,
-> godkjenningsflyt og regelendring. Notatet **anbefaler**, og ingenting av
-> dette er vedtatt: (2) i streng form, der backend regner ut resultatet og
-> avviser et svar der klientens konklusjon ikke er lik; en regelversjon som
-> klienten sender og serveren lagrer, og en projeksjon som aldri regner om;
-> at begrunnelsesteksten forblir partens (T-a); at preklusjon ut fra
-> byggherrens egen vurdering trekkes av systemet, og at passivitet bare
-> varsles. Premissen er at resultatet oppsummerer vurderingene og ikke
-> uttrykker noen egen vilje. Åtte valg står for oppdragsgiver i notatets
-> avsnitt 7, blant dem de fem spørsmålene fra kartleggingen som ikke er
-> avgjort. Beslutningsstatus for B-13 er uendret.
+### 3.2 Føringer AF-01–AF-06
 
-> **Merknad 2026-09-24 til B-13 (beslutning):** Oppdragsgiver har tatt de
-> åtte valgene i designnotatets avsnitt 7, alle etter anbefalingen: (2) i
-> streng form; teksten er partens (T-a), med en CI-vakt på regelversjonen;
-> «godkjent» bare når hele kravet er godkjent; preklusjon ut fra byggherrens
-> egen vurdering trekkes av systemet; passivitet varsles; `grunnlag_varslet_i_tide`
-> og «frafalt» avvises utenfor § 32.2 og § 32.3 c. Valg 8 (sum eller poster)
-> bortfaller med (2). Vedtakene står i 3.1. B-13 er avgjort.
+Tilsluttet av oppdragsgiver 21.09. Føringer for design, ikke implementert.
 
-> **Merknad 2026-10-05 til B-14:** Ny åpen beslutning, reist av
-> [strukturkartleggingen av spor D](../kartlegging-struktur-spor-d-2026-10-05.md).
-> Kartleggingen prøvde hypotesen om fem mønstre (M1–M5) mot koden. Den foreslår
-> en målform per mønster og en rekkefølge i små PR-er. Oppdragsgiver har valgt
-> rekkefølgen M2, M1, M4, M5, M3 dersom målformene legges til grunn, og tok
-> samme dag de tre vedtakene om SK-01–SK-03 og #235 i 3.1. Selve målformene er
-> ikke vedtatt. Beslutningsstatus: åpen.
->
-> Senere samme dag ble avsnitt 7 i kartleggingen utvidet etter en ekstern
-> vurdering: beslutningsport per PR, bevis-saker gjennom HTTP, `pending_actions`
-> og `capabilities` i M4, og M5 delt i to. Oppdragsgiver tok sju vedtak som
-> følger av den (3.1): kravversjon, trukket krav, `FRAFALT`, trukket grunnlag,
-> avslag sammen med § 32.2, null-policy, og at et evalueringsendepunkt ikke
-> utredes nå. Etter kontrollen i egen kontekst kom vedtaket om låste varsler
-> (SK-12) og en presisering av vedtaket om regelversjon under B-13.
+| ID | Føring | Hvor i planen |
+| --- | --- | --- |
+| AF-01 | Teaminternt innhold vernes i datalaget; prosjekt, side, team og handlingsrett modelleres hver for seg | F1, invariant 1 |
+| AF-02 | Kommandoer, rettigheter og transaksjonsgrenser utformes samlet; append-only mot omskriving og tilføying | F1, F2, invariant 2–3 |
+| AF-03 | Fjerning av relasjonsprojeksjonen er ikke fastlagt | B-01 |
+| AF-04 | Hash suppleres med dokumentversjon, bevaring, leveringsbevis og eksport | F2, F4, invariant 10 |
+| AF-05 | Deterministisk gjenoppbygging uten eksterne oppslag | F2, invariant 9 |
+| AF-06 | Ekte PostgreSQL-tester og én komplett EO-flyt før generell opprydding og flere adaptere | Rekkefølgen i avsnitt 5 |
 
-> **Merknad 2026-10-07 til B-14:** Oppdragsgiver tilsluttet seg reviewets
-> justeringer og ba om dokumentasjons-PR og issues. Denne merknaden erstatter
-> den betingede rekkefølgen og den åpne målformstatusen fra 05.10.
->
-> Før større språkspesifikk ombygging etableres domenetabell og et
-> språkuavhengig bevisgrunnlag, deretter en smal kommando-/API-kontrakt.
-> Språkprøven har én arbeidsuke som stoppgrense og to porter: semantikk og
-> reduksjon av dobbeltarbeid, deretter konkret server-/integrasjonskostnad.
-> Ufullstendig bevis gir «ikke tilstrekkelig grunnlag», ikke automatisk
-> utvidelse eller TS-valg. Etter språkvedtak følger M2/M1, M4 og videre
-> kontraktsarbeid; M3 følger de grensene som endres.
->
-> M2 binder brukerens aksept til et konkret svar og samler livsløpsfakta,
-> også tilbaketrekking og grunnlagsavhengighet. Hva som er gjeldende krav,
-> skal brukes likt i projeksjon og godkjenning. Offentlig serialisert kontrakt
-> defineres før typegenerering; nye kommandoer, lagrede hendelser og lesemodeller
-> har ulike grenser. Bevisene omfatter vanlig innsending, batch, godkjenning
-> og lagring/gjenlesing, med uavhengige domeneinvarianter.
->
-> Språk, database og rammeverk er ikke valgt. Utredning av serverbasert
-> forhåndsvurdering og korrigeringsprosessen er åpne under B-15 og B-16.
-> Gjennomføringsdetaljene står i [arkitekturforslaget](../forslag-maalarkitektur-og-beslutningsproeve-2026-10-07.md);
-> oppfølgingen er koblet i [reviewnotatet](../review-oppfolging-arkitektur-2026-10-07.md).
+> **Merknadene 03.10 og 04.10 til AF-06 (unntak), samlet ved sluttredigeringen
+> 09.10:** Oppdragsgiver har godkjent avgrensede unntak for oppryddinger som
+> ikke rører datalaget, autentiseringen eller webhookstien, og som ikke
+> forutsetter et databasevalg: #106, #107, #108, feilrettingen #72,
+> frontenddelen av #110, frontenddelen av #111 (modulbeskrivelsene i
+> `fristDomain.ts`, `grunnlagDomain.ts`, `vederlagDomain.ts`,
+> `fristSubmissionDomain.ts` og `vederlagSubmissionDomain.ts`), de to
+> Catenda-metodene uten kallere i #102 (`WebhookService.handle_pdf_upload` og
+> `BaseSakService._create_topic_with_relations`), de reserverte
+> PDF-parameterne i #146, #109 og den avgrensede deloppgaven i #49
+> (SystemContext, `/api/validate-user` og `CSVRepository`). Backfill-skriptet i
+> #102, backenddelen av #111 og logger-delen av #110 følger rekkefølgen i
+> avsnitt 5. Selve lagerovergangen i TS2-02 avhenger av B-12.
 
-> **Merknad 2026-10-08 til B-14 (bevisgrunnlag):**
-> [Metodeprøvens lærdommer](../vedlegg/metodeprove-frist-2026-10-08/README.md#metodelardommer)
-> dokumenterer hvordan samme antakelse kunne styre modell, forventninger og
-> feilinnføring. Varige føringer er presisert i
-> [testinstruksjonene](../../.claude/rules/tester.md#domeneforventninger-og-metodeprover).
-> MP-U4 i 3.1 avklarer bare den angitte deltolkningen. Retning og rekkefølge
-> under B-14 er uendret; arbeid og videre bevisbehov eies fortsatt av #271.
->
-> **Merknad 2026-10-08 til B-14 (videre prøver):** Metodeprøven er utvidet
-> med ett brev med flere innsigelser og senere dokumentert korrespondanse
-> (#284). Det ga MP-U5–MP-U7 i 3.1. Retning og rekkefølge er uendret.
+> **Merknad 2026-10-07 til AF-06:** B-14 gir et avgrenset unntak for
+> domenetabell, bevis-saker, smal kommando-/API-kontrakt og beslutningsprøven
+> før større språkspesifikk ombygging. Prøven bruker eksisterende PostgreSQL
+> og en isolert teststi. Den erstatter ingen autoritativ produksjonssti,
+> åpner ikke database-/hostingvalget og godkjenner ingen full portering.
+> Sikkerhetsvedlikehold og små uavhengige rettinger kan fortsette innen sine
+> eksisterende føringer. F1/F2s sikkerhets- og transaksjonskrav gjelder fortsatt.
 
-> **Merknad 2026-10-08 til B-14 (domenetabell):** Den første delen av
-> domenetabellen er opprettet i [docs/domenetabell](../domenetabell/README.md):
-> kravversjon og aksept (SK-02, SK-03), med kilder, tolkningsstatus og
-> bevis-saker som kjøres mot Python-projeksjonen. Tolkningene som manglet, er
-> vedtatt som KA-U1–KA-U4 i 3.1. Grunnlagsendring, frafall, subsidiært svar mens
-> grunnlaget venter og EO-særforløp er ikke dekket ennå; det eies av #271.
+> **Merknad 2026-10-09 til AF-06 (B-17):** For KOE-, EO- og forseringssakene
+> følger rekkefølgen B-17 og arbeidspakken FK (avsnitt 5), ikke F0b–F2.
+> Oppdragsgiver avgjorde samme dag at endringsordre- og forseringssakene går
+> til TS sammen med KOE-sakene (merknaden til [B-17](#b-17)).
 
-> **Merknad 2026-10-08 til B-14 (domenetabell, grunnlag):** Domenetabellen
-> dekker nå grunnlagsendring med og uten endret underkategori, frafall,
-> subsidiært svar mens grunnlaget venter, og trukket grunnlag. Tolkningene som
-> manglet, er vedtatt som KA-U5 og GR-U1–GR-U5 i 3.1.
+### 3.3 Anbefalinger som ikke er vedtatt
 
-> **Merknad 2026-10-08 til B-14 (domenetabell, endringsordre):** Domenetabellen
-> dekker nå EO-særforløpene: endringsordre i KOE-saken, når en KOE-sak kan inngå
-> i en endringsordre, EO-sakens livsløp og koblingen mellom EO-sak og KOE-sak.
-> Tolkningene som manglet, er vedtatt som EO-U1–EO-U4 i 3.1. Bevis-sakene kan
-> nå omfatte flere saker. Forsering er ikke dekket.
+| Anbefaling | Kilde | Status |
+| --- | --- | --- |
+| Relasjonsprojeksjon med prosjektavgrensede fremmednøkler og én skriver | AF-03, RGK-04 | Foretrukket til vurdering, se B-01 |
+| Avgrenset runtime-rolle uten `BYPASSRLS`, RLS for lesing og avgrensede `SECURITY DEFINER`-funksjoner med egen autorisasjon, fast `search_path` og smal `EXECUTE` | RGK-04 | Innarbeidet i alternativ C, vedtatt 23.09 (3.1) |
+| Gjør TST-02-reproduksjonen deterministisk, framfor å fjerne `strict=True` | RGK-04 | Anbefalt. Den nye testen fra 22.09 er ikke deterministisk (RTB-02) |
+| Forhåndsvalgte GUID-er for topic og kommentar | RGK2-01 | Kandidat. Ikke bevist idempotent (avsnitt 7) |
+| Køalarm ved 15 minutter; sletting av stagingfiler 24 timer etter kvittert levering | Konsolidering v2 | Forslag uten kilde, se B-09 |
+| Utgående kvote på 10 kall/s og innkommende grense 100 kall/s | Konsolidering v2 | Forslag uten kilde, se B-09 |
+| Fjern JSON-hendelseslageret og CSV-metadatalageret fra kjøretidsstien; tester som trenger ekte lagring, går mot PostgreSQL gjennom samme vei som produksjonen, med skrivbar testbase | [TS2-02](../gjennomforing-tst02-2026-09-22.md#ts2-02--reservelagrene-og-testene) | Vedtatt 23.09, utvidet til Supabase-lagrene (3.1) |
+| Migrasjonsmappa som eneste kilde, anvendt med `supabase db push` | Masterplanen 20.09 | Repo-siden gjennomført (DA-03). Anvendelsesmekanismen gjenstår. `supabase db push` gjelder bare på Supabase; på Azure trengs en annen vei fra fil til base (B-12) |
 
-> **Merknad 2026-10-08 til B-14 (kontrakt):** Den smale kontrakten for den
-> representative flyten er skrevet i [docs/domenetabell/kontrakt.json](../domenetabell/README.md#kontrakten-for-flyten)
-> (#272). Avgrensningen er KT-U2, og gjeldende svar i tilstanden er KT-U1. DT-01
-> og DT-03 er rettet fordi kontrakten krever det. Retning og rekkefølge under
-> B-14 er uendret; språkprøven er #274.
+### 3.4 Åpne beslutninger
 
-> **Merknad 2026-10-09 til B-14 (språkprøven):** Begge portene i språkprøven
-> er gjennomført (#274). Resultatet, kostnadsvurderingen og anbefalingen står i
-> [arkitekturforslaget, avsnitt 7](../forslag-maalarkitektur-og-beslutningsproeve-2026-10-07.md#resultat-av-port-2-2026-10-09-274).
-> Anbefalingen er TS som foretrukket retning for en felles domenekjerne, med
-> en kort gjennomgang av målmodellen og overgangsgrensene før en større
-> portering (#300). Oppdragsgiver vedtok samme dag TS som retning for den
-> delte domenekjernen, med disse avgrensningene (3.1).
+«Ansvarlig» angir rollen som må avklare. Der ingen er utpekt, står det.
+Et åpent valg blokkerer bare oppgavene som er nevnt.
 
-> **Merknad 2026-10-09 til B-14 (målmodellen):** Gjennomgangen av målmodellen
-> før portering er levert som [modellforslaget](../forslag-maalmodell-2026-10-09.md)
-> (#300). Den gjennomgår fem forløp med vedtak på papir og ga MM-U1–MM-U4 i 3.1.
-> Modellen som helhet er ikke vedtatt og ikke bevist i kode; den kjørbare prøven
-> er #304. Retning og rekkefølge under B-14 er uendret.
+| ID | Spørsmål | Alternativer | Anbefaling (kilde) | Ansvarlig | Belegg som trengs | Blokkerer |
+| --- | --- | --- | --- | --- | --- | --- |
+| B-01 | Hvordan skal relasjoner mellom saker lagres? | (a) Relasjonsprojeksjon med prosjektavgrensede fremmednøkler, én skriver. (b) Utledning fra hendelsenes jsonb med GIN-indeks. (c) Reservasjonstabell for KOE-tilknytning pluss (a) eller (b) | (a) er foretrukket til vurdering (AF-03). En GIN-indeks er ikke et revisjonsspor (RGK-04) | Utvikler, med review. Ikke utpekt | Sammenlikning mot referanseintegritet, eksklusivitet, gjenoppbygging og samtidighet | KOE-tilknytning og relasjoner, i FK etter merknaden 09.10 til F2. DB-04, MS-08 |
+| B-03 | Hvilken dokument- og brevmodell skal gjelde i Catenda? | Samlet saksdokument med revisjoner; separate brev; separate brev per part og spor ([Catenda-dataflyten, avsnitt 11](../catenda-dataflyt.md#11-åpent-adr-dokument--og-brevmodell)) | Ingen. `failOnDocumentExists` følger av valget: `true` passer en strategi med unikt navn per brev, `false` en bevisst revisjonsflyt | Produkteier med utvikler. Ikke utpekt | ADR med dokumentnøkkel, navnestandard og avstemming etter tapt svar | Dokumentoperasjonen i F2-workeren og alle senere dokumentadaptere. **Delvis avgjort 03.10:** hovedvalget er brev, ikke samlet saksdokument (3.1). Dokumentnøkkel, navnestandard, avstemming og valget mellom eget dokument per brev og revisjon per part og spor står åpne |
+| B-05 | Hvilke bevaringskrav gjelder utover journalen? | Bevaringstid for journal, filer, logger, backup og stagingfiler | P7 fastsetter bare at journalen bevares uten kryptografisk sletting | Behandlingsansvarlig, med råd fra personvernombudet | DPIA og arkivfaglig vurdering | Bevarings- og sletteregler i F4. Produksjonsport |
+| B-06 | Hvilken fullmakt kreves når dagmulktssats mangler? | Kjedens toppnivå; avvisning; manuell verdsetting | Ingen | Oppdragsgiver (BH-siden), ikke utpekt | Domenevurdering | Restansen på GFK-01/FE-04 |
+| B-07 | Hvilken drivmekanisme skal workeren ha? | Tabell med `SKIP LOCKED`, `pgmq`, Cloud Tasks, Cloud Scheduler, jobber i Azure Container Apps, fast instans | Én kømekanisme; tabell og `SKIP LOCKED` er beskrevet i transaksjonsplanen | Utvikler, ikke utpekt | Plattformens skalering til null og krav om start uten brukerhandling | Minimal worker i F2 |
+| B-09 | Hvilke driftsverdier gjelder? | Kapasitet, svartid, køalarm, rate limits, oppbevaring av stagingfiler | Tall i 3.3 er forslag uten kilde | Driftsansvarlig, ikke utpekt | Lastforutsetninger, Catendas kvoter, fristkrav | Akseptkriterier for kapasitet og varsling i F3 |
+| B-10 | Hvordan versjoneres hendelsesformat og regler? | Versjonsfelt per hendelse; oppgraderingsfunksjoner; regelversjon i projeksjonen. `UP042` (`StrEnum`) avhenger av dette | Dokumentert strategi (AF-05) | Utvikler, ikke utpekt | Test av gamle strømmer mot ny kode og tilbakerulling | Kompatibilitetskravet, i FK etter B-17 (#273) |
+| B-11 | Hvilken tidskilde og forvaringskjede skal eksporten bygge på? | Servertid med synkroniseringsgaranti; ekstern tidsstempling; begge | Ingen | Oppdragsgiver med driftsansvarlig, ikke utpekt | Krav ved preklusjonstvist | Eksport i F4 |
+| B-12 | Hvilken plattform skal basen og backend kjøre på? | Database: Azure Database for PostgreSQL (Flexible Server, 17) eller Supabase. Backend: Azure Container Apps eller App Service (Web App for Containers) | Azure PostgreSQL er foreløpig mål (oppdragsgiver 23.09). Begge hostingvalgene virker; Container Apps har jobber som kan drive workeren (B-07). Azure SQL velges ikke uten en konkret grunn fra IKT, fordi det krever et nytt datalag i T-SQL. Fabric er rapportering, ikke backend | Oppdragsgiver med IKT | Svar fra IKT om hosting og database, og tilgang til deploy, Key Vault og en offentlig HTTPS-adresse for Catenda-webhooks | Container og utrulling i F0b. Veien fra migrasjonsfil til base. Plattformkonfigurasjon i F5 |
+| B-16 | Hvordan dokumenteres og behandles feilregistrerte, låste opplysninger? | Dokumentert manuell prosess; eksplisitt rettelseshendelse med referanse til originalen; annen avklart prosess | Bevar originalen og skill korrigert opplysning fra rettslig virkning. Ingen automatisk flytting av frist eller omgjøring av sendt brev | Oppdragsgiver med domeneansvarlig | Eksempler på feil dato/metode/referanse, aktørrettigheter, godkjenning, motpartsinnsyn og virkning | Korrigeringsfunksjon og produksjonsport. Blokkerer ikke låsingen etter SK-12 |
+| B-18 | Hvor kjører TS-kjernen på serveren? | Serverlaget i SvelteKit; en egen Node/TS-backend; Python som bare leverer brev og håndterer Catenda ved siden av | Beslutningsgrunnlag i [#311](https://github.com/khjohns/endringsmeldinger/issues/311) | Oppdragsgiver, med utvikler | Tilgang og CSRF, transaksjoner med `expected_version`, levering og retry, drift og utrulling | Overtakelsen av skrivestien for KOE-saker (#310) |
 
-> **Merknad 2026-10-09 til B-14 (målmodellen i kode):** Forløp A–E fra
-> modellforslaget er kjørt i en avgrenset implementasjon av målmodellen i
-> [`sprakprove/maalmodell/`](../../sprakprove/maalmodell/) (#304), i minnet og
-> gjennom `hendelse` i testbasen. Forventningene står som
-> [bevis-saker](../domenetabell/bevis-saker-maalmodell.json) med kilde per
-> kontroll. KA-19 er presisert etter MM-U1, og KA-20–KA-24 er nye rader i
-> [domenetabellen](../domenetabell/README.md). Relasjonene, enighetsgrunnlaget,
-> beslutningsgrunnlaget og versjonskontrollen holder gjennom lagring, gjenlesing,
-> en kontrollert regelendring og en tilbakerulling, og de sju feilinnføringene i
-> avsnitt 4 i forslaget oppdages. Review av PR #306 fant tre feil i samspillet
-> mellom reglene, som er rettet før levering: et avvikende grunnlagssvar kunne
-> gjøre betingede enigheter virksomme og lukke saken uten aksept (MM-U5), et
-> fristsvar uten fremdriftshindring ble lest som godkjente dager, og en
-> revisjonskjede med selvreferanse eller sirkel stoppet ikke saken. MM-U5–MM-U7
-> ble vedtatt samme dag, og de åpne spørsmålene fra prøven ble avgjort som MM-U8,
-> GR-U8, GR-U9 og KA-U6. Prøven presiserer modellen på to punkter: at
-> hele svaret er subsidiært til grunnlaget, er vilkåret i enighetsgrunnlaget og
-> ikke en virkning av svarets standpunkter, ellers ville MM-U4 hindret aksepten
-> GR-U7 tillater; og en vurdering av rettidighet etter § 33.4 som gjelder et annet
-> varsel enn det registrerte, er uavklart (MM-U1). Lagringsformatet er ikke
-> valgt; funnene om format og versjonering står i #273. Modellen som helhet
-> er ikke vedtatt, og MM-U6 er en foreløpig sperre.
-> Retning og rekkefølge under B-14 er uendret.
+**Avgjorte beslutninger.** Vedtakene står i 3.1. Radene og merknadene slik de
+stod i 3.4 før sluttredigeringen 09.10, er i Git (se toppteksten).
+
+- **B-02** tilgangsmekanisme: alternativ C med transport T2 og punkt 3–6,
+  avgjort 23.09. Grunnlaget er [design v2](../design-b02-tilgangsmekanisme-v2-2026-09-23.md)
+  og [reviewet](../review-b02-tilgangsmekanisme-2026-09-23.md).
+- **B-04** tilbakekalling: avgjort 23.09. Vedtaket står i merknaden til B-04 i 3.1.
+- **B-08** KOE-eksklusivitet: avgjort 08.10 med [EO-U3](#eo-u3).
+- **B-13** sannhetskilde for NS 8407-reglene: avgjort 24.09 etter
+  [kartleggingen](../kartlegging-domeneregler-frontend-2026-09-23.md) og
+  [designnotatet](../design-b13-sannhetskilde-2026-09-23.md).
+- **B-14** målformer, rekkefølge og språk: avgjort 07.10 og 09.10. Levert under
+  B-14: [domenetabellen](../domenetabell/README.md) og
+  [metodeprøven](../vedlegg/metodeprove-frist-2026-10-08/README.md) (#271),
+  [kontrakten for flyten](../domenetabell/README.md#kontrakten-for-flyten) (#272),
+  språkprøven ([arkitekturforslaget, avsnitt 7](../forslag-maalarkitektur-og-beslutningsproeve-2026-10-07.md#resultat-av-port-2-2026-10-09-274), #274),
+  [modellforslaget](../forslag-maalmodell-2026-10-09.md) (#300) og målmodellen i
+  [`sprakprove/maalmodell/`](../../sprakprove/maalmodell/) (#304).
+- **B-15** serverbasert forhåndsvurdering: avgjort 09.10 ([B-15](#b-15)).
+- **B-17** skriver for KOE-saker: avgjort 09.10 ([B-17](#b-17)), med merknaden
+  samme dag om endringsordre og forsering.
 
 > **Merknad 2026-10-07 til B-10:** Strategien skal skille saksversjon fra
 > versjonen som beregnet en projeksjon, og vise invalidasjon/gjenoppbygging
@@ -653,47 +542,42 @@ Et åpent valg blokkerer bare oppgavene som er nevnt.
 > kommandoer tillates. Implementering og bevis hører til F2; F5 kontrollerer
 > at porten er bestått. B-10s konkrete format-/versjoneringsstrategi er fortsatt åpen.
 
-> **Merknad 2026-09-23 til B-12:** Ny åpen beslutning. IKT svarte at både
-> Azure SQL og PostgreSQL kan brukes; oppdragsgiver har foreslått PostgreSQL.
-> Fabric kan speile fra Azure PostgreSQL (versjon 14–18, ikke Burstable-nivå).
-> Speiles basen, må interne notater holdes utenfor speilingen eller skjermes der
-> ([vurderingen av Power Platform](../vurdering-power-platform-2026-09-17.md),
-> del 5). Opplysningene om Fabric er ikke kontrollert i denne planen.
-
-> **Merknad 2026-09-29 til B-12: en SQL Database er aktuell igjen.**
-> Oppdragsgiver opplyste 29.09 at en SQL Database igjen er aktuell, av
-> kostnadsgrunner. Det er antatt at det menes Azure SQL Database. Anbefalingen
-> i raden for B-12 i tabellen over forutsatte «en konkret grunn fra IKT».
-> Kostnad er en slik grunn. Hva sammenlikningen bygger på, er ikke kjent:
-> nivå, speiling til Fabric, og om engangskostnaden ved et nytt datalag er med.
-> Spørsmålene står i [#78](https://github.com/khjohns/endringsmeldinger/issues/78).
-> Beslutningsstatus er uendret: åpen.
+> **Merknad til B-12, samlet ved sluttredigeringen 09.10** fra merknadene 23.09,
+> 29.09 og 09.10. Beslutningsstatus er uendret: åpen.
 >
-> **Hva som avhenger av valget** (lest ut av koden 29.09, L):
-> - **PostgreSQL-spesifikt:** `lib/db`, `repositories/postgres/` og
->   databasetestene (om lag 3 200 linjer), de 23 migrasjonene med 10
->   databasefunksjoner og 5 triggere, og mekanismen i B-02 alternativ C.
-> - **Ikke avhengig av valget:** domenet, rutene, grensesnittene mot lagrene og
->   den logiske datamodellen.
->
-> **To rader i 3.1 bygger på PostgreSQL.** Det er «PostgreSQL over direkte
-> tilkobling» og «Foreløpig mål er Azure Database for PostgreSQL». Den delen av
-> den første som gjelder direkte tilkobling framfor PostgREST, gjelder også for
-> Azure SQL Database. Den delen som gjelder PostgreSQL, må tas opp igjen hvis
-> B-12 lander på Azure SQL.
->
-> **Ikke undersøkt:** hvordan alternativ C lar seg uttrykke i Azure SQL.
-> Uavklart er særlig om kontekst som bare gjelder transaksjonen, har en motpart
-> der. `SESSION_CONTEXT` gjelder sesjonen, og akseptkriteriet i F0b om at
-> kontekst ikke følger en gjenbrukt forbindelse, må i så fall bevises på nytt.
-> [Designnotatet om inbox og outbox](../design-durable-inbox-outbox-2026-09-17.md#5-azure-sql-eller-bli-på-postgres)
-> nevner ledger-tabeller og Managed Identity som fordeler ved Azure SQL.
-> Heller ikke det er kontrollert på denne stacken.
-
-> **Merknad 2026-10-09 til B-12:** Oppdragsgiver opplyste 09.10 at Supabase-prosjektet
-> ikke har testdata og ikke trenger å brukes i det videre arbeidet. Der lagring trengs,
-> brukes lokal PostgreSQL inntil videre, som testbasen. Beslutningsstatus for B-12 er
-> uendret: åpen (#78).
+> - **23.09:** IKT svarte at både Azure SQL og PostgreSQL kan brukes;
+>   oppdragsgiver har foreslått PostgreSQL. Fabric kan speile fra Azure
+>   PostgreSQL (versjon 14–18, ikke Burstable-nivå). Speiles basen, må interne
+>   notater holdes utenfor speilingen eller skjermes der
+>   ([vurderingen av Power Platform](../vurdering-power-platform-2026-09-17.md),
+>   del 5). Opplysningene om Fabric er ikke kontrollert i denne planen.
+> - **29.09:** oppdragsgiver opplyste at en SQL Database igjen er aktuell, av
+>   kostnadsgrunner. Det er antatt at det menes Azure SQL Database. Kostnad er
+>   en konkret grunn i anbefalingens forstand. Hva sammenlikningen bygger på, er
+>   ikke kjent: nivå, speiling til Fabric, og om engangskostnaden ved et nytt
+>   datalag er med ([#78](https://github.com/khjohns/endringsmeldinger/issues/78)).
+>   PostgreSQL-spesifikt er `lib/db`, `repositories/postgres/` og
+>   databasetestene, migrasjonene med databasefunksjoner og triggere, og
+>   mekanismen i B-02 alternativ C. Domenet, rutene, grensesnittene mot lagrene
+>   og den logiske datamodellen avhenger ikke av valget (L 29.09). To rader i
+>   3.1 bygger på PostgreSQL: «PostgreSQL over direkte tilkobling» og
+>   «Foreløpig mål er Azure Database for PostgreSQL». Delen om direkte tilkobling
+>   framfor PostgREST gjelder også Azure SQL Database; delen om PostgreSQL må
+>   tas opp igjen hvis B-12 lander på Azure SQL. Ikke undersøkt: hvordan
+>   alternativ C lar seg uttrykke i Azure SQL, særlig kontekst som bare gjelder
+>   transaksjonen (`SESSION_CONTEXT` gjelder sesjonen, og akseptkriteriet i F0b
+>   om kontekst på gjenbrukt forbindelse må da bevises på nytt), og fordelene
+>   [designnotatet om inbox og outbox](../design-durable-inbox-outbox-2026-09-17.md#5-azure-sql-eller-bli-på-postgres)
+>   nevner.
+> - **09.10:** Supabase-prosjektet har ikke testdata og trenger ikke å brukes i
+>   det videre arbeidet. Der lagring trengs, brukes lokal PostgreSQL inntil
+>   videre, som testbasen. Vedtak og krav som nevner Supabase, gjelder så lenge
+>   Supabase er plattformen (merknaden 23.09 i 3.1): raden «Bare
+>   Catenda-innlogging» i 3.1, RV-06, CFG-05 og Data API-testen i F1.
+> - **09.10, ved sluttredigeringen:** hvor TS-kjernen kjører på serveren, er
+>   B-18. Hostingen for backend i B-12 avhenger av B-18. Et alternativ til egen
+>   drift i Azure vurderes i
+>   [#302](https://github.com/khjohns/endringsmeldinger/issues/302).
 
 ## 4. Funnregister
 
