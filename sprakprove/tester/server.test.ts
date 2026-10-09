@@ -319,33 +319,118 @@ describe.skipIf(!TESTBASE_URL)('TS-serveren mot testbasen', () => {
   });
 
   describe('hendelser kjernen ikke kjenner (B-10)', () => {
-    it('gir verken kommandoer eller tilstand, men journalen kan leses', async () => {
-      const bane = await serverbane(server, o);
-      if (!(await bane.send(GRUNNLAG)).godtatt) throw new Error('Forutsetning: grunnlaget avvist');
-      const krav = kommando({ handling: 'vederlagskrav', belop: 100000 }, bane.sak())[1];
-      // Kontrollsaken: samme krav på en sak uten den ukjente hendelsen.
-      const kontroll = await serverbane(server, o);
-      await kontroll.send(GRUNNLAG);
-      expect(
-        (await send(o.te, { sak_id: kontroll.sakId, expected_version: 2, event: krav })).status
-      ).toBe(201);
-
-      await o.pool.query(
-        `INSERT INTO hendelse (event_id, source, type, subject, actorid, actorrole, data, prosjekt_id, sak_id, event_type, versjon)
-         VALUES ($1, 'x', 'no.oslo.koe.grunnlag_trukket', $2, $3, 'TE', '{"begrunnelse": "Trukket"}', $4, $2, 'grunnlag_trukket', 3)`,
-        [randomUUID(), bane.sakId, o.te.id, o.prosjekt.id]
+    const settInn = (sakId: string, type: string, versjon: number, data: object) =>
+      o.pool.query(
+        `INSERT INTO hendelse (event_id, source, type, subject, actorid, actorrole, actorteam, data, prosjekt_id, sak_id, event_type, versjon)
+         VALUES ($1, 'x', $2, $3, $4, 'TE', $5, $6::jsonb, $7, $3, $8, $9)`,
+        [
+          randomUUID(),
+          `no.oslo.koe.${type}`,
+          sakId,
+          o.te.id,
+          o.prosjekt.teTeam.replaceAll('-', ''),
+          JSON.stringify(data),
+          o.prosjekt.id,
+          type,
+          versjon,
+        ]
       );
+    const les = (sakId: string, sti: string) =>
+      kall(server.url, `/api/cases/${sakId}/${sti}`, { bruker: o.te, prosjektId: o.prosjekt.id });
+
+    /** En sak med grunnlag, vederlag og frist fra TE, og deretter `type`. */
+    async function sakMed(type: string, data: object = {}) {
+      const bane = await serverbane(server, o);
+      for (const h of KORPUS.prefikser.krav_eo) {
+        if (!(await bane.send(h)).godtatt) throw new Error(`Forutsetning: ${h.handling} avvist`);
+      }
+      const krav = kommando(
+        { handling: 'grunnlag_ny_versjon', underkategori: 'EO' },
+        bane.sak()
+      )[1];
+      const pakke = [{ kommando: kommando(AVSLAG, bane.sak())[1] }];
+      const versjon = bane.journal.length;
+      if (type) await settInn(bane.sakId, type, versjon + 1, data);
+      return { bane, krav, pakke, versjon: versjon + (type ? 1 : 0) };
+    }
+
+    const AVSLAG: Handling = { handling: 'grunnlagssvar', resultat: 'avslatt' };
+
+    it('gir verken kommandoer, batch, godkjenningspakke eller tilstand, men journalen kan leses', async () => {
+      // Kontrollsaken: samme kommandoer på en sak uten den ukjente hendelsen.
+      const k = await sakMed('');
+      expect(
+        (await send(o.te, { sak_id: k.bane.sakId, expected_version: k.versjon, event: k.krav }))
+          .status
+      ).toBe(201);
+      const k2 = await sakMed('');
+      expect(
+        (
+          await send(
+            o.te,
+            { sak_id: k2.bane.sakId, expected_version: k2.versjon, events: [k2.krav] },
+            { sti: '/api/events/batch' }
+          )
+        ).status
+      ).toBe(201);
+      const k3 = await sakMed('');
+      expect(
+        (
+          await kall(server.url, `/api/cases/${k3.bane.sakId}/godkjenningspakke`, {
+            bruker: o.bh,
+            prosjektId: o.prosjekt.id,
+            kropp: { elementer: k3.pakke },
+          })
+        ).status
+      ).toBe(200);
+
+      const { bane, krav, pakke, versjon } = await sakMed('grunnlag_trukket', {
+        begrunnelse: 'Trukket',
+      });
       const for_ = await journal(bane.sakId);
-      const avvist = await send(o.te, { sak_id: bane.sakId, expected_version: 3, event: krav });
-      expect([avvist.status, avvist.kropp.error]).toEqual([422, 'UNKNOWN_EVENTS']);
+      const enkelt = await send(o.te, {
+        sak_id: bane.sakId,
+        expected_version: versjon,
+        event: krav,
+      });
+      const batch = await send(
+        o.te,
+        { sak_id: bane.sakId, expected_version: versjon, events: [krav] },
+        { sti: '/api/events/batch' }
+      );
+      const godkjenning = await kall(server.url, `/api/cases/${bane.sakId}/godkjenningspakke`, {
+        bruker: o.bh,
+        prosjektId: o.prosjekt.id,
+        kropp: { elementer: pakke },
+      });
+      const tilstand = await les(bane.sakId, 'state');
+      for (const svar of [enkelt, batch, godkjenning, tilstand])
+        expect([svar.status, svar.kropp.error]).toEqual([422, 'UNKNOWN_EVENTS']);
       expect(await journal(bane.sakId)).toEqual(for_);
-      const les = (sti: string) =>
-        kall(server.url, `/api/cases/${bane.sakId}/${sti}`, {
-          bruker: o.te,
-          prosjektId: o.prosjekt.id,
-        });
-      expect((await les('state')).status).toBe(422);
-      expect((await les('journal')).kropp.events?.at(-1)?.event_type).toBe('grunnlag_trukket');
+      expect((await les(bane.sakId, 'journal')).kropp.events?.at(-1)?.event_type).toBe(
+        'grunnlag_trukket'
+      );
+    });
+
+    it('en sak opprettet med en annen sakstype får ingen kommandoer', async () => {
+      const sakId = await opprettSak(o.pool, o.prosjekt.id, o.te);
+      await o.pool.query(
+        `UPDATE hendelse SET data = jsonb_set(data, '{sakstype}', '"forsering"') WHERE sak_id = $1`,
+        [sakId]
+      );
+      const svar = await send(o.te, grunnlag(sakId));
+      expect([svar.status, svar.kropp.error]).toEqual([422, 'UNKNOWN_EVENTS']);
+      expect(
+        (await send(o.te, grunnlag(await opprettSak(o.pool, o.prosjekt.id, o.te)))).status
+      ).toBe(201);
+    });
+
+    it('et internt notat hindrer ikke kommandoer eller tilstand', async () => {
+      const { bane, krav, versjon } = await sakMed('internt_notat', { tekst: 'Internt' });
+      expect((await les(bane.sakId, 'state')).status).toBe(200);
+      expect(
+        (await send(o.te, { sak_id: bane.sakId, expected_version: versjon, event: krav })).status
+      ).toBe(201);
     });
   });
 
