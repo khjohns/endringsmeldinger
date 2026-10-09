@@ -20,13 +20,7 @@
 import { utledetVarsel } from './leser.ts';
 import type { Regelsett } from './regler/regelsett.ts';
 import type { Subsidiaergrunn } from './regler/grunnlag.ts';
-import {
-  enighetsgrunnlag,
-  gjelderVarslingsplikten,
-  hovedgrunn,
-  utfall,
-  utsagnet,
-} from './standpunkt.ts';
+import { enighetsgrunnlag, hovedgrunn, utfall, utsagnet } from './standpunkt.ts';
 import {
   KRAVSPOR,
   SPOR,
@@ -329,10 +323,13 @@ export function utled(journal: Domenehendelse[], regler: Regelsett): Utledning {
       gBrev !== null &&
       utfall(gBrev.svar, gBrev.standpunkter).grunnlag === 'avklart',
     grunnlagAvvist: eg?.grunnlag.utfall.grunnlag === 'avvist',
-    // GR-U3, GR-U9: frafallet er byggherrens utsagn, uavhengig av hva TE har sagt.
+    // KA-U13: brevet har et utsagn etter § 32.2 bare når varslingsplikten gjaldt
+    // da det ble skrevet (GR-U11). Dagens regelsett vurderer det ikke på nytt (MM-U9).
     godkjenningErEndringsordre:
       eg?.grunnlag.kilde === 'sammenfall' &&
-      gjelderVarslingsplikten(spor.grunnlag.gjeldendeKrav, regler),
+      gSvar !== null &&
+      gSvar.utsagn.some((u) => u.art === 'rettidighet' && u.hjemmel === '32.2'),
+    // GR-U3, GR-U9: frafallet er byggherrens utsagn, uavhengig av hva TE har sagt.
     frafalt:
       gBrev !== null &&
       hovedgrunn(gBrev.standpunkter)?.art === 'ansvar' &&

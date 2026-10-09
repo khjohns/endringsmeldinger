@@ -1,7 +1,7 @@
 /**
  * Feilinnføringene for kjernen (#304, #308). F1–F7 er avsnitt 4 i modellforslaget,
  * F8–F10 feilklassene reviewet av PR #306 fant, skrevet om etter MM-U9 og
- * GR-U10, og F11–F24 grensene #308 la til. Én mutasjon om gangen i
+ * GR-U10, og F11–F26 grensene #308 la til. Én mutasjon om gangen i
  * arbeidskopien, Vitest over `kjerne/` og `sprakprove/kjernelagring/`, og
  * originalteksten settes tilbake etterpå. For hver mutasjon kreves det at de
  * forventede målassertions feiler, og at alle feil er assertions, ikke import,
@@ -76,7 +76,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse: 'et sendt brev vurderes på nytt med dagens regler (MM-U9)',
     fil: `${K}/utled.ts`,
     endringer: [
-      ['  hovedgrunn,\n  utfall,\n', '  hovedgrunn,\n  standpunkter,\n  utfall,\n'],
+      ['hovedgrunn, utfall,', 'hovedgrunn, standpunkter, utfall,'],
       [
         '      standpunkter: s.beslutningsgrunnlag.standpunkter,',
         '      standpunkter: standpunkter(s, spor.grunnlag.krav.find((k) => k.id === s.gjelder) ?? spor.grunnlag.krav.at(-1), regler),',
@@ -282,11 +282,30 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utled.ts`,
     endringer: [
       [
-        '      gjelderVarslingsplikten(spor.grunnlag.gjeldendeKrav, regler),',
-        '      spor.grunnlag.gjeldendeKrav !== null,',
+        "      gSvar.utsagn.some((u) => u.art === 'rettidighet' && u.hjemmel === '32.2'),",
+        '      true,',
       ],
     ],
     mal: ['F-MM-G13', 'F-MM-G14'],
+  },
+  {
+    id: 'F25',
+    feilklasse: 'om godkjenningen er en endringsordre, leses av dagens regelsett (MM-U9, KA-U13)',
+    fil: `${K}/utled.ts`,
+    endringer: [
+      [
+        "      gSvar.utsagn.some((u) => u.art === 'rettidighet' && u.hjemmel === '32.2'),",
+        '      regler.gjelderVarslingsplikten(String(spor.grunnlag.gjeldendeKrav?.innhold.hovedkategori), String(spor.grunnlag.gjeldendeKrav?.innhold.underkategori)),',
+      ],
+    ],
+    mal: ['F-MM-G15'],
+  },
+  {
+    id: 'F26',
+    feilklasse: 'trekk av grunnlaget sperres av ethvert svar, også avslag og frafall (KA-U13)',
+    fil: `${K}/utled.ts`,
+    endringer: [["      eg?.grunnlag.kilde === 'sammenfall' &&", '      gSvar !== null &&']],
+    mal: ['F-MM-G16', 'F-MM-G17'],
   },
 ];
 
