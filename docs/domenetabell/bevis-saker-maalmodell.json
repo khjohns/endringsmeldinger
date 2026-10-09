@@ -136,7 +136,7 @@
         {
           "etter": 4,
           "rolle": "mal",
-          "kilde": ["GR-U7", "KA-U1", "GR-25"],
+          "kilde": ["GR-U7", "KA-U1", "GR-U8"],
           "forventet": {
             "handlinger.TE": { "inneholder": ["godta:grunnlag", "godta:vederlag"], "mangler": ["godta:frist"] },
             "handlinger.BH": { "inneholder": ["revidere:grunnlag", "revidere:vederlag"], "mangler": ["revidere:frist"] }
@@ -159,7 +159,7 @@
         {
           "etter": 4,
           "rolle": "mal",
-          "kilde": ["GR-25"],
+          "kilde": ["GR-U8"],
           "prov": { "handling": "aksept", "spor": "frist" },
           "forventet": { "avvist": true, "regel": "NOT_ALREADY_ACCEPTED" }
         },
@@ -343,7 +343,7 @@
     {
       "id": "F-MM-B1",
       "forslag": "B, sak 1: frafall",
-      "rader": ["GR-13", "GR-15"],
+      "rader": ["GR-13", "GR-15", "GR-26"],
       "start": "krav_irreg",
       "steg": [
         { "handling": "brev", "navn": "D4", "svar": [{ "spor": "grunnlag", "navn": "S-g1", "resultat": "frafalt", "varslet_i_tide": true }] },
@@ -378,7 +378,21 @@
           "etter": 1,
           "rolle": "mal",
           "kilde": ["GR-U2"],
-          "forventet": { "handlinger.TE": { "inneholder": ["krav:grunnlag"] } }
+          "forventet": { "handlinger.TE": { "inneholder": ["krav:grunnlag"], "mangler": ["godta:grunnlag"] } }
+        },
+        {
+          "etter": 1,
+          "rolle": "mal",
+          "kilde": ["GR-U9"],
+          "prov": { "handling": "aksept", "spor": "grunnlag" },
+          "forventet": { "avvist": true, "regel": "WAIVER_NOT_ACCEPTABLE" }
+        },
+        {
+          "etter": 1,
+          "rolle": "kontroll",
+          "kilde": ["GR-U9", "GR-U4"],
+          "prov": { "handling": "revisjon", "spor": "grunnlag", "resultat": "godkjent", "varslet_i_tide": true },
+          "forventet": { "avvist": false }
         },
         {
           "etter": 2,
@@ -797,8 +811,15 @@
         {
           "etter": 3,
           "rolle": "mal",
-          "kilde": ["MM-U4", "MM-U1"],
+          "kilde": ["MM-U8", "MM-U4", "MM-U1"],
           "forventet": { "handlinger.TE": { "mangler": ["godta:frist"] } }
+        },
+        {
+          "etter": 3,
+          "rolle": "mal",
+          "kilde": ["MM-U8"],
+          "prov": { "handling": "aksept", "spor": "frist" },
+          "forventet": { "avvist": true, "regel": "RESPONSE_DEVIATES" }
         },
         {
           "etter": 4,
@@ -1330,7 +1351,8 @@
         }
       ],
       "forventningsgrunnlag": "avklart_tolkning"
-    }
+    },
+    {"id": "F-MM-B3", "forslag": "B: trekk av et krav partene er enige om (KA-U6)", "rader": ["KA-26"], "start": "krav_irreg", "steg": [{"handling": "brev", "navn": "D4", "svar": [{"spor": "vederlag", "navn": "S-v1", "vurdering": "godkjent"}]}, {"handling": "trekk", "spor": "vederlag", "navn": "D5"}], "kontroller": [{"etter": 1, "rolle": "forutsetning", "kilde": ["GR-U7"], "forventet": {"enighet.vederlag.kilde": "sammenfall", "handlinger.TE": {"inneholder": ["trekke:vederlag"]}}}, {"etter": 2, "rolle": "mal", "kilde": ["KA-U6", "V-SK02-SK03"], "forventet": {"avvist": false, "nye_hendelser": 1, "trukket.vederlag": true, "trukket.grunnlag": false, "enighet.vederlag.virkning": "uten_virkning", "oppgjort.vederlag": false, "avsluttet": false, "handlinger.BH": {"inneholder": ["svare:grunnlag", "svare:frist"], "mangler": ["revidere:vederlag"]}}}, {"etter": 2, "rolle": "mal", "kilde": ["KA-U6", "V-TRUKKET"], "prov": {"handling": "krav", "spor": "vederlag", "belop": 120000}, "forventet": {"avvist": true, "regel": "TRACK_WITHDRAWN"}}], "forventningsgrunnlag": "avklart_tolkning"}
   ],
   "genererte": {
     "omfang": "Genererte forløp for målmodellen. Samme LCG som sprakprove/genererte-forlop.json, x = (1103515245·x + 12345) mod 2^31, og handling nummer (x >> 16) mod antall handlinger, uansett tilstand. En handling som ikke passer, skal avvises uten at journalen endres. Regelendringen bytter regelsettet til n+1 for resten av forløpet.",

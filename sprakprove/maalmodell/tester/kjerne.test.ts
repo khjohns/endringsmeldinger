@@ -246,17 +246,17 @@ describe('en vurdering prøven ikke har et utsagn for, avvises', () => {
   });
 });
 
-describe('aksept av et grunnlag byggherren har avklart, avvises foreløpig', () => {
+describe('aksept av et grunnlag byggherren har avklart, avvises (GR-U8, GR-U9)', () => {
   const grunnlag = (resultat: string) => ({
     handling: 'brev',
     svar: [{ spor: 'grunnlag', resultat, varslet_i_tide: true }],
   });
 
-  // GR-25 er en arbeidshypotese; frafall er ikke enighet, og om en aksept av det skal
-  // godtas, er ikke avgjort. Avvisningene holdes atskilt, så de kan avgjøres hver for seg.
+  // To vedtak med hver sin begrunnelse og regelkode: partene er alt enige (GR-U8), og
+  // frafall er ikke enighet (GR-U9).
   it.each([
-    ['godkjent og låst (GR-U2, GR-25)', 'godkjent', 'NOT_ALREADY_ACCEPTED'],
-    ['frafalt (GR-U3)', 'frafalt', 'WAIVER_NOT_ACCEPTABLE'],
+    ['godkjent og låst (GR-U2, GR-U8)', 'godkjent', 'NOT_ALREADY_ACCEPTED'],
+    ['frafalt (GR-U3, GR-U9)', 'frafalt', 'WAIVER_NOT_ACCEPTABLE'],
   ])('%s', async (_hva, resultat, regel) => {
     const k = await bygg(minnebane(), ['krav_irreg', grunnlag(resultat)]);
     const u = await k.prov({ handling: 'aksept', spor: 'grunnlag' });
