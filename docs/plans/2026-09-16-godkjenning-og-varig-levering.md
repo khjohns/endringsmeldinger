@@ -1,44 +1,24 @@
 # Hovedplan: sikkerhet, dataintegritet og varig levering
 
-**Opprettet:** 2026-09-16. **Sluttredigert:** 2026-09-22, mot commit
-`41c2a16191a5aadbe611e0958db8b93090b08027` (`main`).
-**Sist endret:** 2026-10-09, senere: B-17 vedtatt (TS tar over skrivingen i KOE-saker samlet), B-18 ført opp, merknad til B-12 om Supabase. Tidligere samme dag: forløp A–E kjørt i målmodellen, merknad under B-14, og MM-U5–MM-U8, GR-U8, GR-U9 og KA-U6 vedtatt etter review av PR #306 (#304). Tidligere samme dag: MM-U1–MM-U4 vedtatt etter modellforslaget, og MM-U3 presisert etter review (#300). Tidligere samme dag: TS vedtatt som retning for den delte domenekjernen (B-14, 3.1), merknad til B-14 om at språkprøven er gjennomført, SP-03 og SP-04 registrert, B-15 avgjort, GR-U7 presisert for et fullt godkjent svar, og restrisikoen for eldre aksepter godtatt under KA-U1 (#274). 2026-10-08, senere: SP-01 og SP-02 registrert fra språkprøven (#274). Tidligere samme dag: GR-U7 vedtatt og erstatter GR-U6, KA-U5 presisert og DT-11 lukket (#294). Tidligere samme dag: kontrakten for flyten i språkprøven skrevet
-(#272), KT-U1, KT-U2 og GR-U6 vedtatt, DT-11 registrert, DT-01 og DT-03 rettet, og aksept-delen av DT-04
-rettet. Tidligere samme dag: EO-U1–EO-U4 om endringsordrene vedtatt for
-[domenetabellen](../domenetabell/README.md) (#271), B-08 avgjort med EO-U3, og
-DT-05–DT-10 registrert i 4.2. Tidligere samme dag: KA-U5 og GR-U1–GR-U5 om
-grunnlagsavhengigheten vedtatt, og DT-04 registrert i 4.2.
-Tidligere samme dag: KA-U1–KA-U4 om kravversjon og aksept vedtatt for
-[domenetabellen](../domenetabell/README.md) (#271), og DT-01–DT-03 registrert i 4.2.
-2026-10-07: B-14 vedtatt med presisert målform og rekkefølge,
-B-10 konkretisert i F2/F5, og B-15/B-16 registrert som åpne beslutninger etter
-oppdragsgivers tilslutning til reviewet av PR #266 og #270. Ingen implementering.
-2026-10-05: strukturkartleggingen av spor D levert, elleve
-vedtak og en presisering av B-13 ført inn i 3.1, B-14 ført opp i 3.4 og
-SK-01–SK-13 registrert i 4.2.
-2026-09-29, senere: spor M 1c levert, og med den
-datamodellen; DM-08 registrert som foreløpig. Tidligere samme dag: spor M 1b levert, DM-05–DM-07
-registrert, saksopprettelse fra appen og forholdet mellom EO-sak og KOE-sak
-avgjort i 3.1. Tidligere samme dag: DM-04 rettet i
-ruteregistertesten. Tidligere samme dag:
-merknad til B-12 om SQL Database, avhengigheten i F0b, spor M ført inn,
-DM-01–DM-04 registrert. Tidligere samme dag: SD-01, SD-03 og DRF-03 rettet; sendedatoen for § 34.3.3-varselet avgjort i 3.1; SD-04 ført inn. 24.09: GFK-06 rettet og presisert i 3.1; ubegrenset fullmakt bygget (GFK-02). Tidligere samme dag, mot `94ab148` (`b13-beslutningsgrunnlag`): B-13
-avgjort av oppdragsgiver, se 3.1 og merknaden under B-13. 23.09, mot `c708f95`:
-beslutningsgrunnlaget for B-13 levert. Tidligere samme
-dag, mot `05b3aa7` (`main`): BR-01 reprodusert og flyttet
-til 4.2, DRF-01–DRF-03 ført inn og kartleggingen for B-13 levert. Tidligere
-samme dag: beslutningen om alternativ C over direkte tilkobling (T2), B-02
-punkt 3–6 og B-04 avgjort, B-12 og B-13 ført opp, se
-[3.1](#31-vedtatte-premisser-og-beslutninger) og [3.4](#34-åpne-beslutninger).
-**Status:** Autoritativ plan og eneste løpende kilde til funnstatus.
-Appen er ikke i produksjon og har ingen reelle data.
+**Opprettet:** 2026-09-16. **Sist sluttredigert:** 2026-10-09, mot commit
+`bf80e30458d83bada847b9f37b9c4c0361d23d4a` (`main` med PR #306 og #307;
+planteksten er den samme som på `main` ved
+`5d067cc3268f433f6f11f91496eb87955d77ee86`).
+**Status:** Autoritativ plan og eneste løpende kilde til vedtak, rekkefølge og
+funnstatus. Appen er ikke i produksjon og har ingen reelle data.
 
-Planen erstatter de tidligere statuslagene i denne fila og de to
-konsolideringsforslagene. Den gamle teksten er bevart i Git:
+Teksten før sluttredigeringen 09.10 er bevart i Git:
+`git show bf80e304:docs/plans/2026-09-16-godkjenning-og-varig-levering.md`
+(blob `82d8b4e2fd28ea8d9a6c17755f28129e3e3b0dcc`). Den har endringsloggen fra
+22.09 til 09.10 i toppteksten, kolonnen «I dag» i 2.2, den tidligere
+rekkefølgen i 3.1 og radene og merknadene for de avgjorte beslutningene i 3.4.
+
+Første sluttredigering var 22.09. Den erstattet de tidligere statuslagene i
+denne fila og de to konsolideringsforslagene. Teksten før den er
 `git show 41c2a16:docs/plans/2026-09-16-godkjenning-og-varig-levering.md`
-(blob `9e7def005d6d5f119dfe1e708f79027581d352db`). Hvordan hvert krav og hver
-funnfamilie er ført videre, står i
-[redaksjonsprotokollen](../sluttredigering-hovedplan-2026-09-22.md).
+(blob `9e7def005d6d5f119dfe1e708f79027581d352db`), og
+[redaksjonsprotokollen](../sluttredigering-hovedplan-2026-09-22.md) viser hvordan
+hvert krav og hver funnfamilie ble ført videre.
 
 ## 1. Hva som gjelder
 
@@ -1556,3 +1536,37 @@ og de åpne B-15/B-16 er dokumentert etter oppdragsgivers tilslutning i samtalen
 Arbeidet omfatter dokumenter og GitHub-oppfølging, ikke implementering.
 Kontrollgrunnlag og verktøygrenser står i
 [reviewnotatet](../review-oppfolging-arkitektur-2026-10-07.md#verifikasjon-og-grenser).
+
+**Endringene 08.10–09.10** før sluttredigeringen er listet i endringsloggen i
+toppteksten ved `bf80e304`. Belegget står i de daterte merknadene og radene de
+gjelder.
+
+**Sluttredigeringen 09.10** er dokumentarbeid mot `bf80e304`. Kilden for
+vedtakene er oppdragsgivers svar i samtalen 09.10, på spørsmål med
+alternativer. Ordlyden følger det valgte alternativet. Ingen kode, migrasjon,
+database eller issue er endret i redigeringen.
+
+- **Ført inn:** MM-U9, GR-U10, KA-U7–KA-U9, GR-U11, FO-U1, VS-U1 og VS-U2 som
+  nye rader i 3.1. Daterte merknader til B-17 (endringsordre og forsering),
+  B-14 (permanent mappe), regelversjon og passivitet under B-13, MM-U4–MM-U6
+  (opphevet), MM-U8, GR-U2, GR-U7, SK-02/SK-03, kravversjon, KA-U3 og KA-U6 i
+  3.1; invariant 9, 11 og 12; AF-06; F0b, F2 og spor D; 4.2 (Python-feil i
+  KOE-domenet), SK-02, SK-06, DM-01, DM-05 og DM-06. Ny arbeidspakke FK.
+- **Omordnet uten endring i vedtak eller funnstatus:** 3.1 etter kontraktstema.
+  B-15, merknaden til B-04 og merknaden 07.10 til B-14 er flyttet fra 3.4 til
+  3.1. 4.2 er delt i to tabeller. Merknadene til B-12 og de fire unntakene fra
+  AF-06 03.–04.10 er samlet.
+- **Tatt ut og bevart i Git:** endringsloggen i toppteksten, kolonnen «I dag» i
+  2.2 med merknaden 23.09 til den, og radene og merknadene for de avgjorte
+  beslutningene i 3.4, unntatt det som er flyttet. Avsnitt 6 har fått nytt navn.
+- **Kjørt:** `python3 docs/verktoy/lenkekontroll.py` over hele `docs/` (ingen
+  nye brudd; bruddet i `adr/001` er kjent),
+  `python3 docs/verktoy/domenetabell.py` og
+  `/tmp/venv/bin/python docs/verktoy/datamodell.py` (exit 0, ingen genererte
+  filer endret), og `tests/test_domenetabell` og `tests/test_datamodell` uten
+  testbasen. Ankrene andre dokumenter lenker til, er beholdt.
+- **Ikke kontrollert:** byggestatusen i «Følge» og i funnregisteret er ikke
+  prøvd på nytt. At prøveserveren i `sprakprove/server/` mangler en
+  registertest, er lest (L 09.10). Fordelingen av issues bak merknaden i 4.2 er
+  hovedøktas. Redigeringen gjør ingen egen vurdering av NS 8407; vedtakene
+  09.10 bygger på oppdragsgivers lesning.
