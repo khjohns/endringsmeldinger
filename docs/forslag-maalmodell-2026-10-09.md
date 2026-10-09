@@ -7,6 +7,12 @@ Modellen som helhet er ikke vedtatt, og forslaget endrer ingen vedtatt atferd.
 De tre domenevalgene i [avsnitt 5](#5-spørsmål-til-oppdragsgiver) ble avgjort
 samme dag som [MM-U1–MM-U3](plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u1). Spørsmålet som forløp C, steg 3d, reiste, ble avgjort som [MM-U4](plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u4).
 
+> **Merknad 2026-10-09:** forløpene er kjørt i en avgrenset implementasjon av
+> modellen i [`sprakprove/maalmodell/`](../sprakprove/maalmodell/) (#304), i
+> minnet og mot testbasen. «Ikke kontrollert» under Verifikasjon og grenser
+> gjelder slik dokumentet ble skrevet. Resultatet står i merknaden 09.10 til
+> B-14 i [hovedplanen](plans/2026-09-16-godkjenning-og-varig-levering.md#34-åpne-beslutninger).
+
 Grunnlaget er B-14 i [hovedplanen](plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger)
 og anbefalingen i [arkitekturforslaget, avsnitt 7](forslag-maalarkitektur-og-beslutningsproeve-2026-10-07.md#anbefaling).
 Forslaget er avgrenset til fem forløp som allerede har vedtak og åpne issues.
