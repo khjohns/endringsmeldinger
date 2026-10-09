@@ -30,15 +30,15 @@ export function likeVerdier(a: unknown, b: unknown): boolean {
 function kontrollerSvar(s: Svarutkast, u: Utledning, regler: Regelsett): Avvisning | null {
   const krav = u.spor[s.spor].gjeldendeKrav!;
   if (s.gjelder !== krav.id)
-    return avvis('RESPONSE_REFERENCE', 'Svaret må gjelde gjeldende krav i dette sporet.');
+    return avvis('FEIL_KRAVREFERANSE', 'Svaret må gjelde gjeldende krav i dette sporet.');
   if (s.regelversjon !== regler.versjon)
     return avvis(
-      'RULE_VERSION',
+      'ANNEN_REGELVERSJON',
       `Svaret er regnet ut med regelversjon ${s.regelversjon}, serveren bruker ${regler.versjon}.`
     );
   const utenfor = utenforProven(s.spor, s.vurderinger as Record<string, unknown>);
   if (utenfor)
-    return avvis('ASSESSMENT_UNSUPPORTED', `Vurderingen kan ikke lagres i prøven: ${utenfor}.`);
+    return avvis('VURDERING_UTENFOR_KJERNEN', `Kjernen kan ikke lagre vurderingen: ${utenfor}.`);
   let server: Record<string, unknown>;
   try {
     server = regnUtSvar(
@@ -49,13 +49,13 @@ function kontrollerSvar(s: Svarutkast, u: Utledning, regler: Regelsett): Avvisni
     );
   } catch (feil) {
     if (feil instanceof UgyldigVurdering)
-      return avvis('ASSESSMENT_INVALID', `Vurderingene kan ikke regnes ut: ${feil.message}.`);
+      return avvis('UGYLDIG_VURDERING', `Vurderingene kan ikke regnes ut: ${feil.message}.`);
     throw feil;
   }
   const avvik = SAMMENLIKNES[s.spor].filter((f) => !likeResultatfelt(f, s.resultat[f], server[f]));
   if (avvik.length)
     return avvis(
-      'RESULT_MISMATCH',
+      'ANNET_RESULTAT',
       `Serveren regner ut ${avvik.map((f) => `${f}=${String(server[f])}`).join(', ')}.`
     );
   return null;
@@ -71,7 +71,7 @@ export function nyttelastkontroll(k: Kommando, u: Utledning, regler: Regelsett):
       return sendt?.opplysning.verdi === k.varsel.sendt
         ? null
         : avvis(
-            'NOTICE_REGISTERED',
+            'VARSEL_REGISTRERT',
             'Varselet er registrert med en annen dato og kan ikke flyttes (SK-12).'
           );
     }
@@ -83,22 +83,22 @@ export function nyttelastkontroll(k: Kommando, u: Utledning, regler: Regelsett):
       return null;
     case 'revisjon':
       if (k.erstatter !== u.spor[k.svar.spor].gjeldendeSvar?.id)
-        return avvis('RESPONSE_REFERENCE', 'Svaret er endret eller gjelder et tidligere krav.');
+        return avvis('FEIL_SVARREFERANSE', 'Svaret er endret eller gjelder et tidligere krav.');
       return kontrollerSvar(k.svar, u, regler);
     case 'aksept': {
       // KA-U1, KT-U1: aksepten gjelder sporets gjeldende svar.
       if (k.svar !== u.spor[k.spor].gjeldendeSvar?.id)
-        return avvis('CURRENT_RESPONSE', 'Aksepten må gjelde gjeldende svar i dette sporet.');
+        return avvis('IKKE_GJELDENDE_SVAR', 'Aksepten må gjelde gjeldende svar i dette sporet.');
       if (k.regelversjon !== regler.versjon)
         return avvis(
-          'RULE_VERSION',
+          'ANNEN_REGELVERSJON',
           `Aksepten er forhåndsvist med regelversjon ${k.regelversjon}, serveren bruker ${regler.versjon}. Last inn saken på nytt.`
         );
       // 2.5: serveren fryser bare det TE fikk se.
-      const server = forhandsvisAksept(u, k.svar, regler);
+      const server = forhandsvisAksept(u, k.svar);
       if (server === null || !likeVerdier(k.enighetsgrunnlag, server))
         return avvis(
-          'RESULT_MISMATCH',
+          'ANNET_RESULTAT',
           'Enighetsgrunnlaget avviker fra serverens. Last inn saken på nytt.'
         );
       return null;

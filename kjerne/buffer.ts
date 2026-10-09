@@ -67,7 +67,7 @@ export async function lesSak(
   const b = await lager.les(sakId);
   if (b && bufferGjelder(b, kjerne, saksversjon)) return { kilde: 'buffer', visning: b.visning };
   const u = utledJournal(journal, kjerne);
-  const v = visning(u);
+  const v = visning(u, kjerne.regler);
   if (!u.forstatt) return { kilde: 'stoppet', visning: v };
   await lager.skriv(sakId, { versjon: bufferversjon(kjerne, saksversjon), visning: v });
   return { kilde: 'utledet', visning: v };
@@ -75,7 +75,8 @@ export async function lesSak(
 
 /**
  * Sakene der utledningen endres når kjernen byttes, som listes før utrulling
- * (B-13, 2.7 regel 2). Sammenlikner visningen og standpunktene i hvert svar.
+ * (B-13, 2.7 regel 2). Sammenlikner visningen, som viser det dagens regler
+ * ville gitt brevene (MM-U9).
  */
 export function endredeSaker(
   journaler: Map<string, Journalrad[]>,
@@ -84,8 +85,7 @@ export function endredeSaker(
 ): string[] {
   const avtrykk = (j: Journalrad[], k: Kjerne) => {
     const u = utledJournal(j, k);
-    const standpunkter = Object.values(u.svar).map((s) => [s.svar.id, s.standpunkter, s.avvik]);
-    return JSON.stringify([visning(u), standpunkter]);
+    return JSON.stringify(visning(u, k.regler));
   };
   return [...journaler]
     .filter(([, j]) => avtrykk(j, fra) !== avtrykk(j, til))

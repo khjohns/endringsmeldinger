@@ -59,9 +59,7 @@ const frosset = (u: Utledning) => ({
   beslutningsgrunnlag: Object.fromEntries(
     Object.values(u.svar).map((s) => [s.svar.id, s.svar.beslutningsgrunnlag])
   ),
-  enighetsgrunnlag: SPOR.map((s) =>
-    u.spor[s].enighet?.utledet ? null : (u.spor[s].enighet?.grunnlag ?? null)
-  ),
+  enighetsgrunnlag: SPOR.map((s) => u.spor[s].enighet?.grunnlag ?? null),
 });
 
 describe('genererte forløp mot målmodellen', () => {

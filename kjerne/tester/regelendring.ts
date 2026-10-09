@@ -5,10 +5,10 @@
  *
  * - Frosset innhold står: beslutningsgrunnlaget, enighetsgrunnlaget og de
  *   lagrede radene (MM-U3, V-B13-REGELVERSJON, 2.7 regel 4).
- * - Et svar som ikke er godtatt, utledes på nytt og merkes som avvikende
- *   (B-13, merknaden 05.10; MM-U4).
- * - En aksept av et avvikende svar avvises, og journalen er uendret (MM-U4).
- *   Kontrollsak: et svar der brevet stemmer, godtas med regelversjon n+1.
+ * - Et sendt brev beholder virkningen det hadde da det ble sendt. Dagens regler
+ *   vises bare som en merknad i visningen (MM-U9).
+ * - TE kan godta svaret slik brevet uttrykte det, også etter regelendringen;
+ *   enigheten får brevets standpunkter og regelversjon (MM-U9, MM-U3).
  * - Sakene som endres, listes før utrulling, og bufrede resultater fra n
  *   brukes ikke (B-13, 2.7 regel 2).
  */
@@ -80,42 +80,38 @@ export function regelendringen(lagBaner: () => Baner): void {
       const godtatt = utledJournal(saker['godtatt'].journal, N1);
       expect(godtatt.spor.grunnlag.enighet?.grunnlag.regelversjon).toBe(KJERNE.regler.versjon);
       expect(godtatt.grunnlagAvvist).toBe(true);
-      expect(godtatt.avsluttet).toBe(true);
     });
 
-    it('utleder et svar som ikke er godtatt, på nytt og merker det som avvikende', () => {
+    it('lar brevet beholde virkningen og viser regelendringen bare som merknad', () => {
       const svarId = saker['ikke godtatt'].k.navn.id('S-g1');
       const n = utledJournal(saker['ikke godtatt'].journal, KJERNE);
       const n1 = utledJournal(saker['ikke godtatt'].journal, N1);
-      expect(n.svar[svarId].avvik).toBe(false);
-      expect(n1.svar[svarId].avvik).toBe(true);
+      expect(n1.svar[svarId]).toEqual(n.svar[svarId]);
       expect(n1.svar[svarId].standpunkter.map((p) => p.virkning)).toEqual([
-        'uten_virkning',
         'hovedgrunn',
+        'subsidiaer',
       ]);
-      expect(n1.svar[svarId].svar.beslutningsgrunnlag?.linje).toBe(
-        'Prinsipalt prekludert (§ 32.2), subsidiært avslått.'
+      expect(n1.spor.vederlag.subsidiaer).toEqual(['prekludert', 'avslatt']);
+      expect(visning(n, KJERNE.regler).spor.grunnlag.etiketter).not.toContain(
+        'regel_endret_etter_brevet'
       );
-      expect(visning(n1).spor.grunnlag.etiketter).toContain('avviker_fra_brevet');
-      // Kontrollsak: svaret i en kategori endringen ikke rører, avviker ikke.
+      expect(visning(n1, N1.regler).spor.grunnlag.etiketter).toContain('regel_endret_etter_brevet');
+      // Kontrollsak: svaret i en kategori endringen ikke rører, får ingen merknad.
       const kontroll = utledJournal(saker['utenfor endringen'].journal, N1);
-      expect(kontroll.svar[saker['utenfor endringen'].k.navn.id('S-g1')].avvik).toBe(false);
+      expect(visning(kontroll, N1.regler).spor.grunnlag.etiketter).not.toContain(
+        'regel_endret_etter_brevet'
+      );
     });
 
-    it('avviser en aksept av det avvikende svaret, og godtar kontrollsaken', async () => {
+    it('godtar en aksept av svaret slik brevet uttrykte det, etter regelendringen', async () => {
       const s = saker['ikke godtatt'];
       s.k.kjerne = N1;
-      const avvist = await s.k.send({ handling: 'aksept', spor: 'grunnlag', klientregler: 'n+1' });
-      expect(avvist?.godtatt ? 'godtatt' : avvist?.avvisning.regel).toBe('RESPONSE_DEVIATES');
-      expect(await s.bane.journal()).toEqual(s.journal);
-
-      const k = saker['utenfor endringen'];
-      k.k.kjerne = N1;
-      const godtatt = await k.k.send({ handling: 'aksept', spor: 'grunnlag', klientregler: 'n+1' });
-      expect(godtatt?.godtatt).toBe(true);
-      expect((await k.k.utledning()).spor.grunnlag.enighet?.grunnlag.regelversjon).toBe(
-        NESTE_REGLER.versjon
-      );
+      const godtatt = await s.k.send({ handling: 'aksept', spor: 'grunnlag', klientregler: 'n+1' });
+      expect(godtatt?.godtatt ? 'godtatt' : godtatt?.avvisning.regel).toBe('godtatt');
+      const u = await s.k.utledning();
+      expect(u.spor.grunnlag.enighet?.grunnlag.regelversjon).toBe(KJERNE.regler.versjon);
+      expect(u.spor.grunnlag.enighet?.grunnlag.utfall.grunnlag).toBe('avvist');
+      expect(u.grunnlagAvvist).toBe(true);
     });
 
     it('lister sakene som endres før utrulling, og bygger bufferen på nytt (E2-3)', async () => {

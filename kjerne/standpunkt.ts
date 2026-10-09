@@ -4,19 +4,21 @@
  * oppstår. Klienten og serveren regner med de samme funksjonene; serveren
  * sammenlikner (B-13, 2.5 i modellforslaget).
  *
+ * Reglene regner standpunktene bare når brevet skrives. Etter det leses
+ * virkningen fra beslutningsgrunnlaget (MM-U9). Visningen kan regne dem igjen
+ * med dagens regler for å vise at regelen er endret, men ingen regel leser det.
+ *
  * Svarets egne standpunkter skilles fra om hele svaret er subsidiært til
- * grunnlaget. Det siste avhenger av grunnlaget, ikke av svaret, og er vilkåret i
- * enighetsgrunnlaget (GR-U7). Ellers ville et svar på vederlaget avvike fra
- * brevet hver gang grunnlaget ble besvart, og MM-U4 ville hindret aksepten
- * GR-U7 tillater.
+ * grunnlaget. Det siste er en relasjon mellom brevene som utledes ved lesing
+ * (vedtaket 05.10), og vilkåret i enighetsgrunnlaget (GR-U7).
  */
 
 import { belop, tilTall } from './regler/belop.ts';
-import { forsteUnderkategori, gyldigeResultater } from './regler/grunnlag.ts';
 import { UgyldigVurdering } from './regler/feil.ts';
 import { beregnFrist, type Fristkrav } from './regler/frist.ts';
-import { beregnVederlag, type Vederlagskrav } from './regler/vederlag.ts';
+import { forsteUnderkategori, gyldigeResultater } from './regler/grunnlag.ts';
 import type { Regelsett } from './regler/regelsett.ts';
+import { beregnVederlag, type Vederlagskrav } from './regler/vederlag.ts';
 import type {
   Beslutningsgrunnlag,
   Enighetsgrunnlag,
@@ -39,38 +41,29 @@ export function kategori(krav: Krav | null | undefined) {
 }
 
 /**
- * Standpunktene i svaret etter regelsettet. `grunnlagskrav` er kravet et
- * grunnlagssvar gjelder; `varsel` er varselet en rettidighetsvurdering etter
- * § 33.4 må gjelde for å ha virkning nå (MM-U1).
+ * Standpunktene i svaret etter regelsettet, regnet når brevet skrives.
+ * `grunnlagskrav` er kravet et grunnlagssvar gjelder.
  */
 export function standpunkter(
   svar: Svar,
-  { grunnlagskrav, varsel }: { grunnlagskrav?: Krav | null; varsel?: string },
+  grunnlagskrav: Krav | null | undefined,
   regler: Regelsett
 ): Standpunkt[] {
   const ut: Standpunkt[] = [];
-  let grunn: 'ingen' | 'hovedgrunn' | 'uavklart' = 'ingen';
-  const etterGrunn = () => (grunn === 'ingen' ? 'hovedgrunn' : 'subsidiaer');
+  let harGrunn = false;
+  const etterGrunn = () => (harGrunn ? 'subsidiaer' : 'hovedgrunn');
   for (const u of svar.utsagn) {
     if (u.art === 'rettidighet') {
-      let virkning: Standpunkt['virkning'];
-      if (u.hjemmel === '32.2') {
-        const { hovedkategori, underkategori } = kategori(grunnlagskrav);
-        virkning =
-          !u.iTide && regler.gjelderVarslingsplikten(hovedkategori, underkategori)
-            ? 'hovedgrunn'
-            : 'uten_virkning';
-      } else if (u.gjelder !== varsel) {
-        virkning = 'uavklart';
-      } else {
-        virkning = u.iTide ? 'uten_virkning' : 'hovedgrunn';
-      }
-      if (virkning === 'hovedgrunn' || virkning === 'uavklart') grunn = virkning;
-      ut.push({ utsagn: u.id, art: u.art, virkning });
+      const { hovedkategori, underkategori } = kategori(grunnlagskrav);
+      const virker =
+        !u.iTide &&
+        (u.hjemmel === '33.4' || regler.gjelderVarslingsplikten(hovedkategori, underkategori));
+      if (virker) harGrunn = true;
+      ut.push({ utsagn: u.id, art: u.art, virkning: virker ? 'hovedgrunn' : 'uten_virkning' });
     } else if (u.art === 'hindring') {
       // Vedtaket 05.10 (#211): uten fremdriftshindring står dagene som et videre subsidiært standpunkt.
       const virkning = u.oppfylt ? 'uten_virkning' : etterGrunn();
-      if (!u.oppfylt && grunn === 'ingen') grunn = 'hovedgrunn';
+      if (!u.oppfylt) harGrunn = true;
       ut.push({ utsagn: u.id, art: u.art, virkning });
     } else {
       ut.push({ utsagn: u.id, art: u.art, virkning: etterGrunn() });
@@ -100,32 +93,31 @@ export function utfall(svar: Svar, s: Standpunkt[]): Utfall {
   return { dager: prekludert || dager.resultat === 'avslatt' ? 0 : dager.vurdert };
 }
 
-export const uavklart = (s: Standpunkt[]) => s.some((p) => p.virkning === 'uavklart');
-
-/** Svaret godkjenner hele kravet i sporet, så standpunktene faller sammen (GR-U7). */
+/**
+ * Svaret godkjenner hele kravet i sporet, så standpunktene faller sammen
+ * (GR-U7). For grunnlaget er det en godkjenning uten påberopt preklusjon
+ * (GR-U10).
+ */
 export function godkjennerHeleKravet(svar: Svar, s: Standpunkt[]): boolean {
-  return (
-    svar.spor !== 'grunnlag' &&
-    !uavklart(s) &&
-    !avvisendeHovedgrunn(s) &&
-    svar.utregning.beregnings_resultat === 'godkjent'
-  );
+  if (avvisendeHovedgrunn(s)) return false;
+  if (svar.spor === 'grunnlag') return utsagnet(svar, 'ansvar')?.resultat === 'godkjent';
+  return svar.utregning.beregnings_resultat === 'godkjent';
 }
 
-export function enighetsgrunnlag(
-  svar: Svar,
-  kilde: Enighetsgrunnlag['kilde'],
-  s: Standpunkt[],
-  regler: Regelsett
-): Enighetsgrunnlag {
+/**
+ * Enigheten om svaret slik brevet uttrykte det (MM-U3, MM-U9): standpunktene og
+ * regelversjonen fra beslutningsgrunnlaget, utfallet de gir, og vilkåret.
+ */
+export function enighetsgrunnlag(svar: Svar, kilde: Enighetsgrunnlag['kilde']): Enighetsgrunnlag {
+  const { regelversjon, standpunkter: s } = svar.beslutningsgrunnlag;
   return {
     spor: svar.spor,
     svar: svar.id,
     kilde,
-    regelversjon: regler.versjon,
+    regelversjon,
     standpunkter: s,
     utfall: utfall(svar, s),
-    vilkar: svar.spor === 'grunnlag' ? null : 'grunnlag_avklart',
+    vilkaar: svar.spor === 'grunnlag' ? null : 'grunnlag_avklart',
   };
 }
 
@@ -152,12 +144,9 @@ export function beslutningslinje(svar: Svar, s: Standpunkt[]): string {
     standpunkt = d.resultat === 'avslatt' ? 'avslått' : `godkjent med ${d.vurdert} dager`;
   }
   if (!grunner.length) return `${standpunkt[0].toUpperCase()}${standpunkt.slice(1)}.`;
-  // En uavklart preklusjon står i linjen som uavklart, ikke som en grunn som virker (MM-U1).
-  const ledd = grunner.map((p, i) => {
-    const tekst =
-      p.virkning === 'uavklart' ? `preklusjon (${hjemmel}) uavklart` : grunntekst[p.art];
-    return `${i === 0 ? 'Prinsipalt' : 'subsidiært'} ${tekst}`;
-  });
+  const ledd = grunner.map(
+    (p, i) => `${i === 0 ? 'Prinsipalt' : 'subsidiært'} ${grunntekst[p.art]}`
+  );
   return `${ledd.join(', ')}, ${grunner.length > 1 ? 'videre ' : ''}subsidiært ${standpunkt}.`;
 }
 
@@ -176,16 +165,10 @@ function medVirkning(s: Standpunkt[]): Map<string, Standpunkt['virkning']> {
   );
 }
 
-/** Et standpunkt har en annen virkning i `a` enn i `b`. */
+/** Et standpunkt har en annen virkning i `a` enn i `b`. Brukes bare av visningen (MM-U9). */
 export function ulikeVirkninger(a: Standpunkt[], b: Standpunkt[]): boolean {
   const [x, y] = [medVirkning(a), medVirkning(b)];
   return x.size !== y.size || [...x].some(([utsagn, virkning]) => y.get(utsagn) !== virkning);
-}
-
-/** Brevet avviker fra dagens utledning: et standpunkt har fått en annen virkning (MM-U4). `null` uten lagret beslutningsgrunnlag. */
-export function avviker(svar: Svar, s: Standpunkt[]): boolean | null {
-  const frosset = svar.beslutningsgrunnlag?.standpunkter;
-  return frosset ? ulikeVirkninger(frosset, s) : null;
 }
 
 /**

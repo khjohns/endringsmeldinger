@@ -6,6 +6,10 @@
  *   TypeScript, Node og bevis-sakene i `docs/domenetabell/`.
  * - Ingen regel når visningen eller bufferen, direkte eller gjennom en annen
  *   modul. Visningen regner status og etiketter; bufferen lagrer visningen.
+ * - Ingen regel leser en status eller en verdi som oppsummerer et spor eller
+ *   saken (#308, «Kontrakten først, aldri status» i AGENTS.md). Navnene og
+ *   strengene i reglene leses med parseren; et navn som `avsluttet`,
+ *   `oppgjort`, `grunnlagLaast` eller en statuskode gir feil.
  *
  * Importene leses med TypeScript-parseren, ikke med et tekstsøk, så `import`,
  * `import type`, `export … from`, `import()` og `require()` teller likt, med og
@@ -27,6 +31,25 @@ const VISNING = [join(KJERNE, 'visning.ts'), join(KJERNE, 'buffer.ts')];
 /** Pakker og filer utenfor kjernen testene kan bruke. */
 const TESTPAKKER = new Set(['vitest', 'typescript']);
 const TESTFILER = join(ROT, 'docs', 'domenetabell') + sep;
+
+/** Navn og strenger en regel ikke kan bruke: statusen, etikettene og oppsummeringene. */
+const OPPSUMMERING = /status|etikett|oppgjort|avsluttet|laast|lukket|omforent/i;
+
+/** Navnene og strengene i `kilde` som ser ut som en status eller en oppsummering. Kommentarer teller ikke. */
+export function statuslesing(kilde: string): string[] {
+  const fil = ts.createSourceFile('regel.ts', kilde, ts.ScriptTarget.ES2022, true);
+  const funnet: string[] = [];
+  const besok = (n: ts.Node) => {
+    if (
+      (ts.isIdentifier(n) || ts.isStringLiteral(n) || ts.isNoSubstitutionTemplateLiteral(n)) &&
+      OPPSUMMERING.test(n.text)
+    )
+      funnet.push(n.text);
+    ts.forEachChild(n, besok);
+  };
+  besok(fil);
+  return funnet;
+}
 
 const utenEndelse = (sti: string) => sti.replace(/\.(ts|js|mjs|cjs)$/, '');
 
@@ -171,5 +194,30 @@ describe('INV-MM-9: reglene leser ikke visningen', () => {
     expect(forbudteStier(regel, filer, VISNING)).toEqual([
       'kjerne/forutsetninger → kjerne/mellom → kjerne/visning',
     ]);
+  });
+});
+
+describe('reglene leser ingen status eller oppsummering (#308)', () => {
+  it.each(regler.map((m) => [relative(KJERNE, m), m] as const))('%s', (_navn, modul) => {
+    expect(statuslesing(readFileSync(modul, 'utf8'))).toEqual([]);
+  });
+
+  // Forsøket står i minnet her; feilinnføringen F15 prøver det samme i selve fila.
+  it.each([
+    ['if (u.avsluttet) return null;'],
+    ["if (u['oppgjort']) return null;"],
+    ['const { status } = beregn(u);'],
+    ['if (u.grunnlagLaast) return null;'],
+    ["if (kode === 'avsluttet_oppgjort') return null;"],
+    ['const lukket = u.spor.grunnlag.trukket;'],
+  ])('oppdager %s', (linje) => {
+    const regel = join(KJERNE, 'forutsetninger.ts');
+    expect(
+      statuslesing(`${readFileSync(regel, 'utf8')}\nfunction f(u: any) { ${linje} }`)
+    ).not.toEqual([]);
+  });
+
+  it('teller ikke kommentarer', () => {
+    expect(statuslesing('// Saken er avsluttet når status er oppgjort.\nconst x = 1;')).toEqual([]);
   });
 });
