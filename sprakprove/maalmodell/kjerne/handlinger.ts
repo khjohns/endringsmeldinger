@@ -5,6 +5,7 @@
  */
 
 import { nokkel } from './forutsetninger.ts';
+import { uavklart } from './standpunkt.ts';
 import type { Utledning } from './utled.ts';
 import { SPOR, type Part } from './typer.ts';
 
@@ -36,7 +37,7 @@ function sporhandlinger(u: Utledning, part: Part): string[] {
         svar &&
         !ikkeTilAksept &&
         svar.avvik === false &&
-        !svar.standpunkter.some((p) => p.virkning === 'uavklart')
+        !uavklart(svar.standpunkter)
       )
         ut.push(nokkel({ type: 'godta', spor }));
       if (!s.trukket && s.gjeldendeKrav) ut.push(nokkel({ type: 'trekke', spor }));

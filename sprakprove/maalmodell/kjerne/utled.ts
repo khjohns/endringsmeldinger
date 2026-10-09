@@ -135,6 +135,21 @@ function ikkeErstattet(svar: Svar[], kravId: string): Svar[] {
   return paaKravet.filter((s) => !erstattet.has(s.id));
 }
 
+/**
+ * Hvorfor svarene på vederlag og frist er subsidiære til grunnlagssvaret: etter
+ * enigheten når TE har godtatt det (MM-U3), `uavklart` når det avviker fra brevet
+ * og ikke er godtatt (MM-U5), ellers etter dagens utledning.
+ */
+function grunnerFraGrunnlaget(
+  svar: Svar,
+  naa: Standpunkt[],
+  frosset: Enighetsgrunnlag | null
+): Subsidiaergrunn[] {
+  if (frosset) return arsaker(frosset.standpunkter, svar);
+  if (avviker(svar, naa) === true) return ['uavklart'];
+  return arsaker(naa, svar);
+}
+
 function arsaker(s: Standpunkt[], svar: Svar): Subsidiaergrunn[] {
   const ut: Subsidiaergrunn[] = [];
   if (s.some((p) => p.art === 'rettidighet' && p.virkning === 'hovedgrunn')) ut.push('prekludert');
@@ -162,7 +177,11 @@ export function utled(journal: Domenehendelse[], regler: Regelsett): Utledning {
     const gjeldende = ikkeErstattet(g.svar, krav.id);
     if (gjeldende.length !== 1) return null;
     const st = standpunkter(gjeldende[0], { grunnlagskrav: krav }, regler);
-    return avviker(gjeldende[0], st) === true ? ['uavklart'] : arsaker(st, gjeldende[0]);
+    const aksept = aksepter.filter((a) => a.gjelder === gjeldende[0].id).at(-1);
+    const frosset = aksept
+      ? (aksept.enighetsgrunnlag ?? enighetsgrunnlag(gjeldende[0], 'aksept', st, regler))
+      : null;
+    return grunnerFraGrunnlaget(gjeldende[0], st, frosset);
   };
 
   for (const h of journal) {
@@ -327,13 +346,9 @@ export function utled(journal: Domenehendelse[], regler: Regelsett): Utledning {
       else if (grunnlagAvklart) virkning = 'virksom';
       spor[n].enighet = { ...e, virkning };
     }
-    const fraGrunnlaget: Subsidiaergrunn[] = eg
-      ? arsaker(eg.grunnlag.standpunkter, alleSvar.get(eg.grunnlag.svar)!)
-      : gAvviker
-        ? ['uavklart']
-        : gSvar
-          ? arsaker(gStandpunkter, gSvar)
-          : [];
+    const fraGrunnlaget = gSvar
+      ? grunnerFraGrunnlaget(gSvar, gStandpunkter, eg?.grunnlag ?? null)
+      : [];
     spor[n].subsidiaer = tilNyttSvar[n] ?? fraGrunnlaget;
   }
   const oppgjort = {

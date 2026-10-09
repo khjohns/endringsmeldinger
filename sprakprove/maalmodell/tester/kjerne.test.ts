@@ -10,6 +10,9 @@ import type { Hendelse } from '../../kjerne/typer.ts';
 import { handlinger } from '../kjerne/handlinger.ts';
 import { formfeil } from '../kjerne/kommando.ts';
 import { lesJournal } from '../kjerne/leser.ts';
+import { GJELDENDE_REGLER } from '../kjerne/regelsett.ts';
+import { ulikeVirkninger } from '../kjerne/standpunkt.ts';
+import type { Standpunkt } from '../kjerne/typer.ts';
 import { minnebane } from './bane.ts';
 import { bygg } from './baner.ts';
 
@@ -267,5 +270,95 @@ describe('aksept av et grunnlag byggherren har avklart, avvises (GR-U8, GR-U9)',
   it('kontrollsak: et avslag på grunnlaget kan godtas', async () => {
     const k = await bygg(minnebane(), ['krav_irreg', grunnlag('avslatt')]);
     expect((await k.prov({ handling: 'aksept', spor: 'grunnlag' })).godtatt).toBe(true);
+  });
+});
+
+describe('et uavklart standpunkt kan ikke fryses i et enighetsgrunnlag (MM-U1, MM-U3)', () => {
+  /** Et fristsvar fra en annen skriver, med preklusjon etter § 33.4 og et oppgitt beslutningsgrunnlag. */
+  async function medFristsvar(rettidighet: 'uavklart' | 'hovedgrunn', registrerVarsel: boolean) {
+    const bane = minnebane();
+    const k = await bygg(bane, [
+      'godkjent_grunnlag',
+      { handling: 'krav', spor: 'frist', dager: 20, navn: 'K-f1' },
+    ]);
+    const journal = await bane.journal();
+    const krav = k.navn.id('K-f1');
+    const id = randomUUID();
+    await bane.skriv(
+      [
+        {
+          ...journal.at(-1)!,
+          event_id: id,
+          event_type: 'respons_frist',
+          versjon: journal.at(-1)!.versjon + 1,
+          aktor_rolle: 'BH',
+          refererer_til_event_id: krav,
+          data: {
+            frist_varsel_ok: false,
+            spesifisert_krav_ok: true,
+            vilkar_oppfylt: true,
+            beregnings_resultat: 'avslatt',
+            godkjent_dager: 0,
+            subsidiaer_resultat: 'godkjent',
+            subsidiaer_godkjent_dager: 20,
+            frist_krav_id: krav,
+            beslutningsgrunnlag: {
+              regelversjon: GJELDENDE_REGLER.versjon,
+              linje: 'Oppgitt av en annen skriver.',
+              standpunkter: [
+                { utsagn: `${id}#rettidighet`, art: 'rettidighet', virkning: rettidighet },
+                { utsagn: `${id}#hindring`, art: 'hindring', virkning: 'uten_virkning' },
+                { utsagn: `${id}#dager`, art: 'dager', virkning: 'subsidiaer' },
+              ],
+            },
+          },
+        },
+      ],
+      journal.at(-1)!.versjon
+    );
+    if (registrerVarsel)
+      expect(
+        (await k.send({ handling: 'varsel', spor: 'frist', sendt: '2026-09-02' }))?.godtatt
+      ).toBe(true);
+    return k;
+  }
+
+  it('avviser aksepten når brevet stemmer, men preklusjonen er uavklart', async () => {
+    const k = await medFristsvar('uavklart', true);
+    const u = await k.utledning();
+    const svar = u.svar[u.spor.frist.gjeldendeSvar!.id];
+    if (svar.avvik !== false)
+      throw new Error('Forutsetning: brevet skal stemme med dagens utledning');
+    const aksept = await k.prov({ handling: 'aksept', spor: 'frist' });
+    expect(aksept.godtatt ? 'godtatt' : aksept.avvisning.regel).toBe('RESPONSE_UNRESOLVED');
+    expect(handlinger(u, 'TE')).not.toContain('godta:frist');
+  });
+
+  it('kontrollsak: uten registrert varsel er preklusjonen avklart, og aksepten godtas', async () => {
+    const k = await medFristsvar('hovedgrunn', false);
+    expect((await k.prov({ handling: 'aksept', spor: 'frist' })).godtatt).toBe(true);
+  });
+});
+
+describe('avvik regnes bare på standpunkter med virkning (MM-U4)', () => {
+  const p = (utsagn: string, virkning: Standpunkt['virkning']): Standpunkt => ({
+    utsagn,
+    art: 'rettidighet',
+    virkning,
+  });
+
+  it('et standpunkt uten virkning som mangler på den ene siden, er ikke et avvik', () => {
+    expect(
+      ulikeVirkninger([p('a', 'uten_virkning'), p('b', 'hovedgrunn')], [p('b', 'hovedgrunn')])
+    ).toBe(false);
+  });
+
+  it('kontrollsak: en annen virkning er et avvik', () => {
+    expect(
+      ulikeVirkninger(
+        [p('a', 'hovedgrunn'), p('b', 'subsidiaer')],
+        [p('a', 'uten_virkning'), p('b', 'hovedgrunn')]
+      )
+    ).toBe(true);
   });
 });
