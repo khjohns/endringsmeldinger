@@ -75,6 +75,12 @@ export function forutsetninger(h: Handlingsnoekkel, part: Part, u: Utledning): A
     case 'trekke':
       if (!s.gjeldendeKrav) return avvis('INGEN_KRAV', `Det er ikke sendt noe krav om ${h.spor}.`);
       if (s.trukket) return avvis('KRAV_TRUKKET', 'Kravet er allerede trukket.');
+      // KA-U13: godkjenningen er en endringsordre (§ 32.3 a) og binder TE (§ 31.3 annet ledd).
+      if (h.spor === 'grunnlag' && u.godkjenningErEndringsordre)
+        return avvis(
+          'GRUNNLAG_ER_ENDRINGSORDRE',
+          'Byggherren har godkjent grunnlaget, og godkjenningen er en endringsordre. Grunnlaget kan ikke trekkes.'
+        );
       return null;
     case 'varsle':
       if (!grunnlagSendt)

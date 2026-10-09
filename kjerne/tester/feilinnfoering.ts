@@ -1,7 +1,7 @@
 /**
  * Feilinnføringene for kjernen (#304, #308). F1–F7 er avsnitt 4 i modellforslaget,
  * F8–F10 feilklassene reviewet av PR #306 fant, skrevet om etter MM-U9 og
- * GR-U10, og F11–F22 grensene #308 la til. Én mutasjon om gangen i
+ * GR-U10, og F11–F24 grensene #308 la til. Én mutasjon om gangen i
  * arbeidskopien, Vitest over `kjerne/` og `sprakprove/kjernelagring/`, og
  * originalteksten settes tilbake etterpå. For hver mutasjon kreves det at de
  * forventede målassertions feiler, og at alle feil er assertions, ikke import,
@@ -76,10 +76,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse: 'et sendt brev vurderes på nytt med dagens regler (MM-U9)',
     fil: `${K}/utled.ts`,
     endringer: [
-      [
-        "import { enighetsgrunnlag, hovedgrunn, utsagnet } from './standpunkt.ts';",
-        "import { enighetsgrunnlag, hovedgrunn, standpunkter, utsagnet } from './standpunkt.ts';",
-      ],
+      ['  hovedgrunn,\n  utfall,\n', '  hovedgrunn,\n  standpunkter,\n  utfall,\n'],
       [
         '      standpunkter: s.beslutningsgrunnlag.standpunkter,',
         '      standpunkter: standpunkter(s, spor.grunnlag.krav.find((k) => k.id === s.gjelder) ?? spor.grunnlag.krav.at(-1), regler),',
@@ -145,7 +142,7 @@ const MUTASJONER: Mutasjon[] = [
     endringer: [['    if (hindring !== null)\n', '    if (hindring === undefined)\n']],
     mal: ['avslår prinsipalt, med dagene som subsidiært standpunkt'],
   },
-  // F11–F22 er grensene #308 la til.
+  // F11–F24 er grensene #308 la til.
   {
     id: 'F11',
     feilklasse: 'kjernen importerer fra språkprøven og pg',
@@ -266,6 +263,30 @@ const MUTASJONER: Mutasjon[] = [
       ],
     ],
     mal: ['registrert korrespondanse fryses med kategorien', 'F-MM-C'],
+  },
+  {
+    id: 'F23',
+    feilklasse: 'TE trekker grunnlaget etter at godkjenningen er en endringsordre (KA-U13)',
+    fil: `${K}/forutsetninger.ts`,
+    endringer: [
+      [
+        "if (h.spor === 'grunnlag' && u.godkjenningErEndringsordre)",
+        "if (h.spor === 'grunnlag' && u.godkjenningErEndringsordre && u.frafalt)",
+      ],
+    ],
+    mal: ['F-MM-G10'],
+  },
+  {
+    id: 'F24',
+    feilklasse: 'forbudet mot trekk gjelder også kategorier § 32.2 ikke gjelder for (KA-U13)',
+    fil: `${K}/utled.ts`,
+    endringer: [
+      [
+        '      gjelderVarslingsplikten(spor.grunnlag.gjeldendeKrav, regler),',
+        '      spor.grunnlag.gjeldendeKrav !== null,',
+      ],
+    ],
+    mal: ['F-MM-G13', 'F-MM-G14'],
   },
 ];
 

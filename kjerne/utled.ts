@@ -20,7 +20,13 @@
 import { utledetVarsel } from './leser.ts';
 import type { Regelsett } from './regler/regelsett.ts';
 import type { Subsidiaergrunn } from './regler/grunnlag.ts';
-import { enighetsgrunnlag, hovedgrunn, utsagnet } from './standpunkt.ts';
+import {
+  enighetsgrunnlag,
+  gjelderVarslingsplikten,
+  hovedgrunn,
+  utfall,
+  utsagnet,
+} from './standpunkt.ts';
 import {
   KRAVSPOR,
   SPOR,
@@ -94,6 +100,12 @@ export interface Utledning {
   grunnlagAvvist: boolean;
   /** GR-U3, GR-U9: byggherren har frafalt pålegget (§ 32.3 c). Er ikke en enighet. */
   frafalt: boolean;
+  /**
+   * KA-U13, GR-U10: byggherren har godkjent grunnlaget i en kategori § 32.2 gjelder
+   * for, så partene er enige ved sammenfall, og godkjenningen er en endringsordre
+   * etter § 32.3 første ledd a.
+   */
+  godkjenningErEndringsordre: boolean;
 }
 
 const tomtSpor = (): Sporutledning => ({
@@ -124,6 +136,7 @@ function tom(
     grunnlagAvklart: false,
     grunnlagAvvist: false,
     frafalt: false,
+    godkjenningErEndringsordre: false,
   };
 }
 
@@ -309,11 +322,17 @@ export function utled(journal: Domenehendelse[], regler: Regelsett): Utledning {
         })),
     })),
     spor,
-    // Etter brevet om grunnlaget, som også er innholdet i en enighet om det (KA-U10).
+    // Utledet av standpunktene i brevet om grunnlaget, som også er innholdet i en
+    // enighet om det (KA-U10, MM-U11).
     grunnlagAvklart:
-      !spor.grunnlag.trukket && gSvar?.beslutningsgrunnlag.utfall.grunnlag === 'avklart',
+      !spor.grunnlag.trukket &&
+      gBrev !== null &&
+      utfall(gBrev.svar, gBrev.standpunkter).grunnlag === 'avklart',
     grunnlagAvvist: eg?.grunnlag.utfall.grunnlag === 'avvist',
     // GR-U3, GR-U9: frafallet er byggherrens utsagn, uavhengig av hva TE har sagt.
+    godkjenningErEndringsordre:
+      eg?.grunnlag.kilde === 'sammenfall' &&
+      gjelderVarslingsplikten(spor.grunnlag.gjeldendeKrav, regler),
     frafalt:
       gBrev !== null &&
       hovedgrunn(gBrev.standpunkter)?.art === 'ansvar' &&

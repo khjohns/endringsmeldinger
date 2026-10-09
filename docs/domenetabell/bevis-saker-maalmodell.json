@@ -1667,7 +1667,7 @@
     },
     {
       "id": "F-MM-G10",
-      "rader": ["GR-27"],
+      "rader": ["GR-27", "GR-28"],
       "start": "krav_irreg",
       "forslag": "GR-U10: et grunnlag byggherren har godkjent uten å påberope preklusjon (#312)",
       "forventningsgrunnlag": "avklart_tolkning",
@@ -1692,7 +1692,7 @@
         {
           "etter": 1,
           "rolle": "mal",
-          "kilde": ["GR-U10", "GR-U7", "GR-U8"],
+          "kilde": ["GR-U10", "GR-U7", "GR-U8", "KA-U13", "MM-U11"],
           "forventet": {
             "enighet.grunnlag.kilde": "sammenfall",
             "enighet.grunnlag.holder": "S-g1",
@@ -1701,7 +1701,10 @@
             "frafalt": false,
             "visning.etiketter.grunnlag": { "inneholder": ["avklart", "enige"] },
             "handlinger.BH": { "inneholder": ["svare:vederlag", "svare:frist"], "mangler": ["revidere:grunnlag"] },
-            "handlinger.TE": { "inneholder": ["trekke:grunnlag"], "mangler": ["krav:grunnlag", "godta:grunnlag"] }
+            "handlinger.TE": {
+              "inneholder": ["trekke:vederlag"],
+              "mangler": ["krav:grunnlag", "godta:grunnlag", "trekke:grunnlag"]
+            }
           }
         },
         {
@@ -1717,6 +1720,20 @@
           "kilde": ["GR-U2", "GR-U10", "KA-U7"],
           "prov": { "handling": "krav", "spor": "grunnlag", "underkategori": "VALGRETT" },
           "forventet": { "avvist": true, "regel": "ENIGHET_I_SPORET" }
+        },
+        {
+          "etter": 0,
+          "rolle": "kontroll",
+          "kilde": ["KA-U6", "KA-U13"],
+          "prov": { "handling": "trekk", "spor": "grunnlag" },
+          "forventet": { "avvist": false }
+        },
+        {
+          "etter": 1,
+          "rolle": "mal",
+          "kilde": ["KA-U13", "GR-U10"],
+          "prov": { "handling": "trekk", "spor": "grunnlag" },
+          "forventet": { "avvist": true, "regel": "GRUNNLAG_ER_ENDRINGSORDRE" }
         }
       ]
     },
@@ -1920,6 +1937,66 @@
           "kilde": ["V-KRAVVERSJON"],
           "prov": { "handling": "krav", "spor": "frist", "dager": 1 },
           "forventet": { "avvist": false }
+        }
+      ]
+    },
+    {
+      "id": "F-MM-G13",
+      "rader": ["GR-28"],
+      "start": null,
+      "forslag": "KA-U13: trekket godtas når godkjenningen ikke er en endringsordre etter § 32.3 a (EO og kategorier utenfor ENDRING)",
+      "forventningsgrunnlag": "avklart_tolkning",
+      "steg": [
+        {
+          "handling": "krav",
+          "spor": "grunnlag",
+          "hovedkategori": "SVIKT",
+          "underkategori": "MEDVIRK",
+          "navn": "K-g1"
+        },
+        { "handling": "brev", "navn": "D2", "svar": [{ "spor": "grunnlag", "navn": "S-g1", "resultat": "godkjent" }] },
+        { "handling": "trekk", "spor": "grunnlag", "navn": "D3" }
+      ],
+      "kontroller": [
+        {
+          "etter": 2,
+          "rolle": "mal",
+          "kilde": ["GR-U10", "KA-U13"],
+          "forventet": {
+            "enighet.grunnlag.kilde": "sammenfall",
+            "handlinger.TE": { "inneholder": ["trekke:grunnlag"] }
+          }
+        },
+        {
+          "etter": 3,
+          "rolle": "mal",
+          "kilde": ["KA-U13", "KA-U6", "GR-U5"],
+          "forventet": { "avvist": false, "trukket.grunnlag": true, "visning.status": "avsluttet_trukket" }
+        }
+      ]
+    },
+    {
+      "id": "F-MM-G14",
+      "rader": ["GR-28"],
+      "start": "godkjent_grunnlag",
+      "forslag": "KA-U13: underkategorien EO er unntatt, så trekket godtas",
+      "forventningsgrunnlag": "avklart_tolkning",
+      "steg": [{ "handling": "trekk", "spor": "grunnlag", "navn": "D3" }],
+      "kontroller": [
+        {
+          "etter": 0,
+          "rolle": "mal",
+          "kilde": ["GR-U10", "KA-U13"],
+          "forventet": {
+            "enighet.grunnlag.kilde": "sammenfall",
+            "handlinger.TE": { "inneholder": ["trekke:grunnlag"] }
+          }
+        },
+        {
+          "etter": 1,
+          "rolle": "mal",
+          "kilde": ["KA-U13", "KA-U6", "GR-U5"],
+          "forventet": { "avvist": false, "trukket.grunnlag": true }
         }
       ]
     }

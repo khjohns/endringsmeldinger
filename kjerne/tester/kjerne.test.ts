@@ -112,7 +112,7 @@ type Data = Record<string, unknown>;
  * skrev dem.
  */
 describe('et svar uten et fullstendig brev, eller en aksept uten regelversjon, er ikke forstått (MM-U9, KA-U10, MM-U2)', () => {
-  type Brev = { standpunkter: Data[]; utfall?: Data } & Data;
+  type Brev = { standpunkter: Data[] } & Data;
   const brev = (d: Data) => d.beslutningsgrunnlag as Brev;
   it.each([
     ['et svar uten beslutningsgrunnlag', 'S-v2', (d: Data) => delete d.beslutningsgrunnlag],
@@ -130,18 +130,6 @@ describe('et svar uten et fullstendig brev, eller en aksept uten regelversjon, e
       'et svar der brevet ikke sier om det er sammenfall',
       'S-f1',
       (d: Data) => delete brev(d).sammenfall,
-    ],
-    ['et svar der brevet mangler utfallet', 'S-v2', (d: Data) => delete brev(d).utfall],
-    [
-      'et svar der utfallet gjelder et annet spor',
-      'S-v2',
-      (d: Data) => (brev(d).utfall = { dager: 20 }),
-    ],
-    ['et svar på vederlaget uten vilkår', 'S-v2', (d: Data) => delete brev(d).vilkaar],
-    [
-      'et svar på grunnlaget med vilkår',
-      'S-g1',
-      (d: Data) => (brev(d).vilkaar = 'grunnlag_avklart'),
     ],
     ['en aksept uten regelversjon', 'D6', (d: Data) => delete d.regelversjon],
     [
@@ -220,7 +208,6 @@ describe('registrert korrespondanse fryses med kategorien i en sak som ikke er f
       ['ansvar', 'subsidiaer'],
     ]);
     expect(brev.sammenfall).toBe(false);
-    expect(brev.utfall).toEqual({ grunnlag: 'avvist' });
   });
 });
 
@@ -311,8 +298,6 @@ describe('en vurdering kjernen ikke har et utsagn for, avvises', () => {
             { utsagn: `${id}#dager`, art: 'dager', virkning: 'hovedgrunn' },
           ],
           sammenfall: true,
-          utfall: { dager: 20 },
-          vilkaar: 'grunnlag_avklart',
         },
       },
     });

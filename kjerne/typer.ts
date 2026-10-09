@@ -117,8 +117,10 @@ export interface Standpunkt {
 }
 
 /**
- * Utledningen frosset da brevet ble sendt (2.2, MM-U9). Det er også innholdet i
- * en enighet om svaret (KA-U10).
+ * Utledningen frosset da brevet ble sendt (2.2, MM-U9, MM-U11): standpunktene med
+ * virkningen de hadde, og om svaret godkjenner hele kravet. Det er også
+ * innholdet i en enighet om svaret (KA-U10). Utfallet og vilkåret lagres ikke,
+ * men utledes av standpunktene.
  */
 export interface Beslutningsgrunnlag {
   regelversjon: number;
@@ -126,10 +128,6 @@ export interface Beslutningsgrunnlag {
   linje: string;
   /** Svaret godkjenner hele kravet, så partene er enige uten aksept (GR-U7, GR-U10). */
   sammenfall: boolean;
-  /** Det svaret gir i sporet, regnet av standpunktene da brevet ble sendt. */
-  utfall: Utfall;
-  /** Vilkåret for at en enighet om svaret får virkning (GR-U7). Ingen for grunnlaget. */
-  vilkaar?: 'grunnlag_avklart';
 }
 
 export interface Utfall {
@@ -139,8 +137,9 @@ export interface Utfall {
 }
 
 /**
- * Innholdet i en enighet: brevets beslutningsgrunnlag, med kilden. Det lagres
- * ikke, men leses fra brevet, så innholdet har ett hjem (KA-U10, MM-U3).
+ * Innholdet i en enighet: brevets standpunkter, med kilden, og utfallet og
+ * vilkåret utledet av dem. Det lagres ikke, men leses fra brevet, så innholdet
+ * har ett hjem (KA-U10, MM-U3, MM-U11).
  */
 export interface Enighetsgrunnlag {
   spor: Spor;

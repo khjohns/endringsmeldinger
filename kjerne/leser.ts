@@ -30,7 +30,6 @@ import type {
   Spor,
   Standpunkt,
   Svar,
-  Utfall,
   Utsagn,
   Virkning,
 } from './typer.ts';
@@ -181,7 +180,7 @@ function lesSvar(h: Journalrad, spor: Spor, dokument: string, stand: Lesestand):
     erstatter: tekst(data.original_respons_id),
     utsagn,
     utregning: data,
-    beslutningsgrunnlag: lesBeslutningsgrunnlag(data.beslutningsgrunnlag, spor, utsagn),
+    beslutningsgrunnlag: lesBeslutningsgrunnlag(data.beslutningsgrunnlag, utsagn),
   };
 }
 
@@ -217,33 +216,16 @@ function lesStandpunkter(v: unknown, utsagn: Utsagn[]): Standpunkt[] {
   });
 }
 
-/** Utfallet har feltet sporet gir, og ingen andre: avklart eller avvist, beløpet eller dagene. */
-function lesUtfall(v: unknown, spor: Spor): Utfall {
-  const o = objekt(v);
-  const felt = { grunnlag: 'grunnlag', vederlag: 'beloep', frist: 'dager' }[spor];
-  const verdi = o?.[felt];
-  const gyldig =
-    spor === 'grunnlag' ? verdi === 'avklart' || verdi === 'avvist' : tall(verdi) !== null;
-  if (!o || Object.keys(o).length !== 1 || !gyldig)
-    throw new Uforstaatt('beslutningsgrunnlaget har et ugyldig utfall');
-  return { [felt]: verdi } as Utfall;
-}
-
-function lesBeslutningsgrunnlag(v: unknown, spor: Spor, utsagn: Utsagn[]): Beslutningsgrunnlag {
+function lesBeslutningsgrunnlag(v: unknown, utsagn: Utsagn[]): Beslutningsgrunnlag {
   const o = objekt(v);
   if (!o) throw new Uforstaatt('svaret mangler beslutningsgrunnlag');
   if (typeof o.sammenfall !== 'boolean')
     throw new Uforstaatt('beslutningsgrunnlaget sier ikke om svaret godkjenner hele kravet');
-  // GR-U7: en enighet om vederlag eller frist har vilkåret at grunnlaget er avklart.
-  if (o.vilkaar !== (spor === 'grunnlag' ? undefined : 'grunnlag_avklart'))
-    throw new Uforstaatt('beslutningsgrunnlaget har et annet vilkår enn sporet');
   return {
     regelversjon: krev(tall(o.regelversjon), 'beslutningsgrunnlaget mangler regelversjon'),
     standpunkter: lesStandpunkter(o.standpunkter, utsagn),
     linje: krev(tekst(o.linje), 'beslutningsgrunnlaget mangler linjen i brevet'),
     sammenfall: o.sammenfall,
-    utfall: lesUtfall(o.utfall, spor),
-    ...(spor === 'grunnlag' ? {} : { vilkaar: 'grunnlag_avklart' as const }),
   };
 }
 
