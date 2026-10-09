@@ -77,10 +77,15 @@ issue. Oppdraget skal inneholde:
 - branchnavn (`claude/<kort-navn>-<issue>`);
 - hvilke filer de parallelle øktene arbeider i, og at de ikke skal røres;
 - avgjørelser oppdragsgiver allerede har tatt, ordrett;
-- at ingen følger økta: den stiller ikke spørsmål, velger det konservative
-  alternativet og fører valget under «Åpne spørsmål» i PR-beskrivelsen. Sier
-  oppdragsgiver at hen følger øktene, stiller økta spørsmålene samlet etter
-  kartleggingen og før implementeringen, ikke underveis;
+- at spørsmål bare oppdragsgiver kan avgjøre (NS 8407, tiltenkt atferd), sendes
+  samlet til `@parent` etter kartleggingen og før implementeringen, med
+  alternativer, belegg og en anbefaling, og at økta venter på svar. Den velger
+  ikke et domenevalg i stillhet. Tekniske valg innenfor oppgaven tar den selv
+  og fører i PR-en. Sier oppdragsgiver at ingen følger øktene, velger økta det
+  konservative alternativet og fører valget under «Åpne spørsmål», unntatt et
+  valg som blir en kontrakt: en regel i domenekjernen eller et lagret navn.
+  Det venter;
+- at økta ikke skriver i hovedplanen, med unntaket under «Spørsmål og vedtak»;
 - at funn utenfor oppdraget blir egne issues (regelen i `AGENTS.md`), og at
   økta løser et slikt funn i samme PR med `Closes #n` bare når rettingen er
   noen få linjer i en fil den allerede endrer. Alt annet venter til neste
@@ -107,6 +112,42 @@ issue. Oppdraget skal inneholde:
 `create_session` lar deg velge modell, ikke innsatsnivå. Vil oppdragsgiver ha
 et annet nivå, må det settes i økta i appen.
 
+## Spørsmål og vedtak
+
+Domenespørsmålene fra øktene går gjennom orkestratoren, ikke rett til
+oppdragsgiver.
+
+- **Samle før du spør.** Still spørsmålene fra øktene i ett kall med
+  spørsmålsverktøyet. Hvert spørsmål har alternativer, belegg i kontraktsteksten
+  eller vedtaket, en anbefaling og hva valget styrer. Kommer spørsmål fra flere
+  økter omtrent samtidig, vent på dem. En økt som venter, kan arbeide videre med
+  anbefalingen merket som foreslått.
+- **Kontroller belegget før du spør.** Sitater fra vedtak og NS 8407 skal være
+  ordrette. NS 8407-teksten ligger ikke i arbeidstreet. Hent den med
+  `git show 507e2254^:docs/NS_8407.md`, etter `git fetch --unshallow origin main`
+  i en grunn klone. Den legges ikke tilbake i repoet.
+- **Prøv hvert alternativ mot vedtakene i 3.1.** Et alternativ som strider mot
+  et vedtak, er enten feil eller et forslag om å oppheve vedtaket, og det skal
+  stå i alternativet.
+- **Passer svaret ikke på et alternativ, still et oppfølgingsspørsmål** med
+  lesningene du ser. Velg ikke selv.
+- **Send svaret ordrett** til hver økt det berører, også til økter som ikke
+  stilte spørsmålet.
+
+Vedtakene føres i hovedplanen. Arbeidsøktene skriver ikke der.
+
+- Svarene fra en spørsmålsrunde fører orkestratoren inn i én liten PR, med en ID
+  per vedtak og daterte merknader på radene de presiserer. Den merges før
+  arbeids-PR-ene, som viser til ID-ene. Da får parallelle PR-er ikke konflikt i
+  3.1.
+- Rører bare én PR i runden planen, kan den økta føre et vedtak den trenger, i
+  samme PR.
+- En vedtakstekst skrives ikke om etter merge. La en subagent kontrollere den
+  mot det valgte alternativet og mot vedtakene den presiserer før merge, også
+  når orkestratoren har skrevet den.
+- Merknaden om at et punkt i en arbeidspakke er levert, skriver orkestratoren i
+  en egen liten PR etter mergen.
+
 ## 3. Gjennomgang når øktene er ferdige
 
 Øktene melder fra når de er bedt om det (punkt 2). Sett i tillegg én sjekk med
@@ -125,10 +166,11 @@ Gjør dette for hver PR:
 2. Funn som ikke er meldt som issue, kontrolleres og meldes. Finnes det et
    issue for samme rotårsak, legg funnet som kommentar der. Et funn som økta
    har tilskrevet testmiljøet, sjekkes før det avskrives.
-3. Samle de åpne spørsmålene fra alle PR-ene og still dem til oppdragsgiver i
-   ett kall med spørsmålsverktøyet. Gi alternativer og en anbefaling.
-4. Før svarene inn som kommentar i PR-en eller issuet de gjelder. Ny oppfølging
-   blir et nytt issue.
+3. Samle de åpne spørsmålene fra alle PR-ene og still dem til oppdragsgiver
+   etter «Spørsmål og vedtak».
+4. Før svarene inn der de hører hjemme: vedtak i hovedplanen etter «Spørsmål og
+   vedtak», arbeidsvalg som kommentar i PR-en eller issuet. Ny oppfølging blir
+   et nytt issue.
 5. Kontroller CI på siste commit. Er den rød, la subagenten `ci-logg` finne
    første feilende steg, og send funnet til økta som eier PR-en.
 
