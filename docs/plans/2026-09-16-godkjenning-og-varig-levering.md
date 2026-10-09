@@ -1,14 +1,12 @@
 # Hovedplan: sikkerhet, dataintegritet og varig levering
 
 **Opprettet:** 2026-09-16. **Sist sluttredigert:** 2026-10-09, mot commit
-`bf80e30458d83bada847b9f37b9c4c0361d23d4a` (`main` med PR #306 og #307;
-planteksten er den samme som på `main` ved
-`5d067cc3268f433f6f11f91496eb87955d77ee86`).
+`5d067cc3268f433f6f11f91496eb87955d77ee86` (`main`).
 **Status:** Autoritativ plan og eneste løpende kilde til vedtak, rekkefølge og
 funnstatus. Appen er ikke i produksjon og har ingen reelle data.
 
 Teksten før sluttredigeringen 09.10 er bevart i Git:
-`git show bf80e304:docs/plans/2026-09-16-godkjenning-og-varig-levering.md`
+`git show 5d067cc3:docs/plans/2026-09-16-godkjenning-og-varig-levering.md`
 (blob `82d8b4e2fd28ea8d9a6c17755f28129e3e3b0dcc`). Den har endringsloggen fra
 22.09 til 09.10 i toppteksten, kolonnen «I dag» i 2.2, den tidligere
 rekkefølgen i 3.1 og radene og merknadene for de avgjorte beslutningene i 3.4.
@@ -238,7 +236,7 @@ eksplisitt oppheves.
 | B-13 «godkjent» bare når hele kravet er godkjent, til nærmeste krone eller dag. 99 %-terskelen utgår | 24.09, oppdragsgiver | Ikke bygget. Gjelder både vederlag og frist. **Merknad 2026-10-04:** bygget i backend og frontend (#63, #167) |
 | <a id="ka-u9"></a>KA-U9: byggherrens standpunkt om beløp er et beløp med fortegn som ikke kan være gunstigere for TE enn kravet. Det er «godkjent» når beløpene er like, og «delvis» når byggherrens beløp er mindre gunstig for TE. Regelen er den samme for tillegg og fradrag (§ 34.1.1 «partene», § 34.4 annet ledd). For et fradrag på −100 000 kr betyr «delvis» et større fradrag, for eksempel −150 000 kr | 09.10, oppdragsgiver etter lesning av NS 8407 § 5 og §§ 31–35 | Avgjør #189 |
 | B-13 preklusjon ut fra byggherrens egen vurdering (§ 33.4, § 34.1.2, § 34.1.3) trekkes av systemet: prinsipalt avslått, med subsidiært standpunkt | 24.09, oppdragsgiver | Som skjemaet gjør i dag, nå eid av backend |
-| B-13 frist uten fremdriftshindring (§ 33.1): dagene byggherren har vurdert, står som et videre subsidiært standpunkt i både brevet og hendelsen, også ved preklusjon etter § 33.4. Etter § 33.7 annet ledd tapes en innsigelse som ikke fremsettes i tide, og faller «ingen hindring», er dagene byggherrens eneste innsigelse mot omfanget | 05.10, oppdragsgiver | **Merknad 2026-10-05:** bygget (#211). `subsidiaer_resultat` og `subsidiaer_godkjent_dager` regnes av dagene uansett hindring; regelversjon 4 |
+| B-13 frist uten fremdriftshindring (§ 33.1): dagene byggherren har vurdert, står som et videre subsidiært standpunkt i både brevet og hendelsen, også ved preklusjon etter § 33.4. Etter § 33.7 annet ledd tapes en innsigelse som ikke fremsettes i tide, og faller «ingen hindring», er dagene byggherrens eneste innsigelse mot omfanget | 05.10, oppdragsgiver | **Merknad 2026-10-05:** bygget (#211). `subsidiaer_resultat` og `subsidiaer_godkjent_dager` regnes av dagene uansett hindring; regelversjon 4 **Merknad 2026-10-09:** henvisningen til § 33.7 annet ledd begrunner hvorfor dagene står i svaret. Om en innsigelse kom i tide, avgjør ikke appen ([VS-U2](#vs-u2)) |
 | <a id="ka-u4"></a>KA-U4: i byggherrens vurderinger av varsel og rettidighet betyr `true` i tide og `false` for sent. Et spørsmål byggherren ikke har vurdert, utelates i hendelsen og er `null` i tilstanden. Om spørsmålet gjelder kravet, utledes av kravet og lagres ikke. Modellen har ingen standardverdi for slike vurderinger | 08.10, oppdragsgiver | Ikke bygget for `spesifisert_krav_ok`, som lagres som `true` når feltet mangler (DT-03). Følger API-vedtaket 05.10. Gjelder en vurdering som mangler i et svar, ikke fravær av en innsigelse (U3 i [metodeprøven](../vedlegg/metodeprove-frist-2026-10-08/README.md)). **Merknad 2026-10-08:** bygget for `spesifisert_krav_ok` (#272, DT-03). Hendelser lagret før står med `true` |
 
 #### Aksept og enighet
@@ -665,6 +663,8 @@ Ved sluttredigeringen 09.10 er tabellen delt i domenefunnene og de øvrige,
 og overskriften, som tidligere var «Gemini-sporet 18.09», er endret. Ankeret
 er beholdt.
 
+<a id="python-feil-koe"></a>
+
 > **Merknad 2026-10-09: domenefeil i Python-koden for KOE-, EO- og
 > forseringssakene rettes ikke i Python** (oppdragsgiver). Etter B-17 bygges
 > TS-kjernen etter vedtakene i 3.1 og domenetabellen, ikke etter Python-koden.
@@ -821,7 +821,7 @@ DM ([1a](../gjennomforing-spor-m-1a-2026-09-29.md#2-funn),
 | MS-12 | Åpen | Prosjektkonfigurasjon inn i `projects`. Må ikke hindre frosset mål og konfigurasjonsversjon i F2 | — | F3 |
 | MS-13, MS-14 | Åpen, lav | BIM som hendelser; IFC-egenskaper fryses | — | F4 |
 | MS-15 | Åpen | `magic_links`, `user_groups`; `project_memberships` etter DB-05 | D 20.09 | F1 |
-| DM-01 | Avvist | Åtte kolonnekommentarer (`cached_*` i `sak_metadata`) finnes i basen, men ikke i migrasjonene. Kolonnesummen fanger det ikke. Rettes i en ny migrasjon når B-12 har avgjort hvor beskrivelser skal ligge. **Merknad 2026-10-09:** basen er Supabase-prosjektet, som ikke brukes i det videre arbeidet (merknaden til B-12). Kommentarene der rettes ikke; migrasjonene er kilden | K 29.09 | Spor M, fase 4 |
+| DM-01 | Lukket | Åtte kolonnekommentarer (`cached_*` i `sak_metadata`) finnes i basen, men ikke i migrasjonene. Kolonnesummen fanger det ikke. Rettes i en ny migrasjon når B-12 har avgjort hvor beskrivelser skal ligge. **Merknad 2026-10-09:** basen er Supabase-prosjektet, som ikke brukes i det videre arbeidet (merknaden til B-12). Kommentarene der rettes ikke; migrasjonene er kilden | K 29.09 | Spor M, fase 4 |
 | DM-03 | Åpen, lav | Migrasjonene legger inn et aktivt prosjekt `oslobygg`, og det er prosjektets eneste. Hver base bygget fra tom får det, også på en ny plattform (B-12) og for en annen virksomhet (P5). Ikke en fallback i koden. Om raden skal ut av migrasjonene, avhenger av hvordan en ny base settes opp | K 29.09 | Spor M, fase 4 |
 | DM-04 | Lukket | Ruteregistertesten så bare dekoratøren `route` (sju ruter deklarert med `.get`/`.post`/`.patch` var usynlige for den), godtok `require_magic_link` og `require_entra_auth` som autentisering, og kontrollerte ikke `require_project_access`. En ny rute uten autentisering ga grønn test. Ingen eksponert rute funnet. **Merknad 2026-09-29:** rettet i testen. Den leser alle rutedekoratørene med blueprintens `url_prefix` og sammenlikner med `app.url_map`. Bare `require_auth` teller som autentisering, og bare under rutedekoratøren. `require_project_access` kreves, med fem unntak i `UTEN_PROSJEKT`. `login`, `callback` og webhooken står i `OFFENTLIGE_RUTER` med begrunnelse; webhooken sto før som autentisert gjennom `limit_webhook`, som er en rate-begrensning. Ti mutasjoner, blant dem de to fra runden, gir rød test. `require_contract_role` kontrolleres ikke | K 29.09 | — |
 | DM-05 | Åpen, middels | Skjemaet for ny sak sender `sak_opprettet` som enkelthendelse til `POST /api/events`, men `require_project_access` godtar en sak uten metadata bare på `/api/events/batch`. Innsendingen gir 403 utenfor utviklingsmodus, så saker kan i dag bare opprettes fra Catenda. Oppdragsgiver 29.09: skjemaet skal virke (3.1). Tas batch-ruta i bruk, blir RV-10 aktuell. **Merknad 2026-10-09:** opprettelse av en KOE-sak er skriving i KOE-saken og hører til TS-stien (B-17); rettes ikke i Python (merknaden 09.10 i 4.2) | Streng `xfail`, K 29.09 | Spor M |
@@ -1540,13 +1540,14 @@ Kontrollgrunnlag og verktøygrenser står i
 [reviewnotatet](../review-oppfolging-arkitektur-2026-10-07.md#verifikasjon-og-grenser).
 
 **Endringene 08.10–09.10** før sluttredigeringen er listet i endringsloggen i
-toppteksten ved `bf80e304`. Belegget står i de daterte merknadene og radene de
+toppteksten ved `5d067cc3`. Belegget står i de daterte merknadene og radene de
 gjelder.
 
-**Sluttredigeringen 09.10** er dokumentarbeid mot `bf80e304`. Kilden for
+**Sluttredigeringen 09.10** er dokumentarbeid mot `5d067cc3`. Kilden for
 vedtakene er oppdragsgivers svar i samtalen 09.10, på spørsmål med
-alternativer. Ordlyden følger det valgte alternativet. Ingen kode, migrasjon,
-database eller issue er endret i redigeringen.
+alternativer. Ordlyden følger det valgte alternativet. Ingen kode, migrasjon
+eller database er endret. Milepælen for FK er opprettet, og issuene som
+vedtakene avgjør, lukkes av PR-en.
 
 - **Ført inn:** MM-U9, GR-U10, KA-U7–KA-U9, GR-U11, FO-U1, VS-U1 og VS-U2 som
   nye rader i 3.1. Daterte merknader til B-17 (endringsordre og forsering),
