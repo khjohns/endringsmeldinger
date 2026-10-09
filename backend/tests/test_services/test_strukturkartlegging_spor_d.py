@@ -332,7 +332,7 @@ def test_byggherren_kan_ikke_revidere_et_godtatt_svar():
 
 
 def test_frafall_med_godtatte_avslag_gir_ikke_ukjent():
-    """AGENTS.md: en status som mangler i rollupen, gir «UKJENT» på en sak som
+    """`.claude/rules/python-domene.md`: en status som mangler i rollupen, gir «UKJENT» på en sak som
     er oppgjort. Aksept av avslag gir AVSLATT_AKSEPTERT (hovedplanen 3.1,
     TFR-01). Vedtak 05.10 (3.1): frafall er avklart grunnlag, så saken er
     oppgjort og lukket."""
