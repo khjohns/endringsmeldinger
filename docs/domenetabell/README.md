@@ -26,9 +26,9 @@ EO-sakens livsløp (EO-10–EO-20) og KOE-tilknytningen (EO-21, EO-22, EO-24).
 flere rader, som ikke er skrevet om her. MM-U9 opphever MM-U4–MM-U6, som KA-23
 og KA-25 bygger på. KA-U7 endrer SK-02 for spor med enighet: en ny kravversjon
 avvises der. Det gjelder rader som bygger på at en ny kravversjon opphever en
-enighet, blant dem KA-03, KA-04 og KA-13. GR-U10 gjør «låst» til enighet.
-Radene og bevis-sakene skrives om i #308 og #309 og viser til da vedtakene slik
-de var før 09.10.
+enighet, blant dem KA-03, KA-04 og KA-13, og KA-05, fordi et godtatt avslag er
+en enighet. GR-U10 gjør «låst» til enighet. Radene og bevis-sakene skrives om i
+#308 og #309, og til da viser de til vedtakene slik de var før 09.10.
 
 | Fil | Innhold |
 | --- | --- |
