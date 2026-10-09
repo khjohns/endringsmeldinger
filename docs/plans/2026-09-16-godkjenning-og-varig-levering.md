@@ -564,10 +564,10 @@ stod i 3.4 før sluttredigeringen 09.10, er i Git (se toppteksten).
 > **Merknad 2026-10-09 til B-10: strategien for formatet TS skriver.** Gjelder
 > KOE-, EO- og forseringssakene etter B-17. Grunnlaget er
 > [designnotatet](../design-hendelsesformat-2026-10-09.md) (#273) og
-> oppdragsgivers svar 09.10 på de to domenespørsmålene der (avsnitt 8), som
-> føres som vedtak i 3.1.
+> oppdragsgivers svar 09.10 på de to domenespørsmålene der (avsnitt 8),
+> vedtatt som [MM-U10](#mm-u10) og [KA-U10](#ka-u10).
 > - Ett dokument fra én part er én rad (`dokument_registrert`) med krav, svar
->   og utsagn, også i flere spor. Et brev med flere svar lagres dermed samlet
+>   og utsagn, også i flere spor (MM-U10). Et brev med flere svar lagres dermed samlet
 >   eller ikke i det hele tatt.
 > - Hvert krav, svar, utsagn og hver opplysning har en ID satt av serveren.
 >   Relasjonene `gjelder` og `erstatter` er uttrykkelige og peker bakover i samme
@@ -575,7 +575,7 @@ stod i 3.4 før sluttredigeringen 09.10, er i Git (se toppteksten).
 >   Ingen leser går etter plassen i journalen.
 > - Beslutningsgrunnlaget fryses i hvert svar, med virkningen, sammenfallet,
 >   utfallet og vilkåret. Aksepten viser til svaret og regelversjonen og har
->   ingen kopi av innholdet.
+>   ingen kopi av innholdet (KA-U10).
 > - `data` har ingen `null` og ingen tomme verdier. Et felt formatet krever og
 >   som mangler, og et ukjent felt, gjør raden ikke forstått.
 > - Formatversjonen står i en egen kolonne `format` på hver rad TS skriver.

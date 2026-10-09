@@ -7,8 +7,8 @@ etter [#308](https://github.com/khjohns/endringsmeldinger/issues/308)
 Strategien er ført som merknad under B-10 i
 [hovedplanen](plans/2026-09-16-godkjenning-og-varig-levering.md#34-åpne-beslutninger).
 Oppdragsgiver svarte 09.10 på de to domenespørsmålene i avsnitt 8. Svarene
-føres som vedtak i 3.1 i hovedplanen i en egen PR, sammen med vedtakene fra
-#308.
+er ført som vedtakene [MM-U10](plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u10) og [KA-U10](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u10) i 3.1 i hovedplanen, i en
+egen PR (#323) sammen med vedtakene fra #308.
 
 Dokumentet skiller tre ting:
 - **Vedtatt**: et vedtak i hovedplanen, med ID og lenke.
@@ -35,7 +35,7 @@ fastsetter bare hvordan formatversjonen står i raden.
 - **Fryses i svaret.** Hvert svar har sitt beslutningsgrunnlag i
   dokumentraden, med virkningen hvert standpunkt hadde, utfallet og vilkåret.
   Enigheten gjelder svaret med den virkningen brevet hadde, også ved aksept
-  (svaret 09.10 på spørsmål 2). Aksepten viser bare til svaret og
+  (KA-U10). Aksepten viser bare til svaret og
   regelversjonen TE fikk se, og har ingen kopi.
 - **Ingen `null` og ingen tomme verdier i `data`.** Om et svar skapte enighet
   ved sammenfall, står som `true` eller `false`. Et felt som mangler, betyr
@@ -62,10 +62,10 @@ som oppsummerer et spor eller en sak.
 | [KA-U1](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u1) | Aksepten gjelder hele det konkrete svaret og viser til det |
 | [KA-U4](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u4) | En vurdering BH ikke har gjort, utelates i hendelsen. Ingen standardverdi |
 | [KA-U7](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u7) og [GR-U10](plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u10) | En enighet binder begge parter. En godkjenning av grunnlaget uten påberopt preklusjon er enighet ved sammenfall. Formatet må gjøre det mulig å se hvilket svar en enighet gjelder |
-| [B-03](plans/2026-09-16-godkjenning-og-varig-levering.md#sendte-brev-regelendring-og-saker-kjernen-ikke-forstår) | Brevet er det autoritative uttrykket for partens standpunkt. «Ett spor» utgår etter svaret 09.10 på spørsmål 1 (avsnitt 8) |
+| [B-03](plans/2026-09-16-godkjenning-og-varig-levering.md#sendte-brev-regelendring-og-saker-kjernen-ikke-forstår) | Brevet er det autoritative uttrykket for partens standpunkt. «Ett spor» utgår etter MM-U10 |
 | [Invariant 3](plans/2026-09-16-godkjenning-og-varig-levering.md#23-invarianter) og [FK](plans/2026-09-16-godkjenning-og-varig-levering.md#fk--koe--eo--og-forseringsdomenet-i-ts-b-17) | Et brev lagres med beslutningsgrunnlaget og leveringsintensjonen i samme transaksjon. Avbrudd før commit gir ingen endring |
 | API-vedtaket 05.10, gjengitt i [`kontrakt.json`](domenetabell/kontrakt.json) (`$defs.rad`) | Et felt uten verdi utelates i `data`, «aldri `null`» |
-| Svarene 09.10 på spørsmål 1 og 2 (avsnitt 8). Vedtaks-ID-ene settes når de føres i hovedplanen | Ett brev kan ha utsagn i flere spor. Enigheten gjelder svaret med virkningen i brevet, og aksepten lagrer svaret og regelversjonen |
+| [MM-U10](plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u10) og [KA-U10](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u10), svarene 09.10 på spørsmål 1 og 2 (avsnitt 8) | Ett brev kan ha utsagn i flere spor. Enigheten gjelder svaret med virkningen i brevet, og aksepten lagrer svaret og regelversjonen |
 | [Sikkerhetsinvariantene](../AGENTS.md#sikkerhetsinvarianter) | `event_id`, `tidsstempel` og aktørfeltene settes av serveren. En klientoppgitt relasjon utvider ikke tilgangen |
 
 Begrepene er de i [modellforslaget, 2.2–2.5](forslag-maalmodell-2026-10-09.md#22-byggeklossene):
@@ -141,7 +141,7 @@ versjonskonflikten.
 Et dokument har minst ett krav, ett svar eller ett utsagn. Et brev sendt i
 appen har ingen opplysning om sending: sendt er registrert.
 
-Etter svaret 09.10 på spørsmål 1 kan et dokument ha utsagn i flere spor. Et
+Etter MM-U10 kan et dokument ha utsagn i flere spor. Et
 brev fra godkjenningspakken med svar i tre spor er én rad med tre svar, hvert
 med sitt beslutningsgrunnlag. Hvordan brevet blir dokument i Catenda, er
 [#321](https://github.com/khjohns/endringsmeldinger/issues/321) og påvirker
@@ -153,8 +153,7 @@ viser til `event_id` (FK, invariant 3).
   være en garanti i lageret og ikke i formatet. Leseren må samle radene, og må
   avgjøre hva et dokument med bare noen av radene betyr. Forkastet, fordi
   én rad gjør det ugyldige tilfellet umulig å lagre.
-- *Ett spor per brev*, etter ordlyden i B-03. Forkastet av oppdragsgiver
-  09.10 (spørsmål 1).
+- *Ett spor per brev*, etter ordlyden i B-03. Forkastet i MM-U10.
 - *Én hendelsestype per dokumentart* (`svar_registrert`, `krav_registrert` og
   liknende). Et brev fra BH kan ha svar, innsigelser etter § 5 og en
   forespørsel samtidig ([MP-U5](plans/2026-09-16-godkjenning-og-varig-levering.md#mp-u5)),
@@ -222,7 +221,7 @@ steg 3 (`erstatter`), og forløp B2 (trekket viser til K-g1, F-MM-B2).
 
 ### 4.3 Hva som fryses
 
-**Avgjort av oppdragsgiver 09.10 (svaret på spørsmål 2).** Enigheten gjelder svaret med den
+**Vedtatt 09.10 ([KA-U10](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u10), svaret på spørsmål 2).** Enigheten gjelder svaret med den
 virkningen brevet hadde, slik beslutningsgrunnlaget fryser den. TE godtar det
 BH skrev. Aksepten lagrer hvilket svar den gjelder og regelversjonen TE fikk
 se. Innholdet leses fra beslutningsgrunnlaget, så det har ett hjem. MM-U3
@@ -243,7 +242,7 @@ svar uten beslutningsgrunnlag kan ikke lagres (MM-U9). Det har:
 | `vilkar` | For vederlag og frist: at grunnlaget er avklart (GR-U7). Utelatt for grunnlaget | Innholdet i en enighet fastsettes når den inngås (MM-U3) |
 
 Utfallet og vilkåret står i beslutningsgrunnlaget fordi brevet allerede har
-fryst dem da det ble sendt. Etter svaret på spørsmål 2 er dette også innholdet
+fryst dem da det ble sendt. Etter KA-U10 er dette også innholdet
 i en enighet. En aksept av et svar med et uavklart standpunkt avvises
 ([MM-U8](plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u8)), så
 aksepten kan ikke gjelde noe annet enn det brevet uttrykte.
@@ -262,8 +261,7 @@ lagres ingen virkning for enigheten og ingen status.
 
 **Alternativer:**
 - *Et eget enighetsgrunnlag i aksepten*, frosset med reglene da aksepten ble
-  registrert, slik målmodellen gjør. Forkastet av oppdragsgiver 09.10
-  (spørsmål 2).
+  registrert, slik målmodellen gjør. Forkastet i KA-U10.
 - *Et enighetsgrunnlag i hvert svar*, med `null` når svaret ikke skapte enighet.
   Det foreslo innspillet fra #308. Med `sammenfall` og `utfall` i
   beslutningsgrunnlaget ville det vært et andre hjem for det samme, og `null`
@@ -352,8 +350,8 @@ navnene inn der.
 | `vilkar_oppfylt` | Standpunkt med art `hindring`, `oppfylt` | § 33.1: «fremdriften hindres» |
 | `beregnings_resultat`, `total_godkjent_belop`, `godkjent_dager` og de subsidiære feltene | `utregning` i svaret (B-13). Feltene formes av #308 | B-13 |
 | `beslutningsgrunnlag` i hver svarhendelse | `beslutningsgrunnlag` i hvert svar i dokumentraden (4.3) | MM-U9 |
-| `enighetsgrunnlag` i svaret | `sammenfall`, `utfall` og `vilkar` i beslutningsgrunnlaget | GR-U7, GR-U10, svaret 09.10 på spørsmål 2 |
-| `enighetsgrunnlag` i aksepten | Utgår. Aksepten har `gjelder` og `regelversjon` | Svaret 09.10 på spørsmål 2 |
+| `enighetsgrunnlag` i svaret | `sammenfall`, `utfall` og `vilkar` i beslutningsgrunnlaget | GR-U7, GR-U10, KA-U10 |
+| `enighetsgrunnlag` i aksepten | Utgår. Aksepten har `gjelder` og `regelversjon` | KA-U10 |
 | `dokument_id` | `event_id` på dokumentraden | — |
 | `hendelsesformat` i `data` | Kolonnen `format` | — |
 
@@ -373,7 +371,7 @@ handlinger (`krav`, `brev`, `aksept`) og ikke hendelsesnavn, unntatt
 ### 4.6 Hva som lagres og hva som utledes
 
 **Foreslått,** etter [innspillet fra #308](https://github.com/khjohns/endringsmeldinger/issues/273#issuecomment-6087791850)
-og svaret 09.10 på spørsmål 2:
+og KA-U10:
 
 | Lagres | Utledes ved lesing |
 | --- | --- |
@@ -383,7 +381,7 @@ og svaret 09.10 på spørsmål 2:
 | Serverens utregning etter B-13 (`utregning`) og regelversjonen i hvert svar | Om en enighet er betinget, virksom eller uten virkning, av vilkåret, grunnlaget og trekkene (GR-U7, MM-U3) |
 | Beslutningsgrunnlaget i hvert svar, med virkningen, brevlinjen, sammenfallet, utfallet og vilkåret | Varselet utledet av et fristkrav når ikke noe varsel er registrert (MM-U1) |
 | Regelversjonen klienten regnet med, i aksepten | Dagens utledning av et sendt svar, som bare vises som merknad (MM-U9) |
-| | «Kravene er avgjort» (#308), trukket og oppgjort, status og etiketter |
+| | «Kravene er avgjort» ([KA-U11](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u11)), trukket og oppgjort, status og etiketter |
 | | Bufferen med de fire versjonene |
 
 Det kjernen leser, er lagret (DM-06). Ingen regel leser høyre kolonne, og
@@ -492,8 +490,8 @@ si det, og kravet hører til #310.
 ## 8. Spørsmål til oppdragsgiver og svarene 09.10
 
 Spørsmålene ble sendt gjennom orkestratoren 09.10, med alternativer, belegg og
-anbefaling. Oppdragsgiver svarte samme dag. Svarene føres som vedtak i 3.1 i
-hovedplanen i en egen PR, og ID-ene settes der.
+anbefaling. Oppdragsgiver svarte samme dag. Svarene er ført som vedtak i 3.1
+i hovedplanen i #323: spørsmål 1 som [MM-U10](plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u10), spørsmål 2 som [KA-U10](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u10).
 
 **Spørsmål 1: kan ett brev inneholde svar og andre utsagn i flere spor?**
 Alternativene var (a) ja, og «ett spor» i B-03 utgår; (b) B-03 etter
@@ -502,7 +500,7 @@ per brev fra TE. Belegg: § 5 første ledd krever skriftlighet, ikke ett skriv
 per krav. § 33.6.2 første ledd: en forespørsel «skal sendes per brev». MP-U5:
 flere innsigelser i ett brev. Anbefalt: (a).
 
-*Svar 09.10, (a):* «Et brev er fra én part og kan ha flere utsagn i flere spor.
+*Svar 09.10, (a), MM-U10:* «Et brev er fra én part og kan ha flere utsagn i flere spor.
 BH kan svare på grunnlag, vederlag og frist og ta med innsigelser etter § 5 og
 en forespørsel etter § 33.6.2. TE kan sende krav, varsel, aksept og trekk.
 Hvert svar gjelder én kravversjon, og en aksept gjelder ett svar (KA-U1).
@@ -525,7 +523,7 @@ en egen kopi i aksepten. Belegg: § 34.2.2 første ledd («akseptert et
 tilbud»), B-03 (brevet er det autoritative uttrykket), KA-U1, MM-U3 og MM-U9.
 Anbefalt: (a).
 
-*Svar 09.10, (a):* «Enigheten gjelder svaret med den virkningen brevet hadde
+*Svar 09.10, (a), KA-U10:* «Enigheten gjelder svaret med den virkningen brevet hadde
 (beslutningsgrunnlaget, n). TE godtar det BH skrev. Aksepten lagrer hvilket
 svar den gjelder og regelversjonen TE fikk se, og innholdet leses fra
 beslutningsgrunnlaget, så det har ett hjem. MM-U3 leses slik at innholdet er
