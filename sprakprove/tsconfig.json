@@ -1,16 +1,16 @@
 {
-  "compilerOptions": {
-    "target": "ES2022",
-    "module": "nodenext",
-    "moduleResolution": "nodenext",
-    "strict": true,
-    "noEmit": true,
-    "allowImportingTsExtensions": true,
-    "erasableSyntaxOnly": true,
-    "verbatimModuleSyntax": true,
-    "resolveJsonModule": true,
-    "skipLibCheck": true,
-    "types": ["node"]
-  },
-  "include": ["kjerne/**/*.ts", "nettleser/**/*.ts", "server/**/*.ts", "tester/**/*.ts"]
+	"compilerOptions": {
+		"target": "ES2022",
+		"module": "nodenext",
+		"moduleResolution": "nodenext",
+		"strict": true,
+		"noEmit": true,
+		"allowImportingTsExtensions": true,
+		"erasableSyntaxOnly": true,
+		"verbatimModuleSyntax": true,
+		"resolveJsonModule": true,
+		"skipLibCheck": true,
+		"types": ["node"]
+	},
+	"include": ["kjerne/**/*.ts", "nettleser/**/*.ts", "server/**/*.ts", "tester/**/*.ts"]
 }
