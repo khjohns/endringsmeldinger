@@ -105,6 +105,10 @@ jobs:
       - name: Kjør TS-serveren i språkprøven mot basen
         run: npx vitest run sprakprove/tester/server.test.ts sprakprove/tester/serverkorpus.test.ts
 
+      # Målmodellen (#304): forløp A–E, bufferen og regelendringen gjennom lageret.
+      - name: Kjør målmodellen i språkprøven mot basen
+        run: npx vitest run sprakprove/maalmodell/tester/lagring.test.ts sprakprove/maalmodell/tester/buffer.test.ts sprakprove/maalmodell/tester/regelendring.test.ts
+
   frontend:
     name: Frontend (vitest)
     runs-on: ubuntu-latest

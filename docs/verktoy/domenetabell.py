@@ -1,7 +1,8 @@
 """Kontroller domenetabellen i docs/domenetabell/ og skriv tabellen i README.md.
 
-Radene står i `regler.json`, bevis-sakene i `bevis-saker.json`. Tabellen i
-README.md lages herfra og rettes ikke for hånd. Kjøring fra repoets rot:
+Radene står i `regler.json`, bevis-sakene i `bevis-saker.json`. Bevis-sakene for
+målmodellen (#304) står i `bevis-saker-maalmodell.json` og kjøres bare mot
+`sprakprove/maalmodell/`. Tabellen i README.md lages herfra og rettes ikke for hånd. Kjøring fra repoets rot:
 
     python3 docs/verktoy/domenetabell.py          # kontroller; 1 ved feil eller utdatert tabell
     python3 docs/verktoy/domenetabell.py --skriv  # skriv tabellen på nytt
@@ -60,6 +61,11 @@ HANDLINGER = {
     "eo_tilknytning",
     "eo_frakobling",
 }
+# Handlingene i bevis-sakene for målmodellen. `regelendring` bytter regelsettet, og
+# `rad` er en hendelse fra en annen skriver; ingen av dem er en kommando.
+MAALMODELL_HANDLINGER = {"krav", "brev", "revisjon", "aksept", "trekk", "varsel", "bestridelse", "regelendring", "rad"}
+# Kilder en kontroll i målmodellen kan ha utenom regler.json: akseptkriteriet i issuet.
+MAALMODELL_KILDER = {"#304"}
 SAKSTYPER = {"standard", "endringsordre"}
 HOVED = "hoved"
 # Felt `korpus.py` leser uten standardverdi.
@@ -72,6 +78,10 @@ def les() -> tuple[dict, dict]:
     regler = json.loads((KATALOG / "regler.json").read_text(encoding="utf-8"))
     korpus = json.loads((KATALOG / "bevis-saker.json").read_text(encoding="utf-8"))
     return regler, korpus
+
+
+def les_maalmodell() -> dict:
+    return json.loads((KATALOG / "bevis-saker-maalmodell.json").read_text(encoding="utf-8"))
 
 
 def _avsnitt(plan: str, fra: str, til: str) -> str:
@@ -157,10 +167,10 @@ def _valider_saker(navn: str, forlop: dict) -> list[str]:
     return feil
 
 
-def _valider_forlop(regler: dict, korpus: dict, funntekst: str, vedtak: str) -> list[str]:
+def _valider_forlop(regler: dict, korpus: dict, funntekst: str, vedtak: str, maalmodell: set[str]) -> list[str]:
     feil, sett = [], set()
     rader = {r["id"]: r for r in regler["rader"]}
-    bevist = set()
+    bevist = set(maalmodell)
 
     def funnet(avvik):
         """Et avvik uten funn-ID er et vedtatt issue (#235); da er `funn` issuenummeret,
@@ -213,16 +223,64 @@ def _valider_forlop(regler: dict, korpus: dict, funntekst: str, vedtak: str) -> 
     return feil
 
 
-def valider(regler: dict, korpus: dict, plan: str | None = None) -> list[str]:
+def valider(regler: dict, korpus: dict, plan: str | None = None, maalmodell: dict | None = None) -> list[str]:
     plan = plan if plan is not None else HOVEDPLAN.read_text(encoding="utf-8")
-    if regler.get("formatversjon") != 1 or korpus.get("formatversjon") != 1:
+    maalmodell = maalmodell if maalmodell is not None else les_maalmodell()
+    if any(d.get("formatversjon") != 1 for d in (regler, korpus, maalmodell)):
         return ["formatversjonen er ikke 1"]
     funntekst = _avsnitt(plan, "## 4. Funnregister", "## 5. Arbeidspakker")
+    vedtak = _avsnitt(plan, "### 3.1 Vedtatte premisser", "### 3.2 ")
     return (
         _valider_kilder(regler, plan)
         + _valider_rader(regler)
-        + _valider_forlop(regler, korpus, funntekst, _avsnitt(plan, "### 3.1 Vedtatte premisser", "### 3.2 "))
+        + _valider_forlop(regler, korpus, funntekst, vedtak, _bevist(maalmodell))
+        + _valider_maalmodell(regler, korpus, maalmodell)
     )
+
+
+def _bevist(maalmodell: dict) -> set[str]:
+    return {r for forlop in maalmodell["forlop"] for r in forlop["rader"]}
+
+
+def _valider_maalmodell(regler: dict, korpus: dict, maal: dict) -> list[str]:
+    """Bevis-sakene for målmodellen: radene finnes, hver kontroll har en kilde, og
+    forventningsgrunnlaget er det svakeste blant radene, som i hovedkorpuset."""
+    feil = []
+    rader = {r["id"]: r for r in regler["rader"]}
+    kilder = {k["id"] for k in regler["kilder"]} | set(rader) | MAALMODELL_KILDER
+    sett = {f["id"] for f in korpus["forlop"]}
+    for forlop in maal["forlop"]:
+        navn = forlop["id"]
+        if navn in sett:
+            feil.append(f"{navn}: står to ganger")
+        sett.add(navn)
+        if forlop["start"] is not None and forlop["start"] not in maal["prefikser"]:
+            feil.append(f"{navn}: ukjent start {forlop['start']!r}")
+        ukjente = [r for r in forlop["rader"] if r not in rader]
+        if ukjente or not forlop["rader"]:
+            feil.append(f"{navn}: ukjente eller manglende rader {ukjente}")
+            continue
+        statuser = [rader[r]["tolkningsstatus"] for r in forlop["rader"]]
+        if all(s in STYRKE for s in statuser) and forlop.get("forventningsgrunnlag") != min(
+            statuser, key=STYRKE.__getitem__
+        ):
+            feil.append(f"{navn}: forventningsgrunnlaget samsvarer ikke med radenes tolkningsstatus")
+        handlinger = [s["handling"] for s in forlop["steg"]]
+        handlinger += [k["prov"]["handling"] for k in forlop["kontroller"] if "prov" in k]
+        feil += [f"{navn}: ukjent handling {h!r}" for h in handlinger if h not in MAALMODELL_HANDLINGER]
+        for k in forlop["kontroller"]:
+            if k["rolle"] not in ROLLER or not 0 <= k["etter"] <= len(forlop["steg"]):
+                feil.append(f"{navn}: ugyldig kontroll {k}")
+            if k["rolle"] == "kontroll" and "prov" not in k:
+                feil.append(f"{navn}: en kontrollsak har `prov`")
+            if not k.get("kilde"):
+                feil.append(f"{navn}: kontrollen etter steg {k['etter']} mangler kilde")
+            feil += [f"{navn}: ukjent kilde {q}" for q in k.get("kilde", []) if q not in kilder]
+        if not any(k["rolle"] == "mal" for k in forlop["kontroller"]):
+            feil.append(f"{navn}: mangler målkontroll")
+    for prefiks in maal["prefikser"].values():
+        feil += [f"prefiks: ukjent handling {h['handling']!r}" for h in prefiks if h["handling"] not in MAALMODELL_HANDLINGER]
+    return feil
 
 
 def _celle(tekst: str) -> str:
@@ -235,7 +293,8 @@ def _kilde(kilde: dict) -> str:
     return f"NS {kilde['punkt']}"
 
 
-def tabell(regler: dict, korpus: dict) -> str:
+def tabell(regler: dict, korpus: dict, maalmodell: dict | None = None) -> str:
+    maalmodell = maalmodell if maalmodell is not None else les_maalmodell()
     kilder = {k["id"]: k for k in regler["kilder"]}
     bevis, avvik = {}, {}
     for forlop in korpus["forlop"]:
@@ -243,6 +302,9 @@ def tabell(regler: dict, korpus: dict) -> str:
             bevis.setdefault(rad, []).append(forlop["id"])
             if forlop.get("kjent_avvik"):
                 avvik.setdefault(rad, set()).add(forlop["kjent_avvik"]["funn"])
+    for forlop in maalmodell["forlop"]:
+        for rad in forlop["rader"]:
+            bevis.setdefault(rad, []).append(f"{forlop['id']} (målmodellen)")
     for inv in korpus["invarianter"]:
         for a in inv["kjente_avvik"]:
             for forlop in korpus["forlop"]:
