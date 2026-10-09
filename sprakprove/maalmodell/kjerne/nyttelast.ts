@@ -5,13 +5,12 @@
  */
 
 import { UgyldigVurdering } from '../../kjerne/regler/feil.ts';
+import { avvis } from './forutsetninger.ts';
 import type { Kommando, Svarutkast } from './kommando.ts';
 import type { Regelsett } from './regelsett.ts';
 import { likeResultatfelt, regnUtSvar, SAMMENLIKNES } from './standpunkt.ts';
 import { forhandsvisAksept, type Utledning } from './utled.ts';
 import type { Avvisning } from './typer.ts';
-
-const avvis = (regel: string, melding: string): Avvisning => ({ regel, melding });
 
 /** Like som JSON, uavhengig av rekkefølgen på nøklene. */
 export function likeVerdier(a: unknown, b: unknown): boolean {

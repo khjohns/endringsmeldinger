@@ -190,6 +190,7 @@ function lesDokument(h: Hendelse, stand: Lesestand): Dokument {
     // Et varsel som står i kravet, er registrert første gang det kommer (MM-U1).
     const varsel = data.frist_varsel as Record<string, unknown> | undefined;
     if (spor === 'frist' && varsel && stand.fristvarsel === null) {
+      krev(tekst(varsel.dato_sendt), 'varselet i kravet mangler sendedato');
       const varselId = `${h.event_id}#varsel`;
       dokument.utsagn.push({
         id: varselId,
@@ -208,12 +209,16 @@ function lesDokument(h: Hendelse, stand: Lesestand): Dokument {
     return dokument;
   }
   if (type === 'te_aksepterer_respons') {
+    // Et tomt enighetsgrunnlag skriver ingen kjerne: et uavklart standpunkt kan ikke godtas.
+    if (data.enighetsgrunnlag === null)
+      throw new Uforstatt('aksepten har et tomt enighetsgrunnlag');
     dokument.utsagn.push({
       id: `${h.event_id}#aksept`,
       art: 'aksept',
       gjelder: krev(h.refererer_til_event_id, 'aksepten viser ikke til noe svar'),
       regelversjon: tall(data.regelversjon),
-      enighetsgrunnlag: (data.enighetsgrunnlag as Enighetsgrunnlag | undefined) ?? null,
+      // Uten feltet utledes enighetsgrunnlaget (2.5).
+      enighetsgrunnlag: data.enighetsgrunnlag as Enighetsgrunnlag | undefined,
     });
     return dokument;
   }
@@ -234,7 +239,11 @@ function lesDokument(h: Hendelse, stand: Lesestand): Dokument {
       hjemmel: '33.4',
       dokument: id,
     });
-    opplysning('sendt', data.sendt, data.sendt_oppgitt_av);
+    opplysning(
+      'sendt',
+      krev(tekst(data.sendt), 'varselet mangler sendedato'),
+      data.sendt_oppgitt_av
+    );
     opplysning('mottatt', data.mottatt, data.mottatt_oppgitt_av);
     stand.fristvarsel ??= varselId;
     return dokument;

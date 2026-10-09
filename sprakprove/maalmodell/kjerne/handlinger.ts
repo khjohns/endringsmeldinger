@@ -22,7 +22,8 @@ export function handlinger(u: Utledning, part: Part): string[] {
         !s.trukket &&
         s.gjeldendeSvar &&
         !alleredeEnige &&
-        u.svar[s.gjeldendeSvar.id].avvik !== true
+        u.svar[s.gjeldendeSvar.id].avvik !== true &&
+        !u.svar[s.gjeldendeSvar.id].standpunkter.some((p) => p.virkning === 'uavklart')
       )
         ut.push(nokkel({ type: 'godta', spor }));
       if (!s.trukket && s.gjeldendeKrav) ut.push(nokkel({ type: 'trekke', spor }));

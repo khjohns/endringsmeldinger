@@ -59,27 +59,23 @@ const SVARUTKAST = objekt(
 
 /** Feltnavnene er de dagens kravhendelser har, så kompatibilitetsleseren leser dem likt. */
 const KRAVINNHOLD: Record<Spor, Skjema> = {
-  grunnlag: {
-    type: 'object',
-    properties: { hovedkategori: { type: 'string' }, underkategori: { type: 'string' } },
-    required: ['hovedkategori', 'underkategori'],
-  },
-  vederlag: {
-    type: 'object',
-    properties: {
-      metode: { const: 'FASTPRIS_TILBUD' },
-      belop_direkte: { type: 'number', minimum: 0 },
+  grunnlag: objekt(
+    {
+      hovedkategori: { type: 'string' },
+      underkategori: { type: 'string' },
+      tittel: { type: 'string' },
+      beskrivelse: { type: 'string' },
     },
-    required: ['metode', 'belop_direkte'],
-  },
-  frist: {
-    type: 'object',
-    properties: {
-      varsel_type: { const: 'spesifisert' },
-      antall_dager: { type: 'integer', minimum: 0 },
-    },
-    required: ['varsel_type', 'antall_dager'],
-  },
+    ['hovedkategori', 'underkategori']
+  ),
+  vederlag: objekt(
+    { metode: { const: 'FASTPRIS_TILBUD' }, belop_direkte: { type: 'number', minimum: 0 } },
+    ['metode', 'belop_direkte']
+  ),
+  frist: objekt(
+    { varsel_type: { const: 'spesifisert' }, antall_dager: { type: 'integer', minimum: 0 } },
+    ['varsel_type', 'antall_dager']
+  ),
 };
 
 const SKJEMA: Record<Kommando['type'], Skjema> = {
@@ -139,6 +135,8 @@ export function formfeil(kommando: unknown): string[] {
   if (type === 'krav' && !feil.length) {
     const k = kommando as { spor: Spor; innhold: unknown };
     feil.push(...feilI(k.innhold, KRAVINNHOLD[k.spor], '$.innhold'));
+    if (k.spor !== 'frist' && 'varsel' in k)
+      feil.push('$.varsel: bare et fristkrav har varsel etter § 33.4');
   }
   if (type === 'brev' && !feil.length) {
     const spor = (kommando as { svar: Svarutkast[] }).svar.map((s) => s.spor);

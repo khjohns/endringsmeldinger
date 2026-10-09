@@ -271,7 +271,7 @@ export function utled(journal: Domenehendelse[], regler: Regelsett): Utledning {
       return {
         grunnlag: frosset ?? enighetsgrunnlag(g, 'aksept', svar[g.id].standpunkter, regler),
         holder: hendelseFor.get(aksept.id)!,
-        utledet: frosset === null,
+        utledet: frosset === undefined,
       };
     }
     if (g.enighetsgrunnlag) return { grunnlag: g.enighetsgrunnlag, holder: g.id, utledet: false };
