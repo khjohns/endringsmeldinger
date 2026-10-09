@@ -418,8 +418,11 @@ bare TS gir, er at nettleseren og serveren bruker samme implementasjon.
 
 **Status:** port 2 er gjennomført innen stoppgrensen. Kjøringene står i
 [PR #301](https://github.com/khjohns/endringsmeldinger/pull/301) med kontrollert
-commit. Anbefalingen nedenfor er ikke et vedtak. Språkvalget føres i
-hovedplanen først når oppdragsgiver har bestemt det.
+commit.
+
+**Merknad 2026-10-09:** Oppdragsgiver vedtok samme dag TS som retning for den
+delte domenekjernen, med avgrensningene i anbefalingen nedenfor. Vedtaket står
+i hovedplanen under B-14 (3.1).
 
 **Hva som ble bygget:**
 - **TS-serveren** i [`sprakprove/server/`](../sprakprove/server/): Node 22 med
