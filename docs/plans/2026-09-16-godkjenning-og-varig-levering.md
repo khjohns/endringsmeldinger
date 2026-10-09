@@ -1261,7 +1261,7 @@ uttrekkstidspunkt og hvem som hentet ut. Tidskilde (B-11). Bevarings- og
 sletteregler for filer, logger og backup (B-05). Uavhengig integritetsbevis
 vurdert ut fra trusselmodellen. Revisjon av fullmakts- og prosjektendringer.
 AR-04. Universell utforming: kravnivå avklart mot forskriften, advarslene
-rettet eller begrunnet, og `svelte-check` gater på a11y. RY-01 til RY-07, KR-13. BIM (DA-15, MS-13, MS-14) når det prioriteres.
+rettet eller begrunnet, og `svelte-check` gater på a11y. RY-01 til RY-07. BIM (DA-15, MS-13, MS-14) når det prioriteres.
 
 **Akseptkriterier:** en sak kan framlegges uten at appen kjører; manglende fil
 og ubekreftet levering framgår uttrykkelig; gjenoppretting utløser ikke blind

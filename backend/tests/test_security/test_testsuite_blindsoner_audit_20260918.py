@@ -293,7 +293,7 @@ def test_tst_05_endringsordre_svelger_catenda_brudd_uten_outbox():
 @pytest.mark.xfail(
     strict=True,
     raises=AssertionError,
-    reason="TST-06: JsonFileEventRepository mangler get_all_sak_ids; grensesnittavvik mot SupabaseEventRepository krasjer scripts",
+    reason="TST-06: JsonFileEventRepository mangler get_all_sak_ids; grensesnittavvik mot SupabaseEventRepository",
 )
 def test_tst_06_metodeavvik_og_driftsgap_mellom_json_csv_og_supabase_repos():
     """TST-06: Asymmetri mellom Json/CSV-repos (testmiljø) og Supabase-repos (prod).
