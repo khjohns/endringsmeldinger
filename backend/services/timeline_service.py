@@ -145,12 +145,6 @@ def _extract_vederlag_from_eo_data(vederlag: Any) -> tuple:
     return (oppgjorsform, kompensasjon_belop, fradrag_belop, er_estimat)
 
 
-def _underkategorier(underkategori: str | list[str] | None) -> set[str]:
-    if underkategori is None:
-        return set()
-    return {underkategori} if isinstance(underkategori, str) else set(underkategori)
-
-
 def _close_spor_for_reactive_eo(
     state: "SakState", data: Any, event: "EOUtstedtEvent"
 ) -> None:
@@ -168,6 +162,7 @@ def _close_spor_for_reactive_eo(
         data: EOUtstedtData from the event
         event: The EOUtstedtEvent (for legacy field fallback)
     """
+    state.lukket_ved_reaktiv_eo = True
     # Close grunnlag
     if state.grunnlag.status not in {SporStatus.IKKE_RELEVANT, SporStatus.TRUKKET}:
         state.grunnlag.status = SporStatus.LAAST
@@ -234,6 +229,10 @@ class TimelineService:
         # Prosesser hver event
         for event in ordered_events:
             state = self._apply_event(state, event)
+
+        # Avhenger av grunnlagssporet, så det regnes når hele journalen er lest.
+        for spor in (state.vederlag, state.frist):
+            spor.oppgjort = state._oppgjort(spor)
 
         # Oppdater metadata
         state.antall_events = len(ordered_events)
@@ -358,11 +357,11 @@ class TimelineService:
     def _handle_grunnlag(self, state: SakState, event: GrunnlagEvent) -> SakState:
         """Håndterer GRUNNLAG_OPPRETTET og GRUNNLAG_OPPDATERT"""
         grunnlag = state.grunnlag
+        # GR-U1: også med uendret underkategori. Et låst grunnlag avvises av NOT_LOCKED.
         if (
             event.event_type == EventType.GRUNNLAG_OPPDATERT
             and grunnlag.bh_resultat is not None
-            and _underkategorier(event.data.underkategori)
-            != _underkategorier(grunnlag.underkategori)
+            and grunnlag.status != SporStatus.TRUKKET
         ):
             self._svaret_faller_bort(state)
 
@@ -406,7 +405,7 @@ class TimelineService:
 
     @staticmethod
     def _svaret_faller_bort(state: SakState) -> None:
-        """Ny underkategori krever nytt BH-svar (B-13, vedtak 05.10, #215)."""
+        """En ny kravversjon av grunnlaget krever nytt BH-svar (vedtak 05.10, #215, GR-U1)."""
         grunnlag = state.grunnlag
         for spor in (state.vederlag, state.frist):
             if spor.bh_resultat is not None:
@@ -415,7 +414,6 @@ class TimelineService:
         grunnlag.bh_begrunnelse = None
         grunnlag.grunnlag_varslet_i_tide = None
         grunnlag.laast = False
-        grunnlag.te_akseptert = False
         grunnlag.respons_event_id = None
         grunnlag.status = SporStatus.SENDT
 
@@ -587,12 +585,8 @@ class TimelineService:
             vederlag.antall_versjoner = 1
         else:  # OPPDATERT
             vederlag.antall_versjoner += 1
-            # Hvis det var avslått/under forhandling og TE oppdaterer
-            if vederlag.status in {
-                SporStatus.AVSLATT,
-                SporStatus.UNDER_FORHANDLING,
-                SporStatus.DELVIS_GODKJENT,
-            }:
+            # SK-02: en ny kravversjon venter på svar. Svaret og aksepten gjelder forrige versjon.
+            if vederlag.status != SporStatus.TRUKKET:
                 vederlag.status = SporStatus.SENDT
 
         vederlag.krav_event_id = event.event_id
@@ -661,11 +655,8 @@ class TimelineService:
             frist.antall_versjoner = 1
         else:  # OPPDATERT
             frist.antall_versjoner += 1
-            if frist.status in {
-                SporStatus.AVSLATT,
-                SporStatus.UNDER_FORHANDLING,
-                SporStatus.DELVIS_GODKJENT,
-            }:
+            # SK-02: en ny kravversjon venter på svar. Svaret og aksepten gjelder forrige versjon.
+            if frist.status != SporStatus.TRUKKET:
                 frist.status = SporStatus.SENDT
 
         if frist.foresporsel_venter_svar and frist.krevd_dager is not None:
@@ -1331,21 +1322,27 @@ class TimelineService:
         BHs verdier (godkjent_belop/godkjent_dager) beholdes som avtalt.
         """
         spor = event.spor
+        tilstand = getattr(state, spor.value)
+        # En aksept lagret før #272 viser ikke til noe svar; den gjaldt svaret som var gjeldende.
+        tilstand.akseptert_respons_event_id = (
+            event.refererer_til_event_id or tilstand.gjeldende_respons_event_id
+        )
 
         if spor == SporType.GRUNNLAG:
-            state.grunnlag.te_akseptert = True
-            state.grunnlag.status = self._status_etter_aksept(state.grunnlag)
+            state.grunnlag.status = (
+                SporStatus.AVSLATT_AKSEPTERT
+                if state._grunnlag_er_prekludert
+                else self._status_etter_aksept(state.grunnlag)
+            )
             state.grunnlag.siste_event_id = event.event_id
             state.grunnlag.siste_oppdatert = event.tidsstempel
 
         elif spor == SporType.VEDERLAG:
-            state.vederlag.te_akseptert = True
             state.vederlag.status = self._status_etter_aksept(state.vederlag)
             state.vederlag.siste_event_id = event.event_id
             state.vederlag.siste_oppdatert = event.tidsstempel
 
         elif spor == SporType.FRIST:
-            state.frist.te_akseptert = True
             state.frist.status = self._status_etter_aksept(state.frist)
             state.frist.siste_event_id = event.event_id
             state.frist.siste_oppdatert = event.tidsstempel

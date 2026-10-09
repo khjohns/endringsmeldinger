@@ -945,6 +945,32 @@
       "tolkningsstatus": "avklart_tolkning"
     },
     {
+      "id": "GR-24",
+      "tilfelle": "Byggherren godkjenner hele fristkravet mens grunnlaget er avslått, og godkjenner senere grunnlaget.",
+      "forventet": "Det er enighet om dagene uten aksept, men kravet er ikke oppgjort før grunnlaget er avklart. Når grunnlaget godkjennes, er fristen oppgjort.",
+      "bh_standpunkt": "Avslått grunnlag. Fristen godkjent, subsidiært.",
+      "rettslig_virkning": "Standpunktene om dagene faller sammen. Ansvaret er omtvistet til grunnlaget godkjennes.",
+      "rettidighet": "—",
+      "tidsakse": "registrering",
+      "kilder": [
+        "GR-U7"
+      ],
+      "tolkningsstatus": "avklart_tolkning"
+    },
+    {
+      "id": "GR-25",
+      "tilfelle": "TE godtar et vederlagssvar som godkjenner hele kravet.",
+      "forventet": "Aksepten avvises, og journalen er uendret: partene er allerede enige.",
+      "bh_standpunkt": "Godkjent vederlag.",
+      "rettslig_virkning": "Enigheten finnes uten aksept. Om en slik aksept bør godtas uten virkning i stedet, er ikke avgjort.",
+      "rettidighet": "—",
+      "tidsakse": "registrering",
+      "kilder": [
+        "GR-U7"
+      ],
+      "tolkningsstatus": "arbeidshypotese"
+    },
+    {
       "id": "EO-01",
       "tilfelle": "Byggherren utsteder en endringsordre i en KOE-sak som er `OMFORENT` (`eo_utstedt` i KOE-saken).",
       "forventet": "Utstedelsen avvises, og journalen er uendret. Sporene står med de avtalte beløpene og dagene.",

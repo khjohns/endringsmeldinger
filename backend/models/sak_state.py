@@ -7,6 +7,7 @@ Den beregnes fra event-loggen og representerer "nå-situasjonen".
 SakState er READ-ONLY og regenereres hver gang fra events.
 """
 
+from dataclasses import asdict
 from datetime import datetime
 from enum import Enum
 from typing import Literal
@@ -22,9 +23,10 @@ from models.events import (
     VederlagBeregningResultat,
 )
 from regler.grunnlag import (
-    er_grunnlag_subsidiaert,
+    Standpunkt,
     er_prekludert,
     forste_underkategori,
+    standpunkt,
 )
 
 # ============ SAKSTYPE OG RELASJONER ============
@@ -88,6 +90,19 @@ class SendtKonsekvensVarsel(BaseModel):
 class _SvarPaaKrav(BaseModel):
     """Felles for sporene som har krav og svar."""
 
+    akseptert_respons_event_id: str | None = Field(
+        default=None,
+        description="Svaret TE har godtatt. Aksepten gjelder dette svaret og ingen andre (M2, KA-U1)",
+    )
+
+    @computed_field
+    @property
+    def te_akseptert(self) -> bool:
+        """TE har godtatt gjeldende svar. En ny kravversjon eller et nytt svar
+        gjør aksepten til historikk (SK-02, SK-03)."""
+        gjeldende = self.gjeldende_respons_event_id
+        return gjeldende is not None and self.akseptert_respons_event_id == gjeldende
+
     @computed_field
     @property
     def gjeldende_respons_event_id(self) -> str | None:
@@ -99,6 +114,27 @@ class _SvarPaaKrav(BaseModel):
         ):
             return self.respons_event_id
         return None
+
+
+class _Kravspor(_SvarPaaKrav):
+    """Vederlag og frist: kravet er ett av sporets egne spørsmål."""
+
+    oppgjort: bool = Field(
+        default=False,
+        description=(
+            "Enighet i sporet og avklart grunnlag (GR-U7). Settes av projeksjonen når "
+            "hele journalen er lest, fordi verdien avhenger av grunnlagssporet"
+        ),
+    )
+
+    @computed_field
+    @property
+    def enighet(self) -> bool:
+        """GR-U7: standpunktene i sporet faller sammen. TE har godtatt gjeldende
+        svar, eller svaret godkjenner hele kravet."""
+        if self.gjeldende_respons_event_id is None:
+            return False
+        return self.te_akseptert or getattr(self.bh_resultat, "value", self.bh_resultat) == "godkjent"
 
 
 class GrunnlagTilstand(_SvarPaaKrav):
@@ -139,11 +175,6 @@ class GrunnlagTilstand(_SvarPaaKrav):
         description="Hvilken versjon av kravet BH sist responderte på (0-indeksert)",
     )
 
-    # TE aksept av BH respons
-    te_akseptert: bool = Field(
-        default=False,
-        description="True hvis TE har akseptert BHs respons (partene er enige)",
-    )
 
     # Tilbaketrekking
     trukket_begrunnelse: str | None = Field(
@@ -159,8 +190,22 @@ class GrunnlagTilstand(_SvarPaaKrav):
     siste_oppdatert: datetime | None = Field(default=None)
     antall_versjoner: int = Field(default=0)
 
+    @computed_field
+    @property
+    def avklart(self) -> bool:
+        """GR-U7: byggherren har godkjent grunnlaget uten preklusjon etter § 32.2,
+        eller frafalt pålegget."""
+        if self.bh_resultat == GrunnlagResponsResultat.FRAFALT:
+            return True
+        # Trekker TE alle kravene, trekkes grunnlaget, også et godkjent (GR-U5).
+        if self.status == SporStatus.TRUKKET:
+            return False
+        return self.bh_resultat == GrunnlagResponsResultat.GODKJENT and not er_prekludert(
+            self.hovedkategori, forste_underkategori(self.underkategori), self.grunnlag_varslet_i_tide
+        )
 
-class VederlagTilstand(_SvarPaaKrav):
+
+class VederlagTilstand(_Kravspor):
     """
     Aggregert tilstand for vederlag-sporet.
 
@@ -316,11 +361,6 @@ class VederlagTilstand(_SvarPaaKrav):
         description="Hvilken versjon av kravet BH sist responderte på (0-indeksert)",
     )
 
-    # TE aksept av BH respons
-    te_akseptert: bool = Field(
-        default=False,
-        description="True hvis TE har akseptert BHs respons (partene er enige)",
-    )
 
     # Tilbaketrekking
     trukket_begrunnelse: str | None = Field(
@@ -703,7 +743,7 @@ class EndringsordreData(BaseModel):
         )
 
 
-class FristTilstand(_SvarPaaKrav):
+class FristTilstand(_Kravspor):
     """Aggregert tilstand for frist-sporet"""
 
     varsler: list[SendtKonsekvensVarsel] = Field(default_factory=list)
@@ -859,11 +899,6 @@ class FristTilstand(_SvarPaaKrav):
         description="Hvilken versjon av kravet BH sist responderte på (0-indeksert)",
     )
 
-    # TE aksept av BH respons
-    te_akseptert: bool = Field(
-        default=False,
-        description="True hvis TE har akseptert BHs respons (partene er enige)",
-    )
 
     # Tilbaketrekking
     trukket_begrunnelse: str | None = Field(
@@ -943,6 +978,13 @@ class SakState(BaseModel):
     )
 
     # Endringsordredata (kun for sakstype=ENDRINGSORDRE)
+    lukket_ved_reaktiv_eo: bool = Field(
+        default=False,
+        description=(
+            "En endringsordre er utstedt i KOE-saken og har lukket sporene uten svar og "
+            "aksept (DT-05; EO-U1 avviser den, men er ikke bygget)"
+        ),
+    )
     endringsordre_data: EndringsordreData | None = Field(
         default=None,
         description="Data for endringsordresak (kun når sakstype=ENDRINGSORDRE)",
@@ -1003,20 +1045,45 @@ class SakState(BaseModel):
             g.hovedkategori, forste_underkategori(g.underkategori), g.grunnlag_varslet_i_tide
         )
 
-    @property
-    def _grunnlag_er_subsidiaert(self) -> bool:
+    def _standpunkt(self, spor) -> Standpunkt:
         g = self.grunnlag
-        return er_grunnlag_subsidiaert(
-            g.bh_resultat, g.hovedkategori, g.underkategori, g.grunnlag_varslet_i_tide
+        return standpunkt(
+            g.bh_resultat,
+            g.hovedkategori,
+            g.underkategori,
+            g.grunnlag_varslet_i_tide,
+            spor.subsidiaert_til_nytt_svar,
         )
+
+    def _oppgjort(self, spor) -> bool:
+        """GR-U7, KA-U5: enighet i sporet og avklart grunnlag."""
+        return spor.enighet and self.grunnlag.avklart
+
+    def _ferdig(self, spor) -> bool:
+        """Sporet hindrer ikke enighet om saken: oppgjort eller trukket (EO-U2)."""
+        return (
+            spor.status == SporStatus.TRUKKET or self.lukket_ved_reaktiv_eo or self._oppgjort(spor)
+        )
+
+    @property
+    def _grunnlag_avklart(self) -> bool:
+        return self.grunnlag.avklart or self.lukket_ved_reaktiv_eo
 
     def _subsidiaer_grunn(self, spor) -> str | None:
         """Hvorfor sporets svar er subsidiært: «avslatt», «prekludert» eller None."""
-        if spor.subsidiaert_til_nytt_svar is not None:
-            return spor.subsidiaert_til_nytt_svar
-        if not self._grunnlag_er_subsidiaert:
-            return None
-        return "prekludert" if self._grunnlag_er_prekludert else "avslatt"
+        return self._standpunkt(spor).hovedgrunn
+
+    @computed_field
+    @property
+    def standpunkt_vederlag(self) -> dict:
+        """M1: om svaret på vederlaget er subsidiært, hovedgrunnen og årsakene."""
+        return asdict(self._standpunkt(self.vederlag))
+
+    @computed_field
+    @property
+    def standpunkt_frist(self) -> dict:
+        """M1: om svaret på fristen er subsidiært, hovedgrunnen og årsakene."""
+        return asdict(self._standpunkt(self.frist))
 
     @computed_field
     @property
@@ -1245,19 +1312,19 @@ class SakState(BaseModel):
         if self.grunnlag.status == SporStatus.AVSLATT_AKSEPTERT:
             return "LUKKET_AVSLATT"
 
-        # UTKAST betyr «kan fortsatt sendes» og skal hindre OMFORENT.
+        # GR-U7: omforent når grunnlaget er avklart og hvert sendt krav er
+        # oppgjort. Et spor TE fortsatt kan sende, hindrer (EO-U2).
         ferdig_statuser = {
             SporStatus.GODKJENT,
             SporStatus.LAAST,
             SporStatus.TRUKKET,
             SporStatus.AVSLATT_AKSEPTERT,
         }
-        if all(s in ferdig_statuser for s in aktive_statuser):
-            # Minst ett spor må være godkjent (ikke bare trukket)
-            if any(
-                s in {SporStatus.GODKJENT, SporStatus.LAAST} for s in aktive_statuser
-            ):
-                return "OMFORENT"
+        if self._grunnlag_avklart and all(
+            spor.status == SporStatus.IKKE_RELEVANT or self._ferdig(spor)
+            for spor in (self.vederlag, self.frist)
+        ):
+            return "OMFORENT"
 
         # Sjekk om noen er TRUKKET
         if any(s == SporStatus.TRUKKET for s in aktive_statuser):
@@ -1298,7 +1365,7 @@ class SakState(BaseModel):
         if any(s == SporStatus.UTKAST for s in aktive_statuser):
             ferdig_eller_utkast = ferdig_statuser | {SporStatus.UTKAST}
             if all(s in ferdig_eller_utkast for s in aktive_statuser):
-                if self.grunnlag.status in {SporStatus.GODKJENT, SporStatus.LAAST}:
+                if self._grunnlag_avklart:
                     return "UNDER_BEHANDLING"
                 return "UTKAST"
 
@@ -1307,32 +1374,15 @@ class SakState(BaseModel):
     @computed_field
     @property
     def kan_utstede_eo(self) -> bool:
-        """
-        Sjekker om EO kan utstedes.
-
-        Krav: Alle aktive spor må være GODKJENT eller LAAST.
-        Grunnlag må være godkjent først.
-        """
-        if self.grunnlag.status == SporStatus.IKKE_RELEVANT:
+        """Saken kan inngå i en endringsordre: grunnlaget er godkjent og avklart,
+        og hvert sendt krav er oppgjort (GR-U7). Etter frafall går endringsordren
+        i en egen EO-sak (GR-U3). EO-U2 er ikke bygget (DT-06)."""
+        if not self._grunnlag_avklart or self.grunnlag.bh_resultat == GrunnlagResponsResultat.FRAFALT:
             return False
-
-        if self.grunnlag.status not in {SporStatus.GODKJENT, SporStatus.LAAST}:
-            return False
-
-        # Sjekk vederlag og frist hvis de er aktive
-        for spor in [self.vederlag, self.frist]:
-            # Skip tracks that are not relevant or never used (utkast = no claim submitted)
-            if spor.status in {SporStatus.IKKE_RELEVANT, SporStatus.UTKAST}:
-                continue
-            if spor.status not in {
-                SporStatus.GODKJENT,
-                SporStatus.LAAST,
-                SporStatus.TRUKKET,
-                SporStatus.AVSLATT_AKSEPTERT,
-            }:
-                return False
-
-        return True
+        return all(
+            spor.status in {SporStatus.IKKE_RELEVANT, SporStatus.UTKAST} or self._ferdig(spor)
+            for spor in (self.vederlag, self.frist)
+        )
 
     @computed_field
     @property

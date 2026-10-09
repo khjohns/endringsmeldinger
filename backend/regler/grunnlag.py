@@ -1,7 +1,8 @@
 """Byggherrens svar på ansvarsgrunnlaget, NS 8407 § 32.2 og § 32.3."""
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import date
+from typing import Literal
 
 from models.events import GrunnlagResponsResultat
 from regler import UgyldigVurdering
@@ -94,3 +95,37 @@ def kontroller_grunnlagssvar(
         feil["grunnlag_varslet_i_tide"] = "gjelder bare § 32.2"
     if feil:
         raise UgyldigVurdering(feil)
+
+
+Subsidiaergrunn = Literal["avslatt", "prekludert"]
+
+
+@dataclass(frozen=True)
+class Standpunkt:
+    """M1: om svaret på vederlag eller frist er subsidiært, og hvorfor."""
+
+    subsidiaert: bool
+    hovedgrunn: Subsidiaergrunn | None = None
+    arsaker: tuple[Subsidiaergrunn, ...] = field(default_factory=tuple)
+
+
+def standpunkt(
+    resultat: GrunnlagResponsResultat | str | None,
+    hovedkategori: str | None,
+    underkategori: str | list[str] | None,
+    varslet_i_tide: bool | None,
+    til_nytt_svar: Subsidiaergrunn | None = None,
+) -> Standpunkt:
+    """Preklusjonen er hovedgrunnen når begge gjelder (vedtaket 05.10 om avslag
+    sammen med § 32.2). Et svar som var subsidiært da grunnlagssvaret falt,
+    forblir det til sporet eller grunnlaget besvares igjen (`til_nytt_svar`).
+    Som `er_grunnlag_subsidiaert`: frafall er ikke avslag, men en § 32.2-preklusjon
+    gjelder også ved frafall (#235)."""
+    if til_nytt_svar is not None:
+        return Standpunkt(True, til_nytt_svar, (til_nytt_svar,))
+    arsaker: list[Subsidiaergrunn] = []
+    if er_prekludert(hovedkategori, forste_underkategori(underkategori), varslet_i_tide):
+        arsaker.append("prekludert")
+    if resultat == GrunnlagResponsResultat.AVSLATT:
+        arsaker.append("avslatt")
+    return Standpunkt(bool(arsaker), arsaker[0] if arsaker else None, tuple(arsaker))

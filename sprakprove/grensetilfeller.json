@@ -1,0 +1,73 @@
+{
+  "omfang": "Grensetilfeller for beløp, dager og fravær i flyten (#274, P1-4). Samme tabell kjøres mot backend/regler/ (pytest) og sprakprove/kjerne/ (Vitest). Kilden står per gruppe. Karakterisering betyr at forventningen fastholder Pythons Decimal-semantikk, som en port skal bevare (arkitekturforslaget, avsnitt 7); den er ikke en rettslig forventning. Negative beløp prøves bare aritmetisk; om et negativt krav er lovlig, er #189.",
+  "belop": {
+    "kilde": "karakterisering: regler.belop, Decimal(str(verdi)).quantize(0.01, ROUND_HALF_UP)",
+    "tilfeller": [
+      { "inn": 0.005, "ore": "1" },
+      { "inn": -0.005, "ore": "-1" },
+      { "inn": 1.005, "ore": "101" },
+      { "inn": 0.285, "ore": "29" },
+      { "inn": 2.675, "ore": "268" },
+      { "inn": 0.30000000000000004, "ore": "30", "merknad": "0.1 + 0.2" },
+      { "inn": 123456.785, "ore": "12345679" },
+      { "inn": -123456.785, "ore": "-12345679" },
+      { "inn": 1234567.8949999998, "ore": "123456789", "merknad": "speilet i src/lib/domain gir 1234567,90" },
+      { "inn": 10000000000000.006, "ore": "1000000000000001", "merknad": "speilet i src/lib/domain mister øre her" },
+      { "inn": 1e16, "ore": "1000000000000000000" },
+      { "inn": 1e21, "ore": "100000000000000000000000" },
+      { "inn": -0.0, "ore": "0" },
+      { "inn": 5e-324, "ore": "0" },
+      { "inn": 100000, "ore": "10000000" },
+      { "inn": "-0.5", "ore": "-50" }
+    ]
+  },
+  "til_krone": {
+    "kilde": "B-13 (24.09): «godkjent» bare når hele kravet er godkjent, til nærmeste krone; ROUND_HALF_UP",
+    "tilfeller": [
+      { "ore": "50", "krone": "1" },
+      { "ore": "-50", "krone": "-1" },
+      { "ore": "49", "krone": "0" },
+      { "ore": "-49", "krone": "0" },
+      { "ore": "9999950", "krone": "100000" },
+      { "ore": "9999949", "krone": "99999" }
+    ]
+  },
+  "vederlag": {
+    "kilde": "B-13 (24.09): godkjent til nærmeste krone, 99 %-terskelen utgår; vedtaket 04.10: 0 kr er avslått; regler/vederlag.py _kontroller",
+    "tilfeller": [
+      { "krevd": 100000, "vurdering": "godkjent", "resultat": "godkjent" },
+      { "krevd": 100000, "vurdering": "delvis", "godkjent": 99999.5, "resultat": "godkjent" },
+      { "krevd": 100000, "vurdering": "delvis", "godkjent": 99999.49, "resultat": "delvis_godkjent" },
+      { "krevd": 100000, "vurdering": "delvis", "godkjent": 99000, "resultat": "delvis_godkjent" },
+      { "krevd": 100000, "vurdering": "delvis", "godkjent": 0, "resultat": "avslatt" },
+      { "krevd": 100000, "vurdering": "delvis", "godkjent": 0.004, "resultat": "avslatt", "merknad": "0,004 kr er 0 øre" },
+      { "krevd": 100000, "vurdering": "delvis", "godkjent": 0.005, "resultat": "delvis_godkjent", "merknad": "0,005 kr er 1 øre" },
+      { "krevd": 100000, "vurdering": "avslatt", "resultat": "avslatt" },
+      { "krevd": 100000, "vurdering": "delvis", "godkjent": -1, "feil": "hovedkrav_godkjent_belop" },
+      { "krevd": 100000, "vurdering": "delvis", "godkjent": 100000.01, "feil": "hovedkrav_godkjent_belop" },
+      { "krevd": 100000, "vurdering": "delvis", "feil": "hovedkrav_godkjent_belop" },
+      { "krevd": 100000, "feil": "hovedkrav_vurdering" },
+      { "krevd": 100000, "vurdering": "godkjent", "aksepterer_metode": null, "feil": "aksepterer_metode" },
+      { "krevd": 100000, "vurdering": "godkjent", "aksepterer_metode": false, "resultat": "delvis_godkjent", "merknad": "metodeendring gir ikke godkjent" },
+      { "krevd": 100000.4, "vurdering": "delvis", "godkjent": 100000, "resultat": "godkjent" },
+      { "krevd": 100000.5, "vurdering": "delvis", "godkjent": 100000, "resultat": "delvis_godkjent" }
+    ]
+  },
+  "frist": {
+    "kilde": "B-13 (24.09): godkjent bare når hele kravet er godkjent; vedtaket 04.10: 0 dager er avslått; regler/frist.py kontroller (§ 33.5)",
+    "tilfeller": [
+      { "krevd": 20, "dager": 20, "resultat": "godkjent" },
+      { "krevd": 20, "dager": 19, "resultat": "delvis_godkjent" },
+      { "krevd": 20, "dager": 0, "resultat": "avslatt" },
+      { "krevd": 0, "dager": 0, "resultat": "godkjent" },
+      { "krevd": 20, "dager": 20, "hindring": false, "resultat": "avslatt", "subsidiaer_resultat": "godkjent" },
+      { "krevd": 20, "dager": 1.5, "feil": "godkjent_dager" },
+      { "krevd": 20, "dager": -1, "feil": "godkjent_dager" },
+      { "krevd": 20, "dager": 21, "feil": "godkjent_dager" },
+      { "krevd": 20, "dager": true, "feil": "godkjent_dager" },
+      { "krevd": 20, "dager": null, "feil": "godkjent_dager" },
+      { "krevd": 20, "dager": 20, "hindring": null, "feil": "vilkar_oppfylt" },
+      { "krevd": 20, "dager": 20, "spesifisering_i_tide": null, "feil": "spesifisert_krav_ok" }
+    ]
+  }
+}
