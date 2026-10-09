@@ -4,6 +4,10 @@ Dette dokumentet beskriver både målarkitekturen og avvik fra dagens kode, med
 `backend/scripts/test_full_flow.py` som utgangspunkt. Diagrammene skiller mellom
 Catenda Project API v2, OpenCDE/BCF API-et og appen sitt eget API.
 
+> **Merknad 2026-10-09:** `test_full_flow.py` er slettet (#162). Avsnitt 7 og
+> «Eksisterende test som må strammes inn» i avsnitt 10 beskriver skriptet slik
+> det var.
+
 > Viktig begrepsskille: Catenda bruker `project_id` om det ordinære
 > Catenda-prosjektet i v2-API-et. I BCF API-et heter et topic board også
 > `project` og identifiseres med et eget `project_id`. I dette dokumentet

@@ -26,8 +26,9 @@ async function prepareEconomy(page) {
   await page.locator('[contenteditable="true"]').fill('Kostnadsdokumentasjonen er kontrollert.');
   await page.getByRole('button', { name: 'Ferdigstill vurdering', exact: true }).click();
   await page.locator('.approval-view').waitFor();
-  assert.match(await page.locator('.decision').innerText(), /Prinsipalt avslått/);
-  assert.match(await page.locator('.decision').innerText(), /Subsidiært:/);
+  const beslutning = await page.locator('.decision').innerText();
+  assert.match(beslutning, /Prinsipalt avslått/);
+  assert.match(beslutning, /Subsidiært godkjent: [\d\s]+kr/);
 }
 const panel = (page) => page.locator('.approval-panel');
 const actAs = (page, id) => page.getByLabel('Demo · vis som').selectOption(id);

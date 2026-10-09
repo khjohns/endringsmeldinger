@@ -845,7 +845,7 @@ Kilder: [KR](../audit-korrekthet-2026-09-21.md),
 | --- | --- | --- | --- | --- |
 | KR-01, KR-02, KR-03, KR-05 til KR-12 | Lukket | `bab9679` og påfølgende indeksmigrasjoner | H 21.09 | — |
 | KR-04 | Åpen | `compute_state` gjør navneoppslag. → MG-01, AF-05 | L 22.09 | F2 |
-| KR-13 | Åpen, lav | Backfill-skriptet. Faller med RY-01 | H | F4 |
+| KR-13 | Lukket | Backfill-skriptet. Faller med RY-01. **Merknad 2026-10-09:** skriptet er slettet (#102), etter unntaket fra AF-06 i 3.2 | H | F4 |
 | KR-14 | Avvist | Anvendt migrasjon er uforanderlig | H | — |
 | KR-15 | Lukket | Samme sak som TST-02. Den ustabile strenge `xfail` er erstattet av en deterministisk reproduksjon (T-4), som ble XPASS da TST-02 ble rettet 22.09, og er gjort om til en ordinær test | H, K 22.09 | — |
 | MG-01 | Åpen | Navneoppslag i beregningslaget. Oppslaget bruker `has_app_context()`, så fravær av HTTP-forespørsel betyr ikke fravær av oppslag | L 22.09 | F2 |
@@ -1261,7 +1261,7 @@ uttrekkstidspunkt og hvem som hentet ut. Tidskilde (B-11). Bevarings- og
 sletteregler for filer, logger og backup (B-05). Uavhengig integritetsbevis
 vurdert ut fra trusselmodellen. Revisjon av fullmakts- og prosjektendringer.
 AR-04. Universell utforming: kravnivå avklart mot forskriften, advarslene
-rettet eller begrunnet, og `svelte-check` gater på a11y. RY-01 til RY-07, KR-13. BIM (DA-15, MS-13, MS-14) når det prioriteres.
+rettet eller begrunnet, og `svelte-check` gater på a11y. RY-01 til RY-07. BIM (DA-15, MS-13, MS-14) når det prioriteres.
 
 **Akseptkriterier:** en sak kan framlegges uten at appen kjører; manglende fil
 og ubekreftet levering framgår uttrykkelig; gjenoppretting utløser ikke blind
