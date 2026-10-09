@@ -1999,6 +1999,101 @@
           "forventet": { "avvist": false, "trukket.grunnlag": true }
         }
       ]
+    },
+    {
+      "id": "F-MM-G15",
+      "rader": ["GR-28"],
+      "start": "krav_samord",
+      "forslag": "KA-U13 og MM-U9: om godkjenningen er en endringsordre, avgjøres av brevet, ikke av regelsettet ved lesetid",
+      "forventningsgrunnlag": "avklart_tolkning",
+      "steg": [
+        {
+          "handling": "brev",
+          "navn": "D3",
+          "svar": [{ "spor": "grunnlag", "navn": "S-g1", "resultat": "godkjent", "varslet_i_tide": true }]
+        },
+        { "handling": "regelendring", "regelsett": "n+1" }
+      ],
+      "kontroller": [
+        {
+          "etter": 1,
+          "rolle": "mal",
+          "kilde": ["KA-U13", "GR-U10"],
+          "prov": { "handling": "trekk", "spor": "grunnlag" },
+          "forventet": { "avvist": true, "regel": "GRUNNLAG_ER_ENDRINGSORDRE" }
+        },
+        {
+          "etter": 2,
+          "rolle": "mal",
+          "kilde": ["MM-U9", "KA-U13", "GR-U11"],
+          "forventet": { "enighet.grunnlag.kilde": "sammenfall", "handlinger.TE": { "mangler": ["trekke:grunnlag"] } }
+        },
+        {
+          "etter": 2,
+          "rolle": "mal",
+          "kilde": ["MM-U9", "KA-U13", "GR-U11"],
+          "prov": { "handling": "trekk", "spor": "grunnlag" },
+          "forventet": { "avvist": true, "regel": "GRUNNLAG_ER_ENDRINGSORDRE" }
+        }
+      ]
+    },
+    {
+      "id": "F-MM-G16",
+      "rader": ["GR-28"],
+      "start": "krav_irreg",
+      "forslag": "KA-U13: etter avslag kan TE trekke grunnlaget i en kategori § 32.2 gjelder for",
+      "forventningsgrunnlag": "avklart_tolkning",
+      "steg": [
+        {
+          "handling": "brev",
+          "navn": "D4",
+          "svar": [{ "spor": "grunnlag", "navn": "S-g1", "resultat": "avslatt", "varslet_i_tide": true }]
+        },
+        { "handling": "trekk", "spor": "grunnlag", "navn": "D5" }
+      ],
+      "kontroller": [
+        {
+          "etter": 1,
+          "rolle": "mal",
+          "kilde": ["KA-U13", "GR-U5"],
+          "forventet": { "handlinger.TE": { "inneholder": ["trekke:grunnlag"] } }
+        },
+        {
+          "etter": 2,
+          "rolle": "mal",
+          "kilde": ["KA-U13", "KA-U6", "GR-U5"],
+          "forventet": { "avvist": false, "trukket.grunnlag": true }
+        }
+      ]
+    },
+    {
+      "id": "F-MM-G17",
+      "rader": ["GR-28"],
+      "start": "krav_irreg",
+      "forslag": "KA-U13: etter frafall kan TE trekke grunnlaget i en kategori § 32.2 gjelder for",
+      "forventningsgrunnlag": "avklart_tolkning",
+      "steg": [
+        {
+          "handling": "brev",
+          "navn": "D4",
+          "svar": [{ "spor": "grunnlag", "navn": "S-g1", "resultat": "frafalt", "varslet_i_tide": true }]
+        },
+        { "handling": "trekk", "spor": "grunnlag", "navn": "D5" }
+      ],
+      "kontroller": [
+        {
+          "etter": 1,
+          "rolle": "mal",
+          "kilde": ["KA-U13", "GR-U5", "GR-U9"],
+          "forventet": { "frafalt": true, "handlinger.TE": { "inneholder": ["trekke:grunnlag"] } }
+        },
+        {
+          "etter": 2,
+          "rolle": "mal",
+          "kilde": ["KA-U13", "KA-U6", "GR-U5"],
+          "forventet": { "avvist": false, "trukket.grunnlag": true }
+        }
+      ]
     }
   ],
   "genererte": {

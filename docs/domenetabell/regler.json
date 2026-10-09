@@ -1321,7 +1321,7 @@
     {
       "id": "GR-28",
       "tilfelle": "TE trekker grunnlaget etter at byggherren har godkjent det uten å påberope preklusjon.",
-      "forventet": "I en underkategori under ENDRING som § 32.2 gjelder for, avvises trekket, og journalen er uendret: godkjenningen er en endringsordre. For underkategorien EO og for kategorier utenfor ENDRING godtas trekket. Før byggherren har svart, og etter avslag eller frafall, kan TE trekke grunnlaget.",
+      "forventet": "I en underkategori under ENDRING som § 32.2 gjelder for, avvises trekket, og journalen er uendret: godkjenningen er en endringsordre. For underkategorien EO og for kategorier utenfor ENDRING godtas trekket. Før byggherren har svart, og etter avslag eller frafall, kan TE trekke grunnlaget. Om godkjenningen er en endringsordre, avgjøres av brevet: hvorvidt § 32.2 gjaldt da det ble skrevet, ikke regelsettet senere (MM-U9).",
       "bh_standpunkt": "Godkjent grunnlag.",
       "rettslig_virkning": "Etter § 32.3 a er godkjenningen en endringsordre, som binder TE (§ 31.3 annet ledd).",
       "rettidighet": "—",
@@ -1330,7 +1330,8 @@
         "KA-U13",
         "GR-U10",
         "GR-U11",
-        "KA-U6"
+        "KA-U6",
+        "MM-U9"
       ],
       "tolkningsstatus": "avklart_tolkning"
     },
