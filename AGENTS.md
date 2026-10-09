@@ -248,7 +248,9 @@ TypeScript, og en `DEFAULT` i databasen. Søk etter alle formene før du skriver
 - **En PR som fullfører et issue, har `Closes #n` i beskrivelsen.** Endrer PR-en
   funnstatus eller en beslutning, får hovedplanen en datert merknad i samme PR.
   Planen får én merknad når et punkt i en arbeidspakke er levert, ikke én per
-  PR; framdriften står i issuene.
+  PR; framdriften står i issuene. I en orkestrert runde fører orkestratoren
+  vedtakene og merknadene i egne små PR-er, slik
+  [orkestreringsskillen](.claude/skills/orkestrering/SKILL.md) sier.
 - **Skriv ikke arbeidsstatus i hovedplanen eller `docs/README.md`**: «neste
   oppgave», «pågår», «venter på», «merges etter #45». Det hører til i issuet.
 - **Oppfølging som ikke løses i samme PR, blir et issue.** Fra review og
