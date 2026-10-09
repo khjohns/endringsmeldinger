@@ -14,10 +14,13 @@ forklaring. Ingen gjennomføringsrapport eller handoff kreves for hver PR.
 
 ## Ett hjem per opplysning
 
-- `docs/datamodell/` beskriver tabeller, hendelser, relasjoner og dataflyt.
-  Rediger kilderegistrene/modellene og generer Markdown/Excel; ikke rett eksportene
-  for hånd. Kjør relevante vakttester. De kontrollerer struktur og samsvar, ikke
-  at all prosa eller juridisk beskrivelse er riktig; les berørt tekst selv.
+- `docs/datamodell/` beskriver tabeller, hendelser, relasjoner og dataflyt, og
+  `docs/domenetabell/` forventet atferd og bevis-saker. Rediger kilderegistrene,
+  modellene eller JSON-filene og generer Markdown/Excel med
+  `docs/verktoy/datamodell.py` og `docs/verktoy/domenetabell.py --skriv`; ikke
+  rett eksportene for hånd. Kjør relevante vakttester. De kontrollerer struktur
+  og samsvar, ikke at all prosa eller juridisk beskrivelse er riktig; les berørt
+  tekst selv.
 - Vedtatt forventet atferd og bevis-saker holdes atskilt fra beskrivelse av dagens
   kode. Oppdater den eksisterende domenetabellen når oppgaven har en; ikke lag
   en ordliste eller regelbeskrivelse ved siden av med samme innhold.
@@ -29,8 +32,9 @@ forklaring. Ingen gjennomføringsrapport eller handoff kreves for hver PR.
   Oppstart, migrering, gjenoppretting og drift beskrives som prøvbare oppskrifter.
   Gjenbruk eksisterende dokumenter; ikke opprett en ny systemoversikt per oppgave.
 - PR-en bærer endringsbegrunnelse, alternativer, review og kjørte testresultater.
-  Issues bærer arbeidsstatus og restanser. Kopier ikke dette til indeks eller
-  referansedokumenter. Historiske bevis i en audit beholder sin dato og commit.
+  Kopier ikke dette til indeks eller referansedokumenter; arbeidsstatus står i
+  issuene (`AGENTS.md`, «Hvor hva står»). Historiske bevis i en audit beholder
+  sin dato og commit.
 
 ## Form og vedlikehold
 
@@ -52,8 +56,8 @@ forklaring. Ingen gjennomføringsrapport eller handoff kreves for hver PR.
   som om de gjelder dagens kode. Vanlig framdrift føres bare i sitt autoritative
   hjem; alle gamle auditer skal ikke vedlikeholdes som dagens systembeskrivelse.
 - `docs/README.md` er en veiviser til gjeldende referanser og historisk underlag.
-  Nye indeksrader beskriver dokumentets formål, ikke testantall, åpne funn,
-  «neste oppgave» eller arbeidsstatus. Rydd slike gjentakelser når raden berøres.
+  Nye indeksrader beskriver dokumentets formål, ikke testantall eller åpne funn.
+  Rydd slike gjentakelser når raden berøres.
 - Behold eksisterende plassering og lenker. Daterte undersøkelser kan ligge flatt
   i `docs/`; `plans/`, `adr/` og `datamodell/` har egne formål. Ingen bred flytting
   av historikken bare for å få en ryddigere mappe.
