@@ -644,6 +644,78 @@
       "forventningsgrunnlag": "avklart_tolkning"
     },
     {
+      "id": "F-GR-19",
+      "rader": ["GR-19", "GR-20"],
+      "start": "krav_eo",
+      "steg": [
+        { "handling": "grunnlagssvar", "resultat": "avslatt" },
+        { "handling": "vederlagssvar", "vurdering": "delvis", "godkjent_belop": 60000 },
+        { "handling": "aksept", "spor": "vederlag" },
+        { "handling": "aksept", "spor": "grunnlag" }
+      ],
+      "kontroller": [
+        { "etter": 2, "rolle": "forutsetning", "forventet": { "er_subsidiaert_vederlag": true, "grunnlag.status": "avslatt" } },
+        { "etter": 3, "rolle": "mal", "forventet": { "avvist": false, "vederlag.te_akseptert": true, "vederlag.godkjent_belop": 60000, "overordnet_status": { "ikke": "OMFORENT" }, "kan_utstede_eo": false } },
+        { "etter": 4, "rolle": "mal", "forventet": { "avvist": false, "overordnet_status": "LUKKET_AVSLATT", "kan_utstede_eo": false } }
+      ],
+      "forventningsgrunnlag": "avklart_tolkning"
+    },
+    {
+      "id": "F-GR-21",
+      "rader": ["GR-21"],
+      "start": "krav_eo",
+      "steg": [
+        { "handling": "grunnlagssvar", "resultat": "avslatt" },
+        { "handling": "vederlagssvar", "vurdering": "delvis", "godkjent_belop": 60000 },
+        { "handling": "fristsvar", "varsel_i_tide": true, "spesifisering_i_tide": true, "hindring": true },
+        { "handling": "grunnlag_ny_versjon", "underkategori": "IRREG" },
+        { "handling": "aksept", "spor": "vederlag" },
+        { "handling": "grunnlagssvar", "resultat": "godkjent", "varslet_i_tide": true }
+      ],
+      "kontroller": [
+        { "etter": 4, "rolle": "forutsetning", "forventet": { "grunnlag.status": "sendt", "er_subsidiaert_vederlag": true } },
+        { "etter": 5, "rolle": "mal", "forventet": { "avvist": false, "vederlag.te_akseptert": true, "overordnet_status": { "ikke": "OMFORENT" } } },
+        { "etter": 6, "rolle": "mal", "forventet": { "er_subsidiaert_vederlag": false, "vederlag.godkjent_belop": 60000, "vederlag.te_akseptert": true, "overordnet_status": "OMFORENT", "kan_utstede_eo": true } }
+      ],
+      "forventningsgrunnlag": "avklart_tolkning"
+    },
+    {
+      "id": "F-GR-22",
+      "rader": ["GR-22"],
+      "start": "krav_eo",
+      "steg": [
+        { "handling": "vederlagssvar", "vurdering": "delvis", "godkjent_belop": 60000 },
+        { "handling": "aksept", "spor": "vederlag" },
+        { "handling": "fristsvar", "varsel_i_tide": true, "spesifisering_i_tide": true, "hindring": true },
+        { "handling": "grunnlagssvar", "resultat": "godkjent" }
+      ],
+      "kontroller": [
+        { "etter": 1, "rolle": "forutsetning", "forventet": { "grunnlag.status": "sendt" } },
+        { "etter": 3, "rolle": "mal", "forventet": { "vederlag.te_akseptert": true, "overordnet_status": { "ikke": "OMFORENT" } } },
+        { "etter": 4, "rolle": "mal", "forventet": { "vederlag.godkjent_belop": 60000, "vederlag.te_akseptert": true, "overordnet_status": "OMFORENT" } }
+      ],
+      "forventningsgrunnlag": "avklart_tolkning"
+    },
+    {
+      "id": "F-GR-23",
+      "rader": ["GR-23"],
+      "start": "krav_eo",
+      "steg": [
+        { "handling": "grunnlagssvar", "resultat": "avslatt" },
+        { "handling": "vederlagssvar", "vurdering": "delvis", "godkjent_belop": 60000 },
+        { "handling": "grunnlag_ny_versjon", "underkategori": "IRREG" },
+        { "handling": "aksept", "spor": "vederlag" },
+        { "handling": "vederlagssvar_revidert", "vurdering": "delvis", "godkjent_belop": 30000 }
+      ],
+      "kontroller": [
+        { "etter": 3, "rolle": "kontroll", "prov": { "handling": "vederlagssvar_revidert", "vurdering": "delvis", "godkjent_belop": 30000 }, "forventet": { "avvist": false } },
+        { "etter": 4, "rolle": "forutsetning", "forventet": { "vederlag.te_akseptert": true, "grunnlag.status": "sendt" } },
+        { "etter": 5, "rolle": "mal", "forventet": { "avvist": true, "vederlag.godkjent_belop": 60000 } }
+      ],
+      "forventningsgrunnlag": "avklart_tolkning",
+      "kjent_avvik": { "funn": "SK-03", "issue": 256 }
+    },
+    {
       "id": "F-EO-01",
       "rader": ["EO-01"],
       "start": "omforent",
