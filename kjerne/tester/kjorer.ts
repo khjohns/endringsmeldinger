@@ -121,8 +121,8 @@ export class Kjoring {
         aktor_id: this.bane.aktor('BH'),
         aktor_team_id: 'team-bh',
       });
-      // Registrert korrespondanse får brevet frosset som et svar fra kjernen (MM-U9). En rad
-      // kjernen ikke forstår, lagres som den er, så forløp E kan prøve at saken stopper.
+      // Registrert korrespondanse får brevet frosset som et svar fra kjernen (merknaden til
+      // MM-U9), også når relasjonene ikke henger sammen, så forløp E prøver relasjonene.
       frysBrev(journal, [rad], this.kjerne);
       await this.bane.skriv([rad], versjon);
       this.navn.sett(h.navn, rad.event_id);
