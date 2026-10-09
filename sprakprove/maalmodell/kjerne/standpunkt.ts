@@ -138,9 +138,7 @@ export function beslutningslinje(svar: Svar, s: Standpunkt[]): string {
     rettidighet: `prekludert (${hjemmel})`,
     hindring: 'avslått uten fremdriftshindring (§ 33.1)',
   };
-  const grunner = s.filter(
-    (p) => AVVISENDE.has(p.art) && (p.virkning === 'hovedgrunn' || p.virkning === 'subsidiaer')
-  );
+  const grunner = s.filter((p) => AVVISENDE.has(p.art) && p.virkning !== 'uten_virkning');
   let standpunkt: string;
   if (svar.spor === 'grunnlag') {
     standpunkt = { godkjent: 'godkjent', avslatt: 'avslått', frafalt: 'frafalt (§ 32.3 c)' }[
@@ -168,12 +166,23 @@ export function beslutningsgrunnlag(
   return { regelversjon: regler.versjon, standpunkter: s, linje: beslutningslinje(svar, s) };
 }
 
+/** Virkningen hvert utsagn har, utenom utsagn uten virkning. Et utsagn som mangler, er uten virkning. */
+function medVirkning(s: Standpunkt[]): Map<string, Standpunkt['virkning']> {
+  return new Map(
+    s.filter((p) => p.virkning !== 'uten_virkning').map((p) => [p.utsagn, p.virkning])
+  );
+}
+
+/** Et standpunkt har en annen virkning i `a` enn i `b`. */
+export function ulikeVirkninger(a: Standpunkt[], b: Standpunkt[]): boolean {
+  const [x, y] = [medVirkning(a), medVirkning(b)];
+  return x.size !== y.size || [...x].some(([utsagn, virkning]) => y.get(utsagn) !== virkning);
+}
+
 /** Brevet avviker fra dagens utledning: et standpunkt har fått en annen virkning (MM-U4). `null` uten lagret beslutningsgrunnlag. */
 export function avviker(svar: Svar, s: Standpunkt[]): boolean | null {
   const frosset = svar.beslutningsgrunnlag?.standpunkter;
-  if (!frosset) return null;
-  const na = new Map(s.map((p) => [p.utsagn, p.virkning]));
-  return frosset.length !== s.length || frosset.some((p) => na.get(p.utsagn) !== p.virkning);
+  return frosset ? ulikeVirkninger(frosset, s) : null;
 }
 
 /**
@@ -195,7 +204,7 @@ export function utenforProven(spor: Spor, v: Record<string, unknown>): string | 
       'produktivitet_varslet_i_tide',
     ])
       if (v[felt] === false) return `preklusjon etter § 34.1 (${felt}) er ikke i prøven`;
-    if (v.rigg_vurdering !== undefined || v.produktivitet_vurdering !== undefined)
+    if ((v.rigg_vurdering ?? null) !== null || (v.produktivitet_vurdering ?? null) !== null)
       return 'særskilte krav (§ 34.1.3) er ikke i prøven';
   }
   return null;

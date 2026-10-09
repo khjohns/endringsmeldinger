@@ -113,6 +113,12 @@ export function forutsetninger(h: Handlingsnokkel, part: Part, u: Utledning): Av
           'RESPONSE_DEVIATES',
           'Brevet avviker fra dagens utledning. Byggherren må svare på nytt.'
         );
+      // Et uavklart standpunkt kan ikke fryses i et enighetsgrunnlag (MM-U1, MM-U3).
+      if (u.svar[s.gjeldendeSvar.id].standpunkter.some((p) => p.virkning === 'uavklart'))
+        return avvis(
+          'RESPONSE_UNRESOLVED',
+          'Et standpunkt i svaret er uavklart. Byggherren må ta stilling først.'
+        );
       return null;
   }
 }

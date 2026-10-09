@@ -5,7 +5,8 @@
  */
 
 import type { Utledning } from './utled.ts';
-import { SPOR, type Spor, type Standpunkt } from './typer.ts';
+import { ulikeVirkninger } from './standpunkt.ts';
+import { SPOR, type Spor } from './typer.ts';
 
 export type Statuskode =
   | 'kan_ikke_utledes'
@@ -42,10 +43,6 @@ function status(u: Utledning): Statuskode {
     return 'venter_paa_svar';
   return 'under_forhandling';
 }
-
-const ulikeVirkninger = (a: Standpunkt[], b: Standpunkt[]) =>
-  a.length !== b.length ||
-  a.some((p, i) => p.utsagn !== b[i].utsagn || p.virkning !== b[i].virkning);
 
 function etiketter(u: Utledning, spor: Spor): string[] {
   const s = u.spor[spor];

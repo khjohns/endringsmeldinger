@@ -245,3 +245,27 @@ describe('en vurdering prøven ikke har et utsagn for, avvises', () => {
     expect(lesJournal([rad(true)], 1)[0].art).toBe('dokument');
   });
 });
+
+describe('aksept av et grunnlag byggherren har avklart, avvises foreløpig', () => {
+  const grunnlag = (resultat: string) => ({
+    handling: 'brev',
+    svar: [{ spor: 'grunnlag', resultat, varslet_i_tide: true }],
+  });
+
+  // GR-25 er en arbeidshypotese; frafall er ikke enighet, og om en aksept av det skal
+  // godtas, er ikke avgjort. Avvisningene holdes atskilt, så de kan avgjøres hver for seg.
+  it.each([
+    ['godkjent og låst (GR-U2, GR-25)', 'godkjent', 'NOT_ALREADY_ACCEPTED'],
+    ['frafalt (GR-U3)', 'frafalt', 'WAIVER_NOT_ACCEPTABLE'],
+  ])('%s', async (_hva, resultat, regel) => {
+    const k = await bygg(minnebane(), ['krav_irreg', grunnlag(resultat)]);
+    const u = await k.prov({ handling: 'aksept', spor: 'grunnlag' });
+    expect(u.godtatt ? 'godtatt' : u.avvisning.regel).toBe(regel);
+    expect(handlinger(await k.utledning(), 'TE')).not.toContain('godta:grunnlag');
+  });
+
+  it('kontrollsak: et avslag på grunnlaget kan godtas', async () => {
+    const k = await bygg(minnebane(), ['krav_irreg', grunnlag('avslatt')]);
+    expect((await k.prov({ handling: 'aksept', spor: 'grunnlag' })).godtatt).toBe(true);
+  });
+});
