@@ -38,9 +38,8 @@ export type Utsagn =
       id: string;
       art: 'aksept';
       gjelder: string;
-      /** Regelversjonen klienten forhåndsviste aksepten med (B-13). */
+      /** Regelversjonen TE fikk se (B-13, KA-U10). Innholdet står i brevet. */
       regelversjon: number;
-      enighetsgrunnlag: Enighetsgrunnlag;
     }
   | { id: string; art: 'bestridelse'; gjelder: string; hva: 'sendt' | 'mottatt' };
 
@@ -66,8 +65,6 @@ export interface Svar {
   utregning: Record<string, unknown>;
   /** Brevet slik det ble sendt. Virkningen leses herfra (MM-U9). */
   beslutningsgrunnlag: Beslutningsgrunnlag;
-  /** Enighetsgrunnlaget svaret skapte ved sammenfall (GR-U7, GR-U10), ellers `null`. */
-  enighetsgrunnlag: Enighetsgrunnlag | null;
 }
 
 export interface Dokument {
@@ -119,11 +116,20 @@ export interface Standpunkt {
   virkning: Virkning;
 }
 
-/** Utledningen frosset da brevet ble sendt (2.2, MM-U9). */
+/**
+ * Utledningen frosset da brevet ble sendt (2.2, MM-U9). Det er også innholdet i
+ * en enighet om svaret (KA-U10).
+ */
 export interface Beslutningsgrunnlag {
   regelversjon: number;
   standpunkter: Standpunkt[];
   linje: string;
+  /** Svaret godkjenner hele kravet, så partene er enige uten aksept (GR-U7, GR-U10). */
+  sammenfall: boolean;
+  /** Det svaret gir i sporet, regnet av standpunktene da brevet ble sendt. */
+  utfall: Utfall;
+  /** Vilkåret for at en enighet om svaret får virkning (GR-U7). Ingen for grunnlaget. */
+  vilkaar?: 'grunnlag_avklart';
 }
 
 export interface Utfall {
@@ -132,7 +138,10 @@ export interface Utfall {
   grunnlag?: 'avklart' | 'avvist';
 }
 
-/** Innholdet i en enighet, frosset der den oppstår (2.5, MM-U3). */
+/**
+ * Innholdet i en enighet: brevets beslutningsgrunnlag, med kilden. Det lagres
+ * ikke, men leses fra brevet, så innholdet har ett hjem (KA-U10, MM-U3).
+ */
 export interface Enighetsgrunnlag {
   spor: Spor;
   svar: string;

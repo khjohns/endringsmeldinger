@@ -11,14 +11,8 @@ import { avvisning } from './avvisning.ts';
 import { formfeil, type Kommando, type Svarutkast } from './kommando.ts';
 import { KRAVREFERANSE, lesJournal, SVARTYPER } from './leser.ts';
 import type { Kjerne } from './versjon.ts';
-import {
-  beslutningsgrunnlag,
-  enighetsgrunnlag,
-  godkjennerHeleKravet,
-  regnUtSvar,
-  standpunkter,
-} from './standpunkt.ts';
-import { forhaandsvisAksept, utled, type Utledning } from './utled.ts';
+import { beslutningsgrunnlag, regnUtSvar, standpunkter } from './standpunkt.ts';
+import { utled, type Utledning } from './utled.ts';
 import type { Avvisning, Krav, Part } from './typer.ts';
 
 /** Det serveren stempler kommandoen med. Klienten bestemmer ingen av dem. */
@@ -153,16 +147,8 @@ export function vurder(
       );
       break;
     case 'aksept':
-      // Enighetsgrunnlaget er det TE fikk se; nyttelastkontrollen har vist at det er serverens.
-      ny(
-        'te_aksepterer_respons',
-        {
-          spor: k.spor,
-          regelversjon: k.regelversjon,
-          enighetsgrunnlag: forhaandsvisAksept(u, k.svar),
-        },
-        k.svar
-      );
+      // KA-U10: aksepten viser til svaret og lagrer regelversjonen TE fikk se.
+      ny('te_aksepterer_respons', { spor: k.spor, regelversjon: k.regelversjon }, k.svar);
       break;
     case 'trekk':
       ny(TREKKTYPE[k.spor], { begrunnelse: 'Trukket' });
@@ -186,11 +172,10 @@ export function vurder(
 }
 
 /**
- * Fryser brevet i hvert svar blant `nye`: beslutningsgrunnlaget, og
- * enighetsgrunnlaget når svaret godkjenner hele kravet (GR-U7, GR-U10, MM-U9).
- * Gjelder også registrert korrespondanse (merknaden til MM-U9). Et svar
- * leseren ikke forstår, fryses ikke. `true` når kjernen forstår journalen
- * etterpå.
+ * Fryser brevet i hvert svar blant `nye`: beslutningsgrunnlaget, som også er
+ * innholdet i en enighet om svaret (MM-U9, KA-U10). Gjelder også registrert
+ * korrespondanse (merknaden til MM-U9). Et svar leseren ikke forstår, fryses
+ * ikke. `true` når kjernen forstår journalen etterpå.
  */
 export function frysBrev(journal: Journalrad[], nye: Journalrad[], kjerne: Kjerne): boolean {
   const svar = new Map(
@@ -208,12 +193,11 @@ export function frysBrev(journal: Journalrad[], nye: Journalrad[], kjerne: Kjern
         s.spor === 'grunnlag'
           ? grunnlagskrav.find((k) => k.id === s.gjelder)
           : grunnlagskrav.at(-1);
-      const st = standpunkter(s, krav, kjerne.regler);
-      const brev = beslutningsgrunnlag(s, st, kjerne.regler);
-      rad.data.beslutningsgrunnlag = brev;
-      rad.data.enighetsgrunnlag = godkjennerHeleKravet(s, st)
-        ? enighetsgrunnlag({ ...s, beslutningsgrunnlag: brev }, 'sammenfall')
-        : null;
+      rad.data.beslutningsgrunnlag = beslutningsgrunnlag(
+        s,
+        standpunkter(s, krav, kjerne.regler),
+        kjerne.regler
+      );
     }
   }
   return utledJournal(alle, kjerne).forstaatt;

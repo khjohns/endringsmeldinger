@@ -7,7 +7,6 @@
 
 import bevis from '../../docs/domenetabell/bevis-saker-maalmodell.json' with { type: 'json' };
 import { handlinger } from '../handlinger.ts';
-import { likeVerdier } from '../nyttelast.ts';
 import { GJELDENDE_REGLER, type Regelsett } from '../regler/regelsett.ts';
 import { KJERNE, type Kjerne } from '../versjon.ts';
 import { frysBrev, utledJournal, vurder, type Kontekst, type Utfall } from '../skriving.ts';
@@ -51,6 +50,21 @@ export const MAALMODELL = bevis as unknown as {
     handlinger: Handling[];
   };
 };
+
+/** Like som JSON, uavhengig av rekkefølgen på nøklene. */
+export function likeVerdier(a: unknown, b: unknown): boolean {
+  if (a === b) return true;
+  if (typeof a !== 'object' || typeof b !== 'object' || a === null || b === null) return false;
+  if (Array.isArray(a) !== Array.isArray(b)) return false;
+  const na = Object.keys(a).filter((k) => (a as Record<string, unknown>)[k] !== undefined);
+  const nb = Object.keys(b).filter((k) => (b as Record<string, unknown>)[k] !== undefined);
+  return (
+    na.length === nb.length &&
+    na.every((k) =>
+      likeVerdier((a as Record<string, unknown>)[k], (b as Record<string, unknown>)[k])
+    )
+  );
+}
 
 export class Forutsetning extends Error {}
 export type Paastand = (holder: boolean, melding: string) => void;

@@ -2,12 +2,13 @@
  * Leseren: journalradene i kjernens form. Lagringsformatet er ikke valgt
  * (B-10, #273), så leseren tar radene i formen `hendelse` har i dag, med
  * feltene kjernen legger til i `data` (`dokument_id`, `beslutningsgrunnlag`,
- * `enighetsgrunnlag`, `regelversjon` i aksepten og `hendelsesformat`) og de to
+ * `regelversjon` i aksepten og `hendelsesformat`) og de to
  * typene `frist_varsel_registrert` og `bestridelse_registrert`.
  *
  * Det er ingen kompatibilitetsleser for Python-radene (B-17). Det kjernen
- * leser, må være lagret (DM-06): et svar uten beslutningsgrunnlag eller uten
- * enighetsfeltet, og en aksept uten enighetsgrunnlag, er ikke forstått.
+ * leser, må være lagret (DM-06): et svar uten et fullstendig beslutningsgrunnlag
+ * og en aksept uten regelversjon er ikke forstått. En enighet har ikke noe eget
+ * grunnlag; innholdet står i brevet (KA-U10).
  *
  * Det dagens form lar være underforstått, gjør leseren uttrykkelig med
  * betydningen skriveren hadde da raden ble skrevet: en rettidighetsvurdering i
@@ -21,7 +22,6 @@ import type {
   Beslutningsgrunnlag,
   Dokument,
   Domenehendelse,
-  Enighetsgrunnlag,
   Journalrad,
   Krav,
   Opplysning,
@@ -29,6 +29,7 @@ import type {
   Spor,
   Standpunkt,
   Svar,
+  Utfall,
   Utsagn,
   Virkning,
 } from './typer.ts';
@@ -169,10 +170,14 @@ function lesSvar(
       erstatter: tekst(data.original_respons_id),
       utsagn,
       utregning: data,
-      beslutningsgrunnlag: { regelversjon: 0, standpunkter: [], linje: '' },
-      enighetsgrunnlag: null,
+      beslutningsgrunnlag: {
+        regelversjon: 0,
+        standpunkter: [],
+        linje: '',
+        sammenfall: false,
+        utfall: {},
+      },
     };
-  if (!('enighetsgrunnlag' in data)) throw new Uforstaatt('svaret mangler enighetsfeltet');
   return {
     id: h.event_id,
     spor,
@@ -181,9 +186,7 @@ function lesSvar(
     erstatter: tekst(data.original_respons_id),
     utsagn,
     utregning: data,
-    beslutningsgrunnlag: lesBeslutningsgrunnlag(data.beslutningsgrunnlag, utsagn),
-    enighetsgrunnlag:
-      data.enighetsgrunnlag === null ? null : lesEnighetsgrunnlag(data.enighetsgrunnlag),
+    beslutningsgrunnlag: lesBeslutningsgrunnlag(data.beslutningsgrunnlag, spor, utsagn),
   };
 }
 
@@ -192,55 +195,50 @@ const objekt = (v: unknown): Record<string, unknown> | null =>
   typeof v === 'object' && v !== null && !Array.isArray(v) ? (v as Record<string, unknown>) : null;
 
 /** Standpunktene skal ha ett standpunkt per utsagn i svaret, med samme art. */
-function lesStandpunkter(v: unknown, utsagn: Utsagn[] | null, hva: string): Standpunkt[] {
-  if (!Array.isArray(v)) throw new Uforstaatt(`${hva} mangler standpunkter`);
-  const art = new Map(utsagn?.map((u) => [u.id, u.art]));
+function lesStandpunkter(v: unknown, utsagn: Utsagn[]): Standpunkt[] {
+  if (!Array.isArray(v) || v.length !== utsagn.length)
+    throw new Uforstaatt('beslutningsgrunnlaget har ikke ett standpunkt per utsagn');
+  const art = new Map(utsagn.map((u) => [u.id, u.art]));
   const sett = new Set<string>();
   return v.map((p) => {
     const o = objekt(p);
     const id = tekst(o?.utsagn);
     if (!o || id === null || !VIRKNINGER.has(o.virkning as string) || sett.has(id))
-      throw new Uforstaatt(`${hva} har et ugyldig standpunkt`);
-    if (utsagn && art.get(id) !== o.art)
-      throw new Uforstaatt(`${hva} har et standpunkt til et utsagn svaret ikke har`);
+      throw new Uforstaatt('beslutningsgrunnlaget har et ugyldig standpunkt');
+    if (art.get(id) !== o.art)
+      throw new Uforstaatt('beslutningsgrunnlaget har et standpunkt til et utsagn svaret ikke har');
     sett.add(id);
     return { utsagn: id, art: o.art as Standpunkt['art'], virkning: o.virkning as Virkning };
   });
 }
 
-function lesBeslutningsgrunnlag(v: unknown, utsagn: Utsagn[]): Beslutningsgrunnlag {
+/** Utfallet har feltet sporet gir, og ingen andre: avklart eller avvist, beløpet eller dagene. */
+function lesUtfall(v: unknown, spor: Spor): Utfall {
   const o = objekt(v);
-  if (!o) throw new Uforstaatt('svaret mangler beslutningsgrunnlag');
-  const standpunkter = lesStandpunkter(o.standpunkter, utsagn, 'beslutningsgrunnlaget');
-  if (standpunkter.length !== utsagn.length)
-    throw new Uforstaatt('beslutningsgrunnlaget mangler standpunkt til et utsagn');
-  return {
-    regelversjon: krev(tall(o.regelversjon), 'beslutningsgrunnlaget mangler regelversjon'),
-    standpunkter,
-    linje: krev(tekst(o.linje), 'beslutningsgrunnlaget mangler linjen i brevet'),
-  };
+  const felt = { grunnlag: 'grunnlag', vederlag: 'beloep', frist: 'dager' }[spor];
+  const verdi = o?.[felt];
+  const gyldig =
+    spor === 'grunnlag' ? verdi === 'avklart' || verdi === 'avvist' : tall(verdi) !== null;
+  if (!o || Object.keys(o).length !== 1 || !gyldig)
+    throw new Uforstaatt('beslutningsgrunnlaget har et ugyldig utfall');
+  return { [felt]: verdi } as Utfall;
 }
 
-function lesEnighetsgrunnlag(v: unknown): Enighetsgrunnlag {
+function lesBeslutningsgrunnlag(v: unknown, spor: Spor, utsagn: Utsagn[]): Beslutningsgrunnlag {
   const o = objekt(v);
-  const utfall = objekt(o?.utfall);
-  if (!o || !utfall) throw new Uforstaatt('enighetsgrunnlaget er ikke et enighetsgrunnlag');
-  const spor = tekst(o.spor);
-  const kilde = tekst(o.kilde);
-  if (spor !== 'grunnlag' && spor !== 'vederlag' && spor !== 'frist')
-    throw new Uforstaatt('enighetsgrunnlaget har ukjent spor');
-  if (kilde !== 'aksept' && kilde !== 'sammenfall')
-    throw new Uforstaatt('enighetsgrunnlaget har ukjent kilde');
-  if (o.vilkaar !== (spor === 'grunnlag' ? null : 'grunnlag_avklart'))
-    throw new Uforstaatt('enighetsgrunnlaget har et annet vilkår enn sporet');
+  if (!o) throw new Uforstaatt('svaret mangler beslutningsgrunnlag');
+  if (typeof o.sammenfall !== 'boolean')
+    throw new Uforstaatt('beslutningsgrunnlaget sier ikke om svaret godkjenner hele kravet');
+  // GR-U7: en enighet om vederlag eller frist har vilkåret at grunnlaget er avklart.
+  if (o.vilkaar !== (spor === 'grunnlag' ? undefined : 'grunnlag_avklart'))
+    throw new Uforstaatt('beslutningsgrunnlaget har et annet vilkår enn sporet');
   return {
-    spor,
-    svar: krev(tekst(o.svar), 'enighetsgrunnlaget viser ikke til noe svar'),
-    kilde,
-    regelversjon: krev(tall(o.regelversjon), 'enighetsgrunnlaget mangler regelversjon'),
-    standpunkter: lesStandpunkter(o.standpunkter, null, 'enighetsgrunnlaget'),
-    utfall: utfall as Enighetsgrunnlag['utfall'],
-    vilkaar: o.vilkaar as Enighetsgrunnlag['vilkaar'],
+    regelversjon: krev(tall(o.regelversjon), 'beslutningsgrunnlaget mangler regelversjon'),
+    standpunkter: lesStandpunkter(o.standpunkter, utsagn),
+    linje: krev(tekst(o.linje), 'beslutningsgrunnlaget mangler linjen i brevet'),
+    sammenfall: o.sammenfall,
+    utfall: lesUtfall(o.utfall, spor),
+    ...(spor === 'grunnlag' ? {} : { vilkaar: 'grunnlag_avklart' as const }),
   };
 }
 
@@ -300,7 +298,6 @@ function lesDokument(h: Journalrad, stand: Lesestand, utkast: Set<string>): Doku
       art: 'aksept',
       gjelder: krev(h.refererer_til_event_id, 'aksepten viser ikke til noe svar'),
       regelversjon: krev(tall(data.regelversjon), 'aksepten mangler regelversjon'),
-      enighetsgrunnlag: lesEnighetsgrunnlag(data.enighetsgrunnlag),
     });
     return dokument;
   }

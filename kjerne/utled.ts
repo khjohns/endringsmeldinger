@@ -5,7 +5,8 @@
  *
  * Det er én beregning per svar, som alle leser:
  * - brevet slik det ble sendt: standpunktene i beslutningsgrunnlaget (MM-U9);
- * - en eventuell enighet: enighetsgrunnlaget, frosset der den oppsto (MM-U3);
+ * - en eventuell enighet: en aksept av svaret, eller sammenfall i brevet. Innholdet
+ *   er brevets (KA-U10, MM-U3);
  * - predikatene av relasjonene: hva svaret `gjelder`, hva det `erstatter`, om
  *   en rettidighetsvurdering gjelder det registrerte varselet (MM-U8), og om
  *   vilkåret for enigheten er oppfylt (GR-U7).
@@ -238,15 +239,6 @@ export function utled(journal: Domenehendelse[], regler: Regelsett): Utledning {
     if (!opplysningIder.has(b.gjelder))
       ugyldig(b.id, 'bestridelsen viser til en opplysning som ikke finnes');
 
-  // Et enighetsgrunnlag gjelder svaret som holder det, eller svaret aksepten viser til.
-  const annetSvar = (e: Enighetsgrunnlag | null, s: Svar | undefined) =>
-    e !== null && s !== undefined && (e.svar !== s.id || e.spor !== s.spor);
-  for (const s of alleSvar.values())
-    if (annetSvar(s.enighetsgrunnlag, s)) ugyldig(s.id, 'enighetsgrunnlaget gjelder et annet svar');
-  for (const a of aksepter)
-    if (annetSvar(a.enighetsgrunnlag, alleSvar.get(a.gjelder)))
-      ugyldig(a.id, 'enighetsgrunnlaget i aksepten gjelder et annet svar');
-
   if (begrensninger.length) return tom(journal, regler, begrensninger);
 
   for (const n of SPOR) {
@@ -280,8 +272,12 @@ export function utled(journal: Domenehendelse[], regler: Regelsett): Utledning {
     if (!g) continue;
     const aksept = aksepter.filter((a) => a.gjelder === g.id).at(-1);
     if (aksept)
-      spor[n].enighet = { grunnlag: aksept.enighetsgrunnlag, holder: hendelseFor.get(aksept.id)! };
-    else if (g.enighetsgrunnlag) spor[n].enighet = { grunnlag: g.enighetsgrunnlag, holder: g.id };
+      spor[n].enighet = {
+        grunnlag: enighetsgrunnlag(g, 'aksept'),
+        holder: hendelseFor.get(aksept.id)!,
+      };
+    else if (g.beslutningsgrunnlag.sammenfall)
+      spor[n].enighet = { grunnlag: enighetsgrunnlag(g, 'sammenfall'), holder: g.id };
   }
 
   const gSvar = spor.grunnlag.gjeldendeSvar;
@@ -354,43 +350,29 @@ export function enighetensVirkning(
 }
 
 /**
- * Enighetsgrunnlaget TE ville fryse ved å godta svaret nå. `null` når svaret
- * ikke finnes, eller når et standpunkt i det er uavklart (MM-U8). Klienten
- * viser det i forhåndsvisningen; serveren regner det på nytt og sammenlikner (2.5).
- */
-export function forhaandsvisAksept(u: Utledning, svarId: string): Enighetsgrunnlag | null {
-  const s = u.svar[svarId];
-  if (!s || s.uavklart.length) return null;
-  return enighetsgrunnlag(s.svar, 'aksept');
-}
-
-/**
- * Kravene er avgjort: grunnlaget er avklart, og hvert vederlags- og fristkrav er
- * trukket eller avtalt med virkning. Et spor TE ikke har sendt, er ikke
- * avgjort (EO-U2, GR-U3). Da sperres alt unntatt bestridelse (KA-U6, MM-U7).
- * Predikatet leses av utsagnene og relasjonene, ikke av en status.
+ * KA-U11: kravene er avgjort når grunnlaget er avklart, og hvert vederlags- og
+ * fristkrav er trukket eller har en virksom enighet. Et spor TE ikke har sendt,
+ * er ikke avgjort (EO-U2, GR-U3). Da avvises alt unntatt bestridelse.
+ * Predikatet leses av utsagnene og relasjonene, ikke av en status. Et
+ * «ingen krav»-utsagn (KA-U12, #309) skal telle som `trukket` i sporet.
  */
 export function kraveneErAvgjort(u: Utledning): boolean {
   return (
     u.grunnlagAvklart &&
-    KRAVSPOR.every(
-      (n) =>
-        u.spor[n].trukket ||
-        (u.spor[n].gjeldendeKrav !== null && enighetensVirkning(u, n) === 'virksom')
-    )
+    KRAVSPOR.every((n) => u.spor[n].trukket || enighetensVirkning(u, n) === 'virksom')
   );
 }
 
 /**
- * EO-U2: saken kan inngå i en endringsordre når kravene er avgjort, grunnlaget
- * ikke er frafalt (GR-U3), og minst ett av vederlag og frist er avtalt med et
- * beløp eller dager byggherren har godkjent helt eller delvis. Et godtatt avslag
- * og et trukket spor teller som avgjort, ikke som godkjent.
+ * EO-U5, EO-U2: saken kan inngå i en endringsordre når kravene er avgjort,
+ * grunnlaget er godkjent og ikke frafalt (GR-U3), og minst ett av vederlag og
+ * frist har enighet, også et godtatt avslag. Et trukket spor teller som
+ * avgjort, men gir ikke alene grunnlag for endringsordre.
  */
 export function kanInngaaIEo(u: Utledning): boolean {
-  const godkjent = (n: Kravspor) => {
-    const e = u.spor[n].enighet?.grunnlag.utfall;
-    return !u.spor[n].trukket && ((e?.beloep ?? 0) !== 0 || (e?.dager ?? 0) > 0);
-  };
-  return kraveneErAvgjort(u) && !u.frafalt && KRAVSPOR.some(godkjent);
+  return (
+    kraveneErAvgjort(u) &&
+    !u.frafalt &&
+    KRAVSPOR.some((n) => !u.spor[n].trukket && u.spor[n].enighet !== null)
+  );
 }
