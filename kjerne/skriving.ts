@@ -16,14 +16,12 @@ import {
   svarreferanse,
   svarutsagn,
   SVARTYPER,
-  Uforstaatt,
   utledetVarsel,
 } from './leser.ts';
-import type { Regelsett } from './regler/regelsett.ts';
 import { beslutningsgrunnlag, regnUtSvar, standpunkter } from './standpunkt.ts';
-import { grunnlagskravFor, utled, type Utledning } from './utled.ts';
+import { utled, type Utledning } from './utled.ts';
 import type { Kjerne } from './versjon.ts';
-import type { Avvisning, Part } from './typer.ts';
+import type { Avvisning, Krav, Part } from './typer.ts';
 
 /** Det serveren stempler kommandoen med. Klienten bestemmer ingen av dem. */
 export interface Kontekst {
@@ -167,7 +165,8 @@ export function vurder(
 
   // Et svar fryser brevet (MM-U9). Kjernen må forstå det den selv har skrevet.
   const svar = hendelser.filter((h) => SVARTYPER[h.event_type]);
-  for (const h of svar) frysSvar(h, u, kjerne.regler);
+  for (const h of svar)
+    frysSvar(h, [...journal, ...hendelser.slice(0, hendelser.indexOf(h))], kjerne);
   if (svar.length && !utledJournal([...journal, ...hendelser], kjerne).forstaatt)
     throw new Error('Kjernen forstår ikke brevet den selv skriver.');
   return { godtatt: true, hendelser };
@@ -175,25 +174,32 @@ export function vurder(
 
 /**
  * Fryser brevet i svarraden: beslutningsgrunnlaget, som også er innholdet i en
- * enighet om svaret (MM-U9, KA-U10). `u` er utledningen av journalen før raden.
- * Gjelder også registrert korrespondanse (merknaden til MM-U9). Kaster
- * `Uforstaatt` når saken eller raden ikke kan leses: uten en forstått sak
- * mangler kategorien og varselet brevet skal regnes med.
+ * enighet om svaret (MM-U9, KA-U10). Kategorien og varselet brevet regnes med,
+ * leses fra radene før, også når saken ikke er forstått, så registrert
+ * korrespondanse fryses med det byggherren svarte på (merknaden til MM-U9).
+ * Kaster `Uforstaatt` når raden ikke kan leses.
  */
-export function frysSvar(rad: Journalrad, u: Utledning, regler: Regelsett): void {
-  if (!u.forstaatt) throw new Uforstaatt('saken er ikke forstått, så brevet kan ikke fryses');
+export function frysSvar(rad: Journalrad, foer: Journalrad[], kjerne: Kjerne): void {
+  const grunnlagskrav: Krav[] = [];
+  let varsel: string | null = null;
+  for (const h of lesJournal(foer, kjerne.format)) {
+    if (h.art !== 'dokument') continue;
+    grunnlagskrav.push(...h.dokument.krav.filter((k) => k.spor === 'grunnlag'));
+    for (const u of h.dokument.utsagn)
+      if (u.art === 'varsel' && u.gjelder === 'frist') varsel ??= u.id;
+  }
   const spor = SVARTYPER[rad.event_type];
   const gjelder = svarreferanse(rad, spor);
-  const fristvarsel = u.spor.frist.varsel?.id ?? utledetVarsel(gjelder);
   const svar = {
     spor,
-    utsagn: svarutsagn(spor, rad.event_id, gjelder, rad.data, fristvarsel),
+    utsagn: svarutsagn(spor, rad.event_id, gjelder, rad.data, varsel ?? utledetVarsel(gjelder)),
     utregning: rad.data,
   };
-  const krav = grunnlagskravFor({ spor, gjelder }, u);
+  const krav =
+    spor === 'grunnlag' ? grunnlagskrav.find((k) => k.id === gjelder) : grunnlagskrav.at(-1);
   rad.data.beslutningsgrunnlag = beslutningsgrunnlag(
     svar,
-    standpunkter(svar, krav, regler),
-    regler
+    standpunkter(svar, krav, kjerne.regler),
+    kjerne.regler
   );
 }

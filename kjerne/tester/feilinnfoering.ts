@@ -1,7 +1,7 @@
 /**
  * Feilinnføringene for kjernen (#304, #308). F1–F7 er avsnitt 4 i modellforslaget,
  * F8–F10 feilklassene reviewet av PR #306 fant, skrevet om etter MM-U9 og
- * GR-U10, og F11–F21 grensene #308 la til. Én mutasjon om gangen i
+ * GR-U10, og F11–F22 grensene #308 la til. Én mutasjon om gangen i
  * arbeidskopien, Vitest over `kjerne/` og `sprakprove/kjernelagring/`, og
  * originalteksten settes tilbake etterpå. For hver mutasjon kreves det at de
  * forventede målassertions feiler, og at alle feil er assertions, ikke import,
@@ -136,7 +136,7 @@ const MUTASJONER: Mutasjon[] = [
     endringer: [
       ['if (neste.length > 0 || kjede.size !== paaKravet.length)', 'if (neste.length > 1)'],
     ],
-    mal: ['F-MM-E4', 'F-MM-E6'],
+    mal: ['F-MM-E4', 'F-MM-E6', 'F-MM-E7'],
   },
   {
     id: 'F10',
@@ -145,7 +145,7 @@ const MUTASJONER: Mutasjon[] = [
     endringer: [['    if (hindring !== null)\n', '    if (hindring === undefined)\n']],
     mal: ['avslår prinsipalt, med dagene som subsidiært standpunkt'],
   },
-  // F11–F21 er grensene #308 la til.
+  // F11–F22 er grensene #308 la til.
   {
     id: 'F11',
     feilklasse: 'kjernen importerer fra språkprøven og pg',
@@ -254,6 +254,18 @@ const MUTASJONER: Mutasjon[] = [
       ],
     ],
     mal: ['F-MM-K0'],
+  },
+  {
+    id: 'F22',
+    feilklasse: 'brevet fryses uten kategorien svaret gjelder (MM-U9, § 32.2)',
+    fil: `${K}/skriving.ts`,
+    endringer: [
+      [
+        "spor === 'grunnlag' ? grunnlagskrav.find((k) => k.id === gjelder) : grunnlagskrav.at(-1);",
+        'undefined;',
+      ],
+    ],
+    mal: ['registrert korrespondanse fryses med kategorien', 'F-MM-C'],
   },
 ];
 
