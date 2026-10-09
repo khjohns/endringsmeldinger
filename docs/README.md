@@ -3,15 +3,16 @@
 `docs/` er en kjede av auditer, planer og referanser bygget opp fra 14. september
 2026. Denne fila sier hva som gjelder, hva som er historikk, og hvor man begynner.
 
-**Hovedplanen er autoritativ for plan og funnstatus.** Sier et annet dokument noe
-annet om et funn, er det andre dokumentet foreldet — rett det, ikke gjenopprett
-diskusjonen.
+**Hovedplanen er autoritativ for vedtak, rekkefølge og funnstatus.** Sier et
+annet dokument noe annet om et funn, er det andre dokumentet foreldet — rett det,
+ikke gjenopprett diskusjonen.
 Opphever du et utsagn, skriv en datert merknad, også inn i det gamle dokumentet.
 
-**Arbeid som pågår eller venter, står i GitHub-issues**, samlet i milepælene
-[F0b](https://github.com/khjohns/endringsmeldinger/milestone/1) og [F1](https://github.com/khjohns/endringsmeldinger/milestone/2), og for spor M i
-[#79](https://github.com/khjohns/endringsmeldinger/issues/79). Denne indeksen og hovedplanen fører ikke
-arbeidsstatus; regelen står i [`AGENTS.md`](../AGENTS.md).
+**Arbeid som pågår eller venter, står i GitHub-issues**, samlet i
+[én milepæl per arbeidspakke](https://github.com/khjohns/endringsmeldinger/milestones),
+og for spor M i [#79](https://github.com/khjohns/endringsmeldinger/issues/79).
+Denne indeksen og hovedplanen fører ikke arbeidsstatus; regelen står i
+[`AGENTS.md`](../AGENTS.md).
 
 ---
 
@@ -19,65 +20,74 @@ arbeidsstatus; regelen står i [`AGENTS.md`](../AGENTS.md).
 
 | Dokument | Hva det gir |
 | --- | --- |
-| [hovedplanen](plans/2026-09-16-godkjenning-og-varig-levering.md) | **Begynn her.** Sluttredigert 22.09, endret 23.09 med beslutningen om direkte tilkobling, den nye pakken F0b, B-02 punkt 3–6, B-04, B-12, B-13 og BR-01 reprodusert. Eneste løpende kilde til plan og funnstatus: invarianter, beslutningsregister med åpne valg, funnregister, arbeidspakker og neste oppgave |
+| [hovedplanen](plans/2026-09-16-godkjenning-og-varig-levering.md) | **Begynn her.** Eneste løpende kilde til vedtak, rekkefølge og funnstatus: invarianter, beslutningsregister, funnregister, arbeidspakker og beslutningene som blokkerer. Toppteksten peker til tidligere versjoner i Git |
+| [domenetabellen](domenetabell/README.md) | Forventet atferd per rad med kilde og tolkningsstatus, begrepene krav, kravversjon, svar, standpunkt, aksept og enighet, og språkuavhengige bevis-saker som kjøres mot Python-projeksjonen og mot målmodellen. Vedtakene står i hovedplanen |
 | [`../AGENTS.md`](../AGENTS.md) | Lastes automatisk i hver sesjon: språk, domeneordliste, sikkerhetsinvarianter, resonneringsregler |
-| [database](../.claude/rules/database.md) · [tester](../.claude/rules/tester.md) · [dokumentasjon](../.claude/rules/dokumentasjon.md) | Regler i `.claude/rules/` som lastes når en økt arbeider i den delen av treet. Flyttet fra `AGENTS.md` 04.10 |
-| [handoff-2026-09-23-datalag-postgresql](handoff-2026-09-23-datalag-postgresql.md) | **Siste handoff.** B-02-runden, plattformsamtalen med IKT, alternativ C over direkte PostgreSQL (bekreftet 23.09), dokumentene som måtte oppdateres, og oppsett som Claude Code-prosjekt |
-| [handoff-2026-09-21-frister](handoff-2026-09-21-frister.md) | Forrige handoff. Fellene der gjelder fortsatt; planen og statusen der er innarbeidet i hovedplanen |
+| [`.claude/rules/`](../.claude/rules/), blant dem [database](../.claude/rules/database.md) · [tester](../.claude/rules/tester.md) · [dokumentasjon](../.claude/rules/dokumentasjon.md) | Regler som lastes når en økt arbeider i den delen av treet |
 
-Eldre handoffer står under [historikk](#historikk--bevart-ikke-gjeldende).
+Handoffene står under [historikk](#historikk--bevart-ikke-gjeldende).
 
-## Gjeldende plan og status
+## Domenet og målarkitekturen
 
 | Dokument | Hva det gir |
 | --- | --- |
-| [domenetabell](domenetabell/README.md) | Vedtatt forventet atferd med kilde og tolkningsstatus per rad, begrepene krav, kravversjon, svar, standpunkt og aksept, og språkuavhengige bevis-saker som kjøres mot Python-projeksjonen og gjennom `/api/events`. Første del: kravversjon og aksept (#271). Kontrakten for flyten i språkprøven, som JSON Schema (#272). Vedtak og funnstatus står i hovedplanen |
+| [B-17 i hovedplanen](plans/2026-09-16-godkjenning-og-varig-levering.md#b-17) · [arbeidspakken FK](plans/2026-09-16-godkjenning-og-varig-levering.md#fk--koe--eo--og-forseringsdomenet-i-ts-b-17) | Vedtaket om at TS-kjernen tar over skrivingen i KOE-, endringsordre- og forseringssakene samlet, og pakken som gjennomfører det |
+| [kontrakten for flyten](domenetabell/README.md#kontrakten-for-flyten) | Kommando, lagret hendelse og offentlig tilstand for flyten i språkprøven, som JSON Schema (#272) |
+| [målmodellen i kode](../sprakprove/maalmodell/) · [bevis-sakene](domenetabell/bevis-saker-maalmodell.json) | Avgrenset implementasjon av modellforslaget i TypeScript (#304), i minnet og mot testbasen. Ikke TS-kjernen |
+| [forslag: målmodell](forslag-maalmodell-2026-10-09.md) · [kontrollskript](vedlegg/maalmodell-2026-10-09/kontroll.ts) | Modellforslaget før portering (#300): dokumenter, utsagn, relasjoner og predikater, gjennomgått på fem forløp. Ikke vedtatt som helhet; vedtakene står i hovedplanen |
+| [forslag: målarkitektur og beslutningsprøve](forslag-maalarkitektur-og-beslutningsproeve-2026-10-07.md) · [opprinnelig forslag](vedlegg/arkitekturvalg-2026-10-07/README.md) | Grunnlaget for B-14 og språkvalget 09.10, med resultatet av språkprøven i avsnitt 7. Overgangen der er erstattet av B-17 |
 | [metodeprøve: fristkrav og tidsinnsigelser](vedlegg/metodeprove-frist-2026-10-08/README.md) | Isolert JSON/TypeScript-prøve for #271 med kilder, forløp, feilinnføringer og skillet mellom avklarte tolkninger og arbeidshypoteser, også for brev med flere innsigelser og senere dokumentert korrespondanse. Vedtak: hovedplanens MP-U4–MP-U7 |
-| [reviewoppfølging: målarkitektur og gjennomføring](review-oppfolging-arkitektur-2026-10-07.md) | Presiseringer etter review av #266/#270, kobling til hovedplanens B-14/B-10 og åpne B-15/B-16, samt dokumenterte GitHub-begrensninger |
-| [forslag: målarkitektur og beslutningsprøve](forslag-maalarkitektur-og-beslutningsproeve-2026-10-07.md) · [opprinnelig forslag](vedlegg/arkitekturvalg-2026-10-07/README.md) | Oppdragsgivers forslag bearbeidet mot PR #266, med eksplisitte servergrenser og en avgrenset prøve av delt TypeScript-kjerne; ikke et vedtak om språkbytte |
-| [forslag: målmodell](forslag-maalmodell-2026-10-09.md) · [kontrollskript](vedlegg/maalmodell-2026-10-09/kontroll.ts) | Modellforslaget før portering (#300): dokumenter, utsagn, relasjoner og predikater, gjennomgått på papir på fem forløp med vedtak; ikke vedtatt som helhet |
+| [reviewoppfølging: målarkitektur og gjennomføring](review-oppfolging-arkitektur-2026-10-07.md) | Presiseringer etter review av #266/#270, kobling til hovedplanens B-14 og B-10, samt dokumenterte GitHub-begrensninger |
 | [vurdering: avhengigheter og arkitekturvalg](vurdering-avhengigheter-og-arkitekturvalg-2026-10-07.md) · [backend](vedlegg/avhengigheter-2026-10-07/backend.md), [frontend](vedlegg/avhengigheter-2026-10-07/frontend.md) og [arkitektur](vedlegg/avhengigheter-2026-10-07/arkitektur.md) | Datert vedlikeholdsvurdering med pakkegrupper, runtimegrenser og beviskrav for en delt ren TypeScript-kjerne; skiller anbefalinger fra auditfunn |
-| [hovedplanen](plans/2026-09-16-godkjenning-og-varig-levering.md) | **Autoritativ.** Se over |
-| [oppdrag: datamodell og funksjonskart (spor M)](prompt-datamodell-og-funksjonskart-2026-09-29.md) | Tabellbeskrivelse for IKT som systemdokumentasjon, hendelseskatalog, funksjonskart og atferdstester, i faser. Avhenger ikke av B-12. Avsnitt 4 er utgangspunktet |
-| [gjennomføring: tabellregisteret, første runde (spor M, 1a)](gjennomforing-spor-m-1a-2026-09-29.md) | Registeret, eksporten og vakttesten. DM-01–DM-04, blant dem at ruteregistertesten ikke ser alle ruter (DM-04, middels). Ett utsagn i registeret rettet i runden |
-| [gjennomføring: relasjoner, ER-diagram og dataflyt (spor M, 1c)](gjennomforing-spor-m-1c-2026-09-29.md) | Relasjonsregisteret og dataflyten mot Catenda, med ER-diagram fra katalogen og vakttester mot skjemaet og kallene til Catenda. Oppdragsgivers svar om diagrammet. DM-08 (personreferanser uten identitet, foreløpig). Tre utsagn fra 1a og 1b rettet |
-| [gjennomføring: hendelseskatalogen, første runde (spor M, 1b)](gjennomforing-spor-m-1b-2026-09-29.md) | Katalogen over de 32 hendelsestypene, med vakttest mot koden. Oppdragsgivers svar om bestemmelsene og regnearket. DM-05 (skjemaet for ny sak får 403, middels), DM-06 og DM-07 (`eo_opprettet` gjør en KOE-sak til en EO-sak, middels) |
-| [designnotat: B-13, hvem avgjør resultatet](design-b13-sannhetskilde-2026-09-23.md) | Beslutningsgrunnlag for B-13. Sammenlikner de tre alternativene for journal, brev, partens tekst, frontend, godkjenning og regelendring. Anbefaler (2) i streng form, med regelversjon. **Alle åtte valgene tatt 24.09** etter anbefalingen (hovedplanen, 3.1). Ingen kode |
-| [oppdrag: B-13, backend eier reglene](prompt-b13-backend-eier-reglene-2026-09-23.md) | Neste domeneoppgave. Beslutningsgrunnlag for B-13 først, uten kode. Deretter vedtakene fra spor D (ubegrenset fullmakt, fullmakt for godkjent ansvar, innsigelse og forespørsel på nøytralt fristvarsel) og, etter beslutningen, reglene i backend. Kan gå parallelt med F0b |
-| [oppdrag: repositoriene i F0b, fase 2](prompt-f0b-fase2-repositorier-2026-09-24.md) | Fire parallelle løp (a–d) over kjernen: felles regler, eget oppsett per løp og hva hvert løp eier |
-| [oppdrag: strukturkartlegging av spor D](prompt-strukturkartlegging-spor-d-2026-10-05.md) | Prøv hypotesen om fem mønstre (M1–M5) bak issuene i spor D mot koden, før flere retterunder |
-| [kartlegging: strukturen i spor D](kartlegging-struktur-spor-d-2026-10-05.md) | Hvor slutningene om subsidiært standpunkt, status og lukket regnes, hvem som skriver hvert felt i projeksjonen, hva hendelsesmodellene tillater, og kontrakten mellom API og frontend. SK-01–SK-11, issueregister og målformer per mønster (B-14) |
-| [oppdrag: BR-01 og spor D](prompt-spor-d-br01-2026-09-23.md) | BR-01 reprodusert eller avvist uten retting, og kartlegging av frontendens NS 8407-utregninger som grunnlag for B-13. Deretter domenefeilene TFR-02–06, GFK-02, GFK-06, INT-07 og OBS-03. Kan gå parallelt med F0b |
-| [kartlegging: frontendens domeneregler](kartlegging-domeneregler-frontend-2026-09-23.md) | Grunnlag for B-13. Hva `src/lib/domain/` regner ut, hvilken bestemmelse det bygger på, og hva som står i journalen hvis klienten sender noe annet. BR-01 reprodusert (middels), DRF-01–DRF-03 funnet. Anslag for å la backend eie reglene |
-| [gjennomføring: nøytralt fristvarsel](gjennomforing-noytralt-fristvarsel-2026-10-04.md) | TFR-06 og DRF-01 rettet: innsigelse (§ 5) og forespørsel (§ 33.6.2) som egne hendelser uten resultat, og et svar med dager avvises til kravet har dager (§ 33.7). Oppdragsgivers svar om svarfrist og godkjenning |
-| [gjennomføring: spor D](gjennomforing-spor-d-2026-09-23.md) | TFR-02–TFR-05, GFK-02, INT-07 og OBS-03 rettet; statusene for forsering, EO og avgjort grunnlag besluttet av oppdragsgiver. TFR-06 og GFK-06 reprodusert, ikke rettet, med to spørsmål. Nye funn SD-01–SD-02 |
-| [oppdrag: kjernen i datalaget (F0b)](prompt-f0b-kjernen-2026-09-23.md) · [oppdrag: uavhengig review av kjernen](prompt-review-f0b-kjernen-2026-09-23.md) | Neste oppgave i hovedplanen: pool, transaksjonslokal kontekst, feilklassifisering og fixturer for direkte tilkobling, uten å konvertere repositorier. Reviewet gjøres i en annen tråd før fase 2 bygger på kjernen |
-| [gjennomføring: kjernen i datalaget (F0b)](gjennomforing-f0b-kjernen-2026-09-23.md) · [mutasjoner](vedlegg/f0b-kjernen-2026-09-23/mutasjoner.py) | `lib/db` med pool, transaksjonslokal kontekst i `koe.krav`, retry for hele transaksjonen og felles feilhierarki. Skrivbar fixture, lokal oppstart med PostgreSQL 17, og ferdig innkobling for trådene i punkt 2 (`DATALAG=postgres`). Review levert 23.09; RK-01–RK-04 fulgt opp (avsnitt 7), RK-05 åpen før F1. 60 databasetester, 33 mutasjoner røde |
-| [uavhengig review: kjernen i datalaget (F0b)](review-f0b-kjernen-2026-09-23.md) · [forsøk og mutasjoner](vedlegg/review-f0b-kjernen-2026-09-23/README.md) | RK-01–RK-05. Kan bygges videre på med navngitte endringer: poolopprettelse, containerinnkobling og resettester før punkt 2; avgrenset transaksjonsgaranti og tidskontrakt før F1 |
-| [oppdrag: PostgreSQL 17 i CI (F0)](prompt-f0-postgresql-i-ci-2026-09-22.md) | Neste oppgave i hovedplanen: databasetester mot ekte PostgreSQL i CI, med de første katalogtestene |
-| [oppdrag: testvedlikehold i F0](prompt-f0-testvedlikehold-2026-09-22.md) · [gjennomføring](gjennomforing-f0-testvedlikehold-2026-09-22.md) | T-1, T-3 og T-4: AUT-03-reproduksjonen erstattet, FE-02-testen når målassertionen, og TST-02/KR-15 reprodusert deterministisk ved eksistenssjekken |
-| [gjennomføring: TST-02/KR-15](gjennomforing-tst02-2026-09-22.md) | Samtidig saksopprettelse i JSON-lageret rettet med `os.link`: én sak og én `ConcurrencyError`. To deterministiske tester, én per fletting |
-| [design: tilgangsmekanisme (B-02)](design-b02-tilgangsmekanisme-2026-09-22.md) · [oppdrag](prompt-b02-tilgangsmekanisme-2026-09-22.md) · [prototype](vedlegg/b02-prototype-2026-09-22/kjor.sh) · [oppdrag: uavhengig review](prompt-review-b02-tilgangsmekanisme-2026-09-22.md) | Grunnlag for B-02, ikke en beslutning. Tre alternativer mot trusselmodellen og F1. Anbefaler RLS for lesing, kommandoer for bindende skriving og skrivevakt på journalen. Prototype mot PostgreSQL 17 og PostgREST: 71 av 71 sjekker. TM-01: et selvsignert token kan velge `service_role` |
-| [redaksjonsprotokoll for hovedplanen](sluttredigering-hovedplan-2026-09-22.md) | Dekningsmatrise og rettelser fra sluttredigeringen 22.09. Ikke en kilde til løpende status |
-| [uavhengig review: tilgangsmekanisme (B-02)](review-b02-tilgangsmekanisme-2026-09-23.md) · [bevis og kjøreoppskrift](vedlegg/b02-prototype-2026-09-22/REVIEW.md) | RB2-01–08. Alternativ C kan legges til grunn med navngitte endringer. Originalbeviset bekreftet, fem nye mutasjoner, lokale tilleggsforsøk og ny katalogkontroll. Beslutningsstatus er uendret |
-| [design v2: tilgangsmekanisme (B-02)](design-b02-tilgangsmekanisme-v2-2026-09-23.md) · [prototype v2](vedlegg/b02-prototype-v2-2026-09-23/kjor.sh) | Svar på RB2-01–08. Forespørselsvakt (T1v) og direkte innlogging (T2) prøvd, operasjonsmodell for skrivevakten, notater gjennom kommandoer, strengere kontekst og identitet. Bygget som `postgres` uten superbrukerrettigheter: 155 av 155 sjekker, tolv mutasjoner røde. **Alle beslutningene i avsnitt 9 tatt 23.09** (hovedplanen, 3.1) |
+
+## Datalag, tilgang og levering
+
+| Dokument | Hva det gir |
+| --- | --- |
+| [transaksjonsplanen](plans/2026-09-17-atomisk-utstedelse-og-outbox.md) | Underordnet delplan. Normativ for kommando-, låse- og worker-kontrakten. «RPC» leses som databasekommando over direkte tilkobling (merknad 23.09); kommandoen for KOE-, EO- og forseringssakene hører til TS-stien (merknad 09.10) |
+| [design v2: tilgangsmekanisme (B-02)](design-b02-tilgangsmekanisme-v2-2026-09-23.md) · [prototype v2](vedlegg/b02-prototype-v2-2026-09-23/kjor.sh) | Grunnlaget for alternativ C og transport T2, vedtatt 23.09 (hovedplanen, 3.1). Forespørselsvakt (T1v) og direkte innlogging (T2) prøvd, operasjonsmodell for skrivevakten, notater gjennom kommandoer, strengere kontekst og identitet |
+| [uavhengig review: tilgangsmekanisme (B-02)](review-b02-tilgangsmekanisme-2026-09-23.md) · [bevis og kjøreoppskrift](vedlegg/b02-prototype-2026-09-22/REVIEW.md) | RB2-01–08. Alternativ C kan legges til grunn med navngitte endringer. Grunnlag for F1 |
 | [arkitekturpresiseringer 21.09](arkitekturforinger-2026-09-21.md) | AF-01–AF-06: vedtatte føringer. Innarbeidet i hovedplanen; ikke implementert |
-| [transaksjonsplanen](plans/2026-09-17-atomisk-utstedelse-og-outbox.md) | Underordnet delplan. Normativ for kommando-, låse- og worker-kontrakten i F2. «RPC» leses som databasekommando over direkte tilkobling (merknad 23.09) |
-| [design: durable inbox og outbox](design-durable-inbox-outbox-2026-09-17.md) | Designet planen bygger på. Konkluderte uavhengig med «én database» og «bytt klient først», som nå er F0b. Har formen på `vedlegg`, `kommando`, `utgaende_levering` og `innkommende_hendelse` |
+| [design: durable inbox og outbox](design-durable-inbox-outbox-2026-09-17.md) | Designet planen bygger på. Konkluderte uavhengig med «én database» og «bytt klient først», som ble F0b. Har formen på `vedlegg`, `kommando`, `utgaende_levering` og `innkommende_hendelse` |
 | [design: målskjema for databasen](design-maalskjema-database-2026-09-20.md) | Hvor skjemaet skal, justert av AF-01, AF-03 og AF-04 |
+| [oppdrag: datamodell og funksjonskart (spor M)](prompt-datamodell-og-funksjonskart-2026-09-29.md) | Tabellbeskrivelse for IKT som systemdokumentasjon, hendelseskatalog, funksjonskart og atferdstester, i faser. Avsnitt 4 er utgangspunktet |
+| [oppdrag: repositoriene i F0b, fase 2](prompt-f0b-fase2-repositorier-2026-09-24.md) | Fire parallelle løp (a–d) over kjernen i datalaget: felles regler, eget oppsett per løp og hva hvert løp eier |
+
+## Oppdrag, kartlegginger og gjennomføringer 22.09–05.10 — historisk underlag
+
+Funnene og vedtakene fra disse står i hovedplanen. Dokumentene viser hvordan de
+ble gjort, ikke dagens status.
+
+| Dokument | Hva det gir |
+| --- | --- |
+| [kartlegging: strukturen i spor D](kartlegging-struktur-spor-d-2026-10-05.md) · [oppdrag](prompt-strukturkartlegging-spor-d-2026-10-05.md) | Hvor slutningene om subsidiært standpunkt, status og lukket regnes, hvem som skriver hvert felt i projeksjonen, hva hendelsesmodellene tillater, og kontrakten mellom API og frontend. SK-01–SK-13 og målformer per mønster (B-14) |
+| [gjennomføring: nøytralt fristvarsel](gjennomforing-noytralt-fristvarsel-2026-10-04.md) | TFR-06 og DRF-01 rettet: innsigelse (§ 5) og forespørsel (§ 33.6.2) som egne hendelser uten resultat, og et svar med dager avvises til kravet har dager (§ 33.7). Oppdragsgivers svar om svarfrist og godkjenning |
+| [gjennomføring: tabellregisteret, første runde (spor M, 1a)](gjennomforing-spor-m-1a-2026-09-29.md) | Registeret, eksporten og vakttesten. DM-01–DM-04, blant dem at ruteregistertesten ikke så alle ruter (DM-04). Ett utsagn i registeret rettet i runden |
+| [gjennomføring: hendelseskatalogen, første runde (spor M, 1b)](gjennomforing-spor-m-1b-2026-09-29.md) | Katalogen over hendelsestypene, med vakttest mot koden. Oppdragsgivers svar om bestemmelsene og regnearket. DM-05–DM-07 |
+| [gjennomføring: relasjoner, ER-diagram og dataflyt (spor M, 1c)](gjennomforing-spor-m-1c-2026-09-29.md) | Relasjonsregisteret og dataflyten mot Catenda, med ER-diagram fra katalogen og vakttester mot skjemaet og kallene til Catenda. Oppdragsgivers svar om diagrammet. DM-08. Tre utsagn fra 1a og 1b rettet |
+| [designnotat: B-13, hvem avgjør resultatet](design-b13-sannhetskilde-2026-09-23.md) · [oppdrag](prompt-b13-backend-eier-reglene-2026-09-23.md) | Beslutningsgrunnlag for B-13. Sammenlikner de tre alternativene for journal, brev, partens tekst, frontend, godkjenning og regelendring, og anbefaler (2) i streng form, med regelversjon. Valgene ble tatt 24.09 (hovedplanen, 3.1) |
+| [kartlegging: frontendens domeneregler](kartlegging-domeneregler-frontend-2026-09-23.md) · [oppdrag: BR-01 og spor D](prompt-spor-d-br01-2026-09-23.md) | Grunnlag for B-13. Hva `src/lib/domain/` regner ut, hvilken bestemmelse det bygger på, og hva som står i journalen hvis klienten sender noe annet. BR-01 reprodusert, DRF-01–DRF-03 funnet |
+| [gjennomføring: spor D](gjennomforing-spor-d-2026-09-23.md) | TFR-02–TFR-05, GFK-02, INT-07 og OBS-03 rettet; statusene for forsering, EO og avgjort grunnlag besluttet av oppdragsgiver. TFR-06 og GFK-06 reprodusert. Nye funn SD-01–SD-02 |
+| [gjennomføring: kjernen i datalaget (F0b)](gjennomforing-f0b-kjernen-2026-09-23.md) · [mutasjoner](vedlegg/f0b-kjernen-2026-09-23/mutasjoner.py) · [oppdrag](prompt-f0b-kjernen-2026-09-23.md) | `lib/db` med pool, transaksjonslokal kontekst i `koe.krav`, retry for hele transaksjonen og felles feilhierarki. Skrivbar fixture, lokal oppstart med PostgreSQL 17, og innkobling for trådene i punkt 2 (`DATALAG=postgres`). Oppfølgingen av reviewet står i avsnitt 7 |
+| [uavhengig review: kjernen i datalaget (F0b)](review-f0b-kjernen-2026-09-23.md) · [forsøk og mutasjoner](vedlegg/review-f0b-kjernen-2026-09-23/README.md) · [oppdrag](prompt-review-f0b-kjernen-2026-09-23.md) | RK-01–RK-05. Kan bygges videre på med navngitte endringer: poolopprettelse, containerinnkobling og resettester før punkt 2; avgrenset transaksjonsgaranti og tidskontrakt før F1 |
+| [oppdrag: PostgreSQL 17 i CI (F0)](prompt-f0-postgresql-i-ci-2026-09-22.md) | Databasetester mot ekte PostgreSQL i CI, med de første katalogtestene |
+| [oppdrag: testvedlikehold i F0](prompt-f0-testvedlikehold-2026-09-22.md) · [gjennomføring](gjennomforing-f0-testvedlikehold-2026-09-22.md) | T-1, T-3 og T-4: AUT-03-reproduksjonen erstattet, FE-02-testen når målassertionen, og TST-02/KR-15 reprodusert deterministisk ved eksistenssjekken |
+| [gjennomføring: TST-02/KR-15](gjennomforing-tst02-2026-09-22.md) | Samtidig saksopprettelse i JSON-lageret rettet med `os.link`: én sak og én `ConcurrencyError` |
+| [design: tilgangsmekanisme (B-02)](design-b02-tilgangsmekanisme-2026-09-22.md) · [oppdrag](prompt-b02-tilgangsmekanisme-2026-09-22.md) · [prototype](vedlegg/b02-prototype-2026-09-22/kjor.sh) · [oppdrag: uavhengig review](prompt-review-b02-tilgangsmekanisme-2026-09-22.md) | Første grunnlag for B-02, avløst av design v2. Tre alternativer mot trusselmodellen og F1. TM-01: et selvsignert token kan velge `service_role` |
+| [redaksjonsprotokoll for hovedplanen](sluttredigering-hovedplan-2026-09-22.md) | Dekningsmatrise og rettelser fra sluttredigeringen 22.09. Ikke en kilde til løpende status |
 
 **Konsolideringsrunden 21.–22.09 — historisk underlag for hovedplanen.**
 
 | Dokument | Hva det gir |
 | --- | --- |
-| [testrevisjon 22.09](audit-testbevis-2026-09-22.md) · [testinventar](vedlegg/testbevis-2026-09-22.csv) | Kjøring av alle 42 `xfail`-tester. Rettet 22.09 for ID-er, status og lenker; testutfallene er uendret |
+| [testrevisjon 22.09](audit-testbevis-2026-09-22.md) · [testinventar](vedlegg/testbevis-2026-09-22.csv) | Kjøring av alle `xfail`-testene 22.09. Rettet 22.09 for ID-er, status og lenker; testutfallene er uendret |
 | [review av testbevis og planstatus 22.09](review-testbevis-og-planstatus-2026-09-22.md) | RTB-01–05. Innarbeidet |
 | [konsolidert masterplan v2](konsolidering-masterplan-2026-09-22-v2.md) · [kildegrunnlag v2](konsolidering-kildegrunnlag-2026-09-22-v2.md) | Historisk forslag. Strukturen er brukt i hovedplanen |
 | [review av v2](review-gemini-konsolidering-2026-09-22-v2.md) · [første review](review-gemini-konsolidering-2026-09-22.md) | RGK2-01–05 og RGK-01–06. Innarbeidet |
 | [konsolidert masterplan v1](konsolidering-masterplan-2026-09-21.md) · [kildegrunnlag v1](konsolidering-kildegrunnlag-2026-09-21.md) | Historisk forslag, avløst av v2 |
 | [oppdrag: sluttrediger hovedplanen](prompt-sluttredigering-hovedplan-2026-09-22.md) · [oppdrag: testverifikasjon](prompt-gemini-verifikasjon-tester-2026-09-22.md) · [oppdrag: konsolidering](prompt-gemini-konsolidering-2026-09-21.md) | Arbeidsinstrukser for runden |
 
-## Siste runde — 20.–21. september
+## Runden 20.–21. september
 
 | Dokument | Hva det gir |
 | --- | --- |
@@ -114,7 +124,7 @@ MS-04 og MS-10. Basen har nå **atten** tabeller, ikke tjue. Det som gjenstår i
 mekanismen fra fil til base, er migrasjonshistorikken — alignmenten er 8 av 18,
 og `supabase migration repair` krever legitimasjon.
 
-## Runden før — 19. september
+## Runden 19. september
 
 Arkitekturvurdering, sammenstilling mot det parallelle auditsporet, og etterprøving
 av alle funn.
@@ -200,6 +210,8 @@ utgangspunkt som er passert.
 
 | Dokument | Hvorfor det står her |
 | --- | --- |
+| [handoff 23.09](handoff-2026-09-23-datalag-postgresql.md) | Siste handoff: B-02-runden, plattformsamtalen med IKT, alternativ C over direkte PostgreSQL og oppsett som Claude Code-prosjekt. Status og neste steg er innarbeidet i hovedplanen |
+| [handoff 21.09 (frister)](handoff-2026-09-21-frister.md) | Fellene der gjelder fortsatt; planen og statusen der er innarbeidet i hovedplanen |
 | [handoff 21.09 (korrekthet)](handoff-2026-09-21-korrekthet.md) · [handoff 21.09](handoff-2026-09-21.md) | Runder samme dag. Status og neste steg er innarbeidet i hovedplanen; fellene gjelder fortsatt |
 | [handoff 20.09](handoff-2026-09-20.md) · [handoff 19.09](handoff-2026-09-19.md) | Eldre runder. Fellene gjelder fortsatt; «ting med frist» er passert |
 | [handoff 15.09](handoff-2026-09-15.md) | Avløst av handoffen fra 19.09 |
