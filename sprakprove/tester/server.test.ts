@@ -20,7 +20,6 @@ import { grunnlagsbasis } from '../kjerne/godkjenning.ts';
 import { vurderKommando } from '../kjerne/kommando.ts';
 import { offentligTilstand } from '../kjerne/offentlig.ts';
 import { anvend, projiser, type Sak } from '../kjerne/sak.ts';
-import type { Hendelse } from '../kjerne/typer.ts';
 import { leggTil, lesJournal, Versjonskonflikt } from '../server/lager.ts';
 import { KORPUS, kommando, type Handling } from './korpus.ts';
 import { serverbane } from './serverbane.ts';
@@ -33,6 +32,7 @@ import {
   TESTBASE_URL,
   type KjorendeServer,
   type Oppsett,
+  type Svar,
   type Testbruker,
 } from './testbase.ts';
 
@@ -80,8 +80,8 @@ describe.skipIf(!TESTBASE_URL)('TS-serveren mot testbasen', () => {
 
   /** Prøv avvisningen og kontrollsaken på hver sin nye sak. */
   async function avvistOgKontroll(
-    avvisning: (sakId: string) => Promise<{ status: number; kropp: Record<string, any> }>,
-    kontroll: (sakId: string) => Promise<{ status: number; kropp: Record<string, any> }>
+    avvisning: (sakId: string) => Promise<Svar>,
+    kontroll: (sakId: string) => Promise<Svar>
   ) {
     const sakId = await opprettSak(o.pool, o.prosjekt.id, o.te);
     const for_ = await journal(sakId);
@@ -111,6 +111,14 @@ describe.skipIf(!TESTBASE_URL)('TS-serveren mot testbasen', () => {
       );
       const svar = await avvistOgKontroll(
         (s) => send(utlopt, grunnlag(s)),
+        (s) => send(o.te, grunnlag(s))
+      );
+      expect(svar.status).toBe(401);
+    });
+
+    it('en sesjonskapsel med ugyldig prosentkoding gir 401, ikke 500', async () => {
+      const svar = await avvistOgKontroll(
+        (s) => send({ ...o.te, token: '%E0%A4%A' }, grunnlag(s)),
         (s) => send(o.te, grunnlag(s))
       );
       expect(svar.status).toBe(401);
@@ -430,9 +438,9 @@ describe.skipIf(!TESTBASE_URL)('TS-serveren mot testbasen', () => {
       const elementer = pakke(bane.sak(), [AVSLAG, VEDERLAG]).reverse();
       const svar = await kontroller(bane.sakId, elementer);
       expect(svar.status, JSON.stringify(svar.kropp)).toBe(200);
-      expect(svar.kropp.state.grunnlag.bh_resultat).toBe('avslatt');
-      expect(svar.kropp.state.er_subsidiaert_vederlag).toBe(true);
-      expect((svar.kropp.events as Hendelse[]).map((h) => h.event_type)).toEqual([
+      expect(svar.kropp.state?.grunnlag.bh_resultat).toBe('avslatt');
+      expect(svar.kropp.state?.er_subsidiaert_vederlag).toBe(true);
+      expect((svar.kropp.events ?? []).map((h) => h.event_type)).toEqual([
         'respons_grunnlag',
         'respons_vederlag',
       ]);

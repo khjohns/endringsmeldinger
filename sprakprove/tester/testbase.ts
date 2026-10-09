@@ -12,6 +12,8 @@ import { spawn, type ChildProcess } from 'node:child_process';
 import { createHash, randomUUID } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import pg from 'pg';
+import type { OffentligTilstand } from '../kjerne/offentlig.ts';
+import type { Hendelse } from '../kjerne/typer.ts';
 
 export const TESTBASE_URL = process.env.KOE_TESTBASE_URL ?? '';
 const TESTBASE_MERKE = 'koe-kastbar-testbase';
@@ -205,6 +207,27 @@ export function startServer(teammedlemmer: Record<string, string[]>): Promise<Kj
   });
 }
 
+/** Feltene testene leser i svarene fra TS-serveren. */
+export interface Svarkropp {
+  success?: boolean;
+  error?: string;
+  message?: string;
+  rule?: string;
+  failed_event_type?: string;
+  failed_track?: string;
+  event_id?: string;
+  expected_version?: number;
+  current_version?: number;
+  version?: number;
+  state?: OffentligTilstand;
+  events?: Hendelse[];
+}
+
+export interface Svar {
+  status: number;
+  kropp: Svarkropp;
+}
+
 /** Forespørsel som en innlogget nettleser sender den. `bruker: null` er uten sesjon. */
 export async function kall(
   url: string,
@@ -222,7 +245,7 @@ export async function kall(
     metode?: string;
     csrf?: string | null;
   }
-): Promise<{ status: number; kropp: Record<string, any> }> {
+): Promise<Svar> {
   const hoder: Record<string, string> = { 'X-Project-ID': prosjektId };
   if (bruker) hoder.Cookie = `__Host-koe_session=${bruker.token}`;
   if (csrf) hoder['X-CSRF-Token'] = csrf;
@@ -232,5 +255,5 @@ export async function kall(
     headers: hoder,
     body: kropp === undefined ? undefined : JSON.stringify(kropp),
   });
-  return { status: svar.status, kropp: (await svar.json()) as Record<string, any> };
+  return { status: svar.status, kropp: (await svar.json()) as Svarkropp };
 }

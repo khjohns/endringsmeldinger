@@ -320,6 +320,12 @@ export function lagServer(avh: Avhengigheter) {
     const url = new URL(foresporsel.url ?? '/', 'http://localhost');
     const metode = foresporsel.method ?? 'GET';
     const sak = url.pathname.match(/^\/api\/cases\/([^/]+)\/(state|journal|godkjenningspakke)$/);
+    let sakId = '';
+    try {
+      sakId = sak ? decodeURIComponent(sak[1]) : '';
+    } catch {
+      return [404, { error: 'NOT_FOUND', message: 'Ukjent sak.' }];
+    }
     if (
       metode === 'POST' &&
       (url.pathname === '/api/events' || url.pathname === '/api/events/batch')
@@ -331,7 +337,6 @@ export function lagServer(avh: Avhengigheter) {
       return send(foresporsel, kropp as Record<string, unknown>, url.pathname.endsWith('/batch'));
     }
     if (sak && metode === 'GET' && sak[2] !== 'godkjenningspakke') {
-      const sakId = decodeURIComponent(sak[1]);
       const { prosjekt } = await tilgang(foresporsel, {}, sakId, false);
       const { sak: s, journal, versjon } = await lesSak(sakId, prosjekt.prosjektId);
       if (!journal.length) return [404, { error: 'Sak ikke funnet' }];
@@ -344,11 +349,7 @@ export function lagServer(avh: Avhengigheter) {
     }
     if (sak && metode === 'POST' && sak[2] === 'godkjenningspakke') {
       const kropp = await lesKropp(foresporsel);
-      return godkjenningspakke(
-        foresporsel,
-        decodeURIComponent(sak[1]),
-        kropp as Record<string, unknown>
-      );
+      return godkjenningspakke(foresporsel, sakId, kropp as Record<string, unknown>);
     }
     return [404, { error: 'NOT_FOUND', message: 'Ukjent rute.' }];
   }
