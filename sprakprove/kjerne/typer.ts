@@ -35,14 +35,14 @@ export const SAKSSTATUSER = [
 export type Saksstatus = (typeof SAKSSTATUSER)[number];
 
 export {
-  BELOPSVURDERINGER,
+  BELOEPSVURDERINGER as BELOPSVURDERINGER,
   FRISTRESULTATER,
   GRUNNLAGSRESULTATER,
   SUBSIDIAERE_UTLOSERE,
   VEDERLAGSRESULTATER,
 } from '../../kjerne/regler/typer.ts';
 export type {
-  Belopsvurdering,
+  Beloepsvurdering as Belopsvurdering,
   Fristresultat,
   Fristvarseltype,
   Grunnlagsresultat,

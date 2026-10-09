@@ -12,15 +12,15 @@
 import { kraveneErAvgjort, type Utledning } from './utled.ts';
 import type { Avvisning, Part, Spor } from './typer.ts';
 
-export type Handlingsnokkel =
+export type Handlingsnoekkel =
   | { type: 'krav' | 'trekke' | 'godta' | 'svare' | 'revidere'; spor: Spor }
   | { type: 'varsle'; spor: 'frist' }
   | { type: 'bestride'; gjelder: string };
 
-export const nokkel = (h: Handlingsnokkel): string =>
+export const noekkel = (h: Handlingsnoekkel): string =>
   h.type === 'bestride' ? `bestride:${h.gjelder}` : `${h.type}:${h.spor}`;
 
-const PART: Record<Handlingsnokkel['type'], Part | null> = {
+const PART: Record<Handlingsnoekkel['type'], Part | null> = {
   krav: 'TE',
   trekke: 'TE',
   godta: 'TE',
@@ -32,9 +32,9 @@ const PART: Record<Handlingsnokkel['type'], Part | null> = {
 
 export const avvis = (regel: string, melding: string): Avvisning => ({ regel, melding });
 
-export function forutsetninger(h: Handlingsnokkel, part: Part, u: Utledning): Avvisning | null {
+export function forutsetninger(h: Handlingsnoekkel, part: Part, u: Utledning): Avvisning | null {
   // MM-U2: en sak kjernen ikke forstår, tar ikke imot bindende kommandoer fra noen part.
-  if (!u.forstatt)
+  if (!u.forstaatt)
     return avvis('SAK_IKKE_FORSTAATT', 'Saken har hendelser denne versjonen ikke kan tolke.');
   const eier = PART[h.type];
   if (eier !== null && eier !== part) return avvis('FEIL_PART', `Bare ${eier} kan gjøre dette.`);

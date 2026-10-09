@@ -5,7 +5,7 @@
  * egne verdier til lagring. Beløp sammenliknes til hele øre.
  */
 
-import { belop, tilTall, type Ore } from '../../kjerne/regler/belop.ts';
+import { beloep as belop, tilTall, type Oere as Ore } from '../../kjerne/regler/beloep.ts';
 import { REGELVERSJON } from './regelversjon.ts';
 import { kontrollerGrunnlagssvar } from '../../kjerne/regler/grunnlag.ts';
 import { beregnFrist, type Fristkrav } from '../../kjerne/regler/frist.ts';

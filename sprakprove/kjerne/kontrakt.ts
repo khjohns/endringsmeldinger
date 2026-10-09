@@ -10,7 +10,12 @@
 
 import skjema from '../../docs/domenetabell/kontrakt.json' with { type: 'json' };
 
-import { feilI as feilISkjema, NOKKELORD, oppslag, type Skjema } from '../../kjerne/skjema.ts';
+import {
+  feilI as feilISkjema,
+  NOEKKELORD as NOKKELORD,
+  oppslag,
+  type Skjema,
+} from '../../kjerne/skjema.ts';
 
 export { NOKKELORD };
 const DEFS = (skjema as Skjema)['$defs'] as Record<string, Skjema>;

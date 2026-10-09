@@ -27,7 +27,7 @@ export interface Opplysning {
 export type Utsagn =
   | { id: string; art: 'rettidighet'; gjelder: string; hjemmel: Hjemmel; iTide: boolean }
   | { id: string; art: 'ansvar'; gjelder: string; resultat: Grunnlagsresultat }
-  | { id: string; art: 'belop'; gjelder: string; resultat: Vederlagsresultat; godkjent: number }
+  | { id: string; art: 'beloep'; gjelder: string; resultat: Vederlagsresultat; godkjent: number }
   /** § 33.1: om byggherren godtar at det er en fremdriftshindring. */
   | { id: string; art: 'hindring'; gjelder: string; oppfylt: boolean }
   /** `vurdert` er dagene byggherren har vurdert, også når de står subsidiært. */
@@ -127,7 +127,7 @@ export interface Beslutningsgrunnlag {
 }
 
 export interface Utfall {
-  belop?: number;
+  beloep?: number;
   dager?: number;
   grunnlag?: 'avklart' | 'avvist';
 }

@@ -39,15 +39,15 @@ const OPPSUMMERING = /status|etikett|oppgjort|avsluttet|laast|lukket|omforent/i;
 export function statuslesing(kilde: string): string[] {
   const fil = ts.createSourceFile('regel.ts', kilde, ts.ScriptTarget.ES2022, true);
   const funnet: string[] = [];
-  const besok = (n: ts.Node) => {
+  const besoek = (n: ts.Node) => {
     if (
       (ts.isIdentifier(n) || ts.isStringLiteral(n) || ts.isNoSubstitutionTemplateLiteral(n)) &&
       OPPSUMMERING.test(n.text)
     )
       funnet.push(n.text);
-    ts.forEachChild(n, besok);
+    ts.forEachChild(n, besoek);
   };
-  besok(fil);
+  besoek(fil);
   return funnet;
 }
 
@@ -81,18 +81,18 @@ export function forbudteStier(
   const mal = new Set(forbudt.map(utenEndelse));
   const funnet: string[] = [];
   const sett = new Set<string>();
-  const besok = (fil: string, sti: string[]) => {
-    const nokkel = utenEndelse(fil);
-    if (sett.has(nokkel)) return;
-    sett.add(nokkel);
-    const kilde = filer.get(nokkel) ?? lesFil(nokkel);
+  const besoek = (fil: string, sti: string[]) => {
+    const noekkel = utenEndelse(fil);
+    if (sett.has(noekkel)) return;
+    sett.add(noekkel);
+    const kilde = filer.get(noekkel) ?? lesFil(noekkel);
     if (kilde === null) return;
     for (const neste of importer(fil, kilde).filter((i) => i.startsWith(ROT))) {
       if (mal.has(neste)) funnet.push([...sti, neste].map((s) => relative(ROT, s)).join(' → '));
-      else besok(`${neste}.ts`, [...sti, neste]);
+      else besoek(`${neste}.ts`, [...sti, neste]);
     }
   };
-  besok(start, [utenEndelse(start)]);
+  besoek(start, [utenEndelse(start)]);
   return funnet;
 }
 
@@ -140,9 +140,9 @@ describe('kjernen er ren kode (B-14)', () => {
     ["export * from '../../src/lib/domain/fristDomain.ts';", 'regler/frist.ts'],
     ["import pg from 'pg';", 'skriving.ts'],
     ["const pg = await import('pg');", 'buffer.ts'],
-    ["const { Pool } = require('pg');", 'tester/kjorer.ts'],
-    ["import { leggTil } from '../../sprakprove/server/lager.ts';", 'tester/kjorer.ts'],
-    ["import x from '../../docs/annet.json' with { type: 'json' };", 'tester/kjorer.ts'],
+    ["const { Pool } = require('pg');", 'tester/kjoerer.ts'],
+    ["import { leggTil } from '../../sprakprove/server/lager.ts';", 'tester/kjoerer.ts'],
+    ["import x from '../../docs/annet.json' with { type: 'json' };", 'tester/kjoerer.ts'],
   ])('oppdager %s i %s', (linje, navn) => {
     const fil = join(KJERNE, navn);
     expect(utenforKjernen(fil, `${linje}\n${readFileSync(fil, 'utf8')}`)).not.toEqual([]);

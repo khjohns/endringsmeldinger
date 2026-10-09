@@ -15,8 +15,8 @@ export const VEDERLAGSRESULTATER = [
 export type Vederlagsresultat = (typeof VEDERLAGSRESULTATER)[number];
 export const FRISTRESULTATER = ['godkjent', 'delvis_godkjent', 'avslatt'] as const;
 export type Fristresultat = (typeof FRISTRESULTATER)[number];
-export const BELOPSVURDERINGER = ['godkjent', 'delvis', 'avslatt'] as const;
-export type Belopsvurdering = (typeof BELOPSVURDERINGER)[number];
+export const BELOEPSVURDERINGER = ['godkjent', 'delvis', 'avslatt'] as const;
+export type Beloepsvurdering = (typeof BELOEPSVURDERINGER)[number];
 export type Vederlagsmetode = 'ENHETSPRISER' | 'REGNINGSARBEID' | 'FASTPRIS_TILBUD';
 export type Fristvarseltype = 'varsel' | 'spesifisert' | 'begrunnelse_utsatt';
 

@@ -219,7 +219,7 @@ interface Rapport {
   }[];
 }
 
-function kjorVitest(): Rapport {
+function kjoerVitest(): Rapport {
   const ut = join(mkdtempSync(join(tmpdir(), 'feilinnforing-')), 'rapport.json');
   spawnSync(
     'npx',
@@ -251,7 +251,7 @@ for (const m of mutasjoner) {
       throw new Error(`${m.id}: «${fra}» finnes ikke nøyaktig én gang i ${m.fil}`);
 }
 
-const kontroll = kjorVitest();
+const kontroll = kjoerVitest();
 const kontrollfeil = kontroll.testResults
   .flatMap((f) => f.assertionResults)
   .filter((t) => t.status === 'failed');
@@ -272,7 +272,7 @@ for (const m of mutasjoner) {
       m.fil,
       m.endringer.reduce((t, [fra, til]) => t.replace(fra, til), original)
     );
-    rapport = kjorVitest();
+    rapport = kjoerVitest();
   } finally {
     writeFileSync(m.fil, original);
   }

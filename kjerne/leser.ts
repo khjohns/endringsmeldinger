@@ -16,7 +16,7 @@
  * manglende referanse. Den gir en hendelse som ikke er forstått (MM-U2).
  */
 
-import { utenforProven } from './standpunkt.ts';
+import { utenforOmfanget } from './standpunkt.ts';
 import type {
   Beslutningsgrunnlag,
   Dokument,
@@ -66,7 +66,7 @@ export const KRAVREFERANSE: Record<Spor, string> = {
 /** Varselet kjernen utleder av et fristkrav når ingen varsel er registrert (MM-U1). */
 export const utledetVarsel = (kravId: string) => `utledet:${kravId}`;
 
-class Uforstatt extends Error {}
+class Uforstaatt extends Error {}
 
 const tekst = (v: unknown): string | null => (typeof v === 'string' ? v : null);
 const sannhet = (v: unknown): boolean | null => (typeof v === 'boolean' ? v : null);
@@ -74,7 +74,7 @@ const tall = (v: unknown): number | null =>
   typeof v === 'number' && Number.isFinite(v) ? v : null;
 
 function krev<T>(verdi: T | null, hva: string): T {
-  if (verdi === null) throw new Uforstatt(hva);
+  if (verdi === null) throw new Uforstaatt(hva);
   return verdi;
 }
 
@@ -98,7 +98,7 @@ function svarutsagn(
       utsagn.push({ id: `${id}#rettidighet`, art: 'rettidighet', gjelder, hjemmel: '32.2', iTide });
     const resultat = krev(tekst(data.resultat), 'grunnlagssvaret mangler resultat');
     if (!['godkjent', 'avslatt', 'frafalt'].includes(resultat))
-      throw new Uforstatt(`ukjent resultat ${resultat}`);
+      throw new Uforstaatt(`ukjent resultat ${resultat}`);
     utsagn.push({
       id: `${id}#ansvar`,
       art: 'ansvar',
@@ -107,8 +107,8 @@ function svarutsagn(
     });
   } else if (spor === 'vederlag') {
     utsagn.push({
-      id: `${id}#belop`,
-      art: 'belop',
+      id: `${id}#beloep`,
+      art: 'beloep',
       gjelder,
       resultat: krev(tekst(data.beregnings_resultat), 'vederlagssvaret mangler resultat') as never,
       godkjent: krev(tall(data.total_godkjent_belop), 'vederlagssvaret mangler beløp'),
@@ -150,14 +150,14 @@ function lesSvar(
   utkast: boolean
 ): Svar {
   const data = h.data;
-  const utenfor = utenforProven(spor, data);
-  if (utenfor) throw new Uforstatt(utenfor);
+  const utenfor = utenforOmfanget(spor, data);
+  if (utenfor) throw new Uforstaatt(utenfor);
   const referanser = [h.refererer_til_event_id, tekst(data[KRAVREFERANSE[spor]])].filter(
     (r): r is string => r !== null
   );
-  if (!referanser.length) throw new Uforstatt('svaret viser ikke til noe krav');
+  if (!referanser.length) throw new Uforstaatt('svaret viser ikke til noe krav');
   if (referanser.some((r) => r !== referanser[0]))
-    throw new Uforstatt('svaret viser til to ulike krav');
+    throw new Uforstaatt('svaret viser til to ulike krav');
   const gjelder = referanser[0];
   const utsagn = svarutsagn(spor, h.event_id, gjelder, data, stand);
   if (utkast)
@@ -172,7 +172,7 @@ function lesSvar(
       beslutningsgrunnlag: { regelversjon: 0, standpunkter: [], linje: '' },
       enighetsgrunnlag: null,
     };
-  if (!('enighetsgrunnlag' in data)) throw new Uforstatt('svaret mangler enighetsfeltet');
+  if (!('enighetsgrunnlag' in data)) throw new Uforstaatt('svaret mangler enighetsfeltet');
   return {
     id: h.event_id,
     spor,
@@ -193,16 +193,16 @@ const objekt = (v: unknown): Record<string, unknown> | null =>
 
 /** Standpunktene skal ha ett standpunkt per utsagn i svaret, med samme art. */
 function lesStandpunkter(v: unknown, utsagn: Utsagn[] | null, hva: string): Standpunkt[] {
-  if (!Array.isArray(v)) throw new Uforstatt(`${hva} mangler standpunkter`);
+  if (!Array.isArray(v)) throw new Uforstaatt(`${hva} mangler standpunkter`);
   const art = new Map(utsagn?.map((u) => [u.id, u.art]));
   const sett = new Set<string>();
   return v.map((p) => {
     const o = objekt(p);
     const id = tekst(o?.utsagn);
     if (!o || id === null || !VIRKNINGER.has(o.virkning as string) || sett.has(id))
-      throw new Uforstatt(`${hva} har et ugyldig standpunkt`);
+      throw new Uforstaatt(`${hva} har et ugyldig standpunkt`);
     if (utsagn && art.get(id) !== o.art)
-      throw new Uforstatt(`${hva} har et standpunkt til et utsagn svaret ikke har`);
+      throw new Uforstaatt(`${hva} har et standpunkt til et utsagn svaret ikke har`);
     sett.add(id);
     return { utsagn: id, art: o.art as Standpunkt['art'], virkning: o.virkning as Virkning };
   });
@@ -210,10 +210,10 @@ function lesStandpunkter(v: unknown, utsagn: Utsagn[] | null, hva: string): Stan
 
 function lesBeslutningsgrunnlag(v: unknown, utsagn: Utsagn[]): Beslutningsgrunnlag {
   const o = objekt(v);
-  if (!o) throw new Uforstatt('svaret mangler beslutningsgrunnlag');
+  if (!o) throw new Uforstaatt('svaret mangler beslutningsgrunnlag');
   const standpunkter = lesStandpunkter(o.standpunkter, utsagn, 'beslutningsgrunnlaget');
   if (standpunkter.length !== utsagn.length)
-    throw new Uforstatt('beslutningsgrunnlaget mangler standpunkt til et utsagn');
+    throw new Uforstaatt('beslutningsgrunnlaget mangler standpunkt til et utsagn');
   return {
     regelversjon: krev(tall(o.regelversjon), 'beslutningsgrunnlaget mangler regelversjon'),
     standpunkter,
@@ -224,15 +224,15 @@ function lesBeslutningsgrunnlag(v: unknown, utsagn: Utsagn[]): Beslutningsgrunnl
 function lesEnighetsgrunnlag(v: unknown): Enighetsgrunnlag {
   const o = objekt(v);
   const utfall = objekt(o?.utfall);
-  if (!o || !utfall) throw new Uforstatt('enighetsgrunnlaget er ikke et enighetsgrunnlag');
+  if (!o || !utfall) throw new Uforstaatt('enighetsgrunnlaget er ikke et enighetsgrunnlag');
   const spor = tekst(o.spor);
   const kilde = tekst(o.kilde);
   if (spor !== 'grunnlag' && spor !== 'vederlag' && spor !== 'frist')
-    throw new Uforstatt('enighetsgrunnlaget har ukjent spor');
+    throw new Uforstaatt('enighetsgrunnlaget har ukjent spor');
   if (kilde !== 'aksept' && kilde !== 'sammenfall')
-    throw new Uforstatt('enighetsgrunnlaget har ukjent kilde');
+    throw new Uforstaatt('enighetsgrunnlaget har ukjent kilde');
   if (o.vilkaar !== (spor === 'grunnlag' ? null : 'grunnlag_avklart'))
-    throw new Uforstatt('enighetsgrunnlaget har et annet vilkår enn sporet');
+    throw new Uforstaatt('enighetsgrunnlaget har et annet vilkår enn sporet');
   return {
     spor,
     svar: krev(tekst(o.svar), 'enighetsgrunnlaget viser ikke til noe svar'),
@@ -262,7 +262,7 @@ function lesDokument(h: Journalrad, stand: Lesestand, utkast: Set<string>): Doku
     const v = tekst(verdi);
     if (v === null) return;
     const part = tekst(oppgittAv) ?? avsender;
-    if (part !== 'TE' && part !== 'BH') throw new Uforstatt('ukjent part for opplysningen');
+    if (part !== 'TE' && part !== 'BH') throw new Uforstaatt('ukjent part for opplysningen');
     const o: Opplysning = { id: `${id}#${hva}`, dokument: id, hva, verdi: v, oppgittAv: part };
     dokument.opplysninger.push(o);
   };
@@ -332,7 +332,7 @@ function lesDokument(h: Journalrad, stand: Lesestand, utkast: Set<string>): Doku
   }
   if (type === 'bestridelse_registrert') {
     const hva = tekst(data.hva);
-    if (hva !== 'sendt' && hva !== 'mottatt') throw new Uforstatt('ukjent bestridelse');
+    if (hva !== 'sendt' && hva !== 'mottatt') throw new Uforstaatt('ukjent bestridelse');
     dokument.utsagn.push({
       id: `${h.event_id}#bestridelse`,
       art: 'bestridelse',
@@ -341,7 +341,7 @@ function lesDokument(h: Journalrad, stand: Lesestand, utkast: Set<string>): Doku
     });
     return dokument;
   }
-  throw new Uforstatt(`ukjent hendelsestype ${type}`);
+  throw new Uforstaatt(`ukjent hendelsestype ${type}`);
 }
 
 /**
@@ -369,7 +369,7 @@ export function lesJournal(
     try {
       return { ...felles, art: 'dokument', dokument: lesDokument(h, stand, utkast) };
     } catch (feil) {
-      if (feil instanceof Uforstatt) return { ...felles, art: 'ukjent', grunn: feil.message };
+      if (feil instanceof Uforstaatt) return { ...felles, art: 'ukjent', grunn: feil.message };
       throw feil;
     }
   });

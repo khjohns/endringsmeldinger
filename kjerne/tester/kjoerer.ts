@@ -2,7 +2,7 @@
  * Kjører bevis-sakene i `docs/domenetabell/bevis-saker-maalmodell.json` mot
  * målmodellen i en bane. Samme kontrollroller som korpuset i språkprøven: en
  * forutsetning eller kontrollsak som ikke holder, feiler med `Forutsetning`;
- * målet meldes gjennom `pastand`. Et avvist steg skal la journalen stå uendret.
+ * målet meldes gjennom `paastand`. Et avvist steg skal la journalen stå uendret.
  */
 
 import bevis from '../../docs/domenetabell/bevis-saker-maalmodell.json' with { type: 'json' };
@@ -32,7 +32,7 @@ export type Kontroll = {
   prov?: Handling;
 };
 
-export type Forlop = {
+export type Forloep = {
   id: string;
   rader: string[];
   start: string | null;
@@ -42,7 +42,7 @@ export type Forlop = {
 
 export const MAALMODELL = bevis as unknown as {
   prefikser: Record<string, Handling[]>;
-  forlop: Forlop[];
+  forlop: Forloep[];
   genererte: {
     seed: number;
     antall: number;
@@ -53,9 +53,9 @@ export const MAALMODELL = bevis as unknown as {
 };
 
 export class Forutsetning extends Error {}
-export type Pastand = (holder: boolean, melding: string) => void;
+export type Paastand = (holder: boolean, melding: string) => void;
 
-const kastVedBrudd: Pastand = (holder, melding) => {
+const kastVedBrudd: Paastand = (holder, melding) => {
   if (!holder) throw new Error(melding);
 };
 
@@ -65,7 +65,7 @@ export const medRegler = (regler: Regelsett, kjerne: Kjerne = KJERNE): Kjerne =>
 });
 
 /** Det kjøringen holder rede på mellom stegene. */
-export class Kjoring {
+export class Kjoering {
   readonly navn = new Navn();
   kjerne: Kjerne;
   sist: { utfall: Utfall | null; nye: number } = { utfall: null, nye: 0 };
@@ -81,7 +81,7 @@ export class Kjoring {
   kontekst(h: Handling, part = partFor(h)): Kontekst {
     return {
       sakId: this.bane.sakId,
-      aktorId: this.bane.aktor(part),
+      aktoerId: this.bane.aktor(part),
       part,
       teamId: `team-${part.toLowerCase()}`,
       tidspunkt: () => new Date((this.klokke += 60_000)),
@@ -139,21 +139,21 @@ export class Kjoring {
   }
 
   private navngi(h: Handling, utfall: Extract<Utfall, { godtatt: true }>): void {
-    const [forste] = utfall.hendelser;
+    const [foerste] = utfall.hendelser;
     if (h.handling === 'brev') {
-      this.navn.sett(h.navn, forste.data.dokument_id as string);
+      this.navn.sett(h.navn, foerste.data.dokument_id as string);
       (h.svar as Handling[]).forEach((s, i) =>
         this.navn.sett(s.navn, utfall.hendelser[i].event_id)
       );
       return;
     }
-    this.navn.sett(h.navn, forste.event_id);
-    if (h.handling === 'revisjon') this.navn.sett(h.dokument, forste.data.dokument_id as string);
+    this.navn.sett(h.navn, foerste.event_id);
+    if (h.handling === 'revisjon') this.navn.sett(h.dokument, foerste.data.dokument_id as string);
   }
 }
 
 /** Verdien på stien i utledningen, visningen, handlingene eller siste utfall. */
-export function les(sti: string, u: Utledning, k: Kjoring): unknown {
+export function les(sti: string, u: Utledning, k: Kjoering): unknown {
   const [hode, ...hale] = sti.split('.');
   const id = (navn: string) => k.navn.id(navn);
   const svar = () => {
@@ -162,8 +162,8 @@ export function les(sti: string, u: Utledning, k: Kjoring): unknown {
     return s;
   };
   switch (hode) {
-    case 'forstatt':
-      return u.forstatt;
+    case 'forstaatt':
+      return u.forstaatt;
     case 'gjeldende_krav':
       return u.spor[hale[0] as 'grunnlag'].gjeldendeKrav?.id ?? null;
     case 'gjeldende_svar':
@@ -187,14 +187,14 @@ export function les(sti: string, u: Utledning, k: Kjoring): unknown {
       const e = u.spor[hale[0] as 'grunnlag'].enighet;
       if (hale.length === 1 || e === null) return e === null ? null : 'finnes';
       const felt = hale[1];
-      if (felt === 'utfall') return e.grunnlag.utfall[hale[2] as 'belop'] ?? null;
+      if (felt === 'utfall') return e.grunnlag.utfall[hale[2] as 'beloep'] ?? null;
       if (felt === 'standpunkt')
         return e.grunnlag.standpunkter.find((p) => p.art === hale[2])?.virkning ?? null;
       if (felt === 'svar' || felt === 'kilde' || felt === 'regelversjon') return e.grunnlag[felt];
       if (felt === 'virkning') return enighetensVirkning(u, hale[0] as 'grunnlag');
       return e[felt as 'holder'];
     }
-    case 'subsidiaer_arsaker':
+    case 'subsidiaer_aarsaker':
       return u.spor[hale[0] as 'vederlag'].subsidiaer;
     case 'grunnlag_avklart':
       return u.grunnlagAvklart;
@@ -263,13 +263,13 @@ export function stemmer(sti: string, faktisk: unknown, forventet: unknown): bool
 }
 
 /** Kjør prefikset og stegene, og kontroller forventningene etter hvert steg. */
-export async function kjor(
-  forlop: Forlop,
+export async function kjoer(
+  forloep: Forloep,
   bane: Bane,
-  { pastand = kastVedBrudd, kjerne = KJERNE }: { pastand?: Pastand; kjerne?: Kjerne } = {}
-): Promise<Kjoring> {
-  const k = new Kjoring(bane, kjerne);
-  for (const h of forlop.start ? MAALMODELL.prefikser[forlop.start] : []) {
+  { paastand = kastVedBrudd, kjerne = KJERNE }: { paastand?: Paastand; kjerne?: Kjerne } = {}
+): Promise<Kjoering> {
+  const k = new Kjoering(bane, kjerne);
+  for (const h of forloep.start ? MAALMODELL.prefikser[forloep.start] : []) {
     const u = await k.send(h);
     if (u && !u.godtatt)
       throw new Forutsetning(
@@ -279,8 +279,8 @@ export async function kjor(
   k.sist = { utfall: null, nye: 0 };
 
   const sjekk = async (etter: number) => {
-    for (const kontroll of forlop.kontroller.filter((x) => x.etter === etter)) {
-      const hvor = `${forlop.id} etter steg ${etter} [${kontroll.kilde.join(', ')}]`;
+    for (const kontroll of forloep.kontroller.filter((x) => x.etter === etter)) {
+      const hvor = `${forloep.id} etter steg ${etter} [${kontroll.kilde.join(', ')}]`;
       if (kontroll.prov) {
         const journalFor = JSON.stringify(await bane.journal());
         const u = await k.prov(kontroll.prov);
@@ -291,7 +291,7 @@ export async function kjor(
           (kontroll.forventet.regel === undefined ||
             (!u.godtatt && u.avvisning.regel === kontroll.forventet.regel));
         const melding = `${hvor}: ${kontroll.prov.handling} ga ${u.godtatt ? 'godtatt' : `${u.avvisning.regel}: ${u.avvisning.melding}`}, ventet ${JSON.stringify(kontroll.forventet)}`;
-        if (kontroll.rolle === 'mal') pastand(holder, melding);
+        if (kontroll.rolle === 'mal') paastand(holder, melding);
         else if (!holder) throw new Forutsetning(`kontrollsak ${melding}`);
         continue;
       }
@@ -300,20 +300,20 @@ export async function kjor(
         const faktisk = k.navn.navngi(les(sti, u, k));
         const holder = stemmer(sti, faktisk, forventet);
         const melding = `${hvor}: ${sti} er ${JSON.stringify(faktisk)}, ventet ${JSON.stringify(forventet)}`;
-        if (kontroll.rolle === 'mal') pastand(holder, melding);
+        if (kontroll.rolle === 'mal') paastand(holder, melding);
         else if (!holder) throw new Forutsetning(`forutsetning ${melding}`);
       }
     }
   };
 
   await sjekk(0);
-  for (const [i, h] of forlop.steg.entries()) {
+  for (const [i, h] of forloep.steg.entries()) {
     const journalFor = JSON.stringify(await bane.journal());
     const u = await k.send(h);
     if (u && !u.godtatt) {
       if (JSON.stringify(await bane.journal()) !== journalFor)
         throw new Forutsetning(`steg ${i + 1} ble avvist, men journalen endret seg`);
-      const ventet = forlop.kontroller.some(
+      const ventet = forloep.kontroller.some(
         (x) => x.etter === i + 1 && !x.prov && 'avvist' in x.forventet
       );
       if (!ventet)

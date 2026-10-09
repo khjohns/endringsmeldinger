@@ -6,17 +6,17 @@
  * 0,30 og 1.005 blir 1,01. ROUND_HALF_UP runder halvdeler bort fra null.
  */
 
-export type Ore = bigint;
+export type Oere = bigint;
 
 const DESIMALTALL = /^([+-]?)(\d*)(?:\.(\d*))?(?:e([+-]?\d+))?$/i;
 
-export class UgyldigBelop extends Error {}
+export class UgyldigBeloep extends Error {}
 
 /** Heltall skalert med 10^skala, avrundet halv opp bort fra null. */
 function skaler(tekst: string, skala: number): bigint {
   const treff = DESIMALTALL.exec(tekst.trim());
   if (!treff || (treff[2] === '' && (treff[3] ?? '') === '')) {
-    throw new UgyldigBelop(`ikke et tall: ${tekst}`);
+    throw new UgyldigBeloep(`ikke et tall: ${tekst}`);
   }
   const [, fortegn, heltall, desimaler = '', eksponent = '0'] = treff;
   const sifre = (heltall + desimaler).replace(/^0+(?=\d)/, '') || '0';
@@ -37,11 +37,11 @@ function skaler(tekst: string, skala: number): bigint {
 /** Tekstformen Python ville gitt `str()`; for et tall er det JavaScripts korteste form. */
 function tekst(verdi: number | string): string {
   if (typeof verdi === 'string') return verdi;
-  if (!Number.isFinite(verdi)) throw new UgyldigBelop(`ikke et endelig tall: ${verdi}`);
+  if (!Number.isFinite(verdi)) throw new UgyldigBeloep(`ikke et endelig tall: ${verdi}`);
   return String(verdi);
 }
 
-export function belop(verdi: number | string | null | undefined): Ore | null {
+export function beloep(verdi: number | string | null | undefined): Oere | null {
   if (verdi === null || verdi === undefined) return null;
   return skaler(tekst(verdi), 2);
 }
@@ -50,17 +50,17 @@ export function erEndelig(verdi: unknown): boolean {
   return typeof verdi === 'number' ? Number.isFinite(verdi) : verdi !== null && verdi !== undefined;
 }
 
-export function tilKrone(ore: Ore): bigint {
-  const krone = ore >= 0n ? (ore + 50n) / 100n : -((-ore + 50n) / 100n);
+export function tilKrone(oere: Oere): bigint {
+  const krone = oere >= 0n ? (oere + 50n) / 100n : -((-oere + 50n) / 100n);
   return krone;
 }
 
 /** Øre til flyttall, slik Python lagrer `float(Decimal)`. */
-export function tilTall(ore: Ore): number {
-  const negativ = ore < 0n;
-  const abs = negativ ? -ore : ore;
+export function tilTall(oere: Oere): number {
+  const negativ = oere < 0n;
+  const abs = negativ ? -oere : oere;
   const tekstform = `${negativ ? '-' : ''}${abs / 100n}.${(abs % 100n).toString().padStart(2, '0')}`;
   return Number(tekstform);
 }
 
-export const NULL_ORE: Ore = 0n;
+export const NULL_OERE: Oere = 0n;

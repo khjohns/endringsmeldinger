@@ -10,7 +10,7 @@ import { UgyldigVurdering } from '../regler/feil.ts';
 import type { Kommando, Svarutkast } from '../kommando.ts';
 import { GJELDENDE_REGLER, type Regelsett } from '../regler/regelsett.ts';
 import { regnUtSvar, type Svarvurdering } from '../standpunkt.ts';
-import { forhandsvisAksept, type Utledning } from '../utled.ts';
+import { forhaandsvisAksept, type Utledning } from '../utled.ts';
 import type { Krav, Part, Spor } from '../typer.ts';
 
 export type Handling = Record<string, unknown> & { handling: string };
@@ -190,15 +190,15 @@ export function kommandoFor(h: Handling, u: Utledning, regler: Regelsett, navn: 
         typeof h.svar === 'string'
           ? navn.id(h.svar)
           : (u.spor[spor].gjeldendeSvar?.id ?? u.spor[spor].svar.at(-1)?.id ?? 'ingen');
-      const forhandsvist = forhandsvisAksept(u, svar);
+      const forhaandsvist = forhaandsvisAksept(u, svar);
       return {
         type: 'aksept',
         spor,
         svar,
         regelversjon: regler.versjon,
         enighetsgrunnlag: (h.enighetsgrunnlag_endring
-          ? flett(forhandsvist, h.enighetsgrunnlag_endring)
-          : forhandsvist) as never,
+          ? flett(forhaandsvist, h.enighetsgrunnlag_endring)
+          : forhaandsvist) as never,
       };
     }
     case 'trekk':

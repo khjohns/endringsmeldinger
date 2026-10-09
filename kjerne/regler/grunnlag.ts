@@ -3,7 +3,7 @@
 import type { Grunnlagsresultat } from './typer.ts';
 import { UgyldigVurdering } from './feil.ts';
 
-export function forsteUnderkategori(
+export function foersteUnderkategori(
   underkategori: string | string[] | null | undefined
 ): string | null {
   if (Array.isArray(underkategori)) return underkategori[0] ?? null;
@@ -38,7 +38,7 @@ export function erGrunnlagSubsidiaert(
 ): boolean {
   return (
     resultat === 'avslatt' ||
-    erPrekludert(hovedkategori, forsteUnderkategori(underkategori), varsletITide)
+    erPrekludert(hovedkategori, foersteUnderkategori(underkategori), varsletITide)
   );
 }
 
@@ -76,7 +76,7 @@ export type Subsidiaergrunn = 'avslatt' | 'prekludert';
 export interface Standpunkt {
   subsidiaert: boolean;
   hovedgrunn: Subsidiaergrunn | null;
-  arsaker: Subsidiaergrunn[];
+  aarsaker: Subsidiaergrunn[];
 }
 
 export interface GrunnlagForStandpunkt {
@@ -97,17 +97,17 @@ export function standpunkt(
   tilNyttSvar: Subsidiaergrunn | null
 ): Standpunkt {
   if (tilNyttSvar !== null)
-    return { subsidiaert: true, hovedgrunn: tilNyttSvar, arsaker: [tilNyttSvar] };
-  const arsaker: Subsidiaergrunn[] = [];
+    return { subsidiaert: true, hovedgrunn: tilNyttSvar, aarsaker: [tilNyttSvar] };
+  const aarsaker: Subsidiaergrunn[] = [];
   if (
     erPrekludert(
       grunnlag.hovedkategori,
-      forsteUnderkategori(grunnlag.underkategori),
+      foersteUnderkategori(grunnlag.underkategori),
       grunnlag.varsletITide
     )
   ) {
-    arsaker.push('prekludert');
+    aarsaker.push('prekludert');
   }
-  if (grunnlag.resultat === 'avslatt') arsaker.push('avslatt');
-  return { subsidiaert: arsaker.length > 0, hovedgrunn: arsaker[0] ?? null, arsaker };
+  if (grunnlag.resultat === 'avslatt') aarsaker.push('avslatt');
+  return { subsidiaert: aarsaker.length > 0, hovedgrunn: aarsaker[0] ?? null, aarsaker };
 }

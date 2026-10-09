@@ -7,7 +7,7 @@ import { minnebuffer, type Bufferlager } from '../buffer.ts';
 import type { Kjerne } from '../versjon.ts';
 import { minnebane, type Bane } from './bane.ts';
 import type { Handling } from './klient.ts';
-import { Forutsetning, Kjoring, MAALMODELL } from './kjorer.ts';
+import { Forutsetning, Kjoering, MAALMODELL } from './kjoerer.ts';
 
 export interface Baner {
   navn: string;
@@ -33,8 +33,8 @@ export async function bygg(
   bane: Bane,
   steg: (Handling | string)[],
   kjerne?: Kjerne
-): Promise<Kjoring> {
-  const k = new Kjoring(bane, kjerne);
+): Promise<Kjoering> {
+  const k = new Kjoering(bane, kjerne);
   for (const h of steg.flatMap((s) => (typeof s === 'string' ? MAALMODELL.prefikser[s] : [s]))) {
     const u = await k.send(h);
     if (u && !u.godtatt)

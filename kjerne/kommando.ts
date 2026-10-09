@@ -1,8 +1,7 @@
 /**
- * Kommandoene i målmodellen, slik klienten sender dem, og kontrollen av formen.
- * Formen kontrolleres med kontraktvalidatoren fra språkprøven (`feilI`), mot
- * skjemaene her: aksepten bærer regelversjonen og enighetsgrunnlaget TE fikk
- * se, og det har ikke `kontrakt.json` (#304; formatet hører til #273).
+ * Kommandoene i kjernen, slik klienten sender dem, og kontrollen av formen mot
+ * skjemaene her (`feilI`). Aksepten bærer regelversjonen og enighetsgrunnlaget
+ * TE fikk se, og det har ikke `kontrakt.json` (#304; formatet hører til #273).
  */
 
 import { feilI } from './skjema.ts';

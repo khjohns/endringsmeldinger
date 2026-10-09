@@ -4,7 +4,7 @@
  * prosjekt, team og kontraktsside før kjernen spørres; kjernen får parten.
  */
 
-import { forutsetninger, type Handlingsnokkel } from './forutsetninger.ts';
+import { forutsetninger, type Handlingsnoekkel } from './forutsetninger.ts';
 import type { Kommando } from './kommando.ts';
 import { nyttelastkontroll } from './nyttelast.ts';
 import type { Regelsett } from './regler/regelsett.ts';
@@ -12,7 +12,7 @@ import type { Utledning } from './utled.ts';
 import type { Avvisning, Part } from './typer.ts';
 
 /** Handlingene kommandoen utfører. Et brev med flere svar er ett svar per spor. */
-export function handlingsnokler(k: Kommando): Handlingsnokkel[] {
+export function handlingsnoekler(k: Kommando): Handlingsnoekkel[] {
   switch (k.type) {
     case 'krav':
       return [{ type: 'krav', spor: k.spor }];
@@ -37,7 +37,7 @@ export function avvisning(
   u: Utledning,
   regler: Regelsett
 ): Avvisning | null {
-  for (const h of handlingsnokler(k)) {
+  for (const h of handlingsnoekler(k)) {
     const brudd = forutsetninger(h, part, u);
     if (brudd) return brudd;
   }

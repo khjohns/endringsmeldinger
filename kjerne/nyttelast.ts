@@ -8,8 +8,8 @@ import { UgyldigVurdering } from './regler/feil.ts';
 import { avvis } from './forutsetninger.ts';
 import type { Kommando, Svarutkast } from './kommando.ts';
 import type { Regelsett } from './regler/regelsett.ts';
-import { likeResultatfelt, regnUtSvar, SAMMENLIKNES, utenforProven } from './standpunkt.ts';
-import { forhandsvisAksept, type Utledning } from './utled.ts';
+import { likeResultatfelt, regnUtSvar, SAMMENLIKNES, utenforOmfanget } from './standpunkt.ts';
+import { forhaandsvisAksept, type Utledning } from './utled.ts';
 import type { Avvisning } from './typer.ts';
 
 /** Like som JSON, uavhengig av rekkefølgen på nøklene. */
@@ -36,7 +36,7 @@ function kontrollerSvar(s: Svarutkast, u: Utledning, regler: Regelsett): Avvisni
       'ANNEN_REGELVERSJON',
       `Svaret er regnet ut med regelversjon ${s.regelversjon}, serveren bruker ${regler.versjon}.`
     );
-  const utenfor = utenforProven(s.spor, s.vurderinger as Record<string, unknown>);
+  const utenfor = utenforOmfanget(s.spor, s.vurderinger as Record<string, unknown>);
   if (utenfor)
     return avvis('VURDERING_UTENFOR_KJERNEN', `Kjernen kan ikke lagre vurderingen: ${utenfor}.`);
   let server: Record<string, unknown>;
@@ -95,7 +95,7 @@ export function nyttelastkontroll(k: Kommando, u: Utledning, regler: Regelsett):
           `Aksepten er forhåndsvist med regelversjon ${k.regelversjon}, serveren bruker ${regler.versjon}. Last inn saken på nytt.`
         );
       // 2.5: serveren fryser bare det TE fikk se.
-      const server = forhandsvisAksept(u, k.svar);
+      const server = forhaandsvisAksept(u, k.svar);
       if (server === null || !likeVerdier(k.enighetsgrunnlag, server))
         return avvis(
           'ANNET_RESULTAT',
