@@ -5,7 +5,7 @@
 **Status:** forslag til oppdragsgiver, bearbeidet samme dag etter review.
 Modellen som helhet er ikke vedtatt, og forslaget endrer ingen vedtatt atferd.
 De tre domenevalgene i [avsnitt 5](#5-spørsmål-til-oppdragsgiver) ble avgjort
-samme dag som [MM-U1–MM-U3](plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u1).
+samme dag som [MM-U1–MM-U3](plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u1). Spørsmålet som forløp C, steg 3d, reiste, ble avgjort som [MM-U4](plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u4).
 
 Grunnlaget er B-14 i [hovedplanen](plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger)
 og anbefalingen i [arkitekturforslaget, avsnitt 7](forslag-maalarkitektur-og-beslutningsproeve-2026-10-07.md#anbefaling).
@@ -183,9 +183,10 @@ godtok det. En senere regelendring endrer det ikke. Dagens utledning kan vise at
 regelen er endret (forløp C).
 
 Enighetsgrunnlaget lages der enigheten oppstår. Ved `aksept` er det TEs
-aksepthendelse, med regelversjonen da aksepten ble registrert. Det kan være en
-annen versjon enn da byggherren sendte svaret, og beslutningsgrunnlaget i
-brevet dekker derfor ikke en senere aksept. Ved `sammenfall` er det svaret som
+aksepthendelse, med regelversjonen da aksepten ble registrert. Den kan være
+nyere enn da byggherren sendte svaret, men bare når standpunktene har samme
+virkning som i brevet (MM-U4). Beslutningsgrunnlaget i brevet dekker likevel
+ikke aksepten, fordi enighetsgrunnlaget også bærer vilkåret og TEs side. Ved `sammenfall` er det svaret som
 godkjenner hele kravet. Forkastet: å la gamle regelversjoner være kjørbare for å
 regne ut virkningen på nytt. Eldre aksepter uten enighetsgrunnlag får det
 utledet av kompatibilitetsleseren med gjeldende regler, merket som utledet.
@@ -203,6 +204,13 @@ for eksempel når den er oppgradert mellom forhåndsvisningen og innsendingen, e
 når nettleseren kjører en eldre kjerne. Den smale kontrakten har i dag
 svarreferansen, men ingen regelversjon eller enighetsgrunnlag i aksepten.
 
+**Bare et svar som stemmer med dagens utledning, kan godtas
+([MM-U4](plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u4)).** Har en
+regelendring etter sendingen gitt et standpunkt i svaret en annen virkning enn
+beslutningsgrunnlaget i brevet, avvises aksepten. Byggherren må da svare på nytt.
+Brevet, svaret TE godtar, og reglene enighetsgrunnlaget fryses med, stemmer
+dermed alltid overens.
+
 En enighet låser svaret den gjelder. Byggherren kan ikke revidere det (SK-03).
 Fordi `kilde` kan være `sammenfall`, følger låsingen av et fullt godkjent svar
 (#298) av definisjonen, ikke av en egen regel. En ny kravversjon opphever
@@ -215,7 +223,7 @@ enigheten (SK-02). Feltene `enighet` og `oppgjort` fra #297 blir visningen av
 | --- | --- | --- | --- | --- |
 | `forstått(sak)` | Kjernen kan tolke alle hendelsene på saken og løse alle relasjonene entydig (2.7) | Alle bindende kommandoer krever det | Ingen når det er usant | «Kan ikke utledes» |
 | `gjeldendeKrav(spor)` | Sporets siste kravversjon | Et svar må vise til det | — | Versjonen |
-| `gjeldendeSvar(spor)` | Svaret som *gjelder* gjeldende krav og ikke er *erstattet*. Etter relasjonene, ikke etter rekkefølgen (SP-04) | En aksept må vise til det ([KT-U1](plans/2026-09-16-godkjenning-og-varig-levering.md#kt-u1)). En revisjon må erstatte det | BH: svare eller revidere. TE: godta | Svaret og hva det gjelder |
+| `gjeldendeSvar(spor)` | Svaret som *gjelder* gjeldende krav og ikke er *erstattet*. Etter relasjonene, ikke etter rekkefølgen (SP-04) | En aksept må vise til det ([KT-U1](plans/2026-09-16-godkjenning-og-varig-levering.md#kt-u1)), og brevet må stemme med dagens utledning (MM-U4). En revisjon må erstatte det | BH: svare eller revidere. TE: godta, når brevet stemmer | Svaret og hva det gjelder |
 | `enighet(spor)` | Et enighetsgrunnlag for gjeldende svar (2.5) | Revisjon avvises. Ny aksept avvises foreløpig; GR-25 er en arbeidshypotese (avsnitt 6) | Ingen «revider», ingen «godta» | «Enige om beløpet», med vilkåret |
 | `grunnlagAvklart` | Godkjent uten virksom preklusjon, eller frafalt (GR-U7). Ved enighet: utfallet i enighetsgrunnlaget | — | — | «Ansvaret er avklart» |
 | `grunnlagAvvist` | Enighetsgrunnlaget for grunnlaget har utfallet `avvist` (SK-01, #213) | Alle kommandoer på saken avvises | Ingen | «Avslått» |
@@ -354,16 +362,15 @@ KA-10.
 | 3a | D4 TE: aksept → S-g1 | E-g1 fryses i D4: u1 hovedgrunn, u2 subsidiær, utfall `avvist`, regelversjon n. Grunnlaget avvist. Saken avsluttet som avslått | Ingen | Som modellen (SK-01) |
 | 3b | Ingen ny hendelse. § 32.2 snevres inn i regelversjon n+1 (#220), og K-g1 har en underkategori som faller utenfor, for eksempel `SAMORD`. S-g1 er ikke godtatt | u1 er uten virkning etter n+1: hjemmelen gjelder ikke. Hovedgrunnen blir avslaget. D3 står uendret og merkes «avviker fra dagens utledning». Saker som endres, listes før utrulling (B-13) | Et nytt svar med u1 på `SAMORD` avvises | Samme regel brukes ved lesing og skriving. Endringen slår stille gjennom på gamle saker. Sendte brev merkes ikke |
 | 3c | Som 3b, men S-g1 var «godkjent» med u1 «for sent», og TE godtok det i regelversjon n | Utledningen leser E-g1: utfallet er `avvist`, og saken forblir avslått (MM-U3). Visningen kan vise at u1 ikke ville hatt virkning etter n+1 | Ingen | Saken går fra `LUKKET_AVSLATT` til grunnlag `godkjent` og `UNDER_BEHANDLING` uten ny hendelse. Det skjer alt med en eldre hendelse ved EO (K 09.10) |
-| 3d | Som 3c, men regelendringen kommer etter BHs svar og før TEs aksept. D3 ble sendt i regelversjon n. TE åpner aksepten i n+1 | Forhåndsvisningen viser brevet slik BH sendte det, at dagens utledning avviker fra det, og utfallet aksepten gir etter n+1: u1 er uten virkning, og grunnlaget blir avklart. Sender TE, fryses E-g1 med n+1 og utfallet `avklart` (MM-U3). Ble serveren oppgradert etter forhåndsvisningen, avvises aksepten, og TE får en ny (2.5) | TE: godta etter ny forhåndsvisning. BH: revidere S-g1 så lenge det ikke er godtatt (GR-U4), som ventende handling fordi brevet avviker | Aksepten har ingen regelversjon, og utfallet regnes av gjeldende regler ved hver lesing. TE ser ikke at brevet avviker |
+| 3d | Som 3c, men regelendringen kommer etter BHs svar og før TEs aksept. D3 ble sendt i regelversjon n. TE åpner aksepten i n+1 | Brevet avviker fra dagens utledning: etter n+1 er u1 uten virkning, mens beslutningsgrunnlaget sier «prinsipalt prekludert». Visningen viser avviket. S-g1 kan ikke godtas (MM-U4) | TE: ingen aksept av S-g1. BH: revidere S-g1 etter gjeldende regler, som ventende handling (GR-U4). Når BH har svart på nytt, kan TE godta det nye svaret | En aksept godtas, og utfallet regnes av gjeldende regler ved hver lesing. TE ser ikke at brevet avviker |
 
 **Hva forløpet viser.** Et brev er ett dokument, men ikke én rettslig handling
 (MP-04). Med utsagnene atskilt kan en regelendring treffe ett av dem og la det
 andre stå. Hovedgrunnen er en utledning, ikke en lagret rekkefølge, så brevet
 kan bevares mens dagens utledning endres. 3b og 3c skiller seg bare i at TE har
 godtatt svaret. Enighetsgrunnlaget er det som gjør forskjellen synlig i dataene.
-3d viser at det TE godtar, er svaret med virkningen etter reglene ved aksepten,
-ikke nødvendigvis det brevet sa. Derfor må forhåndsvisningen vise avviket, og
-serveren må avvise en aksept som bygget på noe annet enn det den selv regner ut.
+3d viser hvorfor en aksept må bygge på et brev som stemmer med dagens utledning.
+Ellers ville TE godta noe annet enn det byggherren skrev (MM-U4).
 
 ### Forløp D: et varsel registrert etter et senere krav
 
@@ -435,18 +442,20 @@ De genererte forløpene får ni nye invarianter:
    vilkåret blir oppfylt.
 6. En aksept gjelder ett svar, også når brevet har flere.
 7. En aksept med en annen regelversjon eller et annet enighetsgrunnlag enn
-   serverens utregning avvises, og journalen er uendret.
+   serverens utregning avvises, og journalen er uendret. Det samme gjelder en
+   aksept av et svar der brevet avviker fra dagens utledning (MM-U4).
 8. Et bufret resultat brukes bare når versjonene samsvarer, også etter en
    tilbakerulling.
 9. Ingen forretningsregel leser statusen eller etikettene. Det håndheves med en
    arkitekturtest: reglene importerer ikke visningen.
 
-Seks feilinnføringer hører til:
+Sju feilinnføringer hører til:
 - reglene leser samlet status igjen;
 - `anvend` knytter svaret til gjeldende krav;
 - en ukjent hendelse hoppes over;
 - virkningen av en godtatt preklusjon regnes på nytt etter en regelendring;
 - serveren fryser sitt eget enighetsgrunnlag uten å sammenlikne med klientens;
+- en aksept godtas selv om brevet avviker fra dagens utledning;
 - et bufret resultat fra en nyere kjerne brukes etter en tilbakerulling.
 
 ## 5. Spørsmål til oppdragsgiver
@@ -455,7 +464,8 @@ Tre steder krevde modellen et domenevalg som ikke var vedtatt. Oppdragsgiver
 valgte det anbefalte alternativet i alle tre 09.10. Vedtakene står i hovedplanen
 som MM-U1, MM-U2 og MM-U3; teksten under er grunnlaget. MM-U3 ble presisert
 samme dag etter review: innholdet i enigheten ligger fast, og om vilkåret er
-oppfylt, utledes løpende.
+oppfylt, utledes løpende. Steg 3d i forløp C ga MM-U4: et svar der brevet
+avviker fra dagens utledning, kan ikke godtas før byggherren har svart på nytt.
 
 ### Spørsmål 1: kan TE registrere et tidligere varsel etter et senere krav?
 
@@ -509,6 +519,9 @@ virkningen av en *enighet* er et avledet standpunkt i den forstand.
 - Et nytt lagringsformat. Kolonnen `format`, projeksjonsversjonen og
   enighetsgrunnlaget som felt er forslag til B-10 (#273), ikke valgt.
 - Utsagnene for forsering, endringsordre og innsigelser etter § 5.
+- Hvordan et avvik mellom brev og utledning avgjøres for et svar uten lagret
+  beslutningsgrunnlag, for eksempel registrert korrespondanse eller et eldre svar
+  (MM-U4).
 - GR-25, om en aksept av et fullt godkjent svar skal avvises eller godtas uten
   virkning. Modellen fungerer med begge, og avvisningen i 2.6 er foreløpig. En
   implementasjon skal ikke avgjøre spørsmålet.
