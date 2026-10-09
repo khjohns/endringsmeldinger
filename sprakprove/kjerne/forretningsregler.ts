@@ -215,11 +215,23 @@ const SPESIFIKKE: Partial<Record<Hendelsestype, Regel[]>> = {
   te_aksepterer_respons: [byggherrenHarSvart, gjeldendeSvarRegel, ikkeAlleredeEnige],
 };
 
+/**
+ * Sporet og kravversjonen et svar gjelder, i `data`, som `enrich_event_with_version`
+ * i Python. `respondert_versjon` er 0-indeksert, og historikken viser den.
+ */
+function stempleSvar(h: Hendelse, sak: Sak): void {
+  const spor = SVARSPOR[h.event_type];
+  if (!spor) return;
+  h.data.spor = spor;
+  h.data.respondert_versjon = Math.max(0, (sak[spor].krav?.versjon ?? 0) - 1);
+}
+
 /** Første brudd, eller `null`. Hendelsens `data` får serverens verdier når svaret holder. */
 export function forstebrudd(h: Hendelse, sak: Sak): Avvisning | null {
   for (const regel of [...FELLES, ...(SPESIFIKKE[h.event_type] ?? [])]) {
     const brudd = regel(h, sak);
     if (brudd) return brudd;
   }
+  stempleSvar(h, sak);
   return null;
 }

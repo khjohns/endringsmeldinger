@@ -149,13 +149,19 @@ export async function leggTil(
       );
     }
     await klient.query('COMMIT');
-    return forventet + hendelser.length;
   } catch (feil) {
-    await klient.query('ROLLBACK');
+    try {
+      await klient.query('ROLLBACK');
+    } catch (brudd) {
+      // En forbindelse som ikke kan rulle tilbake, skal ikke tilbake i poolen.
+      klient.release(brudd as Error);
+      throw feil;
+    }
+    klient.release();
     if ((feil as { constraint?: string }).constraint === VERSJONSSKRANKE)
       throw new Versjonskonflikt(forventet, await versjon(pool, sakId));
     throw feil;
-  } finally {
-    klient.release();
   }
+  klient.release();
+  return forventet + hendelser.length;
 }

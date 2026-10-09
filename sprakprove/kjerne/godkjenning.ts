@@ -49,8 +49,9 @@ export function grunnlagsbasis(sak: Sak): Grunnlagsbasis {
   };
 }
 
-const likBasis = (a: Grunnlagsbasis | undefined, b: Grunnlagsbasis) =>
-  a !== undefined &&
+const likBasis = (a: Grunnlagsbasis | null | undefined, b: Grunnlagsbasis) =>
+  typeof a === 'object' &&
+  a !== null &&
   (Object.keys(b) as (keyof Grunnlagsbasis)[]).every((n) => a[n] === b[n]) &&
   Object.keys(a).length === Object.keys(b).length;
 
@@ -66,7 +67,10 @@ export function vurderPakke(sak: Sak, elementer: Pakkeelement[], kontekst: Konte
     return avvist(null, 'ROLE_CHECK', 'Bare byggherren sender en godkjenningspakke.');
   const medSpor = elementer.map((e) => ({
     ...e,
-    spor: SVARSPOR[e.kommando.event_type as Hendelsestype],
+    // Bare egne nøkler: `constructor` og `__proto__` er ikke spor.
+    spor: Object.hasOwn(SVARSPOR, String(e.kommando.event_type))
+      ? SVARSPOR[e.kommando.event_type as Hendelsestype]
+      : undefined,
   }));
   const utenSpor = medSpor.find((e) => !e.spor);
   if (utenSpor) {

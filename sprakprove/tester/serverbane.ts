@@ -28,6 +28,7 @@ export async function serverbane(
 ): Promise<Serverbane> {
   const id = sakId ?? (await opprettSak(o.pool, o.prosjekt.id, o.te));
   let journal: Hendelse[] = [];
+  let versjon = 0;
   let sak: Sak = projiser(id, []);
   let tilstand: OffentligTilstand = offentligTilstand(sak);
   const bruker = (rolle: Rolle) => (rolle === 'TE' ? o.te : o.bh);
@@ -47,7 +48,8 @@ export async function serverbane(
       ]);
       if (j.status !== 200 || t.status !== 200)
         throw new Forutsetning(`gjenlesingen feilet: ${j.status} ${t.status}`);
-      journal = j.kropp.events as Hendelse[];
+      journal = j.kropp.events ?? [];
+      versjon = j.kropp.version ?? 0;
       sak = projiser(id, journal);
       tilstand = t.kropp.state as OffentligTilstand;
     },
@@ -66,8 +68,8 @@ export async function serverbane(
       const [rolle, k] = kommando(h, sak);
       const sti = batch ? '/api/events/batch' : '/api/events';
       const konvolutt = batch
-        ? { sak_id: id, expected_version: journal.length, events: [k] }
-        : { sak_id: id, expected_version: journal.length, event: k };
+        ? { sak_id: id, expected_version: versjon, events: [k] }
+        : { sak_id: id, expected_version: versjon, event: k };
       const svar = await kall(server.url, sti, {
         bruker: bruker(rolle),
         prosjektId: o.prosjekt.id,

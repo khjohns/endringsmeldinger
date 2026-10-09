@@ -3,7 +3,9 @@
 To retninger, med bevis-sakene i flyten (`x-rader` i kontrakten):
 
 - **TS skriver, Python leser.** Kommandoene går til TS-serveren i
-  `sprakprove/server/`. Python bygger dem av sin egen lesing av radene TS skrev
+  `sprakprove/server/`. `data` i raden TS skrev, er det Flask ville lagret for
+  samme kommando, bortsett fra standardverdiene og de avledede feltene i
+  `BARE_PYTHON` (SP-03). Python bygger dem av sin egen lesing av radene TS skrev
   (`parse_event`, lagret), og forventningene kontrolleres på Pythons tilstand.
   Etter hver godtatt kommando er hvert felt TS-serveren sender, likt Pythons.
   Avviser TS noe Pythons regler godtar, er det rødt.
@@ -23,6 +25,7 @@ team-API får den i `SPRAKPROVE_TEAMMEDLEMMER`. Krever Node 22 og `npm ci`.
 import hashlib
 import json
 import os
+import select
 import shutil
 import subprocess
 import uuid
@@ -68,28 +71,34 @@ def _avvik(ts: dict, python: dict) -> list[str]:
 
 
 @pytest.fixture(scope="module")
-def ts_server(testbase_url):
+def ts_server(testbase_url, tmp_path_factory):
+    """TS-serveren i egen prosess. Feilutskriften går til en fil, så et fullt rør
+    aldri kan stoppe serveren, og oppstarten har en tidsgrense."""
     node = shutil.which("node")
     if node is None or not (ROT / "node_modules/pg").exists():
         pytest.fail("Node 22 og `npm ci` i repoets rot trengs for TS-serveren i språkprøven.")
-    prosess = subprocess.Popen(
-        [node, str(START), "0"],
-        cwd=ROT,
-        env={
-            **os.environ,
-            "KOE_TESTBASE_URL": testbase_url,
-            "APP_ENV": "test",
-            "BH_APPROVAL_POLICIES": "",
-            "SPRAKPROVE_TEAMMEDLEMMER": json.dumps({TE_TEAM: [TE_TEAM], BH_TEAM: [BH_TEAM]}),
-        },
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        text=True,
-    )
-    linje = prosess.stdout.readline()
+    feillogg = tmp_path_factory.mktemp("ts-server") / "stderr.txt"
+    with open(feillogg, "w") as stderr:
+        prosess = subprocess.Popen(
+            [node, str(START), "0"],
+            cwd=ROT,
+            env={
+                **os.environ,
+                "KOE_TESTBASE_URL": testbase_url,
+                "APP_ENV": "test",
+                "BH_APPROVAL_POLICIES": "",
+                "SPRAKPROVE_TEAMMEDLEMMER": json.dumps({TE_TEAM: [TE_TEAM], BH_TEAM: [BH_TEAM]}),
+            },
+            stdout=subprocess.PIPE,
+            stderr=stderr,
+            text=True,
+        )
+    klar, _, _ = select.select([prosess.stdout], [], [], 30)
+    linje = prosess.stdout.readline() if klar else ""
     if not linje.startswith("lytter på "):
         prosess.kill()
-        pytest.fail(f"TS-serveren startet ikke: {linje}{prosess.stderr.read()}")
+        prosess.wait(timeout=10)
+        pytest.fail(f"TS-serveren startet ikke innen 30 s: {linje}{feillogg.read_text()}")
     try:
         yield linje.removeprefix("lytter på ").strip()
     finally:
@@ -153,6 +162,35 @@ def _sammenlikn_journal(python: list[dict], ts: list[dict]):
     assert [{f: h[f] for f in felt} for h in ts] == [{f: h[f] for f in felt} for h in python]
 
 
+# SP-03: feltene Pydantic-modellene legger til ved lagring, som TS-serveren ikke
+# skriver: standardverdier og avledede beløp. Kontrakten beskriver dem ikke.
+BARE_PYTHON = {
+    "grunnlag_opprettet": {"varsler", "vedlegg_ids"},
+    "grunnlag_oppdatert": {"varsler", "vedlegg_ids"},
+    "vederlag_krav_sendt": {
+        "er_estimat", "krever_justert_ep", "krevd_belop", "netto_belop", "varsel_type",
+        "varslet_for_oppstart", "varsler", "vedlegg_ids",
+    },
+    "frist_krav_sendt": {"vedlegg_ids"},
+    "respons_grunnlag": {"vedlegg_ids"},
+    "respons_vederlag": {"vedlegg_ids"},
+    "respons_frist": {"vedlegg_ids"},
+}
+BARE_PYTHON["vederlag_krav_oppdatert"] = BARE_PYTHON["vederlag_krav_sendt"]
+BARE_PYTHON["respons_vederlag_oppdatert"] = BARE_PYTHON["respons_vederlag"]
+
+
+def _sammenlikn_data(rad: dict, python: dict):
+    """`data` i raden TS skrev, mot det Flask ville lagret for samme kommando.
+
+    Felles felt er like. Felt bare Python lagrer, er nøyaktig `BARE_PYTHON`, så
+    et nytt avvik eller et rettet avvik gir rødt."""
+    ts = rad["data"]
+    assert set(ts) <= set(python), f"{rad['event_type']}: bare TS lagrer {set(ts) - set(python)}"
+    assert {n: ts[n] for n in ts} == {n: python[n] for n in ts}, rad["event_type"]
+    assert set(python) - set(ts) == BARE_PYTHON.get(rad["event_type"], set()), rad["event_type"]
+
+
 class TsSkriver(Rutebane):
     """Kommandoene går til TS-serveren; resten av banen leser som Python."""
 
@@ -161,6 +199,7 @@ class TsSkriver(Rutebane):
         super().__init__(*args, **kwargs)
 
     def send(self, h):
+        python, _ = korpus.bygg_hendelse(h, self.sak(), self.sak_id)
         rolle, foresporsel = korpus.foresporsel(h, self.sak(), self.sak_id)
         status, svar = self.ts(
             rolle, "POST", "/api/events",
@@ -174,6 +213,7 @@ class TsSkriver(Rutebane):
             return False, f"{svar.get('error')}: {svar.get('message')}"
         if avvik := _avvik(svar["state"], self.tilstand()):
             pytest.fail(f"{h['handling']}: TS-serverens tilstand er ikke Pythons lesing av radene TS skrev: {avvik}")
+        _sammenlikn_data(self.raa_hendelser()[-1], python.to_cloudevent()["data"])
         _sammenlikn_journal(self.raa_hendelser(), self.ts("TE", "GET", f"/api/cases/{self.sak_id}/journal")[1]["events"])
         return True, None
 

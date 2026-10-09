@@ -8,6 +8,9 @@
  * 5. forretningsreglene med serverens utregning og regelversjonen (400);
  * 6. lagring, med versjonskonflikt fra basen (409).
  *
+ * Unntak: et `expected_version` som ikke er et heltall, gir 400 etter
+ * kontrakten. Flask sammenlikner verdien og svarer 409.
+ *
  * Saker opprettes ikke her, og godkjenningspolicyen, interne notater, vedlegg,
  * Catenda og PDF er ikke portet. Godkjenningspakken vurderes, men publiseres ikke.
  */
@@ -42,21 +45,24 @@ type Svar = [number, Record<string, unknown>];
 
 const STORSTE_KROPP = 1_000_000;
 
-async function lesKropp(foresporsel: IncomingMessage): Promise<unknown> {
+/** Kroppen, eller feilen den gir. Feilen meldes først etter tilgangskontrollen, som i Flask. */
+type Lest = { verdi: unknown } | { feil: Nektet };
+
+async function lesKropp(foresporsel: IncomingMessage): Promise<Lest> {
   const deler: Buffer[] = [];
   let storrelse = 0;
   for await (const del of foresporsel) {
     storrelse += (del as Buffer).length;
     if (storrelse > STORSTE_KROPP)
-      throw new Nektet(413, 'PAYLOAD_TOO_LARGE', 'Forespørselen er for stor.');
+      return { feil: new Nektet(413, 'PAYLOAD_TOO_LARGE', 'Forespørselen er for stor.') };
     deler.push(del as Buffer);
   }
   const tekst = Buffer.concat(deler).toString('utf8');
-  if (!tekst) return {};
+  if (!tekst) return { verdi: {} };
   try {
-    return JSON.parse(tekst);
+    return { verdi: JSON.parse(tekst) };
   } catch {
-    throw new Nektet(400, 'VALIDATION_ERROR', 'Kroppen er ikke gyldig JSON.');
+    return { feil: new Nektet(400, 'VALIDATION_ERROR', 'Kroppen er ikke gyldig JSON.') };
   }
 }
 
@@ -95,9 +101,10 @@ export function lagServer(avh: Avhengigheter) {
   const tidspunkt = avh.tidspunkt ?? (() => new Date());
   const nyId = avh.nyId ?? randomUUID;
 
+  /** En kropp som ikke kan leses, prøves som `{}`, som `get_json(silent=True)` i Flask. */
   async function tilgang(
     foresporsel: IncomingMessage,
-    kropp: unknown,
+    innhold: Lest,
     sakId: string | null,
     kontrakt: boolean
   ) {
@@ -108,10 +115,11 @@ export function lagServer(avh: Avhengigheter) {
       foresporsel,
       bruker,
       kontrakt ? 'member' : 'viewer',
-      kropp,
+      'feil' in innhold ? {} : innhold.verdi,
       sakId
     );
     const side = kontrakt ? await krevKontraktsrolle(pool, catenda, prosjekt) : null;
+    if ('feil' in innhold) throw innhold.feil;
     return { bruker, prosjekt, side };
   }
 
@@ -147,37 +155,17 @@ export function lagServer(avh: Avhengigheter) {
     return { hendelser };
   }
 
-  async function send(
-    foresporsel: IncomingMessage,
-    kropp: Record<string, unknown>,
-    batch: boolean
-  ): Promise<Svar> {
+  async function send(foresporsel: IncomingMessage, innhold: Lest, batch: boolean): Promise<Svar> {
+    const { bruker, prosjekt, side } = await tilgang(foresporsel, innhold, null, true);
+    // `tilgang` har avvist alt annet enn et objekt.
+    const kropp = (innhold as { verdi: Record<string, unknown> }).verdi;
     const sakId = kropp.sak_id;
     const forventet = kropp.expected_version;
     const kommandoer = batch ? kropp.events : [kropp.event];
-    const { bruker, prosjekt, side } = await tilgang(foresporsel, kropp, null, true);
-    if (
-      typeof sakId !== 'string' ||
-      !sakId ||
-      !erHeltall(forventet) ||
-      !Array.isArray(kommandoer) ||
-      !kommandoer.length ||
-      kommandoer.some((k) => typeof k !== 'object' || k === null)
-    ) {
-      return [
-        400,
-        {
-          success: false,
-          error: batch ? 'INVALID_REQUEST' : 'MISSING_PARAMETERS',
-          message: batch
-            ? 'sak_id, expected_version og events[] er påkrevd'
-            : 'sak_id, expected_version, and event are required',
-        },
-      ];
-    }
     if (!batch) {
       const topic = kropp.catenda_topic_id;
-      if (topic && topic !== (await sakensTopic(pool, sakId))) {
+      const sakens = typeof sakId === 'string' && sakId ? await sakensTopic(pool, sakId) : null;
+      if (topic && topic !== sakens) {
         return [
           400,
           {
@@ -198,6 +186,30 @@ export function lagServer(avh: Avhengigheter) {
         ];
       }
     }
+    const tomHendelse = (k: unknown) =>
+      !k || (typeof k === 'object' && !Array.isArray(k) && !Object.keys(k).length);
+    if (
+      typeof sakId !== 'string' ||
+      !sakId ||
+      forventet === undefined ||
+      forventet === null ||
+      !Array.isArray(kommandoer) ||
+      !kommandoer.length ||
+      (!batch && tomHendelse(kommandoer[0]))
+    ) {
+      return [
+        400,
+        {
+          success: false,
+          error: batch ? 'INVALID_REQUEST' : 'MISSING_PARAMETERS',
+          message: batch
+            ? 'sak_id, expected_version og events[] er påkrevd'
+            : 'sak_id, expected_version, and event are required',
+        },
+      ];
+    }
+    // Kontrakten (`konvolutt`) krever et heltall. Flask sammenlikner verdien og svarer 409.
+    if (!erHeltall(forventet)) return valideringsfeil('expected_version må være et heltall ≥ 0.');
     const kontekst: Kontekst = {
       sakId,
       aktorId: bruker.id,
@@ -262,9 +274,10 @@ export function lagServer(avh: Avhengigheter) {
   async function godkjenningspakke(
     foresporsel: IncomingMessage,
     sakId: string,
-    kropp: Record<string, unknown>
+    innhold: Lest
   ): Promise<Svar> {
-    const { bruker, prosjekt, side } = await tilgang(foresporsel, kropp, sakId, true);
+    const { bruker, prosjekt, side } = await tilgang(foresporsel, innhold, sakId, true);
+    const kropp = (innhold as { verdi: Record<string, unknown> }).verdi;
     if (side!.rolle !== 'BH') {
       return [
         403,
@@ -330,26 +343,24 @@ export function lagServer(avh: Avhengigheter) {
       metode === 'POST' &&
       (url.pathname === '/api/events' || url.pathname === '/api/events/batch')
     ) {
-      const kropp = await lesKropp(foresporsel);
-      if (typeof kropp !== 'object' || kropp === null || Array.isArray(kropp)) {
-        await tilgang(foresporsel, kropp, null, true);
-      }
-      return send(foresporsel, kropp as Record<string, unknown>, url.pathname.endsWith('/batch'));
+      return send(foresporsel, await lesKropp(foresporsel), url.pathname.endsWith('/batch'));
     }
     if (sak && metode === 'GET' && sak[2] !== 'godkjenningspakke') {
-      const { prosjekt } = await tilgang(foresporsel, {}, sakId, false);
+      const { prosjekt } = await tilgang(foresporsel, { verdi: {} }, sakId, false);
       const { sak: s, journal, versjon } = await lesSak(sakId, prosjekt.prosjektId);
       if (!journal.length) return [404, { error: 'Sak ikke funnet' }];
+      // Synlighetsfilteret i `lib/auth/event_visibility.py` er ikke portet. Et internt
+      // notat i journalen vises derfor til ingen, fail-closed.
+      const synlige = journal.filter((h) => (h.event_type as string) !== 'internt_notat');
       return [
         200,
         sak[2] === 'state'
           ? { version: versjon, state: offentligTilstand(s) }
-          : { version: versjon, events: journal },
+          : { version: versjon, events: synlige },
       ];
     }
     if (sak && metode === 'POST' && sak[2] === 'godkjenningspakke') {
-      const kropp = await lesKropp(foresporsel);
-      return godkjenningspakke(foresporsel, sakId, kropp as Record<string, unknown>);
+      return godkjenningspakke(foresporsel, sakId, await lesKropp(foresporsel));
     }
     return [404, { error: 'NOT_FOUND', message: 'Ukjent rute.' }];
   }
