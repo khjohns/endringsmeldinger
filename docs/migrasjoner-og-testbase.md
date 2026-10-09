@@ -6,6 +6,15 @@ Teksten er flyttet ordrett fra `AGENTS.md`, der den lastes i hver økt.
 dagens oppsett på Supabase; plattformen er ikke valgt (B-12 i
 [hovedplanen](plans/2026-09-16-godkjenning-og-varig-levering.md)).
 
+> **Merknad 2026-10-09:** Supabase-prosjektet brukes ikke inntil videre
+> ([merknaden til B-12](plans/2026-09-16-godkjenning-og-varig-levering.md#34-åpne-beslutninger)
+> 09.10). Skjemaet endres bare gjennom en migrasjonsfil i
+> `supabase/migrations/`, og katalogen i testbasen er kilden for skjemaet
+> (`.claude/rules/database.md`). Det som står under om å anvende med
+> `supabase db push`, `supabase migration list` og MCP, beskriver oppsettet
+> 29.09 og gjelder bare hvis Supabase blir plattformen. Verifikasjonen mot
+> testbasen gjelder uendret.
+
 **Migrasjonene kan verifiseres uten å røre basen.** Målversjonen er
 PostgreSQL 17 (`supabase/config.toml`), og testbasen skal kjøre på 17, som
 CI-jobben `database`. Versjonen er ikke likegyldig: `transaction_timeout`
