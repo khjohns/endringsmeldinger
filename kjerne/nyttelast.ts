@@ -1,7 +1,8 @@
 /**
  * Nyttelastkontrollen: referansene i kommandoen og serverens utregning (B-13).
- * Kjøres etter forutsetningene. Serveren regner svaret og enighetsgrunnlaget
- * på nytt og avviser en kommando der klientens verdier er andre.
+ * Kjøres etter forutsetningene. Serveren regner svaret på nytt og avviser en
+ * kommando der klientens verdier er andre. En aksept bærer bare svaret og
+ * regelversjonen; innholdet står i brevet (KA-U10).
  */
 
 import { UgyldigVurdering } from './regler/feil.ts';
@@ -9,23 +10,8 @@ import { avvis } from './forutsetninger.ts';
 import type { Kommando, Svarutkast } from './kommando.ts';
 import type { Regelsett } from './regler/regelsett.ts';
 import { likeResultatfelt, regnUtSvar, SAMMENLIKNES, utenforOmfanget } from './standpunkt.ts';
-import { forhaandsvisAksept, type Utledning } from './utled.ts';
+import type { Utledning } from './utled.ts';
 import type { Avvisning } from './typer.ts';
-
-/** Like som JSON, uavhengig av rekkefølgen på nøklene. */
-export function likeVerdier(a: unknown, b: unknown): boolean {
-  if (a === b) return true;
-  if (typeof a !== 'object' || typeof b !== 'object' || a === null || b === null) return false;
-  if (Array.isArray(a) !== Array.isArray(b)) return false;
-  const na = Object.keys(a).filter((k) => (a as Record<string, unknown>)[k] !== undefined);
-  const nb = Object.keys(b).filter((k) => (b as Record<string, unknown>)[k] !== undefined);
-  return (
-    na.length === nb.length &&
-    na.every((k) =>
-      likeVerdier((a as Record<string, unknown>)[k], (b as Record<string, unknown>)[k])
-    )
-  );
-}
 
 function kontrollerSvar(s: Svarutkast, u: Utledning, regler: Regelsett): Avvisning | null {
   const krav = u.spor[s.spor].gjeldendeKrav!;
@@ -93,13 +79,6 @@ export function nyttelastkontroll(k: Kommando, u: Utledning, regler: Regelsett):
         return avvis(
           'ANNEN_REGELVERSJON',
           `Aksepten er forhåndsvist med regelversjon ${k.regelversjon}, serveren bruker ${regler.versjon}. Last inn saken på nytt.`
-        );
-      // 2.5: serveren fryser bare det TE fikk se.
-      const server = forhaandsvisAksept(u, k.svar);
-      if (server === null || !likeVerdier(k.enighetsgrunnlag, server))
-        return avvis(
-          'ANNET_RESULTAT',
-          'Enighetsgrunnlaget avviker fra serverens. Last inn saken på nytt.'
         );
       return null;
     }

@@ -29,7 +29,7 @@ describe('formen på kravet', () => {
     expect(formfeil(krav({}))).toEqual([]);
   });
 
-  it.each(['hendelsesformat', 'dokument_id', 'beslutningsgrunnlag', 'enighetsgrunnlag'])(
+  it.each(['hendelsesformat', 'dokument_id', 'beslutningsgrunnlag'])(
     'avviser %s i innholdet, som bare serveren setter',
     (felt) => {
       expect(formfeil(krav({ [felt]: 99 }))).toEqual([`$.innhold.${felt}: ukjent felt`]);
@@ -94,40 +94,46 @@ describe('leseren', () => {
 });
 
 type Data = Record<string, unknown>;
-type Standpunkter = { standpunkter: { virkning: string }[] };
 
 /**
  * Det kjernen leser, må være lagret (DM-06). Etter B-17 finnes det ikke et svar
- * uten beslutningsgrunnlag eller en aksept uten enighetsgrunnlag (merknaden til
- * MM-U9). Kontrollsaken er samme journal med radene slik kjernen skrev dem.
+ * uten beslutningsgrunnlag (merknaden til MM-U9), og innholdet i en enighet står
+ * i brevet (KA-U10). Kontrollsaken er samme journal med radene slik kjernen
+ * skrev dem.
  */
-describe('et svar eller en aksept uten det frosne innholdet er ikke forstått (MM-U9, MM-U2)', () => {
+describe('et svar uten et fullstendig brev, eller en aksept uten regelversjon, er ikke forstått (MM-U9, KA-U10, MM-U2)', () => {
+  type Brev = { standpunkter: { virkning: string }[]; utfall?: Data } & Data;
+  const brev = (d: Data) => d.beslutningsgrunnlag as Brev;
   it.each([
     ['et svar uten beslutningsgrunnlag', 'S-v2', (d: Data) => delete d.beslutningsgrunnlag],
-    ['et svar uten enighetsfeltet', 'S-v2', (d: Data) => delete d.enighetsgrunnlag],
     [
       'et svar der beslutningsgrunnlaget mangler et standpunkt',
       'S-g1',
-      (d: Data) => (d.beslutningsgrunnlag as Standpunkter).standpunkter.pop(),
+      (d: Data) => brev(d).standpunkter.pop(),
     ],
     [
       'et svar der et standpunkt har en virkning brevet ikke kan ha',
       'S-f1',
-      (d: Data) => ((d.beslutningsgrunnlag as Standpunkter).standpunkter[0].virkning = 'uavklart'),
+      (d: Data) => (brev(d).standpunkter[0].virkning = 'uavklart'),
     ],
     [
-      'et enighetsgrunnlag ved sammenfall som gjelder et annet svar',
+      'et svar der brevet ikke sier om det er sammenfall',
       'S-f1',
-      (d: Data) => ((d.enighetsgrunnlag as { svar: string }).svar = 'annet'),
+      (d: Data) => delete brev(d).sammenfall,
     ],
-    ['en aksept uten enighetsgrunnlag', 'D6', (d: Data) => delete d.enighetsgrunnlag],
-    ['en aksept med tomt enighetsgrunnlag', 'D6', (d: Data) => (d.enighetsgrunnlag = null)],
-    ['en aksept uten regelversjon', 'D6', (d: Data) => delete d.regelversjon],
+    ['et svar der brevet mangler utfallet', 'S-v2', (d: Data) => delete brev(d).utfall],
     [
-      'en aksept med et annet vilkår enn sporet',
-      'D6',
-      (d: Data) => ((d.enighetsgrunnlag as { vilkaar: unknown }).vilkaar = null),
+      'et svar der utfallet gjelder et annet spor',
+      'S-v2',
+      (d: Data) => (brev(d).utfall = { dager: 20 }),
     ],
+    ['et svar på vederlaget uten vilkår', 'S-v2', (d: Data) => delete brev(d).vilkaar],
+    [
+      'et svar på grunnlaget med vilkår',
+      'S-g1',
+      (d: Data) => (brev(d).vilkaar = 'grunnlag_avklart'),
+    ],
+    ['en aksept uten regelversjon', 'D6', (d: Data) => delete d.regelversjon],
   ])('%s', async (_hva, navn, endring) => {
     const bane = minnebane();
     const k = await bygg(bane, ['forlop_a']);
@@ -230,8 +236,10 @@ describe('en vurdering kjernen ikke har et utsagn for, avvises', () => {
             { utsagn: `${id}#hindring`, art: 'hindring', virkning: 'uten_virkning' },
             { utsagn: `${id}#dager`, art: 'dager', virkning: 'hovedgrunn' },
           ],
+          sammenfall: true,
+          utfall: { dager: 20 },
+          vilkaar: 'grunnlag_avklart',
         },
-        enighetsgrunnlag: null,
       },
     });
     expect(lesJournal([rad(false)], 1)[0].art).toBe('ukjent');

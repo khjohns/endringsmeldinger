@@ -104,20 +104,17 @@ export function godkjennerHeleKravet(svar: Svar, s: Standpunkt[]): boolean {
   return svar.utregning.beregnings_resultat === 'godkjent';
 }
 
-/**
- * Enigheten om svaret slik brevet uttrykte det (MM-U3, MM-U9): standpunktene og
- * regelversjonen fra beslutningsgrunnlaget, utfallet de gir, og vilkåret.
- */
+/** Enigheten om svaret slik brevet uttrykte det (KA-U10, MM-U3, MM-U9). */
 export function enighetsgrunnlag(svar: Svar, kilde: Enighetsgrunnlag['kilde']): Enighetsgrunnlag {
-  const { regelversjon, standpunkter: s } = svar.beslutningsgrunnlag;
+  const { regelversjon, standpunkter, utfall, vilkaar } = svar.beslutningsgrunnlag;
   return {
     spor: svar.spor,
     svar: svar.id,
     kilde,
     regelversjon,
-    standpunkter: s,
-    utfall: utfall(svar, s),
-    vilkaar: svar.spor === 'grunnlag' ? null : 'grunnlag_avklart',
+    standpunkter,
+    utfall,
+    vilkaar: vilkaar ?? null,
   };
 }
 
@@ -155,7 +152,14 @@ export function beslutningsgrunnlag(
   s: Standpunkt[],
   regler: Regelsett
 ): Beslutningsgrunnlag {
-  return { regelversjon: regler.versjon, standpunkter: s, linje: beslutningslinje(svar, s) };
+  return {
+    regelversjon: regler.versjon,
+    standpunkter: s,
+    linje: beslutningslinje(svar, s),
+    sammenfall: godkjennerHeleKravet(svar, s),
+    utfall: utfall(svar, s),
+    ...(svar.spor === 'grunnlag' ? {} : { vilkaar: 'grunnlag_avklart' as const }),
+  };
 }
 
 /** Virkningen hvert utsagn har, utenom utsagn uten virkning. Et utsagn som mangler, er uten virkning. */

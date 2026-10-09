@@ -110,7 +110,7 @@
         {
           "etter": 4,
           "rolle": "mal",
-          "kilde": ["KA-U1", "KT-U1"],
+          "kilde": ["KA-U1", "KT-U1", "MM-U10"],
           "forventet": {
             "svar.S-g1.dokument": "D4",
             "svar.S-v1.dokument": "D4",
@@ -223,7 +223,7 @@
         {
           "etter": 6,
           "rolle": "mal",
-          "kilde": ["GR-U7", "MM-U3", "KA-U1"],
+          "kilde": ["GR-U7", "MM-U3", "KA-U1", "KA-U11", "KA-U10"],
           "forventet": {
             "avvist": false,
             "enighet.vederlag.kilde": "aksept",
@@ -265,7 +265,7 @@
         {
           "etter": 1,
           "rolle": "mal",
-          "kilde": ["KA-U1", "GR-U7"],
+          "kilde": ["KA-U1", "GR-U7", "EO-U5"],
           "forventet": {
             "avvist": false,
             "enighet.vederlag.svar": "S-v1",
@@ -298,7 +298,7 @@
         {
           "etter": 1,
           "rolle": "mal",
-          "kilde": ["GR-U7", "V-SK01", "KA-U1"],
+          "kilde": ["GR-U7", "V-SK01", "KA-U1", "KA-U11", "EO-U5"],
           "forventet": {
             "avvist": false,
             "enighet.grunnlag.utfall.grunnlag": "avvist",
@@ -357,7 +357,7 @@
         {
           "etter": 2,
           "rolle": "mal",
-          "kilde": ["GR-U7", "MM-U3", "KA-U5", "GR-U10", "EO-U2"],
+          "kilde": ["GR-U7", "MM-U3", "KA-U5", "GR-U10", "EO-U2", "KA-U11", "EO-U5", "KA-U10"],
           "forventet": {
             "grunnlag_avklart": true,
             "enighet.vederlag.virkning": "virksom",
@@ -452,7 +452,7 @@
         {
           "etter": 4,
           "rolle": "mal",
-          "kilde": ["GR-U3", "V-TFR01", "KA-U1", "GR-U7", "EO-U2"],
+          "kilde": ["GR-U3", "V-TFR01", "KA-U1", "GR-U7", "EO-U2", "KA-U11", "EO-U5"],
           "forventet": {
             "enighet.vederlag.virkning": "virksom",
             "enighet.frist.virkning": "virksom",
@@ -524,7 +524,7 @@
         {
           "etter": 2,
           "rolle": "mal",
-          "kilde": ["GR-U5", "V-TRUKKET"],
+          "kilde": ["GR-U5", "V-TRUKKET", "KA-U11", "EO-U5"],
           "forventet": {
             "avvist": false,
             "nye_hendelser": 1,
@@ -582,7 +582,7 @@
         {
           "etter": 2,
           "rolle": "mal",
-          "kilde": ["V-SK01", "MM-U3", "KA-U1"],
+          "kilde": ["V-SK01", "MM-U3", "KA-U1", "KA-U10"],
           "forventet": {
             "enighet.grunnlag.utfall.grunnlag": "avvist",
             "enighet.grunnlag.standpunkt.rettidighet": "hovedgrunn",
@@ -677,7 +677,7 @@
         {
           "etter": 3,
           "rolle": "mal",
-          "kilde": ["MM-U3", "KA-U1"],
+          "kilde": ["MM-U3", "KA-U1", "KA-U10"],
           "forventet": {
             "grunnlag_avvist": true,
             "grunnlag_avklart": false,
@@ -728,7 +728,7 @@
         {
           "etter": 3,
           "rolle": "mal",
-          "kilde": ["MM-U9", "MM-U3", "KA-U1"],
+          "kilde": ["MM-U9", "MM-U3", "KA-U1", "KA-U10"],
           "forventet": {
             "avvist": false,
             "enighet.grunnlag.svar": "S-g1",
@@ -779,7 +779,7 @@
         {
           "etter": 4,
           "rolle": "mal",
-          "kilde": ["MM-U3", "KA-U1"],
+          "kilde": ["MM-U3", "KA-U1", "KA-U10"],
           "forventet": {
             "avvist": false,
             "enighet.grunnlag.svar": "S-g2",
@@ -792,7 +792,7 @@
     },
     {
       "id": "F-MM-C3d-kontroll",
-      "forslag": "C, steg 3d: aksepten bærer regelversjonen og enighetsgrunnlaget TE fikk se (2.5, B-13)",
+      "forslag": "C, steg 3d: aksepten bærer regelversjonen TE fikk se (KA-U10, B-13)",
       "rader": ["KA-23"],
       "start": "krav_irreg",
       "steg": [
@@ -803,11 +803,6 @@
         },
         { "handling": "regelendring", "regelsett": "n+1" },
         { "handling": "aksept", "spor": "grunnlag", "klientregler": "n" },
-        {
-          "handling": "aksept",
-          "spor": "grunnlag",
-          "enighetsgrunnlag_endring": { "utfall": { "grunnlag": "avklart" } }
-        },
         { "handling": "aksept", "spor": "grunnlag", "navn": "D4" }
       ],
       "kontroller": [
@@ -820,19 +815,13 @@
         {
           "etter": 3,
           "rolle": "mal",
-          "kilde": ["#304", "V-B13-REGELVERSJON"],
+          "kilde": ["KA-U10", "V-B13-REGELVERSJON"],
           "forventet": { "avvist": true, "regel": "ANNEN_REGELVERSJON", "enighet.grunnlag": null }
         },
         {
           "etter": 4,
           "rolle": "mal",
-          "kilde": ["#304", "MM-U3"],
-          "forventet": { "avvist": true, "regel": "ANNET_RESULTAT", "enighet.grunnlag": null }
-        },
-        {
-          "etter": 5,
-          "rolle": "mal",
-          "kilde": ["MM-U9", "MM-U3", "KA-U1"],
+          "kilde": ["KA-U10", "MM-U9", "MM-U3", "KA-U1"],
           "forventet": {
             "avvist": false,
             "enighet.grunnlag.svar": "S-g1",
@@ -997,13 +986,13 @@
         {
           "etter": 3,
           "rolle": "forutsetning",
-          "kilde": ["KA-U1"],
+          "kilde": ["KA-U1", "KA-U10"],
           "forventet": { "enighet.frist.utfall.dager": 0, "enighet.frist.standpunkt.rettidighet": "hovedgrunn" }
         },
         {
           "etter": 4,
           "rolle": "mal",
-          "kilde": ["MM-U1", "KA-U1", "MM-U3", "MM-U8"],
+          "kilde": ["MM-U1", "KA-U1", "MM-U3", "MM-U8", "KA-U10"],
           "forventet": {
             "avvist": false,
             "varsel.frist": "D5",
@@ -1295,7 +1284,7 @@
         {
           "etter": 5,
           "rolle": "forutsetning",
-          "kilde": ["GR-U7"],
+          "kilde": ["GR-U7", "KA-U11"],
           "forventet": {
             "grunnlag_avklart": false,
             "enighet.vederlag.virkning": "betinget",
@@ -1313,7 +1302,7 @@
         {
           "etter": 6,
           "rolle": "mal",
-          "kilde": ["MM-U9", "GR-U7", "MM-U3"],
+          "kilde": ["MM-U9", "GR-U7", "MM-U3", "KA-U11", "EO-U5"],
           "forventet": {
             "nye_hendelser": 0,
             "standpunkt.S-g1.rettidighet": "hovedgrunn",
@@ -1341,7 +1330,7 @@
         {
           "etter": 7,
           "rolle": "mal",
-          "kilde": ["GR-U10", "GR-U7", "MM-U3", "EO-U2"],
+          "kilde": ["GR-U10", "GR-U7", "MM-U3", "EO-U2", "KA-U11", "EO-U5"],
           "forventet": {
             "avvist": false,
             "gjeldende_svar.grunnlag": "S-g2",
@@ -1538,7 +1527,7 @@
         {
           "etter": 2,
           "rolle": "mal",
-          "kilde": ["KA-U6", "V-SK02-SK03"],
+          "kilde": ["KA-U6", "V-SK02-SK03", "KA-U11"],
           "forventet": {
             "avvist": false,
             "nye_hendelser": 1,
@@ -1758,13 +1747,13 @@
         {
           "etter": 3,
           "rolle": "mal",
-          "kilde": ["EO-U2"],
+          "kilde": ["EO-U2", "KA-U11", "EO-U5"],
           "forventet": { "enighet.frist.virkning": "virksom", "kravene_avgjort": false, "kan_inngaa_i_eo": false }
         },
         {
           "etter": 4,
           "rolle": "mal",
-          "kilde": ["EO-U2", "KA-U6"],
+          "kilde": ["EO-U2", "KA-U6", "KA-U11", "EO-U5"],
           "forventet": {
             "avvist": false,
             "trukket.vederlag": true,
@@ -1775,6 +1764,90 @@
             "handlinger.TE": [],
             "handlinger.BH": []
           }
+        }
+      ]
+    },
+    {
+      "id": "F-MM-EO2",
+      "rader": ["EO-26"],
+      "start": "godkjent_grunnlag",
+      "forslag": "EO-U5: godtatte avslag i begge spor gir endringsordre på 0 kr og 0 dager",
+      "forventningsgrunnlag": "avklart_tolkning",
+      "steg": [
+        { "handling": "krav", "spor": "vederlag", "belop": 100000, "navn": "K-v1" },
+        { "handling": "krav", "spor": "frist", "dager": 20, "navn": "K-f1" },
+        {
+          "handling": "brev",
+          "navn": "D4",
+          "svar": [
+            { "spor": "vederlag", "navn": "S-v1", "vurdering": "avslatt" },
+            { "spor": "frist", "navn": "S-f1", "varsel_i_tide": true, "spesifisering_i_tide": true, "hindring": false }
+          ]
+        },
+        { "handling": "aksept", "spor": "vederlag", "navn": "D5" },
+        { "handling": "aksept", "spor": "frist", "navn": "D6" }
+      ],
+      "kontroller": [
+        {
+          "etter": 4,
+          "rolle": "mal",
+          "kilde": ["KA-U11", "EO-U5"],
+          "forventet": { "kravene_avgjort": false, "kan_inngaa_i_eo": false }
+        },
+        {
+          "etter": 5,
+          "rolle": "mal",
+          "kilde": ["EO-U5", "KA-U7", "KA-U11", "KA-U10"],
+          "forventet": {
+            "avvist": false,
+            "enighet.vederlag.utfall.beloep": 0,
+            "enighet.frist.utfall.dager": 0,
+            "enighet.vederlag.virkning": "virksom",
+            "enighet.frist.virkning": "virksom",
+            "kravene_avgjort": true,
+            "kan_inngaa_i_eo": true,
+            "visning.status": "avsluttet_oppgjort"
+          }
+        }
+      ]
+    },
+    {
+      "id": "F-MM-EO3",
+      "rader": ["EO-04"],
+      "start": "godkjent_grunnlag",
+      "forslag": "EO-U5: to trukne spor gir ikke alene grunnlag for endringsordre",
+      "forventningsgrunnlag": "avklart_tolkning",
+      "steg": [
+        { "handling": "krav", "spor": "vederlag", "belop": 100000, "navn": "K-v1" },
+        { "handling": "krav", "spor": "frist", "dager": 20, "navn": "K-f1" },
+        { "handling": "trekk", "spor": "vederlag", "navn": "D4" },
+        { "handling": "trekk", "spor": "frist", "navn": "D5" }
+      ],
+      "kontroller": [
+        {
+          "etter": 3,
+          "rolle": "mal",
+          "kilde": ["KA-U11"],
+          "forventet": { "kravene_avgjort": false, "handlinger.TE": { "inneholder": ["trekke:frist"] } }
+        },
+        {
+          "etter": 4,
+          "rolle": "mal",
+          "kilde": ["EO-U5", "KA-U11"],
+          "forventet": {
+            "avvist": false,
+            "kravene_avgjort": true,
+            "kan_inngaa_i_eo": false,
+            "handlinger.TE": [],
+            "handlinger.BH": []
+          }
+        },
+        {
+          "etter": 4,
+          "rolle": "mal",
+          "kilde": ["KA-U11"],
+          "prov": { "handling": "revisjon", "spor": "grunnlag", "resultat": "avslatt" },
+          "forventet": { "avvist": true, "regel": "KRAVENE_AVGJORT" }
         }
       ]
     }
@@ -1851,7 +1924,7 @@
     {
       "id": "INV-MM-5",
       "kilde": "MM-U3, MM-U9, V-B13-REGELVERSJON",
-      "tekst": "En regelendring endrer ikke et beslutningsgrunnlag, et enighetsgrunnlag eller et sendt brev. Prøves ved hver regelendring i de genererte forløpene og i regelendringstesten."
+      "tekst": "En regelendring endrer ikke et beslutningsgrunnlag, innholdet i en enighet eller et sendt brev. Prøves ved hver regelendring i de genererte forløpene og i regelendringstesten."
     },
     {
       "id": "INV-MM-6",
@@ -1860,13 +1933,13 @@
     },
     {
       "id": "INV-MM-7",
-      "kilde": "B-13, 2.5 i modellforslaget, MM-U9",
-      "tekst": "En aksept med en annen regelversjon eller et annet enighetsgrunnlag enn serverens avvises, og journalen er uendret (F-MM-C3d-kontroll). At dagens regler gir brevet en annen virkning, sperrer ikke aksepten (F-MM-C3d)."
+      "kilde": "B-13, KA-U10, MM-U9",
+      "tekst": "En aksept med en annen regelversjon enn serverens avvises, og journalen er uendret (F-MM-C3d-kontroll). Innholdet i enigheten er brevets (KA-U10), og at dagens regler gir brevet en annen virkning, sperrer ikke aksepten (F-MM-C3d)."
     },
     {
       "id": "INV-MM-10",
-      "kilde": "MM-U9, DM-06, B-17",
-      "tekst": "Virkningen av et sendt svar leses fra beslutningsgrunnlaget. Et svar uten beslutningsgrunnlag og en aksept uten enighetsgrunnlag er ikke forstått (kjernetesten)."
+      "kilde": "MM-U9, KA-U10, DM-06, B-17",
+      "tekst": "Virkningen av et sendt svar og innholdet i en enighet om det leses fra beslutningsgrunnlaget. Et svar uten et fullstendig beslutningsgrunnlag og en aksept uten regelversjon er ikke forstått (kjernetesten)."
     },
     {
       "id": "INV-MM-8",

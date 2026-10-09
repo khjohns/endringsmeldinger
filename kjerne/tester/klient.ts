@@ -10,7 +10,7 @@ import { UgyldigVurdering } from '../regler/feil.ts';
 import type { Kommando, Svarutkast } from '../kommando.ts';
 import { GJELDENDE_REGLER, type Regelsett } from '../regler/regelsett.ts';
 import { regnUtSvar, type Svarvurdering } from '../standpunkt.ts';
-import { forhaandsvisAksept, type Utledning } from '../utled.ts';
+import type { Utledning } from '../utled.ts';
 import type { Krav, Part, Spor } from '../typer.ts';
 
 export type Handling = Record<string, unknown> & { handling: string };
@@ -146,13 +146,6 @@ function svarutkast(
   };
 }
 
-function flett(a: unknown, b: unknown): unknown {
-  if (!b || typeof b !== 'object' || !a || typeof a !== 'object') return b;
-  const ut: Record<string, unknown> = { ...(a as Record<string, unknown>) };
-  for (const [k, v] of Object.entries(b)) ut[k] = flett(ut[k], v);
-  return ut;
-}
-
 const INNHOLD = {
   grunnlag: (h: Handling) => ({ hovedkategori: 'ENDRING', underkategori: h.underkategori }),
   vederlag: (h: Handling) => ({ metode: 'FASTPRIS_TILBUD', belop_direkte: h.belop }),
@@ -190,16 +183,7 @@ export function kommandoFor(h: Handling, u: Utledning, regler: Regelsett, navn: 
         typeof h.svar === 'string'
           ? navn.id(h.svar)
           : (u.spor[spor].gjeldendeSvar?.id ?? u.spor[spor].svar.at(-1)?.id ?? 'ingen');
-      const forhaandsvist = forhaandsvisAksept(u, svar);
-      return {
-        type: 'aksept',
-        spor,
-        svar,
-        regelversjon: regler.versjon,
-        enighetsgrunnlag: (h.enighetsgrunnlag_endring
-          ? flett(forhaandsvist, h.enighetsgrunnlag_endring)
-          : forhaandsvist) as never,
-      };
+      return { type: 'aksept', spor, svar, regelversjon: regler.versjon };
     }
     case 'trekk':
       return { type: 'trekk', spor };

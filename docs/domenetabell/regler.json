@@ -431,6 +431,34 @@
       "dato": "2026-10-09",
       "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u7",
       "radetikett": "KA-U7: en enighet binder begge parter"
+    },
+    {
+      "id": "KA-U10",
+      "type": "vedtak",
+      "dato": "2026-10-09",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u10",
+      "radetikett": "KA-U10: godtar TE byggherrens svar, gjelder enigheten svaret med den virkningen brevet hadde da det ble sendt"
+    },
+    {
+      "id": "KA-U11",
+      "type": "vedtak",
+      "dato": "2026-10-09",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u11",
+      "radetikett": "KA-U11: kravene i saken er avgjort"
+    },
+    {
+      "id": "EO-U5",
+      "type": "vedtak",
+      "dato": "2026-10-09",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#eo-u5",
+      "radetikett": "EO-U5: en KOE-sak kan inngå i en endringsordre når grunnlaget er godkjent"
+    },
+    {
+      "id": "MM-U10",
+      "type": "vedtak",
+      "dato": "2026-10-09",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u10",
+      "radetikett": "MM-U10: et brev er fra én part og kan inneholde utsagn i flere spor"
     }
   ],
   "rader": [
@@ -794,13 +822,14 @@
     {
       "id": "KA-23",
       "tilfelle": "En regelendring gir et standpunkt i byggherrens sendte svar en annen virkning før TE har godtatt det.",
-      "forventet": "Brevet beholder virkningen det hadde da det ble sendt: standpunktene, beslutningsgrunnlaget og de lagrede radene står uendret. Dagens regler vises som en merknad som oppfordrer byggherren til å revidere svaret. TE kan godta svaret slik brevet uttrykker det, og enigheten får brevets standpunkter og regelversjon. Reviderer byggherren, får det nye svaret beslutningsgrunnlag etter gjeldende regler. En aksept med en annen regelversjon eller et annet enighetsgrunnlag enn serverens avvises.",
+      "forventet": "Brevet beholder virkningen det hadde da det ble sendt: standpunktene, beslutningsgrunnlaget og de lagrede radene står uendret. Dagens regler vises som en merknad som oppfordrer byggherren til å revidere svaret. TE kan godta svaret slik brevet uttrykker det, og enigheten har brevets innhold (KA-U10). Reviderer byggherren, får det nye svaret beslutningsgrunnlag etter gjeldende regler. En aksept med en annen regelversjon enn serverens avvises.",
       "bh_standpunkt": "Svaret slik brevet uttrykte det.",
       "rettslig_virkning": "Brevet har virkningen det hadde da det ble sendt. Nye regler gjelder nye brev.",
       "rettidighet": "—",
       "tidsakse": "registrering",
       "kilder": [
         "MM-U9",
+        "KA-U10",
         "MM-U3",
         "V-B13-REGELVERSJON",
         "GR-U4"
@@ -1559,14 +1588,31 @@
     {
       "id": "EO-25",
       "tilfelle": "Byggherren har godkjent grunnlaget og hele fristkravet, og TE trekker vederlagskravet.",
-      "forventet": "Saken kan inngå i en endringsordre. Et trukket spor teller som avgjort, og fristen er godkjent.",
+      "forventet": "Saken kan inngå i en endringsordre. Kravene er avgjort: vederlaget er trukket, og fristen er godkjent. Det trukne sporet gir ikke alene grunnlag for endringsordre, men fristen gjør det.",
       "bh_standpunkt": "Godkjent grunnlag og frist.",
       "rettslig_virkning": "Kravene er avgjort.",
       "rettidighet": "—",
       "tidsakse": "registrering",
       "kilder": [
+        "EO-U5",
         "EO-U2",
+        "KA-U11",
         "KA-U6"
+      ],
+      "tolkningsstatus": "avklart_tolkning"
+    },
+    {
+      "id": "EO-26",
+      "tilfelle": "Byggherren har godkjent grunnlaget og avslått vederlag og frist, og TE godtar begge avslagene.",
+      "forventet": "Saken kan inngå i en endringsordre på 0 kr og 0 dager. Et godtatt avslag er enighet.",
+      "bh_standpunkt": "Godkjent grunnlag. Avslått vederlag og frist.",
+      "rettslig_virkning": "Kravene er avgjort ved godtatt avslag.",
+      "rettidighet": "—",
+      "tidsakse": "registrering",
+      "kilder": [
+        "EO-U5",
+        "KA-U7",
+        "KA-U11"
       ],
       "tolkningsstatus": "avklart_tolkning"
     }

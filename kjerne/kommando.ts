@@ -1,12 +1,12 @@
 /**
  * Kommandoene i kjernen, slik klienten sender dem, og kontrollen av formen mot
- * skjemaene her (`feilI`). Aksepten bærer regelversjonen og enighetsgrunnlaget
- * TE fikk se, og det har ikke `kontrakt.json` (#304; formatet hører til #273).
+ * skjemaene her (`feilI`). Aksepten bærer svaret og regelversjonen TE fikk se
+ * (KA-U10); det har ikke `kontrakt.json` (#304; formatet hører til #273).
  */
 
 import { feilI } from './skjema.ts';
 import type { Svarvurdering } from './standpunkt.ts';
-import type { Enighetsgrunnlag, Spor } from './typer.ts';
+import type { Spor } from './typer.ts';
 
 export interface Svarutkast {
   spor: Spor;
@@ -27,7 +27,6 @@ export type Kommando =
       spor: Spor;
       svar: string;
       regelversjon: number;
-      enighetsgrunnlag: Enighetsgrunnlag | null;
     }
   | { type: 'trekk'; spor: Spor }
   | { type: 'varsel'; spor: 'frist'; hjemmel: '33.4'; sendt: string; dokumentasjon?: string[] }
@@ -102,9 +101,8 @@ const SKJEMA: Record<Kommando['type'], Skjema> = {
       spor: SPOR,
       svar: ID,
       regelversjon: { type: 'integer' },
-      enighetsgrunnlag: { type: ['object', 'null'] },
     },
-    ['type', 'spor', 'svar', 'regelversjon', 'enighetsgrunnlag']
+    ['type', 'spor', 'svar', 'regelversjon']
   ),
   trekk: objekt({ type: { const: 'trekk' }, spor: SPOR }, ['type', 'spor']),
   varsel: objekt(

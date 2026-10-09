@@ -1,7 +1,7 @@
 /**
  * Feilinnføringene for kjernen (#304, #308). F1–F7 er avsnitt 4 i modellforslaget,
  * F8–F10 feilklassene reviewet av PR #306 fant, skrevet om etter MM-U9 og
- * GR-U10, og F11–F15 grensene #308 la til. Én mutasjon om gangen i
+ * GR-U10, og F11–F16 grensene #308 la til. Én mutasjon om gangen i
  * arbeidskopien, Vitest over `kjerne/` og `sprakprove/kjernelagring/`, og
  * originalteksten settes tilbake etterpå. For hver mutasjon kreves det at de
  * forventede målassertions feiler, og at alle feil er assertions, ikke import,
@@ -93,14 +93,9 @@ const MUTASJONER: Mutasjon[] = [
   },
   {
     id: 'F5',
-    feilklasse: 'serveren fryser sitt eget enighetsgrunnlag uten å sammenlikne med klientens',
+    feilklasse: 'serveren godtar en aksept forhåndsvist med en annen regelversjon (B-13, KA-U10)',
     fil: `${K}/nyttelast.ts`,
-    endringer: [
-      [
-        '!likeVerdier(k.enighetsgrunnlag, server)',
-        '!likeVerdier(k.enighetsgrunnlag, k.enighetsgrunnlag)',
-      ],
-    ],
+    endringer: [['if (k.regelversjon !== regler.versjon)', 'if (k.regelversjon === undefined)']],
     mal: ['F-MM-C3d-kontroll'],
   },
   {
@@ -150,7 +145,7 @@ const MUTASJONER: Mutasjon[] = [
     endringer: [['    if (hindring !== null)\n', '    if (hindring === undefined)\n']],
     mal: ['avslår prinsipalt, med dagene som subsidiært standpunkt'],
   },
-  // F11–F15 er grensene #308 la til.
+  // F11–F16 er grensene #308 la til.
   {
     id: 'F11',
     feilklasse: 'kjernen importerer fra språkprøven og pg',
@@ -202,6 +197,13 @@ const MUTASJONER: Mutasjon[] = [
       ],
     ],
     mal: ['reglene leser ingen status eller oppsummering (#308) handlinger.ts'],
+  },
+  {
+    id: 'F16',
+    feilklasse: 'enighet ved sammenfall leses ikke fra brevet (GR-U7, GR-U10, KA-U10)',
+    fil: `${K}/utled.ts`,
+    endringer: [['else if (g.beslutningsgrunnlag.sammenfall)', 'else if (g.utsagn.length < 0)']],
+    mal: ['F-MM-A', 'F-MM-G10', 'F-MM-K1'],
   },
 ];
 
