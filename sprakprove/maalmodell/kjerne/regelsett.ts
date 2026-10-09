@@ -23,4 +23,4 @@ export interface Kjerne {
   format: number;
 }
 
-export const KJERNE: Kjerne = { regler: GJELDENDE_REGLER, projeksjonsversjon: 1, format: 1 };
+export const KJERNE: Kjerne = { regler: GJELDENDE_REGLER, projeksjonsversjon: 2, format: 1 };

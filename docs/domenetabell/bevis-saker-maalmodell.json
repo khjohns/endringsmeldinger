@@ -539,7 +539,7 @@
         {
           "etter": 2,
           "rolle": "mal",
-          "kilde": ["V-B13-REGELVERSJON", "MM-U3", "MM-U4"],
+          "kilde": ["V-B13-REGELVERSJON", "MM-U3", "MM-U4", "MM-U5"],
           "forventet": {
             "nye_hendelser": 0,
             "standpunkt.S-g1.rettidighet": "uten_virkning",
@@ -547,7 +547,8 @@
             "avviker.S-g1": true,
             "beslutningsgrunnlag.S-g1.linje": "Prinsipalt prekludert (§ 32.2), subsidiært avslått.",
             "beslutningsgrunnlag.S-g1.regelversjon": "n",
-            "subsidiaer_arsaker.vederlag": ["avslatt"],
+            "grunnlag_avklart": false,
+            "subsidiaer_arsaker.vederlag": ["uavklart"],
             "visning.etiketter.grunnlag": { "inneholder": ["avviker_fra_brevet"] }
           }
         },
@@ -1144,6 +1145,9 @@
             "avviker.S-g1": true,
             "grunnlag_avklart": false,
             "grunnlag_avvist": false,
+            "subsidiaer_arsaker.vederlag": ["uavklart"],
+            "subsidiaer_arsaker.frist": ["uavklart"],
+            "visning.etiketter.vederlag": {"inneholder": ["enige_betinget", "subsidiaert"]},
             "enighet.vederlag.virkning": "betinget",
             "enighet.frist.virkning": "betinget",
             "oppgjort.vederlag": false,
@@ -1170,6 +1174,7 @@
             "gjeldende_svar.grunnlag": "S-g2",
             "avviker.S-g2": false,
             "grunnlag_avklart": true,
+            "subsidiaer_arsaker.vederlag": [],
             "enighet.vederlag.virkning": "virksom",
             "enighet.vederlag.utfall.belop": 60000,
             "enighet.vederlag.holder": "D5",

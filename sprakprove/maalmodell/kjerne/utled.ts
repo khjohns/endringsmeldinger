@@ -35,7 +35,8 @@ import {
   type Utsagn,
 } from './typer.ts';
 
-export type Subsidiaergrunn = 'prekludert' | 'avslatt';
+/** `uavklart`: grunnlagssvaret avviker fra brevet og er ikke godtatt (MM-U5). */
+export type Subsidiaergrunn = 'prekludert' | 'avslatt' | 'uavklart';
 
 export interface Svarutledning {
   svar: Svar;
@@ -160,7 +161,8 @@ export function utled(journal: Domenehendelse[], regler: Regelsett): Utledning {
     if (!krav) return null;
     const gjeldende = ikkeErstattet(g.svar, krav.id);
     if (gjeldende.length !== 1) return null;
-    return arsaker(standpunkter(gjeldende[0], { grunnlagskrav: krav }, regler), gjeldende[0]);
+    const st = standpunkter(gjeldende[0], { grunnlagskrav: krav }, regler);
+    return avviker(gjeldende[0], st) === true ? ['uavklart'] : arsaker(st, gjeldende[0]);
   };
 
   for (const h of journal) {
@@ -294,10 +296,11 @@ export function utled(journal: Domenehendelse[], regler: Regelsett): Utledning {
 
   const eg = enighetUtenVirkning('grunnlag');
   const gSvar = spor.grunnlag.gjeldendeSvar;
-  const gStandpunkter = gSvar ? svar[gSvar.id].standpunkter : [];
   // MM-U5: avviker et svar som ikke er godtatt, fra brevet, er grunnlaget uavklart
-  // til byggherren svarer på nytt. Byggherren bindes ikke til et utfall brevet ikke uttrykte.
+  // til byggherren svarer på nytt. Byggherren bindes ikke til et utfall brevet ikke
+  // uttrykte, og svarene på vederlag og frist er subsidiære fordi grunnlaget er uavklart.
   const gAvviker = !eg && gSvar !== null && svar[gSvar.id].avvik === true;
+  const gStandpunkter = gSvar ? svar[gSvar.id].standpunkter : [];
   const gUtfall = eg
     ? eg.grunnlag.utfall.grunnlag
     : gSvar && !gAvviker
@@ -324,11 +327,13 @@ export function utled(journal: Domenehendelse[], regler: Regelsett): Utledning {
       else if (grunnlagAvklart) virkning = 'virksom';
       spor[n].enighet = { ...e, virkning };
     }
-    const fraGrunnlaget = eg
+    const fraGrunnlaget: Subsidiaergrunn[] = eg
       ? arsaker(eg.grunnlag.standpunkter, alleSvar.get(eg.grunnlag.svar)!)
-      : gSvar
-        ? arsaker(gStandpunkter, gSvar)
-        : [];
+      : gAvviker
+        ? ['uavklart']
+        : gSvar
+          ? arsaker(gStandpunkter, gSvar)
+          : [];
     spor[n].subsidiaer = tilNyttSvar[n] ?? fraGrunnlaget;
   }
   const oppgjort = {

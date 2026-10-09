@@ -27,11 +27,16 @@ export const REGELSETT: Record<string, Regelsett> = { n: GJELDENDE_REGLER, 'n+1'
 export class Navn {
   private readonly tilId = new Map<string, string>();
   private readonly tilNavn = new Map<string, string>();
+  /** Etiketter en rad har vist til før hendelsen med etiketten er skrevet. */
+  private readonly reservert = new Set<string>();
 
   sett(navn: unknown, id: string): void {
     if (typeof navn !== 'string') return;
+    if (this.tilId.has(navn) && this.tilId.get(navn) !== id)
+      throw new Error(`Etiketten ${navn} er allerede brukt i bevis-saken`);
     this.tilId.set(navn, id);
     this.tilNavn.set(id, navn);
+    this.reservert.delete(navn);
   }
 
   /** `D4#sendt` blir `<ID-en til D4>#sendt`. En ukjent etikett blir en ID som ikke finnes. */
@@ -41,10 +46,28 @@ export class Navn {
     return [id, ...hale].join('#');
   }
 
-  /** ID-en til etiketten, ny om den ikke finnes. En rad kan da vise til seg selv eller til en senere rad. */
+  /**
+   * ID-en til etiketten, reservert om den ikke finnes ennå, så en rad kan vise
+   * til seg selv eller til en rad som skrives senere. Bare en `rad` kan ta en
+   * reservert etikett (`ta`); `sett` for en annen ID feiler.
+   */
   reserver(navn: string): string {
-    if (!this.tilId.has(navn)) this.sett(navn, randomUUID());
+    if (!this.tilId.has(navn)) {
+      const id = randomUUID();
+      this.tilId.set(navn, id);
+      this.tilNavn.set(id, navn);
+      this.reservert.add(navn);
+    }
     return this.tilId.get(navn)!;
+  }
+
+  /** ID-en en ny rad med etiketten får. Feiler når etiketten alt er brukt av en annen hendelse. */
+  ta(navn: string): string {
+    if (this.tilId.has(navn) && !this.reservert.has(navn))
+      throw new Error(`Etiketten ${navn} er allerede brukt i bevis-saken`);
+    const id = this.reserver(navn);
+    this.reservert.delete(navn);
+    return id;
   }
 
   /** Verdien med hver kjent ID erstattet av etiketten. */
@@ -248,7 +271,7 @@ export function radFor(
   }
   return {
     ...felles,
-    event_id: typeof h.navn === 'string' ? navn.reserver(h.navn) : randomUUID(),
+    event_id: typeof h.navn === 'string' ? navn.ta(h.navn) : randomUUID(),
     event_type: type as Hendelse['event_type'],
     aktor_rolle: 'BH',
     refererer_til_event_id: gjelder,
