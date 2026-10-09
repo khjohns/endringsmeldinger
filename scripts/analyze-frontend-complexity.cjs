@@ -80,38 +80,47 @@ function main() {
   }
 
   const files = walkDir(srcDir);
-  const results = files.map(f => {
-    const { complexity, lines } = analyzeFile(f);
-    return {
-      file: f.replace(process.cwd() + '/', ''),
-      complexity,
-      lines,
-      density: (complexity / lines * 100).toFixed(2)
-    };
-  })
-  .filter(r => r.complexity >= options.min)
-  .sort((a, b) => b.complexity - a.complexity);
+  const results = files
+    .map((f) => {
+      const { complexity, lines } = analyzeFile(f);
+      return {
+        file: f.replace(process.cwd() + '/', ''),
+        complexity,
+        lines,
+        density: ((complexity / lines) * 100).toFixed(2),
+      };
+    })
+    .filter((r) => r.complexity >= options.min)
+    .sort((a, b) => b.complexity - a.complexity);
 
   const totalComplexity = results.reduce((s, r) => s + r.complexity, 0);
   const totalLines = results.reduce((s, r) => s + r.lines, 0);
   const avgComplexity = (totalComplexity / results.length).toFixed(1);
 
   if (options.json) {
-    console.log(JSON.stringify({
-      summary: {
-        filesAnalyzed: results.length,
-        totalComplexity,
-        totalLines,
-        averageComplexity: parseFloat(avgComplexity)
-      },
-      topFiles: results.slice(0, options.top)
-    }, null, 2));
+    console.log(
+      JSON.stringify(
+        {
+          summary: {
+            filesAnalyzed: results.length,
+            totalComplexity,
+            totalLines,
+            averageComplexity: parseFloat(avgComplexity),
+          },
+          topFiles: results.slice(0, options.top),
+        },
+        null,
+        2
+      )
+    );
   } else {
     console.log(`=== Topp ${options.top} mest komplekse filer ===\n`);
     console.log('Kompleksitet | Linjer | Fil');
     console.log('-------------|--------|----');
-    results.slice(0, options.top).forEach(r => {
-      console.log(`${String(r.complexity).padStart(12)} | ${String(r.lines).padStart(6)} | ${r.file}`);
+    results.slice(0, options.top).forEach((r) => {
+      console.log(
+        `${String(r.complexity).padStart(12)} | ${String(r.lines).padStart(6)} | ${r.file}`
+      );
     });
 
     console.log('\n=== Oppsummering ===');
