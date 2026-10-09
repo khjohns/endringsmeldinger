@@ -25,6 +25,32 @@ from models.sak_state import (
     VederlagTilstand,
 )
 
+
+def _besvart(spor, status, resultat, navn):
+    """Et spor med krav og svar på gjeldende kravversjon. Samlet status og
+    `kan_utstede_eo` regnes av krav, svar og aksept (GR-U7), ikke av statusen alene."""
+    return spor(
+        status=status,
+        bh_resultat=resultat,
+        krav_event_id=f"{navn}-krav",
+        respons_event_id=f"{navn}-svar",
+        antall_versjoner=1,
+        bh_respondert_versjon=0,
+    )
+
+
+def _godkjent_grunnlag(status=SporStatus.GODKJENT):
+    return _besvart(GrunnlagTilstand, status, GrunnlagResponsResultat.GODKJENT, "grunnlag")
+
+
+def _godkjent_vederlag():
+    return _besvart(VederlagTilstand, SporStatus.GODKJENT, VederlagBeregningResultat.GODKJENT, "vederlag")
+
+
+def _godkjent_frist():
+    return _besvart(FristTilstand, SporStatus.GODKJENT, FristBeregningResultat.GODKJENT, "frist")
+
+
 # ============================================================================
 # Fixtures
 # ============================================================================
@@ -572,9 +598,9 @@ class TestOverordnetStatus:
         sak = SakState(
             sak_id="TEST",
             sakstype=SaksType.STANDARD,
-            grunnlag=GrunnlagTilstand(status=SporStatus.GODKJENT),
-            vederlag=VederlagTilstand(status=SporStatus.GODKJENT),
-            frist=FristTilstand(status=SporStatus.GODKJENT),
+            grunnlag=_godkjent_grunnlag(),
+            vederlag=_godkjent_vederlag(),
+            frist=_godkjent_frist(),
         )
         assert sak.overordnet_status == "OMFORENT"
 
@@ -583,8 +609,8 @@ class TestOverordnetStatus:
         sak = SakState(
             sak_id="TEST",
             sakstype=SaksType.STANDARD,
-            grunnlag=GrunnlagTilstand(status=SporStatus.LAAST),
-            vederlag=VederlagTilstand(status=SporStatus.GODKJENT),
+            grunnlag=_godkjent_grunnlag(SporStatus.LAAST),
+            vederlag=_godkjent_vederlag(),
         )
         assert sak.overordnet_status == "OMFORENT"
 
@@ -593,7 +619,7 @@ class TestOverordnetStatus:
         sak = SakState(
             sak_id="TEST",
             sakstype=SaksType.STANDARD,
-            grunnlag=GrunnlagTilstand(status=SporStatus.GODKJENT),
+            grunnlag=_godkjent_grunnlag(),
             vederlag=VederlagTilstand(status=SporStatus.UTKAST),
             frist=FristTilstand(status=SporStatus.UTKAST),
         )
@@ -680,9 +706,9 @@ class TestKanUtstedeEo:
         sak = SakState(
             sak_id="TEST",
             sakstype=SaksType.STANDARD,
-            grunnlag=GrunnlagTilstand(status=SporStatus.GODKJENT),
-            vederlag=VederlagTilstand(status=SporStatus.GODKJENT),
-            frist=FristTilstand(status=SporStatus.GODKJENT),
+            grunnlag=_godkjent_grunnlag(),
+            vederlag=_godkjent_vederlag(),
+            frist=_godkjent_frist(),
         )
         assert sak.kan_utstede_eo is True
 

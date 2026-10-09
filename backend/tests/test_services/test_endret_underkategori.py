@@ -157,13 +157,14 @@ def test_byggherren_kan_svare_paa_nytt():
     assert tilstand.neste_handling["rolle"] == "BH"
 
 
-def test_samme_underkategori_lar_svaret_staa():
-    """Fastholder atferden før vedtaket: bare en ny underkategori krever nytt svar."""
+def test_samme_underkategori_krever_ogsaa_nytt_svar():
+    """GR-U1 (08.10): en ny kravversjon av grunnlaget åpner sporet også når
+    underkategorien er uendret. Svaret og § 32.2-vurderingen faller i tilstanden."""
     hendelser = _besvart("ENDRING", "IRREG", GrunnlagResponsResultat.GODKJENT, False)
     oppdatert = _grunnlag(EventType.GRUNNLAG_OPPDATERT, "ENDRING", ["IRREG"])
 
     grunnlag = timeline.compute_state(hendelser + [oppdatert]).grunnlag
 
-    assert grunnlag.status == SporStatus.UNDER_FORHANDLING
-    assert grunnlag.bh_resultat == GrunnlagResponsResultat.GODKJENT
-    assert grunnlag.grunnlag_varslet_i_tide is False
+    assert grunnlag.status == SporStatus.SENDT
+    assert grunnlag.bh_resultat is None
+    assert grunnlag.grunnlag_varslet_i_tide is None

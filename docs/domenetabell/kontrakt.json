@@ -7,7 +7,8 @@
   "x-rader": [
     "KA-01", "KA-02", "KA-03", "KA-04", "KA-05", "KA-06", "KA-07", "KA-08a", "KA-08b", "KA-09", "KA-10",
     "KA-11", "KA-12", "KA-13", "KA-18b", "KA-18c", "GR-01", "GR-03", "GR-04", "GR-06", "GR-08",
-    "GR-19", "GR-20", "GR-21", "GR-22", "GR-23"
+    "GR-19", "GR-20", "GR-21", "GR-22", "GR-23",
+    "GR-14", "GR-15", "GR-16", "GR-24", "GR-25"
   ],
   "$defs": {
     "id": {
@@ -419,11 +420,12 @@
         "status": { "$ref": "#/$defs/sporstatus", "x-bruk": "forventning" },
         "bh_resultat": { "anyOf": [{ "$ref": "#/$defs/grunnlagsresultat" }, { "type": "null" }], "x-bruk": "forventning" },
         "te_akseptert": { "type": "boolean", "x-bruk": "forventning" },
+        "avklart": { "type": "boolean", "x-bruk": "forventning", "x-begrep": "Avklart grunnlag", "description": "Gjeldende svar godkjenner grunnlaget uten preklusjon etter § 32.2, eller frafaller pålegget (GR-U7)." },
         "krav_event_id": { "type": ["string", "null"], "x-bruk": "kommando", "x-begrep": "Gjeldende krav" },
         "gjeldende_respons_event_id": { "type": ["string", "null"], "x-bruk": "kommando", "x-begrep": "Gjeldende svar" },
         "respons_event_id": { "type": ["string", "null"], "x-bruk": "adapter", "description": "Siste svar, også på en tidligere kravversjon." }
       },
-      "required": ["status", "bh_resultat", "te_akseptert", "krav_event_id", "gjeldende_respons_event_id", "respons_event_id"]
+      "required": ["status", "bh_resultat", "te_akseptert", "avklart", "krav_event_id", "gjeldende_respons_event_id", "respons_event_id"]
     },
     "tilstand.vederlag": {
       "type": "object",
@@ -433,6 +435,8 @@
         "godkjent_belop": { "type": ["number", "null"], "x-bruk": "forventning", "description": "Byggherrens beløp i siste svar. Står igjen når sporet venter på svar på en ny versjon." },
         "bh_resultat": { "anyOf": [{ "$ref": "#/$defs/vederlagsresultat" }, { "type": "null" }], "x-bruk": "forventning" },
         "te_akseptert": { "type": "boolean", "x-bruk": "forventning" },
+        "enighet": { "type": "boolean", "x-bruk": "forventning", "x-begrep": "Enighet", "description": "TE har godtatt gjeldende svar, eller svaret godkjenner hele kravet (GR-U7)." },
+        "oppgjort": { "type": "boolean", "x-bruk": "forventning", "x-begrep": "Oppgjort", "description": "Enighet, og grunnlaget er avklart (GR-U7)." },
         "antall_versjoner": { "type": "integer", "minimum": 0, "x-bruk": "forventning", "x-begrep": "Kravversjon (antallet)" },
         "krav_event_id": { "type": ["string", "null"], "x-bruk": "kommando", "x-begrep": "Gjeldende krav" },
         "gjeldende_respons_event_id": { "type": ["string", "null"], "x-bruk": "kommando", "x-begrep": "Gjeldende svar" },
@@ -440,7 +444,7 @@
         "bh_respondert_versjon": { "type": ["integer", "null"], "x-bruk": "adapter", "description": "0-indeksert. Erstattes i kontrakten av `gjeldende_respons_event_id`." }
       },
       "required": [
-        "status", "krevd_belop", "godkjent_belop", "bh_resultat", "te_akseptert", "antall_versjoner",
+        "status", "krevd_belop", "godkjent_belop", "bh_resultat", "te_akseptert", "enighet", "oppgjort", "antall_versjoner",
         "krav_event_id", "gjeldende_respons_event_id", "respons_event_id", "bh_respondert_versjon"
       ]
     },
@@ -459,13 +463,15 @@
         "subsidiaer_godkjent_dager": { "type": ["integer", "null"], "x-bruk": "forventning" },
         "subsidiaer_triggers": { "anyOf": [{ "type": "array", "items": { "$ref": "#/$defs/subsidiaer_utloser" } }, { "type": "null" }], "x-bruk": "forventning" },
         "te_akseptert": { "type": "boolean", "x-bruk": "forventning" },
+        "enighet": { "type": "boolean", "x-bruk": "forventning", "x-begrep": "Enighet", "description": "TE har godtatt gjeldende svar, eller svaret godkjenner hele kravet (GR-U7)." },
+        "oppgjort": { "type": "boolean", "x-bruk": "forventning", "x-begrep": "Oppgjort", "description": "Enighet, og grunnlaget er avklart (GR-U7)." },
         "krav_event_id": { "type": ["string", "null"], "x-bruk": "kommando", "x-begrep": "Gjeldende krav" },
         "gjeldende_respons_event_id": { "type": ["string", "null"], "x-bruk": "kommando", "x-begrep": "Gjeldende svar" }
       },
       "required": [
         "status", "krevd_dager", "godkjent_dager", "bh_resultat", "frist_varsel_ok", "spesifisert_krav_ok",
         "foresporsel_svar_ok", "vilkar_oppfylt", "subsidiaer_resultat", "subsidiaer_godkjent_dager",
-        "subsidiaer_triggers", "te_akseptert", "krav_event_id", "gjeldende_respons_event_id"
+        "subsidiaer_triggers", "te_akseptert", "enighet", "oppgjort", "krav_event_id", "gjeldende_respons_event_id"
       ]
     }
   }

@@ -529,7 +529,7 @@ BH endrer sitt svar på ansvarsgrunnlaget («snuoperasjon»).
 | Modell | `ResponsEvent`, data `GrunnlagResponsData` |
 | Lagres i | `hendelse` |
 | Sendes fra | POST /api/events og /api/events/batch, når prosjektet ikke har godkjenningspolicy; BHs godkjenningspakke; Frontend: GrunnlagForm |
-| Forretningsregler | ROLE_CHECK, CASE_NOT_CLOSED, CREATE_ONCE, RESPONSE_REFERENCE, TRACK_SENT, NOT_LOCKED, PREVIOUS_RESPONSE, COMPUTED_RESULT |
+| Forretningsregler | ROLE_CHECK, CASE_NOT_CLOSED, CREATE_ONCE, RESPONSE_REFERENCE, TRACK_SENT, NOT_LOCKED, PREVIOUS_RESPONSE, RESPONSE_ACCEPTED, COMPUTED_RESULT |
 | Virkning på status | Samme behandling som `respons_grunnlag`. Krever et tidligere svar på gjeldende versjon (PREVIOUS_RESPONSE). |
 | Behandler | `TimelineService._handle_respons_grunnlag` |
 | Funn | DRF-02 |
@@ -623,7 +623,7 @@ BH endrer sitt svar på vederlagskravet, for eksempel ved å oppheve en tilbakeh
 | Modell | `ResponsEvent`, data `VederlagResponsData` |
 | Lagres i | `hendelse` |
 | Sendes fra | POST /api/events og /api/events/batch, når prosjektet ikke har godkjenningspolicy; BHs godkjenningspakke; Frontend: VederlagForm |
-| Forretningsregler | ROLE_CHECK, CASE_NOT_CLOSED, CREATE_ONCE, RESPONSE_REFERENCE, TRACK_SENT, PREVIOUS_RESPONSE, COMPUTED_RESULT |
+| Forretningsregler | ROLE_CHECK, CASE_NOT_CLOSED, CREATE_ONCE, RESPONSE_REFERENCE, TRACK_SENT, PREVIOUS_RESPONSE, RESPONSE_ACCEPTED, COMPUTED_RESULT |
 | Virkning på status | Samme behandling som `respons_vederlag`, også kravet om hele svaret (B-13). |
 | Behandler | `TimelineService._handle_respons_vederlag` |
 | Funn | BR-01, SD-04, DRF-02 |
@@ -727,7 +727,7 @@ BH endrer sitt svar på fristkravet.
 | Modell | `ResponsEvent`, data `FristResponsData` |
 | Lagres i | `hendelse` |
 | Sendes fra | POST /api/events og /api/events/batch, når prosjektet ikke har godkjenningspolicy; BHs godkjenningspakke; Frontend: FristForm |
-| Forretningsregler | ROLE_CHECK, CASE_NOT_CLOSED, CREATE_ONCE, RESPONSE_REFERENCE, TRACK_SENT, CLAIM_SPECIFIED, PREVIOUS_RESPONSE, COMPUTED_RESULT |
+| Forretningsregler | ROLE_CHECK, CASE_NOT_CLOSED, CREATE_ONCE, RESPONSE_REFERENCE, TRACK_SENT, CLAIM_SPECIFIED, PREVIOUS_RESPONSE, RESPONSE_ACCEPTED, COMPUTED_RESULT |
 | Virkning på status | Samme behandling som `respons_frist`, også sperren mot et krav uten dager, mot § 33.6.1 på kravet som besvarte forespørselen, og kravet om hele svaret (B-13). |
 | Behandler | `TimelineService._handle_respons_frist` |
 | Funn | BR-01, SD-04, TFR-06 |

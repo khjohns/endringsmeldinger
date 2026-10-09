@@ -2,7 +2,7 @@
 
 **Opprettet:** 2026-09-16. **Sluttredigert:** 2026-09-22, mot commit
 `41c2a16191a5aadbe611e0958db8b93090b08027` (`main`).
-**Sist endret:** 2026-10-08, senere: GR-U7 vedtatt og erstatter GR-U6, KA-U5 presisert og DT-11 lukket (#294). Tidligere samme dag: kontrakten for flyten i språkprøven skrevet
+**Sist endret:** 2026-10-08, senere: SP-01 og SP-02 registrert fra språkprøven (#274). Tidligere samme dag: GR-U7 vedtatt og erstatter GR-U6, KA-U5 presisert og DT-11 lukket (#294). Tidligere samme dag: kontrakten for flyten i språkprøven skrevet
 (#272), KT-U1, KT-U2 og GR-U6 vedtatt, DT-11 registrert, DT-01 og DT-03 rettet, og aksept-delen av DT-04
 rettet. Tidligere samme dag: EO-U1–EO-U4 om endringsordrene vedtatt for
 [domenetabellen](../domenetabell/README.md) (#271), B-08 avgjort med EO-U3, og
@@ -687,7 +687,8 @@ BR-01 og DRF-01–DRF-03 er ført inn 23.09 fra
 og SD-01–SD-02 fra [gjennomføringen av spor D](../gjennomforing-spor-d-2026-09-23.md),
 fordi de hører til samme domenefamilie som TFR og GFK. SD-03 er ført inn 24.09
 fra code-review av GFK-06. SK-01–SK-13 er ført inn 05.10 fra
-[strukturkartleggingen av spor D](../kartlegging-struktur-spor-d-2026-10-05.md#5-funn).
+[strukturkartleggingen av spor D](../kartlegging-struktur-spor-d-2026-10-05.md#5-funn). SP-01 og SP-02 er ført inn 08.10 fra
+språkprøven (#274).
 DT-01–DT-03 er ført inn 08.10 fra [domenetabellen](../domenetabell/README.md)
 for kravversjon og aksept (#271), DT-04 samme dag fra grunnlagsdelen og
 DT-05–DT-10 fra endringsordredelen, og DT-11 fra arbeidet med kontrakten (#272). **Merknad 2026-10-08:** DT-05–DT-10 rettes ikke i dagens
@@ -753,6 +754,8 @@ og strenge `xfail` er beviset (oppdragsgiver).
 | DT-08 | Åpen, lav | Gjennom `/api/events` kan byggherren knytte en KOE-sak til en EO-sak uten kandidatkontrollen. `eo_koe_lagt_til` har bare regelen `IS_EO_CASE`, så en KOE-sak som ikke er omforent, eller som alt inngår i en annen EO-sak, godtas. Kontrollen ligger i `EndringsordreService` og gjelder bare `/api/endringsordre`. Lesingen er avgrenset av `cases_in_project` (RV-07), så prosjektgrensen holder. Tiltenkt atferd er EO-U2 og EO-U3 (3.1) | Streng `xfail`, K 2026-10-08 | D |
 | DT-09 | Åpen, lav | EO-sakens livsløp er løsere enn vedtatt. `eo_utstedt` i en EO-sak har ingen regel og godtas på nytt, også etter aksept: endringsordren får status `UTSTEDT` igjen, nye beløp, og TEs aksept forsvinner fra tilstanden. `EO_IS_ISSUED` godtar revisjon uten bestridelse, to bestridelser og aksept etter bestridelse. `eo_koe_lagt_til` og `eo_koe_fjernet` godtas etter utstedelse og aksept gjennom `/api/events`, mens `legg_til_koe` og `fjern_koe` krever `UTKAST`. Tjenesten skriver opprettelse og utstedelse i samme transaksjon, så de to kan i praksis bare brukes gjennom `/api/events`. Tiltenkt atferd er EO-U4 (3.1) | Streng `xfail`, K 2026-10-08 | D |
 | DT-10 | Åpen, lav | En utstedelse uten KOE-liste sletter KOE-tilknytningen. `_handle_eo_utstedt` bygger `endringsordre_data` på nytt av hendelsen, så tilknytningen fra `eo_opprettet` og `eo_koe_lagt_til` forsvinner når `eo_utstedt` ikke gjentar den. `opprett_endringsordresak` gjentar den alltid; `/api/events` krever det ikke. Om en tom liste i utstedelsen betyr «ingen KOE-saker» eller «ikke oppgitt», er ikke vedtatt; tabellen bruker det siste som arbeidshypotese (rad EO-24) | Streng `xfail`, K 2026-10-08 | D |
+| SP-01 | Åpen, lav | Klientspeilet runder beløp annerledes enn serveren. `tilOre` i `src/lib/domain/vederlagDomain.ts` runder via `toPrecision(15)`, mens `regler.belop` går via `str()` og `Decimal`. 1234567,8949999998 blir 1234567,90 i klienten og 1234567,89 på serveren, og fra omtrent 1e13 kr mister klienten øre (10000000000000,006 blir 10000000000000,00 mot ,01). Serveren avviser da svaret med `RESULT_MISMATCH`. Skjemaet tar bare hele kroner fra byggherren, men TEs krav kan ha desimaler. Funnet i språkprøven (#274), der TS-kjernen regner i hele øre med samme semantikk som `Decimal` | K 2026-10-08 (formelen kjørt med Node; tabellen i `sprakprove/grensetilfeller.json` holder for `regler.belop`) | D |
+| SP-02 | Åpen, lav | `dato_sendt` i et varsel valideres ikke som dato. `VarselInfo.dato_sendt` er en fri tekst, og validatorene sjekker bare at den finnes. Kontrakten (`kontrakt.json`, `varselinfo`) sier `YYYY-MM-DD`, men har ikke noe mønster. En ugyldig dato som 2026-02-30 lagres i journalen og kan ikke rettes (SK-12). Funnet i språkprøven (#274) | L 2026-10-08 (`models/events.py`, `api/validators.py`) | D |
 | INT-01 | Åpen | Webhookhemmelighet uten konstant tid; sti i logg | Streng `xfail` (statisk) | H |
 | INT-02 | Åpen, høy | Webhookfeil gir 200 og reservert duplikatnøkkel; retry tapes | Streng `xfail`, K 22.09 | F3 |
 | INT-03 | Åpen | Validatoren avviser `bcf.*` | Streng `xfail`, K 22.09 | F3 |

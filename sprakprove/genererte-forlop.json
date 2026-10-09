@@ -1,0 +1,31 @@
+{
+  "omfang": "Genererte forløp for flyten (#274, P1-6). Generatoren er en LCG, x = (1103515245·x + 12345) mod 2^31, med fast seed, så Python og TS lager samme handlinger. Handling nummer (x >> 16) mod antall handlinger velges uansett tilstand (de lave bitene i en LCG med potens av to som modulus har kort periode); en handling som ikke passer, skal avvises uten at journalen endres. Invariantene prøves etter hvert steg i hver implementasjon for seg. Likhet mellom implementasjonene er ikke fasit.",
+  "seed": 274,
+  "antall": 300,
+  "lengde": 8,
+  "start": "krav_eo",
+  "handlinger": [
+    { "handling": "grunnlagssvar", "resultat": "avslatt" },
+    { "handling": "grunnlagssvar", "resultat": "godkjent" },
+    { "handling": "grunnlagssvar", "resultat": "godkjent", "varslet_i_tide": true },
+    { "handling": "grunnlagssvar", "resultat": "avslatt", "varslet_i_tide": false },
+    { "handling": "grunnlag_ny_versjon", "underkategori": "IRREG" },
+    { "handling": "grunnlag_ny_versjon", "underkategori": "EO" },
+    { "handling": "vederlagssvar", "vurdering": "godkjent" },
+    { "handling": "vederlagssvar", "vurdering": "delvis", "godkjent_belop": 60000 },
+    { "handling": "vederlagssvar", "vurdering": "avslatt" },
+    { "handling": "vederlagssvar_revidert", "vurdering": "delvis", "godkjent_belop": 30000 },
+    { "handling": "vederlagskrav_ny_versjon", "belop": 80000 },
+    { "handling": "fristsvar", "varsel_i_tide": true, "spesifisering_i_tide": true, "hindring": true },
+    { "handling": "fristsvar", "varsel_i_tide": false, "spesifisering_i_tide": true, "hindring": true },
+    { "handling": "aksept", "spor": "grunnlag" },
+    { "handling": "aksept", "spor": "vederlag" },
+    { "handling": "aksept", "spor": "frist" }
+  ],
+  "invarianter": [
+    { "id": "INV-AKSEPT-GJELDENDE", "kilde": "KA-U1, KT-U1", "tekst": "En godtatt aksept viser til sporets gjeldende svar før steget, og etterpå har TE godtatt det svaret." },
+    { "id": "INV-UBESVART-IKKE-OMFORENT", "kilde": "V-SK02-SK03, KA-U3", "tekst": "Venter et sendt spor på svar (ingen gjeldende svar), er saken ikke `OMFORENT`." },
+    { "id": "INV-AVVIST-UENDRET", "kilde": "KT-U2", "tekst": "En avvist handling endrer ikke journalen." },
+    { "id": "INV-GJENLESING", "kilde": "B-14 (bevisgrunnlaget)", "tekst": "Tilstanden er den samme etter serialisering av journalen og gjenoppbygging. I minnet her; mot testbasen i port 2." }
+  ]
+}

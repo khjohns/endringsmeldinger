@@ -145,17 +145,20 @@ class BusinessRuleValidator:
                 ("TRACK_SENT", self._rule_grunnlag_sent),
                 ("NOT_LOCKED", self._rule_grunnlag_not_locked),
                 ("PREVIOUS_RESPONSE", self._rule_previous_response),
+                ("RESPONSE_ACCEPTED", self._rule_svaret_er_ikke_godtatt),
                 ("COMPUTED_RESULT", self._rule_serverens_utregning),
             ],
             EventType.RESPONS_VEDERLAG_OPPDATERT: [
                 ("TRACK_SENT", self._rule_vederlag_sent),
                 ("PREVIOUS_RESPONSE", self._rule_previous_response),
+                ("RESPONSE_ACCEPTED", self._rule_svaret_er_ikke_godtatt),
                 ("COMPUTED_RESULT", self._rule_serverens_utregning),
             ],
             EventType.RESPONS_FRIST_OPPDATERT: [
                 ("TRACK_SENT", self._rule_frist_sent),
                 ("CLAIM_SPECIFIED", self._rule_frist_spesifisert),
                 ("PREVIOUS_RESPONSE", self._rule_previous_response),
+                ("RESPONSE_ACCEPTED", self._rule_svaret_er_ikke_godtatt),
                 ("COMPUTED_RESULT", self._rule_serverens_utregning),
             ],
             # Cannot update locked grunnlag
@@ -365,6 +368,15 @@ class BusinessRuleValidator:
         ):
             return ValidationResult(
                 False, "Ingen tidligere respons på gjeldende krav å revidere."
+            )
+        return ValidationResult(True)
+
+    def _rule_svaret_er_ikke_godtatt(self, event, state):
+        """SK-03 (vedtaket 05.10) og GR-U7: en enighet står. Byggherren kan ikke
+        revidere et svar TE har godtatt, heller ikke mens grunnlaget venter."""
+        if getattr(state, event.spor.value).te_akseptert:
+            return ValidationResult(
+                False, "TE har godtatt svaret. Et godtatt svar kan ikke revideres."
             )
         return ValidationResult(True)
 
@@ -822,46 +834,14 @@ class BusinessRuleValidator:
     def _rule_not_already_accepted(
         self, event: AnyEvent, state: SakState
     ) -> ValidationResult:
-        """R: Cannot accept if already accepted or track is settled."""
-        from models.events import SporType
-
-        spor = getattr(event, "spor", None)
-        if spor == SporType.GRUNNLAG:
-            if state.grunnlag.te_akseptert:
-                return ValidationResult(
-                    is_valid=False,
-                    message="Entreprenør har allerede akseptert svaret på grunnlag",
-                )
-            if state.grunnlag.status in {
-                SporStatus.GODKJENT,
-                SporStatus.LAAST,
-                SporStatus.TRUKKET,
-            }:
-                return ValidationResult(
-                    is_valid=False,
-                    message="Grunnlag er allerede avsluttet",
-                )
-        elif spor == SporType.VEDERLAG:
-            if state.vederlag.te_akseptert:
-                return ValidationResult(
-                    is_valid=False,
-                    message="Entreprenør har allerede akseptert svaret på vederlag",
-                )
-            if state.vederlag.status in {SporStatus.GODKJENT, SporStatus.TRUKKET}:
-                return ValidationResult(
-                    is_valid=False,
-                    message="Vederlag er allerede avsluttet",
-                )
-        elif spor == SporType.FRIST:
-            if state.frist.te_akseptert:
-                return ValidationResult(
-                    is_valid=False,
-                    message="Entreprenør har allerede akseptert svaret på frist",
-                )
-            if state.frist.status in {SporStatus.GODKJENT, SporStatus.TRUKKET}:
-                return ValidationResult(
-                    is_valid=False,
-                    message="Frist er allerede avsluttet",
-                )
-
-        return ValidationResult(is_valid=True)
+        """GR-U7: er partene allerede enige, er det ikke noe å godta."""
+        spor = event.spor.value
+        if getattr(state, spor).status == SporStatus.TRUKKET:
+            return ValidationResult(False, f"Kravet på {spor} er trukket")
+        if spor == "grunnlag":
+            enige = state.grunnlag.te_akseptert or state.grunnlag.avklart
+        else:
+            enige = getattr(state, spor).enighet
+        if enige:
+            return ValidationResult(False, f"Partene er allerede enige om svaret på {spor}")
+        return ValidationResult(True)
