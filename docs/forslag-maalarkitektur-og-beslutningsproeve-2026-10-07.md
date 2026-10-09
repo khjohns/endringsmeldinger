@@ -532,12 +532,14 @@ implementasjoner:
   hendelsen.** Innsendingen kontrollerer referansen, men projeksjonen bruker den
   ikke. Med én kontrollert skriver gir det samme resultat. Med eldre eller
   fremmede rader gjør det ikke. Ført som SP-04.
-- **Hendelser kjernen ikke kjenner.** Kjernen lar dem passere uten virkning.
+- **Hendelser kjernen ikke kjenner.** Kjernen lot dem passere uten virkning.
   B-10 sier at en ukjent rettslig relevant hendelse ikke kan overses mens
-  bindende kommandoer tillates. TS-serveren avviser derfor nå kommandoer og
-  tilstand for en sak med en hendelsestype kjernen ikke kjenner. Én skrivesti
-  per kommando er altså ikke nok i en overgang: hver skriver må forstå alle
-  hendelser andre kommandoer kan ha skrevet på samme sak.
+  bindende kommandoer tillates. Kjernen avviser derfor nå en hendelse den ikke
+  kan anvende, også opprettelsen av en sak som ikke er en vanlig KOE-sak.
+  TS-serveren svarer 422 på kommandoer, godkjenningspakker og tilstand for en
+  slik sak, men journalen kan fortsatt leses. Én skrivesti per kommando er
+  altså ikke nok i en overgang: hver skriver må forstå alle hendelser andre
+  kommandoer kan ha skrevet på samme sak.
 - **Journalformatet.** SP-03 viser at samme tilstand ikke betyr samme rad.
   Hvilke opplysninger en hendelse skal bevare, må avgjøres før en overgang.
   Standardverdiene fra Pydantic skal ikke automatisk bli framtidens format.
@@ -553,14 +555,15 @@ og den foretrukne retningen.** Grunnlaget er oppdragsgivers avgjørelse 09.10
 (B-15): når nødvendig saksgrunnlag er lastet, skal brukeren kunne utforske
 vurderinger og se tilhørende beregninger og brevutkast uten å vente på
 serverkall. Ved innsending validerer serveren på nytt. Da gir bare TS én
-regelimplementasjon. Serverbasert
-forhåndsvurdering (B-15) ville gitt én implementasjon også i Python, mot svartid
-og nettavhengighet i skjemaene. Den er ikke prøvd.
+regelimplementasjon. Serverbasert forhåndsvurdering ville gitt én
+implementasjon også i Python, mot svartid og nettavhengighet i skjemaene. Den
+er ikke prøvd.
 
 Produksjonsarkitekturen og migreringsstrategien gjenstår. Før en større
 portering anbefales en kort gjennomgang av målmodellen og grensene for
-overgangen (#300). Den skal prøve modellen mot noen konkrete eksempler før dagens
-tre spor, boolske felt og samlede svar blir permanente byggeklosser:
+overgangen (#300). Den leverer et lite modellforslag, ikke bare spørsmål, og
+prøver modellen mot noen konkrete eksempler før dagens tre spor, boolske felt og
+samlede svar blir permanente byggeklosser:
 
 | Forhold | Skillet modellen trenger |
 | --- | --- |
@@ -574,6 +577,12 @@ tre spor, boolske felt og samlede svar blir permanente byggeklosser:
 Gjennomgangen tar også med punktene i «Hva prøven ikke viser» og B-10:
 regel- og projeksjonsversjon, gjenoppbygging etter regelendring og
 kompatibilitet ved tilbakerulling. Den endrer ikke vedtatt atferd av seg selv.
+
+**Et språkvalg godkjenner ikke prøvekoden.** TS kan velges for den delte
+domenekjernen uten å vedta at `sprakprove/kjerne/` blir produksjonskjernen
+uendret. Deler kan gjenbrukes, og andre formes på nytt etter modellforslaget i
+#300. Valget mellom serverlaget i SvelteKit, en egen backend og en permanent
+Python-worker tas heller ikke samtidig.
 
 **Målarkitektur og overgangsarkitektur er to ting.**
 - **Overgangen** kan la Python gjengi og levere ferdig, frosset innhold bak
