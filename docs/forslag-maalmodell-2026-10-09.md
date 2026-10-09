@@ -296,6 +296,10 @@ Reglene:
 
 ### 2.8 Overgangsgrensen
 
+> **Merknad 2026-10-09:** erstattet av [B-17](plans/2026-09-16-godkjenning-og-varig-levering.md#b-17).
+> TS tar over skrivingen i KOE-saker samlet, så ingen sak får to skrivere, og
+> Python beholder bare levering og integrasjon. Teksten under står som skrevet.
+
 - TS-kjernen lager beslutningsgrunnlaget i kommandoens transaksjon, sammen med
   leveringsintensjonen. Python får bare beslutningsgrunnlaget og teksten,
   gjengir brevet og leverer det. En retry leverer det lagrede dokumentet.
