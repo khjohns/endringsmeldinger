@@ -140,7 +140,7 @@ export class Kjoering {
       // MM-U9), også når relasjonene ikke henger sammen, så forløp E prøver relasjonene.
       if (SVARTYPER[rad.event_type])
         try {
-          frysSvar(rad, u, this.kjerne.regler);
+          frysSvar(rad, journal, this.kjerne);
         } catch (feil) {
           if (!(feil instanceof Uforstaatt)) throw feil;
         }

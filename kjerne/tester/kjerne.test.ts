@@ -6,7 +6,9 @@
 
 import { randomUUID } from 'node:crypto';
 import { describe, expect, it } from 'vitest';
-import type { Journalrad } from '../typer.ts';
+import type { Beslutningsgrunnlag, Journalrad } from '../typer.ts';
+import { frysSvar } from '../skriving.ts';
+import { KJERNE } from '../versjon.ts';
 import { handlinger } from '../handlinger.ts';
 import { formfeil } from '../kommando.ts';
 import { lesJournal } from '../leser.ts';
@@ -180,6 +182,47 @@ describe('en rad fra feil part er ikke forstått', () => {
     rad.aktor_rolle = part;
     expect(utled(lesJournal(rader, 1), GJELDENDE_REGLER).forstaatt).toBe(true);
     expect(utled(lesJournal(endret, 1), GJELDENDE_REGLER).forstaatt).toBe(false);
+  });
+});
+
+/**
+ * Code-review av #308: brevet i registrert korrespondanse fryses med kategorien
+ * det svarte på, også når saken ikke er forstått. Ellers ville en påberopt
+ * preklusjon etter § 32.2 forsvunnet fra brevet for godt (MM-U9).
+ */
+describe('registrert korrespondanse fryses med kategorien i en sak som ikke er forstått', () => {
+  it.each([
+    ['med en ukjent rad før svaret', true],
+    ['kontrollsak: uten den ukjente raden', false],
+  ])('%s', async (_hva, ukjent) => {
+    const bane = minnebane();
+    const k = await bygg(bane, ['krav_irreg']);
+    const journal = await bane.journal();
+    const siste = journal.at(-1)!;
+    const foer = ukjent
+      ? [
+          ...journal,
+          { ...siste, event_id: randomUUID(), event_type: 'frist_foresporsel_sendt', data: {} },
+        ]
+      : journal;
+    if (utled(lesJournal(foer, 1), GJELDENDE_REGLER).forstaatt === ukjent)
+      throw new Error('Forutsetning: saken er forstått bare uten den ukjente raden');
+    const rad: Journalrad = {
+      ...siste,
+      event_id: randomUUID(),
+      event_type: 'respons_grunnlag',
+      aktor_rolle: 'BH',
+      refererer_til_event_id: k.navn.id('K-g1'),
+      data: { resultat: 'godkjent', grunnlag_varslet_i_tide: false },
+    };
+    frysSvar(rad, foer, KJERNE);
+    const brev = rad.data.beslutningsgrunnlag as Beslutningsgrunnlag;
+    expect(brev.standpunkter.map((p) => [p.art, p.virkning])).toEqual([
+      ['rettidighet', 'hovedgrunn'],
+      ['ansvar', 'subsidiaer'],
+    ]);
+    expect(brev.sammenfall).toBe(false);
+    expect(brev.utfall).toEqual({ grunnlag: 'avvist' });
   });
 });
 
