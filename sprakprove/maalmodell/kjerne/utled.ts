@@ -209,17 +209,25 @@ export function utled(journal: Domenehendelse[], regler: Regelsett): Utledning {
         ugyldig(s.id, 'revisjonen erstatter et svar som ikke gjelder samme krav');
     }
   }
+  // Svarene på én kravversjon er én kjede: ett første svar, og hver revisjon
+  // erstatter det forrige. To første svar, en forgrening, en selvreferanse eller
+  // en sirkel gjør det tvetydig hvilket svar som gjelder.
   for (const n of SPOR) {
     for (const k of spor[n].krav) {
-      const gjeldende = ikkeErstattet(spor[n].svar, k.id);
-      const erstattere = spor[n].svar.filter((s) => s.erstatter !== null && s.gjelder === k.id);
-      if (
-        gjeldende.length > 1 ||
-        new Set(erstattere.map((s) => s.erstatter)).size < erstattere.length
-      )
+      const paaKravet = spor[n].svar.filter((s) => s.gjelder === k.id);
+      if (!paaKravet.length) continue;
+      const forste = paaKravet.filter((s) => s.erstatter === null);
+      const kjede = new Set<string>();
+      let neste: Svar[] = forste.length === 1 ? forste : [];
+      while (neste.length === 1 && !kjede.has(neste[0].id)) {
+        kjede.add(neste[0].id);
+        const forrige = neste[0].id;
+        neste = paaKravet.filter((s) => s.erstatter === forrige);
+      }
+      if (neste.length > 0 || kjede.size !== paaKravet.length)
         ugyldig(
-          gjeldende.at(-1)?.id ?? k.id,
-          'to svar på samme kravversjon uten at det ene erstatter det andre'
+          paaKravet.at(-1)!.id,
+          'svarene på kravversjonen er ikke én kjede der hver revisjon erstatter det forrige'
         );
     }
   }
@@ -287,15 +295,19 @@ export function utled(journal: Domenehendelse[], regler: Regelsett): Utledning {
   const eg = enighetUtenVirkning('grunnlag');
   const gSvar = spor.grunnlag.gjeldendeSvar;
   const gStandpunkter = gSvar ? svar[gSvar.id].standpunkter : [];
+  // MM-U5: avviker et svar som ikke er godtatt, fra brevet, er grunnlaget uavklart
+  // til byggherren svarer på nytt. Byggherren bindes ikke til et utfall brevet ikke uttrykte.
+  const gAvviker = !eg && gSvar !== null && svar[gSvar.id].avvik === true;
   const gUtfall = eg
     ? eg.grunnlag.utfall.grunnlag
-    : gSvar
+    : gSvar && !gAvviker
       ? utfall(gSvar, gStandpunkter).grunnlag
       : undefined;
   const gHovedgrunn = gStandpunkter.find((p) => p.virkning === 'hovedgrunn');
   const gAnsvar = gSvar?.utsagn.find((u) => u.art === 'ansvar');
   const ansvarErHovedgrunn = (resultat: string) =>
     !eg &&
+    !gAvviker &&
     gHovedgrunn?.art === 'ansvar' &&
     gAnsvar?.art === 'ansvar' &&
     gAnsvar.resultat === resultat;

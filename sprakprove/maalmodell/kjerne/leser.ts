@@ -14,6 +14,7 @@
  */
 
 import type { Hendelse } from '../../kjerne/typer.ts';
+import { utenforProven } from './standpunkt.ts';
 import type {
   Dokument,
   Domenehendelse,
@@ -117,6 +118,9 @@ function svarutsagn(
         iTide,
       });
     }
+    const hindring = sannhet(data.vilkar_oppfylt);
+    if (hindring !== null)
+      utsagn.push({ id: `${id}#hindring`, art: 'hindring', gjelder, oppfylt: hindring });
     const resultat = tekst(data.subsidiaer_resultat) ?? tekst(data.beregnings_resultat);
     utsagn.push({
       id: `${id}#dager`,
@@ -134,6 +138,8 @@ function svarutsagn(
 
 function lesSvar(h: Hendelse, spor: Spor, dokument: string, stand: Lesestand): Svar {
   const data = h.data;
+  const utenfor = utenforProven(spor, data);
+  if (utenfor) throw new Uforstatt(utenfor);
   const referanser = [h.refererer_til_event_id, tekst(data[KRAVREFERANSE[spor]])].filter(
     (r): r is string => r !== null
   );

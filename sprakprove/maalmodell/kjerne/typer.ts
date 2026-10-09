@@ -34,6 +34,8 @@ export type Utsagn =
   | { id: string; art: 'ansvar'; gjelder: string; resultat: Grunnlagsresultat }
   | { id: string; art: 'belop'; gjelder: string; resultat: Vederlagsresultat; godkjent: number }
   /** `vurdert` er dagene byggherren har vurdert, også når de står subsidiært. */
+  /** § 33.1: om byggherren godtar at det er en fremdriftshindring. */
+  | { id: string; art: 'hindring'; gjelder: string; oppfylt: boolean }
   | { id: string; art: 'dager'; gjelder: string; resultat: Fristresultat; vurdert: number }
   | { id: string; art: 'varsel'; gjelder: Spor; hjemmel: Hjemmel; dokument: string }
   | { id: string; art: 'trekk'; gjelder: string }
