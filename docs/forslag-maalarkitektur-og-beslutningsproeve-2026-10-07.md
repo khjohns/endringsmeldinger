@@ -416,9 +416,9 @@ hovedplanen først når oppdragsgiver har bestemt det.
 
 **Hva som ble bygget:**
 - **TS-serveren** i [`sprakprove/server/`](../sprakprove/server/): Node 22 med
-  `node:http` i egen prosess, uten rammeverk og uten byggesteg. Den er 907
-  linjer: ruter 370, tilgang 312, lager 161 og oppstart 64. Kjernen fra port 1
-  er eneste regelkilde.
+  `node:http` i egen prosess, uten rammeverk og uten byggesteg. Den er 939
+  linjer: ruter 379, tilgang 317, lager 167, oppstart og basevakt 76. Kjernen
+  fra port 1 er eneste regelkilde.
 - **Tilgangen** leser de samme tabellene som Flask: sesjonen og CSRF,
   prosjektmedlemskapet og synkroniseringen, prosjektgrensen for hver sak det
   vises til, og kontraktsteamene. Catendas team-API står bak et grensesnitt.
@@ -434,7 +434,7 @@ hovedplanen først når oppdragsgiver har bestemt det.
 | P2-2 Tilgang | [`server.test.ts`](../sprakprove/tester/server.test.ts) | 401 uten sesjon og med utløpt sesjon. 403 for feil prosjekt, en sak eller relatert sak i et annet prosjekt, et annet prosjekt i nyttelasten, uten kontraktsteam, feil kontraktsside og manglende eller feil CSRF. Hver avvisning har en kontrollsak med 201 og uendret journal |
 | P2-2 Serverfelt, versjon og regelversjon | Samme | `event_id` og `tidsstempel` avvises, og aktørfeltene overskrives. Feil `expected_version` gir 409. To samtidige sendinger på samme versjon gir én 201 og én 409, og lageret alene avviser en andre skriving på samme versjon. Feil regelversjon gir `RULE_VERSION` |
 | P2-2 Lagring og gjenlesing | [`serverkorpus.test.ts`](../sprakprove/tester/serverkorpus.test.ts) og `server.test.ts` | De 30 forløpene holder gjennom `/api/events` og `/api/events/batch`, med tilstanden lest fra serveren: 60 av 60. Svaret er lik den gjenleste tilstanden og lik projeksjonen av radene. En batch med én avvist hendelse lagrer ingenting |
-| P2-2 Python og TS | [`test_sprakprove_ts_server.py`](../backend/tests/test_database/test_sprakprove_ts_server.py) | TS skriver og Python leser med `parse_event`, og omvendt: 60 av 60. Hvert felt TS-serveren sender, er likt Pythons `public_state`. Journalen er lik slik de to leser den, også tidspunktet |
+| P2-2 Python og TS | [`test_sprakprove_ts_server.py`](../backend/tests/test_database/test_sprakprove_ts_server.py) | TS skriver og Python leser med `parse_event`, og omvendt: 60 av 60. Hvert felt TS-serveren sender, er likt Pythons `public_state`. Journalen er lik slik de to leser den, også tidspunktet. `data` i raden TS skrev, er det Flask ville lagret, unntatt feltene i SP-03 |
 | P2-3 Godkjenningspakken | `server.test.ts` | Vederlaget vurderes mot grunnlagssvaret i pakken og blir subsidiært (GR-01). Et svar vurdert mot grunnlaget uten pakkens svar avvises, og det samme gjør en foreldet kravreferanse. Regelversjonen gjelder hvert element. Pakken skriver ikke i journalen |
 | Feilinnføring | [`feilinnforing.py`](../sprakprove/feilinnforing.py), M9–M11 | Se under |
 
@@ -460,6 +460,15 @@ minnet bruker ID-er som ikke er UUID-er. Serveren bruker `randomUUID()`, fordi
 `event_id` og `referstoid` er `uuid` i basen. En referanse som ikke er en UUID,
 avvises før lagring.
 
+**Raden avhenger av skriveren (SP-03).** Tilstanden er lik, men raden er det
+ikke. Pydantic-modellene lagrer standardverdier og beregnede beløp som klienten
+ikke sendte, for eksempel `vedlegg_ids: []` og `krevd_belop`. TS-serveren lagrer
+bare det kommandoen og serverens utregning gir, pluss `spor` og
+`respondert_versjon` på svar, som historikken viser. Testen låser forskjellen
+felt for felt. Med to skrivere i en overgang må kontrakten beskrive hele raden,
+eller den andre skriveren må etterlikne modellene. Funnet er ført i
+hovedplanen 4.2.
+
 **Feil i prøven, rettet.** TS-kjernen hadde regelversjon 4 etter port 1, mens
 Python hadde 5. Ingen test så det, fordi kjernen bare møtte sine egne svar.
 Kryss-lesingen ville avvist hvert svar fra Python.
@@ -468,7 +477,9 @@ Kryss-lesingen ville avvist hvert svar fra Python.
 **Det TS-serveren ikke har.** Den er en prøve, ikke produksjonskode:
 - sakopprettelse;
 - godkjenningspolicyen. Serveren starter ikke når `BH_APPROVAL_POLICIES` er satt;
-- interne notater og synlighetsfilteret, og vedlegg;
+- interne notater og synlighetsfilteret. Et internt notat i journalen vises
+  til ingen;
+- vedlegg;
 - Catenda, PDF, innlogging og medlemssynkronisering;
 - begrensning av forespørsler, logging og observabilitet.
 
@@ -479,12 +490,12 @@ De er ikke et estimat i timer.
 
 | Område | Python i dag | Prøvd i port 2 | Hva TS-retningen krever |
 | --- | --- | --- | --- |
-| Auth | 1 348 linjer. 73 tester i `test_auth` og 230 i `test_security` | Lesesiden: sesjon, CSRF, medlemskap, prosjektgrense og kontraktsside, 312 linjer | Innlogging med Catenda OAuth, sesjonsopprettelse og synkronisering. Databasefunksjonene, som `koe_resolve_identity` og `koe_reconcile_memberships`, er språkuavhengige og kan kalles uendret. To implementasjoner av tilgang i overgangen er den største sikkerhetsrisikoen, så sikkerhetstestene må gå mot begge |
-| Godkjenning | 1 906 linjer. 111 tester | Grensen i `validate_items`, 113 linjer i kjernen | Kommandoene, fullmakten, brevets øyeblikksbilde og publiseringen. SQLite-aggregatet skal erstattes i F2/F3 uansett språk, så porten bør følge den ombyggingen |
+| Auth | 1 348 linjer. 73 tester i `test_auth` og 230 i `test_security` | Lesesiden: sesjon, CSRF, medlemskap, prosjektgrense og kontraktsside, 317 linjer | Innlogging med Catenda OAuth, sesjonsopprettelse og synkronisering. Databasefunksjonene, som `koe_resolve_identity` og `koe_reconcile_memberships`, er språkuavhengige og kan kalles uendret. To implementasjoner av tilgang i overgangen er den største sikkerhetsrisikoen, så sikkerhetstestene må gå mot begge |
+| Godkjenning | 1 906 linjer. 111 tester | Grensen i `validate_items`, 117 linjer i kjernen | Kommandoene, fullmakten, brevets øyeblikksbilde og publiseringen. SQLite-aggregatet skal erstattes i F2/F3 uansett språk, så porten bør følge den ombyggingen |
 | Catenda | 7 133 linjer. 48 tester | Ingenting. Teammedlemskapet er stubbet | Den største enkeltblokken. Leveringen trenger ingen domeneregler, bare den frosne hendelsen og brevet. Den kan bli i Python bak outboxen |
 | Forsering og EO | 2 888 linjer tjenester og ruter, i tillegg til modellene | Ingenting. Kjernen har ikke hendelsestypene | Reglene må inn i kjernen. Hvor mye av dem klienten speiler i dag, er ikke talt |
 | PDF | 606 linjer med ReportLab | Ingenting | En dokumentmotor i TS krever ny kontroll av layouten i brev med rettsvirkning. PDF lages av det frosne brevet uten domeneregler, så den kan bli i Python bak outboxen |
-| Datalag | 4 405 linjer lagre, med Supabase-stien | `hendelse`: lesing, skriving og versjon, 161 linjer | Databasen, migrasjonene og databasefunksjonene er uendret. Lagrene for `notat`, `sak_metadata`, relasjoner og BIM må portes |
+| Datalag | 4 405 linjer lagre, med Supabase-stien | `hendelse`: lesing, skriving og versjon, 167 linjer | Databasen, migrasjonene og databasefunksjonene er uendret. Lagrene for `notat`, `sak_metadata`, relasjoner og BIM må portes |
 | Tester | Om lag 1 900 testfunksjoner i `backend/tests` | Bevis-sakene, grensetabellen og de genererte forløpene ble brukt uendret, gjennom Python-ruta og TS-serveren | Domene- og bevistestene er språkuavhengige. Rute- og sikkerhetstestene kan kjøres over HTTP mot TS-serveren i overgangen, slik `test_sprakprove_ts_server.py` gjør. Tester av Python-interne enheter må skrives på nytt eller utgå |
 | Bygg | gunicorn og `requirements.txt` | Node 22 kjører `.ts` uten byggesteg, og `tsc` typesjekker. Nye pakker: `pg`, `@types/node`, `@types/pg`, og tre transitive pakker låst til eldre versjoner | Det finnes ikke noe produksjonsbilde for en Node-server. `Dockerfile` bygger bare frontenden, og B-12 (hosting) er åpen |
 | Worker | Finnes ikke. Levering skjer synkront i forespørselen | Ingenting | Outbox og worker trengs i F2/F3 uansett språk. Designet er språkuavhengig, og Python leser radene TS skriver |
