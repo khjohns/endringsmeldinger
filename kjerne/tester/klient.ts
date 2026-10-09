@@ -147,7 +147,10 @@ function svarutkast(
 }
 
 const INNHOLD = {
-  grunnlag: (h: Handling) => ({ hovedkategori: 'ENDRING', underkategori: h.underkategori }),
+  grunnlag: (h: Handling) => ({
+    hovedkategori: h.hovedkategori ?? 'ENDRING',
+    underkategori: h.underkategori,
+  }),
   vederlag: (h: Handling) => ({ metode: 'FASTPRIS_TILBUD', belop_direkte: h.belop }),
   frist: (h: Handling) => ({ varsel_type: 'spesifisert', antall_dager: h.dager }),
 };

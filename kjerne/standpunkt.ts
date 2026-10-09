@@ -42,6 +42,12 @@ function kategori(krav: Krav | null | undefined) {
   };
 }
 
+/** Varslingsplikten i § 32.2 gjelder kategorien i grunnlagskravet (GR-U11). */
+export function gjelderVarslingsplikten(krav: Krav | null | undefined, regler: Regelsett): boolean {
+  const { hovedkategori, underkategori } = kategori(krav);
+  return regler.gjelderVarslingsplikten(hovedkategori, underkategori);
+}
+
 /**
  * Standpunktene i svaret etter regelsettet, regnet når brevet skrives.
  * `grunnlagskrav` er kravet et grunnlagssvar gjelder.
@@ -106,17 +112,17 @@ function godkjennerHeleKravet(svar: Svarinnhold, s: Standpunkt[]): boolean {
   return svar.utregning.beregnings_resultat === 'godkjent';
 }
 
-/** Enigheten om svaret slik brevet uttrykte det (KA-U10, MM-U3, MM-U9). */
+/** Enigheten om svaret slik brevet uttrykte det (KA-U10, MM-U3, MM-U9, MM-U11). */
 export function enighetsgrunnlag(svar: Svar, kilde: Enighetsgrunnlag['kilde']): Enighetsgrunnlag {
-  const { regelversjon, standpunkter, utfall, vilkaar } = svar.beslutningsgrunnlag;
+  const { regelversjon, standpunkter } = svar.beslutningsgrunnlag;
   return {
     spor: svar.spor,
     svar: svar.id,
     kilde,
     regelversjon,
     standpunkter,
-    utfall,
-    vilkaar: vilkaar ?? null,
+    utfall: utfall(svar, standpunkter),
+    vilkaar: svar.spor === 'grunnlag' ? null : 'grunnlag_avklart',
   };
 }
 
@@ -159,8 +165,6 @@ export function beslutningsgrunnlag(
     standpunkter: s,
     linje: beslutningslinje(svar, s),
     sammenfall: godkjennerHeleKravet(svar, s),
-    utfall: utfall(svar, s),
-    ...(svar.spor === 'grunnlag' ? {} : { vilkaar: 'grunnlag_avklart' as const }),
   };
 }
 
