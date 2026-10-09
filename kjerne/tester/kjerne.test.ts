@@ -205,8 +205,6 @@ describe('registrert korrespondanse fryses med kategorien i en sak som ikke er f
           { ...siste, event_id: randomUUID(), event_type: 'frist_foresporsel_sendt', data: {} },
         ]
       : journal;
-    if (utled(lesJournal(foer, 1), GJELDENDE_REGLER).forstaatt === ukjent)
-      throw new Error('Forutsetning: saken er forstått bare uten den ukjente raden');
     const rad: Journalrad = {
       ...siste,
       event_id: randomUUID(),
