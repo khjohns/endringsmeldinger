@@ -9,7 +9,8 @@ import bevis from '../../docs/domenetabell/bevis-saker-maalmodell.json' with { t
 import { handlinger } from '../handlinger.ts';
 import { GJELDENDE_REGLER, type Regelsett } from '../regler/regelsett.ts';
 import { KJERNE, type Kjerne } from '../versjon.ts';
-import { frysBrev, utledJournal, vurder, type Kontekst, type Utfall } from '../skriving.ts';
+import { SVARTYPER, Uforstaatt } from '../leser.ts';
+import { frysSvar, utledJournal, vurder, type Kontekst, type Utfall } from '../skriving.ts';
 import { enighetensVirkning, kanInngaaIEo, kraveneErAvgjort, type Utledning } from '../utled.ts';
 import { visning } from '../visning.ts';
 import type { Bane } from './bane.ts';
@@ -137,7 +138,12 @@ export class Kjoering {
       });
       // Registrert korrespondanse får brevet frosset som et svar fra kjernen (merknaden til
       // MM-U9), også når relasjonene ikke henger sammen, så forløp E prøver relasjonene.
-      frysBrev(journal, [rad], this.kjerne);
+      if (SVARTYPER[rad.event_type])
+        try {
+          frysSvar(rad, u, this.kjerne.regler);
+        } catch (feil) {
+          if (!(feil instanceof Uforstaatt)) throw feil;
+        }
       await this.bane.skriv([rad], versjon);
       this.navn.sett(h.navn, rad.event_id);
       this.sist = { utfall: { godtatt: true, hendelser: [rad] }, nye: 1 };

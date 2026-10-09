@@ -17,6 +17,7 @@
  * manglende referanse. Den gir en hendelse som ikke er forstått (MM-U2).
  */
 
+import { erObjekt } from './skjema.ts';
 import { utenforOmfanget } from './standpunkt.ts';
 import type {
   Beslutningsgrunnlag,
@@ -34,29 +35,41 @@ import type {
   Virkning,
 } from './typer.ts';
 
-const KRAVTYPER: Record<string, Spor> = {
-  grunnlag_opprettet: 'grunnlag',
-  grunnlag_oppdatert: 'grunnlag',
-  vederlag_krav_sendt: 'vederlag',
-  vederlag_krav_oppdatert: 'vederlag',
-  frist_krav_sendt: 'frist',
-  frist_krav_oppdatert: 'frist',
+/**
+ * Hendelsestypene per spor, i formen `hendelse` har i dag. Leseren og
+ * skrivingen avleder sine oppslag herfra, så navnene har ett hjem til
+ * lagringsformatet er valgt (#273).
+ */
+export const HENDELSESTYPER: Record<
+  Spor,
+  { krav: [string, string]; svar: [string, string]; trekk: string }
+> = {
+  grunnlag: {
+    krav: ['grunnlag_opprettet', 'grunnlag_oppdatert'],
+    svar: ['respons_grunnlag', 'respons_grunnlag_oppdatert'],
+    trekk: 'grunnlag_trukket',
+  },
+  vederlag: {
+    krav: ['vederlag_krav_sendt', 'vederlag_krav_oppdatert'],
+    svar: ['respons_vederlag', 'respons_vederlag_oppdatert'],
+    trekk: 'vederlag_krav_trukket',
+  },
+  frist: {
+    krav: ['frist_krav_sendt', 'frist_krav_oppdatert'],
+    svar: ['respons_frist', 'respons_frist_oppdatert'],
+    trekk: 'frist_krav_trukket',
+  },
 };
 
-export const SVARTYPER: Record<string, Spor> = {
-  respons_grunnlag: 'grunnlag',
-  respons_grunnlag_oppdatert: 'grunnlag',
-  respons_vederlag: 'vederlag',
-  respons_vederlag_oppdatert: 'vederlag',
-  respons_frist: 'frist',
-  respons_frist_oppdatert: 'frist',
-};
-
-const TREKKTYPER: Record<string, Spor> = {
-  grunnlag_trukket: 'grunnlag',
-  vederlag_krav_trukket: 'vederlag',
-  frist_krav_trukket: 'frist',
-};
+const oppslag = (felt: (t: (typeof HENDELSESTYPER)[Spor]) => string[]): Record<string, Spor> =>
+  Object.fromEntries(
+    (Object.entries(HENDELSESTYPER) as [Spor, (typeof HENDELSESTYPER)[Spor]][]).flatMap(
+      ([spor, t]) => felt(t).map((type) => [type, spor])
+    )
+  );
+const KRAVTYPER = oppslag((t) => t.krav);
+export const SVARTYPER = oppslag((t) => t.svar);
+const TREKKTYPER = oppslag((t) => [t.trekk]);
 
 export const KRAVREFERANSE: Record<Spor, string> = {
   grunnlag: 'grunnlag_event_id',
@@ -67,7 +80,8 @@ export const KRAVREFERANSE: Record<Spor, string> = {
 /** Varselet kjernen utleder av et fristkrav når ingen varsel er registrert (MM-U1). */
 export const utledetVarsel = (kravId: string) => `utledet:${kravId}`;
 
-class Uforstaatt extends Error {}
+/** Leseren forstår ikke raden (MM-U2). */
+export class Uforstaatt extends Error {}
 
 const tekst = (v: unknown): string | null => (typeof v === 'string' ? v : null);
 const sannhet = (v: unknown): boolean | null => (typeof v === 'boolean' ? v : null);
@@ -85,12 +99,17 @@ interface Lesestand {
   fristvarsel: string | null;
 }
 
-function svarutsagn(
+/**
+ * Utsagnene i et svar. `fristvarsel` er varselet en rettidighetsvurdering etter
+ * § 33.4 gjelder: det registrerte da svaret ble skrevet, ellers det utledede.
+ * Kaster `Uforstaatt`. Skrivingen bruker den samme funksjonen når brevet fryses.
+ */
+export function svarutsagn(
   spor: Spor,
   id: string,
   gjelder: string,
   data: Record<string, unknown>,
-  stand: Lesestand
+  fristvarsel: string
 ): Utsagn[] {
   const utsagn: Utsagn[] = [];
   if (spor === 'grunnlag') {
@@ -120,7 +139,7 @@ function svarutsagn(
       utsagn.push({
         id: `${id}#rettidighet`,
         art: 'rettidighet',
-        gjelder: stand.fristvarsel ?? utledetVarsel(gjelder),
+        gjelder: fristvarsel,
         hjemmel: '33.4',
         iTide,
       });
@@ -143,41 +162,18 @@ function svarutsagn(
   return utsagn;
 }
 
-function lesSvar(
-  h: Journalrad,
-  spor: Spor,
-  dokument: string,
-  stand: Lesestand,
-  utkast: boolean
-): Svar {
+function lesSvar(h: Journalrad, spor: Spor, dokument: string, stand: Lesestand): Svar {
   const data = h.data;
   const utenfor = utenforOmfanget(spor, data);
   if (utenfor) throw new Uforstaatt(utenfor);
-  const referanser = [h.refererer_til_event_id, tekst(data[KRAVREFERANSE[spor]])].filter(
-    (r): r is string => r !== null
+  const gjelder = svarreferanse(h, spor);
+  const utsagn = svarutsagn(
+    spor,
+    h.event_id,
+    gjelder,
+    data,
+    stand.fristvarsel ?? utledetVarsel(gjelder)
   );
-  if (!referanser.length) throw new Uforstaatt('svaret viser ikke til noe krav');
-  if (referanser.some((r) => r !== referanser[0]))
-    throw new Uforstaatt('svaret viser til to ulike krav');
-  const gjelder = referanser[0];
-  const utsagn = svarutsagn(spor, h.event_id, gjelder, data, stand);
-  if (utkast)
-    return {
-      id: h.event_id,
-      spor,
-      dokument,
-      gjelder,
-      erstatter: tekst(data.original_respons_id),
-      utsagn,
-      utregning: data,
-      beslutningsgrunnlag: {
-        regelversjon: 0,
-        standpunkter: [],
-        linje: '',
-        sammenfall: false,
-        utfall: {},
-      },
-    };
   return {
     id: h.event_id,
     spor,
@@ -190,9 +186,19 @@ function lesSvar(
   };
 }
 
+/** Kravet svaret gjelder. Referansene i raden må vise til det samme kravet. */
+export function svarreferanse(h: Journalrad, spor: Spor): string {
+  const referanser = [h.refererer_til_event_id, tekst(h.data[KRAVREFERANSE[spor]])].filter(
+    (r): r is string => r !== null
+  );
+  if (!referanser.length) throw new Uforstaatt('svaret viser ikke til noe krav');
+  if (referanser.some((r) => r !== referanser[0]))
+    throw new Uforstaatt('svaret viser til to ulike krav');
+  return referanser[0];
+}
+
 const VIRKNINGER = new Set(['hovedgrunn', 'subsidiaer', 'uten_virkning']);
-const objekt = (v: unknown): Record<string, unknown> | null =>
-  typeof v === 'object' && v !== null && !Array.isArray(v) ? (v as Record<string, unknown>) : null;
+const objekt = (v: unknown): Record<string, unknown> | null => (erObjekt(v) ? v : null);
 
 /** Standpunktene skal ha ett standpunkt per utsagn i svaret, med samme art. */
 function lesStandpunkter(v: unknown, utsagn: Utsagn[]): Standpunkt[] {
@@ -242,7 +248,7 @@ function lesBeslutningsgrunnlag(v: unknown, spor: Spor, utsagn: Utsagn[]): Beslu
   };
 }
 
-function lesDokument(h: Journalrad, stand: Lesestand, utkast: Set<string>): Dokument {
+function lesDokument(h: Journalrad, stand: Lesestand): Dokument {
   const data = h.data;
   const id = tekst(data.dokument_id) ?? h.event_id;
   const avsender: Part = h.aktor_rolle;
@@ -264,7 +270,18 @@ function lesDokument(h: Journalrad, stand: Lesestand, utkast: Set<string>): Doku
     const o: Opplysning = { id: `${id}#${hva}`, dokument: id, hva, verdi: v, oppgittAv: part };
     dokument.opplysninger.push(o);
   };
-  const type = h.event_type as string;
+  const registrer = () => {
+    const varselId = `${h.event_id}#varsel`;
+    dokument.utsagn.push({
+      id: varselId,
+      art: 'varsel',
+      gjelder: 'frist',
+      hjemmel: '33.4',
+      dokument: id,
+    });
+    return varselId;
+  };
+  const type = h.event_type;
 
   if (KRAVTYPER[type]) {
     const spor = KRAVTYPER[type];
@@ -275,21 +292,13 @@ function lesDokument(h: Journalrad, stand: Lesestand, utkast: Set<string>): Doku
     const varsel = data.frist_varsel as Record<string, unknown> | undefined;
     if (spor === 'frist' && varsel && stand.fristvarsel === null) {
       krev(tekst(varsel.dato_sendt), 'varselet i kravet mangler sendedato');
-      const varselId = `${h.event_id}#varsel`;
-      dokument.utsagn.push({
-        id: varselId,
-        art: 'varsel',
-        gjelder: 'frist',
-        hjemmel: '33.4',
-        dokument: id,
-      });
+      stand.fristvarsel = registrer();
       opplysning('sendt', varsel.dato_sendt, 'TE');
-      stand.fristvarsel = varselId;
     }
     return dokument;
   }
   if (SVARTYPER[type]) {
-    dokument.svar.push(lesSvar(h, SVARTYPER[type], id, stand, utkast.has(h.event_id)));
+    dokument.svar.push(lesSvar(h, SVARTYPER[type], id, stand));
     return dokument;
   }
   if (type === 'te_aksepterer_respons') {
@@ -310,14 +319,7 @@ function lesDokument(h: Journalrad, stand: Lesestand, utkast: Set<string>): Doku
     return dokument;
   }
   if (type === 'frist_varsel_registrert') {
-    const varselId = `${h.event_id}#varsel`;
-    dokument.utsagn.push({
-      id: varselId,
-      art: 'varsel',
-      gjelder: 'frist',
-      hjemmel: '33.4',
-      dokument: id,
-    });
+    const varselId = registrer();
     opplysning(
       'sendt',
       krev(tekst(data.sendt), 'varselet mangler sendedato'),
@@ -341,16 +343,8 @@ function lesDokument(h: Journalrad, stand: Lesestand, utkast: Set<string>): Doku
   throw new Uforstaatt(`ukjent hendelsestype ${type}`);
 }
 
-/**
- * Journalen i kjernens form. En rad leseren ikke forstår, blir `ukjent`, ikke
- * hoppet over. Svarene i `utkast` er svar skrivingen ennå ikke har frosset
- * brevet for; de leses uten beslutningsgrunnlag og enighetsfelt.
- */
-export function lesJournal(
-  journal: Journalrad[],
-  format: number,
-  utkast: Set<string> = new Set()
-): Domenehendelse[] {
+/** Journalen i kjernens form. En rad leseren ikke forstår, blir `ukjent`, ikke hoppet over. */
+export function lesJournal(journal: Journalrad[], format: number): Domenehendelse[] {
   const stand: Lesestand = { sisteKrav: {}, fristvarsel: null };
   return journal.map((h): Domenehendelse => {
     const felles = { id: h.event_id, versjon: h.versjon, type: h.event_type as string };
@@ -364,7 +358,7 @@ export function lesJournal(
         : { ...felles, art: 'ukjent', grunn: `sakstype ${String(sakstype)}` };
     }
     try {
-      return { ...felles, art: 'dokument', dokument: lesDokument(h, stand, utkast) };
+      return { ...felles, art: 'dokument', dokument: lesDokument(h, stand) };
     } catch (feil) {
       if (feil instanceof Uforstaatt) return { ...felles, art: 'ukjent', grunn: feil.message };
       throw feil;

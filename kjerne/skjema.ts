@@ -21,12 +21,16 @@ export const NOEKKELORD = new Set([
   'minLength',
 ]);
 
+/** Et JSON-objekt: ikke `null` og ikke en liste. */
+export const erObjekt = (v: unknown): v is Record<string, unknown> =>
+  typeof v === 'object' && v !== null && !Array.isArray(v);
+
 const TYPER: Record<string, (v: unknown) => boolean> = {
   string: (v) => typeof v === 'string',
   integer: (v) => typeof v === 'number' && Number.isInteger(v),
   number: (v) => typeof v === 'number' && Number.isFinite(v),
   boolean: (v) => typeof v === 'boolean',
-  object: (v) => typeof v === 'object' && v !== null && !Array.isArray(v),
+  object: erObjekt,
   array: (v) => Array.isArray(v),
   null: (v) => v === null,
 };
@@ -61,8 +65,8 @@ export function feilI(verdi: unknown, s: Skjema, sti = '$', rot: Skjema = s): st
   if (typeof s.minLength === 'number' && typeof verdi === 'string' && verdi.length < s.minLength) {
     feil.push(`${sti}: er kortere enn ${s.minLength}`);
   }
-  if (TYPER.object(verdi)) {
-    const objekt = verdi as Record<string, unknown>;
+  if (erObjekt(verdi)) {
+    const objekt = verdi;
     const egenskaper = (s.properties ?? {}) as Record<string, Skjema>;
     for (const navn of (s.required ?? []) as string[])
       if (!(navn in objekt)) feil.push(`${sti}.${navn}: mangler`);

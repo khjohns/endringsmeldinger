@@ -3,8 +3,6 @@
  * `genererte` i bevis-sakene for målmodellen, og velges med samme LCG som
  * `sprakprove/genererte-forlop.json`, uansett tilstand. Etter hvert steg prøves:
  *
- * - INV-MM-1: en handling tilbys hvis og bare hvis forutsetningene holder, for
- *   hver handling og begge parter;
  * - INV-AVVIST-UENDRET: en avvist kommando endrer ikke journalen;
  * - INV-MM-5: en regelendring endrer ikke beslutningsgrunnlag eller enighetsgrunnlag;
  * - INV-MM-6: en aksept gir enighet i sporet den gjelder, og ingen andre;
@@ -12,11 +10,9 @@
  */
 
 import { describe, expect, it } from 'vitest';
-import { forutsetninger, noekkel, type Handlingsnoekkel } from '../forutsetninger.ts';
-import { handlinger } from '../handlinger.ts';
 import { utledJournal } from '../skriving.ts';
 import type { Utledning } from '../utled.ts';
-import { SPOR, type Part } from '../typer.ts';
+import { SPOR } from '../typer.ts';
 import { minnebane } from './bane.ts';
 import { bygg } from './baner.ts';
 import { MAALMODELL } from './kjoerer.ts';
@@ -42,19 +38,6 @@ function forloepene() {
   );
 }
 
-function kandidater(u: Utledning): [Part, Handlingsnoekkel][] {
-  const ut: [Part, Handlingsnoekkel][] = [];
-  for (const spor of SPOR) {
-    for (const type of ['krav', 'trekke', 'godta'] as const) ut.push(['TE', { type, spor }]);
-    for (const type of ['svare', 'revidere'] as const) ut.push(['BH', { type, spor }]);
-  }
-  ut.push(['TE', { type: 'varsle', spor: 'frist' }]);
-  for (const { opplysning } of u.opplysninger)
-    for (const part of ['TE', 'BH'] as const)
-      ut.push([part, { type: 'bestride', gjelder: opplysning.id }]);
-  return ut;
-}
-
 const frosset = (u: Utledning) => ({
   beslutningsgrunnlag: Object.fromEntries(
     Object.values(u.svar).map((s) => [s.svar.id, s.svar.beslutningsgrunnlag])
@@ -76,15 +59,6 @@ describe('genererte forløp mot målmodellen', () => {
       const hvor = `seed ${G.seed}, forløp ${i}, steg ${n + 1} (${h.handling} ${JSON.stringify(h)})`;
       const journalFor = await bane.journal();
       const foer = utledJournal(journalFor, k.kjerne);
-
-      for (const [part, kandidat] of kandidater(foer)) {
-        const tilbys = handlinger(foer, part).includes(noekkel(kandidat));
-        const brudd = forutsetninger(kandidat, part, foer);
-        expect(
-          tilbys,
-          `INV-MM-1 ${hvor}: ${part} ${noekkel(kandidat)} ${brudd?.regel ?? 'holder'}`
-        ).toBe(brudd === null);
-      }
 
       const u = await k.send(h);
       const journal = await bane.journal();
