@@ -12,13 +12,13 @@
  */
 
 import bevis from '../../docs/domenetabell/bevis-saker.json' with { type: 'json' };
-import { tilTall } from '../kjerne/belop.ts';
+import { tilTall } from '../../kjerne/regler/belop.ts';
 import { vurderKommando, type Utfall } from '../kjerne/kommando.ts';
 import { RADER } from '../kjerne/kontrakt.ts';
 import { offentligTilstand, type OffentligTilstand } from '../kjerne/offentlig.ts';
 import { REGELVERSJON } from '../kjerne/regelversjon.ts';
-import { beregnFrist } from '../kjerne/regler/frist.ts';
-import { beregnVederlag } from '../kjerne/regler/vederlag.ts';
+import { beregnFrist } from '../../kjerne/regler/frist.ts';
+import { beregnVederlag } from '../../kjerne/regler/vederlag.ts';
 import { anvend, nySak, type Sak } from '../kjerne/sak.ts';
 import { fristkrav, vederlagskrav } from '../kjerne/sammenlikning.ts';
 import type { Hendelse, Kontekst, Rolle } from '../kjerne/typer.ts';

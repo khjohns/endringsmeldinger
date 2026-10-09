@@ -38,6 +38,37 @@ export default ts.config(
     },
   },
   {
+    // Kjernen (B-14): norske navn etter «Språk» i AGENTS.md, og ae/oe/aa for æ/ø/å.
+    // Egenskaper er data over grensen (snake_case) og navn utenfra, så de sjekkes
+    // ikke for format, men heller ikke de kan ha æ, ø eller å.
+    files: ['kjerne/**/*.ts'],
+    rules: {
+      'id-match': [
+        'error',
+        '^[A-Za-z0-9_$]*$',
+        {
+          properties: true,
+          classFields: true,
+          onlyDeclarations: false,
+          ignoreDestructuring: false,
+        },
+      ],
+      '@typescript-eslint/naming-convention': [
+        'error',
+        { selector: 'default', format: ['camelCase'] },
+        { selector: 'import', format: ['camelCase', 'PascalCase'] },
+        {
+          selector: 'variable',
+          modifiers: ['const', 'global'],
+          format: ['camelCase', 'UPPER_CASE'],
+        },
+        { selector: 'parameter', format: ['camelCase'], leadingUnderscore: 'allow' },
+        { selector: 'typeLike', format: ['PascalCase'] },
+        { selector: ['property', 'method', 'accessor', 'enumMember'], format: null },
+      ],
+    },
+  },
+  {
     ignores: ['build/', '.svelte-kit/', 'dist/', '.worktrees/', '**/venv/', '**/.venv/'],
   }
 );

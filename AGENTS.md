@@ -81,8 +81,14 @@ kontrakten overlater til partene, en oppmann eller domstolene. Begrepene står i
 [modellforslaget, 2.2](docs/forslag-maalmodell-2026-10-09.md#22-byggeklossene),
 som ikke er vedtatt i sin helhet, og i [domenetabellen](docs/domenetabell/README.md).
 
-**TS eier KOE, endringsordre og forsering (B-17).** Kjernen skal ligge i en egen,
-permanent mappe (B-14); `sprakprove/` er prøvekode og ikke en mal. Python-koden
+**TS eier KOE, endringsordre og forsering (B-17).** Kjernen ligger i `kjerne/`
+(B-14) og er ren kode: den importerer ingenting utenfor mappa, ingen `pg` og
+ingen server, og ingen regel når visningen eller bufferen. Arkitekturtesten i
+`kjerne/tester/` håndhever det. Regelsettet står i `kjerne/regler/`; endres det,
+økes `REGELVERSJON` der. Endres resten av kjernen, økes `PROJEKSJONSVERSJON` i
+`kjerne/versjon.ts`. Regelversjonsvakten i CI krever begge. Lagringstestene mot
+testbasen står i `sprakprove/kjernelagring/`. `sprakprove/` er prøvekode og ikke
+en mal. Python-koden
 for de tre sakstypene er overgangskode og rettes bare for sikkerhet og det som
 hindrer test eller demo
 ([merknaden i 4.2](docs/plans/2026-09-16-godkjenning-og-varig-levering.md#python-feil-koe)).
@@ -92,7 +98,8 @@ hindrer test eller demo
 ```bash
 cd backend && /tmp/venv/bin/python -m pytest -q
 npm test && npm run check:error      # skal gi 0 errors
-npx tsc -p sprakprove/tsconfig.json  # svelte-check ser ikke sprakprove/
+npx tsc -p kjerne/tsconfig.json      # svelte-check ser ikke kjerne/
+npx tsc -p sprakprove/tsconfig.json  # eller sprakprove/
 ruff check backend/                  # porten, skal være 0
 ```
 
@@ -100,16 +107,17 @@ Testene er raske. Kjør dem ofte. I skyøktene lager `.claude/hooks/session-star
 venv-en og testbasen, og meldingen fra hooken sier om databasetestene kjører.
 Med `KOE_TESTBASE_URL` kjører `npm test` også TS-databasetestene. Kjør dem ikke
 samtidig med pytest mot samme base: oppryddingen i pytest setter basen tilbake.
+`node kjerne/tester/feilinnforing.ts` kjører feilinnføringene for kjernen.
 Utenfor skyøktene: `python3 -m venv /tmp/venv` og `pip install -r` begge
 `backend/requirements*.txt` (systempython mangler pytest).
 
 **Nettleserkontroll av `/mockup` går gjennom skillen `mockup-nettleser`.** Kjør
 aldri `npm i playwright` eller `playwright install`; skillen sier hvorfor.
 
-**`npm run lint` håndhever prettier** for omfanget i `package.json`, og
-`npm run format` skriver den. Utenfor er JSON som et verktøy skriver (som
-`regler.json`), tsconfig-filene og `docs/`: der ville prettier og verktøyet
-skrevet om hverandres form.
+**`npm run lint` håndhever prettier** for omfanget i `package.json` og
+navnereglene i eslint for `kjerne/`, og `npm run format` skriver prettier.
+Utenfor er JSON som et verktøy skriver (som `regler.json`), tsconfig-filene og
+`docs/`: der ville prettier og verktøyet skrevet om hverandres form.
 
 **`ruff format` er ikke en port.** Repoet er aldri formatert med den, og den ville
 skrevet om en stor del av treet. Kjør den ikke på hele treet.
