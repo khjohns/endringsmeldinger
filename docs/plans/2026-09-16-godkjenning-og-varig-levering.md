@@ -2,7 +2,7 @@
 
 **Opprettet:** 2026-09-16. **Sluttredigert:** 2026-09-22, mot commit
 `41c2a16191a5aadbe611e0958db8b93090b08027` (`main`).
-**Sist endret:** 2026-10-09, senere: MM-U1–MM-U4 vedtatt etter modellforslaget, og MM-U3 presisert etter review (#300). Tidligere samme dag: TS vedtatt som retning for den delte domenekjernen (B-14, 3.1), merknad til B-14 om at språkprøven er gjennomført, SP-03 og SP-04 registrert, B-15 avgjort, GR-U7 presisert for et fullt godkjent svar, og restrisikoen for eldre aksepter godtatt under KA-U1 (#274). 2026-10-08, senere: SP-01 og SP-02 registrert fra språkprøven (#274). Tidligere samme dag: GR-U7 vedtatt og erstatter GR-U6, KA-U5 presisert og DT-11 lukket (#294). Tidligere samme dag: kontrakten for flyten i språkprøven skrevet
+**Sist endret:** 2026-10-09, senere: forløp A–E kjørt i målmodellen, merknad under B-14 (#304). Tidligere samme dag: MM-U1–MM-U4 vedtatt etter modellforslaget, og MM-U3 presisert etter review (#300). Tidligere samme dag: TS vedtatt som retning for den delte domenekjernen (B-14, 3.1), merknad til B-14 om at språkprøven er gjennomført, SP-03 og SP-04 registrert, B-15 avgjort, GR-U7 presisert for et fullt godkjent svar, og restrisikoen for eldre aksepter godtatt under KA-U1 (#274). 2026-10-08, senere: SP-01 og SP-02 registrert fra språkprøven (#274). Tidligere samme dag: GR-U7 vedtatt og erstatter GR-U6, KA-U5 presisert og DT-11 lukket (#294). Tidligere samme dag: kontrakten for flyten i språkprøven skrevet
 (#272), KT-U1, KT-U2 og GR-U6 vedtatt, DT-11 registrert, DT-01 og DT-03 rettet, og aksept-delen av DT-04
 rettet. Tidligere samme dag: EO-U1–EO-U4 om endringsordrene vedtatt for
 [domenetabellen](../domenetabell/README.md) (#271), B-08 avgjort med EO-U3, og
@@ -601,6 +601,24 @@ Et åpent valg blokkerer bare oppgavene som er nevnt.
 > (#300). Den gjennomgår fem forløp med vedtak på papir og ga MM-U1–MM-U4 i 3.1.
 > Modellen som helhet er ikke vedtatt og ikke bevist i kode; den kjørbare prøven
 > er #304. Retning og rekkefølge under B-14 er uendret.
+
+> **Merknad 2026-10-09 til B-14 (målmodellen i kode):** Forløp A–E fra
+> modellforslaget er kjørt i en avgrenset implementasjon av målmodellen i
+> [`sprakprove/maalmodell/`](../../sprakprove/maalmodell/) (#304), i minnet og
+> gjennom `hendelse` i testbasen. Forventningene står som
+> [bevis-saker](../domenetabell/bevis-saker-maalmodell.json) med kilde per
+> kontroll. KA-19 er presisert etter MM-U1, og KA-20–KA-24 er nye rader i
+> [domenetabellen](../domenetabell/README.md). Relasjonene, enighetsgrunnlaget,
+> beslutningsgrunnlaget og versjonskontrollen holder gjennom lagring, gjenlesing,
+> en kontrollert regelendring og en tilbakerulling, og de sju feilinnføringene i
+> avsnitt 4 i forslaget oppdages. Prøven presiserer modellen på to punkter: at
+> hele svaret er subsidiært til grunnlaget, er vilkåret i enighetsgrunnlaget og
+> ikke en virkning av svarets standpunkter, ellers ville MM-U4 hindret aksepten
+> GR-U7 tillater; og en vurdering av rettidighet etter § 33.4 som gjelder et annet
+> varsel enn det registrerte, er uavklart (MM-U1). Lagringsformatet er ikke
+> valgt; funnene om format og versjonering står i #273. Modellen som helhet,
+> GR-25 og MM-U4 for et svar uten lagret beslutningsgrunnlag er ikke avgjort.
+> Retning og rekkefølge under B-14 er uendret.
 
 > **Merknad 2026-10-07 til B-10:** Strategien skal skille saksversjon fra
 > versjonen som beregnet en projeksjon, og vise invalidasjon/gjenoppbygging
