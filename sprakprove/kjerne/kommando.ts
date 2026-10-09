@@ -13,6 +13,10 @@ export type Utfall =
   | { godtatt: true; hendelse: Hendelse }
   | { godtatt: false; feil: 'VALIDATION_ERROR' | 'BUSINESS_RULE_VIOLATION'; avvisning: Avvisning };
 
+export type Tolkning =
+  | { godtatt: true; hendelse: Hendelse }
+  | { godtatt: false; feil: 'VALIDATION_ERROR'; avvisning: Avvisning };
+
 /** Felt klienten ikke bestemmer (`serverfelt` i kontrakten): to avvises, resten overskrives. */
 const AVVIST_FRA_KLIENT = ['event_id', 'tidsstempel'];
 const OVERSKREVET = ['aktor_id', 'aktor_rolle', 'aktor_team_id', 'sak_id'];
@@ -21,13 +25,17 @@ function utenNull(data: Record<string, unknown>): Record<string, unknown> {
   return Object.fromEntries(Object.entries(data).filter(([, v]) => v !== null && v !== undefined));
 }
 
-const valideringsfeil = (melding: string): Utfall => ({
+const valideringsfeil = (melding: string): Tolkning => ({
   godtatt: false,
   feil: 'VALIDATION_ERROR',
   avvisning: { regel: 'VALIDATION_ERROR', melding },
 });
 
-export function vurderKommando(sak: Sak, kommando: unknown, kontekst: Kontekst): Utfall {
+/**
+ * Kontrakten og serverstemplingen, uten saken: det `/api/events` gjør før
+ * journalen leses. `versjon` er plassen hendelsen får i journalen.
+ */
+export function tolkKommando(kommando: unknown, kontekst: Kontekst, versjon: number): Tolkning {
   if (typeof kommando !== 'object' || kommando === null || Array.isArray(kommando)) {
     return valideringsfeil('Kommandoen må være et objekt.');
   }
@@ -67,7 +75,7 @@ export function vurderKommando(sak: Sak, kommando: unknown, kontekst: Kontekst):
     event_id: kontekst.nyId(),
     sak_id: kontekst.sakId,
     event_type: type,
-    versjon: sak.antallHendelser + 1,
+    versjon,
     tidsstempel: kontekst.tidspunkt().toISOString(),
     aktor_id: kontekst.aktorId,
     aktor_rolle: kontekst.rolle,
@@ -76,7 +84,13 @@ export function vurderKommando(sak: Sak, kommando: unknown, kontekst: Kontekst):
       typeof k.refererer_til_event_id === 'string' ? k.refererer_til_event_id : null,
     data,
   };
-  const brudd = forstebrudd(hendelse, sak);
-  if (brudd) return { godtatt: false, feil: 'BUSINESS_RULE_VIOLATION', avvisning: brudd };
   return { godtatt: true, hendelse };
+}
+
+export function vurderKommando(sak: Sak, kommando: unknown, kontekst: Kontekst): Utfall {
+  const tolkning = tolkKommando(kommando, kontekst, sak.antallHendelser + 1);
+  if (!tolkning.godtatt) return tolkning;
+  const brudd = forstebrudd(tolkning.hendelse, sak);
+  if (brudd) return { godtatt: false, feil: 'BUSINESS_RULE_VIOLATION', avvisning: brudd };
+  return tolkning;
 }

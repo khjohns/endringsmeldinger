@@ -225,10 +225,29 @@ const KRAVTYPER: Record<string, Spor> = {
   frist_krav_sendt: 'frist',
 };
 
-/** Legg én hendelse til saken. Hendelsen er alt godkjent av forretningsreglene. */
+/**
+ * En hendelse projeksjonen ikke kan anvende. B-10: en ukjent rettslig relevant
+ * hendelse kan ikke overses mens bindende kommandoer tillates.
+ */
+export class UkjentHendelse extends Error {}
+
+/**
+ * Legg én hendelse til saken. Hendelsen er alt godkjent av forretningsreglene.
+ * Kaster `UkjentHendelse` for en type kjernen ikke behandler, og for en sak som
+ * ikke er en vanlig KOE-sak.
+ */
 export function anvend(sak: Sak, h: Hendelse): Sak {
   const ny: Sak = structuredClone(sak);
   ny.antallHendelser += 1;
+  const type = h.event_type as string;
+  if (type === 'sak_opprettet') {
+    const sakstype = h.data.sakstype;
+    if (sakstype !== undefined && sakstype !== 'standard')
+      throw new UkjentHendelse(`sak_opprettet med sakstype ${String(sakstype)}`);
+    return ny;
+  }
+  // MS-05: et internt notat er ikke et kontraktsvarsel og har ingen domenevirkning.
+  if (type === 'internt_notat') return ny;
   const kravspor = KRAVTYPER[h.event_type];
   if (kravspor) {
     const spor = ny[kravspor];
@@ -246,7 +265,8 @@ export function anvend(sak: Sak, h: Hendelse): Sak {
   const svarspor = SVARTYPER[h.event_type];
   if (svarspor) {
     const spor = ny[svarspor];
-    const krav = spor.krav!;
+    const krav = spor.krav;
+    if (!krav) throw new UkjentHendelse(`${type} uten krav i sporet`);
     spor.svar = {
       eventId: h.event_id,
       kravId: krav.eventId,
@@ -261,10 +281,11 @@ export function anvend(sak: Sak, h: Hendelse): Sak {
     }
     return ny;
   }
-  if (h.event_type === 'te_aksepterer_respons') {
+  if (type === 'te_aksepterer_respons') {
     ny[h.data.spor as Spor].akseptertSvarId = h.refererer_til_event_id;
+    return ny;
   }
-  return ny;
+  throw new UkjentHendelse(type);
 }
 
 export function projiser(sakId: string, journal: Hendelse[]): Sak {
