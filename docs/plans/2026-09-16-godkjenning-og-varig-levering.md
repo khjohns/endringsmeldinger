@@ -561,6 +561,29 @@ stod i 3.4 før sluttredigeringen 09.10, er i Git (se toppteksten).
 > kommandoer tillates. Implementering og bevis hører til F2; F5 kontrollerer
 > at porten er bestått. B-10s konkrete format-/versjoneringsstrategi er fortsatt åpen.
 
+> **Merknad 2026-10-09 til B-10: strategien for formatet TS skriver.** Gjelder
+> KOE-, EO- og forseringssakene etter B-17. Grunnlaget er
+> [designnotatet](../design-hendelsesformat-2026-10-09.md) (#273) og
+> oppdragsgivers svar 09.10 på de to domenespørsmålene der (avsnitt 8), som
+> føres som vedtak i 3.1.
+> - Ett dokument fra én part er én rad (`dokument_registrert`) med krav, svar
+>   og utsagn, også i flere spor. Et brev med flere svar lagres dermed samlet
+>   eller ikke i det hele tatt.
+> - Hvert krav, svar, utsagn og hver opplysning har en ID satt av serveren.
+>   Relasjonene `gjelder` og `erstatter` er uttrykkelige og peker bakover i samme
+>   sak. En manglende eller feil referanse gjør saken ikke forstått (MM-U2).
+>   Ingen leser går etter plassen i journalen.
+> - Beslutningsgrunnlaget fryses i hvert svar, med virkningen, sammenfallet,
+>   utfallet og vilkåret. Aksepten viser til svaret og regelversjonen og har
+>   ingen kopi av innholdet.
+> - `data` har ingen `null` og ingen tomme verdier. Et felt formatet krever og
+>   som mangler, og et ukjent felt, gjør raden ikke forstått.
+> - Formatversjonen står i en egen kolonne `format` på hver rad TS skriver.
+>
+> Formatet bygges og prøves mot testbasen etter #308. Versjonering, utrulling
+> og tilbakerulling mellom TS-versjoner er #316. Beslutningsstatus er uendret:
+> åpen til formatet er prøvd.
+
 > **Merknad til B-12, samlet ved sluttredigeringen 09.10** fra merknadene 23.09,
 > 29.09 og 09.10. Beslutningsstatus er uendret: åpen.
 >
