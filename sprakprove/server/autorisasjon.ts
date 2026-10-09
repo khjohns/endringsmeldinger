@@ -67,7 +67,12 @@ export function sha256(tekst: string): string {
 function informasjonskapsel(foresporsel: IncomingMessage, navn: string): string {
   for (const del of (foresporsel.headers.cookie ?? '').split(';')) {
     const [nokkel, ...verdi] = del.trim().split('=');
-    if (nokkel === navn) return decodeURIComponent(verdi.join('='));
+    if (nokkel !== navn) continue;
+    try {
+      return decodeURIComponent(verdi.join('='));
+    } catch {
+      return '';
+    }
   }
   return '';
 }

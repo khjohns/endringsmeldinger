@@ -16,8 +16,6 @@ import type { Hendelse, Rolle } from '../kjerne/typer.ts';
 import { Forutsetning, kommando, type Bane, type Handling } from './korpus.ts';
 import { kall, opprettSak, type KjorendeServer, type Oppsett } from './testbase.ts';
 
-const AVVISNINGER = new Set(['VALIDATION_ERROR', 'BUSINESS_RULE_VIOLATION']);
-
 export interface Serverbane extends Bane {
   oppdater(): Promise<void>;
 }
@@ -81,12 +79,16 @@ export async function serverbane(
           throw new Forutsetning(`${h.handling}: tilstanden fra ruta er ikke lik den gjenleste`);
         return { godtatt: true, hendelse: journal.at(-1)! };
       }
-      if (svar.status !== 400 || !AVVISNINGER.has(svar.kropp.error))
+      const feil = svar.kropp.error;
+      if (
+        svar.status !== 400 ||
+        (feil !== 'VALIDATION_ERROR' && feil !== 'BUSINESS_RULE_VIOLATION')
+      )
         throw new Forutsetning(`${h.handling}: ${svar.status} ${JSON.stringify(svar.kropp)}`);
       return {
         godtatt: false,
-        feil: svar.kropp.error,
-        avvisning: { regel: svar.kropp.rule ?? svar.kropp.error, melding: svar.kropp.message },
+        feil,
+        avvisning: { regel: svar.kropp.rule ?? feil, melding: svar.kropp.message ?? '' },
       };
     },
   };
