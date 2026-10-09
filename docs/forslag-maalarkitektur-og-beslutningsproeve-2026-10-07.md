@@ -417,7 +417,7 @@ bare TS gir, er at nettleseren og serveren bruker samme implementasjon.
 ### Resultat av port 2 (2026-10-09, #274)
 
 **Status:** port 2 er gjennomført innen stoppgrensen. Kjøringene står i
-[PR #NNN](https://github.com/khjohns/endringsmeldinger/pull/NNN) med kontrollert
+[PR #301](https://github.com/khjohns/endringsmeldinger/pull/301) med kontrollert
 commit. Anbefalingen nedenfor er ikke et vedtak. Språkvalget føres i
 hovedplanen først når oppdragsgiver har bestemt det.
 
@@ -452,10 +452,12 @@ gangen. Tallene er røde tester:
 | --- | --- | --- |
 | M9 prosjektgrensen kontrolleres ikke for saken det vises til | 7 | 3 |
 | M10 CSRF kontrolleres ikke | 7 | 2 |
-| M11 lageret skriver etter journalens versjon, ikke den klienten så | 3 | 2 |
+| M11 lageret skriver etter journalens versjon, ikke den klienten så | 3 | 1–2 |
 
 Alle feilet på målassertionen: prosjektgrensen, CSRF eller versjonskonflikten.
-Ingen mutasjon overlevde. I Python er testene de eksisterende i `test_auth`,
+Ingen mutasjon overlevde. M11 i TS fanges hver gang av lagertesten. Testen med
+to samtidige sendinger fanger den bare når transaksjonene ikke overlapper;
+ellers stopper unik-skranken dem uansett. I Python er testene de eksisterende i `test_auth`,
 `test_security`, `test_routes` og `test_hendelse_og_notat.py`. M1–M8 ble kjørt
 på nytt etter endringene i kjernen og korpuskjøreren, og alle ble fortsatt
 oppdaget i begge språk.
