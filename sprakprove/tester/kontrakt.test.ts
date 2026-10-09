@@ -23,7 +23,7 @@ import {
   type Kontekst,
   type Rolle,
 } from '../kjerne/typer.ts';
-import { FLYTEN, KORPUS, kjor, kommando, minnebane, type Bane } from './korpus.ts';
+import { FLYTEN, KORPUS, kjor, kommando, minnebane, type Bane, type Minnebane } from './korpus.ts';
 
 const defs = (skjema as { $defs: Record<string, { enum?: unknown[] }> }).$defs;
 
@@ -38,7 +38,7 @@ function kontekst(bane: Bane, rolle: Rolle): Kontekst {
   };
 }
 
-function medPrefiks(navn: string, ekstra: Record<string, unknown>[] = []): Bane {
+function medPrefiks(navn: string, ekstra: Record<string, unknown>[] = []): Minnebane {
   const bane = minnebane();
   for (const h of [...KORPUS.prefikser[navn], ...ekstra]) {
     const u = bane.send(h as never);
@@ -71,9 +71,9 @@ describe('skjemaet', () => {
 });
 
 describe('korpuset holder kontrakten', () => {
-  it.each(FLYTEN.map((f) => [f.id, f] as const))('%s: rader og tilstand', (_id, forlop) => {
+  it.each(FLYTEN.map((f) => [f.id, f] as const))('%s: rader og tilstand', async (_id, forlop) => {
     const bane = minnebane();
-    kjor(forlop, bane);
+    await kjor(forlop, bane, { pastand: (holder, melding) => expect(holder, melding).toBe(true) });
     for (const h of bane.journal) {
       const rad = tilRad(h, 'p-sprakprove');
       expect(valider(rad, 'rad')).toEqual([]);

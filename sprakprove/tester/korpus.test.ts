@@ -5,7 +5,7 @@
  */
 
 import { describe, expect, it } from 'vitest';
-import { FLYTEN, kjor } from './korpus.ts';
+import { FLYTEN, kjor, minnebane } from './korpus.ts';
 import { RADER } from '../kjerne/kontrakt.ts';
 
 describe('bevis-sakene i flyten mot TS-kjernen', () => {
@@ -14,7 +14,9 @@ describe('bevis-sakene i flyten mot TS-kjernen', () => {
     expect(RADER.filter((r) => !dekket.has(r))).toEqual([]);
   });
 
-  it.each(FLYTEN.map((f) => [f.id, f] as const))('%s', (_id, forlop) => {
-    kjor(forlop);
+  it.each(FLYTEN.map((f) => [f.id, f] as const))('%s', async (_id, forlop) => {
+    await kjor(forlop, minnebane(), {
+      pastand: (holder, melding) => expect(holder, melding).toBe(true),
+    });
   });
 });
