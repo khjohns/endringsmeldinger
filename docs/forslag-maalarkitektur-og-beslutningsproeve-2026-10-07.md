@@ -329,6 +329,9 @@ delresultat, ikke en anbefaling om språk. Kjøringene står i
 [PR #297](https://github.com/khjohns/endringsmeldinger/pull/297)
 med kontrollert commit.
 
+**Merknad 2026-10-09:** port 2 er gjennomført. Se
+[resultatet av port 2](#resultat-av-port-2-2026-10-09-274).
+
 **Hva som ble sammenliknet:**
 - **Forbedret Python** er dagens backend med M2 og M1 for flyten:
   - aksepten bundet til svaret;
@@ -403,6 +406,125 @@ med kontrollert commit.
   bare gjennom status, beløp og grensetabellen.
 - Server, autorisasjon, lagring, godkjenning og drift for TS er ikke prøvd. Det
   er port 2.
+
+### Resultat av port 2 (2026-10-09, #274)
+
+**Status:** port 2 er gjennomført innen stoppgrensen. Kjøringene står i
+[PR #NNN](https://github.com/khjohns/endringsmeldinger/pull/NNN) med kontrollert
+commit. Anbefalingen nedenfor er ikke et vedtak. Språkvalget føres i
+hovedplanen først når oppdragsgiver har bestemt det.
+
+**Hva som ble bygget:**
+- **TS-serveren** i [`sprakprove/server/`](../sprakprove/server/): Node 22 med
+  `node:http` i egen prosess, uten rammeverk og uten byggesteg. Den er 907
+  linjer: ruter 370, tilgang 312, lager 161 og oppstart 64. Kjernen fra port 1
+  er eneste regelkilde.
+- **Tilgangen** leser de samme tabellene som Flask: sesjonen og CSRF,
+  prosjektmedlemskapet og synkroniseringen, prosjektgrensen for hver sak det
+  vises til, og kontraktsteamene. Catendas team-API står bak et grensesnitt.
+- **Lageret** skriver `hendelse` i én transaksjon, med `expected_version` og
+  unik-skranken.
+- **Godkjenningspakken** vurderes i kjernen
+  ([`godkjenning.ts`](../sprakprove/kjerne/godkjenning.ts)), med samme grense
+  som `validate_items`. Den publiseres ikke.
+
+| Kriterium | Bevis | Resultat |
+| --- | --- | --- |
+| P2-1 Nettleser og server | [`sammenlikn.ts`](../sprakprove/nettleser/sammenlikn.ts): kjernen og korpuskjøreren bygget med Vite og kjørt i Chromium 141, holdt mot TS-serveren og testbasen | 30 forløp, 126 steg, 0 avvik. En miljøavhengig feil innført i kjernen ga 124 avvik |
+| P2-2 Tilgang | [`server.test.ts`](../sprakprove/tester/server.test.ts) | 401 uten sesjon og med utløpt sesjon. 403 for feil prosjekt, en sak eller relatert sak i et annet prosjekt, et annet prosjekt i nyttelasten, uten kontraktsteam, feil kontraktsside og manglende eller feil CSRF. Hver avvisning har en kontrollsak med 201 og uendret journal |
+| P2-2 Serverfelt, versjon og regelversjon | Samme | `event_id` og `tidsstempel` avvises, og aktørfeltene overskrives. Feil `expected_version` gir 409. To samtidige sendinger på samme versjon gir én 201 og én 409, og lageret alene avviser en andre skriving på samme versjon. Feil regelversjon gir `RULE_VERSION` |
+| P2-2 Lagring og gjenlesing | [`serverkorpus.test.ts`](../sprakprove/tester/serverkorpus.test.ts) og `server.test.ts` | De 30 forløpene holder gjennom `/api/events` og `/api/events/batch`, med tilstanden lest fra serveren: 60 av 60. Svaret er lik den gjenleste tilstanden og lik projeksjonen av radene. En batch med én avvist hendelse lagrer ingenting |
+| P2-2 Python og TS | [`test_sprakprove_ts_server.py`](../backend/tests/test_database/test_sprakprove_ts_server.py) | TS skriver og Python leser med `parse_event`, og omvendt: 60 av 60. Hvert felt TS-serveren sender, er likt Pythons `public_state`. Journalen er lik slik de to leser den, også tidspunktet |
+| P2-3 Godkjenningspakken | `server.test.ts` | Vederlaget vurderes mot grunnlagssvaret i pakken og blir subsidiært (GR-01). Et svar vurdert mot grunnlaget uten pakkens svar avvises, og det samme gjør en foreldet kravreferanse. Regelversjonen gjelder hvert element. Pakken skriver ikke i journalen |
+| Feilinnføring | [`feilinnforing.py`](../sprakprove/feilinnforing.py), M9–M11 | Se under |
+
+**Feilinnføring M9–M11.** Samme feilklasse i begge implementasjoner, én om
+gangen. Tallene er røde tester:
+
+| Feilklasse | Python | TS |
+| --- | --- | --- |
+| M9 prosjektgrensen kontrolleres ikke for saken det vises til | 7 | 3 |
+| M10 CSRF kontrolleres ikke | 7 | 2 |
+| M11 lageret skriver etter journalens versjon, ikke den klienten så | 3 | 2 |
+
+Alle feilet på målassertionen: prosjektgrensen, CSRF eller versjonskonflikten.
+Ingen mutasjon overlevde. I Python er testene de eksisterende i `test_auth`,
+`test_security`, `test_routes` og `test_hendelse_og_notat.py`. M1–M8 ble kjørt
+på nytt etter endringene i kjernen og korpuskjøreren, og alle ble fortsatt
+oppdaget i begge språk.
+
+**Tidspunkt og ID-er.** TS skriver tidspunktet med `toISOString()`, altså `Z`
+og millisekunder. Python skriver `+00:00` og mikrosekunder. Basen lagrer
+tidspunktet, ikke teksten, og begge leser det nå i Pythons form. Kjernen i
+minnet bruker ID-er som ikke er UUID-er. Serveren bruker `randomUUID()`, fordi
+`event_id` og `referstoid` er `uuid` i basen. En referanse som ikke er en UUID,
+avvises før lagring.
+
+**Feil i prøven, rettet.** TS-kjernen hadde regelversjon 4 etter port 1, mens
+Python hadde 5. Ingen test så det, fordi kjernen bare møtte sine egne svar.
+Kryss-lesingen ville avvist hvert svar fra Python.
+`backend/tests/test_regler/test_regelversjon.py` holder dem nå like.
+
+**Det TS-serveren ikke har.** Den er en prøve, ikke produksjonskode:
+- sakopprettelse;
+- godkjenningspolicyen. Serveren starter ikke når `BH_APPROVAL_POLICIES` er satt;
+- interne notater og synlighetsfilteret, og vedlegg;
+- Catenda, PDF, innlogging og medlemssynkronisering;
+- begrensning av forespørsler, logging og observabilitet.
+
+#### Kostnad ved TS-retningen (P2-4)
+
+Linjetallene er omfangsindikatorer, telt 09.10 med kommentarer og blanklinjer.
+De er ikke et estimat i timer.
+
+| Område | Python i dag | Prøvd i port 2 | Hva TS-retningen krever |
+| --- | --- | --- | --- |
+| Auth | 1 348 linjer. 73 tester i `test_auth` og 230 i `test_security` | Lesesiden: sesjon, CSRF, medlemskap, prosjektgrense og kontraktsside, 312 linjer | Innlogging med Catenda OAuth, sesjonsopprettelse og synkronisering. Databasefunksjonene, som `koe_resolve_identity` og `koe_reconcile_memberships`, er språkuavhengige og kan kalles uendret. To implementasjoner av tilgang i overgangen er den største sikkerhetsrisikoen, så sikkerhetstestene må gå mot begge |
+| Godkjenning | 1 906 linjer. 111 tester | Grensen i `validate_items`, 113 linjer i kjernen | Kommandoene, fullmakten, brevets øyeblikksbilde og publiseringen. SQLite-aggregatet skal erstattes i F2/F3 uansett språk, så porten bør følge den ombyggingen |
+| Catenda | 7 133 linjer. 48 tester | Ingenting. Teammedlemskapet er stubbet | Den største enkeltblokken. Leveringen trenger ingen domeneregler, bare den frosne hendelsen og brevet. Den kan bli i Python bak outboxen |
+| Forsering og EO | 2 888 linjer tjenester og ruter, i tillegg til modellene | Ingenting. Kjernen har ikke hendelsestypene | Reglene må inn i kjernen. Hvor mye av dem klienten speiler i dag, er ikke talt |
+| PDF | 606 linjer med ReportLab | Ingenting | En dokumentmotor i TS krever ny kontroll av layouten i brev med rettsvirkning. PDF lages av det frosne brevet uten domeneregler, så den kan bli i Python bak outboxen |
+| Datalag | 4 405 linjer lagre, med Supabase-stien | `hendelse`: lesing, skriving og versjon, 161 linjer | Databasen, migrasjonene og databasefunksjonene er uendret. Lagrene for `notat`, `sak_metadata`, relasjoner og BIM må portes |
+| Tester | Om lag 1 900 testfunksjoner i `backend/tests` | Bevis-sakene, grensetabellen og de genererte forløpene ble brukt uendret, gjennom Python-ruta og TS-serveren | Domene- og bevistestene er språkuavhengige. Rute- og sikkerhetstestene kan kjøres over HTTP mot TS-serveren i overgangen, slik `test_sprakprove_ts_server.py` gjør. Tester av Python-interne enheter må skrives på nytt eller utgå |
+| Bygg | gunicorn og `requirements.txt` | Node 22 kjører `.ts` uten byggesteg, og `tsc` typesjekker. Nye pakker: `pg`, `@types/node`, `@types/pg`, og tre transitive pakker låst til eldre versjoner | Det finnes ikke noe produksjonsbilde for en Node-server. `Dockerfile` bygger bare frontenden, og B-12 (hosting) er åpen |
+| Worker | Finnes ikke. Levering skjer synkront i forespørselen | Ingenting | Outbox og worker trengs i F2/F3 uansett språk. Designet er språkuavhengig, og Python leser radene TS skriver |
+| Overgangsdrift | — | Python og TS leser hverandres rader i samme base. Python opprettet saken og TS skrev resten | Én autoritativ skrivesti per kommando. Til en kommando er flyttet, finnes regelen to steder, som i dag. Hver kommando trenger et fjerningskriterium for den gamle stien |
+
+Gevinsten på den andre siden: de fire speilede modulene port 1 talte
+(`vederlagDomain`, `fristDomain`, `grunnlagDomain` og `deriveConfig` i
+`src/lib/domain/`) er 1 162 linjer, med 2 331 linjer Vitest-tester. I tillegg
+kommer de speilede pytest-testene og vaktene mot drift, og hver framtidig
+regelendring som ellers gjøres i begge språk.
+
+#### Anbefaling
+
+**TS-retningen, avgrenset til kommandostien.** Kriteriene i «Mål og valg» er
+oppfylt for flyten:
+- samme modul gir samme resultat i nettleseren og på serveren, og klienten
+  bygger kommandoene med den;
+- regelendringen i port 1 var ikke større i TS, og speilet forsvinner;
+- modulen virker gjennom tilgang, lagring, gjenlesing og godkjenningsgrensen,
+  og Python leser det TS skriver.
+
+Den samlede kostnaden er forsvarlig bare med disse avgrensningene:
+- TS tar kommandostien trinnvis: reglene, tilgangen, journalen og
+  godkjenningen. Hver kommando får én autoritativ skrivesti når den flyttes.
+- Catenda og PDF blir i Python bak outboxen i F2/F3, til et eget vedtak. De
+  trenger ingen domeneregler.
+- Ingen full portering og ingen ny start fra bunnen.
+
+**Forbedret Python er et forsvarlig alternativ.** Det er riktig valg hvis
+lavest overgangsrisiko veier tyngst, eller hvis speilet heller skal fjernes med
+serverbasert forhåndsvurdering (B-15). Da blir dobbeltarbeidet i reglene
+stående, slik port 1 målte det.
+
+**Usikkerhet:**
+- Samme agent skrev kjernen, serveren, adapterne og testene. Forventningene er
+  vedtakene og domenetabellen. En feil som kjernen og testadapteren deler,
+  fanges bare av kryss-lesingen mot Python.
+- Ytelse, produksjonsbygg, utrulling og drift av en Node-server er ikke prøvd.
+- To skriveveier på samme sak er prøvd bare for opprettelsen.
+- Kostnadstabellen er telt og lest, ikke estimert.
 
 ## 8. MA-08: vedlikehold og rekkefølge
 
