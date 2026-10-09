@@ -9,15 +9,15 @@
  */
 
 import { spawn, type ChildProcess } from 'node:child_process';
-import { createHash, randomUUID } from 'node:crypto';
+import { randomUUID } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import pg from 'pg';
 import type { OffentligTilstand } from '../kjerne/offentlig.ts';
 import type { Hendelse } from '../kjerne/typer.ts';
+import { sha256 } from '../server/autorisasjon.ts';
+import { kobleTilKastbarTestbase } from '../server/kastbar.ts';
 
 export const TESTBASE_URL = process.env.KOE_TESTBASE_URL ?? '';
-const TESTBASE_MERKE = 'koe-kastbar-testbase';
-
 export interface Testbruker {
   id: string;
   subjekt: string;
@@ -44,16 +44,6 @@ export interface Oppsett {
   utenfor: Testbruker;
   /** Catendas team-API, slik serveren får det i `SPRAKPROVE_TEAMMEDLEMMER`. */
   teammedlemmer: Record<string, string[]>;
-}
-
-const sha256 = (s: string) => createHash('sha256').update(s).digest('hex');
-
-export async function krevKastbarTestbase(pool: pg.Pool): Promise<void> {
-  const svar = await pool.query<{ merke: string | null }>(
-    "SELECT shobj_description(oid, 'pg_database') AS merke FROM pg_database WHERE datname = current_database()"
-  );
-  if (svar.rows[0]?.merke !== TESTBASE_MERKE)
-    throw new Error('KOE_TESTBASE_URL peker ikke på en kastbar testbase.');
 }
 
 async function prosjekt(pool: pg.Pool, navn: string): Promise<Testprosjekt> {
@@ -106,8 +96,7 @@ async function bruker(pool: pg.Pool, prosjektId: string, navn: string): Promise<
 }
 
 export async function lagOppsett(): Promise<Oppsett> {
-  const pool = new pg.Pool({ connectionString: TESTBASE_URL, max: 4 });
-  await krevKastbarTestbase(pool);
+  const pool = await kobleTilKastbarTestbase(TESTBASE_URL, 4);
   const p = await prosjekt(pool, 'a');
   const annet = await prosjekt(pool, 'b');
   const te = await bruker(pool, p.id, 'te');

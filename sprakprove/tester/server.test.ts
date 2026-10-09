@@ -124,6 +124,22 @@ describe.skipIf(!TESTBASE_URL)('TS-serveren mot testbasen', () => {
       expect(svar.status).toBe(401);
     });
 
+    it('ugyldig JSON uten sesjon gir 401, ikke 400', async () => {
+      const ugyldig = (bruker: Testbruker | null) =>
+        fetch(`${server.url}/api/events`, {
+          method: 'POST',
+          headers: {
+            'X-Project-ID': o.prosjekt.id,
+            'Content-Type': 'application/json',
+            ...(bruker
+              ? { Cookie: `__Host-koe_session=${bruker.token}`, 'X-CSRF-Token': bruker.csrf }
+              : {}),
+          },
+          body: '{ugyldig',
+        });
+      expect([(await ugyldig(null)).status, (await ugyldig(o.te)).status]).toEqual([401, 400]);
+    });
+
     it('manglende CSRF gir 403', async () => {
       const svar = await avvistOgKontroll(
         (s) => send(o.te, grunnlag(s), { csrf: null }),
@@ -257,6 +273,48 @@ describe.skipIf(!TESTBASE_URL)('TS-serveren mot testbasen', () => {
         (s) => send(o.te, grunnlag(s))
       );
       expect([svar.status, svar.kropp.error]).toEqual([400, 'VALIDATION_ERROR']);
+    });
+  });
+
+  describe('konvolutten', () => {
+    it('en PDF fra klienten avvises før manglende felt, som i Flask', async () => {
+      const svar = await send(o.te, { pdf_base64: 'x' });
+      expect([svar.status, svar.kropp.error]).toEqual([400, 'CLIENT_PDF_NOT_ACCEPTED']);
+    });
+
+    it('en tom hendelse er en manglende hendelse', async () => {
+      const sakId = await opprettSak(o.pool, o.prosjekt.id, o.te);
+      const svar = await send(o.te, { sak_id: sakId, expected_version: 1, event: {} });
+      expect([svar.status, svar.kropp.error]).toEqual([400, 'MISSING_PARAMETERS']);
+    });
+
+    it('expected_version som ikke er et heltall, avvises etter kontrakten', async () => {
+      // Flask sammenlikner verdien og svarer 409. Kontrakten (`konvolutt`) krever et heltall.
+      const svar = await avvistOgKontroll(
+        (s) => send(o.te, { ...grunnlag(s), expected_version: '1' }),
+        (s) => send(o.te, grunnlag(s))
+      );
+      expect([svar.status, svar.kropp.error]).toEqual([400, 'VALIDATION_ERROR']);
+    });
+
+    it('et internt notat i journalen vises ikke', async () => {
+      // Synlighetsfilteret er ikke portet, så TS-serveren viser notatet til ingen.
+      const bane = await serverbane(server, o);
+      await bane.send(GRUNNLAG);
+      await o.pool.query(
+        `INSERT INTO hendelse (event_id, source, type, subject, actorid, actorrole, actorteam, data, prosjekt_id, sak_id, event_type, versjon)
+         VALUES ($1, 'x', 'no.oslo.koe.internt_notat', $2, $3, 'TE', $4, '{"tekst": "Internt"}', $5, $2, 'internt_notat', 3)`,
+        [randomUUID(), bane.sakId, o.te.id, o.prosjekt.teTeam.replaceAll('-', ''), o.prosjekt.id]
+      );
+      const svar = await kall(server.url, `/api/cases/${bane.sakId}/journal`, {
+        bruker: o.te,
+        prosjektId: o.prosjekt.id,
+      });
+      expect(svar.kropp.version).toBe(3);
+      expect(svar.kropp.events?.map((h) => h.event_type)).toEqual([
+        'sak_opprettet',
+        'grunnlag_opprettet',
+      ]);
     });
   });
 
@@ -479,6 +537,19 @@ describe.skipIf(!TESTBASE_URL)('TS-serveren mot testbasen', () => {
       };
       const svar = await kontroller(bane.sakId, [g, gammel]);
       expect(svar.kropp).toMatchObject({ rule: 'RULE_VERSION', failed_track: 'vederlag' });
+    });
+
+    it('en grunnlagsbasis som er null, avvises som utelatt, ikke som serverfeil', async () => {
+      const bane = await sakMedKrav();
+      const [g, v] = pakke(bane.sak(), [AVSLAG, VEDERLAG]);
+      const svar = await kontroller(bane.sakId, [g, { ...v, grunnlagsbasis: null }]);
+      expect([svar.status, svar.kropp.rule]).toEqual([400, 'BASIS_CHANGED']);
+    });
+
+    it('en hendelsestype som er en arvet nøkkel, er ikke et svar', async () => {
+      const bane = await sakMedKrav();
+      const svar = await kontroller(bane.sakId, [{ kommando: { event_type: 'constructor' } }]);
+      expect([svar.status, svar.kropp.rule]).toEqual([400, 'VALIDATION_ERROR']);
     });
 
     it('bare byggherren kan sende en pakke', async () => {

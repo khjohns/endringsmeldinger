@@ -16,11 +16,9 @@
  */
 
 import { createServer } from 'node:http';
-import pg from 'pg';
 import { lagServer } from './app.ts';
 import type { Catenda } from './autorisasjon.ts';
-
-const TESTBASE_MERKE = 'koe-kastbar-testbase';
+import { kobleTilKastbarTestbase } from './kastbar.ts';
 
 function teamFraMiljo(): Catenda {
   const team = JSON.parse(process.env.SPRAKPROVE_TEAMMEDLEMMER ?? '{}') as Record<string, string[]>;
@@ -43,14 +41,7 @@ const policy = (process.env.BH_APPROVAL_POLICIES ?? '').trim();
 if (policy && policy !== '{}')
   throw new Error('Godkjenningspolicyen er ikke portet i språkprøven.');
 
-const pool = new pg.Pool({ connectionString: url, max: 8 });
-const merke = await pool.query<{ merke: string | null }>(
-  "SELECT shobj_description(oid, 'pg_database') AS merke FROM pg_database WHERE datname = current_database()"
-);
-if (merke.rows[0]?.merke !== TESTBASE_MERKE) {
-  await pool.end();
-  throw new Error('KOE_TESTBASE_URL peker ikke på en kastbar testbase.');
-}
+const pool = await kobleTilKastbarTestbase(url);
 
 const server = createServer(lagServer({ pool, catenda: teamFraMiljo() }));
 server.listen(Number(process.argv[2] ?? 0), '127.0.0.1', () => {
