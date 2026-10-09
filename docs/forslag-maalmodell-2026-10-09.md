@@ -13,6 +13,10 @@ samme dag som [MM-U1–MM-U3](plans/2026-09-16-godkjenning-og-varig-levering.md#
 > gjelder slik dokumentet ble skrevet. Resultatet står i merknaden 09.10 til
 > B-14 i [hovedplanen](plans/2026-09-16-godkjenning-og-varig-levering.md#34-åpne-beslutninger).
 
+> **Merknad 2026-10-09, senere:** MM-U4–MM-U6 er opphevet av
+> [MM-U9](plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u9), og 2.8 er erstattet av [B-17](plans/2026-09-16-godkjenning-og-varig-levering.md#b-17). Se merknadene i
+> 2.3, 2.5, 2.6 og avsnitt 6.
+
 Grunnlaget er B-14 i [hovedplanen](plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger)
 og anbefalingen i [arkitekturforslaget, avsnitt 7](forslag-maalarkitektur-og-beslutningsproeve-2026-10-07.md#anbefaling).
 Forslaget er avgrenset til fem forløp som allerede har vedtak og åpne issues.
@@ -124,7 +128,12 @@ gjennom én kompatibilitetsleser, som gjør hver lagret hendelse om til denne
 formen. Lagrede hendelsesnavn beholdes; de er kontrakter. Et nytt lagringsformat
 er et valg under B-10. Nytt innhold i en hendelse, som enighetsgrunnlaget, hører
 hjemme i datamodellen og `docs/datamodell/hendelser.toml` når det bygges
-(`AGENTS.md`).
+(DM-06).
+
+> **Merknad 2026-10-09:** [B-17](plans/2026-09-16-godkjenning-og-varig-levering.md#b-17) forkaster dagens testsaker og bygger
+> ingen kompatibilitetsleser for gamle Python-rader. Setningen om én
+> kompatibilitetsleser over gjelder derfor ikke. Formatet velges under B-10
+> (#273) uten hensyn til at Python-kjernen skal lese det.
 
 ### 2.4 Opplysninger, standpunkter og enighet er egne dimensjoner
 
@@ -223,6 +232,19 @@ Fordi `kilde` kan være `sammenfall`, følger låsingen av et fullt godkjent sva
 enigheten (SK-02). Feltene `enighet` og `oppgjort` fra #297 blir visningen av
 `Virkning`.
 
+> **Merknad 2026-10-09:** [MM-U9](plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u9) opphever MM-U4. Et sendt brev
+> beholder virkningen det hadde da det ble sendt, og nye regler gjelder bare nye
+> brev. Et avvik etter en regelendring vises som en merknad som oppfordrer
+> byggherren til å revidere. MM-U9 forkaster at avviket sperrer aksepten.
+> Avsnittet om MM-U4 over
+> gjelder derfor ikke, og heller ikke forbeholdet «bare når standpunktene har
+> samme virkning som i brevet» i avsnittet om hvor enighetsgrunnlaget lages.
+> Eldre aksepter får ikke enighetsgrunnlaget utledet av en kompatibilitetsleser
+> (B-17). [KA-U7](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u7) endrer også siste
+> avsnitt: en ny kravversjon i et spor med enighet avvises, og enigheten står.
+> For grunnlaget er en godkjenning uten påberopt preklusjon enighet ved
+> sammenfall ([GR-U10](plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u10)).
+
 ### 2.6 Predikatene styrer kommandoer, handlinger og visning
 
 | Predikat | Definisjon | Kommandoen | Handlingene | Visningen |
@@ -256,6 +278,12 @@ fullmakt; `capabilities` er handlingene som også er autorisert
 
 I dag avviser `CASE_NOT_CLOSED` kommandoer ut fra samlet status i begge
 implementasjoner, og samlet status bygges delvis av sporstatusene.
+
+> **Merknad 2026-10-09:** GR-25 er avgjort av [GR-U8](plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u8): en aksept av et
+> svar som godkjenner hele kravet, avvises. Kravet i `gjeldendeSvar(spor)` om at
+> brevet må stemme med dagens utledning (MM-U4), er opphevet av
+> [MM-U9](plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u9). Med [KA-U7](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u7) avviser `enighet(spor)` også en ny
+> kravversjon.
 
 ### 2.7 Versjoner, ukjente hendelser og gjenoppbygging (B-10)
 
@@ -357,8 +385,8 @@ virkning for ansvaret. Mengdene for «ferdig» og «inaktiv», som SK-04 fant ul
 kaskadene, `kan_utstede_eo`, reaktiv EO og aksepten, blir predikater som
 defineres én gang. `FRAFALT` blir en etikett i visningen. Den kan legges til uten
 å endre forretningsreglene eller samlet status, fordi ingen av dem leser
-sporstatusen. Advarselen i `AGENTS.md` om å utvide `SporStatus` gjelder da bare
-visningen.
+sporstatusen. Advarselen om å utvide `SporStatus`
+(`.claude/rules/python-domene.md`) gjelder da bare visningen.
 
 ### Forløp C: ett brev med preklusjon og avslag
 
@@ -535,6 +563,15 @@ virkningen av en *enighet* er et avledet standpunkt i den forstand.
 - GR-25, om en aksept av et fullt godkjent svar skal avvises eller godtas uten
   virkning. Modellen fungerer med begge, og avvisningen i 2.6 er foreløpig. En
   implementasjon skal ikke avgjøre spørsmålet.
+
+> **Merknad 2026-10-09:** flere punkter er avgjort i hovedplanen siden forslaget
+> ble skrevet. GR-25 er avgjort av GR-U8, omfanget av § 32.2 (#220) av GR-U11,
+> innsigelser etter § 5 av VS-U1 og forseringsretten av FO-U1. Utsagnene for
+> forsering og endringsordre hører til utvidelsen av kjernen (#309). Avviket
+> mellom brev og utledning er avgjort av MM-U9; hvordan virkningen leses for et
+> svar uten lagret beslutningsgrunnlag, er ikke avgjort. TS-kjernen bygges i en
+> egen permanent mappe, og prøvekoden er ikke godkjent som produksjonskjerne
+> (merknaden 09.10 til B-14). Hvor kjernen kjører på serveren, er B-18.
 
 ## Verifikasjon og grenser
 

@@ -598,6 +598,12 @@ Python-worker tas heller ikke samtidig.
   prøven avgjør heller ikke valget mellom serverlaget i SvelteKit og en egen
   backend.
 
+> **Merknad 2026-10-09:** overgangen i det første punktet over er erstattet av
+> [B-17](plans/2026-09-16-godkjenning-og-varig-levering.md#b-17) i hovedplanen. TS tar over skrivingen i KOE-saker samlet,
+> ikke én kommando om gangen, og endringsordre- og forseringssakene følger med
+> (merknaden til B-17 samme dag). Python kan beholde levering og integrasjon.
+> Hvor TS-kjernen kjører, er B-18. Teksten over står som skrevet.
+
 **Forbedret Python er fortsatt et forsvarlig alternativ** hvis lavest
 overgangsrisiko veier tyngst. Med lokal forhåndsvurdering blir da
 dobbeltarbeidet i reglene stående, slik port 1 målte det.
