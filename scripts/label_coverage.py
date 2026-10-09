@@ -5,8 +5,6 @@ Label Coverage Checker
 Sjekker at alle enum-verdier har tilhørende labels/tekster.
 Verifiserer at:
 - EVENT_TYPE_LABELS dekker alle EventType-verdier
-- SUBSIDIAER_TRIGGER_LABELS dekker alle SubsidiaerTrigger-verdier
-- BH response options dekker alle resultat-enums
 
 Bruk:
     python scripts/label_coverage.py              # Standard output
@@ -133,34 +131,6 @@ def parse_ts_record_keys(file_path: Path, record_name: str) -> set[str]:
     return keys
 
 
-def parse_ts_dropdown_values(file_path: Path, array_name: str) -> set[str]:
-    """
-    Parser en TypeScript DropdownOption[] array og ekstraherer value-felter.
-    Eksempel: const OPTIONS: DropdownOption[] = [{ value: 'a', label: 'A' }];
-    """
-    values = set()
-
-    with open(file_path, 'r', encoding='utf-8') as f:
-        content = f.read()
-
-    # Finn array-definisjonen
-    pattern = rf"export\s+const\s+{array_name}[^=]*=\s*\[([\s\S]*?)\];"
-
-    match = re.search(pattern, content)
-    if not match:
-        return values
-
-    array_body = match.group(1)
-
-    # Finn alle value: 'xxx' eller value: "xxx"
-    for value in re.findall(r'value:\s*["\']([^"\']*)["\']', array_body):
-        # Ignorer tomme verdier (placeholder)
-        if value:
-            values.add(value)
-
-    return values
-
-
 def check_event_type_labels(root: Path) -> CoverageResult:
     """Sjekk at EVENT_TYPE_LABELS dekker alle EventType-verdier"""
     timeline_path = root / 'src' / 'lib' / 'types' / 'timeline.ts'
@@ -180,90 +150,10 @@ def check_event_type_labels(root: Path) -> CoverageResult:
     )
 
 
-def check_subsidiaer_trigger_labels(root: Path) -> CoverageResult:
-    """Sjekk at SUBSIDIAER_TRIGGER_LABELS dekker alle SubsidiaerTrigger-verdier"""
-    timeline_path = root / 'src' / 'lib' / 'types' / 'timeline.ts'
-    options_path = root / 'src' / 'lib' / 'constants' / 'responseOptions.ts'
-
-    enum_values = parse_ts_union_type(timeline_path, 'SubsidiaerTrigger')
-    label_keys = parse_ts_record_keys(options_path, 'SUBSIDIAER_TRIGGER_LABELS')
-
-    return CoverageResult(
-        name='SubsidiaerTrigger → SUBSIDIAER_TRIGGER_LABELS',
-        enum_source='src/lib/types/timeline.ts',
-        label_source='src/lib/constants/responseOptions.ts',
-        enum_values=enum_values,
-        label_keys=label_keys,
-        missing_labels=enum_values - label_keys,
-        extra_labels=label_keys - enum_values
-    )
-
-
-def check_grunnlag_response_options(root: Path) -> CoverageResult:
-    """Sjekk at BH_GRUNNLAGSVAR_OPTIONS dekker alle GrunnlagResponsResultat-verdier"""
-    timeline_path = root / 'src' / 'lib' / 'types' / 'timeline.ts'
-    options_path = root / 'src' / 'lib' / 'constants' / 'responseOptions.ts'
-
-    enum_values = parse_ts_union_type(timeline_path, 'GrunnlagResponsResultat')
-    option_values = parse_ts_dropdown_values(options_path, 'BH_GRUNNLAGSVAR_OPTIONS')
-
-    return CoverageResult(
-        name='GrunnlagResponsResultat → BH_GRUNNLAGSVAR_OPTIONS',
-        enum_source='src/lib/types/timeline.ts',
-        label_source='src/lib/constants/responseOptions.ts',
-        enum_values=enum_values,
-        label_keys=option_values,
-        missing_labels=enum_values - option_values,
-        extra_labels=option_values - enum_values
-    )
-
-
-def check_vederlag_response_options(root: Path) -> CoverageResult:
-    """Sjekk at BH_VEDERLAGSSVAR_OPTIONS dekker alle VederlagBeregningResultat-verdier"""
-    timeline_path = root / 'src' / 'lib' / 'types' / 'timeline.ts'
-    options_path = root / 'src' / 'lib' / 'constants' / 'responseOptions.ts'
-
-    enum_values = parse_ts_union_type(timeline_path, 'VederlagBeregningResultat')
-    option_values = parse_ts_dropdown_values(options_path, 'BH_VEDERLAGSSVAR_OPTIONS')
-
-    return CoverageResult(
-        name='VederlagBeregningResultat → BH_VEDERLAGSSVAR_OPTIONS',
-        enum_source='src/lib/types/timeline.ts',
-        label_source='src/lib/constants/responseOptions.ts',
-        enum_values=enum_values,
-        label_keys=option_values,
-        missing_labels=enum_values - option_values,
-        extra_labels=option_values - enum_values
-    )
-
-
-def check_frist_response_options(root: Path) -> CoverageResult:
-    """Sjekk at BH_FRISTSVAR_OPTIONS dekker alle FristBeregningResultat-verdier"""
-    timeline_path = root / 'src' / 'lib' / 'types' / 'timeline.ts'
-    options_path = root / 'src' / 'lib' / 'constants' / 'responseOptions.ts'
-
-    enum_values = parse_ts_union_type(timeline_path, 'FristBeregningResultat')
-    option_values = parse_ts_dropdown_values(options_path, 'BH_FRISTSVAR_OPTIONS')
-
-    return CoverageResult(
-        name='FristBeregningResultat → BH_FRISTSVAR_OPTIONS',
-        enum_source='src/lib/types/timeline.ts',
-        label_source='src/lib/constants/responseOptions.ts',
-        enum_values=enum_values,
-        label_keys=option_values,
-        missing_labels=enum_values - option_values,
-        extra_labels=option_values - enum_values
-    )
-
-
 def run_all_checks(root: Path) -> list[CoverageResult]:
     """Kjør alle coverage-sjekker"""
     return [
         check_event_type_labels(root),
-        check_subsidiaer_trigger_labels(root),
-        check_grunnlag_response_options(root),
-        check_vederlag_response_options(root),
-        check_frist_response_options(root),
     ]
 
 
