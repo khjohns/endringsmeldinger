@@ -664,7 +664,7 @@
       "kontroller": [
         {
           "etter": 1,
-          "rolle": "forutsetning",
+          "rolle": "mal",
           "kilde": ["V-32-2-AVSLAG"],
           "forventet": { "standpunkt.S-g1.rettidighet": "hovedgrunn", "standpunkt.S-g1.ansvar": "subsidiaer" }
         },
@@ -803,7 +803,7 @@
       "kontroller": [
         {
           "etter": 2,
-          "rolle": "forutsetning",
+          "rolle": "mal",
           "kilde": ["V-32-2-AVSLAG"],
           "forventet": { "standpunkt.S-g1.rettidighet": "hovedgrunn" }
         },
