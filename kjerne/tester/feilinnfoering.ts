@@ -1,7 +1,7 @@
 /**
  * Feilinnføringene for kjernen (#304, #308). F1–F7 er avsnitt 4 i modellforslaget,
  * F8–F10 feilklassene reviewet av PR #306 fant, skrevet om etter MM-U9 og
- * GR-U10, og F11–F19 grensene #308 la til. Én mutasjon om gangen i
+ * GR-U10, og F11–F21 grensene #308 la til. Én mutasjon om gangen i
  * arbeidskopien, Vitest over `kjerne/` og `sprakprove/kjernelagring/`, og
  * originalteksten settes tilbake etterpå. For hver mutasjon kreves det at de
  * forventede målassertions feiler, og at alle feil er assertions, ikke import,
@@ -145,7 +145,7 @@ const MUTASJONER: Mutasjon[] = [
     endringer: [['    if (hindring !== null)\n', '    if (hindring === undefined)\n']],
     mal: ['avslår prinsipalt, med dagene som subsidiært standpunkt'],
   },
-  // F11–F19 er grensene #308 la til.
+  // F11–F21 er grensene #308 la til.
   {
     id: 'F11',
     feilklasse: 'kjernen importerer fra språkprøven og pg',
@@ -235,6 +235,25 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/skjema.ts`,
     endringer: [['if (Object.hasOwn(egenskaper, navn))', 'if (navn in egenskaper)']],
     mal: ['avviser constructor i innholdet'],
+  },
+  {
+    id: 'F20',
+    feilklasse: 'et rettidig varsel blir uavklart når et varsel registreres senere (MM-U8)',
+    fil: `${K}/utled.ts`,
+    endringer: [['            !u.iTide &&\n', '']],
+    mal: ['F-MM-D-itide'],
+  },
+  {
+    id: 'F21',
+    feilklasse: 'et krav på 0 dager godtas (KA-U8)',
+    fil: `${K}/kommando.ts`,
+    endringer: [
+      [
+        "antall_dager: { type: 'integer', minimum: 1 }",
+        "antall_dager: { type: 'integer', minimum: 0 }",
+      ],
+    ],
+    mal: ['F-MM-K0'],
   },
 ];
 

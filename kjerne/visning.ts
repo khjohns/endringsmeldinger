@@ -75,12 +75,12 @@ function etiketter(u: Utledning, spor: Spor, regler: Regelsett): string[] {
     if (u.frafalt) ut.push('frafalt');
     if (u.grunnlagAvvist) ut.push('avslatt');
     if (u.grunnlagAvklart) ut.push('avklart');
-    if (virkning) ut.push('enige');
+    if (virkning && !s.trukket) ut.push('enige');
   } else {
     if (virkning === 'betinget') ut.push('enige_betinget');
     if (virkning === 'virksom') ut.push('oppgjort');
     if (virkning === 'uten_virkning') ut.push('enighet_uten_virkning');
-    if (s.subsidiaer.length) ut.push('subsidiaert');
+    if (s.gjeldendeKrav && s.subsidiaer.length) ut.push('subsidiaert');
   }
   if (regelenErEndret(u, spor, regler))
     ut.push(s.enighet ? 'regel_endret_etter_enighet' : 'regel_endret_etter_brevet');

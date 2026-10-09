@@ -53,7 +53,10 @@ const SVARUTKAST = objekt(
   ['spor', 'gjelder', 'regelversjon', 'vurderinger', 'resultat']
 );
 
-/** Feltnavnene er de kravhendelsene har i dag, så leseren leser dem likt. Formatet velges i #273. */
+/**
+ * Feltnavnene er de kravhendelsene har i dag, så leseren leser dem likt. Formatet
+ * velges i #273. Et krav på 0 kr eller 0 dager er ikke et krav om noe (KA-U8).
+ */
 const KRAVINNHOLD: Record<Spor, Skjema> = {
   grunnlag: objekt(
     {
@@ -65,11 +68,14 @@ const KRAVINNHOLD: Record<Spor, Skjema> = {
     ['hovedkategori', 'underkategori']
   ),
   vederlag: objekt(
-    { metode: { const: 'FASTPRIS_TILBUD' }, belop_direkte: { type: 'number', minimum: 0 } },
+    {
+      metode: { const: 'FASTPRIS_TILBUD' },
+      belop_direkte: { type: 'number', exclusiveMinimum: 0 },
+    },
     ['metode', 'belop_direkte']
   ),
   frist: objekt(
-    { varsel_type: { const: 'spesifisert' }, antall_dager: { type: 'integer', minimum: 0 } },
+    { varsel_type: { const: 'spesifisert' }, antall_dager: { type: 'integer', minimum: 1 } },
     ['varsel_type', 'antall_dager']
   ),
 };

@@ -249,7 +249,8 @@ export function utled(journal: Domenehendelse[], regler: Regelsett): Utledning {
   for (const n of KRAVSPOR) spor[n].trukket ||= spor.grunnlag.trukket;
 
   // MM-U1, MM-U8: en vurdering etter § 33.4 gjelder varselet som var registrert da
-  // brevet ble sendt. Er et annet varsel registrert nå, er preklusjonen uavklart.
+  // brevet ble sendt. Er et annet varsel registrert nå, er en påberopt preklusjon
+  // uavklart. Sa byggherren at varselet kom i tide, er det ingenting å avklare.
   const varselNaa = (s: Svar) => spor.frist.varsel?.id ?? utledetVarsel(s.gjelder);
   const svar: Record<string, Svarberegning> = {};
   for (const s of alleSvar.values())
@@ -258,7 +259,11 @@ export function utled(journal: Domenehendelse[], regler: Regelsett): Utledning {
       standpunkter: s.beslutningsgrunnlag.standpunkter,
       uavklart: s.utsagn
         .filter(
-          (u) => u.art === 'rettidighet' && u.hjemmel === '33.4' && u.gjelder !== varselNaa(s)
+          (u) =>
+            u.art === 'rettidighet' &&
+            u.hjemmel === '33.4' &&
+            !u.iTide &&
+            u.gjelder !== varselNaa(s)
         )
         .map((u) => u.id),
     };
@@ -308,8 +313,8 @@ export function utled(journal: Domenehendelse[], regler: Regelsett): Utledning {
     grunnlagAvklart:
       !spor.grunnlag.trukket && gSvar?.beslutningsgrunnlag.utfall.grunnlag === 'avklart',
     grunnlagAvvist: eg?.grunnlag.utfall.grunnlag === 'avvist',
+    // GR-U3, GR-U9: frafallet er byggherrens utsagn, uavhengig av hva TE har sagt.
     frafalt:
-      !eg &&
       gBrev !== null &&
       hovedgrunn(gBrev.standpunkter)?.art === 'ansvar' &&
       utsagnet(gBrev.svar, 'ansvar')?.resultat === 'frafalt',
