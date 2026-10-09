@@ -191,6 +191,13 @@
       "radetikett": "GR-U5: trekker TE grunnlaget, trekkes alle krav som er sendt"
     },
     {
+      "id": "GR-U7",
+      "type": "vedtak",
+      "dato": "2026-10-08",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u7",
+      "radetikett": "GR-U7: TE kan godta byggherrens gjeldende svar på vederlag eller frist uavhengig av grunnlaget"
+    },
+    {
       "id": "EO-U1",
       "type": "vedtak",
       "dato": "2026-10-08",
@@ -862,6 +869,78 @@
         "V-B13-FRAFALL",
         "NS-32.1",
         "NS-32.3-1c"
+      ],
+      "tolkningsstatus": "avklart_tolkning"
+    },
+    {
+      "id": "GR-19",
+      "tilfelle": "TE godtar et delvis godkjent vederlagssvar mens byggherren har avslått grunnlaget.",
+      "forventet": "Aksepten godtas. Kravet er ikke oppgjort: saken er ikke `OMFORENT`, og EO kan ikke utstedes.",
+      "bh_standpunkt": "Avslått grunnlag. Delvis godkjent vederlag, subsidiært.",
+      "rettslig_virkning": "Partene er enige om beløpet, ikke om ansvaret. Enigheten får virkning hvis grunnlaget godkjennes.",
+      "rettidighet": "—",
+      "tidsakse": "registrering",
+      "kilder": [
+        "GR-U7",
+        "KA-U1"
+      ],
+      "tolkningsstatus": "avklart_tolkning"
+    },
+    {
+      "id": "GR-20",
+      "tilfelle": "TE har godtatt vederlagssvaret mens grunnlaget er avslått, og godtar deretter avslaget på grunnlaget.",
+      "forventet": "Saken er `LUKKET_AVSLATT`, og EO kan ikke utstedes.",
+      "bh_standpunkt": "Avslått grunnlag.",
+      "rettslig_virkning": "Kravet er avslått. Enigheten om beløpet får ingen virkning.",
+      "rettidighet": "—",
+      "tidsakse": "registrering",
+      "kilder": [
+        "GR-U7",
+        "KA-U1"
+      ],
+      "tolkningsstatus": "avklart_tolkning"
+    },
+    {
+      "id": "GR-21",
+      "tilfelle": "TE endrer underkategorien etter et avslag og godtar vederlagssvaret mens grunnlaget venter på nytt svar. Byggherren godkjenner deretter grunnlaget.",
+      "forventet": "Aksepten godtas. Når grunnlaget godkjennes, står byggherrens beløp som avtalt, og saken er `OMFORENT` med fristen godkjent.",
+      "bh_standpunkt": "Først avslått grunnlag og subsidiært delvis godkjent vederlag. Etter det nye svaret: godkjent grunnlag.",
+      "rettslig_virkning": "Enigheten om beløpet får virkning når grunnlaget godkjennes. Byggherren har gitt beløpet og trenger ikke svare på vederlaget igjen.",
+      "rettidighet": "—",
+      "tidsakse": "registrering",
+      "kilder": [
+        "GR-U7",
+        "V-215",
+        "KA-U5"
+      ],
+      "tolkningsstatus": "avklart_tolkning"
+    },
+    {
+      "id": "GR-22",
+      "tilfelle": "TE godtar vederlagssvaret før byggherren har svart på grunnlaget, og byggherren godkjenner deretter grunnlaget.",
+      "forventet": "Aksepten godtas, og saken er ikke `OMFORENT` før grunnlaget er godkjent. Etter godkjenningen står byggherrens beløp som avtalt.",
+      "bh_standpunkt": "Delvis godkjent vederlag. Grunnlaget er ikke besvart, deretter godkjent.",
+      "rettslig_virkning": "Enighet om beløpet før ansvaret er avklart. Kravet er oppgjort når grunnlaget godkjennes.",
+      "rettidighet": "—",
+      "tidsakse": "registrering",
+      "kilder": [
+        "GR-U7",
+        "KA-U5"
+      ],
+      "tolkningsstatus": "avklart_tolkning"
+    },
+    {
+      "id": "GR-23",
+      "tilfelle": "Byggherren reviderer et vederlagssvar TE har godtatt, mens grunnlaget venter på nytt svar etter endret underkategori.",
+      "forventet": "Revisjonen avvises, og journalen er uendret. Et svar TE ikke har godtatt, kan byggherren revidere mens grunnlaget venter.",
+      "bh_standpunkt": "Det godtatte svaret står.",
+      "rettslig_virkning": "En enighet står, også mens grunnlaget venter. Revisjonsretten etter GR-U4 gjelder svar som ikke er godtatt.",
+      "rettidighet": "—",
+      "tidsakse": "registrering",
+      "kilder": [
+        "GR-U7",
+        "V-SK02-SK03",
+        "GR-U4"
       ],
       "tolkningsstatus": "avklart_tolkning"
     },
