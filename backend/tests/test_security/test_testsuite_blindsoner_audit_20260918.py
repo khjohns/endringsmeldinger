@@ -302,7 +302,7 @@ def test_tst_06_metodeavvik_og_driftsgap_mellom_json_csv_og_supabase_repos():
     for samme kjerneoperasjon:
     - JsonFileEventRepository har 'list_all_sak_ids'
     - SupabaseEventRepository har 'get_all_sak_ids'
-    Dette gjør at produksjonsskript (f.eks. backfill_relations.py) krasjer
+    Dette gjør at kode som kaller `get_all_sak_ids` direkte på lageret, krasjer
     i testmiljøet med AttributeError.
     """
     json_repo = JsonFileEventRepository(tempfile.gettempdir())
