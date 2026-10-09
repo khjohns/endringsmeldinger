@@ -21,9 +21,8 @@ import type { Pool } from 'pg';
 import { forstebrudd, rollebrudd } from '../kjerne/forretningsregler.ts';
 import { vurderPakke, type Pakkeelement } from '../kjerne/godkjenning.ts';
 import { tolkKommando } from '../kjerne/kommando.ts';
-import { KOMMANDOER } from '../kjerne/kontrakt.ts';
 import { offentligTilstand } from '../kjerne/offentlig.ts';
-import { anvend, projiser, type Sak } from '../kjerne/sak.ts';
+import { anvend, projiser, UkjentHendelse, type Sak } from '../kjerne/sak.ts';
 import type { Hendelse, Kontekst } from '../kjerne/typer.ts';
 import {
   krevInnlogging,
@@ -43,15 +42,6 @@ export interface Avhengigheter {
 }
 
 type Svar = [number, Record<string, unknown>];
-
-/**
- * Hendelsene kjernen forstår. B-10: en ukjent rettslig relevant hendelse kan
- * ikke overses mens bindende kommandoer tillates. En sak med en annen
- * hendelsestype, for eksempel trekk eller EO skrevet av Flask, får derfor
- * verken tilstand eller kommandoer her. Et internt notat har ingen
- * domenevirkning (MS-05).
- */
-const KJENTE_HENDELSER = new Set([...KOMMANDOER, 'sak_opprettet', 'internt_notat']);
 
 const STORSTE_KROPP = 1_000_000;
 
@@ -133,23 +123,22 @@ export function lagServer(avh: Avhengigheter) {
     return { bruker, prosjekt, side };
   }
 
+  /** Saken projisert av journalen. En hendelse kjernen ikke kan anvende, gir 422 (B-10). */
   async function lesSak(
     sakId: string,
-    prosjektId: string,
-    { godtaUkjente = false } = {}
+    prosjektId: string
   ): Promise<{ sak: Sak; journal: Hendelse[]; versjon: number }> {
     const { hendelser, versjon } = await lesJournal(pool, sakId, prosjektId);
-    const ukjente = [...new Set(hendelser.map((h) => h.event_type as string))].filter(
-      (t) => !KJENTE_HENDELSER.has(t)
-    );
-    if (ukjente.length && !godtaUkjente) {
+    try {
+      return { sak: projiser(sakId, hendelser), journal: hendelser, versjon };
+    } catch (feil) {
+      if (!(feil instanceof UkjentHendelse)) throw feil;
       throw new Nektet(
         422,
         'UNKNOWN_EVENTS',
-        `Saken har hendelser TS-serveren ikke forstår: ${ukjente.join(', ')}.`
+        `Saken har en hendelse TS-serveren ikke forstår: ${feil.message}.`
       );
     }
-    return { sak: projiser(sakId, hendelser), journal: hendelser, versjon };
   }
 
   /** Kommandoene tolket og stemplet, eller avvisningen. Felles for enkelthendelse og batch. */
@@ -366,25 +355,21 @@ export function lagServer(avh: Avhengigheter) {
     ) {
       return send(foresporsel, await lesKropp(foresporsel), url.pathname.endsWith('/batch'));
     }
-    if (sak && metode === 'GET' && sak[2] !== 'godkjenningspakke') {
+    if (sak && metode === 'GET' && sak[2] === 'journal') {
       const { prosjekt } = await tilgang(foresporsel, { verdi: {} }, sakId, false);
-      const {
-        sak: s,
-        journal,
-        versjon,
-      } = await lesSak(sakId, prosjekt.prosjektId, {
-        godtaUkjente: sak[2] === 'journal',
-      });
-      if (!journal.length) return [404, { error: 'Sak ikke funnet' }];
+      // Journalen leses uten projeksjon, så også en sak med ukjente hendelser kan leses.
+      const { hendelser, versjon } = await lesJournal(pool, sakId, prosjekt.prosjektId);
+      if (!hendelser.length) return [404, { error: 'Sak ikke funnet' }];
       // Synlighetsfilteret i `lib/auth/event_visibility.py` er ikke portet. Et internt
       // notat i journalen vises derfor til ingen, fail-closed.
-      const synlige = journal.filter((h) => (h.event_type as string) !== 'internt_notat');
-      return [
-        200,
-        sak[2] === 'state'
-          ? { version: versjon, state: offentligTilstand(s) }
-          : { version: versjon, events: synlige },
-      ];
+      const synlige = hendelser.filter((h) => (h.event_type as string) !== 'internt_notat');
+      return [200, { version: versjon, events: synlige }];
+    }
+    if (sak && metode === 'GET' && sak[2] === 'state') {
+      const { prosjekt } = await tilgang(foresporsel, { verdi: {} }, sakId, false);
+      const { sak: s, journal, versjon } = await lesSak(sakId, prosjekt.prosjektId);
+      if (!journal.length) return [404, { error: 'Sak ikke funnet' }];
+      return [200, { version: versjon, state: offentligTilstand(s) }];
     }
     if (sak && metode === 'POST' && sak[2] === 'godkjenningspakke') {
       return godkjenningspakke(foresporsel, sakId, await lesKropp(foresporsel));
