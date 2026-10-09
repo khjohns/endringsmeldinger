@@ -107,7 +107,7 @@ Testene er raske. Kjør dem ofte. I skyøktene lager `.claude/hooks/session-star
 venv-en og testbasen, og meldingen fra hooken sier om databasetestene kjører.
 Med `KOE_TESTBASE_URL` kjører `npm test` også TS-databasetestene. Kjør dem ikke
 samtidig med pytest mot samme base: oppryddingen i pytest setter basen tilbake.
-`node kjerne/tester/feilinnforing.ts` kjører feilinnføringene for kjernen.
+`node kjerne/tester/feilinnfoering.ts` kjører feilinnføringene for kjernen.
 Utenfor skyøktene: `python3 -m venv /tmp/venv` og `pip install -r` begge
 `backend/requirements*.txt` (systempython mangler pytest).
 

@@ -17,7 +17,7 @@
  * manglende referanse. Den gir en hendelse som ikke er forstått (MM-U2).
  */
 
-import { erObjekt } from './skjema.ts';
+import { erObjekt, tekst } from './skjema.ts';
 import { utenforOmfanget } from './standpunkt.ts';
 import type {
   Beslutningsgrunnlag,
@@ -83,7 +83,6 @@ export const utledetVarsel = (kravId: string) => `utledet:${kravId}`;
 /** Leseren forstår ikke raden (MM-U2). */
 export class Uforstaatt extends Error {}
 
-const tekst = (v: unknown): string | null => (typeof v === 'string' ? v : null);
 const sannhet = (v: unknown): boolean | null => (typeof v === 'boolean' ? v : null);
 const tall = (v: unknown): number | null =>
   typeof v === 'number' && Number.isFinite(v) ? v : null;
@@ -211,7 +210,7 @@ function lesStandpunkter(v: unknown, utsagn: Utsagn[]): Standpunkt[] {
     const id = tekst(o?.utsagn);
     if (!o || id === null || !VIRKNINGER.has(o.virkning as string) || sett.has(id))
       throw new Uforstaatt('beslutningsgrunnlaget har et ugyldig standpunkt');
-    if (art.get(id) !== o.art)
+    if (!art.has(id) || art.get(id) !== o.art)
       throw new Uforstaatt('beslutningsgrunnlaget har et standpunkt til et utsagn svaret ikke har');
     sett.add(id);
     return { utsagn: id, art: o.art as Standpunkt['art'], virkning: o.virkning as Virkning };
@@ -282,8 +281,13 @@ function lesDokument(h: Journalrad, stand: Lesestand): Dokument {
     return varselId;
   };
   const type = h.event_type;
+  // Hvem som kan si hva: TE krever, varsler, godtar og trekker; BH svarer.
+  const kreverPart = (part: Part) => {
+    if (avsender !== part) throw new Uforstaatt(`${type} er skrevet av ${avsender}, ikke ${part}`);
+  };
 
   if (KRAVTYPER[type]) {
+    kreverPart('TE');
     const spor = KRAVTYPER[type];
     const krav: Krav = { id: h.event_id, spor, dokument: id, innhold: data };
     dokument.krav.push(krav);
@@ -298,10 +302,12 @@ function lesDokument(h: Journalrad, stand: Lesestand): Dokument {
     return dokument;
   }
   if (SVARTYPER[type]) {
+    kreverPart('BH');
     dokument.svar.push(lesSvar(h, SVARTYPER[type], id, stand));
     return dokument;
   }
   if (type === 'te_aksepterer_respons') {
+    kreverPart('TE');
     dokument.utsagn.push({
       id: `${h.event_id}#aksept`,
       art: 'aksept',
@@ -311,6 +317,7 @@ function lesDokument(h: Journalrad, stand: Lesestand): Dokument {
     return dokument;
   }
   if (TREKKTYPER[type]) {
+    kreverPart('TE');
     dokument.utsagn.push({
       id: `${h.event_id}#trekk`,
       art: 'trekk',
@@ -319,6 +326,7 @@ function lesDokument(h: Journalrad, stand: Lesestand): Dokument {
     return dokument;
   }
   if (type === 'frist_varsel_registrert') {
+    kreverPart('TE');
     const varselId = registrer();
     opplysning(
       'sendt',

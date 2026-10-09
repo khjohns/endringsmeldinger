@@ -5,8 +5,8 @@
  * leser en status eller en verdi som oppsummerer et spor eller saken.
  * Regelkodene er norske; tabellen over gamle og nye navn står i domenetabellen.
  *
- * `handlinger.ts` uttrykker de samme predikatene som tilbud. At de to er like,
- * prøves over de genererte forløpene (INV-MM-1).
+ * `handlinger.ts` tilbyr kandidatene der forutsetningene holder, så tilbudet og
+ * avvisningen er de samme per konstruksjon (INV-MM-1).
  */
 
 import { kraveneErAvgjort, type Utledning } from './utled.ts';

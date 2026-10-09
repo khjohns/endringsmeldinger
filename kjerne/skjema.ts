@@ -21,6 +21,9 @@ export const NOEKKELORD = new Set([
   'minLength',
 ]);
 
+/** Teksten, eller `null` når verdien ikke er en tekst. */
+export const tekst = (v: unknown): string | null => (typeof v === 'string' ? v : null);
+
 /** Et JSON-objekt: ikke `null` og ikke en liste. */
 export const erObjekt = (v: unknown): v is Record<string, unknown> =>
   typeof v === 'object' && v !== null && !Array.isArray(v);
@@ -69,9 +72,10 @@ export function feilI(verdi: unknown, s: Skjema, sti = '$', rot: Skjema = s): st
     const objekt = verdi;
     const egenskaper = (s.properties ?? {}) as Record<string, Skjema>;
     for (const navn of (s.required ?? []) as string[])
-      if (!(navn in objekt)) feil.push(`${sti}.${navn}: mangler`);
+      if (!Object.hasOwn(objekt, navn)) feil.push(`${sti}.${navn}: mangler`);
     for (const [navn, del] of Object.entries(objekt)) {
-      if (navn in egenskaper) feil.push(...feilI(del, egenskaper[navn], `${sti}.${navn}`, rot));
+      if (Object.hasOwn(egenskaper, navn))
+        feil.push(...feilI(del, egenskaper[navn], `${sti}.${navn}`, rot));
       else if (s.additionalProperties === false) feil.push(`${sti}.${navn}: ukjent felt`);
     }
   }

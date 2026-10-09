@@ -1,14 +1,14 @@
 /**
  * Feilinnføringene for kjernen (#304, #308). F1–F7 er avsnitt 4 i modellforslaget,
  * F8–F10 feilklassene reviewet av PR #306 fant, skrevet om etter MM-U9 og
- * GR-U10, og F11–F17 grensene #308 la til. Én mutasjon om gangen i
+ * GR-U10, og F11–F19 grensene #308 la til. Én mutasjon om gangen i
  * arbeidskopien, Vitest over `kjerne/` og `sprakprove/kjernelagring/`, og
  * originalteksten settes tilbake etterpå. For hver mutasjon kreves det at de
  * forventede målassertions feiler, og at alle feil er assertions, ikke import,
  * oppsett eller en brutt forutsetning (`.claude/rules/tester.md`).
  *
  * Kjøres fra repoets rot, med testbasen oppe for å ta med lagringstestene:
- *   node kjerne/tester/feilinnforing.ts [F1 F2 ...]
+ *   node kjerne/tester/feilinnfoering.ts [F1 F2 ...]
  * Forventet: «oppdaget» for hver mutasjon, og arbeidskopien er ren etterpå.
  * Skriptet starter ikke når en fil det muterer, har lokale endringer. Commit
  * aldri en mutert fil.
@@ -136,7 +136,7 @@ const MUTASJONER: Mutasjon[] = [
     endringer: [
       ['if (neste.length > 0 || kjede.size !== paaKravet.length)', 'if (neste.length > 1)'],
     ],
-    mal: ['F-MM-E6', 'F-MM-E7'],
+    mal: ['F-MM-E4', 'F-MM-E6'],
   },
   {
     id: 'F10',
@@ -145,7 +145,7 @@ const MUTASJONER: Mutasjon[] = [
     endringer: [['    if (hindring !== null)\n', '    if (hindring === undefined)\n']],
     mal: ['avslår prinsipalt, med dagene som subsidiært standpunkt'],
   },
-  // F11–F17 er grensene #308 la til.
+  // F11–F19 er grensene #308 la til.
   {
     id: 'F11',
     feilklasse: 'kjernen importerer fra språkprøven og pg',
@@ -221,6 +221,20 @@ const MUTASJONER: Mutasjon[] = [
       ],
     ],
     mal: ['F-MM-EO3'],
+  },
+  {
+    id: 'F18',
+    feilklasse: 'leseren godtar en aksept eller et svar fra feil part',
+    fil: `${K}/leser.ts`,
+    endringer: [['    if (avsender !== part) throw', '    if (avsender === undefined) throw']],
+    mal: ['en rad fra feil part er ikke forstått'],
+  },
+  {
+    id: 'F19',
+    feilklasse: 'skjemakontrollen godtar navn fra prototypen som kjente felt',
+    fil: `${K}/skjema.ts`,
+    endringer: [['if (Object.hasOwn(egenskaper, navn))', 'if (navn in egenskaper)']],
+    mal: ['avviser constructor i innholdet'],
   },
 ];
 

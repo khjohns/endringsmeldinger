@@ -53,7 +53,7 @@ const SVARUTKAST = objekt(
   ['spor', 'gjelder', 'regelversjon', 'vurderinger', 'resultat']
 );
 
-/** Feltnavnene er de dagens kravhendelser har, så kompatibilitetsleseren leser dem likt. */
+/** Feltnavnene er de kravhendelsene har i dag, så leseren leser dem likt. Formatet velges i #273. */
 const KRAVINNHOLD: Record<Spor, Skjema> = {
   grunnlag: objekt(
     {
