@@ -12,10 +12,21 @@ from pathlib import Path
 
 from regler import REGELVERSJON
 
-KONSTANT = Path(__file__).resolve().parents[3] / "src/lib/domain/regelversjon.ts"
+ROT = Path(__file__).resolve().parents[3]
+KONSTANT = ROT / "src/lib/domain/regelversjon.ts"
+# TS-kjernen i språkprøven (#274). Python og TS-serveren leser hverandres svar i port 2.
+SPRAKPROVE = ROT / "sprakprove/kjerne/regelversjon.ts"
+
+
+def _versjon(fil: Path) -> int:
+    treff = re.search(r"^export const REGELVERSJON = (\d+);$", fil.read_text(), re.M)
+    assert treff, f"Fant ikke REGELVERSJON i {fil}"
+    return int(treff.group(1))
 
 
 def test_speilet_er_likt_frontendens_regelversjon():
-    treff = re.search(r"^export const REGELVERSJON = (\d+);$", KONSTANT.read_text(), re.M)
-    assert treff, f"Fant ikke REGELVERSJON i {KONSTANT}"
-    assert int(treff.group(1)) == REGELVERSJON
+    assert _versjon(KONSTANT) == REGELVERSJON
+
+
+def test_sprakprovens_kjerne_har_samme_regelversjon():
+    assert _versjon(SPRAKPROVE) == REGELVERSJON

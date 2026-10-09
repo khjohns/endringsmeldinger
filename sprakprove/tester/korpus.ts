@@ -6,14 +6,16 @@
  *
  * Adapteren bygger byggherrens svar slik klienten ville gjort det, med kjernens
  * egne regler (`beregnVederlag`, `beregnFrist`). Python-reglene brukes ikke.
+ *
+ * Modulen importerer ikke Vitest, så samme kjører kan bygges for nettleseren
+ * (port 2). Målet meldes gjennom `pastand`; Vitest-testene sender `expect`.
  */
 
-import { expect } from 'vitest';
 import bevis from '../../docs/domenetabell/bevis-saker.json' with { type: 'json' };
 import { tilTall } from '../kjerne/belop.ts';
 import { vurderKommando, type Utfall } from '../kjerne/kommando.ts';
 import { RADER } from '../kjerne/kontrakt.ts';
-import { offentligTilstand } from '../kjerne/offentlig.ts';
+import { offentligTilstand, type OffentligTilstand } from '../kjerne/offentlig.ts';
 import { REGELVERSJON } from '../kjerne/regelversjon.ts';
 import { beregnFrist } from '../kjerne/regler/frist.ts';
 import { beregnVederlag } from '../kjerne/regler/vederlag.ts';
@@ -21,7 +23,7 @@ import { anvend, nySak, type Sak } from '../kjerne/sak.ts';
 import { fristkrav, vederlagskrav } from '../kjerne/sammenlikning.ts';
 import type { Hendelse, Kontekst, Rolle } from '../kjerne/typer.ts';
 
-type Handling = Record<string, unknown> & { handling: string };
+export type Handling = Record<string, unknown> & { handling: string };
 type Kontroll = {
   etter: number;
   rolle: 'mal' | 'forutsetning' | 'kontroll';
@@ -46,6 +48,15 @@ export const KORPUS = bevis as unknown as {
 export const FLYTEN = KORPUS.forlop.filter((f) => f.rader.every((r) => RADER.includes(r)));
 
 export class Forutsetning extends Error {}
+
+/** Et mål som ikke holder, når kjøreren går uten Vitest. */
+export class Malbrudd extends Error {}
+
+export type Pastand = (holder: boolean, melding: string) => void;
+
+const kastVedBrudd: Pastand = (holder, melding) => {
+  if (!holder) throw new Malbrudd(melding);
+};
 
 const FRISTVURDERINGER: Record<string, string> = {
   varsel_i_tide: 'frist_varsel_ok',
@@ -183,10 +194,21 @@ export function kommando(h: Handling, sak: Sak): [Rolle, Record<string, unknown>
   }
 }
 
+/**
+ * En vei kommandoene kan gå. `sak()` er saken klienten bygger kommandoene av;
+ * `tilstand()` er den offentlige tilstanden målene leses av, i serverbanen
+ * den gjenleste. `prov` skal ikke skrive.
+ */
 export interface Bane {
   sakId: string;
   journal: Hendelse[];
   sak(): Sak;
+  tilstand(): OffentligTilstand;
+  send(h: Handling): Utfall | Promise<Utfall>;
+  prov(h: Handling): Utfall | Promise<Utfall>;
+}
+
+export interface Minnebane extends Bane {
   send(h: Handling): Utfall;
   prov(h: Handling): Utfall;
 }
@@ -194,7 +216,7 @@ export interface Bane {
 let lopenummer = 0;
 
 /** Banen i minnet: kjernen alene, med kontrollerbar klokke og ID-er. */
-export function minnebane(start = Date.UTC(2026, 9, 9, 8, 0, 0)): Bane {
+export function minnebane(start = Date.UTC(2026, 9, 9, 8, 0, 0)): Minnebane {
   const sakId = `S-274-${++lopenummer}`;
   let klokke = start;
   let id = 0;
@@ -216,6 +238,7 @@ export function minnebane(start = Date.UTC(2026, 9, 9, 8, 0, 0)): Bane {
     sakId,
     journal,
     sak: () => sak,
+    tilstand: () => offentligTilstand(sak),
     prov: vurder,
     send(h) {
       const utfall = vurder(h);
@@ -247,19 +270,30 @@ function stemmer(faktisk: unknown, forventet: unknown): boolean {
   return faktisk === forventet;
 }
 
+export interface Kjoring {
+  pastand?: Pastand;
+  /** Kalles etter prefikset (steg 0) og etter hvert steg, før kontrollene. */
+  etterSteg?: (steg: number, utfall: Utfall | null) => void;
+}
+
 /** Kjør forløpet i banen og kontroller forventningene. */
-export function kjor(forlop: Forlop, bane: Bane = minnebane()): void {
+export async function kjor(
+  forlop: Forlop,
+  bane: Bane = minnebane(),
+  { pastand = kastVedBrudd, etterSteg }: Kjoring = {}
+): Promise<void> {
   const prefiks = forlop.start ? KORPUS.prefikser[forlop.start] : [];
   for (const h of prefiks) {
-    const u = bane.send(h);
+    const u = await bane.send(h);
     if (!u.godtatt)
       throw new Forutsetning(`prefikset avviste ${h.handling}: ${u.avvisning.melding}`);
   }
   let sist: Utfall | null = null;
-  const sjekk = (etter: number) => {
+  const sjekk = async (etter: number) => {
+    etterSteg?.(etter, sist);
     for (const k of forlop.kontroller.filter((k) => k.etter === etter)) {
       if (k.rolle === 'kontroll') {
-        const u = bane.prov(k.prov!);
+        const u = await bane.prov(k.prov!);
         if (u.godtatt !== !k.forventet.avvist) {
           throw new Forutsetning(
             `kontrollsak etter steg ${etter}: ${k.prov!.handling} ga ${u.godtatt ? 'godtatt' : u.avvisning.melding}`
@@ -267,7 +301,7 @@ export function kjor(forlop: Forlop, bane: Bane = minnebane()): void {
         }
         continue;
       }
-      const tilstand = offentligTilstand(bane.sak());
+      const tilstand = bane.tilstand();
       for (const [sti, forventet] of Object.entries(k.forventet)) {
         let faktisk: unknown;
         if (sti === 'avvist') faktisk = sist !== null && !sist.godtatt;
@@ -280,15 +314,15 @@ export function kjor(forlop: Forlop, bane: Bane = minnebane()): void {
         if (k.rolle === 'forutsetning') {
           if (!stemmer(faktisk, forventet)) throw new Forutsetning(melding);
         } else {
-          expect(stemmer(faktisk, forventet), melding).toBe(true);
+          pastand(stemmer(faktisk, forventet), melding);
         }
       }
     }
   };
-  sjekk(0);
-  forlop.steg.forEach((h, i) => {
+  await sjekk(0);
+  for (const [i, h] of forlop.steg.entries()) {
     const for_ = bane.journal.map((h) => h.event_id).join();
-    sist = bane.send(h);
+    sist = await bane.send(h);
     if (!sist.godtatt) {
       if (bane.journal.map((h) => h.event_id).join() !== for_)
         throw new Forutsetning(`steg ${i + 1} ble avvist, men journalen endret seg`);
@@ -300,6 +334,20 @@ export function kjor(forlop: Forlop, bane: Bane = minnebane()): void {
           `steg ${i + 1} (${h.handling}) avvist: ${sist.avvisning.regel}: ${sist.avvisning.melding}`
         );
     }
-    sjekk(i + 1);
-  });
+    await sjekk(i + 1);
+  }
+}
+
+/**
+ * Tilstanden uten ID-ene som skiller to kjøringer: saken blir «sak», og hver
+ * hendelse etter `sak_opprettet` blir «h1», «h2» … i journalens rekkefølge.
+ */
+export function normalisert(bane: Bane, tilstand: unknown = bane.tilstand()): unknown {
+  const navn = new Map<string, string>([[bane.sakId, 'sak']]);
+  bane.journal
+    .filter((h) => h.event_type !== 'sak_opprettet')
+    .forEach((h, i) => navn.set(h.event_id, `h${i + 1}`));
+  return JSON.parse(JSON.stringify(tilstand), (_n, v) =>
+    typeof v === 'string' && navn.has(v) ? navn.get(v) : v
+  );
 }
