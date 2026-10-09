@@ -23,7 +23,7 @@ Denne indeksen og hovedplanen fører ikke arbeidsstatus; regelen står i
 | [hovedplanen](plans/2026-09-16-godkjenning-og-varig-levering.md) | **Begynn her.** Eneste løpende kilde til vedtak, rekkefølge og funnstatus: invarianter, beslutningsregister, funnregister, arbeidspakker og beslutningene som blokkerer. Toppteksten peker til tidligere versjoner i Git |
 | [domenetabellen](domenetabell/README.md) | Forventet atferd per rad med kilde og tolkningsstatus, begrepene krav, kravversjon, svar, standpunkt, aksept og enighet, og språkuavhengige bevis-saker som kjøres mot Python-projeksjonen og mot målmodellen. Vedtakene står i hovedplanen |
 | [`../AGENTS.md`](../AGENTS.md) | Lastes automatisk i hver sesjon: språk, domeneordliste, sikkerhetsinvarianter, resonneringsregler |
-| [`.claude/rules/`](../.claude/rules/), blant dem [database](../.claude/rules/database.md) · [tester](../.claude/rules/tester.md) · [dokumentasjon](../.claude/rules/dokumentasjon.md) | Regler som lastes når en økt arbeider i den delen av treet |
+| [`.claude/rules/`](../.claude/rules/): [database](../.claude/rules/database.md) · [tester](../.claude/rules/tester.md) · [dokumentasjon](../.claude/rules/dokumentasjon.md) · `tilgang.md` · `python-domene.md` | Regler som lastes når en økt arbeider i den delen av treet. `tilgang.md` har mekanismene bak sikkerhetsinvariantene, og `python-domene.md` overgangsreglene for Python-koden i KOE-, EO- og forseringssakene, som gjelder til #310 |
 
 Handoffene står under [historikk](#historikk--bevart-ikke-gjeldende).
 
