@@ -17,36 +17,39 @@ Norsk bokmål i brukergrensesnitt, kommentarer, dokumentasjon, PR-er,
 commit-meldinger, testnavn og testbeskrivelser. Domenebegrepene er norske og
 presise etter NS 8407 og vedtatt produktatferd. Samme begrep skal ha samme
 betydning i kode, tester og dokumentasjon. Ikke oversett domenet bare for å
-tilpasse det til en LLM.
+tilpasse det til en LLM. Tekst i grensesnittet har setningsstil («Send krav om
+endring»), med TE, BH, EO og KOE i store bokstaver og mellomrom i «§ 33.8».
 
-Egne funksjoner, klasser og variabler har norske navn: `hent_saker`, ikke
-`fetch_cases`. Det gjelder også tekniske hjelpenavn. Engelsk brukes bare der
-navnet kommer utenfra eller er et etablert teknisk begrep: navn i biblioteker, protokollfelt, eksterne
-API-er og ord som `Request`, `retry` og `commit`. Bruk `snake_case` i Python,
-`camelCase` i TypeScript og `PascalCase` for typer der rammeverket ikke bestemmer
-annet. For norske tegn i identifikatorer: følg konvensjonen i den berørte
-modulen; ikke bland skrivemåter.
-Commit-meldinger begynner med liten forbokstav og et verb i imperativ.
+Egne funksjoner, klasser, variabler og regel- og feilkoder har norske navn:
+`hent_saker`, ikke `fetch_cases`; `SAK_AVSLUTTET`, ikke `CASE_CLOSED`. Engelsk
+brukes bare for navn utenfra (biblioteker, protokollfelt, eksterne API-er) og
+etablerte tekniske begreper som `Request`, `retry` og `commit`. Python bruker
+`snake_case`. TypeScript bruker `camelCase`, `PascalCase` for typer og
+Svelte-komponenter, `STORE_BOKSTAVER` bare for koder og faste konstanter på
+modulnivå, og union av strenger i stedet for `enum`. Data over grensen
+(hendelsestyper, felt og verdier i journal, API og database) er `snake_case` med
+små bokstaver. I kjernen skrives æ, ø og å som ae, oe og aa (`kanInngaaIEo`);
+ellers følger du modulens skrivemåte uten å blande, og Python-koden omskrives
+ikke. I #308 får målmodellens engelske koder nye navn, og eslint håndhever
+navnene (`naming-convention`, `id-match` mot æøå). Commit-meldinger begynner
+med liten forbokstav og et verb i imperativ.
 
-**Eksisterende navn er utgangspunkt, ikke fasit.** Forbedre upresise eller
-tvetydige navn innenfor oppgaven, særlig når en modul bygges om. Avklar betydning,
-foretrukket navn og hvilke gamle navn det erstatter i oppgavens domenetabell
-eller begrepsavklaring. Ikke opprett en parallell ordliste. Skill navneendring fra
-endret atferd; uavklart domenesemantikk avgjøres etter arbeidsformen nedenfor.
-Oppdater berørte kallere, tester og referanser samlet. Lagrede hendelsesnavn,
+**Eksisterende navn er utgangspunkt, ikke fasit.** Forbedre upresise navn innenfor
+oppgaven, og før gamle og nye navn i domenetabellen eller oppgavens
+begrepsavklaring, ikke i en parallell ordliste. Skill navneendring fra endret
+atferd, og oppdater kallere, tester og referanser samlet. Lagrede hendelsesnavn,
 enumverdier, databasefelt og API-felt er kontrakter: vurder kompatibilitet og
-migrering uttrykkelig, også ved en backend-omskriving. For sakene TS tar over,
-bygges ingen kompatibilitetsleser for Python-radene (B-17).
+migrering uttrykkelig. For KOE-, EO- og forseringssakene er det ingen
+kompatibilitet å ta vare på (B-17): til TS skriver den første reelle hendelsen,
+velges hendelsestyper, felt og verdier fra kontraktens begreper («svar», ikke
+«respons»), med gamle og nye navn i [domenetabellen](docs/domenetabell/README.md).
+Deretter er de kontrakter igjen.
 
 **Koden skal være klar av seg selv — skriv få kommentarer.** Forklar en lokal
-begrensning eller et overraskende valg kort ved koden når det hjelper neste
-endring. En funn-ID å slå opp i hovedplanen (RV-07, SK-02) er også en berettiget
-kommentar. Bruk docstring når kalleren trenger en kontrakt som signaturen ikke
-uttrykker. Lengre forklaringer som brukes på tvers av moduler, hører hjemme i en
-eksisterende referanse i `docs/`. Ikke opprett et dokument bare fordi koden er
-komplisert; vurder først om koden kan forenkles. Unngå kommentarer som gjentar
-koden, og aldri endringshistorikk («her sto tidligere …») — den står i Git og
-PR-en.
+begrensning eller et overraskende valg kort, eller vis til en funn-ID i
+hovedplanen (RV-07). Bruk docstring når kalleren trenger en kontrakt som
+signaturen ikke uttrykker. Unngå kommentarer som gjentar koden, og aldri
+endringshistorikk («her sto tidligere …») — den står i Git og PR-en.
 
 Skriv korte, konkrete setninger. Skill mellom vedtatt, implementert og verifisert,
 og mellom kontraktens ordlyd, vår tolkning og appens atferd.
@@ -59,8 +62,8 @@ og mellom kontraktens ordlyd, vår tolkning og appens atferd.
 | **sak** | Én endringssak, med en egen hendelsesstrøm |
 | **spor** | `grunnlag` (ansvar), `vederlag` (penger), `frist` (tid). Går parallelt |
 | **varsel** | Formell melding med frist. For sent varsel kan prekludere kravet |
-| **forsering** | §33.8. TE fremskynder arbeid etter avslått fristforlengelse |
-| **endringsordre (EO)** | §31.3. BH pålegger formelt en endring |
+| **forsering** | § 33.8. TE fremskynder arbeid etter avslått fristforlengelse |
+| **endringsordre (EO)** | § 31.3. BH pålegger formelt en endring |
 | **internt notat** | Kun synlig for forfatterens eget team |
 
 **Kontraktsside (TE/BH) er ikke det samme som organisasjon.** Én side kan ha flere
@@ -109,9 +112,8 @@ aldri `npm i playwright` eller `playwright install`; skillen sier hvorfor.
 `regler.json`), tsconfig-filene og `docs/`: der ville prettier og verktøyet
 skrevet om hverandres form.
 
-**`ruff format` er ikke en port.** Repoet er aldri formatert med den, og
-`ruff format .` ville skrevet om en stor del av treet. Kjør den ikke på hele
-treet.
+**`ruff format` er ikke en port.** Repoet er aldri formatert med den, og den ville
+skrevet om en stor del av treet. Kjør den ikke på hele treet.
 
 **Kjøretidstilstanden i basen avgjøres av katalogen, ikke av migrasjonsfilene,
 og skjemaet endres bare gjennom en migrasjonsfil — aldri med DDL rett mot en
@@ -239,20 +241,16 @@ TypeScript, og en `DEFAULT` i databasen. Søk etter alle formene før du skriver
   eller begrunnelse; da har de to hjem.
 - **En PR som fullfører et issue, har `Closes #n` i beskrivelsen.** Endrer PR-en
   funnstatus eller en beslutning, får hovedplanen en datert merknad i samme PR.
-  Framdrift innen en arbeidspakke står i issuene; planen får én merknad når et
-  punkt i pakken er levert, ikke én per PR. Parallelle PR-er som alle skriver
-  under samme pakke, gir konflikter.
+  Planen får én merknad når et punkt i en arbeidspakke er levert, ikke én per
+  PR; framdriften står i issuene.
 - **Skriv ikke arbeidsstatus i hovedplanen eller `docs/README.md`**: «neste
   oppgave», «pågår», «venter på», «merges etter #45». Det hører til i issuet.
-  Slik status i planen ga konflikter i nesten hver PR 23.09.
 - **Oppfølging som ikke løses i samme PR, blir et issue.** Fra review og
   code-review får det etiketten `review-oppfølging`. Venter det på en B-ID, får
   det `venter-på-beslutning`. Det gjelder også feil du oppdager underveis
   utenfor oppdraget. Å nevne dem i PR-beskrivelsen er ikke nok. Tilskriver du
   en feil testmiljøet, er det en påstand. Kontroller den, eller meld den.
-- **Hvert issue har en milepæl eller en sporetikett.** Milepælen er
-  arbeidspakken i hovedplanen. Sporetikettene, `venter-på-rekkefølge` og
-  `beslutning` står i
+- **Hvert issue har en milepæl (arbeidspakken) eller en sporetikett.** Se
   [orkestreringsskillen](.claude/skills/orkestrering/SKILL.md#milepæler-og-etiketter).
 - **Det som sinker arbeidet, blir et issue med etiketten `papercut`**: et verktøy
   som feiler, et oppsett som må gjøres for hånd, en test som henger. Skriv
@@ -277,9 +275,7 @@ dokumenter og reproduksjonstester, ikke rettinger.
 **Les og følg [leveranseskillen](.claude/skills/leveranse/SKILL.md) to ganger:
 før kode endres i en implementerings- eller refaktoreringsoppgave, og igjen før
 en PR meldes klar.** I Claude Code heter skillen `leveranse`. Andre agenter
-åpner fila direkte. Skillen angir akseptkriterier, eierskap, utfasing, når en
-endring er vesentlig, og hvilket bevis som kreves. En PR som ikke har gått
-gjennom den, er ikke klar.
+åpner fila direkte. En PR som ikke har gått gjennom den, er ikke klar.
 Bruk [PR-malen](.github/pull_request_template.md), også ved opprettelse via
 CLI eller API. Arkitekturoppgaver kan bruke
 [oppgavemalen](.github/ISSUE_TEMPLATE/arkitekturendring.md); eksisterende
