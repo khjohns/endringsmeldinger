@@ -1,9 +1,10 @@
-"""Feilinnføring i begge implementasjoner i språkprøven (#274, P1-5).
+"""Feilinnføring i begge implementasjoner i språkprøven (#274, P1-5 og port 2).
 
 Én mutasjon om gangen i arbeidskopien, og originalteksten settes tilbake etterpå; Python-testene (domenebanen, begge
 rutebanene mot testbasen, kontrakten og grensetilfellene) og TS-testene i
 sprakprove/ kjøres. Skriptet starter ikke når filene det muterer, har lokale endringer. Feilklassene
-M1–M6 er dem fra #293, M7 er regelendringen (enighet) og M8 avrundingen.
+M1–M6 er dem fra #293, M7 er regelendringen (enighet) og M8 avrundingen. M9–M11 er port 2:
+tilgang og lagring i TS-serveren mot Flask og Python-lageret, med Python-testene som prøver dem.
 
 Kjøres fra repoets rot med testbasen oppe: python3 sprakprove/feilinnforing.py [M1 M2 ...]
 Forventet: hver mutasjon gir røde tester i begge språk, og arbeidskopien er ren
@@ -17,9 +18,11 @@ import sys
 from pathlib import Path
 
 ROT = str(Path(__file__).resolve().parents[1])
-PYTEST = ["/tmp/venv/bin/python", "-m", "pytest", "-q", "-p", "no:cacheprovider", "-rf",
-      "tests/test_domenetabell", "tests/test_database/test_domenetabell_lagring.py",
-      "tests/test_database/test_kontrakt_aksept.py", "tests/test_regler/test_grensetilfeller_sprakprove.py"]
+PYTEST = ["/tmp/venv/bin/python", "-m", "pytest", "-q", "-p", "no:cacheprovider", "-rf"]
+DOMENETESTER = ["tests/test_domenetabell", "tests/test_database/test_domenetabell_lagring.py",
+                "tests/test_database/test_kontrakt_aksept.py", "tests/test_regler/test_grensetilfeller_sprakprove.py"]
+TILGANGSTESTER = ["tests/test_auth", "tests/test_security", "tests/test_routes"]
+LAGRINGSTESTER = ["tests/test_database/test_hendelse_og_notat.py", "tests/test_database/test_domenetabell_lagring.py"]
 VITEST = ["npx", "vitest", "run", "sprakprove"]
 
 MUTASJONER = [
@@ -64,6 +67,29 @@ MUTASJONER = [
        'return Decimal(str(verdi)).quantize(ORE, rounding="ROUND_HALF_EVEN")')],
      [("ts", "sprakprove/kjerne/belop.ts", "if ((tall % deler) * 2n >= deler) resultat += 1n;",
        "{ const rest = (tall % deler) * 2n; if (rest > deler || (rest === deler && resultat % 2n === 1n)) resultat += 1n; }")]),
+    ("M9", "prosjektgrensen kontrolleres ikke for saken det vises til (RV-07)",
+     [("py", "backend/lib/auth/project_access.py",
+       "if metadata is None or metadata.prosjekt_id != project_id:", "if metadata is None:")],
+     [("ts", "sprakprove/server/autorisasjon.ts",
+       "if (sak.rows[0]?.prosjekt_id !== prosjektId) throw nekt();", "if (!sak.rows[0]) throw nekt();")],
+     TILGANGSTESTER),
+    ("M10", "CSRF kontrolleres ikke på en endring",
+     [("py", "backend/lib/auth/session.py",
+       'if request.method not in {"GET", "HEAD", "OPTIONS"} and not csrf_valid():', "if False:")],
+     [("ts", "sprakprove/server/autorisasjon.ts",
+       "!['GET', 'HEAD', 'OPTIONS'].includes(metode) &&", "false &&")],
+     TILGANGSTESTER),
+    ("M11", "lageret skriver etter journalens versjon, ikke den klienten så (tapt oppdatering)",
+     [("py", "backend/repositories/postgres/hendelse.py",
+       ("            if faktisk != expected_version:\n                raise ConcurrencyError(expected_version, faktisk)\n"
+        "            with conn.cursor() as cur:\n                cur.executemany(_SETT_INN, rader)"),
+       ("            with conn.cursor() as cur:\n                cur.executemany(_SETT_INN, [self._rad(e, prosjekt_id, faktisk + i + 1)"
+        " for i, e in enumerate(events)])"))],
+     [("ts", "sprakprove/server/lager.ts",
+       ("    if (sak.rows[0].versjon !== forventet)\n      throw new Versjonskonflikt(forventet, sak.rows[0].versjon);\n"
+        "    for (const [i, h] of hendelser.entries()) {\n      const rad = tilRad({ ...h, versjon: forventet + i + 1 }, prosjektId);"),
+       "    for (const [i, h] of hendelser.entries()) {\n      const rad = tilRad({ ...h, versjon: sak.rows[0].versjon + i + 1 }, prosjektId);")],
+     LAGRINGSTESTER),
 ]
 
 
@@ -77,9 +103,9 @@ def bytt(fil, gammel, ny) -> str:
     return tekst
 
 
-def kjor(sprak):
+def kjor(sprak, pytester=DOMENETESTER):
     if sprak == "py":
-        r = subprocess.run(PYTEST, cwd=f"{ROT}/backend", capture_output=True, text=True)
+        r = subprocess.run(PYTEST + pytester, cwd=f"{ROT}/backend", capture_output=True, text=True)
         ut = r.stdout + r.stderr
         feilet = re.findall(r"^FAILED (\S+)", ut, re.M)
         oppsett = len(re.findall(r"^ERROR ", ut, re.M))
@@ -97,24 +123,24 @@ def kjor(sprak):
 
 
 def kjor_alle(valgte):
-    filer = sorted({fil for _, _, py, ts in MUTASJONER for _, fil, _, _ in py + ts})
+    filer = sorted({fil for _, _, py, ts, *_ in MUTASJONER for _, fil, _, _ in py + ts})
     lokale = subprocess.run(["git", "status", "--porcelain", "--", *filer], cwd=ROT,
                             capture_output=True, text=True).stdout
     if lokale:
         raise SystemExit(f"Commit eller legg bort endringene i filene som muteres først:\n{lokale}")
     resultat = {}
-    for navn, hva, py, ts in MUTASJONER:
+    for navn, hva, py, ts, *pytester in MUTASJONER:
         if valgte and navn not in valgte:
             continue
         for sprak, endringer in (("py", py), ("ts", ts)):
             originaler = {fil: bytt(fil, gammel, ny) for _, fil, gammel, ny in endringer}
             try:
-                resultat[f"{navn}-{sprak}"] = {"feilklasse": hva, **kjor(sprak)}
+                resultat[f"{navn}-{sprak}"] = {"feilklasse": hva, **kjor(sprak, *pytester)}
             finally:
                 for fil, tekst in originaler.items():
                     open(f"{ROT}/{fil}", "w", encoding="utf-8").write(tekst)
             print(navn, sprak, resultat[f"{navn}-{sprak}"]["sammendrag"], flush=True)
-    status = subprocess.run(["git", "status", "--porcelain", "backend", "sprakprove"], cwd=ROT,
+    status = subprocess.run(["git", "status", "--porcelain", "--", *filer], cwd=ROT,
                             capture_output=True, text=True).stdout
     resultat["arbeidskopi_etterpaa"] = status or "ren"
     print(json.dumps(resultat, ensure_ascii=False, indent=1))
