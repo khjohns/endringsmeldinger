@@ -111,7 +111,7 @@ Ingen generell mutasjonsscore eller nytt verktøy kreves for alle endringer.
   eventuelle overlevende mutasjoner med begrunnelse. Gjenbruk samme feilklasser
   når to implementasjoner sammenliknes. En ny feilklasse for språkprøven eller
   kjernen legges i `sprakprove/feilinnforing.py` eller
-  `kjerne/tester/feilinnforing.ts`, så den kan kjøres igjen.
+  `kjerne/tester/feilinnfoering.ts`, så den kan kjøres igjen.
 - En oppdaget feilinnføring viser at testen er følsom for feilen, ikke at
   forventningen er riktig. Forventningens grunnlag kontrolleres etter
   [domeneforventningene](#domeneforventninger-og-metodeprover) nedenfor.

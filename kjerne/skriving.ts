@@ -16,6 +16,7 @@ import {
   svarreferanse,
   svarutsagn,
   SVARTYPER,
+  Uforstaatt,
   utledetVarsel,
 } from './leser.ts';
 import type { Regelsett } from './regler/regelsett.ts';
@@ -176,9 +177,11 @@ export function vurder(
  * Fryser brevet i svarraden: beslutningsgrunnlaget, som også er innholdet i en
  * enighet om svaret (MM-U9, KA-U10). `u` er utledningen av journalen før raden.
  * Gjelder også registrert korrespondanse (merknaden til MM-U9). Kaster
- * `Uforstaatt` når raden ikke kan leses.
+ * `Uforstaatt` når saken eller raden ikke kan leses: uten en forstått sak
+ * mangler kategorien og varselet brevet skal regnes med.
  */
 export function frysSvar(rad: Journalrad, u: Utledning, regler: Regelsett): void {
+  if (!u.forstaatt) throw new Uforstaatt('saken er ikke forstått, så brevet kan ikke fryses');
   const spor = SVARTYPER[rad.event_type];
   const gjelder = svarreferanse(rad, spor);
   const fristvarsel = u.spor.frist.varsel?.id ?? utledetVarsel(gjelder);

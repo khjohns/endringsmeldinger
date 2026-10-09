@@ -18,6 +18,7 @@ import { UgyldigVurdering } from './regler/feil.ts';
 import { beregnFrist, type Fristkrav } from './regler/frist.ts';
 import { foersteUnderkategori, gyldigeResultater } from './regler/grunnlag.ts';
 import type { Regelsett } from './regler/regelsett.ts';
+import { tekst } from './skjema.ts';
 import { beregnVederlag, type Vederlagskrav } from './regler/vederlag.ts';
 import type {
   Beslutningsgrunnlag,
@@ -29,8 +30,6 @@ import type {
   Utfall,
   Utsagn,
 } from './typer.ts';
-
-const tekst = (v: unknown) => (typeof v === 'string' ? v : null);
 
 /** Det i et svar standpunktene regnes av: sporet, utsagnene og serverens utregning. */
 export type Svarinnhold = Pick<Svar, 'spor' | 'utsagn' | 'utregning'>;

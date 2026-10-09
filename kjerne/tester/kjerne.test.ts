@@ -36,6 +36,14 @@ describe('formen på kravet', () => {
     }
   );
 
+  // Code-review av #308: `in` følger prototypen, så `constructor` så ut som et kjent felt.
+  it.each(['constructor', 'toString', 'hasOwnProperty'])(
+    'avviser %s i innholdet, som ikke er et felt i skjemaet',
+    (felt) => {
+      expect(formfeil(krav({ [felt]: 'x' }))).toEqual([`$.innhold.${felt}: ukjent felt`]);
+    }
+  );
+
   it('avviser et varsel etter § 33.4 i et krav utenfor fristen', () => {
     expect(formfeil(krav({}, { varsel: { sendt: '2026-09-02' } }))).not.toEqual([]);
     expect(
@@ -102,7 +110,7 @@ type Data = Record<string, unknown>;
  * skrev dem.
  */
 describe('et svar uten et fullstendig brev, eller en aksept uten regelversjon, er ikke forstått (MM-U9, KA-U10, MM-U2)', () => {
-  type Brev = { standpunkter: { virkning: string }[]; utfall?: Data } & Data;
+  type Brev = { standpunkter: Data[]; utfall?: Data } & Data;
   const brev = (d: Data) => d.beslutningsgrunnlag as Brev;
   it.each([
     ['et svar uten beslutningsgrunnlag', 'S-v2', (d: Data) => delete d.beslutningsgrunnlag],
@@ -134,6 +142,11 @@ describe('et svar uten et fullstendig brev, eller en aksept uten regelversjon, e
       (d: Data) => (brev(d).vilkaar = 'grunnlag_avklart'),
     ],
     ['en aksept uten regelversjon', 'D6', (d: Data) => delete d.regelversjon],
+    [
+      'et standpunkt uten art til et utsagn svaret ikke har',
+      'S-g1',
+      (d: Data) => (brev(d).standpunkter[0] = { utsagn: 'ukjent', virkning: 'uten_virkning' }),
+    ],
   ])('%s', async (_hva, navn, endring) => {
     const bane = minnebane();
     const k = await bygg(bane, ['forlop_a']);
@@ -146,6 +159,26 @@ describe('et svar uten et fullstendig brev, eller en aksept uten regelversjon, e
     );
     if (!rad) throw new Error(`Forutsetning: ${navn} finnes ikke`);
     endring(rad.data);
+    expect(utled(lesJournal(endret, 1), GJELDENDE_REGLER).forstaatt).toBe(false);
+  });
+});
+
+/** Bare TE krever, varsler, godtar og trekker, og bare BH svarer (code-review av #308). */
+describe('en rad fra feil part er ikke forstått', () => {
+  it.each([
+    ['en aksept fra BH', 'D6', 'BH'],
+    ['et svar fra TE', 'S-v2', 'TE'],
+    ['et krav fra BH', 'K-v1', 'BH'],
+  ] as const)('%s', async (_hva, navn, part) => {
+    const bane = minnebane();
+    const k = await bygg(bane, ['forlop_a']);
+    const rader = await bane.journal();
+    const endret = structuredClone(rader);
+    const rad = endret.find((r) => r.event_id === k.navn.id(navn));
+    if (!rad || rad.aktor_rolle === part)
+      throw new Error(`Forutsetning: ${navn} finnes og er skrevet av den andre parten`);
+    rad.aktor_rolle = part;
+    expect(utled(lesJournal(rader, 1), GJELDENDE_REGLER).forstaatt).toBe(true);
     expect(utled(lesJournal(endret, 1), GJELDENDE_REGLER).forstaatt).toBe(false);
   });
 });
