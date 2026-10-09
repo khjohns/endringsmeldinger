@@ -22,6 +22,14 @@ Radene EO-01–EO-24 gjelder endringsordrene: endringsordre i KOE-saken (EO-01,
 EO-23), når en KOE-sak kan inngå i en endringsordre (EO-02–EO-09),
 EO-sakens livsløp (EO-10–EO-20) og KOE-tilknytningen (EO-21, EO-22, EO-24).
 
+**Merknad 2026-10-09:** vedtakene 09.10 i hovedplanen endrer forventningen i
+flere rader, som ikke er skrevet om her. MM-U9 opphever MM-U4–MM-U6, som KA-23
+og KA-25 bygger på. KA-U7 endrer SK-02 for spor med enighet: en ny kravversjon
+avvises der. Det gjelder rader som bygger på at en ny kravversjon opphever en
+enighet, blant dem KA-03, KA-04 og KA-13. GR-U10 gjør «låst» til enighet.
+Radene og bevis-sakene skrives om i #308 og #309 og viser til da vedtakene slik
+de var før 09.10.
+
 | Fil | Innhold |
 | --- | --- |
 | [regler.json](regler.json) | Kilder, tolkningsstatuser og radene i tabellen |
@@ -58,7 +66,7 @@ og beholdes; tabellen bestiller ingen omdøping.
 | **Utgave** | Endringsordren slik den er utstedt eller revidert. TE svarer én gang på hver | `revisjon_nummer` | [EO-U4](../plans/2026-09-16-godkjenning-og-varig-levering.md#eo-u4) |
 | **KOE-tilknytning** | At en KOE-sak inngår i en endringsordre. Står i EO-saken, høyst én per KOE-sak | `relaterte_koe_saker`, `eo_koe_lagt_til`, `eo_koe_fjernet`, `sak_relations` | [EO-U3](../plans/2026-09-16-godkjenning-og-varig-levering.md#eo-u3) |
 | **Klar for endringsordre** | KOE-saken kan inngå i en endringsordre | `kan_utstede_eo`, kandidatene i `EndringsordreService` (avviker: DT-06) | [EO-U2](../plans/2026-09-16-godkjenning-og-varig-levering.md#eo-u2) |
-| **Sporstatus**, **samlet status** | Oppsummering for visning og regler. Ikke en rettslig konklusjon i seg selv | `SporStatus`, `overordnet_status` | AGENTS.md |
+| **Sporstatus**, **samlet status** | Oppsummering for visning. Ikke en rettslig konklusjon og ikke et vilkår i et vedtak: et vedtak som bruker et statusnavn, gjelder innholdet statusen oppsummerer | `SporStatus`, `overordnet_status` | [Hovedplanen, 3.1](../plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger), merknaden 09.10 |
 
 **To tidsakser.** *Registrering* er rekkefølgen i journalen, med `tidsstempel`
 satt av serveren. *Sendt/mottatt* er når et varsel eller brev faktisk ble sendt
