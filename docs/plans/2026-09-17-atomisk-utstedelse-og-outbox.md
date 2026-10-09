@@ -1,5 +1,16 @@
 # Atomisk utstedelse og varig levering
 
+> **Merknad 2026-10-09: B-17.** KOE-, endringsordre- og forseringssakene får
+> TS-kjernen som eneste skriver (hovedplanen,
+> [B-17](2026-09-16-godkjenning-og-varig-levering.md#b-17) med merknaden 09.10,
+> og arbeidspakken FK). Kontrakten for kommando, låsing og akseptansetester her
+> gjelder uansett språk, og den autoritative utstedelseskommandoen hører til
+> TS-stien. Det som står om Python-tjenestene, som `SakCreationService` og
+> `deliver()`, beskriver Python-epoken. Levering etter commit kan bli i Python
+> (B-17); hvor workeren kjører, avhenger av B-18. Merknaden 19.09 om Google
+> Cloud er foreldet. Plattform og hosting er B-12, med Azure PostgreSQL som
+> foreløpig mål for basen.
+
 > **Merknad 2026-09-23: direkte tilkobling.** Backend skal nå basen over
 > direkte tilkobling, ikke over PostgREST (hovedplanen
 > [3.1](2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger),
