@@ -924,7 +924,7 @@
           "forventet": {
             "avvist": false,
             "opplysning.D4#sendt.verdi": "2026-09-02",
-            "opplysning.D4#sendt.bestridelser": [{ "part": "BH", "hva": "mottatt", "utsagn": "D5" }],
+            "opplysning.D4#sendt.bestridelser": [{ "part": "BH", "hva": "mottatt", "hendelse": "D5" }],
             "standpunkt.S-f1.rettidighet": "hovedgrunn",
             "visning.opplysning.D4#sendt": { "inneholder": ["sendt_ifolge_TE", "mottak_bestridt"] },
             "visning.etiketter.frist": { "inneholder": ["bh_har_ikke_vurdert_varselet"] },
@@ -1386,7 +1386,7 @@
             "avvist": false,
             "nye_hendelser": 1,
             "opplysning.D3#sendt.verdi": "2026-09-02",
-            "opplysning.D3#sendt.bestridelser": [{ "part": "BH", "hva": "mottatt", "utsagn": "D6" }],
+            "opplysning.D3#sendt.bestridelser": [{ "part": "BH", "hva": "mottatt", "hendelse": "D6" }],
             "visning.status": "avsluttet_avslatt",
             "visning.opplysning.D3#sendt": { "inneholder": ["mottak_bestridt"] },
             "handlinger.BH": [],
@@ -1899,7 +1899,7 @@
     {
       "id": "INV-MM-1",
       "kilde": "forslaget avsnitt 2.6, #304",
-      "tekst": "En handling tilbys hvis og bare hvis forutsetningene for kommandoen holder. Prøves etter hvert steg i de genererte forløpene."
+      "tekst": "En handling tilbys hvis og bare hvis forutsetningene for kommandoen holder. Det holder per konstruksjon: handlingene er kandidatene der forutsetningene holder (`kjerne/handlinger.ts`)."
     },
     {
       "id": "INV-MM-2",

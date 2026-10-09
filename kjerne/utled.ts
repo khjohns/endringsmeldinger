@@ -19,7 +19,8 @@
 
 import { utledetVarsel } from './leser.ts';
 import type { Regelsett } from './regler/regelsett.ts';
-import { enighetsgrunnlag, utfall } from './standpunkt.ts';
+import type { Subsidiaergrunn } from './regler/grunnlag.ts';
+import { enighetsgrunnlag, hovedgrunn, utsagnet } from './standpunkt.ts';
 import {
   KRAVSPOR,
   SPOR,
@@ -34,9 +35,6 @@ import {
   type Svar,
   type Utsagn,
 } from './typer.ts';
-
-/** Hvorfor hele svaret på vederlag eller frist er subsidiært til grunnlagssvaret. */
-export type Subsidiaergrunn = 'prekludert' | 'avslatt';
 
 export interface Svarberegning {
   svar: Svar;
@@ -74,7 +72,8 @@ export interface Sporutledning {
 export interface Bestridelse {
   part: Part;
   hva: 'sendt' | 'mottatt';
-  utsagn: string;
+  /** Hendelsen bestridelsen står i. */
+  hendelse: string;
 }
 
 export interface Utledning {
@@ -141,10 +140,8 @@ function ikkeErstattet(svar: Svar[], kravId: string): Svar[] {
  */
 function grunnerFraGrunnlaget({ svar, standpunkter }: Svarberegning): Subsidiaergrunn[] {
   const ut: Subsidiaergrunn[] = [];
-  if (standpunkter.some((p) => p.art === 'rettidighet' && p.virkning === 'hovedgrunn'))
-    ut.push('prekludert');
-  const ansvar = svar.utsagn.find((u) => u.art === 'ansvar');
-  if (ansvar?.art === 'ansvar' && ansvar.resultat === 'avslatt') ut.push('avslatt');
+  if (hovedgrunn(standpunkter)?.art === 'rettidighet') ut.push('prekludert');
+  if (utsagnet(svar, 'ansvar')?.resultat === 'avslatt') ut.push('avslatt');
   return ut;
 }
 
@@ -283,13 +280,6 @@ export function utled(journal: Domenehendelse[], regler: Regelsett): Utledning {
   const gSvar = spor.grunnlag.gjeldendeSvar;
   const eg = spor.grunnlag.enighet;
   const gBrev = gSvar ? svar[gSvar.id] : null;
-  const gUtfall = eg
-    ? eg.grunnlag.utfall.grunnlag
-    : gBrev
-      ? utfall(gBrev.svar, gBrev.standpunkter).grunnlag
-      : undefined;
-  const gHovedgrunn = gBrev?.standpunkter.find((p) => p.virkning === 'hovedgrunn');
-  const gAnsvar = gSvar?.utsagn.find((u) => u.art === 'ansvar');
   for (const n of KRAVSPOR) {
     const falt = tilNyttSvar[n];
     spor[n].subsidiaer = falt
@@ -300,11 +290,8 @@ export function utled(journal: Domenehendelse[], regler: Regelsett): Utledning {
   }
 
   return {
-    versjon: journal.at(-1)?.versjon ?? 0,
-    regelversjon: regler.versjon,
+    ...tom(journal, regler, begrensninger),
     forstaatt: true,
-    begrensninger,
-    journal,
     svar,
     opplysninger: opplysninger.map((o) => ({
       opplysning: o,
@@ -313,17 +300,19 @@ export function utled(journal: Domenehendelse[], regler: Regelsett): Utledning {
         .map((b) => ({
           part: partFor(journal, hendelseFor.get(b.id)!),
           hva: b.hva,
-          utsagn: hendelseFor.get(b.id)!,
+          hendelse: hendelseFor.get(b.id)!,
         })),
     })),
     spor,
-    grunnlagAvklart: !spor.grunnlag.trukket && gUtfall === 'avklart',
+    // Etter brevet om grunnlaget, som også er innholdet i en enighet om det (KA-U10).
+    grunnlagAvklart:
+      !spor.grunnlag.trukket && gSvar?.beslutningsgrunnlag.utfall.grunnlag === 'avklart',
     grunnlagAvvist: eg?.grunnlag.utfall.grunnlag === 'avvist',
     frafalt:
       !eg &&
-      gHovedgrunn?.art === 'ansvar' &&
-      gAnsvar?.art === 'ansvar' &&
-      gAnsvar.resultat === 'frafalt',
+      gBrev !== null &&
+      hovedgrunn(gBrev.standpunkter)?.art === 'ansvar' &&
+      utsagnet(gBrev.svar, 'ansvar')?.resultat === 'frafalt',
   };
 }
 
@@ -376,3 +365,17 @@ export function kanInngaaIEo(u: Utledning): boolean {
     KRAVSPOR.some((n) => !u.spor[n].trukket && u.spor[n].enighet !== null)
   );
 }
+
+/** Grunnlagskravet et svar vurderes mot: kravet et grunnlagssvar gjelder, ellers gjeldende grunnlagskrav. */
+export function grunnlagskravFor(
+  svar: Pick<Svar, 'spor' | 'gjelder'>,
+  u: Utledning
+): Krav | null | undefined {
+  return svar.spor === 'grunnlag'
+    ? u.spor.grunnlag.krav.find((k) => k.id === svar.gjelder)
+    : u.spor.grunnlag.gjeldendeKrav;
+}
+
+/** Sporet har et krav byggherren ikke har svart på, og kravet er ikke trukket. */
+export const venterPaaSvar = (s: Sporutledning): boolean =>
+  s.gjeldendeKrav !== null && s.gjeldendeSvar === null && !s.trukket;

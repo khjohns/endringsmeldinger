@@ -32,7 +32,10 @@ import type {
 
 const tekst = (v: unknown) => (typeof v === 'string' ? v : null);
 
-export function kategori(krav: Krav | null | undefined) {
+/** Det i et svar standpunktene regnes av: sporet, utsagnene og serverens utregning. */
+export type Svarinnhold = Pick<Svar, 'spor' | 'utsagn' | 'utregning'>;
+
+function kategori(krav: Krav | null | undefined) {
   const innhold = krav?.innhold ?? {};
   return {
     hovedkategori: tekst(innhold.hovedkategori),
@@ -45,7 +48,7 @@ export function kategori(krav: Krav | null | undefined) {
  * `grunnlagskrav` er kravet et grunnlagssvar gjelder.
  */
 export function standpunkter(
-  svar: Svar,
+  svar: Svarinnhold,
   grunnlagskrav: Krav | null | undefined,
   regler: Regelsett
 ): Standpunkt[] {
@@ -72,17 +75,17 @@ export function standpunkter(
   return ut;
 }
 
-const hovedgrunn = (s: Standpunkt[]) => s.find((p) => p.virkning === 'hovedgrunn');
+export const hovedgrunn = (s: Standpunkt[]) => s.find((p) => p.virkning === 'hovedgrunn');
 /** Et standpunkt som avviser kravet uavhengig av beløpet eller dagene. */
 const AVVISENDE = new Set(['rettidighet', 'hindring']);
 const avvisendeHovedgrunn = (s: Standpunkt[]) => AVVISENDE.has(hovedgrunn(s)?.art ?? '');
 
-function utsagnet<A extends Utsagn['art']>(svar: Svar, art: A) {
+export function utsagnet<A extends Utsagn['art']>(svar: Svarinnhold, art: A) {
   return svar.utsagn.find((u): u is Extract<Utsagn, { art: A }> => u.art === art);
 }
 
 /** Det svaret gir i sporet når standpunktene har denne virkningen. */
-export function utfall(svar: Svar, s: Standpunkt[]): Utfall {
+export function utfall(svar: Svarinnhold, s: Standpunkt[]): Utfall {
   const prekludert = avvisendeHovedgrunn(s);
   if (svar.spor === 'grunnlag') {
     const ansvar = utsagnet(svar, 'ansvar')!;
@@ -98,7 +101,7 @@ export function utfall(svar: Svar, s: Standpunkt[]): Utfall {
  * (GR-U7). For grunnlaget er det en godkjenning uten påberopt preklusjon
  * (GR-U10).
  */
-export function godkjennerHeleKravet(svar: Svar, s: Standpunkt[]): boolean {
+function godkjennerHeleKravet(svar: Svarinnhold, s: Standpunkt[]): boolean {
   if (avvisendeHovedgrunn(s)) return false;
   if (svar.spor === 'grunnlag') return utsagnet(svar, 'ansvar')?.resultat === 'godkjent';
   return svar.utregning.beregnings_resultat === 'godkjent';
@@ -121,7 +124,7 @@ export function enighetsgrunnlag(svar: Svar, kilde: Enighetsgrunnlag['kilde']): 
 const kroner = (n: number) => `${n.toLocaleString('nb-NO')} kr`;
 
 /** Linjen i brevet for svaret, med hovedgrunnen først (vedtaket 05.10 om avslag sammen med § 32.2). */
-export function beslutningslinje(svar: Svar, s: Standpunkt[]): string {
+function beslutningslinje(svar: Svarinnhold, s: Standpunkt[]): string {
   const hjemmel = svar.spor === 'grunnlag' ? '§ 32.2' : '§ 33.4';
   const grunntekst: Record<string, string> = {
     rettidighet: `prekludert (${hjemmel})`,
@@ -148,7 +151,7 @@ export function beslutningslinje(svar: Svar, s: Standpunkt[]): string {
 }
 
 export function beslutningsgrunnlag(
-  svar: Svar,
+  svar: Svarinnhold,
   s: Standpunkt[],
   regler: Regelsett
 ): Beslutningsgrunnlag {

@@ -4,9 +4,9 @@
  * (KA-U10); det har ikke `kontrakt.json` (#304; formatet hører til #273).
  */
 
-import { feilI } from './skjema.ts';
+import { erObjekt, feilI, type Skjema } from './skjema.ts';
 import type { Svarvurdering } from './standpunkt.ts';
-import type { Spor } from './typer.ts';
+import { SPOR as SPORENE, type Spor } from './typer.ts';
 
 export interface Svarutkast {
   spor: Spor;
@@ -32,9 +32,7 @@ export type Kommando =
   | { type: 'varsel'; spor: 'frist'; hjemmel: '33.4'; sendt: string; dokumentasjon?: string[] }
   | { type: 'bestridelse'; gjelder: string; hva: 'sendt' | 'mottatt' };
 
-type Skjema = Record<string, unknown>;
-
-const SPOR = { enum: ['grunnlag', 'vederlag', 'frist'] };
+const SPOR = { enum: [...SPORENE] };
 const ID = { type: 'string', minLength: 1 };
 const DATO = { type: 'string', minLength: 10 };
 const objekt = (properties: Skjema, required: string[]): Skjema => ({
@@ -123,8 +121,7 @@ const SKJEMA: Record<Kommando['type'], Skjema> = {
 
 /** Feilene i formen, tomme når kommandoen kan vurderes. */
 export function formfeil(kommando: unknown): string[] {
-  if (typeof kommando !== 'object' || kommando === null || Array.isArray(kommando))
-    return ['Kommandoen må være et objekt.'];
+  if (!erObjekt(kommando)) return ['Kommandoen må være et objekt.'];
   const type = (kommando as { type?: unknown }).type;
   if (typeof type !== 'string' || !Object.hasOwn(SKJEMA, type))
     return [`Ukjent kommando: ${String(type)}`];

@@ -11,7 +11,13 @@
 
 import type { Regelsett } from './regler/regelsett.ts';
 import { standpunkter, ulikeVirkninger } from './standpunkt.ts';
-import { enighetensVirkning, kraveneErAvgjort, type Utledning } from './utled.ts';
+import {
+  enighetensVirkning,
+  grunnlagskravFor,
+  kraveneErAvgjort,
+  venterPaaSvar,
+  type Utledning,
+} from './utled.ts';
 import { SPOR, type Spor } from './typer.ts';
 
 export type Statuskode =
@@ -45,8 +51,7 @@ function status(u: Utledning): Statuskode {
   if (u.grunnlagAvvist) return 'avsluttet_avslatt';
   if (u.spor.grunnlag.trukket) return 'avsluttet_trukket';
   if (kraveneErAvgjort(u)) return 'avsluttet_oppgjort';
-  if (SPOR.some((s) => u.spor[s].gjeldendeKrav && !u.spor[s].gjeldendeSvar && !u.spor[s].trukket))
-    return 'venter_paa_svar';
+  if (SPOR.some((s) => venterPaaSvar(u.spor[s]))) return 'venter_paa_svar';
   return 'under_forhandling';
 }
 
@@ -54,18 +59,17 @@ function status(u: Utledning): Statuskode {
 function regelenErEndret(u: Utledning, spor: Spor, regler: Regelsett): boolean {
   const g = u.spor[spor].gjeldendeSvar;
   if (!g) return false;
-  const grunnlagskrav =
-    spor === 'grunnlag'
-      ? u.spor.grunnlag.krav.find((k) => k.id === g.gjelder)
-      : u.spor.grunnlag.gjeldendeKrav;
-  return ulikeVirkninger(u.svar[g.id].standpunkter, standpunkter(g, grunnlagskrav, regler));
+  return ulikeVirkninger(
+    u.svar[g.id].standpunkter,
+    standpunkter(g, grunnlagskravFor(g, u), regler)
+  );
 }
 
 function etiketter(u: Utledning, spor: Spor, regler: Regelsett): string[] {
   const s = u.spor[spor];
   const ut: string[] = [];
   if (s.trukket) ut.push('trukket');
-  if (s.gjeldendeKrav && !s.gjeldendeSvar && !s.trukket) ut.push('venter_paa_svar');
+  if (venterPaaSvar(s)) ut.push('venter_paa_svar');
   const virkning = enighetensVirkning(u, spor);
   if (spor === 'grunnlag') {
     if (u.frafalt) ut.push('frafalt');

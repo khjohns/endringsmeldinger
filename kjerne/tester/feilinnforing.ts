@@ -58,8 +58,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/leser.ts`,
     endringer: [
       [
-        '  const gjelder = referanser[0];',
-        '  const gjelder = stand.sisteKrav[spor] ?? referanser[0];',
+        '  const gjelder = svarreferanse(h, spor);',
+        '  const gjelder = stand.sisteKrav[spor] ?? svarreferanse(h, spor);',
       ],
     ],
     mal: ['F-MM-E1'],
@@ -187,21 +187,21 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse: 'et svar uten beslutningsgrunnlag leses med et tomt brev',
     fil: `${K}/leser.ts`,
     endringer: [
-      ['  if (utkast)\n    return {', '  if (utkast || !data.beslutningsgrunnlag)\n    return {'],
+      [
+        "if (!o) throw new Uforstaatt('svaret mangler beslutningsgrunnlag');",
+        "if (!o) return { regelversjon: 0, standpunkter: [], linje: '', sammenfall: false, utfall: {} };",
+      ],
     ],
     mal: ['et svar uten beslutningsgrunnlag'],
   },
   {
     id: 'F15',
     feilklasse: 'en regel leser en oppsummerende verdi',
-    fil: `${K}/handlinger.ts`,
+    fil: `${K}/forutsetninger.ts`,
     endringer: [
-      [
-        '  const ut = u.grunnlagAvvist || kraveneErAvgjort(u) ? [] : sporhandlinger(u, part);',
-        '  const avsluttet = u.grunnlagAvvist || kraveneErAvgjort(u);\n  const ut = avsluttet ? [] : sporhandlinger(u, part);',
-      ],
+      ['  if (kraveneErAvgjort(u))', '  const avsluttet = kraveneErAvgjort(u);\n  if (avsluttet)'],
     ],
-    mal: ['reglene leser ingen status eller oppsummering (#308) handlinger.ts'],
+    mal: ['reglene leser ingen status eller oppsummering (#308) forutsetninger.ts'],
   },
   {
     id: 'F16',
