@@ -112,6 +112,9 @@ språkprøven. Hendelsestypene og feltene i `data` er lagringsformatet og velges
 | `gjelder32_2` | `gjelderVarslingsplikten` | Navnet etter bestemmelsen (§ 32.2), uten tall i navnet |
 | `avviker_fra_brevet` (etikett) | `regel_endret_etter_brevet` | Merknaden etter MM-U9 |
 | `Subsidiaergrunn` `uavklart` | Utgår | MM-U5 er opphevet av MM-U9 |
+| `forstatt`, `forhandsvisAksept`, `Handlingsnokkel`, `forsteUnderkategori` | `forstaatt`, `forhaandsvisAksept`, `Handlingsnoekkel`, `foersteUnderkategori` | ae/oe/aa |
+| Utsagnsarten `belop`, `utfall.belop`, `regler/belop.ts`, `Ore` | `beloep`, `utfall.beloep`, `regler/beloep.ts`, `Oere` | ae/oe/aa. Feltene i `data` (`godkjent_belop` og andre) er lagringsformatet og står til #273 |
+| `utenforProven` | `utenforOmfanget` | Kjernen er ikke en prøve |
 
 **To tidsakser.** *Registrering* er rekkefølgen i journalen, med `tidsstempel`
 satt av serveren. *Sendt/mottatt* er når et varsel eller brev faktisk ble sendt

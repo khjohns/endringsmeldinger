@@ -18,13 +18,13 @@ import {
   regnUtSvar,
   standpunkter,
 } from './standpunkt.ts';
-import { forhandsvisAksept, utled, type Utledning } from './utled.ts';
+import { forhaandsvisAksept, utled, type Utledning } from './utled.ts';
 import type { Avvisning, Krav, Part } from './typer.ts';
 
 /** Det serveren stempler kommandoen med. Klienten bestemmer ingen av dem. */
 export interface Kontekst {
   sakId: string;
-  aktorId: string;
+  aktoerId: string;
   part: Part;
   teamId: string | null;
   tidspunkt: () => Date;
@@ -122,7 +122,7 @@ export function vurder(
       event_type: type as Journalrad['event_type'],
       versjon: (journal.at(-1)?.versjon ?? 0) + hendelser.length + 1,
       tidsstempel: kontekst.tidspunkt().toISOString(),
-      aktor_id: kontekst.aktorId,
+      aktor_id: kontekst.aktoerId,
       aktor_rolle: kontekst.part,
       aktor_team_id: kontekst.teamId,
       refererer_til_event_id: referanse,
@@ -159,7 +159,7 @@ export function vurder(
         {
           spor: k.spor,
           regelversjon: k.regelversjon,
-          enighetsgrunnlag: forhandsvisAksept(u, k.svar),
+          enighetsgrunnlag: forhaandsvisAksept(u, k.svar),
         },
         k.svar
       );
@@ -216,5 +216,5 @@ export function frysBrev(journal: Journalrad[], nye: Journalrad[], kjerne: Kjern
         : null;
     }
   }
-  return utledJournal(alle, kjerne).forstatt;
+  return utledJournal(alle, kjerne).forstaatt;
 }

@@ -13,10 +13,10 @@
  * (vedtaket 05.10), og vilkåret i enighetsgrunnlaget (GR-U7).
  */
 
-import { belop, tilTall } from './regler/belop.ts';
+import { beloep, tilTall } from './regler/beloep.ts';
 import { UgyldigVurdering } from './regler/feil.ts';
 import { beregnFrist, type Fristkrav } from './regler/frist.ts';
-import { forsteUnderkategori, gyldigeResultater } from './regler/grunnlag.ts';
+import { foersteUnderkategori, gyldigeResultater } from './regler/grunnlag.ts';
 import type { Regelsett } from './regler/regelsett.ts';
 import { beregnVederlag, type Vederlagskrav } from './regler/vederlag.ts';
 import type {
@@ -36,7 +36,7 @@ export function kategori(krav: Krav | null | undefined) {
   const innhold = krav?.innhold ?? {};
   return {
     hovedkategori: tekst(innhold.hovedkategori),
-    underkategori: forsteUnderkategori(innhold.underkategori as string | string[] | null),
+    underkategori: foersteUnderkategori(innhold.underkategori as string | string[] | null),
   };
 }
 
@@ -88,7 +88,7 @@ export function utfall(svar: Svar, s: Standpunkt[]): Utfall {
     const ansvar = utsagnet(svar, 'ansvar')!;
     return { grunnlag: prekludert || ansvar.resultat === 'avslatt' ? 'avvist' : 'avklart' };
   }
-  if (svar.spor === 'vederlag') return { belop: utsagnet(svar, 'belop')!.godkjent };
+  if (svar.spor === 'vederlag') return { beloep: utsagnet(svar, 'beloep')!.godkjent };
   const dager = utsagnet(svar, 'dager')!;
   return { dager: prekludert || dager.resultat === 'avslatt' ? 0 : dager.vurdert };
 }
@@ -137,7 +137,7 @@ export function beslutningslinje(svar: Svar, s: Standpunkt[]): string {
       utsagnet(svar, 'ansvar')!.resultat
     ];
   } else if (svar.spor === 'vederlag') {
-    const b = utsagnet(svar, 'belop')!;
+    const b = utsagnet(svar, 'beloep')!;
     standpunkt = b.resultat === 'avslatt' ? 'avslått' : `godkjent med ${kroner(b.godkjent)}`;
   } else {
     const d = utsagnet(svar, 'dager')!;
@@ -172,26 +172,26 @@ export function ulikeVirkninger(a: Standpunkt[], b: Standpunkt[]): boolean {
 }
 
 /**
- * En vurdering i svaret som prøven ikke har et utsagn for. Den kan ikke godtas
+ * En vurdering i svaret som kjernen ennå ikke har et utsagn for. Den kan ikke godtas
  * og forenkles til et annet standpunkt, så kommandoen avvises og en lagret rad
  * leses som ikke forstått (#304, review av PR #306).
  */
-export function utenforProven(spor: Spor, v: Record<string, unknown>): string | null {
+export function utenforOmfanget(spor: Spor, v: Record<string, unknown>): string | null {
   if (spor === 'frist' && v.spesifisert_krav_ok === false)
-    return 'reduksjon etter § 33.6.1 er ikke i prøven';
+    return 'reduksjon etter § 33.6.1 er ikke i kjernen ennå';
   if (spor === 'frist' && v.foresporsel_svar_ok === false)
-    return 'svar på forespørsel etter § 33.6.2 er ikke i prøven';
+    return 'svar på forespørsel etter § 33.6.2 er ikke i kjernen ennå';
   if (spor === 'vederlag') {
-    if (v.aksepterer_metode === false) return 'avslått metode (§ 34.2.2) er ikke i prøven';
-    if (v.hold_tilbake === true) return 'tilbakeholdelse (§ 30.2) er ikke i prøven';
+    if (v.aksepterer_metode === false) return 'avslått metode (§ 34.2.2) er ikke i kjernen ennå';
+    if (v.hold_tilbake === true) return 'tilbakeholdelse (§ 30.2) er ikke i kjernen ennå';
     for (const felt of [
       'hovedkrav_varslet_i_tide',
       'rigg_varslet_i_tide',
       'produktivitet_varslet_i_tide',
     ])
-      if (v[felt] === false) return `preklusjon etter § 34.1 (${felt}) er ikke i prøven`;
+      if (v[felt] === false) return `preklusjon etter § 34.1 (${felt}) er ikke i kjernen ennå`;
     if ((v.rigg_vurdering ?? null) !== null || (v.produktivitet_vurdering ?? null) !== null)
-      return 'særskilte krav (§ 34.1.3) er ikke i prøven';
+      return 'særskilte krav (§ 34.1.3) er ikke i kjernen ennå';
   }
   return null;
 }
@@ -293,6 +293,6 @@ export const SAMMENLIKNES: Record<Spor, string[]> = {
 
 export function likeResultatfelt(felt: string, klient: unknown, server: unknown): boolean {
   if (felt.endsWith('_belop') && typeof klient === 'number' && typeof server === 'number')
-    return belop(klient) === belop(server);
+    return beloep(klient) === beloep(server);
   return klient === server;
 }

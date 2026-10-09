@@ -12,7 +12,7 @@
  */
 
 import bevis from '../../docs/domenetabell/bevis-saker.json' with { type: 'json' };
-import { tilTall } from '../../kjerne/regler/belop.ts';
+import { tilTall } from '../../kjerne/regler/beloep.ts';
 import { vurderKommando, type Utfall } from '../kjerne/kommando.ts';
 import { RADER } from '../kjerne/kontrakt.ts';
 import { offentligTilstand, type OffentligTilstand } from '../kjerne/offentlig.ts';

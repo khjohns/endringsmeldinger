@@ -7,7 +7,7 @@
 
 import {
   erPrekludert,
-  forsteUnderkategori,
+  foersteUnderkategori as forsteUnderkategori,
   standpunkt,
   type Standpunkt,
   type Subsidiaergrunn,

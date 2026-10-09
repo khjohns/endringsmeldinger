@@ -23,7 +23,7 @@ import { endredeSaker, lesSak } from '../buffer.ts';
 import type { Bane } from './bane.ts';
 import { bygg, type Baner } from './baner.ts';
 import { NESTE_REGLER } from './klient.ts';
-import { medRegler, type Kjoring } from './kjorer.ts';
+import { medRegler, type Kjoering } from './kjoerer.ts';
 
 const N1 = medRegler(NESTE_REGLER);
 
@@ -38,7 +38,7 @@ const frosset = (u: Utledning) => ({
 export function regelendringen(lagBaner: () => Baner): void {
   describe(`regelendringen ${lagBaner().navn}`, () => {
     const baner = lagBaner();
-    const saker: Record<string, { bane: Bane; k: Kjoring; journal: Journalrad[] }> = {};
+    const saker: Record<string, { bane: Bane; k: Kjoering; journal: Journalrad[] }> = {};
 
     beforeAll(async () => {
       await baner.start();
@@ -73,7 +73,8 @@ export function regelendringen(lagBaner: () => Baner): void {
       for (const [navn, s] of Object.entries(saker)) {
         const n = utledJournal(s.journal, KJERNE);
         const n1 = utledJournal(s.journal, N1);
-        if (!n.forstatt || !n1.forstatt) throw new Error(`Forutsetning: ${navn} er ikke forstått`);
+        if (!n.forstaatt || !n1.forstaatt)
+          throw new Error(`Forutsetning: ${navn} er ikke forstått`);
         expect(frosset(n1), navn).toEqual(frosset(n));
         expect(await s.bane.journal(), navn).toEqual(s.journal);
       }

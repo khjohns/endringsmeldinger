@@ -132,7 +132,7 @@ describe('et svar eller en aksept uten det frosne innholdet er ikke forstått (M
     const bane = minnebane();
     const k = await bygg(bane, ['forlop_a']);
     const rader = await bane.journal();
-    if (!utled(lesJournal(rader, 1), GJELDENDE_REGLER).forstatt)
+    if (!utled(lesJournal(rader, 1), GJELDENDE_REGLER).forstaatt)
       throw new Error('Forutsetning: kontrollsaken er ikke forstått');
     const endret = structuredClone(rader);
     const rad = endret.find(
@@ -140,7 +140,7 @@ describe('et svar eller en aksept uten det frosne innholdet er ikke forstått (M
     );
     if (!rad) throw new Error(`Forutsetning: ${navn} finnes ikke`);
     endring(rad.data);
-    expect(utled(lesJournal(endret, 1), GJELDENDE_REGLER).forstatt).toBe(false);
+    expect(utled(lesJournal(endret, 1), GJELDENDE_REGLER).forstaatt).toBe(false);
   });
 });
 

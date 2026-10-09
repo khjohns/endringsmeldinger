@@ -79,7 +79,7 @@ export interface Bestridelse {
 export interface Utledning {
   versjon: number;
   regelversjon: number;
-  forstatt: boolean;
+  forstaatt: boolean;
   begrensninger: { hendelse: string; grunn: string }[];
   journal: Domenehendelse[];
   svar: Record<string, Svarberegning>;
@@ -115,7 +115,7 @@ function tom(
   return {
     versjon: journal.at(-1)?.versjon ?? 0,
     regelversjon: regler.versjon,
-    forstatt: false,
+    forstaatt: false,
     begrensninger,
     journal,
     svar: {},
@@ -214,9 +214,9 @@ export function utled(journal: Domenehendelse[], regler: Regelsett): Utledning {
     for (const k of spor[n].krav) {
       const paaKravet = spor[n].svar.filter((s) => s.gjelder === k.id);
       if (!paaKravet.length) continue;
-      const forste = paaKravet.filter((s) => s.erstatter === null);
+      const foerste = paaKravet.filter((s) => s.erstatter === null);
       const kjede = new Set<string>();
-      let neste: Svar[] = forste.length === 1 ? forste : [];
+      let neste: Svar[] = foerste.length === 1 ? foerste : [];
       while (neste.length === 1 && !kjede.has(neste[0].id)) {
         kjede.add(neste[0].id);
         const forrige = neste[0].id;
@@ -306,7 +306,7 @@ export function utled(journal: Domenehendelse[], regler: Regelsett): Utledning {
   return {
     versjon: journal.at(-1)?.versjon ?? 0,
     regelversjon: regler.versjon,
-    forstatt: true,
+    forstaatt: true,
     begrensninger,
     journal,
     svar,
@@ -358,7 +358,7 @@ export function enighetensVirkning(
  * ikke finnes, eller når et standpunkt i det er uavklart (MM-U8). Klienten
  * viser det i forhåndsvisningen; serveren regner det på nytt og sammenlikner (2.5).
  */
-export function forhandsvisAksept(u: Utledning, svarId: string): Enighetsgrunnlag | null {
+export function forhaandsvisAksept(u: Utledning, svarId: string): Enighetsgrunnlag | null {
   const s = u.svar[svarId];
   if (!s || s.uavklart.length) return null;
   return enighetsgrunnlag(s.svar, 'aksept');
@@ -390,7 +390,7 @@ export function kraveneErAvgjort(u: Utledning): boolean {
 export function kanInngaaIEo(u: Utledning): boolean {
   const godkjent = (n: Kravspor) => {
     const e = u.spor[n].enighet?.grunnlag.utfall;
-    return !u.spor[n].trukket && ((e?.belop ?? 0) !== 0 || (e?.dager ?? 0) > 0);
+    return !u.spor[n].trukket && ((e?.beloep ?? 0) !== 0 || (e?.dager ?? 0) > 0);
   };
   return kraveneErAvgjort(u) && !u.frafalt && KRAVSPOR.some(godkjent);
 }

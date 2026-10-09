@@ -83,13 +83,13 @@ const erHeltall = (v: unknown): v is number => typeof v === 'number' && Number.i
 export function kontroller(v: Fristvurdering, krav: Fristkrav): void {
   const feil: Record<string, string> = {};
   const synlig = beregnSynlighet(krav);
-  const sporsmal: [boolean, keyof Fristvurdering, string][] = [
+  const spoersmaal: [boolean, keyof Fristvurdering, string][] = [
     [synlig.frist_varsel_ok, 'frist_varsel_ok', '§ 33.4'],
     [synlig.spesifisert_krav_ok, 'spesifisert_krav_ok', '§ 33.6.1'],
     [synlig.foresporsel_svar_ok, 'foresporsel_svar_ok', '§ 33.6.2'],
     [true, 'vilkar_oppfylt', '§ 33.1'],
   ];
-  for (const [gjelder, felt, hjemmel] of sporsmal) {
+  for (const [gjelder, felt, hjemmel] of spoersmaal) {
     if (gjelder && mangler(v[felt])) feil[felt] = `mangler (${hjemmel})`;
   }
   if (krav.er_svar_paa_foresporsel && v.spesifisert_krav_ok === false) {

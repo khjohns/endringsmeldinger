@@ -68,7 +68,7 @@ export async function lesSak(
   if (b && bufferGjelder(b, kjerne, saksversjon)) return { kilde: 'buffer', visning: b.visning };
   const u = utledJournal(journal, kjerne);
   const v = visning(u, kjerne.regler);
-  if (!u.forstatt) return { kilde: 'stoppet', visning: v };
+  if (!u.forstaatt) return { kilde: 'stoppet', visning: v };
   await lager.skriv(sakId, { versjon: bufferversjon(kjerne, saksversjon), visning: v });
   return { kilde: 'utledet', visning: v };
 }

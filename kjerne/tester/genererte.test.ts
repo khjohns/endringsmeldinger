@@ -12,14 +12,14 @@
  */
 
 import { describe, expect, it } from 'vitest';
-import { forutsetninger, nokkel, type Handlingsnokkel } from '../forutsetninger.ts';
+import { forutsetninger, noekkel, type Handlingsnoekkel } from '../forutsetninger.ts';
 import { handlinger } from '../handlinger.ts';
 import { utledJournal } from '../skriving.ts';
 import type { Utledning } from '../utled.ts';
 import { SPOR, type Part } from '../typer.ts';
 import { minnebane } from './bane.ts';
 import { bygg } from './baner.ts';
-import { MAALMODELL } from './kjorer.ts';
+import { MAALMODELL } from './kjoerer.ts';
 
 const G = MAALMODELL.genererte;
 
@@ -32,7 +32,7 @@ function* lcg(seed: number): Generator<number> {
   }
 }
 
-function forlopene() {
+function forloepene() {
   const tall = lcg(G.seed);
   return Array.from({ length: G.antall }, () =>
     Array.from(
@@ -42,8 +42,8 @@ function forlopene() {
   );
 }
 
-function kandidater(u: Utledning): [Part, Handlingsnokkel][] {
-  const ut: [Part, Handlingsnokkel][] = [];
+function kandidater(u: Utledning): [Part, Handlingsnoekkel][] {
+  const ut: [Part, Handlingsnoekkel][] = [];
   for (const spor of SPOR) {
     for (const type of ['krav', 'trekke', 'godta'] as const) ut.push(['TE', { type, spor }]);
     for (const type of ['svare', 'revidere'] as const) ut.push(['BH', { type, spor }]);
@@ -64,12 +64,12 @@ const frosset = (u: Utledning) => ({
 
 describe('genererte forløp mot målmodellen', () => {
   it('er like mange og like lange som oppsettet sier', () => {
-    const f = forlopene();
+    const f = forloepene();
     expect(f).toHaveLength(G.antall);
     expect(f.every((s) => s.length === G.lengde)).toBe(true);
   });
 
-  it.each(forlopene().map((s, i) => [i, s] as const))('forløp %i', async (i, steg) => {
+  it.each(forloepene().map((s, i) => [i, s] as const))('forløp %i', async (i, steg) => {
     const bane = minnebane();
     const k = await bygg(bane, [G.start]);
     for (const [n, h] of steg.entries()) {
@@ -78,11 +78,11 @@ describe('genererte forløp mot målmodellen', () => {
       const foer = utledJournal(journalFor, k.kjerne);
 
       for (const [part, kandidat] of kandidater(foer)) {
-        const tilbys = handlinger(foer, part).includes(nokkel(kandidat));
+        const tilbys = handlinger(foer, part).includes(noekkel(kandidat));
         const brudd = forutsetninger(kandidat, part, foer);
         expect(
           tilbys,
-          `INV-MM-1 ${hvor}: ${part} ${nokkel(kandidat)} ${brudd?.regel ?? 'holder'}`
+          `INV-MM-1 ${hvor}: ${part} ${noekkel(kandidat)} ${brudd?.regel ?? 'holder'}`
         ).toBe(brudd === null);
       }
 

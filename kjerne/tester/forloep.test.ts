@@ -5,12 +5,12 @@
 
 import { describe, expect, it } from 'vitest';
 import { minnebane } from './bane.ts';
-import { kjor, MAALMODELL } from './kjorer.ts';
+import { kjoer, MAALMODELL } from './kjoerer.ts';
 
 describe('forløp A–E i minnet', () => {
-  it.each(MAALMODELL.forlop.map((f) => [f.id, f] as const))('%s', async (_id, forlop) => {
-    await kjor(forlop, minnebane(), {
-      pastand: (holder, melding) => expect(holder, melding).toBe(true),
+  it.each(MAALMODELL.forlop.map((f) => [f.id, f] as const))('%s', async (_id, forloep) => {
+    await kjoer(forloep, minnebane(), {
+      paastand: (holder, melding) => expect(holder, melding).toBe(true),
     });
   });
 });

@@ -1,11 +1,11 @@
 /**
  * Byggherrens svar på vederlagskrav, NS 8407 § 34 og § 30.2. Port av
- * `regler/vederlag.py`; beløp regnes i hele øre (`belop.ts`).
+ * `regler/vederlag.py`; beløp regnes i hele øre (`beloep.ts`).
  */
 
-import { belop, erEndelig, NULL_ORE, tilKrone, type Ore } from './belop.ts';
+import { beloep, erEndelig, NULL_OERE, tilKrone, type Oere } from './beloep.ts';
 import type {
-  Belopsvurdering,
+  Beloepsvurdering,
   Grunnlagsresultat,
   SubsidiaerUtloser,
   Vederlagsmetode,
@@ -32,11 +32,11 @@ export interface Vederlagskrav {
 
 /** Byggherrens vurderinger. Feltnavnene er de i kommandoen. */
 export interface Vederlagsvurdering {
-  hovedkrav_vurdering?: Belopsvurdering | null;
+  hovedkrav_vurdering?: Beloepsvurdering | null;
   hovedkrav_godkjent_belop?: Tall | null;
-  rigg_vurdering?: Belopsvurdering | null;
+  rigg_vurdering?: Beloepsvurdering | null;
   rigg_godkjent_belop?: Tall | null;
-  produktivitet_vurdering?: Belopsvurdering | null;
+  produktivitet_vurdering?: Beloepsvurdering | null;
   produktivitet_godkjent_belop?: Tall | null;
   hovedkrav_varslet_i_tide?: boolean | null;
   rigg_varslet_i_tide?: boolean | null;
@@ -54,14 +54,14 @@ export interface Preklusjon {
 
 export interface Vederlagsberegning {
   beregnings_resultat: Vederlagsresultat;
-  total_godkjent_belop: Ore;
-  total_krevd_belop: Ore;
-  hovedkrav_godkjent_belop: Ore;
-  rigg_godkjent_belop: Ore | null;
-  produktivitet_godkjent_belop: Ore | null;
+  total_godkjent_belop: Oere;
+  total_krevd_belop: Oere;
+  hovedkrav_godkjent_belop: Oere;
+  rigg_godkjent_belop: Oere | null;
+  produktivitet_godkjent_belop: Oere | null;
   subsidiaer_triggers: SubsidiaerUtloser[];
   subsidiaer_resultat: Vederlagsresultat | null;
-  subsidiaer_godkjent_belop: Ore | null;
+  subsidiaer_godkjent_belop: Oere | null;
   preklusjon: Preklusjon;
   hele_vederlaget_subsidiaert: boolean;
 }
@@ -85,59 +85,59 @@ export function beregnPreklusjon(v: Vederlagsvurdering, krav: Vederlagskrav): Pr
   };
 }
 
-export function beregnGodkjentBelop(
-  vurdering: Belopsvurdering | null | undefined,
-  krevd: Ore,
-  delvis: Ore | null,
+export function beregnGodkjentBeloep(
+  vurdering: Beloepsvurdering | null | undefined,
+  krevd: Oere,
+  delvis: Oere | null,
   prekludert = false
-): Ore {
-  if (prekludert) return NULL_ORE;
+): Oere {
+  if (prekludert) return NULL_OERE;
   if (vurdering === 'godkjent') return krevd;
-  if (vurdering === 'delvis') return delvis ?? NULL_ORE;
-  return NULL_ORE;
+  if (vurdering === 'delvis') return delvis ?? NULL_OERE;
+  return NULL_OERE;
 }
 
 export function erKravlinjeGyldig(
-  vurdering: Belopsvurdering | null | undefined,
+  vurdering: Beloepsvurdering | null | undefined,
   godkjent: unknown
 ): boolean {
   if (vurdering === null || vurdering === undefined) return false;
   return !(vurdering === 'delvis' && (godkjent === null || godkjent === undefined));
 }
 
-type Post = [krevd: Ore, godkjent: Ore, prekludert: boolean];
+type Post = [krevd: Oere, godkjent: Oere, prekludert: boolean];
 
 function poster(v: Vederlagsvurdering, krav: Vederlagskrav, p: Preklusjon): Post[] {
-  const rader: [Ore, Belopsvurdering | null | undefined, Ore | null, boolean][] = [
+  const rader: [Oere, Beloepsvurdering | null | undefined, Oere | null, boolean][] = [
     [
-      belop(krav.hovedkrav_belop) ?? NULL_ORE,
+      beloep(krav.hovedkrav_belop) ?? NULL_OERE,
       v.hovedkrav_vurdering,
-      belop(v.hovedkrav_godkjent_belop),
+      beloep(v.hovedkrav_godkjent_belop),
       p.hovedkrav,
     ],
   ];
   if (harRigg(krav))
-    rader.push([belop(krav.rigg_belop)!, v.rigg_vurdering, belop(v.rigg_godkjent_belop), p.rigg]);
+    rader.push([beloep(krav.rigg_belop)!, v.rigg_vurdering, beloep(v.rigg_godkjent_belop), p.rigg]);
   if (harProduktivitet(krav)) {
     rader.push([
-      belop(krav.produktivitet_belop)!,
+      beloep(krav.produktivitet_belop)!,
       v.produktivitet_vurdering,
-      belop(v.produktivitet_godkjent_belop),
+      beloep(v.produktivitet_godkjent_belop),
       p.produktivitet,
     ]);
   }
   return rader.map(([krevd, vurd, delvis, prekl]) => [
     krevd,
-    beregnGodkjentBelop(vurd, krevd, delvis),
+    beregnGodkjentBeloep(vurd, krevd, delvis),
     prekl,
   ]);
 }
 
-const sum = (verdier: Ore[]) => verdier.reduce((a, b) => a + b, NULL_ORE);
+const sum = (verdier: Oere[]) => verdier.reduce((a, b) => a + b, NULL_OERE);
 
 /** B-13 (24.09): «godkjent» bare når hele kravet er godkjent, til nærmeste krone. */
-function resultatAvBelop(krevd: Ore, godkjent: Ore, metodeendring: boolean): Vederlagsresultat {
-  if (godkjent === NULL_ORE) return 'avslatt';
+function resultatAvBeloep(krevd: Oere, godkjent: Oere, metodeendring: boolean): Vederlagsresultat {
+  if (godkjent === NULL_OERE) return 'avslatt';
   if (tilKrone(godkjent) >= tilKrone(krevd) && !metodeendring) return 'godkjent';
   return 'delvis_godkjent';
 }
@@ -161,7 +161,7 @@ function kontroller(v: Vederlagsvurdering, krav: Vederlagskrav): void {
   const feil: Record<string, string> = {};
   const post = (
     navn: string,
-    vurd: Belopsvurdering | null | undefined,
+    vurd: Beloepsvurdering | null | undefined,
     godkjent: Tall | null | undefined,
     krevd: Tall | null
   ) => {
@@ -178,9 +178,9 @@ function kontroller(v: Vederlagsvurdering, krav: Vederlagskrav): void {
         feil[`${navn}_godkjent_belop`] = 'er ikke et tall';
         return;
       }
-      const g = belop(godkjent as Tall)!;
-      if (g < NULL_ORE) feil[`${navn}_godkjent_belop`] = 'kan ikke være negativt';
-      else if (g > (belop(krevd) ?? NULL_ORE))
+      const g = beloep(godkjent as Tall)!;
+      if (g < NULL_OERE) feil[`${navn}_godkjent_belop`] = 'kan ikke være negativt';
+      else if (g > (beloep(krevd) ?? NULL_OERE))
         feil[`${navn}_godkjent_belop`] = 'er høyere enn det krevde beløpet';
     }
   };
@@ -194,13 +194,13 @@ function kontroller(v: Vederlagsvurdering, krav: Vederlagskrav): void {
       krav.produktivitet_belop
     );
   }
-  const sporsmal: [boolean, keyof Vederlagsvurdering, string][] = [
+  const spoersmaal: [boolean, keyof Vederlagsvurdering, string][] = [
     [kanPrekluderesEtter3412(krav.hovedkategori), 'hovedkrav_varslet_i_tide', '§ 34.1.2'],
     [harRigg(krav), 'rigg_varslet_i_tide', '§ 34.1.3'],
     [harProduktivitet(krav), 'produktivitet_varslet_i_tide', '§ 34.1.3'],
     [true, 'aksepterer_metode', '§ 34.2.2'],
   ];
-  for (const [gjelder, felt, hjemmel] of sporsmal) {
+  for (const [gjelder, felt, hjemmel] of spoersmaal) {
     if (gjelder && (v[felt] === null || v[felt] === undefined)) feil[felt] = `mangler (${hjemmel})`;
   }
   if (v.hold_tilbake && !kanHoldeTilbake(krav)) {
@@ -225,7 +225,7 @@ export function beregnVederlag(krav: Vederlagskrav, v: Vederlagsvurdering): Vede
   return {
     beregnings_resultat: v.hold_tilbake
       ? 'hold_tilbake'
-      : resultatAvBelop(totalKrevdInklPrekludert, totalGodkjent, metodeendring),
+      : resultatAvBeloep(totalKrevdInklPrekludert, totalGodkjent, metodeendring),
     total_godkjent_belop: totalGodkjent,
     total_krevd_belop: totalKrevdInklPrekludert,
     hovedkrav_godkjent_belop: perPost[0],
@@ -233,7 +233,7 @@ export function beregnVederlag(krav: Vederlagskrav, v: Vederlagsvurdering): Vede
     produktivitet_godkjent_belop: harProduktivitet(krav) ? perPost[perPost.length - 1] : null,
     subsidiaer_triggers: subsidiaerTriggers(v, krav, p),
     subsidiaer_resultat: visSubsidiaert
-      ? resultatAvBelop(totalKrevdInklPrekludert, totalGodkjentInklPrekludert, metodeendring)
+      ? resultatAvBeloep(totalKrevdInklPrekludert, totalGodkjentInklPrekludert, metodeendring)
       : null,
     subsidiaer_godkjent_belop: visSubsidiaert ? totalGodkjentInklPrekludert : null,
     preklusjon: p,

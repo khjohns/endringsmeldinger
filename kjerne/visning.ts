@@ -41,7 +41,7 @@ export interface Visning {
 }
 
 function status(u: Utledning): Statuskode {
-  if (!u.forstatt) return 'kan_ikke_utledes';
+  if (!u.forstaatt) return 'kan_ikke_utledes';
   if (u.grunnlagAvvist) return 'avsluttet_avslatt';
   if (u.spor.grunnlag.trukket) return 'avsluttet_trukket';
   if (kraveneErAvgjort(u)) return 'avsluttet_oppgjort';
@@ -106,7 +106,7 @@ export function visning(u: Utledning, regler: Regelsett): Visning {
   return {
     status: { kode, tekst: STATUSTEKST[kode] },
     spor: Object.fromEntries(
-      SPOR.map((s) => [s, { etiketter: u.forstatt ? etiketter(u, s, regler) : [] }])
+      SPOR.map((s) => [s, { etiketter: u.forstaatt ? etiketter(u, s, regler) : [] }])
     ) as Visning['spor'],
     opplysninger,
     journal: u.journal.map((h) => ({
@@ -115,6 +115,6 @@ export function visning(u: Utledning, regler: Regelsett): Visning {
       tolket: h.art !== 'ukjent' && !ikkeTolket.has(h.id),
     })),
     // MM-U2: mens saken stopper, må et varsel med frist sendes utenfor appen og registreres senere.
-    merknader: u.forstatt ? [] : ['varsel_med_frist_utenfor_appen'],
+    merknader: u.forstaatt ? [] : ['varsel_med_frist_utenfor_appen'],
   };
 }

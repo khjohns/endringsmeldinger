@@ -127,8 +127,8 @@
           "forventet": {
             "standpunkt.S-g1.ansvar": "hovedgrunn",
             "standpunkt.S-g1.rettidighet": "uten_virkning",
-            "subsidiaer_arsaker.vederlag": ["avslatt"],
-            "subsidiaer_arsaker.frist": ["avslatt"],
+            "subsidiaer_aarsaker.vederlag": ["avslatt"],
+            "subsidiaer_aarsaker.frist": ["avslatt"],
             "grunnlag_avklart": false
           }
         },
@@ -229,7 +229,7 @@
             "enighet.vederlag.kilde": "aksept",
             "enighet.vederlag.svar": "S-v2",
             "enighet.vederlag.holder": "D6",
-            "enighet.vederlag.utfall.belop": 70000,
+            "enighet.vederlag.utfall.beloep": 70000,
             "enighet.vederlag.regelversjon": "n",
             "enighet.vederlag.virkning": "betinget",
             "enighet.grunnlag": null,
@@ -269,7 +269,7 @@
           "forventet": {
             "avvist": false,
             "enighet.vederlag.svar": "S-v1",
-            "enighet.vederlag.utfall.belop": 60000,
+            "enighet.vederlag.utfall.beloep": 60000,
             "enighet.grunnlag": null,
             "gjeldende_svar.grunnlag": "S-g1",
             "enighet.frist.kilde": "sammenfall",
@@ -304,7 +304,7 @@
             "enighet.grunnlag.utfall.grunnlag": "avvist",
             "grunnlag_avvist": true,
             "enighet.vederlag.virkning": "uten_virkning",
-            "enighet.vederlag.utfall.belop": 70000,
+            "enighet.vederlag.utfall.beloep": 70000,
             "enighet.frist.virkning": "uten_virkning",
             "kan_inngaa_i_eo": false,
             "visning.status": "avsluttet_avslatt",
@@ -340,7 +340,7 @@
           "forventet": {
             "gjeldende_krav.grunnlag": "K-g2",
             "gjeldende_svar.grunnlag": null,
-            "subsidiaer_arsaker.vederlag": ["avslatt"],
+            "subsidiaer_aarsaker.vederlag": ["avslatt"],
             "enighet.vederlag.svar": "S-v2",
             "enighet.vederlag.virkning": "betinget",
             "enighet.frist.svar": "S-f1",
@@ -361,7 +361,7 @@
           "forventet": {
             "grunnlag_avklart": true,
             "enighet.vederlag.virkning": "virksom",
-            "enighet.vederlag.utfall.belop": 70000,
+            "enighet.vederlag.utfall.beloep": 70000,
             "enighet.vederlag.regelversjon": "n",
             "enighet.vederlag.holder": "D6",
             "enighet.frist.virkning": "virksom",
@@ -416,8 +416,8 @@
             "frafalt": true,
             "trukket.grunnlag": false,
             "trukket.vederlag": false,
-            "subsidiaer_arsaker.vederlag": [],
-            "subsidiaer_arsaker.frist": [],
+            "subsidiaer_aarsaker.vederlag": [],
+            "subsidiaer_aarsaker.frist": [],
             "visning.etiketter.grunnlag": { "inneholder": ["frafalt"], "mangler": ["trukket"] },
             "handlinger.BH": { "inneholder": ["svare:vederlag", "svare:frist"] },
             "enighet.grunnlag": null
@@ -447,7 +447,7 @@
           "etter": 2,
           "rolle": "mal",
           "kilde": ["V-FRAFALT", "GR-U3"],
-          "forventet": { "standpunkt.S-v1.belop": "hovedgrunn", "subsidiaer_arsaker.vederlag": [] }
+          "forventet": { "standpunkt.S-v1.beloep": "hovedgrunn", "subsidiaer_aarsaker.vederlag": [] }
         },
         {
           "etter": 4,
@@ -575,7 +575,7 @@
             "standpunkt.S-g1.ansvar": "subsidiaer",
             "beslutningsgrunnlag.S-g1.linje": "Prinsipalt prekludert (§ 32.2), subsidiært avslått.",
             "beslutningsgrunnlag.S-g1.regelversjon": "n",
-            "subsidiaer_arsaker.vederlag": ["prekludert", "avslatt"],
+            "subsidiaer_aarsaker.vederlag": ["prekludert", "avslatt"],
             "handlinger.TE": { "inneholder": ["godta:grunnlag"] }
           }
         },
@@ -622,7 +622,7 @@
             "beslutningsgrunnlag.S-g1.regelversjon": "n",
             "grunnlag_avklart": false,
             "grunnlag_avvist": false,
-            "subsidiaer_arsaker.vederlag": ["prekludert", "avslatt"],
+            "subsidiaer_aarsaker.vederlag": ["prekludert", "avslatt"],
             "visning.etiketter.grunnlag": { "inneholder": ["regel_endret_etter_brevet"] }
           }
         },
@@ -686,7 +686,7 @@
             "enighet.grunnlag.standpunkt.rettidighet": "hovedgrunn",
             "enighet.grunnlag.standpunkt.ansvar": "subsidiaer",
             "visning.status": "avsluttet_avslatt",
-            "subsidiaer_arsaker.vederlag": ["prekludert"]
+            "subsidiaer_aarsaker.vederlag": ["prekludert"]
           }
         },
         {
@@ -771,7 +771,7 @@
             "beslutningsgrunnlag.S-g2.regelversjon": "n+1",
             "beslutningsgrunnlag.S-g2.linje": "Avslått.",
             "beslutningsgrunnlag.S-g1.linje": "Prinsipalt prekludert (§ 32.2), subsidiært avslått.",
-            "subsidiaer_arsaker.vederlag": ["avslatt"],
+            "subsidiaer_aarsaker.vederlag": ["avslatt"],
             "visning.etiketter.grunnlag": { "mangler": ["regel_endret_etter_brevet"] },
             "handlinger.TE": { "inneholder": ["godta:grunnlag"] }
           }
@@ -1053,7 +1053,7 @@
           "rolle": "mal",
           "kilde": ["KA-U1", "KT-U1"],
           "forventet": {
-            "forstatt": true,
+            "forstaatt": true,
             "svar.S-v1.gjelder": "K-v1",
             "gjeldende_svar.vederlag": null,
             "handlinger.BH": { "inneholder": ["svare:vederlag"] },
@@ -1077,7 +1077,7 @@
           "etter": 4,
           "rolle": "mal",
           "kilde": ["KA-U1", "KA-U5"],
-          "forventet": { "avvist": false, "enighet.vederlag.svar": "S-v2", "enighet.vederlag.utfall.belop": 90000 }
+          "forventet": { "avvist": false, "enighet.vederlag.svar": "S-v2", "enighet.vederlag.utfall.beloep": 90000 }
         }
       ],
       "forventningsgrunnlag": "avklart_tolkning"
@@ -1120,7 +1120,7 @@
           "rolle": "mal",
           "kilde": ["MM-U2", "#304"],
           "forventet": {
-            "forstatt": false,
+            "forstaatt": false,
             "handlinger.TE": [],
             "handlinger.BH": [],
             "visning.status": "kan_ikke_utledes",
@@ -1181,7 +1181,7 @@
           "etter": 2,
           "rolle": "mal",
           "kilde": ["KT-U1", "#304"],
-          "forventet": { "forstatt": true, "gjeldende_svar.vederlag": "S-v2", "svar.S-v2.erstatter": "S-v1" }
+          "forventet": { "forstaatt": true, "gjeldende_svar.vederlag": "S-v2", "svar.S-v2.erstatter": "S-v1" }
         },
         {
           "etter": 2,
@@ -1195,7 +1195,7 @@
           "rolle": "mal",
           "kilde": ["MM-U2", "#304"],
           "forventet": {
-            "forstatt": false,
+            "forstaatt": false,
             "handlinger.TE": [],
             "handlinger.BH": [],
             "visning.status": "kan_ikke_utledes"
@@ -1240,7 +1240,7 @@
           "rolle": "mal",
           "kilde": ["MM-U2"],
           "forventet": {
-            "forstatt": false,
+            "forstaatt": false,
             "handlinger.TE": [],
             "handlinger.BH": [],
             "visning.status": "kan_ikke_utledes",
@@ -1319,8 +1319,8 @@
             "standpunkt.S-g1.rettidighet": "hovedgrunn",
             "grunnlag_avklart": false,
             "grunnlag_avvist": false,
-            "subsidiaer_arsaker.vederlag": ["prekludert"],
-            "subsidiaer_arsaker.frist": ["prekludert"],
+            "subsidiaer_aarsaker.vederlag": ["prekludert"],
+            "subsidiaer_aarsaker.frist": ["prekludert"],
             "visning.etiketter.grunnlag": { "inneholder": ["regel_endret_etter_brevet"] },
             "visning.etiketter.vederlag": { "inneholder": ["enige_betinget", "subsidiaert"] },
             "enighet.vederlag.virkning": "betinget",
@@ -1348,9 +1348,9 @@
             "grunnlag_avklart": true,
             "enighet.grunnlag.kilde": "sammenfall",
             "enighet.grunnlag.holder": "S-g2",
-            "subsidiaer_arsaker.vederlag": [],
+            "subsidiaer_aarsaker.vederlag": [],
             "enighet.vederlag.virkning": "virksom",
-            "enighet.vederlag.utfall.belop": 60000,
+            "enighet.vederlag.utfall.beloep": 60000,
             "enighet.vederlag.holder": "D5",
             "enighet.frist.virkning": "virksom",
             "enighet.frist.utfall.dager": 20,
@@ -1446,7 +1446,7 @@
           "rolle": "mal",
           "kilde": ["MM-U2", "#304"],
           "forventet": {
-            "forstatt": false,
+            "forstaatt": false,
             "handlinger.TE": [],
             "handlinger.BH": [],
             "visning.journal.S-v2": "ikke_tolket"
@@ -1500,7 +1500,7 @@
           "rolle": "mal",
           "kilde": ["MM-U2", "#304"],
           "forventet": {
-            "forstatt": false,
+            "forstaatt": false,
             "handlinger.TE": [],
             "handlinger.BH": [],
             "visning.status": "kan_ikke_utledes"
@@ -1625,7 +1625,7 @@
           "kilde": ["KA-U7", "KA-U1", "KA-U5"],
           "forventet": {
             "avvist": false,
-            "enighet.vederlag.utfall.belop": 50000,
+            "enighet.vederlag.utfall.beloep": 50000,
             "enighet.vederlag.holder": "D5",
             "enighet.vederlag.virkning": "virksom",
             "handlinger.TE": { "mangler": ["krav:vederlag", "godta:vederlag"] }
@@ -1663,7 +1663,7 @@
           "etter": 3,
           "rolle": "mal",
           "kilde": ["KA-U7", "KA-U1"],
-          "forventet": { "avvist": false, "enighet.vederlag.utfall.belop": 0, "enighet.vederlag.kilde": "aksept" }
+          "forventet": { "avvist": false, "enighet.vederlag.utfall.beloep": 0, "enighet.vederlag.kilde": "aksept" }
         },
         {
           "etter": 3,

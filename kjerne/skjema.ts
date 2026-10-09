@@ -1,13 +1,13 @@
 /**
  * Kontrollen av formen på en kommando mot et JSON-skjema. Validatoren kan bare
- * nøkkelordene i `NOKKELORD`. `$ref` løses mot `rot`.
+ * nøkkelordene i `NOEKKELORD`. `$ref` løses mot `rot`.
  *
  * JSON skiller ikke 5 fra 5.0 i JavaScript, så `integer` godtar 5.0.
  */
 
 export type Skjema = Record<string, unknown>;
 
-export const NOKKELORD = new Set([
+export const NOEKKELORD = new Set([
   'type',
   'enum',
   'const',
