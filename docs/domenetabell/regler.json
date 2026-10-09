@@ -410,6 +410,27 @@
       "dato": "2026-10-09",
       "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u6",
       "radetikett": "KA-U6: TE kan trekke et krav i et spor der partene er enige"
+    },
+    {
+      "id": "MM-U9",
+      "type": "vedtak",
+      "dato": "2026-10-09",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u9",
+      "radetikett": "MM-U9: et sendt brev beholder virkningen det hadde da det ble sendt"
+    },
+    {
+      "id": "GR-U10",
+      "type": "vedtak",
+      "dato": "2026-10-09",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u10",
+      "radetikett": "GR-U10: har byggherren godkjent grunnlaget uten å påberope preklusjon"
+    },
+    {
+      "id": "KA-U7",
+      "type": "vedtak",
+      "dato": "2026-10-09",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u7",
+      "radetikett": "KA-U7: en enighet binder begge parter"
     }
   ],
   "rader": [
@@ -443,40 +464,43 @@
     {
       "id": "KA-03",
       "tilfelle": "TE sender en ny kravversjon etter et fullt godkjent svar.",
-      "forventet": "Sporet venter på svar. Saken blir ikke `OMFORENT` og EO kan ikke utstedes før byggherren har svart.",
-      "bh_standpunkt": "Ikke vurdert for den nye versjonen.",
-      "rettslig_virkning": "Godkjenningen gjaldt forrige versjon. Den nye versjonen er ikke avgjort.",
-      "rettidighet": "Byggherrens svar på den nye versjonen: ikke vurdert.",
+      "forventet": "Den nye kravversjonen avvises, og journalen er uendret. Svaret godkjente hele kravet, så partene er enige ved sammenfall, og enigheten binder begge parter. TE kan trekke kravet (KA-26). Et krav på nytt grunnlag går i en ny sak.",
+      "bh_standpunkt": "Godkjent, for kravversjonen svaret gjaldt.",
+      "rettslig_virkning": "Enigheten står.",
+      "rettidighet": "—",
       "tidsakse": "registrering",
       "kilder": [
-        "V-SK02-SK03",
-        "V-KRAVVERSJON"
+        "KA-U7",
+        "GR-U7",
+        "KA-U6"
       ],
       "tolkningsstatus": "avklart_tolkning"
     },
     {
       "id": "KA-04",
       "tilfelle": "TE sender en ny kravversjon etter å ha godtatt svaret.",
-      "forventet": "Aksepten faller, og sporet venter på svar.",
-      "bh_standpunkt": "Ikke vurdert for den nye versjonen.",
-      "rettslig_virkning": "Enigheten gjaldt forrige versjon.",
-      "rettidighet": "Byggherrens svar på den nye versjonen: ikke vurdert.",
+      "forventet": "Den nye kravversjonen avvises, og journalen er uendret. Aksepten og enigheten står.",
+      "bh_standpunkt": "Svaret TE har godtatt.",
+      "rettslig_virkning": "Enigheten binder begge parter.",
+      "rettidighet": "—",
       "tidsakse": "registrering",
       "kilder": [
-        "V-SK02-SK03"
+        "KA-U7",
+        "KA-U1"
       ],
       "tolkningsstatus": "avklart_tolkning"
     },
     {
       "id": "KA-05",
       "tilfelle": "TE sender en ny kravversjon etter å ha godtatt et avslag.",
-      "forventet": "Aksepten faller, og sporet venter på svar.",
-      "bh_standpunkt": "Ikke vurdert for den nye versjonen.",
-      "rettslig_virkning": "Det godtatte avslaget gjaldt forrige versjon.",
-      "rettidighet": "Byggherrens svar på den nye versjonen: ikke vurdert.",
+      "forventet": "Den nye kravversjonen avvises, og journalen er uendret. Et godtatt avslag er en enighet på byggherrens premisser.",
+      "bh_standpunkt": "Avslaget TE har godtatt.",
+      "rettslig_virkning": "Enigheten binder begge parter.",
+      "rettidighet": "—",
       "tidsakse": "registrering",
       "kilder": [
-        "V-SK02-SK03"
+        "KA-U7",
+        "KA-U1"
       ],
       "tolkningsstatus": "avklart_tolkning"
     },
@@ -596,14 +620,14 @@
     },
     {
       "id": "KA-13",
-      "tilfelle": "TE har godtatt et svar, sender en ny kravversjon og godtar byggherrens svar på den.",
-      "forventet": "Den nye aksepten godtas.",
-      "bh_standpunkt": "Svaret på den nye versjonen.",
-      "rettslig_virkning": "Enighet om den nye versjonen.",
+      "tilfelle": "TE har godtatt et svar og sender en ny kravversjon for å få et nytt svar å godta.",
+      "forventet": "Den nye kravversjonen avvises (KA-04), så det kommer ikke noe nytt svar. Enigheten om kravversjonen TE godtok svaret på, står.",
+      "bh_standpunkt": "Svaret TE har godtatt.",
+      "rettslig_virkning": "Enigheten står.",
       "rettidighet": "—",
       "tidsakse": "registrering",
       "kilder": [
-        "V-SK02-SK03",
+        "KA-U7",
         "KA-U1"
       ],
       "tolkningsstatus": "avklart_tolkning"
@@ -770,15 +794,16 @@
     {
       "id": "KA-23",
       "tilfelle": "En regelendring gir et standpunkt i byggherrens sendte svar en annen virkning før TE har godtatt det.",
-      "forventet": "Dagens utledning av svaret følger de nye reglene, og svaret merkes som avvikende fra brevet. Brevet og beslutningsgrunnlaget står uendret. TEs aksept avvises, og journalen er uendret; byggherren har revisjon som ventende handling. Et svar der brevet stemmer med dagens utledning, kan godtas, også når regelversjonen er nyere enn da svaret ble sendt. En aksept med en annen regelversjon eller et annet enighetsgrunnlag enn serverens avvises.",
-      "bh_standpunkt": "Svaret slik brevet uttrykte det. Dagens utledning kan avvike.",
-      "rettslig_virkning": "TE godtar hele svaret slik brevet uttrykker det.",
+      "forventet": "Brevet beholder virkningen det hadde da det ble sendt: standpunktene, beslutningsgrunnlaget og de lagrede radene står uendret. Dagens regler vises som en merknad som oppfordrer byggherren til å revidere svaret. TE kan godta svaret slik brevet uttrykker det, og enigheten får brevets standpunkter og regelversjon. Reviderer byggherren, får det nye svaret beslutningsgrunnlag etter gjeldende regler. En aksept med en annen regelversjon eller et annet enighetsgrunnlag enn serverens avvises.",
+      "bh_standpunkt": "Svaret slik brevet uttrykte det.",
+      "rettslig_virkning": "Brevet har virkningen det hadde da det ble sendt. Nye regler gjelder nye brev.",
       "rettidighet": "—",
       "tidsakse": "registrering",
       "kilder": [
-        "MM-U4",
+        "MM-U9",
         "MM-U3",
-        "V-B13-REGELVERSJON"
+        "V-B13-REGELVERSJON",
+        "GR-U4"
       ],
       "tolkningsstatus": "avklart_tolkning"
     },
@@ -798,15 +823,16 @@
     {
       "id": "KA-25",
       "tilfelle": "Byggherren har svart på grunnlaget med preklusjon etter § 32.2 og subsidiært godkjent, og partene er enige om beløp og dager på vilkår av at grunnlaget avklares. En regelendring gjør at § 32.2 ikke gjelder kategorien før TE har godtatt svaret på grunnlaget.",
-      "forventet": "Svaret merkes som avvikende fra brevet, og grunnlaget er uavklart til byggherren svarer på nytt. Enighetene forblir betinget, saken avsluttes ikke, og byggherren kan revidere svaret. Når byggherren godkjenner grunnlaget på nytt, blir enighetene virksomme med uendret innhold.",
+      "forventet": "Brevet beholder virkningen: grunnlaget er prekludert etter brevet og ikke avklart. Enighetene forblir betinget, og saken kan ikke inngå i en endringsordre. Visningen viser at regelen er endret, og byggherren kan revidere svaret. Når byggherren godkjenner grunnlaget på nytt, er partene enige om grunnlaget ved sammenfall, og enighetene blir virksomme med uendret innhold.",
       "bh_standpunkt": "Svaret slik brevet uttrykte det: prinsipalt prekludert, subsidiært godkjent. Dagens utledning avviker.",
-      "rettslig_virkning": "Byggherren bindes ikke til et utfall brevet ikke uttrykte.",
-      "rettidighet": "Byggherrens vurdering av grunnlagsvarselet: for sent. Uten virkning etter regelendringen.",
+      "rettslig_virkning": "Brevet har virkningen det hadde da det ble sendt. Nye regler gjelder nye brev.",
+      "rettidighet": "Byggherrens vurdering av grunnlagsvarselet: for sent, med virkning etter brevet.",
       "tidsakse": "registrering",
       "kilder": [
-        "MM-U5",
-        "MM-U4",
-        "GR-U7"
+        "MM-U9",
+        "GR-U7",
+        "GR-U10",
+        "GR-U4"
       ],
       "tolkningsstatus": "avklart_tolkning"
     },
@@ -1194,6 +1220,21 @@
       "tolkningsstatus": "avklart_tolkning"
     },
     {
+      "id": "GR-27",
+      "tilfelle": "Byggherren har godkjent grunnlaget uten å påberope preklusjon. Byggherren vil deretter revidere svaret, eller TE sender en ny kravversjon av grunnlaget.",
+      "forventet": "Partene er enige ved sammenfall. Revisjonen og den nye kravversjonen avvises, og journalen er uendret. TE kan ikke godta svaret (GR-25). Et frafall er ikke enighet og kan revideres (GR-26).",
+      "bh_standpunkt": "Godkjent grunnlag, varslet i tide.",
+      "rettslig_virkning": "Byggherren er bundet. Etter § 32.3 a er svaret en endringsordre.",
+      "rettidighet": "Byggherrens § 32.2-vurdering: i tide.",
+      "tidsakse": "registrering",
+      "kilder": [
+        "GR-U10",
+        "GR-U2",
+        "KA-U7"
+      ],
+      "tolkningsstatus": "avklart_tolkning"
+    },
+    {
       "id": "EO-01",
       "tilfelle": "Byggherren utsteder en endringsordre i en KOE-sak som er `OMFORENT` (`eo_utstedt` i KOE-saken).",
       "forventet": "Utstedelsen avvises, og journalen er uendret. Sporene står med de avtalte beløpene og dagene.",
@@ -1514,6 +1555,20 @@
         "EO-U4"
       ],
       "tolkningsstatus": "arbeidshypotese"
+    },
+    {
+      "id": "EO-25",
+      "tilfelle": "Byggherren har godkjent grunnlaget og hele fristkravet, og TE trekker vederlagskravet.",
+      "forventet": "Saken kan inngå i en endringsordre. Et trukket spor teller som avgjort, og fristen er godkjent.",
+      "bh_standpunkt": "Godkjent grunnlag og frist.",
+      "rettslig_virkning": "Kravene er avgjort.",
+      "rettidighet": "—",
+      "tidsakse": "registrering",
+      "kilder": [
+        "EO-U2",
+        "KA-U6"
+      ],
+      "tolkningsstatus": "avklart_tolkning"
     }
   ]
 }

@@ -1,7 +1,8 @@
 /**
- * Begrepene i målmodellen (docs/forslag-maalmodell-2026-10-09.md, avsnitt 2):
- * dokument, svar og utsagn med `gjelder`, `erstatter` og bestridelse, og
- * enighetsgrunnlaget. Bare det forløp A–E trenger (#304).
+ * Begrepene i kjernen (modellforslaget, avsnitt 2, og domenetabellen): dokument,
+ * svar og utsagn med `gjelder`, `erstatter` og bestridelse, brevets
+ * beslutningsgrunnlag og enighetsgrunnlaget. Bare det forløp A–E trenger
+ * (#304, #308).
  */
 
 import type { Fristresultat, Grunnlagsresultat, Vederlagsresultat } from './regler/typer.ts';
@@ -37,9 +38,9 @@ export type Utsagn =
       id: string;
       art: 'aksept';
       gjelder: string;
-      regelversjon: number | null;
-      /** `undefined` når aksepten er skrevet uten feltet, og kompatibilitetsleseren må utlede det. */
-      enighetsgrunnlag: Enighetsgrunnlag | undefined;
+      /** Regelversjonen klienten forhåndsviste aksepten med (B-13). */
+      regelversjon: number;
+      enighetsgrunnlag: Enighetsgrunnlag;
     }
   | { id: string; art: 'bestridelse'; gjelder: string; hva: 'sendt' | 'mottatt' };
 
@@ -60,17 +61,13 @@ export interface Svar {
   gjelder: string;
   /** Svaret denne revisjonen erstatter, på samme kravversjon. */
   erstatter: string | null;
-  regelversjon: number | null;
   utsagn: Utsagn[];
   /** Serverens utregning etter B-13, slik den er lagret. */
   utregning: Record<string, unknown>;
-  beslutningsgrunnlag: Beslutningsgrunnlag | null;
-  /**
-   * Enighetsgrunnlaget svaret skapte ved sammenfall. `null` når svaret ikke
-   * godkjente hele kravet; `undefined` når svaret er skrevet uten feltet, og
-   * kompatibilitetsleseren må utlede det.
-   */
-  enighetsgrunnlag: Enighetsgrunnlag | null | undefined;
+  /** Brevet slik det ble sendt. Virkningen leses herfra (MM-U9). */
+  beslutningsgrunnlag: Beslutningsgrunnlag;
+  /** Enighetsgrunnlaget svaret skapte ved sammenfall (GR-U7, GR-U10), ellers `null`. */
+  enighetsgrunnlag: Enighetsgrunnlag | null;
 }
 
 export interface Dokument {
@@ -108,16 +105,21 @@ export type Domenehendelse =
   | { art: 'dokument'; id: string; versjon: number; type: string; dokument: Dokument }
   | { art: 'ukjent'; id: string; versjon: number; type: string; grunn: string };
 
-export type Virkning = 'hovedgrunn' | 'subsidiaer' | 'uten_virkning' | 'uavklart';
+/**
+ * Virkningen et utsagn har i brevet: grunnen svaret hviler på, et subsidiært
+ * standpunkt eller ingen virkning. Om et standpunkt er uavklart, er ikke en
+ * virkning, men en relasjon som utledes ved lesing (MM-U8).
+ */
+export type Virkning = 'hovedgrunn' | 'subsidiaer' | 'uten_virkning';
 
-/** Virkningen ett utsagn i et svar har etter et regelsett. */
+/** Virkningen ett utsagn i et svar har etter regelsettet brevet ble regnet med. */
 export interface Standpunkt {
   utsagn: string;
   art: Utsagnsart;
   virkning: Virkning;
 }
 
-/** Utledningen frosset da brevet ble sendt (2.2). */
+/** Utledningen frosset da brevet ble sendt (2.2, MM-U9). */
 export interface Beslutningsgrunnlag {
   regelversjon: number;
   standpunkter: Standpunkt[];
@@ -138,10 +140,9 @@ export interface Enighetsgrunnlag {
   regelversjon: number;
   standpunkter: Standpunkt[];
   utfall: Utfall;
-  vilkar: 'grunnlag_avklart' | null;
+  /** Vilkåret for at enigheten får virkning: grunnlaget er avklart (GR-U7). Ingen for grunnlaget. */
+  vilkaar: 'grunnlag_avklart' | null;
 }
-
-export type Enighetsvirkning = 'betinget' | 'virksom' | 'uten_virkning';
 
 export interface Avvisning {
   regel: string;

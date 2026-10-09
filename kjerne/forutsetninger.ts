@@ -1,15 +1,15 @@
 /**
  * Forutsetningene for en kommando: det som bare avhenger av utledningen og
- * parten, ikke av nyttelasten (2.6 i modellforslaget). Regelkodene er de
- * API-et har i dag der regelen finnes. `CASE_CLOSED` erstatter
- * `CASE_NOT_CLOSED`, som leste samlet status.
+ * parten, ikke av nyttelasten (2.6 i modellforslaget). Hver forutsetning leser
+ * et predikat av utsagnene og relasjonene, med vedtaket ved siden av; ingen
+ * leser en status eller en verdi som oppsummerer et spor eller saken.
+ * Regelkodene er norske; tabellen over gamle og nye navn står i domenetabellen.
  *
  * `handlinger.ts` uttrykker de samme predikatene som tilbud. At de to er like,
  * prøves over de genererte forløpene (INV-MM-1).
  */
 
-import { uavklart } from './standpunkt.ts';
-import type { Utledning } from './utled.ts';
+import { kraveneErAvgjort, type Utledning } from './utled.ts';
 import type { Avvisning, Part, Spor } from './typer.ts';
 
 export type Handlingsnokkel =
@@ -35,90 +35,86 @@ export const avvis = (regel: string, melding: string): Avvisning => ({ regel, me
 export function forutsetninger(h: Handlingsnokkel, part: Part, u: Utledning): Avvisning | null {
   // MM-U2: en sak kjernen ikke forstår, tar ikke imot bindende kommandoer fra noen part.
   if (!u.forstatt)
-    return avvis('CASE_NOT_UNDERSTOOD', 'Saken har hendelser denne versjonen ikke kan tolke.');
+    return avvis('SAK_IKKE_FORSTAATT', 'Saken har hendelser denne versjonen ikke kan tolke.');
   const eier = PART[h.type];
-  if (eier !== null && eier !== part)
-    return avvis('ROLE_CHECK', `Kun ${eier} kan utføre denne handlingen`);
-  // MM-U7: en bestridelse endrer ikke noe utfall og kan registreres også i en avsluttet sak.
+  if (eier !== null && eier !== part) return avvis('FEIL_PART', `Bare ${eier} kan gjøre dette.`);
+  // MM-U7: en bestridelse endrer ikke noe utfall og kan registreres når som helst.
   if (h.type === 'bestride') {
     const o = u.opplysninger.find((x) => x.opplysning.id === h.gjelder);
     if (!o || o.opplysning.oppgittAv === part)
-      return avvis('NOTHING_TO_DISPUTE', 'Det finnes ingen opplysning fra motparten å bestride.');
+      return avvis(
+        'INGENTING_AA_BESTRIDE',
+        'Det finnes ingen opplysning fra motparten å bestride.'
+      );
     if (o.bestridelser.some((b) => b.part === part))
-      return avvis('NOTHING_TO_DISPUTE', 'Opplysningen er allerede bestridt.');
+      return avvis('INGENTING_AA_BESTRIDE', 'Opplysningen er allerede bestridt.');
     return null;
   }
-  if (u.avsluttet) return avvis('CASE_CLOSED', 'Saken er avsluttet og kan ikke endres');
+  // SK-01, #213: når partene er enige om at grunnlaget er avvist, faller kravene.
+  if (u.grunnlagAvvist)
+    return avvis('GRUNNLAG_AVVIST', 'Partene er enige om at grunnlaget er avvist (SK-01).');
+  // KA-U6, MM-U7, GR-U3, EO-U2: når kravene er avgjort, kan ingen part endre utfallet.
+  if (kraveneErAvgjort(u))
+    return avvis(
+      'KRAVENE_AVGJORT',
+      'Grunnlaget er avklart, og hvert krav er avtalt eller trukket.'
+    );
 
   const s = u.spor[h.spor];
   const grunnlagSendt = u.spor.grunnlag.gjeldendeKrav !== null;
   switch (h.type) {
     case 'krav':
-      if (s.trukket) return avvis('TRACK_WITHDRAWN', 'Kravet er trukket og kan ikke tas opp igjen');
-      if (h.spor === 'grunnlag' && u.grunnlagLaast)
-        return avvis('NOT_LOCKED', 'Grunnlag er låst og kan ikke endres');
+      // Vedtaket om trukket krav 05.10, GR-U5.
+      if (s.trukket) return avvis('KRAV_TRUKKET', 'Kravet er trukket og kan ikke tas opp igjen.');
+      // KA-U7, GR-U10: en enighet binder begge parter.
+      if (s.enighet)
+        return avvis('ENIGHET_I_SPORET', 'Partene er enige om svaret. Kravet kan ikke endres.');
       if (h.spor !== 'grunnlag' && !grunnlagSendt)
-        return avvis('GRUNNLAG_REQUIRED', 'Grunnlag må være sendt før du kan sende krav');
+        return avvis('GRUNNLAG_IKKE_SENDT', 'Grunnlaget må være sendt før du kan sende krav.');
       return null;
     case 'trekke':
-      if (!s.gjeldendeKrav) return avvis('TRACK_SENT', `Ingen krav i ${h.spor} å trekke`);
-      if (s.trukket) return avvis('TRACK_WITHDRAWN', 'Kravet er allerede trukket');
+      if (!s.gjeldendeKrav) return avvis('INGEN_KRAV', `Det er ikke sendt noe krav om ${h.spor}.`);
+      if (s.trukket) return avvis('KRAV_TRUKKET', 'Kravet er allerede trukket.');
       return null;
     case 'varsle':
       if (!grunnlagSendt)
-        return avvis('GRUNNLAG_REQUIRED', 'Grunnlag må være sendt før du kan varsle');
-      if (s.trukket) return avvis('TRACK_WITHDRAWN', 'Kravet er trukket');
+        return avvis('GRUNNLAG_IKKE_SENDT', 'Grunnlaget må være sendt før du kan varsle.');
+      if (s.trukket) return avvis('KRAV_TRUKKET', 'Kravet er trukket.');
       // SK-12 og MM-U1: et registrert varsel er låst. Et utledet varsel er ikke registrert.
       if (s.varsel)
-        return avvis('NOTICE_REGISTERED', 'Varselet er registrert og kan ikke flyttes (SK-12).');
+        return avvis('VARSEL_REGISTRERT', 'Varselet er registrert og kan ikke flyttes (SK-12).');
       return null;
     case 'svare':
-      if (!s.gjeldendeKrav)
-        return avvis('TRACK_SENT', `Kan ikke besvare ${h.spor} som ikke er sendt`);
-      if (s.trukket) return avvis('TRACK_WITHDRAWN', 'Kravet er trukket');
+      if (!s.gjeldendeKrav) return avvis('INGEN_KRAV', `Det er ikke sendt noe krav om ${h.spor}.`);
+      if (s.trukket) return avvis('KRAV_TRUKKET', 'Kravet er trukket.');
       if (s.gjeldendeSvar)
-        return avvis(
-          'NOT_ALREADY_RESPONDED',
-          'Du har allerede svart på denne versjonen. Revider svaret.'
-        );
+        return avvis('ALLEREDE_SVART', 'Du har allerede svart på denne versjonen. Revider svaret.');
       return null;
     case 'revidere':
-      if (s.trukket) return avvis('TRACK_WITHDRAWN', 'Kravet er trukket');
+      if (s.trukket) return avvis('KRAV_TRUKKET', 'Kravet er trukket.');
       if (!s.gjeldendeSvar)
-        return avvis('PREVIOUS_RESPONSE', 'Ingen tidligere respons på gjeldende krav å revidere.');
-      // SK-03 og GR-U7: en enighet låser svaret, også et svar som godkjente hele kravet (#298).
+        return avvis('INGEN_SVAR', 'Det finnes ikke noe svar på gjeldende krav å revidere.');
+      // SK-03, GR-U7, GR-U10: en enighet låser svaret, også ved sammenfall.
       if (s.enighet)
-        return avvis('RESPONSE_ACCEPTED', 'Partene er enige om svaret. Det kan ikke revideres.');
+        return avvis('ENIGHET_I_SPORET', 'Partene er enige om svaret. Det kan ikke revideres.');
       return null;
     case 'godta':
-      if (s.trukket) return avvis('TRACK_WITHDRAWN', 'Kravet er trukket');
+      if (s.trukket) return avvis('KRAV_TRUKKET', 'Kravet er trukket.');
       if (!s.gjeldendeSvar)
-        return avvis('CURRENT_RESPONSE', 'Aksepten må gjelde gjeldende svar i dette sporet.');
-      // GR-U8: partene er alt enige, også når byggherren har godkjent grunnlaget og det er låst (GR-U2).
-      if (s.enighet || (h.spor === 'grunnlag' && u.grunnlagLaast))
-        return avvis('NOT_ALREADY_ACCEPTED', `Partene er allerede enige om svaret på ${h.spor}`);
+        return avvis('IKKE_GJELDENDE_SVAR', 'Aksepten må gjelde gjeldende svar i dette sporet.');
+      // GR-U8, GR-U10: partene er alt enige, også når byggherren har godkjent hele kravet.
+      if (s.enighet)
+        return avvis('ENIGHET_I_SPORET', `Partene er allerede enige om svaret på ${h.spor}.`);
       // GR-U9: frafall er ikke enighet, og en aksept ville låst frafallet for revisjon.
       if (h.spor === 'grunnlag' && u.frafalt)
         return avvis(
-          'WAIVER_NOT_ACCEPTABLE',
+          'FRAFALL_KAN_IKKE_GODTAS',
           'Et frafall er byggherrens standpunkt og kan ikke godtas.'
         );
-      // MM-U6: uten lagret beslutningsgrunnlag kan ikke avviket avgjøres, og aksepten avvises.
-      if (u.svar[s.gjeldendeSvar.id].avvik === null)
+      // MM-U8: en preklusjon som gjaldt et annet varsel enn det registrerte, er uavklart.
+      if (u.svar[s.gjeldendeSvar.id].uavklart.length)
         return avvis(
-          'DECISION_BASIS_MISSING',
-          'Svaret har ikke lagret beslutningsgrunnlag. Byggherren må svare på nytt.'
-        );
-      // MM-U4.
-      if (u.svar[s.gjeldendeSvar.id].avvik === true)
-        return avvis(
-          'RESPONSE_DEVIATES',
-          'Brevet avviker fra dagens utledning. Byggherren må svare på nytt.'
-        );
-      // Et uavklart standpunkt kan ikke fryses i et enighetsgrunnlag (MM-U1, MM-U3).
-      if (uavklart(u.svar[s.gjeldendeSvar.id].standpunkter))
-        return avvis(
-          'RESPONSE_UNRESOLVED',
+          'STANDPUNKT_UAVKLART',
           'Et standpunkt i svaret er uavklart. Byggherren må ta stilling først.'
         );
       return null;

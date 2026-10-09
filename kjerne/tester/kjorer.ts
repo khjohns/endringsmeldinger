@@ -10,8 +10,8 @@ import { handlinger } from '../handlinger.ts';
 import { likeVerdier } from '../nyttelast.ts';
 import { GJELDENDE_REGLER, type Regelsett } from '../regler/regelsett.ts';
 import { KJERNE, type Kjerne } from '../versjon.ts';
-import { utledJournal, vurder, type Kontekst, type Utfall } from '../skriving.ts';
-import type { Utledning } from '../utled.ts';
+import { frysBrev, utledJournal, vurder, type Kontekst, type Utfall } from '../skriving.ts';
+import { enighetensVirkning, kanInngaaIEo, kraveneErAvgjort, type Utledning } from '../utled.ts';
 import { visning } from '../visning.ts';
 import type { Bane } from './bane.ts';
 import {
@@ -121,6 +121,9 @@ export class Kjoring {
         aktor_id: this.bane.aktor('BH'),
         aktor_team_id: 'team-bh',
       });
+      // Registrert korrespondanse får brevet frosset som et svar fra kjernen (MM-U9). En rad
+      // kjernen ikke forstår, lagres som den er, så forløp E kan prøve at saken stopper.
+      frysBrev(journal, [rad], this.kjerne);
       await this.bane.skriv([rad], versjon);
       this.navn.sett(h.navn, rad.event_id);
       this.sist = { utfall: { godtatt: true, hendelser: [rad] }, nye: 1 };
@@ -173,8 +176,8 @@ export function les(sti: string, u: Utledning, k: Kjoring): unknown {
     }
     case 'standpunkt':
       return svar().standpunkter.find((p) => p.art === hale[1])?.virkning ?? null;
-    case 'avviker':
-      return svar().avvik;
+    case 'uavklart':
+      return svar().uavklart.map((id) => svar().svar.utsagn.find((x) => x.id === id)?.art);
     case 'beslutningsgrunnlag':
       return (
         (svar().svar.beslutningsgrunnlag as unknown as Record<string, unknown> | null)?.[hale[1]] ??
@@ -188,7 +191,8 @@ export function les(sti: string, u: Utledning, k: Kjoring): unknown {
       if (felt === 'standpunkt')
         return e.grunnlag.standpunkter.find((p) => p.art === hale[2])?.virkning ?? null;
       if (felt === 'svar' || felt === 'kilde' || felt === 'regelversjon') return e.grunnlag[felt];
-      return e[felt as 'holder' | 'utledet' | 'virkning'];
+      if (felt === 'virkning') return enighetensVirkning(u, hale[0] as 'grunnlag');
+      return e[felt as 'holder'];
     }
     case 'subsidiaer_arsaker':
       return u.spor[hale[0] as 'vederlag'].subsidiaer;
@@ -198,14 +202,12 @@ export function les(sti: string, u: Utledning, k: Kjoring): unknown {
       return u.grunnlagAvvist;
     case 'frafalt':
       return u.frafalt;
-    case 'avsluttet':
-      return u.avsluttet;
+    case 'kravene_avgjort':
+      return kraveneErAvgjort(u);
     case 'kan_inngaa_i_eo':
-      return u.kanInngaaIEo;
+      return kanInngaaIEo(u);
     case 'trukket':
       return u.spor[hale[0] as 'grunnlag'].trukket;
-    case 'oppgjort':
-      return u.oppgjort[hale[0] as 'vederlag'];
     case 'varsel':
       return u.spor.frist.varsel?.dokument ?? null;
     case 'opplysning': {
@@ -218,7 +220,7 @@ export function les(sti: string, u: Utledning, k: Kjoring): unknown {
     case 'handlinger':
       return handlinger(u, hale[0] as 'TE');
     case 'visning': {
-      const v = visning(u);
+      const v = visning(u, k.kjerne.regler);
       if (hale[0] === 'status') return v.status.kode;
       if (hale[0] === 'etiketter') return v.spor[hale[1] as 'grunnlag'].etiketter;
       if (hale[0] === 'opplysning') return v.opplysninger[id(hale[1])] ?? null;

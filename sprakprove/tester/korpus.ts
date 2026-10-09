@@ -44,8 +44,18 @@ export const KORPUS = bevis as unknown as {
   forlop: Forlop[];
 };
 
-/** Forløpene der alle radene er i kontraktens flyt (`x-rader`). */
-export const FLYTEN = KORPUS.forlop.filter((f) => f.rader.every((r) => RADER.includes(r)));
+/**
+ * Forløpene i flyten som prøvekoden ikke er skrevet om etter: KA-U7 (09.10) avviser
+ * en ny kravversjon i et spor med enighet, mens prøvekoden lar den oppheve enigheten
+ * (SK-02). Kjernen i `kjerne/` bygger KA-U7 (#308); prøvekoden rettes ikke (B-14).
+ * Testene kjører dem med `it.fails`, så en retting blir synlig.
+ */
+export const FORELDET_I_PROVEN = ['F-KA-03', 'F-KA-04', 'F-KA-05', 'F-KA-13'];
+
+const iFlyten = (f: Forlop) => f.rader.every((r) => RADER.includes(r));
+/** Forløpene der alle radene er i kontraktens flyt (`x-rader`), utenom de foreldede. */
+export const FLYTEN = KORPUS.forlop.filter((f) => iFlyten(f) && !FORELDET_I_PROVEN.includes(f.id));
+export const FORELDET = KORPUS.forlop.filter((f) => iFlyten(f) && FORELDET_I_PROVEN.includes(f.id));
 
 export class Forutsetning extends Error {}
 

@@ -190,7 +190,7 @@ export function kommandoFor(h: Handling, u: Utledning, regler: Regelsett, navn: 
         typeof h.svar === 'string'
           ? navn.id(h.svar)
           : (u.spor[spor].gjeldendeSvar?.id ?? u.spor[spor].svar.at(-1)?.id ?? 'ingen');
-      const forhandsvist = forhandsvisAksept(u, svar, regler);
+      const forhandsvist = forhandsvisAksept(u, svar);
       return {
         type: 'aksept',
         spor,

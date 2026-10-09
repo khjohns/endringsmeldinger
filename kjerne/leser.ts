@@ -1,10 +1,13 @@
 /**
- * Kompatibilitetsleseren: dagens lagrede hendelser i modellens form (2.3 i
- * modellforslaget). Lagringsformatet er ikke valgt (B-10, #273), så leseren tar
- * radene slik `hendelse` har dem i dag. Feltene prøven legger til i `data`
- * (`dokument_id`, `beslutningsgrunnlag`, `enighetsgrunnlag`, `regelversjon` i
- * aksepten, `hendelsesformat`) og de to nye typene `frist_varsel_registrert` og
- * `bestridelse_registrert` finnes bare i prøven.
+ * Leseren: journalradene i kjernens form. Lagringsformatet er ikke valgt
+ * (B-10, #273), så leseren tar radene i formen `hendelse` har i dag, med
+ * feltene kjernen legger til i `data` (`dokument_id`, `beslutningsgrunnlag`,
+ * `enighetsgrunnlag`, `regelversjon` i aksepten og `hendelsesformat`) og de to
+ * typene `frist_varsel_registrert` og `bestridelse_registrert`.
+ *
+ * Det er ingen kompatibilitetsleser for Python-radene (B-17). Det kjernen
+ * leser, må være lagret (DM-06): et svar uten beslutningsgrunnlag eller uten
+ * enighetsfeltet, og en aksept uten enighetsgrunnlag, er ikke forstått.
  *
  * Det dagens form lar være underforstått, gjør leseren uttrykkelig med
  * betydningen skriveren hadde da raden ble skrevet: en rettidighetsvurdering i
@@ -13,18 +16,21 @@
  * manglende referanse. Den gir en hendelse som ikke er forstått (MM-U2).
  */
 
-import type { Journalrad } from './typer.ts';
 import { utenforProven } from './standpunkt.ts';
 import type {
+  Beslutningsgrunnlag,
   Dokument,
   Domenehendelse,
   Enighetsgrunnlag,
+  Journalrad,
   Krav,
   Opplysning,
   Part,
   Spor,
+  Standpunkt,
   Svar,
   Utsagn,
+  Virkning,
 } from './typer.ts';
 
 const KRAVTYPER: Record<string, Spor> = {
@@ -136,7 +142,13 @@ function svarutsagn(
   return utsagn;
 }
 
-function lesSvar(h: Journalrad, spor: Spor, dokument: string, stand: Lesestand): Svar {
+function lesSvar(
+  h: Journalrad,
+  spor: Spor,
+  dokument: string,
+  stand: Lesestand,
+  utkast: boolean
+): Svar {
   const data = h.data;
   const utenfor = utenforProven(spor, data);
   if (utenfor) throw new Uforstatt(utenfor);
@@ -147,24 +159,92 @@ function lesSvar(h: Journalrad, spor: Spor, dokument: string, stand: Lesestand):
   if (referanser.some((r) => r !== referanser[0]))
     throw new Uforstatt('svaret viser til to ulike krav');
   const gjelder = referanser[0];
-  const enighet =
-    'enighetsgrunnlag' in data ? (data.enighetsgrunnlag as Enighetsgrunnlag | null) : undefined;
+  const utsagn = svarutsagn(spor, h.event_id, gjelder, data, stand);
+  if (utkast)
+    return {
+      id: h.event_id,
+      spor,
+      dokument,
+      gjelder,
+      erstatter: tekst(data.original_respons_id),
+      utsagn,
+      utregning: data,
+      beslutningsgrunnlag: { regelversjon: 0, standpunkter: [], linje: '' },
+      enighetsgrunnlag: null,
+    };
+  if (!('enighetsgrunnlag' in data)) throw new Uforstatt('svaret mangler enighetsfeltet');
   return {
     id: h.event_id,
     spor,
     dokument,
     gjelder,
     erstatter: tekst(data.original_respons_id),
-    regelversjon: tall(data.regelversjon),
-    utsagn: svarutsagn(spor, h.event_id, gjelder, data, stand),
+    utsagn,
     utregning: data,
-    beslutningsgrunnlag:
-      (data.beslutningsgrunnlag as Svar['beslutningsgrunnlag'] | undefined) ?? null,
-    enighetsgrunnlag: enighet,
+    beslutningsgrunnlag: lesBeslutningsgrunnlag(data.beslutningsgrunnlag, utsagn),
+    enighetsgrunnlag:
+      data.enighetsgrunnlag === null ? null : lesEnighetsgrunnlag(data.enighetsgrunnlag),
   };
 }
 
-function lesDokument(h: Journalrad, stand: Lesestand): Dokument {
+const VIRKNINGER = new Set(['hovedgrunn', 'subsidiaer', 'uten_virkning']);
+const objekt = (v: unknown): Record<string, unknown> | null =>
+  typeof v === 'object' && v !== null && !Array.isArray(v) ? (v as Record<string, unknown>) : null;
+
+/** Standpunktene skal ha ett standpunkt per utsagn i svaret, med samme art. */
+function lesStandpunkter(v: unknown, utsagn: Utsagn[] | null, hva: string): Standpunkt[] {
+  if (!Array.isArray(v)) throw new Uforstatt(`${hva} mangler standpunkter`);
+  const art = new Map(utsagn?.map((u) => [u.id, u.art]));
+  const sett = new Set<string>();
+  return v.map((p) => {
+    const o = objekt(p);
+    const id = tekst(o?.utsagn);
+    if (!o || id === null || !VIRKNINGER.has(o.virkning as string) || sett.has(id))
+      throw new Uforstatt(`${hva} har et ugyldig standpunkt`);
+    if (utsagn && art.get(id) !== o.art)
+      throw new Uforstatt(`${hva} har et standpunkt til et utsagn svaret ikke har`);
+    sett.add(id);
+    return { utsagn: id, art: o.art as Standpunkt['art'], virkning: o.virkning as Virkning };
+  });
+}
+
+function lesBeslutningsgrunnlag(v: unknown, utsagn: Utsagn[]): Beslutningsgrunnlag {
+  const o = objekt(v);
+  if (!o) throw new Uforstatt('svaret mangler beslutningsgrunnlag');
+  const standpunkter = lesStandpunkter(o.standpunkter, utsagn, 'beslutningsgrunnlaget');
+  if (standpunkter.length !== utsagn.length)
+    throw new Uforstatt('beslutningsgrunnlaget mangler standpunkt til et utsagn');
+  return {
+    regelversjon: krev(tall(o.regelversjon), 'beslutningsgrunnlaget mangler regelversjon'),
+    standpunkter,
+    linje: krev(tekst(o.linje), 'beslutningsgrunnlaget mangler linjen i brevet'),
+  };
+}
+
+function lesEnighetsgrunnlag(v: unknown): Enighetsgrunnlag {
+  const o = objekt(v);
+  const utfall = objekt(o?.utfall);
+  if (!o || !utfall) throw new Uforstatt('enighetsgrunnlaget er ikke et enighetsgrunnlag');
+  const spor = tekst(o.spor);
+  const kilde = tekst(o.kilde);
+  if (spor !== 'grunnlag' && spor !== 'vederlag' && spor !== 'frist')
+    throw new Uforstatt('enighetsgrunnlaget har ukjent spor');
+  if (kilde !== 'aksept' && kilde !== 'sammenfall')
+    throw new Uforstatt('enighetsgrunnlaget har ukjent kilde');
+  if (o.vilkaar !== (spor === 'grunnlag' ? null : 'grunnlag_avklart'))
+    throw new Uforstatt('enighetsgrunnlaget har et annet vilkår enn sporet');
+  return {
+    spor,
+    svar: krev(tekst(o.svar), 'enighetsgrunnlaget viser ikke til noe svar'),
+    kilde,
+    regelversjon: krev(tall(o.regelversjon), 'enighetsgrunnlaget mangler regelversjon'),
+    standpunkter: lesStandpunkter(o.standpunkter, null, 'enighetsgrunnlaget'),
+    utfall: utfall as Enighetsgrunnlag['utfall'],
+    vilkaar: o.vilkaar as Enighetsgrunnlag['vilkaar'],
+  };
+}
+
+function lesDokument(h: Journalrad, stand: Lesestand, utkast: Set<string>): Dokument {
   const data = h.data;
   const id = tekst(data.dokument_id) ?? h.event_id;
   const avsender: Part = h.aktor_rolle;
@@ -211,20 +291,16 @@ function lesDokument(h: Journalrad, stand: Lesestand): Dokument {
     return dokument;
   }
   if (SVARTYPER[type]) {
-    dokument.svar.push(lesSvar(h, SVARTYPER[type], id, stand));
+    dokument.svar.push(lesSvar(h, SVARTYPER[type], id, stand, utkast.has(h.event_id)));
     return dokument;
   }
   if (type === 'te_aksepterer_respons') {
-    // Et tomt enighetsgrunnlag skriver ingen kjerne: et uavklart standpunkt kan ikke godtas.
-    if (data.enighetsgrunnlag === null)
-      throw new Uforstatt('aksepten har et tomt enighetsgrunnlag');
     dokument.utsagn.push({
       id: `${h.event_id}#aksept`,
       art: 'aksept',
       gjelder: krev(h.refererer_til_event_id, 'aksepten viser ikke til noe svar'),
-      regelversjon: tall(data.regelversjon),
-      // Uten feltet utledes enighetsgrunnlaget (2.5).
-      enighetsgrunnlag: data.enighetsgrunnlag as Enighetsgrunnlag | undefined,
+      regelversjon: krev(tall(data.regelversjon), 'aksepten mangler regelversjon'),
+      enighetsgrunnlag: lesEnighetsgrunnlag(data.enighetsgrunnlag),
     });
     return dokument;
   }
@@ -268,8 +344,16 @@ function lesDokument(h: Journalrad, stand: Lesestand): Dokument {
   throw new Uforstatt(`ukjent hendelsestype ${type}`);
 }
 
-/** Journalen i modellens form. En rad leseren ikke forstår, blir `ukjent`, ikke hoppet over. */
-export function lesJournal(journal: Journalrad[], format: number): Domenehendelse[] {
+/**
+ * Journalen i kjernens form. En rad leseren ikke forstår, blir `ukjent`, ikke
+ * hoppet over. Svarene i `utkast` er svar skrivingen ennå ikke har frosset
+ * brevet for; de leses uten beslutningsgrunnlag og enighetsfelt.
+ */
+export function lesJournal(
+  journal: Journalrad[],
+  format: number,
+  utkast: Set<string> = new Set()
+): Domenehendelse[] {
   const stand: Lesestand = { sisteKrav: {}, fristvarsel: null };
   return journal.map((h): Domenehendelse => {
     const felles = { id: h.event_id, versjon: h.versjon, type: h.event_type as string };
@@ -283,7 +367,7 @@ export function lesJournal(journal: Journalrad[], format: number): Domenehendels
         : { ...felles, art: 'ukjent', grunn: `sakstype ${String(sakstype)}` };
     }
     try {
-      return { ...felles, art: 'dokument', dokument: lesDokument(h, stand) };
+      return { ...felles, art: 'dokument', dokument: lesDokument(h, stand, utkast) };
     } catch (feil) {
       if (feil instanceof Uforstatt) return { ...felles, art: 'ukjent', grunn: feil.message };
       throw feil;

@@ -1,6 +1,8 @@
 /**
- * Feilinnføringene for målmodellen (#304). F1–F7 er avsnitt 4 i modellforslaget,
- * F8–F10 feilklassene reviewet av PR #306 fant. Én mutasjon om gangen i arbeidskopien, Vitest over `kjerne/` og `sprakprove/kjernelagring/`, og
+ * Feilinnføringene for kjernen (#304, #308). F1–F7 er avsnitt 4 i modellforslaget,
+ * F8–F10 feilklassene reviewet av PR #306 fant, skrevet om etter MM-U9 og
+ * GR-U10, og F11–F15 grensene #308 la til. Én mutasjon om gangen i
+ * arbeidskopien, Vitest over `kjerne/` og `sprakprove/kjernelagring/`, og
  * originalteksten settes tilbake etterpå. For hver mutasjon kreves det at de
  * forventede målassertions feiler, og at alle feil er assertions, ikke import,
  * oppsett eller en brutt forutsetning (`.claude/rules/tester.md`).
@@ -36,10 +38,13 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/forutsetninger.ts`,
     endringer: [
       [
-        "import type { Utledning } from './utled.ts';",
-        "import type { Utledning } from './utled.ts';\nimport { visning } from './visning.ts';",
+        "import { kraveneErAvgjort, type Utledning } from './utled.ts';",
+        "import { kraveneErAvgjort, type Utledning } from './utled.ts';\nimport { visning } from './visning.ts';",
       ],
-      ['  if (u.avsluttet) return', "  if (visning(u).status.kode.startsWith('avsluttet')) return"],
+      [
+        '  if (kraveneErAvgjort(u))',
+        "  if (visning(u, { versjon: 0, gjelderVarslingsplikten: () => true }).status.kode === 'avsluttet_oppgjort' || kraveneErAvgjort(u))",
+      ],
     ],
     mal: [
       'forutsetninger.ts når ikke visningen',
@@ -68,10 +73,23 @@ const MUTASJONER: Mutasjon[] = [
   },
   {
     id: 'F4',
-    feilklasse: 'virkningen av en godtatt preklusjon regnes på nytt etter en regelendring',
+    feilklasse: 'et sendt brev vurderes på nytt med dagens regler (MM-U9)',
     fil: `${K}/utled.ts`,
-    endringer: [['grunnlag: frosset ?? enighetsgrunnlag(', 'grunnlag: enighetsgrunnlag(']],
-    mal: ['F-MM-C3c', 'lar beslutningsgrunnlag, enighetsgrunnlag og lagrede rader stå'],
+    endringer: [
+      [
+        "import { enighetsgrunnlag, utfall } from './standpunkt.ts';",
+        "import { enighetsgrunnlag, standpunkter, utfall } from './standpunkt.ts';",
+      ],
+      [
+        '      standpunkter: s.beslutningsgrunnlag.standpunkter,',
+        '      standpunkter: standpunkter(s, spor.grunnlag.krav.find((k) => k.id === s.gjelder) ?? spor.grunnlag.krav.at(-1), regler),',
+      ],
+    ],
+    mal: [
+      'F-MM-C3b',
+      'F-MM-AC',
+      'lar brevet beholde virkningen og viser regelendringen bare som merknad',
+    ],
   },
   {
     id: 'F5',
@@ -87,10 +105,11 @@ const MUTASJONER: Mutasjon[] = [
   },
   {
     id: 'F6',
-    feilklasse: 'en aksept godtas selv om brevet avviker fra dagens utledning',
-    fil: `${K}/forutsetninger.ts`,
-    endringer: [['gjeldendeSvar.id].avvik === true)', 'gjeldendeSvar.id].avvik === undefined)']],
-    mal: ['F-MM-C3d', 'avviser en aksept av det avvikende svaret'],
+    feilklasse:
+      'en preklusjon er avklart selv om et annet varsel er registrert etter brevet (MM-U8)',
+    fil: `${K}/utled.ts`,
+    endringer: [['u.gjelder !== varselNaa(s)', 'u.gjelder === undefined']],
+    mal: ['F-MM-D', 'F-MM-D-godtatt', 'avviser aksepten når et varsel er registrert etter brevet'],
   },
   {
     id: 'F7',
@@ -103,18 +122,17 @@ const MUTASJONER: Mutasjon[] = [
       'brukes ikke med nyere format',
     ],
   },
-  // F8–F10 er feilklassene reviewet av PR #306 fant i samspillet mellom reglene.
   {
     id: 'F8',
-    feilklasse: 'et avvikende grunnlagssvar avklarer grunnlaget (MM-U5)',
-    fil: `${K}/utled.ts`,
+    feilklasse: 'et godkjent grunnlag er ikke enighet ved sammenfall (GR-U10, #312)',
+    fil: `${K}/standpunkt.ts`,
     endringer: [
       [
-        'const gAvviker = !eg && gSvar !== null && svar[gSvar.id].avvik === true;',
-        'const gAvviker = false;',
+        "if (svar.spor === 'grunnlag') return utsagnet(svar, 'ansvar')?.resultat === 'godkjent';",
+        "if (svar.spor === 'grunnlag') return false;",
       ],
     ],
-    mal: ['F-MM-AC'],
+    mal: ['F-MM-G10', 'F-MM-A5b'],
   },
   {
     id: 'F9',
@@ -131,6 +149,59 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/leser.ts`,
     endringer: [['    if (hindring !== null)\n', '    if (hindring === undefined)\n']],
     mal: ['avslår prinsipalt, med dagene som subsidiært standpunkt'],
+  },
+  // F11–F15 er grensene #308 la til.
+  {
+    id: 'F11',
+    feilklasse: 'kjernen importerer fra språkprøven og pg',
+    fil: `${K}/utled.ts`,
+    endringer: [
+      [
+        "import { utledetVarsel } from './leser.ts';",
+        "import { utledetVarsel } from './leser.ts';\nimport type { Pool } from 'pg';\nimport type { Hendelse } from '../sprakprove/kjerne/typer.ts';\nexport type Ute = [Pool, Hendelse];",
+      ],
+    ],
+    mal: ['utled.ts importerer ingenting utenfor kjernen'],
+  },
+  {
+    id: 'F12',
+    feilklasse: 'en ny kravversjon opphever enigheten i stedet for å avvises (KA-U7)',
+    fil: `${K}/forutsetninger.ts`,
+    endringer: [
+      [
+        "      if (s.enighet)\n        return avvis('ENIGHET_I_SPORET', 'Partene er enige om svaret. Kravet kan ikke endres.');\n",
+        '',
+      ],
+    ],
+    mal: ['F-MM-K1', 'F-MM-K2', 'F-MM-K3', 'F-MM-G10'],
+  },
+  {
+    id: 'F13',
+    feilklasse: 'et trukket spor hindrer endringsordre (EO-U2, #312)',
+    fil: `${K}/utled.ts`,
+    endringer: [['KRAVSPOR.some(godkjent)', 'KRAVSPOR.every(godkjent)']],
+    mal: ['F-MM-EO1'],
+  },
+  {
+    id: 'F14',
+    feilklasse: 'et svar uten beslutningsgrunnlag leses med et tomt brev',
+    fil: `${K}/leser.ts`,
+    endringer: [
+      ['  if (utkast)\n    return {', '  if (utkast || !data.beslutningsgrunnlag)\n    return {'],
+    ],
+    mal: ['et svar uten beslutningsgrunnlag'],
+  },
+  {
+    id: 'F15',
+    feilklasse: 'en regel leser en oppsummerende verdi',
+    fil: `${K}/handlinger.ts`,
+    endringer: [
+      [
+        '  const ut = u.grunnlagAvvist || kraveneErAvgjort(u) ? [] : sporhandlinger(u, part);',
+        '  const avsluttet = u.grunnlagAvvist || kraveneErAvgjort(u);\n  const ut = avsluttet ? [] : sporhandlinger(u, part);',
+      ],
+    ],
+    mal: ['reglene leser ingen status eller oppsummering (#308) > handlinger.ts'],
   },
 ];
 

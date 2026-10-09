@@ -5,14 +5,14 @@
  */
 
 import { describe, expect, it } from 'vitest';
-import { FLYTEN, kjor, minnebane } from './korpus.ts';
+import { FLYTEN, FORELDET, kjor, minnebane } from './korpus.ts';
 import { RADER } from '../kjerne/kontrakt.ts';
 import { projiser, UkjentHendelse } from '../kjerne/sak.ts';
 import type { Hendelse } from '../kjerne/typer.ts';
 
 describe('bevis-sakene i flyten mot TS-kjernen', () => {
   it('dekker alle radene i kontrakten', () => {
-    const dekket = new Set(FLYTEN.flatMap((f) => f.rader));
+    const dekket = new Set([...FLYTEN, ...FORELDET].flatMap((f) => f.rader));
     expect(RADER.filter((r) => !dekket.has(r))).toEqual([]);
   });
 
@@ -21,6 +21,15 @@ describe('bevis-sakene i flyten mot TS-kjernen', () => {
       pastand: (holder, melding) => expect(holder, melding).toBe(true),
     });
   });
+
+  it.fails.each(FORELDET.map((f) => [f.id, f] as const))(
+    '%s: prøvekoden følger ikke KA-U7',
+    async (_id, forlop) => {
+      await kjor(forlop, minnebane(), {
+        pastand: (holder, melding) => expect(holder, melding).toBe(true),
+      });
+    }
+  );
 });
 
 describe('projeksjonen og hendelser kjernen ikke kjenner (B-10)', () => {

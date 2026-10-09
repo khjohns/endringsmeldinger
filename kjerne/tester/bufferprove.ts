@@ -90,7 +90,7 @@ export function bufferen(lagBaner: () => Baner): void {
         { handling: 'brev', svar: [{ spor: 'grunnlag', resultat: 'godkjent' }] },
       ]) {
         const u = await a.prov(h);
-        expect(u.godtatt ? 'godtatt' : u.avvisning.regel).toBe('CASE_NOT_UNDERSTOOD');
+        expect(u.godtatt ? 'godtatt' : u.avvisning.regel).toBe('SAK_IKKE_FORSTAATT');
       }
 
       // Sak B bygges om av den gamle kjernen og tar imot kommandoer.
