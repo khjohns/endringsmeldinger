@@ -1845,6 +1845,83 @@
           "forventet": { "avvist": true, "regel": "KRAVENE_AVGJORT" }
         }
       ]
+    },
+    {
+      "id": "F-MM-D-itide",
+      "rader": ["KA-27"],
+      "start": "godkjent_grunnlag",
+      "forslag": "D: varselet registreres etter at byggherren har sagt at det kom i tide (samspillsreview av #308)",
+      "forventningsgrunnlag": "avklart_tolkning",
+      "steg": [
+        { "handling": "krav", "spor": "frist", "dager": 20, "navn": "K-f1" },
+        {
+          "handling": "brev",
+          "navn": "D3",
+          "svar": [
+            {
+              "spor": "frist",
+              "navn": "S-f1",
+              "varsel_i_tide": true,
+              "spesifisering_i_tide": true,
+              "hindring": true,
+              "dager": 10
+            }
+          ]
+        },
+        { "handling": "varsel", "spor": "frist", "sendt": "2026-09-02", "navn": "D4" },
+        { "handling": "aksept", "spor": "frist", "navn": "D5" }
+      ],
+      "kontroller": [
+        {
+          "etter": 3,
+          "rolle": "mal",
+          "kilde": ["MM-U8", "MM-U1"],
+          "forventet": {
+            "avvist": false,
+            "varsel.frist": "D4",
+            "uavklart.S-f1": [],
+            "visning.etiketter.frist": { "mangler": ["bh_har_ikke_vurdert_varselet"] },
+            "handlinger.TE": { "inneholder": ["godta:frist"] }
+          }
+        },
+        {
+          "etter": 4,
+          "rolle": "mal",
+          "kilde": ["MM-U8", "KA-U1", "KA-U10"],
+          "forventet": { "avvist": false, "enighet.frist.utfall.dager": 10 }
+        }
+      ]
+    },
+    {
+      "id": "F-MM-K0",
+      "rader": ["KA-28"],
+      "start": "godkjent_grunnlag",
+      "forslag": "KA-U8: et krav på 0 avvises (samspillsreview av #308)",
+      "forventningsgrunnlag": "avklart_tolkning",
+      "steg": [],
+      "kontroller": [
+        {
+          "etter": 0,
+          "rolle": "mal",
+          "kilde": ["KA-U8"],
+          "prov": { "handling": "krav", "spor": "frist", "dager": 0 },
+          "forventet": { "avvist": true, "regel": "UGYLDIG_FORM" }
+        },
+        {
+          "etter": 0,
+          "rolle": "mal",
+          "kilde": ["KA-U8"],
+          "prov": { "handling": "krav", "spor": "vederlag", "belop": 0 },
+          "forventet": { "avvist": true, "regel": "UGYLDIG_FORM" }
+        },
+        {
+          "etter": 0,
+          "rolle": "kontroll",
+          "kilde": ["V-KRAVVERSJON"],
+          "prov": { "handling": "krav", "spor": "frist", "dager": 1 },
+          "forventet": { "avvist": false }
+        }
+      ]
     }
   ],
   "genererte": {

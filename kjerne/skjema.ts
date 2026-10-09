@@ -18,6 +18,7 @@ export const NOEKKELORD = new Set([
   'anyOf',
   '$ref',
   'minimum',
+  'exclusiveMinimum',
   'minLength',
 ]);
 
@@ -62,6 +63,12 @@ export function feilI(verdi: unknown, s: Skjema, sti = '$', rot: Skjema = s): st
   if ('const' in s && verdi !== s.const) feil.push(`${sti}: ${vis(verdi)} er ikke ${vis(s.const)}`);
   if (Array.isArray(s.enum) && !s.enum.includes(verdi))
     feil.push(`${sti}: ${vis(verdi)} er ikke en av ${vis(s.enum)}`);
+  if (
+    typeof s.exclusiveMinimum === 'number' &&
+    typeof verdi === 'number' &&
+    verdi <= s.exclusiveMinimum
+  )
+    feil.push(`${sti}: ${verdi} er ikke over ${s.exclusiveMinimum}`);
   if (typeof s.minimum === 'number' && typeof verdi === 'number' && verdi < s.minimum) {
     feil.push(`${sti}: ${verdi} er under ${s.minimum}`);
   }

@@ -459,6 +459,13 @@
       "dato": "2026-10-09",
       "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u10",
       "radetikett": "MM-U10: et brev er fra én part og kan inneholde utsagn i flere spor"
+    },
+    {
+      "id": "KA-U8",
+      "type": "vedtak",
+      "dato": "2026-10-09",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u8",
+      "radetikett": "KA-U8: en kravversjon på 0 dager eller 0 kr avvises"
     }
   ],
   "rader": [
@@ -876,6 +883,33 @@
       "kilder": [
         "KA-U6",
         "V-SK02-SK03"
+      ],
+      "tolkningsstatus": "avklart_tolkning"
+    },
+    {
+      "id": "KA-27",
+      "tilfelle": "Byggherren har sagt at varselet utledet av fristkravet kom i tide. TE registrerer deretter varselet etter § 33.4 med en tidligere sendedato.",
+      "forventet": "Registreringen godtas. Svaret står, og det er ingen preklusjon å avklare: TE kan godta svaret, og visningen ber ikke byggherren ta stilling til varselet.",
+      "bh_standpunkt": "Varselet kom i tide. Dagene i svaret.",
+      "rettslig_virkning": "Ingen preklusjon er påberopt.",
+      "rettidighet": "Byggherrens vurdering av varselet utledet av kravet: i tide.",
+      "tidsakse": "sendt_mottatt",
+      "kilder": [
+        "MM-U8",
+        "MM-U1"
+      ],
+      "tolkningsstatus": "avklart_tolkning"
+    },
+    {
+      "id": "KA-28",
+      "tilfelle": "TE sender et krav på 0 kr eller 0 dager.",
+      "forventet": "Kravet avvises, og journalen er uendret. TE trekker kravet eller sender det ikke.",
+      "bh_standpunkt": "—",
+      "rettslig_virkning": "0 er ikke et krav om noe (§ 33.6.1).",
+      "rettidighet": "—",
+      "tidsakse": "registrering",
+      "kilder": [
+        "KA-U8"
       ],
       "tolkningsstatus": "avklart_tolkning"
     },
