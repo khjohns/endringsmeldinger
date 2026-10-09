@@ -466,7 +466,7 @@ forespørsel «skal sendes per brev». MP-U5: flere innsigelser i ett brev.
 Anbefalt: (a). *Svar: venter.*
 
 **Spørsmål 2: hva fryser en enighet når reglene er endret mellom brevet og
-aksepten?** (a) Svaret med virkningen brevet hadde (beslutningsgrunnlaget), og
+aksepten?** MM-U3 sier: «virkningen av en enighet fastsettes når den inngås. Har TE godtatt et svar, gjelder enigheten svaret med alle standpunktene slik det ble godtatt (KA-U1), også når en senere regelendring ville gitt et standpunkt i svaret en annen virkning.» Merknaden 09.10 til raden presiserer: «innholdet i en enighet fastsettes når den inngås: svaret, standpunktene og virkningen de hadde etter reglene da.» MM-U9 sier at et sendt brev beholder virkningen det hadde da det ble sendt. Uklart er om «reglene da» er reglene da brevet ble sendt eller da TE godtok det. (a) Svaret med virkningen brevet hadde (beslutningsgrunnlaget), og
 aksepten viser bare til svaret og regelversjonen. (b) Virkningen etter reglene
 da aksepten ble registrert, som en egen kopi i aksepten. Belegg: § 34.2.2
 første ledd («akseptert et tilbud»), B-03 (brevet er det autoritative
