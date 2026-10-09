@@ -33,7 +33,11 @@ export class Navn {
   sett(navn: unknown, id: string): void {
     if (typeof navn !== 'string') return;
     if (this.tilId.has(navn) && this.tilId.get(navn) !== id)
-      throw new Error(`Etiketten ${navn} er allerede brukt i bevis-saken`);
+      throw new Error(
+        this.reservert.has(navn)
+          ? `Etiketten ${navn} er reservert av en rad og må skrives av en rad`
+          : `Etiketten ${navn} er allerede brukt i bevis-saken`
+      );
     this.tilId.set(navn, id);
     this.tilNavn.set(id, navn);
     this.reservert.delete(navn);

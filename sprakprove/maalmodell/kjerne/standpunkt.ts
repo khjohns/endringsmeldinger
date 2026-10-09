@@ -152,9 +152,12 @@ export function beslutningslinje(svar: Svar, s: Standpunkt[]): string {
     standpunkt = d.resultat === 'avslatt' ? 'avslått' : `godkjent med ${d.vurdert} dager`;
   }
   if (!grunner.length) return `${standpunkt[0].toUpperCase()}${standpunkt.slice(1)}.`;
-  const ledd = grunner.map(
-    (p, i) => `${i === 0 ? 'Prinsipalt' : 'subsidiært'} ${grunntekst[p.art]}`
-  );
+  // En uavklart preklusjon står i linjen som uavklart, ikke som en grunn som virker (MM-U1).
+  const ledd = grunner.map((p, i) => {
+    const tekst =
+      p.virkning === 'uavklart' ? `preklusjon (${hjemmel}) uavklart` : grunntekst[p.art];
+    return `${i === 0 ? 'Prinsipalt' : 'subsidiært'} ${tekst}`;
+  });
   return `${ledd.join(', ')}, ${grunner.length > 1 ? 'videre ' : ''}subsidiært ${standpunkt}.`;
 }
 

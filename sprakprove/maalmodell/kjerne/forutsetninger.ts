@@ -8,6 +8,7 @@
  * prøves over de genererte forløpene (INV-MM-1).
  */
 
+import { uavklart } from './standpunkt.ts';
 import type { Utledning } from './utled.ts';
 import type { Avvisning, Part, Spor } from './typer.ts';
 
@@ -115,7 +116,7 @@ export function forutsetninger(h: Handlingsnokkel, part: Part, u: Utledning): Av
           'Brevet avviker fra dagens utledning. Byggherren må svare på nytt.'
         );
       // Et uavklart standpunkt kan ikke fryses i et enighetsgrunnlag (MM-U1, MM-U3).
-      if (u.svar[s.gjeldendeSvar.id].standpunkter.some((p) => p.virkning === 'uavklart'))
+      if (uavklart(u.svar[s.gjeldendeSvar.id].standpunkter))
         return avvis(
           'RESPONSE_UNRESOLVED',
           'Et standpunkt i svaret er uavklart. Byggherren må ta stilling først.'
