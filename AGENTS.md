@@ -87,11 +87,15 @@ toppnivåfeltene som ikke lagres.
 ```bash
 cd backend && /tmp/venv/bin/python -m pytest -q
 npm test && npm run check:error      # skal gi 0 errors
+npx tsc -p sprakprove/tsconfig.json  # svelte-check ser ikke sprakprove/
 ruff check backend/                  # porten, skal være 0
 ```
 
 Testene er raske. Kjør dem ofte. I skyøktene lager `.claude/hooks/session-start.sh`
 venv-en og testbasen, og meldingen fra hooken sier om databasetestene kjører.
+Med `KOE_TESTBASE_URL` kjører `npm test` også TS-databasetestene i `sprakprove/`.
+Kjør dem ikke samtidig med pytest mot samme base: oppryddingen i pytest setter
+basen tilbake.
 Utenfor skyøktene: `python3 -m venv /tmp/venv` og `pip install -r` begge
 `backend/requirements*.txt` (systempython mangler pytest).
 
