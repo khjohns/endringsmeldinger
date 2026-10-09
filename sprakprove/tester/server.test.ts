@@ -318,6 +318,37 @@ describe.skipIf(!TESTBASE_URL)('TS-serveren mot testbasen', () => {
     });
   });
 
+  describe('hendelser kjernen ikke kjenner (B-10)', () => {
+    it('gir verken kommandoer eller tilstand, men journalen kan leses', async () => {
+      const bane = await serverbane(server, o);
+      if (!(await bane.send(GRUNNLAG)).godtatt) throw new Error('Forutsetning: grunnlaget avvist');
+      const krav = kommando({ handling: 'vederlagskrav', belop: 100000 }, bane.sak())[1];
+      // Kontrollsaken: samme krav på en sak uten den ukjente hendelsen.
+      const kontroll = await serverbane(server, o);
+      await kontroll.send(GRUNNLAG);
+      expect(
+        (await send(o.te, { sak_id: kontroll.sakId, expected_version: 2, event: krav })).status
+      ).toBe(201);
+
+      await o.pool.query(
+        `INSERT INTO hendelse (event_id, source, type, subject, actorid, actorrole, data, prosjekt_id, sak_id, event_type, versjon)
+         VALUES ($1, 'x', 'no.oslo.koe.grunnlag_trukket', $2, $3, 'TE', '{"begrunnelse": "Trukket"}', $4, $2, 'grunnlag_trukket', 3)`,
+        [randomUUID(), bane.sakId, o.te.id, o.prosjekt.id]
+      );
+      const for_ = await journal(bane.sakId);
+      const avvist = await send(o.te, { sak_id: bane.sakId, expected_version: 3, event: krav });
+      expect([avvist.status, avvist.kropp.error]).toEqual([422, 'UNKNOWN_EVENTS']);
+      expect(await journal(bane.sakId)).toEqual(for_);
+      const les = (sti: string) =>
+        kall(server.url, `/api/cases/${bane.sakId}/${sti}`, {
+          bruker: o.te,
+          prosjektId: o.prosjekt.id,
+        });
+      expect((await les('state')).status).toBe(422);
+      expect((await les('journal')).kropp.events?.at(-1)?.event_type).toBe('grunnlag_trukket');
+    });
+  });
+
   describe('versjon og regelversjon', () => {
     it('feil expected_version gir 409 VERSION_CONFLICT', async () => {
       const svar = await avvistOgKontroll(
