@@ -119,9 +119,8 @@ def standpunkt(
     """Preklusjonen er hovedgrunnen når begge gjelder (vedtaket 05.10 om avslag
     sammen med § 32.2). Et svar som var subsidiært da grunnlagssvaret falt,
     forblir det til sporet eller grunnlaget besvares igjen (`til_nytt_svar`).
-    Frafall gjør ikke svaret subsidiært."""
-    if resultat == GrunnlagResponsResultat.FRAFALT:
-        return Standpunkt(False)
+    Som `er_grunnlag_subsidiaert`: frafall er ikke avslag, men en § 32.2-preklusjon
+    gjelder også ved frafall (#235)."""
     if til_nytt_svar is not None:
         return Standpunkt(True, til_nytt_svar, (til_nytt_svar,))
     arsaker: list[Subsidiaergrunn] = []

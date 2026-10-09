@@ -90,12 +90,12 @@ export interface GrunnlagForStandpunkt {
  * Preklusjonen er hovedgrunnen når begge gjelder (vedtaket 05.10 om avslag
  * sammen med § 32.2). Et svar som var subsidiært da grunnlagssvaret falt,
  * forblir det til sporet eller grunnlaget besvares igjen (`tilNyttSvar`).
+ * Frafall er ikke avslag, men en § 32.2-preklusjon gjelder også ved frafall (#235).
  */
 export function standpunkt(
   grunnlag: GrunnlagForStandpunkt,
   tilNyttSvar: Subsidiaergrunn | null
 ): Standpunkt {
-  if (grunnlag.resultat === 'frafalt') return { subsidiaert: false, hovedgrunn: null, arsaker: [] };
   if (tilNyttSvar !== null)
     return { subsidiaert: true, hovedgrunn: tilNyttSvar, arsaker: [tilNyttSvar] };
   const arsaker: Subsidiaergrunn[] = [];

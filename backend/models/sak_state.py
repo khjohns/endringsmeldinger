@@ -978,6 +978,13 @@ class SakState(BaseModel):
     )
 
     # Endringsordredata (kun for sakstype=ENDRINGSORDRE)
+    lukket_ved_reaktiv_eo: bool = Field(
+        default=False,
+        description=(
+            "En endringsordre er utstedt i KOE-saken og har lukket sporene uten svar og "
+            "aksept (DT-05; EO-U1 avviser den, men er ikke bygget)"
+        ),
+    )
     endringsordre_data: EndringsordreData | None = Field(
         default=None,
         description="Data for endringsordresak (kun når sakstype=ENDRINGSORDRE)",
@@ -1054,7 +1061,13 @@ class SakState(BaseModel):
 
     def _ferdig(self, spor) -> bool:
         """Sporet hindrer ikke enighet om saken: oppgjort eller trukket (EO-U2)."""
-        return spor.status == SporStatus.TRUKKET or self._oppgjort(spor)
+        return (
+            spor.status == SporStatus.TRUKKET or self.lukket_ved_reaktiv_eo or self._oppgjort(spor)
+        )
+
+    @property
+    def _grunnlag_avklart(self) -> bool:
+        return self.grunnlag.avklart or self.lukket_ved_reaktiv_eo
 
     def _subsidiaer_grunn(self, spor) -> str | None:
         """Hvorfor sporets svar er subsidiært: «avslatt», «prekludert» eller None."""
@@ -1307,7 +1320,7 @@ class SakState(BaseModel):
             SporStatus.TRUKKET,
             SporStatus.AVSLATT_AKSEPTERT,
         }
-        if self.grunnlag.avklart and all(
+        if self._grunnlag_avklart and all(
             spor.status == SporStatus.IKKE_RELEVANT or self._ferdig(spor)
             for spor in (self.vederlag, self.frist)
         ):
@@ -1352,7 +1365,7 @@ class SakState(BaseModel):
         if any(s == SporStatus.UTKAST for s in aktive_statuser):
             ferdig_eller_utkast = ferdig_statuser | {SporStatus.UTKAST}
             if all(s in ferdig_eller_utkast for s in aktive_statuser):
-                if self.grunnlag.avklart:
+                if self._grunnlag_avklart:
                     return "UNDER_BEHANDLING"
                 return "UTKAST"
 
@@ -1364,7 +1377,7 @@ class SakState(BaseModel):
         """Saken kan inngå i en endringsordre: grunnlaget er godkjent og avklart,
         og hvert sendt krav er oppgjort (GR-U7). Etter frafall går endringsordren
         i en egen EO-sak (GR-U3). EO-U2 er ikke bygget (DT-06)."""
-        if not self.grunnlag.avklart or self.grunnlag.bh_resultat == GrunnlagResponsResultat.FRAFALT:
+        if not self._grunnlag_avklart or self.grunnlag.bh_resultat == GrunnlagResponsResultat.FRAFALT:
             return False
         return all(
             spor.status in {SporStatus.IKKE_RELEVANT, SporStatus.UTKAST} or self._ferdig(spor)

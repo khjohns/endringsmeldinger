@@ -1,8 +1,8 @@
 """Feilinnføring i begge implementasjoner i språkprøven (#274, P1-5).
 
-Én mutasjon om gangen i arbeidskopien; Python-testene (domenebanen, begge
+Én mutasjon om gangen i arbeidskopien, og originalteksten settes tilbake etterpå; Python-testene (domenebanen, begge
 rutebanene mot testbasen, kontrakten og grensetilfellene) og TS-testene i
-sprakprove/ kjøres, og fila gjenopprettes med git checkout. Feilklassene
+sprakprove/ kjøres. Skriptet starter ikke når filene det muterer, har lokale endringer. Feilklassene
 M1–M6 er dem fra #293, M7 er regelendringen (enighet) og M8 avrundingen.
 
 Kjøres fra repoets rot med testbasen oppe: python3 sprakprove/feilinnforing.py [M1 M2 ...]
@@ -14,14 +14,15 @@ import json
 import re
 import subprocess
 import sys
+from pathlib import Path
 
-ROT = str(__import__("pathlib").Path(__file__).resolve().parents[1])
-PY = ["/tmp/venv/bin/python", "-m", "pytest", "-q", "-p", "no:cacheprovider", "-rf",
+ROT = str(Path(__file__).resolve().parents[1])
+PYTEST = ["/tmp/venv/bin/python", "-m", "pytest", "-q", "-p", "no:cacheprovider", "-rf",
       "tests/test_domenetabell", "tests/test_database/test_domenetabell_lagring.py",
       "tests/test_database/test_kontrakt_aksept.py", "tests/test_regler/test_grensetilfeller_sprakprove.py"]
-TS = ["npx", "vitest", "run", "sprakprove"]
+VITEST = ["npx", "vitest", "run", "sprakprove"]
 
-M = [
+MUTASJONER = [
     ("M1", "gjeldende svar sammenlikner ikke kravversjonen",
      [("py", "backend/models/sak_state.py",
        "if self.respons_event_id and self.bh_respondert_versjon == max(\n            0, self.antall_versjoner - 1\n        ):",
@@ -66,24 +67,26 @@ M = [
 ]
 
 
-def bytt(fil, gammel, ny):
+def bytt(fil, gammel, ny) -> str:
+    """Innfør mutasjonen og returner originalteksten, så den kan settes tilbake."""
     sti = f"{ROT}/{fil}"
     tekst = open(sti, encoding="utf-8").read()
     if tekst.count(gammel) != 1:
         raise SystemExit(f"Ankeret finnes ikke én gang i {fil}: {gammel[:60]}")
     open(sti, "w", encoding="utf-8").write(tekst.replace(gammel, ny))
+    return tekst
 
 
 def kjor(sprak):
     if sprak == "py":
-        r = subprocess.run(PY, cwd=f"{ROT}/backend", capture_output=True, text=True)
+        r = subprocess.run(PYTEST, cwd=f"{ROT}/backend", capture_output=True, text=True)
         ut = r.stdout + r.stderr
         feilet = re.findall(r"^FAILED (\S+)", ut, re.M)
         oppsett = len(re.findall(r"^ERROR ", ut, re.M))
         meldinger = re.findall(r"^FAILED \S+ - (.*)$", ut, re.M)
         sammendrag = (re.findall(r"=+ (.*(?:passed|failed).*) =+", ut) or ["?"])[-1]
     else:
-        r = subprocess.run(TS, cwd=ROT, capture_output=True, text=True)
+        r = subprocess.run(VITEST, cwd=ROT, capture_output=True, text=True)
         ut = r.stdout + r.stderr
         feilet = re.findall(r"^ FAIL\s+(.*)$", ut, re.M)
         oppsett = 0
@@ -93,19 +96,23 @@ def kjor(sprak):
             "meldinger": sorted(set(m[:110] for m in meldinger))[:4], "sammendrag": sammendrag.strip()}
 
 
-def main(valgte):
+def kjor_alle(valgte):
+    filer = sorted({fil for _, _, py, ts in MUTASJONER for _, fil, _, _ in py + ts})
+    lokale = subprocess.run(["git", "status", "--porcelain", "--", *filer], cwd=ROT,
+                            capture_output=True, text=True).stdout
+    if lokale:
+        raise SystemExit(f"Commit eller legg bort endringene i filene som muteres først:\n{lokale}")
     resultat = {}
-    for navn, hva, py, ts in M:
+    for navn, hva, py, ts in MUTASJONER:
         if valgte and navn not in valgte:
             continue
         for sprak, endringer in (("py", py), ("ts", ts)):
-            for _, fil, gammel, ny in endringer:
-                bytt(fil, gammel, ny)
+            originaler = {fil: bytt(fil, gammel, ny) for _, fil, gammel, ny in endringer}
             try:
                 resultat[f"{navn}-{sprak}"] = {"feilklasse": hva, **kjor(sprak)}
             finally:
-                for _, fil, _, _ in endringer:
-                    subprocess.run(["git", "checkout", "--", fil], cwd=ROT, check=True)
+                for fil, tekst in originaler.items():
+                    open(f"{ROT}/{fil}", "w", encoding="utf-8").write(tekst)
             print(navn, sprak, resultat[f"{navn}-{sprak}"]["sammendrag"], flush=True)
     status = subprocess.run(["git", "status", "--porcelain", "backend", "sprakprove"], cwd=ROT,
                             capture_output=True, text=True).stdout
@@ -114,4 +121,4 @@ def main(valgte):
 
 
 if __name__ == "__main__":
-    main(set(sys.argv[1:]))
+    kjor_alle(set(sys.argv[1:]))
