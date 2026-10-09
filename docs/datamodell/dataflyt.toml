@@ -950,9 +950,5 @@ fil = "backend/scripts/test_catenda_api_contracts_live.py"
 begrunnelse = "Levende kontrakttester mot et Catenda-testprosjekt (hovedplanen, avsnitt 7)."
 
 [[uten_flyt]]
-fil = "backend/scripts/test_full_flow.py"
-begrunnelse = "Manuell ende-til-ende-test mot Catenda (Catenda-dataflyten, avsnitt 7)."
-
-[[uten_flyt]]
 fil = "backend/integrations/catenda/_demo.py"
 begrunnelse = "Demonstrasjon av klienten. Importeres ikke av appen."
