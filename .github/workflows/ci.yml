@@ -1,5 +1,5 @@
 # Driftskriptene i scripts/ er bevisst utelatt: seks av ni feiler i dag.
-# Se masterplanen, «verifiserbar leveranseprosess».
+# Se AR-08 i hovedplanen.
 name: CI
 
 on:
@@ -102,12 +102,11 @@ jobs:
         working-directory: backend
         run: python -m pytest -q -p no:cacheprovider -m database tests/test_database
 
-      - name: Kjør TS-serveren i språkprøven mot basen
-        run: npx vitest run sprakprove/tester/server.test.ts sprakprove/tester/serverkorpus.test.ts
-
-      # Målmodellen (#304): forløp A–E, bufferen og regelendringen gjennom lageret.
-      - name: Kjør målmodellen i språkprøven mot basen
-        run: npx vitest run sprakprove/maalmodell/tester/lagring.test.ts sprakprove/maalmodell/tester/buffer.test.ts sprakprove/maalmodell/tester/regelendring.test.ts
+      # Hele sprakprove/, så en ny databasetest kommer med. Uten
+      # KOE_TESTBASE_URL hoppes den over i frontend-jobben. Steget kommer etter
+      # pytest og ikke samtidig: oppryddingen der setter basen tilbake.
+      - name: Kjør språkprøven mot basen
+        run: npx vitest run sprakprove/
 
   frontend:
     name: Frontend (vitest)
@@ -146,6 +145,10 @@ jobs:
       # --threshold error: de 9 advarslene gater ikke.
       - name: Typesjekk
         run: npm run check:error
+
+      # svelte-check ser ikke sprakprove/, som har egen tsconfig.
+      - name: Typesjekk av språkprøven
+        run: npx tsc -p sprakprove/tsconfig.json
 
       - name: Lint
         run: npm run lint
