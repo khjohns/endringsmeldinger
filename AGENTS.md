@@ -123,46 +123,42 @@ arbeider i `supabase/` eller lagrene; les dem før du endrer basen over MCP.
 ## Sikkerhetsinvarianter
 
 Brytes en av disse, er det en sikkerhetsfeil uansett hvor liten endringen så ut.
+De gjelder hver serverinngang, i Python og i TS. Mekanismene står i
+[`.claude/rules/tilgang.md`](.claude/rules/tilgang.md). TS-stien har ennå ingen
+registertest (#310).
 
-- **Enhver rute har `require_auth` + `require_project_access` + eventuelt
-  `require_contract_role`.** `tests/test_security/test_public_route_registry.py`
-  håndhever de to første: en rute uten `require_auth` må stå i
-  `OFFENTLIGE_RUTER`, og en autentisert rute uten `require_project_access` i
-  `UTEN_PROSJEKT`, begge med skriftlig begrunnelse. Legger du til en rute,
-  forvent å måtte begrunne den der. Dekoratørene teller bare under
-  rutedekoratøren, og en rute testen ikke kan lese ut av `routes/`, gir rød
-  test mot `app.url_map`. `require_contract_role` kontrolleres ikke.
-- **CSRF håndheves inne i `require_auth`** (`lib/auth/session.py`), bevisst, slik at
-  en ny mutasjonsrute ikke kan glemme den. Ikke flytt den ut.
+- **Hver serverinngang krever innlogget sesjon og tilgang til prosjektet, og
+  eventuelt kontraktsrolle.** En inngang uten sesjon eller uten prosjekt står i
+  et register med skriftlig begrunnelse, og en test skal feile for en inngang som
+  verken har kontrollen eller står der. Kontraktsrollen dekkes ikke av en slik
+  test.
+- **CSRF håndheves inne i autentiseringen**, bevisst, slik at en ny
+  mutasjonsinngang ikke kan glemme den. Ikke flytt den ut.
 - **`aktor_id`, `aktor_rolle`, `aktor_team_id`, `tidsstempel` og `event_id` settes
-  av serveren.** `event_id` og `tidsstempel` avvises av
-  `parse_event_from_request`; de tre aktørfeltene overskrives i ruta før
-  parsing, så det klienten sendte, når aldri modellen. Stol aldri på en rolle
-  eller en identitet klienten oppgir.
+  av serveren.** `event_id` og `tidsstempel` fra klienten avvises; aktørfeltene
+  overskrives før parsing, så det klienten sendte, når aldri modellen. Stol
+  aldri på en rolle eller en identitet klienten oppgir.
 - **Journalen bærer `aktor_id`, aldri et personnavn — og bare én form.**
-  Verdien er `app_users.id`, punktum. Også for en Catenda-forfatter: webhookstien
-  løser identiteten gjennom `koe_resolve_identity`, samme databasefunksjon som
-  innloggingen og medlemssynkroniseringen bruker, med samme issuer
-  (`CatendaOAuth.BASE`) og samme normaliserte subjekt (`catenda_id()`). Én annen
-  issuer eller et unormalisert subjekt gir samme person to brukerrader.
-  Lar identiteten seg ikke avgjøre, skrives ingen hendelse — fail-closed, som for
-  kontraktssiden. Navnet slås opp ved visning i `lib/aktor_navn.py`, og et oppslag
-  som feiler skal falle tilbake til identiteten — aldri velte tidslinjen eller
-  brevet. En hendelse er append-only: en verdi som kommer inn her, kan ikke
-  rettes igjen, og det er derfor en andre verdiform er dyr.
+  Verdien er `app_users.id`, punktum, også for en Catenda-forfatter. Hver vei
+  inn, også webhooken, løser identiteten gjennom `koe_resolve_identity`, som
+  innloggingen og medlemssynkroniseringen, med samme issuer og samme normaliserte
+  subjekt; ellers får samme person to brukerrader. Lar identiteten seg ikke
+  avgjøre, skrives ingen hendelse — fail-closed, som for kontraktssiden. Navnet
+  slås opp ved visning, og et oppslag som feiler, skal falle tilbake til
+  identiteten og aldri velte tidslinjen eller brevet. En hendelse er
+  append-only, så en andre verdiform kan aldri rettes igjen.
 - **Interne notater og utkast er fail-closed.** Uten entydig team finnes det ikke noe
   å lese eller skrive. Et notat uten `aktor_team_id` vises til ingen, heller ikke
   forfatteren. Notatet ligger i `notat`, ikke i journalen (MS-05): det er ikke
   et kontraktsvarsel, det flytter ikke sakens versjon, og det kan slettes.
-  Tidslinjen fletter de to kildene ved lesing, så skjermingsfilteret i
-  `lib/auth/event_visibility.py` gjelder fortsatt begge.
+  Tidslinjen fletter de to kildene ved lesing, så skjermingsfilteret gjelder
+  fortsatt begge.
 - **Prosjektgrensen må håndheves ved hvert lesepunkt**, også for saker det refereres
-  til. Klientoppgitte relasjoner skal ikke utvide tilgangen — bruk
-  `cases_in_project`. Dette er brutt flere ganger; se RV-07 og AUT-01/02 i
-  hovedplanens funnregister.
+  til. Klientoppgitte relasjoner skal ikke utvide tilgangen. Dette er brutt flere
+  ganger; se RV-07 og AUT-01/02 i hovedplanens funnregister.
 - **Det finnes ikke noe defaultprosjekt.** Mangler `X-Project-ID`, er prosjektet
-  *ukjent* — ikke `oslobygg`. `get_project_id()` returnerer `None`, og kallere skal
-  behandle det som «ingen tilgang». `prosjekt_id` er `NOT NULL` uten default på
+  *ukjent* — ikke `oslobygg` — og kallere skal behandle det som «ingen
+  tilgang». `prosjekt_id` er `NOT NULL` uten default på
   `hendelse` og `sak_relations`, og skrivestiene stempler det fra autorisert
   kontekst. Gjeninnfører du en fallback — også som et uskyldig
   `prosjekt_id or "oslobygg"` i én sammenlikning, eller som et tomt filter som
@@ -192,8 +188,8 @@ nåbarhet, og begge ble fanget av testsuiten — ikke av lesingen.
 **Et skjermbilde som finnes, beviser ikke at flyten virker.** DM-05 ble funnet
 ved å følge kallet skjemaet for ny sak faktisk gjør, gjennom
 tilgangsdekoratøren. Skjemaet og ruta lest hver for seg viste ingenting. Følg
-kallet fra frontenden, med rute, metode og nyttelast, gjennom dekoratørene til
-lageret, og kjør det uten `DISABLE_AUTH`.
+kallet fra frontenden, med rute, metode og nyttelast, gjennom tilgangskontrollen
+til lageret, og kjør det uten `DISABLE_AUTH`.
 
 **Og ett av lagene ligger ikke i repoet i det hele tatt.** Ti funksjoner bor i
 `public` — `koe_resolve_identity`, `koe_reconcile_memberships`,
@@ -233,7 +229,7 @@ TypeScript, og en `DEFAULT` i databasen. Søk etter alle formene før du skriver
 | Funnstatus og alvorlighet, beslutninger, rekkefølgen på arbeidspakkene, og det som er levert, med dato og belegg | Hovedplanen |
 | Invarianter og regler som står seg | Denne fila |
 | Beviset: auditer, design, reviewer, oppdrag, og gjennomføringsnotater ved særskilt behov eller bestilling | `docs/`, i formen [`.claude/rules/dokumentasjon.md`](.claude/rules/dokumentasjon.md) beskriver |
-| Regler som bare gjelder én del av treet: databasen, testene, `docs/` | `.claude/rules/`, som lastes når du arbeider der |
+| Regler som bare gjelder én del av treet: databasen, testene, tilgangen, Python-domenet, `docs/` | `.claude/rules/`, som lastes når du arbeider der |
 | Leveranseprosedyren: akseptkriterier, eierskap, utfasing og bevis før en PR er klar | [Leveranseskillen](.claude/skills/leveranse/SKILL.md). PR- og oppgavemalene i `.github/` samler beviset, men eier ingen regler |
 | Hva hver tabell er, hvem som skriver den, og hvor dataene kommer fra | `docs/datamodell/tabeller.toml`. Excel-fila og `tabeller.md` lages av `docs/verktoy/datamodell.py`, og en test feiler når en tabell mangler |
 | Hva hver hendelsestype er, hvem som sender den, bestemmelsen i NS 8407 og hva den gjør med status | `docs/datamodell/hendelser.toml`. Feltene i `data` hentes fra modellene. `hendelser.md` og arkene i Excel-fila lages av samme verktøy, og en test feiler når en type mangler eller katalogen avviker fra koden |
