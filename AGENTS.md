@@ -8,7 +8,8 @@ et krav er bevart eller prekludert.
 beslutninger står i `docs/plans/2026-09-16-godkjenning-og-varig-levering.md`
 (hovedplanen), og bare der. Arbeid som pågår eller venter, står i GitHub-issues
 (se «Hvor hva står»). Handoffene er historiske. Ikke før slikt inn hit — det blir
-foreldet, og fila lastes automatisk og blir trodd.
+foreldet, og fila lastes automatisk og blir trodd. Regler for kode som skal
+erstattes, står i `.claude/rules/` og sier når de slutter å gjelde.
 
 ## Språk
 
@@ -34,7 +35,8 @@ eller begrepsavklaring. Ikke opprett en parallell ordliste. Skill navneendring f
 endret atferd; uavklart domenesemantikk avgjøres etter arbeidsformen nedenfor.
 Oppdater berørte kallere, tester og referanser samlet. Lagrede hendelsesnavn,
 enumverdier, databasefelt og API-felt er kontrakter: vurder kompatibilitet og
-migrering uttrykkelig, også ved en backend-omskriving.
+migrering uttrykkelig, også ved en backend-omskriving. For sakene TS tar over,
+bygges ingen kompatibilitetsleser for Python-radene (B-17).
 
 **Koden skal være klar av seg selv — skriv få kommentarer.** Forklar en lokal
 begrensning eller et overraskende valg kort ved koden når det hjelper neste
@@ -65,22 +67,23 @@ og mellom kontraktens ordlyd, vår tolkning og appens atferd.
 Catenda-team — byggherren og en ekstern rådgiver er ulike organisasjoner på samme
 side. Skjerming av interne notater og utkast går på **team**, ikke på side.
 
-**Utvider du `SporStatus`, let opp alt som teller opp statuser.** Frontend
-hjelper deg: `Record<SporStatus, …>`-kartene i `src/lib/constants/` er
-uttømmende, så `npm run check:error` navngir hvert sted som mangler den nye
-verdien. Backend gjør det ikke. Der er stedene mengder og sammenlikninger som
-stilltiende faller gjennom — rollupen `overordnet_status`
-(`models/sak_state.py`) og regelsettene i `services/business_rules.py`. En
-status som mangler i rollupen gir ingen feilmelding, den gir «UKJENT» på en sak
-som er oppgjort. Det skjedde da `AVSLATT_AKSEPTERT` kom til.
+## Domenekjernen
 
-**Nytt innhold i en hendelse hører hjemme i datamodellen.** Har hendelsen en
-datamodell, lagrer `to_cloudevent` bare `data`. Et felt ved siden av `data`
-forsvinner ved lagring, men projeksjonen kan lese det i minnet, så svaret og
-cachen viser noe journalen ikke har. Har den ingen datamodell, som
-`sak_opprettet`, lagres en `data` fra klienten slik den kom, fordi `SakEvent`
-godtar ukjente felt (DM-06). `docs/datamodell/hendelser.md` lister
-toppnivåfeltene som ikke lagres.
+**Kontrakten først, aldri status.** En regel i kjernen begrunnes i bestemmelsen i
+NS 8407 eller vedtaket, utsagnet den gjelder (hvem sier hva om hva) og predikatet
+som leses av utsagnene og relasjonene. Ingen regel leser status, «låst»,
+«oppgjort» eller en annen oppsummering; status er en etikett i visningen. Et sendt
+brev og en inngått enighet betyr det de sa da (MM-U3, MM-U9). Det kjernen leser,
+må være lagret (DM-06). En hendelse den ikke forstår, gjør saken ikke forstått
+(MM-U2). Det den ennå ikke kan, avvises og forenkles ikke. Appen avgjør ikke det
+kontrakten overlater til partene, en oppmann eller domstolene. Begrepene står i
+[modellforslaget, 2.2](docs/forslag-maalmodell-2026-10-09.md#22-byggeklossene),
+som ikke er vedtatt i sin helhet, og i [domenetabellen](docs/domenetabell/README.md).
+
+**TS eier KOE, endringsordre og forsering (B-17).** Kjernen får en permanent mappe
+i #308 (B-14); `sprakprove/` er prøvekode. Python-koden for de tre sakstypene er
+overgangskode til #310 og rettes bare for sikkerhet og det som hindrer test eller
+demo (4.2 i hovedplanen).
 
 ## Miljø
 
