@@ -115,10 +115,11 @@ der ville prettier og verktøyet skrevet om hverandres form.
 `ruff format .` ville skrevet om rundt 80 filer. Kjør den ikke på hele treet.
 
 **Kjøretidstilstanden i basen avgjøres av katalogen, ikke av migrasjonsfilene,
-og endringer i basen går gjennom en migrasjonsfil og `supabase db push` — aldri
-`apply_migration` over Supabase-MCP.** Reglene står i
-[`.claude/rules/database.md`](.claude/rules/database.md). De lastes når du
-arbeider i `supabase/` eller lagrene; les dem før du endrer basen over MCP.
+og skjemaet endres bare gjennom en migrasjonsfil — aldri med DDL rett mot en
+base eller med et verktøy som stempler sin egen versjon.** Plattformen er åpen
+(B-12). Reglene står i [`.claude/rules/database.md`](.claude/rules/database.md).
+De lastes når du arbeider i `supabase/`, lagrene eller TS-serveren; les dem før
+du endrer en base.
 
 ## Sikkerhetsinvarianter
 
@@ -191,16 +192,17 @@ tilgangsdekoratøren. Skjemaet og ruta lest hver for seg viste ingenting. Følg
 kallet fra frontenden, med rute, metode og nyttelast, gjennom tilgangskontrollen
 til lageret, og kjør det uten `DISABLE_AUTH`.
 
-**Og ett av lagene ligger ikke i repoet i det hele tatt.** Ti funksjoner bor i
-`public` — `koe_resolve_identity`, `koe_reconcile_memberships`,
+**Og ett av lagene er databasen.** Ti funksjoner bor i `public` —
+`koe_resolve_identity`, `koe_reconcile_memberships`,
 `auto_create_project_membership` og flere. De er en del av applikasjonen, og et
-kodesøk finner dem aldri. Tabellen `app_identities` leses og skrives **ikke av
-noen Python-kode**, og er likevel bærende: den leses og skrives ved hver
-innlogging, fra en databasefunksjon. En runde konkluderte med at den var ubrukt.
-Spør katalogen — `pg_proc`, `pg_trigger`, `pg_policy` — før du skriver at noe ikke
-er i bruk. En trigger kan også være den egentlige skriveren: `project_memberships`
-fylles av en trigger, mens koden som ser ut til å skrive den, treffer en
-unik-skranke og logger en advarsel hver gang.
+søk i Python- og TS-koden finner dem ikke. Tabellen `app_identities` leses og
+skrives **ikke av noen Python-kode**, og er likevel bærende: den leses og skrives
+ved hver innlogging, fra en databasefunksjon. En runde konkluderte med at den var
+ubrukt. Søk også i `supabase/migrations/`, og spør katalogen i testbasen —
+`pg_proc`, `pg_trigger`, `pg_policy` — før du skriver at noe ikke er i bruk. En
+trigger kan også være den egentlige skriveren: `project_memberships` fylles av en
+trigger, mens koden som ser ut til å skrive den, treffer en unik-skranke og
+logger en advarsel hver gang.
 
 **Og spør hvem *andre* som kaller funksjonen, ikke bare om den kalles.** MG-02
 slo fast at det krevdes en produktbeslutning for å la en webhook opprette
@@ -208,7 +210,7 @@ brukerrader — fordi runden fant at innloggingen kaller `koe_resolve_identity`,
 men ikke at `koe_reconcile_memberships` kaller den for hvert prosjektmedlem ved
 hver synkronisering. Systemet gjorde det allerede: fjorten brukere, fjorten
 identiteter, én sesjon. En funksjon som kalles fra en annen databasefunksjon,
-finnes ikke i noe kodesøk.
+finnes ikke ved å søke etter kallere i Python eller TS.
 
 **Har du funnet ett tilfelle, har du ikke funnet alle.** Søket formes av det du
 allerede fant, så tellingen vokser i runder — og hver runde melder seg ferdig.
