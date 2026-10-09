@@ -508,12 +508,7 @@
         { "handling": "trekk", "spor": "grunnlag", "navn": "D5" }
       ],
       "kontroller": [
-        {
-          "etter": 1,
-          "rolle": "forutsetning",
-          "kilde": ["GR-U7"],
-          "forventet": { "enighet.vederlag.kilde": "sammenfall" }
-        },
+        { "etter": 1, "rolle": "mal", "kilde": ["GR-U7"], "forventet": { "enighet.vederlag.kilde": "sammenfall" } },
         {
           "etter": 1,
           "rolle": "kontroll",
@@ -1283,7 +1278,7 @@
       "kontroller": [
         {
           "etter": 5,
-          "rolle": "forutsetning",
+          "rolle": "mal",
           "kilde": ["GR-U7", "KA-U11"],
           "forventet": {
             "grunnlag_avklart": false,
@@ -1517,7 +1512,7 @@
       "kontroller": [
         {
           "etter": 1,
-          "rolle": "forutsetning",
+          "rolle": "mal",
           "kilde": ["GR-U7"],
           "forventet": {
             "enighet.vederlag.kilde": "sammenfall",
