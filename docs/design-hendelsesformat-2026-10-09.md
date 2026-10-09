@@ -266,10 +266,12 @@ svar uten beslutningsgrunnlag kan ikke lagres (MM-U9). Det har:
 | `linje` | Brevlinjen | Brevet er det autoritative uttrykket (B-03) |
 | `sammenfall` | `true` når svaret godkjenner hele kravet, ellers `false` | MM-U11. Se under |
 
-Hva standpunktet sier, godkjent eller avslått, står i standpunktet selv.
-Beløp og dager står i `utregning` i samme svar. Begge er lagret i en rad som
-ikke endres, og er dermed like frosne. Beslutningsgrunnlaget kopierer dem
-ikke, så de har ett hjem.
+«Godkjent eller avslått, beløp eller dager» i MM-U11 gjelder svaret som
+helhet: standpunktene, `utregning` og `sammenfall`. Hva standpunktet sier,
+godkjent eller avslått, står i standpunktet selv. Beløp og dager står i
+`utregning` i samme svar. Begge er lagret i en rad som ikke endres, og er
+dermed like frosne. Beslutningsgrunnlaget kopierer dem ikke, så de har ett
+hjem.
 
 **`sammenfall`.** Det betyr ulike ting etter sporet:
 - *Grunnlaget:* byggherren har godkjent ansvaret uten å påberope preklusjon
@@ -283,8 +285,10 @@ ikke, så de har ett hjem.
 **Utledes og lagres ikke** (MM-U11): utfallet i sporet (beløp, dager, eller om
 grunnlaget er godkjent, avslått eller frafalt) og vilkåret for enigheten. Det
 utledes av de frosne standpunktene og deres virkning. Sammensetningen følger
-§ 32.3 første ledd a–c, prinsipalt og subsidiært, og GR-U7. Endres den, kan
-utfallet av et sendt brev endre seg. Den kostnaden er valgt i MM-U11.
+§ 32.3 a–c og vedtakene om prinsipale og subsidiære standpunkter, som GR-U7.
+Den følger gjeldende regler, også for sendte brev, som et unntak fra MM-U9.
+Endres den, kan utfallet av et sendt brev endre seg. Den kostnaden er valgt i
+MM-U11.
 
 **Foreslått, enigheten.** Det finnes ikke noe eget enighetsgrunnlag i formatet:
 - *Ved aksept* er det utsagnet `{id, art: "aksept", gjelder: <svar>, regelversjon}`
@@ -587,8 +591,9 @@ da brevet ble sendt eller da TE godtok det. Alternativene var (a) svaret med
 virkningen brevet hadde, og aksepten viser bare til svaret og
 regelversjonen; (b) virkningen etter reglene da aksepten ble registrert, som
 en egen kopi i aksepten. Belegg: B-03 (brevet er det autoritative uttrykket),
-KA-U1, MM-U3 og MM-U9. Spørsmålet viste også til § 34.2.2 første ledd, men
-«akseptert» der gjelder byggherrens aksept av TEs tilbud og bærer ikke valget.
+KA-U1, MM-U3 og MM-U9. Spørsmålet og vedtaksteksten viser også til § 34.2.2
+første ledd. Merknaden til KA-U10 sier at bestemmelsen gjelder byggherrens
+aksept av TEs tilbud og ikke bærer vedtaket alene.
 Anbefalt: (a).
 
 *Vedtatt (a), [KA-U10](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u10):* «godtar TE byggherrens svar, gjelder enigheten svaret med den virkningen brevet hadde da det ble sendt, slik beslutningsgrunnlaget i brevet uttrykker den (MM-U9). Det gjelder også når reglene er endret mellom brevet og aksepten. Aksepten viser til svaret og lagrer regelversjonen TE fikk se. Innholdet i enigheten leses fra beslutningsgrunnlaget og kopieres ikke. Ved enighet ved sammenfall (GR-U8, GR-U10) er brevet og enigheten samtidige. NS 8407 regulerer ikke appens regelversjoner, så valget er produktatferd; det følger B-03 (brevet er det autoritative uttrykket for partens standpunkt) og § 34.2.2 første ledd (et akseptert tilbud binder slik det sto). Forkastet: at enigheten fryser virkningen etter reglene da aksepten ble registrert, som en egen kopi i aksepten»
@@ -599,7 +604,7 @@ beslutningsgrunnlaget fryser utfallet per spor og vilkåret for enigheten.
 Alternativene var bare standpunktene, eller standpunktene med utfall og
 vilkår.
 
-*Vedtatt «bare standpunktene», [MM-U11](plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u11):* «beslutningsgrunnlaget i byggherrens svar fryser hvert standpunkt med virkningen det hadde da brevet ble sendt: prinsipalt eller subsidiært, preklusjon, godkjent eller avslått, beløp eller dager. Det fryser også om svaret godkjenner hele kravet (sammenfall). Utfallet i sporet og vilkåret for en enighet utledes av de frosne standpunktene, og ingen regel leser et lagret utfall. Endres regelen som setter standpunktene sammen til et utfall, kan utfallet av et sendt brev endre seg. Sammensetningen følger kontraktens struktur (§ 32.3 første ledd a–c, prinsipalt og subsidiært) og vedtak som GR-U7, ikke en appregel som ventes å endre seg. Forkastet: at hvert svar i tillegg fryser utfallet per spor og vilkåret for enigheten»
+*Vedtatt «bare standpunktene», [MM-U11](plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u11):* «beslutningsgrunnlaget i byggherrens svar fryser hvert standpunkt med virkningen det hadde da brevet ble sendt: prinsipalt eller subsidiært, preklusjon, godkjent eller avslått, beløp eller dager. Det fryser også om svaret godkjenner hele kravet (sammenfall). Utfallet i sporet og vilkåret for en enighet utledes av de frosne standpunktene, og ingen regel leser et lagret utfall. Endres regelen som setter standpunktene sammen til et utfall, kan utfallet av et sendt brev endre seg. Sammensetningen følger § 32.3 a–c og vedtakene om prinsipale og subsidiære standpunkter, som GR-U7. Forkastet: at hvert svar i tillegg fryser utfallet per spor og vilkåret for enigheten»
 
 ## Verifikasjon og grenser
 
