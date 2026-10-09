@@ -126,9 +126,7 @@ lagres_fra = """
 Når en forsering opprettes gjennom `/api/forsering/opprett`, og når en
 endringsordre opprettes eller KOE-er legges til eller fjernes fra den
 (forsering- og endringsordretjenesten). Å legge til eller fjerne KOE-er fra en
-forsering endrer bare Catenda, ikke denne tabellen (dataflyten, C11). Skriptet
-`scripts/backfill_relations.py` kaller lageret uten autorisert prosjekt, og
-over PostgreSQL avvises da hver skriving (`krev_autorisert_prosjekt`)."""
+forsering endrer bare Catenda, ikke denne tabellen (dataflyten, C11)."""
 fra_catenda = """
 Delvis. En forsering opprettet gjennom `/api/forsering/opprett` får topicens
 GUID fra Catenda som sak-ID. Ellers er koblingene appens egne."""
@@ -144,9 +142,8 @@ skrivere = [
 funn = ["DA-13", "MS-08", "DB-04"]
 belegg = """
 K 29.09: kolonnene og fraværet av fremmednøkler i testbasen. L 29.09:
-kallerne av `add_relation`, `add_relations_batch` og `remove_relation`; at
-forseringsrutene for relaterte saker ikke skriver tabellen, og skriptet, i
-fase 1c."""
+kallerne av `add_relation`, `add_relations_batch` og `remove_relation`, og at
+forseringsrutene for relaterte saker ikke skriver tabellen, i fase 1c."""
 
 [[tabell]]
 navn = "projects"

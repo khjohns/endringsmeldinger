@@ -95,14 +95,14 @@ Koblinger mellom saker, for eksempel hvilke KOE-er en forsering eller en endring
 | --- | --- |
 | Type | avledet |
 | Status | i bruk |
-| Hvor fra appen lagres og redigeres | Når en forsering opprettes gjennom `/api/forsering/opprett`, og når en endringsordre opprettes eller KOE-er legges til eller fjernes fra den (forsering- og endringsordretjenesten). Å legge til eller fjerne KOE-er fra en forsering endrer bare Catenda, ikke denne tabellen (dataflyten, C11). Skriptet `scripts/backfill_relations.py` kaller lageret uten autorisert prosjekt, og over PostgreSQL avvises da hver skriving (`krev_autorisert_prosjekt`). |
+| Hvor fra appen lagres og redigeres | Når en forsering opprettes gjennom `/api/forsering/opprett`, og når en endringsordre opprettes eller KOE-er legges til eller fjernes fra den (forsering- og endringsordretjenesten). Å legge til eller fjerne KOE-er fra en forsering endrer bare Catenda, ikke denne tabellen (dataflyten, C11). |
 | Data fra Catenda | Delvis. En forsering opprettet gjennom `/api/forsering/opprett` får topicens GUID fra Catenda som sak-ID. Ellers er koblingene appens egne. Dataflyt: fra Catenda i C10 (arket Dataflyt). |
 | Relasjoner | Nøkler: primærnøkkel (id); unik (source_sak_id, target_sak_id, relation_type). Viser til: source_sak_id → sak_metadata.sak_id (uten fremmednøkkel); target_sak_id → sak_metadata.sak_id (uten fremmednøkkel); prosjekt_id → projects.id (uten fremmednøkkel). |
 | Kan bygges opp igjen | ikke kontrollert. Koblingene finnes trolig også som hendelser (`FORSERING_KOE_*`, `EO_KOE_*`), men det er ikke sjekket at de to alltid er like. |
 | Personopplysninger | Ingen kjente. |
 | Skrives av | backend/services/forsering_service.py; backend/services/endringsordre_service.py |
 | Funn | DA-13, MS-08, DB-04 |
-| Belegg | K 29.09: kolonnene og fraværet av fremmednøkler i testbasen. L 29.09: kallerne av `add_relation`, `add_relations_batch` og `remove_relation`; at forseringsrutene for relaterte saker ikke skriver tabellen, og skriptet, i fase 1c. |
+| Belegg | K 29.09: kolonnene og fraværet av fremmednøkler i testbasen. L 29.09: kallerne av `add_relation`, `add_relations_batch` og `remove_relation`, og at forseringsrutene for relaterte saker ikke skriver tabellen, i fase 1c. |
 
 ### `projects`
 
