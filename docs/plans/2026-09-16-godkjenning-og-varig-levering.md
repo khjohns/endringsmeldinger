@@ -596,6 +596,12 @@ Et åpent valg blokkerer bare oppgavene som er nevnt.
 > portering (#300). Oppdragsgiver vedtok samme dag TS som retning for den
 > delte domenekjernen, med disse avgrensningene (3.1).
 
+> **Merknad 2026-10-09 til B-14 (målmodellen):** Gjennomgangen av målmodellen
+> før portering er levert som [modellforslaget](../forslag-maalmodell-2026-10-09.md)
+> (#300). Den gjennomgår fem forløp med vedtak på papir og ga MM-U1–MM-U4 i 3.1.
+> Modellen som helhet er ikke vedtatt og ikke bevist i kode; den kjørbare prøven
+> er #304. Retning og rekkefølge under B-14 er uendret.
+
 > **Merknad 2026-10-07 til B-10:** Strategien skal skille saksversjon fra
 > versjonen som beregnet en projeksjon, og vise invalidasjon/gjenoppbygging
 > når regler endrer gamle saker uten nye hendelser. Frosne brev og beslutninger
