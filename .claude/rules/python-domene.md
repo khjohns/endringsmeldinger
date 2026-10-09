@@ -1,6 +1,8 @@
 ---
 paths:
   - "backend/models/**"
+  - "backend/routes/**"
+  - "backend/repositories/**"
   - "backend/services/**"
   - "backend/regler/**"
   - "src/lib/constants/**"

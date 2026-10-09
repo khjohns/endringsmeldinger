@@ -30,9 +30,7 @@ modulnivå, og union av strenger i stedet for `enum`. Data over grensen
 (hendelsestyper, felt og verdier i journal, API og database) er `snake_case` med
 små bokstaver. I kjernen skrives æ, ø og å som ae, oe og aa (`kanInngaaIEo`);
 ellers følger du modulens skrivemåte uten å blande, og Python-koden omskrives
-ikke. I #308 får målmodellens engelske koder nye navn, og eslint håndhever
-navnene (`naming-convention`, `id-match` mot æøå). Commit-meldinger begynner
-med liten forbokstav og et verb i imperativ.
+ikke. Commit-meldinger begynner med liten forbokstav og et verb i imperativ.
 
 **Eksisterende navn er utgangspunkt, ikke fasit.** Forbedre upresise navn innenfor
 oppgaven, og før gamle og nye navn i domenetabellen eller oppgavens
@@ -83,10 +81,11 @@ kontrakten overlater til partene, en oppmann eller domstolene. Begrepene står i
 [modellforslaget, 2.2](docs/forslag-maalmodell-2026-10-09.md#22-byggeklossene),
 som ikke er vedtatt i sin helhet, og i [domenetabellen](docs/domenetabell/README.md).
 
-**TS eier KOE, endringsordre og forsering (B-17).** Kjernen får en permanent mappe
-i #308 (B-14); `sprakprove/` er prøvekode. Python-koden for de tre sakstypene er
-overgangskode til #310 og rettes bare for sikkerhet og det som hindrer test eller
-demo (4.2 i hovedplanen).
+**TS eier KOE, endringsordre og forsering (B-17).** Kjernen skal ligge i en egen,
+permanent mappe (B-14); `sprakprove/` er prøvekode og ikke en mal. Python-koden
+for de tre sakstypene er overgangskode og rettes bare for sikkerhet og det som
+hindrer test eller demo
+([merknaden i 4.2](docs/plans/2026-09-16-godkjenning-og-varig-levering.md#python-feil-koe)).
 
 ## Miljø
 
@@ -124,9 +123,8 @@ base eller et verktøy som stempler sin egen versjon.** Reglene står i
 ## Sikkerhetsinvarianter
 
 Brytes en av disse, er det en sikkerhetsfeil uansett hvor liten endringen så ut.
-De gjelder hver serverinngang, i Python og i TS. Mekanismene står i
-[`.claude/rules/tilgang.md`](.claude/rules/tilgang.md). TS-stien har ennå ingen
-registertest (#310).
+De gjelder hver serverinngang, i Python og i TS. Mekanismene, og det TS-stien
+ennå mangler, står i [`.claude/rules/tilgang.md`](.claude/rules/tilgang.md).
 
 - **Hver serverinngang krever innlogget sesjon og tilgang til prosjektet, og
   eventuelt kontraktsrolle.** En inngang uten sesjon eller uten prosjekt står i
@@ -250,8 +248,11 @@ TypeScript, og en `DEFAULT` i databasen. Søk etter alle formene før du skriver
   det `venter-på-beslutning`. Det gjelder også feil du oppdager underveis
   utenfor oppdraget. Å nevne dem i PR-beskrivelsen er ikke nok. Tilskriver du
   en feil testmiljøet, er det en påstand. Kontroller den, eller meld den.
-- **Hvert issue har en milepæl (arbeidspakken) eller en sporetikett.** Se
-  [orkestreringsskillen](.claude/skills/orkestrering/SKILL.md#milepæler-og-etiketter).
+- **Hvert issue har en milepæl eller en sporetikett.** Milepælen er
+  arbeidspakken i hovedplanen; de parallelle sporene har `spor-d`, `spor-h`,
+  `spor-m` eller `papercut` i stedet. Venter et issue på rekkefølgen i AF-06,
+  får det `venter-på-rekkefølge`, som fjernes når hovedplanen har en datert
+  merknad om unntak. Et issue som samler grunnlaget for en B-ID, får `beslutning`.
 - **Det som sinker arbeidet, blir et issue med etiketten `papercut`**: et verktøy
   som feiler, et oppsett som må gjøres for hånd, en test som henger. Skriv
   symptom og løsning eller omvei. Feiler noe uforklarlig, søk i `papercut`-issuene

@@ -36,15 +36,19 @@ if ! /tmp/venv/bin/pip install --quiet --disable-pip-version-check \
 fi
 
 # npm ci når låsefila er endret siden forrige installasjon, ellers npm install.
+# Uten stempel er forrige installasjon ukjent, og npm install er billigst.
+laasefil_sum() {
+  sha256sum < "$rot/package-lock.json" | cut -d' ' -f1
+}
 installer_npm() {
-  local stempel="$rot/node_modules/.koe-laasefil" laas
-  laas="$(sha256sum "$rot/package-lock.json")" || return 1
-  if [ "$(cat "$stempel" 2> /dev/null)" = "$laas" ]; then
-    (cd "$rot" && npm install --no-audit --no-fund) || return 1
-  else
+  local stempel="$rot/node_modules/.koe-laasefil" forrige
+  forrige="$(cat "$stempel" 2> /dev/null)"
+  if [ -n "$forrige" ] && [ "$forrige" != "$(laasefil_sum)" ]; then
     (cd "$rot" && npm ci --no-audit --no-fund) || return 1
+  else
+    (cd "$rot" && npm install --no-audit --no-fund) || return 1
   fi
-  echo "$laas" > "$stempel"
+  laasefil_sum > "$stempel"
 }
 if ! installer_npm >> "$logg" 2>&1; then
   echo "ADVARSEL: npm-installasjonen feilet, så npm test og typesjekken kan mangle pakker; se $logg."
@@ -52,8 +56,11 @@ fi
 
 # Summen av det testbasen bygges av. Avviker den fra summen containeren ble
 # bygget med, er containeren fra et eldre øyeblikksbilde og bygges på nytt.
+# Bare filer Git kjenner (sporet eller ikke ignorert), så en reservekopi eller
+# en ignorert fil ikke tvinger fram en ny base.
 testbase_sum() {
-  (cd "$rot" && find supabase/migrations scripts/testbase -type f -print0 \
+  (cd "$rot" && git ls-files -z --cached --others --exclude-standard \
+    supabase/migrations scripts/testbase \
     | sort -z | xargs -0 sha256sum | sha256sum | cut -d' ' -f1)
 }
 
