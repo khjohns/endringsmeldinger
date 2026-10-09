@@ -490,6 +490,13 @@ Tilsluttet av oppdragsgiver 21.09. Føringer for design, ikke implementert.
 > Oppdragsgiver avgjorde samme dag at endringsordre- og forseringssakene går
 > til TS sammen med KOE-sakene (merknaden til [B-17](#b-17)).
 
+> **Merknad 2026-10-09 til AF-06 (#102, #162):** Oppdragsgiver har godkjent at
+> backfill-skriptet i #102 (`backend/scripts/backfill_relations.py`) og
+> testskriptene i #162 (`create_test_sak.py` og `test_full_flow.py`) slettes nå.
+> De rettes ikke. Skriptene krever Supabase-lageret eller utviklingsbypass, og de
+> bygger saker og relasjoner fra testsaker som forkastes etter B-17. Logger-delen
+> av #110 og backenddelen av #111 venter på B-18.
+
 ### 3.3 Anbefalinger som ikke er vedtatt
 
 | Anbefaling | Kilde | Status |
