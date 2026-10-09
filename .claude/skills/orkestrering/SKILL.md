@@ -86,9 +86,10 @@ issue. Oppdraget skal inneholde:
   noen få linjer i en fil den allerede endrer. Alt annet venter til neste
   runde, også funn i andre øktes filer og funn som krever en avgjørelse;
 - hvilke sjekker som skal kjøres før push, og nettleserkontroll der issuet
-  krever det. Kontrollen går mot den ekte saksruta, ikke `/mockup`, som har
-  andre data og en egen statusregel. Lar den seg ikke kjøre, står grunnen i
-  PR-beskrivelsen;
+  krever det, med skillen `mockup-nettleser`. `/mockup` har demodata og en egen
+  statusregel, så den viser ikke at den ekte saksruta virker, og det finnes
+  ingen oppskrift for den ekte ruta i skyøkta. Det kontrollen ikke dekker, står
+  i PR-beskrivelsen;
 - at `/code-review` kjøres etter regelen i `AGENTS.md`, én runde før PR-en
   åpnes og én kontroll av rettingene. `/simplify` bare når oppdragsgiver ber
   om det;

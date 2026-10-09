@@ -285,12 +285,14 @@ CLI eller API. Arkitekturoppgaver kan bruke
 [oppgavemalen](.github/ISSUE_TEMPLATE/arkitekturendring.md); eksisterende
 issues suppleres i stedet for å dupliseres.
 
-**Kjør `/code-review` på egen diff før en PR meldes klar.** Nivå `high` når
-diffen rører `routes/`, `lib/auth/`, lagrene eller migrasjonene, ellers
-`medium`; en diff som bare rører `docs/`, trenger ingen. Reviewet går i egen
-kontekst, så det ser diffen uten forfatterens antakelser. Rett funnene; et
-funn du avviser, står med begrunnelse under «Åpne spørsmål» i PR-beskrivelsen.
-`/simplify` kjøres bare når oppdragsgiver ber om det.
+**Uavhengig review før en PR meldes klar er `/code-review` på egen diff**, på
+nivå `high` når diffen rører serverinngangene, tilgang, CSRF, lagring, journalen
+eller migrasjonene, uansett språk, ellers `medium`; en diff som bare rører
+`docs/`, trenger ingen. Endrer diffen utledningen eller reglene i domenet, kommer i
+tillegg en review av samspillet mellom reglene, i ny kontekst og med reglene og
+bevis-sakene samlet. Rett funnene; et funn du avviser, står med begrunnelse
+under «Åpne spørsmål» i PR-beskrivelsen. `/simplify` kjøres bare når
+oppdragsgiver ber om det.
 
 **Oppdragsgiver vil ha spørsmål, ikke dokumenter å lese.** Kartlegg selv. Der
 noe bare oppdragsgiver kan avgjøre, still konkrete spørsmål med

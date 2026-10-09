@@ -14,6 +14,16 @@ etterpå. Skjermbildene havner i `--utdata` (standard `/tmp/mockup-skjermbilder`
 vurderingen, brevet og det sendte svaret. Det feiler ved JavaScript-feil i siden.
 `/mockup` bruker demolageret og trenger verken backend eller innlogging.
 
+## Til #246 er rettet
+
+`/mockup` laster ikke i `vite dev`: `src/lib/domain/fristVarselDomain.ts`
+importerer en JSON-fil under `backend/constants/`, som er utenfor Vites
+tillatelsesliste, og skriptet venter på «Byggherre BH» til tidsavbrudd.
+Omvei: legg `fs: { allow: ['backend/constants'] }` under `server` i
+`vite.config.ts`, kjør skriptet, og fjern linja igjen. Commit den aldri. I en
+git-worktree der `node_modules` er en symbolsk lenke, må lenkens mål også stå i
+lista. Fjern avsnittet når #246 er rettet.
+
 ## Nettleseren
 
 Bruk den globale playwright-pakken (`npm root -g`), ikke `npm i playwright`.
