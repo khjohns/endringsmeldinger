@@ -42,7 +42,8 @@ export type Utsagn =
       art: 'aksept';
       gjelder: string;
       regelversjon: number | null;
-      enighetsgrunnlag: Enighetsgrunnlag | null;
+      /** `undefined` når aksepten er skrevet uten feltet, og kompatibilitetsleseren må utlede det. */
+      enighetsgrunnlag: Enighetsgrunnlag | undefined;
     }
   | { id: string; art: 'bestridelse'; gjelder: string; hva: 'sendt' | 'mottatt' };
 
