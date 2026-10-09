@@ -326,7 +326,7 @@ har fortsatt verdi.
 
 **Status:** port 1 er gjennomført. Port 2 venter på klarsignal. Dette er et
 delresultat, ikke en anbefaling om språk. Kjøringene står i
-[PR-en for prøven](https://github.com/khjohns/endringsmeldinger/pulls?q=head%3Aclaude%2Fsprakprove-274)
+[PR #297](https://github.com/khjohns/endringsmeldinger/pull/297)
 med kontrollert commit.
 
 **Hva som ble sammenliknet:**
