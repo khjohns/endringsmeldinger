@@ -78,6 +78,17 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r backend/requirements.txt -r backend/requirements-dev.txt
 
+      # TS-serveren i språkprøven (#274) prøves mot samme base, også fra pytest.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Installer Node-avhengigheter
+        run: npm ci
+        env:
+          HUSKY: 0
+
       - name: Kontroller serverversjonen
         run: |
           versjon="$(psql "$KOE_TESTBASE_URL" --no-psqlrc -tAc 'SHOW server_version_num')"
@@ -90,6 +101,9 @@ jobs:
       - name: Kjør databasetestene
         working-directory: backend
         run: python -m pytest -q -p no:cacheprovider -m database tests/test_database
+
+      - name: Kjør TS-serveren i språkprøven mot basen
+        run: npx vitest run sprakprove/tester/server.test.ts sprakprove/tester/serverkorpus.test.ts
 
   frontend:
     name: Frontend (vitest)
