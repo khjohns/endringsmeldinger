@@ -721,7 +721,7 @@
       "kontroller": [
         {
           "etter": 2,
-          "rolle": "forutsetning",
+          "rolle": "mal",
           "kilde": ["MM-U9"],
           "forventet": { "visning.etiketter.grunnlag": { "inneholder": ["regel_endret_etter_brevet"] } }
         },

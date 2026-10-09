@@ -201,7 +201,7 @@ const MUTASJONER: Mutasjon[] = [
         '  const avsluttet = u.grunnlagAvvist || kraveneErAvgjort(u);\n  const ut = avsluttet ? [] : sporhandlinger(u, part);',
       ],
     ],
-    mal: ['reglene leser ingen status eller oppsummering (#308) > handlinger.ts'],
+    mal: ['reglene leser ingen status eller oppsummering (#308) handlinger.ts'],
   },
 ];
 

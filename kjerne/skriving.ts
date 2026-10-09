@@ -19,7 +19,7 @@ import {
   standpunkter,
 } from './standpunkt.ts';
 import { forhandsvisAksept, utled, type Utledning } from './utled.ts';
-import type { Avvisning, Part } from './typer.ts';
+import type { Avvisning, Krav, Part } from './typer.ts';
 
 /** Det serveren stempler kommandoen med. Klienten bestemmer ingen av dem. */
 export interface Kontekst {
@@ -188,30 +188,33 @@ export function vurder(
 /**
  * Fryser brevet i hvert svar blant `nye`: beslutningsgrunnlaget, og
  * enighetsgrunnlaget når svaret godkjenner hele kravet (GR-U7, GR-U10, MM-U9).
- * Gjelder også registrert korrespondanse (merknaden til MM-U9). `false`, og
- * ingenting fryses, når kjernen ikke forstår journalen med svarene.
+ * Gjelder også registrert korrespondanse (merknaden til MM-U9). Et svar
+ * leseren ikke forstår, fryses ikke. `true` når kjernen forstår journalen
+ * etterpå.
  */
 export function frysBrev(journal: Journalrad[], nye: Journalrad[], kjerne: Kjerne): boolean {
-  const svar = nye.filter((h) => SVARTYPER[h.event_type] !== undefined);
-  if (!svar.length) return true;
-  const alle = [...journal, ...nye];
-  const utkast = utled(
-    lesJournal(alle, kjerne.format, new Set(svar.map((h) => h.event_id))),
-    kjerne.regler
+  const svar = new Map(
+    nye.filter((h) => SVARTYPER[h.event_type] !== undefined).map((h) => [h.event_id, h])
   );
-  if (!utkast.forstatt) return false;
-  for (const h of svar) {
-    const s = utkast.svar[h.event_id].svar;
-    const grunnlagskrav =
-      s.spor === 'grunnlag'
-        ? utkast.spor.grunnlag.krav.find((k) => k.id === s.gjelder)
-        : utkast.spor.grunnlag.gjeldendeKrav;
-    const st = standpunkter(s, grunnlagskrav, kjerne.regler);
-    const brev = beslutningsgrunnlag(s, st, kjerne.regler);
-    h.data.beslutningsgrunnlag = brev;
-    h.data.enighetsgrunnlag = godkjennerHeleKravet(s, st)
-      ? enighetsgrunnlag({ ...s, beslutningsgrunnlag: brev }, 'sammenfall')
-      : null;
+  const alle = [...journal, ...nye];
+  const grunnlagskrav: Krav[] = [];
+  for (const h of lesJournal(alle, kjerne.format, new Set(svar.keys()))) {
+    if (h.art !== 'dokument') continue;
+    grunnlagskrav.push(...h.dokument.krav.filter((k) => k.spor === 'grunnlag'));
+    for (const s of h.dokument.svar) {
+      const rad = svar.get(s.id);
+      if (!rad) continue;
+      const krav =
+        s.spor === 'grunnlag'
+          ? grunnlagskrav.find((k) => k.id === s.gjelder)
+          : grunnlagskrav.at(-1);
+      const st = standpunkter(s, krav, kjerne.regler);
+      const brev = beslutningsgrunnlag(s, st, kjerne.regler);
+      rad.data.beslutningsgrunnlag = brev;
+      rad.data.enighetsgrunnlag = godkjennerHeleKravet(s, st)
+        ? enighetsgrunnlag({ ...s, beslutningsgrunnlag: brev }, 'sammenfall')
+        : null;
+    }
   }
   return utledJournal(alle, kjerne).forstatt;
 }
