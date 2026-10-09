@@ -55,8 +55,8 @@ Rekkefølgen skriptet følger, og som trengs om du driver flyten selv:
 
 ## Andre nettleserskript i repoet
 
-`scripts/test_brev_godkjenning.mjs` bruker installert Chrome som standard. I
-skyøkta, med vite kjørende:
+`scripts/test_brev_godkjenning.mjs` og `scripts/test_endringsordre.mjs` bruker
+installert Chrome som standard. I skyøkta, med vite kjørende:
 
 ```bash
 PLAYWRIGHT_MODULE="$(npm root -g)/playwright/index.mjs" \
@@ -64,5 +64,4 @@ CHROMIUM_EXECUTABLE_PATH=/opt/pw-browsers/chromium \
 TEST_BASE_URL=http://localhost:5173 node scripts/test_brev_godkjenning.mjs
 ```
 
-`scripts/test_endringsordre.mjs` krever installert Chrome og kjører ikke i
-skyøkta.
+`test_endringsordre.mjs` kjøres på samme måte.

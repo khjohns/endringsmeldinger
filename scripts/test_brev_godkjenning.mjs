@@ -27,7 +27,7 @@ async function prepareEconomy(page) {
   await page.getByRole('button', { name: 'Ferdigstill vurdering', exact: true }).click();
   await page.locator('.approval-view').waitFor();
   assert.match(await page.locator('.decision').innerText(), /Prinsipalt avslått/);
-  assert.match(await page.locator('.decision').innerText(), /Subsidiært:/);
+  assert.match(await page.locator('.decision').innerText(), /Subsidiært godkjent: 2\s930\s000\skr/);
 }
 const panel = (page) => page.locator('.approval-panel');
 const actAs = (page, id) => page.getByLabel('Demo · vis som').selectOption(id);
