@@ -99,6 +99,11 @@ Utenfor skyøktene: `python3 -m venv /tmp/venv` og `pip install -r` begge
 bruker den globale playwright-pakken, som passer med nettleserne i
 `/opt/pw-browsers`. Kjør aldri `npm i playwright` eller `playwright install`.
 
+**`npm run lint` håndhever prettier for koden** i `src/`, `sprakprove/`, `scripts/`
+og konfigurasjonsfilene i roten; `npm run format` skriver den. JSON som et verktøy
+skriver (`regler.json`, `package-lock.json`), tsconfig-filene og `docs/` er utenfor:
+der ville prettier og verktøyet skrevet om hverandres form.
+
 **`ruff format` er ikke en port.** Repoet er aldri formatert med den, og
 `ruff format .` ville skrevet om rundt 80 filer. Kjør den ikke på hele treet.
 
