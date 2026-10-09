@@ -15,8 +15,9 @@ To krav har hver sin utløser. Filområdet er et eksempel, ikke utløseren.
 
 - **Feilinnføring** (se `.claude/rules/tester.md`) kreves når endringen gir en
   endret tilgangsavgjørelse, statusovergang, beregningsregel, serialisering
-  eller transaksjonsgaranti. Typiske steder er `lib/auth/`, `routes/`,
-  `services/business_rules.py`, `SporStatus`, hendelsesmodellene og lagrene. En
+  eller transaksjonsgaranti. Typiske steder, i begge språk, er tilgangslaget,
+  serverinngangene, reglene og utledningen i kjernen, hendelsesmodellene og
+  lagrene; i Python også `services/business_rules.py` og `SporStatus`. En
   kommentarendring eller ren flytting der utfallet er det samme, utløser det ikke.
 - **Beslutningsansvar** kreves når tiltenkt atferd, en tolkning av NS 8407 eller
   godtatt restrisiko endres. En omstrukturering som beholder atferden, utløser
@@ -65,7 +66,8 @@ To krav har hver sin utløser. Filområdet er et eksempel, ikke utløseren.
   issue og omtales som uprøvd, ikke som håndhevet.
 - En migrering har én autoritativ skrivesti per kommando. Fjern erstattet kode,
   utdaterte tester og konfigurasjon når de ikke trengs lenger, men behold
-  domenebevis og nødvendig bakoverkompatibilitet med historikken. Midlertidig
+  domenebevis og nødvendig bakoverkompatibilitet med historikken (for sakene TS
+  tar over, ikke med Python-radene; B-17). Midlertidig
   dobbeltkode eller adapter får et koblet issue med ansvarlig, berørte filer og et
   observerbart fjerningskriterium. «Ryddes senere» holder ikke.
 
@@ -96,11 +98,13 @@ To krav har hver sin utløser. Filområdet er et eksempel, ikke utløseren.
   innsending, batch og godkjenning der de bruker regelen. Ved endret
   hendelsesdata eller serialisering: prøv faktisk lagring og gjenlesing. Vurder
   historiske data og gamle og nye lesere og skrivere når kompatibiliteten
-  berøres. Oppgi begrensningene. En test i minnet beviser ikke lagringsstien.
-- Kjør de relevante CI-sjekkene. Kjør også `npm run build` når frontendkode,
-  frontendavhengigheter eller byggoppsettet endres. Andre berørte artefakter
-  bygges med sine dokumenterte kommandoer. Dokumentendringer alene krever ikke
-  applikasjonsbygg eller full testsuite.
+  berøres, med samme unntak (B-17). Oppgi begrensningene. En test i minnet
+  beviser ikke lagringsstien.
+- Kjør de relevante CI-sjekkene, også typesjekken av TS-koden utenfor `src/`
+  (kommandoen står under «Miljø» i `AGENTS.md`). Kjør også `npm run build` når
+  frontendkode, frontendavhengigheter eller byggoppsettet endres. Andre berørte
+  artefakter bygges med sine dokumenterte kommandoer. Dokumentendringer alene
+  krever ikke applikasjonsbygg eller full testsuite.
 - Gjennomfør uavhengig review etter `AGENTS.md`, med akseptkriteriene som
   grunnlag. Se særlig etter ny duplisering, om regelen ligger der den skal eies,
   og om utfasingen er planlagt. Leveransen skal kunne forklares og etterprøves
