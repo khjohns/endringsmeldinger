@@ -836,6 +836,8 @@ class BusinessRuleValidator:
     ) -> ValidationResult:
         """GR-U7: er partene allerede enige, er det ikke noe å godta."""
         spor = event.spor.value
+        if getattr(state, spor).status == SporStatus.TRUKKET:
+            return ValidationResult(False, f"Kravet på {spor} er trukket")
         if spor == "grunnlag":
             enige = state.grunnlag.te_akseptert or state.grunnlag.avklart
         else:

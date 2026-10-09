@@ -46,6 +46,8 @@ export function offentligTilstand(sak: Sak) {
   const fData = f.svar?.data ?? {};
   const subsidiaertGodkjent = (navn: 'vederlag' | 'frist') => {
     const resultat = sak[navn].svar?.data.beregnings_resultat;
+    // Som `er_subsidiaert_vederlag` i Python: frafall gjør ikke vederlaget subsidiært.
+    if (navn === 'vederlag' && grunnlagsvurdering(sak).resultat === 'frafalt') return false;
     return (
       standpunktFor(sak, navn).subsidiaert &&
       (resultat === 'godkjent' || resultat === 'delvis_godkjent')

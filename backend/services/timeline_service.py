@@ -162,6 +162,7 @@ def _close_spor_for_reactive_eo(
         data: EOUtstedtData from the event
         event: The EOUtstedtEvent (for legacy field fallback)
     """
+    state.lukket_ved_reaktiv_eo = True
     # Close grunnlag
     if state.grunnlag.status not in {SporStatus.IKKE_RELEVANT, SporStatus.TRUKKET}:
         state.grunnlag.status = SporStatus.LAAST
@@ -357,7 +358,11 @@ class TimelineService:
         """Håndterer GRUNNLAG_OPPRETTET og GRUNNLAG_OPPDATERT"""
         grunnlag = state.grunnlag
         # GR-U1: også med uendret underkategori. Et låst grunnlag avvises av NOT_LOCKED.
-        if event.event_type == EventType.GRUNNLAG_OPPDATERT and grunnlag.bh_resultat is not None:
+        if (
+            event.event_type == EventType.GRUNNLAG_OPPDATERT
+            and grunnlag.bh_resultat is not None
+            and grunnlag.status != SporStatus.TRUKKET
+        ):
             self._svaret_faller_bort(state)
 
         # Oppdater data
