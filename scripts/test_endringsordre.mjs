@@ -1,7 +1,12 @@
 /** Local browser smoke test; all API requests are intercepted, no external writes. */
 import assert from 'node:assert/strict';
 const { chromium } = await import(process.env.PLAYWRIGHT_MODULE || 'playwright');
-const browser = await chromium.launch({ headless: true, channel: 'chrome' });
+const browser = await chromium.launch({
+  headless: true,
+  ...(process.env.CHROMIUM_EXECUTABLE_PATH
+    ? { executablePath: process.env.CHROMIUM_EXECUTABLE_PATH }
+    : { channel: 'chrome' }),
+});
 const base = process.env.TEST_BASE_URL || 'http://127.0.0.1:5173';
 const errors = [];
 const candidates = [

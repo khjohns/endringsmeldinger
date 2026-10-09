@@ -768,5 +768,4 @@ Steder i backend som kaller Catenda-klienten, men ikke er en del av appens dataf
 | [`scripts/test_relations.py`](../../backend/scripts/test_relations.py) | hele fila | Utviklerverktøy for IFC-relasjoner. Skriver ingen tabell. |
 | [`scripts/measure_catenda_membership.py`](../../backend/scripts/measure_catenda_membership.py) | hele fila | Måler svartiden for teamoppslag. Skriver ingen tabell. |
 | [`scripts/test_catenda_api_contracts_live.py`](../../backend/scripts/test_catenda_api_contracts_live.py) | hele fila | Levende kontrakttester mot et Catenda-testprosjekt (hovedplanen, avsnitt 7). |
-| [`scripts/test_full_flow.py`](../../backend/scripts/test_full_flow.py) | hele fila | Manuell ende-til-ende-test mot Catenda (Catenda-dataflyten, avsnitt 7). |
 | [`integrations/catenda/_demo.py`](../../backend/integrations/catenda/_demo.py) | hele fila | Demonstrasjon av klienten. Importeres ikke av appen. |

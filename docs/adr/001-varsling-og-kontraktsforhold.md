@@ -19,8 +19,11 @@ den sperren fjernes.
 
 ## Kontraktsgrunnlag
 
-Referanse: [NS 8407 i prosjektet](../NS_8407.md). Punktene nedenfor er et
-sammendrag av standardteksten, ikke en vurdering av et konkret krav.
+Referanse: NS 8407. Punktene nedenfor er et sammendrag av standardteksten,
+ikke en vurdering av et konkret krav.
+
+> **Merknad 2026-10-09:** Lenken til `docs/NS_8407.md` er fjernet. Fila er en
+> lokal kopi av standardteksten, som ikke ligger i repoet (`.gitignore`).
 
 | Punkt | Relevant skille |
 | --- | --- |
