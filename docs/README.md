@@ -243,7 +243,5 @@ python3 docs/verktoy/lenkekontroll.py            # alle .md under docs/
 python3 docs/verktoy/lenkekontroll.py docs/x.md  # bare disse
 ```
 
-Skal gi `brutte: 0`. `adr/001` lenker til `../NS_8407.md`, som ble avsporet i
-`507e225`; uten en lokal kopi av den fila gir kontrollen ett brudd der.
-Linjeankre som `#L10-L20` mot kildefiler telles, men kontrolleres ikke, og
-`file:`-lenker hoppes over.
+Skal gi `brutte: 0`. Linjeankre som `#L10-L20` mot kildefiler telles, men
+kontrolleres ikke, og `file:`-lenker hoppes over.
