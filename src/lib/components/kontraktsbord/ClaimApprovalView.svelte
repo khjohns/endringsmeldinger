@@ -16,7 +16,7 @@
   } from '$lib/approval/types';
   import { decisionSummary, documentToBrev, letterText } from '$lib/approval/letter';
   import { calculateAuthority, kravFraSak } from '$lib/approval/authority';
-  import { ENDRINGSORDREVARSEL, erEndringsordre } from '$lib/kontraktsbord/endringsordre';
+  import { ENDRINGSORDREVARSEL, brevetBlirEndringsordre } from '$lib/kontraktsbord/endringsordre';
   import {
     limitLabel,
     nok,
@@ -131,22 +131,7 @@
     })
   );
   const tracks = $derived(letter.items.map((i) => trackNames[i.track]).join(' · '));
-  // Varselet gjelder mens brevet kan godkjennes. Et besluttet brev regnes ikke på nytt med dagens regler (MM-U9).
-  const endringsordre = $derived(
-    (isDraft || selected?.status === 'til_godkjenning') &&
-      !outdated &&
-      letter.items.some(
-        (i) =>
-          i.track === 'grunnlag' &&
-          erEndringsordre(i.basis, {
-            resultat: i.data.resultat,
-            varsletITide:
-              typeof i.data.grunnlag_varslet_i_tide === 'boolean'
-                ? i.data.grunnlag_varslet_i_tide
-                : undefined,
-          })
-      )
-  );
+  const endringsordre = $derived(brevetBlirEndringsordre(letter.items, selected?.status, outdated));
   const plural = (n: number) => `${n} ${n === 1 ? 'vurdering' : 'vurderinger'}`;
   const amountLabel = $derived(
     assessment.ukjent

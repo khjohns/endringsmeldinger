@@ -10,7 +10,13 @@ import { describe, expect, it } from 'vitest';
 import { KRAV_STRUKTUR_NS8407 } from '$lib/constants/categories';
 import { deriveGrunnlagDomainConfig } from '$lib/domain/deriveConfig';
 import type { SakState } from '$lib/types/timeline';
-import { ENDRINGSORDREVARSEL, erEndringsordre, type Grunnlagsvurdering } from './endringsordre';
+import type { ReviewItem } from '$lib/approval/types';
+import {
+  ENDRINGSORDREVARSEL,
+  brevetBlirEndringsordre,
+  erEndringsordre,
+  type Grunnlagsvurdering,
+} from './endringsordre';
 
 /** GR-U11: § 32.2 gjelder alle underkategorier under ENDRING unntatt EO. */
 const MED_VARSLINGSPLIKT = [
@@ -36,7 +42,7 @@ describe('endringsordre etter § 32.3 første ledd a (GR-U12)', () => {
   it('varselet har teksten oppdragsgiver godkjente', () => {
     // Arbeidsvalget 10.10 i #313 (GR-U10, GR-U12), ordrett.
     expect(ENDRINGSORDREVARSEL).toBe(
-      'Svaret blir en endringsordre etter § 32.3 første ledd a, fordi byggherren godkjenner grunnlaget uten å påberope at varselet kom for sent (§ 32.2). Totalentreprenøren blir forpliktet til å utføre endringsarbeidet (§ 31.3 annet ledd). Du kan ikke endre godkjenningen etterpå.'
+      'Svaret blir en endringsordre etter § 32.3 første ledd a, fordi byggherren godkjenner grunnlaget uten å påberope at varselet kom for sent (§ 32.2). Totalentreprenøren blir forpliktet til å utføre endringsarbeidet (§ 31.3 annet ledd). Byggherren kan ikke endre godkjenningen av grunnlaget etterpå.'
     );
   });
 
@@ -76,8 +82,69 @@ describe('endringsordre etter § 32.3 første ledd a (GR-U12)', () => {
       expect(erEndringsordre(kategori, { resultat: 'godkjent' })).toBe(true);
     });
 
-    it.each(['avslatt', 'frafalt', undefined])('resultatet %s er ikke en endringsordre', (r) => {
+    it.each(['avslatt', undefined])('resultatet %s er ikke en endringsordre', (r) => {
       expect(erEndringsordre(kategori, { resultat: r, varsletITide: true })).toBe(false);
     });
+  });
+
+  // Frafall kan bare velges for et pålegg (§ 32.3 c, IRREG og VALGRETT).
+  it.each(['IRREG', 'VALGRETT'])('frafall i %s er ikke en endringsordre etter a', (u) => {
+    const kategori = skjemaetsKategori('ENDRING', u);
+    expect(erEndringsordre(kategori, { resultat: 'frafalt', varsletITide: true })).toBe(false);
+    expect(erEndringsordre(kategori, godkjentITide)).toBe(true);
+  });
+});
+
+describe('varselet i godkjenningsvisningen', () => {
+  /** Posten slik godkjenningspakken lagrer den: svaret i `data`, kategorien i `basis`. */
+  function grunnlagspost(
+    data: Record<string, unknown>
+  ): Pick<ReviewItem, 'track' | 'basis' | 'data'> {
+    return {
+      track: 'grunnlag',
+      data: { resultat: 'godkjent', begrunnelse: '', ...data },
+      basis: {
+        claimId: 'krav',
+        resultat: null,
+        varsletITide: null,
+        hovedkategori: 'ENDRING',
+        underkategori: 'IRREG',
+      },
+    };
+  }
+  const iTide = [grunnlagspost({ grunnlag_varslet_i_tide: true })];
+
+  it('godkjent uten påberopt preklusjon gir varsel', () => {
+    expect(brevetBlirEndringsordre(iTide, undefined, false)).toBe(true);
+  });
+
+  // Får nøkkelen et annet navn, blir verdien `undefined`, som betyr at svaret ikke sier noe om varslingen.
+  it('påberopt preklusjon gir ikke varsel', () => {
+    const prekludert = [grunnlagspost({ grunnlag_varslet_i_tide: false })];
+    expect(brevetBlirEndringsordre(prekludert, undefined, false)).toBe(false);
+  });
+
+  it('et brev uten svar på grunnlaget gir ikke varsel', () => {
+    const vederlag = [
+      { ...grunnlagspost({ grunnlag_varslet_i_tide: true }), track: 'vederlag' as const },
+    ];
+    expect(brevetBlirEndringsordre(vederlag, undefined, false)).toBe(false);
+  });
+
+  it.each([
+    [undefined, true],
+    ['til_godkjenning', true],
+    ['sendt', false],
+    ['returnert', false],
+    ['trukket', false],
+    ['godkjent', false],
+    ['publisering_feilet', false],
+  ] as const)('status %s: varsel %s (MM-U9)', (status, forventet) => {
+    expect(brevetBlirEndringsordre(iTide, status, false)).toBe(forventet);
+  });
+
+  it('et utdatert krav gir ikke varsel', () => {
+    expect(brevetBlirEndringsordre(iTide, undefined, true)).toBe(false);
+    expect(brevetBlirEndringsordre(iTide, 'til_godkjenning', true)).toBe(false);
   });
 });
