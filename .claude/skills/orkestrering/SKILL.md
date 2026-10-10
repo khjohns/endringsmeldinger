@@ -49,8 +49,16 @@ hele den voksende konteksten på nytt, og det koster fort mer enn rettingen.
 **Subagent eller økt.** Det som blir ferdig i samme tur, gjøres av en
 subagent: kartlegging, kontroll av en påstand, gjennomlesing av en diff. Bare
 sluttrapporten kommer tilbake, så orkestratorens kontekst holder seg liten.
-Arbeid som gir en PR, får egen økt, fordi den må abonnere på PR-en og følge CI
-og review over timer. En subagent deler i tillegg checkout med orkestratoren.
+Arbeid som gir en PR, får egen økt, fordi den må følge CI og rettinger over
+timer. En subagent deler i tillegg checkout med orkestratoren.
+
+**Modell for subagenten.** Mekaniske kontroller går på `model: "haiku"` med
+`effort: "medium"`, eller `"high"` når kontrollen har flere steg (oppdragsgiver
+10.10). Det gjelder polling av CI, sammenligning med skript av kolonner, ankre
+og tokens, lenkekontroll, lesing av CI-logger, og kontroll av at en diff bare
+inneholder de bestilte endringene. Oppdraget sier nøyaktig hva som skal
+kontrolleres, og hva rapporten skal inneholde. Kontroll av juss, vedtak og kode
+går på standardmodellen.
 
 ## 1. Kartlegg før du fordeler
 
@@ -109,7 +117,12 @@ issue. Oppdraget skal inneholde:
   oppdraget med issuenummer, og «Åpne spørsmål»;
 - PR mot `main` med `Closes #n`, eller «Del av #n» når bare en del leveres,
   og at økta ikke merger;
-- at økta abonnerer på PR-en og driver den til grønn CI;
+- at økta ikke abonnerer på PR-en (`subscribe_pr_activity`). Hver hendelse
+  vekker økta og leser hele konteksten på nytt, også en grønn kjøring, egne
+  pusher og mergen. Etter hver push venter økta på CI med én bakgrunnskommando
+  som poller sjekkene på committen. Den retter det som er rødt, og melder fra
+  når alt er grønt. Review og rød CI etter en oppdatering mot `main` sier
+  orkestratoren fra om, fordi det er orkestratoren som oppdaterer;
 - at økta melder fra med `send_message` til `@parent` når PR-en er grønn og
   klar for gjennomgang, og at den ikke pusher etter det uten at orkestratoren
   ber om det. En push etter meldingen kan komme etter mergen og bli stående
@@ -123,6 +136,15 @@ et annet nivå, må det settes i økta i appen.
 Domenespørsmålene fra øktene går gjennom orkestratoren, ikke rett til
 oppdragsgiver.
 
+- **Det prinsipielle først.** Still først spørsmålene som avgjør retningen. Et
+  eksempel er om appen skal vurdere selv eller bare registrere, eller hva et
+  sendt brev binder. Detaljene venter til byggeøkta for bestemmelsen, når
+  retningen er avgjort. I FK runde 3 trengte spørsmålene fem kontrollrunder,
+  fordi alternativene ble detaljerte før retningen var valgt.
+- **Den som stilte spørsmålet, retter det.** Finner kontrollen feil, sender
+  orkestratoren funnene til økta som stilte spørsmålet. Orkestratoren skriver
+  ikke spørsmålet om selv. Skriver orkestratoren likevel, går teksten gjennom
+  samme kontroll.
 - **Samle før du spør.** Still spørsmålene fra øktene samlet. Hvert spørsmål
   har alternativer, belegg i kontraktsteksten eller vedtaket, en anbefaling og
   hva valget styrer. Kommer spørsmål fra flere økter omtrent samtidig, vent på
@@ -224,17 +246,21 @@ sammendrag, og ordrette vedtak og rettelser kan gå tapt.
   orkestratoren én samlet sjekkliste over det som gjenstår, med kildene som
   skal leses på nytt. Gjenstår mer enn rettinger og CI, overtar en ny økt fra
   PR-en og issuene. Den gamle pusher det den har, og avsluttes.
-- **Venting.** Skal en stor økt vente mer enn en time på oppdragsgiver eller
-  CI, er det ofte billigere å la en ny økt fortsette fra PR-en enn å vekke den
-  gamle. Still spørsmålene tidlig, og send svarene samlet så snart de
-  foreligger, helst innen en time.
+- **Venting.** Har en økt passert om lag 250 000 tokens og ventet mer enn en
+  time på oppdragsgiver, vekkes den ikke. En ny økt overtar fra PR-en,
+  vedtakene og issuet. Skriv derfor tilstanden i PR-beskrivelsen før økta
+  begynner å vente, for eksempel som utkast-PR. Still spørsmålene tidlig, og
+  send svarene samlet så snart de foreligger, helst innen en time.
 - **Skriv svarene der de kan leses igjen** før de sendes: vedtak i hovedplanen
   og arbeidsvalg i issuet. Meldingen viser dit.
 - **Send færre meldinger.** Hver melding til en stor økt koster en ny lesing av
   hele konteksten.
 
 Det samme gjelder orkestratoren. Tilstanden holdes i issuene og PR-ene, ikke
-bare i samtalen.
+bare i samtalen. Orkestratoren gjentar ikke lange lister i samtalen.
+Spørsmålene står i én fil som oppdragsgiver får, og samtalen viser bare det som
+er endret. Passerer orkestratoren om lag 500 000 tokens, avsluttes runden når
+PR-ene som er nær merge, er merget. Resten går til neste runde.
 
 ## 3. Gjennomgang når øktene er ferdige
 
