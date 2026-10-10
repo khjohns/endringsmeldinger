@@ -8,7 +8,7 @@
 
 import { avvisning } from './avvisning.ts';
 import { formfeil, type Kommando, type Svarutkast } from './kommando.ts';
-import { lesJournal, standpunkterISvaret } from './leser.ts';
+import { lesJournal, standpunkterISvaret, Uforstaatt } from './leser.ts';
 import { beslutningsgrunnlag, regnUtSvar } from './standpunkt.ts';
 import { grunnlagskravFor, utled, type Utledning } from './utled.ts';
 import type { Kjerne } from './versjon.ts';
@@ -193,8 +193,16 @@ export function vurder(
     aktor_team_id: kontekst.teamId,
     refererer_til_event_id: null,
     format: kjerne.format,
-    data: dokument(k, u, kjerne, kontekst.nyId),
+    data: {},
   };
+  try {
+    rad.data = dokument(k, u, kjerne, kontekst.nyId);
+  } catch (feil) {
+    // Frysingen leser standpunktene kjernen nettopp skrev; kan den ikke det, er raden feil.
+    if (feil instanceof Uforstaatt)
+      throw new Skrivefeil(`Kjernen forstår ikke dokumentet den selv skriver: ${feil.message}`);
+    throw feil;
+  }
   // Kjernen må forstå det den selv skriver (MM-U2, 7.1.2 i designnotatet).
   const etter = utledJournal([...journal, rad], kjerne);
   if (!etter.forstaatt)
