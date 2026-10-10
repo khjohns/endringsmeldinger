@@ -1,4 +1,11 @@
+/**
+ * Lesepunktet for prosjektoversikten (#313). Arbeidslisten og oversikten leser
+ * `cached_status`, statusen til endringsordren og oppfølgingen bare herfra, så
+ * byttet til kjernens predikater og handlinger skjer her.
+ */
 import type { CaseListItem } from '$lib/types/api';
+
+export { caseFollowUp, taskHref } from '$lib/domain/followUp';
 
 export type CaseFilter = 'all' | 'active' | 'closed' | 'draft';
 export type CaseTypeFilter = 'all' | CaseListItem['sakstype'];
@@ -79,4 +86,11 @@ export function formalizedClaims(cases: CaseListItem[]): Set<string> {
         : []
     )
   );
+}
+
+/** Hvem en endringsordre venter på: TE skal svare på en utstedt eller revidert, BH følger opp en bestridt. */
+export function endringsordreVenterPaa(item: CaseListItem): 'TE' | 'BH' | null {
+  const status = caseStatus(item);
+  if (status === 'utstedt' || status === 'revidert') return 'TE';
+  return status === 'bestridt' ? 'BH' : null;
 }

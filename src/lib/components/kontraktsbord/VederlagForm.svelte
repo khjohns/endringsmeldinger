@@ -43,7 +43,8 @@
   const store = getCaseWorkspace();
   const review = getApprovalWorkspace();
   import { getApprovalWorkspace } from '$lib/approval/context.svelte';
-  import { fmt, sporResultatLabel } from './utils.js';
+  import { fmt } from './utils.js';
+  import { sporResultatLabel } from './derive.js';
   import Stamp from './Stamp.svelte';
   import type { EventType, ResponsVederlagEventData } from '$lib/types/timeline';
   import {
