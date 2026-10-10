@@ -116,10 +116,11 @@ export function pgBuffer(klient: ClientBase, prosjektId: string): Bufferlager {
 
 /**
  * Sakene i prosjektet der bufferen ikke gjelder for kjernen: ingen buffer, en
- * annen versjon, eller en saksversjon som ikke er den siste i journalen. Bare
- * saker med en rad fra TS-kjernen (`format` satt) tas med; en sak Python har
- * skrevet alene, har ingen buffer å bygge (B-17). Det
- * samme som `bufferGjelder` avgjør for én sak, som en spørring (B-10, #316).
+ * annen versjon, eller en saksversjon som ikke er den siste i journalen. For en
+ * sak med rader fra TS-kjernen er det det samme som `bufferGjelder` avgjør, som
+ * en spørring (B-10, #316). En sak Python har skrevet alene (`format` mangler
+ * på alle rader), tas ikke med: kjernen forstår den ikke og bygger ingen buffer
+ * for den (B-17, MM-U2).
  */
 export async function utdaterteSaker(
   klient: ClientBase,
