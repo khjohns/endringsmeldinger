@@ -790,3 +790,9 @@ for PDF-upload gjennomføres.
 > saksdokument (B-03 i hovedplanen, 3.1). Saksrapporten sendes ikke lenger
 > automatisk. Valget mellom de to brevalternativene i tabellen og resten av ADR-en
 > står åpent.
+
+> **Merknad 2026-10-10:** valget mellom de to brevalternativene er avgjort med
+> [B-03, dokumentet](plans/2026-09-16-godkjenning-og-varig-levering.md#b-03-dokument)
+> i hovedplanen: ett dokument per brev («Separate brev»), uten revisjoner.
+> Dokumentnøkkel, navnestandard og avstemming etter tapt svar velges av utviklerne
+> i #310.

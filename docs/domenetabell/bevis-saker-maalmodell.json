@@ -2139,6 +2139,103 @@
       ]
     },
     {
+      "id": "F-MM-R1",
+      "rader": ["KA-30"],
+      "start": "krav_samord",
+      "forslag": "MM-U17: byggherrens svar er sendt utenfor appen før regelendringen og registrert etter den. Appens vurdering fryses etter reglene ved registreringen (n+1, der § 32.2 ikke gjelder SAMORD), ikke reglene da brevet ble sendt",
+      "forventningsgrunnlag": "avklart_tolkning",
+      "steg": [
+        { "handling": "regelendring", "regelsett": "n+1" },
+        {
+          "handling": "rad",
+          "spor": "grunnlag",
+          "navn": "S-g1",
+          "dokument": "D4",
+          "gjelder": "K-g1",
+          "resultat": "avslatt",
+          "varslet_i_tide": false,
+          "sendt": "2026-09-01"
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 2,
+          "rolle": "mal",
+          "kilde": ["MM-U17", "GR-U12"],
+          "forventet": {
+            "forstaatt": true,
+            "beslutningsgrunnlag.S-g1.regelversjon": "n+1",
+            "beslutningsgrunnlag.S-g1.varslingsplikt": false,
+            "virkning.S-g1.rettidighet": "uten_virkning",
+            "virkning.S-g1.grunnlag": "prinsipalt",
+            "visning.etiketter.grunnlag": {
+              "inneholder": ["appens_vurdering_ved_registreringen"],
+              "mangler": ["regel_endret_etter_brevet"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "F-MM-R1-kontroll",
+      "rader": ["KA-30", "KA-23"],
+      "start": "krav_samord",
+      "forslag": "MM-U17 og MM-U9: samme brev registrert før regelendringen beholder vurderingen fra registreringen (n), og regelendringen vises som en merknad. Et svar sendt fra appen merkes ikke",
+      "forventningsgrunnlag": "avklart_tolkning",
+      "steg": [
+        {
+          "handling": "rad",
+          "spor": "grunnlag",
+          "navn": "S-g1",
+          "dokument": "D4",
+          "gjelder": "K-g1",
+          "resultat": "avslatt",
+          "varslet_i_tide": false,
+          "sendt": "2026-09-01"
+        },
+        { "handling": "regelendring", "regelsett": "n+1" },
+        { "handling": "revisjon", "spor": "grunnlag", "navn": "S-g2", "dokument": "D6", "resultat": "avslatt" }
+      ],
+      "kontroller": [
+        {
+          "etter": 1,
+          "rolle": "mal",
+          "kilde": ["MM-U17", "GR-U12"],
+          "forventet": {
+            "beslutningsgrunnlag.S-g1.regelversjon": "n",
+            "beslutningsgrunnlag.S-g1.varslingsplikt": true,
+            "virkning.S-g1.rettidighet": "prinsipalt",
+            "visning.etiketter.grunnlag": { "inneholder": ["appens_vurdering_ved_registreringen"] }
+          }
+        },
+        {
+          "etter": 2,
+          "rolle": "mal",
+          "kilde": ["MM-U17", "MM-U9"],
+          "forventet": {
+            "nye_hendelser": 0,
+            "beslutningsgrunnlag.S-g1.regelversjon": "n",
+            "virkning.S-g1.rettidighet": "prinsipalt",
+            "visning.etiketter.grunnlag": {
+              "inneholder": ["appens_vurdering_ved_registreringen", "regel_endret_etter_brevet"]
+            }
+          }
+        },
+        {
+          "etter": 3,
+          "rolle": "mal",
+          "kilde": ["MM-U17"],
+          "forventet": {
+            "gjeldende_svar.grunnlag": "S-g2",
+            "beslutningsgrunnlag.S-g2.regelversjon": "n+1",
+            "visning.etiketter.grunnlag": {
+              "mangler": ["appens_vurdering_ved_registreringen", "regel_endret_etter_brevet"]
+            }
+          }
+        }
+      ]
+    },
+    {
       "id": "F-MM-G20",
       "rader": ["GR-29"],
       "start": "krav_irreg",

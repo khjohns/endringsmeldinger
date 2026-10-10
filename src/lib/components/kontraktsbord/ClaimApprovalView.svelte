@@ -154,7 +154,7 @@
         row.fraKrav
           ? [
               {
-                label: `${trackNames[row.track]} · krevd av TE (godkjent ansvar)`,
+                label: `${trackNames[row.track]} · krevd av TE (godkjent grunnlag)`,
                 value:
                   row.principal === null
                     ? 'Ikke tallfestet'
@@ -303,7 +303,7 @@
           eyebrow: 'Brev',
           title: 'Start med en vurdering',
           description:
-            'Ferdigstill ansvarsgrunnlag, økonomi eller frist i saken. Vurderingene blir brevet til entreprenøren.',
+            'Ferdigstill grunnlag, økonomi eller frist i saken. Vurderingene blir brevet til entreprenøren.',
           content: false,
         };
       const base = {
@@ -335,7 +335,7 @@
           eyebrow: 'Klar for sending',
           title: 'Du kan sende selv',
           description: assessment.ukjent
-            ? 'Godkjent ansvar åpner for krav som ikke er tallfestet, så fullmaktsgrunnlaget kan ikke beregnes. Du har ubegrenset fullmakt, og svaret sendes til entreprenøren med én gang.'
+            ? 'Godkjent grunnlag åpner for krav som ikke er tallfestet, så fullmaktsgrunnlaget kan ikke beregnes. Du har ubegrenset fullmakt, og svaret sendes til entreprenøren med én gang.'
             : `Samlet standpunkt ${amountLabel} er innenfor din fullmakt. Svaret sendes til entreprenøren med én gang.`,
           primary: { label: 'Send svar', action: send },
           footnote: 'Entreprenøren får svaret straks. Vurderingene låses når brevet er sendt.',
@@ -345,7 +345,7 @@
         eyebrow: 'Krever godkjenning',
         title: `${route.decider!.role} må godkjenne`,
         description: assessment.ukjent
-          ? `Godkjent ansvar åpner for krav som ikke er tallfestet, så fullmaktsgrunnlaget kan ikke beregnes${assessment.minimum ? ` (verdsatt: ${nok(assessment.minimum)})` : ''}. Svaret går gjennom hele fullmaktskjeden og sendes til entreprenøren når siste godkjenner har godkjent.`
+          ? `Godkjent grunnlag åpner for krav som ikke er tallfestet, så fullmaktsgrunnlaget kan ikke beregnes${assessment.minimum ? ` (verdsatt: ${nok(assessment.minimum)})` : ''}. Svaret går gjennom hele fullmaktskjeden og sendes til entreprenøren når siste godkjenner har godkjent.`
           : `Samlet standpunkt ${amountLabel} overstiger din fullmakt. Svaret går sekvensielt gjennom fullmaktskjeden og sendes til entreprenøren når siste godkjenner har godkjent.`,
         primary: { label: 'Send til godkjenning', action: send },
         footnote:
@@ -530,7 +530,7 @@
           <h2>{review.canPrepare ? 'Ingen ferdigstilte vurderinger' : 'Ingen brev å vise'}</h2>
           <p>
             {review.canPrepare
-              ? 'Åpne ansvarsgrunnlag, økonomi eller frist og ferdigstill vurderingen. Den blir innholdet i brevet.'
+              ? 'Åpne grunnlag, økonomi eller frist og ferdigstill vurderingen. Den blir innholdet i brevet.'
               : 'Når et brev sendes til deg for godkjenning, vises det her.'}
           </p>
           <button class="text-button" onclick={() => void back()}
