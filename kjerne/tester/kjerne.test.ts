@@ -359,8 +359,7 @@ describe('rader fra en annen skriver som strider mot en enighet eller «ingen kr
     const k = await bygg(bane, godkjentGrunnlag);
     const journal = await bane.journal();
     const u = utled(lesJournal(journal, KJERNE.format), GJELDENDE_REGLER);
-    if (!u.godkjenningErEndringsordre)
-      throw new Error('Forutsetning: godkjenningen er en endringsordre');
+    expect(u.godkjenningErEndringsordre).toBe(true);
     expect(forstaatt([...journal, fraTE(journal, [aksept(k, 'S-g1')])])).toBe(false);
   });
 
