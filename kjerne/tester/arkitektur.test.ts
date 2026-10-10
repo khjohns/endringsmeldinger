@@ -871,6 +871,12 @@ describe('reglene leser bare det LESBART tillater (#308, #329)', () => {
     ],
     ['journalen i utledningen', forutsetninger, [regel('return u.journal;')], 'Utledning.journal'],
     [
+      'utfallet i en annen regel enn de kjente avvikene',
+      forutsetninger,
+      [regel('return u.spor.grunnlag.enighet?.grunnlag.utfall;')],
+      'Enighetsgrunnlag.utfall',
+    ],
+    [
       'et felt i en Record med type',
       forutsetninger,
       [regel('return (u as unknown as Record<string, boolean>).avsluttet;')],
