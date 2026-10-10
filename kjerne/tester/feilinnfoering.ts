@@ -1,7 +1,7 @@
 /**
  * Feilinnføringene for kjernen (#304, #308, #273). F1–F7 er avsnitt 4 i
  * modellforslaget, F8–F10 feilklassene reviewet av PR #306 fant, skrevet om etter
- * MM-U9 og GR-U10, F11–F26 grensene #308 la til, og F27–F39 formatet (#273): 7.2
+ * MM-U9 og GR-U10, F11–F26 grensene #308 la til, og F27–F40 formatet (#273): 7.2
  * i designnotatet, GR-U12 og registeret (#320). Én mutasjon om gangen i
  * arbeidskopien, Vitest over `kjerne/` og `sprakprove/kjernelagring/`, og
  * originalteksten settes tilbake etterpå. For hver mutasjon kreves det at de
@@ -322,7 +322,7 @@ const MUTASJONER: Mutasjon[] = [
     endringer: [["eg?.grunnlag.kilde === 'sammenfall' && gSvar?", 'gSvar !== null && gSvar?']],
     mal: ['F-MM-G16', 'F-MM-G17'],
   },
-  // F27–F40 er formatet (#273): feilklassene i 7.2 i designnotatet, GR-U12 og registeret (#320).
+  // F27–F40 er formatet (#273): feilklassene i 7.2 i designnotatet, GR-U12, registeret (#320) og samspillsreviewet.
   {
     id: 'F27',
     feilklasse: 'en referanse kan peke framover i journalen (4.2)',
@@ -434,6 +434,19 @@ const MUTASJONER: Mutasjon[] = [
       ],
     ],
     mal: ['en rad uten format'],
+  },
+  {
+    id: 'F40',
+    feilklasse:
+      'en aksept av et svar med sammenfall leses, så godkjenningen slutter å være en endringsordre (GR-U8, GR-U12)',
+    fil: `${K}/utled.ts`,
+    endringer: [
+      [
+        'else if (alleSvar.get(a.gjelder)!.beslutningsgrunnlag.sammenfall)',
+        'else if (alleSvar.get(a.gjelder)!.beslutningsgrunnlag.sammenfall && a.id === undefined)',
+      ],
+    ],
+    mal: ['en aksept av et svar med sammenfall er ikke forstått'],
   },
 ];
 

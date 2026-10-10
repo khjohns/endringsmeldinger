@@ -12,7 +12,7 @@ import { KJERNE } from '../versjon.ts';
 import { handlinger } from '../handlinger.ts';
 import { formfeil } from '../kommando.ts';
 import { lesJournal } from '../leser.ts';
-import { utled } from '../utled.ts';
+import { kanInngaaIEo, kraveneErAvgjort, utled } from '../utled.ts';
 import { GJELDENDE_REGLER } from '../regler/regelsett.ts';
 import { ulikeVirkninger } from '../standpunkt.ts';
 import { visning } from '../visning.ts';
@@ -319,6 +319,98 @@ describe('lesereglene for referansene (4.2)', () => {
     const vist = JSON.stringify([visning(u, GJELDENDE_REGLER), u.spor, u.svar]);
     expect(vist).not.toContain(annet);
     expect(vist).not.toMatch(/Godkjent med 70/);
+  });
+});
+
+/**
+ * Samspillsreviewet av #273: en rad fra en annen skriver kan ikke gjøre om det
+ * kommandoene sperrer. Hver avvisning har kontrollsaken uten raden.
+ */
+describe('rader fra en annen skriver som strider mot en enighet eller «ingen krav»', () => {
+  const godkjentGrunnlag = [
+    'krav_irreg',
+    {
+      handling: 'brev',
+      navn: 'D4',
+      svar: [{ spor: 'grunnlag', navn: 'S-g1', resultat: 'godkjent', varslet_i_tide: true }],
+    },
+  ];
+  /** En rad fra TE med utsagnene, etter journalen. */
+  const fraTE = (journal: Journalrad[], utsagn: Data[]): Journalrad => {
+    const siste = journal.at(-1)!;
+    return {
+      ...siste,
+      event_id: randomUUID(),
+      versjon: siste.versjon + 1,
+      aktor_rolle: 'TE',
+      data: { utsagn },
+    };
+  };
+  const aksept = (k: Kjoering, svar: string) => ({
+    id: randomUUID(),
+    art: 'aksept',
+    gjelder: k.navn.id(svar),
+    regelversjon: GJELDENDE_REGLER.versjon,
+  });
+  const ingenKrav = (spor: string) => ({ id: randomUUID(), art: 'ingen_krav', spor });
+
+  it('en aksept av et svar med sammenfall er ikke forstått, så godkjenningen forblir en endringsordre (GR-U8, GR-U12)', async () => {
+    const bane = minnebane();
+    const k = await bygg(bane, godkjentGrunnlag);
+    const journal = await bane.journal();
+    const u = utled(lesJournal(journal, KJERNE.format), GJELDENDE_REGLER);
+    if (!u.godkjenningErEndringsordre)
+      throw new Error('Forutsetning: godkjenningen er en endringsordre');
+    expect(forstaatt([...journal, fraTE(journal, [aksept(k, 'S-g1')])])).toBe(false);
+  });
+
+  it('to aksepter av samme svar er ikke forstått (KA-U7); kontrollsak: én aksept', async () => {
+    const bane = minnebane();
+    const k = await bygg(bane, ['forlop_a']);
+    const journal = await bane.journal();
+    const en = fraTE(journal, [aksept(k, 'S-g1')]);
+    expect(forstaatt([...journal, en])).toBe(true);
+    expect(forstaatt([...journal, en, fraTE([en], [aksept(k, 'S-g1')])])).toBe(false);
+  });
+
+  it('«ingen krav» i begge spor avgjør kravene, men gir ikke alene endringsordre (KA-U12, EO-U5)', async () => {
+    const bane = minnebane();
+    await bygg(bane, ['godkjent_grunnlag']);
+    const journal = await bane.journal();
+    const u = utled(
+      lesJournal(
+        [...journal, fraTE(journal, [ingenKrav('vederlag'), ingenKrav('frist')])],
+        KJERNE.format
+      ),
+      GJELDENDE_REGLER
+    );
+    expect(u.forstaatt).toBe(true);
+    expect(kraveneErAvgjort(u)).toBe(true);
+    expect(kanInngaaIEo(u)).toBe(false);
+  });
+
+  it('«ingen krav» to ganger i samme spor er ikke forstått (4.2); kontrollsak: én gang', async () => {
+    const bane = minnebane();
+    await bygg(bane, ['godkjent_grunnlag']);
+    const journal = await bane.journal();
+    const en = fraTE(journal, [ingenKrav('vederlag')]);
+    expect(forstaatt([...journal, en])).toBe(true);
+    expect(forstaatt([...journal, en, fraTE([en], [ingenKrav('vederlag')])])).toBe(false);
+  });
+
+  it('en kravversjon etter «ingen krav» i samme spor er ikke forstått (KA-U12, 4.2)', async () => {
+    const bane = minnebane();
+    await bygg(bane, ['godkjent_grunnlag']);
+    const journal = await bane.journal();
+    const en = fraTE(journal, [ingenKrav('vederlag')]);
+    const krav = (spor: string, innhold: Data): Journalrad => ({
+      ...fraTE([en], []),
+      data: { krav: [{ id: randomUUID(), spor, ...innhold }] },
+    });
+    expect(forstaatt([...journal, en, krav('frist', { dager: 20 })])).toBe(true);
+    expect(
+      forstaatt([...journal, en, krav('vederlag', { metode: 'FASTPRIS_TILBUD', beloep: 1000 })])
+    ).toBe(false);
   });
 });
 
