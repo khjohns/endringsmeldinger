@@ -357,7 +357,7 @@ En kjerne leser en rad bare når `format` er satt og ikke høyere enn kjernens.
 Formatet økes når en eldre leser ellers ville lest en rad feil eller avvist
 den: en ny art, et nytt felt, eller en endret betydning. Regel 3 betyr at
 også et nytt valgfritt felt øker formatet. Hvordan økningen rulles ut og
-tilbake, hører til #316.
+tilbake, står i 4.8.
 
 **Tekniske valg** ([kommentaren 09.10 i #273](https://github.com/khjohns/endringsmeldinger/issues/273#issuecomment-6083294289)):
 - Kolonne, ikke `data`, fordi formatet må kunne leses før `data` tolkes. Med en
@@ -372,8 +372,8 @@ tilbake, hører til #316.
   (`hendelsesformat`). Det blander metadata inn i domeneinnholdet og kan ikke
   leses uten at `data` tolkes.
 - Bufferversjonene (projeksjonsversjon, regelversjon, høyeste format og
-  saksversjon) står med bufferen, ikke i raden, slik `buffer.ts` gjør. Plasseringen
-  i `sak_metadata` hører til #316.
+  saksversjon) står med bufferen, ikke i raden, slik `buffer.ts` gjør. De står i
+  kolonnene `kjerne_*` i `sak_metadata` (4.8).
 
 **Tjener:** forløp E2-1 og E2-2 (F-MM-E5): en rad eller art kjernen ikke
 kjenner, og en rad i et nyere format etter en tilbakerulling. Radene om
@@ -471,6 +471,39 @@ plass til, eller formatet lagrer noe kjernen ikke leser:
    subsidiære. Formatet krever bare at de står i svaret, ett sted (4.3), og at
    et krav på 0 ikke finnes (KA-U8).
 5. **Formen på virkningen og brevlinjen** i beslutningsgrunnlaget.
+
+### 4.8 Utrulling, tilbakerulling og kompatibilitetstesten (B-10, #316)
+
+**Vedtatt** i [B-10](plans/2026-09-16-godkjenning-og-varig-levering.md#b-10)
+10.10, og **bygget** i #316:
+
+- Kjernen har to formatnumre: `FORMAT`, som den skriver, og `LESERFORMAT`, det
+  høyeste den leser ([`kjerne/format.ts`](../kjerne/format.ts)). Et nytt format
+  rulles ut i to utgivelser: først en som leser det, så en som skriver det. En
+  tilbakerulling ett trinn stopper da ingen sak. Regelversjonsvakten
+  (`.github/scripts/regelversjon.sh`) avviser en diff der `FORMAT` økes forbi
+  `LESERFORMAT` slik det stod før.
+- Bufferen står i `sak_metadata`: visningen i `kjerne_visning` og versjonene den
+  er regnet med i `kjerne_projeksjonsversjon`, `kjerne_regelversjon`,
+  `kjerne_format` og `kjerne_saksversjon`. Den brukes bare når alle er like
+  kjernens og sakens ([`kjerne/buffer.ts`](../kjerne/buffer.ts)).
+- Kompatibilitetstesten er tabellstyrt
+  ([`kjerne/tester/kompatibilitet.ts`](../kjerne/tester/kompatibilitet.ts)) og
+  kjøres i minnet og mot testbasen. Tabellen har tre versjoner rundt et nytt
+  format:
+
+  | Versjon | Leser format | Skriver format |
+  | --- | --- | --- |
+  | v1 | 1 | 1 |
+  | v2a | 1–2 | 1 |
+  | v2b | 1–2 | 2 |
+
+  Alle par av skriver og leser prøves, med utrulling og tilbakerulling. En
+  leser forstår saken når skriverens format er høyst leserens `LESERFORMAT`;
+  ellers stopper saken etter MM-U2, uten at noen rad hoppes over eller skrives
+  om. Format 2 er her bare et høyere nummer på samme skjema. Ved en reell
+  formatendring legges det nye formatet inn i tabellen, og utviklerne
+  dokumenterer kompatibiliteten for den (B-10).
 
 ## 5. Når saken er forstått
 
