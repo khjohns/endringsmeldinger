@@ -523,7 +523,8 @@ skal vise til vedtakene i avsnitt 2, ikke til koden.
 
 ### 7.2 Feilinnføring som fjerner en referanse
 
-Legg feilklassene i feilinnføringsfila for kjernen (i dag
+Legg feilklassene i feilinnføringsfila for kjernen
+([`kjerne/tester/feilinnfoering.ts`](../kjerne/tester/feilinnfoering.ts); på `843ab2f`
 [`sprakprove/maalmodell/feilinnforing.ts`](https://github.com/khjohns/endringsmeldinger/blob/843ab2f/sprakprove/maalmodell/feilinnforing.ts)).
 Innfør én om gangen, og vis at prøven i 7.1 feiler på virkningen, ikke på
 oppsettet:
