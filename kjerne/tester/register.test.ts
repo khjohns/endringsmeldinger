@@ -59,7 +59,10 @@ export function lesRegister(tekst: string): Register {
     const [, noekkel, verdi] = par;
     if (verdi.startsWith('"""')) {
       const deler = [verdi.slice(3)];
-      while (!deler.at(-1)!.endsWith('"""')) deler.push(linjer[++i]);
+      while (!deler.at(-1)!.endsWith('"""')) {
+        if (++i >= linjer.length) throw new Error(`${noekkel}: """ er ikke lukket`);
+        deler.push(linjer[i]);
+      }
       gjeldende[noekkel] = deler.join('\n').slice(0, -3).trim();
     } else if (/^-?\d+$/.test(verdi)) {
       gjeldende[noekkel] = Number(verdi);

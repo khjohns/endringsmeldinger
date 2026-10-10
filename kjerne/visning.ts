@@ -83,7 +83,8 @@ function etiketter(u: Utledning, spor: Spor, regler: Regelsett): string[] {
     ut.push(s.enighet ? 'regel_endret_etter_enighet' : 'regel_endret_etter_brevet');
   if (s.gjeldendeSvar && u.svar[s.gjeldendeSvar.id].uavklart.length)
     ut.push('bh_har_ikke_vurdert_varselet');
-  if (spor === 'frist' && !s.varsel) ut.push('varsel_ikke_registrert');
+  if (s.ingenKrav) ut.push('ingen_krav');
+  else if (spor === 'frist' && !s.varsel) ut.push('varsel_ikke_registrert');
   return ut;
 }
 

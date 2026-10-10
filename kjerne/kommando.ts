@@ -7,7 +7,7 @@
  * skrives.
  */
 
-import { KRAVINNHOLD as INNHOLD, objekt } from './format.ts';
+import { DATO, ID, KRAVINNHOLD as INNHOLD, liste, objekt } from './format.ts';
 import { erObjekt, feilI, type Skjema } from './skjema.ts';
 import type { Svarvurdering } from './standpunkt.ts';
 import { SPOR as SPORENE, type Spor } from './typer.ts';
@@ -37,8 +37,6 @@ export type Kommando =
   | { type: 'bestridelse'; gjelder: string; hva: 'sendt' | 'mottatt' };
 
 const SPOR = { enum: [...SPORENE] };
-const ID = { type: 'string', minLength: 1 };
-const DATO = { type: 'string', minLength: 10 };
 const SVARUTKAST = objekt(
   {
     spor: SPOR,
@@ -89,7 +87,7 @@ const SKJEMA: Record<Kommando['type'], Skjema> = {
       spor: { const: 'frist' },
       hjemmel: { const: '33.4' },
       sendt: DATO,
-      dokumentasjon: { type: 'array', items: { type: 'string' } },
+      dokumentasjon: liste(ID),
     },
     ['type', 'spor', 'hjemmel', 'sendt']
   ),

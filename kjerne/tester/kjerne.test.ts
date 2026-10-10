@@ -70,6 +70,14 @@ describe('formen på kravet', () => {
     }
   );
 
+  // Code-review av #273: en tom streng ville gitt en rad kjernen selv ikke forstår.
+  it('avviser tom dokumentasjon i varselet', () => {
+    const varsel = { type: 'varsel', spor: 'frist', hjemmel: '33.4', sendt: '2026-09-02' };
+    expect(formfeil({ ...varsel, dokumentasjon: [''] })).not.toEqual([]);
+    expect(formfeil({ ...varsel, dokumentasjon: [] })).not.toEqual([]);
+    expect(formfeil({ ...varsel, dokumentasjon: ['vedlegg-1'] })).toEqual([]);
+  });
+
   it('avviser et varsel etter § 33.4 i et krav utenfor fristen', () => {
     expect(formfeil(krav({}, { varsel: { sendt: '2026-09-02' } }))).not.toEqual([]);
     expect(
