@@ -23,9 +23,9 @@ export interface Grunnlagsvurdering {
   varsletITide?: boolean;
 }
 
-/** Varselet i skjemaet og godkjenningsvisningen (GR-U12). Brevet etter § 31.3 lages med skrivestien (GR-U13). */
+/** Varselet i skjemaet og godkjenningsvisningen (GR-U10, GR-U12). Brevet etter § 31.3 lages med skrivestien (GR-U13). */
 export const ENDRINGSORDREVARSEL =
-  'Svaret er en endringsordre etter § 32.3 første ledd a, fordi byggherren godkjenner ansvarsgrunnlaget uten å påberope at varselet kom for sent (§ 32.2). Totalentreprenøren blir forpliktet til å utføre endringsarbeidet (§ 31.3 annet ledd).';
+  'Svaret blir en endringsordre etter § 32.3 første ledd a, fordi byggherren godkjenner grunnlaget uten å påberope at varselet kom for sent (§ 32.2). Totalentreprenøren blir forpliktet til å utføre endringsarbeidet (§ 31.3 annet ledd). Du kan ikke endre godkjenningen etterpå.';
 
 const erGrunnlagsresultat = (v: unknown): v is Grunnlagsresultat =>
   (GRUNNLAGSRESULTATER as readonly unknown[]).includes(v);
