@@ -58,11 +58,11 @@ og beholdes; tabellen bestiller ingen omdøping.
 | **Innsigelse** | Et standpunkt som bestrider kravet eller rettidigheten, i et svar eller som egen handling | `frist_innsigelse_sendt`, `*_ok: false` | Vedtaket om nøytralt fristvarsel 23.09 |
 | **Aksept** | TEs godtakelse av hele det gjeldende svaret, med alle standpunktene. Delvis enighet er ikke aksept | `te_aksepterer_respons` med svaret i `refererer_til_event_id`, `te_akseptert` | [KA-U1](../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u1) |
 | **Enighet** | Standpunktene i sporet faller sammen: TE har godtatt gjeldende svar, eller svaret godkjenner hele kravet. For grunnlaget er en godkjenning uten påberopt preklusjon enighet ved sammenfall. En enighet binder begge parter: svaret kan ikke revideres, og en ny kravversjon avvises. Gjelder sporets egne spørsmål, ikke ansvaret | `enighet` på vederlag og frist i tilstanden (#274). I kjernen: `enighet` i sporet, med enighetsgrunnlaget | [GR-U7](../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u7), [GR-U10](../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u10), [KA-U7](../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u7) |
-| **Beslutningsgrunnlag** | Brevet slik det ble sendt: virkningen hvert utsagn i svaret hadde etter reglene da, om svaret godkjenner hele kravet (sammenfall), og linjen i brevet. Virkningen leses herfra; dagens regler vises bare som merknad. Utfallet og vilkåret lagres ikke, men utledes av standpunktene (MM-U11) | `beslutningsgrunnlag` i svaret (kjernen) | [MM-U9](../plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u9) |
+| **Beslutningsgrunnlag** | Brevet slik det ble sendt: virkningen hvert standpunkt i svaret hadde etter reglene da, om svaret godkjenner hele kravet (sammenfall), linjen i brevet og, i grunnlaget, om § 32.2 gjaldt (GR-U12). Virkningen leses herfra; dagens regler vises bare som merknad. Utfallet og vilkåret lagres ikke, men utledes av standpunktene (MM-U11) | `beslutningsgrunnlag` i hvert svar i `dokument_registrert` (kjernen, [`kjernehendelser.md`](../datamodell/kjernehendelser.md)) | [MM-U9](../plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u9) |
 | **Enighetsgrunnlag** | Innholdet i en enighet: brevets standpunkter og regelversjon, med utfallet og vilkåret utledet av dem. Lagres ikke; aksepten viser til svaret og lagrer regelversjonen TE fikk se (KA-U10) | `Enighetsgrunnlag` i utledningen (kjernen) | [MM-U3](../plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u3) |
 | **Uavklart standpunkt** | En preklusjon etter § 33.4 som gjaldt et annet varsel enn det som er registrert nå. Ikke en virkning i brevet, men en relasjon mellom brevet og varselet | `uavklart` i svaret (kjernen) | [MM-U1](../plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u1), [MM-U8](../plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u8) |
 | **Avklart grunnlag** | Byggherren har godkjent grunnlaget uten preklusjon etter § 32.2, eller frafalt pålegget | `grunnlag.avklart` i tilstanden (#274), `grunnlagAvklart` i kjernen | GR-U7 |
-| **Oppgjort** | Enighet i sporet, og avklart grunnlag. Erstatter at statusen `godkjent` betydde begge deler | `oppgjort` på vederlag og frist i tilstanden (#274). I kjernen: enigheten er virksom (`enighetensVirkning`), og `oppgjort` er bare en etikett i visningen | GR-U7, [KA-U5](../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u5) |
+| **Oppgjort** | Enighet i sporet, og avklart grunnlag. Erstatter at statusen `godkjent` betydde begge deler | `oppgjort` på vederlag og frist i tilstanden (#274). I kjernen: enigheten er virksom (`enighetensVirkning`, et predikat av enigheten, grunnlaget og trekkene), og `oppgjort` er bare en etikett i visningen | GR-U7, [KA-U5](../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u5) |
 | **Rettidighetsvurdering** | Byggherrens vurdering i svaret: i tide (`true`), for sent (`false`) eller ikke vurdert (utelatt i hendelsen, `null` i tilstanden). Om spørsmålet gjelder kravet, utledes av kravet | `frist_varsel_ok`, `spesifisert_krav_ok`, `foresporsel_svar_ok`, `grunnlag_varslet_i_tide` | [KA-U4](../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u4) |
 | **Subsidiært til nytt svar** | Et svar på vederlag eller frist som var subsidiært fordi grunnlaget var avslått eller prekludert, og som forblir det mens grunnlaget venter på nytt svar. Et nytt svar på sporet eller grunnlaget avslutter det | `subsidiaert_til_nytt_svar` | Vedtaket om endret underkategori 05.10, [GR-U1](../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u1), [GR-U4](../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u4) |
 | **Frafall** | Byggherrens svar på grunnlaget etter § 32.3 c: pålegget frafalles mot endringsordre for utført arbeid. Ikke et trekk fra TE | `GrunnlagResponsResultat.FRAFALT` (`frafalt`); sporstatusen er `TRUKKET` i dag (SK-04) | Vedtaket om `FRAFALT` 05.10, [GR-U3](../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u3) |
@@ -75,9 +75,9 @@ og beholdes; tabellen bestiller ingen omdøping.
 ### Navn i kjernen
 
 Kjernen i [`kjerne/`](../../kjerne/) har navn fra kontrakten etter «Språk» i
-`AGENTS.md` (#308). Tabellen viser navnene som er byttet ut fra målmodellen i
-språkprøven. Hendelsestypene og feltene i `data` er lagringsformatet og velges i
-#273; de står uendret til da.
+`AGENTS.md` (#308, #273). Tabellen viser navnene som er byttet ut fra målmodellen i
+språkprøven, og navnene i kjernen som er byttet i #273. Navnene i
+lagringsformatet står under.
 
 | Før (målmodellen, #304) | I kjernen (#308) | Hvorfor |
 | --- | --- | --- |
@@ -103,9 +103,9 @@ språkprøven. Hendelsestypene og feltene i `data` er lagringsformatet og velges
 | `ASSESSMENT_INVALID` | `UGYLDIG_VURDERING` | Norsk kode |
 | `ASSESSMENT_UNSUPPORTED` | `VURDERING_UTENFOR_KJERNEN` | Norsk kode |
 | `VALIDATION_ERROR`, `BUSINESS_RULE_VIOLATION` | `UGYLDIG_FORM`, `REGELBRUDD` | Norsk kode |
-| `Virkning` med `uavklart` | `Virkning` (hovedgrunn, subsidiær, uten virkning) og `uavklart` i svaret | Virkningen står i brevet; uavklart er en relasjon (MM-U8) |
+| `Virkning` med `uavklart` | `Virkning` (`prinsipalt`, `subsidiaert`, `uten_virkning`) og `uavklart` i svaret | Virkningen står i brevet; uavklart er en relasjon (MM-U8). Verdiene er brevets ord (#273); i #308 het de `hovedgrunn` og `subsidiaer` |
 | `Svarutledning.avvik` | Utgår. Visningen viser `regel_endret_etter_brevet` | MM-U9 |
-| `Enighet.virkning`, `Enighetsvirkning` | `enighetensVirkning(u, spor)` | Vilkåret utledes løpende og er ikke en verdi reglene leser |
+| `Enighet.virkning`, `Enighetsvirkning` | `enighetensVirkning(u, spor)` | Vilkåret utledes løpende og lagres ikke. `kraveneErAvgjort` leser det som et predikat av enigheten, grunnlaget og trekkene, ikke som en lagret verdi (#331) |
 | `Enighet.utledet` | Utgår | Ingen kompatibilitetsleser (B-17) |
 | `grunnlagLaast` | `spor.grunnlag.enighet` | GR-U10 |
 | `oppgjort`, `avsluttet`, `kanInngaaIEo` (felt) | `kraveneErAvgjort(u)`, `kanInngaaIEo(u)` | Predikater av utsagnene, ikke oppsummerende felt |
@@ -113,8 +113,46 @@ språkprøven. Hendelsestypene og feltene i `data` er lagringsformatet og velges
 | `gjelder32_2` | `gjelderVarslingsplikten` | Navnet etter bestemmelsen (§ 32.2), uten tall i navnet |
 | `avviker_fra_brevet` (etikett) | `regel_endret_etter_brevet` | Merknaden etter MM-U9 |
 | `Subsidiaergrunn` `uavklart` | Utgår | MM-U5 er opphevet av MM-U9 |
-| `forstatt`, `forhandsvisAksept`, `Handlingsnokkel`, `forsteUnderkategori` | `forstaatt`, `forhaandsvisAksept`, `Handlingsnoekkel`, `foersteUnderkategori` | ae/oe/aa |
-| Utsagnsarten `belop`, `utfall.belop`, `regler/belop.ts`, `Ore` | `beloep`, `utfall.beloep`, `regler/beloep.ts`, `Oere` | ae/oe/aa. Feltene i `data` (`godkjent_belop` og andre) er lagringsformatet og står til #273 |
+| `forstatt`, `Handlingsnokkel`, `forsteUnderkategori` | `forstaatt`, `Handlingsnoekkel`, `foersteUnderkategori` | ae/oe/aa |
+| `forhandsvisAksept` | Utgår | Aksepten bærer regelversjonen TE fikk se (KA-U10), og serveren sammenlikner den (#331) |
+| Utsagnsarten `belop`, `utfall.belop`, `regler/belop.ts`, `Ore` | `beloep`, `utfall.beloep`, `regler/beloep.ts`, `Oere` | ae/oe/aa |
+| `kanPrekluderesEtter3412` | `gjelderVarslingspliktenForVederlag` | Navnet etter innholdet, uten paragrafnummer, som `gjelderVarslingsplikten` (#331) |
+| Ny | `INGEN_KRAV_I_SPORET` | KA-U12: et krav eller varsel i et spor der TE har sagt «ingen krav» |
+| `Standpunkt` (virkningen) | `Standpunktsvirkning` | `Standpunkt` er byggherrens standpunkt i svaret (#273) |
+| `Svar.utsagn`, `Utsagn` med art `rettidighet`, `ansvar`, `beloep`, `hindring` og `dager` | `Svar.standpunkter`, `Standpunkt` | Et svar har standpunkter; `Utsagn` er de andre utsagnene i dokumentet (#273) |
+| `standpunkter()`, `Beslutningsgrunnlag.standpunkter`, `Svarberegning.standpunkter` | `virkninger()`, `virkninger` | Virkningen hvert standpunkt har i brevet (#273) |
+| `hovedgrunn()`, `utsagnet()` | `prinsipalt()`, `standpunktet()` | Brevets ord (#273) |
+| `frysSvar` | `frysBrev` | Fryser hvert svar i et dokument (#273) |
+| `HENDELSESTYPER` per spor, `SVARTYPER`, `KRAVREFERANSE`, `svarreferanse`, `utledetVarsel` | Utgår | Én hendelsestype for dokumentet, og referansene står i `data` (#273) |
+| `Opplysning.verdi` | `Opplysning.dato` | Feltet i formatet (#273) |
+
+### Navn i lagringsformatet
+
+Lagringsformatet for KOE-, EO- og forseringssakene i TS (#273, B-17) står i
+[`kjernehendelser.md`](../datamodell/kjernehendelser.md), og designet i
+[designnotatet](../design-hendelsesformat-2026-10-09.md). Tabellen viser navnene
+fra Python-epoken og målmodellen og navnene i format 1.
+
+| Før (Python-epoken og målmodellen) | I format 1 | Hvorfor |
+| --- | --- | --- |
+| `grunnlag_opprettet`, `grunnlag_oppdatert`, `vederlag_krav_sendt`, `vederlag_krav_oppdatert`, `frist_krav_sendt`, `frist_krav_oppdatert`, `respons_*`, `respons_*_oppdatert`, `te_aksepterer_respons`, `*_trukket`, `frist_varsel_registrert`, `bestridelse_registrert` | `dokument_registrert`, med elementene i `krav`, `svar` og `utsagn` | Ett dokument er én rad (MM-U10). Arten står på elementet |
+| `dokument_id` i `data` | `event_id` på dokumentraden | Ett dokument er én rad |
+| `hendelsesformat` i `data` | Kolonnen `format` | Leses før `data` tolkes |
+| `refererer_til_event_id` (`referstoid`), `vederlag_krav_id`, `frist_krav_id`, `grunnlag_event_id` | `gjelder` | Uttrykkelig referanse, også i trekket og rettidigheten |
+| `original_respons_id` | `erstatter` i svaret | «Svar», ikke «respons» |
+| Kravversjon uten referanse til den forrige | `erstatter` i kravet | Kravversjonene er en kjede, som svarene (KA-U2) |
+| `<event_id>#<art>` (utsagns-ID laget av leseren) | En UUID per element, satt av serveren | En referanse avhenger ikke av art eller rekkefølge |
+| `belop_direkte`, `antall_dager`, `varsel_type` | `beloep`, `dager`; `varsel_type` utgår | Varselet etter § 33.4 er et eget utsagn |
+| `resultat`, `grunnlag_varslet_i_tide`, `frist_varsel_ok`, `vilkar_oppfylt` | Standpunktene `ansvar`, `rettidighet` (`gjelder`, `hjemmel`, `i_tide`) og `hindring` (`oppfylt`) | Byggherrens standpunkt med art (KA-U4) |
+| `beregnings_resultat`, `total_godkjent_belop`, `godkjent_dager`, `subsidiaer_resultat`, `subsidiaer_godkjent_dager` | `utregning` med `resultat`, `godkjent_beloep`, `godkjent_dager`, `subsidiaert_resultat`, `subsidiaert_godkjent_dager` | B-13. Beløp og dager har ett hjem |
+| `total_krevd_belop`, `hovedkrav_godkjent_belop`, `begrunnelse` i svaret | Utgår | Regnes av andre verdier, eller leses ikke av kjernen (4.4) |
+| `standpunkter` med `utsagn`, `art` og `virkning` i beslutningsgrunnlaget | `virkninger` med `standpunkt` og `virkning` | Arten leses av standpunktet |
+| `hovedgrunn`, `subsidiaer` | `prinsipalt`, `subsidiaert` | Brevets ord |
+| `enighetsgrunnlag` i svaret | `sammenfall` i beslutningsgrunnlaget | GR-U7, GR-U10, MM-U11 |
+| Utsagn etter § 32.2 som tegn på at varslingsplikten gjaldt | `varslingsplikt` i beslutningsgrunnlaget for grunnlaget | GR-U12 |
+| `sendt`, `sendt_oppgitt_av`, `mottatt`, `frist_varsel.dato_sendt` | Opplysningen `{id, hva, dato}`, oppgitt av avsenderen | Modellforslaget 2.4 |
+| Finnes ikke | Utsagnet `ingen_krav` med `spor` | KA-U12 |
+
 | `utenforProven` | `utenforOmfanget` | Kjernen er ikke en prøve |
 
 **To tidsakser.** *Registrering* er rekkefølgen i journalen, med `tidsstempel`
