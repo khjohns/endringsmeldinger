@@ -1,5 +1,13 @@
 # Design: lagringsformatet for hendelsene TS skriver (B-10, #273)
 
+> **Merknad 2026-10-10:** formatet er vedtatt med
+> [HF-U1](plans/2026-09-16-godkjenning-og-varig-levering.md#hf-u1) og
+> [HF-U2](plans/2026-09-16-godkjenning-og-varig-levering.md#hf-u2), og bygget i
+> [`kjerne/`](../kjerne/) (#273, PR #340). Koden og navnetabellen i
+> [domenetabellen](domenetabell/README.md) gjelder der de avviker fra forslaget
+> her. Eksempler er `grunnlag` i stedet for `ansvar`, `beloep`, `virkninger`
+> og `uten_virkning` (HF-U2). Notatet står som begrunnelse for valgene.
+
 **Dato:** 2026-10-09. **Kontrollert commit:** `843ab2f`.
 **Status:** forslag. Formatet er ikke vedtatt. Byggeøkta bygger det inn i
 kjernemappa ([arbeidsvalget 09.10 i #273](https://github.com/khjohns/endringsmeldinger/issues/273#issuecomment-6087660542)).
