@@ -11,10 +11,13 @@
  *   feltlesing og hver verdi importert fra en annen modul i kjernen til
  *   deklarasjonen. Det som er deklarert i kjernen, må stå i lista med en klasse:
  *   utsagn, relasjon, frosset, predikat og så videre. En status eller en annen
- *   oppsummering står ikke der, under noe navn, så en regel som leser den, gir
- *   rød test til noen har klassifisert verdien. Testen ser ikke lesinger
- *   gjennom refleksjon (`Object.entries`, `in`, spredning), og ikke et objekt
- *   en funksjon bygger og leser selv.
+ *   oppsummering står ikke der, så et nytt felt eller en ny import med den gir
+ *   rød test til noen har klassifisert verdien (MM-U13). Testen ser ikke
+ *   lesinger gjennom refleksjon (`Object.entries`, `in`, spredning), et objekt
+ *   en funksjon bygger og leser selv, en status en funksjon i samme modul
+ *   regner ut og returnerer, hvilken nøkkel som leses der lista tillater `*`,
+ *   eller hvilket formål en tillatt lesing har, utover avgrensningen til
+ *   moduler og funksjoner.
  *
  * Importene leses med TypeScript-parseren, ikke med et tekstsøk, så `import`,
  * `import type`, `export … from`, `import()` og `require()` teller likt, med og
@@ -203,7 +206,8 @@ type Klasse =
   | 'regelsett'
   /**
    * Byggherrens frosne svar etter B-13, i serverens utregning: «godkjent eller
-   * avslått, beløp eller dager» (MM-U11). Leses bare når brevet fryses.
+   * avslått, beløp eller dager» (MM-U11). Leses bare av `godkjennerHeleKravet`,
+   * når brevet fryses, og ikke av `utfall()` eller annet som kalles ved lesing.
    */
   | 'frosset svar'
   /** Kommandoen klienten sender, før den er godtatt. */
@@ -216,18 +220,20 @@ type Klasse =
   | 'skjema';
 
 /**
- * Det reglene får lese: `[eier, klasse, felt, moduler]`, med feltene skilt med
+ * Det reglene får lese: `[eier, klasse, felt, steder]`, med feltene skilt med
  * mellomrom. Eieren er typen, konstanten eller modulen feltet er deklarert i,
  * med stien gjennom nestede typer. En lesing fra en verdi uten type, som
  * `Record<string, unknown>`, har det typede feltet den kommer fra som eier, som
- * `Svar.utregning`, eller funksjonen og parameteren, som `svarutsagn(data)`. `*` er en lesing med en
- * nøkkel som regnes ut. Er `moduler` oppgitt, får bare de modulene lese feltene.
+ * `Svar.utregning`, eller funksjonen og parameteren, som `svarutsagn(data)`.
+ * `*` er en lesing med en nøkkel som regnes ut, og tillater alle nøkler. Er
+ * `steder` oppgitt, får bare de modulene eller funksjonene (`modul:navn`) lese
+ * feltene.
  *
  * Legger du til et felt reglene leser, klassifiserer du det her. Hører det ikke
  * til noen klasse, er det en oppsummering, og regelen skal lese det feltet
  * oppsummerer i stedet.
  */
-const LESBART: [eier: string, klasse: Klasse, felt: string, moduler?: string[]][] = [
+const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][] = [
   // Dokumentene og utsagnene i dem (typer.ts).
   ['Dokument', 'relasjon', 'avsender'],
   ['Dokument', 'utsagn', 'krav svar utsagn opplysninger'],
@@ -238,8 +244,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, moduler?: string[]][
   ['Svar', 'relasjon', 'id spor gjelder erstatter'],
   ['Svar', 'utsagn', 'utsagn'],
   ['Svar', 'frosset', 'beslutningsgrunnlag'],
-  ['Svar', 'frosset svar', 'utregning', ['standpunkt.ts']],
-  ['Svar.utregning', 'frosset svar', 'beregnings_resultat', ['standpunkt.ts']],
+  ['Svar', 'frosset svar', 'utregning', ['standpunkt.ts:godkjennerHeleKravet']],
+  ['Svar.utregning', 'frosset svar', 'beregnings_resultat', ['standpunkt.ts:godkjennerHeleKravet']],
   ['Utsagn', 'relasjon', 'id art gjelder dokument'],
   ['Utsagn', 'utsagn', 'hjemmel iTide resultat godkjent oppfylt vurdert hva'],
   ['Opplysning', 'relasjon', 'id oppgittAv'],
@@ -251,9 +257,10 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, moduler?: string[]][
   [
     'Utledning',
     'predikat',
-    `forstaatt spor svar opplysninger grunnlagAvklart grunnlagAvvist frafalt
-     godkjenningErEndringsordre`,
+    'forstaatt spor svar opplysninger grunnlagAvvist frafalt godkjenningErEndringsordre',
   ],
+  // «Avklart» etter GR-U7 brukes bare der vedtakene sier det (MM-U13): KA-U11 og EO-U5.
+  ['Utledning', 'predikat', 'grunnlagAvklart', ['utled.ts']],
   ['Utledning.svar', 'relasjon', '*'],
   ['Utledning.opplysninger', 'utsagn', 'opplysning'],
   ['Utledning.opplysninger', 'relasjon', 'bestridelser'],
@@ -301,12 +308,11 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, moduler?: string[]][
   ],
   ['regler/frist.ts', 'regelsett', 'beregnFrist'],
   ['regler/vederlag.ts', 'regelsett', 'beregnVederlag'],
-  ['GrunnlagForStandpunkt', 'regelsett', 'hovedkategori underkategori resultat varsletITide'],
   [
     'Fristkrav',
     'regelsett',
     `krevd_dager varsel_type er_svar_paa_foresporsel har_innsigelse_mot_varsel
-     har_tidligere_varsel_i_tide er_grunnlag_subsidiaert er_hele_fristen_subsidiaer_pga_grunnlag`,
+     har_tidligere_varsel_i_tide`,
   ],
   [
     'Fristvurdering',
@@ -327,7 +333,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, moduler?: string[]][
     'Vederlagskrav',
     'regelsett',
     `hovedkrav_belop metode rigg_belop produktivitet_belop krever_justert_ep kostnads_overslag
-     hovedkategori underkategori grunnlag_varslet_i_tide grunnlag_resultat`,
+     hovedkategori underkategori`,
   ],
   [
     'Vederlagsvurdering',
@@ -351,7 +357,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, moduler?: string[]][
   ],
   ['Kommando.varsel', 'kommando', 'sendt'],
   ['Svarutkast', 'kommando', 'spor gjelder regelversjon vurderinger resultat'],
-  ['Svarutkast.resultat', 'kommando', '*'],
+  ['Svarutkast.resultat', 'kommando', '*', ['nyttelast.ts']],
   ['Svarutkast.vurderinger', 'kommando', '*'],
   ['nyttelast.ts:kontrollerSvar(server)', 'regelsett', '*'],
   ['Handlingsnoekkel', 'kommando', 'type spor gjelder'],
@@ -415,20 +421,41 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, moduler?: string[]][
 ];
 
 /**
- * Lesinger av en oppsummering som står i dag, med issuet som fjerner dem:
- * `[modul, nøkkel, begrunnelse]`. `utfall()` er en lukket mengde, `avklart`
- * eller `avvist`, som slår sammen § 32.3 a og c, og ingen regel skal lese den,
- * heller ikke utledet (MM-U13). Lista er lukket: den kan bare bli kortere.
+ * Lesinger av en samlebetegnelse som står i dag (MM-U13), med issuet som
+ * fjerner dem: `[modul, nøkkel, begrunnelse]`. Lista er lukket: den kan bare
+ * bli kortere.
+ * - `utfall()` er en lukket mengde, `avklart` eller `avvist`, som slår sammen
+ *   § 32.3 a og c. Ingen regel skal lese den, heller ikke utledet.
+ * - Grunnlagsfeltene i regelsettets inndata er utfallet i grunnlagssporet,
+ *   kopiert inn i ett svar. At hele svaret er subsidiært til grunnlaget, er en
+ *   relasjon mellom brev som utledes ved lesing (merknaden 05.10 til B-13, MM-U9),
+ *   og `utled.ts` utleder den av de frosne standpunktene.
  */
 const KJENTE_AVVIK: [modul: string, noekkel: string, begrunnelse: string][] = [
   ['utled.ts', 'standpunkt.ts.utfall', '#273: grunnlagAvklart skal lese standpunktene direkte'],
   ['utled.ts', 'Utfall.grunnlag', '#273: grunnlagAvklart og grunnlagAvvist leser utfallet'],
   ['utled.ts', 'Enighetsgrunnlag.utfall', '#273: grunnlagAvvist skal lese standpunktene direkte'],
+  ['regler/vederlag.ts', 'Vederlagskrav.grunnlag_resultat', '#309: fjernes fra porten'],
+  ['regler/vederlag.ts', 'Vederlagskrav.grunnlag_varslet_i_tide', '#309: fjernes fra porten'],
+  ['regler/frist.ts', 'Fristkrav.er_grunnlag_subsidiaert', '#309: fjernes fra porten'],
+  [
+    'regler/frist.ts',
+    'Fristkrav.er_hele_fristen_subsidiaer_pga_grunnlag',
+    '#309: fjernes fra porten',
+  ],
+  ['regler/grunnlag.ts', 'GrunnlagForStandpunkt.hovedkategori', '#309: fjernes fra porten'],
+  ['regler/grunnlag.ts', 'GrunnlagForStandpunkt.underkategori', '#309: fjernes fra porten'],
+  ['regler/grunnlag.ts', 'GrunnlagForStandpunkt.resultat', '#309: fjernes fra porten'],
+  ['regler/grunnlag.ts', 'GrunnlagForStandpunkt.varsletITide', '#309: fjernes fra porten'],
 ];
 
-/** Én lesing i en regel: modulen, linjen og nøkkelen `eier.felt` den slås opp med i `LESBART`. */
+/**
+ * Én lesing i en regel: modulen, funksjonen (`modul:navn`), linjen og nøkkelen
+ * `eier.felt` den slås opp med i `LESBART`.
+ */
 export interface Lesing {
   modul: string;
+  funksjon: string;
   linje: number;
   noekkel: string;
 }
@@ -529,6 +556,7 @@ export function lesinger(p: ts.Program, moduler: string[]): Lesing[] {
       if (noekkel !== null)
         ut.push({
           modul: modulnavn(fil),
+          funksjon: funksjon(n),
           linje: sf.getLineAndCharacterOfPosition(n.getStart()).line + 1,
           noekkel,
         });
@@ -694,12 +722,12 @@ export function lesinger(p: ts.Program, moduler: string[]): Lesing[] {
 /** Lesingene `LESBART` ikke tillater, utenom de kjente avvikene. */
 export function ikkeTillatt(l: Lesing[]): Lesing[] {
   return l.filter(
-    ({ modul, noekkel }) =>
+    ({ modul, funksjon, noekkel }) =>
       !KJENTE_AVVIK.some(([m, k]) => m === modul && k === noekkel) &&
       !LESBART.some(
-        ([eier, , felt, moduler]) =>
+        ([eier, , felt, steder]) =>
           felt.split(/\s+/).some((f) => `${eier}.${f}` === noekkel) &&
-          (!moduler || moduler.includes(modul))
+          (!steder || steder.includes(modul) || steder.includes(funksjon))
       )
   );
 }
@@ -735,9 +763,21 @@ describe('reglene leser bare det LESBART tillater (#308, #329)', () => {
     }
   });
 
-  it('de kjente avvikene er bare lesingene av utfallet fra #273', () => {
-    const fra273 = new Set(['standpunkt.ts.utfall', 'Utfall.grunnlag', 'Enighetsgrunnlag.utfall']);
-    expect(KJENTE_AVVIK.filter(([, noekkel]) => !fra273.has(noekkel))).toEqual([]);
+  it('de kjente avvikene er bare utfallet (#273) og grunnlagsfeltene i regelsettet (#309)', () => {
+    const lukket = new Set([
+      'standpunkt.ts.utfall',
+      'Utfall.grunnlag',
+      'Enighetsgrunnlag.utfall',
+      'Vederlagskrav.grunnlag_resultat',
+      'Vederlagskrav.grunnlag_varslet_i_tide',
+      'Fristkrav.er_grunnlag_subsidiaert',
+      'Fristkrav.er_hele_fristen_subsidiaer_pga_grunnlag',
+      'GrunnlagForStandpunkt.hovedkategori',
+      'GrunnlagForStandpunkt.underkategori',
+      'GrunnlagForStandpunkt.resultat',
+      'GrunnlagForStandpunkt.varsletITide',
+    ]);
+    expect(KJENTE_AVVIK.filter(([, noekkel]) => !lukket.has(noekkel))).toEqual([]);
   });
 
   it('finner lesingene i reglene', () => {
@@ -755,6 +795,7 @@ describe('reglene leser bare det LESBART tillater (#308, #329)', () => {
   const forutsetninger = join(KJERNE, 'forutsetninger.ts');
   const utled = join(KJERNE, 'utled.ts');
   const leser = join(KJERNE, 'leser.ts');
+  const standpunkt = join(KJERNE, 'standpunkt.ts');
   /** Kode som legges til sist i en fil, så forsøkene ikke avhenger av teksten feilinnføringene endrer. */
   type Tillegg = [fil: string, kode: string];
   /** Lesingene LESBART ikke tillater i `modul` når `tillegg` er lagt til i kildene. */
@@ -870,6 +911,34 @@ describe('reglene leser bare det LESBART tillater (#308, #329)', () => {
       'Journalrad.data',
     ],
     ['journalen i utledningen', forutsetninger, [regel('return u.journal;')], 'Utledning.journal'],
+    [
+      '«avklart» utenfor utledningen (MM-U13)',
+      forutsetninger,
+      [regel('return u.grunnlagAvklart;')],
+      'Utledning.grunnlagAvklart',
+    ],
+    [
+      'det frosne svaret lest utenfor godkjennerHeleKravet',
+      standpunkt,
+      [
+        [
+          standpunkt,
+          'export const proeve = (svar: Svarinnhold) => svar.utregning.beregnings_resultat;',
+        ],
+      ],
+      'Svar.utregning.beregnings_resultat',
+    ],
+    [
+      'et grunnlagsfelt i en annen del av regelsettet enn de kjente avvikene',
+      join(KJERNE, 'regler', 'frist.ts'),
+      [
+        [
+          join(KJERNE, 'regler', 'frist.ts'),
+          "import type { Vederlagskrav } from './vederlag.ts';\nexport const proeve = (k: Vederlagskrav) => k.grunnlag_resultat;",
+        ],
+      ],
+      'Vederlagskrav.grunnlag_resultat',
+    ],
     [
       'utfallet i en annen regel enn de kjente avvikene',
       forutsetninger,
