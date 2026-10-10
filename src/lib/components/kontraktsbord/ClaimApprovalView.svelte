@@ -16,6 +16,7 @@
   } from '$lib/approval/types';
   import { decisionSummary, documentToBrev, letterText } from '$lib/approval/letter';
   import { calculateAuthority, kravFraSak } from '$lib/approval/authority';
+  import { ENDRINGSORDREVARSEL, brevetBlirEndringsordre } from '$lib/kontraktsbord/endringsordre';
   import {
     limitLabel,
     nok,
@@ -130,6 +131,7 @@
     })
   );
   const tracks = $derived(letter.items.map((i) => trackNames[i.track]).join(' · '));
+  const endringsordre = $derived(brevetBlirEndringsordre(letter.items, selected, outdated));
   const plural = (n: number) => `${n} ${n === 1 ? 'vurdering' : 'vurderinger'}`;
   const amountLabel = $derived(
     assessment.ukjent
@@ -522,6 +524,7 @@
         </div>
       {/if}
 
+      {#if endringsordre}<p class="notice" role="note">{ENDRINGSORDREVARSEL}</p>{/if}
       {#if !letter.items.length}
         <div class="empty-state">
           <h2>{review.canPrepare ? 'Ingen ferdigstilte vurderinger' : 'Ingen brev å vise'}</h2>
