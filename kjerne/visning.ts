@@ -10,7 +10,7 @@
  */
 
 import type { Regelsett } from './regler/regelsett.ts';
-import { standpunkter, ulikeVirkninger } from './standpunkt.ts';
+import { ulikeVirkninger, virkninger } from './standpunkt.ts';
 import {
   enighetensVirkning,
   grunnlagskravFor,
@@ -59,10 +59,7 @@ function status(u: Utledning): Statuskode {
 function regelenErEndret(u: Utledning, spor: Spor, regler: Regelsett): boolean {
   const g = u.spor[spor].gjeldendeSvar;
   if (!g) return false;
-  return ulikeVirkninger(
-    u.svar[g.id].standpunkter,
-    standpunkter(g, grunnlagskravFor(g, u), regler)
-  );
+  return ulikeVirkninger(u.svar[g.id].virkninger, virkninger(g, grunnlagskravFor(g, u), regler));
 }
 
 function etiketter(u: Utledning, spor: Spor, regler: Regelsett): string[] {
@@ -75,6 +72,7 @@ function etiketter(u: Utledning, spor: Spor, regler: Regelsett): string[] {
     if (u.frafalt) ut.push('frafalt');
     if (u.grunnlagAvvist) ut.push('avslatt');
     if (u.grunnlagAvklart) ut.push('avklart');
+    if (u.endringsordre === 'ikke_avklart') ut.push('endringsordre_ikke_avklart');
     if (virkning && !s.trukket) ut.push('enige');
   } else {
     if (virkning === 'betinget') ut.push('enige_betinget');
@@ -86,7 +84,8 @@ function etiketter(u: Utledning, spor: Spor, regler: Regelsett): string[] {
     ut.push(s.enighet ? 'regel_endret_etter_enighet' : 'regel_endret_etter_brevet');
   if (s.gjeldendeSvar && u.svar[s.gjeldendeSvar.id].uavklart.length)
     ut.push('bh_har_ikke_vurdert_varselet');
-  if (spor === 'frist' && !s.varsel) ut.push('varsel_ikke_registrert');
+  if (s.ingenKrav) ut.push('ingen_krav');
+  else if (spor === 'frist' && !s.varsel) ut.push('varsel_ikke_registrert');
   return ut;
 }
 
@@ -95,16 +94,29 @@ export function visning(u: Utledning, regler: Regelsett): Visning {
   const ikkeTolket = new Set(u.begrensninger.map((b) => b.hendelse));
   const opplysninger: Record<string, string[]> = {};
   for (const { opplysning: o, bestridelser } of u.opplysninger) {
-    const e = [`${o.hva}_ifolge_${o.oppgittAv}`];
+    const e = [
+      o.hva === 'endringsordre'
+        ? `${o.oppfylt ? 'endringsordre' : 'ikke_endringsordre'}_ifolge_${o.oppgittAv}`
+        : `${o.hva}_ifolge_${o.oppgittAv}`,
+    ];
     if (
       o.hva === 'sendt' &&
       !u.opplysninger.some(
-        (x) => x.opplysning.dokument === o.dokument && x.opplysning.hva === 'mottatt'
+        (x) =>
+          x.opplysning.dokument === o.dokument &&
+          x.opplysning.hva === 'mottatt' &&
+          x.opplysning.gjelder === o.gjelder
       )
     )
       e.push('mottaksdato_mangler');
     for (const b of bestridelser)
-      e.push(b.hva === 'mottatt' ? 'mottak_bestridt' : 'sending_bestridt');
+      e.push(
+        {
+          sendt: 'sending_bestridt',
+          mottatt: 'mottak_bestridt',
+          endringsordre: 'endringsordre_bestridt',
+        }[b.hva]
+      );
     opplysninger[o.id] = e;
   }
   return {

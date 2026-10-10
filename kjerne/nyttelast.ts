@@ -7,6 +7,7 @@
 
 import { UgyldigVurdering } from './regler/feil.ts';
 import { avvis } from './forutsetninger.ts';
+import { datoFor, sammeSlag } from './leser.ts';
 import type { Kommando, Svarutkast } from './kommando.ts';
 import type { Regelsett } from './regler/regelsett.ts';
 import { likeResultatfelt, regnUtSvar, SAMMENLIKNES, utenforOmfanget } from './standpunkt.ts';
@@ -52,9 +53,13 @@ export function nyttelastkontroll(k: Kommando, u: Utledning, regler: Regelsett):
     case 'krav': {
       const varsel = u.spor.frist.varsel;
       if (k.spor !== 'frist' || !k.varsel || !varsel) return null;
-      const sendt = u.opplysninger.find((o) => o.opplysning.id === `${varsel.dokument}#sendt`);
+      const sendt = datoFor(
+        varsel,
+        'sendt',
+        u.opplysninger.map((o) => o.opplysning)
+      );
       // SK-12: et registrert varsel beholder datoen det fikk første gang (rad KA-19).
-      return sendt?.opplysning.verdi === k.varsel.sendt
+      return sendt?.dato === k.varsel.sendt
         ? null
         : avvis(
             'VARSEL_REGISTRERT',
@@ -82,9 +87,15 @@ export function nyttelastkontroll(k: Kommando, u: Utledning, regler: Regelsett):
         );
       return null;
     }
+    case 'bestridelse': {
+      // MM-U7: en opplysning om § 31.3 bestrides som det, en dato som sendt eller mottatt.
+      const o = u.opplysninger.find((x) => x.opplysning.id === k.gjelder)?.opplysning;
+      return o && !sammeSlag(o.hva, k.hva)
+        ? avvis('FEIL_BESTRIDELSE', `Opplysningen gjelder ${o.hva}, ikke ${k.hva}.`)
+        : null;
+    }
     case 'trekk':
     case 'varsel':
-    case 'bestridelse':
       return null;
   }
 }

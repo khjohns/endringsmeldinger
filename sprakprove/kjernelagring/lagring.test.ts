@@ -1,14 +1,22 @@
 /**
- * Forløp A–E fra kjernen mot testbasen (#304, #308): hver kommando lagres i `hendelse` med
- * lageret fra språkprøven, og journalen leses fra basen før hver utledning.
- * Krever `KOE_TESTBASE_URL`. Kjør ikke samtidig med pytest mot samme base.
+ * Forløp A–E fra kjernen mot testbasen (#304, #308, #273): hver kommando lagres i
+ * `hendelse` med lageret fra språkprøven, og journalen leses fra basen før hver
+ * utledning. Prøvene 7.1–7.3 i designnotatet for #273 mot basen. Krever
+ * `KOE_TESTBASE_URL`. Kjør ikke samtidig med pytest mot samme base.
  */
 
+import { randomUUID } from 'node:crypto';
+import type { ClientBase } from 'pg';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { utledJournal } from '../../kjerne/skriving.ts';
+import type { Journalrad } from '../../kjerne/typer.ts';
+import { KJERNE } from '../../kjerne/versjon.ts';
+import { bygg } from '../../kjerne/tester/baner.ts';
+import { avvikFraFormatet } from '../../kjerne/tester/formatprove.ts';
 import { Kjoering, kjoer, MAALMODELL } from '../../kjerne/tester/kjoerer.ts';
 import { Versjonskonflikt } from '../server/lager.ts';
 import { lagOppsett, rydd, TESTBASE_URL, type Oppsett } from '../tester/testbase.ts';
-import { basebane } from './bane.ts';
+import { basebane, journalen, skrivRader } from './bane.ts';
 
 describe.skipIf(!TESTBASE_URL)('forløp A–E gjennom testbasen', () => {
   let o: Oppsett;
@@ -20,9 +28,93 @@ describe.skipIf(!TESTBASE_URL)('forløp A–E gjennom testbasen', () => {
   });
 
   it.each(MAALMODELL.forlop.map((f) => [f.id, f] as const))('%s', async (_id, forloep) => {
-    await kjoer(forloep, await basebane(o), {
+    const bane = await basebane(o);
+    const k = await kjoer(forloep, bane, {
       paastand: (holder, melding) => expect(holder, melding).toBe(true),
     });
+    // 7.1.2: hver rad kjernen skrev, har formen i format 1 slik basen gir den tilbake.
+    const skrevet = (await bane.journal()).filter((r) => k.skrevet.includes(r.event_id));
+    expect(skrevet.flatMap(avvikFraFormatet)).toEqual([]);
+  });
+
+  /**
+   * 7.3: brevet i forløp A, steg 2, med tre svar, avbrutt etter at raden er skrevet
+   * og før COMMIT (invariant 3 i hovedplanen). Leveringsintensjonen og det frosne
+   * dokumentgrunnlaget finnes ikke i TS-stien ennå; de hører til #310, og prøven
+   * viser bare journalen og saksversjonen.
+   */
+  it.each([
+    ['en krok som kaster', async () => Promise.reject(new Error('avbrutt før COMMIT'))],
+    [
+      'en avbrutt forbindelse',
+      async (klient: ClientBase) =>
+        void (await klient.query('SELECT pg_terminate_backend(pg_backend_pid())')),
+    ],
+  ] as const)(
+    'et brev med tre svar lagres samlet eller ikke: %s (7.3)',
+    async (_hva, foerCommit) => {
+      const [brev, ...foer] = [...MAALMODELL.prefikser.forlop_a_brev].reverse();
+      const bane = await basebane(o);
+      const k = await bygg(bane, foer.reverse());
+      const journal = await bane.journal();
+      const utfall = await k.prov(brev);
+      if (!utfall.godtatt)
+        throw new Error(`Forutsetning: brevet ble avvist: ${utfall.avvisning.regel}`);
+      const [rad] = utfall.hendelser;
+      if ((rad.data.svar as unknown[]).length !== 3)
+        throw new Error('Forutsetning: brevet har tre svar');
+
+      await expect(
+        skrivRader(o, utfall.hendelser, journal.at(-1)!.versjon, { foerCommit })
+      ).rejects.toThrow();
+      expect(await bane.journal()).toEqual(journal);
+      const lagret = await o.pool.query('SELECT 1 FROM hendelse WHERE event_id = $1', [
+        rad.event_id,
+      ]);
+      expect(lagret.rowCount).toBe(0);
+
+      // Samme kommando igjen gir ett dokument med tre svar, hvert med sitt beslutningsgrunnlag.
+      expect((await k.send(brev))?.godtatt).toBe(true);
+      const etter = await bane.journal();
+      expect(etter).toHaveLength(journal.length + 1);
+      const ny = etter.at(-1)!;
+      expect(ny.versjon).toBe(journal.at(-1)!.versjon + 1);
+      const svar = ny.data.svar as { spor: string; beslutningsgrunnlag?: unknown }[];
+      expect(svar.map((s) => s.spor)).toEqual(['grunnlag', 'vederlag', 'frist']);
+      expect(svar.every((s) => typeof s.beslutningsgrunnlag === 'object')).toBe(true);
+      expect(utledJournal(etter, KJERNE).forstaatt).toBe(true);
+    }
+  );
+
+  it('en referanse til et svar i en annen sak gir en sak som ikke er forstått (7.1.4)', async () => {
+    const a = await bygg(await basebane(o), ['forlop_a']);
+    const baneB = await basebane(o);
+    await bygg(baneB, ['krav_eo']);
+    const journalB = await baneB.journal();
+    const siste = journalB.at(-1)!;
+    const aksept: Journalrad = {
+      ...siste,
+      event_id: randomUUID(),
+      aktor_id: o.te.id,
+      aktor_rolle: 'TE',
+      data: {
+        utsagn: [
+          {
+            id: randomUUID(),
+            art: 'aksept',
+            gjelder: a.navn.id('S-v2'),
+            regelversjon: KJERNE.regler.versjon,
+          },
+        ],
+      },
+    };
+    if (!utledJournal(journalB, KJERNE).forstaatt)
+      throw new Error('Forutsetning: sak B er forstått');
+    await skrivRader(o, [aksept], siste.versjon);
+    const lest = await journalen(o, baneB.sakId);
+    expect(lest.map((r) => r.event_id)).toContain(aksept.event_id);
+    expect(lest.every((r) => r.sak_id === baneB.sakId)).toBe(true);
+    expect(utledJournal(lest, KJERNE).forstaatt).toBe(false);
   });
 
   it('avviser en aksept forhåndsvist før en senere hendelse, og journalen er uendret (expected_version, 2.5)', async () => {

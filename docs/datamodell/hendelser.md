@@ -30,6 +30,7 @@ Konvolutten, som `to_cloudevent` legger i egne kolonner, ikke i `data`.
 | `aktor_team_id` | `actorteam` | Catenda-team-ID til aktørens organisasjon. Settes av serveren. |
 | `kommentar` | `comment` | Valgfri kommentar. |
 | `refererer_til_event_id` | `referstoid` | Hendelsen dette er et svar på, for eksempel kravet et BH-svar gjelder. |
+| (ingen) | `format` | Formatversjonen TS-kjernen skrev raden med (B-10, #273). Python setter den ikke. Typene TS-kjernen skriver, står i kjernehendelser.md. |
 | (ingen) | `versjon` | Løpenummeret i saken, satt av lageret. Det er ikke feltet `versjon` på kravhendelsene, som ikke lagres. |
 | (ingen) | `prosjekt_id` | Stemples av lageret fra det autoriserte prosjektet. |
 

@@ -44,6 +44,7 @@ interface Lagret {
   actorrole: Rolle;
   actorteam: string | null;
   referstoid: string | null;
+  format: number | null;
   data: Record<string, unknown>;
   versjon: number;
 }
@@ -61,7 +62,7 @@ export async function lesJournal(
   const svar = await db.query<Lagret>(
     `SELECT event_id::text AS event_id, sak_id, event_type,
             to_char(time AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US') AS tid,
-            actorid, actorrole, actorteam, referstoid::text AS referstoid, data, versjon
+            actorid, actorrole, actorteam, referstoid::text AS referstoid, format, data, versjon
        FROM hendelse WHERE sak_id = $1 AND prosjekt_id = $2 ORDER BY versjon`,
     [sakId, prosjektId]
   );
@@ -89,6 +90,7 @@ const KOLONNER = [
   'actorrole',
   'actorteam',
   'referstoid',
+  'format',
   'data',
   'prosjekt_id',
   'sak_id',
@@ -108,6 +110,12 @@ async function versjon(db: Klient, sakId: string): Promise<number> {
   return svar.rows[0].versjon;
 }
 
+/** Kroker i transaksjonen, for prøven av avbrudd før commit (7.3 i designnotatet for #273). */
+export interface Kroker {
+  /** Kjøres etter at radene er skrevet, rett før `COMMIT`. Kaster den, rulles alt tilbake. */
+  foerCommit?: (klient: ClientBase) => Promise<void>;
+}
+
 /**
  * Legg hendelsene til etter `forventet`. Versjonen i hendelsen settes av
  * lageret, som i Python. Returnerer ny versjon.
@@ -117,8 +125,9 @@ async function versjon(db: Klient, sakId: string): Promise<number> {
 export async function leggTil(
   pool: Pool,
   prosjektId: string,
-  hendelser: Hendelse[],
-  forventet: number
+  hendelser: (Hendelse & { format?: number | null })[],
+  forventet: number,
+  kroker: Kroker = {}
 ): Promise<number> {
   if (!hendelser.length) throw new Error('Kan ikke legge til en tom liste');
   const sakId = hendelser[0].sak_id;
@@ -130,6 +139,11 @@ export async function leggTil(
       throw new UgyldigVerdi('refererer_til_event_id må være en UUID.');
   }
   const klient = await pool.connect();
+  // En forbindelse som brytes under transaksjonen, sender `error` i tillegg til at
+  // spørringen feiler. Uten lytter ville prosessen falle; feilen kommer fram gjennom
+  // spørringen.
+  const vedBrudd = () => {};
+  klient.on('error', vedBrudd);
   try {
     await klient.query('BEGIN');
     const sak = await klient.query<{ prosjekt_id: string; versjon: number }>(
@@ -148,6 +162,7 @@ export async function leggTil(
         KOLONNER.map((k) => (k === 'data' ? JSON.stringify(rad[k]) : rad[k]))
       );
     }
+    await kroker.foerCommit?.(klient);
     await klient.query('COMMIT');
   } catch (feil) {
     try {
@@ -157,11 +172,13 @@ export async function leggTil(
       klient.release(brudd as Error);
       throw feil;
     }
+    klient.off('error', vedBrudd);
     klient.release();
     if ((feil as { constraint?: string }).constraint === VERSJONSSKRANKE)
       throw new Versjonskonflikt(forventet, await versjon(pool, sakId));
     throw feil;
   }
+  klient.off('error', vedBrudd);
   klient.release();
   return forventet + hendelser.length;
 }

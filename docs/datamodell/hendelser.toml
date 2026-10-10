@@ -1,4 +1,5 @@
 # Hendelseskatalogen (spor M, fase 1b). Én oppføring per verdi i EventType.
+# Hendelsestypene TS-kjernen skriver, står i kjernehendelser.toml (#320).
 #
 # Rett her, ikke i hendelser.md eller Excel-fila. Begge lages av
 #   /tmp/venv/bin/python docs/verktoy/datamodell.py
@@ -68,6 +69,13 @@ beskrivelse = "Valgfri kommentar."
 felt = "refererer_til_event_id"
 kolonne = "referstoid"
 beskrivelse = "Hendelsen dette er et svar på, for eksempel kravet et BH-svar gjelder."
+
+[[konvolutt]]
+felt = "(ingen)"
+kolonne = "format"
+beskrivelse = """
+Formatversjonen TS-kjernen skrev raden med (B-10, #273). Python setter den
+ikke. Typene TS-kjernen skriver, står i kjernehendelser.md."""
 
 [[konvolutt]]
 felt = "(ingen)"
