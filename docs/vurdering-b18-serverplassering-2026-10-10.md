@@ -207,11 +207,43 @@ Det som taler for alternativ 1, er én byggeenhet for frontend og TS-API og én
 plass for typene. Ingen av delene er nødvendige: kjernen deles allerede fra
 `kjerne/`, og regelversjonen fanger en eldre fane uansett (B18-06).
 
-## 6. Spørsmålet til oppdragsgiver
+## 6. Spørsmålet og svaret
 
-Spørsmålet er sendt til orkestratoren 10.10. Svaret føres ordrett her.
+Spørsmålene ble sendt gjennom orkestratoren 10.10. Oppdragsgiver drøftet dem
+med en juridisk sparringspartner. De ble lagt fram i klartekst med to forslag,
+ordrett:
 
-> *Svar: venter.*
+- **Forslag 7, serveren:** «en egen Node/TypeScript-server, med Python ved
+  siden av for innlogging, levering og Catenda. Kravene er: én autoritativ
+  regelbehandling; kontrollert adgang til bindende handlinger; historikk som
+  kan etterprøves. IKT-spørsmålet legges i #78. Flere tjenester kan rulles ut
+  som én samlet utgivelse.»
+- **Forslag 8, leveringen:** «Det som skal leveres, fryses i
+  leveringsoppdraget i samme transaksjon som hendelsen. Et nytt
+  leveringsforsøk sender samme brev og vedlegg, og skaper ingen ny erklæring.
+  Hvert leveringsforsøk, hver feil og hver kvittering dokumenteres for seg. Et
+  lagret oppdrag beviser ikke at brevet er sendt eller mottatt. Hvordan Python
+  henter oppdraget, velger utviklerne.»
+
+**Svaret 10.10, ordrett:** «Jeg slutter meg til forslagene med disse
+presiseringene: […] Servervalget overlates til utviklerne og IT innenfor de
+foreslåtte kravene.» Presiseringene som er utelatt, gjelder formatet, ikke
+B-18.
+
+Slik orkestratoren leser svaret:
+1. **Serveren** er overlatt til utviklerne og IT innenfor de tre kravene i
+   forslag 7. Utviklernes valg er anbefalingen i avsnitt 5: en egen
+   Node/TS-backend med Python ved siden av. Valget forutsetter at IKT ikke har
+   et krav som utelukker det. Spørsmålet står i
+   [#78](https://github.com/khjohns/endringsmeldinger/issues/78), med kravet om
+   at TS og Python står bak samme vert (B18-01).
+2. **Lesingen:** form (a) i 3.4, frosset innhold lagret samlet med hendelsen,
+   er et krav, med presiseringene i forslag 8. Hvordan Python henter oppdraget,
+   er et teknisk valg. Form (b) og (c) kan kombineres med (a), men erstatter
+   den ikke.
+3. **IKT:** spørsmålet om én deploybar enhet legges i #78.
+
+Vedtaket føres under B-18 i hovedplanen.
 
 ## Verifikasjon og grenser
 
