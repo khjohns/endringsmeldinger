@@ -4,7 +4,7 @@
   import { fmt } from './utils.js';
   import type { SporKey } from './types.js';
   import osloLogo from '../../../../public/logos/Oslo-logo-hvit-RGB.png?inline';
-  import { getOverordnetStatusStyle } from '$lib/constants/statusStyles.js';
+  import { saksstatus } from './derive.js';
   import { Building2, ChevronRight } from 'lucide-svelte';
 
   let {
@@ -43,7 +43,7 @@
       : store.projectId
   );
 
-  const statusStyle = $derived(getOverordnetStatusStyle(store.sak.overordnet_status));
+  const statusStyle = $derived(saksstatus(store.sak));
   const exposureGroups = $derived(
     [
       {
@@ -107,7 +107,7 @@
       <h2 class="case-title">{store.sak.sakstittel}</h2>
       <span
         class="case-status"
-        class:variant-sent={store.sak.overordnet_status === 'SENDT'}
+        class:variant-sent={statusStyle.sendt}
         class:variant-default={statusStyle.variant === 'default'}
         class:variant-info={statusStyle.variant === 'info'}
         class:variant-success={statusStyle.variant === 'success'}
