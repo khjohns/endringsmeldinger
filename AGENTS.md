@@ -89,15 +89,9 @@ og hver importert verdi som er deklarert i kjernen, står i hvitelisten `LESBART
 med en klasse, som utsagn, relasjon, frosset eller predikat, og eventuelt de
 modulene eller funksjonene som får lese det. En oppsummering har ingen klasse, så
 et nytt felt eller en ny import med en oppsummering gir rød test til den er
-klassifisert. Testen ser ikke:
-- lesing gjennom refleksjon, som `Object.entries`;
-- et objekt en funksjon bygger og leser selv;
-- en status som en funksjon i samme modul regner ut og returnerer;
-- hvilken nøkkel som leses der hvitelisten tillater `*`;
-- hvilket formål en tillatt lesing har, utover avgrensningen til moduler og
-  funksjoner.
-
-Et nytt felt reglene leser, klassifiseres der. Kjente avvik står i en lukket
+klassifisert. Testen ser ikke alt, for eksempel ikke en status som en funksjon i
+samme modul regner ut og returnerer; grensene står i modulheaderen i testen. Et
+nytt felt reglene leser, klassifiseres der. Kjente avvik står i en lukket
 liste med issuet som fjerner dem. Regelsettet står i `kjerne/regler/`; endres det, økes
 `REGELVERSJON` der. Endres resten av kjernen, økes `PROJEKSJONSVERSJON` i
 `kjerne/versjon.ts`. `kjerne/standpunkt.ts` bestemmer hva beslutningsgrunnlaget

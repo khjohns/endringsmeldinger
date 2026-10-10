@@ -259,8 +259,14 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'predikat',
     'forstaatt spor svar opplysninger grunnlagAvvist frafalt godkjenningErEndringsordre',
   ],
-  // «Avklart» etter GR-U7 brukes bare der vedtakene sier det (MM-U13): KA-U11 og EO-U5.
-  ['Utledning', 'predikat', 'grunnlagAvklart', ['utled.ts']],
+  // «Avklart» etter GR-U7 brukes bare der vedtakene sier det (MM-U13): vilkåret for
+  // enigheten (GR-U7) og at kravene er avgjort (KA-U11, som EO-U5 bygger på).
+  [
+    'Utledning',
+    'predikat',
+    'grunnlagAvklart',
+    ['utled.ts:enighetensVirkning', 'utled.ts:kraveneErAvgjort'],
+  ],
   ['Utledning.svar', 'relasjon', '*'],
   ['Utledning.opplysninger', 'utsagn', 'opplysning'],
   ['Utledning.opplysninger', 'relasjon', 'bestridelser'],
@@ -356,7 +362,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'type spor svar innhold varsel erstatter regelversjon sendt hjemmel dokumentasjon gjelder hva',
   ],
   ['Kommando.varsel', 'kommando', 'sendt'],
-  ['Svarutkast', 'kommando', 'spor gjelder regelversjon vurderinger resultat'],
+  ['Svarutkast', 'kommando', 'spor gjelder regelversjon vurderinger'],
+  ['Svarutkast', 'kommando', 'resultat', ['nyttelast.ts']],
   ['Svarutkast.resultat', 'kommando', '*', ['nyttelast.ts']],
   ['Svarutkast.vurderinger', 'kommando', '*'],
   ['nyttelast.ts:kontrollerSvar(server)', 'regelsett', '*'],
@@ -422,31 +429,28 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
 
 /**
  * Lesinger av en samlebetegnelse som står i dag (MM-U13), med issuet som
- * fjerner dem: `[modul, nøkkel, begrunnelse]`. Lista er lukket: den kan bare
- * bli kortere.
+ * fjerner dem: `[sted, nøkkel, begrunnelse]`, der stedet er funksjonen som
+ * leser (`modul:navn`). Lista er lukket: den kan bare bli kortere.
  * - `utfall()` er en lukket mengde, `avklart` eller `avvist`, som slår sammen
  *   § 32.3 a og c. Ingen regel skal lese den, heller ikke utledet.
- * - Grunnlagsfeltene i regelsettets inndata er utfallet i grunnlagssporet,
+ * - Grunnlagsfeltene i regelsettets inndata (#309: fjernes fra porten) er
+ *   utfallet i grunnlagssporet,
  *   kopiert inn i ett svar. At hele svaret er subsidiært til grunnlaget, er en
  *   relasjon mellom brev som utledes ved lesing (merknaden 05.10 til B-13, MM-U9),
  *   og `utled.ts` utleder den av de frosne standpunktene.
  */
-const KJENTE_AVVIK: [modul: string, noekkel: string, begrunnelse: string][] = [
+const KJENTE_AVVIK: [sted: string, noekkel: string, begrunnelse: string][] = [
   ['utled.ts', 'standpunkt.ts.utfall', '#273: grunnlagAvklart skal lese standpunktene direkte'],
-  ['utled.ts', 'Utfall.grunnlag', '#273: grunnlagAvklart og grunnlagAvvist leser utfallet'],
-  ['utled.ts', 'Enighetsgrunnlag.utfall', '#273: grunnlagAvvist skal lese standpunktene direkte'],
-  ['regler/vederlag.ts', 'Vederlagskrav.grunnlag_resultat', '#309: fjernes fra porten'],
-  ['regler/vederlag.ts', 'Vederlagskrav.grunnlag_varslet_i_tide', '#309: fjernes fra porten'],
-  ['regler/frist.ts', 'Fristkrav.er_grunnlag_subsidiaert', '#309: fjernes fra porten'],
-  [
-    'regler/frist.ts',
-    'Fristkrav.er_hele_fristen_subsidiaer_pga_grunnlag',
-    '#309: fjernes fra porten',
-  ],
-  ['regler/grunnlag.ts', 'GrunnlagForStandpunkt.hovedkategori', '#309: fjernes fra porten'],
-  ['regler/grunnlag.ts', 'GrunnlagForStandpunkt.underkategori', '#309: fjernes fra porten'],
-  ['regler/grunnlag.ts', 'GrunnlagForStandpunkt.resultat', '#309: fjernes fra porten'],
-  ['regler/grunnlag.ts', 'GrunnlagForStandpunkt.varsletITide', '#309: fjernes fra porten'],
+  ['utled.ts:utled', 'Utfall.grunnlag', '#273: grunnlagAvklart og grunnlagAvvist leser utfallet'],
+  ['utled.ts:utled', 'Enighetsgrunnlag.utfall', '#273: grunnlagAvvist skal lese standpunktene'],
+  ['regler/vederlag.ts:beregnVederlag', 'Vederlagskrav.grunnlag_resultat', '#309'],
+  ['regler/vederlag.ts:beregnVederlag', 'Vederlagskrav.grunnlag_varslet_i_tide', '#309'],
+  ['regler/frist.ts:beregnFrist', 'Fristkrav.er_grunnlag_subsidiaert', '#309'],
+  ['regler/frist.ts:beregnFrist', 'Fristkrav.er_hele_fristen_subsidiaer_pga_grunnlag', '#309'],
+  ['regler/grunnlag.ts:standpunkt', 'GrunnlagForStandpunkt.hovedkategori', '#309'],
+  ['regler/grunnlag.ts:standpunkt', 'GrunnlagForStandpunkt.underkategori', '#309'],
+  ['regler/grunnlag.ts:standpunkt', 'GrunnlagForStandpunkt.resultat', '#309'],
+  ['regler/grunnlag.ts:standpunkt', 'GrunnlagForStandpunkt.varsletITide', '#309'],
 ];
 
 /**
@@ -490,21 +494,24 @@ const iKjernen = (fil: string) => fil.startsWith(KJERNE + sep) && !fil.startsWit
 const iFunksjonen = (n: ts.Node | undefined, f: ts.Node): boolean =>
   n !== undefined && (n === f || iFunksjonen(n.parent, f));
 
-/** Modulen og navnet på funksjonen `n` er eller står i, som `leser.ts:svarutsagn`. */
+/**
+ * Modulen og de navngitte funksjonene `n` er eller står i, ytterst først, som
+ * `leser.ts:svarutsagn` eller `standpunkt.ts:utfall.indre`.
+ */
 function funksjon(n: ts.Node): string {
-  const modul = modulnavn(n.getSourceFile().fileName);
+  const navn: string[] = [];
   for (let p: ts.Node | undefined = n; p; p = p.parent) {
     if ((ts.isFunctionDeclaration(p) || ts.isMethodDeclaration(p)) && p.name)
-      return `${modul}:${p.name.getText()}`;
-    if (
+      navn.unshift(p.name.getText());
+    else if (
       ts.isVariableDeclaration(p) &&
       ts.isIdentifier(p.name) &&
       p.initializer &&
       (ts.isArrowFunction(p.initializer) || ts.isFunctionExpression(p.initializer))
     )
-      return `${modul}:${p.name.text}`;
+      navn.unshift(p.name.text);
   }
-  return `${modul}:?`;
+  return `${modulnavn(n.getSourceFile().fileName)}:${navn.join('.') || '?'}`;
 }
 
 const toppnivaa = (d: ts.Node) =>
@@ -723,7 +730,7 @@ export function lesinger(p: ts.Program, moduler: string[]): Lesing[] {
 export function ikkeTillatt(l: Lesing[]): Lesing[] {
   return l.filter(
     ({ modul, funksjon, noekkel }) =>
-      !KJENTE_AVVIK.some(([m, k]) => m === modul && k === noekkel) &&
+      !KJENTE_AVVIK.some(([sted, k]) => (sted === modul || sted === funksjon) && k === noekkel) &&
       !LESBART.some(
         ([eier, , felt, steder]) =>
           felt.split(/\s+/).some((f) => `${eier}.${f}` === noekkel) &&
@@ -750,9 +757,27 @@ describe('reglene leser bare det LESBART tillater (#308, #329)', () => {
     expect(ubrukt).toEqual([]);
   });
 
+  it('LESBART har ingen sted som ikke leser feltene', () => {
+    const ubrukt = LESBART.flatMap(([eier, , felt, steder]) =>
+      (steder ?? [])
+        .filter(
+          (sted) =>
+            !alleLesinger.some(
+              (l) =>
+                (l.modul === sted || l.funksjon === sted) &&
+                felt.split(/\s+/).some((f) => l.noekkel === `${eier}.${f}`)
+            )
+        )
+        .map((sted) => `${eier} ${sted}`)
+    );
+    expect(ubrukt).toEqual([]);
+  });
+
   it('de kjente avvikene leses fortsatt, og står ikke i LESBART', () => {
-    for (const [modul, noekkel] of KJENTE_AVVIK) {
-      expect(alleLesinger.some((l) => l.modul === modul && l.noekkel === noekkel)).toBe(true);
+    for (const [sted, noekkel] of KJENTE_AVVIK) {
+      expect(
+        alleLesinger.some((l) => (l.modul === sted || l.funksjon === sted) && l.noekkel === noekkel)
+      ).toBe(true);
       expect(
         LESBART.some(
           ([eier, , felt]) =>
@@ -763,21 +788,24 @@ describe('reglene leser bare det LESBART tillater (#308, #329)', () => {
     }
   });
 
+  // Lista under er låsen: et nytt avvik må føres begge steder, og det er meningen.
   it('de kjente avvikene er bare utfallet (#273) og grunnlagsfeltene i regelsettet (#309)', () => {
     const lukket = new Set([
-      'standpunkt.ts.utfall',
-      'Utfall.grunnlag',
-      'Enighetsgrunnlag.utfall',
-      'Vederlagskrav.grunnlag_resultat',
-      'Vederlagskrav.grunnlag_varslet_i_tide',
-      'Fristkrav.er_grunnlag_subsidiaert',
-      'Fristkrav.er_hele_fristen_subsidiaer_pga_grunnlag',
-      'GrunnlagForStandpunkt.hovedkategori',
-      'GrunnlagForStandpunkt.underkategori',
-      'GrunnlagForStandpunkt.resultat',
-      'GrunnlagForStandpunkt.varsletITide',
+      'utled.ts standpunkt.ts.utfall',
+      'utled.ts:utled Utfall.grunnlag',
+      'utled.ts:utled Enighetsgrunnlag.utfall',
+      'regler/vederlag.ts:beregnVederlag Vederlagskrav.grunnlag_resultat',
+      'regler/vederlag.ts:beregnVederlag Vederlagskrav.grunnlag_varslet_i_tide',
+      'regler/frist.ts:beregnFrist Fristkrav.er_grunnlag_subsidiaert',
+      'regler/frist.ts:beregnFrist Fristkrav.er_hele_fristen_subsidiaer_pga_grunnlag',
+      'regler/grunnlag.ts:standpunkt GrunnlagForStandpunkt.hovedkategori',
+      'regler/grunnlag.ts:standpunkt GrunnlagForStandpunkt.underkategori',
+      'regler/grunnlag.ts:standpunkt GrunnlagForStandpunkt.resultat',
+      'regler/grunnlag.ts:standpunkt GrunnlagForStandpunkt.varsletITide',
     ]);
-    expect(KJENTE_AVVIK.filter(([, noekkel]) => !lukket.has(noekkel))).toEqual([]);
+    expect(KJENTE_AVVIK.map(([sted, k]) => `${sted} ${k}`).filter((x) => !lukket.has(x))).toEqual(
+      []
+    );
   });
 
   it('finner lesingene i reglene', () => {
@@ -927,6 +955,43 @@ describe('reglene leser bare det LESBART tillater (#308, #329)', () => {
         ],
       ],
       'Svar.utregning.beregnings_resultat',
+    ],
+    [
+      'det frosne svaret i en indre funksjon med samme navn',
+      standpunkt,
+      [
+        [
+          standpunkt,
+          'export function proeve(svar: Svarinnhold) {\n  const godkjennerHeleKravet = () => svar.utregning.beregnings_resultat;\n  return godkjennerHeleKravet();\n}',
+        ],
+      ],
+      'Svar.utregning.beregnings_resultat',
+    ],
+    [
+      '«avklart» i en annen funksjon i utledningen',
+      utled,
+      [[utled, 'export const proeve = (u: Utledning) => u.grunnlagAvklart;']],
+      'Utledning.grunnlagAvklart',
+    ],
+    [
+      'et grunnlagsfelt i en ny funksjon i samme modul som et kjent avvik',
+      join(KJERNE, 'regler', 'frist.ts'),
+      [
+        [
+          join(KJERNE, 'regler', 'frist.ts'),
+          'export const proeve = (k: Fristkrav) => k.er_hele_fristen_subsidiaer_pga_grunnlag;',
+        ],
+      ],
+      'Fristkrav.er_hele_fristen_subsidiaer_pga_grunnlag',
+    ],
+    [
+      'klientens utregning utenfor nyttelastkontrollen',
+      forutsetninger,
+      [
+        [forutsetninger, "import type { Svarutkast } from './kommando.ts';"],
+        [forutsetninger, 'export const proeve = (s: Svarutkast) => s.resultat;'],
+      ],
+      'Svarutkast.resultat',
     ],
     [
       'et grunnlagsfelt i en annen del av regelsettet enn de kjente avvikene',
