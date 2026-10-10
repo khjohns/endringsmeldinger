@@ -1,6 +1,7 @@
 /**
- * Lesepunktet for sakslisten (#313). Radene og sorteringen leser statusen og
- * etiketten bare herfra, så byttet til kjernens visning skjer her.
+ * Lesepunktet for sakslisten (#313). Radene leser statusmerket og sorteringen
+ * statusen herfra. Statusen selv og filtrene leses i `saksoversikt/overview.ts`,
+ * så byttet til kjernen skjer i de to modulene.
  */
 import type { ComponentProps } from 'svelte';
 import type Badge from '$lib/components/primitives/Badge.svelte';
