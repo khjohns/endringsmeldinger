@@ -2138,7 +2138,7 @@
         {
           "etter": 1,
           "rolle": "mal",
-          "kilde": ["GR-U12", "KA-U13"],
+          "kilde": ["GR-U13", "KA-U14"],
           "prov": { "handling": "trekk", "spor": "grunnlag" },
           "forventet": { "avvist": true, "regel": "GRUNNLAG_ER_ENDRINGSORDRE" }
         }
@@ -2172,7 +2172,7 @@
         {
           "etter": 1,
           "rolle": "mal",
-          "kilde": ["GR-U12", "GR-U10"],
+          "kilde": ["GR-U13", "GR-U12"],
           "forventet": {
             "forstaatt": true,
             "enighet.grunnlag.kilde": "sammenfall",
@@ -2185,7 +2185,7 @@
         {
           "etter": 1,
           "rolle": "mal",
-          "kilde": ["KA-U13", "GR-U12"],
+          "kilde": ["KA-U14", "GR-U13"],
           "prov": { "handling": "trekk", "spor": "grunnlag" },
           "forventet": { "avvist": true, "regel": "ENDRINGSORDRE_IKKE_AVKLART" }
         }
@@ -2214,7 +2214,7 @@
         {
           "etter": 1,
           "rolle": "mal",
-          "kilde": ["GR-U12", "GR-U10"],
+          "kilde": ["GR-U13", "GR-U12"],
           "forventet": {
             "enighet.grunnlag.kilde": "sammenfall",
             "opplysning.D4#endringsordre.oppfylt": false,
@@ -2225,7 +2225,7 @@
         {
           "etter": 2,
           "rolle": "mal",
-          "kilde": ["KA-U6", "GR-U5", "KA-U13"],
+          "kilde": ["KA-U6", "GR-U5", "KA-U14"],
           "forventet": { "avvist": false, "trukket.grunnlag": true, "trukket.vederlag": true }
         }
       ]
@@ -2253,14 +2253,14 @@
         {
           "etter": 1,
           "rolle": "mal",
-          "kilde": ["KA-U13", "GR-U12"],
+          "kilde": ["KA-U14", "GR-U13"],
           "prov": { "handling": "trekk", "spor": "grunnlag" },
           "forventet": { "avvist": true, "regel": "ENDRINGSORDRE_IKKE_AVKLART" }
         },
         {
           "etter": 2,
           "rolle": "mal",
-          "kilde": ["MM-U9", "GR-U12", "KA-U13"],
+          "kilde": ["MM-U12", "GR-U13", "KA-U14"],
           "forventet": {
             "forstaatt": true,
             "opplysning.D5#endringsordre.oppfylt": false,
@@ -2271,7 +2271,7 @@
         {
           "etter": 3,
           "rolle": "mal",
-          "kilde": ["KA-U6", "GR-U5", "KA-U13"],
+          "kilde": ["KA-U6", "GR-U5", "KA-U14"],
           "forventet": { "avvist": false, "trukket.grunnlag": true }
         }
       ]

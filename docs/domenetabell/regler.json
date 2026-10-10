@@ -501,6 +501,55 @@
       "dato": "2026-10-09",
       "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u12",
       "radetikett": "KA-U12: TE kan si uttrykkelig at det ikke kreves vederlag eller fristforlengelse i et spor som ikke er sendt"
+    },
+    {
+      "id": "GR-U13",
+      "type": "vedtak",
+      "dato": "2026-10-10",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u13",
+      "radetikett": "GR-U13: byggherrens godkjenning av grunnlaget er en endringsordre etter § 32.3 første ledd a bare når også § 31.3 er oppfylt"
+    },
+    {
+      "id": "KA-U14",
+      "type": "vedtak",
+      "dato": "2026-10-10",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u14",
+      "radetikett": "KA-U14: trekk etter KA-U6 innebærer bare avkall på TEs eget, uttrykkelig identifiserte krav"
+    },
+    {
+      "id": "KA-U15",
+      "type": "vedtak",
+      "dato": "2026-10-10",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u15",
+      "radetikett": "KA-U15: TE kan si «ingen krav» (KA-U12) i fristsporet etter et varsel om fristforlengelse (§ 33.4)"
+    },
+    {
+      "id": "MM-U12",
+      "type": "vedtak",
+      "dato": "2026-10-10",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u12",
+      "radetikett": "MM-U12: et sendt brev bevares slik det ble sendt"
+    },
+    {
+      "id": "MM-U13",
+      "type": "vedtak",
+      "dato": "2026-10-10",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u13",
+      "radetikett": "MM-U13: en regel i kjernen stiller det presise kontraktsspørsmålet til utsagnene"
+    },
+    {
+      "id": "HF-U1",
+      "type": "vedtak",
+      "dato": "2026-10-10",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#hf-u1",
+      "radetikett": "HF-U1: et brev lagres samlet eller ikke i det hele tatt"
+    },
+    {
+      "id": "HF-U2",
+      "type": "vedtak",
+      "dato": "2026-10-10",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#hf-u2",
+      "radetikett": "HF-U2: begrepene i hendelsene TS skriver, følger kontrakten"
     }
   ],
   "rader": [
@@ -962,7 +1011,8 @@
         "EO-U5",
         "KA-U8",
         "MM-U2",
-        "KA-U2"
+        "KA-U2",
+        "KA-U15"
       ],
       "tolkningsstatus": "avklart_tolkning"
     },
@@ -1364,7 +1414,9 @@
         "GR-U11",
         "KA-U6",
         "MM-U9",
-        "GR-U12"
+        "GR-U12",
+        "GR-U13",
+        "KA-U14"
       ],
       "tolkningsstatus": "avklart_tolkning"
     },
@@ -1382,7 +1434,10 @@
         "KA-U13",
         "KA-U6",
         "GR-U5",
-        "MM-U9"
+        "MM-U9",
+        "GR-U13",
+        "KA-U14",
+        "MM-U12"
       ],
       "tolkningsstatus": "avklart_tolkning"
     },
