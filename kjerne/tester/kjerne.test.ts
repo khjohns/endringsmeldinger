@@ -341,6 +341,7 @@ describe('rader fra en annen skriver som strider mot en enighet eller «ingen kr
     return {
       ...siste,
       event_id: randomUUID(),
+      event_type: 'dokument_registrert',
       versjon: siste.versjon + 1,
       aktor_rolle: 'TE',
       data: { utsagn },
