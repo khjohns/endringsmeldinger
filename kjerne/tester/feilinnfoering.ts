@@ -266,8 +266,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/format.ts`,
     endringer: [
       [
-        "properties: { dager: { type: 'integer', minimum: 1 } },",
-        "properties: { dager: { type: 'integer', minimum: 0 } },",
+        "frist: objekt({ dager: { type: 'integer', minimum: 1 } }, ['dager']),",
+        "frist: objekt({ dager: { type: 'integer', minimum: 0 } }, ['dager']),",
       ],
     ],
     mal: ['F-MM-K0', 'et krav på 0 dager'],
@@ -448,14 +448,16 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'en manglende opplysning om § 31.3 leses som at godkjenningen er en endringsordre (oppdragsgiver 10.10)',
     fil: `${K}/utled.ts`,
-    endringer: [["        ? 'ikke_avklart'\n", "        ? 'ja'\n"]],
+    endringer: [
+      ["if (om313 === undefined) return 'ikke_avklart';", "if (om313 === undefined) return 'ja';"],
+    ],
     mal: ['F-MM-G20'],
   },
   {
     id: 'F43',
     feilklasse: 'opplysningen om at § 31.3 ikke er oppfylt, leses ikke (oppdragsgiver 10.10)',
     fil: `${K}/utled.ts`,
-    endringer: [["          : 'nei';", "          : 'ja';"]],
+    endringer: [["return om313.oppfylt ? 'ja' : 'nei';", "return 'ja';"]],
     mal: ['F-MM-G21'],
   },
   {
@@ -463,7 +465,9 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'en manglende opplysning om § 31.3 leses som et nei (prinsipp 6, oppdragsgiver 10.10)',
     fil: `${K}/utled.ts`,
-    endringer: [["        ? 'ikke_avklart'\n", "        ? 'nei'\n"]],
+    endringer: [
+      ["if (om313 === undefined) return 'ikke_avklart';", "if (om313 === undefined) return 'nei';"],
+    ],
     mal: ['F-MM-G20'],
   },
   {

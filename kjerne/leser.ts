@@ -12,6 +12,8 @@
 
 import {
   BESLUTNINGSGRUNNLAG,
+  erRegistrert,
+  HJEMMEL,
   DOKUMENT,
   KRAV,
   OPPLYSNING,
@@ -63,8 +65,6 @@ function element(
   kontroller(verdi, skjemaer[n], sti);
   return verdi;
 }
-
-const HJEMMEL: Partial<Record<Spor, string>> = { grunnlag: '32.2', frist: '33.4' };
 
 /**
  * Standpunktene i et lagret svar, med beløp og dager fra utregningen. Arten og
@@ -247,7 +247,7 @@ function lesDokument(h: Journalrad): Dokument {
   const iBrevet = opplysninger.some((o) => o.hva === 'endringsordre' && o.brev === id);
   if (
     iBrevet &&
-    (!(hva.has('sendt') || hva.has('mottatt')) ||
+    (!erRegistrert(opplysninger) ||
       !((data.svar ?? []) as Data[]).some((s) => erObjekt(s) && s.spor === 'grunnlag'))
   )
     throw new Uforstaatt(
@@ -257,7 +257,6 @@ function lesDokument(h: Journalrad): Dokument {
     id,
     avsender,
     registrert: h.tidsstempel,
-    versjon: h.versjon,
     opplysninger,
     dokumentasjon: data.dokumentasjon ?? [],
     krav: (data.krav ?? []).map((v, i) => {

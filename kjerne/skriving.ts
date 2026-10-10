@@ -185,11 +185,21 @@ export function vurder(
       avvisning: { regel: 'UGYLDIG_FORM', melding: feil.join('; ') },
     };
   const k = kommando as Kommando;
-  const u = utledJournal(journal, kjerne);
+  const lest = lesJournal(journal, kjerne.format);
+  const u = utled(lest, kjerne.regler);
   const brudd = avvisning(k, kontekst.part, u, kjerne.regler);
   if (brudd) return { godtatt: false, feil: 'REGELBRUDD', avvisning: brudd };
 
   const eventId = kontekst.nyId();
+  let data: Data;
+  try {
+    data = dokument(k, u, kjerne, kontekst.nyId);
+  } catch (feil) {
+    // Frysingen leser standpunktene kjernen nettopp skrev; kan den ikke det, er raden feil.
+    if (feil instanceof Uforstaatt)
+      throw new Skrivefeil(`Kjernen forstår ikke dokumentet den selv skriver: ${feil.message}`);
+    throw feil;
+  }
   const rad: Journalrad = {
     event_id: eventId,
     sak_id: kontekst.sakId,
@@ -201,18 +211,11 @@ export function vurder(
     aktor_team_id: kontekst.teamId,
     refererer_til_event_id: null,
     format: kjerne.format,
-    data: {},
+    data,
   };
-  try {
-    rad.data = dokument(k, u, kjerne, kontekst.nyId);
-  } catch (feil) {
-    // Frysingen leser standpunktene kjernen nettopp skrev; kan den ikke det, er raden feil.
-    if (feil instanceof Uforstaatt)
-      throw new Skrivefeil(`Kjernen forstår ikke dokumentet den selv skriver: ${feil.message}`);
-    throw feil;
-  }
-  // Kjernen må forstå det den selv skriver (MM-U2, 7.1.2 i designnotatet).
-  const etter = utledJournal([...journal, rad], kjerne);
+  // Kjernen må forstå det den selv skriver (MM-U2, 7.1.2 i designnotatet). Hver rad leses
+  // for seg, så bare den nye leses; hele journalen utledes på nytt med den.
+  const etter = utled([...lest, ...lesJournal([rad], kjerne.format)], kjerne.regler);
   if (!etter.forstaatt)
     throw new Skrivefeil(
       `Kjernen forstår ikke dokumentet den selv skriver: ${etter.begrensninger.map((b) => b.grunn).join('; ')}`

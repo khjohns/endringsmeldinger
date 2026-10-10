@@ -100,8 +100,6 @@ export interface Dokument {
   avsender: Part;
   /** Satt av serveren. Det eneste tidspunktet systemet selv vet (2.4). */
   registrert: string;
-  /** Saksversjonen dokumentet ble registrert med. En referanse peker bakover. */
-  versjon: number;
   opplysninger: Opplysning[];
   dokumentasjon: string[];
   krav: Krav[];

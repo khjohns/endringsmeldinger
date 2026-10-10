@@ -18,6 +18,7 @@
  * ukjent, er saken ikke forstått, og ingenting utledes (MM-U2, 2.7 regel 1).
  */
 
+import { erRegistrert, sammeSlag } from './format.ts';
 import type { Regelsett } from './regler/regelsett.ts';
 import type { Subsidiaergrunn } from './regler/grunnlag.ts';
 import {
@@ -126,6 +127,12 @@ const tomtSpor = (): Sporutledning => ({
   subsidiaer: [],
 });
 
+const tommeSpor = (): Record<Spor, Sporutledning> => ({
+  grunnlag: tomtSpor(),
+  vederlag: tomtSpor(),
+  frist: tomtSpor(),
+});
+
 function tom(
   journal: Domenehendelse[],
   regler: Regelsett,
@@ -139,7 +146,7 @@ function tom(
     journal,
     svar: {},
     opplysninger: [],
-    spor: { grunnlag: tomtSpor(), vederlag: tomtSpor(), frist: tomtSpor() },
+    spor: tommeSpor(),
     grunnlagAvklart: false,
     grunnlagAvvist: false,
     frafalt: false,
@@ -167,7 +174,7 @@ function grunnerFraGrunnlaget({ svar, virkninger }: Svarberegning): Subsidiaergr
 
 export function utled(journal: Domenehendelse[], regler: Regelsett): Utledning {
   const begrensninger: Utledning['begrensninger'] = [];
-  const spor = { grunnlag: tomtSpor(), vederlag: tomtSpor(), frist: tomtSpor() };
+  const spor = tommeSpor();
   /** Hendelsen og saksversjonen hvert element står i. */
   const plass = new Map<string, { hendelse: string; versjon: number }>();
   const aksepter: Extract<Utsagn, { art: 'aksept' }>[] = [];
@@ -234,6 +241,11 @@ export function utled(journal: Domenehendelse[], regler: Regelsett): Utledning {
   const bakover = (fra: string, til: string) =>
     (plass.get(til)?.versjon ?? Infinity) < (plass.get(fra)?.versjon ?? -Infinity);
   for (const id of dobbelt) ugyldig(id, 'to elementer i saken har samme ID');
+  const dokumenter = new Map(
+    journal.flatMap((h) => (h.art === 'dokument' ? [[h.id, h.dokument] as const] : []))
+  );
+  /** Avsenderen av dokumentet elementet står i. */
+  const avsenderAv = (id: string): Part => dokumenter.get(plass.get(id)!.hendelse)!.avsender;
 
   for (const n of SPOR) {
     // Kravversjonene i sporet er én kjede: den første erstatter ingenting, og hver
@@ -302,9 +314,6 @@ export function utled(journal: Domenehendelse[], regler: Regelsett): Utledning {
   }
   // MM-U12, GR-U13: en avklaring gjelder et registrert brev med et svar på grunnlaget før
   // den, og det står høyst én opplysning om § 31.3 per brev. Rettelse følger B-16.
-  const dokumenter = new Map(
-    journal.flatMap((h) => (h.art === 'dokument' ? [[h.id, h.dokument] as const] : []))
-  );
   for (const o of opplysninger) {
     if (o.hva !== 'endringsordre') continue;
     const brev = dokumenter.get(o.brev);
@@ -326,8 +335,8 @@ export function utled(journal: Domenehendelse[], regler: Regelsett): Utledning {
     if (
       !o ||
       !bakover(b.id, b.gjelder) ||
-      o.oppgittAv === partFor(journal, plass.get(b.id)!.hendelse) ||
-      (o.hva === 'endringsordre') !== (b.hva === 'endringsordre')
+      o.oppgittAv === avsenderAv(b.id) ||
+      !sammeSlag(o.hva, b.hva)
     )
       ugyldig(
         b.id,
@@ -404,28 +413,21 @@ export function utled(journal: Domenehendelse[], regler: Regelsett): Utledning {
   // korrespondanse har en opplysning om at den er sendt eller mottatt, og da avgjør
   // opplysningen fra den som registrerte. Mangler den, er det ikke avklart; kjernen
   // gjetter ikke. En bestridelse av opplysningen har ingen virkning på utfallet (MM-U7).
-  const iBrevet = opplysninger.filter((o) => o.dokument === gSvar?.dokument);
-  const om313 = opplysninger.find(
-    (o): o is Extract<Opplysning, { hva: 'endringsordre' }> =>
-      o.hva === 'endringsordre' && o.brev === gSvar?.dokument
-  );
-  const endringsordre: Utledning['endringsordre'] = !sammenfallMedVarslingsplikt
-    ? 'nei'
-    : !erRegistrert(iBrevet)
-      ? 'ja'
-      : om313 === undefined
-        ? 'ikke_avklart'
-        : om313.oppfylt
-          ? 'ja'
-          : 'nei';
+  const endringsordre = ((): Utledning['endringsordre'] => {
+    if (!sammenfallMedVarslingsplikt) return 'nei';
+    if (!erRegistrert(dokumenter.get(gSvar!.dokument)!.opplysninger)) return 'ja';
+    const om313 = opplysninger.find(
+      (o): o is Extract<Opplysning, { hva: 'endringsordre' }> =>
+        o.hva === 'endringsordre' && o.brev === gSvar!.dokument
+    );
+    if (om313 === undefined) return 'ikke_avklart';
+    return om313.oppfylt ? 'ja' : 'nei';
+  })();
   const gBrev = gSvar ? svar[gSvar.id] : null;
   for (const n of KRAVSPOR) {
     const falt = tilNyttSvar[n];
-    spor[n].subsidiaer = falt
-      ? grunnerFraGrunnlaget(svar[falt.id])
-      : gBrev
-        ? grunnerFraGrunnlaget(gBrev)
-        : [];
+    const kilde = falt ? svar[falt.id] : gBrev;
+    spor[n].subsidiaer = kilde ? grunnerFraGrunnlaget(kilde) : [];
   }
 
   return {
@@ -437,7 +439,7 @@ export function utled(journal: Domenehendelse[], regler: Regelsett): Utledning {
       bestridelser: bestridelser
         .filter((b) => b.gjelder === o.id)
         .map((b) => ({
-          part: partFor(journal, plass.get(b.id)!.hendelse),
+          part: avsenderAv(b.id),
           hva: b.hva,
           hendelse: plass.get(b.id)!.hendelse,
         })),
@@ -461,23 +463,12 @@ export function utled(journal: Domenehendelse[], regler: Regelsett): Utledning {
   };
 }
 
-/** Dokumentet er registrert korrespondanse: det er sendt eller mottatt utenfor appen (4.1). */
-export const erRegistrert = (opplysninger: Pick<Opplysning, 'hva'>[]): boolean =>
-  opplysninger.some((o) => o.hva === 'sendt' || o.hva === 'mottatt');
-
 /**
  * KA-U13 med § 31.3 (oppdragsgiver 10.10): TE kan ikke trekke grunnlaget før det er
  * avklart at godkjenningen ikke er en endringsordre. Et trekk ville gitt journalen
  * den videre virkningen at endringsordren leses som bortfalt (KA-U6).
  */
 export const trekkAvGrunnlagetErSperret = (u: Utledning): boolean => u.endringsordre !== 'nei';
-
-/** Avsenderen av dokumentet utsagnet står i. Utsagnet er lest fra et dokument, så det finnes. */
-function partFor(journal: Domenehendelse[], hendelse: string): Part {
-  const h = journal.find((j) => j.id === hendelse);
-  if (h?.art !== 'dokument') throw new Error(`Utsagnet står ikke i et dokument: ${hendelse}`);
-  return h.dokument.avsender;
-}
 
 /**
  * Om enigheten i sporet har virkning (GR-U7, MM-U3): `betinget` til vilkåret
