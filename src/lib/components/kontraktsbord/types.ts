@@ -1,7 +1,7 @@
 /**
  * UI-only typer for mockup-appen.
  *
- * Domenetyper (SakState, SporStatus, etc.) importeres direkte
+ * Domenetypene (SakState med sporene) importeres direkte
  * fra $lib/types/timeline. SporKey bor i scenarios.ts.
  */
 export type SporKey = 'ansvar' | 'vederlag' | 'frist';
