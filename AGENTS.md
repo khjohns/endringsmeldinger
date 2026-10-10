@@ -86,11 +86,19 @@ som ikke er vedtatt i sin helhet, og i [domenetabellen](docs/domenetabell/README
 ingen server, og ingen regel når visningen eller bufferen. Arkitekturtesten i
 `kjerne/tester/` håndhever det. Den håndhever også hva reglene leser: hvert felt
 og hver importert verdi som er deklarert i kjernen, står i hvitelisten `LESBART`
-med en klasse, som utsagn, relasjon, frosset eller predikat. En oppsummering har
-ingen klasse, så en regel som leser den, under hvilket navn som helst, gir rød
-test. Lesing gjennom refleksjon, som `Object.entries`, og et objekt en funksjon
-bygger og leser selv, ser testen ikke. Et nytt felt reglene leser,
-klassifiseres der. Regelsettet står i `kjerne/regler/`; endres det, økes
+med en klasse, som utsagn, relasjon, frosset eller predikat, og eventuelt de
+modulene eller funksjonene som får lese det. En oppsummering har ingen klasse, så
+et nytt felt eller en ny import med en oppsummering gir rød test til den er
+klassifisert. Testen ser ikke:
+- lesing gjennom refleksjon, som `Object.entries`;
+- et objekt en funksjon bygger og leser selv;
+- en status som en funksjon i samme modul regner ut og returnerer;
+- hvilken nøkkel som leses der hvitelisten tillater `*`;
+- hvilket formål en tillatt lesing har, utover avgrensningen til moduler og
+  funksjoner.
+
+Et nytt felt reglene leser, klassifiseres der. Kjente avvik står i en lukket
+liste med issuet som fjerner dem. Regelsettet står i `kjerne/regler/`; endres det, økes
 `REGELVERSJON` der. Endres resten av kjernen, økes `PROJEKSJONSVERSJON` i
 `kjerne/versjon.ts`. `kjerne/standpunkt.ts` bestemmer hva beslutningsgrunnlaget
 fryser, så endres den, økes begge. Regelversjonsvakten i CI krever det. Lagringstestene mot
