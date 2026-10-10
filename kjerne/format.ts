@@ -57,10 +57,10 @@ export const STANDPUNKTER_I_SPORET: Record<Spor, { art: Standpunktsart; paakrevd
   ],
 };
 
-const ID: Skjema = { type: 'string', minLength: 1 };
+export const ID: Skjema = { type: 'string', minLength: 1 };
 const TEKST: Skjema = { type: 'string', minLength: 1 };
-const DATO: Skjema = { type: 'string', minLength: 10 };
-const liste = (items: Skjema): Skjema => ({ type: 'array', minItems: 1, items });
+export const DATO: Skjema = { type: 'string', minLength: 10 };
+export const liste = (items: Skjema): Skjema => ({ type: 'array', minItems: 1, items });
 
 export const objekt = (properties: Skjema, required: string[]): Skjema => ({
   type: 'object',

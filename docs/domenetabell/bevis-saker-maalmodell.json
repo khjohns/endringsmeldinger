@@ -2250,7 +2250,12 @@
           "etter": 3,
           "rolle": "mal",
           "kilde": ["KA-U12", "KA-U11", "EO-U5"],
-          "forventet": { "kravene_avgjort": true, "kan_inngaa_i_eo": true, "visning.status": "avsluttet_oppgjort" }
+          "forventet": {
+            "kravene_avgjort": true,
+            "kan_inngaa_i_eo": true,
+            "visning.status": "avsluttet_oppgjort",
+            "visning.etiketter.vederlag": { "inneholder": ["ingen_krav"] }
+          }
         }
       ]
     },

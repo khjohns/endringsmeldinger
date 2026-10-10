@@ -13,10 +13,8 @@
 -- en rad uten format er ikke skrevet av TS-kjernen (B-17). En standardverdi
 -- ville gitt en rad et format ingen skriver har valgt.
 
-ALTER TABLE public.hendelse ADD COLUMN IF NOT EXISTS format INTEGER;
-
-ALTER TABLE public.hendelse
-    ADD CONSTRAINT hendelse_format_minst_1 CHECK (format >= 1);
+ALTER TABLE public.hendelse ADD COLUMN IF NOT EXISTS format INTEGER
+    CONSTRAINT hendelse_format_minst_1 CHECK (format >= 1);
 
 COMMENT ON COLUMN public.hendelse.format IS
     'Formatversjonen for raden, satt av TS-kjernen som skrev den (B-10, #273). NULL: raden er ikke skrevet av TS-kjernen.';
