@@ -141,6 +141,16 @@ def test_kjernen_krever_ny_versjon_der_den_er_endret(kjerne, filer, ventet):
     assert svar.returncode == ventet, svar.stdout + svar.stderr
 
 
+def test_kjernen_uten_standpunkt_ts_feiler(kjerne):
+    """#330: kravet om ny regelversjon forsvinner ikke stille om standpunkt.ts flyttes."""
+    sti, base = kjerne
+    _git(sti, "rm", "-q", "kjerne/standpunkt.ts")
+    _git(sti, "commit", "-qm", "flytt")
+    svar = _kjor(sti, base)
+    assert svar.returncode == 1, svar.stdout + svar.stderr
+    assert "kjerne/standpunkt.ts finnes ikke" in svar.stdout
+
+
 def test_kjernen_og_speilene_kontrolleres_hver_for_seg(kjerne):
     """En endring i kjernen redder ikke en regelendring i speilene uten ny versjon."""
     sti, base = kjerne
