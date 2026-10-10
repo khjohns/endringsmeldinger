@@ -49,14 +49,16 @@ export function importer(fil: string, kilde: string): string[] {
   return importedFiles.map(({ fileName: navn }) => {
     const alias = ALIASER.find(([a]) => navn === a || navn.startsWith(a + '/'));
     if (alias) return join(alias[1], navn.slice(alias[0].length));
+    if (navn.startsWith('/')) return join(ROT, navn);
     return navn.startsWith('.') ? resolve(dirname(fil), navn) : navn;
   });
 }
 
 const iKjernen = (sti: string) => sti === KJERNE || sti.startsWith(KJERNE + sep);
-/** Testmappa, løst eller i en stavemåte vakten ikke løser, som en absolutt sti. */
-const iTestene = (sti: string) =>
-  sti === TESTER || sti.startsWith(TESTER + sep) || /(^|\/)kjerne\/tester(\/|$)/.test(sti);
+const iTestene = (sti: string) => sti === TESTER || sti.startsWith(TESTER + sep);
+
+/** Stien relativt til roten når den ligger der, ellers som den står. */
+const vis = (sti: string) => (sti.startsWith(ROT + sep) ? relative(ROT, sti) : sti);
 
 /** Innholdet i fila, eller `undefined` når den ikke finnes. */
 type Leser = (fil: string) => string | undefined;
@@ -69,7 +71,7 @@ export function testimporter(kilder: Map<string, string>): string[] {
   return [...kilder].flatMap(([fil, kilde]) =>
     importer(fil, kilde)
       .filter(iTestene)
-      .map((i) => `${relative(ROT, fil)} → ${i.startsWith(ROT + sep) ? relative(ROT, i) : i}`)
+      .map((i) => `${vis(fil)} → ${vis(i)}`)
   );
 }
 
@@ -94,8 +96,7 @@ export function utenforNettleseren(start: string[], les: Leser): string[] {
             )
           : undefined;
       if (neste) ko.push([...sti, neste]);
-      else
-        funnet.push([...sti, i].map((s) => (s.startsWith(ROT) ? relative(ROT, s) : s)).join(' → '));
+      else funnet.push([...sti, i].map(vis).join(' → '));
     }
   }
   return funnet;
@@ -126,14 +127,14 @@ describe('grensen mellom appen og kjernen', () => {
       [join(SRC, 'lib', 'b.ts'), `const m = await import('$kjerne/tester');`],
       [join(SRC, 'lib', 'c.ts'), `import { KJERNE } from '$kjerne/versjon';`],
       [join(SRC, 'lib', 'd.ts'), `import { lagKlient } from '$lib/../../kjerne/tester/klient';`],
-      [join(SRC, 'lib', 'e.ts'), `import { lagKlient } from '/kjerne/tester/klient';`],
+      [join(SRC, 'lib', 'e.ts'), `import { lagKlient } from '/kjerne/./tester/klient';`],
     ]);
     expect(testimporter(kilder)).toEqual([
       'src/lib/eksempel.svelte → kjerne/tester/klient',
       'src/lib/a.ts → kjerne/tester/bane.ts',
       'src/lib/b.ts → kjerne/tester',
       'src/lib/d.ts → kjerne/tester/klient',
-      'src/lib/e.ts → /kjerne/tester/klient',
+      'src/lib/e.ts → kjerne/tester/klient',
     ]);
 
     const modul = join(KJERNE, 'modul.ts');

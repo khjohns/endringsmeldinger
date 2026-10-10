@@ -4,15 +4,14 @@
  * etikett- og stiltabellene for dem. Det gjør lesepunktene, så byttet til
  * kjernen skjer der.
  *
- * Vakten er et tekstsøk i `.svelte`-filene, i skript og markup. Den fanger
- * `.status` på et spor bare når sporet er nevnt ved navn (`sak.frist.status`),
- * ikke gjennom en variabel eller en destrukturering. TS-modulene i `src/` dekkes
- * ikke: lesepunktene er selv slike moduler, og det samme er `$lib/domain/`,
- * mockupens demolager og fullmakten i `$lib/approval/authority.ts`.
+ * Vakten er et tekstsøk i `src/`, i skript og markup. Den fanger `.status` på
+ * et spor bare når sporet er nevnt ved navn (`sak.frist.status`), ikke gjennom
+ * en variabel eller en destrukturering. Testfilene og modulene i `TILLATT`
+ * kan lese statusene.
  */
 
 import { readdirSync, readFileSync } from 'node:fs';
-import { dirname, join, relative, resolve } from 'node:path';
+import { dirname, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 
@@ -26,7 +25,7 @@ const FORBUDT: [string, RegExp][] = [
   ['statustabell', /constants\/(statusLabels|statusStyles)\b/],
 ];
 
-/** Lesingene av statusene i en komponent, med linjenummer. */
+/** Lesingene av statusene i en fil, med linjenummer. */
 export function statuslesing(kilde: string): string[] {
   const uten = kilde.replace(/<style\b[\s\S]*?<\/style>/g, (s) => s.replace(/[^\n]/g, ''));
   return uten
@@ -36,13 +35,32 @@ export function statuslesing(kilde: string): string[] {
     );
 }
 
-const komponenter = readdirSync(SRC, { recursive: true, encoding: 'utf8' })
-  .filter((f) => f.endsWith('.svelte'))
-  .map((f) => join(SRC, f));
+/** Modulene som kan lese statusene, med grunnen. */
+const TILLATT: Record<string, string> = {
+  'src/lib/components/kontraktsbord/derive.ts': 'lesepunktet for saksvisningen',
+  'src/lib/components/saksoversikt/overview.ts': 'lesepunktet for prosjektoversikten',
+  'src/lib/components/case-list/presentation.ts': 'lesepunktet for sakslisten',
+  'src/lib/constants/statusLabels.ts': 'etikettene lesepunktene bruker',
+  'src/lib/constants/statusStyles.ts': 'stilene lesepunktene bruker',
+  'src/lib/types/timeline.ts': 'typene fra Python',
+  'src/lib/types/index.ts': 'typene fra Python',
+  'src/lib/domain/followUp.ts': 'speilet av Python-reglene, utenfor denne delen av #313',
+  'src/lib/approval/authority.ts': 'fullmakten, som speiler `krav_fra_tilstand` i Python',
+  'src/lib/mockup/store.svelte.ts': 'demolageret, som har sin egen statusregel',
+};
+
+const filer = readdirSync(SRC, { recursive: true, encoding: 'utf8' })
+  .map((f) => join(SRC, f))
+  .filter(
+    (f) =>
+      /\.(svelte|ts|js)$/.test(f) &&
+      !/\.test\.ts$|[\\/]__tests__[\\/]|[\\/]mocks[\\/]/.test(f) &&
+      !(relative(ROT, f).split(sep).join('/') in TILLATT)
+  );
 
 describe('lesepunktene for statusene', () => {
-  it('ingen komponent leser statusene eller tabellene deres selv', () => {
-    const funnet = komponenter.flatMap((fil) =>
+  it('bare lesepunktene leser statusene og tabellene deres', () => {
+    const funnet = filer.flatMap((fil) =>
       statuslesing(readFileSync(fil, 'utf8')).map((f) => `${relative(ROT, fil)}:${f}`)
     );
     expect(funnet).toEqual([]);
