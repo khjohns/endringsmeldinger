@@ -3,11 +3,12 @@
  * modellforslaget, F8–F10 feilklassene reviewet av PR #306 fant, skrevet om etter
  * MM-U9 og GR-U10, F11–F26 grensene #308 la til, og F27–F47 formatet (#273): 7.2
  * i designnotatet, GR-U12 og registeret (#320). F48 er hvitelisten fra #329,
- * F49–F51 og F54 versjoneringen (#316) og F52–F53 registrert korrespondanse
+ * F49–F51, F54 og F55 versjoneringen (#316) og F52–F53 registrert korrespondanse
  * (#336). Én mutasjon om gangen i arbeidskopien, Vitest over `kjerne/` og
  * `sprakprove/kjernelagring/`, og originalteksten settes tilbake etterpå. For
  * hver mutasjon kreves det at de forventede målassertions feiler, og at alle
- * feil er assertions, ikke import, oppsett eller en brutt forutsetning (`.claude/rules/tester.md`).
+ * feil er assertions, ikke import, oppsett eller en brutt forutsetning
+ * (`.claude/rules/tester.md`).
  *
  * Kjøres fra repoets rot, med testbasen oppe og `KOE_TESTBASE_URL` satt:
  *   node kjerne/tester/feilinnfoering.ts [F1 F2 ...]
@@ -594,6 +595,15 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/buffer.ts`,
     endringer: [['oppdateres: !b || !bufferGjelder(b, kjerne, saksversjon),', 'oppdateres: !b,']],
     mal: ['viser siste kjente status i oversikten'],
+  },
+  {
+    id: 'F55',
+    feilklasse: 'lista før en tilbakerulling tar med saker kjernen leser (B-10, MM-U2, #316)',
+    fil: 'sprakprove/kjernelagring/bane.ts',
+    endringer: [
+      ['WHERE prosjekt_id = $1 AND format > $2', 'WHERE prosjekt_id = $1 AND format >= $2'],
+    ],
+    mal: ['lister sakene med en rad i et format kjernen ikke leser'],
   },
 ];
 
