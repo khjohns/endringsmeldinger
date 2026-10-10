@@ -96,8 +96,9 @@ issue. Oppdraget skal inneholde:
   ingen oppskrift for den ekte ruta i skyøkta. Det kontrollen ikke dekker, står
   i PR-beskrivelsen;
 - at `/code-review` kjøres etter regelen i `AGENTS.md`, én runde før PR-en
-  åpnes og én kontroll av rettingene. `/simplify` bare når oppdragsgiver ber
-  om det;
+  åpnes og én kontroll av rettingene. `/simplify` kjøres bare når
+  oppdragsgiver har bestilt eller godkjent den (se «`/simplify`»), og da før
+  `/code-review`;
 - at PR-beskrivelsen er rapporten til orkestratoren: hva som er endret,
   sjekkene som er kjørt med resultat, utfallet av `/code-review`, funn utenfor
   oppdraget med issuenummer, og «Åpne spørsmål»;
@@ -117,36 +118,88 @@ et annet nivå, må det settes i økta i appen.
 Domenespørsmålene fra øktene går gjennom orkestratoren, ikke rett til
 oppdragsgiver.
 
-- **Samle før du spør.** Still spørsmålene fra øktene i ett kall med
-  spørsmålsverktøyet. Hvert spørsmål har alternativer, belegg i kontraktsteksten
-  eller vedtaket, en anbefaling og hva valget styrer. Kommer spørsmål fra flere
-  økter omtrent samtidig, vent på dem. En økt som venter, kan arbeide videre med
-  anbefalingen merket som foreslått.
+- **Samle før du spør.** Still spørsmålene fra øktene samlet. Hvert spørsmål
+  har alternativer, belegg i kontraktsteksten eller vedtaket, en anbefaling og
+  hva valget styrer. Kommer spørsmål fra flere økter omtrent samtidig, vent på
+  dem. En økt som venter, kan arbeide videre med anbefalingen merket som
+  foreslått.
+- **Still dem slik oppdragsgiver kan svare.** Skill de juridiske spørsmålene fra
+  de tekniske. Still de juridiske i kontraktens språk, uten kodenavn, og legg de
+  tekniske fram med en anbefaling som kan godtas samlet. Spørsmålsverktøyet tar
+  høyst fire spørsmål per kall. Er det flere, eller vil oppdragsgiver det, legg
+  dem fram som en nummerert liste i tekst med anbefalt svar, så oppdragsgiver
+  kan svare «ja» eller rette enkeltpunkter.
+- **Juridisk sparring.** Vil oppdragsgiver drøfte spørsmålene med en annen
+  modell eller en rådgiver, lag en selvstendig prompt med bakgrunnen,
+  prinsippene og spørsmålene, uten saksdata. Et svar fra sparringen gjelder
+  først når oppdragsgiver slutter seg til det, og det prøves mot vedtakene som
+  andre svar.
 - **Kontroller belegget før du spør.** Sitater fra vedtak og NS 8407 skal være
   ordrette. NS 8407-teksten ligger ikke i arbeidstreet. Hent den med
   `git show 507e2254^:docs/NS_8407.md`, etter `git fetch --unshallow origin main`
-  i en grunn klone. Den legges ikke tilbake i repoet.
+  i en grunn klone. Den legges ikke tilbake i repoet. Påstander om koden i
+  spørsmålene kontrolleres av en subagent. En økt ser bare det den har lett
+  etter.
 - **Prøv hvert alternativ mot vedtakene i 3.1.** Et alternativ som strider mot
   et vedtak, er enten feil eller et forslag om å oppheve vedtaket, og det skal
   stå i alternativet.
 - **Passer svaret ikke på et alternativ, still et oppfølgingsspørsmål** med
   lesningene du ser. Velg ikke selv.
 - **Send svaret ordrett** til hver økt det berører, også til økter som ikke
-  stilte spørsmålet.
+  stilte spørsmålet. Retter et senere svar et tidligere, si uttrykkelig hvilken
+  tekst som ikke lenger gjelder.
 
 Vedtakene føres i hovedplanen. Arbeidsøktene skriver ikke der.
 
 - Svarene fra en spørsmålsrunde fører orkestratoren inn i én liten PR, med en ID
   per vedtak og daterte merknader på radene de presiserer. Den merges før
   arbeids-PR-ene, som viser til ID-ene. Da får parallelle PR-er ikke konflikt i
-  3.1.
+  3.1. Lenker et vedtak til et dokument i en arbeids-PR, merges den PR-en
+  først, så lenken virker.
 - Rører bare én PR i runden planen, kan den økta føre et vedtak den trenger, i
   samme PR.
 - En vedtakstekst skrives ikke om etter merge. La en subagent kontrollere den
   mot det valgte alternativet og mot vedtakene den presiserer før merge, også
-  når orkestratoren har skrevet den.
+  når orkestratoren har skrevet den. Gi den forslagene og svarene ordrett i en
+  fil. Uten dem kan den ikke kontrollere samsvaret. Be den se særlig etter:
+  - «presiserer» der vedtaket endrer et annet vedtak;
+  - orkestratorens tekniske valg i selve vedtaksteksten. De hører til i «Følge»;
+  - «Forkastet» om et alternativ som bare ikke ble valgt, eller som ble
+    overlatt til andre;
+  - lukkede lister som snevrer inn forslaget;
+  - ord fra en sparringspartner som oppdragsgiver ikke har sagt.
+
+  Kontroller rettingene i en ny runde.
 - Merknaden om at et punkt i en arbeidspakke er levert, skriver orkestratoren i
   en egen liten PR etter mergen.
+
+## `/simplify`
+
+`/simplify` kjøres når oppdragsgiver ber om det eller godkjenner orkestratorens
+forslag (`AGENTS.md`). Orkestratoren foreslår den for en gren som
+
+- har mye ny eller omskrevet produksjonskode, som tommelfingerregel over 500
+  endrede linjer utenom tester og `docs/`. Mål det med `git diff --shortstat`
+  og `--stat`, ikke ved å lese diffen;
+- er bygget i flere omganger, for eksempel med domenesvar som endret retning
+  underveis;
+- har tester eller feilinnføringer som fanger endret atferd.
+
+Foreslå den når runden legges fram, for økter som ventes å gi en slik gren, og
+ellers når en gren viser seg å bli det. Foreslå den ikke for rene
+dokumentendringer, for en PR som er merget, eller for en liten diff som er
+gjennomgått.
+
+Bestillingen til økta sier:
+
+- **Når:** før `/code-review`, så reviewet ser den endelige koden. Er reviewet
+  alt kjørt, kjøres én `/code-review` til på endringene `/simplify` gjorde.
+- **Omfang:** bare kildefilene, ikke testene og `docs/`.
+- **Grenser:** atferden er uendret, og ingen lagrede navn, kontrakter eller
+  predikater endres. Det `/simplify` foreslår ut over det, avvises og føres i
+  PR-en.
+- **Etterpå:** testene og feilinnføringene kjøres på nytt.
+- **PR-beskrivelsen** sier hva som ble endret og hva som ble avvist.
 
 ## 3. Gjennomgang når øktene er ferdige
 
@@ -185,6 +238,12 @@ Når en PR i runden er merget, oppdateres hver av de neste mot `main`
 merges. Regelsettet krever ikke at grenen er à jour, og ingen konflikt betyr
 ikke at kombinasjonen er testet: to PR-er uten felles filer kan endre
 hverandres oppførsel. Bruk den nye committen som `expectedHeadSha`.
+
+Vent på CI etter oppdateringen med en bakgrunnskommando som poller
+`check-runs` på den nye committen, ikke med `sleep` i forgrunnen. REST-formen
+virker også i skyøkta:
+`gh api -X PUT repos/<eier>/<repo>/pulls/<n>/update-branch -f expected_head_sha=<SHA>`
+og `gh api -X PUT repos/<eier>/<repo>/pulls/<n>/merge -f sha=<hele SHA-en> -f merge_method=merge`.
 
 ## 5. Avslutning
 
