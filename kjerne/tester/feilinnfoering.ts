@@ -84,8 +84,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utled.ts`,
     endringer: [
       [
-        "  standpunktet,\n} from './standpunkt.ts';",
-        "  standpunktet,\n  virkninger as regn,\n} from './standpunkt.ts';",
+        "import { enighetsgrunnlag, grunnlagetErAvklart, prinsipalt, standpunktet } from './standpunkt.ts';",
+        "import { enighetsgrunnlag, grunnlagetErAvklart, prinsipalt, standpunktet, virkninger as regn } from './standpunkt.ts';",
       ],
       [
         '      virkninger: s.beslutningsgrunnlag.virkninger,',
