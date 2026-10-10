@@ -38,6 +38,24 @@ export function bufferGjelder(b: Buffer, kjerne: Kjerne, saksversjon: number): b
   return (Object.keys(egen) as (keyof Bufferversjon)[]).every((n) => b.versjon[n] === egen[n]);
 }
 
+/**
+ * Saken i oversikten (MM-U15): siste kjente status fra bufferen, merket
+ * `oppdateres` når bufferen ikke gjelder for kjernen og saken. Oversikten regner
+ * ikke ut saken; det gjør `lesSak` og `byggPaaNytt`. En bindende handling prøves
+ * alltid mot journalen (B-10).
+ */
+export interface Oversiktslinje {
+  status: Visning['status'] | null;
+  oppdateres: boolean;
+}
+
+export function iOversikten(b: Buffer | null, kjerne: Kjerne, saksversjon: number): Oversiktslinje {
+  return {
+    status: b?.visning.status ?? null,
+    oppdateres: !b || !bufferGjelder(b, kjerne, saksversjon),
+  };
+}
+
 export interface Bufferlager {
   les(sakId: string): Promise<Buffer | null>;
   skriv(sakId: string, b: Buffer): Promise<void>;

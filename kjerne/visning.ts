@@ -9,6 +9,7 @@
  * er endret etter enigheten (MM-U3).
  */
 
+import { erRegistrert } from './leser.ts';
 import type { Regelsett } from './regler/regelsett.ts';
 import { ulikeVirkninger, virkninger } from './standpunkt.ts';
 import {
@@ -62,6 +63,17 @@ function regelenErEndret(u: Utledning, spor: Spor, regler: Regelsett): boolean {
   return ulikeVirkninger(u.svar[g.id].virkninger, virkninger(g, grunnlagskravFor(g, u), regler));
 }
 
+/**
+ * Svaret er registrert korrespondanse. Beslutningsgrunnlaget er da appens vurdering
+ * etter reglene ved registreringen, ikke da brevet ble sendt (MM-U17).
+ */
+function vurdertVedRegistreringen(u: Utledning, svarId: string): boolean {
+  const dokument = u.svar[svarId].svar.dokument;
+  return erRegistrert(
+    u.opplysninger.map((o) => o.opplysning).filter((o) => o.dokument === dokument)
+  );
+}
+
 function etiketter(u: Utledning, spor: Spor, regler: Regelsett): string[] {
   const s = u.spor[spor];
   const ut: string[] = [];
@@ -82,6 +94,8 @@ function etiketter(u: Utledning, spor: Spor, regler: Regelsett): string[] {
   }
   if (regelenErEndret(u, spor, regler))
     ut.push(s.enighet ? 'regel_endret_etter_enighet' : 'regel_endret_etter_brevet');
+  if (s.gjeldendeSvar && vurdertVedRegistreringen(u, s.gjeldendeSvar.id))
+    ut.push('appens_vurdering_ved_registreringen');
   if (s.gjeldendeSvar && u.svar[s.gjeldendeSvar.id].uavklart.length)
     ut.push('bh_har_ikke_vurdert_varselet');
   if (s.ingenKrav) ut.push('ingen_krav');

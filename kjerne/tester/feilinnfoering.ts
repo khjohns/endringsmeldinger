@@ -2,15 +2,18 @@
  * Feilinnføringene for kjernen (#304, #308, #273). F1–F7 er avsnitt 4 i
  * modellforslaget, F8–F10 feilklassene reviewet av PR #306 fant, skrevet om etter
  * MM-U9 og GR-U10, F11–F26 grensene #308 la til, og F27–F47 formatet (#273): 7.2
- * i designnotatet, GR-U12 og registeret (#320), F48 hvitelisten fra #329, og F49–F51 versjoneringen (#316). Én
- * mutasjon om gangen i arbeidskopien, Vitest over `kjerne/` og
- * `sprakprove/kjernelagring/`, og originalteksten settes tilbake etterpå. For hver mutasjon kreves det at de
- * forventede målassertions feiler, og at alle feil er assertions, ikke import,
- * oppsett eller en brutt forutsetning (`.claude/rules/tester.md`).
+ * i designnotatet, GR-U12 og registeret (#320). F48 er hvitelisten fra #329,
+ * F49–F51 og F54 versjoneringen (#316) og F52–F53 registrert korrespondanse
+ * (#336). Én mutasjon om gangen i arbeidskopien, Vitest over `kjerne/` og
+ * `sprakprove/kjernelagring/`, og originalteksten settes tilbake etterpå. For
+ * hver mutasjon kreves det at de forventede målassertions feiler, og at alle
+ * feil er assertions, ikke import, oppsett eller en brutt forutsetning (`.claude/rules/tester.md`).
  *
- * Kjøres fra repoets rot, med testbasen oppe for å ta med lagringstestene:
+ * Kjøres fra repoets rot, med testbasen oppe og `KOE_TESTBASE_URL` satt:
  *   node kjerne/tester/feilinnfoering.ts [F1 F2 ...]
  * Forventet: «oppdaget» for hver mutasjon, og arbeidskopien er ren etterpå.
+ * Hopper kontrollkjøringen over en test, for eksempel lagringstestene uten
+ * testbasen, avsluttes skriptet med kode 2 før noen mutasjon (#353).
  * Skriptet starter ikke når en fil det muterer, har lokale endringer. Commit
  * aldri en mutert fil.
  */
@@ -555,6 +558,43 @@ const MUTASJONER: Mutasjon[] = [
     ],
     mal: ['finner de utdaterte sakene og bygger dem på nytt uten å endre noe annet enn bufferen'],
   },
+  {
+    id: 'F52',
+    feilklasse:
+      'visningen merker et svar sendt fra appen, ikke det registrerte, som appens vurdering ved registreringen (MM-U17, #336)',
+    fil: `${K}/visning.ts`,
+    endringer: [
+      [
+        'if (s.gjeldendeSvar && vurdertVedRegistreringen(u, s.gjeldendeSvar.id))',
+        'if (s.gjeldendeSvar && !vurdertVedRegistreringen(u, s.gjeldendeSvar.id))',
+      ],
+    ],
+    mal: ['F-MM-R1-kontroll'],
+  },
+  {
+    id: 'F53',
+    feilklasse:
+      'et registrert brev fryses med reglene da det ble sendt, ikke ved registreringen (MM-U17, #336)',
+    fil: `${K}/skriving.ts`,
+    endringer: [
+      [
+        "import { avvisning } from './avvisning.ts';",
+        "import { avvisning } from './avvisning.ts';\nimport { GJELDENDE_REGLER } from './regler/regelsett.ts';",
+      ],
+      [
+        '    s.beslutningsgrunnlag = frys(s, krav, kjerne);',
+        '    s.beslutningsgrunnlag = frys(s, krav, { ...kjerne, regler: GJELDENDE_REGLER });',
+      ],
+    ],
+    mal: ['F-MM-R1'],
+  },
+  {
+    id: 'F54',
+    feilklasse: 'oversikten viser en utdatert sak uten merket «Oppdateres» (MM-U15, #316)',
+    fil: `${K}/buffer.ts`,
+    endringer: [['oppdateres: !b || !bufferGjelder(b, kjerne, saksversjon),', 'oppdateres: !b,']],
+    mal: ['viser siste kjente status i oversikten'],
+  },
 ];
 
 interface Testresultat {
@@ -604,16 +644,22 @@ for (const m of mutasjoner) {
 }
 
 const kontroll = kjoerVitest();
-const kontrollfeil = kontroll.testResults
-  .flatMap((f) => f.assertionResults)
-  .filter((t) => t.status === 'failed');
+const kontrolltester = kontroll.testResults.flatMap((f) => f.assertionResults);
+const kontrollfeil = kontrolltester.filter((t) => t.status === 'failed');
 if (kontrollfeil.length || kontroll.testResults.some((f) => f.status === 'failed'))
   throw new Error(
     `Kontrollkjøringen er ikke grønn: ${kontrollfeil.map((t) => t.fullName).join('; ')}`
   );
-console.log(
-  `Kontroll uten mutasjon: ${kontroll.testResults.flatMap((f) => f.assertionResults).length} tester grønne.`
-);
+// #353: en hoppet test er ikke grønn. Uten testbasen hoppes lagringstestene over, og en
+// mutasjon med mål der ville ellers ikke kunne oppdages.
+const hoppet = kontrolltester.filter((t) => t.status !== 'passed');
+if (hoppet.length) {
+  console.error(
+    `Kontrollkjøringen hoppet over ${hoppet.length} tester${process.env.KOE_TESTBASE_URL ? '' : ' (KOE_TESTBASE_URL er ikke satt)'}, for eksempel ${hoppet[0].fullName}. Feilinnføringene krever at alle kjører.`
+  );
+  process.exit(2);
+}
+console.log(`Kontroll uten mutasjon: ${kontrolltester.length} tester grønne.`);
 
 let alleOppdaget = true;
 for (const m of mutasjoner) {

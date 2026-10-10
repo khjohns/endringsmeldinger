@@ -8,7 +8,9 @@
 
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { KJERNE, type Kjerne } from '../versjon.ts';
-import { bufferversjon, lesSak, type Bufferversjon } from '../buffer.ts';
+import { bufferversjon, iOversikten, lesSak, type Bufferversjon } from '../buffer.ts';
+import { NESTE_REGLER } from './klient.ts';
+import { medRegler } from './kjoerer.ts';
 import { bygg, type Baner } from './baner.ts';
 
 const NYERE: Kjerne = {
@@ -106,6 +108,33 @@ export function bufferen(lagBaner: () => Baner): void {
       // Ingen rad er skrevet om.
       expect(await baneA.journal()).toEqual(journalA);
       expect(await baneB.journal()).toEqual(journalB);
+    });
+    it('viser siste kjente status i oversikten, merket «Oppdateres» til saken er regnet ut (MM-U15)', async () => {
+      const bane = await baner.bane();
+      const k = await bygg(bane, ['krav_eo']);
+      const lager = baner.buffer();
+      const oversikt = async (kjerne: Kjerne) => {
+        const journal = await bane.journal();
+        return iOversikten(await lager.les(bane.sakId), kjerne, journal.at(-1)!.versjon);
+      };
+      // Uten buffer finnes ingen kjent status.
+      expect(await oversikt(KJERNE)).toEqual({ status: null, oppdateres: true });
+      await lesSak(bane.sakId, await bane.journal(), lager, KJERNE);
+      const kjent = await oversikt(KJERNE);
+      expect(kjent).toEqual({ status: expect.anything(), oppdateres: false });
+      expect(kjent.status?.kode).toBe('venter_paa_svar');
+
+      // Nye regler: samme status, merket.
+      expect(await oversikt(medRegler(NESTE_REGLER))).toEqual({
+        status: kjent.status,
+        oppdateres: true,
+      });
+      // En ny hendelse: siste kjente status, ikke den nye, til saken er regnet ut.
+      expect((await k.send({ handling: 'trekk', spor: 'grunnlag' }))?.godtatt).toBe(true);
+      expect(await oversikt(KJERNE)).toEqual({ status: kjent.status, oppdateres: true });
+      const lest = await lesSak(bane.sakId, await bane.journal(), lager, KJERNE);
+      expect(lest.visning.status.kode).toBe('avsluttet_trukket');
+      expect(await oversikt(KJERNE)).toEqual({ status: lest.visning.status, oppdateres: false });
     });
   });
 }
