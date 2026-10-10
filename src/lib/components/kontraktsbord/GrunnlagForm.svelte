@@ -190,7 +190,7 @@
     />
 
     <div class="form-title-row">
-      <h1>Svar på ansvarsgrunnlag</h1>
+      <h1>Svar på grunnlaget</h1>
     </div>
     <p class="form-intro">Ta stilling til kontraktsforholdet og begrunn byggherrens vurdering.</p>
 
@@ -281,7 +281,7 @@
           <span class="notice-mark" aria-hidden="true"></span>
           <p>
             {prekludert
-              ? 'Varselet er vurdert som for sent. Vurderingen av ansvarsgrunnlaget gjelder subsidiært.'
+              ? 'Varselet er vurdert som for sent. Vurderingen av grunnlaget gjelder subsidiært.'
               : 'Vederlags- og fristkravet behandles subsidiært.'}
           </p>
         </div>

@@ -52,7 +52,7 @@ def grunnlag_er_subsidiaert(basis):
 def exposure(items, daily_rate=None, krav=None):
     """Highest total principal or subsidiary position; alternatives are never added.
 
-    Godkjent ansvarsgrunnlag verdsettes per spor (GFK-06, vedtak 23.09 og 24.09):
+    Godkjent grunnlag verdsettes per spor (GFK-06, vedtak 23.09 og 24.09):
     et spor som besvares i samme brev, har verdien i svaret. Ellers gjelder TEs
     krav i `krav` (kroner for vederlag, dager for frist). `None` betyr at kravet
     ikke er sendt eller ikke tallfestet; da er grunnlaget ukjent, og hele kjeden
@@ -153,7 +153,7 @@ def approval_route(items, chain, daily_rate=None, sender=None, krav=None):
     En ny sluttdato kan ikke verdsettes uten kontraktens gjeldende sluttdato,
     som serveren ikke har. Som for endringsordrer kreves da hele kjeden, og den
     må fortsatt dekke det som lar seg verdsette (audit GFK-02). Det samme gjelder
-    godkjent ansvar for et krav som ikke er tallfestet (GFK-06). Unntaket er en
+    godkjent grunnlag for et krav som ikke er tallfestet (GFK-06). Unntaket er en
     saksbehandler med ubegrenset fullmakt, som sender alene.
     """
     amount, needs_rate, ukjent = exposure(items, daily_rate, krav)

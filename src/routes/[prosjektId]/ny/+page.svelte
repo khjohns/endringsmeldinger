@@ -23,7 +23,7 @@
   });
 </script>
 
-<svelte:head><title>Nytt ansvarsgrunnlag — Kontraktsbordet</title></svelte:head>
+<svelte:head><title>Nytt grunnlag — Kontraktsbordet</title></svelte:head>
 
 <div class="mockup">
   <div class="new-case-shell">
@@ -59,7 +59,7 @@
     {#if !actions?.reviewing}
       <NewCaseActionBar
         canSend={actions?.canSend ?? false}
-        sendLabel={actions?.sendLabel ?? 'Send ansvarsgrunnlag'}
+        sendLabel={actions?.sendLabel ?? 'Send grunnlag'}
         oncancel={() => goto(resolve('/[prosjektId]', { prosjektId }))}
         onsend={() => actions?.send()}
       />
