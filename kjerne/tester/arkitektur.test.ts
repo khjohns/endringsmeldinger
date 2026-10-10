@@ -672,78 +672,66 @@ describe('reglene leser bare det LESBART tillater (#308, #329)', () => {
   const forutsetninger = join(KJERNE, 'forutsetninger.ts');
   const utled = join(KJERNE, 'utled.ts');
   const leser = join(KJERNE, 'leser.ts');
-  /** Lesingene LESBART ikke tillater i `modul` når `endringer` er gjort i kildene. */
-  type Endring = [fil: string, fra: string, til: string];
-  const medEndring = (modul: string, endringer: Endring[]) => {
+  /** Kode som legges til sist i en fil, så forsøkene ikke avhenger av teksten feilinnføringene endrer. */
+  type Tillegg = [fil: string, kode: string];
+  /** Lesingene LESBART ikke tillater i `modul` når `tillegg` er lagt til i kildene. */
+  const medTillegg = (modul: string, tillegg: Tillegg[]) => {
     const erstatt = new Map<string, string>();
-    for (const [fil, fra, til] of endringer) {
-      const kilde = erstatt.get(fil) ?? readFileSync(fil, 'utf8');
-      if (kilde.split(fra).length !== 2) throw new Error(`«${fra}» står ikke én gang i ${fil}`);
-      erstatt.set(fil, kilde.replace(fra, til));
-    }
+    for (const [fil, kode] of tillegg)
+      erstatt.set(fil, `${erstatt.get(fil) ?? readFileSync(fil, 'utf8')}\n${kode}\n`);
     const p = program(kjernefiler, erstatt, kjerneprogram);
     return vis(ikkeTillatt(lesinger(p, [modul])));
   };
-  const kravene = '  if (kraveneErAvgjort(u))';
-  const utledningen = 'export interface Utledning {\n';
-
-  const ferdig: Endring = [utled, utledningen, `${utledningen}  ferdig: boolean;\n`];
-  const dataen = '  const data = h.data;\n  const id = tekst(data.dokument_id) ?? h.event_id;';
-  /** I `lesDokument` i leseren, rett etter at raden er lest. */
-  const iLeseren = (linje: string): Endring => [
+  const ferdig: Tillegg = [utled, 'export interface Utledning {\n  ferdig: boolean;\n}'];
+  const regel = (kode: string): Tillegg => [
+    forutsetninger,
+    `export function proeve(u: Utledning) {\n${kode}\n}`,
+  ];
+  const iLeseren = (kode: string): Tillegg => [
     leser,
-    dataen,
-    dataen.replace('\n', `\n  ${linje}\n`),
+    `export function proeve(h: Journalrad) {\n  const data = h.data;\n${kode}\n}`,
   ];
 
   // Forsøkene står i minnet her; feilinnføringene F15 og F27 prøver to av dem i selve filene.
-  it.each<[string, string, Endring[], string]>([
+  it.each<[string, string, Tillegg[], string]>([
     [
       'et nytt felt i utledningen',
       forutsetninger,
-      [ferdig, [forutsetninger, kravene, '  if (u.ferdig)']],
+      [ferdig, regel('return u.ferdig;')],
       'Utledning.ferdig',
     ],
     [
       'et nytt felt med oppslag',
       forutsetninger,
-      [ferdig, [forutsetninger, kravene, "  if (u['ferdig'])"]],
+      [ferdig, regel("return u['ferdig'];")],
       'Utledning.ferdig',
     ],
     [
       'et nytt felt med en konstant nøkkel',
       forutsetninger,
-      [ferdig, [forutsetninger, kravene, "  const k = 'ferdig' as const;\n  if (u[k])"]],
+      [ferdig, regel("const k = 'ferdig' as const;\nreturn u[k];")],
       'Utledning.ferdig',
     ],
     [
       'et nytt felt, destrukturert',
       forutsetninger,
-      [ferdig, [forutsetninger, kravene, '  const { ferdig } = u;\n  if (ferdig)']],
+      [ferdig, regel('const { ferdig } = u;\nreturn ferdig;')],
       'Utledning.ferdig',
     ],
     [
       'et nytt felt, destrukturert i en tilordning',
       forutsetninger,
-      [
-        ferdig,
-        [forutsetninger, kravene, '  let ferdig = false;\n  ({ ferdig } = u);\n  if (ferdig)'],
-      ],
+      [ferdig, regel('let ferdig = false;\n({ ferdig } = u);\nreturn ferdig;')],
       'Utledning.ferdig',
     ],
     [
       'en funksjon som oppsummerer saken',
       forutsetninger,
       [
-        [
-          utled,
-          utledningen,
-          `export const sakensStatus = (u: Utledning) => u.versjon;\n${utledningen}`,
-        ],
+        [utled, 'export const sakensStatus = (u: Utledning) => u.versjon;'],
         [
           forutsetninger,
-          "import { kraveneErAvgjort, type Utledning } from './utled.ts';",
-          "import { kraveneErAvgjort, sakensStatus, type Utledning } from './utled.ts';",
+          "import { sakensStatus } from './utled.ts';\nexport const proeve = sakensStatus;",
         ],
       ],
       'utled.ts.sakensStatus',
@@ -754,96 +742,69 @@ describe('reglene leser bare det LESBART tillater (#308, #329)', () => {
       [
         [
           utled,
-          utledningen,
-          `function oppsum(u: Utledning) {\n  return { avsluttet: u.frafalt };\n}\n${utledningen}`,
+          'function oppsum(u: Utledning) {\n  return { avsluttet: u.frafalt };\n}\nexport const proeve = (u: Utledning) => oppsum(u).avsluttet;',
         ],
-        [utled, '    u.grunnlagAvklart &&\n', '    oppsum(u).avsluttet &&\n'],
       ],
       'utled.ts:oppsum.avsluttet',
     ],
     [
       'et felt uten type',
       forutsetninger,
-      [[forutsetninger, kravene, '  if ((u as any).avsluttet)']],
-      'forutsetninger.ts:forutsetninger(u).avsluttet',
+      [regel('return (u as any).avsluttet;')],
+      'forutsetninger.ts:proeve(u).avsluttet',
     ],
     [
       'et felt uten type, destrukturert',
       forutsetninger,
-      [[forutsetninger, kravene, '  const { avsluttet } = u as any;\n  if (avsluttet)']],
-      'forutsetninger.ts:forutsetninger(u).avsluttet',
+      [regel('const { avsluttet } = u as any;\nreturn avsluttet;')],
+      'forutsetninger.ts:proeve(u).avsluttet',
     ],
     [
       'et felt i en type regelen selv skriver',
       forutsetninger,
-      [[forutsetninger, kravene, '  if ((u as Utledning & { oppgjort: boolean }).oppgjort)']],
-      'forutsetninger.ts:forutsetninger.oppgjort',
+      [regel('return (u as Utledning & { oppgjort: boolean }).oppgjort;')],
+      'forutsetninger.ts:proeve.oppgjort',
     ],
     [
       'en parameter med samme navn som en tillatt',
       forutsetninger,
-      [
-        [
-          forutsetninger,
-          'export const avvis =',
-          "export const kontroller = (v: Record<string, unknown>) => v.status === 'oppgjort';\nexport const avvis =",
-        ],
-      ],
+      [[forutsetninger, 'export const kontroller = (v: Record<string, unknown>) => v.status;']],
       'forutsetninger.ts:kontroller(v).status',
     ],
     [
       'det lagrede utfallet i et svar',
       forutsetninger,
-      [
-        [
-          forutsetninger,
-          kravene,
-          "  if (u.spor.frist.gjeldendeSvar?.utregning.beregnings_resultat === 'avslatt')",
-        ],
-      ],
+      [regel('return u.spor.frist.gjeldendeSvar?.utregning.beregnings_resultat;')],
       'Svar.utregning.beregnings_resultat',
+    ],
+    [
+      'journalraden utenfor leseren og skrivingen',
+      forutsetninger,
+      [
+        [forutsetninger, "import type { Journalrad } from './typer.ts';"],
+        regel('return (u.journal.at(-1) as unknown as Journalrad).data;'),
+      ],
+      'Journalrad.data',
     ],
     [
       'en statuskode i journalraden',
       leser,
-      [iLeseren("if (data.overordnet_status === 'AVSLATT_AKSEPTERT') throw new Uforstaatt('');")],
+      [iLeseren("  return data.overordnet_status === 'AVSLATT_AKSEPTERT';")],
       'Journalrad.data.overordnet_status',
     ],
     [
       'en statuskode i journalraden, destrukturert',
       leser,
-      [
-        iLeseren(
-          "const { overordnet_status } = data;\n  if (overordnet_status) throw new Uforstaatt('');"
-        ),
-      ],
+      [iLeseren('  const { overordnet_status } = data;\n  return overordnet_status;')],
       'Journalrad.data.overordnet_status',
     ],
     [
       'en statuskode i journalraden med en konstant nøkkel',
       leser,
-      [iLeseren("const k = 'overordnet_status';\n  if (data[k]) throw new Uforstaatt('');")],
+      [iLeseren("  const k = 'overordnet_status';\n  return data[k];")],
       'Journalrad.data.overordnet_status',
     ],
-  ])('oppdager %s', (_navn, modul, endringer, noekkel) => {
-    expect(medEndring(modul, endringer).map((f) => f.split(' ')[1])).toContain(noekkel);
-  });
-
-  it('oppdager journalraden lest utenfor leseren og skrivingen', () => {
-    const funnet = medEndring(forutsetninger, [
-      [
-        forutsetninger,
-        kravene,
-        "  if ((u.journal.at(-1) as unknown as Journalrad)?.data.sakstype === 'forsering')",
-      ],
-      [
-        forutsetninger,
-        "import type { Avvisning, Part, Spor } from './typer.ts';",
-        "import type { Avvisning, Journalrad, Part, Spor } from './typer.ts';",
-      ],
-    ]);
-    expect(funnet.map((f) => f.split(' ')[1])).toEqual(
-      expect.arrayContaining(['Journalrad.data', 'Utledning.journal'])
-    );
+  ])('oppdager %s', (_navn, modul, tillegg, noekkel) => {
+    expect(medTillegg(modul, tillegg).map((f) => f.split(' ')[1])).toContain(noekkel);
   });
 });
