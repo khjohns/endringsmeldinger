@@ -208,8 +208,9 @@ function lesDokument(h: Journalrad): Dokument {
     opplysninger?: Data[];
     dokumentasjon?: string[];
   };
-  if (!data.krav && !data.svar && !data.utsagn)
-    throw new Uforstaatt('dokumentet har verken krav, svar eller utsagn');
+  const avklaring = (data.opplysninger ?? []).some((o) => erObjekt(o) && 'gjelder' in o);
+  if (!data.krav && !data.svar && !data.utsagn && !avklaring)
+    throw new Uforstaatt('dokumentet har verken krav, svar, utsagn eller en avklaring');
   const id = h.event_id;
   const avsender: Part = h.aktor_rolle;
   const kreverPart = (part: Part | null, hva: string) => {
@@ -231,6 +232,7 @@ function lesDokument(h: Journalrad): Dokument {
           hva: 'endringsordre',
           oppfylt: o.oppfylt as boolean,
           oppgittAv: avsender,
+          brev: (o.gjelder as string | undefined) ?? id,
         }
       : {
           id: o.id as string,
@@ -240,9 +242,11 @@ function lesDokument(h: Journalrad): Dokument {
           oppgittAv: avsender,
         };
   });
-  // Opplysningen om § 31.3 hører til registrert korrespondanse med et svar på grunnlaget.
+  // Opplysningen om § 31.3 i brevet selv hører til registrert korrespondanse med et svar
+  // på grunnlaget. En avklaring av et tidligere brev kontrolleres i utledningen.
+  const iBrevet = opplysninger.some((o) => o.hva === 'endringsordre' && o.brev === id);
   if (
-    hva.has('endringsordre') &&
+    iBrevet &&
     (!(hva.has('sendt') || hva.has('mottatt')) ||
       !((data.svar ?? []) as Data[]).some((s) => erObjekt(s) && s.spor === 'grunnlag'))
   )

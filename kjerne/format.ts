@@ -215,18 +215,19 @@ export const UTSAGN: Record<Utsagnsart, Skjema> = {
 };
 
 /**
- * Opplysningene om et dokument, etter `hva`. `endringsordre` står bare i
- * registrert korrespondanse med et svar på grunnlaget: den som registrerer,
- * oppgir om brevet var en endringsordre etter § 31.3 (oppdragsgiver 10.10).
+ * Opplysningene om et dokument, etter `hva`. `endringsordre` gjelder registrert
+ * korrespondanse med et svar på grunnlaget: den som registrerer, oppgir om brevet
+ * var en endringsordre etter § 31.3 (GR-U13). Uten `gjelder` står den i brevet
+ * selv; med `gjelder` er den en senere avklaring av et registrert brev, uten at
+ * brevet skrives om (MM-U12).
  */
 export const OPPLYSNING: Record<'sendt' | 'mottatt' | 'endringsordre', Skjema> = {
   sendt: objekt({ id: ID, hva: { const: 'sendt' }, dato: DATO }, ['id', 'hva', 'dato']),
   mottatt: objekt({ id: ID, hva: { const: 'mottatt' }, dato: DATO }, ['id', 'hva', 'dato']),
-  endringsordre: objekt({ id: ID, hva: { const: 'endringsordre' }, oppfylt: { type: 'boolean' } }, [
-    'id',
-    'hva',
-    'oppfylt',
-  ]),
+  endringsordre: objekt(
+    { id: ID, hva: { const: 'endringsordre' }, oppfylt: { type: 'boolean' }, gjelder: ID },
+    ['id', 'hva', 'oppfylt']
+  ),
 };
 
 /** `data` i `dokument_registrert`. Elementene kontrolleres hver for seg etter `spor` eller `art`. */

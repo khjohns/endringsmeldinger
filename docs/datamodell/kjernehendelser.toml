@@ -207,7 +207,10 @@ hva = "endringsordre"
 beskrivelse = """
 Om registrert korrespondanse med et svar på grunnlaget var en endringsordre
 etter § 31.3, oppgitt av den som registrerer, med vedlegget i `dokumentasjon`.
-Ikke en rettslig avgjørelse. Uten opplysningen er det ikke avklart om svaret er
-en endringsordre, og trekket av grunnlaget er sperret til det er avklart (KA-U13)."""
-felt = ["id", "hva", "oppfylt"]
-grunnlag = "§ 31.3, § 32.3 a, GR-U12, oppdragsgiver 10.10"
+Registratorens vurdering, ikke en rettslig avgjørelse. Uten `gjelder` står den i
+brevet selv. En senere avklaring er et nytt dokument med bare opplysningen, der
+`gjelder` er det registrerte brevet, som ikke skrives om. Det står høyst én slik
+opplysning per brev. Uten opplysningen er det ikke avklart om svaret er en
+endringsordre, og trekket av grunnlaget er sperret til det er avklart."""
+felt = ["id", "hva", "oppfylt", "gjelder"]
+grunnlag = "§ 31.3, § 32.3 a, GR-U13, KA-U14, MM-U12"

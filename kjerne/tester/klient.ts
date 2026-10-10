@@ -242,7 +242,15 @@ export function radFor(
   };
   let data: Record<string, unknown>;
   let eventId = typeof h.dokument === 'string' ? navn.ta(h.dokument) : randomUUID();
-  if (typeof h.art === 'string') {
+  if (typeof h.avklarer === 'string') {
+    // MM-U12: en senere avklaring av om et registrert brev var en endringsordre (§ 31.3).
+    eventId = navn.ta(h.navn as string);
+    data = {
+      opplysninger: [
+        { id: randomUUID(), hva: 'endringsordre', oppfylt: h.oppfylt, gjelder: ref(h.avklarer) },
+      ],
+    };
+  } else if (typeof h.art === 'string') {
     eventId = navn.ta(h.navn as string);
     data = {
       utsagn: [
