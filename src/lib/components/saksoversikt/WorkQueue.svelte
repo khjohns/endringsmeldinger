@@ -1,9 +1,8 @@
 <script lang="ts">
   import { ArrowRight } from 'lucide-svelte';
-  import { caseFollowUp, taskHref } from '$lib/domain/followUp';
   import type { CaseListItem } from '$lib/types/api';
   import type { Role } from '$lib/components/kontraktsbord/types';
-  import { caseStatus, formalizedClaims } from './overview';
+  import { caseFollowUp, endringsordreVenterPaa, formalizedClaims, taskHref } from './overview';
   let {
     cases,
     role,
@@ -26,16 +25,16 @@
     cases
       .filter((item) => item.sakstype === 'endringsordre')
       .flatMap((item) => {
-        const status = caseStatus(item);
-        const needsResponse = status === 'utstedt' || status === 'revidert';
-        if (!needsResponse && status !== 'bestridt') return [];
+        const venterPaa = endringsordreVenterPaa(item);
+        if (!venterPaa) return [];
+        const needsResponse = venterPaa === 'TE';
         return [
           {
             id: `${item.sak_id}:endringsordre`,
             caseId: item.sak_id,
             caseTitle: item.cached_title ?? 'Uten tittel',
             track: 'endringsordre' as const,
-            role: needsResponse ? ('TE' as const) : ('BH' as const),
+            role: venterPaa,
             title: needsResponse ? 'Les endringsordren' : 'Følg opp bestridt endringsordre',
             detail: needsResponse
               ? item.endringsordre_data?.relaterte_koe_saker.length

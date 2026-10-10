@@ -1,13 +1,19 @@
 /**
- * Adapter: SakState → display-data og domain configs for mockup-komponenter.
+ * Lesepunktet for saksvisningen (#313): SakState → display-data og domain configs.
+ *
+ * Komponentene i saksvisningen leser `SporStatus`, `overordnet_status` og
+ * etikettene for dem bare herfra, så byttet til kjernens predikater, handlinger
+ * og visning skjer her.
  *
  * Ren TypeScript — ingen Svelte-avhengigheter.
  * Domain config-avledninger er delt via $lib/domain/deriveConfig.
  */
-import type { SakState, SubsidiaerTrigger } from '$lib/types/timeline';
+import type { SakState, SporStatus, SubsidiaerTrigger } from '$lib/types/timeline';
 import { erGrunnlagetSubsidiaert, erPrekludertEtter32_2 } from '$lib/domain/grunnlagDomain';
 import { getHjemmelLabel, getHjemmelObj } from '$lib/constants/categories.js';
 import { GRUNNLAG_RESULTAT_LABELS } from '$lib/constants/responseOptions.js';
+import { SPOR_STATUS_LABELS } from '$lib/constants/statusLabels.js';
+import { getOverordnetStatusStyle } from '$lib/constants/statusStyles.js';
 import type { SporKey } from './types.js';
 
 // Re-export shared domain config derivation functions
@@ -218,4 +224,34 @@ export function deriveTrackDisplay(sak: SakState, spor: SporKey): TrackDisplay {
 /** Ubesvarte krav inngår ikke i bestridt omfang. */
 export function assessedGap(claimed: number, assessed: number | undefined): number | undefined {
   return assessed === undefined ? undefined : Math.max(0, claimed - assessed);
+}
+
+/**
+ * Etikett for beregningsresultat (godkjent / delvis_godkjent / avslatt).
+ * Løs typing: VederlagBeregningResultat inneholder også 'hold_tilbake' som ikke er SporStatus.
+ */
+export function sporResultatLabel(status: string): string {
+  return SPOR_STATUS_LABELS[status as SporStatus] ?? status;
+}
+
+/** Saksstatusen i sidefeltet, fra `overordnet_status`. */
+export function saksstatus(sak: SakState) {
+  return {
+    ...getOverordnetStatusStyle(sak.overordnet_status),
+    sendt: sak.overordnet_status === 'SENDT',
+  };
+}
+
+/** Fristsporet har status `sendt`. */
+export function fristErSendt(sak: SakState): boolean {
+  return sak.frist.status === 'sendt';
+}
+
+/** Et spesifisert vederlagskrav eller et fristkrav med dager har status `godkjent` eller `laast`. */
+export function harGodkjentKrav(sak: SakState): boolean {
+  const godkjent = (status: SporStatus) => status === 'godkjent' || status === 'laast';
+  return (
+    (!!sak.vederlag.metode && godkjent(sak.vederlag.status)) ||
+    (sak.frist.krevd_dager != null && godkjent(sak.frist.status))
+  );
 }

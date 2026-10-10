@@ -9,8 +9,13 @@
   import { formatDateShortNorwegian } from '$lib/utils/dateFormatters.js';
   import { getCaseWorkspace } from '$lib/kontraktsbord/context.svelte';
   const store = getCaseWorkspace();
-  import { fmt, sporResultatLabel } from './utils.js';
-  import { bhStandpunkt, grunnlagTriggers, svaretErSubsidiaert } from './derive.js';
+  import { fmt } from './utils.js';
+  import {
+    bhStandpunkt,
+    grunnlagTriggers,
+    sporResultatLabel,
+    svaretErSubsidiaert,
+  } from './derive.js';
 
   let { onform }: { onform: () => void } = $props();
 
