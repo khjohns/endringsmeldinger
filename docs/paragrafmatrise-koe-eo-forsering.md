@@ -23,24 +23,26 @@ sier hvilken bestemmelse de hører til. Sier matrisen noe annet enn
 hovedplanen, gjelder hovedplanen.
 
 **Grunnlag.** Kartlagt 10.10 på `7460838`. Kjernens tilstand er lest i koden
-(L), ikke kjørt. Utdragene er fra NS 8407:2011. Vedtakene er lest i 3.1 på
-samme commit. Begrepene utsagn, standpunkt, relasjon og predikat står i
+(L), ikke kjørt, og `kjerne/` er uendret fram til `915ab32`. Utdragene er fra
+NS 8407:2011. Vedtakene er lest i 3.1 på `915ab32`, med vedtakene fra runde 3. Begrepene utsagn, standpunkt, relasjon og predikat står i
 [modellforslaget, 2.2](forslag-maalmodell-2026-10-09.md#22-byggeklossene) og i
 [domenetabellen](domenetabell/README.md). Navnene i formatet står i
 [designnotatet, 4.5](design-hendelsesformat-2026-10-09.md#45-navn-fra-kontrakten).
 
 ## Tre måter appen behandler en bestemmelse på
 
-| Måte | Hva appen gjør | Eksempel |
-| --- | --- | --- |
-| **Vurdere** | Appen avgjør selv et spørsmål etter kontrakten, uten at en part har tatt stilling | Om § 32.2 gjaldt for underkategorien ([GR-U11](plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u11), [GR-U13](plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u13)). Om byggherrens beløp er likt kravet («godkjent», B-13 og [KA-U9](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u9)) |
-| **Utlede** | Appen registrerer partens standpunkt og utleder virkningen etter kontrakten | Byggherren påberoper at varselet kom for sent; appen gjør svaret prinsipalt avslått med det subsidiære standpunktet (B-13 om preklusjon) |
-| **Registrere og vise** | Appen lagrer utsagnet og viser fristen og bestemmelsen. Utsagnet endrer ingen predikat | Passivitet og søksmålsfrist ([VS-U2](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u2)). Innsigelse etter § 5 ([VS-U1](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u1)) |
+Måtene og hva de betyr, står i [VS-U3](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u3), som også sier hvilke
+bestemmelser som behandles på hvilken måte. Feltet «Appen» i hver rad viser til
+det vedtaket.
+
+| Måte | Eksempel |
+| --- | --- |
+| **Vurdere selv** | Om § 32.2 gjaldt for underkategorien ([GR-U11](plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u11), [GR-U13](plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u13)). Om byggherrens beløp er likt kravet («godkjent», B-13 og [KA-U9](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u9)). § 33.6.2 fjerde ledd ([KA-U4](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u4)) |
+| **Utlede** | Byggherren påberoper at varselet etter § 33.4 kom for sent (B-13 om preklusjon) |
+| **Registrere og vise** | Passivitet og søksmålsfrist ([VS-U2](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u2)). Innsigelse etter § 5 ([VS-U1](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u1)) |
 
 «Vurdere» er en vurdering etter appens regler, ikke en rettslig avgjørelse
-([MM-U12](plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u12)). Der
-feltet «Appen» sier *forslag*, er måten ikke vedtatt. Den er stilt som spørsmål
-til oppdragsgiver.
+([MM-U12](plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u12)).
 
 ## Status for kjernen
 
@@ -61,6 +63,28 @@ To trekk gjelder hele kjernen på `7460838`:
   `utenforOmfanget` avviser resten med `VURDERING_UTENFOR_KJERNEN`
   ([#341](https://github.com/khjohns/endringsmeldinger/issues/341)).
 
+## Første versjon av TS-stien
+
+Hva første versjon omfatter, står i [OV-U1](plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u1). Tabellen fører
+radene i matrisen etter det vedtaket. «Med» betyr at bestemmelsen hører til
+første versjon. «Avvises» betyr at kommandoene avvises til den er bygget.
+
+| Rad | Første versjon |
+| --- | --- |
+| § 32.1 og § 32.2, § 32.3 første ledd a–c, annet og tredje ledd, trekk og ny kravversjon | Med. En endringsordre i en EO-sak som svar på grunnlaget (EO-U6) avvises |
+| § 33.1, § 33.3, § 33.4, § 33.6.1, § 33.6.2 og § 33.7 | Med |
+| § 33.8 | Avvises |
+| § 34.1.1, § 34.1.2, § 34.1.3 og § 34.2 | Med |
+| § 34.4 | Med. Hvordan appen behandler bestemmelsen, avgjøres når § 30 er lest (VS-U3) |
+| § 34.3 | § 34.3.1 med. § 34.3.3 avvises |
+| § 35.2 | Med |
+| § 5 tredje ledd | Med |
+| § 31.3, og endringsordre som svar på grunnlaget og etter frafall | Avvises |
+| Kravversjon, aksept og enighet | Med, også for registrert korrespondanse |
+
+Hvordan relasjoner mellom saker lagres (B-01 i 3.4), avgjøres i byggedelen for
+endringsordre og forsering, etter [OV-U1](plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u1).
+
 ---
 
 ## § 32 Irregulær endring
@@ -78,14 +102,16 @@ To trekk gjelder hele kjernen på `7460838`:
   grunnlaget prinsipalt avslått, og et avslag i samme svar gjelder subsidiært.
 - **Appen avgjør ikke:** om varselet faktisk kom «uten ugrunnet opphold», eller
   om forholdet er et pålegg etter § 32.1 a–c.
-- **Appen:** *vurdere* om § 32.2 gjelder for underkategorien. *Utlede* virkningen
-  av BHs standpunkt om rettidighet.
+- **Appen:** *vurdere selv* om § 32.2 gjelder for underkategorien. *Utlede*
+  virkningen av BHs standpunkt om rettidighet ([VS-U3](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u3)).
 - **Vedtak:** [GR-U11](plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u11)
   (09.10, uten merknad). B-13 om `grunnlag_varslet_i_tide` (24.09, merknaden
   05.10). Vedtakene 05.10 om svar når grunnlaget er avslått eller prekludert, og
   om avslag sammen med § 32.2. [GR-U12](plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u12),
   endret av GR-U13. [GR-U13](plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u13)
-  (10.10): om § 32.2 gjaldt, fryses som appens vurdering.
+  (10.10): om § 32.2 gjaldt, fryses som appens vurdering, for registrerte brev
+  endret av [MM-U17](plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u17). [VS-U9](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u9): påberopelsen i svaret er
+  innsigelsen etter § 5.
 - **Kjernen i dag:** bygget. `rettidighet` med hjemmel `32.2`
   ([`typer.ts`](../kjerne/typer.ts), `Standpunkt`); `preklusjonPaaberopt` og
   `virkninger` i [`standpunkt.ts`](../kjerne/standpunkt.ts);
@@ -112,15 +138,17 @@ To trekk gjelder hele kjernen på `7460838`:
   - Godtatt avslag: grunnlaget avvist, og saken lukket.
 - **Appen avgjør ikke:** om et brev fra registrert korrespondanse oppfyller
   § 31.3. Det oppgir registratoren (GR-U13).
-- **Appen:** *utlede.* For brev fra appen sørger appen for at § 31.3 er oppfylt
-  (GR-U13).
+- **Appen:** *utlede* ([VS-U3](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u3)). For brev fra appen sørger appen
+  for at § 31.3 er oppfylt (GR-U13).
 - **Vedtak:** [GR-U10](plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u10),
   endret av [GR-U13](plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u13)
   (10.10). [GR-U12](plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u12),
   endret av GR-U13. [GR-U9](plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u9)
   (merknaden 09.10: til kravene er avgjort). [GR-U3](plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u3)
   (merknaden 09.10). [GR-U7](plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u7)
-  (merknaden 10.10: forbehold avgjøres etter KA-U15; «avklart» etter MM-U13).
+  (merknaden 10.10: forbehold avgjort av KA-U16; «avklart» etter MM-U13).
+  [KA-U16](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u16): forbehold i svaret. [EO-U6](plans/2026-09-16-godkjenning-og-varig-levering.md#eo-u6): endringsordre som svar på
+  grunnlaget (raden for endringsordre som svar på grunnlaget).
   [GR-U8](plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u8).
   B-13 «frafalt» bare ved irregulær endring og valgrett (24.09, merknaden
   04.10). #235: frafall kan ikke kombineres med preklusjon (05.10). SK-01 og
@@ -131,8 +159,8 @@ To trekk gjelder hele kjernen på `7460838`:
   beslutningsgrunnlaget; `endringsordre` i `Utledning` i
   [`utled.ts`](../kjerne/utled.ts) med opplysningen `endringsordre`;
   `FRAFALL_KAN_IKKE_GODTAS` og `GRUNNLAG_AVVIST` i
-  [`forutsetninger.ts`](../kjerne/forutsetninger.ts). Ikke bygget: forbehold i
-  svaret (KA-U15). Kjent avvik: en lagret rad utenom kommandoene kan oppheve en
+  [`forutsetninger.ts`](../kjerne/forutsetninger.ts). Ikke bygget: KA-U16 for
+  et registrert brev med et forbehold appen ikke kan uttrykke. Kjent avvik: en lagret rad utenom kommandoene kan oppheve en
   enighet ([#326](https://github.com/khjohns/endringsmeldinger/issues/326)).
 
 ### § 32.3 annet ledd — passivitet
@@ -144,10 +172,10 @@ To trekk gjelder hele kjernen på `7460838`:
 - **Predikat:** ingen. Appen trekker ingen konklusjon.
 - **Appen avgjør ikke:** om BH svarte i tide, og om pålegget dermed anses som
   en endring.
-- **Appen:** *registrere og vise*: frist og bestemmelse som veiledning. Hvordan
-  fristen «uten ugrunnet opphold» vises, er spørsmål 7.
+- **Appen:** *registrere og vise* ([VS-U3](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u3), [VS-U10](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u10)).
 - **Vedtak:** [VS-U2](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u2)
-  (09.10). B-13 om passivitet (24.09, merknaden 09.10). [GR-U11](plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u11):
+  (09.10, merknadene 10.10: VS-U3 og VS-U10). B-13 om passivitet (24.09,
+  merknadene 09.10 og 10.10). [VS-U10](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u10). [GR-U11](plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u11):
   passivitetsregelen følger henvisningen til § 32.2.
 - **Kjernen i dag:** ikke bygget. [`visning.ts`](../kjerne/visning.ts) har
   etiketten `venter_paa_svar`, men ingen dato eller frist.
@@ -160,10 +188,9 @@ To trekk gjelder hele kjernen på `7460838`:
   senere dokument.
 - **Predikat:** ingen virkning på utfallet.
 - **Appen avgjør ikke:** om begrunnelsen er tilstrekkelig, eller kom i tide.
-- **Appen:** *registrere og vise.* At teksten lagres, er vedtatt. Om
-  begrunnelsen er påkrevd i et brev fra appen, er spørsmål 12.
-- **Vedtak:** B-13 begrunnelsestekst (T-a, 24.09): den låste teksten er
-  partens, og den låste delen og utdypningen lagres hver for seg.
+- **Appen:** *registrere og vise* ([VS-U3](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u3)). Kravet til et brev fra
+  appen og den senere begrunnelsen står i [KA-U18](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u18).
+- **Vedtak:** [KA-U18](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u18). B-13 begrunnelsestekst (T-a, 24.09).
   [MM-U12](plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u12).
   [LV-U1](plans/2026-09-16-godkjenning-og-varig-levering.md#lv-u1).
 - **Kjernen i dag:** ikke bygget. Svaret har ikke noe felt for tekst (`SVAR`
@@ -213,12 +240,33 @@ To trekk gjelder hele kjernen på `7460838`:
 - **Predikat:** uten hindring er kravet prinsipalt avslått. Dagene BH har
   vurdert, står som et videre subsidiært standpunkt.
 - **Appen avgjør ikke:** om fremdriften faktisk ble hindret.
-- **Appen:** *utlede.*
+- **Appen:** *utlede* ([VS-U3](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u3)).
 - **Vedtak:** B-13 om frist uten fremdriftshindring (05.10, merknaden 09.10: om
   en innsigelse kom i tide, avgjør ikke appen).
 - **Kjernen i dag:** bygget. `hindring` i `STANDPUNKT` i
   [`format.ts`](../kjerne/format.ts); `virkninger` i
   [`standpunkt.ts`](../kjerne/standpunkt.ts).
+
+### § 33.3 — force majeure
+
+- **Utdrag:** «Partene har krav på fristforlengelse dersom fremdriften av deres
+  forpliktelser hindres av forhold utenfor deres kontroll […]» Femte ledd:
+  «Partene har ikke krav på justering av vederlaget som følge av
+  fristforlengelse etter denne bestemmelsen.»
+- **Utsagn:** TE: krav i grunnlagssporet med hovedkategorien force majeure, og
+  krav i fristsporet. Varselet følger § 33.4, som viser til § 33.3.
+- **Predikat:** ikke vedtatt. Ingen vedtak sier om et vederlagskrav i en sak om
+  force majeure avvises (femte ledd).
+- **Appen avgjør ikke:** om forholdet var utenfor partens kontroll, eller om
+  parten burde ha tatt det i betraktning (tredje ledd).
+- **Appen:** ikke vedtatt. [VS-U3](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u3) sier at § 33.3 får en egen rad i
+  matrisen, men ikke hvordan appen behandler den.
+- **Vedtak:** [KA-U13](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u13): trekket står i FORCE_MAJEURE.
+- **Kjernen i dag:** ikke bygget. Hovedkategorien er fri tekst
+  (`KRAVINNHOLD.grunnlag` i [`format.ts`](../kjerne/format.ts)), og ingen regel
+  i kjernen skiller ut force majeure. Python har `er_force_majeure` i
+  [`backend/constants/grunnlag_categories.py`](../backend/constants/grunnlag_categories.py),
+  men ingen kaller den.
 
 ### § 33.4 — varsel om fristforlengelse
 
@@ -236,13 +284,15 @@ To trekk gjelder hele kjernen på `7460838`:
   - Datoen settes én gang.
 - **Appen avgjør ikke:** om varselet kom i tide, eller om det ble sendt eller
   mottatt. Det kan bestrides.
-- **Appen:** *utlede.*
+- **Appen:** *utlede* ([VS-U3](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u3)).
 - **Vedtak:** B-13 om preklusjon ut fra byggherrens egen vurdering (24.09).
   [MM-U1](plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u1).
   [MM-U8](plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u8) (merknaden
   09.10: presiserer MM-U1, ikke MM-U4). SK-12 (05.10).
   [MM-U7](plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u7) (merknaden
-  10.10: avvises når saken ikke er forstått). [KA-U15](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u15).
+  10.10: avvises når saken ikke er forstått). [KA-U15](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u15)
+  og [KA-U17](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u17): «ingen krav». [VS-U8](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u8): datoen for et varsel.
+  [VS-U9](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u9): påberopelsen i svaret er innsigelsen etter § 5.
   [KA-U2](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u2): varselet er
   ikke en kravversjon.
 - **Kjernen i dag:** bygget for varselet. `varsel` i `UTSAGN` og `sendt` i
@@ -259,13 +309,13 @@ To trekk gjelder hele kjernen på `7460838`:
   fristforlengelse som den andre parten måtte forstå at han hadde krav på.»
 - **Utsagn:** TE: krav med dager (minst 1). BH: standpunkt om rettidigheten av
   spesifiseringen, med hjemmel 33.6.1, og standpunktet `dager`.
-- **Predikat:** *forslag (spørsmål 2):* påberoper BH sen spesifisering, er
-  dagene BH godtar det prinsipale standpunktet, og dagene ved rettidig
-  spesifisering det subsidiære.
+- **Predikat:** etter [VS-U4](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u4): et prinsipalt og et subsidiært
+  standpunkt om dagene.
 - **Appen avgjør ikke:** hvor mange dager BH «måtte forstå», og om
   spesifiseringen kom i tide.
-- **Appen:** *forslag:* utlede.
-- **Vedtak:** [KA-U8](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u8)
+- **Appen:** *utlede* ([VS-U3](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u3)).
+- **Vedtak:** [VS-U4](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u4). [VS-U9](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u9): påberopelsen er innsigelsen
+  etter § 5. [KA-U8](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u8)
   (merknaden 09.10: presisert av KA-U12). [KA-U4](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u4)
   (merknaden 08.10). [MP-U4](plans/2026-09-16-godkjenning-og-varig-levering.md#mp-u4)
   og [MP-U5](plans/2026-09-16-godkjenning-og-varig-levering.md#mp-u5) (gjelder
@@ -290,13 +340,17 @@ To trekk gjelder hele kjernen på `7460838`:
 - **Utsagn:** BH: `foresporsel` som `gjelder` varselet eller fristsporet, med
   valgfri svarfrist. TE: svar etter bokstav a (et krav med dager, som
   `gjelder` forespørselen) eller bokstav b (en begrunnelse, uten dager).
-- **Predikat:** har TE svart med dager på forespørselen, gjelder ikke
-  spørsmålet etter § 33.6.1. Det vurderes ikke, og en påberopelse avvises.
-  Forespørselen gir ellers ingen virkning av seg selv.
+- **Predikat:**
+  - Har TE svart med dager på forespørselen, gjelder ikke spørsmålet etter
+    § 33.6.1, og en påberopelse avvises (KA-U4).
+  - Påberoper BH uttrykkelig at TE svarte for sent, utledes virkningen etter
+    [VS-U3](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u3). Svarer ikke TE, vises det bare.
+  - Forespørselen gir ellers ingen virkning av seg selv.
 - **Appen avgjør ikke:** om TE svarte i tide, og om kravet er tapt (tredje
   ledd).
-- **Appen:** *registrere og vise* for tredje ledd. *Utlede* for fjerde ledd.
-- **Vedtak:** [VS-U2](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u2)
+- **Appen:** for tredje ledd *utlede* når BH påberoper at TE svarte for sent,
+  ellers *registrere og vise*. *Vurdere selv* for fjerde ledd ([VS-U3](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u3)).
+- **Vedtak:** [VS-U3](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u3) og [VS-U2](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u2)
   (§ 33.6.2 tredje ledd). [KA-U4](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u4)
   og rad KA-18a i [domenetabellen](domenetabell/README.md) (fjerde ledd). Nøytralt fristvarsel, TFR-06 og DRF-01 (23.09,
   merknaden 04.10: svarfristen er valgfri og går utenom intern godkjenning).
@@ -321,12 +375,12 @@ To trekk gjelder hele kjernen på `7460838`:
 - **Predikat:** et svar med dager avvises til TE har spesifisert kravet. At
   innsigelser tapes, gir ingen predikat.
 - **Appen avgjør ikke:** om svaret kom i tide, og om en innsigelse er tapt.
-- **Appen:** *registrere og vise* for annet ledd. *Utlede* for standpunktene i
-  svaret.
+- **Appen:** *registrere og vise* for annet ledd ([VS-U3](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u3), [VS-U10](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u10)).
+  *Utlede* for standpunktene i svaret.
 - **Vedtak:** [VS-U2](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u2).
   Nøytralt fristvarsel (23.09). B-13 om frist uten fremdriftshindring (merknaden
   09.10). B-13 «godkjent» bare ved hele kravet (24.09, merknaden 04.10).
-  [MP-U5](plans/2026-09-16-godkjenning-og-varig-levering.md#mp-u5) og
+  [VS-U1](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u1): TEs innsigelse mot et sent svar. [MP-U5](plans/2026-09-16-godkjenning-og-varig-levering.md#mp-u5) og
   [MP-U6](plans/2026-09-16-godkjenning-og-varig-levering.md#mp-u6) (gjelder
   metodeprøven).
 - **Kjernen i dag:** bygget for svaret med dager og de subsidiære dagene
@@ -342,22 +396,25 @@ To trekk gjelder hele kjernen på `7460838`:
   påløpt […] tillagt 30 %». Annet ledd: «Før forsering etter første ledd
   iverksettes, skal byggherren varsles med angivelse av hva forseringen antas å
   ville koste.»
-- **Utsagn:** TE: valget og varselet med antatt kostnad, i en forseringssak som
-  `gjelder` BHs svar i fristsporet i KOE-saken. TE: oppdatert kostnadsoverslag
-  og stopp av forseringen (TFR-02). TE: vederlagskrav for forseringen. BH:
-  standpunkt til valget, godtatt eller bestridt (forslag, spørsmål 8).
+- **Utsagn:**
+  - TE, etter [FO-U2](plans/2026-09-16-godkjenning-og-varig-levering.md#fo-u2): valget og varselet med antatt kostnad, i en
+    forseringssak som `gjelder` BHs svar i fristsporet i KOE-saken; oppdatert
+    kostnad og stopp; vederlagskrav for forseringen.
+  - BH, etter [FO-U3](plans/2026-09-16-godkjenning-og-varig-levering.md#fo-u3) og [FO-U4](plans/2026-09-16-godkjenning-og-varig-levering.md#fo-u4): svar på forseringsvarselet,
+    revidert fristsvar i KOE-saken og svar på vederlagskravet.
 - **Predikat:** TE har valgrett når BH prinsipalt har avslått fristkravet helt
   eller delvis, også gjennom grunnlaget eller ved preklusjon, og TE ikke har
   godtatt avslaget. Valgretten gjelder de avslåtte dagene.
+  TEs aksept av avslaget avvises etter [FO-U5](plans/2026-09-16-godkjenning-og-varig-levering.md#fo-u5).
 - **Appen avgjør ikke:** om kravet var berettiget, og om 30 %-grensen er
   overskredet.
-- **Appen:** *utlede* valgretten. *Registrere og vise* 30 %-grensen.
-- **Vedtak:** [FO-U1](plans/2026-09-16-godkjenning-og-varig-levering.md#fo-u1).
-  TFR-02 (23.09): forsering får aldri en lukket samlet status. Merknaden 23.09
-  til TFR-02 i 4.2: TE kan oppdatere kostnader og stoppe etter BHs svar. «Forsering er
-  utenfor godkjenningsflyten» (18.09, Følge: prosjekter med policy kan inntil
-  videre ikke svare, GFK-04). Om svarene i forseringssaken skal gå gjennom
-  fullmakten, er spørsmål 8 e. [B-17](plans/2026-09-16-godkjenning-og-varig-levering.md#b-17)
+- **Appen:** *utlede* valgretten. *Registrere og vise* 30 %-grensen
+  ([VS-U3](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u3), [FO-U3](plans/2026-09-16-godkjenning-og-varig-levering.md#fo-u3)).
+- **Vedtak:** [FO-U1](plans/2026-09-16-godkjenning-og-varig-levering.md#fo-u1)
+  (merknaden 10.10: presisert av FO-U5). [FO-U2](plans/2026-09-16-godkjenning-og-varig-levering.md#fo-u2)–[FO-U6](plans/2026-09-16-godkjenning-og-varig-levering.md#fo-u6).
+  TFR-02 (23.09): forsering får aldri en lukket samlet status. «Forsering er
+  utenfor godkjenningsflyten» (18.09, merknaden 10.10: endret av FO-U6).
+  [B-17](plans/2026-09-16-godkjenning-og-varig-levering.md#b-17)
   (merknaden 09.10: forsering går til TS).
 - **Kjernen i dag:** ikke bygget. Ingen sakstype, regel eller utsagn. Strengen
   `forseringsrett_avslatt` i `SUBSIDIAERE_UTLOSERE`
@@ -381,7 +438,8 @@ også § 30 om regningsarbeid, som § 34.4 viser til.
   når BHs beløp er mindre gunstig for TE. Svaret er subsidiært når grunnlaget
   er avslått eller prekludert.
 - **Appen avgjør ikke:** om forholdet er en endring.
-- **Appen:** *vurdere* sammenlikningen av beløpene. *Utlede* subsidiariteten.
+- **Appen:** *vurdere selv* sammenlikningen av beløpene ([VS-U3](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u3)). *Utlede*
+  subsidiariteten.
 - **Vedtak:** [KA-U9](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u9).
   [KA-U8](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u8). B-13 hovedvalg
   og «godkjent» (24.09, merknadene 04.10). B-13 om svar når grunnlaget er
@@ -399,13 +457,16 @@ også § 30 om regningsarbeid, som § 34.4 viser til.
 - **Utdrag:** «skal han uten ugrunnet opphold varsle byggherren når han blir
   eller burde ha blitt klar over forholdene […] Krav på vederlagsjustering
   tapes dersom det ikke varsles innen fristen.»
-- **Utsagn:** TE: varsel om vederlagskravet, med hjemmel 34.1.2 (forslag,
-  spørsmål 5 a). BH: `rettidighet` med hjemmel 34.1.2.
+- **Utsagn:** TE: `varsel` med hjemmel 34.1.2 og datoen etter [VS-U6](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u6) og
+  [VS-U8](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u8). BH: `rettidighet` med hjemmel 34.1.2.
 - **Predikat:** preklusjon påberopt gir prinsipalt avslag med subsidiært beløp.
+  Et varsel registrert etter svaret følger [VS-U7](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u7).
 - **Appen avgjør ikke:** når TE ble eller burde ha blitt klar over forholdet.
-- **Appen:** *utlede.*
+- **Appen:** *utlede* ([VS-U3](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u3)).
 - **Vedtak:** B-13 om preklusjon ut fra byggherrens egen vurdering (24.09,
-  nevner § 34.1.2).
+  nevner § 34.1.2). [VS-U6](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u6) (utvider SK-12). [VS-U7](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u7) (utvider
+  MM-U1 og MM-U8). [VS-U8](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u8) (endrer DRF-03 for registrerte brev).
+  [VS-U9](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u9).
 - **Kjernen i dag:** delvis. `gjelderVarslingspliktenForVederlag` og
   `beregnPreklusjon` i [`regler/vederlag.ts`](../kjerne/regler/vederlag.ts).
   `hovedkrav_varslet_i_tide` er påkrevd for SVIKT og ANDRE, men usann avvises,
@@ -420,16 +481,14 @@ også § 30 om regningsarbeid, som § 34.4 viser til.
 - **Utsagn:** TE: `varsel` med hjemmel 34.1.3 (rigg og drift, produktivitet),
   med opplysningen `sendt`. TE: særskilt krav (beløp per post). BH:
   `rettidighet` med hjemmel 34.1.3 og `beloep` per post.
-- **Predikat:** *forslag (spørsmål 4).* Datoen for et registrert varsel settes
-  én gang, som for § 33.4.
+- **Predikat:** påberopt sent varsel etter [VS-U5](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u5): et prinsipalt og et
+  subsidiært beløp. Datoen for et registrert varsel settes én gang (SK-12). Et
+  varsel registrert etter svaret følger [VS-U7](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u7).
 - **Appen avgjør ikke:** hvilke utgifter som var påløpt før varselet.
-- **Appen:** *forslag:* utlede.
-- **Vedtak:** SK-12 (05.10), som omfatter varslene etter § 34.1.3. Første
-  setning i [MM-U1](plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u1)
-  gjelder dem også: låsen gjelder et registrert varsel. Resten av MM-U1 gjelder
-  fristkravet. Om det også skal gjelde § 34.1, er spørsmål 5 b, og datoen sett
-  opp mot DRF-03 er spørsmål 5 c. B-13 om preklusjon ut fra byggherrens egen vurdering
-  (24.09, nevner § 34.1.3); formen er spørsmål 4.
+- **Appen:** *utlede* ([VS-U3](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u3)).
+- **Vedtak:** [VS-U5](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u5) (endrer B-13 om preklusjon for § 34.1.3).
+  SK-12 (05.10). [MM-U1](plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u1),
+  utvidet til § 34.1 av [VS-U7](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u7). [VS-U8](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u8). [VS-U9](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u9).
 - **Kjernen i dag:** ikke bygget. Reglene for `rigg_*` og `produktivitet_*`
   finnes i [`regler/vederlag.ts`](../kjerne/regler/vederlag.ts), men
   `regnUtSvar` setter dem til `null`, og en vurdering avvises. Varselet etter
@@ -450,8 +509,9 @@ også § 30 om regningsarbeid, som § 34.4 viser til.
     avtalt vederlag.
   - BH avslår metoden: vederlaget justeres etter § 34.3 eller § 34.4.
 - **Appen avgjør ikke:** om BH tok stilling «innen rimelig tid».
-- **Appen:** *utlede.* *Forslag:* registrere og vise for «innen rimelig tid».
-- **Vedtak:** [KA-U7](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u7)
+- **Appen:** *utlede* for § 34.2.2. *Registrere og vise* for § 34.2.1
+  ([VS-U3](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u3)).
+- **Vedtak:** [VS-U3](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u3). [KA-U7](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u7)
   (merknaden 09.10). [GR-U7](plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u7)
   om sammenfall. [KA-U10](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u10)
   (merknaden 09.10: § 34.2.2 bærer ikke vedtaket alene).
@@ -467,15 +527,16 @@ også § 30 om regningsarbeid, som § 34.4 viser til.
   mister parten sine innsigelser mot kravet.»
 - **Utsagn:** TE: vederlagskrav med metoden enhetspriser, eventuelt krav om
   justerte enhetspriser. Kravet om justering er varselet etter § 34.3.3, med
-  sendedato satt av serveren. BH: `rettidighet` med hjemmel 34.3.3 og
+  datoen etter DRF-03 og [VS-U8](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u8). BH: `rettidighet` med hjemmel 34.3.3 og
   `beloep`.
-- **Predikat:** som § 33.6.1 for første ledd (spørsmål 2). Annet ledd gir
-  ingen predikat.
+- **Predikat:** for første ledd etter [VS-U4](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u4), som § 33.6.1. Annet ledd
+  gir ingen predikat.
 - **Appen avgjør ikke:** hva BH «måtte forstå», om svaret kom i tide, og om
   innsigelsene er tapt.
-- **Appen:** *utlede* for første ledd (forslag). *Registrere og vise* for annet
-  ledd (vedtatt).
-- **Vedtak:** DRF-03 (29.09). [VS-U2](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u2)
+- **Appen:** *utlede* for første ledd. *Registrere og vise* for annet ledd
+  ([VS-U3](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u3)).
+- **Vedtak:** [VS-U4](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u4). DRF-03 (29.09, merknaden 10.10: endret av VS-U8).
+  [VS-U2](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u2)
   (§ 34.3.3 annet ledd).
 - **Kjernen i dag:** ikke bygget. Metoden kan ikke kreves, og `krever_justert_ep`
   er alltid usann. Regelen `reduksjon_ep_justering` finnes i
@@ -496,8 +557,8 @@ også § 30 om regningsarbeid, som § 34.4 viser til.
   gunstigere for TE enn kravet.
 - **Appen avgjør ikke:** besparelsen ved et fradrag, og om regningsarbeidet ble
   varslet i tide.
-- **Appen:** *vurdere* sammenlikningen med fortegn. Resten avgjøres når § 30 er
-  lest.
+- **Appen:** *vurdere selv* sammenlikningen med fortegn. Resten avgjøres når
+  § 30 er lest ([VS-U3](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u3)).
 - **Vedtak:** [KA-U9](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u9).
   [KA-U14](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u14): kan
   snevre inn KA-U6 der enigheten gir BH en rettighet, for eksempel et fradrag.
@@ -518,8 +579,8 @@ også § 30 om regningsarbeid, som § 34.4 viser til.
 - **Utsagn:** ingen. Fristen regnes fra overtakelsen, som saken ikke kjenner.
 - **Predikat:** ingen.
 - **Appen avgjør ikke:** om fristen er overholdt, eller om kravet er tapt.
-- **Appen:** *registrere og vise* som veiledning ved avslag.
-- **Vedtak:** [VS-U2](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u2).
+- **Appen:** *registrere og vise* ([VS-U3](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u3)).
+- **Vedtak:** [VS-U3](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u3). [VS-U2](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u2).
 - **Kjernen i dag:** ikke bygget.
 
 § 35.1 (utførelsesplikt ved uenighet) er ikke i #309. KA-U14 sier at brev og
@@ -538,14 +599,16 @@ visning ikke fremstiller et trekk som at utførelsesplikten er bortfalt.
 - **Utsagn:** begge parter: `innsigelse` med sendetid, som `gjelder` et varsel,
   et krav eller et svar fra motparten. Motparten: protest som `gjelder`
   innsigelsen.
-- **Predikat:** ingen. *Forslag (spørsmål 6):* BHs standpunkt om rettidighet i
-  et svar er selv en innsigelse etter § 5.
+- **Predikat:** ingen. BHs påberopelse i et svar er innsigelsen etter § 5
+  ([VS-U9](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u9)).
 - **Appen avgjør ikke:** om innsigelsen kom i tide, og dermed om varselet eller
   svaret anses gitt i tide.
-- **Appen:** *registrere og vise.*
-- **Vedtak:** [VS-U1](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u1).
+- **Appen:** *registrere og vise* ([VS-U3](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u3), [VS-U10](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u10)).
+- **Vedtak:** [VS-U1](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u1)
+  (merknaden 10.10: presisert og utvidet av VS-U9). [VS-U9](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u9). [VS-U10](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u10).
   [MP-U4](plans/2026-09-16-godkjenning-og-varig-levering.md#mp-u4)–[MP-U7](plans/2026-09-16-godkjenning-og-varig-levering.md#mp-u7)
-  (gjelder metodeprøven). Nøytralt fristvarsel, TFR-06 (23.09).
+  (gjelder metodeprøven; MP-U6 tas inn i appen av VS-U9). Nøytralt fristvarsel,
+  TFR-06 (23.09).
 - **Kjernen i dag:** ikke bygget. `bestridelse` gjelder bare opplysninger om
   sending, mottak og endringsordre (MM-U7). `har_innsigelse_mot_varsel` i
   [`regler/frist.ts`](../kjerne/regler/frist.ts) er alltid usann.
@@ -562,16 +625,18 @@ visning ikke fremstiller et trekk som at utførelsesplikten er bortfalt.
   å utstede slike. Når totalentreprenøren mottar endringsordre i
   overensstemmelse med foregående ledd, blir han forpliktet til å utføre
   endringsarbeidet.»
-- **Utsagn:** BH: endringsordre i en EO-sak (utstedt, deretter revidert). TE:
-  aksept eller bestridelse av hver utgave. BH: hvilke KOE-saker endringsordren
+- **Utsagn:** BH: endringsordre i en EO-sak (utstedt, deretter revidert), med
+  pålegget og egne utsagn om pris og tid ([EO-U8](plans/2026-09-16-godkjenning-og-varig-levering.md#eo-u8)). TE: aksept eller
+  bestridelse av hver utgave, og av hvert utsagn for seg (EO-U8). BH: hvilke KOE-saker endringsordren
   omfatter, før utstedelse.
 - **Predikat:**
   - En KOE-sak kan inngå i en endringsordre når grunnlaget er godkjent, minst
     ett av vederlag og frist har enighet, og ingen spor TE fortsatt kan sende,
     står åpent.
   - En KOE-sak inngår i høyst én endringsordre.
-  - BH reviderer bare en bestridt endringsordre. En akseptert endringsordre er
-    endelig.
+  - BH reviderer bare en bestridt endringsordre (EO-U4), og ikke en
+    endringsordre som er svar på grunnlaget ([EO-U9](plans/2026-09-16-godkjenning-og-varig-levering.md#eo-u9)). En akseptert
+    endringsordre er endelig.
 - **Appen avgjør ikke:** om en endring er innenfor § 31.1 (sammenheng med
   kontrakten, 15 %-grensen).
 - **Appen:** *utlede.* For brev fra appen sørger appen for § 31.3 (fullmakt i
@@ -579,8 +644,10 @@ visning ikke fremstiller et trekk som at utførelsesplikten er bortfalt.
 - **Vedtak:** [EO-U1](plans/2026-09-16-godkjenning-og-varig-levering.md#eo-u1).
   [EO-U2](plans/2026-09-16-godkjenning-og-varig-levering.md#eo-u2) (merknaden
   09.10: presisert av EO-U5). [EO-U3](plans/2026-09-16-godkjenning-og-varig-levering.md#eo-u3).
-  [EO-U4](plans/2026-09-16-godkjenning-og-varig-levering.md#eo-u4).
-  [EO-U5](plans/2026-09-16-godkjenning-og-varig-levering.md#eo-u5). TFR-02
+  [EO-U4](plans/2026-09-16-godkjenning-og-varig-levering.md#eo-u4) (merknaden
+  10.10: presisert av EO-U8, endret av EO-U9).
+  [EO-U5](plans/2026-09-16-godkjenning-og-varig-levering.md#eo-u5). [EO-U8](plans/2026-09-16-godkjenning-og-varig-levering.md#eo-u8).
+  [EO-U9](plans/2026-09-16-godkjenning-og-varig-levering.md#eo-u9). TFR-02
   (23.09). Vedtaket 29.09 om at en EO-sak kan følge av en KOE-sak, men ikke
   erstatte den. B-02 punkt 3 (23.09). GFK-06 (23.09 og 24.09).
   [GR-U13](plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u13).
@@ -593,23 +660,24 @@ visning ikke fremstiller et trekk som at utførelsesplikten er bortfalt.
 - **Utdrag:** § 32.3 a: «utstede endringsordre i henhold til 31.3». § 32.3 c:
   «mot å utstede endringsordre for allerede utført arbeid».
 - **Utsagn:** BH: endringsordre i en EO-sak som *viser til* KOE-saken, som svar
-  på grunnlaget når BH ikke har svart (KA-U12). Det er ikke det samme som at
-  KOE-saken *inngår* i endringsordren (EO-U3, EO-U5). BH: endringsordre for
-  utført arbeid etter frafall, i en egen EO-sak (GR-U3).
-- **Predikat:** at endringsordren er svaret på grunnlaget, er vedtatt (KA-U12,
-  KA-U14). Hvordan sakene viser til hverandre, og virkningen i KOE-saken, er
-  *forslag (spørsmål 9)*.
+  på grunnlaget når BH ikke har svart (KA-U12), med grunnlagssvaret i KOE-saken
+  etter [EO-U6](plans/2026-09-16-godkjenning-og-varig-levering.md#eo-u6). Det er ikke det samme som at KOE-saken *inngår* i
+  endringsordren ([EO-U7](plans/2026-09-16-godkjenning-og-varig-levering.md#eo-u7)). BH: endringsordre for utført arbeid etter
+  frafall, i en egen EO-sak (GR-U3).
+- **Predikat:** etter [EO-U6](plans/2026-09-16-godkjenning-og-varig-levering.md#eo-u6), [EO-U7](plans/2026-09-16-godkjenning-og-varig-levering.md#eo-u7) og [EO-U9](plans/2026-09-16-godkjenning-og-varig-levering.md#eo-u9).
 - **Appen avgjør ikke:** om endringsordren dekker det utførte arbeidet.
-- **Appen:** *utlede.*
-- **Vedtak:** [KA-U12](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u12)
-  (merknaden 10.10: presisert av KA-U15, og § 31.3 kreves etter GR-U13).
+- **Appen:** *utlede* (§ 32.3 første ledd a og c, [VS-U3](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u3)).
+- **Vedtak:** [EO-U6](plans/2026-09-16-godkjenning-og-varig-levering.md#eo-u6) (endrer vedtaket 23.09 om ubegrenset fullmakt for
+  dette tilfellet). [EO-U7](plans/2026-09-16-godkjenning-og-varig-levering.md#eo-u7). [EO-U9](plans/2026-09-16-godkjenning-og-varig-levering.md#eo-u9).
+  [KA-U12](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u12)
+  (merknadene 10.10: KA-U15, KA-U17, GR-U13 og EO-U6).
   [KA-U14](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u14).
   [GR-U3](plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u3).
   [EO-U3](plans/2026-09-16-godkjenning-og-varig-levering.md#eo-u3)–[EO-U5](plans/2026-09-16-godkjenning-og-varig-levering.md#eo-u5).
   [EO-U1](plans/2026-09-16-godkjenning-og-varig-levering.md#eo-u1) og vedtaket
   29.09: en endringsordrehendelse avvises i KOE-saken, så raden i KOE-saken kan
   bare være et grunnlagssvar. Lagringen av relasjoner mellom saker er B-01 i
-  3.4, som står åpen.
+  3.4 (se «Første versjon av TS-stien»).
 - **Kjernen i dag:** ikke bygget.
 
 ---
@@ -628,9 +696,13 @@ visning ikke fremstiller et trekk som at utførelsesplikten er bortfalt.
     har en virksom enighet, og ingen spor kan sendes.
   - Et sendt brev beholder virkningen det hadde da det ble sendt. Utfallet
     utledes av de frosne standpunktene.
-- **Appen avgjør ikke:** hva parten mener med et forbehold eller med «ingen
-  krav». Virkningen av et forbehold er spørsmål 10, og hva «ingen krav» gir
-  avkall på, spørsmål 11. Begge avgjøres før kommandoene tas i bruk (KA-U15).
+  - Et registrert brev med noe appen ikke kan uttrykke, sperrer bindende
+    handlinger som bygger på det ([KA-U16](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u16)).
+  - En regelendring og registrert korrespondanse følger [B-10](plans/2026-09-16-godkjenning-og-varig-levering.md#b-10),
+    [MM-U16](plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u16) og [MM-U17](plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u17).
+- **Appen avgjør ikke:** hva parten mener med et forbehold. Hva «ingen krav»
+  gir avkall på, står i [KA-U17](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u17). Om et senere krav er avskåret, avgjør appen
+  ikke.
 - **Appen:** *utlede.*
 - **Vedtak:**
   - [KA-U1](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u1) (merknaden 09.10);
@@ -641,20 +713,23 @@ visning ikke fremstiller et trekk som at utførelsesplikten er bortfalt.
   - [KA-U7](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u7) (merknaden 09.10: KA-U13);
   - [KA-U10](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u10) (merknaden 09.10: MM-U11);
   - [KA-U11](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u11);
-  - [KA-U12](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u12) og [KA-U15](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u15);
-  - [GR-U7](plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u7) (merknaden 10.10);
+  - [KA-U12](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u12) og [KA-U15](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u15) (merknadene 10.10: KA-U16 og KA-U17);
+  - [KA-U16](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u16) og [KA-U17](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u17);
+  - [GR-U7](plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u7) (merknaden 10.10: KA-U16);
   - [GR-U8](plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u8) og [GR-U10](plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u10), endret av GR-U13;
   - [MM-U3](plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u3) (merknaden 09.10: KA-U10);
-  - [MM-U9](plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u9), som opphever MM-U4–MM-U6 (merknaden 10.10: MM-U12);
+  - [MM-U9](plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u9), som opphever MM-U4–MM-U6 (merknadene 10.10: MM-U12 og MM-U17);
   - [MM-U11](plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u11) (merknadene 10.10: GR-U12, HF-U2 og MM-U12);
   - [MM-U2](plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u2) (merknaden 10.10) og [MM-U14](plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u14);
-  - [HF-U1](plans/2026-09-16-godkjenning-og-varig-levering.md#hf-u1) og [HF-U2](plans/2026-09-16-godkjenning-og-varig-levering.md#hf-u2).
+  - [HF-U1](plans/2026-09-16-godkjenning-og-varig-levering.md#hf-u1) og [HF-U2](plans/2026-09-16-godkjenning-og-varig-levering.md#hf-u2);
+  - [B-10](plans/2026-09-16-godkjenning-og-varig-levering.md#b-10) med [MM-U15](plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u15)–[MM-U17](plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u17).
 - **Kjernen i dag:** bygget for aksept, sammenfall, betinget og virksom enighet,
   «avklart», trekk, revisjon, kravene avgjort og saker som ikke er forstått
   (`Enighet`, `enighetensVirkning`, `kraveneErAvgjort` i
   [`utled.ts`](../kjerne/utled.ts); `lesJournal` i [`leser.ts`](../kjerne/leser.ts)).
-  «Ingen krav» leses, men har ingen kommando. Ikke bygget: forbehold, og
-  kontrollen av at en lagret rad ikke bryter et vedtak om enighet (#326).
+  «Ingen krav» leses, men har ingen kommando. Ikke bygget: KA-U16 for et
+  registrert brev appen ikke kan uttrykke, B-10 utover versjonene i formatet
+  ([#316](https://github.com/khjohns/endringsmeldinger/issues/316)), og kontrollen av at en lagret rad ikke bryter et vedtak om enighet (#326).
 
 ---
 
