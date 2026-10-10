@@ -398,7 +398,7 @@ describe('rader fra en annen skriver som strider mot en enighet eller «ingen kr
     expect(forstaatt([...journal, en, fraTE([en], [ingenKrav('vederlag')])])).toBe(false);
   });
 
-  it('«ingen krav» før grunnlaget er sendt, er ikke forstått (oppdragsgiver 10.10); kontrollsak: etter', async () => {
+  it('«ingen krav» før grunnlaget er sendt, er ikke forstått (KA-U15); kontrollsak: etter', async () => {
     const tom = await minnebane().journal();
     expect(forstaatt([...tom, fraTE(tom, [ingenKrav('vederlag')])])).toBe(false);
     const bane = minnebane();
@@ -407,7 +407,7 @@ describe('rader fra en annen skriver som strider mot en enighet eller «ingen kr
     expect(forstaatt([...sendt, fraTE(sendt, [ingenKrav('vederlag')])])).toBe(true);
   });
 
-  it('«ingen krav» etter et varsel etter § 33.4 er forstått (KA-U2, oppdragsgiver 10.10)', async () => {
+  it('«ingen krav» etter et varsel etter § 33.4 er forstått (KA-U2, KA-U15)', async () => {
     const bane = minnebane();
     await bygg(bane, [
       { handling: 'krav', spor: 'grunnlag', underkategori: 'EO' },
@@ -433,7 +433,7 @@ describe('rader fra en annen skriver som strider mot en enighet eller «ingen kr
   });
 });
 
-/** § 31.3 i registrert korrespondanse (oppdragsgiver 10.10, code-review av #273). */
+/** § 31.3 i registrert korrespondanse (GR-U13, MM-U12, code-review av #273). */
 describe('opplysningen om § 31.3 i registrert korrespondanse', () => {
   const registrert = (opplysninger: Data) => ({
     handling: 'rad',

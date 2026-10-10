@@ -301,7 +301,6 @@
           "kilde": ["GR-U7", "V-SK01", "KA-U1", "KA-U11", "EO-U5"],
           "forventet": {
             "avvist": false,
-            "enighet.grunnlag.utfall.grunnlag": "avvist",
             "grunnlag_avvist": true,
             "enighet.vederlag.virkning": "uten_virkning",
             "enighet.vederlag.utfall.beloep": 70000,
@@ -579,7 +578,6 @@
           "rolle": "mal",
           "kilde": ["V-SK01", "MM-U3", "KA-U1", "KA-U10"],
           "forventet": {
-            "enighet.grunnlag.utfall.grunnlag": "avvist",
             "enighet.grunnlag.virkning.rettidighet": "prinsipalt",
             "enighet.grunnlag.virkning.grunnlag": "subsidiaert",
             "enighet.grunnlag.regelversjon": "n",
@@ -674,9 +672,8 @@
           "rolle": "mal",
           "kilde": ["MM-U3", "KA-U1", "KA-U10"],
           "forventet": {
-            "grunnlag_avvist": true,
             "grunnlag_avklart": false,
-            "enighet.grunnlag.utfall.grunnlag": "avvist",
+            "grunnlag_avvist": true,
             "enighet.grunnlag.regelversjon": "n",
             "enighet.grunnlag.virkning.rettidighet": "prinsipalt",
             "enighet.grunnlag.virkning.grunnlag": "subsidiaert",
@@ -729,9 +726,8 @@
             "enighet.grunnlag.svar": "S-g1",
             "enighet.grunnlag.holder": "D4",
             "enighet.grunnlag.regelversjon": "n",
-            "enighet.grunnlag.utfall.grunnlag": "avvist",
-            "enighet.grunnlag.virkning.rettidighet": "prinsipalt",
             "grunnlag_avvist": true,
+            "enighet.grunnlag.virkning.rettidighet": "prinsipalt",
             "visning.status": "avsluttet_avslatt",
             "visning.etiketter.grunnlag": { "inneholder": ["regel_endret_etter_enighet"] }
           }
@@ -779,7 +775,7 @@
             "avvist": false,
             "enighet.grunnlag.svar": "S-g2",
             "enighet.grunnlag.regelversjon": "n+1",
-            "enighet.grunnlag.utfall.grunnlag": "avvist",
+            "grunnlag_avvist": true,
             "enighet.grunnlag.virkning.grunnlag": "prinsipalt"
           }
         }
@@ -821,7 +817,6 @@
             "avvist": false,
             "enighet.grunnlag.svar": "S-g1",
             "enighet.grunnlag.regelversjon": "n",
-            "enighet.grunnlag.utfall.grunnlag": "avvist",
             "enighet.grunnlag.virkning.rettidighet": "prinsipalt",
             "grunnlag_avvist": true
           }
@@ -1696,7 +1691,6 @@
           "forventet": {
             "enighet.grunnlag.kilde": "sammenfall",
             "enighet.grunnlag.holder": "S-g1",
-            "enighet.grunnlag.utfall.grunnlag": "avklart",
             "grunnlag_avklart": true,
             "frafalt": false,
             "visning.etiketter.grunnlag": { "inneholder": ["avklart", "enige"] },
@@ -2148,7 +2142,7 @@
       "id": "F-MM-G20",
       "rader": ["GR-29"],
       "start": "krav_irreg",
-      "forslag": "§ 31.3 og KA-U13 (oppdragsgiver 10.10): uten opplysningen om § 31.3 er det ikke avklart om registrert korrespondanse er en endringsordre, og trekket av grunnlaget er sperret til det er avklart",
+      "forslag": "GR-U13 og KA-U14: uten opplysningen om § 31.3 er det ikke avklart om registrert korrespondanse er en endringsordre, og trekket av grunnlaget er sperret til det er avklart",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -2195,7 +2189,7 @@
       "id": "F-MM-G21",
       "rader": ["GR-29"],
       "start": "krav_irreg",
-      "forslag": "§ 31.3 og KA-U6 (oppdragsgiver 10.10): er det oppgitt at registrert korrespondanse ikke var en endringsordre, kan TE trekke grunnlaget som avkall etter GR-U5",
+      "forslag": "GR-U13, KA-U14 og KA-U6: er det oppgitt at registrert korrespondanse ikke var en endringsordre, kan TE trekke grunnlaget som avkall etter GR-U5",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -2273,6 +2267,54 @@
           "rolle": "mal",
           "kilde": ["KA-U6", "GR-U5", "KA-U14"],
           "forventet": { "avvist": false, "trukket.grunnlag": true }
+        }
+      ]
+    },
+    {
+      "id": "F-MM-D-kravvarsel",
+      "rader": ["KA-19"],
+      "start": "godkjent_grunnlag",
+      "forslag": "HF-U1 og MM-U1: et varsel i et krav sendt i appen. Datoen gjelder varselet, ikke kravet, og kravet er ikke registrert korrespondanse",
+      "forventningsgrunnlag": "avklart_tolkning",
+      "steg": [{ "handling": "krav", "spor": "frist", "dager": 20, "varsel_sendt": "2026-09-02", "navn": "K-f1" }],
+      "kontroller": [
+        {
+          "etter": 1,
+          "rolle": "mal",
+          "kilde": ["HF-U1", "MM-U1"],
+          "forventet": {
+            "opplysning.K-f1#sendt.dato": "2026-09-02",
+            "opplysning.K-f1#sendt.gjelder": "K-f1#varsel",
+            "registrert.K-f1": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "F-MM-E9",
+      "rader": ["KA-24"],
+      "start": "godkjent_grunnlag",
+      "forslag": "MM-U14: en bestridelse avvises også når saken ikke er forstått",
+      "forventningsgrunnlag": "avklart_tolkning",
+      "steg": [
+        { "handling": "krav", "spor": "frist", "dager": 20, "navn": "K-f1" },
+        { "handling": "varsel", "spor": "frist", "sendt": "2026-09-02", "navn": "D4" },
+        { "handling": "rad", "art": "foresporsel", "navn": "D5", "gjelder": "K-f1" }
+      ],
+      "kontroller": [
+        {
+          "etter": 2,
+          "rolle": "kontroll",
+          "kilde": ["MM-U7"],
+          "prov": { "handling": "bestridelse", "part": "BH", "gjelder": "D4#sendt", "hva": "mottatt" },
+          "forventet": { "avvist": false }
+        },
+        {
+          "etter": 3,
+          "rolle": "mal",
+          "kilde": ["MM-U14", "MM-U2"],
+          "prov": { "handling": "bestridelse", "part": "BH", "gjelder": "D4#sendt", "hva": "mottatt" },
+          "forventet": { "avvist": true, "regel": "SAK_IKKE_FORSTAATT" }
         }
       ]
     },

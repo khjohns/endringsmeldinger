@@ -93,13 +93,13 @@ export interface Utledning {
    * § 32.2, eller frafalt pålegget, etter brevet eller enigheten om det.
    */
   grunnlagAvklart: boolean;
-  /** SK-01, #213, MM-U13: partene er enige om et grunnlagssvar som ikke avklarer grunnlaget etter GR-U7. */
+  /** SK-01, #213, MM-U13: TE har godtatt et grunnlagssvar som ikke avklarer grunnlaget etter GR-U7. */
   grunnlagAvvist: boolean;
   /** GR-U3, GR-U9: byggherren har frafalt pålegget (§ 32.3 c). Er ikke en enighet. */
   frafalt: boolean;
   /**
    * Om byggherrens godkjenning av grunnlaget er en endringsordre etter § 32.3
-   * første ledd a med § 31.3 (GR-U10, GR-U12, oppdragsgiver 10.10). `ja`: godkjent
+   * første ledd a med § 31.3 (GR-U10, GR-U12, GR-U13). `ja`: godkjent
    * uten påberopt preklusjon i en kategori § 32.2 gjaldt for, i et brev sendt i
    * appen eller i registrert korrespondanse der den som registrerte, har oppgitt at
    * § 31.3 er oppfylt. `nei`: ikke slik godkjent, eller oppgitt at § 31.3 ikke er
@@ -340,7 +340,7 @@ export function utled(journal: Domenehendelse[], regler: Regelsett): Utledning {
       );
   }
   // KA-U12: «ingen krav» står i et spor uten kravversjon, og bare én gang.
-  // Oppdragsgiver 10.10 (spm 6): grunnlaget må være sendt, som for et krav.
+  // KA-U15: grunnlaget må være sendt, som for et krav.
   for (const i of ingenKrav)
     if (
       spor[i.spor].krav.length ||
@@ -445,10 +445,12 @@ export function utled(journal: Domenehendelse[], regler: Regelsett): Utledning {
     // enighet om det (KA-U10, MM-U11).
     grunnlagAvklart:
       !spor.grunnlag.trukket && gBrev !== null && grunnlagetErAvklart(gBrev.svar, gBrev.virkninger),
-    // SK-01, MM-U13: partene er enige om grunnlagssvaret, og det avklarer ikke grunnlaget
+    // SK-01, #213, MM-U13: TE har godtatt grunnlagssvaret, og det avklarer ikke grunnlaget
     // etter GR-U7. Et godtatt avslag og en godtatt preklusjon har samme virkning.
     grunnlagAvvist:
-      eg !== null && gBrev !== null && !grunnlagetErAvklart(gBrev.svar, gBrev.virkninger),
+      eg?.grunnlag.kilde === 'aksept' &&
+      gBrev !== null &&
+      !grunnlagetErAvklart(gBrev.svar, gBrev.virkninger),
     // GR-U12: om § 32.2 gjaldt, er frosset i brevet. Dagens regelsett vurderer det
     // ikke på nytt (MM-U9), og det avhenger ikke av om brevet sier noe om varslingen.
     endringsordre,
@@ -461,7 +463,7 @@ export function utled(journal: Domenehendelse[], regler: Regelsett): Utledning {
 }
 
 /**
- * KA-U13 med § 31.3 (oppdragsgiver 10.10): TE kan ikke trekke grunnlaget før det er
+ * KA-U13 og KA-U14, med § 31.3 (GR-U13): TE kan ikke trekke grunnlaget før det er
  * avklart at godkjenningen ikke er en endringsordre. Et trekk ville gitt journalen
  * den videre virkningen at endringsordren leses som bortfalt (KA-U6).
  */

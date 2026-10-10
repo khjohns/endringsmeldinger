@@ -93,7 +93,16 @@ export function standpunktet<A extends Standpunkt['art']>(svar: Svarinnhold, art
  */
 export function grunnlagetErAvklart(svar: Svarinnhold, v: Standpunktsvirkning[]): boolean {
   const resultat = standpunktet(svar, 'grunnlag')?.resultat;
-  return !avvisesPrinsipalt(v) && (resultat === 'godkjent' || resultat === 'frafalt');
+  return !preklusjonPaaberopt(svar, v) && (resultat === 'godkjent' || resultat === 'frafalt');
+}
+
+/** MM-U13: byggherren påberoper prinsipalt preklusjon etter § 32.2 i svaret på grunnlaget. */
+function preklusjonPaaberopt(svar: Svarinnhold, v: Standpunktsvirkning[]): boolean {
+  const rettidighet = standpunktet(svar, 'rettidighet');
+  return (
+    rettidighet?.hjemmel === '32.2' &&
+    v.some((p) => p.standpunkt === rettidighet.id && p.virkning === 'prinsipalt')
+  );
 }
 
 /** Det svaret gir i sporet når standpunktene har denne virkningen. */

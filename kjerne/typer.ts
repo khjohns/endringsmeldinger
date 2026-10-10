@@ -18,10 +18,18 @@ export type Hjemmel = '32.2' | '33.4';
 /**
  * En opplysning en part oppgir om et dokument (2.4): når det ble sendt eller
  * mottatt, eller, for registrert korrespondanse, om brevet var en endringsordre
- * etter § 31.3. Opplysningen er ikke en rettslig avgjørelse (oppdragsgiver 10.10).
+ * etter § 31.3. Opplysningen er ikke en rettslig avgjørelse (GR-U13).
  */
 export type Opplysning =
-  | { id: string; dokument: string; hva: 'sendt' | 'mottatt'; dato: string; oppgittAv: Part }
+  | {
+      id: string;
+      dokument: string;
+      hva: 'sendt' | 'mottatt';
+      dato: string;
+      oppgittAv: Part;
+      /** Varselet i dokumentet opplysningen gjelder; uten den gjelder den dokumentet (HF-U1). */
+      gjelder?: string;
+    }
   | {
       id: string;
       dokument: string;

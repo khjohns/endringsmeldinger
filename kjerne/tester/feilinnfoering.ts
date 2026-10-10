@@ -1,7 +1,7 @@
 /**
  * Feilinnføringene for kjernen (#304, #308, #273). F1–F7 er avsnitt 4 i
  * modellforslaget, F8–F10 feilklassene reviewet av PR #306 fant, skrevet om etter
- * MM-U9 og GR-U10, F11–F26 grensene #308 la til, og F27–F45 formatet (#273): 7.2
+ * MM-U9 og GR-U10, F11–F26 grensene #308 la til, og F27–F46 formatet (#273): 7.2
  * i designnotatet, GR-U12 og registeret (#320). Én mutasjon om gangen i
  * arbeidskopien, Vitest over `kjerne/` og `sprakprove/kjernelagring/`, og
  * originalteksten settes tilbake etterpå. For hver mutasjon kreves det at de
@@ -323,7 +323,7 @@ const MUTASJONER: Mutasjon[] = [
     endringer: [["eg?.grunnlag.kilde === 'sammenfall' && gSvar?", 'gSvar !== null && gSvar?']],
     mal: ['F-MM-G16', 'F-MM-G17'],
   },
-  // F27–F45 er formatet (#273): feilklassene i 7.2 i designnotatet, GR-U12, registeret (#320) og samspillsreviewet.
+  // F27–F46 er formatet (#273): feilklassene i 7.2 i designnotatet, GR-U12, registeret (#320) og samspillsreviewet.
   {
     id: 'F27',
     feilklasse: 'en referanse kan peke framover i journalen (4.2)',
@@ -438,7 +438,7 @@ const MUTASJONER: Mutasjon[] = [
   },
   {
     id: 'F41',
-    feilklasse: '«ingen krav» før grunnlaget er sendt, leses (oppdragsgiver 10.10)',
+    feilklasse: '«ingen krav» før grunnlaget er sendt, leses (KA-U15)',
     fil: `${K}/utled.ts`,
     endringer: [[' ||\n      !spor.grunnlag.krav.some((k) => bakover(i.id, k.id))\n', '\n']],
     mal: ['«ingen krav» før grunnlaget er sendt'],
@@ -446,7 +446,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F42',
     feilklasse:
-      'en manglende opplysning om § 31.3 leses som at godkjenningen er en endringsordre (oppdragsgiver 10.10)',
+      'en manglende opplysning om § 31.3 leses som at godkjenningen er en endringsordre (GR-U13, KA-U14)',
     fil: `${K}/utled.ts`,
     endringer: [
       ["if (om313 === undefined) return 'ikke_avklart';", "if (om313 === undefined) return 'ja';"],
@@ -455,15 +455,14 @@ const MUTASJONER: Mutasjon[] = [
   },
   {
     id: 'F43',
-    feilklasse: 'opplysningen om at § 31.3 ikke er oppfylt, leses ikke (oppdragsgiver 10.10)',
+    feilklasse: 'opplysningen om at § 31.3 ikke er oppfylt, leses ikke (GR-U13)',
     fil: `${K}/utled.ts`,
     endringer: [["return om313.oppfylt ? 'ja' : 'nei';", "return 'ja';"]],
     mal: ['F-MM-G21'],
   },
   {
     id: 'F44',
-    feilklasse:
-      'en manglende opplysning om § 31.3 leses som et nei (prinsipp 6, oppdragsgiver 10.10)',
+    feilklasse: 'en manglende opplysning om § 31.3 leses som et nei (GR-U13)',
     fil: `${K}/utled.ts`,
     endringer: [
       ["if (om313 === undefined) return 'ikke_avklart';", "if (om313 === undefined) return 'nei';"],
@@ -481,6 +480,13 @@ const MUTASJONER: Mutasjon[] = [
       ],
     ],
     mal: ['to opplysninger om samme brev er ikke forstått'],
+  },
+  {
+    id: 'F46',
+    feilklasse: 'datoen for et varsel i kravet leses som at kravet er sendt utenfor appen (HF-U1)',
+    fil: `${K}/skriving.ts`,
+    endringer: [['dato: k.varsel.sendt, gjelder: varsel }];', 'dato: k.varsel.sendt }];']],
+    mal: ['F-MM-D-kravvarsel'],
   },
   {
     id: 'F40',

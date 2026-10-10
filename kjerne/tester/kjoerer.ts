@@ -10,7 +10,7 @@ import bevis from '../../docs/domenetabell/bevis-saker-maalmodell.json' with { t
 import { handlinger } from '../handlinger.ts';
 import { GJELDENDE_REGLER, type Regelsett } from '../regler/regelsett.ts';
 import { KJERNE, type Kjerne } from '../versjon.ts';
-import { Uforstaatt } from '../leser.ts';
+import { erRegistrert, Uforstaatt } from '../leser.ts';
 import {
   frysBrev,
   Skrivefeil,
@@ -201,9 +201,12 @@ export class Kjoering {
     } else {
       this.navn.sett(h.navn, rad.event_id);
     }
-    if (typeof h.navn === 'string')
+    if (typeof h.navn === 'string') {
       for (const o of (rad.data.opplysninger ?? []) as { id: string; hva: string }[])
         this.navn.sett(`${h.navn}#${o.hva}`, o.id);
+      for (const x of (rad.data.utsagn ?? []) as { id: string; art: string }[])
+        if (x.art === 'varsel') this.navn.sett(`${h.navn}#varsel`, x.id);
+    }
   }
 }
 
@@ -259,6 +262,10 @@ export function les(sti: string, u: Utledning, k: Kjoering): unknown {
       return u.frafalt;
     case 'endringsordre':
       return u.endringsordre;
+    case 'registrert': {
+      const h = u.journal.find((j) => j.id === hendelsenMed(id(hale[0]), u));
+      return h?.art === 'dokument' ? erRegistrert(h.dokument.opplysninger) : null;
+    }
     case 'kravene_avgjort':
       return kraveneErAvgjort(u);
     case 'kan_inngaa_i_eo':
@@ -272,6 +279,7 @@ export function les(sti: string, u: Utledning, k: Kjoering): unknown {
       if (hale.length === 1 || !o) return o ? 'finnes' : null;
       if (hale[1] === 'dato') return 'dato' in o.opplysning ? o.opplysning.dato : null;
       if (hale[1] === 'oppfylt') return 'oppfylt' in o.opplysning ? o.opplysning.oppfylt : null;
+      if (hale[1] === 'gjelder') return 'gjelder' in o.opplysning ? o.opplysning.gjelder : null;
       if (hale[1] === 'oppgitt_av') return o.opplysning.oppgittAv;
       return o.bestridelser;
     }
