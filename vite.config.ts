@@ -19,7 +19,7 @@ export default defineConfig({
     },
   },
   test: {
-    include: ['src/**/*.test.ts', 'sprakprove/**/*.test.ts'],
+    include: ['src/**/*.test.ts', 'kjerne/**/*.test.ts', 'sprakprove/**/*.test.ts'],
     environmentMatchGlobs: [['src/lib/components/**/*.test.ts', 'jsdom']],
     setupFiles: ['src/test-setup.ts'],
   },

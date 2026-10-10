@@ -4,7 +4,7 @@
  * bare saken og hendelsen; serverens utregning (B-13) står sist.
  */
 
-import { UgyldigVurdering } from './regler/feil.ts';
+import { UgyldigVurdering } from '../../kjerne/regler/feil.ts';
 import { Avvik, FeilRegelversjon, kontrollerSvar } from './sammenlikning.ts';
 import {
   erEnighet,

@@ -8,6 +8,7 @@ paths:
   - "backend/repositories/**"
   - "backend/tests/test_security/**"
   - "sprakprove/**/server/**"
+  - "sprakprove/kjernelagring/**"
 ---
 
 # Tilgang: mekanismene bak sikkerhetsinvariantene

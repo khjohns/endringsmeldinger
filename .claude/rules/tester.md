@@ -3,6 +3,7 @@ paths:
   - "backend/tests/**"
   - "src/**/__tests__/**"
   - "src/**/*.test.ts"
+  - "kjerne/**"
   - "sprakprove/**"
   - "docs/domenetabell/**"
   - "docs/vedlegg/**"
@@ -109,8 +110,8 @@ Ingen generell mutasjonsscore eller nytt verktøy kreves for alle endringer.
   PR-en oppgir kontrollert commit/diff, feilklasse, test, observert feil og
   eventuelle overlevende mutasjoner med begrunnelse. Gjenbruk samme feilklasser
   når to implementasjoner sammenliknes. En ny feilklasse for språkprøven eller
-  målmodellen legges i `sprakprove/feilinnforing.py` eller
-  `sprakprove/maalmodell/feilinnforing.ts`, så den kan kjøres igjen.
+  kjernen legges i `sprakprove/feilinnforing.py` eller
+  `kjerne/tester/feilinnfoering.ts`, så den kan kjøres igjen.
 - En oppdaget feilinnføring viser at testen er følsom for feilen, ikke at
   forventningen er riktig. Forventningens grunnlag kontrolleres etter
   [domeneforventningene](#domeneforventninger-og-metodeprover) nedenfor.

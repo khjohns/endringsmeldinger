@@ -2,10 +2,10 @@
 
 import { describe, expect, it } from 'vitest';
 import tabell from '../grensetilfeller.json' with { type: 'json' };
-import { belop, tilKrone } from '../kjerne/belop.ts';
-import { UgyldigVurdering } from '../kjerne/regler/feil.ts';
-import { beregnFrist, type Fristkrav } from '../kjerne/regler/frist.ts';
-import { beregnVederlag, type Vederlagskrav } from '../kjerne/regler/vederlag.ts';
+import { beloep as belop, tilKrone } from '../../kjerne/regler/beloep.ts';
+import { UgyldigVurdering } from '../../kjerne/regler/feil.ts';
+import { beregnFrist, type Fristkrav } from '../../kjerne/regler/frist.ts';
+import { beregnVederlag, type Vederlagskrav } from '../../kjerne/regler/vederlag.ts';
 
 type Rad = Record<string, unknown>;
 

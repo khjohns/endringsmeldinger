@@ -104,7 +104,7 @@ if (start_testbase) >> "$logg" 2>&1 \
   if [ -n "${CLAUDE_ENV_FILE:-}" ]; then
     echo "export KOE_TESTBASE_URL='$url'" >> "$CLAUDE_ENV_FILE"
   fi
-  echo "Testbase: PostgreSQL 17 i Docker (koe-testbase-${KOE_TESTBASE_PORT:-54317}), KOE_TESTBASE_URL er satt. Databasetestene kjører med vanlig pytest, og npm test kjører også TS-databasetestene i sprakprove/. Kjør dem ikke samtidig mot samme base."
+  echo "Testbase: PostgreSQL 17 i Docker (koe-testbase-${KOE_TESTBASE_PORT:-54317}), KOE_TESTBASE_URL er satt. Databasetestene kjører med vanlig pytest, og npm test kjører også TS-databasetestene i sprakprove/, blant dem kjernens lagringstester i sprakprove/kjernelagring/. Kjør dem ikke samtidig mot samme base."
 else
   echo "ADVARSEL: testbasen i PostgreSQL 17 kom ikke opp; se $logg. KOE_TESTBASE_URL er ikke satt, så databasetestene i pytest og i sprakprove/ hoppes over, og grønn suite sier ingenting om datalaget. Maskinen har bare PostgreSQL 16. Kjør hooken på nytt med CLAUDE_CODE_REMOTE=true."
 fi

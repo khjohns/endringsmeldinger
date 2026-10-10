@@ -1,4 +1,4 @@
-"""CI-vakten i .github/scripts/regelversjon.sh mot konstruerte differ (#191, #216, #221).
+"""CI-vakten i .github/scripts/regelversjon.sh mot konstruerte differ (#191, #216, #221, #308).
 
 Hvert tilfelle bygger et eget git-repo med de to speilene, slik at skriptet
 kjører uten å røre filene i dette repoet.
@@ -89,3 +89,46 @@ def test_mangler_base_gir_bruksmelding(repo):
     svar = _kjor(sti, "")
     assert svar.returncode == 2
     assert "BASE=" in svar.stderr
+
+
+KJERNE_REGLER = "kjerne/regler/regelsett.ts"
+KJERNE_VERSJON = "kjerne/versjon.ts"
+
+
+def _kjerne(regel: int, projeksjon: int) -> dict[str, str]:
+    return {
+        KJERNE_REGLER: f"export const REGELVERSJON = {regel};\n",
+        KJERNE_VERSJON: f"export const PROJEKSJONSVERSJON = {projeksjon};\n",
+    }
+
+
+@pytest.fixture
+def kjerne(repo):
+    sti, _ = repo
+    _skriv(sti, {**_kjerne(5, 2), "kjerne/regler/frist.ts": "a\n", "kjerne/utled.ts": "a\n"})
+    return sti, _git(sti, "rev-parse", "HEAD")
+
+
+@pytest.mark.parametrize(
+    "filer, ventet",
+    [
+        pytest.param({"kjerne/regler/frist.ts": "b\n"}, 1, id="regelsettet uten ny regelversjon"),
+        pytest.param({"kjerne/regler/frist.ts": "b\n", **_kjerne(6, 2)}, 0, id="regelsettet med ny regelversjon"),
+        pytest.param({"kjerne/utled.ts": "b\n"}, 1, id="utledningen uten ny projeksjonsversjon"),
+        pytest.param({"kjerne/utled.ts": "b\n", **_kjerne(5, 3)}, 0, id="utledningen med ny projeksjonsversjon"),
+        pytest.param({"kjerne/utled.ts": "b\n", **_kjerne(6, 2)}, 1, id="utledningen med bare ny regelversjon"),
+        pytest.param({"kjerne/tester/kjerne.test.ts": "b\n"}, 0, id="bare testene"),
+    ],
+)
+def test_kjernen_krever_ny_versjon_der_den_er_endret(kjerne, filer, ventet):
+    sti, base = kjerne
+    _skriv(sti, filer)
+    svar = _kjor(sti, base)
+    assert svar.returncode == ventet, svar.stdout + svar.stderr
+
+
+def test_kjernen_og_speilene_kontrolleres_hver_for_seg(kjerne):
+    """En endring i kjernen redder ikke en regelendring i speilene uten ny versjon."""
+    sti, base = kjerne
+    _skriv(sti, {"src/lib/domain/regel.ts": "b\n", "kjerne/utled.ts": "b\n", **_kjerne(5, 3)})
+    assert _kjor(sti, base).returncode == 1

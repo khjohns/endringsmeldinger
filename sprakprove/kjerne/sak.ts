@@ -7,11 +7,11 @@
 
 import {
   erPrekludert,
-  forsteUnderkategori,
+  foersteUnderkategori as forsteUnderkategori,
   standpunkt,
   type Standpunkt,
   type Subsidiaergrunn,
-} from './regler/grunnlag.ts';
+} from '../../kjerne/regler/grunnlag.ts';
 import type { Grunnlagsresultat, Hendelse, Saksstatus, Spor, Sporstatus } from './typer.ts';
 
 export interface Krav {
