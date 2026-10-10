@@ -135,7 +135,7 @@
             ? 'Grunnlaget er prekludert (§ 32.2).'
             : 'Grunnlaget er bestridt.'}
           {store.bhNavn}s posisjon på dette sporet er subsidiær — betinget av at grunnlaget fører
-          fram.
+          frem.
         </span>
       </div>
     {/if}

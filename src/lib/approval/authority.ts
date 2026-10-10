@@ -18,7 +18,7 @@ export function authorityFor(amount: number | null) {
     : authorityMatrix.find((row) => row.limit === null || amount <= row.limit)!;
 }
 
-/** TEs krav slik fullmakten for godkjent ansvar leser det (GFK-06). Speiler `krav_fra_tilstand`. */
+/** TEs krav slik fullmakten for godkjent grunnlag leser det (GFK-06). Speiler `krav_fra_tilstand`. */
 export function kravFraSak(sak: {
   vederlag: {
     status: SporStatus;
@@ -54,7 +54,7 @@ interface SvarRad {
   subsidiaryAmount: number | null;
 }
 
-/** Et spor som ikke besvares i brevet, men åpnes av godkjent ansvar: TEs krav gjelder. */
+/** Et spor som ikke besvares i brevet, men åpnes av godkjent grunnlag: TEs krav gjelder. */
 interface KravRad {
   track: 'vederlag' | 'frist';
   fraKrav: true;

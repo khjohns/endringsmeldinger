@@ -26,7 +26,7 @@ TRACKS = ("grunnlag", "vederlag", "frist")
 
 
 def krav_fra_tilstand(state):
-    """TEs krav slik fullmakten for godkjent ansvar leser det (GFK-06).
+    """TEs krav slik fullmakten for godkjent grunnlag leser det (GFK-06).
 
     Kroner for vederlag, med særskilte krav; dager for frist. `None` er et krav
     som ikke er sendt eller ikke tallfestet. Et trukket krav er 0.
