@@ -378,7 +378,7 @@ def test_package_validates_ground_dependencies_and_publishes_two_tracks_atomical
         "closing": "",
         "items": [economy],
     }
-    with pytest.raises(ValueError, match="Ansvarsgrunnlaget"):
+    with pytest.raises(ValueError, match="Grunnlaget er endret"):
         command(service, "package", letter=letter)
     letter["items"] = [ground, economy]
     p = command(service, "package", letter=letter)["packages"][-1]
