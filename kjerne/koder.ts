@@ -6,6 +6,7 @@
  * oversetter på grensen med tabellene her.
  */
 
+import { foersteUnderkategori } from './regler/grunnlag.ts';
 import type {
   Beloepsvurdering,
   Grunnlagsresultat,
@@ -117,7 +118,7 @@ export function fraKatalogen(tabell: Record<string, string>, kode: unknown): unk
   return typeof kode === 'string' && Object.hasOwn(tabell, kode) ? tabell[kode] : kode;
 }
 
-/** Kjernens koder for kategorien i katalogen. */
+/** Kjernens koder for kategorien i katalogen. Av en liste underkategorier gjelder den første, som i kjernen. */
 export function kategoriFraKatalogen(kategori: {
   hovedkategori?: unknown;
   underkategori?: unknown;
@@ -126,7 +127,10 @@ export function kategoriFraKatalogen(kategori: {
     typeof v === 'string' ? (fraKatalogen(tabell, v) as string) : null;
   return {
     hovedkategori: kode(HOVEDKATEGORI_FRA_KATALOGEN, kategori.hovedkategori),
-    underkategori: kode(UNDERKATEGORI_FRA_KATALOGEN, kategori.underkategori),
+    underkategori: kode(
+      UNDERKATEGORI_FRA_KATALOGEN,
+      foersteUnderkategori(kategori.underkategori as string | string[] | null | undefined)
+    ),
   };
 }
 
