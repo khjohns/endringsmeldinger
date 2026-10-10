@@ -19,7 +19,7 @@
   let begrunnelse = $state('');
 
   const sporLabels: Record<SporKey, string> = {
-    ansvar: 'ansvarsgrunnlaget',
+    ansvar: 'grunnlaget',
     vederlag: 'vederlagskravet',
     frist: 'fristkravet',
   };
@@ -65,8 +65,8 @@
         <div>
           <div class="cascade-title">Kaskadeeffekt</div>
           <p class="cascade-text">
-            Trekking av ansvarsgrunnlaget vil automatisk trekke tilbake vederlagskravet og
-            fristkravet. Ansvarsgrunnlaget er fundamentet for hele saken.
+            Trekking av grunnlaget vil automatisk trekke tilbake vederlagskravet og fristkravet.
+            Grunnlaget er fundamentet for hele saken.
           </p>
         </div>
       </div>
@@ -78,8 +78,8 @@
         <div>
           <div class="cascade-title">Siste aktive krav</div>
           <p class="cascade-text">
-            Dette er det siste aktive kravet. Trekking vil automatisk trekke ansvarsgrunnlaget, da
-            det ikke har praktisk effekt uten aktive krav.
+            Dette er det siste aktive kravet. Trekking vil automatisk trekke grunnlaget, da det ikke
+            har praktisk effekt uten aktive krav.
           </p>
         </div>
       </div>

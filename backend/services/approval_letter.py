@@ -64,7 +64,7 @@ def decision_summary(item):
     if item["track"] != "grunnlag" and grunnlag_er_subsidiaert(item.get("basis", {})):
         return " · ".join(
             [
-                "Prinsipalt avslått (ansvarsgrunnlaget)",
+                "Prinsipalt avslått (grunnlaget)",
                 *_subsidiaert_ved_avslatt_grunnlag(d, item["track"]),
             ]
         )
@@ -86,7 +86,7 @@ def snapshot(letter, package_id):
     def section(title, text):
         return {"tittel": title, "originalTekst": text, "redigertTekst": text}
 
-    names = {"grunnlag": "Ansvarsgrunnlag", "vederlag": "Økonomi", "frist": "Frist"}
+    names = {"grunnlag": "Grunnlag", "vederlag": "Økonomi", "frist": "Frist"}
     body = "\n\n".join(
         f"{names[i['track']]}\n{decision_summary(i)}\n\n{plain_text(i['data'].get('begrunnelse') or i['data'].get('beskrivelse'))}"
         + (

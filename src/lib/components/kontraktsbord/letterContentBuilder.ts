@@ -9,11 +9,16 @@ function makeSeksjon(tittel: string, tekst: string): BrevSeksjon {
 
 function getSporLabel(spor: SporType): string {
   const labels: Record<string, string> = {
-    grunnlag: 'ansvarsgrunnlag',
+    grunnlag: 'grunnlaget',
     vederlag: 'vederlagsjustering',
     frist: 'fristforlengelse',
   };
   return labels[spor] ?? spor;
+}
+
+function tittelForSpor(spor: SporType, isTE: boolean): string {
+  if (spor === 'grunnlag') return isTE ? 'Grunnlaget for kravet' : 'Svar på grunnlaget';
+  return `${isTE ? 'Krav om' : 'Svar på krav om'} ${getSporLabel(spor)}`;
 }
 
 function extractBegrunnelse(event: TimelineEvent): string {
@@ -82,7 +87,7 @@ export function buildLetterContent(event: TimelineEvent, sak: SakState): BrevInn
     ? 'Forespørsel om spesifisert krav om fristforlengelse'
     : event.type.endsWith('frist_innsigelse_sendt')
       ? 'Innsigelse mot sen varsling av fristforlengelse'
-      : `${isTE ? 'Krav om' : 'Svar på krav om'} ${sporLabel}`;
+      : tittelForSpor(sporType, isTE);
 
   return {
     tittel: `${tittelForType} \u2014 ${sakstittel}`,
