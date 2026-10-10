@@ -43,7 +43,7 @@ spor = "grunnlag"
 beskrivelse = """
 En kravversjon av ansvarsgrunnlaget. `erstatter` er forrige kravversjon i sporet.
 `hovedkategori` og `underkategori` er et par fra kjernens lukkede liste
-(`KATEGORIER` i `kjerne/kategorier.ts`), for eksempel `endring` og
+(`KATEGORIER` i `kjerne/koder.ts`), for eksempel `endring` og
 `irregulaer_endring`. Et ukjent par gjør raden ikke forstått."""
 felt = ["id", "spor", "erstatter", "hovedkategori", "underkategori", "tittel", "beskrivelse"]
 grunnlag = "KA-U2, designnotatet 4.2"
