@@ -35,7 +35,7 @@ export function buildKonsekvensVarsler(
             ? 'Totalentreprenøren varsler særskilt at økte utgifter til kapitalytelser, rigging, drift og nedrigging vil påløpe, og at det vil bli krevd vederlagsjustering for disse.'
             : 'Totalentreprenøren varsler særskilt at økte utgifter som følge av nedsatt produktivitet eller forstyrrelser på annet arbeid vil påløpe, og at det vil bli krevd vederlagsjustering for disse.';
     result[kind] =
-      `${VARSEL_LABELS[kind]} (pkt. ${hjemmel}). ${declaration} Varselet gjelder forholdet «${tittel.trim()}», som beskrevet i grunnlaget. Omfanget er ikke spesifisert.${valg[kind]?.forklaring.trim() ? ` ${valg[kind]!.forklaring.trim()}` : ''}`;
+      `${VARSEL_LABELS[kind]} (pkt. ${hjemmel}). ${declaration} Varselet gjelder forholdet «${tittel.trim()}», som beskrevet i ansvarsgrunnlaget. Omfanget er ikke spesifisert.${valg[kind]?.forklaring.trim() ? ` ${valg[kind]!.forklaring.trim()}` : ''}`;
   }
   return result;
 }
