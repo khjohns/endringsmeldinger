@@ -131,16 +131,19 @@
     })
   );
   const tracks = $derived(letter.items.map((i) => trackNames[i.track]).join(' · '));
-  // Varselet gjelder før sending. Et sendt brev regnes ikke på nytt med dagens regler (MM-U9).
+  // Varselet gjelder mens brevet kan godkjennes. Et besluttet brev regnes ikke på nytt med dagens regler (MM-U9).
   const endringsordre = $derived(
-    selected?.status !== 'sendt' &&
+    (isDraft || selected?.status === 'til_godkjenning') &&
       !outdated &&
       letter.items.some(
         (i) =>
           i.track === 'grunnlag' &&
           erEndringsordre(i.basis, {
             resultat: i.data.resultat,
-            varsletITide: i.data.grunnlag_varslet_i_tide,
+            varsletITide:
+              typeof i.data.grunnlag_varslet_i_tide === 'boolean'
+                ? i.data.grunnlag_varslet_i_tide
+                : undefined,
           })
       )
   );
