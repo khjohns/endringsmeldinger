@@ -37,20 +37,26 @@ function kode(fil: string, kilde: string): string {
   return [...kilde.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/g)].map((m) => m[1]).join('\n');
 }
 
-/** Importene i `kilde`: aliaset og relative stier løst til absolutte, pakkenavn som de står. */
+/** Aliasene som kan føre inn i kjernen, med mappa de peker på. */
+const ALIASER: [string, string][] = [
+  [ALIAS, KJERNE],
+  ['$lib', join(SRC, 'lib')],
+];
+
+/** Importene i `kilde`: aliasene og relative stier løst til absolutte, pakkenavn som de står. */
 export function importer(fil: string, kilde: string): string[] {
   const { importedFiles } = ts.preProcessFile(kode(fil, kilde), true, true);
-  return importedFiles.map(({ fileName: navn }) =>
-    navn === ALIAS || navn.startsWith(ALIAS + '/')
-      ? join(KJERNE, navn.slice(ALIAS.length))
-      : navn.startsWith('.')
-        ? resolve(dirname(fil), navn)
-        : navn
-  );
+  return importedFiles.map(({ fileName: navn }) => {
+    const alias = ALIASER.find(([a]) => navn === a || navn.startsWith(a + '/'));
+    if (alias) return join(alias[1], navn.slice(alias[0].length));
+    return navn.startsWith('.') ? resolve(dirname(fil), navn) : navn;
+  });
 }
 
 const iKjernen = (sti: string) => sti === KJERNE || sti.startsWith(KJERNE + sep);
-const iTestene = (sti: string) => sti === TESTER || sti.startsWith(TESTER + sep);
+/** Testmappa, løst eller i en stavemåte vakten ikke løser, som en absolutt sti. */
+const iTestene = (sti: string) =>
+  sti === TESTER || sti.startsWith(TESTER + sep) || /(^|\/)kjerne\/tester(\/|$)/.test(sti);
 
 /** Innholdet i fila, eller `undefined` når den ikke finnes. */
 type Leser = (fil: string) => string | undefined;
@@ -63,7 +69,7 @@ export function testimporter(kilder: Map<string, string>): string[] {
   return [...kilder].flatMap(([fil, kilde]) =>
     importer(fil, kilde)
       .filter(iTestene)
-      .map((i) => `${relative(ROT, fil)} → ${relative(ROT, i)}`)
+      .map((i) => `${relative(ROT, fil)} → ${i.startsWith(ROT + sep) ? relative(ROT, i) : i}`)
   );
 }
 
@@ -83,7 +89,9 @@ export function utenforNettleseren(start: string[], les: Leser): string[] {
     for (const i of importer(fil, les(fil) ?? '')) {
       const neste =
         iKjernen(i) && !iTestene(i)
-          ? [i, `${i}.ts`, join(i, 'index.ts')].find((f) => les(f) !== undefined)
+          ? [i, `${i}.ts`, i.replace(/\.js$/, '.ts'), join(i, 'index.ts')].find(
+              (f) => les(f) !== undefined
+            )
           : undefined;
       if (neste) ko.push([...sti, neste]);
       else
@@ -117,17 +125,21 @@ describe('grensen mellom appen og kjernen', () => {
       [join(SRC, 'lib', 'a.ts'), `export * from '../../kjerne/tester/bane.ts';`],
       [join(SRC, 'lib', 'b.ts'), `const m = await import('$kjerne/tester');`],
       [join(SRC, 'lib', 'c.ts'), `import { KJERNE } from '$kjerne/versjon';`],
+      [join(SRC, 'lib', 'd.ts'), `import { lagKlient } from '$lib/../../kjerne/tester/klient';`],
+      [join(SRC, 'lib', 'e.ts'), `import { lagKlient } from '/kjerne/tester/klient';`],
     ]);
     expect(testimporter(kilder)).toEqual([
       'src/lib/eksempel.svelte → kjerne/tester/klient',
       'src/lib/a.ts → kjerne/tester/bane.ts',
       'src/lib/b.ts → kjerne/tester',
+      'src/lib/d.ts → kjerne/tester/klient',
+      'src/lib/e.ts → /kjerne/tester/klient',
     ]);
 
     const modul = join(KJERNE, 'modul.ts');
     const hjelper = join(KJERNE, 'hjelper.ts');
     const kjernekilder: Record<string, string> = {
-      [modul]: `import { b } from './hjelper.ts';\nimport { c } from './tester/klient.ts';`,
+      [modul]: `import { b } from './hjelper.js';\nimport { c } from './tester/klient.ts';`,
       [hjelper]: `import { randomUUID } from 'node:crypto';\nimport type { Pool } from 'pg';`,
     };
     expect(utenforNettleseren([modul], (f) => kjernekilder[f])).toEqual([

@@ -6,7 +6,9 @@
  *
  * Vakten er et tekstsøk i `.svelte`-filene, i skript og markup. Den fanger
  * `.status` på et spor bare når sporet er nevnt ved navn (`sak.frist.status`),
- * ikke gjennom en variabel eller en destrukturering.
+ * ikke gjennom en variabel eller en destrukturering. TS-modulene i `src/` dekkes
+ * ikke: lesepunktene er selv slike moduler, og det samme er `$lib/domain/`,
+ * mockupens demolager og fullmakten i `$lib/approval/authority.ts`.
  */
 
 import { readdirSync, readFileSync } from 'node:fs';

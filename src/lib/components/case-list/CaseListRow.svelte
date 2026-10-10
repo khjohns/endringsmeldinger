@@ -5,7 +5,7 @@
   import { getKontraktsforholdLabel } from '$lib/constants/categories';
   import { goto } from '$app/navigation';
   import { resolve } from '$app/paths';
-  import { caseAmount, caseDays, caseStatusBadge } from './presentation';
+  import { caseAmount, caseDays, statusmerke } from './presentation';
 
   interface Props {
     case_item: CaseListItem;
@@ -24,7 +24,7 @@
   );
   const tittel = $derived(case_item.cached_title ?? 'Uten tittel');
   const isOrder = $derived(case_item.sakstype === 'endringsordre');
-  const statusBadge = $derived(caseStatusBadge(case_item));
+  const merke = $derived(statusmerke(case_item));
   const linkedCount = $derived(case_item.endringsordre_data?.relaterte_koe_saker.length ?? 0);
   const kategoriLabel = $derived(
     isOrder
@@ -82,7 +82,7 @@
   </td>
   <td class="cell cell-status">
     <div class="cell-inner">
-      <Badge variant={statusBadge.variant}>{statusBadge.label}</Badge>
+      <Badge variant={merke.variant}>{merke.label}</Badge>
     </div>
   </td>
   <td class="cell cell-kategori">
