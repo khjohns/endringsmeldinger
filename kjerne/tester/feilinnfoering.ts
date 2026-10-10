@@ -89,8 +89,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utled.ts`,
     endringer: [
       [
-        "import { enighetsgrunnlag, grunnlagetErAvklart, prinsipalt, standpunktet } from './standpunkt.ts';",
-        "import { enighetsgrunnlag, grunnlagetErAvklart, prinsipalt, standpunktet, virkninger as regn } from './standpunkt.ts';",
+        "  standpunktet,\n} from './standpunkt.ts';",
+        "  standpunktet,\n  virkninger as regn,\n} from './standpunkt.ts';",
       ],
       [
         '      virkninger: s.beslutningsgrunnlag.virkninger,',
@@ -286,8 +286,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/skriving.ts`,
     endringer: [
       [
-        'return lagret(beslutningsgrunnlag(innhold, grunnlagskrav, kjerne.regler));',
-        'return lagret(beslutningsgrunnlag(innhold, undefined, kjerne.regler));',
+        'return beslutningsgrunnlag(innhold, grunnlagskrav, regler);',
+        'return beslutningsgrunnlag(innhold, undefined, regler);',
       ],
     ],
     mal: ['registrert korrespondanse fryses med kategorien', 'F-MM-C', 'F-MM-G18'],
@@ -309,7 +309,9 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F24',
     feilklasse: 'forbudet mot trekk gjelder også kategorier § 32.2 ikke gjelder for (KA-U13)',
     fil: `${K}/utled.ts`,
-    endringer: [['gSvar?.beslutningsgrunnlag.varslingsplikt === true', 'true']],
+    endringer: [
+      ['blirEndringsordre(gSvar.beslutningsgrunnlag)', 'gSvar.beslutningsgrunnlag.sammenfall'],
+    ],
     mal: ['F-MM-G13', 'F-MM-G14', 'F-MM-G19'],
   },
   {
@@ -318,8 +320,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utled.ts`,
     endringer: [
       [
-        'gSvar?.beslutningsgrunnlag.varslingsplikt === true',
-        'regler.gjelderVarslingsplikten(String(spor.grunnlag.gjeldendeKrav?.innhold.hovedkategori), String(spor.grunnlag.gjeldendeKrav?.innhold.underkategori))',
+        'blirEndringsordre(gSvar.beslutningsgrunnlag)',
+        'gSvar.beslutningsgrunnlag.sammenfall && regler.gjelderVarslingsplikten(String(spor.grunnlag.gjeldendeKrav?.innhold.hovedkategori), String(spor.grunnlag.gjeldendeKrav?.innhold.underkategori))',
       ],
     ],
     mal: ['F-MM-G15'],
@@ -328,7 +330,12 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F26',
     feilklasse: 'trekk av grunnlaget sperres av ethvert svar, også avslag og frafall (KA-U13)',
     fil: `${K}/utled.ts`,
-    endringer: [["eg?.grunnlag.kilde === 'sammenfall' && gSvar?", 'gSvar !== null && gSvar?']],
+    endringer: [
+      [
+        'blirEndringsordre(gSvar.beslutningsgrunnlag)',
+        'gSvar.beslutningsgrunnlag.varslingsplikt === true',
+      ],
+    ],
     mal: ['F-MM-G16', 'F-MM-G17'],
   },
   // F27–F47 er formatet (#273): feilklassene i 7.2 i designnotatet, GR-U12, registeret (#320) og samspillsreviewet.
@@ -351,8 +358,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utled.ts`,
     endringer: [
       [
-        'gSvar?.beslutningsgrunnlag.varslingsplikt === true',
-        "gSvar?.standpunkter.some((p) => p.art === 'rettidighet' && p.hjemmel === '32.2') === true",
+        'blirEndringsordre(gSvar.beslutningsgrunnlag)',
+        "gSvar.beslutningsgrunnlag.sammenfall && gSvar.standpunkter.some((p) => p.art === 'rettidighet' && p.hjemmel === '32.2')",
       ],
     ],
     mal: ['F-MM-G18'],
@@ -584,8 +591,8 @@ const MUTASJONER: Mutasjon[] = [
         "import { avvisning } from './avvisning.ts';\nimport { GJELDENDE_REGLER } from './regler/regelsett.ts';",
       ],
       [
-        '    s.beslutningsgrunnlag = frys(s, krav, kjerne);',
-        '    s.beslutningsgrunnlag = frys(s, krav, { ...kjerne, regler: GJELDENDE_REGLER });',
+        '    s.beslutningsgrunnlag = lagret(frys(s, krav, kjerne.regler));',
+        '    s.beslutningsgrunnlag = lagret(frys(s, krav, GJELDENDE_REGLER));',
       ],
     ],
     mal: ['F-MM-R1'],
