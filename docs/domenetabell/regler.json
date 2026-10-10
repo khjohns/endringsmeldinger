@@ -1353,7 +1353,7 @@
     {
       "id": "GR-28",
       "tilfelle": "TE trekker grunnlaget etter at byggherren har godkjent det uten å påberope preklusjon.",
-      "forventet": "I en underkategori under ENDRING som § 32.2 gjelder for, avvises trekket, og journalen er uendret: godkjenningen er en endringsordre. For underkategorien EO og for kategorier utenfor ENDRING godtas trekket. Før byggherren har svart, og etter avslag eller frafall, kan TE trekke grunnlaget. Om godkjenningen er en endringsordre, avgjøres av brevet: hvorvidt § 32.2 gjaldt da det ble skrevet, ikke regelsettet senere (MM-U9), og også når brevet ikke sier noe om varslingen (GR-U12). Registrert korrespondanse er en endringsordre bare når den som registrerte, har oppgitt at § 31.3 er oppfylt (GR-29).",
+      "forventet": "I en underkategori under ENDRING som § 32.2 gjelder for, avvises trekket, og journalen er uendret: godkjenningen er en endringsordre. For underkategorien EO og for kategorier utenfor ENDRING godtas trekket. Før byggherren har svart, og etter avslag eller frafall, kan TE trekke grunnlaget. Om godkjenningen er en endringsordre, avgjøres av brevet: hvorvidt § 32.2 gjaldt da det ble skrevet, ikke regelsettet senere (MM-U9), og også når brevet ikke sier noe om varslingen (GR-U12). For registrert korrespondanse avgjør opplysningen om § 31.3 (GR-29).",
       "bh_standpunkt": "Godkjent grunnlag.",
       "rettslig_virkning": "Etter § 32.3 a er godkjenningen en endringsordre, som binder TE (§ 31.3 annet ledd).",
       "rettidighet": "—",
@@ -1370,19 +1370,21 @@
     },
     {
       "id": "GR-29",
-      "tilfelle": "Byggherren har godkjent grunnlaget uten å påberope preklusjon i en underkategori § 32.2 gjelder for, i korrespondanse som er registrert i appen, uten opplysningen om at brevet var en endringsordre etter § 31.3.",
-      "forventet": "Godkjenningen er ikke en endringsordre etter § 32.3 a; kjernen gjetter ikke. Med opplysningen om at § 31.3 er oppfylt, er den en endringsordre. Partene er enige ved sammenfall i begge tilfellene. Arbeidshypotese til svaret om KA-U13: trekket av grunnlaget avvises også uten opplysningen, fordi enigheten ved sammenfall binder.",
+      "tilfelle": "Byggherren har godkjent grunnlaget uten å påberope preklusjon i en underkategori § 32.2 gjelder for, i korrespondanse som er registrert i appen. Den som registrerte, har oppgitt at brevet var en endringsordre etter § 31.3, at det ikke var det, eller ingenting.",
+      "forventet": "Med opplysningen om at § 31.3 er oppfylt, er godkjenningen en endringsordre, og trekket av grunnlaget avvises. Med opplysningen om at den ikke er oppfylt, er den ikke en endringsordre, og TE kan trekke grunnlaget som avkall etter KA-U6 og GR-U5. Uten opplysningen er det ikke avklart, og trekket avvises til det er avklart. En manglende opplysning er ikke et nei. Partene er enige ved sammenfall i alle tilfellene.",
       "bh_standpunkt": "Godkjent grunnlag.",
-      "rettslig_virkning": "§ 32.3 a gir en endringsordre bare når § 31.3 også er oppfylt. Opplysningen er registratorens, ikke en rettslig avgjørelse.",
+      "rettslig_virkning": "§ 32.3 a gir en endringsordre bare når § 31.3 også er oppfylt. Opplysningen er registratorens, ikke en rettslig avgjørelse. Et trekk opphever ikke et pålegg eller en utførelsesplikt.",
       "rettidighet": "—",
       "tidsakse": "registrering",
       "kilder": [
         "GR-U12",
         "GR-U10",
         "KA-U13",
+        "KA-U6",
+        "GR-U5",
         "MM-U9"
       ],
-      "tolkningsstatus": "arbeidshypotese"
+      "tolkningsstatus": "avklart_tolkning"
     },
     {
       "id": "EO-01",

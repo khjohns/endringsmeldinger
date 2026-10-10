@@ -1733,7 +1733,7 @@
           "rolle": "mal",
           "kilde": ["KA-U13", "GR-U10"],
           "prov": { "handling": "trekk", "spor": "grunnlag" },
-          "forventet": { "avvist": true, "regel": "TREKK_AV_GRUNNLAGET_SPERRET" }
+          "forventet": { "avvist": true, "regel": "GRUNNLAG_ER_ENDRINGSORDRE" }
         }
       ]
     },
@@ -2020,7 +2020,7 @@
           "rolle": "mal",
           "kilde": ["KA-U13", "GR-U10"],
           "prov": { "handling": "trekk", "spor": "grunnlag" },
-          "forventet": { "avvist": true, "regel": "TREKK_AV_GRUNNLAGET_SPERRET" }
+          "forventet": { "avvist": true, "regel": "GRUNNLAG_ER_ENDRINGSORDRE" }
         },
         {
           "etter": 2,
@@ -2033,7 +2033,7 @@
           "rolle": "mal",
           "kilde": ["MM-U9", "KA-U13", "GR-U11"],
           "prov": { "handling": "trekk", "spor": "grunnlag" },
-          "forventet": { "avvist": true, "regel": "TREKK_AV_GRUNNLAGET_SPERRET" }
+          "forventet": { "avvist": true, "regel": "GRUNNLAG_ER_ENDRINGSORDRE" }
         }
       ]
     },
@@ -2131,7 +2131,7 @@
             "beslutningsgrunnlag.S-g1.sammenfall": true,
             "beslutningsgrunnlag.S-g1.varslingsplikt": true,
             "opplysning.D4#endringsordre.oppfylt": true,
-            "godkjenning_er_endringsordre": true,
+            "endringsordre": "ja",
             "handlinger.TE": { "mangler": ["trekke:grunnlag"] }
           }
         },
@@ -2140,7 +2140,7 @@
           "rolle": "mal",
           "kilde": ["GR-U12", "KA-U13"],
           "prov": { "handling": "trekk", "spor": "grunnlag" },
-          "forventet": { "avvist": true, "regel": "TREKK_AV_GRUNNLAGET_SPERRET" }
+          "forventet": { "avvist": true, "regel": "GRUNNLAG_ER_ENDRINGSORDRE" }
         }
       ]
     },
@@ -2148,8 +2148,8 @@
       "id": "F-MM-G20",
       "rader": ["GR-29"],
       "start": "krav_irreg",
-      "forslag": "§ 31.3 (oppdragsgiver 10.10): uten opplysningen om § 31.3 er registrert korrespondanse ikke en endringsordre, men partene er enige ved sammenfall",
-      "forventningsgrunnlag": "arbeidshypotese",
+      "forslag": "§ 31.3 og KA-U13 (oppdragsgiver 10.10): uten opplysningen om § 31.3 er det ikke avklart om registrert korrespondanse er en endringsordre, og trekket av grunnlaget er sperret til det er avklart",
+      "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
           "handling": "rad",
@@ -2178,15 +2178,54 @@
             "enighet.grunnlag.kilde": "sammenfall",
             "beslutningsgrunnlag.S-g1.varslingsplikt": true,
             "opplysning.D4#endringsordre": null,
-            "godkjenning_er_endringsordre": false
+            "endringsordre": "ikke_avklart"
           }
         },
         {
           "etter": 1,
           "rolle": "mal",
-          "kilde": ["KA-U13", "GR-U10"],
+          "kilde": ["KA-U13", "GR-U12"],
           "prov": { "handling": "trekk", "spor": "grunnlag" },
-          "forventet": { "avvist": true, "regel": "TREKK_AV_GRUNNLAGET_SPERRET" }
+          "forventet": { "avvist": true, "regel": "ENDRINGSORDRE_IKKE_AVKLART" }
+        }
+      ]
+    },
+    {
+      "id": "F-MM-G21",
+      "rader": ["GR-29"],
+      "start": "krav_irreg",
+      "forslag": "§ 31.3 og KA-U6 (oppdragsgiver 10.10): er det oppgitt at registrert korrespondanse ikke var en endringsordre, kan TE trekke grunnlaget som avkall etter GR-U5",
+      "forventningsgrunnlag": "avklart_tolkning",
+      "steg": [
+        {
+          "handling": "rad",
+          "spor": "grunnlag",
+          "navn": "S-g1",
+          "dokument": "D4",
+          "gjelder": "K-g1",
+          "resultat": "godkjent",
+          "sendt": "2026-09-30",
+          "endringsordre": false
+        },
+        { "handling": "trekk", "spor": "grunnlag", "navn": "D5" }
+      ],
+      "kontroller": [
+        {
+          "etter": 1,
+          "rolle": "mal",
+          "kilde": ["GR-U12", "GR-U10"],
+          "forventet": {
+            "enighet.grunnlag.kilde": "sammenfall",
+            "opplysning.D4#endringsordre.oppfylt": false,
+            "endringsordre": "nei",
+            "handlinger.TE": { "inneholder": ["trekke:grunnlag"] }
+          }
+        },
+        {
+          "etter": 2,
+          "rolle": "mal",
+          "kilde": ["KA-U6", "GR-U5", "KA-U13"],
+          "forventet": { "avvist": false, "trukket.grunnlag": true, "trukket.vederlag": true }
         }
       ]
     },

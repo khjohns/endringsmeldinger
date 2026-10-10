@@ -1,7 +1,7 @@
 /**
  * Feilinnføringene for kjernen (#304, #308, #273). F1–F7 er avsnitt 4 i
  * modellforslaget, F8–F10 feilklassene reviewet av PR #306 fant, skrevet om etter
- * MM-U9 og GR-U10, F11–F26 grensene #308 la til, og F27–F43 formatet (#273): 7.2
+ * MM-U9 og GR-U10, F11–F26 grensene #308 la til, og F27–F44 formatet (#273): 7.2
  * i designnotatet, GR-U12 og registeret (#320). Én mutasjon om gangen i
  * arbeidskopien, Vitest over `kjerne/` og `sprakprove/kjernelagring/`, og
  * originalteksten settes tilbake etterpå. For hver mutasjon kreves det at de
@@ -323,7 +323,7 @@ const MUTASJONER: Mutasjon[] = [
     endringer: [["eg?.grunnlag.kilde === 'sammenfall' && gSvar?", 'gSvar !== null && gSvar?']],
     mal: ['F-MM-G16', 'F-MM-G17'],
   },
-  // F27–F43 er formatet (#273): feilklassene i 7.2 i designnotatet, GR-U12, registeret (#320) og samspillsreviewet.
+  // F27–F44 er formatet (#273): feilklassene i 7.2 i designnotatet, GR-U12, registeret (#320) og samspillsreviewet.
   {
     id: 'F27',
     feilklasse: 'en referanse kan peke framover i journalen (4.2)',
@@ -446,22 +446,25 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F42',
     feilklasse:
-      'registrert korrespondanse uten opplysningen om § 31.3 er en endringsordre (oppdragsgiver 10.10)',
+      'en manglende opplysning om § 31.3 leses som at godkjenningen er en endringsordre (oppdragsgiver 10.10)',
     fil: `${K}/utled.ts`,
-    endringer: [
-      [
-        "const oppfyller313 = !iDokumentet('sendt') || (om313?.hva === 'endringsordre' && om313.oppfylt);",
-        'const oppfyller313 = true;',
-      ],
-    ],
+    endringer: [["      ? 'ikke_avklart'\n", "      ? 'ja'\n"]],
     mal: ['F-MM-G20'],
   },
   {
     id: 'F43',
-    feilklasse: 'opplysningen om at § 31.3 er oppfylt, leses ikke (oppdragsgiver 10.10)',
+    feilklasse: 'opplysningen om at § 31.3 ikke er oppfylt, leses ikke (oppdragsgiver 10.10)',
     fil: `${K}/utled.ts`,
-    endringer: [["(om313?.hva === 'endringsordre' && om313.oppfylt)", 'false']],
-    mal: ['F-MM-G18'],
+    endringer: [["          : 'nei';", "          : 'ja';"]],
+    mal: ['F-MM-G21'],
+  },
+  {
+    id: 'F44',
+    feilklasse:
+      'en manglende opplysning om § 31.3 leses som et nei (prinsipp 6, oppdragsgiver 10.10)',
+    fil: `${K}/utled.ts`,
+    endringer: [["      ? 'ikke_avklart'\n", "      ? 'nei'\n"]],
+    mal: ['F-MM-G20'],
   },
   {
     id: 'F40',

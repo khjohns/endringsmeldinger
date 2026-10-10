@@ -103,17 +103,18 @@ export interface Utledning {
   /** GR-U3, GR-U9: byggherren har frafalt pålegget (§ 32.3 c). Er ikke en enighet. */
   frafalt: boolean;
   /**
-   * GR-U10, GR-U12, § 31.3 (oppdragsgiver 10.10): byggherren har godkjent
-   * grunnlaget uten påberopt preklusjon i en kategori § 32.2 gjaldt for da brevet
-   * ble sendt, og § 31.3 er oppfylt: brevet er sendt i appen, eller den som
-   * registrerte korrespondansen, har oppgitt at den var en endringsordre. Da er
-   * godkjenningen en endringsordre etter § 32.3 første ledd a.
+   * Om byggherrens godkjenning av grunnlaget er en endringsordre etter § 32.3
+   * første ledd a med § 31.3 (GR-U10, GR-U12, oppdragsgiver 10.10). `ja`: godkjent
+   * uten påberopt preklusjon i en kategori § 32.2 gjaldt for, i et brev sendt i
+   * appen eller i registrert korrespondanse der den som registrerte, har oppgitt at
+   * § 31.3 er oppfylt. `nei`: ikke slik godkjent, eller oppgitt at § 31.3 ikke er
+   * oppfylt. `ikke_avklart`: registrert korrespondanse uten opplysningen. En
+   * manglende opplysning er ikke et nei.
    */
-  godkjenningErEndringsordre: boolean;
+  endringsordre: 'ja' | 'nei' | 'ikke_avklart';
   /**
-   * KA-U13: TE kan ikke trekke grunnlaget. Foreslått, til svaret om KA-U13 er
-   * kommet: enighet ved sammenfall i en kategori § 32.2 gjaldt for, uavhengig av
-   * § 31.3 (lesning a).
+   * KA-U13 med § 31.3 (oppdragsgiver 10.10): TE kan ikke trekke grunnlaget før det
+   * er avklart at godkjenningen ikke er en endringsordre.
    */
   trekkAvGrunnlagetErSperret: boolean;
 }
@@ -147,7 +148,7 @@ function tom(
     grunnlagAvklart: false,
     grunnlagAvvist: false,
     frafalt: false,
-    godkjenningErEndringsordre: false,
+    endringsordre: 'nei',
     trekkAvGrunnlagetErSperret: false,
   };
 }
@@ -386,11 +387,19 @@ export function utled(journal: Domenehendelse[], regler: Regelsett): Utledning {
     eg?.grunnlag.kilde === 'sammenfall' && gSvar?.beslutningsgrunnlag.varslingsplikt === true;
   // § 31.3: et brev sendt i appen oppfyller den, fordi appen lager brevet (#310). Registrert
   // korrespondanse har opplysningen `sendt`, og da avgjør opplysningen fra den som
-  // registrerte. Mangler den, gjetter kjernen ikke.
+  // registrerte. Mangler den, er det ikke avklart; kjernen gjetter ikke.
   const iDokumentet = (hva: Opplysning['hva']) =>
     opplysninger.find((o) => o.dokument === gSvar?.dokument && o.hva === hva);
   const om313 = iDokumentet('endringsordre');
-  const oppfyller313 = !iDokumentet('sendt') || (om313?.hva === 'endringsordre' && om313.oppfylt);
+  const endringsordre: Utledning['endringsordre'] = !sammenfallMedVarslingsplikt
+    ? 'nei'
+    : !iDokumentet('sendt')
+      ? 'ja'
+      : om313?.hva !== 'endringsordre'
+        ? 'ikke_avklart'
+        : om313.oppfylt
+          ? 'ja'
+          : 'nei';
   const gBrev = gSvar ? svar[gSvar.id] : null;
   for (const n of KRAVSPOR) {
     const falt = tilNyttSvar[n];
@@ -425,8 +434,8 @@ export function utled(journal: Domenehendelse[], regler: Regelsett): Utledning {
       eg !== null && gBrev !== null && grunnlagetErAvslaatt(gBrev.svar, gBrev.virkninger),
     // GR-U12: om § 32.2 gjaldt, er frosset i brevet. Dagens regelsett vurderer det
     // ikke på nytt (MM-U9), og det avhenger ikke av om brevet sier noe om varslingen.
-    godkjenningErEndringsordre: sammenfallMedVarslingsplikt && oppfyller313,
-    trekkAvGrunnlagetErSperret: sammenfallMedVarslingsplikt,
+    endringsordre,
+    trekkAvGrunnlagetErSperret: endringsordre !== 'nei',
     // GR-U3, GR-U9: frafallet er byggherrens standpunkt, uavhengig av hva TE har sagt.
     frafalt:
       gBrev !== null &&
