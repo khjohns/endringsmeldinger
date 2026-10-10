@@ -31,9 +31,15 @@ jobs:
     name: Endret siden forrige vellykkede kjøring
     if: >-
       github.event_name != 'pull_request' ||
-      (github.event.action == 'labeled' && github.event.label.name == 'feilinnfoering') ||
-      (github.event.action != 'labeled' && contains(github.event.pull_request.labels.*.name, 'feilinnfoering'))
+      (github.event.pull_request.state == 'open' &&
+       ((github.event.action == 'labeled' && github.event.label.name == 'feilinnfoering') ||
+        (github.event.action != 'labeled' && contains(github.event.pull_request.labels.*.name, 'feilinnfoering'))))
     runs-on: ubuntu-latest
+    # Egen gruppe, så en nyere push på PR-en avbryter også denne, og en eldre
+    # kjøring ikke kan stille seg bak den nyere i gruppen til feilinnfoering.
+    concurrency:
+      group: feilinnfoering-endret-${{ github.event_name }}-${{ github.ref }}
+      cancel-in-progress: ${{ github.event_name == 'pull_request' }}
     permissions:
       contents: read
       actions: read
@@ -65,13 +71,16 @@ jobs:
             package-lock.json
             vite.config.ts
             src/test-setup.ts
+            svelte.config.js
+            tsconfig.json
         run: |
           if [ "$PLANLAGT" != true ]; then
             echo "kjoer=true" >> "$GITHUB_OUTPUT"
             exit 0
           fi
           forrige="$(gh api "repos/$GITHUB_REPOSITORY/actions/workflows/feilinnfoering.yml/runs?branch=$GITHUB_REF_NAME&status=success&per_page=50" \
-            --jq '[.workflow_runs[] | select(.event != "pull_request")][0].head_sha // ""' || true)"
+            --jq '[.workflow_runs[] | select(.event != "pull_request")][0].head_sha // ""')" ||
+            { echo "::warning::Fant ikke forrige vellykkede kjøring; kjører fullt."; forrige=""; }
           echo "Forrige vellykkede kjøring på $GITHUB_REF_NAME: ${forrige:-ingen}"
           if [ -z "$forrige" ] || ! git cat-file -e "$forrige^{commit}" 2>/dev/null; then
             echo "kjoer=true" >> "$GITHUB_OUTPUT"
