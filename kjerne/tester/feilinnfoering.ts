@@ -266,8 +266,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/format.ts`,
     endringer: [
       [
-        "frist: objekt({ dager: { type: 'integer', minimum: 1 } }, ['dager']),",
-        "frist: objekt({ dager: { type: 'integer', minimum: 0 } }, ['dager']),",
+        "frist: { properties: { dager: { type: 'integer', minimum: 1 } }, required: ['dager'] },",
+        "frist: { properties: { dager: { type: 'integer', minimum: 0 } }, required: ['dager'] },",
       ],
     ],
     mal: ['F-MM-K0', 'et krav på 0 dager'],

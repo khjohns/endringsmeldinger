@@ -7,12 +7,12 @@
 
 import { UgyldigVurdering } from './regler/feil.ts';
 import { avvis } from './forutsetninger.ts';
-import { sammeSlag } from './format.ts';
+import { sammeSlag } from './leser.ts';
 import type { Kommando, Svarutkast } from './kommando.ts';
 import type { Regelsett } from './regler/regelsett.ts';
 import { likeResultatfelt, regnUtSvar, SAMMENLIKNES, utenforOmfanget } from './standpunkt.ts';
 import type { Utledning } from './utled.ts';
-import type { Avvisning, Opplysning } from './typer.ts';
+import type { Avvisning } from './typer.ts';
 
 function kontrollerSvar(s: Svarutkast, u: Utledning, regler: Regelsett): Avvisning | null {
   const krav = u.spor[s.spor].gjeldendeKrav!;
@@ -53,14 +53,11 @@ export function nyttelastkontroll(k: Kommando, u: Utledning, regler: Regelsett):
     case 'krav': {
       const varsel = u.spor.frist.varsel;
       if (k.spor !== 'frist' || !k.varsel || !varsel) return null;
-      const sendt = u.opplysninger
-        .map((o) => o.opplysning)
-        .find(
-          (o): o is Extract<Opplysning, { hva: 'sendt' | 'mottatt' }> =>
-            o.dokument === varsel.dokument && o.hva === 'sendt'
-        );
+      const sendt = u.opplysninger.find(
+        (o) => o.opplysning.dokument === varsel.dokument && o.opplysning.hva === 'sendt'
+      )?.opplysning;
       // SK-12: et registrert varsel beholder datoen det fikk første gang (rad KA-19).
-      return sendt?.dato === k.varsel.sendt
+      return sendt && 'dato' in sendt && sendt.dato === k.varsel.sendt
         ? null
         : avvis(
             'VARSEL_REGISTRERT',
