@@ -12,14 +12,17 @@ on:
     paths:
       - 'kjerne/**'
       - 'sprakprove/kjernelagring/**'
+      - 'sprakprove/server/**'
+      - 'supabase/migrations/**'
+      - 'scripts/testbase/**'
       - '.github/workflows/feilinnfoering.yml'
 
 permissions:
   contents: read
 
 concurrency:
-  group: feilinnfoering-${{ github.ref }}
-  cancel-in-progress: true
+  group: feilinnfoering-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   feilinnfoering:
@@ -53,16 +56,23 @@ jobs:
 
       - run: npm ci
 
+      - name: Kontroller serverversjonen
+        run: |
+          versjon="$(psql "$KOE_TESTBASE_URL" --no-psqlrc -tAc 'SHOW server_version_num')"
+          echo "server_version_num=$versjon"
+          test "${versjon:0:2}" = "17"
+
       - name: Bygg basen fra tom
         run: scripts/testbase/bygg_testbase.sh
 
       - name: Kjør feilinnføringene
+        id: feilinnfoering
         run: node kjerne/tester/feilinnfoering.ts
 
       # Skriptet kontrollerer filene det muterer. Her kontrolleres hele treet,
       # også når skriptet ble avbrutt midt i en mutasjon.
       - name: Kontroller at arbeidskopien er ren
-        if: always()
+        if: always() && steps.feilinnfoering.outcome != 'skipped'
         run: |
           git status --porcelain
           test -z "$(git status --porcelain)"
