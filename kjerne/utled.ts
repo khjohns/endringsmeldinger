@@ -21,7 +21,13 @@
 import { erRegistrert, sammeSlag } from './leser.ts';
 import type { Regelsett } from './regler/regelsett.ts';
 import type { Subsidiaergrunn } from './regler/grunnlag.ts';
-import { enighetsgrunnlag, grunnlagetErAvklart, prinsipalt, standpunktet } from './standpunkt.ts';
+import {
+  blirEndringsordre,
+  enighetsgrunnlag,
+  grunnlagetErAvklart,
+  prinsipalt,
+  standpunktet,
+} from './standpunkt.ts';
 import {
   KRAVSPOR,
   SPOR,
@@ -162,7 +168,7 @@ function ikkeErstattet(svar: Svar[], kravId: string): Svar[] {
 function grunnerFraGrunnlaget({ svar, virkninger }: Svarberegning): Subsidiaergrunn[] {
   const ut: Subsidiaergrunn[] = [];
   if (prinsipalt(virkninger)?.art === 'rettidighet') ut.push('prekludert');
-  if (standpunktet(svar, 'grunnlag')?.resultat === 'avslatt') ut.push('avslatt');
+  if (standpunktet(svar, 'grunnlag')?.resultat === 'avslaatt') ut.push('avslaatt');
   return ut;
 }
 
@@ -403,8 +409,7 @@ export function utled(journal: Domenehendelse[], regler: Regelsett): Utledning {
 
   const gSvar = spor.grunnlag.gjeldendeSvar;
   const eg = spor.grunnlag.enighet;
-  const sammenfallMedVarslingsplikt =
-    eg?.grunnlag.kilde === 'sammenfall' && gSvar?.beslutningsgrunnlag.varslingsplikt === true;
+  const sammenfallMedVarslingsplikt = !!gSvar && blirEndringsordre(gSvar.beslutningsgrunnlag);
   // § 31.3: et brev sendt i appen oppfyller den, fordi appen lager brevet (#310). Registrert
   // korrespondanse har en opplysning om at den er sendt eller mottatt, og da avgjør
   // opplysningen fra den som registrerte. Mangler den, er det ikke avklart; kjernen
@@ -458,7 +463,7 @@ export function utled(journal: Domenehendelse[], regler: Regelsett): Utledning {
     frafalt:
       gBrev !== null &&
       prinsipalt(gBrev.virkninger)?.art === 'grunnlag' &&
-      standpunktet(gBrev.svar, 'grunnlag')?.resultat === 'frafalt',
+      standpunktet(gBrev.svar, 'grunnlag')?.resultat === 'paalegg_frafalt',
   };
 }
 

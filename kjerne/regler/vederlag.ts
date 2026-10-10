@@ -70,11 +70,11 @@ const harRigg = (krav: Vederlagskrav) => krav.rigg_belop !== null;
 const harProduktivitet = (krav: Vederlagskrav) => krav.produktivitet_belop !== null;
 
 export function gjelderVarslingspliktenForVederlag(hovedkategori: string | null): boolean {
-  return hovedkategori === 'SVIKT' || hovedkategori === 'ANDRE';
+  return hovedkategori === 'svikt' || hovedkategori === 'andre_forhold';
 }
 
 export function kanHoldeTilbake(krav: Vederlagskrav): boolean {
-  return krav.metode === 'REGNINGSARBEID' && !krav.kostnads_overslag;
+  return krav.metode === 'regningsarbeid' && !krav.kostnads_overslag;
 }
 
 export function beregnPreklusjon(v: Vederlagsvurdering, krav: Vederlagskrav): Preklusjon {
@@ -139,7 +139,7 @@ const sum = (verdier: Oere[]) => verdier.reduce((a, b) => a + b, NULL_OERE);
 
 /** B-13 (24.09): «godkjent» bare når hele kravet er godkjent, til nærmeste krone. */
 function resultatAvBeloep(krevd: Oere, godkjent: Oere, metodeendring: boolean): Vederlagsresultat {
-  if (godkjent === NULL_OERE) return 'avslatt';
+  if (godkjent === NULL_OERE) return 'avslaatt';
   if (tilKrone(godkjent) >= tilKrone(krevd) && !metodeendring) return 'godkjent';
   return 'delvis_godkjent';
 }
@@ -154,7 +154,7 @@ export function subsidiaerTriggers(
     [p.rigg, 'preklusjon_rigg'],
     [p.produktivitet, 'preklusjon_produktivitet'],
     [krav.krever_justert_ep && v.varsel_justert_ep_ok === false, 'reduksjon_ep_justering'],
-    [v.aksepterer_metode === false, 'metode_avslatt'],
+    [v.aksepterer_metode === false, 'metode_avslaatt'],
   ];
   return kandidater.filter(([gjelder]) => gjelder).map(([, t]) => t);
 }
@@ -230,7 +230,7 @@ export function beregnVederlag(krav: Vederlagskrav, v: Vederlagsvurdering): Vede
   const visSubsidiaert = p.hovedkrav || p.rigg || p.produktivitet;
   return {
     beregnings_resultat: v.hold_tilbake
-      ? 'hold_tilbake'
+      ? 'tilbakeholdelse'
       : resultatAvBeloep(totalKrevdInklPrekludert, totalGodkjent, metodeendring),
     total_godkjent_belop: totalGodkjent,
     total_krevd_belop: totalKrevdInklPrekludert,

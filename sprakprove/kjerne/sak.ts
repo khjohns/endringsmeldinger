@@ -5,13 +5,13 @@
  * ved lesing og er bare en oppsummering til visning.
  */
 
+import type { Standpunkt } from '../../kjerne/regler/grunnlag.ts';
 import {
   erPrekludert,
   foersteUnderkategori as forsteUnderkategori,
   standpunkt,
-  type Standpunkt,
   type Subsidiaergrunn,
-} from '../../kjerne/regler/grunnlag.ts';
+} from './regler.ts';
 import type { Grunnlagsresultat, Hendelse, Saksstatus, Spor, Sporstatus } from './typer.ts';
 
 export interface Krav {

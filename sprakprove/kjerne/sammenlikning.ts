@@ -7,9 +7,13 @@
 
 import { beloep as belop, tilTall, type Oere as Ore } from '../../kjerne/regler/beloep.ts';
 import { REGELVERSJON } from './regelversjon.ts';
-import { kontrollerGrunnlagssvar } from '../../kjerne/regler/grunnlag.ts';
-import { beregnFrist, type Fristkrav } from '../../kjerne/regler/frist.ts';
-import { beregnVederlag, type Vederlagskrav } from '../../kjerne/regler/vederlag.ts';
+import {
+  beregnFrist,
+  beregnVederlag,
+  kontrollerGrunnlagssvar,
+  type Fristkrav,
+  type Vederlagskrav,
+} from './regler.ts';
 import { grunnlagetErPrekludert, grunnlagsvurdering, type Sak } from './sak.ts';
 import type { Grunnlagsresultat, Spor, Vederlagsmetode } from './typer.ts';
 

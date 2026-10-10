@@ -14,6 +14,7 @@
  * (#320), og en vakttest holder det likt med det som eksporteres her.
  */
 
+import { HOVEDKATEGORIER, KATEGORIER, UNDERKATEGORIER } from './koder.ts';
 import { FRISTRESULTATER, GRUNNLAGSRESULTATER, VEDERLAGSRESULTATER } from './regler/typer.ts';
 import type { Skjema } from './skjema.ts';
 import {
@@ -63,26 +64,41 @@ const TEKST: Skjema = { type: 'string', minLength: 1 };
 export const DATO: Skjema = { type: 'string', minLength: 10 };
 export const liste = (items: Skjema): Skjema => ({ type: 'array', minItems: 1, items });
 
-export const objekt = (properties: Skjema, required: string[]): Skjema => ({
+export const objekt = (properties: Skjema, required: string[], anyOf?: Skjema[]): Skjema => ({
   type: 'object',
   properties,
   required,
   additionalProperties: false,
+  ...(anyOf ? { anyOf } : {}),
 });
+
+/** Hovedkategorien og underkategorien er et par fra `KATEGORIER` (#335, HF-U1). */
+const KATEGORIPAR: Skjema[] = HOVEDKATEGORIER.filter((h) => KATEGORIER[h].length).map((h) => ({
+  properties: { hovedkategori: { const: h }, underkategori: { enum: [...KATEGORIER[h]] } },
+}));
 
 /**
  * Innholdet i en kravversjon per spor, uten `id`, `spor` og `erstatter`.
  * Kommandoen bruker det samme. Et krav på 0 kr eller 0 dager er ikke et krav om
- * noe (KA-U8).
+ * noe (KA-U8). Kategorien har kjernens koder, ikke katalogens (#335).
  */
-export const KRAVINNHOLD: Record<Spor, { properties: Skjema; required: string[] }> = {
+export const KRAVINNHOLD: Record<
+  Spor,
+  { properties: Skjema; required: string[]; anyOf?: Skjema[] }
+> = {
   grunnlag: {
-    properties: { hovedkategori: TEKST, underkategori: TEKST, tittel: TEKST, beskrivelse: TEKST },
+    properties: {
+      hovedkategori: { enum: HOVEDKATEGORIER },
+      underkategori: { enum: UNDERKATEGORIER },
+      tittel: TEKST,
+      beskrivelse: TEKST,
+    },
     required: ['hovedkategori', 'underkategori'],
+    anyOf: KATEGORIPAR,
   },
   vederlag: {
     properties: {
-      metode: { const: 'FASTPRIS_TILBUD' },
+      metode: { const: 'tilbud' },
       beloep: { type: 'number', exclusiveMinimum: 0 },
     },
     required: ['metode', 'beloep'],
@@ -96,11 +112,11 @@ const artfelt = (art: string) => ({ id: ID, art: { const: art } });
 export const KRAV: Record<Spor, Skjema> = Object.fromEntries(
   SPOR.map((s) => [
     s,
-    objekt({ ...sporfelt(s), erstatter: ID, ...KRAVINNHOLD[s].properties }, [
-      'id',
-      'spor',
-      ...KRAVINNHOLD[s].required,
-    ]),
+    objekt(
+      { ...sporfelt(s), erstatter: ID, ...KRAVINNHOLD[s].properties },
+      ['id', 'spor', ...KRAVINNHOLD[s].required],
+      KRAVINNHOLD[s].anyOf
+    ),
   ])
 ) as Record<Spor, Skjema>;
 

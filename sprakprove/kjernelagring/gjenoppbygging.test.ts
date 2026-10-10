@@ -81,7 +81,7 @@ describe.skipIf(!TESTBASE_URL)('gjenoppbyggingen mot testbasen', () => {
       'krav_samord',
       {
         handling: 'brev',
-        svar: [{ spor: 'grunnlag', resultat: 'avslatt', varslet_i_tide: false }],
+        svar: [{ spor: 'grunnlag', resultat: 'avslaatt', varslet_i_tide: false }],
       },
     ]);
     await lag('enighet om beløpet', ['forlop_a']);
