@@ -16,28 +16,22 @@
 
 import { FRISTRESULTATER, GRUNNLAGSRESULTATER, VEDERLAGSRESULTATER } from './regler/typer.ts';
 import type { Skjema } from './skjema.ts';
-import { KRAVSPOR, SPOR, type Spor, type Standpunktsart, type Utsagnsart } from './typer.ts';
+import {
+  KRAVSPOR,
+  SPOR,
+  type Hjemmel,
+  type Spor,
+  type Standpunktsart,
+  type Utsagnsart,
+} from './typer.ts';
 
 /** Formatversjonen kjernen skriver og høyst leser. Står i kolonnen `format`. */
 export const FORMAT = 1;
 
 export const HENDELSESTYPER = ['sak_opprettet', 'dokument_registrert'] as const;
-export type Hendelsestype = (typeof HENDELSESTYPER)[number];
 
-export const STANDPUNKTSARTER: readonly Standpunktsart[] = [
-  'rettidighet',
-  'grunnlag',
-  'beloep',
-  'hindring',
-  'dager',
-];
-export const UTSAGNSARTER: readonly Utsagnsart[] = [
-  'varsel',
-  'trekk',
-  'aksept',
-  'bestridelse',
-  'ingen_krav',
-];
+/** Hjemmelen for rettidigheten i sporet: § 32.2 i grunnlaget, § 33.4 i fristen. */
+export const HJEMMEL: Partial<Record<Spor, Hjemmel>> = { grunnlag: '32.2', frist: '33.4' };
 
 /**
  * Standpunktene et svar i sporet kan ha, i rekkefølgen brevet setter dem.
@@ -74,22 +68,16 @@ export const objekt = (properties: Skjema, required: string[]): Skjema => ({
  * Kommandoen bruker det samme. Et krav på 0 kr eller 0 dager er ikke et krav om
  * noe (KA-U8).
  */
-export const KRAVINNHOLD: Record<Spor, { properties: Skjema; required: string[] }> = {
-  grunnlag: {
-    properties: { hovedkategori: TEKST, underkategori: TEKST, tittel: TEKST, beskrivelse: TEKST },
-    required: ['hovedkategori', 'underkategori'],
-  },
-  vederlag: {
-    properties: {
-      metode: { const: 'FASTPRIS_TILBUD' },
-      beloep: { type: 'number', exclusiveMinimum: 0 },
-    },
-    required: ['metode', 'beloep'],
-  },
-  frist: {
-    properties: { dager: { type: 'integer', minimum: 1 } },
-    required: ['dager'],
-  },
+export const KRAVINNHOLD: Record<Spor, Skjema> = {
+  grunnlag: objekt(
+    { hovedkategori: TEKST, underkategori: TEKST, tittel: TEKST, beskrivelse: TEKST },
+    ['hovedkategori', 'underkategori']
+  ),
+  vederlag: objekt(
+    { metode: { const: 'FASTPRIS_TILBUD' }, beloep: { type: 'number', exclusiveMinimum: 0 } },
+    ['metode', 'beloep']
+  ),
+  frist: objekt({ dager: { type: 'integer', minimum: 1 } }, ['dager']),
 };
 
 const sporfelt = (spor: Spor) => ({ id: ID, spor: { const: spor } });
@@ -98,10 +86,10 @@ const artfelt = (art: string) => ({ id: ID, art: { const: art } });
 export const KRAV: Record<Spor, Skjema> = Object.fromEntries(
   SPOR.map((s) => [
     s,
-    objekt({ ...sporfelt(s), erstatter: ID, ...KRAVINNHOLD[s].properties }, [
+    objekt({ ...sporfelt(s), erstatter: ID, ...(KRAVINNHOLD[s].properties as Skjema) }, [
       'id',
       'spor',
-      ...KRAVINNHOLD[s].required,
+      ...(KRAVINNHOLD[s].required as string[]),
     ]),
   ])
 ) as Record<Spor, Skjema>;
@@ -221,6 +209,9 @@ export const UTSAGN: Record<Utsagnsart, Skjema> = {
  * selv; med `gjelder` er den en senere avklaring av et registrert brev, uten at
  * brevet skrives om (MM-U12).
  */
+export const STANDPUNKTSARTER = Object.keys(STANDPUNKT) as Standpunktsart[];
+export const UTSAGNSARTER = Object.keys(UTSAGN) as Utsagnsart[];
+
 export const OPPLYSNING: Record<'sendt' | 'mottatt' | 'endringsordre', Skjema> = {
   sendt: objekt({ id: ID, hva: { const: 'sendt' }, dato: DATO }, ['id', 'hva', 'dato']),
   mottatt: objekt({ id: ID, hva: { const: 'mottatt' }, dato: DATO }, ['id', 'hva', 'dato']),
@@ -229,6 +220,14 @@ export const OPPLYSNING: Record<'sendt' | 'mottatt' | 'endringsordre', Skjema> =
     ['id', 'hva', 'oppfylt']
   ),
 };
+
+/** Dokumentet er registrert korrespondanse: det er sendt eller mottatt utenfor appen (4.1). */
+export const erRegistrert = (opplysninger: { hva: string }[]): boolean =>
+  opplysninger.some((o) => o.hva === 'sendt' || o.hva === 'mottatt');
+
+/** MM-U7: en opplysning om § 31.3 bestrides som det, en dato som sendt eller mottatt. */
+export const sammeSlag = (opplysning: string, bestridelse: string): boolean =>
+  (opplysning === 'endringsordre') === (bestridelse === 'endringsordre');
 
 /** `data` i `dokument_registrert`. Elementene kontrolleres hver for seg etter `spor` eller `art`. */
 export const DOKUMENT: Skjema = objekt(

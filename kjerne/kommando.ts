@@ -7,7 +7,7 @@
  * skrives.
  */
 
-import { DATO, ID, KRAVINNHOLD as INNHOLD, liste, objekt } from './format.ts';
+import { DATO, ID, KRAVINNHOLD, liste, objekt } from './format.ts';
 import { erObjekt, feilI, type Skjema } from './skjema.ts';
 import type { Svarvurdering } from './standpunkt.ts';
 import { SPOR as SPORENE, type Spor } from './typer.ts';
@@ -47,10 +47,6 @@ const SVARUTKAST = objekt(
   },
   ['spor', 'gjelder', 'regelversjon', 'vurderinger', 'resultat']
 );
-
-const KRAVINNHOLD = Object.fromEntries(
-  SPORENE.map((s) => [s, objekt(INNHOLD[s].properties, INNHOLD[s].required)])
-) as Record<Spor, Skjema>;
 
 const SKJEMA: Record<Kommando['type'], Skjema> = {
   krav: objekt(

@@ -102,7 +102,7 @@ export function grunnlagetErAvslaatt(svar: Svarinnhold, v: Standpunktsvirkning[]
 }
 
 /** Det svaret gir i sporet når standpunktene har denne virkningen. */
-export function utfall(svar: Svarinnhold, v: Standpunktsvirkning[]): Utfall {
+function utfall(svar: Svarinnhold, v: Standpunktsvirkning[]): Utfall {
   const prekludert = avvisesPrinsipalt(v);
   if (svar.spor === 'grunnlag')
     return { grunnlag: grunnlagetErAvslaatt(svar, v) ? 'avvist' : 'avklart' };
