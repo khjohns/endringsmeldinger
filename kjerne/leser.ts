@@ -47,6 +47,22 @@ import type {
 export const erRegistrert = (opplysninger: { hva: string; gjelder?: string }[]): boolean =>
   opplysninger.some((o) => (o.hva === 'sendt' || o.hva === 'mottatt') && o.gjelder === undefined);
 
+/**
+ * Datoopplysningen om et varsel: den som `gjelder` varselet, ellers den om
+ * dokumentet varselet står i, når det er registrert for seg (HF-U1, MM-U1).
+ */
+export function datoFor(
+  varsel: { id: string; dokument: string },
+  hva: 'sendt' | 'mottatt',
+  opplysninger: Opplysning[]
+): Extract<Opplysning, { hva: 'sendt' | 'mottatt' }> | undefined {
+  const dato = opplysninger.filter(
+    (o): o is Extract<Opplysning, { hva: 'sendt' | 'mottatt' }> =>
+      o.hva === hva && o.dokument === varsel.dokument
+  );
+  return dato.find((o) => o.gjelder === varsel.id) ?? dato.find((o) => o.gjelder === undefined);
+}
+
 /** MM-U7: en opplysning om § 31.3 bestrides som det, en dato som sendt eller mottatt. */
 export const sammeSlag = (opplysning: string, bestridelse: string): boolean =>
   (opplysning === 'endringsordre') === (bestridelse === 'endringsordre');
@@ -218,7 +234,9 @@ function lesDokument(h: Journalrad): Dokument {
     opplysninger?: Data[];
     dokumentasjon?: string[];
   };
-  const avklaring = (data.opplysninger ?? []).some((o) => erObjekt(o) && 'gjelder' in o);
+  const avklaring = (data.opplysninger ?? []).some(
+    (o) => erObjekt(o) && o.hva === 'endringsordre' && 'gjelder' in o
+  );
   if (!data.krav && !data.svar && !data.utsagn && !avklaring)
     throw new Uforstaatt('dokumentet har verken krav, svar, utsagn eller en avklaring');
   const id = h.event_id;
@@ -232,9 +250,11 @@ function lesDokument(h: Journalrad): Dokument {
   const hva = new Set<string>();
   const opplysninger = (data.opplysninger ?? []).map((v, i): Opplysning => {
     const o = element(v, OPPLYSNING, 'hva', `$.opplysninger[${i}]`);
-    if (hva.has(o.hva as string))
+    // Én opplysning av hvert slag om dokumentet, og én om hvert varsel i det (HF-U1).
+    const noekkel = `${String(o.hva)}:${o.hva === 'endringsordre' ? '' : String(o.gjelder ?? '')}`;
+    if (hva.has(noekkel))
       throw new Uforstaatt(`dokumentet har to opplysninger om ${String(o.hva)}`);
-    hva.add(o.hva as string);
+    hva.add(noekkel);
     return o.hva === 'endringsordre'
       ? {
           id: o.id as string,

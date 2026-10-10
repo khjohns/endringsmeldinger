@@ -108,8 +108,7 @@ function preklusjonPaaberopt(svar: Svarinnhold, v: Standpunktsvirkning[]): boole
 /** Det svaret gir i sporet når standpunktene har denne virkningen. */
 function utfall(svar: Svarinnhold, v: Standpunktsvirkning[]): Utfall {
   const prekludert = avvisesPrinsipalt(v);
-  if (svar.spor === 'grunnlag')
-    return { grunnlag: grunnlagetErAvklart(svar, v) ? 'avklart' : 'avvist' };
+  if (svar.spor === 'grunnlag') return {};
   if (svar.spor === 'vederlag') return { beloep: standpunktet(svar, 'beloep')!.godkjent };
   const dager = standpunktet(svar, 'dager')!;
   return { dager: prekludert || dager.resultat === 'avslatt' ? 0 : dager.vurdert };

@@ -510,6 +510,39 @@ describe('opplysningen om § 31.3 i registrert korrespondanse', () => {
   });
 });
 
+/** HF-U1: en opplysning om dokumentet og en om varselet i det står ved siden av hverandre. */
+describe('datoene for et registrert krav og varselet i det', () => {
+  it('leses hver for seg, og varselets dato er den SK-12 sammenlikner med (KA-19)', async () => {
+    const bane = minnebane();
+    const k = await bygg(bane, ['godkjent_grunnlag']);
+    const journal = await bane.journal();
+    const siste = journal.at(-1)!;
+    const varsel = randomUUID();
+    const rad: Journalrad = {
+      ...siste,
+      event_id: randomUUID(),
+      event_type: 'dokument_registrert',
+      versjon: siste.versjon + 1,
+      aktor_rolle: 'TE',
+      data: {
+        krav: [{ id: randomUUID(), spor: 'frist', dager: 20 }],
+        utsagn: [{ id: varsel, art: 'varsel', hjemmel: '33.4' }],
+        opplysninger: [
+          { id: randomUUID(), hva: 'sendt', dato: '2026-09-10' },
+          { id: randomUUID(), hva: 'sendt', dato: '2026-09-02', gjelder: varsel },
+        ],
+      },
+    };
+    await bane.skriv([rad], siste.versjon);
+    expect(forstaatt(await bane.journal())).toBe(true);
+    const ny = (sendt: string) =>
+      k.prov({ handling: 'krav', spor: 'frist', dager: 25, varsel_sendt: sendt });
+    expect((await ny('2026-09-02')).godtatt).toBe(true);
+    const flyttet = await ny('2026-09-10');
+    expect(flyttet.godtatt ? 'godtatt' : flyttet.avvisning.regel).toBe('VARSEL_REGISTRERT');
+  });
+});
+
 /** Bare TE krever, varsler, godtar og trekker, og bare BH svarer (code-review av #308). */
 describe('en rad fra feil part er ikke forstått', () => {
   it.each([

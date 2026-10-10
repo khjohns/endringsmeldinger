@@ -7,7 +7,7 @@
 
 import { UgyldigVurdering } from './regler/feil.ts';
 import { avvis } from './forutsetninger.ts';
-import { sammeSlag } from './leser.ts';
+import { datoFor, sammeSlag } from './leser.ts';
 import type { Kommando, Svarutkast } from './kommando.ts';
 import type { Regelsett } from './regler/regelsett.ts';
 import { likeResultatfelt, regnUtSvar, SAMMENLIKNES, utenforOmfanget } from './standpunkt.ts';
@@ -53,11 +53,13 @@ export function nyttelastkontroll(k: Kommando, u: Utledning, regler: Regelsett):
     case 'krav': {
       const varsel = u.spor.frist.varsel;
       if (k.spor !== 'frist' || !k.varsel || !varsel) return null;
-      const sendt = u.opplysninger.find(
-        (o) => o.opplysning.dokument === varsel.dokument && o.opplysning.hva === 'sendt'
-      )?.opplysning;
+      const sendt = datoFor(
+        varsel,
+        'sendt',
+        u.opplysninger.map((o) => o.opplysning)
+      );
       // SK-12: et registrert varsel beholder datoen det fikk første gang (rad KA-19).
-      return sendt && 'dato' in sendt && sendt.dato === k.varsel.sendt
+      return sendt?.dato === k.varsel.sendt
         ? null
         : avvis(
             'VARSEL_REGISTRERT',
