@@ -116,7 +116,11 @@ Testene er raske. Kjør dem ofte. I skyøktene lager `.claude/hooks/session-star
 venv-en og testbasen, og meldingen fra hooken sier om databasetestene kjører.
 Med `KOE_TESTBASE_URL` kjører `npm test` også TS-databasetestene. Kjør dem ikke
 samtidig med pytest mot samme base: oppryddingen i pytest setter basen tilbake.
-`node kjerne/tester/feilinnfoering.ts` kjører feilinnføringene for kjernen.
+`node kjerne/tester/feilinnfoering.ts` kjører feilinnføringene for kjernen. Én
+kjøring tar om lag 33 minutter. I CI kjører workflowen `feilinnfoering.yml` dem
+om natta når kjernen, lagringstestene eller verktøykjeden er endret, ved manuell
+start og på PR-er med etiketten `feilinnfoering`. Sett etiketten på en PR som
+rører kjernen, før merge.
 Utenfor skyøktene: `python3 -m venv /tmp/venv` og `pip install -r` begge
 `backend/requirements*.txt` (systempython mangler pytest).
 
@@ -238,6 +242,10 @@ TypeScript, og en `DEFAULT` i databasen. Søk etter alle formene før du skriver
 ## Hvor hva står
 
 **Hver opplysning har ett hjem.** Sier to steder det samme, glir de fra hverandre.
+Det holder bare hvis hvert ledd viser til det forrige i stedet for å gjengi det.
+Matrisen og domenetabellen viser til vedtaks-ID-en, en bevis-sak viser til raden
+og en PR viser til issuet og vedtaket. Ingen av dem skriver vedtaket om med egne
+ord.
 
 | Hva | Hvor |
 | --- | --- |
