@@ -304,7 +304,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ],
   ['standpunkt.ts', 'frosset', 'prinsipalt'],
   // § 32.3 første ledd a for et brev sendt i appen, lest av beslutningsgrunnlaget (GR-U12, #351).
-  ['standpunkt.ts', 'frosset', 'blirEndringsordre', ['utled.ts', 'skriving.ts']],
+  ['standpunkt.ts', 'frosset', 'blirEndringsordre', ['utled.ts', 'frysing.ts']],
   ['standpunkt.ts', 'utsagn', 'standpunktet'],
   ['standpunkt.ts', 'predikat', 'enighetsgrunnlag'],
   // GR-U7 med unntaket i MM-U13: utledningen regner `grunnlagAvklart` og `grunnlagAvvist` av den.
@@ -411,7 +411,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
      SVAR UTSAGN`,
     ['leser.ts'],
   ],
-  ['format.ts', 'rad', 'HJEMMEL', ['leser.ts', 'skriving.ts']],
+  ['format.ts', 'rad', 'HJEMMEL', ['leser.ts', 'skriving.ts', 'frysing.ts']],
   ['format.ts', 'kontekst', 'FORMAT LESERFORMAT', ['versjon.ts']],
   ['format.ts', 'skjema', 'DATO ID KRAVINNHOLD liste objekt', ['kommando.ts']],
   ['STANDPUNKTER_I_SPORET', 'rad', 'art paakrevd', ['leser.ts']],
@@ -421,6 +421,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['KATEGORIER', 'skjema', 'endring svikt andre_forhold force_majeure', ['format.ts']],
   // Oversettelsen fra katalogens koder, for klienten og språkprøven (#335).
   ['koder.ts:fraKatalogen(tabell)', 'kommando', '*', ['koder.ts']],
+  ['koder.ts:kategoriFraKatalogen', 'kommando', 'hovedkategori underkategori', ['koder.ts']],
   [
     'regler/typer.ts',
     'regelsett',
@@ -473,10 +474,14 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['leser.ts:lesBeslutningsgrunnlag(p)', 'rad', 'standpunkt virkning', ['leser.ts']],
   ['leser.ts:erRegistrert', 'rad', 'hva gjelder', ['leser.ts']],
   ['leser.ts:datoFor', 'relasjon', 'id dokument', ['leser.ts']],
-  ['skriving.ts:frys(svar)', 'rad', 'spor utregning', ['skriving.ts']],
+  // Det brevet fryser, som skrivingen og predikatet for et svarutkast deler (#351).
+  ['frysing.ts', 'regelsett', 'frys grunnlagsstandpunkter', ['skriving.ts']],
+  ['frysing.ts:frys(svar)', 'rad', 'spor utregning', ['frysing.ts']],
   ['skriving.ts:frysBrev(s)', 'rad', 'spor gjelder', ['skriving.ts']],
   ['skriving.ts:lagret(?)', 'frosset', 'resten', ['skriving.ts']],
-  ['leser.ts', 'rad', 'lesJournal standpunkterISvaret Uforstaatt', ['skriving.ts']],
+  ['leser.ts', 'rad', 'lesJournal', ['skriving.ts']],
+  ['leser.ts', 'rad', 'standpunkterISvaret', ['frysing.ts']],
+  ['leser.ts', 'rad', 'Uforstaatt', ['skriving.ts', 'frysing.ts']],
   // Leseregler som deles: registrert korrespondanse, datoen for et varsel og bestridelsen
   // av samme slag (MM-U1, MM-U7).
   ['leser.ts', 'relasjon', 'erRegistrert datoFor sammeSlag'],

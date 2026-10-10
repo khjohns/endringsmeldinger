@@ -7,12 +7,11 @@
 import {
   BELOEPSVURDERING_FRA_KATALOGEN,
   GRUNNLAGSRESULTAT_FRA_KATALOGEN,
-  HOVEDKATEGORI_FRA_KATALOGEN,
   METODE_FRA_KATALOGEN,
   RESULTAT_FRA_KATALOGEN,
-  UNDERKATEGORI_FRA_KATALOGEN,
-  UTLOSER_FRA_KATALOGEN,
+  UTLOESER_FRA_KATALOGEN,
   fraKatalogen,
+  kategoriFraKatalogen,
   tilKatalogen,
 } from '../../kjerne/koder.ts';
 import * as grunnlag from '../../kjerne/regler/grunnlag.ts';
@@ -25,19 +24,18 @@ export type { Fristkrav } from '../../kjerne/regler/frist.ts';
 
 type Inn<T> = Record<string, unknown> & T;
 
-const hoved = (k: string | null) => fraKatalogen(HOVEDKATEGORI_FRA_KATALOGEN, k) as string | null;
-const under = (k: string | null) => fraKatalogen(UNDERKATEGORI_FRA_KATALOGEN, k) as string | null;
 const grunnlagsresultat = (r: Grunnlagsresultat | null) =>
   fraKatalogen(GRUNNLAGSRESULTAT_FRA_KATALOGEN, r) as never;
 const resultatUt = (r: unknown) => tilKatalogen(RESULTAT_FRA_KATALOGEN, r) as string | null;
-const utloserUt = (t: string[]) => t.map((u) => tilKatalogen(UTLOSER_FRA_KATALOGEN, u) as string);
+const utloserUt = (t: string[]) => t.map((u) => tilKatalogen(UTLOESER_FRA_KATALOGEN, u) as string);
 
 export function erPrekludert(
   hovedkategori: string | null,
   underkategori: string | null,
   varsletITide: boolean | null
 ): boolean {
-  return grunnlag.erPrekludert(hoved(hovedkategori), under(underkategori), varsletITide);
+  const k = kategoriFraKatalogen({ hovedkategori, underkategori });
+  return grunnlag.erPrekludert(k.hovedkategori, k.underkategori, varsletITide);
 }
 
 export function standpunkt(
@@ -52,8 +50,7 @@ export function standpunkt(
   return grunnlag.standpunkt(
     {
       resultat: grunnlagsresultat(g.resultat),
-      hovedkategori: hoved(g.hovedkategori),
-      underkategori: under(g.underkategori),
+      ...kategoriFraKatalogen(g),
       varsletITide: g.varsletITide,
     },
     tilNyttSvar
@@ -66,9 +63,10 @@ export function kontrollerGrunnlagssvar(
   resultat: Grunnlagsresultat | null,
   varsletITide: boolean | null
 ): void {
+  const k = kategoriFraKatalogen({ hovedkategori, underkategori });
   grunnlag.kontrollerGrunnlagssvar(
-    hoved(hovedkategori),
-    under(underkategori),
+    k.hovedkategori,
+    k.underkategori,
     grunnlagsresultat(resultat),
     varsletITide
   );
@@ -90,8 +88,7 @@ export function beregnVederlag(krav: Vederlagskrav, v: Record<string, unknown>) 
     {
       ...krav,
       metode: fraKatalogen(METODE_FRA_KATALOGEN, krav.metode) as never,
-      hovedkategori: hoved(krav.hovedkategori),
-      underkategori: under(krav.underkategori),
+      ...kategoriFraKatalogen(krav),
       grunnlag_resultat: grunnlagsresultat(krav.grunnlag_resultat),
     },
     vurdering as Inn<vederlag.Vederlagsvurdering>

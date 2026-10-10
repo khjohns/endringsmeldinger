@@ -95,7 +95,7 @@ export const BELOEPSVURDERING_FRA_KATALOGEN: Record<string, Beloepsvurdering> = 
   avslatt: 'avslaatt',
 };
 
-export const UTLOSER_FRA_KATALOGEN: Record<string, SubsidiaerUtloser> = {
+export const UTLOESER_FRA_KATALOGEN: Record<string, SubsidiaerUtloser> = {
   grunnlag_avslatt: 'grunnlag_avslaatt',
   grunnlag_prekludert_32_2: 'grunnlag_prekludert_32_2',
   forseringsrett_avslatt: 'forseringsrett_avslaatt',
@@ -115,6 +115,19 @@ export const UTLOSER_FRA_KATALOGEN: Record<string, SubsidiaerUtloser> = {
  */
 export function fraKatalogen(tabell: Record<string, string>, kode: unknown): unknown {
   return typeof kode === 'string' && Object.hasOwn(tabell, kode) ? tabell[kode] : kode;
+}
+
+/** Kjernens koder for kategorien i katalogen. */
+export function kategoriFraKatalogen(kategori: {
+  hovedkategori?: unknown;
+  underkategori?: unknown;
+}): { hovedkategori: string | null; underkategori: string | null } {
+  const kode = (tabell: Record<string, string>, v: unknown) =>
+    typeof v === 'string' ? (fraKatalogen(tabell, v) as string) : null;
+  return {
+    hovedkategori: kode(HOVEDKATEGORI_FRA_KATALOGEN, kategori.hovedkategori),
+    underkategori: kode(UNDERKATEGORI_FRA_KATALOGEN, kategori.underkategori),
+  };
 }
 
 /** Katalogens kode for kjernens kode etter `tabell`, motsatt vei av `fraKatalogen`. */

@@ -9,17 +9,12 @@
 import { avvisning } from './avvisning.ts';
 import { HJEMMEL } from './format.ts';
 import { formfeil, type Kommando, type Svarutkast } from './kommando.ts';
-import { lesJournal, standpunkterISvaret, Uforstaatt } from './leser.ts';
-import type { Regelsett } from './regler/regelsett.ts';
-import {
-  beslutningsgrunnlag,
-  blirEndringsordre,
-  regnUtSvar,
-  type Svarvurdering,
-} from './standpunkt.ts';
+import { frys, grunnlagsstandpunkter } from './frysing.ts';
+import { lesJournal, Uforstaatt } from './leser.ts';
+import { regnUtSvar } from './standpunkt.ts';
 import { grunnlagskravFor, utled, type Utledning } from './utled.ts';
 import type { Kjerne } from './versjon.ts';
-import type { Avvisning, Beslutningsgrunnlag, Journalrad, Krav, Part, Spor } from './typer.ts';
+import type { Avvisning, Beslutningsgrunnlag, Journalrad, Krav, Part } from './typer.ts';
 
 /** Det serveren stempler kommandoen med. Klienten bestemmer ingen av dem. */
 export interface Kontekst {
@@ -58,68 +53,6 @@ function lagret({ virkninger, ...resten }: Beslutningsgrunnlag): Data {
       .map(({ standpunkt, virkning }) => ({ standpunkt, virkning })),
     ...(uten.length ? { uten_virkning: uten.map((v) => v.standpunkt) } : {}),
   };
-}
-
-/**
- * Brevet frosset i et svar i formen det lagres i (MM-U9, MM-U11, GR-U12).
- * `grunnlagskrav` er kravet et grunnlagssvar gjelder, ellers gjeldende
- * grunnlagskrav. Kaster `Uforstaatt` når standpunktene ikke kan leses.
- */
-function frys(svar: Data, grunnlagskrav: Krav | null | undefined, regler: Regelsett) {
-  const spor = svar.spor as Spor;
-  const innhold = {
-    spor,
-    standpunkter: standpunkterISvaret(spor, svar),
-    utregning: (svar.utregning ?? {}) as Data,
-  };
-  return beslutningsgrunnlag(innhold, grunnlagskrav, regler);
-}
-
-/** Standpunktene i et svar på grunnlaget (§ 32.2 og § 32.3). */
-function grunnlagsstandpunkter(v: Svarvurdering, krav: Krav, nyId: () => string): Data[] {
-  const ut: Data[] = [];
-  if (typeof v.grunnlag_varslet_i_tide === 'boolean')
-    ut.push({
-      id: nyId(),
-      art: 'rettidighet',
-      gjelder: krav.id,
-      hjemmel: HJEMMEL.grunnlag,
-      i_tide: v.grunnlag_varslet_i_tide,
-    });
-  ut.push({ id: nyId(), art: 'grunnlag', resultat: v.resultat });
-  return ut;
-}
-
-/**
- * Om et svar på grunnlaget med disse vurderingene blir en endringsordre etter
- * § 32.3 første ledd a når brevet sendes i appen (GR-U12, #351). Standpunktene
- * og beslutningsgrunnlaget lages som når brevet skrives, og sammensetningen er
- * den utledningen leser. Kategorien har kjernens koder (#335). Et svarutkast
- * kjernen ikke forstår, for eksempel uten gyldig resultat, er ingen endringsordre.
- */
-export function svaretBlirEndringsordre(
-  vurderinger: Svarvurdering,
-  kategori: { hovedkategori?: string | null; underkategori?: string | null },
-  regler: Regelsett
-): boolean {
-  const krav: Krav = {
-    id: 'utkast',
-    spor: 'grunnlag',
-    dokument: 'utkast',
-    erstatter: null,
-    innhold: { ...kategori },
-  };
-  let n = 0;
-  const svar = {
-    spor: 'grunnlag',
-    standpunkter: grunnlagsstandpunkter(vurderinger, krav, () => `standpunkt-${++n}`),
-  };
-  try {
-    return blirEndringsordre(frys(svar, krav, regler));
-  } catch (feil) {
-    if (feil instanceof Uforstaatt) return false;
-    throw feil;
-  }
 }
 
 /** Standpunktene byggherren har tatt, i rekkefølgen brevet setter dem. En vurdering som ikke er gjort, utelates (KA-U4). */

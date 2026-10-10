@@ -6,14 +6,9 @@
  * for registrert korrespondanse, der § 31.3 må oppgis (GR-U13).
  */
 
-import {
-  GRUNNLAGSRESULTAT_FRA_KATALOGEN,
-  HOVEDKATEGORI_FRA_KATALOGEN,
-  UNDERKATEGORI_FRA_KATALOGEN,
-  fraKatalogen,
-} from '$kjerne/koder';
+import { GRUNNLAGSRESULTAT_FRA_KATALOGEN, fraKatalogen, kategoriFraKatalogen } from '$kjerne/koder';
 import { GJELDENDE_REGLER } from '$kjerne/regler/regelsett';
-import { svaretBlirEndringsordre } from '$kjerne/skriving';
+import { svaretBlirEndringsordre } from '$kjerne/frysing';
 import type { ApprovalPackage, ReviewItem } from '$lib/approval/types';
 
 export interface Grunnlagskategori {
@@ -42,14 +37,7 @@ export function erEndringsordre(
         ? { grunnlag_varslet_i_tide: vurdering.varsletITide }
         : {}),
     },
-    {
-      hovedkategori: fraKatalogen(HOVEDKATEGORI_FRA_KATALOGEN, kategori?.hovedkategori) as
-        | string
-        | null,
-      underkategori: fraKatalogen(UNDERKATEGORI_FRA_KATALOGEN, kategori?.underkategori) as
-        | string
-        | null,
-    },
+    kategoriFraKatalogen(kategori ?? {}),
     GJELDENDE_REGLER
   );
 }

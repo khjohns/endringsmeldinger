@@ -2,10 +2,10 @@
   "formatversjon": 1,
   "omfang": "Forløp A–E fra modellforslaget (docs/forslag-maalmodell-2026-10-09.md, avsnitt 3) som bevis-saker for TS-kjernen i kjerne/ (#304, #308). Forventningene er skrevet ut fra vedtakene og kildene i hver kontroll, ikke ut fra dagens kode. Bevis-sakene kjøres bare mot kjernen, i minnet og mot testbasen; Python-projeksjonen kan ikke uttrykke handlingene `varsel`, `bestridelse`, `regelendring` og `rad`.",
   "grunnpremisser": [
-    "Grunnlaget er en endring (hovedkategori ENDRING). Underkategorien står i prefikset eller steget.",
+    "Grunnlaget er en endring (hovedkategori `endring`). Underkategorien står i prefikset eller steget.",
     "Beløp, dager og datoer er faste modellverdier. De er ikke rettslige forventninger.",
     "Byggherrens svar har vurderingene i handlingen. Klienten regner resultatet med kjernen, og serveren regner det på nytt (B-13).",
-    "Regelsettet `n` er gjeldende regler (REGELVERSJON). `n+1` er en kontrollert regelendring i prøven: § 32.2 gjelder ikke underkategorien SAMORD. Endringen er ikke vedtatt; den står for innsnevringen #220 kan gi, og omfanget av § 32.2 avgjøres ikke her.",
+    "Regelsettet `n` er gjeldende regler (REGELVERSJON). `n+1` er en kontrollert regelendring i prøven: § 32.2 gjelder ikke underkategorien `samordning`. Endringen er ikke vedtatt; den står for innsnevringen #220 kan gi, og omfanget av § 32.2 avgjøres ikke her.",
     "`navn` på et steg er etiketten forventningene bruker. Et dokument (`brev`, `varsel`) har sin etikett, og hvert svar i det har sin. En rettidighet etter § 33.4 som `gjelder` kravet K-f1, gjelder varselet kjernen utleder av kravet når ingen varsel er registrert (MM-U1). En `rad` er en rad fra en annen skriver i format 1: et svar når den har `spor`, ellers et utsagn med `art`. Etiketten på et svar er svaret, på et utsagn dokumentet.",
     "En `rad` er registrert korrespondanse eller en rad kjernen ikke selv har skrevet. Den går ikke gjennom kommandovalideringen, men brevet fryses som i et svar fra kjernen når kjernen forstår raden (merknaden til MM-U9).",
     "Rollen `mal` med `prov` er en målkontroll på utfallet av et forsøk som ikke lagres. Rollen `kontroll` er en kontrollsak: den skal holde, ellers er forutsetningen brutt. Et avvist steg skal la journalen stå uendret.",

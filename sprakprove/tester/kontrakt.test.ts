@@ -7,6 +7,12 @@
 
 import { describe, expect, it } from 'vitest';
 import skjema from '../../docs/domenetabell/kontrakt.json' with { type: 'json' };
+import {
+  BELOEPSVURDERING_FRA_KATALOGEN,
+  GRUNNLAGSRESULTAT_FRA_KATALOGEN,
+  RESULTAT_FRA_KATALOGEN,
+  UTLOESER_FRA_KATALOGEN,
+} from '../../kjerne/koder.ts';
 import { vurderKommando } from '../kjerne/kommando.ts';
 import { ukjenteNokkelord, valider } from '../kjerne/kontrakt.ts';
 import { offentligTilstand } from '../kjerne/offentlig.ts';
@@ -67,6 +73,16 @@ describe('skjemaet', () => {
     ['subsidiaer_utloser', SUBSIDIAERE_UTLOSERE],
   ])('enumen %s er kontraktens', (navn, verdier) => {
     expect([...verdier].sort()).toEqual([...(defs[navn].enum as string[])].sort());
+  });
+
+  // #335: kjernen har egne koder, og `regler.ts` oversetter med tabellene i `kjerne/koder.ts`.
+  it.each([
+    ['grunnlagsresultat', GRUNNLAGSRESULTAT_FRA_KATALOGEN],
+    ['vederlagsresultat', RESULTAT_FRA_KATALOGEN],
+    ['belopsvurdering', BELOEPSVURDERING_FRA_KATALOGEN],
+    ['subsidiaer_utloser', UTLOESER_FRA_KATALOGEN],
+  ])('oversettelsen kjenner hver verdi i enumen %s', (navn, tabell) => {
+    expect(Object.keys(tabell).sort()).toEqual([...(defs[navn].enum as string[])].sort());
   });
 });
 
