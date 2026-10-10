@@ -274,9 +274,16 @@ export function utled(journal: Domenehendelse[], regler: Regelsett): Utledning {
         );
     }
   }
-  for (const a of aksepter)
+  for (const a of aksepter) {
     if (!alleSvar.has(a.gjelder) || !bakover(a.id, a.gjelder))
       ugyldig(a.id, 'aksepten viser til et svar som ikke står før den');
+    // GR-U8: et svar som godkjenner hele kravet, kan ikke godtas. KA-U7: en enighet
+    // inngås én gang, så to aksepter av samme svar er tvetydige.
+    else if (alleSvar.get(a.gjelder)!.beslutningsgrunnlag.sammenfall)
+      ugyldig(a.id, 'aksepten gjelder et svar partene alt er enige om ved sammenfall');
+    else if (aksepter.filter((x) => x.gjelder === a.gjelder).length > 1)
+      ugyldig(a.id, 'svaret er godtatt to ganger');
+  }
   for (const t of trekk) {
     // Trekket gjelder sporets gjeldende kravversjon da det ble registrert.
     const k = alleKrav.get(t.gjelder);
@@ -340,7 +347,7 @@ export function utled(journal: Domenehendelse[], regler: Regelsett): Utledning {
   for (const n of SPOR) {
     const g = spor[n].gjeldendeSvar;
     if (!g) continue;
-    const aksept = aksepter.filter((a) => a.gjelder === g.id).at(-1);
+    const aksept = aksepter.find((a) => a.gjelder === g.id);
     if (aksept)
       spor[n].enighet = {
         grunnlag: enighetsgrunnlag(g, 'aksept'),
