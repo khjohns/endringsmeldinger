@@ -21,13 +21,7 @@
 import { erRegistrert, sammeSlag } from './leser.ts';
 import type { Regelsett } from './regler/regelsett.ts';
 import type { Subsidiaergrunn } from './regler/grunnlag.ts';
-import {
-  enighetsgrunnlag,
-  grunnlagetErAvklart,
-  grunnlagetErAvslaatt,
-  prinsipalt,
-  standpunktet,
-} from './standpunkt.ts';
+import { enighetsgrunnlag, grunnlagetErAvklart, prinsipalt, standpunktet } from './standpunkt.ts';
 import {
   KRAVSPOR,
   SPOR,
@@ -99,7 +93,7 @@ export interface Utledning {
    * § 32.2, eller frafalt pålegget, etter brevet eller enigheten om det.
    */
   grunnlagAvklart: boolean;
-  /** SK-01, #213: partene er enige om at grunnlaget er avvist. */
+  /** SK-01, #213, MM-U13: partene er enige om et grunnlagssvar som ikke avklarer grunnlaget etter GR-U7. */
   grunnlagAvvist: boolean;
   /** GR-U3, GR-U9: byggherren har frafalt pålegget (§ 32.3 c). Er ikke en enighet. */
   frafalt: boolean;
@@ -451,9 +445,10 @@ export function utled(journal: Domenehendelse[], regler: Regelsett): Utledning {
     // enighet om det (KA-U10, MM-U11).
     grunnlagAvklart:
       !spor.grunnlag.trukket && gBrev !== null && grunnlagetErAvklart(gBrev.svar, gBrev.virkninger),
-    // SK-01: avslaget eller preklusjonen i brevet, og partene er enige om det.
+    // SK-01, MM-U13: partene er enige om grunnlagssvaret, og det avklarer ikke grunnlaget
+    // etter GR-U7. Et godtatt avslag og en godtatt preklusjon har samme virkning.
     grunnlagAvvist:
-      eg !== null && gBrev !== null && grunnlagetErAvslaatt(gBrev.svar, gBrev.virkninger),
+      eg !== null && gBrev !== null && !grunnlagetErAvklart(gBrev.svar, gBrev.virkninger),
     // GR-U12: om § 32.2 gjaldt, er frosset i brevet. Dagens regelsett vurderer det
     // ikke på nytt (MM-U9), og det avhenger ikke av om brevet sier noe om varslingen.
     endringsordre,
