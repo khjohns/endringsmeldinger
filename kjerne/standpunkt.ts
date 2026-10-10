@@ -96,16 +96,11 @@ export function grunnlagetErAvklart(svar: Svarinnhold, v: Standpunktsvirkning[])
   return !avvisesPrinsipalt(v) && (resultat === 'godkjent' || resultat === 'frafalt');
 }
 
-/** SK-01, #213: byggherren har avslått grunnlaget eller påberopt preklusjon etter § 32.2. */
-export function grunnlagetErAvslaatt(svar: Svarinnhold, v: Standpunktsvirkning[]): boolean {
-  return avvisesPrinsipalt(v) || standpunktet(svar, 'grunnlag')?.resultat === 'avslatt';
-}
-
 /** Det svaret gir i sporet når standpunktene har denne virkningen. */
 function utfall(svar: Svarinnhold, v: Standpunktsvirkning[]): Utfall {
   const prekludert = avvisesPrinsipalt(v);
   if (svar.spor === 'grunnlag')
-    return { grunnlag: grunnlagetErAvslaatt(svar, v) ? 'avvist' : 'avklart' };
+    return { grunnlag: grunnlagetErAvklart(svar, v) ? 'avklart' : 'avvist' };
   if (svar.spor === 'vederlag') return { beloep: standpunktet(svar, 'beloep')!.godkjent };
   const dager = standpunktet(svar, 'dager')!;
   return { dager: prekludert || dager.resultat === 'avslatt' ? 0 : dager.vurdert };
