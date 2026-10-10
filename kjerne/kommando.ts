@@ -106,7 +106,8 @@ export function formfeil(kommando: unknown): string[] {
   const feil = feilI(kommando, SKJEMA[type as Kommando['type']]);
   if (type === 'krav' && !feil.length) {
     const k = kommando as { spor: Spor; innhold: unknown };
-    feil.push(...feilI(k.innhold, KRAVINNHOLD[k.spor], '$.innhold'));
+    const { properties, required } = KRAVINNHOLD[k.spor];
+    feil.push(...feilI(k.innhold, objekt(properties, required), '$.innhold'));
     if (k.spor !== 'frist' && 'varsel' in k)
       feil.push('$.varsel: bare et fristkrav har varsel etter § 33.4');
   }

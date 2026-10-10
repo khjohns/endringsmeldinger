@@ -7,6 +7,7 @@
  */
 
 import { avvisning } from './avvisning.ts';
+import { HJEMMEL } from './format.ts';
 import { formfeil, type Kommando, type Svarutkast } from './kommando.ts';
 import { lesJournal, standpunkterISvaret, Uforstaatt } from './leser.ts';
 import { beslutningsgrunnlag, regnUtSvar } from './standpunkt.ts';
@@ -78,7 +79,7 @@ function standpunkter(s: Svarutkast, krav: Krav, u: Utledning, nyId: () => strin
         id: nyId(),
         art: 'rettidighet',
         gjelder: krav.id,
-        hjemmel: '32.2',
+        hjemmel: HJEMMEL.grunnlag,
         i_tide: v.grunnlag_varslet_i_tide,
       });
     ut.push({ id: nyId(), art: 'grunnlag', resultat: v.resultat });
@@ -91,7 +92,7 @@ function standpunkter(s: Svarutkast, krav: Krav, u: Utledning, nyId: () => strin
         id: nyId(),
         art: 'rettidighet',
         gjelder: u.spor.frist.varsel?.id ?? krav.id,
-        hjemmel: '33.4',
+        hjemmel: HJEMMEL.frist,
         i_tide: v.frist_varsel_ok,
       });
     if (typeof v.vilkar_oppfylt === 'boolean')

@@ -12,7 +12,6 @@
 
 import {
   BESLUTNINGSGRUNNLAG,
-  erRegistrert,
   HJEMMEL,
   DOKUMENT,
   KRAV,
@@ -40,6 +39,14 @@ import type {
   Utsagnsart,
   Virkning,
 } from './typer.ts';
+
+/** Dokumentet er registrert korrespondanse: det er sendt eller mottatt utenfor appen (4.1). */
+export const erRegistrert = (opplysninger: { hva: string }[]): boolean =>
+  opplysninger.some((o) => o.hva === 'sendt' || o.hva === 'mottatt');
+
+/** MM-U7: en opplysning om § 31.3 bestrides som det, en dato som sendt eller mottatt. */
+export const sammeSlag = (opplysning: string, bestridelse: string): boolean =>
+  (opplysning === 'endringsordre') === (bestridelse === 'endringsordre');
 
 /** Leseren forstår ikke raden (MM-U2). */
 export class Uforstaatt extends Error {}

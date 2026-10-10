@@ -18,7 +18,7 @@
  * ukjent, er saken ikke forstått, og ingenting utledes (MM-U2, 2.7 regel 1).
  */
 
-import { erRegistrert, sammeSlag } from './format.ts';
+import { erRegistrert, sammeSlag } from './leser.ts';
 import type { Regelsett } from './regler/regelsett.ts';
 import type { Subsidiaergrunn } from './regler/grunnlag.ts';
 import {
@@ -245,7 +245,8 @@ export function utled(journal: Domenehendelse[], regler: Regelsett): Utledning {
     journal.flatMap((h) => (h.art === 'dokument' ? [[h.id, h.dokument] as const] : []))
   );
   /** Avsenderen av dokumentet elementet står i. */
-  const avsenderAv = (id: string): Part => dokumenter.get(plass.get(id)!.hendelse)!.avsender;
+  const avsenderAv = (id: string): Part | undefined =>
+    dokumenter.get(plass.get(id)?.hendelse ?? '')?.avsender;
 
   for (const n of SPOR) {
     // Kravversjonene i sporet er én kjede: den første erstatter ingenting, og hver
@@ -335,6 +336,7 @@ export function utled(journal: Domenehendelse[], regler: Regelsett): Utledning {
     if (
       !o ||
       !bakover(b.id, b.gjelder) ||
+      avsenderAv(b.id) === undefined ||
       o.oppgittAv === avsenderAv(b.id) ||
       !sammeSlag(o.hva, b.hva)
     )
@@ -439,7 +441,7 @@ export function utled(journal: Domenehendelse[], regler: Regelsett): Utledning {
       bestridelser: bestridelser
         .filter((b) => b.gjelder === o.id)
         .map((b) => ({
-          part: avsenderAv(b.id),
+          part: avsenderAv(b.id)!,
           hva: b.hva,
           hendelse: plass.get(b.id)!.hendelse,
         })),
