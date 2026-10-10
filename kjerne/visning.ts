@@ -10,7 +10,7 @@
  */
 
 import type { Regelsett } from './regler/regelsett.ts';
-import { standpunkter, ulikeVirkninger } from './standpunkt.ts';
+import { ulikeVirkninger, virkninger } from './standpunkt.ts';
 import {
   enighetensVirkning,
   grunnlagskravFor,
@@ -59,10 +59,7 @@ function status(u: Utledning): Statuskode {
 function regelenErEndret(u: Utledning, spor: Spor, regler: Regelsett): boolean {
   const g = u.spor[spor].gjeldendeSvar;
   if (!g) return false;
-  return ulikeVirkninger(
-    u.svar[g.id].standpunkter,
-    standpunkter(g, grunnlagskravFor(g, u), regler)
-  );
+  return ulikeVirkninger(u.svar[g.id].virkninger, virkninger(g, grunnlagskravFor(g, u), regler));
 }
 
 function etiketter(u: Utledning, spor: Spor, regler: Regelsett): string[] {

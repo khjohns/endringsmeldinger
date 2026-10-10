@@ -5,8 +5,8 @@ Dobbelen har to egenskaper som er hele grunnen til at den finnes framfor en
 
 - **`insert` avviser ukjente kolonner.** Det er den eneste vakten i suiten mot
   at koden skriver en kolonne migrasjonsfila ikke erklærer. Kolonnesettet
-  speiler `supabase/migrations/20260920193558_hendelse_tabell.sql` og holdes i
-  synk manuelt.
+  speiler `supabase/migrations/20260920193558_hendelse_tabell.sql` med
+  `format` fra `20261010080000_hendelse_format.sql`, og holdes i synk manuelt.
 - **`execute` projiserer etter `select(...)`.** Uten den passerer en test på
   CloudEvents-eksporten uavhengig av hvilke kolonner spørringen ber om.
 
@@ -45,6 +45,7 @@ HENDELSE_KOLONNER = {
     "actorteam",
     "comment",
     "referstoid",
+    "format",
     "data",
     "prosjekt_id",
     "sak_id",

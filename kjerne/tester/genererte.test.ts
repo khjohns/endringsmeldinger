@@ -70,7 +70,7 @@ describe('genererte forløp mot målmodellen', () => {
         for (const s of SPOR) {
           if (s === h.spor)
             expect(etter.spor[s].enighet?.grunnlag.svar, `INV-MM-6 ${hvor}`).toBe(
-              u.hendelser[0].refererer_til_event_id
+              (u.hendelser[0].data.utsagn as { gjelder: string }[])[0].gjelder
             );
           else
             expect(etter.spor[s].enighet?.grunnlag, `INV-MM-6 ${hvor}`).toEqual(

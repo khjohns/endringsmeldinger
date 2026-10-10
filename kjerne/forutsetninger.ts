@@ -66,6 +66,9 @@ export function forutsetninger(h: Handlingsnoekkel, part: Part, u: Utledning): A
     case 'krav':
       // Vedtaket om trukket krav 05.10, GR-U5.
       if (s.trukket) return avvis('KRAV_TRUKKET', 'Kravet er trukket og kan ikke tas opp igjen.');
+      // KA-U12: «ingen krav» lukker sporet på samme måte som et trekk.
+      if (s.ingenKrav)
+        return avvis('INGEN_KRAV_I_SPORET', 'TE har sagt at det ikke kreves noe i sporet.');
       // KA-U7, GR-U10: en enighet binder begge parter.
       if (s.enighet)
         return avvis('ENIGHET_I_SPORET', 'Partene er enige om svaret. Kravet kan ikke endres.');
@@ -86,6 +89,8 @@ export function forutsetninger(h: Handlingsnoekkel, part: Part, u: Utledning): A
       if (!grunnlagSendt)
         return avvis('GRUNNLAG_IKKE_SENDT', 'Grunnlaget må være sendt før du kan varsle.');
       if (s.trukket) return avvis('KRAV_TRUKKET', 'Kravet er trukket.');
+      if (s.ingenKrav)
+        return avvis('INGEN_KRAV_I_SPORET', 'TE har sagt at det ikke kreves fristforlengelse.');
       // SK-12 og MM-U1: et registrert varsel er låst. Et utledet varsel er ikke registrert.
       if (s.varsel)
         return avvis('VARSEL_REGISTRERT', 'Varselet er registrert og kan ikke flyttes (SK-12).');

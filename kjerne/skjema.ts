@@ -20,6 +20,7 @@ export const NOEKKELORD = new Set([
   'minimum',
   'exclusiveMinimum',
   'minLength',
+  'minItems',
 ]);
 
 /** Teksten, eller `null` når verdien ikke er en tekst. */
@@ -86,6 +87,8 @@ export function feilI(verdi: unknown, s: Skjema, sti = '$', rot: Skjema = s): st
       else if (s.additionalProperties === false) feil.push(`${sti}.${navn}: ukjent felt`);
     }
   }
+  if (typeof s.minItems === 'number' && Array.isArray(verdi) && verdi.length < s.minItems)
+    feil.push(`${sti}: har færre enn ${s.minItems} elementer`);
   if (Array.isArray(verdi) && s.items)
     verdi.forEach((d, i) => feil.push(...feilI(d, s.items as Skjema, `${sti}[${i}]`, rot)));
   return feil;

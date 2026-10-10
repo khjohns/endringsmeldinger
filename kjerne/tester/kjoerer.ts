@@ -5,12 +5,20 @@
  * målet meldes gjennom `paastand`. Et avvist steg skal la journalen stå uendret.
  */
 
+import { AssertionError } from 'node:assert';
 import bevis from '../../docs/domenetabell/bevis-saker-maalmodell.json' with { type: 'json' };
 import { handlinger } from '../handlinger.ts';
 import { GJELDENDE_REGLER, type Regelsett } from '../regler/regelsett.ts';
 import { KJERNE, type Kjerne } from '../versjon.ts';
-import { SVARTYPER, Uforstaatt } from '../leser.ts';
-import { frysSvar, utledJournal, vurder, type Kontekst, type Utfall } from '../skriving.ts';
+import { Uforstaatt } from '../leser.ts';
+import {
+  frysBrev,
+  Skrivefeil,
+  utledJournal,
+  vurder,
+  type Kontekst,
+  type Utfall,
+} from '../skriving.ts';
 import { enighetensVirkning, kanInngaaIEo, kraveneErAvgjort, type Utledning } from '../utled.ts';
 import { visning } from '../visning.ts';
 import type { Bane } from './bane.ts';
@@ -84,6 +92,8 @@ export class Kjoering {
   readonly navn = new Navn();
   kjerne: Kjerne;
   sist: { utfall: Utfall | null; nye: number } = { utfall: null, nye: 0 };
+  /** Radene kjernen har skrevet gjennom en kommando, til kontrollen av formatet. */
+  readonly skrevet: string[] = [];
   private klokke = Date.UTC(2026, 8, 20, 8, 0, 0);
 
   readonly bane: Bane;
@@ -108,14 +118,25 @@ export class Kjoering {
     return utledJournal(await this.bane.journal(), kjerne);
   }
 
-  /** Vurder handlingen uten å lagre. Klienten regner med `klientregler`, ellers kjernens regler. */
+  /**
+   * Vurder handlingen uten å lagre. Klienten regner med `klientregler`, ellers
+   * kjernens regler. Skriver kjernen en rad den selv ikke forstår, er det et brudd
+   * på 7.1.2 i designnotatet og meldes som en assertion, ikke som et oppsett som
+   * feilet.
+   */
   async prov(h: Handling): Promise<Utfall> {
     const journal = await this.bane.journal();
     const klientregler =
       typeof h.klientregler === 'string' ? REGELSETT[h.klientregler] : this.kjerne.regler;
     const klient = utledJournal(journal, medRegler(klientregler, this.kjerne));
     const k = kommandoFor(h, klient, klientregler, this.navn);
-    return vurder(structuredClone(k), this.kontekst(h), journal, this.kjerne);
+    try {
+      return vurder(structuredClone(k), this.kontekst(h), journal, this.kjerne);
+    } catch (feil) {
+      if (feil instanceof Skrivefeil)
+        throw new AssertionError({ message: `${h.handling}: ${feil.message}` });
+      throw feil;
+    }
   }
 
   /** Utfør steget. En godtatt kommando lagres, og etikettene får ID-ene. */
@@ -138,37 +159,47 @@ export class Kjoering {
       });
       // Registrert korrespondanse får brevet frosset som et svar fra kjernen (merknaden til
       // MM-U9), også når relasjonene ikke henger sammen, så forløp E prøver relasjonene.
-      if (SVARTYPER[rad.event_type])
-        try {
-          frysSvar(rad, journal, this.kjerne);
-        } catch (feil) {
-          if (!(feil instanceof Uforstaatt)) throw feil;
-        }
+      try {
+        frysBrev(rad, journal, this.kjerne);
+      } catch (feil) {
+        if (!(feil instanceof Uforstaatt)) throw feil;
+      }
       await this.bane.skriv([rad], versjon);
-      this.navn.sett(h.navn, rad.event_id);
       this.sist = { utfall: { godtatt: true, hendelser: [rad] }, nye: 1 };
       return this.sist.utfall;
     }
     const utfall = await this.prov(h);
     if (utfall.godtatt) {
       await this.bane.skriv(utfall.hendelser, versjon);
+      this.skrevet.push(...utfall.hendelser.map((r) => r.event_id));
       this.navngi(h, utfall);
     }
     this.sist = { utfall, nye: utfall.godtatt ? utfall.hendelser.length : 0 };
     return utfall;
   }
 
+  /**
+   * Etikettene i bevis-saken: et krav og et svar navngis etter elementet, de andre
+   * handlingene etter dokumentet. Opplysningene i dokumentet heter `<etikett>#sendt`
+   * og `<etikett>#mottatt`.
+   */
   private navngi(h: Handling, utfall: Extract<Utfall, { godtatt: true }>): void {
-    const [foerste] = utfall.hendelser;
+    const [rad] = utfall.hendelser;
+    const data = rad.data as { krav?: { id: string }[]; svar?: { id: string }[] };
     if (h.handling === 'brev') {
-      this.navn.sett(h.navn, foerste.data.dokument_id as string);
-      (h.svar as Handling[]).forEach((s, i) =>
-        this.navn.sett(s.navn, utfall.hendelser[i].event_id)
-      );
-      return;
+      this.navn.sett(h.navn, rad.event_id);
+      (h.svar as Handling[]).forEach((s, i) => this.navn.sett(s.navn, data.svar![i].id));
+    } else if (h.handling === 'revisjon') {
+      this.navn.sett(h.navn, data.svar![0].id);
+      this.navn.sett(h.dokument, rad.event_id);
+    } else if (h.handling === 'krav') {
+      this.navn.sett(h.navn, data.krav![0].id);
+    } else {
+      this.navn.sett(h.navn, rad.event_id);
     }
-    this.navn.sett(h.navn, foerste.event_id);
-    if (h.handling === 'revisjon') this.navn.sett(h.dokument, foerste.data.dokument_id as string);
+    if (typeof h.navn === 'string')
+      for (const o of (rad.data.opplysninger ?? []) as { id: string; hva: string }[])
+        this.navn.sett(`${h.navn}#${o.hva}`, o.id);
   }
 }
 
@@ -190,14 +221,14 @@ export function les(sti: string, u: Utledning, k: Kjoering): unknown {
       return u.spor[hale[0] as 'grunnlag'].gjeldendeSvar?.id ?? null;
     case 'svar':
       return svar().svar[hale[1] as 'gjelder' | 'erstatter' | 'dokument'];
-    case 'utsagn': {
-      const utsagn = svar().svar.utsagn.find((x) => x.art === hale[1]);
-      return utsagn ? (utsagn as Record<string, unknown>)[hale[2]] : null;
+    case 'standpunkt': {
+      const s = svar().svar.standpunkter.find((x) => x.art === hale[1]);
+      return s ? (s as Record<string, unknown>)[hale[2]] : null;
     }
-    case 'standpunkt':
-      return svar().standpunkter.find((p) => p.art === hale[1])?.virkning ?? null;
+    case 'virkning':
+      return svar().virkninger.find((p) => p.art === hale[1])?.virkning ?? null;
     case 'uavklart':
-      return svar().uavklart.map((id) => svar().svar.utsagn.find((x) => x.id === id)?.art);
+      return svar().uavklart.map((id) => svar().svar.standpunkter.find((x) => x.id === id)?.art);
     case 'beslutningsgrunnlag':
       return (
         (svar().svar.beslutningsgrunnlag as unknown as Record<string, unknown> | null)?.[hale[1]] ??
@@ -208,8 +239,8 @@ export function les(sti: string, u: Utledning, k: Kjoering): unknown {
       if (hale.length === 1 || e === null) return e === null ? null : 'finnes';
       const felt = hale[1];
       if (felt === 'utfall') return e.grunnlag.utfall[hale[2] as 'beloep'] ?? null;
-      if (felt === 'standpunkt')
-        return e.grunnlag.standpunkter.find((p) => p.art === hale[2])?.virkning ?? null;
+      if (felt === 'virkning' && hale.length === 3)
+        return e.grunnlag.virkninger.find((p) => p.art === hale[2])?.virkning ?? null;
       if (felt === 'svar' || felt === 'kilde' || felt === 'regelversjon') return e.grunnlag[felt];
       if (felt === 'virkning') return enighetensVirkning(u, hale[0] as 'grunnlag');
       return e[felt as 'holder'];
@@ -233,7 +264,7 @@ export function les(sti: string, u: Utledning, k: Kjoering): unknown {
     case 'opplysning': {
       const o = u.opplysninger.find((x) => x.opplysning.id === id(hale[0]));
       if (hale.length === 1 || !o) return o ? 'finnes' : null;
-      if (hale[1] === 'verdi') return o.opplysning.verdi;
+      if (hale[1] === 'dato') return o.opplysning.dato;
       if (hale[1] === 'oppgitt_av') return o.opplysning.oppgittAv;
       return o.bestridelser;
     }
@@ -245,7 +276,7 @@ export function les(sti: string, u: Utledning, k: Kjoering): unknown {
       if (hale[0] === 'etiketter') return v.spor[hale[1] as 'grunnlag'].etiketter;
       if (hale[0] === 'opplysning') return v.opplysninger[id(hale[1])] ?? null;
       if (hale[0] === 'merknader') return v.merknader;
-      const rad = v.journal.find((j) => j.hendelse === id(hale[1]));
+      const rad = v.journal.find((j) => j.hendelse === hendelsenMed(id(hale[1]), u));
       return rad ? (rad.tolket ? 'tolket' : 'ikke_tolket') : null;
     }
     case 'avvist':
@@ -256,6 +287,23 @@ export function les(sti: string, u: Utledning, k: Kjoering): unknown {
       return k.sist.nye;
   }
   throw new Forutsetning(`Ukjent sti i bevis-saken: ${sti}`);
+}
+
+/** Hendelsen med ID-en, eller hendelsen dokumentet med elementet står i. */
+function hendelsenMed(id: string, u: Utledning): string {
+  for (const h of u.journal) {
+    if (h.id === id) return id;
+    if (h.art !== 'dokument') continue;
+    const d = h.dokument;
+    const ider = [
+      ...d.krav.map((x) => x.id),
+      ...d.svar.flatMap((s) => [s.id, ...s.standpunkter.map((p) => p.id)]),
+      ...d.utsagn.map((x) => x.id),
+      ...d.opplysninger.map((x) => x.id),
+    ];
+    if (ider.includes(id)) return h.id;
+  }
+  return id;
 }
 
 const REGELVERSJONER: Record<string, number> = {

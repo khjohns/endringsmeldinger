@@ -34,6 +34,7 @@ export function minnebane(): Bane {
       aktor_rolle: 'TE',
       aktor_team_id: null,
       refererer_til_event_id: null,
+      format: 1,
       data: { sakstittel: 'Målmodellen', sakstype: 'standard' },
     },
   ];
