@@ -1,37 +1,100 @@
 # #348: feilinnføringene for kjernen (kjerne/tester/feilinnfoering.ts). Jobben
 # er rød når en mutasjon ikke oppdages, når kontrollkjøringen uten mutasjon ikke
 # er grønn, eller når arbeidskopien ikke er ren etterpå. Én vitest-kjøring mot
-# basen per mutasjon, så den holdes utenfor ci.yml. Stifilteret tar det testene
-# og lagringen leser; verktøykjeden (vitest, vite.config.ts) fanges av den
-# nattlige kjøringen.
+# basen per mutasjon, om lag 33 minutter, så den holdes utenfor ci.yml.
+#
+# Kjøres (arbeidsvalget 10.10 i #348, minuttbudsjettet på GitHub Free):
+# - nattlig, men bare når noe under STIER er endret siden forrige vellykkede
+#   kjøring på samme gren; ellers avsluttes den grønt uten å bygge basen;
+# - ved manuell start, alltid, eller som den nattlige med `som_planlagt`;
+# - på en PR bare når den har etiketten `feilinnfoering`.
 name: Feilinnføring
 
 on:
   schedule:
     - cron: '17 2 * * *'
   workflow_dispatch:
+    inputs:
+      som_planlagt:
+        description: Kjør som den nattlige (avslutt når ingenting er endret)
+        type: boolean
+        default: false
   pull_request:
-    paths:
-      - 'kjerne/**'
-      - 'sprakprove/kjernelagring/**'
-      - 'sprakprove/server/**'
-      - 'sprakprove/kjerne/**'
-      - 'docs/domenetabell/**'
-      - 'docs/datamodell/kjernehendelser.toml'
-      - 'supabase/migrations/**'
-      - 'scripts/testbase/**'
-      - '.github/workflows/feilinnfoering.yml'
+    # Ikke `opened`: en PR som opprettes med etiketten, får også `labeled`.
+    types: [synchronize, reopened, labeled]
 
 permissions:
   contents: read
 
-concurrency:
-  group: feilinnfoering-${{ github.event_name }}-${{ github.ref }}
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
-
 jobs:
+  endret:
+    name: Endret siden forrige vellykkede kjøring
+    if: >-
+      github.event_name != 'pull_request' ||
+      (github.event.action == 'labeled' && github.event.label.name == 'feilinnfoering') ||
+      (github.event.action != 'labeled' && contains(github.event.pull_request.labels.*.name, 'feilinnfoering'))
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
+    outputs:
+      kjoer: ${{ steps.sammenlikn.outputs.kjoer }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # Det kjernetestene, lagringstestene og testbasen leser, og verktøykjeden.
+      - name: Sammenlikn med forrige vellykkede kjøring
+        id: sammenlikn
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PLANLAGT: ${{ github.event_name == 'schedule' || inputs.som_planlagt == true }}
+          STIER: >-
+            kjerne
+            sprakprove/kjernelagring
+            sprakprove/server
+            sprakprove/kjerne
+            sprakprove/tester/testbase.ts
+            docs/domenetabell
+            docs/datamodell/kjernehendelser.toml
+            supabase/migrations
+            scripts/testbase
+            .github/workflows/feilinnfoering.yml
+            package.json
+            package-lock.json
+            vite.config.ts
+            src/test-setup.ts
+        run: |
+          if [ "$PLANLAGT" != true ]; then
+            echo "kjoer=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          forrige="$(gh api "repos/$GITHUB_REPOSITORY/actions/workflows/feilinnfoering.yml/runs?branch=$GITHUB_REF_NAME&status=success&per_page=50" \
+            --jq '[.workflow_runs[] | select(.event != "pull_request")][0].head_sha // ""' || true)"
+          echo "Forrige vellykkede kjøring på $GITHUB_REF_NAME: ${forrige:-ingen}"
+          if [ -z "$forrige" ] || ! git cat-file -e "$forrige^{commit}" 2>/dev/null; then
+            echo "kjoer=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          # shellcheck disable=SC2086
+          endringer="$(git diff --name-only "$forrige" HEAD -- $STIER)"
+          echo "${endringer:-Ingen endringer under stiene.}"
+          if [ -n "$endringer" ]; then
+            echo "kjoer=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "kjoer=false" >> "$GITHUB_OUTPUT"
+          fi
+
   feilinnfoering:
     name: Feilinnføringene for kjernen
+    needs: endret
+    if: needs.endret.outputs.kjoer == 'true'
+    # På jobben, ikke workflowen: en PR-hendelse som hoppes over (en annen
+    # etikett), skal ikke avbryte en kjøring som går.
+    concurrency:
+      group: feilinnfoering-${{ github.event_name }}-${{ github.ref }}
+      cancel-in-progress: ${{ github.event_name == 'pull_request' }}
     runs-on: ubuntu-latest
     timeout-minutes: 90
     services:
