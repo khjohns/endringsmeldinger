@@ -1,0 +1,68 @@
+# #348: feilinnføringene for kjernen (kjerne/tester/feilinnfoering.ts). Jobben
+# er rød når en mutasjon ikke oppdages, når kontrollkjøringen uten mutasjon ikke
+# er grønn, eller når arbeidskopien ikke er ren etterpå. Én vitest-kjøring mot
+# basen per mutasjon, så den holdes utenfor ci.yml.
+name: Feilinnføring
+
+on:
+  schedule:
+    - cron: '17 2 * * *'
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'kjerne/**'
+      - 'sprakprove/kjernelagring/**'
+      - '.github/workflows/feilinnfoering.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: feilinnfoering-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  feilinnfoering:
+    name: Feilinnføringene for kjernen
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    services:
+      postgres:
+        # Som databasejobben i ci.yml.
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: koe_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      KOE_TESTBASE_URL: postgresql://postgres:postgres@localhost:5432/koe_test
+      HUSKY: 0
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - run: npm ci
+
+      - name: Bygg basen fra tom
+        run: scripts/testbase/bygg_testbase.sh
+
+      - name: Kjør feilinnføringene
+        run: node kjerne/tester/feilinnfoering.ts
+
+      # Skriptet kontrollerer filene det muterer. Her kontrolleres hele treet,
+      # også når skriptet ble avbrutt midt i en mutasjon.
+      - name: Kontroller at arbeidskopien er ren
+        if: always()
+        run: |
+          git status --porcelain
+          test -z "$(git status --porcelain)"
