@@ -1,4 +1,4 @@
-"""CI-vakten i .github/scripts/regelversjon.sh mot konstruerte differ (#191, #216, #221, #308).
+"""CI-vakten i .github/scripts/regelversjon.sh mot konstruerte differ (#191, #216, #221, #308, #330).
 
 Hvert tilfelle bygger et eget git-repo med de to speilene, slik at skriptet
 kjører uten å røre filene i dette repoet.
@@ -105,7 +105,15 @@ def _kjerne(regel: int, projeksjon: int) -> dict[str, str]:
 @pytest.fixture
 def kjerne(repo):
     sti, _ = repo
-    _skriv(sti, {**_kjerne(5, 2), "kjerne/regler/frist.ts": "a\n", "kjerne/utled.ts": "a\n"})
+    _skriv(
+        sti,
+        {
+            **_kjerne(5, 2),
+            "kjerne/regler/frist.ts": "a\n",
+            "kjerne/utled.ts": "a\n",
+            "kjerne/standpunkt.ts": "a\n",
+        },
+    )
     return sti, _git(sti, "rev-parse", "HEAD")
 
 
@@ -117,6 +125,12 @@ def kjerne(repo):
         pytest.param({"kjerne/utled.ts": "b\n"}, 1, id="utledningen uten ny projeksjonsversjon"),
         pytest.param({"kjerne/utled.ts": "b\n", **_kjerne(5, 3)}, 0, id="utledningen med ny projeksjonsversjon"),
         pytest.param({"kjerne/utled.ts": "b\n", **_kjerne(6, 2)}, 1, id="utledningen med bare ny regelversjon"),
+        # #330: standpunkt.ts bestemmer hva beslutningsgrunnlaget fryser (MM-U11),
+        # så den krever ny regelversjon, og ny projeksjonsversjon som resten av kjernen.
+        pytest.param({"kjerne/standpunkt.ts": "b\n"}, 1, id="standpunktene uten nye versjoner"),
+        pytest.param({"kjerne/standpunkt.ts": "b\n", **_kjerne(5, 3)}, 1, id="standpunktene med bare ny projeksjonsversjon"),
+        pytest.param({"kjerne/standpunkt.ts": "b\n", **_kjerne(6, 2)}, 1, id="standpunktene med bare ny regelversjon"),
+        pytest.param({"kjerne/standpunkt.ts": "b\n", **_kjerne(6, 3)}, 0, id="standpunktene med begge versjonene"),
         pytest.param({"kjerne/tester/kjerne.test.ts": "b\n"}, 0, id="bare testene"),
     ],
 )
@@ -125,6 +139,16 @@ def test_kjernen_krever_ny_versjon_der_den_er_endret(kjerne, filer, ventet):
     _skriv(sti, filer)
     svar = _kjor(sti, base)
     assert svar.returncode == ventet, svar.stdout + svar.stderr
+
+
+def test_kjernen_uten_standpunkt_ts_feiler(kjerne):
+    """#330: kravet om ny regelversjon forsvinner ikke stille om standpunkt.ts flyttes."""
+    sti, base = kjerne
+    _git(sti, "rm", "-q", "kjerne/standpunkt.ts")
+    _git(sti, "commit", "-qm", "flytt")
+    svar = _kjor(sti, base)
+    assert svar.returncode == 1, svar.stdout + svar.stderr
+    assert "kjerne/standpunkt.ts finnes ikke" in svar.stdout
 
 
 def test_kjernen_og_speilene_kontrolleres_hver_for_seg(kjerne):
