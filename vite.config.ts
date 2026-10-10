@@ -9,8 +9,9 @@ export default defineConfig({
   },
   server: {
     port: 5173,
-    // Legges til SvelteKits liste: frontend importerer delte regler fra backend/constants.
-    fs: { allow: ['backend/constants'] },
+    // Legges til SvelteKits liste: frontend importerer delte regler fra backend/constants
+    // og TS-kjernen fra kjerne/ ($kjerne).
+    fs: { allow: ['backend/constants', 'kjerne'] },
     proxy: {
       '/api': {
         target: 'http://127.0.0.1:8080',
