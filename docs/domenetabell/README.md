@@ -117,6 +117,7 @@ lagringsformatet står under.
 | `forhandsvisAksept` | Utgår | Aksepten bærer regelversjonen TE fikk se (KA-U10), og serveren sammenlikner den (#331) |
 | Utsagnsarten `belop`, `utfall.belop`, `regler/belop.ts`, `Ore` | `beloep`, `utfall.beloep`, `regler/beloep.ts`, `Oere` | ae/oe/aa |
 | `kanPrekluderesEtter3412` | `gjelderVarslingspliktenForVederlag` | Navnet etter innholdet, uten paragrafnummer, som `gjelderVarslingsplikten` (#331) |
+| Ny | `FEIL_BESTRIDELSE` | MM-U7: en bestridelse av opplysningen om § 31.3 må gjelde § 31.3, og en bestridelse av en dato må gjelde sendt eller mottatt (#273) |
 | Ny | `INGEN_KRAV_I_SPORET` | KA-U12: et krav eller varsel i et spor der TE har sagt «ingen krav» |
 | `Standpunkt` (virkningen) | `Standpunktsvirkning` | `Standpunkt` er byggherrens standpunkt i svaret (#273) |
 | `Svar.utsagn`, `Utsagn` med art `rettidighet`, `ansvar`, `beloep`, `hindring` og `dager` | `Svar.standpunkter`, `Standpunkt` med art `rettidighet`, `grunnlag`, `beloep`, `hindring` og `dager` | Et svar har standpunkter; `Utsagn` er de andre utsagnene i dokumentet (#273) |

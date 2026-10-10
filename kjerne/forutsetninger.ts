@@ -9,7 +9,7 @@
  * avvisningen er de samme per konstruksjon (INV-MM-1).
  */
 
-import { kraveneErAvgjort, type Utledning } from './utled.ts';
+import { kraveneErAvgjort, trekkAvGrunnlagetErSperret, type Utledning } from './utled.ts';
 import type { Avvisning, Part, Spor } from './typer.ts';
 
 export type Handlingsnoekkel =
@@ -80,7 +80,7 @@ export function forutsetninger(h: Handlingsnoekkel, part: Part, u: Utledning): A
       if (s.trukket) return avvis('KRAV_TRUKKET', 'Kravet er allerede trukket.');
       // KA-U13: et trekk ville gitt journalen den videre virkningen at endringsordren
       // etter § 32.3 a leses som bortfalt (KA-U6). Er § 31.3 ikke avklart, sperres det til det er.
-      if (h.spor === 'grunnlag' && u.trekkAvGrunnlagetErSperret)
+      if (h.spor === 'grunnlag' && trekkAvGrunnlagetErSperret(u))
         return u.endringsordre === 'ikke_avklart'
           ? avvis(
               'ENDRINGSORDRE_IKKE_AVKLART',

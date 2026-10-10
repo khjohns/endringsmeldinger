@@ -433,6 +433,58 @@ describe('rader fra en annen skriver som strider mot en enighet eller «ingen kr
   });
 });
 
+/** § 31.3 i registrert korrespondanse (oppdragsgiver 10.10, code-review av #273). */
+describe('opplysningen om § 31.3 i registrert korrespondanse', () => {
+  const registrert = (opplysninger: Data) => ({
+    handling: 'rad',
+    spor: 'grunnlag',
+    navn: 'S-g1',
+    dokument: 'D4',
+    gjelder: 'K-g1',
+    resultat: 'godkjent',
+    ...opplysninger,
+  });
+
+  it('en bestridelse av opplysningen må gjelde § 31.3, ikke en dato (MM-U7)', async () => {
+    const k = await bygg(minnebane(), [
+      'krav_irreg',
+      registrert({ sendt: '2026-09-30', endringsordre: true }),
+    ]);
+    const feil = await k.prov({
+      handling: 'bestridelse',
+      part: 'TE',
+      gjelder: 'D4#endringsordre',
+      hva: 'sendt',
+    });
+    expect(feil.godtatt ? 'godtatt' : feil.avvisning.regel).toBe('FEIL_BESTRIDELSE');
+    const riktig = await k.prov({
+      handling: 'bestridelse',
+      part: 'TE',
+      gjelder: 'D4#endringsordre',
+      hva: 'endringsordre',
+    });
+    expect(riktig.godtatt).toBe(true);
+  });
+
+  it('korrespondanse som bare er mottatt, er også registrert, og uten opplysningen er det ikke avklart', async () => {
+    const k = await bygg(minnebane(), ['krav_irreg', registrert({})]);
+    expect((await k.utledning()).endringsordre).toBe('ja');
+    const bane = minnebane();
+    const r = await bygg(bane, ['krav_irreg']);
+    const journal = await bane.journal();
+    const u0 = await r.utledning();
+    if (!u0.forstaatt) throw new Error('Forutsetning: saken er forstått');
+    const rad = await r.send(registrert({ sendt: '2026-09-30' }));
+    if (!rad?.godtatt) throw new Error('Forutsetning: raden er skrevet');
+    const lagret = await bane.journal();
+    const siste = structuredClone(lagret.at(-1)!);
+    (siste.data.opplysninger as Data[])[0].hva = 'mottatt';
+    const u = utled(lesJournal([...journal, siste], KJERNE.format), GJELDENDE_REGLER);
+    expect(u.forstaatt).toBe(true);
+    expect(u.endringsordre).toBe('ikke_avklart');
+  });
+});
+
 /** Bare TE krever, varsler, godtar og trekker, og bare BH svarer (code-review av #308). */
 describe('en rad fra feil part er ikke forstått', () => {
   it.each([

@@ -72,6 +72,7 @@ function etiketter(u: Utledning, spor: Spor, regler: Regelsett): string[] {
     if (u.frafalt) ut.push('frafalt');
     if (u.grunnlagAvvist) ut.push('avslatt');
     if (u.grunnlagAvklart) ut.push('avklart');
+    if (u.endringsordre === 'ikke_avklart') ut.push('endringsordre_ikke_avklart');
     if (virkning && !s.trukket) ut.push('enige');
   } else {
     if (virkning === 'betinget') ut.push('enige_betinget');
@@ -93,7 +94,11 @@ export function visning(u: Utledning, regler: Regelsett): Visning {
   const ikkeTolket = new Set(u.begrensninger.map((b) => b.hendelse));
   const opplysninger: Record<string, string[]> = {};
   for (const { opplysning: o, bestridelser } of u.opplysninger) {
-    const e = [`${o.hva}_ifolge_${o.oppgittAv}`];
+    const e = [
+      o.hva === 'endringsordre'
+        ? `${o.oppfylt ? 'endringsordre' : 'ikke_endringsordre'}_ifolge_${o.oppgittAv}`
+        : `${o.hva}_ifolge_${o.oppgittAv}`,
+    ];
     if (
       o.hva === 'sendt' &&
       !u.opplysninger.some(
@@ -102,7 +107,13 @@ export function visning(u: Utledning, regler: Regelsett): Visning {
     )
       e.push('mottaksdato_mangler');
     for (const b of bestridelser)
-      e.push(b.hva === 'mottatt' ? 'mottak_bestridt' : 'sending_bestridt');
+      e.push(
+        {
+          sendt: 'sending_bestridt',
+          mottatt: 'mottak_bestridt',
+          endringsordre: 'endringsordre_bestridt',
+        }[b.hva]
+      );
     opplysninger[o.id] = e;
   }
   return {

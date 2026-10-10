@@ -84,9 +84,15 @@ export function nyttelastkontroll(k: Kommando, u: Utledning, regler: Regelsett):
         );
       return null;
     }
+    case 'bestridelse': {
+      // MM-U7: en opplysning om § 31.3 bestrides som det, en dato som sendt eller mottatt.
+      const o = u.opplysninger.find((x) => x.opplysning.id === k.gjelder)?.opplysning;
+      return o && (o.hva === 'endringsordre') !== (k.hva === 'endringsordre')
+        ? avvis('FEIL_BESTRIDELSE', `Opplysningen gjelder ${o.hva}, ikke ${k.hva}.`)
+        : null;
+    }
     case 'trekk':
     case 'varsel':
-    case 'bestridelse':
       return null;
   }
 }
