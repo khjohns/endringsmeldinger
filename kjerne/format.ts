@@ -26,7 +26,7 @@ export type Hendelsestype = (typeof HENDELSESTYPER)[number];
 
 export const STANDPUNKTSARTER: readonly Standpunktsart[] = [
   'rettidighet',
-  'ansvar',
+  'grunnlag',
   'beloep',
   'hindring',
   'dager',
@@ -47,7 +47,7 @@ export const UTSAGNSARTER: readonly Utsagnsart[] = [
 export const STANDPUNKTER_I_SPORET: Record<Spor, { art: Standpunktsart; paakrevd: boolean }[]> = {
   grunnlag: [
     { art: 'rettidighet', paakrevd: false },
-    { art: 'ansvar', paakrevd: true },
+    { art: 'grunnlag', paakrevd: true },
   ],
   vederlag: [{ art: 'beloep', paakrevd: true }],
   frist: [
@@ -116,7 +116,7 @@ export const STANDPUNKT: Record<Standpunktsart, Skjema> = {
     },
     ['id', 'art', 'gjelder', 'hjemmel', 'i_tide']
   ),
-  ansvar: objekt({ ...artfelt('ansvar'), resultat: { enum: [...GRUNNLAGSRESULTATER] } }, [
+  grunnlag: objekt({ ...artfelt('grunnlag'), resultat: { enum: [...GRUNNLAGSRESULTATER] } }, [
     'id',
     'art',
     'resultat',
@@ -155,11 +155,12 @@ export const BESLUTNINGSGRUNNLAG: Skjema = objekt(
   {
     regelversjon: { type: 'integer' },
     virkninger: liste(
-      objekt(
-        { standpunkt: ID, virkning: { enum: ['prinsipalt', 'subsidiaert', 'uten_virkning'] } },
-        ['standpunkt', 'virkning']
-      )
+      objekt({ standpunkt: ID, virkning: { enum: ['prinsipalt', 'subsidiaert'] } }, [
+        'standpunkt',
+        'virkning',
+      ])
     ),
+    uten_virkning: liste(ID),
     linje: TEKST,
     sammenfall: { type: 'boolean' },
     varslingsplikt: { type: 'boolean' },

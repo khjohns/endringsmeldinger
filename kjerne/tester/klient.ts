@@ -276,7 +276,7 @@ export function radFor(
       });
     standpunkter.push(
       spor === 'grunnlag'
-        ? { id: randomUUID(), art: 'ansvar', resultat: h.resultat }
+        ? { id: randomUUID(), art: 'grunnlag', resultat: h.resultat }
         : { id: randomUUID(), art: spor === 'vederlag' ? 'beloep' : 'dager' }
     );
     const svar: Record<string, unknown> = {

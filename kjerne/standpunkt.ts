@@ -86,13 +86,26 @@ export function standpunktet<A extends Standpunkt['art']>(svar: Svarinnhold, art
   return svar.standpunkter.find((s): s is Extract<Standpunkt, { art: A }> => s.art === art);
 }
 
+/**
+ * GR-U7: byggherren har godkjent grunnlaget uten virksom preklusjon etter § 32.2,
+ * eller frafalt pålegget. Leses av standpunktene og virkningen i brevet om
+ * grunnlaget, ikke av et utfall.
+ */
+export function grunnlagetErAvklart(svar: Svarinnhold, v: Standpunktsvirkning[]): boolean {
+  const resultat = standpunktet(svar, 'grunnlag')?.resultat;
+  return !avvisesPrinsipalt(v) && (resultat === 'godkjent' || resultat === 'frafalt');
+}
+
+/** SK-01, #213: byggherren har avslått grunnlaget eller påberopt preklusjon etter § 32.2. */
+export function grunnlagetErAvslaatt(svar: Svarinnhold, v: Standpunktsvirkning[]): boolean {
+  return avvisesPrinsipalt(v) || standpunktet(svar, 'grunnlag')?.resultat === 'avslatt';
+}
+
 /** Det svaret gir i sporet når standpunktene har denne virkningen. */
 export function utfall(svar: Svarinnhold, v: Standpunktsvirkning[]): Utfall {
   const prekludert = avvisesPrinsipalt(v);
-  if (svar.spor === 'grunnlag') {
-    const ansvar = standpunktet(svar, 'ansvar')!;
-    return { grunnlag: prekludert || ansvar.resultat === 'avslatt' ? 'avvist' : 'avklart' };
-  }
+  if (svar.spor === 'grunnlag')
+    return { grunnlag: grunnlagetErAvslaatt(svar, v) ? 'avvist' : 'avklart' };
   if (svar.spor === 'vederlag') return { beloep: standpunktet(svar, 'beloep')!.godkjent };
   const dager = standpunktet(svar, 'dager')!;
   return { dager: prekludert || dager.resultat === 'avslatt' ? 0 : dager.vurdert };
@@ -105,7 +118,7 @@ export function utfall(svar: Svarinnhold, v: Standpunktsvirkning[]): Utfall {
  */
 function godkjennerHeleKravet(svar: Svarinnhold, v: Standpunktsvirkning[]): boolean {
   if (avvisesPrinsipalt(v)) return false;
-  if (svar.spor === 'grunnlag') return standpunktet(svar, 'ansvar')?.resultat === 'godkjent';
+  if (svar.spor === 'grunnlag') return standpunktet(svar, 'grunnlag')?.resultat === 'godkjent';
   return svar.utregning.resultat === 'godkjent';
 }
 
@@ -136,7 +149,7 @@ function beslutningslinje(svar: Svarinnhold, v: Standpunktsvirkning[]): string {
   let standpunkt: string;
   if (svar.spor === 'grunnlag') {
     standpunkt = { godkjent: 'godkjent', avslatt: 'avslått', frafalt: 'frafalt (§ 32.3 c)' }[
-      standpunktet(svar, 'ansvar')!.resultat
+      standpunktet(svar, 'grunnlag')!.resultat
     ];
   } else if (svar.spor === 'vederlag') {
     const b = standpunktet(svar, 'beloep')!;

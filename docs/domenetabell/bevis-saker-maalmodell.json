@@ -125,7 +125,7 @@
           "rolle": "mal",
           "kilde": ["V-B13-GRUNNLAG-AVSLATT", "GR-U7"],
           "forventet": {
-            "virkning.S-g1.ansvar": "prinsipalt",
+            "virkning.S-g1.grunnlag": "prinsipalt",
             "virkning.S-g1.rettidighet": "uten_virkning",
             "subsidiaer_aarsaker.vederlag": ["avslatt"],
             "subsidiaer_aarsaker.frist": ["avslatt"],
@@ -567,7 +567,7 @@
           "kilde": ["V-32-2-AVSLAG", "V-B13-GRUNNLAG-AVSLATT"],
           "forventet": {
             "virkning.S-g1.rettidighet": "prinsipalt",
-            "virkning.S-g1.ansvar": "subsidiaert",
+            "virkning.S-g1.grunnlag": "subsidiaert",
             "beslutningsgrunnlag.S-g1.linje": "Prinsipalt prekludert (§ 32.2), subsidiært avslått.",
             "beslutningsgrunnlag.S-g1.regelversjon": "n",
             "subsidiaer_aarsaker.vederlag": ["prekludert", "avslatt"],
@@ -581,7 +581,7 @@
           "forventet": {
             "enighet.grunnlag.utfall.grunnlag": "avvist",
             "enighet.grunnlag.virkning.rettidighet": "prinsipalt",
-            "enighet.grunnlag.virkning.ansvar": "subsidiaert",
+            "enighet.grunnlag.virkning.grunnlag": "subsidiaert",
             "enighet.grunnlag.regelversjon": "n",
             "enighet.grunnlag.holder": "D4",
             "grunnlag_avvist": true,
@@ -612,7 +612,7 @@
           "forventet": {
             "nye_hendelser": 0,
             "virkning.S-g1.rettidighet": "prinsipalt",
-            "virkning.S-g1.ansvar": "subsidiaert",
+            "virkning.S-g1.grunnlag": "subsidiaert",
             "beslutningsgrunnlag.S-g1.linje": "Prinsipalt prekludert (§ 32.2), subsidiært avslått.",
             "beslutningsgrunnlag.S-g1.regelversjon": "n",
             "grunnlag_avklart": false,
@@ -666,7 +666,7 @@
           "etter": 1,
           "rolle": "mal",
           "kilde": ["V-32-2-AVSLAG"],
-          "forventet": { "virkning.S-g1.rettidighet": "prinsipalt", "virkning.S-g1.ansvar": "subsidiaert" }
+          "forventet": { "virkning.S-g1.rettidighet": "prinsipalt", "virkning.S-g1.grunnlag": "subsidiaert" }
         },
         { "etter": 2, "rolle": "mal", "kilde": ["V-SK01", "KA-U1"], "forventet": { "grunnlag_avvist": true } },
         {
@@ -679,7 +679,7 @@
             "enighet.grunnlag.utfall.grunnlag": "avvist",
             "enighet.grunnlag.regelversjon": "n",
             "enighet.grunnlag.virkning.rettidighet": "prinsipalt",
-            "enighet.grunnlag.virkning.ansvar": "subsidiaert",
+            "enighet.grunnlag.virkning.grunnlag": "subsidiaert",
             "visning.status": "avsluttet_avslatt",
             "subsidiaer_aarsaker.vederlag": ["prekludert"]
           }
@@ -780,7 +780,7 @@
             "enighet.grunnlag.svar": "S-g2",
             "enighet.grunnlag.regelversjon": "n+1",
             "enighet.grunnlag.utfall.grunnlag": "avvist",
-            "enighet.grunnlag.virkning.ansvar": "prinsipalt"
+            "enighet.grunnlag.virkning.grunnlag": "prinsipalt"
           }
         }
       ]

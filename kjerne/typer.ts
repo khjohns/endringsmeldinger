@@ -15,7 +15,7 @@ export type Kravspor = (typeof KRAVSPOR)[number];
 
 export type Hjemmel = '32.2' | '33.4';
 
-/** Et faktum en part oppgir om et dokument: når det ble sendt eller mottatt (2.4). */
+/** En opplysning en part oppgir om et dokument: når det ble sendt eller mottatt (2.4). */
 export interface Opplysning {
   id: string;
   dokument: string;
@@ -32,9 +32,10 @@ export interface Opplysning {
  */
 export type Standpunkt =
   | { id: string; art: 'rettidighet'; gjelder: string; hjemmel: Hjemmel; iTide: boolean }
-  | { id: string; art: 'ansvar'; resultat: Grunnlagsresultat }
+  /** «Frafalt» gjelder pålegget (§ 32.3 c), ikke TEs krav. */
+  | { id: string; art: 'grunnlag'; resultat: Grunnlagsresultat }
   | { id: string; art: 'beloep'; resultat: Vederlagsresultat; godkjent: number }
-  /** § 33.1: om byggherren godtar at det er en fremdriftshindring. */
+  /** § 33.1: om byggherren godtar at fremdriften hindres som følge av forholdet saken gjelder. */
   | { id: string; art: 'hindring'; oppfylt: boolean }
   /** `vurdert` er dagene byggherren har vurdert, også når de står subsidiært. */
   | { id: string; art: 'dager'; resultat: Fristresultat; vurdert: number };
@@ -124,8 +125,9 @@ export type Domenehendelse =
   | { art: 'ukjent'; id: string; versjon: number; type: string; grunn: string };
 
 /**
- * Virkningen et standpunkt har i brevet: prinsipalt, subsidiært eller uten
- * virkning, som brevet sier det. Om et standpunkt er uavklart, er ikke en
+ * Virkningen et standpunkt har i brevet: prinsipalt eller subsidiært, slik brevet
+ * ordner standpunktene, eller uten virkning, som er appens vurdering og ikke noe
+ * byggherren har sagt. Om et standpunkt er uavklart, er ikke en
  * virkning, men en relasjon som utledes ved lesing (MM-U8).
  */
 export type Virkning = 'prinsipalt' | 'subsidiaert' | 'uten_virkning';
@@ -150,7 +152,8 @@ export interface Beslutningsgrunnlag {
   /** Svaret godkjenner hele kravet, så partene er enige uten aksept (GR-U7, GR-U10). */
   sammenfall: boolean;
   /**
-   * GR-U12: § 32.2 gjaldt kategorien i kravversjonen da brevet ble sendt.
+   * GR-U12: appens vurdering av om § 32.2 gjaldt, etter reglene og
+   * underkategorien da brevet ble sendt. Ikke en rettslig avgjørelse (MM-U9).
    * Bare i et svar på grunnlaget.
    */
   varslingsplikt?: boolean;

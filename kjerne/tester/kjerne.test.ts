@@ -397,6 +397,25 @@ describe('rader fra en annen skriver som strider mot en enighet eller «ingen kr
     expect(forstaatt([...journal, en, fraTE([en], [ingenKrav('vederlag')])])).toBe(false);
   });
 
+  it('«ingen krav» før grunnlaget er sendt, er ikke forstått (oppdragsgiver 10.10); kontrollsak: etter', async () => {
+    const tom = await minnebane().journal();
+    expect(forstaatt([...tom, fraTE(tom, [ingenKrav('vederlag')])])).toBe(false);
+    const bane = minnebane();
+    await bygg(bane, [{ handling: 'krav', spor: 'grunnlag', underkategori: 'EO' }]);
+    const sendt = await bane.journal();
+    expect(forstaatt([...sendt, fraTE(sendt, [ingenKrav('vederlag')])])).toBe(true);
+  });
+
+  it('«ingen krav» etter et varsel etter § 33.4 er forstått (KA-U2, oppdragsgiver 10.10)', async () => {
+    const bane = minnebane();
+    await bygg(bane, [
+      { handling: 'krav', spor: 'grunnlag', underkategori: 'EO' },
+      { handling: 'varsel', spor: 'frist', sendt: '2026-09-02' },
+    ]);
+    const journal = await bane.journal();
+    expect(forstaatt([...journal, fraTE(journal, [ingenKrav('frist')])])).toBe(true);
+  });
+
   it('en kravversjon etter «ingen krav» i samme spor er ikke forstått (KA-U12, 4.2)', async () => {
     const bane = minnebane();
     await bygg(bane, ['godkjent_grunnlag']);
@@ -468,7 +487,7 @@ describe('registrert korrespondanse fryses med kategorien', () => {
   }
   const preklusjon = [
     { id: randomUUID(), art: 'rettidighet', gjelder: 'K', hjemmel: '32.2', i_tide: false },
-    { id: randomUUID(), art: 'ansvar', resultat: 'godkjent' },
+    { id: randomUUID(), art: 'grunnlag', resultat: 'godkjent' },
   ];
   const art = (b: Data) => (b.virkninger as Data[]).map((p) => p.virkning);
 

@@ -20,7 +20,13 @@
 
 import type { Regelsett } from './regler/regelsett.ts';
 import type { Subsidiaergrunn } from './regler/grunnlag.ts';
-import { enighetsgrunnlag, prinsipalt, standpunktet, utfall } from './standpunkt.ts';
+import {
+  enighetsgrunnlag,
+  grunnlagetErAvklart,
+  grunnlagetErAvslaatt,
+  prinsipalt,
+  standpunktet,
+} from './standpunkt.ts';
 import {
   KRAVSPOR,
   SPOR,
@@ -152,7 +158,7 @@ function ikkeErstattet(svar: Svar[], kravId: string): Svar[] {
 function grunnerFraGrunnlaget({ svar, virkninger }: Svarberegning): Subsidiaergrunn[] {
   const ut: Subsidiaergrunn[] = [];
   if (prinsipalt(virkninger)?.art === 'rettidighet') ut.push('prekludert');
-  if (standpunktet(svar, 'ansvar')?.resultat === 'avslatt') ut.push('avslatt');
+  if (standpunktet(svar, 'grunnlag')?.resultat === 'avslatt') ut.push('avslatt');
   return ut;
 }
 
@@ -301,11 +307,16 @@ export function utled(journal: Domenehendelse[], regler: Regelsett): Utledning {
       ugyldig(b.id, 'bestridelsen viser ikke til en opplysning fra motparten før den');
   }
   // KA-U12: «ingen krav» står i et spor uten kravversjon, og bare én gang.
+  // Oppdragsgiver 10.10 (spm 6): grunnlaget må være sendt, som for et krav.
   for (const i of ingenKrav)
-    if (spor[i.spor].krav.length || ingenKrav.filter((x) => x.spor === i.spor).length > 1)
+    if (
+      spor[i.spor].krav.length ||
+      ingenKrav.filter((x) => x.spor === i.spor).length > 1 ||
+      !spor.grunnlag.krav.some((k) => bakover(i.id, k.id))
+    )
       ugyldig(
         i.id,
-        '«ingen krav» står i et spor som har en kravversjon eller et annet «ingen krav»'
+        '«ingen krav» står i et spor med en kravversjon eller et annet «ingen krav», eller før grunnlaget er sendt'
       );
   if (varsler.length > 1) ugyldig(varsler[1].id, 'saken har to varsler etter § 33.4 (SK-12)');
 
@@ -387,10 +398,10 @@ export function utled(journal: Domenehendelse[], regler: Regelsett): Utledning {
     // Utledet av standpunktene i brevet om grunnlaget, som også er innholdet i en
     // enighet om det (KA-U10, MM-U11).
     grunnlagAvklart:
-      !spor.grunnlag.trukket &&
-      gBrev !== null &&
-      utfall(gBrev.svar, gBrev.virkninger).grunnlag === 'avklart',
-    grunnlagAvvist: eg?.grunnlag.utfall.grunnlag === 'avvist',
+      !spor.grunnlag.trukket && gBrev !== null && grunnlagetErAvklart(gBrev.svar, gBrev.virkninger),
+    // SK-01: avslaget eller preklusjonen i brevet, og partene er enige om det.
+    grunnlagAvvist:
+      eg !== null && gBrev !== null && grunnlagetErAvslaatt(gBrev.svar, gBrev.virkninger),
     // GR-U12, KA-U13: om § 32.2 gjaldt, er frosset i brevet. Dagens regelsett vurderer
     // det ikke på nytt (MM-U9), og det avhenger ikke av om brevet sier noe om varslingen.
     godkjenningErEndringsordre:
@@ -398,8 +409,8 @@ export function utled(journal: Domenehendelse[], regler: Regelsett): Utledning {
     // GR-U3, GR-U9: frafallet er byggherrens standpunkt, uavhengig av hva TE har sagt.
     frafalt:
       gBrev !== null &&
-      prinsipalt(gBrev.virkninger)?.art === 'ansvar' &&
-      standpunktet(gBrev.svar, 'ansvar')?.resultat === 'frafalt',
+      prinsipalt(gBrev.virkninger)?.art === 'grunnlag' &&
+      standpunktet(gBrev.svar, 'grunnlag')?.resultat === 'frafalt',
   };
 }
 

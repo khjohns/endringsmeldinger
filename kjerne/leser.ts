@@ -99,7 +99,7 @@ export function standpunkterISvaret(spor: Spor, svar: Data, sti = '$.svar'): Sta
           hjemmel: e.hjemmel as '32.2' | '33.4',
           iTide: e.i_tide as boolean,
         };
-      case 'ansvar':
+      case 'grunnlag':
         return { id, art, resultat: e.resultat as never };
       case 'hindring':
         return { id, art, oppfylt: e.oppfylt as boolean };
@@ -141,15 +141,23 @@ function lesBeslutningsgrunnlag(
     );
   const art = new Map(standpunkter.map((s) => [s.id, s.art]));
   const sett = new Set<string>();
-  const virkninger = (b.virkninger as Data[]).map((p): Standpunktsvirkning => {
-    const id = p.standpunkt as string;
+  // Prinsipalt og subsidiært er slik brevet ordner standpunktene; uten virkning er
+  // appens vurdering og står for seg (oppdragsgiver 10.10).
+  const innslag = [
+    ...(b.virkninger as Data[]).map((p) => [p.standpunkt, p.virkning] as const),
+    ...((b.uten_virkning ?? []) as string[]).map((id) => [id, 'uten_virkning'] as const),
+  ];
+  const virkninger = innslag.map(([standpunkt, virkning]): Standpunktsvirkning => {
+    const id = standpunkt as string;
     if (!art.has(id) || sett.has(id))
       throw new Uforstaatt(
         `${sti}: virkningen gjelder et standpunkt svaret ikke har, eller står to ganger`
       );
     sett.add(id);
-    return { standpunkt: id, art: art.get(id)!, virkning: p.virkning as Virkning };
+    return { standpunkt: id, art: art.get(id)!, virkning: virkning as Virkning };
   });
+  const rekkefoelge = new Map(standpunkter.map((s, i) => [s.id, i]));
+  virkninger.sort((x, y) => rekkefoelge.get(x.standpunkt)! - rekkefoelge.get(y.standpunkt)!);
   if (sett.size !== art.size)
     throw new Uforstaatt(`${sti}: beslutningsgrunnlaget har ikke én virkning per standpunkt`);
   return {
