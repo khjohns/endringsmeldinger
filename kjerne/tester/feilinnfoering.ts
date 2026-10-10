@@ -550,7 +550,7 @@ const MUTASJONER: Mutasjon[] = [
     endringer: [
       [
         'SET kjerne_visning = $2::jsonb,',
-        'SET cached_status = $4::text, kjerne_visning = $2::jsonb,',
+        'SET cached_status = kjerne_regelversjon::text, kjerne_visning = $2::jsonb,',
       ],
     ],
     mal: ['finner de utdaterte sakene og bygger dem på nytt uten å endre noe annet enn bufferen'],
