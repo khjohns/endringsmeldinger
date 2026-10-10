@@ -42,17 +42,14 @@ export function utledJournal(journal: Journalrad[], kjerne: Kjerne): Utledning {
  * leses derfra. Standpunktene uten virkning står for seg, fordi det er appens
  * vurdering og ikke noe byggherren har sagt (oppdragsgiver 10.10).
  */
-function lagret(b: Beslutningsgrunnlag): Data {
-  const uten = b.virkninger.filter((v) => v.virkning === 'uten_virkning');
+function lagret({ virkninger, ...resten }: Beslutningsgrunnlag): Data {
+  const uten = virkninger.filter((v) => v.virkning === 'uten_virkning');
   return {
-    regelversjon: b.regelversjon,
-    virkninger: b.virkninger
+    ...resten,
+    virkninger: virkninger
       .filter((v) => v.virkning !== 'uten_virkning')
       .map(({ standpunkt, virkning }) => ({ standpunkt, virkning })),
     ...(uten.length ? { uten_virkning: uten.map((v) => v.standpunkt) } : {}),
-    linje: b.linje,
-    sammenfall: b.sammenfall,
-    ...(b.varslingsplikt !== undefined ? { varslingsplikt: b.varslingsplikt } : {}),
   };
 }
 

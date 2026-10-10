@@ -53,9 +53,9 @@ Hver rad har kolonnen `format`. `data` har ingen `null`, ingen tom liste og inge
 
 | Hva | Innhold | Felt | Grunnlag |
 | --- | --- | --- | --- |
-| `sendt` | Når dokumentet ble sendt utenfor appen. Dokumentet er registrert korrespondanse. | `id`, `hva`, `dato` | Modellforslaget 2.4, MM-U1 |
+| `sendt` | Når dokumentet ble sendt utenfor appen. Et dokument med `sendt` eller `mottatt` er registrert korrespondanse. | `id`, `hva`, `dato` | Modellforslaget 2.4, MM-U1 |
 | `mottatt` | Når dokumentet ble mottatt. | `id`, `hva`, `dato` | Modellforslaget 2.4, MM-U7 |
-| `endringsordre` | Om registrert korrespondanse med et svar på grunnlaget var en endringsordre etter § 31.3, oppgitt av den som registrerer, med vedlegget i `dokumentasjon`. Ikke en rettslig avgjørelse. Uten opplysningen er svaret ikke en endringsordre. | `id`, `hva`, `oppfylt` | § 31.3, § 32.3 a, GR-U12, oppdragsgiver 10.10 |
+| `endringsordre` | Om registrert korrespondanse med et svar på grunnlaget var en endringsordre etter § 31.3, oppgitt av den som registrerer, med vedlegget i `dokumentasjon`. Ikke en rettslig avgjørelse. Uten opplysningen er det ikke avklart om svaret er en endringsordre, og trekket av grunnlaget er sperret til det er avklart (KA-U13). | `id`, `hva`, `oppfylt` | § 31.3, § 32.3 a, GR-U12, oppdragsgiver 10.10 |
 
 ## Delene
 

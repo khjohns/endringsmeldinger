@@ -2178,7 +2178,8 @@
             "enighet.grunnlag.kilde": "sammenfall",
             "beslutningsgrunnlag.S-g1.varslingsplikt": true,
             "opplysning.D4#endringsordre": null,
-            "endringsordre": "ikke_avklart"
+            "endringsordre": "ikke_avklart",
+            "visning.etiketter.grunnlag": { "inneholder": ["endringsordre_ikke_avklart"] }
           }
         },
         {

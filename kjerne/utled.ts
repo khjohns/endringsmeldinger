@@ -112,11 +112,6 @@ export interface Utledning {
    * manglende opplysning er ikke et nei.
    */
   endringsordre: 'ja' | 'nei' | 'ikke_avklart';
-  /**
-   * KA-U13 med § 31.3 (oppdragsgiver 10.10): TE kan ikke trekke grunnlaget før det
-   * er avklart at godkjenningen ikke er en endringsordre.
-   */
-  trekkAvGrunnlagetErSperret: boolean;
 }
 
 const tomtSpor = (): Sporutledning => ({
@@ -149,7 +144,6 @@ function tom(
     grunnlagAvvist: false,
     frafalt: false,
     endringsordre: 'nei',
-    trekkAvGrunnlagetErSperret: false,
   };
 }
 
@@ -386,16 +380,18 @@ export function utled(journal: Domenehendelse[], regler: Regelsett): Utledning {
   const sammenfallMedVarslingsplikt =
     eg?.grunnlag.kilde === 'sammenfall' && gSvar?.beslutningsgrunnlag.varslingsplikt === true;
   // § 31.3: et brev sendt i appen oppfyller den, fordi appen lager brevet (#310). Registrert
-  // korrespondanse har opplysningen `sendt`, og da avgjør opplysningen fra den som
-  // registrerte. Mangler den, er det ikke avklart; kjernen gjetter ikke.
-  const iDokumentet = (hva: Opplysning['hva']) =>
-    opplysninger.find((o) => o.dokument === gSvar?.dokument && o.hva === hva);
-  const om313 = iDokumentet('endringsordre');
+  // korrespondanse har en opplysning om at den er sendt eller mottatt, og da avgjør
+  // opplysningen fra den som registrerte. Mangler den, er det ikke avklart; kjernen
+  // gjetter ikke. En bestridelse av opplysningen har ingen virkning på utfallet (MM-U7).
+  const iBrevet = opplysninger.filter((o) => o.dokument === gSvar?.dokument);
+  const om313 = iBrevet.find(
+    (o): o is Extract<Opplysning, { hva: 'endringsordre' }> => o.hva === 'endringsordre'
+  );
   const endringsordre: Utledning['endringsordre'] = !sammenfallMedVarslingsplikt
     ? 'nei'
-    : !iDokumentet('sendt')
+    : !erRegistrert(iBrevet)
       ? 'ja'
-      : om313?.hva !== 'endringsordre'
+      : om313 === undefined
         ? 'ikke_avklart'
         : om313.oppfylt
           ? 'ja'
@@ -435,7 +431,6 @@ export function utled(journal: Domenehendelse[], regler: Regelsett): Utledning {
     // GR-U12: om § 32.2 gjaldt, er frosset i brevet. Dagens regelsett vurderer det
     // ikke på nytt (MM-U9), og det avhenger ikke av om brevet sier noe om varslingen.
     endringsordre,
-    trekkAvGrunnlagetErSperret: endringsordre !== 'nei',
     // GR-U3, GR-U9: frafallet er byggherrens standpunkt, uavhengig av hva TE har sagt.
     frafalt:
       gBrev !== null &&
@@ -443,6 +438,17 @@ export function utled(journal: Domenehendelse[], regler: Regelsett): Utledning {
       standpunktet(gBrev.svar, 'grunnlag')?.resultat === 'frafalt',
   };
 }
+
+/** Dokumentet er registrert korrespondanse: det er sendt eller mottatt utenfor appen (4.1). */
+export const erRegistrert = (opplysninger: Pick<Opplysning, 'hva'>[]): boolean =>
+  opplysninger.some((o) => o.hva === 'sendt' || o.hva === 'mottatt');
+
+/**
+ * KA-U13 med § 31.3 (oppdragsgiver 10.10): TE kan ikke trekke grunnlaget før det er
+ * avklart at godkjenningen ikke er en endringsordre. Et trekk ville gitt journalen
+ * den videre virkningen at endringsordren leses som bortfalt (KA-U6).
+ */
+export const trekkAvGrunnlagetErSperret = (u: Utledning): boolean => u.endringsordre !== 'nei';
 
 /** Avsenderen av dokumentet utsagnet står i. Utsagnet er lest fra et dokument, så det finnes. */
 function partFor(journal: Domenehendelse[], hendelse: string): Part {

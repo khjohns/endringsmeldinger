@@ -243,7 +243,7 @@ function lesDokument(h: Journalrad): Dokument {
   // Opplysningen om § 31.3 hører til registrert korrespondanse med et svar på grunnlaget.
   if (
     hva.has('endringsordre') &&
-    (!hva.has('sendt') ||
+    (!(hva.has('sendt') || hva.has('mottatt')) ||
       !((data.svar ?? []) as Data[]).some((s) => erObjekt(s) && s.spor === 'grunnlag'))
   )
     throw new Uforstaatt(

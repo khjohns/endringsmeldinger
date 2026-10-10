@@ -39,8 +39,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/forutsetninger.ts`,
     endringer: [
       [
-        "import { kraveneErAvgjort, type Utledning } from './utled.ts';",
-        "import { kraveneErAvgjort, type Utledning } from './utled.ts';\nimport { visning } from './visning.ts';",
+        "import { kraveneErAvgjort, trekkAvGrunnlagetErSperret, type Utledning } from './utled.ts';",
+        "import { kraveneErAvgjort, trekkAvGrunnlagetErSperret, type Utledning } from './utled.ts';\nimport { visning } from './visning.ts';",
       ],
       [
         '  if (kraveneErAvgjort(u))',
@@ -291,8 +291,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/forutsetninger.ts`,
     endringer: [
       [
-        "if (h.spor === 'grunnlag' && u.trekkAvGrunnlagetErSperret)",
-        "if (h.spor === 'grunnlag' && u.trekkAvGrunnlagetErSperret && u.frafalt)",
+        "if (h.spor === 'grunnlag' && trekkAvGrunnlagetErSperret(u))",
+        "if (h.spor === 'grunnlag' && trekkAvGrunnlagetErSperret(u) && u.frafalt)",
       ],
     ],
     mal: ['F-MM-G10', 'F-MM-G18', 'F-MM-G20'],
@@ -448,7 +448,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'en manglende opplysning om § 31.3 leses som at godkjenningen er en endringsordre (oppdragsgiver 10.10)',
     fil: `${K}/utled.ts`,
-    endringer: [["      ? 'ikke_avklart'\n", "      ? 'ja'\n"]],
+    endringer: [["        ? 'ikke_avklart'\n", "        ? 'ja'\n"]],
     mal: ['F-MM-G20'],
   },
   {
@@ -463,7 +463,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'en manglende opplysning om § 31.3 leses som et nei (prinsipp 6, oppdragsgiver 10.10)',
     fil: `${K}/utled.ts`,
-    endringer: [["      ? 'ikke_avklart'\n", "      ? 'nei'\n"]],
+    endringer: [["        ? 'ikke_avklart'\n", "        ? 'nei'\n"]],
     mal: ['F-MM-G20'],
   },
   {
