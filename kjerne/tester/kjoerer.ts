@@ -256,8 +256,8 @@ export function les(sti: string, u: Utledning, k: Kjoering): unknown {
       return u.grunnlagAvvist;
     case 'frafalt':
       return u.frafalt;
-    case 'godkjenning_er_endringsordre':
-      return u.godkjenningErEndringsordre;
+    case 'endringsordre':
+      return u.endringsordre;
     case 'kravene_avgjort':
       return kraveneErAvgjort(u);
     case 'kan_inngaa_i_eo':
