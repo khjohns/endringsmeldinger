@@ -125,7 +125,7 @@ const MUTASJONER: Mutasjon[] = [
     mal: [
       'brukes ikke med nyere projeksjonsversjon',
       'brukes ikke med nyere regelversjon',
-      'brukes ikke med nyere format',
+      'brukes ikke med nyere leserformat',
     ],
   },
   {
