@@ -77,7 +77,10 @@ issue. Oppdraget skal inneholde:
 
 - issuenummerne, og at økta skal lese issuene og `AGENTS.md` først;
 - branchnavn (`claude/<kort-navn>-<issue>`);
-- hvilke filer de parallelle øktene arbeider i, og at de ikke skal røres;
+- hvilke filer de parallelle øktene arbeider i, og at de ikke skal røres så
+  lenge PR-en som eier fila, er åpen. Si uttrykkelig at fordelingen opphører
+  når den PR-en er merget. Ellers kan tillatelsessystemet i økta nekte den å
+  tilpasse seg etterpå, slik det skjedde med arkitekturtesten i FK runde 2;
 - avgjørelser oppdragsgiver allerede har tatt, ordrett;
 - at spørsmål bare oppdragsgiver kan avgjøre (NS 8407, tiltenkt atferd), sendes
   samlet til `@parent` etter kartleggingen og før implementeringen, med
