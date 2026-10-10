@@ -12,7 +12,7 @@ Dokumentet skiller tre ting:
 - **Vedtatt**: et vedtak i hovedplanen, med ID og lenke.
 - **Foreslått**: valget dette dokumentet gjør eller anbefaler.
 - **Lest i koden (L 09.10)**: dagens form i målmodellen i
-  [`sprakprove/maalmodell/`](../sprakprove/maalmodell/) på `843ab2f`.
+  [`sprakprove/maalmodell/`](https://github.com/khjohns/endringsmeldinger/blob/843ab2f/sprakprove/maalmodell/) på `843ab2f`.
 
 Versjonering, utrulling og tilbakerulling mellom TS-versjoner hører til
 [#316](https://github.com/khjohns/endringsmeldinger/issues/316). Dette dokumentet
@@ -78,8 +78,8 @@ er ikke vedtatt som helhet.
 
 Målmodellen valgte ikke format. Den skriver dagens radform og legger nye felt
 i `data`
-([`skriving.ts`](../sprakprove/maalmodell/kjerne/skriving.ts),
-[`leser.ts`](../sprakprove/maalmodell/kjerne/leser.ts)):
+([`skriving.ts`](https://github.com/khjohns/endringsmeldinger/blob/843ab2f/sprakprove/maalmodell/kjerne/skriving.ts),
+[`leser.ts`](https://github.com/khjohns/endringsmeldinger/blob/843ab2f/sprakprove/maalmodell/kjerne/leser.ts)):
 
 - **Ett brev blir én rad per svar.** Svarene bindes sammen med `dokument_id` i
   `data`. Atomisiteten kommer av at `leggTil` i
@@ -102,7 +102,7 @@ i `data`
   `enighetsgrunnlag`.
 - **Formatversjonen** står som `data.hendelsesformat`, og bare når formatet er
   over 1. Kjernens format står i `KJERNE.format` i
-  [`regelsett.ts`](../sprakprove/maalmodell/kjerne/regelsett.ts).
+  [`regelsett.ts`](https://github.com/khjohns/endringsmeldinger/blob/843ab2f/sprakprove/maalmodell/kjerne/regelsett.ts).
 - **Typene `frist_varsel_registrert` og `bestridelse_registrert`** finnes bare i
   målmodellen.
 
@@ -524,7 +524,7 @@ skal vise til vedtakene i avsnitt 2, ikke til koden.
 ### 7.2 Feilinnføring som fjerner en referanse
 
 Legg feilklassene i feilinnføringsfila for kjernen (i dag
-[`sprakprove/maalmodell/feilinnforing.ts`](../sprakprove/maalmodell/feilinnforing.ts)).
+[`sprakprove/maalmodell/feilinnforing.ts`](https://github.com/khjohns/endringsmeldinger/blob/843ab2f/sprakprove/maalmodell/feilinnforing.ts)).
 Innfør én om gangen, og vis at prøven i 7.1 feiler på virkningen, ikke på
 oppsettet:
 
