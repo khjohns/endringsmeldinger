@@ -290,14 +290,15 @@ To trekk gjelder hele kjernen på `7460838`:
 - **Utsagn:** BH: `foresporsel` som `gjelder` varselet eller fristsporet, med
   valgfri svarfrist. TE: svar etter bokstav a (et krav med dager, som
   `gjelder` forespørselen) eller bokstav b (en begrunnelse, uten dager).
-- **Predikat:** *forslag (spørsmål 3):* en forespørsel er åpen til TE har svart
-  etter a eller b. Den gir ingen virkning av seg selv.
+- **Predikat:** har TE svart med dager på forespørselen, gjelder ikke
+  spørsmålet etter § 33.6.1. Det vurderes ikke, og en påberopelse avvises.
+  Forespørselen gir ellers ingen virkning av seg selv.
 - **Appen avgjør ikke:** om TE svarte i tide, og om kravet er tapt (tredje
-  ledd). Heller ikke om fjerde ledd hindrer BHs innsigelse.
-- **Appen:** *registrere og vise* for tredje ledd (vedtatt). *Forslag:* vise for
-  fjerde ledd.
+  ledd).
+- **Appen:** *registrere og vise* for tredje ledd. *Utlede* for fjerde ledd.
 - **Vedtak:** [VS-U2](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u2)
-  (§ 33.6.2 tredje ledd). Nøytralt fristvarsel, TFR-06 og DRF-01 (23.09,
+  (§ 33.6.2 tredje ledd). [KA-U4](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u4)
+  og rad KA-18a i [domenetabellen](domenetabell/README.md) (fjerde ledd). Nøytralt fristvarsel, TFR-06 og DRF-01 (23.09,
   merknaden 04.10: svarfristen er valgfri og går utenom intern godkjenning).
   [MP-U4](plans/2026-09-16-godkjenning-og-varig-levering.md#mp-u4) (gjelder
   metodeprøven). [VS-U1](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u1):
@@ -305,6 +306,8 @@ To trekk gjelder hele kjernen på `7460838`:
 - **Kjernen i dag:** ikke bygget. Regelen har `er_svar_paa_foresporsel` og
   `foresporsel_svar_ok` i [`regler/frist.ts`](../kjerne/regler/frist.ts), men
   kjernen setter dem alltid usann, og usann `foresporsel_svar_ok` avvises.
+  Python avviser påberopelsen etter fjerde ledd (`kontroller` i
+  [`backend/regler/frist.py`](../backend/regler/frist.py)).
   Ingen utsagnsart. Feltene fra DRF-02 og SD-04 (#64, #76) og `begrunnelse_utsatt`
   uten dager (#237) hører hit.
 
@@ -352,7 +355,9 @@ To trekk gjelder hele kjernen på `7460838`:
 - **Vedtak:** [FO-U1](plans/2026-09-16-godkjenning-og-varig-levering.md#fo-u1).
   TFR-02 (23.09): forsering får aldri en lukket samlet status. Merknaden 23.09
   til TFR-02 i 4.2: TE kan oppdatere kostnader og stoppe etter BHs svar. «Forsering er
-  utenfor godkjenningsflyten» (18.09). [B-17](plans/2026-09-16-godkjenning-og-varig-levering.md#b-17)
+  utenfor godkjenningsflyten» (18.09, Følge: prosjekter med policy kan inntil
+  videre ikke svare, GFK-04). Om svarene i forseringssaken skal gå gjennom
+  fullmakten, er spørsmål 8 e. [B-17](plans/2026-09-16-godkjenning-og-varig-levering.md#b-17)
   (merknaden 09.10: forsering går til TS).
 - **Kjernen i dag:** ikke bygget. Ingen sakstype, regel eller utsagn. Strengen
   `forseringsrett_avslatt` i `SUBSIDIAERE_UTLOSERE`
@@ -419,10 +424,11 @@ også § 30 om regningsarbeid, som § 34.4 viser til.
   én gang, som for § 33.4.
 - **Appen avgjør ikke:** hvilke utgifter som var påløpt før varselet.
 - **Appen:** *forslag:* utlede.
-- **Vedtak:** SK-12 (05.10), som omfatter varslene etter § 34.1.3.
-  [MM-U1](plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u1) gjelder dem
-  dermed også. Hvilken dato et varsel registrert senere får, sett opp mot
-  DRF-03, er spørsmål 5 b. B-13 om preklusjon ut fra byggherrens egen vurdering
+- **Vedtak:** SK-12 (05.10), som omfatter varslene etter § 34.1.3. Første
+  setning i [MM-U1](plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u1)
+  gjelder dem også: låsen gjelder et registrert varsel. Resten av MM-U1 gjelder
+  fristkravet. Om det også skal gjelde § 34.1, er spørsmål 5 b, og datoen sett
+  opp mot DRF-03 er spørsmål 5 c. B-13 om preklusjon ut fra byggherrens egen vurdering
   (24.09, nevner § 34.1.3); formen er spørsmål 4.
 - **Kjernen i dag:** ikke bygget. Reglene for `rigg_*` og `produktivitet_*`
   finnes i [`regler/vederlag.ts`](../kjerne/regler/vederlag.ts), men
@@ -600,7 +606,10 @@ visning ikke fremstiller et trekk som at utførelsesplikten er bortfalt.
   [KA-U14](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u14).
   [GR-U3](plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u3).
   [EO-U3](plans/2026-09-16-godkjenning-og-varig-levering.md#eo-u3)–[EO-U5](plans/2026-09-16-godkjenning-og-varig-levering.md#eo-u5).
-  Lagringen av relasjoner mellom saker er B-01 i 3.4, som står åpen.
+  [EO-U1](plans/2026-09-16-godkjenning-og-varig-levering.md#eo-u1) og vedtaket
+  29.09: en endringsordrehendelse avvises i KOE-saken, så raden i KOE-saken kan
+  bare være et grunnlagssvar. Lagringen av relasjoner mellom saker er B-01 i
+  3.4, som står åpen.
 - **Kjernen i dag:** ikke bygget.
 
 ---
