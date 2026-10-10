@@ -3,7 +3,7 @@
  * (GR-U12). Kjernen avgjør det: svaret godkjenner hele kravet uten påberopt
  * preklusjon (sammenfall, GR-U10), og § 32.2 gjelder kategorien (GR-U11). Det er
  * samme sammensetning som utledningen bruker for et brev sendt i appen. Skjemaet
- * har ingen vei for registrert korrespondanse, der § 31.3 må oppgis (GR-U13, #310).
+ * har ingen vei for registrert korrespondanse, der § 31.3 må oppgis (GR-U13).
  */
 
 import { HJEMMEL } from '$kjerne/format';
@@ -19,11 +19,11 @@ export interface Grunnlagskategori {
 
 export interface Grunnlagsvurdering {
   resultat?: unknown;
-  /** Byggherrens svar om varselet etter § 32.2. Bare en boolsk verdi er et svar. */
-  varsletITide?: unknown;
+  /** Byggherrens svar om varselet etter § 32.2; `undefined` når det ikke er gitt. */
+  varsletITide?: boolean;
 }
 
-/** Varselet i skjemaet og godkjenningsvisningen (GR-U12). Brevteksten etter § 31.3 hører til #310. */
+/** Varselet i skjemaet og godkjenningsvisningen (GR-U12). Brevet etter § 31.3 lages med skrivestien (GR-U13). */
 export const ENDRINGSORDREVARSEL =
   'Svaret er en endringsordre etter § 32.3 første ledd a, fordi byggherren godkjenner ansvarsgrunnlaget uten å påberope at varselet kom for sent (§ 32.2). Totalentreprenøren blir forpliktet til å utføre endringsarbeidet (§ 31.3 annet ledd).';
 
