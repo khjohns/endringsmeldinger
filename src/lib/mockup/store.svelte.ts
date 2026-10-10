@@ -274,7 +274,7 @@ export function createDemoStore(initial: Scenario = DEFAULT_SCENARIO) {
       actorrole: 'TE',
       actor: scenario.sak.entreprenor ?? 'TE',
       spor: 'grunnlag',
-      summary: 'Totalentreprenøren oppdaterte begrunnelsen for ansvarsgrunnlaget',
+      summary: 'Totalentreprenøren oppdaterte begrunnelsen for grunnlaget',
       data: {
         original_event_id: previousEventId,
         beskrivelse: begrunnelse,

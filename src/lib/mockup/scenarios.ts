@@ -62,15 +62,14 @@ const scenario1_Subsidiaer: SakState = {
     status: 'avslatt',
     bh_resultat: 'avslatt',
     bh_begrunnelse:
-      'Ansvarsgrunnlaget er avslått, og vederlagskravet avslås derfor prinsipalt. Subsidiært godkjennes kr 2 100 000 av hovedkravet. Kravet om rigg og drift anses varslet for sent, men kr 280 000 godkjennes subsidiært. Produktivitetstapet på kr 180 000 godkjennes subsidiært.',
+      'Grunnlaget er avslått, og vederlagskravet avslås derfor prinsipalt. Subsidiært godkjennes kr 2 100 000 av hovedkravet. Kravet om rigg og drift anses varslet for sent, men kr 280 000 godkjennes subsidiært. Produktivitetstapet på kr 180 000 godkjennes subsidiært.',
     bh_metode: 'REGNINGSARBEID',
     godkjent_belop: 0,
     bh_respondert_versjon: 2,
     subsidiaer_triggers: ['grunnlag_avslatt', 'preklusjon_rigg'],
     subsidiaer_resultat: 'delvis_godkjent',
     subsidiaer_godkjent_belop: 2560000,
-    subsidiaer_begrunnelse:
-      'Dersom ansvarsgrunnlaget likevel fører frem, godkjennes samlet kr 2 560 000.',
+    subsidiaer_begrunnelse: 'Dersom grunnlaget likevel fører frem, godkjennes samlet kr 2 560 000.',
     differanse: 2930000,
     godkjenningsgrad_prosent: 0,
     har_subsidiaert_standpunkt: true,
@@ -120,12 +119,12 @@ const timeline1_Subsidiaer: TimelineEvent[] = [
       total_godkjent_belop: 0,
       total_krevd_belop: 2930000,
       begrunnelse:
-        'Ansvarsgrunnlaget er avslått, og vederlagskravet avslås derfor prinsipalt. Subsidiært godkjennes kr 2 100 000 av hovedkravet. Kravet om rigg og drift anses varslet for sent, men kr 280 000 godkjennes subsidiært. Produktivitetstapet på kr 180 000 godkjennes subsidiært.',
+        'Grunnlaget er avslått, og vederlagskravet avslås derfor prinsipalt. Subsidiært godkjennes kr 2 100 000 av hovedkravet. Kravet om rigg og drift anses varslet for sent, men kr 280 000 godkjennes subsidiært. Produktivitetstapet på kr 180 000 godkjennes subsidiært.',
       subsidiaer_triggers: ['grunnlag_avslatt', 'preklusjon_rigg'],
       subsidiaer_resultat: 'delvis_godkjent',
       subsidiaer_godkjent_belop: 2560000,
       subsidiaer_begrunnelse:
-        'Dersom ansvarsgrunnlaget likevel fører frem, godkjennes samlet kr 2 560 000.',
+        'Dersom grunnlaget likevel fører frem, godkjennes samlet kr 2 560 000.',
     },
   },
 ];

@@ -134,7 +134,7 @@
     />
 
     <div class="form-title-row">
-      <h1>Oppdater ansvarsgrunnlag</h1>
+      <h1>Oppdater grunnlaget</h1>
     </div>
     <p class="form-intro">
       Oppdater totalentreprenørens redegjørelse. Kontraktsforhold, hjemmel og dato kan ikke endres.
@@ -220,7 +220,7 @@
           body={begrunnelseHtml}
           onchange={(html) => (begrunnelseHtml = html)}
           extensions={[LockedValueNode]}
-          placeholder="Oppdater begrunnelsen for ansvarsgrunnlaget..."
+          placeholder="Oppdater begrunnelsen for grunnlaget..."
           maxHeight="none"
           oncharcount={(count) => (charCount = count)}
         />

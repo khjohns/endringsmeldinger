@@ -132,8 +132,8 @@
         <div class="sub-diamond-inline"></div>
         <span class="sub-notice-top-text">
           {grunnlagetErPrekludert(store.sak)
-            ? 'Ansvarsgrunnlaget er prekludert (§ 32.2).'
-            : 'Ansvarsgrunnlaget er bestridt.'}
+            ? 'Grunnlaget er prekludert (§ 32.2).'
+            : 'Grunnlaget er bestridt.'}
           {store.bhNavn}s posisjon på dette sporet er subsidiær — betinget av at ansvar foreligger.
         </span>
       </div>
@@ -145,7 +145,7 @@
         <div class="withdrawn-header">
           <Stamp variant="avslag" small>Trukket</Stamp>
           {#if display.withdrawnViaGrunnlag}
-            <span class="withdrawn-via">Trukket via ansvarsgrunnlaget</span>
+            <span class="withdrawn-via">Trukket via grunnlaget</span>
           {/if}
         </div>
         {#if display.withdrawnReason}

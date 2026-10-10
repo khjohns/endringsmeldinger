@@ -303,7 +303,7 @@
           eyebrow: 'Brev',
           title: 'Start med en vurdering',
           description:
-            'Ferdigstill ansvarsgrunnlag, økonomi eller frist i saken. Vurderingene blir brevet til entreprenøren.',
+            'Ferdigstill grunnlag, økonomi eller frist i saken. Vurderingene blir brevet til entreprenøren.',
           content: false,
         };
       const base = {
@@ -530,7 +530,7 @@
           <h2>{review.canPrepare ? 'Ingen ferdigstilte vurderinger' : 'Ingen brev å vise'}</h2>
           <p>
             {review.canPrepare
-              ? 'Åpne ansvarsgrunnlag, økonomi eller frist og ferdigstill vurderingen. Den blir innholdet i brevet.'
+              ? 'Åpne grunnlag, økonomi eller frist og ferdigstill vurderingen. Den blir innholdet i brevet.'
               : 'Når et brev sendes til deg for godkjenning, vises det her.'}
           </p>
           <button class="text-button" onclick={() => void back()}

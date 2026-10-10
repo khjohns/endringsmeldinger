@@ -116,9 +116,9 @@ it('viser subsidiær vurdering og flere grunner til prinsipalt avslag sammen', (
   expect(
     screen.getByText(/Subsidiært vurderes fristforlengelsen til 30 kalenderdager/)
   ).toHaveTextContent('dersom innsigelsene ikke fører frem');
-  expect(
-    screen.getByText(/bestridt ansvarsgrunnlag, for sen varsling av fristkravet/)
-  ).toHaveTextContent('Prinsipalt avslag bygger på');
+  expect(screen.getByText(/bestridt grunnlag, for sen varsling av fristkravet/)).toHaveTextContent(
+    'Prinsipalt avslag bygger på'
+  );
 });
 
 it('leser bh_respondert_versjon = null fra API-et som ubesvart', () => {
