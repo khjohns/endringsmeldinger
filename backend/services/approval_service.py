@@ -26,7 +26,7 @@ TRACKS = ("grunnlag", "vederlag", "frist")
 
 
 def krav_fra_tilstand(state):
-    """TEs krav slik fullmakten for godkjent ansvar leser det (GFK-06).
+    """TEs krav slik fullmakten for godkjent grunnlag leser det (GFK-06).
 
     Kroner for vederlag, med særskilte krav; dager for frist. `None` er et krav
     som ikke er sendt eller ikke tallfestet. Et trukket krav er 0.
@@ -213,7 +213,7 @@ class ApprovalService:
                 and item.get("basis") != self.basis(state.grunnlag, refs)
             ):
                 raise ValueError(
-                    "Ansvarsgrunnlaget er endret eller utelatt. Revider økonomi- og fristvurderingen mot grunnlaget som skal gjelde for sendingen."
+                    "Grunnlaget er endret eller utelatt. Revider økonomi- og fristvurderingen mot grunnlaget som skal gjelde for sendingen."
                 )
             result = self.validator.validate(event, state)
             if not result.is_valid:
@@ -326,7 +326,7 @@ class ApprovalService:
                 basis = self.basis(ground, claims(raw))
                 if item.get("basis") and item["basis"] != basis:
                     raise ValueError(
-                        "Ansvarsgrunnlaget er endret. Last inn vurderingen på nytt."
+                        "Grunnlaget er endret. Last inn vurderingen på nytt."
                     )
                 item["basis"] = basis
                 item["data"] = validated[0].data.model_dump(

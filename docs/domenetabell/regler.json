@@ -557,6 +557,13 @@
       "dato": "2026-10-10",
       "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u14",
       "radetikett": "MM-U14: er saken ikke forstått (MM-U2), avvises også en bestridelse etter MM-U7"
+    },
+    {
+      "id": "MM-U17",
+      "type": "vedtak",
+      "dato": "2026-10-10",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u17",
+      "radetikett": "MM-U17: for et brev sendt utenfor appen og registrert i den, fryser beslutningsgrunnlaget appens vurdering etter reglene ved registreringen"
     }
   ],
   "rader": [
@@ -1022,6 +1029,22 @@
         "MM-U2",
         "KA-U2",
         "KA-U15"
+      ],
+      "tolkningsstatus": "avklart_tolkning"
+    },
+    {
+      "id": "KA-30",
+      "tilfelle": "Byggherrens svar på grunnlaget er sendt utenfor appen før en regelendring og registrert i appen etter den.",
+      "forventet": "Beslutningsgrunnlaget fryser appens vurdering etter reglene ved registreringen, med regelversjonen da, også om § 32.2 gjaldt. Visningen merker svaret «appens vurdering ved registreringen». Brevets standpunkter står som brevet uttrykte dem. Er brevet registrert før regelendringen, står vurderingen fra registreringen, og regelendringen vises som en merknad (MM-U9). Et svar sendt fra appen merkes ikke.",
+      "bh_standpunkt": "Svaret slik brevet uttrykte det.",
+      "rettslig_virkning": "Avsenderen er bundet av det brevet meddelte. Vurderingen er appens, ikke en rettslig avgjørelse.",
+      "rettidighet": "—",
+      "tidsakse": "registrering",
+      "kilder": [
+        "MM-U17",
+        "MM-U9",
+        "MM-U12",
+        "GR-U12"
       ],
       "tolkningsstatus": "avklart_tolkning"
     },

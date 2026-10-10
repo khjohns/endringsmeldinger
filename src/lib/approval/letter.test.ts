@@ -19,7 +19,7 @@ describe('decisionSummary ved avslått eller prekludert grunnlag (#168, #186)', 
           { resultat: 'avslatt' }
         )
       )
-    ).toBe(`Prinsipalt avslått (ansvarsgrunnlaget) · Subsidiært delvis godkjent: ${kr(150000)}`);
+    ).toBe(`Prinsipalt avslått (grunnlaget) · Subsidiært delvis godkjent: ${kr(150000)}`);
     expect(
       decisionSummary(
         item(
@@ -28,7 +28,7 @@ describe('decisionSummary ved avslått eller prekludert grunnlag (#168, #186)', 
           { resultat: 'avslatt' }
         )
       )
-    ).toBe('Prinsipalt avslått (ansvarsgrunnlaget) · Subsidiært godkjent: 10 dager');
+    ).toBe('Prinsipalt avslått (grunnlaget) · Subsidiært godkjent: 10 dager');
   });
 
   it('lar et subsidiært standpunkt i svaret stå etter som atter subsidiært', () => {
@@ -46,13 +46,13 @@ describe('decisionSummary ved avslått eller prekludert grunnlag (#168, #186)', 
         )
       )
     ).toBe(
-      'Prinsipalt avslått (ansvarsgrunnlaget) · Subsidiært avslått: 0 dager · Atter subsidiært delvis godkjent: 4 dager'
+      'Prinsipalt avslått (grunnlaget) · Subsidiært avslått: 0 dager · Atter subsidiært delvis godkjent: 4 dager'
     );
   });
 
   it.each([
     ['EO', `Godkjent · ${kr(150000)}`],
-    ['IRREG', `Prinsipalt avslått (ansvarsgrunnlaget) · Subsidiært godkjent: ${kr(150000)}`],
+    ['IRREG', `Prinsipalt avslått (grunnlaget) · Subsidiært godkjent: ${kr(150000)}`],
   ])('§ 32.2 gjelder bare endring uten formell endringsordre (%s)', (underkategori, forventet) => {
     expect(
       decisionSummary(

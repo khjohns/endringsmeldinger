@@ -2,15 +2,19 @@
  * Feilinnføringene for kjernen (#304, #308, #273). F1–F7 er avsnitt 4 i
  * modellforslaget, F8–F10 feilklassene reviewet av PR #306 fant, skrevet om etter
  * MM-U9 og GR-U10, F11–F26 grensene #308 la til, og F27–F47 formatet (#273): 7.2
- * i designnotatet, GR-U12 og registeret (#320), og F48 hvitelisten fra #329. Én
- * mutasjon om gangen i arbeidskopien, Vitest over `kjerne/` og
- * `sprakprove/kjernelagring/`, og originalteksten settes tilbake etterpå. For hver mutasjon kreves det at de
- * forventede målassertions feiler, og at alle feil er assertions, ikke import,
- * oppsett eller en brutt forutsetning (`.claude/rules/tester.md`).
+ * i designnotatet, GR-U12 og registeret (#320). F48 er hvitelisten fra #329,
+ * F49–F51 og F54–F58 versjoneringen (#316) og F52–F53 registrert korrespondanse
+ * (#336). Én mutasjon om gangen i arbeidskopien, Vitest over `kjerne/` og
+ * `sprakprove/kjernelagring/`, og originalteksten settes tilbake etterpå. For
+ * hver mutasjon kreves det at de forventede målassertions feiler, og at alle
+ * feil er assertions, ikke import, oppsett eller en brutt forutsetning
+ * (`.claude/rules/tester.md`).
  *
- * Kjøres fra repoets rot, med testbasen oppe for å ta med lagringstestene:
+ * Kjøres fra repoets rot, med testbasen oppe og `KOE_TESTBASE_URL` satt:
  *   node kjerne/tester/feilinnfoering.ts [F1 F2 ...]
  * Forventet: «oppdaget» for hver mutasjon, og arbeidskopien er ren etterpå.
+ * Hopper kontrollkjøringen over en test, for eksempel lagringstestene uten
+ * testbasen, avsluttes skriptet med kode 2 før noen mutasjon (#353).
  * Skriptet starter ikke når en fil det muterer, har lokale endringer. Commit
  * aldri en mutert fil.
  */
@@ -121,7 +125,7 @@ const MUTASJONER: Mutasjon[] = [
     mal: [
       'brukes ikke med nyere projeksjonsversjon',
       'brukes ikke med nyere regelversjon',
-      'brukes ikke med nyere format',
+      'brukes ikke med nyere leserformat',
     ],
   },
   {
@@ -521,6 +525,115 @@ const MUTASJONER: Mutasjon[] = [
     ],
     mal: ['reglene leser bare det LESBART tillater (#308, #329) utled.ts'],
   },
+  {
+    id: 'F49',
+    feilklasse:
+      'kjernen leser bare formatet den skriver, så en versjon som leser et nytt format, stopper saken (B-10, #316)',
+    fil: `${K}/skriving.ts`,
+    endringer: [
+      [
+        'return utled(lesJournal(journal, kjerne.leserformat), kjerne.regler);',
+        'return utled(lesJournal(journal, kjerne.format), kjerne.regler);',
+      ],
+    ],
+    mal: ['skrevet av v2b, lest av v2a'],
+  },
+  {
+    id: 'F50',
+    feilklasse: 'spørringen etter utdaterte buffere ser bort fra saksversjonen (B-10, #316)',
+    fil: 'sprakprove/kjernelagring/bane.ts',
+    endringer: [
+      ['             OR m.kjerne_saksversjon IS DISTINCT FROM h.versjon)', '             )'],
+    ],
+    mal: ['finner en sak med en ny hendelse etter bufferen, og bare den'],
+  },
+  {
+    id: 'F51',
+    feilklasse: 'gjenoppbyggingen skriver mer enn bufferen (merknaden 07.10 til B-10, #316)',
+    fil: 'sprakprove/kjernelagring/bane.ts',
+    endringer: [
+      [
+        'SET kjerne_visning = $2::jsonb,',
+        'SET cached_status = kjerne_regelversjon::text, kjerne_visning = $2::jsonb,',
+      ],
+    ],
+    mal: ['finner de utdaterte sakene og bygger dem på nytt uten å endre noe annet enn bufferen'],
+  },
+  {
+    id: 'F52',
+    feilklasse:
+      'visningen merker et svar sendt fra appen, ikke det registrerte, som appens vurdering ved registreringen (MM-U17, #336)',
+    fil: `${K}/visning.ts`,
+    endringer: [
+      [
+        'if (s.gjeldendeSvar && vurdertVedRegistreringen(u, s.gjeldendeSvar.id))',
+        'if (s.gjeldendeSvar && !vurdertVedRegistreringen(u, s.gjeldendeSvar.id))',
+      ],
+    ],
+    mal: ['F-MM-R1-kontroll'],
+  },
+  {
+    id: 'F53',
+    feilklasse:
+      'et registrert brev fryses med reglene da det ble sendt, ikke ved registreringen (MM-U17, #336)',
+    fil: `${K}/skriving.ts`,
+    endringer: [
+      [
+        "import { avvisning } from './avvisning.ts';",
+        "import { avvisning } from './avvisning.ts';\nimport { GJELDENDE_REGLER } from './regler/regelsett.ts';",
+      ],
+      [
+        '    s.beslutningsgrunnlag = frys(s, krav, kjerne);',
+        '    s.beslutningsgrunnlag = frys(s, krav, { ...kjerne, regler: GJELDENDE_REGLER });',
+      ],
+    ],
+    mal: ['F-MM-R1'],
+  },
+  {
+    id: 'F54',
+    feilklasse: 'oversikten viser en utdatert sak uten merket «Oppdateres» (MM-U15, #316)',
+    fil: `${K}/buffer.ts`,
+    endringer: [['oppdateres: !b || !bufferGjelder(b, kjerne, saksversjon),', 'oppdateres: !b,']],
+    mal: ['viser siste kjente status i oversikten'],
+  },
+  {
+    id: 'F55',
+    feilklasse: 'lista før en tilbakerulling tar med saker kjernen leser (B-10, MM-U2, #316)',
+    fil: 'sprakprove/kjernelagring/bane.ts',
+    endringer: [
+      ['WHERE prosjekt_id = $1 AND format > $2', 'WHERE prosjekt_id = $1 AND format >= $2'],
+    ],
+    mal: ['lister sakene med en rad i et format kjernen ikke leser'],
+  },
+  {
+    id: 'F56',
+    feilklasse:
+      'spørringen etter utdaterte buffere tar med saker uten rader fra kjernen (B-17, #316)',
+    fil: 'sprakprove/kjernelagring/bane.ts',
+    endringer: [['GROUP BY sak_id HAVING count(format) > 0) h', 'GROUP BY sak_id) h']],
+    mal: ['tar ikke med en sak uten rader fra kjernen'],
+  },
+  {
+    id: 'F57',
+    feilklasse: 'bufferen leses på tvers av prosjektgrensen (AGENTS.md, #316)',
+    fil: 'sprakprove/kjernelagring/bane.ts',
+    endringer: [
+      [
+        'FROM sak_metadata WHERE sak_id = $1 AND prosjekt_id = $2`,',
+        'FROM sak_metadata WHERE sak_id = $1 AND $2::text IS NOT NULL`,',
+      ],
+    ],
+    mal: ['lar bufferen holde seg i prosjektet'],
+  },
+  {
+    id: 'F58',
+    feilklasse: 'bufferen skrives på tvers av prosjektgrensen (AGENTS.md, #316)',
+    fil: 'sprakprove/kjernelagring/bane.ts',
+    endringer: [
+      ['WHERE sak_id = $1 AND prosjekt_id = $7`,', 'WHERE sak_id = $1 AND $7::text IS NOT NULL`,'],
+    ],
+    mal: ['lar bufferen holde seg i prosjektet'],
+  },
 ];
 
 interface Testresultat {
@@ -570,16 +683,22 @@ for (const m of mutasjoner) {
 }
 
 const kontroll = kjoerVitest();
-const kontrollfeil = kontroll.testResults
-  .flatMap((f) => f.assertionResults)
-  .filter((t) => t.status === 'failed');
+const kontrolltester = kontroll.testResults.flatMap((f) => f.assertionResults);
+const kontrollfeil = kontrolltester.filter((t) => t.status === 'failed');
 if (kontrollfeil.length || kontroll.testResults.some((f) => f.status === 'failed'))
   throw new Error(
     `Kontrollkjøringen er ikke grønn: ${kontrollfeil.map((t) => t.fullName).join('; ')}`
   );
-console.log(
-  `Kontroll uten mutasjon: ${kontroll.testResults.flatMap((f) => f.assertionResults).length} tester grønne.`
-);
+// #353: en hoppet test er ikke grønn. Uten testbasen hoppes lagringstestene over, og en
+// mutasjon med mål der ville ellers ikke kunne oppdages.
+const hoppet = kontrolltester.filter((t) => t.status !== 'passed');
+if (hoppet.length) {
+  console.error(
+    `Kontrollkjøringen hoppet over ${hoppet.length} tester${process.env.KOE_TESTBASE_URL ? '' : ' (KOE_TESTBASE_URL er ikke satt)'}, for eksempel ${hoppet[0].fullName}. Feilinnføringene krever at alle kjører.`
+  );
+  process.exit(2);
+}
+console.log(`Kontroll uten mutasjon: ${kontrolltester.length} tester grønne.`);
 
 let alleOppdaget = true;
 for (const m of mutasjoner) {

@@ -72,7 +72,7 @@ export interface ApprovalState {
 }
 export const emptyApprovalState = (): ApprovalState => ({ version: 0, items: [], packages: [] });
 export const trackNames: Record<SporType, string> = {
-  grunnlag: 'Ansvarsgrunnlag',
+  grunnlag: 'Grunnlag',
   vederlag: 'Økonomi',
   frist: 'Frist',
 };
