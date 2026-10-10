@@ -4,6 +4,7 @@
   import { apiFetch } from '$lib/api/client';
   import { resolve } from '$app/paths';
   import type { EOStatus, SakState } from '$lib/types/timeline';
+  import { harGodkjentKrav } from '$lib/components/kontraktsbord/derive';
 
   let {
     state: sak,
@@ -36,10 +37,7 @@
     revidert: 'Revidert',
   };
 
-  const hasClaim = $derived(
-    (!!sak.vederlag.metode && ['godkjent', 'laast'].includes(sak.vederlag.status)) ||
-      (sak.frist.krevd_dager != null && ['godkjent', 'laast'].includes(sak.frist.status))
-  );
+  const hasClaim = $derived(harGodkjentKrav(sak));
   const canIssue = $derived(
     role === 'BH' &&
       (!sak.sakstype || sak.sakstype === 'standard') &&

@@ -1,7 +1,8 @@
 <script lang="ts">
   import { XSquare, Send, BookOpen, ArrowRight, PencilLine } from 'lucide-svelte';
   import { formatDateShortNorwegian } from '$lib/utils/dateFormatters.js';
-  import { fmt, sporResultatLabel } from './utils.js';
+  import { fmt } from './utils.js';
+  import { sporResultatLabel } from './derive.js';
   import { getCaseWorkspace } from '$lib/kontraktsbord/context.svelte';
   const store = getCaseWorkspace();
   import type { Mode, Role, SporKey } from './types.js';
