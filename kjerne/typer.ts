@@ -179,7 +179,6 @@ export interface Beslutningsgrunnlag {
 export interface Utfall {
   beloep?: number;
   dager?: number;
-  grunnlag?: 'avklart' | 'avvist';
 }
 
 /**

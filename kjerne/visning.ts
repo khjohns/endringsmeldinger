@@ -102,7 +102,10 @@ export function visning(u: Utledning, regler: Regelsett): Visning {
     if (
       o.hva === 'sendt' &&
       !u.opplysninger.some(
-        (x) => x.opplysning.dokument === o.dokument && x.opplysning.hva === 'mottatt'
+        (x) =>
+          x.opplysning.dokument === o.dokument &&
+          x.opplysning.hva === 'mottatt' &&
+          x.opplysning.gjelder === o.gjelder
       )
     )
       e.push('mottaksdato_mangler');

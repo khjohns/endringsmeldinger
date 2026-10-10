@@ -111,7 +111,6 @@ export function regelendringen(lagBaner: () => Baner): void {
       expect(godtatt?.godtatt ? 'godtatt' : godtatt?.avvisning.regel).toBe('godtatt');
       const u = await s.k.utledning();
       expect(u.spor.grunnlag.enighet?.grunnlag.regelversjon).toBe(KJERNE.regler.versjon);
-      expect(u.spor.grunnlag.enighet?.grunnlag.utfall.grunnlag).toBe('avvist');
       expect(u.grunnlagAvvist).toBe(true);
     });
 
