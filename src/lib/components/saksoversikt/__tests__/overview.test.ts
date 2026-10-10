@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { filterCases, overviewStats, isTimeClaim, formalizedClaims } from '../overview';
+import {
+  endringsordreVenterPaa,
+  filterCases,
+  overviewStats,
+  isTimeClaim,
+  formalizedClaims,
+} from '../overview';
 import { mockSaksoversikt } from '$lib/mocks/saksoversikt';
 
 const make = (status: string, claimed: number | null, approved: number | null) => ({
@@ -109,4 +115,20 @@ it('combines EO type and status filters and searches the actual EO number', () =
     },
   };
   expect(filterCases([numbered], 'eo-042', 'all', 'endringsordre')).toEqual([numbered]);
+});
+
+// Fastholder dagens atferd i arbeidslisten ved flyttingen til lesepunktet (#313).
+it.each([
+  ['utstedt', 'TE'],
+  ['revidert', 'TE'],
+  ['bestridt', 'BH'],
+  ['akseptert', null],
+  ['utkast', null],
+])('endringsordre med status %s venter på %s', (status, venterPaa) => {
+  const item = {
+    ...mockSaksoversikt[0],
+    sakstype: 'endringsordre' as const,
+    endringsordre_data: { status, eo_nummer: 'EO-1', relaterte_koe_saker: [] },
+  } as unknown as Parameters<typeof endringsordreVenterPaa>[0];
+  expect(endringsordreVenterPaa(item)).toBe(venterPaa);
 });
