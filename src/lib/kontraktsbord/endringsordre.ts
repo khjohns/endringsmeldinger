@@ -11,6 +11,7 @@ import { GJELDENDE_REGLER } from '$kjerne/regler/regelsett';
 import { GRUNNLAGSRESULTATER, type Grunnlagsresultat } from '$kjerne/regler/typer';
 import { beslutningsgrunnlag } from '$kjerne/standpunkt';
 import type { Krav, Standpunkt } from '$kjerne/typer';
+import type { ApprovalPackage, ReviewItem } from '$lib/approval/types';
 
 export interface Grunnlagskategori {
   hovedkategori?: string | null;
@@ -63,24 +64,18 @@ export function erEndringsordre(
   return b.sammenfall && b.varslingsplikt === true;
 }
 
-/** En post i godkjenningspakken: sporet, kategorien da pakken ble laget, og svaret. */
-export interface Brevpost {
-  track: string;
-  basis?: Grunnlagskategori;
-  data: Record<string, unknown>;
-}
-
 /**
  * Varselet i godkjenningsvisningen: brevet har et svar på grunnlaget som er en
- * endringsordre. Det vises for en kladd og et brev til godkjenning, ikke når
- * kravet er endret siden pakken ble laget. Et besluttet brev regnes ikke på nytt
- * med dagens regler (MM-U9).
+ * endringsordre. Det vises for kladden (ingen pakke) og et brev til godkjenning,
+ * ikke når kravet er endret siden pakken ble laget. Et besluttet brev regnes ikke
+ * på nytt med dagens regler (MM-U9).
  */
 export function brevetBlirEndringsordre(
-  poster: Brevpost[],
-  brev: { kladd: boolean; status?: string; utdatert: boolean }
+  poster: Pick<ReviewItem, 'track' | 'basis' | 'data'>[],
+  pakke: Pick<ApprovalPackage, 'status'> | undefined,
+  utdatert: boolean
 ): boolean {
-  if ((!brev.kladd && brev.status !== 'til_godkjenning') || brev.utdatert) return false;
+  if ((pakke && pakke.status !== 'til_godkjenning') || utdatert) return false;
   return poster.some(
     (i) =>
       i.track === 'grunnlag' &&
