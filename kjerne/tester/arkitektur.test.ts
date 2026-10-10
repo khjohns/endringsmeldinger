@@ -418,7 +418,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, moduler?: string[]][
  * Lesinger av en oppsummering som står i dag, med issuet som fjerner dem:
  * `[modul, nøkkel, begrunnelse]`. `utfall()` er en lukket mengde, `avklart`
  * eller `avvist`, som slår sammen § 32.3 a og c, og ingen regel skal lese den,
- * heller ikke utledet. Lista er lukket: den kan bare bli kortere.
+ * heller ikke utledet (MM-U13). Lista er lukket: den kan bare bli kortere.
  */
 const KJENTE_AVVIK: [modul: string, noekkel: string, begrunnelse: string][] = [
   ['utled.ts', 'standpunkt.ts.utfall', '#273: grunnlagAvklart skal lese standpunktene direkte'],
