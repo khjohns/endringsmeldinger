@@ -1,7 +1,9 @@
 # #348: feilinnføringene for kjernen (kjerne/tester/feilinnfoering.ts). Jobben
 # er rød når en mutasjon ikke oppdages, når kontrollkjøringen uten mutasjon ikke
 # er grønn, eller når arbeidskopien ikke er ren etterpå. Én vitest-kjøring mot
-# basen per mutasjon, så den holdes utenfor ci.yml.
+# basen per mutasjon, så den holdes utenfor ci.yml. Stifilteret tar det testene
+# og lagringen leser; verktøykjeden (vitest, vite.config.ts) fanges av den
+# nattlige kjøringen.
 name: Feilinnføring
 
 on:
@@ -13,6 +15,9 @@ on:
       - 'kjerne/**'
       - 'sprakprove/kjernelagring/**'
       - 'sprakprove/server/**'
+      - 'sprakprove/kjerne/**'
+      - 'docs/domenetabell/**'
+      - 'docs/datamodell/kjernehendelser.toml'
       - 'supabase/migrations/**'
       - 'scripts/testbase/**'
       - '.github/workflows/feilinnfoering.yml'
