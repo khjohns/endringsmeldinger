@@ -71,15 +71,15 @@ første versjon. «Avvises» betyr at kommandoene avvises til den er bygget.
 
 | Rad | Første versjon |
 | --- | --- |
-| § 32.1 og § 32.2, § 32.3 første ledd a–c, annet og tredje ledd, trekk og ny kravversjon | Med. En endringsordre i en EO-sak som svar på grunnlaget (EO-U6) avvises |
+| § 32.1 og § 32.2, § 32.3 første ledd a–c, annet og tredje ledd, trekk og ny kravversjon | Med. En endringsordre som svar på grunnlaget følger [OV-U2](plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u2) |
 | § 33.1, § 33.3, § 33.4, § 33.6.1, § 33.6.2 og § 33.7 | Med |
-| § 33.8 | Avvises |
+| § 33.8 | Avvises. Brev utenfor appen følger [OV-U2](plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u2) |
 | § 34.1.1, § 34.1.2, § 34.1.3 og § 34.2 | Med |
-| § 34.4 | Med. Hvordan appen behandler bestemmelsen, avgjøres når § 30 er lest (VS-U3) |
+| § 34.4 | Avgjøres i byggedelen for vederlag, når § 30 er lest (OV-U1, VS-U3) |
 | § 34.3 | § 34.3.1 med. § 34.3.3 avvises |
 | § 35.2 | Med |
 | § 5 tredje ledd | Med |
-| § 31.3, og endringsordre som svar på grunnlaget og etter frafall | Avvises |
+| § 31.3, og endringsordre som svar på grunnlaget og etter frafall | Endringsordre som egen sak avvises. Brev utenfor appen og endringsordre som svar på grunnlaget følger [OV-U2](plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u2) |
 | Kravversjon, aksept og enighet | Med, også for registrert korrespondanse |
 
 Hvordan relasjoner mellom saker lagres (B-01 i 3.4), avgjøres i byggedelen for
@@ -414,6 +414,7 @@ endringsordre og forsering, etter [OV-U1](plans/2026-09-16-godkjenning-og-varig-
   (merknaden 10.10: presisert av FO-U5). [FO-U2](plans/2026-09-16-godkjenning-og-varig-levering.md#fo-u2)–[FO-U6](plans/2026-09-16-godkjenning-og-varig-levering.md#fo-u6).
   TFR-02 (23.09): forsering får aldri en lukket samlet status. «Forsering er
   utenfor godkjenningsflyten» (18.09, merknaden 10.10: endret av FO-U6).
+  [OV-U2](plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u2): første versjon.
   [B-17](plans/2026-09-16-godkjenning-og-varig-levering.md#b-17)
   (merknaden 09.10: forsering går til TS).
 - **Kjernen i dag:** ikke bygget. Ingen sakstype, regel eller utsagn. Strengen
@@ -667,7 +668,7 @@ visning ikke fremstiller et trekk som at utførelsesplikten er bortfalt.
 - **Predikat:** etter [EO-U6](plans/2026-09-16-godkjenning-og-varig-levering.md#eo-u6), [EO-U7](plans/2026-09-16-godkjenning-og-varig-levering.md#eo-u7) og [EO-U9](plans/2026-09-16-godkjenning-og-varig-levering.md#eo-u9).
 - **Appen avgjør ikke:** om endringsordren dekker det utførte arbeidet.
 - **Appen:** *utlede* (§ 32.3 første ledd a og c, [VS-U3](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u3)).
-- **Vedtak:** [EO-U6](plans/2026-09-16-godkjenning-og-varig-levering.md#eo-u6) (endrer vedtaket 23.09 om ubegrenset fullmakt for
+- **Vedtak:** [OV-U2](plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u2): første versjon. [EO-U6](plans/2026-09-16-godkjenning-og-varig-levering.md#eo-u6) (endrer vedtaket 23.09 om ubegrenset fullmakt for
   dette tilfellet). [EO-U7](plans/2026-09-16-godkjenning-og-varig-levering.md#eo-u7). [EO-U9](plans/2026-09-16-godkjenning-og-varig-levering.md#eo-u9).
   [KA-U12](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u12)
   (merknadene 10.10: KA-U15, KA-U17, GR-U13 og EO-U6).
