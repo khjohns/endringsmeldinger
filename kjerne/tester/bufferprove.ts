@@ -1,6 +1,6 @@
 /**
  * Bufferen og tilbakerullingen (#304, forløp E2-2, INV-MM-8). Et bufret
- * resultat brukes bare når projeksjonsversjon, regelversjon, format og
+ * resultat brukes bare når projeksjonsversjon, regelversjon, leserformat og
  * saksversjon samsvarer med kjernen og saken, også når resultatet er nyere enn
  * kjernen. En hendelse i et format kjernen ikke leser, stopper saken (MM-U2),
  * og ingen rad skrives om.
@@ -32,8 +32,8 @@ export function bufferen(lagBaner: () => Baner): void {
       ['eldre projeksjonsversjon', { projeksjonsversjon: -1 }],
       ['nyere regelversjon', { regelversjon: 1 }],
       ['eldre regelversjon', { regelversjon: -1 }],
-      ['nyere format', { format: 1 }],
-      ['eldre format', { format: -1 }],
+      ['nyere leserformat', { leserformat: 1 }],
+      ['eldre leserformat', { leserformat: -1 }],
       ['annen saksversjon', { saksversjon: -1 }],
     ] as const)('brukes ikke med %s', async (_hva, forskjell: Partial<Bufferversjon>) => {
       const bane = await baner.bane();
@@ -87,7 +87,7 @@ export function bufferen(lagBaner: () => Baner): void {
       expect(lestA.kilde).toBe('stoppet');
       expect(lestA.visning.status.kode).toBe('kan_ikke_utledes');
       expect(lestA.visning.journal.filter((j) => !j.tolket)).toHaveLength(1);
-      expect((await baner.buffer().les(baneA.sakId))?.versjon.format).toBe(NYERE.leserformat);
+      expect((await baner.buffer().les(baneA.sakId))?.versjon.leserformat).toBe(NYERE.leserformat);
       for (const h of [
         { handling: 'krav', spor: 'frist', dager: 30 },
         { handling: 'brev', svar: [{ spor: 'grunnlag', resultat: 'godkjent' }] },

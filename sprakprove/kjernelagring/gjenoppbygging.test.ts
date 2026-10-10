@@ -15,6 +15,7 @@
  * som skriver samtidig, ikke synes.
  */
 
+import { randomUUID } from 'node:crypto';
 import type { PoolClient } from 'pg';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { byggPaaNytt, lesSak } from '../../kjerne/buffer.ts';
@@ -39,7 +40,7 @@ const BUFFER = [
   'kjerne_visning',
   'kjerne_projeksjonsversjon',
   'kjerne_regelversjon',
-  'kjerne_format',
+  'kjerne_leserformat',
   'kjerne_saksversjon',
 ];
 
@@ -68,7 +69,7 @@ describe.skipIf(!TESTBASE_URL)('gjenoppbyggingen mot testbasen', () => {
   beforeAll(async () => {
     o = await lagOppsett();
     klient = await o.pool.connect();
-    const lager = pgBuffer(klient);
+    const lager = pgBuffer(klient, o.prosjekt.id);
     const lag = async (navn: string, steg: Parameters<typeof bygg>[1]) => {
       const bane = await basebane(o);
       await bygg(bane, steg);
@@ -91,7 +92,7 @@ describe.skipIf(!TESTBASE_URL)('gjenoppbyggingen mot testbasen', () => {
   });
 
   it('finner de utdaterte sakene og bygger dem på nytt uten å endre noe annet enn bufferen', async () => {
-    const lager = pgBuffer(klient);
+    const lager = pgBuffer(klient, o.prosjekt.id);
     const alle = Object.values(saker).sort();
     expect(await utdaterteSaker(klient, o.prosjekt.id, KJERNE)).toEqual([]);
     expect(await utdaterteSaker(klient, o.prosjekt.id, N1)).toEqual(alle);
@@ -128,7 +129,7 @@ describe.skipIf(!TESTBASE_URL)('gjenoppbyggingen mot testbasen', () => {
   });
 
   it('finner en sak med en ny hendelse etter bufferen, og bare den', async () => {
-    const lager = pgBuffer(klient);
+    const lager = pgBuffer(klient, o.prosjekt.id);
     for (const id of Object.values(saker)) await lesSak(id, await journalen(o, id), lager, KJERNE);
     expect(await utdaterteSaker(klient, o.prosjekt.id, KJERNE)).toEqual([]);
     const bane = await basebane(o);
@@ -151,5 +152,29 @@ describe.skipIf(!TESTBASE_URL)('gjenoppbyggingen mot testbasen', () => {
     await bygg(kontroll, ['krav_eo'], VERSJONER.v2a);
     expect(await sakerKjernenIkkeLeser(klient, o.prosjekt.id, VERSJONER.v1)).toEqual([bane.sakId]);
     expect(await sakerKjernenIkkeLeser(klient, o.prosjekt.id, VERSJONER.v2a)).toEqual([]);
+  });
+
+  it('tar ikke med en sak uten rader fra kjernen, og bufferen holder seg i prosjektet', async () => {
+    const lager = pgBuffer(klient, o.prosjekt.id);
+    // Sakene fra testene over, som ikke alle er regnet ut.
+    const foer = await utdaterteSaker(klient, o.prosjekt.id, KJERNE);
+    // En sak med bare rader uten format, som Python skriver (B-17).
+    const python = await basebane(o);
+    await bygg(python, ['krav_eo']);
+    await klient.query('UPDATE hendelse SET format = NULL WHERE sak_id = $1', [python.sakId]);
+    // Kontrollsak: samme forløp skrevet av kjernen, uten buffer.
+    const kontroll = await basebane(o);
+    await bygg(kontroll, ['krav_eo']);
+    expect(await utdaterteSaker(klient, o.prosjekt.id, KJERNE)).toEqual(
+      [...foer, kontroll.sakId].sort()
+    );
+
+    // Et lager for et annet prosjekt leser og skriver ikke prosjektets saker.
+    const id = saker['enighet om beløpet'];
+    const annet = pgBuffer(klient, randomUUID());
+    expect(await annet.les(id)).toBeNull();
+    const egen = (await lager.les(id))!;
+    await expect(annet.skriv(id, egen)).rejects.toThrow('finnes ikke i prosjektet');
+    expect(await lager.les(id)).toEqual(egen);
   });
 });

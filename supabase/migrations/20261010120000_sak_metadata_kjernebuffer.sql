@@ -19,14 +19,15 @@ ALTER TABLE public.sak_metadata
     ADD COLUMN IF NOT EXISTS kjerne_visning JSONB,
     ADD COLUMN IF NOT EXISTS kjerne_projeksjonsversjon INTEGER,
     ADD COLUMN IF NOT EXISTS kjerne_regelversjon INTEGER,
-    ADD COLUMN IF NOT EXISTS kjerne_format INTEGER,
+    ADD COLUMN IF NOT EXISTS kjerne_leserformat INTEGER,
     ADD COLUMN IF NOT EXISTS kjerne_saksversjon INTEGER;
 
 ALTER TABLE public.sak_metadata
+    DROP CONSTRAINT IF EXISTS sak_metadata_kjernebuffer_samlet,
     ADD CONSTRAINT sak_metadata_kjernebuffer_samlet CHECK (
         (kjerne_visning IS NULL) = (kjerne_projeksjonsversjon IS NULL)
         AND (kjerne_visning IS NULL) = (kjerne_regelversjon IS NULL)
-        AND (kjerne_visning IS NULL) = (kjerne_format IS NULL)
+        AND (kjerne_visning IS NULL) = (kjerne_leserformat IS NULL)
         AND (kjerne_visning IS NULL) = (kjerne_saksversjon IS NULL)
     );
 
@@ -36,7 +37,7 @@ COMMENT ON COLUMN public.sak_metadata.kjerne_projeksjonsversjon IS
     'PROJEKSJONSVERSJON i kjernen som regnet ut kjerne_visning (B-10, #316).';
 COMMENT ON COLUMN public.sak_metadata.kjerne_regelversjon IS
     'REGELVERSJON i regelsettet kjerne_visning er regnet med (B-10, #316).';
-COMMENT ON COLUMN public.sak_metadata.kjerne_format IS
+COMMENT ON COLUMN public.sak_metadata.kjerne_leserformat IS
     'Høyeste hendelsesformat kjernen som regnet ut kjerne_visning, leser (B-10, #316).';
 COMMENT ON COLUMN public.sak_metadata.kjerne_saksversjon IS
     'Saksversjonen (hendelse.versjon) kjerne_visning er regnet ut fra (B-10, #316).';

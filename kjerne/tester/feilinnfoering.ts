@@ -3,7 +3,7 @@
  * modellforslaget, F8–F10 feilklassene reviewet av PR #306 fant, skrevet om etter
  * MM-U9 og GR-U10, F11–F26 grensene #308 la til, og F27–F47 formatet (#273): 7.2
  * i designnotatet, GR-U12 og registeret (#320). F48 er hvitelisten fra #329,
- * F49–F51, F54 og F55 versjoneringen (#316) og F52–F53 registrert korrespondanse
+ * F49–F51 og F54–F57 versjoneringen (#316) og F52–F53 registrert korrespondanse
  * (#336). Én mutasjon om gangen i arbeidskopien, Vitest over `kjerne/` og
  * `sprakprove/kjernelagring/`, og originalteksten settes tilbake etterpå. For
  * hver mutasjon kreves det at de forventede målassertions feiler, og at alle
@@ -604,6 +604,26 @@ const MUTASJONER: Mutasjon[] = [
       ['WHERE prosjekt_id = $1 AND format > $2', 'WHERE prosjekt_id = $1 AND format >= $2'],
     ],
     mal: ['lister sakene med en rad i et format kjernen ikke leser'],
+  },
+  {
+    id: 'F56',
+    feilklasse:
+      'spørringen etter utdaterte buffere tar med saker uten rader fra kjernen (B-17, #316)',
+    fil: 'sprakprove/kjernelagring/bane.ts',
+    endringer: [['GROUP BY sak_id HAVING count(format) > 0) h', 'GROUP BY sak_id) h']],
+    mal: ['tar ikke med en sak uten rader fra kjernen'],
+  },
+  {
+    id: 'F57',
+    feilklasse: 'bufferen leses på tvers av prosjektgrensen (AGENTS.md, #316)',
+    fil: 'sprakprove/kjernelagring/bane.ts',
+    endringer: [
+      [
+        'FROM sak_metadata WHERE sak_id = $1 AND prosjekt_id = $2`,',
+        'FROM sak_metadata WHERE sak_id = $1 AND $2::text IS NOT NULL`,',
+      ],
+    ],
+    mal: ['bufferen holder seg i prosjektet'],
   },
 ];
 
