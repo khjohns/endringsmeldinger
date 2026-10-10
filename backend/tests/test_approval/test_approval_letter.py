@@ -15,7 +15,7 @@ def test_principal_and_subsidiary_amounts_are_not_conflated():
     }
     assert (
         decision_summary(item)
-        == "Prinsipalt avslått (ansvarsgrunnlaget) · Subsidiært godkjent: 150 000 kr"
+        == "Prinsipalt avslått (grunnlaget) · Subsidiært godkjent: 150 000 kr"
         " · Atter subsidiært: 500 000 kr"
     )
 
@@ -36,10 +36,10 @@ def test_hele_svaret_er_subsidiaert_naar_grunnlaget_er_avslatt():
         resultat="avslatt",
     )
     assert decision_summary(vederlag) == (
-        "Prinsipalt avslått (ansvarsgrunnlaget) · Subsidiært delvis godkjent: 150 000 kr"
+        "Prinsipalt avslått (grunnlaget) · Subsidiært delvis godkjent: 150 000 kr"
     )
     assert decision_summary(frist) == (
-        "Prinsipalt avslått (ansvarsgrunnlaget) · Subsidiært godkjent: 10 dager"
+        "Prinsipalt avslått (grunnlaget) · Subsidiært godkjent: 10 dager"
     )
 
 
@@ -55,7 +55,7 @@ def test_subsidiaert_standpunkt_i_svaret_staar_etter_som_atter_subsidiaert():
         resultat="avslatt",
     )
     assert decision_summary(item) == (
-        "Prinsipalt avslått (ansvarsgrunnlaget) · Subsidiært avslått: 0 dager"
+        "Prinsipalt avslått (grunnlaget) · Subsidiært avslått: 0 dager"
         " · Atter subsidiært delvis godkjent: 4 dager"
     )
 
@@ -73,7 +73,7 @@ def test_ukjent_kode_vises_ikke_raatt_i_brevet():
     ("underkategori", "forventet"),
     [
         ("EO", "Godkjent · 150 000 kr"),
-        ("IRREG", "Prinsipalt avslått (ansvarsgrunnlaget) · Subsidiært godkjent: 150 000 kr"),
+        ("IRREG", "Prinsipalt avslått (grunnlaget) · Subsidiært godkjent: 150 000 kr"),
     ],
 )
 def test_32_2_gjelder_bare_endring_uten_formell_endringsordre(underkategori, forventet):
@@ -111,7 +111,7 @@ def test_pdf_is_generated_from_frozen_recipient_text():
     public = snapshot(letter, "p1")
     assert (
         public.seksjoner.begrunnelse.redigertTekst
-        == "Ansvarsgrunnlag\nGodkjent\n\nDokumentert & kontrollert."
+        == "Grunnlag\nGodkjent\n\nDokumentert & kontrollert."
     )
     generated = pdf_bytes(public)
     assert generated.startswith(b"%PDF-")

@@ -52,7 +52,7 @@ describe('fullmaktsgrunnlag januar 2026', () => {
     ).toBe(500000);
   });
 
-  describe('godkjent ansvar (GFK-06)', () => {
+  describe('godkjent grunnlag (GFK-06)', () => {
     const ansvar = (resultat: string) =>
       ({ track: 'grunnlag', data: { resultat } }) as unknown as ReviewItem;
     const krav = { vederlag: 50_000_000, frist: 20 };

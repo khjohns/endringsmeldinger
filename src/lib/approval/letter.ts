@@ -62,9 +62,7 @@ function subsidiaertVedAvslattGrunnlag(item: ReviewItem): string[] {
 export function decisionSummary(item: ReviewItem): string {
   const d = item.data;
   if (item.track !== 'grunnlag' && item.basis && erGrunnlagetSubsidiaert(item.basis)) {
-    return ['Prinsipalt avslått (ansvarsgrunnlaget)', ...subsidiaertVedAvslattGrunnlag(item)].join(
-      ' · '
-    );
+    return ['Prinsipalt avslått (grunnlaget)', ...subsidiaertVedAvslattGrunnlag(item)].join(' · ');
   }
   return [
     resultatTekst(d.resultat ?? d.beregnings_resultat),

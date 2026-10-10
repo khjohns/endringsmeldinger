@@ -12,7 +12,7 @@
     triggers?: SubsidiaerTrigger[];
   } = $props();
   const labels: Record<SubsidiaerTrigger, string> = {
-    grunnlag_avslatt: 'bestridt ansvarsgrunnlag',
+    grunnlag_avslatt: 'bestridt grunnlag',
     grunnlag_prekludert_32_2: 'for sen varsling av grunnlaget',
     forseringsrett_avslatt: 'bestridt rett til forsering',
     preklusjon_hovedkrav: 'for sen varsling av hovedkravet',

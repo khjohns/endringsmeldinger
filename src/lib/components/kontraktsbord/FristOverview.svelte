@@ -226,7 +226,7 @@
         <span class="eyebrow">Resultat</span>
         <strong
           >{avslattPaaGrunnlag
-            ? 'Prinsipalt avslått (ansvarsgrunnlaget)'
+            ? 'Prinsipalt avslått (grunnlaget)'
             : frist.bh_resultat === 'avslatt'
               ? 'BH avslår kravet prinsipalt'
               : bhResultLabel}</strong

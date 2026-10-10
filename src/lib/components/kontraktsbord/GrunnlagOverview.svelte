@@ -21,21 +21,21 @@
     if (grunnlag.bh_resultat !== 'frafalt' && grunnlagetErPrekludert(store.sak)) {
       return {
         icon: X,
-        text: 'Ansvarsgrunnlaget er prekludert (§ 32.2)',
+        text: 'Grunnlaget er prekludert (§ 32.2)',
         variant: 'negative' as const,
       };
     }
     if (grunnlag.bh_resultat === 'avslatt') {
       return {
         icon: X,
-        text: 'Ansvarsgrunnlaget er bestridt',
+        text: 'Grunnlaget er bestridt',
         variant: 'negative' as const,
       };
     }
     if (grunnlag.bh_resultat === 'godkjent') {
       return {
         icon: Check,
-        text: 'Ansvarsgrunnlaget er godkjent',
+        text: 'Grunnlaget er godkjent',
         variant: 'positive' as const,
       };
     }
@@ -123,7 +123,7 @@
   <div class="status-card status-{status.variant}">
     <div class="status-icon"><status.icon size={17} strokeWidth={2.25} /></div>
     <div>
-      <span class="eyebrow">Status for ansvarsgrunnlaget</span>
+      <span class="eyebrow">Status for grunnlaget</span>
       <div class="status-title">{status.text}</div>
     </div>
   </div>
