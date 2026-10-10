@@ -19,9 +19,13 @@ export interface Grunnlagskategori {
 
 export interface Grunnlagsvurdering {
   resultat?: unknown;
-  /** Byggherrens svar om varselet etter § 32.2; `undefined` når det ikke er gitt. */
-  varsletITide?: boolean | null;
+  /** Byggherrens svar om varselet etter § 32.2. Bare en boolsk verdi er et svar. */
+  varsletITide?: unknown;
 }
+
+/** Varselet i skjemaet og godkjenningsvisningen (GR-U12). Brevteksten etter § 31.3 hører til #310. */
+export const ENDRINGSORDREVARSEL =
+  'Svaret er en endringsordre etter § 32.3 første ledd a, fordi byggherren godkjenner ansvarsgrunnlaget uten å påberope at varselet kom for sent (§ 32.2). Totalentreprenøren blir forpliktet til å utføre endringsarbeidet (§ 31.3 annet ledd).';
 
 const erGrunnlagsresultat = (v: unknown): v is Grunnlagsresultat =>
   (GRUNNLAGSRESULTATER as readonly unknown[]).includes(v);
