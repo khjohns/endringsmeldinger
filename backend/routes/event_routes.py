@@ -372,7 +372,7 @@ def _build_version_conflict_message(existing_events_data: list, event: AnyEvent)
     spor_state = getattr(conflict_state, spor_name, None)
     if spor_state and spor_state.bh_resultat:
         if spor_name == "grunnlag":
-            return "Byggherre har svart på ansvarsgrunnlaget. Last inn på nytt for å se svaret."
+            return "Byggherre har svart på grunnlaget. Last inn på nytt for å se svaret."
         else:
             return "Byggherre har svart på kravet. Last inn på nytt for å se svaret."
 

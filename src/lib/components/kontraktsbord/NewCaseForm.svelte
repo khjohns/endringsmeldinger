@@ -115,7 +115,7 @@
   const sendLabel = $derived(
     valgtHjemmel?.kontraktsforhold.kode === 'ENDRING' && valgtHjemmel.hjemmel?.kode !== 'EO'
       ? 'Send varsel'
-      : 'Send ansvarsgrunnlag'
+      : 'Send grunnlag'
   );
   const canSend = $derived(
     tittel.trim().length >= 5 &&
@@ -185,7 +185,7 @@
               projectStore.current?.settings.contract?.byggherre_navn ?? 'Byggherre';
             const id = createdCase?.id ?? crypto.randomUUID();
             const brev = await letterConfirmation.show({
-              tittel: `${sendLabel === 'Send varsel' ? 'Varsel om endring' : 'Ansvarsgrunnlag'} – ${basisData.tittel}`,
+              tittel: `${sendLabel === 'Send varsel' ? 'Varsel om endring' : 'Grunnlag'} – ${basisData.tittel}`,
               avsender: { navn: sender, rolle: 'TE' },
               mottaker: { navn: recipient, rolle: 'BH' },
               referanser: {
@@ -258,8 +258,7 @@
                 expectedVersion: createdCase.version,
               }
             );
-            if (!result.success)
-              throw new Error(result.message ?? 'Kunne ikke lagre ansvarsgrunnlaget.');
+            if (!result.success) throw new Error(result.message ?? 'Kunne ikke lagre grunnlaget.');
             draftReady = false;
             clearDraft(dk);
           },
@@ -273,7 +272,7 @@
   });
 </script>
 
-<ClaimLetterView review={letterConfirmation} stepLabel="Ansvarsgrunnlag" />
+<ClaimLetterView review={letterConfirmation} stepLabel="Grunnlag" />
 
 {#if !prosjektId || draftReady}
   <!-- Hidden, not unmounted: the pending submission resumes when the letter is confirmed. -->
@@ -282,7 +281,7 @@
     {#if submission.error}<p role="alert">{submission.error}</p>{/if}
     <header class="form-header">
       <span class="eyebrow">Ny sak</span>
-      <h1>Nytt ansvarsgrunnlag</h1>
+      <h1>Nytt grunnlag</h1>
       <p>
         Beskriv forholdet som kan gi grunnlag for krav om vederlagsjustering eller fristforlengelse.
       </p>
@@ -445,7 +444,7 @@
         <RichTextEditor
           body={begrunnelseHtml}
           onchange={(html) => (begrunnelseHtml = html)}
-          placeholder="Redegjør for ansvarsgrunnlaget..."
+          placeholder="Redegjør for grunnlaget..."
           maxHeight="none"
           oncharcount={(count) => (charCount = count)}
         />
