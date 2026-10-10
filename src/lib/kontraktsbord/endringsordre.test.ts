@@ -99,9 +99,9 @@ describe('endringsordre etter § 32.3 første ledd a (GR-U12)', () => {
 
 describe('varselet i godkjenningsvisningen', () => {
   /**
-   * Posten slik `prepare` i `approval/context.svelte.ts` lagrer den: svaret er
-   * nyttelasten skjemaet bygger (`buildEventData`), sendt gjennom JSON, og
-   * kategorien står i `basis`.
+   * Posten med formen `prepare` i `approval/context.svelte.ts` gir den: svaret er
+   * nyttelasten skjemaet bygger (`buildEventData`), sendt gjennom JSON. `basis`
+   * er en kopi av hvordan `prepare` bygger den, ikke et kall dit.
    */
   function grunnlagspost(varsletITide: boolean): Pick<ReviewItem, 'track' | 'basis' | 'data'> {
     const grunnlag = { hovedkategori: 'ENDRING', underkategori: ['IRREG'] };
