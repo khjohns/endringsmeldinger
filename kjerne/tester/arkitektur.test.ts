@@ -224,7 +224,7 @@ type Klasse =
  * mellomrom. Eieren er typen, konstanten eller modulen feltet er deklarert i,
  * med stien gjennom nestede typer. En lesing fra en verdi uten type, som
  * `Record<string, unknown>`, har det typede feltet den kommer fra som eier, som
- * `Svar.utregning`, eller funksjonen og parameteren, som `svarutsagn(data)`.
+ * `Svar.utregning`, eller funksjonen og parameteren, som `standpunkterISvaret(svar)`.
  * `*` er en lesing med en nøkkel som regnes ut, og tillater alle nøkler. Er
  * `steder` oppgitt, får bare de modulene eller funksjonene (`modul:navn`) lese
  * feltene.
@@ -539,7 +539,7 @@ const iFunksjonen = (n: ts.Node | undefined, f: ts.Node): boolean =>
 
 /**
  * Modulen og de navngitte funksjonene `n` er eller står i, ytterst først, som
- * `leser.ts:svarutsagn` eller `standpunkt.ts:utfall.indre`.
+ * `leser.ts:standpunkterISvaret` eller `utled.ts:utled.plasser`.
  */
 function funksjon(n: ts.Node): string {
   const navn: string[] = [];
@@ -832,7 +832,7 @@ describe('reglene leser bare det LESBART tillater (#308, #329)', () => {
   });
 
   // Lista under er låsen: et nytt avvik må føres begge steder, og det er meningen.
-  it('de kjente avvikene er bare utfallet (#273) og grunnlagsfeltene i regelsettet (#309)', () => {
+  it('de kjente avvikene er bare grunnlagsfeltene i regelsettet (#309)', () => {
     const lukket = new Set([
       'regler/vederlag.ts:beregnVederlag Vederlagskrav.grunnlag_resultat',
       'regler/vederlag.ts:beregnVederlag Vederlagskrav.grunnlag_varslet_i_tide',
@@ -884,7 +884,7 @@ describe('reglene leser bare det LESBART tillater (#308, #329)', () => {
     `export function proeve(h: Journalrad) {\n  const data = h.data;\n${kode}\n}`,
   ];
 
-  // Forsøkene står i minnet her; feilinnføringene F15 og F27 prøver to av dem i selve filene.
+  // Forsøkene står i minnet her; feilinnføringene F15 og F48 prøver to av dem i selve filene.
   it.each<[string, string, Tillegg[], string]>([
     [
       'et nytt felt i utledningen',
@@ -966,8 +966,8 @@ describe('reglene leser bare det LESBART tillater (#308, #329)', () => {
     [
       'det lagrede utfallet i et svar',
       forutsetninger,
-      [regel('return u.spor.frist.gjeldendeSvar?.utregning.beregnings_resultat;')],
-      'Svar.utregning.beregnings_resultat',
+      [regel('return u.spor.frist.gjeldendeSvar?.utregning.resultat;')],
+      'Svar.utregning.resultat',
     ],
     [
       'journalraden utenfor leseren og skrivingen',
@@ -988,13 +988,8 @@ describe('reglene leser bare det LESBART tillater (#308, #329)', () => {
     [
       'det frosne svaret lest utenfor godkjennerHeleKravet',
       standpunkt,
-      [
-        [
-          standpunkt,
-          'export const proeve = (svar: Svarinnhold) => svar.utregning.beregnings_resultat;',
-        ],
-      ],
-      'Svar.utregning.beregnings_resultat',
+      [[standpunkt, 'export const proeve = (svar: Svarinnhold) => svar.utregning.resultat;']],
+      'Svar.utregning.resultat',
     ],
     [
       'det frosne svaret i en indre funksjon med samme navn',
@@ -1002,10 +997,33 @@ describe('reglene leser bare det LESBART tillater (#308, #329)', () => {
       [
         [
           standpunkt,
-          'export function proeve(svar: Svarinnhold) {\n  const godkjennerHeleKravet = () => svar.utregning.beregnings_resultat;\n  return godkjennerHeleKravet();\n}',
+          'export function proeve(svar: Svarinnhold) {\n  const godkjennerHeleKravet = () => svar.utregning.resultat;\n  return godkjennerHeleKravet();\n}',
         ],
       ],
-      'Svar.utregning.beregnings_resultat',
+      'Svar.utregning.resultat',
+    ],
+    [
+      '«avklart» etter GR-U7 utenfor utledningen (MM-U13)',
+      forutsetninger,
+      [
+        [
+          forutsetninger,
+          "import { grunnlagetErAvklart } from './standpunkt.ts';\nexport const proeve = grunnlagetErAvklart;",
+        ],
+      ],
+      'standpunkt.ts.grunnlagetErAvklart',
+    ],
+    [
+      '§ 31.3 utenfor sperren mot trekk (KA-U14)',
+      forutsetninger,
+      [regel('return u.endringsordre;')],
+      'Utledning.endringsordre',
+    ],
+    [
+      '§ 31.3 i en annen funksjon i utledningen (KA-U14)',
+      utled,
+      [[utled, 'export const proeve = (u: Utledning) => u.endringsordre;']],
+      'Utledning.endringsordre',
     ],
     [
       '«avklart» i en annen funksjon i utledningen',
