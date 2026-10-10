@@ -93,7 +93,7 @@ export function standpunktet<A extends Standpunkt['art']>(svar: Svarinnhold, art
  */
 export function grunnlagetErAvklart(svar: Svarinnhold, v: Standpunktsvirkning[]): boolean {
   const resultat = standpunktet(svar, 'grunnlag')?.resultat;
-  return !preklusjonPaaberopt(svar, v) && (resultat === 'godkjent' || resultat === 'frafalt');
+  return !preklusjonPaaberopt(svar, v) && (resultat === 'godkjent' || resultat === 'paalegg_frafalt');
 }
 
 /** MM-U13: byggherren påberoper prinsipalt preklusjon etter § 32.2 i svaret på grunnlaget. */
@@ -111,7 +111,7 @@ function utfall(svar: Svarinnhold, v: Standpunktsvirkning[]): Utfall {
   if (svar.spor === 'grunnlag') return {};
   if (svar.spor === 'vederlag') return { beloep: standpunktet(svar, 'beloep')!.godkjent };
   const dager = standpunktet(svar, 'dager')!;
-  return { dager: prekludert || dager.resultat === 'avslatt' ? 0 : dager.vurdert };
+  return { dager: prekludert || dager.resultat === 'avslaatt' ? 0 : dager.vurdert };
 }
 
 /**
@@ -123,6 +123,16 @@ function godkjennerHeleKravet(svar: Svarinnhold, v: Standpunktsvirkning[]): bool
   if (avvisesPrinsipalt(v)) return false;
   if (svar.spor === 'grunnlag') return standpunktet(svar, 'grunnlag')?.resultat === 'godkjent';
   return svar.utregning.resultat === 'godkjent';
+}
+
+/**
+ * Et svar på grunnlaget i et brev sendt i appen er en endringsordre etter § 32.3
+ * første ledd a: svaret godkjenner hele kravet uten påberopt preklusjon
+ * (sammenfall, GR-U10), og § 32.2 gjaldt kategorien (GR-U11, GR-U12). Leses av
+ * det frosne beslutningsgrunnlaget.
+ */
+export function blirEndringsordre(b: Beslutningsgrunnlag): boolean {
+  return b.sammenfall && b.varslingsplikt === true;
 }
 
 /** Enigheten om svaret slik brevet uttrykte det (KA-U10, MM-U3, MM-U9, MM-U11). */
@@ -151,15 +161,17 @@ function beslutningslinje(svar: Svarinnhold, v: Standpunktsvirkning[]): string {
   const grunner = v.filter((p) => AVVISENDE.has(p.art) && p.virkning !== 'uten_virkning');
   let standpunkt: string;
   if (svar.spor === 'grunnlag') {
-    standpunkt = { godkjent: 'godkjent', avslatt: 'avslått', frafalt: 'frafalt (§ 32.3 c)' }[
-      standpunktet(svar, 'grunnlag')!.resultat
-    ];
+    standpunkt = {
+      godkjent: 'godkjent',
+      avslaatt: 'avslått',
+      paalegg_frafalt: 'pålegget frafalt (§ 32.3 c)',
+    }[standpunktet(svar, 'grunnlag')!.resultat];
   } else if (svar.spor === 'vederlag') {
     const b = standpunktet(svar, 'beloep')!;
-    standpunkt = b.resultat === 'avslatt' ? 'avslått' : `godkjent med ${kroner(b.godkjent)}`;
+    standpunkt = b.resultat === 'avslaatt' ? 'avslått' : `godkjent med ${kroner(b.godkjent)}`;
   } else {
     const d = standpunktet(svar, 'dager')!;
-    standpunkt = d.resultat === 'avslatt' ? 'avslått' : `godkjent med ${d.vurdert} dager`;
+    standpunkt = d.resultat === 'avslaatt' ? 'avslått' : `godkjent med ${d.vurdert} dager`;
   }
   if (!grunner.length) return `${standpunkt[0].toUpperCase()}${standpunkt.slice(1)}.`;
   const ledd = grunner.map(
@@ -263,7 +275,7 @@ export function regnUtSvar(
     if (regler.gjelderVarslingsplikten(hovedkategori, underkategori)) {
       if (typeof iTide !== 'boolean') feil.grunnlag_varslet_i_tide = 'mangler (§ 32.2)';
       // #235: frafall skjer mot endringsordre og kan ikke kombineres med preklusjon.
-      else if (v.resultat === 'frafalt' && !iTide)
+      else if (v.resultat === 'paalegg_frafalt' && !iTide)
         feil.grunnlag_varslet_i_tide =
           'frafall kan ikke kombineres med at grunnlaget er varslet for sent';
     } else if (iTide !== undefined) {
@@ -276,7 +288,7 @@ export function regnUtSvar(
     const { hovedkategori, underkategori } = kategori(grunnlagskrav);
     const vkrav: Vederlagskrav = {
       hovedkrav_belop: (krav.innhold.beloep as number | undefined) ?? 0,
-      metode: 'FASTPRIS_TILBUD',
+      metode: 'tilbud',
       rigg_belop: null,
       produktivitet_belop: null,
       krever_justert_ep: false,

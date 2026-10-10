@@ -4,8 +4,12 @@ import { describe, expect, it } from 'vitest';
 import tabell from '../grensetilfeller.json' with { type: 'json' };
 import { beloep as belop, tilKrone } from '../../kjerne/regler/beloep.ts';
 import { UgyldigVurdering } from '../../kjerne/regler/feil.ts';
-import { beregnFrist, type Fristkrav } from '../../kjerne/regler/frist.ts';
-import { beregnVederlag, type Vederlagskrav } from '../../kjerne/regler/vederlag.ts';
+import {
+  beregnFrist,
+  beregnVederlag,
+  type Fristkrav,
+  type Vederlagskrav,
+} from '../kjerne/regler.ts';
 
 type Rad = Record<string, unknown>;
 

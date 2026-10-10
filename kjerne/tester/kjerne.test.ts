@@ -47,7 +47,7 @@ describe('formen på kravet', () => {
   const krav = (innhold: Data, ekstra: Data = {}) => ({
     type: 'krav',
     spor: 'vederlag',
-    innhold: { metode: 'FASTPRIS_TILBUD', beloep: 1000, ...innhold },
+    innhold: { metode: 'tilbud', beloep: 1000, ...innhold },
     ...ekstra,
   });
 
@@ -402,7 +402,7 @@ describe('rader fra en annen skriver som strider mot en enighet eller «ingen kr
     const tom = await minnebane().journal();
     expect(forstaatt([...tom, fraTE(tom, [ingenKrav('vederlag')])])).toBe(false);
     const bane = minnebane();
-    await bygg(bane, [{ handling: 'krav', spor: 'grunnlag', underkategori: 'EO' }]);
+    await bygg(bane, [{ handling: 'krav', spor: 'grunnlag', underkategori: 'endringsordre' }]);
     const sendt = await bane.journal();
     expect(forstaatt([...sendt, fraTE(sendt, [ingenKrav('vederlag')])])).toBe(true);
   });
@@ -410,7 +410,7 @@ describe('rader fra en annen skriver som strider mot en enighet eller «ingen kr
   it('«ingen krav» etter et varsel etter § 33.4 er forstått (KA-U2, KA-U15)', async () => {
     const bane = minnebane();
     await bygg(bane, [
-      { handling: 'krav', spor: 'grunnlag', underkategori: 'EO' },
+      { handling: 'krav', spor: 'grunnlag', underkategori: 'endringsordre' },
       { handling: 'varsel', spor: 'frist', sendt: '2026-09-02' },
     ]);
     const journal = await bane.journal();
@@ -428,7 +428,7 @@ describe('rader fra en annen skriver som strider mot en enighet eller «ingen kr
     });
     expect(forstaatt([...journal, en, krav('frist', { dager: 20 })])).toBe(true);
     expect(
-      forstaatt([...journal, en, krav('vederlag', { metode: 'FASTPRIS_TILBUD', beloep: 1000 })])
+      forstaatt([...journal, en, krav('vederlag', { metode: 'tilbud', beloep: 1000 })])
     ).toBe(false);
   });
 });
@@ -647,7 +647,7 @@ describe('fristsvaret uten fremdriftshindring (§ 33.1; B-13, vedtaket 05.10, #2
       svar(false),
     ]);
     const s = (await k.utledning()).svar[k.navn.id('S-f1')];
-    expect(s.svar.utregning.resultat).toBe('avslatt');
+    expect(s.svar.utregning.resultat).toBe('avslaatt');
     expect(s.virkninger.map((p) => [p.art, p.virkning])).toEqual([
       ['rettidighet', 'uten_virkning'],
       ['hindring', 'prinsipalt'],
@@ -723,7 +723,7 @@ describe('aksept av et grunnlag byggherren har avklart, avvises (GR-U8, GR-U9)',
   // frafall er ikke enighet (GR-U9).
   it.each([
     ['godkjent, som er enighet ved sammenfall (GR-U8, GR-U10)', 'godkjent', 'ENIGHET_I_SPORET'],
-    ['frafalt (GR-U3, GR-U9)', 'frafalt', 'FRAFALL_KAN_IKKE_GODTAS'],
+    ['frafalt (GR-U3, GR-U9)', 'paalegg_frafalt', 'FRAFALL_KAN_IKKE_GODTAS'],
   ])('%s', async (_hva, resultat, regel) => {
     const k = await bygg(minnebane(), ['krav_irreg', grunnlag(resultat)]);
     const u = await k.prov({ handling: 'aksept', spor: 'grunnlag' });
@@ -732,7 +732,7 @@ describe('aksept av et grunnlag byggherren har avklart, avvises (GR-U8, GR-U9)',
   });
 
   it('kontrollsak: et avslag på grunnlaget kan godtas', async () => {
-    const k = await bygg(minnebane(), ['krav_irreg', grunnlag('avslatt')]);
+    const k = await bygg(minnebane(), ['krav_irreg', grunnlag('avslaatt')]);
     expect((await k.prov({ handling: 'aksept', spor: 'grunnlag' })).godtatt).toBe(true);
   });
 });
