@@ -384,7 +384,7 @@
      ["kjerne_visning", "jsonb", "NULL"],
      ["kjerne_projeksjonsversjon", "integer", "NULL"],
      ["kjerne_regelversjon", "integer", "NULL"],
-     ["kjerne_format", "integer", "NULL"],
+     ["kjerne_leserformat", "integer", "NULL"],
      ["kjerne_saksversjon", "integer", "NULL"]
     ],
     "primærnøkkel": ["sak_id"],

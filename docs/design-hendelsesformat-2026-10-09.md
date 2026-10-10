@@ -485,7 +485,7 @@ plass til, eller formatet lagrer noe kjernen ikke leser:
   `LESERFORMAT` slik det stod før.
 - Bufferen står i `sak_metadata`: visningen i `kjerne_visning` og versjonene den
   er regnet med i `kjerne_projeksjonsversjon`, `kjerne_regelversjon`,
-  `kjerne_format` og `kjerne_saksversjon`. Den brukes bare når alle er like
+  `kjerne_leserformat` og `kjerne_saksversjon`. Den brukes bare når alle er like
   kjernens og sakens ([`kjerne/buffer.ts`](../kjerne/buffer.ts)).
 - Kompatibilitetstesten er tabellstyrt
   ([`kjerne/tester/kompatibilitet.ts`](../kjerne/tester/kompatibilitet.ts)) og

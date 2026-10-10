@@ -14,9 +14,9 @@
 #    kjerne som regner annerledes (2.7 i modellforslaget).
 # 3. B-10 og #316: et nytt format leses i én versjon før det skrives i den
 #    neste. FORMAT i kjerne/format.ts kan derfor bare økes til LESERFORMAT slik
-#    det stod i BASE, og LESERFORMAT er aldri lavere enn FORMAT. Kontrollen ser
-#    på diffen mot BASE, ikke på hva som er rullet ut; en PR som både leser og
-#    skriver et nytt format, feiler.
+#    det stod i BASE, LESERFORMAT senkes aldri, og LESERFORMAT er aldri lavere
+#    enn FORMAT. Kontrollen ser på diffen mot BASE, ikke på hva som er rullet
+#    ut; en PR som både leser og skriver et nytt format, feiler.
 #
 # Lokalt: BASE=<sha> .github/scripts/regelversjon.sh
 set -u
@@ -115,6 +115,9 @@ if [ -f "$format" ]; then
   echo "$format: FORMAT ${skriver_for:-ingen} -> ${skriver:-ingen}, LESERFORMAT ${leser_for:-ingen} -> ${leser:-ingen}"
   if [ -z "$skriver" ] || [ -z "$leser" ]; then
     echo "::error file=$format::Fant ikke FORMAT og LESERFORMAT. Flytt kontrollen i $0 med konstantene."
+    feil=1
+  elif [ -n "$leser_for" ] && [ "$leser" -lt "$leser_for" ]; then
+    echo "::error file=$format::LESERFORMAT er senket fra $leser_for til $leser. Saker med rader i format $leser_for ville stoppe (MM-U2). En tilbakerulling er en eldre utgivelse, ikke en endring i koden (B-10)."
     feil=1
   elif [ "$leser" -lt "$skriver" ]; then
     echo "::error file=$format::LESERFORMAT ($leser) er lavere enn FORMAT ($skriver). Kjernen må lese det den skriver."

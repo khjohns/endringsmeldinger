@@ -14,7 +14,7 @@ export interface Bufferversjon {
   projeksjonsversjon: number;
   regelversjon: number;
   /** Høyeste hendelsesformat kjernen som skrev bufferen, leser. */
-  format: number;
+  leserformat: number;
   /** Saksversjonen resultatet er regnet fra. */
   saksversjon: number;
 }
@@ -28,7 +28,7 @@ export function bufferversjon(kjerne: Kjerne, saksversjon: number): Bufferversjo
   return {
     projeksjonsversjon: kjerne.projeksjonsversjon,
     regelversjon: kjerne.regler.versjon,
-    format: kjerne.leserformat,
+    leserformat: kjerne.leserformat,
     saksversjon,
   };
 }

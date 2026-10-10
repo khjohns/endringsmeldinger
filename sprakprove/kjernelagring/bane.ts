@@ -75,17 +75,18 @@ export async function basebane(o: Oppsett): Promise<Bane> {
 
 /**
  * Bufferen i `sak_metadata` (B-10, #316): visningen og versjonene den er regnet
- * med, i kolonnene fra migrasjonen `sak_metadata_kjernebuffer`.
+ * med, i kolonnene fra migrasjonen `sak_metadata_kjernebuffer`. Lageret gjelder
+ * ett prosjekt og leser og skriver bare dets saker.
  */
-export function pgBuffer(klient: ClientBase): Bufferlager {
+export function pgBuffer(klient: ClientBase, prosjektId: string): Bufferlager {
   return {
     async les(sakId) {
       const r = await klient.query<Bufferversjon & { visning: Buffer['visning'] | null }>(
         `SELECT kjerne_visning AS visning, kjerne_projeksjonsversjon AS projeksjonsversjon,
-                kjerne_regelversjon AS regelversjon, kjerne_format AS format,
+                kjerne_regelversjon AS regelversjon, kjerne_leserformat AS leserformat,
                 kjerne_saksversjon AS saksversjon
-           FROM sak_metadata WHERE sak_id = $1`,
-        [sakId]
+           FROM sak_metadata WHERE sak_id = $1 AND prosjekt_id = $2`,
+        [sakId, prosjektId]
       );
       const rad = r.rows[0];
       if (!rad?.visning) return null;
@@ -96,25 +97,28 @@ export function pgBuffer(klient: ClientBase): Bufferlager {
       const r = await klient.query(
         `UPDATE sak_metadata
             SET kjerne_visning = $2::jsonb, kjerne_projeksjonsversjon = $3,
-                kjerne_regelversjon = $4, kjerne_format = $5, kjerne_saksversjon = $6
-          WHERE sak_id = $1`,
+                kjerne_regelversjon = $4, kjerne_leserformat = $5, kjerne_saksversjon = $6
+          WHERE sak_id = $1 AND prosjekt_id = $7`,
         [
           sakId,
           JSON.stringify(b.visning),
           b.versjon.projeksjonsversjon,
           b.versjon.regelversjon,
-          b.versjon.format,
+          b.versjon.leserformat,
           b.versjon.saksversjon,
+          prosjektId,
         ]
       );
-      if (r.rowCount !== 1) throw new Error(`Saken ${sakId} finnes ikke i sak_metadata`);
+      if (r.rowCount !== 1) throw new Error(`Saken ${sakId} finnes ikke i prosjektet`);
     },
   };
 }
 
 /**
  * Sakene i prosjektet der bufferen ikke gjelder for kjernen: ingen buffer, en
- * annen versjon, eller en saksversjon som ikke er den siste i journalen. Det
+ * annen versjon, eller en saksversjon som ikke er den siste i journalen. Bare
+ * saker med en rad fra TS-kjernen (`format` satt) tas med; en sak Python har
+ * skrevet alene, har ingen buffer å bygge (B-17). Det
  * samme som `bufferGjelder` avgjør for én sak, som en spørring (B-10, #316).
  */
 export async function utdaterteSaker(
@@ -125,16 +129,17 @@ export async function utdaterteSaker(
   const v = bufferversjon(kjerne, 0);
   const r = await klient.query<{ sak_id: string }>(
     `SELECT m.sak_id FROM sak_metadata m
-       JOIN (SELECT sak_id, max(versjon) AS versjon FROM hendelse WHERE prosjekt_id = $1 GROUP BY sak_id) h
+       JOIN (SELECT sak_id, max(versjon) AS versjon FROM hendelse
+              WHERE prosjekt_id = $1 GROUP BY sak_id HAVING count(format) > 0) h
          ON h.sak_id = m.sak_id
       WHERE m.prosjekt_id = $1
         AND (m.kjerne_visning IS NULL
              OR m.kjerne_projeksjonsversjon IS DISTINCT FROM $2
              OR m.kjerne_regelversjon IS DISTINCT FROM $3
-             OR m.kjerne_format IS DISTINCT FROM $4
+             OR m.kjerne_leserformat IS DISTINCT FROM $4
              OR m.kjerne_saksversjon IS DISTINCT FROM h.versjon)
       ORDER BY m.sak_id`,
-    [prosjektId, v.projeksjonsversjon, v.regelversjon, v.format]
+    [prosjektId, v.projeksjonsversjon, v.regelversjon, v.leserformat]
   );
   return r.rows.map((x) => x.sak_id);
 }
@@ -165,7 +170,7 @@ export function testbasen(): Baner {
     async start() {
       o = await lagOppsett();
       klient = await o.pool.connect();
-      lager = pgBuffer(klient);
+      lager = pgBuffer(klient, o.prosjekt.id);
     },
     async stopp() {
       klient?.release();
