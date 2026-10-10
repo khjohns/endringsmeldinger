@@ -88,18 +88,21 @@ beskrivelse = """
 Saksregisteret: én rad per sak, med prosjekt, sakstype, hvem som opprettet den,
 og koblingen til topic, board og prosjekt i Catenda. I tillegg ti
 `cached_*`-kolonner og `last_event_at` med tall regnet ut av hendelsene, til
-lister og rapportering. Tabellen blander register og projeksjon; skillet er
-planlagt (MS-06, MS-07)."""
+lister og rapportering. Fem `kjerne_*`-kolonner er bufferen TS-kjernen regner
+ut av journalen: visningen og de fire versjonene den er regnet med (B-10, #316).
+Tabellen blander register og projeksjon; skillet er planlagt (MS-06, MS-07)."""
 lagres_fra = """
 Opprettes når en sak lages, gjennom `SakCreationService`: fra hendelsesrutene,
 for endringsordrer, og fra en ny topic i Catenda via webhook. Hvordan en
 forseringssak får sin rad, er ikke kontrollert. `cached_*` oppdateres etter
-lagrede hendelser (hendelsesrutene, forsering og godkjenning)."""
+lagrede hendelser (hendelsesrutene, forsering og godkjenning). `kjerne_*` skrives
+bare av bufferen i TS-kjernen (`kjerne/buffer.ts`, lageret i
+`sprakprove/kjernelagring/bane.ts` til skrivestien i #310)."""
 fra_catenda = """
 Delvis. `catenda_topic_id`, `catenda_board_id` og `catenda_project_id` er ID-er
 fra Catenda."""
 kan_gjenoppbygges = """
-delvis. `cached_*` og `last_event_at` kan regnes ut av hendelsene. Om
+delvis. `cached_*`, `kjerne_*` og `last_event_at` kan regnes ut av hendelsene. Om
 registerkolonnene også kan det, er ikke kontrollert."""
 personopplysninger = "`created_by` identifiserer den som opprettet saken (tre verdiformer, MG-04)."
 skrivere = [
@@ -108,6 +111,7 @@ skrivere = [
     "backend/routes/event_routes.py (update_cache)",
     "backend/routes/forsering_routes.py (update_cache)",
     "backend/routes/approval_routes.py (update_cache)",
+    "sprakprove/kjernelagring/bane.ts (pgBuffer, bufferen i kjernen)",
 ]
 funn = ["MS-06", "MS-07", "DA-14", "MG-04", "DM-01"]
 belegg = """

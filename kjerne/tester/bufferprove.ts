@@ -1,6 +1,6 @@
 /**
  * Bufferen og tilbakerullingen (#304, forløp E2-2, INV-MM-8). Et bufret
- * resultat brukes bare når projeksjonsversjon, regelversjon, format og
+ * resultat brukes bare når projeksjonsversjon, regelversjon, leserformat og
  * saksversjon samsvarer med kjernen og saken, også når resultatet er nyere enn
  * kjernen. En hendelse i et format kjernen ikke leser, stopper saken (MM-U2),
  * og ingen rad skrives om.
@@ -8,13 +8,16 @@
 
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { KJERNE, type Kjerne } from '../versjon.ts';
-import { bufferversjon, lesSak, type Bufferversjon } from '../buffer.ts';
+import { bufferversjon, iOversikten, lesSak, type Bufferversjon } from '../buffer.ts';
+import { NESTE_REGLER } from './klient.ts';
+import { medRegler } from './kjoerer.ts';
 import { bygg, type Baner } from './baner.ts';
 
 const NYERE: Kjerne = {
   ...KJERNE,
   projeksjonsversjon: KJERNE.projeksjonsversjon + 1,
   format: KJERNE.format + 1,
+  leserformat: KJERNE.leserformat + 1,
 };
 
 /** Suiten kjøres i minnet her og mot testbasen i `sprakprove/kjernelagring/`. */
@@ -29,8 +32,8 @@ export function bufferen(lagBaner: () => Baner): void {
       ['eldre projeksjonsversjon', { projeksjonsversjon: -1 }],
       ['nyere regelversjon', { regelversjon: 1 }],
       ['eldre regelversjon', { regelversjon: -1 }],
-      ['nyere format', { format: 1 }],
-      ['eldre format', { format: -1 }],
+      ['nyere leserformat', { leserformat: 1 }],
+      ['eldre leserformat', { leserformat: -1 }],
       ['annen saksversjon', { saksversjon: -1 }],
     ] as const)('brukes ikke med %s', async (_hva, forskjell: Partial<Bufferversjon>) => {
       const bane = await baner.bane();
@@ -84,7 +87,7 @@ export function bufferen(lagBaner: () => Baner): void {
       expect(lestA.kilde).toBe('stoppet');
       expect(lestA.visning.status.kode).toBe('kan_ikke_utledes');
       expect(lestA.visning.journal.filter((j) => !j.tolket)).toHaveLength(1);
-      expect((await baner.buffer().les(baneA.sakId))?.versjon.format).toBe(NYERE.format);
+      expect((await baner.buffer().les(baneA.sakId))?.versjon.leserformat).toBe(NYERE.leserformat);
       for (const h of [
         { handling: 'krav', spor: 'frist', dager: 30 },
         { handling: 'brev', svar: [{ spor: 'grunnlag', resultat: 'godkjent' }] },
@@ -105,6 +108,33 @@ export function bufferen(lagBaner: () => Baner): void {
       // Ingen rad er skrevet om.
       expect(await baneA.journal()).toEqual(journalA);
       expect(await baneB.journal()).toEqual(journalB);
+    });
+    it('viser siste kjente status i oversikten, merket «Oppdateres» til saken er regnet ut (MM-U15)', async () => {
+      const bane = await baner.bane();
+      const k = await bygg(bane, ['krav_eo']);
+      const lager = baner.buffer();
+      const oversikt = async (kjerne: Kjerne) => {
+        const journal = await bane.journal();
+        return iOversikten(await lager.les(bane.sakId), kjerne, journal.at(-1)!.versjon);
+      };
+      // Uten buffer finnes ingen kjent status.
+      expect(await oversikt(KJERNE)).toEqual({ status: null, oppdateres: true });
+      await lesSak(bane.sakId, await bane.journal(), lager, KJERNE);
+      const kjent = await oversikt(KJERNE);
+      expect(kjent).toEqual({ status: expect.anything(), oppdateres: false });
+      expect(kjent.status?.kode).toBe('venter_paa_svar');
+
+      // Nye regler: samme status, merket.
+      expect(await oversikt(medRegler(NESTE_REGLER))).toEqual({
+        status: kjent.status,
+        oppdateres: true,
+      });
+      // En ny hendelse: siste kjente status, ikke den nye, til saken er regnet ut.
+      expect((await k.send({ handling: 'trekk', spor: 'grunnlag' }))?.godtatt).toBe(true);
+      expect(await oversikt(KJERNE)).toEqual({ status: kjent.status, oppdateres: true });
+      const lest = await lesSak(bane.sakId, await bane.journal(), lager, KJERNE);
+      expect(lest.visning.status.kode).toBe('avsluttet_trukket');
+      expect(await oversikt(KJERNE)).toEqual({ status: lest.visning.status, oppdateres: false });
     });
   });
 }
