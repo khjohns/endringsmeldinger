@@ -13,8 +13,8 @@
  *   utsagn, relasjon, frosset, predikat og så videre. En status eller en annen
  *   oppsummering står ikke der, under noe navn, så en regel som leser den, gir
  *   rød test til noen har klassifisert verdien. Testen ser ikke lesinger
- *   gjennom refleksjon (`Object.entries`, `in`, spredning), og ikke en verdi
- *   regelen selv bygger av det den har lest.
+ *   gjennom refleksjon (`Object.entries`, `in`, spredning), og ikke et objekt
+ *   en funksjon bygger og leser selv.
  *
  * Importene leses med TypeScript-parseren, ikke med et tekstsøk, så `import`,
  * `import type`, `export … from`, `import()` og `require()` teller likt, med og
@@ -253,7 +253,6 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, moduler?: string[]][
     `forstaatt spor svar opplysninger grunnlagAvklart grunnlagAvvist frafalt
      godkjenningErEndringsordre`,
   ],
-  ['Utledning.spor', 'relasjon', 'grunnlag frist'],
   ['Utledning.opplysninger', 'utsagn', 'opplysning'],
   ['Utledning.opplysninger', 'relasjon', 'bestridelser'],
   ['Bestridelse', 'relasjon', 'part'],
@@ -275,14 +274,15 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, moduler?: string[]][
   ],
   ['standpunkt.ts', 'frosset', 'hovedgrunn utsagnet'],
   ['standpunkt.ts', 'utledet', 'utfall enighetsgrunnlag'],
-  ['regnUtSvar', 'utsagn', 'krav grunnlagskrav'],
+  ['standpunkt.ts:regnUtSvar', 'utsagn', 'krav grunnlagskrav'],
+  ['standpunkt.ts:kategori', 'utsagn', 'hovedkategori underkategori'],
   [
     'Svarvurdering',
     'utsagn',
     'resultat grunnlag_varslet_i_tide frist_varsel_ok spesifisert_krav_ok vilkar_oppfylt dager',
   ],
   [
-    'utenforOmfanget(v)',
+    'standpunkt.ts:utenforOmfanget(v)',
     'utsagn',
     `spesifisert_krav_ok foresporsel_svar_ok aksepterer_metode hold_tilbake rigg_vurdering
      produktivitet_vurdering *`,
@@ -317,7 +317,11 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, moduler?: string[]][
     'regelsett',
     'beregnings_resultat godkjent_dager subsidiaer_resultat subsidiaer_godkjent_dager',
   ],
-  ['kontroller(v)', 'utsagn', '*'],
+  [
+    'regler/frist.ts:beregnSynlighet',
+    'regelsett',
+    'frist_varsel_ok spesifisert_krav_ok foresporsel_svar_ok',
+  ],
   [
     'Vederlagskrav',
     'regelsett',
@@ -348,22 +352,22 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, moduler?: string[]][
   ['Svarutkast', 'kommando', 'spor gjelder regelversjon vurderinger resultat'],
   ['Svarutkast.resultat', 'kommando', '*'],
   ['Svarutkast.vurderinger', 'kommando', '*'],
-  ['kontrollerSvar(server)', 'regelsett', '*'],
+  ['nyttelast.ts:kontrollerSvar(server)', 'regelsett', '*'],
   ['Handlingsnoekkel', 'kommando', 'type spor gjelder'],
   ['kommando.ts', 'kommando', 'formfeil'],
-  ['formfeil', 'kommando', 'type spor innhold svar'],
+  ['kommando.ts:formfeil', 'kommando', 'type spor innhold svar'],
   ['forutsetninger.ts', 'predikat', 'forutsetninger noekkel avvis'],
   ['nyttelast.ts', 'predikat', 'nyttelastkontroll'],
   ['avvisning.ts', 'predikat', 'avvisning'],
   ['typer.ts', 'relasjon', 'SPOR KRAVSPOR'],
   ['skjema.ts', 'skjema', 'erObjekt feilI tekst'],
   [
-    'feilI(s)',
+    'skjema.ts:feilI(s)',
     'skjema',
     `$ref anyOf type const enum minLength minimum exclusiveMinimum items properties required
      additionalProperties`,
   ],
-  ['oppslag(d)', 'skjema', '*'],
+  ['skjema.ts:oppslag(d)', 'skjema', '*'],
   ['Kontekst', 'kontekst', 'sakId aktoerId part teamId tidspunkt nyId'],
   ['Kjerne', 'kontekst', 'regler format'],
 
@@ -384,14 +388,14 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, moduler?: string[]][
   ],
   ['Journalrad.data.frist_varsel', 'rad', 'dato_sendt', ['leser.ts']],
   [
-    'svarutsagn(data)',
+    'leser.ts:svarutsagn(data)',
     'rad',
     `grunnlag_varslet_i_tide resultat beregnings_resultat total_godkjent_belop frist_varsel_ok
      vilkar_oppfylt subsidiaer_resultat godkjent_dager subsidiaer_godkjent_dager`,
     ['leser.ts'],
   ],
-  ['lesBeslutningsgrunnlag(o)', 'rad', 'regelversjon standpunkter linje sammenfall', ['leser.ts']],
-  ['lesStandpunkter(o)', 'rad', 'utsagn art virkning', ['leser.ts']],
+  ['leser.ts:lesBeslutningsgrunnlag(o)', 'rad', 'regelversjon standpunkter linje sammenfall'],
+  ['leser.ts:lesStandpunkter(o)', 'rad', 'utsagn art virkning'],
   ['Lesestand', 'rad', 'sisteKrav fristvarsel', ['leser.ts']],
   ['HENDELSESTYPER', 'rad', 'krav svar trekk', ['leser.ts', 'skriving.ts']],
   [
@@ -437,20 +441,25 @@ export function program(
 const modulnavn = (fil: string) => relative(KJERNE, fil).split(sep).join('/');
 const iKjernen = (fil: string) => fil.startsWith(KJERNE + sep) && !fil.startsWith(TESTER + sep);
 
-/** Navnet på funksjonen `n` er eller står i. */
+/** `n` står i funksjonen `f`, også i en funksjon inne i den. */
+const iFunksjonen = (n: ts.Node | undefined, f: ts.Node): boolean =>
+  n !== undefined && (n === f || iFunksjonen(n.parent, f));
+
+/** Modulen og navnet på funksjonen `n` er eller står i, som `leser.ts:svarutsagn`. */
 function funksjon(n: ts.Node): string {
+  const modul = modulnavn(n.getSourceFile().fileName);
   for (let p: ts.Node | undefined = n; p; p = p.parent) {
     if ((ts.isFunctionDeclaration(p) || ts.isMethodDeclaration(p)) && p.name)
-      return p.name.getText();
+      return `${modul}:${p.name.getText()}`;
     if (
       ts.isVariableDeclaration(p) &&
       ts.isIdentifier(p.name) &&
       p.initializer &&
       (ts.isArrowFunction(p.initializer) || ts.isFunctionExpression(p.initializer))
     )
-      return p.name.text;
+      return `${modul}:${p.name.text}`;
   }
-  return '?';
+  return `${modul}:?`;
 }
 
 const toppnivaa = (d: ts.Node) =>
@@ -459,16 +468,16 @@ const toppnivaa = (d: ts.Node) =>
 
 /**
  * Eieren til deklarasjonen `d`: typen eller konstanten, med stien gjennom
- * nestede typer, eller modulen for en funksjon eller konstant på toppnivå.
- * `null` når `d` er et felt i et objekt `fil` selv bygger.
+ * nestede typer, modulen for en funksjon eller konstant på toppnivå, eller
+ * funksjonen for en type eller et objekt som står i en funksjon. `null` når `d`
+ * er et felt i et objekt som bygges i funksjonen det leses i.
  */
-function eier(d: ts.Declaration, fil: string): string | null {
-  const kilde = d.getSourceFile().fileName;
+function eier(d: ts.Declaration, lesested: ts.Node): string | null {
   if (
     (ts.isFunctionDeclaration(d) || ts.isVariableDeclaration(d) || ts.isClassDeclaration(d)) &&
     toppnivaa(d)
   )
-    return modulnavn(kilde);
+    return modulnavn(d.getSourceFile().fileName);
   const sti: string[] = [];
   let bygget = false;
   for (let n: ts.Node | undefined = d.parent; n; n = n.parent) {
@@ -484,10 +493,12 @@ function eier(d: ts.Declaration, fil: string): string | null {
     else if (ts.isVariableDeclaration(n) && ts.isIdentifier(n.name) && toppnivaa(n))
       return [n.name.text, ...sti].join('.');
     else if (ts.isFunctionLike(n))
-      return bygget && kilde === fil ? null : [funksjon(n), ...sti].join('.');
+      return bygget && iFunksjonen(lesested, n) ? null : [funksjon(n), ...sti].join('.');
   }
   return '?';
 }
+
+const utenType = (t: ts.Type) => (t.flags & (ts.TypeFlags.Unknown | ts.TypeFlags.Any)) !== 0;
 
 /** Lesingene i `moduler`, med nøkkelen hver slås opp med i `LESBART`. */
 export function lesinger(p: ts.Program, moduler: string[]): Lesing[] {
@@ -496,12 +507,15 @@ export function lesinger(p: ts.Program, moduler: string[]): Lesing[] {
   for (const fil of moduler) {
     const sf = p.getSourceFile(fil);
     if (!sf) throw new Error(`${fil} er ikke i programmet`);
-    const legg = (n: ts.Node, noekkel: string) =>
-      ut.push({
-        modul: modulnavn(fil),
-        linje: sf.getLineAndCharacterOfPosition(n.getStart()).line + 1,
-        noekkel,
-      });
+    const legg = (n: ts.Node, noekkel: string | null) => {
+      if (noekkel !== null)
+        ut.push({
+          modul: modulnavn(fil),
+          linje: sf.getLineAndCharacterOfPosition(n.getStart()).line + 1,
+          noekkel,
+        });
+    };
+    /** Eieren til en verdi uten type: feltet den er lest fra, eller funksjonen og navnet. */
     const opphav = (e: ts.Expression): string => {
       for (;;) {
         if (
@@ -519,8 +533,9 @@ export function lesinger(p: ts.Program, moduler: string[]): Lesing[] {
           e = e.left;
         else break;
       }
-      if (ts.isPropertyAccessExpression(e) || ts.isElementAccessExpression(e))
-        return noekkel(e) ?? '?';
+      if (ts.isPropertyAccessExpression(e))
+        return felt(e, e.name.text, tc.getSymbolAtLocation(e.name), e.expression) ?? '?';
+      if (ts.isElementAccessExpression(e)) return elementer(e)[0] ?? '?';
       if (ts.isIdentifier(e)) {
         const d = tc.getSymbolAtLocation(e)?.valueDeclaration;
         if (
@@ -535,49 +550,69 @@ export function lesinger(p: ts.Program, moduler: string[]): Lesing[] {
       }
       return `${funksjon(e)}(${e.getText()})`;
     };
-    /** `null` når lesingen ikke er av noe kjernen har deklarert, som `length` eller `find`. */
-    const noekkel = (
-      n: ts.PropertyAccessExpression | ts.ElementAccessExpression
+    /**
+     * Nøkkelen til lesingen av `navn` i `n`, eller `null` når den ikke er av noe
+     * kjernen har deklarert, som `length` eller `find`. `kilde` er uttrykket
+     * verdien leses fra.
+     */
+    const felt = (
+      n: ts.Node,
+      navn: string,
+      symbol: ts.Symbol | undefined,
+      kilde: ts.Expression | null
     ): string | null => {
-      const navn = ts.isPropertyAccessExpression(n)
-        ? n.name.text
-        : ts.isStringLiteralLike(n.argumentExpression)
-          ? n.argumentExpression.text
-          : '*';
-      const symbol = ts.isPropertyAccessExpression(n)
-        ? tc.getSymbolAtLocation(n.name)
-        : navn === '*'
-          ? undefined
-          : tc.getTypeAtLocation(n.expression).getProperty(navn);
-      const d = symbol?.declarations?.[0];
+      const deklarasjoner = symbol?.declarations ?? [];
+      const d = deklarasjoner.find((x) => iKjernen(x.getSourceFile().fileName));
       if (d) {
-        if (!iKjernen(d.getSourceFile().fileName)) return null;
-        const e = eier(d, fil);
+        const e = eier(d, n);
         return e === null ? null : `${e}.${navn}`;
       }
-      // Et oppslag med en utregnet nøkkel i en verdi med type, som `u.spor[n]`,
+      if (deklarasjoner.length) return null;
+      // En nøkkel i en `Record` med type, som `u.spor[n]` eller `u.spor.grunnlag`,
       // gir en verdi med type, og den leses videre med navn.
-      if (
-        navn === '*' &&
-        !(tc.getTypeAtLocation(n).flags & (ts.TypeFlags.Unknown | ts.TypeFlags.Any))
-      )
-        return null;
-      return `${opphav(n.expression)}.${navn}`;
+      if (!utenType(tc.getTypeAtLocation(n))) return null;
+      return `${kilde ? opphav(kilde) : `${funksjon(n)}(?)`}.${navn}`;
+    };
+    /** Nøklene til `a[k]`: navnet når nøkkelen er en streng eller en union av strenger, ellers `*`. */
+    const elementer = (n: ts.ElementAccessExpression): (string | null)[] => {
+      const t = tc.getTypeAtLocation(n.argumentExpression);
+      const navn = (t.isUnion() ? t.types : [t]).map((x) => (x.isStringLiteral() ? x.value : null));
+      return (navn.every((x) => x !== null) ? navn : ['*']).map((x) =>
+        felt(n, x, tc.getTypeAtLocation(n.expression).getProperty(x), n.expression)
+      );
+    };
+    /** Feltene `mønster` leser fra `kilde`, i `const { a } = kilde` og `({ a } = kilde)`. */
+    const destrukturering = (
+      moenster: ts.ObjectBindingPattern | ts.ObjectLiteralExpression,
+      kilde: ts.Expression | null
+    ) => {
+      const type = kilde ? tc.getTypeAtLocation(kilde) : tc.getTypeAtLocation(moenster);
+      const elementer = ts.isObjectBindingPattern(moenster)
+        ? moenster.elements.map((e) => [e, e.propertyName ?? e.name] as const)
+        : moenster.properties.map((e) => [e, e.name] as const);
+      for (const [e, navnenode] of elementer) {
+        if (!navnenode || !(ts.isIdentifier(navnenode) || ts.isStringLiteral(navnenode))) continue;
+        const navn = navnenode.text;
+        legg(e, felt(e, navn, type.getProperty(navn), kilde));
+      }
     };
     const skrives = (n: ts.Node) =>
       ts.isBinaryExpression(n.parent) &&
       n.parent.left === n &&
       n.parent.operatorToken.kind === ts.SyntaxKind.EqualsToken;
     const besoek = (n: ts.Node) => {
-      if ((ts.isPropertyAccessExpression(n) || ts.isElementAccessExpression(n)) && !skrives(n)) {
-        const k = noekkel(n);
-        if (k) legg(n, k);
-      } else if (ts.isBindingElement(n) && ts.isObjectBindingPattern(n.parent)) {
-        const navn = (n.propertyName ?? n.name).getText();
-        const d = tc.getTypeAtLocation(n.parent).getProperty(navn)?.declarations?.[0];
-        const e = d && iKjernen(d.getSourceFile().fileName) ? eier(d, fil) : null;
-        if (e) legg(n, `${e}.${navn}`);
-      } else if (ts.isImportSpecifier(n) && !n.isTypeOnly && !n.parent.parent.isTypeOnly) {
+      if (ts.isPropertyAccessExpression(n) && !skrives(n))
+        legg(n, felt(n, n.name.text, tc.getSymbolAtLocation(n.name), n.expression));
+      else if (ts.isElementAccessExpression(n) && !skrives(n))
+        for (const k of elementer(n)) legg(n, k);
+      else if (ts.isObjectBindingPattern(n))
+        destrukturering(
+          n,
+          ts.isVariableDeclaration(n.parent) && n.parent.initializer ? n.parent.initializer : null
+        );
+      else if (ts.isObjectLiteralExpression(n) && skrives(n))
+        destrukturering(n, (n.parent as ts.BinaryExpression).right);
+      else if (ts.isImportSpecifier(n) && !n.isTypeOnly && !n.parent.parent.isTypeOnly) {
         const d = tc.getAliasedSymbol(tc.getSymbolAtLocation(n.name)!).declarations?.[0];
         if (d && iKjernen(d.getSourceFile().fileName))
           legg(
@@ -629,7 +664,7 @@ describe('reglene leser bare det LESBART tillater (#308, #329)', () => {
         'Sporutledning.enighet',
         'Svar.beslutningsgrunnlag',
         'utled.ts.kraveneErAvgjort',
-        'svarutsagn(data).beregnings_resultat',
+        'leser.ts:svarutsagn(data).beregnings_resultat',
       ])
     );
   });
@@ -638,7 +673,8 @@ describe('reglene leser bare det LESBART tillater (#308, #329)', () => {
   const utled = join(KJERNE, 'utled.ts');
   const leser = join(KJERNE, 'leser.ts');
   /** Lesingene LESBART ikke tillater i `modul` når `endringer` er gjort i kildene. */
-  const medEndring = (modul: string, endringer: [fil: string, fra: string, til: string][]) => {
+  type Endring = [fil: string, fra: string, til: string];
+  const medEndring = (modul: string, endringer: Endring[]) => {
     const erstatt = new Map<string, string>();
     for (const [fil, fra, til] of endringer) {
       const kilde = erstatt.get(fil) ?? readFileSync(fil, 'utf8');
@@ -651,79 +687,146 @@ describe('reglene leser bare det LESBART tillater (#308, #329)', () => {
   const kravene = '  if (kraveneErAvgjort(u))';
   const utledningen = 'export interface Utledning {\n';
 
-  // Forsøkene står i minnet her; feilinnføringene F15 og F27 prøver det samme i selve filene.
-  it.each([
+  const ferdig: Endring = [utled, utledningen, `${utledningen}  ferdig: boolean;\n`];
+  const dataen = '  const data = h.data;\n  const id = tekst(data.dokument_id) ?? h.event_id;';
+  /** I `lesDokument` i leseren, rett etter at raden er lest. */
+  const iLeseren = (linje: string): Endring => [
+    leser,
+    dataen,
+    dataen.replace('\n', `\n  ${linje}\n`),
+  ];
+
+  // Forsøkene står i minnet her; feilinnføringene F15 og F27 prøver to av dem i selve filene.
+  it.each<[string, string, Endring[], string]>([
     [
       'et nytt felt i utledningen',
-      [utled, utledningen, `${utledningen}  ferdig: boolean;\n`],
-      [forutsetninger, kravene, '  if (u.ferdig)'],
+      forutsetninger,
+      [ferdig, [forutsetninger, kravene, '  if (u.ferdig)']],
       'Utledning.ferdig',
     ],
     [
-      'et nytt felt i utledningen, med oppslag',
-      [utled, utledningen, `${utledningen}  ferdig: boolean;\n`],
-      [forutsetninger, kravene, "  if (u['ferdig'])"],
+      'et nytt felt med oppslag',
+      forutsetninger,
+      [ferdig, [forutsetninger, kravene, "  if (u['ferdig'])"]],
       'Utledning.ferdig',
     ],
     [
-      'et nytt felt i utledningen, destrukturert',
-      [utled, utledningen, `${utledningen}  ferdig: boolean;\n`],
-      [forutsetninger, kravene, '  const { ferdig } = u;\n  if (ferdig)'],
+      'et nytt felt med en konstant nøkkel',
+      forutsetninger,
+      [ferdig, [forutsetninger, kravene, "  const k = 'ferdig' as const;\n  if (u[k])"]],
+      'Utledning.ferdig',
+    ],
+    [
+      'et nytt felt, destrukturert',
+      forutsetninger,
+      [ferdig, [forutsetninger, kravene, '  const { ferdig } = u;\n  if (ferdig)']],
+      'Utledning.ferdig',
+    ],
+    [
+      'et nytt felt, destrukturert i en tilordning',
+      forutsetninger,
+      [
+        ferdig,
+        [forutsetninger, kravene, '  let ferdig = false;\n  ({ ferdig } = u);\n  if (ferdig)'],
+      ],
       'Utledning.ferdig',
     ],
     [
       'en funksjon som oppsummerer saken',
+      forutsetninger,
       [
-        utled,
-        utledningen,
-        `export const sakensStatus = (u: Utledning) => u.versjon;\n${utledningen}`,
-      ],
-      [
-        forutsetninger,
-        "import { kraveneErAvgjort, type Utledning } from './utled.ts';",
-        "import { kraveneErAvgjort, sakensStatus, type Utledning } from './utled.ts';",
+        [
+          utled,
+          utledningen,
+          `export const sakensStatus = (u: Utledning) => u.versjon;\n${utledningen}`,
+        ],
+        [
+          forutsetninger,
+          "import { kraveneErAvgjort, type Utledning } from './utled.ts';",
+          "import { kraveneErAvgjort, sakensStatus, type Utledning } from './utled.ts';",
+        ],
       ],
       'utled.ts.sakensStatus',
     ],
     [
+      'et objekt en annen funksjon bygger',
+      utled,
+      [
+        [
+          utled,
+          utledningen,
+          `function oppsum(u: Utledning) {\n  return { avsluttet: u.frafalt };\n}\n${utledningen}`,
+        ],
+        [utled, '    u.grunnlagAvklart &&\n', '    oppsum(u).avsluttet &&\n'],
+      ],
+      'utled.ts:oppsum.avsluttet',
+    ],
+    [
       'et felt uten type',
-      [forutsetninger, kravene, '  if ((u as any).avsluttet)'],
-      null,
-      'forutsetninger(u).avsluttet',
+      forutsetninger,
+      [[forutsetninger, kravene, '  if ((u as any).avsluttet)']],
+      'forutsetninger.ts:forutsetninger(u).avsluttet',
+    ],
+    [
+      'et felt uten type, destrukturert',
+      forutsetninger,
+      [[forutsetninger, kravene, '  const { avsluttet } = u as any;\n  if (avsluttet)']],
+      'forutsetninger.ts:forutsetninger(u).avsluttet',
     ],
     [
       'et felt i en type regelen selv skriver',
-      [forutsetninger, kravene, '  if ((u as Utledning & { oppgjort: boolean }).oppgjort)'],
-      null,
-      'forutsetninger.oppgjort',
+      forutsetninger,
+      [[forutsetninger, kravene, '  if ((u as Utledning & { oppgjort: boolean }).oppgjort)']],
+      'forutsetninger.ts:forutsetninger.oppgjort',
+    ],
+    [
+      'en parameter med samme navn som en tillatt',
+      forutsetninger,
+      [
+        [
+          forutsetninger,
+          'export const avvis =',
+          "export const kontroller = (v: Record<string, unknown>) => v.status === 'oppgjort';\nexport const avvis =",
+        ],
+      ],
+      'forutsetninger.ts:kontroller(v).status',
     ],
     [
       'det lagrede utfallet i et svar',
+      forutsetninger,
       [
-        forutsetninger,
-        kravene,
-        "  if (u.spor.frist.gjeldendeSvar?.utregning.beregnings_resultat === 'avslatt')",
+        [
+          forutsetninger,
+          kravene,
+          "  if (u.spor.frist.gjeldendeSvar?.utregning.beregnings_resultat === 'avslatt')",
+        ],
       ],
-      null,
       'Svar.utregning.beregnings_resultat',
     ],
-  ] as [string, [string, string, string], [string, string, string] | null, string][])(
-    'oppdager %s',
-    (_navn, a, b, noekkel) => {
-      const funnet = medEndring(forutsetninger, b ? [a, b] : [a]);
-      expect(funnet.map((f) => f.split(' ')[1])).toContain(noekkel);
-    }
-  );
-
-  it('oppdager en statuskode i journalraden', () => {
-    const funnet = medEndring(leser, [
+    [
+      'en statuskode i journalraden',
+      leser,
+      [iLeseren("if (data.overordnet_status === 'AVSLATT_AKSEPTERT') throw new Uforstaatt('');")],
+      'Journalrad.data.overordnet_status',
+    ],
+    [
+      'en statuskode i journalraden, destrukturert',
+      leser,
       [
-        leser,
-        '  const data = h.data;\n  const id = tekst(data.dokument_id) ?? h.event_id;',
-        "  const data = h.data;\n  if (data.overordnet_status === 'AVSLATT_AKSEPTERT') throw new Uforstaatt('');\n  const id = tekst(data.dokument_id) ?? h.event_id;",
+        iLeseren(
+          "const { overordnet_status } = data;\n  if (overordnet_status) throw new Uforstaatt('');"
+        ),
       ],
-    ]);
-    expect(funnet.map((f) => f.split(' ')[1])).toEqual(['Journalrad.data.overordnet_status']);
+      'Journalrad.data.overordnet_status',
+    ],
+    [
+      'en statuskode i journalraden med en konstant nøkkel',
+      leser,
+      [iLeseren("const k = 'overordnet_status';\n  if (data[k]) throw new Uforstaatt('');")],
+      'Journalrad.data.overordnet_status',
+    ],
+  ])('oppdager %s', (_navn, modul, endringer, noekkel) => {
+    expect(medEndring(modul, endringer).map((f) => f.split(' ')[1])).toContain(noekkel);
   });
 
   it('oppdager journalraden lest utenfor leseren og skrivingen', () => {
