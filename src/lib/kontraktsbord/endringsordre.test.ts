@@ -10,7 +10,7 @@ import { describe, expect, it } from 'vitest';
 import { KRAV_STRUKTUR_NS8407 } from '$lib/constants/categories';
 import { deriveGrunnlagDomainConfig } from '$lib/domain/deriveConfig';
 import type { SakState } from '$lib/types/timeline';
-import { erEndringsordre, type Grunnlagsvurdering } from './endringsordre';
+import { ENDRINGSORDREVARSEL, erEndringsordre, type Grunnlagsvurdering } from './endringsordre';
 
 /** GR-U11: § 32.2 gjelder alle underkategorier under ENDRING unntatt EO. */
 const MED_VARSLINGSPLIKT = [
@@ -33,6 +33,13 @@ const godkjentITide: Grunnlagsvurdering = { resultat: 'godkjent', varsletITide: 
 const alle = KRAV_STRUKTUR_NS8407.flatMap((h) => h.hjemler.map((u) => [h.kode, u.kode] as const));
 
 describe('endringsordre etter § 32.3 første ledd a (GR-U12)', () => {
+  it('varselet har teksten oppdragsgiver godkjente', () => {
+    // Arbeidsvalget 10.10 i #313 (GR-U10, GR-U12), ordrett.
+    expect(ENDRINGSORDREVARSEL).toBe(
+      'Svaret blir en endringsordre etter § 32.3 første ledd a, fordi byggherren godkjenner grunnlaget uten å påberope at varselet kom for sent (§ 32.2). Totalentreprenøren blir forpliktet til å utføre endringsarbeidet (§ 31.3 annet ledd). Du kan ikke endre godkjenningen etterpå.'
+    );
+  });
+
   it('saksskjemaet har underkategoriene GR-U11 nevner', () => {
     const endring = alle.filter(([h]) => h === 'ENDRING').map(([, u]) => u);
     expect(endring.filter((u) => u !== 'EO').sort()).toEqual([...MED_VARSLINGSPLIKT].sort());
