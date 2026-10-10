@@ -64,6 +64,7 @@ describe('endringsordre etter § 32.3 første ledd a (GR-U12)', () => {
       expect(erEndringsordre(kategori, { resultat: 'godkjent', varsletITide: false })).toBe(false);
     });
 
+    // GR-U12: «… er svaret en endringsordre etter § 32.3 første ledd a, også når brevet ikke sier noe om varslingen.»
     it('et svar som ikke sier noe om varslingen, er en endringsordre', () => {
       expect(erEndringsordre(kategori, { resultat: 'godkjent' })).toBe(true);
     });

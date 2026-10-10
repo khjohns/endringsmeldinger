@@ -31,7 +31,7 @@
     requireEventId,
   } from '$lib/kontraktsbord/submission.svelte';
   import type { ResponsGrunnlagEventData } from '$lib/types/timeline';
-  import { erEndringsordre } from '$lib/kontraktsbord/endringsordre';
+  import { ENDRINGSORDREVARSEL, erEndringsordre } from '$lib/kontraktsbord/endringsordre';
   const submission = createSubmission(() => draft.clear());
 
   let {
@@ -289,11 +289,7 @@
       {#if endringsordre}
         <div class="consequence-notice" role="note">
           <span class="notice-mark" aria-hidden="true"></span>
-          <p>
-            Svaret er en endringsordre etter § 32.3 første ledd a, fordi byggherren godkjenner
-            ansvarsgrunnlaget uten å påberope at varselet kom for sent (§ 32.2). Totalentreprenøren
-            blir forpliktet til å utføre endringsarbeidet (§ 31.3 annet ledd).
-          </p>
+          <p>{ENDRINGSORDREVARSEL}</p>
         </div>
       {/if}
     {/if}
