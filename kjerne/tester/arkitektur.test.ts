@@ -199,12 +199,13 @@ type Klasse =
   | 'frosset'
   /** Utledet av utsagnene og relasjonene, med vedtaket ved siden av (`utled.ts`, 2.6). */
   | 'predikat'
-  /** Utfallet og enighetsgrunnlaget, regnet av de frosne standpunktene og ikke lagret (MM-U11). */
-  | 'utledet'
   /** Regelsettet: inndata og utdata når ett svar regnes ut av byggherrens vurderinger (B-13). */
   | 'regelsett'
-  /** Serverens utregning, lagret i svaret, lest bare når brevet fryses (B-13, MM-U11). */
-  | 'utregning'
+  /**
+   * Byggherrens frosne svar etter B-13, i serverens utregning: «godkjent eller
+   * avslått, beløp eller dager» (MM-U11). Leses bare når brevet fryses.
+   */
+  | 'frosset svar'
   /** Kommandoen klienten sender, før den er godtatt. */
   | 'kommando'
   /** Det serveren stempler og kjernens versjoner. Klienten bestemmer ingen av dem. */
@@ -237,8 +238,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, moduler?: string[]][
   ['Svar', 'relasjon', 'id spor gjelder erstatter'],
   ['Svar', 'utsagn', 'utsagn'],
   ['Svar', 'frosset', 'beslutningsgrunnlag'],
-  ['Svar', 'utregning', 'utregning', ['standpunkt.ts']],
-  ['Svar.utregning', 'utregning', 'beregnings_resultat', ['standpunkt.ts']],
+  ['Svar', 'frosset svar', 'utregning', ['standpunkt.ts']],
+  ['Svar.utregning', 'frosset svar', 'beregnings_resultat', ['standpunkt.ts']],
   ['Utsagn', 'relasjon', 'id art gjelder dokument'],
   ['Utsagn', 'utsagn', 'hjemmel iTide resultat godkjent oppfylt vurdert hva'],
   ['Opplysning', 'relasjon', 'id oppgittAv'],
@@ -261,9 +262,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, moduler?: string[]][
   ['Svarberegning', 'relasjon', 'svar'],
   ['Svarberegning', 'frosset', 'standpunkter'],
   ['Svarberegning', 'predikat', 'uavklart'],
-  ['Enighet', 'utledet', 'grunnlag'],
-  ['Enighetsgrunnlag', 'utledet', 'kilde utfall vilkaar'],
-  ['Utfall', 'utledet', 'grunnlag'],
+  ['Enighet', 'predikat', 'grunnlag'],
+  ['Enighetsgrunnlag', 'predikat', 'kilde vilkaar'],
   ['utled.ts', 'predikat', 'utled kraveneErAvgjort'],
 
   // Standpunktene og det brevet fryser (standpunkt.ts).
@@ -274,7 +274,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, moduler?: string[]][
      utenforOmfanget`,
   ],
   ['standpunkt.ts', 'frosset', 'hovedgrunn utsagnet'],
-  ['standpunkt.ts', 'utledet', 'utfall enighetsgrunnlag'],
+  ['standpunkt.ts', 'predikat', 'enighetsgrunnlag'],
   ['standpunkt.ts:regnUtSvar', 'utsagn', 'krav grunnlagskrav'],
   ['standpunkt.ts:kategori', 'utsagn', 'hovedkategori underkategori'],
   [
@@ -412,6 +412,18 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, moduler?: string[]][
   ],
   // Varselet utledet av et fristkrav (MM-U1).
   ['leser.ts', 'relasjon', 'utledetVarsel'],
+];
+
+/**
+ * Lesinger av en oppsummering som står i dag, med issuet som fjerner dem:
+ * `[modul, nøkkel, begrunnelse]`. `utfall()` er en lukket mengde, `avklart`
+ * eller `avvist`, som slår sammen § 32.3 a og c, og ingen regel skal lese den,
+ * heller ikke utledet. Lista er lukket: den kan bare bli kortere.
+ */
+const KJENTE_AVVIK: [modul: string, noekkel: string, begrunnelse: string][] = [
+  ['utled.ts', 'standpunkt.ts.utfall', '#273: grunnlagAvklart skal lese standpunktene direkte'],
+  ['utled.ts', 'Utfall.grunnlag', '#273: grunnlagAvklart og grunnlagAvvist leser utfallet'],
+  ['utled.ts', 'Enighetsgrunnlag.utfall', '#273: grunnlagAvvist skal lese standpunktene direkte'],
 ];
 
 /** Én lesing i en regel: modulen, linjen og nøkkelen `eier.felt` den slås opp med i `LESBART`. */
@@ -679,10 +691,11 @@ export function lesinger(p: ts.Program, moduler: string[]): Lesing[] {
   return ut;
 }
 
-/** Lesingene `LESBART` ikke tillater. */
+/** Lesingene `LESBART` ikke tillater, utenom de kjente avvikene. */
 export function ikkeTillatt(l: Lesing[]): Lesing[] {
   return l.filter(
     ({ modul, noekkel }) =>
+      !KJENTE_AVVIK.some(([m, k]) => m === modul && k === noekkel) &&
       !LESBART.some(
         ([eier, , felt, moduler]) =>
           felt.split(/\s+/).some((f) => `${eier}.${f}` === noekkel) &&
@@ -707,6 +720,24 @@ describe('reglene leser bare det LESBART tillater (#308, #329)', () => {
       felt.split(/\s+/).map((f) => `${eier}.${f}`)
     ).filter((k) => !lest.has(k));
     expect(ubrukt).toEqual([]);
+  });
+
+  it('de kjente avvikene leses fortsatt, og står ikke i LESBART', () => {
+    for (const [modul, noekkel] of KJENTE_AVVIK) {
+      expect(alleLesinger.some((l) => l.modul === modul && l.noekkel === noekkel)).toBe(true);
+      expect(
+        LESBART.some(
+          ([eier, , felt]) =>
+            noekkel.startsWith(`${eier}.`) &&
+            felt.split(/\s+/).includes(noekkel.slice(eier.length + 1))
+        )
+      ).toBe(false);
+    }
+  });
+
+  it('de kjente avvikene er bare lesingene av utfallet fra #273', () => {
+    const fra273 = new Set(['standpunkt.ts.utfall', 'Utfall.grunnlag', 'Enighetsgrunnlag.utfall']);
+    expect(KJENTE_AVVIK.filter(([, noekkel]) => !fra273.has(noekkel))).toEqual([]);
   });
 
   it('finner lesingene i reglene', () => {
