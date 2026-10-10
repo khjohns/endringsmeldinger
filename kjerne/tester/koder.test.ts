@@ -123,11 +123,11 @@ describe('oversettelsen fra katalogen', () => {
 });
 
 describe('svarutkastet blir en endringsordre som brevet det gir (#351, GR-U12)', () => {
-  const VARSLET = [true, false, undefined] as const;
+  const varsletVerdier = [true, false, undefined] as const;
   const sammenliknet = new Set<boolean>();
   const tilfeller = PAR.flatMap(([h, u]) =>
     GRUNNLAGSRESULTATER.flatMap((resultat) =>
-      VARSLET.map((varslet) => [h, u, resultat, varslet] as const)
+      varsletVerdier.map((varslet) => [h, u, resultat, varslet] as const)
     )
   );
 

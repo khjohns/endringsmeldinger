@@ -18,8 +18,10 @@ export function erEndringMedVarslingsplikt(
 }
 
 export function erPaalegg(hovedkategori: string | null, underkategori: string | null): boolean {
-  return hovedkategori === 'endring' &&
-    (underkategori === 'irregulaer_endring' || underkategori === 'valg_av_loesning');
+  return (
+    hovedkategori === 'endring' &&
+    (underkategori === 'irregulaer_endring' || underkategori === 'valg_av_loesning')
+  );
 }
 
 export function erPrekludert(

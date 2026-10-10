@@ -427,9 +427,9 @@ describe('rader fra en annen skriver som strider mot en enighet eller «ingen kr
       data: { krav: [{ id: randomUUID(), spor, ...innhold }] },
     });
     expect(forstaatt([...journal, en, krav('frist', { dager: 20 })])).toBe(true);
-    expect(
-      forstaatt([...journal, en, krav('vederlag', { metode: 'tilbud', beloep: 1000 })])
-    ).toBe(false);
+    expect(forstaatt([...journal, en, krav('vederlag', { metode: 'tilbud', beloep: 1000 })])).toBe(
+      false
+    );
   });
 });
 

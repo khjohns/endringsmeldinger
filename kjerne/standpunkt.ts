@@ -93,7 +93,9 @@ export function standpunktet<A extends Standpunkt['art']>(svar: Svarinnhold, art
  */
 export function grunnlagetErAvklart(svar: Svarinnhold, v: Standpunktsvirkning[]): boolean {
   const resultat = standpunktet(svar, 'grunnlag')?.resultat;
-  return !preklusjonPaaberopt(svar, v) && (resultat === 'godkjent' || resultat === 'paalegg_frafalt');
+  return (
+    !preklusjonPaaberopt(svar, v) && (resultat === 'godkjent' || resultat === 'paalegg_frafalt')
+  );
 }
 
 /** MM-U13: byggherren påberoper prinsipalt preklusjon etter § 32.2 i svaret på grunnlaget. */

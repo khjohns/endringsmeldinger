@@ -3,8 +3,9 @@
  * modellforslaget, F8–F10 feilklassene reviewet av PR #306 fant, skrevet om etter
  * MM-U9 og GR-U10, F11–F26 grensene #308 la til, og F27–F47 formatet (#273): 7.2
  * i designnotatet, GR-U12 og registeret (#320). F48 er hvitelisten fra #329,
- * F49–F51 og F54–F58 versjoneringen (#316) og F52–F53 registrert korrespondanse
- * (#336). Én mutasjon om gangen i arbeidskopien, Vitest over `kjerne/` og
+ * F49–F51 og F54–F58 versjoneringen (#316), F52–F53 registrert korrespondanse
+ * (#336) og F59–F61 kodene i formatet og predikatet for endringsordre (#335,
+ * #351). Én mutasjon om gangen i arbeidskopien, Vitest over `kjerne/` og
  * `sprakprove/kjernelagring/`, og originalteksten settes tilbake etterpå. For
  * hver mutasjon kreves det at de forventede målassertions feiler, og at alle
  * feil er assertions, ikke import, oppsett eller en brutt forutsetning
@@ -633,6 +634,36 @@ const MUTASJONER: Mutasjon[] = [
       ['WHERE sak_id = $1 AND prosjekt_id = $7`,', 'WHERE sak_id = $1 AND $7::text IS NOT NULL`,'],
     ],
     mal: ['lar bufferen holde seg i prosjektet'],
+  },
+  {
+    id: 'F59',
+    feilklasse: 'kategorien er ikke et par fra den lukkede listen (#335, HF-U1)',
+    fil: `${K}/format.ts`,
+    endringer: [['    anyOf: KATEGORIPAR,\n', '']],
+    mal: [
+      'avviser en underkategori under feil hovedkategori',
+      'en lagret rad med katalogens koder er ikke forstått',
+    ],
+  },
+  {
+    id: 'F60',
+    feilklasse:
+      'endringsordre etter § 32.3 a uten at § 32.2 gjaldt kategorien (GR-U11, GR-U12, #351)',
+    fil: `${K}/standpunkt.ts`,
+    endringer: [['return b.sammenfall && b.varslingsplikt === true;', 'return b.sammenfall;']],
+    mal: ['F-MM-G13', 'F-MM-G14', 'F-MM-G19'],
+  },
+  {
+    id: 'F61',
+    feilklasse: 'svarutkastet får andre standpunkter enn brevet (#351)',
+    fil: `${K}/skriving.ts`,
+    endringer: [
+      [
+        'standpunkter: grunnlagsstandpunkter(vurderinger, krav,',
+        'standpunkter: grunnlagsstandpunkter({ resultat: vurderinger.resultat }, krav,',
+      ],
+    ],
+    mal: ['svarutkastet blir en endringsordre som brevet det gir'],
   },
 ];
 
