@@ -4,7 +4,11 @@
 # 1. B-13 (hovedplanen 3.1, 24.09) og #191: endres reglene i src/lib/domain/
 #    eller backend/regler/, må REGELVERSJON økes i begge speilene.
 # 2. B-14 (merknaden 09.10) og #308: endres regelsettet i kjerne/regler/, må
-#    REGELVERSJON i kjerne/regler/regelsett.ts økes. Endres resten av
+#    REGELVERSJON i kjerne/regler/regelsett.ts økes. Det samme gjelder
+#    kjerne/standpunkt.ts, som bestemmer hva beslutningsgrunnlaget fryser
+#    (MM-U11, #330). Den krever også PROJEKSJONSVERSJON, som resten av
+#    kjernen. Finnes kjerne/ uten standpunkt.ts, feiler vakten, så kravet
+#    ikke forsvinner ved en omdøping. Endres resten av
 #    TS-koden i kjernen utenom testene, må PROJEKSJONSVERSJON i
 #    kjerne/versjon.ts økes, fordi et bufret resultat ellers kan brukes av en
 #    kjerne som regner annerledes (2.7 i modellforslaget).
@@ -64,9 +68,15 @@ versjon=kjerne/versjon.ts
 les_regelversjon() { sed -n 's/^export const REGELVERSJON = \([0-9][0-9]*\);$/\1/p'; }
 les_projeksjon() { sed -n 's/^export const PROJEKSJONSVERSJON = \([0-9][0-9]*\);$/\1/p'; }
 echo
-regler=$(git diff --name-only "$BASE"...HEAD -- ':(glob)kjerne/regler/**/*.ts') || exit 2
+standpunkt=kjerne/standpunkt.ts
+if [ -d kjerne ] && [ ! -f "$standpunkt" ]; then
+  echo "::error::$standpunkt finnes ikke. Flytt kravet om REGELVERSJON i $0 med funksjonene som bestemmer hva beslutningsgrunnlaget fryser."
+  feil=1
+fi
+regler=$(git diff --name-only "$BASE"...HEAD -- ':(glob)kjerne/regler/**/*.ts' \
+  "$standpunkt") || exit 2
 if [ -z "$regler" ]; then
-  echo "Ingen endring i kjerne/regler/."
+  echo "Ingen endring i kjerne/regler/ eller kjerne/standpunkt.ts."
 else
   echo "Endret i regelsettet:"; echo "$regler"
   if ! okt "$regelsett" les_regelversjon; then

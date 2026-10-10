@@ -84,9 +84,18 @@ som ikke er vedtatt i sin helhet, og i [domenetabellen](docs/domenetabell/README
 **TS eier KOE, endringsordre og forsering (B-17).** Kjernen ligger i `kjerne/`
 (B-14) og er ren kode: den importerer ingenting utenfor mappa, ingen `pg` og
 ingen server, og ingen regel når visningen eller bufferen. Arkitekturtesten i
-`kjerne/tester/` håndhever det. Regelsettet står i `kjerne/regler/`; endres det,
-økes `REGELVERSJON` der. Endres resten av kjernen, økes `PROJEKSJONSVERSJON` i
-`kjerne/versjon.ts`. Regelversjonsvakten i CI krever begge. Lagringstestene mot
+`kjerne/tester/` håndhever det. Den håndhever også hva reglene leser: hvert felt
+og hver importert verdi som er deklarert i kjernen, står i hvitelisten `LESBART`
+med en klasse, som utsagn, relasjon, frosset eller predikat, og eventuelt de
+modulene eller funksjonene som får lese det. En oppsummering har ingen klasse, så
+et nytt felt eller en ny import med en oppsummering gir rød test til den er
+klassifisert. Testen ser ikke alt, for eksempel ikke en status som en funksjon i
+samme modul regner ut og returnerer; grensene står i modulheaderen i testen. Et
+nytt felt reglene leser, klassifiseres der. Kjente avvik står i en lukket
+liste med issuet som fjerner dem. Regelsettet står i `kjerne/regler/`; endres det, økes
+`REGELVERSJON` der. Endres resten av kjernen, økes `PROJEKSJONSVERSJON` i
+`kjerne/versjon.ts`. `kjerne/standpunkt.ts` bestemmer hva beslutningsgrunnlaget
+fryser, så endres den, økes begge. Regelversjonsvakten i CI krever det. Lagringstestene mot
 testbasen står i `sprakprove/kjernelagring/`. `sprakprove/` er prøvekode og ikke
 en mal. Python-koden
 for de tre sakstypene er overgangskode og rettes bare for sikkerhet og det som
@@ -298,8 +307,9 @@ eller migrasjonene, uansett språk, ellers `medium`; en diff som bare rører
 `docs/`, trenger ingen. Endrer diffen utledningen eller reglene i domenet, kommer i
 tillegg en review av samspillet mellom reglene, i ny kontekst og med reglene og
 bevis-sakene samlet. Rett funnene; et funn du avviser, står med begrunnelse
-under «Åpne spørsmål» i PR-beskrivelsen. `/simplify` kjøres bare når
-oppdragsgiver ber om det.
+under «Åpne spørsmål» i PR-beskrivelsen. `/simplify` kjøres når oppdragsgiver
+ber om det eller godkjenner orkestratorens forslag, og da før `/code-review`,
+slik at reviewet ser den endelige koden.
 
 **Oppdragsgiver vil ha spørsmål, ikke dokumenter å lese.** Kartlegg selv. Der
 noe bare oppdragsgiver kan avgjøre, still konkrete spørsmål med
