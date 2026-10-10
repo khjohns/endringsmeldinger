@@ -165,9 +165,10 @@ export class Kjoering {
         if (!(feil instanceof Uforstaatt)) throw feil;
       }
       await this.bane.skriv([rad], versjon);
-      if (typeof h.dokument === 'string')
+      const etikett = typeof h.dokument === 'string' ? h.dokument : h.navn;
+      if (typeof etikett === 'string')
         for (const o of (rad.data.opplysninger ?? []) as { id: string; hva: string }[])
-          this.navn.sett(`${h.dokument}#${o.hva}`, o.id);
+          this.navn.sett(`${etikett}#${o.hva}`, o.id);
       this.sist = { utfall: { godtatt: true, hendelser: [rad] }, nye: 1 };
       return this.sist.utfall;
     }

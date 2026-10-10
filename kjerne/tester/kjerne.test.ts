@@ -466,6 +466,31 @@ describe('opplysningen om § 31.3 i registrert korrespondanse', () => {
     expect(riktig.godtatt).toBe(true);
   });
 
+  it('en avklaring gjelder ett registrert brev, og to opplysninger om samme brev er ikke forstått (MM-U12)', async () => {
+    const bane = minnebane();
+    const k = await bygg(bane, [
+      'krav_irreg',
+      registrert({ sendt: '2026-09-30' }),
+      { handling: 'rad', avklarer: 'D4', oppfylt: true, navn: 'D5' },
+    ]);
+    const journal = await bane.journal();
+    expect(forstaatt(journal)).toBe(true);
+    const igjen = structuredClone(journal.at(-1)!);
+    igjen.event_id = randomUUID();
+    igjen.versjon += 1;
+    (igjen.data.opplysninger as Data[])[0].id = randomUUID();
+    expect(forstaatt([...journal, igjen])).toBe(false);
+    // Kontrollsak: et brev sendt i appen er ikke registrert korrespondanse og avklares ikke.
+    const app = minnebane();
+    const a = await bygg(app, ['krav_irreg', registrert({})]);
+    const appJournal = await app.journal();
+    const avklaring = structuredClone(journal.at(-1)!);
+    avklaring.versjon = appJournal.at(-1)!.versjon + 1;
+    (avklaring.data.opplysninger as Data[])[0].gjelder = a.navn.id('D4');
+    expect(forstaatt([...appJournal, avklaring])).toBe(false);
+    expect(k.navn.id('D5')).toBe(journal.at(-1)!.event_id);
+  });
+
   it('korrespondanse som bare er mottatt, er også registrert, og uten opplysningen er det ikke avklart', async () => {
     const k = await bygg(minnebane(), ['krav_irreg', registrert({})]);
     expect((await k.utledning()).endringsordre).toBe('ja');

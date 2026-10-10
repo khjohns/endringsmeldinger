@@ -22,7 +22,15 @@ export type Hjemmel = '32.2' | '33.4';
  */
 export type Opplysning =
   | { id: string; dokument: string; hva: 'sendt' | 'mottatt'; dato: string; oppgittAv: Part }
-  | { id: string; dokument: string; hva: 'endringsordre'; oppfylt: boolean; oppgittAv: Part };
+  | {
+      id: string;
+      dokument: string;
+      hva: 'endringsordre';
+      oppfylt: boolean;
+      oppgittAv: Part;
+      /** Brevet opplysningen gjelder: dokumentet selv, eller et registrert brev før det (MM-U12). */
+      brev: string;
+    };
 
 /**
  * Byggherrens standpunkter i ett svar. Standpunktene gjelder kravet svaret

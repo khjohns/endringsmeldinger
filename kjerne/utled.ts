@@ -300,6 +300,27 @@ export function utled(journal: Domenehendelse[], regler: Regelsett): Utledning {
     if (!k || gjeldende?.id !== k.id)
       ugyldig(t.id, 'trekket viser ikke til gjeldende kravversjon i sporet');
   }
+  // MM-U12, GR-U13: en avklaring gjelder et registrert brev med et svar på grunnlaget før
+  // den, og det står høyst én opplysning om § 31.3 per brev. Rettelse følger B-16.
+  const dokumenter = new Map(
+    journal.flatMap((h) => (h.art === 'dokument' ? [[h.id, h.dokument] as const] : []))
+  );
+  for (const o of opplysninger) {
+    if (o.hva !== 'endringsordre') continue;
+    const brev = dokumenter.get(o.brev);
+    if (
+      opplysninger.filter((x) => x.hva === 'endringsordre' && x.brev === o.brev).length > 1 ||
+      (o.brev !== o.dokument &&
+        (!brev ||
+          !bakover(o.id, o.brev) ||
+          !erRegistrert(brev.opplysninger) ||
+          !brev.svar.some((s) => s.spor === 'grunnlag')))
+    )
+      ugyldig(
+        o.id,
+        'opplysningen om § 31.3 gjelder ikke ett registrert svar på grunnlaget før den, eller står to ganger'
+      );
+  }
   for (const b of bestridelser) {
     const o = alleOpplysninger.get(b.gjelder);
     if (
@@ -384,8 +405,9 @@ export function utled(journal: Domenehendelse[], regler: Regelsett): Utledning {
   // opplysningen fra den som registrerte. Mangler den, er det ikke avklart; kjernen
   // gjetter ikke. En bestridelse av opplysningen har ingen virkning på utfallet (MM-U7).
   const iBrevet = opplysninger.filter((o) => o.dokument === gSvar?.dokument);
-  const om313 = iBrevet.find(
-    (o): o is Extract<Opplysning, { hva: 'endringsordre' }> => o.hva === 'endringsordre'
+  const om313 = opplysninger.find(
+    (o): o is Extract<Opplysning, { hva: 'endringsordre' }> =>
+      o.hva === 'endringsordre' && o.brev === gSvar?.dokument
   );
   const endringsordre: Utledning['endringsordre'] = !sammenfallMedVarslingsplikt
     ? 'nei'

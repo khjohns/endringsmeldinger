@@ -2231,6 +2231,52 @@
       ]
     },
     {
+      "id": "F-MM-G22",
+      "rader": ["GR-29"],
+      "start": "krav_irreg",
+      "forslag": "MM-U12 og KA-U14: en senere avklaring av at registrert korrespondanse ikke var en endringsordre, opphever sperren, uten at brevet skrives om",
+      "forventningsgrunnlag": "avklart_tolkning",
+      "steg": [
+        {
+          "handling": "rad",
+          "spor": "grunnlag",
+          "navn": "S-g1",
+          "dokument": "D4",
+          "gjelder": "K-g1",
+          "resultat": "godkjent",
+          "sendt": "2026-09-30"
+        },
+        { "handling": "rad", "avklarer": "D4", "oppfylt": false, "navn": "D5" },
+        { "handling": "trekk", "spor": "grunnlag", "navn": "D6" }
+      ],
+      "kontroller": [
+        {
+          "etter": 1,
+          "rolle": "kontroll",
+          "kilde": ["KA-U13", "GR-U12"],
+          "prov": { "handling": "trekk", "spor": "grunnlag" },
+          "forventet": { "avvist": true, "regel": "ENDRINGSORDRE_IKKE_AVKLART" }
+        },
+        {
+          "etter": 2,
+          "rolle": "mal",
+          "kilde": ["MM-U9", "GR-U12", "KA-U13"],
+          "forventet": {
+            "forstaatt": true,
+            "opplysning.D5#endringsordre.oppfylt": false,
+            "endringsordre": "nei",
+            "handlinger.TE": { "inneholder": ["trekke:grunnlag"] }
+          }
+        },
+        {
+          "etter": 3,
+          "rolle": "mal",
+          "kilde": ["KA-U6", "GR-U5", "KA-U13"],
+          "forventet": { "avvist": false, "trukket.grunnlag": true }
+        }
+      ]
+    },
+    {
       "id": "F-MM-G19",
       "rader": ["GR-28"],
       "start": "krav_eo",
