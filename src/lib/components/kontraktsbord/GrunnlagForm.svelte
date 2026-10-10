@@ -31,6 +31,7 @@
     requireEventId,
   } from '$lib/kontraktsbord/submission.svelte';
   import type { ResponsGrunnlagEventData } from '$lib/types/timeline';
+  import { ENDRINGSORDREVARSEL, erEndringsordre } from '$lib/kontraktsbord/endringsordre';
   const submission = createSubmission(() => draft.clear());
 
   let {
@@ -87,6 +88,9 @@
     review?.restored('grunnlag')?.form
   );
   const prekludert = $derived(erPrekludert(formState, domainConfig));
+  const endringsordre = $derived(
+    erEndringsordre(domainConfig.grunnlagEvent, { resultat, varsletITide })
+  );
   const verdictOptions = $derived(getVerdictOptions(domainConfig));
   const teDisplay = $derived(store.display('ansvar'));
   const teEvents = $derived(
@@ -280,6 +284,12 @@
               ? 'Varselet er vurdert som for sent. Vurderingen av ansvarsgrunnlaget gjelder subsidiært.'
               : 'Vederlags- og fristkravet behandles subsidiært.'}
           </p>
+        </div>
+      {/if}
+      {#if endringsordre}
+        <div class="consequence-notice" role="note">
+          <span class="notice-mark" aria-hidden="true"></span>
+          <p>{ENDRINGSORDREVARSEL}</p>
         </div>
       {/if}
     {/if}
