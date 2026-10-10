@@ -40,9 +40,12 @@ import type {
   Virkning,
 } from './typer.ts';
 
-/** Dokumentet er registrert korrespondanse: det er sendt eller mottatt utenfor appen (4.1). */
-export const erRegistrert = (opplysninger: { hva: string }[]): boolean =>
-  opplysninger.some((o) => o.hva === 'sendt' || o.hva === 'mottatt');
+/**
+ * Dokumentet er registrert korrespondanse: det er sendt eller mottatt utenfor appen
+ * (4.1). En opplysning som gjelder et varsel i dokumentet, teller ikke (HF-U1).
+ */
+export const erRegistrert = (opplysninger: { hva: string; gjelder?: string }[]): boolean =>
+  opplysninger.some((o) => (o.hva === 'sendt' || o.hva === 'mottatt') && o.gjelder === undefined);
 
 /** MM-U7: en opplysning om § 31.3 bestrides som det, en dato som sendt eller mottatt. */
 export const sammeSlag = (opplysning: string, bestridelse: string): boolean =>
@@ -149,7 +152,7 @@ function lesBeslutningsgrunnlag(
   const art = new Map(standpunkter.map((s) => [s.id, s.art]));
   const sett = new Set<string>();
   // Prinsipalt og subsidiært er slik brevet ordner standpunktene; uten virkning er
-  // appens vurdering og står for seg (oppdragsgiver 10.10).
+  // appens vurdering og står for seg (HF-U2).
   const innslag = [
     ...(b.virkninger as Data[]).map((p) => [p.standpunkt, p.virkning] as const),
     ...((b.uten_virkning ?? []) as string[]).map((id) => [id, 'uten_virkning'] as const),
@@ -247,6 +250,7 @@ function lesDokument(h: Journalrad): Dokument {
           hva: o.hva as 'sendt' | 'mottatt',
           dato: o.dato as string,
           oppgittAv: avsender,
+          ...(typeof o.gjelder === 'string' ? { gjelder: o.gjelder } : {}),
         };
   });
   // Opplysningen om § 31.3 i brevet selv hører til registrert korrespondanse med et svar
@@ -260,7 +264,7 @@ function lesDokument(h: Journalrad): Dokument {
     throw new Uforstaatt(
       'opplysningen om endringsordre står uten et registrert svar på grunnlaget i dokumentet'
     );
-  return {
+  const dokument: Dokument = {
     id,
     avsender,
     registrert: h.tidsstempel,
@@ -287,6 +291,15 @@ function lesDokument(h: Journalrad): Dokument {
         : (e as unknown as Utsagn);
     }),
   };
+  // HF-U1: en datoopplysning med `gjelder` gjelder et varsel i samme dokument.
+  for (const o of dokument.opplysninger)
+    if (
+      o.hva !== 'endringsordre' &&
+      o.gjelder !== undefined &&
+      !dokument.utsagn.some((u) => u.art === 'varsel' && u.id === o.gjelder)
+    )
+      throw new Uforstaatt('opplysningen gjelder ikke et varsel i dokumentet');
+  return dokument;
 }
 
 /** Journalen i kjernens form. En rad leseren ikke forstår, blir `ukjent`, ikke hoppet over. */

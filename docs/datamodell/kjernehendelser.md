@@ -53,8 +53,8 @@ Hver rad har kolonnen `format`. `data` har ingen `null`, ingen tom liste og inge
 
 | Hva | Innhold | Felt | Grunnlag |
 | --- | --- | --- | --- |
-| `sendt` | Når dokumentet ble sendt utenfor appen. Et dokument med `sendt` eller `mottatt` er registrert korrespondanse. | `id`, `hva`, `dato` | Modellforslaget 2.4, MM-U1 |
-| `mottatt` | Når dokumentet ble mottatt. | `id`, `hva`, `dato` | Modellforslaget 2.4, MM-U7 |
+| `sendt` | Når dokumentet ble sendt utenfor appen. Et dokument med `sendt` eller `mottatt` uten `gjelder` er registrert korrespondanse. Med `gjelder` gjelder datoen et varsel i dokumentet, for eksempel et varsel sendt før kravet det står i (HF-U1). | `id`, `hva`, `dato`, `gjelder` | Modellforslaget 2.4, MM-U1 |
+| `mottatt` | Når dokumentet ble mottatt, eller med `gjelder`, varselet i dokumentet. | `id`, `hva`, `dato`, `gjelder` | Modellforslaget 2.4, MM-U7 |
 | `endringsordre` | Om registrert korrespondanse med et svar på grunnlaget var en endringsordre etter § 31.3, oppgitt av den som registrerer, med vedlegget i `dokumentasjon`. Registratorens vurdering, ikke en rettslig avgjørelse. Uten `gjelder` står den i brevet selv. En senere avklaring er et nytt dokument med bare opplysningen, der `gjelder` er det registrerte brevet, som ikke skrives om. Det står høyst én slik opplysning per brev. Uten opplysningen er det ikke avklart om svaret er en endringsordre, og trekket av grunnlaget er sperret til det er avklart. | `id`, `hva`, `oppfylt`, `gjelder` | § 31.3, § 32.3 a, GR-U13, KA-U14, MM-U12 |
 
 ## Delene

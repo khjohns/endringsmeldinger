@@ -209,15 +209,25 @@ export const STANDPUNKTSARTER = Object.keys(STANDPUNKT) as Standpunktsart[];
 export const UTSAGNSARTER = Object.keys(UTSAGN) as Utsagnsart[];
 
 /**
- * Opplysningene om et dokument, etter `hva`. `endringsordre` gjelder registrert
- * korrespondanse med et svar på grunnlaget: den som registrerer, oppgir om brevet
- * var en endringsordre etter § 31.3 (GR-U13). Uten `gjelder` står den i brevet
- * selv; med `gjelder` er den en senere avklaring av et registrert brev, uten at
- * brevet skrives om (MM-U12).
+ * Opplysningene om et dokument, etter `hva`. `sendt` og `mottatt` uten `gjelder`
+ * gjelder dokumentet, som da er registrert korrespondanse. Med `gjelder` gjelder de
+ * et varsel i dokumentet, for eksempel et varsel sendt før kravet det står i
+ * (HF-U1, MM-U1). `endringsordre` gjelder registrert korrespondanse med et svar på
+ * grunnlaget: den som registrerer, oppgir om brevet var en endringsordre etter
+ * § 31.3 (GR-U13). Uten `gjelder` står den i brevet selv; med `gjelder` er den en
+ * senere avklaring av et registrert brev, uten at brevet skrives om (MM-U12).
  */
 export const OPPLYSNING: Record<'sendt' | 'mottatt' | 'endringsordre', Skjema> = {
-  sendt: objekt({ id: ID, hva: { const: 'sendt' }, dato: DATO }, ['id', 'hva', 'dato']),
-  mottatt: objekt({ id: ID, hva: { const: 'mottatt' }, dato: DATO }, ['id', 'hva', 'dato']),
+  sendt: objekt({ id: ID, hva: { const: 'sendt' }, dato: DATO, gjelder: ID }, [
+    'id',
+    'hva',
+    'dato',
+  ]),
+  mottatt: objekt({ id: ID, hva: { const: 'mottatt' }, dato: DATO, gjelder: ID }, [
+    'id',
+    'hva',
+    'dato',
+  ]),
   endringsordre: objekt(
     { id: ID, hva: { const: 'endringsordre' }, oppfylt: { type: 'boolean' }, gjelder: ID },
     ['id', 'hva', 'oppfylt']

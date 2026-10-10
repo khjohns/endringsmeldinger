@@ -192,14 +192,17 @@ grunnlag = "B-13, vedtaket 05.10 (#211)"
 
 [[opplysning]]
 hva = "sendt"
-beskrivelse = "Når dokumentet ble sendt utenfor appen. Et dokument med `sendt` eller `mottatt` er registrert korrespondanse."
-felt = ["id", "hva", "dato"]
+beskrivelse = """
+Når dokumentet ble sendt utenfor appen. Et dokument med `sendt` eller `mottatt`
+uten `gjelder` er registrert korrespondanse. Med `gjelder` gjelder datoen et
+varsel i dokumentet, for eksempel et varsel sendt før kravet det står i (HF-U1)."""
+felt = ["id", "hva", "dato", "gjelder"]
 grunnlag = "Modellforslaget 2.4, MM-U1"
 
 [[opplysning]]
 hva = "mottatt"
-beskrivelse = "Når dokumentet ble mottatt."
-felt = ["id", "hva", "dato"]
+beskrivelse = "Når dokumentet ble mottatt, eller med `gjelder`, varselet i dokumentet."
+felt = ["id", "hva", "dato", "gjelder"]
 grunnlag = "Modellforslaget 2.4, MM-U7"
 
 [[opplysning]]

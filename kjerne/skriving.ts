@@ -41,7 +41,7 @@ export function utledJournal(journal: Journalrad[], kjerne: Kjerne): Utledning {
 /**
  * Beslutningsgrunnlaget i formatet. Virkningene viser til standpunktet, og arten
  * leses derfra. Standpunktene uten virkning står for seg, fordi det er appens
- * vurdering og ikke noe byggherren har sagt (oppdragsgiver 10.10).
+ * vurdering og ikke noe byggherren har sagt (HF-U2).
  */
 function lagret({ virkninger, ...resten }: Beslutningsgrunnlag): Data {
   const uten = virkninger.filter((v) => v.virkning === 'uten_virkning');
@@ -144,9 +144,11 @@ function dokument(k: Kommando, u: Utledning, kjerne: Kjerne, nyId: () => string)
         ],
       };
       // MM-U1: et varsel i kravet registreres første gang det kommer.
+      // HF-U1: datoen gjelder varselet, ikke kravet, som er sendt i appen.
       if (k.varsel && !u.spor.frist.varsel) {
-        data.utsagn = [{ id: nyId(), art: 'varsel', hjemmel: '33.4' }];
-        data.opplysninger = [{ id: nyId(), hva: 'sendt', dato: k.varsel.sendt }];
+        const varsel = nyId();
+        data.utsagn = [{ id: varsel, art: 'varsel', hjemmel: '33.4' }];
+        data.opplysninger = [{ id: nyId(), hva: 'sendt', dato: k.varsel.sendt, gjelder: varsel }];
       }
       return data;
     }
