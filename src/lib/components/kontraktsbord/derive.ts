@@ -58,7 +58,7 @@ export interface TrackDisplay {
 }
 
 const TRACK_META: Record<SporKey, { label: string; num: string }> = {
-  ansvar: { label: 'Ansvarsgrunnlag', num: '' },
+  ansvar: { label: 'Grunnlag', num: '' },
   vederlag: { label: 'Vederlag', num: '' },
   frist: { label: 'Fristforlengelse', num: '' },
 };
@@ -70,7 +70,7 @@ export interface BhStandpunkt {
 }
 
 /**
- * Er ansvarsgrunnlaget avslått eller prekludert (B-13, 05.10), er hele svaret
+ * Er grunnlaget avslått eller prekludert (B-13, 05.10), er hele svaret
  * subsidiært: beløpet eller dagene er det subsidiære standpunktet, og et eget
  * subsidiært standpunkt i svaret står atter subsidiært, som i brevet.
  */
@@ -108,7 +108,7 @@ function grunnlagetFor(sak: SakState) {
 }
 
 /**
- * Hele svaret er subsidiært når ansvarsgrunnlaget er avslått eller prekludert,
+ * Hele svaret er subsidiært når grunnlaget er avslått eller prekludert,
  * også når beløpet eller dagene er avslått. `er_subsidiaert_*` fra serveren
  * gjelder bare et godkjent beløp; brevet og fullmakten ser på grunnlaget alene.
  * Ved frafall (§ 32.3 c) kan TE kreve påløpte kostnader, og vederlaget er ikke

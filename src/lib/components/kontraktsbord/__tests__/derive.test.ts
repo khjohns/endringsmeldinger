@@ -29,7 +29,7 @@ describe('deriveTrackDisplay', () => {
 
   it('utleder grunnlag-display fra SakState', () => {
     const result = deriveTrackDisplay(scenario1_3AktiveSpor, 'ansvar');
-    expect(result.label).toBe('Ansvarsgrunnlag');
+    expect(result.label).toBe('Grunnlag');
     expect(result.tePosition).toBe(getHjemmelLabel('GRUNN'));
     expect(result.teRef).toBe('§ 23.1');
     expect(result.bhPosition).toBe('Ikke besvart');
@@ -81,7 +81,7 @@ describe('deriveTrackDisplay', () => {
   });
 });
 
-describe('svar på vederlag og frist når ansvarsgrunnlaget er avslått eller prekludert', () => {
+describe('svar på vederlag og frist når grunnlaget er avslått eller prekludert', () => {
   // #214, B-13 (05.10): hele svaret er subsidiært, som i brevet og fullmakten.
   function sakMedGodkjentBelopOgDager() {
     const sak = structuredClone(scenario2_BlandetTilstand);

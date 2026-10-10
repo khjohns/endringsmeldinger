@@ -342,7 +342,7 @@
             {:else if creatingCase}
               {#if !newCaseActions?.reviewing}<NewCaseActionBar
                   canSend={newCaseActions?.canSend ?? false}
-                  sendLabel={newCaseActions?.sendLabel ?? 'Send ansvarsgrunnlag'}
+                  sendLabel={newCaseActions?.sendLabel ?? 'Send grunnlag'}
                   oncancel={closeNewCase}
                   onsend={() => newCaseActions?.send()}
                 />{/if}
