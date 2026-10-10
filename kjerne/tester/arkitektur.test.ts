@@ -253,6 +253,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, moduler?: string[]][
     `forstaatt spor svar opplysninger grunnlagAvklart grunnlagAvvist frafalt
      godkjenningErEndringsordre`,
   ],
+  ['Utledning.svar', 'relasjon', '*'],
   ['Utledning.opplysninger', 'utsagn', 'opplysning'],
   ['Utledning.opplysninger', 'relasjon', 'bestridelser'],
   ['Bestridelse', 'relasjon', 'part'],
@@ -361,12 +362,14 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, moduler?: string[]][
   ['avvisning.ts', 'predikat', 'avvisning'],
   ['typer.ts', 'relasjon', 'SPOR KRAVSPOR'],
   ['skjema.ts', 'skjema', 'erObjekt feilI tekst'],
+  ['skjema.ts.TYPER', 'skjema', '*'],
   [
     'skjema.ts:feilI(s)',
     'skjema',
     `$ref anyOf type const enum minLength minimum exclusiveMinimum items properties required
      additionalProperties`,
   ],
+  ['skjema.ts:feilI(s).properties', 'skjema', '*'],
   ['skjema.ts:oppslag(d)', 'skjema', '*'],
   ['Kontekst', 'kontekst', 'sakId aktoerId part teamId tidspunkt nyId'],
   ['Kjerne', 'kontekst', 'regler format'],
@@ -398,6 +401,9 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, moduler?: string[]][
   ['leser.ts:lesStandpunkter(o)', 'rad', 'utsagn art virkning'],
   ['Lesestand', 'rad', 'sisteKrav fristvarsel', ['leser.ts']],
   ['HENDELSESTYPER', 'rad', 'krav svar trekk', ['leser.ts', 'skriving.ts']],
+  ['leser.ts.SVARTYPER', 'rad', '*', ['leser.ts', 'skriving.ts']],
+  ['leser.ts.KRAVTYPER', 'rad', '*', ['leser.ts']],
+  ['leser.ts.TREKKTYPER', 'rad', '*', ['leser.ts']],
   [
     'leser.ts',
     'rad',
@@ -481,8 +487,8 @@ function eier(d: ts.Declaration, lesested: ts.Node): string | null {
   const sti: string[] = [];
   let bygget = false;
   for (let n: ts.Node | undefined = d.parent; n; n = n.parent) {
-    if ((ts.isPropertySignature(n) || ts.isPropertyAssignment(n)) && ts.isIdentifier(n.name))
-      sti.unshift(n.name.text);
+    if (ts.isPropertySignature(n) || ts.isPropertyAssignment(n))
+      sti.unshift(ts.isIdentifier(n.name) || ts.isStringLiteral(n.name) ? n.name.text : '?');
     else if (ts.isObjectLiteralExpression(n)) bygget = true;
     else if (
       ts.isInterfaceDeclaration(n) ||
@@ -515,6 +521,15 @@ export function lesinger(p: ts.Program, moduler: string[]): Lesing[] {
           noekkel,
         });
     };
+    /** `e` er en konstant med et objekt som bygges i en funksjon `lesested` står i. */
+    const lokaltObjekt = (e: ts.Expression, lesested: ts.Node): boolean => {
+      const d = ts.isIdentifier(e) ? tc.getSymbolAtLocation(e)?.valueDeclaration : undefined;
+      if (!d || !ts.isVariableDeclaration(d) || !d.initializer) return false;
+      if (!ts.isObjectLiteralExpression(d.initializer)) return false;
+      for (let f: ts.Node | undefined = d.parent; f; f = f.parent)
+        if (ts.isFunctionLike(f)) return iFunksjonen(lesested, f);
+      return false;
+    };
     /** Eieren til en verdi uten type: feltet den er lest fra, eller funksjonen og navnet. */
     const opphav = (e: ts.Expression): string => {
       for (;;) {
@@ -537,7 +552,9 @@ export function lesinger(p: ts.Program, moduler: string[]): Lesing[] {
         return felt(e, e.name.text, tc.getSymbolAtLocation(e.name), e.expression) ?? '?';
       if (ts.isElementAccessExpression(e)) return elementer(e)[0] ?? '?';
       if (ts.isIdentifier(e)) {
-        const d = tc.getSymbolAtLocation(e)?.valueDeclaration;
+        const s = tc.getSymbolAtLocation(e);
+        const d = (s && s.flags & ts.SymbolFlags.Alias ? tc.getAliasedSymbol(s) : s)
+          ?.valueDeclaration;
         if (
           d &&
           ts.isVariableDeclaration(d) &&
@@ -546,6 +563,8 @@ export function lesinger(p: ts.Program, moduler: string[]): Lesing[] {
           !ts.isCallExpression(d.initializer)
         )
           return opphav(d.initializer);
+        if (d && ts.isVariableDeclaration(d) && toppnivaa(d))
+          return `${modulnavn(d.getSourceFile().fileName)}.${e.text}`;
         if (d) return `${funksjon(d)}(${e.text})`;
       }
       return `${funksjon(e)}(${e.getText()})`;
@@ -567,10 +586,14 @@ export function lesinger(p: ts.Program, moduler: string[]): Lesing[] {
         const e = eier(d, n);
         return e === null ? null : `${e}.${navn}`;
       }
-      if (deklarasjoner.length) return null;
-      // En nøkkel i en `Record` med type, som `u.spor[n]` eller `u.spor.grunnlag`,
-      // gir en verdi med type, og den leses videre med navn.
-      if (!utenType(tc.getTypeAtLocation(n))) return null;
+      // Et felt utenfor kjernen, som `length`, eller en av de faste nøklene i en
+      // `Record`, som `u.spor.grunnlag`. Verdien har en type og leses videre med navn.
+      if (deklarasjoner.length || (symbol && !utenType(tc.getTypeAtLocation(n)))) return null;
+      // Bare et oppslag med navn i et objekt er en lesing av et felt, ikke et
+      // element i en liste eller et tegn i en streng.
+      const t = kilde && tc.getNonNullableType(tc.getTypeAtLocation(kilde));
+      if (t && !utenType(t) && !tc.getIndexInfoOfType(t, ts.IndexKind.String)) return null;
+      if (kilde && lokaltObjekt(kilde, n)) return null;
       return `${kilde ? opphav(kilde) : `${funksjon(n)}(?)`}.${navn}`;
     };
     /** Nøklene til `a[k]`: navnet når nøkkelen er en streng eller en union av strenger, ellers `*`. */
@@ -600,6 +623,27 @@ export function lesinger(p: ts.Program, moduler: string[]): Lesing[] {
       ts.isBinaryExpression(n.parent) &&
       n.parent.left === n &&
       n.parent.operatorToken.kind === ts.SyntaxKind.EqualsToken;
+    /** `n` er et mønster inne i et annet mønster i en tilordning, eller i `for (… of …)`. */
+    const indreMoenster = (n: ts.Node): boolean => {
+      let c = n;
+      for (;;) {
+        const p = c.parent;
+        if (ts.isPropertyAssignment(p) && p.initializer === c) c = p.parent;
+        else if (
+          ts.isArrayLiteralExpression(p) ||
+          ts.isSpreadElement(p) ||
+          ts.isSpreadAssignment(p) ||
+          ts.isParenthesizedExpression(p)
+        )
+          c = p;
+        else break;
+      }
+      const l = c.parent;
+      return (
+        (c !== n && skrives(c)) ||
+        ((ts.isForOfStatement(l) || ts.isForInStatement(l)) && l.initializer === c)
+      );
+    };
     const besoek = (n: ts.Node) => {
       if (ts.isPropertyAccessExpression(n) && !skrives(n))
         legg(n, felt(n, n.name.text, tc.getSymbolAtLocation(n.name), n.expression));
@@ -612,7 +656,15 @@ export function lesinger(p: ts.Program, moduler: string[]): Lesing[] {
         );
       else if (ts.isObjectLiteralExpression(n) && skrives(n))
         destrukturering(n, (n.parent as ts.BinaryExpression).right);
-      else if (ts.isImportSpecifier(n) && !n.isTypeOnly && !n.parent.parent.isTypeOnly) {
+      // Typen til et indre mønster i en tilordning løses ikke, så hvert felt
+      // får en eier uten oppføring i LESBART.
+      else if (ts.isObjectLiteralExpression(n) && indreMoenster(n))
+        for (const e of n.properties) legg(e, `${funksjon(e)}(?).${e.name?.getText() ?? '?'}`);
+      else if (ts.isImportClause(n) && n.name && !n.isTypeOnly) {
+        const d = tc.getAliasedSymbol(tc.getSymbolAtLocation(n.name)!).declarations?.[0];
+        if (d && iKjernen(d.getSourceFile().fileName))
+          legg(n, `${modulnavn(d.getSourceFile().fileName)}.default`);
+      } else if (ts.isImportSpecifier(n) && !n.isTypeOnly && !n.parent.parent.isTypeOnly) {
         const d = tc.getAliasedSymbol(tc.getSymbolAtLocation(n.name)!).declarations?.[0];
         if (d && iKjernen(d.getSourceFile().fileName))
           legg(
@@ -785,6 +837,54 @@ describe('reglene leser bare det LESBART tillater (#308, #329)', () => {
         regel('return (u.journal.at(-1) as unknown as Journalrad).data;'),
       ],
       'Journalrad.data',
+    ],
+    ['journalen i utledningen', forutsetninger, [regel('return u.journal;')], 'Utledning.journal'],
+    [
+      'et felt i en Record med type',
+      forutsetninger,
+      [regel('return (u as unknown as Record<string, boolean>).avsluttet;')],
+      'forutsetninger.ts:proeve(u).avsluttet',
+    ],
+    [
+      'en standardimport',
+      forutsetninger,
+      [
+        [utled, 'export default function sakensStatus(u: Utledning) {\n  return u.versjon;\n}'],
+        [
+          forutsetninger,
+          "import sakensStatus from './utled.ts';\nexport const proeve = sakensStatus;",
+        ],
+      ],
+      'utled.ts.default',
+    ],
+    [
+      'et nytt felt, destrukturert i flere ledd',
+      forutsetninger,
+      [
+        ferdig,
+        regel(
+          'const { spor: { frist: { ferdig } } } = u as unknown as { spor: { frist: Utledning } };\nreturn ferdig;'
+        ),
+      ],
+      'Utledning.ferdig',
+    ],
+    [
+      'et nytt felt, destrukturert i flere ledd i en tilordning',
+      forutsetninger,
+      [ferdig, regel('let ferdig;\n({ spor: { frist: { ferdig } } } = u as any);\nreturn ferdig;')],
+      'forutsetninger.ts:proeve(?).ferdig',
+    ],
+    [
+      'et nytt felt, destrukturert i for … of',
+      forutsetninger,
+      [ferdig, regel('let ferdig;\nfor ({ ferdig } of [u]);\nreturn ferdig;')],
+      'forutsetninger.ts:proeve(?).ferdig',
+    ],
+    [
+      'en statuskode i journalraden med en Record med type',
+      leser,
+      [iLeseren('  return (data as Record<string, string>).overordnet_status;')],
+      'Journalrad.data.overordnet_status',
     ],
     [
       'en statuskode i journalraden',
