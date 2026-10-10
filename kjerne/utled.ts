@@ -409,13 +409,12 @@ export function utled(journal: Domenehendelse[], regler: Regelsett): Utledning {
 
   const gSvar = spor.grunnlag.gjeldendeSvar;
   const eg = spor.grunnlag.enighet;
-  const sammenfallMedVarslingsplikt = !!gSvar && blirEndringsordre(gSvar.beslutningsgrunnlag);
   // § 31.3: et brev sendt i appen oppfyller den, fordi appen lager brevet (#310). Registrert
   // korrespondanse har en opplysning om at den er sendt eller mottatt, og da avgjør
   // opplysningen fra den som registrerte. Mangler den, er det ikke avklart; kjernen
   // gjetter ikke. En bestridelse av opplysningen har ingen virkning på utfallet (MM-U7).
   const endringsordre = ((): Utledning['endringsordre'] => {
-    if (!sammenfallMedVarslingsplikt) return 'nei';
+    if (!gSvar || !blirEndringsordre(gSvar.beslutningsgrunnlag)) return 'nei';
     if (!erRegistrert(dokumenter.get(gSvar!.dokument)!.opplysninger)) return 'ja';
     const om313 = opplysninger.find(
       (o): o is Extract<Opplysning, { hva: 'endringsordre' }> =>

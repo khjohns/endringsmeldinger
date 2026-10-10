@@ -5,10 +5,15 @@
 
 import { describe, expect, it } from 'vitest';
 import {
+  BELOEPSVURDERING_FRA_KATALOGEN,
+  GRUNNLAGSRESULTAT_FRA_KATALOGEN,
   HOVEDKATEGORIER,
   HOVEDKATEGORI_FRA_KATALOGEN,
   KATEGORIER,
+  METODE_FRA_KATALOGEN,
+  RESULTAT_FRA_KATALOGEN,
   UNDERKATEGORI_FRA_KATALOGEN,
+  UTLOESER_FRA_KATALOGEN,
   fraKatalogen,
   tilKatalogen,
 } from '../koder.ts';
@@ -16,9 +21,15 @@ import { formfeil } from '../kommando.ts';
 import { lesJournal } from '../leser.ts';
 import { erPaalegg, gyldigeResultater } from '../regler/grunnlag.ts';
 import { GJELDENDE_REGLER } from '../regler/regelsett.ts';
-import { GRUNNLAGSRESULTATER } from '../regler/typer.ts';
+import {
+  BELOEPSVURDERINGER,
+  FRISTRESULTATER,
+  GRUNNLAGSRESULTATER,
+  SUBSIDIAERE_UTLOSERE,
+  VEDERLAGSRESULTATER,
+} from '../regler/typer.ts';
 import { gjelderVarslingspliktenForVederlag } from '../regler/vederlag.ts';
-import { svaretBlirEndringsordre } from '../skriving.ts';
+import { svaretBlirEndringsordre } from '../frysing.ts';
 import type { Journalrad } from '../typer.ts';
 import { utled } from '../utled.ts';
 import { KJERNE } from '../versjon.ts';
@@ -101,6 +112,21 @@ describe('reglene med kjernens koder', () => {
 });
 
 describe('oversettelsen fra katalogen', () => {
+  it.each([
+    ['grunnlagsresultatene', GRUNNLAGSRESULTAT_FRA_KATALOGEN, GRUNNLAGSRESULTATER],
+    ['vederlagsresultatene', RESULTAT_FRA_KATALOGEN, VEDERLAGSRESULTATER],
+    ['beløpsvurderingene', BELOEPSVURDERING_FRA_KATALOGEN, BELOEPSVURDERINGER],
+    ['utløserne', UTLOESER_FRA_KATALOGEN, SUBSIDIAERE_UTLOSERE],
+    ['metodene', METODE_FRA_KATALOGEN, ['enhetspriser', 'regningsarbeid', 'tilbud']],
+  ])('dekker %s i kjernen, én til én', (_navn, tabell, verdier) => {
+    expect(Object.values(tabell).sort()).toEqual([...verdier].sort());
+    expect(new Set(Object.values(tabell)).size).toBe(Object.keys(tabell).length);
+  });
+
+  it('dekker fristresultatene', () => {
+    for (const r of FRISTRESULTATER) expect(Object.values(RESULTAT_FRA_KATALOGEN)).toContain(r);
+  });
+
   it('går begge veier uten tap', () => {
     for (const tabell of [HOVEDKATEGORI_FRA_KATALOGEN, UNDERKATEGORI_FRA_KATALOGEN])
       for (const [gammel, ny] of Object.entries(tabell)) {
@@ -124,14 +150,19 @@ describe('oversettelsen fra katalogen', () => {
 
 describe('svarutkastet blir en endringsordre som brevet det gir (#351, GR-U12)', () => {
   const varsletVerdier = [true, false, undefined] as const;
-  const sammenliknet = new Set<boolean>();
   const tilfeller = PAR.flatMap(([h, u]) =>
     GRUNNLAGSRESULTATER.flatMap((resultat) =>
       varsletVerdier.map((varslet) => [h, u, resultat, varslet] as const)
     )
   );
 
-  it.each(tilfeller)('%s/%s, %s, varslet i tide: %s', async (h, u, resultat, varslet) => {
+  /** Predikatet og utledningen av brevet skrivingen gir, eller avvisningen av brevet. */
+  async function sammenlikn(
+    h: string,
+    u: string,
+    resultat: string,
+    varslet: boolean | undefined
+  ): Promise<{ predikat: boolean; brev: boolean | string }> {
     const vurderinger = {
       resultat,
       ...(varslet === undefined ? {} : { grunnlag_varslet_i_tide: varslet }),
@@ -159,14 +190,35 @@ describe('svarutkastet blir en endringsordre som brevet det gir (#351, GR-U12)',
         },
       ],
     });
-    // Et svar kjernen avviser, blir ikke noe brev; predikatet sier da bare hva utkastet ville gitt.
-    if (!brev?.godtatt) return;
-    expect(predikat).toBe((await k.utledning()).endringsordre === 'ja');
-    sammenliknet.add(predikat);
+    if (!brev?.godtatt) return { predikat, brev: brev?.avvisning.regel ?? 'ingen' };
+    return { predikat, brev: (await k.utledning()).endringsordre === 'ja' };
+  }
+
+  it.each(tilfeller)('%s/%s, %s, varslet i tide: %s', async (h, u, resultat, varslet) => {
+    const { predikat, brev } = await sammenlikn(h, u, resultat, varslet);
+    // Et svar skrivingen avviser, blir ikke noe brev. Avvisningen må gjelde vurderingene,
+    // ikke formen, ellers sammenliknes ingenting (code-review av #364).
+    if (typeof brev === 'string') expect(brev).toBe('UGYLDIG_VURDERING');
+    else expect(predikat).toBe(brev);
   });
 
-  it('kontrollsak: begge utfallene er sammenliknet med et brev', () => {
-    expect([...sammenliknet].sort()).toEqual([false, true]);
+  it('kontrollsak: begge utfallene sammenliknes med et brev som godtas', async () => {
+    const ja = await sammenlikn('endring', 'irregulaer_endring', 'godkjent', true);
+    const nei = await sammenlikn('endring', 'irregulaer_endring', 'godkjent', false);
+    expect([ja, nei]).toEqual([
+      { predikat: true, brev: true },
+      { predikat: false, brev: false },
+    ]);
+  });
+
+  it('predikatet kontrollerer ikke vurderingene: uten svar om § 32.2 gir godkjenningen varselet', () => {
+    expect(
+      svaretBlirEndringsordre(
+        { resultat: 'godkjent' },
+        { hovedkategori: 'endring', underkategori: 'irregulaer_endring' },
+        GJELDENDE_REGLER
+      )
+    ).toBe(true);
   });
 
   it.each([undefined, 'GODKJENT', 'avslatt'])(
