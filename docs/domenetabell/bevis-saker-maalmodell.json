@@ -2252,7 +2252,7 @@
       "kontroller": [
         {
           "etter": 1,
-          "rolle": "kontroll",
+          "rolle": "mal",
           "kilde": ["KA-U13", "GR-U12"],
           "prov": { "handling": "trekk", "spor": "grunnlag" },
           "forventet": { "avvist": true, "regel": "ENDRINGSORDRE_IKKE_AVKLART" }
