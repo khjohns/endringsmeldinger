@@ -330,6 +330,10 @@
         "actorrole": { "enum": ["TE", "BH"] },
         "actorteam": { "type": ["string", "null"] },
         "referstoid": { "type": ["string", "null"] },
+        "format": {
+          "type": ["integer", "null"],
+          "description": "Formatversjonen TS-kjernen skrev raden med (#273). `null` i radene Python skriver; flyten leser den ikke."
+        },
         "data": { "type": "object" }
       },
       "required": ["event_id", "sak_id", "event_type", "versjon", "actorid", "actorrole", "referstoid", "data"]

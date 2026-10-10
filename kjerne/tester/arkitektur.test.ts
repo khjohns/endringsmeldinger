@@ -224,7 +224,7 @@ type Klasse =
  * mellomrom. Eieren er typen, konstanten eller modulen feltet er deklarert i,
  * med stien gjennom nestede typer. En lesing fra en verdi uten type, som
  * `Record<string, unknown>`, har det typede feltet den kommer fra som eier, som
- * `Svar.utregning`, eller funksjonen og parameteren, som `svarutsagn(data)`.
+ * `Svar.utregning`, eller funksjonen og parameteren, som `standpunkterISvaret(svar)`.
  * `*` er en lesing med en nøkkel som regnes ut, og tillater alle nøkler. Er
  * `steder` oppgitt, får bare de modulene eller funksjonene (`modul:navn`) lese
  * feltene.
@@ -238,27 +238,36 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['Dokument', 'relasjon', 'avsender'],
   ['Dokument', 'utsagn', 'krav svar utsagn opplysninger'],
   ['Domenehendelse', 'relasjon', 'art id versjon dokument grunn'],
-  ['Krav', 'relasjon', 'id spor'],
+  ['Krav', 'relasjon', 'id spor erstatter'],
   ['Krav', 'utsagn', 'innhold'],
-  ['Krav.innhold', 'utsagn', 'hovedkategori underkategori belop_direkte antall_dager'],
-  ['Svar', 'relasjon', 'id spor gjelder erstatter'],
-  ['Svar', 'utsagn', 'utsagn'],
+  ['Krav.innhold', 'utsagn', 'hovedkategori underkategori beloep dager'],
+  ['Svar', 'relasjon', 'id spor gjelder erstatter dokument'],
+  ['Svar', 'utsagn', 'standpunkter'],
   ['Svar', 'frosset', 'beslutningsgrunnlag'],
   ['Svar', 'frosset svar', 'utregning', ['standpunkt.ts:godkjennerHeleKravet']],
-  ['Svar.utregning', 'frosset svar', 'beregnings_resultat', ['standpunkt.ts:godkjennerHeleKravet']],
-  ['Utsagn', 'relasjon', 'id art gjelder dokument'],
-  ['Utsagn', 'utsagn', 'hjemmel iTide resultat godkjent oppfylt vurdert hva'],
-  ['Opplysning', 'relasjon', 'id oppgittAv'],
-  ['Opplysning', 'utsagn', 'verdi'],
-  ['Beslutningsgrunnlag', 'frosset', 'regelversjon standpunkter sammenfall'],
-  ['Standpunkt', 'frosset', 'utsagn art virkning'],
+  ['Svar.utregning', 'frosset svar', 'resultat', ['standpunkt.ts:godkjennerHeleKravet']],
+  ['Utsagn', 'relasjon', 'id art gjelder spor'],
+  ['Utsagn', 'utsagn', 'hva'],
+  ['Standpunkt', 'relasjon', 'id art gjelder'],
+  ['Standpunkt', 'utsagn', 'hjemmel iTide resultat godkjent oppfylt vurdert'],
+  ['Opplysning', 'relasjon', 'id hva gjelder dokument brev oppgittAv'],
+  ['Opplysning', 'utsagn', 'dato oppfylt'],
+  ['Beslutningsgrunnlag', 'frosset', 'regelversjon virkninger sammenfall varslingsplikt'],
+  ['Standpunktsvirkning', 'frosset', 'standpunkt art virkning'],
 
   // Utledningen (utled.ts).
+  ['Utledning', 'predikat', 'forstaatt spor svar opplysninger grunnlagAvvist frafalt'],
+  // § 31.3 for godkjenningen av grunnlaget (GR-U13, KA-U14): ja, nei eller ikke avklart,
+  // utledet av opplysningene. Leses bare av sperren mot trekk og avvisningen av den.
   [
     'Utledning',
     'predikat',
-    'forstaatt spor svar opplysninger grunnlagAvvist frafalt godkjenningErEndringsordre',
+    'endringsordre',
+    ['utled.ts:trekkAvGrunnlagetErSperret', 'forutsetninger.ts:forutsetninger'],
   ],
+  // Hvorfor saken ikke er forstått, i meldingen når kjernen ikke forstår det den skriver.
+  ['Utledning', 'predikat', 'begrensninger', ['skriving.ts:vurder']],
+  ['Utledning.begrensninger', 'predikat', 'grunn', ['skriving.ts:vurder']],
   // «Avklart» etter GR-U7 brukes bare der vedtakene sier det (MM-U13): vilkåret for
   // enigheten (GR-U7) og at kravene er avgjort (KA-U11, som EO-U5 bygger på).
   [
@@ -271,23 +280,33 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['Utledning.opplysninger', 'utsagn', 'opplysning'],
   ['Utledning.opplysninger', 'relasjon', 'bestridelser'],
   ['Bestridelse', 'relasjon', 'part'],
-  ['Sporutledning', 'predikat', 'krav svar gjeldendeKrav gjeldendeSvar enighet trukket varsel'],
+  [
+    'Sporutledning',
+    'predikat',
+    'krav svar gjeldendeKrav gjeldendeSvar enighet trukket ingenKrav varsel',
+  ],
   ['Svarberegning', 'relasjon', 'svar'],
-  ['Svarberegning', 'frosset', 'standpunkter'],
+  ['Svarberegning', 'frosset', 'virkninger'],
   ['Svarberegning', 'predikat', 'uavklart'],
   ['Enighet', 'predikat', 'grunnlag'],
   ['Enighetsgrunnlag', 'predikat', 'kilde vilkaar'],
-  ['utled.ts', 'predikat', 'utled kraveneErAvgjort'],
+  ['utled.ts', 'predikat', 'utled kraveneErAvgjort trekkAvGrunnlagetErSperret'],
+  ['utled.ts', 'relasjon', 'grunnlagskravFor'],
+  // Plassen hvert element har i journalen: dokumentet og saksversjonen (4.2 i designnotatet).
+  ['utled.ts:utled', 'relasjon', 'hendelse versjon'],
+  ['utled.ts:utled.plasser', 'relasjon', 'id versjon'],
 
   // Standpunktene og det brevet fryser (standpunkt.ts).
   [
     'standpunkt.ts',
     'regelsett',
-    `standpunkter beslutningsgrunnlag regnUtSvar SAMMENLIKNES likeResultatfelt
-     utenforOmfanget`,
+    `beslutningsgrunnlag regnUtSvar SAMMENLIKNES likeResultatfelt utenforOmfanget`,
   ],
-  ['standpunkt.ts', 'frosset', 'hovedgrunn utsagnet'],
+  ['standpunkt.ts', 'frosset', 'prinsipalt'],
+  ['standpunkt.ts', 'utsagn', 'standpunktet'],
   ['standpunkt.ts', 'predikat', 'enighetsgrunnlag'],
+  // GR-U7 med unntaket i MM-U13: utledningen regner `grunnlagAvklart` og `grunnlagAvvist` av den.
+  ['standpunkt.ts', 'predikat', 'grunnlagetErAvklart', ['utled.ts']],
   ['standpunkt.ts:regnUtSvar', 'utsagn', 'krav grunnlagskrav'],
   ['standpunkt.ts:kategori', 'utsagn', 'hovedkategori underkategori'],
   [
@@ -349,11 +368,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
      produktivitet_vurdering produktivitet_godkjent_belop produktivitet_varslet_i_tide`,
   ],
   ['Preklusjon', 'regelsett', 'hovedkrav rigg produktivitet'],
-  [
-    'Vederlagsberegning',
-    'regelsett',
-    'beregnings_resultat total_godkjent_belop total_krevd_belop hovedkrav_godkjent_belop',
-  ],
+  ['Vederlagsberegning', 'regelsett', 'beregnings_resultat total_godkjent_belop'],
 
   // Kommandoene og kontrollen av dem.
   [
@@ -365,7 +380,6 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['Svarutkast', 'kommando', 'spor gjelder regelversjon vurderinger'],
   ['Svarutkast', 'kommando', 'resultat', ['nyttelast.ts']],
   ['Svarutkast.resultat', 'kommando', '*', ['nyttelast.ts']],
-  ['Svarutkast.vurderinger', 'kommando', '*'],
   ['nyttelast.ts:kontrollerSvar(server)', 'regelsett', '*'],
   ['Handlingsnoekkel', 'kommando', 'type spor gjelder'],
   ['kommando.ts', 'kommando', 'formfeil'],
@@ -379,60 +393,92 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'skjema.ts:feilI(s)',
     'skjema',
-    `$ref anyOf type const enum minLength minimum exclusiveMinimum items properties required
-     additionalProperties`,
+    `$ref anyOf type const enum minLength minItems minimum exclusiveMinimum items properties
+     required additionalProperties`,
   ],
   ['skjema.ts:feilI(s).properties', 'skjema', '*'],
   ['skjema.ts:oppslag(d)', 'skjema', '*'],
   ['Kontekst', 'kontekst', 'sakId aktoerId part teamId tidspunkt nyId'],
   ['Kjerne', 'kontekst', 'regler format'],
 
-  // Journalraden, i formen `hendelse` har i dag (leser.ts, skriving.ts).
+  // Formatet (format.ts): skjemaene radene leses og kommandoene kontrolleres mot.
+  [
+    'format.ts',
+    'rad',
+    `BESLUTNINGSGRUNNLAG DOKUMENT KRAV OPPLYSNING SAK_OPPRETTET STANDPUNKT STANDPUNKTER_I_SPORET
+     SVAR UTSAGN`,
+    ['leser.ts'],
+  ],
+  ['format.ts', 'rad', 'HJEMMEL', ['leser.ts', 'skriving.ts']],
+  ['format.ts', 'kontekst', 'FORMAT', ['versjon.ts']],
+  ['format.ts', 'skjema', 'DATO ID KRAVINNHOLD liste objekt', ['kommando.ts']],
+  ['STANDPUNKTER_I_SPORET', 'rad', 'art paakrevd', ['leser.ts']],
+  ['KRAVINNHOLD', 'skjema', 'properties required'],
+  [
+    'regler/typer.ts',
+    'regelsett',
+    'FRISTRESULTATER GRUNNLAGSRESULTATER VEDERLAGSRESULTATER',
+    ['format.ts'],
+  ],
+
+  // Journalraden i format 1 (leser.ts, skriving.ts). `data` er uten type, så feltene har
+  // funksjonen og parameteren som eier.
   [
     'Journalrad',
     'rad',
-    'event_id event_type versjon tidsstempel aktor_rolle refererer_til_event_id data',
+    'event_id event_type versjon tidsstempel aktor_rolle refererer_til_event_id format data',
     ['leser.ts', 'skriving.ts'],
   ],
+  ['Journalrad.data', 'rad', 'svar', ['skriving.ts']],
+  ['leser.ts:element(verdi)', 'rad', 'art hva spor', ['leser.ts']],
+  ['leser.ts:element(skjemaer)', 'rad', '*', ['leser.ts']],
+  ['leser.ts:lesDokument', 'rad', 'krav svar utsagn opplysninger dokumentasjon', ['leser.ts']],
+  ['leser.ts:lesDokument(e)', 'rad', 'id art spor erstatter innhold', ['leser.ts']],
+  ['leser.ts:lesDokument(o)', 'rad', 'id hva dato gjelder oppfylt', ['leser.ts']],
+  ['leser.ts:lesDokument(s)', 'rad', 'spor', ['leser.ts']],
   [
-    'Journalrad.data',
+    'leser.ts:lesSvar(e)',
     'rad',
-    `sakstype hendelsesformat dokument_id dokumentasjon gjelder hva sendt mottatt
-     sendt_oppgitt_av mottatt_oppgitt_av frist_varsel regelversjon original_respons_id
-     beslutningsgrunnlag *`,
+    'id spor gjelder erstatter utregning beslutningsgrunnlag',
     ['leser.ts'],
   ],
-  ['Journalrad.data.frist_varsel', 'rad', 'dato_sendt', ['leser.ts']],
   [
-    'leser.ts:svarutsagn(data)',
+    'leser.ts:standpunkterISvaret(e)',
     'rad',
-    `grunnlag_varslet_i_tide resultat beregnings_resultat total_godkjent_belop frist_varsel_ok
-     vilkar_oppfylt subsidiaer_resultat godkjent_dager subsidiaer_godkjent_dager`,
+    'id art gjelder hjemmel i_tide resultat oppfylt',
     ['leser.ts'],
   ],
-  ['leser.ts:lesBeslutningsgrunnlag(o)', 'rad', 'regelversjon standpunkter linje sammenfall'],
-  ['leser.ts:lesStandpunkter(o)', 'rad', 'utsagn art virkning'],
-  ['Lesestand', 'rad', 'sisteKrav fristvarsel', ['leser.ts']],
-  ['HENDELSESTYPER', 'rad', 'krav svar trekk', ['leser.ts', 'skriving.ts']],
-  ['leser.ts.SVARTYPER', 'rad', '*', ['leser.ts', 'skriving.ts']],
-  ['leser.ts.KRAVTYPER', 'rad', '*', ['leser.ts']],
-  ['leser.ts.TREKKTYPER', 'rad', '*', ['leser.ts']],
+  // Beløpet og dagene i standpunktet leses av utregningen, som har ett hjem (4.3 i
+  // designnotatet). Resultatet i dager-standpunktet tas i #309 (#331 punkt 4).
+  ['leser.ts:standpunkterISvaret(svar)', 'rad', 'standpunkter utregning', ['leser.ts']],
   [
-    'leser.ts',
+    'leser.ts:standpunkterISvaret(svar).utregning',
     'rad',
-    'HENDELSESTYPER KRAVREFERANSE SVARTYPER lesJournal svarreferanse svarutsagn',
-    ['skriving.ts'],
+    'resultat godkjent_beloep godkjent_dager subsidiaert_resultat subsidiaert_godkjent_dager',
+    ['leser.ts'],
   ],
-  // Varselet utledet av et fristkrav (MM-U1).
-  ['leser.ts', 'relasjon', 'utledetVarsel'],
+  [
+    'leser.ts:lesBeslutningsgrunnlag(v)',
+    'rad',
+    'regelversjon virkninger uten_virkning linje sammenfall varslingsplikt',
+    ['leser.ts'],
+  ],
+  ['leser.ts:lesBeslutningsgrunnlag(p)', 'rad', 'standpunkt virkning', ['leser.ts']],
+  ['leser.ts:erRegistrert', 'rad', 'hva gjelder', ['leser.ts']],
+  ['leser.ts:datoFor', 'relasjon', 'id dokument', ['leser.ts']],
+  ['skriving.ts:frys(svar)', 'rad', 'spor utregning', ['skriving.ts']],
+  ['skriving.ts:frysBrev(s)', 'rad', 'spor gjelder', ['skriving.ts']],
+  ['skriving.ts:lagret(?)', 'frosset', 'resten', ['skriving.ts']],
+  ['leser.ts', 'rad', 'lesJournal standpunkterISvaret Uforstaatt', ['skriving.ts']],
+  // Leseregler som deles: registrert korrespondanse, datoen for et varsel og bestridelsen
+  // av samme slag (MM-U1, MM-U7).
+  ['leser.ts', 'relasjon', 'erRegistrert datoFor sammeSlag'],
 ];
 
 /**
  * Lesinger av en samlebetegnelse som står i dag (MM-U13), med issuet som
  * fjerner dem: `[sted, nøkkel, begrunnelse]`, der stedet er funksjonen som
  * leser (`modul:navn`). Lista er lukket: den kan bare bli kortere.
- * - `utfall()` er en lukket mengde, `avklart` eller `avvist`, som slår sammen
- *   § 32.3 a og c. Ingen regel skal lese den, heller ikke utledet.
  * - Grunnlagsfeltene i regelsettets inndata (#309: fjernes fra porten) er
  *   utfallet i grunnlagssporet,
  *   kopiert inn i ett svar. At hele svaret er subsidiært til grunnlaget, er en
@@ -440,9 +486,6 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
  *   og `utled.ts` utleder den av de frosne standpunktene.
  */
 const KJENTE_AVVIK: [sted: string, noekkel: string, begrunnelse: string][] = [
-  ['utled.ts', 'standpunkt.ts.utfall', '#273: grunnlagAvklart skal lese standpunktene direkte'],
-  ['utled.ts:utled', 'Utfall.grunnlag', '#273: grunnlagAvklart og grunnlagAvvist leser utfallet'],
-  ['utled.ts:utled', 'Enighetsgrunnlag.utfall', '#273: grunnlagAvvist skal lese standpunktene'],
   ['regler/vederlag.ts:beregnVederlag', 'Vederlagskrav.grunnlag_resultat', '#309'],
   ['regler/vederlag.ts:beregnVederlag', 'Vederlagskrav.grunnlag_varslet_i_tide', '#309'],
   ['regler/frist.ts:beregnFrist', 'Fristkrav.er_grunnlag_subsidiaert', '#309'],
@@ -496,7 +539,7 @@ const iFunksjonen = (n: ts.Node | undefined, f: ts.Node): boolean =>
 
 /**
  * Modulen og de navngitte funksjonene `n` er eller står i, ytterst først, som
- * `leser.ts:svarutsagn` eller `standpunkt.ts:utfall.indre`.
+ * `leser.ts:standpunkterISvaret` eller `utled.ts:utled.plasser`.
  */
 function funksjon(n: ts.Node): string {
   const navn: string[] = [];
@@ -789,11 +832,8 @@ describe('reglene leser bare det LESBART tillater (#308, #329)', () => {
   });
 
   // Lista under er låsen: et nytt avvik må føres begge steder, og det er meningen.
-  it('de kjente avvikene er bare utfallet (#273) og grunnlagsfeltene i regelsettet (#309)', () => {
+  it('de kjente avvikene er bare grunnlagsfeltene i regelsettet (#309)', () => {
     const lukket = new Set([
-      'utled.ts standpunkt.ts.utfall',
-      'utled.ts:utled Utfall.grunnlag',
-      'utled.ts:utled Enighetsgrunnlag.utfall',
       'regler/vederlag.ts:beregnVederlag Vederlagskrav.grunnlag_resultat',
       'regler/vederlag.ts:beregnVederlag Vederlagskrav.grunnlag_varslet_i_tide',
       'regler/frist.ts:beregnFrist Fristkrav.er_grunnlag_subsidiaert',
@@ -815,7 +855,7 @@ describe('reglene leser bare det LESBART tillater (#308, #329)', () => {
         'Sporutledning.enighet',
         'Svar.beslutningsgrunnlag',
         'utled.ts.kraveneErAvgjort',
-        'leser.ts:svarutsagn(data).beregnings_resultat',
+        'leser.ts:standpunkterISvaret(svar).utregning.resultat',
       ])
     );
   });
@@ -844,7 +884,7 @@ describe('reglene leser bare det LESBART tillater (#308, #329)', () => {
     `export function proeve(h: Journalrad) {\n  const data = h.data;\n${kode}\n}`,
   ];
 
-  // Forsøkene står i minnet her; feilinnføringene F15 og F27 prøver to av dem i selve filene.
+  // Forsøkene står i minnet her; feilinnføringene F15 og F48 prøver to av dem i selve filene.
   it.each<[string, string, Tillegg[], string]>([
     [
       'et nytt felt i utledningen',
@@ -926,8 +966,8 @@ describe('reglene leser bare det LESBART tillater (#308, #329)', () => {
     [
       'det lagrede utfallet i et svar',
       forutsetninger,
-      [regel('return u.spor.frist.gjeldendeSvar?.utregning.beregnings_resultat;')],
-      'Svar.utregning.beregnings_resultat',
+      [regel('return u.spor.frist.gjeldendeSvar?.utregning.resultat;')],
+      'Svar.utregning.resultat',
     ],
     [
       'journalraden utenfor leseren og skrivingen',
@@ -948,13 +988,8 @@ describe('reglene leser bare det LESBART tillater (#308, #329)', () => {
     [
       'det frosne svaret lest utenfor godkjennerHeleKravet',
       standpunkt,
-      [
-        [
-          standpunkt,
-          'export const proeve = (svar: Svarinnhold) => svar.utregning.beregnings_resultat;',
-        ],
-      ],
-      'Svar.utregning.beregnings_resultat',
+      [[standpunkt, 'export const proeve = (svar: Svarinnhold) => svar.utregning.resultat;']],
+      'Svar.utregning.resultat',
     ],
     [
       'det frosne svaret i en indre funksjon med samme navn',
@@ -962,10 +997,33 @@ describe('reglene leser bare det LESBART tillater (#308, #329)', () => {
       [
         [
           standpunkt,
-          'export function proeve(svar: Svarinnhold) {\n  const godkjennerHeleKravet = () => svar.utregning.beregnings_resultat;\n  return godkjennerHeleKravet();\n}',
+          'export function proeve(svar: Svarinnhold) {\n  const godkjennerHeleKravet = () => svar.utregning.resultat;\n  return godkjennerHeleKravet();\n}',
         ],
       ],
-      'Svar.utregning.beregnings_resultat',
+      'Svar.utregning.resultat',
+    ],
+    [
+      '«avklart» etter GR-U7 utenfor utledningen (MM-U13)',
+      forutsetninger,
+      [
+        [
+          forutsetninger,
+          "import { grunnlagetErAvklart } from './standpunkt.ts';\nexport const proeve = grunnlagetErAvklart;",
+        ],
+      ],
+      'standpunkt.ts.grunnlagetErAvklart',
+    ],
+    [
+      '§ 31.3 utenfor sperren mot trekk (KA-U14)',
+      forutsetninger,
+      [regel('return u.endringsordre;')],
+      'Utledning.endringsordre',
+    ],
+    [
+      '§ 31.3 i en annen funksjon i utledningen (KA-U14)',
+      utled,
+      [[utled, 'export const proeve = (u: Utledning) => u.endringsordre;']],
+      'Utledning.endringsordre',
     ],
     [
       '«avklart» i en annen funksjon i utledningen',

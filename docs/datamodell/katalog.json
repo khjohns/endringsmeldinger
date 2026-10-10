@@ -220,7 +220,8 @@
      ["event_type", "text", "NOT NULL"],
      ["versjon", "integer", "NOT NULL"],
      ["created_at", "timestamp with time zone", "NULL"],
-     ["prosjekt_id", "text", "NOT NULL"]
+     ["prosjekt_id", "text", "NOT NULL"],
+     ["format", "integer", "NULL"]
     ],
     "primærnøkkel": ["id"],
     "unike": [

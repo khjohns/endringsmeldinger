@@ -9,7 +9,7 @@
  * avvisningen er de samme per konstruksjon (INV-MM-1).
  */
 
-import { kraveneErAvgjort, type Utledning } from './utled.ts';
+import { kraveneErAvgjort, trekkAvGrunnlagetErSperret, type Utledning } from './utled.ts';
 import type { Avvisning, Part, Spor } from './typer.ts';
 
 export type Handlingsnoekkel =
@@ -66,6 +66,9 @@ export function forutsetninger(h: Handlingsnoekkel, part: Part, u: Utledning): A
     case 'krav':
       // Vedtaket om trukket krav 05.10, GR-U5.
       if (s.trukket) return avvis('KRAV_TRUKKET', 'Kravet er trukket og kan ikke tas opp igjen.');
+      // KA-U12: «ingen krav» lukker sporet på samme måte som et trekk.
+      if (s.ingenKrav)
+        return avvis('INGEN_KRAV_I_SPORET', 'TE har sagt at det ikke kreves noe i sporet.');
       // KA-U7, GR-U10: en enighet binder begge parter.
       if (s.enighet)
         return avvis('ENIGHET_I_SPORET', 'Partene er enige om svaret. Kravet kan ikke endres.');
@@ -75,17 +78,25 @@ export function forutsetninger(h: Handlingsnoekkel, part: Part, u: Utledning): A
     case 'trekke':
       if (!s.gjeldendeKrav) return avvis('INGEN_KRAV', `Det er ikke sendt noe krav om ${h.spor}.`);
       if (s.trukket) return avvis('KRAV_TRUKKET', 'Kravet er allerede trukket.');
-      // KA-U13: godkjenningen er en endringsordre (§ 32.3 a) og binder TE (§ 31.3 annet ledd).
-      if (h.spor === 'grunnlag' && u.godkjenningErEndringsordre)
-        return avvis(
-          'GRUNNLAG_ER_ENDRINGSORDRE',
-          'Byggherren har godkjent grunnlaget, og godkjenningen er en endringsordre. Grunnlaget kan ikke trekkes.'
-        );
+      // KA-U13: et trekk ville gitt journalen den videre virkningen at endringsordren
+      // etter § 32.3 a leses som bortfalt (KA-U6). Er § 31.3 ikke avklart, sperres det til det er.
+      if (h.spor === 'grunnlag' && trekkAvGrunnlagetErSperret(u))
+        return u.endringsordre === 'ikke_avklart'
+          ? avvis(
+              'ENDRINGSORDRE_IKKE_AVKLART',
+              'Det er ikke avklart om byggherrens godkjenning er en endringsordre etter § 31.3. Det må avklares før grunnlaget kan trekkes.'
+            )
+          : avvis(
+              'GRUNNLAG_ER_ENDRINGSORDRE',
+              'Byggherren har godkjent grunnlaget, og godkjenningen er en endringsordre. Grunnlaget kan ikke trekkes.'
+            );
       return null;
     case 'varsle':
       if (!grunnlagSendt)
         return avvis('GRUNNLAG_IKKE_SENDT', 'Grunnlaget må være sendt før du kan varsle.');
       if (s.trukket) return avvis('KRAV_TRUKKET', 'Kravet er trukket.');
+      if (s.ingenKrav)
+        return avvis('INGEN_KRAV_I_SPORET', 'TE har sagt at det ikke kreves fristforlengelse.');
       // SK-12 og MM-U1: et registrert varsel er låst. Et utledet varsel er ikke registrert.
       if (s.varsel)
         return avvis('VARSEL_REGISTRERT', 'Varselet er registrert og kan ikke flyttes (SK-12).');

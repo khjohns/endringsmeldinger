@@ -88,9 +88,9 @@ export function regelendringen(lagBaner: () => Baner): void {
       const n = utledJournal(saker['ikke godtatt'].journal, KJERNE);
       const n1 = utledJournal(saker['ikke godtatt'].journal, N1);
       expect(n1.svar[svarId]).toEqual(n.svar[svarId]);
-      expect(n1.svar[svarId].standpunkter.map((p) => p.virkning)).toEqual([
-        'hovedgrunn',
-        'subsidiaer',
+      expect(n1.svar[svarId].virkninger.map((p) => p.virkning)).toEqual([
+        'prinsipalt',
+        'subsidiaert',
       ]);
       expect(n1.spor.vederlag.subsidiaer).toEqual(['prekludert', 'avslatt']);
       expect(visning(n, KJERNE.regler).spor.grunnlag.etiketter).not.toContain(
@@ -111,7 +111,6 @@ export function regelendringen(lagBaner: () => Baner): void {
       expect(godtatt?.godtatt ? 'godtatt' : godtatt?.avvisning.regel).toBe('godtatt');
       const u = await s.k.utledning();
       expect(u.spor.grunnlag.enighet?.grunnlag.regelversjon).toBe(KJERNE.regler.versjon);
-      expect(u.spor.grunnlag.enighet?.grunnlag.utfall.grunnlag).toBe('avvist');
       expect(u.grunnlagAvvist).toBe(true);
     });
 

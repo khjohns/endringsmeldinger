@@ -44,11 +44,9 @@ export class Navn {
     this.reservert.delete(navn);
   }
 
-  /** `D4#sendt` blir `<ID-en til D4>#sendt`. En ukjent etikett blir en ID som ikke finnes. */
+  /** ID-en til etiketten. En ukjent etikett blir en ID som ikke finnes. */
   id(navn: string): string {
-    const [hode, ...hale] = navn.split('#');
-    const id = this.tilId.get(hode) ?? `ukjent-${hode}-${randomUUID()}`;
-    return [id, ...hale].join('#');
+    return this.tilId.get(navn) ?? `ukjent-${navn}-${randomUUID()}`;
   }
 
   /**
@@ -111,7 +109,7 @@ function vurderinger(spor: Spor, h: Record<string, unknown>, krav: Krav | null):
     frist_varsel_ok: h.varsel_i_tide,
     spesifisert_krav_ok: h.spesifisering_i_tide,
     vilkar_oppfylt: h.hindring,
-    dager: h.dager ?? krav?.innhold.antall_dager,
+    dager: h.dager ?? krav?.innhold.dager,
   };
 }
 
@@ -151,8 +149,8 @@ const INNHOLD = {
     hovedkategori: h.hovedkategori ?? 'ENDRING',
     underkategori: h.underkategori,
   }),
-  vederlag: (h: Handling) => ({ metode: 'FASTPRIS_TILBUD', belop_direkte: h.belop }),
-  frist: (h: Handling) => ({ varsel_type: 'spesifisert', antall_dager: h.dager }),
+  vederlag: (h: Handling) => ({ metode: 'FASTPRIS_TILBUD', beloep: h.belop }),
+  frist: (h: Handling) => ({ dager: h.dager }),
 };
 
 /** Kommandoen klienten sender for handlingen, regnet av klientens utledning `u`. */
@@ -201,11 +199,14 @@ export function kommandoFor(h: Handling, u: Utledning, regler: Regelsett, navn: 
     case 'bestridelse': {
       const varsel = u.spor.frist.varsel;
       const gjelder = h.gjelder as string;
+      const sendt = u.opplysninger.find(
+        (o) => o.opplysning.dokument === varsel?.dokument && o.opplysning.hva === 'sendt'
+      );
       return {
         type: 'bestridelse',
         // `varsel#sendt` i de genererte forløpene er sendingen av det registrerte varselet.
         gjelder: gjelder.startsWith('varsel#')
-          ? `${varsel?.dokument ?? 'ingen'}#sendt`
+          ? (sendt?.opplysning.id ?? 'ingen')
           : navn.id(gjelder),
         hva: h.hva as 'sendt' | 'mottatt',
       };
@@ -222,9 +223,11 @@ export function partFor(h: Handling): Part {
 }
 
 /**
- * En rad fra en annen skriver, for eksempel en eldre skriver i overgangen
- * (forløp E). Den har dagens form uten feltene prøven legger til, og går ikke
- * gjennom kommandovalideringen.
+ * En rad fra en annen skriver i format 1, for eksempel en eldre TS-versjon
+ * (forløp E). Den går ikke gjennom kommandovalideringen, så relasjonene er
+ * de bevis-saken oppgir. En `rad` med `art` er et utsagn, ellers et svar. Raden
+ * er fra byggherren uten `part`, og `format` gir den et annet format. Beslutningsgrunnlaget
+ * fryses av kjøreren (`frysBrev`).
  */
 export function radFor(
   h: Handling,
@@ -233,40 +236,88 @@ export function radFor(
   felles: Pick<Journalrad, 'sak_id' | 'versjon' | 'tidsstempel' | 'aktor_id' | 'aktor_team_id'>
 ): Journalrad {
   // En referanse til noe som ikke finnes i saken, er en UUID som ikke finnes.
-  const kjent = navn.id(h.gjelder as string);
-  const gjelder = kjent.startsWith('ukjent-') ? randomUUID() : kjent;
-  const type = h.type as string;
-  let data: Record<string, unknown> = { begrunnelse: 'Fra en annen skriver' };
-  if (type.startsWith('respons_vederlag')) {
-    const krav = u.spor.vederlag.krav.find((k) => k.id === gjelder) ?? {
-      id: gjelder,
-      spor: 'vederlag' as const,
-      dokument: gjelder,
-      innhold: { belop_direkte: 100000 },
-    };
-    const v = vurderinger('vederlag', h, krav);
+  const ref = (etikett: string) => {
+    const kjent = navn.id(etikett);
+    return kjent.startsWith('ukjent-') ? randomUUID() : kjent;
+  };
+  let data: Record<string, unknown>;
+  let eventId = typeof h.dokument === 'string' ? navn.ta(h.dokument) : randomUUID();
+  if (typeof h.avklarer === 'string') {
+    // MM-U12: en senere avklaring av om et registrert brev var en endringsordre (§ 31.3).
+    eventId = navn.ta(h.navn as string);
     data = {
-      ...data,
-      ...v,
-      ...regnUtSvar(
-        'vederlag',
+      opplysninger: [
+        { id: randomUUID(), hva: 'endringsordre', oppfylt: h.oppfylt, gjelder: ref(h.avklarer) },
+      ],
+    };
+  } else if (typeof h.art === 'string') {
+    eventId = navn.ta(h.navn as string);
+    data = {
+      utsagn: [
+        {
+          id: randomUUID(),
+          art: h.art,
+          ...(typeof h.gjelder === 'string' ? { gjelder: ref(h.gjelder) } : {}),
+          ...(typeof h.spor === 'string' ? { spor: h.spor } : {}),
+        },
+      ],
+    };
+  } else {
+    const spor = h.spor as Spor;
+    const gjelder = ref(h.gjelder as string);
+    const krav = u.spor[spor].krav.find((k) => k.id === gjelder) ?? {
+      id: gjelder,
+      spor,
+      dokument: gjelder,
+      erstatter: null,
+      innhold: spor === 'vederlag' ? { beloep: 100000 } : { dager: 20 },
+    };
+    const v = vurderinger(spor, h, krav);
+    const standpunkter: Record<string, unknown>[] = [];
+    if (spor === 'grunnlag' && typeof h.varslet_i_tide === 'boolean')
+      standpunkter.push({
+        id: randomUUID(),
+        art: 'rettidighet',
+        gjelder,
+        hjemmel: '32.2',
+        i_tide: h.varslet_i_tide,
+      });
+    standpunkter.push(
+      spor === 'grunnlag'
+        ? { id: randomUUID(), art: 'grunnlag', resultat: h.resultat }
+        : { id: randomUUID(), art: spor === 'vederlag' ? 'beloep' : 'dager' }
+    );
+    const svar: Record<string, unknown> = {
+      id: navn.ta(h.navn as string),
+      spor,
+      gjelder,
+      ...(typeof h.erstatter === 'string' ? { erstatter: navn.reserver(h.erstatter) } : {}),
+      standpunkter,
+    };
+    if (spor !== 'grunnlag')
+      svar.utregning = regnUtSvar(
+        spor,
         v,
         { krav, grunnlagskrav: u.spor.grunnlag.gjeldendeKrav },
         GJELDENDE_REGLER
-      ),
-      regelversjon: GJELDENDE_REGLER.versjon,
-      vederlag_krav_id: gjelder,
-    };
-    if (typeof h.erstatter === 'string') data.original_respons_id = navn.reserver(h.erstatter);
-  } else {
-    data.frist_krav_id = gjelder;
+      );
+    data = { svar: [svar] };
+    // Registrert korrespondanse: sendt utenfor appen, og eventuelt om § 31.3 er oppfylt.
+    if (typeof h.sendt === 'string')
+      data.opplysninger = [
+        { id: randomUUID(), hva: 'sendt', dato: h.sendt },
+        ...(typeof h.endringsordre === 'boolean'
+          ? [{ id: randomUUID(), hva: 'endringsordre', oppfylt: h.endringsordre }]
+          : []),
+      ];
   }
   return {
     ...felles,
-    event_id: typeof h.navn === 'string' ? navn.ta(h.navn) : randomUUID(),
-    event_type: type as Journalrad['event_type'],
-    aktor_rolle: 'BH',
-    refererer_til_event_id: gjelder,
+    event_id: eventId,
+    event_type: 'dokument_registrert',
+    aktor_rolle: h.part === 'TE' ? 'TE' : 'BH',
+    refererer_til_event_id: null,
+    format: typeof h.format === 'number' ? h.format : 1,
     data,
   };
 }

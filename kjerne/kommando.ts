@@ -1,9 +1,13 @@
 /**
  * Kommandoene i kjernen, slik klienten sender dem, og kontrollen av formen mot
  * skjemaene her (`feilI`). Aksepten bærer svaret og regelversjonen TE fikk se
- * (KA-U10); det har ikke `kontrakt.json` (#304; formatet hører til #273).
+ * (KA-U10); det har ikke `kontrakt.json` (#304). Innholdet i et krav har
+ * feltene i formatet (`KRAVINNHOLD` i `format.ts`). Vurderingene i et svar har
+ * navnene reglene regner med, og blir standpunkter og utregning når brevet
+ * skrives.
  */
 
+import { DATO, ID, KRAVINNHOLD, liste, objekt } from './format.ts';
 import { erObjekt, feilI, type Skjema } from './skjema.ts';
 import type { Svarvurdering } from './standpunkt.ts';
 import { SPOR as SPORENE, type Spor } from './typer.ts';
@@ -30,18 +34,9 @@ export type Kommando =
     }
   | { type: 'trekk'; spor: Spor }
   | { type: 'varsel'; spor: 'frist'; hjemmel: '33.4'; sendt: string; dokumentasjon?: string[] }
-  | { type: 'bestridelse'; gjelder: string; hva: 'sendt' | 'mottatt' };
+  | { type: 'bestridelse'; gjelder: string; hva: 'sendt' | 'mottatt' | 'endringsordre' };
 
 const SPOR = { enum: [...SPORENE] };
-const ID = { type: 'string', minLength: 1 };
-const DATO = { type: 'string', minLength: 10 };
-const objekt = (properties: Skjema, required: string[]): Skjema => ({
-  type: 'object',
-  properties,
-  required,
-  additionalProperties: false,
-});
-
 const SVARUTKAST = objekt(
   {
     spor: SPOR,
@@ -52,33 +47,6 @@ const SVARUTKAST = objekt(
   },
   ['spor', 'gjelder', 'regelversjon', 'vurderinger', 'resultat']
 );
-
-/**
- * Feltnavnene er de kravhendelsene har i dag, så leseren leser dem likt. Formatet
- * velges i #273. Et krav på 0 kr eller 0 dager er ikke et krav om noe (KA-U8).
- */
-const KRAVINNHOLD: Record<Spor, Skjema> = {
-  grunnlag: objekt(
-    {
-      hovedkategori: { type: 'string' },
-      underkategori: { type: 'string' },
-      tittel: { type: 'string' },
-      beskrivelse: { type: 'string' },
-    },
-    ['hovedkategori', 'underkategori']
-  ),
-  vederlag: objekt(
-    {
-      metode: { const: 'FASTPRIS_TILBUD' },
-      belop_direkte: { type: 'number', exclusiveMinimum: 0 },
-    },
-    ['metode', 'belop_direkte']
-  ),
-  frist: objekt(
-    { varsel_type: { const: 'spesifisert' }, antall_dager: { type: 'integer', minimum: 1 } },
-    ['varsel_type', 'antall_dager']
-  ),
-};
 
 const SKJEMA: Record<Kommando['type'], Skjema> = {
   krav: objekt(
@@ -115,12 +83,16 @@ const SKJEMA: Record<Kommando['type'], Skjema> = {
       spor: { const: 'frist' },
       hjemmel: { const: '33.4' },
       sendt: DATO,
-      dokumentasjon: { type: 'array', items: { type: 'string' } },
+      dokumentasjon: liste(ID),
     },
     ['type', 'spor', 'hjemmel', 'sendt']
   ),
   bestridelse: objekt(
-    { type: { const: 'bestridelse' }, gjelder: ID, hva: { enum: ['sendt', 'mottatt'] } },
+    {
+      type: { const: 'bestridelse' },
+      gjelder: ID,
+      hva: { enum: ['sendt', 'mottatt', 'endringsordre'] },
+    },
     ['type', 'gjelder', 'hva']
   ),
 };
@@ -134,7 +106,8 @@ export function formfeil(kommando: unknown): string[] {
   const feil = feilI(kommando, SKJEMA[type as Kommando['type']]);
   if (type === 'krav' && !feil.length) {
     const k = kommando as { spor: Spor; innhold: unknown };
-    feil.push(...feilI(k.innhold, KRAVINNHOLD[k.spor], '$.innhold'));
+    const { properties, required } = KRAVINNHOLD[k.spor];
+    feil.push(...feilI(k.innhold, objekt(properties, required), '$.innhold'));
     if (k.spor !== 'frist' && 'varsel' in k)
       feil.push('$.varsel: bare et fristkrav har varsel etter § 33.4');
   }

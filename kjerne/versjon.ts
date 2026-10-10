@@ -1,12 +1,13 @@
 /** Versjonene en kjerne har (2.7 i modellforslaget). */
 
+import { FORMAT } from './format.ts';
 import { GJELDENDE_REGLER, type Regelsett } from './regler/regelsett.ts';
 
 /**
  * Økes ved enhver endring i kjernen utenom `regler/` og testene som kan gi et
  * annet resultat, også en feilretting. Regelversjonsvakten i CI krever det.
  */
-export const PROJEKSJONSVERSJON = 3;
+export const PROJEKSJONSVERSJON = 4;
 
 export interface Kjerne {
   regler: Regelsett;
@@ -18,5 +19,5 @@ export interface Kjerne {
 export const KJERNE: Kjerne = {
   regler: GJELDENDE_REGLER,
   projeksjonsversjon: PROJEKSJONSVERSJON,
-  format: 1,
+  format: FORMAT,
 };
