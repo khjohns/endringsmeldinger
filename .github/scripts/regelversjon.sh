@@ -103,15 +103,15 @@ fi
 
 # --- 3. Formatet i to trinn ---
 format=kjerne/format.ts
-les_format() { sed -n 's/^export const FORMAT = \([0-9][0-9]*\);$/\1/p'; }
-les_leserformat() { sed -n 's/^export const LESERFORMAT = \([0-9][0-9]*\);$/\1/p'; }
+les_konstant() { sed -n "s/^export const $1 = \([0-9][0-9]*\);\$/\1/p"; }
 echo
 if [ -f "$format" ]; then
-  skriver_for=$(git show "$BASE:$format" 2>/dev/null | les_format)
+  for_tekst=$(git show "$BASE:$format" 2>/dev/null)
+  skriver_for=$(les_konstant FORMAT <<< "$for_tekst")
   # Før LESERFORMAT fantes, leste kjernen høyst FORMAT.
-  leser_for=$(git show "$BASE:$format" 2>/dev/null | les_leserformat)
+  leser_for=$(les_konstant LESERFORMAT <<< "$for_tekst")
   leser_for=${leser_for:-$skriver_for}
-  skriver=$(les_format < "$format"); leser=$(les_leserformat < "$format")
+  skriver=$(les_konstant FORMAT < "$format"); leser=$(les_konstant LESERFORMAT < "$format")
   echo "$format: FORMAT ${skriver_for:-ingen} -> ${skriver:-ingen}, LESERFORMAT ${leser_for:-ingen} -> ${leser:-ingen}"
   if [ -z "$skriver" ] || [ -z "$leser" ]; then
     echo "::error file=$format::Fant ikke FORMAT og LESERFORMAT. Flytt kontrollen i $0 med konstantene."
@@ -119,8 +119,8 @@ if [ -f "$format" ]; then
   elif [ "$leser" -lt "$skriver" ]; then
     echo "::error file=$format::LESERFORMAT ($leser) er lavere enn FORMAT ($skriver). Kjernen må lese det den skriver."
     feil=1
-  elif [ -n "$skriver_for" ] && [ "$skriver" -gt "$skriver_for" ] && [ "$skriver" -gt "${leser_for:-0}" ]; then
-    echo "::error file=$format::FORMAT er økt til $skriver, men versjonen før leste bare format ${leser_for:-ingen}. Øk LESERFORMAT i en egen utrulling først (B-10)."
+  elif [ -n "$skriver_for" ] && [ "$skriver" -gt "$skriver_for" ] && [ "$skriver" -gt "$leser_for" ]; then
+    echo "::error file=$format::FORMAT er økt til $skriver, men versjonen før leste bare format $leser_for. Øk LESERFORMAT i en egen utrulling først (B-10)."
     feil=1
   fi
 fi

@@ -70,7 +70,7 @@ function regelenErEndret(u: Utledning, spor: Spor, regler: Regelsett): boolean {
 function vurdertVedRegistreringen(u: Utledning, svarId: string): boolean {
   const dokument = u.svar[svarId].svar.dokument;
   return erRegistrert(
-    u.opplysninger.map((o) => o.opplysning).filter((o) => o.dokument === dokument)
+    u.opplysninger.filter((o) => o.opplysning.dokument === dokument).map((o) => o.opplysning)
   );
 }
 

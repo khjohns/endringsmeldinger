@@ -21,10 +21,18 @@ import { byggPaaNytt, lesSak } from '../../kjerne/buffer.ts';
 import { utledJournal } from '../../kjerne/skriving.ts';
 import { bygg } from '../../kjerne/tester/baner.ts';
 import { NESTE_REGLER } from '../../kjerne/tester/klient.ts';
+import { VERSJONER } from '../../kjerne/tester/kompatibilitet.ts';
 import { medRegler } from '../../kjerne/tester/kjoerer.ts';
 import { KJERNE } from '../../kjerne/versjon.ts';
 import { lagOppsett, rydd, type Oppsett } from '../tester/testbase.ts';
-import { basebane, journalen, pgBuffer, TESTBASE_URL, utdaterteSaker } from './bane.ts';
+import {
+  basebane,
+  journalen,
+  pgBuffer,
+  sakerKjernenIkkeLeser,
+  TESTBASE_URL,
+  utdaterteSaker,
+} from './bane.ts';
 
 const N1 = medRegler(NESTE_REGLER);
 const BUFFER = [
@@ -129,5 +137,19 @@ describe.skipIf(!TESTBASE_URL)('gjenoppbyggingen mot testbasen', () => {
     expect(await utdaterteSaker(klient, o.prosjekt.id, KJERNE)).toEqual([]);
     expect((await k.send({ handling: 'krav', spor: 'frist', dager: 30 }))?.godtatt).toBe(true);
     expect(await utdaterteSaker(klient, o.prosjekt.id, KJERNE)).toEqual([bane.sakId]);
+  });
+
+  it('lister sakene med en rad i et format kjernen ikke leser, før en tilbakerulling (B-10, MM-U2)', async () => {
+    expect(await sakerKjernenIkkeLeser(klient, o.prosjekt.id, KJERNE)).toEqual([]);
+    const bane = await basebane(o);
+    const k = await bygg(bane, ['krav_eo'], VERSJONER.v2b);
+    expect((await k.send({ handling: 'krav', spor: 'vederlag', belop: 120000 }))?.godtatt).toBe(
+      true
+    );
+    // Kontrollsak: skrevet av v2a, som leser format 2 men skriver format 1.
+    const kontroll = await basebane(o);
+    await bygg(kontroll, ['krav_eo'], VERSJONER.v2a);
+    expect(await sakerKjernenIkkeLeser(klient, o.prosjekt.id, VERSJONER.v1)).toEqual([bane.sakId]);
+    expect(await sakerKjernenIkkeLeser(klient, o.prosjekt.id, VERSJONER.v2a)).toEqual([]);
   });
 });

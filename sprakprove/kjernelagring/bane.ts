@@ -12,7 +12,12 @@
 import { randomUUID } from 'node:crypto';
 import type pg from 'pg';
 import type { ClientBase, PoolClient } from 'pg';
-import type { Buffer, Bufferlager } from '../../kjerne/buffer.ts';
+import {
+  bufferversjon,
+  type Buffer,
+  type Bufferlager,
+  type Bufferversjon,
+} from '../../kjerne/buffer.ts';
 import type { Kjerne } from '../../kjerne/versjon.ts';
 import type { Journalrad } from '../../kjerne/typer.ts';
 import type { Bane } from '../../kjerne/tester/bane.ts';
@@ -75,13 +80,7 @@ export async function basebane(o: Oppsett): Promise<Bane> {
 export function pgBuffer(klient: ClientBase): Bufferlager {
   return {
     async les(sakId) {
-      const r = await klient.query<{
-        visning: Buffer['visning'] | null;
-        projeksjonsversjon: number;
-        regelversjon: number;
-        format: number;
-        saksversjon: number;
-      }>(
+      const r = await klient.query<Bufferversjon & { visning: Buffer['visning'] | null }>(
         `SELECT kjerne_visning AS visning, kjerne_projeksjonsversjon AS projeksjonsversjon,
                 kjerne_regelversjon AS regelversjon, kjerne_format AS format,
                 kjerne_saksversjon AS saksversjon
@@ -123,9 +122,10 @@ export async function utdaterteSaker(
   prosjektId: string,
   kjerne: Kjerne
 ): Promise<string[]> {
+  const v = bufferversjon(kjerne, 0);
   const r = await klient.query<{ sak_id: string }>(
     `SELECT m.sak_id FROM sak_metadata m
-       JOIN (SELECT sak_id, max(versjon) AS versjon FROM hendelse GROUP BY sak_id) h
+       JOIN (SELECT sak_id, max(versjon) AS versjon FROM hendelse WHERE prosjekt_id = $1 GROUP BY sak_id) h
          ON h.sak_id = m.sak_id
       WHERE m.prosjekt_id = $1
         AND (m.kjerne_visning IS NULL
@@ -134,7 +134,7 @@ export async function utdaterteSaker(
              OR m.kjerne_format IS DISTINCT FROM $4
              OR m.kjerne_saksversjon IS DISTINCT FROM h.versjon)
       ORDER BY m.sak_id`,
-    [prosjektId, kjerne.projeksjonsversjon, kjerne.regler.versjon, kjerne.leserformat]
+    [prosjektId, v.projeksjonsversjon, v.regelversjon, v.format]
   );
   return r.rows.map((x) => x.sak_id);
 }
