@@ -15,6 +15,7 @@ import {
   UNDERKATEGORI_FRA_KATALOGEN,
   UTLOESER_FRA_KATALOGEN,
   fraKatalogen,
+  kategoriFraKatalogen,
   tilKatalogen,
 } from '../koder.ts';
 import { formfeil } from '../kommando.ts';
@@ -57,6 +58,11 @@ describe('kategorien i grunnlagskravet er et par fra den lukkede listen (#335, H
     ['force majeure, som ikke har noen underkategori', 'force_majeure', 'annet_forhold'],
   ])('avviser %s', (_navn, hovedkategori, underkategori) => {
     expect(formfeil(grunnlagskrav({ hovedkategori, underkategori }))).not.toEqual([]);
+  });
+
+  // #367: om force majeure skal kunne skrives uten underkategori, er ikke avgjort.
+  it('avviser force majeure uten underkategori, som før #335', () => {
+    expect(formfeil(grunnlagskrav({ hovedkategori: 'force_majeure' }))).not.toEqual([]);
   });
 
   it('en lagret rad med katalogens koder er ikke forstått; kontrollsak: kjernens koder', async () => {
@@ -140,6 +146,12 @@ describe('oversettelsen fra katalogen', () => {
     expect(Object.values(UNDERKATEGORI_FRA_KATALOGEN).sort()).toEqual(
       PAR.map(([, u]) => u as string).sort()
     );
+  });
+
+  it('tar den første av flere underkategorier, som kjernen', () => {
+    expect(
+      kategoriFraKatalogen({ hovedkategori: 'ENDRING', underkategori: ['EO', 'IRREG'] })
+    ).toEqual({ hovedkategori: 'endring', underkategori: 'endringsordre' });
   });
 
   it('gir en ukjent kode tilbake uendret, så formatet avviser den', () => {

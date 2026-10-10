@@ -14,6 +14,7 @@ import {
   kategoriFraKatalogen,
   tilKatalogen,
 } from '../../kjerne/koder.ts';
+import { UgyldigVurdering } from '../../kjerne/regler/feil.ts';
 import * as grunnlag from '../../kjerne/regler/grunnlag.ts';
 import * as frist from '../../kjerne/regler/frist.ts';
 import * as vederlag from '../../kjerne/regler/vederlag.ts';
@@ -64,12 +65,22 @@ export function kontrollerGrunnlagssvar(
   varsletITide: boolean | null
 ): void {
   const k = kategoriFraKatalogen({ hovedkategori, underkategori });
-  grunnlag.kontrollerGrunnlagssvar(
-    k.hovedkategori,
-    k.underkategori,
-    grunnlagsresultat(resultat),
-    varsletITide
-  );
+  try {
+    grunnlag.kontrollerGrunnlagssvar(
+      k.hovedkategori,
+      k.underkategori,
+      grunnlagsresultat(resultat),
+      varsletITide
+    );
+  } catch (feil) {
+    // Meldingen viser resultatet; klienten og Python har katalogens kode.
+    if (!(feil instanceof UgyldigVurdering) || feil.feil.resultat === undefined) throw feil;
+    const kjernens = String(grunnlagsresultat(resultat));
+    throw new UgyldigVurdering({
+      ...feil.feil,
+      resultat: feil.feil.resultat.replace(`«${kjernens}»`, `«${String(resultat)}»`),
+    });
+  }
 }
 
 export type Vederlagskrav = Omit<vederlag.Vederlagskrav, 'metode' | 'grunnlag_resultat'> & {
