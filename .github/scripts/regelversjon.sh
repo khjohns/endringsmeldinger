@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Regelversjonsvakten. To kontroller, som hver kan feile:
+# Regelversjonsvakten. Tre kontroller, som hver kan feile:
 #
 # 1. B-13 (hovedplanen 3.1, 24.09) og #191: endres reglene i src/lib/domain/
 #    eller backend/regler/, må REGELVERSJON økes i begge speilene.
@@ -12,6 +12,11 @@
 #    TS-koden i kjernen utenom testene, må PROJEKSJONSVERSJON i
 #    kjerne/versjon.ts økes, fordi et bufret resultat ellers kan brukes av en
 #    kjerne som regner annerledes (2.7 i modellforslaget).
+# 3. B-10 og #316: et nytt format leses i én versjon før det skrives i den
+#    neste. FORMAT i kjerne/format.ts kan derfor bare økes til LESERFORMAT slik
+#    det stod i BASE, og LESERFORMAT er aldri lavere enn FORMAT. Kontrollen ser
+#    på diffen mot BASE, ikke på hva som er rullet ut; en PR som både leser og
+#    skriver et nytt format, feiler.
 #
 # Lokalt: BASE=<sha> .github/scripts/regelversjon.sh
 set -u
@@ -92,6 +97,30 @@ else
   echo "Endret i kjernen:"; echo "$utledning"
   if ! okt "$versjon" les_projeksjon; then
     echo "::error file=$versjon::Kjernen er endret. Øk PROJEKSJONSVERSJON i $versjon."
+    feil=1
+  fi
+fi
+
+# --- 3. Formatet i to trinn ---
+format=kjerne/format.ts
+les_format() { sed -n 's/^export const FORMAT = \([0-9][0-9]*\);$/\1/p'; }
+les_leserformat() { sed -n 's/^export const LESERFORMAT = \([0-9][0-9]*\);$/\1/p'; }
+echo
+if [ -f "$format" ]; then
+  skriver_for=$(git show "$BASE:$format" 2>/dev/null | les_format)
+  # Før LESERFORMAT fantes, leste kjernen høyst FORMAT.
+  leser_for=$(git show "$BASE:$format" 2>/dev/null | les_leserformat)
+  leser_for=${leser_for:-$skriver_for}
+  skriver=$(les_format < "$format"); leser=$(les_leserformat < "$format")
+  echo "$format: FORMAT ${skriver_for:-ingen} -> ${skriver:-ingen}, LESERFORMAT ${leser_for:-ingen} -> ${leser:-ingen}"
+  if [ -z "$skriver" ] || [ -z "$leser" ]; then
+    echo "::error file=$format::Fant ikke FORMAT og LESERFORMAT. Flytt kontrollen i $0 med konstantene."
+    feil=1
+  elif [ "$leser" -lt "$skriver" ]; then
+    echo "::error file=$format::LESERFORMAT ($leser) er lavere enn FORMAT ($skriver). Kjernen må lese det den skriver."
+    feil=1
+  elif [ -n "$skriver_for" ] && [ "$skriver" -gt "$skriver_for" ] && [ "$skriver" -gt "${leser_for:-0}" ]; then
+    echo "::error file=$format::FORMAT er økt til $skriver, men versjonen før leste bare format ${leser_for:-ingen}. Øk LESERFORMAT i en egen utrulling først (B-10)."
     feil=1
   fi
 fi

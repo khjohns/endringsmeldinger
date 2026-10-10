@@ -25,8 +25,15 @@ import {
   type Utsagnsart,
 } from './typer.ts';
 
-/** Formatversjonen kjernen skriver og høyst leser. Står i kolonnen `format`. */
+/** Formatversjonen kjernen skriver. Står i kolonnen `format`. */
 export const FORMAT = 1;
+
+/**
+ * Det høyeste formatet kjernen leser. Et nytt format leses i én versjon av
+ * kjernen før det skrives i den neste, så en tilbakerulling ett trinn ikke
+ * stopper noen sak (B-10, #316). `FORMAT` er aldri høyere.
+ */
+export const LESERFORMAT = 1;
 
 export const HENDELSESTYPER = ['sak_opprettet', 'dokument_registrert'] as const;
 

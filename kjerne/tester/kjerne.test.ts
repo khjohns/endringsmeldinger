@@ -24,7 +24,7 @@ import type { Kjoering } from './kjoerer.ts';
 type Data = Record<string, unknown>;
 
 const forstaatt = (rader: Journalrad[]) =>
-  utled(lesJournal(rader, KJERNE.format), GJELDENDE_REGLER).forstaatt;
+  utled(lesJournal(rader, KJERNE.leserformat), GJELDENDE_REGLER).forstaatt;
 
 /** Raden med hendelsen eller elementet etiketten viser til. */
 function radMed(rader: Journalrad[], k: Kjoering, navn: string): Journalrad {
@@ -314,7 +314,7 @@ describe('lesereglene for referansene (4.2)', () => {
       },
     };
     if (!forstaatt(journalB)) throw new Error('Forutsetning: sak B er forstått uten raden');
-    const u = utled(lesJournal([...journalB, aksept], KJERNE.format), GJELDENDE_REGLER);
+    const u = utled(lesJournal([...journalB, aksept], KJERNE.leserformat), GJELDENDE_REGLER);
     expect(u.forstaatt).toBe(false);
     const vist = JSON.stringify([visning(u, GJELDENDE_REGLER), u.spor, u.svar]);
     expect(vist).not.toContain(annet);
@@ -359,7 +359,7 @@ describe('rader fra en annen skriver som strider mot en enighet eller «ingen kr
     const bane = minnebane();
     const k = await bygg(bane, godkjentGrunnlag);
     const journal = await bane.journal();
-    const u = utled(lesJournal(journal, KJERNE.format), GJELDENDE_REGLER);
+    const u = utled(lesJournal(journal, KJERNE.leserformat), GJELDENDE_REGLER);
     expect(u.endringsordre).toBe('ja');
     expect(forstaatt([...journal, fraTE(journal, [aksept(k, 'S-g1')])])).toBe(false);
   });
@@ -380,7 +380,7 @@ describe('rader fra en annen skriver som strider mot en enighet eller «ingen kr
     const u = utled(
       lesJournal(
         [...journal, fraTE(journal, [ingenKrav('vederlag'), ingenKrav('frist')])],
-        KJERNE.format
+        KJERNE.leserformat
       ),
       GJELDENDE_REGLER
     );
@@ -504,7 +504,7 @@ describe('opplysningen om § 31.3 i registrert korrespondanse', () => {
     const lagret = await bane.journal();
     const siste = structuredClone(lagret.at(-1)!);
     (siste.data.opplysninger as Data[])[0].hva = 'mottatt';
-    const u = utled(lesJournal([...journal, siste], KJERNE.format), GJELDENDE_REGLER);
+    const u = utled(lesJournal([...journal, siste], KJERNE.leserformat), GJELDENDE_REGLER);
     expect(u.forstaatt).toBe(true);
     expect(u.endringsordre).toBe('ikke_avklart');
   });

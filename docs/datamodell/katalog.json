@@ -380,7 +380,12 @@
      ["cached_hovedkategori", "text", "NULL"],
      ["cached_underkategori", "text", "NULL"],
      ["cached_forsering_paalopt", "numeric", "NULL"],
-     ["cached_forsering_maks", "numeric", "NULL"]
+     ["cached_forsering_maks", "numeric", "NULL"],
+     ["kjerne_visning", "jsonb", "NULL"],
+     ["kjerne_projeksjonsversjon", "integer", "NULL"],
+     ["kjerne_regelversjon", "integer", "NULL"],
+     ["kjerne_format", "integer", "NULL"],
+     ["kjerne_saksversjon", "integer", "NULL"]
     ],
     "primærnøkkel": ["sak_id"],
     "unike": [],

@@ -15,6 +15,7 @@ const NYERE: Kjerne = {
   ...KJERNE,
   projeksjonsversjon: KJERNE.projeksjonsversjon + 1,
   format: KJERNE.format + 1,
+  leserformat: KJERNE.leserformat + 1,
 };
 
 /** Suiten kjøres i minnet her og mot testbasen i `sprakprove/kjernelagring/`. */
@@ -84,7 +85,7 @@ export function bufferen(lagBaner: () => Baner): void {
       expect(lestA.kilde).toBe('stoppet');
       expect(lestA.visning.status.kode).toBe('kan_ikke_utledes');
       expect(lestA.visning.journal.filter((j) => !j.tolket)).toHaveLength(1);
-      expect((await baner.buffer().les(baneA.sakId))?.versjon.format).toBe(NYERE.format);
+      expect((await baner.buffer().les(baneA.sakId))?.versjon.format).toBe(NYERE.leserformat);
       for (const h of [
         { handling: 'krav', spor: 'frist', dager: 30 },
         { handling: 'brev', svar: [{ spor: 'grunnlag', resultat: 'godkjent' }] },
