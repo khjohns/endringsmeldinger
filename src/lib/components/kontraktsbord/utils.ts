@@ -1,8 +1,7 @@
-import type { Bestemmelse, SporStatus } from '$lib/types';
+import type { Bestemmelse } from '$lib/types';
 import type { SporKey } from './types.js';
 import { getParagrafTittel } from '$lib/constants/paragrafTitler.js';
 import { getKontraktsregel } from '$lib/constants/kontraktsregler.js';
-import { SPOR_STATUS_LABELS } from '$lib/constants/statusLabels.js';
 
 /** Bare tallformatering (nb-NO). Produksjon bruker formatCurrency/formatDays med andre suffiks. */
 export function fmt(n: number): string {
@@ -10,14 +9,6 @@ export function fmt(n: number): string {
 }
 
 export const BESTRIDT_LABEL = 'Bestridt';
-
-/**
- * Label for beregningsresultat (godkjent / delvis_godkjent / avslatt).
- * Løs typing: VederlagBeregningResultat inneholder også 'hold_tilbake' som ikke er SporStatus.
- */
-export function sporResultatLabel(status: string): string {
-  return SPOR_STATUS_LABELS[status as SporStatus] ?? status;
-}
 
 function byggBestemmelse(key: string): Bestemmelse | null {
   const tittel = getParagrafTittel(key);
