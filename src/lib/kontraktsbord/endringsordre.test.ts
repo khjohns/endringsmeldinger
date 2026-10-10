@@ -9,12 +9,12 @@
 import { describe, expect, it } from 'vitest';
 import { KRAV_STRUKTUR_NS8407 } from '$lib/constants/categories';
 import { deriveGrunnlagDomainConfig } from '$lib/domain/deriveConfig';
-import { buildEventData } from '$lib/domain/grunnlagDomain';
+import { buildEventData, forsteUnderkategori } from '$lib/domain/grunnlagDomain';
+import type { ReviewItem } from '$lib/approval/types';
 import type { SakState } from '$lib/types/timeline';
 import {
   ENDRINGSORDREVARSEL,
   brevetBlirEndringsordre,
-  type Brevpost,
   erEndringsordre,
   type Grunnlagsvurdering,
 } from './endringsordre';
@@ -99,12 +99,13 @@ describe('endringsordre etter § 32.3 første ledd a (GR-U12)', () => {
 
 describe('varselet i godkjenningsvisningen', () => {
   /**
-   * Posten slik godkjenningspakken lagrer den: svaret er nyttelasten skjemaet
-   * bygger (`buildEventData`), og kategorien står i `basis`.
+   * Posten slik `prepare` i `approval/context.svelte.ts` lagrer den: svaret er
+   * nyttelasten skjemaet bygger (`buildEventData`), sendt gjennom JSON, og
+   * kategorien står i `basis`.
    */
-  function grunnlagspost(varsletITide: boolean): Brevpost {
-    const sak = { grunnlag: { hovedkategori: 'ENDRING', underkategori: 'IRREG' } };
-    const config = deriveGrunnlagDomainConfig(sak as unknown as SakState);
+  function grunnlagspost(varsletITide: boolean): Pick<ReviewItem, 'track' | 'basis' | 'data'> {
+    const grunnlag = { hovedkategori: 'ENDRING', underkategori: ['IRREG'] };
+    const config = deriveGrunnlagDomainConfig({ grunnlag } as unknown as SakState);
     const data = buildEventData(
       {
         varsletITide,
@@ -115,28 +116,33 @@ describe('varselet i godkjenningsvisningen', () => {
       },
       { ...config, grunnlagEventId: 'krav' }
     );
-    return { track: 'grunnlag', data, basis: config.grunnlagEvent };
+    return {
+      track: 'grunnlag',
+      data: JSON.parse(JSON.stringify(data)),
+      basis: {
+        claimId: 'krav',
+        resultat: null,
+        varsletITide: null,
+        hovedkategori: grunnlag.hovedkategori ?? null,
+        underkategori: forsteUnderkategori(grunnlag.underkategori) ?? null,
+      },
+    };
   }
-  const kladd = { kladd: true, utdatert: false };
   const iTide = [grunnlagspost(true)];
 
-  it('godkjent uten påberopt preklusjon gir varsel', () => {
-    expect(brevetBlirEndringsordre(iTide, kladd)).toBe(true);
+  it('kladden: godkjent uten påberopt preklusjon gir varsel', () => {
+    expect(brevetBlirEndringsordre(iTide, undefined, false)).toBe(true);
   });
 
   // Får nøkkelen et annet navn i skjemaet eller her, blir verdien `undefined`, som betyr at svaret ikke sier noe om varslingen.
   it('påberopt preklusjon gir ikke varsel', () => {
     const prekludert = [grunnlagspost(false)];
-    expect(brevetBlirEndringsordre(prekludert, kladd)).toBe(false);
+    expect(brevetBlirEndringsordre(prekludert, undefined, false)).toBe(false);
   });
 
   it('et brev uten svar på grunnlaget gir ikke varsel', () => {
-    const vederlag = [{ ...grunnlagspost(true), track: 'vederlag' }];
-    expect(brevetBlirEndringsordre(vederlag, kladd)).toBe(false);
-  });
-
-  it('en kladd gir varsel', () => {
-    expect(brevetBlirEndringsordre(iTide, kladd)).toBe(true);
+    const vederlag = [{ ...grunnlagspost(true), track: 'vederlag' as const }];
+    expect(brevetBlirEndringsordre(vederlag, undefined, false)).toBe(false);
   });
 
   it.each([
@@ -147,15 +153,11 @@ describe('varselet i godkjenningsvisningen', () => {
     ['godkjent', false],
     ['publisering_feilet', false],
   ] as const)('et brev med status %s: varsel %s (MM-U9)', (status, forventet) => {
-    expect(brevetBlirEndringsordre(iTide, { kladd: false, status, utdatert: false })).toBe(
-      forventet
-    );
+    expect(brevetBlirEndringsordre(iTide, { status }, false)).toBe(forventet);
   });
 
   it('et utdatert krav gir ikke varsel', () => {
-    expect(brevetBlirEndringsordre(iTide, { ...kladd, utdatert: true })).toBe(false);
-    expect(
-      brevetBlirEndringsordre(iTide, { kladd: false, status: 'til_godkjenning', utdatert: true })
-    ).toBe(false);
+    expect(brevetBlirEndringsordre(iTide, undefined, true)).toBe(false);
+    expect(brevetBlirEndringsordre(iTide, { status: 'til_godkjenning' }, true)).toBe(false);
   });
 });

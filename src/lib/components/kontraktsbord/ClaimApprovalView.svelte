@@ -131,13 +131,7 @@
     })
   );
   const tracks = $derived(letter.items.map((i) => trackNames[i.track]).join(' · '));
-  const endringsordre = $derived(
-    brevetBlirEndringsordre(letter.items, {
-      kladd: isDraft,
-      status: selected?.status,
-      utdatert: outdated,
-    })
-  );
+  const endringsordre = $derived(brevetBlirEndringsordre(letter.items, selected, outdated));
   const plural = (n: number) => `${n} ${n === 1 ? 'vurdering' : 'vurderinger'}`;
   const amountLabel = $derived(
     assessment.ukjent
