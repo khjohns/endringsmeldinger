@@ -3,7 +3,7 @@
  * modellforslaget, F8–F10 feilklassene reviewet av PR #306 fant, skrevet om etter
  * MM-U9 og GR-U10, F11–F26 grensene #308 la til, og F27–F47 formatet (#273): 7.2
  * i designnotatet, GR-U12 og registeret (#320). F48 er hvitelisten fra #329,
- * F49–F51 og F54–F57 versjoneringen (#316) og F52–F53 registrert korrespondanse
+ * F49–F51 og F54–F58 versjoneringen (#316) og F52–F53 registrert korrespondanse
  * (#336). Én mutasjon om gangen i arbeidskopien, Vitest over `kjerne/` og
  * `sprakprove/kjernelagring/`, og originalteksten settes tilbake etterpå. For
  * hver mutasjon kreves det at de forventede målassertions feiler, og at alle
@@ -623,7 +623,16 @@ const MUTASJONER: Mutasjon[] = [
         'FROM sak_metadata WHERE sak_id = $1 AND $2::text IS NOT NULL`,',
       ],
     ],
-    mal: ['bufferen holder seg i prosjektet'],
+    mal: ['lar bufferen holde seg i prosjektet'],
+  },
+  {
+    id: 'F58',
+    feilklasse: 'bufferen skrives på tvers av prosjektgrensen (AGENTS.md, #316)',
+    fil: 'sprakprove/kjernelagring/bane.ts',
+    endringer: [
+      ['WHERE sak_id = $1 AND prosjekt_id = $7`,', 'WHERE sak_id = $1 AND $7::text IS NOT NULL`,'],
+    ],
+    mal: ['lar bufferen holde seg i prosjektet'],
   },
 ];
 

@@ -15,10 +15,9 @@
  * som skriver samtidig, ikke synes.
  */
 
-import { randomUUID } from 'node:crypto';
 import type { PoolClient } from 'pg';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { byggPaaNytt, lesSak } from '../../kjerne/buffer.ts';
+import { byggPaaNytt, lesSak, type Bufferlager } from '../../kjerne/buffer.ts';
 import { utledJournal } from '../../kjerne/skriving.ts';
 import { bygg } from '../../kjerne/tester/baner.ts';
 import { NESTE_REGLER } from '../../kjerne/tester/klient.ts';
@@ -64,12 +63,13 @@ async function avtrykk(klient: PoolClient): Promise<Record<string, string>> {
 describe.skipIf(!TESTBASE_URL)('gjenoppbyggingen mot testbasen', () => {
   let o: Oppsett;
   let klient: PoolClient;
+  let lager: Bufferlager;
   const saker: Record<string, string> = {};
 
   beforeAll(async () => {
     o = await lagOppsett();
     klient = await o.pool.connect();
-    const lager = pgBuffer(klient, o.prosjekt.id);
+    lager = pgBuffer(klient, o.prosjekt.id);
     const lag = async (navn: string, steg: Parameters<typeof bygg>[1]) => {
       const bane = await basebane(o);
       await bygg(bane, steg);
@@ -92,7 +92,6 @@ describe.skipIf(!TESTBASE_URL)('gjenoppbyggingen mot testbasen', () => {
   });
 
   it('finner de utdaterte sakene og bygger dem på nytt uten å endre noe annet enn bufferen', async () => {
-    const lager = pgBuffer(klient, o.prosjekt.id);
     const alle = Object.values(saker).sort();
     expect(await utdaterteSaker(klient, o.prosjekt.id, KJERNE)).toEqual([]);
     expect(await utdaterteSaker(klient, o.prosjekt.id, N1)).toEqual(alle);
@@ -129,7 +128,6 @@ describe.skipIf(!TESTBASE_URL)('gjenoppbyggingen mot testbasen', () => {
   });
 
   it('finner en sak med en ny hendelse etter bufferen, og bare den', async () => {
-    const lager = pgBuffer(klient, o.prosjekt.id);
     for (const id of Object.values(saker)) await lesSak(id, await journalen(o, id), lager, KJERNE);
     expect(await utdaterteSaker(klient, o.prosjekt.id, KJERNE)).toEqual([]);
     const bane = await basebane(o);
@@ -154,8 +152,7 @@ describe.skipIf(!TESTBASE_URL)('gjenoppbyggingen mot testbasen', () => {
     expect(await sakerKjernenIkkeLeser(klient, o.prosjekt.id, VERSJONER.v2a)).toEqual([]);
   });
 
-  it('tar ikke med en sak uten rader fra kjernen, og bufferen holder seg i prosjektet', async () => {
-    const lager = pgBuffer(klient, o.prosjekt.id);
+  it('tar ikke med en sak uten rader fra kjernen', async () => {
     // Sakene fra testene over, som ikke alle er regnet ut.
     const foer = await utdaterteSaker(klient, o.prosjekt.id, KJERNE);
     // En sak med bare rader uten format, som Python skriver (B-17).
@@ -168,13 +165,25 @@ describe.skipIf(!TESTBASE_URL)('gjenoppbyggingen mot testbasen', () => {
     expect(await utdaterteSaker(klient, o.prosjekt.id, KJERNE)).toEqual(
       [...foer, kontroll.sakId].sort()
     );
+  });
 
-    // Et lager for et annet prosjekt leser og skriver ikke prosjektets saker.
+  it('lar bufferen holde seg i prosjektet', async () => {
+    const annet = { ...o, prosjekt: o.annetProsjekt };
+    const bane = await basebane(annet);
+    await bygg(bane, ['krav_eo']);
+    const lagerB = pgBuffer(klient, o.annetProsjekt.id);
+    await lesSak(bane.sakId, await bane.journal(), lagerB, KJERNE);
+    // Kontrollsak: hvert lager leser sin egen sak.
+    const egenB = await lagerB.les(bane.sakId);
     const id = saker['enighet om beløpet'];
-    const annet = pgBuffer(klient, randomUUID());
-    expect(await annet.les(id)).toBeNull();
-    const egen = (await lager.les(id))!;
-    await expect(annet.skriv(id, egen)).rejects.toThrow('finnes ikke i prosjektet');
-    expect(await lager.les(id)).toEqual(egen);
+    const egenA = await lager.les(id);
+    if (!egenA || !egenB) throw new Error('Forutsetning: begge sakene har en buffer');
+
+    expect(await lager.les(bane.sakId)).toBeNull();
+    expect(await lagerB.les(id)).toBeNull();
+    await expect(lager.skriv(bane.sakId, egenA)).rejects.toThrow('finnes ikke i prosjektet');
+    await expect(lagerB.skriv(id, egenB)).rejects.toThrow('finnes ikke i prosjektet');
+    expect(await lager.les(id)).toEqual(egenA);
+    expect(await lagerB.les(bane.sakId)).toEqual(egenB);
   });
 });
