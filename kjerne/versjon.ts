@@ -1,5 +1,6 @@
 /** Versjonene en kjerne har (2.7 i modellforslaget). */
 
+import { FORMAT } from './format.ts';
 import { GJELDENDE_REGLER, type Regelsett } from './regler/regelsett.ts';
 
 /**
@@ -18,5 +19,5 @@ export interface Kjerne {
 export const KJERNE: Kjerne = {
   regler: GJELDENDE_REGLER,
   projeksjonsversjon: PROJEKSJONSVERSJON,
-  format: 1,
+  format: FORMAT,
 };
