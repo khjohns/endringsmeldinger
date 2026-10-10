@@ -187,8 +187,26 @@ beskrivelse = "Serverens utregning: resultatet og de godkjente dagene, og det su
 felt = ["resultat", "godkjent_dager", "subsidiaert_resultat", "subsidiaert_godkjent_dager"]
 grunnlag = "B-13, vedtaket 05.10 (#211)"
 
-[[del]]
-navn = "opplysning"
-beskrivelse = "Når dokumentet ble sendt eller mottatt, oppgitt av avsenderen. Et brev sendt i appen har ingen: sendt er registrert."
+# Opplysningene om dokumentet, oppgitt av avsenderen. Et brev sendt i appen har
+# ingen: sendt er registrert. Motparten kan bestride en opplysning (MM-U7).
+
+[[opplysning]]
+hva = "sendt"
+beskrivelse = "Når dokumentet ble sendt utenfor appen. Dokumentet er registrert korrespondanse."
+felt = ["id", "hva", "dato"]
+grunnlag = "Modellforslaget 2.4, MM-U1"
+
+[[opplysning]]
+hva = "mottatt"
+beskrivelse = "Når dokumentet ble mottatt."
 felt = ["id", "hva", "dato"]
 grunnlag = "Modellforslaget 2.4, MM-U7"
+
+[[opplysning]]
+hva = "endringsordre"
+beskrivelse = """
+Om registrert korrespondanse med et svar på grunnlaget var en endringsordre
+etter § 31.3, oppgitt av den som registrerer, med vedlegget i `dokumentasjon`.
+Ikke en rettslig avgjørelse. Uten opplysningen er svaret ikke en endringsordre."""
+felt = ["id", "hva", "oppfylt"]
+grunnlag = "§ 31.3, § 32.3 a, GR-U12, oppdragsgiver 10.10"

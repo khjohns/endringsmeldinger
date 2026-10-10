@@ -294,6 +294,14 @@ export function radFor(
         GJELDENDE_REGLER
       );
     data = { svar: [svar] };
+    // Registrert korrespondanse: sendt utenfor appen, og eventuelt om § 31.3 er oppfylt.
+    if (typeof h.sendt === 'string')
+      data.opplysninger = [
+        { id: randomUUID(), hva: 'sendt', dato: h.sendt },
+        ...(typeof h.endringsordre === 'boolean'
+          ? [{ id: randomUUID(), hva: 'endringsordre', oppfylt: h.endringsordre }]
+          : []),
+      ];
   }
   return {
     ...felles,

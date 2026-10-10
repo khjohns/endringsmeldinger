@@ -118,7 +118,9 @@ describe('registeret over hendelsene kjernen skriver (#320)', () => {
     expect(feltI(oppfoering('del', 'navn', 'beslutningsgrunnlag'))).toEqual(
       felt(BESLUTNINGSGRUNNLAG)
     );
-    expect(feltI(oppfoering('del', 'navn', 'opplysning'))).toEqual(felt(OPPLYSNING));
+    for (const [hva, skjema] of Object.entries(OPPLYSNING))
+      expect(feltI(oppfoering('opplysning', 'hva', hva)), hva).toEqual(felt(skjema));
+    expect(noekler('opplysning', 'hva')).toEqual(Object.keys(OPPLYSNING).sort());
   });
 
   it('har sporene hver art av standpunkter kan stå i', () => {

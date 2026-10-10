@@ -15,14 +15,14 @@ export type Kravspor = (typeof KRAVSPOR)[number];
 
 export type Hjemmel = '32.2' | '33.4';
 
-/** En opplysning en part oppgir om et dokument: når det ble sendt eller mottatt (2.4). */
-export interface Opplysning {
-  id: string;
-  dokument: string;
-  hva: 'sendt' | 'mottatt';
-  dato: string;
-  oppgittAv: Part;
-}
+/**
+ * En opplysning en part oppgir om et dokument (2.4): når det ble sendt eller
+ * mottatt, eller, for registrert korrespondanse, om brevet var en endringsordre
+ * etter § 31.3. Opplysningen er ikke en rettslig avgjørelse (oppdragsgiver 10.10).
+ */
+export type Opplysning =
+  | { id: string; dokument: string; hva: 'sendt' | 'mottatt'; dato: string; oppgittAv: Part }
+  | { id: string; dokument: string; hva: 'endringsordre'; oppfylt: boolean; oppgittAv: Part };
 
 /**
  * Byggherrens standpunkter i ett svar. Standpunktene gjelder kravet svaret
@@ -53,8 +53,11 @@ export type Utsagn =
       /** Regelversjonen TE fikk se (B-13, KA-U10). Innholdet står i brevet. */
       regelversjon: number;
     }
-  /** MM-U1, MM-U7: bestrider at dokumentet i opplysningen fra motparten ble sendt eller mottatt. */
-  | { id: string; art: 'bestridelse'; gjelder: string; hva: 'sendt' | 'mottatt' }
+  /**
+   * MM-U1, MM-U7: bestrider en opplysning fra motparten: at dokumentet ble sendt
+   * eller mottatt, eller at det var en endringsordre.
+   */
+  | { id: string; art: 'bestridelse'; gjelder: string; hva: Opplysning['hva'] }
   /** KA-U12: TE krever ikke noe i sporet. */
   | { id: string; art: 'ingen_krav'; spor: Kravspor };
 

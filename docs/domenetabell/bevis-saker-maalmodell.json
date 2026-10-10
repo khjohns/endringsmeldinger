@@ -1733,7 +1733,7 @@
           "rolle": "mal",
           "kilde": ["KA-U13", "GR-U10"],
           "prov": { "handling": "trekk", "spor": "grunnlag" },
-          "forventet": { "avvist": true, "regel": "GRUNNLAG_ER_ENDRINGSORDRE" }
+          "forventet": { "avvist": true, "regel": "TREKK_AV_GRUNNLAGET_SPERRET" }
         }
       ]
     },
@@ -2020,7 +2020,7 @@
           "rolle": "mal",
           "kilde": ["KA-U13", "GR-U10"],
           "prov": { "handling": "trekk", "spor": "grunnlag" },
-          "forventet": { "avvist": true, "regel": "GRUNNLAG_ER_ENDRINGSORDRE" }
+          "forventet": { "avvist": true, "regel": "TREKK_AV_GRUNNLAGET_SPERRET" }
         },
         {
           "etter": 2,
@@ -2033,7 +2033,7 @@
           "rolle": "mal",
           "kilde": ["MM-U9", "KA-U13", "GR-U11"],
           "prov": { "handling": "trekk", "spor": "grunnlag" },
-          "forventet": { "avvist": true, "regel": "GRUNNLAG_ER_ENDRINGSORDRE" }
+          "forventet": { "avvist": true, "regel": "TREKK_AV_GRUNNLAGET_SPERRET" }
         }
       ]
     },
@@ -2099,9 +2099,20 @@
       "id": "F-MM-G18",
       "rader": ["GR-28"],
       "start": "krav_irreg",
-      "forslag": "GR-U12: registrert korrespondanse der byggherren godkjenner grunnlaget uten å si noe om varslingen, er en endringsordre",
+      "forslag": "GR-U12 og § 31.3: registrert korrespondanse der byggherren godkjenner grunnlaget uten å si noe om varslingen, og den som registrerer oppgir at § 31.3 er oppfylt, er en endringsordre",
       "forventningsgrunnlag": "avklart_tolkning",
-      "steg": [{ "handling": "rad", "spor": "grunnlag", "navn": "S-g1", "dokument": "D4", "gjelder": "K-g1", "resultat": "godkjent" }],
+      "steg": [
+        {
+          "handling": "rad",
+          "spor": "grunnlag",
+          "navn": "S-g1",
+          "dokument": "D4",
+          "gjelder": "K-g1",
+          "resultat": "godkjent",
+          "sendt": "2026-09-30",
+          "endringsordre": true
+        }
+      ],
       "kontroller": [
         {
           "etter": 0,
@@ -2119,6 +2130,8 @@
             "enighet.grunnlag.kilde": "sammenfall",
             "beslutningsgrunnlag.S-g1.sammenfall": true,
             "beslutningsgrunnlag.S-g1.varslingsplikt": true,
+            "opplysning.D4#endringsordre.oppfylt": true,
+            "godkjenning_er_endringsordre": true,
             "handlinger.TE": { "mangler": ["trekke:grunnlag"] }
           }
         },
@@ -2127,7 +2140,53 @@
           "rolle": "mal",
           "kilde": ["GR-U12", "KA-U13"],
           "prov": { "handling": "trekk", "spor": "grunnlag" },
-          "forventet": { "avvist": true, "regel": "GRUNNLAG_ER_ENDRINGSORDRE" }
+          "forventet": { "avvist": true, "regel": "TREKK_AV_GRUNNLAGET_SPERRET" }
+        }
+      ]
+    },
+    {
+      "id": "F-MM-G20",
+      "rader": ["GR-29"],
+      "start": "krav_irreg",
+      "forslag": "§ 31.3 (oppdragsgiver 10.10): uten opplysningen om § 31.3 er registrert korrespondanse ikke en endringsordre, men partene er enige ved sammenfall",
+      "forventningsgrunnlag": "arbeidshypotese",
+      "steg": [
+        {
+          "handling": "rad",
+          "spor": "grunnlag",
+          "navn": "S-g1",
+          "dokument": "D4",
+          "gjelder": "K-g1",
+          "resultat": "godkjent",
+          "sendt": "2026-09-30"
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 0,
+          "rolle": "kontroll",
+          "kilde": ["KA-U6", "KA-U13"],
+          "prov": { "handling": "trekk", "spor": "grunnlag" },
+          "forventet": { "avvist": false }
+        },
+        {
+          "etter": 1,
+          "rolle": "mal",
+          "kilde": ["GR-U12", "GR-U10"],
+          "forventet": {
+            "forstaatt": true,
+            "enighet.grunnlag.kilde": "sammenfall",
+            "beslutningsgrunnlag.S-g1.varslingsplikt": true,
+            "opplysning.D4#endringsordre": null,
+            "godkjenning_er_endringsordre": false
+          }
+        },
+        {
+          "etter": 1,
+          "rolle": "mal",
+          "kilde": ["KA-U13", "GR-U10"],
+          "prov": { "handling": "trekk", "spor": "grunnlag" },
+          "forventet": { "avvist": true, "regel": "TREKK_AV_GRUNNLAGET_SPERRET" }
         }
       ]
     },

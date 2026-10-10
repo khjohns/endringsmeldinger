@@ -79,7 +79,7 @@ export interface Sporutledning {
 
 export interface Bestridelse {
   part: Part;
-  hva: 'sendt' | 'mottatt';
+  hva: Opplysning['hva'];
   /** Hendelsen bestridelsen står i. */
   hendelse: string;
 }
@@ -103,12 +103,19 @@ export interface Utledning {
   /** GR-U3, GR-U9: byggherren har frafalt pålegget (§ 32.3 c). Er ikke en enighet. */
   frafalt: boolean;
   /**
-   * KA-U13, GR-U10, GR-U12: byggherren har godkjent grunnlaget uten påberopt
-   * preklusjon i en kategori § 32.2 gjaldt for da brevet ble sendt, så partene er
-   * enige ved sammenfall, og godkjenningen er en endringsordre etter § 32.3 første
-   * ledd a.
+   * GR-U10, GR-U12, § 31.3 (oppdragsgiver 10.10): byggherren har godkjent
+   * grunnlaget uten påberopt preklusjon i en kategori § 32.2 gjaldt for da brevet
+   * ble sendt, og § 31.3 er oppfylt: brevet er sendt i appen, eller den som
+   * registrerte korrespondansen, har oppgitt at den var en endringsordre. Da er
+   * godkjenningen en endringsordre etter § 32.3 første ledd a.
    */
   godkjenningErEndringsordre: boolean;
+  /**
+   * KA-U13: TE kan ikke trekke grunnlaget. Foreslått, til svaret om KA-U13 er
+   * kommet: enighet ved sammenfall i en kategori § 32.2 gjaldt for, uavhengig av
+   * § 31.3 (lesning a).
+   */
+  trekkAvGrunnlagetErSperret: boolean;
 }
 
 const tomtSpor = (): Sporutledning => ({
@@ -141,6 +148,7 @@ function tom(
     grunnlagAvvist: false,
     frafalt: false,
     godkjenningErEndringsordre: false,
+    trekkAvGrunnlagetErSperret: false,
   };
 }
 
@@ -302,9 +310,13 @@ export function utled(journal: Domenehendelse[], regler: Regelsett): Utledning {
     if (
       !o ||
       !bakover(b.id, b.gjelder) ||
-      o.oppgittAv === partFor(journal, plass.get(b.id)!.hendelse)
+      o.oppgittAv === partFor(journal, plass.get(b.id)!.hendelse) ||
+      (o.hva === 'endringsordre') !== (b.hva === 'endringsordre')
     )
-      ugyldig(b.id, 'bestridelsen viser ikke til en opplysning fra motparten før den');
+      ugyldig(
+        b.id,
+        'bestridelsen viser ikke til en opplysning av samme slag fra motparten før den'
+      );
   }
   // KA-U12: «ingen krav» står i et spor uten kravversjon, og bare én gang.
   // Oppdragsgiver 10.10 (spm 6): grunnlaget må være sendt, som for et krav.
@@ -370,6 +382,15 @@ export function utled(journal: Domenehendelse[], regler: Regelsett): Utledning {
 
   const gSvar = spor.grunnlag.gjeldendeSvar;
   const eg = spor.grunnlag.enighet;
+  const sammenfallMedVarslingsplikt =
+    eg?.grunnlag.kilde === 'sammenfall' && gSvar?.beslutningsgrunnlag.varslingsplikt === true;
+  // § 31.3: et brev sendt i appen oppfyller den, fordi appen lager brevet (#310). Registrert
+  // korrespondanse har opplysningen `sendt`, og da avgjør opplysningen fra den som
+  // registrerte. Mangler den, gjetter kjernen ikke.
+  const iDokumentet = (hva: Opplysning['hva']) =>
+    opplysninger.find((o) => o.dokument === gSvar?.dokument && o.hva === hva);
+  const om313 = iDokumentet('endringsordre');
+  const oppfyller313 = !iDokumentet('sendt') || (om313?.hva === 'endringsordre' && om313.oppfylt);
   const gBrev = gSvar ? svar[gSvar.id] : null;
   for (const n of KRAVSPOR) {
     const falt = tilNyttSvar[n];
@@ -402,10 +423,10 @@ export function utled(journal: Domenehendelse[], regler: Regelsett): Utledning {
     // SK-01: avslaget eller preklusjonen i brevet, og partene er enige om det.
     grunnlagAvvist:
       eg !== null && gBrev !== null && grunnlagetErAvslaatt(gBrev.svar, gBrev.virkninger),
-    // GR-U12, KA-U13: om § 32.2 gjaldt, er frosset i brevet. Dagens regelsett vurderer
-    // det ikke på nytt (MM-U9), og det avhenger ikke av om brevet sier noe om varslingen.
-    godkjenningErEndringsordre:
-      eg?.grunnlag.kilde === 'sammenfall' && gSvar?.beslutningsgrunnlag.varslingsplikt === true,
+    // GR-U12: om § 32.2 gjaldt, er frosset i brevet. Dagens regelsett vurderer det
+    // ikke på nytt (MM-U9), og det avhenger ikke av om brevet sier noe om varslingen.
+    godkjenningErEndringsordre: sammenfallMedVarslingsplikt && oppfyller313,
+    trekkAvGrunnlagetErSperret: sammenfallMedVarslingsplikt,
     // GR-U3, GR-U9: frafallet er byggherrens standpunkt, uavhengig av hva TE har sagt.
     frafalt:
       gBrev !== null &&

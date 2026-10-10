@@ -56,7 +56,7 @@ export function nyttelastkontroll(k: Kommando, u: Utledning, regler: Regelsett):
         (o) => o.opplysning.dokument === varsel.dokument && o.opplysning.hva === 'sendt'
       );
       // SK-12: et registrert varsel beholder datoen det fikk første gang (rad KA-19).
-      return sendt?.opplysning.dato === k.varsel.sendt
+      return sendt?.opplysning.hva === 'sendt' && sendt.opplysning.dato === k.varsel.sendt
         ? null
         : avvis(
             'VARSEL_REGISTRERT',
