@@ -181,8 +181,13 @@ describe.skipIf(!TESTBASE_URL)('gjenoppbyggingen mot testbasen', () => {
 
     expect(await lager.les(bane.sakId)).toBeNull();
     expect(await lagerB.les(id)).toBeNull();
-    await expect(lager.skriv(bane.sakId, egenA)).rejects.toThrow('finnes ikke i prosjektet');
-    await expect(lagerB.skriv(id, egenB)).rejects.toThrow('finnes ikke i prosjektet');
+    const avvist = (skriving: Promise<void>) =>
+      skriving.then(
+        () => 'skrevet',
+        (e: Error) => e.message
+      );
+    expect(await avvist(lager.skriv(bane.sakId, egenA))).toMatch(/finnes ikke i prosjektet/);
+    expect(await avvist(lagerB.skriv(id, egenB))).toMatch(/finnes ikke i prosjektet/);
     expect(await lager.les(id)).toEqual(egenA);
     expect(await lagerB.les(bane.sakId)).toEqual(egenB);
   });
