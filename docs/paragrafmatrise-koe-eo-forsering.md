@@ -82,8 +82,9 @@ To trekk gjelder hele kjernen på `7460838`:
   av BHs standpunkt om rettidighet.
 - **Vedtak:** [GR-U11](plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u11)
   (09.10, uten merknad). B-13 om `grunnlag_varslet_i_tide` (24.09, merknaden
-  05.10). B-13 om preklusjon ut fra byggherrens egen vurdering (24.09). Vedtaket
-  05.10 om avslag sammen med § 32.2. [GR-U13](plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u13)
+  05.10). Vedtakene 05.10 om svar når grunnlaget er avslått eller prekludert, og
+  om avslag sammen med § 32.2. [GR-U12](plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u12),
+  endret av GR-U13. [GR-U13](plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u13)
   (10.10): om § 32.2 gjaldt, fryses som appens vurdering.
 - **Kjernen i dag:** bygget. `rettidighet` med hjemmel `32.2`
   ([`typer.ts`](../kjerne/typer.ts), `Standpunkt`); `preklusjonPaaberopt` og
@@ -159,10 +160,12 @@ To trekk gjelder hele kjernen på `7460838`:
   senere dokument.
 - **Predikat:** ingen virkning på utfallet.
 - **Appen avgjør ikke:** om begrunnelsen er tilstrekkelig, eller kom i tide.
-- **Appen:** *forslag (spørsmål 12):* registrere og vise. Brev fra appen krever
-  begrunnelse ved avslag.
+- **Appen:** *registrere og vise.* At teksten lagres, er vedtatt. Om
+  begrunnelsen er påkrevd i et brev fra appen, er spørsmål 12.
 - **Vedtak:** B-13 begrunnelsestekst (T-a, 24.09): den låste teksten er
-  partens. Ellers ingen.
+  partens, og den låste delen og utdypningen lagres hver for seg.
+  [MM-U12](plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u12).
+  [LV-U1](plans/2026-09-16-godkjenning-og-varig-levering.md#lv-u1).
 - **Kjernen i dag:** ikke bygget. Svaret har ikke noe felt for tekst (`SVAR`
   i [`format.ts`](../kjerne/format.ts) har `additionalProperties: false`). Bare
   den genererte `linje` i beslutningsgrunnlaget lagres.
@@ -234,7 +237,8 @@ To trekk gjelder hele kjernen på `7460838`:
 - **Appen avgjør ikke:** om varselet kom i tide, eller om det ble sendt eller
   mottatt. Det kan bestrides.
 - **Appen:** *utlede.*
-- **Vedtak:** [MM-U1](plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u1).
+- **Vedtak:** B-13 om preklusjon ut fra byggherrens egen vurdering (24.09).
+  [MM-U1](plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u1).
   [MM-U8](plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u8) (merknaden
   09.10: presiserer MM-U1, ikke MM-U4). SK-12 (05.10).
   [MM-U7](plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u7) (merknaden
@@ -263,10 +267,13 @@ To trekk gjelder hele kjernen på `7460838`:
 - **Appen:** *forslag:* utlede.
 - **Vedtak:** [KA-U8](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u8)
   (merknaden 09.10: presisert av KA-U12). [KA-U4](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u4)
-  (merknaden 08.10).
+  (merknaden 08.10). [MP-U4](plans/2026-09-16-godkjenning-og-varig-levering.md#mp-u4)
+  og [MP-U5](plans/2026-09-16-godkjenning-og-varig-levering.md#mp-u5) (gjelder
+  metodeprøven): påberopelsen er en innsigelse etter § 5, atskilt fra
+  innsigelsen mot omfanget.
 - **Kjernen i dag:** delvis. `beregnReduksjon` i
-  [`regler/frist.ts`](../kjerne/regler/frist.ts) finnes, men
-  `spesifisert_krav_ok` usann avvises (`utenforOmfanget`, #341). Ingen
+  [`regler/frist.ts`](../kjerne/regler/frist.ts) finnes og gir, som Python,
+  bare en grunn og ett tall. `spesifisert_krav_ok` usann avvises (`utenforOmfanget`, #341). Ingen
   standpunktart for spesifiseringen. Dagene har ikke eget felt i
   standpunktet. De leses fra `utregning`, med `utregning.resultat` som reserve
   i `leser.ts` (rettelsen 10.10 i #309).
@@ -333,8 +340,9 @@ To trekk gjelder hele kjernen på `7460838`:
   iverksettes, skal byggherren varsles med angivelse av hva forseringen antas å
   ville koste.»
 - **Utsagn:** TE: valget og varselet med antatt kostnad, i en forseringssak som
-  `gjelder` BHs svar i fristsporet i KOE-saken. TE: vederlagskrav for
-  forseringen. BH: eventuelt standpunkt til valget (spørsmål 8).
+  `gjelder` BHs svar i fristsporet i KOE-saken. TE: oppdatert kostnadsoverslag
+  og stopp av forseringen (TFR-02). TE: vederlagskrav for forseringen. BH:
+  standpunkt til valget, godtatt eller bestridt (forslag, spørsmål 8).
 - **Predikat:** TE har valgrett når BH prinsipalt har avslått fristkravet helt
   eller delvis, også gjennom grunnlaget eller ved preklusjon, og TE ikke har
   godtatt avslaget. Valgretten gjelder de avslåtte dagene.
@@ -342,7 +350,8 @@ To trekk gjelder hele kjernen på `7460838`:
   overskredet.
 - **Appen:** *utlede* valgretten. *Registrere og vise* 30 %-grensen.
 - **Vedtak:** [FO-U1](plans/2026-09-16-godkjenning-og-varig-levering.md#fo-u1).
-  TFR-02 (23.09): forsering får aldri en lukket samlet status. «Forsering er
+  TFR-02 (23.09): forsering får aldri en lukket samlet status. Merknaden 23.09
+  til TFR-02 i 4.2: TE kan oppdatere kostnader og stoppe etter BHs svar. «Forsering er
   utenfor godkjenningsflyten» (18.09). [B-17](plans/2026-09-16-godkjenning-og-varig-levering.md#b-17)
   (merknaden 09.10: forsering går til TS).
 - **Kjernen i dag:** ikke bygget. Ingen sakstype, regel eller utsagn. Strengen
@@ -386,7 +395,7 @@ også § 30 om regningsarbeid, som § 34.4 viser til.
   eller burde ha blitt klar over forholdene […] Krav på vederlagsjustering
   tapes dersom det ikke varsles innen fristen.»
 - **Utsagn:** TE: varsel om vederlagskravet, med hjemmel 34.1.2 (forslag,
-  spørsmål 5). BH: `rettidighet` med hjemmel 34.1.2.
+  spørsmål 5 a). BH: `rettidighet` med hjemmel 34.1.2.
 - **Predikat:** preklusjon påberopt gir prinsipalt avslag med subsidiært beløp.
 - **Appen avgjør ikke:** når TE ble eller burde ha blitt klar over forholdet.
 - **Appen:** *utlede.*
@@ -410,9 +419,11 @@ også § 30 om regningsarbeid, som § 34.4 viser til.
   én gang, som for § 33.4.
 - **Appen avgjør ikke:** hvilke utgifter som var påløpt før varselet.
 - **Appen:** *forslag:* utlede.
-- **Vedtak:** SK-12 (05.10). [MM-U1](plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u1)
-  (gjelder § 33.4; om det gjelder § 34.1.3, er ikke vedtatt). B-13 om preklusjon
-  ut fra byggherrens egen vurdering (24.09, nevner § 34.1.3).
+- **Vedtak:** SK-12 (05.10), som omfatter varslene etter § 34.1.3.
+  [MM-U1](plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u1) gjelder dem
+  dermed også. Hvilken dato et varsel registrert senere får, sett opp mot
+  DRF-03, er spørsmål 5 b. B-13 om preklusjon ut fra byggherrens egen vurdering
+  (24.09, nevner § 34.1.3); formen er spørsmål 4.
 - **Kjernen i dag:** ikke bygget. Reglene for `rigg_*` og `produktivitet_*`
   finnes i [`regler/vederlag.ts`](../kjerne/regler/vederlag.ts), men
   `regnUtSvar` setter dem til `null`, og en vurdering avvises. Varselet etter
@@ -575,16 +586,21 @@ visning ikke fremstiller et trekk som at utførelsesplikten er bortfalt.
 
 - **Utdrag:** § 32.3 a: «utstede endringsordre i henhold til 31.3». § 32.3 c:
   «mot å utstede endringsordre for allerede utført arbeid».
-- **Utsagn:** BH: endringsordre i en EO-sak som viser til KOE-saken, som svar på
-  grunnlaget når BH ikke har svart (KA-U12). BH: endringsordre for utført
-  arbeid etter frafall, i en egen EO-sak (GR-U3).
-- **Predikat:** *forslag (spørsmål 9).*
+- **Utsagn:** BH: endringsordre i en EO-sak som *viser til* KOE-saken, som svar
+  på grunnlaget når BH ikke har svart (KA-U12). Det er ikke det samme som at
+  KOE-saken *inngår* i endringsordren (EO-U3, EO-U5). BH: endringsordre for
+  utført arbeid etter frafall, i en egen EO-sak (GR-U3).
+- **Predikat:** at endringsordren er svaret på grunnlaget, er vedtatt (KA-U12,
+  KA-U14). Hvordan sakene viser til hverandre, og virkningen i KOE-saken, er
+  *forslag (spørsmål 9)*.
 - **Appen avgjør ikke:** om endringsordren dekker det utførte arbeidet.
 - **Appen:** *utlede.*
 - **Vedtak:** [KA-U12](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u12)
   (merknaden 10.10: presisert av KA-U15, og § 31.3 kreves etter GR-U13).
   [KA-U14](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u14).
   [GR-U3](plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u3).
+  [EO-U3](plans/2026-09-16-godkjenning-og-varig-levering.md#eo-u3)–[EO-U5](plans/2026-09-16-godkjenning-og-varig-levering.md#eo-u5).
+  Lagringen av relasjoner mellom saker er B-01 i 3.4, som står åpen.
 - **Kjernen i dag:** ikke bygget.
 
 ---
@@ -603,8 +619,9 @@ visning ikke fremstiller et trekk som at utførelsesplikten er bortfalt.
     har en virksom enighet, og ingen spor kan sendes.
   - Et sendt brev beholder virkningen det hadde da det ble sendt. Utfallet
     utledes av de frosne standpunktene.
-- **Appen avgjør ikke:** hva «ingen krav» gir avkall på (avgjøres før
-  kommandoen tas i bruk), og virkningen av et forbehold (spørsmål 10 og 11).
+- **Appen avgjør ikke:** hva parten mener med et forbehold eller med «ingen
+  krav». Virkningen av et forbehold er spørsmål 10, og hva «ingen krav» gir
+  avkall på, spørsmål 11. Begge avgjøres før kommandoene tas i bruk (KA-U15).
 - **Appen:** *utlede.*
 - **Vedtak:**
   - [KA-U1](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u1) (merknaden 09.10);
