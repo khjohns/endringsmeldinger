@@ -158,6 +158,15 @@ fra Python-epoken og målmodellen og navnene i format 1.
 | Finnes ikke | Utsagnet `ingen_krav` med `spor` | KA-U12 |
 | Finnes ikke | Opplysningen `{id, hva: "endringsordre", oppfylt, gjelder?}` i registrert korrespondanse | § 31.3: den som registrerer, oppgir om brevet var en endringsordre. Registratorens vurdering, ikke en rettslig avgjørelse (GR-U13). En senere avklaring har `gjelder` (MM-U12) |
 | Datoen for et varsel i kravet som opplysning om kravdokumentet | Opplysningen `sendt` med `gjelder` lik varselet | Kravet er sendt i appen; datoen gjelder varselet (HF-U1) |
+| Grunnlagsresultatet `frafalt` | `paalegg_frafalt` | Det er pålegget som frafalles (§ 32.3 første ledd c), ikke TEs krav (HF-U2, arbeidsvalget 10.10 i #335) |
+| Resultatverdien `avslatt` | `avslaatt` | ae/oe/aa (#335) |
+| Vederlagsresultatet `hold_tilbake` | `tilbakeholdelse` | Ordet i § 28.3 og § 30.2, og en verdi, ikke et verb (#335) |
+| Metodene `FASTPRIS_TILBUD`, `ENHETSPRISER`, `REGNINGSARBEID` | `tilbud`, `enhetspriser`, `regningsarbeid` | Kontraktens ord: «spesifisert tilbud» i § 34.2.1, § 34.3 og § 34.4 (#335). Formatet godtar bare `tilbud` |
+| Hovedkategoriene `ENDRING`, `SVIKT`, `ANDRE`, `FORCE_MAJEURE` | `endring`, `svikt`, `andre_forhold`, `force_majeure` | § 33.1 a–c og § 33.3, med små bokstaver (#335) |
+| Underkategoriene `EO`, `IRREG`, `VALGRETT`, `SVAR_VARSEL`, `LOV_GJENSTAND`, `LOV_PROSESS`, `GEBYR`, `SAMORD` | `endringsordre`, `irregulaer_endring`, `valg_av_loesning`, `svar_paa_varsel`, `lovendring_gjenstand`, `lovendring_prosess`, `gebyrer_og_avgifter`, `samordning` | Overskriftene i § 31.3, § 32, § 14.6, § 24.2.2, § 14.4, § 15.2, § 26.3 og § 21.4, uten forkortelser (#335) |
+| Underkategoriene `MEDVIRK`, `GRUNN`, `KULTURMINNER`, `PROSJ_RISIKO` | `medvirkning`, `grunnforhold`, `kulturminner`, `prosjektering` | § 22, § 23.1, § 23.3 og § 24.1 (#335) |
+| Underkategoriene `NEKT_MH`, `SKADE_BH`, `BRUKSTAKELSE`, `STANS_BET`, `ANDRE_ANDRE` | `nektet_kontraktsmedhjelper`, `skade_fra_byggherren`, `brukstakelse`, `stans_ved_betalingsmislighold`, `annet_forhold` | § 10.2, § 19.1, § 38.1 annet ledd, § 29.2 og § 33.1 c (#335) |
+| Kategorien som fri tekst | Et par fra kjernens lukkede liste | Et ukjent par gjør raden ikke forstått (HF-U1). Katalogen i frontenden og Python beholder de gamle kodene, og kjernen oversetter dem på grensen (#335) |
 
 **To tidsakser.** *Registrering* er rekkefølgen i journalen, med `tidsstempel`
 satt av serveren. *Sendt/mottatt* er når et varsel eller brev faktisk ble sendt

@@ -40,13 +40,17 @@ grunnlag = "MM-U10, designnotatet 4.1"
 
 [[krav]]
 spor = "grunnlag"
-beskrivelse = "En kravversjon av ansvarsgrunnlaget. `erstatter` er forrige kravversjon i sporet."
+beskrivelse = """
+En kravversjon av ansvarsgrunnlaget. `erstatter` er forrige kravversjon i sporet.
+`hovedkategori` og `underkategori` er et par fra kjernens lukkede liste
+(`KATEGORIER` i `kjerne/kategorier.ts`), for eksempel `endring` og
+`irregulaer_endring`. Et ukjent par gjør raden ikke forstått."""
 felt = ["id", "spor", "erstatter", "hovedkategori", "underkategori", "tittel", "beskrivelse"]
 grunnlag = "KA-U2, designnotatet 4.2"
 
 [[krav]]
 spor = "vederlag"
-beskrivelse = "En kravversjon av vederlaget, i kroner over 0."
+beskrivelse = "En kravversjon av vederlaget, i kroner over 0. `metode` er `tilbud` (§ 34.2.1)."
 felt = ["id", "spor", "erstatter", "metode", "beloep"]
 grunnlag = "KA-U2, KA-U8"
 
@@ -92,9 +96,9 @@ grunnlag = "KA-U4, MM-U1, MM-U8"
 art = "grunnlag"
 spor = ["grunnlag"]
 beskrivelse = """
-Byggherrens standpunkt til grunnlaget: `godkjent`, `avslatt` eller `frafalt`.
-«Frafalt» gjelder pålegget (§ 32.3 c), ikke TEs krav, og er ikke en vurdering
-av ansvaret."""
+Byggherrens standpunkt til grunnlaget: `godkjent`, `avslaatt` eller
+`paalegg_frafalt`. Frafallet gjelder pålegget (§ 32.3 c), ikke TEs krav, og er
+ikke en vurdering av ansvaret."""
 felt = ["id", "art", "resultat"]
 grunnlag = "§ 32.3 a–c, GR-U9, GR-U10"
 
@@ -176,14 +180,14 @@ grunnlag = "MM-U9, MM-U11, GR-U12, KA-U10"
 [[del]]
 navn = "utregning"
 spor = "vederlag"
-beskrivelse = "Serverens utregning: resultatet og det godkjente beløpet."
+beskrivelse = "Serverens utregning: resultatet (`godkjent`, `delvis_godkjent`, `avslaatt` eller `tilbakeholdelse`) og det godkjente beløpet."
 felt = ["resultat", "godkjent_beloep"]
 grunnlag = "B-13"
 
 [[del]]
 navn = "utregning"
 spor = "frist"
-beskrivelse = "Serverens utregning: resultatet og de godkjente dagene, og det subsidiære standpunktet når det finnes."
+beskrivelse = "Serverens utregning: resultatet (`godkjent`, `delvis_godkjent` eller `avslaatt`) og de godkjente dagene, og det subsidiære standpunktet når det finnes."
 felt = ["resultat", "godkjent_dager", "subsidiaert_resultat", "subsidiaert_godkjent_dager"]
 grunnlag = "B-13, vedtaket 05.10 (#211)"
 
