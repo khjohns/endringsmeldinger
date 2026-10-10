@@ -1,6 +1,7 @@
 # B-13 (hovedplanen 3.1, 24.09) og #191: endres reglene i src/lib/domain/ eller
 # backend/regler/, må REGELVERSJON økes i begge speilene. B-14 og #308: endres
-# kjerne/, må regelversjonen eller projeksjonsversjonen i kjernen økes.
+# kjerne/, må regelversjonen eller projeksjonsversjonen i kjernen økes, og
+# regelversjonen også for kjerne/standpunkt.ts (#330).
 # Kontrollen står i .github/scripts/regelversjon.sh, som også kan kjøres
 # lokalt med BASE=<sha>.
 name: Regelversjon
