@@ -53,7 +53,7 @@ function kontroller(verdi: unknown, skjema: Skjema, sti: string): void {
 function element(
   verdi: unknown,
   skjemaer: Record<string, Skjema>,
-  noekkel: 'spor' | 'art',
+  noekkel: 'spor' | 'art' | 'hva',
   sti: string
 ): Data {
   if (!erObjekt(verdi)) throw new Uforstaatt(`${sti}: er ikke et objekt`);
@@ -219,19 +219,36 @@ function lesDokument(h: Journalrad): Dokument {
   if (data.krav) kreverPart('TE', 'et krav');
   if (data.svar) kreverPart('BH', 'et svar');
   const hva = new Set<string>();
-  const opplysninger = (data.opplysninger ?? []).map((o, i): Opplysning => {
-    kontroller(o, OPPLYSNING, `$.opplysninger[${i}]`);
+  const opplysninger = (data.opplysninger ?? []).map((v, i): Opplysning => {
+    const o = element(v, OPPLYSNING, 'hva', `$.opplysninger[${i}]`);
     if (hva.has(o.hva as string))
-      throw new Uforstaatt(`dokumentet har to opplysninger om at det er ${String(o.hva)}`);
+      throw new Uforstaatt(`dokumentet har to opplysninger om ${String(o.hva)}`);
     hva.add(o.hva as string);
-    return {
-      id: o.id as string,
-      dokument: id,
-      hva: o.hva as 'sendt' | 'mottatt',
-      dato: o.dato as string,
-      oppgittAv: avsender,
-    };
+    return o.hva === 'endringsordre'
+      ? {
+          id: o.id as string,
+          dokument: id,
+          hva: 'endringsordre',
+          oppfylt: o.oppfylt as boolean,
+          oppgittAv: avsender,
+        }
+      : {
+          id: o.id as string,
+          dokument: id,
+          hva: o.hva as 'sendt' | 'mottatt',
+          dato: o.dato as string,
+          oppgittAv: avsender,
+        };
   });
+  // Opplysningen om § 31.3 hører til registrert korrespondanse med et svar på grunnlaget.
+  if (
+    hva.has('endringsordre') &&
+    (!hva.has('sendt') ||
+      !((data.svar ?? []) as Data[]).some((s) => erObjekt(s) && s.spor === 'grunnlag'))
+  )
+    throw new Uforstaatt(
+      'opplysningen om endringsordre står uten et registrert svar på grunnlaget i dokumentet'
+    );
   return {
     id,
     avsender,

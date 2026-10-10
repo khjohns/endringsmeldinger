@@ -49,6 +49,14 @@ Hver rad har kolonnen `format`. `data` har ingen `null`, ingen tom liste og inge
 | `bestridelse` | En part bestrider at dokumentet i en opplysning fra motparten ble sendt eller mottatt. | TE eller BH | `id`, `art`, `gjelder`, `hva` | MM-U1, MM-U7 |
 | `ingen_krav` | TE krever ikke noe i et spor som ikke er sendt. Har `spor` og ikke `gjelder`. | TE | `id`, `art`, `spor` | KA-U12 |
 
+## Opplysninger om dokumentet
+
+| Hva | Innhold | Felt | Grunnlag |
+| --- | --- | --- | --- |
+| `sendt` | Når dokumentet ble sendt utenfor appen. Dokumentet er registrert korrespondanse. | `id`, `hva`, `dato` | Modellforslaget 2.4, MM-U1 |
+| `mottatt` | Når dokumentet ble mottatt. | `id`, `hva`, `dato` | Modellforslaget 2.4, MM-U7 |
+| `endringsordre` | Om registrert korrespondanse med et svar på grunnlaget var en endringsordre etter § 31.3, oppgitt av den som registrerer, med vedlegget i `dokumentasjon`. Ikke en rettslig avgjørelse. Uten opplysningen er svaret ikke en endringsordre. | `id`, `hva`, `oppfylt` | § 31.3, § 32.3 a, GR-U12, oppdragsgiver 10.10 |
+
 ## Delene
 
 | Del | Spor | Innhold | Felt | Grunnlag |
@@ -56,4 +64,3 @@ Hver rad har kolonnen `format`. `data` har ingen `null`, ingen tom liste og inge
 | `beslutningsgrunnlag` | alle | Appens vurdering da brevet ble sendt, atskilt fra det byggherren sa, og ikke en rettslig avgjørelse (MM-U9): regelversjonen, hvordan brevet ordner standpunktene (`virkninger` med `prinsipalt` eller `subsidiaert`), standpunktene uten virkning (`uten_virkning`), brevlinjen, om svaret godkjenner hele kravet (`sammenfall`) og, i grunnlaget, om § 32.2 gjaldt etter reglene og underkategorien da (`varslingsplikt`). Hvert standpunkt står i `virkninger` eller `uten_virkning`. Utfallet og vilkåret utledes og lagres ikke. | `regelversjon`, `virkninger`, `uten_virkning`, `linje`, `sammenfall`, `varslingsplikt` | MM-U9, MM-U11, GR-U12, KA-U10 |
 | `utregning` | vederlag | Serverens utregning: resultatet og det godkjente beløpet. | `resultat`, `godkjent_beloep` | B-13 |
 | `utregning` | frist | Serverens utregning: resultatet og de godkjente dagene, og det subsidiære standpunktet når det finnes. | `resultat`, `godkjent_dager`, `subsidiaert_resultat`, `subsidiaert_godkjent_dager` | B-13, vedtaket 05.10 (#211) |
-| `opplysning` | alle | Når dokumentet ble sendt eller mottatt, oppgitt av avsenderen. Et brev sendt i appen har ingen: sendt er registrert. | `id`, `hva`, `dato` | Modellforslaget 2.4, MM-U7 |

@@ -165,6 +165,9 @@ export class Kjoering {
         if (!(feil instanceof Uforstaatt)) throw feil;
       }
       await this.bane.skriv([rad], versjon);
+      if (typeof h.dokument === 'string')
+        for (const o of (rad.data.opplysninger ?? []) as { id: string; hva: string }[])
+          this.navn.sett(`${h.dokument}#${o.hva}`, o.id);
       this.sist = { utfall: { godtatt: true, hendelser: [rad] }, nye: 1 };
       return this.sist.utfall;
     }
@@ -253,6 +256,8 @@ export function les(sti: string, u: Utledning, k: Kjoering): unknown {
       return u.grunnlagAvvist;
     case 'frafalt':
       return u.frafalt;
+    case 'godkjenning_er_endringsordre':
+      return u.godkjenningErEndringsordre;
     case 'kravene_avgjort':
       return kraveneErAvgjort(u);
     case 'kan_inngaa_i_eo':
@@ -264,7 +269,8 @@ export function les(sti: string, u: Utledning, k: Kjoering): unknown {
     case 'opplysning': {
       const o = u.opplysninger.find((x) => x.opplysning.id === id(hale[0]));
       if (hale.length === 1 || !o) return o ? 'finnes' : null;
-      if (hale[1] === 'dato') return o.opplysning.dato;
+      if (hale[1] === 'dato') return 'dato' in o.opplysning ? o.opplysning.dato : null;
+      if (hale[1] === 'oppfylt') return 'oppfylt' in o.opplysning ? o.opplysning.oppfylt : null;
       if (hale[1] === 'oppgitt_av') return o.opplysning.oppgittAv;
       return o.bestridelser;
     }

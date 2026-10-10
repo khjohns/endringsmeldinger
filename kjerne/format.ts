@@ -200,7 +200,11 @@ export const UTSAGN: Record<Utsagnsart, Skjema> = {
     'regelversjon',
   ]),
   bestridelse: objekt(
-    { ...artfelt('bestridelse'), gjelder: ID, hva: { enum: ['sendt', 'mottatt'] } },
+    {
+      ...artfelt('bestridelse'),
+      gjelder: ID,
+      hva: { enum: ['sendt', 'mottatt', 'endringsordre'] },
+    },
     ['id', 'art', 'gjelder', 'hva']
   ),
   ingen_krav: objekt({ ...artfelt('ingen_krav'), spor: { enum: [...KRAVSPOR] } }, [
@@ -210,10 +214,20 @@ export const UTSAGN: Record<Utsagnsart, Skjema> = {
   ]),
 };
 
-export const OPPLYSNING: Skjema = objekt(
-  { id: ID, hva: { enum: ['sendt', 'mottatt'] }, dato: DATO },
-  ['id', 'hva', 'dato']
-);
+/**
+ * Opplysningene om et dokument, etter `hva`. `endringsordre` står bare i
+ * registrert korrespondanse med et svar på grunnlaget: den som registrerer,
+ * oppgir om brevet var en endringsordre etter § 31.3 (oppdragsgiver 10.10).
+ */
+export const OPPLYSNING: Record<'sendt' | 'mottatt' | 'endringsordre', Skjema> = {
+  sendt: objekt({ id: ID, hva: { const: 'sendt' }, dato: DATO }, ['id', 'hva', 'dato']),
+  mottatt: objekt({ id: ID, hva: { const: 'mottatt' }, dato: DATO }, ['id', 'hva', 'dato']),
+  endringsordre: objekt({ id: ID, hva: { const: 'endringsordre' }, oppfylt: { type: 'boolean' } }, [
+    'id',
+    'hva',
+    'oppfylt',
+  ]),
+};
 
 /** `data` i `dokument_registrert`. Elementene kontrolleres hver for seg etter `spor` eller `art`. */
 export const DOKUMENT: Skjema = objekt(
@@ -221,7 +235,7 @@ export const DOKUMENT: Skjema = objekt(
     krav: { type: 'array', minItems: 1 },
     svar: { type: 'array', minItems: 1 },
     utsagn: { type: 'array', minItems: 1 },
-    opplysninger: liste(OPPLYSNING),
+    opplysninger: { type: 'array', minItems: 1 },
     dokumentasjon: liste(ID),
   },
   []

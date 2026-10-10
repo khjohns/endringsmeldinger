@@ -20,6 +20,7 @@ SEKSJONER = {
     "standpunkt": ("art", ("art", "spor", "beskrivelse", "felt", "grunnlag")),
     "utsagn": ("art", ("art", "avsender", "beskrivelse", "felt", "grunnlag")),
     "del": ("navn", ("navn", "spor", "beskrivelse", "felt", "grunnlag")),
+    "opplysning": ("hva", ("hva", "beskrivelse", "felt", "grunnlag")),
 }
 VALGFRIE = {("del", "spor")}
 SPOR = ("grunnlag", "vederlag", "frist")
@@ -106,6 +107,7 @@ def markdown(register: dict) -> str:
         ("svar", "Svar", "spor"),
         ("standpunkt", "Standpunkter i et svar", "art"),
         ("utsagn", "Andre utsagn", "art"),
+        ("opplysning", "Opplysninger om dokumentet", "hva"),
     ):
         ekstra = {"standpunkt": "Spor", "utsagn": "Avsender"}.get(seksjon)
         linjer += [

@@ -34,7 +34,7 @@ export type Kommando =
     }
   | { type: 'trekk'; spor: Spor }
   | { type: 'varsel'; spor: 'frist'; hjemmel: '33.4'; sendt: string; dokumentasjon?: string[] }
-  | { type: 'bestridelse'; gjelder: string; hva: 'sendt' | 'mottatt' };
+  | { type: 'bestridelse'; gjelder: string; hva: 'sendt' | 'mottatt' | 'endringsordre' };
 
 const SPOR = { enum: [...SPORENE] };
 const SVARUTKAST = objekt(
@@ -92,7 +92,11 @@ const SKJEMA: Record<Kommando['type'], Skjema> = {
     ['type', 'spor', 'hjemmel', 'sendt']
   ),
   bestridelse: objekt(
-    { type: { const: 'bestridelse' }, gjelder: ID, hva: { enum: ['sendt', 'mottatt'] } },
+    {
+      type: { const: 'bestridelse' },
+      gjelder: ID,
+      hva: { enum: ['sendt', 'mottatt', 'endringsordre'] },
+    },
     ['type', 'gjelder', 'hva']
   ),
 };
