@@ -130,7 +130,7 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/standpunkt.ts`,
     endringer: [
       [
-        "if (svar.spor === 'grunnlag') return standpunktet(svar, 'ansvar')?.resultat === 'godkjent';",
+        "if (svar.spor === 'grunnlag') return standpunktet(svar, 'grunnlag')?.resultat === 'godkjent';",
         "if (svar.spor === 'grunnlag') return false;",
       ],
     ],
@@ -202,7 +202,7 @@ const MUTASJONER: Mutasjon[] = [
       ],
       [
         '      e.beslutningsgrunnlag,',
-        "      e.beslutningsgrunnlag ?? { regelversjon: 0, virkninger: standpunkter.map((s) => ({ standpunkt: s.id, virkning: 'uten_virkning' })), linje: '-', sammenfall: false, ...(spor === 'grunnlag' ? { varslingsplikt: false } : {}) },",
+        "      e.beslutningsgrunnlag ?? { regelversjon: 0, virkninger: standpunkter.map((s) => ({ standpunkt: s.id, virkning: 'prinsipalt' })), linje: '-', sammenfall: false, ...(spor === 'grunnlag' ? { varslingsplikt: false } : {}) },",
       ],
     ],
     mal: ['et svar uten beslutningsgrunnlag'],
@@ -401,7 +401,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F36',
     feilklasse: '«ingen krav» i et spor med en kravversjon stopper ikke saken (KA-U12, 4.2)',
     fil: `${K}/utled.ts`,
-    endringer: [['if (spor[i.spor].krav.length || ingenKrav', 'if (ingenKrav']],
+    endringer: [['      spor[i.spor].krav.length ||\n', '']],
     mal: ['F-MM-IK2'],
   },
   {
@@ -434,6 +434,13 @@ const MUTASJONER: Mutasjon[] = [
       ],
     ],
     mal: ['en rad uten format'],
+  },
+  {
+    id: 'F41',
+    feilklasse: '«ingen krav» før grunnlaget er sendt, leses (oppdragsgiver 10.10)',
+    fil: `${K}/utled.ts`,
+    endringer: [[' ||\n      !spor.grunnlag.krav.some((k) => bakover(i.id, k.id))\n', '\n']],
+    mal: ['«ingen krav» før grunnlaget er sendt'],
   },
   {
     id: 'F40',

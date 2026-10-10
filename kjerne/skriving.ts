@@ -37,11 +37,22 @@ export function utledJournal(journal: Journalrad[], kjerne: Kjerne): Utledning {
   return utled(lesJournal(journal, kjerne.format), kjerne.regler);
 }
 
-/** Beslutningsgrunnlaget i formatet: virkningene viser til standpunktet, og arten leses derfra. */
+/**
+ * Beslutningsgrunnlaget i formatet. Virkningene viser til standpunktet, og arten
+ * leses derfra. Standpunktene uten virkning står for seg, fordi det er appens
+ * vurdering og ikke noe byggherren har sagt (oppdragsgiver 10.10).
+ */
 function lagret(b: Beslutningsgrunnlag): Data {
+  const uten = b.virkninger.filter((v) => v.virkning === 'uten_virkning');
   return {
-    ...b,
-    virkninger: b.virkninger.map(({ standpunkt, virkning }) => ({ standpunkt, virkning })),
+    regelversjon: b.regelversjon,
+    virkninger: b.virkninger
+      .filter((v) => v.virkning !== 'uten_virkning')
+      .map(({ standpunkt, virkning }) => ({ standpunkt, virkning })),
+    ...(uten.length ? { uten_virkning: uten.map((v) => v.standpunkt) } : {}),
+    linje: b.linje,
+    sammenfall: b.sammenfall,
+    ...(b.varslingsplikt !== undefined ? { varslingsplikt: b.varslingsplikt } : {}),
   };
 }
 
@@ -73,7 +84,7 @@ function standpunkter(s: Svarutkast, krav: Krav, u: Utledning, nyId: () => strin
         hjemmel: '32.2',
         i_tide: v.grunnlag_varslet_i_tide,
       });
-    ut.push({ id: nyId(), art: 'ansvar', resultat: v.resultat });
+    ut.push({ id: nyId(), art: 'grunnlag', resultat: v.resultat });
   } else if (s.spor === 'vederlag') {
     ut.push({ id: nyId(), art: 'beloep' });
   } else {

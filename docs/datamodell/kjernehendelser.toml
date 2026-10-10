@@ -89,9 +89,12 @@ felt = ["id", "art", "gjelder", "hjemmel", "i_tide"]
 grunnlag = "KA-U4, MM-U1, MM-U8"
 
 [[standpunkt]]
-art = "ansvar"
+art = "grunnlag"
 spor = ["grunnlag"]
-beskrivelse = "Byggherrens svar på ansvaret: `godkjent`, `avslatt` eller `frafalt`."
+beskrivelse = """
+Byggherrens standpunkt til grunnlaget: `godkjent`, `avslatt` eller `frafalt`.
+«Frafalt» gjelder pålegget (§ 32.3 c), ikke TEs krav, og er ikke en vurdering
+av ansvaret."""
 felt = ["id", "art", "resultat"]
 grunnlag = "§ 32.3 a–c, GR-U9, GR-U10"
 
@@ -105,7 +108,7 @@ grunnlag = "B-13, designnotatet 4.3"
 [[standpunkt]]
 art = "hindring"
 spor = ["frist"]
-beskrivelse = "Om byggherren godtar at fremdriften er hindret."
+beskrivelse = "Om byggherren godtar at fremdriften hindres som følge av forholdet saken gjelder (§ 33.1)."
 felt = ["id", "art", "oppfylt"]
 grunnlag = "§ 33.1, vedtaket 05.10 (#211)"
 
@@ -160,11 +163,14 @@ grunnlag = "KA-U12"
 [[del]]
 navn = "beslutningsgrunnlag"
 beskrivelse = """
-Brevet frosset da det ble sendt: regelversjonen, virkningen hvert standpunkt
-hadde (`prinsipalt`, `subsidiaert` eller `uten_virkning`), brevlinjen, om svaret
-godkjenner hele kravet (`sammenfall`) og, i grunnlaget, om § 32.2 gjaldt
-(`varslingsplikt`). Utfallet og vilkåret utledes og lagres ikke."""
-felt = ["regelversjon", "virkninger", "linje", "sammenfall", "varslingsplikt"]
+Appens vurdering da brevet ble sendt, atskilt fra det byggherren sa, og ikke
+en rettslig avgjørelse (MM-U9): regelversjonen, hvordan brevet ordner
+standpunktene (`virkninger` med `prinsipalt` eller `subsidiaert`), standpunktene
+uten virkning (`uten_virkning`), brevlinjen, om svaret godkjenner hele kravet
+(`sammenfall`) og, i grunnlaget, om § 32.2 gjaldt etter reglene og
+underkategorien da (`varslingsplikt`). Hvert standpunkt står i `virkninger` eller
+`uten_virkning`. Utfallet og vilkåret utledes og lagres ikke."""
+felt = ["regelversjon", "virkninger", "uten_virkning", "linje", "sammenfall", "varslingsplikt"]
 grunnlag = "MM-U9, MM-U11, GR-U12, KA-U10"
 
 [[del]]

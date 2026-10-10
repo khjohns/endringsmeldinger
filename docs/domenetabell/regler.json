@@ -950,8 +950,8 @@
     },
     {
       "id": "KA-29",
-      "tilfelle": "TE har sagt «ingen krav» i vederlag eller frist, i et spor som ikke er sendt.",
-      "forventet": "Sporet teller som trukket når kravene er avgjort og som oppgjort når saken kan inngå i en endringsordre, men gir ikke alene grunnlag for endringsordre. Et krav i sporet avvises, og journalen er uendret. Står «ingen krav» i et spor som har en kravversjon, eller står det to ganger, er saken ikke forstått.",
+      "tilfelle": "TE har sagt «ingen krav» i vederlag eller frist, i et spor som ikke er sendt, etter at grunnlaget er sendt.",
+      "forventet": "Sporet teller som trukket når kravene er avgjort og som oppgjort når saken kan inngå i en endringsordre, men gir ikke alene grunnlag for endringsordre. Et krav i sporet avvises, og journalen er uendret. Et varsel etter § 33.4 er ikke en kravversjon, så «ingen krav» kan stå etter det. Står «ingen krav» i et spor som har en kravversjon, står det to ganger, eller står det før grunnlaget er sendt, er saken ikke forstått.",
       "bh_standpunkt": "—",
       "rettslig_virkning": "Sporet er lukket på samme måte som ved et trekk. Det er ikke et krav på 0.",
       "rettidighet": "—",
@@ -961,7 +961,8 @@
         "KA-U11",
         "EO-U5",
         "KA-U8",
-        "MM-U2"
+        "MM-U2",
+        "KA-U2"
       ],
       "tolkningsstatus": "avklart_tolkning"
     },

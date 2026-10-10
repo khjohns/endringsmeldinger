@@ -34,9 +34,9 @@ Hver rad har kolonnen `format`. `data` har ingen `null`, ingen tom liste og inge
 | Art | Innhold | Spor | Felt | Grunnlag |
 | --- | --- | --- | --- | --- |
 | `rettidighet` | Om varselet kom i tide: § 32.2 i grunnlaget, § 33.4 i fristen. `gjelder` er kravversjonen, eller et registrert varsel etter § 33.4. | grunnlag, frist | `id`, `art`, `gjelder`, `hjemmel`, `i_tide` | KA-U4, MM-U1, MM-U8 |
-| `ansvar` | Byggherrens svar på ansvaret: `godkjent`, `avslatt` eller `frafalt`. | grunnlag | `id`, `art`, `resultat` | § 32.3 a–c, GR-U9, GR-U10 |
+| `grunnlag` | Byggherrens standpunkt til grunnlaget: `godkjent`, `avslatt` eller `frafalt`. «Frafalt» gjelder pålegget (§ 32.3 c), ikke TEs krav, og er ikke en vurdering av ansvaret. | grunnlag | `id`, `art`, `resultat` | § 32.3 a–c, GR-U9, GR-U10 |
 | `beloep` | Beløpet. Resultatet og beløpet står i svarets utregning, så de har ett hjem. | vederlag | `id`, `art` | B-13, designnotatet 4.3 |
-| `hindring` | Om byggherren godtar at fremdriften er hindret. | frist | `id`, `art`, `oppfylt` | § 33.1, vedtaket 05.10 (#211) |
+| `hindring` | Om byggherren godtar at fremdriften hindres som følge av forholdet saken gjelder (§ 33.1). | frist | `id`, `art`, `oppfylt` | § 33.1, vedtaket 05.10 (#211) |
 | `dager` | Dagene. Resultatet og dagene, også de subsidiære, står i svarets utregning. | frist | `id`, `art` | B-13, designnotatet 4.3 |
 
 ## Andre utsagn
@@ -53,7 +53,7 @@ Hver rad har kolonnen `format`. `data` har ingen `null`, ingen tom liste og inge
 
 | Del | Spor | Innhold | Felt | Grunnlag |
 | --- | --- | --- | --- | --- |
-| `beslutningsgrunnlag` | alle | Brevet frosset da det ble sendt: regelversjonen, virkningen hvert standpunkt hadde (`prinsipalt`, `subsidiaert` eller `uten_virkning`), brevlinjen, om svaret godkjenner hele kravet (`sammenfall`) og, i grunnlaget, om § 32.2 gjaldt (`varslingsplikt`). Utfallet og vilkåret utledes og lagres ikke. | `regelversjon`, `virkninger`, `linje`, `sammenfall`, `varslingsplikt` | MM-U9, MM-U11, GR-U12, KA-U10 |
+| `beslutningsgrunnlag` | alle | Appens vurdering da brevet ble sendt, atskilt fra det byggherren sa, og ikke en rettslig avgjørelse (MM-U9): regelversjonen, hvordan brevet ordner standpunktene (`virkninger` med `prinsipalt` eller `subsidiaert`), standpunktene uten virkning (`uten_virkning`), brevlinjen, om svaret godkjenner hele kravet (`sammenfall`) og, i grunnlaget, om § 32.2 gjaldt etter reglene og underkategorien da (`varslingsplikt`). Hvert standpunkt står i `virkninger` eller `uten_virkning`. Utfallet og vilkåret utledes og lagres ikke. | `regelversjon`, `virkninger`, `uten_virkning`, `linje`, `sammenfall`, `varslingsplikt` | MM-U9, MM-U11, GR-U12, KA-U10 |
 | `utregning` | vederlag | Serverens utregning: resultatet og det godkjente beløpet. | `resultat`, `godkjent_beloep` | B-13 |
 | `utregning` | frist | Serverens utregning: resultatet og de godkjente dagene, og det subsidiære standpunktet når det finnes. | `resultat`, `godkjent_dager`, `subsidiaert_resultat`, `subsidiaert_godkjent_dager` | B-13, vedtaket 05.10 (#211) |
 | `opplysning` | alle | Når dokumentet ble sendt eller mottatt, oppgitt av avsenderen. Et brev sendt i appen har ingen: sendt er registrert. | `id`, `hva`, `dato` | Modellforslaget 2.4, MM-U7 |
