@@ -10,33 +10,16 @@
 
 import skjema from '../../docs/domenetabell/kontrakt.json' with { type: 'json' };
 
-type Skjema = Record<string, unknown>;
+import {
+  feilI as feilISkjema,
+  NOEKKELORD as NOKKELORD,
+  oppslag,
+  type Skjema,
+} from '../../kjerne/skjema.ts';
+
+export { NOKKELORD };
 const DEFS = (skjema as Skjema)['$defs'] as Record<string, Skjema>;
-
-export const NOKKELORD = new Set([
-  'type',
-  'enum',
-  'const',
-  'properties',
-  'required',
-  'additionalProperties',
-  'items',
-  'anyOf',
-  '$ref',
-  'minimum',
-  'minLength',
-]);
 const ANNOTASJONER = new Set(['$schema', '$id', '$defs', 'title', 'description']);
-
-const TYPER: Record<string, (v: unknown) => boolean> = {
-  string: (v) => typeof v === 'string',
-  integer: (v) => typeof v === 'number' && Number.isInteger(v),
-  number: (v) => typeof v === 'number' && Number.isFinite(v),
-  boolean: (v) => typeof v === 'boolean',
-  object: (v) => typeof v === 'object' && v !== null && !Array.isArray(v),
-  array: (v) => Array.isArray(v),
-  null: (v) => v === null,
-};
 
 export function ukjenteNokkelord(del: unknown = skjema, sti = '#'): string[] {
   if (typeof del !== 'object' || del === null || Array.isArray(del)) return [];
@@ -61,48 +44,8 @@ export function ukjenteNokkelord(del: unknown = skjema, sti = '#'): string[] {
   return feil;
 }
 
-function oppslag(ref: string): Skjema {
-  if (!ref.startsWith('#/')) throw new Error(`Bare lokale referanser: ${ref}`);
-  return ref
-    .slice(2)
-    .split('/')
-    .reduce<unknown>((d, ledd) => (d as Skjema)[ledd], skjema) as Skjema;
-}
-
-const vis = (v: unknown) => JSON.stringify(v);
-
 export function feilI(verdi: unknown, s: Skjema, sti = '$'): string[] {
-  const feil = typeof s.$ref === 'string' ? feilI(verdi, oppslag(s.$ref), sti) : [];
-  if (Array.isArray(s.anyOf) && s.anyOf.every((a) => feilI(verdi, a as Skjema, sti).length)) {
-    feil.push(`${sti}: ${vis(verdi)} passer ingen av alternativene`);
-  }
-  if (s.type !== undefined) {
-    const typer = Array.isArray(s.type) ? (s.type as string[]) : [s.type as string];
-    if (!typer.some((t) => TYPER[t](verdi)))
-      return [`${sti}: ${vis(verdi)} er ikke ${typer.join('/')}`];
-  }
-  if ('const' in s && verdi !== s.const) feil.push(`${sti}: ${vis(verdi)} er ikke ${vis(s.const)}`);
-  if (Array.isArray(s.enum) && !s.enum.includes(verdi))
-    feil.push(`${sti}: ${vis(verdi)} er ikke en av ${vis(s.enum)}`);
-  if (typeof s.minimum === 'number' && typeof verdi === 'number' && verdi < s.minimum) {
-    feil.push(`${sti}: ${verdi} er under ${s.minimum}`);
-  }
-  if (typeof s.minLength === 'number' && typeof verdi === 'string' && verdi.length < s.minLength) {
-    feil.push(`${sti}: er kortere enn ${s.minLength}`);
-  }
-  if (TYPER.object(verdi)) {
-    const objekt = verdi as Record<string, unknown>;
-    const egenskaper = (s.properties ?? {}) as Record<string, Skjema>;
-    for (const navn of (s.required ?? []) as string[])
-      if (!(navn in objekt)) feil.push(`${sti}.${navn}: mangler`);
-    for (const [navn, del] of Object.entries(objekt)) {
-      if (navn in egenskaper) feil.push(...feilI(del, egenskaper[navn], `${sti}.${navn}`));
-      else if (s.additionalProperties === false) feil.push(`${sti}.${navn}: ukjent felt`);
-    }
-  }
-  if (Array.isArray(verdi) && s.items)
-    verdi.forEach((d, i) => feil.push(...feilI(d, s.items as Skjema, `${sti}[${i}]`)));
-  return feil;
+  return feilISkjema(verdi, s, sti, skjema as Skjema);
 }
 
 export function valider(verdi: unknown, definisjon: string): string[] {
@@ -119,7 +62,7 @@ export function definisjon(navn: string): Skjema | undefined {
 export function datafelt(kommando: string): Set<string> {
   const s = DEFS[`kommando.${kommando}`];
   const data = ((s?.properties as Record<string, Skjema>)?.data ?? {}) as Skjema;
-  const losst = typeof data.$ref === 'string' ? oppslag(data.$ref) : data;
+  const losst = typeof data.$ref === 'string' ? oppslag(data.$ref, skjema as Skjema) : data;
   return new Set(Object.keys((losst.properties ?? data.properties ?? {}) as Skjema));
 }
 
