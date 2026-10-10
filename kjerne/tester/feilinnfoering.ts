@@ -1,9 +1,9 @@
 /**
  * Feilinnføringene for kjernen (#304, #308). F1–F7 er avsnitt 4 i modellforslaget,
  * F8–F10 feilklassene reviewet av PR #306 fant, skrevet om etter MM-U9 og
- * GR-U10, og F11–F26 grensene #308 la til. Én mutasjon om gangen i
- * arbeidskopien, Vitest over `kjerne/` og `sprakprove/kjernelagring/`, og
- * originalteksten settes tilbake etterpå. For hver mutasjon kreves det at de
+ * GR-U10, F11–F26 grensene #308 la til, og F27 hvitelisten fra #329. Én
+ * mutasjon om gangen i arbeidskopien, Vitest over `kjerne/` og
+ * `sprakprove/kjernelagring/`, og originalteksten settes tilbake etterpå. For hver mutasjon kreves det at de
  * forventede målassertions feiler, og at alle feil er assertions, ikke import,
  * oppsett eller en brutt forutsetning (`.claude/rules/tester.md`).
  *
@@ -193,12 +193,15 @@ const MUTASJONER: Mutasjon[] = [
   },
   {
     id: 'F15',
-    feilklasse: 'en regel leser en oppsummerende verdi',
+    feilklasse: 'en regel leser det lagrede utfallet i et svar (MM-U11, #329)',
     fil: `${K}/forutsetninger.ts`,
     endringer: [
-      ['  if (kraveneErAvgjort(u))', '  const avsluttet = kraveneErAvgjort(u);\n  if (avsluttet)'],
+      [
+        "        return avvis('IKKE_GJELDENDE_SVAR', 'Aksepten må gjelde gjeldende svar i dette sporet.');\n",
+        "        return avvis('IKKE_GJELDENDE_SVAR', 'Aksepten må gjelde gjeldende svar i dette sporet.');\n      if (s.gjeldendeSvar.utregning.beregnings_resultat === 'AVSLATT_AKSEPTERT') return null;\n",
+      ],
     ],
-    mal: ['reglene leser ingen status eller oppsummering (#308) forutsetninger.ts'],
+    mal: ['reglene leser bare det LESBART tillater (#308, #329) forutsetninger.ts'],
   },
   {
     id: 'F16',
@@ -306,6 +309,16 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utled.ts`,
     endringer: [["      eg?.grunnlag.kilde === 'sammenfall' &&", '      gSvar !== null &&']],
     mal: ['F-MM-G16', 'F-MM-G17'],
+  },
+  {
+    id: 'F27',
+    feilklasse: 'en regel leser en oppsummering under et nytt navn i utledningen (#329)',
+    fil: `${K}/utled.ts`,
+    endringer: [
+      ['export interface Utledning {\n', 'export interface Utledning {\n  ferdig?: boolean;\n'],
+      ['    u.grunnlagAvklart &&\n', '    (u.ferdig ?? u.grunnlagAvklart) &&\n'],
+    ],
+    mal: ['reglene leser bare det LESBART tillater (#308, #329) utled.ts'],
   },
 ];
 

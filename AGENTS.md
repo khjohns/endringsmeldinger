@@ -84,9 +84,16 @@ som ikke er vedtatt i sin helhet, og i [domenetabellen](docs/domenetabell/README
 **TS eier KOE, endringsordre og forsering (B-17).** Kjernen ligger i `kjerne/`
 (B-14) og er ren kode: den importerer ingenting utenfor mappa, ingen `pg` og
 ingen server, og ingen regel når visningen eller bufferen. Arkitekturtesten i
-`kjerne/tester/` håndhever det. Regelsettet står i `kjerne/regler/`; endres det,
-økes `REGELVERSJON` der. Endres resten av kjernen, økes `PROJEKSJONSVERSJON` i
-`kjerne/versjon.ts`. Regelversjonsvakten i CI krever begge. Lagringstestene mot
+`kjerne/tester/` håndhever det. Den håndhever også hva reglene leser: hvert felt
+og hver importert verdi som er deklarert i kjernen, står i hvitelisten `LESBART`
+med en klasse, som utsagn, relasjon, frosset eller predikat. En oppsummering har
+ingen klasse, så en regel som leser den, under hvilket navn som helst, gir rød
+test. Lesing gjennom refleksjon, som `Object.entries`, ser testen ikke. Et nytt
+felt reglene leser, klassifiseres der. Regelsettet står i
+`kjerne/regler/`; endres det eller `kjerne/standpunkt.ts`, som bestemmer hva
+beslutningsgrunnlaget fryser, økes `REGELVERSJON` der. Endres resten av
+kjernen, økes `PROJEKSJONSVERSJON` i `kjerne/versjon.ts`. Regelversjonsvakten
+i CI krever begge. Lagringstestene mot
 testbasen står i `sprakprove/kjernelagring/`. `sprakprove/` er prøvekode og ikke
 en mal. Python-koden
 for de tre sakstypene er overgangskode og rettes bare for sikkerhet og det som
