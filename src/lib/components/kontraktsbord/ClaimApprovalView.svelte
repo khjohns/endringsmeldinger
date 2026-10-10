@@ -16,6 +16,7 @@
   } from '$lib/approval/types';
   import { decisionSummary, documentToBrev, letterText } from '$lib/approval/letter';
   import { calculateAuthority, kravFraSak } from '$lib/approval/authority';
+  import { erEndringsordre } from '$lib/kontraktsbord/endringsordre';
   import {
     limitLabel,
     nok,
@@ -130,6 +131,16 @@
     })
   );
   const tracks = $derived(letter.items.map((i) => trackNames[i.track]).join(' · '));
+  const endringsordre = $derived(
+    letter.items.some(
+      (i) =>
+        i.track === 'grunnlag' &&
+        erEndringsordre(i.basis, {
+          resultat: i.data.resultat,
+          varsletITide: i.data.grunnlag_varslet_i_tide as boolean | undefined,
+        })
+    )
+  );
   const plural = (n: number) => `${n} ${n === 1 ? 'vurdering' : 'vurderinger'}`;
   const amountLabel = $derived(
     assessment.ukjent
@@ -522,6 +533,10 @@
         </div>
       {/if}
 
+      {#if endringsordre}<p class="notice" role="note">
+          Godkjenningen av ansvarsgrunnlaget er en endringsordre etter § 32.3 første ledd a.
+          Totalentreprenøren blir forpliktet til å utføre endringsarbeidet (§ 31.3 annet ledd).
+        </p>{/if}
       {#if !letter.items.length}
         <div class="empty-state">
           <h2>{review.canPrepare ? 'Ingen ferdigstilte vurderinger' : 'Ingen brev å vise'}</h2>
