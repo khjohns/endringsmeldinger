@@ -3,11 +3,9 @@
   import Badge from '$lib/components/primitives/Badge.svelte';
   import { formatCurrencyCompact, formatDaysCompact, formatDateShort } from '$lib/utils/formatters';
   import { getKontraktsforholdLabel } from '$lib/constants/categories';
-  import { getOverordnetStatusLabel } from '$lib/constants/statusLabels';
   import { goto } from '$app/navigation';
   import { resolve } from '$app/paths';
-  import { caseAmount, caseDays } from './presentation';
-  import { caseStatus } from '$lib/components/saksoversikt/overview';
+  import { caseAmount, caseDays, caseStatusBadge } from './presentation';
 
   interface Props {
     case_item: CaseListItem;
@@ -16,30 +14,6 @@
   }
 
   let { case_item, prosjektId, href }: Props = $props();
-
-  type BadgeVariant = 'godkjent' | 'avslatt' | 'delvis' | 'uavklart' | 'na';
-
-  function statusToBadgeVariant(status: string | null): BadgeVariant {
-    switch (status) {
-      case 'OMFORENT':
-      case 'LUKKET':
-      case 'akseptert':
-        return 'godkjent';
-      case 'LUKKET_TRUKKET':
-      case 'bestridt':
-        return 'avslatt';
-      case 'SENDT':
-      case 'VENTER_PAA_SVAR':
-      case 'UNDER_BEHANDLING':
-      case 'UNDER_FORHANDLING':
-      case 'utstedt':
-      case 'revidert':
-        return 'delvis';
-      case 'UTKAST':
-      default:
-        return 'uavklart';
-    }
-  }
 
   const path = $derived(
     href ??
@@ -50,21 +24,7 @@
   );
   const tittel = $derived(case_item.cached_title ?? 'Uten tittel');
   const isOrder = $derived(case_item.sakstype === 'endringsordre');
-  const status = $derived(caseStatus(case_item));
-  const badgeVariant = $derived(statusToBadgeVariant(status));
-  const eoStatusLabels: Record<string, string> = {
-    utkast: 'Utkast',
-    utstedt: 'Utstedt',
-    akseptert: 'Akseptert',
-    bestridt: 'Bestridt',
-    revidert: 'Revidert',
-  };
-  const statusLabel = $derived(
-    status
-      ? (eoStatusLabels[status] ??
-          getOverordnetStatusLabel(status as import('$lib/types/timeline').OverordnetStatus))
-      : '—'
-  );
+  const statusBadge = $derived(caseStatusBadge(case_item));
   const linkedCount = $derived(case_item.endringsordre_data?.relaterte_koe_saker.length ?? 0);
   const kategoriLabel = $derived(
     isOrder
@@ -122,7 +82,7 @@
   </td>
   <td class="cell cell-status">
     <div class="cell-inner">
-      <Badge variant={badgeVariant}>{statusLabel}</Badge>
+      <Badge variant={statusBadge.variant}>{statusBadge.label}</Badge>
     </div>
   </td>
   <td class="cell cell-kategori">

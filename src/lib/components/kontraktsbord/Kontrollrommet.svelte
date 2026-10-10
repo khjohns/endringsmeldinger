@@ -2,7 +2,7 @@
   import CatendaSyncNotice from './CatendaSyncNotice.svelte';
   import { readPreferredRole, savePreferredRole } from '$lib/utils/rolePreference';
   import { readDarkMode, saveDarkMode } from '$lib/utils/theme';
-  import { assessedGap } from './derive';
+  import { assessedGap, fristErSendt } from './derive';
   import { getCaseWorkspace } from '$lib/kontraktsbord/context.svelte';
   const store = getCaseWorkspace();
   import { createApprovalWorkspace, setApprovalWorkspace } from '$lib/approval/context.svelte';
@@ -79,7 +79,7 @@
     () =>
       sel === 'frist' &&
       role === 'BH' &&
-      store.sak.frist.status === 'sendt' &&
+      fristErSendt(store.sak) &&
       !kravetErSpesifisert(store.sak.frist)
   );
   const brevInnhold = $derived(letterEvent ? buildLetterContent(letterEvent, store.sak) : null);
