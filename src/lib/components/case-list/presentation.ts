@@ -2,6 +2,8 @@
  * Lesepunktet for sakslisten (#313). Radene og sorteringen leser statusen og
  * etiketten bare herfra, så byttet til kjernens visning skjer her.
  */
+import type { ComponentProps } from 'svelte';
+import type Badge from '$lib/components/primitives/Badge.svelte';
 import type { CaseListItem } from '$lib/types/api';
 import type { OverordnetStatus } from '$lib/types/timeline';
 import { getOverordnetStatusLabel } from '$lib/constants/statusLabels';
@@ -21,9 +23,9 @@ export function caseDays(item: CaseListItem): number | null {
     : item.cached_dager_krevd;
 }
 
-export type StatusBadge = 'godkjent' | 'avslatt' | 'delvis' | 'uavklart' | 'na';
+type Merkevariant = ComponentProps<typeof Badge>['variant'];
 
-function statusBadge(status: string | null): StatusBadge {
+function merkevariant(status: string | null): Merkevariant {
   switch (status) {
     case 'OMFORENT':
     case 'LUKKET':
@@ -54,12 +56,12 @@ const EO_STATUS_LABELS: Record<string, string> = {
 };
 
 /** Statusmerket i raden: etiketten og varianten. */
-export function caseStatusBadge(item: CaseListItem): { label: string; variant: StatusBadge } {
+export function statusmerke(item: CaseListItem): { label: string; variant: Merkevariant } {
   const status = caseStatus(item);
   return {
     label: status
       ? (EO_STATUS_LABELS[status] ?? getOverordnetStatusLabel(status as OverordnetStatus))
       : '—',
-    variant: statusBadge(status),
+    variant: merkevariant(status),
   };
 }
