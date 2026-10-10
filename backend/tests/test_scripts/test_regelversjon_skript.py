@@ -156,3 +156,37 @@ def test_kjernen_og_speilene_kontrolleres_hver_for_seg(kjerne):
     sti, base = kjerne
     _skriv(sti, {"src/lib/domain/regel.ts": "b\n", "kjerne/utled.ts": "b\n", **_kjerne(5, 3)})
     assert _kjor(sti, base).returncode == 1
+
+
+KJERNE_FORMAT = "kjerne/format.ts"
+
+
+def _format(skriver: int, leser: int | None) -> dict[str, str]:
+    tekst = f"export const FORMAT = {skriver};\n"
+    if leser is not None:
+        tekst += f"export const LESERFORMAT = {leser};\n"
+    return {KJERNE_FORMAT: tekst}
+
+
+@pytest.mark.parametrize(
+    "for_, etter, ventet",
+    [
+        pytest.param((1, 1), (1, 2), 0, id="første trinn: leser det nye formatet"),
+        pytest.param((1, 2), (2, 2), 0, id="andre trinn: skriver formatet den forrige leste"),
+        pytest.param((1, 1), (2, 2), 1, id="leser og skriver det nye formatet i samme utgivelse"),
+        pytest.param((1, 1), (2, 1), 1, id="skriver et format den ikke leser"),
+        pytest.param((2, 2), (1, 1), 1, id="senker formatene"),
+        pytest.param((1, 2), (1, 1), 1, id="senker LESERFORMAT"),
+        pytest.param((1, None), (1, 1), 0, id="LESERFORMAT innført, lik FORMAT"),
+        pytest.param((1, 1), (1, None), 1, id="LESERFORMAT mangler"),
+    ],
+)
+def test_formatet_rulles_ut_i_to_trinn(kjerne, for_, etter, ventet):
+    """B-10 (#316): et nytt format leses i én utgivelse før det skrives i den neste."""
+    sti, _ = kjerne
+    _skriv(sti, _format(*for_))
+    base = _git(sti, "rev-parse", "HEAD")
+    # Projeksjonsversjonen økes, så bare kontrollen av formatet kan feile.
+    _skriv(sti, {**_format(*etter), **_kjerne(5, 3)})
+    svar = _kjor(sti, base)
+    assert svar.returncode == ventet, svar.stdout + svar.stderr

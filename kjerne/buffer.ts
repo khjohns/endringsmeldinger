@@ -14,7 +14,7 @@ export interface Bufferversjon {
   projeksjonsversjon: number;
   regelversjon: number;
   /** Høyeste hendelsesformat kjernen som skrev bufferen, leser. */
-  format: number;
+  leserformat: number;
   /** Saksversjonen resultatet er regnet fra. */
   saksversjon: number;
 }
@@ -28,7 +28,7 @@ export function bufferversjon(kjerne: Kjerne, saksversjon: number): Bufferversjo
   return {
     projeksjonsversjon: kjerne.projeksjonsversjon,
     regelversjon: kjerne.regler.versjon,
-    format: kjerne.format,
+    leserformat: kjerne.leserformat,
     saksversjon,
   };
 }
@@ -36,6 +36,24 @@ export function bufferversjon(kjerne: Kjerne, saksversjon: number): Bufferversjo
 export function bufferGjelder(b: Buffer, kjerne: Kjerne, saksversjon: number): boolean {
   const egen = bufferversjon(kjerne, saksversjon);
   return (Object.keys(egen) as (keyof Bufferversjon)[]).every((n) => b.versjon[n] === egen[n]);
+}
+
+/**
+ * Saken i oversikten (MM-U15): siste kjente status fra bufferen, merket
+ * `oppdateres` når bufferen ikke gjelder for kjernen og saken. Oversikten regner
+ * ikke ut saken; det gjør `lesSak` og `byggPaaNytt`. En bindende handling prøves
+ * alltid mot journalen (B-10).
+ */
+export interface Oversiktslinje {
+  status: Visning['status'] | null;
+  oppdateres: boolean;
+}
+
+export function iOversikten(b: Buffer | null, kjerne: Kjerne, saksversjon: number): Oversiktslinje {
+  return {
+    status: b?.visning.status ?? null,
+    oppdateres: !b || !bufferGjelder(b, kjerne, saksversjon),
+  };
 }
 
 export interface Bufferlager {
@@ -71,6 +89,23 @@ export async function lesSak(
   if (!u.forstaatt) return { kilde: 'stoppet', visning: v };
   await lager.skriv(sakId, { versjon: bufferversjon(kjerne, saksversjon), visning: v });
   return { kilde: 'utledet', visning: v };
+}
+
+/**
+ * Bygger bufferen på nytt for sakene der den ikke gjelder for kjernen, etter en
+ * utrulling eller tilbakerulling (B-10, #316). Bare bufferen skrives: journalen,
+ * de frosne brevene og leveringen røres ikke, og en sak kjernen ikke forstår,
+ * får ingen ny buffer (MM-U2).
+ */
+export async function byggPaaNytt(
+  saker: Iterable<[sakId: string, journal: Journalrad[]]>,
+  lager: Bufferlager,
+  kjerne: Kjerne
+): Promise<Record<Lesing['kilde'], string[]>> {
+  const ut: Record<Lesing['kilde'], string[]> = { buffer: [], utledet: [], stoppet: [] };
+  for (const [sakId, journal] of saker)
+    ut[(await lesSak(sakId, journal, lager, kjerne)).kilde].push(sakId);
+  return ut;
 }
 
 /**
