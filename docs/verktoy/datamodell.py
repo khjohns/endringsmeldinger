@@ -1,8 +1,8 @@
 """Lager tabellbeskrivelsen og hendelseskatalogen fra registrene i docs/datamodell/.
 
 Kjøres fra repo-roten: /tmp/venv/bin/python docs/verktoy/datamodell.py
-Skriver docs/datamodell/tabeller.md, hendelser.md, relasjoner.md og
-tabellbeskrivelse.xlsx, men bare når innholdet er endret. Hendelseskatalogen
+Skriver docs/datamodell/tabeller.md, hendelser.md, kjernehendelser.md,
+relasjoner.md og tabellbeskrivelse.xlsx, men bare når innholdet er endret. Hendelseskatalogen
 leser backend-modellene, og Excel-fila krever openpyxl, så begge trenger
 venv-en i AGENTS.md. Katalogen over skjemaet, katalog.json, lages av
 katalog.py mot en testbase.
@@ -25,6 +25,7 @@ def _last(navn: str):
 
 
 hk = _last("hendelseskatalog")
+kh = _last("kjernehendelser")
 kat = _last("katalog")
 rel = _last("relasjoner")
 df = _last("dataflyt")
@@ -592,8 +593,9 @@ def relasjoner_markdown(register: dict, k: dict | None = None) -> str:
 def main() -> int:
     register = les()
     katalog = hk.les()
+    kjernen = kh.les()
     k = kilder()
-    feil = valider(register, funnregisteret()) + kontroller_hendelser(katalog)
+    feil = valider(register, funnregisteret()) + kontroller_hendelser(katalog) + kh.valider(kjernen)
     feil += kontroller_relasjoner(register, k)
     if feil:
         print("Registeret eller katalogen er ikke gyldig:", *feil, sep="\n  ")
@@ -602,6 +604,7 @@ def main() -> int:
         (MARKDOWN, markdown(register, k)),
         (RELASJONER, relasjoner_markdown(register, k)),
         (hk.MARKDOWN, hk.markdown(katalog, HENDELSESMERKNAD)),
+        (kh.MARKDOWN, kh.markdown(kjernen)),
     ):
         if not sti.exists() or sti.read_text(encoding="utf-8") != ny:
             sti.write_text(ny, encoding="utf-8")

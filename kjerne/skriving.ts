@@ -1,27 +1,18 @@
 /**
- * Én kommando blir hendelser i dagens lagrede form, eller en avvisning:
- * formen, utledningen av journalen, forutsetningene, nyttelastkontrollen og til
- * sist hendelsene med det serveren fryser. Et brev med flere svar blir én
- * hendelse per svar med samme `dokument_id`, fordi dagens journal har én
- * hendelse per svar. Formatet er ikke valgt (#273).
+ * Én kommando blir ett dokument i journalen, eller en avvisning: formen,
+ * utledningen av journalen, forutsetningene, nyttelastkontrollen og til sist
+ * raden med det serveren fryser. Et brev med flere svar er én rad (4.1 i
+ * designnotatet). Serveren gir hvert krav, svar, utsagn og hver opplysning en ny
+ * ID, og relasjonene står som `gjelder` og `erstatter` (4.2).
  */
 
-import type { Journalrad } from './typer.ts';
 import { avvisning } from './avvisning.ts';
 import { formfeil, type Kommando, type Svarutkast } from './kommando.ts';
-import {
-  HENDELSESTYPER,
-  KRAVREFERANSE,
-  lesJournal,
-  svarreferanse,
-  svarutsagn,
-  SVARTYPER,
-  utledetVarsel,
-} from './leser.ts';
-import { beslutningsgrunnlag, regnUtSvar, standpunkter } from './standpunkt.ts';
-import { utled, type Utledning } from './utled.ts';
+import { lesJournal, standpunkterISvaret } from './leser.ts';
+import { beslutningsgrunnlag, regnUtSvar } from './standpunkt.ts';
+import { grunnlagskravFor, utled, type Utledning } from './utled.ts';
 import type { Kjerne } from './versjon.ts';
-import type { Avvisning, Krav, Part } from './typer.ts';
+import type { Avvisning, Beslutningsgrunnlag, Journalrad, Krav, Part, Spor } from './typer.ts';
 
 /** Det serveren stempler kommandoen med. Klienten bestemmer ingen av dem. */
 export interface Kontekst {
@@ -37,49 +28,139 @@ export type Utfall =
   | { godtatt: true; hendelser: Journalrad[] }
   | { godtatt: false; feil: 'UGYLDIG_FORM' | 'REGELBRUDD'; avvisning: Avvisning };
 
+/** Kjernen forstår ikke raden den selv skriver. Raden lagres ikke (MM-U2). */
+export class Skrivefeil extends Error {}
+
+type Data = Record<string, unknown>;
+
 export function utledJournal(journal: Journalrad[], kjerne: Kjerne): Utledning {
   return utled(lesJournal(journal, kjerne.format), kjerne.regler);
 }
 
-const VURDERINGSFELT = [
-  'resultat',
-  'grunnlag_varslet_i_tide',
-  'hovedkrav_vurdering',
-  'hovedkrav_godkjent_belop',
-  'aksepterer_metode',
-  'frist_varsel_ok',
-  'spesifisert_krav_ok',
-  'vilkar_oppfylt',
-];
+/** Beslutningsgrunnlaget i formatet: virkningene viser til standpunktet, og arten leses derfra. */
+function lagret(b: Beslutningsgrunnlag): Data {
+  return {
+    ...b,
+    virkninger: b.virkninger.map(({ standpunkt, virkning }) => ({ standpunkt, virkning })),
+  };
+}
 
-function svardata(
+/**
+ * Fryser brevet i et lagret svar (MM-U9, MM-U11, GR-U12). `grunnlagskrav` er
+ * kravet et grunnlagssvar gjelder, ellers gjeldende grunnlagskrav. Kaster
+ * `Uforstaatt` når standpunktene ikke kan leses.
+ */
+function frys(svar: Data, grunnlagskrav: Krav | null | undefined, kjerne: Kjerne): Data {
+  const spor = svar.spor as Spor;
+  const innhold = {
+    spor,
+    standpunkter: standpunkterISvaret(spor, svar),
+    utregning: (svar.utregning ?? {}) as Data,
+  };
+  return lagret(beslutningsgrunnlag(innhold, grunnlagskrav, kjerne.regler));
+}
+
+/** Standpunktene byggherren har tatt, i rekkefølgen brevet setter dem. En vurdering som ikke er gjort, utelates (KA-U4). */
+function standpunkter(s: Svarutkast, krav: Krav, u: Utledning, nyId: () => string): Data[] {
+  const v = s.vurderinger;
+  const ut: Data[] = [];
+  if (s.spor === 'grunnlag') {
+    if (typeof v.grunnlag_varslet_i_tide === 'boolean')
+      ut.push({
+        id: nyId(),
+        art: 'rettidighet',
+        gjelder: krav.id,
+        hjemmel: '32.2',
+        i_tide: v.grunnlag_varslet_i_tide,
+      });
+    ut.push({ id: nyId(), art: 'ansvar', resultat: v.resultat });
+  } else if (s.spor === 'vederlag') {
+    ut.push({ id: nyId(), art: 'beloep' });
+  } else {
+    // MM-U1: vurderingen gjelder varselet som er registrert nå, ellers varselet utledet av kravet.
+    if (typeof v.frist_varsel_ok === 'boolean')
+      ut.push({
+        id: nyId(),
+        art: 'rettidighet',
+        gjelder: u.spor.frist.varsel?.id ?? krav.id,
+        hjemmel: '33.4',
+        i_tide: v.frist_varsel_ok,
+      });
+    if (typeof v.vilkar_oppfylt === 'boolean')
+      ut.push({ id: nyId(), art: 'hindring', oppfylt: v.vilkar_oppfylt });
+    ut.push({ id: nyId(), art: 'dager' });
+  }
+  return ut;
+}
+
+function svar(
   s: Svarutkast,
   u: Utledning,
   kjerne: Kjerne,
-  dokumentId: string
-): Record<string, unknown> {
-  const data: Record<string, unknown> = {
-    begrunnelse: 'Vurdert',
-    regelversjon: s.regelversjon,
-    dokument_id: dokumentId,
-  };
-  for (const felt of VURDERINGSFELT) {
-    const v = (s.vurderinger as Record<string, unknown>)[felt];
-    if (v !== undefined && v !== null) data[felt] = v;
-  }
-  // B-13: serverens verdier lagres, ikke klientens.
+  nyId: () => string,
+  erstatter?: string
+): Data {
   const krav = u.spor[s.spor].gjeldendeKrav!;
-  Object.assign(
-    data,
-    regnUtSvar(
+  const e: Data = {
+    id: nyId(),
+    spor: s.spor,
+    gjelder: s.gjelder,
+    ...(erstatter ? { erstatter } : {}),
+    standpunkter: standpunkter(s, krav, u, nyId),
+  };
+  // B-13: serverens utregning lagres, ikke klientens.
+  if (s.spor !== 'grunnlag')
+    e.utregning = regnUtSvar(
       s.spor,
       s.vurderinger,
       { krav, grunnlagskrav: u.spor.grunnlag.gjeldendeKrav },
       kjerne.regler
-    )
+    );
+  e.beslutningsgrunnlag = frys(
+    e,
+    grunnlagskravFor({ spor: s.spor, gjelder: s.gjelder }, u),
+    kjerne
   );
-  if (s.spor !== 'grunnlag') data[KRAVREFERANSE[s.spor]] = s.gjelder;
-  return data;
+  return e;
+}
+
+/** Innholdet i dokumentet kommandoen gir. */
+function dokument(k: Kommando, u: Utledning, kjerne: Kjerne, nyId: () => string): Data {
+  switch (k.type) {
+    case 'krav': {
+      const forrige = u.spor[k.spor].gjeldendeKrav;
+      const data: Data = {
+        krav: [
+          { id: nyId(), spor: k.spor, ...(forrige ? { erstatter: forrige.id } : {}), ...k.innhold },
+        ],
+      };
+      // MM-U1: et varsel i kravet registreres første gang det kommer.
+      if (k.varsel && !u.spor.frist.varsel) {
+        data.utsagn = [{ id: nyId(), art: 'varsel', hjemmel: '33.4' }];
+        data.opplysninger = [{ id: nyId(), hva: 'sendt', dato: k.varsel.sendt }];
+      }
+      return data;
+    }
+    case 'brev':
+      return { svar: k.svar.map((s) => svar(s, u, kjerne, nyId)) };
+    case 'revisjon':
+      return { svar: [svar(k.svar, u, kjerne, nyId, k.erstatter)] };
+    case 'aksept':
+      // KA-U10: aksepten viser til svaret og lagrer regelversjonen TE fikk se.
+      return {
+        utsagn: [{ id: nyId(), art: 'aksept', gjelder: k.svar, regelversjon: k.regelversjon }],
+      };
+    case 'trekk':
+      return { utsagn: [{ id: nyId(), art: 'trekk', gjelder: u.spor[k.spor].gjeldendeKrav!.id }] };
+    case 'varsel':
+      return {
+        utsagn: [{ id: nyId(), art: 'varsel', hjemmel: k.hjemmel }],
+        opplysninger: [{ id: nyId(), hva: 'sendt', dato: k.sendt }],
+        ...(k.dokumentasjon?.length ? { dokumentasjon: k.dokumentasjon } : {}),
+      };
+    case 'bestridelse':
+      return { utsagn: [{ id: nyId(), art: 'bestridelse', gjelder: k.gjelder, hva: k.hva }] };
+  }
 }
 
 export function vurder(
@@ -100,106 +181,43 @@ export function vurder(
   const brudd = avvisning(k, kontekst.part, u, kjerne.regler);
   if (brudd) return { godtatt: false, feil: 'REGELBRUDD', avvisning: brudd };
 
-  const hendelser: Journalrad[] = [];
-  const ny = (
-    type: string,
-    data: Record<string, unknown>,
-    referanse: string | null = null
-  ): Journalrad => {
-    const id = kontekst.nyId();
-    const h: Journalrad = {
-      event_id: id,
-      sak_id: kontekst.sakId,
-      event_type: type as Journalrad['event_type'],
-      versjon: (journal.at(-1)?.versjon ?? 0) + hendelser.length + 1,
-      tidsstempel: kontekst.tidspunkt().toISOString(),
-      aktor_id: kontekst.aktoerId,
-      aktor_rolle: kontekst.part,
-      aktor_team_id: kontekst.teamId,
-      refererer_til_event_id: referanse,
-      data: kjerne.format > 1 ? { ...data, hendelsesformat: kjerne.format } : data,
-    };
-    hendelser.push(h);
-    return h;
+  const eventId = kontekst.nyId();
+  const rad: Journalrad = {
+    event_id: eventId,
+    sak_id: kontekst.sakId,
+    event_type: 'dokument_registrert',
+    versjon: (journal.at(-1)?.versjon ?? 0) + 1,
+    tidsstempel: kontekst.tidspunkt().toISOString(),
+    aktor_id: kontekst.aktoerId,
+    aktor_rolle: kontekst.part,
+    aktor_team_id: kontekst.teamId,
+    refererer_til_event_id: null,
+    format: kjerne.format,
+    data: dokument(k, u, kjerne, kontekst.nyId),
   };
-
-  switch (k.type) {
-    case 'krav': {
-      const data: Record<string, unknown> = { ...k.innhold };
-      if (k.varsel) data.frist_varsel = { dato_sendt: k.varsel.sendt };
-      ny(HENDELSESTYPER[k.spor].krav[u.spor[k.spor].krav.length ? 1 : 0], data);
-      break;
-    }
-    case 'brev': {
-      const dokumentId = kontekst.nyId();
-      for (const s of k.svar)
-        ny(HENDELSESTYPER[s.spor].svar[0], svardata(s, u, kjerne, dokumentId), s.gjelder);
-      break;
-    }
-    case 'revisjon':
-      ny(
-        HENDELSESTYPER[k.svar.spor].svar[1],
-        { ...svardata(k.svar, u, kjerne, kontekst.nyId()), original_respons_id: k.erstatter },
-        k.svar.gjelder
-      );
-      break;
-    case 'aksept':
-      // KA-U10: aksepten viser til svaret og lagrer regelversjonen TE fikk se.
-      ny('te_aksepterer_respons', { spor: k.spor, regelversjon: k.regelversjon }, k.svar);
-      break;
-    case 'trekk':
-      ny(HENDELSESTYPER[k.spor].trekk, { begrunnelse: 'Trukket' });
-      break;
-    case 'varsel':
-      ny('frist_varsel_registrert', {
-        hjemmel: k.hjemmel,
-        sendt: k.sendt,
-        sendt_oppgitt_av: kontekst.part,
-        dokumentasjon: k.dokumentasjon ?? [],
-      });
-      break;
-    case 'bestridelse':
-      ny('bestridelse_registrert', { gjelder: k.gjelder, hva: k.hva });
-      break;
-  }
-
-  // Et svar fryser brevet (MM-U9). Kjernen må forstå det den selv har skrevet.
-  const svar = hendelser.filter((h) => SVARTYPER[h.event_type]);
-  for (const h of svar)
-    frysSvar(h, [...journal, ...hendelser.slice(0, hendelser.indexOf(h))], kjerne);
-  if (svar.length && !utledJournal([...journal, ...hendelser], kjerne).forstaatt)
-    throw new Error('Kjernen forstår ikke brevet den selv skriver.');
-  return { godtatt: true, hendelser };
+  // Kjernen må forstå det den selv skriver (MM-U2, 7.1.2 i designnotatet).
+  const etter = utledJournal([...journal, rad], kjerne);
+  if (!etter.forstaatt)
+    throw new Skrivefeil(
+      `Kjernen forstår ikke dokumentet den selv skriver: ${etter.begrensninger.map((b) => b.grunn).join('; ')}`
+    );
+  return { godtatt: true, hendelser: [rad] };
 }
 
 /**
- * Fryser brevet i svarraden: beslutningsgrunnlaget, som også er innholdet i en
- * enighet om svaret (MM-U9, KA-U10). Kategorien og varselet brevet regnes med,
- * leses fra radene før, også når saken ikke er forstått, så registrert
- * korrespondanse fryses med det byggherren svarte på (merknaden til MM-U9).
- * Kaster `Uforstaatt` når raden ikke kan leses.
+ * Fryser brevet i hvert svar i en rad som er registrert uten kommandoen, for
+ * eksempel registrert korrespondanse (merknaden til MM-U9, GR-U12). Kategorien
+ * brevet regnes med, leses fra radene før, også når saken ikke er forstått.
+ * Kaster `Uforstaatt` når et svar ikke kan leses.
  */
-export function frysSvar(rad: Journalrad, foer: Journalrad[], kjerne: Kjerne): void {
+export function frysBrev(rad: Journalrad, foer: Journalrad[], kjerne: Kjerne): void {
   const grunnlagskrav: Krav[] = [];
-  let varsel: string | null = null;
-  for (const h of lesJournal(foer, kjerne.format)) {
-    if (h.art !== 'dokument') continue;
-    grunnlagskrav.push(...h.dokument.krav.filter((k) => k.spor === 'grunnlag'));
-    for (const u of h.dokument.utsagn)
-      if (u.art === 'varsel' && u.gjelder === 'frist') varsel ??= u.id;
+  for (const h of lesJournal(foer, kjerne.format))
+    if (h.art === 'dokument')
+      grunnlagskrav.push(...h.dokument.krav.filter((k) => k.spor === 'grunnlag'));
+  for (const s of (rad.data.svar ?? []) as Data[]) {
+    // Kategorien gjelder bare svaret på grunnlaget (§ 32.2, GR-U12).
+    const krav = s.spor === 'grunnlag' ? grunnlagskrav.find((k) => k.id === s.gjelder) : null;
+    s.beslutningsgrunnlag = frys(s, krav, kjerne);
   }
-  const spor = SVARTYPER[rad.event_type];
-  const gjelder = svarreferanse(rad, spor);
-  const svar = {
-    spor,
-    utsagn: svarutsagn(spor, rad.event_id, gjelder, rad.data, varsel ?? utledetVarsel(gjelder)),
-    utregning: rad.data,
-  };
-  const krav =
-    spor === 'grunnlag' ? grunnlagskrav.find((k) => k.id === gjelder) : grunnlagskrav.at(-1);
-  rad.data.beslutningsgrunnlag = beslutningsgrunnlag(
-    svar,
-    standpunkter(svar, krav, kjerne.regler),
-    kjerne.regler
-  );
 }

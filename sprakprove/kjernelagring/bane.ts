@@ -9,27 +9,61 @@
  * #273; her prøves bare at kjernens rader tåler basen.
  */
 
+import { randomUUID } from 'node:crypto';
 import type pg from 'pg';
 import type { ClientBase, PoolClient } from 'pg';
 import type { Buffer, Bufferlager } from '../../kjerne/buffer.ts';
+import type { Journalrad } from '../../kjerne/typer.ts';
 import type { Bane } from '../../kjerne/tester/bane.ts';
 import type { Baner } from '../../kjerne/tester/baner.ts';
 import type { Hendelse } from '../kjerne/typer.ts';
-import { leggTil, lesJournal } from '../server/lager.ts';
-import { lagOppsett, opprettSak, rydd, TESTBASE_URL, type Oppsett } from '../tester/testbase.ts';
+import { leggTil, lesJournal, type Kroker } from '../server/lager.ts';
+import { lagOppsett, rydd, TESTBASE_URL, type Oppsett } from '../tester/testbase.ts';
 
 export { TESTBASE_URL };
 
+/** Journalen i saken slik basen har den, med `format` fra kolonnen. */
+export async function journalen(o: Oppsett, sakId: string): Promise<Journalrad[]> {
+  const { hendelser } = await lesJournal(o.pool as pg.Pool, sakId, o.prosjekt.id);
+  return hendelser.map((h) => ({ format: null, ...h }) as Journalrad);
+}
+
+/** Skriv kjernens rader med lageret. Lageret kjenner bare språkprøvens hendelsestyper; basen tar imot alle. */
+export async function skrivRader(
+  o: Oppsett,
+  rader: Journalrad[],
+  forventet: number,
+  kroker?: Kroker
+): Promise<number> {
+  return leggTil(o.pool, o.prosjekt.id, rader as unknown as Hendelse[], forventet, kroker);
+}
+
+/** En ny sak i prosjektet, opprettet med `sak_opprettet` i kjernens format. */
 export async function basebane(o: Oppsett): Promise<Bane> {
-  const sakId = await opprettSak(o.pool, o.prosjekt.id, o.te);
+  const sakId = randomUUID();
+  await o.pool.query(
+    "INSERT INTO sak_metadata (sak_id, prosjekt_id, created_by, sakstype) VALUES ($1, $2, 'kjernelagring', 'standard')",
+    [sakId, o.prosjekt.id]
+  );
+  const sak: Journalrad = {
+    event_id: randomUUID(),
+    sak_id: sakId,
+    event_type: 'sak_opprettet',
+    versjon: 1,
+    tidsstempel: '2026-10-09T08:00:00.000Z',
+    aktor_id: o.te.id,
+    aktor_rolle: 'TE',
+    aktor_team_id: null,
+    refererer_til_event_id: null,
+    format: 1,
+    data: { sakstittel: 'Kjernelagringen', sakstype: 'standard' },
+  };
+  await skrivRader(o, [sak], 0);
   return {
     sakId,
     aktor: (part) => (part === 'TE' ? o.te.id : o.bh.id),
-    journal: async () => (await lesJournal(o.pool as pg.Pool, sakId, o.prosjekt.id)).hendelser,
-    async skriv(hendelser, forventet) {
-      // Lageret kjenner bare språkprøvens hendelsestyper; basen tar imot alle.
-      await leggTil(o.pool, o.prosjekt.id, hendelser as Hendelse[], forventet);
-    },
+    journal: () => journalen(o, sakId),
+    skriv: async (hendelser, forventet) => void (await skrivRader(o, hendelser, forventet)),
   };
 }
 

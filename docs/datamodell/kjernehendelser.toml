@@ -1,0 +1,188 @@
+# Hendelsestypene TS-kjernen skriver i `hendelse` (#320, B-10, B-17), i format 1.
+#
+# Rett her, ikke i kjernehendelser.md. Den lages av
+#   /tmp/venv/bin/python docs/verktoy/datamodell.py
+# Formen er skjemaene i kjerne/format.ts. Vakttesten
+# kjerne/tester/register.test.ts feiler når en type, et spor, en art eller et
+# felt står ett sted og ikke det andre. backend/tests/test_datamodell/ prøver
+# formen på registeret og at markdown er generert.
+#
+# Pythons hendelsestyper (EventType) står i hendelser.toml. Etter B-17 skriver
+# Python ikke i KOE-, EO- og forseringssakene, og TS-kjernen leser ikke Pythons
+# rader. Designnotatet er docs/design-hendelsesformat-2026-10-09.md.
+#
+# `grunnlag` viser til vedtak i hovedplanen (3.1) eller avsnitt i designnotatet.
+
+format = 1
+
+# ---------------------------------------------------------------------------
+# Typene. Kolonnen `format` er satt på hver rad TS-kjernen skriver.
+# ---------------------------------------------------------------------------
+
+[[hendelse]]
+navn = "sak_opprettet"
+beskrivelse = "Saken er opprettet. Første rad i saken."
+felt = ["sakstittel", "sakstype"]
+grunnlag = "B-17. Andre sakstyper enn `standard` hører til #309"
+
+[[hendelse]]
+navn = "dokument_registrert"
+beskrivelse = """
+Ett dokument fra én part: kravene, svarene, utsagnene og opplysningene i det.
+Et brev med flere svar er én rad, og saksversjonen øker med én. Dokumentet har
+minst ett krav, ett svar eller ett utsagn. Avsenderen er `actorrole`."""
+felt = ["krav", "svar", "utsagn", "opplysninger", "dokumentasjon"]
+grunnlag = "MM-U10, designnotatet 4.1"
+
+# ---------------------------------------------------------------------------
+# Elementene i dokumentet. Hvert har en `id` (UUID) satt av serveren.
+# ---------------------------------------------------------------------------
+
+[[krav]]
+spor = "grunnlag"
+beskrivelse = "En kravversjon av ansvarsgrunnlaget. `erstatter` er forrige kravversjon i sporet."
+felt = ["id", "spor", "erstatter", "hovedkategori", "underkategori", "tittel", "beskrivelse"]
+grunnlag = "KA-U2, designnotatet 4.2"
+
+[[krav]]
+spor = "vederlag"
+beskrivelse = "En kravversjon av vederlaget, i kroner over 0."
+felt = ["id", "spor", "erstatter", "metode", "beloep"]
+grunnlag = "KA-U2, KA-U8"
+
+[[krav]]
+spor = "frist"
+beskrivelse = "En kravversjon av fristforlengelsen, i dager over 0."
+felt = ["id", "spor", "erstatter", "dager"]
+grunnlag = "KA-U2, KA-U8"
+
+[[svar]]
+spor = "grunnlag"
+beskrivelse = """
+Byggherrens svar på en kravversjon av grunnlaget. `gjelder` er kravversjonen,
+`erstatter` svaret en revisjon erstatter. Grunnlaget har ingen utregning."""
+felt = ["id", "spor", "gjelder", "erstatter", "standpunkter", "beslutningsgrunnlag"]
+grunnlag = "KA-U1, MM-U9, designnotatet 4.2 og 4.3"
+
+[[svar]]
+spor = "vederlag"
+beskrivelse = "Byggherrens svar på en kravversjon av vederlaget, med serverens utregning."
+felt = ["id", "spor", "gjelder", "erstatter", "standpunkter", "utregning", "beslutningsgrunnlag"]
+grunnlag = "B-13, MM-U9"
+
+[[svar]]
+spor = "frist"
+beskrivelse = "Byggherrens svar på en kravversjon av fristen, med serverens utregning."
+felt = ["id", "spor", "gjelder", "erstatter", "standpunkter", "utregning", "beslutningsgrunnlag"]
+grunnlag = "B-13, MM-U9"
+
+# Standpunktene i et svar, i rekkefølgen brevet setter dem. Arten avgjør
+# feltene. Et standpunkt byggherren ikke har tatt, utelates (KA-U4).
+
+[[standpunkt]]
+art = "rettidighet"
+spor = ["grunnlag", "frist"]
+beskrivelse = """
+Om varselet kom i tide: § 32.2 i grunnlaget, § 33.4 i fristen. `gjelder` er
+kravversjonen, eller et registrert varsel etter § 33.4."""
+felt = ["id", "art", "gjelder", "hjemmel", "i_tide"]
+grunnlag = "KA-U4, MM-U1, MM-U8"
+
+[[standpunkt]]
+art = "ansvar"
+spor = ["grunnlag"]
+beskrivelse = "Byggherrens svar på ansvaret: `godkjent`, `avslatt` eller `frafalt`."
+felt = ["id", "art", "resultat"]
+grunnlag = "§ 32.3 a–c, GR-U9, GR-U10"
+
+[[standpunkt]]
+art = "beloep"
+spor = ["vederlag"]
+beskrivelse = "Beløpet. Resultatet og beløpet står i svarets utregning, så de har ett hjem."
+felt = ["id", "art"]
+grunnlag = "B-13, designnotatet 4.3"
+
+[[standpunkt]]
+art = "hindring"
+spor = ["frist"]
+beskrivelse = "Om byggherren godtar at fremdriften er hindret."
+felt = ["id", "art", "oppfylt"]
+grunnlag = "§ 33.1, vedtaket 05.10 (#211)"
+
+[[standpunkt]]
+art = "dager"
+spor = ["frist"]
+beskrivelse = "Dagene. Resultatet og dagene, også de subsidiære, står i svarets utregning."
+felt = ["id", "art"]
+grunnlag = "B-13, designnotatet 4.3"
+
+# Utsagnene i et dokument som ikke er krav eller svar.
+
+[[utsagn]]
+art = "varsel"
+avsender = "TE"
+beskrivelse = "Varsel etter § 33.4. Datoen det ble sendt, er en opplysning i samme dokument."
+felt = ["id", "art", "hjemmel"]
+grunnlag = "MM-U1, SK-12"
+
+[[utsagn]]
+art = "trekk"
+avsender = "TE"
+beskrivelse = "TE trekker kravet. `gjelder` er gjeldende kravversjon i sporet."
+felt = ["id", "art", "gjelder"]
+grunnlag = "KA-U6, GR-U5"
+
+[[utsagn]]
+art = "aksept"
+avsender = "TE"
+beskrivelse = "TE godtar ett svar. `regelversjon` er den TE fikk se. Innholdet står i brevet."
+felt = ["id", "art", "gjelder", "regelversjon"]
+grunnlag = "KA-U1, KA-U10"
+
+[[utsagn]]
+art = "bestridelse"
+avsender = "TE eller BH"
+beskrivelse = "En part bestrider at dokumentet i en opplysning fra motparten ble sendt eller mottatt."
+felt = ["id", "art", "gjelder", "hva"]
+grunnlag = "MM-U1, MM-U7"
+
+[[utsagn]]
+art = "ingen_krav"
+avsender = "TE"
+beskrivelse = "TE krever ikke noe i et spor som ikke er sendt. Har `spor` og ikke `gjelder`."
+felt = ["id", "art", "spor"]
+grunnlag = "KA-U12"
+
+# ---------------------------------------------------------------------------
+# Delene i svaret og dokumentet.
+# ---------------------------------------------------------------------------
+
+[[del]]
+navn = "beslutningsgrunnlag"
+beskrivelse = """
+Brevet frosset da det ble sendt: regelversjonen, virkningen hvert standpunkt
+hadde (`prinsipalt`, `subsidiaert` eller `uten_virkning`), brevlinjen, om svaret
+godkjenner hele kravet (`sammenfall`) og, i grunnlaget, om § 32.2 gjaldt
+(`varslingsplikt`). Utfallet og vilkåret utledes og lagres ikke."""
+felt = ["regelversjon", "virkninger", "linje", "sammenfall", "varslingsplikt"]
+grunnlag = "MM-U9, MM-U11, GR-U12, KA-U10"
+
+[[del]]
+navn = "utregning"
+spor = "vederlag"
+beskrivelse = "Serverens utregning: resultatet og det godkjente beløpet."
+felt = ["resultat", "godkjent_beloep"]
+grunnlag = "B-13"
+
+[[del]]
+navn = "utregning"
+spor = "frist"
+beskrivelse = "Serverens utregning: resultatet og de godkjente dagene, og det subsidiære standpunktet når det finnes."
+felt = ["resultat", "godkjent_dager", "subsidiaert_resultat", "subsidiaert_godkjent_dager"]
+grunnlag = "B-13, vedtaket 05.10 (#211)"
+
+[[del]]
+navn = "opplysning"
+beskrivelse = "Når dokumentet ble sendt eller mottatt, oppgitt av avsenderen. Et brev sendt i appen har ingen: sendt er registrert."
+felt = ["id", "hva", "dato"]
+grunnlag = "Modellforslaget 2.4, MM-U7"

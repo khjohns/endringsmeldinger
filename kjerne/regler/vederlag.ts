@@ -69,7 +69,7 @@ export interface Vederlagsberegning {
 const harRigg = (krav: Vederlagskrav) => krav.rigg_belop !== null;
 const harProduktivitet = (krav: Vederlagskrav) => krav.produktivitet_belop !== null;
 
-export function kanPrekluderesEtter3412(hovedkategori: string | null): boolean {
+export function gjelderVarslingspliktenForVederlag(hovedkategori: string | null): boolean {
   return hovedkategori === 'SVIKT' || hovedkategori === 'ANDRE';
 }
 
@@ -79,7 +79,9 @@ export function kanHoldeTilbake(krav: Vederlagskrav): boolean {
 
 export function beregnPreklusjon(v: Vederlagsvurdering, krav: Vederlagskrav): Preklusjon {
   return {
-    hovedkrav: kanPrekluderesEtter3412(krav.hovedkategori) && v.hovedkrav_varslet_i_tide === false,
+    hovedkrav:
+      gjelderVarslingspliktenForVederlag(krav.hovedkategori) &&
+      v.hovedkrav_varslet_i_tide === false,
     rigg: harRigg(krav) && v.rigg_varslet_i_tide === false,
     produktivitet: harProduktivitet(krav) && v.produktivitet_varslet_i_tide === false,
   };
@@ -195,7 +197,11 @@ function kontroller(v: Vederlagsvurdering, krav: Vederlagskrav): void {
     );
   }
   const spoersmaal: [boolean, keyof Vederlagsvurdering, string][] = [
-    [kanPrekluderesEtter3412(krav.hovedkategori), 'hovedkrav_varslet_i_tide', '§ 34.1.2'],
+    [
+      gjelderVarslingspliktenForVederlag(krav.hovedkategori),
+      'hovedkrav_varslet_i_tide',
+      '§ 34.1.2',
+    ],
     [harRigg(krav), 'rigg_varslet_i_tide', '§ 34.1.3'],
     [harProduktivitet(krav), 'produktivitet_varslet_i_tide', '§ 34.1.3'],
     [true, 'aksepterer_metode', '§ 34.2.2'],

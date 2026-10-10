@@ -18,6 +18,8 @@ export interface Rad {
   actorrole: Rolle;
   actorteam: string | null;
   referstoid: string | null;
+  /** Formatversjonen TS-kjernen skrev raden med (#273). `null` for språkprøvens og Pythons rader. */
+  format: number | null;
   data: Record<string, unknown>;
   prosjekt_id: string;
   sak_id: string;
@@ -25,7 +27,7 @@ export interface Rad {
   versjon: number;
 }
 
-export function tilRad(h: Hendelse, prosjektId: string): Rad {
+export function tilRad(h: Hendelse & { format?: number | null }, prosjektId: string): Rad {
   return {
     specversion: '1.0',
     event_id: h.event_id,
@@ -38,6 +40,7 @@ export function tilRad(h: Hendelse, prosjektId: string): Rad {
     actorrole: h.aktor_rolle,
     actorteam: h.aktor_team_id,
     referstoid: h.refererer_til_event_id,
+    format: h.format ?? null,
     data: structuredClone(h.data),
     prosjekt_id: prosjektId,
     sak_id: h.sak_id,
@@ -46,7 +49,10 @@ export function tilRad(h: Hendelse, prosjektId: string): Rad {
   };
 }
 
-/** En lagret rad leses tolerant: historikken kan ha felt kontrakten ikke kjenner. */
+/**
+ * En lagret rad leses tolerant: historikken kan ha felt kontrakten ikke kjenner.
+ * `format` tas med bare når raden har det, så språkprøvens hendelser er som før.
+ */
 export function fraRad(
   rad: Pick<
     Rad,
@@ -56,12 +62,13 @@ export function fraRad(
     | 'actorrole'
     | 'actorteam'
     | 'referstoid'
+    | 'format'
     | 'data'
     | 'sak_id'
     | 'event_type'
     | 'versjon'
   >
-): Hendelse {
+): Hendelse & { format?: number } {
   return {
     event_id: rad.event_id,
     sak_id: rad.sak_id,
@@ -72,6 +79,7 @@ export function fraRad(
     aktor_rolle: rad.actorrole,
     aktor_team_id: rad.actorteam,
     refererer_til_event_id: rad.referstoid,
+    ...(rad.format !== null ? { format: rad.format } : {}),
     data: structuredClone(rad.data),
   };
 }

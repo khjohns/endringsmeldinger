@@ -1,12 +1,11 @@
 /**
- * Virkningen av utsagnene i ett svar, og det som fryses av den:
- * beslutningsgrunnlaget når brevet sendes og enighetsgrunnlaget når enigheten
- * oppstår. Klienten og serveren regner med de samme funksjonene; serveren
- * sammenlikner (B-13, 2.5 i modellforslaget).
+ * Virkningen av standpunktene i ett svar, og det som fryses av den:
+ * beslutningsgrunnlaget når brevet sendes. Klienten og serveren regner med de
+ * samme funksjonene; serveren sammenlikner (B-13, 2.5 i modellforslaget).
  *
- * Reglene regner standpunktene bare når brevet skrives. Etter det leses
- * virkningen fra beslutningsgrunnlaget (MM-U9). Visningen kan regne dem igjen
- * med dagens regler for å vise at regelen er endret, men ingen regel leser det.
+ * Reglene regner virkningene bare når brevet skrives. Etter det leses de fra
+ * beslutningsgrunnlaget (MM-U9). Visningen kan regne dem igjen med dagens regler
+ * for å vise at regelen er endret, men ingen regel leser det.
  *
  * Svarets egne standpunkter skilles fra om hele svaret er subsidiært til
  * grunnlaget. Det siste er en relasjon mellom brevene som utledes ved lesing
@@ -26,13 +25,13 @@ import type {
   Krav,
   Spor,
   Standpunkt,
+  Standpunktsvirkning,
   Svar,
   Utfall,
-  Utsagn,
 } from './typer.ts';
 
-/** Det i et svar standpunktene regnes av: sporet, utsagnene og serverens utregning. */
-export type Svarinnhold = Pick<Svar, 'spor' | 'utsagn' | 'utregning'>;
+/** Det i et svar virkningene regnes av: sporet, standpunktene og serverens utregning. */
+export type Svarinnhold = Pick<Svar, 'spor' | 'standpunkter' | 'utregning'>;
 
 function kategori(krav: Krav | null | undefined) {
   const innhold = krav?.innhold ?? {};
@@ -49,55 +48,53 @@ export function gjelderVarslingsplikten(krav: Krav | null | undefined, regler: R
 }
 
 /**
- * Standpunktene i svaret etter regelsettet, regnet når brevet skrives.
- * `grunnlagskrav` er kravet et grunnlagssvar gjelder.
+ * Virkningen av hvert standpunkt i svaret etter regelsettet, regnet når brevet
+ * skrives. `grunnlagskrav` er kravet et grunnlagssvar gjelder.
  */
-export function standpunkter(
+export function virkninger(
   svar: Svarinnhold,
   grunnlagskrav: Krav | null | undefined,
   regler: Regelsett
-): Standpunkt[] {
-  const ut: Standpunkt[] = [];
+): Standpunktsvirkning[] {
+  const ut: Standpunktsvirkning[] = [];
   let harGrunn = false;
-  const etterGrunn = () => (harGrunn ? 'subsidiaer' : 'hovedgrunn');
-  for (const u of svar.utsagn) {
-    if (u.art === 'rettidighet') {
-      const { hovedkategori, underkategori } = kategori(grunnlagskrav);
+  const etterGrunn = () => (harGrunn ? 'subsidiaert' : 'prinsipalt');
+  for (const s of svar.standpunkter) {
+    if (s.art === 'rettidighet') {
       const virker =
-        !u.iTide &&
-        (u.hjemmel === '33.4' || regler.gjelderVarslingsplikten(hovedkategori, underkategori));
+        !s.iTide && (s.hjemmel === '33.4' || gjelderVarslingsplikten(grunnlagskrav, regler));
       if (virker) harGrunn = true;
-      ut.push({ utsagn: u.id, art: u.art, virkning: virker ? 'hovedgrunn' : 'uten_virkning' });
-    } else if (u.art === 'hindring') {
+      ut.push({ standpunkt: s.id, art: s.art, virkning: virker ? 'prinsipalt' : 'uten_virkning' });
+    } else if (s.art === 'hindring') {
       // Vedtaket 05.10 (#211): uten fremdriftshindring står dagene som et videre subsidiært standpunkt.
-      const virkning = u.oppfylt ? 'uten_virkning' : etterGrunn();
-      if (!u.oppfylt) harGrunn = true;
-      ut.push({ utsagn: u.id, art: u.art, virkning });
+      const virkning = s.oppfylt ? 'uten_virkning' : etterGrunn();
+      if (!s.oppfylt) harGrunn = true;
+      ut.push({ standpunkt: s.id, art: s.art, virkning });
     } else {
-      ut.push({ utsagn: u.id, art: u.art, virkning: etterGrunn() });
+      ut.push({ standpunkt: s.id, art: s.art, virkning: etterGrunn() });
     }
   }
   return ut;
 }
 
-export const hovedgrunn = (s: Standpunkt[]) => s.find((p) => p.virkning === 'hovedgrunn');
+export const prinsipalt = (v: Standpunktsvirkning[]) => v.find((p) => p.virkning === 'prinsipalt');
 /** Et standpunkt som avviser kravet uavhengig av beløpet eller dagene. */
 const AVVISENDE = new Set(['rettidighet', 'hindring']);
-const avvisendeHovedgrunn = (s: Standpunkt[]) => AVVISENDE.has(hovedgrunn(s)?.art ?? '');
+const avvisesPrinsipalt = (v: Standpunktsvirkning[]) => AVVISENDE.has(prinsipalt(v)?.art ?? '');
 
-export function utsagnet<A extends Utsagn['art']>(svar: Svarinnhold, art: A) {
-  return svar.utsagn.find((u): u is Extract<Utsagn, { art: A }> => u.art === art);
+export function standpunktet<A extends Standpunkt['art']>(svar: Svarinnhold, art: A) {
+  return svar.standpunkter.find((s): s is Extract<Standpunkt, { art: A }> => s.art === art);
 }
 
 /** Det svaret gir i sporet når standpunktene har denne virkningen. */
-export function utfall(svar: Svarinnhold, s: Standpunkt[]): Utfall {
-  const prekludert = avvisendeHovedgrunn(s);
+export function utfall(svar: Svarinnhold, v: Standpunktsvirkning[]): Utfall {
+  const prekludert = avvisesPrinsipalt(v);
   if (svar.spor === 'grunnlag') {
-    const ansvar = utsagnet(svar, 'ansvar')!;
+    const ansvar = standpunktet(svar, 'ansvar')!;
     return { grunnlag: prekludert || ansvar.resultat === 'avslatt' ? 'avvist' : 'avklart' };
   }
-  if (svar.spor === 'vederlag') return { beloep: utsagnet(svar, 'beloep')!.godkjent };
-  const dager = utsagnet(svar, 'dager')!;
+  if (svar.spor === 'vederlag') return { beloep: standpunktet(svar, 'beloep')!.godkjent };
+  const dager = standpunktet(svar, 'dager')!;
   return { dager: prekludert || dager.resultat === 'avslatt' ? 0 : dager.vurdert };
 }
 
@@ -106,46 +103,46 @@ export function utfall(svar: Svarinnhold, s: Standpunkt[]): Utfall {
  * (GR-U7). For grunnlaget er det en godkjenning uten påberopt preklusjon
  * (GR-U10).
  */
-function godkjennerHeleKravet(svar: Svarinnhold, s: Standpunkt[]): boolean {
-  if (avvisendeHovedgrunn(s)) return false;
-  if (svar.spor === 'grunnlag') return utsagnet(svar, 'ansvar')?.resultat === 'godkjent';
-  return svar.utregning.beregnings_resultat === 'godkjent';
+function godkjennerHeleKravet(svar: Svarinnhold, v: Standpunktsvirkning[]): boolean {
+  if (avvisesPrinsipalt(v)) return false;
+  if (svar.spor === 'grunnlag') return standpunktet(svar, 'ansvar')?.resultat === 'godkjent';
+  return svar.utregning.resultat === 'godkjent';
 }
 
 /** Enigheten om svaret slik brevet uttrykte det (KA-U10, MM-U3, MM-U9, MM-U11). */
 export function enighetsgrunnlag(svar: Svar, kilde: Enighetsgrunnlag['kilde']): Enighetsgrunnlag {
-  const { regelversjon, standpunkter } = svar.beslutningsgrunnlag;
+  const { regelversjon, virkninger } = svar.beslutningsgrunnlag;
   return {
     spor: svar.spor,
     svar: svar.id,
     kilde,
     regelversjon,
-    standpunkter,
-    utfall: utfall(svar, standpunkter),
+    virkninger,
+    utfall: utfall(svar, virkninger),
     vilkaar: svar.spor === 'grunnlag' ? null : 'grunnlag_avklart',
   };
 }
 
 const kroner = (n: number) => `${n.toLocaleString('nb-NO')} kr`;
 
-/** Linjen i brevet for svaret, med hovedgrunnen først (vedtaket 05.10 om avslag sammen med § 32.2). */
-function beslutningslinje(svar: Svarinnhold, s: Standpunkt[]): string {
+/** Linjen i brevet for svaret, med den prinsipale grunnen først (vedtaket 05.10 om avslag sammen med § 32.2). */
+function beslutningslinje(svar: Svarinnhold, v: Standpunktsvirkning[]): string {
   const hjemmel = svar.spor === 'grunnlag' ? '§ 32.2' : '§ 33.4';
   const grunntekst: Record<string, string> = {
     rettidighet: `prekludert (${hjemmel})`,
     hindring: 'avslått uten fremdriftshindring (§ 33.1)',
   };
-  const grunner = s.filter((p) => AVVISENDE.has(p.art) && p.virkning !== 'uten_virkning');
+  const grunner = v.filter((p) => AVVISENDE.has(p.art) && p.virkning !== 'uten_virkning');
   let standpunkt: string;
   if (svar.spor === 'grunnlag') {
     standpunkt = { godkjent: 'godkjent', avslatt: 'avslått', frafalt: 'frafalt (§ 32.3 c)' }[
-      utsagnet(svar, 'ansvar')!.resultat
+      standpunktet(svar, 'ansvar')!.resultat
     ];
   } else if (svar.spor === 'vederlag') {
-    const b = utsagnet(svar, 'beloep')!;
+    const b = standpunktet(svar, 'beloep')!;
     standpunkt = b.resultat === 'avslatt' ? 'avslått' : `godkjent med ${kroner(b.godkjent)}`;
   } else {
-    const d = utsagnet(svar, 'dager')!;
+    const d = standpunktet(svar, 'dager')!;
     standpunkt = d.resultat === 'avslatt' ? 'avslått' : `godkjent med ${d.vurdert} dager`;
   }
   if (!grunner.length) return `${standpunkt[0].toUpperCase()}${standpunkt.slice(1)}.`;
@@ -155,36 +152,45 @@ function beslutningslinje(svar: Svarinnhold, s: Standpunkt[]): string {
   return `${ledd.join(', ')}, ${grunner.length > 1 ? 'videre ' : ''}subsidiært ${standpunkt}.`;
 }
 
+/**
+ * Brevet frosset når det sendes (MM-U9, MM-U11). For grunnlaget fryses også om
+ * § 32.2 gjaldt kategorien i kravversjonen (GR-U12).
+ */
 export function beslutningsgrunnlag(
   svar: Svarinnhold,
-  s: Standpunkt[],
+  grunnlagskrav: Krav | null | undefined,
   regler: Regelsett
 ): Beslutningsgrunnlag {
+  const v = virkninger(svar, grunnlagskrav, regler);
   return {
     regelversjon: regler.versjon,
-    standpunkter: s,
-    linje: beslutningslinje(svar, s),
-    sammenfall: godkjennerHeleKravet(svar, s),
+    virkninger: v,
+    linje: beslutningslinje(svar, v),
+    sammenfall: godkjennerHeleKravet(svar, v),
+    ...(svar.spor === 'grunnlag'
+      ? { varslingsplikt: gjelderVarslingsplikten(grunnlagskrav, regler) }
+      : {}),
   };
 }
 
-/** Virkningen hvert utsagn har, utenom utsagn uten virkning. Et utsagn som mangler, er uten virkning. */
-function medVirkning(s: Standpunkt[]): Map<string, Standpunkt['virkning']> {
+/** Virkningen hvert standpunkt har, utenom standpunkter uten virkning. Et standpunkt som mangler, er uten virkning. */
+function medVirkning(v: Standpunktsvirkning[]): Map<string, Standpunktsvirkning['virkning']> {
   return new Map(
-    s.filter((p) => p.virkning !== 'uten_virkning').map((p) => [p.utsagn, p.virkning])
+    v.filter((p) => p.virkning !== 'uten_virkning').map((p) => [p.standpunkt, p.virkning])
   );
 }
 
 /** Et standpunkt har en annen virkning i `a` enn i `b`. Brukes bare av visningen (MM-U9). */
-export function ulikeVirkninger(a: Standpunkt[], b: Standpunkt[]): boolean {
+export function ulikeVirkninger(a: Standpunktsvirkning[], b: Standpunktsvirkning[]): boolean {
   const [x, y] = [medVirkning(a), medVirkning(b)];
-  return x.size !== y.size || [...x].some(([utsagn, virkning]) => y.get(utsagn) !== virkning);
+  return x.size !== y.size || [...x].some(([id, virkning]) => y.get(id) !== virkning);
 }
 
 /**
- * En vurdering i svaret som kjernen ennå ikke har et utsagn for. Den kan ikke godtas
- * og forenkles til et annet standpunkt, så kommandoen avvises og en lagret rad
- * leses som ikke forstått (#304, review av PR #306).
+ * En vurdering i svaret som kjernen ennå ikke har et standpunkt for. Den kan ikke
+ * godtas og forenkles til et annet standpunkt, så kommandoen avvises. Formatet har
+ * ingen art for den, så en lagret rad med den er ikke forstått (#304, review av
+ * PR #306).
  */
 export function utenforOmfanget(spor: Spor, v: Record<string, unknown>): string | null {
   if (spor === 'frist' && v.spesifisert_krav_ok === false)
@@ -220,7 +226,11 @@ export interface Svarvurdering {
   dager?: unknown;
 }
 
-/** Feltene i svaret som er regnet av vurderingene og kravet. Kaster `UgyldigVurdering`. */
+/**
+ * Serverens utregning av svaret, med navnene i formatet (`UTREGNING` i
+ * `format.ts`). Grunnlaget har ingen utregning, bare kontrollen av
+ * vurderingene. Kaster `UgyldigVurdering`.
+ */
 export function regnUtSvar(
   spor: Spor,
   v: Svarvurdering,
@@ -249,7 +259,7 @@ export function regnUtSvar(
   if (spor === 'vederlag') {
     const { hovedkategori, underkategori } = kategori(grunnlagskrav);
     const vkrav: Vederlagskrav = {
-      hovedkrav_belop: (krav.innhold.belop_direkte as number | undefined) ?? 0,
+      hovedkrav_belop: (krav.innhold.beloep as number | undefined) ?? 0,
       metode: 'FASTPRIS_TILBUD',
       rigg_belop: null,
       produktivitet_belop: null,
@@ -262,14 +272,12 @@ export function regnUtSvar(
     };
     const r = beregnVederlag(vkrav, v as never);
     return {
-      beregnings_resultat: r.beregnings_resultat,
-      total_godkjent_belop: tilTall(r.total_godkjent_belop),
-      total_krevd_belop: tilTall(r.total_krevd_belop),
-      hovedkrav_godkjent_belop: tilTall(r.hovedkrav_godkjent_belop),
+      resultat: r.beregnings_resultat,
+      godkjent_beloep: tilTall(r.total_godkjent_belop),
     };
   }
   const fkrav: Fristkrav = {
-    krevd_dager: (krav.innhold.antall_dager as number | undefined) ?? 0,
+    krevd_dager: (krav.innhold.dager as number | undefined) ?? 0,
     varsel_type: 'spesifisert',
     er_svar_paa_foresporsel: false,
     har_innsigelse_mot_varsel: false,
@@ -284,12 +292,12 @@ export function regnUtSvar(
     godkjent_dager: v.dager,
   });
   const ut: Record<string, unknown> = {
-    beregnings_resultat: r.beregnings_resultat,
+    resultat: r.beregnings_resultat,
     godkjent_dager: r.godkjent_dager,
   };
   if (r.subsidiaer_resultat !== null) {
-    ut.subsidiaer_resultat = r.subsidiaer_resultat;
-    ut.subsidiaer_godkjent_dager = r.subsidiaer_godkjent_dager;
+    ut.subsidiaert_resultat = r.subsidiaer_resultat;
+    ut.subsidiaert_godkjent_dager = r.subsidiaer_godkjent_dager ?? 0;
   }
   return ut;
 }
@@ -297,12 +305,12 @@ export function regnUtSvar(
 /** Feltene klienten skal ha regnet likt med serveren. Beløp sammenliknes til hele øre. */
 export const SAMMENLIKNES: Record<Spor, string[]> = {
   grunnlag: [],
-  vederlag: ['beregnings_resultat', 'total_godkjent_belop'],
-  frist: ['beregnings_resultat', 'godkjent_dager'],
+  vederlag: ['resultat', 'godkjent_beloep'],
+  frist: ['resultat', 'godkjent_dager'],
 };
 
 export function likeResultatfelt(felt: string, klient: unknown, server: unknown): boolean {
-  if (felt.endsWith('_belop') && typeof klient === 'number' && typeof server === 'number')
+  if (felt.endsWith('_beloep') && typeof klient === 'number' && typeof server === 'number')
     return beloep(klient) === beloep(server);
   return klient === server;
 }

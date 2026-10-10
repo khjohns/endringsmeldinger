@@ -1,8 +1,8 @@
 /**
  * Begrepene i kjernen (modellforslaget, avsnitt 2, og domenetabellen): dokument,
- * svar og utsagn med `gjelder`, `erstatter` og bestridelse, brevets
- * beslutningsgrunnlag og enighetsgrunnlaget. Bare det forløp A–E trenger
- * (#304, #308).
+ * krav, svar med standpunkter, andre utsagn med `gjelder` og `erstatter`, brevets
+ * beslutningsgrunnlag og enighetsgrunnlaget. Lagringsformatet står i `format.ts`
+ * (B-10, #273).
  */
 
 import type { Fristresultat, Grunnlagsresultat, Vederlagsresultat } from './regler/typer.ts';
@@ -20,19 +20,30 @@ export interface Opplysning {
   id: string;
   dokument: string;
   hva: 'sendt' | 'mottatt';
-  verdi: string;
+  dato: string;
   oppgittAv: Part;
 }
 
-export type Utsagn =
+/**
+ * Byggherrens standpunkter i ett svar. Standpunktene gjelder kravet svaret
+ * gjelder, unntatt rettidigheten, som `gjelder` et varsel eller kravversjonen
+ * varselet er utledet av (MM-U1). Beløp og dager leses fra serverens utregning i
+ * svaret, så de har ett hjem (4.3 i designnotatet).
+ */
+export type Standpunkt =
   | { id: string; art: 'rettidighet'; gjelder: string; hjemmel: Hjemmel; iTide: boolean }
-  | { id: string; art: 'ansvar'; gjelder: string; resultat: Grunnlagsresultat }
-  | { id: string; art: 'beloep'; gjelder: string; resultat: Vederlagsresultat; godkjent: number }
+  | { id: string; art: 'ansvar'; resultat: Grunnlagsresultat }
+  | { id: string; art: 'beloep'; resultat: Vederlagsresultat; godkjent: number }
   /** § 33.1: om byggherren godtar at det er en fremdriftshindring. */
-  | { id: string; art: 'hindring'; gjelder: string; oppfylt: boolean }
+  | { id: string; art: 'hindring'; oppfylt: boolean }
   /** `vurdert` er dagene byggherren har vurdert, også når de står subsidiært. */
-  | { id: string; art: 'dager'; gjelder: string; resultat: Fristresultat; vurdert: number }
-  | { id: string; art: 'varsel'; gjelder: Spor; hjemmel: Hjemmel; dokument: string }
+  | { id: string; art: 'dager'; resultat: Fristresultat; vurdert: number };
+
+export type Standpunktsart = Standpunkt['art'];
+
+/** Utsagnene i et dokument som ikke er krav eller svar. */
+export type Utsagn =
+  | { id: string; art: 'varsel'; hjemmel: '33.4'; dokument: string }
   | { id: string; art: 'trekk'; gjelder: string }
   | {
       id: string;
@@ -41,7 +52,10 @@ export type Utsagn =
       /** Regelversjonen TE fikk se (B-13, KA-U10). Innholdet står i brevet. */
       regelversjon: number;
     }
-  | { id: string; art: 'bestridelse'; gjelder: string; hva: 'sendt' | 'mottatt' };
+  /** MM-U1, MM-U7: bestrider at dokumentet i opplysningen fra motparten ble sendt eller mottatt. */
+  | { id: string; art: 'bestridelse'; gjelder: string; hva: 'sendt' | 'mottatt' }
+  /** KA-U12: TE krever ikke noe i sporet. */
+  | { id: string; art: 'ingen_krav'; spor: Kravspor };
 
 export type Utsagnsart = Utsagn['art'];
 
@@ -49,6 +63,8 @@ export interface Krav {
   id: string;
   spor: Spor;
   dokument: string;
+  /** Forrige kravversjon i sporet; `null` for den første. */
+  erstatter: string | null;
   innhold: Record<string, unknown>;
 }
 
@@ -60,7 +76,7 @@ export interface Svar {
   gjelder: string;
   /** Svaret denne revisjonen erstatter, på samme kravversjon. */
   erstatter: string | null;
-  utsagn: Utsagn[];
+  standpunkter: Standpunkt[];
   /** Serverens utregning etter B-13, slik den er lagret. */
   utregning: Record<string, unknown>;
   /** Brevet slik det ble sendt. Virkningen leses herfra (MM-U9). */
@@ -72,6 +88,8 @@ export interface Dokument {
   avsender: Part;
   /** Satt av serveren. Det eneste tidspunktet systemet selv vet (2.4). */
   registrert: string;
+  /** Saksversjonen dokumentet ble registrert med. En referanse peker bakover. */
+  versjon: number;
   opplysninger: Opplysning[];
   dokumentasjon: string[];
   krav: Krav[];
@@ -80,8 +98,10 @@ export interface Dokument {
 }
 
 /**
- * Én rad i journalen, i formen `hendelse` har i dag. Feltene er de API-et
- * bruker. Formatet velges i #273.
+ * Én rad i `hendelse`, med feltene API-et bruker. `format` er kolonnen med
+ * formatversjonen (4.4 i designnotatet); en rad uten den er ikke skrevet av
+ * TS-kjernen. `refererer_til_event_id` er kolonnen `referstoid`, som formatet
+ * ikke bruker.
  */
 export interface Journalrad {
   event_id: string;
@@ -93,6 +113,7 @@ export interface Journalrad {
   aktor_rolle: Part;
   aktor_team_id: string | null;
   refererer_til_event_id: string | null;
+  format: number | null;
   data: Record<string, unknown>;
 }
 
@@ -103,31 +124,36 @@ export type Domenehendelse =
   | { art: 'ukjent'; id: string; versjon: number; type: string; grunn: string };
 
 /**
- * Virkningen et utsagn har i brevet: grunnen svaret hviler på, et subsidiært
- * standpunkt eller ingen virkning. Om et standpunkt er uavklart, er ikke en
+ * Virkningen et standpunkt har i brevet: prinsipalt, subsidiært eller uten
+ * virkning, som brevet sier det. Om et standpunkt er uavklart, er ikke en
  * virkning, men en relasjon som utledes ved lesing (MM-U8).
  */
-export type Virkning = 'hovedgrunn' | 'subsidiaer' | 'uten_virkning';
+export type Virkning = 'prinsipalt' | 'subsidiaert' | 'uten_virkning';
 
-/** Virkningen ett utsagn i et svar har etter regelsettet brevet ble regnet med. */
-export interface Standpunkt {
-  utsagn: string;
-  art: Utsagnsart;
+/** Virkningen ett standpunkt i et svar har etter regelsettet brevet ble regnet med. */
+export interface Standpunktsvirkning {
+  standpunkt: string;
+  art: Standpunktsart;
   virkning: Virkning;
 }
 
 /**
- * Utledningen frosset da brevet ble sendt (2.2, MM-U9, MM-U11): standpunktene med
- * virkningen de hadde, og om svaret godkjenner hele kravet. Det er også
- * innholdet i en enighet om svaret (KA-U10). Utfallet og vilkåret lagres ikke,
- * men utledes av standpunktene.
+ * Utledningen frosset da brevet ble sendt (2.2, MM-U9, MM-U11): virkningen hvert
+ * standpunkt hadde, og om svaret godkjenner hele kravet. Det er også innholdet
+ * i en enighet om svaret (KA-U10). Utfallet og vilkåret lagres ikke, men
+ * utledes av standpunktene.
  */
 export interface Beslutningsgrunnlag {
   regelversjon: number;
-  standpunkter: Standpunkt[];
+  virkninger: Standpunktsvirkning[];
   linje: string;
   /** Svaret godkjenner hele kravet, så partene er enige uten aksept (GR-U7, GR-U10). */
   sammenfall: boolean;
+  /**
+   * GR-U12: § 32.2 gjaldt kategorien i kravversjonen da brevet ble sendt.
+   * Bare i et svar på grunnlaget.
+   */
+  varslingsplikt?: boolean;
 }
 
 export interface Utfall {
@@ -146,7 +172,7 @@ export interface Enighetsgrunnlag {
   svar: string;
   kilde: 'aksept' | 'sammenfall';
   regelversjon: number;
-  standpunkter: Standpunkt[];
+  virkninger: Standpunktsvirkning[];
   utfall: Utfall;
   /** Vilkåret for at enigheten får virkning: grunnlaget er avklart (GR-U7). Ingen for grunnlaget. */
   vilkaar: 'grunnlag_avklart' | null;
