@@ -37,7 +37,9 @@ Ber oppdragsgiver om en etikett («ta review-oppfølging»), velg runden slik:
 filene eller har samme rotårsak, og leverer én PR med `Closes` for hvert av
 dem. To issues i samme fil går aldri i to parallelle økter. Høyst tre små
 issues per økt. Et issue som krever kartlegging eller spørsmål til
-oppdragsgiver, får egen økt.
+oppdragsgiver, får egen økt. Krever det mange spørsmål, kartlegger og spør én
+økt, og en ny økt bygger med svarene i oppdraget (se «Kontekst i
+arbeidsøktene»).
 
 **Én økt, én PR.** En arbeidsøkt leverer én PR og tar ikke nye oppgaver etter
 at den er åpnet. Har arbeidet to naturlige PR-er, blir det to økter, i hver
@@ -200,6 +202,36 @@ Bestillingen til økta sier:
   PR-en.
 - **Etterpå:** testene og feilinnføringene kjøres på nytt.
 - **PR-beskrivelsen** sier hva som ble endret og hva som ble avvist.
+
+## Kontekst i arbeidsøktene
+
+Hele konteksten sendes på nytt ved hver hendelse i en økt. Hurtigbufferen gjør
+det billig innenfor en time. Etter en time uten aktivitet skrives hele
+konteksten på nytt ved neste vekking, og det er dyrest når konteksten er stor.
+Øktene venter ofte lenger enn en time på oppdragsgiver, CI eller review. Med
+stor kontekst blir de også dårligere: etter en komprimering arbeider økta på et
+sammendrag, og ordrette vedtak og rettelser kan gå tapt.
+
+- **Følg med i hver sjekk.** `get_session` viser brukt kontekst
+  (`context_usage.used_tokens`) og kostnad (`usage.cost_usd`).
+- **Ved om lag 250 000 tokens** skal alt økta trenger for å fullføre, stå der
+  den kan lese det på nytt: vedtakene i hovedplanen, arbeidsvalgene i issuet og
+  kravene i PR-beskrivelsen. Gi den ingen nye oppgaver.
+- **Ved om lag 500 000 tokens, eller etter en komprimering,** sender
+  orkestratoren én samlet sjekkliste over det som gjenstår, med kildene som
+  skal leses på nytt. Gjenstår mer enn rettinger og CI, overtar en ny økt fra
+  PR-en og issuene. Den gamle pusher det den har, og avsluttes.
+- **Venting.** Skal en stor økt vente mer enn en time på oppdragsgiver eller
+  CI, er det ofte billigere å la en ny økt fortsette fra PR-en enn å vekke den
+  gamle. Still spørsmålene tidlig, og send svarene samlet så snart de
+  foreligger, helst innen en time.
+- **Skriv svarene der de kan leses igjen** før de sendes: vedtak i hovedplanen
+  og arbeidsvalg i issuet. Meldingen viser dit.
+- **Send færre meldinger.** Hver melding til en stor økt koster en ny lesing av
+  hele konteksten.
+
+Det samme gjelder orkestratoren. Tilstanden holdes i issuene og PR-ene, ikke
+bare i samtalen.
 
 ## 3. Gjennomgang når øktene er ferdige
 
