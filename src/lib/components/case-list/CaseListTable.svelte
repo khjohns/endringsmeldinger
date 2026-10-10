@@ -1,6 +1,5 @@
 <script lang="ts">
-  import { caseAmount, caseDays } from './presentation';
-  import { caseStatus } from '$lib/components/saksoversikt/overview';
+  import { caseAmount, caseDays, caseStatus } from './presentation';
   import type { CaseListItem } from '$lib/types/api';
   import CaseListRow from './CaseListRow.svelte';
 

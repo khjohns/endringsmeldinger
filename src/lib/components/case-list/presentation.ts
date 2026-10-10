@@ -1,4 +1,16 @@
+/**
+ * Lesepunktet for sakslisten (#313). Radene leser statusmerket og sorteringen
+ * statusen herfra. Statusen selv og filtrene leses i `saksoversikt/overview.ts`,
+ * så byttet til kjernen skjer i de to modulene.
+ */
+import type { ComponentProps } from 'svelte';
+import type Badge from '$lib/components/primitives/Badge.svelte';
 import type { CaseListItem } from '$lib/types/api';
+import type { OverordnetStatus } from '$lib/types/timeline';
+import { getOverordnetStatusLabel } from '$lib/constants/statusLabels';
+import { caseStatus } from '$lib/components/saksoversikt/overview';
+
+export { caseStatus };
 
 export function caseAmount(item: CaseListItem): number | null {
   return item.sakstype === 'endringsordre'
@@ -10,4 +22,47 @@ export function caseDays(item: CaseListItem): number | null {
   return item.sakstype === 'endringsordre'
     ? (item.endringsordre_data?.frist_dager ?? null)
     : item.cached_dager_krevd;
+}
+
+type Merkevariant = ComponentProps<typeof Badge>['variant'];
+
+function merkevariant(status: string | null): Merkevariant {
+  switch (status) {
+    case 'OMFORENT':
+    case 'LUKKET':
+    case 'akseptert':
+      return 'godkjent';
+    case 'LUKKET_TRUKKET':
+    case 'bestridt':
+      return 'avslatt';
+    case 'SENDT':
+    case 'VENTER_PAA_SVAR':
+    case 'UNDER_BEHANDLING':
+    case 'UNDER_FORHANDLING':
+    case 'utstedt':
+    case 'revidert':
+      return 'delvis';
+    case 'UTKAST':
+    default:
+      return 'uavklart';
+  }
+}
+
+const EO_STATUS_LABELS: Record<string, string> = {
+  utkast: 'Utkast',
+  utstedt: 'Utstedt',
+  akseptert: 'Akseptert',
+  bestridt: 'Bestridt',
+  revidert: 'Revidert',
+};
+
+/** Statusmerket i raden: etiketten og varianten. */
+export function statusmerke(item: CaseListItem): { label: string; variant: Merkevariant } {
+  const status = caseStatus(item);
+  return {
+    label: status
+      ? (EO_STATUS_LABELS[status] ?? getOverordnetStatusLabel(status as OverordnetStatus))
+      : '—',
+    variant: merkevariant(status),
+  };
 }
