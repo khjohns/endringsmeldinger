@@ -793,5 +793,6 @@ for PDF-upload gjennomføres.
 
 > **Merknad 2026-10-10:** valget mellom de to brevalternativene er avgjort med
 > [B-03, dokumentet](plans/2026-09-16-godkjenning-og-varig-levering.md#b-03-dokument)
-> i hovedplanen: ett dokument per brev. Dokumentnøkkel, navnestandard og avstemming
-> hører til #310.
+> i hovedplanen: ett dokument per brev («Separate brev»), uten revisjoner.
+> Dokumentnøkkel, navnestandard og avstemming etter tapt svar velges av utviklerne
+> i #310.
