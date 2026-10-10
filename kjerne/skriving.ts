@@ -35,7 +35,7 @@ export class Skrivefeil extends Error {}
 type Data = Record<string, unknown>;
 
 export function utledJournal(journal: Journalrad[], kjerne: Kjerne): Utledning {
-  return utled(lesJournal(journal, kjerne.format), kjerne.regler);
+  return utled(lesJournal(journal, kjerne.leserformat), kjerne.regler);
 }
 
 /**
@@ -188,7 +188,7 @@ export function vurder(
       avvisning: { regel: 'UGYLDIG_FORM', melding: feil.join('; ') },
     };
   const k = kommando as Kommando;
-  const lest = lesJournal(journal, kjerne.format);
+  const lest = lesJournal(journal, kjerne.leserformat);
   const u = utled(lest, kjerne.regler);
   const brudd = avvisning(k, kontekst.part, u, kjerne.regler);
   if (brudd) return { godtatt: false, feil: 'REGELBRUDD', avvisning: brudd };
@@ -218,7 +218,7 @@ export function vurder(
   };
   // Kjernen må forstå det den selv skriver (MM-U2, 7.1.2 i designnotatet). Hver rad leses
   // for seg, så bare den nye leses; hele journalen utledes på nytt med den.
-  const etter = utled([...lest, ...lesJournal([rad], kjerne.format)], kjerne.regler);
+  const etter = utled([...lest, ...lesJournal([rad], kjerne.leserformat)], kjerne.regler);
   if (!etter.forstaatt)
     throw new Skrivefeil(
       `Kjernen forstår ikke dokumentet den selv skriver: ${etter.begrensninger.map((b) => b.grunn).join('; ')}`
@@ -234,7 +234,7 @@ export function vurder(
  */
 export function frysBrev(rad: Journalrad, foer: Journalrad[], kjerne: Kjerne): void {
   const grunnlagskrav: Krav[] = [];
-  for (const h of lesJournal(foer, kjerne.format))
+  for (const h of lesJournal(foer, kjerne.leserformat))
     if (h.art === 'dokument')
       grunnlagskrav.push(...h.dokument.krav.filter((k) => k.spor === 'grunnlag'));
   for (const s of (rad.data.svar ?? []) as Data[]) {

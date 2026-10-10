@@ -399,7 +399,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['skjema.ts:feilI(s).properties', 'skjema', '*'],
   ['skjema.ts:oppslag(d)', 'skjema', '*'],
   ['Kontekst', 'kontekst', 'sakId aktoerId part teamId tidspunkt nyId'],
-  ['Kjerne', 'kontekst', 'regler format'],
+  ['Kjerne', 'kontekst', 'regler format leserformat'],
 
   // Formatet (format.ts): skjemaene radene leses og kommandoene kontrolleres mot.
   [
@@ -410,7 +410,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     ['leser.ts'],
   ],
   ['format.ts', 'rad', 'HJEMMEL', ['leser.ts', 'skriving.ts']],
-  ['format.ts', 'kontekst', 'FORMAT', ['versjon.ts']],
+  ['format.ts', 'kontekst', 'FORMAT LESERFORMAT', ['versjon.ts']],
   ['format.ts', 'skjema', 'DATO ID KRAVINNHOLD liste objekt', ['kommando.ts']],
   ['STANDPUNKTER_I_SPORET', 'rad', 'art paakrevd', ['leser.ts']],
   ['KRAVINNHOLD', 'skjema', 'properties required'],

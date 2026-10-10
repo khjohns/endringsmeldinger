@@ -72,18 +72,18 @@ Interne notater i en sak. Synlige bare for forfatterens eget team, ikke for motp
 
 ### `sak_metadata`
 
-Saksregisteret: én rad per sak, med prosjekt, sakstype, hvem som opprettet den, og koblingen til topic, board og prosjekt i Catenda. I tillegg ti `cached_*`-kolonner og `last_event_at` med tall regnet ut av hendelsene, til lister og rapportering. Tabellen blander register og projeksjon; skillet er planlagt (MS-06, MS-07).
+Saksregisteret: én rad per sak, med prosjekt, sakstype, hvem som opprettet den, og koblingen til topic, board og prosjekt i Catenda. I tillegg ti `cached_*`-kolonner og `last_event_at` med tall regnet ut av hendelsene, til lister og rapportering. Fem `kjerne_*`-kolonner er bufferen TS-kjernen regner ut av journalen: visningen og de fire versjonene den er regnet med (B-10, #316). Tabellen blander register og projeksjon; skillet er planlagt (MS-06, MS-07).
 
 | Felt | Innhold |
 | --- | --- |
 | Type | grunndata, avledet |
 | Status | i bruk |
-| Hvor fra appen lagres og redigeres | Opprettes når en sak lages, gjennom `SakCreationService`: fra hendelsesrutene, for endringsordrer, og fra en ny topic i Catenda via webhook. Hvordan en forseringssak får sin rad, er ikke kontrollert. `cached_*` oppdateres etter lagrede hendelser (hendelsesrutene, forsering og godkjenning). |
+| Hvor fra appen lagres og redigeres | Opprettes når en sak lages, gjennom `SakCreationService`: fra hendelsesrutene, for endringsordrer, og fra en ny topic i Catenda via webhook. Hvordan en forseringssak får sin rad, er ikke kontrollert. `cached_*` oppdateres etter lagrede hendelser (hendelsesrutene, forsering og godkjenning). `kjerne_*` skrives bare av bufferen i TS-kjernen (`kjerne/buffer.ts`, lageret i `sprakprove/kjernelagring/bane.ts` til skrivestien i #310). |
 | Data fra Catenda | Delvis. `catenda_topic_id`, `catenda_board_id` og `catenda_project_id` er ID-er fra Catenda. Dataflyt: fra Catenda i C01, C15; til Catenda i C01, C15 (arket Dataflyt). |
 | Relasjoner | Nøkler: primærnøkkel (sak_id). Viser til: prosjekt_id → projects.id (uten fremmednøkkel); created_by → app_users.id (uten fremmednøkkel); catenda_project_id → catenda_project_configs.catenda_project_id (uten fremmednøkkel); catenda_board_id → catenda_topic_board_configs.topic_board_id (uten fremmednøkkel). Vises til fra: approval_outbox.case_id (uten fremmednøkkel); approvals.case_id (uten fremmednøkkel); catenda_delivery_status.case_id (uten fremmednøkkel); eo_approvals.body → packages[].sakId (uten fremmednøkkel); eo_approvals.body → packages[].request.koe_sak_ids[] (uten fremmednøkkel); hendelse.sak_id (fremmednøkkel, ON DELETE CASCADE); magic_links.sak_id (fremmednøkkel, ON DELETE CASCADE); notat.sak_id (fremmednøkkel, ON DELETE CASCADE); sak_bim_links.sak_id (fremmednøkkel, ON DELETE CASCADE); sak_relations.source_sak_id (uten fremmednøkkel); sak_relations.target_sak_id (uten fremmednøkkel); utkast.case_id (uten fremmednøkkel); vedlegg.case_id (uten fremmednøkkel). |
-| Kan bygges opp igjen | delvis. `cached_*` og `last_event_at` kan regnes ut av hendelsene. Om registerkolonnene også kan det, er ikke kontrollert. |
+| Kan bygges opp igjen | delvis. `cached_*`, `kjerne_*` og `last_event_at` kan regnes ut av hendelsene. Om registerkolonnene også kan det, er ikke kontrollert. |
 | Personopplysninger | `created_by` identifiserer den som opprettet saken (tre verdiformer, MG-04). |
-| Skrives av | backend/services/sak_creation_service.py; backend/services/endringsordre_service.py; backend/routes/event_routes.py (update_cache); backend/routes/forsering_routes.py (update_cache); backend/routes/approval_routes.py (update_cache) |
+| Skrives av | backend/services/sak_creation_service.py; backend/services/endringsordre_service.py; backend/routes/event_routes.py (update_cache); backend/routes/forsering_routes.py (update_cache); backend/routes/approval_routes.py (update_cache); sprakprove/kjernelagring/bane.ts (pgBuffer, bufferen i kjernen) |
 | Funn | MS-06, MS-07, DA-14, MG-04, DM-01 |
 | Belegg | K 29.09: kolonnene i testbasen og prosjektet, og kolonnekommentarene (DM-01). L 29.09: kallerne av `create` og `update_cache`. |
 
