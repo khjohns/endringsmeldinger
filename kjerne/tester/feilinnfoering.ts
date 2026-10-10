@@ -2,7 +2,7 @@
  * Feilinnføringene for kjernen (#304, #308, #273). F1–F7 er avsnitt 4 i
  * modellforslaget, F8–F10 feilklassene reviewet av PR #306 fant, skrevet om etter
  * MM-U9 og GR-U10, F11–F26 grensene #308 la til, og F27–F47 formatet (#273): 7.2
- * i designnotatet, GR-U12 og registeret (#320), og F48 hvitelisten fra #329. Én
+ * i designnotatet, GR-U12 og registeret (#320), F48 hvitelisten fra #329, og F49–F51 versjoneringen (#316). Én
  * mutasjon om gangen i arbeidskopien, Vitest over `kjerne/` og
  * `sprakprove/kjernelagring/`, og originalteksten settes tilbake etterpå. For hver mutasjon kreves det at de
  * forventede målassertions feiler, og at alle feil er assertions, ikke import,
@@ -520,6 +520,40 @@ const MUTASJONER: Mutasjon[] = [
       ['    u.grunnlagAvklart &&\n', '    (u.ferdig ?? u.grunnlagAvklart) &&\n'],
     ],
     mal: ['reglene leser bare det LESBART tillater (#308, #329) utled.ts'],
+  },
+  {
+    id: 'F49',
+    feilklasse:
+      'kjernen leser bare formatet den skriver, så en versjon som leser et nytt format, stopper saken (B-10, #316)',
+    fil: `${K}/skriving.ts`,
+    endringer: [
+      [
+        'return utled(lesJournal(journal, kjerne.leserformat), kjerne.regler);',
+        'return utled(lesJournal(journal, kjerne.format), kjerne.regler);',
+      ],
+    ],
+    mal: ['skrevet av v2b, lest av v2a'],
+  },
+  {
+    id: 'F50',
+    feilklasse: 'spørringen etter utdaterte buffere ser bort fra saksversjonen (B-10, #316)',
+    fil: 'sprakprove/kjernelagring/bane.ts',
+    endringer: [
+      ['             OR m.kjerne_saksversjon IS DISTINCT FROM h.versjon)', '             )'],
+    ],
+    mal: ['finner en sak med en ny hendelse etter bufferen, og bare den'],
+  },
+  {
+    id: 'F51',
+    feilklasse: 'gjenoppbyggingen skriver mer enn bufferen (merknaden 07.10 til B-10, #316)',
+    fil: 'sprakprove/kjernelagring/bane.ts',
+    endringer: [
+      [
+        'SET kjerne_visning = $2::jsonb,',
+        "SET cached_status = $2::jsonb->'status'->>'kode', kjerne_visning = $2::jsonb,",
+      ],
+    ],
+    mal: ['finner de utdaterte sakene og bygger dem på nytt uten å endre noe annet enn bufferen'],
   },
 ];
 
