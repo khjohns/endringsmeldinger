@@ -156,6 +156,20 @@ oppdragsgiver.
   høyst fire spørsmål per kall. Er det flere, eller vil oppdragsgiver det, legg
   dem fram som en nummerert liste i tekst med anbefalt svar, så oppdragsgiver
   kan svare «ja» eller rette enkeltpunkter.
+- **Hvert spørsmål står på egne bein i verktøyet.** Tekst du skriver før et
+  kall til spørsmålsverktøyet, vises ikke for oppdragsgiver i appen. Bakgrunnen,
+  alternativene og anbefalingen skal derfor stå i selve spørsmålet og i
+  beskrivelsene av alternativene. Trengs mer tekst, avslutt turen med listen i
+  stedet for å kalle verktøyet (FK runde 5).
+- **Prinsipp før enkeltvedtak.** Følger svaret av et vedtatt prinsipp, trengs
+  ikke et eget vedtak. Valget føres da som arbeidsvalg i paragrafmatrisen,
+  domenetabellen eller issuet, med henvisning til prinsippet, og står til
+  review. Et eget vedtak trengs når valget ikke følger av et prinsipp, endrer et
+  vedtak eller blir en kontrakt. Er spørsmålene mange og detaljerte, gå rett
+  til én samlet tilslutning: ett helhetlig forslag, eventuelt prøvd i juridisk
+  sparring, som oppdragsgiver kan svare «ja» på med rettelser per punkt. I FK
+  runde 4 tok spørsmålene for byggedel 1 tre versjoner før oppdragsgiver
+  sluttet seg til en samlet vurdering.
 - **Juridisk sparring.** Vil oppdragsgiver drøfte spørsmålene med en annen
   modell eller en rådgiver, lag en selvstendig prompt med bakgrunnen,
   prinsippene og spørsmålene, uten saksdata. Et svar fra sparringen gjelder
@@ -280,6 +294,12 @@ Gjør dette for hver PR:
 2. Funn som ikke er meldt som issue, kontrolleres og meldes. Finnes det et
    issue for samme rotårsak, legg funnet som kommentar der. Et funn som økta
    har tilskrevet testmiljøet, sjekkes før det avskrives.
+   Legger PR-en til en serverinngang, en tabell eller en migrasjon, lar
+   orkestratoren en subagent på standardmodellen kontrollere hver
+   sikkerhetsinvariant i `AGENTS.md` mot koden før merge, uavhengig av
+   `/code-review` i økta. Kontrollen spør katalogen i en egen base bygget fra
+   migrasjonene, ikke bare filene. I FK runde 5 fant den et hull i rettighetene
+   som to runder `/code-review high` hadde oversett (PR #372).
 3. Samle de åpne spørsmålene fra alle PR-ene og still dem til oppdragsgiver
    etter «Spørsmål og vedtak».
 4. Før svarene inn der de hører hjemme: vedtak i hovedplanen etter «Spørsmål og
