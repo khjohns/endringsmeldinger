@@ -60,6 +60,7 @@ jobs:
             kjerne
             sprakprove/kjernelagring
             sprakprove/server
+            server
             sprakprove/kjerne
             sprakprove/tester/testbase.ts
             docs/domenetabell

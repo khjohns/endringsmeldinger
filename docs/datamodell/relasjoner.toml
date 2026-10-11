@@ -31,6 +31,27 @@ funn = ["MS-02"]
 belegg = "K 29.09: katalogen."
 
 [[relasjon]]
+fra = "leveringsoppdrag.sak_id"
+til = "sak_metadata.sak_id"
+art = "fremmednøkkel"
+antall = "mange til én"
+beskrivelse = "Saken brevet er sendt i. Slettes saken, slettes oppdraget med (ON DELETE CASCADE)."
+funn = []
+belegg = "K 11.10: katalogen i testbasen."
+
+[[relasjon]]
+fra = "leveringsoppdrag.event_id"
+til = "hendelse.event_id"
+art = "fremmednøkkel"
+antall = "én til én"
+beskrivelse = """
+Brevet oppdraget leverer. Unik, så hvert brev har ett oppdrag. Triggeren
+`leveringsoppdrag_vakt` avviser et oppdrag med en annen sak eller et annet
+prosjekt enn hendelsen."""
+funn = []
+belegg = "K 11.10: katalogen og `server/tester/skive.test.ts`."
+
+[[relasjon]]
 fra = "notat.sak_id"
 til = "sak_metadata.sak_id"
 art = "fremmednøkkel"
@@ -221,6 +242,15 @@ referansene etter at hendelsen er lagret. Sammenlikningen normaliserer med
 SQLite."""
 funn = ["AR-03"]
 belegg = "L 29.09: `lever_vedlegg_for_hendelser`."
+
+[[relasjon]]
+fra = "leveringsoppdrag.prosjekt_id"
+til = "projects.id"
+art = "logisk"
+antall = "mange til én"
+beskrivelse = "Prosjektet brevet er sendt i. Triggeren krever at det er hendelsens prosjekt."
+funn = []
+belegg = "K 11.10: `server/tester/skive.test.ts`."
 
 [[relasjon]]
 fra = "notat.prosjekt_id"

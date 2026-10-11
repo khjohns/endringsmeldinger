@@ -19,7 +19,7 @@ import type { IncomingMessage } from 'node:http';
 import type { ClientBase, Pool } from 'pg';
 
 type Klient = Pool | ClientBase;
-import type { Rolle } from '../kjerne/typer.ts';
+import type { Part as Rolle } from '../kjerne/typer.ts';
 
 export interface Bruker {
   id: string;

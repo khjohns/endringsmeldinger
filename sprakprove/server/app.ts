@@ -30,7 +30,7 @@ import {
   krevProsjekttilgang,
   Nektet,
   type Catenda,
-} from './autorisasjon.ts';
+} from '../../server/autorisasjon.ts';
 import { leggTil, lesJournal, sakensTopic, UgyldigVerdi, Versjonskonflikt } from './lager.ts';
 
 export interface Avhengigheter {

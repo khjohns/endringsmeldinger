@@ -65,6 +65,13 @@ erDiagram
         integer versjon UK
         text prosjekt_id "uten fremmednøkkel"
     }
+    leveringsoppdrag {
+        uuid id PK
+        text prosjekt_id "uten fremmednøkkel"
+        text sak_id FK
+        uuid event_id FK, UK
+        text dokumentnoekkel UK
+    }
     magic_links {
         uuid token PK
         text sak_id FK
@@ -112,6 +119,8 @@ erDiagram
         uuid id PK
     }
     sak_metadata ||--o{ hendelse : "sak_id"
+    sak_metadata ||--o{ leveringsoppdrag : "sak_id"
+    hendelse ||--o| leveringsoppdrag : "event_id"
     sak_metadata ||--o{ notat : "sak_id"
     sak_metadata ||--o{ sak_bim_links : "sak_id"
     sak_metadata ||--o{ magic_links : "sak_id"
@@ -130,6 +139,7 @@ erDiagram
     app_users |o..o{ hendelse : "actorid"
     catenda_contract_teams |o..o{ hendelse : "actorteam"
     hendelse |o..o{ hendelse : "referstoid"
+    projects |o..o{ leveringsoppdrag : "prosjekt_id"
     projects |o..o{ notat : "prosjekt_id"
     app_users |o..o{ notat : "aktor_id"
     catenda_contract_teams |o..o{ notat : "aktor_team_id"
@@ -225,6 +235,8 @@ erDiagram
 | Fra | Til | Art | Antall | Beskrivelse | Funn | Belegg |
 | --- | --- | --- | --- | --- | --- | --- |
 | `hendelse.sak_id` | `sak_metadata.sak_id` | fremmednøkkel, ON DELETE CASCADE | mange til én | Saken hendelsen hører til. Slettes saken i saksregisteret, sletter basen journalen med (ON DELETE CASCADE); basen verner ikke journalen (MS-02). | MS-02 | K 29.09: katalogen. |
+| `leveringsoppdrag.sak_id` | `sak_metadata.sak_id` | fremmednøkkel, ON DELETE CASCADE | mange til én | Saken brevet er sendt i. Slettes saken, slettes oppdraget med (ON DELETE CASCADE). | — | K 11.10: katalogen i testbasen. |
+| `leveringsoppdrag.event_id` | `hendelse.event_id` | fremmednøkkel, ON DELETE CASCADE | én til én | Brevet oppdraget leverer. Unik, så hvert brev har ett oppdrag. Triggeren `leveringsoppdrag_vakt` avviser et oppdrag med en annen sak eller et annet prosjekt enn hendelsen. | — | K 11.10: katalogen og `server/tester/skive.test.ts`. |
 | `notat.sak_id` | `sak_metadata.sak_id` | fremmednøkkel, ON DELETE CASCADE | mange til én | Saken notatet er skrevet i. | — | K 29.09: katalogen. |
 | `sak_bim_links.sak_id` | `sak_metadata.sak_id` | fremmednøkkel, ON DELETE CASCADE | mange til én | Saken BIM-objektet er koblet til. | — | K 29.09: katalogen. |
 | `magic_links.sak_id` | `sak_metadata.sak_id` | fremmednøkkel, ON DELETE CASCADE | mange til én | Saken lenken gjaldt. Tabellen er en rest (MS-15). | MS-15 | K 29.09: katalogen. |
@@ -244,6 +256,7 @@ erDiagram
 | `hendelse.actorteam` | `catenda_contract_teams.team_id` | uten fremmednøkkel | mange til én | Teamet avsenderen satt i, utledet fra teammedlemskapet i Catenda da hendelsen ble skrevet. Tom når teamet ikke var entydig. Lagres som 32 heksadesimaler uten bindestreker (`catenda_id`), mens `team_id` er `uuid`; en sammenstilling må normalisere. | — | L 29.09: `contract_membership_for_subject` og lageret. |
 | `hendelse.referstoid` | `hendelse.event_id` | uten fremmednøkkel | mange til én | Kravet et svar gjelder (`refererer_til_event_id`), i samme sak. Forretningsreglene for svar sammenlikner den med sporets gjeldende krav. | — | L 29.09: `business_rules.py` og `approval_service.py`. |
 | `hendelse.data → vedlegg_ids[]` | `vedlegg.vedlegg_id` | uten fremmednøkkel | mange til mange | Vedleggene hendelsen sender. Leveringen til Catenda starter fra disse referansene etter at hendelsen er lagret. Sammenlikningen normaliserer med `catenda_id`. Går på tvers av lagene: journalen i PostgreSQL, registeret i SQLite. | AR-03 | L 29.09: `lever_vedlegg_for_hendelser`. |
+| `leveringsoppdrag.prosjekt_id` | `projects.id` | uten fremmednøkkel | mange til én | Prosjektet brevet er sendt i. Triggeren krever at det er hendelsens prosjekt. | — | K 11.10: `server/tester/skive.test.ts`. |
 | `notat.prosjekt_id` | `projects.id` | uten fremmednøkkel | mange til én | Prosjektet notatet er skrevet i. | — | L 29.09: lageret. |
 | `notat.aktor_id` | `app_users.id` | uten fremmednøkkel | mange til én | Forfatteren. | — | L 29.09: hendelsesruta. |
 | `notat.aktor_team_id` | `catenda_contract_teams.team_id` | uten fremmednøkkel | mange til én | Teamet som kan lese notatet. Skjermingen går på denne verdien; uten den vises notatet til ingen (AGENTS.md). Samme verdiform som `hendelse.actorteam`. | — | L 29.09: hendelsesruta og `event_visibility.py`. |
@@ -453,6 +466,7 @@ flowchart LR
 | Tabell | Får data fra Catenda i | Sender data til Catenda i | Kvittering for kall i |
 | --- | --- | --- | --- |
 | `hendelse` | C01, C05 | C06, C07, C14, C15 | — |
+| `leveringsoppdrag` | — | — | — |
 | `notat` | C05 | — | — |
 | `sak_metadata` | C01, C15 | C01, C15 | — |
 | `sak_relations` | C10 | — | — |
