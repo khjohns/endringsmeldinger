@@ -9,7 +9,7 @@ import {
   KATEGORIER,
   METODE_FRA_KATALOGEN,
   UNDERKATEGORI_FRA_KATALOGEN,
-} from '$kjerne/koder';
+} from '$kjerne/format/koder';
 import { KRAV_STRUKTUR_NS8407 } from '$lib/constants/categories';
 import { VEDERLAGSMETODER_OPTIONS } from '$lib/constants/paymentMethods';
 

@@ -41,11 +41,11 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F1',
     feilklasse: 'reglene leser samlet status igjen (forbudt import av visningen)',
-    fil: `${K}/forutsetninger.ts`,
+    fil: `${K}/kommandoer/forutsetninger.ts`,
     endringer: [
       [
-        "import { kraveneErAvgjort, trekkAvGrunnlagetErSperret, type Utledning } from './utled.ts';",
-        "import { kraveneErAvgjort, trekkAvGrunnlagetErSperret, type Utledning } from './utled.ts';\nimport { visning } from './visning.ts';",
+        "import { kraveneErAvgjort, trekkAvGrunnlagetErSperret, type Utledning } from '../utledning/utled.ts';",
+        "import { kraveneErAvgjort, trekkAvGrunnlagetErSperret, type Utledning } from '../utledning/utled.ts';\nimport { visning } from '../utledning/visning.ts';",
       ],
       [
         '  if (kraveneErAvgjort(u))',
@@ -53,16 +53,16 @@ const MUTASJONER: Mutasjon[] = [
       ],
     ],
     mal: [
-      'forutsetninger.ts når ikke visningen',
-      'avvisning.ts når ikke visningen',
-      'skriving.ts når ikke visningen',
+      'kommandoer/forutsetninger.ts når ikke visningen',
+      'kommandoer/avvisning.ts når ikke visningen',
+      'kommandoer/skriving.ts når ikke visningen',
     ],
   },
   {
     id: 'F2',
     feilklasse:
       'leseren knytter svaret til kravet etter plassen i journalen, ikke til `gjelder` (7.2)',
-    fil: `${K}/utled.ts`,
+    fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
         '    if (alleKrav.get(s.gjelder)?.spor !== s.spor || !bakover(s.id, s.gjelder))',
@@ -74,7 +74,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F3',
     feilklasse: 'en ukjent hendelse hoppes over',
-    fil: `${K}/leser.ts`,
+    fil: `${K}/format/leser.ts`,
     endringer: [
       [
         'if (feil instanceof Uforstaatt) return ukjent(feil.message);',
@@ -86,11 +86,11 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F4',
     feilklasse: 'et sendt brev vurderes på nytt med dagens regler (MM-U9)',
-    fil: `${K}/utled.ts`,
+    fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        "  standpunktet,\n} from './standpunkt.ts';",
-        "  standpunktet,\n  virkninger as regn,\n} from './standpunkt.ts';",
+        "  standpunktet,\n} from '../frosset/standpunkt.ts';",
+        "  standpunktet,\n  virkninger as regn,\n} from '../frosset/standpunkt.ts';",
       ],
       [
         '      virkninger: s.beslutningsgrunnlag.virkninger,',
@@ -106,7 +106,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F5',
     feilklasse: 'serveren godtar en aksept forhåndsvist med en annen regelversjon (B-13, KA-U10)',
-    fil: `${K}/nyttelast.ts`,
+    fil: `${K}/kommandoer/nyttelast.ts`,
     endringer: [['if (k.regelversjon !== regler.versjon)', 'if (k.regelversjon === undefined)']],
     mal: ['F-MM-C3d-kontroll'],
   },
@@ -114,14 +114,14 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F6',
     feilklasse:
       'en preklusjon er avklart selv om et annet varsel er registrert etter brevet (MM-U8)',
-    fil: `${K}/utled.ts`,
+    fil: `${K}/utledning/utled.ts`,
     endringer: [['p.gjelder !== varselNaa(s)', 'p.gjelder === undefined']],
     mal: ['F-MM-D', 'F-MM-D-godtatt', 'avviser aksepten når et varsel er registrert etter brevet'],
   },
   {
     id: 'F7',
     feilklasse: 'et bufret resultat fra en nyere kjerne brukes etter en tilbakerulling',
-    fil: `${K}/buffer.ts`,
+    fil: `${K}/utledning/buffer.ts`,
     endringer: [['b.versjon[n] === egen[n]', 'b.versjon[n] >= egen[n]']],
     mal: [
       'brukes ikke med nyere projeksjonsversjon',
@@ -132,7 +132,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F8',
     feilklasse: 'et godkjent grunnlag er ikke enighet ved sammenfall (GR-U10, #312)',
-    fil: `${K}/standpunkt.ts`,
+    fil: `${K}/frosset/standpunkt.ts`,
     endringer: [
       [
         "if (svar.spor === 'grunnlag') return standpunktet(svar, 'grunnlag')?.resultat === 'godkjent';",
@@ -144,7 +144,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F9',
     feilklasse: 'to første svar på samme kravversjon stopper ikke saken',
-    fil: `${K}/utled.ts`,
+    fil: `${K}/utledning/utled.ts`,
     endringer: [
       ['if (neste.length > 0 || kjede.size !== paaKravet.length)', 'if (neste.length > 1)'],
     ],
@@ -153,7 +153,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F10',
     feilklasse: 'innsigelsen om fremdriftshindring (§ 33.1) forsvinner når brevet skrives',
-    fil: `${K}/skriving.ts`,
+    fil: `${K}/kommandoer/skriving.ts`,
     endringer: [
       ["ut.push({ id: nyId(), art: 'hindring', oppfylt: v.vilkar_oppfylt });", 'void 0;'],
     ],
@@ -163,19 +163,19 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F11',
     feilklasse: 'kjernen importerer fra språkprøven og pg',
-    fil: `${K}/utled.ts`,
+    fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        "import type { Regelsett } from './regler/regelsett.ts';",
-        "import type { Regelsett } from './regler/regelsett.ts';\nimport type { Pool } from 'pg';\nimport type { Hendelse } from '../sprakprove/kjerne/typer.ts';\nexport type Ute = [Pool, Hendelse];",
+        "import type { Regelsett } from '../regler/regelsett.ts';",
+        "import type { Regelsett } from '../regler/regelsett.ts';\nimport type { Pool } from 'pg';\nimport type { Hendelse } from '../../sprakprove/kjerne/typer.ts';\nexport type Ute = [Pool, Hendelse];",
       ],
     ],
-    mal: ['utled.ts importerer ingenting utenfor kjernen'],
+    mal: ['utledning/utled.ts importerer ingenting utenfor kjernen'],
   },
   {
     id: 'F12',
     feilklasse: 'en ny kravversjon opphever enigheten i stedet for å avvises (KA-U7)',
-    fil: `${K}/forutsetninger.ts`,
+    fil: `${K}/kommandoer/forutsetninger.ts`,
     endringer: [
       [
         "      if (s.enighet)\n        return avvis('ENIGHET_I_SPORET', 'Partene er enige om svaret. Kravet kan ikke endres.');\n",
@@ -187,7 +187,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F13',
     feilklasse: 'et trukket spor hindrer endringsordre (EO-U2, #312)',
-    fil: `${K}/utled.ts`,
+    fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
         'KRAVSPOR.some((n) => !u.spor[n].trukket && u.spor[n].enighet !== null)',
@@ -199,7 +199,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F14',
     feilklasse: 'et svar uten beslutningsgrunnlag leses med et tomt brev',
-    fil: `${K}/leser.ts`,
+    fil: `${K}/format/leser.ts`,
     endringer: [
       [
         '  kontroller(verdi, skjemaer[n], sti);',
@@ -215,19 +215,19 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F15',
     feilklasse: 'en regel leser det lagrede utfallet i et svar (MM-U11, #329)',
-    fil: `${K}/forutsetninger.ts`,
+    fil: `${K}/kommandoer/forutsetninger.ts`,
     endringer: [
       [
         "        return avvis('IKKE_GJELDENDE_SVAR', 'Aksepten må gjelde gjeldende svar i dette sporet.');\n",
         "        return avvis('IKKE_GJELDENDE_SVAR', 'Aksepten må gjelde gjeldende svar i dette sporet.');\n      if (s.gjeldendeSvar.utregning.resultat === 'avslaatt') return null;\n",
       ],
     ],
-    mal: ['reglene leser bare det LESBART tillater (#308, #329) forutsetninger.ts'],
+    mal: ['reglene leser bare det LESBART tillater (#308, #329) kommandoer/forutsetninger.ts'],
   },
   {
     id: 'F16',
     feilklasse: 'enighet ved sammenfall leses ikke fra brevet (GR-U7, GR-U10, KA-U10)',
-    fil: `${K}/utled.ts`,
+    fil: `${K}/utledning/utled.ts`,
     endringer: [
       ['else if (g.beslutningsgrunnlag.sammenfall)', 'else if (g.standpunkter.length < 0)'],
     ],
@@ -236,7 +236,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F17',
     feilklasse: 'et trukket spor gir alene grunnlag for endringsordre (EO-U5)',
-    fil: `${K}/utled.ts`,
+    fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
         'KRAVSPOR.some((n) => !u.spor[n].trukket && u.spor[n].enighet !== null)',
@@ -248,7 +248,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F18',
     feilklasse: 'leseren godtar en aksept eller et svar fra feil part',
-    fil: `${K}/leser.ts`,
+    fil: `${K}/format/leser.ts`,
     endringer: [
       ['if (part !== null && avsender !== part)', 'if (part !== null && avsender === undefined)'],
     ],
@@ -257,21 +257,21 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F19',
     feilklasse: 'skjemakontrollen godtar navn fra prototypen som kjente felt',
-    fil: `${K}/skjema.ts`,
+    fil: `${K}/format/skjema.ts`,
     endringer: [['if (Object.hasOwn(egenskaper, navn))', 'if (navn in egenskaper)']],
     mal: ['avviser constructor i innholdet'],
   },
   {
     id: 'F20',
     feilklasse: 'et rettidig varsel blir uavklart når et varsel registreres senere (MM-U8)',
-    fil: `${K}/utled.ts`,
+    fil: `${K}/utledning/utled.ts`,
     endringer: [['            !p.iTide &&\n', '']],
     mal: ['F-MM-D-itide'],
   },
   {
     id: 'F21',
     feilklasse: 'et krav på 0 dager godtas (KA-U8)',
-    fil: `${K}/format.ts`,
+    fil: `${K}/format/format.ts`,
     endringer: [
       [
         "frist: { properties: { dager: { type: 'integer', minimum: 1 } }, required: ['dager'] },",
@@ -283,7 +283,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F22',
     feilklasse: 'brevet fryses uten kategorien svaret gjelder (MM-U9, § 32.2, GR-U12)',
-    fil: `${K}/frysing.ts`,
+    fil: `${K}/frosset/frysing.ts`,
     endringer: [
       [
         'return beslutningsgrunnlag(innhold, grunnlagskrav, regler);',
@@ -296,7 +296,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F23',
     feilklasse:
       'TE trekker grunnlaget når partene er enige ved sammenfall med varslingsplikt (KA-U13)',
-    fil: `${K}/forutsetninger.ts`,
+    fil: `${K}/kommandoer/forutsetninger.ts`,
     endringer: [
       [
         "if (h.spor === 'grunnlag' && trekkAvGrunnlagetErSperret(u))",
@@ -308,7 +308,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F24',
     feilklasse: 'forbudet mot trekk gjelder også kategorier § 32.2 ikke gjelder for (KA-U13)',
-    fil: `${K}/utled.ts`,
+    fil: `${K}/utledning/utled.ts`,
     endringer: [
       ['blirEndringsordre(gSvar.beslutningsgrunnlag)', '(gSvar.beslutningsgrunnlag.sammenfall)'],
     ],
@@ -317,7 +317,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F25',
     feilklasse: 'om godkjenningen er en endringsordre, leses av dagens regelsett (MM-U9, KA-U13)',
-    fil: `${K}/utled.ts`,
+    fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
         'blirEndringsordre(gSvar.beslutningsgrunnlag)',
@@ -329,7 +329,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F26',
     feilklasse: 'trekk av grunnlaget sperres av ethvert svar, også avslag og frafall (KA-U13)',
-    fil: `${K}/utled.ts`,
+    fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
         'blirEndringsordre(gSvar.beslutningsgrunnlag)',
@@ -342,7 +342,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F27',
     feilklasse: 'en referanse kan peke framover i journalen (4.2)',
-    fil: `${K}/utled.ts`,
+    fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
         '(plass.get(til)?.versjon ?? Infinity) < (plass.get(fra)?.versjon ?? -Infinity);',
@@ -355,7 +355,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F28',
     feilklasse:
       'om godkjenningen er en endringsordre, leses av et utsagn om varslingen i brevet (GR-U12)',
-    fil: `${K}/utled.ts`,
+    fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
         'blirEndringsordre(gSvar.beslutningsgrunnlag)',
@@ -367,70 +367,70 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F29',
     feilklasse: 'skriveren utelater `gjelder` i svaret (7.2)',
-    fil: `${K}/skriving.ts`,
+    fil: `${K}/kommandoer/skriving.ts`,
     endringer: [['    gjelder: s.gjelder,\n    ...(erstatter', '    ...(erstatter']],
     mal: ['F-MM-A', 'hvert dokument er én rad med format 1'],
   },
   {
     id: 'F30',
     feilklasse: 'skriveren utelater `gjelder` i et standpunkt om rettidighet (7.2)',
-    fil: `${K}/skriving.ts`,
+    fil: `${K}/kommandoer/skriving.ts`,
     endringer: [['        gjelder: u.spor.frist.varsel?.id ?? krav.id,\n', '']],
     mal: ['F-MM-D', 'F-MM-A'],
   },
   {
     id: 'F31',
     feilklasse: 'skriveren utelater `gjelder` i aksepten (7.2)',
-    fil: `${K}/skriving.ts`,
+    fil: `${K}/kommandoer/skriving.ts`,
     endringer: [["art: 'aksept', gjelder: k.svar, ", "art: 'aksept', "]],
     mal: ['F-MM-A', 'F-MM-A5a'],
   },
   {
     id: 'F32',
     feilklasse: 'skriveren utelater `gjelder` i trekket (7.2)',
-    fil: `${K}/skriving.ts`,
+    fil: `${K}/kommandoer/skriving.ts`,
     endringer: [["art: 'trekk', gjelder: u.spor[k.spor].gjeldendeKrav!.id }", "art: 'trekk' }"]],
     mal: ['F-MM-B2', 'F-MM-B3'],
   },
   {
     id: 'F33',
     feilklasse: 'skriveren utelater `erstatter` i revisjonen (7.2)',
-    fil: `${K}/skriving.ts`,
+    fil: `${K}/kommandoer/skriving.ts`,
     endringer: [['    ...(erstatter ? { erstatter } : {}),\n', '']],
     mal: ['F-MM-A', 'F-MM-A5a'],
   },
   {
     id: 'F34',
     feilklasse: 'skriveren utelater `erstatter` i en ny kravversjon (7.2)',
-    fil: `${K}/skriving.ts`,
+    fil: `${K}/kommandoer/skriving.ts`,
     endringer: [['...(forrige ? { erstatter: forrige.id } : {}), ', '']],
     mal: ['F-MM-E1', 'F-MM-K1'],
   },
   {
     id: 'F35',
     feilklasse: '«ingen krav» teller ikke som avgjort i sporet (KA-U12, KA-U11)',
-    fil: `${K}/utled.ts`,
+    fil: `${K}/utledning/utled.ts`,
     endringer: [['u.spor[n].trukket || u.spor[n].ingenKrav ||', 'u.spor[n].trukket ||']],
     mal: ['F-MM-IK1'],
   },
   {
     id: 'F36',
     feilklasse: '«ingen krav» i et spor med en kravversjon stopper ikke saken (KA-U12, 4.2)',
-    fil: `${K}/utled.ts`,
+    fil: `${K}/utledning/utled.ts`,
     endringer: [['      spor[i.spor].krav.length ||\n', '']],
     mal: ['F-MM-IK2'],
   },
   {
     id: 'F37',
     feilklasse: 'leseren godtar et ukjent felt i `data` (4.4, MM-U2)',
-    fil: `${K}/format.ts`,
+    fil: `${K}/format/format.ts`,
     endringer: [['  additionalProperties: false,', '  additionalProperties: true,']],
     mal: ['et ukjent felt i et svar', 'en aksept med et ukjent felt'],
   },
   {
     id: 'F38',
     feilklasse: 'kjernen skriver et felt registeret ikke har (#320)',
-    fil: `${K}/format.ts`,
+    fil: `${K}/format/format.ts`,
     endringer: [
       [
         "trekk: objekt({ ...artfelt('trekk'), gjelder: ID }, ['id', 'art', 'gjelder']),",
@@ -442,7 +442,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F39',
     feilklasse: 'leseren godtar en rad uten format (B-17, 4.4)',
-    fil: `${K}/leser.ts`,
+    fil: `${K}/format/leser.ts`,
     endringer: [
       [
         'if (!Number.isInteger(h.format) || (h.format as number) < 1)',
@@ -454,7 +454,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F41',
     feilklasse: '«ingen krav» før grunnlaget er sendt, leses (KA-U15)',
-    fil: `${K}/utled.ts`,
+    fil: `${K}/utledning/utled.ts`,
     endringer: [[' ||\n      !spor.grunnlag.krav.some((k) => bakover(i.id, k.id))\n', '\n']],
     mal: ['«ingen krav» før grunnlaget er sendt'],
   },
@@ -462,7 +462,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F42',
     feilklasse:
       'en manglende opplysning om § 31.3 leses som at godkjenningen er en endringsordre (GR-U13, KA-U14)',
-    fil: `${K}/utled.ts`,
+    fil: `${K}/utledning/utled.ts`,
     endringer: [
       ["if (om313 === undefined) return 'ikke_avklart';", "if (om313 === undefined) return 'ja';"],
     ],
@@ -471,14 +471,14 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F43',
     feilklasse: 'opplysningen om at § 31.3 ikke er oppfylt, leses ikke (GR-U13)',
-    fil: `${K}/utled.ts`,
+    fil: `${K}/utledning/utled.ts`,
     endringer: [["return om313.oppfylt ? 'ja' : 'nei';", "return 'ja';"]],
     mal: ['F-MM-G21'],
   },
   {
     id: 'F44',
     feilklasse: 'en manglende opplysning om § 31.3 leses som et nei (GR-U13)',
-    fil: `${K}/utled.ts`,
+    fil: `${K}/utledning/utled.ts`,
     endringer: [
       ["if (om313 === undefined) return 'ikke_avklart';", "if (om313 === undefined) return 'nei';"],
     ],
@@ -487,7 +487,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F45',
     feilklasse: 'to opplysninger om § 31.3 for samme brev leses (MM-U12, B-16)',
-    fil: `${K}/utled.ts`,
+    fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
         "opplysninger.filter((x) => x.hva === 'endringsordre' && x.brev === o.brev).length > 1 ||",
@@ -499,14 +499,14 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F46',
     feilklasse: 'datoen for et varsel i kravet leses som at kravet er sendt utenfor appen (HF-U1)',
-    fil: `${K}/skriving.ts`,
+    fil: `${K}/kommandoer/skriving.ts`,
     endringer: [['dato: k.varsel.sendt, gjelder: varsel }];', 'dato: k.varsel.sendt }];']],
     mal: ['F-MM-D-kravvarsel'],
   },
   {
     id: 'F47',
     feilklasse: 'en bestridelse godtas i en sak som ikke er forstått (MM-U14)',
-    fil: `${K}/forutsetninger.ts`,
+    fil: `${K}/kommandoer/forutsetninger.ts`,
     endringer: [['  if (!u.forstaatt)\n', "  if (!u.forstaatt && h.type !== 'bestride')\n"]],
     mal: ['F-MM-E9'],
   },
@@ -514,7 +514,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F40',
     feilklasse:
       'en aksept av et svar med sammenfall leses, så godkjenningen slutter å være en endringsordre (GR-U8, GR-U12)',
-    fil: `${K}/utled.ts`,
+    fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
         'else if (alleSvar.get(a.gjelder)!.beslutningsgrunnlag.sammenfall)',
@@ -526,18 +526,18 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F48',
     feilklasse: 'en regel leser en oppsummering under et nytt navn i utledningen (#329)',
-    fil: `${K}/utled.ts`,
+    fil: `${K}/utledning/utled.ts`,
     endringer: [
       ['export interface Utledning {\n', 'export interface Utledning {\n  ferdig?: boolean;\n'],
       ['    u.grunnlagAvklart &&\n', '    (u.ferdig ?? u.grunnlagAvklart) &&\n'],
     ],
-    mal: ['reglene leser bare det LESBART tillater (#308, #329) utled.ts'],
+    mal: ['reglene leser bare det LESBART tillater (#308, #329) utledning/utled.ts'],
   },
   {
     id: 'F49',
     feilklasse:
       'kjernen leser bare formatet den skriver, så en versjon som leser et nytt format, stopper saken (B-10, #316)',
-    fil: `${K}/skriving.ts`,
+    fil: `${K}/kommandoer/skriving.ts`,
     endringer: [
       [
         'return utled(lesJournal(journal, kjerne.leserformat), kjerne.regler);',
@@ -571,7 +571,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F52',
     feilklasse:
       'visningen merker et svar sendt fra appen, ikke det registrerte, som appens vurdering ved registreringen (MM-U17, #336)',
-    fil: `${K}/visning.ts`,
+    fil: `${K}/utledning/visning.ts`,
     endringer: [
       [
         'if (s.gjeldendeSvar && vurdertVedRegistreringen(u, s.gjeldendeSvar.id))',
@@ -584,11 +584,11 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F53',
     feilklasse:
       'et registrert brev fryses med reglene da det ble sendt, ikke ved registreringen (MM-U17, #336)',
-    fil: `${K}/skriving.ts`,
+    fil: `${K}/kommandoer/skriving.ts`,
     endringer: [
       [
         "import { avvisning } from './avvisning.ts';",
-        "import { avvisning } from './avvisning.ts';\nimport { GJELDENDE_REGLER } from './regler/regelsett.ts';",
+        "import { avvisning } from './avvisning.ts';\nimport { GJELDENDE_REGLER } from '../regler/regelsett.ts';",
       ],
       [
         '    s.beslutningsgrunnlag = lagret(frys(s, krav, kjerne.regler));',
@@ -600,7 +600,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F54',
     feilklasse: 'oversikten viser en utdatert sak uten merket «Oppdateres» (MM-U15, #316)',
-    fil: `${K}/buffer.ts`,
+    fil: `${K}/utledning/buffer.ts`,
     endringer: [['oppdateres: !b || !bufferGjelder(b, kjerne, saksversjon),', 'oppdateres: !b,']],
     mal: ['viser siste kjente status i oversikten'],
   },
@@ -645,7 +645,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F59',
     feilklasse: 'kategorien er ikke et par fra den lukkede listen (#335, HF-U1)',
-    fil: `${K}/format.ts`,
+    fil: `${K}/format/format.ts`,
     endringer: [['    anyOf: KATEGORIPAR,\n', '']],
     mal: [
       'avviser en underkategori under feil hovedkategori',
@@ -655,7 +655,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F60',
     feilklasse: 'svarutkastet får andre standpunkter enn brevet (#351)',
-    fil: `${K}/frysing.ts`,
+    fil: `${K}/frosset/frysing.ts`,
     endringer: [
       [
         'standpunkter: grunnlagsstandpunkter(vurderinger, krav,',

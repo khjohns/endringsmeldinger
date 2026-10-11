@@ -6,8 +6,8 @@
  */
 
 import { forutsetninger, noekkel, type Handlingsnoekkel } from './forutsetninger.ts';
-import type { Utledning } from './utled.ts';
-import { SPOR, type Part } from './typer.ts';
+import type { Utledning } from '../utledning/utled.ts';
+import { SPOR, type Part } from '../typer.ts';
 
 /** Handlingene som kan gjelde saken: hver handling i hvert spor, og en bestridelse per opplysning. */
 export function kandidater(u: Utledning): Handlingsnoekkel[] {

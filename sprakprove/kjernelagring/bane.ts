@@ -17,7 +17,7 @@ import {
   type Buffer,
   type Bufferlager,
   type Bufferversjon,
-} from '../../kjerne/buffer.ts';
+} from '../../kjerne/utledning/buffer.ts';
 import type { Kjerne } from '../../kjerne/versjon.ts';
 import type { Journalrad } from '../../kjerne/typer.ts';
 import type { Bane } from '../../kjerne/tester/bane.ts';

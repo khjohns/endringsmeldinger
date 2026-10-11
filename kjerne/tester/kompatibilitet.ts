@@ -19,9 +19,9 @@
  */
 
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { lesSak } from '../buffer.ts';
-import { utledJournal } from '../skriving.ts';
-import { visning } from '../visning.ts';
+import { lesSak } from '../utledning/buffer.ts';
+import { utledJournal } from '../kommandoer/skriving.ts';
+import { visning } from '../utledning/visning.ts';
 import { KJERNE, type Kjerne } from '../versjon.ts';
 import { bygg, type Baner } from './baner.ts';
 import type { Handling } from './klient.ts';

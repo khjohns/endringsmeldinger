@@ -8,7 +8,7 @@
 
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { KJERNE, type Kjerne } from '../versjon.ts';
-import { bufferversjon, iOversikten, lesSak, type Bufferversjon } from '../buffer.ts';
+import { bufferversjon, iOversikten, lesSak, type Bufferversjon } from '../utledning/buffer.ts';
 import { NESTE_REGLER } from './klient.ts';
 import { medRegler } from './kjoerer.ts';
 import { bygg, type Baner } from './baner.ts';

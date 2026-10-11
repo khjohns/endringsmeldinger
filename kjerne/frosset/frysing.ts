@@ -5,11 +5,11 @@
  * når ikke utledningen, så klienten kan bruke predikatet uten skrivestien.
  */
 
-import { HJEMMEL } from './format.ts';
-import { standpunkterISvaret, Uforstaatt } from './leser.ts';
-import type { Regelsett } from './regler/regelsett.ts';
+import { HJEMMEL } from '../format/format.ts';
+import { standpunkterISvaret, Uforstaatt } from '../format/leser.ts';
+import type { Regelsett } from '../regler/regelsett.ts';
 import { beslutningsgrunnlag, blirEndringsordre, type Svarvurdering } from './standpunkt.ts';
-import type { Krav, Spor } from './typer.ts';
+import type { Krav, Spor } from '../typer.ts';
 
 type Data = Record<string, unknown>;
 

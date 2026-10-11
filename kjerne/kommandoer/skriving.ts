@@ -7,14 +7,14 @@
  */
 
 import { avvisning } from './avvisning.ts';
-import { HJEMMEL } from './format.ts';
+import { HJEMMEL } from '../format/format.ts';
 import { formfeil, type Kommando, type Svarutkast } from './kommando.ts';
-import { frys, grunnlagsstandpunkter } from './frysing.ts';
-import { lesJournal, Uforstaatt } from './leser.ts';
-import { regnUtSvar } from './standpunkt.ts';
-import { grunnlagskravFor, utled, type Utledning } from './utled.ts';
-import type { Kjerne } from './versjon.ts';
-import type { Avvisning, Beslutningsgrunnlag, Journalrad, Krav, Part } from './typer.ts';
+import { frys, grunnlagsstandpunkter } from '../frosset/frysing.ts';
+import { lesJournal, Uforstaatt } from '../format/leser.ts';
+import { regnUtSvar } from '../frosset/standpunkt.ts';
+import { grunnlagskravFor, utled, type Utledning } from '../utledning/utled.ts';
+import type { Kjerne } from '../versjon.ts';
+import type { Avvisning, Beslutningsgrunnlag, Journalrad, Krav, Part } from '../typer.ts';
 
 /** Det serveren stempler kommandoen med. Klienten bestemmer ingen av dem. */
 export interface Kontekst {
