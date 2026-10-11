@@ -133,7 +133,7 @@
       "x-ukjente-felt": "avvises"
     },
     "kommando.grunnlag_opprettet": {
-      "description": "TEs krav om ansvarsgrunnlag. Tolerant, som de andre eksisterende kommandoene: ukjente felt i `data` forkastes ved lagring, og skjemaet beskriver det flyten sender, ikke alt serveren godtar.",
+      "description": "TEs krav om grunnlag. Tolerant, som de andre eksisterende kommandoene: ukjente felt i `data` forkastes ved lagring, og skjemaet beskriver det flyten sender, ikke alt serveren godtar.",
       "x-rolle": "TE",
       "type": "object",
       "properties": {
@@ -159,7 +159,7 @@
       "x-ukjente-felt": "forkastes"
     },
     "kommando.respons_grunnlag": {
-      "description": "Byggherrens svar på ansvarsgrunnlaget. Et avslag eller en preklusjon gjør svarene på vederlag og frist subsidiære.",
+      "description": "Byggherrens svar på grunnlaget. Et avslag eller en preklusjon gjør svarene på vederlag og frist subsidiære.",
       "x-rolle": "BH",
       "x-kilde": ["B-13"],
       "type": "object",
