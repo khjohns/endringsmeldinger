@@ -59,19 +59,25 @@
       aktor_team_id: null,
       refererer_til_event_id: null,
     }));
-    const vist = forhaandsvis(
-      kommando,
-      {
-        sakId,
-        aktoerId: '',
-        part: 'TE',
-        teamId: null,
-        tidspunkt: () => new Date(),
-        nyId: () => crypto.randomUUID(),
-      },
-      journal,
-      KJERNE
-    );
+    let vist;
+    try {
+      vist = forhaandsvis(
+        kommando,
+        {
+          sakId,
+          aktoerId: '',
+          part: 'TE',
+          teamId: null,
+          tidspunkt: () => new Date(),
+          nyId: () => crypto.randomUUID(),
+        },
+        journal,
+        KJERNE
+      );
+    } catch {
+      // Kjernen kan ikke lage teksten; serveren avviser da kommandoen med sin begrunnelse.
+      return null;
+    }
     return vist.godtatt ? laastTekst(vist.hendelser[0]) : null;
   }
 

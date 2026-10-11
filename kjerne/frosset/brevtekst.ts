@@ -15,6 +15,7 @@
  */
 
 import { erRegistrert } from '../format/leser.ts';
+import { erKalenderdato } from '../format/skjema.ts';
 import { beloep } from '../regler/beloep.ts';
 import type { Subsidiaergrunn } from '../regler/grunnlag.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
@@ -91,7 +92,8 @@ const OSLO = new Intl.DateTimeFormat('en-CA', {
 /** Datoen i Oslo for et tidspunkt, eller datoen slik den er oppgitt. «2. oktober 2026». */
 export function norskDato(tid: string): string {
   const tidspunkt = new Date(tid);
-  if (Number.isNaN(tidspunkt.getTime())) throw new KanIkkeUttrykkes(`${tid} er ikke en dato`);
+  if (DAG.test(tid) ? !erKalenderdato(tid) : Number.isNaN(tidspunkt.getTime()))
+    throw new KanIkkeUttrykkes(`${tid} er ikke en dato`);
   const dag = DAG.test(tid) ? tid : OSLO.format(tidspunkt);
   const [, aar, maaned, dato] = DAG.exec(dag)!;
   return `${Number(dato)}. ${MAANEDER[Number(maaned) - 1]} ${aar}`;
@@ -503,7 +505,7 @@ function endringsordretekst(krav: Krav, j: Journalen): string {
     'byggherren godkjenner grunnlaget. Svaret er en endringsordre etter NS 8407 § 32.3 første ledd a, jf. § 31.3: byggherren krever at endringen utføres slik pålegget er beskrevet i';
   if (j.erRegistrert(krav.dokument)) return `${innledning} ${kravet}.`;
   const beskrivelse = j.utdypning(krav.id, krav.dokument);
-  if (beskrivelse === undefined)
+  if (!beskrivelse?.trim())
     throw new BrevetAvvises(
       'PAALEGGET_IKKE_BESKREVET',
       'Godkjenningen er en endringsordre (§ 32.3 første ledd a), men TEs krav beskriver ikke pålegget, så brevet kan ikke si hva endringen går ut på (§ 31.3, GR-U14). Svaret må sendes utenfor appen.'
