@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # Starter en kastbar PostgreSQL 17 i Docker og bygger testbasen i den med
 # bygg_testbase.sh. Samme bilde som CI-jobben `database`: det offisielle
-# postgres:17, hentet fra speilet i Amazon ECR Public. Docker Hub avviser
-# nedlastinger uten innlogging når grensen deres er nådd (#327).
+# postgres:17, hentet med scripts/ci/hent_bilde.sh fra de samme kildene som
+# CI, så en kilde som avviser nedlastingen ikke stopper testbasen (#401).
 # Lytter bare på 127.0.0.1, med et tilfeldig passord.
 #
 #   scripts/testbase/docker_testbase.sh start   # skriver ut KOE_TESTBASE_URL
@@ -16,7 +16,8 @@ set -euo pipefail
 
 rot="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 port="${KOE_TESTBASE_PORT:-54317}"
-bilde="public.ecr.aws/docker/library/postgres:17"
+# shellcheck source=scripts/ci/postgres_kilder.sh
+source "$rot/scripts/ci/postgres_kilder.sh"
 navn="koe-testbase-$port"
 
 url() {
@@ -25,36 +26,18 @@ url() {
   echo "postgresql://postgres:$passord@127.0.0.1:$port/koe_test"
 }
 
-hent_bilde() {
-  if docker image inspect "$bilde" > /dev/null 2>&1; then
-    return 0
-  fi
-  # Registeret kan svare 429 Too Many Requests.
-  local forsok ventetid=2
-  for forsok in 1 2 3 4 5; do
-    if docker pull --quiet "$bilde" > /dev/null; then
-      return 0
-    fi
-    echo "Henting av $bilde feilet (forsøk $forsok). Venter ${ventetid}s." >&2
-    sleep "$ventetid"
-    ventetid=$((ventetid * 2))
-  done
-  echo "Fikk ikke hentet $bilde." >&2
-  return 1
-}
-
 case "${1:-}" in
   start)
     if docker container inspect "$navn" > /dev/null 2>&1; then
       echo "Containeren $navn finnes. Kjør 'stopp' først." >&2
       exit 1
     fi
-    hent_bilde
+    "$rot/scripts/ci/hent_bilde.sh" "$postgres_bilde" "${postgres_kilder[@]}" >&2
     docker run --detach --name "$navn" \
       --env POSTGRES_PASSWORD="$(head -c 24 /dev/urandom | od -An -tx1 | tr -d ' \n')" \
       --env POSTGRES_DB=koe_test \
       --publish "127.0.0.1:$port:5432" \
-      "$bilde" > /dev/null
+      "$postgres_bilde" > /dev/null
     # Bildet starter serveren én gang for initdb og så på nytt; pg_isready
     # over TCP svarer først når den endelige serveren lytter på porten.
     for _ in $(seq 1 60); do
