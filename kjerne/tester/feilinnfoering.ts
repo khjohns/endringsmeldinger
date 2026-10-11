@@ -5,7 +5,7 @@
  * i designnotatet, GR-U12 og registeret (#320). F48 er hvitelisten fra #329,
  * F49–F51 og F54–F58 versjoneringen (#316), F52–F53 registrert korrespondanse
  * (#336), F59–F60 kodene i formatet og predikatet for endringsordre
- * (#335, #351), og F61–F82 byggedel 1 av #309. Én mutasjon om gangen per arbeidskopi, Vitest over hele `kjerne/`
+ * (#335, #351), og F61–F84 byggedel 1 av #309. Én mutasjon om gangen per arbeidskopi, Vitest over hele `kjerne/`
  * og `sprakprove/kjernelagring/`, og originalteksten settes tilbake etterpå. For
  * hver mutasjon kreves det at de forventede målassertions feiler, og at alle
  * feil er assertions, ikke import, oppsett eller en brutt forutsetning
@@ -303,8 +303,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/frysing.ts`,
     endringer: [
       [
-        'return beslutningsgrunnlag(innhold, grunnlagskrav, regler);',
-        'return beslutningsgrunnlag(innhold, undefined, regler);',
+        'return beslutningsgrunnlag(innhold, grunnlagskrav, regler, innsigelse);',
+        'return beslutningsgrunnlag(innhold, undefined, regler, innsigelse);',
       ],
     ],
     mal: ['registrert korrespondanse fryses med kategorien', 'F-MM-C', 'F-MM-G18'],
@@ -481,7 +481,10 @@ const MUTASJONER: Mutasjon[] = [
       'en manglende opplysning om § 31.3 leses som at godkjenningen er en endringsordre (GR-U13, KA-U14)',
     fil: `${K}/utledning/utled.ts`,
     endringer: [
-      ["if (om313 === undefined) return 'ikke_avklart';", "if (om313 === undefined) return 'ja';"],
+      [
+        "    if (om313 === undefined || spor.grunnlag.forbehold) return 'ikke_avklart';",
+        "    if (spor.grunnlag.forbehold) return 'ikke_avklart';",
+      ],
     ],
     mal: ['F-MM-G20'],
   },
@@ -489,7 +492,12 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F43',
     feilklasse: 'opplysningen om at § 31.3 ikke er oppfylt, leses ikke (GR-U13)',
     fil: `${K}/utledning/utled.ts`,
-    endringer: [["return om313.oppfylt ? 'ja' : 'nei';", "return 'ja';"]],
+    endringer: [
+      [
+        "if (om313?.oppfylt === false) return 'nei';",
+        "if (om313?.oppfylt === false && !om313) return 'nei';",
+      ],
+    ],
     mal: ['F-MM-G21'],
   },
   {
@@ -497,7 +505,10 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse: 'en manglende opplysning om § 31.3 leses som et nei (GR-U13)',
     fil: `${K}/utledning/utled.ts`,
     endringer: [
-      ["if (om313 === undefined) return 'ikke_avklart';", "if (om313 === undefined) return 'nei';"],
+      [
+        "    if (om313 === undefined || spor.grunnlag.forbehold) return 'ikke_avklart';",
+        "    if (om313 === undefined) return 'nei';\n    if (spor.grunnlag.forbehold) return 'ikke_avklart';",
+      ],
     ],
     mal: ['F-MM-G20'],
   },
@@ -608,8 +619,8 @@ const MUTASJONER: Mutasjon[] = [
         "import { avvisning } from './avvisning.ts';\nimport { GJELDENDE_REGLER } from '../regler/regelsett.ts';",
       ],
       [
-        '    s.beslutningsgrunnlag = lagret(frys(s, krav, kjerne.regler));',
-        '    s.beslutningsgrunnlag = lagret(frys(s, krav, GJELDENDE_REGLER));',
+        '    s.beslutningsgrunnlag = lagret(frys(s, krav, kjerne.regler, innsigelse));',
+        '    s.beslutningsgrunnlag = lagret(frys(s, krav, GJELDENDE_REGLER, innsigelse));',
       ],
     ],
     mal: ['F-MM-R1'],
@@ -917,6 +928,26 @@ const MUTASJONER: Mutasjon[] = [
       ],
     ],
     mal: ['F-MM-V5'],
+  },
+  {
+    id: 'F83',
+    feilklasse:
+      'et registrert svar regnet mot en grunnlagsversjon uten virkning stopper saken (MM-U18, #342)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        '    else if (utenVirkning(s.gjelder, s.erstatter, s.grunnlagskrav))',
+        '    else if (utenVirkning(s.gjelder, s.erstatter))',
+      ],
+    ],
+    mal: ['et svar regnet mot den bevares uten virkning'],
+  },
+  {
+    id: 'F84',
+    feilklasse: 'et utsagn som viser til et element uten virkning, stopper saken (MM-U18)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [['    const ok = uten.has(x.gjelder) || kanGjelde(', '    const ok = kanGjelde(']],
+    mal: ['en påberopt passivitet mot den er forstått'],
   },
 ];
 

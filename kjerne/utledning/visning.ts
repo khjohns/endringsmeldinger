@@ -112,7 +112,8 @@ function etiketter(u: Utledning, spor: Spor, regler: Regelsett): string[] {
     spor === 'frist' ? s.varsel?.id : null,
   ];
   for (const i of u.innsigelser)
-    if (iSporet.includes(i.gjelder)) ut.push(`innsigelse_fra_${i.part}`);
+    if (iSporet.includes(i.gjelder) && !ut.includes(`innsigelse_fra_${i.part}`))
+      ut.push(`innsigelse_fra_${i.part}`);
   if (spor === 'grunnlag' && u.passivitet.length) ut.push('passivitet_paaberopt');
   if (s.ingenKrav) ut.push('ingen_krav');
   else if (spor === 'frist' && !s.varsel) ut.push('varsel_ikke_registrert');

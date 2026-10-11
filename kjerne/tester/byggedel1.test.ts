@@ -285,3 +285,57 @@ describe('formatet har ingen negative beløp ennå (KA-U22, KA-U9)', () => {
     ).not.toEqual([]);
   });
 });
+
+/** Code-review av PR #394: det som viser til et element uten virkning, stopper ikke saken (MM-U18). */
+describe('registrerte brev som viser til en kravversjon uten virkning', () => {
+  const foer = [
+    'godkjent_grunnlag',
+    { handling: 'krav', spor: 'vederlag', belop: 100000, navn: 'K-v1' },
+    {
+      handling: 'rad',
+      krav: true,
+      spor: 'grunnlag',
+      underkategori: 'endringsordre',
+      part: 'TE',
+      navn: 'K-g2',
+      sendt: '2026-10-01',
+    },
+  ];
+
+  it('et svar regnet mot den bevares uten virkning, og saken er forstått', async () => {
+    const bane = minnebane();
+    const k = await bygg(bane, [
+      ...foer,
+      {
+        handling: 'rad',
+        spor: 'vederlag',
+        navn: 'S-v1',
+        dokument: 'D5',
+        gjelder: 'K-v1',
+        grunnlagskrav: 'K-g2',
+        vurdering: 'godkjent',
+        godkjent_belop: 100000,
+        sendt: '2026-10-02',
+      },
+    ]);
+    const u = utled(lesJournal(await bane.journal(), KJERNE.leserformat), GJELDENDE_REGLER);
+    expect(u.forstaatt).toBe(true);
+    expect(u.utenVirkning.map((x) => x.element)).toEqual([k.navn.id('K-g2'), k.navn.id('S-v1')]);
+  });
+
+  it('en påberopt passivitet mot den er forstått', async () => {
+    const bane = minnebane();
+    await bygg(bane, [
+      ...foer,
+      {
+        handling: 'rad',
+        art: 'passivitet',
+        gjelder: 'K-g2',
+        part: 'TE',
+        navn: 'D5',
+        sendt: '2026-10-02',
+      },
+    ]);
+    expect(forstaatt(await bane.journal())).toBe(true);
+  });
+});

@@ -838,9 +838,17 @@ export function lesinger(p: ts.Program, moduler: string[]): Lesing[] {
     const importertVerdi = (n: ts.Identifier): string | null => {
       const p = n.parent;
       if (ts.isImportSpecifier(p) || ts.isImportClause(p) || ts.isNamespaceImport(p)) return null;
+      // En lokal videreeksport (`export { x }`) er en bruk av importen.
+      const lokalEksport =
+        ts.isExportSpecifier(p) &&
+        !p.parent.parent.moduleSpecifier &&
+        (p.propertyName ?? p.name) === n;
+      if (ts.isExportSpecifier(p) && !lokalEksport) return null;
       const s = ts.isShorthandPropertyAssignment(p)
         ? tc.getShorthandAssignmentValueSymbol(p)
-        : tc.getSymbolAtLocation(n);
+        : lokalEksport
+          ? tc.getExportSpecifierLocalTargetSymbol(p)
+          : tc.getSymbolAtLocation(n);
       if (!s || !(s.flags & ts.SymbolFlags.Alias)) return null;
       const imp = s.declarations?.[0];
       if (!imp) return null;
@@ -1145,6 +1153,17 @@ describe('reglene leser bare det LESBART tillater (#308, #329)', () => {
         [
           utled,
           'export const proeve = (s: Svar, v: Standpunktsvirkning[]) => grunnlagetErAvklart(s, v);',
+        ],
+      ],
+      'frosset/standpunkt.ts.grunnlagetErAvklart',
+    ],
+    [
+      '«avklart» etter GR-U7 videreeksportert fra en regel (#344)',
+      forutsetninger,
+      [
+        [
+          forutsetninger,
+          "import { grunnlagetErAvklart } from '../frosset/standpunkt.ts';\nexport { grunnlagetErAvklart };",
         ],
       ],
       'frosset/standpunkt.ts.grunnlagetErAvklart',

@@ -1452,7 +1452,7 @@
           "spor": "vederlag",
           "navn": "S-a",
           "gjelder": "K-v1",
-          "erstatter": "S-b",
+          "erstatter": "S-b", "grunnlagskrav": "K-g1",
           "vurdering": "delvis",
           "godkjent_belop": 60000
         },
@@ -1461,7 +1461,7 @@
           "spor": "vederlag",
           "navn": "S-b",
           "gjelder": "K-v1",
-          "erstatter": "S-a",
+          "erstatter": "S-a", "grunnlagskrav": "K-g1",
           "vurdering": "delvis",
           "godkjent_belop": 70000
         }
