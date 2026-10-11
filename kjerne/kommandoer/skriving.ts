@@ -291,7 +291,7 @@ function skriv(
   }
   if (brevtekst) data.brevtekst = brevtekst;
   if (kontrollerTekst) {
-    const avvik = tekstavvik(k.type === 'varsel' ? undefined : k.brevtekst, brevtekst);
+    const avvik = tekstavvik(k.brevtekst, brevtekst);
     if (avvik) return { godtatt: false, feil: 'REGELBRUDD', avvisning: avvik };
   }
   // Kjernen må forstå det den selv skriver (MM-U2, 7.1.2 i designnotatet). Hver rad leses

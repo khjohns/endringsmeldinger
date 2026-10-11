@@ -351,6 +351,14 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ],
   ['frosset/standpunkt.ts', 'utsagn', 'standpunktet'],
   ['frosset/standpunkt.ts', 'predikat', 'enighetsgrunnlag'],
+  // Vedtaket 05.10: hvorfor svaret i sporet er subsidiært til grunnlaget. Brevteksten sier
+  // det samme (A2).
+  [
+    'frosset/standpunkt.ts',
+    'predikat',
+    'grunnerFraGrunnlaget',
+    ['utledning/utled.ts:utledSporene', 'frosset/brevtekst.ts:grunnlagetsStandpunkter'],
+  ],
   // GR-U7 med unntaket i MM-U13: utledningen regner `grunnlagAvklart` og `grunnlagAvvist` av den.
   ['frosset/standpunkt.ts', 'predikat', 'grunnlagetErAvklart', ['utledning/utled.ts:utledSporene']],
   // VS-U11: innsigelsen et registrert svar er lest med, og hvilke innsigelser som kan lese det.
@@ -489,7 +497,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'format/format.ts',
     'skjema',
-    'DATO ID KRAVINNHOLD liste objekt OPPLYSNINGSSLAG',
+    'DATO ID KRAVINNHOLD liste objekt OPPLYSNINGSSLAG TEKST',
     ['kommandoer/kommando.ts'],
   ],
   ['STANDPUNKTER_I_SPORET', 'rad', 'art paakrevd', ['format/leser.ts']],
