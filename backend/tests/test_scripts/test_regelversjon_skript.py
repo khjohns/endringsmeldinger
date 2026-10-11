@@ -299,3 +299,47 @@ def test_en_flytting_ut_av_frosset_krever_ny_regelversjon(kjerne):
     svar = _kjor(sti, base)
     assert svar.returncode == 1, svar.stdout + svar.stderr
     assert "REGELVERSJON" in svar.stdout
+
+
+@pytest.mark.parametrize(
+    "fra, til, versjoner, ventet",
+    [
+        # Ut av regelsettet med endret innhold: endringen gjelder fortsatt resten av kjernen.
+        pytest.param("kjerne/regler/frist.ts", "kjerne/utledning/frist.ts", _kjerne(6, 2), 1, id="ut av regelsettet med bare ny regelversjon"),
+        pytest.param("kjerne/regler/frist.ts", "kjerne/utledning/frist.ts", _kjerne(6, 3), 0, id="ut av regelsettet med begge versjonene"),
+        # Inn i frosset/ med endret innhold: det fila nå bestemmer, krever ny regelversjon.
+        pytest.param("kjerne/utled.ts", "kjerne/frosset/utled.ts", _kjerne(5, 3), 1, id="inn i frosset med bare ny projeksjonsversjon"),
+        pytest.param("kjerne/utled.ts", "kjerne/frosset/utled.ts", _kjerne(6, 3), 0, id="inn i frosset med begge versjonene"),
+    ],
+)
+def test_en_flytting_over_grensen_med_endring(kjerne, fra, til, versjoner, ventet):
+    """#309: en flytting med endret innhold krever versjonene for både gammel og ny plass."""
+    sti, _ = kjerne
+    _skriv(sti, {fra: KROPP})
+    base = _git(sti, "rev-parse", "HEAD")
+    _mv(sti, fra, til)
+    _skriv(sti, {til: KROPP + "export const ny = 1;\n", **versjoner})
+    svar = _kjor(sti, base)
+    assert svar.returncode == ventet, svar.stdout + svar.stderr
+
+
+def test_en_sti_med_norske_bokstaver_kontrolleres(kjerne):
+    """#309: git skriver ellers en slik sti i anførselstegn, og den ville falt utenom."""
+    sti, base = kjerne
+    _skriv(sti, {"kjerne/frosset/frisløp.ts": "a\n", **_kjerne(5, 3)})
+    svar = _kjor(sti, base)
+    assert svar.returncode == 1, svar.stdout + svar.stderr
+    assert "kjerne/frosset/frisløp.ts" in svar.stdout
+
+
+def test_formatet_i_flere_filer_i_base_feiler_etter_en_flytting(kjerne):
+    """#309: uten en omdøping git kjenner igjen, gjettes ikke den gamle fila."""
+    sti, _ = kjerne
+    _mv(sti, KJERNE_FORMAT, "kjerne/format.ts")
+    _skriv(sti, {"kjerne/annet.ts": "export const FORMAT = 1;\n"})
+    base = _git(sti, "rev-parse", "HEAD")
+    _git(sti, "rm", "-q", "kjerne/format.ts")
+    _skriv(sti, {KJERNE_FORMAT: "export const FORMAT = 2;\nexport const LESERFORMAT = 2;\n// annen\n", **_kjerne(5, 3)})
+    svar = _kjor(sti, base)
+    assert svar.returncode == 1, svar.stdout + svar.stderr
+    assert "Fant FORMAT i flere filer i BASE" in svar.stdout

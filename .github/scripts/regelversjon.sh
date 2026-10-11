@@ -84,15 +84,17 @@ fi
 # En fil der bare importstiene er endret av en flytting, regnes ikke som endret
 # (#309); .github/scripts/flytting.py avgjør det.
 fra=$(git merge-base "$BASE" HEAD) || exit 2
-flytting=$(git diff --name-status -M "$fra" HEAD -- ':(glob)kjerne/**/*.ts' \
-  ":(exclude)kjerne/tester") || exit 2
-endret=$(python3 "$(dirname "$0")/flytting.py" "$fra" --dekket kjerne/regler/ kjerne/frosset/ \
+# core.quotePath=false: en sti med æ, ø eller å skrives som den er, ikke i anførselstegn.
+flytting=$(git -c core.quotePath=false diff --name-status -M "$fra" HEAD \
+  -- ':(glob)kjerne/**/*.ts' ":(exclude)kjerne/tester") || exit 2
+vurdert=$(python3 "$(dirname "$0")/flytting.py" "$fra" --dekket kjerne/regler/ kjerne/frosset/ \
   <<< "$flytting") || exit 2
-flyttet=$(comm -23 <(awk -F'\t' '{ print $NF }' <<< "$flytting" | grep . | sort) <(sort <<< "$endret"))
+kjerne_endret=$(sed -n 's/^endret\t//p' <<< "$vurdert")
+flyttet=$(sed -n 's/^flyttet\t//p' <<< "$vurdert")
 if [ -n "$flyttet" ]; then
   echo "Bare flyttet, med importstiene ombundet:"; echo "$flyttet"
 fi
-regler=$(grep -E '^kjerne/(regler|frosset)/' <<< "$endret")
+regler=$(grep -E '^kjerne/(regler|frosset)/' <<< "$kjerne_endret")
 if [ -z "$regler" ]; then
   echo "Ingen endring i kjerne/regler/ eller kjerne/frosset/."
 else
@@ -102,7 +104,7 @@ else
     feil=1
   fi
 fi
-utledning=$(grep -v '^kjerne/regler/' <<< "$endret" | grep .)
+utledning=$(grep -v '^kjerne/regler/' <<< "$kjerne_endret" | grep .)
 if [ -z "$utledning" ]; then
   echo "Ingen endring i kjernen utenom regelsettet og testene."
 else
@@ -122,14 +124,23 @@ if [ -d kjerne ] && [ ! -f "$format" ]; then
   feil=1
 fi
 if [ -f "$format" ]; then
-  # Er fila flyttet, leses versjonen i BASE fra fila som da hadde konstanten,
-  # også når git ikke kjenner igjen omdøpingen.
+  # Er fila flyttet, leses versjonen i BASE fra den gamle stien. Kjenner ikke git
+  # igjen omdøpingen, er det den ene fila i BASE med konstanten.
   for_sti=$format
   if ! git cat-file -e "$BASE:$format" 2>/dev/null; then
-    for_sti=$(git grep -l '^export const FORMAT = ' "$BASE" -- kjerne ':(exclude)kjerne/tester' \
-      | head -n 1 | cut -d: -f2-)
+    for_sti=$(awk -F'\t' -v ny="$format" '$1 ~ /^R/ && $3 == ny { print $2 }' <<< "$flytting")
+    if [ -z "$for_sti" ]; then
+      kandidater=$(git -c core.quotePath=false grep -l '^export const FORMAT = ' "$BASE" \
+        -- kjerne ':(exclude)kjerne/tester' | cut -d: -f2-)
+      if [ "$(grep -c . <<< "$kandidater")" -gt 1 ]; then
+        echo "::error file=$format::Fant FORMAT i flere filer i BASE: $(echo $kandidater). Kontrollen vet ikke hvilken $format kom fra."
+        feil=1
+      fi
+      for_sti=$(head -n 1 <<< "$kandidater")
+    fi
   fi
-  for_tekst=$(git show "$BASE:$for_sti" 2>/dev/null)
+  for_tekst=""
+  [ -n "$for_sti" ] && for_tekst=$(git show "$BASE:$for_sti" 2>/dev/null)
   skriver_for=$(les_konstant FORMAT <<< "$for_tekst")
   # Før LESERFORMAT fantes, leste kjernen høyst FORMAT.
   leser_for=$(les_konstant LESERFORMAT <<< "$for_tekst")
