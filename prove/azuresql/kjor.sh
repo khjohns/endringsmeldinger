@@ -74,6 +74,8 @@ if [ "${PROVE_UTEN_FEILINNFOERING:-}" != 1 ]; then
   echo "== Feilinnføringene (hver skal gi rød test)"
   declare -A MAAL=(
     [uten_transaksjonsbinding]=tilgang
+    [handlende_uten_tx]=tilgang
+    [uten_predikat.etter]=tilgang
     [uten_prosjektgrense]=tilgang
     [uten_teamgrense]=tilgang
     [rls_i_inserted]=lagring

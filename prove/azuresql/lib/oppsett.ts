@@ -99,8 +99,11 @@ export async function byggBase(navn: string): Promise<Oppsett> {
   const admin = await koble('sa', database, 4);
   for (const fil of ['01_skjema.sql', '02_sikkerhet.sql', '03_kommandoer.sql'])
     await kjoerFil(admin, join(SQL, fil));
-  if (MUTASJON) await kjoerFil(admin, MUTASJON);
+  // En feilinnføring kjøres før policyen binder predikatene, eller etter den når filen heter `*.etter.sql`.
+  const etter = MUTASJON.endsWith('.etter.sql');
+  if (MUTASJON && !etter) await kjoerFil(admin, MUTASJON);
   await kjoerFil(admin, join(SQL, '04_tilgang.sql'));
+  if (etter) await kjoerFil(admin, MUTASJON);
   const runtime = await koble('runtime', database, 8);
 
   const bruker = async (navn: string): Promise<Bruker> => {
