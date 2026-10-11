@@ -46,13 +46,15 @@ describe.skipIf(!AKTIV)('tilgang i T-SQL', () => {
   const iA = () => sakA.skrevet.length + helA.skrevet.length;
   /** Tabellene runtime har SELECT på, slik runtime selv ser katalogen. */
   let lesbare: string[];
+  /** Andre objekter runtime kan lese fra: visninger, funksjoner og synonymer. */
+  let andreLesbare: string[];
 
-  /** Tabeller, visninger og tabellverdifunksjoner runtime har SELECT på, slik runtime selv ser katalogen. */
-  const lesbareTabeller = async () =>
+  /** Objektene av typene runtime har SELECT på, slik runtime selv ser katalogen. */
+  const lesbareAvType = async (typer: string) =>
     (
       await o.runtime.request().query<{ t: string }>(
         `SELECT s.name + '.' + x.name AS t FROM sys.objects x JOIN sys.schemas s ON s.schema_id = x.schema_id
-          WHERE x.type IN ('U', 'V', 'IF', 'TF')
+          WHERE x.type IN (${typer})
             AND HAS_PERMS_BY_NAME(s.name + '.' + x.name, 'OBJECT', 'SELECT') = 1 ORDER BY 1`
       )
     ).recordset.map((r) => r.t);
@@ -60,7 +62,14 @@ describe.skipIf(!AKTIV)('tilgang i T-SQL', () => {
   /** Tabeller runtime kan lese uten RLS, med grunnen. */
   const UTEN_RLS: Record<string, string> = {
     'form_b.felt': 'feltregisteret i form (b): formatet, ingen saksdata og ikke noe prosjekt',
-    'form_b.avvik': 'funksjon som bare leser argumentet og feltregisteret',
+  };
+
+  /**
+   * Visninger, funksjoner og synonymer runtime kan lese fra. RLS kan bare stå på tabeller,
+   * så hvert av dem står her med tabellene det leser, og testen krever at katalogen er enig.
+   */
+  const ANDRE_LESBARE: Record<string, string[]> = {
+    'form_b.avvik': ['form_b.felt'],
   };
 
   beforeAll(async () => {
@@ -73,6 +82,14 @@ describe.skipIf(!AKTIV)('tilgang i T-SQL', () => {
     helA = await sqlBane(o, 'a');
     await bygg(helA, ['forlop_a']);
     await bygg(await sqlBane(o, 'b'), ['forlop_a']);
+    // Et notat i en annen sak enn den notattestene bruker, så notattabellen har rader i lesetestene.
+    await transaksjon(o.runtime, te, (f) =>
+      f()
+        .input('sak_id', sql.NVarChar(36), helA.sakId)
+        .input('tekst', sql.NVarChar(sql.MAX), 'oppsett')
+        .output('notat_id', sql.UniqueIdentifier)
+        .execute('koe_api.skriv_notat')
+    );
     // Registrert korrespondanse med opplysning og dokumentasjon, så hver tabell i (b) har rader.
     const registrert = await sqlBane(o, 'b');
     const krav = helA.skrevet.find((r) => r.data.krav)!;
@@ -91,7 +108,8 @@ describe.skipIf(!AKTIV)('tilgang i T-SQL', () => {
       ],
       1
     );
-    lesbare = await lesbareTabeller();
+    lesbare = await lesbareAvType("'U'");
+    andreLesbare = await lesbareAvType("'V', 'IF', 'TF', 'FT', 'SN'");
     const bte = kontekst(o.brukere.bte, o.b, 'TE');
     sakB = await nySak(o, bte);
     await transaksjon(o.runtime, bte, (f) =>
@@ -131,12 +149,28 @@ describe.skipIf(!AKTIV)('tilgang i T-SQL', () => {
       expect(Object.keys(UTEN_RLS).filter((t) => !lesbare.includes(t))).toEqual([]);
     });
 
+    it('hver visning, funksjon og synonym runtime kan lese fra, står i listen med tabellene det leser', async () => {
+      expect(andreLesbare).toEqual(Object.keys(ANDRE_LESBARE).sort());
+      for (const [objekt, tabeller] of Object.entries(ANDRE_LESBARE)) {
+        const r = await o.admin
+          .request()
+          .input('o', sql.NVarChar(200), objekt)
+          .query<{ t: string }>(
+            `SELECT DISTINCT d.referenced_schema_name + '.' + d.referenced_entity_name AS t
+               FROM sys.sql_expression_dependencies d WHERE d.referencing_id = OBJECT_ID(@o)`
+          );
+        expect(r.recordset.map((x) => x.t).sort(), objekt).toEqual([...tabeller].sort());
+        expect(
+          tabeller.every((t) => t in UTEN_RLS),
+          objekt
+        ).toBe(true);
+      }
+    });
+
     it('uten kontekst ser runtime ingenting i noen tabell, og med kontekst ser medlemmet radene', async () => {
-      // Notatene skrives senere i fila, så tabellen er tom her; predikatet holdes av katalogtesten.
-      const tomme = new Set(['koe.notat']);
       for (const t of lesbare.filter((x) => !(x in UTEN_RLS))) {
         expect(await synlige(null, t), t).toBe(0);
-        if (!tomme.has(t)) expect(await synlige(te, t), t).toBeGreaterThan(0);
+        expect(await synlige(te, t), t).toBeGreaterThan(0);
       }
       const r = await o.runtime
         .request()
@@ -234,10 +268,6 @@ describe.skipIf(!AKTIV)('tilgang i T-SQL', () => {
           .request()
           .query<{ n: number }>('SELECT COUNT(*) AS n FROM form_a.hendelse');
         expect(etter.recordset[0].n).toBe(0);
-        const notat = await pool
-          .request()
-          .query<{ n: number }>('SELECT COUNT(*) AS n FROM koe.notat');
-        expect(notat.recordset[0].n).toBe(0);
 
         // En ny transaksjon på samme forbindelse uten ny kontekst kan verken lese eller
         // skrive, med noen av kommandoene.
@@ -250,18 +280,13 @@ describe.skipIf(!AKTIV)('tilgang i T-SQL', () => {
             await ny.rollback().catch(() => undefined);
           }
         };
-        const ny = new sql.Transaction(pool);
-        await ny.begin();
-        try {
+        const lest = await iNyTransaksjon(async (r) => {
           for (const t of lesbare.filter((x) => !(x in UTEN_RLS))) {
-            const svar = await new sql.Request(ny).query<{ n: number }>(
-              `SELECT COUNT(*) AS n FROM ${t}`
-            );
+            const svar = await r().query<{ n: number }>(`SELECT COUNT(*) AS n FROM ${t}`);
             expect(svar.recordset[0].n, t).toBe(0);
           }
-        } finally {
-          await ny.rollback().catch(() => undefined);
-        }
+        });
+        expect(lest).toBeUndefined();
         const rad = { ...structuredClone(sakA.skrevet.at(-1)!), event_id: randomUUID() };
         const forsoek: [string, (r: () => sql.Request) => Promise<unknown>][] = [
           [
@@ -382,18 +407,28 @@ describe.skipIf(!AKTIV)('tilgang i T-SQL', () => {
     });
 
     it('eieren kan ikke opprette en sak i en annen aktørs navn eller med store bokstaver (blokkpredikatet og skranken)', async () => {
+      class Tilbakerull extends Error {}
+      // Hver innsetting rulles tilbake, også kontrollsaken, så saken ikke blir stående.
       const sett = (oppretter: string) =>
         feilFra(
-          transaksjon(o.admin, bh, (f) =>
-            f().batch(
-              `INSERT koe.sak_metadata (sak_id, prosjekt_id, sakstype, created_by)
-               VALUES (N'${randomUUID()}', N'${o.a.id}', N'standard', N'${oppretter}')`
-            )
+          transaksjon(
+            o.admin,
+            bh,
+            (f) =>
+              f()
+                .input('sak', sql.NVarChar(36), randomUUID())
+                .input('prosjekt', sql.NVarChar(100), o.a.id)
+                .input('oppretter', sql.NVarChar(36), oppretter)
+                .query(
+                  `INSERT koe.sak_metadata (sak_id, prosjekt_id, sakstype, created_by)
+                   VALUES (@sak, @prosjekt, N'standard', @oppretter)`
+                ),
+            { foerCommit: async () => Promise.reject(new Tilbakerull()) }
           )
-        );
+        ).catch((e: unknown) => (e instanceof Tilbakerull ? 'lagret' : Promise.reject(e)));
       expect(await sett(o.brukere.te.id)).toBe(33504);
       expect(await sett(o.brukere.bh.id.toUpperCase())).toBe(547);
-      expect(await sett(o.brukere.bh.id)).toBeUndefined();
+      expect(await sett(o.brukere.bh.id)).toBe('lagret');
     });
 
     it('kommandoene kjøres bare inne i en transaksjon', async () => {
@@ -443,6 +478,8 @@ describe.skipIf(!AKTIV)('tilgang i T-SQL', () => {
 
     it('journalen er uendret etter forsøkene', async () => {
       expect(await iProsjekt(te, o.a.id)).toBe(foer);
+      // Uavhengig av øyeblikksbildet: sakene i oppsettet og den ene raden kontrollsaken for BH skrev.
+      expect(foer).toBe(iA() + 1);
     });
   });
 
@@ -465,7 +502,8 @@ describe.skipIf(!AKTIV)('tilgang i T-SQL', () => {
           .execute('koe_api.slett_notat');
         return r.output.slettet as boolean;
       });
-    const notater = (k: Kontekst) => tell(o.runtime, k, 'koe.notat');
+    const notater = (k: Kontekst) =>
+      tell(o.runtime, k, 'koe.notat', 'sak_id = @s', { s: sakA.sakId });
 
     beforeAll(async () => {
       notat = await skrivNotat(te, sakA.sakId);
