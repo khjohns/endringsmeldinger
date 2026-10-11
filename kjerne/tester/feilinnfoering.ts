@@ -25,7 +25,7 @@
  * kode 2 før noen mutasjon (#353).
  */
 
-import { spawn, spawnSync } from 'node:child_process';
+import { type ChildProcess, spawn, spawnSync } from 'node:child_process';
 import {
   cpSync,
   existsSync,
@@ -724,10 +724,15 @@ function kjoerVitest(k: Arbeidskopi): Promise<Rapport> {
         '--reporter=json',
         `--outputFile=${ut}`,
       ],
-      { cwd: k.rot, env, stdio: 'ignore' }
+      // Egen prosessgruppe, så et avbrudd kan stoppe Vitest og arbeiderne den har startet.
+      { cwd: k.rot, env, stdio: 'ignore', detached: true }
     )
+      .on('spawn', function (this: ChildProcess) {
+        grupper.add(this.pid!);
+      })
       .on('error', feil)
-      .on('close', () => {
+      .on('close', function (this: ChildProcess) {
+        grupper.delete(this.pid!);
         try {
           ok(JSON.parse(readFileSync(ut, 'utf8')) as Rapport);
         } catch (e) {
@@ -754,7 +759,15 @@ function baseUrl(navn: string): string {
 const ekstraBaser: string[] = [];
 let tempmappe: string | undefined;
 
+const grupper = new Set<number>();
+
 function rydd() {
+  for (const g of grupper)
+    try {
+      process.kill(-g, 'SIGKILL');
+    } catch {
+      // Gruppen er alt borte.
+    }
   for (const navn of ekstraBaser.splice(0))
     psql(TESTBASE!, `DROP DATABASE IF EXISTS "${navn}" WITH (FORCE)`);
   if (tempmappe) rmSync(tempmappe, { recursive: true, force: true });
