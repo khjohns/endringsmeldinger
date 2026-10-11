@@ -119,7 +119,7 @@ export const innsigelsenGjelderSvaret = (
 ): boolean => gjelder === svar.gjelder || (svar.spor === 'frist' && varsler.includes(gjelder));
 
 /**
- * VS-U9, VS-U11, HF-U1: parten har gitt opp innsigelsen som kunne lese `svar`, når
+ * VS-U9, VS-U11, HF-U1: parten har gitt opp innsigelsen som kunne lese et svar i `spor`, når
  * partens siste standpunkt om rettidigheten etter innsigelsen er at det kom i tide.
  * `etter` er partens svar etter innsigelsen, i rekkefølgen de ble sendt. I grunnlaget
  * teller standpunktet om kravet innsigelsen gjelder. I fristen leses innsigelsen som en
@@ -128,13 +128,13 @@ export const innsigelsenGjelderSvaret = (
  */
 export function innsigelsenErOppgitt(
   gjelder: string,
-  svar: Pick<Svar, 'spor'>,
+  spor: Spor,
   etter: Pick<Svar, 'spor' | 'standpunkter'>[]
 ): boolean {
   const siste = etter
-    .filter((x) => x.spor === svar.spor)
+    .filter((x) => x.spor === spor)
     .flatMap((x) => x.standpunkter)
-    .filter((p) => p.art === 'rettidighet' && (svar.spor === 'frist' || p.gjelder === gjelder))
+    .filter((p) => p.art === 'rettidighet' && (spor === 'frist' || p.gjelder === gjelder))
     .at(-1);
   return siste?.art === 'rettidighet' && siste.iTide;
 }

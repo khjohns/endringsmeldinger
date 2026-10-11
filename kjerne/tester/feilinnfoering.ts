@@ -5,7 +5,7 @@
  * i designnotatet, GR-U12 og registeret (#320). F48 er hvitelisten fra #329,
  * F49–F51 og F54–F58 versjoneringen (#316), F52–F53 registrert korrespondanse
  * (#336), F59–F60 kodene i formatet og predikatet for endringsordre
- * (#335, #351), og F61–F98 byggedel 1 av #309. Én mutasjon om gangen per arbeidskopi, Vitest over hele `kjerne/`
+ * (#335, #351), og F61–F103 byggedel 1 av #309. Én mutasjon om gangen per arbeidskopi, Vitest over hele `kjerne/`
  * og `sprakprove/kjernelagring/`, og originalteksten settes tilbake etterpå. For
  * hver mutasjon kreves det at de forventede målassertions feiler, og at alle
  * feil er assertions, ikke import, oppsett eller en brutt forutsetning
@@ -957,7 +957,7 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/kommandoer/skriving.ts`,
     endringer: [
       [
-        ' &&\n        !innsigelsenErOppgitt(i.gjelder, s as { spor: Spor }, svarFraParten.slice(i.fra))',
+        ' &&\n        !innsigelsenErOppgitt(i.gjelder, s.spor as Spor, svarFraParten.slice(i.fra))',
         '',
       ],
     ],
@@ -1028,8 +1028,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        "        ...(s.spor === 'frist' && innsigelse && innsigelse.gjelder !== varselNaa(s)",
-        "        ...(s.spor === 'frist' && innsigelse && !innsigelse",
+        '        innsigelse.gjelder !== varselNaa(s) &&\n        !harTattStillingTilVarselet(s)',
+        '        !innsigelse &&\n        !harTattStillingTilVarselet(s)',
       ],
     ],
     mal: ['F-MM-V8'],
@@ -1060,8 +1060,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/kommandoer/forutsetninger.ts`,
     endringer: [
       [
-        "          u.spor.grunnlag.merket.includes(u.spor.grunnlag.gjeldendeSvar?.dokument ?? '')",
-        '          false',
+        "        return u.endringsordre === 'ikke_avklart' || godkjenningenErMerket(u)",
+        "        return u.endringsordre === 'ikke_avklart'",
       ],
     ],
     mal: ['F-MM-M5', 'F-MM-T2'],
@@ -1096,11 +1096,11 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F97',
     feilklasse:
       'en merking av et annet brev i grunnlaget gjør godkjenningen fra appen uavklart ved trekk (KA-U26, KA-U13)',
-    fil: `${K}/kommandoer/forutsetninger.ts`,
+    fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        "          u.spor.grunnlag.merket.includes(u.spor.grunnlag.gjeldendeSvar?.dokument ?? '')",
-        '          u.spor.grunnlag.forbehold',
+        '  u.spor.grunnlag.merket.includes(u.spor.grunnlag.gjeldendeSvar.dokument);',
+        '  u.spor.grunnlag.forbehold;',
       ],
     ],
     mal: ['F-MM-T3'],
@@ -1110,8 +1110,57 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'i fristen ser oppgivelsen bare etter standpunkter om det innsigelsen gjelder, ikke om varselet (VS-U9, VS-U11)',
     fil: `${K}/frosset/standpunkt.ts`,
-    endringer: [["(svar.spor === 'frist' || p.gjelder === gjelder)", '(p.gjelder === gjelder)']],
+    endringer: [["(spor === 'frist' || p.gjelder === gjelder)", '(p.gjelder === gjelder)']],
     mal: ['F-MM-V7b'],
+  },
+  {
+    id: 'F99',
+    feilklasse:
+      'innsigelsen et fristsvar er lest med, er uavklart selv om byggherren har tatt stilling til det registrerte varselet (MM-U1, MM-U8)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [['        !harTattStillingTilVarselet(s)', '        !!s']],
+    mal: ['F-MM-V8b', 'F-MM-V8c'],
+  },
+  {
+    id: 'F100',
+    feilklasse:
+      'i grunnlaget gir et standpunkt om en annen kravversjon opp innsigelsen (VS-U9, VS-U11)',
+    fil: `${K}/frosset/standpunkt.ts`,
+    endringer: [["(spor === 'frist' || p.gjelder === gjelder)", '(true)']],
+    mal: ['F-MM-V7c'],
+  },
+  {
+    id: 'F101',
+    feilklasse: 'et standpunkt i et annet spor gir opp innsigelsen (VS-U9, VS-U11)',
+    fil: `${K}/frosset/standpunkt.ts`,
+    endringer: [['    .filter((x) => x.spor === spor)', '    .filter((x) => x.spor === x.spor)']],
+    mal: ['F-MM-V7d'],
+  },
+  {
+    id: 'F102',
+    feilklasse:
+      'et registrert svar på vederlaget etter en innsigelse leses som om innsigelsen er oppgitt (VS-U9, OV-U1)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        "      s.spor === 'vederlag' &&\n      henvisninger.some(",
+        '      !s &&\n      henvisninger.some(',
+      ],
+    ],
+    mal: ['F-MM-V3c'],
+  },
+  {
+    id: 'F103',
+    feilklasse:
+      'en registrert aksept av et svar partene alt er enige om, stopper saken (MM-U19, GR-U8, KA-U7)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        '      SPOR.some((n) => u.spor[n].enighet && u.spor[n].gjeldendeSvar?.id === x.gjelder)',
+        '      !x',
+      ],
+    ],
+    mal: ['F-MM-U326l', 'F-MM-U326m'],
   },
 ];
 
