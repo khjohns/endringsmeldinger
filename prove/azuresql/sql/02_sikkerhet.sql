@@ -9,7 +9,8 @@
 --
 -- Predikatene står hver for seg, uten å kalle hverandre, så en
 -- feilinnføring kan bytte ut én av dem før sikkerhetspolicyene bindes
--- (04_tilgang.sql).
+-- (04_tilgang.sql). En feilinnføring i policyen selv kjøres etter, som
+-- `*.etter.sql`.
 
 CREATE FUNCTION koe_sikkerhet.medlem(@prosjekt_id nvarchar(100))
 RETURNS TABLE WITH SCHEMABINDING AS RETURN

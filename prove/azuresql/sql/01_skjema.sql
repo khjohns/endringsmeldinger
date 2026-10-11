@@ -62,6 +62,7 @@ CREATE TABLE koe.sak_metadata (
   sakstype nvarchar(40) NOT NULL,
   created_by nvarchar(36) NOT NULL,
   created_at datetimeoffset(3) NOT NULL CONSTRAINT sak_metadata_created_at DEFAULT SYSDATETIMEOFFSET(),
+  CONSTRAINT sak_metadata_created_by_form CHECK (created_by = LOWER(created_by)),
   CONSTRAINT sak_metadata_sak_prosjekt UNIQUE (sak_id, prosjekt_id)
 );
 
