@@ -24,7 +24,7 @@ hovedplanen, gjelder hovedplanen.
 
 **Grunnlag.** Kartlagt 10.10 på `7460838`. Kjernens tilstand er lest i koden
 (L), ikke kjørt, og `kjerne/` er uendret fram til `915ab32`. Utdragene er fra
-NS 8407:2011. Vedtakene er lest i 3.1 på `915ab32`, med vedtakene fra runde 3. Vedtakene 11.10 (VS-U13, VS-U14, KA-U23 og KA-U24) er ført inn i radene de gjelder på `d7f0740`. Begrepene utsagn, standpunkt, relasjon og predikat står i
+NS 8407:2011. Vedtakene er lest i 3.1 på `915ab32`, med vedtakene fra runde 3. Vedtakene 11.10 (VS-U13, VS-U14, KA-U23 og KA-U24) er ført inn i radene de gjelder samme dag. Begrepene utsagn, standpunkt, relasjon og predikat står i
 [modellforslaget, 2.2](forslag-maalmodell-2026-10-09.md#22-byggeklossene) og i
 [domenetabellen](domenetabell/README.md). Navnene i formatet står i
 [designnotatet, 4.5](design-hendelsesformat-2026-10-09.md#45-navn-fra-kontrakten).
@@ -55,19 +55,22 @@ Sier et prinsipp noe annet enn vedtakene, gjelder vedtakene.
 1. **Et brev og en enighet betyr det de sa da.** Avsenderen er bundet av det
    hen sendte. En senere avklaring er et nytt utsagn, og appens vurdering er
    ikke en rettslig avgjørelse. *Vedtak:* [MM-U3](plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u3), [MM-U9](plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u9), [MM-U12](plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u12), [MM-U17](plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u17), [KA-U10](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u10), [OV-U2](plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u2).
-2. **Appen utleder bare det et vedtak sier.** Ellers registreres og vises
-   utsagnet med bestemmelsen, og appen avgjør ikke det kontrakten overlater
-   til partene. At en bestemmelse har samme virkning som en bestemmelse
-   VS-U3 nevner, er et utgangspunkt for anbefalingen, ikke hjemmel.
+2. **Appen utleder bare der et vedtak sier det.** Den avgjør ikke det
+   kontrakten overlater til partene. Hvordan en bestemmelse VS-U3 ikke
+   nevner, behandles, avgjøres med vedtak. At den har samme virkning som en
+   bestemmelse VS-U3 nevner, er et utgangspunkt for anbefalingen.
    *Vedtak:* [VS-U2](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u2), [VS-U3](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u3), [VS-U10](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u10), [MM-U12](plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u12), [FO-U1](plans/2026-09-16-godkjenning-og-varig-levering.md#fo-u1), [FO-U3](plans/2026-09-16-godkjenning-og-varig-levering.md#fo-u3).
 3. **Hvert utsagn viser til det det gjelder.** Reglene følger henvisningene,
-   aldri rekkefølgen i journalen eller en status. Taushet er ikke et
-   standpunkt. *Vedtak:* [HF-U1](plans/2026-09-16-godkjenning-og-varig-levering.md#hf-u1), [KA-U1](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u1), [KT-U1](plans/2026-09-16-godkjenning-og-varig-levering.md#kt-u1), [MM-U10](plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u10), [MM-U13](plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u13).
+   aldri rekkefølgen i journalen eller en status. En vurdering parten ikke
+   har gjort, er ikke et standpunkt. Om tausheten likevel får virkning,
+   følger av VS-U2, og hvordan et registrert svar som tier, leses, følger av
+   VS-U11. *Vedtak:* [HF-U1](plans/2026-09-16-godkjenning-og-varig-levering.md#hf-u1), [KA-U1](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u1), [KT-U1](plans/2026-09-16-godkjenning-og-varig-levering.md#kt-u1), [MM-U10](plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u10), [MM-U13](plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u13), [VS-U2](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u2), [VS-U11](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u11).
 4. **Hele brevet er autoritativt, men appen beregner av valgene.** Appen
    tolker ikke utdypningen. *Vedtak:* B-03, [KA-U16](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u16), [KA-U19](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u19).
 5. **En enighet binder begge.** Et trekk eller et avkall gir bare fra seg
-   egne rettigheter. Kan appen ikke gjennomføre det uten å røre en enighet
-   eller motpartens rett, sperres det. *Vedtak:* [KA-U6](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u6), [KA-U7](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u7), [KA-U13](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u13), [KA-U14](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u14), [KA-U17](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u17), [KA-U22](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u22), [GR-U7](plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u7), [GR-U8](plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u8), [GR-U10](plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u10).
+   egne rettigheter, også i et spor med enighet. Kan appen ikke gjennomføre
+   det uten å gi det videre virkninger, for eksempel for motpartens
+   rettigheter etter en avtale, sperres det. *Vedtak:* [KA-U6](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u6), [KA-U7](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u7), [KA-U13](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u13), [KA-U14](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u14), [KA-U17](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u17), [KA-U22](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u22), [GR-U7](plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u7), [GR-U8](plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u8), [GR-U10](plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u10).
 6. **Det appen ennå ikke kan, avvises, og det den ikke kan uttrykke,
    bevares.** Sperren følger den avhengigheten som er uttrykt: valgene i et
    brev fra appen og merkingen av et registrert brev. *Vedtak:* [MM-U2](plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u2), [KA-U16](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u16), [KA-U19](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u19), [KA-U20](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u20), [OV-U1](plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u1), [OV-U2](plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u2).
@@ -76,8 +79,9 @@ Sier et prinsipp noe annet enn vedtakene, gjelder vedtakene.
    *Vedtak:* [EO-U4](plans/2026-09-16-godkjenning-og-varig-levering.md#eo-u4), [EO-U8](plans/2026-09-16-godkjenning-og-varig-levering.md#eo-u8), [EO-U9](plans/2026-09-16-godkjenning-og-varig-levering.md#eo-u9).
 8. **Formen kan være strengere enn kontrakten, innholdet ikke.** Et brev fra
    appen kan måtte ha mer enn kontrakten krever, som en begrunnelse eller en
-   fast tekst. Det skjemaet ikke tillater, sendes utenfor appen og
-   registreres. Et strengere formkrav krever vedtak. *Vedtak:* [KA-U18](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u18), [KA-U21](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u21), [KA-U22](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u22), [KA-U24](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u24), [GR-U13](plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u13), [VS-U5](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u5).
+   fast tekst. Det skjemaet ikke tillater, kan sendes utenfor appen, og hva
+   som da registreres, følger KA-U16, KA-U19 og OV-U2. Et strengere
+   formkrav krever vedtak. *Vedtak:* [KA-U18](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u18), [KA-U21](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u21), [KA-U22](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u22), [KA-U24](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u24), [GR-U13](plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u13), [VS-U5](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u5), [KA-U19](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u19), [OV-U2](plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u2).
 
 ## Status for kjernen
 
@@ -309,11 +313,12 @@ endringsordre og forsering, etter [OV-U1](plans/2026-09-16-godkjenning-og-varig-
   (femte ledd).
 - **Appen:** *utlede* for første og tredje ledd ([VS-U13](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u13)).
   *Registrere og vise* femte ledd som veiledning ([KA-U23](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u23)).
+  Annet og fjerde ledd er ikke plassert ([#381](https://github.com/khjohns/endringsmeldinger/issues/381)).
 - **Vedtak:** [VS-U13](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u13). [KA-U23](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u23).
   [KA-U24](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u24): begrunnelse også for et avslag av grunnlaget.
   [KA-U13](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u13): trekket står i FORCE_MAJEURE.
   [GR-U11](plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u11): § 32.2 gjelder ikke.
-- **Kjernen i dag:** ikke bygget. Hovedkategorien er en lukket liste
+- **Kjernen i dag:** ikke bygget (lest på `d7f0740`). Hovedkategorien er en lukket liste
   (`KATEGORIER` i [`koder.ts`](../kjerne/format/koder.ts)), men formatet krever
   en underkategori, og force majeure har ingen. Et grunnlagskrav i force
   majeure kan derfor ikke uttrykkes
