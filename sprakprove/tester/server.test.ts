@@ -498,8 +498,8 @@ describe.skipIf(!TESTBASE_URL)('TS-serveren mot testbasen', () => {
           error: 'BUSINESS_RULE_VIOLATION',
           rule: 'RULE_VERSION',
         });
+        expect(await journal(bane.sakId)).toEqual(for_);
       }
-      expect(await journal(bane.sakId)).toEqual(for_);
       expect((await send(o.bh, svar(REGELVERSJON))).status).toBe(201);
     });
   });
