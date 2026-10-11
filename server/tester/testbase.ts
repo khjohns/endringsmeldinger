@@ -46,13 +46,13 @@ export interface Oppsett {
 
 async function prosjekt(pool: pg.Pool, navn: string): Promise<Testprosjekt> {
   const p: Testprosjekt = {
-    id: `p-sprakprove-${navn}-${randomUUID().slice(0, 8)}`,
+    id: `p-test-${navn}-${randomUUID().slice(0, 8)}`,
     catendaProsjekt: randomUUID(),
     teTeam: randomUUID(),
     bhTeam: randomUUID(),
   };
   await pool.query(
-    "INSERT INTO projects (id, name, organisasjon_id) VALUES ($1, 'Språkprøven', 'org-sprakprove')",
+    "INSERT INTO projects (id, name, organisasjon_id) VALUES ($1, 'Testmiljøet', 'org-test')",
     [p.id]
   );
   await pool.query(
@@ -79,7 +79,7 @@ async function bruker(pool: pg.Pool, prosjektId: string, navn: string): Promise<
   };
   await pool.query('INSERT INTO app_users (id, email, name) VALUES ($1, $2, $3)', [
     b.id,
-    `${navn}@sprakprove.example`,
+    `${navn}@test.example`,
     navn,
   ]);
   await pool.query(
@@ -131,7 +131,7 @@ export async function rydd(o: Oppsett): Promise<void> {
 
 /**
  * En KOE-sak med `sak_opprettet` i kjernens format. Kjernen har ingen kommando
- * for opprettelsen ennå (#ISSUE-OPPRETTELSE); radene er de
+ * for opprettelsen ennå (#370); radene er de
  * `sprakprove/kjernelagring/bane.ts` skriver.
  */
 export async function opprettKjernesak(o: Oppsett, prosjekt = o.prosjekt): Promise<string> {

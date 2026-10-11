@@ -56,7 +56,7 @@ Journalen. Én rad per formell hendelse i en sak: varsel, krav, svar, endringsor
 
 ### `leveringsoppdrag`
 
-Leveringsoppdraget for et brev TS-serveren skriver (LV-U1, B-03, dokumentet). Én rad per brev, og ett brev er ett dokument i Catenda. `innhold` fryser det som skal leveres: brevet slik det ble lagret, målet i Catenda, statusetiketten og versjonene. Raden er uforanderlig; et nytt leveringsforsøk sender samme innhold. Et lagret oppdrag beviser ikke at brevet er sendt eller mottatt. Forsøk, feil og kvitteringer er ikke bygget (#ISSUE-LEVERING). Bare testmiljøet skriver tabellen (#347).
+Leveringsoppdraget for et brev TS-serveren skriver (LV-U1, B-03, dokumentet). Én rad per brev, og ett brev er ett dokument i Catenda. `innhold` fryser det som skal leveres: brevet slik det ble lagret, målet i Catenda, statusetiketten og versjonene. Raden er uforanderlig; et nytt leveringsforsøk sender samme innhold. Et lagret oppdrag beviser ikke at brevet er sendt eller mottatt. Forsøk, feil og kvitteringer er ikke bygget (#371). Bare testmiljøet skriver tabellen (#347).
 
 | Felt | Innhold |
 | --- | --- |

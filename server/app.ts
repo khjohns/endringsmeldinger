@@ -8,8 +8,8 @@
  * behandleren kalles, så en behandler ikke kan glemme dem. Testen i
  * `tester/register.test.ts` prøver hver inngang i registeret over HTTP.
  *
- * Saker opprettes ikke her (#ISSUE-OPPRETTELSE). Catenda kalles ikke;
- * leveringen stopper ved det frosne oppdraget (#ISSUE-LEVERING).
+ * Saker opprettes ikke her (#370). Catenda kalles ikke;
+ * leveringen stopper ved det frosne oppdraget (#371).
  */
 
 import { randomUUID } from 'node:crypto';
