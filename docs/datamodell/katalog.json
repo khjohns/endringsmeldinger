@@ -480,6 +480,7 @@
    ["catenda_project_configs", "set_catenda_project_configs_updated_at", "set_catenda_project_registry_updated_at"],
    ["catenda_topic_board_configs", "set_catenda_topic_board_configs_updated_at", "set_catenda_project_registry_updated_at"],
    ["leveringsoppdrag", "leveringsoppdrag_vakt", "leveringsoppdrag_vakt"],
+   ["leveringsoppdrag", "leveringsoppdrag_vakt_truncate", "leveringsoppdrag_vakt"],
    ["project_memberships", "update_project_memberships_updated_at", "update_pm_updated_at"],
    ["projects", "trg_auto_membership_on_project_create", "auto_create_project_membership"],
    ["user_groups", "update_user_groups_updated_at", "update_updated_at_column"]

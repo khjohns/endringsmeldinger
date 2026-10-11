@@ -14,7 +14,12 @@
 -- - `prosjekt_id` har ingen standardverdi. Triggeren avviser et oppdrag der
 --   saken eller prosjektet ikke er hendelsens, så oppdraget ikke kan føres til
 --   et annet prosjekt enn brevet.
--- - Radene slettes bare med saken eller hendelsen (kaskade).
+-- - Radene slettes bare med saken eller hendelsen (kaskade). Plattformen gir
+--   service_role alle rettigheter på nye tabeller (scripts/testbase/plattformstubb.sql,
+--   Supabase likt), så rettighetene tilbakekalles uttrykkelig. Triggeren stopper i
+--   tillegg UPDATE, en DELETE som ikke kommer fra kaskaden og TRUNCATE, også for
+--   eieren. Kaskaden kjører triggeren fra fremmednøkkelens egen trigger, altså på
+--   dybde 2 eller mer.
 
 CREATE TABLE IF NOT EXISTS public.leveringsoppdrag (
     id UUID PRIMARY KEY,
@@ -41,9 +46,12 @@ LANGUAGE plpgsql
 SET search_path = ''
 AS $$
 BEGIN
-    IF TG_OP = 'UPDATE' THEN
+    IF TG_OP IN ('UPDATE', 'TRUNCATE') OR (TG_OP = 'DELETE' AND pg_trigger_depth() < 2) THEN
         RAISE EXCEPTION 'leveringsoppdrag er uforanderlig (LV-U1)'
             USING ERRCODE = 'check_violation';
+    END IF;
+    IF TG_OP = 'DELETE' THEN
+        RETURN OLD;
     END IF;
     IF NOT EXISTS (
         SELECT 1 FROM public.hendelse h
@@ -60,8 +68,13 @@ $$;
 
 DROP TRIGGER IF EXISTS leveringsoppdrag_vakt ON public.leveringsoppdrag;
 CREATE TRIGGER leveringsoppdrag_vakt
-    BEFORE INSERT OR UPDATE ON public.leveringsoppdrag
+    BEFORE INSERT OR UPDATE OR DELETE ON public.leveringsoppdrag
     FOR EACH ROW EXECUTE FUNCTION public.leveringsoppdrag_vakt();
+
+DROP TRIGGER IF EXISTS leveringsoppdrag_vakt_truncate ON public.leveringsoppdrag;
+CREATE TRIGGER leveringsoppdrag_vakt_truncate
+    BEFORE TRUNCATE ON public.leveringsoppdrag
+    FOR EACH STATEMENT EXECUTE FUNCTION public.leveringsoppdrag_vakt();
 
 ALTER TABLE public.leveringsoppdrag ENABLE ROW LEVEL SECURITY;
 
@@ -71,6 +84,7 @@ CREATE POLICY "Service role full access on leveringsoppdrag"
     USING (true) WITH CHECK (true);
 
 -- Lese og skrive, ikke endre. Slettingen skjer med saken eller hendelsen.
+REVOKE ALL ON public.leveringsoppdrag FROM service_role;
 GRANT SELECT, INSERT, REFERENCES ON public.leveringsoppdrag TO service_role;
 
 REVOKE ALL ON public.leveringsoppdrag FROM anon, authenticated;
