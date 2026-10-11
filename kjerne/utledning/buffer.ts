@@ -5,9 +5,9 @@
  * nyere enn kjernen som leser det (#304).
  */
 
-import { utledJournal } from './skriving.ts';
-import type { Journalrad } from './typer.ts';
-import type { Kjerne } from './versjon.ts';
+import { utledJournal } from '../kommandoer/skriving.ts';
+import type { Journalrad } from '../typer.ts';
+import type { Kjerne } from '../versjon.ts';
 import { visning, type Visning } from './visning.ts';
 
 export interface Bufferversjon {

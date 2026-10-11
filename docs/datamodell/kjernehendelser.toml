@@ -2,7 +2,7 @@
 #
 # Rett her, ikke i kjernehendelser.md. Den lages av
 #   /tmp/venv/bin/python docs/verktoy/datamodell.py
-# Formen er skjemaene i kjerne/format.ts. Vakttesten
+# Formen er skjemaene i kjerne/format/format.ts. Vakttesten
 # kjerne/tester/register.test.ts feiler når en type, et spor, en art eller et
 # felt står ett sted og ikke det andre. backend/tests/test_datamodell/ prøver
 # formen på registeret og at markdown er generert.
@@ -43,7 +43,7 @@ spor = "grunnlag"
 beskrivelse = """
 En kravversjon av ansvarsgrunnlaget. `erstatter` er forrige kravversjon i sporet.
 `hovedkategori` og `underkategori` er et par fra kjernens lukkede liste
-(`KATEGORIER` i `kjerne/koder.ts`), for eksempel `endring` og
+(`KATEGORIER` i `kjerne/format/koder.ts`), for eksempel `endring` og
 `irregulaer_endring`. Et ukjent par gjør raden ikke forstått."""
 felt = ["id", "spor", "erstatter", "hovedkategori", "underkategori", "tittel", "beskrivelse"]
 grunnlag = "KA-U2, designnotatet 4.2"

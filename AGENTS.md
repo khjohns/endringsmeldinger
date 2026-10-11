@@ -94,8 +94,9 @@ samme modul regner ut og returnerer; grensene står i modulheaderen i testen. Et
 nytt felt reglene leser, klassifiseres der. Kjente avvik står i en lukket
 liste med issuet som fjerner dem. Regelsettet står i `kjerne/regler/`; endres det, økes
 `REGELVERSJON` der. Endres resten av kjernen, økes `PROJEKSJONSVERSJON` i
-`kjerne/versjon.ts`. `kjerne/standpunkt.ts` bestemmer hva beslutningsgrunnlaget
-fryser, så endres den, økes begge. Regelversjonsvakten i CI krever det. Lagringstestene mot
+`kjerne/versjon.ts`. `kjerne/frosset/` bestemmer hva beslutningsgrunnlaget fryser, så
+endres en fil der, økes begge. Regelversjonsvakten i CI krever det, men ikke for en
+flytting som bare endrer importstiene. Lagringstestene mot
 testbasen står i `sprakprove/kjernelagring/`. `sprakprove/` er prøvekode og ikke
 en mal. Python-koden
 for de tre sakstypene er overgangskode og rettes bare for sikkerhet og det som

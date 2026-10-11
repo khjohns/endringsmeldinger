@@ -17,8 +17,8 @@
 
 import type { PoolClient } from 'pg';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { byggPaaNytt, lesSak, type Bufferlager } from '../../kjerne/buffer.ts';
-import { utledJournal } from '../../kjerne/skriving.ts';
+import { byggPaaNytt, lesSak, type Bufferlager } from '../../kjerne/utledning/buffer.ts';
+import { utledJournal } from '../../kjerne/kommandoer/skriving.ts';
 import { bygg } from '../../kjerne/tester/baner.ts';
 import { NESTE_REGLER } from '../../kjerne/tester/klient.ts';
 import { VERSJONER } from '../../kjerne/tester/kompatibilitet.ts';

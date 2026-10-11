@@ -7,10 +7,10 @@
  * skrives.
  */
 
-import { DATO, ID, KRAVINNHOLD, liste, objekt } from './format.ts';
-import { erObjekt, feilI, type Skjema } from './skjema.ts';
-import type { Svarvurdering } from './standpunkt.ts';
-import { SPOR as SPORENE, type Spor } from './typer.ts';
+import { DATO, ID, KRAVINNHOLD, liste, objekt } from '../format/format.ts';
+import { erObjekt, feilI, type Skjema } from '../format/skjema.ts';
+import type { Svarvurdering } from '../frosset/standpunkt.ts';
+import { SPOR as SPORENE, type Spor } from '../typer.ts';
 
 export interface Svarutkast {
   spor: Spor;

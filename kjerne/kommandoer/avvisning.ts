@@ -7,9 +7,9 @@
 import { forutsetninger, type Handlingsnoekkel } from './forutsetninger.ts';
 import type { Kommando } from './kommando.ts';
 import { nyttelastkontroll } from './nyttelast.ts';
-import type { Regelsett } from './regler/regelsett.ts';
-import type { Utledning } from './utled.ts';
-import type { Avvisning, Part } from './typer.ts';
+import type { Regelsett } from '../regler/regelsett.ts';
+import type { Utledning } from '../utledning/utled.ts';
+import type { Avvisning, Part } from '../typer.ts';
 
 /** Handlingene kommandoen utfører. Et brev med flere svar er ett svar per spor. */
 export function handlingsnoekler(k: Kommando): Handlingsnoekkel[] {

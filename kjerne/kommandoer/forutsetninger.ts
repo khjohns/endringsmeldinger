@@ -9,8 +9,12 @@
  * avvisningen er de samme per konstruksjon (INV-MM-1).
  */
 
-import { kraveneErAvgjort, trekkAvGrunnlagetErSperret, type Utledning } from './utled.ts';
-import type { Avvisning, Part, Spor } from './typer.ts';
+import {
+  kraveneErAvgjort,
+  trekkAvGrunnlagetErSperret,
+  type Utledning,
+} from '../utledning/utled.ts';
+import type { Avvisning, Part, Spor } from '../typer.ts';
 
 export type Handlingsnoekkel =
   | { type: 'krav' | 'trekke' | 'godta' | 'svare' | 'revidere'; spor: Spor }
