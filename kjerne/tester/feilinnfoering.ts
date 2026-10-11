@@ -5,7 +5,7 @@
  * i designnotatet, GR-U12 og registeret (#320). F48 er hvitelisten fra #329,
  * F49–F51 og F54–F58 versjoneringen (#316), F52–F53 registrert korrespondanse
  * (#336), F59–F60 kodene i formatet og predikatet for endringsordre
- * (#335, #351), F61–F104 byggedel 1 av #309 og F105–F129 brevteksten (#369). Én mutasjon om gangen per arbeidskopi, Vitest over hele `kjerne/`
+ * (#335, #351), F61–F104 byggedel 1 av #309 og F105–F131 brevteksten (#369). Én mutasjon om gangen per arbeidskopi, Vitest over hele `kjerne/`
  * og `sprakprove/kjernelagring/`, og originalteksten settes tilbake etterpå. For
  * hver mutasjon kreves det at de forventede målassertions feiler, og at alle
  * feil er assertions, ikke import, oppsett eller en brutt forutsetning
@@ -1245,7 +1245,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F111',
     feilklasse: 'kontrollen av gjengivelsen ser ikke rekkefølgen (LV-U2)',
     fil: `${K}/frosset/brevtekst.ts`,
-    endringer: [['    fra = plass + normalisert(del).length;', '    fra = 0;']],
+    endringer: [['    fra = plass + del.length;', '    fra = 0;']],
     mal: ['rekkefølgen er byttet'],
   },
   {
@@ -1401,6 +1401,27 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [['    ...(s.erstatter\n', '    ...(false\n']],
     mal: ['en revisjon viser til svaret den erstatter'],
+  },
+  {
+    id: 'F130',
+    feilklasse: 'en begrunnelse med bare mellomrom oppfyller kravet (KA-U31, KA-U33, GR-U15)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [
+      ['  if (k.utdypning?.trim()) return null;', '  if (k.utdypning !== undefined) return null;'],
+    ],
+    mal: ['bare mellomrom teller ikke'],
+  },
+  {
+    id: 'F131',
+    feilklasse: 'en dato som ikke finnes i kalenderen, godtas i kommandoen (LV-U4 punkt 3)',
+    fil: `${K}/format/skjema.ts`,
+    endringer: [
+      [
+        "  if (typeof v !== 'string' || !/^\\d{4}-\\d{2}-\\d{2}$/.test(v)) return false;",
+        '  return true;',
+      ],
+    ],
+    mal: ['en dato som ikke finnes i kalenderen'],
   },
 ];
 

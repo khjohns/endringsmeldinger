@@ -459,12 +459,13 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['kommandoer/nyttelast.ts:kontrollerSvar(server)', 'regelsett', '*'],
   ['Handlingsnoekkel', 'kommando', 'type spor gjelder'],
   ['kommandoer/kommando.ts', 'kommando', 'formfeil'],
-  ['kommandoer/kommando.ts:formfeil', 'kommando', 'type spor innhold svar'],
+  ['kommandoer/kommando.ts:formfeil', 'kommando', 'type spor innhold svar varsel sendt'],
+  ['kommandoer/kommando.ts:formfeil.varsel', 'kommando', 'sendt'],
   ['kommandoer/forutsetninger.ts', 'predikat', 'forutsetninger noekkel avvis'],
   ['kommandoer/nyttelast.ts', 'predikat', 'nyttelastkontroll'],
   ['kommandoer/avvisning.ts', 'predikat', 'avvisning'],
   ['typer.ts', 'relasjon', 'SPOR KRAVSPOR'],
-  ['format/skjema.ts', 'skjema', 'erObjekt feilI tekst'],
+  ['format/skjema.ts', 'skjema', 'erObjekt feilI tekst erKalenderdato'],
   // #373: det basen ikke kan lagre, avvises før kommandoen vurderes.
   ['format/skjema.ts', 'skjema', 'harUlagringsbarTekst', ['kommandoer/skriving.ts:skriv']],
   ['format/skjema.ts.TYPER', 'skjema', '*'],
@@ -648,6 +649,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   // A4: vedleggene står i teksten, og et avsnitt kan gjelde dem.
   ['Dokument', 'utsagn', 'dokumentasjon', ['frosset/brevtekst.ts', 'format/leser.ts']],
   // GR-U14: TEs beskrivelse siteres fra teksten i brevet kravet står i.
+  // Unntaket fra «ingen regel leser teksten»: PAALEGGET_IKKE_BESKREVET leser bare om
+  // utdypningen finnes (A6).
   ['Dokument', 'brevtekst', 'brevtekst', ['frosset/brevtekst.ts']],
   ['Krav', 'relasjon', 'dokument', ['frosset/brevtekst.ts']],
   ['Krav.innhold', 'utsagn', 'tittel endringsordre', ['frosset/brevtekst.ts']],

@@ -347,6 +347,44 @@ describe('kravet til begrunnelse og beskrivelse (KA-U24, KA-U31–KA-U33, GR-U15
     expect(s.avvist('TE', GRUNNLAGSKRAV)).toBeNull();
   });
 
+  it('en beskrivelse eller begrunnelse med bare mellomrom teller ikke (GR-U15, KA-U33)', () => {
+    const s = sak();
+    expect(s.avvist('TE', { ...GRUNNLAGSKRAV, utdypning: ' \n ' })).toBe('BESKRIVELSE_MANGLER');
+    s.send('TE', GRUNNLAGSKRAV);
+    expect(s.avvist('TE', { ...FRISTKRAV, utdypning: '  ' })).toBe('BEGRUNNELSE_MANGLER');
+  });
+
+  it('forhåndsvisningen gir den låste teksten før begrunnelsen er skrevet (A1)', () => {
+    const s = sakMedKrav();
+    const avslag = {
+      type: 'brev',
+      svar: [
+        svar(
+          'grunnlag',
+          s.krav('grunnlag'),
+          { resultat: 'avslaatt', grunnlag_varslet_i_tide: true },
+          {},
+          null
+        ),
+      ],
+    };
+    const vist = forhaandsvis(
+      avslag,
+      {
+        sakId: SAK,
+        aktoerId: 'bh',
+        part: 'BH',
+        teamId: null,
+        tidspunkt: () => new Date(),
+        nyId: randomUUID,
+      },
+      s.journal,
+      KJERNE
+    );
+    expect(vist.godtatt && laastTekst(vist.hendelser[0])).toHaveLength(1);
+    expect(s.avvist('BH', avslag)).toBe('BEGRUNNELSE_MANGLER');
+  });
+
   it('kontrollsak: et grunnlagskrav der § 32.2 ikke gjelder, trenger ingen beskrivelse', () => {
     const s = sak();
     expect(
@@ -1165,6 +1203,21 @@ describe('gjengivelsen er tro mot den frosne teksten (LV-U2)', () => {
 });
 
 describe('formen på tall og datoer', () => {
+  it('beløpet rundes til hele øre som reglene runder (B-13)', () => {
+    expect(kroner(1.005)).toBe('1,01\u00a0kr');
+    expect(kroner(0.004)).toBe('0\u00a0kr');
+  });
+
+  it('en dato som ikke finnes i kalenderen, avvises i kommandoen', () => {
+    const s = sak();
+    s.send('TE', GRUNNLAGSKRAV);
+    for (const sendt of ['02.10.2026', '2026-13-45', 'xxxxxxxxxx'])
+      expect(s.avvist('TE', { ...FRISTKRAV, varsel: { sendt } })).toBe('UGYLDIG_FORM');
+    expect(
+      s.avvist('TE', { type: 'varsel', spor: 'frist', hjemmel: '33.4', sendt: '2026-02-30' })
+    ).toBe('UGYLDIG_FORM');
+  });
+
   it('kroner og datoer i Oslo', () => {
     expect(kroner(125000)).toBe('125 000 kr');
     expect(kroner(1234567.5)).toBe('1 234 567,50 kr');
