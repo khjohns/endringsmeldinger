@@ -2,10 +2,12 @@
 # Se AR-08 i hovedplanen.
 name: CI
 
+# #390: ikke ved push til main, der en PR alt er oppdatert mot main og grønn
+# før merge, og ikke på utkast. Øktene arbeider i utkast med de lokale
+# sjekkene og markerer PR-en klar når de er grønne.
 on:
-  push:
-    branches: [main]
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
 
 permissions:
   contents: read
@@ -17,6 +19,7 @@ concurrency:
 jobs:
   backend:
     name: Backend (pytest + ruff)
+    if: ${{ !github.event.pull_request.draft }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -45,6 +48,7 @@ jobs:
 
   database:
     name: Database (PostgreSQL 17 + migrasjoner)
+    if: ${{ !github.event.pull_request.draft }}
     runs-on: ubuntu-latest
     services:
       postgres:
@@ -113,6 +117,7 @@ jobs:
 
   frontend:
     name: Frontend (vitest)
+    if: ${{ !github.event.pull_request.draft }}
     runs-on: ubuntu-latest
     env:
       # husky hører til utviklermaskinen, ikke til CI.
@@ -132,6 +137,7 @@ jobs:
 
   statisk:
     name: Lint og typesjekk
+    if: ${{ !github.event.pull_request.draft }}
     runs-on: ubuntu-latest
     env:
       HUSKY: 0
