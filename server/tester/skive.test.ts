@@ -198,6 +198,17 @@ describe.skipIf(!TESTBASE_URL)(
       expect(await oppdragene(sakId)).toEqual([]);
     });
 
+    it('tekst basen ikke kan lagre, gir 400 og skriver ingenting', async () => {
+      const sakId = await opprettKjernesak(o);
+      for (const tittel of ['a\u0000b', '\ud800']) {
+        const kommando = { ...GRUNNLAGSKRAV, innhold: { ...GRUNNLAGSKRAV.innhold, tittel } };
+        const svar = await send(sakId, { expected_version: 1, kommando });
+        expect(svar.status, JSON.stringify(tittel)).toBe(400);
+      }
+      expect(await lesJournal(o.pool, sakId, o.prosjekt.id)).toHaveLength(1);
+      expect(await oppdragene(sakId)).toEqual([]);
+    });
+
     it('en kommando kjernen avviser, skriver ingenting', async () => {
       const sakId = await opprettKjernesak(o);
       const svar = await send(sakId, { expected_version: 1, kommando: GRUNNLAGSKRAV }, o.bh);

@@ -30,10 +30,10 @@ import {
   type Prosjekttilgang,
 } from './autorisasjon.ts';
 import {
-  lesJournal,
-  lesOppdrag,
+  lesSaken as lesSakenFraBasen,
   SakFinnesIkke,
   skrivMedOppdrag,
+  UgyldigVerdi,
   Versjonskonflikt,
 } from './lager.ts';
 import { filnavn, lagOppdrag } from './levering.ts';
@@ -117,10 +117,7 @@ async function lesSaken(
   { prosjekt, sakId }: Forespoersel,
   avh: Required<Avhengigheter>
 ): Promise<Svar> {
-  const [journal, oppdrag] = await Promise.all([
-    lesJournal(avh.pool, sakId, prosjekt.prosjektId),
-    lesOppdrag(avh.pool, sakId, prosjekt.prosjektId),
-  ]);
+  const { journal, oppdrag } = await lesSakenFraBasen(avh.pool, sakId, prosjekt.prosjektId);
   if (!journal.length) return finnesIkke();
   return [
     200,
@@ -198,6 +195,7 @@ async function sendKommando(f: Forespoersel, avh: Required<Avhengigheter>): Prom
         },
       ];
     if (feil instanceof SakFinnesIkke) return finnesIkke();
+    if (feil instanceof UgyldigVerdi) return ugyldig(feil.message);
     throw feil;
   }
   if (!utfall.skriv) {
@@ -281,13 +279,9 @@ export function lagServer(avh: Avhengigheter) {
           ? await krevKontraktsrolle(full.pool, full.catenda, prosjekt)
           : null;
       if ('feil' in innhold) throw innhold.feil;
-      const kropp = innhold.verdi;
-      if (typeof kropp !== 'object' || kropp === null || Array.isArray(kropp))
-        return ugyldig('Kroppen må være et objekt.');
-      return r.behandle(
-        { bruker, prosjekt, side, sakId, kropp: kropp as Record<string, unknown> },
-        full
-      );
+      // `krevProsjekttilgang` har avvist en kropp som ikke er et objekt (403).
+      const kropp = innhold.verdi as Record<string, unknown>;
+      return r.behandle({ bruker, prosjekt, side, sakId, kropp }, full);
     }
     return feilsvar(404, 'NOT_FOUND', 'Ukjent rute.');
   }

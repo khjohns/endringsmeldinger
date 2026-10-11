@@ -1,14 +1,17 @@
 /**
  * Start TS-serveren mot den kastbare testbasen (B-18, skiva i #347):
  *
- *   KOE_TESTBASE_URL=… TESTMILJO_TEAMMEDLEMMER='{"<team-id>": ["<subjekt>"]}' \
- *     npm run server -- [port]
+ *   KOE_TESTBASE_URL=… APP_ENV=development \
+ *     TESTMILJO_TEAMMEDLEMMER='{"<team-id>": ["<subjekt>"]}' npm run server -- 8090
  *
  * Serveren lytter på 127.0.0.1 og skriver «lytter på http://127.0.0.1:<port>»
  * når den er klar. Port 0 gir en ledig port.
  *
  * - Den nekter å starte mot en base som ikke er merket kastbar av
  *   `scripts/testbase/bygg_testbase.sh`. Skiva er for testmiljøet.
+ * - `APP_ENV` må være den Python har. Med `development` heter sesjonskapselen
+ *   `koe_session`, ellers `__Host-koe_session`, som krever HTTPS (B18-01).
+ *   Vite-proxyen sender `/api/kjerne` til port 8090.
  * - `TESTMILJO_TEAMMEDLEMMER` står for Catendas team-API. Medlemssynkronisering
  *   mot Catenda er ikke bygget; et medlemskap som ikke er ferskt, gir 503.
  */
@@ -35,6 +38,8 @@ const url = process.env.KOE_TESTBASE_URL;
 if (!url) throw new Error('KOE_TESTBASE_URL er ikke satt');
 
 const pool = await kobleTilKastbarTestbase(url);
+// En ledig forbindelse som brytes, sender `error` på poolen. Uten lytter faller prosessen.
+pool.on('error', (feil) => console.error('Forbindelsen til basen ble brutt:', feil.message));
 
 const server = createServer(lagServer({ pool, catenda: teamFraMiljo() }));
 server.listen(Number(process.argv[2] ?? 0), '127.0.0.1', () => {

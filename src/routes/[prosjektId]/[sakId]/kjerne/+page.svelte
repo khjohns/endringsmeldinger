@@ -51,8 +51,10 @@
       await sendKommando(sakId, sak.versjon, kommando);
       await last();
     } catch (e) {
-      feil = meldingFra(e, 'Kravet ble ikke sendt.');
+      const melding = meldingFra(e, 'Kravet ble ikke sendt.');
+      // Ved konflikt lastes saken på nytt, og meldingen skal stå etterpå.
       if (e instanceof ApiError && e.status === 409) await last();
+      feil = melding;
     } finally {
       sender = false;
     }
