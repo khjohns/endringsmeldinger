@@ -8,7 +8,7 @@
  * ikke at brevet er sendt eller mottatt.
  *
  * Kjernen har ingen brevtekst ennå (#309, `frosset/`). `brevtekst` er `null`
- * til den finnes, og PDF kan ikke gjengis av oppdraget før da (#ISSUE-BREVTEKST).
+ * til den finnes, og PDF kan ikke gjengis av oppdraget før da (#369).
  */
 
 import { createHash } from 'node:crypto';

@@ -5,6 +5,7 @@ paths:
   - "src/**/*.test.ts"
   - "kjerne/**"
   - "sprakprove/**"
+  - "server/**"
   - "docs/domenetabell/**"
   - "docs/vedlegg/**"
 ---

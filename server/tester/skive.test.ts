@@ -14,7 +14,7 @@
 
 import { randomUUID } from 'node:crypto';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { lesJournal, skrivMedOppdrag } from '../lager.ts';
+import { lesJournal, SakFinnesIkke, skrivMedOppdrag } from '../lager.ts';
 import { kanonisk, sjekksum } from '../levering.ts';
 import {
   kall,
@@ -262,6 +262,15 @@ describe.skipIf(!TESTBASE_URL)(
       ).rejects.toThrow();
       expect(await lesJournal(o.pool, sakId, o.prosjekt.id)).toEqual(foer);
       expect(await oppdragene(sakId)).toEqual([]);
+    });
+
+    it('lageret skriver ikke i en sak utenfor prosjektet, selv om kalleren ber om det', async () => {
+      const annenSak = await opprettKjernesak(o, o.annetProsjekt);
+      await expect(
+        skrivMedOppdrag(o.pool, o.prosjekt.id, annenSak, 1, () => {
+          throw new Error('Forutsetning: lageret skal avvise før raden lages');
+        })
+      ).rejects.toBeInstanceOf(SakFinnesIkke);
     });
 
     it('oppdraget kan ikke endres, og ikke føres til et annet prosjekt enn brevet', async () => {
