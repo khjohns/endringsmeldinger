@@ -9,9 +9,9 @@
  * er endret etter enigheten (MM-U3).
  */
 
-import { erRegistrert } from './leser.ts';
-import type { Regelsett } from './regler/regelsett.ts';
-import { ulikeVirkninger, virkninger } from './standpunkt.ts';
+import { erRegistrert } from '../format/leser.ts';
+import type { Regelsett } from '../regler/regelsett.ts';
+import { ulikeVirkninger, virkninger } from '../frosset/standpunkt.ts';
 import {
   enighetensVirkning,
   grunnlagskravFor,
@@ -19,7 +19,7 @@ import {
   venterPaaSvar,
   type Utledning,
 } from './utled.ts';
-import { SPOR, type Spor } from './typer.ts';
+import { SPOR, type Spor } from '../typer.ts';
 
 export type Statuskode =
   | 'kan_ikke_utledes'

@@ -2626,7 +2626,7 @@
     {
       "id": "INV-MM-1",
       "kilde": "forslaget avsnitt 2.6, #304",
-      "tekst": "En handling tilbys hvis og bare hvis forutsetningene for kommandoen holder. Det holder per konstruksjon: handlingene er kandidatene der forutsetningene holder (`kjerne/handlinger.ts`)."
+      "tekst": "En handling tilbys hvis og bare hvis forutsetningene for kommandoen holder. Det holder per konstruksjon: handlingene er kandidatene der forutsetningene holder (`kjerne/kommandoer/handlinger.ts`)."
     },
     {
       "id": "INV-MM-2",

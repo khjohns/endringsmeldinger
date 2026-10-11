@@ -28,8 +28,8 @@ import {
   UTREGNING,
   UTSAGN,
   UTSAGNSARTER,
-} from '../format.ts';
-import type { Skjema } from '../skjema.ts';
+} from '../format/format.ts';
+import type { Skjema } from '../format/skjema.ts';
 import { SPOR } from '../typer.ts';
 
 const REGISTER = resolve(

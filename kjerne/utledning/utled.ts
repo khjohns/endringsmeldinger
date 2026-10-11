@@ -18,16 +18,16 @@
  * ukjent, er saken ikke forstått, og ingenting utledes (MM-U2, 2.7 regel 1).
  */
 
-import { erRegistrert, sammeSlag } from './leser.ts';
-import type { Regelsett } from './regler/regelsett.ts';
-import type { Subsidiaergrunn } from './regler/grunnlag.ts';
+import { erRegistrert, sammeSlag } from '../format/leser.ts';
+import type { Regelsett } from '../regler/regelsett.ts';
+import type { Subsidiaergrunn } from '../regler/grunnlag.ts';
 import {
   blirEndringsordre,
   enighetsgrunnlag,
   grunnlagetErAvklart,
   prinsipalt,
   standpunktet,
-} from './standpunkt.ts';
+} from '../frosset/standpunkt.ts';
 import {
   KRAVSPOR,
   SPOR,
@@ -41,7 +41,7 @@ import {
   type Standpunktsvirkning,
   type Svar,
   type Utsagn,
-} from './typer.ts';
+} from '../typer.ts';
 
 export interface Svarberegning {
   svar: Svar;

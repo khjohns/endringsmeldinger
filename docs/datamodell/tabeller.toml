@@ -96,7 +96,7 @@ Opprettes når en sak lages, gjennom `SakCreationService`: fra hendelsesrutene,
 for endringsordrer, og fra en ny topic i Catenda via webhook. Hvordan en
 forseringssak får sin rad, er ikke kontrollert. `cached_*` oppdateres etter
 lagrede hendelser (hendelsesrutene, forsering og godkjenning). `kjerne_*` skrives
-bare av bufferen i TS-kjernen (`kjerne/buffer.ts`, lageret i
+bare av bufferen i TS-kjernen (`kjerne/utledning/buffer.ts`, lageret i
 `sprakprove/kjernelagring/bane.ts` til skrivestien i #310)."""
 fra_catenda = """
 Delvis. `catenda_topic_id`, `catenda_board_id` og `catenda_project_id` er ID-er

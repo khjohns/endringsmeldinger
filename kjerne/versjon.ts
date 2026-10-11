@@ -1,6 +1,6 @@
 /** Versjonene en kjerne har (2.7 i modellforslaget). */
 
-import { FORMAT, LESERFORMAT } from './format.ts';
+import { FORMAT, LESERFORMAT } from './format/format.ts';
 import { GJELDENDE_REGLER, type Regelsett } from './regler/regelsett.ts';
 
 /**

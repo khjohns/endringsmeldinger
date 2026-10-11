@@ -17,9 +17,9 @@ import {
   fraKatalogen,
   kategoriFraKatalogen,
   tilKatalogen,
-} from '../koder.ts';
-import { formfeil } from '../kommando.ts';
-import { lesJournal } from '../leser.ts';
+} from '../format/koder.ts';
+import { formfeil } from '../kommandoer/kommando.ts';
+import { lesJournal } from '../format/leser.ts';
 import { erPaalegg, gyldigeResultater } from '../regler/grunnlag.ts';
 import { GJELDENDE_REGLER } from '../regler/regelsett.ts';
 import {
@@ -30,9 +30,9 @@ import {
   VEDERLAGSRESULTATER,
 } from '../regler/typer.ts';
 import { gjelderVarslingspliktenForVederlag } from '../regler/vederlag.ts';
-import { svaretBlirEndringsordre } from '../frysing.ts';
+import { svaretBlirEndringsordre } from '../frosset/frysing.ts';
 import type { Journalrad } from '../typer.ts';
-import { utled } from '../utled.ts';
+import { utled } from '../utledning/utled.ts';
 import { KJERNE } from '../versjon.ts';
 import { minnebane } from './bane.ts';
 import { bygg } from './baner.ts';
