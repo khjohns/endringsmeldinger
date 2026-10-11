@@ -76,7 +76,8 @@ start_testbase() {
   local container url sum bygget_av
   # Containeren lages på nytt når oppsettet av den (bildet, portene) er endret
   # siden den ble laget; basen i den følger summen under.
-  container="$(sha256sum < "$testbase/docker_testbase.sh" | cut -d' ' -f1)" || return 1
+  container="$(cat "$testbase/docker_testbase.sh" "$rot/scripts/ci/postgres_kilder.sh" \
+    | sha256sum | cut -d' ' -f1)" || return 1
   if ! docker container inspect "$navn" > /dev/null 2>&1 \
     || [ "$(cat "$stempel" 2> /dev/null)" != "$container" ]; then
     "$testbase/docker_testbase.sh" stopp

@@ -14,18 +14,17 @@ if [[ "${KOE_TESTBASE_URL:-}" != "$forventet" ]]; then
 fi
 
 rot="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-bilde="koe-testbase:postgres-17"
 navn="koe-testbase"
 
 # shellcheck source=scripts/ci/postgres_kilder.sh
 source "$rot/scripts/ci/postgres_kilder.sh"
-"$rot/scripts/ci/hent_bilde.sh" "$bilde" "${postgres_kilder[@]}"
+"$rot/scripts/ci/hent_bilde.sh" "$postgres_bilde" "${postgres_kilder[@]}"
 
 docker run --detach --name "$navn" \
   --env POSTGRES_PASSWORD=postgres \
   --env POSTGRES_DB=koe_test \
   --publish 5432:5432 \
-  "$bilde" > /dev/null
+  "$postgres_bilde" > /dev/null
 
 # Bildet starter serveren én gang for initdb og så på nytt; pg_isready over
 # TCP svarer først når den endelige serveren lytter på porten.
