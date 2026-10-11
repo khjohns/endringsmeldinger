@@ -90,17 +90,33 @@ export function virkninger(
  * når rettidigheten har virkning i sporet: § 33.4 i fristen, § 32.2 i grunnlaget
  * der varslingsplikten gjelder (GR-U11).
  */
-export function lesesMedInnsigelse(
+function lesesMedInnsigelse(
   svar: Svarinnhold,
   grunnlagskrav: Krav | null | undefined,
   regler: Regelsett
 ): boolean {
-  if (svar.standpunkter.some((s) => s.art === 'rettidighet')) return false;
+  if (standpunktet(svar, 'rettidighet')) return false;
   return (
     svar.spor === 'frist' ||
     (svar.spor === 'grunnlag' && gjelderVarslingsplikten(grunnlagskrav, regler))
   );
 }
+
+/** VS-U11: innsigelsen et svar er lest med, som står i det frosne brevet og ikke blant standpunktene. */
+export const innsigelsenSvaretErLestMed = (svar: Svar): string | undefined =>
+  svar.beslutningsgrunnlag.virkninger.find(
+    (v) => !svar.standpunkter.some((p) => p.id === v.standpunkt)
+  )?.standpunkt;
+
+/**
+ * VS-U11: en innsigelse kan lese et svar når den gjelder kravet svaret gjelder, eller,
+ * i fristen, et registrert varsel. Frysingen velger og utledningen kontrollerer med den.
+ */
+export const innsigelsenGjelderSvaret = (
+  gjelder: string,
+  svar: Pick<Svar, 'spor' | 'gjelder'>,
+  varsler: string[]
+): boolean => gjelder === svar.gjelder || (svar.spor === 'frist' && varsler.includes(gjelder));
 
 export const prinsipalt = (v: Standpunktsvirkning[]) => v.find((p) => p.virkning === 'prinsipalt');
 /** Et standpunkt som avviser kravet uavhengig av beløpet eller dagene. */

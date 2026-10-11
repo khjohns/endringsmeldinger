@@ -183,10 +183,7 @@ function lesBeslutningsgrunnlag(
     ...(b.virkninger as Data[]).map((p) => p.standpunkt as string),
     ...((b.uten_virkning ?? []) as string[]),
   ].filter((id) => !art.has(id));
-  if (
-    lestMed.length > 1 ||
-    (lestMed.length && (spor === 'vederlag' || art.has('rettidighet' as never)))
-  )
+  if (lestMed.length > 1 || (lestMed.length && spor === 'vederlag'))
     throw new Uforstaatt(`${sti}: virkningen gjelder et standpunkt svaret ikke har`);
   if (lestMed.length && standpunkter.some((s) => s.art === 'rettidighet'))
     throw new Uforstaatt(

@@ -866,14 +866,14 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F78',
     feilklasse: 'en part kan gjøre innsigelse mot sitt eget krav (VS-U1)',
-    fil: `${K}/kommandoer/forutsetninger.ts`,
+    fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        "      return maal && maal.part !== part && ['krav', 'svar', 'varsel'].includes(maal.art)",
-        "      return maal && ['krav', 'svar', 'varsel'].includes(maal.art)",
+        '  maal !== undefined && maal.part !== part && KAN_FAA_INNSIGELSE.has(maal.art);',
+        '  maal !== undefined && KAN_FAA_INNSIGELSE.has(maal.art);',
       ],
     ],
-    mal: ['F-MM-V1'],
+    mal: ['F-MM-V1', 'en innsigelse fra TE mot eget krav'],
   },
   {
     id: 'F79',
@@ -912,11 +912,11 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/kommandoer/forutsetninger.ts`,
     endringer: [
       [
-        "  if ('gjelder' in h) return henvisning(h, part, u);",
-        "  if ('gjelder' in h && !kraveneErAvgjort(u)) return henvisning(h, part, u);",
+        "    case 'innsigelse':\n      // VS-U1, VS-U14",
+        "    case 'innsigelse':\n      if (kraveneErAvgjort(u)) return avvis('KRAVENE_AVGJORT', '');\n      // VS-U1, VS-U14",
       ],
     ],
-    mal: ['F-MM-V5', 'F-MM-M2'],
+    mal: ['F-MM-V5'],
   },
 ];
 

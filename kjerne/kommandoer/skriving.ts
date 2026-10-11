@@ -12,10 +12,10 @@ import { formfeil, type Kommando, type Svarutkast } from './kommando.ts';
 import { frys, grunnlagsstandpunkter } from '../frosset/frysing.ts';
 import { lesJournal, Uforstaatt } from '../format/leser.ts';
 import { harUlagringsbarTekst } from '../format/skjema.ts';
-import { regnUtSvar } from '../frosset/standpunkt.ts';
+import { innsigelsenGjelderSvaret, regnUtSvar } from '../frosset/standpunkt.ts';
 import { grunnlagskravFor, utled, type Utledning } from '../utledning/utled.ts';
 import type { Kjerne } from '../versjon.ts';
-import type { Avvisning, Beslutningsgrunnlag, Journalrad, Krav, Part } from '../typer.ts';
+import type { Avvisning, Beslutningsgrunnlag, Journalrad, Krav, Part, Spor } from '../typer.ts';
 
 /** Det serveren stempler kommandoen med. Klienten bestemmer ingen av dem. */
 export interface Kontekst {
@@ -250,8 +250,8 @@ export function frysBrev(rad: Journalrad, foer: Journalrad[], kjerne: Kjerne): v
     // Kategorien gjelder bare svaret på grunnlaget (§ 32.2, GR-U12).
     const krav = s.spor === 'grunnlag' ? grunnlagskrav.find((k) => k.id === s.gjelder) : null;
     // VS-U11: et registrert svar uten standpunkt om rettidighet leses med innsigelsen.
-    const innsigelse = innsigelser.find(
-      (i) => i.gjelder === s.gjelder || (s.spor === 'frist' && varsler.includes(i.gjelder))
+    const innsigelse = innsigelser.find((i) =>
+      innsigelsenGjelderSvaret(i.gjelder, s as { spor: Spor; gjelder: string }, varsler)
     )?.id;
     s.beslutningsgrunnlag = lagret(frys(s, krav, kjerne.regler, innsigelse));
   }

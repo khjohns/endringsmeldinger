@@ -6,7 +6,7 @@
  */
 
 import { forutsetninger, noekkel, type Handlingsnoekkel } from './forutsetninger.ts';
-import type { Utledning } from '../utledning/utled.ts';
+import { KAN_FAA_INNSIGELSE, type Utledning } from '../utledning/utled.ts';
 import { KRAVSPOR, SPOR, type Part } from '../typer.ts';
 
 /**
@@ -28,8 +28,8 @@ export function kandidater(u: Utledning): Handlingsnoekkel[] {
       ut.push({ type: 'avklare', gjelder: opplysning.id });
   }
   for (const [id, e] of Object.entries(u.elementer)) {
-    if (['krav', 'svar', 'varsel'].includes(e.art)) ut.push({ type: 'innsigelse', gjelder: id });
-    if (e.art === 'innsigelse' || e.forSent) ut.push({ type: 'protest', gjelder: id });
+    if (KAN_FAA_INNSIGELSE.has(e.art)) ut.push({ type: 'innsigelse', gjelder: id });
+    if (e.innsigelse) ut.push({ type: 'protest', gjelder: id });
     if (e.art === 'dokument') ut.push({ type: 'merke', gjelder: id });
   }
   const grunnlag = u.spor.grunnlag.gjeldendeKrav;

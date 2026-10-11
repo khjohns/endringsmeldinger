@@ -271,9 +271,8 @@ describe('et svar er lest med en innsigelse bare når det er en innsigelse mot k
 
 /**
  * KA-U22: sperren for trekk dekker en enighet som bygger på et merket brev. Et
- * avtalt fradrag (KA-U9) kan ikke oppstå så lenge formatet krever beløp over 0.
- * Åpner byggedel 3 for negative beløp, blir denne testen rød, og sperren må
- * dekke fradraget før det.
+ * avtalt fradrag (KA-U9) avvises av formatet fordi KA-U9 ikke er bygget. Bygges
+ * fradraget, blir denne testen rød, og sperren må dekke det i samme endring.
  */
 describe('formatet har ingen negative beløp ennå (KA-U22, KA-U9)', () => {
   it('et krav og en utregning med negativt beløp avvises', () => {
