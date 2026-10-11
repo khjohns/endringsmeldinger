@@ -1193,7 +1193,7 @@
       "tilfelle": "TE trekker grunnlaget etter at byggherren har godkjent vederlaget prinsipalt mens grunnlaget ventet på svar.",
       "forventet": "Vederlag og frist trekkes med, også det godkjente vederlaget, og saken er `LUKKET_TRUKKET`.",
       "bh_standpunkt": "Godkjent vederlag. Grunnlaget er ikke besvart.",
-      "rettslig_virkning": "Ansvarsgrunnlaget bærer kravene. Trekkes det, faller de.",
+      "rettslig_virkning": "Grunnlaget bærer kravene. Trekkes det, faller de.",
       "rettidighet": "—",
       "tidsakse": "registrering",
       "kilder": [
