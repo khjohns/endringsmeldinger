@@ -42,6 +42,9 @@ describe('notices submitted with basis', () => {
     );
     expect(Object.keys(notices)).toEqual(['vederlag']);
     expect(notices.vederlag).toContain('(pkt. 34.1)');
+    // HF-U2: «grunnlaget», ikke «ansvarsgrunnlaget».
+    expect(notices.vederlag).toContain('som beskrevet i grunnlaget.');
+    expect(notices.vederlag).not.toMatch(/ansvar/i);
   });
   it('allows a special notice independently and includes its explanation and basis', () => {
     const notices = buildKonsekvensVarsler(
