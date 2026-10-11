@@ -10,8 +10,8 @@
  */
 
 import { describe, expect, it } from 'vitest';
-import { utledJournal } from '../skriving.ts';
-import type { Utledning } from '../utled.ts';
+import { utledJournal } from '../kommandoer/skriving.ts';
+import type { Utledning } from '../utledning/utled.ts';
 import { SPOR } from '../typer.ts';
 import { minnebane } from './bane.ts';
 import { bygg } from './baner.ts';

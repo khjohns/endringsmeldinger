@@ -84,7 +84,7 @@ def markdown(register: dict) -> str:
         f"_{MERKNAD}_",
         "",
         f"Format {register['format']}. Formen er skjemaene i "
-        "[`kjerne/format.ts`](../../kjerne/format.ts), og designet står i "
+        "[`kjerne/format/format.ts`](../../kjerne/format/format.ts), og designet står i "
         "[designnotatet](../design-hendelsesformat-2026-10-09.md). Pythons hendelsestyper "
         "står i [hendelser.md](hendelser.md).",
         "",

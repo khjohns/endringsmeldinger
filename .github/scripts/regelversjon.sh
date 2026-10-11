@@ -5,15 +5,18 @@
 #    eller backend/regler/, må REGELVERSJON økes i begge speilene.
 # 2. B-14 (merknaden 09.10) og #308: endres regelsettet i kjerne/regler/, må
 #    REGELVERSJON i kjerne/regler/regelsett.ts økes. Det samme gjelder
-#    kjerne/standpunkt.ts, som bestemmer hva beslutningsgrunnlaget fryser
-#    (MM-U11, #330). Den krever også PROJEKSJONSVERSJON, som resten av
-#    kjernen. Finnes kjerne/ uten standpunkt.ts, feiler vakten, så kravet
-#    ikke forsvinner ved en omdøping. Endres resten av
+#    kjerne/frosset/, som bestemmer hva beslutningsgrunnlaget fryser
+#    (MM-U11, #330, #309). Den krever også PROJEKSJONSVERSJON, som resten av
+#    kjernen. Finnes kjerne/ uten frosset/standpunkt.ts, feiler vakten, så
+#    kravet ikke forsvinner ved en omdøping. Endres resten av
 #    TS-koden i kjernen utenom testene, må PROJEKSJONSVERSJON i
 #    kjerne/versjon.ts økes, fordi et bufret resultat ellers kan brukes av en
-#    kjerne som regner annerledes (2.7 i modellforslaget).
+#    kjerne som regner annerledes (2.7 i modellforslaget). En fil der en
+#    flytting bare har endret importstiene, regnes ikke som endret, men en
+#    flytting ut av det en versjon dekker, krever den versjonen (#309).
+#    Omfanget står i .github/scripts/flytting.py.
 # 3. B-10 og #316: et nytt format leses i én versjon før det skrives i den
-#    neste. FORMAT i kjerne/format.ts kan derfor bare økes til LESERFORMAT slik
+#    neste. FORMAT i kjerne/format/format.ts kan derfor bare økes til LESERFORMAT slik
 #    det stod i BASE, LESERFORMAT senkes aldri, og LESERFORMAT er aldri lavere
 #    enn FORMAT. Kontrollen ser på diffen mot BASE, ikke på hva som er rullet
 #    ut; en PR som både leser og skriver et nytt format, feiler.
@@ -73,15 +76,27 @@ versjon=kjerne/versjon.ts
 les_regelversjon() { sed -n 's/^export const REGELVERSJON = \([0-9][0-9]*\);$/\1/p'; }
 les_projeksjon() { sed -n 's/^export const PROJEKSJONSVERSJON = \([0-9][0-9]*\);$/\1/p'; }
 echo
-standpunkt=kjerne/standpunkt.ts
+standpunkt=kjerne/frosset/standpunkt.ts
 if [ -d kjerne ] && [ ! -f "$standpunkt" ]; then
   echo "::error::$standpunkt finnes ikke. Flytt kravet om REGELVERSJON i $0 med funksjonene som bestemmer hva beslutningsgrunnlaget fryser."
   feil=1
 fi
-regler=$(git diff --name-only "$BASE"...HEAD -- ':(glob)kjerne/regler/**/*.ts' \
-  "$standpunkt") || exit 2
+# En fil der bare importstiene er endret av en flytting, regnes ikke som endret
+# (#309). .github/scripts/flytting.py avgjør det og hvilke versjoner hver
+# endring krever.
+fra=$(git merge-base "$BASE" HEAD) || exit 2
+# core.quotePath=false: en sti med æ, ø eller å skrives som den er, ikke i anførselstegn.
+flytting=$(git -c core.quotePath=false diff --name-status -M "$fra" HEAD \
+  -- ':(glob)kjerne/**/*.ts' ":(exclude)kjerne/tester") || exit 2
+krav=$(python3 "$(dirname "$0")/flytting.py" "$fra" <<< "$flytting") || exit 2
+krav_til() { awk -F'\t' -v v="$1" '$1 == v { print $2 }' <<< "$krav"; }
+flyttet=$(krav_til flyttet)
+if [ -n "$flyttet" ]; then
+  echo "Bare flyttet eller med ombundne importstier, uten krav om ny versjon:"; echo "$flyttet"
+fi
+regler=$(krav_til REGELVERSJON)
 if [ -z "$regler" ]; then
-  echo "Ingen endring i kjerne/regler/ eller kjerne/standpunkt.ts."
+  echo "Ingen endring i kjerne/regler/ eller kjerne/frosset/."
 else
   echo "Endret i regelsettet:"; echo "$regler"
   if ! okt "$regelsett" les_regelversjon; then
@@ -89,8 +104,7 @@ else
     feil=1
   fi
 fi
-utledning=$(git diff --name-only "$BASE"...HEAD -- ':(glob)kjerne/**/*.ts' \
-  ":(exclude)kjerne/regler" ":(exclude)kjerne/tester") || exit 2
+utledning=$(krav_til PROJEKSJONSVERSJON)
 if [ -z "$utledning" ]; then
   echo "Ingen endring i kjernen utenom regelsettet og testene."
 else
@@ -102,11 +116,35 @@ else
 fi
 
 # --- 3. Formatet i to trinn ---
-format=kjerne/format.ts
+format=kjerne/format/format.ts
 les_konstant() { sed -n "s/^export const $1 = \([0-9][0-9]*\);\$/\1/p"; }
 echo
+if [ -d kjerne ] && [ ! -f "$format" ]; then
+  echo "::error::$format finnes ikke. Flytt kontrollen av formatet i $0 med konstantene FORMAT og LESERFORMAT."
+  feil=1
+fi
 if [ -f "$format" ]; then
-  for_tekst=$(git show "$BASE:$format" 2>/dev/null)
+  # Er fila flyttet, leses versjonen i BASE fra den gamle stien. Kjenner ikke git
+  # igjen omdøpingen, er det den ene fila i BASE med konstanten.
+  for_sti=$format
+  if ! git cat-file -e "$BASE:$format" 2>/dev/null; then
+    for_sti=$(awk -F'\t' -v ny="$format" '$1 ~ /^R/ && $3 == ny { print $2 }' <<< "$flytting")
+    if [ -z "$for_sti" ]; then
+      kandidater=$(git -c core.quotePath=false grep -l '^export const FORMAT = ' "$BASE" \
+        -- kjerne ':(exclude)kjerne/tester' | cut -d: -f2-)
+      if [ "$(grep -c . <<< "$kandidater")" -gt 1 ]; then
+        echo "::error file=$format::Fant FORMAT i flere filer i BASE: $(echo $kandidater). Kontrollen vet ikke hvilken $format kom fra."
+        feil=1
+        kandidater=""
+      fi
+      for_sti=$kandidater
+    fi
+  fi
+  for_tekst=""
+  if [ -n "$for_sti" ] && ! for_tekst=$(git show "$BASE:$for_sti" 2>/dev/null); then
+    echo "::error file=$format::Fant ikke $for_sti i BASE. Kontrollen av formatet kan ikke lese versjonene før."
+    feil=1
+  fi
   skriver_for=$(les_konstant FORMAT <<< "$for_tekst")
   # Før LESERFORMAT fantes, leste kjernen høyst FORMAT.
   leser_for=$(les_konstant LESERFORMAT <<< "$for_tekst")

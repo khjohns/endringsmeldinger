@@ -15,7 +15,7 @@ import {
   NOEKKELORD as NOKKELORD,
   oppslag,
   type Skjema,
-} from '../../kjerne/skjema.ts';
+} from '../../kjerne/format/skjema.ts';
 
 export { NOKKELORD };
 const DEFS = (skjema as Skjema)['$defs'] as Record<string, Skjema>;

@@ -7,10 +7,10 @@
 import { randomUUID } from 'node:crypto';
 import type { Journalrad } from '../typer.ts';
 import { UgyldigVurdering } from '../regler/feil.ts';
-import type { Kommando, Svarutkast } from '../kommando.ts';
+import type { Kommando, Svarutkast } from '../kommandoer/kommando.ts';
 import { GJELDENDE_REGLER, type Regelsett } from '../regler/regelsett.ts';
-import { regnUtSvar, type Svarvurdering } from '../standpunkt.ts';
-import type { Utledning } from '../utled.ts';
+import { regnUtSvar, type Svarvurdering } from '../frosset/standpunkt.ts';
+import type { Utledning } from '../utledning/utled.ts';
 import type { Krav, Part, Spor } from '../typer.ts';
 
 export type Handling = Record<string, unknown> & { handling: string };

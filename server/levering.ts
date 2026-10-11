@@ -16,7 +16,7 @@
 import { createHash } from 'node:crypto';
 import type { Journalrad } from '../kjerne/typer.ts';
 import type { Kjerne } from '../kjerne/versjon.ts';
-import type { Visning } from '../kjerne/visning.ts';
+import type { Visning } from '../kjerne/utledning/visning.ts';
 import type { Leveringsmaal, Oppdragsrad } from './lager.ts';
 
 /** Formen på `leveringsoppdrag.innhold`. Økes når formen endres. */

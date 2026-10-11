@@ -35,7 +35,7 @@ const ROT = resolve(KJERNE, '..');
 const TESTER = join(KJERNE, 'tester');
 
 /** Modulene reglene ikke kan nå. */
-const VISNING = [join(KJERNE, 'visning.ts'), join(KJERNE, 'buffer.ts')];
+const VISNING = [join(KJERNE, 'utledning', 'visning.ts'), join(KJERNE, 'utledning', 'buffer.ts')];
 /** Pakker og filer utenfor kjernen testene kan bruke. */
 const TESTPAKKER = new Set(['vitest', 'typescript']);
 const TESTFILER = join(ROT, 'docs', 'domenetabell') + sep;
@@ -110,7 +110,7 @@ describe('kjernen er ren kode (B-14)', () => {
   it('finner kjernens moduler og testene', () => {
     const navn = filer.map((f) => relative(KJERNE, f));
     expect(navn).toEqual(
-      expect.arrayContaining(['utled.ts', 'regler/frist.ts', 'tester/arkitektur.test.ts'])
+      expect.arrayContaining(['utledning/utled.ts', 'regler/frist.ts', 'tester/arkitektur.test.ts'])
     );
   });
 
@@ -124,11 +124,11 @@ describe('kjernen er ren kode (B-14)', () => {
   // Et forbudt importforsøk gir feil, uansett skrivemåte. Forsøket står i
   // minnet her; feilinnføringen F11 prøver det samme i selve fila.
   it.each([
-    ["import { leggTil } from '../sprakprove/server/lager.ts';", 'utled.ts'],
-    ["import type { Hendelse } from '../sprakprove/kjerne/typer';", 'leser.ts'],
+    ["import { leggTil } from '../../sprakprove/server/lager.ts';", 'utledning/utled.ts'],
+    ["import type { Hendelse } from '../../sprakprove/kjerne/typer';", 'format/leser.ts'],
     ["export * from '../../src/lib/domain/fristDomain.ts';", 'regler/frist.ts'],
-    ["import pg from 'pg';", 'skriving.ts'],
-    ["const pg = await import('pg');", 'buffer.ts'],
+    ["import pg from 'pg';", 'kommandoer/skriving.ts'],
+    ["const pg = await import('pg');", 'utledning/buffer.ts'],
     ["const { Pool } = require('pg');", 'tester/kjoerer.ts'],
     ["import { leggTil } from '../../sprakprove/server/lager.ts';", 'tester/kjoerer.ts'],
     ["import x from '../../docs/annet.json' with { type: 'json' };", 'tester/kjoerer.ts'],
@@ -142,12 +142,12 @@ describe('INV-MM-9: reglene leser ikke visningen', () => {
   it('finner reglene', () => {
     expect(regler.map((m) => relative(KJERNE, m))).toEqual(
       expect.arrayContaining([
-        'forutsetninger.ts',
-        'nyttelast.ts',
-        'avvisning.ts',
-        'handlinger.ts',
-        'utled.ts',
-        'skriving.ts',
+        'kommandoer/forutsetninger.ts',
+        'kommandoer/nyttelast.ts',
+        'kommandoer/avvisning.ts',
+        'kommandoer/handlinger.ts',
+        'utledning/utled.ts',
+        'kommandoer/skriving.ts',
       ])
     );
   });
@@ -160,28 +160,28 @@ describe('INV-MM-9: reglene leser ikke visningen', () => {
   );
 
   it.each([
-    ["import { visning } from './visning.ts';"],
-    ["import type { Visning } from './visning';"],
-    ["export { visning } from './visning.js';"],
-    ["export * from './visning.ts';"],
-    ["const v = await import('./visning.ts');"],
-    ["const v = require('./visning');"],
-    ["import { lesSak } from './buffer.ts';"],
+    ["import { visning } from '../utledning/visning.ts';"],
+    ["import type { Visning } from '../utledning/visning';"],
+    ["export { visning } from '../utledning/visning.js';"],
+    ["export * from '../utledning/visning.ts';"],
+    ["const v = await import('../utledning/visning.ts');"],
+    ["const v = require('../utledning/visning');"],
+    ["import { lesSak } from '../utledning/buffer.ts';"],
   ])('oppdager %s', (linje) => {
-    const regel = join(KJERNE, 'forutsetninger.ts');
+    const regel = join(KJERNE, 'kommandoer', 'forutsetninger.ts');
     const kilde = `${linje}\n${readFileSync(regel, 'utf8')}`;
     expect(forbudteStier(regel, new Map([[utenEndelse(regel), kilde]]), VISNING)).not.toEqual([]);
   });
 
   it('oppdager visningen gjennom en annen modul', () => {
-    const regel = join(KJERNE, 'forutsetninger.ts');
-    const mellom = join(KJERNE, 'mellom.ts');
+    const regel = join(KJERNE, 'kommandoer', 'forutsetninger.ts');
+    const mellom = join(KJERNE, 'kommandoer', 'mellom.ts');
     const filer = new Map([
       [utenEndelse(regel), "import { x } from './mellom.ts';"],
-      [utenEndelse(mellom), "export { visning as x } from './visning.ts';"],
+      [utenEndelse(mellom), "export { visning as x } from '../utledning/visning.ts';"],
     ]);
     expect(forbudteStier(regel, filer, VISNING)).toEqual([
-      'kjerne/forutsetninger → kjerne/mellom → kjerne/visning',
+      'kjerne/kommandoer/forutsetninger → kjerne/kommandoer/mellom → kjerne/utledning/visning',
     ]);
   });
 });
@@ -200,7 +200,7 @@ type Klasse =
   | 'relasjon'
   /** Beslutningsgrunnlaget slik brevet ble sendt (MM-U9, MM-U11). */
   | 'frosset'
-  /** Utledet av utsagnene og relasjonene, med vedtaket ved siden av (`utled.ts`, 2.6). */
+  /** Utledet av utsagnene og relasjonene, med vedtaket ved siden av (`utledning/utled.ts`, 2.6). */
   | 'predikat'
   /** Regelsettet: inndata og utdata når ett svar regnes ut av byggherrens vurderinger (B-13). */
   | 'regelsett'
@@ -244,8 +244,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['Svar', 'relasjon', 'id spor gjelder erstatter dokument'],
   ['Svar', 'utsagn', 'standpunkter'],
   ['Svar', 'frosset', 'beslutningsgrunnlag'],
-  ['Svar', 'frosset svar', 'utregning', ['standpunkt.ts:godkjennerHeleKravet']],
-  ['Svar.utregning', 'frosset svar', 'resultat', ['standpunkt.ts:godkjennerHeleKravet']],
+  ['Svar', 'frosset svar', 'utregning', ['frosset/standpunkt.ts:godkjennerHeleKravet']],
+  ['Svar.utregning', 'frosset svar', 'resultat', ['frosset/standpunkt.ts:godkjennerHeleKravet']],
   ['Utsagn', 'relasjon', 'id art gjelder spor'],
   ['Utsagn', 'utsagn', 'hva'],
   ['Standpunkt', 'relasjon', 'id art gjelder'],
@@ -263,18 +263,21 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'Utledning',
     'predikat',
     'endringsordre',
-    ['utled.ts:trekkAvGrunnlagetErSperret', 'forutsetninger.ts:forutsetninger'],
+    [
+      'utledning/utled.ts:trekkAvGrunnlagetErSperret',
+      'kommandoer/forutsetninger.ts:forutsetninger',
+    ],
   ],
   // Hvorfor saken ikke er forstått, i meldingen når kjernen ikke forstår det den skriver.
-  ['Utledning', 'predikat', 'begrensninger', ['skriving.ts:vurder']],
-  ['Utledning.begrensninger', 'predikat', 'grunn', ['skriving.ts:vurder']],
+  ['Utledning', 'predikat', 'begrensninger', ['kommandoer/skriving.ts:vurder']],
+  ['Utledning.begrensninger', 'predikat', 'grunn', ['kommandoer/skriving.ts:vurder']],
   // «Avklart» etter GR-U7 brukes bare der vedtakene sier det (MM-U13): vilkåret for
   // enigheten (GR-U7) og at kravene er avgjort (KA-U11, som EO-U5 bygger på).
   [
     'Utledning',
     'predikat',
     'grunnlagAvklart',
-    ['utled.ts:enighetensVirkning', 'utled.ts:kraveneErAvgjort'],
+    ['utledning/utled.ts:enighetensVirkning', 'utledning/utled.ts:kraveneErAvgjort'],
   ],
   ['Utledning.svar', 'relasjon', '*'],
   ['Utledning.opplysninger', 'utsagn', 'opplysning'],
@@ -290,34 +293,39 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['Svarberegning', 'predikat', 'uavklart'],
   ['Enighet', 'predikat', 'grunnlag'],
   ['Enighetsgrunnlag', 'predikat', 'kilde vilkaar'],
-  ['utled.ts', 'predikat', 'utled kraveneErAvgjort trekkAvGrunnlagetErSperret'],
-  ['utled.ts', 'relasjon', 'grunnlagskravFor'],
+  ['utledning/utled.ts', 'predikat', 'utled kraveneErAvgjort trekkAvGrunnlagetErSperret'],
+  ['utledning/utled.ts', 'relasjon', 'grunnlagskravFor'],
   // Plassen hvert element har i journalen: dokumentet og saksversjonen (4.2 i designnotatet).
-  ['utled.ts:utled', 'relasjon', 'hendelse versjon'],
-  ['utled.ts:utled.plasser', 'relasjon', 'id versjon'],
+  ['utledning/utled.ts:utled', 'relasjon', 'hendelse versjon'],
+  ['utledning/utled.ts:utled.plasser', 'relasjon', 'id versjon'],
 
   // Standpunktene og det brevet fryser (standpunkt.ts).
   [
-    'standpunkt.ts',
+    'frosset/standpunkt.ts',
     'regelsett',
     `beslutningsgrunnlag regnUtSvar SAMMENLIKNES likeResultatfelt utenforOmfanget`,
   ],
-  ['standpunkt.ts', 'frosset', 'prinsipalt'],
+  ['frosset/standpunkt.ts', 'frosset', 'prinsipalt'],
   // § 32.3 første ledd a for et brev sendt i appen, lest av beslutningsgrunnlaget (GR-U12, #351).
-  ['standpunkt.ts', 'frosset', 'blirEndringsordre', ['utled.ts', 'frysing.ts']],
-  ['standpunkt.ts', 'utsagn', 'standpunktet'],
-  ['standpunkt.ts', 'predikat', 'enighetsgrunnlag'],
+  [
+    'frosset/standpunkt.ts',
+    'frosset',
+    'blirEndringsordre',
+    ['utledning/utled.ts', 'frosset/frysing.ts'],
+  ],
+  ['frosset/standpunkt.ts', 'utsagn', 'standpunktet'],
+  ['frosset/standpunkt.ts', 'predikat', 'enighetsgrunnlag'],
   // GR-U7 med unntaket i MM-U13: utledningen regner `grunnlagAvklart` og `grunnlagAvvist` av den.
-  ['standpunkt.ts', 'predikat', 'grunnlagetErAvklart', ['utled.ts']],
-  ['standpunkt.ts:regnUtSvar', 'utsagn', 'krav grunnlagskrav'],
-  ['standpunkt.ts:kategori', 'utsagn', 'hovedkategori underkategori'],
+  ['frosset/standpunkt.ts', 'predikat', 'grunnlagetErAvklart', ['utledning/utled.ts']],
+  ['frosset/standpunkt.ts:regnUtSvar', 'utsagn', 'krav grunnlagskrav'],
+  ['frosset/standpunkt.ts:kategori', 'utsagn', 'hovedkategori underkategori'],
   [
     'Svarvurdering',
     'utsagn',
     'resultat grunnlag_varslet_i_tide frist_varsel_ok spesifisert_krav_ok vilkar_oppfylt dager',
   ],
   [
-    'standpunkt.ts:utenforOmfanget(v)',
+    'frosset/standpunkt.ts:utenforOmfanget(v)',
     'utsagn',
     `spesifisert_krav_ok foresporsel_svar_ok aksepterer_metode hold_tilbake rigg_vurdering
      produktivitet_vurdering *`,
@@ -380,53 +388,63 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ],
   ['Kommando.varsel', 'kommando', 'sendt'],
   ['Svarutkast', 'kommando', 'spor gjelder regelversjon vurderinger'],
-  ['Svarutkast', 'kommando', 'resultat', ['nyttelast.ts']],
-  ['Svarutkast.resultat', 'kommando', '*', ['nyttelast.ts']],
-  ['nyttelast.ts:kontrollerSvar(server)', 'regelsett', '*'],
+  ['Svarutkast', 'kommando', 'resultat', ['kommandoer/nyttelast.ts']],
+  ['Svarutkast.resultat', 'kommando', '*', ['kommandoer/nyttelast.ts']],
+  ['kommandoer/nyttelast.ts:kontrollerSvar(server)', 'regelsett', '*'],
   ['Handlingsnoekkel', 'kommando', 'type spor gjelder'],
-  ['kommando.ts', 'kommando', 'formfeil'],
-  ['kommando.ts:formfeil', 'kommando', 'type spor innhold svar'],
-  ['forutsetninger.ts', 'predikat', 'forutsetninger noekkel avvis'],
-  ['nyttelast.ts', 'predikat', 'nyttelastkontroll'],
-  ['avvisning.ts', 'predikat', 'avvisning'],
+  ['kommandoer/kommando.ts', 'kommando', 'formfeil'],
+  ['kommandoer/kommando.ts:formfeil', 'kommando', 'type spor innhold svar'],
+  ['kommandoer/forutsetninger.ts', 'predikat', 'forutsetninger noekkel avvis'],
+  ['kommandoer/nyttelast.ts', 'predikat', 'nyttelastkontroll'],
+  ['kommandoer/avvisning.ts', 'predikat', 'avvisning'],
   ['typer.ts', 'relasjon', 'SPOR KRAVSPOR'],
-  ['skjema.ts', 'skjema', 'erObjekt feilI tekst'],
-  ['skjema.ts.TYPER', 'skjema', '*'],
+  ['format/skjema.ts', 'skjema', 'erObjekt feilI tekst'],
+  ['format/skjema.ts.TYPER', 'skjema', '*'],
   [
-    'skjema.ts:feilI(s)',
+    'format/skjema.ts:feilI(s)',
     'skjema',
     `$ref anyOf type const enum minLength minItems minimum exclusiveMinimum items properties
      required additionalProperties`,
   ],
-  ['skjema.ts:feilI(s).properties', 'skjema', '*'],
-  ['skjema.ts:oppslag(d)', 'skjema', '*'],
+  ['format/skjema.ts:feilI(s).properties', 'skjema', '*'],
+  ['format/skjema.ts:oppslag(d)', 'skjema', '*'],
   ['Kontekst', 'kontekst', 'sakId aktoerId part teamId tidspunkt nyId'],
   ['Kjerne', 'kontekst', 'regler format leserformat'],
 
   // Formatet (format.ts): skjemaene radene leses og kommandoene kontrolleres mot.
   [
-    'format.ts',
+    'format/format.ts',
     'rad',
     `BESLUTNINGSGRUNNLAG DOKUMENT KRAV OPPLYSNING SAK_OPPRETTET STANDPUNKT STANDPUNKTER_I_SPORET
      SVAR UTSAGN`,
-    ['leser.ts'],
+    ['format/leser.ts'],
   ],
-  ['format.ts', 'rad', 'HJEMMEL', ['leser.ts', 'skriving.ts', 'frysing.ts']],
-  ['format.ts', 'kontekst', 'FORMAT LESERFORMAT', ['versjon.ts']],
-  ['format.ts', 'skjema', 'DATO ID KRAVINNHOLD liste objekt', ['kommando.ts']],
-  ['STANDPUNKTER_I_SPORET', 'rad', 'art paakrevd', ['leser.ts']],
+  [
+    'format/format.ts',
+    'rad',
+    'HJEMMEL',
+    ['format/leser.ts', 'kommandoer/skriving.ts', 'frosset/frysing.ts'],
+  ],
+  ['format/format.ts', 'kontekst', 'FORMAT LESERFORMAT', ['versjon.ts']],
+  ['format/format.ts', 'skjema', 'DATO ID KRAVINNHOLD liste objekt', ['kommandoer/kommando.ts']],
+  ['STANDPUNKTER_I_SPORET', 'rad', 'art paakrevd', ['format/leser.ts']],
   ['KRAVINNHOLD', 'skjema', 'properties required anyOf'],
   // Kodene i formatet for kategoriene (#335): formen på grunnlagskravet.
-  ['koder.ts', 'skjema', 'HOVEDKATEGORIER KATEGORIER UNDERKATEGORIER', ['format.ts']],
-  ['KATEGORIER', 'skjema', 'endring svikt andre_forhold force_majeure', ['format.ts']],
+  ['format/koder.ts', 'skjema', 'HOVEDKATEGORIER KATEGORIER UNDERKATEGORIER', ['format/format.ts']],
+  ['KATEGORIER', 'skjema', 'endring svikt andre_forhold force_majeure', ['format/format.ts']],
   // Oversettelsen fra katalogens koder, for klienten og språkprøven (#335).
-  ['koder.ts:fraKatalogen(tabell)', 'kommando', '*', ['koder.ts']],
-  ['koder.ts:kategoriFraKatalogen', 'kommando', 'hovedkategori underkategori', ['koder.ts']],
+  ['format/koder.ts:fraKatalogen(tabell)', 'kommando', '*', ['format/koder.ts']],
+  [
+    'format/koder.ts:kategoriFraKatalogen',
+    'kommando',
+    'hovedkategori underkategori',
+    ['format/koder.ts'],
+  ],
   [
     'regler/typer.ts',
     'regelsett',
     'FRISTRESULTATER GRUNNLAGSRESULTATER VEDERLAGSRESULTATER',
-    ['format.ts'],
+    ['format/format.ts'],
   ],
 
   // Journalraden i format 1 (leser.ts, skriving.ts). `data` er uten type, så feltene har
@@ -435,56 +453,66 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'Journalrad',
     'rad',
     'event_id event_type versjon tidsstempel aktor_rolle refererer_til_event_id format data',
-    ['leser.ts', 'skriving.ts'],
+    ['format/leser.ts', 'kommandoer/skriving.ts'],
   ],
-  ['Journalrad.data', 'rad', 'svar', ['skriving.ts']],
-  ['leser.ts:element(verdi)', 'rad', 'art hva spor', ['leser.ts']],
-  ['leser.ts:element(skjemaer)', 'rad', '*', ['leser.ts']],
-  ['leser.ts:lesDokument', 'rad', 'krav svar utsagn opplysninger dokumentasjon', ['leser.ts']],
-  ['leser.ts:lesDokument(e)', 'rad', 'id art spor erstatter innhold', ['leser.ts']],
-  ['leser.ts:lesDokument(o)', 'rad', 'id hva dato gjelder oppfylt', ['leser.ts']],
-  ['leser.ts:lesDokument(s)', 'rad', 'spor', ['leser.ts']],
+  ['Journalrad.data', 'rad', 'svar', ['kommandoer/skriving.ts']],
+  ['format/leser.ts:element(verdi)', 'rad', 'art hva spor', ['format/leser.ts']],
+  ['format/leser.ts:element(skjemaer)', 'rad', '*', ['format/leser.ts']],
   [
-    'leser.ts:lesSvar(e)',
+    'format/leser.ts:lesDokument',
+    'rad',
+    'krav svar utsagn opplysninger dokumentasjon',
+    ['format/leser.ts'],
+  ],
+  ['format/leser.ts:lesDokument(e)', 'rad', 'id art spor erstatter innhold', ['format/leser.ts']],
+  ['format/leser.ts:lesDokument(o)', 'rad', 'id hva dato gjelder oppfylt', ['format/leser.ts']],
+  ['format/leser.ts:lesDokument(s)', 'rad', 'spor', ['format/leser.ts']],
+  [
+    'format/leser.ts:lesSvar(e)',
     'rad',
     'id spor gjelder erstatter utregning beslutningsgrunnlag',
-    ['leser.ts'],
+    ['format/leser.ts'],
   ],
   [
-    'leser.ts:standpunkterISvaret(e)',
+    'format/leser.ts:standpunkterISvaret(e)',
     'rad',
     'id art gjelder hjemmel i_tide resultat oppfylt',
-    ['leser.ts'],
+    ['format/leser.ts'],
   ],
   // Beløpet og dagene i standpunktet leses av utregningen, som har ett hjem (4.3 i
   // designnotatet). Resultatet i dager-standpunktet tas i #309 (#331 punkt 4).
-  ['leser.ts:standpunkterISvaret(svar)', 'rad', 'standpunkter utregning', ['leser.ts']],
   [
-    'leser.ts:standpunkterISvaret(svar).utregning',
+    'format/leser.ts:standpunkterISvaret(svar)',
+    'rad',
+    'standpunkter utregning',
+    ['format/leser.ts'],
+  ],
+  [
+    'format/leser.ts:standpunkterISvaret(svar).utregning',
     'rad',
     'resultat godkjent_beloep godkjent_dager subsidiaert_resultat subsidiaert_godkjent_dager',
-    ['leser.ts'],
+    ['format/leser.ts'],
   ],
   [
-    'leser.ts:lesBeslutningsgrunnlag(v)',
+    'format/leser.ts:lesBeslutningsgrunnlag(v)',
     'rad',
     'regelversjon virkninger uten_virkning linje sammenfall varslingsplikt',
-    ['leser.ts'],
+    ['format/leser.ts'],
   ],
-  ['leser.ts:lesBeslutningsgrunnlag(p)', 'rad', 'standpunkt virkning', ['leser.ts']],
-  ['leser.ts:erRegistrert', 'rad', 'hva gjelder', ['leser.ts']],
-  ['leser.ts:datoFor', 'relasjon', 'id dokument', ['leser.ts']],
+  ['format/leser.ts:lesBeslutningsgrunnlag(p)', 'rad', 'standpunkt virkning', ['format/leser.ts']],
+  ['format/leser.ts:erRegistrert', 'rad', 'hva gjelder', ['format/leser.ts']],
+  ['format/leser.ts:datoFor', 'relasjon', 'id dokument', ['format/leser.ts']],
   // Det brevet fryser, som skrivingen og predikatet for et svarutkast deler (#351).
-  ['frysing.ts', 'regelsett', 'frys grunnlagsstandpunkter', ['skriving.ts']],
-  ['frysing.ts:frys(svar)', 'rad', 'spor utregning', ['frysing.ts']],
-  ['skriving.ts:frysBrev(s)', 'rad', 'spor gjelder', ['skriving.ts']],
-  ['skriving.ts:lagret(?)', 'frosset', 'resten', ['skriving.ts']],
-  ['leser.ts', 'rad', 'lesJournal', ['skriving.ts']],
-  ['leser.ts', 'rad', 'standpunkterISvaret', ['frysing.ts']],
-  ['leser.ts', 'rad', 'Uforstaatt', ['skriving.ts', 'frysing.ts']],
+  ['frosset/frysing.ts', 'regelsett', 'frys grunnlagsstandpunkter', ['kommandoer/skriving.ts']],
+  ['frosset/frysing.ts:frys(svar)', 'rad', 'spor utregning', ['frosset/frysing.ts']],
+  ['kommandoer/skriving.ts:frysBrev(s)', 'rad', 'spor gjelder', ['kommandoer/skriving.ts']],
+  ['kommandoer/skriving.ts:lagret(?)', 'frosset', 'resten', ['kommandoer/skriving.ts']],
+  ['format/leser.ts', 'rad', 'lesJournal', ['kommandoer/skriving.ts']],
+  ['format/leser.ts', 'rad', 'standpunkterISvaret', ['frosset/frysing.ts']],
+  ['format/leser.ts', 'rad', 'Uforstaatt', ['kommandoer/skriving.ts', 'frosset/frysing.ts']],
   // Leseregler som deles: registrert korrespondanse, datoen for et varsel og bestridelsen
   // av samme slag (MM-U1, MM-U7).
-  ['leser.ts', 'relasjon', 'erRegistrert datoFor sammeSlag'],
+  ['format/leser.ts', 'relasjon', 'erRegistrert datoFor sammeSlag'],
 ];
 
 /**
@@ -495,7 +523,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
  *   utfallet i grunnlagssporet,
  *   kopiert inn i ett svar. At hele svaret er subsidiært til grunnlaget, er en
  *   relasjon mellom brev som utledes ved lesing (merknaden 05.10 til B-13, MM-U9),
- *   og `utled.ts` utleder den av de frosne standpunktene.
+ *   og `utledning/utled.ts` utleder den av de frosne standpunktene.
  */
 const KJENTE_AVVIK: [sted: string, noekkel: string, begrunnelse: string][] = [
   ['regler/vederlag.ts:beregnVederlag', 'Vederlagskrav.grunnlag_resultat', '#309'],
@@ -551,7 +579,7 @@ const iFunksjonen = (n: ts.Node | undefined, f: ts.Node): boolean =>
 
 /**
  * Modulen og de navngitte funksjonene `n` er eller står i, ytterst først, som
- * `leser.ts:standpunkterISvaret` eller `utled.ts:utled.plasser`.
+ * `format/leser.ts:standpunkterISvaret` eller `utledning/utled.ts:utled.plasser`.
  */
 function funksjon(n: ts.Node): string {
   const navn: string[] = [];
@@ -866,16 +894,16 @@ describe('reglene leser bare det LESBART tillater (#308, #329)', () => {
         'Utledning.grunnlagAvvist',
         'Sporutledning.enighet',
         'Svar.beslutningsgrunnlag',
-        'utled.ts.kraveneErAvgjort',
-        'leser.ts:standpunkterISvaret(svar).utregning.resultat',
+        'utledning/utled.ts.kraveneErAvgjort',
+        'format/leser.ts:standpunkterISvaret(svar).utregning.resultat',
       ])
     );
   });
 
-  const forutsetninger = join(KJERNE, 'forutsetninger.ts');
-  const utled = join(KJERNE, 'utled.ts');
-  const leser = join(KJERNE, 'leser.ts');
-  const standpunkt = join(KJERNE, 'standpunkt.ts');
+  const forutsetninger = join(KJERNE, 'kommandoer', 'forutsetninger.ts');
+  const utled = join(KJERNE, 'utledning', 'utled.ts');
+  const leser = join(KJERNE, 'format', 'leser.ts');
+  const standpunkt = join(KJERNE, 'frosset', 'standpunkt.ts');
   /** Kode som legges til sist i en fil, så forsøkene ikke avhenger av teksten feilinnføringene endrer. */
   type Tillegg = [fil: string, kode: string];
   /** Lesingene LESBART ikke tillater i `modul` når `tillegg` er lagt til i kildene. */
@@ -935,10 +963,10 @@ describe('reglene leser bare det LESBART tillater (#308, #329)', () => {
         [utled, 'export const sakensStatus = (u: Utledning) => u.versjon;'],
         [
           forutsetninger,
-          "import { sakensStatus } from './utled.ts';\nexport const proeve = sakensStatus;",
+          "import { sakensStatus } from '../utledning/utled.ts';\nexport const proeve = sakensStatus;",
         ],
       ],
-      'utled.ts.sakensStatus',
+      'utledning/utled.ts.sakensStatus',
     ],
     [
       'et objekt en annen funksjon bygger',
@@ -949,31 +977,31 @@ describe('reglene leser bare det LESBART tillater (#308, #329)', () => {
           'function oppsum(u: Utledning) {\n  return { avsluttet: u.frafalt };\n}\nexport const proeve = (u: Utledning) => oppsum(u).avsluttet;',
         ],
       ],
-      'utled.ts:oppsum.avsluttet',
+      'utledning/utled.ts:oppsum.avsluttet',
     ],
     [
       'et felt uten type',
       forutsetninger,
       [regel('return (u as any).avsluttet;')],
-      'forutsetninger.ts:proeve(u).avsluttet',
+      'kommandoer/forutsetninger.ts:proeve(u).avsluttet',
     ],
     [
       'et felt uten type, destrukturert',
       forutsetninger,
       [regel('const { avsluttet } = u as any;\nreturn avsluttet;')],
-      'forutsetninger.ts:proeve(u).avsluttet',
+      'kommandoer/forutsetninger.ts:proeve(u).avsluttet',
     ],
     [
       'et felt i en type regelen selv skriver',
       forutsetninger,
       [regel('return (u as Utledning & { oppgjort: boolean }).oppgjort;')],
-      'forutsetninger.ts:proeve.oppgjort',
+      'kommandoer/forutsetninger.ts:proeve.oppgjort',
     ],
     [
       'en parameter med samme navn som en tillatt',
       forutsetninger,
       [[forutsetninger, 'export const kontroller = (v: Record<string, unknown>) => v.status;']],
-      'forutsetninger.ts:kontroller(v).status',
+      'kommandoer/forutsetninger.ts:kontroller(v).status',
     ],
     [
       'det lagrede utfallet i et svar',
@@ -985,7 +1013,7 @@ describe('reglene leser bare det LESBART tillater (#308, #329)', () => {
       'journalraden utenfor leseren og skrivingen',
       forutsetninger,
       [
-        [forutsetninger, "import type { Journalrad } from './typer.ts';"],
+        [forutsetninger, "import type { Journalrad } from '../typer.ts';"],
         regel('return (u.journal.at(-1) as unknown as Journalrad).data;'),
       ],
       'Journalrad.data',
@@ -1020,10 +1048,10 @@ describe('reglene leser bare det LESBART tillater (#308, #329)', () => {
       [
         [
           forutsetninger,
-          "import { grunnlagetErAvklart } from './standpunkt.ts';\nexport const proeve = grunnlagetErAvklart;",
+          "import { grunnlagetErAvklart } from '../frosset/standpunkt.ts';\nexport const proeve = grunnlagetErAvklart;",
         ],
       ],
-      'standpunkt.ts.grunnlagetErAvklart',
+      'frosset/standpunkt.ts.grunnlagetErAvklart',
     ],
     [
       '§ 31.3 utenfor sperren mot trekk (KA-U14)',
@@ -1084,7 +1112,7 @@ describe('reglene leser bare det LESBART tillater (#308, #329)', () => {
       'et felt i en Record med type',
       forutsetninger,
       [regel('return (u as unknown as Record<string, boolean>).avsluttet;')],
-      'forutsetninger.ts:proeve(u).avsluttet',
+      'kommandoer/forutsetninger.ts:proeve(u).avsluttet',
     ],
     [
       'en standardimport',
@@ -1093,10 +1121,10 @@ describe('reglene leser bare det LESBART tillater (#308, #329)', () => {
         [utled, 'export default function sakensStatus(u: Utledning) {\n  return u.versjon;\n}'],
         [
           forutsetninger,
-          "import sakensStatus from './utled.ts';\nexport const proeve = sakensStatus;",
+          "import sakensStatus from '../utledning/utled.ts';\nexport const proeve = sakensStatus;",
         ],
       ],
-      'utled.ts.default',
+      'utledning/utled.ts.default',
     ],
     [
       'et nytt felt, destrukturert i flere ledd',
@@ -1113,13 +1141,13 @@ describe('reglene leser bare det LESBART tillater (#308, #329)', () => {
       'et nytt felt, destrukturert i flere ledd i en tilordning',
       forutsetninger,
       [ferdig, regel('let ferdig;\n({ spor: { frist: { ferdig } } } = u as any);\nreturn ferdig;')],
-      'forutsetninger.ts:proeve(?).ferdig',
+      'kommandoer/forutsetninger.ts:proeve(?).ferdig',
     ],
     [
       'et nytt felt, destrukturert i for … of',
       forutsetninger,
       [ferdig, regel('let ferdig;\nfor ({ ferdig } of [u]);\nreturn ferdig;')],
-      'forutsetninger.ts:proeve(?).ferdig',
+      'kommandoer/forutsetninger.ts:proeve(?).ferdig',
     ],
     [
       'en statuskode i journalraden med en Record med type',

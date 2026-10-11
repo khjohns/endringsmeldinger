@@ -12,13 +12,13 @@
  * (vedtaket 05.10), og vilkåret i enighetsgrunnlaget (GR-U7).
  */
 
-import { beloep, tilTall } from './regler/beloep.ts';
-import { UgyldigVurdering } from './regler/feil.ts';
-import { beregnFrist, type Fristkrav } from './regler/frist.ts';
-import { foersteUnderkategori, gyldigeResultater } from './regler/grunnlag.ts';
-import type { Regelsett } from './regler/regelsett.ts';
-import { tekst } from './skjema.ts';
-import { beregnVederlag, type Vederlagskrav } from './regler/vederlag.ts';
+import { beloep, tilTall } from '../regler/beloep.ts';
+import { UgyldigVurdering } from '../regler/feil.ts';
+import { beregnFrist, type Fristkrav } from '../regler/frist.ts';
+import { foersteUnderkategori, gyldigeResultater } from '../regler/grunnlag.ts';
+import type { Regelsett } from '../regler/regelsett.ts';
+import { tekst } from '../format/skjema.ts';
+import { beregnVederlag, type Vederlagskrav } from '../regler/vederlag.ts';
 import type {
   Beslutningsgrunnlag,
   Enighetsgrunnlag,
@@ -28,7 +28,7 @@ import type {
   Standpunktsvirkning,
   Svar,
   Utfall,
-} from './typer.ts';
+} from '../typer.ts';
 
 /** Det i et svar virkningene regnes av: sporet, standpunktene og serverens utregning. */
 export type Svarinnhold = Pick<Svar, 'spor' | 'standpunkter' | 'utregning'>;
