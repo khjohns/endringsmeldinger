@@ -11,6 +11,7 @@ import { readFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
+  feilnummer,
   koble,
   MUTASJON,
   RUNTIME_PASSORD,
@@ -86,7 +87,11 @@ export async function byggBase(navn: string): Promise<Oppsett> {
              + QUOTENAME(@passord, N'''') + N', CHECK_POLICY = OFF';
            EXEC (@sql);
          END`
-      );
+      )
+      // Testfilene kjører samtidig; en annen fil kan ha opprettet innloggingen imens.
+      .catch((feil: unknown) => {
+        if (feilnummer(feil) !== 15025) throw feil;
+      });
   } finally {
     await master.close();
   }

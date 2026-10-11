@@ -313,6 +313,10 @@ describe.skipIf(!AKTIV).each(FORMER)('form (%s)', (form) => {
       ['et tall der formatet har sann/usann', (d) => void (bg(d).sammenfall = 1)],
       ['en tekst der formatet har et tall', (d) => void (bg(d).regelversjon = '1')],
       ['et tomt objekt som utregning i grunnlaget', (d) => void (svar(d)[0].utregning = {})],
+      [
+        'et objekt der formatet har en liste',
+        (d) => void (d.utsagn = { x: { id: randomUUID(), art: 'aksept', gjelder: svar(d)[1].id } }),
+      ],
       ['en ukjent hendelsestype', () => undefined, { event_type: 'dokument_trukket' }],
     ];
 
@@ -324,6 +328,15 @@ describe.skipIf(!AKTIV).each(FORMER)('form (%s)', (form) => {
       } else {
         expect(utfall).toBe(51423);
       }
+    });
+
+    it('en event_id med store bokstaver avvises, så samme UUID ikke kan lagres i to former', async () => {
+      const kopi = await sqlBane(o, form);
+      const rad = { ...(kopi.skrevet[0] as Journalrad), event_id: randomUUID().toUpperCase() };
+      const feil = await transaksjon(o.runtime, kontekst(o.brukere.te, o.a, 'TE'), (f) =>
+        registrer(f, form, rad, 1)
+      ).catch((e: unknown) => e);
+      expect(feilnummer(feil)).toBe(547);
     });
 
     it('teksten er ikke et JSON-objekt', async () => {

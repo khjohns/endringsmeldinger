@@ -4,6 +4,7 @@ CREATE OR ALTER FUNCTION koe_sikkerhet.notat_synlig(@prosjekt_id nvarchar(100), 
 RETURNS TABLE WITH SCHEMABINDING AS RETURN
 SELECT 1 AS tilgang
   FROM koe.app_project_memberships m
+  JOIN koe.projects p ON p.id = m.project_id AND p.is_active = 1
   JOIN koe.catenda_contract_teams t ON t.internal_project_id = m.project_id
  WHERE m.project_id = @prosjekt_id
    AND m.project_id = TRY_CAST(SESSION_CONTEXT(N'koe_prosjekt') AS nvarchar(100))
