@@ -16,6 +16,7 @@
  * `sprakprove/kjernelagring/lagring.test.ts`.
  */
 
+import { AssertionError } from 'node:assert';
 import { randomUUID } from 'node:crypto';
 import { describe, expect, it } from 'vitest';
 import { gjengi, gjengirTro, kroner, lagBrevtekst, norskDato } from '../frosset/brevtekst.ts';
@@ -24,6 +25,7 @@ import {
   forhaandsvis,
   frysBrev,
   laastTekst,
+  Skrivefeil,
   utledJournal,
   vurder,
   type Kontekst,
@@ -75,12 +77,18 @@ function sak() {
   };
   const prov = (part: Part, kommando: Data): Utfall => {
     const k = structuredClone(kommando);
-    if (!('brevtekst' in k)) {
-      const vist = forhaandsvis(structuredClone(k), kontekst(part), journal, KJERNE);
-      const t = vist.godtatt ? laastTekst(vist.hendelser[0]) : null;
-      if (t) k.brevtekst = t;
+    try {
+      if (!('brevtekst' in k)) {
+        const vist = forhaandsvis(structuredClone(k), kontekst(part), journal, KJERNE);
+        const t = vist.godtatt ? laastTekst(vist.hendelser[0]) : null;
+        if (t) k.brevtekst = t;
+      }
+      return vurder(k, kontekst(part), journal, KJERNE);
+    } catch (feil) {
+      // 7.1.2 i designnotatet: kjernen skal forstå det den selv skriver.
+      if (feil instanceof Skrivefeil) throw new AssertionError({ message: feil.message });
+      throw feil;
     }
-    return vurder(k, kontekst(part), journal, KJERNE);
   };
   const send = (part: Part, kommando: Data): Journalrad => {
     const utfall = prov(part, kommando);
@@ -118,7 +126,10 @@ function sak() {
   return { journal, send, avvist, rad, u, krav };
 }
 
-const tekst = (rad: Journalrad) => rad.data.brevtekst as Avsnitt[];
+const tekst = (rad: Journalrad): Avsnitt[] => {
+  expect(rad.data.brevtekst, 'brevet fra appen har brevtekst (LV-U2)').toBeDefined();
+  return rad.data.brevtekst as Avsnitt[];
+};
 const laast = (rad: Journalrad) => tekst(rad).map((a) => a.laast);
 
 const BESKRIVELSE = 'Byggherren har pålagt en annen fundamentering.';
@@ -1132,6 +1143,7 @@ describe('leseren kontrollerer brevteksten (HF-U1, MM-U17)', () => {
   const medTekst = (endre: (data: Data, rad: Journalrad) => void) => {
     const s = sakMedKrav();
     const rad = structuredClone(s.journal.at(-1)!);
+    tekst(rad);
     endre(rad.data, rad);
     return lest([...s.journal.slice(0, -1), rad]);
   };
