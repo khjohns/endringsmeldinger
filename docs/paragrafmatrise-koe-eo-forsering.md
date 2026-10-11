@@ -445,7 +445,7 @@ også § 30 om regningsarbeid, som § 34.4 viser til.
   [KA-U8](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u8). B-13 hovedvalg
   og «godkjent» (24.09, merknadene 04.10). B-13 om svar når grunnlaget er
   avslått (05.10). [GR-U4](plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u4).
-- **Kjernen i dag:** delvis. Ett hovedkrav med `FASTPRIS_TILBUD` og beløp over
+- **Kjernen i dag:** delvis. Ett hovedkrav med metoden `tilbud` og beløp over
   0 (`KRAVINNHOLD.vederlag` i [`format.ts`](../kjerne/format.ts)). Fortegn
   (fradrag) kan ikke uttrykkes, selv om [`regler/beloep.ts`](../kjerne/regler/beloep.ts)
   håndterer det. Standpunktet `beloep` har ikke eget felt; det leses fra
@@ -516,7 +516,7 @@ også § 30 om regningsarbeid, som § 34.4 viser til.
   (merknaden 09.10). [GR-U7](plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u7)
   om sammenfall. [KA-U10](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u10)
   (merknaden 09.10: § 34.2.2 bærer ikke vedtaket alene).
-- **Kjernen i dag:** delvis. `FASTPRIS_TILBUD` er eneste metode. `aksepterer_metode`
+- **Kjernen i dag:** delvis. `tilbud` (§ 34.2.1) er eneste metode. `aksepterer_metode`
   er påkrevd, men usann avvises, og sann lagres ikke (#341).
 
 ### § 34.3 — enhetspriser og justerte enhetspriser

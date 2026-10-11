@@ -34,22 +34,39 @@ export const SAKSSTATUSER = [
 ] as const;
 export type Saksstatus = (typeof SAKSSTATUSER)[number];
 
-export {
-  BELOEPSVURDERINGER as BELOPSVURDERINGER,
-  FRISTRESULTATER,
-  GRUNNLAGSRESULTATER,
-  SUBSIDIAERE_UTLOSERE,
-  VEDERLAGSRESULTATER,
-} from '../../kjerne/regler/typer.ts';
-export type {
-  Beloepsvurdering as Belopsvurdering,
-  Fristresultat,
-  Fristvarseltype,
-  Grunnlagsresultat,
-  SubsidiaerUtloser,
-  Vederlagsmetode,
-  Vederlagsresultat,
-} from '../../kjerne/regler/typer.ts';
+/**
+ * Python-enumene `kontrakt.json` viser til (`x-python`). Kjernen har egne koder
+ * (#335), og `regler.ts` oversetter på grensen.
+ */
+export const GRUNNLAGSRESULTATER = ['godkjent', 'avslatt', 'frafalt'] as const;
+export type Grunnlagsresultat = (typeof GRUNNLAGSRESULTATER)[number];
+export const VEDERLAGSRESULTATER = [
+  'godkjent',
+  'delvis_godkjent',
+  'avslatt',
+  'hold_tilbake',
+] as const;
+export type Vederlagsresultat = (typeof VEDERLAGSRESULTATER)[number];
+export const FRISTRESULTATER = ['godkjent', 'delvis_godkjent', 'avslatt'] as const;
+export type Fristresultat = (typeof FRISTRESULTATER)[number];
+export const BELOPSVURDERINGER = ['godkjent', 'delvis', 'avslatt'] as const;
+export type Belopsvurdering = (typeof BELOPSVURDERINGER)[number];
+export type Vederlagsmetode = 'ENHETSPRISER' | 'REGNINGSARBEID' | 'FASTPRIS_TILBUD';
+export const SUBSIDIAERE_UTLOSERE = [
+  'grunnlag_avslatt',
+  'grunnlag_prekludert_32_2',
+  'forseringsrett_avslatt',
+  'preklusjon_hovedkrav',
+  'preklusjon_rigg',
+  'preklusjon_produktivitet',
+  'reduksjon_ep_justering',
+  'preklusjon_varsel',
+  'reduksjon_spesifisert',
+  'ingen_hindring',
+  'metode_avslatt',
+] as const;
+export type SubsidiaerUtloser = (typeof SUBSIDIAERE_UTLOSERE)[number];
+export type { Fristvarseltype } from '../../kjerne/regler/typer.ts';
 
 export type Hendelsestype =
   | 'sak_opprettet'

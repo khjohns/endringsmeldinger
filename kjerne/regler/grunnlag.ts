@@ -14,11 +14,14 @@ export function erEndringMedVarslingsplikt(
   hovedkategori: string | null,
   underkategori: string | null
 ): boolean {
-  return hovedkategori === 'ENDRING' && underkategori !== 'EO';
+  return hovedkategori === 'endring' && underkategori !== 'endringsordre';
 }
 
 export function erPaalegg(hovedkategori: string | null, underkategori: string | null): boolean {
-  return hovedkategori === 'ENDRING' && (underkategori === 'IRREG' || underkategori === 'VALGRETT');
+  return (
+    hovedkategori === 'endring' &&
+    (underkategori === 'irregulaer_endring' || underkategori === 'valg_av_loesning')
+  );
 }
 
 export function erPrekludert(
@@ -37,7 +40,7 @@ export function erGrunnlagSubsidiaert(
   varsletITide: boolean | null
 ): boolean {
   return (
-    resultat === 'avslatt' ||
+    resultat === 'avslaatt' ||
     erPrekludert(hovedkategori, foersteUnderkategori(underkategori), varsletITide)
   );
 }
@@ -46,8 +49,8 @@ export function gyldigeResultater(
   hovedkategori: string | null,
   underkategori: string | null
 ): Grunnlagsresultat[] {
-  const resultater: Grunnlagsresultat[] = ['godkjent', 'avslatt'];
-  return erPaalegg(hovedkategori, underkategori) ? [...resultater, 'frafalt'] : resultater;
+  const resultater: Grunnlagsresultat[] = ['godkjent', 'avslaatt'];
+  return erPaalegg(hovedkategori, underkategori) ? [...resultater, 'paalegg_frafalt'] : resultater;
 }
 
 export function kontrollerGrunnlagssvar(
@@ -70,7 +73,7 @@ export function kontrollerGrunnlagssvar(
   if (Object.keys(feil).length) throw new UgyldigVurdering(feil);
 }
 
-export type Subsidiaergrunn = 'avslatt' | 'prekludert';
+export type Subsidiaergrunn = 'avslaatt' | 'prekludert';
 
 /** M1: standpunktet i et svar på vederlag eller frist, utledet av grunnlaget. */
 export interface Standpunkt {
@@ -108,6 +111,6 @@ export function standpunkt(
   ) {
     aarsaker.push('prekludert');
   }
-  if (grunnlag.resultat === 'avslatt') aarsaker.push('avslatt');
+  if (grunnlag.resultat === 'avslaatt') aarsaker.push('avslaatt');
   return { subsidiaert: aarsaker.length > 0, hovedgrunn: aarsaker[0] ?? null, aarsaker };
 }

@@ -51,7 +51,7 @@ export function regelendringen(lagBaner: () => Baner): void {
       const prekludertAvslag = {
         handling: 'brev',
         navn: 'D3',
-        svar: [{ spor: 'grunnlag', navn: 'S-g1', resultat: 'avslatt', varslet_i_tide: false }],
+        svar: [{ spor: 'grunnlag', navn: 'S-g1', resultat: 'avslaatt', varslet_i_tide: false }],
       };
       await lag('ikke godtatt', ['krav_samord', prekludertAvslag]);
       await lag('godtatt', [
@@ -92,7 +92,7 @@ export function regelendringen(lagBaner: () => Baner): void {
         'prinsipalt',
         'subsidiaert',
       ]);
-      expect(n1.spor.vederlag.subsidiaer).toEqual(['prekludert', 'avslatt']);
+      expect(n1.spor.vederlag.subsidiaer).toEqual(['prekludert', 'avslaatt']);
       expect(visning(n, KJERNE.regler).spor.grunnlag.etiketter).not.toContain(
         'regel_endret_etter_brevet'
       );

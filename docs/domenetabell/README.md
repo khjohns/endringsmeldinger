@@ -65,7 +65,7 @@ og beholdes; tabellen bestiller ingen omdøping.
 | **Oppgjort** | Enighet i sporet, og avklart grunnlag. Erstatter at statusen `godkjent` betydde begge deler | `oppgjort` på vederlag og frist i tilstanden (#274). I kjernen: enigheten er virksom (`enighetensVirkning`, et predikat av enigheten, grunnlaget og trekkene), og `oppgjort` er bare en etikett i visningen | GR-U7, [KA-U5](../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u5) |
 | **Rettidighetsvurdering** | Byggherrens vurdering i svaret: i tide (`true`), for sent (`false`) eller ikke vurdert (utelatt i hendelsen, `null` i tilstanden). Om spørsmålet gjelder kravet, utledes av kravet | `frist_varsel_ok`, `spesifisert_krav_ok`, `foresporsel_svar_ok`, `grunnlag_varslet_i_tide` | [KA-U4](../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u4) |
 | **Subsidiært til nytt svar** | Et svar på vederlag eller frist som var subsidiært fordi grunnlaget var avslått eller prekludert, og som forblir det mens grunnlaget venter på nytt svar. Et nytt svar på sporet eller grunnlaget avslutter det | `subsidiaert_til_nytt_svar` | Vedtaket om endret underkategori 05.10, [GR-U1](../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u1), [GR-U4](../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u4) |
-| **Frafall** | Byggherrens svar på grunnlaget etter § 32.3 c: pålegget frafalles mot endringsordre for utført arbeid. «Frafalt» gjelder pålegget, ikke TEs krav, og er ikke en vurdering av ansvaret. Ikke et trekk fra TE | `GrunnlagResponsResultat.FRAFALT` (`frafalt`); sporstatusen er `TRUKKET` i dag (SK-04) | Vedtaket om `FRAFALT` 05.10, [GR-U3](../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u3) |
+| **Frafall** | Byggherrens svar på grunnlaget etter § 32.3 c: pålegget frafalles mot endringsordre for utført arbeid. «Frafalt» gjelder pålegget, ikke TEs krav, og er ikke en vurdering av ansvaret. Ikke et trekk fra TE | `GrunnlagResponsResultat.FRAFALT` (`frafalt`); sporstatusen er `TRUKKET` i dag (SK-04). I kjernen: `paalegg_frafalt` (#335) | Vedtaket om `FRAFALT` 05.10, [GR-U3](../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u3) |
 | **Endringsordre (EO)** | Byggherrens ordre om en endring (§ 31.3), utstedt i en egen EO-sak. TE godtar eller bestrider den; den forhandles ikke | Sakstypen `endringsordre`, `endringsordre_data`, hendelsene `eo_*` | V-TFR02, [EO-U1](../plans/2026-09-16-godkjenning-og-varig-levering.md#eo-u1) |
 | **Utgave** | Endringsordren slik den er utstedt eller revidert. TE svarer én gang på hver | `revisjon_nummer` | [EO-U4](../plans/2026-09-16-godkjenning-og-varig-levering.md#eo-u4) |
 | **KOE-tilknytning** | At en KOE-sak inngår i en endringsordre. Står i EO-saken, høyst én per KOE-sak | `relaterte_koe_saker`, `eo_koe_lagt_til`, `eo_koe_fjernet`, `sak_relations` | [EO-U3](../plans/2026-09-16-godkjenning-og-varig-levering.md#eo-u3) |
@@ -129,6 +129,9 @@ lagringsformatet står under.
 | `godkjenningErEndringsordre` (sann eller usann) | `endringsordre` (`ja`, `nei` eller `ikke_avklart`) | § 31.3: en manglende opplysning i registrert korrespondanse er ikke et nei (GR-U13) |
 | `HENDELSESTYPER` per spor, `SVARTYPER`, `KRAVREFERANSE`, `svarreferanse`, `utledetVarsel` | Utgår | Én hendelsestype for dokumentet, og referansene står i `data` (#273) |
 | `Opplysning.verdi` | `Opplysning.dato` | Feltet i formatet (#273) |
+| Statusen `avsluttet_avslatt`, etiketten `avslatt`, `Subsidiaergrunn` `avslatt`, utløserne `grunnlag_avslatt`, `forseringsrett_avslatt` og `metode_avslatt` | `avsluttet_avslaatt`, `avslaatt`, `grunnlag_avslaatt`, `forseringsrett_avslaatt`, `metode_avslaatt` | ae/oe/aa (#335). Lagres ikke i journalen |
+| Etiketten `frafalt` | `paalegg_frafalt` | Som verdien i formatet (#335) |
+| `sammenfallMedVarslingsplikt` i utledningen og kopien i `endringsordre.ts` | `blirEndringsordre(beslutningsgrunnlag)` og `svaretBlirEndringsordre(vurderinger, kategori, regler)` | Én sammensetning for § 32.3 første ledd a, og samme standpunkter som skrivingen for et svarutkast (#351) |
 
 ### Navn i lagringsformatet
 
@@ -158,6 +161,15 @@ fra Python-epoken og målmodellen og navnene i format 1.
 | Finnes ikke | Utsagnet `ingen_krav` med `spor` | KA-U12 |
 | Finnes ikke | Opplysningen `{id, hva: "endringsordre", oppfylt, gjelder?}` i registrert korrespondanse | § 31.3: den som registrerer, oppgir om brevet var en endringsordre. Registratorens vurdering, ikke en rettslig avgjørelse (GR-U13). En senere avklaring har `gjelder` (MM-U12) |
 | Datoen for et varsel i kravet som opplysning om kravdokumentet | Opplysningen `sendt` med `gjelder` lik varselet | Kravet er sendt i appen; datoen gjelder varselet (HF-U1) |
+| Grunnlagsresultatet `frafalt` | `paalegg_frafalt` | Det er pålegget som frafalles (§ 32.3 første ledd c), ikke TEs krav (HF-U2, arbeidsvalget 10.10 i #335) |
+| Resultatverdien `avslatt` | `avslaatt` | ae/oe/aa (#335) |
+| Vederlagsresultatet `hold_tilbake` | `tilbakeholdelse` | Ordet i § 28.3 og § 30.2, og en verdi, ikke et verb (#335) |
+| Metodene `FASTPRIS_TILBUD`, `ENHETSPRISER`, `REGNINGSARBEID` | `tilbud`, `enhetspriser`, `regningsarbeid` | Kontraktens ord: «spesifisert tilbud» i § 34.2.1, § 34.3 og § 34.4 (#335). Formatet godtar bare `tilbud` |
+| Hovedkategoriene `ENDRING`, `SVIKT`, `ANDRE`, `FORCE_MAJEURE` | `endring`, `svikt`, `andre_forhold`, `force_majeure` | § 33.1 a–c og § 33.3, med små bokstaver (#335) |
+| Underkategoriene `EO`, `IRREG`, `VALGRETT`, `SVAR_VARSEL`, `LOV_GJENSTAND`, `LOV_PROSESS`, `GEBYR`, `SAMORD` | `endringsordre`, `irregulaer_endring`, `valg_av_loesning`, `svar_paa_varsel`, `lovendring_gjenstand`, `lovendring_prosess`, `gebyrer_og_avgifter`, `samordning` | Overskriftene i § 31.3, § 32, § 14.6, § 24.2.2, § 14.4, § 15.2, § 26.3 og § 21.4, uten forkortelser (#335) |
+| Underkategoriene `MEDVIRK`, `GRUNN`, `KULTURMINNER`, `PROSJ_RISIKO` | `medvirkning`, `grunnforhold`, `kulturminner`, `prosjektering` | § 22, § 23.1, § 23.3 og § 24.1 (#335) |
+| Underkategoriene `NEKT_MH`, `SKADE_BH`, `BRUKSTAKELSE`, `STANS_BET`, `ANDRE_ANDRE` | `nektet_kontraktsmedhjelper`, `skade_fra_byggherren`, `brukstakelse`, `stans_ved_betalingsmislighold`, `annet_forhold` | § 10.2, § 19.1, § 38.1 annet ledd, § 29.2 og § 33.1 c (#335) |
+| Kategorien som fri tekst | Et par fra kjernens lukkede liste | Et ukjent par gjør raden ikke forstått (HF-U1). Katalogen i frontenden og Python beholder de gamle kodene, og kjernen oversetter dem på grensen (#335) |
 
 **To tidsakser.** *Registrering* er rekkefølgen i journalen, med `tidsstempel`
 satt av serveren. *Sendt/mottatt* er når et varsel eller brev faktisk ble sendt

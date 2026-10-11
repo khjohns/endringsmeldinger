@@ -3,8 +3,9 @@
  * modellforslaget, F8–F10 feilklassene reviewet av PR #306 fant, skrevet om etter
  * MM-U9 og GR-U10, F11–F26 grensene #308 la til, og F27–F47 formatet (#273): 7.2
  * i designnotatet, GR-U12 og registeret (#320). F48 er hvitelisten fra #329,
- * F49–F51 og F54–F58 versjoneringen (#316) og F52–F53 registrert korrespondanse
- * (#336). Én mutasjon om gangen i arbeidskopien, Vitest over `kjerne/` og
+ * F49–F51 og F54–F58 versjoneringen (#316), F52–F53 registrert korrespondanse
+ * (#336) og F59–F60 kodene i formatet og predikatet for endringsordre
+ * (#335, #351). Én mutasjon om gangen i arbeidskopien, Vitest over `kjerne/` og
  * `sprakprove/kjernelagring/`, og originalteksten settes tilbake etterpå. For
  * hver mutasjon kreves det at de forventede målassertions feiler, og at alle
  * feil er assertions, ikke import, oppsett eller en brutt forutsetning
@@ -88,8 +89,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utled.ts`,
     endringer: [
       [
-        "import { enighetsgrunnlag, grunnlagetErAvklart, prinsipalt, standpunktet } from './standpunkt.ts';",
-        "import { enighetsgrunnlag, grunnlagetErAvklart, prinsipalt, standpunktet, virkninger as regn } from './standpunkt.ts';",
+        "  standpunktet,\n} from './standpunkt.ts';",
+        "  standpunktet,\n  virkninger as regn,\n} from './standpunkt.ts';",
       ],
       [
         '      virkninger: s.beslutningsgrunnlag.virkninger,',
@@ -218,7 +219,7 @@ const MUTASJONER: Mutasjon[] = [
     endringer: [
       [
         "        return avvis('IKKE_GJELDENDE_SVAR', 'Aksepten må gjelde gjeldende svar i dette sporet.');\n",
-        "        return avvis('IKKE_GJELDENDE_SVAR', 'Aksepten må gjelde gjeldende svar i dette sporet.');\n      if (s.gjeldendeSvar.utregning.resultat === 'avslatt') return null;\n",
+        "        return avvis('IKKE_GJELDENDE_SVAR', 'Aksepten må gjelde gjeldende svar i dette sporet.');\n      if (s.gjeldendeSvar.utregning.resultat === 'avslaatt') return null;\n",
       ],
     ],
     mal: ['reglene leser bare det LESBART tillater (#308, #329) forutsetninger.ts'],
@@ -282,11 +283,11 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F22',
     feilklasse: 'brevet fryses uten kategorien svaret gjelder (MM-U9, § 32.2, GR-U12)',
-    fil: `${K}/skriving.ts`,
+    fil: `${K}/frysing.ts`,
     endringer: [
       [
-        'return lagret(beslutningsgrunnlag(innhold, grunnlagskrav, kjerne.regler));',
-        'return lagret(beslutningsgrunnlag(innhold, undefined, kjerne.regler));',
+        'return beslutningsgrunnlag(innhold, grunnlagskrav, regler);',
+        'return beslutningsgrunnlag(innhold, undefined, regler);',
       ],
     ],
     mal: ['registrert korrespondanse fryses med kategorien', 'F-MM-C', 'F-MM-G18'],
@@ -308,7 +309,9 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F24',
     feilklasse: 'forbudet mot trekk gjelder også kategorier § 32.2 ikke gjelder for (KA-U13)',
     fil: `${K}/utled.ts`,
-    endringer: [['gSvar?.beslutningsgrunnlag.varslingsplikt === true', 'true']],
+    endringer: [
+      ['blirEndringsordre(gSvar.beslutningsgrunnlag)', '(gSvar.beslutningsgrunnlag.sammenfall)'],
+    ],
     mal: ['F-MM-G13', 'F-MM-G14', 'F-MM-G19'],
   },
   {
@@ -317,8 +320,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utled.ts`,
     endringer: [
       [
-        'gSvar?.beslutningsgrunnlag.varslingsplikt === true',
-        'regler.gjelderVarslingsplikten(String(spor.grunnlag.gjeldendeKrav?.innhold.hovedkategori), String(spor.grunnlag.gjeldendeKrav?.innhold.underkategori))',
+        'blirEndringsordre(gSvar.beslutningsgrunnlag)',
+        '(gSvar.beslutningsgrunnlag.sammenfall && regler.gjelderVarslingsplikten(String(spor.grunnlag.gjeldendeKrav?.innhold.hovedkategori), String(spor.grunnlag.gjeldendeKrav?.innhold.underkategori)))',
       ],
     ],
     mal: ['F-MM-G15'],
@@ -327,7 +330,12 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F26',
     feilklasse: 'trekk av grunnlaget sperres av ethvert svar, også avslag og frafall (KA-U13)',
     fil: `${K}/utled.ts`,
-    endringer: [["eg?.grunnlag.kilde === 'sammenfall' && gSvar?", 'gSvar !== null && gSvar?']],
+    endringer: [
+      [
+        'blirEndringsordre(gSvar.beslutningsgrunnlag)',
+        '(gSvar.beslutningsgrunnlag.varslingsplikt === true)',
+      ],
+    ],
     mal: ['F-MM-G16', 'F-MM-G17'],
   },
   // F27–F47 er formatet (#273): feilklassene i 7.2 i designnotatet, GR-U12, registeret (#320) og samspillsreviewet.
@@ -350,8 +358,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utled.ts`,
     endringer: [
       [
-        'gSvar?.beslutningsgrunnlag.varslingsplikt === true',
-        "gSvar?.standpunkter.some((p) => p.art === 'rettidighet' && p.hjemmel === '32.2') === true",
+        'blirEndringsordre(gSvar.beslutningsgrunnlag)',
+        "(gSvar.beslutningsgrunnlag.sammenfall && gSvar.standpunkter.some((p) => p.art === 'rettidighet' && p.hjemmel === '32.2'))",
       ],
     ],
     mal: ['F-MM-G18'],
@@ -583,8 +591,8 @@ const MUTASJONER: Mutasjon[] = [
         "import { avvisning } from './avvisning.ts';\nimport { GJELDENDE_REGLER } from './regler/regelsett.ts';",
       ],
       [
-        '    s.beslutningsgrunnlag = frys(s, krav, kjerne);',
-        '    s.beslutningsgrunnlag = frys(s, krav, { ...kjerne, regler: GJELDENDE_REGLER });',
+        '    s.beslutningsgrunnlag = lagret(frys(s, krav, kjerne.regler));',
+        '    s.beslutningsgrunnlag = lagret(frys(s, krav, GJELDENDE_REGLER));',
       ],
     ],
     mal: ['F-MM-R1'],
@@ -633,6 +641,28 @@ const MUTASJONER: Mutasjon[] = [
       ['WHERE sak_id = $1 AND prosjekt_id = $7`,', 'WHERE sak_id = $1 AND $7::text IS NOT NULL`,'],
     ],
     mal: ['lar bufferen holde seg i prosjektet'],
+  },
+  {
+    id: 'F59',
+    feilklasse: 'kategorien er ikke et par fra den lukkede listen (#335, HF-U1)',
+    fil: `${K}/format.ts`,
+    endringer: [['    anyOf: KATEGORIPAR,\n', '']],
+    mal: [
+      'avviser en underkategori under feil hovedkategori',
+      'en lagret rad med katalogens koder er ikke forstått',
+    ],
+  },
+  {
+    id: 'F60',
+    feilklasse: 'svarutkastet får andre standpunkter enn brevet (#351)',
+    fil: `${K}/frysing.ts`,
+    endringer: [
+      [
+        'standpunkter: grunnlagsstandpunkter(vurderinger, krav,',
+        'standpunkter: grunnlagsstandpunkter({ resultat: vurderinger.resultat }, krav,',
+      ],
+    ],
+    mal: ['svarutkastet blir en endringsordre som brevet det gir'],
   },
 ];
 
