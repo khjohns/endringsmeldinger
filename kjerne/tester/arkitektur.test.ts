@@ -281,9 +281,9 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'Utledning',
     'predikat',
     'begrensninger',
-    ['kommandoer/skriving.ts:vurder', 'utledning/utled.ts:utled'],
+    ['kommandoer/skriving.ts:skriv', 'utledning/utled.ts:utled'],
   ],
-  ['Utledning.begrensninger', 'predikat', 'grunn', ['kommandoer/skriving.ts:vurder']],
+  ['Utledning.begrensninger', 'predikat', 'grunn', ['kommandoer/skriving.ts:skriv']],
   // «Avklart» etter GR-U7 brukes bare der vedtakene sier det (MM-U13): vilkåret for
   // enigheten (GR-U7) og at kravene er avgjort (KA-U11, som EO-U5 bygger på).
   [
@@ -458,7 +458,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['typer.ts', 'relasjon', 'SPOR KRAVSPOR'],
   ['format/skjema.ts', 'skjema', 'erObjekt feilI tekst'],
   // #373: det basen ikke kan lagre, avvises før kommandoen vurderes.
-  ['format/skjema.ts', 'skjema', 'harUlagringsbarTekst', ['kommandoer/skriving.ts:vurder']],
+  ['format/skjema.ts', 'skjema', 'harUlagringsbarTekst', ['kommandoer/skriving.ts:skriv']],
   ['format/skjema.ts.TYPER', 'skjema', '*'],
   [
     'format/skjema.ts:feilI(s)',
@@ -588,31 +588,71 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
 
   // Brevteksten (frosset/brevtekst.ts, LV-U2, LV-U3, #369). Leses bare når brevet skrives.
   ['format/leser.ts:lesDokument', 'rad', 'brevtekst', ['format/leser.ts']],
-  ['Avsnitt', 'brevtekst', 'gjelder', ['format/leser.ts']],
+  ['Avsnitt', 'brevtekst', 'gjelder', ['format/leser.ts', 'frosset/brevtekst.ts']],
   ['Avsnitt', 'brevtekst', 'laast utdypning', ['frosset/brevtekst.ts']],
   ['Journalrad.data', 'rad', 'sakstittel', ['format/leser.ts']],
   ['Domenehendelse', 'brevtekst', 'tittel', ['kommandoer/skriving.ts:brevtekstFor']],
   ['Journalrad', 'kontekst', 'sak_id', ['kommandoer/skriving.ts:brevtekstFor']],
-  ['Svarutkast', 'kommando', 'utdypning', ['kommandoer/skriving.ts:svar']],
+  // Utdypningen kopieres til teksten. Kontrollene leser bare om den finnes (A6 i
+  // paragrafmatrisen, KA-U31–KA-U33, GR-U15).
+  [
+    'Svarutkast',
+    'kommando',
+    'utdypning',
+    ['kommandoer/skriving.ts:svar', 'kommandoer/nyttelast.ts:kontrollerSvar'],
+  ],
+  [
+    'Kommando',
+    'kommando',
+    'utdypning',
+    ['kommandoer/skriving.ts:dokument', 'kommandoer/nyttelast.ts:kravetsUtdypning'],
+  ],
+  // KA-U24, KA-U32: avgrensningene som krever begrunnelse, av serverens utregning.
+  [
+    'kommandoer/nyttelast.ts:avgrensninger(server)',
+    'regelsett',
+    'resultat subsidiaert_resultat',
+    ['kommandoer/nyttelast.ts:avgrensninger'],
+  ],
+  // A1: den låste teksten klienten viste, sammenliknet med teksten serveren lager.
+  ['Brevtekst', 'kommando', 'brevtekst', ['kommandoer/skriving.ts:skriv']],
+  ['Journalrad.data', 'rad', 'brevtekst', ['kommandoer/skriving.ts:laastTekst']],
+  [
+    'Avsnitt',
+    'brevtekst',
+    'laast',
+    ['kommandoer/skriving.ts:laastTekst', 'kommandoer/skriving.ts:tekstavvik'],
+  ],
   [
     'frosset/brevtekst.ts',
     'brevtekst',
-    'lagBrevtekst KanIkkeUttrykkes',
-    ['kommandoer/skriving.ts:brevtekstFor'],
+    'lagBrevtekst KanIkkeUttrykkes BrevetAvvises',
+    ['kommandoer/skriving.ts:brevtekstFor', 'kommandoer/skriving.ts:skriv'],
   ],
-  ['Saken', 'brevtekst', 'saksnummer tittel', ['frosset/brevtekst.ts']],
+  ['BrevetAvvises', 'brevtekst', 'regel', ['kommandoer/skriving.ts:skriv']],
+  // A2 og LV-U4 punkt 6: grunnlagssvaret og om sporene er subsidiære, lest av
+  // utledningen før brevet, så `frosset/` ikke når utledningen (A6).
+  ['Sporutledning', 'predikat', 'subsidiaer', ['kommandoer/skriving.ts:brevtekstFor']],
+  ['Saken', 'brevtekst', 'saksnummer tittel grunnlagssvar subsidiaer', ['frosset/brevtekst.ts']],
+  ['Tekst', 'brevtekst', 'j saken nytt sak', ['frosset/brevtekst.ts']],
+  ['frosset/brevtekst.ts:svartekst', 'brevtekst', 'tekst ordnes', ['frosset/brevtekst.ts']],
   ['Dokument', 'relasjon', 'id registrert', ['frosset/brevtekst.ts']],
+  // A4: vedleggene står i teksten, og et avsnitt kan gjelde dem.
+  ['Dokument', 'utsagn', 'dokumentasjon', ['frosset/brevtekst.ts', 'format/leser.ts']],
+  // GR-U14: TEs beskrivelse siteres fra teksten i brevet kravet står i.
+  ['Dokument', 'brevtekst', 'brevtekst', ['frosset/brevtekst.ts']],
   ['Krav', 'relasjon', 'dokument', ['frosset/brevtekst.ts']],
-  ['Krav.innhold', 'utsagn', 'tittel beskrivelse', ['frosset/brevtekst.ts']],
+  ['Krav.innhold', 'utsagn', 'tittel endringsordre', ['frosset/brevtekst.ts']],
   [
     'Journalen',
     'brevtekst',
-    'legg brev brevet dokument dokumenter element elementer krav svar versjon',
+    'legg brev brevet dokument dokumenter element elementer erRegistrert krav svar utdypning versjon',
     ['frosset/brevtekst.ts'],
   ],
   ['Element', 'brevtekst', 'dokument krav opplysning svar utsagn', ['frosset/brevtekst.ts']],
-  ['frosset/brevtekst.ts.HOVEDKATEGORI', 'brevtekst', '*', ['frosset/brevtekst.ts']],
   ['frosset/brevtekst.ts.UNDERKATEGORI', 'brevtekst', '*', ['frosset/brevtekst.ts']],
+  ['UNDERKATEGORI', 'brevtekst', 'navn hjemmel', ['frosset/brevtekst.ts']],
+  ['frosset/brevtekst.ts.LEDD_I_33_1', 'brevtekst', '*', ['frosset/brevtekst.ts']],
   [
     'frosset/brevtekst.ts:aapenInnsigelse',
     'relasjon',
@@ -624,7 +664,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'frosset/standpunkt.ts',
     'brevtekst',
-    'blirEndringsordre gjelderVarslingsplikten innsigelsenErOppgitt innsigelsenGjelderSvaret',
+    'blirEndringsordre gjelderVarslingsplikten innsigelsenErOppgitt innsigelsenGjelderSvaret prinsipalt standpunktet',
     ['frosset/brevtekst.ts'],
   ],
 ];

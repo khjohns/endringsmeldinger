@@ -374,8 +374,9 @@ function lesDokument(h: Journalrad): Dokument {
     // MM-U17: et registrert brev står som det ble sendt og har ingen tekst fra appen.
     if (erRegistrert(dokument.opplysninger))
       throw new Uforstaatt('et registrert brev har brevtekst fra appen');
-    // HF-U1: hvert avsnitt uttrykker ett element i samme brev.
+    // HF-U1: hvert avsnitt uttrykker ett element i samme brev, eller vedleggene i det (A4).
     const elementer = new Set<string>([
+      ...(dokument.dokumentasjon.length ? [id] : []),
       ...dokument.krav.map((k) => k.id),
       ...dokument.svar.map((x) => x.id),
       ...dokument.utsagn.map((u) => u.id),

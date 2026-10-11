@@ -31,8 +31,9 @@ export function avvikFraFormatet(rad: Journalrad): string[] {
 /**
  * LV-U3: elementene i et brev appen sendte som ikke står i brevteksten. Hvert krav,
  * svar og utsagn og hver opplysning skal ha ett avsnitt med en låst del; datoen for et
- * varsel står i avsnittet for varselet. Et registrert brev har ingen brevtekst
- * (MM-U17). Leses av raden alene, ikke av kjernen som skrev den.
+ * varsel står i avsnittet for varselet, og vedleggene i et avsnitt for dokumentet
+ * (A4). Et registrert brev har ingen brevtekst (MM-U17). Leses av raden alene, ikke
+ * av kjernen som skrev den.
  */
 export function utenAvsnitt(rad: Journalrad): string[] {
   if (rad.event_type !== 'dokument_registrert') return [];
@@ -52,6 +53,7 @@ export function utenAvsnitt(rad: Journalrad): string[] {
       (o) => !((o.hva === 'sendt' || o.hva === 'mottatt') && o.gjelder !== undefined)
     ),
   ].map((e) => e.id as string);
+  if (liste('dokumentasjon').length) elementer.push(rad.event_id);
   const avsnitt = (id: string) =>
     tekst.filter((a) => a.gjelder === id && typeof a.laast === 'string' && a.laast.length);
   return elementer

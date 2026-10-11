@@ -18,7 +18,7 @@ import {
   utenforOmfanget,
 } from '../frosset/standpunkt.ts';
 import type { Utledning } from '../utledning/utled.ts';
-import type { Avvisning } from '../typer.ts';
+import type { Avvisning, Krav } from '../typer.ts';
 
 function kontrollerSvar(s: Svarutkast, u: Utledning, regler: Regelsett): Avvisning | null {
   const krav = u.spor[s.spor].gjeldendeKrav!;
@@ -58,12 +58,69 @@ function kontrollerSvar(s: Svarutkast, u: Utledning, regler: Regelsett): Avvisni
       'ANNET_RESULTAT',
       `Serveren regner ut ${avvik.map((f) => `${f}=${String(server[f])}`).join(', ')}.`
     );
+  const grunner = avgrensninger(s, server);
+  if (grunner.length && s.utdypning === undefined)
+    return avvis(
+      'BEGRUNNELSE_MANGLER',
+      `Svaret må ha en begrunnelse, fordi det har ${grunner.join(', ')} (KA-U24, KA-U31).`
+    );
+  return null;
+}
+
+/**
+ * KA-U24, KA-U32: de selvstendige innsigelsene og avgrensningene i svaret som gjør
+ * det mindre gunstig for TE enn kravet, og som krever en begrunnelse. Dagens
+ * tilfeller står som liste; § 34.1.2, § 33.6.1 og § 34.1.3 kommer med når de
+ * bygges. At et svar bare er subsidiært fordi grunnlaget er avslått, krever ingen
+ * egen begrunnelse. Leser vurderingene og serverens utregning, ikke teksten.
+ */
+function avgrensninger(s: Svarutkast, server: Record<string, unknown>): string[] {
+  const v = s.vurderinger;
+  const ut: string[] = [];
+  if (s.spor === 'grunnlag') {
+    if (v.grunnlag_varslet_i_tide === false) ut.push('påberopt preklusjon etter § 32.2 (KA-U21)');
+    if (v.resultat === 'avslaatt') ut.push('avslag av grunnlaget');
+    if (v.resultat === 'paalegg_frafalt') ut.push('frafall etter § 32.3 c (KA-U32)');
+  } else if (s.spor === 'vederlag') {
+    if (server.resultat !== 'godkjent') ut.push('et beløp som ikke er godkjent fullt');
+  } else {
+    if (v.frist_varsel_ok === false) ut.push('påberopt preklusjon etter § 33.4');
+    if (v.vilkar_oppfylt === false) ut.push('«ingen hindring» etter § 33.1 (VS-U13)');
+    if ((server.subsidiaert_resultat ?? server.resultat) !== 'godkjent')
+      ut.push('dager som ikke er godkjent fullt');
+  }
+  return ut;
+}
+
+/**
+ * Det TEs krav må ha under den låste teksten: beskrivelsen av pålegget i et varsel
+ * etter § 32.2 (GR-U15) og begrunnelsen for dagene i et fristkrav (§ 33.6.1,
+ * KA-U33). Leser bare om utdypningen finnes; appen vurderer ikke om den er
+ * tilstrekkelig (KA-U19).
+ */
+function kravetsUtdypning(
+  k: Extract<Kommando, { type: 'krav' }>,
+  regler: Regelsett
+): Avvisning | null {
+  if (k.utdypning !== undefined) return null;
+  if (k.spor === 'frist')
+    return avvis(
+      'BEGRUNNELSE_MANGLER',
+      'Kravet om fristforlengelse må begrunne antallet dager (NS 8407 § 33.6.1, KA-U33).'
+    );
+  if (k.spor === 'grunnlag' && gjelderVarslingsplikten(k as unknown as Krav, regler))
+    return avvis(
+      'BESKRIVELSE_MANGLER',
+      'Varselet etter NS 8407 § 32.2 må beskrive pålegget, så en godkjenning kan si hva endringen går ut på (GR-U15).'
+    );
   return null;
 }
 
 export function nyttelastkontroll(k: Kommando, u: Utledning, regler: Regelsett): Avvisning | null {
   switch (k.type) {
     case 'krav': {
+      const utdypning = kravetsUtdypning(k, regler);
+      if (utdypning) return utdypning;
       const varsel = u.spor.frist.varsel;
       if (k.spor !== 'frist' || !k.varsel || !varsel) return null;
       const sendt = datoFor(

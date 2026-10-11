@@ -45,9 +45,12 @@ beskrivelse = """
 En kravversjon av grunnlaget. `erstatter` er forrige kravversjon i sporet.
 `hovedkategori` og `underkategori` er et par fra kjernens lukkede liste
 (`KATEGORIER` i `kjerne/format/koder.ts`), for eksempel `endring` og
-`irregulaer_endring`. Et ukjent par gjør raden ikke forstått."""
-felt = ["id", "spor", "erstatter", "hovedkategori", "underkategori", "tittel", "beskrivelse"]
-grunnlag = "KA-U2, designnotatet 4.2"
+`irregulaer_endring`. Et ukjent par gjør raden ikke forstått. I underkategorien
+`endringsordre` oppgir TE endringsordrens dato eller nummer (`endringsordre`),
+og bare der. TEs beskrivelse av forholdet står i brevteksten, som utdypningen
+under kravet."""
+felt = ["id", "spor", "erstatter", "hovedkategori", "underkategori", "tittel", "endringsordre"]
+grunnlag = "KA-U2, GR-U16, designnotatet 4.2"
 
 [[krav]]
 spor = "vederlag"
@@ -234,12 +237,12 @@ grunnlag = "MM-U9, MM-U11, GR-U12, KA-U10"
 navn = "brevtekst"
 beskrivelse = """
 Teksten i et brev appen sender, frosset da brevet ble skrevet: ett avsnitt per
-krav, svar, utsagn og opplysning parten sier i brevet (`gjelder`), med den låste
-delen appen lager av valgene (`laast`) og partens utdypning (`utdypning`) hver for
-seg. Det som ikke står i teksten, regnes ikke som meddelt. Appens vurdering står
+krav, svar, utsagn og opplysning parten sier i brevet (`gjelder`), og ett for
+vedleggene, som gjelder dokumentet, med den låste delen appen lager av valgene
+(`laast`) og partens utdypning (`utdypning`) hver for seg. Det som ikke står i teksten, regnes ikke som meddelt. Appens vurdering står
 ikke i teksten, og ingen regel leser den. Et registrert brev har ingen (MM-U17)."""
 felt = ["gjelder", "laast", "utdypning"]
-grunnlag = "LV-U2, LV-U3, B-13 om begrunnelsestekst, KA-U22, KA-U25"
+grunnlag = "LV-U2, LV-U3, LV-U4, B-13 om begrunnelsestekst, KA-U22, KA-U25"
 
 [[del]]
 navn = "utregning"
