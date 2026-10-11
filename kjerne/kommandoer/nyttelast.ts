@@ -29,18 +29,6 @@ function kontrollerSvar(s: Svarutkast, u: Utledning, regler: Regelsett): Avvisni
       'ANNEN_REGELVERSJON',
       `Svaret er regnet ut med regelversjon ${s.regelversjon}, serveren bruker ${regler.versjon}.`
     );
-  // VS-U11 (S5 til oppdragsgiver 11.10, foreslått): har byggherren gjort innsigelse
-  // mot varselet eller kravet, gjentar eller oppgir svaret den uttrykkelig.
-  const varsel = u.spor.frist.varsel?.id;
-  if (
-    s.spor === 'frist' &&
-    typeof s.vurderinger.frist_varsel_ok !== 'boolean' &&
-    u.innsigelser.some((i) => i.part === 'BH' && (i.gjelder === krav.id || i.gjelder === varsel))
-  )
-    return avvis(
-      'INNSIGELSE_UTEN_STANDPUNKT',
-      'Byggherren har gjort innsigelse mot varselet. Svaret må gjenta den eller oppgi den.'
-    );
   const utenfor = utenforOmfanget(s.spor, s.vurderinger as Record<string, unknown>);
   if (utenfor)
     return avvis('VURDERING_UTENFOR_KJERNEN', `Kjernen kan ikke lagre vurderingen: ${utenfor}.`);

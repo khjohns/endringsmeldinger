@@ -641,6 +641,18 @@ function utledSporene(
       spor[n].enighet = { grunnlag: enighetsgrunnlag(g, 'sammenfall'), holder: g.id };
   }
 
+  // KA-U16, KA-U20: en merking gjelder så lenge den ikke er avklart av den som sendte
+  // brevet, og et krav eller svar i brevet fortsatt gjelder i sporet sitt.
+  const avklaringer = henvisninger.filter((x) => x.art === 'avklaring');
+  const avklaringAv = (id: string) => avklaringer.find((a) => a.gjelder === id)?.id ?? null;
+  const gjelderFortsatt = (d: Dokument) =>
+    d.krav.some((k) => spor[k.spor].gjeldendeKrav?.id === k.id) ||
+    d.svar.some((s) => spor[s.spor].gjeldendeSvar?.id === s.id);
+  const aktive = [...merkinger.values()].filter(
+    (o) => avklaringAv(o.id) === null && gjelderFortsatt(dokumenter.get(o.brev)!)
+  );
+  for (const n of SPOR) spor[n].forbehold = aktive.some((o) => o.spor.includes(n));
+
   const gSvar = spor.grunnlag.gjeldendeSvar;
   const eg = spor.grunnlag.enighet;
   // § 31.3: et brev sendt i appen oppfyller den, fordi appen lager brevet (#310). Registrert
@@ -674,17 +686,6 @@ function utledSporene(
       gSvar ?? (regnetMot ? (ikkeErstattet(spor.grunnlag.svar, regnetMot)[0] ?? null) : null);
     spor[n].subsidiaer = kilde ? grunnerFraGrunnlaget(svar[kilde.id]) : [];
   }
-  // KA-U16, KA-U20: en merking gjelder så lenge den ikke er avklart av den som sendte
-  // brevet, og et krav eller svar i brevet fortsatt gjelder i sporet sitt.
-  const avklaringer = henvisninger.filter((x) => x.art === 'avklaring');
-  const avklaringAv = (id: string) => avklaringer.find((a) => a.gjelder === id)?.id ?? null;
-  const gjelderFortsatt = (d: Dokument) =>
-    d.krav.some((k) => spor[k.spor].gjeldendeKrav?.id === k.id) ||
-    d.svar.some((s) => spor[s.spor].gjeldendeSvar?.id === s.id);
-  const aktive = [...merkinger.values()].filter(
-    (o) => avklaringAv(o.id) === null && gjelderFortsatt(dokumenter.get(o.brev)!)
-  );
-  for (const n of SPOR) spor[n].forbehold = aktive.some((o) => o.spor.includes(n));
 
   const paaberopelser = (art: 'innsigelse' | 'protest' | 'passivitet'): Paaberopelse[] =>
     henvisninger
