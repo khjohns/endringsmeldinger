@@ -1,7 +1,8 @@
 # #348: feilinnføringene for kjernen (kjerne/tester/feilinnfoering.ts). Jobben
 # er rød når en mutasjon ikke oppdages, når kontrollkjøringen uten mutasjon ikke
-# er grønn, eller når arbeidskopien ikke er ren etterpå. Én vitest-kjøring mot
-# basen per mutasjon, om lag 33 minutter, så den holdes utenfor ci.yml.
+# er grønn, eller når arbeidskopien ikke er ren etterpå. Én vitest-kjøring per
+# mutasjon, fordelt på like mange arbeidskopier med hver sin testbase som runneren
+# har prosessorer (#378). Den tar fortsatt lang tid, så den holdes utenfor ci.yml.
 #
 # Kjøres (arbeidsvalget 10.10 i #348, minuttbudsjettet på GitHub Free):
 # - nattlig, men bare når noe under STIER er endret siden forrige vellykkede
@@ -145,10 +146,12 @@ jobs:
 
       - name: Kjør feilinnføringene
         id: feilinnfoering
-        run: node kjerne/tester/feilinnfoering.ts
+        run: |
+          echo "Prosessorer: $(nproc)"
+          node kjerne/tester/feilinnfoering.ts
 
-      # Skriptet kontrollerer filene det muterer. Her kontrolleres hele treet,
-      # også når skriptet ble avbrutt midt i en mutasjon.
+      # Skriptet muterer bare kopier utenfor treet (#378). Kontrollen fanger et
+      # skript som likevel skriver i treet.
       - name: Kontroller at arbeidskopien er ren
         if: always() && steps.feilinnfoering.outcome != 'skipped'
         run: |
