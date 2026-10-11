@@ -53,7 +53,7 @@ FEILINNFOERINGER = [
      "    return `{${Object.keys(verdi)\n      .sort()", "    return `{${Object.keys(verdi)",
      "sjekksummen"),
     ("S10", "tekst basen ikke kan lagre, slipper gjennom til basen", "server/app.ts",
-     "      if (ulagringsbarTekst(v)) return", "      if (false) return",
+     "if (typeof v === 'string' && ulagringsbarTekst(v))", "if (typeof v === 'string' && false)",
      "tekst basen ikke kan lagre"),
     ("S11", "dybdegrensen for kroppen mangler", "server/app.ts",
      "if (dybde > STORSTE_DYBDE) return", "if (false) return",
