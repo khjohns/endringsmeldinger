@@ -1,4 +1,4 @@
-"""CI-vakten i .github/scripts/regelversjon.sh mot konstruerte differ (#191, #216, #221, #308, #330).
+"""CI-vakten i .github/scripts/regelversjon.sh mot konstruerte differ (#191, #216, #221, #308, #330, #309).
 
 Hvert tilfelle bygger et eget git-repo med de to speilene, slik at skriptet
 kjører uten å røre filene i dette repoet.
@@ -28,6 +28,11 @@ def _skriv(repo: Path, filer: dict[str, str]) -> None:
         (repo / sti).write_text(innhold)
     _git(repo, "add", "-A")
     _git(repo, "commit", "-qm", "endring")
+
+
+def _mv(repo: Path, fra: str, til: str) -> None:
+    (repo / til).parent.mkdir(parents=True, exist_ok=True)
+    _git(repo, "mv", fra, til)
 
 
 def _versjoner(ts: int, py: int) -> dict[str, str]:
@@ -93,6 +98,8 @@ def test_mangler_base_gir_bruksmelding(repo):
 
 KJERNE_REGLER = "kjerne/regler/regelsett.ts"
 KJERNE_VERSJON = "kjerne/versjon.ts"
+KJERNE_STANDPUNKT = "kjerne/frosset/standpunkt.ts"
+KJERNE_FORMAT = "kjerne/format/format.ts"
 
 
 def _kjerne(regel: int, projeksjon: int) -> dict[str, str]:
@@ -111,7 +118,9 @@ def kjerne(repo):
             **_kjerne(5, 2),
             "kjerne/regler/frist.ts": "a\n",
             "kjerne/utled.ts": "a\n",
-            "kjerne/standpunkt.ts": "a\n",
+            KJERNE_STANDPUNKT: "a\n",
+            # Formatet finnes, så vakten kan kontrollere det; testene av formatet skriver over det.
+            KJERNE_FORMAT: "export const FORMAT = 1;\nexport const LESERFORMAT = 1;\nexport const X = 0;\n",
         },
     )
     return sti, _git(sti, "rev-parse", "HEAD")
@@ -127,10 +136,13 @@ def kjerne(repo):
         pytest.param({"kjerne/utled.ts": "b\n", **_kjerne(6, 2)}, 1, id="utledningen med bare ny regelversjon"),
         # #330: standpunkt.ts bestemmer hva beslutningsgrunnlaget fryser (MM-U11),
         # så den krever ny regelversjon, og ny projeksjonsversjon som resten av kjernen.
-        pytest.param({"kjerne/standpunkt.ts": "b\n"}, 1, id="standpunktene uten nye versjoner"),
-        pytest.param({"kjerne/standpunkt.ts": "b\n", **_kjerne(5, 3)}, 1, id="standpunktene med bare ny projeksjonsversjon"),
-        pytest.param({"kjerne/standpunkt.ts": "b\n", **_kjerne(6, 2)}, 1, id="standpunktene med bare ny regelversjon"),
-        pytest.param({"kjerne/standpunkt.ts": "b\n", **_kjerne(6, 3)}, 0, id="standpunktene med begge versjonene"),
+        pytest.param({KJERNE_STANDPUNKT: "b\n"}, 1, id="standpunktene uten nye versjoner"),
+        pytest.param({KJERNE_STANDPUNKT: "b\n", **_kjerne(5, 3)}, 1, id="standpunktene med bare ny projeksjonsversjon"),
+        pytest.param({KJERNE_STANDPUNKT: "b\n", **_kjerne(6, 2)}, 1, id="standpunktene med bare ny regelversjon"),
+        pytest.param({KJERNE_STANDPUNKT: "b\n", **_kjerne(6, 3)}, 0, id="standpunktene med begge versjonene"),
+        # #309: det samme gjelder hver fil i frosset/.
+        pytest.param({"kjerne/frosset/frysing.ts": "b\n", **_kjerne(5, 3)}, 1, id="frysingen med bare ny projeksjonsversjon"),
+        pytest.param({"kjerne/frosset/frysing.ts": "b\n", **_kjerne(6, 3)}, 0, id="frysingen med begge versjonene"),
         pytest.param({"kjerne/tester/kjerne.test.ts": "b\n"}, 0, id="bare testene"),
     ],
 )
@@ -144,11 +156,11 @@ def test_kjernen_krever_ny_versjon_der_den_er_endret(kjerne, filer, ventet):
 def test_kjernen_uten_standpunkt_ts_feiler(kjerne):
     """#330: kravet om ny regelversjon forsvinner ikke stille om standpunkt.ts flyttes."""
     sti, base = kjerne
-    _git(sti, "rm", "-q", "kjerne/standpunkt.ts")
+    _git(sti, "rm", "-q", KJERNE_STANDPUNKT)
     _git(sti, "commit", "-qm", "flytt")
     svar = _kjor(sti, base)
     assert svar.returncode == 1, svar.stdout + svar.stderr
-    assert "kjerne/standpunkt.ts finnes ikke" in svar.stdout
+    assert f"{KJERNE_STANDPUNKT} finnes ikke" in svar.stdout
 
 
 def test_kjernen_og_speilene_kontrolleres_hver_for_seg(kjerne):
@@ -156,9 +168,6 @@ def test_kjernen_og_speilene_kontrolleres_hver_for_seg(kjerne):
     sti, base = kjerne
     _skriv(sti, {"src/lib/domain/regel.ts": "b\n", "kjerne/utled.ts": "b\n", **_kjerne(5, 3)})
     assert _kjor(sti, base).returncode == 1
-
-
-KJERNE_FORMAT = "kjerne/format.ts"
 
 
 def _format(skriver: int, leser: int | None) -> dict[str, str]:
@@ -190,3 +199,103 @@ def test_formatet_rulles_ut_i_to_trinn(kjerne, for_, etter, ventet):
     _skriv(sti, {**_format(*etter), **_kjerne(5, 3)})
     svar = _kjor(sti, base)
     assert svar.returncode == ventet, svar.stdout + svar.stderr
+
+
+def test_kjernen_uten_formatet_feiler(kjerne):
+    """#309: kontrollen av formatet forsvinner ikke stille om format.ts flyttes."""
+    sti, base = kjerne
+    _mv(sti, KJERNE_FORMAT, "kjerne/format.ts")
+    _git(sti, "commit", "-qm", "flytt")
+    svar = _kjor(sti, base)
+    assert svar.returncode == 1, svar.stdout + svar.stderr
+    assert f"{KJERNE_FORMAT} finnes ikke" in svar.stdout
+
+
+def test_formatet_leses_fra_den_gamle_stien_etter_en_flytting(kjerne):
+    """#309: en flytting av format.ts skjuler ikke et format som skrives før det er lest."""
+    sti, _ = kjerne
+    _mv(sti, KJERNE_FORMAT, "kjerne/format.ts")
+    _git(sti, "commit", "-qm", "gammel sti")
+    base = _git(sti, "rev-parse", "HEAD")
+    _mv(sti, "kjerne/format.ts", KJERNE_FORMAT)
+    _skriv(sti, {**_format(2, 2), **_kjerne(5, 3)})
+    svar = _kjor(sti, base)
+    assert svar.returncode == 1, svar.stdout + svar.stderr
+    assert "versjonen før leste bare format 1" in svar.stdout
+
+
+# #309: en flytting endrer de relative importene, og prettier kan bryte en import
+# over flere linjer. Bare det regnes ikke som en endring. Kroppen er lang nok til
+# at git kjenner igjen omdøpingen; ellers regnes fila som ny og endret.
+KROPP = "".join(f"export const linje{i} = {i};\n" for i in range(20))
+FOR_FLYTTING = {
+    "kjerne/typer.ts": "export type Spor = 'grunnlag';\n",
+    "kjerne/hjelp.ts": "export const hjelp = 1;\n",
+    "kjerne/annen.ts": "export const hjelp = 2;\n",
+    "kjerne/standpunkt.ts": (
+        "import type { Spor } from './typer.ts';\n"
+        "import { hjelp } from './hjelp';\n"
+        "export const virkning = (s: Spor) => hjelp;\n" + KROPP
+    ),
+    "kjerne/utled.ts": f"import {{ virkning }} from './standpunkt.ts';\nexport const utled = virkning;\n{KROPP}",
+}
+STANDPUNKT_FLYTTET = (
+    "import type {\n  Spor,\n} from '../typer.ts';\n"
+    "import { hjelp } from '../hjelp';\n"
+    "export const virkning = (s: Spor) => hjelp;\n" + KROPP
+)
+
+
+@pytest.fixture
+def flytting(kjerne):
+    sti, _ = kjerne
+    _git(sti, "rm", "-q", KJERNE_STANDPUNKT)
+    _skriv(sti, FOR_FLYTTING)
+    return sti, _git(sti, "rev-parse", "HEAD")
+
+
+def _flytt(sti: Path, standpunkt: str, utled: str = "../frosset/standpunkt.ts") -> None:
+    _mv(sti, "kjerne/standpunkt.ts", KJERNE_STANDPUNKT)
+    _mv(sti, "kjerne/utled.ts", "kjerne/utledning/utled.ts")
+    _skriv(sti, {
+        KJERNE_STANDPUNKT: standpunkt,
+        "kjerne/utledning/utled.ts": f"import {{ virkning }} from '{utled}';\nexport const utled = virkning;\n{KROPP}",
+    })
+
+
+def test_en_ren_flytting_krever_ingen_ny_versjon(flytting):
+    sti, base = flytting
+    _flytt(sti, STANDPUNKT_FLYTTET)
+    svar = _kjor(sti, base)
+    assert svar.returncode == 0, svar.stdout + svar.stderr
+    assert "Bare flyttet" in svar.stdout
+
+
+@pytest.mark.parametrize(
+    "standpunkt, versjoner, ventet",
+    [
+        pytest.param(STANDPUNKT_FLYTTET.replace("=> hjelp", "=> hjelp + 1"), {}, 1, id="endret innhold"),
+        pytest.param(STANDPUNKT_FLYTTET.replace("=> hjelp", "=> hjelp + 1"), _kjerne(6, 3), 0, id="endret innhold med begge versjonene"),
+        pytest.param(STANDPUNKT_FLYTTET.replace("'../hjelp'", "'../annen'"), {}, 1, id="en import med et annet mål"),
+        pytest.param(STANDPUNKT_FLYTTET.replace("'../hjelp'", "'../annen'"), _kjerne(5, 3), 1, id="en import med et annet mål og bare ny projeksjonsversjon"),
+    ],
+)
+def test_en_flytting_med_endring_krever_ny_versjon(flytting, standpunkt, versjoner, ventet):
+    sti, base = flytting
+    _flytt(sti, standpunkt)
+    if versjoner:
+        _skriv(sti, versjoner)
+    svar = _kjor(sti, base)
+    assert svar.returncode == ventet, svar.stdout + svar.stderr
+
+
+def test_en_flytting_ut_av_frosset_krever_ny_regelversjon(kjerne):
+    """#309: det vakten dekker, krymper ikke ved en flytting."""
+    sti, _ = kjerne
+    _skriv(sti, {"kjerne/frosset/frysing.ts": "a\n"})
+    base = _git(sti, "rev-parse", "HEAD")
+    _mv(sti, "kjerne/frosset/frysing.ts", "kjerne/kommandoer/frysing.ts")
+    _skriv(sti, _kjerne(5, 3))
+    svar = _kjor(sti, base)
+    assert svar.returncode == 1, svar.stdout + svar.stderr
+    assert "REGELVERSJON" in svar.stdout
