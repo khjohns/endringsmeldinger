@@ -147,7 +147,7 @@ Toppnivåfelt i modellen som ikke lagres: `versjon`.
 
 ### `grunnlag_trukket`
 
-TE trekker ansvarsgrunnlaget, og med det kravene i saken.
+TE trekker grunnlaget, og med det kravene i saken.
 
 | | |
 | --- | --- |
@@ -482,7 +482,7 @@ Feltene i `data`:
 
 ### `respons_grunnlag`
 
-BH svarer på ansvarsgrunnlaget: godkjent, avslått eller frafalt pålegg, og om grunnlaget er varslet i tide.
+BH svarer på grunnlaget: godkjent, avslått eller frafalt pålegg, og om grunnlaget er varslet i tide.
 
 | | |
 | --- | --- |
@@ -518,7 +518,7 @@ Feltene i `data`:
 
 ### `respons_grunnlag_oppdatert`
 
-BH endrer sitt svar på ansvarsgrunnlaget («snuoperasjon»).
+BH endrer sitt svar på grunnlaget («snuoperasjon»).
 
 | | |
 | --- | --- |

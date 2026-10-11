@@ -1,9 +1,15 @@
 # Hovedplan: sikkerhet, dataintegritet og varig levering
 
-**Opprettet:** 2026-09-16. **Sist sluttredigert:** 2026-10-10 (3.1), mot commit
-`7460838862a8dec0697a7cc3d48f57a652af9902` (`main`).
+**Opprettet:** 2026-09-16. **Sist sluttredigert:** 2026-10-11, mot commit
+`6f56672c00aca01eaac8e9566c672535c37bce20` (`main`).
 **Status:** Autoritativ plan og eneste løpende kilde til vedtak, rekkefølge og
 funnstatus. Appen er ikke i produksjon og har ingen reelle data.
+
+Teksten før sluttredigeringen 11.10 er bevart i Git:
+`git show 6f56672:docs/plans/2026-09-16-godkjenning-og-varig-levering.md`
+(blob `9421cba77197f29648d7be092e0a7861d1740ea3`). Den har teksten som
+forutsatte PostgreSQL eller at Python beholder databasedelen, slik den sto før
+[B-12, databasen](#b-12-databasen) og [B-19](#b-19) (#396).
 
 Teksten før sluttredigeringen 10.10 er bevart i Git:
 `git show 7460838:docs/plans/2026-09-16-godkjenning-og-varig-levering.md`
@@ -53,8 +59,8 @@ ikke er vedtatt. Slike valg står som åpne beslutninger i
 | [Metodeprøven](../vedlegg/metodeprove-frist-2026-10-08/README.md) | Prøve av fristkrav og tidsinnsigelser. Vedtakene er MP-U4–MP-U7 |
 | [Arkitekturføringene AF-01–AF-06](../arkitekturforinger-2026-09-21.md) | Vedtatte føringer. Normative for design, ikke implementert |
 | [Transaksjonsplanen](2026-09-17-atomisk-utstedelse-og-outbox.md) | Underordnet delplan. Normativ for kommando-, låse-, worker- og akseptansetestkontrakten der den er mer presis enn denne planen. Kontrakten gjelder uansett språk; for KOE-, EO- og forseringssakene gjelder den TS-stien (FK). Merknadene der gjelder foran eldre tekst |
-| [Design v2 for B-02](../design-b02-tilgangsmekanisme-v2-2026-09-23.md) | Grunnlaget for alternativ C og transport T2, vedtatt 23.09. Normativt for F1 der det er mer presist enn denne planen. Punktene 3–6 i avsnitt 9 der er avgjort 23.09 (3.1) |
-| [Målskjemaet](../design-maalskjema-database-2026-09-20.md) | Retning for skjemaet, justert av AF-01, AF-03 og AF-04 |
+| [Design v2 for B-02](../design-b02-tilgangsmekanisme-v2-2026-09-23.md) | Grunnlaget for alternativ C og transport T2, vedtatt 23.09. Normativt for F1 der det er mer presist enn denne planen. Punktene 3–6 i avsnitt 9 der er avgjort 23.09 (3.1). Designet er skrevet for PostgreSQL; etter [B-12, databasen](#b-12-databasen) uttrykkes og prøves mekanismen i T-SQL (#395) |
+| [Målskjemaet](../design-maalskjema-database-2026-09-20.md) | Retning for skjemaet, justert av AF-01, AF-03 og AF-04. Skrevet for PostgreSQL; plattformen er Azure SQL etter [B-12, databasen](#b-12-databasen) |
 | [Design: durable inbox og outbox](../design-durable-inbox-outbox-2026-09-17.md) | Designgrunnlag. Tabellnavnene der er forslag |
 | [Catenda-dataflyten](../catenda-dataflyt.md) | Referanse for API-kontrakter og tidligere levende tester |
 | [Konsolidering v2](../konsolidering-masterplan-2026-09-22-v2.md) · [kildegrunnlag v2](../konsolidering-kildegrunnlag-2026-09-22-v2.md) | Historisk forslag. Strukturen er brukt redaksjonelt; statusene er ikke overtatt uprøvd |
@@ -68,8 +74,12 @@ Sluttredigeringen 09.10 innarbeidet vedtakene 09.10 og ordnet 3.1 etter
 kontraktstema. Sluttredigeringen 10.10 innarbeidet de daterte merknadene i
 Følge-kolonnen i 3.1 (#346); teksten før er
 `git show 7460838:docs/plans/2026-09-16-godkjenning-og-varig-levering.md`
-(blob `a325fbc3b0934cea3bb09c1839d85edbf493f5ab`). Endrer noe status, rettes
-det her med en datert merknad.
+(blob `a325fbc3b0934cea3bb09c1839d85edbf493f5ab`). Sluttredigeringen 11.10
+rettet teksten utenfor vedtakene etter B-12, databasen, og B-19 (#396), ga F0b
+nytt innhold, byttet ordet «ansvarsgrunnlaget» i B-13 etter HF-U2 (#384) og
+førte inn KA-U30; teksten før er
+`git show 6f56672:docs/plans/2026-09-16-godkjenning-og-varig-levering.md`.
+Endrer noe status, rettes det her med en datert merknad.
 
 ### 1.3 Begreper som holdes adskilt
 
@@ -105,7 +115,7 @@ Dokumentredigering lukker ingen kode- eller databasefeil.
 | Svar- og lesegrense | Navneoppslag, fletting av `hendelse` og `notat`, skjerming av interne notater, aktivitetstall etter det leseren ser | Navn og skjerming er presentasjon. De skal ikke påvirke domenetilstanden (AF-05) |
 | Domene | NS 8407-regler og ren utledning fra journalen. For KOE-, EO- og forseringssakene eier TS-kjernen kommandoene, valideringen, utledningen, journalhendelsene, beslutningsgrunnlaget og enighetsgrunnlaget (B-17 med merknaden 09.10) | Samme journal skal gi samme utledning, uten server, database eller nett |
 | Datalag | Prosjekt-, side- og teamgrense for private data. Uforanderlig journal. Én transaksjon per bindende kommando | Grensen må holde også når et nytt lesepunkt glemmer filteret (AF-01, AF-02) |
-| Levering og integrasjon (worker) | Gjengir og leverer frosne brev, kaller Catenda og fører tekniske leveringsresultater etter commit. Lease med token, avstemming og usikkert utfall. Tolker ikke journalen for å avgjøre hva et brev betyr eller hva partene kan gjøre. Python kan beholde dette laget (B-17); hvor det kjører, avgjøres med B-18 | Et eksternt kall kan ikke rulles tilbake. Lokal lås beviser ikke ekstern effekt |
+| Levering og integrasjon (worker) | Gjengir og leverer frosne brev, kaller Catenda og fører tekniske leveringsresultater etter commit. Lease med token, avstemming og usikkert utfall. Tolker ikke journalen for å avgjøre hva et brev betyr eller hva partene kan gjøre. Python kan beholde dette laget så lenge det ikke leser eller skriver i databasen selv, og bare til det flyttes til TS ([B-17](#b-17), [B-19](#b-19), [LV-U1](#lv-u1)) | Et eksternt kall kan ikke rulles tilbake. Lokal lås beviser ikke ekstern effekt |
 | Catenda | Ekstern kanal og dokumentarkiv (P4) | Appen har ingen vei utenom; avhengigheten må avklares kontraktsmessig |
 
 ### 2.2 Hva som finnes, og hva som er planlagt
@@ -123,19 +133,21 @@ toppteksten).
 | Interne notater | Teamvern i datalaget (AF-01) |
 | Saksmetadata | Register og projeksjon, én skriver i hendelsens transaksjon (MS-06, MS-07). Navn foreløpige |
 | Relasjoner | Avhenger av B-01 |
-| Godkjenningspakker og policy | PostgreSQL med versjonert policy (F1, F2) |
-| Utkast | PostgreSQL med teamvern (F1) |
+| Godkjenningspakker og policy | Databasen, med versjonert policy (F1, F2) |
+| Utkast | Databasen, med teamvern (F1) |
 | Vedleggsregister | Vedleggstabell med hash, revisjon og karantenestatus (F2) |
 | Leveringsstatus | Erstattes av outbox-kvitteringer (F3) |
 | Sammensatt skriving | Én transaksjon per bindende kommando, over direkte tilkobling til databasekommandoer (F0b, F2). For KOE-, EO- og forseringssakene i TS-stien (FK) |
 | Utgående levering | Outbox og worker. Foreløpige navn: `kommando`, `utgaende_levering` |
 | Webhook-mottak | Varig inbox. Foreløpig navn: `innkommende_hendelse` |
 | Tilgangslogg | Logg for sensitive lesinger, eksport og endringer i fullmakt og tilgang |
-| Roller | Avgrensede roller for runtime, worker, drift og migrering (AF-02). Runtime logger inn direkte med en rolle som ikke kan bli `service_role` (T2, F1) |
-| CI | Repositoriene testes mot ekte PostgreSQL over samme tilkobling som produksjonen, med skrivbar testbase (F0b). Tester som logger inn med de avgrensede rollene (F1) |
+| Roller | Avgrensede roller for runtime, worker, drift og migrering (AF-02). Runtime logger inn direkte, med managed identity, og kan ikke ta eierens eller en administrators rettigheter (T2, F1, [B-12, databasen](#b-12-databasen)) |
+| CI | Datalaget testes mot en ekte database av samme slag som produksjonen, over samme tilkobling, med skrivbar testbase (F0b, [B-12, databasen](#b-12-databasen)). Tester som logger inn med de avgrensede rollene (F1) |
 
 Tabellnavn i kolonnen «Planlagt» fastsettes i migrasjonene.
-Planen låser ikke et tabelltall.
+Planen låser ikke et tabelltall. Databasen er Azure SQL
+([B-12, databasen](#b-12-databasen)); hvordan journalen lagres, er ikke
+avgjort ([merknaden 11.10 til B-12](#b-12-merknad-2026-10-11)).
 
 ### 2.3 Invarianter
 
@@ -206,13 +218,16 @@ Disse kravene gjelder alle faser. Kilden står i parentes.
 Disse styrer implementeringen. De tas ikke opp igjen uten at beslutningen
 eksplisitt oppheves.
 
-> **Merknad 2026-10-09 til 3.1, oppdatert ved sluttredigeringen 10.10: statusnavn og «Følge».** Flere vedtak bruker
+> **Merknad 2026-10-09 til 3.1, oppdatert ved sluttredigeringene 10.10 og 11.10: statusnavn og «Følge».** Flere vedtak bruker
 > navn fra Python-koden: sporstatuser som `GODKJENT`, `AVSLATT_AKSEPTERT` og
 > `FRAFALT`, samlede statuser som `OMFORENT`, `LUKKET_AVSLATT` og
 > `LUKKET_TRUKKET`, `kan_utstede_eo` og «låst». Navnet er en visningsetikett.
 > Det bindende er innholdet vedtaket beskriver: hvem som har sagt hva om hvilket
 > krav, og hvilken virkning det har etter kontrakten. «Låst» betyr enighet
-> ([GR-U10](#gr-u10)). Vedtakstekstene skrives ikke om (oppdragsgiver 09.10).
+> ([GR-U10](#gr-u10)). Det samme gjelder navn på hendelser, felt og koder fra
+> koden: vedtaket gjelder innholdet, og navnene kan endres ved refaktorering,
+> for eksempel for å passe bedre med kontraktsteksten (oppdragsgiver 11.10).
+> Vedtakstekstene skrives ikke om (oppdragsgiver 09.10).
 > Et nytt vedtak formuleres i kontraktens begreper (avsnitt 8).
 >
 > Kolonnen «Følge» viser først hvordan vedtaket forholder seg til andre
@@ -246,13 +261,14 @@ eksplisitt oppheves.
 | <a id="ka-u2"></a>KA-U2: kravversjonene er de hendelsene projeksjonen og frontenden regner som krav: `grunnlag_opprettet` og `grunnlag_oppdatert`, `vederlag_krav_sendt` med kravinnhold og `vederlag_krav_oppdatert`, `frist_krav_sendt`, `frist_krav_oppdatert` og `frist_krav_spesifisert`. Et frittstående konsekvensvarsel (`vederlag_krav_sendt` med `varsel_type` «varsel»), et trekk og byggherrens innsigelse eller forespørsel er ikke kravversjoner. Godkjenningsflyten skal bruke samme definisjon | 08.10, oppdragsgiver | Presiserer vedtaket om ny kravversjon 05.10. Projeksjonen og `submissionRefs` følger det; `claims()` i godkjenningsflyten gjør det ikke (DT-02) |
 | <a id="ka-u3"></a>KA-U3: vedtaket om ny kravversjon gjelder til saken er `OMFORENT`. Deretter avvises en ny kravversjon, og et nytt krav om samme forhold går i en ny sak, som ved et trukket krav | 08.10, oppdragsgiver | Etter [KA-U7](#ka-u7) (09.10) kan TE ikke revidere et krav partene er enige om, heller ikke mens et annet spor er åpent. Som i dag: `CASE_NOT_CLOSED` avviser oppdateringen (K 08.10). TE kan altså revidere et fullt godkjent krav bare så lenge et annet spor er åpent |
 | <a id="ka-u8"></a>KA-U8: en kravversjon på 0 dager eller 0 kr avvises. 0 er ikke et krav om noe (§ 33.6.1: «det antall dager han krever»). TE trekker kravet eller sender det ikke | 09.10, oppdragsgiver etter lesning av NS 8407 § 5 og §§ 31–35 | Avgjør #179. «Sender det ikke» er presisert 09.10 av [KA-U12](#ka-u12): TE sier uttrykkelig «ingen krav» |
-| <a id="ka-u12"></a>KA-U12: TE kan si uttrykkelig at det ikke kreves vederlag eller fristforlengelse i et spor som ikke er sendt («ingen krav»). Utsagnet lukker sporet på samme måte som et trekk: det teller som trukket i KA-U11 og som oppgjort i EO-U5. Det er ikke et krav på 0 (KA-U8). Har byggherren godkjent grunnlaget, er godkjenningen endringsordren (§ 32.3 første ledd a, GR-U10). Har byggherren ikke svart på grunnlaget, kan byggherren svare ved å utstede en endringsordre i en EO-sak som viser til KOE-saken (§ 32.3 første ledd a). KOE-saken trekkes ikke. Forkastet: at byggherren utsteder endringsordren i en egen EO-sak og TE trekker KOE-saken, fordi journalen da sier at TE trakk kravet om endring, og fordi en godkjenning av grunnlaget allerede er en endringsordre; og å la begge veier stå åpne | 09.10, oppdragsgiver (#308) | Presiserer KA-U8, KA-U11 og EO-U5. Presisert 10.10 av [KA-U15](#ka-u15): TE kan si «ingen krav» i fristsporet etter et varsel om fristforlengelse, men ikke før grunnlaget er sendt, og hva TE gir avkall på, avgjøres før «ingen krav» tas i bruk. Presisert 10.10 av [KA-U17](#ka-u17): «ingen krav» er avkall, også for følger som ikke er kjent. At godkjenningen er endringsordren, gjelder underkategoriene som § 32.2 gjelder for (GR-U11, [KA-U13](#ka-u13); 09.10), og krever også § 31.3 ([GR-U13](#gr-u13); 10.10). Ikke bygget: utsagnet er en ny kommando i #309. Hvordan EO-saken viser til KOE-saken når den er byggherrens svar på grunnlaget, er avgjort 10.10 av [EO-U6](#eo-u6) |
+| <a id="ka-u12"></a>KA-U12: TE kan si uttrykkelig at det ikke kreves vederlag eller fristforlengelse i et spor som ikke er sendt («ingen krav»). Utsagnet lukker sporet på samme måte som et trekk: det teller som trukket i KA-U11 og som oppgjort i EO-U5. Det er ikke et krav på 0 (KA-U8). Har byggherren godkjent grunnlaget, er godkjenningen endringsordren (§ 32.3 første ledd a, GR-U10). Har byggherren ikke svart på grunnlaget, kan byggherren svare ved å utstede en endringsordre i en EO-sak som viser til KOE-saken (§ 32.3 første ledd a). KOE-saken trekkes ikke. Forkastet: at byggherren utsteder endringsordren i en egen EO-sak og TE trekker KOE-saken, fordi journalen da sier at TE trakk kravet om endring, og fordi en godkjenning av grunnlaget allerede er en endringsordre; og å la begge veier stå åpne | 09.10, oppdragsgiver (#308) | Presiserer KA-U8, KA-U11 og EO-U5. Presisert 10.10 av [KA-U15](#ka-u15): TE kan si «ingen krav» i fristsporet etter et varsel om fristforlengelse, men ikke før grunnlaget er sendt, og hva TE gir avkall på, avgjøres før «ingen krav» tas i bruk. Presisert 10.10 av [KA-U17](#ka-u17): «ingen krav» er avkall, også for følger som ikke er kjent. At godkjenningen er endringsordren, gjelder underkategoriene som § 32.2 gjelder for (GR-U11, [KA-U13](#ka-u13); 09.10), og krever også § 31.3 ([GR-U13](#gr-u13); 10.10). Ikke bygget: utsagnet er en ny kommando i #309. Hvordan EO-saken viser til KOE-saken når den er byggherrens svar på grunnlaget, er avgjort 10.10 av [EO-U6](#eo-u6). Merknad 11.10 (oppdragsgiver): «på samme måte som et trekk» gjelder at sporet lukkes ([KA-U11](#ka-u11), [EO-U5](#eo-u5)). Hvor langt avkallet rekker, står i [KA-U17](#ka-u17) og [KA-U25](#ka-u25) for «ingen krav» og i [KA-U14](#ka-u14) og [KA-U22](#ka-u22) for et trekk |
 | <a id="ka-u15"></a>KA-U15: TE kan si «ingen krav» (KA-U12) i fristsporet etter et varsel om fristforlengelse (§ 33.4), fordi et frittstående varsel ikke er en kravversjon (KA-U2). Før grunnlaget er sendt, avvises «ingen krav» på samme måte som et krav. Begge kan tas opp igjen når det avgjøres hva «ingen krav» gir avkall på. Hva TE gir avkall på med «ingen krav», og hvordan brevet uttrykker det, avgjøres før «ingen krav» tas i bruk. Hvordan et forbehold i byggherrens svar virker på sammenfall (GR-U7), avgjøres før byggherren kan ta forbehold i et svar i TS-stien | 10.10, oppdragsgiver (#273) | Presiserer KA-U12 og GR-U7. Hva «ingen krav» gir avkall på, og hvordan brevet uttrykker det, er avgjort 10.10 av [KA-U17](#ka-u17). Forbeholdet er avgjort 10.10 av [KA-U16](#ka-u16), og KA-U15 er dermed oppfylt for forbehold. Kommandoen og brevteksten hører til #309. Ikke bygget |
 | <a id="ka-u17"></a>KA-U17: «ingen krav» (KA-U12) er TEs avkall på krav om frist eller vederlag som følge av forholdet i saken, også for følger som ikke er kjent, og brevet sier det uttrykkelig. Er TE usikker, sender hen ikke «ingen krav». Et senere krav kan registreres i en ny sak, men appen avgjør ikke om det er avskåret. Varslingsreglene gjelder uansett. Forkastet: avkall bare for kjente følger, fordi «kjente følger» gir en ny tvist om hva TE visste; og «ingen krav» som bare et utsagn uten avkall, som ville endret KA-U12 og EO-U5 | 10.10, oppdragsgiver etter sparring (#309) | Presiserer [KA-U12](#ka-u12). Avgjør det [KA-U15](#ka-u15) lot stå åpent: hva TE gir avkall på med «ingen krav», og hvordan brevet uttrykker det. Brevteksten står i [KA-U22](#ka-u22) (10.10). Presisert 11.10 av [KA-U25](#ka-u25): avkallet omfatter ikke vederlag for forsering. Ikke bygget. Kommandoen og brevteksten hører til #309 |
 | <a id="ka-u22"></a>KA-U22: brevet for et trekk av grunnlaget sier: «TE trekker sitt krav i sak <saksnummer> («<tittel>»). Trekket er avkall på alle krav i saken, også vederlag og fristforlengelse byggherren har godkjent. Trekket opphever ikke et pålegg, en endringsordre, en utførelsesplikt eller byggherrens rettigheter etter en avtale.» Brevet for et trekk av vederlag eller frist sier: «TE trekker kravet om justering av vederlaget [om fristforlengelse] i sak <saksnummer> («<tittel>»), <kravversjonen, entydig identifisert>. Trekket er avkall på dette kravet, også det byggherren har godkjent.» At kravet ikke kan tas opp igjen i saken, står i veiledningen i skjemaet, ikke i brevet. Brevet for «ingen krav» sier: «TE krever ikke justering av vederlaget [fristforlengelse] som følge av forholdet i sak <saksnummer> («<tittel>»), og gir avkall på slikt krav, også for følger som ikke er kjent i dag.» Trekk og «ingen krav» har ingen fritekst i første versjon, slik at avkallet er entydig. Et avgrenset eller betinget avkall som skjemaet ikke uttrykker, sendes utenfor appen. Et trekk, også av grunnlaget, avvises når appen ikke kan bevare byggherrens avtalte rettigheter, for eksempel et avtalt fradrag (KA-U9), til detaljmodellen er avklart i byggedel 3. Forkastet for første versjon: en utdypning under trekk og «ingen krav» | 10.10, oppdragsgiver etter sparring (#309) | Gjennomfører [KA-U14](#ka-u14) og [KA-U17](#ka-u17) i brevteksten. Sperren følger regelen i KA-U14 om at et trekk som ikke kan gjennomføres uten videre virkninger, sperres, og gjelder også et trekk av grunnlaget fordi det trekker vederlaget med seg (GR-U5, KA-U6). Snevrer inn [KA-U6](#ka-u6), [KA-U13](#ka-u13) og [GR-U5](#gr-u5) til byggedel 3. Sperren bygges før trekk tas i bruk (#310). Om enigheten gir byggherren en rettighet som trekket ikke rører, avklares i byggedel 3. Presisert 11.10 av [KA-U25](#ka-u25) for «ingen krav» i vederlagssporet. Presisert 11.10 av [KA-U27](#ka-u27). Ikke bygget. Den faste teksten hører til #309 |
 | <a id="ka-u23"></a>KA-U23: TE kan kreve vederlag i en sak med hovedkategorien force majeure (§ 33.3), og byggherren svarer som på andre vederlagskrav. Appen viser § 33.3 femte ledd («Partene har ikke krav på justering av vederlaget som følge av fristforlengelse etter denne bestemmelsen») som veiledning og trekker ingen konklusjon. Om et krav er en følge av fristforlengelsen, er partenes spørsmål, og kategorien er TEs utsagn. Appen lukker ikke vederlagssporet på grunn av kategorien: et vederlagsspor som ikke er sendt, hindrer at kravene er avgjort (KA-U11), til TE sier «ingen krav» (KA-U12). Et sendt krav avgjøres som andre krav. Femte ledd utelukker ikke i seg selv vederlaget for en forsering etter § 33.8, som kreves i forseringssaken (FO-U2), men avgjør ikke om vilkårene for forsering er oppfylt; det er oppdragsgivers lesning. Forkastet: å avvise vederlagskrav så lenge grunnlaget har kategorien force majeure, og å godta kravet uten veiledning | 11.10, oppdragsgiver etter sparring (#309) | Bygger på [VS-U13](#vs-u13). Avviser ikke noe som godtas i dag. At «ingen krav» ikke er avkall på vederlaget for en forsering, står i [KA-U25](#ka-u25). Veiledningen hører til #313. Ikke bygget (#309) |
 | <a id="ka-u25"></a>KA-U25: brevet for «ingen krav» i vederlagssporet (KA-U22) sier også: «Avkallet omfatter ikke vederlag for forsering etter NS 8407 § 33.8.» Vederlaget for en forsering kreves særskilt (FO-U2), også når forseringen føres utenfor appen (OV-U2). Teksten må stå i brevet før «ingen krav» tas i bruk (#310), fordi et sendt brev beholder virkningen det hadde da det ble sendt (MM-U9). Appen avgjør ikke senere tvister om hvor langt avkallet når (KA-U17). Forkastet: at avkallet omfatter forseringsvederlaget, og å vente med spørsmålet til byggedel 4 | 11.10, oppdragsgiver etter sparring (#309) | Presiserer [KA-U17](#ka-u17) og brevteksten i [KA-U22](#ka-u22). I tråd med [KA-U14](#ka-u14): et avkall gjelder TEs eget, uttrykkelig identifiserte krav. Avgjør #382. Ikke bygget. Brevteksten hører til #309 |
-| <a id="ka-u27"></a>KA-U27: et trekk, også av grunnlaget, avvises når en enighet trekket rammer, gir byggherren et fradrag, eller bygger på et brev som er merket etter KA-U20 og ikke avklart, fordi appen da ikke vet hva byggherren har avtalt. Delen om merket brev gjelder fra første versjon. Forkastet: at sperren bare gjelder fradrag, fordi beskyttelsen ikke kan vente til etter at trekk tas i bruk (svaret 10.10) | 11.10, oppdragsgiver (#309, #394) | Presiserer [KA-U22](#ka-u22). Delen om merket brev gjelder til merkingen er avklart etter [KA-U20](#ka-u20). Delen om fradrag bygges når fradrag kan uttrykkes ([KA-U9](#ka-u9)). Ikke bygget |
+| <a id="ka-u27"></a>KA-U27: et trekk, også av grunnlaget, avvises når en enighet trekket rammer, gir byggherren et fradrag, eller bygger på et brev som er merket etter KA-U20 og ikke avklart, fordi appen da ikke vet hva byggherren har avtalt. Delen om merket brev gjelder fra første versjon. Forkastet: at sperren bare gjelder fradrag, fordi beskyttelsen ikke kan vente til etter at trekk tas i bruk (svaret 10.10) | 11.10, oppdragsgiver (#309, #394) | Presiserer [KA-U22](#ka-u22). Delen om merket brev gjelder til merkingen er avklart etter [KA-U20](#ka-u20). Delen om fradrag bygges når fradrag kan uttrykkes ([KA-U9](#ka-u9)). Snevret inn 11.10 av [KA-U30](#ka-u30): delen om merket brev gjelder bare sporene merkingen gjelder. Ikke bygget |
+| <a id="ka-u30"></a>KA-U30: et trekk avvises etter KA-U27 fordi en enighet bygger på et merket brev som ikke er avklart, bare når merkingen gjelder sporet enigheten gjelder (KA-U26). Gir et brev fra byggherren enighet om både grunnlaget og vederlaget, og er brevet merket bare for grunnlaget, avvises ikke TEs trekk av vederlagskravet på grunn av merkingen. Den som merker, velger hvilke spor merkingen gjelder; merker hen bare grunnlaget, har hen sagt at forbeholdet ikke gjelder vederlaget. Forkastet: at enhver enighet som bygger på et merket brev, sperrer trekk uansett hvilke spor merkingen gjelder | 11.10, oppdragsgiver (#309, #394) | Snevrer inn [KA-U27](#ka-u27), delen om merket brev, etter [KA-U26](#ka-u26): sperren gjelder i de sporene merkingen gjelder. Det andre KA-U27 avviser trekket for, et fradrag, er uendret. Av «en enighet trekket rammer» i KA-U27 følger at et trekk av grunnlaget avvises, i samme eksempel, når brevet er merket bare for vederlaget og ikke avklart, fordi trekket rammer enigheten om vederlaget ([GR-U5](#gr-u5)). I skjemaet er alle spor utgangspunktet når den som merker, oppgir sporene (KA-U26). Ikke bygget |
 
 #### Svar og standpunkt
 
@@ -309,7 +325,7 @@ eksplisitt oppheves.
 | <a id="gr-u12"></a>GR-U12: godkjenner byggherren grunnlaget uten å påberope preklusjon i en underkategori der § 32.2 gjaldt da brevet ble sendt (GR-U11), er svaret en endringsordre etter § 32.3 første ledd a, også når brevet ikke sier noe om varslingen. Det gjelder også registrert korrespondanse. Beslutningsgrunnlaget fryser derfor om § 32.2 gjaldt, som en del av virkningen brevet hadde (MM-U9, MM-U11). Frontenden varsler byggherren og betegner svaret som en endringsordre, slik at byggherren tydelig forstår virkningen. Forkastet: at godkjenningen bare er en endringsordre når brevet har et utsagn om varslingen | 10.10, oppdragsgiver (#308) | Presiserer GR-U10 og KA-U13, og utvider formen i MM-U11. Endret 10.10 av [GR-U13](#gr-u13): endringsordren krever også § 31.3, og om § 32.2 gjaldt, fryses som appens vurdering. Endret 10.10 av [MM-U17](#mm-u17) for registrerte brev: appens vurdering følger reglene ved registreringen, ikke da brevet ble sendt. Ikke bygget på vedtaksdatoen: kjernen leste da om brevet har et utsagn etter § 32.2 (#308). Bygget i kjernen 10.10 (merknaden 10.10 til FK, runde 2). Frysingen hører til formatet (#273), varselet og betegnelsen til frontenden (#313) |
 | <a id="gr-u13"></a>GR-U13: byggherrens godkjenning av grunnlaget er en endringsordre etter § 32.3 første ledd a bare når også § 31.3 er oppfylt: endringsordren «skal være skriftlig og gi beskjed om at det kreves en endring, samt hva endringen går ut på», og den «må være gitt av byggherrens representant, jf. punkt 9, eller av en person med skriftlig fullmakt til å utstede slike». For brev sendt fra appen sørger appen for det: brevet sier at endringen kreves og viser til pålegget i varselet, og fullmakten kontrolleres i godkjenningsflyten (GFK-06). For registrert korrespondanse oppgir den som registrerer, om brevet var en endringsordre etter § 31.3. Opplysningen er registratorens vurdering og ikke en rettslig avgjørelse. Mangler opplysningen, vet appen ikke om brevet er en endringsordre, og manglende opplysning er ikke nok til å konkludere (KA-U14). Om § 32.2 gjaldt (GR-U12), fryses i beslutningsgrunnlaget som appens vurdering etter reglene og underkategorien da brevet ble sendt, med regelversjonen, atskilt fra det byggherren sa (MM-U12). Forkastet: at en godkjenning uten påberopt preklusjon i en underkategori med varslingsplikt alene er en endringsordre, og at manglende opplysning om § 31.3 betyr at brevet ikke er en endringsordre | 10.10, oppdragsgiver (#273) | Endrer GR-U10 og GR-U12: endringsordren krever også § 31.3. Endret 10.10 av [MM-U17](#mm-u17) for registrerte brev: om § 32.2 gjaldt, fryses som appens vurdering etter reglene ved registreringen, ikke da brevet ble sendt. Krav til skrivestien (#310): hvert grunnlagssvar fra appen som godkjenner grunnlaget uten påberopt preklusjon der § 32.2 gjelder, får brevteksten etter § 31.3 og går gjennom fullmakten. Hvordan opplysningen registreres og avklares, avgjøres med kommandoen i #310. Ikke bygget |
 | B-13 endret underkategori etter byggherrens svar på grunnlaget krever nytt svar. Låsingen og § 32.2-vurderingen fra det forrige svaret faller bort, og grunnlaget venter på svaret igjen. Journalen beholder det forrige svaret som historikk. Forkastet: å avvise endringen, og å la projeksjonen regne det gamle svaret av gjeldende underkategori | 05.10, oppdragsgiver | Utvidet 08.10 av [GR-U1](#gr-u1) til alle grunnlagsversjoner etter et svar som ikke er låst, og snevret inn 08.10 av [GR-U2](#gr-u2): gjelder svar som ikke er låst. Bygget 05.10 i projeksjonen (#215). Hele svaret faller i tilstanden, også resultatet. Et svar på vederlag eller frist som var gitt subsidiært, forblir subsidiært til sporet eller grunnlaget besvares igjen (oppdragsgiver 05.10) |
-| B-13 svar på vederlag og frist når ansvarsgrunnlaget er avslått eller prekludert (§ 32.2): journalen og sporstatusen har resultatet av beløpene og dagene, som et subsidiært standpunkt som får virkning hvis grunnlaget senere godkjennes. Brev og fullmakt sier «prinsipalt avslått (ansvarsgrunnlaget)» med det subsidiære resultatet. At hele svaret er subsidiært, utledes av grunnlaget og lagres ikke i hendelsen | 05.10, oppdragsgiver | Redaksjonell retting 10.10 (oppdragsgiver): en doblet frase, «med det subsidiære resultatet», er fjernet fra vedtaksteksten; meningen er uendret. Bygget i brev og fullmakt (#168). Saksvisningen i frontend: #214 |
+| B-13 svar på vederlag og frist når grunnlaget er avslått eller prekludert (§ 32.2): journalen og sporstatusen har resultatet av beløpene og dagene, som et subsidiært standpunkt som får virkning hvis grunnlaget senere godkjennes. Brev og fullmakt sier «prinsipalt avslått (grunnlaget)» med det subsidiære resultatet. At hele svaret er subsidiært, utledes av grunnlaget og lagres ikke i hendelsen | 05.10, oppdragsgiver | Redaksjonell retting 10.10 (oppdragsgiver): en doblet frase, «med det subsidiære resultatet», er fjernet fra vedtaksteksten; meningen er uendret. Ordbytte 11.10 (oppdragsgiver, #384): «ansvarsgrunnlaget» er byttet til «grunnlaget», også i brevteksten, etter [HF-U2](#hf-u2). Innholdet er uendret. Bygget i brev og fullmakt (#168). Ordet ble byttet i brevet 10.10 (#313). Saksvisningen i frontend: #214 |
 | B-13 `grunnlag_varslet_i_tide` avvises utenfor § 32.2 (endring som ikke er formell endringsordre). Fullmakt og brev snevres inn til samme omfang | 24.09, oppdragsgiver | Forretningsreglene avviser feltet utenfor § 32.2 fra 04.10 (#63). Fra 05.10 bruker fullmakt, brev, projeksjonen og skjemaet samme regel, `regler.grunnlag.er_grunnlag_subsidiaert` og speilet `erGrunnlagetSubsidiaert` (#186); før brukte status, fullmakt/brev og skjema tre ulike omfang. En eldre hendelse med feltet `false` ved EO prekluderer ikke |
 | B-13 «frafalt» (§ 32.3 c) avvises utenfor irregulær endring og valgrett | 24.09, oppdragsgiver | Bygget 04.10 i forretningsreglene (#63) |
 | Byggherren kan svare «avslått» og samtidig påberope at grunnlaget er varslet for sent (§ 32.2). Begge grunner gjelder; preklusjonen er hovedgrunnen, og avslaget gjelder subsidiært | 05.10, oppdragsgiver | Godtas i dag (K 05.10). Brev, visning og standpunkt må vise begge, med preklusjonen først (B-14, M1) |
@@ -579,7 +595,7 @@ Tilsluttet av oppdragsgiver 21.09. Føringer for design, ikke implementert.
 > PDF-parameterne i #146, #109 og den avgrensede deloppgaven i #49
 > (SystemContext, `/api/validate-user` og `CSVRepository`). Backfill-skriptet i
 > #102, backenddelen av #111 og logger-delen av #110 følger rekkefølgen i
-> avsnitt 5. Selve lagerovergangen i TS2-02 avhenger av B-12.
+> avsnitt 5.
 
 > **Merknad 2026-10-07 til AF-06:** B-14 gir et avgrenset unntak for
 > domenetabell, bevis-saker, smal kommando-/API-kontrakt og beslutningsprøven
@@ -598,24 +614,31 @@ Tilsluttet av oppdragsgiver 21.09. Føringer for design, ikke implementert.
 > backfill-skriptet i #102 (`backend/scripts/backfill_relations.py`) og
 > testskriptene i #162 (`create_test_sak.py` og `test_full_flow.py`) slettes nå.
 > De rettes ikke. Skriptene krever Supabase-lageret eller utviklingsbypass, og de
-> bygger saker og relasjoner fra testsaker som forkastes etter B-17. Logger-delen
-> av #110 og backenddelen av #111 venter på B-18.
+> bygger saker og relasjoner fra testsaker som forkastes etter B-17.
 
 > **Merknad 2026-10-10 til AF-06 (#347):** avviket fra rekkefølgen i FK for skiva i
 > #347 står i merknaden 10.10 til FK, runde 3 (avsnitt 5).
+
+> **Merknad 2026-10-11 til AF-06 ([B-12, databasen](#b-12-databasen), [B-19](#b-19)):**
+> «Ekte PostgreSQL-tester» betyr fra 11.10 tester mot en ekte database av samme
+> slag som produksjonen, Azure SQL. Lagerovergangen i TS2-02 bygges ikke i
+> Python: lagrene slettes når det Python gjør mot databasen, er flyttet til TS
+> (B-19, #375). Prøven mot eksisterende PostgreSQL i merknaden 07.10 og
+> testbasen for kjernens lagringstester gjelder til datalaget for Azure SQL
+> finnes.
 
 ### 3.3 Anbefalinger som ikke er vedtatt
 
 | Anbefaling | Kilde | Status |
 | --- | --- | --- |
 | Relasjonsprojeksjon med prosjektavgrensede fremmednøkler og én skriver | AF-03, RGK-04 | Foretrukket til vurdering, se B-01 |
-| Avgrenset runtime-rolle uten `BYPASSRLS`, RLS for lesing og avgrensede `SECURITY DEFINER`-funksjoner med egen autorisasjon, fast `search_path` og smal `EXECUTE` | RGK-04 | Innarbeidet i alternativ C, vedtatt 23.09 (3.1) |
+| Avgrenset runtime-rolle uten `BYPASSRLS`, RLS for lesing og avgrensede `SECURITY DEFINER`-funksjoner med egen autorisasjon, fast `search_path` og smal `EXECUTE` | RGK-04 | Innarbeidet i alternativ C, vedtatt 23.09 (3.1). Ordlyden er PostgreSQL; etter [B-12, databasen](#b-12-databasen) uttrykkes og prøves mekanismen i T-SQL (#395) |
 | Gjør TST-02-reproduksjonen deterministisk, framfor å fjerne `strict=True` | RGK-04 | Anbefalt. Den nye testen fra 22.09 er ikke deterministisk (RTB-02) |
 | Forhåndsvalgte GUID-er for topic og kommentar | RGK2-01 | Kandidat. Ikke bevist idempotent (avsnitt 7) |
 | Køalarm ved 15 minutter; sletting av stagingfiler 24 timer etter kvittert levering | Konsolidering v2 | Forslag uten kilde, se B-09 |
 | Utgående kvote på 10 kall/s og innkommende grense 100 kall/s | Konsolidering v2 | Forslag uten kilde, se B-09 |
-| Fjern JSON-hendelseslageret og CSV-metadatalageret fra kjøretidsstien; tester som trenger ekte lagring, går mot PostgreSQL gjennom samme vei som produksjonen, med skrivbar testbase | [TS2-02](../gjennomforing-tst02-2026-09-22.md#ts2-02--reservelagrene-og-testene) | Vedtatt 23.09, utvidet til Supabase-lagrene (3.1) |
-| Migrasjonsmappa som eneste kilde, anvendt med `supabase db push` | Masterplanen 20.09 | Repo-siden gjennomført (DA-03). Anvendelsesmekanismen gjenstår. `supabase db push` gjelder bare på Supabase; på Azure trengs en annen vei fra fil til base (B-12) |
+| Fjern JSON-hendelseslageret og CSV-metadatalageret fra kjøretidsstien; tester som trenger ekte lagring, går mot PostgreSQL gjennom samme vei som produksjonen, med skrivbar testbase | [TS2-02](../gjennomforing-tst02-2026-09-22.md#ts2-02--reservelagrene-og-testene) | Vedtatt 23.09, utvidet til Supabase-lagrene (3.1). Fra 11.10 er basen Azure SQL, og Python-lagrene skrives ikke om ([B-19](#b-19)) |
+| Migrasjonsmappa som eneste kilde, anvendt med `supabase db push` | Masterplanen 20.09 | Repo-siden gjennomført (DA-03). Anvendelsesmekanismen gjenstår. `supabase db push` gjelder bare på Supabase; for Azure SQL trengs en annen vei fra fil til base ([B-12, databasen](#b-12-databasen), #53) |
 
 ### 3.4 Åpne beslutninger
 
@@ -664,9 +687,9 @@ stod i 3.4 før sluttredigeringen 09.10, er i Git (se toppteksten).
 - **B-17** skriver for KOE-saker: avgjort 09.10 ([B-17](#b-17)), med merknaden
   samme dag om endringsordre og forsering.
 - **B-18** serverplassering: avgjort 10.10 ([B-18](#b-18)), med
+  [LV-U1](#lv-u1) om leveringen.
 - **B-12, databasen:** avgjort 11.10 ([B-12, databasen](#b-12-databasen)), med
   [B-19](#b-19) om når databasen byttes. Hostingen er åpen.
-  [LV-U1](#lv-u1) om leveringen.
 
 > **Merknad 2026-10-10 til B-01:** etter [OV-U1](#ov-u1) trengs B-01 først i
 > byggedel 4 av #309 (endringsordre og forsering), etter #310. Oppdragsgiver
@@ -709,6 +732,22 @@ stod i 3.4 før sluttredigeringen 09.10, er i Git (se toppteksten).
 >   B-18. Hostingen for backend i B-12 avhenger av B-18. Et alternativ til egen
 >   drift i Azure vurderes i
 >   [#302](https://github.com/khjohns/endringsmeldinger/issues/302).
+
+> **Merknad 2026-10-11 til B-01 og B-07 ([B-12, databasen](#b-12-databasen)):**
+> alternativ (b) i B-01, hendelsenes `jsonb` med GIN-indeks, og tabellen med
+> `SKIP LOCKED` og `pgmq` i B-07 er PostgreSQL-former. I Azure SQL svarer en
+> beregnet kolonne med `JSON_VALUE` og vanlig indeks til (b)
+> ([vurderingen av JSON i Azure SQL](../vurdering-json-azure-sql-2026-10-11.md), AJ-04; K 11.10),
+> og en tabell hentet med `READPAST` og `UPDLOCK` til `SKIP LOCKED`
+> ([designnotatet om inbox og outbox](../design-durable-inbox-outbox-2026-09-17.md#5-azure-sql-eller-bli-på-postgres); H).
+> Beslutningsstatus er uendret: åpen.
+
+> **Merknad 2026-10-11 til den samlede merknaden 09.10 om B-12, ved sluttredigeringen:**
+> den samlede merknaden er skrevet før databasen ble avgjort. Punktet 29.09
+> viser hva som var PostgreSQL-spesifikt da (L 29.09); siden er TS-lagringen i
+> `server/` og `sprakprove/kjernelagring/` kommet til (L 11.10). Når byttet
+> skjer, står i [B-19](#b-19). «Lokal PostgreSQL inntil videre» gjelder til
+> datalaget for Azure SQL finnes.
 
 <a id="b-12-merknad-2026-10-11"></a>
 > **Merknad 2026-10-11 til B-12:** [RP-U1](#rp-u1) er en forutsetning for
@@ -976,7 +1015,7 @@ Kilder: [KR](../audit-korrekthet-2026-09-21.md),
 | MG-02 | Lukket | Én identitetsform i journalen | D 21.09 | — |
 | MG-03 | Åpen | Forsvar i dybden: parseren avviser `event_id` og `tidsstempel`, ikke aktørfeltene. Eksisterende ruter overskriver aktørfeltene fra sesjonen, så klientforfalskning er ikke påvist | Streng `xfail`, K 22.09, L | F2 |
 | MG-04 | Åpen, lav | `created_by` har tre verdiformer. → MS-06 | H | F2 |
-| MG-05 | Åpen | `ownerName` fryses i godkjenningspakken. Lagre ID ved flytting til PostgreSQL | H | F1 |
+| MG-05 | Åpen | `ownerName` fryses i godkjenningspakken. Lagre ID ved flytting til databasen | H | F1 |
 | MG-06 | Lukket | Indeksen fra KR-11 (`20260921102148`). Fila sier at den er anvendt 21.09 | H, L | — |
 | MG-07 | Lukket | Serverfilter og indeks fra KR-02 (`20260921093936`). Fila sier at den er anvendt 21.09 | H, L | — |
 | MG-08 | Åpen, lav | Serielle navneoppslag. Faller med MG-01 | H | F2 |
@@ -1011,7 +1050,7 @@ redaksjonsprotokollen, med forklarte kategorier.
 ## 5. Arbeidspakker
 
 <a id="nye-arbeidspakker-og-produksjonskrav"></a>
-Rekkefølgen følger AF-06: verifikasjon mot ekte PostgreSQL, datalagets grenser
+Rekkefølgen følger AF-06: verifikasjon mot ekte database, datalagets grenser
 og én komplett EO-flyt før flere adaptere og generell opprydding. Tre parallelle
 spor, D, H og M, kan gå samtidig når de ikke tar kapasitet fra F0–F2.
 Organisatoriske avklaringer (F5) kan starte nå. For KOE-, EO- og
@@ -1064,6 +1103,11 @@ typesjekk og lint (19.09). Migrasjonene er bygd mot tom PostgreSQL manuelt
 > med en test til for flettingen der begge skriverne har skrevet ferdig. Se
 > [notatet](../gjennomforing-tst02-2026-09-22.md).
 
+> **Merknad 2026-10-11 til F0 ([B-12, databasen](#b-12-databasen)):** jobben i
+> punkt 1 og veien fra fil til base i punkt 3 gjelder PostgreSQL, som er
+> testbasen til datalaget for Azure SQL finnes. Tilsvarende for Azure SQL hører
+> til F0b, punkt 2.
+
 **Leveranse:**
 
 1. En CI-jobb som bygger alle migrasjoner mot tom PostgreSQL 17 (målversjonen
@@ -1094,117 +1138,71 @@ historikk og mappa stemmer.
 
 ### F0b — Datalaget over direkte tilkobling
 
-**Avhenger av:** F0-jobben og beslutningen i 3.1 (23.09). Containerdelen
-avhenger av B-12. **Status:** punkt 1 (kjernen) levert 24.09 (PR #42). Det som
-gjenstår, følges i [milepælen F0b](https://github.com/khjohns/endringsmeldinger/milestone/1).
+> **Merknad 2026-10-11 til F0b ([B-12, databasen](#b-12-databasen), [B-19](#b-19)):**
+> oppdragsgiver bestemte 11.10 at F0b får nytt innhold: datalaget i TS over
+> direkte tilkobling til Azure SQL. ID og anker er beholdt. Det F0b var for
+> Python over PostgreSQL, er historikk (under), og teksten før er i Git (se
+> toppteksten). F0b kommer før eller sammen med #310 (FK), og F1 kommer etter
+> F0b som før.
 
-F0b bytter veien fra backend til basen, ikke rettighetene. Før F1-rollene
-finnes, kobler backend til med de rettighetene den har i dag. Det er ikke en
-produksjonstilstand; F1 og produksjonsporten gjelder uendret.
+**Avhenger av:** B-12, databasen, og B-19 (3.1). Tilgangsmekanismen i B-02
+alternativ C prøves tidlig i T-SQL ([B-12, databasen](#b-12-databasen), #395). Lagringsformen avgjøres senest før
+KOE-byttet skriver den første reelle hendelsen
+([merknaden 11.10 til B-12](#b-12-merknad-2026-10-11)). Containerdelen avhenger
+av hostingen i B-12. Arbeidet følges i
+[milepælen F0b](https://github.com/khjohns/endringsmeldinger/milestone/1).
+
+F0b bytter plattformen og veien til basen, ikke rettighetene. Datalaget etter
+F0b, før rollene i F1 finnes, er ikke en produksjonstilstand. F1 og produksjonsporten gjelder; F1 er tilpasset Azure
+SQL i merknaden 11.10 der.
 
 **Leveranse:**
 
-1. **Kjernen:** `lib/db` med pool og en `transaksjon(kontekst)`-hjelper som
-   setter rolle og krav transaksjonslokalt (`SET LOCAL ROLE`,
-   `set_config(..., true)`) inne i en eksplisitt transaksjon. Miljøvalg med
-   `DATABASE_URL`. Lokal oppstart med `scripts/testbase/bygg_testbase.sh`, som
-   skript eller Docker Compose. En skrivbar testfixture ved siden av den
-   lesende. Feilklassifisering for driveren: en avvisning som aldri kan lykkes,
-   er `PermanentError`; versjonskonflikt får en egen SQLSTATE og prøves ikke
-   blindt på nytt. Kjernen definerer `core/container.py` og testfixturene
-   ferdig, fordi det er der trådene i punkt 2 ellers kolliderer.
-2. **Repositoriene** bak dagens grensesnitt, med tester mot ekte PostgreSQL:
-   (a) hendelse og notat, (b) saksmetadata, relasjoner og BIM, (c) identitet,
-   sesjoner, medlemskap og prosjekter, med de fire funksjonene
-   `koe_resolve_identity`, `koe_reconcile_memberships`, `koe_register_project`
-   og `koe_set_contract_teams` kalt med vanlig SQL, (d) Catenda-konfigurasjon.
-3. **TS2-02:** JSON-, CSV- og Supabase-lagrene og testdoblene som speiler
-   Supabase-klienten, ut av kjøretidsstien, når alle repositoriene er inne.
-4. **Container:** Dockerfile for backend og GitHub Actions for utrulling, når
-   B-12 er avklart.
-5. Migrasjonene forutsetter plattformrollene og skjemaet `auth` fra
-   plattformstubben. Det må løses før de kan anvendes utenfor Supabase (B-12).
+1. **Kjernen i TS:** direkte tilkobling til Azure SQL med managed identity
+   ([B-12, databasen](#b-12-databasen)), pool og en transaksjonshjelper som
+   setter kontekst for transaksjonen. `SESSION_CONTEXT` gjelder sesjonen, så
+   at konteksten ikke følger en gjenbrukt forbindelse, må bevises på nytt
+   (merknaden 29.09 under B-12). Feilklassifisering for driveren: en
+   avvisning som aldri kan lykkes, prøves ikke på nytt, og versjonskonflikt
+   har en egen klasse.
+2. **Migrasjonene i T-SQL** og veien fra fil til base (#53), med en testbase av
+   samme slag lokalt og i CI.
+3. **Flyttingen fra Python ([B-19](#b-19), #375):** det Python gjør mot
+   databasen, flyttes til TS før databasen byttes, først innloggingen og
+   sesjonen, identiteten og synkroniseringen av medlemskap, og ellers blant
+   annet webhookens innboks. Identiteten løses med samme issuer og
+   normaliserte subjekt for alle veier inn (`AGENTS.md`). Løp c og d i den
+   tidligere teksten (#57, #58) erstattes av flyttingen.
+4. **TS2-02:** JSON-, CSV- og Supabase-lagrene og Python-lagrene over
+   PostgreSQL ut av kjøretidsstien når flyttingen er gjort (#49). De skrives
+   ikke om for Azure SQL (B-19).
+5. **Container** og utrulling når hostingen i B-12 er avklart (#52).
 
-**Akseptkriterier:** samme kode virker lokalt, i CI og mot målplattformen;
-ingen modul i kjøretidsstien importerer `supabase`; hver repositoriemetode
-har en test mot ekte PostgreSQL i CI; en feil midt i en transaksjon etterlater
-ingen delvise skrivinger; kontekst fra én forespørsel finnes ikke på en
-gjenbrukt forbindelse etter commit eller rollback, og en variabel som har vært
-satt, leses som tom, ikke som `NULL`.
+**Akseptkriterier:** samme kode virker lokalt, i CI og mot Azure SQL; ingen
+Python-kode leser eller skriver i databasen; en feil midt i en transaksjon
+etterlater ingen delvise skrivinger; kontekst fra én forespørsel finnes ikke på
+en gjenbrukt forbindelse etter commit eller rollback; innloggingen,
+medlemssynkroniseringen og webhooken gir samme person én brukerrad.
 
-**Kontroll:** kjernen får uavhengig review i en egen tråd før repositoriene
-bygges på den. Repositoriene får tester og `/code-review` per PR, og
-`/simplify` samlet når alle er inne. `/simplify` skal la
-sikkerhetskontrollene stå: `SET LOCAL` og transaksjonslokal kontekst,
-`nullif(..., '')`, fail-closed-kontroller som ser dobbelte ut, eksplisitte
-`REVOKE`-er og like svar for «ukjent» og «ikke tilgang». Oppsettet står i
-[handoffen 23.09](../handoff-2026-09-23-datalag-postgresql.md), avsnitt 7.
+**Tester som beviser:** lagertestene mot testbasen i CI; en test med pool på én
+forbindelse som viser at kontekst ikke lekker; en test per feilklasse i
+driveren; en test som viser at samme person gir én brukerrad fra hver vei inn.
 
-**Tester som beviser:** repositorietestene mot PostgreSQL i CI; en test med
-pool på én forbindelse som viser at kontekst ikke lekker; en test per
-feilklasse i driveren.
+**Kontroll:** kjernen får uavhengig review før lagrene bygges på den.
+`/simplify` skal la sikkerhetskontrollene stå: transaksjonslokal kontekst,
+fail-closed-kontroller som ser dobbelte ut, eksplisitte fjerninger av
+rettigheter og like svar for «ukjent» og «ikke tilgang».
 
-> **Merknad 2026-09-23 (F0b, punkt 1): kjernen finnes og venter på review.**
-> `lib/db` har pool, `transaksjon(kontekst)` og `utfor(kontekst, arbeid)` med
-> retry for hele transaksjonen, og feilhierarkiet er felles med Supabase-lagrene.
-> `container.database`, den skrivbare fixturen og lokal oppstart
-> (`scripts/testbase/lokal_testbase.sh`) er på plass. Kravene settes i
-> `koe.krav`, ikke `request.jwt.claims`, og versjonskonflikt er SQLSTATE
-> `KO409`, ikke `PT409`. Begge valgene er begrunnet i
-> [gjennomføringsnotatet](../gjennomforing-f0b-kjernen-2026-09-23.md). 57
-> databasetester er grønne lokalt mot PostgreSQL 17, og 27 mutasjoner gir rød
-> test. PgBouncer, Supavisor og Azure er ikke prøvd. **Status endres ikke før
-> det [uavhengige reviewet](../prompt-review-f0b-kjernen-2026-09-23.md) er
-> levert**, og punkt 2 bygger ikke på kjernen før da.
-
-> **Merknad 2026-09-23 (F0b, uavhengig review levert):**
-> [Reviewet av `55ad006`](../review-f0b-kjernen-2026-09-23.md) konkluderer med
-> **«kan bygges videre på med navngitte endringer»**. RK-01–RK-03 er åpne før
-> punkt 2: trådsikker poolopprettelse, ferdig innkoblingskontrakt i containeren
-> og separate tester for reset av rolle og krav. RK-04 krever en uttrykkelig
-> regel om at kjernen alene eier transaksjonsstyringen; rå `COMMIT; BEGIN`
-> omgår sluttkontrollen. RK-05 er åpen før F1: setnings- og inaktivitetstimeout
-> er ikke en samlet transaksjonsfrist. Backend-suiten har 1589 bestått,
-> 9 hoppet over og 38 xfailed; 57 databasetester og 27 mutasjoner er bekreftet.
-> To nye mutasjoner overlever de gamle testene og fanges av reviewtestene.
-> Kjernen er reviewet, men punkt 1 er ikke godkjent som ferdig; punkt 2 venter
-> på oppfølgingen over. Ingen produksjonskode eller delt base er endret.
-
-> **Merknad 2026-09-23 (F0b, oppfølging av reviewet):** RK-01–RK-04 er fulgt
-> opp i [PR #42](https://github.com/khjohns/endringsmeldinger/pull/42), etter
-> oppdragsgivers valg. Poolen opprettes under lås, innkoblingen for trådene
-> (a)–(d) er ferdig bak `DATALAG=postgres` og tabellen `POSTGRES_LAGRE`, rolle og
-> krav i resetten har hver sin test, og kallerens ansvar for
-> transaksjonsgrensen står skrevet, med `COMMIT; BEGIN` som streng `xfail`.
-> 33 mutasjoner gir rød test. **RK-05 er åpen før F1:** en samlet øvre grense
-> for en transaksjon er ikke fastsatt. Se
-> [gjennomføringsnotatet, avsnitt 7](../gjennomforing-f0b-kjernen-2026-09-23.md#7-oppfølging-av-reviewet).
-> Oppfølgingen er ikke reviewet på nytt. Punkt 1 settes som gjort når
-> PR #42 er merget.
-
-> **Merknad 2026-09-24 (F0b, restansene fra #47):** De to restansene i
-> verifikasjonen er rettet på #42-grenen (`b97630f`): relasjoner fra samme
-> container og PostgreSQL-register for Catenda også ved legacy-innstillingen.
-> En tekstvakt håndhever kallerregelen for statisk SQL i de kommende lagrene;
-> fem innførte forbudte utsagn gir hver rød test. Databasetestene gir 59
-> bestått og 1 xfailed, hele backend 1643 bestått, 9 hoppet over og 39 xfailed.
-> Se [gjennomføringsnotatet, avsnitt 8](../gjennomforing-f0b-kjernen-2026-09-23.md#8-restansene-fra-verifikasjonen-i-pr-47).
-> Dette er implementeringsverifikasjon. Ingen lagre er konvertert, og
-> **RK-05 står fortsatt åpen før F1**, ikke før fase 2.
-
-> **Merknad 2026-09-29 (F0b, avhengighet av B-12):** Fra 29.09 avhenger også
-> dette av B-12: løp c og d i punkt 2, punkt 3 (TS2-02) og RK-05. Grunnen står
-> i merknaden samme dag under B-12.
-> - **Blir plattformen Azure SQL Database,** må også det som alt er skrevet over
->   `lib/db`, skrives om. Å fullføre løpene eller slette de gamle lagrene nå
->   ville i praksis ta valget.
-> - **Blir PostgreSQL valgt,** gjelder pakken uendret.
-
-> **Merknad 2026-10-09 til F0b (B-17, B-18):** Kjernen i punkt 1 er levert og
-> står. For KOE-, EO- og forseringssakene skriver TS-stien journalen etter
-> byttet (FK). Hva Python-backenden da skal lagre og kjøre, avhenger av B-18.
-> Det gjelder løp c og d i punkt 2, punkt 3 (TS2-02), containeren i punkt 4 og
-> kallerne i [#70](https://github.com/khjohns/endringsmeldinger/issues/70), i tillegg til avhengigheten av B-12.
+**Historikk, Python over PostgreSQL (23.09–09.10):** F0b fulgte av
+beslutningen 23.09 om direkte tilkobling (3.1). Kjernen `lib/db` med pool,
+`transaksjon(kontekst)` og retry for hele transaksjonen ble levert 24.09
+(PR #42), etter et [uavhengig review](../review-f0b-kjernen-2026-09-23.md) der
+RK-01–RK-04 ble fulgt opp
+([gjennomføringsnotatet](../gjennomforing-f0b-kjernen-2026-09-23.md); oppsettet
+i [handoffen 23.09](../handoff-2026-09-23-datalag-postgresql.md), avsnitt 7).
+RK-05, en samlet øvre grense for en transaksjon, står åpen før F1 (#50).
+Løp c og d og TS2-02 ble avhengige av B-12 29.09 og av B-18 09.10, og bygges
+ikke i Python etter B-19.
 
 ### F1 — Sikkerhetsgrenser i datalaget og private lagre
 
@@ -1220,7 +1218,7 @@ skriverettigheter være konkretisert. Runtime bygges ikke på ubegrenset
    AF-02, B-02). Rettigheter er eksplisitte per rolle i migrasjonene, også for
    de åtte tabellene som i dag lever på plattformens standardrettigheter.
 2. Godkjenningspakker, policyversjon og utkast flyttet fra SQLite til
-   PostgreSQL med prosjekt, side og team. MG-05: pakken lagrer ID, ikke navn.
+   databasen med prosjekt, side og team. MG-05: pakken lagrer ID, ikke navn.
 3. Teamvern i datalaget for `notat`, utkast og godkjenningspakker. Et autorisert
    leselag skiller offentlig innhold, teaminterne notater og private pakker før
    aggregering, eksport og PDF. Grensesnitt, nedlasting og driftsvisning følger
@@ -1241,12 +1239,20 @@ spørring med prosjekt A i konteksten null rader fra prosjekt B, utenom API-et
 ukjent team, manglende kontekst og gjettet ressurs-ID. Gjenbrukt forbindelse
 tar ikke med kontekst til neste forespørsel. Runtime kan ikke `UPDATE`,
 `DELETE`, `TRUNCATE` eller skrive direkte til `hendelse`. De private lagrene
-ligger i PostgreSQL. Migrering og break-glass er separat, tidsavgrenset og logget.
+ligger i databasen. Migrering og break-glass er separat, tidsavgrenset og logget.
 
-**Tester som beviser:** negative tester mot ekte PostgreSQL per scenario over;
+**Tester som beviser:** negative tester mot ekte database per scenario over;
 rettighetstester for hver rolle; en test som viser at runtime-innloggingen ikke
-kan `SET ROLE` til `service_role` eller eieren (T2); Data API-test for `anon` og
-anonymt innlogget `authenticated` så lenge basen ligger hos Supabase (B-12).
+kan ta eierens eller en administrators rettigheter (T2).
+
+> **Merknad 2026-10-11 til F1 ([B-12, databasen](#b-12-databasen), [B-19](#b-19)):**
+> F1 gjelder datalaget i Azure SQL. Rollene, teamvernet, append-only og
+> rettighetstestene uttrykkes i T-SQL, og mekanismen i B-02 alternativ C prøves
+> tidlig der ([B-12, databasen](#b-12-databasen), #395). Testene for `SET ROLE` til `service_role` og Data API-testen
+> for `anon` og `authenticated`, som sto her før sluttredigeringen 11.10, gjaldt
+> Supabase-plattformen og faller bort med den. Kravet
+> om at runtime ikke bygges på ubegrenset `service_role`, gjelder tilsvarende
+> for rettighetene i Azure SQL.
 
 ### F2 — Én komplett EO-flyt med minimal worker
 
@@ -1301,7 +1307,7 @@ forstår en rettslig relevant hendelse, må stanse bindende kommandoer; historik
 kan fortsatt gjøres tilgjengelig med uttrykkelig begrensning. Frosne brev,
 beslutninger og leveringsdokumenter endres ikke ved gjenoppbygging.
 
-> **Merknad 2026-10-09 til F2 (B-17):** Endringsordre- og forseringssakene går
+> **Merknad 2026-10-09 til F2 (B-17), oppdatert ved sluttredigeringen 11.10:** Endringsordre- og forseringssakene går
 > til TS sammen med KOE-sakene (merknaden til [B-17](#b-17)). F2 slik den er
 > skrevet, utgår:
 >
@@ -1313,12 +1319,16 @@ beslutninger og leveringsdokumenter endres ikke ved gjenoppbygging.
 >   TS-stien (FK). Punkt 5 (MG-03) gjelder TS-stien som invariant 11. Punkt 6
 >   erstattes av at skrivestien byttes samlet (B-17).
 > - Vedleggstabellen i punkt 2 og den minimale workeren i punkt 3 er levering
->   og integrasjon, som Python kan beholde (B-17). Hvor de kjører, avhenger av
->   B-18.
+>   og integrasjon (B-17). Etter [B-19](#b-19) kan Python beholde dem bare så
+>   lenge de ikke leser eller skriver i databasen selv, og Python henter ikke
+>   leveringsoppdraget direkte fra basen ([LV-U1](#lv-u1)).
 > - Akseptkriteriet om at gamle hendelser leses av ny kode, gjelder mellom
 >   TS-versjoner (merknaden til invariant 9). Kriteriet om historiske
 >   teststrømmer erstattes av bevis-sakene i domenetabellen, som føres videre
 >   (B-17).
+> - Fra 11.10 betyr «ekte PostgreSQL» og «PostgreSQL-tester» i
+>   akseptkriteriene og testene over en ekte database av samme slag som
+>   produksjonen, Azure SQL ([B-12, databasen](#b-12-databasen)).
 
 ### FK — KOE-, EO- og forseringsdomenet i TS (B-17)
 
@@ -1398,13 +1408,13 @@ følges i [milepælen FK](https://github.com/khjohns/endringsmeldinger/milestone
 > uforanderlig. Prøvd mot testbasen i CI (K 11.10, `4ee5d9a` i PR #372). Ikke
 > bygget: brevteksten (#369), opprettelsen av en sak som kommando (#370),
 > leveringsforsøkene og workeren (#371) og én vertsadresse for TS og Python
-> (#376). Oppdraget har ingen brevtekst og leveres ikke før #369. Innloggingen i
-> Python over PostgreSQL venter på B-12 (#57, #377).
+> (#376). Oppdraget har ingen brevtekst og leveres ikke før #369. Innloggingen
+> flyttes til TS ([B-19](#b-19), #375).
 
 > **Merknad 2026-10-11 til FK, rekkefølgen etter B-19:** databasen er Azure SQL
 > ([B-12, databasen](#b-12-databasen)). Databasebyttet skjer før eller sammen med #310.
 > Derfor forutsetter #310 at det Python gjør mot databasen, er flyttet til TS (#375,
-> [B-19](#b-19)), og at datalaget for Azure SQL finnes. Kjernen i #309 importerer ingen
+> [B-19](#b-19)), og at datalaget for Azure SQL finnes (F0b). Kjernen i #309 importerer ingen
 > database og bygges videre. Lagringstestene mot testbasen følger lagringsformen (#395).
 
 ### F3 — Øvrige adaptere og drift
@@ -1469,7 +1479,7 @@ i så fall erstatte punktet med en referanse. Status er ikke innhentet for noen.
   og dokumentert (B-16), også hvis løsningen er en manuell prosess.
 - Isolert staging med eget Catenda-testprosjekt.
 - Konfigurasjon utenfor koden: policy med `user_id` (RV-03), Supabase-konsollet
-  (RV-06) så lenge Supabase er plattformen, eller tilsvarende på Azure (B-12),
+  (RV-06) så lenge Supabase brukes, og tilsvarende for Azure SQL og hostingen (B-12),
   produksjonshemmeligheter (CFG-01).
 - Uavhengig sluttaudit av F2 og F3: samtidige forsøk, utløpte leases, mistede
   eksterne svar.
@@ -1584,8 +1594,9 @@ står i `AGENTS.md` («Hvor hva står») og i avsnitt 8. Tabellen viser hvilke
 | Beslutning | Må være tatt før |
 | --- | --- |
 | B-01 relasjoner | KOE-tilknytningen og relasjonene i FK, byggedel 4 av #309 ([OV-U1](#ov-u1)) |
-| B-12 plattform og hosting | Container og utrulling i F0b, veien fra migrasjonsfil til base, plattformkonfigurasjon i F5. Fra 29.09 også løp c og d og TS2-02 i F0b, RK-05 og dermed F1, og fase 4 i spor M |
-| B-07 drivmekanisme | Den minimale workeren (F2) |
+| B-12 hosting | Container og utrulling i F0b, veien fra migrasjonsfil til base og plattformkonfigurasjon i F5. Databasen er avgjort ([B-12, databasen](#b-12-databasen)) |
+| Lagringsformen ([merknaden 11.10 til B-12](#b-12-merknad-2026-10-11)) | KOE-byttet skriver den første reelle hendelsen (#310) |
+| B-07 drivmekanisme | Workeren for leveringen (punkt 3 i F2, som er levering og integrasjon etter merknaden 09.10 til F2) |
 | B-09 driftsverdier | Akseptkriteriene for kapasitet og varsling i F3, og grensene for utdatert medlemsliste (B-04) |
 | B-05 bevaring, B-11 tidskilde | Eksport og bevaring i F4, og produksjonsporten |
 | B-06 fullmakt uten sats | Restansen på GFK-01 |
@@ -1794,3 +1805,23 @@ varselet i frontenden.
 - **Kjørt:** `python3 docs/verktoy/lenkekontroll.py` på planen, `docs/README.md`
   og designnotatet.
 - **Ikke kontrollert:** at GR-U12 er bygget. Det gjør #273 og #313.
+
+**Sluttredigeringen 11.10** er dokumentarbeid mot `6f56672`. Kilden for F0b,
+merknaden til KA-U12, ordbyttet i B-13 og KA-U30 er oppdragsgivers svar 11.10
+på spørsmål med alternativer, formidlet av orkestratoren for FK runde 7.
+
+- **Rettet utenfor vedtakene:** 1.2, 2.1, 2.2, 3.2, 3.3, 3.4, F0, F1, F2, FK og
+  avsnitt 6, etter B-12, databasen, og B-19 (#396). F0b har nytt innhold, og
+  merknadene 23.09–09.10 der er samlet under «Historikk». Utdaterte
+  ventepunkter er fjernet.
+- **Ført inn:** KA-U30 som ny rad i 3.1. Ordbyttet i B-13 og merknaden til
+  KA-U12 i Følge. En setning om navn på hendelser, felt og koder i merknaden
+  øverst i 3.1.
+- **Kjørt:** et skript som viser at ankrene og cellene i vedtakskolonnen i 3.1
+  er uendret, unntatt ordet i B-13 og den nye raden KA-U30;
+  `python3 docs/verktoy/lenkekontroll.py` på planen,
+  `docs/verktoy/datamodell.py`, `docs/verktoy/domenetabell.py` og
+  `tests/test_datamodell` og `tests/test_domenetabell` uten testbasen.
+- **Ikke kontrollert:** byggestatusen i «Følge» og i funnregisteret. Påstandene
+  om Azure SQL bygger på vurderingen av JSON i Azure SQL og designnotatet om
+  inbox og outbox, ikke på en egen kjøring.
