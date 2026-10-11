@@ -50,22 +50,6 @@ jobs:
     name: Database (PostgreSQL 17 + migrasjoner)
     if: ${{ !github.event.pull_request.draft }}
     runs-on: ubuntu-latest
-    services:
-      postgres:
-        # Målversjonen i supabase/config.toml.
-        # Det offisielle bildet fra speilet i ECR Public. Docker Hub avviser
-        # nedlastinger uten innlogging når grensen deres er nådd (#327).
-        image: public.ecr.aws/docker/library/postgres:17
-        env:
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: koe_test
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd "pg_isready -U postgres"
-          --health-interval 5s
-          --health-timeout 5s
-          --health-retries 10
     env:
       KOE_TESTBASE_URL: postgresql://postgres:postgres@localhost:5432/koe_test
     steps:
@@ -94,6 +78,11 @@ jobs:
         run: npm ci
         env:
           HUSKY: 0
+
+      # Ikke `services:`: den henter bildet fra én kilde før noe steg kjører,
+      # og gir opp etter tre forsøk (#327).
+      - name: Start testbasen
+        run: scripts/ci/start_postgres.sh
 
       - name: Kontroller serverversjonen
         run: |
