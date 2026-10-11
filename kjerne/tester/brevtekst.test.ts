@@ -119,7 +119,7 @@ describe('de faste tekstene står ordrett (KA-U22, KA-U25)', () => {
       new RegExp(`^TE trekker kravet om justering av vederlaget ${esc(I_SAKEN)}, `)
     );
     // Den gjeldende kravversjonen er den i brev 5, ikke den første i brev 3.
-    expect(a.laast).toContain(`150 000 kr i brev 5 av 5. oktober 2026`);
+    expect(a.laast).toContain(`150\u00a0000\u00a0kr i brev 5 av 5. oktober 2026`);
     expect(a.laast).toMatch(
       /Trekket er avkall på dette kravet, også det byggherren har godkjent\.$/
     );
@@ -159,7 +159,7 @@ describe('hvert utsagn står i teksten, ikke appens vurdering (LV-U3, HF-U2)', (
     const [, g, v, f] = s.journal;
     expect(tekst(g)[0].laast).toContain('«Ny peling»');
     expect(tekst(g)[0].laast).toContain('NS 8407 § 32.2');
-    expect(tekst(v)[0].laast).toContain('125 000 kr');
+    expect(tekst(v)[0].laast).toContain('125\u00a0000\u00a0kr');
     expect(tekst(f).map((a) => a.laast)).toEqual([
       expect.stringContaining('20 dager'),
       expect.stringContaining('§ 33.4 ble sendt 28. september 2026'),
@@ -245,7 +245,7 @@ describe('hvert utsagn står i teksten, ikke appens vurdering (LV-U3, HF-U2)', (
       ],
     });
     expect(tekst(rad)[0].laast).toBe(
-      'Byggherren svarer på TEs krav om justering av vederlaget på 125 000 kr i brev 3 av 3. oktober 2026. Byggherren godkjenner 100 000 kr av de krevde 125 000 kr.'
+      'Byggherren svarer på TEs krav om justering av vederlaget på 125\u00a0000\u00a0kr i brev 3 av 3. oktober 2026. Byggherren godkjenner 100\u00a0000\u00a0kr av de krevde 125\u00a0000\u00a0kr.'
     );
   });
 
@@ -273,7 +273,7 @@ describe('hvert utsagn står i teksten, ikke appens vurdering (LV-U3, HF-U2)', (
       regelversjon: KJERNE.regler.versjon,
     });
     expect(tekst(rad)[0].laast).toBe(
-      'TE godtar byggherrens svar i brev 5 av 5. oktober 2026 på TEs krav om justering av vederlaget på 125 000 kr i brev 3 av 3. oktober 2026.'
+      'TE godtar byggherrens svar i brev 5 av 5. oktober 2026 på TEs krav om justering av vederlaget på 125\u00a0000\u00a0kr i brev 3 av 3. oktober 2026.'
     );
   });
 
@@ -440,8 +440,8 @@ describe('gjengivelsen er tro mot den frosne teksten (LV-U2)', () => {
 
 describe('formen på tall og datoer', () => {
   it('kroner og datoer i Oslo', () => {
-    expect(kroner(125000)).toBe('125 000 kr');
-    expect(kroner(1234567.5)).toBe('1 234 567,50 kr');
+    expect(kroner(125000)).toBe('125\u00a0000\u00a0kr');
+    expect(kroner(1234567.5)).toBe('1\u00a0234\u00a0567,50\u00a0kr');
     expect(norskDato('2026-09-28')).toBe('28. september 2026');
     // Klokka 23.30 UTC 31.12 er 1. januar i Oslo.
     expect(norskDato('2026-12-31T23:30:00Z')).toBe('1. januar 2027');
