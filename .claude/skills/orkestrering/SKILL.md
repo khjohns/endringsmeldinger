@@ -117,6 +117,11 @@ issue. Oppdraget skal inneholde:
   oppdraget med issuenummer, og «Åpne spørsmål»;
 - PR mot `main` med `Closes #n`, eller «Del av #n» når bare en del leveres,
   og at økta ikke merger;
+- at PR-en åpnes som utkast og markeres klar (`ready_for_review`) først når de
+  lokale sjekkene er grønne. CI og regelversjonsvakten kjører ikke på utkast og
+  ikke ved push til `main` (#390), så hver push til et utkast er gratis, og hver
+  push til en klar PR koster en full kjøring. Feilinnføringene kjører også på et
+  utkast når etiketten `feilinnfoering` er satt;
 - at økta ikke abonnerer på PR-en (`subscribe_pr_activity`). Hver hendelse
   vekker økta og leser hele konteksten på nytt, også en grønn kjøring, egne
   pusher og mergen. Etter hver push venter økta på CI med én bakgrunnskommando
@@ -174,7 +179,10 @@ oppdragsgiver.
   modell eller en rådgiver, lag en selvstendig prompt med bakgrunnen,
   prinsippene og spørsmålene, uten saksdata. Et svar fra sparringen gjelder
   først når oppdragsgiver slutter seg til det, og det prøves mot vedtakene som
-  andre svar.
+  andre svar. Lagre svaret ordrett i en fil og la en subagent prøve det mot
+  vedtakene og koden før spørsmålene stilles. I FK runde 6 fant prøvingen at en
+  anbefaling sparringen kalte teknisk, snudde planen for leveringen, og at et
+  sitat fra et vedtak var halvt.
 - **Kontroller belegget før du spør.** Sitater fra vedtak og NS 8407 skal være
   ordrette. NS 8407-teksten ligger ikke i arbeidstreet. Hent den med
   `git show 507e2254^:docs/NS_8407.md`, etter `git fetch --unshallow origin main`
@@ -312,7 +320,15 @@ Gjør dette for hver PR:
 
 Merge bare når oppdragsgiver har godkjent det og CI er grønn på siste commit.
 Bruk `expectedHeadSha`, slik at en push som kom etter gjennomgangen, stopper
-mergen.
+mergen. Regelsettet på `main` krever de fire CI-jobbene (Backend, Database,
+Frontend, Lint) fra repoet ble offentlig 11.10.
+
+Integrasjonen i skyøkta kan ikke starte en Actions-kjøring på nytt (403). En ny
+kjøring kommer med en oppdatering mot `main` når grenen er bak, ellers må
+oppdragsgiver trykke *Re-run* i GitHub. Står jobbene uten runner og med en
+annotasjon om betaling eller utgiftsgrense, er Actions-kvoten brukt opp. Det
+kan bare oppdragsgiver rette. Si fra til øktene med én gang, så de kjører
+sjekkene lokalt og ikke feilsøker CI (FK runde 6).
 
 Når en PR i runden er merget, oppdateres hver av de neste mot `main`
 (`update_pull_request_branch`) og må ha grønn CI på den nye committen før den
