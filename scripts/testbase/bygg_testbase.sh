@@ -44,8 +44,17 @@ for fil in "${migrasjoner[@]}"; do
   "${psql_kjor[@]}" -f "$fil"
 done
 
+# Testoppsettet sammenlikner summen med arbeidstreet og nekter en base bygget
+# av andre migrasjoner (#379). Samme sum regnes i server/kastbar.ts og i
+# backend/tests/test_database/conftest.py. macOS har shasum, ikke sha256sum.
+sha256() { if command -v sha256sum > /dev/null; then sha256sum "$@"; else shasum -a 256 "$@"; fi; }
+sum="$(cd "$rot" && sha256 scripts/testbase/plattformstubb.sql "${migrasjoner[@]#"$rot"/}" \
+  | sha256 | cut -d' ' -f1)"
+
 # Den skrivbare testfixturen skriver bare til en base med dette merket.
-"${psql_kjor[@]}" -c "DO \$\$ BEGIN EXECUTE format('COMMENT ON DATABASE %I IS %L',
-  current_database(), 'koe-kastbar-testbase'); END \$\$"
+"${psql_kjor[@]}" -c "DO \$\$ BEGIN
+  EXECUTE format('COMMENT ON DATABASE %I IS %L', current_database(), 'koe-kastbar-testbase');
+  EXECUTE format('ALTER DATABASE %I SET koe.migrasjonssum = %L', current_database(), '$sum');
+END \$\$"
 
 echo "Bygget ${#migrasjoner[@]} migrasjoner."
