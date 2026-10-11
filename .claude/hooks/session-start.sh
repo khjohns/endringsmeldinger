@@ -74,9 +74,11 @@ start_testbase() {
   local port="${KOE_TESTBASE_PORT:-54317}" testbase="$rot/scripts/testbase"
   local navn="koe-testbase-$port" stempel="/tmp/koe-testbase-$port.container"
   local container url sum bygget_av
-  # Containeren lages på nytt når oppsettet av den (bildet, portene) er endret
-  # siden den ble laget; basen i den følger summen under.
-  container="$(cat "$testbase/docker_testbase.sh" "$rot/scripts/ci/postgres_kilder.sh" \
+  # Containeren lages på nytt når oppsettet av den (skriptet, bildet) er
+  # endret siden den ble laget; basen i den følger summen under.
+  # shellcheck source=scripts/ci/postgres_kilder.sh
+  source "$rot/scripts/ci/postgres_kilder.sh" || return 1
+  container="$({ cat "$testbase/docker_testbase.sh"; echo "$postgres_bilde"; } \
     | sha256sum | cut -d' ' -f1)" || return 1
   if ! docker container inspect "$navn" > /dev/null 2>&1 \
     || [ "$(cat "$stempel" 2> /dev/null)" != "$container" ]; then
