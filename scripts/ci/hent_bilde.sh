@@ -22,23 +22,29 @@ fi
 lokalt="$1"
 shift
 
-if docker image inspect "$lokalt" > /dev/null 2>&1; then
-  echo "$lokalt finnes lokalt og hentes ikke."
+if id="$(docker image inspect --format '{{.Id}}' "$lokalt" 2> /dev/null)"; then
+  echo "$lokalt finnes lokalt ($id) og hentes ikke."
   exit 0
 fi
 for kilde in "$@"; do
-  if docker image inspect "$kilde" > /dev/null 2>&1; then
+  if id="$(docker image inspect --format '{{.Id}}' "$kilde" 2> /dev/null)"; then
     docker tag "$kilde" "$lokalt"
-    echo "$lokalt finnes lokalt som $kilde og hentes ikke."
+    echo "$lokalt finnes lokalt som $kilde ($id) og hentes ikke."
     exit 0
   fi
 done
+
+# macOS har ikke timeout uten coreutils.
+tidsavbrudd=()
+if command -v timeout > /dev/null; then
+  tidsavbrudd=(timeout 180)
+fi
 
 ventetid=20
 for runde in 1 2 3; do
   for kilde in "$@"; do
     echo "Runde $runde: henter $kilde"
-    if timeout 180 docker pull --quiet "$kilde"; then
+    if ${tidsavbrudd[@]+"${tidsavbrudd[@]}"} docker pull --quiet "$kilde"; then
       docker tag "$kilde" "$lokalt"
       # Docker lagrer Docker Hub-bilder uten docker.io/library/ i RepoDigests.
       repo="${kilde%:*}"

@@ -16,7 +16,6 @@ set -euo pipefail
 
 rot="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 port="${KOE_TESTBASE_PORT:-54317}"
-bilde="koe-testbase:postgres-17"
 # shellcheck source=scripts/ci/postgres_kilder.sh
 source "$rot/scripts/ci/postgres_kilder.sh"
 navn="koe-testbase-$port"
@@ -33,12 +32,12 @@ case "${1:-}" in
       echo "Containeren $navn finnes. Kjør 'stopp' først." >&2
       exit 1
     fi
-    "$rot/scripts/ci/hent_bilde.sh" "$bilde" "${postgres_kilder[@]}" >&2
+    "$rot/scripts/ci/hent_bilde.sh" "$postgres_bilde" "${postgres_kilder[@]}" >&2
     docker run --detach --name "$navn" \
       --env POSTGRES_PASSWORD="$(head -c 24 /dev/urandom | od -An -tx1 | tr -d ' \n')" \
       --env POSTGRES_DB=koe_test \
       --publish "127.0.0.1:$port:5432" \
-      "$bilde" > /dev/null
+      "$postgres_bilde" > /dev/null
     # Bildet starter serveren én gang for initdb og så på nytt; pg_isready
     # over TCP svarer først når den endelige serveren lytter på porten.
     for _ in $(seq 1 60); do
