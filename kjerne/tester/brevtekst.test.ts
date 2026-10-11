@@ -97,6 +97,16 @@ function sak() {
     journal.push(...utfall.hendelser);
     return utfall.hendelser[0];
   };
+  /** Den låste teksten forhåndsvisningen gir, eller `null` når den avvises (A1). */
+  const vis = (part: Part, kommando: Data): string[] | null => {
+    try {
+      const vist = forhaandsvis(structuredClone(kommando), kontekst(part), journal, KJERNE);
+      return vist.godtatt ? laastTekst(vist.hendelser[0]) : null;
+    } catch (feil) {
+      if (feil instanceof Skrivefeil) throw new AssertionError({ message: feil.message });
+      throw feil;
+    }
+  };
   /** Avvisningen kommandoen får, eller `null` når den godtas. */
   const avvist = (part: Part, kommando: Data) => {
     const u = prov(part, kommando);
@@ -123,7 +133,7 @@ function sak() {
   };
   const u = () => utledJournal(journal, KJERNE);
   const krav = (spor: 'grunnlag' | 'vederlag' | 'frist') => u().spor[spor].gjeldendeKrav!.id;
-  return { journal, send, avvist, rad, u, krav };
+  return { journal, send, vis, avvist, rad, u, krav };
 }
 
 const tekst = (rad: Journalrad): Avsnitt[] => {
@@ -379,20 +389,7 @@ describe('kravet til begrunnelse og beskrivelse (KA-U24, KA-U31–KA-U33, GR-U15
         ),
       ],
     };
-    const vist = forhaandsvis(
-      avslag,
-      {
-        sakId: SAK,
-        aktoerId: 'bh',
-        part: 'BH',
-        teamId: null,
-        tidspunkt: () => new Date(),
-        nyId: randomUUID,
-      },
-      s.journal,
-      KJERNE
-    );
-    expect(vist.godtatt && laastTekst(vist.hendelser[0])).toHaveLength(1);
+    expect(s.vis('BH', avslag)).toHaveLength(1);
     expect(s.avvist('BH', avslag)).toBe('BEGRUNNELSE_MANGLER');
   });
 
