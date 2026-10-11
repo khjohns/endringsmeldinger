@@ -243,6 +243,18 @@ describe.skipIf(!AKTIV).each(FORMER)('form (%s)', (form) => {
       expect(likeVerdier(await bane.journal(), bane.skrevet)).toBe(true);
     });
 
+    it('en del lagt til etter kommandoen i samme transaksjon avvises, og ingenting lagres', async () => {
+      const ny = await sqlBane(o, form);
+      const rad = await brevMedTreSvar(ny);
+      const foer = await ny.journal();
+      const feil = await transaksjon(o.admin, kontekst(o.brukere.bh, o.a, 'BH'), async (f) => {
+        await registrer(f, form, rad, foer.at(-1)!.versjon);
+        await f().batch(leggTilSvar(rad));
+      }).catch((e: unknown) => e);
+      expect(feilnummer(feil)).toBe(51002);
+      expect(await ny.journal()).toEqual(foer);
+    });
+
     it('samme brev kan ikke registreres på nytt med flere deler', async () => {
       const utvidet = structuredClone(brev);
       (utvidet.data.svar as unknown[]).push((utvidet.data.svar as unknown[])[0]);
@@ -337,6 +349,7 @@ describe.skipIf(!AKTIV).each(FORMER)('form (%s)', (form) => {
         registrer(f, form, rad, 1)
       ).catch((e: unknown) => e);
       expect(feilnummer(feil)).toBe(547);
+      expect(String((feil as Error).message)).toMatch(/_event_id_form/);
     });
 
     it('teksten er ikke et JSON-objekt', async () => {

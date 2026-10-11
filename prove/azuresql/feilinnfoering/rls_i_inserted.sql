@@ -7,7 +7,8 @@ BEGIN
   SET NOCOUNT ON;
   IF EXISTS (SELECT 1 FROM inserted i WHERE NOT EXISTS (
        SELECT 1 FROM form_a.hendelse f WHERE f.event_id = i.event_id AND f.prosjekt_id = i.prosjekt_id
-          AND f.transaksjon = CURRENT_TRANSACTION_ID()))
+          AND f.transaksjon = CURRENT_TRANSACTION_ID()
+          AND f.skriving = TRY_CAST(SESSION_CONTEXT(N'koe_skriving') AS uniqueidentifier)))
     THROW 51002, N'En del kan ikke legges til et lagret brev', 1;
 END
 GO
@@ -17,7 +18,8 @@ BEGIN
   SET NOCOUNT ON;
   IF EXISTS (SELECT 1 FROM inserted i WHERE NOT EXISTS (
        SELECT 1 FROM form_b.dokument f WHERE f.event_id = i.event_id AND f.prosjekt_id = i.prosjekt_id
-          AND f.transaksjon = CURRENT_TRANSACTION_ID()))
+          AND f.transaksjon = CURRENT_TRANSACTION_ID()
+          AND f.skriving = TRY_CAST(SESSION_CONTEXT(N'koe_skriving') AS uniqueidentifier)))
     THROW 51002, N'En del kan ikke legges til et lagret brev', 1;
 END
 GO

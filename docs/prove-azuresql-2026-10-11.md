@@ -69,7 +69,7 @@ containeren. Azure SQL Edge er ikke brukt: den har ikke typebegrensningen i
 | Rettigheter og policy | [`04_tilgang.sql`](../prove/azuresql/sql/04_tilgang.sql) | Rollen `koe_runtime` og sikkerhetspolicyen |
 | Banen for kjernen | [`lib/baner.ts`](../prove/azuresql/lib/baner.ts) | `Bane` fra `kjerne/tester/bane.ts` gjennom begge formene |
 | Testene | [`tester/`](../prove/azuresql/tester/tilgang.test.ts) | Tilgang, lagring og identitet |
-| Feilinnføringene | [`feilinnfoering/`](../prove/azuresql/feilinnfoering/uten_transaksjonsbinding.sql) | Sju feil, hver skal gi rød test |
+| Feilinnføringene | [`feilinnfoering/`](../prove/azuresql/feilinnfoering/uten_transaksjonsbinding.sql) | Åtte feil, hver skal gi rød test |
 
 Basen opprettes med sorteringen `Latin1_General_100_BIN2_UTF8`, slik at ID-er
 sammenliknes tegn for tegn som i PostgreSQL (SQ-08). Runtime logger inn som
@@ -83,12 +83,12 @@ sammenliknes tegn for tegn som i PostgreSQL (SQ-08). Runtime logger inn som
 | SQ-01 | **RLS gjelder også eieren.** `sa` og `dbo` ser ingen rader uten kontekst. I PostgreSQL har eieren `BYPASSRLS` i testbasen. Det er strengere, men det betyr også at triggere, kommandoer og driftsspørringer leser gjennom predikatene | K (`RLS gjelder også sa og dbo` i `tilgang.test.ts`); MS 11.09.2025 ([Row-level security](https://learn.microsoft.com/en-us/sql/relational-databases/security/row-level-security)): «Security policies apply to all users, including dbo users» |
 | SQ-02 | **Konteksten gjelder sesjonen og overlever gjenbruk.** `SESSION_CONTEXT` har ingen transaksjonslokal form som `set_config(…, true)`. `mssql` 12.7.1 (`tedious` 20.3.7) nullstiller ikke forbindelsen når poolen gir den ut igjen: på samme `@@SPID` lå `koe_aktor` igjen etter både COMMIT og ROLLBACK | K (gjenbruk med `pool.max = 1` i `tilgang.test.ts`) |
 | SQ-03 | **Konteksten bindes til transaksjonen.** `koe_api.sett_kontekst` krever en åpen transaksjon og lagrer `CURRENT_TRANSACTION_ID()` som `koe_tx`. Hvert predikat og hver kommando krever at `koe_tx` er transaksjonen som kjører. Etter COMMIT eller ROLLBACK leser forbindelsen ingen rader og kan ikke skrive, selv om verdiene ligger igjen. Det oppfyller akseptkriteriet i F0b om gjenbrukt forbindelse uten at noen må rydde. Kriteriet om at en satt variabel leses som tom og ikke `NULL`, gjelder `set_config` i PostgreSQL og har ingen motpart: `SESSION_CONTEXT` gir `NULL` for en nøkkel som ikke er satt, og predikatene behandler `NULL` som ingen tilgang | K; feilinnføringen `uten_transaksjonsbinding` gir rødt; MS 24.07.2017 (`CURRENT_TRANSACTION_ID` finnes i SQL Server 2016 og senere og i Azure SQL Database) |
-| SQ-04 | **RLS filtrerer `inserted` i en trigger.** En vakt skrevet som `IF EXISTS (SELECT … FROM inserted …)` så null rader når eieren satte inn uten kontekst, og slapp delen gjennom (fail-open). Vakten teller nå de godkjente radene og sammenlikner med `ROWCOUNT_BIG()`, som RLS ikke påvirker. ID-en til en transaksjon er bare entydig i én instans mellom to omstarter, ikke etter en omstart eller failover. Vakten krever derfor også at dokumentraden har samme `skriving`, en ny GUID kommandoen lager og legger i konteksten | K (funnet under prøven: `påvirket 1, synlige i inserted 0`); feilinnføringen `rls_i_inserted` gir rødt; MS nevner det ikke (—) |
+| SQ-04 | **RLS filtrerer `inserted` i en trigger.** En vakt skrevet som `IF EXISTS (SELECT … FROM inserted …)` så null rader når eieren satte inn uten kontekst, og slapp delen gjennom (fail-open). Vakten teller nå de godkjente radene og sammenlikner med `ROWCOUNT_BIG()`, som RLS ikke påvirker. ID-en til en transaksjon er bare entydig i én instans mellom to omstarter, ikke etter en omstart eller failover. Vakten krever derfor også at dokumentraden har samme `skriving`, en ny GUID kommandoen lager, legger i konteksten og fjerner igjen når delene er skrevet. En del lagt til etter kommandoen i samme transaksjon avvises | K (funnet under prøven: `påvirket 1, synlige i inserted 0`); feilinnføringene `rls_i_inserted` og `uten_skrivevakt` gir rødt; MS nevner det ikke (—) |
 | SQ-05 | **`SECURITY DEFINER` svarer til eierskapskjeden.** Kommandoene og tabellene eies av `dbo`, så runtime trenger bare `EXECUTE`. Kjeden brytes av dynamisk SQL, som kommandoene ikke bruker. Runtime avvises ved `INSERT`, `UPDATE` og `DELETE` på journalen og notatene og ved lesing av identitet, medlemskap og kontraktsteam (229), ved `TRUNCATE` og `DISABLE TRIGGER` (1088), ved å slå av policyen (33268), ved `EXECUTE AS USER = 'dbo'` (15517), ved `CREATE TABLE` (262) og ved å endre en kommando (3701) | K (`rettighetene til runtime` i `tilgang.test.ts`) |
 | SQ-06 | **Prosjektgrensen.** Lesing krever aktivt medlemskap i prosjektet i konteksten. Et medlem av to prosjekter ser bare prosjektet i konteksten. Skriving i en sak i et annet prosjekt, en ukjent sak, leserolle, inaktivt medlemskap, et team som ikke er kontraktsteam, et team fra et annet prosjekt, et TE-team oppgitt med side BH og manglende team gir samme svar (51403). Kommandoen lager sak-ID-en (TM-11). Et prosjekt som ikke er aktivt, gir verken lesing eller skriving, som policyen i PostgreSQL | K; feilinnføringen `uten_prosjektgrense` gir rødt |
-| SQ-07 | **Skjerming av notater på team, fail-closed.** Notatet vises bare for teamet som skrev det, med handlingsrett og riktig side. Motparten, leserollen, et fremmed team, feil side, manglende team og samme team i et annet prosjekt ser det ikke. Et notat uten team vises til ingen, heller ikke forfatteren. Blokkpredikatet hindrer også eieren i å skrive et notat uten team eller i en annen aktørs navn (33504). Sletting gjelder bare eget notat | K; feilinnføringen `uten_teamgrense` gir rødt |
+| SQ-07 | **Skjerming av notater på team, fail-closed.** Notatet vises bare for teamet som skrev det, med handlingsrett og riktig side. Motparten, leserollen, et fremmed team, feil side, manglende team og samme team i et annet prosjekt ser det ikke. Et notat uten team vises til ingen, heller ikke forfatteren. Blokkpredikatene ved `INSERT` og `UPDATE` hindrer også eieren i å skrive et notat uten team eller i en annen aktørs navn, eller flytte et notat dit (33504). Sletting gjelder bare eget notat | K; feilinnføringen `uten_teamgrense` gir rødt |
 | SQ-08 | **Sorteringen.** Standardsorteringen i SQL Server og Azure SQL Database, `SQL_Latin1_General_CP1_CI_AS`, skiller ikke store og små bokstaver. Med den ville `Oslobygg` og `oslobygg`, og et team i store og små bokstaver, vært samme verdi. Prøven oppretter basen med en binær sortering, og et team med store bokstaver avvises | K (team med store bokstaver i `tilgang.test.ts`); standardsorteringen i Azure SQL Database — |
-| SQ-09 | **Aktørfeltene settes av kommandoen.** `registrer_a` og `registrer_b` har ingen parameter for aktør, side eller team; de stemples fra konteksten. Blokkpredikatet på dokumentraden krever at feltene er konteksten, som et andre lag | K |
+| SQ-09 | **Aktørfeltene settes av kommandoen.** `registrer_a` og `registrer_b` har ingen parameter for aktør, side eller team; de stemples fra konteksten. Blokkpredikatet på dokumentraden krever at feltene er konteksten, som et andre lag. `aktor_id` og `event_id` lagres bare med små bokstaver, så samme UUID ikke kan stå i to former | K |
 | SQ-10 | **Hva kontekstnøklene er.** Runtime kan kalle `sp_set_session_context` selv, også med `koe_tx`. Det er samme tillit som i PostgreSQL, der runtime setter kravene med `set_config`: basen kontrollerer medlemskap, side og team, men ikke at brukeren faktisk sitter i teamet (TM-03 i design v2) | L |
 
 ## 4. Lagringsformene
@@ -151,11 +151,11 @@ ned bildet på nytt; den siste kjørte etter rettingene fra code-review.
 | --- | --- | --- |
 | Bildet på disk | 2,42 GB (634 MB komprimert) | 646 MB |
 | Nedlasting fra MCR | 47,1 s (54,6 s tidligere samme dag) | — |
-| Fra `docker run` til første svar | 17,6 s med nytt bilde, 11,7 s og 10,8 s senere | — |
+| Fra `docker run` til første svar | 17,6 s med nytt bilde, mellom 10,8 og 11,9 s senere | — |
 | Minne etter oppstart | 498 MiB | — |
-| Minne etter testene | 608 MiB og 615 MiB | — |
-| Testene i tre filer, fire baser | 52,5 s (198 tester) og 55,4 s (204) | — |
-| Hele `kjor.sh` med sju feilinnføringer | 5 min 18 s med nedlasting, 4 min 26 s uten | — |
+| Minne etter testene | mellom 607 og 615 MiB | — |
+| Testene i tre filer, fire baser | 52,5 s (198 tester) og 62,9 s (208) | — |
+| Hele `kjor.sh` med feilinnføringene | 5 min 18 s med nedlasting og sju, 5 min 51 s uten nedlasting og med åtte | — |
 
 **Skyøktene.** Hooken `.claude/hooks/session-start.sh` bygger i dag
 PostgreSQL-testbasen. Skal den også starte SQL Server, legger det til om lag ett
@@ -191,14 +191,15 @@ Prøven er kjørt mot SQL Server 2025 i Docker, ikke mot Azure SQL Database.
 
 - `npm --prefix prove/azuresql run prove` fra en tom tilstand, med bildet
   fjernet først: nedlasting, oppstart og 198 av 198 tester grønne.
-- Den samme kommandoen etter rettingene fra code-review, med en ny container
-  og bildet lokalt: 204 av 204 grønne, 152 i `lagring.test.ts` (blant dem de
-  50 forløpene i hver form), 40 i `tilgang.test.ts` og 12 i
-  `identitet.test.ts`.
+- Den samme kommandoen etter de to rundene med rettinger fra code-review, med
+  en ny container og bildet lokalt: 208 av 208 grønne, 154 i
+  `lagring.test.ts` (blant dem de 50 forløpene i hver form), 42 i
+  `tilgang.test.ts` og 12 i `identitet.test.ts`.
 - Feilinnføringene i den siste kjøringen, hver for seg i en ny base, og alle
   oppdaget: `rls_i_inserted` (4 røde), `uten_feltkontroll` (8),
-  `uten_normalisering` (8), `uten_prosjektgrense` (2), `uten_teamgrense` (3),
-  `uten_transaksjonsbinding` (3) og `uten_versjonskontroll` (1). `kjor.sh`
+  `uten_normalisering` (8), `uten_prosjektgrense` (2), `uten_skrivevakt` (2),
+  `uten_teamgrense` (5), `uten_transaksjonsbinding` (3) og
+  `uten_versjonskontroll` (1). `kjor.sh`
   regner en feilinnføring som oppdaget bare når tester er røde og oppsettet
   ikke feilet.
 - Eksperimentene i en egen container før prøven ble skrevet: transaksjonsbindingen

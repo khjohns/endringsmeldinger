@@ -79,6 +79,7 @@ if [ "${PROVE_UTEN_FEILINNFOERING:-}" != 1 ]; then
     [rls_i_inserted]=lagring
     [uten_feltkontroll]=lagring
     [uten_versjonskontroll]=lagring
+    [uten_skrivevakt]=lagring
     [uten_normalisering]=identitet
   )
   overlevde=0

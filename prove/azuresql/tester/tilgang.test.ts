@@ -387,6 +387,30 @@ describe.skipIf(!AKTIV)('tilgang i T-SQL', () => {
       expect(n).toBe(33504);
     });
 
+    it('eieren kan ikke flytte et notat til en annen aktør eller fjerne teamet (blokkpredikatet)', async () => {
+      for (const sett of [`aktor_id = N'${o.brukere.bh.id}'`, 'aktor_team_id = NULL']) {
+        const n = await feilFra(
+          transaksjon(o.admin, te, (f) =>
+            f().batch(`UPDATE koe.notat SET ${sett} WHERE notat_id = '${notat}'`)
+          )
+        );
+        expect(n, sett).toBe(33504);
+      }
+      expect(await notater(te)).toBe(1);
+    });
+
+    it('en aktør-ID med store bokstaver kan ikke lagres', async () => {
+      const n = await feilFra(
+        transaksjon(o.admin, te, (f) =>
+          f().batch(
+            `INSERT koe.notat (notat_id, sak_id, prosjekt_id, aktor_id, aktor_rolle, aktor_team_id, tekst)
+             VALUES (NEWID(), N'${sakA.sakId}', N'${o.a.id}', N'${o.brukere.te.id.toUpperCase()}', N'TE', N'${o.a.team.TE}', N'x')`
+          )
+        )
+      );
+      expect(n).toBe(547);
+    });
+
     it('notat i en sak i et annet prosjekt, ukjent sak og fremmed team gir samme svar', async () => {
       for (const [k, sak] of [
         [te, sakB],
@@ -414,16 +438,33 @@ describe.skipIf(!AKTIV)('tilgang i T-SQL', () => {
         .batch(`UPDATE koe.projects SET is_active = ${verdi} WHERE id = N'${o.a.id}'`);
 
     it('gir verken lesing eller skriving', async () => {
+      const notat = () => tell(o.runtime, te, 'koe.notat');
+      const skrivNotat = () =>
+        transaksjon(o.runtime, te, (f) =>
+          f()
+            .input('sak_id', sql.NVarChar(36), sakA.sakId)
+            .input('tekst', sql.NVarChar(sql.MAX), 'før deaktivering')
+            .output('notat_id', sql.UniqueIdentifier)
+            .execute('koe_api.skriv_notat')
+        );
+      await skrivNotat();
+      const foer = { journal: await synlige(te), notater: await notat() };
+      expect(foer.journal).toBeGreaterThan(0);
+      expect(foer.notater).toBeGreaterThan(0);
       await aktiv(0);
       try {
         expect(await synlige(te)).toBe(0);
-        expect(await tell(o.runtime, te, 'koe.notat')).toBe(0);
-        const n = await feilFra(nySak(o, bh));
-        expect(n).toBe(51403);
+        expect(await notat()).toBe(0);
+        expect(await feilFra(nySak(o, bh))).toBe(51403);
+        expect(await feilFra(skrivNotat())).toBe(51403);
+        const rad = { ...structuredClone(sakA.skrevet.at(-1)!), event_id: randomUUID() };
+        expect(await feilFra(transaksjon(o.runtime, bh, (f) => registrer(f, 'a', rad, 99)))).toBe(
+          51403
+        );
       } finally {
         await aktiv(1);
       }
-      expect(await synlige(te)).toBeGreaterThan(0);
+      expect({ journal: await synlige(te), notater: await notat() }).toEqual(foer);
     });
   });
 });
