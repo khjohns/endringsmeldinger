@@ -66,21 +66,23 @@ BEGIN
   DECLARE @siste int = (SELECT MAX(versjon) FROM form_a.hendelse WITH (UPDLOCK, HOLDLOCK) WHERE sak_id = @sak_id);
   IF ISNULL(@siste, 0) <> @forventet_versjon THROW 51409, N'Versjonskonflikt', 1;
 
+  DECLARE @skriving uniqueidentifier = NEWID();
+  EXEC sp_set_session_context N'koe_skriving', @skriving;
   INSERT form_a.hendelse (event_id, sak_id, prosjekt_id, event_type, versjon, tidsstempel, aktor_id, aktor_rolle,
-                          aktor_team_id, refererer_til_event_id, format, data, transaksjon)
+                          aktor_team_id, refererer_til_event_id, format, data, transaksjon, skriving)
   VALUES (@event_id, @sak_id, @prosjekt, @event_type, @forventet_versjon + 1, @tidsstempel, @aktor, @side,
-          @team, @refererer_til_event_id, @format, @data, CURRENT_TRANSACTION_ID());
+          @team, @refererer_til_event_id, @format, @data, CURRENT_TRANSACTION_ID(), @skriving);
 
   INSERT form_a.krav (event_id, prosjekt_id, plass, id, spor, erstatter, beloep, dager)
-  SELECT @event_id, @prosjekt, CAST(e.[key] AS int), j.id, j.spor, j.erstatter, TRY_CAST(j.beloep AS float), TRY_CAST(j.dager AS int)
-    FROM OPENJSON(JSON_QUERY(@data, N'$.krav')) e
+  SELECT @event_id, @prosjekt, CAST(e.[key] AS int), j.id, j.spor, j.erstatter, TRY_CAST(j.beloep AS float), TRY_CAST(j.dager AS float)
+    FROM OPENJSON(CASE WHEN ISJSON(JSON_QUERY(@data, N'$.krav'), ARRAY) = 1 THEN JSON_QUERY(@data, N'$.krav') END) e
    CROSS APPLY OPENJSON(CASE WHEN e.type = 5 THEN e.value END)
          WITH (id nvarchar(max), spor nvarchar(max), erstatter nvarchar(max), beloep nvarchar(max), dager nvarchar(max)) j;
 
   INSERT form_a.svar (event_id, prosjekt_id, plass, id, spor, gjelder, erstatter, regelversjon, sammenfall)
-  SELECT @event_id, @prosjekt, CAST(e.[key] AS int), j.id, j.spor, j.gjelder, j.erstatter, TRY_CAST(j.regelversjon AS int),
+  SELECT @event_id, @prosjekt, CAST(e.[key] AS int), j.id, j.spor, j.gjelder, j.erstatter, TRY_CAST(j.regelversjon AS float),
          CASE j.sammenfall WHEN N'true' THEN 1 WHEN N'false' THEN 0 END
-    FROM OPENJSON(JSON_QUERY(@data, N'$.svar')) e
+    FROM OPENJSON(CASE WHEN ISJSON(JSON_QUERY(@data, N'$.svar'), ARRAY) = 1 THEN JSON_QUERY(@data, N'$.svar') END) e
    CROSS APPLY OPENJSON(CASE WHEN e.type = 5 THEN e.value END)
          WITH (id nvarchar(max), spor nvarchar(max), gjelder nvarchar(max), erstatter nvarchar(max),
                regelversjon nvarchar(max) N'$.beslutningsgrunnlag.regelversjon',
@@ -88,7 +90,7 @@ BEGIN
 
   INSERT form_a.utsagn (event_id, prosjekt_id, plass, id, art, gjelder, spor)
   SELECT @event_id, @prosjekt, CAST(e.[key] AS int), j.id, j.art, j.gjelder, j.spor
-    FROM OPENJSON(JSON_QUERY(@data, N'$.utsagn')) e
+    FROM OPENJSON(CASE WHEN ISJSON(JSON_QUERY(@data, N'$.utsagn'), ARRAY) = 1 THEN JSON_QUERY(@data, N'$.utsagn') END) e
    CROSS APPLY OPENJSON(CASE WHEN e.type = 5 THEN e.value END)
          WITH (id nvarchar(max), art nvarchar(max), gjelder nvarchar(max), spor nvarchar(max)) j;
 
@@ -101,7 +103,7 @@ GO
 -- Feltene i ett objekt som form (b) ikke kan lagre: en ukjent nøkkel, en
 -- annen JSON-type enn formatet har, `null`, eller en tom liste eller et tomt
 -- objekt. Alle ville gått tapt eller endret seg uten feil ved gjenoppbyggingen.
-CREATE FUNCTION form_b.avvik(@slag nvarchar(40), @verdi nvarchar(max))
+CREATE FUNCTION form_b.avvik(@slag nvarchar(4000), @verdi nvarchar(max))
 RETURNS TABLE AS RETURN
 SELECT o.[key] AS noekkel
   FROM OPENJSON(@verdi) o
@@ -136,7 +138,7 @@ BEGIN
   IF @hode IS NULL OR ISJSON(@data, OBJECT) <> 1
     THROW 51423, N'Hendelsestypen eller innholdet har ingen plass i tabellene', 1;
 
-  DECLARE @objekter TABLE (slag nvarchar(40) NOT NULL, verdi nvarchar(max) NOT NULL);
+  DECLARE @objekter TABLE (slag nvarchar(4000) NOT NULL, verdi nvarchar(max) NOT NULL);
   DECLARE @elementer TABLE (forventet tinyint NOT NULL, type tinyint NOT NULL);
   INSERT @objekter VALUES (@hode, @data);
   IF @hode = N'dokument'
@@ -180,10 +182,12 @@ BEGIN
   DECLARE @siste int = (SELECT MAX(versjon) FROM form_b.dokument WITH (UPDLOCK, HOLDLOCK) WHERE sak_id = @sak_id);
   IF ISNULL(@siste, 0) <> @forventet_versjon THROW 51409, N'Versjonskonflikt', 1;
 
+  DECLARE @skriving uniqueidentifier = NEWID();
+  EXEC sp_set_session_context N'koe_skriving', @skriving;
   INSERT form_b.dokument (event_id, sak_id, prosjekt_id, event_type, versjon, tidsstempel, aktor_id, aktor_rolle,
-                          aktor_team_id, refererer_til_event_id, format, transaksjon)
+                          aktor_team_id, refererer_til_event_id, format, transaksjon, skriving)
   VALUES (@event_id, @sak_id, @prosjekt, @event_type, @forventet_versjon + 1, @tidsstempel, @aktor, @side,
-          @team, @refererer_til_event_id, @format, CURRENT_TRANSACTION_ID());
+          @team, @refererer_til_event_id, @format, CURRENT_TRANSACTION_ID(), @skriving);
 
   IF @hode = N'sak_opprettet'
     INSERT form_b.sak_opprettet (event_id, prosjekt_id, sakstittel, sakstype)

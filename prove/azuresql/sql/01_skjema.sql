@@ -81,8 +81,10 @@ CREATE TABLE koe.notat (
 GO
 
 -- (a) Ett dokument per brev er kilden: `data` er teksten slik den ble sendt,
--- kontrollert med ISJSON. `transaksjon` er transaksjonen som skrev raden; de
--- avledede tabellene godtar bare rader fra den samme transaksjonen.
+-- kontrollert med ISJSON. `transaksjon` og `skriving` er transaksjonen og
+-- skrivingen som lagret raden; de avledede tabellene godtar bare rader fra den
+-- samme. ID-en til en transaksjon er bare entydig i én instans mellom to
+-- omstarter, så `skriving` (en ny GUID per kommando) gjør vakten varig.
 CREATE TABLE form_a.hendelse (
   event_id nvarchar(36) NOT NULL CONSTRAINT a_hendelse_pk PRIMARY KEY,
   sak_id nvarchar(36) NOT NULL,
@@ -97,7 +99,8 @@ CREATE TABLE form_a.hendelse (
   format int NULL CONSTRAINT a_hendelse_format CHECK (format >= 1),
   data nvarchar(max) NOT NULL CONSTRAINT a_hendelse_data_er_objekt CHECK (ISJSON(data, OBJECT) = 1),
   transaksjon bigint NOT NULL,
-  CONSTRAINT a_hendelse_event_id_form CHECK (TRY_CAST(event_id AS uniqueidentifier) IS NOT NULL),
+  skriving uniqueidentifier NOT NULL,
+  CONSTRAINT a_hendelse_event_id_form CHECK (TRY_CAST(event_id AS uniqueidentifier) IS NOT NULL AND event_id = LOWER(event_id)),
   CONSTRAINT a_hendelse_sak_versjon UNIQUE (sak_id, versjon),
   CONSTRAINT a_hendelse_event_prosjekt UNIQUE (event_id, prosjekt_id),
   CONSTRAINT a_hendelse_sak FOREIGN KEY (sak_id, prosjekt_id) REFERENCES koe.sak_metadata (sak_id, prosjekt_id)
@@ -114,7 +117,7 @@ CREATE TABLE form_a.krav (
   spor nvarchar(max) NULL,
   erstatter nvarchar(max) NULL,
   beloep float NULL,
-  dager int NULL,
+  dager float NULL,
   CONSTRAINT a_krav_pk PRIMARY KEY (event_id, plass),
   CONSTRAINT a_krav_hendelse FOREIGN KEY (event_id, prosjekt_id) REFERENCES form_a.hendelse (event_id, prosjekt_id)
 );
@@ -127,7 +130,7 @@ CREATE TABLE form_a.svar (
   spor nvarchar(max) NULL,
   gjelder nvarchar(max) NULL,
   erstatter nvarchar(max) NULL,
-  regelversjon int NULL,
+  regelversjon float NULL,
   sammenfall bit NULL,
   CONSTRAINT a_svar_pk PRIMARY KEY (event_id, plass),
   CONSTRAINT a_svar_hendelse FOREIGN KEY (event_id, prosjekt_id) REFERENCES form_a.hendelse (event_id, prosjekt_id)
@@ -172,7 +175,8 @@ CREATE TABLE form_b.dokument (
   refererer_til_event_id nvarchar(36) NULL,
   format int NULL CONSTRAINT b_dokument_format CHECK (format >= 1),
   transaksjon bigint NOT NULL,
-  CONSTRAINT b_dokument_event_id_form CHECK (TRY_CAST(event_id AS uniqueidentifier) IS NOT NULL),
+  skriving uniqueidentifier NOT NULL,
+  CONSTRAINT b_dokument_event_id_form CHECK (TRY_CAST(event_id AS uniqueidentifier) IS NOT NULL AND event_id = LOWER(event_id)),
   CONSTRAINT b_dokument_sak_versjon UNIQUE (sak_id, versjon),
   CONSTRAINT b_dokument_event_prosjekt UNIQUE (event_id, prosjekt_id),
   CONSTRAINT b_dokument_sak FOREIGN KEY (sak_id, prosjekt_id) REFERENCES koe.sak_metadata (sak_id, prosjekt_id)

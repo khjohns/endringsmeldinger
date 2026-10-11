@@ -15,6 +15,7 @@ CREATE FUNCTION koe_sikkerhet.medlem(@prosjekt_id nvarchar(100))
 RETURNS TABLE WITH SCHEMABINDING AS RETURN
 SELECT 1 AS tilgang
   FROM koe.app_project_memberships m
+  JOIN koe.projects p ON p.id = m.project_id AND p.is_active = 1
  WHERE m.project_id = @prosjekt_id
    AND m.project_id = TRY_CAST(SESSION_CONTEXT(N'koe_prosjekt') AS nvarchar(100))
    AND m.user_id = TRY_CAST(SESSION_CONTEXT(N'koe_aktor') AS uniqueidentifier)
@@ -29,6 +30,7 @@ CREATE FUNCTION koe_sikkerhet.notat_synlig(@prosjekt_id nvarchar(100), @aktor_te
 RETURNS TABLE WITH SCHEMABINDING AS RETURN
 SELECT 1 AS tilgang
   FROM koe.app_project_memberships m
+  JOIN koe.projects p ON p.id = m.project_id AND p.is_active = 1
   JOIN koe.catenda_contract_teams t ON t.internal_project_id = m.project_id
  WHERE m.project_id = @prosjekt_id
    AND m.project_id = TRY_CAST(SESSION_CONTEXT(N'koe_prosjekt') AS nvarchar(100))
@@ -47,6 +49,7 @@ CREATE FUNCTION koe_sikkerhet.skriver(
 RETURNS TABLE WITH SCHEMABINDING AS RETURN
 SELECT 1 AS tilgang
   FROM koe.app_project_memberships m
+  JOIN koe.projects p ON p.id = m.project_id AND p.is_active = 1
   JOIN koe.catenda_contract_teams t ON t.internal_project_id = m.project_id
  WHERE m.project_id = @prosjekt_id
    AND m.project_id = TRY_CAST(SESSION_CONTEXT(N'koe_prosjekt') AS nvarchar(100))
@@ -69,6 +72,7 @@ SELECT m.project_id AS prosjekt_id,
        t.contract_role AS side,
        t.team_id AS team_id
   FROM koe.app_project_memberships m
+  JOIN koe.projects p ON p.id = m.project_id AND p.is_active = 1
   JOIN koe.catenda_contract_teams t ON t.internal_project_id = m.project_id
  WHERE m.project_id = TRY_CAST(SESSION_CONTEXT(N'koe_prosjekt') AS nvarchar(100))
    AND m.user_id = TRY_CAST(SESSION_CONTEXT(N'koe_aktor') AS uniqueidentifier)
@@ -101,8 +105,9 @@ DEALLOCATE t;
 GO
 
 -- Ingen del kan legges til et ferdig brev: en del godtas bare i transaksjonen
--- som skrev dokumentraden. Raden må være synlig (RLS) og ha samme
--- transaksjon; ellers avvises delen, også for eieren uten kontekst.
+-- og skrivingen (`koe_skriving`, satt av kommandoen) som lagret dokumentraden.
+-- Raden må være synlig (RLS) og ha samme transaksjon og skriving; ellers
+-- avvises delen, også for eieren uten kontekst.
 --
 -- RLS filtrerer også `inserted` i triggeren. Uten kontekst ville
 -- `IF EXISTS (SELECT … FROM inserted …)` sett null rader og sluppet alt
@@ -128,7 +133,8 @@ BEGIN
     + N'DECLARE @rader bigint = ROWCOUNT_BIG(); SET NOCOUNT ON; '
     + N'IF @rader <> (SELECT COUNT_BIG(*) FROM inserted i WHERE EXISTS (SELECT 1 FROM ' + @forelder
     + N' f WHERE f.event_id = i.event_id AND f.prosjekt_id = i.prosjekt_id'
-    + N' AND f.transaksjon = CURRENT_TRANSACTION_ID())) '
+    + N' AND f.transaksjon = CURRENT_TRANSACTION_ID()'
+    + N' AND f.skriving = TRY_CAST(SESSION_CONTEXT(N''koe_skriving'') AS uniqueidentifier))) '
     + N'THROW 51002, N''En del kan ikke legges til et lagret brev'', 1; END';
   EXEC (@sql);
   FETCH NEXT FROM d INTO @skjema, @tabell, @forelder;

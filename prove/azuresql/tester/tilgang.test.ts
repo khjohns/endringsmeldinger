@@ -375,6 +375,18 @@ describe.skipIf(!AKTIV)('tilgang i T-SQL', () => {
       expect(n).toBe(33504);
     });
 
+    it('eieren kan ikke skrive et notat i en annen aktørs navn (blokkpredikatet)', async () => {
+      const n = await feilFra(
+        transaksjon(o.admin, te, (f) =>
+          f().batch(
+            `INSERT koe.notat (notat_id, sak_id, prosjekt_id, aktor_id, aktor_rolle, aktor_team_id, tekst)
+             VALUES (NEWID(), N'${sakA.sakId}', N'${o.a.id}', N'${o.brukere.bh.id}', N'TE', N'${o.a.team.TE}', N'x')`
+          )
+        )
+      );
+      expect(n).toBe(33504);
+    });
+
     it('notat i en sak i et annet prosjekt, ukjent sak og fremmed team gir samme svar', async () => {
       for (const [k, sak] of [
         [te, sakB],
@@ -392,6 +404,26 @@ describe.skipIf(!AKTIV)('tilgang i T-SQL', () => {
       expect(await notater(te)).toBe(1);
       expect(await slett(te, notat)).toBe(true);
       expect(await notater(te)).toBe(0);
+    });
+  });
+
+  describe('et prosjekt som ikke er aktivt', () => {
+    const aktiv = (verdi: 0 | 1) =>
+      o.admin
+        .request()
+        .batch(`UPDATE koe.projects SET is_active = ${verdi} WHERE id = N'${o.a.id}'`);
+
+    it('gir verken lesing eller skriving', async () => {
+      await aktiv(0);
+      try {
+        expect(await synlige(te)).toBe(0);
+        expect(await tell(o.runtime, te, 'koe.notat')).toBe(0);
+        const n = await feilFra(nySak(o, bh));
+        expect(n).toBe(51403);
+      } finally {
+        await aktiv(1);
+      }
+      expect(await synlige(te)).toBeGreaterThan(0);
     });
   });
 });
