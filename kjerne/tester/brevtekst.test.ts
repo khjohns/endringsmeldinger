@@ -402,6 +402,7 @@ describe('leseren kontrollerer brevteksten (HF-U1, MM-U17)', () => {
   it('to avsnitt for samme element gjør raden ikke forstått', () => {
     const h = medTekst((d) => {
       const t = d.brevtekst as Avsnitt[];
+      expect(t, 'forutsetning: fristkravet og varselet har hvert sitt avsnitt').toHaveLength(2);
       t[1].gjelder = t[0].gjelder;
     });
     expect(h.art).toBe('ukjent');

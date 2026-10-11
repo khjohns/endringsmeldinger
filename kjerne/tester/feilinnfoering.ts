@@ -1221,15 +1221,15 @@ const MUTASJONER: Mutasjon[] = [
   },
   {
     id: 'F109',
-    feilklasse: 'en aksept får ikke et avsnitt i brevteksten (LV-U3)',
+    feilklasse: 'varselet i et fristkrav får ikke et avsnitt i brevteksten (LV-U3)',
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [
       [
         '  for (const u of nytt.utsagn) legg(',
-        "  for (const u of nytt.utsagn.filter((x) => x.art !== 'aksept')) legg(",
+        "  for (const u of nytt.utsagn.filter((x) => x.art !== 'varsel')) legg(",
       ],
     ],
-    mal: ['aksepten viser til svaret', 'forløp A–E i minnet'],
+    mal: ['kravene står med beløp'],
   },
   {
     id: 'F110',
