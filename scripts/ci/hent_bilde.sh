@@ -10,7 +10,8 @@
 # og hver henting avbrytes etter tre minutter. Med tre kilder er det verste
 # tilfellet under en halvtime, innenfor timeout-minutes i feilinnfoering.yml.
 # Skriptet skriver ut kilden og digesten det fikk, og feiler først når ingen
-# kilde svarte i noen runde.
+# kilde svarte i noen runde. Ligger bildet alt lokalt under det lokale navnet
+# eller en av kildene, hentes det ikke på nytt.
 set -euo pipefail
 
 if (( $# < 2 )); then
@@ -20,6 +21,18 @@ fi
 
 lokalt="$1"
 shift
+
+if docker image inspect "$lokalt" > /dev/null 2>&1; then
+  echo "$lokalt finnes lokalt og hentes ikke."
+  exit 0
+fi
+for kilde in "$@"; do
+  if docker image inspect "$kilde" > /dev/null 2>&1; then
+    docker tag "$kilde" "$lokalt"
+    echo "$lokalt finnes lokalt som $kilde og hentes ikke."
+    exit 0
+  fi
+done
 
 ventetid=20
 for runde in 1 2 3; do

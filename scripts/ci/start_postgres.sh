@@ -17,11 +17,9 @@ rot="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 bilde="koe-testbase:postgres-17"
 navn="koe-testbase"
 
-# Googles speil av Docker Hub først, så ECR Public og Docker Hub selv.
-"$rot/scripts/ci/hent_bilde.sh" "$bilde" \
-  mirror.gcr.io/library/postgres:17 \
-  public.ecr.aws/docker/library/postgres:17 \
-  docker.io/library/postgres:17
+# shellcheck source=scripts/ci/postgres_kilder.sh
+source "$rot/scripts/ci/postgres_kilder.sh"
+"$rot/scripts/ci/hent_bilde.sh" "$bilde" "${postgres_kilder[@]}"
 
 docker run --detach --name "$navn" \
   --env POSTGRES_PASSWORD=postgres \
