@@ -36,7 +36,7 @@ import {
   skrivMedOppdrag,
   Versjonskonflikt,
 } from './lager.ts';
-import { lagOppdrag } from './levering.ts';
+import { filnavn, lagOppdrag } from './levering.ts';
 
 export interface Avhengigheter {
   pool: Pool;
@@ -97,30 +97,31 @@ async function lesKropp(
   }
 }
 
-const ugyldig = (melding: string): Svar => [
-  400,
-  { success: false, error: 'UGYLDIG_FORESPOERSEL', message: melding },
+const feilsvar = (status: number, error: string, message: string): Svar => [
+  status,
+  { success: false, error, message },
 ];
+const ugyldig = (melding: string) => feilsvar(400, 'UGYLDIG_FORESPOERSEL', melding);
+const finnesIkke = () => feilsvar(404, 'SAK_FINNES_IKKE', 'Saken finnes ikke.');
 
 const erHeltall = (v: unknown): v is number =>
   typeof v === 'number' && Number.isInteger(v) && v >= 0;
 
 /** Visningen av journalen, med versjonen den er regnet fra. */
 function sakenSomVises(journal: Journalrad[], kjerne: Kjerne) {
-  return {
-    versjon: journal.at(-1)?.versjon ?? 0,
-    visning: visning(utledJournal(journal, kjerne), kjerne.regler),
-  };
+  const u = utledJournal(journal, kjerne);
+  return { versjon: u.versjon, visning: visning(u, kjerne.regler) };
 }
 
 async function lesSaken(
   { prosjekt, sakId }: Forespoersel,
   avh: Required<Avhengigheter>
 ): Promise<Svar> {
-  const journal = await lesJournal(avh.pool, sakId, prosjekt.prosjektId);
-  if (!journal.length)
-    return [404, { success: false, error: 'SAK_FINNES_IKKE', message: 'Saken finnes ikke.' }];
-  const oppdrag = await lesOppdrag(avh.pool, sakId, prosjekt.prosjektId);
+  const [journal, oppdrag] = await Promise.all([
+    lesJournal(avh.pool, sakId, prosjekt.prosjektId),
+    lesOppdrag(avh.pool, sakId, prosjekt.prosjektId),
+  ]);
+  if (!journal.length) return finnesIkke();
   return [
     200,
     {
@@ -138,7 +139,7 @@ async function lesSaken(
         id: o.id,
         event_id: o.event_id,
         dokumentnoekkel: o.dokumentnoekkel,
-        filnavn: (o.innhold.dokument as { filnavn: string }).filnavn,
+        filnavn: filnavn(o.innhold),
         innhold_sha256: o.innhold_sha256,
         opprettet: o.opprettet,
       })),
@@ -164,6 +165,7 @@ async function sendKommando(f: Forespoersel, avh: Required<Avhengigheter>): Prom
     tidspunkt: avh.tidspunkt,
     nyId: avh.nyId,
   };
+  let etter: ReturnType<typeof sakenSomVises> | undefined;
   let utfall;
   try {
     utfall = await skrivMedOppdrag(
@@ -175,7 +177,7 @@ async function sendKommando(f: Forespoersel, avh: Required<Avhengigheter>): Prom
         const vurdert = vurder(kropp.kommando, kontekst, journal, avh.kjerne);
         if (!vurdert.godtatt) return { skriv: false, avvisning: vurdert };
         const [rad] = vurdert.hendelser;
-        const etter = sakenSomVises([...journal, rad], avh.kjerne);
+        etter = sakenSomVises([...journal, rad], avh.kjerne);
         return {
           skriv: true,
           rad,
@@ -195,8 +197,7 @@ async function sendKommando(f: Forespoersel, avh: Required<Avhengigheter>): Prom
           message: 'Saken er endret. Last den inn på nytt.',
         },
       ];
-    if (feil instanceof SakFinnesIkke)
-      return [404, { success: false, error: 'SAK_FINNES_IKKE', message: 'Saken finnes ikke.' }];
+    if (feil instanceof SakFinnesIkke) return finnesIkke();
     throw feil;
   }
   if (!utfall.skriv) {
@@ -206,14 +207,14 @@ async function sendKommando(f: Forespoersel, avh: Required<Avhengigheter>): Prom
       { success: false, error: feil, rule: avvisning.regel, message: avvisning.melding },
     ];
   }
-  const journal = await lesJournal(avh.pool, sakId, prosjekt.prosjektId);
+  // Saken var låst, så visningen etter raden er den som ble lagret.
   return [
     201,
     {
       success: true,
       event_id: utfall.rad.event_id,
       leveringsoppdrag: utfall.oppdrag.id,
-      ...sakenSomVises(journal, avh.kjerne),
+      ...etter!,
     },
   ];
 }
@@ -261,7 +262,7 @@ export function lagServer(avh: Avhengigheter) {
       try {
         sakId = decodeURIComponent(treff[1]);
       } catch {
-        return [404, { success: false, error: 'NOT_FOUND', message: 'Ukjent sak.' }];
+        return feilsvar(404, 'NOT_FOUND', 'Ukjent sak.');
       }
       const innhold = metode === 'GET' ? { verdi: {} } : await lesKropp(foresporsel);
       // Tilgangen kontrolleres før kroppen avvises, som i Flask: en utlogget får 401.
@@ -288,7 +289,7 @@ export function lagServer(avh: Avhengigheter) {
         full
       );
     }
-    return [404, { success: false, error: 'NOT_FOUND', message: 'Ukjent rute.' }];
+    return feilsvar(404, 'NOT_FOUND', 'Ukjent rute.');
   }
 
   return async function behandle(foresporsel: IncomingMessage, respons: ServerResponse) {

@@ -3,18 +3,20 @@
  * leveres til Catenda, frosset i samme transaksjon som hendelsen. Python
  * leverer oppdraget uten å lese journalen (B-17); det som trengs, står her.
  *
- * Ett brev er ett dokument i Catenda, og dokumentnøkkelen er hendelsens
- * `event_id`. Et nytt leveringsforsøk sender samme oppdrag. Oppdraget beviser
- * ikke at brevet er sendt eller mottatt.
+ * Ett brev er ett dokument i Catenda. Dokumentnøkkelen er hendelsens
+ * `event_id` foreløpig: B-03 lar #310 velge den, og den kan endres med en
+ * migrasjon før den første reelle hendelsen. Et nytt leveringsforsøk sender
+ * samme oppdrag. Oppdraget beviser ikke at brevet er sendt eller mottatt.
  *
  * Kjernen har ingen brevtekst ennå (#309, `frosset/`). `brevtekst` er `null`
- * til den finnes, og PDF kan ikke gjengis av oppdraget før da (#369).
+ * til den finnes. Uten den er oppdraget ikke fullstendig etter LV-U1, og ingen
+ * worker plukker det før da (#369).
  */
 
-import { createHash } from 'node:crypto';
 import type { Journalrad } from '../kjerne/typer.ts';
 import type { Kjerne } from '../kjerne/versjon.ts';
 import type { Visning } from '../kjerne/visning.ts';
+import { sha256 } from './autorisasjon.ts';
 import type { Leveringsmaal, Oppdragsrad } from './lager.ts';
 
 /** Formen på `leveringsoppdrag.innhold`. Økes når formen endres. */
@@ -32,8 +34,11 @@ export function kanonisk(verdi: unknown): string {
   return JSON.stringify(verdi);
 }
 
-export const sjekksum = (innhold: unknown): string =>
-  createHash('sha256').update(kanonisk(innhold)).digest('hex');
+export const sjekksum = (innhold: unknown): string => sha256(kanonisk(innhold));
+
+/** Filnavnet dokumentet får i Catenda, fra innholdet i et lagret oppdrag. */
+export const filnavn = (innhold: Record<string, unknown>): string =>
+  (innhold.dokument as { filnavn: string }).filnavn;
 
 export function lagOppdrag(
   rad: Journalrad,

@@ -7,6 +7,7 @@
    */
   import { page } from '$app/state';
   import { ApiError } from '$lib/api/client';
+  import { formatDateTimeNorwegian } from '$lib/utils/dateFormatters';
   import { KRAV_STRUKTUR_NS8407 } from '$lib/constants/categories';
   import { HOVEDKATEGORI_FRA_KATALOGEN, UNDERKATEGORI_FRA_KATALOGEN } from '$kjerne/koder';
   import { hentKjernesak, sendKommando, type Kjernesak } from '$lib/kjerneskive/api';
@@ -31,12 +32,14 @@
   let beloep = $state<number | null>(null);
   const underkategorier = $derived(forhold.find((h) => h.kode === hoved)?.hjemler ?? []);
 
+  const meldingFra = (e: unknown, reserve: string) => (e instanceof ApiError ? e.message : reserve);
+
   async function last() {
     feil = null;
     try {
       sak = await hentKjernesak(sakId);
     } catch (e) {
-      feil = e instanceof ApiError ? e.message : 'Saken kunne ikke hentes.';
+      feil = meldingFra(e, 'Saken kunne ikke hentes.');
     }
   }
 
@@ -48,7 +51,7 @@
       await sendKommando(sakId, sak.versjon, kommando);
       await last();
     } catch (e) {
-      feil = e instanceof ApiError ? e.message : 'Kravet ble ikke sendt.';
+      feil = meldingFra(e, 'Kravet ble ikke sendt.');
       if (e instanceof ApiError && e.status === 409) await last();
     } finally {
       sender = false;
@@ -149,7 +152,11 @@
       <h2 id="journal" class="font-semibold">Journal</h2>
       <ol class="text-sm">
         {#each sak.journal as h (h.event_id)}
-          <li>{h.versjon}. {h.event_type} fra {h.aktor_rolle}, {h.tidsstempel}</li>
+          <li>
+            {h.versjon}. {h.event_type} fra {h.aktor_rolle}, {formatDateTimeNorwegian(
+              h.tidsstempel
+            )}
+          </li>
         {/each}
       </ol>
     </section>
@@ -159,7 +166,7 @@
       {#if sak.leveringsoppdrag.length}
         <ul class="text-sm" data-testid="leveringsoppdrag">
           {#each sak.leveringsoppdrag as l (l.id)}
-            <li>{l.filnavn}: frosset {l.opprettet}, ikke levert</li>
+            <li>{l.filnavn}: frosset {formatDateTimeNorwegian(l.opprettet)}, ikke levert</li>
           {/each}
         </ul>
       {:else}
