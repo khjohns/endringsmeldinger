@@ -26,7 +26,7 @@ import type {
   Krav,
   Part,
   Spor,
-  Standpunkt,
+  Svar,
 } from '../typer.ts';
 
 /** Det serveren stempler kommandoen med. Klienten bestemmer ingen av dem. */
@@ -247,8 +247,9 @@ export function vurder(
  */
 export function frysBrev(rad: Journalrad, foer: Journalrad[], kjerne: Kjerne): void {
   const grunnlagskrav: Krav[] = [];
-  /** Innsigelsene fra samme part, med partens standpunkter etter hver av dem. */
-  const innsigelser: { gjelder: string; id: string; etter: Standpunkt[] }[] = [];
+  /** Svarene fra samme part, og innsigelsene med plassen i den listen da de kom. */
+  const svarFraParten: Svar[] = [];
+  const innsigelser: { gjelder: string; id: string; fra: number }[] = [];
   const varsler: string[] = [];
   for (const h of lesJournal(foer, kjerne.leserformat)) {
     if (h.art !== 'dokument') continue;
@@ -256,9 +257,10 @@ export function frysBrev(rad: Journalrad, foer: Journalrad[], kjerne: Kjerne): v
     grunnlagskrav.push(...d.krav.filter((k) => k.spor === 'grunnlag'));
     varsler.push(...d.utsagn.filter((u) => u.art === 'varsel').map((u) => u.id));
     if (d.avsender !== rad.aktor_rolle) continue;
-    for (const i of innsigelser) i.etter.push(...d.svar.flatMap((s) => s.standpunkter));
+    svarFraParten.push(...d.svar);
     for (const u of d.utsagn)
-      if (u.art === 'innsigelse') innsigelser.push({ id: u.id, gjelder: u.gjelder, etter: [] });
+      if (u.art === 'innsigelse')
+        innsigelser.push({ id: u.id, gjelder: u.gjelder, fra: svarFraParten.length });
   }
   for (const s of (rad.data.svar ?? []) as Data[]) {
     // Kategorien gjelder bare svaret på grunnlaget (§ 32.2, GR-U12).
@@ -268,7 +270,7 @@ export function frysBrev(rad: Journalrad, foer: Journalrad[], kjerne: Kjerne): v
     const innsigelse = innsigelser.find(
       (i) =>
         innsigelsenGjelderSvaret(i.gjelder, s as { spor: Spor; gjelder: string }, varsler) &&
-        !innsigelsenErOppgitt(i.gjelder, i.etter)
+        !innsigelsenErOppgitt(i.gjelder, s as { spor: Spor }, svarFraParten.slice(i.fra))
     )?.id;
     s.beslutningsgrunnlag = lagret(frys(s, krav, kjerne.regler, innsigelse));
   }

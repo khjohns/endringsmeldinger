@@ -5,7 +5,7 @@
  * i designnotatet, GR-U12 og registeret (#320). F48 er hvitelisten fra #329,
  * F49–F51 og F54–F58 versjoneringen (#316), F52–F53 registrert korrespondanse
  * (#336), F59–F60 kodene i formatet og predikatet for endringsordre
- * (#335, #351), og F61–F96 byggedel 1 av #309. Én mutasjon om gangen per arbeidskopi, Vitest over hele `kjerne/`
+ * (#335, #351), og F61–F98 byggedel 1 av #309. Én mutasjon om gangen per arbeidskopi, Vitest over hele `kjerne/`
  * og `sprakprove/kjernelagring/`, og originalteksten settes tilbake etterpå. For
  * hver mutasjon kreves det at de forventede målassertions feiler, og at alle
  * feil er assertions, ikke import, oppsett eller en brutt forutsetning
@@ -955,7 +955,12 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'et registrert svar som tier, leses med en innsigelse byggherren har gitt opp uttrykkelig (VS-U9, VS-U11)',
     fil: `${K}/kommandoer/skriving.ts`,
-    endringer: [[' &&\n        !innsigelsenErOppgitt(i.gjelder, i.etter)', '']],
+    endringer: [
+      [
+        ' &&\n        !innsigelsenErOppgitt(i.gjelder, s as { spor: Spor }, svarFraParten.slice(i.fra))',
+        '',
+      ],
+    ],
     mal: ['F-MM-V7'],
   },
   {
@@ -1055,8 +1060,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/kommandoer/forutsetninger.ts`,
     endringer: [
       [
-        "        return u.endringsordre === 'ikke_avklart' || u.spor.grunnlag.forbehold",
-        "        return u.endringsordre === 'ikke_avklart'",
+        "          u.spor.grunnlag.merket.includes(u.spor.grunnlag.gjeldendeSvar?.dokument ?? '')",
+        '          false',
       ],
     ],
     mal: ['F-MM-M5', 'F-MM-T2'],
@@ -1086,6 +1091,27 @@ const MUTASJONER: Mutasjon[] = [
       ],
     ],
     mal: ['F-MM-M6', 'F-MM-M6b'],
+  },
+  {
+    id: 'F97',
+    feilklasse:
+      'en merking av et annet brev i grunnlaget gjør godkjenningen fra appen uavklart ved trekk (KA-U26, KA-U13)',
+    fil: `${K}/kommandoer/forutsetninger.ts`,
+    endringer: [
+      [
+        "          u.spor.grunnlag.merket.includes(u.spor.grunnlag.gjeldendeSvar?.dokument ?? '')",
+        '          u.spor.grunnlag.forbehold',
+      ],
+    ],
+    mal: ['F-MM-T3'],
+  },
+  {
+    id: 'F98',
+    feilklasse:
+      'i fristen ser oppgivelsen bare etter standpunkter om det innsigelsen gjelder, ikke om varselet (VS-U9, VS-U11)',
+    fil: `${K}/frosset/standpunkt.ts`,
+    endringer: [["(svar.spor === 'frist' || p.gjelder === gjelder)", '(p.gjelder === gjelder)']],
+    mal: ['F-MM-V7b'],
   },
 ];
 

@@ -722,8 +722,10 @@ visning ikke fremstiller et trekk som at utførelsesplikten er bortfalt.
   registrert fristsvar leses med, leses som en påberopelse etter § 33.4 mot varselet
   utledet av kravet. Innsigelsen har ingen hjemmel i seg selv; § 33.4 er appens
   lesing, ikke byggherrens ord. Registrerer TE et varsel etterpå, er preklusjonen
-  uavklart som for et standpunkt etter § 33.4 (MM-U8). Raden KA-38 i domenetabellen
-  er derfor en arbeidshypotese og ikke en avklart tolkning.
+  uavklart som for et standpunkt etter § 33.4 (MM-U8), og byggherren gir den opp med
+  et standpunkt etter § 33.4 om varselet, også det registrerte, fordi saken har ett
+  varsel (SK-12). Raden KA-38 i domenetabellen er derfor en arbeidshypotese og ikke en
+  avklart tolkning.
 
 ---
 

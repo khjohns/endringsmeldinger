@@ -146,10 +146,11 @@ export function forutsetninger(h: Handlingsnoekkel, part: Part, u: Utledning): A
       if (!s.gjeldendeKrav) return avvis('INGEN_KRAV', `Det er ikke sendt noe krav om ${h.spor}.`);
       if (s.trukket) return avvis('KRAV_TRUKKET', 'Kravet er allerede trukket.');
       // KA-U13: et trekk ville gitt journalen den videre virkningen at endringsordren
-      // etter § 32.3 a leses som bortfalt (KA-U6). Er § 31.3 ikke avklart, eller er brevet
-      // merket (KA-U26), sperres det til det er avklart.
+      // etter § 32.3 a leses som bortfalt (KA-U6). Er § 31.3 ikke avklart, eller er brevet med
+      // godkjenningen merket (KA-U26), sperres det til det er avklart.
       if (h.spor === 'grunnlag' && trekkAvGrunnlagetErSperret(u))
-        return u.endringsordre === 'ikke_avklart' || u.spor.grunnlag.forbehold
+        return u.endringsordre === 'ikke_avklart' ||
+          u.spor.grunnlag.merket.includes(u.spor.grunnlag.gjeldendeSvar?.dokument ?? '')
           ? avvis(
               'ENDRINGSORDRE_IKKE_AVKLART',
               'Det er ikke avklart om byggherrens godkjenning er en endringsordre: om brevet oppfyller § 31.3, eller om det har noe appen ikke kan uttrykke. Det må avklares før grunnlaget kan trekkes.'

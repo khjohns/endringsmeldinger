@@ -119,13 +119,23 @@ export const innsigelsenGjelderSvaret = (
 ): boolean => gjelder === svar.gjelder || (svar.spor === 'frist' && varsler.includes(gjelder));
 
 /**
- * VS-U9, VS-U11, HF-U1: parten har gitt opp innsigelsen når partens siste standpunkt om
- * rettidigheten av det innsigelsen gjelder, etter innsigelsen, er at det kom i tide.
- * `etter` er partens standpunkter etter innsigelsen, i rekkefølgen de ble sendt. Taushet
- * gir den ikke opp.
+ * VS-U9, VS-U11, HF-U1: parten har gitt opp innsigelsen som kunne lese `svar`, når
+ * partens siste standpunkt om rettidigheten etter innsigelsen er at det kom i tide.
+ * `etter` er partens svar etter innsigelsen, i rekkefølgen de ble sendt. I grunnlaget
+ * teller standpunktet om kravet innsigelsen gjelder. I fristen leses innsigelsen som en
+ * påberopelse etter § 33.4 (arbeidsvalget i paragrafmatrisen), og saken har ett varsel
+ * (SK-12), så hvert standpunkt om varselet teller. Taushet gir den ikke opp.
  */
-export function innsigelsenErOppgitt(gjelder: string, etter: Standpunkt[]): boolean {
-  const siste = etter.filter((p) => p.art === 'rettidighet' && p.gjelder === gjelder).at(-1);
+export function innsigelsenErOppgitt(
+  gjelder: string,
+  svar: Pick<Svar, 'spor'>,
+  etter: Pick<Svar, 'spor' | 'standpunkter'>[]
+): boolean {
+  const siste = etter
+    .filter((x) => x.spor === svar.spor)
+    .flatMap((x) => x.standpunkter)
+    .filter((p) => p.art === 'rettidighet' && (svar.spor === 'frist' || p.gjelder === gjelder))
+    .at(-1);
   return siste?.art === 'rettidighet' && siste.iTide;
 }
 

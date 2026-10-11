@@ -53,8 +53,10 @@ export interface Svarberegning {
   virkninger: Standpunktsvirkning[];
   /**
    * Standpunktene om rettidighet som gjelder et annet varsel enn det som er
-   * registrert nå. Preklusjonen i dem er uavklart til byggherren har tatt
-   * stilling til det registrerte varselet (MM-U1, MM-U8).
+   * registrert nå, og i fristen innsigelsen svaret er lest med når den gjelder et
+   * annet varsel (VS-U11). Preklusjonen i dem er uavklart til byggherren har tatt
+   * stilling til det registrerte varselet (MM-U1, MM-U8). ID-ene er standpunktene og
+   * innsigelsen, slik de står i `virkninger`.
    */
   uavklart: string[];
 }
@@ -81,10 +83,11 @@ export interface Sporutledning {
   /** Hvorfor hele svaret i sporet er subsidiært til grunnlaget; tomt for grunnlaget. */
   subsidiaer: Subsidiaergrunn[];
   /**
-   * KA-U16, KA-U20: et registrert brev som fortsatt gjelder i saken, er merket med
-   * noe appen ikke kan uttrykke, og merkingen gjelder sporet og er ikke avklart.
-   * Handlinger som bygger på det, sperres; utledningen ellers er uendret.
+   * KA-U16, KA-U20, KA-U26: de registrerte brevene med en merking som gjelder i sporet:
+   * den er ikke avklart, og avsenderen har ikke sagt noe nytt i sporet etter brevet.
    */
+  merket: string[];
+  /** Sporet har et merket brev. Handlinger som bygger på det, sperres; utledningen ellers er uendret. */
   forbehold: boolean;
 }
 
@@ -199,6 +202,7 @@ const tomtSpor = (): Sporutledning => ({
   ingenKrav: false,
   varsel: null,
   subsidiaer: [],
+  merket: [],
   forbehold: false,
 });
 
@@ -476,12 +480,11 @@ function utledSporene(
         ) ||
         innsigelsenErOppgitt(
           i.gjelder,
-          svarMedUten
-            .filter(
-              (x) => elementer[x.id].part === part && bakover(x.id, i.id) && bakover(s.id, x.id)
-            )
-            .sort((a, b) => plass.get(a.id)!.versjon - plass.get(b.id)!.versjon)
-            .flatMap((x) => x.standpunkter)
+          s,
+          // I journalens rekkefølge, som er saksversjonen.
+          svarMedUten.filter(
+            (x) => elementer[x.id].part === part && bakover(x.id, i.id) && bakover(s.id, x.id)
+          )
         )
       )
         ugyldig(s.id, 'svaret er lest med noe som ikke er en innsigelse mot kravet eller varselet');
@@ -696,10 +699,14 @@ function utledSporene(
     [...spor[n].krav, ...spor[n].svar].some(
       (x) => elementer[x.id].part === elementer[brev].part && bakover(x.id, brev)
     );
-  for (const n of SPOR)
-    spor[n].forbehold = [...merkinger.values()].some(
-      (o) => o.spor.includes(n) && avklaringAv(o.id) === null && !nyttFraAvsenderen(o.brev, n)
-    );
+  for (const n of SPOR) {
+    spor[n].merket = [...merkinger.values()]
+      .filter(
+        (o) => o.spor.includes(n) && avklaringAv(o.id) === null && !nyttFraAvsenderen(o.brev, n)
+      )
+      .map((o) => o.brev);
+    spor[n].forbehold = spor[n].merket.length > 0;
+  }
 
   const gSvar = spor.grunnlag.gjeldendeSvar;
   const eg = spor.grunnlag.enighet;

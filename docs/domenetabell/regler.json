@@ -2084,7 +2084,7 @@
     {
       "id": "KA-38",
       "tilfelle": "Byggherren har gjort innsigelse mot fristkravet og registrerer senere et svar uten standpunkt om rettidighet.",
-      "forventet": "Saken er forstått: et strengere vilkår for et svar fra appen gjør ikke et registrert brev uforstått. Svaret leses med innsigelsen, som en påberopt preklusjon etter § 33.4. Gjelder innsigelsen varselet utledet av kravet, og registrerer TE et varsel etterpå, er preklusjonen uavklart, og TE kan ikke godta svaret før byggherren har svart på nytt.",
+      "forventet": "Saken er forstått: et strengere vilkår for et svar fra appen gjør ikke et registrert brev uforstått. Svaret leses med innsigelsen, som en påberopt preklusjon etter § 33.4. Gjelder innsigelsen varselet utledet av kravet, og registrerer TE et varsel etterpå, er preklusjonen uavklart, og TE kan ikke godta svaret før byggherren har svart på nytt. Har byggherren etter innsigelsen sagt uttrykkelig i et svar at varselet kom i tide, også det registrerte varselet, leses et senere registrert svar ikke med innsigelsen.",
       "bh_standpunkt": "Svaret og innsigelsen.",
       "rettslig_virkning": "Tausheten er ikke et standpunkt; innsigelsen står.",
       "rettidighet": "—",
@@ -2094,7 +2094,8 @@
         "VS-U11",
         "HF-U1",
         "MM-U1",
-        "MM-U8"
+        "MM-U8",
+        "VS-U9"
       ],
       "tolkningsstatus": "arbeidshypotese"
     },
