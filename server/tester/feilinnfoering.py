@@ -1,7 +1,8 @@
 """Feilinnføringene for TS-serveren (skiva i #347, .claude/rules/tester.md).
 
 Hver feilinnføring endrer ett sted i en kopi av arbeidstreet, kjører testene i
-server/tester/ mot testbasen og setter stedet tilbake. Kjør aldri mot
+server/tester/ mot testbasen og setter stedet tilbake. En feilinnføring i
+migrasjonen bygger en egen kastbar base, `koe_feilinnfoering`, på samme server. Kjør aldri mot
 arbeidstreet du committer fra:
 
     git worktree add /tmp/kopi HEAD && ln -s "$PWD/node_modules" /tmp/kopi/node_modules
@@ -17,7 +18,10 @@ ikke finnes lenger.
 import os
 import subprocess
 import sys
+from contextlib import contextmanager
 from pathlib import Path
+
+MIG = "supabase/migrations/20261011090000_leveringsoppdrag.sql"
 
 FEILINNFOERINGER = [
     ("S1", "kontraktsrollen kontrolleres ikke for en inngang som krever den", "server/app.ts",
@@ -52,22 +56,59 @@ FEILINNFOERINGER = [
      "      if (ulagringsbarTekst(v)) return", "      if (false) return",
      "tekst basen ikke kan lagre"),
     ("S11", "dybdegrensen for kroppen mangler", "server/app.ts",
-     "if (dybde > STOERSTE_DYBDE) return", "if (false) return",
+     "if (dybde > STORSTE_DYBDE) return", "if (false) return",
      "dypt nestet"),
+    # Migrasjonen: hver bygger en egen kastbar base (se `basen_for`).
+    ("D1", "service_role beholder DELETE og TRUNCATE fra plattformen", MIG,
+     "REVOKE ALL ON public.leveringsoppdrag FROM service_role;\n", "",
+     "kan ikke slettes eller tømmes"),
+    ("D2", "triggeren stopper ikke TRUNCATE", MIG,
+     "IF TG_OP IN ('UPDATE', 'TRUNCATE') OR (", "IF TG_OP IN ('UPDATE') OR (",
+     "kan ikke slettes eller tømmes"),
+    ("D3", "triggeren stopper ikke DELETE mens saken og hendelsen finnes", MIG,
+     "        TG_OP = 'DELETE'\n        AND EXISTS", "        FALSE\n        AND EXISTS",
+     "kan ikke slettes eller tømmes"),
+    ("D4", "triggeren godtar et oppdrag i et annet prosjekt enn hendelsen", MIG,
+     "           AND h.prosjekt_id = NEW.prosjekt_id\n", "",
+     "ikke føres til et annet prosjekt"),
 ]
 
 # S8 nås ikke: avvisningen av ukjente felt i kroppen (S6) stopper aktor_id først.
 FORVENTET_OVERLEVER = {"S8"}
 
 
-def kjoer(rot: Path) -> subprocess.CompletedProcess:
+def kjoer(rot: Path, url: str | None = None) -> subprocess.CompletedProcess:
+    miljoe = {**os.environ, **({"KOE_TESTBASE_URL": url} if url else {})}
     return subprocess.run(
         ["npx", "vitest", "run", "server/tester"],
         cwd=rot,
+        env=miljoe,
         capture_output=True,
         text=True,
         check=False,
     )
+
+
+@contextmanager
+def basen_for(rot: Path):
+    """En ny kastbar base på samme server, bygget fra migrasjonene i `rot`, og slettet etterpå."""
+    url = os.environ["KOE_TESTBASE_URL"]
+    navn = "koe_feilinnfoering"
+    ny = url.rsplit("/", 1)[0] + "/" + navn
+    psql = ["psql", url, "--no-psqlrc", "-qc"]
+    subprocess.run([*psql, f"DROP DATABASE IF EXISTS {navn}"], check=True)
+    subprocess.run([*psql, f"CREATE DATABASE {navn}"], check=True)
+    try:
+        subprocess.run(
+            ["scripts/testbase/bygg_testbase.sh"],
+            cwd=rot,
+            env={**os.environ, "KOE_TESTBASE_URL": ny},
+            capture_output=True,
+            check=True,
+        )
+        yield ny
+    finally:
+        subprocess.run([*psql, f"DROP DATABASE IF EXISTS {navn} WITH (FORCE)"], check=True)
 
 
 def main(rot: Path) -> int:
@@ -87,7 +128,11 @@ def main(rot: Path) -> int:
             continue
         sti.write_text(kilde.replace(fra, til))
         try:
-            r = kjoer(rot)
+            if fil.startswith("supabase/"):
+                with basen_for(rot) as url:
+                    r = kjoer(rot, url)
+            else:
+                r = kjoer(rot)
         finally:
             sti.write_text(kilde)
         feilet = [

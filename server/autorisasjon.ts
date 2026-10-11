@@ -145,19 +145,24 @@ const FLERREFERANSER = new Set([
 /** `referenced_case_ids`: sakene en nyttelast viser til, på alle nivåer. */
 export function sakerDetVisesTil(verdi: unknown): Set<string> {
   const saker = new Set<string>();
-  if (Array.isArray(verdi)) {
-    for (const del of verdi) for (const s of sakerDetVisesTil(del)) saker.add(s);
-  } else if (typeof verdi === 'object' && verdi !== null) {
-    for (const [nokkel, del] of Object.entries(verdi)) {
-      if (ENKELTREFERANSER.has(nokkel) && del !== null && del !== undefined) {
-        if (typeof del !== 'string') throw new Error('Ugyldig saksreferanse');
-        saker.add(del);
-      } else if (FLERREFERANSER.has(nokkel)) {
-        if (!Array.isArray(del) || del.some((s) => typeof s !== 'string'))
-          throw new Error('Ugyldige saksreferanser');
-        for (const s of del) saker.add(s);
-      } else if (typeof del === 'object' && del !== null) {
-        for (const s of sakerDetVisesTil(del)) saker.add(s);
+  // Uten rekursjon, så en dypt nestet nyttelast ikke sprenger stakken.
+  const igjen = [verdi];
+  while (igjen.length) {
+    const v = igjen.pop();
+    if (Array.isArray(v)) {
+      igjen.push(...v);
+    } else if (typeof v === 'object' && v !== null) {
+      for (const [nokkel, del] of Object.entries(v)) {
+        if (ENKELTREFERANSER.has(nokkel) && del !== null && del !== undefined) {
+          if (typeof del !== 'string') throw new Error('Ugyldig saksreferanse');
+          saker.add(del);
+        } else if (FLERREFERANSER.has(nokkel)) {
+          if (!Array.isArray(del) || del.some((s) => typeof s !== 'string'))
+            throw new Error('Ugyldige saksreferanser');
+          for (const s of del) saker.add(s);
+        } else if (typeof del === 'object' && del !== null) {
+          igjen.push(del);
+        }
       }
     }
   }

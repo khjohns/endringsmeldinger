@@ -99,23 +99,19 @@ async function lesKropp(
 const ENSLIG_SURROGAT = /[\ud800-\udbff](?![\udc00-\udfff])|(?<![\ud800-\udbff])[\udc00-\udfff]/;
 const ulagringsbarTekst = (t: string) => t.includes('\u0000') || ENSLIG_SURROGAT.test(t);
 
-/** Dypere enn dette har ingen kommando. Tilgangskontrollen leser kroppen rekursivt. */
-const STOERSTE_DYBDE = 32;
+/** Dypere enn dette har ingen kommando. */
+const STORSTE_DYBDE = 32;
 
-/** Hva som er galt med innholdet i kroppen, uten rekursjon, så dyp nesting ikke sprenger stakken. */
+/** Hva som er galt med innholdet i kroppen. Uten rekursjon, så dyp nesting ikke sprenger stakken. */
 function kroppsfeil(verdi: unknown): string | null {
   const igjen: [unknown, number][] = [[verdi, 0]];
   while (igjen.length) {
     const [v, dybde] = igjen.pop()!;
-    if (dybde > STOERSTE_DYBDE) return 'Kroppen er for dypt nestet.';
-    if (typeof v === 'string') {
-      if (ulagringsbarTekst(v)) return 'Teksten har tegn som ikke kan lagres.';
-    } else if (v !== null && typeof v === 'object') {
-      for (const [k, del] of Object.entries(v)) {
-        if (ulagringsbarTekst(k)) return 'Teksten har tegn som ikke kan lagres.';
-        igjen.push([del, dybde + 1]);
-      }
-    }
+    if (dybde > STORSTE_DYBDE) return 'Kroppen er for dypt nestet.';
+    if (typeof v === 'string' && ulagringsbarTekst(v))
+      return 'Teksten har tegn som ikke kan lagres.';
+    if (v !== null && typeof v === 'object')
+      for (const [k, del] of Object.entries(v)) igjen.push([k, dybde + 1], [del, dybde + 1]);
   }
   return null;
 }
