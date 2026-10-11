@@ -324,7 +324,10 @@ export function radFor(
             grunnlagskrav:
               typeof h.grunnlagskrav === 'string'
                 ? ref(h.grunnlagskrav)
-                : (u.spor.grunnlag.gjeldendeKrav?.id ?? randomUUID()),
+                : (u.spor.grunnlag.gjeldendeKrav?.id ??
+                  (() => {
+                    throw new Error('Bevis-saken mangler et grunnlagskrav for svaret');
+                  })()),
           }),
       standpunkter,
     };

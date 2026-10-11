@@ -11,8 +11,8 @@ import { KRAVSPOR, SPOR, type Part } from '../typer.ts';
 
 /**
  * Handlingene som kan gjelde saken: hver handling i hvert spor, en bestridelse per
- * opplysning, en innsigelse per varsel, krav og svar, en protest per innsigelse,
- * påberopt passivitet mot gjeldende grunnlagskrav, en merking per dokument og en
+ * opplysning, en innsigelse per varsel, krav og svar, en protest per innsigelse og
+ * dokument, påberopt passivitet per grunnlagskrav, en merking per dokument og en
  * avklaring per merking.
  */
 export function kandidater(u: Utledning): Handlingsnoekkel[] {
@@ -29,11 +29,10 @@ export function kandidater(u: Utledning): Handlingsnoekkel[] {
   }
   for (const [id, e] of Object.entries(u.elementer)) {
     if (KAN_FAA_INNSIGELSE.has(e.art)) ut.push({ type: 'innsigelse', gjelder: id });
-    if (e.innsigelse) ut.push({ type: 'protest', gjelder: id });
+    if (e.innsigelse || e.art === 'dokument') ut.push({ type: 'protest', gjelder: id });
     if (e.art === 'dokument') ut.push({ type: 'merke', gjelder: id });
   }
-  const grunnlag = u.spor.grunnlag.gjeldendeKrav;
-  if (grunnlag) ut.push({ type: 'passivitet', gjelder: grunnlag.id });
+  for (const k of u.spor.grunnlag.krav) ut.push({ type: 'passivitet', gjelder: k.id });
   return ut;
 }
 

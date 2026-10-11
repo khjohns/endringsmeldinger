@@ -294,7 +294,7 @@ function strid(d: Dokument, u: Utledning, uten: Map<string, unknown>): Strid[] {
         element: s.id,
         grunn: 'en revisjon av et svar partene er enige om (GR-U10, KA-U7)',
       });
-    else if (utenVirkning(s.gjelder, s.erstatter))
+    else if (utenVirkning(s.gjelder, s.erstatter, s.grunnlagskrav))
       ut.push({ element: s.id, grunn: 'svaret viser til et element uten virkning' });
   for (const x of d.utsagn) {
     if (!ENDRER_UTFALLET.has(x.art)) continue;
@@ -564,7 +564,9 @@ function utledSporene(
   for (const x of henvisninger) {
     const maal = elementer[x.gjelder];
     const part = elementer[x.id].part;
-    if (!maal || !bakover(x.id, x.gjelder) || !kanGjelde(x.art, maal, part, x.gjelder))
+    // Et element uten virkning er bevart og vist (MM-U18), så et utsagn kan vise til det.
+    const ok = uten.has(x.gjelder) || kanGjelde(x.art, maal, part, x.gjelder);
+    if (!maal || !bakover(x.id, x.gjelder) || !ok)
       ugyldig(x.id, `${x.art} viser ikke til noe den kan gjelde før den`);
   }
   /** Det utsagnet kan gjelde, etter arten. */
