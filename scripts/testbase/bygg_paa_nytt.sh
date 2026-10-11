@@ -25,10 +25,14 @@ fi
 navn="$("${psql_kjor[@]}" "$KOE_TESTBASE_URL" -c 'SELECT current_database()')"
 
 # Basen kan ikke slettes fra en tilkobling til den selv, så kommandoene går
-# gjennom vedlikeholdsbasen `postgres` på samme server.
-uten_sporring="${KOE_TESTBASE_URL%%\?*}"
-vedlikehold="${uten_sporring%/*}/postgres${KOE_TESTBASE_URL#"$uten_sporring"}"
-"${psql_kjor[@]}" "$vedlikehold" -c "DROP DATABASE \"$navn\" WITH (FORCE)"
-"${psql_kjor[@]}" "$vedlikehold" -c "CREATE DATABASE \"$navn\""
+# gjennom vedlikeholdsbasen `postgres` på samme server. Merket settes før
+# byggingen, så en bygging som stopper på en migrasjon, kan kjøres igjen
+# herfra; uten summen nekter testoppsettet basen likevel.
+"${psql_kjor[@]}" "$KOE_TESTBASE_URL" <<SQL
+\connect postgres
+DROP DATABASE "$navn" WITH (FORCE);
+CREATE DATABASE "$navn";
+COMMENT ON DATABASE "$navn" IS 'koe-kastbar-testbase';
+SQL
 
 "$rot/scripts/testbase/bygg_testbase.sh"

@@ -38,18 +38,14 @@ if (( ${#migrasjoner[@]} == 0 )); then
   exit 1
 fi
 
+# Regnet før migrasjonene kjøres, så den beskriver filene basen ble bygget av.
+sum="$("$rot/scripts/testbase/migrasjonssum.sh")"
+
 # Globben sorterer etter filnavn i C-lokalet; det er apply-rekkefølgen.
 for fil in "${migrasjoner[@]}"; do
   echo "Migrasjon $(basename "$fil")"
   "${psql_kjor[@]}" -f "$fil"
 done
-
-# Testoppsettet sammenlikner summen med arbeidstreet og nekter en base bygget
-# av andre migrasjoner (#379). Samme sum regnes i server/kastbar.ts og i
-# backend/tests/test_database/conftest.py. macOS har shasum, ikke sha256sum.
-sha256() { if command -v sha256sum > /dev/null; then sha256sum "$@"; else shasum -a 256 "$@"; fi; }
-sum="$(cd "$rot" && sha256 scripts/testbase/plattformstubb.sql "${migrasjoner[@]#"$rot"/}" \
-  | sha256 | cut -d' ' -f1)"
 
 # Den skrivbare testfixturen skriver bare til en base med dette merket.
 "${psql_kjor[@]}" -c "DO \$\$ BEGIN
