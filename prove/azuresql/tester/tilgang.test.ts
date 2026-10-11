@@ -24,10 +24,15 @@ import {
 import { registrer, sqlBane, type SqlBane } from '../lib/baner.ts';
 import { byggBase, kontekst, nySak, nyttTeam, rydd, type Oppsett } from '../lib/oppsett.ts';
 
+/** Feilnummeret fra SQL Server, eller `undefined` når kallet lyktes. En feil uten nummer kastes videre. */
 const feilFra = (p: Promise<unknown>): Promise<number | undefined> =>
   p.then(
     () => undefined,
-    (e: unknown) => feilnummer(e)
+    (e: unknown) => {
+      const n = feilnummer(e);
+      if (n === undefined) throw e;
+      return n;
+    }
   );
 
 describe.skipIf(!AKTIV)('tilgang i T-SQL', () => {
@@ -42,17 +47,20 @@ describe.skipIf(!AKTIV)('tilgang i T-SQL', () => {
   /** Tabellene runtime har SELECT på, slik runtime selv ser katalogen. */
   let lesbare: string[];
 
+  /** Tabeller, visninger og tabellverdifunksjoner runtime har SELECT på, slik runtime selv ser katalogen. */
   const lesbareTabeller = async () =>
     (
       await o.runtime.request().query<{ t: string }>(
-        `SELECT s.name + '.' + t.name AS t FROM sys.tables t JOIN sys.schemas s ON s.schema_id = t.schema_id
-          WHERE HAS_PERMS_BY_NAME(s.name + '.' + t.name, 'OBJECT', 'SELECT') = 1 ORDER BY 1`
+        `SELECT s.name + '.' + x.name AS t FROM sys.objects x JOIN sys.schemas s ON s.schema_id = x.schema_id
+          WHERE x.type IN ('U', 'V', 'IF', 'TF')
+            AND HAS_PERMS_BY_NAME(s.name + '.' + x.name, 'OBJECT', 'SELECT') = 1 ORDER BY 1`
       )
     ).recordset.map((r) => r.t);
 
   /** Tabeller runtime kan lese uten RLS, med grunnen. */
   const UTEN_RLS: Record<string, string> = {
     'form_b.felt': 'feltregisteret i form (b): formatet, ingen saksdata og ikke noe prosjekt',
+    'form_b.avvik': 'funksjon som bare leser argumentet og feltregisteret',
   };
 
   beforeAll(async () => {
@@ -65,6 +73,24 @@ describe.skipIf(!AKTIV)('tilgang i T-SQL', () => {
     helA = await sqlBane(o, 'a');
     await bygg(helA, ['forlop_a']);
     await bygg(await sqlBane(o, 'b'), ['forlop_a']);
+    // Registrert korrespondanse med opplysning og dokumentasjon, så hver tabell i (b) har rader.
+    const registrert = await sqlBane(o, 'b');
+    const krav = helA.skrevet.find((r) => r.data.krav)!;
+    await registrert.skriv(
+      [
+        {
+          ...structuredClone(krav),
+          event_id: randomUUID(),
+          sak_id: registrert.sakId,
+          data: {
+            ...structuredClone(krav.data),
+            opplysninger: [{ id: randomUUID(), hva: 'sendt', dato: '2026-10-01' }],
+            dokumentasjon: [randomUUID()],
+          },
+        },
+      ],
+      1
+    );
     lesbare = await lesbareTabeller();
     const bte = kontekst(o.brukere.bte, o.b, 'TE');
     sakB = await nySak(o, bte);
@@ -86,22 +112,28 @@ describe.skipIf(!AKTIV)('tilgang i T-SQL', () => {
     tell(o.runtime, k, 'form_a.hendelse', 'prosjekt_id = @p', { p: prosjekt });
 
   describe('lesing', () => {
-    it('hver tabell runtime kan lese, har et filterpredikat, eller et begrunnet unntak', async () => {
-      const r = await o.admin.request().query<{ t: string }>(
-        `SELECT OBJECT_SCHEMA_NAME(p.target_object_id) + '.' + OBJECT_NAME(p.target_object_id) AS t
+    it('hver tabell runtime kan lese, har prosjektgrensen som filterpredikat, eller et begrunnet unntak', async () => {
+      const r = await o.admin.request().query<{ t: string; d: string }>(
+        `SELECT OBJECT_SCHEMA_NAME(p.target_object_id) + '.' + OBJECT_NAME(p.target_object_id) AS t,
+                p.predicate_definition AS d
            FROM sys.security_predicates p JOIN sys.security_policies sp ON sp.object_id = p.object_id
           WHERE p.predicate_type_desc = 'FILTER' AND sp.is_enabled = 1`
       );
       const filtrert = new Set(r.recordset.map((x) => x.t));
+      const ventet = (t: string) =>
+        t === 'koe.notat'
+          ? '([koe_sikkerhet].[notat_synlig]([prosjekt_id],[aktor_team_id]))'
+          : '([koe_sikkerhet].[medlem]([prosjekt_id]))';
       expect(lesbare.length).toBeGreaterThan(10);
       expect(lesbare.filter((t) => !filtrert.has(t) && !(t in UTEN_RLS))).toEqual([]);
+      expect(r.recordset.filter((x) => x.d !== ventet(x.t))).toEqual([]);
       expect(Object.keys(UTEN_RLS).filter((t) => filtrert.has(t))).toEqual([]);
       expect(Object.keys(UTEN_RLS).filter((t) => !lesbare.includes(t))).toEqual([]);
     });
 
     it('uten kontekst ser runtime ingenting i noen tabell, og med kontekst ser medlemmet radene', async () => {
-      // Uten rader i oppsettet: notatene skrives senere, og ingen forløp her har opplysninger eller dokumentasjon.
-      const tomme = new Set(['koe.notat', 'form_b.opplysning', 'form_b.dokumentasjon']);
+      // Notatene skrives senere i fila, så tabellen er tom her; predikatet holdes av katalogtesten.
+      const tomme = new Set(['koe.notat']);
       for (const t of lesbare.filter((x) => !(x in UTEN_RLS))) {
         expect(await synlige(null, t), t).toBe(0);
         if (!tomme.has(t)) expect(await synlige(te, t), t).toBeGreaterThan(0);
