@@ -1,5 +1,5 @@
-import hashlib
 import os
+import subprocess
 from graphlib import TopologicalSorter
 from pathlib import Path
 
@@ -8,38 +8,6 @@ import pytest
 TESTBASE_ENV = "KOE_TESTBASE_URL"
 TESTBASE_MERKE = "koe-kastbar-testbase"
 ROT = Path(__file__).resolve().parents[3]
-
-
-def migrasjonssum(rot: Path = ROT) -> str:
-    """Summen `bygg_testbase.sh` lagrer i `koe.migrasjonssum`: sha256sum av
-    plattformstubben og migrasjonene i filnavnrekkefølge, og så av den lista."""
-    filer = [
-        rot / "scripts/testbase/plattformstubb.sql",
-        *sorted((rot / "supabase/migrations").glob("*.sql")),
-    ]
-    liste = "".join(
-        f"{hashlib.sha256(f.read_bytes()).hexdigest()}  {f.relative_to(rot).as_posix()}\n"
-        for f in filer
-    )
-    return hashlib.sha256(liste.encode()).hexdigest()
-
-
-def krev_fersk_testbase(url: str, rot: Path = ROT) -> None:
-    """Feiler når basen er bygget av andre migrasjoner enn dem i `rot` (#379),
-    i stedet for at testene går mot et gammelt skjema og feiler hver for seg."""
-    import psycopg
-
-    with psycopg.connect(url, autocommit=True) as tilkobling:
-        (bygget_av,) = tilkobling.execute(
-            "SELECT current_setting('koe.migrasjonssum', true)"
-        ).fetchone()
-    if bygget_av != migrasjonssum(rot):
-        pytest.fail(
-            f"Testbasen i {TESTBASE_ENV} er ikke bygget av migrasjonene i arbeidstreet. "
-            "Bygg den på nytt med scripts/testbase/bygg_paa_nytt.sh fra repo-roten; "
-            "URL-en er den samme etterpå.",
-            pytrace=False,
-        )
 
 
 def _url_og_driver() -> str:
@@ -55,41 +23,63 @@ def _url_og_driver() -> str:
             f"{TESTBASE_ENV} er satt, men psycopg mangler. "
             "Installer backend/requirements.txt."
         )
-    krev_fersk_testbase(url)
     return url
 
 
 @pytest.fixture(scope="session")
 def testbase():
-    """Lesende tilkobling til basen i KOE_TESTBASE_URL."""
+    """Lesende tilkobling til testbasen i KOE_TESTBASE_URL."""
     import psycopg
 
-    url = _url_og_driver()
+    url = krev_kastbar_testbase(_url_og_driver())
     with psycopg.connect(
         url, autocommit=True, options="-c default_transaction_read_only=on"
     ) as tilkobling:
         yield tilkobling
 
 
-def krev_kastbar_testbase(url: str) -> str:
+def migrasjonssum(rot: Path = ROT) -> str:
+    """Summen av det testbasen bygges av i `rot`, fra `scripts/testbase/migrasjonssum.sh`."""
+    return subprocess.run(
+        ["bash", str(ROT / "scripts/testbase/migrasjonssum.sh"), str(rot)],
+        capture_output=True,
+        text=True,
+        check=True,
+    ).stdout.strip()
+
+
+def krev_kastbar_testbase(url: str, rot: Path = ROT) -> str:
+    """Feiler når basen ikke er merket av `bygg_testbase.sh`, eller er bygget av
+    andre migrasjoner enn dem i `rot` (#379). Da går ingen test mot et gammelt
+    skjema og feiler hver for seg."""
     import psycopg
 
     with psycopg.connect(url, autocommit=True) as tilkobling:
-        (merke,) = tilkobling.execute(
-            "SELECT shobj_description(oid, 'pg_database') FROM pg_database"
-            " WHERE datname = current_database()"
+        merke, bygget_av = tilkobling.execute(
+            "SELECT shobj_description(oid, 'pg_database'),"
+            " current_setting('koe.migrasjonssum', true)"
+            " FROM pg_database WHERE datname = current_database()"
         ).fetchone()
     if merke != TESTBASE_MERKE:
         pytest.fail(
-            f"{TESTBASE_ENV} peker ikke på en kastbar testbase. Skrivbare tester "
-            "kjører bare mot en base bygget av scripts/testbase/bygg_testbase.sh."
+            f"{TESTBASE_ENV} peker ikke på en kastbar testbase. Databasetestene "
+            "kjører bare mot en base bygget av scripts/testbase/bygg_testbase.sh.",
+            pytrace=False,
+        )
+    if bygget_av != migrasjonssum(rot):
+        pytest.fail(
+            f"Testbasen i {TESTBASE_ENV} er ikke bygget av migrasjonene i arbeidstreet. "
+            "Bygg den på nytt med scripts/testbase/bygg_paa_nytt.sh fra repo-roten; "
+            "URL-en er den samme etterpå.",
+            pytrace=False,
         )
     return url
 
 
 @pytest.fixture(scope="session")
 def testbase_url() -> str:
-    """KOE_TESTBASE_URL, men bare om basen er merket av bygg_testbase.sh."""
+    """KOE_TESTBASE_URL, men bare om basen er merket av bygg_testbase.sh og
+    bygget av migrasjonene i arbeidstreet."""
     return krev_kastbar_testbase(_url_og_driver())
 
 

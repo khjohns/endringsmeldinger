@@ -54,16 +54,6 @@ if ! installer_npm >> "$logg" 2>&1; then
   echo "ADVARSEL: npm-installasjonen feilet, så npm test og typesjekken kan mangle pakker; se $logg."
 fi
 
-# Summen av det testbasen bygges av. Avviker den fra summen containeren ble
-# bygget med, er containeren fra et eldre øyeblikksbilde og bygges på nytt.
-# Bare filer Git kjenner (sporet eller ikke ignorert), så en reservekopi eller
-# en ignorert fil ikke tvinger fram en ny base.
-testbase_sum() {
-  (cd "$rot" && git ls-files -z --cached --others --exclude-standard \
-    supabase/migrations scripts/testbase \
-    | sort -z | xargs -0 sha256sum | sha256sum | cut -d' ' -f1)
-}
-
 start_testbase() {
   if ! docker info > /dev/null 2>&1; then
     # En gjenopptatt økt arver pid-filer fra øyeblikksbildet, og dockerd venter
@@ -81,21 +71,27 @@ start_testbase() {
   # Kalt som vilkår i if gjelder ikke set -e her; hvert steg sjekkes selv.
   docker info > /dev/null 2>&1 || return 1
 
-  local port="${KOE_TESTBASE_PORT:-54317}"
-  local navn="koe-testbase-$port" stempel="/tmp/koe-testbase-$port.sum" sum
-  sum="$(testbase_sum)" || return 1
-  if docker container inspect "$navn" > /dev/null 2>&1 \
-    && [ "$(cat "$stempel" 2> /dev/null)" = "$sum" ]; then
-    docker start "$navn" > /dev/null || return 1
-    for _ in $(seq 1 30); do
-      docker exec "$navn" pg_isready --quiet --host 127.0.0.1 && break
-      sleep 1
-    done
-    docker exec "$navn" pg_isready --quiet --host 127.0.0.1 || return 1
-  else
-    "$rot/scripts/testbase/docker_testbase.sh" stopp
-    "$rot/scripts/testbase/docker_testbase.sh" start || return 1
-    echo "$sum" > "$stempel"
+  local port="${KOE_TESTBASE_PORT:-54317}" testbase="$rot/scripts/testbase"
+  local navn="koe-testbase-$port" url
+  if ! docker container inspect "$navn" > /dev/null 2>&1; then
+    "$testbase/docker_testbase.sh" start
+    return
+  fi
+  docker start "$navn" > /dev/null || return 1
+  for _ in $(seq 1 30); do
+    docker exec "$navn" pg_isready --quiet --host 127.0.0.1 && break
+    sleep 1
+  done
+  docker exec "$navn" pg_isready --quiet --host 127.0.0.1 || return 1
+  # Basen er eldre enn arbeidstreet når den bærer en annen sum, for eksempel
+  # fra et eldre øyeblikksbilde eller før en migrasjon ble slått inn. Byggingen
+  # på nytt beholder URL-en; nekter den basen, lages containeren på nytt.
+  url="$("$testbase/docker_testbase.sh" url)" || return 1
+  if [ "$(psql "$url" --no-psqlrc -tAc "SELECT current_setting('koe.migrasjonssum', true)")" \
+    != "$("$testbase/migrasjonssum.sh")" ]; then
+    KOE_TESTBASE_URL="$url" "$testbase/bygg_paa_nytt.sh" && return
+    "$testbase/docker_testbase.sh" stopp
+    "$testbase/docker_testbase.sh" start
   fi
 }
 

@@ -1,7 +1,7 @@
 /**
  * Testoppsettet nekter en testbase som er eldre enn migrasjonene (#379).
- * Arbeidstreet etterliknes med en kopi av stubben og migrasjonene, så basen
- * ikke røres. Krever `KOE_TESTBASE_URL`.
+ * Arbeidstreet etterliknes med en kopi av det basen bygges av, så basen ikke
+ * røres. Krever `KOE_TESTBASE_URL`.
  */
 
 import { appendFileSync, cpSync, mkdtempSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
@@ -19,7 +19,11 @@ describe.skipIf(!TESTBASE_URL)('testbasen og migrasjonene i arbeidstreet', () =>
 
   beforeEach(() => {
     kopi = mkdtempSync(join(tmpdir(), 'koe-arbeidstre-'));
-    for (const fil of ['scripts/testbase/plattformstubb.sql', 'supabase/migrations']) {
+    for (const fil of [
+      'scripts/testbase/bygg_testbase.sh',
+      'scripts/testbase/plattformstubb.sql',
+      'supabase/migrations',
+    ]) {
       cpSync(join(ROT, fil), join(kopi, fil), { recursive: true });
     }
   });
@@ -38,7 +42,9 @@ describe.skipIf(!TESTBASE_URL)('testbasen og migrasjonene i arbeidstreet', () =>
   });
 
   it('nekter basen når en migrasjon er endret etter byggingen', async () => {
-    const forste = readdirSync(join(kopi, 'supabase/migrations')).sort()[0];
+    const forste = readdirSync(join(kopi, 'supabase/migrations'))
+      .filter((navn) => navn.endsWith('.sql'))
+      .sort()[0];
     appendFileSync(join(kopi, 'supabase/migrations', forste), '\n-- endret\n');
     await expect(kobleTilKastbarTestbase(TESTBASE_URL, 1, kopi)).rejects.toThrow(
       /ikke bygget av migrasjonene i arbeidstreet/
