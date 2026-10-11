@@ -4144,6 +4144,123 @@
           }
         }
       ]
+    },
+    {
+      "id": "F-MM-U326h",
+      "rader": [
+        "KA-35"
+      ],
+      "start": "krav_irreg",
+      "forslag": "MM-U18 og SK-01: en ny kravversjon etter at TE har godtatt avslaget av grunnlaget, gjør saken ikke forstått, også i et spor uten enighet",
+      "forventningsgrunnlag": "avklart_tolkning",
+      "steg": [
+        {
+          "handling": "brev",
+          "navn": "D4",
+          "svar": [
+            {
+              "spor": "grunnlag",
+              "navn": "S-g1",
+              "resultat": "avslaatt",
+              "varslet_i_tide": true
+            },
+            {
+              "spor": "vederlag",
+              "navn": "S-v1",
+              "vurdering": "delvis",
+              "godkjent_belop": 60000
+            }
+          ]
+        },
+        {
+          "handling": "aksept",
+          "spor": "grunnlag",
+          "navn": "D5"
+        },
+        {
+          "handling": "rad",
+          "krav": true,
+          "spor": "vederlag",
+          "belop": 90000,
+          "part": "TE",
+          "navn": "K-v2"
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 2,
+          "rolle": "forutsetning",
+          "kilde": [
+            "V-SK01"
+          ],
+          "forventet": {
+            "grunnlag_avvist": true,
+            "enighet.vederlag": null
+          }
+        },
+        {
+          "etter": 3,
+          "rolle": "mal",
+          "kilde": [
+            "MM-U18",
+            "V-SK01"
+          ],
+          "forventet": {
+            "forstaatt": false,
+            "visning.journal.K-v2": "ikke_tolket"
+          }
+        }
+      ]
+    },
+    {
+      "id": "F-MM-U326h-kontroll",
+      "rader": [
+        "KA-35"
+      ],
+      "start": "krav_irreg",
+      "forslag": "Kontrollsak til MM-U18: uten aksepten av avslaget er den nye kravversjonen forstått",
+      "forventningsgrunnlag": "avklart_tolkning",
+      "steg": [
+        {
+          "handling": "brev",
+          "navn": "D4",
+          "svar": [
+            {
+              "spor": "grunnlag",
+              "navn": "S-g1",
+              "resultat": "avslaatt",
+              "varslet_i_tide": true
+            },
+            {
+              "spor": "vederlag",
+              "navn": "S-v1",
+              "vurdering": "delvis",
+              "godkjent_belop": 60000
+            }
+          ]
+        },
+        {
+          "handling": "rad",
+          "krav": true,
+          "spor": "vederlag",
+          "belop": 90000,
+          "part": "TE",
+          "navn": "K-v2"
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 2,
+          "rolle": "mal",
+          "kilde": [
+            "MM-U18"
+          ],
+          "forventet": {
+            "forstaatt": true,
+            "gjeldende_krav.vederlag": "K-v2"
+          }
+        }
+      ]
     }
   ],
   "genererte": {
