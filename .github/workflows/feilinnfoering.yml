@@ -69,6 +69,7 @@ jobs:
             docs/datamodell/kjernehendelser.toml
             supabase/migrations
             scripts/testbase
+            scripts/ci
             .github/workflows/feilinnfoering.yml
             package.json
             package-lock.json
@@ -116,20 +117,6 @@ jobs:
       cancel-in-progress: ${{ github.event_name == 'pull_request' }}
     runs-on: ubuntu-latest
     timeout-minutes: 45
-    services:
-      postgres:
-        # Som databasejobben i ci.yml.
-        image: public.ecr.aws/docker/library/postgres:17
-        env:
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: koe_test
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd "pg_isready -U postgres"
-          --health-interval 5s
-          --health-timeout 5s
-          --health-retries 10
     env:
       KOE_TESTBASE_URL: postgresql://postgres:postgres@localhost:5432/koe_test
       HUSKY: 0
@@ -142,6 +129,11 @@ jobs:
           cache: npm
 
       - run: npm ci
+
+      # Ikke `services:`: den henter bildet fra én kilde før noe steg kjører,
+      # og gir opp etter tre forsøk (#327).
+      - name: Start testbasen
+        run: scripts/ci/start_postgres.sh
 
       - name: Kontroller serverversjonen
         run: |
