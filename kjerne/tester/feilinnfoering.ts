@@ -5,7 +5,7 @@
  * i designnotatet, GR-U12 og registeret (#320). F48 er hvitelisten fra #329,
  * F49–F51 og F54–F58 versjoneringen (#316), F52–F53 registrert korrespondanse
  * (#336), F59–F60 kodene i formatet og predikatet for endringsordre
- * (#335, #351), og F61–F104 byggedel 1 av #309. Én mutasjon om gangen per arbeidskopi, Vitest over hele `kjerne/`
+ * (#335, #351), F61–F104 byggedel 1 av #309 og F105–F112 brevteksten (#369). Én mutasjon om gangen per arbeidskopi, Vitest over hele `kjerne/`
  * og `sprakprove/kjernelagring/`, og originalteksten settes tilbake etterpå. For
  * hver mutasjon kreves det at de forventede målassertions feiler, og at alle
  * feil er assertions, ikke import, oppsett eller en brutt forutsetning
@@ -1179,6 +1179,80 @@ const MUTASJONER: Mutasjon[] = [
       ],
     ],
     mal: ['F-MM-T4'],
+  },
+  {
+    id: 'F105',
+    feilklasse: 'brevet for trekk av grunnlaget sier ikke hva trekket ikke opphever (KA-U22)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [
+      [
+        ' Trekket opphever ikke et pålegg, en endringsordre, en utførelsesplikt eller byggherrens rettigheter etter en avtale.`',
+        '`',
+      ],
+    ],
+    mal: ['trekk av grunnlaget'],
+  },
+  {
+    id: 'F106',
+    feilklasse: '«ingen krav» i vederlaget sier ikke at forseringsvederlaget er unntatt (KA-U25)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [[' Avkallet omfatter ikke vederlag for forsering etter NS 8407 § 33.8.`', '`']],
+    mal: ['«ingen krav» i vederlaget'],
+  },
+  {
+    id: 'F107',
+    feilklasse:
+      'et standpunkt appen regner som uten virkning, står ikke i brevet (LV-U3, HF-U2, VS-U11)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [
+      [
+        '  const setninger = s.standpunkter.map((p) => {',
+        "  const setninger = s.standpunkter.filter((p) => virkning.get(p.id) !== 'uten_virkning').map((p) => {",
+      ],
+    ],
+    mal: ['et standpunkt appen regner som uten virkning', 'gir byggherren innsigelsen opp'],
+  },
+  {
+    id: 'F108',
+    feilklasse: 'utdypningen faller ut av brevteksten (B-13 om begrunnelsestekst, LV-U3)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [['...(utdypning ? { utdypning } : {})', '...{}']],
+    mal: ['utdypningen i svaret står for seg', 'kravene står med beløp'],
+  },
+  {
+    id: 'F109',
+    feilklasse: 'en aksept får ikke et avsnitt i brevteksten (LV-U3)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [
+      [
+        '  for (const u of nytt.utsagn) legg(',
+        "  for (const u of nytt.utsagn.filter((x) => x.art !== 'aksept')) legg(",
+      ],
+    ],
+    mal: ['aksepten viser til svaret', 'forløp A–E i minnet'],
+  },
+  {
+    id: 'F110',
+    feilklasse: 'leseren godtar brevtekst fra appen i et registrert brev (MM-U17)',
+    fil: `${K}/format/leser.ts`,
+    endringer: [
+      ['    if (erRegistrert(dokument.opplysninger))\n      throw', '    if (false)\n      throw'],
+    ],
+    mal: ['brevtekst i et registrert brev'],
+  },
+  {
+    id: 'F111',
+    feilklasse: 'kontrollen av gjengivelsen ser ikke rekkefølgen (LV-U2)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [['    fra = plass + normalisert(del).length;', '    fra = 0;']],
+    mal: ['rekkefølgen er byttet'],
+  },
+  {
+    id: 'F112',
+    feilklasse: 'svaret viser ikke til innsigelsen det gjentar eller gir opp (VS-U9, VS-U11)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [['  )?.dokument;', '  ) && undefined;']],
+    mal: ['svaret gjentar innsigelsen', 'gir byggherren innsigelsen opp'],
   },
 ];
 
