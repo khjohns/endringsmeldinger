@@ -779,7 +779,11 @@ function rydd() {
     } catch (e) {
       console.error(`Fikk ikke slettet basen ${navn}; slett den for hånd.`, e);
     }
-  if (tempmappe) rmSync(tempmappe, { recursive: true, force: true });
+  try {
+    if (tempmappe) rmSync(tempmappe, { recursive: true, force: true, maxRetries: 5 });
+  } catch (e) {
+    console.error(`Fikk ikke slettet ${tempmappe}.`, e);
+  }
   tempmappe = undefined;
 }
 
@@ -878,8 +882,9 @@ for (const m of valgte)
   for (const [fra] of m.endringer)
     if (readFileSync(m.fil, 'utf8').split(fra).length !== 2)
       throw new Error(`${m.id}: «${fra}» finnes ikke nøyaktig én gang i ${m.fil}`);
-const [del, deler] = (process.env.FEILINNFOERING_DEL ?? '1/1').split('/').map(Number);
-if (!(Number.isInteger(del) && Number.isInteger(deler) && del >= 1 && del <= deler))
+const delform = /^(\d+)\/(\d+)$/.exec(process.env.FEILINNFOERING_DEL ?? '1/1');
+const [del, deler] = [Number(delform?.[1]), Number(delform?.[2])];
+if (!delform || del < 1 || del > deler)
   throw new Error(`FEILINNFOERING_DEL må ha formen i/n, ikke «${process.env.FEILINNFOERING_DEL}»`);
 const mutasjoner = valgte.filter((_, i) => i % deler === del - 1);
 
