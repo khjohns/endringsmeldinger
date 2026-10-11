@@ -276,8 +276,9 @@ endringsordre og forsering, etter [OV-U1](plans/2026-09-16-godkjenning-og-varig-
   kravkjeden, fra og med versjonen svaret ble regnet mot, også ved flere svar på samme
   versjon. Sperren i
   [KA-U22](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u22) er bygget for en
-  enighet som bygger på et merket brev (`trekkKanIkkeBevareAvtalen`,
-  `AVTALE_KAN_IKKE_BEVARES`). Et fradrag avvises fordi KA-U9 ikke er bygget, og sperren
+  enighet som bygger på et merket brev, når merkingen gjelder sporet enigheten gjelder
+  ([KA-U30](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u30);
+  `trekkKanIkkeBevareAvtalen`, `AVTALE_KAN_IKKE_BEVARES`). Et fradrag avvises fordi KA-U9 ikke er bygget, og sperren
   må dekke et avtalt fradrag når det bygges. Brevteksten er ikke bygget (#369).
 - **Arbeidsvalg 11.10 (#342, prinsipp 3, GR-U1, GR-U4):** relasjonen er
   grunnlagsversjonen svaret ble regnet mot, ikke grunnlagssvaret, så et nytt eller
@@ -864,7 +865,7 @@ visning ikke fremstiller et trekk som at utførelsesplikten er bortfalt.
 - **Vedtak 11.10:** [MM-U19](plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u19)
   (registrerte brev i samme klasse som MM-U18), [KA-U26](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u26)
   (hva merkingen sperrer), [KA-U27](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u27)
-  (sperren for trekk), [KA-U28](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u28)
+  (sperren for trekk, snevret inn av [KA-U30](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u30) til sporene merkingen gjelder), [KA-U28](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u28)
   (avklaringen når kravene er avgjort) og [KA-U29](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u29)
   (utsagnene etter et godtatt avslag). At brevet ikke regnes som en ubetinget
   godkjenning, gir sperren i KA-U16 selv; merknaden i GR-U7 sier at brevet «er ikke en

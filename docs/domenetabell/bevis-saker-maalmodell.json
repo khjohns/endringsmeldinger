@@ -6172,6 +6172,182 @@
           }
         }
       ]
+    },
+    {
+      "id": "F-MM-T4",
+      "rader": [
+        "KA-34"
+      ],
+      "start": "krav_irreg",
+      "forslag": "KA-U30: et brev med enighet om grunnlaget og vederlaget er merket bare for grunnlaget; trekket av vederlaget godtas, trekket av grunnlaget avvises",
+      "forventningsgrunnlag": "avklart_tolkning",
+      "steg": [
+        {
+          "handling": "rad",
+          "dokument": "D4",
+          "sendt": "2026-09-30",
+          "endringsordre": false,
+          "merking": [
+            "grunnlag"
+          ],
+          "svar": [
+            {
+              "spor": "grunnlag",
+              "navn": "S-g1",
+              "gjelder": "K-g1",
+              "resultat": "godkjent",
+              "varslet_i_tide": true
+            },
+            {
+              "spor": "vederlag",
+              "navn": "S-v1",
+              "gjelder": "K-v1",
+              "vurdering": "godkjent",
+              "godkjent_belop": 100000
+            }
+          ]
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 1,
+          "rolle": "forutsetning",
+          "kilde": [
+            "GR-U10",
+            "GR-U13"
+          ],
+          "forventet": {
+            "enighet.grunnlag.kilde": "sammenfall",
+            "enighet.vederlag.kilde": "sammenfall",
+            "endringsordre": "nei"
+          }
+        },
+        {
+          "etter": 1,
+          "rolle": "forutsetning",
+          "kilde": [
+            "GR-U10",
+            "GR-U13"
+          ],
+          "forventet": {
+            "forbehold.grunnlag": true,
+            "forbehold.vederlag": false
+          }
+        },
+        {
+          "etter": 1,
+          "rolle": "mal",
+          "kilde": [
+            "KA-U30",
+            "KA-U26"
+          ],
+          "forventet": {
+            "avvist": false
+          },
+          "prov": {
+            "handling": "trekk",
+            "spor": "vederlag"
+          }
+        },
+        {
+          "etter": 1,
+          "rolle": "mal",
+          "kilde": [
+            "KA-U27",
+            "KA-U30"
+          ],
+          "forventet": {
+            "avvist": true,
+            "regel": "AVTALE_KAN_IKKE_BEVARES"
+          },
+          "prov": {
+            "handling": "trekk",
+            "spor": "grunnlag"
+          }
+        }
+      ]
+    },
+    {
+      "id": "F-MM-T5",
+      "rader": [
+        "KA-34"
+      ],
+      "start": "krav_irreg",
+      "forslag": "KA-U27 og KA-U30: et brev merket for grunnlaget og vederlaget sperrer trekket av vederlaget",
+      "forventningsgrunnlag": "avklart_tolkning",
+      "steg": [
+        {
+          "handling": "rad",
+          "dokument": "D4",
+          "sendt": "2026-09-30",
+          "endringsordre": false,
+          "merking": [
+            "grunnlag",
+            "vederlag"
+          ],
+          "svar": [
+            {
+              "spor": "grunnlag",
+              "navn": "S-g1",
+              "gjelder": "K-g1",
+              "resultat": "godkjent",
+              "varslet_i_tide": true
+            },
+            {
+              "spor": "vederlag",
+              "navn": "S-v1",
+              "gjelder": "K-v1",
+              "vurdering": "godkjent",
+              "godkjent_belop": 100000
+            }
+          ]
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 1,
+          "rolle": "forutsetning",
+          "kilde": [
+            "GR-U10",
+            "GR-U13"
+          ],
+          "forventet": {
+            "enighet.grunnlag.kilde": "sammenfall",
+            "enighet.vederlag.kilde": "sammenfall",
+            "endringsordre": "nei"
+          }
+        },
+        {
+          "etter": 1,
+          "rolle": "mal",
+          "kilde": [
+            "KA-U27",
+            "KA-U30"
+          ],
+          "forventet": {
+            "avvist": true,
+            "regel": "AVTALE_KAN_IKKE_BEVARES"
+          },
+          "prov": {
+            "handling": "trekk",
+            "spor": "vederlag"
+          }
+        },
+        {
+          "etter": 1,
+          "rolle": "kontroll",
+          "kilde": [
+            "KA-U6"
+          ],
+          "forventet": {
+            "avvist": false
+          },
+          "prov": {
+            "handling": "trekk",
+            "spor": "frist"
+          }
+        }
+      ]
     }
   ],
   "genererte": {
