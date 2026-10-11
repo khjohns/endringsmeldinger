@@ -1,6 +1,8 @@
--- Rollen og rettighetene til runtime, og sikkerhetspolicyen. Kjøres etter en
--- eventuell feilinnføring, fordi en policy binder predikatfunksjonene
--- (SCHEMABINDING) og hindrer at de endres.
+-- Rollen og rettighetene til runtime, og sikkerhetspolicyen. En vanlig
+-- feilinnføring kjøres før denne fila, fordi en policy binder
+-- predikatfunksjonene (SCHEMABINDING) og hindrer at de endres. En
+-- feilinnføring som endrer selve policyen, heter `*.etter.sql` og kjøres
+-- etter (`lib/oppsett.ts`).
 --
 -- Runtime leser gjennom RLS og skriver bare med kommandoene i `koe_api`. Den
 -- leser ikke identitet, medlemskap eller kontraktsteam direkte.

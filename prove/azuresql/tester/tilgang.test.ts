@@ -96,6 +96,7 @@ describe.skipIf(!AKTIV)('tilgang i T-SQL', () => {
       expect(lesbare.length).toBeGreaterThan(10);
       expect(lesbare.filter((t) => !filtrert.has(t) && !(t in UTEN_RLS))).toEqual([]);
       expect(Object.keys(UTEN_RLS).filter((t) => filtrert.has(t))).toEqual([]);
+      expect(Object.keys(UTEN_RLS).filter((t) => !lesbare.includes(t))).toEqual([]);
     });
 
     it('uten kontekst ser runtime ingenting i noen tabell, og med kontekst ser medlemmet radene', async () => {
@@ -217,11 +218,18 @@ describe.skipIf(!AKTIV)('tilgang i T-SQL', () => {
             await ny.rollback().catch(() => undefined);
           }
         };
-        const lest = await iNyTransaksjon(async (r) => {
-          const svar = await r().query<{ n: number }>('SELECT COUNT(*) AS n FROM form_a.hendelse');
-          expect(svar.recordset[0].n).toBe(0);
-        });
-        expect(lest).toBeUndefined();
+        const ny = new sql.Transaction(pool);
+        await ny.begin();
+        try {
+          for (const t of lesbare.filter((x) => !(x in UTEN_RLS))) {
+            const svar = await new sql.Request(ny).query<{ n: number }>(
+              `SELECT COUNT(*) AS n FROM ${t}`
+            );
+            expect(svar.recordset[0].n, t).toBe(0);
+          }
+        } finally {
+          await ny.rollback().catch(() => undefined);
+        }
         const rad = { ...structuredClone(sakA.skrevet.at(-1)!), event_id: randomUUID() };
         const forsoek: [string, (r: () => sql.Request) => Promise<unknown>][] = [
           [
@@ -341,6 +349,21 @@ describe.skipIf(!AKTIV)('tilgang i T-SQL', () => {
       }
     });
 
+    it('eieren kan ikke opprette en sak i en annen aktørs navn eller med store bokstaver (blokkpredikatet og skranken)', async () => {
+      const sett = (oppretter: string) =>
+        feilFra(
+          transaksjon(o.admin, bh, (f) =>
+            f().batch(
+              `INSERT koe.sak_metadata (sak_id, prosjekt_id, sakstype, created_by)
+               VALUES (N'${randomUUID()}', N'${o.a.id}', N'standard', N'${oppretter}')`
+            )
+          )
+        );
+      expect(await sett(o.brukere.te.id)).toBe(33504);
+      expect(await sett(o.brukere.bh.id.toUpperCase())).toBe(547);
+      expect(await sett(o.brukere.bh.id)).toBeUndefined();
+    });
+
     it('kommandoene kjøres bare inne i en transaksjon', async () => {
       const n = await feilFra(
         o.runtime
@@ -354,6 +377,10 @@ describe.skipIf(!AKTIV)('tilgang i T-SQL', () => {
   });
 
   describe('rettighetene til runtime', () => {
+    let foer: number;
+    beforeAll(async () => {
+      foer = await iProsjekt(te, o.a.id);
+    });
     const forsoek = (setning: string) =>
       feilFra(transaksjon(o.runtime, bh, (f) => f().batch(setning)));
 
@@ -383,7 +410,7 @@ describe.skipIf(!AKTIV)('tilgang i T-SQL', () => {
     });
 
     it('journalen er uendret etter forsøkene', async () => {
-      expect(await iProsjekt(te, o.a.id)).toBe((await sakA.journal()).length + helA.skrevet.length);
+      expect(await iProsjekt(te, o.a.id)).toBe(foer);
     });
   });
 
