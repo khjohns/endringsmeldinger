@@ -7,7 +7,8 @@
 # Bruk: KOE_TESTBASE_URL=... scripts/testbase/bygg_paa_nytt.sh
 #
 # Avbryter uten å slette noe når basen ikke er merket kastbar av
-# bygg_testbase.sh.
+# bygg_testbase.sh. Rollene hører til serveren og overlever; plattformstubben
+# setter attributtene deres på nytt, og migrasjonene rører dem ikke.
 set -euo pipefail
 export PGOPTIONS="${PGOPTIONS:-} -c client_min_messages=warning"
 
@@ -23,6 +24,10 @@ if [[ "$merke" != "koe-kastbar-testbase" ]]; then
   exit 1
 fi
 navn="$("${psql_kjor[@]}" "$KOE_TESTBASE_URL" -c 'SELECT current_database()')"
+if [[ "$navn" == postgres ]]; then
+  echo "Testbasen kan ikke hete postgres; den bygges på nytt fra den basen. Avbryter." >&2
+  exit 1
+fi
 
 # Basen kan ikke slettes fra en tilkobling til den selv, så kommandoene går
 # gjennom vedlikeholdsbasen `postgres` på samme server. Merket settes før

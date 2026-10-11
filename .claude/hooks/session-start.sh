@@ -72,9 +72,16 @@ start_testbase() {
   docker info > /dev/null 2>&1 || return 1
 
   local port="${KOE_TESTBASE_PORT:-54317}" testbase="$rot/scripts/testbase"
-  local navn="koe-testbase-$port" url
-  if ! docker container inspect "$navn" > /dev/null 2>&1; then
-    "$testbase/docker_testbase.sh" start
+  local navn="koe-testbase-$port" stempel="/tmp/koe-testbase-$port.container"
+  local container url sum bygget_av
+  # Containeren lages på nytt når oppsettet av den (bildet, portene) er endret
+  # siden den ble laget; basen i den følger summen under.
+  container="$(sha256sum < "$testbase/docker_testbase.sh" | cut -d' ' -f1)" || return 1
+  if ! docker container inspect "$navn" > /dev/null 2>&1 \
+    || [ "$(cat "$stempel" 2> /dev/null)" != "$container" ]; then
+    "$testbase/docker_testbase.sh" stopp
+    "$testbase/docker_testbase.sh" start || return 1
+    echo "$container" > "$stempel"
     return
   fi
   docker start "$navn" > /dev/null || return 1
@@ -85,13 +92,18 @@ start_testbase() {
   docker exec "$navn" pg_isready --quiet --host 127.0.0.1 || return 1
   # Basen er eldre enn arbeidstreet når den bærer en annen sum, for eksempel
   # fra et eldre øyeblikksbilde eller før en migrasjon ble slått inn. Byggingen
-  # på nytt beholder URL-en; nekter den basen, lages containeren på nytt.
+  # på nytt beholder URL-en. En base uten merket lages på nytt i en ny container.
   url="$("$testbase/docker_testbase.sh" url)" || return 1
-  if [ "$(psql "$url" --no-psqlrc -tAc "SELECT current_setting('koe.migrasjonssum', true)")" \
-    != "$("$testbase/migrasjonssum.sh")" ]; then
-    KOE_TESTBASE_URL="$url" "$testbase/bygg_paa_nytt.sh" && return
+  sum="$("$testbase/migrasjonssum.sh")" || return 1
+  bygget_av="$(psql "$url" --no-psqlrc -tA -c "SELECT CASE
+      WHEN shobj_description(oid, 'pg_database') = 'koe-kastbar-testbase'
+      THEN coalesce(current_setting('koe.migrasjonssum', true), '') ELSE 'umerket' END
+    FROM pg_database WHERE datname = current_database()")" || return 1
+  if [ "$bygget_av" = umerket ]; then
     "$testbase/docker_testbase.sh" stopp
     "$testbase/docker_testbase.sh" start
+  elif [ "$bygget_av" != "$sum" ]; then
+    KOE_TESTBASE_URL="$url" "$testbase/bygg_paa_nytt.sh"
   fi
 }
 
