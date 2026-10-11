@@ -231,6 +231,7 @@ describe.skipIf(!TESTBASE_URL)(
       expect(uten.status).toBe(401);
       const med = await fetch(sti, { method: 'POST', headers: hoder(true), body: kropp });
       expect(med.status).toBe(400);
+      expect((await med.json()).message).toBe('Kroppen er for dypt nestet.');
       expect(await lesJournal(o.pool, sakId, o.prosjekt.id)).toHaveLength(1);
     });
 
@@ -318,20 +319,21 @@ describe.skipIf(!TESTBASE_URL)(
       ).rejects.toThrow(/uforanderlig/);
 
       const annenSak = await opprettKjernesak(o, o.annetProsjekt);
-      await expect(
-        o.pool.query(
-          `INSERT INTO leveringsoppdrag (id, prosjekt_id, sak_id, event_id, dokumentnoekkel, innhold, innhold_sha256)
-         VALUES ($1, $2, $3, $4, $5, '{}'::jsonb, $6)`,
-          [
-            randomUUID(),
-            o.annetProsjekt.id,
-            annenSak,
-            svar.kropp.event_id,
-            randomUUID(),
-            sjekksum({}),
-          ]
-        )
-      ).rejects.toThrow(/sak og prosjekt/);
+      // Triggeren avviser før unik-skranken på event_id, så avvisningen gjelder saken og prosjektet.
+      for (const [hva, prosjekt, sak] of [
+        ['annen sak og annet prosjekt', o.annetProsjekt.id, annenSak],
+        ['samme sak, annet prosjekt', o.annetProsjekt.id, sakId],
+        ['annen sak, samme prosjekt', o.prosjekt.id, annenSak],
+      ]) {
+        await expect(
+          o.pool.query(
+            `INSERT INTO leveringsoppdrag (id, prosjekt_id, sak_id, event_id, dokumentnoekkel, innhold, innhold_sha256)
+           VALUES ($1, $2, $3, $4, $5, '{}'::jsonb, $6)`,
+            [randomUUID(), prosjekt, sak, svar.kropp.event_id, randomUUID(), sjekksum({})]
+          ),
+          hva
+        ).rejects.toThrow(/sak og prosjekt/);
+      }
     });
 
     it('oppdraget kan ikke slettes eller tømmes, men følger saken når den slettes', async () => {
