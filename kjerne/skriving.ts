@@ -9,11 +9,12 @@
 import { avvisning } from './avvisning.ts';
 import { HJEMMEL } from './format.ts';
 import { formfeil, type Kommando, type Svarutkast } from './kommando.ts';
-import { lesJournal, standpunkterISvaret, Uforstaatt } from './leser.ts';
-import { beslutningsgrunnlag, regnUtSvar } from './standpunkt.ts';
+import { frys, grunnlagsstandpunkter } from './frysing.ts';
+import { lesJournal, Uforstaatt } from './leser.ts';
+import { regnUtSvar } from './standpunkt.ts';
 import { grunnlagskravFor, utled, type Utledning } from './utled.ts';
 import type { Kjerne } from './versjon.ts';
-import type { Avvisning, Beslutningsgrunnlag, Journalrad, Krav, Part, Spor } from './typer.ts';
+import type { Avvisning, Beslutningsgrunnlag, Journalrad, Krav, Part } from './typer.ts';
 
 /** Det serveren stempler kommandoen med. Klienten bestemmer ingen av dem. */
 export interface Kontekst {
@@ -54,35 +55,12 @@ function lagret({ virkninger, ...resten }: Beslutningsgrunnlag): Data {
   };
 }
 
-/**
- * Fryser brevet i et lagret svar (MM-U9, MM-U11, GR-U12). `grunnlagskrav` er
- * kravet et grunnlagssvar gjelder, ellers gjeldende grunnlagskrav. Kaster
- * `Uforstaatt` når standpunktene ikke kan leses.
- */
-function frys(svar: Data, grunnlagskrav: Krav | null | undefined, kjerne: Kjerne): Data {
-  const spor = svar.spor as Spor;
-  const innhold = {
-    spor,
-    standpunkter: standpunkterISvaret(spor, svar),
-    utregning: (svar.utregning ?? {}) as Data,
-  };
-  return lagret(beslutningsgrunnlag(innhold, grunnlagskrav, kjerne.regler));
-}
-
 /** Standpunktene byggherren har tatt, i rekkefølgen brevet setter dem. En vurdering som ikke er gjort, utelates (KA-U4). */
 function standpunkter(s: Svarutkast, krav: Krav, u: Utledning, nyId: () => string): Data[] {
   const v = s.vurderinger;
   const ut: Data[] = [];
   if (s.spor === 'grunnlag') {
-    if (typeof v.grunnlag_varslet_i_tide === 'boolean')
-      ut.push({
-        id: nyId(),
-        art: 'rettidighet',
-        gjelder: krav.id,
-        hjemmel: HJEMMEL.grunnlag,
-        i_tide: v.grunnlag_varslet_i_tide,
-      });
-    ut.push({ id: nyId(), art: 'grunnlag', resultat: v.resultat });
+    ut.push(...grunnlagsstandpunkter(v, krav, nyId));
   } else if (s.spor === 'vederlag') {
     ut.push({ id: nyId(), art: 'beloep' });
   } else {
@@ -125,10 +103,8 @@ function svar(
       { krav, grunnlagskrav: u.spor.grunnlag.gjeldendeKrav },
       kjerne.regler
     );
-  e.beslutningsgrunnlag = frys(
-    e,
-    grunnlagskravFor({ spor: s.spor, gjelder: s.gjelder }, u),
-    kjerne
+  e.beslutningsgrunnlag = lagret(
+    frys(e, grunnlagskravFor({ spor: s.spor, gjelder: s.gjelder }, u), kjerne.regler)
   );
   return e;
 }
@@ -240,6 +216,6 @@ export function frysBrev(rad: Journalrad, foer: Journalrad[], kjerne: Kjerne): v
   for (const s of (rad.data.svar ?? []) as Data[]) {
     // Kategorien gjelder bare svaret på grunnlaget (§ 32.2, GR-U12).
     const krav = s.spor === 'grunnlag' ? grunnlagskrav.find((k) => k.id === s.gjelder) : null;
-    s.beslutningsgrunnlag = frys(s, krav, kjerne);
+    s.beslutningsgrunnlag = lagret(frys(s, krav, kjerne.regler));
   }
 }

@@ -1,7 +1,7 @@
 /**
  * `visning(u, regler)`: etiketter, samlet status og merknader, avledet av
  * utledningen. Ingen regel leser visningen; arkitekturtesten håndhever det
- * (INV-MM-9). En ny etikett, som `frafalt`, endrer derfor ikke reglene.
+ * (INV-MM-9). En ny etikett, som `paalegg_frafalt`, endrer derfor ikke reglene.
  *
  * Visningen er det eneste stedet dagens regler vurderer et sendt brev på nytt.
  * Gir de et standpunkt en annen virkning enn brevet, vises det som en merknad
@@ -23,7 +23,7 @@ import { SPOR, type Spor } from './typer.ts';
 
 export type Statuskode =
   | 'kan_ikke_utledes'
-  | 'avsluttet_avslatt'
+  | 'avsluttet_avslaatt'
   | 'avsluttet_trukket'
   | 'avsluttet_oppgjort'
   | 'venter_paa_svar'
@@ -31,7 +31,7 @@ export type Statuskode =
 
 const STATUSTEKST: Record<Statuskode, string> = {
   kan_ikke_utledes: 'Kan ikke utledes',
-  avsluttet_avslatt: 'Avsluttet: avslått',
+  avsluttet_avslaatt: 'Avsluttet: avslått',
   avsluttet_trukket: 'Avsluttet: trukket',
   avsluttet_oppgjort: 'Avsluttet: oppgjort',
   venter_paa_svar: 'Venter på svar',
@@ -49,7 +49,7 @@ export interface Visning {
 
 function status(u: Utledning): Statuskode {
   if (!u.forstaatt) return 'kan_ikke_utledes';
-  if (u.grunnlagAvvist) return 'avsluttet_avslatt';
+  if (u.grunnlagAvvist) return 'avsluttet_avslaatt';
   if (u.spor.grunnlag.trukket) return 'avsluttet_trukket';
   if (kraveneErAvgjort(u)) return 'avsluttet_oppgjort';
   if (SPOR.some((s) => venterPaaSvar(u.spor[s]))) return 'venter_paa_svar';
@@ -81,8 +81,8 @@ function etiketter(u: Utledning, spor: Spor, regler: Regelsett): string[] {
   if (venterPaaSvar(s)) ut.push('venter_paa_svar');
   const virkning = enighetensVirkning(u, spor);
   if (spor === 'grunnlag') {
-    if (u.frafalt) ut.push('frafalt');
-    if (u.grunnlagAvvist) ut.push('avslatt');
+    if (u.frafalt) ut.push('paalegg_frafalt');
+    if (u.grunnlagAvvist) ut.push('avslaatt');
     if (u.grunnlagAvklart) ut.push('avklart');
     if (u.endringsordre === 'ikke_avklart') ut.push('endringsordre_ikke_avklart');
     if (virkning && !s.trukket) ut.push('enige');

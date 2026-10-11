@@ -69,10 +69,10 @@ export function beregnReduksjon(v: Fristvurdering, krav: Fristkrav): boolean {
 }
 
 function resultatAvDager(hindring: boolean, krevd: number, godkjent: number): Fristresultat {
-  if (!hindring) return 'avslatt';
+  if (!hindring) return 'avslaatt';
   if (krevd === 0) return 'godkjent';
   // Oppdragsgiver 04.10: 0 dager er «avslått», som 0 kr for vederlag.
-  if (godkjent === 0) return 'avslatt';
+  if (godkjent === 0) return 'avslaatt';
   // B-13 (24.09): «godkjent» bare når hele kravet er godkjent.
   if (godkjent >= krevd) return 'godkjent';
   return 'delvis_godkjent';
@@ -110,22 +110,22 @@ export function beregnFrist(krav: Fristkrav, v: Fristvurdering): Fristberegning 
   const redusert = beregnReduksjon(v, krav);
   const hindring = v.vilkar_oppfylt === true;
   const dager = v.godkjent_dager as number;
-  const prinsipalt = prekludert ? 'avslatt' : resultatAvDager(hindring, krav.krevd_dager, dager);
+  const prinsipalt = prekludert ? 'avslaatt' : resultatAvDager(hindring, krav.krevd_dager, dager);
   // Dagene er et subsidiært standpunkt også når hindringen bestrides (vedtak 05.10, #211).
   const subsidiaert = resultatAvDager(true, krav.krevd_dager, dager);
   const visSubsidiaert = prekludert || !hindring;
   const kandidater: [boolean, SubsidiaerUtloser][] = [
-    [krav.er_grunnlag_subsidiaert, 'grunnlag_avslatt'],
+    [krav.er_grunnlag_subsidiaert, 'grunnlag_avslaatt'],
     [prekludert, 'preklusjon_varsel'],
     [redusert, 'reduksjon_spesifisert'],
     [!hindring, 'ingen_hindring'],
   ];
   return {
     beregnings_resultat: prinsipalt,
-    godkjent_dager: prinsipalt === 'avslatt' ? 0 : dager,
+    godkjent_dager: prinsipalt === 'avslaatt' ? 0 : dager,
     subsidiaer_triggers: kandidater.filter(([g]) => g).map(([, t]) => t),
     subsidiaer_resultat: visSubsidiaert ? subsidiaert : null,
-    subsidiaer_godkjent_dager: visSubsidiaert && subsidiaert !== 'avslatt' ? dager : null,
+    subsidiaer_godkjent_dager: visSubsidiaert && subsidiaert !== 'avslaatt' ? dager : null,
     er_prekludert: prekludert,
     er_redusert: redusert,
     hele_fristen_subsidiaer:

@@ -1,29 +1,29 @@
 /**
- * Verdiene reglene regner med. De er de samme som i `docs/domenetabell/kontrakt.json`
- * og Python-enumene skjemaet viser til (`x-python`); kontrakttesten i språkprøven
- * holder dem like.
+ * Verdiene reglene regner med, med kjernens koder (#335). Python-enumene og
+ * `docs/domenetabell/kontrakt.json` har katalogens koder; oversettelsen står i
+ * `koder.ts`.
  */
 
-export const GRUNNLAGSRESULTATER = ['godkjent', 'avslatt', 'frafalt'] as const;
+export const GRUNNLAGSRESULTATER = ['godkjent', 'avslaatt', 'paalegg_frafalt'] as const;
 export type Grunnlagsresultat = (typeof GRUNNLAGSRESULTATER)[number];
 export const VEDERLAGSRESULTATER = [
   'godkjent',
   'delvis_godkjent',
-  'avslatt',
-  'hold_tilbake',
+  'avslaatt',
+  'tilbakeholdelse',
 ] as const;
 export type Vederlagsresultat = (typeof VEDERLAGSRESULTATER)[number];
-export const FRISTRESULTATER = ['godkjent', 'delvis_godkjent', 'avslatt'] as const;
+export const FRISTRESULTATER = ['godkjent', 'delvis_godkjent', 'avslaatt'] as const;
 export type Fristresultat = (typeof FRISTRESULTATER)[number];
-export const BELOEPSVURDERINGER = ['godkjent', 'delvis', 'avslatt'] as const;
+export const BELOEPSVURDERINGER = ['godkjent', 'delvis', 'avslaatt'] as const;
 export type Beloepsvurdering = (typeof BELOEPSVURDERINGER)[number];
-export type Vederlagsmetode = 'ENHETSPRISER' | 'REGNINGSARBEID' | 'FASTPRIS_TILBUD';
+export type Vederlagsmetode = 'enhetspriser' | 'regningsarbeid' | 'tilbud';
 export type Fristvarseltype = 'varsel' | 'spesifisert' | 'begrunnelse_utsatt';
 
 export const SUBSIDIAERE_UTLOSERE = [
-  'grunnlag_avslatt',
+  'grunnlag_avslaatt',
   'grunnlag_prekludert_32_2',
-  'forseringsrett_avslatt',
+  'forseringsrett_avslaatt',
   'preklusjon_hovedkrav',
   'preklusjon_rigg',
   'preklusjon_produktivitet',
@@ -31,6 +31,6 @@ export const SUBSIDIAERE_UTLOSERE = [
   'preklusjon_varsel',
   'reduksjon_spesifisert',
   'ingen_hindring',
-  'metode_avslatt',
+  'metode_avslaatt',
 ] as const;
 export type SubsidiaerUtloser = (typeof SUBSIDIAERE_UTLOSERE)[number];

@@ -4,8 +4,13 @@ import { describe, expect, it } from 'vitest';
 import tabell from '../grensetilfeller.json' with { type: 'json' };
 import { beloep as belop, tilKrone } from '../../kjerne/regler/beloep.ts';
 import { UgyldigVurdering } from '../../kjerne/regler/feil.ts';
-import { beregnFrist, type Fristkrav } from '../../kjerne/regler/frist.ts';
-import { beregnVederlag, type Vederlagskrav } from '../../kjerne/regler/vederlag.ts';
+import {
+  beregnFrist,
+  beregnVederlag,
+  kontrollerGrunnlagssvar,
+  type Fristkrav,
+  type Vederlagskrav,
+} from '../kjerne/regler.ts';
 
 type Rad = Record<string, unknown>;
 
@@ -95,5 +100,13 @@ describe('frist', () => {
     const r = regn();
     expect(r.beregnings_resultat).toBe(t.resultat);
     if ('subsidiaer_resultat' in t) expect(r.subsidiaer_resultat).toBe(t.subsidiaer_resultat);
+  });
+});
+
+describe('oversettelsen på grensen mot reglene i kjernen (#335)', () => {
+  it('avvisningen viser katalogens kode, som Python', () => {
+    expect(() => kontrollerGrunnlagssvar('SVIKT', 'MEDVIRK', 'frafalt', null)).toThrow(
+      '«frafalt» kan ikke velges i denne kategorien (§ 32.3 c)'
+    );
   });
 });

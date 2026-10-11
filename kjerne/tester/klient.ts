@@ -15,11 +15,11 @@ import type { Krav, Part, Spor } from '../typer.ts';
 
 export type Handling = Record<string, unknown> & { handling: string };
 
-/** § 32.2 gjelder ikke SAMORD. Står for innsnevringen #220 kan gi; omfanget avgjøres ikke her. */
+/** § 32.2 gjelder ikke `samordning`. Står for innsnevringen #220 kan gi; omfanget avgjøres ikke her. */
 export const NESTE_REGLER: Regelsett = {
   versjon: GJELDENDE_REGLER.versjon + 1,
   gjelderVarslingsplikten: (h, u) =>
-    GJELDENDE_REGLER.gjelderVarslingsplikten(h, u) && u !== 'SAMORD',
+    GJELDENDE_REGLER.gjelderVarslingsplikten(h, u) && u !== 'samordning',
 };
 
 export const REGELSETT: Record<string, Regelsett> = { n: GJELDENDE_REGLER, 'n+1': NESTE_REGLER };
@@ -146,10 +146,10 @@ function svarutkast(
 
 const INNHOLD = {
   grunnlag: (h: Handling) => ({
-    hovedkategori: h.hovedkategori ?? 'ENDRING',
+    hovedkategori: h.hovedkategori ?? 'endring',
     underkategori: h.underkategori,
   }),
-  vederlag: (h: Handling) => ({ metode: 'FASTPRIS_TILBUD', beloep: h.belop }),
+  vederlag: (h: Handling) => ({ metode: 'tilbud', beloep: h.belop }),
   frist: (h: Handling) => ({ dager: h.dager }),
 };
 

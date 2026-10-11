@@ -17,8 +17,8 @@ Hver rad har kolonnen `format`. `data` har ingen `null`, ingen tom liste og inge
 
 | Spor | Innhold | Felt | Grunnlag |
 | --- | --- | --- | --- |
-| `grunnlag` | En kravversjon av ansvarsgrunnlaget. `erstatter` er forrige kravversjon i sporet. | `id`, `spor`, `erstatter`, `hovedkategori`, `underkategori`, `tittel`, `beskrivelse` | KA-U2, designnotatet 4.2 |
-| `vederlag` | En kravversjon av vederlaget, i kroner over 0. | `id`, `spor`, `erstatter`, `metode`, `beloep` | KA-U2, KA-U8 |
+| `grunnlag` | En kravversjon av ansvarsgrunnlaget. `erstatter` er forrige kravversjon i sporet. `hovedkategori` og `underkategori` er et par fra kjernens lukkede liste (`KATEGORIER` i `kjerne/koder.ts`), for eksempel `endring` og `irregulaer_endring`. Et ukjent par gjør raden ikke forstått. | `id`, `spor`, `erstatter`, `hovedkategori`, `underkategori`, `tittel`, `beskrivelse` | KA-U2, designnotatet 4.2 |
+| `vederlag` | En kravversjon av vederlaget, i kroner over 0. `metode` er `tilbud` (§ 34.2.1). | `id`, `spor`, `erstatter`, `metode`, `beloep` | KA-U2, KA-U8 |
 | `frist` | En kravversjon av fristforlengelsen, i dager over 0. | `id`, `spor`, `erstatter`, `dager` | KA-U2, KA-U8 |
 
 ## Svar
@@ -34,7 +34,7 @@ Hver rad har kolonnen `format`. `data` har ingen `null`, ingen tom liste og inge
 | Art | Innhold | Spor | Felt | Grunnlag |
 | --- | --- | --- | --- | --- |
 | `rettidighet` | Om varselet kom i tide: § 32.2 i grunnlaget, § 33.4 i fristen. `gjelder` er kravversjonen, eller et registrert varsel etter § 33.4. | grunnlag, frist | `id`, `art`, `gjelder`, `hjemmel`, `i_tide` | KA-U4, MM-U1, MM-U8 |
-| `grunnlag` | Byggherrens standpunkt til grunnlaget: `godkjent`, `avslatt` eller `frafalt`. «Frafalt» gjelder pålegget (§ 32.3 c), ikke TEs krav, og er ikke en vurdering av ansvaret. | grunnlag | `id`, `art`, `resultat` | § 32.3 a–c, GR-U9, GR-U10 |
+| `grunnlag` | Byggherrens standpunkt til grunnlaget: `godkjent`, `avslaatt` eller `paalegg_frafalt`. Frafallet gjelder pålegget (§ 32.3 c), ikke TEs krav, og er ikke en vurdering av ansvaret. | grunnlag | `id`, `art`, `resultat` | § 32.3 a–c, GR-U9, GR-U10 |
 | `beloep` | Beløpet. Resultatet og beløpet står i svarets utregning, så de har ett hjem. | vederlag | `id`, `art` | B-13, designnotatet 4.3 |
 | `hindring` | Om byggherren godtar at fremdriften hindres som følge av forholdet saken gjelder (§ 33.1). | frist | `id`, `art`, `oppfylt` | § 33.1, vedtaket 05.10 (#211) |
 | `dager` | Dagene. Resultatet og dagene, også de subsidiære, står i svarets utregning. | frist | `id`, `art` | B-13, designnotatet 4.3 |
@@ -62,5 +62,5 @@ Hver rad har kolonnen `format`. `data` har ingen `null`, ingen tom liste og inge
 | Del | Spor | Innhold | Felt | Grunnlag |
 | --- | --- | --- | --- | --- |
 | `beslutningsgrunnlag` | alle | Appens vurdering da brevet ble sendt, atskilt fra det byggherren sa, og ikke en rettslig avgjørelse (MM-U9): regelversjonen, hvordan brevet ordner standpunktene (`virkninger` med `prinsipalt` eller `subsidiaert`), standpunktene uten virkning (`uten_virkning`), brevlinjen, om svaret godkjenner hele kravet (`sammenfall`) og, i grunnlaget, om § 32.2 gjaldt etter reglene og underkategorien da (`varslingsplikt`). Hvert standpunkt står i `virkninger` eller `uten_virkning`. Utfallet og vilkåret utledes og lagres ikke. | `regelversjon`, `virkninger`, `uten_virkning`, `linje`, `sammenfall`, `varslingsplikt` | MM-U9, MM-U11, GR-U12, KA-U10 |
-| `utregning` | vederlag | Serverens utregning: resultatet og det godkjente beløpet. | `resultat`, `godkjent_beloep` | B-13 |
-| `utregning` | frist | Serverens utregning: resultatet og de godkjente dagene, og det subsidiære standpunktet når det finnes. | `resultat`, `godkjent_dager`, `subsidiaert_resultat`, `subsidiaert_godkjent_dager` | B-13, vedtaket 05.10 (#211) |
+| `utregning` | vederlag | Serverens utregning: resultatet (`godkjent`, `delvis_godkjent`, `avslaatt` eller `tilbakeholdelse`) og det godkjente beløpet. | `resultat`, `godkjent_beloep` | B-13 |
+| `utregning` | frist | Serverens utregning: resultatet (`godkjent`, `delvis_godkjent` eller `avslaatt`) og de godkjente dagene, og det subsidiære standpunktet når det finnes. | `resultat`, `godkjent_dager`, `subsidiaert_resultat`, `subsidiaert_godkjent_dager` | B-13, vedtaket 05.10 (#211) |
