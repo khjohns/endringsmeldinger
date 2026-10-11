@@ -19,6 +19,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { grunnlagsbasis } from '../kjerne/godkjenning.ts';
 import { vurderKommando } from '../kjerne/kommando.ts';
 import { offentligTilstand } from '../kjerne/offentlig.ts';
+import { REGELVERSJON } from '../kjerne/regelversjon.ts';
 import { anvend, projiser, type Sak } from '../kjerne/sak.ts';
 import { leggTil, lesJournal, Versjonskonflikt } from '../server/lager.ts';
 import { KORPUS, kommando, type Handling } from './korpus.ts';
@@ -490,14 +491,14 @@ describe.skipIf(!TESTBASE_URL)('TS-serveren mot testbasen', () => {
         };
       };
       const for_ = await journal(bane.sakId);
-      const avvist = await send(o.bh, svar(4));
+      const avvist = await send(o.bh, svar(REGELVERSJON - 1));
       expect(avvist.status).toBe(400);
       expect(avvist.kropp).toMatchObject({
         error: 'BUSINESS_RULE_VIOLATION',
         rule: 'RULE_VERSION',
       });
       expect(await journal(bane.sakId)).toEqual(for_);
-      expect((await send(o.bh, svar(5))).status).toBe(201);
+      expect((await send(o.bh, svar(REGELVERSJON))).status).toBe(201);
     });
   });
 
@@ -649,7 +650,10 @@ describe.skipIf(!TESTBASE_URL)('TS-serveren mot testbasen', () => {
       const [g, v] = pakke(bane.sak(), [AVSLAG, VEDERLAG]);
       const gammel = {
         ...v,
-        kommando: { ...v.kommando, data: { ...(v.kommando.data as object), regelversjon: 4 } },
+        kommando: {
+          ...v.kommando,
+          data: { ...(v.kommando.data as object), regelversjon: REGELVERSJON - 1 },
+        },
       };
       const svar = await kontroller(bane.sakId, [g, gammel]);
       expect(svar.kropp).toMatchObject({ rule: 'RULE_VERSION', failed_track: 'vederlag' });
