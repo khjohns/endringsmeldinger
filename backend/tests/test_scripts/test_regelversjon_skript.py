@@ -222,6 +222,7 @@ def test_formatet_leses_fra_den_gamle_stien_etter_en_flytting(kjerne):
     svar = _kjor(sti, base)
     assert svar.returncode == 1, svar.stdout + svar.stderr
     assert "versjonen før leste bare format 1" in svar.stdout
+    assert "Fant FORMAT i flere filer" not in svar.stdout
 
 
 # #309: en flytting endrer de relative importene, og prettier kan bryte en import
@@ -269,6 +270,7 @@ def test_en_ren_flytting_krever_ingen_ny_versjon(flytting):
     svar = _kjor(sti, base)
     assert svar.returncode == 0, svar.stdout + svar.stderr
     assert "Bare flyttet" in svar.stdout
+    assert KJERNE_STANDPUNKT in svar.stdout
 
 
 @pytest.mark.parametrize(
@@ -343,3 +345,51 @@ def test_formatet_i_flere_filer_i_base_feiler_etter_en_flytting(kjerne):
     svar = _kjor(sti, base)
     assert svar.returncode == 1, svar.stdout + svar.stderr
     assert "Fant FORMAT i flere filer i BASE" in svar.stdout
+
+
+@pytest.mark.parametrize(
+    "fra, til, versjoner, ventet",
+    [
+        # Inn i regelsettet: PROJEKSJONSVERSJON dekker ikke lenger fila.
+        pytest.param("kjerne/frosset/f.ts", "kjerne/regler/f.ts", _kjerne(6, 2), 1, id="fra frosset til regelsettet med bare ny regelversjon"),
+        pytest.param("kjerne/frosset/f.ts", "kjerne/regler/f.ts", _kjerne(5, 3), 0, id="fra frosset til regelsettet med ny projeksjonsversjon"),
+        pytest.param("kjerne/utled.ts", "kjerne/regler/utled.ts", _kjerne(5, 2), 1, id="fra utledningen til regelsettet uten nye versjoner"),
+        pytest.param("kjerne/utled.ts", "kjerne/regler/utled.ts", _kjerne(5, 3), 0, id="fra utledningen til regelsettet med ny projeksjonsversjon"),
+        # Inn i frosset/ eller mellom lagene utenfor regelsettet: dekningen krymper ikke.
+        pytest.param("kjerne/utled.ts", "kjerne/frosset/utled.ts", _kjerne(5, 2), 0, id="fra utledningen til frosset"),
+        pytest.param("kjerne/utled.ts", "kjerne/utledning/utled.ts", _kjerne(5, 2), 0, id="mellom lagene"),
+    ],
+)
+def test_en_ren_flytting_krever_versjonen_som_ikke_lenger_dekker_fila(kjerne, fra, til, versjoner, ventet):
+    """#309: det hver versjon dekker, krymper ikke ved en flytting."""
+    sti, _ = kjerne
+    _skriv(sti, {fra: KROPP})
+    base = _git(sti, "rev-parse", "HEAD")
+    _mv(sti, fra, til)
+    _skriv(sti, versjoner)
+    svar = _kjor(sti, base)
+    assert svar.returncode == ventet, svar.stdout + svar.stderr
+
+
+def test_formatet_leses_fra_omdoepingen_git_kjenner_igjen(kjerne):
+    """#309: med en omdøping git kjenner igjen, leses versjonene før fra den gamle stien.
+
+    En annen fil i BASE har også FORMAT, så testen består bare når omdøpingen
+    brukes, ikke søket etter konstanten.
+    """
+    sti, _ = kjerne
+    _mv(sti, KJERNE_FORMAT, "kjerne/format.ts")
+    _skriv(sti, {
+        "kjerne/format.ts": "export const FORMAT = 1;\nexport const LESERFORMAT = 1;\n" + KROPP,
+        "kjerne/annet.ts": "export const FORMAT = 9;\n",
+    })
+    base = _git(sti, "rev-parse", "HEAD")
+    _mv(sti, "kjerne/format.ts", KJERNE_FORMAT)
+    _skriv(sti, {KJERNE_FORMAT: "export const FORMAT = 2;\nexport const LESERFORMAT = 2;\n" + KROPP, **_kjerne(5, 3)})
+    flytting = _git(sti, "diff", "--name-status", "-M", base, "HEAD", "--", "kjerne/")
+    assert f"kjerne/format.ts\t{KJERNE_FORMAT}" in flytting
+    svar = _kjor(sti, base)
+    assert svar.returncode == 1, svar.stdout + svar.stderr
+    assert "FORMAT 1 -> 2" in svar.stdout
+    assert "versjonen før leste bare format 1" in svar.stdout
+    assert "Fant FORMAT i flere filer" not in svar.stdout
