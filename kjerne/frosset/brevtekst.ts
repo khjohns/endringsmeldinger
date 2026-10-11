@@ -77,8 +77,8 @@ export function norskDato(tid: string): string {
 /** Kroner med mellomrom mellom tusener og øre bare når de finnes: «150 000 kr». */
 export function kroner(n: number): string {
   const [hele, oere] = Math.abs(n).toFixed(2).split('.');
-  const gruppert = hele.replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
-  return `${n < 0 ? '−' : ''}${gruppert}${oere === '00' ? '' : `,${oere}`} kr`;
+  const gruppert = hele.replace(/\B(?=(\d{3})+(?!\d))/g, '\u00a0');
+  return `${n < 0 ? '−' : ''}${gruppert}${oere === '00' ? '' : `,${oere}`}\u00a0kr`;
 }
 
 const dager = (n: number) => `${n} ${n === 1 ? 'dag' : 'dager'}`;
