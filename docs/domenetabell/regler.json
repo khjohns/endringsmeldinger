@@ -648,6 +648,41 @@
       "dato": "2026-10-10",
       "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u1",
       "radetikett": "OV-U1: første versjon av TS-stien, den som skriver den første reelle hendelsen (#310), dekker KOE-saken med de tre sporene"
+    },
+    {
+      "id": "MM-U19",
+      "type": "vedtak",
+      "dato": "2026-10-11",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u19",
+      "radetikett": "MM-U19: et ekte registrert brev som ikke kan forstås i samsvar med vedtakene om enighet og lukking"
+    },
+    {
+      "id": "KA-U26",
+      "type": "vedtak",
+      "dato": "2026-10-11",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u26",
+      "radetikett": "KA-U26: når en part har merket at et registrert brev hadde et forbehold appen ikke kan uttrykke (KA-U20)"
+    },
+    {
+      "id": "KA-U27",
+      "type": "vedtak",
+      "dato": "2026-10-11",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u27",
+      "radetikett": "KA-U27: et trekk, også av grunnlaget"
+    },
+    {
+      "id": "KA-U28",
+      "type": "vedtak",
+      "dato": "2026-10-11",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u28",
+      "radetikett": "KA-U28: når kravene er avgjort, godtas en avklaring etter KA-U20 fra den som sendte brevet"
+    },
+    {
+      "id": "KA-U29",
+      "type": "vedtak",
+      "dato": "2026-10-11",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u29",
+      "radetikett": "KA-U29: når TE har godtatt byggherrens avslag av grunnlaget"
     }
   ],
   "rader": [
@@ -1950,25 +1985,27 @@
       "rettidighet": "—",
       "tidsakse": "registrering",
       "kilder": [
+        "KA-U26",
         "KA-U16",
         "KA-U20",
         "MM-U12",
         "MM-U7",
         "MM-U18"
       ],
-      "tolkningsstatus": "arbeidshypotese"
+      "tolkningsstatus": "avklart_tolkning"
     },
     {
       "id": "KA-33",
       "tilfelle": "Den som sendte et merket brev, avklarer at standpunktene i det gjelder uten forbehold.",
-      "forventet": "Sperren etter KA-32 oppheves. Bare avsenderen av brevet kan avklare, og en merking avklares én gang. En revisjon av svaret opphever sperren på samme måte, fordi brevet ikke lenger gjelder i sporet.",
+      "forventet": "Sperren etter KA-32 oppheves. Bare avsenderen av brevet kan avklare, og en merking avklares én gang. En revisjon av svaret opphever sperren på samme måte, fordi brevet ikke lenger gjelder i sporet. Avklaringen godtas også når kravene er avgjort, fordi den ikke endrer noe standpunkt.",
       "bh_standpunkt": "Det nye utsagnet.",
       "rettslig_virkning": "Gjør ikke brevet ubetinget fra sendetidspunktet. Appen kontrollerer at utsagnet kan representeres, ikke om tvisten er løst.",
       "rettidighet": "—",
       "tidsakse": "registrering",
       "kilder": [
         "KA-U20",
-        "MM-U12"
+        "MM-U12",
+        "KA-U28"
       ],
       "tolkningsstatus": "avklart_tolkning"
     },
@@ -1981,11 +2018,12 @@
       "rettidighet": "—",
       "tidsakse": "registrering",
       "kilder": [
+        "KA-U27",
         "KA-U22",
         "KA-U14",
         "KA-U20"
       ],
-      "tolkningsstatus": "arbeidshypotese"
+      "tolkningsstatus": "avklart_tolkning"
     },
     {
       "id": "KA-35",
@@ -2031,10 +2069,11 @@
       "rettidighet": "—",
       "tidsakse": "registrering",
       "kilder": [
+        "MM-U19",
         "MM-U18",
         "KA-U7"
       ],
-      "tolkningsstatus": "arbeidshypotese"
+      "tolkningsstatus": "avklart_tolkning"
     },
     {
       "id": "KA-38",
@@ -2116,8 +2155,8 @@
     },
     {
       "id": "VS-05",
-      "tilfelle": "Kravene er avgjort, og en part gjør innsigelse eller protesterer.",
-      "forventet": "Innsigelsen godtas, som en bestridelse. Kommandoer som kan endre utfallet, avvises fortsatt.",
+      "tilfelle": "Kravene er avgjort, eller TE har godtatt avslaget av grunnlaget, og en part gjør innsigelse, protesterer eller merker et brev.",
+      "forventet": "Utsagnet godtas, som en bestridelse, og registreres uten virkning på utfallet. Kommandoer som kan endre utfallet, avvises fortsatt.",
       "bh_standpunkt": "—",
       "rettslig_virkning": "Utsagnet har ingen virkning på utfallet.",
       "rettidighet": "—",
@@ -2125,9 +2164,10 @@
       "kilder": [
         "KA-U11",
         "MM-U7",
-        "VS-U1"
+        "VS-U1",
+        "KA-U29"
       ],
-      "tolkningsstatus": "arbeidshypotese"
+      "tolkningsstatus": "avklart_tolkning"
     }
   ]
 }

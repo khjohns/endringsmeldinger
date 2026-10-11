@@ -160,7 +160,7 @@ export interface Utledning {
   /** VS-U12: TEs påberopelse av byggherrens passivitet etter § 32.3 annet ledd. */
   passivitet: Paaberopelse[];
   /**
-   * MM-U18 (S1 til oppdragsgiver 11.10, foreslått): elementer i et registrert brev
+   * MM-U18, MM-U19: elementer i et registrert brev
    * som strider mot en enighet eller mot at saken er lukket. Brevet bevares og
    * vises, elementet har ingen virkning på utfallet, og ingenting sperres. Det er
    * appens vurdering, atskilt fra det parten sa (HF-U2, MM-U12).
@@ -770,7 +770,7 @@ function utledSporene(
 export const trekkAvGrunnlagetErSperret = (u: Utledning): boolean => u.endringsordre !== 'nei';
 
 /**
- * KA-U22 (S3 til oppdragsgiver 11.10, foreslått): et trekk avvises når appen ikke
+ * KA-U22, KA-U27: et trekk avvises når appen ikke
  * kan bevare byggherrens rettigheter etter en avtale. Det gjelder en enighet i et
  * spor trekket rammer (grunnlaget rammer alle, GR-U5) som bygger på et brev merket
  * etter KA-U20: appen vet ikke hva byggherren har avtalt. Et avtalt fradrag (KA-U9)

@@ -277,10 +277,20 @@ endringsordre og forsering, etter [OV-U1](plans/2026-09-16-godkjenning-og-varig-
   enighet som bygger på et merket brev (`trekkKanIkkeBevareAvtalen`,
   `AVTALE_KAN_IKKE_BEVARES`). Et fradrag avvises fordi KA-U9 ikke er bygget, og sperren
   må dekke et avtalt fradrag når det bygges. Brevteksten er ikke bygget (#369).
-- **Arbeidsvalg 11.10 (#342, prinsipp 3):** relasjonen er grunnlagsversjonen svaret
-  ble regnet mot, ikke grunnlagssvaret, så et nytt eller revidert svar på samme
-  versjon gjelder uten at svaret på vederlag eller frist skrives om. At svaret er
-  subsidiært, lagres ikke ([HF-U1](plans/2026-09-16-godkjenning-og-varig-levering.md#hf-u1), GR-U1, GR-U4).
+- **Arbeidsvalg 11.10 (#342, prinsipp 3, GR-U1, GR-U4):** relasjonen er
+  grunnlagsversjonen svaret ble regnet mot, ikke grunnlagssvaret, så et nytt eller
+  revidert svar på samme versjon gjelder uten at svaret på vederlag eller frist skrives
+  om. Et svar gitt på en eldre grunnlagsversjon holdes subsidiært etter gjeldende svar
+  på den versjonen til grunnlaget eller sporet besvares igjen (GR-U1). Et svar byggherren
+  gir eller reviderer mens den gjeldende grunnlagsversjonen venter på svar, viser til
+  den og er prinsipalt (GR-U4). Skillet gjøres på grunnlagsversjonen svaret viser til,
+  aldri på rekkefølgen i journalen, og at svaret er subsidiært, lagres ikke
+  ([HF-U1](plans/2026-09-16-godkjenning-og-varig-levering.md#hf-u1)).
+- **Arbeidsvalg 11.10 (VS-U9, VS-U11):** et svar fra appen etter byggherrens innsigelse
+  gjentar eller oppgir den uttrykkelig; kjernen krever standpunktet om rettidighet i
+  grunnlaget der § 32.2 gjelder og i fristen. Vederlaget har ikke noe slikt standpunkt,
+  og preklusjon etter § 34.1 er ikke bygget, så et svar på vederlaget fra appen etter en
+  innsigelse mot vederlagskravet avvises (OV-U1).
 
 ---
 
@@ -829,11 +839,19 @@ visning ikke fremstiller et trekk som at utførelsesplikten er bortfalt.
   bare vedtakene om enighet og lukking. Ikke bygget: B-10 utover versjonene i formatet
   ([#316](https://github.com/khjohns/endringsmeldinger/issues/316)), registreringen
   (#310) og brevteksten (#369).
+- **Vedtak 11.10:** [MM-U19](plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u19)
+  (registrerte brev i samme klasse som MM-U18), [KA-U26](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u26)
+  (hva merkingen sperrer), [KA-U27](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u27)
+  (sperren for trekk), [KA-U28](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u28)
+  (avklaringen når kravene er avgjort) og [KA-U29](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u29)
+  (utsagnene etter et godtatt avslag). At brevet ikke regnes som en ubetinget
+  godkjenning, gir sperren i KA-U16 selv; merknaden i GR-U7 sier at brevet «er ikke en
+  ubetinget godkjenning», og «avklart» defineres av standpunktene (MM-U13).
 - **Arbeidsvalg 11.10 (prinsipp 6):** merkingen er en opplysning om brevet, som
   opplysningen om § 31.3, så motparten bestrider den med bestridelsen som finnes
-  (MM-U7). Sperren følger sporene merkingen oppgir; «sperres bredere» i KA-U20 er at
-  den som merker, oppgir flere spor. Lesningene som venter på oppdragsgiver (S1–S4 i
-  #309, 11.10), står i PR #394.
+  (MM-U7). Sperren følger sporene merkingen oppgir (KA-U26).
+- **Arbeidsvalg 11.10 (KA-U11, MM-U7):** innsigelse, protest og påberopt passivitet
+  godtas når kravene er avgjort, som bestridelsen (se KA-U29).
 
 ---
 

@@ -3296,7 +3296,7 @@
       ],
       "start": "godkjent_grunnlag",
       "forslag": "KA-U11 og MM-U7: en innsigelse uten virkning på utfallet godtas når kravene er avgjort",
-      "forventningsgrunnlag": "arbeidshypotese",
+      "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
           "handling": "ingen_krav",
@@ -3367,7 +3367,7 @@
       ],
       "start": "krav_irreg",
       "forslag": "KA-U16 og KA-U20: en merking sperrer TEs aksept av svaret til avsenderen har avklart den",
-      "forventningsgrunnlag": "arbeidshypotese",
+      "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
           "handling": "rad",
@@ -3482,7 +3482,7 @@
       ],
       "start": "godkjent_grunnlag",
       "forslag": "KA-U20: en senere merking av et brev partene er enige om, sperrer endringsordren, men enigheten og utledningen står",
-      "forventningsgrunnlag": "arbeidshypotese",
+      "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
           "handling": "ingen_krav",
@@ -3598,7 +3598,7 @@
       ],
       "start": "godkjent_grunnlag",
       "forslag": "KA-U22: trekket avvises når en enighet trekket rammer, bygger på et merket brev, også trekket av grunnlaget",
-      "forventningsgrunnlag": "arbeidshypotese",
+      "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
           "handling": "krav",
@@ -3698,7 +3698,7 @@
       ],
       "start": "krav_irreg",
       "forslag": "KA-U16, KA-U20 og KA-U14: en merket godkjenning av grunnlaget der § 32.2 gjelder, er ikke avklart som endringsordre",
-      "forventningsgrunnlag": "arbeidshypotese",
+      "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
           "handling": "rad",
@@ -4069,8 +4069,8 @@
         "KA-37"
       ],
       "start": "godkjent_grunnlag",
-      "forslag": "MM-U18 (S1, foreslått): TEs registrerte kravversjon i et spor med enighet bevares uten virkning",
-      "forventningsgrunnlag": "arbeidshypotese",
+      "forslag": "MM-U19: TEs registrerte kravversjon i et spor med enighet bevares uten virkning",
+      "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
           "handling": "rad",
@@ -4319,6 +4319,86 @@
                 "godkjent_belop": 100000
               }
             ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "F-MM-V6",
+      "rader": [
+        "VS-05"
+      ],
+      "start": "krav_irreg",
+      "forslag": "KA-U29: når TE har godtatt avslaget av grunnlaget, godtas innsigelse og merking uten virkning, og et nytt svar avvises fortsatt",
+      "forventningsgrunnlag": "avklart_tolkning",
+      "steg": [
+        {
+          "handling": "brev",
+          "navn": "D4",
+          "svar": [
+            {
+              "spor": "grunnlag",
+              "navn": "S-g1",
+              "resultat": "avslaatt",
+              "varslet_i_tide": true
+            }
+          ]
+        },
+        {
+          "handling": "aksept",
+          "spor": "grunnlag",
+          "navn": "D5"
+        },
+        {
+          "handling": "innsigelse",
+          "part": "BH",
+          "gjelder": "K-g1",
+          "navn": "D6"
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 2,
+          "rolle": "forutsetning",
+          "kilde": [
+            "V-SK01"
+          ],
+          "forventet": {
+            "grunnlag_avvist": true
+          }
+        },
+        {
+          "etter": 2,
+          "rolle": "kontroll",
+          "kilde": [
+            "V-SK01",
+            "KA-U29"
+          ],
+          "forventet": {
+            "avvist": true,
+            "regel": "GRUNNLAG_AVVIST"
+          },
+          "prov": {
+            "handling": "revisjon",
+            "spor": "grunnlag",
+            "resultat": "godkjent",
+            "varslet_i_tide": true
+          }
+        },
+        {
+          "etter": 3,
+          "rolle": "mal",
+          "kilde": [
+            "KA-U29",
+            "VS-U1"
+          ],
+          "forventet": {
+            "avvist": false,
+            "innsigelser": [
+              "BH:K-g1"
+            ],
+            "grunnlag_avvist": true,
+            "visning.status": "avsluttet_avslaatt"
           }
         }
       ]
