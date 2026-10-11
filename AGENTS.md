@@ -121,11 +121,12 @@ Testene er raske. Kjør dem ofte. I skyøktene lager `.claude/hooks/session-star
 venv-en og testbasen, og meldingen fra hooken sier om databasetestene kjører.
 Med `KOE_TESTBASE_URL` kjører `npm test` også TS-databasetestene. Kjør dem ikke
 samtidig med pytest mot samme base: oppryddingen i pytest setter basen tilbake.
-`node kjerne/tester/feilinnfoering.ts` kjører feilinnføringene for kjernen. Én
-kjøring tar om lag 33 minutter. I CI kjører workflowen `feilinnfoering.yml` dem
-om natta når kjernen, lagringstestene eller verktøykjeden er endret, ved manuell
-start og på PR-er med etiketten `feilinnfoering`. Sett etiketten på en PR som
-rører kjernen, før merge.
+`node kjerne/tester/feilinnfoering.ts` kjører feilinnføringene for kjernen, i
+parallelle kopier av treet med hver sin testbase. Én kjøring tar om lag en
+halvtime på fire prosessorer. I CI fordeler workflowen `feilinnfoering.yml` dem
+på tre jobber og kjører dem om natta når kjernen, lagringstestene eller
+verktøykjeden er endret, ved manuell start og på PR-er med etiketten
+`feilinnfoering`. Sett etiketten på en PR som rører kjernen, før merge.
 Utenfor skyøktene: `python3 -m venv /tmp/venv` og `pip install -r` begge
 `backend/requirements*.txt` (systempython mangler pytest).
 
