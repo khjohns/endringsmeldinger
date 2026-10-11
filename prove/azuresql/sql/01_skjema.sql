@@ -76,6 +76,7 @@ CREATE TABLE koe.notat (
   aktor_team_id nvarchar(32) NULL,
   tekst nvarchar(max) NOT NULL CONSTRAINT notat_tekst CHECK (LEN(tekst) > 0),
   opprettet datetimeoffset(3) NOT NULL CONSTRAINT notat_opprettet DEFAULT SYSDATETIMEOFFSET(),
+  CONSTRAINT notat_aktor_id_form CHECK (aktor_id = LOWER(aktor_id)),
   CONSTRAINT notat_sak FOREIGN KEY (sak_id, prosjekt_id) REFERENCES koe.sak_metadata (sak_id, prosjekt_id)
 );
 GO
@@ -100,6 +101,7 @@ CREATE TABLE form_a.hendelse (
   data nvarchar(max) NOT NULL CONSTRAINT a_hendelse_data_er_objekt CHECK (ISJSON(data, OBJECT) = 1),
   transaksjon bigint NOT NULL,
   skriving uniqueidentifier NOT NULL,
+  CONSTRAINT a_hendelse_aktor_id_form CHECK (aktor_id = LOWER(aktor_id)),
   CONSTRAINT a_hendelse_event_id_form CHECK (TRY_CAST(event_id AS uniqueidentifier) IS NOT NULL AND event_id = LOWER(event_id)),
   CONSTRAINT a_hendelse_sak_versjon UNIQUE (sak_id, versjon),
   CONSTRAINT a_hendelse_event_prosjekt UNIQUE (event_id, prosjekt_id),
@@ -176,6 +178,7 @@ CREATE TABLE form_b.dokument (
   format int NULL CONSTRAINT b_dokument_format CHECK (format >= 1),
   transaksjon bigint NOT NULL,
   skriving uniqueidentifier NOT NULL,
+  CONSTRAINT b_dokument_aktor_id_form CHECK (aktor_id = LOWER(aktor_id)),
   CONSTRAINT b_dokument_event_id_form CHECK (TRY_CAST(event_id AS uniqueidentifier) IS NOT NULL AND event_id = LOWER(event_id)),
   CONSTRAINT b_dokument_sak_versjon UNIQUE (sak_id, versjon),
   CONSTRAINT b_dokument_event_prosjekt UNIQUE (event_id, prosjekt_id),

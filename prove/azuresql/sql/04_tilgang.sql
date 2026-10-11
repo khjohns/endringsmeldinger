@@ -19,6 +19,8 @@ CREATE SECURITY POLICY koe_sikkerhet.tilgang
   ADD FILTER PREDICATE koe_sikkerhet.medlem(prosjekt_id) ON koe.sak_metadata,
   ADD FILTER PREDICATE koe_sikkerhet.notat_synlig(prosjekt_id, aktor_team_id) ON koe.notat,
   ADD BLOCK PREDICATE koe_sikkerhet.skriver(prosjekt_id, aktor_id, aktor_rolle, aktor_team_id) ON koe.notat AFTER INSERT,
+  ADD BLOCK PREDICATE koe_sikkerhet.skriver(prosjekt_id, aktor_id, aktor_rolle, aktor_team_id) ON koe.notat BEFORE UPDATE,
+  ADD BLOCK PREDICATE koe_sikkerhet.skriver(prosjekt_id, aktor_id, aktor_rolle, aktor_team_id) ON koe.notat AFTER UPDATE,
   ADD FILTER PREDICATE koe_sikkerhet.medlem(prosjekt_id) ON form_a.hendelse,
   ADD BLOCK PREDICATE koe_sikkerhet.skriver(prosjekt_id, aktor_id, aktor_rolle, aktor_team_id) ON form_a.hendelse AFTER INSERT,
   ADD FILTER PREDICATE koe_sikkerhet.medlem(prosjekt_id) ON form_a.krav,

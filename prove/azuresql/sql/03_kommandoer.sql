@@ -97,6 +97,8 @@ BEGIN
   IF @oppdrag IS NOT NULL
     INSERT form_a.leveringsoppdrag (event_id, prosjekt_id, innhold, innhold_sha256)
     VALUES (@event_id, @prosjekt, @oppdrag, @oppdrag_sha256);
+  -- Delene er skrevet; ingen senere setning i transaksjonen kan legge til flere.
+  EXEC sp_set_session_context N'koe_skriving', NULL;
 END
 GO
 
@@ -265,6 +267,8 @@ BEGIN
   IF @oppdrag IS NOT NULL
     INSERT form_b.leveringsdokument (event_id, prosjekt_id, innhold, innhold_sha256)
     VALUES (@event_id, @prosjekt, @oppdrag, @oppdrag_sha256);
+  -- Delene er skrevet; ingen senere setning i transaksjonen kan legge til flere.
+  EXEC sp_set_session_context N'koe_skriving', NULL;
 END
 GO
 
