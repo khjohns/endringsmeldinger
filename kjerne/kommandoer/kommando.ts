@@ -24,8 +24,29 @@ export interface Svarutkast {
   utdypning?: string;
 }
 
-export type Kommando =
-  | { type: 'krav'; spor: Spor; innhold: Record<string, unknown>; varsel?: { sendt: string } }
+/**
+ * Den låste teksten klienten viste avsenderen, ett avsnitt per element i
+ * rekkefølgen i brevet (LV-U2, A1 i paragrafmatrisen). Serveren lager teksten
+ * selv og avviser en annen. Påkrevd i hver kommando som gir et brev fra appen;
+ * et registrert brev har ingen tekst fra appen (MM-U17).
+ */
+interface Brevtekst {
+  brevtekst?: string[];
+}
+
+export type Kommando = (
+  | {
+      type: 'krav';
+      spor: Spor;
+      innhold: Record<string, unknown>;
+      varsel?: { sendt: string };
+      /**
+       * TEs utdypning under den låste teksten: beskrivelsen av forholdet i
+       * grunnlaget (GR-U15), begrunnelsen i fristkravet (KA-U33). Appen tolker den
+       * ikke (KA-U19).
+       */
+      utdypning?: string;
+    }
   | { type: 'brev'; svar: Svarutkast[] }
   | { type: 'revisjon'; erstatter: string; svar: Svarutkast }
   | {
@@ -48,7 +69,9 @@ export type Kommando =
   /** KA-U20: en senere merking av et registrert brev med noe appen ikke kan uttrykke. */
   | { type: 'merking'; gjelder: string; spor: Spor[] }
   /** KA-U20: den som sendte brevet, sier at standpunktene gjelder uten forbehold. */
-  | { type: 'avklaring'; gjelder: string };
+  | { type: 'avklaring'; gjelder: string }
+) &
+  Brevtekst;
 
 const SPOR = { enum: [...SPORENE] };
 const SVARUTKAST = objekt(
@@ -63,8 +86,10 @@ const SVARUTKAST = objekt(
   ['spor', 'gjelder', 'regelversjon', 'vurderinger', 'resultat']
 );
 
+const BREVTEKST = { brevtekst: liste({ type: 'string', minLength: 1 }) };
+
 const henvisning = (type: string) =>
-  objekt({ type: { const: type }, gjelder: ID }, ['type', 'gjelder']);
+  objekt({ type: { const: type }, gjelder: ID, ...BREVTEKST }, ['type', 'gjelder']);
 
 const SKJEMA: Record<Kommando['type'], Skjema> = {
   krav: objekt(
@@ -73,14 +98,16 @@ const SKJEMA: Record<Kommando['type'], Skjema> = {
       spor: SPOR,
       innhold: { type: 'object' },
       varsel: objekt({ sendt: DATO }, ['sendt']),
+      utdypning: { type: 'string', minLength: 1 },
+      ...BREVTEKST,
     },
     ['type', 'spor', 'innhold']
   ),
-  brev: objekt({ type: { const: 'brev' }, svar: { type: 'array', items: SVARUTKAST } }, [
-    'type',
-    'svar',
-  ]),
-  revisjon: objekt({ type: { const: 'revisjon' }, erstatter: ID, svar: SVARUTKAST }, [
+  brev: objekt(
+    { type: { const: 'brev' }, svar: { type: 'array', items: SVARUTKAST }, ...BREVTEKST },
+    ['type', 'svar']
+  ),
+  revisjon: objekt({ type: { const: 'revisjon' }, erstatter: ID, svar: SVARUTKAST, ...BREVTEKST }, [
     'type',
     'erstatter',
     'svar',
@@ -91,10 +118,11 @@ const SKJEMA: Record<Kommando['type'], Skjema> = {
       spor: SPOR,
       svar: ID,
       regelversjon: { type: 'integer' },
+      ...BREVTEKST,
     },
     ['type', 'spor', 'svar', 'regelversjon']
   ),
-  trekk: objekt({ type: { const: 'trekk' }, spor: SPOR }, ['type', 'spor']),
+  trekk: objekt({ type: { const: 'trekk' }, spor: SPOR, ...BREVTEKST }, ['type', 'spor']),
   varsel: objekt(
     {
       type: { const: 'varsel' },
@@ -110,18 +138,19 @@ const SKJEMA: Record<Kommando['type'], Skjema> = {
       type: { const: 'bestridelse' },
       gjelder: ID,
       hva: { enum: [...OPPLYSNINGSSLAG] },
+      ...BREVTEKST,
     },
     ['type', 'gjelder', 'hva']
   ),
-  ingen_krav: objekt({ type: { const: 'ingen_krav' }, spor: { enum: [...KRAVSPOR] } }, [
-    'type',
-    'spor',
-  ]),
+  ingen_krav: objekt(
+    { type: { const: 'ingen_krav' }, spor: { enum: [...KRAVSPOR] }, ...BREVTEKST },
+    ['type', 'spor']
+  ),
   innsigelse: henvisning('innsigelse'),
   protest: henvisning('protest'),
   passivitet: henvisning('passivitet'),
   merking: objekt(
-    { type: { const: 'merking' }, gjelder: ID, spor: liste({ enum: [...SPORENE] }) },
+    { type: { const: 'merking' }, gjelder: ID, spor: liste({ enum: [...SPORENE] }), ...BREVTEKST },
     ['type', 'gjelder', 'spor']
   ),
   avklaring: henvisning('avklaring'),

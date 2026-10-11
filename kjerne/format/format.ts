@@ -72,15 +72,42 @@ export const objekt = (properties: Skjema, required: string[], anyOf?: Skjema[])
   ...(anyOf ? { anyOf } : {}),
 });
 
-/** Hovedkategorien og underkategorien er et par fra `KATEGORIER` (#335, HF-U1). */
-const KATEGORIPAR: Skjema[] = HOVEDKATEGORIER.filter((h) => KATEGORIER[h].length).map((h) => ({
-  properties: { hovedkategori: { const: h }, underkategori: { enum: [...KATEGORIER[h]] } },
-}));
+/**
+ * Hovedkategorien og underkategorien er et par fra `KATEGORIER` (#335, HF-U1).
+ * Underkategorien endringsordre har endringsordrens dato eller nummer, som TE
+ * oppgir (GR-U16); de andre har det ikke.
+ */
+const KATEGORIPAR: Skjema[] = HOVEDKATEGORIER.flatMap((h) => {
+  const andre = KATEGORIER[h].filter((u) => u !== 'endringsordre');
+  return [
+    ...(andre.length
+      ? [
+          {
+            properties: {
+              hovedkategori: { const: h },
+              underkategori: { enum: andre },
+              endringsordre: { type: 'null' },
+            },
+          },
+        ]
+      : []),
+    ...((KATEGORIER[h] as readonly string[]).includes('endringsordre')
+      ? [
+          {
+            properties: { hovedkategori: { const: h }, underkategori: { const: 'endringsordre' } },
+            required: ['endringsordre'],
+          },
+        ]
+      : []),
+  ];
+});
 
 /**
  * Innholdet i en kravversjon per spor, uten `id`, `spor` og `erstatter`.
  * Kommandoen bruker det samme. Et krav på 0 kr eller 0 dager er ikke et krav om
- * noe (KA-U8). Kategorien har kjernens koder, ikke katalogens (#335).
+ * noe (KA-U8). Kategorien har kjernens koder, ikke katalogens (#335). TEs
+ * beskrivelse av forholdet står bare i brevteksten, som kravets utdypning (A8 i
+ * paragrafmatrisen).
  */
 export const KRAVINNHOLD: Record<
   Spor,
@@ -91,7 +118,7 @@ export const KRAVINNHOLD: Record<
       hovedkategori: { enum: HOVEDKATEGORIER },
       underkategori: { enum: UNDERKATEGORIER },
       tittel: TEKST,
-      beskrivelse: TEKST,
+      endringsordre: TEKST,
     },
     required: ['hovedkategori', 'underkategori'],
     anyOf: KATEGORIPAR,
