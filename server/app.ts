@@ -29,13 +29,7 @@ import {
   type Kontraktstilgang,
   type Prosjekttilgang,
 } from './autorisasjon.ts';
-import {
-  lesSaken as lesSakenFraBasen,
-  SakFinnesIkke,
-  skrivMedOppdrag,
-  UgyldigVerdi,
-  Versjonskonflikt,
-} from './lager.ts';
+import { lesSaken, SakFinnesIkke, skrivMedOppdrag, Versjonskonflikt } from './lager.ts';
 import { filnavn, lagOppdrag } from './levering.ts';
 
 export interface Avhengigheter {
@@ -90,11 +84,29 @@ async function lesKropp(
   }
   const tekst = Buffer.concat(deler).toString('utf8');
   if (!tekst) return { verdi: {} };
+  let verdi: unknown;
   try {
-    return { verdi: JSON.parse(tekst) };
+    verdi = JSON.parse(tekst);
   } catch {
     return { feil: new Nektet(400, 'UGYLDIG_FORESPOERSEL', 'Kroppen er ikke gyldig JSON.') };
   }
+  if (ulagringsbar(verdi))
+    return {
+      feil: new Nektet(400, 'UGYLDIG_FORESPOERSEL', 'Teksten har tegn som ikke kan lagres.'),
+    };
+  return { verdi };
+}
+
+/** NUL og en enslig surrogat er gyldig JSON, men JSONB i PostgreSQL avviser dem (#373). */
+const ENSLIG_SURROGAT = /[\ud800-\udbff](?![\udc00-\udfff])|(?<![\ud800-\udbff])[\udc00-\udfff]/;
+const ulagringsbarTekst = (t: string) => t.includes('\u0000') || ENSLIG_SURROGAT.test(t);
+
+function ulagringsbar(verdi: unknown): boolean {
+  if (typeof verdi === 'string') return ulagringsbarTekst(verdi);
+  if (Array.isArray(verdi)) return verdi.some(ulagringsbar);
+  if (verdi !== null && typeof verdi === 'object')
+    return Object.entries(verdi).some(([k, v]) => ulagringsbarTekst(k) || ulagringsbar(v));
+  return false;
 }
 
 const feilsvar = (status: number, error: string, message: string): Svar => [
@@ -113,11 +125,11 @@ function sakenSomVises(journal: Journalrad[], kjerne: Kjerne) {
   return { versjon: u.versjon, visning: visning(u, kjerne.regler) };
 }
 
-async function lesSaken(
+async function visSaken(
   { prosjekt, sakId }: Forespoersel,
   avh: Required<Avhengigheter>
 ): Promise<Svar> {
-  const { journal, oppdrag } = await lesSakenFraBasen(avh.pool, sakId, prosjekt.prosjektId);
+  const { journal, oppdrag } = await lesSaken(avh.pool, sakId, prosjekt.prosjektId);
   if (!journal.length) return finnesIkke();
   return [
     200,
@@ -162,7 +174,6 @@ async function sendKommando(f: Forespoersel, avh: Required<Avhengigheter>): Prom
     tidspunkt: avh.tidspunkt,
     nyId: avh.nyId,
   };
-  let etter: ReturnType<typeof sakenSomVises> | undefined;
   let utfall;
   try {
     utfall = await skrivMedOppdrag(
@@ -174,7 +185,7 @@ async function sendKommando(f: Forespoersel, avh: Required<Avhengigheter>): Prom
         const vurdert = vurder(kropp.kommando, kontekst, journal, avh.kjerne);
         if (!vurdert.godtatt) return { skriv: false, avvisning: vurdert };
         const [rad] = vurdert.hendelser;
-        etter = sakenSomVises([...journal, rad], avh.kjerne);
+        const etter = sakenSomVises([...journal, rad], avh.kjerne);
         return {
           skriv: true,
           rad,
@@ -195,7 +206,6 @@ async function sendKommando(f: Forespoersel, avh: Required<Avhengigheter>): Prom
         },
       ];
     if (feil instanceof SakFinnesIkke) return finnesIkke();
-    if (feil instanceof UgyldigVerdi) return ugyldig(feil.message);
     throw feil;
   }
   if (!utfall.skriv) {
@@ -205,14 +215,15 @@ async function sendKommando(f: Forespoersel, avh: Required<Avhengigheter>): Prom
       { success: false, error: feil, rule: avvisning.regel, message: avvisning.melding },
     ];
   }
-  // Saken var låst, så visningen etter raden er den som ble lagret.
+  // Visningen leses av det basen lagret, så svaret også prøver gjenlesingen.
+  const { journal } = await lesSaken(avh.pool, sakId, prosjekt.prosjektId);
   return [
     201,
     {
       success: true,
       event_id: utfall.rad.event_id,
       leveringsoppdrag: utfall.oppdrag.id,
-      ...etter!,
+      ...sakenSomVises(journal, avh.kjerne),
     },
   ];
 }
@@ -231,7 +242,7 @@ export const RUTER: readonly Rute[] = [
         ikke: 'Lesing: et prosjektmedlem uten kontraktsside ser saken, som `GET /api/cases/<sak_id>/state` i Python.',
       },
     },
-    behandle: lesSaken,
+    behandle: visSaken,
   },
   {
     metode: 'POST',

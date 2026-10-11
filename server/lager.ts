@@ -30,12 +30,6 @@ export class Versjonskonflikt extends Error {
 /** Saken finnes ikke i det autoriserte prosjektet. */
 export class SakFinnesIkke extends Error {}
 
-/** En verdi basen ikke kan lagre, for eksempel `\u0000` i tekst til JSONB. Ruta svarer 400. */
-export class UgyldigVerdi extends Error {}
-
-/** Feilkodene i PostgreSQL for tekst eller JSON som ikke kan lagres. */
-const UGYLDIG_TEKST = new Set(['22P02', '22P05', '22021']);
-
 interface Lagret {
   event_id: string;
   sak_id: string;
@@ -230,8 +224,7 @@ export async function skrivMedOppdrag<A>(
       // En forbindelse som ikke kan rulle tilbake, skal ikke tilbake i poolen.
       oedelagt = brudd as Error;
     }
-    const pgfeil = feil as { constraint?: string; code?: string };
-    if (!oedelagt && pgfeil.constraint === VERSJONSSKRANKE) {
+    if (!oedelagt && (feil as { constraint?: string }).constraint === VERSJONSSKRANKE) {
       const sist = await klient.query<{ versjon: number }>(
         `SELECT coalesce(max(versjon), 0)::int AS versjon FROM hendelse
           WHERE sak_id = $1 AND prosjekt_id = $2`,
@@ -239,8 +232,6 @@ export async function skrivMedOppdrag<A>(
       );
       throw new Versjonskonflikt(forventet, sist.rows[0].versjon);
     }
-    if (pgfeil.code && UGYLDIG_TEKST.has(pgfeil.code))
-      throw new UgyldigVerdi('Teksten har tegn som ikke kan lagres.');
     throw feil;
   } finally {
     klient.off('error', vedBrudd);
@@ -257,7 +248,10 @@ export async function lesSaken(
   sakId: string,
   prosjektId: string
 ): Promise<{ journal: Journalrad[]; oppdrag: LagretOppdrag[] }> {
+  let oedelagt: Error | undefined;
   const klient = await pool.connect();
+  const vedBrudd = () => {};
+  klient.on('error', vedBrudd);
   try {
     await klient.query('BEGIN ISOLATION LEVEL REPEATABLE READ READ ONLY');
     const journal = await lesJournal(klient, sakId, prosjektId);
@@ -265,10 +259,15 @@ export async function lesSaken(
     await klient.query('COMMIT');
     return { journal, oppdrag };
   } catch (feil) {
-    await klient.query('ROLLBACK').catch(() => {});
+    // En forbindelse som ikke kan rulle tilbake, skal ikke tilbake i poolen.
+    oedelagt = await klient.query('ROLLBACK').then(
+      () => undefined,
+      (brudd: Error) => brudd
+    );
     throw feil;
   } finally {
-    klient.release();
+    klient.off('error', vedBrudd);
+    klient.release(oedelagt);
   }
 }
 
