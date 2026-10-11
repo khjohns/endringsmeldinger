@@ -305,7 +305,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'Sporutledning',
     'predikat',
-    'krav svar gjeldendeKrav gjeldendeSvar enighet trukket ingenKrav varsel forbehold',
+    'krav svar gjeldendeKrav gjeldendeSvar enighet trukket ingenKrav varsel merket forbehold',
   ],
   ['Svarberegning', 'relasjon', 'svar'],
   ['Svarberegning', 'frosset', 'virkninger'],
@@ -567,8 +567,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['frosset/frysing.ts', 'regelsett', 'frys grunnlagsstandpunkter', ['kommandoer/skriving.ts']],
   ['frosset/frysing.ts:frys(svar)', 'rad', 'spor utregning', ['frosset/frysing.ts']],
   ['kommandoer/skriving.ts:frysBrev(s)', 'rad', 'spor gjelder', ['kommandoer/skriving.ts']],
-  // VS-U9, VS-U11: innsigelsen et registrert svar leses med, og partens standpunkter etter den.
-  ['kommandoer/skriving.ts:frysBrev', 'relasjon', 'id gjelder etter', ['kommandoer/skriving.ts']],
+  // VS-U9, VS-U11: innsigelsen et registrert svar leses med, og plassen blant partens svar da den kom.
+  ['kommandoer/skriving.ts:frysBrev', 'relasjon', 'id gjelder fra', ['kommandoer/skriving.ts']],
   ['kommandoer/skriving.ts:lagret(?)', 'frosset', 'resten', ['kommandoer/skriving.ts']],
   ['format/leser.ts', 'rad', 'lesJournal', ['kommandoer/skriving.ts']],
   ['format/leser.ts', 'rad', 'standpunkterISvaret', ['frosset/frysing.ts']],

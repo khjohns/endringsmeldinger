@@ -13,165 +13,48 @@
   ],
   "prefikser": {
     "krav_irreg": [
-      {
-        "handling": "krav",
-        "spor": "grunnlag",
-        "underkategori": "irregulaer_endring",
-        "navn": "K-g1"
-      },
-      {
-        "handling": "krav",
-        "spor": "vederlag",
-        "belop": 100000,
-        "navn": "K-v1"
-      },
-      {
-        "handling": "krav",
-        "spor": "frist",
-        "dager": 20,
-        "navn": "K-f1"
-      }
+      { "handling": "krav", "spor": "grunnlag", "underkategori": "irregulaer_endring", "navn": "K-g1" },
+      { "handling": "krav", "spor": "vederlag", "belop": 100000, "navn": "K-v1" },
+      { "handling": "krav", "spor": "frist", "dager": 20, "navn": "K-f1" }
     ],
     "krav_eo": [
-      {
-        "handling": "krav",
-        "spor": "grunnlag",
-        "underkategori": "endringsordre",
-        "navn": "K-g1"
-      },
-      {
-        "handling": "krav",
-        "spor": "vederlag",
-        "belop": 100000,
-        "navn": "K-v1"
-      },
-      {
-        "handling": "krav",
-        "spor": "frist",
-        "dager": 20,
-        "navn": "K-f1"
-      }
+      { "handling": "krav", "spor": "grunnlag", "underkategori": "endringsordre", "navn": "K-g1" },
+      { "handling": "krav", "spor": "vederlag", "belop": 100000, "navn": "K-v1" },
+      { "handling": "krav", "spor": "frist", "dager": 20, "navn": "K-f1" }
     ],
     "krav_samord": [
-      {
-        "handling": "krav",
-        "spor": "grunnlag",
-        "underkategori": "samordning",
-        "navn": "K-g1"
-      },
-      {
-        "handling": "krav",
-        "spor": "vederlag",
-        "belop": 100000,
-        "navn": "K-v1"
-      }
+      { "handling": "krav", "spor": "grunnlag", "underkategori": "samordning", "navn": "K-g1" },
+      { "handling": "krav", "spor": "vederlag", "belop": 100000, "navn": "K-v1" }
     ],
     "godkjent_grunnlag": [
-      {
-        "handling": "krav",
-        "spor": "grunnlag",
-        "underkategori": "endringsordre",
-        "navn": "K-g1"
-      },
-      {
-        "handling": "brev",
-        "navn": "D-g",
-        "svar": [
-          {
-            "spor": "grunnlag",
-            "navn": "S-g1",
-            "resultat": "godkjent"
-          }
-        ]
-      }
+      { "handling": "krav", "spor": "grunnlag", "underkategori": "endringsordre", "navn": "K-g1" },
+      { "handling": "brev", "navn": "D-g", "svar": [{ "spor": "grunnlag", "navn": "S-g1", "resultat": "godkjent" }] }
     ],
     "forlop_a_brev": [
-      {
-        "handling": "krav",
-        "spor": "grunnlag",
-        "underkategori": "irregulaer_endring",
-        "navn": "K-g1"
-      },
-      {
-        "handling": "krav",
-        "spor": "vederlag",
-        "belop": 100000,
-        "navn": "K-v1"
-      },
-      {
-        "handling": "krav",
-        "spor": "frist",
-        "dager": 20,
-        "navn": "K-f1"
-      },
+      { "handling": "krav", "spor": "grunnlag", "underkategori": "irregulaer_endring", "navn": "K-g1" },
+      { "handling": "krav", "spor": "vederlag", "belop": 100000, "navn": "K-v1" },
+      { "handling": "krav", "spor": "frist", "dager": 20, "navn": "K-f1" },
       {
         "handling": "brev",
         "navn": "D4",
         "svar": [
-          {
-            "spor": "grunnlag",
-            "navn": "S-g1",
-            "resultat": "avslaatt",
-            "varslet_i_tide": true
-          },
-          {
-            "spor": "vederlag",
-            "navn": "S-v1",
-            "vurdering": "delvis",
-            "godkjent_belop": 60000
-          },
-          {
-            "spor": "frist",
-            "navn": "S-f1",
-            "varsel_i_tide": true,
-            "spesifisering_i_tide": true,
-            "hindring": true
-          }
+          { "spor": "grunnlag", "navn": "S-g1", "resultat": "avslaatt", "varslet_i_tide": true },
+          { "spor": "vederlag", "navn": "S-v1", "vurdering": "delvis", "godkjent_belop": 60000 },
+          { "spor": "frist", "navn": "S-f1", "varsel_i_tide": true, "spesifisering_i_tide": true, "hindring": true }
         ]
       }
     ],
     "forlop_a": [
-      {
-        "handling": "krav",
-        "spor": "grunnlag",
-        "underkategori": "irregulaer_endring",
-        "navn": "K-g1"
-      },
-      {
-        "handling": "krav",
-        "spor": "vederlag",
-        "belop": 100000,
-        "navn": "K-v1"
-      },
-      {
-        "handling": "krav",
-        "spor": "frist",
-        "dager": 20,
-        "navn": "K-f1"
-      },
+      { "handling": "krav", "spor": "grunnlag", "underkategori": "irregulaer_endring", "navn": "K-g1" },
+      { "handling": "krav", "spor": "vederlag", "belop": 100000, "navn": "K-v1" },
+      { "handling": "krav", "spor": "frist", "dager": 20, "navn": "K-f1" },
       {
         "handling": "brev",
         "navn": "D4",
         "svar": [
-          {
-            "spor": "grunnlag",
-            "navn": "S-g1",
-            "resultat": "avslaatt",
-            "varslet_i_tide": true
-          },
-          {
-            "spor": "vederlag",
-            "navn": "S-v1",
-            "vurdering": "delvis",
-            "godkjent_belop": 60000
-          },
-          {
-            "spor": "frist",
-            "navn": "S-f1",
-            "varsel_i_tide": true,
-            "spesifisering_i_tide": true,
-            "hindring": true
-          }
+          { "spor": "grunnlag", "navn": "S-g1", "resultat": "avslaatt", "varslet_i_tide": true },
+          { "spor": "vederlag", "navn": "S-v1", "vurdering": "delvis", "godkjent_belop": 60000 },
+          { "spor": "frist", "navn": "S-f1", "varsel_i_tide": true, "spesifisering_i_tide": true, "hindring": true }
         ]
       },
       {
@@ -182,11 +65,7 @@
         "vurdering": "delvis",
         "godkjent_belop": 70000
       },
-      {
-        "handling": "aksept",
-        "spor": "vederlag",
-        "navn": "D6"
-      }
+      { "handling": "aksept", "spor": "vederlag", "navn": "D6" }
     ]
   },
   "forlop": [
@@ -196,47 +75,16 @@
       "rader": ["GR-19", "GR-24", "GR-25", "KA-11", "KA-12", "KA-04"],
       "start": null,
       "steg": [
-        {
-          "handling": "krav",
-          "spor": "grunnlag",
-          "underkategori": "irregulaer_endring",
-          "navn": "K-g1"
-        },
-        {
-          "handling": "krav",
-          "spor": "vederlag",
-          "belop": 100000,
-          "navn": "K-v1"
-        },
-        {
-          "handling": "krav",
-          "spor": "frist",
-          "dager": 20,
-          "navn": "K-f1"
-        },
+        { "handling": "krav", "spor": "grunnlag", "underkategori": "irregulaer_endring", "navn": "K-g1" },
+        { "handling": "krav", "spor": "vederlag", "belop": 100000, "navn": "K-v1" },
+        { "handling": "krav", "spor": "frist", "dager": 20, "navn": "K-f1" },
         {
           "handling": "brev",
           "navn": "D4",
           "svar": [
-            {
-              "spor": "grunnlag",
-              "navn": "S-g1",
-              "resultat": "avslaatt",
-              "varslet_i_tide": true
-            },
-            {
-              "spor": "vederlag",
-              "navn": "S-v1",
-              "vurdering": "delvis",
-              "godkjent_belop": 60000
-            },
-            {
-              "spor": "frist",
-              "navn": "S-f1",
-              "varsel_i_tide": true,
-              "spesifisering_i_tide": true,
-              "hindring": true
-            }
+            { "spor": "grunnlag", "navn": "S-g1", "resultat": "avslaatt", "varslet_i_tide": true },
+            { "spor": "vederlag", "navn": "S-v1", "vurdering": "delvis", "godkjent_belop": 60000 },
+            { "spor": "frist", "navn": "S-f1", "varsel_i_tide": true, "spesifisering_i_tide": true, "hindring": true }
           ]
         },
         {
@@ -247,11 +95,7 @@
           "vurdering": "delvis",
           "godkjent_belop": 70000
         },
-        {
-          "handling": "aksept",
-          "spor": "vederlag",
-          "navn": "D6"
-        }
+        { "handling": "aksept", "spor": "vederlag", "navn": "D6" }
       ],
       "kontroller": [
         {
@@ -259,9 +103,7 @@
           "rolle": "mal",
           "kilde": ["KA-01"],
           "forventet": {
-            "handlinger.BH": {
-              "inneholder": ["svare:grunnlag", "svare:vederlag", "svare:frist"]
-            },
+            "handlinger.BH": { "inneholder": ["svare:grunnlag", "svare:vederlag", "svare:frist"] },
             "gjeldende_svar.vederlag": null
           }
         },
@@ -322,15 +164,8 @@
           "etter": 4,
           "rolle": "mal",
           "kilde": ["KA-U7"],
-          "prov": {
-            "handling": "krav",
-            "spor": "frist",
-            "dager": 25
-          },
-          "forventet": {
-            "avvist": true,
-            "regel": "ENIGHET_I_SPORET"
-          }
+          "prov": { "handling": "krav", "spor": "frist", "dager": 25 },
+          "forventet": { "avvist": true, "regel": "ENIGHET_I_SPORET" }
         },
         {
           "etter": 4,
@@ -344,37 +179,21 @@
             "hindring": true,
             "dager": 15
           },
-          "forventet": {
-            "avvist": true,
-            "regel": "ENIGHET_I_SPORET"
-          }
+          "forventet": { "avvist": true, "regel": "ENIGHET_I_SPORET" }
         },
         {
           "etter": 4,
           "rolle": "kontroll",
           "kilde": ["GR-U4", "GR-U7"],
-          "prov": {
-            "handling": "revisjon",
-            "spor": "vederlag",
-            "vurdering": "delvis",
-            "godkjent_belop": 65000
-          },
-          "forventet": {
-            "avvist": false
-          }
+          "prov": { "handling": "revisjon", "spor": "vederlag", "vurdering": "delvis", "godkjent_belop": 65000 },
+          "forventet": { "avvist": false }
         },
         {
           "etter": 4,
           "rolle": "mal",
           "kilde": ["GR-U8"],
-          "prov": {
-            "handling": "aksept",
-            "spor": "frist"
-          },
-          "forventet": {
-            "avvist": true,
-            "regel": "ENIGHET_I_SPORET"
-          }
+          "prov": { "handling": "aksept", "spor": "frist" },
+          "forventet": { "avvist": true, "regel": "ENIGHET_I_SPORET" }
         },
         {
           "etter": 5,
@@ -391,28 +210,15 @@
           "etter": 5,
           "rolle": "mal",
           "kilde": ["KA-U1"],
-          "prov": {
-            "handling": "aksept",
-            "spor": "vederlag",
-            "svar": "S-v1"
-          },
-          "forventet": {
-            "avvist": true,
-            "regel": "IKKE_GJELDENDE_SVAR"
-          }
+          "prov": { "handling": "aksept", "spor": "vederlag", "svar": "S-v1" },
+          "forventet": { "avvist": true, "regel": "IKKE_GJELDENDE_SVAR" }
         },
         {
           "etter": 5,
           "rolle": "kontroll",
           "kilde": ["KA-U1"],
-          "prov": {
-            "handling": "aksept",
-            "spor": "vederlag",
-            "svar": "S-v2"
-          },
-          "forventet": {
-            "avvist": false
-          }
+          "prov": { "handling": "aksept", "spor": "vederlag", "svar": "S-v2" },
+          "forventet": { "avvist": false }
         },
         {
           "etter": 6,
@@ -428,9 +234,7 @@
             "enighet.vederlag.virkning": "betinget",
             "enighet.grunnlag": null,
             "gjeldende_svar.grunnlag": "S-g1",
-            "visning.etiketter.vederlag": {
-              "inneholder": ["enige_betinget"]
-            },
+            "visning.etiketter.vederlag": { "inneholder": ["enige_betinget"] },
             "kravene_avgjort": false
           }
         },
@@ -438,30 +242,15 @@
           "etter": 6,
           "rolle": "mal",
           "kilde": ["V-SK02-SK03", "GR-U7"],
-          "prov": {
-            "handling": "revisjon",
-            "spor": "vederlag",
-            "vurdering": "delvis",
-            "godkjent_belop": 75000
-          },
-          "forventet": {
-            "avvist": true,
-            "regel": "ENIGHET_I_SPORET"
-          }
+          "prov": { "handling": "revisjon", "spor": "vederlag", "vurdering": "delvis", "godkjent_belop": 75000 },
+          "forventet": { "avvist": true, "regel": "ENIGHET_I_SPORET" }
         },
         {
           "etter": 6,
           "rolle": "mal",
           "kilde": ["KA-U7"],
-          "prov": {
-            "handling": "krav",
-            "spor": "vederlag",
-            "belop": 120000
-          },
-          "forventet": {
-            "avvist": true,
-            "regel": "ENIGHET_I_SPORET"
-          }
+          "prov": { "handling": "krav", "spor": "vederlag", "belop": 120000 },
+          "forventet": { "avvist": true, "regel": "ENIGHET_I_SPORET" }
         }
       ],
       "forventningsgrunnlag": "arbeidshypotese"
@@ -471,13 +260,7 @@
       "forslag": "A, steg 2 (KA-U1: én aksept gjelder ett av svarene i brevet)",
       "rader": ["GR-19"],
       "start": "forlop_a_brev",
-      "steg": [
-        {
-          "handling": "aksept",
-          "spor": "vederlag",
-          "navn": "D5"
-        }
-      ],
+      "steg": [{ "handling": "aksept", "spor": "vederlag", "navn": "D5" }],
       "kontroller": [
         {
           "etter": 1,
@@ -491,10 +274,7 @@
             "gjeldende_svar.grunnlag": "S-g1",
             "enighet.frist.kilde": "sammenfall",
             "kan_inngaa_i_eo": false,
-            "handlinger.TE": {
-              "inneholder": ["godta:grunnlag"],
-              "mangler": ["godta:vederlag"]
-            },
+            "handlinger.TE": { "inneholder": ["godta:grunnlag"], "mangler": ["godta:vederlag"] },
             "enighet.vederlag.virkning": "betinget"
           }
         }
@@ -506,25 +286,14 @@
       "forslag": "A, steg 5a",
       "rader": ["GR-20"],
       "start": "forlop_a",
-      "steg": [
-        {
-          "handling": "aksept",
-          "spor": "grunnlag",
-          "navn": "D7"
-        }
-      ],
+      "steg": [{ "handling": "aksept", "spor": "grunnlag", "navn": "D7" }],
       "kontroller": [
         {
           "etter": 0,
           "rolle": "kontroll",
           "kilde": ["KA-U6"],
-          "prov": {
-            "handling": "trekk",
-            "spor": "vederlag"
-          },
-          "forventet": {
-            "avvist": false
-          }
+          "prov": { "handling": "trekk", "spor": "vederlag" },
+          "forventet": { "avvist": false }
         },
         {
           "etter": 1,
@@ -538,13 +307,7 @@
             "enighet.frist.virkning": "uten_virkning",
             "kan_inngaa_i_eo": false,
             "visning.status": "avsluttet_avslaatt",
-            "handlinger.TE": [
-              "innsigelse:S-g1",
-              "innsigelse:S-v1",
-              "innsigelse:S-f1",
-              "innsigelse:S-v2",
-              "passivitet:K-g1"
-            ],
+            "handlinger.TE": ["innsigelse:S-g1", "innsigelse:S-v1", "innsigelse:S-f1", "innsigelse:S-v2", "passivitet:K-g1"],
             "handlinger.BH": ["innsigelse:K-g1", "innsigelse:K-v1", "innsigelse:K-f1"],
             "kravene_avgjort": false
           }
@@ -553,14 +316,8 @@
           "etter": 1,
           "rolle": "mal",
           "kilde": ["V-SK01", "KA-U6"],
-          "prov": {
-            "handling": "trekk",
-            "spor": "vederlag"
-          },
-          "forventet": {
-            "avvist": true,
-            "regel": "GRUNNLAG_AVVIST"
-          }
+          "prov": { "handling": "trekk", "spor": "vederlag" },
+          "forventet": { "avvist": true, "regel": "GRUNNLAG_AVVIST" }
         }
       ],
       "forventningsgrunnlag": "avklart_tolkning"
@@ -571,23 +328,8 @@
       "rader": ["GR-21", "GR-23", "GR-24"],
       "start": "forlop_a",
       "steg": [
-        {
-          "handling": "krav",
-          "spor": "grunnlag",
-          "underkategori": "endringsordre",
-          "navn": "K-g2"
-        },
-        {
-          "handling": "brev",
-          "navn": "D8",
-          "svar": [
-            {
-              "spor": "grunnlag",
-              "navn": "S-g2",
-              "resultat": "godkjent"
-            }
-          ]
-        }
+        { "handling": "krav", "spor": "grunnlag", "underkategori": "endringsordre", "navn": "K-g2" },
+        { "handling": "brev", "navn": "D8", "svar": [{ "spor": "grunnlag", "navn": "S-g2", "resultat": "godkjent" }] }
       ],
       "kontroller": [
         {
@@ -608,16 +350,8 @@
           "etter": 1,
           "rolle": "mal",
           "kilde": ["GR-U7", "V-SK02-SK03"],
-          "prov": {
-            "handling": "revisjon",
-            "spor": "vederlag",
-            "vurdering": "delvis",
-            "godkjent_belop": 75000
-          },
-          "forventet": {
-            "avvist": true,
-            "regel": "ENIGHET_I_SPORET"
-          }
+          "prov": { "handling": "revisjon", "spor": "vederlag", "vurdering": "delvis", "godkjent_belop": 75000 },
+          "forventet": { "avvist": true, "regel": "ENIGHET_I_SPORET" }
         },
         {
           "etter": 2,
@@ -651,24 +385,13 @@
         {
           "handling": "brev",
           "navn": "D4",
-          "svar": [
-            {
-              "spor": "grunnlag",
-              "navn": "S-g1",
-              "resultat": "paalegg_frafalt",
-              "varslet_i_tide": true
-            }
-          ]
+          "svar": [{ "spor": "grunnlag", "navn": "S-g1", "resultat": "paalegg_frafalt", "varslet_i_tide": true }]
         },
         {
           "handling": "brev",
           "navn": "D5",
           "svar": [
-            {
-              "spor": "vederlag",
-              "navn": "S-v1",
-              "vurdering": "avslaatt"
-            },
+            { "spor": "vederlag", "navn": "S-v1", "vurdering": "avslaatt" },
             {
               "spor": "frist",
               "navn": "S-f1",
@@ -679,16 +402,8 @@
             }
           ]
         },
-        {
-          "handling": "aksept",
-          "spor": "vederlag",
-          "navn": "D6"
-        },
-        {
-          "handling": "aksept",
-          "spor": "frist",
-          "navn": "D7"
-        }
+        { "handling": "aksept", "spor": "vederlag", "navn": "D6" },
+        { "handling": "aksept", "spor": "frist", "navn": "D7" }
       ],
       "kontroller": [
         {
@@ -702,13 +417,8 @@
             "trukket.vederlag": false,
             "subsidiaer_aarsaker.vederlag": [],
             "subsidiaer_aarsaker.frist": [],
-            "visning.etiketter.grunnlag": {
-              "inneholder": ["paalegg_frafalt"],
-              "mangler": ["trukket"]
-            },
-            "handlinger.BH": {
-              "inneholder": ["svare:vederlag", "svare:frist"]
-            },
+            "visning.etiketter.grunnlag": { "inneholder": ["paalegg_frafalt"], "mangler": ["trukket"] },
+            "handlinger.BH": { "inneholder": ["svare:vederlag", "svare:frist"] },
             "enighet.grunnlag": null
           }
         },
@@ -716,48 +426,27 @@
           "etter": 1,
           "rolle": "mal",
           "kilde": ["GR-U2"],
-          "forventet": {
-            "handlinger.TE": {
-              "inneholder": ["krav:grunnlag"],
-              "mangler": ["godta:grunnlag"]
-            }
-          }
+          "forventet": { "handlinger.TE": { "inneholder": ["krav:grunnlag"], "mangler": ["godta:grunnlag"] } }
         },
         {
           "etter": 1,
           "rolle": "mal",
           "kilde": ["GR-U9"],
-          "prov": {
-            "handling": "aksept",
-            "spor": "grunnlag"
-          },
-          "forventet": {
-            "avvist": true,
-            "regel": "FRAFALL_KAN_IKKE_GODTAS"
-          }
+          "prov": { "handling": "aksept", "spor": "grunnlag" },
+          "forventet": { "avvist": true, "regel": "FRAFALL_KAN_IKKE_GODTAS" }
         },
         {
           "etter": 1,
           "rolle": "kontroll",
           "kilde": ["GR-U9", "GR-U4"],
-          "prov": {
-            "handling": "revisjon",
-            "spor": "grunnlag",
-            "resultat": "godkjent",
-            "varslet_i_tide": true
-          },
-          "forventet": {
-            "avvist": false
-          }
+          "prov": { "handling": "revisjon", "spor": "grunnlag", "resultat": "godkjent", "varslet_i_tide": true },
+          "forventet": { "avvist": false }
         },
         {
           "etter": 2,
           "rolle": "mal",
           "kilde": ["V-FRAFALT", "GR-U3"],
-          "forventet": {
-            "virkning.S-v1.beloep": "prinsipalt",
-            "subsidiaer_aarsaker.vederlag": []
-          }
+          "forventet": { "virkning.S-v1.beloep": "prinsipalt", "subsidiaer_aarsaker.vederlag": [] }
         },
         {
           "etter": 4,
@@ -768,12 +457,7 @@
             "enighet.frist.virkning": "virksom",
             "kan_inngaa_i_eo": false,
             "visning.status": "avsluttet_oppgjort",
-            "handlinger.TE": [
-              "innsigelse:S-g1",
-              "innsigelse:S-v1",
-              "innsigelse:S-f1",
-              "passivitet:K-g1"
-            ],
+            "handlinger.TE": ["innsigelse:S-g1", "innsigelse:S-v1", "innsigelse:S-f1", "passivitet:K-g1"],
             "handlinger.BH": ["innsigelse:K-g1", "innsigelse:K-v1", "innsigelse:K-f1"],
             "kravene_avgjort": true
           }
@@ -790,14 +474,7 @@
         {
           "handling": "brev",
           "navn": "D4",
-          "svar": [
-            {
-              "spor": "grunnlag",
-              "navn": "S-g1",
-              "resultat": "paalegg_frafalt",
-              "varslet_i_tide": false
-            }
-          ]
+          "svar": [{ "spor": "grunnlag", "navn": "S-g1", "resultat": "paalegg_frafalt", "varslet_i_tide": false }]
         }
       ],
       "kontroller": [
@@ -807,27 +484,15 @@
           "kilde": ["V-235"],
           "prov": {
             "handling": "brev",
-            "svar": [
-              {
-                "spor": "grunnlag",
-                "resultat": "paalegg_frafalt",
-                "varslet_i_tide": true
-              }
-            ]
+            "svar": [{ "spor": "grunnlag", "resultat": "paalegg_frafalt", "varslet_i_tide": true }]
           },
-          "forventet": {
-            "avvist": false
-          }
+          "forventet": { "avvist": false }
         },
         {
           "etter": 1,
           "rolle": "mal",
           "kilde": ["V-235"],
-          "forventet": {
-            "avvist": true,
-            "regel": "UGYLDIG_VURDERING",
-            "gjeldende_svar.grunnlag": null
-          }
+          "forventet": { "avvist": true, "regel": "UGYLDIG_VURDERING", "gjeldende_svar.grunnlag": null }
         }
       ],
       "forventningsgrunnlag": "avklart_tolkning"
@@ -838,44 +503,17 @@
       "rader": ["GR-11"],
       "start": "krav_irreg",
       "steg": [
-        {
-          "handling": "brev",
-          "navn": "D4",
-          "svar": [
-            {
-              "spor": "vederlag",
-              "navn": "S-v1",
-              "vurdering": "godkjent"
-            }
-          ]
-        },
-        {
-          "handling": "trekk",
-          "spor": "grunnlag",
-          "navn": "D5"
-        }
+        { "handling": "brev", "navn": "D4", "svar": [{ "spor": "vederlag", "navn": "S-v1", "vurdering": "godkjent" }] },
+        { "handling": "trekk", "spor": "grunnlag", "navn": "D5" }
       ],
       "kontroller": [
-        {
-          "etter": 1,
-          "rolle": "mal",
-          "kilde": ["GR-U7"],
-          "forventet": {
-            "enighet.vederlag.kilde": "sammenfall"
-          }
-        },
+        { "etter": 1, "rolle": "mal", "kilde": ["GR-U7"], "forventet": { "enighet.vederlag.kilde": "sammenfall" } },
         {
           "etter": 1,
           "rolle": "kontroll",
           "kilde": ["V-KRAVVERSJON"],
-          "prov": {
-            "handling": "krav",
-            "spor": "frist",
-            "dager": 25
-          },
-          "forventet": {
-            "avvist": false
-          }
+          "prov": { "handling": "krav", "spor": "frist", "dager": 25 },
+          "forventet": { "avvist": false }
         },
         {
           "etter": 2,
@@ -892,10 +530,7 @@
             "enighet.vederlag.virkning": "uten_virkning",
             "kan_inngaa_i_eo": false,
             "visning.status": "avsluttet_trukket",
-            "visning.etiketter.grunnlag": {
-              "inneholder": ["trukket"],
-              "mangler": ["paalegg_frafalt"]
-            },
+            "visning.etiketter.grunnlag": { "inneholder": ["trukket"], "mangler": ["paalegg_frafalt"] },
             "handlinger.TE": ["innsigelse:S-v1", "passivitet:K-g1"],
             "handlinger.BH": ["innsigelse:K-g1", "innsigelse:K-v1", "innsigelse:K-f1"],
             "kravene_avgjort": false
@@ -905,15 +540,8 @@
           "etter": 2,
           "rolle": "mal",
           "kilde": ["V-TRUKKET", "GR-U5"],
-          "prov": {
-            "handling": "krav",
-            "spor": "frist",
-            "dager": 25
-          },
-          "forventet": {
-            "avvist": true,
-            "regel": "KRAV_TRUKKET"
-          }
+          "prov": { "handling": "krav", "spor": "frist", "dager": 25 },
+          "forventet": { "avvist": true, "regel": "KRAV_TRUKKET" }
         }
       ],
       "forventningsgrunnlag": "avklart_tolkning"
@@ -927,20 +555,9 @@
         {
           "handling": "brev",
           "navn": "D3",
-          "svar": [
-            {
-              "spor": "grunnlag",
-              "navn": "S-g1",
-              "resultat": "avslaatt",
-              "varslet_i_tide": false
-            }
-          ]
+          "svar": [{ "spor": "grunnlag", "navn": "S-g1", "resultat": "avslaatt", "varslet_i_tide": false }]
         },
-        {
-          "handling": "aksept",
-          "spor": "grunnlag",
-          "navn": "D4"
-        }
+        { "handling": "aksept", "spor": "grunnlag", "navn": "D4" }
       ],
       "kontroller": [
         {
@@ -953,9 +570,7 @@
             "beslutningsgrunnlag.S-g1.linje": "Prinsipalt prekludert (§ 32.2), subsidiært avslått.",
             "beslutningsgrunnlag.S-g1.regelversjon": "n",
             "subsidiaer_aarsaker.vederlag": ["prekludert", "avslaatt"],
-            "handlinger.TE": {
-              "inneholder": ["godta:grunnlag"]
-            }
+            "handlinger.TE": { "inneholder": ["godta:grunnlag"] }
           }
         },
         {
@@ -983,19 +598,9 @@
         {
           "handling": "brev",
           "navn": "D3",
-          "svar": [
-            {
-              "spor": "grunnlag",
-              "navn": "S-g1",
-              "resultat": "avslaatt",
-              "varslet_i_tide": false
-            }
-          ]
+          "svar": [{ "spor": "grunnlag", "navn": "S-g1", "resultat": "avslaatt", "varslet_i_tide": false }]
         },
-        {
-          "handling": "regelendring",
-          "regelsett": "n+1"
-        }
+        { "handling": "regelendring", "regelsett": "n+1" }
       ],
       "kontroller": [
         {
@@ -1011,9 +616,7 @@
             "grunnlag_avklart": false,
             "grunnlag_avvist": false,
             "subsidiaer_aarsaker.vederlag": ["prekludert", "avslaatt"],
-            "visning.etiketter.grunnlag": {
-              "inneholder": ["regel_endret_etter_brevet"]
-            }
+            "visning.etiketter.grunnlag": { "inneholder": ["regel_endret_etter_brevet"] }
           }
         },
         {
@@ -1021,41 +624,23 @@
           "rolle": "mal",
           "kilde": ["MM-U9", "GR-U4"],
           "forventet": {
-            "handlinger.TE": {
-              "inneholder": ["godta:grunnlag"]
-            },
-            "handlinger.BH": {
-              "inneholder": ["revidere:grunnlag"]
-            }
+            "handlinger.TE": { "inneholder": ["godta:grunnlag"] },
+            "handlinger.BH": { "inneholder": ["revidere:grunnlag"] }
           }
         },
         {
           "etter": 2,
           "rolle": "mal",
           "kilde": ["V-B13-32-2"],
-          "prov": {
-            "handling": "revisjon",
-            "spor": "grunnlag",
-            "resultat": "avslaatt",
-            "varslet_i_tide": false
-          },
-          "forventet": {
-            "avvist": true,
-            "regel": "UGYLDIG_VURDERING"
-          }
+          "prov": { "handling": "revisjon", "spor": "grunnlag", "resultat": "avslaatt", "varslet_i_tide": false },
+          "forventet": { "avvist": true, "regel": "UGYLDIG_VURDERING" }
         },
         {
           "etter": 2,
           "rolle": "kontroll",
           "kilde": ["V-B13-32-2", "GR-U4"],
-          "prov": {
-            "handling": "revisjon",
-            "spor": "grunnlag",
-            "resultat": "avslaatt"
-          },
-          "forventet": {
-            "avvist": false
-          }
+          "prov": { "handling": "revisjon", "spor": "grunnlag", "resultat": "avslaatt" },
+          "forventet": { "avvist": false }
         }
       ],
       "forventningsgrunnlag": "avklart_tolkning"
@@ -1069,43 +654,19 @@
         {
           "handling": "brev",
           "navn": "D3",
-          "svar": [
-            {
-              "spor": "grunnlag",
-              "navn": "S-g1",
-              "resultat": "godkjent",
-              "varslet_i_tide": false
-            }
-          ]
+          "svar": [{ "spor": "grunnlag", "navn": "S-g1", "resultat": "godkjent", "varslet_i_tide": false }]
         },
-        {
-          "handling": "aksept",
-          "spor": "grunnlag",
-          "navn": "D4"
-        },
-        {
-          "handling": "regelendring",
-          "regelsett": "n+1"
-        }
+        { "handling": "aksept", "spor": "grunnlag", "navn": "D4" },
+        { "handling": "regelendring", "regelsett": "n+1" }
       ],
       "kontroller": [
         {
           "etter": 1,
           "rolle": "mal",
           "kilde": ["V-32-2-AVSLAG"],
-          "forventet": {
-            "virkning.S-g1.rettidighet": "prinsipalt",
-            "virkning.S-g1.grunnlag": "subsidiaert"
-          }
+          "forventet": { "virkning.S-g1.rettidighet": "prinsipalt", "virkning.S-g1.grunnlag": "subsidiaert" }
         },
-        {
-          "etter": 2,
-          "rolle": "mal",
-          "kilde": ["V-SK01", "KA-U1"],
-          "forventet": {
-            "grunnlag_avvist": true
-          }
-        },
+        { "etter": 2, "rolle": "mal", "kilde": ["V-SK01", "KA-U1"], "forventet": { "grunnlag_avvist": true } },
         {
           "etter": 3,
           "rolle": "mal",
@@ -1144,36 +705,17 @@
         {
           "handling": "brev",
           "navn": "D3",
-          "svar": [
-            {
-              "spor": "grunnlag",
-              "navn": "S-g1",
-              "resultat": "avslaatt",
-              "varslet_i_tide": false
-            }
-          ]
+          "svar": [{ "spor": "grunnlag", "navn": "S-g1", "resultat": "avslaatt", "varslet_i_tide": false }]
         },
-        {
-          "handling": "regelendring",
-          "regelsett": "n+1"
-        },
-        {
-          "handling": "aksept",
-          "spor": "grunnlag",
-          "klientregler": "n+1",
-          "navn": "D4"
-        }
+        { "handling": "regelendring", "regelsett": "n+1" },
+        { "handling": "aksept", "spor": "grunnlag", "klientregler": "n+1", "navn": "D4" }
       ],
       "kontroller": [
         {
           "etter": 2,
           "rolle": "mal",
           "kilde": ["MM-U9"],
-          "forventet": {
-            "visning.etiketter.grunnlag": {
-              "inneholder": ["regel_endret_etter_brevet"]
-            }
-          }
+          "forventet": { "visning.etiketter.grunnlag": { "inneholder": ["regel_endret_etter_brevet"] } }
         },
         {
           "etter": 3,
@@ -1187,9 +729,7 @@
             "grunnlag_avvist": true,
             "enighet.grunnlag.virkning.rettidighet": "prinsipalt",
             "visning.status": "avsluttet_avslaatt",
-            "visning.etiketter.grunnlag": {
-              "inneholder": ["regel_endret_etter_enighet"]
-            }
+            "visning.etiketter.grunnlag": { "inneholder": ["regel_endret_etter_enighet"] }
           }
         }
       ],
@@ -1205,31 +745,11 @@
         {
           "handling": "brev",
           "navn": "D3",
-          "svar": [
-            {
-              "spor": "grunnlag",
-              "navn": "S-g1",
-              "resultat": "avslaatt",
-              "varslet_i_tide": false
-            }
-          ]
+          "svar": [{ "spor": "grunnlag", "navn": "S-g1", "resultat": "avslaatt", "varslet_i_tide": false }]
         },
-        {
-          "handling": "regelendring",
-          "regelsett": "n+1"
-        },
-        {
-          "handling": "revisjon",
-          "spor": "grunnlag",
-          "navn": "S-g2",
-          "dokument": "D5",
-          "resultat": "avslaatt"
-        },
-        {
-          "handling": "aksept",
-          "spor": "grunnlag",
-          "navn": "D6"
-        }
+        { "handling": "regelendring", "regelsett": "n+1" },
+        { "handling": "revisjon", "spor": "grunnlag", "navn": "S-g2", "dokument": "D5", "resultat": "avslaatt" },
+        { "handling": "aksept", "spor": "grunnlag", "navn": "D6" }
       ],
       "kontroller": [
         {
@@ -1243,12 +763,8 @@
             "beslutningsgrunnlag.S-g2.linje": "Avslått.",
             "beslutningsgrunnlag.S-g1.linje": "Prinsipalt prekludert (§ 32.2), subsidiært avslått.",
             "subsidiaer_aarsaker.vederlag": ["avslaatt"],
-            "visning.etiketter.grunnlag": {
-              "mangler": ["regel_endret_etter_brevet"]
-            },
-            "handlinger.TE": {
-              "inneholder": ["godta:grunnlag"]
-            }
+            "visning.etiketter.grunnlag": { "mangler": ["regel_endret_etter_brevet"] },
+            "handlinger.TE": { "inneholder": ["godta:grunnlag"] }
           }
         },
         {
@@ -1274,48 +790,24 @@
         {
           "handling": "brev",
           "navn": "D3",
-          "svar": [
-            {
-              "spor": "grunnlag",
-              "navn": "S-g1",
-              "resultat": "avslaatt",
-              "varslet_i_tide": false
-            }
-          ]
+          "svar": [{ "spor": "grunnlag", "navn": "S-g1", "resultat": "avslaatt", "varslet_i_tide": false }]
         },
-        {
-          "handling": "regelendring",
-          "regelsett": "n+1"
-        },
-        {
-          "handling": "aksept",
-          "spor": "grunnlag",
-          "klientregler": "n"
-        },
-        {
-          "handling": "aksept",
-          "spor": "grunnlag",
-          "navn": "D4"
-        }
+        { "handling": "regelendring", "regelsett": "n+1" },
+        { "handling": "aksept", "spor": "grunnlag", "klientregler": "n" },
+        { "handling": "aksept", "spor": "grunnlag", "navn": "D4" }
       ],
       "kontroller": [
         {
           "etter": 2,
           "rolle": "mal",
           "kilde": ["V-32-2-AVSLAG"],
-          "forventet": {
-            "virkning.S-g1.rettidighet": "prinsipalt"
-          }
+          "forventet": { "virkning.S-g1.rettidighet": "prinsipalt" }
         },
         {
           "etter": 3,
           "rolle": "mal",
           "kilde": ["KA-U10", "V-B13-REGELVERSJON"],
-          "forventet": {
-            "avvist": true,
-            "regel": "ANNEN_REGELVERSJON",
-            "enighet.grunnlag": null
-          }
+          "forventet": { "avvist": true, "regel": "ANNEN_REGELVERSJON", "enighet.grunnlag": null }
         },
         {
           "etter": 4,
@@ -1338,23 +830,12 @@
       "rader": ["KA-19", "KA-20", "KA-21"],
       "start": "godkjent_grunnlag",
       "steg": [
-        {
-          "handling": "krav",
-          "spor": "frist",
-          "dager": 20,
-          "navn": "K-f1"
-        },
+        { "handling": "krav", "spor": "frist", "dager": 20, "navn": "K-f1" },
         {
           "handling": "brev",
           "navn": "D3",
           "svar": [
-            {
-              "spor": "frist",
-              "navn": "S-f1",
-              "varsel_i_tide": false,
-              "spesifisering_i_tide": true,
-              "hindring": true
-            }
+            { "spor": "frist", "navn": "S-f1", "varsel_i_tide": false, "spesifisering_i_tide": true, "hindring": true }
           ]
         },
         {
@@ -1364,19 +845,8 @@
           "dokumentasjon": ["e-post 02.09"],
           "navn": "D4"
         },
-        {
-          "handling": "bestridelse",
-          "part": "BH",
-          "gjelder": "D4#sendt",
-          "hva": "mottatt",
-          "navn": "D5"
-        },
-        {
-          "handling": "varsel",
-          "spor": "frist",
-          "sendt": "2026-08-01",
-          "navn": "D6"
-        }
+        { "handling": "bestridelse", "part": "BH", "gjelder": "D4#sendt", "hva": "mottatt", "navn": "D5" },
+        { "handling": "varsel", "spor": "frist", "sendt": "2026-08-01", "navn": "D6" }
       ],
       "kontroller": [
         {
@@ -1385,12 +855,8 @@
           "kilde": ["MM-U1"],
           "forventet": {
             "varsel.frist": null,
-            "visning.etiketter.frist": {
-              "inneholder": ["varsel_ikke_registrert"]
-            },
-            "handlinger.BH": {
-              "inneholder": ["svare:frist"]
-            }
+            "visning.etiketter.frist": { "inneholder": ["varsel_ikke_registrert"] },
+            "handlinger.BH": { "inneholder": ["svare:frist"] }
           }
         },
         {
@@ -1401,9 +867,7 @@
             "virkning.S-f1.rettidighet": "prinsipalt",
             "virkning.S-f1.dager": "subsidiaert",
             "standpunkt.S-f1.rettidighet.gjelder": "K-f1",
-            "handlinger.TE": {
-              "inneholder": ["godta:frist"]
-            },
+            "handlinger.TE": { "inneholder": ["godta:frist"] },
             "uavklart.S-f1": []
           }
         },
@@ -1411,14 +875,8 @@
           "etter": 2,
           "rolle": "kontroll",
           "kilde": ["MM-U1"],
-          "prov": {
-            "handling": "varsel",
-            "spor": "frist",
-            "sendt": "2026-08-01"
-          },
-          "forventet": {
-            "avvist": false
-          }
+          "prov": { "handling": "varsel", "spor": "frist", "sendt": "2026-08-01" },
+          "forventet": { "avvist": false }
         },
         {
           "etter": 3,
@@ -1435,15 +893,9 @@
             "opplysning.D4#mottatt": null,
             "virkning.S-f1.rettidighet": "prinsipalt",
             "standpunkt.S-f1.rettidighet.gjelder": "K-f1",
-            "visning.opplysning.D4#sendt": {
-              "inneholder": ["sendt_ifolge_TE", "mottaksdato_mangler"]
-            },
-            "visning.etiketter.frist": {
-              "inneholder": ["bh_har_ikke_vurdert_varselet"]
-            },
-            "handlinger.BH": {
-              "inneholder": ["revidere:frist", "bestride:D4#sendt"]
-            },
+            "visning.opplysning.D4#sendt": { "inneholder": ["sendt_ifolge_TE", "mottaksdato_mangler"] },
+            "visning.etiketter.frist": { "inneholder": ["bh_har_ikke_vurdert_varselet"] },
+            "handlinger.BH": { "inneholder": ["revidere:frist", "bestride:D4#sendt"] },
             "uavklart.S-f1": ["rettidighet"]
           }
         },
@@ -1451,24 +903,14 @@
           "etter": 3,
           "rolle": "mal",
           "kilde": ["MM-U8", "MM-U1"],
-          "forventet": {
-            "handlinger.TE": {
-              "mangler": ["godta:frist"]
-            }
-          }
+          "forventet": { "handlinger.TE": { "mangler": ["godta:frist"] } }
         },
         {
           "etter": 3,
           "rolle": "mal",
           "kilde": ["MM-U8"],
-          "prov": {
-            "handling": "aksept",
-            "spor": "frist"
-          },
-          "forventet": {
-            "avvist": true,
-            "regel": "STANDPUNKT_UAVKLART"
-          }
+          "prov": { "handling": "aksept", "spor": "frist" },
+          "forventet": { "avvist": true, "regel": "STANDPUNKT_UAVKLART" }
         },
         {
           "etter": 4,
@@ -1477,24 +919,11 @@
           "forventet": {
             "avvist": false,
             "opplysning.D4#sendt.dato": "2026-09-02",
-            "opplysning.D4#sendt.bestridelser": [
-              {
-                "part": "BH",
-                "hva": "mottatt",
-                "hendelse": "D5"
-              }
-            ],
+            "opplysning.D4#sendt.bestridelser": [{ "part": "BH", "hva": "mottatt", "hendelse": "D5" }],
             "virkning.S-f1.rettidighet": "prinsipalt",
-            "visning.opplysning.D4#sendt": {
-              "inneholder": ["sendt_ifolge_TE", "mottak_bestridt"]
-            },
-            "visning.etiketter.frist": {
-              "inneholder": ["bh_har_ikke_vurdert_varselet"]
-            },
-            "handlinger.BH": {
-              "inneholder": ["revidere:frist"],
-              "mangler": ["bestride:D4#sendt"]
-            },
+            "visning.opplysning.D4#sendt": { "inneholder": ["sendt_ifolge_TE", "mottak_bestridt"] },
+            "visning.etiketter.frist": { "inneholder": ["bh_har_ikke_vurdert_varselet"] },
+            "handlinger.BH": { "inneholder": ["revidere:frist"], "mangler": ["bestride:D4#sendt"] },
             "uavklart.S-f1": ["rettidighet"]
           }
         },
@@ -1513,30 +942,15 @@
           "etter": 5,
           "rolle": "mal",
           "kilde": ["V-SK12"],
-          "prov": {
-            "handling": "krav",
-            "spor": "frist",
-            "dager": 20,
-            "varsel_sendt": "2026-08-01"
-          },
-          "forventet": {
-            "avvist": true,
-            "regel": "VARSEL_REGISTRERT"
-          }
+          "prov": { "handling": "krav", "spor": "frist", "dager": 20, "varsel_sendt": "2026-08-01" },
+          "forventet": { "avvist": true, "regel": "VARSEL_REGISTRERT" }
         },
         {
           "etter": 5,
           "rolle": "kontroll",
           "kilde": ["V-SK12"],
-          "prov": {
-            "handling": "krav",
-            "spor": "frist",
-            "dager": 20,
-            "varsel_sendt": "2026-09-02"
-          },
-          "forventet": {
-            "avvist": false
-          }
+          "prov": { "handling": "krav", "spor": "frist", "dager": 20, "varsel_sendt": "2026-09-02" },
+          "forventet": { "avvist": false }
         }
       ],
       "forventningsgrunnlag": "avklart_tolkning"
@@ -1547,46 +961,23 @@
       "rader": ["KA-20"],
       "start": "godkjent_grunnlag",
       "steg": [
-        {
-          "handling": "krav",
-          "spor": "frist",
-          "dager": 20,
-          "navn": "K-f1"
-        },
+        { "handling": "krav", "spor": "frist", "dager": 20, "navn": "K-f1" },
         {
           "handling": "brev",
           "navn": "D3",
           "svar": [
-            {
-              "spor": "frist",
-              "navn": "S-f1",
-              "varsel_i_tide": false,
-              "spesifisering_i_tide": true,
-              "hindring": true
-            }
+            { "spor": "frist", "navn": "S-f1", "varsel_i_tide": false, "spesifisering_i_tide": true, "hindring": true }
           ]
         },
-        {
-          "handling": "aksept",
-          "spor": "frist",
-          "navn": "D4"
-        },
-        {
-          "handling": "varsel",
-          "spor": "frist",
-          "sendt": "2026-09-02",
-          "navn": "D5"
-        }
+        { "handling": "aksept", "spor": "frist", "navn": "D4" },
+        { "handling": "varsel", "spor": "frist", "sendt": "2026-09-02", "navn": "D5" }
       ],
       "kontroller": [
         {
           "etter": 3,
           "rolle": "forutsetning",
           "kilde": ["KA-U1", "KA-U10"],
-          "forventet": {
-            "enighet.frist.utfall.dager": 0,
-            "enighet.frist.virkning.rettidighet": "prinsipalt"
-          }
+          "forventet": { "enighet.frist.utfall.dager": 0, "enighet.frist.virkning.rettidighet": "prinsipalt" }
         },
         {
           "etter": 4,
@@ -1600,9 +991,7 @@
             "enighet.frist.utfall.dager": 0,
             "enighet.frist.virkning.rettidighet": "prinsipalt",
             "virkning.S-f1.rettidighet": "prinsipalt",
-            "handlinger.BH": {
-              "mangler": ["revidere:frist"]
-            },
+            "handlinger.BH": { "mangler": ["revidere:frist"] },
             "uavklart.S-f1": ["rettidighet"]
           }
         }
@@ -1615,12 +1004,7 @@
       "rader": ["KA-01", "KA-07"],
       "start": "krav_eo",
       "steg": [
-        {
-          "handling": "krav",
-          "spor": "vederlag",
-          "belop": 120000,
-          "navn": "K-v2"
-        },
+        { "handling": "krav", "spor": "vederlag", "belop": 120000, "navn": "K-v2" },
         {
           "handling": "rad",
           "spor": "vederlag",
@@ -1632,32 +1016,16 @@
         {
           "handling": "brev",
           "navn": "D4",
-          "svar": [
-            {
-              "spor": "vederlag",
-              "navn": "S-v2",
-              "vurdering": "delvis",
-              "godkjent_belop": 90000
-            }
-          ]
+          "svar": [{ "spor": "vederlag", "navn": "S-v2", "vurdering": "delvis", "godkjent_belop": 90000 }]
         },
-        {
-          "handling": "aksept",
-          "spor": "vederlag",
-          "navn": "D5"
-        }
+        { "handling": "aksept", "spor": "vederlag", "navn": "D5" }
       ],
       "kontroller": [
         {
           "etter": 1,
           "rolle": "mal",
           "kilde": ["KA-U2", "KA-01"],
-          "forventet": {
-            "gjeldende_krav.vederlag": "K-v2",
-            "handlinger.BH": {
-              "inneholder": ["svare:vederlag"]
-            }
-          }
+          "forventet": { "gjeldende_krav.vederlag": "K-v2", "handlinger.BH": { "inneholder": ["svare:vederlag"] } }
         },
         {
           "etter": 2,
@@ -1667,47 +1035,28 @@
             "forstaatt": true,
             "svar.S-v1.gjelder": "K-v1",
             "gjeldende_svar.vederlag": null,
-            "handlinger.BH": {
-              "inneholder": ["svare:vederlag"]
-            },
-            "handlinger.TE": {
-              "mangler": ["godta:vederlag"]
-            }
+            "handlinger.BH": { "inneholder": ["svare:vederlag"] },
+            "handlinger.TE": { "mangler": ["godta:vederlag"] }
           }
         },
         {
           "etter": 2,
           "rolle": "mal",
           "kilde": ["KA-U1", "KA-07"],
-          "prov": {
-            "handling": "aksept",
-            "spor": "vederlag",
-            "svar": "S-v1"
-          },
-          "forventet": {
-            "avvist": true,
-            "regel": "IKKE_GJELDENDE_SVAR"
-          }
+          "prov": { "handling": "aksept", "spor": "vederlag", "svar": "S-v1" },
+          "forventet": { "avvist": true, "regel": "IKKE_GJELDENDE_SVAR" }
         },
         {
           "etter": 3,
           "rolle": "mal",
           "kilde": ["KT-U1"],
-          "forventet": {
-            "gjeldende_svar.vederlag": "S-v2",
-            "svar.S-v2.gjelder": "K-v2",
-            "svar.S-v1.gjelder": "K-v1"
-          }
+          "forventet": { "gjeldende_svar.vederlag": "S-v2", "svar.S-v2.gjelder": "K-v2", "svar.S-v1.gjelder": "K-v1" }
         },
         {
           "etter": 4,
           "rolle": "mal",
           "kilde": ["KA-U1", "KA-U5"],
-          "forventet": {
-            "avvist": false,
-            "enighet.vederlag.svar": "S-v2",
-            "enighet.vederlag.utfall.beloep": 90000
-          }
+          "forventet": { "avvist": false, "enighet.vederlag.svar": "S-v2", "enighet.vederlag.utfall.beloep": 90000 }
         }
       ],
       "forventningsgrunnlag": "avklart_tolkning"
@@ -1732,14 +1081,8 @@
           "etter": 0,
           "rolle": "kontroll",
           "kilde": ["MM-U2"],
-          "prov": {
-            "handling": "krav",
-            "spor": "vederlag",
-            "belop": 120000
-          },
-          "forventet": {
-            "avvist": false
-          }
+          "prov": { "handling": "krav", "spor": "vederlag", "belop": 120000 },
+          "forventet": { "avvist": false }
         },
         {
           "etter": 0,
@@ -1747,17 +1090,9 @@
           "kilde": ["MM-U2"],
           "prov": {
             "handling": "brev",
-            "svar": [
-              {
-                "spor": "vederlag",
-                "vurdering": "delvis",
-                "godkjent_belop": 60000
-              }
-            ]
+            "svar": [{ "spor": "vederlag", "vurdering": "delvis", "godkjent_belop": 60000 }]
           },
-          "forventet": {
-            "avvist": false
-          }
+          "forventet": { "avvist": false }
         },
         {
           "etter": 1,
@@ -1775,15 +1110,8 @@
           "etter": 1,
           "rolle": "mal",
           "kilde": ["MM-U2", "#304"],
-          "prov": {
-            "handling": "krav",
-            "spor": "vederlag",
-            "belop": 120000
-          },
-          "forventet": {
-            "avvist": true,
-            "regel": "SAK_IKKE_FORSTAATT"
-          }
+          "prov": { "handling": "krav", "spor": "vederlag", "belop": 120000 },
+          "forventet": { "avvist": true, "regel": "SAK_IKKE_FORSTAATT" }
         },
         {
           "etter": 1,
@@ -1791,18 +1119,9 @@
           "kilde": ["MM-U2", "#304"],
           "prov": {
             "handling": "brev",
-            "svar": [
-              {
-                "spor": "vederlag",
-                "vurdering": "delvis",
-                "godkjent_belop": 60000
-              }
-            ]
+            "svar": [{ "spor": "vederlag", "vurdering": "delvis", "godkjent_belop": 60000 }]
           },
-          "forventet": {
-            "avvist": true,
-            "regel": "SAK_IKKE_FORSTAATT"
-          }
+          "forventet": { "avvist": true, "regel": "SAK_IKKE_FORSTAATT" }
         }
       ],
       "forventningsgrunnlag": "avklart_tolkning"
@@ -1816,14 +1135,7 @@
         {
           "handling": "brev",
           "navn": "D4",
-          "svar": [
-            {
-              "spor": "vederlag",
-              "navn": "S-v1",
-              "vurdering": "delvis",
-              "godkjent_belop": 60000
-            }
-          ]
+          "svar": [{ "spor": "vederlag", "navn": "S-v1", "vurdering": "delvis", "godkjent_belop": 60000 }]
         },
         {
           "handling": "rad",
@@ -1848,24 +1160,14 @@
           "etter": 2,
           "rolle": "mal",
           "kilde": ["KT-U1", "#304"],
-          "forventet": {
-            "forstaatt": true,
-            "gjeldende_svar.vederlag": "S-v2",
-            "svar.S-v2.erstatter": "S-v1"
-          }
+          "forventet": { "forstaatt": true, "gjeldende_svar.vederlag": "S-v2", "svar.S-v2.erstatter": "S-v1" }
         },
         {
           "etter": 2,
           "rolle": "kontroll",
           "kilde": ["MM-U2"],
-          "prov": {
-            "handling": "krav",
-            "spor": "vederlag",
-            "belop": 120000
-          },
-          "forventet": {
-            "avvist": false
-          }
+          "prov": { "handling": "krav", "spor": "vederlag", "belop": 120000 },
+          "forventet": { "avvist": false }
         },
         {
           "etter": 3,
@@ -1882,15 +1184,8 @@
           "etter": 3,
           "rolle": "mal",
           "kilde": ["MM-U2", "#304"],
-          "prov": {
-            "handling": "krav",
-            "spor": "vederlag",
-            "belop": 120000
-          },
-          "forventet": {
-            "avvist": true,
-            "regel": "SAK_IKKE_FORSTAATT"
-          }
+          "prov": { "handling": "krav", "spor": "vederlag", "belop": 120000 },
+          "forventet": { "avvist": true, "regel": "SAK_IKKE_FORSTAATT" }
         }
       ],
       "forventningsgrunnlag": "arbeidshypotese"
@@ -1900,27 +1195,14 @@
       "forslag": "E, steg E2-1",
       "rader": ["KA-24"],
       "start": "krav_eo",
-      "steg": [
-        {
-          "handling": "rad",
-          "art": "foresporsel",
-          "navn": "D4",
-          "gjelder": "K-f1"
-        }
-      ],
+      "steg": [{ "handling": "rad", "art": "foresporsel", "navn": "D4", "gjelder": "K-f1" }],
       "kontroller": [
         {
           "etter": 0,
           "rolle": "kontroll",
           "kilde": ["MM-U2"],
-          "prov": {
-            "handling": "varsel",
-            "spor": "frist",
-            "sendt": "2026-09-02"
-          },
-          "forventet": {
-            "avvist": false
-          }
+          "prov": { "handling": "varsel", "spor": "frist", "sendt": "2026-09-02" },
+          "forventet": { "avvist": false }
         },
         {
           "etter": 0,
@@ -1928,18 +1210,9 @@
           "kilde": ["MM-U2"],
           "prov": {
             "handling": "brev",
-            "svar": [
-              {
-                "spor": "frist",
-                "varsel_i_tide": true,
-                "spesifisering_i_tide": true,
-                "hindring": true
-              }
-            ]
+            "svar": [{ "spor": "frist", "varsel_i_tide": true, "spesifisering_i_tide": true, "hindring": true }]
           },
-          "forventet": {
-            "avvist": false
-          }
+          "forventet": { "avvist": false }
         },
         {
           "etter": 1,
@@ -1952,24 +1225,15 @@
             "visning.status": "kan_ikke_utledes",
             "visning.journal.D4": "ikke_tolket",
             "visning.journal.K-v1": "tolket",
-            "visning.merknader": {
-              "inneholder": ["varsel_med_frist_utenfor_appen"]
-            }
+            "visning.merknader": { "inneholder": ["varsel_med_frist_utenfor_appen"] }
           }
         },
         {
           "etter": 1,
           "rolle": "mal",
           "kilde": ["MM-U2"],
-          "prov": {
-            "handling": "varsel",
-            "spor": "frist",
-            "sendt": "2026-09-02"
-          },
-          "forventet": {
-            "avvist": true,
-            "regel": "SAK_IKKE_FORSTAATT"
-          }
+          "prov": { "handling": "varsel", "spor": "frist", "sendt": "2026-09-02" },
+          "forventet": { "avvist": true, "regel": "SAK_IKKE_FORSTAATT" }
         },
         {
           "etter": 1,
@@ -1977,19 +1241,9 @@
           "kilde": ["MM-U2"],
           "prov": {
             "handling": "brev",
-            "svar": [
-              {
-                "spor": "frist",
-                "varsel_i_tide": true,
-                "spesifisering_i_tide": true,
-                "hindring": true
-              }
-            ]
+            "svar": [{ "spor": "frist", "varsel_i_tide": true, "spesifisering_i_tide": true, "hindring": true }]
           },
-          "forventet": {
-            "avvist": true,
-            "regel": "SAK_IKKE_FORSTAATT"
-          }
+          "forventet": { "avvist": true, "regel": "SAK_IKKE_FORSTAATT" }
         }
       ],
       "forventningsgrunnlag": "avklart_tolkning"
@@ -2000,65 +1254,21 @@
       "rader": ["KA-25"],
       "start": null,
       "steg": [
-        {
-          "handling": "krav",
-          "spor": "grunnlag",
-          "underkategori": "samordning",
-          "navn": "K-g1"
-        },
-        {
-          "handling": "krav",
-          "spor": "vederlag",
-          "belop": 100000,
-          "navn": "K-v1"
-        },
-        {
-          "handling": "krav",
-          "spor": "frist",
-          "dager": 20,
-          "navn": "K-f1"
-        },
+        { "handling": "krav", "spor": "grunnlag", "underkategori": "samordning", "navn": "K-g1" },
+        { "handling": "krav", "spor": "vederlag", "belop": 100000, "navn": "K-v1" },
+        { "handling": "krav", "spor": "frist", "dager": 20, "navn": "K-f1" },
         {
           "handling": "brev",
           "navn": "D4",
           "svar": [
-            {
-              "spor": "grunnlag",
-              "navn": "S-g1",
-              "resultat": "godkjent",
-              "varslet_i_tide": false
-            },
-            {
-              "spor": "vederlag",
-              "navn": "S-v1",
-              "vurdering": "delvis",
-              "godkjent_belop": 60000
-            },
-            {
-              "spor": "frist",
-              "navn": "S-f1",
-              "varsel_i_tide": true,
-              "spesifisering_i_tide": true,
-              "hindring": true
-            }
+            { "spor": "grunnlag", "navn": "S-g1", "resultat": "godkjent", "varslet_i_tide": false },
+            { "spor": "vederlag", "navn": "S-v1", "vurdering": "delvis", "godkjent_belop": 60000 },
+            { "spor": "frist", "navn": "S-f1", "varsel_i_tide": true, "spesifisering_i_tide": true, "hindring": true }
           ]
         },
-        {
-          "handling": "aksept",
-          "spor": "vederlag",
-          "navn": "D5"
-        },
-        {
-          "handling": "regelendring",
-          "regelsett": "n+1"
-        },
-        {
-          "handling": "revisjon",
-          "spor": "grunnlag",
-          "navn": "S-g2",
-          "dokument": "D7",
-          "resultat": "godkjent"
-        }
+        { "handling": "aksept", "spor": "vederlag", "navn": "D5" },
+        { "handling": "regelendring", "regelsett": "n+1" },
+        { "handling": "revisjon", "spor": "grunnlag", "navn": "S-g2", "dokument": "D7", "resultat": "godkjent" }
       ],
       "kontroller": [
         {
@@ -2076,15 +1286,8 @@
           "etter": 5,
           "rolle": "kontroll",
           "kilde": ["GR-U4"],
-          "prov": {
-            "handling": "revisjon",
-            "spor": "grunnlag",
-            "resultat": "godkjent",
-            "varslet_i_tide": true
-          },
-          "forventet": {
-            "avvist": false
-          }
+          "prov": { "handling": "revisjon", "spor": "grunnlag", "resultat": "godkjent", "varslet_i_tide": true },
+          "forventet": { "avvist": false }
         },
         {
           "etter": 6,
@@ -2097,36 +1300,22 @@
             "grunnlag_avvist": false,
             "subsidiaer_aarsaker.vederlag": ["prekludert"],
             "subsidiaer_aarsaker.frist": ["prekludert"],
-            "visning.etiketter.grunnlag": {
-              "inneholder": ["regel_endret_etter_brevet"]
-            },
-            "visning.etiketter.vederlag": {
-              "inneholder": ["enige_betinget", "subsidiaert"]
-            },
+            "visning.etiketter.grunnlag": { "inneholder": ["regel_endret_etter_brevet"] },
+            "visning.etiketter.vederlag": { "inneholder": ["enige_betinget", "subsidiaert"] },
             "enighet.vederlag.virkning": "betinget",
             "enighet.frist.virkning": "betinget",
             "kravene_avgjort": false,
             "kan_inngaa_i_eo": false,
-            "handlinger.BH": {
-              "inneholder": ["revidere:grunnlag"]
-            },
-            "handlinger.TE": {
-              "inneholder": ["godta:grunnlag"]
-            }
+            "handlinger.BH": { "inneholder": ["revidere:grunnlag"] },
+            "handlinger.TE": { "inneholder": ["godta:grunnlag"] }
           }
         },
         {
           "etter": 6,
           "rolle": "kontroll",
           "kilde": ["GR-U4"],
-          "prov": {
-            "handling": "revisjon",
-            "spor": "grunnlag",
-            "resultat": "godkjent"
-          },
-          "forventet": {
-            "avvist": false
-          }
+          "prov": { "handling": "revisjon", "spor": "grunnlag", "resultat": "godkjent" },
+          "forventet": { "avvist": false }
         },
         {
           "etter": 7,
@@ -2146,9 +1335,7 @@
             "enighet.frist.utfall.dager": 20,
             "kravene_avgjort": true,
             "kan_inngaa_i_eo": true,
-            "visning.etiketter.grunnlag": {
-              "mangler": ["regel_endret_etter_brevet"]
-            }
+            "visning.etiketter.grunnlag": { "mangler": ["regel_endret_etter_brevet"] }
           }
         }
       ],
@@ -2160,85 +1347,31 @@
       "rader": ["KA-21"],
       "start": null,
       "steg": [
-        {
-          "handling": "krav",
-          "spor": "grunnlag",
-          "underkategori": "irregulaer_endring",
-          "navn": "K-g1"
-        },
-        {
-          "handling": "krav",
-          "spor": "frist",
-          "dager": 20,
-          "navn": "K-f1"
-        },
-        {
-          "handling": "varsel",
-          "spor": "frist",
-          "sendt": "2026-09-02",
-          "navn": "D3"
-        },
+        { "handling": "krav", "spor": "grunnlag", "underkategori": "irregulaer_endring", "navn": "K-g1" },
+        { "handling": "krav", "spor": "frist", "dager": 20, "navn": "K-f1" },
+        { "handling": "varsel", "spor": "frist", "sendt": "2026-09-02", "navn": "D3" },
         {
           "handling": "brev",
           "navn": "D4",
-          "svar": [
-            {
-              "spor": "grunnlag",
-              "navn": "S-g1",
-              "resultat": "avslaatt",
-              "varslet_i_tide": true
-            }
-          ]
+          "svar": [{ "spor": "grunnlag", "navn": "S-g1", "resultat": "avslaatt", "varslet_i_tide": true }]
         },
-        {
-          "handling": "aksept",
-          "spor": "grunnlag",
-          "navn": "D5"
-        },
-        {
-          "handling": "bestridelse",
-          "part": "BH",
-          "gjelder": "D3#sendt",
-          "hva": "mottatt",
-          "navn": "D6"
-        }
+        { "handling": "aksept", "spor": "grunnlag", "navn": "D5" },
+        { "handling": "bestridelse", "part": "BH", "gjelder": "D3#sendt", "hva": "mottatt", "navn": "D6" }
       ],
       "kontroller": [
-        {
-          "etter": 5,
-          "rolle": "forutsetning",
-          "kilde": ["V-SK01"],
-          "forventet": {
-            "grunnlag_avvist": true
-          }
-        },
+        { "etter": 5, "rolle": "forutsetning", "kilde": ["V-SK01"], "forventet": { "grunnlag_avvist": true } },
         {
           "etter": 5,
           "rolle": "mal",
           "kilde": ["MM-U7"],
-          "forventet": {
-            "handlinger.BH": [
-              "bestride:D3#sendt",
-              "innsigelse:K-g1",
-              "innsigelse:K-f1",
-              "innsigelse:D3#varsel"
-            ],
-            "handlinger.TE": ["innsigelse:S-g1", "passivitet:K-g1"]
-          }
+          "forventet": { "handlinger.BH": ["bestride:D3#sendt", "innsigelse:K-g1", "innsigelse:K-f1", "innsigelse:D3#varsel"], "handlinger.TE": ["innsigelse:S-g1", "passivitet:K-g1"] }
         },
         {
           "etter": 5,
           "rolle": "kontroll",
           "kilde": ["V-SK01", "MM-U7"],
-          "prov": {
-            "handling": "krav",
-            "spor": "frist",
-            "dager": 25
-          },
-          "forventet": {
-            "avvist": true,
-            "regel": "GRUNNLAG_AVVIST"
-          }
+          "prov": { "handling": "krav", "spor": "frist", "dager": 25 },
+          "forventet": { "avvist": true, "regel": "GRUNNLAG_AVVIST" }
         },
         {
           "etter": 6,
@@ -2248,17 +1381,9 @@
             "avvist": false,
             "nye_hendelser": 1,
             "opplysning.D3#sendt.dato": "2026-09-02",
-            "opplysning.D3#sendt.bestridelser": [
-              {
-                "part": "BH",
-                "hva": "mottatt",
-                "hendelse": "D6"
-              }
-            ],
+            "opplysning.D3#sendt.bestridelser": [{ "part": "BH", "hva": "mottatt", "hendelse": "D6" }],
             "visning.status": "avsluttet_avslaatt",
-            "visning.opplysning.D3#sendt": {
-              "inneholder": ["mottak_bestridt"]
-            },
+            "visning.opplysning.D3#sendt": { "inneholder": ["mottak_bestridt"] },
             "handlinger.BH": ["innsigelse:K-g1", "innsigelse:K-f1", "innsigelse:D3#varsel"],
             "grunnlag_avvist": true
           }
@@ -2275,14 +1400,7 @@
         {
           "handling": "brev",
           "navn": "D4",
-          "svar": [
-            {
-              "spor": "vederlag",
-              "navn": "S-v1",
-              "vurdering": "delvis",
-              "godkjent_belop": 60000
-            }
-          ]
+          "svar": [{ "spor": "vederlag", "navn": "S-v1", "vurdering": "delvis", "godkjent_belop": 60000 }]
         },
         {
           "handling": "rad",
@@ -2299,14 +1417,8 @@
           "etter": 1,
           "rolle": "kontroll",
           "kilde": ["MM-U2"],
-          "prov": {
-            "handling": "krav",
-            "spor": "vederlag",
-            "belop": 120000
-          },
-          "forventet": {
-            "avvist": false
-          }
+          "prov": { "handling": "krav", "spor": "vederlag", "belop": 120000 },
+          "forventet": { "avvist": false }
         },
         {
           "etter": 2,
@@ -2323,15 +1435,8 @@
           "etter": 2,
           "rolle": "mal",
           "kilde": ["MM-U2", "#304"],
-          "prov": {
-            "handling": "krav",
-            "spor": "vederlag",
-            "belop": 120000
-          },
-          "forventet": {
-            "avvist": true,
-            "regel": "SAK_IKKE_FORSTAATT"
-          }
+          "prov": { "handling": "krav", "spor": "vederlag", "belop": 120000 },
+          "forventet": { "avvist": true, "regel": "SAK_IKKE_FORSTAATT" }
         }
       ],
       "forventningsgrunnlag": "avklart_tolkning"
@@ -2347,8 +1452,7 @@
           "spor": "vederlag",
           "navn": "S-a",
           "gjelder": "K-v1",
-          "erstatter": "S-b",
-          "grunnlagskrav": "K-g1",
+          "erstatter": "S-b", "grunnlagskrav": "K-g1",
           "vurdering": "delvis",
           "godkjent_belop": 60000
         },
@@ -2357,8 +1461,7 @@
           "spor": "vederlag",
           "navn": "S-b",
           "gjelder": "K-v1",
-          "erstatter": "S-a",
-          "grunnlagskrav": "K-g1",
+          "erstatter": "S-a", "grunnlagskrav": "K-g1",
           "vurdering": "delvis",
           "godkjent_belop": 70000
         }
@@ -2368,14 +1471,8 @@
           "etter": 0,
           "rolle": "kontroll",
           "kilde": ["MM-U2"],
-          "prov": {
-            "handling": "krav",
-            "spor": "vederlag",
-            "belop": 120000
-          },
-          "forventet": {
-            "avvist": false
-          }
+          "prov": { "handling": "krav", "spor": "vederlag", "belop": 120000 },
+          "forventet": { "avvist": false }
         },
         {
           "etter": 2,
@@ -2392,15 +1489,8 @@
           "etter": 2,
           "rolle": "mal",
           "kilde": ["MM-U2", "#304"],
-          "prov": {
-            "handling": "krav",
-            "spor": "vederlag",
-            "belop": 120000
-          },
-          "forventet": {
-            "avvist": true,
-            "regel": "SAK_IKKE_FORSTAATT"
-          }
+          "prov": { "handling": "krav", "spor": "vederlag", "belop": 120000 },
+          "forventet": { "avvist": true, "regel": "SAK_IKKE_FORSTAATT" }
         }
       ],
       "forventningsgrunnlag": "avklart_tolkning"
@@ -2411,22 +1501,8 @@
       "rader": ["KA-26"],
       "start": "krav_irreg",
       "steg": [
-        {
-          "handling": "brev",
-          "navn": "D4",
-          "svar": [
-            {
-              "spor": "vederlag",
-              "navn": "S-v1",
-              "vurdering": "godkjent"
-            }
-          ]
-        },
-        {
-          "handling": "trekk",
-          "spor": "vederlag",
-          "navn": "D5"
-        }
+        { "handling": "brev", "navn": "D4", "svar": [{ "spor": "vederlag", "navn": "S-v1", "vurdering": "godkjent" }] },
+        { "handling": "trekk", "spor": "vederlag", "navn": "D5" }
       ],
       "kontroller": [
         {
@@ -2435,9 +1511,7 @@
           "kilde": ["GR-U7"],
           "forventet": {
             "enighet.vederlag.kilde": "sammenfall",
-            "handlinger.TE": {
-              "inneholder": ["trekke:vederlag"]
-            }
+            "handlinger.TE": { "inneholder": ["trekke:vederlag"] }
           }
         },
         {
@@ -2450,10 +1524,7 @@
             "trukket.vederlag": true,
             "trukket.grunnlag": false,
             "enighet.vederlag.virkning": "uten_virkning",
-            "handlinger.BH": {
-              "inneholder": ["svare:grunnlag", "svare:frist"],
-              "mangler": ["revidere:vederlag"]
-            },
+            "handlinger.BH": { "inneholder": ["svare:grunnlag", "svare:frist"], "mangler": ["revidere:vederlag"] },
             "kravene_avgjort": false
           }
         },
@@ -2461,15 +1532,8 @@
           "etter": 2,
           "rolle": "mal",
           "kilde": ["KA-U6", "V-TRUKKET"],
-          "prov": {
-            "handling": "krav",
-            "spor": "vederlag",
-            "belop": 120000
-          },
-          "forventet": {
-            "avvist": true,
-            "regel": "KRAV_TRUKKET"
-          }
+          "prov": { "handling": "krav", "spor": "vederlag", "belop": 120000 },
+          "forventet": { "avvist": true, "regel": "KRAV_TRUKKET" }
         }
       ],
       "forventningsgrunnlag": "avklart_tolkning"
@@ -2481,37 +1545,16 @@
       "forslag": "KA-U7: en ny kravversjon etter et svar som godkjenner hele kravet",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
-        {
-          "handling": "krav",
-          "spor": "vederlag",
-          "belop": 100000,
-          "navn": "K-v1"
-        },
-        {
-          "handling": "brev",
-          "navn": "D4",
-          "svar": [
-            {
-              "spor": "vederlag",
-              "navn": "S-v1",
-              "vurdering": "godkjent"
-            }
-          ]
-        }
+        { "handling": "krav", "spor": "vederlag", "belop": 100000, "navn": "K-v1" },
+        { "handling": "brev", "navn": "D4", "svar": [{ "spor": "vederlag", "navn": "S-v1", "vurdering": "godkjent" }] }
       ],
       "kontroller": [
         {
           "etter": 1,
           "rolle": "kontroll",
           "kilde": ["V-KRAVVERSJON"],
-          "prov": {
-            "handling": "krav",
-            "spor": "vederlag",
-            "belop": 250000
-          },
-          "forventet": {
-            "avvist": false
-          }
+          "prov": { "handling": "krav", "spor": "vederlag", "belop": 250000 },
+          "forventet": { "avvist": false }
         },
         {
           "etter": 2,
@@ -2520,25 +1563,15 @@
           "forventet": {
             "enighet.vederlag.kilde": "sammenfall",
             "enighet.vederlag.virkning": "virksom",
-            "handlinger.TE": {
-              "inneholder": ["trekke:vederlag", "krav:frist"],
-              "mangler": ["krav:vederlag"]
-            }
+            "handlinger.TE": { "inneholder": ["trekke:vederlag", "krav:frist"], "mangler": ["krav:vederlag"] }
           }
         },
         {
           "etter": 2,
           "rolle": "mal",
           "kilde": ["KA-U7"],
-          "prov": {
-            "handling": "krav",
-            "spor": "vederlag",
-            "belop": 250000
-          },
-          "forventet": {
-            "avvist": true,
-            "regel": "ENIGHET_I_SPORET"
-          }
+          "prov": { "handling": "krav", "spor": "vederlag", "belop": 250000 },
+          "forventet": { "avvist": true, "regel": "ENIGHET_I_SPORET" }
         }
       ]
     },
@@ -2549,43 +1582,21 @@
       "forslag": "KA-U7: en ny kravversjon etter at TE har godtatt svaret",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
-        {
-          "handling": "krav",
-          "spor": "vederlag",
-          "belop": 100000,
-          "navn": "K-v1"
-        },
+        { "handling": "krav", "spor": "vederlag", "belop": 100000, "navn": "K-v1" },
         {
           "handling": "brev",
           "navn": "D4",
-          "svar": [
-            {
-              "spor": "vederlag",
-              "navn": "S-v1",
-              "vurdering": "delvis",
-              "godkjent_belop": 50000
-            }
-          ]
+          "svar": [{ "spor": "vederlag", "navn": "S-v1", "vurdering": "delvis", "godkjent_belop": 50000 }]
         },
-        {
-          "handling": "aksept",
-          "spor": "vederlag",
-          "navn": "D5"
-        }
+        { "handling": "aksept", "spor": "vederlag", "navn": "D5" }
       ],
       "kontroller": [
         {
           "etter": 2,
           "rolle": "kontroll",
           "kilde": ["V-KRAVVERSJON", "GR-U4"],
-          "prov": {
-            "handling": "krav",
-            "spor": "vederlag",
-            "belop": 80000
-          },
-          "forventet": {
-            "avvist": false
-          }
+          "prov": { "handling": "krav", "spor": "vederlag", "belop": 80000 },
+          "forventet": { "avvist": false }
         },
         {
           "etter": 3,
@@ -2596,24 +1607,15 @@
             "enighet.vederlag.utfall.beloep": 50000,
             "enighet.vederlag.holder": "D5",
             "enighet.vederlag.virkning": "virksom",
-            "handlinger.TE": {
-              "mangler": ["krav:vederlag", "godta:vederlag"]
-            }
+            "handlinger.TE": { "mangler": ["krav:vederlag", "godta:vederlag"] }
           }
         },
         {
           "etter": 3,
           "rolle": "mal",
           "kilde": ["KA-U7"],
-          "prov": {
-            "handling": "krav",
-            "spor": "vederlag",
-            "belop": 80000
-          },
-          "forventet": {
-            "avvist": true,
-            "regel": "ENIGHET_I_SPORET"
-          }
+          "prov": { "handling": "krav", "spor": "vederlag", "belop": 80000 },
+          "forventet": { "avvist": true, "regel": "ENIGHET_I_SPORET" }
         }
       ]
     },
@@ -2624,78 +1626,37 @@
       "forslag": "KA-U7: en ny kravversjon etter at TE har godtatt et avslag",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
-        {
-          "handling": "krav",
-          "spor": "vederlag",
-          "belop": 100000,
-          "navn": "K-v1"
-        },
-        {
-          "handling": "brev",
-          "navn": "D4",
-          "svar": [
-            {
-              "spor": "vederlag",
-              "navn": "S-v1",
-              "vurdering": "avslaatt"
-            }
-          ]
-        },
-        {
-          "handling": "aksept",
-          "spor": "vederlag",
-          "navn": "D5"
-        }
+        { "handling": "krav", "spor": "vederlag", "belop": 100000, "navn": "K-v1" },
+        { "handling": "brev", "navn": "D4", "svar": [{ "spor": "vederlag", "navn": "S-v1", "vurdering": "avslaatt" }] },
+        { "handling": "aksept", "spor": "vederlag", "navn": "D5" }
       ],
       "kontroller": [
         {
           "etter": 2,
           "rolle": "kontroll",
           "kilde": ["V-KRAVVERSJON"],
-          "prov": {
-            "handling": "krav",
-            "spor": "vederlag",
-            "belop": 90000
-          },
-          "forventet": {
-            "avvist": false
-          }
+          "prov": { "handling": "krav", "spor": "vederlag", "belop": 90000 },
+          "forventet": { "avvist": false }
         },
         {
           "etter": 3,
           "rolle": "mal",
           "kilde": ["KA-U7", "KA-U1"],
-          "forventet": {
-            "avvist": false,
-            "enighet.vederlag.utfall.beloep": 0,
-            "enighet.vederlag.kilde": "aksept"
-          }
+          "forventet": { "avvist": false, "enighet.vederlag.utfall.beloep": 0, "enighet.vederlag.kilde": "aksept" }
         },
         {
           "etter": 3,
           "rolle": "mal",
           "kilde": ["KA-U7"],
-          "prov": {
-            "handling": "krav",
-            "spor": "vederlag",
-            "belop": 90000
-          },
-          "forventet": {
-            "avvist": true,
-            "regel": "ENIGHET_I_SPORET"
-          }
+          "prov": { "handling": "krav", "spor": "vederlag", "belop": 90000 },
+          "forventet": { "avvist": true, "regel": "ENIGHET_I_SPORET" }
         },
         {
           "etter": 3,
           "rolle": "kontroll",
           "kilde": ["KA-U6", "KA-U7"],
-          "prov": {
-            "handling": "trekk",
-            "spor": "vederlag"
-          },
-          "forventet": {
-            "avvist": false
-          }
+          "prov": { "handling": "trekk", "spor": "vederlag" },
+          "forventet": { "avvist": false }
         }
       ]
     },
@@ -2709,14 +1670,7 @@
         {
           "handling": "brev",
           "navn": "D4",
-          "svar": [
-            {
-              "spor": "grunnlag",
-              "navn": "S-g1",
-              "resultat": "godkjent",
-              "varslet_i_tide": true
-            }
-          ]
+          "svar": [{ "spor": "grunnlag", "navn": "S-g1", "resultat": "godkjent", "varslet_i_tide": true }]
         }
       ],
       "kontroller": [
@@ -2726,17 +1680,9 @@
           "kilde": ["GR-U4"],
           "prov": {
             "handling": "brev",
-            "svar": [
-              {
-                "spor": "grunnlag",
-                "resultat": "avslaatt",
-                "varslet_i_tide": true
-              }
-            ]
+            "svar": [{ "spor": "grunnlag", "resultat": "avslaatt", "varslet_i_tide": true }]
           },
-          "forventet": {
-            "avvist": false
-          }
+          "forventet": { "avvist": false }
         },
         {
           "etter": 1,
@@ -2747,13 +1693,8 @@
             "enighet.grunnlag.holder": "S-g1",
             "grunnlag_avklart": true,
             "frafalt": false,
-            "visning.etiketter.grunnlag": {
-              "inneholder": ["avklart", "enige"]
-            },
-            "handlinger.BH": {
-              "inneholder": ["svare:vederlag", "svare:frist"],
-              "mangler": ["revidere:grunnlag"]
-            },
+            "visning.etiketter.grunnlag": { "inneholder": ["avklart", "enige"] },
+            "handlinger.BH": { "inneholder": ["svare:vederlag", "svare:frist"], "mangler": ["revidere:grunnlag"] },
             "handlinger.TE": {
               "inneholder": ["trekke:vederlag"],
               "mangler": ["krav:grunnlag", "godta:grunnlag", "trekke:grunnlag"]
@@ -2764,55 +1705,29 @@
           "etter": 1,
           "rolle": "mal",
           "kilde": ["GR-U10"],
-          "prov": {
-            "handling": "revisjon",
-            "spor": "grunnlag",
-            "resultat": "avslaatt",
-            "varslet_i_tide": true
-          },
-          "forventet": {
-            "avvist": true,
-            "regel": "ENIGHET_I_SPORET"
-          }
+          "prov": { "handling": "revisjon", "spor": "grunnlag", "resultat": "avslaatt", "varslet_i_tide": true },
+          "forventet": { "avvist": true, "regel": "ENIGHET_I_SPORET" }
         },
         {
           "etter": 1,
           "rolle": "mal",
           "kilde": ["GR-U2", "GR-U10", "KA-U7"],
-          "prov": {
-            "handling": "krav",
-            "spor": "grunnlag",
-            "underkategori": "valg_av_loesning"
-          },
-          "forventet": {
-            "avvist": true,
-            "regel": "ENIGHET_I_SPORET"
-          }
+          "prov": { "handling": "krav", "spor": "grunnlag", "underkategori": "valg_av_loesning" },
+          "forventet": { "avvist": true, "regel": "ENIGHET_I_SPORET" }
         },
         {
           "etter": 0,
           "rolle": "kontroll",
           "kilde": ["KA-U6", "KA-U13"],
-          "prov": {
-            "handling": "trekk",
-            "spor": "grunnlag"
-          },
-          "forventet": {
-            "avvist": false
-          }
+          "prov": { "handling": "trekk", "spor": "grunnlag" },
+          "forventet": { "avvist": false }
         },
         {
           "etter": 1,
           "rolle": "mal",
           "kilde": ["KA-U13", "GR-U10"],
-          "prov": {
-            "handling": "trekk",
-            "spor": "grunnlag"
-          },
-          "forventet": {
-            "avvist": true,
-            "regel": "GRUNNLAG_ER_ENDRINGSORDRE"
-          }
+          "prov": { "handling": "trekk", "spor": "grunnlag" },
+          "forventet": { "avvist": true, "regel": "GRUNNLAG_ER_ENDRINGSORDRE" }
         }
       ]
     },
@@ -2823,47 +1738,23 @@
       "forslag": "EO-U2: et trukket spor teller som avgjort (#312)",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
-        {
-          "handling": "krav",
-          "spor": "vederlag",
-          "belop": 100000,
-          "navn": "K-v1"
-        },
-        {
-          "handling": "krav",
-          "spor": "frist",
-          "dager": 20,
-          "navn": "K-f1"
-        },
+        { "handling": "krav", "spor": "vederlag", "belop": 100000, "navn": "K-v1" },
+        { "handling": "krav", "spor": "frist", "dager": 20, "navn": "K-f1" },
         {
           "handling": "brev",
           "navn": "D4",
           "svar": [
-            {
-              "spor": "frist",
-              "navn": "S-f1",
-              "varsel_i_tide": true,
-              "spesifisering_i_tide": true,
-              "hindring": true
-            }
+            { "spor": "frist", "navn": "S-f1", "varsel_i_tide": true, "spesifisering_i_tide": true, "hindring": true }
           ]
         },
-        {
-          "handling": "trekk",
-          "spor": "vederlag",
-          "navn": "D5"
-        }
+        { "handling": "trekk", "spor": "vederlag", "navn": "D5" }
       ],
       "kontroller": [
         {
           "etter": 3,
           "rolle": "mal",
           "kilde": ["EO-U2", "KA-U11", "EO-U5"],
-          "forventet": {
-            "enighet.frist.virkning": "virksom",
-            "kravene_avgjort": false,
-            "kan_inngaa_i_eo": false
-          }
+          "forventet": { "enighet.frist.virkning": "virksom", "kravene_avgjort": false, "kan_inngaa_i_eo": false }
         },
         {
           "etter": 4,
@@ -2889,56 +1780,25 @@
       "forslag": "EO-U5: godtatte avslag i begge spor gir endringsordre på 0 kr og 0 dager",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
-        {
-          "handling": "krav",
-          "spor": "vederlag",
-          "belop": 100000,
-          "navn": "K-v1"
-        },
-        {
-          "handling": "krav",
-          "spor": "frist",
-          "dager": 20,
-          "navn": "K-f1"
-        },
+        { "handling": "krav", "spor": "vederlag", "belop": 100000, "navn": "K-v1" },
+        { "handling": "krav", "spor": "frist", "dager": 20, "navn": "K-f1" },
         {
           "handling": "brev",
           "navn": "D4",
           "svar": [
-            {
-              "spor": "vederlag",
-              "navn": "S-v1",
-              "vurdering": "avslaatt"
-            },
-            {
-              "spor": "frist",
-              "navn": "S-f1",
-              "varsel_i_tide": true,
-              "spesifisering_i_tide": true,
-              "hindring": false
-            }
+            { "spor": "vederlag", "navn": "S-v1", "vurdering": "avslaatt" },
+            { "spor": "frist", "navn": "S-f1", "varsel_i_tide": true, "spesifisering_i_tide": true, "hindring": false }
           ]
         },
-        {
-          "handling": "aksept",
-          "spor": "vederlag",
-          "navn": "D5"
-        },
-        {
-          "handling": "aksept",
-          "spor": "frist",
-          "navn": "D6"
-        }
+        { "handling": "aksept", "spor": "vederlag", "navn": "D5" },
+        { "handling": "aksept", "spor": "frist", "navn": "D6" }
       ],
       "kontroller": [
         {
           "etter": 4,
           "rolle": "mal",
           "kilde": ["KA-U11", "EO-U5"],
-          "forventet": {
-            "kravene_avgjort": false,
-            "kan_inngaa_i_eo": false
-          }
+          "forventet": { "kravene_avgjort": false, "kan_inngaa_i_eo": false }
         },
         {
           "etter": 5,
@@ -2964,40 +1824,17 @@
       "forslag": "EO-U5: to trukne spor gir ikke alene grunnlag for endringsordre",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
-        {
-          "handling": "krav",
-          "spor": "vederlag",
-          "belop": 100000,
-          "navn": "K-v1"
-        },
-        {
-          "handling": "krav",
-          "spor": "frist",
-          "dager": 20,
-          "navn": "K-f1"
-        },
-        {
-          "handling": "trekk",
-          "spor": "vederlag",
-          "navn": "D4"
-        },
-        {
-          "handling": "trekk",
-          "spor": "frist",
-          "navn": "D5"
-        }
+        { "handling": "krav", "spor": "vederlag", "belop": 100000, "navn": "K-v1" },
+        { "handling": "krav", "spor": "frist", "dager": 20, "navn": "K-f1" },
+        { "handling": "trekk", "spor": "vederlag", "navn": "D4" },
+        { "handling": "trekk", "spor": "frist", "navn": "D5" }
       ],
       "kontroller": [
         {
           "etter": 3,
           "rolle": "mal",
           "kilde": ["KA-U11"],
-          "forventet": {
-            "kravene_avgjort": false,
-            "handlinger.TE": {
-              "inneholder": ["trekke:frist"]
-            }
-          }
+          "forventet": { "kravene_avgjort": false, "handlinger.TE": { "inneholder": ["trekke:frist"] } }
         },
         {
           "etter": 4,
@@ -3015,15 +1852,8 @@
           "etter": 4,
           "rolle": "mal",
           "kilde": ["KA-U11"],
-          "prov": {
-            "handling": "revisjon",
-            "spor": "grunnlag",
-            "resultat": "avslaatt"
-          },
-          "forventet": {
-            "avvist": true,
-            "regel": "KRAVENE_AVGJORT"
-          }
+          "prov": { "handling": "revisjon", "spor": "grunnlag", "resultat": "avslaatt" },
+          "forventet": { "avvist": true, "regel": "KRAVENE_AVGJORT" }
         }
       ]
     },
@@ -3034,12 +1864,7 @@
       "forslag": "D: varselet registreres etter at byggherren har sagt at det kom i tide (samspillsreview av #308)",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
-        {
-          "handling": "krav",
-          "spor": "frist",
-          "dager": 20,
-          "navn": "K-f1"
-        },
+        { "handling": "krav", "spor": "frist", "dager": 20, "navn": "K-f1" },
         {
           "handling": "brev",
           "navn": "D3",
@@ -3054,17 +1879,8 @@
             }
           ]
         },
-        {
-          "handling": "varsel",
-          "spor": "frist",
-          "sendt": "2026-09-02",
-          "navn": "D4"
-        },
-        {
-          "handling": "aksept",
-          "spor": "frist",
-          "navn": "D5"
-        }
+        { "handling": "varsel", "spor": "frist", "sendt": "2026-09-02", "navn": "D4" },
+        { "handling": "aksept", "spor": "frist", "navn": "D5" }
       ],
       "kontroller": [
         {
@@ -3075,22 +1891,15 @@
             "avvist": false,
             "varsel.frist": "D4",
             "uavklart.S-f1": [],
-            "visning.etiketter.frist": {
-              "mangler": ["bh_har_ikke_vurdert_varselet"]
-            },
-            "handlinger.TE": {
-              "inneholder": ["godta:frist"]
-            }
+            "visning.etiketter.frist": { "mangler": ["bh_har_ikke_vurdert_varselet"] },
+            "handlinger.TE": { "inneholder": ["godta:frist"] }
           }
         },
         {
           "etter": 4,
           "rolle": "mal",
           "kilde": ["MM-U8", "KA-U1", "KA-U10"],
-          "forventet": {
-            "avvist": false,
-            "enighet.frist.utfall.dager": 10
-          }
+          "forventet": { "avvist": false, "enighet.frist.utfall.dager": 10 }
         }
       ]
     },
@@ -3106,42 +1915,22 @@
           "etter": 0,
           "rolle": "mal",
           "kilde": ["KA-U8"],
-          "prov": {
-            "handling": "krav",
-            "spor": "frist",
-            "dager": 0
-          },
-          "forventet": {
-            "avvist": true,
-            "regel": "UGYLDIG_FORM"
-          }
+          "prov": { "handling": "krav", "spor": "frist", "dager": 0 },
+          "forventet": { "avvist": true, "regel": "UGYLDIG_FORM" }
         },
         {
           "etter": 0,
           "rolle": "mal",
           "kilde": ["KA-U8"],
-          "prov": {
-            "handling": "krav",
-            "spor": "vederlag",
-            "belop": 0
-          },
-          "forventet": {
-            "avvist": true,
-            "regel": "UGYLDIG_FORM"
-          }
+          "prov": { "handling": "krav", "spor": "vederlag", "belop": 0 },
+          "forventet": { "avvist": true, "regel": "UGYLDIG_FORM" }
         },
         {
           "etter": 0,
           "rolle": "kontroll",
           "kilde": ["V-KRAVVERSJON"],
-          "prov": {
-            "handling": "krav",
-            "spor": "frist",
-            "dager": 1
-          },
-          "forventet": {
-            "avvist": false
-          }
+          "prov": { "handling": "krav", "spor": "frist", "dager": 1 },
+          "forventet": { "avvist": false }
         }
       ]
     },
@@ -3159,22 +1948,8 @@
           "underkategori": "medvirkning",
           "navn": "K-g1"
         },
-        {
-          "handling": "brev",
-          "navn": "D2",
-          "svar": [
-            {
-              "spor": "grunnlag",
-              "navn": "S-g1",
-              "resultat": "godkjent"
-            }
-          ]
-        },
-        {
-          "handling": "trekk",
-          "spor": "grunnlag",
-          "navn": "D3"
-        }
+        { "handling": "brev", "navn": "D2", "svar": [{ "spor": "grunnlag", "navn": "S-g1", "resultat": "godkjent" }] },
+        { "handling": "trekk", "spor": "grunnlag", "navn": "D3" }
       ],
       "kontroller": [
         {
@@ -3183,20 +1958,14 @@
           "kilde": ["GR-U10", "KA-U13"],
           "forventet": {
             "enighet.grunnlag.kilde": "sammenfall",
-            "handlinger.TE": {
-              "inneholder": ["trekke:grunnlag"]
-            }
+            "handlinger.TE": { "inneholder": ["trekke:grunnlag"] }
           }
         },
         {
           "etter": 3,
           "rolle": "mal",
           "kilde": ["KA-U13", "KA-U6", "GR-U5"],
-          "forventet": {
-            "avvist": false,
-            "trukket.grunnlag": true,
-            "visning.status": "avsluttet_trukket"
-          }
+          "forventet": { "avvist": false, "trukket.grunnlag": true, "visning.status": "avsluttet_trukket" }
         }
       ]
     },
@@ -3206,13 +1975,7 @@
       "start": "godkjent_grunnlag",
       "forslag": "KA-U13: underkategorien EO er unntatt, så trekket godtas",
       "forventningsgrunnlag": "avklart_tolkning",
-      "steg": [
-        {
-          "handling": "trekk",
-          "spor": "grunnlag",
-          "navn": "D3"
-        }
-      ],
+      "steg": [{ "handling": "trekk", "spor": "grunnlag", "navn": "D3" }],
       "kontroller": [
         {
           "etter": 0,
@@ -3220,19 +1983,14 @@
           "kilde": ["GR-U10", "KA-U13"],
           "forventet": {
             "enighet.grunnlag.kilde": "sammenfall",
-            "handlinger.TE": {
-              "inneholder": ["trekke:grunnlag"]
-            }
+            "handlinger.TE": { "inneholder": ["trekke:grunnlag"] }
           }
         },
         {
           "etter": 1,
           "rolle": "mal",
           "kilde": ["KA-U13", "KA-U6", "GR-U5"],
-          "forventet": {
-            "avvist": false,
-            "trukket.grunnlag": true
-          }
+          "forventet": { "avvist": false, "trukket.grunnlag": true }
         }
       ]
     },
@@ -3246,57 +2004,30 @@
         {
           "handling": "brev",
           "navn": "D3",
-          "svar": [
-            {
-              "spor": "grunnlag",
-              "navn": "S-g1",
-              "resultat": "godkjent",
-              "varslet_i_tide": true
-            }
-          ]
+          "svar": [{ "spor": "grunnlag", "navn": "S-g1", "resultat": "godkjent", "varslet_i_tide": true }]
         },
-        {
-          "handling": "regelendring",
-          "regelsett": "n+1"
-        }
+        { "handling": "regelendring", "regelsett": "n+1" }
       ],
       "kontroller": [
         {
           "etter": 1,
           "rolle": "mal",
           "kilde": ["KA-U13", "GR-U10"],
-          "prov": {
-            "handling": "trekk",
-            "spor": "grunnlag"
-          },
-          "forventet": {
-            "avvist": true,
-            "regel": "GRUNNLAG_ER_ENDRINGSORDRE"
-          }
+          "prov": { "handling": "trekk", "spor": "grunnlag" },
+          "forventet": { "avvist": true, "regel": "GRUNNLAG_ER_ENDRINGSORDRE" }
         },
         {
           "etter": 2,
           "rolle": "mal",
           "kilde": ["MM-U9", "KA-U13", "GR-U11"],
-          "forventet": {
-            "enighet.grunnlag.kilde": "sammenfall",
-            "handlinger.TE": {
-              "mangler": ["trekke:grunnlag"]
-            }
-          }
+          "forventet": { "enighet.grunnlag.kilde": "sammenfall", "handlinger.TE": { "mangler": ["trekke:grunnlag"] } }
         },
         {
           "etter": 2,
           "rolle": "mal",
           "kilde": ["MM-U9", "KA-U13", "GR-U11"],
-          "prov": {
-            "handling": "trekk",
-            "spor": "grunnlag"
-          },
-          "forventet": {
-            "avvist": true,
-            "regel": "GRUNNLAG_ER_ENDRINGSORDRE"
-          }
+          "prov": { "handling": "trekk", "spor": "grunnlag" },
+          "forventet": { "avvist": true, "regel": "GRUNNLAG_ER_ENDRINGSORDRE" }
         }
       ]
     },
@@ -3310,40 +2041,22 @@
         {
           "handling": "brev",
           "navn": "D4",
-          "svar": [
-            {
-              "spor": "grunnlag",
-              "navn": "S-g1",
-              "resultat": "avslaatt",
-              "varslet_i_tide": true
-            }
-          ]
+          "svar": [{ "spor": "grunnlag", "navn": "S-g1", "resultat": "avslaatt", "varslet_i_tide": true }]
         },
-        {
-          "handling": "trekk",
-          "spor": "grunnlag",
-          "navn": "D5"
-        }
+        { "handling": "trekk", "spor": "grunnlag", "navn": "D5" }
       ],
       "kontroller": [
         {
           "etter": 1,
           "rolle": "mal",
           "kilde": ["KA-U13", "GR-U5"],
-          "forventet": {
-            "handlinger.TE": {
-              "inneholder": ["trekke:grunnlag"]
-            }
-          }
+          "forventet": { "handlinger.TE": { "inneholder": ["trekke:grunnlag"] } }
         },
         {
           "etter": 2,
           "rolle": "mal",
           "kilde": ["KA-U13", "KA-U6", "GR-U5"],
-          "forventet": {
-            "avvist": false,
-            "trukket.grunnlag": true
-          }
+          "forventet": { "avvist": false, "trukket.grunnlag": true }
         }
       ]
     },
@@ -3357,41 +2070,22 @@
         {
           "handling": "brev",
           "navn": "D4",
-          "svar": [
-            {
-              "spor": "grunnlag",
-              "navn": "S-g1",
-              "resultat": "paalegg_frafalt",
-              "varslet_i_tide": true
-            }
-          ]
+          "svar": [{ "spor": "grunnlag", "navn": "S-g1", "resultat": "paalegg_frafalt", "varslet_i_tide": true }]
         },
-        {
-          "handling": "trekk",
-          "spor": "grunnlag",
-          "navn": "D5"
-        }
+        { "handling": "trekk", "spor": "grunnlag", "navn": "D5" }
       ],
       "kontroller": [
         {
           "etter": 1,
           "rolle": "mal",
           "kilde": ["KA-U13", "GR-U5", "GR-U9"],
-          "forventet": {
-            "frafalt": true,
-            "handlinger.TE": {
-              "inneholder": ["trekke:grunnlag"]
-            }
-          }
+          "forventet": { "frafalt": true, "handlinger.TE": { "inneholder": ["trekke:grunnlag"] } }
         },
         {
           "etter": 2,
           "rolle": "mal",
           "kilde": ["KA-U13", "KA-U6", "GR-U5"],
-          "forventet": {
-            "avvist": false,
-            "trukket.grunnlag": true
-          }
+          "forventet": { "avvist": false, "trukket.grunnlag": true }
         }
       ]
     },
@@ -3418,13 +2112,8 @@
           "etter": 0,
           "rolle": "kontroll",
           "kilde": ["KA-U6", "KA-U13"],
-          "prov": {
-            "handling": "trekk",
-            "spor": "grunnlag"
-          },
-          "forventet": {
-            "avvist": false
-          }
+          "prov": { "handling": "trekk", "spor": "grunnlag" },
+          "forventet": { "avvist": false }
         },
         {
           "etter": 1,
@@ -3437,23 +2126,15 @@
             "beslutningsgrunnlag.S-g1.varslingsplikt": true,
             "opplysning.D4#endringsordre.oppfylt": true,
             "endringsordre": "ja",
-            "handlinger.TE": {
-              "mangler": ["trekke:grunnlag"]
-            }
+            "handlinger.TE": { "mangler": ["trekke:grunnlag"] }
           }
         },
         {
           "etter": 1,
           "rolle": "mal",
           "kilde": ["GR-U13", "KA-U14"],
-          "prov": {
-            "handling": "trekk",
-            "spor": "grunnlag"
-          },
-          "forventet": {
-            "avvist": true,
-            "regel": "GRUNNLAG_ER_ENDRINGSORDRE"
-          }
+          "prov": { "handling": "trekk", "spor": "grunnlag" },
+          "forventet": { "avvist": true, "regel": "GRUNNLAG_ER_ENDRINGSORDRE" }
         }
       ]
     },
@@ -3464,10 +2145,7 @@
       "forslag": "MM-U17: byggherrens svar er sendt utenfor appen før regelendringen og registrert etter den. Appens vurdering fryses etter reglene ved registreringen (n+1, der § 32.2 ikke gjelder SAMORD), ikke reglene da brevet ble sendt",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
-        {
-          "handling": "regelendring",
-          "regelsett": "n+1"
-        },
+        { "handling": "regelendring", "regelsett": "n+1" },
         {
           "handling": "rad",
           "spor": "grunnlag",
@@ -3515,17 +2193,8 @@
           "varslet_i_tide": false,
           "sendt": "2026-09-01"
         },
-        {
-          "handling": "regelendring",
-          "regelsett": "n+1"
-        },
-        {
-          "handling": "revisjon",
-          "spor": "grunnlag",
-          "navn": "S-g2",
-          "dokument": "D6",
-          "resultat": "avslaatt"
-        }
+        { "handling": "regelendring", "regelsett": "n+1" },
+        { "handling": "revisjon", "spor": "grunnlag", "navn": "S-g2", "dokument": "D6", "resultat": "avslaatt" }
       ],
       "kontroller": [
         {
@@ -3536,9 +2205,7 @@
             "beslutningsgrunnlag.S-g1.regelversjon": "n",
             "beslutningsgrunnlag.S-g1.varslingsplikt": true,
             "virkning.S-g1.rettidighet": "prinsipalt",
-            "visning.etiketter.grunnlag": {
-              "inneholder": ["appens_vurdering_ved_registreringen"]
-            }
+            "visning.etiketter.grunnlag": { "inneholder": ["appens_vurdering_ved_registreringen"] }
           }
         },
         {
@@ -3590,13 +2257,8 @@
           "etter": 0,
           "rolle": "kontroll",
           "kilde": ["KA-U6", "KA-U13"],
-          "prov": {
-            "handling": "trekk",
-            "spor": "grunnlag"
-          },
-          "forventet": {
-            "avvist": false
-          }
+          "prov": { "handling": "trekk", "spor": "grunnlag" },
+          "forventet": { "avvist": false }
         },
         {
           "etter": 1,
@@ -3608,23 +2270,15 @@
             "beslutningsgrunnlag.S-g1.varslingsplikt": true,
             "opplysning.D4#endringsordre": null,
             "endringsordre": "ikke_avklart",
-            "visning.etiketter.grunnlag": {
-              "inneholder": ["endringsordre_ikke_avklart"]
-            }
+            "visning.etiketter.grunnlag": { "inneholder": ["endringsordre_ikke_avklart"] }
           }
         },
         {
           "etter": 1,
           "rolle": "mal",
           "kilde": ["KA-U14", "GR-U13"],
-          "prov": {
-            "handling": "trekk",
-            "spor": "grunnlag"
-          },
-          "forventet": {
-            "avvist": true,
-            "regel": "ENDRINGSORDRE_IKKE_AVKLART"
-          }
+          "prov": { "handling": "trekk", "spor": "grunnlag" },
+          "forventet": { "avvist": true, "regel": "ENDRINGSORDRE_IKKE_AVKLART" }
         }
       ]
     },
@@ -3645,11 +2299,7 @@
           "sendt": "2026-09-30",
           "endringsordre": false
         },
-        {
-          "handling": "trekk",
-          "spor": "grunnlag",
-          "navn": "D5"
-        }
+        { "handling": "trekk", "spor": "grunnlag", "navn": "D5" }
       ],
       "kontroller": [
         {
@@ -3660,20 +2310,14 @@
             "enighet.grunnlag.kilde": "sammenfall",
             "opplysning.D4#endringsordre.oppfylt": false,
             "endringsordre": "nei",
-            "handlinger.TE": {
-              "inneholder": ["trekke:grunnlag"]
-            }
+            "handlinger.TE": { "inneholder": ["trekke:grunnlag"] }
           }
         },
         {
           "etter": 2,
           "rolle": "mal",
           "kilde": ["KA-U6", "GR-U5", "KA-U14"],
-          "forventet": {
-            "avvist": false,
-            "trukket.grunnlag": true,
-            "trukket.vederlag": true
-          }
+          "forventet": { "avvist": false, "trukket.grunnlag": true, "trukket.vederlag": true }
         }
       ]
     },
@@ -3693,31 +2337,16 @@
           "resultat": "godkjent",
           "sendt": "2026-09-30"
         },
-        {
-          "handling": "rad",
-          "avklarer": "D4",
-          "oppfylt": false,
-          "navn": "D5"
-        },
-        {
-          "handling": "trekk",
-          "spor": "grunnlag",
-          "navn": "D6"
-        }
+        { "handling": "rad", "avklarer": "D4", "oppfylt": false, "navn": "D5" },
+        { "handling": "trekk", "spor": "grunnlag", "navn": "D6" }
       ],
       "kontroller": [
         {
           "etter": 1,
           "rolle": "mal",
           "kilde": ["KA-U14", "GR-U13"],
-          "prov": {
-            "handling": "trekk",
-            "spor": "grunnlag"
-          },
-          "forventet": {
-            "avvist": true,
-            "regel": "ENDRINGSORDRE_IKKE_AVKLART"
-          }
+          "prov": { "handling": "trekk", "spor": "grunnlag" },
+          "forventet": { "avvist": true, "regel": "ENDRINGSORDRE_IKKE_AVKLART" }
         },
         {
           "etter": 2,
@@ -3727,19 +2356,14 @@
             "forstaatt": true,
             "opplysning.D5#endringsordre.oppfylt": false,
             "endringsordre": "nei",
-            "handlinger.TE": {
-              "inneholder": ["trekke:grunnlag"]
-            }
+            "handlinger.TE": { "inneholder": ["trekke:grunnlag"] }
           }
         },
         {
           "etter": 3,
           "rolle": "mal",
           "kilde": ["KA-U6", "GR-U5", "KA-U14"],
-          "forventet": {
-            "avvist": false,
-            "trukket.grunnlag": true
-          }
+          "forventet": { "avvist": false, "trukket.grunnlag": true }
         }
       ]
     },
@@ -3749,15 +2373,7 @@
       "start": "godkjent_grunnlag",
       "forslag": "HF-U1 og MM-U1: et varsel i et krav sendt i appen. Datoen gjelder varselet, ikke kravet, og kravet er ikke registrert korrespondanse",
       "forventningsgrunnlag": "avklart_tolkning",
-      "steg": [
-        {
-          "handling": "krav",
-          "spor": "frist",
-          "dager": 20,
-          "varsel_sendt": "2026-09-02",
-          "navn": "K-f1"
-        }
-      ],
+      "steg": [{ "handling": "krav", "spor": "frist", "dager": 20, "varsel_sendt": "2026-09-02", "navn": "K-f1" }],
       "kontroller": [
         {
           "etter": 1,
@@ -3778,54 +2394,24 @@
       "forslag": "MM-U14: en bestridelse avvises også når saken ikke er forstått",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
-        {
-          "handling": "krav",
-          "spor": "frist",
-          "dager": 20,
-          "navn": "K-f1"
-        },
-        {
-          "handling": "varsel",
-          "spor": "frist",
-          "sendt": "2026-09-02",
-          "navn": "D4"
-        },
-        {
-          "handling": "rad",
-          "art": "foresporsel",
-          "navn": "D5",
-          "gjelder": "K-f1"
-        }
+        { "handling": "krav", "spor": "frist", "dager": 20, "navn": "K-f1" },
+        { "handling": "varsel", "spor": "frist", "sendt": "2026-09-02", "navn": "D4" },
+        { "handling": "rad", "art": "foresporsel", "navn": "D5", "gjelder": "K-f1" }
       ],
       "kontroller": [
         {
           "etter": 2,
           "rolle": "kontroll",
           "kilde": ["MM-U7"],
-          "prov": {
-            "handling": "bestridelse",
-            "part": "BH",
-            "gjelder": "D4#sendt",
-            "hva": "mottatt"
-          },
-          "forventet": {
-            "avvist": false
-          }
+          "prov": { "handling": "bestridelse", "part": "BH", "gjelder": "D4#sendt", "hva": "mottatt" },
+          "forventet": { "avvist": false }
         },
         {
           "etter": 3,
           "rolle": "mal",
           "kilde": ["MM-U14", "MM-U2"],
-          "prov": {
-            "handling": "bestridelse",
-            "part": "BH",
-            "gjelder": "D4#sendt",
-            "hva": "mottatt"
-          },
-          "forventet": {
-            "avvist": true,
-            "regel": "SAK_IKKE_FORSTAATT"
-          }
+          "prov": { "handling": "bestridelse", "part": "BH", "gjelder": "D4#sendt", "hva": "mottatt" },
+          "forventet": { "avvist": true, "regel": "SAK_IKKE_FORSTAATT" }
         }
       ]
     },
@@ -3835,16 +2421,7 @@
       "start": "krav_eo",
       "forslag": "GR-U12 og KA-U13: i underkategorien EO gjaldt ikke § 32.2, så samme registrerte godkjenning kan trekkes",
       "forventningsgrunnlag": "avklart_tolkning",
-      "steg": [
-        {
-          "handling": "rad",
-          "spor": "grunnlag",
-          "navn": "S-g1",
-          "dokument": "D4",
-          "gjelder": "K-g1",
-          "resultat": "godkjent"
-        }
-      ],
+      "steg": [{ "handling": "rad", "spor": "grunnlag", "navn": "S-g1", "dokument": "D4", "gjelder": "K-g1", "resultat": "godkjent" }],
       "kontroller": [
         {
           "etter": 1,
@@ -3853,22 +2430,15 @@
           "forventet": {
             "enighet.grunnlag.kilde": "sammenfall",
             "beslutningsgrunnlag.S-g1.varslingsplikt": false,
-            "handlinger.TE": {
-              "inneholder": ["trekke:grunnlag"]
-            }
+            "handlinger.TE": { "inneholder": ["trekke:grunnlag"] }
           }
         },
         {
           "etter": 1,
           "rolle": "mal",
           "kilde": ["KA-U13", "KA-U6"],
-          "prov": {
-            "handling": "trekk",
-            "spor": "grunnlag"
-          },
-          "forventet": {
-            "avvist": false
-          }
+          "prov": { "handling": "trekk", "spor": "grunnlag" },
+          "forventet": { "avvist": false }
         }
       ]
     },
@@ -3895,14 +2465,8 @@
           "etter": 0,
           "rolle": "kontroll",
           "kilde": ["MM-U2"],
-          "prov": {
-            "handling": "krav",
-            "spor": "vederlag",
-            "belop": 120000
-          },
-          "forventet": {
-            "avvist": false
-          }
+          "prov": { "handling": "krav", "spor": "vederlag", "belop": 120000 },
+          "forventet": { "avvist": false }
         },
         {
           "etter": 1,
@@ -3921,15 +2485,8 @@
           "etter": 1,
           "rolle": "mal",
           "kilde": ["MM-U2"],
-          "prov": {
-            "handling": "krav",
-            "spor": "vederlag",
-            "belop": 120000
-          },
-          "forventet": {
-            "avvist": true,
-            "regel": "SAK_IKKE_FORSTAATT"
-          }
+          "prov": { "handling": "krav", "spor": "vederlag", "belop": 120000 },
+          "forventet": { "avvist": true, "regel": "SAK_IKKE_FORSTAATT" }
         }
       ]
     },
@@ -3940,31 +2497,12 @@
       "forslag": "KA-U12: «ingen krav» lukker vederlaget, og saken kan inngå i en endringsordre når fristen er godkjent",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
-        {
-          "handling": "rad",
-          "art": "ingen_krav",
-          "spor": "vederlag",
-          "part": "TE",
-          "navn": "D3"
-        },
-        {
-          "handling": "krav",
-          "spor": "frist",
-          "dager": 20,
-          "navn": "K-f1"
-        },
+        { "handling": "rad", "art": "ingen_krav", "spor": "vederlag", "part": "TE", "navn": "D3" },
+        { "handling": "krav", "spor": "frist", "dager": 20, "navn": "K-f1" },
         {
           "handling": "brev",
           "navn": "D5",
-          "svar": [
-            {
-              "spor": "frist",
-              "navn": "S-f1",
-              "varsel_i_tide": true,
-              "spesifisering_i_tide": true,
-              "hindring": true
-            }
-          ]
+          "svar": [{ "spor": "frist", "navn": "S-f1", "varsel_i_tide": true, "spesifisering_i_tide": true, "hindring": true }]
         }
       ],
       "kontroller": [
@@ -3972,14 +2510,8 @@
           "etter": 0,
           "rolle": "kontroll",
           "kilde": ["KA-U12"],
-          "prov": {
-            "handling": "krav",
-            "spor": "vederlag",
-            "belop": 100000
-          },
-          "forventet": {
-            "avvist": false
-          }
+          "prov": { "handling": "krav", "spor": "vederlag", "belop": 100000 },
+          "forventet": { "avvist": false }
         },
         {
           "etter": 1,
@@ -3988,25 +2520,15 @@
           "forventet": {
             "forstaatt": true,
             "kravene_avgjort": false,
-            "handlinger.TE": {
-              "inneholder": ["krav:frist"],
-              "mangler": ["krav:vederlag"]
-            }
+            "handlinger.TE": { "inneholder": ["krav:frist"], "mangler": ["krav:vederlag"] }
           }
         },
         {
           "etter": 1,
           "rolle": "mal",
           "kilde": ["KA-U12"],
-          "prov": {
-            "handling": "krav",
-            "spor": "vederlag",
-            "belop": 100000
-          },
-          "forventet": {
-            "avvist": true,
-            "regel": "INGEN_KRAV_I_SPORET"
-          }
+          "prov": { "handling": "krav", "spor": "vederlag", "belop": 100000 },
+          "forventet": { "avvist": true, "regel": "INGEN_KRAV_I_SPORET" }
         },
         {
           "etter": 3,
@@ -4016,9 +2538,7 @@
             "kravene_avgjort": true,
             "kan_inngaa_i_eo": true,
             "visning.status": "avsluttet_oppgjort",
-            "visning.etiketter.vederlag": {
-              "inneholder": ["ingen_krav"]
-            }
+            "visning.etiketter.vederlag": { "inneholder": ["ingen_krav"] }
           }
         }
       ]
@@ -4029,56 +2549,35 @@
       "start": "krav_irreg",
       "forslag": "KA-U12 og 4.2 i designnotatet for #273: «ingen krav» i et spor som har en kravversjon",
       "forventningsgrunnlag": "avklart_tolkning",
-      "steg": [
-        {
-          "handling": "rad",
-          "art": "ingen_krav",
-          "spor": "vederlag",
-          "part": "TE",
-          "navn": "D4"
-        }
-      ],
+      "steg": [{ "handling": "rad", "art": "ingen_krav", "spor": "vederlag", "part": "TE", "navn": "D4" }],
       "kontroller": [
         {
           "etter": 0,
           "rolle": "kontroll",
           "kilde": ["MM-U2"],
-          "prov": {
-            "handling": "trekk",
-            "spor": "vederlag"
-          },
-          "forventet": {
-            "avvist": false
-          }
+          "prov": { "handling": "trekk", "spor": "vederlag" },
+          "forventet": { "avvist": false }
         },
         {
           "etter": 1,
           "rolle": "mal",
           "kilde": ["KA-U12", "MM-U2"],
-          "forventet": {
-            "forstaatt": false,
-            "visning.journal.D4": "ikke_tolket",
-            "handlinger.TE": []
-          }
+          "forventet": { "forstaatt": false, "visning.journal.D4": "ikke_tolket", "handlinger.TE": [] }
         },
         {
           "etter": 1,
           "rolle": "mal",
           "kilde": ["MM-U2"],
-          "prov": {
-            "handling": "trekk",
-            "spor": "vederlag"
-          },
-          "forventet": {
-            "avvist": true,
-            "regel": "SAK_IKKE_FORSTAATT"
-          }
+          "prov": { "handling": "trekk", "spor": "vederlag" },
+          "forventet": { "avvist": true, "regel": "SAK_IKKE_FORSTAATT" }
         }
       ]
     },
     {
       "id": "F-MM-S342",
-      "rader": ["GR-30"],
+      "rader": [
+        "GR-30"
+      ],
       "start": "krav_irreg",
       "forslag": "#342: subsidiariteten følger grunnlagsversjonen svaret ble regnet mot, også når et svar på den lagres etter en ny grunnlagsversjon",
       "forventningsgrunnlag": "avklart_tolkning",
@@ -4135,34 +2634,51 @@
         {
           "etter": 1,
           "rolle": "mal",
-          "kilde": ["HF-U1"],
+          "kilde": [
+            "HF-U1"
+          ],
           "forventet": {
             "grunnlagskrav.S-v1": "K-g1",
-            "subsidiaer_aarsaker.vederlag": ["avslaatt"]
+            "subsidiaer_aarsaker.vederlag": [
+              "avslaatt"
+            ]
           }
         },
         {
           "etter": 2,
           "rolle": "mal",
-          "kilde": ["GR-U1", "HF-U1"],
+          "kilde": [
+            "GR-U1",
+            "HF-U1"
+          ],
           "forventet": {
-            "subsidiaer_aarsaker.vederlag": ["avslaatt"]
+            "subsidiaer_aarsaker.vederlag": [
+              "avslaatt"
+            ]
           }
         },
         {
           "etter": 3,
           "rolle": "mal",
-          "kilde": ["GR-U4", "HF-U1"],
+          "kilde": [
+            "GR-U4",
+            "HF-U1"
+          ],
           "forventet": {
             "forstaatt": true,
             "gjeldende_svar.grunnlag": null,
-            "subsidiaer_aarsaker.vederlag": ["prekludert", "avslaatt"]
+            "subsidiaer_aarsaker.vederlag": [
+              "prekludert",
+              "avslaatt"
+            ]
           }
         },
         {
           "etter": 4,
           "rolle": "mal",
-          "kilde": ["GR-U4"],
+          "kilde": [
+            "GR-U4"
+          ],
           "forventet": {
             "subsidiaer_aarsaker.vederlag": []
           }
@@ -4171,7 +2687,9 @@
     },
     {
       "id": "F-MM-IK3",
-      "rader": ["KA-31"],
+      "rader": [
+        "KA-31"
+      ],
       "start": "godkjent_grunnlag",
       "forslag": "KA-U12: «ingen krav» fra appen lukker sporet, og avvises i et spor med krav eller når det alt er sagt",
       "forventningsgrunnlag": "avklart_tolkning",
@@ -4192,31 +2710,45 @@
         {
           "etter": 0,
           "rolle": "mal",
-          "kilde": ["KA-U12"],
+          "kilde": [
+            "KA-U12"
+          ],
           "forventet": {
             "handlinger.TE": {
-              "inneholder": ["ingen_krav:vederlag", "ingen_krav:frist"]
+              "inneholder": [
+                "ingen_krav:vederlag",
+                "ingen_krav:frist"
+              ]
             }
           }
         },
         {
           "etter": 1,
           "rolle": "mal",
-          "kilde": ["KA-U12"],
+          "kilde": [
+            "KA-U12"
+          ],
           "forventet": {
             "forstaatt": true,
             "visning.etiketter.vederlag": {
-              "inneholder": ["ingen_krav"]
+              "inneholder": [
+                "ingen_krav"
+              ]
             },
             "handlinger.TE": {
-              "mangler": ["krav:vederlag", "ingen_krav:vederlag"]
+              "mangler": [
+                "krav:vederlag",
+                "ingen_krav:vederlag"
+              ]
             }
           }
         },
         {
           "etter": 1,
           "rolle": "mal",
-          "kilde": ["KA-U12"],
+          "kilde": [
+            "KA-U12"
+          ],
           "forventet": {
             "avvist": true,
             "regel": "INGEN_KRAV_I_SPORET"
@@ -4229,7 +2761,10 @@
         {
           "etter": 2,
           "rolle": "mal",
-          "kilde": ["KA-U12", "KA-U6"],
+          "kilde": [
+            "KA-U12",
+            "KA-U6"
+          ],
           "forventet": {
             "avvist": true,
             "regel": "KRAV_I_SPORET"
@@ -4243,7 +2778,9 @@
     },
     {
       "id": "F-MM-IK4",
-      "rader": ["KA-31"],
+      "rader": [
+        "KA-31"
+      ],
       "start": null,
       "forslag": "KA-U15: «ingen krav» før grunnlaget er sendt avvises, og godtas etter et varsel etter § 33.4",
       "forventningsgrunnlag": "avklart_tolkning",
@@ -4270,7 +2807,9 @@
         {
           "etter": 0,
           "rolle": "mal",
-          "kilde": ["KA-U15"],
+          "kilde": [
+            "KA-U15"
+          ],
           "forventet": {
             "avvist": true,
             "regel": "GRUNNLAG_IKKE_SENDT"
@@ -4283,7 +2822,9 @@
         {
           "etter": 1,
           "rolle": "kontroll",
-          "kilde": ["KA-U15"],
+          "kilde": [
+            "KA-U15"
+          ],
           "forventet": {
             "avvist": false
           },
@@ -4295,11 +2836,16 @@
         {
           "etter": 3,
           "rolle": "mal",
-          "kilde": ["KA-U15", "KA-U12"],
+          "kilde": [
+            "KA-U15",
+            "KA-U12"
+          ],
           "forventet": {
             "forstaatt": true,
             "visning.etiketter.frist": {
-              "inneholder": ["ingen_krav"]
+              "inneholder": [
+                "ingen_krav"
+              ]
             }
           }
         }
@@ -4307,7 +2853,9 @@
     },
     {
       "id": "F-MM-V1",
-      "rader": ["VS-01"],
+      "rader": [
+        "VS-01"
+      ],
       "start": "krav_irreg",
       "forslag": "VS-U1, VS-U9, MP-U6: innsigelse og protest registreres og vises uten virkning på utfallet",
       "forventningsgrunnlag": "avklart_tolkning",
@@ -4353,7 +2901,9 @@
         {
           "etter": 0,
           "rolle": "mal",
-          "kilde": ["VS-U1"],
+          "kilde": [
+            "VS-U1"
+          ],
           "forventet": {
             "avvist": true,
             "regel": "UGYLDIG_INNSIGELSE"
@@ -4367,21 +2917,31 @@
         {
           "etter": 1,
           "rolle": "mal",
-          "kilde": ["VS-U1"],
+          "kilde": [
+            "VS-U1"
+          ],
           "forventet": {
-            "innsigelser": ["BH:K-g1"],
+            "innsigelser": [
+              "BH:K-g1"
+            ],
             "handlinger.BH": {
-              "inneholder": ["svare:grunnlag"]
+              "inneholder": [
+                "svare:grunnlag"
+              ]
             },
             "visning.etiketter.grunnlag": {
-              "inneholder": ["innsigelse_fra_BH"]
+              "inneholder": [
+                "innsigelse_fra_BH"
+              ]
             }
           }
         },
         {
           "etter": 1,
           "rolle": "mal",
-          "kilde": ["VS-U1"],
+          "kilde": [
+            "VS-U1"
+          ],
           "forventet": {
             "avvist": true,
             "regel": "INGEN_INNSIGELSE"
@@ -4395,9 +2955,14 @@
         {
           "etter": 3,
           "rolle": "mal",
-          "kilde": ["VS-U1", "VS-U9"],
+          "kilde": [
+            "VS-U1",
+            "VS-U9"
+          ],
           "forventet": {
-            "protester": ["TE:D3#innsigelse"],
+            "protester": [
+              "TE:D3#innsigelse"
+            ],
             "grunnlag_avklart": false,
             "endringsordre": "nei"
           }
@@ -4405,17 +2970,28 @@
         {
           "etter": 4,
           "rolle": "mal",
-          "kilde": ["MP-U6"],
+          "kilde": [
+            "MP-U6"
+          ],
           "forventet": {
-            "protester": ["TE:D3#innsigelse", "TE:D4"]
+            "protester": [
+              "TE:D3#innsigelse",
+              "TE:D4"
+            ]
           }
         },
         {
           "etter": 5,
           "rolle": "mal",
-          "kilde": ["VS-U1", "VS-U14"],
+          "kilde": [
+            "VS-U1",
+            "VS-U14"
+          ],
           "forventet": {
-            "innsigelser": ["BH:K-g1", "TE:S-g1"],
+            "innsigelser": [
+              "BH:K-g1",
+              "TE:S-g1"
+            ],
             "grunnlag_avklart": false
           }
         }
@@ -4423,7 +2999,9 @@
     },
     {
       "id": "F-MM-V2",
-      "rader": ["VS-02"],
+      "rader": [
+        "VS-02"
+      ],
       "start": "krav_irreg",
       "forslag": "VS-U11: et registrert svar uten standpunkt om rettidighet leses med byggherrens innsigelse",
       "forventningsgrunnlag": "avklart_tolkning",
@@ -4449,7 +3027,12 @@
         {
           "etter": 2,
           "rolle": "mal",
-          "kilde": ["VS-U11", "HF-U1", "GR-U12", "GR-U13"],
+          "kilde": [
+            "VS-U11",
+            "HF-U1",
+            "GR-U12",
+            "GR-U13"
+          ],
           "forventet": {
             "forstaatt": true,
             "virkning.S-g1.rettidighet": "prinsipalt",
@@ -4463,7 +3046,9 @@
     },
     {
       "id": "F-MM-V2-kontroll",
-      "rader": ["VS-02"],
+      "rader": [
+        "VS-02"
+      ],
       "start": "krav_irreg",
       "forslag": "Kontrollsak til VS-U11: uten innsigelsen er godkjenningen sammenfall og endringsordre",
       "forventningsgrunnlag": "avklart_tolkning",
@@ -4483,7 +3068,10 @@
         {
           "etter": 1,
           "rolle": "mal",
-          "kilde": ["GR-U12", "GR-U13"],
+          "kilde": [
+            "GR-U12",
+            "GR-U13"
+          ],
           "forventet": {
             "virkning.S-g1.rettidighet": null,
             "beslutningsgrunnlag.S-g1.sammenfall": true,
@@ -4494,7 +3082,9 @@
     },
     {
       "id": "F-MM-V3",
-      "rader": ["VS-03"],
+      "rader": [
+        "VS-03"
+      ],
       "start": "krav_irreg",
       "forslag": "VS-U11: etter byggherrens innsigelse gjentar eller oppgir svaret fra appen den uttrykkelig",
       "forventningsgrunnlag": "avklart_tolkning",
@@ -4528,7 +3118,9 @@
         {
           "etter": 2,
           "rolle": "mal",
-          "kilde": ["VS-U11"],
+          "kilde": [
+            "VS-U11"
+          ],
           "forventet": {
             "avvist": true,
             "regel": "UGYLDIG_VURDERING"
@@ -4547,7 +3139,9 @@
         {
           "etter": 2,
           "rolle": "kontroll",
-          "kilde": ["VS-U11"],
+          "kilde": [
+            "VS-U11"
+          ],
           "forventet": {
             "avvist": false
           },
@@ -4566,7 +3160,10 @@
         {
           "etter": 3,
           "rolle": "mal",
-          "kilde": ["VS-U11", "GR-U12"],
+          "kilde": [
+            "VS-U11",
+            "GR-U12"
+          ],
           "forventet": {
             "enighet.grunnlag.kilde": "sammenfall",
             "endringsordre": "ja"
@@ -4576,7 +3173,9 @@
     },
     {
       "id": "F-MM-V4",
-      "rader": ["VS-04"],
+      "rader": [
+        "VS-04"
+      ],
       "start": "krav_irreg",
       "forslag": "VS-U12: TE påberoper passiviteten før og etter svaret, uten virkning og uten å sperre svaret",
       "forventningsgrunnlag": "avklart_tolkning",
@@ -4608,24 +3207,37 @@
         {
           "etter": 1,
           "rolle": "mal",
-          "kilde": ["VS-U12"],
+          "kilde": [
+            "VS-U12"
+          ],
           "forventet": {
-            "passivitet": ["K-g1"],
+            "passivitet": [
+              "K-g1"
+            ],
             "handlinger.BH": {
-              "inneholder": ["svare:grunnlag"]
+              "inneholder": [
+                "svare:grunnlag"
+              ]
             },
             "visning.etiketter.grunnlag": {
-              "inneholder": ["passivitet_paaberopt"]
+              "inneholder": [
+                "passivitet_paaberopt"
+              ]
             }
           }
         },
         {
           "etter": 3,
           "rolle": "mal",
-          "kilde": ["VS-U12"],
+          "kilde": [
+            "VS-U12"
+          ],
           "forventet": {
             "forstaatt": true,
-            "passivitet": ["K-g1", "K-g1"],
+            "passivitet": [
+              "K-g1",
+              "K-g1"
+            ],
             "grunnlag_avklart": false
           }
         }
@@ -4633,7 +3245,9 @@
     },
     {
       "id": "F-MM-V4b",
-      "rader": ["VS-04"],
+      "rader": [
+        "VS-04"
+      ],
       "start": "krav_eo",
       "forslag": "GR-U11 og VS-U12: passivitetsregelen gjelder ikke der § 32.2 ikke gjelder",
       "forventningsgrunnlag": "avklart_tolkning",
@@ -4648,7 +3262,10 @@
         {
           "etter": 0,
           "rolle": "mal",
-          "kilde": ["GR-U11", "VS-U12"],
+          "kilde": [
+            "GR-U11",
+            "VS-U12"
+          ],
           "forventet": {
             "avvist": true,
             "regel": "VARSLINGSPLIKT_GJELDER_IKKE"
@@ -4661,7 +3278,9 @@
         {
           "etter": 1,
           "rolle": "mal",
-          "kilde": ["GR-U11"],
+          "kilde": [
+            "GR-U11"
+          ],
           "forventet": {
             "avvist": true,
             "regel": "VARSLINGSPLIKT_GJELDER_IKKE",
@@ -4672,7 +3291,9 @@
     },
     {
       "id": "F-MM-V5",
-      "rader": ["VS-05"],
+      "rader": [
+        "VS-05"
+      ],
       "start": "godkjent_grunnlag",
       "forslag": "KA-U11 og MM-U7: en innsigelse uten virkning på utfallet godtas når kravene er avgjort",
       "forventningsgrunnlag": "avklart_tolkning",
@@ -4698,7 +3319,9 @@
         {
           "etter": 2,
           "rolle": "forutsetning",
-          "kilde": ["KA-U11"],
+          "kilde": [
+            "KA-U11"
+          ],
           "forventet": {
             "kravene_avgjort": true
           }
@@ -4706,7 +3329,9 @@
         {
           "etter": 2,
           "rolle": "kontroll",
-          "kilde": ["KA-U11"],
+          "kilde": [
+            "KA-U11"
+          ],
           "forventet": {
             "avvist": true,
             "regel": "KRAVENE_AVGJORT"
@@ -4719,10 +3344,16 @@
         {
           "etter": 3,
           "rolle": "mal",
-          "kilde": ["KA-U11", "MM-U7", "VS-U1"],
+          "kilde": [
+            "KA-U11",
+            "MM-U7",
+            "VS-U1"
+          ],
           "forventet": {
             "avvist": false,
-            "innsigelser": ["BH:K-g1"],
+            "innsigelser": [
+              "BH:K-g1"
+            ],
             "kravene_avgjort": true
           }
         }
@@ -4730,7 +3361,10 @@
     },
     {
       "id": "F-MM-M1",
-      "rader": ["KA-32", "KA-33"],
+      "rader": [
+        "KA-32",
+        "KA-33"
+      ],
       "start": "krav_irreg",
       "forslag": "KA-U16 og KA-U20: en merking sperrer TEs aksept av svaret til avsenderen har avklart den",
       "forventningsgrunnlag": "avklart_tolkning",
@@ -4744,7 +3378,9 @@
           "resultat": "avslaatt",
           "varslet_i_tide": true,
           "sendt": "2026-09-30",
-          "merking": ["grunnlag"]
+          "merking": [
+            "grunnlag"
+          ]
         },
         {
           "handling": "avklaring",
@@ -4757,22 +3393,31 @@
         {
           "etter": 1,
           "rolle": "mal",
-          "kilde": ["KA-U16", "KA-U20"],
+          "kilde": [
+            "KA-U16",
+            "KA-U20"
+          ],
           "forventet": {
             "forstaatt": true,
             "forbehold.grunnlag": true,
             "handlinger.TE": {
-              "mangler": ["godta:grunnlag"]
+              "mangler": [
+                "godta:grunnlag"
+              ]
             },
             "visning.etiketter.grunnlag": {
-              "inneholder": ["forbehold"]
+              "inneholder": [
+                "forbehold"
+              ]
             }
           }
         },
         {
           "etter": 1,
           "rolle": "mal",
-          "kilde": ["KA-U20"],
+          "kilde": [
+            "KA-U20"
+          ],
           "forventet": {
             "avvist": true,
             "regel": "BREV_MED_FORBEHOLD"
@@ -4785,7 +3430,9 @@
         {
           "etter": 1,
           "rolle": "mal",
-          "kilde": ["KA-U20"],
+          "kilde": [
+            "KA-U20"
+          ],
           "forventet": {
             "avvist": true,
             "regel": "FEIL_PART"
@@ -4799,18 +3446,24 @@
         {
           "etter": 2,
           "rolle": "mal",
-          "kilde": ["KA-U20"],
+          "kilde": [
+            "KA-U20"
+          ],
           "forventet": {
             "forbehold.grunnlag": false,
             "visning.opplysning.D4#kan_ikke_uttrykkes": {
-              "inneholder": ["avklart_av_avsenderen"]
+              "inneholder": [
+                "avklart_av_avsenderen"
+              ]
             }
           }
         },
         {
           "etter": 2,
           "rolle": "mal",
-          "kilde": ["KA-U20"],
+          "kilde": [
+            "KA-U20"
+          ],
           "forventet": {
             "avvist": false
           },
@@ -4823,7 +3476,10 @@
     },
     {
       "id": "F-MM-M2",
-      "rader": ["KA-32", "KA-33"],
+      "rader": [
+        "KA-32",
+        "KA-33"
+      ],
       "start": "godkjent_grunnlag",
       "forslag": "KA-U20: en senere merking av et brev partene er enige om, sperrer endringsordren, men enigheten og utledningen står",
       "forventningsgrunnlag": "avklart_tolkning",
@@ -4854,7 +3510,9 @@
           "handling": "merking",
           "part": "TE",
           "gjelder": "D5",
-          "sporene": ["frist"],
+          "sporene": [
+            "frist"
+          ],
           "navn": "D6"
         },
         {
@@ -4875,7 +3533,10 @@
         {
           "etter": 3,
           "rolle": "forutsetning",
-          "kilde": ["KA-U11", "EO-U5"],
+          "kilde": [
+            "KA-U11",
+            "EO-U5"
+          ],
           "forventet": {
             "kravene_avgjort": true,
             "kan_inngaa_i_eo": true
@@ -4884,7 +3545,10 @@
         {
           "etter": 4,
           "rolle": "mal",
-          "kilde": ["KA-U20", "EO-U5"],
+          "kilde": [
+            "KA-U20",
+            "EO-U5"
+          ],
           "forventet": {
             "forstaatt": true,
             "forbehold.frist": true,
@@ -4892,25 +3556,34 @@
             "kravene_avgjort": true,
             "kan_inngaa_i_eo": false,
             "visning.etiketter.frist": {
-              "inneholder": ["uenighet_om_merket_brev"]
+              "inneholder": [
+                "uenighet_om_merket_brev"
+              ]
             }
           }
         },
         {
           "etter": 5,
           "rolle": "mal",
-          "kilde": ["MM-U7", "KA-U20"],
+          "kilde": [
+            "MM-U7",
+            "KA-U20"
+          ],
           "forventet": {
             "kan_inngaa_i_eo": false,
             "visning.opplysning.D6#kan_ikke_uttrykkes": {
-              "inneholder": ["merking_bestridt"]
+              "inneholder": [
+                "merking_bestridt"
+              ]
             }
           }
         },
         {
           "etter": 6,
           "rolle": "mal",
-          "kilde": ["KA-U20"],
+          "kilde": [
+            "KA-U20"
+          ],
           "forventet": {
             "forbehold.frist": false,
             "kan_inngaa_i_eo": true
@@ -4920,7 +3593,9 @@
     },
     {
       "id": "F-MM-T1",
-      "rader": ["KA-34"],
+      "rader": [
+        "KA-34"
+      ],
       "start": "godkjent_grunnlag",
       "forslag": "KA-U22: trekket avvises når en enighet trekket rammer, bygger på et merket brev, også trekket av grunnlaget",
       "forventningsgrunnlag": "avklart_tolkning",
@@ -4941,7 +3616,9 @@
           "spesifisering_i_tide": true,
           "hindring": true,
           "sendt": "2026-09-30",
-          "merking": ["frist"]
+          "merking": [
+            "frist"
+          ]
         },
         {
           "handling": "avklaring",
@@ -4954,7 +3631,9 @@
         {
           "etter": 1,
           "rolle": "kontroll",
-          "kilde": ["KA-U6"],
+          "kilde": [
+            "KA-U6"
+          ],
           "forventet": {
             "avvist": false
           },
@@ -4966,7 +3645,10 @@
         {
           "etter": 2,
           "rolle": "mal",
-          "kilde": ["KA-U22", "KA-U20"],
+          "kilde": [
+            "KA-U22",
+            "KA-U20"
+          ],
           "forventet": {
             "avvist": true,
             "regel": "AVTALE_KAN_IKKE_BEVARES"
@@ -4979,7 +3661,10 @@
         {
           "etter": 2,
           "rolle": "mal",
-          "kilde": ["KA-U22", "KA-U14"],
+          "kilde": [
+            "KA-U22",
+            "KA-U14"
+          ],
           "forventet": {
             "avvist": true,
             "regel": "AVTALE_KAN_IKKE_BEVARES"
@@ -4992,7 +3677,10 @@
         {
           "etter": 3,
           "rolle": "mal",
-          "kilde": ["KA-U6", "KA-U20"],
+          "kilde": [
+            "KA-U6",
+            "KA-U20"
+          ],
           "forventet": {
             "avvist": false
           },
@@ -5005,7 +3693,9 @@
     },
     {
       "id": "F-MM-T2",
-      "rader": ["KA-32"],
+      "rader": [
+        "KA-32"
+      ],
       "start": "krav_irreg",
       "forslag": "KA-U16, KA-U20 og KA-U26: en merket godkjenning av grunnlaget som er en endringsordre, leses som før, og trekket av grunnlaget sperres",
       "forventningsgrunnlag": "avklart_tolkning",
@@ -5020,14 +3710,20 @@
           "varslet_i_tide": true,
           "sendt": "2026-09-30",
           "endringsordre": true,
-          "merking": ["grunnlag"]
+          "merking": [
+            "grunnlag"
+          ]
         }
       ],
       "kontroller": [
         {
           "etter": 1,
           "rolle": "mal",
-          "kilde": ["KA-U26", "KA-U20", "GR-U13"],
+          "kilde": [
+            "KA-U26",
+            "KA-U20",
+            "GR-U13"
+          ],
           "forventet": {
             "endringsordre": "ja",
             "enighet.grunnlag.kilde": "sammenfall"
@@ -5036,7 +3732,10 @@
         {
           "etter": 1,
           "rolle": "mal",
-          "kilde": ["KA-U26", "KA-U13"],
+          "kilde": [
+            "KA-U26",
+            "KA-U13"
+          ],
           "forventet": {
             "avvist": true,
             "regel": "ENDRINGSORDRE_IKKE_AVKLART"
@@ -5050,7 +3749,9 @@
     },
     {
       "id": "F-MM-U326a",
-      "rader": ["KA-35"],
+      "rader": [
+        "KA-35"
+      ],
       "start": "krav_irreg",
       "forslag": "MM-U18 (#326): en revisjon som åpner et godtatt avslag igjen, gjør saken ikke forstått",
       "forventningsgrunnlag": "avklart_tolkning",
@@ -5087,7 +3788,9 @@
         {
           "etter": 2,
           "rolle": "forutsetning",
-          "kilde": ["V-SK01"],
+          "kilde": [
+            "V-SK01"
+          ],
           "forventet": {
             "grunnlag_avvist": true
           }
@@ -5095,7 +3798,11 @@
         {
           "etter": 3,
           "rolle": "mal",
-          "kilde": ["MM-U18", "KA-U7", "V-SK01"],
+          "kilde": [
+            "MM-U18",
+            "KA-U7",
+            "V-SK01"
+          ],
           "forventet": {
             "forstaatt": false,
             "visning.journal.S-g2": "ikke_tolket"
@@ -5105,7 +3812,9 @@
     },
     {
       "id": "F-MM-U326a-kontroll",
-      "rader": ["KA-35"],
+      "rader": [
+        "KA-35"
+      ],
       "start": "krav_irreg",
       "forslag": "Kontrollsak til MM-U18: uten aksepten er revisjonen forstått",
       "forventningsgrunnlag": "avklart_tolkning",
@@ -5137,7 +3846,9 @@
         {
           "etter": 2,
           "rolle": "mal",
-          "kilde": ["MM-U18"],
+          "kilde": [
+            "MM-U18"
+          ],
           "forventet": {
             "forstaatt": true,
             "gjeldende_svar.grunnlag": "S-g2"
@@ -5147,7 +3858,9 @@
     },
     {
       "id": "F-MM-U326b",
-      "rader": ["KA-35"],
+      "rader": [
+        "KA-35"
+      ],
       "start": "krav_irreg",
       "forslag": "MM-U18 og GR-U9 (#326): en aksept av et frafall gjør saken ikke forstått",
       "forventningsgrunnlag": "avklart_tolkning",
@@ -5176,7 +3889,9 @@
         {
           "etter": 1,
           "rolle": "forutsetning",
-          "kilde": ["GR-U9"],
+          "kilde": [
+            "GR-U9"
+          ],
           "forventet": {
             "frafalt": true
           }
@@ -5184,7 +3899,10 @@
         {
           "etter": 2,
           "rolle": "mal",
-          "kilde": ["MM-U18", "GR-U9"],
+          "kilde": [
+            "MM-U18",
+            "GR-U9"
+          ],
           "forventet": {
             "forstaatt": false,
             "visning.journal.D5": "ikke_tolket"
@@ -5194,7 +3912,9 @@
     },
     {
       "id": "F-MM-U326c",
-      "rader": ["KA-35"],
+      "rader": [
+        "KA-35"
+      ],
       "start": "godkjent_grunnlag",
       "forslag": "MM-U18 og KA-U7: en ny kravversjon i et spor med enighet gjør saken ikke forstått",
       "forventningsgrunnlag": "avklart_tolkning",
@@ -5212,7 +3932,11 @@
         {
           "etter": 1,
           "rolle": "mal",
-          "kilde": ["MM-U18", "KA-U7", "GR-U10"],
+          "kilde": [
+            "MM-U18",
+            "KA-U7",
+            "GR-U10"
+          ],
           "forventet": {
             "forstaatt": false,
             "visning.journal.K-g2": "ikke_tolket"
@@ -5222,7 +3946,9 @@
     },
     {
       "id": "F-MM-U326d",
-      "rader": ["KA-35"],
+      "rader": [
+        "KA-35"
+      ],
       "start": "godkjent_grunnlag",
       "forslag": "MM-U18 og KA-U11: en revisjon etter at kravene er avgjort, gjør saken ikke forstått",
       "forventningsgrunnlag": "avklart_tolkning",
@@ -5268,7 +3994,9 @@
         {
           "etter": 3,
           "rolle": "forutsetning",
-          "kilde": ["KA-U11"],
+          "kilde": [
+            "KA-U11"
+          ],
           "forventet": {
             "kravene_avgjort": true
           }
@@ -5276,7 +4004,10 @@
         {
           "etter": 4,
           "rolle": "mal",
-          "kilde": ["MM-U18", "KA-U11"],
+          "kilde": [
+            "MM-U18",
+            "KA-U11"
+          ],
           "forventet": {
             "forstaatt": false,
             "visning.journal.S-f2": "ikke_tolket"
@@ -5286,7 +4017,9 @@
     },
     {
       "id": "F-MM-U326e",
-      "rader": ["KA-36"],
+      "rader": [
+        "KA-36"
+      ],
       "start": "godkjent_grunnlag",
       "forslag": "MM-U18: et registrert brev som trekker tilbake godkjenningen, bevares uten virkning, og enigheten står",
       "forventningsgrunnlag": "avklart_tolkning",
@@ -5306,16 +4039,26 @@
         {
           "etter": 1,
           "rolle": "mal",
-          "kilde": ["MM-U18", "GR-U10", "KA-U7"],
+          "kilde": [
+            "MM-U18",
+            "GR-U10",
+            "KA-U7"
+          ],
           "forventet": {
             "forstaatt": true,
             "gjeldende_svar.grunnlag": "S-g1",
             "enighet.grunnlag.kilde": "sammenfall",
-            "uten_virkning": ["S-g2"],
-            "visning.merknader": ["registrert_brev_uten_virkning"],
+            "uten_virkning": [
+              "S-g2"
+            ],
+            "visning.merknader": [
+              "registrert_brev_uten_virkning"
+            ],
             "visning.journal.S-g2": "tolket",
             "handlinger.TE": {
-              "inneholder": ["krav:vederlag"]
+              "inneholder": [
+                "krav:vederlag"
+              ]
             },
             "forbehold.grunnlag": false
           }
@@ -5324,7 +4067,9 @@
     },
     {
       "id": "F-MM-U326f",
-      "rader": ["KA-37"],
+      "rader": [
+        "KA-37"
+      ],
       "start": "godkjent_grunnlag",
       "forslag": "MM-U19: TEs registrerte kravversjon i et spor med enighet bevares uten virkning",
       "forventningsgrunnlag": "avklart_tolkning",
@@ -5343,19 +4088,26 @@
         {
           "etter": 1,
           "rolle": "mal",
-          "kilde": ["MM-U18", "KA-U7"],
+          "kilde": [
+            "MM-U18",
+            "KA-U7"
+          ],
           "forventet": {
             "forstaatt": true,
             "gjeldende_krav.grunnlag": "K-g1",
             "enighet.grunnlag.kilde": "sammenfall",
-            "uten_virkning": ["K-g2"]
+            "uten_virkning": [
+              "K-g2"
+            ]
           }
         }
       ]
     },
     {
       "id": "F-MM-U326g",
-      "rader": ["KA-38"],
+      "rader": [
+        "KA-38"
+      ],
       "start": "krav_irreg",
       "forslag": "MM-U18 og VS-U11: et registrert fristsvar uten standpunkt om rettidighet etter innsigelsen er forstått og leses med den",
       "forventningsgrunnlag": "arbeidshypotese",
@@ -5382,7 +4134,10 @@
         {
           "etter": 2,
           "rolle": "mal",
-          "kilde": ["MM-U18", "VS-U11"],
+          "kilde": [
+            "MM-U18",
+            "VS-U11"
+          ],
           "forventet": {
             "forstaatt": true,
             "virkning.S-f1.rettidighet": "prinsipalt",
@@ -5394,7 +4149,9 @@
     },
     {
       "id": "F-MM-U326h",
-      "rader": ["KA-35"],
+      "rader": [
+        "KA-35"
+      ],
       "start": "krav_irreg",
       "forslag": "MM-U18 og SK-01: en ny kravversjon etter at TE har godtatt avslaget av grunnlaget, gjør saken ikke forstått, også i et spor uten enighet",
       "forventningsgrunnlag": "avklart_tolkning",
@@ -5435,7 +4192,9 @@
         {
           "etter": 2,
           "rolle": "forutsetning",
-          "kilde": ["V-SK01"],
+          "kilde": [
+            "V-SK01"
+          ],
           "forventet": {
             "grunnlag_avvist": true,
             "enighet.vederlag": null
@@ -5444,7 +4203,10 @@
         {
           "etter": 3,
           "rolle": "mal",
-          "kilde": ["MM-U18", "V-SK01"],
+          "kilde": [
+            "MM-U18",
+            "V-SK01"
+          ],
           "forventet": {
             "forstaatt": false,
             "visning.journal.K-v2": "ikke_tolket"
@@ -5454,7 +4216,9 @@
     },
     {
       "id": "F-MM-U326h-kontroll",
-      "rader": ["KA-35"],
+      "rader": [
+        "KA-35"
+      ],
       "start": "krav_irreg",
       "forslag": "Kontrollsak til MM-U18: uten aksepten av avslaget er den nye kravversjonen forstått",
       "forventningsgrunnlag": "avklart_tolkning",
@@ -5490,7 +4254,9 @@
         {
           "etter": 2,
           "rolle": "mal",
-          "kilde": ["MM-U18"],
+          "kilde": [
+            "MM-U18"
+          ],
           "forventet": {
             "forstaatt": true,
             "gjeldende_krav.vederlag": "K-v2"
@@ -5500,7 +4266,9 @@
     },
     {
       "id": "F-MM-V3b",
-      "rader": ["VS-03"],
+      "rader": [
+        "VS-03"
+      ],
       "start": "krav_irreg",
       "forslag": "VS-U9 og OV-U1: et svar på vederlaget fra appen etter byggherrens innsigelse mot vederlagskravet avvises, fordi preklusjon etter § 34.1 ikke er bygget",
       "forventningsgrunnlag": "avklart_tolkning",
@@ -5516,7 +4284,9 @@
         {
           "etter": 0,
           "rolle": "kontroll",
-          "kilde": ["VS-U9"],
+          "kilde": [
+            "VS-U9"
+          ],
           "forventet": {
             "avvist": false
           },
@@ -5534,7 +4304,10 @@
         {
           "etter": 1,
           "rolle": "mal",
-          "kilde": ["VS-U9", "OV-U1"],
+          "kilde": [
+            "VS-U9",
+            "OV-U1"
+          ],
           "forventet": {
             "avvist": true,
             "regel": "VURDERING_UTENFOR_KJERNEN"
@@ -5554,7 +4327,9 @@
     },
     {
       "id": "F-MM-V6",
-      "rader": ["VS-05"],
+      "rader": [
+        "VS-05"
+      ],
       "start": "krav_irreg",
       "forslag": "KA-U29: når TE har godtatt avslaget av grunnlaget, godtas innsigelse og merking uten virkning, og et nytt svar avvises fortsatt",
       "forventningsgrunnlag": "avklart_tolkning",
@@ -5587,7 +4362,9 @@
         {
           "etter": 2,
           "rolle": "forutsetning",
-          "kilde": ["V-SK01"],
+          "kilde": [
+            "V-SK01"
+          ],
           "forventet": {
             "grunnlag_avvist": true
           }
@@ -5595,7 +4372,10 @@
         {
           "etter": 2,
           "rolle": "kontroll",
-          "kilde": ["V-SK01", "KA-U29"],
+          "kilde": [
+            "V-SK01",
+            "KA-U29"
+          ],
           "forventet": {
             "avvist": true,
             "regel": "GRUNNLAG_AVVIST"
@@ -5610,10 +4390,15 @@
         {
           "etter": 3,
           "rolle": "mal",
-          "kilde": ["KA-U29", "VS-U1"],
+          "kilde": [
+            "KA-U29",
+            "VS-U1"
+          ],
           "forventet": {
             "avvist": false,
-            "innsigelser": ["BH:K-g1"],
+            "innsigelser": [
+              "BH:K-g1"
+            ],
             "grunnlag_avvist": true,
             "visning.status": "avsluttet_avslaatt"
           }
@@ -5622,7 +4407,9 @@
     },
     {
       "id": "F-MM-V7",
-      "rader": ["VS-02"],
+      "rader": [
+        "VS-02"
+      ],
       "start": "krav_irreg",
       "forslag": "VS-U9 og VS-U11: et registrert svar som tier om rettidigheten, leses ikke med en innsigelse byggherren senere har oppgitt uttrykkelig",
       "forventningsgrunnlag": "avklart_tolkning",
@@ -5660,8 +4447,10 @@
       "kontroller": [
         {
           "etter": 2,
-          "rolle": "forutsetning",
-          "kilde": ["VS-U11"],
+          "rolle": "mal",
+          "kilde": [
+            "VS-U11"
+          ],
           "forventet": {
             "virkning.S-g1.rettidighet": "uten_virkning"
           }
@@ -5669,7 +4458,13 @@
         {
           "etter": 3,
           "rolle": "mal",
-          "kilde": ["VS-U9", "VS-U11", "HF-U1", "GR-U12", "GR-U13"],
+          "kilde": [
+            "VS-U9",
+            "VS-U11",
+            "HF-U1",
+            "GR-U12",
+            "GR-U13"
+          ],
           "forventet": {
             "forstaatt": true,
             "virkning.S-g2.rettidighet": null,
@@ -5683,7 +4478,9 @@
     },
     {
       "id": "F-MM-S342b",
-      "rader": ["GR-30"],
+      "rader": [
+        "GR-30"
+      ],
       "start": "krav_irreg",
       "forslag": "GR-U1 og GR-U4 (#342): når grunnlaget er besvart igjen, følger vederlaget det siste grunnlagssvaret, også når en ny grunnlagsversjon venter på svar",
       "forventningsgrunnlag": "avklart_tolkning",
@@ -5734,16 +4531,22 @@
       "kontroller": [
         {
           "etter": 2,
-          "rolle": "forutsetning",
-          "kilde": ["GR-U1"],
+          "rolle": "mal",
+          "kilde": [
+            "GR-U1"
+          ],
           "forventet": {
-            "subsidiaer_aarsaker.vederlag": ["avslaatt"]
+            "subsidiaer_aarsaker.vederlag": [
+              "avslaatt"
+            ]
           }
         },
         {
           "etter": 3,
-          "rolle": "forutsetning",
-          "kilde": ["GR-U9"],
+          "rolle": "mal",
+          "kilde": [
+            "GR-U9"
+          ],
           "forventet": {
             "frafalt": true,
             "grunnlagskrav.S-v1": "K-g1",
@@ -5753,7 +4556,11 @@
         {
           "etter": 4,
           "rolle": "mal",
-          "kilde": ["GR-U1", "GR-U4", "HF-U1"],
+          "kilde": [
+            "GR-U1",
+            "GR-U4",
+            "HF-U1"
+          ],
           "forventet": {
             "gjeldende_svar.grunnlag": null,
             "subsidiaer_aarsaker.vederlag": []
@@ -5763,7 +4570,9 @@
     },
     {
       "id": "F-MM-V8",
-      "rader": ["KA-38"],
+      "rader": [
+        "KA-38"
+      ],
       "start": "krav_irreg",
       "forslag": "MM-U1 og MM-U8: en innsigelse mot det utledede varselet som et registrert fristsvar er lest med, er uavklart når TE registrerer varselet etterpå",
       "forventningsgrunnlag": "arbeidshypotese",
@@ -5795,8 +4604,10 @@
       "kontroller": [
         {
           "etter": 2,
-          "rolle": "forutsetning",
-          "kilde": ["VS-U11"],
+          "rolle": "mal",
+          "kilde": [
+            "VS-U11"
+          ],
           "forventet": {
             "virkning.S-f1.rettidighet": "prinsipalt",
             "uavklart.S-f1": []
@@ -5805,7 +4616,9 @@
         {
           "etter": 2,
           "rolle": "kontroll",
-          "kilde": ["VS-U11"],
+          "kilde": [
+            "VS-U11"
+          ],
           "forventet": {
             "avvist": false
           },
@@ -5817,21 +4630,33 @@
         {
           "etter": 3,
           "rolle": "mal",
-          "kilde": ["MM-U1", "MM-U8", "KA-38"],
+          "kilde": [
+            "MM-U1",
+            "MM-U8",
+            "KA-38"
+          ],
           "forventet": {
-            "uavklart.S-f1": ["rettidighet"],
+            "uavklart.S-f1": [
+              "rettidighet"
+            ],
             "handlinger.TE": {
-              "mangler": ["godta:frist"]
+              "mangler": [
+                "godta:frist"
+              ]
             },
             "visning.etiketter.frist": {
-              "inneholder": ["bh_har_ikke_vurdert_varselet"]
+              "inneholder": [
+                "bh_har_ikke_vurdert_varselet"
+              ]
             }
           }
         },
         {
           "etter": 3,
           "rolle": "mal",
-          "kilde": ["MM-U8"],
+          "kilde": [
+            "MM-U8"
+          ],
           "forventet": {
             "avvist": true,
             "regel": "STANDPUNKT_UAVKLART"
@@ -5845,7 +4670,9 @@
     },
     {
       "id": "F-MM-IK5",
-      "rader": ["KA-37"],
+      "rader": [
+        "KA-37"
+      ],
       "start": "godkjent_grunnlag",
       "forslag": "MM-U19 og KA-U12: TEs registrerte kravversjon etter «ingen krav» bevares uten virkning",
       "forventningsgrunnlag": "avklart_tolkning",
@@ -5869,13 +4696,20 @@
         {
           "etter": 2,
           "rolle": "mal",
-          "kilde": ["MM-U19", "KA-U12"],
+          "kilde": [
+            "MM-U19",
+            "KA-U12"
+          ],
           "forventet": {
             "forstaatt": true,
-            "uten_virkning": ["K-v1"],
+            "uten_virkning": [
+              "K-v1"
+            ],
             "gjeldende_krav.vederlag": null,
             "visning.etiketter.vederlag": {
-              "inneholder": ["ingen_krav"]
+              "inneholder": [
+                "ingen_krav"
+              ]
             }
           }
         }
@@ -5883,7 +4717,9 @@
     },
     {
       "id": "F-MM-IK5b",
-      "rader": ["KA-35"],
+      "rader": [
+        "KA-35"
+      ],
       "start": "godkjent_grunnlag",
       "forslag": "MM-U18 og KA-U12: en kravversjon etter «ingen krav» som ikke er registrert korrespondanse, gjør saken ikke forstått",
       "forventningsgrunnlag": "avklart_tolkning",
@@ -5906,7 +4742,10 @@
         {
           "etter": 2,
           "rolle": "mal",
-          "kilde": ["MM-U18", "KA-U12"],
+          "kilde": [
+            "MM-U18",
+            "KA-U12"
+          ],
           "forventet": {
             "forstaatt": false,
             "visning.journal.K-v1": "ikke_tolket"
@@ -5916,7 +4755,9 @@
     },
     {
       "id": "F-MM-IK6",
-      "rader": ["KA-37"],
+      "rader": [
+        "KA-37"
+      ],
       "start": "krav_irreg",
       "forslag": "MM-U19 og vedtaket om trukket krav 05.10: TEs registrerte kravversjon etter trekk bevares uten virkning",
       "forventningsgrunnlag": "avklart_tolkning",
@@ -5940,10 +4781,15 @@
         {
           "etter": 2,
           "rolle": "mal",
-          "kilde": ["MM-U19", "KA-U12"],
+          "kilde": [
+            "MM-U19",
+            "KA-U12"
+          ],
           "forventet": {
             "forstaatt": true,
-            "uten_virkning": ["K-v2"],
+            "uten_virkning": [
+              "K-v2"
+            ],
             "gjeldende_krav.vederlag": "K-v1",
             "trukket.vederlag": true
           }
@@ -5952,7 +4798,9 @@
     },
     {
       "id": "F-MM-IK6b",
-      "rader": ["KA-35"],
+      "rader": [
+        "KA-35"
+      ],
       "start": "krav_irreg",
       "forslag": "MM-U18: en kravversjon etter trekk som ikke er registrert korrespondanse, gjør saken ikke forstått",
       "forventningsgrunnlag": "avklart_tolkning",
@@ -5975,7 +4823,9 @@
         {
           "etter": 2,
           "rolle": "mal",
-          "kilde": ["MM-U18"],
+          "kilde": [
+            "MM-U18"
+          ],
           "forventet": {
             "forstaatt": false,
             "visning.journal.K-v2": "ikke_tolket"
@@ -5985,7 +4835,9 @@
     },
     {
       "id": "F-MM-IK6-kontroll",
-      "rader": ["KA-35"],
+      "rader": [
+        "KA-35"
+      ],
       "start": "krav_irreg",
       "forslag": "Kontrollsak til F-MM-IK6b: uten trekket er kravversjonen forstått",
       "forventningsgrunnlag": "avklart_tolkning",
@@ -6003,7 +4855,9 @@
         {
           "etter": 1,
           "rolle": "mal",
-          "kilde": ["MM-U18"],
+          "kilde": [
+            "MM-U18"
+          ],
           "forventet": {
             "forstaatt": true,
             "gjeldende_krav.vederlag": "K-v2"
@@ -6013,7 +4867,9 @@
     },
     {
       "id": "F-MM-M3",
-      "rader": ["KA-33"],
+      "rader": [
+        "KA-33"
+      ],
       "start": "krav_irreg",
       "forslag": "KA-U20 og KA-U26: en revisjon av grunnlagssvaret fra avsenderen opphever sperren i grunnlaget, også når brevet har et svar i et annet spor som fortsatt gjelder",
       "forventningsgrunnlag": "avklart_tolkning",
@@ -6022,7 +4878,9 @@
           "handling": "rad",
           "dokument": "D4",
           "sendt": "2026-09-30",
-          "merking": ["grunnlag"],
+          "merking": [
+            "grunnlag"
+          ],
           "svar": [
             {
               "spor": "grunnlag",
@@ -6052,8 +4910,10 @@
       "kontroller": [
         {
           "etter": 1,
-          "rolle": "forutsetning",
-          "kilde": ["KA-U20"],
+          "rolle": "mal",
+          "kilde": [
+            "KA-U20"
+          ],
           "forventet": {
             "forbehold.grunnlag": true,
             "forbehold.vederlag": false
@@ -6062,12 +4922,17 @@
         {
           "etter": 2,
           "rolle": "mal",
-          "kilde": ["KA-U20", "KA-U26"],
+          "kilde": [
+            "KA-U20",
+            "KA-U26"
+          ],
           "forventet": {
             "gjeldende_svar.vederlag": "S-v1",
             "forbehold.grunnlag": false,
             "handlinger.TE": {
-              "inneholder": ["godta:grunnlag"]
+              "inneholder": [
+                "godta:grunnlag"
+              ]
             }
           }
         }
@@ -6075,7 +4940,9 @@
     },
     {
       "id": "F-MM-M4",
-      "rader": ["KA-33"],
+      "rader": [
+        "KA-33"
+      ],
       "start": "krav_irreg",
       "forslag": "KA-U20: en ny grunnlagsversjon fra TE opphever ikke sperren; et nytt svar fra avsenderen gjør det",
       "forventningsgrunnlag": "avklart_tolkning",
@@ -6089,7 +4956,9 @@
           "resultat": "avslaatt",
           "varslet_i_tide": true,
           "sendt": "2026-09-30",
-          "merking": ["grunnlag"]
+          "merking": [
+            "grunnlag"
+          ]
         },
         {
           "handling": "krav",
@@ -6113,8 +4982,10 @@
       "kontroller": [
         {
           "etter": 1,
-          "rolle": "forutsetning",
-          "kilde": ["KA-U20"],
+          "rolle": "mal",
+          "kilde": [
+            "KA-U20"
+          ],
           "forventet": {
             "forbehold.grunnlag": true
           }
@@ -6122,7 +4993,9 @@
         {
           "etter": 2,
           "rolle": "mal",
-          "kilde": ["KA-U20"],
+          "kilde": [
+            "KA-U20"
+          ],
           "forventet": {
             "gjeldende_svar.grunnlag": null,
             "forbehold.grunnlag": true
@@ -6131,7 +5004,9 @@
         {
           "etter": 3,
           "rolle": "mal",
-          "kilde": ["KA-U20"],
+          "kilde": [
+            "KA-U20"
+          ],
           "forventet": {
             "forbehold.grunnlag": false
           }
@@ -6140,7 +5015,9 @@
     },
     {
       "id": "F-MM-U326i",
-      "rader": ["KA-32"],
+      "rader": [
+        "KA-32"
+      ],
       "start": "godkjent_grunnlag",
       "forslag": "MM-U18, MM-U19 og KA-U26: et merket registrert brev som strider mot en enighet, er uten virkning, og merkingen sperrer",
       "forventningsgrunnlag": "avklart_tolkning",
@@ -6154,22 +5031,33 @@
           "erstatter": "S-g1",
           "resultat": "avslaatt",
           "sendt": "2026-10-01",
-          "merking": ["grunnlag"]
+          "merking": [
+            "grunnlag"
+          ]
         }
       ],
       "kontroller": [
         {
           "etter": 1,
           "rolle": "mal",
-          "kilde": ["MM-U18", "MM-U19", "KA-U16", "KA-U26"],
+          "kilde": [
+            "MM-U18",
+            "MM-U19",
+            "KA-U16",
+            "KA-U26"
+          ],
           "forventet": {
             "forstaatt": true,
-            "uten_virkning": ["S-g2"],
+            "uten_virkning": [
+              "S-g2"
+            ],
             "gjeldende_svar.grunnlag": "S-g1",
             "enighet.grunnlag.kilde": "sammenfall",
             "forbehold.grunnlag": true,
             "visning.etiketter.grunnlag": {
-              "inneholder": ["uenighet_om_merket_brev"]
+              "inneholder": [
+                "uenighet_om_merket_brev"
+              ]
             }
           }
         }
@@ -6177,7 +5065,9 @@
     },
     {
       "id": "F-MM-M5",
-      "rader": ["KA-32"],
+      "rader": [
+        "KA-32"
+      ],
       "start": "krav_irreg",
       "forslag": "KA-U26 og KA-U28: en senere merking av en godkjenning som er en endringsordre, endrer ikke utfallet, men sperrer trekket av grunnlaget",
       "forventningsgrunnlag": "avklart_tolkning",
@@ -6197,15 +5087,20 @@
           "handling": "merking",
           "part": "TE",
           "gjelder": "D4",
-          "sporene": ["grunnlag"],
+          "sporene": [
+            "grunnlag"
+          ],
           "navn": "D5"
         }
       ],
       "kontroller": [
         {
           "etter": 1,
-          "rolle": "forutsetning",
-          "kilde": ["GR-U12", "GR-U13"],
+          "rolle": "mal",
+          "kilde": [
+            "GR-U12",
+            "GR-U13"
+          ],
           "forventet": {
             "endringsordre": "ja"
           }
@@ -6213,22 +5108,32 @@
         {
           "etter": 2,
           "rolle": "mal",
-          "kilde": ["KA-U26", "KA-U28"],
+          "kilde": [
+            "KA-U26",
+            "KA-U28"
+          ],
           "forventet": {
             "forstaatt": true,
             "forbehold.grunnlag": true,
             "endringsordre": "ja",
             "enighet.grunnlag.kilde": "sammenfall",
             "visning.etiketter.grunnlag": {
-              "inneholder": ["uenighet_om_merket_brev"],
-              "mangler": ["enige"]
+              "inneholder": [
+                "uenighet_om_merket_brev"
+              ],
+              "mangler": [
+                "enige"
+              ]
             }
           }
         },
         {
           "etter": 2,
           "rolle": "mal",
-          "kilde": ["KA-U26", "KA-U13"],
+          "kilde": [
+            "KA-U26",
+            "KA-U13"
+          ],
           "forventet": {
             "avvist": true,
             "regel": "ENDRINGSORDRE_IKKE_AVKLART"
@@ -6242,7 +5147,9 @@
     },
     {
       "id": "F-MM-U326b-kontroll",
-      "rader": ["KA-35"],
+      "rader": [
+        "KA-35"
+      ],
       "start": "krav_irreg",
       "forslag": "Kontrollsak til F-MM-U326b: en aksept av et avslag i samme form er forstått",
       "forventningsgrunnlag": "avklart_tolkning",
@@ -6271,7 +5178,10 @@
         {
           "etter": 2,
           "rolle": "mal",
-          "kilde": ["MM-U18", "V-SK01"],
+          "kilde": [
+            "MM-U18",
+            "V-SK01"
+          ],
           "forventet": {
             "forstaatt": true,
             "grunnlag_avvist": true
@@ -6281,7 +5191,9 @@
     },
     {
       "id": "F-MM-U326c-kontroll",
-      "rader": ["KA-35"],
+      "rader": [
+        "KA-35"
+      ],
       "start": null,
       "forslag": "Kontrollsak til F-MM-U326c: uten enigheten er kravversjonen forstått",
       "forventningsgrunnlag": "avklart_tolkning",
@@ -6315,8 +5227,10 @@
       "kontroller": [
         {
           "etter": 2,
-          "rolle": "forutsetning",
-          "kilde": ["KA-U7"],
+          "rolle": "mal",
+          "kilde": [
+            "KA-U7"
+          ],
           "forventet": {
             "enighet.grunnlag": null
           }
@@ -6324,7 +5238,9 @@
         {
           "etter": 3,
           "rolle": "mal",
-          "kilde": ["MM-U18"],
+          "kilde": [
+            "MM-U18"
+          ],
           "forventet": {
             "forstaatt": true,
             "gjeldende_krav.grunnlag": "K-g2"
@@ -6334,7 +5250,9 @@
     },
     {
       "id": "F-MM-U326d-kontroll",
-      "rader": ["KA-35"],
+      "rader": [
+        "KA-35"
+      ],
       "start": "godkjent_grunnlag",
       "forslag": "Kontrollsak til F-MM-U326d: når vederlaget ikke er avgjort, er revisjonen forstått",
       "forventningsgrunnlag": "avklart_tolkning",
@@ -6375,8 +5293,10 @@
       "kontroller": [
         {
           "etter": 2,
-          "rolle": "forutsetning",
-          "kilde": ["KA-U11"],
+          "rolle": "mal",
+          "kilde": [
+            "KA-U11"
+          ],
           "forventet": {
             "kravene_avgjort": false,
             "enighet.frist": null
@@ -6385,7 +5305,9 @@
         {
           "etter": 3,
           "rolle": "mal",
-          "kilde": ["MM-U18"],
+          "kilde": [
+            "MM-U18"
+          ],
           "forventet": {
             "forstaatt": true,
             "gjeldende_svar.frist": "S-f2"
@@ -6395,7 +5317,9 @@
     },
     {
       "id": "F-MM-M6",
-      "rader": ["KA-32"],
+      "rader": [
+        "KA-32"
+      ],
       "start": "krav_irreg",
       "forslag": "KA-U20 og MM-U18: en aksept av et merket svar i en rad gir en enighet som står, med sperren; kontrollen i MM-U18 gjelder ikke vilkårene for å sende",
       "forventningsgrunnlag": "avklart_tolkning",
@@ -6409,7 +5333,9 @@
           "resultat": "avslaatt",
           "varslet_i_tide": true,
           "sendt": "2026-09-30",
-          "merking": ["grunnlag"]
+          "merking": [
+            "grunnlag"
+          ]
         },
         {
           "handling": "rad",
@@ -6424,14 +5350,20 @@
         {
           "etter": 2,
           "rolle": "mal",
-          "kilde": ["KA-U20", "KA-U26", "MM-U18"],
+          "kilde": [
+            "KA-U20",
+            "KA-U26",
+            "MM-U18"
+          ],
           "forventet": {
             "forstaatt": true,
             "uten_virkning": [],
             "enighet.grunnlag.kilde": "aksept",
             "forbehold.grunnlag": true,
             "visning.etiketter.grunnlag": {
-              "inneholder": ["uenighet_om_merket_brev"]
+              "inneholder": [
+                "uenighet_om_merket_brev"
+              ]
             }
           }
         }
@@ -6439,7 +5371,9 @@
     },
     {
       "id": "F-MM-M6b",
-      "rader": ["KA-32"],
+      "rader": [
+        "KA-32"
+      ],
       "start": "krav_irreg",
       "forslag": "MM-U18: en aksept av et merket svar i en rad som ikke er registrert korrespondanse, er forstått, fordi sperren er et vilkår for å sende",
       "forventningsgrunnlag": "avklart_tolkning",
@@ -6453,7 +5387,9 @@
           "resultat": "avslaatt",
           "varslet_i_tide": true,
           "sendt": "2026-09-30",
-          "merking": ["grunnlag"]
+          "merking": [
+            "grunnlag"
+          ]
         },
         {
           "handling": "rad",
@@ -6467,7 +5403,10 @@
         {
           "etter": 2,
           "rolle": "mal",
-          "kilde": ["MM-U18", "KA-U20"],
+          "kilde": [
+            "MM-U18",
+            "KA-U20"
+          ],
           "forventet": {
             "forstaatt": true,
             "enighet.grunnlag.kilde": "aksept",
@@ -6478,7 +5417,9 @@
     },
     {
       "id": "F-MM-U326j",
-      "rader": ["KA-37"],
+      "rader": [
+        "KA-37"
+      ],
       "start": "krav_irreg",
       "forslag": "MM-U19: TEs registrerte aksept av et frafall bevares uten virkning",
       "forventningsgrunnlag": "avklart_tolkning",
@@ -6508,20 +5449,29 @@
         {
           "etter": 2,
           "rolle": "mal",
-          "kilde": ["MM-U19", "GR-U9"],
+          "kilde": [
+            "MM-U19",
+            "GR-U9"
+          ],
           "forventet": {
             "forstaatt": true,
-            "uten_virkning": ["D5#aksept"],
+            "uten_virkning": [
+              "D5#aksept"
+            ],
             "frafalt": true,
             "enighet.grunnlag": null,
-            "visning.merknader": ["registrert_brev_uten_virkning"]
+            "visning.merknader": [
+              "registrert_brev_uten_virkning"
+            ]
           }
         }
       ]
     },
     {
       "id": "F-MM-U326k",
-      "rader": ["KA-37"],
+      "rader": [
+        "KA-37"
+      ],
       "start": "godkjent_grunnlag",
       "forslag": "MM-U19 og KA-U11: TEs registrerte trekk etter at kravene er avgjort, bevares uten virkning",
       "forventningsgrunnlag": "avklart_tolkning",
@@ -6562,8 +5512,10 @@
       "kontroller": [
         {
           "etter": 3,
-          "rolle": "forutsetning",
-          "kilde": ["KA-U11"],
+          "rolle": "mal",
+          "kilde": [
+            "KA-U11"
+          ],
           "forventet": {
             "kravene_avgjort": true
           }
@@ -6571,10 +5523,15 @@
         {
           "etter": 4,
           "rolle": "mal",
-          "kilde": ["MM-U19", "KA-U11"],
+          "kilde": [
+            "MM-U19",
+            "KA-U11"
+          ],
           "forventet": {
             "forstaatt": true,
-            "uten_virkning": ["D6#trekk"],
+            "uten_virkning": [
+              "D6#trekk"
+            ],
             "trukket.frist": false,
             "kravene_avgjort": true
           }
@@ -6583,7 +5540,9 @@
     },
     {
       "id": "F-MM-V9",
-      "rader": ["VS-01"],
+      "rader": [
+        "VS-01"
+      ],
       "start": "godkjent_grunnlag",
       "forslag": "VS-U1 og VS-U14: en innsigelse mot egen kravversjon er ikke forstått, også når kravversjonen er uten virkning",
       "forventningsgrunnlag": "avklart_tolkning",
@@ -6608,16 +5567,22 @@
       "kontroller": [
         {
           "etter": 1,
-          "rolle": "forutsetning",
-          "kilde": ["MM-U19"],
+          "rolle": "mal",
+          "kilde": [
+            "MM-U19"
+          ],
           "forventet": {
-            "uten_virkning": ["K-g2"]
+            "uten_virkning": [
+              "K-g2"
+            ]
           }
         },
         {
           "etter": 1,
           "rolle": "kontroll",
-          "kilde": ["VS-U1"],
+          "kilde": [
+            "VS-U1"
+          ],
           "forventet": {
             "avvist": false
           },
@@ -6630,10 +5595,156 @@
         {
           "etter": 2,
           "rolle": "mal",
-          "kilde": ["VS-U1", "VS-U14"],
+          "kilde": [
+            "VS-U1",
+            "VS-U14"
+          ],
           "forventet": {
             "forstaatt": false,
             "visning.journal.D5": "ikke_tolket"
+          }
+        }
+      ]
+    },
+    {
+      "id": "F-MM-T3",
+      "rader": [
+        "KA-32"
+      ],
+      "start": "krav_irreg",
+      "forslag": "KA-U26 og KA-U13: en merking av et annet brev i grunnlaget gjør ikke godkjenningen fra appen uavklart som endringsordre",
+      "forventningsgrunnlag": "avklart_tolkning",
+      "steg": [
+        {
+          "handling": "rad",
+          "krav": true,
+          "spor": "grunnlag",
+          "underkategori": "irregulaer_endring",
+          "part": "TE",
+          "navn": "K-g2",
+          "sendt": "2026-09-30",
+          "merking": [
+            "grunnlag"
+          ]
+        },
+        {
+          "handling": "brev",
+          "navn": "D5",
+          "svar": [
+            {
+              "spor": "grunnlag",
+              "navn": "S-g2",
+              "resultat": "godkjent",
+              "varslet_i_tide": true
+            }
+          ]
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 2,
+          "rolle": "mal",
+          "kilde": [
+            "KA-U20",
+            "GR-U12"
+          ],
+          "forventet": {
+            "forbehold.grunnlag": true,
+            "endringsordre": "ja"
+          }
+        },
+        {
+          "etter": 2,
+          "rolle": "mal",
+          "kilde": [
+            "KA-U13",
+            "KA-U26"
+          ],
+          "forventet": {
+            "avvist": true,
+            "regel": "GRUNNLAG_ER_ENDRINGSORDRE"
+          },
+          "prov": {
+            "handling": "trekk",
+            "spor": "grunnlag"
+          }
+        }
+      ]
+    },
+    {
+      "id": "F-MM-V7b",
+      "rader": [
+        "VS-02",
+        "KA-38"
+      ],
+      "start": "krav_irreg",
+      "forslag": "VS-U9 og VS-U11: i fristen gir byggherren opp innsigelsen mot kravet ved å si uttrykkelig at det registrerte varselet kom i tide",
+      "forventningsgrunnlag": "arbeidshypotese",
+      "steg": [
+        {
+          "handling": "innsigelse",
+          "part": "BH",
+          "gjelder": "K-f1",
+          "navn": "D3"
+        },
+        {
+          "handling": "varsel",
+          "spor": "frist",
+          "sendt": "2026-09-02",
+          "navn": "D4"
+        },
+        {
+          "handling": "brev",
+          "navn": "D5",
+          "svar": [
+            {
+              "spor": "frist",
+              "navn": "S-f1",
+              "varsel_i_tide": true,
+              "spesifisering_i_tide": true,
+              "hindring": true,
+              "dager": 10
+            }
+          ]
+        },
+        {
+          "handling": "rad",
+          "spor": "frist",
+          "navn": "S-f2",
+          "dokument": "D6",
+          "gjelder": "K-f1",
+          "erstatter": "S-f1",
+          "varsel_i_tide": true,
+          "spesifisering_i_tide": true,
+          "hindring": true,
+          "dager": 15,
+          "sendt": "2026-10-01"
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 3,
+          "rolle": "mal",
+          "kilde": [
+            "VS-U11"
+          ],
+          "forventet": {
+            "standpunkt.S-f1.rettidighet.gjelder": "D4#varsel",
+            "virkning.S-f1.rettidighet": "uten_virkning"
+          }
+        },
+        {
+          "etter": 4,
+          "rolle": "mal",
+          "kilde": [
+            "VS-U9",
+            "VS-U11",
+            "HF-U1"
+          ],
+          "forventet": {
+            "forstaatt": true,
+            "virkning.S-f2.rettidighet": null,
+            "uavklart.S-f2": []
           }
         }
       ]
@@ -6646,122 +5757,26 @@
     "lengde": 10,
     "start": "krav_irreg",
     "handlinger": [
+      { "handling": "brev", "svar": [{ "spor": "grunnlag", "resultat": "avslaatt", "varslet_i_tide": true }] },
+      { "handling": "brev", "svar": [{ "spor": "grunnlag", "resultat": "avslaatt", "varslet_i_tide": false }] },
+      { "handling": "brev", "svar": [{ "spor": "grunnlag", "resultat": "godkjent", "varslet_i_tide": false }] },
+      { "handling": "brev", "svar": [{ "spor": "grunnlag", "resultat": "godkjent", "varslet_i_tide": true }] },
+      { "handling": "brev", "svar": [{ "spor": "grunnlag", "resultat": "paalegg_frafalt", "varslet_i_tide": true }] },
+      { "handling": "krav", "spor": "grunnlag", "underkategori": "samordning" },
+      { "handling": "krav", "spor": "grunnlag", "underkategori": "endringsordre" },
+      { "handling": "krav", "spor": "vederlag", "belop": 80000 },
+      { "handling": "krav", "spor": "frist", "dager": 25 },
+      { "handling": "brev", "svar": [{ "spor": "vederlag", "vurdering": "godkjent" }] },
+      { "handling": "brev", "svar": [{ "spor": "vederlag", "vurdering": "delvis", "godkjent_belop": 60000 }] },
+      { "handling": "revisjon", "spor": "vederlag", "vurdering": "delvis", "godkjent_belop": 30000 },
       {
         "handling": "brev",
-        "svar": [
-          {
-            "spor": "grunnlag",
-            "resultat": "avslaatt",
-            "varslet_i_tide": true
-          }
-        ]
-      },
-      {
-        "handling": "brev",
-        "svar": [
-          {
-            "spor": "grunnlag",
-            "resultat": "avslaatt",
-            "varslet_i_tide": false
-          }
-        ]
+        "svar": [{ "spor": "frist", "varsel_i_tide": false, "spesifisering_i_tide": true, "hindring": true }]
       },
       {
         "handling": "brev",
         "svar": [
-          {
-            "spor": "grunnlag",
-            "resultat": "godkjent",
-            "varslet_i_tide": false
-          }
-        ]
-      },
-      {
-        "handling": "brev",
-        "svar": [
-          {
-            "spor": "grunnlag",
-            "resultat": "godkjent",
-            "varslet_i_tide": true
-          }
-        ]
-      },
-      {
-        "handling": "brev",
-        "svar": [
-          {
-            "spor": "grunnlag",
-            "resultat": "paalegg_frafalt",
-            "varslet_i_tide": true
-          }
-        ]
-      },
-      {
-        "handling": "krav",
-        "spor": "grunnlag",
-        "underkategori": "samordning"
-      },
-      {
-        "handling": "krav",
-        "spor": "grunnlag",
-        "underkategori": "endringsordre"
-      },
-      {
-        "handling": "krav",
-        "spor": "vederlag",
-        "belop": 80000
-      },
-      {
-        "handling": "krav",
-        "spor": "frist",
-        "dager": 25
-      },
-      {
-        "handling": "brev",
-        "svar": [
-          {
-            "spor": "vederlag",
-            "vurdering": "godkjent"
-          }
-        ]
-      },
-      {
-        "handling": "brev",
-        "svar": [
-          {
-            "spor": "vederlag",
-            "vurdering": "delvis",
-            "godkjent_belop": 60000
-          }
-        ]
-      },
-      {
-        "handling": "revisjon",
-        "spor": "vederlag",
-        "vurdering": "delvis",
-        "godkjent_belop": 30000
-      },
-      {
-        "handling": "brev",
-        "svar": [
-          {
-            "spor": "frist",
-            "varsel_i_tide": false,
-            "spesifisering_i_tide": true,
-            "hindring": true
-          }
-        ]
-      },
-      {
-        "handling": "brev",
-        "svar": [
-          {
-            "spor": "frist",
-            "varsel_i_tide": true,
-            "spesifisering_i_tide": true,
-            "hindring": true,
-            "dager": 10
-          }
+          { "spor": "frist", "varsel_i_tide": true, "spesifisering_i_tide": true, "hindring": true, "dager": 10 }
         ]
       },
       {
@@ -6771,52 +5786,16 @@
         "spesifisering_i_tide": true,
         "hindring": true
       },
-      {
-        "handling": "revisjon",
-        "spor": "grunnlag",
-        "resultat": "avslaatt"
-      },
-      {
-        "handling": "revisjon",
-        "spor": "grunnlag",
-        "resultat": "avslaatt",
-        "varslet_i_tide": true
-      },
-      {
-        "handling": "aksept",
-        "spor": "grunnlag"
-      },
-      {
-        "handling": "aksept",
-        "spor": "vederlag"
-      },
-      {
-        "handling": "aksept",
-        "spor": "frist"
-      },
-      {
-        "handling": "trekk",
-        "spor": "vederlag"
-      },
-      {
-        "handling": "trekk",
-        "spor": "grunnlag"
-      },
-      {
-        "handling": "varsel",
-        "spor": "frist",
-        "sendt": "2026-09-02"
-      },
-      {
-        "handling": "bestridelse",
-        "part": "BH",
-        "gjelder": "varsel#sendt",
-        "hva": "mottatt"
-      },
-      {
-        "handling": "regelendring",
-        "regelsett": "n+1"
-      }
+      { "handling": "revisjon", "spor": "grunnlag", "resultat": "avslaatt" },
+      { "handling": "revisjon", "spor": "grunnlag", "resultat": "avslaatt", "varslet_i_tide": true },
+      { "handling": "aksept", "spor": "grunnlag" },
+      { "handling": "aksept", "spor": "vederlag" },
+      { "handling": "aksept", "spor": "frist" },
+      { "handling": "trekk", "spor": "vederlag" },
+      { "handling": "trekk", "spor": "grunnlag" },
+      { "handling": "varsel", "spor": "frist", "sendt": "2026-09-02" },
+      { "handling": "bestridelse", "part": "BH", "gjelder": "varsel#sendt", "hva": "mottatt" },
+      { "handling": "regelendring", "regelsett": "n+1" }
     ]
   },
   "invarianter": [
@@ -6870,11 +5849,7 @@
       "kilde": "forslaget avsnitt 2.6",
       "tekst": "Ingen regel leser statusen, etikettene eller en verdi som oppsummerer et spor eller saken. Arkitekturtesten: ingen regel i kjernen når visningen eller bufferen."
     },
-    {
-      "id": "INV-AVVIST-UENDRET",
-      "kilde": "KT-U2",
-      "tekst": "En avvist kommando endrer ikke journalen."
-    },
+    { "id": "INV-AVVIST-UENDRET", "kilde": "KT-U2", "tekst": "En avvist kommando endrer ikke journalen." },
     {
       "id": "INV-GJENLESING",
       "kilde": "B-14 (bevisgrunnlaget)",
