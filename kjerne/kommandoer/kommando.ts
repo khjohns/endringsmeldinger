@@ -7,7 +7,7 @@
  * skrives.
  */
 
-import { DATO, ID, KRAVINNHOLD, liste, objekt, OPPLYSNINGSSLAG } from '../format/format.ts';
+import { DATO, ID, KRAVINNHOLD, liste, objekt, OPPLYSNINGSSLAG, TEKST } from '../format/format.ts';
 import { erObjekt, feilI, type Skjema } from '../format/skjema.ts';
 import type { Svarvurdering } from '../frosset/standpunkt.ts';
 import { KRAVSPOR, SPOR as SPORENE, type Kravspor, type Opplysning, type Spor } from '../typer.ts';
@@ -81,12 +81,12 @@ const SVARUTKAST = objekt(
     regelversjon: { type: 'integer' },
     vurderinger: { type: 'object' },
     resultat: { type: 'object' },
-    utdypning: { type: 'string', minLength: 1 },
+    utdypning: TEKST,
   },
   ['spor', 'gjelder', 'regelversjon', 'vurderinger', 'resultat']
 );
 
-const BREVTEKST = { brevtekst: liste({ type: 'string', minLength: 1 }) };
+const BREVTEKST = { brevtekst: liste(TEKST) };
 
 const henvisning = (type: string) =>
   objekt({ type: { const: type }, gjelder: ID, ...BREVTEKST }, ['type', 'gjelder']);
@@ -98,7 +98,7 @@ const SKJEMA: Record<Kommando['type'], Skjema> = {
       spor: SPOR,
       innhold: { type: 'object' },
       varsel: objekt({ sendt: DATO }, ['sendt']),
-      utdypning: { type: 'string', minLength: 1 },
+      utdypning: TEKST,
       ...BREVTEKST,
     },
     ['type', 'spor', 'innhold']

@@ -1382,7 +1382,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'et krav i underkategorien endringsordre godtas uten endringsordrens dato eller nummer (GR-U16)',
     fil: `${K}/format/format.ts`,
-    endringer: [["            required: ['endringsordre'],\n", '']],
+    endringer: [["      required: ['endringsordre'],\n", '']],
     mal: ['uten endringsordrens dato eller nummer'],
   },
   {

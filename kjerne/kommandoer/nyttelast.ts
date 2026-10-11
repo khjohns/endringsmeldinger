@@ -18,7 +18,7 @@ import {
   utenforOmfanget,
 } from '../frosset/standpunkt.ts';
 import type { Utledning } from '../utledning/utled.ts';
-import type { Avvisning, Krav } from '../typer.ts';
+import type { Avvisning } from '../typer.ts';
 
 function kontrollerSvar(s: Svarutkast, u: Utledning, regler: Regelsett): Avvisning | null {
   const krav = u.spor[s.spor].gjeldendeKrav!;
@@ -108,7 +108,7 @@ function kravetsUtdypning(
       'BEGRUNNELSE_MANGLER',
       'Kravet om fristforlengelse må begrunne antallet dager (NS 8407 § 33.6.1, KA-U33).'
     );
-  if (k.spor === 'grunnlag' && gjelderVarslingsplikten(k as unknown as Krav, regler))
+  if (k.spor === 'grunnlag' && gjelderVarslingsplikten(k, regler))
     return avvis(
       'BESKRIVELSE_MANGLER',
       'Varselet etter NS 8407 § 32.2 må beskrive pålegget, så en godkjenning kan si hva endringen går ut på (GR-U15).'

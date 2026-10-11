@@ -20,10 +20,10 @@ import type { Regelsett } from '../regler/regelsett.ts';
 import {
   blirEndringsordre,
   gjelderVarslingsplikten,
+  grunnerFraGrunnlaget,
   innsigelsenErOppgitt,
   innsigelsenGjelderSvaret,
   prinsipalt,
-  standpunktet,
 } from './standpunkt.ts';
 import type {
   Avsnitt,
@@ -80,16 +80,16 @@ const MAANEDER = [
 
 const DAG = /^(\d{4})-(\d{2})-(\d{2})$/;
 
+const OSLO = new Intl.DateTimeFormat('en-CA', {
+  timeZone: 'Europe/Oslo',
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit',
+});
+
 /** Datoen i Oslo for et tidspunkt, eller datoen slik den er oppgitt. «2. oktober 2026». */
 export function norskDato(tid: string): string {
-  const dag = DAG.test(tid)
-    ? tid
-    : new Intl.DateTimeFormat('en-CA', {
-        timeZone: 'Europe/Oslo',
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-      }).format(new Date(tid));
+  const dag = DAG.test(tid) ? tid : OSLO.format(new Date(tid));
   const [, aar, maaned, dato] = DAG.exec(dag)!;
   return `${Number(dato)}. ${MAANEDER[Number(maaned) - 1]} ${aar}`;
 }
@@ -108,6 +108,10 @@ const dager = (n: number) => `${n} ${n === 1 ? 'dag' : 'dager'}`;
 
 /** Setningen med punktum, også når den slutter på en forkortelse. */
 const punktum = (t: string) => (t.endsWith('.') ? t : `${t}.`);
+
+/** En opplysning om når et brev eller et varsel ble sendt eller mottatt. */
+const erDato = (o: Opplysning): o is Extract<Opplysning, { hva: 'sendt' | 'mottatt' }> =>
+  o.hva === 'sendt' || o.hva === 'mottatt';
 
 const stor = (t: string) => `${t[0].toUpperCase()}${t.slice(1)}`;
 
@@ -156,6 +160,12 @@ const SVARET_GJELDER: Record<Spor, string> = {
   grunnlag: 'grunnlaget',
   vederlag: 'kravet om justering av vederlaget',
   frist: 'kravet om fristforlengelse',
+};
+
+/** Kravet i sporet med kontraktens ord: «kravet om <…>». */
+const KRAVET_OM: Record<Kravspor, string> = {
+  vederlag: 'justering av vederlaget',
+  frist: 'fristforlengelse',
 };
 
 function liste(deler: string[]): string {
@@ -208,10 +218,7 @@ class Journalen {
     const b = this.brev.get(id);
     if (!b || b.versjon === 0) throw new KanIkkeUttrykkes(`${id} er ikke et tidligere brev`);
     const sendt = erRegistrert(b.dokument.opplysninger)
-      ? b.dokument.opplysninger.find(
-          (o): o is Extract<Opplysning, { hva: 'sendt' | 'mottatt' }> =>
-            (o.hva === 'sendt' || o.hva === 'mottatt') && o.gjelder === undefined
-        )!.dato
+      ? b.dokument.opplysninger.filter(erDato).find((o) => o.gjelder === undefined)!.dato
       : b.dokument.registrert;
     return `brev ${b.versjon} av ${norskDato(sendt)}`;
   }
@@ -268,7 +275,7 @@ export function lagBrevtekst(
   for (const u of nytt.utsagn) legg(u.id, utsagnstekst(u, t));
   for (const o of nytt.opplysninger) {
     // Datoen for et varsel står i avsnittet for varselet.
-    if ((o.hva === 'sendt' || o.hva === 'mottatt') && o.gjelder !== undefined) continue;
+    if (erDato(o) && o.gjelder !== undefined) continue;
     legg(o.id, opplysningstekst(o, nytt.avsender, j));
   }
   // A4: vedleggene står i teksten, så det som fryses, er teksten og vedleggene (LV-U2).
@@ -372,8 +379,9 @@ function grunnlagetsStandpunkter(s: Svar, { j, saken, nytt }: Tekst): string[] {
     (saken.grunnlagssvar ? j.svar(saken.grunnlagssvar) : undefined);
   if (!g) return [];
   const virkning = prinsipalt(g.beslutningsgrunnlag.virkninger);
-  const prekludert = virkning?.art === 'rettidighet';
-  const avslaatt = standpunktet(g, 'grunnlag')?.resultat === 'avslaatt';
+  const grunner = grunnerFraGrunnlaget(g, g.beslutningsgrunnlag.virkninger);
+  const prekludert = grunner.includes('prekludert');
+  const avslaatt = grunner.includes('avslaatt');
   if (g.dokument === nytt.id) {
     const se = ' (se svaret på grunnlaget)';
     return [
@@ -510,7 +518,7 @@ function beskriv(id: string, j: Journalen): string {
   const e = j.element(id);
   switch (e.art) {
     case 'krav':
-      return `TEs ${e.krav.spor === 'grunnlag' ? 'krav' : `krav om ${e.krav.spor === 'vederlag' ? 'justering av vederlaget' : 'fristforlengelse'}`} i ${j.brevet(e.krav.dokument)}`;
+      return `TEs krav${e.krav.spor === 'grunnlag' ? '' : ` om ${KRAVET_OM[e.krav.spor]}`} i ${j.brevet(e.krav.dokument)}`;
     case 'svar':
       return `byggherrens svar i ${j.brevet(e.svar.dokument)}`;
     case 'standpunkt':
@@ -531,9 +539,7 @@ function utsagnstekst(u: Utsagn, { j, saken, nytt, sak }: Tekst): string {
   const part = PART[nytt.avsender];
   switch (u.art) {
     case 'varsel': {
-      const dato = nytt.opplysninger.find(
-        (o) => (o.hva === 'sendt' || o.hva === 'mottatt') && o.gjelder === u.id
-      );
+      const dato = nytt.opplysninger.find((o) => erDato(o) && o.gjelder === u.id);
       if (dato?.hva !== 'sendt')
         throw new KanIkkeUttrykkes('et varsel i et brev fra appen har datoen det ble sendt');
       return `TE opplyser at varsel om fristforlengelse etter NS 8407 § 33.4 ble sendt ${norskDato(dato.dato)}.`;
@@ -550,12 +556,11 @@ function utsagnstekst(u: Utsagn, { j, saken, nytt, sak }: Tekst): string {
       // KA-U22, ordrett med saken satt inn.
       if (krav.spor === 'grunnlag')
         return `TE trekker sitt krav i ${sak}. Trekket er avkall på alle krav i saken, også vederlag og fristforlengelse byggherren har godkjent. Trekket opphever ikke et pålegg, en endringsordre, en utførelsesplikt eller byggherrens rettigheter etter en avtale.`;
-      const hva = krav.spor === 'vederlag' ? 'justering av vederlaget' : 'fristforlengelse';
       const verdi =
         krav.spor === 'vederlag'
           ? eksMva(krav.innhold.beloep as number)
           : dager(krav.innhold.dager as number);
-      return `TE trekker kravet om ${hva} i ${sak}, fremsatt i ${j.brevet(krav.dokument)} (${verdi}). Trekket er avkall på dette kravet, også det byggherren har godkjent.`;
+      return `TE trekker kravet om ${KRAVET_OM[krav.spor]} i ${sak}, fremsatt i ${j.brevet(krav.dokument)} (${verdi}). Trekket er avkall på dette kravet, også det byggherren har godkjent.`;
     }
     case 'ingen_krav':
       // KA-U22 og KA-U25, ordrett med saken satt inn.
@@ -599,19 +604,24 @@ function opplysningen(o: Opplysning, j: Journalen): string {
 
 /** LV-U4 punkt 11. */
 function opplysningstekst(o: Opplysning, avsender: Part, j: Journalen): string {
-  if (o.hva === 'kan_ikke_uttrykkes' && o.brev !== o.dokument)
-    return `${PART[avsender]} opplyser at ${j.brevet(o.brev)} har et forbehold eller annet innhold som ikke er uttrykt i appen, og som gjelder ${liste(o.spor.map((s) => SPORNAVN[s]))}.`;
-  if (o.hva === 'endringsordre' && o.brev !== o.dokument)
-    return `${PART[avsender]} opplyser at ${j.brevet(o.brev)} ${o.oppfylt ? 'var' : 'ikke var'} en endringsordre etter NS 8407 § 31.3.`;
-  throw new KanIkkeUttrykkes(`opplysningen ${o.hva} i et brev fra appen har ingen brevtekst`);
+  if (erDato(o) || o.brev === o.dokument)
+    throw new KanIkkeUttrykkes(`opplysningen ${o.hva} i et brev fra appen har ingen brevtekst`);
+  const sporene =
+    o.hva === 'kan_ikke_uttrykkes'
+      ? `, og som gjelder ${liste(o.spor.map((s) => SPORNAVN[s]))}`
+      : '';
+  return `${PART[avsender]} opplyser at ${opplysningen(o, j)}${sporene}.`;
 }
 
 // ---------- Gjengivelsen (LV-U2) ----------
 
 /** Teksten i avsnittene slik et dokument gjengir den: den låste delen, så utdypningen. */
 export function gjengi(brevtekst: Avsnitt[]): string {
-  return brevtekst.flatMap((a) => (a.utdypning ? [a.laast, a.utdypning] : [a.laast])).join('\n\n');
+  return deler(brevtekst).join('\n\n');
 }
+
+const deler = (brevtekst: Avsnitt[]) =>
+  brevtekst.flatMap((a) => (a.utdypning ? [a.laast, a.utdypning] : [a.laast]));
 
 const normalisert = (t: string) => t.replace(/\s+/g, ' ').trim();
 
@@ -623,10 +633,10 @@ const normalisert = (t: string) => t.replace(/\s+/g, ' ').trim();
 export function gjengirTro(gjengitt: string, brevtekst: Avsnitt[]): boolean {
   const tekst = normalisert(gjengitt);
   let fra = 0;
-  for (const del of brevtekst.flatMap((a) => (a.utdypning ? [a.laast, a.utdypning] : [a.laast]))) {
-    const plass = tekst.indexOf(normalisert(del), fra);
+  for (const del of deler(brevtekst).map(normalisert)) {
+    const plass = tekst.indexOf(del, fra);
     if (plass < 0) return false;
-    fra = plass + normalisert(del).length;
+    fra = plass + del.length;
   }
   return true;
 }

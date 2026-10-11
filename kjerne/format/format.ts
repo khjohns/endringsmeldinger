@@ -60,7 +60,7 @@ export const STANDPUNKTER_I_SPORET: Record<Spor, { art: Standpunktsart; paakrevd
 };
 
 export const ID: Skjema = { type: 'string', minLength: 1 };
-const TEKST: Skjema = { type: 'string', minLength: 1 };
+export const TEKST: Skjema = { type: 'string', minLength: 1 };
 export const DATO: Skjema = { type: 'string', minLength: 10 };
 export const liste = (items: Skjema): Skjema => ({ type: 'array', minItems: 1, items });
 
@@ -78,28 +78,24 @@ export const objekt = (properties: Skjema, required: string[], anyOf?: Skjema[])
  * oppgir (GR-U16); de andre har det ikke.
  */
 const KATEGORIPAR: Skjema[] = HOVEDKATEGORIER.flatMap((h) => {
-  const andre = KATEGORIER[h].filter((u) => u !== 'endringsordre');
-  return [
-    ...(andre.length
-      ? [
-          {
-            properties: {
-              hovedkategori: { const: h },
-              underkategori: { enum: andre },
-              endringsordre: { type: 'null' },
-            },
-          },
-        ]
-      : []),
-    ...((KATEGORIER[h] as readonly string[]).includes('endringsordre')
-      ? [
-          {
-            properties: { hovedkategori: { const: h }, underkategori: { const: 'endringsordre' } },
-            required: ['endringsordre'],
-          },
-        ]
-      : []),
-  ];
+  const under: readonly string[] = KATEGORIER[h];
+  const andre = under.filter((u) => u !== 'endringsordre');
+  const par: Skjema[] = [];
+  if (andre.length)
+    par.push({
+      properties: {
+        hovedkategori: { const: h },
+        underkategori: { enum: andre },
+        // Ingen verdi passer, så feltet finnes ikke i de andre underkategoriene.
+        endringsordre: { enum: [] },
+      },
+    });
+  if (under.includes('endringsordre'))
+    par.push({
+      properties: { hovedkategori: { const: h }, underkategori: { const: 'endringsordre' } },
+      required: ['endringsordre'],
+    });
+  return par;
 });
 
 /**
