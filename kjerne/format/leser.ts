@@ -38,7 +38,7 @@ import type {
   Utsagn,
   Utsagnsart,
   Virkning,
-} from './typer.ts';
+} from '../typer.ts';
 
 /**
  * Dokumentet er registrert korrespondanse: det er sendt eller mottatt utenfor appen

@@ -1,7 +1,7 @@
 """Registeret over hendelsene TS-kjernen skriver, docs/datamodell/kjernehendelser.toml (#320).
 
 Her prøves formen på registeret og at kjernehendelser.md er generert. At typene,
-artene og feltene er de kjernen eksporterer i kjerne/format.ts, prøver
+artene og feltene er de kjernen eksporterer i kjerne/format/format.ts, prøver
 kjerne/tester/register.test.ts.
 """
 

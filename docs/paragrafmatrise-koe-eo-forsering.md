@@ -53,12 +53,12 @@ verken formatet eller utledningen har det.
 
 To trekk gjelder hele kjernen på `7460838`:
 
-- Sakstypen er bare `standard` (KOE) ([`format.ts`](../kjerne/format.ts),
+- Sakstypen er bare `standard` (KOE) ([`format.ts`](../kjerne/format/format.ts),
   `SAK_OPPRETTET`). Endringsordre- og forseringssaker finnes ikke.
 - Frist- og vederlagsreglene i [`regler/frist.ts`](../kjerne/regler/frist.ts)
   og [`regler/vederlag.ts`](../kjerne/regler/vederlag.ts) er portert fra
   Python og har flere grener enn kjernen bruker. `regnUtSvar` i
-  [`standpunkt.ts`](../kjerne/standpunkt.ts) låser inndataene: alltid fastpris,
+  [`standpunkt.ts`](../kjerne/frosset/standpunkt.ts) låser inndataene: alltid fastpris,
   alltid spesifisert fristkrav, ingen rigg, produktivitet eller forespørsel.
   `utenforOmfanget` avviser resten med `VURDERING_UTENFOR_KJERNEN`
   ([#341](https://github.com/khjohns/endringsmeldinger/issues/341)).
@@ -114,7 +114,7 @@ endringsordre og forsering, etter [OV-U1](plans/2026-09-16-godkjenning-og-varig-
   innsigelsen etter § 5.
 - **Kjernen i dag:** bygget. `rettidighet` med hjemmel `32.2`
   ([`typer.ts`](../kjerne/typer.ts), `Standpunkt`); `preklusjonPaaberopt` og
-  `virkninger` i [`standpunkt.ts`](../kjerne/standpunkt.ts);
+  `virkninger` i [`standpunkt.ts`](../kjerne/frosset/standpunkt.ts);
   `erEndringMedVarslingsplikt` i [`regler/grunnlag.ts`](../kjerne/regler/grunnlag.ts);
   frosset som `varslingsplikt` i beslutningsgrunnlaget. Delvis: kategoriene er
   fri tekst uten liste, og bare første underkategori leses
@@ -157,9 +157,9 @@ endringsordre og forsering, etter [OV-U1](plans/2026-09-16-godkjenning-og-varig-
 - **Kjernen i dag:** bygget. `GRUNNLAGSRESULTATER` og `gyldigeResultater` i
   [`regler/grunnlag.ts`](../kjerne/regler/grunnlag.ts); `sammenfall` i
   beslutningsgrunnlaget; `endringsordre` i `Utledning` i
-  [`utled.ts`](../kjerne/utled.ts) med opplysningen `endringsordre`;
+  [`utled.ts`](../kjerne/utledning/utled.ts) med opplysningen `endringsordre`;
   `FRAFALL_KAN_IKKE_GODTAS` og `GRUNNLAG_AVVIST` i
-  [`forutsetninger.ts`](../kjerne/forutsetninger.ts). Ikke bygget: KA-U16 for
+  [`forutsetninger.ts`](../kjerne/kommandoer/forutsetninger.ts). Ikke bygget: KA-U16 for
   et registrert brev med et forbehold appen ikke kan uttrykke. Kjent avvik: en lagret rad utenom kommandoene kan oppheve en
   enighet ([#326](https://github.com/khjohns/endringsmeldinger/issues/326)).
 
@@ -177,7 +177,7 @@ endringsordre og forsering, etter [OV-U1](plans/2026-09-16-godkjenning-og-varig-
   (09.10, merknadene 10.10: VS-U3 og VS-U10). B-13 om passivitet (24.09,
   merknadene 09.10 og 10.10). [VS-U10](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u10). [GR-U11](plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u11):
   passivitetsregelen følger henvisningen til § 32.2.
-- **Kjernen i dag:** ikke bygget. [`visning.ts`](../kjerne/visning.ts) har
+- **Kjernen i dag:** ikke bygget. [`visning.ts`](../kjerne/utledning/visning.ts) har
   etiketten `venter_paa_svar`, men ingen dato eller frist.
 
 ### § 32.3 tredje ledd — begrunnelse av avslag
@@ -194,7 +194,7 @@ endringsordre og forsering, etter [OV-U1](plans/2026-09-16-godkjenning-og-varig-
   [MM-U12](plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u12).
   [LV-U1](plans/2026-09-16-godkjenning-og-varig-levering.md#lv-u1).
 - **Kjernen i dag:** ikke bygget. Svaret har ikke noe felt for tekst (`SVAR`
-  i [`format.ts`](../kjerne/format.ts) har `additionalProperties: false`). Bare
+  i [`format.ts`](../kjerne/format/format.ts) har `additionalProperties: false`). Bare
   den genererte `linje` i beslutningsgrunnlaget lagres.
 
 ### § 32 — trekk av grunnlaget og ny kravversjon
@@ -221,7 +221,7 @@ endringsordre og forsering, etter [OV-U1](plans/2026-09-16-godkjenning-og-varig-
   (merknaden 09.10: «låst» er enighet). [GR-U4](plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u4).
   SD-02 (05.10). B-13 endret underkategori (05.10).
 - **Kjernen i dag:** bygget. `trekk` i `Utsagn`, `trekkAvGrunnlagetErSperret`
-  i [`utled.ts`](../kjerne/utled.ts), `Krav.erstatter`. Delvis: svarene på
+  i [`utled.ts`](../kjerne/utledning/utled.ts), `Krav.erstatter`. Delvis: svarene på
   vederlag og frist knyttes til grunnlagssvaret etter rekkefølgen i journalen
   (`tilNyttSvar` i `utled.ts`, [#342](https://github.com/khjohns/endringsmeldinger/issues/342)).
   Brevteksten for trekket er ikke bygget (#310).
@@ -244,8 +244,8 @@ endringsordre og forsering, etter [OV-U1](plans/2026-09-16-godkjenning-og-varig-
 - **Vedtak:** B-13 om frist uten fremdriftshindring (05.10, merknaden 09.10: om
   en innsigelse kom i tide, avgjør ikke appen).
 - **Kjernen i dag:** bygget. `hindring` i `STANDPUNKT` i
-  [`format.ts`](../kjerne/format.ts); `virkninger` i
-  [`standpunkt.ts`](../kjerne/standpunkt.ts).
+  [`format.ts`](../kjerne/format/format.ts); `virkninger` i
+  [`standpunkt.ts`](../kjerne/frosset/standpunkt.ts).
 
 ### § 33.3 — force majeure
 
@@ -263,7 +263,7 @@ endringsordre og forsering, etter [OV-U1](plans/2026-09-16-godkjenning-og-varig-
   matrisen, men ikke hvordan appen behandler den.
 - **Vedtak:** [KA-U13](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u13): trekket står i FORCE_MAJEURE.
 - **Kjernen i dag:** ikke bygget. Hovedkategorien er fri tekst
-  (`KRAVINNHOLD.grunnlag` i [`format.ts`](../kjerne/format.ts)), og ingen regel
+  (`KRAVINNHOLD.grunnlag` i [`format.ts`](../kjerne/format/format.ts)), og ingen regel
   i kjernen skiller ut force majeure. Python har `er_force_majeure` i
   [`backend/constants/grunnlag_categories.py`](../backend/constants/grunnlag_categories.py),
   men ingen kaller den.
@@ -296,8 +296,8 @@ endringsordre og forsering, etter [OV-U1](plans/2026-09-16-godkjenning-og-varig-
   [KA-U2](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u2): varselet er
   ikke en kravversjon.
 - **Kjernen i dag:** bygget for varselet. `varsel` i `UTSAGN` og `sendt` i
-  `OPPLYSNING` ([`format.ts`](../kjerne/format.ts)); `STANDPUNKT_UAVKLART` og
-  `VARSEL_REGISTRERT` i [`forutsetninger.ts`](../kjerne/forutsetninger.ts).
+  `OPPLYSNING` ([`format.ts`](../kjerne/format/format.ts)); `STANDPUNKT_UAVKLART` og
+  `VARSEL_REGISTRERT` i [`forutsetninger.ts`](../kjerne/kommandoer/forutsetninger.ts).
   Delvis: `varsel_type` er låst til spesifisert krav, og
   `har_tidligere_varsel_i_tide` er alltid usann i `regnUtSvar`. «Ingen krav»
   leses (`ingen_krav`), men har ingen kommando.
@@ -446,7 +446,7 @@ også § 30 om regningsarbeid, som § 34.4 viser til.
   og «godkjent» (24.09, merknadene 04.10). B-13 om svar når grunnlaget er
   avslått (05.10). [GR-U4](plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u4).
 - **Kjernen i dag:** delvis. Ett hovedkrav med metoden `tilbud` og beløp over
-  0 (`KRAVINNHOLD.vederlag` i [`format.ts`](../kjerne/format.ts)). Fortegn
+  0 (`KRAVINNHOLD.vederlag` i [`format.ts`](../kjerne/format/format.ts)). Fortegn
   (fradrag) kan ikke uttrykkes, selv om [`regler/beloep.ts`](../kjerne/regler/beloep.ts)
   håndterer det. Standpunktet `beloep` har ikke eget felt; det leses fra
   `utregning`. Regelsettets kopier `grunnlag_resultat` og
@@ -653,7 +653,7 @@ visning ikke fremstiller et trekk som at utførelsesplikten er bortfalt.
   erstatte den. B-02 punkt 3 (23.09). GFK-06 (23.09 og 24.09).
   [GR-U13](plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u13).
 - **Kjernen i dag:** delvis. Kandidatkontrollen finnes som predikat
-  (`kanInngaaIEo` i [`utled.ts`](../kjerne/utled.ts)), men kalles ikke av
+  (`kanInngaaIEo` i [`utled.ts`](../kjerne/utledning/utled.ts)), men kalles ikke av
   kjernen. Ikke bygget: EO-saken, livsløpet og tilknytningen mellom saker.
 
 ### Endringsordre som svar på grunnlaget og etter frafall
@@ -727,7 +727,7 @@ visning ikke fremstiller et trekk som at utførelsesplikten er bortfalt.
 - **Kjernen i dag:** bygget for aksept, sammenfall, betinget og virksom enighet,
   «avklart», trekk, revisjon, kravene avgjort og saker som ikke er forstått
   (`Enighet`, `enighetensVirkning`, `kraveneErAvgjort` i
-  [`utled.ts`](../kjerne/utled.ts); `lesJournal` i [`leser.ts`](../kjerne/leser.ts)).
+  [`utled.ts`](../kjerne/utledning/utled.ts); `lesJournal` i [`leser.ts`](../kjerne/format/leser.ts)).
   «Ingen krav» leses, men har ingen kommando. Ikke bygget: KA-U16 for et
   registrert brev appen ikke kan uttrykke, B-10 utover versjonene i formatet
   ([#316](https://github.com/khjohns/endringsmeldinger/issues/316)), og kontrollen av at en lagret rad ikke bryter et vedtak om enighet (#326).

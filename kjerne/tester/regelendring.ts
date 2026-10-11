@@ -16,10 +16,10 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { Journalrad } from '../typer.ts';
 import { KJERNE } from '../versjon.ts';
-import { utledJournal } from '../skriving.ts';
-import type { Utledning } from '../utled.ts';
-import { visning } from '../visning.ts';
-import { endredeSaker, lesSak } from '../buffer.ts';
+import { utledJournal } from '../kommandoer/skriving.ts';
+import type { Utledning } from '../utledning/utled.ts';
+import { visning } from '../utledning/visning.ts';
+import { endredeSaker, lesSak } from '../utledning/buffer.ts';
 import type { Bane } from './bane.ts';
 import { bygg, type Baner } from './baner.ts';
 import { NESTE_REGLER } from './klient.ts';

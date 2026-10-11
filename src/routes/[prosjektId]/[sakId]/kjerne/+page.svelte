@@ -9,7 +9,7 @@
   import { ApiError } from '$lib/api/client';
   import { formatDateTimeNorwegian } from '$lib/utils/dateFormatters';
   import { KRAV_STRUKTUR_NS8407 } from '$lib/constants/categories';
-  import { HOVEDKATEGORI_FRA_KATALOGEN, UNDERKATEGORI_FRA_KATALOGEN } from '$kjerne/koder';
+  import { HOVEDKATEGORI_FRA_KATALOGEN, UNDERKATEGORI_FRA_KATALOGEN } from '$kjerne/format/koder';
   import { hentKjernesak, sendKommando, type Kjernesak } from '$lib/kjerneskive/api';
 
   const sakId = $derived(page.params.sakId ?? '');

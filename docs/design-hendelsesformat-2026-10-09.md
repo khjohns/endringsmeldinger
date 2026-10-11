@@ -478,7 +478,7 @@ plass til, eller formatet lagrer noe kjernen ikke leser:
 10.10, og **bygget** i #316:
 
 - Kjernen har to formatnumre: `FORMAT`, som den skriver, og `LESERFORMAT`, det
-  høyeste den leser ([`kjerne/format.ts`](../kjerne/format.ts)). Et nytt format
+  høyeste den leser ([`kjerne/format/format.ts`](../kjerne/format/format.ts)). Et nytt format
   rulles ut i to utgivelser: først en som leser det, så en som skriver det. En
   tilbakerulling ett trinn stopper da ingen sak. Regelversjonsvakten
   (`.github/scripts/regelversjon.sh`) avviser en diff der `FORMAT` økes forbi
@@ -486,7 +486,7 @@ plass til, eller formatet lagrer noe kjernen ikke leser:
 - Bufferen står i `sak_metadata`: visningen i `kjerne_visning` og versjonene den
   er regnet med i `kjerne_projeksjonsversjon`, `kjerne_regelversjon`,
   `kjerne_leserformat` og `kjerne_saksversjon`. Den brukes bare når alle er like
-  kjernens og sakens ([`kjerne/buffer.ts`](../kjerne/buffer.ts)).
+  kjernens og sakens ([`kjerne/utledning/buffer.ts`](../kjerne/utledning/buffer.ts)).
 - Kompatibilitetstesten er tabellstyrt
   ([`kjerne/tester/kompatibilitet.ts`](../kjerne/tester/kompatibilitet.ts)) og
   kjøres i minnet og mot testbasen. Tabellen har tre versjoner rundt et nytt
