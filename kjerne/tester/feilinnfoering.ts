@@ -5,7 +5,7 @@
  * i designnotatet, GR-U12 og registeret (#320). F48 er hvitelisten fra #329,
  * F49–F51 og F54–F58 versjoneringen (#316), F52–F53 registrert korrespondanse
  * (#336), F59–F60 kodene i formatet og predikatet for endringsordre
- * (#335, #351), og F61–F103 byggedel 1 av #309. Én mutasjon om gangen per arbeidskopi, Vitest over hele `kjerne/`
+ * (#335, #351), og F61–F104 byggedel 1 av #309. Én mutasjon om gangen per arbeidskopi, Vitest over hele `kjerne/`
  * og `sprakprove/kjernelagring/`, og originalteksten settes tilbake etterpå. For
  * hver mutasjon kreves det at de forventede målassertions feiler, og at alle
  * feil er assertions, ikke import, oppsett eller en brutt forutsetning
@@ -1161,6 +1161,19 @@ const MUTASJONER: Mutasjon[] = [
       ],
     ],
     mal: ['F-MM-U326l', 'F-MM-U326m'],
+  },
+  {
+    id: 'F104',
+    feilklasse:
+      'en merking i ett spor sperrer trekk av en enighet i et annet spor (KA-U30, KA-U26)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        '    (n) => u.spor[n].enighet !== null && u.spor[n].forbehold',
+        '    (n) => u.spor[n].enighet !== null && SPOR.some((m) => u.spor[m].forbehold)',
+      ],
+    ],
+    mal: ['F-MM-T4'],
   },
 ];
 

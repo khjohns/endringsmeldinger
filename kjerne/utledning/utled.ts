@@ -858,10 +858,10 @@ export const godkjenningenErMerket = (u: Utledning): boolean =>
   u.spor.grunnlag.merket.includes(u.spor.grunnlag.gjeldendeSvar.dokument);
 
 /**
- * KA-U22, KA-U27: et trekk avvises når appen ikke
+ * KA-U22, KA-U27, KA-U30: et trekk avvises når appen ikke
  * kan bevare byggherrens rettigheter etter en avtale. Det gjelder en enighet i et
- * spor trekket rammer (grunnlaget rammer alle, GR-U5) som bygger på et brev merket
- * etter KA-U20: appen vet ikke hva byggherren har avtalt. Et avtalt fradrag (KA-U9)
+ * spor trekket rammer (grunnlaget rammer alle, GR-U5) når en merking etter KA-U20
+ * gjelder det sporet: appen vet ikke hva byggherren har avtalt. Et avtalt fradrag (KA-U9)
  * avvises av formatet så lenge KA-U9 ikke er bygget, og sperren må dekke det når det bygges.
  */
 export const trekkKanIkkeBevareAvtalen = (u: Utledning, spor: Spor): boolean =>

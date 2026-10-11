@@ -671,6 +671,13 @@
       "radetikett": "KA-U27: et trekk, også av grunnlaget"
     },
     {
+      "id": "KA-U30",
+      "type": "vedtak",
+      "dato": "2026-10-11",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u30",
+      "radetikett": "KA-U30: et trekk avvises etter KA-U27"
+    },
+    {
       "id": "KA-U28",
       "type": "vedtak",
       "dato": "2026-10-11",
@@ -2013,17 +2020,19 @@
     },
     {
       "id": "KA-34",
-      "tilfelle": "TE trekker vederlag, frist eller grunnlaget når en enighet trekket rammer, bygger på et merket brev.",
-      "forventet": "Trekket avvises, også av grunnlaget, som rammer alle sporene. Når merkingen er avklart, godtas trekket som før.",
+      "tilfelle": "TE trekker vederlag, frist eller grunnlaget når en enighet trekket rammer, bygger på et merket brev, og merkingen gjelder sporet enigheten gjelder.",
+      "forventet": "Trekket avvises, også av grunnlaget, som rammer alle sporene. Gjelder merkingen bare et annet spor enn enigheten trekket rammer, avvises ikke trekket på grunn av merkingen. Når merkingen er avklart, godtas trekket som før.",
       "bh_standpunkt": "Enigheten slik brevet ga den.",
       "rettslig_virkning": "Appen kan ikke bevare byggherrens rettigheter etter en avtale den ikke kan uttrykke.",
       "rettidighet": "—",
       "tidsakse": "registrering",
       "kilder": [
         "KA-U27",
+        "KA-U30",
         "KA-U22",
         "KA-U14",
-        "KA-U20"
+        "KA-U20",
+        "KA-U26"
       ],
       "tolkningsstatus": "avklart_tolkning"
     },
