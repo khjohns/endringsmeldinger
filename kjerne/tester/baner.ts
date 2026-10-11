@@ -3,7 +3,7 @@
  * står i `sprakprove/kjernelagring/baner.ts`, og samme suiter kjøres der.
  */
 
-import { minnebuffer, type Bufferlager } from '../buffer.ts';
+import { minnebuffer, type Bufferlager } from '../utledning/buffer.ts';
 import type { Kjerne } from '../versjon.ts';
 import { minnebane, type Bane } from './bane.ts';
 import type { Handling } from './klient.ts';

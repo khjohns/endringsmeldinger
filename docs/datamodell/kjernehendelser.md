@@ -2,7 +2,7 @@
 
 _Generert fra docs/datamodell/kjernehendelser.toml av docs/verktoy/datamodell.py. Rett i registeret, ikke her._
 
-Format 1. Formen er skjemaene i [`kjerne/format.ts`](../../kjerne/format.ts), og designet står i [designnotatet](../design-hendelsesformat-2026-10-09.md). Pythons hendelsestyper står i [hendelser.md](hendelser.md).
+Format 1. Formen er skjemaene i [`kjerne/format/format.ts`](../../kjerne/format/format.ts), og designet står i [designnotatet](../design-hendelsesformat-2026-10-09.md). Pythons hendelsestyper står i [hendelser.md](hendelser.md).
 
 Hver rad har kolonnen `format`. `data` har ingen `null`, ingen tom liste og ingen tom streng, og et ukjent felt eller en ukjent art gjør saken ikke forstått (MM-U2). Hvert element har en `id` satt av serveren, og relasjonene står som `gjelder` og `erstatter`.
 
@@ -17,7 +17,7 @@ Hver rad har kolonnen `format`. `data` har ingen `null`, ingen tom liste og inge
 
 | Spor | Innhold | Felt | Grunnlag |
 | --- | --- | --- | --- |
-| `grunnlag` | En kravversjon av ansvarsgrunnlaget. `erstatter` er forrige kravversjon i sporet. `hovedkategori` og `underkategori` er et par fra kjernens lukkede liste (`KATEGORIER` i `kjerne/koder.ts`), for eksempel `endring` og `irregulaer_endring`. Et ukjent par gjør raden ikke forstått. | `id`, `spor`, `erstatter`, `hovedkategori`, `underkategori`, `tittel`, `beskrivelse` | KA-U2, designnotatet 4.2 |
+| `grunnlag` | En kravversjon av ansvarsgrunnlaget. `erstatter` er forrige kravversjon i sporet. `hovedkategori` og `underkategori` er et par fra kjernens lukkede liste (`KATEGORIER` i `kjerne/format/koder.ts`), for eksempel `endring` og `irregulaer_endring`. Et ukjent par gjør raden ikke forstått. | `id`, `spor`, `erstatter`, `hovedkategori`, `underkategori`, `tittel`, `beskrivelse` | KA-U2, designnotatet 4.2 |
 | `vederlag` | En kravversjon av vederlaget, i kroner over 0. `metode` er `tilbud` (§ 34.2.1). | `id`, `spor`, `erstatter`, `metode`, `beloep` | KA-U2, KA-U8 |
 | `frist` | En kravversjon av fristforlengelsen, i dager over 0. | `id`, `spor`, `erstatter`, `dager` | KA-U2, KA-U8 |
 

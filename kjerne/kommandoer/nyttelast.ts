@@ -5,14 +5,19 @@
  * regelversjonen; innholdet står i brevet (KA-U10).
  */
 
-import { UgyldigVurdering } from './regler/feil.ts';
+import { UgyldigVurdering } from '../regler/feil.ts';
 import { avvis } from './forutsetninger.ts';
-import { datoFor, sammeSlag } from './leser.ts';
+import { datoFor, sammeSlag } from '../format/leser.ts';
 import type { Kommando, Svarutkast } from './kommando.ts';
-import type { Regelsett } from './regler/regelsett.ts';
-import { likeResultatfelt, regnUtSvar, SAMMENLIKNES, utenforOmfanget } from './standpunkt.ts';
-import type { Utledning } from './utled.ts';
-import type { Avvisning } from './typer.ts';
+import type { Regelsett } from '../regler/regelsett.ts';
+import {
+  likeResultatfelt,
+  regnUtSvar,
+  SAMMENLIKNES,
+  utenforOmfanget,
+} from '../frosset/standpunkt.ts';
+import type { Utledning } from '../utledning/utled.ts';
+import type { Avvisning } from '../typer.ts';
 
 function kontrollerSvar(s: Svarutkast, u: Utledning, regler: Regelsett): Avvisning | null {
   const krav = u.spor[s.spor].gjeldendeKrav!;

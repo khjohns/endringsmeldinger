@@ -6,14 +6,14 @@
  * oversetter på grensen med tabellene her.
  */
 
-import { foersteUnderkategori } from './regler/grunnlag.ts';
+import { foersteUnderkategori } from '../regler/grunnlag.ts';
 import type {
   Beloepsvurdering,
   Grunnlagsresultat,
   SubsidiaerUtloser,
   Vederlagsmetode,
   Vederlagsresultat,
-} from './regler/typer.ts';
+} from '../regler/typer.ts';
 
 /** Hovedkategoriene (§ 33.1 a–c, § 33.3) med underkategoriene, som kontraktens overskrifter. */
 export const KATEGORIER = {

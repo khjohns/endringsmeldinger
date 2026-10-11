@@ -8,7 +8,7 @@
 import { randomUUID } from 'node:crypto';
 import type { ClientBase } from 'pg';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { utledJournal } from '../../kjerne/skriving.ts';
+import { utledJournal } from '../../kjerne/kommandoer/skriving.ts';
 import type { Journalrad } from '../../kjerne/typer.ts';
 import { KJERNE } from '../../kjerne/versjon.ts';
 import { bygg } from '../../kjerne/tester/baner.ts';

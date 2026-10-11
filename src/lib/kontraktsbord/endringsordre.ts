@@ -6,9 +6,13 @@
  * for registrert korrespondanse, der § 31.3 må oppgis (GR-U13).
  */
 
-import { GRUNNLAGSRESULTAT_FRA_KATALOGEN, fraKatalogen, kategoriFraKatalogen } from '$kjerne/koder';
+import {
+  GRUNNLAGSRESULTAT_FRA_KATALOGEN,
+  fraKatalogen,
+  kategoriFraKatalogen,
+} from '$kjerne/format/koder';
 import { GJELDENDE_REGLER } from '$kjerne/regler/regelsett';
-import { svaretBlirEndringsordre } from '$kjerne/frysing';
+import { svaretBlirEndringsordre } from '$kjerne/frosset/frysing';
 import type { ApprovalPackage, ReviewItem } from '$lib/approval/types';
 
 export interface Grunnlagskategori {

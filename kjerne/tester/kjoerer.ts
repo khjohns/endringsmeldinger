@@ -7,10 +7,10 @@
 
 import { AssertionError } from 'node:assert';
 import bevis from '../../docs/domenetabell/bevis-saker-maalmodell.json' with { type: 'json' };
-import { handlinger } from '../handlinger.ts';
+import { handlinger } from '../kommandoer/handlinger.ts';
 import { GJELDENDE_REGLER, type Regelsett } from '../regler/regelsett.ts';
 import { KJERNE, type Kjerne } from '../versjon.ts';
-import { erRegistrert, Uforstaatt } from '../leser.ts';
+import { erRegistrert, Uforstaatt } from '../format/leser.ts';
 import {
   frysBrev,
   Skrivefeil,
@@ -18,9 +18,14 @@ import {
   vurder,
   type Kontekst,
   type Utfall,
-} from '../skriving.ts';
-import { enighetensVirkning, kanInngaaIEo, kraveneErAvgjort, type Utledning } from '../utled.ts';
-import { visning } from '../visning.ts';
+} from '../kommandoer/skriving.ts';
+import {
+  enighetensVirkning,
+  kanInngaaIEo,
+  kraveneErAvgjort,
+  type Utledning,
+} from '../utledning/utled.ts';
+import { visning } from '../utledning/visning.ts';
 import type { Bane } from './bane.ts';
 import {
   kommandoFor,

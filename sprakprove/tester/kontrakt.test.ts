@@ -12,7 +12,7 @@ import {
   GRUNNLAGSRESULTAT_FRA_KATALOGEN,
   RESULTAT_FRA_KATALOGEN,
   UTLOESER_FRA_KATALOGEN,
-} from '../../kjerne/koder.ts';
+} from '../../kjerne/format/koder.ts';
 import { vurderKommando } from '../kjerne/kommando.ts';
 import { ukjenteNokkelord, valider } from '../kjerne/kontrakt.ts';
 import { offentligTilstand } from '../kjerne/offentlig.ts';
@@ -75,7 +75,7 @@ describe('skjemaet', () => {
     expect([...verdier].sort()).toEqual([...(defs[navn].enum as string[])].sort());
   });
 
-  // #335: kjernen har egne koder, og `regler.ts` oversetter med tabellene i `kjerne/koder.ts`.
+  // #335: kjernen har egne koder, og `regler.ts` oversetter med tabellene i `kjerne/format/koder.ts`.
   it.each([
     ['grunnlagsresultat', GRUNNLAGSRESULTAT_FRA_KATALOGEN],
     ['vederlagsresultat', RESULTAT_FRA_KATALOGEN],

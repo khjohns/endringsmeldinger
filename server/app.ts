@@ -15,10 +15,10 @@
 import { randomUUID } from 'node:crypto';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import type { Pool } from 'pg';
-import { utledJournal, vurder, type Kontekst } from '../kjerne/skriving.ts';
+import { utledJournal, vurder, type Kontekst } from '../kjerne/kommandoer/skriving.ts';
 import type { Journalrad } from '../kjerne/typer.ts';
 import { KJERNE, type Kjerne } from '../kjerne/versjon.ts';
-import { visning } from '../kjerne/visning.ts';
+import { visning } from '../kjerne/utledning/visning.ts';
 import {
   krevInnlogging,
   krevKontraktsrolle,

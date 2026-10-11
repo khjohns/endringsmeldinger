@@ -5,7 +5,7 @@
 
 import { apiFetch } from '$lib/api/client';
 import type { Journalrad } from '$kjerne/typer';
-import type { Visning } from '$kjerne/visning';
+import type { Visning } from '$kjerne/utledning/visning';
 
 export type Journallinje = Pick<
   Journalrad,

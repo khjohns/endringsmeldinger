@@ -1,7 +1,7 @@
 /**
  * Reglene i kjernen med Python-kodene språkprøven og `kontrakt.json` bruker.
  * Kjernen har egne koder (#335). Oversettelsen skjer her, på grensen, med
- * tabellene i `kjerne/koder.ts`: katalogens koder inn, og katalogens koder ut.
+ * tabellene i `kjerne/format/koder.ts`: katalogens koder inn, og katalogens koder ut.
  */
 
 import {
@@ -13,7 +13,7 @@ import {
   fraKatalogen,
   kategoriFraKatalogen,
   tilKatalogen,
-} from '../../kjerne/koder.ts';
+} from '../../kjerne/format/koder.ts';
 import { UgyldigVurdering } from '../../kjerne/regler/feil.ts';
 import * as grunnlag from '../../kjerne/regler/grunnlag.ts';
 import * as frist from '../../kjerne/regler/frist.ts';

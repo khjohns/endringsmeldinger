@@ -15,7 +15,7 @@
  */
 
 import { HOVEDKATEGORIER, KATEGORIER, UNDERKATEGORIER } from './koder.ts';
-import { FRISTRESULTATER, GRUNNLAGSRESULTATER, VEDERLAGSRESULTATER } from './regler/typer.ts';
+import { FRISTRESULTATER, GRUNNLAGSRESULTATER, VEDERLAGSRESULTATER } from '../regler/typer.ts';
 import type { Skjema } from './skjema.ts';
 import {
   KRAVSPOR,
@@ -24,7 +24,7 @@ import {
   type Spor,
   type Standpunktsart,
   type Utsagnsart,
-} from './typer.ts';
+} from '../typer.ts';
 
 /** Formatversjonen kjernen skriver. Står i kolonnen `format`. */
 export const FORMAT = 1;
