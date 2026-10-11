@@ -3318,7 +3318,7 @@
       "kontroller": [
         {
           "etter": 2,
-          "rolle": "forutsetning",
+          "rolle": "mal",
           "kilde": [
             "KA-U11"
           ],
@@ -3532,7 +3532,7 @@
       "kontroller": [
         {
           "etter": 3,
-          "rolle": "forutsetning",
+          "rolle": "mal",
           "kilde": [
             "KA-U11",
             "EO-U5"
@@ -3630,7 +3630,7 @@
       "kontroller": [
         {
           "etter": 1,
-          "rolle": "kontroll",
+          "rolle": "mal",
           "kilde": [
             "KA-U6"
           ],
@@ -3787,7 +3787,7 @@
       "kontroller": [
         {
           "etter": 2,
-          "rolle": "forutsetning",
+          "rolle": "mal",
           "kilde": [
             "V-SK01"
           ],
@@ -3888,7 +3888,7 @@
       "kontroller": [
         {
           "etter": 1,
-          "rolle": "forutsetning",
+          "rolle": "mal",
           "kilde": [
             "GR-U9"
           ],
@@ -3993,7 +3993,7 @@
       "kontroller": [
         {
           "etter": 3,
-          "rolle": "forutsetning",
+          "rolle": "mal",
           "kilde": [
             "KA-U11"
           ],
@@ -4191,7 +4191,7 @@
       "kontroller": [
         {
           "etter": 2,
-          "rolle": "forutsetning",
+          "rolle": "mal",
           "kilde": [
             "V-SK01"
           ],
@@ -4361,7 +4361,7 @@
       "kontroller": [
         {
           "etter": 2,
-          "rolle": "forutsetning",
+          "rolle": "mal",
           "kilde": [
             "V-SK01"
           ],
@@ -4447,7 +4447,7 @@
       "kontroller": [
         {
           "etter": 2,
-          "rolle": "forutsetning",
+          "rolle": "mal",
           "kilde": [
             "VS-U11"
           ],
@@ -4910,7 +4910,7 @@
       "kontroller": [
         {
           "etter": 1,
-          "rolle": "forutsetning",
+          "rolle": "mal",
           "kilde": [
             "KA-U20"
           ],
@@ -4982,7 +4982,7 @@
       "kontroller": [
         {
           "etter": 1,
-          "rolle": "forutsetning",
+          "rolle": "mal",
           "kilde": [
             "KA-U20"
           ],
@@ -5096,7 +5096,7 @@
       "kontroller": [
         {
           "etter": 1,
-          "rolle": "forutsetning",
+          "rolle": "mal",
           "kilde": [
             "GR-U12",
             "GR-U13"
@@ -5227,7 +5227,7 @@
       "kontroller": [
         {
           "etter": 2,
-          "rolle": "forutsetning",
+          "rolle": "mal",
           "kilde": [
             "KA-U7"
           ],
@@ -5293,7 +5293,7 @@
       "kontroller": [
         {
           "etter": 2,
-          "rolle": "forutsetning",
+          "rolle": "mal",
           "kilde": [
             "KA-U11"
           ],
@@ -5512,7 +5512,7 @@
       "kontroller": [
         {
           "etter": 3,
-          "rolle": "forutsetning",
+          "rolle": "mal",
           "kilde": [
             "KA-U11"
           ],
@@ -6211,7 +6211,7 @@
       "kontroller": [
         {
           "etter": 1,
-          "rolle": "forutsetning",
+          "rolle": "mal",
           "kilde": [
             "GR-U10",
             "GR-U13"
@@ -6224,7 +6224,7 @@
         },
         {
           "etter": 1,
-          "rolle": "forutsetning",
+          "rolle": "mal",
           "kilde": [
             "GR-U10",
             "GR-U13"
@@ -6306,7 +6306,7 @@
       "kontroller": [
         {
           "etter": 1,
-          "rolle": "forutsetning",
+          "rolle": "mal",
           "kilde": [
             "GR-U10",
             "GR-U13"
