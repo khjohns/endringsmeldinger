@@ -151,7 +151,7 @@ belegg = "L 29.09: modellen, `validate` og `_handle_grunnlag`."
 
 [[hendelse]]
 navn = "grunnlag_trukket"
-beskrivelse = "TE trekker ansvarsgrunnlaget, og med det kravene i saken."
+beskrivelse = "TE trekker grunnlaget, og med det kravene i saken."
 avsender = "TE"
 spor = "grunnlag"
 sakstype = ["standard"]
@@ -415,7 +415,7 @@ belegg = "L 29.09: `_handle_frist_trukket` og `_check_alle_krav_trukket`."
 [[hendelse]]
 navn = "respons_grunnlag"
 beskrivelse = """
-BH svarer på ansvarsgrunnlaget: godkjent, avslått eller frafalt pålegg, og om
+BH svarer på grunnlaget: godkjent, avslått eller frafalt pålegg, og om
 grunnlaget er varslet i tide."""
 avsender = "BH"
 spor = "grunnlag"
@@ -445,7 +445,7 @@ belegg = "L 29.09: `_handle_respons_grunnlag`, `_respons_til_status` og `public_
 
 [[hendelse]]
 navn = "respons_grunnlag_oppdatert"
-beskrivelse = "BH endrer sitt svar på ansvarsgrunnlaget («snuoperasjon»)."
+beskrivelse = "BH endrer sitt svar på grunnlaget («snuoperasjon»)."
 avsender = "BH"
 spor = "grunnlag"
 sakstype = ["standard"]
