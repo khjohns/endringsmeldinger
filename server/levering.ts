@@ -37,8 +37,8 @@ export function kanonisk(verdi: unknown): string {
 export const sjekksum = (innhold: unknown): string => sha256(kanonisk(innhold));
 
 /** Filnavnet dokumentet får i Catenda, fra innholdet i et lagret oppdrag. */
-export const filnavn = (innhold: Record<string, unknown>): string =>
-  (innhold.dokument as { filnavn: string }).filnavn;
+export const filnavn = (innhold: Record<string, unknown>): string | null =>
+  (innhold.dokument as { filnavn?: string } | undefined)?.filnavn ?? null;
 
 export function lagOppdrag(
   rad: Journalrad,

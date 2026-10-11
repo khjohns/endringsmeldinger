@@ -30,6 +30,12 @@ export class Versjonskonflikt extends Error {
 /** Saken finnes ikke i det autoriserte prosjektet. */
 export class SakFinnesIkke extends Error {}
 
+/** En verdi basen ikke kan lagre, for eksempel `\u0000` i tekst til JSONB. Ruta svarer 400. */
+export class UgyldigVerdi extends Error {}
+
+/** Feilkodene i PostgreSQL for tekst eller JSON som ikke kan lagres. */
+const UGYLDIG_TEKST = new Set(['22P02', '22P05', '22021']);
+
 interface Lagret {
   event_id: string;
   sak_id: string;
@@ -224,13 +230,17 @@ export async function skrivMedOppdrag<A>(
       // En forbindelse som ikke kan rulle tilbake, skal ikke tilbake i poolen.
       oedelagt = brudd as Error;
     }
-    if (!oedelagt && (feil as { constraint?: string }).constraint === VERSJONSSKRANKE) {
+    const pgfeil = feil as { constraint?: string; code?: string };
+    if (!oedelagt && pgfeil.constraint === VERSJONSSKRANKE) {
       const sist = await klient.query<{ versjon: number }>(
-        'SELECT coalesce(max(versjon), 0)::int AS versjon FROM hendelse WHERE sak_id = $1',
-        [sakId]
+        `SELECT coalesce(max(versjon), 0)::int AS versjon FROM hendelse
+          WHERE sak_id = $1 AND prosjekt_id = $2`,
+        [sakId, prosjektId]
       );
       throw new Versjonskonflikt(forventet, sist.rows[0].versjon);
     }
+    if (pgfeil.code && UGYLDIG_TEKST.has(pgfeil.code))
+      throw new UgyldigVerdi('Teksten har tegn som ikke kan lagres.');
     throw feil;
   } finally {
     klient.off('error', vedBrudd);
@@ -240,6 +250,27 @@ export async function skrivMedOppdrag<A>(
 }
 
 export type LagretOppdrag = Oppdragsrad & { opprettet: string };
+
+/** Journalen og oppdragene i saken fra samme øyeblikksbilde av basen. */
+export async function lesSaken(
+  pool: Pool,
+  sakId: string,
+  prosjektId: string
+): Promise<{ journal: Journalrad[]; oppdrag: LagretOppdrag[] }> {
+  const klient = await pool.connect();
+  try {
+    await klient.query('BEGIN ISOLATION LEVEL REPEATABLE READ READ ONLY');
+    const journal = await lesJournal(klient, sakId, prosjektId);
+    const oppdrag = await lesOppdrag(klient, sakId, prosjektId);
+    await klient.query('COMMIT');
+    return { journal, oppdrag };
+  } catch (feil) {
+    await klient.query('ROLLBACK').catch(() => {});
+    throw feil;
+  } finally {
+    klient.release();
+  }
+}
 
 /** Leveringsoppdragene i saken, i rekkefølgen brevene ble skrevet. */
 export async function lesOppdrag(
