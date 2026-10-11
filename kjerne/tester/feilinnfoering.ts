@@ -36,7 +36,7 @@ import {
   symlinkSync,
   writeFileSync,
 } from 'node:fs';
-import { availableParallelism, tmpdir } from 'node:os';
+import { availableParallelism, constants, tmpdir } from 'node:os';
 import { dirname, join, relative } from 'node:path';
 
 interface Mutasjon {
@@ -721,6 +721,8 @@ function kjoerVitest(k: Arbeidskopi): Promise<Rapport> {
         // gi «IKKE OPPDAGET» eller rød kontroll, så grensen heves over standarden på 5 s.
         '--testTimeout=60000',
         '--hookTimeout=60000',
+        // Prosessorene deles mellom kopiene, ikke ganges med dem.
+        `--maxWorkers=${arbeiderePerKopi}`,
         '--reporter=json',
         `--outputFile=${ut}`,
       ],
@@ -752,7 +754,7 @@ function psql(url: string, sql: string) {
 /** Basen `navn` i samme PostgreSQL som testbasen. */
 function baseUrl(navn: string): string {
   const url = new URL(TESTBASE!);
-  url.pathname = `/${navn}`;
+  url.pathname = `/${encodeURIComponent(navn)}`;
   return url.toString();
 }
 
@@ -769,7 +771,11 @@ function rydd() {
       // Gruppen er alt borte.
     }
   for (const navn of ekstraBaser.splice(0))
-    psql(TESTBASE!, `DROP DATABASE IF EXISTS "${navn}" WITH (FORCE)`);
+    try {
+      psql(TESTBASE!, `DROP DATABASE IF EXISTS "${navn}" WITH (FORCE)`);
+    } catch (e) {
+      console.error(`Fikk ikke slettet basen ${navn}; slett den for hånd.`, e);
+    }
   if (tempmappe) rmSync(tempmappe, { recursive: true, force: true });
   tempmappe = undefined;
 }
@@ -790,11 +796,11 @@ function lagArbeidskopier(antall: number): Arbeidskopi[] {
     const rot = join(tempmappe!, `kopi-${i + 1}`);
     for (const f of filer) {
       mkdirSync(dirname(join(rot, f)), { recursive: true });
-      cpSync(f, join(rot, f));
+      cpSync(f, join(rot, f), { verbatimSymlinks: true });
     }
     symlinkSync(join(ROT, 'node_modules'), join(rot, 'node_modules'));
     if (i === 0 || TESTBASE === undefined) return { rot, base: TESTBASE };
-    const navn = `${new URL(TESTBASE).pathname.slice(1)}_feilinnfoering_${process.pid}_${i + 1}`;
+    const navn = `${decodeURIComponent(new URL(TESTBASE).pathname.slice(1))}_feilinnfoering_${process.pid}_${i + 1}`;
     psql(TESTBASE, `CREATE DATABASE "${navn}"`);
     ekstraBaser.push(navn);
     const base = baseUrl(navn);
@@ -835,7 +841,7 @@ function vurder(m: Mutasjon, rapport: Rapport, k: Arbeidskopi): [boolean, string
   ];
 }
 
-/** Kjører mutasjonene i `koe` etter hverandre i `k`, til køen er tom. */
+/** Kjører mutasjonene i `koe` etter hverandre i `k`, til køen er tom. Feiler én, tømmes køen. */
 async function arbeider(
   k: Arbeidskopi,
   koe: Mutasjon[],
@@ -852,6 +858,9 @@ async function arbeider(
         m.endringer.reduce((t, [fra, til]) => t.replace(fra, til), original)
       );
       rapport = await kjoerVitest(k);
+    } catch (e) {
+      koe.length = 0;
+      throw e;
     } finally {
       writeFileSync(fil, original);
     }
@@ -874,10 +883,11 @@ const antallKopier = Math.max(
     mutasjoner.length
   )
 );
+const arbeiderePerKopi = Math.max(1, Math.floor(availableParallelism() / antallKopier));
 for (const signal of ['SIGINT', 'SIGTERM'] as const)
   process.on(signal, () => {
     rydd();
-    process.exit(130);
+    process.exit(128 + constants.signals[signal]);
   });
 
 let kode: number;
