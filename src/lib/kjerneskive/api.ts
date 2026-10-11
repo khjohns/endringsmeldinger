@@ -4,16 +4,13 @@
  */
 
 import { apiFetch } from '$lib/api/client';
+import type { Journalrad } from '$kjerne/typer';
 import type { Visning } from '$kjerne/visning';
 
-export interface Journallinje {
-  event_id: string;
-  versjon: number;
-  event_type: string;
-  tidsstempel: string;
-  aktor_rolle: 'TE' | 'BH';
-  data: Record<string, unknown>;
-}
+export type Journallinje = Pick<
+  Journalrad,
+  'event_id' | 'versjon' | 'event_type' | 'tidsstempel' | 'aktor_rolle' | 'data'
+>;
 
 export interface Leveringsoppdrag {
   id: string;

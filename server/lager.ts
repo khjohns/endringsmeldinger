@@ -44,9 +44,11 @@ interface Lagret {
   versjon: number;
 }
 
-/** Tidspunktet i formen kjernen skriver, `toISOString()`, så en rad leses som den ble skrevet. */
-const LES = `SELECT event_id::text AS event_id, sak_id, event_type,
-                    to_char(time AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') AS tid,
+/** Et tidspunkt i formen kjernen skriver, `toISOString()`, så en rad leses som den ble skrevet. */
+const iso = (kolonne: string) =>
+  `to_char(${kolonne} AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"')`;
+
+const LES = `SELECT event_id::text AS event_id, sak_id, event_type, ${iso('time')} AS tid,
                     actorid, actorrole, actorteam, referstoid::text AS referstoid, format, data, versjon
                FROM hendelse WHERE sak_id = $1 AND prosjekt_id = $2 ORDER BY versjon`;
 
@@ -172,6 +174,7 @@ export async function skrivMedOppdrag<A>(
   // spørringen feiler. Uten lytter ville prosessen falle.
   const vedBrudd = () => {};
   klient.on('error', vedBrudd);
+  let oedelagt: Error | undefined;
   let utfall: Skriveutfall<A>;
   try {
     await klient.query('BEGIN');
@@ -219,30 +222,24 @@ export async function skrivMedOppdrag<A>(
       await klient.query('ROLLBACK');
     } catch (brudd) {
       // En forbindelse som ikke kan rulle tilbake, skal ikke tilbake i poolen.
-      klient.release(brudd as Error);
-      throw feil;
+      oedelagt = brudd as Error;
     }
-    klient.off('error', vedBrudd);
-    klient.release();
-    if ((feil as { constraint?: string }).constraint === VERSJONSSKRANKE) {
-      const journal = await lesJournal(pool, sakId, prosjektId);
-      throw new Versjonskonflikt(forventet, journal.at(-1)?.versjon ?? 0);
+    if (!oedelagt && (feil as { constraint?: string }).constraint === VERSJONSSKRANKE) {
+      const sist = await klient.query<{ versjon: number }>(
+        'SELECT coalesce(max(versjon), 0)::int AS versjon FROM hendelse WHERE sak_id = $1',
+        [sakId]
+      );
+      throw new Versjonskonflikt(forventet, sist.rows[0].versjon);
     }
     throw feil;
+  } finally {
+    klient.off('error', vedBrudd);
+    klient.release(oedelagt);
   }
-  klient.off('error', vedBrudd);
-  klient.release();
   return utfall;
 }
 
-export interface LagretOppdrag {
-  id: string;
-  event_id: string;
-  dokumentnoekkel: string;
-  innhold: Record<string, unknown>;
-  innhold_sha256: string;
-  opprettet: string;
-}
+export type LagretOppdrag = Oppdragsrad & { opprettet: string };
 
 /** Leveringsoppdragene i saken, i rekkefølgen brevene ble skrevet. */
 export async function lesOppdrag(
@@ -253,7 +250,7 @@ export async function lesOppdrag(
   const svar = await db.query<LagretOppdrag>(
     `SELECT o.id::text AS id, o.event_id::text AS event_id, o.dokumentnoekkel, o.innhold,
             o.innhold_sha256,
-            to_char(o.opprettet AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') AS opprettet
+            ${iso('o.opprettet')} AS opprettet
        FROM leveringsoppdrag o JOIN hendelse h ON h.event_id = o.event_id
       WHERE o.sak_id = $1 AND o.prosjekt_id = $2 ORDER BY h.versjon`,
     [sakId, prosjektId]
