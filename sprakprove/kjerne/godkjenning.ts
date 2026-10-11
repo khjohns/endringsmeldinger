@@ -98,7 +98,7 @@ export function vurderPakke(sak: Sak, elementer: Pakkeelement[], kontekst: Konte
       return avvist(
         spor,
         'BASIS_CHANGED',
-        'Ansvarsgrunnlaget er endret eller utelatt. Revider økonomi- og fristvurderingen mot grunnlaget som skal gjelde for sendingen.'
+        'Grunnlaget er endret eller utelatt. Revider økonomi- og fristvurderingen mot grunnlaget som skal gjelde for sendingen.'
       );
     }
     const tolkning = tolkKommando(

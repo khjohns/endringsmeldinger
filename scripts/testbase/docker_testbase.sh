@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 # Starter en kastbar PostgreSQL 17 i Docker og bygger testbasen i den med
-# bygg_testbase.sh. Samme bilde som CI-jobben `database` (postgres:17).
+# bygg_testbase.sh. Samme bilde som CI-jobben `database`: det offisielle
+# postgres:17, hentet fra speilet i Amazon ECR Public. Docker Hub avviser
+# nedlastinger uten innlogging når grensen deres er nådd (#327).
 # Lytter bare på 127.0.0.1, med et tilfeldig passord.
 #
 #   scripts/testbase/docker_testbase.sh start   # skriver ut KOE_TESTBASE_URL
@@ -14,7 +16,7 @@ set -euo pipefail
 
 rot="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 port="${KOE_TESTBASE_PORT:-54317}"
-bilde="postgres:17"
+bilde="public.ecr.aws/docker/library/postgres:17"
 navn="koe-testbase-$port"
 
 url() {
@@ -27,7 +29,7 @@ hent_bilde() {
   if docker image inspect "$bilde" > /dev/null 2>&1; then
     return 0
   fi
-  # Docker Hub svarer av og til 429 Too Many Requests.
+  # Registeret kan svare 429 Too Many Requests.
   local forsok ventetid=2
   for forsok in 1 2 3 4 5; do
     if docker pull --quiet "$bilde" > /dev/null; then
