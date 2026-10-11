@@ -110,8 +110,12 @@ cd backend && /tmp/venv/bin/python -m pytest -q
 npm test && npm run check:error      # skal gi 0 errors
 npx tsc -p kjerne/tsconfig.json      # svelte-check ser ikke kjerne/
 npx tsc -p sprakprove/tsconfig.json  # eller sprakprove/
+npx tsc -p server/tsconfig.json      # eller server/
 ruff check backend/                  # porten, skal være 0
 ```
+
+`npm run server` starter TS-serveren i `server/` (B-18), og vite-proxyen sender
+`/api/kjerne` dit.
 
 Testene er raske. Kjør dem ofte. I skyøktene lager `.claude/hooks/session-start.sh`
 venv-en og testbasen, og meldingen fra hooken sier om databasetestene kjører.
@@ -281,6 +285,8 @@ ord.
   `spor-m` eller `papercut` i stedet. Venter et issue på rekkefølgen i AF-06,
   får det `venter-på-rekkefølge`, som fjernes når hovedplanen har en datert
   merknad om unntak. Et issue som samler grunnlaget for en B-ID, får `beslutning`.
+  Innenfor en milepæl kan etiketter dele pakken i deler, som `byggedel-1` til
+  `byggedel-4` og `ts-stien` i FK. Beskrivelsen av etiketten sier hva den dekker.
 - **Det som sinker arbeidet, blir et issue med etiketten `papercut`**: et verktøy
   som feiler, et oppsett som må gjøres for hånd, en test som henger. Skriv
   symptom og løsning eller omvei. Feiler noe uforklarlig, søk i `papercut`-issuene

@@ -45,6 +45,15 @@ Endrer du en migrasjon, bygg testbasen på nytt med `stopp` og `start` i
 `scripts/testbase/docker_testbase.sh`, og sett `KOE_TESTBASE_URL` til den nye
 URL-en.
 
+**En `GRANT` begrenser ikke det en rolle alt har.** Plattformstubben og
+Supabase gir `service_role` alle rettigheter på nye tabeller
+(`scripts/testbase/plattformstubb.sql`). En tabell som bare skal leses og
+utvides, trenger `REVOKE ALL … FROM service_role` før `GRANT`. Eieren berøres
+ikke av rettighetene, så skal tabellen være uforanderlig også for eieren, må en
+trigger stoppe `UPDATE`, `DELETE` og `TRUNCATE`. Prøv dem som `service_role` i
+en test, og les rettighetene i katalogen. Funnet i PR #372 11.10, etter to
+runder `/code-review high`.
+
 **Testsuiten kan ikke se at basen er uenig med repoet.** Supabase-lageret dekkes
 bare av testdobler, og doblene speiler repoet — `HENDELSE_KOLONNER` i
 `tests/fixtures/supabase_dobbel.py` er tro mot migrasjonsfila, ikke mot

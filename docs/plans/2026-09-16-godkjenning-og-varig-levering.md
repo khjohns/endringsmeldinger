@@ -1361,6 +1361,17 @@ følges i [milepælen FK](https://github.com/khjohns/endringsmeldinger/milestone
 > byggedel 4 av #309 (endringsordre og forsering) og før § 34.3.3 i byggedel 3.
 > Brev om det som avvises, følger [OV-U2](#ov-u2).
 
+> **Merknad 2026-10-11 til FK, runde 5 (#347):** skiva er levert (PR #372). Et
+> grunnlagskrav og et vederlagskrav går fra en egen side i frontenden gjennom
+> TS-serveren i den nye mappa [`server/`](../../server/), med tilgangskontrollen,
+> til kjernen, journalen og leveringsoppdraget, som lagres i samme transaksjon
+> ([LV-U1](#lv-u1)), og tilbake til visningen. Tabellen `leveringsoppdrag` er
+> uforanderlig. Prøvd mot testbasen i CI (K 11.10, `4ee5d9a` i PR #372). Ikke
+> bygget: brevteksten (#369), opprettelsen av en sak som kommando (#370),
+> leveringsforsøkene og workeren (#371) og én vertsadresse for TS og Python
+> (#376). Oppdraget har ingen brevtekst og leveres ikke før #369. Innloggingen i
+> Python over PostgreSQL venter på B-12 (#57, #377).
+
 ### F3 — Øvrige adaptere og drift
 
 **Avhenger av:** F2 grønn. Utvid én adapter om gangen.
