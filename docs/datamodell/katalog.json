@@ -238,6 +238,38 @@
      }
     ]
    },
+   "leveringsoppdrag": {
+    "kolonner": [
+     ["id", "uuid", "NOT NULL"],
+     ["prosjekt_id", "text", "NOT NULL"],
+     ["sak_id", "text", "NOT NULL"],
+     ["event_id", "uuid", "NOT NULL"],
+     ["dokumentnoekkel", "text", "NOT NULL"],
+     ["innhold", "jsonb", "NOT NULL"],
+     ["innhold_sha256", "text", "NOT NULL"],
+     ["opprettet", "timestamp with time zone", "NOT NULL"]
+    ],
+    "primærnøkkel": ["id"],
+    "unike": [
+     ["dokumentnoekkel"],
+     ["event_id"]
+    ],
+    "unike_indekser": [],
+    "fremmednøkler": [
+     {
+      "kolonner": ["event_id"],
+      "til": "hendelse",
+      "til_kolonner": ["event_id"],
+      "ved_sletting": "CASCADE"
+     },
+     {
+      "kolonner": ["sak_id"],
+      "til": "sak_metadata",
+      "til_kolonner": ["sak_id"],
+      "ved_sletting": "CASCADE"
+     }
+    ]
+   },
    "magic_links": {
     "kolonner": [
      ["token", "uuid", "NOT NULL"],
@@ -443,10 +475,12 @@
     ]
    }
   },
-  "funksjoner": ["auto_create_project_membership", "get_user_role", "get_user_role_by_email", "koe_reconcile_memberships", "koe_register_project", "koe_resolve_identity", "koe_set_contract_teams", "set_catenda_project_registry_updated_at", "update_pm_updated_at", "update_updated_at_column"],
+  "funksjoner": ["auto_create_project_membership", "get_user_role", "get_user_role_by_email", "koe_reconcile_memberships", "koe_register_project", "koe_resolve_identity", "koe_set_contract_teams", "leveringsoppdrag_vakt", "set_catenda_project_registry_updated_at", "update_pm_updated_at", "update_updated_at_column"],
   "triggere": [
    ["catenda_project_configs", "set_catenda_project_configs_updated_at", "set_catenda_project_registry_updated_at"],
    ["catenda_topic_board_configs", "set_catenda_topic_board_configs_updated_at", "set_catenda_project_registry_updated_at"],
+   ["leveringsoppdrag", "leveringsoppdrag_vakt", "leveringsoppdrag_vakt"],
+   ["leveringsoppdrag", "leveringsoppdrag_vakt_truncate", "leveringsoppdrag_vakt"],
    ["project_memberships", "update_project_memberships_updated_at", "update_pm_updated_at"],
    ["projects", "trg_auto_membership_on_project_create", "auto_create_project_membership"],
    ["user_groups", "update_user_groups_updated_at", "update_updated_at_column"]

@@ -33,6 +33,7 @@ TABELLER_I_BASEN = [
     "catenda_project_configs",
     "catenda_topic_board_configs",
     "hendelse",
+    "leveringsoppdrag",
     "magic_links",
     "notat",
     "project_memberships",

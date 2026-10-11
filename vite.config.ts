@@ -13,6 +13,11 @@ export default defineConfig({
     // og TS-kjernen fra kjerne/ ($kjerne).
     fs: { allow: ['backend/constants', 'kjerne'] },
     proxy: {
+      // TS-serveren (B-18, #347): `npm run server -- 8090` mot testbasen.
+      '/api/kjerne': {
+        target: 'http://127.0.0.1:8090',
+        changeOrigin: true,
+      },
       '/api': {
         target: 'http://127.0.0.1:8080',
         changeOrigin: true,
@@ -20,7 +25,12 @@ export default defineConfig({
     },
   },
   test: {
-    include: ['src/**/*.test.ts', 'kjerne/**/*.test.ts', 'sprakprove/**/*.test.ts'],
+    include: [
+      'src/**/*.test.ts',
+      'kjerne/**/*.test.ts',
+      'sprakprove/**/*.test.ts',
+      'server/**/*.test.ts',
+    ],
     environmentMatchGlobs: [['src/lib/components/**/*.test.ts', 'jsdom']],
     setupFiles: ['src/test-setup.ts'],
   },
