@@ -8,6 +8,7 @@ paths:
   - "backend/repositories/**"
   - "backend/tests/test_security/**"
   - "sprakprove/**/server/**"
+  - "server/**"
   - "sprakprove/kjernelagring/**"
 ---
 
@@ -44,9 +45,21 @@ Her står hvordan Python håndhever dem, og hva TS-stien mangler.
 
 ## TS-stien
 
-`sprakprove/server/autorisasjon.ts` speiler `require_auth`,
-`require_project_access` og `require_contract_role`, i samme rekkefølge og med
-samme svar. Det finnes ingen registertest som fanger en inngang uten kontroll.
-Den hører til overtakelsen (#310). Til da prøves hver inngang for seg, med
-avvisning uten sesjon, uten CSRF-token, i feil prosjekt og med feil rolle
-(`.claude/rules/tester.md`).
+`server/autorisasjon.ts` speiler `require_auth`, `require_project_access` og
+`require_contract_role`, i samme rekkefølge og med samme svar. Språkprøven i
+`sprakprove/server/` bruker samme fil.
+
+- **Registeret.** Hver inngang i TS-serveren står i `RUTER` i `server/app.ts`
+  med prosjektrollen og kontraktsrollen den krever, eller en skriftlig
+  begrunnelse for at den ikke krever kontraktsrolle. Ruteren kontrollerer
+  tilgangen fra registeret før behandleren kalles, og en sti som ikke står der,
+  gir 404. `server/tester/register.test.ts` prøver hver inngang over HTTP:
+  uten sesjon, uten og med feil CSRF-token, uten prosjekt, i feil prosjekt,
+  mot en sak i et annet prosjekt og uten kontraktsteam.
+- **Serverstemplede felt.** En kommando har ingen aktør, ID eller tidspunkt.
+  Kroppen avvises med ukjente felt, og kjernens skjema avviser ukjente felt i
+  kommandoen. Aktøren er `app_users.id` fra sesjonen.
+- **Prosjektgrensen** holdes også i lageret (`server/lager.ts`), som bare låser
+  og skriver en sak i det autoriserte prosjektet.
+- Språkprøvens server har ikke registeret. Der prøves hver inngang for seg
+  (`.claude/rules/tester.md`).
