@@ -897,13 +897,13 @@ for (const signal of ['SIGINT', 'SIGTERM'] as const)
     process.exit(128 + constants.signals[signal]);
   });
 
-let kode: number;
 try {
-  kode = await kjoer();
+  // Ikke `process.exit`: den venter ikke på at stdout er tømt når den går i et rør,
+  // og i CI ble slutten av utfallene borte.
+  process.exitCode = await kjoer();
 } finally {
   rydd();
 }
-process.exit(kode);
 
 async function kjoer(): Promise<number> {
   const kopier = lagArbeidskopier(antallKopier);
