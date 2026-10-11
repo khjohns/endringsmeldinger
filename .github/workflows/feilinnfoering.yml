@@ -1,8 +1,9 @@
 # #348: feilinnføringene for kjernen (kjerne/tester/feilinnfoering.ts). Jobben
 # er rød når en mutasjon ikke oppdages, når kontrollkjøringen uten mutasjon ikke
 # er grønn, eller når arbeidskopien ikke er ren etterpå. Én vitest-kjøring per
-# mutasjon, fordelt på like mange arbeidskopier med hver sin testbase som runneren
-# har prosessorer (#378). Den tar fortsatt lang tid, så den holdes utenfor ci.yml.
+# mutasjon, fordelt på tre jobber og i hver jobb på like mange arbeidskopier med
+# hver sin testbase som runneren har prosessorer (#378). Den tar fortsatt lang
+# tid, så den holdes utenfor ci.yml.
 #
 # Kjøres (arbeidsvalget 10.10 i #348, minuttbudsjettet på GitHub Free):
 # - nattlig, men bare når noe under STIER er endret siden forrige vellykkede
@@ -98,16 +99,23 @@ jobs:
           fi
 
   feilinnfoering:
-    name: Feilinnføringene for kjernen
+    name: Feilinnføringene for kjernen (del ${{ matrix.del }} av 3)
     needs: endret
     if: needs.endret.outputs.kjoer == 'true'
+    # Skriptet fordeler mutasjonene på delene etter rekkefølgen, så en ny
+    # mutasjon trenger ingen endring her.
+    strategy:
+      fail-fast: false
+      matrix:
+        del: [1, 2, 3]
     # På jobben, ikke workflowen: en PR-hendelse som hoppes over (en annen
-    # etikett), skal ikke avbryte en kjøring som går.
+    # etikett), skal ikke avbryte en kjøring som går. Én gruppe per del, ellers
+    # venter delene på hverandre.
     concurrency:
-      group: feilinnfoering-${{ github.event_name }}-${{ github.ref }}
+      group: feilinnfoering-${{ github.event_name }}-${{ github.ref }}-${{ matrix.del }}
       cancel-in-progress: ${{ github.event_name == 'pull_request' }}
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    timeout-minutes: 45
     services:
       postgres:
         # Som databasejobben i ci.yml.
@@ -146,6 +154,8 @@ jobs:
 
       - name: Kjør feilinnføringene
         id: feilinnfoering
+        env:
+          FEILINNFOERING_DEL: ${{ matrix.del }}/3
         run: |
           echo "Prosessorer: $(nproc)"
           node kjerne/tester/feilinnfoering.ts

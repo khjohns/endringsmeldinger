@@ -16,7 +16,10 @@
  * PostgreSQL; de ekstra basene bygges fra tom og slettes etterpå, så brukeren i
  * `KOE_TESTBASE_URL` må kunne opprette baser. Arbeidstreet muteres ikke.
  * `FEILINNFOERING_ARBEIDSKOPIER` overstyrer antallet, som ellers er antallet
- * prosessorer.
+ * prosessorer. `FEILINNFOERING_DEL=i/n` kjører bare del i av n: hver n-te
+ * mutasjon fra og med nummer i, med sin egen kontrollkjøring over hele
+ * samlingen. Workflowen fordeler delene på flere jobber, og en ny mutasjon havner
+ * i en av dem uten videre. Fra-strengene kontrolleres for alle delene.
  *
  * Kjøres fra repoets rot, med testbasen oppe og `KOE_TESTBASE_URL` satt:
  *   node kjerne/tester/feilinnfoering.ts [F1 F2 ...]
@@ -870,11 +873,15 @@ async function arbeider(
 }
 
 const valgt = process.argv.slice(2);
-const mutasjoner = MUTASJONER.filter((m) => !valgt.length || valgt.includes(m.id));
-for (const m of mutasjoner)
+const valgte = MUTASJONER.filter((m) => !valgt.length || valgt.includes(m.id));
+for (const m of valgte)
   for (const [fra] of m.endringer)
     if (readFileSync(m.fil, 'utf8').split(fra).length !== 2)
       throw new Error(`${m.id}: «${fra}» finnes ikke nøyaktig én gang i ${m.fil}`);
+const [del, deler] = (process.env.FEILINNFOERING_DEL ?? '1/1').split('/').map(Number);
+if (!(Number.isInteger(del) && Number.isInteger(deler) && del >= 1 && del <= deler))
+  throw new Error(`FEILINNFOERING_DEL må ha formen i/n, ikke «${process.env.FEILINNFOERING_DEL}»`);
+const mutasjoner = valgte.filter((_, i) => i % deler === del - 1);
 
 const antallKopier = Math.max(
   1,
