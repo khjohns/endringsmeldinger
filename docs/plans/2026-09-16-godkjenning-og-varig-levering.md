@@ -267,8 +267,8 @@ eksplisitt oppheves.
 | <a id="ka-u22"></a>KA-U22: brevet for et trekk av grunnlaget sier: «TE trekker sitt krav i sak <saksnummer> («<tittel>»). Trekket er avkall på alle krav i saken, også vederlag og fristforlengelse byggherren har godkjent. Trekket opphever ikke et pålegg, en endringsordre, en utførelsesplikt eller byggherrens rettigheter etter en avtale.» Brevet for et trekk av vederlag eller frist sier: «TE trekker kravet om justering av vederlaget [om fristforlengelse] i sak <saksnummer> («<tittel>»), <kravversjonen, entydig identifisert>. Trekket er avkall på dette kravet, også det byggherren har godkjent.» At kravet ikke kan tas opp igjen i saken, står i veiledningen i skjemaet, ikke i brevet. Brevet for «ingen krav» sier: «TE krever ikke justering av vederlaget [fristforlengelse] som følge av forholdet i sak <saksnummer> («<tittel>»), og gir avkall på slikt krav, også for følger som ikke er kjent i dag.» Trekk og «ingen krav» har ingen fritekst i første versjon, slik at avkallet er entydig. Et avgrenset eller betinget avkall som skjemaet ikke uttrykker, sendes utenfor appen. Et trekk, også av grunnlaget, avvises når appen ikke kan bevare byggherrens avtalte rettigheter, for eksempel et avtalt fradrag (KA-U9), til detaljmodellen er avklart i byggedel 3. Forkastet for første versjon: en utdypning under trekk og «ingen krav» | 10.10, oppdragsgiver etter sparring (#309) | Gjennomfører [KA-U14](#ka-u14) og [KA-U17](#ka-u17) i brevteksten. Sperren følger regelen i KA-U14 om at et trekk som ikke kan gjennomføres uten videre virkninger, sperres, og gjelder også et trekk av grunnlaget fordi det trekker vederlaget med seg (GR-U5, KA-U6). Snevrer inn [KA-U6](#ka-u6), [KA-U13](#ka-u13) og [GR-U5](#gr-u5) til byggedel 3. Sperren bygges før trekk tas i bruk (#310). Om enigheten gir byggherren en rettighet som trekket ikke rører, avklares i byggedel 3. Presisert 11.10 av [KA-U25](#ka-u25) for «ingen krav» i vederlagssporet. Presisert 11.10 av [KA-U27](#ka-u27). Ikke bygget. Den faste teksten hører til #309 |
 | <a id="ka-u23"></a>KA-U23: TE kan kreve vederlag i en sak med hovedkategorien force majeure (§ 33.3), og byggherren svarer som på andre vederlagskrav. Appen viser § 33.3 femte ledd («Partene har ikke krav på justering av vederlaget som følge av fristforlengelse etter denne bestemmelsen») som veiledning og trekker ingen konklusjon. Om et krav er en følge av fristforlengelsen, er partenes spørsmål, og kategorien er TEs utsagn. Appen lukker ikke vederlagssporet på grunn av kategorien: et vederlagsspor som ikke er sendt, hindrer at kravene er avgjort (KA-U11), til TE sier «ingen krav» (KA-U12). Et sendt krav avgjøres som andre krav. Femte ledd utelukker ikke i seg selv vederlaget for en forsering etter § 33.8, som kreves i forseringssaken (FO-U2), men avgjør ikke om vilkårene for forsering er oppfylt; det er oppdragsgivers lesning. Forkastet: å avvise vederlagskrav så lenge grunnlaget har kategorien force majeure, og å godta kravet uten veiledning | 11.10, oppdragsgiver etter sparring (#309) | Bygger på [VS-U13](#vs-u13). Avviser ikke noe som godtas i dag. At «ingen krav» ikke er avkall på vederlaget for en forsering, står i [KA-U25](#ka-u25). Veiledningen hører til #313. Ikke bygget (#309) |
 | <a id="ka-u25"></a>KA-U25: brevet for «ingen krav» i vederlagssporet (KA-U22) sier også: «Avkallet omfatter ikke vederlag for forsering etter NS 8407 § 33.8.» Vederlaget for en forsering kreves særskilt (FO-U2), også når forseringen føres utenfor appen (OV-U2). Teksten må stå i brevet før «ingen krav» tas i bruk (#310), fordi et sendt brev beholder virkningen det hadde da det ble sendt (MM-U9). Appen avgjør ikke senere tvister om hvor langt avkallet når (KA-U17). Forkastet: at avkallet omfatter forseringsvederlaget, og å vente med spørsmålet til byggedel 4 | 11.10, oppdragsgiver etter sparring (#309) | Presiserer [KA-U17](#ka-u17) og brevteksten i [KA-U22](#ka-u22). I tråd med [KA-U14](#ka-u14): et avkall gjelder TEs eget, uttrykkelig identifiserte krav. Avgjør #382. Ikke bygget. Brevteksten hører til #309 |
-| <a id="ka-u27"></a>KA-U27: et trekk, også av grunnlaget, avvises når en enighet trekket rammer, gir byggherren et fradrag, eller bygger på et brev som er merket etter KA-U20 og ikke avklart, fordi appen da ikke vet hva byggherren har avtalt. Delen om merket brev gjelder fra første versjon. Forkastet: at sperren bare gjelder fradrag, fordi beskyttelsen ikke kan vente til etter at trekk tas i bruk (svaret 10.10) | 11.10, oppdragsgiver (#309, #394) | Presiserer [KA-U22](#ka-u22). Delen om merket brev gjelder til merkingen er avklart etter [KA-U20](#ka-u20). Delen om fradrag bygges når fradrag kan uttrykkes ([KA-U9](#ka-u9)). Presisert 11.10 av [KA-U30](#ka-u30): delen om merket brev gjelder bare sporene merkingen gjelder. Ikke bygget |
-| <a id="ka-u30"></a>KA-U30: et trekk avvises etter KA-U27 fordi en enighet bygger på et merket brev, bare når merkingen gjelder sporet enigheten gjelder (KA-U26). Gir et brev fra byggherren enighet om både grunnlaget og vederlaget, og er brevet merket bare for grunnlaget, avvises ikke TEs trekk av vederlagskravet på grunn av merkingen. Den som merker, velger hvilke spor merkingen gjelder; merker hen bare grunnlaget, har hen sagt at forbeholdet ikke gjelder vederlaget. Forkastet: at enhver enighet som bygger på et merket brev, sperrer trekk uansett hvilke spor merkingen gjelder | 11.10, oppdragsgiver (#309, #394) | Presiserer [KA-U27](#ka-u27), delen om merket brev, og bygger på [KA-U26](#ka-u26): sperren gjelder i de sporene merkingen gjelder. Det andre KA-U27 avviser trekket for, et fradrag, er uendret. I skjemaet er alle spor utgangspunktet når den som merker, oppgir sporene (KA-U26). Ikke bygget |
+| <a id="ka-u27"></a>KA-U27: et trekk, også av grunnlaget, avvises når en enighet trekket rammer, gir byggherren et fradrag, eller bygger på et brev som er merket etter KA-U20 og ikke avklart, fordi appen da ikke vet hva byggherren har avtalt. Delen om merket brev gjelder fra første versjon. Forkastet: at sperren bare gjelder fradrag, fordi beskyttelsen ikke kan vente til etter at trekk tas i bruk (svaret 10.10) | 11.10, oppdragsgiver (#309, #394) | Presiserer [KA-U22](#ka-u22). Delen om merket brev gjelder til merkingen er avklart etter [KA-U20](#ka-u20). Delen om fradrag bygges når fradrag kan uttrykkes ([KA-U9](#ka-u9)). Snevret inn 11.10 av [KA-U30](#ka-u30): delen om merket brev gjelder bare sporene merkingen gjelder. Ikke bygget |
+| <a id="ka-u30"></a>KA-U30: et trekk avvises etter KA-U27 fordi en enighet bygger på et merket brev som ikke er avklart, bare når merkingen gjelder sporet enigheten gjelder (KA-U26). Gir et brev fra byggherren enighet om både grunnlaget og vederlaget, og er brevet merket bare for grunnlaget, avvises ikke TEs trekk av vederlagskravet på grunn av merkingen. Den som merker, velger hvilke spor merkingen gjelder; merker hen bare grunnlaget, har hen sagt at forbeholdet ikke gjelder vederlaget. Forkastet: at enhver enighet som bygger på et merket brev, sperrer trekk uansett hvilke spor merkingen gjelder | 11.10, oppdragsgiver (#309, #394) | Snevrer inn [KA-U27](#ka-u27), delen om merket brev, etter [KA-U26](#ka-u26): sperren gjelder i de sporene merkingen gjelder. Det andre KA-U27 avviser trekket for, et fradrag, er uendret. Av «en enighet trekket rammer» i KA-U27 følger at et trekk av grunnlaget avvises når brevet er merket bare for vederlaget, fordi trekket rammer enigheten om vederlaget ([GR-U5](#gr-u5)). I skjemaet er alle spor utgangspunktet når den som merker, oppgir sporene (KA-U26). Ikke bygget |
 
 #### Svar og standpunkt
 
@@ -325,7 +325,7 @@ eksplisitt oppheves.
 | <a id="gr-u12"></a>GR-U12: godkjenner byggherren grunnlaget uten å påberope preklusjon i en underkategori der § 32.2 gjaldt da brevet ble sendt (GR-U11), er svaret en endringsordre etter § 32.3 første ledd a, også når brevet ikke sier noe om varslingen. Det gjelder også registrert korrespondanse. Beslutningsgrunnlaget fryser derfor om § 32.2 gjaldt, som en del av virkningen brevet hadde (MM-U9, MM-U11). Frontenden varsler byggherren og betegner svaret som en endringsordre, slik at byggherren tydelig forstår virkningen. Forkastet: at godkjenningen bare er en endringsordre når brevet har et utsagn om varslingen | 10.10, oppdragsgiver (#308) | Presiserer GR-U10 og KA-U13, og utvider formen i MM-U11. Endret 10.10 av [GR-U13](#gr-u13): endringsordren krever også § 31.3, og om § 32.2 gjaldt, fryses som appens vurdering. Endret 10.10 av [MM-U17](#mm-u17) for registrerte brev: appens vurdering følger reglene ved registreringen, ikke da brevet ble sendt. Ikke bygget på vedtaksdatoen: kjernen leste da om brevet har et utsagn etter § 32.2 (#308). Bygget i kjernen 10.10 (merknaden 10.10 til FK, runde 2). Frysingen hører til formatet (#273), varselet og betegnelsen til frontenden (#313) |
 | <a id="gr-u13"></a>GR-U13: byggherrens godkjenning av grunnlaget er en endringsordre etter § 32.3 første ledd a bare når også § 31.3 er oppfylt: endringsordren «skal være skriftlig og gi beskjed om at det kreves en endring, samt hva endringen går ut på», og den «må være gitt av byggherrens representant, jf. punkt 9, eller av en person med skriftlig fullmakt til å utstede slike». For brev sendt fra appen sørger appen for det: brevet sier at endringen kreves og viser til pålegget i varselet, og fullmakten kontrolleres i godkjenningsflyten (GFK-06). For registrert korrespondanse oppgir den som registrerer, om brevet var en endringsordre etter § 31.3. Opplysningen er registratorens vurdering og ikke en rettslig avgjørelse. Mangler opplysningen, vet appen ikke om brevet er en endringsordre, og manglende opplysning er ikke nok til å konkludere (KA-U14). Om § 32.2 gjaldt (GR-U12), fryses i beslutningsgrunnlaget som appens vurdering etter reglene og underkategorien da brevet ble sendt, med regelversjonen, atskilt fra det byggherren sa (MM-U12). Forkastet: at en godkjenning uten påberopt preklusjon i en underkategori med varslingsplikt alene er en endringsordre, og at manglende opplysning om § 31.3 betyr at brevet ikke er en endringsordre | 10.10, oppdragsgiver (#273) | Endrer GR-U10 og GR-U12: endringsordren krever også § 31.3. Endret 10.10 av [MM-U17](#mm-u17) for registrerte brev: om § 32.2 gjaldt, fryses som appens vurdering etter reglene ved registreringen, ikke da brevet ble sendt. Krav til skrivestien (#310): hvert grunnlagssvar fra appen som godkjenner grunnlaget uten påberopt preklusjon der § 32.2 gjelder, får brevteksten etter § 31.3 og går gjennom fullmakten. Hvordan opplysningen registreres og avklares, avgjøres med kommandoen i #310. Ikke bygget |
 | B-13 endret underkategori etter byggherrens svar på grunnlaget krever nytt svar. Låsingen og § 32.2-vurderingen fra det forrige svaret faller bort, og grunnlaget venter på svaret igjen. Journalen beholder det forrige svaret som historikk. Forkastet: å avvise endringen, og å la projeksjonen regne det gamle svaret av gjeldende underkategori | 05.10, oppdragsgiver | Utvidet 08.10 av [GR-U1](#gr-u1) til alle grunnlagsversjoner etter et svar som ikke er låst, og snevret inn 08.10 av [GR-U2](#gr-u2): gjelder svar som ikke er låst. Bygget 05.10 i projeksjonen (#215). Hele svaret faller i tilstanden, også resultatet. Et svar på vederlag eller frist som var gitt subsidiært, forblir subsidiært til sporet eller grunnlaget besvares igjen (oppdragsgiver 05.10) |
-| B-13 svar på vederlag og frist når grunnlaget er avslått eller prekludert (§ 32.2): journalen og sporstatusen har resultatet av beløpene og dagene, som et subsidiært standpunkt som får virkning hvis grunnlaget senere godkjennes. Brev og fullmakt sier «prinsipalt avslått (grunnlaget)» med det subsidiære resultatet. At hele svaret er subsidiært, utledes av grunnlaget og lagres ikke i hendelsen | 05.10, oppdragsgiver | Redaksjonell retting 10.10 (oppdragsgiver): en doblet frase, «med det subsidiære resultatet», er fjernet fra vedtaksteksten; meningen er uendret. Ordbytte 11.10 (oppdragsgiver, #384): «ansvarsgrunnlaget» er byttet til «grunnlaget», også i brevteksten, etter [HF-U2](#hf-u2). Innholdet er uendret. Bygget i brev og fullmakt (#168), med det gamle ordet. Saksvisningen i frontend: #214 |
+| B-13 svar på vederlag og frist når grunnlaget er avslått eller prekludert (§ 32.2): journalen og sporstatusen har resultatet av beløpene og dagene, som et subsidiært standpunkt som får virkning hvis grunnlaget senere godkjennes. Brev og fullmakt sier «prinsipalt avslått (grunnlaget)» med det subsidiære resultatet. At hele svaret er subsidiært, utledes av grunnlaget og lagres ikke i hendelsen | 05.10, oppdragsgiver | Redaksjonell retting 10.10 (oppdragsgiver): en doblet frase, «med det subsidiære resultatet», er fjernet fra vedtaksteksten; meningen er uendret. Ordbytte 11.10 (oppdragsgiver, #384): «ansvarsgrunnlaget» er byttet til «grunnlaget», også i brevteksten, etter [HF-U2](#hf-u2). Innholdet er uendret. Bygget i brev og fullmakt (#168). Ordet ble byttet i brevet 10.10 (#313). Saksvisningen i frontend: #214 |
 | B-13 `grunnlag_varslet_i_tide` avvises utenfor § 32.2 (endring som ikke er formell endringsordre). Fullmakt og brev snevres inn til samme omfang | 24.09, oppdragsgiver | Forretningsreglene avviser feltet utenfor § 32.2 fra 04.10 (#63). Fra 05.10 bruker fullmakt, brev, projeksjonen og skjemaet samme regel, `regler.grunnlag.er_grunnlag_subsidiaert` og speilet `erGrunnlagetSubsidiaert` (#186); før brukte status, fullmakt/brev og skjema tre ulike omfang. En eldre hendelse med feltet `false` ved EO prekluderer ikke |
 | B-13 «frafalt» (§ 32.3 c) avvises utenfor irregulær endring og valgrett | 24.09, oppdragsgiver | Bygget 04.10 i forretningsreglene (#63) |
 | Byggherren kan svare «avslått» og samtidig påberope at grunnlaget er varslet for sent (§ 32.2). Begge grunner gjelder; preklusjonen er hovedgrunnen, og avslaget gjelder subsidiært | 05.10, oppdragsgiver | Godtas i dag (K 05.10). Brev, visning og standpunkt må vise begge, med preklusjonen først (B-14, M1) |
@@ -737,16 +737,17 @@ stod i 3.4 før sluttredigeringen 09.10, er i Git (se toppteksten).
 > alternativ (b) i B-01, hendelsenes `jsonb` med GIN-indeks, og tabellen med
 > `SKIP LOCKED` og `pgmq` i B-07 er PostgreSQL-former. I Azure SQL svarer en
 > beregnet kolonne med `JSON_VALUE` og vanlig indeks til (b)
-> ([vurderingen av JSON i Azure SQL](../vurdering-json-azure-sql-2026-10-11.md), AJ-04),
+> ([vurderingen av JSON i Azure SQL](../vurdering-json-azure-sql-2026-10-11.md), AJ-04; K 11.10),
 > og en tabell hentet med `READPAST` og `UPDLOCK` til `SKIP LOCKED`
-> ([designnotatet om inbox og outbox](../design-durable-inbox-outbox-2026-09-17.md#5-azure-sql-eller-bli-på-postgres)).
-> `pgmq` finnes ikke der. Beslutningsstatus er uendret: åpen.
+> ([designnotatet om inbox og outbox](../design-durable-inbox-outbox-2026-09-17.md#5-azure-sql-eller-bli-på-postgres); H).
+> Beslutningsstatus er uendret: åpen.
 
-> **Merknad 2026-10-11 til B-12, ved sluttredigeringen:** merknaden samlet
-> 09.10 er skrevet før databasen ble avgjort. Punktet 29.09 om hva som er
-> PostgreSQL-spesifikt, viser hva byttet til Azure SQL omfatter, og når det
+> **Merknad 2026-10-11 til den samlede merknaden 09.10 om B-12, ved sluttredigeringen:**
+> den samlede merknaden er skrevet før databasen ble avgjort. Punktet 29.09
+> viser hva som var PostgreSQL-spesifikt da (L 29.09); siden er TS-lagringen i
+> `server/` og `sprakprove/kjernelagring/` kommet til (L 11.10). Når byttet
 > skjer, står i [B-19](#b-19). «Lokal PostgreSQL inntil videre» gjelder til
-> datalaget for Azure SQL finnes. Databasen er avgjort; hostingen er åpen.
+> datalaget for Azure SQL finnes.
 
 <a id="b-12-merknad-2026-10-11"></a>
 > **Merknad 2026-10-11 til B-12:** [RP-U1](#rp-u1) er en forutsetning for
@@ -1145,14 +1146,15 @@ historikk og mappa stemmer.
 > F0b som før.
 
 **Avhenger av:** B-12, databasen, og B-19 (3.1). Tilgangsmekanismen i B-02
-alternativ C prøves først i T-SQL (#395). Lagringsformen avgjøres senest før
+alternativ C prøves tidlig i T-SQL ([B-12, databasen](#b-12-databasen), #395). Lagringsformen avgjøres senest før
 KOE-byttet skriver den første reelle hendelsen
 ([merknaden 11.10 til B-12](#b-12-merknad-2026-10-11)). Containerdelen avhenger
 av hostingen i B-12. Arbeidet følges i
 [milepælen F0b](https://github.com/khjohns/endringsmeldinger/milestone/1).
 
-F0b bytter plattformen og veien til basen, ikke rettighetene. Rollene,
-teamvernet og append-only er F1, som gjelder uendret.
+F0b bytter plattformen og veien til basen, ikke rettighetene. Det er ikke en
+produksjonstilstand. F1 og produksjonsporten gjelder; F1 er tilpasset Azure
+SQL i merknaden 11.10 der.
 
 **Leveranse:**
 
@@ -1170,7 +1172,7 @@ teamvernet og append-only er F1, som gjelder uendret.
    sesjonen, identiteten og synkroniseringen av medlemskap, og ellers blant
    annet webhookens innboks. Identiteten løses med samme issuer og
    normaliserte subjekt for alle veier inn (`AGENTS.md`). Løp c og d i den
-   tidligere teksten (#57, #58) går inn her.
+   tidligere teksten (#57, #58) erstattes av flyttingen.
 4. **TS2-02:** JSON-, CSV- og Supabase-lagrene og Python-lagrene over
    PostgreSQL ut av kjøretidsstien når flyttingen er gjort (#49). De skrives
    ikke om for Azure SQL (B-19).
@@ -1246,7 +1248,7 @@ kan ta eierens eller en administrators rettigheter (T2).
 > **Merknad 2026-10-11 til F1 ([B-12, databasen](#b-12-databasen), [B-19](#b-19)):**
 > F1 gjelder datalaget i Azure SQL. Rollene, teamvernet, append-only og
 > rettighetstestene uttrykkes i T-SQL, og mekanismen i B-02 alternativ C prøves
-> der først (#395). Testene for `SET ROLE` til `service_role` og Data API-testen
+> tidlig der ([B-12, databasen](#b-12-databasen), #395). Testene for `SET ROLE` til `service_role` og Data API-testen
 > for `anon` og `authenticated`, som sto her før sluttredigeringen 11.10, gjaldt
 > Supabase-plattformen og faller bort med den. Kravet
 > om at runtime ikke bygges på ubegrenset `service_role`, gjelder tilsvarende
@@ -1324,6 +1326,9 @@ beslutninger og leveringsdokumenter endres ikke ved gjenoppbygging.
 >   TS-versjoner (merknaden til invariant 9). Kriteriet om historiske
 >   teststrømmer erstattes av bevis-sakene i domenetabellen, som føres videre
 >   (B-17).
+> - Fra 11.10 betyr «ekte PostgreSQL» og «PostgreSQL-tester» i
+>   akseptkriteriene og testene over en ekte database av samme slag som
+>   produksjonen, Azure SQL ([B-12, databasen](#b-12-databasen)).
 
 ### FK — KOE-, EO- og forseringsdomenet i TS (B-17)
 
@@ -1589,7 +1594,7 @@ står i `AGENTS.md` («Hvor hva står») og i avsnitt 8. Tabellen viser hvilke
 | Beslutning | Må være tatt før |
 | --- | --- |
 | B-01 relasjoner | KOE-tilknytningen og relasjonene i FK, byggedel 4 av #309 ([OV-U1](#ov-u1)) |
-| B-12 hosting | Container og utrulling i F0b og plattformkonfigurasjon i F5. Databasen er avgjort ([B-12, databasen](#b-12-databasen)), og løp c og d og TS2-02 i F0b bygges ikke i Python ([B-19](#b-19)) |
+| B-12 hosting | Container og utrulling i F0b, veien fra migrasjonsfil til base og plattformkonfigurasjon i F5. Databasen er avgjort ([B-12, databasen](#b-12-databasen)) |
 | Lagringsformen ([merknaden 11.10 til B-12](#b-12-merknad-2026-10-11)) | KOE-byttet skriver den første reelle hendelsen (#310) |
 | B-07 drivmekanisme | Workeren for leveringen (punkt 3 i F2, som er levering og integrasjon etter merknaden 09.10 til F2) |
 | B-09 driftsverdier | Akseptkriteriene for kapasitet og varsling i F3, og grensene for utdatert medlemsliste (B-04) |
