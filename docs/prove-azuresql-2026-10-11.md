@@ -69,7 +69,7 @@ containeren. Azure SQL Edge er ikke brukt: den har ikke typebegrensningen i
 | Rettigheter og policy | [`04_tilgang.sql`](../prove/azuresql/sql/04_tilgang.sql) | Rollen `koe_runtime` og sikkerhetspolicyen |
 | Banen for kjernen | [`lib/baner.ts`](../prove/azuresql/lib/baner.ts) | `Bane` fra `kjerne/tester/bane.ts` gjennom begge formene |
 | Testene | [`tester/`](../prove/azuresql/tester/tilgang.test.ts) | Tilgang, lagring og identitet |
-| Feilinnføringene | [`feilinnfoering/`](../prove/azuresql/feilinnfoering/uten_transaksjonsbinding.sql) | Åtte feil, hver skal gi rød test |
+| Feilinnføringene | [`feilinnfoering/`](../prove/azuresql/feilinnfoering/uten_transaksjonsbinding.sql) | Ti feil, hver skal gi rød test |
 
 Basen opprettes med sorteringen `Latin1_General_100_BIN2_UTF8`, slik at ID-er
 sammenliknes tegn for tegn som i PostgreSQL (SQ-08). Runtime logger inn som
@@ -82,13 +82,13 @@ sammenliknes tegn for tegn som i PostgreSQL (SQ-08). Runtime logger inn som
 | --- | --- | --- |
 | SQ-01 | **RLS gjelder også eieren.** `sa` og `dbo` ser ingen rader uten kontekst. I PostgreSQL har eieren `BYPASSRLS` i testbasen. Det er strengere, men det betyr også at triggere, kommandoer og driftsspørringer leser gjennom predikatene | K (`RLS gjelder også sa og dbo` i `tilgang.test.ts`); MS 11.09.2025 ([Row-level security](https://learn.microsoft.com/en-us/sql/relational-databases/security/row-level-security)): «Security policies apply to all users, including dbo users» |
 | SQ-02 | **Konteksten gjelder sesjonen og overlever gjenbruk.** `SESSION_CONTEXT` har ingen transaksjonslokal form som `set_config(…, true)`. `mssql` 12.7.1 (`tedious` 20.3.7) nullstiller ikke forbindelsen når poolen gir den ut igjen: på samme `@@SPID` lå `koe_aktor` igjen etter både COMMIT og ROLLBACK | K (gjenbruk med `pool.max = 1` i `tilgang.test.ts`) |
-| SQ-03 | **Konteksten bindes til transaksjonen.** `koe_api.sett_kontekst` krever en åpen transaksjon og lagrer `CURRENT_TRANSACTION_ID()` som `koe_tx`. Hvert predikat og hver kommando krever at `koe_tx` er transaksjonen som kjører. Etter COMMIT eller ROLLBACK leser forbindelsen ingen rader og kan ikke skrive, selv om verdiene ligger igjen. Det oppfyller akseptkriteriet i F0b om gjenbrukt forbindelse uten at noen må rydde. Kriteriet om at en satt variabel leses som tom og ikke `NULL`, gjelder `set_config` i PostgreSQL og har ingen motpart: `SESSION_CONTEXT` gir `NULL` for en nøkkel som ikke er satt, og predikatene behandler `NULL` som ingen tilgang | K; feilinnføringen `uten_transaksjonsbinding` gir rødt; MS 24.07.2017 (`CURRENT_TRANSACTION_ID` finnes i SQL Server 2016 og senere og i Azure SQL Database) |
+| SQ-03 | **Konteksten bindes til transaksjonen.** `koe_api.sett_kontekst` krever en åpen transaksjon og lagrer `CURRENT_TRANSACTION_ID()` som `koe_tx`. Hvert predikat og `koe_sikkerhet.handlende()`, som kommandoene leser aktøren fra, krever at `koe_tx` er transaksjonen som kjører. Etter COMMIT eller ROLLBACK leser forbindelsen ingen rader i noen tabell, og `opprett_sak`, `registrer_a`, `registrer_b` og `skriv_notat` avvises (51403) i en ny transaksjon på samme forbindelse, selv om verdiene ligger igjen. For `opprett_sak` er bindingen i `handlende()` første vakt; blokkpredikatet på `koe.sak_metadata` er det andre laget. Det oppfyller akseptkriteriet i F0b om gjenbrukt forbindelse uten at noen må rydde. Kriteriet om at en satt variabel leses som tom og ikke `NULL`, gjelder `set_config` i PostgreSQL og har ingen motpart: `SESSION_CONTEXT` gir `NULL` for en nøkkel som ikke er satt, og predikatene behandler `NULL` som ingen tilgang | K; feilinnføringene `uten_transaksjonsbinding` og `handlende_uten_tx` gir rødt; MS 24.07.2017 (`CURRENT_TRANSACTION_ID` finnes i SQL Server 2016 og senere og i Azure SQL Database). Kontrollert av orkestratoren, ikke gjentatt i en test: nestet `BEGIN TRAN` og et savepoint beholder ID-en, ID-en endres etter ROLLBACK, og etter en feil med `XACT_ABORT` leser samme forbindelse 0 rader før klienten har rullet tilbake. Distribuerte og elastiske transaksjoner er ikke prøvd |
 | SQ-04 | **RLS filtrerer `inserted` i en trigger.** En vakt skrevet som `IF EXISTS (SELECT … FROM inserted …)` så null rader når eieren satte inn uten kontekst, og slapp delen gjennom (fail-open). Vakten teller nå de godkjente radene og sammenlikner med `ROWCOUNT_BIG()`, som RLS ikke påvirker. ID-en til en transaksjon er bare entydig i én instans mellom to omstarter, ikke etter en omstart eller failover. Vakten krever derfor også at dokumentraden har samme `skriving`, en ny GUID kommandoen lager, legger i konteksten og fjerner igjen når delene er skrevet. En del lagt til etter kommandoen i samme transaksjon avvises | K (funnet under prøven: `påvirket 1, synlige i inserted 0`); feilinnføringene `rls_i_inserted` og `uten_skrivevakt` gir rødt; MS nevner det ikke (—) |
 | SQ-05 | **`SECURITY DEFINER` svarer til eierskapskjeden.** Kommandoene og tabellene eies av `dbo`, så runtime trenger bare `EXECUTE`. Kjeden brytes av dynamisk SQL, som kommandoene ikke bruker. Runtime avvises ved `INSERT`, `UPDATE` og `DELETE` på journalen og notatene og ved lesing av identitet, medlemskap og kontraktsteam (229), ved `TRUNCATE` og `DISABLE TRIGGER` (1088), ved å slå av policyen (33268), ved `EXECUTE AS USER = 'dbo'` (15517), ved `CREATE TABLE` (262) og ved å endre en kommando (3701) | K (`rettighetene til runtime` i `tilgang.test.ts`) |
-| SQ-06 | **Prosjektgrensen.** Lesing krever aktivt medlemskap i prosjektet i konteksten. Et medlem av to prosjekter ser bare prosjektet i konteksten. Skriving i en sak i et annet prosjekt, en ukjent sak, leserolle, inaktivt medlemskap, et team som ikke er kontraktsteam, et team fra et annet prosjekt, et TE-team oppgitt med side BH og manglende team gir samme svar (51403). Kommandoen lager sak-ID-en (TM-11). Et prosjekt som ikke er aktivt, gir verken lesing eller skriving, som policyen i PostgreSQL | K; feilinnføringen `uten_prosjektgrense` gir rødt |
-| SQ-07 | **Skjerming av notater på team, fail-closed.** Notatet vises bare for teamet som skrev det, med handlingsrett og riktig side. Motparten, leserollen, et fremmed team, feil side, manglende team og samme team i et annet prosjekt ser det ikke. Et notat uten team vises til ingen, heller ikke forfatteren. Blokkpredikatene ved `INSERT` og `UPDATE` hindrer også eieren i å skrive et notat uten team eller i en annen aktørs navn, eller flytte et notat dit (33504). Sletting gjelder bare eget notat | K; feilinnføringen `uten_teamgrense` gir rødt |
+| SQ-06 | **Prosjektgrensen.** Lesing krever aktivt medlemskap i prosjektet i konteksten. Hver tabell runtime kan lese, har et filterpredikat; en katalogtest håndhever det, med `form_b.felt` (formatet, ingen saksdata) som eneste begrunnede unntak. Uten kontekst ser runtime ingen rad i noen av tabellene, og i kontekst B ingen rad fra prosjekt A. Et medlem av to prosjekter ser bare prosjektet i konteksten. Skriving i en sak i et annet prosjekt, en ukjent sak, leserolle, inaktivt medlemskap, et team som ikke er kontraktsteam, et team fra et annet prosjekt, et TE-team oppgitt med side BH og manglende team gir samme svar (51403). Kommandoen lager sak-ID-en (TM-11). Et prosjekt som ikke er aktivt, gir verken lesing eller skriving, som policyen i PostgreSQL. Prøven krever team for all skriving; design v2, avsnitt 4, gjør teamet valgfritt for varsel. Det er strengere, og et varsel uten team er ikke prøvd | K; feilinnføringene `uten_prosjektgrense` og `uten_predikat.etter` (filterpredikatet fjernet fra to tabeller) gir rødt |
+| SQ-07 | **Skjerming av notater på team, fail-closed.** Notatet vises bare for teamet som skrev det, med handlingsrett og riktig side. Motparten, leserollen, et fremmed team, feil side, manglende team og et team fra prosjekt B i kontekst A ser det ikke. Et team registrert i to prosjekter er ikke prøvd. Et notat uten team vises til ingen, heller ikke forfatteren. Blokkpredikatene ved `INSERT` og `UPDATE` hindrer også eieren i å skrive et notat uten team eller i en annen aktørs navn, eller flytte et notat dit (33504). Sletting gjelder bare eget notat | K; feilinnføringen `uten_teamgrense` gir rødt |
 | SQ-08 | **Sorteringen.** Standardsorteringen i SQL Server og Azure SQL Database, `SQL_Latin1_General_CP1_CI_AS`, skiller ikke store og små bokstaver. Med den ville `Oslobygg` og `oslobygg`, og et team i store og små bokstaver, vært samme verdi. Prøven oppretter basen med en binær sortering, og et team med store bokstaver avvises | K (team med store bokstaver i `tilgang.test.ts`); standardsorteringen i Azure SQL Database — |
-| SQ-09 | **Aktørfeltene settes av kommandoen.** `registrer_a` og `registrer_b` har ingen parameter for aktør, side eller team; de stemples fra konteksten. Blokkpredikatet på dokumentraden krever at feltene er konteksten, som et andre lag. `aktor_id` og `event_id` lagres bare med små bokstaver, så samme UUID ikke kan stå i to former | K |
+| SQ-09 | **Aktørfeltene settes av kommandoen.** `registrer_a`, `registrer_b`, `skriv_notat` og `opprett_sak` har ingen parameter for aktør, side, team eller oppretter; de stemples fra konteksten. Blokkpredikatene på dokumentraden, notatet og saken krever at feltene er konteksten, som et andre lag. `aktor_id` og `event_id` lagres bare med små bokstaver, så samme UUID ikke kan stå i to former | K |
 | SQ-10 | **Hva kontekstnøklene er.** Runtime kan kalle `sp_set_session_context` selv, også med `koe_tx`. Det er samme tillit som i PostgreSQL, der runtime setter kravene med `set_config`: basen kontrollerer medlemskap, side og team, men ikke at brukeren faktisk sitter i teamet (TM-03 i design v2) | L |
 
 ## 4. Lagringsformene
@@ -99,7 +99,7 @@ sammenliknes tegn for tegn som i PostgreSQL (SQ-08). Runtime logger inn som
 | --- | --- | --- |
 | SQ-11 | **Samme tolkning etter gjenlesing.** Forløp A (krav i tre spor, brev med svar i grunnlag, vederlag og frist, revidert vederlagssvar og aksept) og alle 50 forløpene i `bevis-saker-maalmodell.json` kjøres med kjernens `kjoer` gjennom hver form. Kjernen leser journalen fra basen før hver utledning. Etterpå er gjenlesingen lik radene som ble skrevet, og utledningen er lik utledningen av radene i minnet | K (`lagring.test.ts`, begge former) |
 | SQ-12 | **Samlet lagring.** Brevet med tre svar, delene og leveringsoppdraget lagres i én transaksjon i én kommando. En krok som kaster før COMMIT, en forbindelse som drepes med `KILL`, en feil i siste del (oppdraget er ikke et JSON-objekt) og en versjonskonflikt etterlater ingen rad i noen av tabellene. Kontrollsaken lagrer alle | K; feilinnføringen `uten_versjonskontroll` gir rødt |
-| SQ-13 | **Ingen del kan legges til et lagret brev.** Runtime har ingen skriverett (229). Eieren avvises når en del settes inn i en annen transaksjon enn dokumentraden, med eller uten kontekst (51002), og ved `UPDATE` og `DELETE` på dokumentet, en del eller oppdraget (51001). Samme brev kan ikke registreres på nytt med flere deler (2627), og en `event_id` med store bokstaver avvises, så samme UUID ikke kan stå i to former (547). `TRUNCATE` avfyrer ingen trigger; den krever `ALTER`, som runtime ikke har, og eieren er ikke prøvd | K; `TRUNCATE` som eier — |
+| SQ-13 | **Ingen del kan legges til et lagret brev.** Runtime har ingen skriverett (229). Eieren avvises når en del settes inn i en annen transaksjon enn dokumentraden, med eller uten kontekst (51002), og ved `UPDATE` og `DELETE` på dokumentet, en del eller oppdraget (51001). Hver del er bundet til dokumentet med en fremmednøkkel over `event_id` og `prosjekt_id`; standpunktene og virkningene til svaret med `prosjekt_id`. Samme brev kan ikke registreres på nytt med flere deler (2627), og en `event_id` med store bokstaver avvises, så samme UUID ikke kan stå i to former (547). `TRUNCATE` avfyrer ingen trigger; den krever `ALTER`, som runtime ikke har, og eieren er ikke prøvd | K; `TRUNCATE` som eier — |
 | SQ-23 | **Leveringsdokumentet.** I begge formene er det frosne oppdraget lik brevet slik journalen har det, og summen kan regnes på nytt av teksten basen gir tilbake | K |
 
 ### 4.2 Der de skiller seg
@@ -107,10 +107,10 @@ sammenliknes tegn for tegn som i PostgreSQL (SQ-08). Runtime logger inn som
 | ID | Forhold | (a) dokumentet er kilden | (b) tabellene er kilden | Belegg |
 | --- | --- | --- | --- | --- |
 | SQ-14 | **Innhold kjernen ikke kjenner** | En ukjent art, et ukjent felt, `null`, en tom liste, et tall der formatet har sann/usann, en tekst der det har et tall, et tomt objekt, et objekt der formatet har en liste og en ukjent hendelsestype lagres som tekst, og saken er ikke forstått (MM-U2) | En ukjent art og et ukjent format lagres og gir en sak som ikke er forstått. De åtte andre avvises før noe skrives (51423): de har ingen kolonne, eller de ville kommet annerledes tilbake | K (`innhold kjernen ikke kjenner`); feilinnføringen `uten_feltkontroll` gir rødt |
-| SQ-15 | **Formatet har to hjem i (b)** | Formatet står bare i kjernen | Feltregisteret `form_b.felt`, kolonnene, kommandoen og leseren er en andre kopi av skjemaet i `kjerne/format/format.ts`. Står et felt i registeret uten at kommandoen og leseren kjenner det, godtas det og forsvinner uten feil, og kjernen forstår saken. Leveringsdokumentet har feltet, så tabellene og dokumentet er uenige | K (karakteriserende test, `et nytt felt som bare står i registeret`) |
+| SQ-15 | **Formatet har to hjem i (b)** | Formatet står bare i kjernen. De avledede tabellene leses med `TRY_CAST` og får NULL der formatet har endret seg; teksten mister ingenting, men tabellene driver like stille fra kjernen | Feltregisteret `form_b.felt`, kolonnene, kommandoen og leseren er en andre kopi av skjemaet i `kjerne/format/format.ts`. Står et felt i registeret uten at kommandoen og leseren kjenner det, godtas det og forsvinner uten feil, og kjernen forstår saken. Leveringsdokumentet har feltet, så tabellene og dokumentet er uenige | K (karakteriserende test, `et nytt felt som bare står i registeret`) |
 | SQ-16 | **Tekst og tall** | `data` kommer tilbake tegn for tegn som sendt, også `æøå`, U+2028, emoji, et ensomt surrogat og NUL (som `JSON.stringify` skriver som `\u`-sekvenser) | Verdiene kommer tilbake like etter gjenoppbyggingen, også `0.30000000000000004` i en `float`-kolonne lest med driveren. `FOR JSON` skriver `float` med 16 sifre og gir `0.3`; en visning eller rapport bygd med `FOR JSON` endrer slike tall | K |
 | SQ-17 | **Omfanget** | Kommandoen er om lag 50 linjer T-SQL, de avledede tabellene leses med `TRY_CAST`, og leseren er `JSON.parse` | Kommandoen er om lag 150 linjer T-SQL med kontrollen av felt og typer, ti tabeller, og leseren som bygger dokumentet opp igjen er om lag 80 linjer TypeScript | L (`03_kommandoer.sql`, `lib/baner.ts`) |
-| SQ-18 | **Fabric (RP-U1)** | `data` er én `nvarchar(max)`-kolonne. Over 1 MB kortes den av i OneLake | Hver kolonne speiles for seg, og bare lange tekster kan kortes av | MS 26.02.2026 ([Azure SQL Database](https://learn.microsoft.com/en-us/fabric/mirroring/azure-sql-database-limitations)); — |
+| SQ-18 | **Fabric (RP-U1)** | Kilden `data` er én `nvarchar(max)`-kolonne. Over 1 MB kortes den av i OneLake | Kilden står i kolonner, som speiles hver for seg; bare lange tekster kan kortes av. I begge formene er det frosne brevet (oppdraget i (a), leveringsdokumentet i (b)) JSON i `nvarchar(max)` og kortes av likt; forskjellen gjelder bare kilden | MS 26.02.2026 ([Azure SQL Database](https://learn.microsoft.com/en-us/fabric/mirroring/azure-sql-database-limitations)); — |
 | SQ-19 | **Spørring** | De avledede tabellene gir kravene, svarene og utsagnene per brev med vanlige kolonner. Bare det som er trukket ut, kan spørres uten JSON-funksjoner | Alt innhold står i kolonner | K for at tabellene fylles; ytelse — |
 
 For begge formene gjelder: RLS følger ikke med til Fabric. Microsoft skriver at
@@ -126,8 +126,10 @@ prøven viser, er dette:
 - Begge formene holder kravene i HF-U1 og LV-U1 med den samme
   tilgangsmekanismen, og kjernen leser dem likt.
 - I (a) er kjernen den eneste som kjenner formatet. Innhold den ikke kjenner,
-  bevares og stopper saken (MM-U2). Tabellene over utsagnene er avledet og kan
-  bygges på nytt fra teksten.
+  bevares og stopper saken (MM-U2). Tabellene over utsagnene er avledet av
+  teksten. Å bygge dem på nytt er ikke prøvd (—), og vaktene i prøven avviser
+  `UPDATE`, `DELETE` og `INSERT` utenfor brevets transaksjon, også for eieren;
+  det ville kreve en egen vei, for eksempel en migrasjon som slår vaktene av.
 - I (b) kjenner også basen formatet. Det gir vanlige kolonner for spørring og
   speiling, men hver endring i formatet krever en migrasjon og samme endring i
   registeret, kommandoen og leseren, og en glipp er stille (SQ-15). Innhold
@@ -151,11 +153,11 @@ ned bildet på nytt; den siste kjørte etter rettingene fra code-review.
 | --- | --- | --- |
 | Bildet på disk | 2,42 GB (634 MB komprimert) | 646 MB |
 | Nedlasting fra MCR | 47,1 s (54,6 s tidligere samme dag) | — |
-| Fra `docker run` til første svar | 17,6 s med nytt bilde, mellom 10,8 og 11,9 s senere | — |
+| Fra `docker run` til første svar | 17,6 s med nytt bilde; mellom 10,5 og 11,9 s i fem senere kjøringer, og 95,8 s i én (med 807 MiB etter oppstart; årsaken er ikke undersøkt) | — |
 | Minne etter oppstart | 498 MiB | — |
-| Minne etter testene | mellom 607 og 615 MiB | — |
-| Testene i tre filer, fire baser | 52,5 s (198 tester) og 62,9 s (208) | — |
-| Hele `kjor.sh` med feilinnføringene | 5 min 18 s med nedlasting og sju, 5 min 51 s uten nedlasting og med åtte | — |
+| Minne etter testene | mellom 607 og 628 MiB | — |
+| Testene i tre filer, fire baser | 52,5 s (198 tester) og 59,4 s (210) | — |
+| Hele `kjor.sh` med feilinnføringene | 5 min 18 s med nedlasting og sju, 5 min 40 s uten nedlasting og med ti | — |
 
 **Skyøktene.** Hooken `.claude/hooks/session-start.sh` bygger i dag
 PostgreSQL-testbasen. Skal den også starte SQL Server, legger det til om lag ett
@@ -181,6 +183,9 @@ Prøven er kjørt mot SQL Server 2025 i Docker, ikke mot Azure SQL Database.
 | `CURRENT_TRANSACTION_ID`, `SESSION_CONTEXT`, RLS, `OPENJSON` | Prøvd | Dokumentert for Azure SQL Database | MS; ikke prøvd |
 | Nullstilling av sesjonen | Driveren nullstiller ikke (SQ-02) | Avhenger av driveren, ikke av tjenesten. Bindingen til transaksjonen i SQ-03 gjelder uansett | Ikke prøvd |
 | Sorteringen | Satt ved `CREATE DATABASE` | Settes når basen opprettes | Ikke prøvd |
+| `READ_COMMITTED_SNAPSHOT` og akselerert gjenoppretting (ADR) | Av (standard i SQL Server) | På som standard. Orkestratoren kjørte prøven med RCSI og snapshot på: 208 av 208 grønne. Samtidige skrivinger i samme sak er ikke prøvd med det. Versjonskontrollen leser med `UPDLOCK, HOLDLOCK`, som tar lås også under RCSI | Kontroll av orkestratoren; ADR ikke prøvd |
+| Kompatibilitetsnivå | Standard for SQL Server 2025 | Settes per base | Ikke prøvd |
+| Oppsettet i `lib/oppsett.ts` | `CREATE LOGIN … CHECK_POLICY = OFF` og `SET SINGLE_USER` | Kjører ikke uendret: brukeren lages fra managed identity, og basen slettes uten `SINGLE_USER` | L |
 | `KILL` | Prøvd | — | Ikke prøvd |
 | `json`-typen og `OPENJSON` over den | Ikke brukt; begge formene lagrer tekst | AJ-07 i vurderingen | — |
 | Speiling til Fabric | Ikke mulig lokalt | SQ-18 og RLS i avsnitt 4.2 | MS 26.02.2026; ikke prøvd |
@@ -191,15 +196,15 @@ Prøven er kjørt mot SQL Server 2025 i Docker, ikke mot Azure SQL Database.
 
 - `npm --prefix prove/azuresql run prove` fra en tom tilstand, med bildet
   fjernet først: nedlasting, oppstart og 198 av 198 tester grønne.
-- Den samme kommandoen etter de to rundene med rettinger fra code-review, med
-  en ny container og bildet lokalt: 208 av 208 grønne, 154 i
-  `lagring.test.ts` (blant dem de 50 forløpene i hver form), 42 i
+- Den samme kommandoen etter rettingene fra code-review og fra orkestratorens
+  kontroll, med en ny container og bildet lokalt: 210 av 210 grønne, 154 i
+  `lagring.test.ts` (blant dem de 50 forløpene i hver form), 44 i
   `tilgang.test.ts` og 12 i `identitet.test.ts`.
 - Feilinnføringene i den siste kjøringen, hver for seg i en ny base, og alle
-  oppdaget: `rls_i_inserted` (4 røde), `uten_feltkontroll` (8),
-  `uten_normalisering` (8), `uten_prosjektgrense` (2), `uten_skrivevakt` (2),
-  `uten_teamgrense` (5), `uten_transaksjonsbinding` (3) og
-  `uten_versjonskontroll` (1). `kjor.sh`
+  oppdaget: `handlende_uten_tx` (2 røde), `rls_i_inserted` (4),
+  `uten_feltkontroll` (8), `uten_normalisering` (8), `uten_predikat.etter` (3),
+  `uten_prosjektgrense` (3), `uten_skrivevakt` (2), `uten_teamgrense` (5),
+  `uten_transaksjonsbinding` (3) og `uten_versjonskontroll` (1). `kjor.sh`
   regner en feilinnføring som oppdaget bare når tester er røde og oppsettet
   ikke feilet.
 - Eksperimentene i en egen container før prøven ble skrevet: transaksjonsbindingen
@@ -220,6 +225,8 @@ for leveringsoppdraget, og kjernens format i `kjerne/format/`.
   prøvd med en omstart.
 - Godkjenningspakker, utkast og levering ut av basen. Leveringsoppdraget i
   prøven er en forenklet form av `lagOppdrag` uten mål i Catenda.
-- Hooken i skyøktene og en CI-jobb med SQL Server (avsnitt 6).
+- Hooken i skyøktene og en CI-jobb med SQL Server (avsnitt 6). `npm run lint`
+  kjører prettier bare for omfanget i `package.json`, som ikke tar med
+  `prove/`; formateringen der er kjørt for hånd.
 - Tidsbaserte sidekanaler og samtidige skrivinger i samme sak utover
   versjonskonflikten.

@@ -233,6 +233,7 @@ CREATE TABLE form_b.svar (
   har_utregning bit NOT NULL,
   har_beslutningsgrunnlag bit NOT NULL,
   CONSTRAINT b_svar_pk PRIMARY KEY (event_id, plass),
+  CONSTRAINT b_svar_prosjekt UNIQUE (event_id, plass, prosjekt_id),
   CONSTRAINT b_svar_dokument FOREIGN KEY (event_id, prosjekt_id) REFERENCES form_b.dokument (event_id, prosjekt_id)
 );
 
@@ -249,7 +250,8 @@ CREATE TABLE form_b.standpunkt (
   resultat nvarchar(max) NULL,
   oppfylt bit NULL,
   CONSTRAINT b_standpunkt_pk PRIMARY KEY (event_id, svar_plass, plass),
-  CONSTRAINT b_standpunkt_svar FOREIGN KEY (event_id, svar_plass) REFERENCES form_b.svar (event_id, plass)
+  CONSTRAINT b_standpunkt_svar FOREIGN KEY (event_id, svar_plass, prosjekt_id)
+    REFERENCES form_b.svar (event_id, plass, prosjekt_id)
 );
 
 -- `virkninger` og `uten_virkning` i beslutningsgrunnlaget. `liste` sier hvilken.
@@ -262,7 +264,8 @@ CREATE TABLE form_b.virkning (
   standpunkt nvarchar(max) NULL,
   virkning nvarchar(max) NULL,
   CONSTRAINT b_virkning_pk PRIMARY KEY (event_id, svar_plass, liste, plass),
-  CONSTRAINT b_virkning_svar FOREIGN KEY (event_id, svar_plass) REFERENCES form_b.svar (event_id, plass)
+  CONSTRAINT b_virkning_svar FOREIGN KEY (event_id, svar_plass, prosjekt_id)
+    REFERENCES form_b.svar (event_id, plass, prosjekt_id)
 );
 
 CREATE TABLE form_b.utsagn (

@@ -36,6 +36,24 @@ describe.skipIf(!AKTIV)('tilgang i T-SQL', () => {
   let sakB: string;
   let te: Kontekst;
   let bh: Kontekst;
+  let helA: SqlBane;
+  /** Radene i `form_a.hendelse` i prosjekt A etter oppsettet. */
+  const iA = () => sakA.skrevet.length + helA.skrevet.length;
+  /** Tabellene runtime har SELECT på, slik runtime selv ser katalogen. */
+  let lesbare: string[];
+
+  const lesbareTabeller = async () =>
+    (
+      await o.runtime.request().query<{ t: string }>(
+        `SELECT s.name + '.' + t.name AS t FROM sys.tables t JOIN sys.schemas s ON s.schema_id = t.schema_id
+          WHERE HAS_PERMS_BY_NAME(s.name + '.' + t.name, 'OBJECT', 'SELECT') = 1 ORDER BY 1`
+      )
+    ).recordset.map((r) => r.t);
+
+  /** Tabeller runtime kan lese uten RLS, med grunnen. */
+  const UTEN_RLS: Record<string, string> = {
+    'form_b.felt': 'feltregisteret i form (b): formatet, ingen saksdata og ikke noe prosjekt',
+  };
 
   beforeAll(async () => {
     o = await byggBase('tilgang');
@@ -43,6 +61,11 @@ describe.skipIf(!AKTIV)('tilgang i T-SQL', () => {
     bh = kontekst(o.brukere.bh, o.a, 'BH');
     sakA = await sqlBane(o, 'a');
     await bygg(sakA, ['forlop_a_brev']);
+    // Hele forløp A i begge formene, så hver tabell har rader (også aksepten i utsagnene).
+    helA = await sqlBane(o, 'a');
+    await bygg(helA, ['forlop_a']);
+    await bygg(await sqlBane(o, 'b'), ['forlop_a']);
+    lesbare = await lesbareTabeller();
     const bte = kontekst(o.brukere.bte, o.b, 'TE');
     sakB = await nySak(o, bte);
     await transaksjon(o.runtime, bte, (f) =>
@@ -63,15 +86,25 @@ describe.skipIf(!AKTIV)('tilgang i T-SQL', () => {
     tell(o.runtime, k, 'form_a.hendelse', 'prosjekt_id = @p', { p: prosjekt });
 
   describe('lesing', () => {
-    it('uten kontekst ser runtime ingenting', async () => {
-      for (const t of [
-        'form_a.hendelse',
-        'form_b.dokument',
-        'koe.sak_metadata',
-        'koe.notat',
-        'form_a.leveringsoppdrag',
-      ])
+    it('hver tabell runtime kan lese, har et filterpredikat, eller et begrunnet unntak', async () => {
+      const r = await o.admin.request().query<{ t: string }>(
+        `SELECT OBJECT_SCHEMA_NAME(p.target_object_id) + '.' + OBJECT_NAME(p.target_object_id) AS t
+           FROM sys.security_predicates p JOIN sys.security_policies sp ON sp.object_id = p.object_id
+          WHERE p.predicate_type_desc = 'FILTER' AND sp.is_enabled = 1`
+      );
+      const filtrert = new Set(r.recordset.map((x) => x.t));
+      expect(lesbare.length).toBeGreaterThan(10);
+      expect(lesbare.filter((t) => !filtrert.has(t) && !(t in UTEN_RLS))).toEqual([]);
+      expect(Object.keys(UTEN_RLS).filter((t) => filtrert.has(t))).toEqual([]);
+    });
+
+    it('uten kontekst ser runtime ingenting i noen tabell, og med kontekst ser medlemmet radene', async () => {
+      // Uten rader i oppsettet: notatene skrives senere, og ingen forløp her har opplysninger eller dokumentasjon.
+      const tomme = new Set(['koe.notat', 'form_b.opplysning', 'form_b.dokumentasjon']);
+      for (const t of lesbare.filter((x) => !(x in UTEN_RLS))) {
         expect(await synlige(null, t), t).toBe(0);
+        if (!tomme.has(t)) expect(await synlige(te, t), t).toBeGreaterThan(0);
+      }
       const r = await o.runtime
         .request()
         .query<{ n: number }>('SELECT COUNT(*) AS n FROM form_a.hendelse');
@@ -86,16 +119,26 @@ describe.skipIf(!AKTIV)('tilgang i T-SQL', () => {
     });
 
     it('et medlem ser sitt prosjekt og ikke et annet', async () => {
-      expect(await iProsjekt(te, o.a.id)).toBe(sakA.skrevet.length);
+      expect(await iProsjekt(te, o.a.id)).toBe(iA());
       expect(await iProsjekt(te, o.b.id)).toBe(0);
       expect(await iProsjekt(kontekst(o.brukere.bte, o.b), o.b.id)).toBe(1);
       expect(await iProsjekt(kontekst(o.brukere.bte, o.b), o.a.id)).toBe(0);
     });
 
+    it('i kontekst B ses ingen rad fra prosjekt A i noen tabell', async () => {
+      for (const t of lesbare.filter((x) => !(x in UTEN_RLS)))
+        expect(
+          await tell(o.runtime, kontekst(o.brukere.begge, o.b), t, 'prosjekt_id = @p', {
+            p: o.a.id,
+          }),
+          t
+        ).toBe(0);
+    });
+
     it('medlem av begge prosjektene ser bare prosjektet i konteksten', async () => {
       expect(await iProsjekt(kontekst(o.brukere.begge, o.b), o.a.id)).toBe(0);
       expect(await iProsjekt(kontekst(o.brukere.begge, o.b), o.b.id)).toBe(1);
-      expect(await iProsjekt(kontekst(o.brukere.begge, o.a), o.a.id)).toBe(sakA.skrevet.length);
+      expect(await iProsjekt(kontekst(o.brukere.begge, o.a), o.a.id)).toBe(iA());
     });
 
     it('et prosjekt brukeren ikke er medlem av, et inaktivt medlemskap og en ukjent aktør gir ingenting', async () => {
@@ -107,13 +150,11 @@ describe.skipIf(!AKTIV)('tilgang i T-SQL', () => {
     });
 
     it('aktøren normaliseres: store bokstaver gir samme bruker', async () => {
-      expect(await synlige({ aktor: o.brukere.te.id.toUpperCase(), prosjekt: o.a.id })).toBe(
-        sakA.skrevet.length
-      );
+      expect(await synlige({ aktor: o.brukere.te.id.toUpperCase(), prosjekt: o.a.id })).toBe(iA());
     });
 
     it('leserollen leser journalen', async () => {
-      expect(await synlige(kontekst(o.brukere.tilskuer, o.a))).toBe(sakA.skrevet.length);
+      expect(await synlige(kontekst(o.brukere.tilskuer, o.a))).toBe(iA());
     });
   });
 
@@ -150,7 +191,7 @@ describe.skipIf(!AKTIV)('tilgang i T-SQL', () => {
         const inne = await new sql.Request(tx).query<{ n: number }>(
           'SELECT COUNT(*) AS n FROM form_a.hendelse'
         );
-        expect(inne.recordset[0].n).toBe(sakA.skrevet.length);
+        expect(inne.recordset[0].n).toBe(iA());
         await (slutt === 'COMMIT' ? tx.commit() : tx.rollback());
 
         // Samme sesjon: verdiene ligger igjen, men gjelder ikke lenger.
@@ -165,22 +206,46 @@ describe.skipIf(!AKTIV)('tilgang i T-SQL', () => {
           .query<{ n: number }>('SELECT COUNT(*) AS n FROM koe.notat');
         expect(notat.recordset[0].n).toBe(0);
 
-        // En ny transaksjon på samme forbindelse uten ny kontekst kan verken lese eller skrive.
-        const ny = new sql.Transaction(pool);
-        await ny.begin();
-        const lest = await new sql.Request(ny).query<{ n: number }>(
-          'SELECT COUNT(*) AS n FROM form_a.hendelse'
-        );
-        expect(lest.recordset[0].n).toBe(0);
-        const skrevet = await feilFra(
-          new sql.Request(ny)
-            .input('sak_id', sql.NVarChar(36), sakA.sakId)
-            .input('tekst', sql.NVarChar(sql.MAX), 'lekker')
-            .output('notat_id', sql.UniqueIdentifier)
-            .execute('koe_api.skriv_notat')
-        );
-        await ny.rollback().catch(() => undefined);
-        expect(skrevet).toBe(51403);
+        // En ny transaksjon på samme forbindelse uten ny kontekst kan verken lese eller
+        // skrive, med noen av kommandoene.
+        const iNyTransaksjon = async (arbeid: (r: () => sql.Request) => Promise<unknown>) => {
+          const ny = new sql.Transaction(pool);
+          await ny.begin();
+          try {
+            return await feilFra(arbeid(() => new sql.Request(ny)));
+          } finally {
+            await ny.rollback().catch(() => undefined);
+          }
+        };
+        const lest = await iNyTransaksjon(async (r) => {
+          const svar = await r().query<{ n: number }>('SELECT COUNT(*) AS n FROM form_a.hendelse');
+          expect(svar.recordset[0].n).toBe(0);
+        });
+        expect(lest).toBeUndefined();
+        const rad = { ...structuredClone(sakA.skrevet.at(-1)!), event_id: randomUUID() };
+        const forsoek: [string, (r: () => sql.Request) => Promise<unknown>][] = [
+          [
+            'skriv_notat',
+            (r) =>
+              r()
+                .input('sak_id', sql.NVarChar(36), sakA.sakId)
+                .input('tekst', sql.NVarChar(sql.MAX), 'lekker')
+                .output('notat_id', sql.UniqueIdentifier)
+                .execute('koe_api.skriv_notat'),
+          ],
+          [
+            'opprett_sak',
+            (r) =>
+              r()
+                .input('sakstype', sql.NVarChar(40), 'standard')
+                .output('sak_id', sql.NVarChar(36))
+                .execute('koe_api.opprett_sak'),
+          ],
+          ['registrer_a', (r) => registrer(r, 'a', rad, rad.versjon - 1)],
+          ['registrer_b', (r) => registrer(r, 'b', rad, rad.versjon - 1)],
+        ];
+        for (const [kommando, kall] of forsoek)
+          expect(await iNyTransaksjon(kall), kommando).toBe(51403);
         expect(await spid()).toBe(foer);
       }
     );
@@ -190,7 +255,7 @@ describe.skipIf(!AKTIV)('tilgang i T-SQL', () => {
         expect(
           (await f().query<{ n: number }>('SELECT COUNT(*) AS n FROM form_a.hendelse')).recordset[0]
             .n
-        ).toBe(sakA.skrevet.length);
+        ).toBe(iA());
       });
       const andre = await transaksjon(pool, kontekst(o.brukere.bte, o.b), async (f) =>
         f().query<{ p: string }>('SELECT DISTINCT prosjekt_id AS p FROM form_a.hendelse')
@@ -259,12 +324,21 @@ describe.skipIf(!AKTIV)('tilgang i T-SQL', () => {
         aktor_team_id: o.a.team.BH,
       });
       // Kjernen laget raden med teamet `team-bh`; kommandoen har ingen parameter for aktøren.
-      const parametre = await o.admin.request().query<{
-        navn: string;
-      }>("SELECT name AS navn FROM sys.parameters WHERE object_id = OBJECT_ID('koe_api.registrer_a') ORDER BY parameter_id");
-      expect(
-        parametre.recordset.map((p) => p.navn).filter((n) => /aktor|rolle|team/.test(n))
-      ).toEqual([]);
+      for (const kommando of ['registrer_a', 'registrer_b', 'skriv_notat', 'opprett_sak']) {
+        const parametre = await o.admin
+          .request()
+          .input('k', sql.NVarChar(200), `koe_api.${kommando}`)
+          .query<{
+            navn: string;
+          }>('SELECT name AS navn FROM sys.parameters WHERE object_id = OBJECT_ID(@k)');
+        expect(parametre.recordset.length, kommando).toBeGreaterThan(0);
+        expect(
+          parametre.recordset
+            .map((p) => p.navn)
+            .filter((n) => /aktor|rolle|team|side|created/.test(n)),
+          kommando
+        ).toEqual([]);
+      }
     });
 
     it('kommandoene kjøres bare inne i en transaksjon', async () => {
@@ -309,7 +383,7 @@ describe.skipIf(!AKTIV)('tilgang i T-SQL', () => {
     });
 
     it('journalen er uendret etter forsøkene', async () => {
-      expect(await iProsjekt(te, o.a.id)).toBe((await sakA.journal()).length);
+      expect(await iProsjekt(te, o.a.id)).toBe((await sakA.journal()).length + helA.skrevet.length);
     });
   });
 
