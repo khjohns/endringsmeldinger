@@ -218,13 +218,16 @@ Disse kravene gjelder alle faser. Kilden står i parentes.
 Disse styrer implementeringen. De tas ikke opp igjen uten at beslutningen
 eksplisitt oppheves.
 
-> **Merknad 2026-10-09 til 3.1, oppdatert ved sluttredigeringen 10.10: statusnavn og «Følge».** Flere vedtak bruker
+> **Merknad 2026-10-09 til 3.1, oppdatert ved sluttredigeringene 10.10 og 11.10: statusnavn og «Følge».** Flere vedtak bruker
 > navn fra Python-koden: sporstatuser som `GODKJENT`, `AVSLATT_AKSEPTERT` og
 > `FRAFALT`, samlede statuser som `OMFORENT`, `LUKKET_AVSLATT` og
 > `LUKKET_TRUKKET`, `kan_utstede_eo` og «låst». Navnet er en visningsetikett.
 > Det bindende er innholdet vedtaket beskriver: hvem som har sagt hva om hvilket
 > krav, og hvilken virkning det har etter kontrakten. «Låst» betyr enighet
-> ([GR-U10](#gr-u10)). Vedtakstekstene skrives ikke om (oppdragsgiver 09.10).
+> ([GR-U10](#gr-u10)). Det samme gjelder navn på hendelser, felt og koder fra
+> koden: vedtaket gjelder innholdet, og navnene kan endres ved refaktorering,
+> for eksempel for å passe bedre med kontraktsteksten (oppdragsgiver 11.10).
+> Vedtakstekstene skrives ikke om (oppdragsgiver 09.10).
 > Et nytt vedtak formuleres i kontraktens begreper (avsnitt 8).
 >
 > Kolonnen «Følge» viser først hvordan vedtaket forholder seg til andre
@@ -1807,7 +1810,8 @@ på spørsmål med alternativer, formidlet av orkestratoren for FK runde 7.
   merknadene 23.09–09.10 der er samlet under «Historikk». Utdaterte
   ventepunkter er fjernet.
 - **Ført inn:** KA-U30 som ny rad i 3.1. Ordbyttet i B-13 og merknaden til
-  KA-U12 i Følge.
+  KA-U12 i Følge. En setning om navn på hendelser, felt og koder i merknaden
+  øverst i 3.1.
 - **Kjørt:** et skript som viser at ankrene og cellene i vedtakskolonnen i 3.1
   er uendret, unntatt ordet i B-13 og den nye raden KA-U30;
   `python3 docs/verktoy/lenkekontroll.py` på planen,
