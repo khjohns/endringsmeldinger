@@ -200,10 +200,14 @@ describe.skipIf(!TESTBASE_URL)(
 
     it('tekst basen ikke kan lagre, gir 400 og skriver ingenting', async () => {
       const sakId = await opprettKjernesak(o);
-      for (const tittel of ['a\u0000b', '\ud800']) {
-        const kommando = { ...GRUNNLAGSKRAV, innhold: { ...GRUNNLAGSKRAV.innhold, tittel } };
+      for (const [hva, innhold] of [
+        ['NUL', { ...GRUNNLAGSKRAV.innhold, tittel: 'a\u0000b' }],
+        ['enslig surrogat', { ...GRUNNLAGSKRAV.innhold, tittel: '\ud800' }],
+        ['NUL i en nøkkel', { ...GRUNNLAGSKRAV.innhold, 'a\u0000': 'b' }],
+      ] as const) {
+        const kommando = { ...GRUNNLAGSKRAV, innhold };
         const svar = await send(sakId, { expected_version: 1, kommando });
-        expect(svar.status, JSON.stringify(tittel)).toBe(400);
+        expect(svar.status, hva).toBe(400);
         expect(svar.kropp).toMatchObject({
           error: 'UGYLDIG_FORESPOERSEL',
           message: 'Teksten har tegn som ikke kan lagres.',
@@ -343,12 +347,15 @@ describe.skipIf(!TESTBASE_URL)(
         ]) {
           // Som service_role: plattformen gir rollen alt på nye tabeller, migrasjonen tar det tilbake.
           await klient.query('BEGIN');
-          await klient.query('SET LOCAL ROLE service_role');
-          await expect(
-            klient.query(sql, sql.includes('$1') ? [sakId] : []),
-            `${sql} som service_role`
-          ).rejects.toThrow(/permission denied/);
-          await klient.query('ROLLBACK');
+          try {
+            await klient.query('SET LOCAL ROLE service_role');
+            await expect(
+              klient.query(sql, sql.includes('$1') ? [sakId] : []),
+              `${sql} som service_role`
+            ).rejects.toThrow(/permission denied/);
+          } finally {
+            await klient.query('ROLLBACK');
+          }
           // Som eieren: triggeren stopper det.
           await expect(
             klient.query(sql, sql.includes('$1') ? [sakId] : []),

@@ -17,9 +17,9 @@
 -- - Radene slettes bare med saken eller hendelsen (kaskade). Plattformen gir
 --   service_role alle rettigheter på nye tabeller (scripts/testbase/plattformstubb.sql,
 --   Supabase likt), så rettighetene tilbakekalles uttrykkelig. Triggeren stopper i
---   tillegg UPDATE, en DELETE som ikke kommer fra kaskaden og TRUNCATE, også for
---   eieren. Kaskaden kjører triggeren fra fremmednøkkelens egen trigger, altså på
---   dybde 2 eller mer.
+--   tillegg UPDATE, TRUNCATE og en DELETE mens både saken og hendelsen finnes,
+--   også for eieren. Kaskaden sletter oppdraget etter at saken eller hendelsen er
+--   slettet.
 
 CREATE TABLE IF NOT EXISTS public.leveringsoppdrag (
     id UUID PRIMARY KEY,
@@ -46,7 +46,11 @@ LANGUAGE plpgsql
 SET search_path = ''
 AS $$
 BEGIN
-    IF TG_OP IN ('UPDATE', 'TRUNCATE') OR (TG_OP = 'DELETE' AND pg_trigger_depth() < 2) THEN
+    IF TG_OP IN ('UPDATE', 'TRUNCATE') OR (
+        TG_OP = 'DELETE'
+        AND EXISTS (SELECT 1 FROM public.hendelse h WHERE h.event_id = OLD.event_id)
+        AND EXISTS (SELECT 1 FROM public.sak_metadata m WHERE m.sak_id = OLD.sak_id)
+    ) THEN
         RAISE EXCEPTION 'leveringsoppdrag er uforanderlig (LV-U1)'
             USING ERRCODE = 'check_violation';
     END IF;
