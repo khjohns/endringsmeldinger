@@ -6,8 +6,10 @@
 # lokalt med BASE=<sha>.
 name: Regelversjon
 
+# Ikke på utkast (#390), som ci.yml.
 on:
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
 
 permissions:
   contents: read
@@ -19,6 +21,7 @@ concurrency:
 jobs:
   regelversjon:
     name: Regelversjon økt ved endring i src/lib/domain, backend/regler eller kjerne
+    if: ${{ !github.event.pull_request.draft }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

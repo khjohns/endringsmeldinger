@@ -38,6 +38,9 @@ if (( ${#migrasjoner[@]} == 0 )); then
   exit 1
 fi
 
+# Regnet før migrasjonene kjøres, så den beskriver filene basen ble bygget av.
+sum="$("$rot/scripts/testbase/migrasjonssum.sh")"
+
 # Globben sorterer etter filnavn i C-lokalet; det er apply-rekkefølgen.
 for fil in "${migrasjoner[@]}"; do
   echo "Migrasjon $(basename "$fil")"
@@ -45,7 +48,9 @@ for fil in "${migrasjoner[@]}"; do
 done
 
 # Den skrivbare testfixturen skriver bare til en base med dette merket.
-"${psql_kjor[@]}" -c "DO \$\$ BEGIN EXECUTE format('COMMENT ON DATABASE %I IS %L',
-  current_database(), 'koe-kastbar-testbase'); END \$\$"
+"${psql_kjor[@]}" -c "DO \$\$ BEGIN
+  EXECUTE format('COMMENT ON DATABASE %I IS %L', current_database(), 'koe-kastbar-testbase');
+  EXECUTE format('ALTER DATABASE %I SET koe.migrasjonssum = %L', current_database(), '$sum');
+END \$\$"
 
 echo "Bygget ${#migrasjoner[@]} migrasjoner."
