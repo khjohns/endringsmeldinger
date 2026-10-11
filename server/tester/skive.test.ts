@@ -213,6 +213,23 @@ describe.skipIf(!TESTBASE_URL)(
       expect(await oppdragene(sakId)).toEqual([]);
     });
 
+    it('en dypt nestet kropp gir 401 uten sesjon og 400 med, ikke 500', async () => {
+      const sakId = await opprettKjernesak(o);
+      const dybde = 200_000;
+      const kropp = `{"expected_version":1,"kommando":${'['.repeat(dybde)}${']'.repeat(dybde)}}`;
+      const sti = `${server.url}/api/kjerne/saker/${sakId}/kommandoer`;
+      const hoder = (med: boolean): Record<string, string> => ({
+        'X-Project-ID': o.prosjekt.id,
+        'Content-Type': 'application/json',
+        ...(med ? { Cookie: `__Host-koe_session=${o.te.token}`, 'X-CSRF-Token': o.te.csrf } : {}),
+      });
+      const uten = await fetch(sti, { method: 'POST', headers: hoder(false), body: kropp });
+      expect(uten.status).toBe(401);
+      const med = await fetch(sti, { method: 'POST', headers: hoder(true), body: kropp });
+      expect(med.status).toBe(400);
+      expect(await lesJournal(o.pool, sakId, o.prosjekt.id)).toHaveLength(1);
+    });
+
     it('en kommando kjernen avviser, skriver ingenting', async () => {
       const sakId = await opprettKjernesak(o);
       const svar = await send(sakId, { expected_version: 1, kommando: GRUNNLAGSKRAV }, o.bh);
@@ -311,6 +328,39 @@ describe.skipIf(!TESTBASE_URL)(
           ]
         )
       ).rejects.toThrow(/sak og prosjekt/);
+    });
+
+    it('oppdraget kan ikke slettes eller tømmes, men følger saken når den slettes', async () => {
+      const sakId = await opprettKjernesak(o);
+      expect((await send(sakId, { expected_version: 1, kommando: GRUNNLAGSKRAV })).status).toBe(
+        201
+      );
+      const klient = await o.pool.connect();
+      try {
+        for (const sql of [
+          'DELETE FROM leveringsoppdrag WHERE sak_id = $1',
+          'TRUNCATE leveringsoppdrag',
+        ]) {
+          // Som service_role: plattformen gir rollen alt på nye tabeller, migrasjonen tar det tilbake.
+          await klient.query('BEGIN');
+          await klient.query('SET LOCAL ROLE service_role');
+          await expect(
+            klient.query(sql, sql.includes('$1') ? [sakId] : []),
+            `${sql} som service_role`
+          ).rejects.toThrow(/permission denied/);
+          await klient.query('ROLLBACK');
+          // Som eieren: triggeren stopper det.
+          await expect(
+            klient.query(sql, sql.includes('$1') ? [sakId] : []),
+            `${sql} som eier`
+          ).rejects.toThrow(/uforanderlig/);
+        }
+      } finally {
+        klient.release();
+      }
+      expect(await oppdragene(sakId)).toHaveLength(1);
+      await o.pool.query('DELETE FROM sak_metadata WHERE sak_id = $1', [sakId]);
+      expect(await oppdragene(sakId)).toEqual([]);
     });
 
     it('sjekksummen er uavhengig av rekkefølgen på nøklene', () => {

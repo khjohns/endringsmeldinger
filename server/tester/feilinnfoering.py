@@ -48,9 +48,12 @@ FEILINNFOERINGER = [
     ("S9", "summen regnes uten sorterte nøkler", "server/levering.ts",
      "    return `{${Object.keys(verdi)\n      .sort()", "    return `{${Object.keys(verdi)",
      "sjekksummen"),
-    ("S10", "tekst basen ikke kan lagre, gir 500", "server/app.ts",
-     "  if (ulagringsbar(verdi))", "  if (false)",
+    ("S10", "tekst basen ikke kan lagre, slipper gjennom til basen", "server/app.ts",
+     "      if (ulagringsbarTekst(v)) return", "      if (false) return",
      "tekst basen ikke kan lagre"),
+    ("S11", "dybdegrensen for kroppen mangler", "server/app.ts",
+     "if (dybde > STOERSTE_DYBDE) return", "if (false) return",
+     "dypt nestet"),
 ]
 
 # S8 nås ikke: avvisningen av ukjente felt i kroppen (S6) stopper aktor_id først.

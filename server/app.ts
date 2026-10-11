@@ -90,23 +90,34 @@ async function lesKropp(
   } catch {
     return { feil: new Nektet(400, 'UGYLDIG_FORESPOERSEL', 'Kroppen er ikke gyldig JSON.') };
   }
-  if (ulagringsbar(verdi))
-    return {
-      feil: new Nektet(400, 'UGYLDIG_FORESPOERSEL', 'Teksten har tegn som ikke kan lagres.'),
-    };
-  return { verdi };
+  const galt = kroppsfeil(verdi);
+  // Kroppen gis ikke til tilgangskontrollen; den avvises etter kontrollen, som ugyldig JSON.
+  return galt ? { feil: new Nektet(400, 'UGYLDIG_FORESPOERSEL', galt) } : { verdi };
 }
 
 /** NUL og en enslig surrogat er gyldig JSON, men JSONB i PostgreSQL avviser dem (#373). */
 const ENSLIG_SURROGAT = /[\ud800-\udbff](?![\udc00-\udfff])|(?<![\ud800-\udbff])[\udc00-\udfff]/;
 const ulagringsbarTekst = (t: string) => t.includes('\u0000') || ENSLIG_SURROGAT.test(t);
 
-function ulagringsbar(verdi: unknown): boolean {
-  if (typeof verdi === 'string') return ulagringsbarTekst(verdi);
-  if (Array.isArray(verdi)) return verdi.some(ulagringsbar);
-  if (verdi !== null && typeof verdi === 'object')
-    return Object.entries(verdi).some(([k, v]) => ulagringsbarTekst(k) || ulagringsbar(v));
-  return false;
+/** Dypere enn dette har ingen kommando. Tilgangskontrollen leser kroppen rekursivt. */
+const STOERSTE_DYBDE = 32;
+
+/** Hva som er galt med innholdet i kroppen, uten rekursjon, så dyp nesting ikke sprenger stakken. */
+function kroppsfeil(verdi: unknown): string | null {
+  const igjen: [unknown, number][] = [[verdi, 0]];
+  while (igjen.length) {
+    const [v, dybde] = igjen.pop()!;
+    if (dybde > STOERSTE_DYBDE) return 'Kroppen er for dypt nestet.';
+    if (typeof v === 'string') {
+      if (ulagringsbarTekst(v)) return 'Teksten har tegn som ikke kan lagres.';
+    } else if (v !== null && typeof v === 'object') {
+      for (const [k, del] of Object.entries(v)) {
+        if (ulagringsbarTekst(k)) return 'Teksten har tegn som ikke kan lagres.';
+        igjen.push([del, dybde + 1]);
+      }
+    }
+  }
+  return null;
 }
 
 const feilsvar = (status: number, error: string, message: string): Svar => [
@@ -273,9 +284,10 @@ export function lagServer(avh: Avhengigheter) {
       } catch {
         return feilsvar(404, 'NOT_FOUND', 'Ukjent sak.');
       }
-      const innhold = metode === 'GET' ? { verdi: {} } : await lesKropp(foresporsel);
-      // Tilgangen kontrolleres før kroppen avvises, som i Flask: en utlogget får 401.
+      // Innloggingen først, så en uinnlogget forespørsel ikke får kroppen lest og tolket.
+      // En kropp som ikke kan leses, avvises etter tilgangskontrollen, som i Flask.
       const bruker = await krevInnlogging(full.pool, foresporsel);
+      const innhold = metode === 'GET' ? { verdi: {} } : await lesKropp(foresporsel);
       const prosjekt = await krevProsjekttilgang(
         full.pool,
         full.catenda,
