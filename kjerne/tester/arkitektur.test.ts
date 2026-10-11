@@ -305,8 +305,11 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'Sporutledning',
     'predikat',
-    'krav svar gjeldendeKrav gjeldendeSvar enighet trukket ingenKrav varsel merket forbehold',
+    'krav svar gjeldendeKrav gjeldendeSvar enighet trukket ingenKrav varsel forbehold',
   ],
+  // KA-U20, KA-U26: brevene med en merking som gjelder i sporet.
+  ['Sporutledning', 'relasjon', 'merket'],
+  ['utledning/utled.ts', 'predikat', 'godkjenningenErMerket', ['kommandoer/forutsetninger.ts']],
   ['Svarberegning', 'relasjon', 'svar'],
   ['Svarberegning', 'frosset', 'virkninger'],
   ['Svarberegning', 'predikat', 'uavklart'],

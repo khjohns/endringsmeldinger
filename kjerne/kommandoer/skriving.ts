@@ -270,7 +270,7 @@ export function frysBrev(rad: Journalrad, foer: Journalrad[], kjerne: Kjerne): v
     const innsigelse = innsigelser.find(
       (i) =>
         innsigelsenGjelderSvaret(i.gjelder, s as { spor: Spor; gjelder: string }, varsler) &&
-        !innsigelsenErOppgitt(i.gjelder, s as { spor: Spor }, svarFraParten.slice(i.fra))
+        !innsigelsenErOppgitt(i.gjelder, s.spor as Spor, svarFraParten.slice(i.fra))
     )?.id;
     s.beslutningsgrunnlag = lagret(frys(s, krav, kjerne.regler, innsigelse));
   }

@@ -294,7 +294,9 @@ endringsordre og forsering, etter [OV-U1](plans/2026-09-16-godkjenning-og-varig-
   gjentar eller oppgir den uttrykkelig; kjernen krever standpunktet om rettidighet i
   grunnlaget der § 32.2 gjelder og i fristen. Vederlaget har ikke noe slikt standpunkt,
   og preklusjon etter § 34.1 er ikke bygget, så et svar på vederlaget fra appen etter en
-  innsigelse mot vederlagskravet avvises (OV-U1).
+  innsigelse mot vederlagskravet avvises (OV-U1), og et registrert svar etter den gjør
+  saken ikke forstått (MM-U2): kjernen leser det verken med innsigelsen eller som om
+  innsigelsen er oppgitt.
 
 ---
 
@@ -722,7 +724,9 @@ visning ikke fremstiller et trekk som at utførelsesplikten er bortfalt.
   registrert fristsvar leses med, leses som en påberopelse etter § 33.4 mot varselet
   utledet av kravet. Innsigelsen har ingen hjemmel i seg selv; § 33.4 er appens
   lesing, ikke byggherrens ord. Registrerer TE et varsel etterpå, er preklusjonen
-  uavklart som for et standpunkt etter § 33.4 (MM-U8), og byggherren gir den opp med
+  uavklart som for et standpunkt etter § 33.4 (MM-U8), til byggherren før svaret har
+  tatt stilling til det registrerte varselet, i et standpunkt om rettidigheten eller en
+  innsigelse mot det. Byggherren gir innsigelsen opp med
   et standpunkt etter § 33.4 om varselet, også det registrerte, fordi saken har ett
   varsel (SK-12). Raden KA-38 i domenetabellen er derfor en arbeidshypotese og ikke en
   avklart tolkning.

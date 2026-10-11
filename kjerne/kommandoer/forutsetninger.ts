@@ -10,6 +10,7 @@
  */
 
 import {
+  godkjenningenErMerket,
   kanFaaInnsigelse,
   kanFaaProtest,
   kraveneErAvgjort,
@@ -149,8 +150,7 @@ export function forutsetninger(h: Handlingsnoekkel, part: Part, u: Utledning): A
       // etter § 32.3 a leses som bortfalt (KA-U6). Er § 31.3 ikke avklart, eller er brevet med
       // godkjenningen merket (KA-U26), sperres det til det er avklart.
       if (h.spor === 'grunnlag' && trekkAvGrunnlagetErSperret(u))
-        return u.endringsordre === 'ikke_avklart' ||
-          u.spor.grunnlag.merket.includes(u.spor.grunnlag.gjeldendeSvar?.dokument ?? '')
+        return u.endringsordre === 'ikke_avklart' || godkjenningenErMerket(u)
           ? avvis(
               'ENDRINGSORDRE_IKKE_AVKLART',
               'Det er ikke avklart om byggherrens godkjenning er en endringsordre: om brevet oppfyller § 31.3, eller om det har noe appen ikke kan uttrykke. Det må avklares før grunnlaget kan trekkes.'

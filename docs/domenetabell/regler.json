@@ -2065,7 +2065,7 @@
     },
     {
       "id": "KA-37",
-      "tilfelle": "TE registrerer sitt eget brev med en ny kravversjon i et spor med enighet, i et trukket spor eller i et spor med «ingen krav», eller med en aksept av et frafall eller et trekk etter at kravene er avgjort.",
+      "tilfelle": "TE registrerer sitt eget brev med en ny kravversjon i et spor med enighet, i et trukket spor eller i et spor med «ingen krav», eller med en aksept av et frafall, en aksept av et svar partene alt er enige om, eller et trekk etter at kravene er avgjort.",
       "forventet": "Saken er forstått. Elementet bevares og vises uten virkning, enigheten, gjeldende kravversjon, trekket og «ingen krav» står, og ingenting sperres.",
       "bh_standpunkt": "—",
       "rettslig_virkning": "Som KA-36, for et registrert brev fra TE.",
@@ -2077,14 +2077,15 @@
         "KA-U7",
         "KA-U12",
         "KA-U11",
-        "GR-U9"
+        "GR-U9",
+        "GR-U8"
       ],
       "tolkningsstatus": "avklart_tolkning"
     },
     {
       "id": "KA-38",
       "tilfelle": "Byggherren har gjort innsigelse mot fristkravet og registrerer senere et svar uten standpunkt om rettidighet.",
-      "forventet": "Saken er forstått: et strengere vilkår for et svar fra appen gjør ikke et registrert brev uforstått. Svaret leses med innsigelsen, som en påberopt preklusjon etter § 33.4. Gjelder innsigelsen varselet utledet av kravet, og registrerer TE et varsel etterpå, er preklusjonen uavklart, og TE kan ikke godta svaret før byggherren har svart på nytt. Har byggherren etter innsigelsen sagt uttrykkelig i et svar at varselet kom i tide, også det registrerte varselet, leses et senere registrert svar ikke med innsigelsen.",
+      "forventet": "Saken er forstått: et strengere vilkår for et svar fra appen gjør ikke et registrert brev uforstått. Svaret leses med innsigelsen, som en påberopt preklusjon etter § 33.4. Gjelder innsigelsen varselet utledet av kravet, og registrerer TE et varsel etterpå, er preklusjonen uavklart, og TE kan ikke godta svaret før byggherren har svart på nytt. Har byggherren før svaret tatt stilling til det registrerte varselet, i et standpunkt om rettidigheten eller en innsigelse mot det, er den ikke uavklart. Har byggherren etter innsigelsen sagt uttrykkelig i et svar at varselet kom i tide, også det registrerte varselet, leses et senere registrert svar ikke med innsigelsen.",
       "bh_standpunkt": "Svaret og innsigelsen.",
       "rettslig_virkning": "Tausheten er ikke et standpunkt; innsigelsen står.",
       "rettidighet": "—",
@@ -2135,7 +2136,7 @@
     {
       "id": "VS-03",
       "tilfelle": "Byggherren har gjort innsigelse mot TEs varsel og svarer senere fra appen.",
-      "forventet": "Et svar fra appen har alltid standpunktet om rettidighet der det kan ha virkning (§ 32.2 der varslingsplikten gjelder, og § 33.4), så det gjentar eller oppgir innsigelsen; et svar uten det avvises. Oppgir byggherren innsigelsen mot varselet etter § 32.2 og godkjenner grunnlaget, er godkjenningen en endringsordre. Et svar på vederlaget etter en innsigelse mot vederlagskravet avvises, fordi preklusjon etter § 34.1 ikke er bygget.",
+      "forventet": "Et svar fra appen har alltid standpunktet om rettidighet der det kan ha virkning (§ 32.2 der varslingsplikten gjelder, og § 33.4), så det gjentar eller oppgir innsigelsen; et svar uten det avvises. Oppgir byggherren innsigelsen mot varselet etter § 32.2 og godkjenner grunnlaget, er godkjenningen en endringsordre. Et svar på vederlaget etter en innsigelse mot vederlagskravet avvises, fordi preklusjon etter § 34.1 ikke er bygget. Et registrert svar på vederlaget etter en slik innsigelse gjør saken ikke forstått, av samme grunn: kjernen forenkler det ikke.",
       "bh_standpunkt": "Standpunktet om rettidighet i svaret.",
       "rettslig_virkning": "Det er partens nye utsagn som endrer standpunktet.",
       "rettidighet": "—",
@@ -2144,7 +2145,8 @@
         "VS-U11",
         "VS-U9",
         "GR-U12",
-        "OV-U1"
+        "OV-U1",
+        "MM-U2"
       ],
       "tolkningsstatus": "avklart_tolkning"
     },

@@ -271,7 +271,8 @@ interface Strid {
  * MM-U18: elementene i dokumentet som ikke kan forstås i samsvar med journalen før
  * det og vedtakene om enighet og lukking: en ny kravversjon eller en revisjon i et
  * spor med enighet (KA-U7, GR-U10), en ny kravversjon i et trukket spor eller et spor
- * med «ingen krav» (GR-U5, KA-U12), en aksept av et frafall (GR-U9), noe som endrer
+ * med «ingen krav» (GR-U5, KA-U12), en aksept av et frafall (GR-U9) eller av et svar
+ * partene alt er enige om (GR-U8, KA-U7), noe som endrer
  * utfallet etter at kravene er avgjort eller avslaget av grunnlaget er godtatt
  * (KA-U11, SK-01), og det som viser til et element uten virkning. Kontrollen
  * gjelder bare disse vedtakene, ikke vilkårene for å sende, så en strengere
@@ -312,6 +313,14 @@ function strid(d: Dokument, u: Utledning, uten: Map<string, unknown>): Strid[] {
       ut.push({ element: x.id, grunn: `${x.art} viser til et element uten virkning` });
     else if (x.art === 'aksept' && x.gjelder === u.spor.grunnlag.gjeldendeSvar?.id && u.frafalt)
       ut.push({ element: x.id, grunn: 'en aksept av et frafall (GR-U9)' });
+    else if (
+      x.art === 'aksept' &&
+      SPOR.some((n) => u.spor[n].enighet && u.spor[n].gjeldendeSvar?.id === x.gjelder)
+    )
+      ut.push({
+        element: x.id,
+        grunn: 'en aksept av et svar partene alt er enige om (GR-U8, KA-U7)',
+      });
   }
   return ut;
 }
@@ -480,7 +489,7 @@ function utledSporene(
         ) ||
         innsigelsenErOppgitt(
           i.gjelder,
-          s,
+          s.spor,
           // I journalens rekkefølge, som er saksversjonen.
           svarMedUten.filter(
             (x) => elementer[x.id].part === part && bakover(x.id, i.id) && bakover(s.id, x.id)
@@ -489,6 +498,22 @@ function utledSporene(
       )
         ugyldig(s.id, 'svaret er lest med noe som ikke er en innsigelse mot kravet eller varselet');
     }
+    // VS-U9, OV-U1: et svar på vederlaget etter partens innsigelse mot vederlagskravet
+    // krever preklusjon etter § 34.1, som ikke er bygget. Kjernen forenkler det ikke.
+    if (
+      s.spor === 'vederlag' &&
+      henvisninger.some(
+        (x) =>
+          x.art === 'innsigelse' &&
+          x.gjelder === s.gjelder &&
+          elementer[x.id].part === elementer[s.id].part &&
+          bakover(s.id, x.id)
+      )
+    )
+      ugyldig(
+        s.id,
+        'svaret på vederlaget kommer etter en innsigelse, og § 34.1 er ikke i kjernen ennå'
+      );
     // MM-U18: sammenfallet er appens vurdering av samme brev og må stemme med standpunktene.
     if (!sammenfallStemmer(s))
       ugyldig(s.id, 'sammenfallet stemmer ikke med standpunktene i brevet (GR-U10, MM-U18)');
@@ -651,7 +676,22 @@ function utledSporene(
   // brevet ble sendt. Er et annet varsel registrert nå, er en påberopt preklusjon
   // uavklart. Sa byggherren at varselet kom i tide, er det ingenting å avklare.
   // Et fristsvar lest med en innsigelse leser den som en påberopelse etter § 33.4 (VS-U11).
+  // Den er avklart når parten før svaret har tatt stilling til varselet som er registrert
+  // nå, i et standpunkt om rettidigheten eller en innsigelse mot det.
   const varselNaa = (s: Svar) => spor.frist.varsel?.id ?? s.gjelder;
+  const harTattStillingTilVarselet = (s: Svar) => {
+    const part = elementer[s.id].part;
+    const foer = (id: string) => elementer[id].part === part && bakover(s.id, id);
+    return (
+      svarMedUten.some(
+        (x) =>
+          x.spor === 'frist' &&
+          foer(x.id) &&
+          x.standpunkter.some((p) => p.art === 'rettidighet' && p.gjelder === varselNaa(s))
+      ) ||
+      henvisninger.some((x) => x.art === 'innsigelse' && x.gjelder === varselNaa(s) && foer(x.id))
+    );
+  };
   const svar: Record<string, Svarberegning> = {};
   for (const s of alleSvar.values()) {
     const lestMed = innsigelsenSvaretErLestMed(s);
@@ -669,7 +709,10 @@ function utledSporene(
               p.gjelder !== varselNaa(s)
           )
           .map((p) => p.id),
-        ...(s.spor === 'frist' && innsigelse && innsigelse.gjelder !== varselNaa(s)
+        ...(s.spor === 'frist' &&
+        innsigelse &&
+        innsigelse.gjelder !== varselNaa(s) &&
+        !harTattStillingTilVarselet(s)
           ? [innsigelse.id]
           : []),
       ],
@@ -808,6 +851,11 @@ function utledSporene(
  * den videre virkningen at endringsordren leses som bortfalt (KA-U6).
  */
 export const trekkAvGrunnlagetErSperret = (u: Utledning): boolean => u.endringsordre !== 'nei';
+
+/** KA-U26: brevet med gjeldende svar på grunnlaget har en merking som gjelder i grunnlaget. */
+export const godkjenningenErMerket = (u: Utledning): boolean =>
+  u.spor.grunnlag.gjeldendeSvar !== null &&
+  u.spor.grunnlag.merket.includes(u.spor.grunnlag.gjeldendeSvar.dokument);
 
 /**
  * KA-U22, KA-U27: et trekk avvises når appen ikke
