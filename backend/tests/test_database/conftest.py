@@ -1,10 +1,45 @@
+import hashlib
 import os
 from graphlib import TopologicalSorter
+from pathlib import Path
 
 import pytest
 
 TESTBASE_ENV = "KOE_TESTBASE_URL"
 TESTBASE_MERKE = "koe-kastbar-testbase"
+ROT = Path(__file__).resolve().parents[3]
+
+
+def migrasjonssum(rot: Path = ROT) -> str:
+    """Summen `bygg_testbase.sh` lagrer i `koe.migrasjonssum`: sha256sum av
+    plattformstubben og migrasjonene i filnavnrekkefølge, og så av den lista."""
+    filer = [
+        rot / "scripts/testbase/plattformstubb.sql",
+        *sorted((rot / "supabase/migrations").glob("*.sql")),
+    ]
+    liste = "".join(
+        f"{hashlib.sha256(f.read_bytes()).hexdigest()}  {f.relative_to(rot).as_posix()}\n"
+        for f in filer
+    )
+    return hashlib.sha256(liste.encode()).hexdigest()
+
+
+def krev_fersk_testbase(url: str, rot: Path = ROT) -> None:
+    """Feiler når basen er bygget av andre migrasjoner enn dem i `rot` (#379),
+    i stedet for at testene går mot et gammelt skjema og feiler hver for seg."""
+    import psycopg
+
+    with psycopg.connect(url, autocommit=True) as tilkobling:
+        (bygget_av,) = tilkobling.execute(
+            "SELECT current_setting('koe.migrasjonssum', true)"
+        ).fetchone()
+    if bygget_av != migrasjonssum(rot):
+        pytest.fail(
+            f"Testbasen i {TESTBASE_ENV} er ikke bygget av migrasjonene i arbeidstreet. "
+            "Bygg den på nytt med scripts/testbase/bygg_paa_nytt.sh fra repo-roten; "
+            "URL-en er den samme etterpå.",
+            pytrace=False,
+        )
 
 
 def _url_og_driver() -> str:
@@ -20,6 +55,7 @@ def _url_og_driver() -> str:
             f"{TESTBASE_ENV} er satt, men psycopg mangler. "
             "Installer backend/requirements.txt."
         )
+    krev_fersk_testbase(url)
     return url
 
 
