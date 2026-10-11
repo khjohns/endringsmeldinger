@@ -50,7 +50,7 @@ const PART: Record<Handlingsnoekkel['type'], Part | null> = {
 /**
  * Utsagnene uten virkning på utfallet som viser til et annet element: § 5, VS-U12
  * og KA-U20. Som bestridelsen (MM-U7) godtas de også når kravene er avgjort eller
- * avslaget av grunnlaget er godtatt (KA-U11; S4 til oppdragsgiver 11.10, foreslått).
+ * avslaget av grunnlaget er godtatt (KA-U11, KA-U28, KA-U29).
  */
 function henvisning(h: Extract<Handlingsnoekkel, { gjelder: string }>, part: Part, u: Utledning) {
   const maal = u.elementer[h.gjelder];
