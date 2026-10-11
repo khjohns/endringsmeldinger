@@ -19,6 +19,7 @@ import { utledJournal, vurder, type Kontekst } from '../kjerne/kommandoer/skrivi
 import type { Journalrad } from '../kjerne/typer.ts';
 import { KJERNE, type Kjerne } from '../kjerne/versjon.ts';
 import { visning } from '../kjerne/utledning/visning.ts';
+import { ulagringsbarTekst } from '../kjerne/format/skjema.ts';
 import {
   krevInnlogging,
   krevKontraktsrolle,
@@ -94,10 +95,6 @@ async function lesKropp(
   // Kroppen gis ikke til tilgangskontrollen; den avvises etter kontrollen, som ugyldig JSON.
   return galt ? { feil: new Nektet(400, 'UGYLDIG_FORESPOERSEL', galt) } : { verdi };
 }
-
-/** NUL og en enslig surrogat er gyldig JSON, men JSONB i PostgreSQL avviser dem (#373). */
-const ENSLIG_SURROGAT = /[\ud800-\udbff](?![\udc00-\udfff])|(?<![\ud800-\udbff])[\udc00-\udfff]/;
-const ulagringsbarTekst = (t: string) => t.includes('\u0000') || ENSLIG_SURROGAT.test(t);
 
 /** Dypere enn dette har ingen kommando. */
 const STORSTE_DYBDE = 32;

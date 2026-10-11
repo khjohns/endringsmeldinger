@@ -11,6 +11,7 @@ import { datoFor, sammeSlag } from '../format/leser.ts';
 import type { Kommando, Svarutkast } from './kommando.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
 import {
+  gjelderVarslingsplikten,
   likeResultatfelt,
   regnUtSvar,
   SAMMENLIKNES,
@@ -27,6 +28,18 @@ function kontrollerSvar(s: Svarutkast, u: Utledning, regler: Regelsett): Avvisni
     return avvis(
       'ANNEN_REGELVERSJON',
       `Svaret er regnet ut med regelversjon ${s.regelversjon}, serveren bruker ${regler.versjon}.`
+    );
+  // VS-U11 (S5 til oppdragsgiver 11.10, foreslått): har byggherren gjort innsigelse
+  // mot varselet eller kravet, gjentar eller oppgir svaret den uttrykkelig.
+  const varsel = u.spor.frist.varsel?.id;
+  if (
+    s.spor === 'frist' &&
+    typeof s.vurderinger.frist_varsel_ok !== 'boolean' &&
+    u.innsigelser.some((i) => i.part === 'BH' && (i.gjelder === krav.id || i.gjelder === varsel))
+  )
+    return avvis(
+      'INNSIGELSE_UTEN_STANDPUNKT',
+      'Byggherren har gjort innsigelse mot varselet. Svaret må gjenta den eller oppgi den.'
     );
   const utenfor = utenforOmfanget(s.spor, s.vurderinger as Record<string, unknown>);
   if (utenfor)
@@ -99,8 +112,23 @@ export function nyttelastkontroll(k: Kommando, u: Utledning, regler: Regelsett):
         ? avvis('FEIL_BESTRIDELSE', `Opplysningen gjelder ${o.hva}, ikke ${k.hva}.`)
         : null;
     }
+    case 'passivitet': {
+      // VS-U12 og GR-U11: passivitetsregelen gjelder bare der § 32.2 gjelder.
+      const krav = u.spor.grunnlag.krav.find((x) => x.id === k.gjelder);
+      return gjelderVarslingsplikten(krav, regler)
+        ? null
+        : avvis(
+            'VARSLINGSPLIKT_GJELDER_IKKE',
+            '§ 32.2 gjelder ikke kategorien, så § 32.3 annet ledd gjelder heller ikke (GR-U11).'
+          );
+    }
     case 'trekk':
     case 'varsel':
+    case 'ingen_krav':
+    case 'innsigelse':
+    case 'protest':
+    case 'merking':
+    case 'avklaring':
       return null;
   }
 }

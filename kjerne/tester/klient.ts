@@ -292,6 +292,15 @@ export function radFor(
       spor,
       gjelder,
       ...(typeof h.erstatter === 'string' ? { erstatter: navn.reserver(h.erstatter) } : {}),
+      // #342: grunnlagsversjonen svaret er regnet mot; bevis-saken kan oppgi en annen.
+      ...(spor === 'grunnlag'
+        ? {}
+        : {
+            grunnlagskrav:
+              typeof h.grunnlagskrav === 'string'
+                ? ref(h.grunnlagskrav)
+                : (u.spor.grunnlag.gjeldendeKrav?.id ?? randomUUID()),
+          }),
       standpunkter,
     };
     if (spor !== 'grunnlag')

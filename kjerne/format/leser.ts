@@ -63,9 +63,18 @@ export function datoFor(
   return dato.find((o) => o.gjelder === varsel.id) ?? dato.find((o) => o.gjelder === undefined);
 }
 
-/** MM-U7: en opplysning om § 31.3 bestrides som det, en dato som sendt eller mottatt. */
+/**
+ * MM-U7: en dato bestrides som sendt eller mottatt, opplysningen om § 31.3 og
+ * merkingen etter KA-U20 som det de er.
+ */
 export const sammeSlag = (opplysning: string, bestridelse: string): boolean =>
-  (opplysning === 'endringsordre') === (bestridelse === 'endringsordre');
+  opplysning === 'sendt' || opplysning === 'mottatt'
+    ? bestridelse === 'sendt' || bestridelse === 'mottatt'
+    : opplysning === bestridelse;
+
+/** En opplysning om brevet som helhet: § 31.3 eller merkingen etter KA-U20 (MM-U12). */
+export const omBrevet = (hva: string): hva is 'endringsordre' | 'kan_ikke_uttrykkes' =>
+  hva === 'endringsordre' || hva === 'kan_ikke_uttrykkes';
 
 /** Leseren forstår ikke raden (MM-U2). */
 export class Uforstaatt extends Error {}
@@ -165,8 +174,26 @@ function lesBeslutningsgrunnlag(
     throw new Uforstaatt(
       `${sti}: varslingsplikten hører til svaret på grunnlaget og bare der (GR-U12)`
     );
-  const art = new Map(standpunkter.map((s) => [s.id, s.art]));
+  const art = new Map<string, Standpunktsart>(standpunkter.map((s) => [s.id, s.art]));
   const sett = new Set<string>();
+  // VS-U11: et svar uten standpunkt om rettidighet kan være lest med en innsigelse
+  // byggherren sendte før det. Den står som en virkning av art rettidighet, først i
+  // brevet; utledningen kontrollerer at den er en slik innsigelse.
+  const lestMed = [
+    ...(b.virkninger as Data[]).map((p) => p.standpunkt as string),
+    ...((b.uten_virkning ?? []) as string[]),
+  ].filter((id) => !art.has(id));
+  if (
+    lestMed.length > 1 ||
+    (lestMed.length && (spor === 'vederlag' || art.has('rettidighet' as never)))
+  )
+    throw new Uforstaatt(`${sti}: virkningen gjelder et standpunkt svaret ikke har`);
+  if (lestMed.length && standpunkter.some((s) => s.art === 'rettidighet'))
+    throw new Uforstaatt(
+      `${sti}: svaret har standpunktet om rettidighet og er lest med en innsigelse`
+    );
+  const foerst = lestMed[0];
+  if (foerst !== undefined) art.set(foerst, 'rettidighet');
   // Prinsipalt og subsidiært er slik brevet ordner standpunktene; uten virkning er
   // appens vurdering og står for seg (HF-U2).
   const innslag = [
@@ -183,6 +210,7 @@ function lesBeslutningsgrunnlag(
     return { standpunkt: id, art: art.get(id)!, virkning: virkning as Virkning };
   });
   const rekkefoelge = new Map(standpunkter.map((s, i) => [s.id, i]));
+  if (foerst !== undefined) rekkefoelge.set(foerst, -1);
   virkninger.sort((x, y) => rekkefoelge.get(x.standpunkt)! - rekkefoelge.get(y.standpunkt)!);
   if (sett.size !== art.size)
     throw new Uforstaatt(`${sti}: beslutningsgrunnlaget har ikke én virkning per standpunkt`);
@@ -205,6 +233,7 @@ function lesSvar(v: unknown, dokument: string, sti: string): Svar {
     dokument,
     gjelder: e.gjelder as string,
     erstatter: (e.erstatter as string | undefined) ?? null,
+    grunnlagskrav: (e.grunnlagskrav as string | undefined) ?? null,
     standpunkter,
     utregning: (e.utregning as Data | undefined) ?? {},
     beslutningsgrunnlag: lesBeslutningsgrunnlag(
@@ -216,13 +245,21 @@ function lesSvar(v: unknown, dokument: string, sti: string): Svar {
   };
 }
 
-/** Hvem som kan si hva: TE krever, varsler, godtar, trekker og sier «ingen krav»; BH svarer. */
+/**
+ * Hvem som kan si hva: TE krever, varsler, godtar, trekker, sier «ingen krav» og
+ * påberoper passivitet; BH svarer. Innsigelse, protest, bestridelse og avklaring
+ * kan komme fra begge; utledningen kontrollerer hvem de gjelder.
+ */
 const PART_FOR_UTSAGN: Record<Utsagnsart, Part | null> = {
   varsel: 'TE',
   trekk: 'TE',
   aksept: 'TE',
   ingen_krav: 'TE',
+  passivitet: 'TE',
   bestridelse: null,
+  innsigelse: null,
+  protest: null,
+  avklaring: null,
 };
 
 function lesDokument(h: Journalrad): Dokument {
@@ -235,7 +272,7 @@ function lesDokument(h: Journalrad): Dokument {
     dokumentasjon?: string[];
   };
   const avklaring = (data.opplysninger ?? []).some(
-    (o) => erObjekt(o) && o.hva === 'endringsordre' && 'gjelder' in o
+    (o) => erObjekt(o) && typeof o.hva === 'string' && omBrevet(o.hva) && 'gjelder' in o
   );
   if (!data.krav && !data.svar && !data.utsagn && !avklaring)
     throw new Uforstaatt('dokumentet har verken krav, svar, utsagn eller en avklaring');
@@ -251,10 +288,17 @@ function lesDokument(h: Journalrad): Dokument {
   const opplysninger = (data.opplysninger ?? []).map((v, i): Opplysning => {
     const o = element(v, OPPLYSNING, 'hva', `$.opplysninger[${i}]`);
     // Én opplysning av hvert slag om dokumentet, og én om hvert varsel i det (HF-U1).
-    const noekkel = `${String(o.hva)}:${o.hva === 'endringsordre' ? '' : String(o.gjelder ?? '')}`;
+    const noekkel = `${String(o.hva)}:${omBrevet(o.hva as string) ? '' : String(o.gjelder ?? '')}`;
     if (hva.has(noekkel))
       throw new Uforstaatt(`dokumentet har to opplysninger om ${String(o.hva)}`);
     hva.add(noekkel);
+    const brev = (o.gjelder as string | undefined) ?? id;
+    if (o.hva === 'kan_ikke_uttrykkes') {
+      const spor = o.spor as Spor[];
+      if (new Set(spor).size !== spor.length)
+        throw new Uforstaatt('merkingen har samme spor to ganger');
+      return { id: o.id as string, dokument: id, hva: o.hva, spor, oppgittAv: avsender, brev };
+    }
     return o.hva === 'endringsordre'
       ? {
           id: o.id as string,
@@ -262,7 +306,7 @@ function lesDokument(h: Journalrad): Dokument {
           hva: 'endringsordre',
           oppfylt: o.oppfylt as boolean,
           oppgittAv: avsender,
-          brev: (o.gjelder as string | undefined) ?? id,
+          brev,
         }
       : {
           id: o.id as string,
@@ -284,6 +328,12 @@ function lesDokument(h: Journalrad): Dokument {
     throw new Uforstaatt(
       'opplysningen om endringsordre står uten et registrert svar på grunnlaget i dokumentet'
     );
+  // KA-U20: merkingen i brevet selv står i et registrert brev med et krav eller svar.
+  if (
+    opplysninger.some((o) => o.hva === 'kan_ikke_uttrykkes' && o.brev === id) &&
+    (!erRegistrert(opplysninger) || (!data.krav && !data.svar))
+  )
+    throw new Uforstaatt('merkingen står uten et registrert krav eller svar i dokumentet');
   const dokument: Dokument = {
     id,
     avsender,
@@ -315,6 +365,7 @@ function lesDokument(h: Journalrad): Dokument {
   for (const o of dokument.opplysninger)
     if (
       o.hva !== 'endringsordre' &&
+      o.hva !== 'kan_ikke_uttrykkes' &&
       o.gjelder !== undefined &&
       !dokument.utsagn.some((u) => u.art === 'varsel' && u.id === o.gjelder)
     )

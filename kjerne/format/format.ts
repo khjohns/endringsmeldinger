@@ -192,17 +192,22 @@ export const SVAR: Record<Spor, Skjema> = Object.fromEntries(
           ...sporfelt(s),
           gjelder: ID,
           erstatter: ID,
+          ...(s === 'grunnlag' ? {} : { grunnlagskrav: ID }),
           standpunkter: { type: 'array', minItems: 1 },
           ...(utregning ? { utregning } : {}),
           beslutningsgrunnlag: BESLUTNINGSGRUNNLAG,
         },
         ['id', 'spor', 'gjelder', 'standpunkter', 'beslutningsgrunnlag'].concat(
-          utregning ? ['utregning'] : []
+          utregning ? ['utregning'] : [],
+          s === 'grunnlag' ? [] : ['grunnlagskrav']
         )
       ),
     ];
   })
 ) as Record<Spor, Skjema>;
+
+/** Slagene opplysning om et dokument, som også er det en bestridelse gjelder (MM-U7). */
+export const OPPLYSNINGSSLAG = ['sendt', 'mottatt', 'endringsordre', 'kan_ikke_uttrykkes'] as const;
 
 export const UTSAGN: Record<Utsagnsart, Skjema> = {
   varsel: objekt({ ...artfelt('varsel'), hjemmel: { const: '33.4' } }, ['id', 'art', 'hjemmel']),
@@ -217,7 +222,7 @@ export const UTSAGN: Record<Utsagnsart, Skjema> = {
     {
       ...artfelt('bestridelse'),
       gjelder: ID,
-      hva: { enum: ['sendt', 'mottatt', 'endringsordre'] },
+      hva: { enum: [...OPPLYSNINGSSLAG] },
     },
     ['id', 'art', 'gjelder', 'hva']
   ),
@@ -226,6 +231,10 @@ export const UTSAGN: Record<Utsagnsart, Skjema> = {
     'art',
     'spor',
   ]),
+  innsigelse: objekt({ ...artfelt('innsigelse'), gjelder: ID }, ['id', 'art', 'gjelder']),
+  protest: objekt({ ...artfelt('protest'), gjelder: ID }, ['id', 'art', 'gjelder']),
+  passivitet: objekt({ ...artfelt('passivitet'), gjelder: ID }, ['id', 'art', 'gjelder']),
+  avklaring: objekt({ ...artfelt('avklaring'), gjelder: ID }, ['id', 'art', 'gjelder']),
 };
 
 export const STANDPUNKTSARTER = Object.keys(STANDPUNKT) as Standpunktsart[];
@@ -239,8 +248,11 @@ export const UTSAGNSARTER = Object.keys(UTSAGN) as Utsagnsart[];
  * grunnlaget: den som registrerer, oppgir om brevet var en endringsordre etter
  * § 31.3 (GR-U13). Uten `gjelder` står den i brevet selv; med `gjelder` er den en
  * senere avklaring av et registrert brev, uten at brevet skrives om (MM-U12).
+ * `kan_ikke_uttrykkes` er merkingen etter KA-U16 og KA-U20, i samme form: uten
+ * `gjelder` står den i det registrerte brevet, med `gjelder` er den en senere
+ * merking av et registrert brev.
  */
-export const OPPLYSNING: Record<'sendt' | 'mottatt' | 'endringsordre', Skjema> = {
+export const OPPLYSNING: Record<(typeof OPPLYSNINGSSLAG)[number], Skjema> = {
   sendt: objekt({ id: ID, hva: { const: 'sendt' }, dato: DATO, gjelder: ID }, [
     'id',
     'hva',
@@ -254,6 +266,10 @@ export const OPPLYSNING: Record<'sendt' | 'mottatt' | 'endringsordre', Skjema> =
   endringsordre: objekt(
     { id: ID, hva: { const: 'endringsordre' }, oppfylt: { type: 'boolean' }, gjelder: ID },
     ['id', 'hva', 'oppfylt']
+  ),
+  kan_ikke_uttrykkes: objekt(
+    { id: ID, hva: { const: 'kan_ikke_uttrykkes' }, spor: liste({ enum: [...SPOR] }), gjelder: ID },
+    ['id', 'hva', 'spor']
   ),
 };
 
