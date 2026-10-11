@@ -300,7 +300,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['Utledning', 'utsagn', 'innsigelser', ['kommandoer/nyttelast.ts']],
   ['Paaberopelse', 'relasjon', 'part gjelder', ['kommandoer/nyttelast.ts']],
   // MM-U18: stridene ett dokument har med journalen før det.
-  ['Strid', 'predikat', 'element grunn registrertGodtas', ['utledning/utled.ts:utled']],
+  ['Strid', 'predikat', 'element grunn', ['utledning/utled.ts:utled']],
   ['Bestridelse', 'relasjon', 'part'],
   [
     'Sporutledning',
@@ -355,6 +355,13 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'frosset/standpunkt.ts',
     'relasjon',
     'innsigelsenGjelderSvaret',
+    ['utledning/utled.ts:utledSporene', 'kommandoer/skriving.ts:frysBrev'],
+  ],
+  // VS-U9, VS-U11: en innsigelse parten senere har gitt opp uttrykkelig, leser ikke et svar.
+  [
+    'frosset/standpunkt.ts',
+    'utsagn',
+    'innsigelsenErOppgitt',
     ['utledning/utled.ts:utledSporene', 'kommandoer/skriving.ts:frysBrev'],
   ],
   // MM-U18: sammenfallet stemmer med standpunktene i samme frosne brev.
@@ -560,8 +567,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['frosset/frysing.ts', 'regelsett', 'frys grunnlagsstandpunkter', ['kommandoer/skriving.ts']],
   ['frosset/frysing.ts:frys(svar)', 'rad', 'spor utregning', ['frosset/frysing.ts']],
   ['kommandoer/skriving.ts:frysBrev(s)', 'rad', 'spor gjelder', ['kommandoer/skriving.ts']],
-  // VS-U11: innsigelsen et registrert svar leses med.
-  ['kommandoer/skriving.ts:frysBrev', 'relasjon', 'id gjelder', ['kommandoer/skriving.ts']],
+  // VS-U9, VS-U11: innsigelsen et registrert svar leses med, og partens standpunkter etter den.
+  ['kommandoer/skriving.ts:frysBrev', 'relasjon', 'id gjelder etter', ['kommandoer/skriving.ts']],
   ['kommandoer/skriving.ts:lagret(?)', 'frosset', 'resten', ['kommandoer/skriving.ts']],
   ['format/leser.ts', 'rad', 'lesJournal', ['kommandoer/skriving.ts']],
   ['format/leser.ts', 'rad', 'standpunkterISvaret', ['frosset/frysing.ts']],

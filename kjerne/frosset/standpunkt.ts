@@ -118,6 +118,17 @@ export const innsigelsenGjelderSvaret = (
   varsler: string[]
 ): boolean => gjelder === svar.gjelder || (svar.spor === 'frist' && varsler.includes(gjelder));
 
+/**
+ * VS-U9, VS-U11, HF-U1: parten har gitt opp innsigelsen når partens siste standpunkt om
+ * rettidigheten av det innsigelsen gjelder, etter innsigelsen, er at det kom i tide.
+ * `etter` er partens standpunkter etter innsigelsen, i rekkefølgen de ble sendt. Taushet
+ * gir den ikke opp.
+ */
+export function innsigelsenErOppgitt(gjelder: string, etter: Standpunkt[]): boolean {
+  const siste = etter.filter((p) => p.art === 'rettidighet' && p.gjelder === gjelder).at(-1);
+  return siste?.art === 'rettidighet' && siste.iTide;
+}
+
 export const prinsipalt = (v: Standpunktsvirkning[]) => v.find((p) => p.virkning === 'prinsipalt');
 /** Et standpunkt som avviser kravet uavhengig av beløpet eller dagene. */
 const AVVISENDE = new Set(['rettidighet', 'hindring']);

@@ -271,8 +271,10 @@ endringsordre og forsering, etter [OV-U1](plans/2026-09-16-godkjenning-og-varig-
 - **Kjernen i dag:** bygget. `trekk` i `Utsagn`, `trekkAvGrunnlagetErSperret`
   i [`utled.ts`](../kjerne/utledning/utled.ts), `Krav.erstatter`. Svarene på vederlag
   og frist viser til grunnlagsversjonen de ble regnet mot (`grunnlagskrav`, #342), og
-  subsidiariteten leses av gjeldende svar på den versjonen så lenge en nyere
-  grunnlagsversjon venter på svar, også ved flere svar på samme versjon. Sperren i
+  så lenge en nyere grunnlagsversjon venter på svar, leses subsidiariteten av
+  grunnlagssvaret som sist gjaldt: gjeldende svar på den seneste besvarte versjonen i
+  kravkjeden, fra og med versjonen svaret ble regnet mot, også ved flere svar på samme
+  versjon. Sperren i
   [KA-U22](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u22) er bygget for en
   enighet som bygger på et merket brev (`trekkKanIkkeBevareAvtalen`,
   `AVTALE_KAN_IKKE_BEVARES`). Et fradrag avvises fordi KA-U9 ikke er bygget, og sperren
@@ -281,7 +283,9 @@ endringsordre og forsering, etter [OV-U1](plans/2026-09-16-godkjenning-og-varig-
   grunnlagsversjonen svaret ble regnet mot, ikke grunnlagssvaret, så et nytt eller
   revidert svar på samme versjon gjelder uten at svaret på vederlag eller frist skrives
   om. Et svar gitt på en eldre grunnlagsversjon holdes subsidiært etter gjeldende svar
-  på den versjonen til grunnlaget eller sporet besvares igjen (GR-U1). Et svar byggherren
+  på den versjonen til grunnlaget eller sporet besvares igjen (GR-U1). Er grunnlaget
+  besvart igjen, følger svaret det grunnlagssvaret, også når TE sender enda en
+  grunnlagsversjon; det går ikke tilbake til svaret på versjonen det ble regnet mot. Et svar byggherren
   gir eller reviderer mens den gjeldende grunnlagsversjonen venter på svar, viser til
   den og er prinsipalt (GR-U4). Skillet gjøres på grunnlagsversjonen svaret viser til,
   aldri på rekkefølgen i journalen, og at svaret er subsidiært, lagres ikke
@@ -705,12 +709,21 @@ visning ikke fremstiller et trekk som at utførelsesplikten er bortfalt.
   svar eller et dokument (MP-U6). Et registrert svar uten standpunkt om rettidighet
   leses med byggherrens første innsigelse mot kravet eller varselet
   ([VS-U11](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u11)); innsigelsen står
-  da i `virkninger` i beslutningsgrunnlaget. Et svar fra appen har alltid standpunktet
+  da i `virkninger` i beslutningsgrunnlaget. Har byggherren etter innsigelsen sagt
+  uttrykkelig i et svar at det samme kom i tide, er innsigelsen oppgitt, og svaret
+  leses ikke med den (`innsigelsenErOppgitt`, VS-U9 og VS-U11). Partens siste
+  uttrykkelige standpunkt avgjør; taushet gir den ikke opp. Et svar fra appen har alltid standpunktet
   der det kan ha virkning. `har_innsigelse_mot_varsel` i
   [`regler/frist.ts`](../kjerne/regler/frist.ts) er fortsatt alltid usann (byggedel 2).
 - **Arbeidsvalg 11.10 (prinsipp 3):** en innsigelse som `gjelder` en kravversjon,
   leses ikke inn i et svar på en senere kravversjon; svaret fra appen tar stilling
   selv. Visningen av datoene hører til #313.
+- **Arbeidsvalg 11.10 (VS-U11, MM-U1, MM-U8):** en innsigelse mot fristkravet som et
+  registrert fristsvar leses med, leses som en påberopelse etter § 33.4 mot varselet
+  utledet av kravet. Innsigelsen har ingen hjemmel i seg selv; § 33.4 er appens
+  lesing, ikke byggherrens ord. Registrerer TE et varsel etterpå, er preklusjonen
+  uavklart som for et standpunkt etter § 33.4 (MM-U8). Raden KA-38 i domenetabellen
+  er derfor en arbeidshypotese og ikke en avklart tolkning.
 
 ---
 
@@ -829,14 +842,17 @@ visning ikke fremstiller et trekk som at utførelsesplikten er bortfalt.
   Kommandoen `ingen_krav` er bygget (KA-U12, KA-U15, KA-U17), uten fritekst (KA-U22).
   KA-U16 og KA-U20: opplysningen `kan_ikke_uttrykkes` med sporene den gjelder, i det
   registrerte brevet eller senere fra en av partene, og utsagnet `avklaring` fra
-  avsenderen. Så lenge et krav eller svar i brevet gjelder og merkingen ikke er
-  avklart, er `forbehold` sann i sporene, og aksepten, endringsordren og trekk som
-  rammer en enighet i dem, sperres; utledningen ellers er uendret. MM-U18 (#326): en
-  hendelse som ikke er registrert korrespondanse og strider mot en enighet, et frafall
-  eller en lukket sak, gjør saken ikke forstått, og et sammenfall som ikke stemmer med
+  avsenderen. `forbehold` er sann i sporene merkingen oppgir til avsenderen avklarer
+  den eller sender et nytt krav eller svar med virkning i sporet etter brevet, også når
+  elementet i brevet er uten virkning. Da sperres aksepten, endringsordren og trekk som
+  rammer en enighet i sporene; utledningen ellers er uendret, også om godkjenningen er
+  en endringsordre (KA-U26, KA-U28). MM-U18 (#326): en hendelse som ikke er registrert
+  korrespondanse og strider mot en enighet, et frafall, et trekk, «ingen krav» eller en
+  lukket sak, gjør saken ikke forstått, og et sammenfall som ikke stemmer med
   standpunktene i brevet, likeså. I registrert korrespondanse får elementet ingen
   virkning (`utenVirkning`). Kontrollen leser journalen før hvert dokument og gjelder
-  bare vedtakene om enighet og lukking. Ikke bygget: B-10 utover versjonene i formatet
+  bare vedtakene om enighet og lukking; at en aksept av et merket svar avvises, er et
+  vilkår for å sende og står i forutsetningene, ikke i kontrollen. Ikke bygget: B-10 utover versjonene i formatet
   ([#316](https://github.com/khjohns/endringsmeldinger/issues/316)), registreringen
   (#310) og brevteksten (#369).
 - **Vedtak 11.10:** [MM-U19](plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u19)
@@ -850,6 +866,10 @@ visning ikke fremstiller et trekk som at utførelsesplikten er bortfalt.
 - **Arbeidsvalg 11.10 (prinsipp 6):** merkingen er en opplysning om brevet, som
   opplysningen om § 31.3, så motparten bestrider den med bestridelsen som finnes
   (MM-U7). Sperren følger sporene merkingen oppgir (KA-U26).
+- **Arbeidsvalg 11.10 (KA-U20, prinsipp 3):** «et nytt utsagn fra den som sendte brevet»
+  leses per spor: en avklaring, eller et krav eller svar med virkning fra avsenderen i
+  sporet, sendt etter brevet. Et svar i brevet som fortsatt gjelder i et annet spor,
+  holder ikke sperren i live, og et utsagn fra motparten opphever den ikke.
 - **Arbeidsvalg 11.10 (KA-U11, MM-U7):** innsigelse, protest og påberopt passivitet
   godtas når kravene er avgjort, som bestridelsen (se KA-U29).
 
