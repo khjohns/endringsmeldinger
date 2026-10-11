@@ -198,16 +198,20 @@ endringsordre og forsering, etter [OV-U1](plans/2026-09-16-godkjenning-og-varig-
   beslutningsgrunnlaget; `endringsordre` i `Utledning` i
   [`utled.ts`](../kjerne/utledning/utled.ts) med opplysningen `endringsordre`;
   `FRAFALL_KAN_IKKE_GODTAS` og `GRUNNLAG_AVVIST` i
-  [`forutsetninger.ts`](../kjerne/kommandoer/forutsetninger.ts). Ikke bygget: KA-U16 for
-  et registrert brev med et forbehold appen ikke kan uttrykke. Kjent avvik: en lagret rad utenom kommandoene kan oppheve en
-  enighet ([#326](https://github.com/khjohns/endringsmeldinger/issues/326)).
+  [`forutsetninger.ts`](../kjerne/kommandoer/forutsetninger.ts). KA-U16 og KA-U20 er
+  bygget med merkingen `kan_ikke_uttrykkes` (se «Kravversjon, aksept og enighet»): en
+  merket godkjenning der § 32.2 gjelder, gir `endringsordre` lik `ikke_avklart`, så
+  trekket av grunnlaget er sperret. En hendelse som strider mot enigheten, leses etter
+  [MM-U18](plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u18) (`strid` i
+  [`utled.ts`](../kjerne/utledning/utled.ts), #326).
 
 ### § 32.3 annet ledd — passivitet
 
 - **Utdrag:** «Dersom byggherren ikke uten ugrunnet opphold svarer i henhold
   til første ledd, anses pålegget å innebære en endring.»
 - **Utsagn:** ingen fra BH. Opplysningen `mottatt` om TEs varsel gir datoen.
-  TE kan påberope passiviteten (utsagnet er ikke i formatet).
+  TE: `passivitet` som `gjelder` TEs varsel etter § 32.2 (kravet i grunnlagssporet),
+  før og etter byggherrens svar ([VS-U12](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u12)).
 - **Predikat:** ingen. Appen trekker ingen konklusjon.
 - **Appen avgjør ikke:** om BH svarte i tide, og om pålegget dermed anses som
   en endring.
@@ -216,8 +220,12 @@ endringsordre og forsering, etter [OV-U1](plans/2026-09-16-godkjenning-og-varig-
   (09.10, merknadene 10.10: VS-U3 og VS-U10). B-13 om passivitet (24.09,
   merknadene 09.10 og 10.10). [VS-U10](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u10). [GR-U11](plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u11):
   passivitetsregelen følger henvisningen til § 32.2.
-- **Kjernen i dag:** ikke bygget. [`visning.ts`](../kjerne/utledning/visning.ts) har
-  etiketten `venter_paa_svar`, men ingen dato eller frist.
+- **Kjernen i dag:** delvis. Påberopelsen er bygget: utsagnet `passivitet`,
+  kommandoen og etiketten `passivitet_paaberopt` i
+  [`visning.ts`](../kjerne/utledning/visning.ts). Kommandoen avvises med
+  `VARSLINGSPLIKT_GJELDER_IKKE` når § 32.2 ikke gjelder kategorien etter dagens regler
+  ([GR-U11](plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u11)); leseren prøver det
+  ikke på nytt (MM-U18). Ikke bygget: datoen og antall dager (VS-U10, #313).
 
 ### § 32.3 tredje ledd — begrunnelse av avslag
 
@@ -261,10 +269,35 @@ endringsordre og forsering, etter [OV-U1](plans/2026-09-16-godkjenning-og-varig-
   (merknaden 09.10: «låst» er enighet). [GR-U4](plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u4).
   SD-02 (05.10). B-13 endret underkategori (05.10).
 - **Kjernen i dag:** bygget. `trekk` i `Utsagn`, `trekkAvGrunnlagetErSperret`
-  i [`utled.ts`](../kjerne/utledning/utled.ts), `Krav.erstatter`. Delvis: svarene på
-  vederlag og frist knyttes til grunnlagssvaret etter rekkefølgen i journalen
-  (`tilNyttSvar` i `utled.ts`, [#342](https://github.com/khjohns/endringsmeldinger/issues/342)).
-  Brevteksten for trekket er ikke bygget (#310).
+  i [`utled.ts`](../kjerne/utledning/utled.ts), `Krav.erstatter`. Svarene på vederlag
+  og frist viser til grunnlagsversjonen de ble regnet mot (`grunnlagskrav`, #342), og
+  så lenge en nyere grunnlagsversjon venter på svar, leses subsidiariteten av
+  grunnlagssvaret som sist gjaldt: gjeldende svar på den seneste besvarte versjonen i
+  kravkjeden, fra og med versjonen svaret ble regnet mot, også ved flere svar på samme
+  versjon. Sperren i
+  [KA-U22](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u22) er bygget for en
+  enighet som bygger på et merket brev, når merkingen gjelder sporet enigheten gjelder
+  ([KA-U30](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u30);
+  `trekkKanIkkeBevareAvtalen`, `AVTALE_KAN_IKKE_BEVARES`). Et fradrag avvises fordi KA-U9 ikke er bygget, og sperren
+  må dekke et avtalt fradrag når det bygges. Brevteksten er ikke bygget (#369).
+- **Arbeidsvalg 11.10 (#342, prinsipp 3, GR-U1, GR-U4):** relasjonen er
+  grunnlagsversjonen svaret ble regnet mot, ikke grunnlagssvaret, så et nytt eller
+  revidert svar på samme versjon gjelder uten at svaret på vederlag eller frist skrives
+  om. Et svar gitt på en eldre grunnlagsversjon holdes subsidiært etter gjeldende svar
+  på den versjonen til grunnlaget eller sporet besvares igjen (GR-U1). Er grunnlaget
+  besvart igjen, følger svaret det grunnlagssvaret, også når TE sender enda en
+  grunnlagsversjon; det går ikke tilbake til svaret på versjonen det ble regnet mot. Et svar byggherren
+  gir eller reviderer mens den gjeldende grunnlagsversjonen venter på svar, viser til
+  den og er prinsipalt (GR-U4). Skillet gjøres på grunnlagsversjonen svaret viser til,
+  aldri på rekkefølgen i journalen, og at svaret er subsidiært, lagres ikke
+  ([HF-U1](plans/2026-09-16-godkjenning-og-varig-levering.md#hf-u1)).
+- **Arbeidsvalg 11.10 (VS-U9, VS-U11):** et svar fra appen etter byggherrens innsigelse
+  gjentar eller oppgir den uttrykkelig; kjernen krever standpunktet om rettidighet i
+  grunnlaget der § 32.2 gjelder og i fristen. Vederlaget har ikke noe slikt standpunkt,
+  og preklusjon etter § 34.1 er ikke bygget, så et svar på vederlaget fra appen etter en
+  innsigelse mot vederlagskravet avvises (OV-U1), og et registrert svar etter den gjør
+  saken ikke forstått (MM-U2): kjernen leser det verken med innsigelsen eller som om
+  innsigelsen er oppgitt.
 
 ---
 
@@ -672,9 +705,32 @@ visning ikke fremstiller et trekk som at utførelsesplikten er bortfalt.
   [MP-U4](plans/2026-09-16-godkjenning-og-varig-levering.md#mp-u4)–[MP-U7](plans/2026-09-16-godkjenning-og-varig-levering.md#mp-u7)
   (gjelder metodeprøven; MP-U6 tas inn i appen av VS-U9). Nøytralt fristvarsel,
   TFR-06 (23.09).
-- **Kjernen i dag:** ikke bygget. `bestridelse` gjelder bare opplysninger om
-  sending, mottak og endringsordre (MM-U7). `har_innsigelse_mot_varsel` i
-  [`regler/frist.ts`](../kjerne/regler/frist.ts) er alltid usann.
+- **Kjernen i dag:** bygget for registrering og visning. Utsagnene `innsigelse`
+  og `protest` i [`typer.ts`](../kjerne/typer.ts), kommandoene, og lesereglene i
+  [`utled.ts`](../kjerne/utledning/utled.ts): en innsigelse gjelder et varsel, krav eller
+  svar fra motparten, og en protest gjelder motpartens innsigelse, en påberopelse i et
+  svar eller et dokument (MP-U6). Et registrert svar uten standpunkt om rettidighet
+  leses med byggherrens første innsigelse mot kravet eller varselet
+  ([VS-U11](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u11)); innsigelsen står
+  da i `virkninger` i beslutningsgrunnlaget. Har byggherren etter innsigelsen sagt
+  uttrykkelig i et svar at det samme kom i tide, er innsigelsen oppgitt, og svaret
+  leses ikke med den (`innsigelsenErOppgitt`, VS-U9 og VS-U11). Partens siste
+  uttrykkelige standpunkt avgjør; taushet gir den ikke opp. Et svar fra appen har alltid standpunktet
+  der det kan ha virkning. `har_innsigelse_mot_varsel` i
+  [`regler/frist.ts`](../kjerne/regler/frist.ts) er fortsatt alltid usann (byggedel 2).
+- **Arbeidsvalg 11.10 (prinsipp 3):** en innsigelse som `gjelder` en kravversjon,
+  leses ikke inn i et svar på en senere kravversjon; svaret fra appen tar stilling
+  selv. Visningen av datoene hører til #313.
+- **Arbeidsvalg 11.10 (VS-U11, MM-U1, MM-U8):** en innsigelse mot fristkravet som et
+  registrert fristsvar leses med, leses som en påberopelse etter § 33.4 mot varselet
+  utledet av kravet. Innsigelsen har ingen hjemmel i seg selv; § 33.4 er appens
+  lesing, ikke byggherrens ord. Registrerer TE et varsel etterpå, er preklusjonen
+  uavklart som for et standpunkt etter § 33.4 (MM-U8), til byggherren før svaret har
+  tatt stilling til det registrerte varselet, i et standpunkt om rettidigheten eller en
+  innsigelse mot det. Byggherren gir innsigelsen opp med
+  et standpunkt etter § 33.4 om varselet, også det registrerte, fordi saken har ett
+  varsel (SK-12). Raden KA-38 i domenetabellen er derfor en arbeidshypotese og ikke en
+  avklart tolkning.
 
 ---
 
@@ -790,9 +846,39 @@ visning ikke fremstiller et trekk som at utførelsesplikten er bortfalt.
   «avklart», trekk, revisjon, kravene avgjort og saker som ikke er forstått
   (`Enighet`, `enighetensVirkning`, `kraveneErAvgjort` i
   [`utled.ts`](../kjerne/utledning/utled.ts); `lesJournal` i [`leser.ts`](../kjerne/format/leser.ts)).
-  «Ingen krav» leses, men har ingen kommando. Ikke bygget: KA-U16 for et
-  registrert brev appen ikke kan uttrykke, B-10 utover versjonene i formatet
-  ([#316](https://github.com/khjohns/endringsmeldinger/issues/316)), og kontrollen av at en lagret rad ikke bryter et vedtak om enighet (#326).
+  Kommandoen `ingen_krav` er bygget (KA-U12, KA-U15, KA-U17), uten fritekst (KA-U22).
+  KA-U16 og KA-U20: opplysningen `kan_ikke_uttrykkes` med sporene den gjelder, i det
+  registrerte brevet eller senere fra en av partene, og utsagnet `avklaring` fra
+  avsenderen. `forbehold` er sann i sporene merkingen oppgir til avsenderen avklarer
+  den eller sender et nytt krav eller svar med virkning i sporet etter brevet, også når
+  elementet i brevet er uten virkning. Da sperres aksepten, endringsordren og trekk som
+  rammer en enighet i sporene; utledningen ellers er uendret, også om godkjenningen er
+  en endringsordre (KA-U26, KA-U28). MM-U18 (#326): en hendelse som ikke er registrert
+  korrespondanse og strider mot en enighet, et frafall, et trekk, «ingen krav» eller en
+  lukket sak, gjør saken ikke forstått, og et sammenfall som ikke stemmer med
+  standpunktene i brevet, likeså. I registrert korrespondanse får elementet ingen
+  virkning (`utenVirkning`). Kontrollen leser journalen før hvert dokument og gjelder
+  bare vedtakene om enighet og lukking; at en aksept av et merket svar avvises, er et
+  vilkår for å sende og står i forutsetningene, ikke i kontrollen. Ikke bygget: B-10 utover versjonene i formatet
+  ([#316](https://github.com/khjohns/endringsmeldinger/issues/316)), registreringen
+  (#310) og brevteksten (#369).
+- **Vedtak 11.10:** [MM-U19](plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u19)
+  (registrerte brev i samme klasse som MM-U18), [KA-U26](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u26)
+  (hva merkingen sperrer), [KA-U27](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u27)
+  (sperren for trekk, snevret inn av [KA-U30](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u30) til sporene merkingen gjelder), [KA-U28](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u28)
+  (avklaringen når kravene er avgjort) og [KA-U29](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u29)
+  (utsagnene etter et godtatt avslag). At brevet ikke regnes som en ubetinget
+  godkjenning, gir sperren i KA-U16 selv; merknaden i GR-U7 sier at brevet «er ikke en
+  ubetinget godkjenning», og «avklart» defineres av standpunktene (MM-U13).
+- **Arbeidsvalg 11.10 (prinsipp 6):** merkingen er en opplysning om brevet, som
+  opplysningen om § 31.3, så motparten bestrider den med bestridelsen som finnes
+  (MM-U7). Sperren følger sporene merkingen oppgir (KA-U26).
+- **Arbeidsvalg 11.10 (KA-U20, prinsipp 3):** «et nytt utsagn fra den som sendte brevet»
+  leses per spor: en avklaring, eller et krav eller svar med virkning fra avsenderen i
+  sporet, sendt etter brevet. Et svar i brevet som fortsatt gjelder i et annet spor,
+  holder ikke sperren i live, og et utsagn fra motparten opphever den ikke.
+- **Arbeidsvalg 11.10 (KA-U11, MM-U7):** innsigelse, protest og påberopt passivitet
+  godtas når kravene er avgjort, som bestridelsen (se KA-U29).
 
 ---
 
@@ -801,8 +887,6 @@ visning ikke fremstiller et trekk som at utførelsesplikten er bortfalt.
 | Issue eller punkt | Bestemmelse |
 | --- | --- |
 | [#341](https://github.com/khjohns/endringsmeldinger/issues/341): vurderingene som godtas, men ikke lagres | `spesifisert_krav_ok`: § 33.6.1. `aksepterer_metode`: § 34.2.2. `hovedkrav_varslet_i_tide`: § 34.1.2 |
-| [#342](https://github.com/khjohns/endringsmeldinger/issues/342): subsidiariteten etter rekkefølgen | § 32, trekk og ny kravversjon (GR-U1, GR-U4) |
-| [#326](https://github.com/khjohns/endringsmeldinger/issues/326): en lagret rad som bryter et vedtak | Kravversjon, aksept og enighet |
 | Grunnlagsfeltene i regelsettet (tillegget 10.10 i #309) | `Fristkrav`: § 33.7. `Vederlagskrav` og `GrunnlagForStandpunkt`: § 34.1 |
 | Standpunktene `beloep` og `dager` uten egne felt (rettelsen 10.10 i #309) | § 33.6.1 og § 33.7, § 34.1.1 |
 | Kodene ([#335](https://github.com/khjohns/endringsmeldinger/issues/335)) | § 32.1 og § 32.2 (kategoriene), § 34.2 (metodene), resultatverdiene |

@@ -23,6 +23,23 @@ export const NOEKKELORD = new Set([
   'minItems',
 ]);
 
+/** NUL og en enslig surrogat er gyldig JSON, men JSONB i PostgreSQL avviser dem (#373). */
+const ENSLIG_SURROGAT = /[\ud800-\udbff](?![\udc00-\udfff])|(?<![\ud800-\udbff])[\udc00-\udfff]/;
+export const ulagringsbarTekst = (t: string): boolean =>
+  t.includes('\u0000') || ENSLIG_SURROGAT.test(t);
+
+/** Verdien har en tekst, også et feltnavn, som basen ikke kan lagre (#373). Uten rekursjon. */
+export function harUlagringsbarTekst(verdi: unknown): boolean {
+  const igjen: unknown[] = [verdi];
+  while (igjen.length) {
+    const v = igjen.pop();
+    if (typeof v === 'string' && ulagringsbarTekst(v)) return true;
+    if (v !== null && typeof v === 'object')
+      for (const [k, del] of Object.entries(v)) igjen.push(k, del);
+  }
+  return false;
+}
+
 /** Teksten, eller `null` når verdien ikke er en tekst. */
 export const tekst = (v: unknown): string | null => (typeof v === 'string' ? v : null);
 
@@ -61,6 +78,8 @@ export function feilI(verdi: unknown, s: Skjema, sti = '$', rot: Skjema = s): st
     if (!typer.some((t) => TYPER[t](verdi)))
       return [`${sti}: ${vis(verdi)} er ikke ${typer.join('/')}`];
   }
+  if (typeof verdi === 'string' && ulagringsbarTekst(verdi))
+    feil.push(`${sti}: har tegn som ikke kan lagres`);
   if ('const' in s && verdi !== s.const) feil.push(`${sti}: ${vis(verdi)} er ikke ${vis(s.const)}`);
   if (Array.isArray(s.enum) && !s.enum.includes(verdi))
     feil.push(`${sti}: ${vis(verdi)} er ikke en av ${vis(s.enum)}`);

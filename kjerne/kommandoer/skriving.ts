@@ -11,10 +11,23 @@ import { HJEMMEL } from '../format/format.ts';
 import { formfeil, type Kommando, type Svarutkast } from './kommando.ts';
 import { frys, grunnlagsstandpunkter } from '../frosset/frysing.ts';
 import { lesJournal, Uforstaatt } from '../format/leser.ts';
-import { regnUtSvar } from '../frosset/standpunkt.ts';
+import { harUlagringsbarTekst } from '../format/skjema.ts';
+import {
+  innsigelsenErOppgitt,
+  innsigelsenGjelderSvaret,
+  regnUtSvar,
+} from '../frosset/standpunkt.ts';
 import { grunnlagskravFor, utled, type Utledning } from '../utledning/utled.ts';
 import type { Kjerne } from '../versjon.ts';
-import type { Avvisning, Beslutningsgrunnlag, Journalrad, Krav, Part } from '../typer.ts';
+import type {
+  Avvisning,
+  Beslutningsgrunnlag,
+  Journalrad,
+  Krav,
+  Part,
+  Spor,
+  Svar,
+} from '../typer.ts';
 
 /** Det serveren stempler kommandoen med. Klienten bestemmer ingen av dem. */
 export interface Kontekst {
@@ -93,6 +106,8 @@ function svar(
     spor: s.spor,
     gjelder: s.gjelder,
     ...(erstatter ? { erstatter } : {}),
+    // #342: grunnlagsversjonen svaret regnes mot, som `regnUtSvar` under.
+    ...(s.spor === 'grunnlag' ? {} : { grunnlagskrav: u.spor.grunnlag.gjeldendeKrav!.id }),
     standpunkter: standpunkter(s, krav, u, nyId),
   };
   // B-13: serverens utregning lagres, ikke klientens.
@@ -147,6 +162,18 @@ function dokument(k: Kommando, u: Utledning, kjerne: Kjerne, nyId: () => string)
       };
     case 'bestridelse':
       return { utsagn: [{ id: nyId(), art: 'bestridelse', gjelder: k.gjelder, hva: k.hva }] };
+    case 'ingen_krav':
+      return { utsagn: [{ id: nyId(), art: 'ingen_krav', spor: k.spor }] };
+    case 'innsigelse':
+    case 'protest':
+    case 'passivitet':
+    case 'avklaring':
+      return { utsagn: [{ id: nyId(), art: k.type, gjelder: k.gjelder }] };
+    case 'merking':
+      // KA-U20: en senere merking er en opplysning om det gamle brevet (MM-U12).
+      return {
+        opplysninger: [{ id: nyId(), hva: 'kan_ikke_uttrykkes', spor: k.spor, gjelder: k.gjelder }],
+      };
   }
 }
 
@@ -156,6 +183,16 @@ export function vurder(
   journal: Journalrad[],
   kjerne: Kjerne
 ): Utfall {
+  // #373: det basen ikke kan lagre, avvises før noe annet, med sin egen kode.
+  if (harUlagringsbarTekst(kommando))
+    return {
+      godtatt: false,
+      feil: 'UGYLDIG_FORM',
+      avvisning: {
+        regel: 'TEKST_KAN_IKKE_LAGRES',
+        melding: 'Kommandoen har tegn som ikke kan lagres (NUL eller en enslig surrogat).',
+      },
+    };
   const feil = formfeil(kommando);
   if (feil.length)
     return {
@@ -210,12 +247,31 @@ export function vurder(
  */
 export function frysBrev(rad: Journalrad, foer: Journalrad[], kjerne: Kjerne): void {
   const grunnlagskrav: Krav[] = [];
-  for (const h of lesJournal(foer, kjerne.leserformat))
-    if (h.art === 'dokument')
-      grunnlagskrav.push(...h.dokument.krav.filter((k) => k.spor === 'grunnlag'));
+  /** Svarene fra samme part, og innsigelsene med plassen i den listen da de kom. */
+  const svarFraParten: Svar[] = [];
+  const innsigelser: { gjelder: string; id: string; fra: number }[] = [];
+  const varsler: string[] = [];
+  for (const h of lesJournal(foer, kjerne.leserformat)) {
+    if (h.art !== 'dokument') continue;
+    const d = h.dokument;
+    grunnlagskrav.push(...d.krav.filter((k) => k.spor === 'grunnlag'));
+    varsler.push(...d.utsagn.filter((u) => u.art === 'varsel').map((u) => u.id));
+    if (d.avsender !== rad.aktor_rolle) continue;
+    svarFraParten.push(...d.svar);
+    for (const u of d.utsagn)
+      if (u.art === 'innsigelse')
+        innsigelser.push({ id: u.id, gjelder: u.gjelder, fra: svarFraParten.length });
+  }
   for (const s of (rad.data.svar ?? []) as Data[]) {
     // Kategorien gjelder bare svaret på grunnlaget (§ 32.2, GR-U12).
     const krav = s.spor === 'grunnlag' ? grunnlagskrav.find((k) => k.id === s.gjelder) : null;
-    s.beslutningsgrunnlag = lagret(frys(s, krav, kjerne.regler));
+    // VS-U9, VS-U11: et registrert svar uten standpunkt om rettidighet leses med den første
+    // innsigelsen fra samme part som parten ikke senere har gitt opp uttrykkelig.
+    const innsigelse = innsigelser.find(
+      (i) =>
+        innsigelsenGjelderSvaret(i.gjelder, s as { spor: Spor; gjelder: string }, varsler) &&
+        !innsigelsenErOppgitt(i.gjelder, s.spor as Spor, svarFraParten.slice(i.fra))
+    )?.id;
+    s.beslutningsgrunnlag = lagret(frys(s, krav, kjerne.regler, innsigelse));
   }
 }

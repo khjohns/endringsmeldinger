@@ -4,8 +4,8 @@
  * MM-U9 og GR-U10, F11–F26 grensene #308 la til, og F27–F47 formatet (#273): 7.2
  * i designnotatet, GR-U12 og registeret (#320). F48 er hvitelisten fra #329,
  * F49–F51 og F54–F58 versjoneringen (#316), F52–F53 registrert korrespondanse
- * (#336) og F59–F60 kodene i formatet og predikatet for endringsordre
- * (#335, #351). Én mutasjon om gangen per arbeidskopi, Vitest over hele `kjerne/`
+ * (#336), F59–F60 kodene i formatet og predikatet for endringsordre
+ * (#335, #351), og F61–F104 byggedel 1 av #309. Én mutasjon om gangen per arbeidskopi, Vitest over hele `kjerne/`
  * og `sprakprove/kjernelagring/`, og originalteksten settes tilbake etterpå. For
  * hver mutasjon kreves det at de forventede målassertions feiler, og at alle
  * feil er assertions, ikke import, oppsett eller en brutt forutsetning
@@ -303,8 +303,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/frysing.ts`,
     endringer: [
       [
-        'return beslutningsgrunnlag(innhold, grunnlagskrav, regler);',
-        'return beslutningsgrunnlag(innhold, undefined, regler);',
+        'return beslutningsgrunnlag(innhold, grunnlagskrav, regler, innsigelse);',
+        'return beslutningsgrunnlag(innhold, undefined, regler, innsigelse);',
       ],
     ],
     mal: ['registrert korrespondanse fryses med kategorien', 'F-MM-C', 'F-MM-G18'],
@@ -480,16 +480,19 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'en manglende opplysning om § 31.3 leses som at godkjenningen er en endringsordre (GR-U13, KA-U14)',
     fil: `${K}/utledning/utled.ts`,
-    endringer: [
-      ["if (om313 === undefined) return 'ikke_avklart';", "if (om313 === undefined) return 'ja';"],
-    ],
+    endringer: [["    if (om313 === undefined) return 'ikke_avklart';", '']],
     mal: ['F-MM-G20'],
   },
   {
     id: 'F43',
     feilklasse: 'opplysningen om at § 31.3 ikke er oppfylt, leses ikke (GR-U13)',
     fil: `${K}/utledning/utled.ts`,
-    endringer: [["return om313.oppfylt ? 'ja' : 'nei';", "return 'ja';"]],
+    endringer: [
+      [
+        "if (om313?.oppfylt === false) return 'nei';",
+        "if (om313?.oppfylt === false && !om313) return 'nei';",
+      ],
+    ],
     mal: ['F-MM-G21'],
   },
   {
@@ -497,7 +500,10 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse: 'en manglende opplysning om § 31.3 leses som et nei (GR-U13)',
     fil: `${K}/utledning/utled.ts`,
     endringer: [
-      ["if (om313 === undefined) return 'ikke_avklart';", "if (om313 === undefined) return 'nei';"],
+      [
+        "    if (om313 === undefined) return 'ikke_avklart';",
+        "    if (om313 === undefined) return 'nei';",
+      ],
     ],
     mal: ['F-MM-G20'],
   },
@@ -536,6 +542,11 @@ const MUTASJONER: Mutasjon[] = [
       [
         'else if (alleSvar.get(a.gjelder)!.beslutningsgrunnlag.sammenfall)',
         'else if (alleSvar.get(a.gjelder)!.beslutningsgrunnlag.sammenfall && a.id === undefined)',
+      ],
+      // Strid-kontrollen (MM-U18) fanger det samme; begge må muteres.
+      [
+        '      SPOR.some((n) => u.spor[n].enighet && u.spor[n].gjeldendeSvar?.id === x.gjelder)',
+        '      !x',
       ],
     ],
     mal: ['en aksept av et svar med sammenfall er ikke forstått'],
@@ -608,8 +619,8 @@ const MUTASJONER: Mutasjon[] = [
         "import { avvisning } from './avvisning.ts';\nimport { GJELDENDE_REGLER } from '../regler/regelsett.ts';",
       ],
       [
-        '    s.beslutningsgrunnlag = lagret(frys(s, krav, kjerne.regler));',
-        '    s.beslutningsgrunnlag = lagret(frys(s, krav, GJELDENDE_REGLER));',
+        '    s.beslutningsgrunnlag = lagret(frys(s, krav, kjerne.regler, innsigelse));',
+        '    s.beslutningsgrunnlag = lagret(frys(s, krav, GJELDENDE_REGLER, innsigelse));',
       ],
     ],
     mal: ['F-MM-R1'],
@@ -680,6 +691,494 @@ const MUTASJONER: Mutasjon[] = [
       ],
     ],
     mal: ['svarutkastet blir en endringsordre som brevet det gir'],
+  },
+  // Byggedel 1 av #309: #344, #373, #342, MM-U18 (#326), KA-U16/KA-U20, KA-U22, § 5,
+  // VS-U11, VS-U12 og «ingen krav».
+  {
+    id: 'F61',
+    feilklasse: 'en importert verdi leses i en annen funksjon enn den den er avgrenset til (#344)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        '/**\n * KA-U13 og KA-U14',
+        'export const proeve = (s: Svar, v: Standpunktsvirkning[]) => grunnlagetErAvklart(s, v);\n\n/**\n * KA-U13 og KA-U14',
+      ],
+    ],
+    mal: ['reglene leser bare det LESBART tillater (#308, #329) utledning/utled.ts'],
+  },
+  {
+    id: 'F62',
+    feilklasse: 'kjernen gir tekst basen ikke kan lagre, en annen kode enn sin egen (#373)',
+    fil: `${K}/kommandoer/skriving.ts`,
+    endringer: [
+      [
+        '  if (harUlagringsbarTekst(kommando))',
+        '  if (!kommando && harUlagringsbarTekst(kommando))',
+      ],
+    ],
+    mal: ['gir TEKST_KAN_IKKE_LAGRES'],
+  },
+  {
+    id: 'F63',
+    feilklasse: 'leseren godtar en lagret rad med tekst basen ikke kan lagre (#373)',
+    fil: `${K}/format/skjema.ts`,
+    endringer: [
+      [
+        "  if (typeof verdi === 'string' && ulagringsbarTekst(verdi))",
+        "  if (typeof verdi === 'string' && ulagringsbarTekst(verdi) && sti === '')",
+      ],
+    ],
+    mal: ['en lagret rad med NUL i teksten er ikke forstått'],
+  },
+  {
+    id: 'F64',
+    feilklasse:
+      'subsidiariteten leses av gjeldende grunnlagsversjon, ikke av den svaret ble regnet mot (#342, GR-U1)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        '    const fra = grunnlagskjede.findIndex((k) => k.id === sistBesvart?.grunnlagskrav);',
+        '    const fra = grunnlagskjede.findIndex((k) => k.id === (sistBesvart && spor.grunnlag.gjeldendeKrav?.id));',
+      ],
+    ],
+    mal: ['F-MM-S342'],
+  },
+  {
+    id: 'F65',
+    feilklasse:
+      'leseren godtar en grunnlagsversjon som ikke er et grunnlagskrav før svaret (#342, HF-U1)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [['      (s.grunnlagskrav !== null &&', '      (s.grunnlagskrav === undefined &&']],
+    mal: [
+      'et lagret svar med et vederlagskrav som grunnlagsversjon er ikke forstått',
+      'et lagret svar med en grunnlagsversjon som ikke finnes er ikke forstått',
+    ],
+  },
+  {
+    id: 'F66',
+    feilklasse: 'en revisjon i et spor med enighet leses med virkning (MM-U18, GR-U10)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        '    else if (s.erstatter !== null && u.spor[s.spor].enighet)',
+        '    else if (s.erstatter !== null && u.spor[s.spor].enighet && !s)',
+      ],
+    ],
+    mal: ['F-MM-U326e'],
+  },
+  {
+    id: 'F67',
+    feilklasse:
+      'en hendelse som endrer utfallet etter at saken er lukket, leses med virkning (MM-U18, SK-01, KA-U11)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        "  const lukket = u.grunnlagAvvist\n    ? 'TE har godtatt avslaget av grunnlaget (SK-01)'\n    : kraveneErAvgjort(u)",
+        "  const lukket = !u\n    ? 'TE har godtatt avslaget av grunnlaget (SK-01)'\n    : !u",
+      ],
+    ],
+    mal: ['F-MM-U326h'],
+  },
+  {
+    id: 'F68',
+    feilklasse: 'en aksept av et frafall leses som enighet (MM-U18, GR-U9)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        "    else if (x.art === 'aksept' && x.gjelder === u.spor.grunnlag.gjeldendeSvar?.id && u.frafalt)",
+        "    else if (x.art === 'aksept' && x.gjelder === u.spor.grunnlag.gjeldendeSvar?.id && !u)",
+      ],
+    ],
+    mal: ['F-MM-U326b'],
+  },
+  {
+    id: 'F69',
+    feilklasse:
+      'leseren kontrollerer ikke at sammenfallet stemmer med standpunktene (MM-U18, #326)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [['    if (!sammenfallStemmer(s))', '    if (!sammenfallStemmer(s) && !s)']],
+    mal: ['et avslag lagret med sammenfall er ikke forstått'],
+  },
+  {
+    id: 'F70',
+    feilklasse: 'et registrert brev som strider mot en enighet, gjør saken ikke forstått (MM-U18)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [['      if (registrert) uten.set(', '      if (!registrert) uten.set(']],
+    mal: ['F-MM-U326e', 'F-MM-U326f'],
+  },
+  {
+    id: 'F71',
+    feilklasse: 'TE kan godta et svar i et merket brev (KA-U16, KA-U20)',
+    fil: `${K}/kommandoer/forutsetninger.ts`,
+    endringer: [['      if (s.forbehold)', '      if (s.forbehold && !s)']],
+    mal: ['F-MM-M1'],
+  },
+  {
+    id: 'F72',
+    feilklasse: 'en endringsordre kan bygge på et merket brev (KA-U20, EO-U5)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [['    !SPOR.some((n) => u.spor[n].forbehold) &&', '']],
+    mal: ['F-MM-M2'],
+  },
+  {
+    id: 'F73',
+    feilklasse: 'trekket godtas når appen ikke kan bevare byggherrens avtalte rettigheter (KA-U22)',
+    fil: `${K}/kommandoer/forutsetninger.ts`,
+    endringer: [
+      [
+        '      if (trekkKanIkkeBevareAvtalen(u, h.spor))',
+        '      if (!u && trekkKanIkkeBevareAvtalen(u, h.spor))',
+      ],
+    ],
+    mal: ['F-MM-T1'],
+  },
+  {
+    id: 'F74',
+    feilklasse:
+      'sperren i KA-U22 dekker ikke trekket av grunnlaget, som trekker vederlag og frist med seg',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [["  (spor === 'grunnlag' ? SPOR : [spor]).some(", '  [spor].some(']],
+    mal: ['F-MM-T1'],
+  },
+  {
+    id: 'F75',
+    feilklasse:
+      'en merking endrer om godkjenningen er en endringsordre, i stedet for å gi sperren (KA-U26, KA-U28)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        "    if (om313 === undefined) return 'ikke_avklart';",
+        "    if (om313 === undefined || spor.grunnlag.forbehold) return 'ikke_avklart';",
+      ],
+    ],
+    mal: ['F-MM-M5', 'F-MM-T2'],
+  },
+  {
+    id: 'F76',
+    feilklasse: 'motparten kan avklare en merking av et brev den ikke sendte (KA-U20)',
+    fil: `${K}/kommandoer/forutsetninger.ts`,
+    endringer: [
+      ['      return u.elementer[o.opplysning.brev]?.part === part', '      return true'],
+    ],
+    mal: ['F-MM-M1'],
+  },
+  {
+    id: 'F77',
+    feilklasse: 'et registrert svar uten standpunkt om rettidighet leses uten innsigelsen (VS-U11)',
+    fil: `${K}/kommandoer/skriving.ts`,
+    endringer: [
+      [
+        '    s.beslutningsgrunnlag = lagret(frys(s, krav, kjerne.regler, innsigelse));',
+        '    s.beslutningsgrunnlag = lagret(frys(s, krav, kjerne.regler, innsigelse && undefined));',
+      ],
+    ],
+    mal: ['F-MM-V2', 'F-MM-U326g'],
+  },
+  {
+    id: 'F78',
+    feilklasse: 'en part kan gjøre innsigelse mot sitt eget krav (VS-U1)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        '  maal !== undefined && maal.part !== part && KAN_FAA_INNSIGELSE.has(maal.art);',
+        '  maal !== undefined && KAN_FAA_INNSIGELSE.has(maal.art);',
+      ],
+    ],
+    mal: ['F-MM-V1', 'en innsigelse fra TE mot eget krav'],
+  },
+  {
+    id: 'F79',
+    feilklasse: 'passiviteten kan påberopes der § 32.2 ikke gjelder (VS-U12, GR-U11)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [
+      [
+        '      return gjelderVarslingsplikten(krav, regler)',
+        '      return krav || gjelderVarslingsplikten(krav, regler)',
+      ],
+    ],
+    mal: ['F-MM-V4b'],
+  },
+  {
+    id: 'F80',
+    feilklasse: '«ingen krav» godtas i et spor med krav (KA-U12)',
+    fil: `${K}/kommandoer/forutsetninger.ts`,
+    endringer: [['      if (s.krav.length)', '      if (s.krav.length && !s)']],
+    mal: ['F-MM-IK3'],
+  },
+  {
+    id: 'F81',
+    feilklasse: 'TE kan si «ingen krav» før grunnlaget er sendt (KA-U15)',
+    fil: `${K}/kommandoer/forutsetninger.ts`,
+    endringer: [
+      [
+        "      if (!grunnlagSendt)\n        return avvis('GRUNNLAG_IKKE_SENDT', 'Grunnlaget må være sendt før du kan si «ingen krav».');",
+        "      if (!grunnlagSendt && !s)\n        return avvis('GRUNNLAG_IKKE_SENDT', 'Grunnlaget må være sendt før du kan si «ingen krav».');",
+      ],
+    ],
+    mal: ['F-MM-IK4'],
+  },
+  {
+    id: 'F82',
+    feilklasse: 'en innsigelse avvises når kravene er avgjort (KA-U11, MM-U7)',
+    fil: `${K}/kommandoer/forutsetninger.ts`,
+    endringer: [
+      [
+        "    case 'innsigelse':\n      // VS-U1, VS-U14",
+        "    case 'innsigelse':\n      if (kraveneErAvgjort(u)) return avvis('KRAVENE_AVGJORT', '');\n      // VS-U1, VS-U14",
+      ],
+    ],
+    mal: ['F-MM-V5'],
+  },
+  {
+    id: 'F83',
+    feilklasse:
+      'et registrert svar regnet mot en grunnlagsversjon uten virkning stopper saken (MM-U18, #342)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        '    else if (utenVirkning(s.gjelder, s.erstatter, s.grunnlagskrav))',
+        '    else if (utenVirkning(s.gjelder, s.erstatter))',
+      ],
+    ],
+    mal: ['et svar regnet mot den bevares uten virkning'],
+  },
+  {
+    id: 'F84',
+    feilklasse:
+      'en påberopt passivitet mot en grunnlagsversjon uten virkning stopper saken (MM-U18, VS-U12)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        "        return maal.art === 'krav' && kravMedUten.get(id)?.spor === 'grunnlag';",
+        "        return maal.art === 'krav' && alleKrav.get(id)?.spor === 'grunnlag';",
+      ],
+    ],
+    mal: ['en påberopt passivitet mot den er forstått'],
+  },
+  {
+    id: 'F85',
+    feilklasse:
+      'et registrert svar som tier, leses med en innsigelse byggherren har gitt opp uttrykkelig (VS-U9, VS-U11)',
+    fil: `${K}/kommandoer/skriving.ts`,
+    endringer: [
+      [
+        ' &&\n        !innsigelsenErOppgitt(i.gjelder, s.spor as Spor, svarFraParten.slice(i.fra))',
+        '',
+      ],
+    ],
+    mal: ['F-MM-V7'],
+  },
+  {
+    id: 'F86',
+    feilklasse: 'leseren godtar et svar lest med en innsigelse parten har gitt opp (VS-U9, VS-U11)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        '        ) ||\n        innsigelsenErOppgitt(',
+        '        ) ||\n        !s && innsigelsenErOppgitt(',
+      ],
+    ],
+    mal: ['lest med en innsigelse byggherren har gitt opp uttrykkelig'],
+  },
+  {
+    id: 'F87',
+    feilklasse: 'et nytt utsagn fra motparten opphever sperren for et merket brev (KA-U20)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        '      (x) => elementer[x.id].part === elementer[brev].part && bakover(x.id, brev)',
+        '      (x) => bakover(x.id, brev)',
+      ],
+    ],
+    mal: ['F-MM-M4'],
+  },
+  {
+    id: 'F88',
+    feilklasse:
+      'merkingen faller bort når elementet i brevet er uten virkning (KA-U26, MM-U18, MM-U19)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        '      (o) => o.spor.includes(n) && avklaringAv(o.id) === null && !nyttFraAvsenderen(o.brev, n)',
+        '      (o) => o.spor.includes(n) && avklaringAv(o.id) === null && !nyttFraAvsenderen(o.brev, n) && !dokumenter.get(o.brev)!.svar.some((x) => uten.has(x.id))',
+      ],
+    ],
+    mal: ['F-MM-U326i'],
+  },
+  {
+    id: 'F89',
+    feilklasse:
+      'sperren gjelder brevet, ikke sporet: et svar i et annet spor holder den i live (KA-U20, KA-U26)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        '      (o) => o.spor.includes(n) && avklaringAv(o.id) === null && !nyttFraAvsenderen(o.brev, n)',
+        '      (o) => o.spor.includes(n) && avklaringAv(o.id) === null && (!nyttFraAvsenderen(o.brev, n) || dokumenter.get(o.brev)!.svar.some((x) => spor[x.spor].gjeldendeSvar?.id === x.id))',
+      ],
+    ],
+    mal: ['F-MM-M3'],
+  },
+  {
+    id: 'F90',
+    feilklasse:
+      'subsidiariteten går tilbake til svaret på versjonen det ble regnet mot, når grunnlaget er besvart igjen (GR-U1, GR-U4)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [['            .slice(fra)', '            .slice(fra, fra + 1)']],
+    mal: ['F-MM-S342b'],
+  },
+  {
+    id: 'F91',
+    feilklasse:
+      'innsigelsen et fristsvar er lest med, er avklart selv om TE har registrert varselet etterpå (MM-U1, MM-U8)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        '        innsigelse.gjelder !== varselNaa(s) &&\n        !harTattStillingTilVarselet(s)',
+        '        !innsigelse &&\n        !harTattStillingTilVarselet(s)',
+      ],
+    ],
+    mal: ['F-MM-V8'],
+  },
+  {
+    id: 'F92',
+    feilklasse: 'en kravversjon etter trekk leses med virkning (MM-U18, MM-U19, GR-U5)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      ['    else if (u.spor[k.spor].trukket)', '    else if (u.spor[k.spor].trukket && !k)'],
+    ],
+    mal: ['F-MM-IK6', 'F-MM-IK6b'],
+  },
+  {
+    id: 'F93',
+    feilklasse:
+      'en kravversjon etter «ingen krav» stopper saken også når den er registrert (MM-U19, KA-U12)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      ['    else if (u.spor[k.spor].ingenKrav)', '    else if (u.spor[k.spor].ingenKrav && !k)'],
+    ],
+    mal: ['F-MM-IK5', 'F-MM-IK5b'],
+  },
+  {
+    id: 'F94',
+    feilklasse:
+      'trekket av grunnlaget slår fast at en merket godkjenning er en endringsordre (KA-U26)',
+    fil: `${K}/kommandoer/forutsetninger.ts`,
+    endringer: [
+      [
+        "        return u.endringsordre === 'ikke_avklart' || godkjenningenErMerket(u)",
+        "        return u.endringsordre === 'ikke_avklart'",
+      ],
+    ],
+    mal: ['F-MM-M5', 'F-MM-T2'],
+  },
+  {
+    id: 'F95',
+    feilklasse:
+      'art og part kontrolleres ikke når målet for en innsigelse er uten virkning (VS-U1, VS-U14)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        '      !kanGjelde(x.art, maal, elementer[x.id].part, x.gjelder)',
+        '      !(uten.has(x.gjelder) || kanGjelde(x.art, maal, elementer[x.id].part, x.gjelder))',
+      ],
+    ],
+    mal: ['F-MM-V9'],
+  },
+  {
+    id: 'F96',
+    feilklasse:
+      'kontrollen i MM-U18 gjør vilkåret for å sende en aksept til en regel om enighet (KA-U20)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        "      ut.push({ element: x.id, grunn: 'en aksept av et frafall (GR-U9)' });",
+        "      ut.push({ element: x.id, grunn: 'en aksept av et frafall (GR-U9)' });\n    else if (x.art === 'aksept' && SPOR.some((n) => u.spor[n].gjeldendeSvar?.id === x.gjelder && u.spor[n].forbehold))\n      ut.push({ element: x.id, grunn: 'merket' });",
+      ],
+    ],
+    mal: ['F-MM-M6', 'F-MM-M6b'],
+  },
+  {
+    id: 'F97',
+    feilklasse:
+      'en merking av et annet brev i grunnlaget gjør godkjenningen fra appen uavklart ved trekk (KA-U26, KA-U13)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        '  u.spor.grunnlag.merket.includes(u.spor.grunnlag.gjeldendeSvar.dokument);',
+        '  u.spor.grunnlag.forbehold;',
+      ],
+    ],
+    mal: ['F-MM-T3'],
+  },
+  {
+    id: 'F98',
+    feilklasse:
+      'i fristen ser oppgivelsen bare etter standpunkter om det innsigelsen gjelder, ikke om varselet (VS-U9, VS-U11)',
+    fil: `${K}/frosset/standpunkt.ts`,
+    endringer: [["(spor === 'frist' || p.gjelder === gjelder)", '(p.gjelder === gjelder)']],
+    mal: ['F-MM-V7b'],
+  },
+  {
+    id: 'F99',
+    feilklasse:
+      'innsigelsen et fristsvar er lest med, er uavklart selv om byggherren har tatt stilling til det registrerte varselet (MM-U1, MM-U8)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [['        !harTattStillingTilVarselet(s)', '        !!s']],
+    mal: ['F-MM-V8b', 'F-MM-V8c'],
+  },
+  {
+    id: 'F100',
+    feilklasse:
+      'i grunnlaget gir et standpunkt om en annen kravversjon opp innsigelsen (VS-U9, VS-U11)',
+    fil: `${K}/frosset/standpunkt.ts`,
+    endringer: [["(spor === 'frist' || p.gjelder === gjelder)", '(true)']],
+    mal: ['F-MM-V7c'],
+  },
+  {
+    id: 'F101',
+    feilklasse: 'et standpunkt i et annet spor gir opp innsigelsen (VS-U9, VS-U11)',
+    fil: `${K}/frosset/standpunkt.ts`,
+    endringer: [['    .filter((x) => x.spor === spor)', '    .filter((x) => x.spor === x.spor)']],
+    mal: ['F-MM-V7d'],
+  },
+  {
+    id: 'F102',
+    feilklasse:
+      'et registrert svar på vederlaget etter en innsigelse leses som om innsigelsen er oppgitt (VS-U9, OV-U1)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        "      s.spor === 'vederlag' &&\n      henvisninger.some(",
+        '      !s &&\n      henvisninger.some(',
+      ],
+    ],
+    mal: ['F-MM-V3c'],
+  },
+  {
+    id: 'F103',
+    feilklasse:
+      'en registrert aksept av et svar partene alt er enige om, stopper saken (MM-U19, GR-U8, KA-U7)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        '      SPOR.some((n) => u.spor[n].enighet && u.spor[n].gjeldendeSvar?.id === x.gjelder)',
+        '      !x',
+      ],
+    ],
+    mal: ['F-MM-U326l', 'F-MM-U326m'],
+  },
+  {
+    id: 'F104',
+    feilklasse:
+      'en merking i ett spor sperrer trekk av en enighet i et annet spor (KA-U30, KA-U26)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        '    (n) => u.spor[n].enighet !== null && u.spor[n].forbehold',
+        '    (n) => u.spor[n].enighet !== null && SPOR.some((m) => u.spor[m].forbehold)',
+      ],
+    ],
+    mal: ['F-MM-T4'],
   },
 ];
 

@@ -11,7 +11,7 @@
 
 import { erRegistrert } from '../format/leser.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
-import { ulikeVirkninger, virkninger } from '../frosset/standpunkt.ts';
+import { innsigelsenSvaretErLestMed, ulikeVirkninger, virkninger } from '../frosset/standpunkt.ts';
 import {
   enighetensVirkning,
   grunnlagskravFor,
@@ -51,7 +51,8 @@ function status(u: Utledning): Statuskode {
   if (!u.forstaatt) return 'kan_ikke_utledes';
   if (u.grunnlagAvvist) return 'avsluttet_avslaatt';
   if (u.spor.grunnlag.trukket) return 'avsluttet_trukket';
-  if (kraveneErAvgjort(u)) return 'avsluttet_oppgjort';
+  // KA-U20: saken vises ikke som oppgjort når en enighet bygger på et merket brev.
+  if (kraveneErAvgjort(u) && !SPOR.some((s) => u.spor[s].forbehold)) return 'avsluttet_oppgjort';
   if (SPOR.some((s) => venterPaaSvar(u.spor[s]))) return 'venter_paa_svar';
   return 'under_forhandling';
 }
@@ -60,7 +61,10 @@ function status(u: Utledning): Statuskode {
 function regelenErEndret(u: Utledning, spor: Spor, regler: Regelsett): boolean {
   const g = u.spor[spor].gjeldendeSvar;
   if (!g) return false;
-  return ulikeVirkninger(u.svar[g.id].virkninger, virkninger(g, grunnlagskravFor(g, u), regler));
+  return ulikeVirkninger(
+    u.svar[g.id].virkninger,
+    virkninger(g, grunnlagskravFor(g, u), regler, innsigelsenSvaretErLestMed(g))
+  );
 }
 
 /**
@@ -79,7 +83,8 @@ function etiketter(u: Utledning, spor: Spor, regler: Regelsett): string[] {
   const ut: string[] = [];
   if (s.trukket) ut.push('trukket');
   if (venterPaaSvar(s)) ut.push('venter_paa_svar');
-  const virkning = enighetensVirkning(u, spor);
+  // KA-U20: bygger enigheten på et merket brev, slår visningen ikke fast at den finnes.
+  const virkning = s.forbehold ? null : enighetensVirkning(u, spor);
   if (spor === 'grunnlag') {
     if (u.frafalt) ut.push('paalegg_frafalt');
     if (u.grunnlagAvvist) ut.push('avslaatt');
@@ -98,6 +103,18 @@ function etiketter(u: Utledning, spor: Spor, regler: Regelsett): string[] {
     ut.push('appens_vurdering_ved_registreringen');
   if (s.gjeldendeSvar && u.svar[s.gjeldendeSvar.id].uavklart.length)
     ut.push('bh_har_ikke_vurdert_varselet');
+  // KA-U16, KA-U20: enigheten eller svaret bygger på et merket brev; uenigheten vises.
+  if (s.forbehold) ut.push(s.enighet ? 'uenighet_om_merket_brev' : 'forbehold');
+  // § 5 og VS-U12: påberopelsene registreres og vises uten virkning på utfallet.
+  const iSporet = [
+    s.gjeldendeKrav?.id,
+    s.gjeldendeSvar?.id,
+    spor === 'frist' ? s.varsel?.id : null,
+  ];
+  for (const i of u.innsigelser)
+    if (iSporet.includes(i.gjelder) && !ut.includes(`innsigelse_fra_${i.part}`))
+      ut.push(`innsigelse_fra_${i.part}`);
+  if (spor === 'grunnlag' && u.passivitet.length) ut.push('passivitet_paaberopt');
   if (s.ingenKrav) ut.push('ingen_krav');
   else if (spor === 'frist' && !s.varsel) ut.push('varsel_ikke_registrert');
   return ut;
@@ -107,12 +124,13 @@ export function visning(u: Utledning, regler: Regelsett): Visning {
   const kode = status(u);
   const ikkeTolket = new Set(u.begrensninger.map((b) => b.hendelse));
   const opplysninger: Record<string, string[]> = {};
-  for (const { opplysning: o, bestridelser } of u.opplysninger) {
+  for (const { opplysning: o, bestridelser, avklaring } of u.opplysninger) {
     const e = [
       o.hva === 'endringsordre'
         ? `${o.oppfylt ? 'endringsordre' : 'ikke_endringsordre'}_ifolge_${o.oppgittAv}`
         : `${o.hva}_ifolge_${o.oppgittAv}`,
     ];
+    if (avklaring !== null) e.push('avklart_av_avsenderen');
     if (
       o.hva === 'sendt' &&
       !u.opplysninger.some(
@@ -129,6 +147,7 @@ export function visning(u: Utledning, regler: Regelsett): Visning {
           sendt: 'sending_bestridt',
           mottatt: 'mottak_bestridt',
           endringsordre: 'endringsordre_bestridt',
+          kan_ikke_uttrykkes: 'merking_bestridt',
         }[b.hva]
       );
     opplysninger[o.id] = e;
@@ -145,6 +164,10 @@ export function visning(u: Utledning, regler: Regelsett): Visning {
       tolket: h.art !== 'ukjent' && !ikkeTolket.has(h.id),
     })),
     // MM-U2: mens saken stopper, må et varsel med frist sendes utenfor appen og registreres senere.
-    merknader: u.forstaatt ? [] : ['varsel_med_frist_utenfor_appen'],
+    merknader: u.forstaatt
+      ? u.utenVirkning.length
+        ? ['registrert_brev_uten_virkning']
+        : []
+      : ['varsel_med_frist_utenfor_appen'],
   };
 }

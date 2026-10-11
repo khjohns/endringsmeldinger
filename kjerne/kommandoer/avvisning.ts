@@ -28,6 +28,16 @@ export function handlingsnoekler(k: Kommando): Handlingsnoekkel[] {
       return [{ type: 'varsle', spor: 'frist' }];
     case 'bestridelse':
       return [{ type: 'bestride', gjelder: k.gjelder }];
+    case 'ingen_krav':
+      return [{ type: 'ingen_krav', spor: k.spor }];
+    case 'innsigelse':
+    case 'protest':
+    case 'passivitet':
+      return [{ type: k.type, gjelder: k.gjelder }];
+    case 'merking':
+      return [{ type: 'merke', gjelder: k.gjelder }];
+    case 'avklaring':
+      return [{ type: 'avklare', gjelder: k.gjelder }];
   }
 }
 
