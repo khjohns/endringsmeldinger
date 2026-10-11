@@ -41,9 +41,11 @@ virker bare fordi Supabase deler ut rettigheter. Testbasen, stubben av
 plattformen, katalogsummene og fallgruvene i PostgreSQL 18 står i
 `docs/migrasjoner-og-testbase.md`.
 
-Endrer du en migrasjon, bygg testbasen på nytt med `stopp` og `start` i
-`scripts/testbase/docker_testbase.sh`, og sett `KOE_TESTBASE_URL` til den nye
-URL-en.
+Endrer du en migrasjon, eller slår du inn en, bygg testbasen på nytt med
+`scripts/testbase/bygg_paa_nytt.sh`. URL-en er den samme etterpå. Basen bærer
+summen av det den er bygget av (`scripts/testbase/migrasjonssum.sh`).
+Testoppsettet i pytest og TS nekter en base med en annen sum enn arbeidstreet,
+og oppstartshooken bygger den på nytt (#379).
 
 **En `GRANT` begrenser ikke det en rolle alt har.** Plattformstubben og
 Supabase gir `service_role` alle rettigheter på nye tabeller
