@@ -293,9 +293,6 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['Utledning', 'relasjon', 'elementer'],
   ['Utledning.elementer', 'relasjon', '*'],
   ['Element', 'relasjon', 'hendelse part art forSent registrertBrev'],
-  // § 5: innsigelsene, som et svar etter en innsigelse må ta stilling til (VS-U11).
-  ['Utledning', 'utsagn', 'innsigelser', ['kommandoer/nyttelast.ts']],
-  ['Paaberopelse', 'relasjon', 'part gjelder', ['kommandoer/nyttelast.ts']],
   // MM-U18: stridene ett dokument har med journalen før det.
   ['Strid', 'predikat', 'element grunn registrertGodtas', ['utledning/utled.ts:utled']],
   ['Bestridelse', 'relasjon', 'part'],

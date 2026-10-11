@@ -171,9 +171,12 @@ export class Kjoering {
       }
       await this.bane.skriv([rad], versjon);
       const etikett = typeof h.dokument === 'string' ? h.dokument : h.navn;
-      if (typeof etikett === 'string')
+      if (typeof etikett === 'string') {
         for (const o of (rad.data.opplysninger ?? []) as { id: string; hva: string }[])
           this.navn.sett(`${etikett}#${o.hva}`, o.id);
+        for (const x of (rad.data.utsagn ?? []) as { id: string; art: string }[])
+          this.navn.sett(`${etikett}#${x.art}`, x.id);
+      }
       this.sist = { utfall: { godtatt: true, hendelser: [rad] }, nye: 1 };
       return this.sist.utfall;
     }
@@ -210,7 +213,7 @@ export class Kjoering {
       for (const o of (rad.data.opplysninger ?? []) as { id: string; hva: string }[])
         this.navn.sett(`${h.navn}#${o.hva}`, o.id);
       for (const x of (rad.data.utsagn ?? []) as { id: string; art: string }[])
-        if (x.art === 'varsel') this.navn.sett(`${h.navn}#varsel`, x.id);
+        this.navn.sett(`${h.navn}#${x.art}`, x.id);
     }
   }
 }
@@ -259,6 +262,18 @@ export function les(sti: string, u: Utledning, k: Kjoering): unknown {
     }
     case 'subsidiaer_aarsaker':
       return u.spor[hale[0] as 'vederlag'].subsidiaer;
+    case 'forbehold':
+      return u.spor[hale[0] as 'grunnlag'].forbehold;
+    case 'uten_virkning':
+      return u.utenVirkning.map((x) => x.element);
+    case 'innsigelser':
+      return u.innsigelser.map((x) => `${x.part}:${x.gjelder}`);
+    case 'protester':
+      return u.protester.map((x) => `${x.part}:${x.gjelder}`);
+    case 'passivitet':
+      return u.passivitet.map((x) => x.gjelder);
+    case 'grunnlagskrav':
+      return svar().svar.grunnlagskrav;
     case 'grunnlag_avklart':
       return u.grunnlagAvklart;
     case 'grunnlag_avvist':
