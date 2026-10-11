@@ -5,25 +5,39 @@
  * i designnotatet, GR-U12 og registeret (#320). F48 er hvitelisten fra #329,
  * F49–F51 og F54–F58 versjoneringen (#316), F52–F53 registrert korrespondanse
  * (#336) og F59–F60 kodene i formatet og predikatet for endringsordre
- * (#335, #351). Én mutasjon om gangen i arbeidskopien, Vitest over `kjerne/` og
- * `sprakprove/kjernelagring/`, og originalteksten settes tilbake etterpå. For
+ * (#335, #351). Én mutasjon om gangen per arbeidskopi, Vitest over hele `kjerne/`
+ * og `sprakprove/kjernelagring/`, og originalteksten settes tilbake etterpå. For
  * hver mutasjon kreves det at de forventede målassertions feiler, og at alle
  * feil er assertions, ikke import, oppsett eller en brutt forutsetning
  * (`.claude/rules/tester.md`).
  *
+ * Mutasjonene fordeles på flere kopier av arbeidstreet, med lokale endringer,
+ * som kjører samtidig (#378). Hver kopi har sin egen testbase i samme
+ * PostgreSQL; de ekstra basene bygges fra tom og slettes etterpå, så brukeren i
+ * `KOE_TESTBASE_URL` må kunne opprette baser. Arbeidstreet muteres ikke.
+ * `FEILINNFOERING_ARBEIDSKOPIER` overstyrer antallet, som ellers er antallet
+ * prosessorer.
+ *
  * Kjøres fra repoets rot, med testbasen oppe og `KOE_TESTBASE_URL` satt:
  *   node kjerne/tester/feilinnfoering.ts [F1 F2 ...]
- * Forventet: «oppdaget» for hver mutasjon, og arbeidskopien er ren etterpå.
- * Hopper kontrollkjøringen over en test, for eksempel lagringstestene uten
- * testbasen, avsluttes skriptet med kode 2 før noen mutasjon (#353).
- * Skriptet starter ikke når en fil det muterer, har lokale endringer. Commit
- * aldri en mutert fil.
+ * Forventet: «oppdaget» for hver mutasjon. Hopper kontrollkjøringen over en
+ * test, for eksempel lagringstestene uten testbasen, avsluttes skriptet med
+ * kode 2 før noen mutasjon (#353).
  */
 
-import { spawnSync } from 'node:child_process';
-import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { spawn, spawnSync } from 'node:child_process';
+import {
+  cpSync,
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  symlinkSync,
+  writeFileSync,
+} from 'node:fs';
+import { availableParallelism, tmpdir } from 'node:os';
+import { dirname, join, relative } from 'node:path';
 
 interface Mutasjon {
   id: string;
@@ -680,69 +694,108 @@ interface Rapport {
   }[];
 }
 
-function kjoerVitest(): Rapport {
-  const ut = join(mkdtempSync(join(tmpdir(), 'feilinnforing-')), 'rapport.json');
-  spawnSync(
-    'npx',
-    [
-      'vitest',
-      'run',
-      'kjerne/',
-      'sprakprove/kjernelagring/',
-      '--reporter=json',
-      `--outputFile=${ut}`,
-    ],
-    {
-      stdio: 'ignore',
+/** En kopi av arbeidstreet med sin egen testbase. */
+interface Arbeidskopi {
+  rot: string;
+  base: string | undefined;
+}
+
+const ROT = process.cwd();
+const TESTBASE = process.env.KOE_TESTBASE_URL;
+
+function kjoerVitest(k: Arbeidskopi): Promise<Rapport> {
+  const ut = `${k.rot}-rapport.json`;
+  rmSync(ut, { force: true });
+  const env = { ...process.env, KOE_TESTBASE_URL: k.base };
+  if (k.base === undefined) delete env.KOE_TESTBASE_URL;
+  return new Promise((ok, feil) => {
+    spawn(
+      'npx',
+      [
+        'vitest',
+        'run',
+        'kjerne/',
+        'sprakprove/kjernelagring/',
+        '--no-cache',
+        // Kopiene deler prosessorene. Et tidsavbrudd er ikke en assertion og kan bare
+        // gi «IKKE OPPDAGET» eller rød kontroll, så grensen heves over standarden på 5 s.
+        '--testTimeout=60000',
+        '--hookTimeout=60000',
+        '--reporter=json',
+        `--outputFile=${ut}`,
+      ],
+      { cwd: k.rot, env, stdio: 'ignore' }
+    )
+      .on('error', feil)
+      .on('close', () => {
+        try {
+          ok(JSON.parse(readFileSync(ut, 'utf8')) as Rapport);
+        } catch (e) {
+          feil(new Error(`Vitest skrev ingen rapport i ${k.rot}`, { cause: e }));
+        }
+      });
+  });
+}
+
+function psql(url: string, sql: string) {
+  const r = spawnSync('psql', [url, '--no-psqlrc', '--quiet', '-v', 'ON_ERROR_STOP=1', '-c', sql], {
+    encoding: 'utf8',
+  });
+  if (r.status !== 0) throw new Error(`psql: ${sql}: ${r.stderr || r.error}`);
+}
+
+/** Basen `navn` i samme PostgreSQL som testbasen. */
+function baseUrl(navn: string): string {
+  const url = new URL(TESTBASE!);
+  url.pathname = `/${navn}`;
+  return url.toString();
+}
+
+const ekstraBaser: string[] = [];
+let tempmappe: string | undefined;
+
+function rydd() {
+  for (const navn of ekstraBaser.splice(0))
+    psql(TESTBASE!, `DROP DATABASE IF EXISTS "${navn}" WITH (FORCE)`);
+  if (tempmappe) rmSync(tempmappe, { recursive: true, force: true });
+  tempmappe = undefined;
+}
+
+/**
+ * Kopierer arbeidstreet slik det står, med lokale endringer og nye filer som git
+ * ikke ignorerer, og deler `node_modules`. Den første kopien bruker testbasen;
+ * de andre får hver sin base, bygget fra tom med `bygg_testbase.sh`.
+ */
+function lagArbeidskopier(antall: number): Arbeidskopi[] {
+  tempmappe = mkdtempSync(join(tmpdir(), 'feilinnfoering-'));
+  const filer = spawnSync('git', ['ls-files', '-z', '-co', '--exclude-standard'], {
+    encoding: 'utf8',
+  })
+    .stdout.split('\0')
+    .filter((f) => f && existsSync(f));
+  return Array.from({ length: antall }, (_, i) => {
+    const rot = join(tempmappe!, `kopi-${i + 1}`);
+    for (const f of filer) {
+      mkdirSync(dirname(join(rot, f)), { recursive: true });
+      cpSync(f, join(rot, f));
     }
-  );
-  return JSON.parse(readFileSync(ut, 'utf8')) as Rapport;
+    symlinkSync(join(ROT, 'node_modules'), join(rot, 'node_modules'));
+    if (i === 0 || TESTBASE === undefined) return { rot, base: TESTBASE };
+    const navn = `${new URL(TESTBASE).pathname.slice(1)}_feilinnfoering_${process.pid}_${i + 1}`;
+    psql(TESTBASE, `CREATE DATABASE "${navn}"`);
+    ekstraBaser.push(navn);
+    const base = baseUrl(navn);
+    const bygg = spawnSync(join(ROT, 'scripts/testbase/bygg_testbase.sh'), {
+      env: { ...process.env, KOE_TESTBASE_URL: base },
+      encoding: 'utf8',
+    });
+    if (bygg.status !== 0) throw new Error(`Bygde ikke ${navn}: ${bygg.stderr}`);
+    return { rot, base };
+  });
 }
 
-function ren(fil: string): boolean {
-  return spawnSync('git', ['diff', '--quiet', '--', fil]).status === 0;
-}
-
-const valgt = process.argv.slice(2);
-const mutasjoner = MUTASJONER.filter((m) => !valgt.length || valgt.includes(m.id));
-for (const m of mutasjoner) {
-  if (!ren(m.fil)) throw new Error(`${m.fil} har lokale endringer; skriptet muterer ikke den.`);
-  for (const [fra] of m.endringer)
-    if (readFileSync(m.fil, 'utf8').split(fra).length !== 2)
-      throw new Error(`${m.id}: «${fra}» finnes ikke nøyaktig én gang i ${m.fil}`);
-}
-
-const kontroll = kjoerVitest();
-const kontrolltester = kontroll.testResults.flatMap((f) => f.assertionResults);
-const kontrollfeil = kontrolltester.filter((t) => t.status === 'failed');
-if (kontrollfeil.length || kontroll.testResults.some((f) => f.status === 'failed'))
-  throw new Error(
-    `Kontrollkjøringen er ikke grønn: ${kontrollfeil.map((t) => t.fullName).join('; ')}`
-  );
-// #353: en hoppet test er ikke grønn. Uten testbasen hoppes lagringstestene over, og en
-// mutasjon med mål der ville ellers ikke kunne oppdages.
-const hoppet = kontrolltester.filter((t) => t.status !== 'passed');
-if (hoppet.length) {
-  console.error(
-    `Kontrollkjøringen hoppet over ${hoppet.length} tester${process.env.KOE_TESTBASE_URL ? '' : ' (KOE_TESTBASE_URL er ikke satt)'}, for eksempel ${hoppet[0].fullName}. Feilinnføringene krever at alle kjører.`
-  );
-  process.exit(2);
-}
-console.log(`Kontroll uten mutasjon: ${kontrolltester.length} tester grønne.`);
-
-let alleOppdaget = true;
-for (const m of mutasjoner) {
-  const original = readFileSync(m.fil, 'utf8');
-  let rapport: Rapport;
-  try {
-    writeFileSync(
-      m.fil,
-      m.endringer.reduce((t, [fra, til]) => t.replace(fra, til), original)
-    );
-    rapport = kjoerVitest();
-  } finally {
-    writeFileSync(m.fil, original);
-  }
+/** Utfallet av én mutasjon: om den ble oppdaget, og linjene som forklarer det. */
+function vurder(m: Mutasjon, rapport: Rapport, k: Arbeidskopi): [boolean, string[]] {
   const feilet = rapport.testResults
     .flatMap((f) => f.assertionResults)
     .filter((t) => t.status === 'failed');
@@ -754,17 +807,119 @@ for (const m of mutasjoner) {
   );
   const manglerMal = m.mal.filter((mal) => !feilet.some((t) => t.fullName.includes(mal)));
   const oppdaget = !suitefeil.length && !ikkeAssertion.length && !manglerMal.length;
-  alleOppdaget &&= oppdaget;
-  console.log(`\n${m.id} ${m.feilklasse}: ${oppdaget ? 'oppdaget' : 'IKKE OPPDAGET'}`);
-  for (const [fra, til] of m.endringer) console.log(`  ${m.fil}: ${fra.trim()} → ${til.trim()}`);
-  for (const t of feilet)
-    console.log(`  feilet: ${t.fullName}\n    ${t.failureMessages[0]?.split('\n')[0]}`);
-  for (const f of suitefeil) console.log(`  suitefeil: ${f.name}: ${f.message.split('\n')[0]}`);
-  for (const t of ikkeAssertion) console.log(`  ikke en assertion: ${t.fullName}`);
-  for (const mal of manglerMal) console.log(`  målet feilet ikke: ${mal}`);
+  return [
+    oppdaget,
+    [
+      `\n${m.id} ${m.feilklasse}: ${oppdaget ? 'oppdaget' : 'IKKE OPPDAGET'}`,
+      ...m.endringer.map(([fra, til]) => `  ${m.fil}: ${fra.trim()} → ${til.trim()}`),
+      ...feilet.map((t) => `  feilet: ${t.fullName}\n    ${t.failureMessages[0]?.split('\n')[0]}`),
+      ...suitefeil.map(
+        (f) => `  suitefeil: ${relative(k.rot, f.name)}: ${f.message.split('\n')[0]}`
+      ),
+      ...ikkeAssertion.map((t) => `  ikke en assertion: ${t.fullName}`),
+      ...manglerMal.map((mal) => `  målet feilet ikke: ${mal}`),
+    ],
+  ];
 }
-for (const m of mutasjoner) if (!ren(m.fil)) throw new Error(`${m.fil} er ikke satt tilbake`);
-console.log(
-  `\nArbeidskopien er ren. ${alleOppdaget ? 'Alle mutasjonene ble oppdaget.' : 'Ikke alle mutasjonene ble oppdaget.'}`
+
+/** Kjører mutasjonene i `koe` etter hverandre i `k`, til køen er tom. */
+async function arbeider(
+  k: Arbeidskopi,
+  koe: Mutasjon[],
+  utfall: Map<string, [boolean, string[]]>,
+  antall: number
+) {
+  for (let m = koe.shift(); m; m = koe.shift()) {
+    const fil = join(k.rot, m.fil);
+    const original = readFileSync(fil, 'utf8');
+    let rapport: Rapport;
+    try {
+      writeFileSync(
+        fil,
+        m.endringer.reduce((t, [fra, til]) => t.replace(fra, til), original)
+      );
+      rapport = await kjoerVitest(k);
+    } finally {
+      writeFileSync(fil, original);
+    }
+    utfall.set(m.id, vurder(m, rapport, k));
+    console.error(`${m.id} kjørt (${utfall.size}/${antall})`);
+  }
+}
+
+const valgt = process.argv.slice(2);
+const mutasjoner = MUTASJONER.filter((m) => !valgt.length || valgt.includes(m.id));
+for (const m of mutasjoner)
+  for (const [fra] of m.endringer)
+    if (readFileSync(m.fil, 'utf8').split(fra).length !== 2)
+      throw new Error(`${m.id}: «${fra}» finnes ikke nøyaktig én gang i ${m.fil}`);
+
+const antallKopier = Math.max(
+  1,
+  Math.min(
+    Number(process.env.FEILINNFOERING_ARBEIDSKOPIER) || availableParallelism(),
+    mutasjoner.length
+  )
 );
-process.exit(alleOppdaget ? 0 : 1);
+for (const signal of ['SIGINT', 'SIGTERM'] as const)
+  process.on(signal, () => {
+    rydd();
+    process.exit(130);
+  });
+
+let kode: number;
+try {
+  kode = await kjoer();
+} finally {
+  rydd();
+}
+process.exit(kode);
+
+async function kjoer(): Promise<number> {
+  const kopier = lagArbeidskopier(antallKopier);
+  // Kontrollen kjøres i hver kopi, så en kopi eller en base som avviker, stopper
+  // kjøringen før noen mutasjon.
+  const kontroller = await Promise.all(kopier.map(kjoerVitest));
+  const antallTester = new Set<number>();
+  for (const kontroll of kontroller) {
+    const kontrolltester = kontroll.testResults.flatMap((f) => f.assertionResults);
+    const kontrollfeil = kontrolltester.filter((t) => t.status === 'failed');
+    if (kontrollfeil.length || kontroll.testResults.some((f) => f.status === 'failed'))
+      throw new Error(
+        `Kontrollkjøringen er ikke grønn: ${kontrollfeil.map((t) => `${t.fullName}: ${t.failureMessages[0]?.split('\n')[0]}`).join('; ')}`
+      );
+    // #353: en hoppet test er ikke grønn. Uten testbasen hoppes lagringstestene over, og en
+    // mutasjon med mål der ville ellers ikke kunne oppdages.
+    const hoppet = kontrolltester.filter((t) => t.status !== 'passed');
+    if (hoppet.length) {
+      console.error(
+        `Kontrollkjøringen hoppet over ${hoppet.length} tester${TESTBASE ? '' : ' (KOE_TESTBASE_URL er ikke satt)'}, for eksempel ${hoppet[0].fullName}. Feilinnføringene krever at alle kjører.`
+      );
+      return 2;
+    }
+    antallTester.add(kontrolltester.length);
+  }
+  if (antallTester.size !== 1)
+    throw new Error(`Kontrollkjøringene teller ulikt: ${[...antallTester].join(', ')} tester`);
+  console.log(
+    `Kontroll uten mutasjon: ${[...antallTester][0]} tester grønne i hver av ${kopier.length} arbeidskopier.`
+  );
+
+  const koe = [...mutasjoner];
+  const utfall = new Map<string, [boolean, string[]]>();
+  const arbeidere = await Promise.allSettled(
+    kopier.map((k) => arbeider(k, koe, utfall, mutasjoner.length))
+  );
+  for (const a of arbeidere) if (a.status === 'rejected') throw a.reason;
+
+  let alleOppdaget = true;
+  for (const m of mutasjoner) {
+    const [oppdaget, linjer] = utfall.get(m.id)!;
+    alleOppdaget &&= oppdaget;
+    console.log(linjer.join('\n'));
+  }
+  console.log(
+    `\n${alleOppdaget ? 'Alle mutasjonene ble oppdaget.' : 'Ikke alle mutasjonene ble oppdaget.'}`
+  );
+  return alleOppdaget ? 0 : 1;
+}
