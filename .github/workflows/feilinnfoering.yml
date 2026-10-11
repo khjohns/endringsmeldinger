@@ -110,7 +110,7 @@ jobs:
     services:
       postgres:
         # Som databasejobben i ci.yml.
-        image: postgres:17
+        image: public.ecr.aws/docker/library/postgres:17
         env:
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: koe_test

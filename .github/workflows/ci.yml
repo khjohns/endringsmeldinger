@@ -49,7 +49,9 @@ jobs:
     services:
       postgres:
         # Målversjonen i supabase/config.toml.
-        image: postgres:17
+        # Det offisielle bildet fra speilet i ECR Public. Docker Hub avviser
+        # nedlastinger uten innlogging når grensen deres er nådd (#327).
+        image: public.ecr.aws/docker/library/postgres:17
         env:
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: koe_test
