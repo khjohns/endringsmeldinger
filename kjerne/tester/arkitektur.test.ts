@@ -316,7 +316,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['frosset/standpunkt.ts', 'utsagn', 'standpunktet'],
   ['frosset/standpunkt.ts', 'predikat', 'enighetsgrunnlag'],
   // GR-U7 med unntaket i MM-U13: utledningen regner `grunnlagAvklart` og `grunnlagAvvist` av den.
-  ['frosset/standpunkt.ts', 'predikat', 'grunnlagetErAvklart', ['utledning/utled.ts']],
+  ['frosset/standpunkt.ts', 'predikat', 'grunnlagetErAvklart', ['utledning/utled.ts:utled']],
   ['frosset/standpunkt.ts:regnUtSvar', 'utsagn', 'krav grunnlagskrav'],
   ['frosset/standpunkt.ts:kategori', 'utsagn', 'hovedkategori underkategori'],
   [
@@ -774,6 +774,29 @@ export function lesinger(p: ts.Program, moduler: string[]): Lesing[] {
         ((ts.isForOfStatement(l) || ts.isForInStatement(l)) && l.initializer === c)
       );
     };
+    /**
+     * Nøkkelen til en importert verdi fra kjernen som `n` bruker, eller `null` når
+     * `n` ikke er en slik bruk. Importen selv, en typeimport og en kortform i et
+     * objekt (`{ x }`) skilles ut.
+     */
+    const importertVerdi = (n: ts.Identifier): string | null => {
+      const p = n.parent;
+      if (ts.isImportSpecifier(p) || ts.isImportClause(p) || ts.isNamespaceImport(p)) return null;
+      const s = ts.isShorthandPropertyAssignment(p)
+        ? tc.getShorthandAssignmentValueSymbol(p)
+        : tc.getSymbolAtLocation(n);
+      if (!s || !(s.flags & ts.SymbolFlags.Alias)) return null;
+      const imp = s.declarations?.[0];
+      if (!imp) return null;
+      let navn: string;
+      if (ts.isImportSpecifier(imp) && !imp.isTypeOnly && !imp.parent.parent.isTypeOnly)
+        navn = (imp.propertyName ?? imp.name).getText();
+      else if (ts.isImportClause(imp) && !imp.isTypeOnly) navn = 'default';
+      else return null;
+      const d = tc.getAliasedSymbol(s).declarations?.[0];
+      if (!d || !iKjernen(d.getSourceFile().fileName)) return null;
+      return `${modulnavn(d.getSourceFile().fileName)}.${navn}`;
+    };
     const besoek = (n: ts.Node) => {
       if (ts.isPropertyAccessExpression(n) && !skrives(n))
         legg(n, felt(n, n.name.text, tc.getSymbolAtLocation(n.name), n.expression));
@@ -790,17 +813,11 @@ export function lesinger(p: ts.Program, moduler: string[]): Lesing[] {
       // får en eier uten oppføring i LESBART.
       else if (ts.isObjectLiteralExpression(n) && indreMoenster(n))
         for (const e of n.properties) legg(e, `${funksjon(e)}(?).${e.name?.getText() ?? '?'}`);
-      else if (ts.isImportClause(n) && n.name && !n.isTypeOnly) {
-        const d = tc.getAliasedSymbol(tc.getSymbolAtLocation(n.name)!).declarations?.[0];
-        if (d && iKjernen(d.getSourceFile().fileName))
-          legg(n, `${modulnavn(d.getSourceFile().fileName)}.default`);
-      } else if (ts.isImportSpecifier(n) && !n.isTypeOnly && !n.parent.parent.isTypeOnly) {
-        const d = tc.getAliasedSymbol(tc.getSymbolAtLocation(n.name)!).declarations?.[0];
-        if (d && iKjernen(d.getSourceFile().fileName))
-          legg(
-            n,
-            `${modulnavn(d.getSourceFile().fileName)}.${(n.propertyName ?? n.name).getText()}`
-          );
+      else if (ts.isIdentifier(n)) {
+        // En importert verdi registreres der den brukes, så den kan avgrenses til
+        // funksjonen som bruker den (#344), ikke bare til modulen med importen.
+        const noekkel = importertVerdi(n);
+        if (noekkel !== null) legg(n, noekkel);
       }
       ts.forEachChild(n, besoek);
     };
@@ -1064,6 +1081,17 @@ describe('reglene leser bare det LESBART tillater (#308, #329)', () => {
       utled,
       [[utled, 'export const proeve = (u: Utledning) => u.endringsordre;']],
       'Utledning.endringsordre',
+    ],
+    [
+      '«avklart» etter GR-U7 importert i en annen funksjon i utledningen (#344)',
+      utled,
+      [
+        [
+          utled,
+          'export const proeve = (s: Svar, v: Standpunktsvirkning[]) => grunnlagetErAvklart(s, v);',
+        ],
+      ],
+      'frosset/standpunkt.ts.grunnlagetErAvklart',
     ],
     [
       '«avklart» i en annen funksjon i utledningen',
