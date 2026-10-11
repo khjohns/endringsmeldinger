@@ -1,4 +1,4 @@
-/** Byggherrens svar på ansvarsgrunnlaget, NS 8407 § 32.2 og § 32.3. Port av `regler/grunnlag.py`. */
+/** Byggherrens svar på grunnlaget, NS 8407 § 32.2 og § 32.3. Port av `regler/grunnlag.py`. */
 
 import type { Grunnlagsresultat } from './typer.ts';
 import { UgyldigVurdering } from './feil.ts';

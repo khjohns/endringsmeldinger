@@ -15,7 +15,10 @@
 import { randomUUID } from 'node:crypto';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { lesJournal, SakFinnesIkke, skrivMedOppdrag } from '../lager.ts';
-import { kanonisk, sjekksum } from '../levering.ts';
+import { gjengirTro } from '../../kjerne/frosset/brevtekst.ts';
+import type { Avsnitt } from '../../kjerne/typer.ts';
+import { utenAvsnitt } from '../../kjerne/tester/formatprove.ts';
+import { gjengiOppdrag, kanonisk, OPPDRAGSFORMAT, sjekksum } from '../levering.ts';
 import {
   kall,
   lagOppsett,
@@ -140,8 +143,11 @@ describe.skipIf(!TESTBASE_URL)(
           event_id: rad.event_id,
           saksversjon: rad.versjon,
           tidsstempel: rad.tidsstempel,
-          brevtekst: null,
         });
+        expect(x.innhold.oppdragsformat).toBe(OPPDRAGSFORMAT);
+        // LV-U2: teksten i oppdraget er den kjernen frøs i brevet, og hvert utsagn står i den (LV-U3).
+        expect(x.innhold.brev.brevtekst).toEqual(rad.data.brevtekst);
+        expect(utenAvsnitt(rad)).toEqual([]);
         expect(x.innhold.brev.avsender).toEqual({
           part: 'TE',
           aktor_id: o.te.id,
@@ -169,6 +175,28 @@ describe.skipIf(!TESTBASE_URL)(
           x.innhold_sha256,
         ])
       ).toEqual(oppdrag.map((x) => [x.event_id, x.innhold_sha256]));
+    });
+
+    it('oppdraget kan gjengis uten journalen, og gjengivelsen er tro mot teksten (LV-U1, LV-U2, B-17)', async () => {
+      const sakId = await opprettKjernesak(o);
+      expect((await send(sakId, { expected_version: 1, kommando: GRUNNLAGSKRAV })).status).toBe(
+        201
+      );
+      expect((await send(sakId, { expected_version: 2, kommando: VEDERLAGSKRAV })).status).toBe(
+        201
+      );
+      // Bare oppdragene, slik basen gir dem tilbake; journalen leses ikke.
+      const innhold = (await oppdragene(sakId)).map((x) => structuredClone(x.innhold));
+      const [g, v] = innhold.map((i) => gjengiOppdrag(i)!);
+      const tekst = (i: (typeof innhold)[number]) => i.brev.brevtekst as Avsnitt[];
+      expect(gjengirTro(g, tekst(innhold[0]))).toBe(true);
+      expect(gjengirTro(v, tekst(innhold[1]))).toBe(true);
+      expect(g).toContain(`Sak ${sakId}, brev 2`);
+      expect(g).toContain('«Endret fundamentering»');
+      expect(g).toContain(GRUNNLAGSKRAV.innhold.beskrivelse);
+      expect(v).toContain('125\u00a0000\u00a0kr');
+      // Kontrollsak: gjengivelsen av et annet brev er ikke tro mot dette.
+      expect(gjengirTro(v, tekst(innhold[0]))).toBe(false);
     });
 
     it('aktøren, event_id og tidsstempelet kan ikke settes av klienten', async () => {

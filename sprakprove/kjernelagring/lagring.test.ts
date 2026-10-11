@@ -12,7 +12,7 @@ import { utledJournal } from '../../kjerne/kommandoer/skriving.ts';
 import type { Journalrad } from '../../kjerne/typer.ts';
 import { KJERNE } from '../../kjerne/versjon.ts';
 import { bygg } from '../../kjerne/tester/baner.ts';
-import { avvikFraFormatet } from '../../kjerne/tester/formatprove.ts';
+import { avvikFraFormatet, utenAvsnitt } from '../../kjerne/tester/formatprove.ts';
 import { Kjoering, kjoer, MAALMODELL } from '../../kjerne/tester/kjoerer.ts';
 import { Versjonskonflikt } from '../server/lager.ts';
 import { lagOppsett, rydd, TESTBASE_URL, type Oppsett } from '../tester/testbase.ts';
@@ -35,6 +35,8 @@ describe.skipIf(!TESTBASE_URL)('forløp A–E gjennom testbasen', () => {
     // 7.1.2: hver rad kjernen skrev, har formen i format 1 slik basen gir den tilbake.
     const skrevet = (await bane.journal()).filter((r) => k.skrevet.includes(r.event_id));
     expect(skrevet.flatMap(avvikFraFormatet)).toEqual([]);
+    // LV-U3: hvert utsagn i et brev appen sendte, står i brevteksten.
+    expect(skrevet.flatMap(utenAvsnitt)).toEqual([]);
   });
 
   /**

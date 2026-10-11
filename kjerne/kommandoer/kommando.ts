@@ -20,6 +20,8 @@ export interface Svarutkast {
   vurderinger: Svarvurdering;
   /** Klientens utregning, som serveren regner på nytt (B-13). */
   resultat: Record<string, unknown>;
+  /** Byggherrens utdypning under den låste teksten, også begrunnelsen (KA-U18, KA-U24). Appen tolker den ikke (KA-U19). */
+  utdypning?: string;
 }
 
 export type Kommando =
@@ -56,6 +58,7 @@ const SVARUTKAST = objekt(
     regelversjon: { type: 'integer' },
     vurderinger: { type: 'object' },
     resultat: { type: 'object' },
+    utdypning: { type: 'string', minLength: 1 },
   },
   ['spor', 'gjelder', 'regelversjon', 'vurderinger', 'resultat']
 );

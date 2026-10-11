@@ -11,13 +11,13 @@ Hver rad har kolonnen `format`. `data` har ingen `null`, ingen tom liste og inge
 | Type | Innhold | Felt i `data` | Grunnlag |
 | --- | --- | --- | --- |
 | `sak_opprettet` | Saken er opprettet. Første rad i saken. | `sakstittel`, `sakstype` | B-17. Andre sakstyper enn `standard` hører til #309 |
-| `dokument_registrert` | Ett dokument fra én part: kravene, svarene, utsagnene og opplysningene i det. Et brev med flere svar er én rad, og saksversjonen øker med én. Dokumentet har minst ett krav, ett svar eller ett utsagn. Avsenderen er `actorrole`. | `krav`, `svar`, `utsagn`, `opplysninger`, `dokumentasjon` | MM-U10, designnotatet 4.1 |
+| `dokument_registrert` | Ett dokument fra én part: kravene, svarene, utsagnene og opplysningene i det. Et brev med flere svar er én rad, og saksversjonen øker med én. Dokumentet har minst ett krav, ett svar eller ett utsagn. Avsenderen er `actorrole`. Et brev appen sender, har brevteksten (`brevtekst`); et registrert brev har ingen. | `krav`, `svar`, `utsagn`, `opplysninger`, `dokumentasjon`, `brevtekst` | MM-U10, LV-U2, designnotatet 4.1 |
 
 ## Krav
 
 | Spor | Innhold | Felt | Grunnlag |
 | --- | --- | --- | --- |
-| `grunnlag` | En kravversjon av ansvarsgrunnlaget. `erstatter` er forrige kravversjon i sporet. `hovedkategori` og `underkategori` er et par fra kjernens lukkede liste (`KATEGORIER` i `kjerne/format/koder.ts`), for eksempel `endring` og `irregulaer_endring`. Et ukjent par gjør raden ikke forstått. | `id`, `spor`, `erstatter`, `hovedkategori`, `underkategori`, `tittel`, `beskrivelse` | KA-U2, designnotatet 4.2 |
+| `grunnlag` | En kravversjon av grunnlaget. `erstatter` er forrige kravversjon i sporet. `hovedkategori` og `underkategori` er et par fra kjernens lukkede liste (`KATEGORIER` i `kjerne/format/koder.ts`), for eksempel `endring` og `irregulaer_endring`. Et ukjent par gjør raden ikke forstått. | `id`, `spor`, `erstatter`, `hovedkategori`, `underkategori`, `tittel`, `beskrivelse` | KA-U2, designnotatet 4.2 |
 | `vederlag` | En kravversjon av vederlaget, i kroner over 0. `metode` er `tilbud` (§ 34.2.1). | `id`, `spor`, `erstatter`, `metode`, `beloep` | KA-U2, KA-U8 |
 | `frist` | En kravversjon av fristforlengelsen, i dager over 0. | `id`, `spor`, `erstatter`, `dager` | KA-U2, KA-U8 |
 
@@ -67,5 +67,6 @@ Hver rad har kolonnen `format`. `data` har ingen `null`, ingen tom liste og inge
 | Del | Spor | Innhold | Felt | Grunnlag |
 | --- | --- | --- | --- | --- |
 | `beslutningsgrunnlag` | alle | Appens vurdering da brevet ble sendt, atskilt fra det byggherren sa, og ikke en rettslig avgjørelse (MM-U9): regelversjonen, hvordan brevet ordner standpunktene (`virkninger` med `prinsipalt` eller `subsidiaert`), standpunktene uten virkning (`uten_virkning`), brevlinjen, om svaret godkjenner hele kravet (`sammenfall`) og, i grunnlaget, om § 32.2 gjaldt etter reglene og underkategorien da (`varslingsplikt`). Hvert standpunkt står i `virkninger` eller `uten_virkning`. Et registrert svar uten standpunkt om rettidighet kan være lest med en innsigelse fra samme part (VS-U11): da står innsigelsen først i `virkninger`. Utfallet og vilkåret utledes og lagres ikke. | `regelversjon`, `virkninger`, `uten_virkning`, `linje`, `sammenfall`, `varslingsplikt` | MM-U9, MM-U11, GR-U12, KA-U10 |
+| `brevtekst` | alle | Teksten i et brev appen sender, frosset da brevet ble skrevet: ett avsnitt per krav, svar, utsagn og opplysning parten sier i brevet (`gjelder`), med den låste delen appen lager av valgene (`laast`) og partens utdypning (`utdypning`) hver for seg. Det som ikke står i teksten, regnes ikke som meddelt. Appens vurdering står ikke i teksten, og ingen regel leser den. Et registrert brev har ingen (MM-U17). | `gjelder`, `laast`, `utdypning` | LV-U2, LV-U3, B-13 om begrunnelsestekst, KA-U22, KA-U25 |
 | `utregning` | vederlag | Serverens utregning: resultatet (`godkjent`, `delvis_godkjent`, `avslaatt` eller `tilbakeholdelse`) og det godkjente beløpet. | `resultat`, `godkjent_beloep` | B-13 |
 | `utregning` | frist | Serverens utregning: resultatet (`godkjent`, `delvis_godkjent` eller `avslaatt`) og de godkjente dagene, og det subsidiære standpunktet når det finnes. | `resultat`, `godkjent_dager`, `subsidiaert_resultat`, `subsidiaert_godkjent_dager` | B-13, vedtaket 05.10 (#211) |
