@@ -1214,13 +1214,11 @@ const MUTASJONER: Mutasjon[] = [
   },
   {
     id: 'F108',
-    feilklasse: 'utdypningen faller ut av brevteksten (B-13 om begrunnelsestekst, LV-U3)',
-    fil: `${K}/frosset/brevtekst.ts`,
-    endringer: [['...(utdypning ? { utdypning } : {})', '...{}']],
-    mal: [
-      'begrunnelsen står under svaret den gjelder',
-      'en endring der § 32.2 gjelder, med varselet',
-    ],
+    feilklasse:
+      'begrunnelsen i svaret faller ut av brevteksten (B-13 om begrunnelsestekst, KA-U31)',
+    fil: `${K}/kommandoer/skriving.ts`,
+    endringer: [['  if (s.utdypning !== undefined) utdypninger.set(id, s.utdypning);\n', '']],
+    mal: ['begrunnelsen står under svaret den gjelder'],
   },
   {
     id: 'F109',
@@ -1348,9 +1346,14 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F123',
     feilklasse:
-      'godkjenningen av et registrert krav avvises fordi det ikke har tekst fra appen (GR-U13)',
+      'godkjenningen av et registrert krav siterer en beskrivelse appen ikke har (GR-U13, GR-U14)',
     fil: `${K}/frosset/brevtekst.ts`,
-    endringer: [['  if (j.erRegistrert(krav.dokument)) return', '  if (false) return']],
+    endringer: [
+      [
+        '  if (j.erRegistrert(krav.dokument)) return `${innledning} ${kravet}.`;',
+        '  if (j.erRegistrert(krav.dokument)) return `${innledning} ${kravet}: «».`;',
+      ],
+    ],
     mal: ['et registrert krav siteres ikke'],
   },
   {
