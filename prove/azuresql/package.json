@@ -1,0 +1,15 @@
+{
+  "name": "koe-prove-azuresql",
+  "private": true,
+  "type": "module",
+  "description": "Prøven av tilgangsmekanismen og lagringsformene i T-SQL mot SQL Server i Docker (#395)",
+  "scripts": {
+    "prove": "./kjor.sh"
+  },
+  "dependencies": {
+    "mssql": "12.7.1"
+  },
+  "devDependencies": {
+    "@types/mssql": "12.3.0"
+  }
+}
