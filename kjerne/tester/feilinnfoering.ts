@@ -1360,7 +1360,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F124',
     feilklasse: 'godkjenningen av et krav fra appen uten beskrivelse sendes likevel (GR-U14)',
     fil: `${K}/frosset/brevtekst.ts`,
-    endringer: [['  if (beskrivelse === undefined)\n', '  if (false)\n']],
+    endringer: [['  if (!beskrivelse?.trim())\n', '  if (false)\n']],
     mal: ['et krav fra appen uten beskrivelse'],
   },
   {
