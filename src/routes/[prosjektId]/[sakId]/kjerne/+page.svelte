@@ -54,7 +54,7 @@
       const melding = meldingFra(e, 'Kravet ble ikke sendt.');
       // Ved konflikt lastes saken på nytt, og meldingen skal stå etterpå.
       if (e instanceof ApiError && e.status === 409) await last();
-      feil = melding;
+      feil = feil ? `${melding} ${feil}` : melding;
     } finally {
       sender = false;
     }
@@ -168,7 +168,10 @@
       {#if sak.leveringsoppdrag.length}
         <ul class="text-sm" data-testid="leveringsoppdrag">
           {#each sak.leveringsoppdrag as l (l.id)}
-            <li>{l.filnavn}: frosset {formatDateTimeNorwegian(l.opprettet)}, ikke levert</li>
+            <li>
+              {l.filnavn ?? l.dokumentnoekkel}: frosset {formatDateTimeNorwegian(l.opprettet)}, ikke
+              levert
+            </li>
           {/each}
         </ul>
       {:else}

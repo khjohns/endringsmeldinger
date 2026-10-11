@@ -13,10 +13,10 @@
  * worker plukker det før da (#369).
  */
 
+import { createHash } from 'node:crypto';
 import type { Journalrad } from '../kjerne/typer.ts';
 import type { Kjerne } from '../kjerne/versjon.ts';
 import type { Visning } from '../kjerne/visning.ts';
-import { sha256 } from './autorisasjon.ts';
 import type { Leveringsmaal, Oppdragsrad } from './lager.ts';
 
 /** Formen på `leveringsoppdrag.innhold`. Økes når formen endres. */
@@ -34,7 +34,8 @@ export function kanonisk(verdi: unknown): string {
   return JSON.stringify(verdi);
 }
 
-export const sjekksum = (innhold: unknown): string => sha256(kanonisk(innhold));
+export const sjekksum = (innhold: unknown): string =>
+  createHash('sha256').update(kanonisk(innhold)).digest('hex');
 
 /** Filnavnet dokumentet får i Catenda, fra innholdet i et lagret oppdrag. */
 export const filnavn = (innhold: Record<string, unknown>): string | null =>

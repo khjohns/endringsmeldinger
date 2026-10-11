@@ -14,6 +14,7 @@ feilinnføring overlever og ikke står i FORVENTET_OVERLEVER, eller når stedet
 ikke finnes lenger.
 """
 
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -27,7 +28,7 @@ FEILINNFOERINGER = [
      "CSRF"),
     ("S3", "prosjektgrensen for saken i stien kontrolleres ikke", "server/autorisasjon.ts",
      "if (sak.rows[0]?.prosjekt_id !== prosjektId) throw nekt();", "if (!sak.rows[0]) throw nekt();",
-     "sak utenfor"),
+     "mot en sak utenfor gir 403"),
     ("S4", "lageret kontrollerer ikke versjonen klienten så", "server/lager.ts",
      "if (versjon !== forventet) throw new Versjonskonflikt(forventet, versjon);", "",
      "versjonskonflikt"),
@@ -48,7 +49,7 @@ FEILINNFOERINGER = [
      "    return `{${Object.keys(verdi)\n      .sort()", "    return `{${Object.keys(verdi)",
      "sjekksummen"),
     ("S10", "tekst basen ikke kan lagre, gir 500", "server/app.ts",
-     "    if (feil instanceof UgyldigVerdi) return ugyldig(feil.message);\n", "",
+     "  if (ulagringsbar(verdi))", "  if (false)",
      "tekst basen ikke kan lagre"),
 ]
 
@@ -67,9 +68,11 @@ def kjoer(rot: Path) -> subprocess.CompletedProcess:
 
 
 def main(rot: Path) -> int:
-    # Kontrollen først: uten feilinnføring skal testene være grønne.
-    if kjoer(rot).returncode:
-        print("kontrollkjøringen feilet; feilinnføringene sier ingenting")
+    # Kontrollen først: uten feilinnføring skal testene være grønne, og ingen
+    # databasetest hoppet over (uten KOE_TESTBASE_URL kjører de ikke).
+    kontroll = kjoer(rot)
+    if kontroll.returncode or "skipped" in kontroll.stdout or not os.environ.get("KOE_TESTBASE_URL"):
+        print("kontrollkjøringen feilet eller hoppet over tester; feilinnføringene sier ingenting")
         return 1
     mislykket = []
     for id_, hva, fil, fra, til, forventet in FEILINNFOERINGER:

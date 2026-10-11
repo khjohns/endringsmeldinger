@@ -204,6 +204,10 @@ describe.skipIf(!TESTBASE_URL)(
         const kommando = { ...GRUNNLAGSKRAV, innhold: { ...GRUNNLAGSKRAV.innhold, tittel } };
         const svar = await send(sakId, { expected_version: 1, kommando });
         expect(svar.status, JSON.stringify(tittel)).toBe(400);
+        expect(svar.kropp).toMatchObject({
+          error: 'UGYLDIG_FORESPOERSEL',
+          message: 'Teksten har tegn som ikke kan lagres.',
+        });
       }
       expect(await lesJournal(o.pool, sakId, o.prosjekt.id)).toHaveLength(1);
       expect(await oppdragene(sakId)).toEqual([]);

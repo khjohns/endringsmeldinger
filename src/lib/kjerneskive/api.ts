@@ -16,7 +16,7 @@ export interface Leveringsoppdrag {
   id: string;
   event_id: string;
   dokumentnoekkel: string;
-  filnavn: string;
+  filnavn: string | null;
   innhold_sha256: string;
   opprettet: string;
 }
