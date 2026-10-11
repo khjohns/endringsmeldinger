@@ -43,6 +43,20 @@ describe('notices submitted with basis', () => {
     expect(Object.keys(notices)).toEqual(['vederlag']);
     expect(notices.vederlag).toContain('(pkt. 34.1)');
   });
+  it('refers to «grunnlaget», not «ansvarsgrunnlaget», in every notice (HF-U2)', () => {
+    const all: VarselValg = Object.fromEntries(
+      ['vederlag', 'rigg_drift', 'produktivitet', 'frist'].map((k) => [
+        k,
+        { valgt: true, forklaring: '' },
+      ])
+    );
+    const notices = Object.values(buildKonsekvensVarsler(all, 'SVIKT', 'Tegninger'));
+    expect(notices).toHaveLength(4);
+    for (const notice of notices) {
+      expect(notice).toContain('som beskrevet i grunnlaget.');
+      expect(notice).not.toContain('ansvarsgrunnlag');
+    }
+  });
   it('allows a special notice independently and includes its explanation and basis', () => {
     const notices = buildKonsekvensVarsler(
       { rigg_drift: { valgt: true, forklaring: 'Brakkene må stå lenger.' } },
