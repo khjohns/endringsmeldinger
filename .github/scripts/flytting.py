@@ -2,18 +2,20 @@
 
 Leser `git diff --name-status -M FRA HEAD` for kjernen på stdin og skriver hver
 fil som er endret ut over en flytting, med stien i HEAD, eller i FRA for en
-slettet fil. En omdøpt eller endret fil regnes som bare flyttet når teksten
-utenfor import- og eksportsetningene med sti er byte-lik, og hver relativ sti i
-dem peker på den samme fila, regnet gjennom omdøpingene. I setningene ses det
+slettet fil, på formen `endret<TAB>sti`. En fil som bare er flyttet, skrives
+som `flyttet<TAB>sti`. En omdøpt eller endret fil regnes som bare flyttet når
+teksten utenfor import- og eksportsetningene med sti er byte-lik, og hver
+relativ sti i dem peker på den samme fila, regnet gjennom omdøpingene. I setningene ses det
 bort fra blanktegn og et komma før `}`, som prettier legger til når en import
 brytes over flere linjer. Kjenner ikke git igjen omdøpingen, er fila ny, og den
 regnes som endret.
 
-En fil som flyttes ut av en av mappene etter `--dekket`, regnes som endret og
-skrives med stien i FRA, så det vakten dekker, ikke krymper ved en flytting. En
+En fil som flyttes ut av en av mappene etter `--dekket`, regnes i tillegg som
+endret med stien i FRA, så det vakten dekker, ikke krymper ved en flytting. En
 flytting inn i mappene utvider dekningen.
 
-Bruk: git diff --name-status -M FRA HEAD -- kjerne/ | python3 flytting.py FRA [--dekket MAPPE/ ...]
+Bruk: git -c core.quotePath=false diff --name-status -M FRA HEAD -- kjerne/ \\
+  | python3 flytting.py FRA [--dekket MAPPE/ ...]
 """
 
 import posixpath
@@ -46,25 +48,23 @@ def normalisert(innhold: str, sti: str, omdoept: dict[str, str]) -> list[str]:
 
 
 def main() -> int:
-    base, *resten = sys.argv[1:]
+    fra, *resten = sys.argv[1:]
     dekket = tuple(resten[1:]) if resten[:1] == ["--dekket"] else ()
     linjer = [l.split("\t") for l in sys.stdin.read().splitlines() if l.strip()]
     omdoept = {l[1]: l[2] for l in linjer if l[0].startswith("R")}
     for l in linjer:
         status = l[0][0]
-        if status in "RM":
-            gammel, ny = (l[1], l[2]) if status == "R" else (l[1], l[1])
-            if dekket and gammel.startswith(dekket) and not ny.startswith(dekket):
-                print(gammel)
-                continue
-            for_ = normalisert(tekst(base, gammel), gammel, omdoept)
-            etter = normalisert(tekst("HEAD", ny), ny, {})
-            # En sti i HEAD uten endelse beholder formen fra BASE.
-            if [d.replace(".ts>", ">") for d in for_] == [d.replace(".ts>", ">") for d in etter]:
-                continue
-            print(ny)
-        else:
-            print(l[-1])
+        if status not in "RM":
+            print(f"endret\t{l[-1]}")
+            continue
+        gammel, ny = (l[1], l[2]) if status == "R" else (l[1], l[1])
+        if dekket and gammel.startswith(dekket) and not ny.startswith(dekket):
+            print(f"endret\t{gammel}")
+        for_ = normalisert(tekst(fra, gammel), gammel, omdoept)
+        etter = normalisert(tekst("HEAD", ny), ny, {})
+        # En sti i HEAD uten endelse beholder formen fra FRA.
+        lik = [d.replace(".ts>", ">") for d in for_] == [d.replace(".ts>", ">") for d in etter]
+        print(f"{'flyttet' if lik else 'endret'}\t{ny}")
     return 0
 
 
