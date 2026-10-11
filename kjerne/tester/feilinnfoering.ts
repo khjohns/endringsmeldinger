@@ -543,6 +543,11 @@ const MUTASJONER: Mutasjon[] = [
         'else if (alleSvar.get(a.gjelder)!.beslutningsgrunnlag.sammenfall)',
         'else if (alleSvar.get(a.gjelder)!.beslutningsgrunnlag.sammenfall && a.id === undefined)',
       ],
+      // Strid-kontrollen (MM-U18) fanger det samme; begge må muteres.
+      [
+        '      SPOR.some((n) => u.spor[n].enighet && u.spor[n].gjeldendeSvar?.id === x.gjelder)',
+        '      !x',
+      ],
     ],
     mal: ['en aksept av et svar med sammenfall er ikke forstått'],
   },
