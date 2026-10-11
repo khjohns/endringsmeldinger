@@ -17,8 +17,8 @@
 
 import { createServer } from 'node:http';
 import { lagServer } from './app.ts';
-import type { Catenda } from './autorisasjon.ts';
-import { kobleTilKastbarTestbase } from './kastbar.ts';
+import type { Catenda } from '../../server/autorisasjon.ts';
+import { kobleTilKastbarTestbase } from '../../server/kastbar.ts';
 
 function teamFraMiljo(): Catenda {
   const team = JSON.parse(process.env.SPRAKPROVE_TEAMMEDLEMMER ?? '{}') as Record<string, string[]>;
