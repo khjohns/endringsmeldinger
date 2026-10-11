@@ -44,8 +44,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/kommandoer/forutsetninger.ts`,
     endringer: [
       [
-        "import { kraveneErAvgjort, trekkAvGrunnlagetErSperret, type Utledning } from '../utledning/utled.ts';",
-        "import { kraveneErAvgjort, trekkAvGrunnlagetErSperret, type Utledning } from '../utledning/utled.ts';\nimport { visning } from '../utledning/visning.ts';",
+        "} from '../utledning/utled.ts';",
+        "} from '../utledning/utled.ts';\nimport { visning } from '../utledning/visning.ts';",
       ],
       [
         '  if (kraveneErAvgjort(u))',
