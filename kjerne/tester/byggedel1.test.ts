@@ -267,6 +267,39 @@ describe('et svar er lest med en innsigelse bare når det er en innsigelse mot k
     });
     expect(forstaatt(med)).toBe(false);
   });
+
+  it('lest med en innsigelse byggherren har gitt opp uttrykkelig, er ikke forstått (VS-U9)', async () => {
+    const bane = minnebane();
+    const k = await bygg(bane, [
+      'krav_irreg',
+      { handling: 'innsigelse', part: 'BH', gjelder: 'K-g1', navn: 'D3' },
+      {
+        handling: 'brev',
+        navn: 'D4',
+        svar: [{ spor: 'grunnlag', navn: 'S-g1', resultat: 'avslaatt', varslet_i_tide: true }],
+      },
+      {
+        handling: 'rad',
+        spor: 'grunnlag',
+        navn: 'S-g2',
+        dokument: 'D5',
+        gjelder: 'K-g1',
+        erstatter: 'S-g1',
+        resultat: 'godkjent',
+        sendt: '2026-10-01',
+      },
+    ]);
+    const journal = await bane.journal();
+    expect(forstaatt(journal)).toBe(true);
+    const med = endre(journal, k, 'S-g2', (e) => {
+      // Som frysingen ville lest det med innsigelsen, så bare innsigelsen skiller.
+      const b = e.beslutningsgrunnlag as { virkninger: Data[]; sammenfall: boolean };
+      for (const v of b.virkninger) v.virkning = 'subsidiaert';
+      b.virkninger.unshift({ standpunkt: k.navn.id('D3#innsigelse'), virkning: 'prinsipalt' });
+      b.sammenfall = false;
+    });
+    expect(forstaatt(med)).toBe(false);
+  });
 });
 
 /**

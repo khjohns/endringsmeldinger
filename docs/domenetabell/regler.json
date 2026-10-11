@@ -1948,7 +1948,7 @@
     {
       "id": "GR-30",
       "tilfelle": "Byggherren har svart på grunnlaget og vederlaget. TE sender en ny grunnlagsversjon, og et svar på den forrige grunnlagsversjonen lagres etter den.",
-      "forventet": "Svaret på vederlaget viser til grunnlagsversjonen det ble regnet mot. Mens den nye grunnlagsversjonen venter på svar, er vederlaget subsidiært etter gjeldende svar på den versjonen svaret ble regnet mot, også når det svaret er revidert eller lagret sent. Rekkefølgen i journalen avgjør ikke hvilket grunnlagssvar som gjelder. Svarer byggherren på den nye grunnlagsversjonen, gjelder det svaret.",
+      "forventet": "Svaret på vederlaget viser til grunnlagsversjonen det ble regnet mot. Mens den nye grunnlagsversjonen venter på svar, er vederlaget subsidiært etter grunnlagssvaret som sist gjaldt: gjeldende svar på den seneste besvarte versjonen i kravkjeden, fra og med versjonen svaret ble regnet mot, også når det svaret er revidert eller lagret sent. Er grunnlaget besvart igjen etter den versjonen, går subsidiariteten ikke tilbake til et eldre grunnlagssvar når TE sender enda en versjon. Rekkefølgen i journalen avgjør ikke hvilket grunnlagssvar som gjelder. Svarer byggherren på den nye grunnlagsversjonen, gjelder det svaret.",
       "bh_standpunkt": "Standpunktene i svaret på grunnlaget.",
       "rettslig_virkning": "Om svaret på vederlaget er subsidiært, er en relasjon mellom brevene som utledes ved lesing og lagres ikke.",
       "rettidighet": "—",
@@ -1979,7 +1979,7 @@
     {
       "id": "KA-32",
       "tilfelle": "Et registrert brev er merket med noe appen ikke kan uttrykke, i brevet selv eller senere av en av partene.",
-      "forventet": "Så lenge et krav eller svar i brevet gjelder og merkingen ikke er avklart, avvises TEs aksept av svaret i et merket spor, og saken kan ikke inngå i en endringsordre. Er brevet en godkjenning av grunnlaget der § 32.2 gjelder, er det ikke avklart om den er en endringsordre, og trekket av grunnlaget er sperret. Sammenfallet, enigheten og om kravene er avgjort, leses som før, og visningen viser at enigheten bygger på et merket brev. Motparten kan bestride merkingen uten virkning. En aksept av et merket svar i en rad som ikke er registrert korrespondanse, gjør saken ikke forstått.",
+      "forventet": "Så lenge merkingen gjelder, avvises TEs aksept av svaret i et merket spor, saken kan ikke inngå i en endringsordre, og trekket av grunnlaget er sperret når godkjenningen ellers er en endringsordre eller det ikke er avklart. Merkingen gjelder også når elementet i brevet er uten virkning fordi det strider mot en enighet. Sammenfallet, enigheten, om godkjenningen er en endringsordre og om kravene er avgjort, leses som før, og visningen viser at enigheten bygger på et merket brev. Motparten kan bestride merkingen uten virkning. En aksept av et merket svar i en rad gir en enighet som står, med sperren: at aksepten avvises, er et vilkår for å sende, ikke en regel om enighet eller lukking.",
       "bh_standpunkt": "Brevet slik det ble sendt.",
       "rettslig_virkning": "Merkingen er partens vurdering, ikke en rettslig avgjørelse. En enighet som er inngått, står, men handlinger som bygger på den, sperres.",
       "rettidighet": "—",
@@ -1988,16 +1988,18 @@
         "KA-U26",
         "KA-U16",
         "KA-U20",
+        "KA-U28",
         "MM-U12",
         "MM-U7",
-        "MM-U18"
+        "MM-U18",
+        "MM-U19"
       ],
       "tolkningsstatus": "avklart_tolkning"
     },
     {
       "id": "KA-33",
-      "tilfelle": "Den som sendte et merket brev, avklarer at standpunktene i det gjelder uten forbehold.",
-      "forventet": "Sperren etter KA-32 oppheves. Bare avsenderen av brevet kan avklare, og en merking avklares én gang. En revisjon av svaret opphever sperren på samme måte, fordi brevet ikke lenger gjelder i sporet. Avklaringen godtas også når kravene er avgjort, fordi den ikke endrer noe standpunkt.",
+      "tilfelle": "Den som sendte et merket brev, avklarer at standpunktene i det gjelder uten forbehold, eller sier noe nytt i sporet.",
+      "forventet": "Sperren etter KA-32 oppheves i sporet. Bare avsenderen av brevet kan avklare, og en merking avklares én gang. Et nytt krav eller svar med virkning fra avsenderen i sporet, etter brevet, opphever sperren i det sporet, også når brevet har et svar i et annet spor som fortsatt gjelder. Et utsagn fra motparten, for eksempel en ny kravversjon fra TE, opphever den ikke. Avklaringen godtas også når kravene er avgjort, fordi den ikke endrer noe standpunkt.",
       "bh_standpunkt": "Det nye utsagnet.",
       "rettslig_virkning": "Gjør ikke brevet ubetinget fra sendetidspunktet. Appen kontrollerer at utsagnet kan representeres, ikke om tvisten er løst.",
       "rettidighet": "—",
@@ -2027,7 +2029,7 @@
     },
     {
       "id": "KA-35",
-      "tilfelle": "En hendelse som ikke er registrert korrespondanse, strider mot en enighet eller mot at saken er lukket: en revisjon eller ny kravversjon i et spor med enighet, en aksept av et frafall, noe som endrer utfallet etter at kravene er avgjort eller avslaget av grunnlaget er godtatt, eller et sammenfall som ikke stemmer med standpunktene i brevet.",
+      "tilfelle": "En hendelse som ikke er registrert korrespondanse, strider mot en enighet eller mot at saken er lukket: en revisjon eller ny kravversjon i et spor med enighet, en ny kravversjon i et trukket spor eller i et spor med «ingen krav», en aksept av et frafall, noe som endrer utfallet etter at kravene er avgjort eller avslaget av grunnlaget er godtatt, eller et sammenfall som ikke stemmer med standpunktene i brevet.",
       "forventet": "Saken er ikke forstått, og hendelsen vises som ikke tolket. Kontrollsaken uten enigheten eller lukkingen er forstått.",
       "bh_standpunkt": "—",
       "rettslig_virkning": "Kontrollen gjelder at dataene henger sammen, ikke en rettslig avgjørelse om gyldighet.",
@@ -2040,6 +2042,7 @@
         "GR-U10",
         "GR-U9",
         "KA-U11",
+        "KA-U12",
         "V-SK01"
       ],
       "tolkningsstatus": "avklart_tolkning"
@@ -2062,8 +2065,8 @@
     },
     {
       "id": "KA-37",
-      "tilfelle": "TE registrerer sitt eget brev med en ny kravversjon i et spor med enighet.",
-      "forventet": "Saken er forstått. Kravversjonen bevares og vises uten virkning, enigheten og gjeldende kravversjon står, og ingenting sperres.",
+      "tilfelle": "TE registrerer sitt eget brev med en ny kravversjon i et spor med enighet, i et trukket spor eller i et spor med «ingen krav», eller med en aksept av et frafall eller et trekk etter at kravene er avgjort.",
+      "forventet": "Saken er forstått. Elementet bevares og vises uten virkning, enigheten, gjeldende kravversjon, trekket og «ingen krav» står, og ingenting sperres.",
       "bh_standpunkt": "—",
       "rettslig_virkning": "Som KA-36, for et registrert brev fra TE.",
       "rettidighet": "—",
@@ -2071,14 +2074,17 @@
       "kilder": [
         "MM-U19",
         "MM-U18",
-        "KA-U7"
+        "KA-U7",
+        "KA-U12",
+        "KA-U11",
+        "GR-U9"
       ],
       "tolkningsstatus": "avklart_tolkning"
     },
     {
       "id": "KA-38",
       "tilfelle": "Byggherren har gjort innsigelse mot fristkravet og registrerer senere et svar uten standpunkt om rettidighet.",
-      "forventet": "Saken er forstått: et strengere vilkår for et svar fra appen gjør ikke et registrert brev uforstått. Svaret leses med innsigelsen, som en påberopt preklusjon etter § 33.4.",
+      "forventet": "Saken er forstått: et strengere vilkår for et svar fra appen gjør ikke et registrert brev uforstått. Svaret leses med innsigelsen, som en påberopt preklusjon etter § 33.4. Gjelder innsigelsen varselet utledet av kravet, og registrerer TE et varsel etterpå, er preklusjonen uavklart, og TE kan ikke godta svaret før byggherren har svart på nytt.",
       "bh_standpunkt": "Svaret og innsigelsen.",
       "rettslig_virkning": "Tausheten er ikke et standpunkt; innsigelsen står.",
       "rettidighet": "—",
@@ -2086,14 +2092,16 @@
       "kilder": [
         "MM-U18",
         "VS-U11",
-        "HF-U1"
+        "HF-U1",
+        "MM-U1",
+        "MM-U8"
       ],
-      "tolkningsstatus": "avklart_tolkning"
+      "tolkningsstatus": "arbeidshypotese"
     },
     {
       "id": "VS-01",
       "tilfelle": "En part gjør innsigelse etter § 5 mot motpartens varsel, krav eller svar, og motparten protesterer.",
-      "forventet": "Innsigelsen og protesten registreres og vises uten virkning på utfallet, og innsigelsen sperrer ikke svaret. Den kan gjelde et krav eller varsel fra TE og et svar fra byggherren. En innsigelse mot egne utsagn og en protest mot egen innsigelse avvises. En protest kan gjelde innsigelsen, påberopelsen i et svar eller et dokument, og da gjelder den alle innsigelsene i det.",
+      "forventet": "Innsigelsen og protesten registreres og vises uten virkning på utfallet, og innsigelsen sperrer ikke svaret. Den kan gjelde et krav eller varsel fra TE og et svar fra byggherren, også et element uten virkning. En innsigelse mot egne utsagn og en protest mot egen innsigelse avvises, og en lagret rad med en slik er ikke forstått, også når målet er uten virkning. En protest kan gjelde innsigelsen, påberopelsen i et svar eller et dokument, og da gjelder den alle innsigelsene i det.",
       "bh_standpunkt": "—",
       "rettslig_virkning": "Appen avgjør ikke om innsigelsen kom i tide.",
       "rettidighet": "—",
@@ -2109,9 +2117,9 @@
     {
       "id": "VS-02",
       "tilfelle": "Byggherren har gjort innsigelse mot TEs varsel etter § 32.2 og registrerer senere en godkjenning av grunnlaget som ikke sier noe om rettidigheten.",
-      "forventet": "Svaret leses med innsigelsen: preklusjon er påberopt, grunnlaget er ikke avklart, og det er ikke sammenfall eller endringsordre. Kontrollsaken uten innsigelsen gir sammenfall og endringsordre.",
+      "forventet": "Svaret leses med innsigelsen: preklusjon er påberopt, grunnlaget er ikke avklart, og det er ikke sammenfall eller endringsordre. Kontrollsaken uten innsigelsen gir sammenfall og endringsordre. Har byggherren etter innsigelsen sagt uttrykkelig at varselet kom i tide, i et svar på samme krav, leses det registrerte svaret ikke med innsigelsen, og et lagret svar som likevel er lest med den, er ikke forstått.",
       "bh_standpunkt": "Godkjenning, lest med innsigelsen.",
-      "rettslig_virkning": "Appen utleder ikke at innsigelsen er oppgitt av taushet alene.",
+      "rettslig_virkning": "Appen utleder ikke at innsigelsen er oppgitt av taushet alene, men leser partens siste uttrykkelige standpunkt om rettidigheten.",
       "rettidighet": "—",
       "tidsakse": "registrering",
       "kilder": [

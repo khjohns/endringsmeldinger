@@ -250,6 +250,59 @@ export function radFor(
     const kjent = navn.id(etikett);
     return kjent.startsWith('ukjent-') ? randomUUID() : kjent;
   };
+  const byggSvar = (s: Handling): Record<string, unknown> => {
+    const spor = s.spor as Spor;
+    const gjelder = ref(s.gjelder as string);
+    const krav = u.spor[spor].krav.find((k) => k.id === gjelder) ?? {
+      id: gjelder,
+      spor,
+      dokument: gjelder,
+      erstatter: null,
+      innhold: spor === 'vederlag' ? { beloep: 100000 } : { dager: 20 },
+    };
+    const v = vurderinger(spor, s, krav);
+    const standpunkter: Record<string, unknown>[] = [];
+    if (spor === 'grunnlag' && typeof s.varslet_i_tide === 'boolean')
+      standpunkter.push({
+        id: randomUUID(),
+        art: 'rettidighet',
+        gjelder,
+        hjemmel: '32.2',
+        i_tide: s.varslet_i_tide,
+      });
+    standpunkter.push(
+      spor === 'grunnlag'
+        ? { id: randomUUID(), art: 'grunnlag', resultat: s.resultat }
+        : { id: randomUUID(), art: spor === 'vederlag' ? 'beloep' : 'dager' }
+    );
+    const svar: Record<string, unknown> = {
+      id: navn.ta(s.navn as string),
+      spor,
+      gjelder,
+      ...(typeof s.erstatter === 'string' ? { erstatter: navn.reserver(s.erstatter) } : {}),
+      // #342: grunnlagsversjonen svaret er regnet mot; bevis-saken kan oppgi en annen.
+      ...(spor === 'grunnlag'
+        ? {}
+        : {
+            grunnlagskrav:
+              typeof s.grunnlagskrav === 'string'
+                ? ref(s.grunnlagskrav)
+                : (u.spor.grunnlag.gjeldendeKrav?.id ??
+                  (() => {
+                    throw new Error('Bevis-saken mangler et grunnlagskrav for svaret');
+                  })()),
+          }),
+      standpunkter,
+    };
+    if (spor !== 'grunnlag')
+      svar.utregning = regnUtSvar(
+        spor,
+        v,
+        { krav, grunnlagskrav: u.spor.grunnlag.gjeldendeKrav },
+        GJELDENDE_REGLER
+      );
+    return svar;
+  };
   let data: Record<string, unknown>;
   let eventId = typeof h.dokument === 'string' ? navn.ta(h.dokument) : randomUUID();
   if (typeof h.avklarer === 'string') {
@@ -288,57 +341,8 @@ export function radFor(
       ],
     };
   } else {
-    const spor = h.spor as Spor;
-    const gjelder = ref(h.gjelder as string);
-    const krav = u.spor[spor].krav.find((k) => k.id === gjelder) ?? {
-      id: gjelder,
-      spor,
-      dokument: gjelder,
-      erstatter: null,
-      innhold: spor === 'vederlag' ? { beloep: 100000 } : { dager: 20 },
-    };
-    const v = vurderinger(spor, h, krav);
-    const standpunkter: Record<string, unknown>[] = [];
-    if (spor === 'grunnlag' && typeof h.varslet_i_tide === 'boolean')
-      standpunkter.push({
-        id: randomUUID(),
-        art: 'rettidighet',
-        gjelder,
-        hjemmel: '32.2',
-        i_tide: h.varslet_i_tide,
-      });
-    standpunkter.push(
-      spor === 'grunnlag'
-        ? { id: randomUUID(), art: 'grunnlag', resultat: h.resultat }
-        : { id: randomUUID(), art: spor === 'vederlag' ? 'beloep' : 'dager' }
-    );
-    const svar: Record<string, unknown> = {
-      id: navn.ta(h.navn as string),
-      spor,
-      gjelder,
-      ...(typeof h.erstatter === 'string' ? { erstatter: navn.reserver(h.erstatter) } : {}),
-      // #342: grunnlagsversjonen svaret er regnet mot; bevis-saken kan oppgi en annen.
-      ...(spor === 'grunnlag'
-        ? {}
-        : {
-            grunnlagskrav:
-              typeof h.grunnlagskrav === 'string'
-                ? ref(h.grunnlagskrav)
-                : (u.spor.grunnlag.gjeldendeKrav?.id ??
-                  (() => {
-                    throw new Error('Bevis-saken mangler et grunnlagskrav for svaret');
-                  })()),
-          }),
-      standpunkter,
-    };
-    if (spor !== 'grunnlag')
-      svar.utregning = regnUtSvar(
-        spor,
-        v,
-        { krav, grunnlagskrav: u.spor.grunnlag.gjeldendeKrav },
-        GJELDENDE_REGLER
-      );
-    data = { svar: [svar] };
+    // Et registrert brev kan ha flere svar (`svar`), ellers er raden ett svar.
+    data = { svar: (Array.isArray(h.svar) ? (h.svar as Handling[]) : [h]).map(byggSvar) };
   }
   // Registrert korrespondanse: sendt utenfor appen, om § 31.3 er oppfylt, og en
   // merking etter KA-U20 med sporene den gjelder.
