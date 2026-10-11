@@ -11,7 +11,7 @@
 
 import { erRegistrert } from '../format/leser.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
-import { ulikeVirkninger, virkninger } from '../frosset/standpunkt.ts';
+import { innsigelsenSvaretErLestMed, ulikeVirkninger, virkninger } from '../frosset/standpunkt.ts';
 import {
   enighetensVirkning,
   grunnlagskravFor,
@@ -51,7 +51,8 @@ function status(u: Utledning): Statuskode {
   if (!u.forstaatt) return 'kan_ikke_utledes';
   if (u.grunnlagAvvist) return 'avsluttet_avslaatt';
   if (u.spor.grunnlag.trukket) return 'avsluttet_trukket';
-  if (kraveneErAvgjort(u)) return 'avsluttet_oppgjort';
+  // KA-U20: saken vises ikke som oppgjort når en enighet bygger på et merket brev.
+  if (kraveneErAvgjort(u) && !SPOR.some((s) => u.spor[s].forbehold)) return 'avsluttet_oppgjort';
   if (SPOR.some((s) => venterPaaSvar(u.spor[s]))) return 'venter_paa_svar';
   return 'under_forhandling';
 }
@@ -60,12 +61,9 @@ function status(u: Utledning): Statuskode {
 function regelenErEndret(u: Utledning, spor: Spor, regler: Regelsett): boolean {
   const g = u.spor[spor].gjeldendeSvar;
   if (!g) return false;
-  const frosset = u.svar[g.id].virkninger;
-  // VS-U11: innsigelsen svaret er lest med, står i det frosne brevet og ikke blant standpunktene.
-  const innsigelse = frosset.find((v) => !g.standpunkter.some((p) => p.id === v.standpunkt));
   return ulikeVirkninger(
-    frosset,
-    virkninger(g, grunnlagskravFor(g, u), regler, innsigelse?.standpunkt)
+    u.svar[g.id].virkninger,
+    virkninger(g, grunnlagskravFor(g, u), regler, innsigelsenSvaretErLestMed(g))
   );
 }
 
@@ -85,7 +83,8 @@ function etiketter(u: Utledning, spor: Spor, regler: Regelsett): string[] {
   const ut: string[] = [];
   if (s.trukket) ut.push('trukket');
   if (venterPaaSvar(s)) ut.push('venter_paa_svar');
-  const virkning = enighetensVirkning(u, spor);
+  // KA-U20: bygger enigheten på et merket brev, slår visningen ikke fast at den finnes.
+  const virkning = s.forbehold ? null : enighetensVirkning(u, spor);
   if (spor === 'grunnlag') {
     if (u.frafalt) ut.push('paalegg_frafalt');
     if (u.grunnlagAvvist) ut.push('avslaatt');
@@ -105,14 +104,15 @@ function etiketter(u: Utledning, spor: Spor, regler: Regelsett): string[] {
   if (s.gjeldendeSvar && u.svar[s.gjeldendeSvar.id].uavklart.length)
     ut.push('bh_har_ikke_vurdert_varselet');
   // KA-U16, KA-U20: enigheten eller svaret bygger på et merket brev; uenigheten vises.
-  if (s.forbehold) ut.push(s.enighet ? 'enighet_med_forbehold' : 'forbehold');
+  if (s.forbehold) ut.push(s.enighet ? 'uenighet_om_merket_brev' : 'forbehold');
   // § 5 og VS-U12: påberopelsene registreres og vises uten virkning på utfallet.
-  const iSporet = new Set(
-    [s.gjeldendeKrav?.id, s.gjeldendeSvar?.id, spor === 'frist' ? s.varsel?.id : undefined].filter(
-      (x): x is string => x !== undefined
-    )
-  );
-  for (const i of u.innsigelser) if (iSporet.has(i.gjelder)) ut.push(`innsigelse_fra_${i.part}`);
+  const iSporet = [
+    s.gjeldendeKrav?.id,
+    s.gjeldendeSvar?.id,
+    spor === 'frist' ? s.varsel?.id : null,
+  ];
+  for (const i of u.innsigelser)
+    if (iSporet.includes(i.gjelder)) ut.push(`innsigelse_fra_${i.part}`);
   if (spor === 'grunnlag' && u.passivitet.length) ut.push('passivitet_paaberopt');
   if (s.ingenKrav) ut.push('ingen_krav');
   else if (spor === 'frist' && !s.varsel) ut.push('varsel_ikke_registrert');

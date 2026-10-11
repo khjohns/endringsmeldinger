@@ -3557,7 +3557,7 @@
             "kan_inngaa_i_eo": false,
             "visning.etiketter.frist": {
               "inneholder": [
-                "enighet_med_forbehold"
+                "uenighet_om_merket_brev"
               ]
             }
           }
@@ -4258,6 +4258,67 @@
           "forventet": {
             "forstaatt": true,
             "gjeldende_krav.vederlag": "K-v2"
+          }
+        }
+      ]
+    },
+    {
+      "id": "F-MM-V3b",
+      "rader": [
+        "VS-03"
+      ],
+      "start": "krav_irreg",
+      "forslag": "VS-U9 og OV-U1: et svar på vederlaget fra appen etter byggherrens innsigelse mot vederlagskravet avvises, fordi preklusjon etter § 34.1 ikke er bygget",
+      "forventningsgrunnlag": "avklart_tolkning",
+      "steg": [
+        {
+          "handling": "innsigelse",
+          "part": "BH",
+          "gjelder": "K-v1",
+          "navn": "D3"
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 0,
+          "rolle": "kontroll",
+          "kilde": [
+            "VS-U9"
+          ],
+          "forventet": {
+            "avvist": false
+          },
+          "prov": {
+            "handling": "brev",
+            "svar": [
+              {
+                "spor": "vederlag",
+                "vurdering": "godkjent",
+                "godkjent_belop": 100000
+              }
+            ]
+          }
+        },
+        {
+          "etter": 1,
+          "rolle": "mal",
+          "kilde": [
+            "VS-U9",
+            "OV-U1"
+          ],
+          "forventet": {
+            "avvist": true,
+            "regel": "VURDERING_UTENFOR_KJERNEN"
+          },
+          "prov": {
+            "handling": "brev",
+            "svar": [
+              {
+                "spor": "vederlag",
+                "vurdering": "godkjent",
+                "godkjent_belop": 100000
+              }
+            ]
           }
         }
       ]

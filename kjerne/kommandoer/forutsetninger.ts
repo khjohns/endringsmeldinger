@@ -10,6 +10,8 @@
  */
 
 import {
+  kanFaaInnsigelse,
+  kanFaaProtest,
   kraveneErAvgjort,
   trekkAvGrunnlagetErSperret,
   trekkKanIkkeBevareAvtalen,
@@ -55,7 +57,7 @@ function henvisning(h: Extract<Handlingsnoekkel, { gjelder: string }>, part: Par
   switch (h.type) {
     case 'innsigelse':
       // VS-U1, VS-U14: et varsel, krav eller svar fra motparten.
-      return maal && maal.part !== part && ['krav', 'svar', 'varsel'].includes(maal.art)
+      return kanFaaInnsigelse(maal, part)
         ? null
         : avvis(
             'UGYLDIG_INNSIGELSE',
@@ -64,15 +66,7 @@ function henvisning(h: Extract<Handlingsnoekkel, { gjelder: string }>, part: Par
     case 'protest': {
       // VS-U1, MP-U6: en innsigelse fra motparten, påberopelsen i et svar, eller et
       // dokument fra motparten med innsigelser, som protesten da gjelder alle.
-      const innsigelse = (e: (typeof u.elementer)[string]) =>
-        e.art === 'innsigelse' || e.forSent === true;
-      const ok =
-        maal &&
-        maal.part !== part &&
-        (innsigelse(maal) ||
-          (maal.art === 'dokument' &&
-            Object.values(u.elementer).some((e) => e.hendelse === h.gjelder && innsigelse(e))));
-      return ok
+      return kanFaaProtest(h.gjelder, part, u.elementer)
         ? null
         : avvis('INGEN_INNSIGELSE', 'Det finnes ingen innsigelse fra motparten å protestere mot.');
     }

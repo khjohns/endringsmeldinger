@@ -25,6 +25,8 @@ import {
   blirEndringsordre,
   enighetsgrunnlag,
   grunnlagetErAvklart,
+  innsigelsenGjelderSvaret,
+  innsigelsenSvaretErLestMed,
   prinsipalt,
   sammenfallStemmer,
   standpunktet,
@@ -90,10 +92,35 @@ export interface Element {
   hendelse: string;
   part: Part;
   art: 'dokument' | 'krav' | 'svar' | 'standpunkt' | 'opplysning' | Utsagn['art'];
-  /** Et standpunkt om rettidighet der byggherren sier at varselet kom for sent (§ 5, VS-U9). */
-  forSent?: boolean;
+  /**
+   * En innsigelse etter § 5: utsagnet, eller et standpunkt om rettidighet der parten
+   * sier at varselet kom for sent (VS-U9).
+   */
+  innsigelse?: boolean;
   /** Et registrert dokument med et krav eller svar, som kan merkes etter KA-U20. */
   registrertBrev?: boolean;
+}
+
+/** Det en innsigelse kan gjelde (VS-U1). */
+export const KAN_FAA_INNSIGELSE: ReadonlySet<Element['art']> = new Set(['krav', 'svar', 'varsel']);
+
+/** VS-U1, VS-U14: en innsigelse gjelder et varsel, krav eller svar fra motparten. */
+export const kanFaaInnsigelse = (maal: Element | undefined, part: Part): boolean =>
+  maal !== undefined && maal.part !== part && KAN_FAA_INNSIGELSE.has(maal.art);
+
+/**
+ * VS-U1, MP-U6: en protest gjelder en innsigelse fra motparten, påberopelsen i et
+ * svar, eller et dokument fra motparten med innsigelser, og da alle innsigelsene i det.
+ */
+export function kanFaaProtest(id: string, part: Part, elementer: Record<string, Element>): boolean {
+  const maal = elementer[id];
+  return (
+    maal !== undefined &&
+    maal.part !== part &&
+    (maal.innsigelse === true ||
+      (maal.art === 'dokument' &&
+        Object.values(elementer).some((e) => e.hendelse === id && e.innsigelse === true)))
+  );
 }
 
 /** Et utsagn som viser til et annet element: innsigelse, protest eller påberopt passivitet. */
@@ -227,6 +254,9 @@ function grunnerFraGrunnlaget({ svar, virkninger }: Svarberegning): Subsidiaergr
 /** Elementene i et dokument som kan endre utfallet (KA-U11). Andre utsagn har ingen virkning på det. */
 const ENDRER_UTFALLET = new Set<string>(['aksept', 'trekk', 'ingen_krav', 'varsel']);
 
+const kanStride = (d: Dokument): boolean =>
+  d.krav.length > 0 || d.svar.length > 0 || d.utsagn.some((x) => ENDRER_UTFALLET.has(x.art));
+
 interface Strid {
   element: string;
   grunn: string;
@@ -296,7 +326,9 @@ export function utled(journal: Domenehendelse[], regler: Regelsett): Utledning {
   const uten = new Map<string, { hendelse: string; grunn: string }>();
   const konflikter: Utledning['begrensninger'] = [];
   for (const [i, h] of journal.entries()) {
-    if (h.art !== 'dokument') continue;
+    if (h.art !== 'dokument' || !kanStride(h.dokument)) continue;
+    // Kontrollen trenger saken slik den var før dokumentet, så prefikset utledes for
+    // hvert dokument som kan endre utfallet.
     const foer = utledSporene(journal.slice(0, i), regler, uten);
     if (!foer.forstaatt) break;
     const registrert = erRegistrert(h.dokument.opplysninger);
@@ -362,13 +394,14 @@ function utledSporene(
       for (const p of s.standpunkter) {
         plasser(p.id, h);
         registrer(p.id, h, d.avsender, 'standpunkt');
-        if (p.art === 'rettidighet' && !p.iTide) elementer[p.id].forSent = true;
+        if (p.art === 'rettidighet' && !p.iTide) elementer[p.id].innsigelse = true;
       }
       if (!uten.has(s.id)) spor[s.spor].svar.push(s);
     }
     for (const u of d.utsagn) {
       plasser(u.id, h);
       registrer(u.id, h, d.avsender, u.art);
+      if (u.art === 'innsigelse') elementer[u.id].innsigelse = true;
       if (uten.has(u.id)) continue;
       if (u.art === 'aksept') aksepter.push(u);
       else if (u.art === 'trekk') trekk.push(u);
@@ -428,15 +461,18 @@ function utledSporene(
       ugyldig(s.id, 'svaret viser ikke til en grunnlagsversjon før det');
     // VS-U11: en virkning som ikke er et standpunkt i svaret, er en innsigelse fra
     // samme part før svaret, mot kravet svaret gjelder eller et registrert varsel.
-    for (const v of s.beslutningsgrunnlag.virkninger) {
-      if (s.standpunkter.some((p) => p.id === v.standpunkt)) continue;
-      const i = henvisninger.find((x) => x.id === v.standpunkt);
-      const mot = i?.gjelder;
+    const lestMed = innsigelsenSvaretErLestMed(s);
+    if (lestMed !== undefined) {
+      const i = henvisninger.find((x) => x.id === lestMed);
       if (
         i?.art !== 'innsigelse' ||
         elementer[i.id].part !== avsenderAv(s.id) ||
         !bakover(s.id, i.id) ||
-        !(mot === s.gjelder || (s.spor === 'frist' && varsler.some((x) => x.id === mot)))
+        !innsigelsenGjelderSvaret(
+          i.gjelder,
+          s,
+          varsler.map((x) => x.id)
+        )
       )
         ugyldig(s.id, 'svaret er lest med noe som ikke er en innsigelse mot kravet eller varselet');
     }
@@ -512,13 +548,7 @@ function utledSporene(
   // KA-U20: en senere merking gjelder et registrert brev med et krav eller svar før den.
   for (const o of opplysninger) {
     if (o.hva !== 'kan_ikke_uttrykkes' || o.brev === o.dokument) continue;
-    const brev = dokumenter.get(o.brev);
-    if (
-      !brev ||
-      !bakover(o.id, o.brev) ||
-      !erRegistrert(brev.opplysninger) ||
-      (!brev.krav.length && !brev.svar.length)
-    )
+    if (!elementer[o.brev]?.registrertBrev || !bakover(o.id, o.brev))
       ugyldig(o.id, 'merkingen gjelder ikke et registrert brev med et krav eller svar før den');
   }
   // § 5, VS-U12 og KA-U20: hvert utsagn som viser til et annet, viser bakover til noe
@@ -546,17 +576,9 @@ function utledSporene(
   ) {
     switch (art) {
       case 'innsigelse':
-        return maal.part !== part && ['krav', 'svar', 'varsel'].includes(maal.art);
+        return kanFaaInnsigelse(maal, part);
       case 'protest':
-        return (
-          maal.part !== part &&
-          (maal.art === 'innsigelse' ||
-            maal.forSent === true ||
-            (maal.art === 'dokument' &&
-              Object.values(elementer).some(
-                (e) => e.hendelse === id && (e.art === 'innsigelse' || e.forSent === true)
-              )))
-        );
+        return kanFaaProtest(id, part, elementer);
       case 'passivitet':
         return maal.art === 'krav' && alleKrav.get(id)?.spor === 'grunnlag';
       case 'avklaring': {
@@ -750,7 +772,7 @@ export const trekkAvGrunnlagetErSperret = (u: Utledning): boolean => u.endringso
  * kan bevare byggherrens rettigheter etter en avtale. Det gjelder en enighet i et
  * spor trekket rammer (grunnlaget rammer alle, GR-U5) som bygger på et brev merket
  * etter KA-U20: appen vet ikke hva byggherren har avtalt. Et avtalt fradrag (KA-U9)
- * kan ikke oppstå før formatet tillater negative beløp i byggedel 3.
+ * avvises av formatet så lenge KA-U9 ikke er bygget, og sperren må dekke det når det bygges.
  */
 export const trekkKanIkkeBevareAvtalen = (u: Utledning, spor: Spor): boolean =>
   (spor === 'grunnlag' ? SPOR : [spor]).some(

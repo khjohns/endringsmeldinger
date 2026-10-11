@@ -275,8 +275,8 @@ endringsordre og forsering, etter [OV-U1](plans/2026-09-16-godkjenning-og-varig-
   grunnlagsversjon venter på svar, også ved flere svar på samme versjon. Sperren i
   [KA-U22](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u22) er bygget for en
   enighet som bygger på et merket brev (`trekkKanIkkeBevareAvtalen`,
-  `AVTALE_KAN_IKKE_BEVARES`); et avtalt fradrag kan ikke oppstå før formatet tillater
-  negative beløp (byggedel 3). Brevteksten er ikke bygget (#369).
+  `AVTALE_KAN_IKKE_BEVARES`). Et fradrag avvises fordi KA-U9 ikke er bygget, og sperren
+  må dekke et avtalt fradrag når det bygges. Brevteksten er ikke bygget (#369).
 - **Arbeidsvalg 11.10 (#342, prinsipp 3):** relasjonen er grunnlagsversjonen svaret
   ble regnet mot, ikke grunnlagssvaret, så et nytt eller revidert svar på samme
   versjon gjelder uten at svaret på vederlag eller frist skrives om. At svaret er

@@ -29,6 +29,13 @@ function kontrollerSvar(s: Svarutkast, u: Utledning, regler: Regelsett): Avvisni
       'ANNEN_REGELVERSJON',
       `Svaret er regnet ut med regelversjon ${s.regelversjon}, serveren bruker ${regler.versjon}.`
     );
+  // VS-U9 og OV-U1: svaret skulle gjentatt byggherrens innsigelse mot vederlagskravet,
+  // men preklusjon etter § 34.1 er ikke bygget.
+  if (s.spor === 'vederlag' && u.innsigelser.some((i) => i.part === 'BH' && i.gjelder === krav.id))
+    return avvis(
+      'VURDERING_UTENFOR_KJERNEN',
+      'Kjernen kan ikke lagre vurderingen: preklusjon etter § 34.1 etter en innsigelse er ikke i kjernen ennå.'
+    );
   const utenfor = utenforOmfanget(s.spor, s.vurderinger as Record<string, unknown>);
   if (utenfor)
     return avvis('VURDERING_UTENFOR_KJERNEN', `Kjernen kan ikke lagre vurderingen: ${utenfor}.`);

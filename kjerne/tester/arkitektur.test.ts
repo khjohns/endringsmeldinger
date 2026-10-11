@@ -292,7 +292,13 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   // Hvem som sa hvert element, og hva det er (§ 5, VS-U12, KA-U20, MM-U18).
   ['Utledning', 'relasjon', 'elementer'],
   ['Utledning.elementer', 'relasjon', '*'],
-  ['Element', 'relasjon', 'hendelse part art forSent registrertBrev'],
+  ['Element', 'relasjon', 'hendelse part art innsigelse registrertBrev'],
+  // VS-U1, MP-U6: hva en innsigelse og en protest kan gjelde, delt av utledningen og kommandoene.
+  ['utledning/utled.ts', 'relasjon', 'kanFaaInnsigelse kanFaaProtest KAN_FAA_INNSIGELSE'],
+  ['utledning/utled.ts:kanFaaProtest(elementer)', 'relasjon', '*'],
+  // VS-U9 og OV-U1: et svar på vederlaget etter byggherrens innsigelse avvises.
+  ['Utledning', 'utsagn', 'innsigelser', ['kommandoer/nyttelast.ts']],
+  ['Paaberopelse', 'relasjon', 'part gjelder', ['kommandoer/nyttelast.ts']],
   // MM-U18: stridene ett dokument har med journalen før det.
   ['Strid', 'predikat', 'element grunn registrertGodtas', ['utledning/utled.ts:utled']],
   ['Bestridelse', 'relasjon', 'part'],
@@ -338,6 +344,19 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['frosset/standpunkt.ts', 'predikat', 'enighetsgrunnlag'],
   // GR-U7 med unntaket i MM-U13: utledningen regner `grunnlagAvklart` og `grunnlagAvvist` av den.
   ['frosset/standpunkt.ts', 'predikat', 'grunnlagetErAvklart', ['utledning/utled.ts:utledSporene']],
+  // VS-U11: innsigelsen et registrert svar er lest med, og hvilke innsigelser som kan lese det.
+  [
+    'frosset/standpunkt.ts',
+    'frosset',
+    'innsigelsenSvaretErLestMed',
+    ['utledning/utled.ts:utledSporene'],
+  ],
+  [
+    'frosset/standpunkt.ts',
+    'relasjon',
+    'innsigelsenGjelderSvaret',
+    ['utledning/utled.ts:utledSporene', 'kommandoer/skriving.ts:frysBrev'],
+  ],
   // MM-U18: sammenfallet stemmer med standpunktene i samme frosne brev.
   ['frosset/standpunkt.ts', 'frosset', 'sammenfallStemmer', ['utledning/utled.ts:utledSporene']],
   ['frosset/standpunkt.ts:regnUtSvar', 'utsagn', 'krav grunnlagskrav'],
