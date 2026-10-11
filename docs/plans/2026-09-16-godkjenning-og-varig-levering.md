@@ -1,9 +1,15 @@
 # Hovedplan: sikkerhet, dataintegritet og varig levering
 
-**Opprettet:** 2026-09-16. **Sist sluttredigert:** 2026-10-10 (3.1), mot commit
-`7460838862a8dec0697a7cc3d48f57a652af9902` (`main`).
+**Opprettet:** 2026-09-16. **Sist sluttredigert:** 2026-10-11, mot commit
+`6f56672c00aca01eaac8e9566c672535c37bce20` (`main`).
 **Status:** Autoritativ plan og eneste løpende kilde til vedtak, rekkefølge og
 funnstatus. Appen er ikke i produksjon og har ingen reelle data.
+
+Teksten før sluttredigeringen 11.10 er bevart i Git:
+`git show 6f56672:docs/plans/2026-09-16-godkjenning-og-varig-levering.md`
+(blob `9421cba77197f29648d7be092e0a7861d1740ea3`). Den har teksten som
+forutsatte PostgreSQL eller at Python beholder databasedelen, slik den sto før
+[B-12, databasen](#b-12-databasen) og [B-19](#b-19) (#396).
 
 Teksten før sluttredigeringen 10.10 er bevart i Git:
 `git show 7460838:docs/plans/2026-09-16-godkjenning-og-varig-levering.md`
@@ -68,8 +74,11 @@ Sluttredigeringen 09.10 innarbeidet vedtakene 09.10 og ordnet 3.1 etter
 kontraktstema. Sluttredigeringen 10.10 innarbeidet de daterte merknadene i
 Følge-kolonnen i 3.1 (#346); teksten før er
 `git show 7460838:docs/plans/2026-09-16-godkjenning-og-varig-levering.md`
-(blob `a325fbc3b0934cea3bb09c1839d85edbf493f5ab`). Endrer noe status, rettes
-det her med en datert merknad.
+(blob `a325fbc3b0934cea3bb09c1839d85edbf493f5ab`). Sluttredigeringen 11.10
+rettet teksten utenfor vedtakene etter B-12, databasen, og B-19 (#396), og
+byttet ordet «ansvarsgrunnlaget» i B-13 etter HF-U2 (#384); teksten før er
+`git show 6f56672:docs/plans/2026-09-16-godkjenning-og-varig-levering.md`.
+Endrer noe status, rettes det her med en datert merknad.
 
 ### 1.3 Begreper som holdes adskilt
 
