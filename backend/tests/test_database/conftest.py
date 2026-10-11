@@ -28,7 +28,8 @@ def _url_og_driver() -> str:
 
 @pytest.fixture(scope="session")
 def testbase():
-    """Lesende tilkobling til testbasen i KOE_TESTBASE_URL."""
+    """Lesende tilkobling til testbasen i KOE_TESTBASE_URL, bygget av migrasjonene
+    i arbeidstreet."""
     import psycopg
 
     url = krev_kastbar_testbase(_url_og_driver())
