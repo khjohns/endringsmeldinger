@@ -75,8 +75,9 @@ kontraktstema. Sluttredigeringen 10.10 innarbeidet de daterte merknadene i
 Følge-kolonnen i 3.1 (#346); teksten før er
 `git show 7460838:docs/plans/2026-09-16-godkjenning-og-varig-levering.md`
 (blob `a325fbc3b0934cea3bb09c1839d85edbf493f5ab`). Sluttredigeringen 11.10
-rettet teksten utenfor vedtakene etter B-12, databasen, og B-19 (#396), og
-byttet ordet «ansvarsgrunnlaget» i B-13 etter HF-U2 (#384); teksten før er
+rettet teksten utenfor vedtakene etter B-12, databasen, og B-19 (#396), ga F0b
+nytt innhold, byttet ordet «ansvarsgrunnlaget» i B-13 etter HF-U2 (#384) og
+førte inn KA-U30; teksten før er
 `git show 6f56672:docs/plans/2026-09-16-godkjenning-og-varig-levering.md`.
 Endrer noe status, rettes det her med en datert merknad.
 
@@ -257,13 +258,14 @@ eksplisitt oppheves.
 | <a id="ka-u2"></a>KA-U2: kravversjonene er de hendelsene projeksjonen og frontenden regner som krav: `grunnlag_opprettet` og `grunnlag_oppdatert`, `vederlag_krav_sendt` med kravinnhold og `vederlag_krav_oppdatert`, `frist_krav_sendt`, `frist_krav_oppdatert` og `frist_krav_spesifisert`. Et frittstående konsekvensvarsel (`vederlag_krav_sendt` med `varsel_type` «varsel»), et trekk og byggherrens innsigelse eller forespørsel er ikke kravversjoner. Godkjenningsflyten skal bruke samme definisjon | 08.10, oppdragsgiver | Presiserer vedtaket om ny kravversjon 05.10. Projeksjonen og `submissionRefs` følger det; `claims()` i godkjenningsflyten gjør det ikke (DT-02) |
 | <a id="ka-u3"></a>KA-U3: vedtaket om ny kravversjon gjelder til saken er `OMFORENT`. Deretter avvises en ny kravversjon, og et nytt krav om samme forhold går i en ny sak, som ved et trukket krav | 08.10, oppdragsgiver | Etter [KA-U7](#ka-u7) (09.10) kan TE ikke revidere et krav partene er enige om, heller ikke mens et annet spor er åpent. Som i dag: `CASE_NOT_CLOSED` avviser oppdateringen (K 08.10). TE kan altså revidere et fullt godkjent krav bare så lenge et annet spor er åpent |
 | <a id="ka-u8"></a>KA-U8: en kravversjon på 0 dager eller 0 kr avvises. 0 er ikke et krav om noe (§ 33.6.1: «det antall dager han krever»). TE trekker kravet eller sender det ikke | 09.10, oppdragsgiver etter lesning av NS 8407 § 5 og §§ 31–35 | Avgjør #179. «Sender det ikke» er presisert 09.10 av [KA-U12](#ka-u12): TE sier uttrykkelig «ingen krav» |
-| <a id="ka-u12"></a>KA-U12: TE kan si uttrykkelig at det ikke kreves vederlag eller fristforlengelse i et spor som ikke er sendt («ingen krav»). Utsagnet lukker sporet på samme måte som et trekk: det teller som trukket i KA-U11 og som oppgjort i EO-U5. Det er ikke et krav på 0 (KA-U8). Har byggherren godkjent grunnlaget, er godkjenningen endringsordren (§ 32.3 første ledd a, GR-U10). Har byggherren ikke svart på grunnlaget, kan byggherren svare ved å utstede en endringsordre i en EO-sak som viser til KOE-saken (§ 32.3 første ledd a). KOE-saken trekkes ikke. Forkastet: at byggherren utsteder endringsordren i en egen EO-sak og TE trekker KOE-saken, fordi journalen da sier at TE trakk kravet om endring, og fordi en godkjenning av grunnlaget allerede er en endringsordre; og å la begge veier stå åpne | 09.10, oppdragsgiver (#308) | Presiserer KA-U8, KA-U11 og EO-U5. Presisert 10.10 av [KA-U15](#ka-u15): TE kan si «ingen krav» i fristsporet etter et varsel om fristforlengelse, men ikke før grunnlaget er sendt, og hva TE gir avkall på, avgjøres før «ingen krav» tas i bruk. Presisert 10.10 av [KA-U17](#ka-u17): «ingen krav» er avkall, også for følger som ikke er kjent. At godkjenningen er endringsordren, gjelder underkategoriene som § 32.2 gjelder for (GR-U11, [KA-U13](#ka-u13); 09.10), og krever også § 31.3 ([GR-U13](#gr-u13); 10.10). Ikke bygget: utsagnet er en ny kommando i #309. Hvordan EO-saken viser til KOE-saken når den er byggherrens svar på grunnlaget, er avgjort 10.10 av [EO-U6](#eo-u6) |
+| <a id="ka-u12"></a>KA-U12: TE kan si uttrykkelig at det ikke kreves vederlag eller fristforlengelse i et spor som ikke er sendt («ingen krav»). Utsagnet lukker sporet på samme måte som et trekk: det teller som trukket i KA-U11 og som oppgjort i EO-U5. Det er ikke et krav på 0 (KA-U8). Har byggherren godkjent grunnlaget, er godkjenningen endringsordren (§ 32.3 første ledd a, GR-U10). Har byggherren ikke svart på grunnlaget, kan byggherren svare ved å utstede en endringsordre i en EO-sak som viser til KOE-saken (§ 32.3 første ledd a). KOE-saken trekkes ikke. Forkastet: at byggherren utsteder endringsordren i en egen EO-sak og TE trekker KOE-saken, fordi journalen da sier at TE trakk kravet om endring, og fordi en godkjenning av grunnlaget allerede er en endringsordre; og å la begge veier stå åpne | 09.10, oppdragsgiver (#308) | Presiserer KA-U8, KA-U11 og EO-U5. Presisert 10.10 av [KA-U15](#ka-u15): TE kan si «ingen krav» i fristsporet etter et varsel om fristforlengelse, men ikke før grunnlaget er sendt, og hva TE gir avkall på, avgjøres før «ingen krav» tas i bruk. Presisert 10.10 av [KA-U17](#ka-u17): «ingen krav» er avkall, også for følger som ikke er kjent. At godkjenningen er endringsordren, gjelder underkategoriene som § 32.2 gjelder for (GR-U11, [KA-U13](#ka-u13); 09.10), og krever også § 31.3 ([GR-U13](#gr-u13); 10.10). Ikke bygget: utsagnet er en ny kommando i #309. Hvordan EO-saken viser til KOE-saken når den er byggherrens svar på grunnlaget, er avgjort 10.10 av [EO-U6](#eo-u6). Merknad 11.10 (oppdragsgiver): «på samme måte som et trekk» gjelder at sporet lukkes ([KA-U11](#ka-u11), [EO-U5](#eo-u5)). Hvor langt avkallet rekker, står i [KA-U17](#ka-u17) og [KA-U25](#ka-u25) for «ingen krav» og i [KA-U14](#ka-u14) og [KA-U22](#ka-u22) for et trekk |
 | <a id="ka-u15"></a>KA-U15: TE kan si «ingen krav» (KA-U12) i fristsporet etter et varsel om fristforlengelse (§ 33.4), fordi et frittstående varsel ikke er en kravversjon (KA-U2). Før grunnlaget er sendt, avvises «ingen krav» på samme måte som et krav. Begge kan tas opp igjen når det avgjøres hva «ingen krav» gir avkall på. Hva TE gir avkall på med «ingen krav», og hvordan brevet uttrykker det, avgjøres før «ingen krav» tas i bruk. Hvordan et forbehold i byggherrens svar virker på sammenfall (GR-U7), avgjøres før byggherren kan ta forbehold i et svar i TS-stien | 10.10, oppdragsgiver (#273) | Presiserer KA-U12 og GR-U7. Hva «ingen krav» gir avkall på, og hvordan brevet uttrykker det, er avgjort 10.10 av [KA-U17](#ka-u17). Forbeholdet er avgjort 10.10 av [KA-U16](#ka-u16), og KA-U15 er dermed oppfylt for forbehold. Kommandoen og brevteksten hører til #309. Ikke bygget |
 | <a id="ka-u17"></a>KA-U17: «ingen krav» (KA-U12) er TEs avkall på krav om frist eller vederlag som følge av forholdet i saken, også for følger som ikke er kjent, og brevet sier det uttrykkelig. Er TE usikker, sender hen ikke «ingen krav». Et senere krav kan registreres i en ny sak, men appen avgjør ikke om det er avskåret. Varslingsreglene gjelder uansett. Forkastet: avkall bare for kjente følger, fordi «kjente følger» gir en ny tvist om hva TE visste; og «ingen krav» som bare et utsagn uten avkall, som ville endret KA-U12 og EO-U5 | 10.10, oppdragsgiver etter sparring (#309) | Presiserer [KA-U12](#ka-u12). Avgjør det [KA-U15](#ka-u15) lot stå åpent: hva TE gir avkall på med «ingen krav», og hvordan brevet uttrykker det. Brevteksten står i [KA-U22](#ka-u22) (10.10). Presisert 11.10 av [KA-U25](#ka-u25): avkallet omfatter ikke vederlag for forsering. Ikke bygget. Kommandoen og brevteksten hører til #309 |
 | <a id="ka-u22"></a>KA-U22: brevet for et trekk av grunnlaget sier: «TE trekker sitt krav i sak <saksnummer> («<tittel>»). Trekket er avkall på alle krav i saken, også vederlag og fristforlengelse byggherren har godkjent. Trekket opphever ikke et pålegg, en endringsordre, en utførelsesplikt eller byggherrens rettigheter etter en avtale.» Brevet for et trekk av vederlag eller frist sier: «TE trekker kravet om justering av vederlaget [om fristforlengelse] i sak <saksnummer> («<tittel>»), <kravversjonen, entydig identifisert>. Trekket er avkall på dette kravet, også det byggherren har godkjent.» At kravet ikke kan tas opp igjen i saken, står i veiledningen i skjemaet, ikke i brevet. Brevet for «ingen krav» sier: «TE krever ikke justering av vederlaget [fristforlengelse] som følge av forholdet i sak <saksnummer> («<tittel>»), og gir avkall på slikt krav, også for følger som ikke er kjent i dag.» Trekk og «ingen krav» har ingen fritekst i første versjon, slik at avkallet er entydig. Et avgrenset eller betinget avkall som skjemaet ikke uttrykker, sendes utenfor appen. Et trekk, også av grunnlaget, avvises når appen ikke kan bevare byggherrens avtalte rettigheter, for eksempel et avtalt fradrag (KA-U9), til detaljmodellen er avklart i byggedel 3. Forkastet for første versjon: en utdypning under trekk og «ingen krav» | 10.10, oppdragsgiver etter sparring (#309) | Gjennomfører [KA-U14](#ka-u14) og [KA-U17](#ka-u17) i brevteksten. Sperren følger regelen i KA-U14 om at et trekk som ikke kan gjennomføres uten videre virkninger, sperres, og gjelder også et trekk av grunnlaget fordi det trekker vederlaget med seg (GR-U5, KA-U6). Snevrer inn [KA-U6](#ka-u6), [KA-U13](#ka-u13) og [GR-U5](#gr-u5) til byggedel 3. Sperren bygges før trekk tas i bruk (#310). Om enigheten gir byggherren en rettighet som trekket ikke rører, avklares i byggedel 3. Presisert 11.10 av [KA-U25](#ka-u25) for «ingen krav» i vederlagssporet. Presisert 11.10 av [KA-U27](#ka-u27). Ikke bygget. Den faste teksten hører til #309 |
 | <a id="ka-u23"></a>KA-U23: TE kan kreve vederlag i en sak med hovedkategorien force majeure (§ 33.3), og byggherren svarer som på andre vederlagskrav. Appen viser § 33.3 femte ledd («Partene har ikke krav på justering av vederlaget som følge av fristforlengelse etter denne bestemmelsen») som veiledning og trekker ingen konklusjon. Om et krav er en følge av fristforlengelsen, er partenes spørsmål, og kategorien er TEs utsagn. Appen lukker ikke vederlagssporet på grunn av kategorien: et vederlagsspor som ikke er sendt, hindrer at kravene er avgjort (KA-U11), til TE sier «ingen krav» (KA-U12). Et sendt krav avgjøres som andre krav. Femte ledd utelukker ikke i seg selv vederlaget for en forsering etter § 33.8, som kreves i forseringssaken (FO-U2), men avgjør ikke om vilkårene for forsering er oppfylt; det er oppdragsgivers lesning. Forkastet: å avvise vederlagskrav så lenge grunnlaget har kategorien force majeure, og å godta kravet uten veiledning | 11.10, oppdragsgiver etter sparring (#309) | Bygger på [VS-U13](#vs-u13). Avviser ikke noe som godtas i dag. At «ingen krav» ikke er avkall på vederlaget for en forsering, står i [KA-U25](#ka-u25). Veiledningen hører til #313. Ikke bygget (#309) |
 | <a id="ka-u25"></a>KA-U25: brevet for «ingen krav» i vederlagssporet (KA-U22) sier også: «Avkallet omfatter ikke vederlag for forsering etter NS 8407 § 33.8.» Vederlaget for en forsering kreves særskilt (FO-U2), også når forseringen føres utenfor appen (OV-U2). Teksten må stå i brevet før «ingen krav» tas i bruk (#310), fordi et sendt brev beholder virkningen det hadde da det ble sendt (MM-U9). Appen avgjør ikke senere tvister om hvor langt avkallet når (KA-U17). Forkastet: at avkallet omfatter forseringsvederlaget, og å vente med spørsmålet til byggedel 4 | 11.10, oppdragsgiver etter sparring (#309) | Presiserer [KA-U17](#ka-u17) og brevteksten i [KA-U22](#ka-u22). I tråd med [KA-U14](#ka-u14): et avkall gjelder TEs eget, uttrykkelig identifiserte krav. Avgjør #382. Ikke bygget. Brevteksten hører til #309 |
-| <a id="ka-u27"></a>KA-U27: et trekk, også av grunnlaget, avvises når en enighet trekket rammer, gir byggherren et fradrag, eller bygger på et brev som er merket etter KA-U20 og ikke avklart, fordi appen da ikke vet hva byggherren har avtalt. Delen om merket brev gjelder fra første versjon. Forkastet: at sperren bare gjelder fradrag, fordi beskyttelsen ikke kan vente til etter at trekk tas i bruk (svaret 10.10) | 11.10, oppdragsgiver (#309, #394) | Presiserer [KA-U22](#ka-u22). Delen om merket brev gjelder til merkingen er avklart etter [KA-U20](#ka-u20). Delen om fradrag bygges når fradrag kan uttrykkes ([KA-U9](#ka-u9)). Ikke bygget |
+| <a id="ka-u27"></a>KA-U27: et trekk, også av grunnlaget, avvises når en enighet trekket rammer, gir byggherren et fradrag, eller bygger på et brev som er merket etter KA-U20 og ikke avklart, fordi appen da ikke vet hva byggherren har avtalt. Delen om merket brev gjelder fra første versjon. Forkastet: at sperren bare gjelder fradrag, fordi beskyttelsen ikke kan vente til etter at trekk tas i bruk (svaret 10.10) | 11.10, oppdragsgiver (#309, #394) | Presiserer [KA-U22](#ka-u22). Delen om merket brev gjelder til merkingen er avklart etter [KA-U20](#ka-u20). Delen om fradrag bygges når fradrag kan uttrykkes ([KA-U9](#ka-u9)). Presisert 11.10 av [KA-U30](#ka-u30): delen om merket brev gjelder bare sporene merkingen gjelder. Ikke bygget |
+| <a id="ka-u30"></a>KA-U30: et trekk avvises etter KA-U27 fordi en enighet bygger på et merket brev, bare når merkingen gjelder sporet enigheten gjelder (KA-U26). Gir et brev fra byggherren enighet om både grunnlaget og vederlaget, og er brevet merket bare for grunnlaget, avvises ikke TEs trekk av vederlagskravet på grunn av merkingen. Den som merker, velger hvilke spor merkingen gjelder; merker hen bare grunnlaget, har hen sagt at forbeholdet ikke gjelder vederlaget. Forkastet: at enhver enighet som bygger på et merket brev, sperrer trekk uansett hvilke spor merkingen gjelder | 11.10, oppdragsgiver (#309, #394) | Presiserer [KA-U27](#ka-u27), delen om merket brev, og bygger på [KA-U26](#ka-u26): sperren gjelder i de sporene merkingen gjelder. Det andre KA-U27 avviser trekket for, et fradrag, er uendret. I skjemaet er alle spor utgangspunktet når den som merker, oppgir sporene (KA-U26). Ikke bygget |
 
 #### Svar og standpunkt
 
@@ -1097,6 +1099,11 @@ typesjekk og lint (19.09). Migrasjonene er bygd mot tom PostgreSQL manuelt
 > med en test til for flettingen der begge skriverne har skrevet ferdig. Se
 > [notatet](../gjennomforing-tst02-2026-09-22.md).
 
+> **Merknad 2026-10-11 til F0 ([B-12, databasen](#b-12-databasen)):** jobben i
+> punkt 1 og veien fra fil til base i punkt 3 gjelder PostgreSQL, som er
+> testbasen til datalaget for Azure SQL finnes. Tilsvarende for Azure SQL hører
+> til F0b, punkt 2.
+
 **Leveranse:**
 
 1. En CI-jobb som bygger alle migrasjoner mot tom PostgreSQL 17 (målversjonen
@@ -1127,117 +1134,70 @@ historikk og mappa stemmer.
 
 ### F0b — Datalaget over direkte tilkobling
 
-**Avhenger av:** F0-jobben og beslutningen i 3.1 (23.09). Containerdelen
-avhenger av B-12. **Status:** punkt 1 (kjernen) levert 24.09 (PR #42). Det som
-gjenstår, følges i [milepælen F0b](https://github.com/khjohns/endringsmeldinger/milestone/1).
+> **Merknad 2026-10-11 til F0b ([B-12, databasen](#b-12-databasen), [B-19](#b-19)):**
+> oppdragsgiver bestemte 11.10 at F0b får nytt innhold: datalaget i TS over
+> direkte tilkobling til Azure SQL. ID og anker er beholdt. Det F0b var for
+> Python over PostgreSQL, er historikk (under), og teksten før er i Git (se
+> toppteksten). F0b kommer før eller sammen med #310 (FK), og F1 kommer etter
+> F0b som før.
 
-F0b bytter veien fra backend til basen, ikke rettighetene. Før F1-rollene
-finnes, kobler backend til med de rettighetene den har i dag. Det er ikke en
-produksjonstilstand; F1 og produksjonsporten gjelder uendret.
+**Avhenger av:** B-12, databasen, og B-19 (3.1). Tilgangsmekanismen i B-02
+alternativ C prøves først i T-SQL (#395). Lagringsformen avgjøres senest før
+KOE-byttet skriver den første reelle hendelsen
+([merknaden 11.10 til B-12](#b-12-merknad-2026-10-11)). Containerdelen avhenger
+av hostingen i B-12. Arbeidet følges i
+[milepælen F0b](https://github.com/khjohns/endringsmeldinger/milestone/1).
+
+F0b bytter plattformen og veien til basen, ikke rettighetene. Rollene,
+teamvernet og append-only er F1, som gjelder uendret.
 
 **Leveranse:**
 
-1. **Kjernen:** `lib/db` med pool og en `transaksjon(kontekst)`-hjelper som
-   setter rolle og krav transaksjonslokalt (`SET LOCAL ROLE`,
-   `set_config(..., true)`) inne i en eksplisitt transaksjon. Miljøvalg med
-   `DATABASE_URL`. Lokal oppstart med `scripts/testbase/bygg_testbase.sh`, som
-   skript eller Docker Compose. En skrivbar testfixture ved siden av den
-   lesende. Feilklassifisering for driveren: en avvisning som aldri kan lykkes,
-   er `PermanentError`; versjonskonflikt får en egen SQLSTATE og prøves ikke
-   blindt på nytt. Kjernen definerer `core/container.py` og testfixturene
-   ferdig, fordi det er der trådene i punkt 2 ellers kolliderer.
-2. **Repositoriene** bak dagens grensesnitt, med tester mot ekte PostgreSQL:
-   (a) hendelse og notat, (b) saksmetadata, relasjoner og BIM, (c) identitet,
-   sesjoner, medlemskap og prosjekter, med de fire funksjonene
-   `koe_resolve_identity`, `koe_reconcile_memberships`, `koe_register_project`
-   og `koe_set_contract_teams` kalt med vanlig SQL, (d) Catenda-konfigurasjon.
-3. **TS2-02:** JSON-, CSV- og Supabase-lagrene og testdoblene som speiler
-   Supabase-klienten, ut av kjøretidsstien, når alle repositoriene er inne.
-4. **Container:** Dockerfile for backend og GitHub Actions for utrulling, når
-   B-12 er avklart.
-5. Migrasjonene forutsetter plattformrollene og skjemaet `auth` fra
-   plattformstubben. Det må løses før de kan anvendes utenfor Supabase (B-12).
+1. **Kjernen i TS:** direkte tilkobling til Azure SQL med managed identity
+   ([B-12, databasen](#b-12-databasen)), pool og en transaksjonshjelper som
+   setter kontekst for transaksjonen. `SESSION_CONTEXT` gjelder sesjonen, så
+   at konteksten ikke følger en gjenbrukt forbindelse, må bevises på nytt
+   (merknaden 29.09 under B-12). Feilklassifisering for driveren: en
+   avvisning som aldri kan lykkes, prøves ikke på nytt, og versjonskonflikt
+   har en egen klasse.
+2. **Migrasjonene i T-SQL** og veien fra fil til base (#53), med en testbase av
+   samme slag lokalt og i CI.
+3. **Flyttingen fra Python ([B-19](#b-19), #375):** det Python gjør mot
+   databasen, flyttes til TS før databasen byttes, først innloggingen og
+   sesjonen, identiteten og synkroniseringen av medlemskap, og ellers blant
+   annet webhookens innboks. Identiteten løses med samme issuer og
+   normaliserte subjekt for alle veier inn (`AGENTS.md`). Løp c og d i den
+   tidligere teksten (#57, #58) går inn her.
+4. **TS2-02:** JSON-, CSV- og Supabase-lagrene og Python-lagrene over
+   PostgreSQL ut av kjøretidsstien når flyttingen er gjort (#49). De skrives
+   ikke om for Azure SQL (B-19).
+5. **Container** og utrulling når hostingen i B-12 er avklart (#52).
 
-**Akseptkriterier:** samme kode virker lokalt, i CI og mot målplattformen;
-ingen modul i kjøretidsstien importerer `supabase`; hver repositoriemetode
-har en test mot ekte PostgreSQL i CI; en feil midt i en transaksjon etterlater
-ingen delvise skrivinger; kontekst fra én forespørsel finnes ikke på en
-gjenbrukt forbindelse etter commit eller rollback, og en variabel som har vært
-satt, leses som tom, ikke som `NULL`.
+**Akseptkriterier:** samme kode virker lokalt, i CI og mot Azure SQL; ingen
+Python-kode leser eller skriver i databasen; en feil midt i en transaksjon
+etterlater ingen delvise skrivinger; kontekst fra én forespørsel finnes ikke på
+en gjenbrukt forbindelse etter commit eller rollback; innloggingen,
+medlemssynkroniseringen og webhooken gir samme person én brukerrad.
 
-**Kontroll:** kjernen får uavhengig review i en egen tråd før repositoriene
-bygges på den. Repositoriene får tester og `/code-review` per PR, og
-`/simplify` samlet når alle er inne. `/simplify` skal la
-sikkerhetskontrollene stå: `SET LOCAL` og transaksjonslokal kontekst,
-`nullif(..., '')`, fail-closed-kontroller som ser dobbelte ut, eksplisitte
-`REVOKE`-er og like svar for «ukjent» og «ikke tilgang». Oppsettet står i
-[handoffen 23.09](../handoff-2026-09-23-datalag-postgresql.md), avsnitt 7.
+**Tester som beviser:** lagertestene mot testbasen i CI; en test med pool på én
+forbindelse som viser at kontekst ikke lekker; en test per feilklasse i
+driveren; en test som viser at samme person gir én brukerrad fra hver vei inn.
 
-**Tester som beviser:** repositorietestene mot PostgreSQL i CI; en test med
-pool på én forbindelse som viser at kontekst ikke lekker; en test per
-feilklasse i driveren.
+**Kontroll:** kjernen får uavhengig review før lagrene bygges på den.
+`/simplify` skal la sikkerhetskontrollene stå: transaksjonslokal kontekst,
+fail-closed-kontroller som ser dobbelte ut, eksplisitte fjerninger av
+rettigheter og like svar for «ukjent» og «ikke tilgang».
 
-> **Merknad 2026-09-23 (F0b, punkt 1): kjernen finnes og venter på review.**
-> `lib/db` har pool, `transaksjon(kontekst)` og `utfor(kontekst, arbeid)` med
-> retry for hele transaksjonen, og feilhierarkiet er felles med Supabase-lagrene.
-> `container.database`, den skrivbare fixturen og lokal oppstart
-> (`scripts/testbase/lokal_testbase.sh`) er på plass. Kravene settes i
-> `koe.krav`, ikke `request.jwt.claims`, og versjonskonflikt er SQLSTATE
-> `KO409`, ikke `PT409`. Begge valgene er begrunnet i
-> [gjennomføringsnotatet](../gjennomforing-f0b-kjernen-2026-09-23.md). 57
-> databasetester er grønne lokalt mot PostgreSQL 17, og 27 mutasjoner gir rød
-> test. PgBouncer, Supavisor og Azure er ikke prøvd. **Status endres ikke før
-> det [uavhengige reviewet](../prompt-review-f0b-kjernen-2026-09-23.md) er
-> levert**, og punkt 2 bygger ikke på kjernen før da.
-
-> **Merknad 2026-09-23 (F0b, uavhengig review levert):**
-> [Reviewet av `55ad006`](../review-f0b-kjernen-2026-09-23.md) konkluderer med
-> **«kan bygges videre på med navngitte endringer»**. RK-01–RK-03 er åpne før
-> punkt 2: trådsikker poolopprettelse, ferdig innkoblingskontrakt i containeren
-> og separate tester for reset av rolle og krav. RK-04 krever en uttrykkelig
-> regel om at kjernen alene eier transaksjonsstyringen; rå `COMMIT; BEGIN`
-> omgår sluttkontrollen. RK-05 er åpen før F1: setnings- og inaktivitetstimeout
-> er ikke en samlet transaksjonsfrist. Backend-suiten har 1589 bestått,
-> 9 hoppet over og 38 xfailed; 57 databasetester og 27 mutasjoner er bekreftet.
-> To nye mutasjoner overlever de gamle testene og fanges av reviewtestene.
-> Kjernen er reviewet, men punkt 1 er ikke godkjent som ferdig; punkt 2 venter
-> på oppfølgingen over. Ingen produksjonskode eller delt base er endret.
-
-> **Merknad 2026-09-23 (F0b, oppfølging av reviewet):** RK-01–RK-04 er fulgt
-> opp i [PR #42](https://github.com/khjohns/endringsmeldinger/pull/42), etter
-> oppdragsgivers valg. Poolen opprettes under lås, innkoblingen for trådene
-> (a)–(d) er ferdig bak `DATALAG=postgres` og tabellen `POSTGRES_LAGRE`, rolle og
-> krav i resetten har hver sin test, og kallerens ansvar for
-> transaksjonsgrensen står skrevet, med `COMMIT; BEGIN` som streng `xfail`.
-> 33 mutasjoner gir rød test. **RK-05 er åpen før F1:** en samlet øvre grense
-> for en transaksjon er ikke fastsatt. Se
-> [gjennomføringsnotatet, avsnitt 7](../gjennomforing-f0b-kjernen-2026-09-23.md#7-oppfølging-av-reviewet).
-> Oppfølgingen er ikke reviewet på nytt. Punkt 1 settes som gjort når
-> PR #42 er merget.
-
-> **Merknad 2026-09-24 (F0b, restansene fra #47):** De to restansene i
-> verifikasjonen er rettet på #42-grenen (`b97630f`): relasjoner fra samme
-> container og PostgreSQL-register for Catenda også ved legacy-innstillingen.
-> En tekstvakt håndhever kallerregelen for statisk SQL i de kommende lagrene;
-> fem innførte forbudte utsagn gir hver rød test. Databasetestene gir 59
-> bestått og 1 xfailed, hele backend 1643 bestått, 9 hoppet over og 39 xfailed.
-> Se [gjennomføringsnotatet, avsnitt 8](../gjennomforing-f0b-kjernen-2026-09-23.md#8-restansene-fra-verifikasjonen-i-pr-47).
-> Dette er implementeringsverifikasjon. Ingen lagre er konvertert, og
-> **RK-05 står fortsatt åpen før F1**, ikke før fase 2.
-
-> **Merknad 2026-09-29 (F0b, avhengighet av B-12):** Fra 29.09 avhenger også
-> dette av B-12: løp c og d i punkt 2, punkt 3 (TS2-02) og RK-05. Grunnen står
-> i merknaden samme dag under B-12.
-> - **Blir plattformen Azure SQL Database,** må også det som alt er skrevet over
->   `lib/db`, skrives om. Å fullføre løpene eller slette de gamle lagrene nå
->   ville i praksis ta valget.
-> - **Blir PostgreSQL valgt,** gjelder pakken uendret.
-
-> **Merknad 2026-10-09 til F0b (B-17, B-18):** Kjernen i punkt 1 er levert og
-> står. For KOE-, EO- og forseringssakene skriver TS-stien journalen etter
-> byttet (FK). Hva Python-backenden da skal lagre og kjøre, avhenger av B-18.
-> Det gjelder løp c og d i punkt 2, punkt 3 (TS2-02), containeren i punkt 4 og
-> kallerne i [#70](https://github.com/khjohns/endringsmeldinger/issues/70), i tillegg til avhengigheten av B-12.
+**Historikk, Python over PostgreSQL (23.09–09.10):** F0b fulgte av
+beslutningen 23.09 om direkte tilkobling (3.1). Kjernen `lib/db` med pool,
+`transaksjon(kontekst)` og retry for hele transaksjonen ble levert 24.09
+(PR #42), etter et [uavhengig review](../review-f0b-kjernen-2026-09-23.md) der
+RK-01–RK-04 ble fulgt opp
+([gjennomføringsnotatet](../gjennomforing-f0b-kjernen-2026-09-23.md); oppsettet
+i [handoffen 23.09](../handoff-2026-09-23-datalag-postgresql.md), avsnitt 7).
+RK-05, en samlet øvre grense for en transaksjon, står åpen før F1 (#50).
+Løp c og d og TS2-02 ble avhengige av B-12 29.09 og av B-18 09.10, og bygges
+ikke i Python etter B-19.
 
 ### F1 — Sikkerhetsgrenser i datalaget og private lagre
 
@@ -1446,7 +1406,7 @@ følges i [milepælen FK](https://github.com/khjohns/endringsmeldinger/milestone
 > **Merknad 2026-10-11 til FK, rekkefølgen etter B-19:** databasen er Azure SQL
 > ([B-12, databasen](#b-12-databasen)). Databasebyttet skjer før eller sammen med #310.
 > Derfor forutsetter #310 at det Python gjør mot databasen, er flyttet til TS (#375,
-> [B-19](#b-19)), og at datalaget for Azure SQL finnes. Kjernen i #309 importerer ingen
+> [B-19](#b-19)), og at datalaget for Azure SQL finnes (F0b). Kjernen i #309 importerer ingen
 > database og bygges videre. Lagringstestene mot testbasen følger lagringsformen (#395).
 
 ### F3 — Øvrige adaptere og drift
@@ -1837,3 +1797,22 @@ varselet i frontenden.
 - **Kjørt:** `python3 docs/verktoy/lenkekontroll.py` på planen, `docs/README.md`
   og designnotatet.
 - **Ikke kontrollert:** at GR-U12 er bygget. Det gjør #273 og #313.
+
+**Sluttredigeringen 11.10** er dokumentarbeid mot `6f56672`. Kilden for F0b,
+merknaden til KA-U12, ordbyttet i B-13 og KA-U30 er oppdragsgivers svar 11.10
+på spørsmål med alternativer, formidlet av orkestratoren for FK runde 7.
+
+- **Rettet utenfor vedtakene:** 1.2, 2.1, 2.2, 3.2, 3.3, 3.4, F0, F1, F2, FK og
+  avsnitt 6, etter B-12, databasen, og B-19 (#396). F0b har nytt innhold, og
+  merknadene 23.09–09.10 der er samlet under «Historikk». Utdaterte
+  ventepunkter er fjernet.
+- **Ført inn:** KA-U30 som ny rad i 3.1. Ordbyttet i B-13 og merknaden til
+  KA-U12 i Følge.
+- **Kjørt:** et skript som viser at ankrene og cellene i vedtakskolonnen i 3.1
+  er uendret, unntatt ordet i B-13 og den nye raden KA-U30;
+  `python3 docs/verktoy/lenkekontroll.py` på planen,
+  `docs/verktoy/datamodell.py`, `docs/verktoy/domenetabell.py` og
+  `tests/test_datamodell` og `tests/test_domenetabell` uten testbasen.
+- **Ikke kontrollert:** byggestatusen i «Følge» og i funnregisteret. Påstandene
+  om Azure SQL bygger på vurderingen av JSON i Azure SQL og designnotatet om
+  inbox og outbox, ikke på en egen kjøring.
