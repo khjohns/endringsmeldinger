@@ -14,6 +14,7 @@ de kan flyttes når `JsonFileEventRepository` går ut i F0b. Testene mot
 
 import json
 from datetime import date
+from zoneinfo import ZoneInfo
 
 import pytest
 from pydantic import ValidationError
@@ -214,7 +215,9 @@ def test_foresporselen_gir_te_svarplikt():
     tilstand = timeline.compute_state(hendelser + [varsel, foresporsel])
 
     assert tilstand.frist.har_bh_foresporsel is True
-    assert tilstand.frist.dato_bh_foresporsel == foresporsel.tidsstempel.date().isoformat()
+    # Datoen gjelder i Oslo, som i tjenesten; UTC-datoen er en annen mellom 22 og 24 (#368).
+    dato_i_oslo = foresporsel.tidsstempel.astimezone(ZoneInfo("Europe/Oslo")).date()
+    assert tilstand.frist.dato_bh_foresporsel == dato_i_oslo.isoformat()
     assert tilstand.frist.frist_for_spesifisering == "2026-10-20"
     assert tilstand.visningsstatus_frist == "Forespørsel om spesifisert krav sendt"
 
