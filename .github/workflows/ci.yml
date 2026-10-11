@@ -102,12 +102,12 @@ jobs:
         working-directory: backend
         run: python -m pytest -q -p no:cacheprovider -m database tests/test_database
 
-      # Hele sprakprove/, så en ny databasetest kommer med, også kjernens
-      # lagringstester i sprakprove/kjernelagring/. Uten KOE_TESTBASE_URL
-      # hoppes de over i frontend-jobben. Steget kommer etter pytest og ikke
-      # samtidig: oppryddingen der setter basen tilbake.
-      - name: Kjør kjernen og språkprøven mot basen
-        run: npx vitest run kjerne/ sprakprove/
+      # Hele sprakprove/ og server/, så en ny databasetest kommer med, også
+      # kjernens lagringstester i sprakprove/kjernelagring/ og skiva i #347.
+      # Uten KOE_TESTBASE_URL hoppes de over i frontend-jobben. Steget kommer
+      # etter pytest og ikke samtidig: oppryddingen der setter basen tilbake.
+      - name: Kjør kjernen, TS-serveren og språkprøven mot basen
+        run: npx vitest run kjerne/ server/ sprakprove/
 
   frontend:
     name: Frontend (vitest)
@@ -147,9 +147,12 @@ jobs:
       - name: Typesjekk
         run: npm run check:error
 
-      # svelte-check ser ikke kjerne/ eller sprakprove/, som har egne tsconfig.
+      # svelte-check ser ikke kjerne/, server/ eller sprakprove/, som har egne tsconfig.
       - name: Typesjekk av kjernen
         run: npx tsc -p kjerne/tsconfig.json
+
+      - name: Typesjekk av TS-serveren
+        run: npx tsc -p server/tsconfig.json
 
       - name: Typesjekk av språkprøven
         run: npx tsc -p sprakprove/tsconfig.json
