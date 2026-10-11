@@ -92,6 +92,8 @@ export const PART: Record<string, Part> = {
   aksept: 'TE',
   trekk: 'TE',
   varsel: 'TE',
+  ingen_krav: 'TE',
+  passivitet: 'TE',
   brev: 'BH',
   revisjon: 'BH',
 };
@@ -211,15 +213,23 @@ export function kommandoFor(h: Handling, u: Utledning, regler: Regelsett, navn: 
         hva: h.hva as 'sendt' | 'mottatt',
       };
     }
+    case 'ingen_krav':
+      return { type: 'ingen_krav', spor: h.spor as 'vederlag' };
+    case 'innsigelse':
+    case 'protest':
+    case 'passivitet':
+    case 'avklaring':
+      return { type: h.handling, gjelder: navn.id(h.gjelder as string) };
+    case 'merking':
+      return { type: 'merking', gjelder: navn.id(h.gjelder as string), spor: h.sporene as Spor[] };
     default:
       throw new Error(`Handlingen ${h.handling} er ikke en kommando`);
   }
 }
 
-/** Parten som sender handlingen. Bestridelsen har parten i bevis-saken. */
+/** Parten som sender handlingen. En handling begge parter kan sende, har parten i bevis-saken. */
 export function partFor(h: Handling): Part {
-  if (h.handling === 'bestridelse') return h.part as Part;
-  return PART[h.handling];
+  return PART[h.handling] ?? (h.part as Part);
 }
 
 /**
@@ -240,6 +250,59 @@ export function radFor(
     const kjent = navn.id(etikett);
     return kjent.startsWith('ukjent-') ? randomUUID() : kjent;
   };
+  const byggSvar = (s: Handling): Record<string, unknown> => {
+    const spor = s.spor as Spor;
+    const gjelder = ref(s.gjelder as string);
+    const krav = u.spor[spor].krav.find((k) => k.id === gjelder) ?? {
+      id: gjelder,
+      spor,
+      dokument: gjelder,
+      erstatter: null,
+      innhold: spor === 'vederlag' ? { beloep: 100000 } : { dager: 20 },
+    };
+    const v = vurderinger(spor, s, krav);
+    const standpunkter: Record<string, unknown>[] = [];
+    if (spor === 'grunnlag' && typeof s.varslet_i_tide === 'boolean')
+      standpunkter.push({
+        id: randomUUID(),
+        art: 'rettidighet',
+        gjelder,
+        hjemmel: '32.2',
+        i_tide: s.varslet_i_tide,
+      });
+    standpunkter.push(
+      spor === 'grunnlag'
+        ? { id: randomUUID(), art: 'grunnlag', resultat: s.resultat }
+        : { id: randomUUID(), art: spor === 'vederlag' ? 'beloep' : 'dager' }
+    );
+    const svar: Record<string, unknown> = {
+      id: navn.ta(s.navn as string),
+      spor,
+      gjelder,
+      ...(typeof s.erstatter === 'string' ? { erstatter: navn.reserver(s.erstatter) } : {}),
+      // #342: grunnlagsversjonen svaret er regnet mot; bevis-saken kan oppgi en annen.
+      ...(spor === 'grunnlag'
+        ? {}
+        : {
+            grunnlagskrav:
+              typeof s.grunnlagskrav === 'string'
+                ? ref(s.grunnlagskrav)
+                : (u.spor.grunnlag.gjeldendeKrav?.id ??
+                  (() => {
+                    throw new Error('Bevis-saken mangler et grunnlagskrav for svaret');
+                  })()),
+          }),
+      standpunkter,
+    };
+    if (spor !== 'grunnlag')
+      svar.utregning = regnUtSvar(
+        spor,
+        v,
+        { krav, grunnlagskrav: u.spor.grunnlag.gjeldendeKrav },
+        GJELDENDE_REGLER
+      );
+    return svar;
+  };
   let data: Record<string, unknown>;
   let eventId = typeof h.dokument === 'string' ? navn.ta(h.dokument) : randomUUID();
   if (typeof h.avklarer === 'string') {
@@ -259,58 +322,40 @@ export function radFor(
           art: h.art,
           ...(typeof h.gjelder === 'string' ? { gjelder: ref(h.gjelder) } : {}),
           ...(typeof h.spor === 'string' ? { spor: h.spor } : {}),
+          ...(h.art === 'aksept' ? { regelversjon: GJELDENDE_REGLER.versjon } : {}),
+        },
+      ],
+    };
+  } else if (h.krav === true) {
+    // En kravversjon fra TE, for eksempel registrert korrespondanse (MM-U18).
+    const spor = h.spor as Spor;
+    const forrige = u.spor[spor].gjeldendeKrav;
+    data = {
+      krav: [
+        {
+          id: navn.ta(h.navn as string),
+          spor,
+          ...(forrige ? { erstatter: forrige.id } : {}),
+          ...INNHOLD[spor](h),
         },
       ],
     };
   } else {
-    const spor = h.spor as Spor;
-    const gjelder = ref(h.gjelder as string);
-    const krav = u.spor[spor].krav.find((k) => k.id === gjelder) ?? {
-      id: gjelder,
-      spor,
-      dokument: gjelder,
-      erstatter: null,
-      innhold: spor === 'vederlag' ? { beloep: 100000 } : { dager: 20 },
-    };
-    const v = vurderinger(spor, h, krav);
-    const standpunkter: Record<string, unknown>[] = [];
-    if (spor === 'grunnlag' && typeof h.varslet_i_tide === 'boolean')
-      standpunkter.push({
-        id: randomUUID(),
-        art: 'rettidighet',
-        gjelder,
-        hjemmel: '32.2',
-        i_tide: h.varslet_i_tide,
-      });
-    standpunkter.push(
-      spor === 'grunnlag'
-        ? { id: randomUUID(), art: 'grunnlag', resultat: h.resultat }
-        : { id: randomUUID(), art: spor === 'vederlag' ? 'beloep' : 'dager' }
-    );
-    const svar: Record<string, unknown> = {
-      id: navn.ta(h.navn as string),
-      spor,
-      gjelder,
-      ...(typeof h.erstatter === 'string' ? { erstatter: navn.reserver(h.erstatter) } : {}),
-      standpunkter,
-    };
-    if (spor !== 'grunnlag')
-      svar.utregning = regnUtSvar(
-        spor,
-        v,
-        { krav, grunnlagskrav: u.spor.grunnlag.gjeldendeKrav },
-        GJELDENDE_REGLER
-      );
-    data = { svar: [svar] };
-    // Registrert korrespondanse: sendt utenfor appen, og eventuelt om § 31.3 er oppfylt.
-    if (typeof h.sendt === 'string')
-      data.opplysninger = [
-        { id: randomUUID(), hva: 'sendt', dato: h.sendt },
-        ...(typeof h.endringsordre === 'boolean'
-          ? [{ id: randomUUID(), hva: 'endringsordre', oppfylt: h.endringsordre }]
-          : []),
-      ];
+    // Et registrert brev kan ha flere svar (`svar`), ellers er raden ett svar.
+    data = { svar: (Array.isArray(h.svar) ? (h.svar as Handling[]) : [h]).map(byggSvar) };
   }
+  // Registrert korrespondanse: sendt utenfor appen, om § 31.3 er oppfylt, og en
+  // merking etter KA-U20 med sporene den gjelder.
+  if (typeof h.sendt === 'string')
+    data.opplysninger = [
+      { id: randomUUID(), hva: 'sendt', dato: h.sendt },
+      ...(typeof h.endringsordre === 'boolean'
+        ? [{ id: randomUUID(), hva: 'endringsordre', oppfylt: h.endringsordre }]
+        : []),
+      ...(Array.isArray(h.merking)
+        ? [{ id: randomUUID(), hva: 'kan_ikke_uttrykkes', spor: h.merking }]
+        : []),
+    ];
   return {
     ...felles,
     event_id: eventId,

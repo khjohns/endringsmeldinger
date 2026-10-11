@@ -10,29 +10,104 @@
  */
 
 import {
+  godkjenningenErMerket,
+  kanFaaInnsigelse,
+  kanFaaProtest,
   kraveneErAvgjort,
   trekkAvGrunnlagetErSperret,
+  trekkKanIkkeBevareAvtalen,
   type Utledning,
 } from '../utledning/utled.ts';
-import type { Avvisning, Part, Spor } from '../typer.ts';
+import type { Avvisning, Kravspor, Part, Spor } from '../typer.ts';
 
 export type Handlingsnoekkel =
   | { type: 'krav' | 'trekke' | 'godta' | 'svare' | 'revidere'; spor: Spor }
   | { type: 'varsle'; spor: 'frist' }
-  | { type: 'bestride'; gjelder: string };
+  | { type: 'ingen_krav'; spor: Kravspor }
+  | {
+      type: 'bestride' | 'innsigelse' | 'protest' | 'passivitet' | 'merke' | 'avklare';
+      gjelder: string;
+    };
 
 export const noekkel = (h: Handlingsnoekkel): string =>
-  h.type === 'bestride' ? `bestride:${h.gjelder}` : `${h.type}:${h.spor}`;
+  'gjelder' in h ? `${h.type}:${h.gjelder}` : `${h.type}:${h.spor}`;
 
 const PART: Record<Handlingsnoekkel['type'], Part | null> = {
   krav: 'TE',
   trekke: 'TE',
   godta: 'TE',
   varsle: 'TE',
+  ingen_krav: 'TE',
+  passivitet: 'TE',
   svare: 'BH',
   revidere: 'BH',
   bestride: null,
+  innsigelse: null,
+  protest: null,
+  merke: null,
+  avklare: null,
 };
+
+/**
+ * Utsagnene uten virkning på utfallet som viser til et annet element: § 5, VS-U12
+ * og KA-U20. Som bestridelsen (MM-U7) godtas de også når kravene er avgjort eller
+ * avslaget av grunnlaget er godtatt (KA-U11, KA-U28, KA-U29).
+ */
+function henvisning(h: Extract<Handlingsnoekkel, { gjelder: string }>, part: Part, u: Utledning) {
+  const maal = u.elementer[h.gjelder];
+  switch (h.type) {
+    case 'innsigelse':
+      // VS-U1, VS-U14: et varsel, krav eller svar fra motparten.
+      return kanFaaInnsigelse(maal, part)
+        ? null
+        : avvis(
+            'UGYLDIG_INNSIGELSE',
+            'Innsigelsen må gjelde et varsel, et krav eller et svar fra motparten.'
+          );
+    case 'protest': {
+      // VS-U1, MP-U6: en innsigelse fra motparten, påberopelsen i et svar, eller et
+      // dokument fra motparten med innsigelser, som protesten da gjelder alle.
+      return kanFaaProtest(h.gjelder, part, u.elementer)
+        ? null
+        : avvis('INGEN_INNSIGELSE', 'Det finnes ingen innsigelse fra motparten å protestere mot.');
+    }
+    case 'passivitet':
+      // VS-U12: TEs varsel etter § 32.2 er kravet i grunnlagssporet.
+      return u.spor.grunnlag.krav.some((k) => k.id === h.gjelder)
+        ? null
+        : avvis('INGEN_VARSEL_ETTER_32_2', 'Påberopelsen må vise til TEs varsel etter § 32.2.');
+    case 'merke':
+      // KA-U20: et registrert brev med et krav eller svar.
+      return maal?.registrertBrev
+        ? null
+        : avvis(
+            'INGEN_REGISTRERT_BREV',
+            'Merkingen må gjelde et registrert brev med et krav eller svar.'
+          );
+    case 'avklare': {
+      // KA-U20: bare den som sendte brevet, kan avklare merkingen.
+      const o = u.opplysninger.find((x) => x.opplysning.id === h.gjelder);
+      if (o?.opplysning.hva !== 'kan_ikke_uttrykkes')
+        return avvis('INGEN_MERKING', 'Det finnes ingen merking å avklare.');
+      if (o.avklaring !== null) return avvis('MERKING_AVKLART', 'Merkingen er allerede avklart.');
+      return u.elementer[o.opplysning.brev]?.part === part
+        ? null
+        : avvis('FEIL_PART', 'Bare den som sendte brevet, kan avklare merkingen.');
+    }
+    case 'bestride': {
+      // MM-U7: en bestridelse endrer ikke noe utfall og kan registreres når som helst.
+      const o = u.opplysninger.find((x) => x.opplysning.id === h.gjelder);
+      if (!o || o.opplysning.oppgittAv === part)
+        return avvis(
+          'INGENTING_AA_BESTRIDE',
+          'Det finnes ingen opplysning fra motparten å bestride.'
+        );
+      if (o.bestridelser.some((b) => b.part === part))
+        return avvis('INGENTING_AA_BESTRIDE', 'Opplysningen er allerede bestridt.');
+      return null;
+    }
+  }
+}
 
 export const avvis = (regel: string, melding: string): Avvisning => ({ regel, melding });
 
@@ -42,18 +117,7 @@ export function forutsetninger(h: Handlingsnoekkel, part: Part, u: Utledning): A
     return avvis('SAK_IKKE_FORSTAATT', 'Saken har hendelser denne versjonen ikke kan tolke.');
   const eier = PART[h.type];
   if (eier !== null && eier !== part) return avvis('FEIL_PART', `Bare ${eier} kan gjøre dette.`);
-  // MM-U7: en bestridelse endrer ikke noe utfall og kan registreres når som helst.
-  if (h.type === 'bestride') {
-    const o = u.opplysninger.find((x) => x.opplysning.id === h.gjelder);
-    if (!o || o.opplysning.oppgittAv === part)
-      return avvis(
-        'INGENTING_AA_BESTRIDE',
-        'Det finnes ingen opplysning fra motparten å bestride.'
-      );
-    if (o.bestridelser.some((b) => b.part === part))
-      return avvis('INGENTING_AA_BESTRIDE', 'Opplysningen er allerede bestridt.');
-    return null;
-  }
+  if ('gjelder' in h) return henvisning(h, part, u);
   // SK-01, #213: når partene er enige om at grunnlaget er avvist, faller kravene.
   if (u.grunnlagAvvist)
     return avvis('GRUNNLAG_AVVIST', 'Partene er enige om at grunnlaget er avvist (SK-01).');
@@ -83,17 +147,37 @@ export function forutsetninger(h: Handlingsnoekkel, part: Part, u: Utledning): A
       if (!s.gjeldendeKrav) return avvis('INGEN_KRAV', `Det er ikke sendt noe krav om ${h.spor}.`);
       if (s.trukket) return avvis('KRAV_TRUKKET', 'Kravet er allerede trukket.');
       // KA-U13: et trekk ville gitt journalen den videre virkningen at endringsordren
-      // etter § 32.3 a leses som bortfalt (KA-U6). Er § 31.3 ikke avklart, sperres det til det er.
+      // etter § 32.3 a leses som bortfalt (KA-U6). Er § 31.3 ikke avklart, eller er brevet med
+      // godkjenningen merket (KA-U26), sperres det til det er avklart.
       if (h.spor === 'grunnlag' && trekkAvGrunnlagetErSperret(u))
-        return u.endringsordre === 'ikke_avklart'
+        return u.endringsordre === 'ikke_avklart' || godkjenningenErMerket(u)
           ? avvis(
               'ENDRINGSORDRE_IKKE_AVKLART',
-              'Det er ikke avklart om byggherrens godkjenning er en endringsordre etter § 31.3. Det må avklares før grunnlaget kan trekkes.'
+              'Det er ikke avklart om byggherrens godkjenning er en endringsordre: om brevet oppfyller § 31.3, eller om det har noe appen ikke kan uttrykke. Det må avklares før grunnlaget kan trekkes.'
             )
           : avvis(
               'GRUNNLAG_ER_ENDRINGSORDRE',
               'Byggherren har godkjent grunnlaget, og godkjenningen er en endringsordre. Grunnlaget kan ikke trekkes.'
             );
+      // KA-U22: trekket kunne tatt fra byggherren en rettighet etter avtalen.
+      if (trekkKanIkkeBevareAvtalen(u, h.spor))
+        return avvis(
+          'AVTALE_KAN_IKKE_BEVARES',
+          'En enighet trekket rammer, bygger på et brev med noe appen ikke kan uttrykke. Appen kan ikke bevare byggherrens rettigheter etter avtalen, så trekket må sendes utenfor appen.'
+        );
+      return null;
+    case 'ingen_krav':
+      // KA-U12, KA-U15: et spor som ikke er sendt, etter at grunnlaget er sendt.
+      if (s.trukket) return avvis('KRAV_TRUKKET', 'Kravet er trukket.');
+      if (s.ingenKrav)
+        return avvis(
+          'INGEN_KRAV_I_SPORET',
+          'TE har allerede sagt at det ikke kreves noe i sporet.'
+        );
+      if (s.krav.length)
+        return avvis('KRAV_I_SPORET', 'Det er sendt krav i sporet. Trekk kravet i stedet.');
+      if (!grunnlagSendt)
+        return avvis('GRUNNLAG_IKKE_SENDT', 'Grunnlaget må være sendt før du kan si «ingen krav».');
       return null;
     case 'varsle':
       if (!grunnlagSendt)
@@ -131,6 +215,12 @@ export function forutsetninger(h: Handlingsnoekkel, part: Part, u: Utledning): A
         return avvis(
           'FRAFALL_KAN_IKKE_GODTAS',
           'Et frafall er byggherrens standpunkt og kan ikke godtas.'
+        );
+      // KA-U16, KA-U20: aksepten ville bygget på et brev med noe appen ikke kan uttrykke.
+      if (s.forbehold)
+        return avvis(
+          'BREV_MED_FORBEHOLD',
+          'Svaret bygger på et brev med noe appen ikke kan uttrykke. Den som sendte det, må avklare det først.'
         );
       // MM-U8: en preklusjon som gjaldt et annet varsel enn det registrerte, er uavklart.
       if (u.svar[s.gjeldendeSvar.id].uavklart.length)

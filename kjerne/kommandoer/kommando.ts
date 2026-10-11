@@ -7,10 +7,10 @@
  * skrives.
  */
 
-import { DATO, ID, KRAVINNHOLD, liste, objekt } from '../format/format.ts';
+import { DATO, ID, KRAVINNHOLD, liste, objekt, OPPLYSNINGSSLAG } from '../format/format.ts';
 import { erObjekt, feilI, type Skjema } from '../format/skjema.ts';
 import type { Svarvurdering } from '../frosset/standpunkt.ts';
-import { SPOR as SPORENE, type Spor } from '../typer.ts';
+import { KRAVSPOR, SPOR as SPORENE, type Kravspor, type Opplysning, type Spor } from '../typer.ts';
 
 export interface Svarutkast {
   spor: Spor;
@@ -34,7 +34,19 @@ export type Kommando =
     }
   | { type: 'trekk'; spor: Spor }
   | { type: 'varsel'; spor: 'frist'; hjemmel: '33.4'; sendt: string; dokumentasjon?: string[] }
-  | { type: 'bestridelse'; gjelder: string; hva: 'sendt' | 'mottatt' | 'endringsordre' };
+  | { type: 'bestridelse'; gjelder: string; hva: Opplysning['hva'] }
+  /** KA-U12, KA-U15, KA-U17: TE krever ikke noe i et spor som ikke er sendt. Ingen fritekst (KA-U22). */
+  | { type: 'ingen_krav'; spor: Kravspor }
+  /** § 5 tredje ledd (VS-U1, VS-U9, VS-U14): mot motpartens varsel, krav eller svar. */
+  | { type: 'innsigelse'; gjelder: string }
+  /** VS-U1, MP-U6: mot en innsigelse, en påberopelse i et svar eller alle innsigelsene i et dokument. */
+  | { type: 'protest'; gjelder: string }
+  /** VS-U12: TE påberoper byggherrens passivitet etter § 32.3 annet ledd. */
+  | { type: 'passivitet'; gjelder: string }
+  /** KA-U20: en senere merking av et registrert brev med noe appen ikke kan uttrykke. */
+  | { type: 'merking'; gjelder: string; spor: Spor[] }
+  /** KA-U20: den som sendte brevet, sier at standpunktene gjelder uten forbehold. */
+  | { type: 'avklaring'; gjelder: string };
 
 const SPOR = { enum: [...SPORENE] };
 const SVARUTKAST = objekt(
@@ -47,6 +59,9 @@ const SVARUTKAST = objekt(
   },
   ['spor', 'gjelder', 'regelversjon', 'vurderinger', 'resultat']
 );
+
+const henvisning = (type: string) =>
+  objekt({ type: { const: type }, gjelder: ID }, ['type', 'gjelder']);
 
 const SKJEMA: Record<Kommando['type'], Skjema> = {
   krav: objekt(
@@ -91,10 +106,22 @@ const SKJEMA: Record<Kommando['type'], Skjema> = {
     {
       type: { const: 'bestridelse' },
       gjelder: ID,
-      hva: { enum: ['sendt', 'mottatt', 'endringsordre'] },
+      hva: { enum: [...OPPLYSNINGSSLAG] },
     },
     ['type', 'gjelder', 'hva']
   ),
+  ingen_krav: objekt({ type: { const: 'ingen_krav' }, spor: { enum: [...KRAVSPOR] } }, [
+    'type',
+    'spor',
+  ]),
+  innsigelse: henvisning('innsigelse'),
+  protest: henvisning('protest'),
+  passivitet: henvisning('passivitet'),
+  merking: objekt(
+    { type: { const: 'merking' }, gjelder: ID, spor: liste({ enum: [...SPORENE] }) },
+    ['type', 'gjelder', 'spor']
+  ),
+  avklaring: henvisning('avklaring'),
 };
 
 /** Feilene i formen, tomme når kommandoen kan vurderes. */
@@ -115,6 +142,10 @@ export function formfeil(kommando: unknown): string[] {
     const spor = (kommando as { svar: Svarutkast[] }).svar.map((s) => s.spor);
     if (!spor.length) feil.push('$.svar: brevet har ingen svar');
     if (new Set(spor).size !== spor.length) feil.push('$.svar: to svar i samme spor');
+  }
+  if (type === 'merking' && !feil.length) {
+    const spor = (kommando as { spor: Spor[] }).spor;
+    if (new Set(spor).size !== spor.length) feil.push('$.spor: samme spor to ganger');
   }
   return feil;
 }

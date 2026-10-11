@@ -241,7 +241,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['Krav', 'relasjon', 'id spor erstatter'],
   ['Krav', 'utsagn', 'innhold'],
   ['Krav.innhold', 'utsagn', 'hovedkategori underkategori beloep dager'],
-  ['Svar', 'relasjon', 'id spor gjelder erstatter dokument'],
+  ['Svar', 'relasjon', 'id spor gjelder erstatter dokument grunnlagskrav'],
   ['Svar', 'utsagn', 'standpunkter'],
   ['Svar', 'frosset', 'beslutningsgrunnlag'],
   ['Svar', 'frosset svar', 'utregning', ['frosset/standpunkt.ts:godkjennerHeleKravet']],
@@ -251,6 +251,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['Standpunkt', 'relasjon', 'id art gjelder'],
   ['Standpunkt', 'utsagn', 'hjemmel iTide resultat godkjent oppfylt vurdert'],
   ['Opplysning', 'relasjon', 'id hva gjelder dokument brev oppgittAv'],
+  // KA-U20: sporene en merking gjelder, som partens vurdering.
+  ['Opplysning', 'utsagn', 'spor'],
   ['Opplysning', 'utsagn', 'dato oppfylt'],
   ['Beslutningsgrunnlag', 'frosset', 'regelversjon virkninger sammenfall varslingsplikt'],
   ['Standpunktsvirkning', 'frosset', 'standpunkt art virkning'],
@@ -269,7 +271,12 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     ],
   ],
   // Hvorfor saken ikke er forstått, i meldingen når kjernen ikke forstår det den skriver.
-  ['Utledning', 'predikat', 'begrensninger', ['kommandoer/skriving.ts:vurder']],
+  [
+    'Utledning',
+    'predikat',
+    'begrensninger',
+    ['kommandoer/skriving.ts:vurder', 'utledning/utled.ts:utled'],
+  ],
   ['Utledning.begrensninger', 'predikat', 'grunn', ['kommandoer/skriving.ts:vurder']],
   // «Avklart» etter GR-U7 brukes bare der vedtakene sier det (MM-U13): vilkåret for
   // enigheten (GR-U7) og at kravene er avgjort (KA-U11, som EO-U5 bygger på).
@@ -281,23 +288,44 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ],
   ['Utledning.svar', 'relasjon', '*'],
   ['Utledning.opplysninger', 'utsagn', 'opplysning'],
-  ['Utledning.opplysninger', 'relasjon', 'bestridelser'],
+  ['Utledning.opplysninger', 'relasjon', 'bestridelser avklaring'],
+  // Hvem som sa hvert element, og hva det er (§ 5, VS-U12, KA-U20, MM-U18).
+  ['Utledning', 'relasjon', 'elementer'],
+  ['Utledning.elementer', 'relasjon', '*'],
+  ['Element', 'relasjon', 'hendelse part art innsigelse registrertBrev'],
+  // VS-U1, MP-U6: hva en innsigelse og en protest kan gjelde, delt av utledningen og kommandoene.
+  ['utledning/utled.ts', 'relasjon', 'kanFaaInnsigelse kanFaaProtest KAN_FAA_INNSIGELSE'],
+  ['utledning/utled.ts:kanFaaProtest(elementer)', 'relasjon', '*'],
+  // VS-U9 og OV-U1: et svar på vederlaget etter byggherrens innsigelse avvises.
+  ['Utledning', 'utsagn', 'innsigelser', ['kommandoer/nyttelast.ts']],
+  ['Paaberopelse', 'relasjon', 'part gjelder', ['kommandoer/nyttelast.ts']],
+  // MM-U18: stridene ett dokument har med journalen før det.
+  ['Strid', 'predikat', 'element grunn', ['utledning/utled.ts:utled']],
   ['Bestridelse', 'relasjon', 'part'],
   [
     'Sporutledning',
     'predikat',
-    'krav svar gjeldendeKrav gjeldendeSvar enighet trukket ingenKrav varsel',
+    'krav svar gjeldendeKrav gjeldendeSvar enighet trukket ingenKrav varsel forbehold',
   ],
+  // KA-U20, KA-U26: brevene med en merking som gjelder i sporet.
+  ['Sporutledning', 'relasjon', 'merket'],
+  ['utledning/utled.ts', 'predikat', 'godkjenningenErMerket', ['kommandoer/forutsetninger.ts']],
   ['Svarberegning', 'relasjon', 'svar'],
   ['Svarberegning', 'frosset', 'virkninger'],
   ['Svarberegning', 'predikat', 'uavklart'],
   ['Enighet', 'predikat', 'grunnlag'],
   ['Enighetsgrunnlag', 'predikat', 'kilde vilkaar'],
-  ['utledning/utled.ts', 'predikat', 'utled kraveneErAvgjort trekkAvGrunnlagetErSperret'],
+  [
+    'utledning/utled.ts',
+    'predikat',
+    'utled kraveneErAvgjort trekkAvGrunnlagetErSperret trekkKanIkkeBevareAvtalen',
+  ],
   ['utledning/utled.ts', 'relasjon', 'grunnlagskravFor'],
+  ['utledning/utled.ts:grunnlagskravFor', 'relasjon', 'grunnlagskrav'],
   // Plassen hvert element har i journalen: dokumentet og saksversjonen (4.2 i designnotatet).
-  ['utledning/utled.ts:utled', 'relasjon', 'hendelse versjon'],
-  ['utledning/utled.ts:utled.plasser', 'relasjon', 'id versjon'],
+  ['utledning/utled.ts:utledSporene', 'relasjon', 'hendelse versjon'],
+  ['utledning/utled.ts:utledSporene.plasser', 'relasjon', 'id versjon'],
+  ['utledning/utled.ts:utledSporene.registrer', 'relasjon', 'id'],
 
   // Standpunktene og det brevet fryser (standpunkt.ts).
   [
@@ -306,6 +334,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     `beslutningsgrunnlag regnUtSvar SAMMENLIKNES likeResultatfelt utenforOmfanget`,
   ],
   ['frosset/standpunkt.ts', 'frosset', 'prinsipalt'],
+  // GR-U11 og VS-U12: passivitetsregelen gjelder der § 32.2 gjelder.
+  ['frosset/standpunkt.ts', 'regelsett', 'gjelderVarslingsplikten', ['kommandoer/nyttelast.ts']],
   // § 32.3 første ledd a for et brev sendt i appen, lest av beslutningsgrunnlaget (GR-U12, #351).
   [
     'frosset/standpunkt.ts',
@@ -316,7 +346,29 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['frosset/standpunkt.ts', 'utsagn', 'standpunktet'],
   ['frosset/standpunkt.ts', 'predikat', 'enighetsgrunnlag'],
   // GR-U7 med unntaket i MM-U13: utledningen regner `grunnlagAvklart` og `grunnlagAvvist` av den.
-  ['frosset/standpunkt.ts', 'predikat', 'grunnlagetErAvklart', ['utledning/utled.ts']],
+  ['frosset/standpunkt.ts', 'predikat', 'grunnlagetErAvklart', ['utledning/utled.ts:utledSporene']],
+  // VS-U11: innsigelsen et registrert svar er lest med, og hvilke innsigelser som kan lese det.
+  [
+    'frosset/standpunkt.ts',
+    'frosset',
+    'innsigelsenSvaretErLestMed',
+    ['utledning/utled.ts:utledSporene'],
+  ],
+  [
+    'frosset/standpunkt.ts',
+    'relasjon',
+    'innsigelsenGjelderSvaret',
+    ['utledning/utled.ts:utledSporene', 'kommandoer/skriving.ts:frysBrev'],
+  ],
+  // VS-U9, VS-U11: en innsigelse parten senere har gitt opp uttrykkelig, leser ikke et svar.
+  [
+    'frosset/standpunkt.ts',
+    'utsagn',
+    'innsigelsenErOppgitt',
+    ['utledning/utled.ts:utledSporene', 'kommandoer/skriving.ts:frysBrev'],
+  ],
+  // MM-U18: sammenfallet stemmer med standpunktene i samme frosne brev.
+  ['frosset/standpunkt.ts', 'frosset', 'sammenfallStemmer', ['utledning/utled.ts:utledSporene']],
   ['frosset/standpunkt.ts:regnUtSvar', 'utsagn', 'krav grunnlagskrav'],
   ['frosset/standpunkt.ts:kategori', 'utsagn', 'hovedkategori underkategori'],
   [
@@ -399,6 +451,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['kommandoer/avvisning.ts', 'predikat', 'avvisning'],
   ['typer.ts', 'relasjon', 'SPOR KRAVSPOR'],
   ['format/skjema.ts', 'skjema', 'erObjekt feilI tekst'],
+  // #373: det basen ikke kan lagre, avvises før kommandoen vurderes.
+  ['format/skjema.ts', 'skjema', 'harUlagringsbarTekst', ['kommandoer/skriving.ts:vurder']],
   ['format/skjema.ts.TYPER', 'skjema', '*'],
   [
     'format/skjema.ts:feilI(s)',
@@ -426,7 +480,12 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     ['format/leser.ts', 'kommandoer/skriving.ts', 'frosset/frysing.ts'],
   ],
   ['format/format.ts', 'kontekst', 'FORMAT LESERFORMAT', ['versjon.ts']],
-  ['format/format.ts', 'skjema', 'DATO ID KRAVINNHOLD liste objekt', ['kommandoer/kommando.ts']],
+  [
+    'format/format.ts',
+    'skjema',
+    'DATO ID KRAVINNHOLD liste objekt OPPLYSNINGSSLAG',
+    ['kommandoer/kommando.ts'],
+  ],
   ['STANDPUNKTER_I_SPORET', 'rad', 'art paakrevd', ['format/leser.ts']],
   ['KRAVINNHOLD', 'skjema', 'properties required anyOf'],
   // Kodene i formatet for kategoriene (#335): formen på grunnlagskravet.
@@ -465,12 +524,17 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     ['format/leser.ts'],
   ],
   ['format/leser.ts:lesDokument(e)', 'rad', 'id art spor erstatter innhold', ['format/leser.ts']],
-  ['format/leser.ts:lesDokument(o)', 'rad', 'id hva dato gjelder oppfylt', ['format/leser.ts']],
+  [
+    'format/leser.ts:lesDokument(o)',
+    'rad',
+    'id hva dato gjelder oppfylt spor',
+    ['format/leser.ts'],
+  ],
   ['format/leser.ts:lesDokument(s)', 'rad', 'spor', ['format/leser.ts']],
   [
     'format/leser.ts:lesSvar(e)',
     'rad',
-    'id spor gjelder erstatter utregning beslutningsgrunnlag',
+    'id spor gjelder erstatter grunnlagskrav utregning beslutningsgrunnlag',
     ['format/leser.ts'],
   ],
   [
@@ -506,6 +570,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['frosset/frysing.ts', 'regelsett', 'frys grunnlagsstandpunkter', ['kommandoer/skriving.ts']],
   ['frosset/frysing.ts:frys(svar)', 'rad', 'spor utregning', ['frosset/frysing.ts']],
   ['kommandoer/skriving.ts:frysBrev(s)', 'rad', 'spor gjelder', ['kommandoer/skriving.ts']],
+  // VS-U9, VS-U11: innsigelsen et registrert svar leses med, og plassen blant partens svar da den kom.
+  ['kommandoer/skriving.ts:frysBrev', 'relasjon', 'id gjelder fra', ['kommandoer/skriving.ts']],
   ['kommandoer/skriving.ts:lagret(?)', 'frosset', 'resten', ['kommandoer/skriving.ts']],
   ['format/leser.ts', 'rad', 'lesJournal', ['kommandoer/skriving.ts']],
   ['format/leser.ts', 'rad', 'standpunkterISvaret', ['frosset/frysing.ts']],
@@ -774,6 +840,37 @@ export function lesinger(p: ts.Program, moduler: string[]): Lesing[] {
         ((ts.isForOfStatement(l) || ts.isForInStatement(l)) && l.initializer === c)
       );
     };
+    /**
+     * Nøkkelen til en importert verdi fra kjernen som `n` bruker, eller `null` når
+     * `n` ikke er en slik bruk. Importen selv, en typeimport og en kortform i et
+     * objekt (`{ x }`) skilles ut.
+     */
+    const importertVerdi = (n: ts.Identifier): string | null => {
+      const p = n.parent;
+      if (ts.isImportSpecifier(p) || ts.isImportClause(p) || ts.isNamespaceImport(p)) return null;
+      // En lokal videreeksport (`export { x }`) er en bruk av importen.
+      const lokalEksport =
+        ts.isExportSpecifier(p) &&
+        !p.parent.parent.moduleSpecifier &&
+        (p.propertyName ?? p.name) === n;
+      if (ts.isExportSpecifier(p) && !lokalEksport) return null;
+      const s = ts.isShorthandPropertyAssignment(p)
+        ? tc.getShorthandAssignmentValueSymbol(p)
+        : lokalEksport
+          ? tc.getExportSpecifierLocalTargetSymbol(p)
+          : tc.getSymbolAtLocation(n);
+      if (!s || !(s.flags & ts.SymbolFlags.Alias)) return null;
+      const imp = s.declarations?.[0];
+      if (!imp) return null;
+      let navn: string;
+      if (ts.isImportSpecifier(imp) && !imp.isTypeOnly && !imp.parent.parent.isTypeOnly)
+        navn = (imp.propertyName ?? imp.name).getText();
+      else if (ts.isImportClause(imp) && !imp.isTypeOnly) navn = 'default';
+      else return null;
+      const d = tc.getAliasedSymbol(s).declarations?.[0];
+      if (!d || !iKjernen(d.getSourceFile().fileName)) return null;
+      return `${modulnavn(d.getSourceFile().fileName)}.${navn}`;
+    };
     const besoek = (n: ts.Node) => {
       if (ts.isPropertyAccessExpression(n) && !skrives(n))
         legg(n, felt(n, n.name.text, tc.getSymbolAtLocation(n.name), n.expression));
@@ -790,17 +887,11 @@ export function lesinger(p: ts.Program, moduler: string[]): Lesing[] {
       // får en eier uten oppføring i LESBART.
       else if (ts.isObjectLiteralExpression(n) && indreMoenster(n))
         for (const e of n.properties) legg(e, `${funksjon(e)}(?).${e.name?.getText() ?? '?'}`);
-      else if (ts.isImportClause(n) && n.name && !n.isTypeOnly) {
-        const d = tc.getAliasedSymbol(tc.getSymbolAtLocation(n.name)!).declarations?.[0];
-        if (d && iKjernen(d.getSourceFile().fileName))
-          legg(n, `${modulnavn(d.getSourceFile().fileName)}.default`);
-      } else if (ts.isImportSpecifier(n) && !n.isTypeOnly && !n.parent.parent.isTypeOnly) {
-        const d = tc.getAliasedSymbol(tc.getSymbolAtLocation(n.name)!).declarations?.[0];
-        if (d && iKjernen(d.getSourceFile().fileName))
-          legg(
-            n,
-            `${modulnavn(d.getSourceFile().fileName)}.${(n.propertyName ?? n.name).getText()}`
-          );
+      else if (ts.isIdentifier(n)) {
+        // En importert verdi registreres der den brukes, så den kan avgrenses til
+        // funksjonen som bruker den (#344), ikke bare til modulen med importen.
+        const noekkel = importertVerdi(n);
+        if (noekkel !== null) legg(n, noekkel);
       }
       ts.forEachChild(n, besoek);
     };
@@ -1064,6 +1155,28 @@ describe('reglene leser bare det LESBART tillater (#308, #329)', () => {
       utled,
       [[utled, 'export const proeve = (u: Utledning) => u.endringsordre;']],
       'Utledning.endringsordre',
+    ],
+    [
+      '«avklart» etter GR-U7 importert i en annen funksjon i utledningen (#344)',
+      utled,
+      [
+        [
+          utled,
+          'export const proeve = (s: Svar, v: Standpunktsvirkning[]) => grunnlagetErAvklart(s, v);',
+        ],
+      ],
+      'frosset/standpunkt.ts.grunnlagetErAvklart',
+    ],
+    [
+      '«avklart» etter GR-U7 videreeksportert fra en regel (#344)',
+      forutsetninger,
+      [
+        [
+          forutsetninger,
+          "import { grunnlagetErAvklart } from '../frosset/standpunkt.ts';\nexport { grunnlagetErAvklart };",
+        ],
+      ],
+      'frosset/standpunkt.ts.grunnlagetErAvklart',
     ],
     [
       '«avklart» i en annen funksjon i utledningen',
