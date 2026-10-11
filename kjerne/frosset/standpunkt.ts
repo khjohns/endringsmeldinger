@@ -49,15 +49,23 @@ export function gjelderVarslingsplikten(krav: Krav | null | undefined, regler: R
 
 /**
  * Virkningen av hvert standpunkt i svaret etter regelsettet, regnet når brevet
- * skrives. `grunnlagskrav` er kravet et grunnlagssvar gjelder.
+ * skrives. `grunnlagskrav` er kravet et grunnlagssvar gjelder. `innsigelse` er en
+ * innsigelse etter § 5 byggherren sendte før et registrert svar uten standpunkt
+ * om rettidighet: svaret leses med den (VS-U11), som en påberopelse først i
+ * brevet, når rettidigheten kan ha virkning i sporet.
  */
 export function virkninger(
   svar: Svarinnhold,
   grunnlagskrav: Krav | null | undefined,
-  regler: Regelsett
+  regler: Regelsett,
+  innsigelse?: string
 ): Standpunktsvirkning[] {
   const ut: Standpunktsvirkning[] = [];
   let harGrunn = false;
+  if (innsigelse !== undefined && lesesMedInnsigelse(svar, grunnlagskrav, regler)) {
+    ut.push({ standpunkt: innsigelse, art: 'rettidighet', virkning: 'prinsipalt' });
+    harGrunn = true;
+  }
   const etterGrunn = () => (harGrunn ? 'subsidiaert' : 'prinsipalt');
   for (const s of svar.standpunkter) {
     if (s.art === 'rettidighet') {
@@ -75,6 +83,23 @@ export function virkninger(
     }
   }
   return ut;
+}
+
+/**
+ * VS-U11: et svar uten standpunkt om rettidighet leses med byggherrens innsigelse
+ * når rettidigheten har virkning i sporet: § 33.4 i fristen, § 32.2 i grunnlaget
+ * der varslingsplikten gjelder (GR-U11).
+ */
+export function lesesMedInnsigelse(
+  svar: Svarinnhold,
+  grunnlagskrav: Krav | null | undefined,
+  regler: Regelsett
+): boolean {
+  if (svar.standpunkter.some((s) => s.art === 'rettidighet')) return false;
+  return (
+    svar.spor === 'frist' ||
+    (svar.spor === 'grunnlag' && gjelderVarslingsplikten(grunnlagskrav, regler))
+  );
 }
 
 export const prinsipalt = (v: Standpunktsvirkning[]) => v.find((p) => p.virkning === 'prinsipalt');
@@ -98,12 +123,15 @@ export function grunnlagetErAvklart(svar: Svarinnhold, v: Standpunktsvirkning[])
   );
 }
 
-/** MM-U13: byggherren påberoper prinsipalt preklusjon etter § 32.2 i svaret på grunnlaget. */
+/**
+ * MM-U13: byggherren påberoper prinsipalt preklusjon etter § 32.2 i svaret på
+ * grunnlaget, i svaret selv eller med innsigelsen svaret er lest med (VS-U11).
+ * Rettidigheten i grunnlaget er alltid etter § 32.2 (`HJEMMEL`).
+ */
 function preklusjonPaaberopt(svar: Svarinnhold, v: Standpunktsvirkning[]): boolean {
-  const rettidighet = standpunktet(svar, 'rettidighet');
   return (
-    rettidighet?.hjemmel === '32.2' &&
-    v.some((p) => p.standpunkt === rettidighet.id && p.virkning === 'prinsipalt')
+    svar.spor === 'grunnlag' &&
+    v.some((p) => p.art === 'rettidighet' && p.virkning === 'prinsipalt')
   );
 }
 
@@ -126,6 +154,14 @@ function godkjennerHeleKravet(svar: Svarinnhold, v: Standpunktsvirkning[]): bool
   if (svar.spor === 'grunnlag') return standpunktet(svar, 'grunnlag')?.resultat === 'godkjent';
   return svar.utregning.resultat === 'godkjent';
 }
+
+/**
+ * MM-U18: sammenfallet i beslutningsgrunnlaget stemmer med standpunktene og
+ * virkningene i samme brev. Leses av det frosne brevet, ikke av dagens regler.
+ */
+export const sammenfallStemmer = (svar: Svar): boolean =>
+  svar.beslutningsgrunnlag.sammenfall ===
+  godkjennerHeleKravet(svar, svar.beslutningsgrunnlag.virkninger);
 
 /**
  * Et svar på grunnlaget i et brev sendt i appen er en endringsordre etter § 32.3
@@ -189,9 +225,10 @@ function beslutningslinje(svar: Svarinnhold, v: Standpunktsvirkning[]): string {
 export function beslutningsgrunnlag(
   svar: Svarinnhold,
   grunnlagskrav: Krav | null | undefined,
-  regler: Regelsett
+  regler: Regelsett,
+  innsigelse?: string
 ): Beslutningsgrunnlag {
-  const v = virkninger(svar, grunnlagskrav, regler);
+  const v = virkninger(svar, grunnlagskrav, regler, innsigelse);
   return {
     regelversjon: regler.versjon,
     virkninger: v,

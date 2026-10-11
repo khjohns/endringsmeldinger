@@ -11,6 +11,7 @@ import { HJEMMEL } from '../format/format.ts';
 import { formfeil, type Kommando, type Svarutkast } from './kommando.ts';
 import { frys, grunnlagsstandpunkter } from '../frosset/frysing.ts';
 import { lesJournal, Uforstaatt } from '../format/leser.ts';
+import { harUlagringsbarTekst } from '../format/skjema.ts';
 import { regnUtSvar } from '../frosset/standpunkt.ts';
 import { grunnlagskravFor, utled, type Utledning } from '../utledning/utled.ts';
 import type { Kjerne } from '../versjon.ts';
@@ -93,6 +94,8 @@ function svar(
     spor: s.spor,
     gjelder: s.gjelder,
     ...(erstatter ? { erstatter } : {}),
+    // #342: grunnlagsversjonen svaret regnes mot, som `regnUtSvar` under.
+    ...(s.spor === 'grunnlag' ? {} : { grunnlagskrav: u.spor.grunnlag.gjeldendeKrav!.id }),
     standpunkter: standpunkter(s, krav, u, nyId),
   };
   // B-13: serverens utregning lagres, ikke klientens.
@@ -147,6 +150,18 @@ function dokument(k: Kommando, u: Utledning, kjerne: Kjerne, nyId: () => string)
       };
     case 'bestridelse':
       return { utsagn: [{ id: nyId(), art: 'bestridelse', gjelder: k.gjelder, hva: k.hva }] };
+    case 'ingen_krav':
+      return { utsagn: [{ id: nyId(), art: 'ingen_krav', spor: k.spor }] };
+    case 'innsigelse':
+    case 'protest':
+    case 'passivitet':
+    case 'avklaring':
+      return { utsagn: [{ id: nyId(), art: k.type, gjelder: k.gjelder }] };
+    case 'merking':
+      // KA-U20: en senere merking er en opplysning om det gamle brevet (MM-U12).
+      return {
+        opplysninger: [{ id: nyId(), hva: 'kan_ikke_uttrykkes', spor: k.spor, gjelder: k.gjelder }],
+      };
   }
 }
 
@@ -156,6 +171,16 @@ export function vurder(
   journal: Journalrad[],
   kjerne: Kjerne
 ): Utfall {
+  // #373: det basen ikke kan lagre, avvises før noe annet, med sin egen kode.
+  if (harUlagringsbarTekst(kommando))
+    return {
+      godtatt: false,
+      feil: 'UGYLDIG_FORM',
+      avvisning: {
+        regel: 'TEKST_KAN_IKKE_LAGRES',
+        melding: 'Kommandoen har tegn som ikke kan lagres (NUL eller en enslig surrogat).',
+      },
+    };
   const feil = formfeil(kommando);
   if (feil.length)
     return {
@@ -210,12 +235,24 @@ export function vurder(
  */
 export function frysBrev(rad: Journalrad, foer: Journalrad[], kjerne: Kjerne): void {
   const grunnlagskrav: Krav[] = [];
-  for (const h of lesJournal(foer, kjerne.leserformat))
-    if (h.art === 'dokument')
-      grunnlagskrav.push(...h.dokument.krav.filter((k) => k.spor === 'grunnlag'));
+  const innsigelser: { gjelder: string; id: string }[] = [];
+  const varsler: string[] = [];
+  for (const h of lesJournal(foer, kjerne.leserformat)) {
+    if (h.art !== 'dokument') continue;
+    grunnlagskrav.push(...h.dokument.krav.filter((k) => k.spor === 'grunnlag'));
+    for (const u of h.dokument.utsagn) {
+      if (u.art === 'varsel') varsler.push(u.id);
+      // VS-U9: den første innsigelsen fra samme part bevares.
+      if (u.art === 'innsigelse' && h.dokument.avsender === rad.aktor_rolle) innsigelser.push(u);
+    }
+  }
   for (const s of (rad.data.svar ?? []) as Data[]) {
     // Kategorien gjelder bare svaret på grunnlaget (§ 32.2, GR-U12).
     const krav = s.spor === 'grunnlag' ? grunnlagskrav.find((k) => k.id === s.gjelder) : null;
-    s.beslutningsgrunnlag = lagret(frys(s, krav, kjerne.regler));
+    // VS-U11: et registrert svar uten standpunkt om rettidighet leses med innsigelsen.
+    const innsigelse = innsigelser.find(
+      (i) => i.gjelder === s.gjelder || (s.spor === 'frist' && varsler.includes(i.gjelder))
+    )?.id;
+    s.beslutningsgrunnlag = lagret(frys(s, krav, kjerne.regler, innsigelse));
   }
 }

@@ -38,6 +38,19 @@ export type Opplysning =
       oppgittAv: Part;
       /** Brevet opplysningen gjelder: dokumentet selv, eller et registrert brev før det (MM-U12). */
       brev: string;
+    }
+  /**
+   * KA-U16, KA-U20: et registrert brev har noe appen ikke kan uttrykke. `spor` er
+   * sporene der handlinger bygger på det. Merkingen er partens vurdering, ikke en
+   * rettslig avgjørelse (MM-U12), og gjelder brevet selv eller et registrert brev før det.
+   */
+  | {
+      id: string;
+      dokument: string;
+      hva: 'kan_ikke_uttrykkes';
+      spor: Spor[];
+      oppgittAv: Part;
+      brev: string;
     };
 
 /**
@@ -75,7 +88,25 @@ export type Utsagn =
    */
   | { id: string; art: 'bestridelse'; gjelder: string; hva: Opplysning['hva'] }
   /** KA-U12: TE krever ikke noe i sporet. */
-  | { id: string; art: 'ingen_krav'; spor: Kravspor };
+  | { id: string; art: 'ingen_krav'; spor: Kravspor }
+  /**
+   * § 5 tredje ledd (VS-U1, VS-U9, VS-U14): parten gjør gjeldende at motpartens
+   * varsel, krav eller svar kom for sent. `gjelder` er det.
+   */
+  | { id: string; art: 'innsigelse'; gjelder: string }
+  /**
+   * VS-U1, MP-U6: protest mot en innsigelse: innsigelsen, påberopelsen i et svar
+   * (standpunktet om rettidighet), eller et dokument, som da gjelder alle
+   * innsigelsene i det.
+   */
+  | { id: string; art: 'protest'; gjelder: string }
+  /** VS-U12: TE påberoper byggherrens passivitet etter § 32.3 annet ledd. `gjelder` er TEs varsel etter § 32.2. */
+  | { id: string; art: 'passivitet'; gjelder: string }
+  /**
+   * KA-U20: den som sendte et merket brev, sier at standpunktene i det gjelder uten
+   * forbehold. `gjelder` er merkingen. Gjør ikke brevet ubetinget fra sendetidspunktet.
+   */
+  | { id: string; art: 'avklaring'; gjelder: string };
 
 export type Utsagnsart = Utsagn['art'];
 
@@ -96,6 +127,11 @@ export interface Svar {
   gjelder: string;
   /** Svaret denne revisjonen erstatter, på samme kravversjon. */
   erstatter: string | null;
+  /**
+   * HF-U1, #342: grunnlagsversjonen et svar på vederlag eller frist ble regnet mot.
+   * `null` i et svar på grunnlaget.
+   */
+  grunnlagskrav: string | null;
   standpunkter: Standpunkt[];
   /** Serverens utregning etter B-13, slik den er lagret. */
   utregning: Record<string, unknown>;

@@ -60,7 +60,13 @@ function status(u: Utledning): Statuskode {
 function regelenErEndret(u: Utledning, spor: Spor, regler: Regelsett): boolean {
   const g = u.spor[spor].gjeldendeSvar;
   if (!g) return false;
-  return ulikeVirkninger(u.svar[g.id].virkninger, virkninger(g, grunnlagskravFor(g, u), regler));
+  const frosset = u.svar[g.id].virkninger;
+  // VS-U11: innsigelsen svaret er lest med, står i det frosne brevet og ikke blant standpunktene.
+  const innsigelse = frosset.find((v) => !g.standpunkter.some((p) => p.id === v.standpunkt));
+  return ulikeVirkninger(
+    frosset,
+    virkninger(g, grunnlagskravFor(g, u), regler, innsigelse?.standpunkt)
+  );
 }
 
 /**
@@ -98,6 +104,16 @@ function etiketter(u: Utledning, spor: Spor, regler: Regelsett): string[] {
     ut.push('appens_vurdering_ved_registreringen');
   if (s.gjeldendeSvar && u.svar[s.gjeldendeSvar.id].uavklart.length)
     ut.push('bh_har_ikke_vurdert_varselet');
+  // KA-U16, KA-U20: enigheten eller svaret bygger på et merket brev; uenigheten vises.
+  if (s.forbehold) ut.push(s.enighet ? 'enighet_med_forbehold' : 'forbehold');
+  // § 5 og VS-U12: påberopelsene registreres og vises uten virkning på utfallet.
+  const iSporet = new Set(
+    [s.gjeldendeKrav?.id, s.gjeldendeSvar?.id, spor === 'frist' ? s.varsel?.id : undefined].filter(
+      (x): x is string => x !== undefined
+    )
+  );
+  for (const i of u.innsigelser) if (iSporet.has(i.gjelder)) ut.push(`innsigelse_fra_${i.part}`);
+  if (spor === 'grunnlag' && u.passivitet.length) ut.push('passivitet_paaberopt');
   if (s.ingenKrav) ut.push('ingen_krav');
   else if (spor === 'frist' && !s.varsel) ut.push('varsel_ikke_registrert');
   return ut;
@@ -107,12 +123,13 @@ export function visning(u: Utledning, regler: Regelsett): Visning {
   const kode = status(u);
   const ikkeTolket = new Set(u.begrensninger.map((b) => b.hendelse));
   const opplysninger: Record<string, string[]> = {};
-  for (const { opplysning: o, bestridelser } of u.opplysninger) {
+  for (const { opplysning: o, bestridelser, avklaring } of u.opplysninger) {
     const e = [
       o.hva === 'endringsordre'
         ? `${o.oppfylt ? 'endringsordre' : 'ikke_endringsordre'}_ifolge_${o.oppgittAv}`
         : `${o.hva}_ifolge_${o.oppgittAv}`,
     ];
+    if (avklaring !== null) e.push('avklart_av_avsenderen');
     if (
       o.hva === 'sendt' &&
       !u.opplysninger.some(
@@ -129,6 +146,7 @@ export function visning(u: Utledning, regler: Regelsett): Visning {
           sendt: 'sending_bestridt',
           mottatt: 'mottak_bestridt',
           endringsordre: 'endringsordre_bestridt',
+          kan_ikke_uttrykkes: 'merking_bestridt',
         }[b.hva]
       );
     opplysninger[o.id] = e;
@@ -145,6 +163,10 @@ export function visning(u: Utledning, regler: Regelsett): Visning {
       tolket: h.art !== 'ukjent' && !ikkeTolket.has(h.id),
     })),
     // MM-U2: mens saken stopper, må et varsel med frist sendes utenfor appen og registreres senere.
-    merknader: u.forstaatt ? [] : ['varsel_med_frist_utenfor_appen'],
+    merknader: u.forstaatt
+      ? u.utenVirkning.length
+        ? ['registrert_brev_uten_virkning']
+        : []
+      : ['varsel_med_frist_utenfor_appen'],
   };
 }

@@ -70,15 +70,20 @@ grunnlag = "KA-U1, MM-U9, designnotatet 4.2 og 4.3"
 
 [[svar]]
 spor = "vederlag"
-beskrivelse = "Byggherrens svar på en kravversjon av vederlaget, med serverens utregning."
-felt = ["id", "spor", "gjelder", "erstatter", "standpunkter", "utregning", "beslutningsgrunnlag"]
-grunnlag = "B-13, MM-U9"
+beskrivelse = """
+Byggherrens svar på en kravversjon av vederlaget, med serverens utregning.
+`grunnlagskrav` er grunnlagsversjonen svaret ble regnet mot. Om svaret er
+subsidiært til grunnlaget, leses av den og lagres ikke (#342)."""
+felt = ["id", "spor", "gjelder", "erstatter", "grunnlagskrav", "standpunkter", "utregning", "beslutningsgrunnlag"]
+grunnlag = "B-13, MM-U9, HF-U1, GR-U1, GR-U4"
 
 [[svar]]
 spor = "frist"
-beskrivelse = "Byggherrens svar på en kravversjon av fristen, med serverens utregning."
-felt = ["id", "spor", "gjelder", "erstatter", "standpunkter", "utregning", "beslutningsgrunnlag"]
-grunnlag = "B-13, MM-U9"
+beskrivelse = """
+Byggherrens svar på en kravversjon av fristen, med serverens utregning.
+`grunnlagskrav` er grunnlagsversjonen svaret ble regnet mot (#342)."""
+felt = ["id", "spor", "gjelder", "erstatter", "grunnlagskrav", "standpunkter", "utregning", "beslutningsgrunnlag"]
+grunnlag = "B-13, MM-U9, HF-U1, GR-U1, GR-U4"
 
 # Standpunktene i et svar, i rekkefølgen brevet setter dem. Arten avgjør
 # feltene. Et standpunkt byggherren ikke har tatt, utelates (KA-U4).
@@ -149,7 +154,10 @@ grunnlag = "KA-U1, KA-U10"
 [[utsagn]]
 art = "bestridelse"
 avsender = "TE eller BH"
-beskrivelse = "En part bestrider at dokumentet i en opplysning fra motparten ble sendt eller mottatt."
+beskrivelse = """
+En part bestrider en opplysning fra motparten: at dokumentet ble sendt eller
+mottatt, at det var en endringsordre etter § 31.3, eller en merking etter KA-U20.
+Uten virkning på utfallet."""
 felt = ["id", "art", "gjelder", "hva"]
 grunnlag = "MM-U1, MM-U7"
 
@@ -159,6 +167,48 @@ avsender = "TE"
 beskrivelse = "TE krever ikke noe i et spor som ikke er sendt. Har `spor` og ikke `gjelder`."
 felt = ["id", "art", "spor"]
 grunnlag = "KA-U12"
+
+[[utsagn]]
+art = "innsigelse"
+avsender = "TE eller BH"
+beskrivelse = """
+Innsigelse etter § 5 tredje ledd: parten gjør gjeldende at motpartens varsel,
+krav eller svar (`gjelder`) kom for sent. Registreres og vises uten virkning på
+utfallet. Et senere registrert svar fra samme part uten standpunkt om
+rettidighet leses med den første innsigelsen (VS-U11), og står da i svarets
+`virkninger`."""
+felt = ["id", "art", "gjelder"]
+grunnlag = "VS-U1, VS-U9, VS-U11, VS-U14"
+
+[[utsagn]]
+art = "protest"
+avsender = "TE eller BH"
+beskrivelse = """
+Protest mot en innsigelse fra motparten. `gjelder` er innsigelsen, et standpunkt
+om rettidighet der motparten sa at varselet kom for sent, eller et dokument, og
+da gjelder protesten alle innsigelsene i det (MP-U6). Uten virkning på utfallet."""
+felt = ["id", "art", "gjelder"]
+grunnlag = "VS-U1, VS-U9, MP-U6"
+
+[[utsagn]]
+art = "passivitet"
+avsender = "TE"
+beskrivelse = """
+TE påberoper byggherrens passivitet etter § 32.3 annet ledd. `gjelder` er TEs
+varsel etter § 32.2, kravet i grunnlagssporet. Før og etter byggherrens svar.
+Uten virkning på utfallet, og sperrer ikke svaret."""
+felt = ["id", "art", "gjelder"]
+grunnlag = "VS-U12, GR-U11"
+
+[[utsagn]]
+art = "avklaring"
+avsender = "TE eller BH"
+beskrivelse = """
+Den som sendte et merket brev, sier at standpunktene i det gjelder uten
+forbehold. `gjelder` er merkingen. Sperren etter KA-U20 oppheves, men brevet
+blir ikke ubetinget fra sendetidspunktet."""
+felt = ["id", "art", "gjelder"]
+grunnlag = "KA-U20, MM-U12"
 
 # ---------------------------------------------------------------------------
 # Delene i svaret og dokumentet.
@@ -173,7 +223,9 @@ standpunktene (`virkninger` med `prinsipalt` eller `subsidiaert`), standpunktene
 uten virkning (`uten_virkning`), brevlinjen, om svaret godkjenner hele kravet
 (`sammenfall`) og, i grunnlaget, om § 32.2 gjaldt etter reglene og
 underkategorien da (`varslingsplikt`). Hvert standpunkt står i `virkninger` eller
-`uten_virkning`. Utfallet og vilkåret utledes og lagres ikke."""
+`uten_virkning`. Et registrert svar uten standpunkt om rettidighet kan være lest
+med en innsigelse fra samme part (VS-U11): da står innsigelsen først i
+`virkninger`. Utfallet og vilkåret utledes og lagres ikke."""
 felt = ["regelversjon", "virkninger", "uten_virkning", "linje", "sammenfall", "varslingsplikt"]
 grunnlag = "MM-U9, MM-U11, GR-U12, KA-U10"
 
@@ -221,3 +273,16 @@ opplysning per brev. Uten opplysningen er det ikke avklart om svaret er en
 endringsordre, og trekket av grunnlaget er sperret til det er avklart."""
 felt = ["id", "hva", "oppfylt", "gjelder"]
 grunnlag = "§ 31.3, § 32.3 a, GR-U13, KA-U14, MM-U12"
+
+[[opplysning]]
+hva = "kan_ikke_uttrykkes"
+beskrivelse = """
+Et registrert brev med et krav eller svar har noe appen ikke kan uttrykke, for
+eksempel et forbehold. `spor` er sporene der handlinger bygger på det. Uten
+`gjelder` står merkingen i brevet selv; med `gjelder` er den en senere merking av
+et registrert brev, fra en av partene. Partens vurdering, ikke en rettslig
+avgjørelse. Så lenge et krav eller svar i brevet gjelder og merkingen ikke er
+avklart, sperres aksepten av svaret, endringsordren og trekk som rammer en enighet
+i sporene. Utledningen ellers er uendret."""
+felt = ["id", "hva", "spor", "gjelder"]
+grunnlag = "KA-U16, KA-U20, KA-U22, MM-U12, MM-U7"

@@ -307,8 +307,8 @@
             "enighet.frist.virkning": "uten_virkning",
             "kan_inngaa_i_eo": false,
             "visning.status": "avsluttet_avslaatt",
-            "handlinger.TE": [],
-            "handlinger.BH": [],
+            "handlinger.TE": ["innsigelse:S-g1", "innsigelse:S-v1", "innsigelse:S-f1", "innsigelse:S-v2", "passivitet:K-g1"],
+            "handlinger.BH": ["innsigelse:K-g1", "innsigelse:K-v1", "innsigelse:K-f1"],
             "kravene_avgjort": false
           }
         },
@@ -457,8 +457,8 @@
             "enighet.frist.virkning": "virksom",
             "kan_inngaa_i_eo": false,
             "visning.status": "avsluttet_oppgjort",
-            "handlinger.TE": [],
-            "handlinger.BH": [],
+            "handlinger.TE": ["innsigelse:S-g1", "innsigelse:S-v1", "innsigelse:S-f1", "passivitet:K-g1"],
+            "handlinger.BH": ["innsigelse:K-g1", "innsigelse:K-v1", "innsigelse:K-f1"],
             "kravene_avgjort": true
           }
         }
@@ -531,8 +531,8 @@
             "kan_inngaa_i_eo": false,
             "visning.status": "avsluttet_trukket",
             "visning.etiketter.grunnlag": { "inneholder": ["trukket"], "mangler": ["paalegg_frafalt"] },
-            "handlinger.TE": [],
-            "handlinger.BH": [],
+            "handlinger.TE": ["innsigelse:S-v1", "passivitet:K-g1"],
+            "handlinger.BH": ["innsigelse:K-g1", "innsigelse:K-v1", "innsigelse:K-f1"],
             "kravene_avgjort": false
           }
         },
@@ -1364,7 +1364,7 @@
           "etter": 5,
           "rolle": "mal",
           "kilde": ["MM-U7"],
-          "forventet": { "handlinger.BH": ["bestride:D3#sendt"], "handlinger.TE": [] }
+          "forventet": { "handlinger.BH": ["bestride:D3#sendt", "innsigelse:K-g1", "innsigelse:K-f1", "innsigelse:D3#varsel"], "handlinger.TE": ["innsigelse:S-g1", "passivitet:K-g1"] }
         },
         {
           "etter": 5,
@@ -1384,7 +1384,7 @@
             "opplysning.D3#sendt.bestridelser": [{ "part": "BH", "hva": "mottatt", "hendelse": "D6" }],
             "visning.status": "avsluttet_avslaatt",
             "visning.opplysning.D3#sendt": { "inneholder": ["mottak_bestridt"] },
-            "handlinger.BH": [],
+            "handlinger.BH": ["innsigelse:K-g1", "innsigelse:K-f1", "innsigelse:D3#varsel"],
             "grunnlag_avvist": true
           }
         }
@@ -1767,8 +1767,8 @@
             "kravene_avgjort": true,
             "kan_inngaa_i_eo": true,
             "visning.status": "avsluttet_oppgjort",
-            "handlinger.TE": [],
-            "handlinger.BH": []
+            "handlinger.TE": ["innsigelse:S-g1", "innsigelse:S-f1", "passivitet:K-g1"],
+            "handlinger.BH": ["innsigelse:K-g1", "innsigelse:K-v1", "innsigelse:K-f1"]
           }
         }
       ]
@@ -1844,8 +1844,8 @@
             "avvist": false,
             "kravene_avgjort": true,
             "kan_inngaa_i_eo": false,
-            "handlinger.TE": [],
-            "handlinger.BH": []
+            "handlinger.TE": ["innsigelse:S-g1", "passivitet:K-g1"],
+            "handlinger.BH": ["innsigelse:K-g1", "innsigelse:K-v1", "innsigelse:K-f1"]
           }
         },
         {
