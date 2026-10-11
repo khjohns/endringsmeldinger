@@ -217,7 +217,13 @@ type Klasse =
   /** Journalraden i lagret form. Bare leseren og skrivingen leser den. */
   | 'rad'
   /** JSON-skjemaet kommandoene kontrolleres mot. */
-  | 'skjema';
+  | 'skjema'
+  /**
+   * Det brevteksten lages av og består av (LV-U2, LV-U3): utsagnene og relasjonene i
+   * brevet og journalen før det, med navnene i kontrakten. Bare tekstgeneratoren og
+   * skrivingen leser det, og ingen regel leser teksten.
+   */
+  | 'brevtekst';
 
 /**
  * Det reglene får lese: `[eier, klasse, felt, steder]`, med feltene skilt med
@@ -579,6 +585,48 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   // Leseregler som deles: registrert korrespondanse, datoen for et varsel og bestridelsen
   // av samme slag (MM-U1, MM-U7).
   ['format/leser.ts', 'relasjon', 'erRegistrert datoFor sammeSlag'],
+
+  // Brevteksten (frosset/brevtekst.ts, LV-U2, LV-U3, #369). Leses bare når brevet skrives.
+  ['format/leser.ts:lesDokument', 'rad', 'brevtekst', ['format/leser.ts']],
+  ['Avsnitt', 'brevtekst', 'gjelder', ['format/leser.ts']],
+  ['Avsnitt', 'brevtekst', 'laast utdypning', ['frosset/brevtekst.ts']],
+  ['Journalrad.data', 'rad', 'sakstittel', ['format/leser.ts']],
+  ['Domenehendelse', 'brevtekst', 'tittel', ['kommandoer/skriving.ts:brevtekstFor']],
+  ['Journalrad', 'kontekst', 'sak_id', ['kommandoer/skriving.ts:brevtekstFor']],
+  ['Svarutkast', 'kommando', 'utdypning', ['kommandoer/skriving.ts:svar']],
+  [
+    'frosset/brevtekst.ts',
+    'brevtekst',
+    'lagBrevtekst KanIkkeUttrykkes',
+    ['kommandoer/skriving.ts:brevtekstFor'],
+  ],
+  ['Saken', 'brevtekst', 'saksnummer tittel', ['frosset/brevtekst.ts']],
+  ['Dokument', 'relasjon', 'id registrert', ['frosset/brevtekst.ts']],
+  ['Krav', 'relasjon', 'dokument', ['frosset/brevtekst.ts']],
+  ['Krav.innhold', 'utsagn', 'tittel beskrivelse', ['frosset/brevtekst.ts']],
+  [
+    'Journalen',
+    'brevtekst',
+    'legg brev brevet dokument dokumenter element elementer krav svar versjon',
+    ['frosset/brevtekst.ts'],
+  ],
+  ['Element', 'brevtekst', 'dokument krav opplysning svar utsagn', ['frosset/brevtekst.ts']],
+  ['frosset/brevtekst.ts.HOVEDKATEGORI', 'brevtekst', '*', ['frosset/brevtekst.ts']],
+  ['frosset/brevtekst.ts.UNDERKATEGORI', 'brevtekst', '*', ['frosset/brevtekst.ts']],
+  [
+    'frosset/brevtekst.ts:aapenInnsigelse',
+    'relasjon',
+    'dokument fra gjelder',
+    ['frosset/brevtekst.ts'],
+  ],
+  // Teksten sier det brevet sier: § 32.2 for kravet, endringsordren etter GR-U12 og
+  // innsigelsen svaret gjentar eller gir opp (VS-U9, VS-U11).
+  [
+    'frosset/standpunkt.ts',
+    'brevtekst',
+    'blirEndringsordre gjelderVarslingsplikten innsigelsenErOppgitt innsigelsenGjelderSvaret',
+    ['frosset/brevtekst.ts'],
+  ],
 ];
 
 /**

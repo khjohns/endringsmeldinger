@@ -273,6 +273,14 @@ export const OPPLYSNING: Record<(typeof OPPLYSNINGSSLAG)[number], Skjema> = {
   ),
 };
 
+/**
+ * Brevteksten i et brev appen sender (LV-U2, LV-U3, #369): ett avsnitt per element,
+ * med den låste delen og utdypningen hver for seg (B-13 om begrunnelsestekst).
+ */
+export const BREVTEKST: Skjema = liste(
+  objekt({ gjelder: ID, laast: TEKST, utdypning: TEKST }, ['gjelder', 'laast'])
+);
+
 /** `data` i `dokument_registrert`. Elementene kontrolleres hver for seg etter `spor` eller `art`. */
 export const DOKUMENT: Skjema = objekt(
   {
@@ -281,6 +289,7 @@ export const DOKUMENT: Skjema = objekt(
     utsagn: { type: 'array', minItems: 1 },
     opplysninger: { type: 'array', minItems: 1 },
     dokumentasjon: liste(ID),
+    brevtekst: BREVTEKST,
   },
   []
 );

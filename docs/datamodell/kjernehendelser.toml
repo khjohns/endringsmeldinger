@@ -30,9 +30,10 @@ navn = "dokument_registrert"
 beskrivelse = """
 Ett dokument fra én part: kravene, svarene, utsagnene og opplysningene i det.
 Et brev med flere svar er én rad, og saksversjonen øker med én. Dokumentet har
-minst ett krav, ett svar eller ett utsagn. Avsenderen er `actorrole`."""
-felt = ["krav", "svar", "utsagn", "opplysninger", "dokumentasjon"]
-grunnlag = "MM-U10, designnotatet 4.1"
+minst ett krav, ett svar eller ett utsagn. Avsenderen er `actorrole`. Et brev
+appen sender, har brevteksten (`brevtekst`); et registrert brev har ingen."""
+felt = ["krav", "svar", "utsagn", "opplysninger", "dokumentasjon", "brevtekst"]
+grunnlag = "MM-U10, LV-U2, designnotatet 4.1"
 
 # ---------------------------------------------------------------------------
 # Elementene i dokumentet. Hvert har en `id` (UUID) satt av serveren.
@@ -41,7 +42,7 @@ grunnlag = "MM-U10, designnotatet 4.1"
 [[krav]]
 spor = "grunnlag"
 beskrivelse = """
-En kravversjon av ansvarsgrunnlaget. `erstatter` er forrige kravversjon i sporet.
+En kravversjon av grunnlaget. `erstatter` er forrige kravversjon i sporet.
 `hovedkategori` og `underkategori` er et par fra kjernens lukkede liste
 (`KATEGORIER` i `kjerne/format/koder.ts`), for eksempel `endring` og
 `irregulaer_endring`. Et ukjent par gjør raden ikke forstått."""
@@ -228,6 +229,17 @@ med en innsigelse fra samme part (VS-U11): da står innsigelsen først i
 `virkninger`. Utfallet og vilkåret utledes og lagres ikke."""
 felt = ["regelversjon", "virkninger", "uten_virkning", "linje", "sammenfall", "varslingsplikt"]
 grunnlag = "MM-U9, MM-U11, GR-U12, KA-U10"
+
+[[del]]
+navn = "brevtekst"
+beskrivelse = """
+Teksten i et brev appen sender, frosset da brevet ble skrevet: ett avsnitt per
+krav, svar, utsagn og opplysning parten sier i brevet (`gjelder`), med den låste
+delen appen lager av valgene (`laast`) og partens utdypning (`utdypning`) hver for
+seg. Det som ikke står i teksten, regnes ikke som meddelt. Appens vurdering står
+ikke i teksten, og ingen regel leser den. Et registrert brev har ingen (MM-U17)."""
+felt = ["gjelder", "laast", "utdypning"]
+grunnlag = "LV-U2, LV-U3, B-13 om begrunnelsestekst, KA-U22, KA-U25"
 
 [[del]]
 navn = "utregning"
