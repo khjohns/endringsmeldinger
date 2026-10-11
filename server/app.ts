@@ -146,6 +146,7 @@ async function visSaken(
         event_type: r.event_type,
         tidsstempel: r.tidsstempel,
         aktor_rolle: r.aktor_rolle,
+        format: r.format,
         data: r.data,
       })),
       leveringsoppdrag: oppdrag.map((o) => ({

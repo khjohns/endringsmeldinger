@@ -40,6 +40,13 @@ export function harUlagringsbarTekst(verdi: unknown): boolean {
   return false;
 }
 
+/** En dato på formen ÅÅÅÅ-MM-DD som finnes i kalenderen. */
+export function erKalenderdato(v: unknown): boolean {
+  if (typeof v !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(v)) return false;
+  const d = new Date(`${v}T00:00:00Z`);
+  return !Number.isNaN(d.getTime()) && d.toISOString().startsWith(v);
+}
+
 /** Teksten, eller `null` når verdien ikke er en tekst. */
 export const tekst = (v: unknown): string | null => (typeof v === 'string' ? v : null);
 

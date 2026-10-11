@@ -139,15 +139,15 @@ export class Kjoering {
     const k = kommandoFor(h, klient, klientregler, this.navn);
     // A1: klienten sender den låste teksten den viste, laget med sine regler. Avviser
     // forhåndsvisningen kommandoen, sendes den uten tekst, og serveren avviser den.
-    const vist = forhaandsvis(
-      structuredClone(k),
-      { ...this.kontekst(h), tidspunkt: () => new Date(this.klokke) },
-      journal,
-      medRegler(klientregler, this.kjerne)
-    );
-    const tekst = vist.godtatt ? laastTekst(vist.hendelser[0]) : null;
-    if (tekst) k.brevtekst = tekst;
     try {
+      const vist = forhaandsvis(
+        structuredClone(k),
+        { ...this.kontekst(h), tidspunkt: () => new Date(this.klokke) },
+        journal,
+        medRegler(klientregler, this.kjerne)
+      );
+      const tekst = vist.godtatt ? laastTekst(vist.hendelser[0]) : null;
+      if (tekst) k.brevtekst = tekst;
       return vurder(structuredClone(k), this.kontekst(h), journal, this.kjerne);
     } catch (feil) {
       if (feil instanceof Skrivefeil)

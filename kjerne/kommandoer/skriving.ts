@@ -207,7 +207,8 @@ export function vurder(
 
 /**
  * Det klienten viser avsenderen før brevet sendes: raden kommandoen ville gitt,
- * med brevteksten, uten kontrollen av teksten kommandoen bærer. Klienten sender
+ * med brevteksten, uten kontrollen av teksten kommandoen bærer og uten kravet til
+ * begrunnelse og beskrivelse, som ikke endrer den låste teksten. Klienten sender
  * den låste teksten herfra med kommandoen (A1).
  */
 export function forhaandsvis(
@@ -228,7 +229,7 @@ function skriv(
   kontekst: Kontekst,
   journal: Journalrad[],
   kjerne: Kjerne,
-  kontrollerTekst: boolean
+  sendes: boolean
 ): Utfall {
   // #373: det basen ikke kan lagre, avvises før noe annet, med sin egen kode.
   if (harUlagringsbarTekst(kommando))
@@ -250,7 +251,7 @@ function skriv(
   const k = kommando as Kommando;
   const lest = lesJournal(journal, kjerne.leserformat);
   const u = utled(lest, kjerne.regler);
-  const brudd = avvisning(k, kontekst.part, u, kjerne.regler);
+  const brudd = avvisning(k, kontekst.part, u, kjerne.regler, sendes);
   if (brudd) return { godtatt: false, feil: 'REGELBRUDD', avvisning: brudd };
 
   const eventId = kontekst.nyId();
@@ -290,7 +291,7 @@ function skriv(
     throw feil;
   }
   if (brevtekst) data.brevtekst = brevtekst;
-  if (kontrollerTekst) {
+  if (sendes) {
     const avvik = tekstavvik(k.brevtekst, brevtekst);
     if (avvik) return { godtatt: false, feil: 'REGELBRUDD', avvisning: avvik };
   }
@@ -325,7 +326,7 @@ function tekstavvik(vist: string[] | undefined, laget: Avsnitt[] | null): Avvisn
     ? null
     : avvis(
         'ANNEN_BREVTEKST',
-        'Teksten avsenderen har sett, er ikke den serveren lager. Last inn saken på nytt.'
+        'Teksten avsenderen har sett, er ikke den serveren lager. Last inn saken på nytt, og last inn appen på nytt om den er oppdatert.'
       );
 }
 

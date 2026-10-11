@@ -8,7 +8,7 @@
  */
 
 import { DATO, ID, KRAVINNHOLD, liste, objekt, OPPLYSNINGSSLAG, TEKST } from '../format/format.ts';
-import { erObjekt, feilI, type Skjema } from '../format/skjema.ts';
+import { erKalenderdato, erObjekt, feilI, type Skjema } from '../format/skjema.ts';
 import type { Svarvurdering } from '../frosset/standpunkt.ts';
 import { KRAVSPOR, SPOR as SPORENE, type Kravspor, type Opplysning, type Spor } from '../typer.ts';
 
@@ -170,6 +170,12 @@ export function formfeil(kommando: unknown): string[] {
     if (k.spor !== 'frist' && 'varsel' in k)
       feil.push('$.varsel: bare et fristkrav har varsel etter § 33.4');
   }
+  // Datoen står i brevteksten og må være en dato (LV-U4 punkt 3).
+  const sendt =
+    (kommando as { varsel?: { sendt?: unknown }; sendt?: unknown }).varsel?.sendt ??
+    (kommando as { sendt?: unknown }).sendt;
+  if (!feil.length && sendt !== undefined && !erKalenderdato(sendt))
+    feil.push(`$.sendt: ${JSON.stringify(sendt)} er ikke en dato på formen ÅÅÅÅ-MM-DD`);
   if (type === 'brev' && !feil.length) {
     const spor = (kommando as { svar: Svarutkast[] }).svar.map((s) => s.spor);
     if (!spor.length) feil.push('$.svar: brevet har ingen svar');

@@ -15,6 +15,7 @@
  */
 
 import { erRegistrert } from '../format/leser.ts';
+import { beloep } from '../regler/beloep.ts';
 import type { Subsidiaergrunn } from '../regler/grunnlag.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
 import {
@@ -89,16 +90,21 @@ const OSLO = new Intl.DateTimeFormat('en-CA', {
 
 /** Datoen i Oslo for et tidspunkt, eller datoen slik den er oppgitt. «2. oktober 2026». */
 export function norskDato(tid: string): string {
-  const dag = DAG.test(tid) ? tid : OSLO.format(new Date(tid));
+  const tidspunkt = new Date(tid);
+  if (Number.isNaN(tidspunkt.getTime())) throw new KanIkkeUttrykkes(`${tid} er ikke en dato`);
+  const dag = DAG.test(tid) ? tid : OSLO.format(tidspunkt);
   const [, aar, maaned, dato] = DAG.exec(dag)!;
   return `${Number(dato)}. ${MAANEDER[Number(maaned) - 1]} ${aar}`;
 }
 
 /** Kroner med mellomrom mellom tusener og øre bare når de finnes: «150 000 kr». */
 export function kroner(n: number): string {
-  const [hele, oere] = Math.abs(n).toFixed(2).split('.');
-  const gruppert = hele.replace(/\B(?=(\d{3})+(?!\d))/g, '\u00a0');
-  return `${n < 0 ? '−' : ''}${gruppert}${oere === '00' ? '' : `,${oere}`}\u00a0kr`;
+  // Avrundet til hele øre som reglene runder (`beloep`), ikke som flyttallet.
+  const i = beloep(n)!;
+  const abs = i < 0n ? -i : i;
+  const gruppert = String(abs / 100n).replace(/\B(?=(\d{3})+(?!\d))/g, '\u00a0');
+  const oere = String(abs % 100n).padStart(2, '0');
+  return `${i < 0n ? '−' : ''}${gruppert}${oere === '00' ? '' : `,${oere}`}\u00a0kr`;
 }
 
 /** Et beløp i brevet er uten merverdiavgift, og teksten sier det (LV-U4 punkt 2). */

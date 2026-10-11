@@ -45,11 +45,12 @@ export function avvisning(
   k: Kommando,
   part: Part,
   u: Utledning,
-  regler: Regelsett
+  regler: Regelsett,
+  utdypningKreves = true
 ): Avvisning | null {
   for (const h of handlingsnoekler(k)) {
     const brudd = forutsetninger(h, part, u);
     if (brudd) return brudd;
   }
-  return nyttelastkontroll(k, u, regler);
+  return nyttelastkontroll(k, u, regler, utdypningKreves);
 }

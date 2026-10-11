@@ -20,7 +20,12 @@ import {
 import type { Utledning } from '../utledning/utled.ts';
 import type { Avvisning } from '../typer.ts';
 
-function kontrollerSvar(s: Svarutkast, u: Utledning, regler: Regelsett): Avvisning | null {
+function kontrollerSvar(
+  s: Svarutkast,
+  u: Utledning,
+  regler: Regelsett,
+  utdypningKreves: boolean
+): Avvisning | null {
   const krav = u.spor[s.spor].gjeldendeKrav!;
   if (s.gjelder !== krav.id)
     return avvis('FEIL_KRAVREFERANSE', 'Svaret må gjelde gjeldende krav i dette sporet.');
@@ -59,7 +64,7 @@ function kontrollerSvar(s: Svarutkast, u: Utledning, regler: Regelsett): Avvisni
       `Serveren regner ut ${avvik.map((f) => `${f}=${String(server[f])}`).join(', ')}.`
     );
   const grunner = avgrensninger(s, server);
-  if (grunner.length && s.utdypning === undefined)
+  if (utdypningKreves && grunner.length && !s.utdypning?.trim())
     return avvis(
       'BEGRUNNELSE_MANGLER',
       `Svaret må ha en begrunnelse, fordi det har ${grunner.join(', ')} (KA-U24, KA-U31).`
@@ -102,7 +107,7 @@ function kravetsUtdypning(
   k: Extract<Kommando, { type: 'krav' }>,
   regler: Regelsett
 ): Avvisning | null {
-  if (k.utdypning !== undefined) return null;
+  if (k.utdypning?.trim()) return null;
   if (k.spor === 'frist')
     return avvis(
       'BEGRUNNELSE_MANGLER',
@@ -116,10 +121,19 @@ function kravetsUtdypning(
   return null;
 }
 
-export function nyttelastkontroll(k: Kommando, u: Utledning, regler: Regelsett): Avvisning | null {
+/**
+ * `utdypningKreves` er usann i forhåndsvisningen: utdypningen endrer ikke den låste
+ * teksten, så klienten kan vise teksten før begrunnelsen er skrevet (A1).
+ */
+export function nyttelastkontroll(
+  k: Kommando,
+  u: Utledning,
+  regler: Regelsett,
+  utdypningKreves = true
+): Avvisning | null {
   switch (k.type) {
     case 'krav': {
-      const utdypning = kravetsUtdypning(k, regler);
+      const utdypning = utdypningKreves ? kravetsUtdypning(k, regler) : null;
       if (utdypning) return utdypning;
       const varsel = u.spor.frist.varsel;
       if (k.spor !== 'frist' || !k.varsel || !varsel) return null;
@@ -138,14 +152,14 @@ export function nyttelastkontroll(k: Kommando, u: Utledning, regler: Regelsett):
     }
     case 'brev':
       for (const s of k.svar) {
-        const a = kontrollerSvar(s, u, regler);
+        const a = kontrollerSvar(s, u, regler, utdypningKreves);
         if (a) return a;
       }
       return null;
     case 'revisjon':
       if (k.erstatter !== u.spor[k.svar.spor].gjeldendeSvar?.id)
         return avvis('FEIL_SVARREFERANSE', 'Svaret er endret eller gjelder et tidligere krav.');
-      return kontrollerSvar(k.svar, u, regler);
+      return kontrollerSvar(k.svar, u, regler, utdypningKreves);
     case 'aksept': {
       // KA-U1, KT-U1: aksepten gjelder sporets gjeldende svar.
       if (k.svar !== u.spor[k.spor].gjeldendeSvar?.id)
