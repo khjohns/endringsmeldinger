@@ -958,13 +958,14 @@
     {
       "id": "KA-17",
       "tilfelle": "TE sender en ny kravversjon etter at kravene er avgjort: grunnlaget er avklart, og partene er enige om vederlag og frist.",
-      "forventet": "Kravversjonen avvises i vederlag og frist, og journalen er uendret.",
+      "forventet": "Kravversjonen avvises i alle spor, og journalen er uendret.",
       "bh_standpunkt": "—",
-      "rettslig_virkning": "Saken er oppgjort. Et nytt krav går i en ny sak.",
+      "rettslig_virkning": "Kravene er avgjort. Et nytt krav om samme forhold går i en ny sak.",
       "rettidighet": "—",
       "tidsakse": "registrering",
       "kilder": [
-        "KA-U3"
+        "KA-U3",
+        "KA-U11"
       ],
       "tolkningsstatus": "avklart_tolkning"
     },
@@ -1217,7 +1218,7 @@
       "forventet": "Svaret og § 32.2-vurderingen er ikke lenger gjeldende. TE kan ikke godta det. Vederlag og frist forblir subsidiære til grunnlaget besvares, med årsakene fra grunnlagssvaret de ble regnet mot, også § 32.2-vurderingen. Når grunnlaget godkjennes, er grunnlaget avklart og vederlag og frist prinsipalt godkjent. Kravene er avgjort, og saken kan inngå i en endringsordre.",
       "bh_standpunkt": "Først prinsipalt prekludert, subsidiært godkjent. Etter det nye svaret: godkjent grunnlag, og de subsidiære standpunktene får virkning.",
       "rettslig_virkning": "Det subsidiære standpunktet får virkning når grunnlaget godkjennes.",
-      "rettidighet": "Byggherrens § 32.2-vurdering (for sent) faller med svaret. Med underkategori EO gjelder ikke varslingsplikten i 32.2.",
+      "rettidighet": "Byggherrens § 32.2-vurdering gjelder ikke lenger grunnlaget. Den står som årsak til de subsidiære svarene på vederlag og frist til grunnlaget besvares igjen (GR-U1). Med EO gjelder ikke § 32.2 (GR-U11).",
       "tidsakse": "registrering",
       "kilder": [
         "V-215",
@@ -1225,6 +1226,7 @@
         "V-B13-GRUNNLAG-AVSLATT",
         "NS-31.3-1",
         "NS-32.2-1",
+        "GR-U11",
         "EO-U5"
       ],
       "tolkningsstatus": "avklart_tolkning"
@@ -1427,7 +1429,9 @@
       "kilder": [
         "V-FRAFALT",
         "V-TFR05",
-        "NS-32.3-1c"
+        "NS-32.3-1c",
+        "GR-U7",
+        "KA-U11"
       ],
       "tolkningsstatus": "avklart_tolkning"
     },
@@ -1507,15 +1511,16 @@
     {
       "id": "GR-22",
       "tilfelle": "TE godtar vederlagssvaret før byggherren har svart på grunnlaget, og byggherren godkjenner deretter grunnlaget.",
-      "forventet": "Aksepten godtas. Enigheten om beløpet har ikke virkning, og kravene er ikke avgjort, før grunnlaget er godkjent. Etter godkjenningen har enigheten virkning med byggherrens beløp.",
+      "forventet": "Aksepten godtas. Enigheten om beløpet har ikke virkning, og kravene er ikke avgjort, før grunnlaget er avklart (godkjent uten preklusjon etter § 32.2, eller frafalt). Etter godkjenningen har enigheten virkning med byggherrens beløp.",
       "bh_standpunkt": "Delvis godkjent vederlag. Grunnlaget er ikke besvart, deretter godkjent.",
-      "rettslig_virkning": "Enighet om beløpet før ansvaret er avklart. Kravet er oppgjort når grunnlaget godkjennes.",
+      "rettslig_virkning": "Enighet om beløpet før ansvaret er avklart. Kravene er avgjort når grunnlaget er avklart.",
       "rettidighet": "—",
       "tidsakse": "registrering",
       "kilder": [
         "GR-U7",
         "KA-U5",
-        "GR-U10"
+        "GR-U10",
+        "KA-U11"
       ],
       "tolkningsstatus": "avklart_tolkning"
     },
