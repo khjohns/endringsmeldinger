@@ -1371,7 +1371,7 @@ svar = '''
 A: nei, avvises'''
 forhold = [{ art = "snevrer inn", vedtak = "vs-u15" }]
 folge = '''
-Spørsmålet kom fra kartleggingen for #411 og ble stilt med anbefaling A. Ikke bygget. Bygges i #411'''
+Ikke bygget. Bygges i #411'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A"
@@ -2513,7 +2513,7 @@ svar = '''
 A: med «NS 8407»'''
 forhold = [{ art = "presiserer", vedtak = "lv-u4" }, { art = "presiserer", vedtak = "lv-u5" }]
 folge = '''
-Bygget i PR #410'''
+Bygget 12.10 i PR #410'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A"
@@ -2523,7 +2523,7 @@ Brevteksten skriver «varselet om fristforlengelse etter NS 8407 § 33.4». Klam
 [[gruppe.vedtak.alternativ]]
 navn = "B"
 tekst = '''
-Brevteksten skriver «varselet om fristforlengelse etter § 33.4», ordrett uten «NS 8407».'''
+Brevteksten skriver «varselet om fristforlengelse etter § 33.4», som klammen lyder, uten «NS 8407».'''
 forkastet = true
 
 [[gruppe]]
@@ -3106,9 +3106,9 @@ C: vent på en prøve mot Azure – Valget venter til IKT har levert en database
 valgt = "A"
 svar = '''
 A'''
-forhold = [{ art = "presiserer", vedtak = "b-12-databasen" }]
+forhold = [{ art = "presiserer", vedtak = "hf-u1" }, { art = "presiserer", vedtak = "b-12-databasen" }]
 folge = '''
-Oppdragsgiver ba om en forklaring før svaret: beløp, dager, grunnlag og standpunkt ligger i tabeller for statistikk i begge formene, og i (a) lages tabellene av brevene (#395). Hva tabellene skal inneholde, og veien til Fabric, avgjøres senere, og forbeholdet i B-12 står (oppdragsgiver 12.10, #395). Grunnlaget er prøven i #406 og sparringen i #395. Ikke bygget. Bygges i F0b'''
+Avgjør lagringsformen som [merknaden 11.10 til B-12](#b-12-merknad-2026-10-11) satte av. Før svaret ba oppdragsgiver om en forklaring av hvordan beløp, dager og grunnlag blir tilgjengelige for statistikk (#395). Vedtaket gjelder bare lagringsformen. Hva tabellene skal inneholde, avgjøres når rapporteringen og veien til Fabric bygges, og forbeholdet i B-12 står (oppdragsgiver 12.10, #395). Grunnlaget er prøven i PR #406 og sparringen i #395. Ikke bygget'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A"
@@ -3124,7 +3124,7 @@ forkastet = true
 [[gruppe.vedtak.alternativ]]
 navn = "C"
 tekst = '''
-Valget venter til IKT har levert en database.'''
+Valget av lagringsform venter på en prøve mot Azure til IKT har levert en database.'''
 forkastet = true
 
 [[gruppe]]
