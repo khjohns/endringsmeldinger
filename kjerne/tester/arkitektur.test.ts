@@ -306,7 +306,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['Utledning', 'utsagn', 'innsigelser', ['kommandoer/nyttelast.ts']],
   ['Paaberopelse', 'relasjon', 'part gjelder', ['kommandoer/nyttelast.ts']],
   // MM-U18: stridene ett dokument har med journalen før det.
-  ['Strid', 'predikat', 'element grunn', ['utledning/utled.ts:utled']],
+  ['Strid', 'predikat', 'element grunn bareUregistrert', ['utledning/utled.ts:utled']],
   ['Bestridelse', 'relasjon', 'part'],
   [
     'Sporutledning',

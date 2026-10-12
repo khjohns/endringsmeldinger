@@ -367,7 +367,9 @@ endringsordre og forsering, etter [OV-U1](plans/2026-09-16-godkjenning-og-varig-
 - **Utdrag:** «skal han varsle den andre parten uten ugrunnet opphold, selv om
   han ennå ikke kan fremsette et spesifisert krav […] Krav på fristforlengelse
   tapes dersom det ikke varsles innen utløpet av fristen.»
-- **Utsagn:** TE: `varsel` med hjemmel 33.4, med opplysningen `sendt`. BH:
+- **Utsagn:** TE: `varsel` med hjemmel 33.4, med opplysningen `sendt`, eller
+  sendt fra appen som et eget brev uten dager, med serverens dato
+  ([VS-U15](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u15), kommandoen `send_varsel`). BH:
   `rettidighet` med hjemmel 33.4, som `gjelder` varselet, eller kravet når
   varselet er utledet av kravet. TE: «ingen krav» etter varselet.
 - **Predikat:**
@@ -380,7 +382,7 @@ endringsordre og forsering, etter [OV-U1](plans/2026-09-16-godkjenning-og-varig-
   mottatt. Det kan bestrides.
 - **Appen:** *utlede* ([VS-U3](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u3)).
 - **Vedtak:** B-13 om preklusjon ut fra byggherrens egen vurdering (24.09).
-  [MM-U1](plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u1).
+  [MM-U1](plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u1). [VS-U15](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u15).
   [MM-U8](plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u8) (merknaden
   09.10: presiserer MM-U1, ikke MM-U4). SK-12 (05.10).
   [MM-U7](plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u7) (merknaden
@@ -566,7 +568,8 @@ også § 30 om regningsarbeid, som § 34.4 viser til.
 - **Vedtak:** B-13 om preklusjon ut fra byggherrens egen vurdering (24.09,
   nevner § 34.1.2). [VS-U6](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u6) (utvider SK-12). [VS-U7](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u7) (utvider
   MM-U1 og MM-U8). [VS-U8](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u8) (endrer DRF-03 for registrerte brev).
-  [VS-U9](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u9).
+  [VS-U9](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u9). [VS-U15](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u15): varselet etter
+  § 34.1.2 sendes utenfor appen og registreres når § 34.1 er bygget.
 - **Kjernen i dag:** delvis. `gjelderVarslingspliktenForVederlag` og
   `beregnPreklusjon` i [`regler/vederlag.ts`](../kjerne/regler/vederlag.ts).
   `hovedkrav_varslet_i_tide` er påkrevd for SVIKT og ANDRE, men usann avvises,
@@ -863,8 +866,11 @@ visning ikke fremstiller et trekk som at utførelsesplikten er bortfalt.
   en endringsordre (KA-U26, KA-U28). MM-U18 (#326): en hendelse som ikke er registrert
   korrespondanse og strider mot en enighet, et frafall, et trekk, «ingen krav» eller en
   lukket sak, gjør saken ikke forstått, og et sammenfall som ikke stemmer med
-  standpunktene i brevet, likeså. I registrert korrespondanse får elementet ingen
-  virkning (`utenVirkning`). Kontrollen leser journalen før hvert dokument og gjelder
+  standpunktene i brevet, likeså. Det gjelder også et svar eller en aksept i et
+  trukket spor ([MM-U20](plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u20),
+  #405). I registrert korrespondanse får elementet ingen
+  virkning (`utenVirkning`); et registrert svar eller en registrert aksept i et
+  trukket spor leses foreløpig som før (`bareUregistrert`, #405). Kontrollen leser journalen før hvert dokument og gjelder
   bare vedtakene om enighet og lukking; at en aksept av et merket svar avvises, er et
   vilkår for å sende og står i forutsetningene, ikke i kontrollen. Ikke bygget: B-10 utover versjonene i formatet
   ([#316](https://github.com/khjohns/endringsmeldinger/issues/316)) og registreringen
@@ -958,8 +964,10 @@ begrunnelse og beskrivelse er [KA-U31](plans/2026-09-16-godkjenning-og-varig-lev
   frist, er svaret ikke lenger subsidiært, og aksepten sier bare at TE godtar
   byggherrens svar i brevet det står i, uten «men ikke i byggherrens standpunkt
   til grunnlaget». Det sendte svarbrevet står som det ble sendt (MM-U9).
-- **Ikke her:** et eget varsel etter § 33.4 uten dager ([VS-U15](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u15)) er
-  [#411](https://github.com/khjohns/endringsmeldinger/issues/411).
+- **VS-U15 ([#411](https://github.com/khjohns/endringsmeldinger/issues/411)):** TEs
+  eget varsel etter § 33.4 uten dager har ordlyden i [VS-U15](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u15). Brevet har ingen
+  opplysning om datoen; uten den er brevet varselet, og datoen er serverens. I et
+  fristkrav med varselet står setningen i LV-U4 punkt 3 som før.
 
 ---
 

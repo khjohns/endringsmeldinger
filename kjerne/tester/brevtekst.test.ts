@@ -1157,6 +1157,75 @@ describe('teksten avsenderen godkjenner, er den som fryses (LV-U2, A1)', () => {
   });
 });
 
+describe('varselet etter § 33.4 sendt fra appen (VS-U15)', () => {
+  const sendVarsel = { type: 'send_varsel', spor: 'frist', hjemmel: '33.4' };
+  const medVarsel = () => {
+    const s = sak();
+    s.send('TE', GRUNNLAGSKRAV);
+    const varsel = s.send('TE', sendVarsel);
+    return { s, varsel, id: (varsel.data.utsagn as Data[])[0].id as string };
+  };
+
+  it('brevet er varselet, uten dager og uten en oppgitt dato, med teksten i VS-U15', () => {
+    const { varsel, id } = medVarsel();
+    expect(tekst(varsel)).toEqual([
+      {
+        gjelder: id,
+        laast: `TE varsler etter NS 8407 § 33.4 at TE vil kreve fristforlengelse som følge av forholdet ${I_SAKEN}.`,
+      },
+    ]);
+    // VS-U8: datoen er serverens, så brevet har ingen opplysning om når det ble sendt.
+    expect(varsel.data.opplysninger).toBeUndefined();
+    expect(utenAvsnitt(varsel)).toEqual([]);
+  });
+
+  it('serveren avviser en annen tekst enn den den lager (A1)', () => {
+    const s = sak();
+    s.send('TE', GRUNNLAGSKRAV);
+    expect(s.avvist('TE', { ...sendVarsel, brevtekst: ['TE varsler.'] })).toBe('ANNEN_BREVTEKST');
+  });
+
+  it('innsigelsen viser til varselet i brevet det står i (LV-U4 punkt 7)', () => {
+    const { s, id } = medVarsel();
+    const rad = s.send('BH', { type: 'innsigelse', gjelder: id });
+    expect(laast(rad)).toEqual([
+      'Byggherren gjør gjeldende at TEs varsel om fristforlengelse etter NS 8407 § 33.4 i brev 3 av 3. oktober 2026 kom for sent (NS 8407 § 5 tredje ledd).',
+    ]);
+  });
+
+  it('svaret på et senere fristkrav vurderer rettidigheten av varselet (MM-U1)', () => {
+    const { s, id } = medVarsel();
+    const krav = s.send('TE', utenFelt(FRISTKRAV, 'varsel'));
+    expect(laast(krav)).toEqual(['TE krever fristforlengelse på 20 dager (NS 8407 § 33.6.1).']);
+    const rad = s.send('BH', {
+      type: 'brev',
+      svar: [
+        svar(
+          'frist',
+          s.krav('frist'),
+          { ...FRIST_FULLT[0], frist_varsel_ok: false },
+          { resultat: 'avslaatt', godkjent_dager: 0 }
+        ),
+      ],
+    });
+    const standpunkt = ((rad.data.svar as Data[])[0].standpunkter as Data[]).find(
+      (p) => p.art === 'rettidighet'
+    );
+    expect(standpunkt?.gjelder).toBe(id);
+    expect(laast(rad)[0]).toContain(
+      'byggherren gjør gjeldende at varselet om fristforlengelse etter NS 8407 § 33.4 kom for sent.'
+    );
+  });
+
+  it('et fristkrav kan ikke oppgi en dato for varselet appen sendte (SK-12)', () => {
+    const { s } = medVarsel();
+    expect(s.avvist('TE', { ...FRISTKRAV, varsel: { sendt: '2026-10-03' } })).toBe(
+      'sendVarsel_REGISTRERT'
+    );
+    expect(s.avvist('TE', utenFelt(FRISTKRAV, 'varsel'))).toBeNull();
+  });
+});
+
 describe('vedleggene står i teksten (A4)', () => {
   const dokument = (dokumentasjon: string[]): Dokument => ({
     id: 'brevet',
