@@ -115,7 +115,14 @@ hindrer test eller demo
 ## Miljø
 
 Kommandoene for testene, typesjekkene og verktøykjeden, og omveiene i skyøktene,
-står i [miljø-skillen](.claude/skills/miljo/SKILL.md).
+står i [miljø-skillen](.claude/skills/miljo/SKILL.md). I Claude Code heter skillen
+`miljo`.
+
+`svelte-check` ser ikke `kjerne/`, `sprakprove/` og `server/`, så de har hver sin
+`tsc -p`-kommando.
+
+I skyøkta kan hele `npx vitest run` ta over 120 s, standardgrensen for Bash. Gi kallet
+`timeout` på 300000 eller mer, eller kjør det med `run_in_background`.
 
 Testene er raske. Kjør dem ofte.
 Med `KOE_TESTBASE_URL` kjører `npm test` også TS-databasetestene. Kjør dem ikke
@@ -215,7 +222,7 @@ at noe ikke er i bruk. En trigger kan også være den egentlige skriveren.
 
 **Har du funnet ett tilfelle, har du ikke funnet alle.** Søket formes av det du
 allerede fant, så tellingen vokser i runder — og hver runde melder seg ferdig.
-Defaultverdien gjemmer seg i minst seks former: `x or "verdi"`,
+En defaultverdi gjemmer seg i minst seks former: `x or "verdi"`,
 `getattr(obj, "x", "verdi")`, `d.get("x", "verdi")`,
 `request.headers.get("X", "verdi")`, et defaultargument i Python eller
 TypeScript, og en `DEFAULT` i databasen. Søk etter alle formene før du skriver
@@ -275,7 +282,8 @@ skriver vedtaket om med egne ord.
 - Det som gjenstår i en pakke, er de åpne issuene i milepælen — med GitHub-MCP
   eller `gh api "repos/khjohns/endringsmeldinger/issues?milestone=<nummer>&state=open"`.
   `gh issue`, `gh pr` og `gh label` går over GraphQL, som gir 403 i skyøktene;
-  bruk REST-formen med `gh api`.
+  bruk REST-formen med `gh api`. `gh api search/issues` og `--paginate` gir også 403
+  i skyøkta, så sidene hentes med `page=N`.
 
 ## Arbeidsform
 
