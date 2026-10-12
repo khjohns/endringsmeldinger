@@ -49,6 +49,15 @@ hovedplanen (RV-07). Bruk docstring når kalleren trenger en kontrakt som
 signaturen ikke uttrykker. Unngå kommentarer som gjentar koden, og aldri
 endringshistorikk («her sto tidligere …») — den står i Git og PR-en.
 
+**Skriv etter hva teksten gjør.** Samme regel for kommentarer, testnavn,
+forventninger og feilmeldinger:
+
+- en kommentar beskriver hva koden gjør, og viser til vedtaket;
+- et testnavn beskriver tilfellet og virkningen, og ID-en kan fortsatt stå i navnet
+  (feilinnføringene finner testene sine på navnet, #432);
+- en forventning har en uttrykkelig kilde;
+- en feilmelding sier hva som hindrer, ikke den generelle regelen.
+
 Skriv korte, konkrete setninger. Skill mellom vedtatt, implementert og verifisert,
 og mellom kontraktens ordlyd, vår tolkning og appens atferd.
 
@@ -105,40 +114,13 @@ hindrer test eller demo
 
 ## Miljø
 
-```bash
-cd backend && /tmp/venv/bin/python -m pytest -q
-npm test && npm run check:error      # skal gi 0 errors
-npx tsc -p kjerne/tsconfig.json      # svelte-check ser ikke kjerne/
-npx tsc -p sprakprove/tsconfig.json  # eller sprakprove/
-npx tsc -p server/tsconfig.json      # eller server/
-ruff check backend/                  # porten, skal være 0
-```
+Kommandoene for testene, typesjekkene og verktøykjeden, og omveiene i skyøktene,
+står i [miljø-skillen](.claude/skills/miljo/SKILL.md).
 
-`npm run server` starter TS-serveren i `server/` (B-18), og vite-proxyen sender
-`/api/kjerne` dit.
-
-Testene er raske. Kjør dem ofte. I skyøktene lager `.claude/hooks/session-start.sh`
-venv-en og testbasen, og meldingen fra hooken sier om databasetestene kjører.
+Testene er raske. Kjør dem ofte.
 Med `KOE_TESTBASE_URL` kjører `npm test` også TS-databasetestene. Kjør dem ikke
 samtidig med pytest mot samme base: oppryddingen i pytest setter basen tilbake.
-`node kjerne/tester/feilinnfoering.ts` kjører feilinnføringene for kjernen, i
-parallelle kopier av treet med hver sin testbase. Én kjøring tar lang tid; start
-den i bakgrunnen. Med `--ankre` kontrollerer den bare at teksten hver
-feilinnføring bytter ut, finnes nøyaktig én gang, og at hvert mål er en del av
-navnet på en test, lest med `vitest list`. Det tar sekunder, og
-leveranseskillen sier når det kjøres. I CI fordeler workflowen `feilinnfoering.yml` dem på tre
-jobber og kjører dem om natta når kjernen, lagringstestene eller
-verktøykjeden er endret, ved manuell start og på PR-er med etiketten
-`feilinnfoering`. Sett etiketten på en PR som rører kjernen, før merge.
-Utenfor skyøktene: `python3 -m venv /tmp/venv` og `pip install -r` begge
-`backend/requirements*.txt` (systempython mangler pytest).
-
-I skyøkta kan hele `npx vitest run` ta over 120 s, standardgrensen for Bash. Gi kallet `timeout` på 300000 eller mer, eller kjør det med `run_in_background`.
-`npx vitest run <filer>` holder under arbeidet.
-
-`gh api search/issues` gir 403 i skyøkta. Bla i repo-listen i stedet, side for side:
-`gh api "repos/khjohns/endringsmeldinger/issues?state=all&per_page=100&page=N" --jq '.[] | select(.title | test("…"; "i"))'`.
-`--paginate` gir 403 her, så sidene må hentes med `page=N`.
+Sett etiketten `feilinnfoering` på en PR som rører kjernen, før merge.
 
 **Nettleserkontroll av `/mockup` går gjennom skillen `mockup-nettleser`.** Kjør
 aldri `npm i playwright` eller `playwright install`; skillen sier hvorfor.
@@ -203,7 +185,8 @@ ennå mangler, står i [`.claude/rules/tilgang.md`](.claude/rules/tilgang.md).
 
 ## Resonneringsregler
 
-Disse er årsaken til de fleste feilklassifiserte funnene i auditserien.
+Disse er årsaken til de fleste feilklassifiserte funnene i auditserien. Episodene
+bak reglene står i [resonnering-skillen](.claude/skills/resonnering/SKILL.md).
 
 **Les [testinstruksjonene](.claude/rules/tester.md) før du skriver
 domeneforventninger, bevis-saker eller metodeprøver**, også i `docs/`.
@@ -215,41 +198,24 @@ uavhengig før noe klassifiseres som sikkerhetsfunn. Serveren holder oftere enn
 klientkoden antyder.
 
 Og **les hele stedet, ikke et utsnitt**. Det er ikke nok å finne riktig lag hvis du
-leser en avkuttet del av det. To feilklassifiseringer kom av nettopp dette: et
-`grep`-vindu som stoppet én linje før `@require_project_access()`, og en baseklasse
-lest uten overstyringen i underklassen. Begge ga en selvsikker, gal påstand om
-nåbarhet, og begge ble fanget av testsuiten — ikke av lesingen.
+leser en avkuttet del av det.
 
-**Et skjermbilde som finnes, beviser ikke at flyten virker.** DM-05 ble funnet
-ved å følge kallet skjemaet for ny sak faktisk gjør, gjennom
-tilgangsdekoratøren. Skjemaet og ruta lest hver for seg viste ingenting. Følg
-kallet fra frontenden, med rute, metode og nyttelast, gjennom tilgangskontrollen
-til lageret, og kjør det uten `DISABLE_AUTH`.
+**Et skjermbilde som finnes, beviser ikke at flyten virker.** Følg kallet fra
+frontenden, med rute, metode og nyttelast, gjennom tilgangskontrollen til lageret,
+og kjør det uten `DISABLE_AUTH`.
 
 **Og ett av lagene er databasen.** Ti funksjoner bor i `public` —
 `koe_resolve_identity`, `koe_reconcile_memberships`,
 `auto_create_project_membership` og flere. De er en del av applikasjonen, og et
-søk i Python- og TS-koden finner dem ikke. Tabellen `app_identities` leses og
-skrives **ikke av noen Python-kode**, og er likevel bærende: den leses og skrives
-ved hver innlogging, fra en databasefunksjon. En runde konkluderte med at den var
-ubrukt. Søk også i `supabase/migrations/`, og spør katalogen i testbasen —
-`pg_proc`, `pg_trigger`, `pg_policy` — før du skriver at noe ikke er i bruk. En
-trigger kan også være den egentlige skriveren: `project_memberships` fylles av en
-trigger, mens koden som ser ut til å skrive den, treffer en unik-skranke og
-logger en advarsel hver gang.
+søk i Python- og TS-koden finner dem ikke. Søk også i `supabase/migrations/`, og
+spør katalogen i testbasen — `pg_proc`, `pg_trigger`, `pg_policy` — før du skriver
+at noe ikke er i bruk. En trigger kan også være den egentlige skriveren.
 
-**Og spør hvem *andre* som kaller funksjonen, ikke bare om den kalles.** MG-02
-slo fast at det krevdes en produktbeslutning for å la en webhook opprette
-brukerrader — fordi runden fant at innloggingen kaller `koe_resolve_identity`,
-men ikke at `koe_reconcile_memberships` kaller den for hvert prosjektmedlem ved
-hver synkronisering. Systemet gjorde det allerede: fjorten brukere, fjorten
-identiteter, én sesjon.
+**Og spør hvem *andre* som kaller funksjonen, ikke bare om den kalles.**
 
 **Har du funnet ett tilfelle, har du ikke funnet alle.** Søket formes av det du
 allerede fant, så tellingen vokser i runder — og hver runde melder seg ferdig.
-Oslobygg-fallbackene gikk tre → fem → åtte → fjorten, hver gang fordi neste
-gjennomgang lette etter den formen forrige gjennomgang hadde funnet. Den samme
-defaultverdien gjemmer seg i minst seks former: `x or "verdi"`,
+Defaultverdien gjemmer seg i minst seks former: `x or "verdi"`,
 `getattr(obj, "x", "verdi")`, `d.get("x", "verdi")`,
 `request.headers.get("X", "verdi")`, et defaultargument i Python eller
 TypeScript, og en `DEFAULT` i databasen. Søk etter alle formene før du skriver
@@ -257,11 +223,12 @@ TypeScript, og en `DEFAULT` i databasen. Søk etter alle formene før du skriver
 
 ## Hvor hva står
 
-**Hver opplysning har ett hjem.** Sier to steder det samme, glir de fra hverandre.
-Det holder bare hvis hvert ledd viser til det forrige i stedet for å gjengi det.
-Matrisen og domenetabellen viser til vedtaks-ID-en, en bevis-sak viser til raden
-og en PR viser til issuet og vedtaket. Ingen av dem skriver vedtaket om med egne
-ord.
+**Hver opplysning har ett hjem: én kilde.** Sier to steder det samme, glir de fra
+hverandre. Det holder bare hvis hvert ledd viser til det forrige i stedet for å
+gjengi det. Genererte og kontrollerte visninger er lov, men en fri gjengivelse er
+aldri regelgrunnlag. Matrisen og domenetabellen viser til vedtaks-ID-en, en
+bevis-sak viser til raden og en PR viser til issuet og vedtaket. Ingen av dem
+skriver vedtaket om med egne ord.
 
 | Hva | Hvor |
 | --- | --- |
