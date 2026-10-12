@@ -50,8 +50,14 @@ def test_en_funksjon_som_ikke_er_deklarert_gir_feil(regler):
 
 def test_et_navn_i_en_kommentar_eller_midt_paa_en_linje_er_ikke_en_deklarasjon(tmp_path):
     sti = tmp_path / "a.ts"
-    sti.write_text("// function borte\nx = 1; const ogsaa = 2;\n  export function her() {}\n", encoding="utf-8")
-    assert [v._deklarert(sti, n) for n in ("borte", "ogsaa", "her")] == [False, False, True]
+    sti.write_text(
+        "// function borte\nx = 1; const ogsaa = 2;\nfunction ytre() {\n  const lokal = 1;\n}\n"
+        "export function her() {}\nexport default function d() {}\nexport abstract class A {}\n"
+        "function *gen() {}\n",
+        encoding="utf-8",
+    )
+    navn = ("borte", "ogsaa", "lokal", "her", "d", "A", "gen")
+    assert [v._deklarert(sti, n) for n in navn] == [False, False, False, True, True, True, True]
 
 
 def test_en_regelkode_paa_en_rad_uten_bevis_sak_som_kontrollerer_den_gir_feil(regler):
@@ -85,13 +91,17 @@ def test_et_kall_til_avvis_uten_strenglitteral_gir_feil(tmp_path):
     """Kontrollen finner bare koder som strenglitteral, så et annet kall må synes."""
     (tmp_path / "kjerne" / "tester").mkdir(parents=True)
     (tmp_path / "kjerne" / "a.ts").write_text(
-        "/** `avvis(kode, melding)` */\n// avvis('I_KOMMENTAR', 'm')\nexport const f = () =>\n  avvis(\n    'KODE_A', 'm') ?? avvis(k, 'm');\n",
+        "/** `avvis(kode, melding)` */\n// avvis('I_KOMMENTAR', 'm')\nexport const f = () =>\n  avvis(\n    'KODE_A', 'm') ?? avvis(k, 'm');\n"
+        "/*\n  Eksempel: avvis(kode, melding)\n*/\n/* NB */ avvis(k2, 'm');\n",
         encoding="utf-8",
     )
     (tmp_path / "kjerne" / "tester" / "b.ts").write_text("avvis('KODE_I_TEST', 'm');\n", encoding="utf-8")
     koder, feil = v._regelkoder_i_kjernen(tmp_path)
     assert koder == {"KODE_A"}
-    assert feil == ["kjerne/a.ts:5: `avvis` uten regelkoden som strenglitteral"]
+    assert feil == [
+        "kjerne/a.ts:5: `avvis` uten regelkoden som strenglitteral",
+        "kjerne/a.ts:9: `avvis` uten regelkoden som strenglitteral",
+    ]
 
 
 def _arbeidsvalg(**endring):
@@ -135,3 +145,28 @@ def test_et_arbeidsvalg_uten_issue_dato_eller_merknad_gir_feil(regler):
 def test_en_ukjent_kildetype_gir_feil(regler):
     regler["kilder"].append(_arbeidsvalg(type="hypotese"))
     assert _feil(regler) == ["A-451: ukjent kildetype 'hypotese'"]
+
+
+def _maal_med_kontroll(kilde):
+    """Et forløp for KA-31 og VS-06 der én kontroll har regelkoden GRUNNLAG_IKKE_SENDT."""
+    maal = copy.deepcopy(v.les_maalmodell())
+    kontroll = {"etter": 0, "rolle": "mal", "kilde": kilde, "forventet": {"regel": "GRUNNLAG_IKKE_SENDT"}}
+    for f in maal["forlop"]:
+        f["kontroller"] = [k for k in f["kontroller"] if k["forventet"].get("regel") != "GRUNNLAG_IKKE_SENDT"]
+    maal["forlop"].append({"id": "F-PROVE", "rader": ["KA-31", "VS-06"], "kontroller": [kontroll]})
+    return maal
+
+
+def test_en_regelkode_gjelder_raden_kontrollen_viser_til_i_kilde(regler):
+    """Begge radene har GRUNNLAG_IKKE_SENDT. Viser kontrollen til KA-31, er koden ikke prøvd for VS-06."""
+    navngitt = v._valider_sporbarhet(regler, _maal_med_kontroll(["KA-31", "KA-U15"]), v.ROT)
+    uten_rad = v._valider_sporbarhet(regler, _maal_med_kontroll(["KA-U15"]), v.ROT)
+    assert navngitt == ["VS-06: ingen bevis-sak for raden kontrollerer regelkoden GRUNNLAG_IKKE_SENDT"]
+    assert uten_rad == []
+
+
+def test_en_kontroll_som_viser_til_en_rad_forloepet_ikke_har_gir_feil(regler):
+    maal = _maal_med_kontroll(["KA-31", "GR-28"])
+    feil = v._valider_sporbarhet(regler, maal, v.ROT)
+    assert "F-PROVE: kontrollen viser til GR-28, som ikke står i forløpets rader" in feil
+
