@@ -105,7 +105,7 @@ tekst = "et ordrett utdrag"
 | Spørsmålet, alternativene, svaret og de andre feltene i en merget ny post står uendret; bare `folge` kan endres | nye poster på `main` |
 | Forholdet står begge veier | nye poster med `forhold` |
 | Vedtaksteksten har ingen kodenavn: backticks, `snake_case`, `camelCase`, `STORE_BOKSTAVER` med understrek, `navn()` og filnavn | nye poster, det valgte og de forkastede alternativene |
-| Hvert sitat står ordrett i posten og i kilden, med mellomrom normalisert. Kilden er NS 8407 eller fila slik den er på `main`, så et sitat kan ikke få kilden sin i samme PR | nye poster; raden til posten selv teller ikke som kilde i hovedplanen |
+| Hvert sitat står ordrett i posten og i kilden, med mellomrom normalisert. Kilden er NS 8407 eller fila slik den er på `main`, så et sitat kan ikke få kilden sin i samme PR | nye poster til de er merget; raden til posten selv teller ikke som kilde i hovedplanen. Etter merge kan kilden endres, og sitatet prøves ikke igjen |
 
 De importerte postene har kodenavn i dag og skrives ikke om. Testen skiller dem
 på formen: en post med `vedtatt` er importert, og en ny post har `dato`. En

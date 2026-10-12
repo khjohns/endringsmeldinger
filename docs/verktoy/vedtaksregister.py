@@ -19,7 +19,9 @@ de nye postene.
 """
 
 import argparse
+import collections
 import datetime
+import functools
 import json
 import os
 import pathlib
@@ -219,6 +221,51 @@ def plan_med(register: dict, plan: str) -> str:
     return plan[:start] + markdown(register) + plan[slutt:]
 
 
+TEKST = (str, "tekst")
+TYPER_NY = {
+    "id": TEKST, "hvem": TEKST, "sporsmal": TEKST, "valgt": TEKST, "svar": TEKST, "folge": TEKST,
+    "kilde": (list, "en liste med issue eller PR, som [\"#413\"]"),
+    "alternativ": (list, "en liste med tabeller"), "forhold": (list, "en liste med tabeller"),
+    "sitat": (list, "en liste med tabeller"),
+}
+DELER = {
+    "alternativ": ({"navn": TEKST, "tekst": TEKST}, {"forkastet": (bool, "true eller false")}),
+    "forhold": ({"art": TEKST, "vedtak": TEKST}, {}),
+    "sitat": ({"kilde": TEKST, "tekst": TEKST}, {}),
+}
+
+
+def _typefeil(navn: str, o: dict, typer: dict) -> list[str]:
+    return [f"{navn}: {f} skal være {forklaring}" for f, (type_, forklaring) in typer.items() if f in o and not isinstance(o[f], type_)]
+
+
+def _formfeil(p, navn: str) -> list[str]:
+    """Felt og typer i én post. Semantikken prøves først når formen holder."""
+    if not isinstance(p, dict):
+        return [f"{navn}: posten er ikke en tabell"]
+    felt = set(p)
+    if not er_ny(p):
+        feil = [f"{navn}: ukjent felt {f} i en importert post" for f in sorted(felt - IMPORTERT)]
+        feil += [f"{navn}: mangler {f}" for f in sorted({"vedtak", "vedtatt", "folge"} - felt)]
+        return feil + _typefeil(navn, p, dict.fromkeys(IMPORTERT, TEKST))
+    feil = [f"{navn}: mangler {f}" for f in sorted(NY_PAAKREVD - felt)]
+    feil += [f"{navn}: ukjent felt {f}" for f in sorted(felt - NY)]
+    feil += _typefeil(navn, p, TYPER_NY)
+    if "dato" in p and (not isinstance(p["dato"], datetime.date) or isinstance(p["dato"], datetime.datetime)):
+        feil.append(f"{navn}: dato skal være en TOML-dato uten klokkeslett, som 2026-10-12")
+    if isinstance(p.get("kilde"), list) and (not p["kilde"] or not all(isinstance(k, str) for k in p["kilde"])):
+        feil.append(f"{navn}: kilde skal være en liste med issue eller PR, som [\"#413\"]")
+    for liste, (paakrevd, valgfrie) in DELER.items():
+        for i, o in enumerate(p.get(liste, []) if isinstance(p.get(liste), list) else [], 1):
+            if not isinstance(o, dict):
+                feil.append(f"{navn}: {liste} {i} er ikke en tabell")
+                continue
+            feil += [f"{navn}: {liste} {i} mangler {f}" for f in sorted(set(paakrevd) - set(o))]
+            feil += [f"{navn}: {liste} {i}: ukjent felt {f}" for f in sorted(set(o) - set(paakrevd) - set(valgfrie))]
+            feil += _typefeil(f"{navn}: {liste} {i}", o, paakrevd | valgfrie)
+    return feil
+
+
 def valider(register: dict) -> list[str]:
     """Feilene i formen på registeret, tomme når det er gyldig."""
     feil = []
@@ -226,63 +273,52 @@ def valider(register: dict) -> list[str]:
         feil.append("format: skal være 1")
     ukjente = set(register) - {"format", "innledning", "gruppe"}
     feil += [f"{s}: ukjent nøkkel" for s in sorted(ukjente)]
+    if not isinstance(register.get("innledning"), str):
+        feil.append("innledning: skal være tekst")
+    grupper = register.get("gruppe")
+    if not isinstance(grupper, list) or not all(isinstance(g, dict) for g in grupper):
+        return feil + ["gruppe: skal være en liste med tabeller"]
+    for g in grupper:
+        tittel = g.get("tittel")
+        feil += [f"gruppe {tittel}: ukjent felt {f}" for f in sorted(set(g) - {"tittel", "etter", "vedtak"})]
+        feil += _typefeil(f"gruppe {tittel}", g, {"tittel": TEKST, "etter": TEKST, "vedtak": (list, "en liste")})
+        if "tittel" not in g:
+            feil.append("en gruppe mangler tittel")
+        for i, p in enumerate(g.get("vedtak", []) if isinstance(g.get("vedtak"), list) else [], 1):
+            feil += _formfeil(p, f"gruppe {tittel}, vedtak {i}")
+    if feil:
+        return feil
+
     ankre = {}
-    for g in register.get("gruppe", []):
-        for p in g.get("vedtak", []):
-            navn = p.get("id") or p.get("anker") or linje(p.get("vedtak", ""))[:40]
-            felt = set(p)
-            if er_ny(p):
-                feil += [f"{navn}: mangler {f}" for f in sorted(NY_PAAKREVD - felt)]
-                feil += [f"{navn}: ukjent felt {f}" for f in sorted(felt - NY)]
-                if "id" in p and not ID.fullmatch(p["id"]):
-                    feil.append(f"{navn}: ID-en har ikke formen AB-U1")
-                if "dato" in p and not isinstance(p["dato"], datetime.date):
-                    feil.append(f"{navn}: dato skal være en TOML-dato, som 2026-10-12")
-                if not isinstance(p.get("kilde", []), list) or not p.get("kilde"):
-                    feil.append(f"{navn}: kilde skal være en liste med issue eller PR, som [\"#413\"]")
-                navnene = [a.get("navn") for a in p.get("alternativ", []) if isinstance(a, dict)]
-                if len(set(navnene)) != len(navnene):
-                    feil.append(f"{navn}: to alternativer har samme navn")
-                if "valgt" in p and p["valgt"] not in navnene:
-                    feil.append(f"{navn}: valgt «{p['valgt']}» er ikke et alternativ")
-                for liste, paakrevd, valgfrie in (
-                    ("alternativ", {"navn", "tekst"}, {"forkastet"}),
-                    ("forhold", {"art", "vedtak"}, set()),
-                    ("sitat", {"kilde", "tekst"}, set()),
-                ):
-                    for i, o in enumerate(p.get(liste, []), 1):
-                        if not isinstance(o, dict):
-                            feil.append(f"{navn}: {liste} {i} er ikke en tabell")
-                            continue
-                        feil += [f"{navn}: {liste} {i} mangler {f}" for f in sorted(paakrevd - set(o))]
-                        feil += [f"{navn}: {liste} {i}: ukjent felt {f}" for f in sorted(set(o) - paakrevd - valgfrie)]
-                        feil += [f"{navn}: {liste} {i}: {f} skal være tekst" for f in sorted(paakrevd & set(o)) if not isinstance(o[f], str)]
-                for a in p.get("alternativ", []):
-                    if a.get("navn") == p.get("valgt") and a.get("forkastet"):
-                        feil.append(f"{navn}: det valgte alternativet er forkastet")
-                for f in p.get("forhold", []):
-                    if f.get("art") not in FORHOLD:
-                        feil.append(f"{navn}: ukjent forhold «{f.get('art')}»; bruk {', '.join(FORHOLD)}")
-                for felt_ in ("sporsmal", "svar", "folge", "hvem"):
-                    if felt_ in p and not isinstance(p[felt_], str):
-                        feil.append(f"{navn}: {felt_} skal være tekst")
-                for s in p.get("sitat", []):
-                    k = s.get("kilde", "")
-                    if k not in SITATKILDER and not (ROT / k).is_file():
-                        feil.append(f"{navn}: sitatkilden «{k}» er verken {' eller '.join(SITATKILDER)} eller en fil i treet")
-            else:
-                feil += [f"{navn}: ukjent felt {f} i en importert post" for f in sorted(felt - IMPORTERT)]
-                feil += [f"{navn}: mangler {f}" for f in sorted({"vedtak", "vedtatt", "folge"} - felt)]
-            a = anker(p) if not er_ny(p) or "id" in p else None
-            if a:
-                if a in ankre:
-                    feil.append(f"{navn}: ankeret «{a}» står to ganger")
-                ankre[a] = p
+    for p in poster(register):
+        navn = p.get("id") or p.get("anker") or linje(p["vedtak"])[:40]
+        if er_ny(p):
+            if not ID.fullmatch(p["id"]):
+                feil.append(f"{navn}: ID-en har ikke formen AB-U1")
+            navnene = [a["navn"] for a in p["alternativ"]]
+            if len(set(navnene)) != len(navnene):
+                feil.append(f"{navn}: to alternativer har samme navn")
+            if p["valgt"] not in navnene:
+                feil.append(f"{navn}: valgt «{p['valgt']}» er ikke et alternativ")
+            if any(a["navn"] == p["valgt"] and a.get("forkastet") for a in p["alternativ"]):
+                feil.append(f"{navn}: det valgte alternativet er forkastet")
+            for f in p.get("forhold", []):
+                if f["art"] not in FORHOLD:
+                    feil.append(f"{navn}: ukjent forhold «{f['art']}»; bruk {', '.join(FORHOLD)}")
+            for s in p.get("sitat", []):
+                k = s["kilde"]
+                if k not in SITATKILDER and not _fil_i_treet(k):
+                    feil.append(f"{navn}: sitatkilden «{k}» er verken {' eller '.join(SITATKILDER)} eller en fil i treet")
+        a = anker(p)
+        if a:
+            if a in ankre:
+                feil.append(f"{navn}: ankeret «{a}» står to ganger")
+            ankre[a] = p
     if feil:
         return feil
     for p in poster(register):
         navn = anker(p) or linje(p["vedtak"])[:40]
-        for f in p.get("forhold", []):
+        for f in p.get("forhold", []) if er_ny(p) else []:
             if f["vedtak"] not in ankre:
                 feil.append(f"{navn}: forholdet viser til «{f['vedtak']}», som ikke er ankeret til et vedtak")
             elif f["vedtak"] == anker(p):
@@ -298,6 +334,12 @@ def valider(register: dict) -> list[str]:
             if "  " in celle or celle != celle.strip():
                 feil.append(f"{navn}: en celle har dobbelt mellomrom eller mellomrom i kanten")
     return feil
+
+
+def _fil_i_treet(sti: str) -> bool:
+    """En relativ sti til en fil i repoet, ikke utenfor."""
+    fil = (ROT / sti).resolve()
+    return not pathlib.PurePath(sti).is_absolute() and fil.is_relative_to(ROT) and fil.is_file()
 
 
 def kodenavn(post: dict) -> list[str]:
@@ -344,15 +386,17 @@ def uten_rad(plan: str, anker_: str) -> str:
     return "\n".join(rad for rad in plan.split("\n") if not rad.startswith(f'| <a id="{anker_}"></a>'))
 
 
-def sitatfeil(register: dict, hent) -> list[str]:
+def sitatfeil(register: dict, hent, merget: frozenset = frozenset()) -> list[str]:
     """Sitater i de nye postene som ikke står ordrett i posten eller i kilden.
 
     `hent(kilde)` gir teksten sitatet prøves mot: NS 8407 for «ns8407», ellers
-    fila slik den er på main. Gir den None, hoppes sitatet over.
+    fila slik den er på main, og en tom tekst når fila ikke finnes der. Gir den
+    None, mangler historikken, og bare sitatet i posten prøves. Postene i `merget`
+    er prøvd da de ble ført; kilden kan endres senere, og sitatet kan ikke.
     """
     feil = []
     for p in poster(register):
-        if not er_ny(p):
+        if not er_ny(p) or p["id"] in merget:
             continue
         i_posten = normaliser(" ".join([p["sporsmal"], p["svar"]] + [a["tekst"] for a in p["alternativ"]]))
         for s in p.get("sitat", []):
@@ -365,19 +409,20 @@ def sitatfeil(register: dict, hent) -> list[str]:
             if s["kilde"] == "hovedplanen":
                 kilde = uten_rad(kilde, anker(p))
             if sitat not in normaliser(kilde):
-                feil.append(f"{p['id']}: sitatet «{sitat[:60]}» står ikke ordrett i {s['kilde']}")
+                feil.append(f"{p['id']}: sitatet «{sitat[:60]}» står ikke ordrett i {s['kilde']} på main")
     return feil
 
 
 def kilder_paa(commit: str | None):
-    """Sitatkildene: NS 8407 fra 507e2254^, hovedplanen og filene slik de er i commiten."""
+    """Sitatkildene: NS 8407 fra 507e2254^, og hovedplanen og filene slik de er i commiten."""
 
+    @functools.cache
     def hent(kilde: str) -> str | None:
         if kilde == "ns8407":
             return git_fil(NS_8407_COMMIT, NS_8407_STI)
         if commit is None:
             return None
-        return git_fil(commit, HOVEDPLAN_I_GIT if kilde == "hovedplanen" else kilde)
+        return git_fil(commit, HOVEDPLAN_I_GIT if kilde == "hovedplanen" else kilde) or ""
 
     return hent
 
@@ -386,21 +431,26 @@ def ankre_i(plan: str) -> list[str]:
     return re.findall(r'<a id="([^"]+)"></a>', plan)
 
 
+def doble_ankre(plan: str) -> list[str]:
+    ankre = collections.Counter(ankre_i(plan))
+    return sorted(f"ankeret «{a}» står {n} ganger i hovedplanen" for a, n in ankre.items() if n > 1)
+
+
 def _rader(plan: str) -> list[dict]:
     return poster(les_avsnitt(plan[slice(*avsnitt(plan))]))
 
 
 def _noekkel(p: dict) -> tuple:
-    return (p.get("anker"), p["vedtak"], p["vedtatt"])
+    return (p.get("anker"), linje(p["vedtak"]), p["vedtatt"])
 
 
 def endrede_rader(gammel_plan: str, plan: str) -> list[str]:
     """Rader i 3.1 i den gamle planen der ankeret, vedtaket eller datoen ikke står uendret i den nye."""
-    nye = {_noekkel(p) for p in _rader(plan)}
+    mangler = collections.Counter(map(_noekkel, _rader(gammel_plan))) - collections.Counter(map(_noekkel, _rader(plan)))
     return [
-        f"{p.get('anker') or p['vedtak'][:60]}: vedtaket, ankeret eller vedtaksdatoen er endret eller fjernet"
-        for p in _rader(gammel_plan)
-        if _noekkel(p) not in nye
+        f"{a or v[:60]}: vedtaket, ankeret eller vedtaksdatoen er endret eller fjernet"
+        for (a, v, _), n in mangler.items()
+        for _ in range(n)
     ]
 
 
@@ -408,16 +458,13 @@ def mot_grunnlag(register: dict, gammel_plan: str, gammel_register: dict | None)
     """Det en ny post ikke kan gjøre mot main: føres i importert form, ta en ID som er i bruk,
     eller endre spørsmålet, alternativene eller svaret til en post som er merget."""
     feil = []
-    gamle_rader = {_noekkel(p) for p in _rader(gammel_plan)}
-    for p in poster(register):
-        if not er_ny(p) and (p.get("anker"), linje(p["vedtak"]), p["vedtatt"]) not in gamle_rader:
-            navn = p.get("anker") or linje(p["vedtak"])[:60]
-            feil.append(f"{navn}: en importert post som ikke står i 3.1 på main; et nytt vedtak føres som ny post")
-    gamle_ankre = set(ankre_i(gammel_plan))
-    for p in poster(register):
-        if er_ny(p) and anker(p) not in gamle_ankre and re.search(rf"(?<![\w-]){re.escape(p['id'])}(?![\w-])", gammel_plan):
-            feil.append(f"{p['id']}: ID-en står i hovedplanen på main fra før")
+    importerte = collections.Counter(_noekkel(p) for p in poster(register) if not er_ny(p))
+    for (a, v, _), n in (importerte - collections.Counter(map(_noekkel, _rader(gammel_plan)))).items():
+        feil += [f"{a or v[:60]}: en importert post som ikke står i 3.1 på main; et nytt vedtak føres som ny post"] * n
     gamle_nye = {p["id"]: p for p in poster(gammel_register or {"gruppe": []}) if er_ny(p)}
+    for p in poster(register):
+        if er_ny(p) and p["id"] not in gamle_nye and re.search(rf"(?<![\w-]){re.escape(p['id'])}(?![\w-])", gammel_plan):
+            feil.append(f"{p['id']}: ID-en står i hovedplanen på main fra før")
     naa = {p["id"]: p for p in poster(register) if er_ny(p)}
     for id_, gammel in gamle_nye.items():
         if id_ not in naa:
@@ -427,15 +474,22 @@ def mot_grunnlag(register: dict, gammel_plan: str, gammel_register: dict | None)
     return feil
 
 
-def historiske_feil(register: dict, plan: str, commit: str) -> list[str]:
-    """Kontrollene mot main i commiten, og sitatene. Tom når alt holder."""
-    gammel_plan = git_fil(commit, HOVEDPLAN_I_GIT)
+def historiske_feil(register: dict, plan: str, commit: str | None) -> list[str]:
+    """Kontrollene av planen og registeret, mot main når commiten finnes. Tom når alt holder.
+
+    Uten commit prøves bare de doble ankrene og at sitatene står i posten.
+    """
+    gammel_plan = git_fil(commit, HOVEDPLAN_I_GIT) if commit else None
+    if gammel_plan is None:
+        return doble_ankre(plan) + sitatfeil(register, kilder_paa(None))
     gammel_tekst = git_fil(commit, REGISTER.relative_to(ROT).as_posix())
     gammel_register = tomllib.loads(gammel_tekst) if gammel_tekst else None
+    merget = frozenset(p["id"] for p in poster(gammel_register or {"gruppe": []}) if er_ny(p))
     return (
-        endrede_rader(gammel_plan, plan)
+        doble_ankre(plan)
+        + endrede_rader(gammel_plan, plan)
         + mot_grunnlag(register, gammel_plan, gammel_register)
-        + sitatfeil(register, kilder_paa(commit))
+        + sitatfeil(register, kilder_paa(commit), merget)
     )
 
 
@@ -533,14 +587,14 @@ def main() -> int:
     ny = plan_med(register, plan)
     commit = grunnlag()
     if commit is None or git_fil(commit, HOVEDPLAN_I_GIT) is None:
-        print("Kontrollene mot main og sitatene er hoppet over: historikken mangler. Kjør git fetch --unshallow origin main.")
-    else:
-        feil = historiske_feil(register, ny, commit)
-        if any(s["kilde"] == "ns8407" for p in poster(register) for s in p.get("sitat", [])) and git_fil(NS_8407_COMMIT, NS_8407_STI) is None:
-            print("Sitatene fra NS 8407 er hoppet over: 507e2254^ mangler. Kjør git fetch --unshallow origin main.")
-        if feil:
-            print("Registeret holder ikke mot main:", *feil, sep="\n  ")
-            return 1
+        commit = None
+        print("Kontrollene mot main er hoppet over: historikken mangler. Kjør git fetch --unshallow origin main.")
+    elif git_fil(NS_8407_COMMIT, NS_8407_STI) is None:
+        print("Sitatene fra NS 8407 er hoppet over: 507e2254^ mangler. Kjør git fetch --unshallow origin main.")
+    feil = historiske_feil(register, ny, commit)
+    if feil:
+        print("Registeret eller planen holder ikke:", *feil, sep="\n  ")
+        return 1
     if ny == plan:
         print(f"3.1 er lik registeret: {len(poster(register))} vedtak")
         return 0

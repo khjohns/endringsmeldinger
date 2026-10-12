@@ -123,6 +123,18 @@ def test_de_importerte_postene_har_tomme_felt_for_sporsmal_og_forhold(register):
         (lambda p: p["alternativ"][1].pop("tekst"), "alternativ 2 mangler tekst"),
         (lambda p: p["sitat"][0].pop("tekst"), "sitat 1 mangler tekst"),
         (lambda p: p["sitat"][0].update(merknad="x"), "sitat 1: ukjent felt merknad"),
+        (lambda p: p["alternativ"][1].update(forkastet="nei"), "forkastet skal være true eller false"),
+        (lambda p: p.update(dato=datetime.datetime(2026, 10, 12, 9)), "uten klokkeslett"),
+        (lambda p: p.update(kilde=[413]), "kilde skal være en liste"),
+        (lambda p: p.update(id=5), "id skal være tekst"),
+        (lambda p: p.update(alternativ=["A"]), "alternativ 1 er ikke en tabell"),
+        (lambda p: p.update(alternativ={"navn": "A", "tekst": "x"}), "alternativ skal være en liste"),
+        (lambda p: p.update(forhold=["ka-u1"]), "forhold 1 er ikke en tabell"),
+        (lambda p: p["alternativ"][0].update(navn=["A"]), "navn skal være tekst"),
+        (lambda p: p["forhold"][0].update(art=["x"]), "art skal være tekst"),
+        (lambda p: p["sitat"][0].update(kilde=5), "kilde skal være tekst"),
+        (lambda p: p["sitat"][0].update(kilde="/etc/hostname"), "sitatkilden"),
+        (lambda p: p["sitat"][0].update(kilde="../README.md"), "sitatkilden"),
     ],
 )
 def test_vakta_melder_feil_i_en_ny_post(register, endring, melding):
@@ -215,22 +227,18 @@ def test_vakta_melder_endret_vedtak_og_fjernet_rad(plan):
     assert vr.endrede_rader(plan, plan) == []
 
 
-def test_hvert_anker_i_hovedplanen_er_ledig(plan):
-    """Et nytt vedtak kan ikke ta en ID som finnes i planen fra før."""
-    ankre = vr.ankre_i(plan)
-    assert sorted({a for a in ankre if ankre.count(a) > 1}) == []
+def test_hvert_anker_i_hovedplanen_star_en_gang(plan):
+    assert vr.doble_ankre(plan) == []
+    assert vr.doble_ankre(plan + '<a id="ka-u1"></a>') == ["ankeret «ka-u1» står 2 ganger i hovedplanen"]
 
 
 def test_det_registeret_forer_holder_mot_main(register, plan):
     """Vedtaket, ankeret og vedtaksdatoen i hver rad på main står uendret. En ny post føres ikke i importert form, tar ikke en ID som er i bruk, og spørsmålet,
     alternativene og svaret i en merget post endres ikke. Sitatene står ordrett i kilden."""
+    assert vr.historiske_feil(register, plan, None) == []
     grunnlag = vr.grunnlag()
     if grunnlag is None or vr.git_fil(grunnlag, vr.HOVEDPLAN_I_GIT) is None:
         _uten_historikk("Grunnlaget på main finnes ikke lokalt.")
-    if vr.git_fil(vr.NS_8407_COMMIT, vr.NS_8407_STI) is None and any(
-        s["kilde"] == "ns8407" for p in vr.poster(register) for s in p.get("sitat", [])
-    ):
-        _uten_historikk("NS 8407-teksten i 507e2254^ finnes ikke lokalt.")
     assert vr.historiske_feil(register, plan, grunnlag) == []
 
 
@@ -242,6 +250,14 @@ def test_vakta_melder_ny_post_i_importert_form(register, plan):
         "zz-u9: en importert post som ikke står i 3.1 på main; et nytt vedtak føres som ny post"
     ]
     assert vr.mot_grunnlag(register, plan, None) == []
+
+
+def test_vakta_melder_kopi_av_en_rad_uten_anker(register, plan):
+    endret = copy.deepcopy(register)
+    kopi = copy.deepcopy(next(p for p in vr.poster(endret) if "anker" not in p))
+    endret["gruppe"][0]["vedtak"].append(kopi | {"folge": "x"})
+    assert vr.valider(endret) == []
+    assert len(vr.mot_grunnlag(endret, plan, None)) == 1
 
 
 @pytest.mark.parametrize("id_", ["SK-12", "MG-02", "B-13", "AF-06"])
@@ -282,11 +298,11 @@ def test_vakta_melder_sitat_som_ikke_star_i_kilden(register, plan):
     post = ny_post(sitat=[{"kilde": "hovedplanen", "tekst": "TE kan trekke kravet."}])
     endret = med(register, post)
     assert vr.sitatfeil(endret, kilder(hovedplanen=vr.plan_med(endret, plan))) == [
-        "XX-U1: sitatet «TE kan trekke kravet.» står ikke ordrett i hovedplanen"
+        "XX-U1: sitatet «TE kan trekke kravet.» står ikke ordrett i hovedplanen på main"
     ], "Raden til posten selv skal ikke telle som kilde"
     post = ny_post(sitat=[{"kilde": "ns8407", "tekst": "TE skal forsere"}])
     feil = vr.sitatfeil(med(register, post), kilder(ns_8407="TE kan velge å forsere"))
-    assert any("står ikke i spørsmålet" in f for f in feil) and any("ordrett i ns8407" in f for f in feil)
+    assert any("står ikke i spørsmålet" in f for f in feil) and any("ordrett i ns8407 på main" in f for f in feil)
 
 
 def test_sitatet_proves_mot_main_ikke_mot_treet(register, plan):
@@ -299,6 +315,20 @@ def test_sitatet_proves_mot_main_ikke_mot_treet(register, plan):
     i_treet = vr.plan_med(endret, plan).replace("### 3.2 ", "Et nytt utsagn i samme PR\n\n### 3.2 ", 1)
     assert vr.sitatfeil(endret, {"hovedplanen": i_treet}.get) == []
     assert vr.sitatfeil(endret, {"hovedplanen": plan}.get) == [
-        "XX-U1: sitatet «Et nytt utsagn i samme PR» står ikke ordrett i hovedplanen"
+        "XX-U1: sitatet «Et nytt utsagn i samme PR» står ikke ordrett i hovedplanen på main"
     ]
     assert vr.kilder_paa(None)("hovedplanen") is None
+
+
+def test_sitat_fra_en_fil_som_ikke_finnes_paa_main_er_feil(register):
+    post = ny_post(sporsmal="Koden sier «Hei verden».", sitat=[{"kilde": "ny/fil.md", "tekst": "Hei verden"}])
+    assert vr.sitatfeil(med(register, post), {"ny/fil.md": ""}.get) == [
+        "XX-U1: sitatet «Hei verden» står ikke ordrett i ny/fil.md på main"
+    ]
+
+
+def test_sitatene_i_en_merget_post_proves_ikke_igjen(register):
+    """Kilden kan endres etter merge, og sitatet kan ikke; posten ble prøvd da den ble ført."""
+    endret = med(register, ny_post())
+    assert vr.sitatfeil(endret, {"hovedplanen": ""}.get) != []
+    assert vr.sitatfeil(endret, {"hovedplanen": ""}.get, frozenset({"XX-U1"})) == []
