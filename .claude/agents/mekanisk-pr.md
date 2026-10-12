@@ -28,7 +28,9 @@ oppdraget først. Skriv på norsk bokmål.
 
 Hooken står i `.claude/settings.json` og gjelder kallene fra denne agenten.
 En hook i frontmatter hoppes over i en mappe som ikke er klarert, og det er
-skyøkta ikke (#442). Hooken er et vern, ikke en garanti. Den ser ikke skriving fra et skript
+skyøkta ikke (#442). Hooken kjenner agenten på `agent_type` i kallet, eller
+på et arbeidstre under `.claude/worktrees/agent-` når feltet mangler. Hooken
+er et vern, ikke en garanti. Den ser ikke skriving fra et skript
 (`python -c`, `node -e`, en `npm run` som skriver) når stien ikke står i
 kommandoen, og ikke en `cd` inn i en sperret mappe før skrivingen. Det som
 slipper forbi, stopper den ved `git add`, `git commit` og `git push` i

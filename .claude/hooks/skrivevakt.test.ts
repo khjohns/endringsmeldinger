@@ -205,6 +205,13 @@ describe('vaktvalget fra settings.json', () => {
         cwd: tre,
       });
       expect(svar.status).toBe(2);
+      const annenAgent = etterAgent({
+        tool_name: 'Edit',
+        tool_input: { file_path: path.join(tre, 'kjerne', 'versjon.ts') },
+        cwd: tre,
+        agent_type: 'general-purpose',
+      });
+      expect(annenAgent.status).toBe(0);
     } finally {
       git(rot, 'worktree', 'remove', '--force', tre);
     }
