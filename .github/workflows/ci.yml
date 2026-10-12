@@ -157,6 +157,10 @@ jobs:
       - name: Typesjekk av kjernen
         run: npx tsc -p kjerne/tsconfig.json
 
+      # #430: en endret linje stopper ellers feilinnføringene først om natta eller på etiketten.
+      - name: Ankrene i feilinnføringene
+        run: node kjerne/tester/feilinnfoering.ts --ankre
+
       - name: Typesjekk av TS-serveren
         run: npx tsc -p server/tsconfig.json
 

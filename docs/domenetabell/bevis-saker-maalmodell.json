@@ -5416,6 +5416,345 @@
       ]
     },
     {
+      "id": "F-MM-M7",
+      "rader": [
+        "KA-33",
+        "KA-41"
+      ],
+      "start": "godkjent_grunnlag",
+      "forslag": "KA-U20 og KA-U26: et registrert svar fra avsenderen etter at TE har trukket kravet, leses med virkning, men opphever ikke sperren i sporet; avklaringen gjør det (arbeidsvalget 12.10 på #426)",
+      "forventningsgrunnlag": "arbeidshypotese",
+      "steg": [
+        {
+          "handling": "krav",
+          "spor": "vederlag",
+          "belop": 100000,
+          "navn": "K-v1"
+        },
+        {
+          "handling": "krav",
+          "spor": "frist",
+          "dager": 20,
+          "navn": "K-f1"
+        },
+        {
+          "handling": "rad",
+          "spor": "vederlag",
+          "navn": "S-v1",
+          "dokument": "D5",
+          "gjelder": "K-v1",
+          "vurdering": "avslaatt",
+          "sendt": "2026-09-30",
+          "merking": [
+            "vederlag"
+          ]
+        },
+        {
+          "handling": "trekk",
+          "spor": "vederlag",
+          "navn": "D6"
+        },
+        {
+          "handling": "rad",
+          "spor": "vederlag",
+          "navn": "S-v2",
+          "dokument": "D7",
+          "gjelder": "K-v1",
+          "erstatter": "S-v1",
+          "vurdering": "avslaatt",
+          "sendt": "2026-10-01"
+        },
+        {
+          "handling": "rad",
+          "spor": "frist",
+          "navn": "S-f1",
+          "dokument": "D8",
+          "gjelder": "K-f1",
+          "varsel_i_tide": true,
+          "spesifisering_i_tide": true,
+          "hindring": true,
+          "sendt": "2026-10-02"
+        },
+        {
+          "handling": "avklaring",
+          "part": "BH",
+          "gjelder": "D5#kan_ikke_uttrykkes",
+          "navn": "D9"
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 3,
+          "rolle": "mal",
+          "kilde": [
+            "KA-U20"
+          ],
+          "forventet": {
+            "forbehold.vederlag": true
+          }
+        },
+        {
+          "etter": 5,
+          "rolle": "mal",
+          "kilde": [
+            "MM-U19",
+            "MM-U20",
+            "KA-U20",
+            "KA-U26"
+          ],
+          "forventet": {
+            "forstaatt": true,
+            "uten_virkning": [],
+            "gjeldende_svar.vederlag": "S-v2",
+            "trukket.vederlag": true,
+            "forbehold.vederlag": true,
+            "kravene_avgjort": false
+          }
+        },
+        {
+          "etter": 6,
+          "rolle": "mal",
+          "kilde": [
+            "KA-U20",
+            "EO-U5"
+          ],
+          "forventet": {
+            "kravene_avgjort": true,
+            "enighet.frist": "finnes",
+            "forbehold.vederlag": true,
+            "kan_inngaa_i_eo": false
+          }
+        },
+        {
+          "etter": 7,
+          "rolle": "mal",
+          "kilde": [
+            "KA-U20",
+            "KA-U28"
+          ],
+          "forventet": {
+            "forbehold.vederlag": false,
+            "kan_inngaa_i_eo": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "F-MM-M7b",
+      "rader": [
+        "KA-33",
+        "KA-41"
+      ],
+      "start": "krav_irreg",
+      "forslag": "KA-U20 og KA-U26: et registrert svar fra avsenderen etter at TE har trukket grunnlaget, opphever ikke sperren i vederlagssporet (arbeidsvalget 12.10 på #426)",
+      "forventningsgrunnlag": "arbeidshypotese",
+      "steg": [
+        {
+          "handling": "rad",
+          "spor": "vederlag",
+          "navn": "S-v1",
+          "dokument": "D4",
+          "gjelder": "K-v1",
+          "vurdering": "avslaatt",
+          "sendt": "2026-09-30",
+          "merking": [
+            "vederlag"
+          ]
+        },
+        {
+          "handling": "trekk",
+          "spor": "grunnlag",
+          "navn": "D5"
+        },
+        {
+          "handling": "rad",
+          "spor": "vederlag",
+          "navn": "S-v2",
+          "dokument": "D6",
+          "gjelder": "K-v1",
+          "erstatter": "S-v1",
+          "vurdering": "avslaatt",
+          "sendt": "2026-10-01"
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 1,
+          "rolle": "mal",
+          "kilde": [
+            "KA-U20"
+          ],
+          "forventet": {
+            "forbehold.vederlag": true
+          }
+        },
+        {
+          "etter": 3,
+          "rolle": "mal",
+          "kilde": [
+            "MM-U19",
+            "MM-U20",
+            "KA-U20",
+            "KA-U26"
+          ],
+          "forventet": {
+            "forstaatt": true,
+            "uten_virkning": [],
+            "gjeldende_svar.vederlag": "S-v2",
+            "trukket.vederlag": true,
+            "forbehold.vederlag": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "F-MM-M7c",
+      "rader": [
+        "KA-33"
+      ],
+      "start": "godkjent_grunnlag",
+      "forslag": "KA-U20 og KA-U26, kontrollsak til F-MM-M7: avsenderens revisjon før trekket opphever sperren, og trekket etter gjenoppretter den ikke",
+      "forventningsgrunnlag": "avklart_tolkning",
+      "steg": [
+        {
+          "handling": "krav",
+          "spor": "vederlag",
+          "belop": 100000,
+          "navn": "K-v1"
+        },
+        {
+          "handling": "rad",
+          "spor": "vederlag",
+          "navn": "S-v1",
+          "dokument": "D5",
+          "gjelder": "K-v1",
+          "vurdering": "avslaatt",
+          "sendt": "2026-09-30",
+          "merking": [
+            "vederlag"
+          ]
+        },
+        {
+          "handling": "rad",
+          "spor": "vederlag",
+          "navn": "S-v2",
+          "dokument": "D7",
+          "gjelder": "K-v1",
+          "erstatter": "S-v1",
+          "vurdering": "avslaatt",
+          "sendt": "2026-10-01"
+        },
+        {
+          "handling": "trekk",
+          "spor": "vederlag",
+          "navn": "D8"
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 2,
+          "rolle": "mal",
+          "kilde": [
+            "KA-U20"
+          ],
+          "forventet": {
+            "forbehold.vederlag": true
+          }
+        },
+        {
+          "etter": 3,
+          "rolle": "mal",
+          "kilde": [
+            "KA-U20",
+            "KA-U26"
+          ],
+          "forventet": {
+            "forstaatt": true,
+            "gjeldende_svar.vederlag": "S-v2",
+            "forbehold.vederlag": false
+          }
+        },
+        {
+          "etter": 4,
+          "rolle": "mal",
+          "kilde": [
+            "KA-U20",
+            "KA-U26",
+            "MM-U20"
+          ],
+          "forventet": {
+            "trukket.vederlag": true,
+            "forbehold.vederlag": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "F-MM-M7d",
+      "rader": [
+        "KA-33"
+      ],
+      "start": "krav_irreg",
+      "forslag": "KA-U20 og KA-U26, kontrollsak til F-MM-M7: et trekk i fristsporet lukker ikke vederlagssporet, så avsenderens revisjon der opphever sperren",
+      "forventningsgrunnlag": "avklart_tolkning",
+      "steg": [
+        {
+          "handling": "rad",
+          "spor": "vederlag",
+          "navn": "S-v1",
+          "dokument": "D4",
+          "gjelder": "K-v1",
+          "vurdering": "avslaatt",
+          "sendt": "2026-09-30",
+          "merking": [
+            "vederlag"
+          ]
+        },
+        {
+          "handling": "trekk",
+          "spor": "frist",
+          "navn": "D5"
+        },
+        {
+          "handling": "rad",
+          "spor": "vederlag",
+          "navn": "S-v2",
+          "dokument": "D6",
+          "gjelder": "K-v1",
+          "erstatter": "S-v1",
+          "vurdering": "avslaatt",
+          "sendt": "2026-10-01"
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 2,
+          "rolle": "mal",
+          "kilde": [
+            "KA-U20"
+          ],
+          "forventet": {
+            "forbehold.vederlag": true,
+            "trukket.frist": true,
+            "trukket.vederlag": false
+          }
+        },
+        {
+          "etter": 3,
+          "rolle": "mal",
+          "kilde": [
+            "KA-U20",
+            "KA-U26"
+          ],
+          "forventet": {
+            "forstaatt": true,
+            "gjeldende_svar.vederlag": "S-v2",
+            "forbehold.vederlag": false
+          }
+        }
+      ]
+    },
+    {
       "id": "F-MM-U326j",
       "rader": [
         "KA-37"

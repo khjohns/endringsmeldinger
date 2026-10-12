@@ -2027,15 +2027,17 @@
     {
       "id": "KA-33",
       "tilfelle": "Den som sendte et merket brev, avklarer at standpunktene i det gjelder uten forbehold, eller sier noe nytt i sporet.",
-      "forventet": "Sperren etter KA-32 oppheves i sporet. Bare avsenderen av brevet kan avklare, og en merking avklares én gang. Et nytt krav eller svar med virkning fra avsenderen i sporet, etter brevet, opphever sperren i det sporet, også når brevet har et svar i et annet spor som fortsatt gjelder. Et utsagn fra motparten, for eksempel en ny kravversjon fra TE, opphever den ikke. Avklaringen godtas også når kravene er avgjort, fordi den ikke endrer noe standpunkt.",
+      "forventet": "Sperren etter KA-32 oppheves i sporet. Bare avsenderen av brevet kan avklare, og en merking avklares én gang. Et nytt krav eller svar med virkning, i et spor som ikke er lukket, fra avsenderen i sporet, etter brevet, opphever sperren i det sporet, også når brevet har et svar i et annet spor som fortsatt gjelder. Et svar etter at TE har trukket kravet eller grunnlaget, opphever den ikke, selv når det leses med virkning (KA-41). Et utsagn fra motparten, for eksempel en ny kravversjon fra TE, opphever den ikke. Avklaringen godtas også når kravene er avgjort, fordi den ikke endrer noe standpunkt.",
       "bh_standpunkt": "Det nye utsagnet.",
-      "rettslig_virkning": "Gjør ikke brevet ubetinget fra sendetidspunktet. Appen kontrollerer at utsagnet kan representeres, ikke om tvisten er løst.",
+      "rettslig_virkning": "Gjør ikke brevet ubetinget fra sendetidspunktet. Appen kontrollerer at utsagnet kan representeres, ikke om tvisten er løst. At bare et spor som ikke er lukket teller, er et arbeidsvalg 12.10 etter KA-U20 og MM-U20 (#426): et svar etter trekk er ikke en revisjon der den er tillatt.",
       "rettidighet": "—",
       "tidsakse": "registrering",
       "kilder": [
         "KA-U20",
         "MM-U12",
-        "KA-U28"
+        "KA-U28",
+        "KA-U26",
+        "MM-U20"
       ],
       "tolkningsstatus": "avklart_tolkning"
     },

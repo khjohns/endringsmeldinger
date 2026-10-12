@@ -6,7 +6,8 @@
  * F49–F51 og F54–F58 versjoneringen (#316), F52–F53 registrert korrespondanse
  * (#336), F59–F60 kodene i formatet og predikatet for endringsordre
  * (#335, #351), F61–F104 byggedel 1 av #309, F105–F131 brevteksten (#369),
- * F132–F134 LV-U5 (#414) og F135–F148 MM-U20 (#405) og VS-U15 (#411). Én mutasjon
+ * F132–F134 LV-U5 (#414), F135–F148 MM-U20 (#405) og VS-U15 (#411), og F149–F152
+ * merkingen i et lukket spor (#426). Én mutasjon
  * om gangen per arbeidskopi, Vitest over hele `kjerne/`
  * og `sprakprove/kjernelagring/`, og originalteksten settes tilbake etterpå. For
  * hver mutasjon kreves det at de forventede målassertions feiler, og at alle
@@ -25,6 +26,9 @@
  *
  * Kjøres fra repoets rot, med testbasen oppe og `KOE_TESTBASE_URL` satt:
  *   node kjerne/tester/feilinnfoering.ts [F1 F2 ...]
+ * Med `--ankre` kontrolleres bare at hver fra-streng finnes nøyaktig én gang i
+ * fila (#430), uten kopier, base eller Vitest; det tar sekunder og kjøres før
+ * hver push som rører `kjerne/`.
  * Forventet: «oppdaget» for hver mutasjon. Hopper kontrollkjøringen over en
  * test, for eksempel lagringstestene uten testbasen, avsluttes skriptet med
  * kode 2 før noen mutasjon (#353).
@@ -988,8 +992,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        '      (x) => elementer[x.id].part === elementer[brev].part && bakover(x.id, brev)',
-        '      (x) => bakover(x.id, brev)',
+        '        elementer[x.id].part === elementer[brev].part && bakover(x.id, brev) && !etterTrekk(x.id, n)',
+        '        bakover(x.id, brev) && !etterTrekk(x.id, n)',
       ],
     ],
     mal: ['F-MM-M4'],
@@ -1617,6 +1621,53 @@ const MUTASJONER: Mutasjon[] = [
     ],
     mal: ['et varsel uten dato i et brev med krav'],
   },
+  {
+    id: 'F149',
+    feilklasse:
+      'et registrert svar fra avsenderen etter at kravet er trukket, opphever sperren (KA-U20, KA-U26, #426)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [[' && !etterTrekk(x.id, n)\n', '\n']],
+    mal: ['F-MM-M7', 'F-MM-M7b'],
+  },
+  {
+    id: 'F150',
+    feilklasse:
+      'et registrert svar fra avsenderen etter at grunnlaget er trukket, opphever sperren i et kravspor (KA-U20, KA-U26, #426)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        "return (s === n || s === 'grunnlag') && bakover(id, t.id);",
+        'return s === n && bakover(id, t.id);',
+      ],
+    ],
+    mal: ['F-MM-M7b'],
+  },
+  {
+    id: 'F151',
+    feilklasse:
+      'et trekk etter avsenderens revisjon gjenoppretter sperren som revisjonen opphevet (KA-U20, KA-U26, #426)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        "return (s === n || s === 'grunnlag') && bakover(id, t.id);",
+        "return s === n || s === 'grunnlag';",
+      ],
+    ],
+    mal: ['F-MM-M7c'],
+  },
+  {
+    id: 'F152',
+    feilklasse:
+      'et trekk i ett spor hindrer at avsenderens revisjon i et annet spor opphever sperren (KA-U26, #426)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        "return (s === n || s === 'grunnlag') && bakover(id, t.id);",
+        'return s !== undefined && bakover(id, t.id);',
+      ],
+    ],
+    mal: ['F-MM-M7d'],
+  },
 ];
 
 interface Testresultat {
@@ -1812,12 +1863,24 @@ async function arbeider(
   }
 }
 
-const valgt = process.argv.slice(2);
+const argumenter = process.argv.slice(2);
+const bareAnkre = argumenter.includes('--ankre');
+const valgt = argumenter.filter((a) => a !== '--ankre');
+const ukjente = valgt.filter((id) => !MUTASJONER.some((m) => m.id === id));
+if (ukjente.length) throw new Error(`Ukjente feilinnføringer: ${ukjente.join(', ')}`);
 const valgte = MUTASJONER.filter((m) => !valgt.length || valgt.includes(m.id));
-for (const m of valgte)
-  for (const [fra] of m.endringer)
-    if (readFileSync(m.fil, 'utf8').split(fra).length !== 2)
-      throw new Error(`${m.id}: «${fra}» finnes ikke nøyaktig én gang i ${m.fil}`);
+// Endringene i én feilinnføring gjøres etter hverandre, så hvert anker slås opp i teksten
+// slik den er etter de foregående.
+const ankerfeil = valgte.flatMap((m) => {
+  let tekst = readFileSync(m.fil, 'utf8');
+  return m.endringer.flatMap(([fra, til]) => {
+    if (tekst.split(fra).length !== 2)
+      return [`${m.id}: «${fra}» finnes ikke nøyaktig én gang i ${m.fil}`];
+    tekst = tekst.replace(fra, til);
+    return [];
+  });
+});
+if (ankerfeil.length) throw new Error(ankerfeil.join('\n'));
 const delform = /^(\d+)\/(\d+)$/.exec(process.env.FEILINNFOERING_DEL ?? '1/1');
 const [del, deler] = [Number(delform?.[1]), Number(delform?.[2])];
 if (!delform || del < 1 || del > deler)
@@ -1838,13 +1901,15 @@ for (const signal of ['SIGINT', 'SIGTERM'] as const)
     process.exit(128 + constants.signals[signal]);
   });
 
-try {
-  // Ikke `process.exit`: den venter ikke på at stdout er tømt når den går i et rør,
-  // og i CI ble slutten av utfallene borte.
-  process.exitCode = await kjoer();
-} finally {
-  rydd();
-}
+if (bareAnkre) console.log(`Ankrene i ${valgte.length} feilinnføringer finnes nøyaktig én gang.`);
+else
+  try {
+    // Ikke `process.exit`: den venter ikke på at stdout er tømt når den går i et rør,
+    // og i CI ble slutten av utfallene borte.
+    process.exitCode = await kjoer();
+  } finally {
+    rydd();
+  }
 
 async function kjoer(): Promise<number> {
   const kopier = lagArbeidskopier(antallKopier);
