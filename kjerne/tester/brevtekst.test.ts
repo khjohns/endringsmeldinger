@@ -20,7 +20,7 @@ import { AssertionError } from 'node:assert';
 import { randomUUID } from 'node:crypto';
 import { describe, expect, it } from 'vitest';
 import { gjengi, gjengirTro, kroner, lagBrevtekst, norskDato } from '../frosset/brevtekst.ts';
-import { lesJournal } from '../format/leser.ts';
+import { lesJournal, registrertDato } from '../format/leser.ts';
 import {
   forhaandsvis,
   frysBrev,
@@ -1239,6 +1239,89 @@ describe('den senere begrunnelsen (KA-U34)', () => {
     const etter = s.u();
     expect(etter.forstaatt).toBe(true);
     expect(etter.spor).toEqual(foer.spor);
+  });
+
+  describe('en registrert begrunnelse kan ikke være sendt før svaret (KA-U36)', () => {
+    const registrert = (gjelder: string, sendt: string) => ({
+      type: 'begrunnelse',
+      gjelder,
+      sendt,
+      dokumentasjon: [randomUUID()],
+    });
+    /** Et registrert grunnlagssvar med opplysningene; grunnlagskravet er brev 2. */
+    const registrertSvar = (...opplysninger: Data[]) => {
+      const s = sak();
+      s.send('TE', GRUNNLAGSKRAV);
+      const svaret = s.rad('BH', {
+        svar: [
+          {
+            id: randomUUID(),
+            spor: 'grunnlag',
+            gjelder: s.krav('grunnlag'),
+            standpunkter: [{ id: randomUUID(), art: 'grunnlag', resultat: 'avslaatt' }],
+          },
+        ],
+        opplysninger,
+      });
+      return { s, svaret: svarId(svaret) };
+    };
+
+    it('før datoen appen registrerte svaret, avvises den, og samme dato godtas (KA-U37)', () => {
+      const { s, brev } = medSvar();
+      expect(brev.tidsstempel, 'forutsetning').toBe('2026-10-05T10:00:00.000Z');
+      expect(s.avvist('BH', registrert(svarId(brev), '2026-10-05')), 'kontrollsak').toBeNull();
+      expect(s.avvisning('BH', registrert(svarId(brev), '2026-10-04'))).toEqual({
+        regel: 'BEGRUNNELSE_FOER_SVARET',
+        melding:
+          'Begrunnelsen er oppgitt sendt 4. oktober 2026, før svaret den begrunner, som er datert 5. oktober 2026.',
+      });
+    });
+
+    it('datoen for svaret fra appen er i norsk tid, som i brevet (KA-U37)', () => {
+      const { s, brev } = medSvar();
+      // 22.30 UTC 4. oktober er 00.30 i Oslo 5. oktober.
+      brev.tidsstempel = '2026-10-04T22:30:00.000Z';
+      expect(s.avvist('BH', registrert(svarId(brev), '2026-10-05')), 'kontrollsak').toBeNull();
+      expect(s.avvist('BH', registrert(svarId(brev), '2026-10-04'))).toBe(
+        'BEGRUNNELSE_FOER_SVARET'
+      );
+      expect(registrertDato({ registrert: '2026-10-04T21:59:59.000Z' })).toBe('2026-10-04');
+      expect(registrertDato({ registrert: '2026-10-04T22:00:00.000Z' })).toBe('2026-10-05');
+    });
+
+    it('for et registrert svar gjelder datoen det ble sendt, ikke den første datoen (KA-U38)', () => {
+      const { s, svaret } = registrertSvar(
+        { id: randomUUID(), hva: 'mottatt', dato: '2026-09-20' },
+        { id: randomUUID(), hva: 'sendt', dato: '2026-09-18' }
+      );
+      expect(s.avvist('BH', registrert(svaret, '2026-09-18')), 'kontrollsak').toBeNull();
+      expect(s.avvist('BH', registrert(svaret, '2026-09-17'))).toBe('BEGRUNNELSE_FOER_SVARET');
+    });
+
+    it('et registrert svar med bare mottatt-dato gir ingen kontroll (KA-U38)', () => {
+      const { s, svaret } = registrertSvar({
+        id: randomUUID(),
+        hva: 'mottatt',
+        dato: '2026-09-20',
+      });
+      expect(s.avvist('BH', registrert(svaret, '2026-09-01'))).toBeNull();
+    });
+
+    it('en bestridelse av datoen på svaret endrer ikke kontrollen (KA-U39)', () => {
+      const sendt = randomUUID();
+      const { s, svaret } = registrertSvar({ id: sendt, hva: 'sendt', dato: '2026-09-18' });
+      s.send('TE', { type: 'bestridelse', gjelder: sendt, hva: 'sendt' });
+      expect(s.avvist('BH', registrert(svaret, '2026-09-18')), 'kontrollsak').toBeNull();
+      expect(s.avvist('BH', registrert(svaret, '2026-09-17'))).toBe('BEGRUNNELSE_FOER_SVARET');
+    });
+
+    it('en begrunnelse fra appen har ingen sendt-dato og kontrolleres ikke (KA-U34)', () => {
+      const { s, brev } = medSvar();
+      brev.tidsstempel = '2026-12-31T10:00:00.000Z';
+      expect(
+        s.avvist('BH', { type: 'begrunnelse', gjelder: svarId(brev), utdypning: BEGRUNNELSE })
+      ).toBeNull();
+    });
   });
 
   it('en registrert begrunnelse uten brevet som vedlegg eller med tekst avvises (KA-U35)', () => {
