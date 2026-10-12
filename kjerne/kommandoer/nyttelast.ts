@@ -194,9 +194,17 @@ export function nyttelastkontroll(
             '§ 32.2 gjelder ikke kategorien, så § 32.3 annet ledd gjelder heller ikke (GR-U11).'
           );
     }
+    case 'send_varsel':
+      // #411, 12.10: etter et fristkrav kan varselet fra appen bare få en senere dato enn
+      // kravet. Et varsel sendt tidligere utenfor appen registreres (MM-U8).
+      return u.spor.frist.krav.length
+        ? avvis(
+            'FRISTKRAV_SENDT',
+            'Fristkravet er sendt, så et varsel fra appen kommer etter det. Et varsel sendt tidligere utenfor appen kan registreres med sin dato.'
+          )
+        : null;
     case 'trekk':
     case 'varsel':
-    case 'send_varsel':
     case 'ingen_krav':
     case 'innsigelse':
     case 'protest':

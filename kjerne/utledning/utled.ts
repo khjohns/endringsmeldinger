@@ -256,8 +256,9 @@ interface Strid {
   element: string;
   grunn: string;
   /**
-   * MM-U20: strid bare i en rad som ikke er registrert. Om et registrert brev i samme
-   * klasse er uten virkning, er ikke avgjort, og til da leses det som før (#405).
+   * MM-U20, MM-U19: strid bare i en rad som ikke er registrert. Et registrert brev leses
+   * med virkning, fordi det ikke er et forsøk på å skape en enighet: et svar uten
+   * sammenfall i et trukket spor (#405, arbeidsvalget 12.10).
    */
   bareUregistrert?: true;
 }
@@ -298,7 +299,8 @@ function strid(d: Dokument, u: Utledning, uten: Map<string, unknown>): Strid[] {
       ut.push({
         element: s.id,
         grunn: 'et svar på et krav etter at det er trukket (MM-U20, GR-U5)',
-        bareUregistrert: true,
+        // MM-U19: et svar med sammenfall skaper en enighet i et lukket spor.
+        ...(s.beslutningsgrunnlag.sammenfall ? {} : { bareUregistrert: true as const }),
       });
     else if (s.erstatter !== null && u.spor[s.spor].enighet)
       ut.push({
@@ -320,7 +322,6 @@ function strid(d: Dokument, u: Utledning, uten: Map<string, unknown>): Strid[] {
       ut.push({
         element: x.id,
         grunn: 'en aksept av et svar i et spor etter at kravet er trukket (MM-U20, GR-U5)',
-        bareUregistrert: true,
       });
     else if (x.art === 'aksept' && x.gjelder === u.spor.grunnlag.gjeldendeSvar?.id && u.frafalt)
       ut.push({ element: x.id, grunn: 'en aksept av et frafall (GR-U9)' });

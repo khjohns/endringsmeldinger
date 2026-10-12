@@ -2126,7 +2126,7 @@
     {
       "id": "KA-39",
       "tilfelle": "En hendelse som ikke er registrert korrespondanse, har et svar fra byggherren på et krav etter at TE har trukket det, eller TEs aksept, etter trekket, av et svar i sporet. Trekket kan gjelde sporet eller grunnlaget, som rammer alle sporene.",
-      "forventet": "Saken er ikke forstått, og hendelsen vises som ikke tolket. Kontrollsakene uten trekket er forstått. Kommandoene avviser svaret og aksepten (KRAV_TRUKKET). Et registrert brev i samme klasse leses som før til det er avgjort om det er uten virkning (#405).",
+      "forventet": "Saken er ikke forstått, og hendelsen vises som ikke tolket. Kontrollsakene uten trekket er forstått. Kommandoene avviser svaret og aksepten (KRAV_TRUKKET). Et registrert brev i samme klasse står i KA-40.",
       "bh_standpunkt": "—",
       "rettslig_virkning": "Kontrollen gjelder at dataene henger sammen, ikke en rettslig avgjørelse om gyldighet. Et trekk lukker sporet.",
       "rettidighet": "—",
@@ -2137,6 +2137,23 @@
         "MM-U2",
         "GR-U5",
         "KA-U12"
+      ],
+      "tolkningsstatus": "avklart_tolkning"
+    },
+    {
+      "id": "KA-40",
+      "tilfelle": "En part registrerer et brev sendt utenfor appen med et svar fra byggherren på et krav etter at TE har trukket det, eller TEs aksept, etter trekket, av et svar i sporet. Trekket kan gjelde sporet eller grunnlaget.",
+      "forventet": "Saken er forstått. En aksept, og et svar med sammenfall, bevares og vises uten virkning: sporet har ingen enighet, og en godkjenning av et trukket grunnlag er ikke en endringsordre i saken. Et svar uten sammenfall, som et avslag eller et frafall av pålegget, leses med virkning.",
+      "bh_standpunkt": "Brevet slik det ble sendt.",
+      "rettslig_virkning": "Et trekk er bare TEs avkall på eget krav. Appen sier ikke at brevet ikke er en endringsordre, bare at godkjenningen er uten virkning i saken.",
+      "rettidighet": "—",
+      "tidsakse": "registrering",
+      "kilder": [
+        "MM-U19",
+        "MM-U20",
+        "KA-U14",
+        "GR-U9",
+        "GR-U10"
       ],
       "tolkningsstatus": "avklart_tolkning"
     },
@@ -2223,7 +2240,7 @@
     {
       "id": "VS-06",
       "tilfelle": "TE sender et eget varsel etter § 33.4 fra appen, uten dager, før fristkravet.",
-      "forventet": "Varselet er et eget brev med serverens dato og teksten i VS-U15, og det er sporets registrerte varsel: svaret på et senere fristkrav vurderer rettidigheten av det, og byggherren kan gjøre innsigelse mot det. Et nytt varsel, sendt eller registrert, og et fristkrav som oppgir en dato for varselet, avvises (VARSEL_REGISTRERT). Varselet avvises før grunnlaget er sendt og etter «ingen krav» i fristsporet, som registreringen.",
+      "forventet": "Varselet er et eget brev med serverens dato og teksten i VS-U15, og det er sporets registrerte varsel: svaret på et senere fristkrav vurderer rettidigheten av det, og byggherren kan gjøre innsigelse mot det. Et nytt varsel, sendt eller registrert, og et fristkrav som oppgir en dato for varselet, avvises (VARSEL_REGISTRERT). Varselet avvises før grunnlaget er sendt og etter «ingen krav» i fristsporet, som registreringen. Når et fristkrav er sendt, avvises et varsel fra appen (FRISTKRAV_SENDT), mens et varsel sendt tidligere utenfor appen kan registreres med sin dato (oppdragsgiver 12.10, #411).",
       "bh_standpunkt": "Byggherrens vurdering av varselet: for sent.",
       "rettslig_virkning": "Appen avgjør ikke om varselet kom i tide.",
       "rettidighet": "Byggherrens vurdering av varselet etter § 33.4.",
@@ -2234,7 +2251,8 @@
         "V-SK12",
         "VS-U1",
         "VS-U9",
-        "KA-U15"
+        "KA-U15",
+        "MM-U8"
       ],
       "tolkningsstatus": "avklart_tolkning"
     }

@@ -6985,6 +6985,277 @@
           }
         }
       ]
+    },
+    {
+      "id": "F-VS-U15c",
+      "rader": [
+        "VS-06"
+      ],
+      "start": "krav_irreg",
+      "forslag": "#411 (12.10): når et fristkrav er sendt, avvises et nytt varsel fra appen; et varsel sendt tidligere utenfor appen registreres med sin dato",
+      "forventningsgrunnlag": "avklart_tolkning",
+      "steg": [
+        {
+          "handling": "varsel",
+          "spor": "frist",
+          "navn": "D4"
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 0,
+          "rolle": "kontroll",
+          "kilde": [
+            "MM-U8",
+            "V-SK12"
+          ],
+          "prov": {
+            "handling": "varsel",
+            "spor": "frist",
+            "sendt": "2026-09-02"
+          },
+          "forventet": {
+            "avvist": false
+          }
+        },
+        {
+          "etter": 1,
+          "rolle": "mal",
+          "kilde": [
+            "VS-U15",
+            "MM-U8"
+          ],
+          "forventet": {
+            "avvist": true,
+            "regel": "FRISTKRAV_SENDT",
+            "nye_hendelser": 0,
+            "varsel.frist": null
+          }
+        }
+      ]
+    },
+    {
+      "id": "F-MM-U20e",
+      "rader": [
+        "KA-40"
+      ],
+      "start": "forlop_a_brev",
+      "forslag": "MM-U20 og MM-U19: TEs registrerte aksept, etter trekket, av et svar i sporet skaper en enighet vedtakene ikke tillater, og bevares uten virkning",
+      "forventningsgrunnlag": "avklart_tolkning",
+      "steg": [
+        {
+          "handling": "trekk",
+          "spor": "vederlag",
+          "navn": "D5"
+        },
+        {
+          "handling": "rad",
+          "art": "aksept",
+          "gjelder": "S-v1",
+          "part": "TE",
+          "navn": "D6",
+          "sendt": "2026-10-02"
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 2,
+          "rolle": "mal",
+          "kilde": [
+            "MM-U20",
+            "MM-U19"
+          ],
+          "forventet": {
+            "forstaatt": true,
+            "uten_virkning": [
+              "D6#aksept"
+            ],
+            "enighet.vederlag": null,
+            "trukket.vederlag": true,
+            "visning.merknader": [
+              "registrert_brev_uten_virkning"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "F-MM-U20f",
+      "rader": [
+        "KA-40"
+      ],
+      "start": "krav_irreg",
+      "forslag": "MM-U20 og MM-U19: byggherrens registrerte svar med sammenfall på et trukket krav skaper en enighet vedtakene ikke tillater, og bevares uten virkning",
+      "forventningsgrunnlag": "avklart_tolkning",
+      "steg": [
+        {
+          "handling": "trekk",
+          "spor": "vederlag",
+          "navn": "D4"
+        },
+        {
+          "handling": "rad",
+          "spor": "vederlag",
+          "navn": "S-v1",
+          "dokument": "D5",
+          "gjelder": "K-v1",
+          "vurdering": "godkjent",
+          "sendt": "2026-10-02"
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 2,
+          "rolle": "mal",
+          "kilde": [
+            "MM-U20",
+            "MM-U19",
+            "GR-U10"
+          ],
+          "forventet": {
+            "forstaatt": true,
+            "uten_virkning": [
+              "S-v1"
+            ],
+            "gjeldende_svar.vederlag": null,
+            "enighet.vederlag": null
+          }
+        }
+      ]
+    },
+    {
+      "id": "F-MM-U20g",
+      "rader": [
+        "KA-40"
+      ],
+      "start": "krav_irreg",
+      "forslag": "MM-U19, kontrollsak: byggherrens registrerte avslag av et trukket krav skaper ingen enighet og leses med virkning",
+      "forventningsgrunnlag": "avklart_tolkning",
+      "steg": [
+        {
+          "handling": "trekk",
+          "spor": "vederlag",
+          "navn": "D4"
+        },
+        {
+          "handling": "rad",
+          "spor": "vederlag",
+          "navn": "S-v1",
+          "dokument": "D5",
+          "gjelder": "K-v1",
+          "vurdering": "avslaatt",
+          "sendt": "2026-10-02"
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 2,
+          "rolle": "mal",
+          "kilde": [
+            "MM-U19",
+            "MM-U20"
+          ],
+          "forventet": {
+            "forstaatt": true,
+            "beslutningsgrunnlag.S-v1.sammenfall": false,
+            "uten_virkning": [],
+            "gjeldende_svar.vederlag": "S-v1",
+            "enighet.vederlag": null,
+            "trukket.vederlag": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "F-MM-U20h",
+      "rader": [
+        "KA-40"
+      ],
+      "start": "krav_irreg",
+      "forslag": "MM-U20, MM-U19 og KA-U14: byggherrens registrerte godkjenning av et trukket grunnlag, med sammenfall, bevares uten virkning, og godkjenningen er ikke en endringsordre i saken",
+      "forventningsgrunnlag": "avklart_tolkning",
+      "steg": [
+        {
+          "handling": "trekk",
+          "spor": "grunnlag",
+          "navn": "D4"
+        },
+        {
+          "handling": "rad",
+          "spor": "grunnlag",
+          "navn": "S-g1",
+          "dokument": "D5",
+          "gjelder": "K-g1",
+          "resultat": "godkjent",
+          "varslet_i_tide": true,
+          "sendt": "2026-10-02",
+          "endringsordre": true
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 2,
+          "rolle": "mal",
+          "kilde": [
+            "MM-U20",
+            "MM-U19",
+            "KA-U14"
+          ],
+          "forventet": {
+            "forstaatt": true,
+            "uten_virkning": [
+              "S-g1"
+            ],
+            "gjeldende_svar.grunnlag": null,
+            "endringsordre": "nei",
+            "trukket.grunnlag": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "F-MM-U20i",
+      "rader": [
+        "KA-40"
+      ],
+      "start": "krav_irreg",
+      "forslag": "MM-U19, kontrollsak: byggherrens registrerte frafall av pålegget etter at TE har trukket grunnlaget, leses med virkning (KA-U14, GR-U9)",
+      "forventningsgrunnlag": "avklart_tolkning",
+      "steg": [
+        {
+          "handling": "trekk",
+          "spor": "grunnlag",
+          "navn": "D4"
+        },
+        {
+          "handling": "rad",
+          "spor": "grunnlag",
+          "navn": "S-g1",
+          "dokument": "D5",
+          "gjelder": "K-g1",
+          "resultat": "paalegg_frafalt",
+          "varslet_i_tide": true,
+          "sendt": "2026-10-02"
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 2,
+          "rolle": "mal",
+          "kilde": [
+            "MM-U19",
+            "KA-U14",
+            "GR-U9"
+          ],
+          "forventet": {
+            "forstaatt": true,
+            "uten_virkning": [],
+            "gjeldende_svar.grunnlag": "S-g1",
+            "frafalt": true,
+            "trukket.grunnlag": true
+          }
+        }
+      ]
     }
   ],
   "genererte": {

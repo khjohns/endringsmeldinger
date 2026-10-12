@@ -369,7 +369,10 @@ endringsordre og forsering, etter [OV-U1](plans/2026-09-16-godkjenning-og-varig-
   tapes dersom det ikke varsles innen utløpet av fristen.»
 - **Utsagn:** TE: `varsel` med hjemmel 33.4, med opplysningen `sendt`, eller
   sendt fra appen som et eget brev uten dager, med serverens dato
-  ([VS-U15](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u15), kommandoen `send_varsel`). BH:
+  ([VS-U15](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u15), kommandoen `send_varsel`). Er et fristkrav sendt, avvises et
+  varsel fra appen (`FRISTKRAV_SENDT`; oppdragsgiver 12.10 på
+  [#411](https://github.com/khjohns/endringsmeldinger/issues/411)); et varsel sendt
+  tidligere utenfor appen registreres med sin dato (MM-U8). BH:
   `rettidighet` med hjemmel 33.4, som `gjelder` varselet, eller kravet når
   varselet er utledet av kravet. TE: «ingen krav» etter varselet.
 - **Predikat:**
@@ -869,12 +872,22 @@ visning ikke fremstiller et trekk som at utførelsesplikten er bortfalt.
   standpunktene i brevet, likeså. Det gjelder også et svar eller en aksept i et
   trukket spor ([MM-U20](plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u20),
   #405). I registrert korrespondanse får elementet ingen
-  virkning (`utenVirkning`); et registrert svar eller en registrert aksept i et
-  trukket spor leses foreløpig som før (`bareUregistrert`, #405). Kontrollen leser journalen før hvert dokument og gjelder
+  virkning (`utenVirkning`), unntatt et svar uten sammenfall i et trukket spor
+  (`bareUregistrert`, arbeidsvalget 12.10 under). Kontrollen leser journalen før hvert dokument og gjelder
   bare vedtakene om enighet og lukking; at en aksept av et merket svar avvises, er et
   vilkår for å sende og står i forutsetningene, ikke i kontrollen. Ikke bygget: B-10 utover versjonene i formatet
   ([#316](https://github.com/khjohns/endringsmeldinger/issues/316)) og registreringen
   (#310). Brevteksten står i «Brevteksten».
+- **Arbeidsvalg 12.10 ([MM-U19](plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u19), [MM-U20](plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u20),
+  [#405](https://github.com/khjohns/endringsmeldinger/issues/405)):** et registrert brev i et
+  trukket spor behandles slik MM-U19 lyder. En aksept, eller et svar med sammenfall,
+  skaper en enighet vedtakene ikke tillater, og blir uten virkning. Et svar uten
+  sammenfall, som et avslag eller et frafall av pålegget etter et trekk av
+  grunnlaget, leses med virkning, fordi et trekk bare er TEs avkall på eget krav
+  ([KA-U14](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u14), [GR-U9](plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u9)). Å gjøre også det uten virkning
+  ville utvidet MM-U19 og krever et vedtak. En godkjenning etter trekk vises som
+  uten virkning i saken; appen sier ikke at brevet ikke er en endringsordre
+  (KA-U14).
 - **Vedtak 11.10:** [MM-U19](plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u19)
   (registrerte brev i samme klasse som MM-U18), [KA-U26](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u26)
   (hva merkingen sperrer), [KA-U27](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u27)
@@ -968,6 +981,12 @@ begrunnelse og beskrivelse er [KA-U31](plans/2026-09-16-godkjenning-og-varig-lev
   eget varsel etter § 33.4 uten dager har ordlyden i [VS-U15](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u15). Brevet har ingen
   opplysning om datoen; uten den er brevet varselet, og datoen er serverens. I et
   fristkrav med varselet står setningen i LV-U4 punkt 3 som før.
+- **Arbeidsvalg 12.10 ([VS-U15](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u15), [MM-U1](plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u1), SK-12,
+  [#411](https://github.com/khjohns/endringsmeldinger/issues/411)):** et senere
+  fristkrav viser til varselet fra appen gjennom sporet, som til et registrert
+  varsel: byggherrens standpunkt om rettidighet gjelder det. Teksten i fristkravet
+  endres ikke. Et fristkrav som oppgir en dato for varselet etter et varsel fra
+  appen, avvises (`VARSEL_REGISTRERT`), fordi datoen er satt (SK-12).
 
 ---
 
