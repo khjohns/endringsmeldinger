@@ -90,7 +90,6 @@
   let reviewing = $state(false);
   let sending = $state(false);
   let createdId = $state('');
-  let checking = $state(false);
   const storageKey = $derived(
     draftKey(demo ? 'endringsordre-demo' : 'endringsordre', `${projectId}:${userId}`)
   );
@@ -169,9 +168,7 @@
   async function numberIssued(number: string) {
     const trimmed = typeof number === 'string' ? number.trim() : '';
     if (!trimmed) return false;
-    checking = true;
     await approvals.load();
-    checking = false;
     return approvals.packages.some(
       (p) => p.status === 'utstedt' && p.request.eo_nummer.trim() === trimmed
     );
@@ -328,7 +325,7 @@
           >{/if}
       </aside>
     </div>
-  {:else if checking}
+  {:else if !ready}
     <p class="helptext" role="status">Kontrollerer det lagrede utkastet …</p>
   {:else}
     <form onsubmit={review}>
