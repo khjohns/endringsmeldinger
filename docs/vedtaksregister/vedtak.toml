@@ -1356,6 +1356,35 @@ raden for § 34.1.2 i [paragrafmatrisen](../paragrafmatrise-koe-eo-forsering.md)
 vise til VS-U15. Bygges i #411. Ikke bygget'''
 
 [[gruppe.vedtak]]
+id = "VS-U16"
+dato = 2026-10-12
+hvem = "oppdragsgiver"
+kilde = ["#411"]
+sporsmal = '''
+§ 33.4 og VS-U15: TE kan nå sende et eget varsel om fristforlengelse fra appen, «også før dager kan angis». Kan TE også sende et slikt varsel fra appen etter å ha sendt fristkravet? Eksempel: TE krever 20 dagers fristforlengelse 1. mars, og appen regner kravet som varselet når ikke noe annet varsel er registrert. Byggherren svarer 10. mars at varselet kom for sent. 15. mars vil TE sende et eget varsel etter § 33.4 fra appen.
+
+A: nei, avvises – Når et fristkrav er sendt, avvises et nytt varsel fra appen. Det kan bare få en senere dato enn kravet, og VS-U15 begrunner varselet med at TE skal kunne varsle før dagene kan angis. Et varsel som faktisk ble sendt tidligere utenfor appen, kan fortsatt registreres med sin egen dato (MM-U8).
+
+B: ja, som en registrering – Varselet 15. mars godtas, som når et varsel registreres etter kravet (MM-U8). Byggherrens påberopelse av for sent varsel blir uavklart, og TE kan ikke godta svaret før byggherren har svart på nytt. Rettidigheten vurderes da mot 15. mars.'''
+valgt = "A"
+svar = '''
+A: nei, avvises'''
+forhold = [{ art = "snevrer inn", vedtak = "vs-u15" }]
+folge = '''
+Ikke bygget. Bygges i #411'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Når et fristkrav er sendt, avvises et nytt varsel etter § 33.4 fra appen. Det kan bare få en senere dato enn kravet, og VS-U15 begrunner varselet med at TE skal kunne varsle før dagene kan angis. Et varsel som faktisk ble sendt tidligere utenfor appen, kan fortsatt registreres med sin egen dato (MM-U8).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Varselet godtas, som når et varsel registreres etter kravet (MM-U8). Byggherrens påberopelse av for sent varsel blir uavklart, og TE kan ikke godta svaret før byggherren har svart på nytt. Rettidigheten vurderes da mot datoen for det nye varselet.'''
+forkastet = true
+
+[[gruppe.vedtak]]
 vedtak = '''
 Nøytralt fristvarsel (TFR-06, DRF-01): BH kan sende innsigelse mot sen varsling (§ 5) og
 forespørsel om spesifisert krav (§ 33.6.2) som egne handlinger. De setter ikke resultat,
@@ -2468,6 +2497,35 @@ av <dato> og gjør ikke gjeldende at TEs varsel etter NS 8407 § 32.2 [varselet 
 fristforlengelse etter § 33.4] kom for sent.» Spørsmålet og svaret står på #414. Ikke
 bygget. Bygges i #410'''
 
+[[gruppe.vedtak]]
+id = "LV-U6"
+dato = 2026-10-12
+hvem = "oppdragsgiver"
+kilde = ["#414", "#410"]
+sporsmal = '''
+Brevteksten (LV-U4 punkt 5 og LV-U5) har «Byggherren gjør gjeldende at TEs varsel etter NS 8407 § 32.2 [varselet om fristforlengelse etter § 33.4] kom for sent.» Klammen er teksten i et svar på fristkravet. Leses den ordrett, blir setningen «… at varselet om fristforlengelse etter § 33.4 kom for sent.» Koden skriver «… at varselet om fristforlengelse etter NS 8407 § 33.4 kom for sent.», både for «for sent» og «i tide». Det er samme form som «NS 8407 § 32.2» og som fristkravet i punkt 3 («etter NS 8407 § 33.4 ble sendt»). Hvilken tekst skal brevet ha?
+
+A: med «NS 8407» – Som koden: «varselet om fristforlengelse etter NS 8407 § 33.4». Klammen leses som at «NS 8407» står i begge, som i resten av brevene. Jeg fører det som et vedtak som presiserer LV-U4 punkt 5 og LV-U5, gjennom det nye registeret.
+
+B: ordrett, uten «NS 8407» – «varselet om fristforlengelse etter § 33.4». Én linje i koden, testene og to versjonsøkninger i en ny PR etter #410.'''
+valgt = "A"
+svar = '''
+A: med «NS 8407»'''
+forhold = [{ art = "presiserer", vedtak = "lv-u4" }, { art = "presiserer", vedtak = "lv-u5" }]
+folge = '''
+Bygget 12.10 i PR #410'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Brevteksten skriver «varselet om fristforlengelse etter NS 8407 § 33.4». Klammen i LV-U4 punkt 5 og LV-U5 leses som at «NS 8407» står i begge, som i resten av brevene.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Brevteksten skriver «varselet om fristforlengelse etter § 33.4», som klammen lyder, uten «NS 8407».'''
+forkastet = true
+
 [[gruppe]]
 tittel = "Fullmakt og intern godkjenning"
 
@@ -3031,6 +3089,43 @@ formene og/eller sparring først (#395); til da gjelder [merknaden 11.10 til
 B-12](#b-12-merknad-2026-10-11). Tilgangsmekanismen i B-02 alternativ C prøves tidlig i
 T-SQL (#395). Grunnlaget er [vurderingen av JSON i Azure
 SQL](../vurdering-json-azure-sql-2026-10-11.md). Ikke bygget'''
+
+[[gruppe.vedtak]]
+id = "HF-U3"
+dato = 2026-10-12
+hvem = "oppdragsgiver"
+kilde = ["#395"]
+sporsmal = '''
+#395: hvordan skal brevene lagres i Azure SQL? Prøven mot SQL Server viste at begge formene holder på det som er prøvd. I form (b) gikk innhold stille tapt når kopiene av formatet avvek, og formen falt bak formatet etter én dag (brevteksten i #410). Astra anbefaler (a), og to kontrollrunder fant ikke noe i (a) som strider mot vedtakene. Astra har trukket forslaget om å lagre ferdig PDF i samme transaksjon, så LV-U2 står: teksten er brevet. Valget må tas senest før den første reelle hendelsen (merknaden 11.10 til B-12).
+
+A: ett dokument per brev – Hvert brev lagres samlet som ett dokument, og det er journalens eneste kilde. Tabellene for spørring og rapport lages av brevene, kan lages på nytt og brukes aldri til en bindende handling (B-10). Ukjent innhold bevares og stopper saken (HF-U1).
+
+B: utsagnene i egne tabeller – Hvert utsagn lagres i egne tabeller, og de er kilden. Dokumentet lages av tabellene. Krever at hvert nytt felt får en tabellkolonne før det kan skrives.
+
+C: vent på en prøve mot Azure – Valget venter til IKT har levert en database. Risikoene som bare Azure viser (kontekst i poolen og failover), er like for (a) og (b), så en slik prøve skiller dem ikke.'''
+valgt = "A"
+svar = '''
+A'''
+forhold = [{ art = "presiserer", vedtak = "hf-u1" }, { art = "presiserer", vedtak = "b-12-databasen" }]
+folge = '''
+Avgjør lagringsformen som [merknaden 11.10 til B-12](#b-12-merknad-2026-10-11) satte av. Før svaret ba oppdragsgiver om en forklaring av hvordan beløp, dager og grunnlag blir tilgjengelige for statistikk (#395). Vedtaket gjelder bare lagringsformen. Hva tabellene skal inneholde, avgjøres når rapporteringen og veien til Fabric bygges, og forbeholdet i B-12 står (oppdragsgiver 12.10, #395). Grunnlaget er prøven i PR #406 og sparringen i #395. Ikke bygget'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Hvert brev lagres samlet som ett dokument, og det er journalens eneste kilde. Tabellene for spørring og rapport lages av brevene, kan lages på nytt og brukes aldri til en bindende handling (B-10). Ukjent innhold bevares og stopper saken (HF-U1).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Hvert utsagn lagres i egne tabeller, og de er kilden. Dokumentet lages av tabellene.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "C"
+tekst = '''
+Valget av lagringsform venter på en prøve mot Azure til IKT har levert en database.'''
+forkastet = true
 
 [[gruppe]]
 tittel = "Premissene P1–P7"
