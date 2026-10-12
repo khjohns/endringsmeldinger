@@ -229,7 +229,10 @@ describe('lagret utkast med nummer fra en utstedt endringsordre (#445)', () => {
     );
   }
   function approvalsWith(status: EOApprovalPackage['status']) {
-    vi.mocked(fetchEOApprovals).mockResolvedValueOnce({
+    vi.mocked(fetchEOApprovals).mockResolvedValueOnce(approvalResponse(status));
+  }
+  function approvalResponse(status: EOApprovalPackage['status']) {
+    return {
       state: {
         version: 3,
         packages: [
@@ -261,7 +264,7 @@ describe('lagret utkast med nummer fra en utstedt endringsordre (#445)', () => {
       chain: [],
       canPrepare: true,
       dailyRate: null,
-    });
+    };
   }
 
   it('forkaster utkastet og starter et tomt utkast med neste nummer og KOE-en fra lenken', async () => {
@@ -286,5 +289,20 @@ describe('lagret utkast med nummer fra en utstedt endringsordre (#445)', () => {
     expect(screen.getByLabelText('Beskriv endringen som pålegges')).toHaveValue(
       'Ordren som ble utstedt.'
     );
+  });
+
+  it('viser ikke skjemaet før kontrollen av det lagrede utkastet er ferdig', async () => {
+    storeDraft();
+    let svar!: (value: ReturnType<typeof approvalResponse>) => void;
+    vi.mocked(fetchEOApprovals).mockReturnValueOnce(new Promise((resolve) => (svar = resolve)));
+    vi.mocked(fetchNextEONumber).mockResolvedValue({ neste_nummer: 'EO-002' });
+    const screen = render(EndringsordreForm, props);
+    expect(await screen.findByRole('status')).toHaveTextContent(
+      'Kontrollerer det lagrede utkastet'
+    );
+    expect(screen.queryByLabelText('Endringsordrenummer')).toBeNull();
+    svar(approvalResponse('utstedt'));
+    await waitFor(() => expect(screen.getByLabelText('Endringsordrenummer')).toHaveValue('EO-002'));
+    expect(screen.getByLabelText('Beskriv endringen som pålegges')).toHaveValue('');
   });
 });

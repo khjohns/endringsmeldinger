@@ -90,7 +90,7 @@
   let reviewing = $state(false);
   let sending = $state(false);
   let createdId = $state('');
-  let issuedChecked = $state(false);
+  let checking = $state(false);
   const storageKey = $derived(
     draftKey(demo ? 'endringsordre-demo' : 'endringsordre', `${projectId}:${userId}`)
   );
@@ -132,7 +132,7 @@
   );
   $effect(() => {
     // Issued after approval, possibly by someone else: the local draft is spent.
-    if (issuedChecked && pkg?.status === 'utstedt' && pkg.sakId && !createdId) {
+    if (pkg?.status === 'utstedt' && pkg.sakId && !createdId) {
       createdId = pkg.sakId;
       clearDraft(storageKey);
     }
@@ -142,17 +142,16 @@
       `/${demo ? 'mockup/endringsordre' : encodeURIComponent(projectId)}/${encodeURIComponent(sakId)}`
     );
 
-  onMount(() => {
-    const stored = loadDraft<{ version: number; draft: EODraft }>(storageKey);
-    if (stored?.version === 1 && Array.isArray(stored.draft?.selectedIds))
-      draft = { ...newEODraft(), ...stored.draft };
-    const restoredNumber = draft.number.trim();
-    start();
-    if (restoredNumber) void discardIfIssued(restoredNumber);
-    else issuedChecked = true;
-  });
+  onMount(() => void open());
 
-  function start() {
+  async function open() {
+    const stored = loadDraft<{ version: number; draft: EODraft }>(storageKey);
+    if (stored?.version === 1 && Array.isArray(stored.draft?.selectedIds)) {
+      const restored = { ...newEODraft(), ...stored.draft };
+      // #445: ordren kan være utstedt fra godkjenningssiden etter at utkastet ble lagret.
+      if (await numberIssued(restored.number)) clearDraft(storageKey);
+      else draft = restored;
+    }
     let selectionChanged = false;
     if (initialKoe) {
       if (draft.mode === 'direkte') draft.directEffects = snapshotEOEffects(draft);
@@ -166,20 +165,16 @@
     void load(selectionChanged);
   }
 
-  /** #445: ordren kan være utstedt fra godkjenningssiden etter at utkastet ble lagret. */
-  async function discardIfIssued(number: string) {
+  /** Feiler hentingen av godkjenningene, beholdes utkastet (#464). */
+  async function numberIssued(number: string) {
+    const trimmed = typeof number === 'string' ? number.trim() : '';
+    if (!trimmed) return false;
+    checking = true;
     await approvals.load();
-    if (
-      approvals.packages.some(
-        (p) => p.status === 'utstedt' && p.request.eo_nummer.trim() === number
-      )
-    ) {
-      clearDraft(storageKey);
-      draft = newEODraft();
-      reviewing = false;
-      start();
-    }
-    issuedChecked = true;
+    checking = false;
+    return approvals.packages.some(
+      (p) => p.status === 'utstedt' && p.request.eo_nummer.trim() === trimmed
+    );
   }
 
   $effect(() => {
@@ -333,6 +328,8 @@
           >{/if}
       </aside>
     </div>
+  {:else if checking}
+    <p class="helptext" role="status">Kontrollerer det lagrede utkastet …</p>
   {:else}
     <form onsubmit={review}>
       <div class="edit-layout">
