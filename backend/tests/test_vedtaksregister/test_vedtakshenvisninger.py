@@ -48,24 +48,57 @@ def test_henvisningene_i_treet_holder(register, plan):
     assert vh.kontroller(register, plan) == []
 
 
-def test_kontrollen_leser_vedtaks_id_er_i_alle_tre_mappene():
-    funnet = {
-        sti.split("/")[0] for sti, tekst in vh.filer() if vh.HENVISNING.search(tekst)
-    }
-    assert funnet == set(vh.MAPPER)
+def test_filer_leser_de_tre_mappene_og_hopper_over_byggmappene(tmp_path):
+    rot = tmp_path / "build" / "repo"
+    for sti in ("kjerne/a.ts", "server/b.ts", "src/c.svelte", "src/node_modules/d.ts"):
+        (rot / sti).parent.mkdir(parents=True, exist_ok=True)
+        (rot / sti).write_text("// KA-U1\n", encoding="utf-8")
+    (rot / "annet").mkdir()
+    (rot / "annet" / "e.ts").write_text("// KA-U99\n", encoding="utf-8")
+    assert [sti for sti, _ in vh.filer(rot)] == [
+        "kjerne/a.ts",
+        "server/b.ts",
+        "src/c.svelte",
+    ]
 
 
 def test_mm_u9_gjoer_mm_u4_til_mm_u6_opphevet(register):
     # Forventningen er raden til MM-U9 i 3.1: «Opphever MM-U4, MM-U5 og MM-U6».
     kjente, opphevet = vh.vedtak(register)
     assert {"MM-U4", "MM-U5", "MM-U6"} <= opphevet
-    assert {"MM-U4", "MM-U9"} <= kjente
+    assert {"MM-U4", "MM-U9", "B-13", "B-17"} <= kjente
 
 
-def test_b_id_er_fra_radene_og_de_aapne_beslutningene(register, plan):
-    kjente, _ = vh.vedtak(register)
-    assert {"B-13", "B-17"} <= kjente
-    assert "B-16" in vh.aapne_beslutninger(plan) - kjente
+def test_et_opphevet_vedtak_med_anker_som_ikke_er_id_en_gjelder_b_id_en():
+    register = {
+        "gruppe": [
+            {
+                "vedtak": [
+                    {
+                        "anker": "b-03-dokument",
+                        "vedtak": "B-03, dokumentet: x",
+                        "vedtatt": "d",
+                    },
+                    {
+                        "anker": "ka-u1",
+                        "vedtak": "KA-U1: y",
+                        "vedtatt": "d",
+                        "forhold": [{"art": "opphever", "vedtak": "b-03-dokument"}],
+                    },
+                ]
+            }
+        ]
+    }
+    assert vh.vedtak(register) == ({"B-03", "KA-U1"}, {"B-03"})
+
+
+def test_aapne_beslutninger_leses_bare_fra_3_4():
+    plan = (
+        "### 3.3 Anbefalinger\n| B-01 | x |\n"
+        "### 3.4 Åpne beslutninger\n| B-16 | x |\n"
+        "## 4. Funnregister\n| B-02 | x |\n"
+    )
+    assert vh.aapne_beslutninger(plan) == {"B-16"}
 
 
 def test_ukjent_vedtaks_id_gir_feil():
@@ -115,7 +148,12 @@ def test_aapen_b_id_er_ikke_et_gjeldende_grunnlag_for_en_opphevet_id():
 
 @pytest.mark.parametrize(
     "sti",
-    ["kjerne/tester/regel.ts", "src/lib/regel.test.ts", "server/tester/a.ts"],
+    [
+        "kjerne/tester/regel.ts",
+        "src/lib/regel.test.ts",
+        "server/tester/a.ts",
+        "src/lib/__tests__/Harness.svelte",
+    ],
 )
 def test_opphevet_id_i_en_test_merket_historisk_er_lov(sti):
     assert _feil("it('historisk: MM-U4 avviste brevet', () => {})", sti) == []
@@ -127,14 +165,48 @@ def test_opphevet_id_i_en_test_uten_merket_gir_feil():
     ]
 
 
+def test_et_ord_som_begynner_med_historisk_er_ikke_merket():
+    tekst = "it('MM-U4 avviser, som i historiske saker', () => {})"
+    assert len(_feil(tekst, "src/lib/a.test.ts")) == 1
+
+
 def test_merket_historisk_utenfor_en_test_gir_feil():
     assert _feil("// historisk: MM-U4") == [
         "kjerne/regel.ts:1: MM-U4 er opphevet og står som eneste grunnlag"
     ]
 
 
-def test_linjenummeret_er_starten_paa_kommentarblokken():
+def test_linjenummeret_er_starten_paa_avsnittet():
     tekst = "kode()\n/**\n * Etter MM-U4.\n */"
     assert _feil(tekst) == [
-        "kjerne/regel.ts:2: MM-U4 er opphevet og står som eneste grunnlag"
+        "kjerne/regel.ts:3: MM-U4 er opphevet og står som eneste grunnlag"
+    ]
+
+
+@pytest.mark.parametrize(
+    "tekst",
+    [
+        "/*\n Var MM-U4,\n opphevet av MM-U9.\n*/",
+        "<!-- Var MM-U4,\n     opphevet av MM-U9 -->",
+    ],
+)
+def test_en_blokkommentar_uten_stjerne_paa_hver_linje_er_ett_avsnitt(tekst):
+    assert _feil(tekst) == []
+
+
+@pytest.mark.parametrize(
+    "tekst",
+    [
+        "// MM-U9\n//\n// Avvist etter MM-U4.",
+        "/**\n * MM-U9\n *\n * Avvist etter MM-U4.\n */",
+        "// MM-U9 gjelder\n#felt = 'MM-U4'",
+    ],
+)
+def test_et_annet_avsnitt_eller_en_kodelinje_er_en_egen_henvisning(tekst):
+    assert len(_feil(tekst)) == 1
+
+
+def test_en_glob_i_koden_aapner_ingen_kommentar():
+    assert _feil("const m = 'src/**/*.ts';\nkode() // MM-U9\nx('MM-U4')") == [
+        "kjerne/regel.ts:3: MM-U4 er opphevet og står som eneste grunnlag"
     ]
