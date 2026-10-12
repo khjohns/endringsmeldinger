@@ -211,6 +211,80 @@ describe('skrivevakten for mekanisk-pr', () => {
     expect(skriv(path.join(rot, '..notater.md')).status).toBe(0);
   });
 
+  it('stopper skrivende git-kommandoer også med -C eller andre globale valg', () => {
+    for (const kommando of [
+      'git -C . apply /tmp/endring.patch',
+      'git -C . restore kjerne/a.ts',
+      'git -C kjerne checkout -- a.ts',
+      'git --no-pager apply /tmp/endring.patch',
+    ]) {
+      expect(bash(kommando).status, kommando).toBe(2);
+    }
+    expect(bash('git -C . log --oneline -1').status).toBe(0);
+  });
+
+  it('stopper push som står etter en omdirigering eller et reservert ord', () => {
+    for (const kommando of [
+      '> /tmp/x git push origin HEAD:main',
+      '! git push origin HEAD:main',
+      'if true; then git push origin HEAD:main; fi',
+      'true && ! git push origin HEAD:main',
+    ]) {
+      expect(bash(kommando).status, kommando).toBe(2);
+    }
+  });
+
+  it('stopper push med sti som kommandoord, shell-valg foran -c eller env -S', () => {
+    for (const kommando of [
+      '/usr/bin/git push origin HEAD:main',
+      'bash -o pipefail -c "git push origin HEAD:main"',
+      'env -S "git push origin HEAD:main"',
+      '/usr/bin/gh api -X PUT repos/x/pulls/1/merge',
+    ]) {
+      expect(bash(kommando).status, kommando).toBe(2);
+    }
+  });
+
+  it('stopper flere skrivende verktøy som skriver til en sperret mappe', () => {
+    for (const kommando of [
+      'sed --in-place s/a/b/ kjerne/a.ts',
+      'sort -o kjerne/a.ts docs/a.md',
+      'curl -o kjerne/a.ts https://example.invalid/x',
+      `node -p "require('fs').writeFileSync('kjerne/a.ts','x')"`,
+    ]) {
+      expect(bash(kommando).status, kommando).toBe(2);
+    }
+  });
+
+  it('stopper linjeskift i anførsel som skjuler et push-kall', () => {
+    expect(bash('git "pu\\\nsh" origin HEAD:main').status).toBe(2);
+  });
+
+  it('stopper send-pack og endring av fjernoppsett', () => {
+    for (const kommando of [
+      'git send-pack origin HEAD:refs/heads/main',
+      'git remote set-url origin /tmp/elsewhere',
+      'git update-ref refs/heads/main HEAD',
+    ]) {
+      expect(bash(kommando).status, kommando).toBe(2);
+    }
+  });
+
+  it('stopper commit når en usporet fil i en sperret mappe har et navn som git setter i anførsel', () => {
+    mkdirSync(path.join(rot, 'supabase'));
+    writeFileSync(path.join(rot, 'supabase', 'æ.ts'), 'x\n');
+    try {
+      expect(bash('git add -A').status).toBe(2);
+    } finally {
+      rmSync(path.join(rot, 'supabase'), { recursive: true, force: true });
+    }
+  });
+
+  it('stopper endring av hookoppsettet', () => {
+    expect(skriv(path.join(rot, '.claude', 'settings.json')).status).toBe(2);
+    expect(skriv(path.join(rot, '.claude', 'settings.local.json')).status).toBe(2);
+  });
+
   it('stopper Write i kjerne/ også når stien går gjennom en symbolsk lenke', () => {
     const lenke = path.join(path.dirname(rot), 'lenke');
     symlinkSync(rot, lenke);
