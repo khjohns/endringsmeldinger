@@ -9727,7 +9727,7 @@
         "KA-43"
       ],
       "start": "krav_irreg",
-      "forslag": "KA-U34 og KA-U35: byggherren begrunner avslaget av grunnlaget senere, først fra appen og så i et registrert brev. Kontrollsakene er samme begrunnelse av svaret, med tekst og med vedlegg",
+      "forslag": "KA-U34 og KA-U35: byggherren begrunner avslaget av grunnlaget senere, først fra appen og så i et registrert brev. Kontrollsakene er samme begrunnelse av svaret, fra byggherren, med tekst og med vedlegg",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -9744,11 +9744,13 @@
         },
         {
           "handling": "begrunnelse",
+          "part": "BH",
           "gjelder": "S-g1",
           "navn": "D5"
         },
         {
           "handling": "begrunnelse",
+          "part": "BH",
           "gjelder": "S-g1",
           "sendt": "2026-09-10",
           "dokumentasjon": [
@@ -9783,6 +9785,7 @@
           ],
           "prov": {
             "handling": "begrunnelse",
+            "part": "BH",
             "gjelder": "S-g1"
           },
           "forventet": {
@@ -9797,6 +9800,23 @@
           ],
           "prov": {
             "handling": "begrunnelse",
+            "part": "TE",
+            "gjelder": "S-g1"
+          },
+          "forventet": {
+            "avvist": true,
+            "regel": "FEIL_PART"
+          }
+        },
+        {
+          "etter": 1,
+          "rolle": "mal",
+          "kilde": [
+            "KA-U34"
+          ],
+          "prov": {
+            "handling": "begrunnelse",
+            "part": "BH",
             "gjelder": "K-g1"
           },
           "forventet": {
@@ -9812,6 +9832,7 @@
           ],
           "prov": {
             "handling": "begrunnelse",
+            "part": "BH",
             "gjelder": "S-g1",
             "utdypning": false
           },
@@ -9852,6 +9873,7 @@
           ],
           "prov": {
             "handling": "begrunnelse",
+            "part": "BH",
             "gjelder": "S-g1",
             "sendt": "2026-09-10",
             "dokumentasjon": [
@@ -9870,6 +9892,7 @@
           ],
           "prov": {
             "handling": "begrunnelse",
+            "part": "BH",
             "gjelder": "S-g1",
             "sendt": "2026-09-10"
           },
@@ -9947,6 +9970,7 @@
         },
         {
           "handling": "begrunnelse",
+          "part": "BH",
           "gjelder": "S-v1",
           "navn": "D7"
         }

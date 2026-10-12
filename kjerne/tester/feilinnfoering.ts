@@ -1727,7 +1727,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse: 'TE kan sende en senere begrunnelse (KA-U34)',
     fil: `${K}/kommandoer/forutsetninger.ts`,
     endringer: [["  begrunne: 'BH',", '  begrunne: null,']],
-    mal: ['avvises fra TE, når den ikke gjelder et svar, og uten tekst'],
+    mal: ['avvises fra TE, når den ikke gjelder et svar, og uten tekst', 'F-MM-BG1'],
   },
   {
     id: 'F159',
@@ -1797,13 +1797,13 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse: 'en registrert begrunnelse skrives som et brev fra appen (KA-U35, MM-U17)',
     fil: `${K}/kommandoer/skriving.ts`,
     endringer: [["          opplysninger: [{ id: nyId(), hva: 'sendt', dato: k.sendt }],\n", '']],
-    mal: ['en begrunnelse sendt utenfor appen registreres uten tekst'],
+    mal: ['en begrunnelse sendt utenfor appen registreres uten tekst', 'F-MM-BG1'],
   },
   {
     id: 'F168',
     feilklasse: 'byggherren får ikke tilbud om å begrunne et svar (KA-U34, INV-MM-1)',
     fil: `${K}/kommandoer/handlinger.ts`,
-    endringer: [["    if (e.art === 'svar') ut.push({ type: 'begrunne', gjelder: id });\n", '']],
+    endringer: [["    ut.push({ type: 'begrunne', gjelder: id });\n", '']],
     mal: ['F-MM-BG1', 'F-MM-BG2', 'F-MM-B1'],
   },
 ];
