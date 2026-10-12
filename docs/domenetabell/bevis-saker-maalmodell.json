@@ -9727,7 +9727,7 @@
         "KA-43"
       ],
       "start": "krav_irreg",
-      "forslag": "KA-U34 og KA-U35: byggherren begrunner avslaget av grunnlaget senere, først fra appen og så i et registrert brev. Kontrollsakene er samme begrunnelse av svaret, fra byggherren, med tekst og med vedlegg",
+      "forslag": "KA-U34 og KA-U35: byggherren begrunner avslaget av grunnlaget senere, først fra appen og så i et registrert brev, og TE bestrider datoen i det registrerte brevet (MM-U7). Kontrollsakene er samme begrunnelse av svaret, fra byggherren, med tekst og med vedlegg",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -9757,6 +9757,13 @@
             "brev 10.09"
           ],
           "navn": "D6"
+        },
+        {
+          "handling": "bestridelse",
+          "part": "TE",
+          "gjelder": "D6#sendt",
+          "hva": "sendt",
+          "navn": "D7"
         }
       ],
       "kontroller": [
@@ -9913,6 +9920,34 @@
             "forstaatt": true,
             "registrert.D6": true,
             "registrert.D5": false,
+            "gjeldende_svar.grunnlag": "S-g1",
+            "enighet.grunnlag": null,
+            "handlinger.TE": {
+              "inneholder": [
+                "godta:grunnlag"
+              ]
+            }
+          }
+        },
+        {
+          "etter": 4,
+          "rolle": "mal",
+          "kilde": [
+            "MM-U7",
+            "KA-U35"
+          ],
+          "forventet": {
+            "avvist": false,
+            "forstaatt": true,
+            "opplysning.D6#sendt.dato": "2026-09-10",
+            "opplysning.D6#sendt.oppgitt_av": "BH",
+            "opplysning.D6#sendt.bestridelser": [
+              {
+                "part": "TE",
+                "hva": "sendt",
+                "hendelse": "D7"
+              }
+            ],
             "gjeldende_svar.grunnlag": "S-g1",
             "enighet.grunnlag": null,
             "handlinger.TE": {

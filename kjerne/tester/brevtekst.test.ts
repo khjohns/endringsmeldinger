@@ -1349,6 +1349,30 @@ describe('meldingen når kravene er avgjort, sier hvordan hvert krav ble avgjort
       'Kravene i saken er avgjort: byggherren har godkjent grunnlaget, partene er enige om svaret på kravet om justering av vederlaget og kravet om fristforlengelse er trukket.'
     );
   });
+
+  it('når byggherren har frafalt pålegget, sier meldingen det, ikke at grunnlaget er godkjent', () => {
+    const s = sak();
+    s.send('TE', GRUNNLAGSKRAV);
+    s.send('TE', { type: 'ingen_krav', spor: 'vederlag' });
+    s.send('TE', { type: 'ingen_krav', spor: 'frist' });
+    s.send('BH', {
+      type: 'brev',
+      svar: [
+        svar(
+          'grunnlag',
+          s.krav('grunnlag'),
+          { resultat: 'paalegg_frafalt', grunnlag_varslet_i_tide: true },
+          {},
+          'Pelingen utgår.'
+        ),
+      ],
+    });
+    expect(s.avvisning('TE', FRISTKRAV)).toEqual({
+      regel: 'KRAVENE_AVGJORT',
+      melding:
+        'Kravene i saken er avgjort: byggherren har frafalt pålegget, TE krever ikke justering av vederlaget og TE krever ikke fristforlengelse.',
+    });
+  });
 });
 
 describe('den låste delen og utdypningen hver for seg (B-13 om begrunnelsestekst, KA-U31)', () => {
