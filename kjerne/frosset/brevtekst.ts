@@ -448,7 +448,7 @@ function svartekst(s: Svar, t: Tekst): string {
   ].join(' ');
 }
 
-/** Ett standpunkt som en setning med liten forbokstav (LV-U4 punkt 5, GR-U14). */
+/** Ett standpunkt som en setning med liten forbokstav (LV-U4 punkt 5, LV-U5, GR-U14). */
 function standpunkttekst(
   p: Standpunkt,
   s: Svar,
@@ -467,8 +467,8 @@ function standpunkttekst(
       if (!p.iTide)
         return `byggherren gjør gjeldende at ${varselet} kom for sent${henvisning ? `, jf. innsigelsen i ${henvisning}` : ''}.`;
       return henvisning
-        ? `byggherren gir opp innsigelsen etter NS 8407 § 5 i ${henvisning} og gjør ikke gjeldende at varselet kom for sent.`
-        : 'byggherren gjør ikke gjeldende at varselet kom for sent.';
+        ? `byggherren gir opp innsigelsen etter NS 8407 § 5 i ${henvisning} og gjør ikke gjeldende at ${varselet} kom for sent.`
+        : `byggherren gjør ikke gjeldende at ${varselet} kom for sent.`;
     }
     case 'grunnlag':
       if (p.resultat === 'godkjent')

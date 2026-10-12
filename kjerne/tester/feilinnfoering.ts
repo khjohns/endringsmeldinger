@@ -5,7 +5,8 @@
  * i designnotatet, GR-U12 og registeret (#320). F48 er hvitelisten fra #329,
  * F49–F51 og F54–F58 versjoneringen (#316), F52–F53 registrert korrespondanse
  * (#336), F59–F60 kodene i formatet og predikatet for endringsordre
- * (#335, #351), F61–F104 byggedel 1 av #309 og F105–F131 brevteksten (#369). Én mutasjon om gangen per arbeidskopi, Vitest over hele `kjerne/`
+ * (#335, #351), F61–F104 byggedel 1 av #309, F105–F131 brevteksten (#369) og
+ * F132–F133 LV-U5 (#414). Én mutasjon om gangen per arbeidskopi, Vitest over hele `kjerne/`
  * og `sprakprove/kjernelagring/`, og originalteksten settes tilbake etterpå. For
  * hver mutasjon kreves det at de forventede målassertions feiler, og at alle
  * feil er assertions, ikke import, oppsett eller en brutt forutsetning
@@ -1422,6 +1423,30 @@ const MUTASJONER: Mutasjon[] = [
       ],
     ],
     mal: ['en dato som ikke finnes i kalenderen'],
+  },
+  {
+    id: 'F132',
+    feilklasse: 'standpunktet om at varselet kom i tide, nevner ikke hjemmelen (LV-U5)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [
+      [
+        '        : `byggherren gjør ikke gjeldende at ${varselet} kom for sent.`;',
+        "        : 'byggherren gjør ikke gjeldende at varselet kom for sent.';",
+      ],
+    ],
+    mal: ['nevner hjemmelen etter § 32.2-preklusjonen (LV-U5)'],
+  },
+  {
+    id: 'F133',
+    feilklasse: 'innsigelsen som gis opp, nevner ikke varselet etter § 33.4 (LV-U5)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [
+      [
+        'og gjør ikke gjeldende at ${varselet} kom for sent.`',
+        'og gjør ikke gjeldende at varselet kom for sent.`',
+      ],
+    ],
+    mal: ['nevner brevet varselet etter § 33.4 (LV-U5)'],
   },
 ];
 

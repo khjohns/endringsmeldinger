@@ -890,7 +890,7 @@ visning ikke fremstiller et trekk som at utførelsesplikten er bortfalt.
 ## Brevteksten
 
 Teksten i et brev appen sender ([#369](https://github.com/khjohns/endringsmeldinger/issues/369)).
-Ordlyden er [LV-U4](plans/2026-09-16-godkjenning-og-varig-levering.md#lv-u4), med [GR-U14](plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u14) og [GR-U16](plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u16); kravet til
+Ordlyden er [LV-U4](plans/2026-09-16-godkjenning-og-varig-levering.md#lv-u4) og [LV-U5](plans/2026-09-16-godkjenning-og-varig-levering.md#lv-u5), med [GR-U14](plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u14) og [GR-U16](plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u16); kravet til
 begrunnelse og beskrivelse er [KA-U31](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u31)–[KA-U33](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u33), [KA-U24](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u24) og
 [GR-U15](plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u15). Arbeidsvalgene under følger av vedtakene de viser til.
 
@@ -946,6 +946,20 @@ begrunnelse og beskrivelse er [KA-U31](plans/2026-09-16-godkjenning-og-varig-lev
   brev <n> av <dato>.» Et krav fra appen uten beskrivelse, som bare kan finnes
   etter en regelendring mellom kravet og svaret, gir ingen godkjenning som
   endringsordre fra appen (`PAALEGGET_IKKE_BESKREVET`).
+- **Oppdragsgiver 12.10 ([LV-U5](plans/2026-09-16-godkjenning-og-varig-levering.md#lv-u5), svaret i
+  [#414](https://github.com/khjohns/endringsmeldinger/issues/414)):** standpunktet
+  om at varselet kom i tide, nevner varselet det gjelder, i samme form som «for
+  sent»: «Byggherren gjør ikke gjeldende at TEs varsel etter NS 8407 § 32.2
+  [varselet om fristforlengelse etter NS 8407 § 33.4] kom for sent.» Det samme
+  gjelder setningen etter en innsigelse som gis opp. Endret tekst gjelder bare nye
+  brev (MM-U9).
+- **Arbeidsvalg 12.10 ([GR-U1](plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u1), LV-U4 punkt 6, svaret i
+  [#369](https://github.com/khjohns/endringsmeldinger/issues/369#issuecomment-6117469247)):**
+  aksepten leser saken når den sendes, ikke svaret slik det var da det ble sendt.
+  Har byggherren godkjent grunnlaget etter et subsidiært svar på vederlag eller
+  frist, er svaret ikke lenger subsidiært, og aksepten sier bare at TE godtar
+  byggherrens svar i brevet det står i, uten «men ikke i byggherrens standpunkt
+  til grunnlaget». Det sendte svarbrevet står som det ble sendt (MM-U9).
 - **Ikke her:** et eget varsel etter § 33.4 uten dager ([VS-U15](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u15)) er
   [#411](https://github.com/khjohns/endringsmeldinger/issues/411).
 
