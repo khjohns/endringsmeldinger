@@ -10,7 +10,7 @@ ikke. Kjente avvik står bare som funn-ID, eller som issuenummer når et vedtak 
 
 Radene KA-01–KA-19 gjelder kravversjon og aksept (SK-02, SK-03), med
 tilgrensende rader om godtatt preklusjon, låste varsler og byggherrens vurdering
-av rettidighet. Radene KA-20–KA-24 kommer fra MM-U1–MM-U3, MM-U7–MM-U9 og MM-U14 (MM-U4–MM-U6 er opphevet av MM-U9) og gjelder målmodellen:
+av rettidighet. Radene KA-20–KA-24 gjelder målmodellen; kildene står i radene:
 et varsel registrert etter et senere krav, en bestridelse, en godtatt preklusjon
 etter en regelendring, et svar som avviker fra dagens utledning, og en sak kjernen
 ikke kan tolke. Radene GR-01–GR-18 gjelder grunnlagsavhengigheten:
