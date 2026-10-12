@@ -1,0 +1,15 @@
+# Temaene for de genererte visningene av regelgrunnlaget (#454, punkt 5 i #451).
+# Visningene lages med python3 docs/verktoy/temavisning.py; formen står i
+# docs/vedtaksregister/README.md under «Temavisningene».
+#
+# kjerne:  vedtakene temaet er valgt etter.
+# vedtak:  kjernen og, transitivt, hvert vedtak som endrer, utvider, snevrer inn,
+#          presiserer eller opphever et vedtak i temaet etter `forhold` i
+#          registeret (arbeidsvalg A i #454). Mangler ett, feiler kontrollen.
+
+[[tema]]
+id = "grunnlagssvar-som-endringsordre"
+tittel = "Grunnlagssvar som endringsordre"
+kilde = ["#451", "#454"]
+kjerne = ["GR-U10", "GR-U12", "GR-U13"]
+vedtak = ["GR-U10", "GR-U12", "GR-U13", "GR-U14", "GR-U15", "MM-U17"]
