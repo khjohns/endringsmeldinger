@@ -140,7 +140,11 @@ issue. Oppdraget skal inneholde:
   lokale sjekkene er grønne. CI og regelversjonsvakten kjører ikke på utkast og
   ikke ved push til `main` (#390), så hver push til et utkast er gratis, og hver
   push til en klar PR koster en full kjøring. Feilinnføringene kjører også på et
-  utkast når etiketten `feilinnfoering` er satt;
+  utkast når etiketten `feilinnfoering` er satt. Etiketten settes derfor først
+  når PR-en meldes klar, så hele settet (om lag 26 minutter i CI) kjører én
+  gang per PR og ikke ved hver push. Før det kontrollerer økta ankrene lokalt
+  (#430) og kjører de feilinnføringene som gjelder endringen (oppdragsgiver
+  12.10, FK runde 9);
 - at økta ikke abonnerer på PR-en (`subscribe_pr_activity`). Hver hendelse
   vekker økta og leser hele konteksten på nytt, også en grønn kjøring, egne
   pusher og mergen. Etter hver push venter økta på CI med én bakgrunnskommando
@@ -381,6 +385,15 @@ Når en PR i runden er merget, oppdateres hver av de neste mot `main`
 merges. Regelsettet krever ikke at grenen er à jour, og ingen konflikt betyr
 ikke at kombinasjonen er testet: to PR-er uten felles filer kan endre
 hverandres oppførsel. Bruk den nye committen som `expectedHeadSha`.
+
+Feilinnføringene trenger ikke kjøres på nytt etter oppdateringen når de var
+grønne på PR-ens forrige commit, og ingen PR som er merget siden, har rørt
+`kjerne/`, `sprakprove/kjernelagring/` eller verktøyet for feilinnføringene
+(oppdragsgiver 12.10, FK runde 9). De prøver om testene i kjernen fanger feil,
+og det kan bare slike endringer flytte. Den vanlige CI-en kjøres fortsatt, og
+nattjobben kjører hele settet på `main` når kjernen er endret. Kontroller
+filene med `git diff --name-only` mellom de to basene, og skriv det i
+merge-kommentaren eller til oppdragsgiver.
 
 Vent på CI etter oppdateringen med en bakgrunnskommando som poller
 `check-runs` på den nye committen, ikke med `sleep` i forgrunnen. REST-formen
