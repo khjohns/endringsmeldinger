@@ -252,9 +252,10 @@ export function partFor(h: Handling): Part {
 /**
  * En rad fra en annen skriver i format 1, for eksempel en eldre TS-versjon
  * (forløp E). Den går ikke gjennom kommandovalideringen, så relasjonene er
- * de bevis-saken oppgir. En `rad` med `art` er et utsagn, ellers et svar. Raden
- * er fra byggherren uten `part`, og `format` gir den et annet format. Et utsagn kan ha
- * et krav i samme dokument (`krav` som handling). Beslutningsgrunnlaget
+ * de bevis-saken oppgir. En `rad` med `art` er et utsagn, med `krav: true` en kravversjon
+ * og med `avklarer` en avklaring, ellers et svar. Et utsagn kan ha et krav i samme
+ * dokument (`krav` som handling). Raden er fra byggherren uten `part`, og `format` gir
+ * den et annet format. Beslutningsgrunnlaget
  * fryses av kjøreren (`frysBrev`).
  */
 export function radFor(
@@ -323,6 +324,7 @@ export function radFor(
   };
   // En kravversjon fra TE, for eksempel registrert korrespondanse (MM-U18).
   const kravversjon = (k: Handling): Record<string, unknown> => {
+    if (typeof k.navn !== 'string') throw new Error('Kravet i raden mangler `navn`');
     const spor = k.spor as Spor;
     const forrige = u.spor[spor].gjeldendeKrav;
     return {
@@ -343,6 +345,8 @@ export function radFor(
       ],
     };
   } else if (typeof h.art === 'string') {
+    if (h.krav !== undefined && (typeof h.krav !== 'object' || h.krav === null))
+      throw new Error('Et krav i samme dokument som utsagnet er en handling, ikke `krav: true`');
     eventId = navn.ta(h.navn as string);
     data = {
       utsagn: [
@@ -355,7 +359,7 @@ export function radFor(
         },
       ],
       // Et krav i samme dokument som utsagnet, for eksempel trekket av grunnlaget (#434).
-      ...(h.krav && typeof h.krav === 'object' ? { krav: [kravversjon(h.krav as Handling)] } : {}),
+      ...(h.krav ? { krav: [kravversjon(h.krav as Handling)] } : {}),
     };
   } else if (h.krav === true) {
     data = { krav: [kravversjon(h)] };

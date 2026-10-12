@@ -7901,6 +7901,10 @@
             "subsidiaer_aarsaker.vederlag": [
               "prekludert",
               "avslaatt"
+            ],
+            "subsidiaer_aarsaker.frist": [
+              "prekludert",
+              "avslaatt"
             ]
           }
         },
@@ -7985,6 +7989,21 @@
             "handling": "krav",
             "spor": "grunnlag",
             "underkategori": "irregulaer_endring"
+          },
+          "forventet": {
+            "avvist": false
+          }
+        },
+        {
+          "etter": 1,
+          "rolle": "kontroll",
+          "kilde": [
+            "V-KRAVVERSJON"
+          ],
+          "prov": {
+            "handling": "krav",
+            "spor": "vederlag",
+            "belop": 100000
           },
           "forventet": {
             "avvist": false
@@ -8087,6 +8106,21 @@
           "forventet": {
             "trukket.vederlag": false,
             "gjeldende_krav.frist": null
+          }
+        },
+        {
+          "etter": 2,
+          "rolle": "kontroll",
+          "kilde": [
+            "V-KRAVVERSJON"
+          ],
+          "prov": {
+            "handling": "krav",
+            "spor": "frist",
+            "dager": 20
+          },
+          "forventet": {
+            "avvist": false
           }
         },
         {
