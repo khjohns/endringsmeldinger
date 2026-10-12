@@ -1574,7 +1574,7 @@ const MUTASJONER: Mutasjon[] = [
   },
   {
     id: 'F145',
-    feilklasse: 'et varsel fra appen godtas etter at fristkravet er sendt (#411, 12.10)',
+    feilklasse: 'et varsel fra appen godtas etter at fristkravet er sendt (VS-U16)',
     fil: `${K}/kommandoer/forutsetninger.ts`,
     endringer: [["      if (h.type === 'sende_varsel' && s.krav.length)", '      if (false)']],
     mal: ['F-VS-U15c'],
