@@ -547,8 +547,8 @@ const MUTASJONER: Mutasjon[] = [
       ],
       // Strid-kontrollen (MM-U18) fanger det samme; begge må muteres.
       [
-        '      SPOR.some((n) => u.spor[n].enighet && u.spor[n].gjeldendeSvar?.id === x.gjelder)',
-        '      !x',
+        '    else if (sporet && u.spor[sporet].enighet && u.spor[sporet].gjeldendeSvar?.id === gjelder)',
+        '    else if (false)',
       ],
     ],
     mal: ['en aksept av et svar med sammenfall er ikke forstått'],
@@ -805,7 +805,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F70',
     feilklasse: 'et registrert brev som strider mot en enighet, gjør saken ikke forstått (MM-U18)',
     fil: `${K}/utledning/utled.ts`,
-    endringer: [['      if (registrert) uten.set(', '      if (!registrert) uten.set(']],
+    endringer: [['      if (!registrert) konflikter.push(', '      if (true) konflikter.push(']],
     mal: ['F-MM-U326e', 'F-MM-U326f'],
   },
   {
@@ -1163,8 +1163,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        '      SPOR.some((n) => u.spor[n].enighet && u.spor[n].gjeldendeSvar?.id === x.gjelder)',
-        '      !x',
+        '    else if (sporet && u.spor[sporet].enighet && u.spor[sporet].gjeldendeSvar?.id === gjelder)',
+        '    else if (false)',
       ],
     ],
     mal: ['F-MM-U326l', 'F-MM-U326m'],
