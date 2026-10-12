@@ -164,14 +164,12 @@ function vurder(input) {
     if (!fil) return 'Fant ingen filsti i kallet.';
     const absolutt = ekteSti(path.resolve(cwd, fil));
     // Arbeidstrærne ligger inne i hovedkopien, så stien måles også fra treet fila ligger i.
-    const filrot = arbeidstreet(naermesteMappe(absolutt));
-    if (filrot && sperretSti(path.relative(filrot, absolutt))) {
-      return `${path.relative(filrot, absolutt)} ligger i en sperret mappe.`;
+    const filrot = arbeidstreet(naermesteMappe(absolutt)) ?? rot;
+    const relativ = filrot && path.relative(filrot, absolutt);
+    if (relativ && innenfor(absolutt, filrot) && sperretSti(relativ)) {
+      return `${relativ} ligger i en sperret mappe.`;
     }
-    if (rot && innenfor(absolutt, rot)) {
-      const relativ = path.relative(rot, absolutt);
-      return sperretSti(relativ) ? `${relativ} ligger i en sperret mappe.` : null;
-    }
+    if (rot && innenfor(absolutt, rot)) return null;
     if (innenfor(absolutt, ekteSti(tmpdir())) || innenfor(absolutt, ekteSti('/tmp'))) return null;
     if (!rot) return `Ikke i et git-arbeidstre: ${cwd}.`;
     return `${absolutt} ligger utenfor arbeidstreet ${rot}. Skriv bare i ditt eget arbeidstre.`;
@@ -223,6 +221,7 @@ function vurder(input) {
 function vaktEtterAgent(input) {
   if (input.agent_type === 'diffkontroll') return 'lesing';
   if (input.agent_type === 'mekanisk-pr') return 'skriving';
+  if (input.agent_type !== undefined) return null;
   if (/[\\/]\.claude[\\/]worktrees[\\/]agent-/.test(String(input.cwd ?? ''))) return 'skriving';
   return null;
 }
