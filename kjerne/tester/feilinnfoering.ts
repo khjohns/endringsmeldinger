@@ -1636,8 +1636,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        "return (s === n || s === 'grunnlag') && !bakover(t.id, id);",
-        'return s === n && !bakover(t.id, id);',
+        "return (s === n || s === 'grunnlag') && bakover(id, t.id);",
+        'return s === n && bakover(id, t.id);',
       ],
     ],
     mal: ['F-MM-M7b'],
@@ -1649,7 +1649,7 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        "return (s === n || s === 'grunnlag') && !bakover(t.id, id);",
+        "return (s === n || s === 'grunnlag') && bakover(id, t.id);",
         "return s === n || s === 'grunnlag';",
       ],
     ],
@@ -1662,8 +1662,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        "return (s === n || s === 'grunnlag') && !bakover(t.id, id);",
-        'return s !== undefined && !bakover(t.id, id);',
+        "return (s === n || s === 'grunnlag') && bakover(id, t.id);",
+        'return s !== undefined && bakover(id, t.id);',
       ],
     ],
     mal: ['F-MM-M7d'],
@@ -1871,15 +1871,16 @@ if (ukjente.length) throw new Error(`Ukjente feilinnføringer: ${ukjente.join(',
 const valgte = MUTASJONER.filter((m) => !valgt.length || valgt.includes(m.id));
 // Endringene i én feilinnføring gjøres etter hverandre, så hvert anker slås opp i teksten
 // slik den er etter de foregående.
-for (const m of valgte)
-  m.endringer.reduce(
-    (tekst, [fra, til]) => {
-      if (tekst.split(fra).length !== 2)
-        throw new Error(`${m.id}: «${fra}» finnes ikke nøyaktig én gang i ${m.fil}`);
-      return tekst.replace(fra, til);
-    },
-    readFileSync(m.fil, 'utf8')
-  );
+const ankerfeil = valgte.flatMap((m) => {
+  let tekst = readFileSync(m.fil, 'utf8');
+  return m.endringer.flatMap(([fra, til]) => {
+    if (tekst.split(fra).length !== 2)
+      return [`${m.id}: «${fra}» finnes ikke nøyaktig én gang i ${m.fil}`];
+    tekst = tekst.replace(fra, til);
+    return [];
+  });
+});
+if (ankerfeil.length) throw new Error(ankerfeil.join('\n'));
 const delform = /^(\d+)\/(\d+)$/.exec(process.env.FEILINNFOERING_DEL ?? '1/1');
 const [del, deler] = [Number(delform?.[1]), Number(delform?.[2])];
 if (!delform || del < 1 || del > deler)
