@@ -8432,6 +8432,1074 @@
           }
         }
       ]
+    },
+    {
+      "id": "F-MM-K5",
+      "rader": [
+        "KA-02"
+      ],
+      "start": "godkjent_grunnlag",
+      "forslag": "V-KRAVVERSJON og V-SK02-SK03: en ny kravversjon etter et delvis godkjent svar TE ikke har godtatt, åpner sporet. Svaret gjelder den forrige versjonen",
+      "forventningsgrunnlag": "avklart_tolkning",
+      "steg": [
+        {
+          "handling": "krav",
+          "spor": "vederlag",
+          "belop": 100000,
+          "navn": "K-v1"
+        },
+        {
+          "handling": "brev",
+          "navn": "D4",
+          "svar": [
+            {
+              "spor": "vederlag",
+              "navn": "S-v1",
+              "vurdering": "delvis",
+              "godkjent_belop": 60000
+            }
+          ]
+        },
+        {
+          "handling": "krav",
+          "spor": "vederlag",
+          "belop": 120000,
+          "navn": "K-v2"
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 2,
+          "rolle": "mal",
+          "kilde": [
+            "KA-U1"
+          ],
+          "forventet": {
+            "gjeldende_svar.vederlag": "S-v1"
+          }
+        },
+        {
+          "etter": 2,
+          "rolle": "kontroll",
+          "kilde": [
+            "KA-U1"
+          ],
+          "prov": {
+            "handling": "aksept",
+            "spor": "vederlag",
+            "svar": "S-v1"
+          },
+          "forventet": {
+            "avvist": false
+          }
+        },
+        {
+          "etter": 3,
+          "rolle": "mal",
+          "kilde": [
+            "V-KRAVVERSJON",
+            "V-SK02-SK03"
+          ],
+          "forventet": {
+            "avvist": false,
+            "nye_hendelser": 1,
+            "gjeldende_krav.vederlag": "K-v2",
+            "gjeldende_svar.vederlag": null,
+            "svar.S-v1.dokument": "D4",
+            "enighet.vederlag": null,
+            "handlinger.BH": {
+              "inneholder": [
+                "svare:vederlag"
+              ]
+            },
+            "visning.status": "venter_paa_svar"
+          }
+        },
+        {
+          "etter": 3,
+          "rolle": "mal",
+          "kilde": [
+            "V-SK02-SK03",
+            "KA-U1"
+          ],
+          "prov": {
+            "handling": "aksept",
+            "spor": "vederlag",
+            "svar": "S-v1"
+          },
+          "forventet": {
+            "avvist": true,
+            "regel": "IKKE_GJELDENDE_SVAR"
+          }
+        }
+      ]
+    },
+    {
+      "id": "F-MM-K6",
+      "rader": [
+        "KA-06"
+      ],
+      "start": "godkjent_grunnlag",
+      "forslag": "V-KRAVVERSJON: en ny kravversjon med uendret beløp er en ny kravversjon som i KA-02",
+      "forventningsgrunnlag": "avklart_tolkning",
+      "steg": [
+        {
+          "handling": "krav",
+          "spor": "vederlag",
+          "belop": 100000,
+          "navn": "K-v1"
+        },
+        {
+          "handling": "brev",
+          "navn": "D4",
+          "svar": [
+            {
+              "spor": "vederlag",
+              "navn": "S-v1",
+              "vurdering": "delvis",
+              "godkjent_belop": 60000
+            }
+          ]
+        },
+        {
+          "handling": "krav",
+          "spor": "vederlag",
+          "belop": 100000,
+          "navn": "K-v2"
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 2,
+          "rolle": "mal",
+          "kilde": [
+            "KA-U1"
+          ],
+          "forventet": {
+            "gjeldende_svar.vederlag": "S-v1"
+          }
+        },
+        {
+          "etter": 2,
+          "rolle": "kontroll",
+          "kilde": [
+            "KA-U1"
+          ],
+          "prov": {
+            "handling": "aksept",
+            "spor": "vederlag",
+            "svar": "S-v1"
+          },
+          "forventet": {
+            "avvist": false
+          }
+        },
+        {
+          "etter": 3,
+          "rolle": "mal",
+          "kilde": [
+            "V-KRAVVERSJON",
+            "V-SK02-SK03"
+          ],
+          "forventet": {
+            "avvist": false,
+            "nye_hendelser": 1,
+            "gjeldende_krav.vederlag": "K-v2",
+            "gjeldende_svar.vederlag": null,
+            "svar.S-v1.dokument": "D4",
+            "enighet.vederlag": null,
+            "handlinger.BH": {
+              "inneholder": [
+                "svare:vederlag"
+              ]
+            },
+            "visning.status": "venter_paa_svar"
+          }
+        },
+        {
+          "etter": 3,
+          "rolle": "mal",
+          "kilde": [
+            "V-SK02-SK03",
+            "KA-U1"
+          ],
+          "prov": {
+            "handling": "aksept",
+            "spor": "vederlag",
+            "svar": "S-v1"
+          },
+          "forventet": {
+            "avvist": true,
+            "regel": "IKKE_GJELDENDE_SVAR"
+          }
+        }
+      ]
+    },
+    {
+      "id": "F-MM-K7",
+      "rader": [
+        "KA-17"
+      ],
+      "start": "godkjent_grunnlag",
+      "forslag": "KA-U3: når kravene er avgjort, avvises en ny kravversjon. Kontrollsaken er en ny kravversjon av fristen før fristsvaret",
+      "forventningsgrunnlag": "avklart_tolkning",
+      "steg": [
+        {
+          "handling": "krav",
+          "spor": "vederlag",
+          "belop": 100000,
+          "navn": "K-v1"
+        },
+        {
+          "handling": "krav",
+          "spor": "frist",
+          "dager": 20,
+          "navn": "K-f1"
+        },
+        {
+          "handling": "brev",
+          "navn": "D4",
+          "svar": [
+            {
+              "spor": "vederlag",
+              "navn": "S-v1",
+              "vurdering": "godkjent"
+            }
+          ]
+        },
+        {
+          "handling": "brev",
+          "navn": "D5",
+          "svar": [
+            {
+              "spor": "frist",
+              "navn": "S-f1",
+              "varsel_i_tide": true,
+              "spesifisering_i_tide": true,
+              "hindring": true,
+              "dager": 20
+            }
+          ]
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 3,
+          "rolle": "mal",
+          "kilde": [
+            "KA-U3"
+          ],
+          "forventet": {
+            "kravene_avgjort": false
+          }
+        },
+        {
+          "etter": 3,
+          "rolle": "kontroll",
+          "kilde": [
+            "V-KRAVVERSJON"
+          ],
+          "prov": {
+            "handling": "krav",
+            "spor": "frist",
+            "dager": 30
+          },
+          "forventet": {
+            "avvist": false
+          }
+        },
+        {
+          "etter": 4,
+          "rolle": "mal",
+          "kilde": [
+            "KA-U3",
+            "GR-U7",
+            "GR-U10"
+          ],
+          "forventet": {
+            "kravene_avgjort": true,
+            "enighet.frist.virkning": "virksom",
+            "visning.status": "avsluttet_oppgjort"
+          }
+        },
+        {
+          "etter": 4,
+          "rolle": "mal",
+          "kilde": [
+            "KA-U3"
+          ],
+          "prov": {
+            "handling": "krav",
+            "spor": "frist",
+            "dager": 30
+          },
+          "forventet": {
+            "avvist": true
+          }
+        },
+        {
+          "etter": 4,
+          "rolle": "mal",
+          "kilde": [
+            "KA-U3"
+          ],
+          "prov": {
+            "handling": "krav",
+            "spor": "vederlag",
+            "belop": 120000
+          },
+          "forventet": {
+            "avvist": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "F-MM-G27",
+      "rader": [
+        "GR-01",
+        "GR-03"
+      ],
+      "start": "forlop_a_brev",
+      "forslag": "V-215: endret underkategori etter et avslag på grunnlaget åpner sporet. Svaret står i journalen, vederlag og frist forblir subsidiære, og aksepten av det forrige svaret avvises (KA-U1)",
+      "forventningsgrunnlag": "avklart_tolkning",
+      "steg": [
+        {
+          "handling": "krav",
+          "spor": "grunnlag",
+          "underkategori": "valg_av_loesning",
+          "navn": "K-g2"
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 0,
+          "rolle": "mal",
+          "kilde": [
+            "V-B13-GRUNNLAG-AVSLATT"
+          ],
+          "forventet": {
+            "gjeldende_svar.grunnlag": "S-g1",
+            "subsidiaer_aarsaker.vederlag": [
+              "avslaatt"
+            ],
+            "subsidiaer_aarsaker.frist": [
+              "avslaatt"
+            ]
+          }
+        },
+        {
+          "etter": 0,
+          "rolle": "kontroll",
+          "kilde": [
+            "KA-U1"
+          ],
+          "prov": {
+            "handling": "aksept",
+            "spor": "grunnlag",
+            "svar": "S-g1"
+          },
+          "forventet": {
+            "avvist": false
+          }
+        },
+        {
+          "etter": 1,
+          "rolle": "mal",
+          "kilde": [
+            "V-215"
+          ],
+          "forventet": {
+            "avvist": false,
+            "nye_hendelser": 1,
+            "gjeldende_krav.grunnlag": "K-g2",
+            "gjeldende_svar.grunnlag": null,
+            "svar.S-g1.dokument": "D4",
+            "handlinger.BH": {
+              "inneholder": [
+                "svare:grunnlag"
+              ]
+            },
+            "subsidiaer_aarsaker.vederlag": [
+              "avslaatt"
+            ],
+            "subsidiaer_aarsaker.frist": [
+              "avslaatt"
+            ]
+          }
+        },
+        {
+          "etter": 1,
+          "rolle": "mal",
+          "kilde": [
+            "KA-U1",
+            "V-215"
+          ],
+          "prov": {
+            "handling": "aksept",
+            "spor": "grunnlag",
+            "svar": "S-g1"
+          },
+          "forventet": {
+            "avvist": true,
+            "regel": "IKKE_GJELDENDE_SVAR"
+          }
+        }
+      ]
+    },
+    {
+      "id": "F-MM-G28",
+      "rader": [
+        "GR-02"
+      ],
+      "start": null,
+      "forslag": "V-215: endret underkategori fra IRREG til EO etter et svar som påberoper § 32.2. Svaret og § 32.2-vurderingen faller, og når grunnlaget godkjennes, får de subsidiære godkjenningene virkning",
+      "forventningsgrunnlag": "avklart_tolkning",
+      "steg": [
+        {
+          "handling": "krav",
+          "spor": "grunnlag",
+          "underkategori": "irregulaer_endring",
+          "navn": "K-g1"
+        },
+        {
+          "handling": "krav",
+          "spor": "vederlag",
+          "belop": 100000,
+          "navn": "K-v1"
+        },
+        {
+          "handling": "krav",
+          "spor": "frist",
+          "dager": 20,
+          "navn": "K-f1"
+        },
+        {
+          "handling": "brev",
+          "navn": "D4",
+          "svar": [
+            {
+              "spor": "grunnlag",
+              "navn": "S-g1",
+              "resultat": "godkjent",
+              "varslet_i_tide": false
+            },
+            {
+              "spor": "vederlag",
+              "navn": "S-v1",
+              "vurdering": "godkjent"
+            },
+            {
+              "spor": "frist",
+              "navn": "S-f1",
+              "varsel_i_tide": true,
+              "spesifisering_i_tide": true,
+              "hindring": true,
+              "dager": 20
+            }
+          ]
+        },
+        {
+          "handling": "krav",
+          "spor": "grunnlag",
+          "underkategori": "endringsordre",
+          "navn": "K-g2"
+        },
+        {
+          "handling": "brev",
+          "navn": "D5",
+          "svar": [
+            {
+              "spor": "grunnlag",
+              "navn": "S-g2",
+              "resultat": "godkjent"
+            }
+          ]
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 4,
+          "rolle": "mal",
+          "kilde": [
+            "NS-32.2-1",
+            "V-B13-GRUNNLAG-AVSLATT"
+          ],
+          "forventet": {
+            "virkning.S-g1.rettidighet": "prinsipalt",
+            "subsidiaer_aarsaker.vederlag": [
+              "prekludert"
+            ],
+            "grunnlag_avklart": false
+          }
+        },
+        {
+          "etter": 5,
+          "rolle": "mal",
+          "kilde": [
+            "V-215",
+            "GR-U1"
+          ],
+          "forventet": {
+            "gjeldende_svar.grunnlag": null,
+            "svar.S-g1.dokument": "D4",
+            "subsidiaer_aarsaker.vederlag": [
+              "prekludert"
+            ],
+            "subsidiaer_aarsaker.frist": [
+              "prekludert"
+            ],
+            "kravene_avgjort": false
+          }
+        },
+        {
+          "etter": 6,
+          "rolle": "mal",
+          "kilde": [
+            "V-B13-GRUNNLAG-AVSLATT",
+            "NS-31.3-1",
+            "GR-U10",
+            "GR-U7"
+          ],
+          "forventet": {
+            "grunnlag_avklart": true,
+            "subsidiaer_aarsaker.vederlag": [],
+            "subsidiaer_aarsaker.frist": [],
+            "enighet.vederlag.virkning": "virksom",
+            "enighet.frist.virkning": "virksom",
+            "kravene_avgjort": true,
+            "kan_inngaa_i_eo": true,
+            "visning.status": "avsluttet_oppgjort"
+          }
+        }
+      ]
+    },
+    {
+      "id": "F-MM-G29",
+      "rader": [
+        "GR-06"
+      ],
+      "start": "forlop_a_brev",
+      "forslag": "GR-U1 og KA-U1: etter en ny kravversjon av grunnlaget med uendret underkategori avvises aksepten av det forrige avslaget, og saken avsluttes ikke som avslått",
+      "forventningsgrunnlag": "avklart_tolkning",
+      "steg": [
+        {
+          "handling": "krav",
+          "spor": "grunnlag",
+          "underkategori": "irregulaer_endring",
+          "navn": "K-g2"
+        },
+        {
+          "handling": "aksept",
+          "spor": "grunnlag",
+          "svar": "S-g1",
+          "navn": "D5"
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 0,
+          "rolle": "kontroll",
+          "kilde": [
+            "KA-U1"
+          ],
+          "prov": {
+            "handling": "aksept",
+            "spor": "grunnlag",
+            "svar": "S-g1"
+          },
+          "forventet": {
+            "avvist": false
+          }
+        },
+        {
+          "etter": 2,
+          "rolle": "mal",
+          "kilde": [
+            "GR-U1",
+            "KA-U1"
+          ],
+          "forventet": {
+            "avvist": true,
+            "regel": "IKKE_GJELDENDE_SVAR",
+            "grunnlag_avvist": false,
+            "gjeldende_krav.grunnlag": "K-g2",
+            "visning.status": "venter_paa_svar"
+          }
+        }
+      ]
+    },
+    {
+      "id": "F-MM-G30",
+      "rader": [
+        "GR-07"
+      ],
+      "start": null,
+      "forslag": "GR-U2 og GR-U10: et grunnlag byggherren har godkjent uten å påberope preklusjon, kan ikke endres. Kontrollsaken er den samme endringen før svaret",
+      "forventningsgrunnlag": "avklart_tolkning",
+      "steg": [
+        {
+          "handling": "krav",
+          "spor": "grunnlag",
+          "underkategori": "irregulaer_endring",
+          "navn": "K-g1"
+        },
+        {
+          "handling": "brev",
+          "navn": "D4",
+          "svar": [
+            {
+              "spor": "grunnlag",
+              "navn": "S-g1",
+              "resultat": "godkjent",
+              "varslet_i_tide": true
+            }
+          ]
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 1,
+          "rolle": "kontroll",
+          "kilde": [
+            "V-215"
+          ],
+          "prov": {
+            "handling": "krav",
+            "spor": "grunnlag",
+            "underkategori": "valg_av_loesning"
+          },
+          "forventet": {
+            "avvist": false
+          }
+        },
+        {
+          "etter": 2,
+          "rolle": "mal",
+          "kilde": [
+            "GR-U10"
+          ],
+          "forventet": {
+            "enighet.grunnlag.kilde": "sammenfall",
+            "grunnlag_avklart": true
+          }
+        },
+        {
+          "etter": 2,
+          "rolle": "mal",
+          "kilde": [
+            "GR-U2"
+          ],
+          "prov": {
+            "handling": "krav",
+            "spor": "grunnlag",
+            "underkategori": "valg_av_loesning"
+          },
+          "forventet": {
+            "avvist": true,
+            "regel": "ENIGHET_I_SPORET"
+          }
+        }
+      ]
+    },
+    {
+      "id": "F-MM-G31",
+      "rader": [
+        "GR-08"
+      ],
+      "start": "forlop_a_brev",
+      "forslag": "GR-U4: et revidert vederlagssvar mens grunnlaget venter på nytt svar, er prinsipalt. Det blir subsidiært når grunnlaget avslås igjen",
+      "forventningsgrunnlag": "avklart_tolkning",
+      "steg": [
+        {
+          "handling": "krav",
+          "spor": "grunnlag",
+          "underkategori": "valg_av_loesning",
+          "navn": "K-g2"
+        },
+        {
+          "handling": "revisjon",
+          "spor": "vederlag",
+          "navn": "S-v2",
+          "dokument": "D5",
+          "vurdering": "delvis",
+          "godkjent_belop": 70000
+        },
+        {
+          "handling": "brev",
+          "navn": "D6",
+          "svar": [
+            {
+              "spor": "grunnlag",
+              "navn": "S-g2",
+              "resultat": "avslaatt",
+              "varslet_i_tide": true
+            }
+          ]
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 1,
+          "rolle": "mal",
+          "kilde": [
+            "V-215"
+          ],
+          "forventet": {
+            "gjeldende_svar.grunnlag": null,
+            "gjeldende_svar.vederlag": "S-v1",
+            "subsidiaer_aarsaker.vederlag": [
+              "avslaatt"
+            ]
+          }
+        },
+        {
+          "etter": 2,
+          "rolle": "mal",
+          "kilde": [
+            "GR-U4"
+          ],
+          "forventet": {
+            "gjeldende_svar.vederlag": "S-v2",
+            "subsidiaer_aarsaker.vederlag": [],
+            "standpunkt.S-v2.beloep.godkjent": 70000
+          }
+        },
+        {
+          "etter": 3,
+          "rolle": "mal",
+          "kilde": [
+            "GR-U4",
+            "V-B13-GRUNNLAG-AVSLATT"
+          ],
+          "forventet": {
+            "gjeldende_svar.vederlag": "S-v2",
+            "subsidiaer_aarsaker.vederlag": [
+              "avslaatt"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "F-MM-G32",
+      "rader": [
+        "GR-14"
+      ],
+      "start": "krav_irreg",
+      "forslag": "GR-U3: etter frafall er svarene på vederlag og frist prinsipale, og når kravene er godkjent, er saken oppgjort. KOE-saken kan ikke inngå i en EO-sak",
+      "forventningsgrunnlag": "avklart_tolkning",
+      "steg": [
+        {
+          "handling": "brev",
+          "navn": "D4",
+          "svar": [
+            {
+              "spor": "grunnlag",
+              "navn": "S-g1",
+              "resultat": "paalegg_frafalt",
+              "varslet_i_tide": true
+            }
+          ]
+        },
+        {
+          "handling": "brev",
+          "navn": "D5",
+          "svar": [
+            {
+              "spor": "vederlag",
+              "navn": "S-v1",
+              "vurdering": "godkjent"
+            },
+            {
+              "spor": "frist",
+              "navn": "S-f1",
+              "varsel_i_tide": true,
+              "spesifisering_i_tide": true,
+              "hindring": true,
+              "dager": 20
+            }
+          ]
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 2,
+          "rolle": "mal",
+          "kilde": [
+            "GR-U3",
+            "V-B13-GRUNNLAG-AVSLATT"
+          ],
+          "forventet": {
+            "frafalt": true,
+            "subsidiaer_aarsaker.vederlag": [],
+            "subsidiaer_aarsaker.frist": []
+          }
+        },
+        {
+          "etter": 2,
+          "rolle": "mal",
+          "kilde": [
+            "GR-U3",
+            "GR-U7",
+            "EO-U5"
+          ],
+          "forventet": {
+            "enighet.vederlag.virkning": "virksom",
+            "enighet.frist.virkning": "virksom",
+            "kravene_avgjort": true,
+            "kan_inngaa_i_eo": false,
+            "visning.status": "avsluttet_oppgjort"
+          }
+        }
+      ]
+    },
+    {
+      "id": "F-MM-G33",
+      "rader": [
+        "GR-16"
+      ],
+      "start": null,
+      "forslag": "V-TFR05 og NS 32.3 c: frafall før vederlag og frist er sendt avklarer grunnlaget, og TE kan sende vederlag og frist",
+      "forventningsgrunnlag": "avklart_tolkning",
+      "steg": [
+        {
+          "handling": "krav",
+          "spor": "grunnlag",
+          "underkategori": "irregulaer_endring",
+          "navn": "K-g1"
+        },
+        {
+          "handling": "brev",
+          "navn": "D4",
+          "svar": [
+            {
+              "spor": "grunnlag",
+              "navn": "S-g1",
+              "resultat": "paalegg_frafalt",
+              "varslet_i_tide": true
+            }
+          ]
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 2,
+          "rolle": "mal",
+          "kilde": [
+            "V-TFR05",
+            "NS-32.3-1c",
+            "GR-U3"
+          ],
+          "forventet": {
+            "frafalt": true,
+            "grunnlag_avklart": true,
+            "kravene_avgjort": false,
+            "handlinger.TE": {
+              "inneholder": [
+                "krav:vederlag",
+                "krav:frist"
+              ]
+            },
+            "visning.status": "under_forhandling"
+          }
+        },
+        {
+          "etter": 2,
+          "rolle": "kontroll",
+          "kilde": [
+            "V-TFR05"
+          ],
+          "prov": {
+            "handling": "krav",
+            "spor": "vederlag",
+            "belop": 100000
+          },
+          "forventet": {
+            "avvist": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "F-MM-G34",
+      "rader": [
+        "GR-18"
+      ],
+      "start": "krav_irreg",
+      "forslag": "V-B13-FRAFALL: frafall er svar på et pålegg. Når TE har endret grunnlaget til endringsordre, avvises frafallet. Kontrollsaken er frafallet før endringen",
+      "forventningsgrunnlag": "avklart_tolkning",
+      "steg": [
+        {
+          "handling": "krav",
+          "spor": "grunnlag",
+          "underkategori": "endringsordre",
+          "navn": "K-g2"
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 0,
+          "rolle": "kontroll",
+          "kilde": [
+            "V-B13-FRAFALL"
+          ],
+          "prov": {
+            "handling": "brev",
+            "svar": [
+              {
+                "spor": "grunnlag",
+                "resultat": "paalegg_frafalt",
+                "varslet_i_tide": true
+              }
+            ]
+          },
+          "forventet": {
+            "avvist": false
+          }
+        },
+        {
+          "etter": 1,
+          "rolle": "mal",
+          "kilde": [
+            "V-B13-FRAFALL",
+            "NS-32.1",
+            "NS-32.3-1c"
+          ],
+          "prov": {
+            "handling": "brev",
+            "svar": [
+              {
+                "spor": "grunnlag",
+                "resultat": "paalegg_frafalt"
+              }
+            ]
+          },
+          "forventet": {
+            "avvist": true,
+            "regel": "UGYLDIG_VURDERING"
+          }
+        },
+        {
+          "etter": 1,
+          "rolle": "kontroll",
+          "kilde": [
+            "V-215"
+          ],
+          "prov": {
+            "handling": "brev",
+            "svar": [
+              {
+                "spor": "grunnlag",
+                "resultat": "godkjent"
+              }
+            ]
+          },
+          "forventet": {
+            "avvist": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "F-MM-G35",
+      "rader": [
+        "GR-22"
+      ],
+      "start": null,
+      "forslag": "GR-U7 og KA-U5: TE kan godta vederlagssvaret før grunnlaget er besvart. Enigheten om beløpet får virkning når grunnlaget godkjennes",
+      "forventningsgrunnlag": "avklart_tolkning",
+      "steg": [
+        {
+          "handling": "krav",
+          "spor": "grunnlag",
+          "underkategori": "irregulaer_endring",
+          "navn": "K-g1"
+        },
+        {
+          "handling": "krav",
+          "spor": "vederlag",
+          "belop": 100000,
+          "navn": "K-v1"
+        },
+        {
+          "handling": "krav",
+          "spor": "frist",
+          "dager": 20,
+          "navn": "K-f1"
+        },
+        {
+          "handling": "brev",
+          "navn": "D4",
+          "svar": [
+            {
+              "spor": "vederlag",
+              "navn": "S-v1",
+              "vurdering": "delvis",
+              "godkjent_belop": 60000
+            },
+            {
+              "spor": "frist",
+              "navn": "S-f1",
+              "varsel_i_tide": true,
+              "spesifisering_i_tide": true,
+              "hindring": true,
+              "dager": 20
+            }
+          ]
+        },
+        {
+          "handling": "aksept",
+          "spor": "vederlag",
+          "navn": "D5"
+        },
+        {
+          "handling": "brev",
+          "navn": "D6",
+          "svar": [
+            {
+              "spor": "grunnlag",
+              "navn": "S-g1",
+              "resultat": "godkjent",
+              "varslet_i_tide": true
+            }
+          ]
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 5,
+          "rolle": "mal",
+          "kilde": [
+            "GR-U7",
+            "KA-U5"
+          ],
+          "forventet": {
+            "avvist": false,
+            "gjeldende_svar.grunnlag": null,
+            "enighet.vederlag.svar": "S-v1",
+            "enighet.vederlag.virkning": "betinget",
+            "kravene_avgjort": false
+          }
+        },
+        {
+          "etter": 6,
+          "rolle": "mal",
+          "kilde": [
+            "GR-U7",
+            "KA-U5",
+            "GR-U10"
+          ],
+          "forventet": {
+            "grunnlag_avklart": true,
+            "enighet.vederlag.virkning": "virksom",
+            "enighet.vederlag.utfall.beloep": 60000,
+            "enighet.frist.virkning": "virksom",
+            "kravene_avgjort": true,
+            "visning.status": "avsluttet_oppgjort"
+          }
+        }
+      ]
     }
   ],
   "genererte": {

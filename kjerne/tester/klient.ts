@@ -54,7 +54,8 @@ export class Navn {
    * til seg selv eller til en rad som skrives senere. Bare en `rad` kan ta en
    * reservert etikett (`ta`); `sett` for en annen ID feiler.
    */
-  reserver(navn: string): string {
+  reserver(navn: unknown): string {
+    if (typeof navn !== 'string') throw new Error('Raden mangler en etikett (`navn`)');
     if (!this.tilId.has(navn)) {
       const id = randomUUID();
       this.tilId.set(navn, id);
@@ -65,7 +66,8 @@ export class Navn {
   }
 
   /** ID-en en ny rad med etiketten får. Feiler når etiketten alt er brukt av en annen hendelse. */
-  ta(navn: string): string {
+  ta(navn: unknown): string {
+    if (typeof navn !== 'string') throw new Error('Raden mangler en etikett (`navn`)');
     if (this.tilId.has(navn) && !this.reservert.has(navn))
       throw new Error(`Etiketten ${navn} er allerede brukt i bevis-saken`);
     const id = this.reserver(navn);
@@ -295,7 +297,7 @@ export function radFor(
         : { id: randomUUID(), art: spor === 'vederlag' ? 'beloep' : 'dager' }
     );
     const svar: Record<string, unknown> = {
-      id: navn.ta(s.navn as string),
+      id: navn.ta(s.navn),
       spor,
       gjelder,
       ...(typeof s.erstatter === 'string' ? { erstatter: navn.reserver(s.erstatter) } : {}),
@@ -335,11 +337,16 @@ export function radFor(
       ...INNHOLD[spor](k),
     };
   };
+  // #449: avklaringen og utsagnet har dokumentets etikett i `navn`.
+  if ((typeof h.avklarer === 'string' || typeof h.art === 'string') && h.dokument !== undefined)
+    throw new Error(
+      'En avklaring eller et utsagn har dokumentets etikett i `navn`, ikke `dokument`'
+    );
   let data: Record<string, unknown>;
   let eventId = typeof h.dokument === 'string' ? navn.ta(h.dokument) : randomUUID();
   if (typeof h.avklarer === 'string') {
     // MM-U12: en senere avklaring av om et registrert brev var en endringsordre (§ 31.3).
-    eventId = navn.ta(h.navn as string);
+    eventId = navn.ta(h.navn);
     data = {
       opplysninger: [
         { id: randomUUID(), hva: 'endringsordre', oppfylt: h.oppfylt, gjelder: ref(h.avklarer) },
@@ -348,7 +355,7 @@ export function radFor(
   } else if (typeof h.art === 'string') {
     if (h.krav !== undefined && (typeof h.krav !== 'object' || Array.isArray(h.krav)))
       throw new Error('Et krav i samme dokument som utsagnet er en handling, ikke `krav: true`');
-    eventId = navn.ta(h.navn as string);
+    eventId = navn.ta(h.navn);
     data = {
       utsagn: [
         {
