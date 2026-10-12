@@ -28,8 +28,8 @@
  * Kjøres fra repoets rot, med testbasen oppe og `KOE_TESTBASE_URL` satt:
  *   node kjerne/tester/feilinnfoering.ts [F1 F2 ...]
  * Med `--ankre` kontrolleres bare at hver fra-streng finnes nøyaktig én gang i
- * fila (#430), og at hvert mål er en del av navnet på en test (#432), et mål som
- * er en bevis-sak-ID som hel ID (#436). Navnene leses med `vitest list` uten
+ * fila (#430), og at hvert mål er en del av navnet på en test (#432), uten å
+ * fortsette i et ord eller en ID (#436). Navnene leses med `vitest list` uten
  * kopier, base eller testkjøring. Det tar sekunder og kjøres før hver push som
  * rører `kjerne/`. Begge kontrollene gjøres også før en full kjøring.
  * Forventet: «oppdaget» for hver mutasjon. Hopper kontrollkjøringen over en
@@ -50,6 +50,7 @@ import {
 } from 'node:fs';
 import { availableParallelism, constants, tmpdir } from 'node:os';
 import { dirname, join, relative } from 'node:path';
+import { treffer } from './maltreff.ts';
 
 interface Mutasjon {
   id: string;
@@ -57,7 +58,7 @@ interface Mutasjon {
   fil: string;
   /** Tekst som erstattes, hver nøyaktig én gang i fila. */
   endringer: [fra: string, til: string][];
-  /** Deler av testnavnet (`fullName`) som må feile; se `treffer`. */
+  /** Deler av testnavnet (`fullName`) som må feile, avgrenset som i `treffer`. */
   mal: string[];
 }
 
@@ -1753,7 +1754,10 @@ function testnavn(): string[] {
       throw new Error(
         `vitest list feilet (status ${r.status}, signal ${r.signal}, ${r.error ?? 'ingen feil fra spawn'}):\n${r.stderr}\n${r.stdout}`
       );
-    return (JSON.parse(readFileSync(ut, 'utf8')) as { name: string }[]).map((t) => t.name);
+    // `vitest list` skiller nivåene med ` > `, rapporten med mellomrom.
+    return (JSON.parse(readFileSync(ut, 'utf8')) as { name: string }[]).map((t) =>
+      t.name.split(' > ').join(' ')
+    );
   } finally {
     rmSync(mappe, { recursive: true, force: true });
   }
@@ -1873,20 +1877,6 @@ function lagArbeidskopier(antall: number): Arbeidskopi[] {
   });
 }
 
-const BEVISSAK_ID = /^F-[A-Z]+-\S+$/u;
-
-/**
- * Om testnavnet inneholder målet. Et mål som er en bevis-sak-ID, treffer bare hele ID-en,
- * så `F-MM-D` ikke treffer `F-MM-D-godtatt` (#436); andre mål er en del av navnet.
- */
-function treffer(navn: string, mal: string): boolean {
-  if (!BEVISSAK_ID.test(mal)) return navn.includes(mal);
-  const tegn = /[\p{L}\p{N}-]/u;
-  for (let i = navn.indexOf(mal); i !== -1; i = navn.indexOf(mal, i + 1))
-    if (!tegn.test(navn[i - 1] ?? ' ') && !tegn.test(navn[i + mal.length] ?? ' ')) return true;
-  return false;
-}
-
 /** Utfallet av én mutasjon: om den ble oppdaget, og linjene som forklarer det. */
 function vurder(m: Mutasjon, rapport: Rapport, k: Arbeidskopi): [boolean, string[]] {
   const feilet = rapport.testResults
@@ -1971,11 +1961,10 @@ if (!delform || del < 1 || del > deler)
 const navn = testnavn();
 const malfeil = valgte.flatMap((m) =>
   m.mal
-    // `vitest list` skiller nivåene med ` > `, rapporten med mellomrom.
-    .filter((mal) => !navn.some((n) => treffer(n, mal) || treffer(n.split(' > ').join(' '), mal)))
+    .filter((mal) => !navn.some((n) => treffer(n, mal)))
     .map(
       (mal) =>
-        `${m.id}: målet «${mal}» er ikke en del av navnet på noen test${BEVISSAK_ID.test(mal) ? ' som hel bevis-sak-ID' : ''}`
+        `${m.id}: målet «${mal}» er ikke en del av navnet på noen test, som helt ord eller hel ID`
     )
 );
 if (malfeil.length) throw new Error(malfeil.join('\n'));
