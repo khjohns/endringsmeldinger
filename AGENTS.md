@@ -132,8 +132,7 @@ verktøykjeden er endret, ved manuell start og på PR-er med etiketten
 Utenfor skyøktene: `python3 -m venv /tmp/venv` og `pip install -r` begge
 `backend/requirements*.txt` (systempython mangler pytest).
 
-I skyøkta tar hele `npx vitest run` ca. 135 s, over Bash-verktøyets standardgrense på
-120 s. Gi kallet `timeout` på 300000 eller mer, eller kjør det med `run_in_background`.
+I skyøkta kan hele `npx vitest run` ta over 120 s, standardgrensen for Bash. Gi kallet `timeout` på 300000 eller mer, eller kjør det med `run_in_background`.
 `npx vitest run <filer>` holder under arbeidet.
 
 `gh api search/issues` gir 403 i skyøkta. Bla i repo-listen i stedet, side for side:
