@@ -253,7 +253,8 @@ export function partFor(h: Handling): Part {
  * En rad fra en annen skriver i format 1, for eksempel en eldre TS-versjon
  * (forløp E). Den går ikke gjennom kommandovalideringen, så relasjonene er
  * de bevis-saken oppgir. En `rad` med `art` er et utsagn, ellers et svar. Raden
- * er fra byggherren uten `part`, og `format` gir den et annet format. Beslutningsgrunnlaget
+ * er fra byggherren uten `part`, og `format` gir den et annet format. Et utsagn kan ha
+ * et krav i samme dokument (`krav` som handling). Beslutningsgrunnlaget
  * fryses av kjøreren (`frysBrev`).
  */
 export function radFor(
@@ -320,6 +321,17 @@ export function radFor(
       );
     return svar;
   };
+  // En kravversjon fra TE, for eksempel registrert korrespondanse (MM-U18).
+  const kravversjon = (k: Handling): Record<string, unknown> => {
+    const spor = k.spor as Spor;
+    const forrige = u.spor[spor].gjeldendeKrav;
+    return {
+      id: navn.ta(k.navn as string),
+      spor,
+      ...(forrige ? { erstatter: forrige.id } : {}),
+      ...INNHOLD[spor](k),
+    };
+  };
   let data: Record<string, unknown>;
   let eventId = typeof h.dokument === 'string' ? navn.ta(h.dokument) : randomUUID();
   if (typeof h.avklarer === 'string') {
@@ -342,21 +354,11 @@ export function radFor(
           ...(h.art === 'aksept' ? { regelversjon: GJELDENDE_REGLER.versjon } : {}),
         },
       ],
+      // Et krav i samme dokument som utsagnet, for eksempel trekket av grunnlaget (#434).
+      ...(h.krav && typeof h.krav === 'object' ? { krav: [kravversjon(h.krav as Handling)] } : {}),
     };
   } else if (h.krav === true) {
-    // En kravversjon fra TE, for eksempel registrert korrespondanse (MM-U18).
-    const spor = h.spor as Spor;
-    const forrige = u.spor[spor].gjeldendeKrav;
-    data = {
-      krav: [
-        {
-          id: navn.ta(h.navn as string),
-          spor,
-          ...(forrige ? { erstatter: forrige.id } : {}),
-          ...INNHOLD[spor](h),
-        },
-      ],
-    };
+    data = { krav: [kravversjon(h)] };
   } else {
     // Et registrert brev kan ha flere svar (`svar`), ellers er raden ett svar.
     data = { svar: (Array.isArray(h.svar) ? (h.svar as Handling[]) : [h]).map(byggSvar) };
