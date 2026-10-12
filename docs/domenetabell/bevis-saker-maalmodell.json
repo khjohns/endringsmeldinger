@@ -7803,6 +7803,21 @@
           }
         },
         {
+          "etter": 0,
+          "rolle": "kontroll",
+          "kilde": [
+            "KA-U1"
+          ],
+          "prov": {
+            "handling": "aksept",
+            "spor": "grunnlag",
+            "svar": "S-g1"
+          },
+          "forventet": {
+            "avvist": false
+          }
+        },
+        {
           "etter": 1,
           "rolle": "mal",
           "kilde": [
@@ -7909,6 +7924,21 @@
           }
         },
         {
+          "etter": 1,
+          "rolle": "kontroll",
+          "kilde": [
+            "KA-U1"
+          ],
+          "prov": {
+            "handling": "aksept",
+            "spor": "grunnlag",
+            "svar": "S-g1"
+          },
+          "forventet": {
+            "avvist": false
+          }
+        },
+        {
           "etter": 2,
           "rolle": "mal",
           "kilde": [
@@ -7979,6 +8009,23 @@
         }
       ],
       "kontroller": [
+        {
+          "etter": 1,
+          "rolle": "mal",
+          "kilde": [
+            "V-KRAVVERSJON"
+          ],
+          "forventet": {
+            "handlinger.TE": {
+              "inneholder": [
+                "krav:grunnlag",
+                "krav:vederlag",
+                "krav:frist",
+                "trekke:grunnlag"
+              ]
+            }
+          }
+        },
         {
           "etter": 1,
           "rolle": "kontroll",
@@ -8097,6 +8144,23 @@
         }
       ],
       "kontroller": [
+        {
+          "etter": 2,
+          "rolle": "mal",
+          "kilde": [
+            "V-KRAVVERSJON"
+          ],
+          "forventet": {
+            "handlinger.TE": {
+              "inneholder": [
+                "krav:grunnlag",
+                "krav:vederlag",
+                "krav:frist",
+                "trekke:grunnlag"
+              ]
+            }
+          }
+        },
         {
           "etter": 2,
           "rolle": "mal",

@@ -252,11 +252,11 @@ export function partFor(h: Handling): Part {
 /**
  * En rad fra en annen skriver i format 1, for eksempel en eldre TS-versjon
  * (forløp E). Den går ikke gjennom kommandovalideringen, så relasjonene er
- * de bevis-saken oppgir. En `rad` med `art` er et utsagn, med `krav: true` en kravversjon
- * og med `avklarer` en avklaring, ellers et svar. Et utsagn kan ha et krav i samme
- * dokument (`krav` som handling). Raden er fra byggherren uten `part`, og `format` gir
- * den et annet format. Beslutningsgrunnlaget
- * fryses av kjøreren (`frysBrev`).
+ * de bevis-saken oppgir. En `rad` med `avklarer` er en avklaring, ellers med `art` et
+ * utsagn, ellers med `krav: true` en kravversjon, ellers et svar. Et utsagn kan ha et
+ * krav i samme dokument, med kravet som handling i `krav`. Raden er fra byggherren uten
+ * `part`, og `format` gir den et annet format. Beslutningsgrunnlaget fryses av kjøreren
+ * (`frysBrev`).
  */
 export function radFor(
   h: Handling,
@@ -324,11 +324,12 @@ export function radFor(
   };
   // En kravversjon fra TE, for eksempel registrert korrespondanse (MM-U18).
   const kravversjon = (k: Handling): Record<string, unknown> => {
-    if (typeof k.navn !== 'string') throw new Error('Kravet i raden mangler `navn`');
+    if (typeof k.navn !== 'string' || !(typeof k.spor === 'string' && k.spor in INNHOLD))
+      throw new Error('Kravet i raden må ha `navn` og `spor`');
     const spor = k.spor as Spor;
     const forrige = u.spor[spor].gjeldendeKrav;
     return {
-      id: navn.ta(k.navn as string),
+      id: navn.ta(k.navn),
       spor,
       ...(forrige ? { erstatter: forrige.id } : {}),
       ...INNHOLD[spor](k),
@@ -345,7 +346,7 @@ export function radFor(
       ],
     };
   } else if (typeof h.art === 'string') {
-    if (h.krav !== undefined && (typeof h.krav !== 'object' || h.krav === null))
+    if (h.krav !== undefined && (typeof h.krav !== 'object' || Array.isArray(h.krav)))
       throw new Error('Et krav i samme dokument som utsagnet er en handling, ikke `krav: true`');
     eventId = navn.ta(h.navn as string);
     data = {
