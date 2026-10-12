@@ -119,6 +119,41 @@ tekst = "et ordrett utdrag"
   et utdrag får `utdrag = true`, og da er det et utdrag også i teksten.
 - **Svaret** er oppdragsgivers ordrett og nevner det valgte alternativet ved navn.
 
+## Temavisningene
+
+En temavisning samler regelgrunnlaget for ett tema på ett sted: vedtakene ordrett,
+slik raden står i 3.1, med de forkastede alternativene merket, forholdene mellom dem,
+og regelradene og bevis-sakene som viser til dem (#454, punkt 5 i #451). Den lager
+ingen sammenslått gjeldende ordlyd. 3.1 er fortsatt autoritativ (punkt 9 i #451),
+og visningen sier det.
+
+Temaene står i [`temaer.toml`](temaer.toml), og visningene i [`temaer/`](temaer/).
+Verktøyet er [`docs/verktoy/temavisning.py`](../verktoy/temavisning.py), og
+vakttesten står i
+[`test_temavisning.py`](../../backend/tests/test_vedtaksregister/test_temavisning.py).
+Testen feiler når en innsjekket visning avviker fra det verktøyet lager. Endres en
+post, en regelrad eller en bevis-sak som visningen bruker, må visningen derfor lages
+på nytt i samme PR.
+
+```bash
+python3 docs/verktoy/temavisning.py           # kontroller temaene og skriv visningene
+python3 docs/verktoy/temavisning.py --sjekk   # bare kontroller
+```
+
+- **Et tema** har `kjerne`, som er vedtakene temaet er valgt etter, og `vedtak`.
+  `vedtak` er kjernen og, transitivt, hvert vedtak som endrer, utvider, snevrer inn,
+  presiserer eller opphever et vedtak i temaet etter `forhold` i registeret
+  (arbeidsvalg A i [#454](https://github.com/khjohns/endringsmeldinger/issues/454)).
+  Mangler ett, feiler kontrollen. Et nytt vedtak som endrer kjeden, gjør dermed
+  testen rød til det er tatt inn i temaet. Et vedtak temaet viser til, står som
+  lenke til 3.1.
+- **Kontrollsummen** er SHA-256 over utdraget av kildene visningen leser. Et
+  vedtak utenfor temaet endrer den ikke.
+- **Det verktøyet ikke ser:** et forhold som Følge bare sier med ord, uten lenke,
+  for eksempel at GR-U12 presiserer GR-U10. Det står ordrett under Følge, men ikke i
+  kjeden. Verktøyet ser heller ikke en regelrad eller en bevis-sak som bare nevner
+  vedtaket i fritekst, og ikke i `kilder` eller `kontroller[].kilde`.
+
 ## Vakttestene
 
 | Test | Gjelder |

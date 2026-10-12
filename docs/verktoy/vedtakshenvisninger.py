@@ -41,7 +41,7 @@ MARKOERER = re.compile(r"/\*+|\*+/|//+|<!--|-->|^\s*\*+|^\s*#")
 LUKKES = {"/*": "*/", "<!--": "-->"}
 
 
-def _ider(post: dict) -> set[str]:
+def vedtaks_ider(post: dict) -> set[str]:
     """ID-ene en post er vedtaket for: ankeret når det er en ID, og B-ID-ene i en etikett som begynner med en."""
     ider = set()
     if (a := vr.anker(post)) and HENVISNING.fullmatch(a.upper()):
@@ -54,7 +54,7 @@ def _ider(post: dict) -> set[str]:
 
 def vedtak(register: dict) -> tuple[set[str], set[str]]:
     """ID-ene til vedtakene i registeret og ID-ene til dem som er opphevet."""
-    ider = [(p, _ider(p)) for p in vr.poster(register)]
+    ider = [(p, vedtaks_ider(p)) for p in vr.poster(register)]
     etter_anker = {vr.anker(p): i for p, i in ider if vr.anker(p)}
     opphevet = set()
     for p, _ in ider:
