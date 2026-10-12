@@ -1720,7 +1720,7 @@ const MUTASJONER: Mutasjon[] = [
         "    case 'begrunne':\n      if (kraveneErAvgjort(u)) return avvis('KRAVENE_AVGJORT', '');\n",
       ],
     ],
-    mal: ['godtas når kravene er avgjort, mens en revisjon avvises'],
+    mal: ['godtas når kravene er avgjort, mens en revisjon avvises', 'F-MM-BG2'],
   },
   {
     id: 'F158',
@@ -1734,7 +1734,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse: 'en senere begrunnelse kan gjelde noe annet enn et svar (KA-U34)',
     fil: `${K}/kommandoer/forutsetninger.ts`,
     endringer: [["return maal?.art === 'svar'\n", 'return maal !== undefined\n']],
-    mal: ['avvises fra TE, når den ikke gjelder et svar, og uten tekst'],
+    mal: ['avvises fra TE, når den ikke gjelder et svar, og uten tekst', 'F-MM-BG1'],
   },
   {
     id: 'F160',
@@ -1760,7 +1760,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse: 'en senere begrunnelse uten tekst godtas (KA-U34)',
     fil: `${K}/kommandoer/nyttelast.ts`,
     endringer: [['return k.sendt === undefined && !k.utdypning?.trim()', 'return false']],
-    mal: ['avvises fra TE, når den ikke gjelder et svar, og uten tekst'],
+    mal: ['avvises fra TE, når den ikke gjelder et svar, og uten tekst', 'F-MM-BG1'],
   },
   {
     id: 'F163',
@@ -1776,7 +1776,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse: 'en registrert begrunnelse godtas uten brevet som vedlegg (KA-U35)',
     fil: `${K}/kommandoer/kommando.ts`,
     endringer: [['if (!k.dokumentasjon?.length)', 'if (false)']],
-    mal: ['en registrert begrunnelse uten brevet som vedlegg eller med tekst avvises'],
+    mal: ['en registrert begrunnelse uten brevet som vedlegg eller med tekst avvises', 'F-MM-BG1'],
   },
   {
     id: 'F165',
@@ -1798,6 +1798,13 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/kommandoer/skriving.ts`,
     endringer: [["          opplysninger: [{ id: nyId(), hva: 'sendt', dato: k.sendt }],\n", '']],
     mal: ['en begrunnelse sendt utenfor appen registreres uten tekst'],
+  },
+  {
+    id: 'F168',
+    feilklasse: 'byggherren får ikke tilbud om å begrunne et svar (KA-U34, INV-MM-1)',
+    fil: `${K}/kommandoer/handlinger.ts`,
+    endringer: [["    if (e.art === 'svar') ut.push({ type: 'begrunne', gjelder: id });\n", '']],
+    mal: ['F-MM-BG1', 'F-MM-BG2', 'F-MM-B1'],
   },
 ];
 
