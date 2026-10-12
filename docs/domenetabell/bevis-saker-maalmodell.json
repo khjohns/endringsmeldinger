@@ -8734,7 +8734,8 @@
             "dager": 30
           },
           "forventet": {
-            "avvist": true
+            "avvist": true,
+            "regel": "KRAVENE_AVGJORT"
           }
         },
         {
@@ -8749,7 +8750,8 @@
             "belop": 120000
           },
           "forventet": {
-            "avvist": true
+            "avvist": true,
+            "regel": "KRAVENE_AVGJORT"
           }
         }
       ]
@@ -8853,7 +8855,7 @@
         "GR-02"
       ],
       "start": null,
-      "forslag": "V-215: endret underkategori fra IRREG til EO etter et svar som påberoper § 32.2. Svaret og § 32.2-vurderingen faller, og når grunnlaget godkjennes, får de subsidiære godkjenningene virkning",
+      "forslag": "V-215: endret underkategori fra IRREG til EO etter et svar som påberoper § 32.2. Svaret og § 32.2-vurderingen er ikke lenger gjeldende. Vederlag og frist forblir subsidiære med årsakene fra svaret de ble regnet mot (GR-U1, som F-MM-G24), og når grunnlaget godkjennes, får de subsidiære godkjenningene virkning",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -8959,9 +8961,11 @@
             "V-B13-GRUNNLAG-AVSLATT",
             "NS-31.3-1",
             "GR-U10",
-            "GR-U7"
+            "GR-U7",
+            "EO-U5"
           ],
           "forventet": {
+            "gjeldende_svar.grunnlag": "S-g2",
             "grunnlag_avklart": true,
             "subsidiaer_aarsaker.vederlag": [],
             "subsidiaer_aarsaker.frist": [],
@@ -9306,7 +9310,7 @@
         },
         {
           "etter": 2,
-          "rolle": "kontroll",
+          "rolle": "mal",
           "kilde": [
             "V-TFR05"
           ],
@@ -9314,6 +9318,21 @@
             "handling": "krav",
             "spor": "vederlag",
             "belop": 100000
+          },
+          "forventet": {
+            "avvist": false
+          }
+        },
+        {
+          "etter": 2,
+          "rolle": "mal",
+          "kilde": [
+            "V-TFR05"
+          ],
+          "prov": {
+            "handling": "krav",
+            "spor": "frist",
+            "dager": 20
           },
           "forventet": {
             "avvist": false
@@ -9327,7 +9346,7 @@
         "GR-18"
       ],
       "start": "krav_irreg",
-      "forslag": "V-B13-FRAFALL: frafall er svar på et pålegg. Når TE har endret grunnlaget til endringsordre, avvises frafallet. Kontrollsaken er frafallet før endringen",
+      "forslag": "V-B13-FRAFALL: frafall er svar på et pålegg. Når TE har endret grunnlaget til endringsordre, avvises frafallet. Kontrollsakene er frafallet før endringen og et godkjent grunnlag etter den, uten vurdering etter § 32.2 som målprøven",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -9384,7 +9403,8 @@
           "etter": 1,
           "rolle": "kontroll",
           "kilde": [
-            "V-215"
+            "V-215",
+            "NS-32.1"
           ],
           "prov": {
             "handling": "brev",
