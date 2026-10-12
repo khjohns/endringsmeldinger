@@ -10,7 +10,7 @@ ikke. Kjente avvik står bare som funn-ID, eller som issuenummer når et vedtak 
 
 Radene KA-01–KA-19 gjelder kravversjon og aksept (SK-02, SK-03), med
 tilgrensende rader om godtatt preklusjon, låste varsler og byggherrens vurdering
-av rettidighet. Radene KA-20–KA-24 kommer fra MM-U1–MM-U3, MM-U7–MM-U9 og MM-U14 (MM-U4 er opphevet av MM-U9) og gjelder målmodellen:
+av rettidighet. Radene KA-20–KA-24 kommer fra MM-U1–MM-U3, MM-U7–MM-U9 og MM-U14 (MM-U4–MM-U6 er opphevet av MM-U9) og gjelder målmodellen:
 et varsel registrert etter et senere krav, en bestridelse, en godtatt preklusjon
 etter en regelendring, et svar som avviker fra dagens utledning, og en sak kjernen
 ikke kan tolke. Radene GR-01–GR-18 gjelder grunnlagsavhengigheten:
@@ -28,8 +28,8 @@ KA-04, KA-05 og KA-13 (en ny kravversjon i et spor med enighet avvises), KA-23
 og KA-25 (et sendt brev beholder virkningen), og ny rad GR-27 (et godkjent
 grunnlag er enighet ved sammenfall). Bevis-sakene for KA-03, KA-04, KA-05 og
 KA-13 står som kjente avvik i Python (SK-02), som ikke rettes (B-17); kjernen
-prøver dem i bevis-sakene for målmodellen. Arbeidet med de øvrige radene står i
-#309.
+prøver dem i bevis-sakene for målmodellen. Rader som bygger på vedtak før 09.10, må leses mot 3.1 og de nyere
+vedtakene. Hva som gjenstår med dem, står i #309.
 
 | Fil | Innhold |
 | --- | --- |
