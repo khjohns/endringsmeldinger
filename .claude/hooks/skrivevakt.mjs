@@ -20,10 +20,23 @@ const SPERRET_MAPPE = new RegExp(
   `(^|[\\s'"=:(/<>;&|{\`])\\.?/?(${SPERREDE_MAPPER.join('|')})(/|[\\s;&|)\`'"]|$)`
 );
 
-// Hookoppsettet nevnt med filnavn, hele `.claude`-mappa som mål, git-mappa med hookene og
-// oppsettet til git, eller `.husky`, som er core.hooksPath i repoet.
+// Hookoppsettet nevnt med filnavn, git-mappa med hookene og oppsettet til git, eller `.husky`,
+// der core.hooksPath (`.husky/_`) ligger. `.claude` leses av nevnerClaude.
 const NEVNER_HOOKOPPSETT =
-  /settings(\.local)?\.json|(^|[\s'"=:(<>;&|{`/])\.claude\/?\.?(?=$|[\s;&|)`'"])|(^|[\s'"=:(<>;&|{`/])\.(git|husky)(\/|(?=$|[\s;&|)`'"]))/;
+  /settings(\.local)?\.json|(^|[\s'"=:(<>;&|{`/])\.(git|husky)(\/|(?=$|[\s;&|)`'"]))/;
+// Det som kan skrives i `.claude` med Bash: en navngitt fil under disse mappene.
+const CLAUDE_TILLATT = /^\.claude\/(hooks|agents|skills|rules)(\/[\w-][\w.-]*)+$/;
+
+/** Om teksten nevner `.claude` på en annen måte enn en navngitt fil under CLAUDE_TILLATT. */
+function nevnerClaude(tekst) {
+  return tekst
+    .split(/[\s;&|()<>`'"=]+/)
+    .filter((ord) => /(^|\/)\.claude(\/|$)/.test(ord))
+    .some((ord) => {
+      const del = ord.slice(ord.search(/\.claude(\/|$)/));
+      return !CLAUDE_TILLATT.test(del) || del.split('/').some((s) => s === '.' || s === '..');
+    });
+}
 
 // Kommandoer og operatorer som kan skrive en fil som er nevnt i kommandoen.
 const SKRIVENDE = [
@@ -55,37 +68,65 @@ const SKRIVENDE_UTEN_STI = [
 // gh-kall som merger PR-en eller oppdaterer den mot main.
 const GH_MERGE = /(\/pulls\/\S+\/merge\b|\bpr\s+merge\b|\/update-branch\b)/;
 
-// Endepunktene mekanisk-pr kan skrive til med gh api: PR-en, kommentarer og etiketter.
-const GH_SKRIVING_TILLATT =
-  /^\/?repos\/[\w.-]+\/[\w.-]+\/(pulls(\/\d+)?|(issues|pulls)\/\d+\/(comments|labels|requested_reviewers)|(issues|pulls)\/comments\/\d+|pulls\/\d+\/comments\/\d+\/replies)$/;
-// gh-kommandoene utenom api som mekanisk-pr kan bruke. `pr merge` og `pr edit --base` stoppes for seg.
-const GH_TILLATT = new Set(['pr', 'issue', 'search', 'label', 'status']);
-const GH_BARE_LESING = new Set(['repo', 'run', 'workflow', 'release']);
-// Flagg i gh api som tar en verdi i neste ord.
-const GH_API_MED_VERDI = new Set([
-  '-X',
+// Endepunktene mekanisk-pr kan skrive til med gh api, med feltene hvert av dem kan få.
+const GH_SKRIVING_TILLATT = [
+  [/\/pulls$/, ['title', 'head', 'base', 'body', 'draft', 'maintainer_can_modify']],
+  [/\/pulls\/\d+$/, ['title', 'body']],
+  [/\/(issues|pulls)\/\d+\/labels$/, ['labels']],
+  [/\/pulls\/\d+\/requested_reviewers$/, ['reviewers', 'team_reviewers']],
+  [/\/(issues\/\d+\/comments|issues\/comments\/\d+|pulls\/comments\/\d+)$/, ['body']],
+  [/\/pulls\/\d+\/comments\/\d+\/replies$/, ['body']],
+  [
+    /\/pulls\/\d+\/comments$/,
+    [
+      'body',
+      'commit_id',
+      'path',
+      'line',
+      'side',
+      'start_line',
+      'start_side',
+      'in_reply_to',
+      'subject_type',
+    ],
+  ],
+];
+const GH_REPO_STI = /^\/?repos\/[\w.-]+\/[\w.-]+\//;
+// Underkommandoene mekanisk-pr kan bruke i gh utenom api. Står det ingen liste, er alle tillatt.
+// `pr merge` stoppes av GH_MERGE og `pr edit --base` for seg.
+const GH_TILLATT = new Map([
+  ['pr', ['create', 'view', 'list', 'diff', 'checks', 'status', 'comment', 'edit']],
+  ['issue', ['view', 'list', 'status', 'comment']],
+  ['search', null],
+  ['status', null],
+  ['label', ['list']],
+  ['repo', ['view']],
+  ['run', ['view', 'list']],
+  ['workflow', ['view', 'list']],
+  ['release', ['view', 'list']],
+]);
+// Flaggene i gh api. Kortflagg kan stå samlet (`-it`), og verdien kan henge på (`-XPATCH`).
+const GH_KORT_UTEN = 'i';
+const GH_KORT_MED = 'XHfFqtp';
+const GH_LANG_UTEN = new Set(['--include', '--paginate', '--slurp', '--silent', '--verbose']);
+const GH_LANG_MED = new Set([
   '--method',
-  '-H',
   '--header',
-  '-f',
-  '-F',
   '--field',
   '--raw-field',
   '--input',
-  '-q',
   '--jq',
-  '-t',
   '--template',
-  '-p',
   '--preview',
   '--hostname',
   '--cache',
 ]);
 const GRAPHQL = /(^|\/)graphql\/?$/;
 
-// Miljøvariabler som får git eller skallet til å kjøre et program eller bruke et annet tre.
+// Miljøvariabler som får git, gh, skallet eller et program til å kjøre noe annet eller bruke et
+// annet tre. De leses som tilordning (`NAVN=…`) eller som navn alene (`export NAVN`).
 const FARLIG_MILJOE =
-  /(^|[\s;&|(])(GIT_\w+|XDG_\w+|HOME|EDITOR|VISUAL|PAGER|LESSOPEN|LESSCLOSE|BASH_ENV|ENV|SHELL|RIPGREP_CONFIG_PATH)(?==|$|\s)/;
+  /^(GIT_\w+|GH_\w+|XDG_\w+|LD_\w+|NPM_CONFIG_\w+|npm_config_\w+|HOME|PATH|ZDOTDIR|EDITOR|VISUAL|PAGER|BROWSER|LESSOPEN|LESSCLOSE|BASH_ENV|ENV|SHELL|NODE_OPTIONS|PYTHONPATH|PYTHONSTARTUP|PERL5OPT|RUBYOPT|RIPGREP_CONFIG_PATH)(=|$)/;
 const UFARLIG_MILJOE = /^(GIT_PAGER=(cat)?|PAGER=(cat)?|GIT_TERMINAL_PROMPT=0)$/;
 
 // Hookoppsettet, som mekanisk-pr ikke endrer.
@@ -649,47 +690,67 @@ function vurderPush(argumenter, rot) {
   return filer.length ? `Grenen endrer sperrede mapper: ${filer.join(', ')}.` : null;
 }
 
-function ghEndepunkt(argumenter) {
-  for (let i = 0; i < argumenter.length; i++) {
-    if (GH_API_MED_VERDI.has(argumenter[i])) i++;
-    else if (!argumenter[i].startsWith('-')) return argumenter[i];
-  }
-  return '';
-}
-
-/** Feltnavnene i et gh api-kall, eller null når kroppen kommer fra en fil med --input. */
-function ghFelt(argumenter) {
-  const felt = [];
+/**
+ * Endepunkt, metode og feltnavn i et gh api-kall. `ukjent` er et flagg vakten ikke kan tolke,
+ * og `input` er satt når kroppen kommer fra en fil.
+ */
+function ghApiKall(argumenter) {
+  const kall = { endepunkt: '', metode: '', felt: [], input: false, ukjent: null };
+  const merk = (flagg, verdi) => {
+    if (['f', 'F', '--field', '--raw-field'].includes(flagg)) kall.felt.push(verdi);
+    if (flagg === 'X' || flagg === '--method') kall.metode = verdi.toUpperCase();
+    if (flagg === '--input') kall.input = true;
+  };
   for (let i = 0; i < argumenter.length; i++) {
     const o = argumenter[i];
-    if (o === '--input' || o.startsWith('--input=')) return null;
-    if (['-f', '-F', '--field', '--raw-field'].includes(o)) felt.push(argumenter[++i] ?? '');
-    else if (/^-[fF]./.test(o)) felt.push(o.slice(2));
-    else if (/^--(raw-)?field=/.test(o)) felt.push(o.slice(o.indexOf('=') + 1));
+    if (o.startsWith('--')) {
+      const [navn, ...verdi] = o.split('=');
+      if (GH_LANG_MED.has(navn))
+        merk(navn, verdi.length ? verdi.join('=') : (argumenter[++i] ?? ''));
+      else if (!GH_LANG_UTEN.has(o)) kall.ukjent ??= o;
+    } else if (o.startsWith('-') && o.length > 1) {
+      for (let j = 1; j < o.length; j++) {
+        if (GH_KORT_UTEN.includes(o[j])) continue;
+        if (!GH_KORT_MED.includes(o[j])) {
+          kall.ukjent ??= o;
+          break;
+        }
+        merk(o[j], o.slice(j + 1) || (argumenter[++i] ?? ''));
+        break;
+      }
+    } else if (!kall.endepunkt) {
+      kall.endepunkt = o;
+    } else {
+      kall.ukjent ??= o;
+    }
   }
-  return felt.map((f) => f.split(/\[|=/)[0]);
+  kall.felt = kall.felt.map((f) => f.split(/\[|=/)[0]);
+  return kall;
 }
 
 /** Begrunnelsen når et gh-kall fra mekanisk-pr kan skrive noe annet enn PR-en, ellers null. */
 function ghSkriving([underkommando, ...resten]) {
   if (underkommando === 'api') {
     if (lesingGhApi([underkommando, ...resten]) === null) return null;
-    // Samlede kortflagg kan ta en verdi (`-it <mal>`), og da står endepunktet et annet sted.
-    const samlet = resten.find((o) => /^-[a-zA-Z]{2,}$/.test(o));
-    if (samlet) return `Flagget ${samlet} i gh api kan vakten ikke tolke sikkert.`;
-    const endepunkt = ghEndepunkt(resten);
-    if (GRAPHQL.test(endepunkt)) return 'mekanisk-pr bruker ikke gh api graphql.';
-    if (!GH_SKRIVING_TILLATT.test(endepunkt)) {
-      return `mekanisk-pr skriver med gh api bare til PR-er og kommentarer, ikke ${endepunkt}.`;
+    const kall = ghApiKall(resten);
+    if (kall.ukjent) return `${kall.ukjent} i gh api kan vakten ikke tolke sikkert.`;
+    if (GRAPHQL.test(kall.endepunkt)) return 'mekanisk-pr bruker ikke gh api graphql.';
+    if (kall.metode === 'DELETE') return 'mekanisk-pr sletter ikke med gh api.';
+    const tillatte = GH_REPO_STI.test(kall.endepunkt)
+      ? GH_SKRIVING_TILLATT.find(([sti]) => sti.test(kall.endepunkt))?.[1]
+      : undefined;
+    if (!tillatte) {
+      return `mekanisk-pr skriver med gh api bare til PR-er og kommentarer, ikke ${kall.endepunkt}.`;
     }
-    const felt = ghFelt(resten);
-    if (
-      /\/pulls\/\d+$/.test(endepunkt) &&
-      (!felt || felt.some((f) => !['title', 'body'].includes(f)))
-    ) {
-      return 'mekanisk-pr endrer bare tittel og beskrivelse på en PR, ikke base eller tilstand.';
-    }
+    if (kall.input) return 'gh api med --input skjuler feltene som skrives.';
+    const ulovlig = kall.felt.find((f) => !tillatte.includes(f));
+    if (ulovlig) return `Feltet ${ulovlig} kan ikke skrives til ${kall.endepunkt}.`;
     return null;
+  }
+  if (!GH_TILLATT.has(underkommando)) return `gh ${underkommando} er ikke tillatt for mekanisk-pr.`;
+  const tillatte = GH_TILLATT.get(underkommando);
+  if (tillatte && !tillatte.includes(resten[0])) {
+    return `gh ${underkommando} ${resten[0] ?? ''} er ikke tillatt for mekanisk-pr.`;
   }
   if (
     underkommando === 'pr' &&
@@ -698,9 +759,7 @@ function ghSkriving([underkommando, ...resten]) {
   ) {
     return 'mekanisk-pr bytter ikke basen til PR-en.';
   }
-  if (GH_TILLATT.has(underkommando)) return null;
-  if (GH_BARE_LESING.has(underkommando) && ['view', 'list'].includes(resten[0])) return null;
-  return `gh ${underkommando} er ikke tillatt for mekanisk-pr.`;
+  return null;
 }
 
 /**
@@ -743,17 +802,10 @@ function vurder(input) {
       if (!tre || !innenfor(absolutt, tre)) continue;
       const relativ = path.relative(tre, absolutt);
       if (sperretSti(relativ)) return `${relativ} ligger i en sperret mappe.`;
+      if (vernetSti(relativ) || relativ.split(path.sep).includes('.git'))
+        return `${relativ} er hookoppsettet eller git-mappa, og mekanisk-pr endrer det ikke.`;
     }
-    if (rot && innenfor(absolutt, rot)) {
-      const relativ = path.relative(rot, absolutt);
-      if (relativ.split(path.sep).includes('.git'))
-        return `${relativ} er i git-mappa, og mekanisk-pr endrer den ikke.`;
-      if (relativ.split(path.sep)[0] === '.husky')
-        return `${relativ} er git-hookene i repoet, og mekanisk-pr endrer dem ikke.`;
-      if (HOOKOPPSETT.includes(relativ))
-        return `${relativ} er hookoppsettet, og mekanisk-pr endrer det ikke.`;
-      return null;
-    }
+    if (rot && innenfor(absolutt, rot)) return null;
     if (innenfor(absolutt, ekteSti(tmpdir())) || innenfor(absolutt, ekteSti('/tmp'))) return null;
     if (!rot) return `Ikke i et git-arbeidstre: ${cwd}.`;
     return `${absolutt} ligger utenfor arbeidstreet ${rot}. Skriv bare i ditt eget arbeidstre.`;
@@ -774,7 +826,7 @@ function vurder(input) {
   const varianter = [kommando, kommando.replace(/['"\\]/g, '')];
   const tekster = new Set(varianter.flatMap((t) => [t, utenGitGlobale(t)]));
   const nevnerSperret = [...tekster].some(
-    (t) => SPERRET_MAPPE.test(t) || NEVNER_HOOKOPPSETT.test(t)
+    (t) => SPERRET_MAPPE.test(t) || NEVNER_HOOKOPPSETT.test(t) || nevnerClaude(t)
   );
   if (nevnerSperret && [...tekster].some((t) => SKRIVENDE.some((m) => m.test(t)))) {
     return 'Kommandoen nevner en sperret mappe eller hookoppsettet og kan skrive.';
