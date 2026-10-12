@@ -106,7 +106,12 @@ export type Utsagn =
    * KA-U20: den som sendte et merket brev, sier at standpunktene i det gjelder uten
    * forbehold. `gjelder` er merkingen. Gjør ikke brevet ubetinget fra sendetidspunktet.
    */
-  | { id: string; art: 'avklaring'; gjelder: string };
+  | { id: string; art: 'avklaring'; gjelder: string }
+  /**
+   * KA-U34: byggherrens senere begrunnelse av et svar. `gjelder` er svaret, og
+   * teksten står i brevteksten. Endrer ingen standpunkter.
+   */
+  | { id: string; art: 'begrunnelse'; gjelder: string };
 
 export type Utsagnsart = Utsagn['art'];
 

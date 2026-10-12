@@ -245,7 +245,8 @@ function lesSvar(v: unknown, dokument: string, sti: string): Svar {
 
 /**
  * Hvem som kan si hva: TE krever, varsler, godtar, trekker, sier «ingen krav» og
- * påberoper passivitet; BH svarer. Innsigelse, protest, bestridelse og avklaring
+ * påberoper passivitet; BH svarer og begrunner svaret senere (KA-U34). Innsigelse,
+ * protest, bestridelse og avklaring
  * kan komme fra begge; utledningen kontrollerer hvem de gjelder.
  */
 const PART_FOR_UTSAGN: Record<Utsagnsart, Part | null> = {
@@ -258,6 +259,7 @@ const PART_FOR_UTSAGN: Record<Utsagnsart, Part | null> = {
   innsigelse: null,
   protest: null,
   avklaring: null,
+  begrunnelse: 'BH',
 };
 
 function lesDokument(h: Journalrad): Dokument {

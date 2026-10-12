@@ -108,10 +108,11 @@ function sak() {
     }
   };
   /** Avvisningen kommandoen får, eller `null` når den godtas. */
-  const avvist = (part: Part, kommando: Data) => {
+  const avvisning = (part: Part, kommando: Data) => {
     const u = prov(part, kommando);
-    return u.godtatt ? null : u.avvisning.regel;
+    return u.godtatt ? null : u.avvisning;
   };
+  const avvist = (part: Part, kommando: Data) => avvisning(part, kommando)?.regel ?? null;
   /** En rad skrevet utenfor kommandoene, som registrert korrespondanse; svarene fryses. */
   const rad = (part: Part, data: Data): Journalrad => {
     const r: Journalrad = {
@@ -133,7 +134,7 @@ function sak() {
   };
   const u = () => utledJournal(journal, KJERNE);
   const krav = (spor: 'grunnlag' | 'vederlag' | 'frist') => u().spor[spor].gjeldendeKrav!.id;
-  return { journal, send, vis, avvist, rad, u, krav };
+  return { journal, send, vis, avvisning, avvist, rad, u, krav };
 }
 
 const tekst = (rad: Journalrad): Avsnitt[] => {
@@ -1066,6 +1067,287 @@ describe('bestridelse, merking og avklaring (LV-U4 punkt 10–12)', () => {
     expect(laast(s.send('BH', { type: 'avklaring', gjelder: merking }))).toEqual([
       'Byggherren bekrefter at standpunktene i brev 3 av 3. oktober 2026 om grunnlaget og fristen gjelder uten forbehold fra og med dette brevet.',
     ]);
+  });
+});
+
+describe('den senere begrunnelsen (KA-U34)', () => {
+  const grunnlagAvslaatt = { resultat: 'avslaatt', grunnlag_varslet_i_tide: true };
+  const svarId = (rad: Journalrad, i = 0) => (rad.data.svar as Data[])[i].id as string;
+
+  /** Saken med kravene og byggherrens svar på alle tre i brev 5. */
+  const medSvar = () => {
+    const s = sakMedKrav();
+    const brev = s.send('BH', {
+      type: 'brev',
+      svar: [
+        svar('grunnlag', s.krav('grunnlag'), grunnlagAvslaatt),
+        svar('vederlag', s.krav('vederlag'), VEDERLAG_DELVIS[0], VEDERLAG_DELVIS[1]),
+        svar('frist', s.krav('frist'), FRIST_FULLT[0], FRIST_FULLT[1]),
+      ],
+    });
+    return { s, brev };
+  };
+
+  it.each([
+    ['grunnlaget', 0, 'grunnlaget'],
+    ['vederlaget', 1, 'kravet om justering av vederlaget'],
+    ['fristen', 2, 'kravet om fristforlengelse'],
+  ] as const)('brevet begrunner svaret på %s, med byggherrens tekst under', (_n, i, gjelder) => {
+    const { s, brev } = medSvar();
+    const tekst = 'Grunnen er at pålegget lå innenfor kontrakten.';
+    const rad = s.send('BH', { type: 'begrunnelse', gjelder: svarId(brev, i), utdypning: tekst });
+    // KA-U34, ordrett.
+    expect(rad.data.brevtekst).toEqual([
+      {
+        gjelder: (rad.data.utsagn as Data[])[0].id,
+        laast: `Byggherren begrunner sitt svar på ${gjelder} i brev 5 av 5. oktober 2026:`,
+        utdypning: tekst,
+      },
+    ]);
+  });
+
+  it('begrunnelsen endrer ingen standpunkter, og et senere svar på samme krav avvises fortsatt', () => {
+    const { s, brev } = medSvar();
+    const foer = s.u();
+    s.send('BH', { type: 'begrunnelse', gjelder: svarId(brev), utdypning: BEGRUNNELSE });
+    const etter = s.u();
+    expect(etter.spor).toEqual(foer.spor);
+    expect(etter.svar).toEqual(foer.svar);
+    expect(
+      s.avvist('BH', {
+        type: 'brev',
+        svar: [svar('grunnlag', s.krav('grunnlag'), grunnlagAvslaatt)],
+      })
+    ).toBe('ALLEREDE_SVART');
+  });
+
+  it('godtas når kravene er avgjort, mens en revisjon avvises (KA-U11)', () => {
+    const s = sakMedKrav();
+    const brev = s.send('BH', {
+      type: 'brev',
+      svar: [
+        svar('grunnlag', s.krav('grunnlag'), {
+          resultat: 'godkjent',
+          grunnlag_varslet_i_tide: true,
+        }),
+        svar(
+          'vederlag',
+          s.krav('vederlag'),
+          {
+            hovedkrav_vurdering: 'godkjent',
+            hovedkrav_godkjent_belop: 125000,
+            aksepterer_metode: true,
+          },
+          { resultat: 'godkjent', godkjent_beloep: 125000 }
+        ),
+        svar('frist', s.krav('frist'), FRIST_FULLT[0], FRIST_FULLT[1]),
+      ],
+    });
+    expect(
+      s.avvist('BH', {
+        type: 'revisjon',
+        erstatter: svarId(brev, 2),
+        svar: svar('frist', s.krav('frist'), FRIST_FULLT[0], FRIST_FULLT[1]),
+      })
+    ).toBe('KRAVENE_AVGJORT');
+    expect(
+      s.avvist('BH', { type: 'begrunnelse', gjelder: svarId(brev, 2), utdypning: BEGRUNNELSE })
+    ).toBeNull();
+  });
+
+  it('godtas når kravet i sporet er trukket og når partene er enige om at grunnlaget er avvist', () => {
+    const { s, brev } = medSvar();
+    s.send('TE', { type: 'trekk', spor: 'frist' });
+    expect(
+      s.avvist('BH', { type: 'begrunnelse', gjelder: svarId(brev, 2), utdypning: BEGRUNNELSE })
+    ).toBeNull();
+    s.send('TE', {
+      type: 'aksept',
+      spor: 'grunnlag',
+      svar: svarId(brev),
+      regelversjon: KJERNE.regler.versjon,
+    });
+    expect(s.u().grunnlagAvvist, 'forutsetning: SK-01').toBe(true);
+    expect(
+      s.avvist('BH', { type: 'begrunnelse', gjelder: svarId(brev), utdypning: BEGRUNNELSE })
+    ).toBeNull();
+  });
+
+  it('et svar som er erstattet av en revisjon, og et registrert svar kan begrunnes', () => {
+    const { s, brev } = medSvar();
+    s.send('BH', {
+      type: 'revisjon',
+      erstatter: svarId(brev, 1),
+      svar: svar(
+        'vederlag',
+        s.krav('vederlag'),
+        { ...VEDERLAG_DELVIS[0], hovedkrav_godkjent_belop: 110000 },
+        { resultat: 'delvis_godkjent', godkjent_beloep: 110000 }
+      ),
+    });
+    const rad = s.send('BH', {
+      type: 'begrunnelse',
+      gjelder: svarId(brev, 1),
+      utdypning: BEGRUNNELSE,
+    });
+    expect(laast(rad)).toEqual([
+      'Byggherren begrunner sitt svar på kravet om justering av vederlaget i brev 5 av 5. oktober 2026:',
+    ]);
+
+    const t = sak();
+    t.send('TE', GRUNNLAGSKRAV);
+    const registrert = t.rad('BH', {
+      svar: [
+        {
+          id: randomUUID(),
+          spor: 'grunnlag',
+          gjelder: t.krav('grunnlag'),
+          standpunkter: [{ id: randomUUID(), art: 'grunnlag', resultat: 'avslaatt' }],
+        },
+      ],
+      opplysninger: [{ id: randomUUID(), hva: 'sendt', dato: '2026-09-30' }],
+    });
+    // KA-U18: et registrert brev kan stå uten begrunnelse, og den kan komme senere.
+    expect(
+      laast(
+        t.send('BH', { type: 'begrunnelse', gjelder: svarId(registrert), utdypning: BEGRUNNELSE })
+      )
+    ).toEqual(['Byggherren begrunner sitt svar på grunnlaget i brev 3 av 30. september 2026:']);
+  });
+
+  it('en begrunnelse sendt utenfor appen registreres uten tekst, med brevet som vedlegg (KA-U35)', () => {
+    const { s, brev } = medSvar();
+    const foer = s.u();
+    const vedlegg = randomUUID();
+    const rad = s.send('BH', {
+      type: 'begrunnelse',
+      gjelder: svarId(brev),
+      sendt: '2026-10-05',
+      dokumentasjon: [vedlegg],
+    });
+    expect(
+      rad.data.brevtekst,
+      'et registrert brev har ingen tekst fra appen (MM-U17)'
+    ).toBeUndefined();
+    expect(rad.data.utsagn).toEqual([
+      { id: expect.any(String), art: 'begrunnelse', gjelder: svarId(brev) },
+    ]);
+    expect(rad.data.opplysninger).toEqual([
+      { id: expect.any(String), hva: 'sendt', dato: '2026-10-05' },
+    ]);
+    expect(rad.data.dokumentasjon).toEqual([vedlegg]);
+    const etter = s.u();
+    expect(etter.forstaatt).toBe(true);
+    expect(etter.spor).toEqual(foer.spor);
+  });
+
+  it('en registrert begrunnelse uten brevet som vedlegg eller med tekst avvises (KA-U35)', () => {
+    const { s, brev } = medSvar();
+    const registrert = { type: 'begrunnelse', gjelder: svarId(brev), sendt: '2026-10-05' };
+    expect(
+      s.avvist('BH', { ...registrert, dokumentasjon: [randomUUID()] }),
+      'kontrollsak'
+    ).toBeNull();
+    expect(s.avvist('BH', registrert)).toBe('UGYLDIG_FORM');
+    expect(
+      s.avvist('BH', { ...registrert, dokumentasjon: [randomUUID()], utdypning: BEGRUNNELSE })
+    ).toBe('UGYLDIG_FORM');
+    expect(s.avvist('TE', { ...registrert, dokumentasjon: [randomUUID()] })).toBe('FEIL_PART');
+  });
+
+  it('en begrunnelse fra appen har ingen vedlegg, og en registrert har ingen brevtekst (KA-U34, MM-U17)', () => {
+    const { s, brev } = medSvar();
+    const fraAppen = { type: 'begrunnelse', gjelder: svarId(brev), utdypning: BEGRUNNELSE };
+    expect(s.avvist('BH', fraAppen), 'kontrollsak').toBeNull();
+    expect(s.avvist('BH', { ...fraAppen, dokumentasjon: [randomUUID()] })).toBe('UGYLDIG_FORM');
+    const registrert = {
+      type: 'begrunnelse',
+      gjelder: svarId(brev),
+      sendt: '2026-10-05',
+      dokumentasjon: [randomUUID()],
+    };
+    expect(s.avvist('BH', { ...registrert, brevtekst: ['Teksten.'] })).not.toBeNull();
+  });
+
+  it('avvises fra TE, når den ikke gjelder et svar, og uten tekst', () => {
+    const { s, brev } = medSvar();
+    expect(
+      s.avvist('TE', { type: 'begrunnelse', gjelder: svarId(brev), utdypning: BEGRUNNELSE })
+    ).toBe('FEIL_PART');
+    expect(
+      s.avvist('BH', { type: 'begrunnelse', gjelder: s.krav('grunnlag'), utdypning: BEGRUNNELSE })
+    ).toBe('INGEN_SVAR_AA_BEGRUNNE');
+    expect(s.avvist('BH', { type: 'begrunnelse', gjelder: svarId(brev), utdypning: ' ' })).toBe(
+      'BEGRUNNELSE_MANGLER'
+    );
+  });
+
+  it('en begrunnelse fra TE eller av noe annet enn et svar gjør saken ikke forstått (MM-U2)', () => {
+    const { s, brev } = medSvar();
+    const lest = (part: Part, gjelder: string) =>
+      utledJournal(
+        [
+          ...s.journal,
+          {
+            ...s.journal.at(-1)!,
+            event_id: randomUUID(),
+            versjon: s.journal.at(-1)!.versjon + 1,
+            aktor_rolle: part,
+            data: { utsagn: [{ id: randomUUID(), art: 'begrunnelse', gjelder }] },
+          },
+        ],
+        KJERNE
+      ).forstaatt;
+    expect(lest('BH', svarId(brev)), 'kontrollsak').toBe(true);
+    expect(lest('TE', svarId(brev))).toBe(false);
+    expect(lest('BH', s.krav('grunnlag'))).toBe(false);
+  });
+});
+
+describe('meldingen når kravene er avgjort, sier hvordan hvert krav ble avgjort (KA-U11, #448)', () => {
+  const godkjentGrunnlag = { resultat: 'godkjent', grunnlag_varslet_i_tide: true };
+  const heltVederlag = [
+    { hovedkrav_vurdering: 'godkjent', hovedkrav_godkjent_belop: 125000, aksepterer_metode: true },
+    { resultat: 'godkjent', godkjent_beloep: 125000 },
+  ] as const;
+
+  /** Grunnlaget godkjent og vederlaget godkjent fullt (enighet ved sammenfall); fristen ikke sendt. */
+  const utenFrist = () => {
+    const s = sak();
+    s.send('TE', GRUNNLAGSKRAV);
+    s.send('TE', { type: 'krav', spor: 'vederlag', innhold: { metode: 'tilbud', beloep: 125000 } });
+    s.send('BH', {
+      type: 'brev',
+      svar: [
+        svar('grunnlag', s.krav('grunnlag'), godkjentGrunnlag),
+        svar('vederlag', s.krav('vederlag'), heltVederlag[0], heltVederlag[1]),
+      ],
+    });
+    return s;
+  };
+
+  it('et spor TE fortsatt kan sende, gjør at kravene ikke er avgjort', () => {
+    const s = utenFrist();
+    expect(s.avvist('TE', FRISTKRAV)).toBeNull();
+  });
+
+  it('når TE ikke krever fristforlengelse, er kravene avgjort, og meldingen sier hvorfor', () => {
+    const s = utenFrist();
+    s.send('TE', { type: 'ingen_krav', spor: 'frist' });
+    expect(s.avvisning('TE', { type: 'trekk', spor: 'vederlag' })).toEqual({
+      regel: 'KRAVENE_AVGJORT',
+      melding:
+        'Kravene i saken er avgjort: byggherren har godkjent grunnlaget, partene er enige om svaret på kravet om justering av vederlaget og TE krever ikke fristforlengelse.',
+    });
+  });
+
+  it('et trukket krav står som trukket i meldingen', () => {
+    const s = utenFrist();
+    s.send('TE', FRISTKRAV);
+    s.send('TE', { type: 'trekk', spor: 'frist' });
+    expect(s.avvisning('TE', { type: 'trekk', spor: 'vederlag' })?.melding).toBe(
+      'Kravene i saken er avgjort: byggherren har godkjent grunnlaget, partene er enige om svaret på kravet om justering av vederlaget og kravet om fristforlengelse er trukket.'
+    );
   });
 });
 
