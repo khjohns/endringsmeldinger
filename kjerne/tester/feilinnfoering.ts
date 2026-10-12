@@ -6,7 +6,7 @@
  * F49–F51 og F54–F58 versjoneringen (#316), F52–F53 registrert korrespondanse
  * (#336), F59–F60 kodene i formatet og predikatet for endringsordre
  * (#335, #351), F61–F104 byggedel 1 av #309, F105–F131 brevteksten (#369),
- * F132–F134 LV-U5 (#414), F135–F148 MM-U20 (#405) og VS-U15 (#411), og F149–F150
+ * F132–F134 LV-U5 (#414), F135–F148 MM-U20 (#405) og VS-U15 (#411), og F149–F151
  * merkingen i et lukket spor (#426). Én mutasjon
  * om gangen per arbeidskopi, Vitest over hele `kjerne/`
  * og `sprakprove/kjernelagring/`, og originalteksten settes tilbake etterpå. For
@@ -1636,11 +1636,24 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        "return (s === n || s === 'grunnlag') && bakover(id, t.id);",
-        'return s === n && bakover(id, t.id);',
+        "return (s === n || s === 'grunnlag') && !bakover(t.id, id);",
+        'return s === n && !bakover(t.id, id);',
       ],
     ],
     mal: ['F-MM-M7b'],
+  },
+  {
+    id: 'F151',
+    feilklasse:
+      'et trekk etter avsenderens revisjon gjenoppretter sperren som revisjonen opphevet (KA-U20, KA-U26, #426)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        "return (s === n || s === 'grunnlag') && !bakover(t.id, id);",
+        "return s === n || s === 'grunnlag';",
+      ],
+    ],
+    mal: ['F-MM-M7c'],
   },
 ];
 
@@ -1840,11 +1853,20 @@ async function arbeider(
 const argumenter = process.argv.slice(2);
 const bareAnkre = argumenter.includes('--ankre');
 const valgt = argumenter.filter((a) => a !== '--ankre');
+const ukjente = valgt.filter((id) => !MUTASJONER.some((m) => m.id === id));
+if (ukjente.length) throw new Error(`Ukjente feilinnføringer: ${ukjente.join(', ')}`);
 const valgte = MUTASJONER.filter((m) => !valgt.length || valgt.includes(m.id));
+// Endringene i én feilinnføring gjøres etter hverandre, så hvert anker slås opp i teksten
+// slik den er etter de foregående.
 for (const m of valgte)
-  for (const [fra] of m.endringer)
-    if (readFileSync(m.fil, 'utf8').split(fra).length !== 2)
-      throw new Error(`${m.id}: «${fra}» finnes ikke nøyaktig én gang i ${m.fil}`);
+  m.endringer.reduce(
+    (tekst, [fra, til]) => {
+      if (tekst.split(fra).length !== 2)
+        throw new Error(`${m.id}: «${fra}» finnes ikke nøyaktig én gang i ${m.fil}`);
+      return tekst.replace(fra, til);
+    },
+    readFileSync(m.fil, 'utf8')
+  );
 const delform = /^(\d+)\/(\d+)$/.exec(process.env.FEILINNFOERING_DEL ?? '1/1');
 const [del, deler] = [Number(delform?.[1]), Number(delform?.[2])];
 if (!delform || del < 1 || del > deler)
