@@ -228,8 +228,8 @@ skriver ikke der.
   kontrollert én gang, da spørsmålet ble stilt (over). Kommer et svar som ikke
   passer på et alternativ, stilles et oppfølgingsspørsmål.
 - Før vedtaks-PR-en merges, kontrollerer en subagent én gang `folge` i de nye
-  postene og hver ny eller endret tekst i `etter` og `innledning` mot svarene
-  ordrett. Den ser etter ord oppdragsgiver ikke har sagt, slutninger,
+  postene, hver endret `folge` i en importert post og hver ny eller endret
+  tekst i `etter` og `innledning` mot svarene ordrett. Den ser etter ord oppdragsgiver ikke har sagt, slutninger,
   beskrivelser av dagens atferd uten belegg, og arbeidsstatus.
 - Merknaden om at et punkt i en arbeidspakke er levert, skriver orkestratoren i
   en egen liten PR etter mergen.

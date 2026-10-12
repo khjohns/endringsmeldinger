@@ -450,7 +450,7 @@ def test_en_gyldig_ny_post_i_det_levende_registeret(register, plan):
     senere["gruppe"][0]["vedtak"][-1]["folge"] = "Bygget 13.10"
     senere_plan = vr.plan_med(senere, plan)
     assert vr.endrede_rader(ny_plan, senere_plan) == []
-    assert vr.endret_rundt_vedtakene(ny_plan, senere_plan) == []
+    assert vr.endret_rundt_vedtakene(ny_plan, senere_plan, frozenset({"zz-u99"})) == []
     assert vr.mot_grunnlag(senere, ny_plan, endret) == []
     assert (
         vr.sitatfeil(senere, {"hovedplanen": ny_plan}.get, frozenset({"ZZ-U99"})) == []
@@ -496,7 +496,7 @@ def _endre_i_avsnitt(plan: str, gammel: str, ny: str) -> str:
         (
             "Merknad 11.10 (oppdragsgiver):",
             "Merknad (oppdragsgiver):",
-            "fjernet fra Følge",
+            "Følge er endret",
         ),
     ],
 )
@@ -513,7 +513,9 @@ def test_vakta_melder_rad_flyttet_til_en_annen_gruppe(plan):
     )
     assert vr.endrede_rader(plan, flyttet) == []
     feil = vr.endret_rundt_vedtakene(plan, flyttet)
-    assert len(feil) == 1 and feil[0].endswith("raden er flyttet fra gruppen «Premissene P1–P7»"), feil
+    assert len(feil) == 1 and feil[0].endswith(
+        "raden er flyttet fra gruppen «Premissene P1–P7»"
+    ), feil
 
 
 def test_tekst_lagt_til_rundt_vedtakene_er_lov(plan):
@@ -565,3 +567,89 @@ def test_et_halvt_sitat_fra_ns_8407_er_feil():
     tekst = vr.setningstekst(ns_8407)
     assert vr.hele_setninger("33.8 Forsering ved uberettiget avslag", tekst)
     assert not vr.hele_setninger("ved uberettiget avslag", tekst)
+
+
+@pytest.mark.parametrize(
+    ("gammel", "ny"),
+    [
+        ("Presiserer KA-U8, KA-U11 og EO-U5", "Endrer KA-U8, KA-U11 og EO-U5"),
+        (
+            "Presisert 10.10 av [KA-U15](#ka-u15):",
+            "Opphevet 10.10 av [KA-U15](#ka-u15):",
+        ),
+        ("Hvor langt avkallet rekker, står i", "Hvor langt avkallet rekker, sto i"),
+    ],
+)
+def test_vakta_melder_endret_folge_i_en_importert_rad(plan, gammel, ny):
+    feil = vr.endret_rundt_vedtakene(plan, _endre_i_avsnitt(plan, gammel, ny))
+    assert any("Følge er endret" in f for f in feil), feil
+
+
+def test_folge_i_en_importert_rad_kan_fa_henvisninger_forst_og_tekst_til_slutt():
+    gammel = "Presisert 10.10 av [KA-U15](#ka-u15). Ikke bygget"
+    for ny in (
+        "Presisert 10.10 av [KA-U15](#ka-u15). Presisert 13.10 av [XX-U1](#xx-u1). Ikke bygget",
+        "Presisert 10.10 av [KA-U15](#ka-u15). Ikke bygget. Bygget 14.10",
+    ):
+        assert vr.folge_bare_lagt_til(gammel, ny), ny
+    for ny in (
+        "Presisert 13.10 av [XX-U1](#xx-u1). Ikke bygget",
+        "Presisert 13.10 av [XX-U1](#xx-u1). Presisert 10.10 av [KA-U15](#ka-u15). Delvis bygget",
+        "Ny tekst. Presisert 10.10 av [KA-U15](#ka-u15). Ikke bygget",
+    ):
+        assert not vr.folge_bare_lagt_til(gammel, ny), ny
+
+
+def test_ny_tekst_rundt_vedtakene_ma_vaere_hele_avsnitt(plan):
+    midt_i = _endre_i_avsnitt(
+        plan, "avgjort med\n> [HF-U1](#hf-u1)", "avgjort med\n> ikke\n> [HF-U1](#hf-u1)"
+    )
+    assert any(
+        "tekst er endret eller fjernet" in f
+        for f in vr.endret_rundt_vedtakene(plan, midt_i)
+    )
+
+
+def test_svaret_nevner_ikke_et_annet_alternativ(grunnregister):
+    feil = vr.valider(med(grunnregister, ny_post(svar="«A, ikke B»")))
+    assert any("svaret nevner også alternativ B" in f for f in feil), feil
+
+
+@pytest.mark.parametrize(
+    ("sitat", "kilde"),
+    [
+        ("Vedtakene står i 3.1.", "Bold"),
+        (
+            "lagringsformatet er avgjort med [HF-U1](#hf-u1) og [HF-U2](#hf-u2).",
+            "Merknad",
+        ),
+        (
+            "TEs aksept gjelder hele det konkrete svaret byggherren har gitt på gjeldende kravversjon i sporet,",
+            "ID først",
+        ),
+    ],
+)
+def test_hele_setninger_etter_fet_skrift_kolon_og_anker(plan, sitat, kilde):
+    tekst = vr.setningstekst(plan)
+    assert sitat in tekst, kilde
+    if kilde == "ID først":
+        assert (
+            vr.hele_setninger(
+                "KA-U1: " + sitat[:-1] + " med alle standpunktene i det:", tekst
+            )
+            is False
+        )
+        sitat = "KA-U1: TEs aksept gjelder hele det konkrete svaret byggherren har gitt på gjeldende kravversjon i sporet, med alle standpunktene i det: preklusjon, vilkår, beløp eller dager og subsidiære standpunkter."
+    assert vr.hele_setninger(sitat, tekst), kilde
+
+
+def test_forste_setning_etter_en_overskrift_i_ns_8407():
+    ns_8407 = vr.git_fil(vr.NS_8407_COMMIT, vr.NS_8407_STI)
+    if ns_8407 is None:
+        _uten_historikk("NS 8407-teksten i 507e2254^ finnes ikke lokalt.")
+    tekst = vr.setningstekst(ns_8407)
+    assert vr.hele_setninger(
+        "Når parten har grunnlag for å beregne omfanget, skal han uten ugrunnet opphold angi og "
+        "begrunne det antall dager han krever som fristforlengelse.",
+        tekst,
+    )
