@@ -62,7 +62,7 @@ til vedtaket selv eller, i passiv form, til en ny post, er en feil. Importen nek
 skrive over et register med forhold i de importerte postene.
 
 ```bash
-python3 docs/verktoy/vedtaksregister.py --forhold   # det som står én vei, og det som ikke leses
+python3 docs/verktoy/vedtaksregister.py --forhold   # det som står én vei og ikke leses, og kontrollen
 ```
 
 Forholdene som står bare én vei, står i `EN_VEI` i verktøyet. Listen ble lagt fram

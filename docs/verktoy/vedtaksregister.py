@@ -371,14 +371,14 @@ def uttrykkelige_forhold(register: dict) -> tuple[dict, list[str], list[str]]:
                 continue
             if retning == "aktiv":
                 noekkel = (i, art, a)
-            elif not anker(p):
-                avvik.append(
-                    f"{navn}: «{FORHOLD[art]} av #{a}» står i en rad uten anker og kan ikke føres"
-                )
-                continue
             elif er_ny(ps[alle[a]]):
                 feil.append(
                     f"{navn}: «{FORHOLD[art]} av #{a}» står i teksten, men #{a} er en ny post"
+                )
+                continue
+            elif not anker(p):
+                avvik.append(
+                    f"{navn}: «{FORHOLD[art]} av #{a}» står i en rad uten anker og kan ikke føres"
                 )
                 continue
             else:
@@ -1084,18 +1084,20 @@ def main() -> int:
     tolk.add_argument(
         "--forhold",
         action="store_true",
-        help="list forholdene i de importerte postene som står bare én vei, og det som ikke leses",
+        help="list forholdene i de importerte postene som står bare én vei og det som ikke "
+        "leses, og kontroller forholdene",
     )
     valg = tolk.parse_args()
     plan = HOVEDPLAN.read_text(encoding="utf-8")
 
     if valg.importer:
-        if REGISTER.exists() and _nye(les()):
+        gammelt = les() if REGISTER.exists() else {"gruppe": []}
+        if _nye(gammelt):
             print(
                 "Registeret har nye poster. Importen ville slettet spørsmålene og svarene deres."
             )
             return 1
-        if REGISTER.exists() and any("forhold" in p for p in poster(les())):
+        if any("forhold" in p for p in poster(gammelt)):
             print(
                 "Registeret har forhold i de importerte postene (#423). Importen ville slettet dem."
             )
