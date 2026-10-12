@@ -6,7 +6,7 @@
  * F49–F51 og F54–F58 versjoneringen (#316), F52–F53 registrert korrespondanse
  * (#336), F59–F60 kodene i formatet og predikatet for endringsordre
  * (#335, #351), F61–F104 byggedel 1 av #309, F105–F131 brevteksten (#369),
- * F132–F134 LV-U5 (#414), F135–F148 MM-U20 (#405) og VS-U15 (#411), og F149–F151
+ * F132–F134 LV-U5 (#414), F135–F148 MM-U20 (#405) og VS-U15 (#411), og F149–F152
  * merkingen i et lukket spor (#426). Én mutasjon
  * om gangen per arbeidskopi, Vitest over hele `kjerne/`
  * og `sprakprove/kjernelagring/`, og originalteksten settes tilbake etterpå. For
@@ -1654,6 +1654,19 @@ const MUTASJONER: Mutasjon[] = [
       ],
     ],
     mal: ['F-MM-M7c'],
+  },
+  {
+    id: 'F152',
+    feilklasse:
+      'et trekk i ett spor hindrer at avsenderens revisjon i et annet spor opphever sperren (KA-U26, #426)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        "return (s === n || s === 'grunnlag') && !bakover(t.id, id);",
+        'return s !== undefined && !bakover(t.id, id);',
+      ],
+    ],
+    mal: ['F-MM-M7d'],
   },
 ];
 
