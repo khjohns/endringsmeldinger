@@ -1754,10 +1754,7 @@ function testnavn(): string[] {
       throw new Error(
         `vitest list feilet (status ${r.status}, signal ${r.signal}, ${r.error ?? 'ingen feil fra spawn'}):\n${r.stderr}\n${r.stdout}`
       );
-    // `vitest list` skiller nivåene med ` > `, rapporten med mellomrom.
-    return (JSON.parse(readFileSync(ut, 'utf8')) as { name: string }[]).map((t) =>
-      t.name.split(' > ').join(' ')
-    );
+    return (JSON.parse(readFileSync(ut, 'utf8')) as { name: string }[]).map((t) => t.name);
   } finally {
     rmSync(mappe, { recursive: true, force: true });
   }
@@ -1961,10 +1958,11 @@ if (!delform || del < 1 || del > deler)
 const navn = testnavn();
 const malfeil = valgte.flatMap((m) =>
   m.mal
-    .filter((mal) => !navn.some((n) => treffer(n, mal)))
+    // `vitest list` skiller nivåene med ` > `, rapporten med mellomrom.
+    .filter((mal) => !navn.some((n) => treffer(n, mal) || treffer(n.split(' > ').join(' '), mal)))
     .map(
       (mal) =>
-        `${m.id}: målet «${mal}» er ikke en del av navnet på noen test, som helt ord eller hel ID`
+        `${m.id}: målet «${mal}» er ikke en del av navnet på noen test (et mål treffer ikke midt i et ord eller en ID)`
     )
 );
 if (malfeil.length) throw new Error(malfeil.join('\n'));

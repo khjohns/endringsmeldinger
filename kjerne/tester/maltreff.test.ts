@@ -14,6 +14,9 @@ describe('målet til en feilinnføring', () => {
     ['forløp A–E i minnet F-MM-D-godtatt og F-MM-D', 'F-MM-D'],
     ['avviser constructor i innholdet', 'avviser constructor'],
     ['brevet med teksten i VS-U15', 'med teksten i VS-U15'],
+    ['viser «ingen krav» før grunnlaget er sendt', '«ingen krav» før grunnlaget er sendt'],
+    ['vakten «ingen krav»x', '«ingen krav»'],
+    ['reglene leser bare det LESBART tillater utledning/utled.ts', 'utledning/utled.ts'],
   ])('«%s» treffes av «%s»', (navn, mal) => {
     expect(treffer(navn, mal)).toBe(true);
   });
@@ -26,6 +29,7 @@ describe('målet til en feilinnføring', () => {
     ['forløp A–E i minnet XF-MM-D', 'F-MM-D'],
     ['brevet med teksten i VS-U15a', 'med teksten i VS-U15'],
     ['avviser constructor i innholdet', 'avviser constr'],
+    ['reglene leser utledning/utled.tsx', 'utledning/utled.ts'],
   ])('«%s» treffes ikke av «%s»', (navn, mal) => {
     expect(treffer(navn, mal)).toBe(false);
   });
