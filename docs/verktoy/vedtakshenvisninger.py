@@ -35,7 +35,7 @@ B_ID = r"B-\d{2}"
 HENVISNING = re.compile(rf"(?<![\w-])(?:{U_ID}|{B_ID})(?![\w-])")
 B_FOERST = re.compile(rf"^{B_ID}\b")
 AAPEN_B = re.compile(rf"^\| ({B_ID}) \|", re.MULTILINE)
-HISTORISK = re.compile(r"\bhistorisk\b", re.IGNORECASE)
+HISTORISK = re.compile(r"(?<!ikke )\bhistorisk\b", re.IGNORECASE)
 KOMMENTAR = re.compile(r"^\s*(//|/\*|\*|<!--|#(\s|$))")
 MARKOERER = re.compile(r"/\*+|\*+/|//+|<!--|-->|^\s*\*+|^\s*#")
 LUKKES = {"/*": "*/", "<!--": "-->"}
@@ -54,33 +54,35 @@ def _ider(post: dict) -> set[str]:
 
 def vedtak(register: dict) -> tuple[set[str], set[str]]:
     """ID-ene til vedtakene i registeret og ID-ene til dem som er opphevet."""
-    ps = vr.poster(register)
-    etter_anker = {vr.anker(p): _ider(p) for p in ps if vr.anker(p)}
-    kjente = set().union(*map(_ider, ps))
-    opphevet = {
-        i
-        for p in ps
-        for f in p.get("forhold", [])
-        if f["art"] == "opphever"
-        for i in etter_anker.get(f["vedtak"], ())
-    }
-    return kjente, opphevet
+    ider = [(p, _ider(p)) for p in vr.poster(register)]
+    etter_anker = {vr.anker(p): i for p, i in ider if vr.anker(p)}
+    opphevet = set()
+    for p, _ in ider:
+        for f in p.get("forhold", []):
+            if f["art"] == "opphever":
+                if f["vedtak"].lower() not in etter_anker:
+                    raise ValueError(
+                        f"{f['vedtak']} i et forhold er ikke et anker i registeret"
+                    )
+                opphevet |= etter_anker[f["vedtak"].lower()]
+    return set().union(*(i for _, i in ider)), opphevet
 
 
 def aapne_beslutninger(plan: str) -> set[str]:
     """B-ID-ene i tabellen over åpne beslutninger, 3.4 i hovedplanen."""
-    start = plan.find("### 3.4 ")
-    if start < 0:
+    start = re.search(r"^### 3\.4 ", plan, re.MULTILINE)
+    if start is None:
         raise ValueError("Hovedplanen har ikke avsnittet «### 3.4».")
-    slutt = re.compile(r"\n#{2,3} ").search(plan, start + 1)
-    return set(AAPEN_B.findall(plan[start : slutt.start() if slutt else None]))
+    slutt = re.compile(r"\n#{1,3} ").search(plan, start.end())
+    return set(AAPEN_B.findall(plan[start.start() : slutt.start() if slutt else None]))
 
 
 def henvisninger(tekst: str) -> list[tuple[int, str]]:
     """Linjenummeret og teksten for hvert avsnitt i en kommentar og hver annen linje.
 
-    En tom kommentarlinje skiller avsnitt. En linje som begynner med /* eller <!--,
-    åpner en kommentar som varer til den lukkes.
+    En tom kommentarlinje og slutten på en kommentar med */ eller --> skiller avsnitt.
+    En linje som begynner med /* eller <!--, åpner en kommentar som varer til den
+    lukkes. En slik kommentar etter kode på samme linje leses ikke som en kommentar.
     """
     blokker = []
     aapen = False
@@ -102,6 +104,8 @@ def henvisninger(tekst: str) -> list[tuple[int, str]]:
         else:
             blokker.append((nr, [linje]))
             aapen = kommentar
+        if lukker is None and any(slutt in linje for slutt in LUKKES.values()):
+            aapen = False
     return [(nr, "\n".join(linjer)) for nr, linjer in blokker]
 
 
