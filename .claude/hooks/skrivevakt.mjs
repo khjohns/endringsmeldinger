@@ -27,6 +27,7 @@ const SKRIVENDE = [
   /\bperl\b[^|;&]*\s-[a-zA-Z]*i/,
   /\b(mv|cp|rm|rmdir|touch|mkdir|ln|chmod|truncate|dd|install|rsync|unlink)\b/,
   /\bgit\s+(checkout|restore|rm|mv|reset|clean|stash|init|clone|submodule|worktree)\b/,
+  /\b(python3?|node|ruby|perl)\b[^|;&]*\s-[a-zA-Z]*[ce]\b/,
 ];
 
 // Skriver filer uten at stien står i kommandoen.
@@ -98,11 +99,12 @@ function sperredeFiler(filer) {
     .filter((fil) => sperretSti(fil));
 }
 
-// Kommandoledd: `;`, `&&`, `||`, `|` og linjeskift skiller dem.
+// Kommandoledd: `;`, `&&`, `||`, `|` og linjeskift skiller dem. Miljøvariabler,
+// `command` og `env` foran kommandoen fjernes, så `X=1 git push` kjennes igjen.
 function ledd(kommando) {
   return kommando
     .split(/\s*(?:;|&&|\|\||\||\r?\n)\s*/)
-    .map((del) => del.trim())
+    .map((del) => del.trim().replace(/^(?:(?:\w+=\S*|command|env|exec)\s+)+/, ''))
     .filter(Boolean);
 }
 
@@ -216,13 +218,10 @@ function vurder(input) {
 
 // Hooks i frontmatter til prosjektagenter kjører bare i en mappe som er klarert
 // i dialogen, og skyøkta har ingen (#442). Derfor kaller settings.json vakten for
-// hvert kall, og den velger selv. Agentens arbeidstre er reserven når
-// agent_type mangler.
+// hvert kall, og den velger selv etter agent_type.
 function vaktEtterAgent(input) {
   if (input.agent_type === 'diffkontroll') return 'lesing';
   if (input.agent_type === 'mekanisk-pr') return 'skriving';
-  if (input.agent_type) return null;
-  if (/[\\/]\.claude[\\/]worktrees[\\/]agent-/.test(String(input.cwd ?? ''))) return 'skriving';
   return null;
 }
 

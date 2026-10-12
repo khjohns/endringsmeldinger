@@ -89,6 +89,8 @@ describe('skrivevakten for mekanisk-pr', () => {
       'git checkout -- sprakprove/',
       'npm run format',
       'git apply /tmp/endring.patch',
+      `python3 -c "open('kjerne/a.ts','w').write('x')"`,
+      `node -e "require('fs').writeFileSync('kjerne/a.ts','x')"`,
     ]) {
       expect(bash(kommando).status, kommando).toBe(2);
     }
@@ -144,6 +146,9 @@ describe('skrivevakten for mekanisk-pr', () => {
       'git push origin annen-gren',
       'git push --force origin claude/test-1',
       'git push -fu origin claude/test-1',
+      'X=1 git push --force origin main',
+      'command git push origin main',
+      'env A=b git push origin main',
     ]) {
       expect(bash(kommando).status, kommando).toBe(2);
     }
@@ -161,6 +166,8 @@ describe('skrivevakten for mekanisk-pr', () => {
     const commit = bash('git commit -m "noe"');
     expect(commit.status).toBe(2);
     expect(commit.stderr).toContain('kjerne/a.ts');
+    expect(bash('GIT_AUTHOR_NAME=x git commit -m "noe"').status).toBe(2);
+    expect(bash('command git commit -m "noe"').status).toBe(2);
 
     git(rot, 'commit', '-qm', 'forbi vakten');
     const push = bash('git push -u origin claude/test-1');
@@ -194,7 +201,7 @@ describe('vaktvalget fra settings.json', () => {
     expect(etterAgent({ ...cat, agent_type: 'diffkontroll' }).status).toBe(2);
   });
 
-  it('bruker skrivevakten i et agentarbeidstre når agent_type mangler', () => {
+  it('slipper hovedøkta gjennom også i et agentarbeidstre', () => {
     const tre = path.join(rot, '.claude', 'worktrees', 'agent-1');
     mkdirSync(path.dirname(tre), { recursive: true });
     git(rot, 'worktree', 'add', '-q', '--detach', tre);
@@ -204,14 +211,7 @@ describe('vaktvalget fra settings.json', () => {
         tool_input: { file_path: path.join(tre, 'kjerne', 'versjon.ts') },
         cwd: tre,
       });
-      expect(svar.status).toBe(2);
-      const annenAgent = etterAgent({
-        tool_name: 'Edit',
-        tool_input: { file_path: path.join(tre, 'kjerne', 'versjon.ts') },
-        cwd: tre,
-        agent_type: 'general-purpose',
-      });
-      expect(annenAgent.status).toBe(0);
+      expect(svar.status).toBe(0);
     } finally {
       git(rot, 'worktree', 'remove', '--force', tre);
     }
