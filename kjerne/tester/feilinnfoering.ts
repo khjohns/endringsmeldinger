@@ -6,7 +6,8 @@
  * F49–F51 og F54–F58 versjoneringen (#316), F52–F53 registrert korrespondanse
  * (#336), F59–F60 kodene i formatet og predikatet for endringsordre
  * (#335, #351), F61–F104 byggedel 1 av #309, F105–F131 brevteksten (#369),
- * F132–F134 LV-U5 (#414) og F135–F148 MM-U20 (#405) og VS-U15 (#411). Én mutasjon
+ * F132–F134 LV-U5 (#414), F135–F148 MM-U20 (#405) og VS-U15 (#411), og F149–F150
+ * merkingen i et lukket spor (#426). Én mutasjon
  * om gangen per arbeidskopi, Vitest over hele `kjerne/`
  * og `sprakprove/kjernelagring/`, og originalteksten settes tilbake etterpå. For
  * hver mutasjon kreves det at de forventede målassertions feiler, og at alle
@@ -25,6 +26,9 @@
  *
  * Kjøres fra repoets rot, med testbasen oppe og `KOE_TESTBASE_URL` satt:
  *   node kjerne/tester/feilinnfoering.ts [F1 F2 ...]
+ * Med `--ankre` kontrolleres bare at hver fra-streng finnes nøyaktig én gang i
+ * fila (#430), uten kopier, base eller Vitest; det tar sekunder og kjøres før
+ * hver push som rører `kjerne/`.
  * Forventet: «oppdaget» for hver mutasjon. Hopper kontrollkjøringen over en
  * test, for eksempel lagringstestene uten testbasen, avsluttes skriptet med
  * kode 2 før noen mutasjon (#353).
@@ -988,8 +992,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        '      (x) => elementer[x.id].part === elementer[brev].part && bakover(x.id, brev)',
-        '      (x) => bakover(x.id, brev)',
+        '        elementer[x.id].part === elementer[brev].part && bakover(x.id, brev) && !etterTrekk(x.id, n)',
+        '        bakover(x.id, brev) && !etterTrekk(x.id, n)',
       ],
     ],
     mal: ['F-MM-M4'],
@@ -1617,6 +1621,27 @@ const MUTASJONER: Mutasjon[] = [
     ],
     mal: ['et varsel uten dato i et brev med krav'],
   },
+  {
+    id: 'F149',
+    feilklasse:
+      'et registrert svar fra avsenderen etter at kravet er trukket, opphever sperren (KA-U20, KA-U26, #426)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [[' && !etterTrekk(x.id, n)\n', '\n']],
+    mal: ['F-MM-M7', 'F-MM-M7b'],
+  },
+  {
+    id: 'F150',
+    feilklasse:
+      'et registrert svar fra avsenderen etter at grunnlaget er trukket, opphever sperren i et kravspor (KA-U20, KA-U26, #426)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        "return (s === n || s === 'grunnlag') && bakover(id, t.id);",
+        'return s === n && bakover(id, t.id);',
+      ],
+    ],
+    mal: ['F-MM-M7b'],
+  },
 ];
 
 interface Testresultat {
@@ -1812,7 +1837,9 @@ async function arbeider(
   }
 }
 
-const valgt = process.argv.slice(2);
+const argumenter = process.argv.slice(2);
+const bareAnkre = argumenter.includes('--ankre');
+const valgt = argumenter.filter((a) => a !== '--ankre');
 const valgte = MUTASJONER.filter((m) => !valgt.length || valgt.includes(m.id));
 for (const m of valgte)
   for (const [fra] of m.endringer)
@@ -1838,13 +1865,15 @@ for (const signal of ['SIGINT', 'SIGTERM'] as const)
     process.exit(128 + constants.signals[signal]);
   });
 
-try {
-  // Ikke `process.exit`: den venter ikke på at stdout er tømt når den går i et rør,
-  // og i CI ble slutten av utfallene borte.
-  process.exitCode = await kjoer();
-} finally {
-  rydd();
-}
+if (bareAnkre) console.log(`Ankrene i ${valgte.length} feilinnføringer finnes nøyaktig én gang.`);
+else
+  try {
+    // Ikke `process.exit`: den venter ikke på at stdout er tømt når den går i et rør,
+    // og i CI ble slutten av utfallene borte.
+    process.exitCode = await kjoer();
+  } finally {
+    rydd();
+  }
 
 async function kjoer(): Promise<number> {
   const kopier = lagArbeidskopier(antallKopier);

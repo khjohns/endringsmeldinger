@@ -101,7 +101,9 @@ To krav har hver sin utløser. Filområdet er et eksempel, ikke utløseren.
   berøres, med samme unntak (B-17). Oppgi begrensningene. En test i minnet
   beviser ikke lagringsstien.
 - Kjør de relevante CI-sjekkene, også typesjekken av TS-koden utenfor `src/`
-  (kommandoen står under «Miljø» i `AGENTS.md`). Kjør også `npm run build` når
+  (kommandoen står under «Miljø» i `AGENTS.md`). Før hver push som rører
+  `kjerne/`: `node kjerne/tester/feilinnfoering.ts --ankre`, så en endret linje
+  ikke stopper feilinnføringene i CI før de har begynt (#430). Kjør også `npm run build` når
   frontendkode, frontendavhengigheter eller byggoppsettet endres. Andre berørte
   artefakter bygges med sine dokumenterte kommandoer. Dokumentendringer alene
   krever ikke applikasjonsbygg eller full testsuite.
