@@ -353,7 +353,6 @@ describe('skrivevakten for mekanisk-pr', () => {
     for (const kommando of [
       'timeout -s KILL 5 git push origin HEAD:main',
       'timeout --signal=KILL -k 2 5 git push origin HEAD:main',
-      'env -u HOME git push origin HEAD:main',
       'env -C kjerne git push origin HEAD:main',
       'nice -n 5 git push origin HEAD:main',
       'exec -a navn git push origin HEAD:main',
@@ -364,6 +363,10 @@ describe('skrivevakten for mekanisk-pr', () => {
     // Commit og push står i et kall med bare git-ledd, så også et prefiks vakten tolker, stopper.
     expect(bash('timeout -s KILL 60 git push -u origin claude/test-1').status).toBe(2);
     expect(bash('env -u LANG npm test').status).toBe(0);
+    // Bare den tolkede kommandoen bak `env -u` gir denne begrunnelsen; tekstreglene ser `env`.
+    const env = bash('env -u LANG git -c alias.x=y status');
+    expect(env.status).toBe(2);
+    expect(env.stderr).toContain('endrer ikke git-oppsettet');
     expect(bash('timeout 300 npx vitest run docs').status).toBe(0);
   });
 
@@ -554,6 +557,69 @@ describe('skrivevakten for mekanisk-pr', () => {
       expect(commit.stderr).toContain('.husky/pre-push');
     } finally {
       rmSync(path.join(rot, '.husky'), { recursive: true, force: true });
+    }
+  });
+
+  it('stopper alle skrivemåter av .claude som mål, men ikke en navngitt fil under hooks', () => {
+    for (const kommando of [
+      `cp -r /tmp/c/. ${rot}/.claude//`,
+      'cp -r /tmp/c/. .claude/./',
+      'cp -r /tmp/c/. .claude/hooks/..',
+      'cd .claude/hooks && cp -r /tmp/c/. ..',
+      'cp /tmp/x .claude/skills/x/../../settings.json',
+    ]) {
+      expect(bash(kommando).status, kommando).toBe(2);
+    }
+    expect(bash('cp /tmp/x .claude/agents/ny.md').status).toBe(0);
+  });
+
+  it('leser miljøvariabler bare som tilordning eller navn, ikke inne i en tekst', () => {
+    for (const kommando of [
+      'git commit -m "stopp HOME i vakten"',
+      'gh api -X PATCH repos/o/r/pulls/5 -F "body=Retter HOME og XDG i vakten"',
+    ]) {
+      expect(bash(kommando).status, kommando).toBe(0);
+    }
+    for (const kommando of [
+      'ZDOTDIR=/tmp/z zsh -c "git status"',
+      'PATH=/tmp/x git status',
+      'GH_PAGER=/tmp/x gh pr list',
+      'LD_PRELOAD=/tmp/x.so git status',
+      'NODE_OPTIONS=--require=/tmp/x.js npx prettier --check docs',
+    ]) {
+      expect(bash(kommando).status, kommando).toBe(2);
+    }
+  });
+
+  it('tolker samlede kortflagg i gh api og stopper gh-underkommandoer som endrer tilstanden', () => {
+    expect(bash('gh api -XPATCH repos/o/r/pulls/5 -F body=@/tmp/b.md').status).toBe(0);
+    expect(bash('gh api -i -q .x -X PATCH repos/o/r/pulls/5 -f title=x').status).toBe(0);
+    for (const kommando of [
+      'gh api -XPATCH repos/o/r/pulls/5 -fstate=closed',
+      'gh api -X POST repos/o/r/pulls -F issue=3 -f head=x -f base=main',
+      'gh api -X DELETE repos/o/r/issues/comments/9',
+      'gh api -iz repos/o/r/pulls/5',
+      'gh pr close 5',
+      'gh pr reopen 5',
+      'gh pr ready 5',
+      'gh issue close 5',
+    ]) {
+      expect(bash(kommando).status, kommando).toBe(2);
+    }
+  });
+
+  it('stopper Edit i .husky i et arbeidstre inne i hovedkopien', () => {
+    const tre = path.join(rot, 'docs', 'tre-husky');
+    git(rot, 'worktree', 'add', '-q', '--detach', tre);
+    try {
+      const svar = kjor({
+        tool_name: 'Edit',
+        tool_input: { file_path: path.join(tre, '.husky', 'pre-commit') },
+        cwd: rot,
+      });
+      expect(svar.status).toBe(2);
+    } finally {
+      git(rot, 'worktree', 'remove', '--force', tre);
     }
   });
 
