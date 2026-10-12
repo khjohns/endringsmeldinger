@@ -1,0 +1,222 @@
+"""Temavisningene av regelgrunnlaget (#454, punkt 5 og 9 i #451).
+
+Forventningene står i #451: visningen er generert og kontrollert i CI, samler
+vedtakene ordrett med kjedene, lager ingen sammenslått gjeldende ordlyd og sier at
+3.1 er autoritativ. #454 legger til de forkastede alternativene, henvisningene og
+kontrollsummen, og arbeidsvalg A i kommentaren på #454 sier hvilke vedtak et tema
+har: også hvert vedtak som endrer, utvider, snevrer inn, presiserer eller opphever
+et vedtak i temaet.
+"""
+
+import copy
+import datetime
+import importlib.util
+import pathlib
+import re
+
+import pytest
+
+ROT = pathlib.Path(__file__).resolve().parents[3]
+
+
+def _verktoy():
+    spesifikasjon = importlib.util.spec_from_file_location(
+        "temavisning", ROT / "docs" / "verktoy" / "temavisning.py"
+    )
+    modul = importlib.util.module_from_spec(spesifikasjon)
+    spesifikasjon.loader.exec_module(modul)
+    return modul
+
+
+tv = _verktoy()
+vr = tv.vr
+
+GRUNNLAGSSVAR = "grunnlagssvar-som-endringsordre"
+MERKET = re.compile(r"^\*\*((?:Forkastet|Utsatt)[^*]*:)\*\* ")
+
+
+@pytest.fixture(scope="module")
+def kilder():
+    return tv.les_kilder()
+
+
+@pytest.fixture(scope="module")
+def temaer():
+    return tv.les_temaer()
+
+
+@pytest.fixture
+def tema(temaer):
+    return copy.deepcopy(next(t for t in temaer if t["id"] == GRUNNLAGSSVAR))
+
+
+def _post(register: dict, anker: str) -> dict:
+    return next(p for p in vr.poster(register) if vr.anker(p) == anker)
+
+
+def _ny_post_som_endrer_gr_u13() -> dict:
+    return {
+        "id": "XX-U1",
+        "dato": datetime.date(2026, 10, 12),
+        "hvem": "oppdragsgiver",
+        "kilde": ["#454"],
+        "sporsmal": "Spørsmålet.",
+        "alternativ": [
+            {"navn": "A", "tekst": "Det valgte alternativet."},
+            {"navn": "B", "tekst": "Et forkastet alternativ.", "forkastet": True},
+        ],
+        "valgt": "A",
+        "svar": "«A»",
+        "forhold": [{"art": "endrer", "vedtak": "gr-u13"}],
+    }
+
+
+def _med_ny_post(kilder: dict) -> dict:
+    endret = copy.deepcopy(kilder)
+    endret["register"]["gruppe"][0]["vedtak"].append(_ny_post_som_endrer_gr_u13())
+    return endret
+
+
+def test_temaene_er_gyldige(temaer, kilder):
+    assert [m for t in temaer for m in tv.feil(t, kilder["register"])] == []
+
+
+def test_den_innsjekkede_visningen_er_lik_generatoren(temaer, kilder):
+    for tema in temaer:
+        assert tv.sti(tema).read_text(encoding="utf-8") == tv.visning(tema, kilder), (
+            f"{tv.sti(tema).relative_to(ROT)} er ikke lik det generatoren lager. "
+            "Kjør python3 docs/verktoy/temavisning.py."
+        )
+
+
+def test_visningen_sier_at_3_1_er_autoritativ_og_lager_ingen_sammenslatt_ordlyd(tema, kilder):
+    tekst = tv.visning(tema, kilder)
+    assert "**Avsnitt [3.1 i hovedplanen](" in tekst
+    assert "er autoritativ.**" in tekst
+    assert "lager ingen sammenslått gjeldende ordlyd" in tekst
+
+
+def _seksjon(tekst: str, etikett: str) -> list[str]:
+    linjer = tekst.split("\n### ")
+    return next(d for d in linjer if d.split("\n", 1)[0].endswith(f"</a>{etikett}")).splitlines()[1:]
+
+
+def test_hvert_vedtak_i_temaet_star_ordrett_med_det_forkastede_merket_for_seg(tema, kilder):
+    tekst = tv.visning(tema, kilder)
+    for vedtak in tema["vedtak"]:
+        post = _post(kilder["register"], vedtak.lower())
+        seksjon = [linje for linje in _seksjon(tekst, vr.etikett(post)) if linje]
+        sitat = [linje.removeprefix("> ") for linje in seksjon if linje.startswith("> ")]
+        forkastet = [MERKET.sub(r"\1 ", linje) for linje in seksjon if MERKET.match(linje)]
+        assert len(sitat) == 1
+        assert not tv.MERKE.search(sitat[0])
+        assert re.sub(r"\]\([^)]*#", "](#", " ".join(sitat + forkastet)) == vr.linje(post["vedtak"])
+
+
+@pytest.mark.parametrize("anker, merker", [
+    ("gr-u14", ["Forkastet for registrerte krav:"]),
+    ("lv-u4", ["Forkastet for setningen om endringsordren i punkt 1:", "Forkastet for punkt 6:"]),
+    ("ka-u16", ["Forkastet foreløpig:"]),
+    ("ka-u19", ["Forkastet:", "Utsatt:"]),
+    ("gr-u10", []),
+])
+def test_de_forkastede_alternativene_skilles_ut_med_merket_og_teksten_blir_lik_3_1(anker, merker, kilder):
+    post = _post(kilder["register"], anker)
+    vedtak, forkastet = tv.vedtak_og_forkastet(post)
+    assert [m for m, _ in forkastet] == merker
+    assert " ".join([vedtak, *(f"{m} {t}" for m, t in forkastet)]) == vr.linje(post["vedtak"])
+
+
+def test_kjeden_viser_forholdene_begge_veier(tema, kilder):
+    tekst = tv.visning(tema, kilder)
+    assert "| [GR-U13](#gr-u13) | Endrer [GR-U10](#gr-u10); Endrer [GR-U12](#gr-u12) |" in tekst
+    assert "| [GR-U10](#gr-u10) |" in tekst and "Endret av [GR-U13](#gr-u13) |" in tekst
+    assert "Utvidet av [GR-U15](#gr-u15)" in tekst
+
+
+def test_vedtak_utenfor_temaet_lenkes_til_3_1(tema, kilder):
+    tekst = tv.visning(tema, kilder)
+    assert f"[GR-U2]({tv.TIL_PLANEN}#gr-u2)" in tekst
+    assert "[GR-U2](#gr-u2)" not in tekst
+
+
+def test_regelradene_og_bevis_sakene_som_viser_til_vedtaket_er_med(tema, kilder):
+    tekst = tv.visning(tema, kilder)
+    gr_28 = next(r for r in kilder["regler"]["rader"] if r["id"] == "GR-28")
+    assert {"GR-U10", "GR-U12", "GR-U13"} <= set(gr_28["kilder"])
+    assert '<a id="rad-gr-28"></a>GR-28' in tekst
+    assert "[GR-28](#rad-gr-28)" in tekst
+    assert "F-MM-G18 (målmodellen)" in tekst
+
+
+def test_et_vedtak_som_endrer_kjeden_og_mangler_i_temaet_gir_feil(tema, kilder):
+    tema["vedtak"].remove("GR-U14")
+    assert tv.feil(tema, kilder["register"]) == [
+        f"{GRUNNLAGSSVAR}: GR-U14 endrer GR-U13, men står ikke i temaet"
+    ]
+
+
+def test_et_nytt_vedtak_som_endrer_kjeden_gir_feil_til_det_er_tatt_inn(tema, kilder):
+    endret = _med_ny_post(kilder)
+    assert tv.feil(tema, endret["register"]) == [
+        f"{GRUNNLAGSSVAR}: XX-U1 endrer GR-U13, men står ikke i temaet"
+    ]
+    tema["vedtak"].append("XX-U1")
+    assert tv.feil(tema, endret["register"]) == []
+    tekst = tv.visning(tema, endret)
+    assert "> XX-U1: Det valgte alternativet." in tekst
+    assert "**Forkastet:** «Et forkastet alternativ.»" in tekst
+    assert "Endret 12.10 av [XX-U1](#xx-u1)." in tekst
+
+    senere_dato = copy.deepcopy(endret)
+    _post(senere_dato["register"], "xx-u1")["dato"] = datetime.date(2026, 10, 13)
+    assert tv.kontrollsum(tv.utdrag(tema, senere_dato)) != tv.kontrollsum(tv.utdrag(tema, endret))
+
+
+def test_et_ukjent_vedtak_og_en_kjerne_utenfor_vedtakene_gir_feil(tema, kilder):
+    tema["vedtak"].append("GR-U99")
+    tema["kjerne"].append("GR-U16")
+    assert tv.feil(tema, kilder["register"]) == [
+        f"{GRUNNLAGSSVAR}: GR-U99 er ikke et vedtak med anker i registeret",
+        f"{GRUNNLAGSSVAR}: GR-U16 står i kjernen, men ikke i vedtakene",
+    ]
+
+
+def test_kontrollsummen_endres_med_kildegrunnlaget_og_ikke_med_resten(tema, kilder):
+    for_ = tv.kontrollsum(tv.utdrag(tema, kilder))
+
+    rad = copy.deepcopy(kilder)
+    next(r for r in rad["regler"]["rader"] if r["id"] == "GR-28")["tilfelle"] += " Endret."
+    assert tv.kontrollsum(tv.utdrag(tema, rad)) != for_
+
+    post = copy.deepcopy(kilder)
+    _post(post["register"], "gr-u13")["folge"] += " Endret."
+    assert tv.kontrollsum(tv.utdrag(tema, post)) != for_
+
+    lenket = set(tv.utdrag(tema, kilders := copy.deepcopy(kilder))["etiketter"])
+    medlemmer = {v.lower() for v in tema["vedtak"]}
+    utenfor = next(
+        p for p in vr.poster(kilders["register"])
+        if vr.anker(p) and vr.anker(p) not in lenket | medlemmer and "folge" in p
+    )
+    utenfor["folge"] += " Endret."
+    assert tv.kontrollsum(tv.utdrag(tema, kilders)) == for_
+
+
+def test_et_vedtak_som_star_to_ganger_med_ulik_skrivemate_gir_feil(tema, kilder):
+    tema["vedtak"].append("gr-u10")
+    assert tv.feil(tema, kilder["register"]) == [
+        f"{GRUNNLAGSSVAR}: et vedtak står mer enn én gang"
+    ]
+
+
+def test_en_visning_uten_tema_er_foreldreloes(temaer, tmp_path, monkeypatch):
+    monkeypatch.setattr(tv, "MAPPE", tmp_path)
+    for tema in temaer:
+        tv.sti(tema).write_text("", encoding="utf-8")
+    (tmp_path / "gammelt-tema.md").write_text("", encoding="utf-8")
+    assert tv.foreldreloese(temaer) == [tmp_path / "gammelt-tema.md"]
+
+
+def test_ingen_innsjekket_visning_er_foreldreloes(temaer):
+    assert tv.foreldreloese(temaer) == []
