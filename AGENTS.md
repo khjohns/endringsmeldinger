@@ -123,7 +123,9 @@ Med `KOE_TESTBASE_URL` kjører `npm test` også TS-databasetestene. Kjør dem ik
 samtidig med pytest mot samme base: oppryddingen i pytest setter basen tilbake.
 `node kjerne/tester/feilinnfoering.ts` kjører feilinnføringene for kjernen, i
 parallelle kopier av treet med hver sin testbase. Én kjøring tar lang tid; start
-den i bakgrunnen. I CI fordeler workflowen `feilinnfoering.yml` dem på tre
+den i bakgrunnen. Med `--ankre` kontrollerer den bare at teksten hver
+feilinnføring bytter ut, finnes nøyaktig én gang. Det tar sekunder; kjør det
+før hver push som rører `kjerne/`. I CI fordeler workflowen `feilinnfoering.yml` dem på tre
 jobber og kjører dem om natta når kjernen, lagringstestene eller
 verktøykjeden er endret, ved manuell start og på PR-er med etiketten
 `feilinnfoering`. Sett etiketten på en PR som rører kjernen, før merge.

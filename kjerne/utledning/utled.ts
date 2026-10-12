@@ -347,7 +347,7 @@ export function utled(journal: Domenehendelse[], regler: Regelsett): Utledning {
   for (const [i, h] of journal.entries()) {
     if (h.art !== 'dokument' || !kanStride(h.dokument)) continue;
     // Kontrollen trenger saken slik den var før dokumentet, så prefikset utledes for
-    // hvert dokument som kan endre utfallet.
+    // hvert dokument som kan endre utfallet. Kostnaden er målt i #400.
     const foer = utledSporene(journal.slice(0, i), regler, uten);
     if (!foer.forstaatt) break;
     const registrert = erRegistrert(h.dokument.opplysninger);
@@ -746,12 +746,20 @@ function utledSporene(
 
   // KA-U16, KA-U20, KA-U26: en merking gjelder i sporene den oppgir, også når elementet
   // i brevet er uten virkning, til den som sendte brevet har sagt noe nytt i sporet: en
-  // avklaring, eller et krav eller svar med virkning etter brevet.
+  // avklaring, eller et krav eller svar med virkning etter brevet, i et spor som ikke er
+  // lukket. Et svar etter et trekk er ikke en revisjon der den er tillatt, selv når det
+  // leses med virkning (KA-U20, MM-U20, #426).
   const avklaringer = henvisninger.filter((x) => x.art === 'avklaring');
   const avklaringAv = (id: string) => avklaringer.find((a) => a.gjelder === id)?.id ?? null;
+  const etterTrekk = (id: string, n: Spor) =>
+    trekk.some((t) => {
+      const s = alleKrav.get(t.gjelder)?.spor;
+      return (s === n || s === 'grunnlag') && bakover(id, t.id);
+    });
   const nyttFraAvsenderen = (brev: string, n: Spor) =>
     [...spor[n].krav, ...spor[n].svar].some(
-      (x) => elementer[x.id].part === elementer[brev].part && bakover(x.id, brev)
+      (x) =>
+        elementer[x.id].part === elementer[brev].part && bakover(x.id, brev) && !etterTrekk(x.id, n)
     );
   for (const n of SPOR) {
     spor[n].merket = [...merkinger.values()]
