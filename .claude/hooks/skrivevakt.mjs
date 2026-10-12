@@ -2,12 +2,16 @@
 // PreToolUse-hook for subagentene mekanisk-pr og diffkontroll (#439). Leser
 // hook-input som JSON på stdin og avslutter med kode 2 og en melding på stderr
 // når kallet ville skrive i en sperret mappe eller utenfor arbeidstreet. Med
-// --bare-lesing slipper den bare lesende git-kommandoer gjennom i Bash. Hva den
-// ikke fanger, står i .claude/agents/mekanisk-pr.md.
+// --bare-lesing slipper den bare lesende git-kommandoer gjennom i Bash. Med
+// --etter-agent, slik .claude/settings.json kaller den, velger den vakt etter
+// agent_type og slipper alle andre kall gjennom (#442). Hva den ikke fanger,
+// står i .claude/agents/mekanisk-pr.md.
 import { execFileSync } from 'node:child_process';
 import { lstatSync, readFileSync, realpathSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
+
+const SKRIVEVERKTOY = ['Edit', 'Write', 'MultiEdit', 'NotebookEdit'];
 
 const SPERREDE_MAPPER = ['kjerne', 'server', 'backend', 'supabase', 'sprakprove'];
 
@@ -76,6 +80,12 @@ function ekteSti(sti) {
   return path.join(realpathSync(del), ...rest);
 }
 
+function naermesteMappe(sti) {
+  let mappe = path.dirname(sti);
+  while (!finnes(mappe) && path.dirname(mappe) !== mappe) mappe = path.dirname(mappe);
+  return mappe;
+}
+
 function innenfor(sti, mappe) {
   const relativ = path.relative(mappe, sti);
   return relativ === '' || (!relativ.startsWith('..') && !path.isAbsolute(relativ));
@@ -105,6 +115,7 @@ const LESENDE_FLAGG =
 
 /** For diffkontroll: bare enkle, lesende git-kommandoer i Bash. */
 function vurderLesing(input) {
+  if (SKRIVEVERKTOY.includes(input.tool_name)) return 'Skriveverktøy er ikke tillatt.';
   if (input.tool_name !== 'Bash') return null;
   const kommando = String(input.tool_input?.command ?? '').trim();
   const treff = /[\r\n;&|<>`$()]/.test(kommando) ? null : kommando.match(LESENDE_GIT);
@@ -148,10 +159,15 @@ function vurder(input) {
   const cwd = input.cwd ?? process.cwd();
   const rot = arbeidstreet(cwd);
 
-  if (['Edit', 'Write', 'MultiEdit', 'NotebookEdit'].includes(verktoy)) {
+  if (SKRIVEVERKTOY.includes(verktoy)) {
     const fil = parametre.file_path ?? parametre.notebook_path;
     if (!fil) return 'Fant ingen filsti i kallet.';
     const absolutt = ekteSti(path.resolve(cwd, fil));
+    // Arbeidstrærne ligger inne i hovedkopien, så stien måles også fra treet fila ligger i.
+    const filrot = arbeidstreet(naermesteMappe(absolutt));
+    if (filrot && sperretSti(path.relative(filrot, absolutt))) {
+      return `${path.relative(filrot, absolutt)} ligger i en sperret mappe.`;
+    }
     if (rot && innenfor(absolutt, rot)) {
       const relativ = path.relative(rot, absolutt);
       return sperretSti(relativ) ? `${relativ} ligger i en sperret mappe.` : null;
@@ -200,10 +216,27 @@ function vurder(input) {
   return null;
 }
 
+// Hooks i frontmatter til prosjektagenter kjører bare i en mappe som er klarert
+// i dialogen, og skyøkta har ingen (#442). Derfor kaller settings.json vakten for
+// hvert kall, og den velger selv. Agentens arbeidstre er reserven når
+// agent_type mangler.
+function vaktEtterAgent(input) {
+  if (input.agent_type === 'diffkontroll') return 'lesing';
+  if (input.agent_type === 'mekanisk-pr') return 'skriving';
+  if (/[\\/]\.claude[\\/]worktrees[\\/]agent-/.test(String(input.cwd ?? ''))) return 'skriving';
+  return null;
+}
+
 // Alt som går galt, stopper kallet: kode 1 ville sluppet det gjennom.
 try {
   const input = JSON.parse(readFileSync(0, 'utf8'));
-  const lesing = process.argv.includes('--bare-lesing');
+  const vakt = process.argv.includes('--etter-agent')
+    ? vaktEtterAgent(input)
+    : process.argv.includes('--bare-lesing')
+      ? 'lesing'
+      : 'skriving';
+  if (!vakt) process.exit(0);
+  const lesing = vakt === 'lesing';
   const begrunnelse = lesing ? vurderLesing(input) : vurder(input);
   if (begrunnelse) {
     process.stderr.write(

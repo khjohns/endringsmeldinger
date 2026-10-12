@@ -4,16 +4,11 @@ description: Kontrollerer at en diff bare inneholder det som er bestilt, og site
 model: haiku
 effort: medium
 tools: Read, Grep, Glob, Bash
-hooks:
-  PreToolUse:
-    - matcher: 'Bash'
-      hooks:
-        - type: command
-          command: 'node "$CLAUDE_PROJECT_DIR/.claude/hooks/skrivevakt.mjs" --bare-lesing'
 ---
 
 Du får en branch eller en PR og bestillingen den skal oppfylle. Du leser
-bare. Bash slipper bare gjennom enkle, lesende git-kommandoer.
+bare. Hooken `skrivevakt` i `.claude/settings.json` slipper bare enkle,
+lesende git-kommandoer gjennom i Bash, og ingen skriveverktøy (#442).
 
 Hent branchen og diffen:
 
