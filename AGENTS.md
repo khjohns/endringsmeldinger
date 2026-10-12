@@ -132,6 +132,14 @@ verktøykjeden er endret, ved manuell start og på PR-er med etiketten
 Utenfor skyøktene: `python3 -m venv /tmp/venv` og `pip install -r` begge
 `backend/requirements*.txt` (systempython mangler pytest).
 
+I skyøkta tar hele `npx vitest run` ca. 135 s, over Bash-verktøyets standardgrense på
+120 s. Gi kallet `timeout` på 300000 eller mer, eller kjør det med `run_in_background`.
+`npx vitest run <filer>` holder under arbeidet.
+
+`gh api search/issues` gir 403 i skyøkta. Bla i repo-listen i stedet, side for side:
+`gh api "repos/khjohns/endringsmeldinger/issues?state=all&per_page=100&page=N" --jq '.[] | select(.title | test("…"; "i"))'`.
+`--paginate` gir 403 her, så sidene må hentes med `page=N`.
+
 **Nettleserkontroll av `/mockup` går gjennom skillen `mockup-nettleser`.** Kjør
 aldri `npm i playwright` eller `playwright install`; skillen sier hvorfor.
 
