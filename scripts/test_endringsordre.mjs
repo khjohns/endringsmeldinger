@@ -1,5 +1,7 @@
 /** Local browser smoke test; all API requests are intercepted, no external writes. */
 import assert from 'node:assert/strict';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 const { chromium } = await import(process.env.PLAYWRIGHT_MODULE || 'playwright');
 const browser = await chromium.launch({
   headless: true,
@@ -30,6 +32,31 @@ const candidates = [
   },
 ];
 
+/**
+ * Demoordrene har uavklart eller høyt fullmaktsgrunnlag og skal gjennom godkjenningskjeden.
+ * Hver godkjenner avgjør i tur, og siste godkjenning utsteder. Slutter på den utstedte ordren.
+ */
+async function utstedDemoordreGjennomKjeden(page) {
+  await page.getByRole('button', { name: 'Send til godkjenning', exact: true }).click();
+  await page.getByRole('link', { name: 'Følg godkjenningen' }).click();
+  await page.waitForURL('**/mockup/endringsordre/godkjenning*');
+  const siste = page.getByRole('button', { name: 'Godkjenn og utsted', exact: true });
+  const godkjenn = page.getByRole('button', { name: 'Godkjenn', exact: true });
+  for (const godkjenner of ['prosjektleder@example.test', 'prosjekteier@example.test']) {
+    await page.getByLabel('Demo · vis som').selectOption(godkjenner);
+    await page.getByRole('checkbox', { name: 'Jeg har kontrollert endringsordren.' }).check();
+    await siste.or(godkjenn).first().waitFor();
+    if (await siste.isVisible()) {
+      await siste.click();
+      break;
+    }
+    await godkjenn.click();
+  }
+  await page.getByLabel('Demo · vis som').selectOption('saksbehandler@example.test');
+  await page.getByRole('link', { name: 'Åpne utstedt endringsordre' }).click();
+  await page.waitForURL('**/mockup/endringsordre/demo-eo-*');
+}
+
 async function setup(width) {
   const context = await browser.newContext({ viewport: { width, height: 1000 } });
   const page = await context.newPage();
@@ -56,6 +83,11 @@ async function setup(width) {
       assert.equal(request.headers()['x-project-id'], 'test', `project header on ${path}`);
       if (path === '/api/cases') return json({ cases: [] });
       if (path === '/api/endringsordre/neste-nummer') return json({ neste_nummer: 'EO-001' });
+      if (path === '/api/endringsordre/godkjenninger' && request.method() === 'GET')
+        return route.fulfill({
+          status: 403,
+          json: { message: 'Intern godkjenning er ikke konfigurert for prosjektet.' },
+        });
       if (path === '/api/endringsordre/kandidater') return json({ kandidat_saker: candidates });
       if (path === '/api/endringsordre/opprett') {
         assert.equal(request.headers()['x-csrf-token'], 'local-test');
@@ -131,7 +163,10 @@ try {
   assert.equal(direct.orders[0].frist_dager, undefined);
   await direct.page.reload({ waitUntil: 'networkidle' });
   assert.equal(await direct.page.getByText('Uavklart', { exact: true }).count(), 2);
-  await direct.page.screenshot({ path: '/private/tmp/endringsordre-direkte.png', fullPage: true });
+  await direct.page.screenshot({
+    path: join(tmpdir(), 'endringsordre-direkte.png'),
+    fullPage: true,
+  });
   await direct.context.close();
   console.log('PASS: overview entry, direct unresolved order, review, one submission, reload.');
 
@@ -147,7 +182,7 @@ try {
   await agreed.page.getByLabel('Oppgjørsform').selectOption('FASTPRIS_TILBUD');
   await agreed.page.getByLabel('Samlet fristforlengelse (dager)').fill('8');
   await agreed.page.getByRole('button', { name: 'Kontroller endringsordre', exact: true }).click();
-  await agreed.page.getByRole('button', { name: 'Tilbake til utfylling' }).click();
+  await agreed.page.getByRole('button', { name: 'Endre', exact: true }).click();
   assert.equal(await agreed.page.getByLabel('Samlet fristforlengelse (dager)').inputValue(), '8');
   await agreed.page.reload({ waitUntil: 'networkidle' });
   assert.equal(await agreed.page.getByRole('checkbox', { name: /KOE-2/ }).isChecked(), true);
@@ -165,7 +200,7 @@ try {
   assert.equal(agreed.orders[0].frist_dager, 8);
   assert.equal(agreed.orders[0].kompensasjon_belop, 150000);
   assert.equal(await agreed.page.getByRole('link', { name: /KOE-1 Endret fundament/ }).count(), 1);
-  await agreed.page.screenshot({ path: '/private/tmp/endringsordre-mobil.png', fullPage: true });
+  await agreed.page.screenshot({ path: join(tmpdir(), 'endringsordre-mobil.png'), fullPage: true });
   assert.deepEqual(errors, []);
   await agreed.context.close();
   console.log(
@@ -191,8 +226,7 @@ try {
     .fill('Demopålegg om endret fundamentering.');
   await demo.getByRole('button', { name: 'Kontroller endringsordre', exact: true }).click();
   await demo.getByRole('checkbox').check();
-  await demo.getByRole('button', { name: 'Utsted endringsordre', exact: true }).click();
-  await demo.waitForURL('**/mockup/endringsordre/demo-eo-*');
+  await utstedDemoordreGjennomKjeden(demo);
   await demo.getByRole('article', { name: 'Utstedt endringsordre' }).waitFor();
   await demo.reload({ waitUntil: 'networkidle' });
   assert.equal(await demo.getByText('Uavklart', { exact: true }).count(), 2);
@@ -216,8 +250,7 @@ try {
     /^\/mockup\?scenario=/
   );
   await demo.getByRole('checkbox').check();
-  await demo.getByRole('button', { name: 'Utsted endringsordre', exact: true }).click();
-  await demo.waitForURL('**/mockup/endringsordre/demo-eo-*');
+  await utstedDemoordreGjennomKjeden(demo);
   await demo.getByRole('article', { name: 'Utstedt endringsordre' }).waitFor();
   assert.deepEqual(demoApiCalls, []);
   assert.deepEqual(errors, []);
