@@ -1071,7 +1071,7 @@ describe('bestridelse, merking og avklaring (LV-U4 punkt 10–12)', () => {
 });
 
 describe('den senere begrunnelsen (KA-U34)', () => {
-  const GRUNNLAG_AVSLAATT = { resultat: 'avslaatt', grunnlag_varslet_i_tide: true };
+  const grunnlagAvslaatt = { resultat: 'avslaatt', grunnlag_varslet_i_tide: true };
   const svarId = (rad: Journalrad, i = 0) => (rad.data.svar as Data[])[i].id as string;
 
   /** Saken med kravene og byggherrens svar på alle tre i brev 5. */
@@ -1080,7 +1080,7 @@ describe('den senere begrunnelsen (KA-U34)', () => {
     const brev = s.send('BH', {
       type: 'brev',
       svar: [
-        svar('grunnlag', s.krav('grunnlag'), GRUNNLAG_AVSLAATT),
+        svar('grunnlag', s.krav('grunnlag'), grunnlagAvslaatt),
         svar('vederlag', s.krav('vederlag'), VEDERLAG_DELVIS[0], VEDERLAG_DELVIS[1]),
         svar('frist', s.krav('frist'), FRIST_FULLT[0], FRIST_FULLT[1]),
       ],
@@ -1116,7 +1116,7 @@ describe('den senere begrunnelsen (KA-U34)', () => {
     expect(
       s.avvist('BH', {
         type: 'brev',
-        svar: [svar('grunnlag', s.krav('grunnlag'), GRUNNLAG_AVSLAATT)],
+        svar: [svar('grunnlag', s.krav('grunnlag'), grunnlagAvslaatt)],
       })
     ).toBe('ALLEREDE_SVART');
   });
@@ -1251,8 +1251,8 @@ describe('den senere begrunnelsen (KA-U34)', () => {
 });
 
 describe('meldingen når kravene er avgjort, sier hvordan hvert krav ble avgjort (KA-U11, #448)', () => {
-  const GODKJENT_GRUNNLAG = { resultat: 'godkjent', grunnlag_varslet_i_tide: true };
-  const HELT_VEDERLAG = [
+  const godkjentGrunnlag = { resultat: 'godkjent', grunnlag_varslet_i_tide: true };
+  const heltVederlag = [
     { hovedkrav_vurdering: 'godkjent', hovedkrav_godkjent_belop: 125000, aksepterer_metode: true },
     { resultat: 'godkjent', godkjent_beloep: 125000 },
   ] as const;
@@ -1265,8 +1265,8 @@ describe('meldingen når kravene er avgjort, sier hvordan hvert krav ble avgjort
     s.send('BH', {
       type: 'brev',
       svar: [
-        svar('grunnlag', s.krav('grunnlag'), GODKJENT_GRUNNLAG),
-        svar('vederlag', s.krav('vederlag'), HELT_VEDERLAG[0], HELT_VEDERLAG[1]),
+        svar('grunnlag', s.krav('grunnlag'), godkjentGrunnlag),
+        svar('vederlag', s.krav('vederlag'), heltVederlag[0], heltVederlag[1]),
       ],
     });
     return s;
