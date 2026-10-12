@@ -53,6 +53,14 @@ sluttrapporten kommer tilbake, så orkestratorens kontekst holder seg liten.
 Arbeid som gir en PR, får egen økt, fordi den må følge CI og rettinger over
 timer. En subagent deler i tillegg checkout med orkestratoren.
 
+Unntaket er en liten PR med dokumentasjon eller mekanisk arbeid. Den kan
+leveres av subagenten `mekanisk-pr`, som arbeider på egen branch i eget
+arbeidstre og ikke kan skrive i `kjerne/`, `server/`, `backend/`, `supabase/`
+eller `sprakprove/` (#439). Den lar PR-en stå som utkast. Subagenten
+`diffkontroll` kontrollerer diffen mot bestillingen, og `/code-review` kjøres
+etter regelen i `AGENTS.md`, før PR-en markeres klar. Rettinger sendes til
+`mekanisk-pr` med `SendMessage`.
+
 **Innsats for orkestratoren.** Orkestratoren skriver ikke kode og kjører på
 innsats `high`, ikke `xhigh` (oppdragsgiver 12.10, #425). Innsatsen settes i
 appen. Subagenten som prøver alternativene mot vedtakene, beholder
@@ -66,14 +74,11 @@ inneholder de bestilte endringene. Oppdraget sier nøyaktig hva som skal
 kontrolleres, og hva rapporten skal inneholde. Kontroll av juss, vedtak og kode
 går på standardmodellen.
 
-**Modell for mekaniske arbeidsøkter (prøveperiode).** En arbeidsøkt med rent
-mekanisk arbeid, som infrastruktur, CI-bilder og ren flytting, kan gå på Haiku
-med innsats `high`, aldri en økt som rører kjernen, vedtak eller tilgang
-(oppdragsgiver 12.10, #425). Modellen velges i `create_session`; innsatsen
-settes i appen. Det er en prøve: for hver slik økt skriver orkestratoren en
-kommentar på #425 om økta gjorde en god nok jobb, med rettingene den trengte,
-antall CI-runder og funnene i kontrollen før merge. Oppdragsgiver avgjør om
-prøven blir regel.
+**Modell for mekaniske arbeidsøkter.** En arbeidsøkt med rent mekanisk
+arbeid, som infrastruktur, CI-bilder og ren flytting, kan gå på Haiku med
+innsats `high`, aldri en økt som rører kjernen, vedtak eller tilgang
+(oppdragsgiver 12.10, #425 og #439). Modellen velges i `create_session`;
+innsatsen settes i appen.
 
 ## 1. Kartlegg før du fordeler
 

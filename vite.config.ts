@@ -30,6 +30,7 @@ export default defineConfig({
       'kjerne/**/*.test.ts',
       'sprakprove/**/*.test.ts',
       'server/**/*.test.ts',
+      '.claude/hooks/*.test.ts',
     ],
     environmentMatchGlobs: [['src/lib/components/**/*.test.ts', 'jsdom']],
     setupFiles: ['src/test-setup.ts'],
