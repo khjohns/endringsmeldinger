@@ -654,6 +654,13 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['Tekst', 'brevtekst', 'j saken nytt sak', ['frosset/brevtekst.ts']],
   ['frosset/brevtekst.ts:svartekst', 'brevtekst', 'tekst ordnes', ['frosset/brevtekst.ts']],
   ['Dokument', 'relasjon', 'id registrert', ['frosset/brevtekst.ts']],
+  // KA-U36–KA-U39: datoen svaret ble sendt, som en registrert begrunnelse ikke kan ligge
+  // før. For et svar fra appen er det datoen appen registrerte det.
+  ['Dokument', 'relasjon', 'registrert', ['format/leser.ts:registrertDato']],
+  ['format/leser.ts', 'relasjon', 'registrertDato', ['utledning/utled.ts']],
+  ['Svarberegning', 'utsagn', 'sendt', ['kommandoer/nyttelast.ts:begrunnelsensDato']],
+  // Datoene i meldingen, skrevet som i brevet.
+  ['frosset/brevtekst.ts', 'brevtekst', 'norskDato', ['kommandoer/nyttelast.ts:begrunnelsensDato']],
   // A4: vedleggene står i teksten, og et avsnitt kan gjelde dem.
   ['Dokument', 'utsagn', 'dokumentasjon', ['frosset/brevtekst.ts', 'format/leser.ts']],
   // GR-U14: TEs beskrivelse siteres fra teksten i brevet kravet står i.

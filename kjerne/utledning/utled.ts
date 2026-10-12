@@ -18,7 +18,7 @@
  * ukjent, er saken ikke forstått, og ingenting utledes (MM-U2, 2.7 regel 1).
  */
 
-import { erRegistrert, sammeSlag } from '../format/leser.ts';
+import { datoFor, erRegistrert, registrertDato, sammeSlag } from '../format/leser.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
 import type { Subsidiaergrunn } from '../regler/grunnlag.ts';
 import {
@@ -60,6 +60,12 @@ export interface Svarberegning {
    * innsigelsen, slik de står i `virkninger`.
    */
   uavklart: string[];
+  /**
+   * Datoen svaret ble sendt. Fra appen er det datoen appen registrerte det, i norsk
+   * tid (KA-U37). For et registrert svar er det opplysningen om at det ble sendt, også
+   * når den er bestridt (KA-U38, KA-U39), og `null` når svaret bare har mottatt-dato.
+   */
+  sendt: string | null;
 }
 
 export interface Enighet {
@@ -707,6 +713,11 @@ function utledSporene(
     );
   };
   const svar: Record<string, Svarberegning> = {};
+  const sendtDato = (s: Svar): string | null => {
+    const d = dokumenter.get(s.dokument)!;
+    if (!erRegistrert(d.opplysninger)) return registrertDato(d);
+    return datoFor(s, 'sendt', opplysninger)?.dato ?? null;
+  };
   for (const s of alleSvar.values()) {
     const lestMed = innsigelsenSvaretErLestMed(s);
     const innsigelse = henvisninger.find((x) => x.id === lestMed);
@@ -730,6 +741,7 @@ function utledSporene(
           ? [innsigelse.id]
           : []),
       ],
+      sendt: sendtDato(s),
     };
   }
 

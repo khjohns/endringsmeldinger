@@ -48,6 +48,17 @@ import type {
 export const erRegistrert = (opplysninger: { hva: string; gjelder?: string }[]): boolean =>
   opplysninger.some((o) => (o.hva === 'sendt' || o.hva === 'mottatt') && o.gjelder === undefined);
 
+const OSLO = new Intl.DateTimeFormat('en-CA', {
+  timeZone: 'Europe/Oslo',
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit',
+});
+
+/** Datoen et dokument fra appen ble registrert, i norsk tid, som i brevet (KA-U37). */
+export const registrertDato = (d: Pick<Dokument, 'registrert'>): string =>
+  OSLO.format(new Date(d.registrert));
+
 /**
  * Datoopplysningen om et varsel: den som `gjelder` varselet, ellers den om
  * dokumentet varselet står i, når det er registrert for seg (HF-U1, MM-U1).

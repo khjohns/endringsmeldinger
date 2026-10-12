@@ -8,8 +8,8 @@
  * (#335, #351), F61–F104 byggedel 1 av #309, F105–F131 brevteksten (#369),
  * F132–F134 LV-U5 (#414), F135–F148 MM-U20 (#405) og VS-U15 (#411), F149–F152
  * merkingen i et lukket spor (#426), F153–F156 regelversjonen i kommandoen
- * (#386), F157–F168 den senere begrunnelsen (#448) og F169– hullene fra
- * samspillsreviewet av den (#468). Én mutasjon
+ * (#386), F157–F168 den senere begrunnelsen (#448) og F169–F176 hullene fra
+ * samspillsreviewet av den og KA-U36 (#468). Én mutasjon
  * om gangen per arbeidskopi, Vitest over hele `kjerne/`
  * og `sprakprove/kjernelagring/`, og originalteksten settes tilbake etterpå. For
  * hver mutasjon kreves det at de forventede målassertions feiler, og at alle
@@ -1825,6 +1825,63 @@ const MUTASJONER: Mutasjon[] = [
       ],
     ],
     mal: ['godtas når kravene er avgjort, mens en revisjon avvises', 'F-MM-BG2'],
+  },
+  {
+    id: 'F171',
+    feilklasse: 'en registrert begrunnelse sendt før svaret godtas (KA-U36)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [['svaret && k.sendt < svaret', 'svaret && false']],
+    mal: ['før datoen appen registrerte svaret, avvises den', 'F-MM-BG1'],
+  },
+  {
+    id: 'F172',
+    feilklasse: 'en registrert begrunnelse med samme dato som svaret avvises (KA-U37)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [['svaret && k.sendt < svaret', 'svaret && k.sendt <= svaret']],
+    mal: ['før datoen appen registrerte svaret, avvises den, og samme dato godtas', 'F-MM-BG1'],
+  },
+  {
+    id: 'F173',
+    feilklasse: 'datoen for et svar fra appen er i UTC, ikke i norsk tid (KA-U37)',
+    fil: `${K}/format/leser.ts`,
+    endringer: [['  OSLO.format(new Date(d.registrert));', '  d.registrert.slice(0, 10);']],
+    mal: ['datoen for svaret fra appen er i norsk tid'],
+  },
+  {
+    id: 'F174',
+    feilklasse: 'et registrert svar dateres med mottatt-datoen når den finnes (KA-U38)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        "return datoFor(s, 'sendt', opplysninger)?.dato ?? null;",
+        "return (datoFor(s, 'mottatt', opplysninger) ?? datoFor(s, 'sendt', opplysninger))?.dato ?? null;",
+      ],
+    ],
+    mal: ['for et registrert svar gjelder datoen det ble sendt'],
+  },
+  {
+    id: 'F175',
+    feilklasse: 'et registrert svar med bare mottatt-dato kontrolleres mot den (KA-U38)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        "return datoFor(s, 'sendt', opplysninger)?.dato ?? null;",
+        "return (datoFor(s, 'sendt', opplysninger) ?? datoFor(s, 'mottatt', opplysninger))?.dato ?? null;",
+      ],
+    ],
+    mal: ['et registrert svar med bare mottatt-dato gir ingen kontroll'],
+  },
+  {
+    id: 'F176',
+    feilklasse: 'en bestridelse av datoen på svaret opphever kontrollen (KA-U39)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [
+      [
+        'const svaret = u.svar[k.gjelder]?.sendt;',
+        'const svaret = u.opplysninger.some((o) => o.bestridelser.length) ? null : u.svar[k.gjelder]?.sendt;',
+      ],
+    ],
+    mal: ['en bestridelse av datoen på svaret endrer ikke kontrollen'],
   },
 ];
 
