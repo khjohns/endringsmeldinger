@@ -118,6 +118,8 @@ issue. Oppdraget skal inneholde:
   økta løser et slikt funn i samme PR med `Closes #n` bare når rettingen er
   noen få linjer i en fil den allerede endrer. Alt annet venter til neste
   runde, også funn i andre øktes filer og funn som krever en avgjørelse;
+- at oppdraget er avgrenset til om lag 45–60 minutter med aktivt arbeid, og
+  hvordan økta venter (se «Kontekst i arbeidsøktene»);
 - at kartlegging, lesing av store filer og CI-logger gjøres av subagenter, så
   øktas egen kontekst holder seg liten (oppdragsgiver 12.10, #425);
 - hvilke sjekker som skal kjøres før push, og nettleserkontroll der issuet
@@ -288,6 +290,18 @@ konteksten på nytt ved neste vekking, og det er dyrest når konteksten er stor.
 stor kontekst blir de også dårligere: etter en komprimering arbeider økta på et
 sammendrag, og ordrette vedtak og rettelser kan gå tapt.
 
+- **Arbeid i timer, ikke i døgn.** Hurtigbufferen varer en time. Et oppdrag
+  avgrenses slik at økta kan bli ferdig på om lag 45–60 minutter med aktivt
+  arbeid. Den kan gå over for å gjøre seg ferdig: pushe, skrive tilstanden i
+  PR-beskrivelsen og melde fra. Venter økta på CI eller feilinnføringene og
+  regner med å fortsette innen en time, venter den med en bakgrunnskommando
+  som vekker den, så hurtigbufferen holder seg varm. Venter den lenger, for
+  eksempel på oppdragsgiver, skriver den tilstanden i PR-en og stopper. En ny,
+  liten økt tar over med en avgrenset bestilling (under), i stedet for at den
+  store økta vekkes kald. Det samme gjelder orkestratoren: runden avgrenses til
+  om lag én time med aktivt arbeid, sikkerhetssjekkene settes innen 55 minutter
+  mens noe pågår, og etter mer enn en time uten aktivitet avsluttes runden
+  heller enn å vekkes (oppdragsgiver 12.10, #425).
 - **Følg med i hver sjekk.** `get_session` viser brukt kontekst
   (`context_usage.used_tokens`) og kostnad (`usage.cost_usd`).
 - **Ved om lag 200 000 tokens** skal alt økta trenger for å fullføre, stå der
@@ -319,7 +333,7 @@ PR-ene som er nær merge, er merget. Resten går til neste runde.
 ## 3. Gjennomgang når øktene er ferdige
 
 Øktene melder fra når de er bedt om det (punkt 2). Sett i tillegg én sjekk med
-`send_later` som sikkerhetsnett, innen en time mens noe venter.
+`send_later` som sikkerhetsnett, innen 55 minutter mens noe venter.
 
 Send ikke nye issues til en økt som er i gang. De venter til neste runde.
 Samle det en økt skal ha, i én melding, og vent på svaret før neste. Meldinger
