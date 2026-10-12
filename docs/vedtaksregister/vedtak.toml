@@ -2037,7 +2037,7 @@ svar = '''
 A: vises bare (Anbefalt)'''
 forhold = [{ art = "presiserer", vedtak = "vs-u3" }]
 folge = '''
-Følger [VS-U2](#vs-u2). Ikke bygget'''
+Ikke bygget'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A"
@@ -2069,7 +2069,7 @@ valgt = "B"
 svar = '''
 B: med veiledning'''
 folge = '''
-Følger [MM-U12](#mm-u12), [VS-U3](#vs-u3), [EO-U8](#eo-u8) og [KA-U23](#ka-u23). Ikke bygget'''
+Følger [MM-U12](#mm-u12), [VS-U3](#vs-u3) og [EO-U8](#eo-u8). Ikke bygget'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A"
@@ -2112,7 +2112,7 @@ Byggherren kan sende en forespørsel etter § 33.6.2 fra appen så lenge TE ikke
 [[gruppe.vedtak.alternativ]]
 navn = "Avvis"
 tekst = '''
-En registrert forespørsel etter § 33.6.2 avvises etter et krav om antall dager.'''
+å avvise en registrert forespørsel etter et krav om antall dager'''
 forkastet = true
 
 [[gruppe.vedtak]]
@@ -2129,16 +2129,28 @@ Forhold: presiserer VS-U9 og VS-U11. Anbefalt.
 B: Påberopelsen gjelder bare kravversjonen den ble gjort mot. Mot en senere kravversjon må byggherren gjenta den, og et senere svar som ikke sier noe om varselet, leses uten påberopelsen.
 Forhold: strider mot VS-U11 og HF-U1, og er et forslag om å endre VS-U11.
 
-Spørsmålet står i versjon 2 av spørsmålspakken for byggedel 2 på #309 (K3), og erstatter J1 i versjon 1.'''
-valgt = "A"
+Spørsmålet står i versjon 2 av spørsmålspakken for byggedel 2 på #309 (K3), og erstatter J1 i versjon 1.
+
+Oppfølging, samme dag: Du svarte: «BH vil kunne naturligvis kunne velge å frafalle innsigelsen etter 33.4, ellers er A ok». Etter ordlyden dekker A ikke et uttrykkelig frafall som ikke sier «i tide». VS-U11 lar byggherren «gi opp sin egen innsigelse … uttrykkelig». Skal setningen endres slik?
+
+Ja, ta med frafall: Setningen blir: «Appen leser den som oppgitt bare når byggherren uttrykkelig har frafalt påberopelsen eller sagt at varselet kom i tide (VS-U11).» Resten av A står. Presiserer VS-U9 og VS-U11.
+Nei, A som den står: Et frafall er dekket av «uttrykkelig sagt at varselet kom i tide», slik VS-U11 og brevteksten i LV-U4 alt gjør.'''
+valgt = "Ja, ta med frafall"
 svar = '''
-BH vil kunne naturligvis kunne velge å frafalle innsigelsen etter 33.4, ellers er A ok'''
+BH vil kunne naturligvis kunne velge å frafalle innsigelsen etter 33.4, ellers er A ok
+
+Oppfølging: Ja, ta med frafall (Anbefalt)'''
 forhold = [{ art = "presiserer", vedtak = "vs-u9" }, { art = "presiserer", vedtak = "vs-u11" }]
 folge = '''
 Ikke bygget'''
 
 [[gruppe.vedtak.alternativ]]
-navn = "A"
+navn = "Ja, ta med frafall"
+tekst = '''
+Har byggherren påberopt at TE varslet for sent etter § 33.4, gjelder påberopelsen varselet og står mot hver senere kravversjon i samme sak, også når varselet var selve kravet. Et senere svar som ikke sier noe om varselet, leses med påberopelsen. Appen leser den som oppgitt bare når byggherren uttrykkelig har frafalt påberopelsen eller sagt at varselet kom i tide (VS-U11). Om et senere brev etter en konkret tolkning innebærer at den er oppgitt, avgjør ikke appen (VS-U11).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Nei, A som den står"
 tekst = '''
 Har byggherren påberopt at TE varslet for sent etter § 33.4, gjelder påberopelsen varselet og står mot hver senere kravversjon i samme sak, også når varselet var selve kravet. Et senere svar som ikke sier noe om varselet, leses med påberopelsen. Appen leser den som oppgitt bare når byggherren uttrykkelig har sagt at varselet kom i tide. Om et senere brev etter en konkret tolkning innebærer at den er oppgitt, avgjør ikke appen (VS-U11).'''
 
@@ -2173,7 +2185,7 @@ svar = '''
 A: den som registrerer (Anbefalt)'''
 forhold = [{ art = "presiserer", vedtak = "vs-u9" }, { art = "snevrer inn", vedtak = "vs-u4" }]
 folge = '''
-Følger [HF-U1](#hf-u1), [KA-U16](#ka-u16) og [KA-U20](#ka-u20). Ikke bygget'''
+Følger [HF-U1](#hf-u1). Ikke bygget'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A"
