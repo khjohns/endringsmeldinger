@@ -141,6 +141,9 @@ lagringsformatet står under.
 | Ny | `AVTALE_KAN_IKKE_BEVARES` | KA-U22: trekket rammer en enighet som bygger på et merket brev |
 | Ny | `Sporutledning.forbehold`, `Utledning.utenVirkning`, `Utledning.elementer` | KA-U20: et merket brev gjelder i sporet. MM-U18: elementer i et registrert brev uten virkning. Hvem som sa hvert element |
 | Ny | Etikettene `forbehold`, `uenighet_om_merket_brev`, `innsigelse_fra_TE`, `innsigelse_fra_BH`, `passivitet_paaberopt`, `avklart_av_avsenderen`, `merking_bestridt` og merknaden `registrert_brev_uten_virkning` | Visningen; lagres ikke |
+| Ny | `BREVTEKST_MANGLER`, `ANNEN_BREVTEKST` | LV-U2, A1 i paragrafmatrisen: kommandoen bærer den låste teksten klienten viste, og serveren avviser en annen eller ingen (#369) |
+| Ny | `BEGRUNNELSE_MANGLER`, `BESKRIVELSE_MANGLER`, `PAALEGGET_IKKE_BESKREVET` | KA-U24, KA-U31–KA-U33 og GR-U15: begrunnelsen i svaret og fristkravet og beskrivelsen i TEs varsel etter § 32.2. GR-U14: en godkjenning som er en endringsordre, uten TEs beskrivelse (#369) |
+| Ny | Kommandofeltene `brevtekst` og `utdypning` i kravet, og `forhaandsvis` | A1 og A8 i paragrafmatrisen: teksten klienten viste, og TEs utdypning under kravet (#369) |
 
 ### Navn i lagringsformatet
 
@@ -161,7 +164,11 @@ fra Python-epoken og målmodellen og navnene i format 1.
 | `belop_direkte`, `antall_dager`, `varsel_type` | `beloep`, `dager`; `varsel_type` utgår | Varselet etter § 33.4 er et eget utsagn |
 | `resultat`, `grunnlag_varslet_i_tide`, `frist_varsel_ok`, `vilkar_oppfylt` | Standpunktene `grunnlag` (`resultat`), `rettidighet` (`gjelder`, `hjemmel`, `i_tide`) og `hindring` (`oppfylt`) | Byggherrens standpunkt med art (KA-U4). `grunnlag` og ikke `ansvar`, fordi frafall av et pålegg ikke er en vurdering av ansvaret (HF-U2). «Hindring» er at fremdriften hindres som følge av forholdet saken gjelder (§ 33.1) |
 | `beregnings_resultat`, `total_godkjent_belop`, `godkjent_dager`, `subsidiaer_resultat`, `subsidiaer_godkjent_dager` | `utregning` med `resultat`, `godkjent_beloep`, `godkjent_dager`, `subsidiaert_resultat`, `subsidiaert_godkjent_dager` | B-13. Beløp og dager har ett hjem |
-| `total_krevd_belop`, `hovedkrav_godkjent_belop`, `begrunnelse` i svaret | Utgår | Regnes av andre verdier, eller leses ikke av kjernen (4.4) |
+| `total_krevd_belop`, `hovedkrav_godkjent_belop` | Utgår | Regnes av andre verdier (4.4) |
+| `begrunnelse` i svaret | `utdypning` under svaret i `brevtekst` | Ingen regel leser teksten. Én begrunnelse per svar (KA-U31), den låste delen og utdypningen hver for seg (B-13 om begrunnelsestekst, #369) |
+| `beskrivelse` i grunnlagskravet | `utdypning` under kravet i `brevtekst` | Beskrivelsen har ett hjem (A8 i paragrafmatrisen). Påkrevd i TEs varsel etter § 32.2 (GR-U15), og sitert i en godkjenning som er en endringsordre (GR-U14) |
+| Finnes ikke | `endringsordre` i grunnlagskravet | GR-U16: endringsordrens dato eller nummer, bare i underkategorien endringsordre |
+| Finnes ikke | `brevtekst` i dokumentet, med `gjelder`, `laast` og `utdypning` | Teksten i et brev appen sender (LV-U2, LV-U3, LV-U4); et registrert brev har ingen (MM-U17) |
 | `standpunkter` med `utsagn`, `art` og `virkning` i beslutningsgrunnlaget | `virkninger` med `standpunkt` og `virkning` (`prinsipalt` eller `subsidiaert`), og `uten_virkning` med standpunktene uten virkning | Arten leses av standpunktet. Prinsipalt og subsidiært er slik brevet ordner standpunktene; uten virkning er appens vurdering og står for seg (HF-U2) |
 | `hovedgrunn`, `subsidiaer` | `prinsipalt`, `subsidiaert` | Brevets ord |
 | `enighetsgrunnlag` i svaret | `sammenfall` i beslutningsgrunnlaget | GR-U7, GR-U10, MM-U11 |

@@ -139,6 +139,17 @@ export interface Svar {
   beslutningsgrunnlag: Beslutningsgrunnlag;
 }
 
+/**
+ * Ett avsnitt i brevteksten (LV-U2, LV-U3): det appen lager av partens valg for
+ * elementet `gjelder`, og partens utdypning hver for seg (B-13 om
+ * begrunnelsestekst). Ingen regel leser teksten.
+ */
+export interface Avsnitt {
+  gjelder: string;
+  laast: string;
+  utdypning?: string;
+}
+
 export interface Dokument {
   id: string;
   avsender: Part;
@@ -149,6 +160,8 @@ export interface Dokument {
   krav: Krav[];
   svar: Svar[];
   utsagn: Utsagn[];
+  /** Teksten i et brev appen sendte, frosset da det ble skrevet. Et registrert brev har ingen (MM-U17). */
+  brevtekst: Avsnitt[] | null;
 }
 
 /**
@@ -173,7 +186,7 @@ export interface Journalrad {
 
 /** Én rad i journalen, lest av leseren. */
 export type Domenehendelse =
-  | { art: 'sak'; id: string; versjon: number; type: string }
+  | { art: 'sak'; id: string; versjon: number; type: string; tittel: string }
   | { art: 'dokument'; id: string; versjon: number; type: string; dokument: Dokument }
   | { art: 'ukjent'; id: string; versjon: number; type: string; grunn: string };
 

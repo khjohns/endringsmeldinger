@@ -9,7 +9,7 @@ import type { Visning } from '$kjerne/utledning/visning';
 
 export type Journallinje = Pick<
   Journalrad,
-  'event_id' | 'versjon' | 'event_type' | 'tidsstempel' | 'aktor_rolle' | 'data'
+  'event_id' | 'versjon' | 'event_type' | 'tidsstempel' | 'aktor_rolle' | 'format' | 'data'
 >;
 
 export interface Leveringsoppdrag {

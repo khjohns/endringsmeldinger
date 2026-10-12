@@ -11,6 +11,9 @@
   import { KRAV_STRUKTUR_NS8407 } from '$lib/constants/categories';
   import { HOVEDKATEGORI_FRA_KATALOGEN, UNDERKATEGORI_FRA_KATALOGEN } from '$kjerne/format/koder';
   import { hentKjernesak, sendKommando, type Kjernesak } from '$lib/kjerneskive/api';
+  import { forhaandsvis, laastTekst } from '$kjerne/kommandoer/skriving';
+  import { KJERNE } from '$kjerne/versjon';
+  import type { Journalrad } from '$kjerne/typer';
 
   const sakId = $derived(page.params.sakId ?? '');
 
@@ -43,12 +46,66 @@
     }
   }
 
-  async function send(kommando: unknown) {
+  /**
+   * Den låste teksten kjernen lager for kommandoen mot saken slik den er lastet (B-15).
+   * Avsenderen ser den, og kommandoen bærer den; serveren avviser en annen (LV-U2).
+   */
+  function brevtekstFor(kommando: Record<string, unknown>): string[] | null {
+    if (!sak) return null;
+    const journal: Journalrad[] = sak.journal.map((r) => ({
+      ...r,
+      sak_id: sakId,
+      aktor_id: '',
+      aktor_team_id: null,
+      refererer_til_event_id: null,
+    }));
+    let vist;
+    try {
+      vist = forhaandsvis(
+        kommando,
+        {
+          sakId,
+          aktoerId: '',
+          part: 'TE',
+          teamId: null,
+          tidspunkt: () => new Date(),
+          nyId: () => crypto.randomUUID(),
+        },
+        journal,
+        KJERNE
+      );
+    } catch {
+      // Kjernen kan ikke lage teksten; serveren avviser da kommandoen med sin begrunnelse.
+      return null;
+    }
+    return vist.godtatt ? laastTekst(vist.hendelser[0]) : null;
+  }
+
+  const grunnlagskrav = $derived({
+    type: 'krav',
+    spor: 'grunnlag',
+    innhold: {
+      hovedkategori: HOVEDKATEGORI_FRA_KATALOGEN[hoved],
+      underkategori: UNDERKATEGORI_FRA_KATALOGEN[under],
+      ...(tittel.trim() ? { tittel: tittel.trim() } : {}),
+    },
+    // TEs beskrivelse av pålegget er utdypningen under kravet (GR-U15).
+    ...(beskrivelse.trim() ? { utdypning: beskrivelse.trim() } : {}),
+  });
+  const vederlagskrav = $derived({
+    type: 'krav',
+    spor: 'vederlag',
+    innhold: { metode: 'tilbud', beloep },
+  });
+  const grunnlagstekst = $derived(under ? brevtekstFor(grunnlagskrav) : null);
+  const vederlagstekst = $derived(beloep ? brevtekstFor(vederlagskrav) : null);
+
+  async function send(kommando: Record<string, unknown>, brevtekst: string[] | null) {
     if (!sak || sender) return;
     sender = true;
     feil = null;
     try {
-      await sendKommando(sakId, sak.versjon, kommando);
+      await sendKommando(sakId, sak.versjon, brevtekst ? { ...kommando, brevtekst } : kommando);
       await last();
     } catch (e) {
       const melding = meldingFra(e, 'Kravet ble ikke sendt.');
@@ -62,21 +119,12 @@
 
   function sendGrunnlag(e: SubmitEvent) {
     e.preventDefault();
-    void send({
-      type: 'krav',
-      spor: 'grunnlag',
-      innhold: {
-        hovedkategori: HOVEDKATEGORI_FRA_KATALOGEN[hoved],
-        underkategori: UNDERKATEGORI_FRA_KATALOGEN[under],
-        ...(tittel.trim() ? { tittel: tittel.trim() } : {}),
-        ...(beskrivelse.trim() ? { beskrivelse: beskrivelse.trim() } : {}),
-      },
-    });
+    void send(grunnlagskrav, grunnlagstekst);
   }
 
   function sendVederlag(e: SubmitEvent) {
     e.preventDefault();
-    void send({ type: 'krav', spor: 'vederlag', innhold: { metode: 'tilbud', beloep } });
+    void send(vederlagskrav, vederlagstekst);
   }
 
   $effect(() => {
@@ -126,9 +174,14 @@
       </label>
       <label class="block">Tittel <input class="block w-full border" bind:value={tittel} /></label>
       <label class="block"
-        >Beskrivelse <textarea class="block w-full border" bind:value={beskrivelse}
+        >Beskrivelse av pålegget <textarea class="block w-full border" bind:value={beskrivelse}
         ></textarea></label
       >
+      {#if grunnlagstekst}
+        <div class="text-sm" data-testid="brevtekst-grunnlag">
+          {#each grunnlagstekst as avsnitt, i (i)}<p>{avsnitt}</p>{/each}
+        </div>
+      {/if}
       <button class="rounded border px-3 py-1" disabled={sender || !under}>Send grunnlag</button>
     </form>
 
@@ -145,6 +198,11 @@
           required
         />
       </label>
+      {#if vederlagstekst}
+        <div class="text-sm" data-testid="brevtekst-vederlag">
+          {#each vederlagstekst as avsnitt, i (i)}<p>{avsnitt}</p>{/each}
+        </div>
+      {/if}
       <button class="rounded border px-3 py-1" disabled={sender || !beloep}
         >Send krav om vederlag</button
       >

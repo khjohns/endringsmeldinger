@@ -7,6 +7,8 @@
 
 import type { Journalrad } from '../typer.ts';
 
+type Data = Record<string, unknown>;
+
 /** Feltene i verdien som er `null`, en tom liste eller en tom streng. */
 export function tommeVerdier(v: unknown, sti = '$'): string[] {
   if (v === null || v === '' || (Array.isArray(v) && !v.length)) return [sti];
@@ -24,4 +26,37 @@ export function avvikFraFormatet(rad: Journalrad): string[] {
   if (rad.format !== 1) avvik.push(`${rad.event_type}: format ${String(rad.format)}`);
   if (rad.refererer_til_event_id !== null) avvik.push(`${rad.event_type}: referstoid er satt`);
   return avvik;
+}
+
+/**
+ * LV-U3: elementene i et brev appen sendte som ikke står i brevteksten. Hvert krav,
+ * svar og utsagn og hver opplysning skal ha ett avsnitt med en låst del; datoen for et
+ * varsel står i avsnittet for varselet, og vedleggene i et avsnitt for dokumentet
+ * (A4). Et registrert brev har ingen brevtekst (MM-U17). Leses av raden alene, ikke
+ * av kjernen som skrev den.
+ */
+export function utenAvsnitt(rad: Journalrad): string[] {
+  if (rad.event_type !== 'dokument_registrert') return [];
+  const d = rad.data;
+  const liste = (n: string) => (d[n] ?? []) as Data[];
+  const opplysninger = liste('opplysninger');
+  const registrert = opplysninger.some(
+    (o) => (o.hva === 'sendt' || o.hva === 'mottatt') && o.gjelder === undefined
+  );
+  const tekst = (d.brevtekst ?? []) as Data[];
+  if (registrert) return tekst.length ? ['et registrert brev har brevtekst'] : [];
+  const elementer = [
+    ...liste('krav'),
+    ...liste('svar'),
+    ...liste('utsagn'),
+    ...opplysninger.filter(
+      (o) => !((o.hva === 'sendt' || o.hva === 'mottatt') && o.gjelder !== undefined)
+    ),
+  ].map((e) => e.id as string);
+  if (liste('dokumentasjon').length) elementer.push(rad.event_id);
+  const avsnitt = (id: string) =>
+    tekst.filter((a) => a.gjelder === id && typeof a.laast === 'string' && a.laast.length);
+  return elementer
+    .filter((id) => avsnitt(id).length !== 1)
+    .map((id) => `${rad.event_id}: ${id} har ikke ett avsnitt i brevteksten`);
 }
