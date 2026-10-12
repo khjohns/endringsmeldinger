@@ -1241,7 +1241,7 @@
     {
       "id": "GR-04",
       "tilfelle": "TE sender en ny kravversjon av grunnlaget med uendret underkategori etter et avslag.",
-      "forventet": "Som GR-01: grunnlagssvaret faller i tilstanden, grunnlaget venter på svar, og svarene på vederlag og frist forblir subsidiære.",
+      "forventet": "Det forrige grunnlagssvaret er ikke lenger gjeldende og står i journalen. Byggherren kan svare på grunnlaget, og TE kan ikke godta det forrige svaret. Svarene på vederlag og frist forblir subsidiære, med årsakene fra grunnlagssvaret de ble regnet mot.",
       "bh_standpunkt": "Ikke vurdert for den nye versjonen.",
       "rettslig_virkning": "Avslaget gjaldt forrige versjon.",
       "rettidighet": "—",
@@ -1254,7 +1254,7 @@
     {
       "id": "GR-05",
       "tilfelle": "TE sender en ny kravversjon av grunnlaget med uendret underkategori etter et svar som påberoper preklusjon etter § 32.2.",
-      "forventet": "Svaret og § 32.2-vurderingen faller, grunnlaget venter på svar (`SENDT`), og svarene på vederlag og frist forblir subsidiære.",
+      "forventet": "Svaret og § 32.2-vurderingen i det er ikke lenger gjeldende og står i journalen. Byggherren kan svare på grunnlaget, og TE kan ikke godta det forrige svaret. Svarene på vederlag og frist forblir subsidiære, med årsakene fra grunnlagssvaret de ble regnet mot.",
       "bh_standpunkt": "Ikke vurdert for den nye versjonen.",
       "rettslig_virkning": "Preklusjonen gjaldt forrige versjon. Byggherren må ta stilling på nytt.",
       "rettidighet": "Byggherrens § 32.2-vurdering for den nye versjonen: ikke vurdert.",
@@ -1311,27 +1311,29 @@
     {
       "id": "GR-09",
       "tilfelle": "TE trekker grunnlaget før vederlag eller frist er sendt.",
-      "forventet": "Saken er `LUKKET_TRUKKET`.",
+      "forventet": "Grunnlaget er trukket, og vederlag og frist regnes som trukket. TE kan ikke sende krav i noe spor, og visningen viser saken som avsluttet ved trekk.",
       "bh_standpunkt": "—",
       "rettslig_virkning": "Kravet er trukket. Spor som ikke er sendt, regnes som trukket.",
       "rettidighet": "—",
       "tidsakse": "registrering",
       "kilder": [
-        "V-SD02"
+        "V-SD02",
+        "V-TRUKKET"
       ],
       "tolkningsstatus": "avklart_tolkning"
     },
     {
       "id": "GR-10",
       "tilfelle": "TE trekker grunnlaget når bare vederlaget er sendt.",
-      "forventet": "Vederlaget trekkes med, og saken er `LUKKET_TRUKKET`.",
+      "forventet": "Grunnlaget og vederlaget er trukket, og fristen regnes som trukket. TE kan ikke sende krav i noe spor, og visningen viser saken som avsluttet ved trekk.",
       "bh_standpunkt": "—",
       "rettslig_virkning": "Fristen er ikke sendt og regnes som trukket.",
       "rettidighet": "—",
       "tidsakse": "registrering",
       "kilder": [
         "V-SD02",
-        "GR-U5"
+        "GR-U5",
+        "V-TRUKKET"
       ],
       "tolkningsstatus": "avklart_tolkning"
     },
@@ -2027,9 +2029,9 @@
     {
       "id": "KA-33",
       "tilfelle": "Den som sendte et merket brev, avklarer at standpunktene i det gjelder uten forbehold, eller sier noe nytt i sporet.",
-      "forventet": "Sperren etter KA-32 oppheves i sporet. Bare avsenderen av brevet kan avklare, og en merking avklares én gang. Et nytt krav eller svar med virkning, i et spor som ikke er lukket, fra avsenderen i sporet, etter brevet, opphever sperren i det sporet, også når brevet har et svar i et annet spor som fortsatt gjelder. Et svar etter at TE har trukket kravet eller grunnlaget, opphever den ikke, selv når det leses med virkning (KA-41). Et utsagn fra motparten, for eksempel en ny kravversjon fra TE, opphever den ikke. Avklaringen godtas også når kravene er avgjort, fordi den ikke endrer noe standpunkt.",
+      "forventet": "Sperren etter KA-32 oppheves i sporet. Bare avsenderen av brevet kan avklare, og en merking avklares én gang. Et nytt krav eller svar med virkning, i et spor som ikke er lukket, fra avsenderen i sporet, etter brevet, opphever sperren i det sporet, også når brevet har et svar i et annet spor som fortsatt gjelder. Et krav fra avsenderen i samme brev som trekket har virkning og kan oppheve merkingen (arbeidsvalg 2 på #426). Et svar etter at TE har trukket kravet eller grunnlaget, opphever den ikke, selv når det leses med virkning (KA-41). Et utsagn fra motparten, for eksempel en ny kravversjon fra TE, opphever den ikke. Avklaringen godtas også når kravene er avgjort, fordi den ikke endrer noe standpunkt.",
       "bh_standpunkt": "Det nye utsagnet.",
-      "rettslig_virkning": "Gjør ikke brevet ubetinget fra sendetidspunktet. Appen kontrollerer at utsagnet kan representeres, ikke om tvisten er løst. At bare et spor som ikke er lukket teller, er et arbeidsvalg 12.10 etter KA-U20 og MM-U20 (#426): et svar etter trekk er ikke en revisjon der den er tillatt.",
+      "rettslig_virkning": "Gjør ikke brevet ubetinget fra sendetidspunktet. Appen kontrollerer at utsagnet kan representeres, ikke om tvisten er løst. At bare et spor som ikke er lukket teller, er et arbeidsvalg 12.10 etter KA-U20 og MM-U20 (#426): et svar etter trekk er ikke en revisjon der den er tillatt. Arbeidsvalg 2 på #426: «Kravet i samme brev som trekket har virkning og kan oppheve merkingen, i tråd med MM-U18.»",
       "rettidighet": "—",
       "tidsakse": "registrering",
       "kilder": [
@@ -2037,7 +2039,8 @@
         "MM-U12",
         "KA-U28",
         "KA-U26",
-        "MM-U20"
+        "MM-U20",
+        "MM-U18"
       ],
       "tolkningsstatus": "avklart_tolkning"
     },

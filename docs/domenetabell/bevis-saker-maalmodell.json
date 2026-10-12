@@ -6,7 +6,7 @@
     "Beløp, dager og datoer er faste modellverdier. De er ikke rettslige forventninger.",
     "Byggherrens svar har vurderingene i handlingen. Klienten regner resultatet med kjernen, og serveren regner det på nytt (B-13).",
     "Regelsettet `n` er gjeldende regler (REGELVERSJON). `n+1` er en kontrollert regelendring i prøven: § 32.2 gjelder ikke underkategorien `samordning`. Endringen er ikke vedtatt; den står for innsnevringen #220 kan gi, og omfanget av § 32.2 avgjøres ikke her.",
-    "`navn` på et steg er etiketten forventningene bruker. Et dokument (`brev`, `varsel`) har sin etikett, og hvert svar i det har sin. En rettidighet etter § 33.4 som `gjelder` kravet K-f1, gjelder varselet kjernen utleder av kravet når ingen varsel er registrert (MM-U1). En `rad` er en rad fra en annen skriver i format 1: et svar når den har `spor`, ellers et utsagn med `art`. Etiketten på et svar er svaret, på et utsagn dokumentet.",
+    "`navn` på et steg er etiketten forventningene bruker. Et dokument (`brev`, `varsel`) har sin etikett, og hvert svar i det har sin. En rettidighet etter § 33.4 som `gjelder` kravet K-f1, gjelder varselet kjernen utleder av kravet når ingen varsel er registrert (MM-U1). En `rad` er en rad fra en annen skriver i format 1: et svar når den har `spor`, ellers et utsagn med `art`. Med `krav: true` er den en kravversjon, og et utsagn med `krav` som handling har kravet i samme dokument (#434). Etiketten på et svar eller et krav er elementet, på et utsagn dokumentet.",
     "En `rad` er registrert korrespondanse eller en rad kjernen ikke selv har skrevet. Den går ikke gjennom kommandovalideringen, men brevet fryses som i et svar fra kjernen når kjernen forstår raden (merknaden til MM-U9).",
     "Rollen `mal` med `prov` er en målkontroll på utfallet av et forsøk som ikke lagres. Rollen `kontroll` er en kontrollsak: den skal holde, ellers er forutsetningen brutt. Et avvist steg skal la journalen stå uendret.",
     "Hver kontroll har `kilde`: et vedtak i regler.json, en rad i domenetabellen (med radens tolkningsstatus) eller `#304`, akseptkriteriet oppdragsgiver har skrevet i issuet."
@@ -7764,6 +7764,671 @@
             "avvist": true,
             "regel": "KRAV_TRUKKET",
             "nye_hendelser": 0
+          }
+        }
+      ]
+    },
+    {
+      "id": "F-MM-G23",
+      "rader": [
+        "GR-04"
+      ],
+      "start": "forlop_a_brev",
+      "forslag": "GR-U1: en ny kravversjon av grunnlaget med uendret underkategori etter et avslag åpner sporet",
+      "forventningsgrunnlag": "avklart_tolkning",
+      "steg": [
+        {
+          "handling": "krav",
+          "spor": "grunnlag",
+          "underkategori": "irregulaer_endring",
+          "navn": "K-g2"
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 0,
+          "rolle": "mal",
+          "kilde": [
+            "V-B13-GRUNNLAG-AVSLATT",
+            "GR-U7"
+          ],
+          "forventet": {
+            "gjeldende_svar.grunnlag": "S-g1",
+            "subsidiaer_aarsaker.vederlag": [
+              "avslaatt"
+            ],
+            "subsidiaer_aarsaker.frist": [
+              "avslaatt"
+            ]
+          }
+        },
+        {
+          "etter": 0,
+          "rolle": "kontroll",
+          "kilde": [
+            "KA-U1"
+          ],
+          "prov": {
+            "handling": "aksept",
+            "spor": "grunnlag",
+            "svar": "S-g1"
+          },
+          "forventet": {
+            "avvist": false
+          }
+        },
+        {
+          "etter": 1,
+          "rolle": "mal",
+          "kilde": [
+            "GR-U1"
+          ],
+          "forventet": {
+            "avvist": false,
+            "nye_hendelser": 1,
+            "gjeldende_krav.grunnlag": "K-g2",
+            "gjeldende_svar.grunnlag": null,
+            "svar.S-g1.dokument": "D4",
+            "handlinger.BH": {
+              "inneholder": [
+                "svare:grunnlag"
+              ]
+            },
+            "subsidiaer_aarsaker.vederlag": [
+              "avslaatt"
+            ],
+            "subsidiaer_aarsaker.frist": [
+              "avslaatt"
+            ]
+          }
+        },
+        {
+          "etter": 1,
+          "rolle": "mal",
+          "kilde": [
+            "GR-U1",
+            "KA-U1"
+          ],
+          "prov": {
+            "handling": "aksept",
+            "spor": "grunnlag",
+            "svar": "S-g1"
+          },
+          "forventet": {
+            "avvist": true,
+            "regel": "IKKE_GJELDENDE_SVAR"
+          }
+        }
+      ]
+    },
+    {
+      "id": "F-MM-G24",
+      "rader": [
+        "GR-05"
+      ],
+      "start": "krav_irreg",
+      "forslag": "GR-U1 og V-215: en ny kravversjon av grunnlaget med uendret underkategori etter et svar som påberoper § 32.2, åpner sporet, og § 32.2-vurderingen faller med svaret. Vederlag og frist forblir subsidiære med årsakene fra svaret de ble regnet mot (S-g1), som ikke lenger er gjeldende",
+      "forventningsgrunnlag": "avklart_tolkning",
+      "steg": [
+        {
+          "handling": "brev",
+          "navn": "D4",
+          "svar": [
+            {
+              "spor": "grunnlag",
+              "navn": "S-g1",
+              "resultat": "avslaatt",
+              "varslet_i_tide": false
+            },
+            {
+              "spor": "vederlag",
+              "navn": "S-v1",
+              "vurdering": "delvis",
+              "godkjent_belop": 60000
+            },
+            {
+              "spor": "frist",
+              "navn": "S-f1",
+              "varsel_i_tide": true,
+              "spesifisering_i_tide": true,
+              "hindring": true
+            }
+          ]
+        },
+        {
+          "handling": "krav",
+          "spor": "grunnlag",
+          "underkategori": "irregulaer_endring",
+          "navn": "K-g2"
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 1,
+          "rolle": "mal",
+          "kilde": [
+            "NS-32.2-1",
+            "V-B13-GRUNNLAG-AVSLATT"
+          ],
+          "forventet": {
+            "gjeldende_svar.grunnlag": "S-g1",
+            "virkning.S-g1.rettidighet": "prinsipalt",
+            "subsidiaer_aarsaker.vederlag": [
+              "prekludert",
+              "avslaatt"
+            ],
+            "subsidiaer_aarsaker.frist": [
+              "prekludert",
+              "avslaatt"
+            ]
+          }
+        },
+        {
+          "etter": 1,
+          "rolle": "kontroll",
+          "kilde": [
+            "KA-U1"
+          ],
+          "prov": {
+            "handling": "aksept",
+            "spor": "grunnlag",
+            "svar": "S-g1"
+          },
+          "forventet": {
+            "avvist": false
+          }
+        },
+        {
+          "etter": 2,
+          "rolle": "mal",
+          "kilde": [
+            "GR-U1",
+            "V-215"
+          ],
+          "forventet": {
+            "avvist": false,
+            "nye_hendelser": 1,
+            "gjeldende_krav.grunnlag": "K-g2",
+            "gjeldende_svar.grunnlag": null,
+            "svar.S-g1.dokument": "D4",
+            "handlinger.BH": {
+              "inneholder": [
+                "svare:grunnlag"
+              ]
+            },
+            "subsidiaer_aarsaker.vederlag": [
+              "prekludert",
+              "avslaatt"
+            ],
+            "subsidiaer_aarsaker.frist": [
+              "prekludert",
+              "avslaatt"
+            ]
+          }
+        },
+        {
+          "etter": 2,
+          "rolle": "mal",
+          "kilde": [
+            "GR-U1",
+            "KA-U1"
+          ],
+          "prov": {
+            "handling": "aksept",
+            "spor": "grunnlag",
+            "svar": "S-g1"
+          },
+          "forventet": {
+            "avvist": true,
+            "regel": "IKKE_GJELDENDE_SVAR"
+          }
+        }
+      ]
+    },
+    {
+      "id": "F-MM-G25",
+      "rader": [
+        "GR-09",
+        "GR-12"
+      ],
+      "start": null,
+      "forslag": "V-SD02 og V-TRUKKET: TE trekker grunnlaget før vederlag og frist er sendt, og kan ikke oppdatere det etterpå",
+      "forventningsgrunnlag": "avklart_tolkning",
+      "steg": [
+        {
+          "handling": "krav",
+          "spor": "grunnlag",
+          "underkategori": "irregulaer_endring",
+          "navn": "K-g1"
+        },
+        {
+          "handling": "trekk",
+          "spor": "grunnlag",
+          "navn": "D2"
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 1,
+          "rolle": "mal",
+          "kilde": [
+            "V-KRAVVERSJON"
+          ],
+          "forventet": {
+            "handlinger.TE": {
+              "inneholder": [
+                "krav:grunnlag",
+                "krav:vederlag",
+                "krav:frist",
+                "trekke:grunnlag"
+              ]
+            }
+          }
+        },
+        {
+          "etter": 1,
+          "rolle": "kontroll",
+          "kilde": [
+            "V-KRAVVERSJON"
+          ],
+          "prov": {
+            "handling": "krav",
+            "spor": "grunnlag",
+            "underkategori": "irregulaer_endring"
+          },
+          "forventet": {
+            "avvist": false
+          }
+        },
+        {
+          "etter": 1,
+          "rolle": "kontroll",
+          "kilde": [
+            "V-KRAVVERSJON"
+          ],
+          "prov": {
+            "handling": "krav",
+            "spor": "vederlag",
+            "belop": 100000
+          },
+          "forventet": {
+            "avvist": false
+          }
+        },
+        {
+          "etter": 2,
+          "rolle": "mal",
+          "kilde": [
+            "V-SD02",
+            "GR-U5"
+          ],
+          "forventet": {
+            "avvist": false,
+            "nye_hendelser": 1,
+            "trukket.grunnlag": true,
+            "trukket.vederlag": true,
+            "trukket.frist": true,
+            "visning.status": "avsluttet_trukket",
+            "handlinger.TE": {
+              "mangler": [
+                "krav:grunnlag",
+                "krav:vederlag",
+                "krav:frist",
+                "trekke:grunnlag"
+              ]
+            }
+          }
+        },
+        {
+          "etter": 2,
+          "rolle": "mal",
+          "kilde": [
+            "V-TRUKKET",
+            "V-SD02"
+          ],
+          "prov": {
+            "handling": "krav",
+            "spor": "grunnlag",
+            "underkategori": "irregulaer_endring"
+          },
+          "forventet": {
+            "avvist": true,
+            "regel": "KRAV_TRUKKET"
+          }
+        },
+        {
+          "etter": 2,
+          "rolle": "mal",
+          "kilde": [
+            "V-SD02",
+            "V-TRUKKET"
+          ],
+          "prov": {
+            "handling": "krav",
+            "spor": "vederlag",
+            "belop": 100000
+          },
+          "forventet": {
+            "avvist": true,
+            "regel": "KRAV_TRUKKET"
+          }
+        }
+      ]
+    },
+    {
+      "id": "F-MM-G26",
+      "rader": [
+        "GR-10"
+      ],
+      "start": null,
+      "forslag": "V-SD02 og GR-U5: TE trekker grunnlaget når bare vederlaget er sendt",
+      "forventningsgrunnlag": "avklart_tolkning",
+      "steg": [
+        {
+          "handling": "krav",
+          "spor": "grunnlag",
+          "underkategori": "irregulaer_endring",
+          "navn": "K-g1"
+        },
+        {
+          "handling": "krav",
+          "spor": "vederlag",
+          "belop": 100000,
+          "navn": "K-v1"
+        },
+        {
+          "handling": "trekk",
+          "spor": "grunnlag",
+          "navn": "D3"
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 2,
+          "rolle": "mal",
+          "kilde": [
+            "V-KRAVVERSJON"
+          ],
+          "forventet": {
+            "handlinger.TE": {
+              "inneholder": [
+                "krav:grunnlag",
+                "krav:vederlag",
+                "krav:frist",
+                "trekke:grunnlag"
+              ]
+            }
+          }
+        },
+        {
+          "etter": 2,
+          "rolle": "mal",
+          "kilde": [
+            "V-KRAVVERSJON"
+          ],
+          "forventet": {
+            "trukket.vederlag": false,
+            "gjeldende_krav.frist": null
+          }
+        },
+        {
+          "etter": 2,
+          "rolle": "kontroll",
+          "kilde": [
+            "V-KRAVVERSJON"
+          ],
+          "prov": {
+            "handling": "krav",
+            "spor": "frist",
+            "dager": 20
+          },
+          "forventet": {
+            "avvist": false
+          }
+        },
+        {
+          "etter": 3,
+          "rolle": "mal",
+          "kilde": [
+            "V-SD02",
+            "GR-U5"
+          ],
+          "forventet": {
+            "avvist": false,
+            "nye_hendelser": 1,
+            "trukket.grunnlag": true,
+            "trukket.vederlag": true,
+            "trukket.frist": true,
+            "visning.status": "avsluttet_trukket",
+            "handlinger.TE": {
+              "mangler": [
+                "krav:grunnlag",
+                "krav:vederlag",
+                "krav:frist",
+                "trekke:grunnlag"
+              ]
+            }
+          }
+        },
+        {
+          "etter": 3,
+          "rolle": "mal",
+          "kilde": [
+            "V-SD02",
+            "V-TRUKKET"
+          ],
+          "prov": {
+            "handling": "krav",
+            "spor": "frist",
+            "dager": 20
+          },
+          "forventet": {
+            "avvist": true,
+            "regel": "KRAV_TRUKKET"
+          }
+        }
+      ]
+    },
+    {
+      "id": "F-MM-K4",
+      "rader": [
+        "KA-14"
+      ],
+      "start": "krav_irreg",
+      "forslag": "V-TRUKKET: TE kan ikke oppdatere et krav TE har trukket; kontrollsaken er den samme kravversjonen før trekket",
+      "forventningsgrunnlag": "avklart_tolkning",
+      "steg": [
+        {
+          "handling": "trekk",
+          "spor": "vederlag",
+          "navn": "D4"
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 0,
+          "rolle": "kontroll",
+          "kilde": [
+            "V-KRAVVERSJON"
+          ],
+          "prov": {
+            "handling": "krav",
+            "spor": "vederlag",
+            "belop": 120000
+          },
+          "forventet": {
+            "avvist": false
+          }
+        },
+        {
+          "etter": 1,
+          "rolle": "mal",
+          "kilde": [
+            "V-TRUKKET"
+          ],
+          "forventet": {
+            "avvist": false,
+            "trukket.vederlag": true,
+            "trukket.grunnlag": false,
+            "trukket.frist": false
+          }
+        },
+        {
+          "etter": 1,
+          "rolle": "mal",
+          "kilde": [
+            "V-TRUKKET"
+          ],
+          "prov": {
+            "handling": "krav",
+            "spor": "vederlag",
+            "belop": 120000
+          },
+          "forventet": {
+            "avvist": true,
+            "regel": "KRAV_TRUKKET"
+          }
+        }
+      ]
+    },
+    {
+      "id": "F-MM-M8",
+      "rader": [
+        "KA-33"
+      ],
+      "start": "krav_irreg",
+      "forslag": "Arbeidsvalg 2 på #426: TEs krav i samme registrerte brev som trekket av grunnlaget har virkning og opphever TEs merking i sporet, i tråd med MM-U18 (#434)",
+      "forventningsgrunnlag": "avklart_tolkning",
+      "steg": [
+        {
+          "handling": "rad",
+          "part": "TE",
+          "krav": true,
+          "spor": "vederlag",
+          "belop": 110000,
+          "navn": "K-v2",
+          "dokument": "D4",
+          "sendt": "2026-09-30",
+          "merking": [
+            "vederlag"
+          ]
+        },
+        {
+          "handling": "rad",
+          "part": "TE",
+          "art": "trekk",
+          "navn": "D5",
+          "sendt": "2026-10-01",
+          "krav": {
+            "spor": "vederlag",
+            "belop": 120000,
+            "navn": "K-v3"
+          },
+          "gjelder": "K-g1"
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 1,
+          "rolle": "mal",
+          "kilde": [
+            "KA-U20"
+          ],
+          "forventet": {
+            "forbehold.vederlag": true,
+            "gjeldende_krav.vederlag": "K-v2"
+          }
+        },
+        {
+          "etter": 2,
+          "rolle": "mal",
+          "kilde": [
+            "MM-U18",
+            "KA-U20",
+            "KA-U26"
+          ],
+          "forventet": {
+            "forstaatt": true,
+            "uten_virkning": [],
+            "gjeldende_krav.vederlag": "K-v3",
+            "trukket.grunnlag": true,
+            "trukket.vederlag": true,
+            "forbehold.vederlag": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "F-MM-M8-kontroll",
+      "rader": [
+        "KA-33"
+      ],
+      "start": "krav_irreg",
+      "forslag": "Kontrollsak til F-MM-M8: kravet i et eget dokument etter trekket av grunnlaget opphever ikke merkingen",
+      "forventningsgrunnlag": "avklart_tolkning",
+      "steg": [
+        {
+          "handling": "rad",
+          "part": "TE",
+          "krav": true,
+          "spor": "vederlag",
+          "belop": 110000,
+          "navn": "K-v2",
+          "dokument": "D4",
+          "sendt": "2026-09-30",
+          "merking": [
+            "vederlag"
+          ]
+        },
+        {
+          "handling": "rad",
+          "part": "TE",
+          "art": "trekk",
+          "navn": "D5",
+          "sendt": "2026-10-01",
+          "gjelder": "K-g1"
+        },
+        {
+          "handling": "rad",
+          "part": "TE",
+          "krav": true,
+          "spor": "vederlag",
+          "belop": 120000,
+          "navn": "K-v3",
+          "dokument": "D6",
+          "sendt": "2026-10-01"
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 1,
+          "rolle": "mal",
+          "kilde": [
+            "KA-U20"
+          ],
+          "forventet": {
+            "forstaatt": true,
+            "forbehold.vederlag": true,
+            "gjeldende_krav.vederlag": "K-v2"
+          }
+        },
+        {
+          "etter": 3,
+          "rolle": "mal",
+          "kilde": [
+            "V-TRUKKET",
+            "MM-U19",
+            "KA-U20",
+            "KA-U26"
+          ],
+          "forventet": {
+            "forstaatt": true,
+            "uten_virkning": [
+              "K-v3"
+            ],
+            "gjeldende_krav.vederlag": "K-v2",
+            "trukket.vederlag": true,
+            "forbehold.vederlag": true
           }
         }
       ]
