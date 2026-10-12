@@ -367,7 +367,11 @@ endringsordre og forsering, etter [OV-U1](plans/2026-09-16-godkjenning-og-varig-
 - **Utdrag:** «skal han varsle den andre parten uten ugrunnet opphold, selv om
   han ennå ikke kan fremsette et spesifisert krav […] Krav på fristforlengelse
   tapes dersom det ikke varsles innen utløpet av fristen.»
-- **Utsagn:** TE: `varsel` med hjemmel 33.4, med opplysningen `sendt`. BH:
+- **Utsagn:** TE: `varsel` med hjemmel 33.4, med opplysningen `sendt`, eller
+  sendt fra appen som et eget brev uten dager, med serverens dato
+  ([VS-U15](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u15), kommandoen `send_varsel`). Er et fristkrav sendt, avvises et
+  varsel fra appen (`FRISTKRAV_SENDT`; [VS-U16](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u16)); et varsel sendt
+  tidligere utenfor appen registreres med sin dato (MM-U8). BH:
   `rettidighet` med hjemmel 33.4, som `gjelder` varselet, eller kravet når
   varselet er utledet av kravet. TE: «ingen krav» etter varselet.
 - **Predikat:**
@@ -380,7 +384,7 @@ endringsordre og forsering, etter [OV-U1](plans/2026-09-16-godkjenning-og-varig-
   mottatt. Det kan bestrides.
 - **Appen:** *utlede* ([VS-U3](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u3)).
 - **Vedtak:** B-13 om preklusjon ut fra byggherrens egen vurdering (24.09).
-  [MM-U1](plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u1).
+  [MM-U1](plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u1). [VS-U15](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u15).
   [MM-U8](plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u8) (merknaden
   09.10: presiserer MM-U1, ikke MM-U4). SK-12 (05.10).
   [MM-U7](plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u7) (merknaden
@@ -392,11 +396,12 @@ endringsordre og forsering, etter [OV-U1](plans/2026-09-16-godkjenning-og-varig-
 - **Kjernen i dag:** bygget for varselet. `varsel` i `UTSAGN` og `sendt` i
   `OPPLYSNING` ([`format.ts`](../kjerne/format/format.ts)); `STANDPUNKT_UAVKLART` og
   `VARSEL_REGISTRERT` i [`forutsetninger.ts`](../kjerne/kommandoer/forutsetninger.ts).
-  Delvis: `varsel_type` er låst til spesifisert krav, og
-  `har_tidligere_varsel_i_tide` er alltid usann i `regnUtSvar`. «Ingen krav»
-  leses (`ingen_krav`), men har ingen kommando. Ikke bygget: et eget varsel fra
-  appen uten dager ([VS-U15](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u15),
-  [#411](https://github.com/khjohns/endringsmeldinger/issues/411)).
+  Bygget: et eget varsel fra appen uten dager
+  ([VS-U15](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u15),
+  [#411](https://github.com/khjohns/endringsmeldinger/issues/411)), med kommandoen
+  `send_varsel`, handlingen `sende_varsel` og `FRISTKRAV_SENDT` i
+  `forutsetninger.ts`. Delvis: `varsel_type` er låst til spesifisert krav, og
+  `har_tidligere_varsel_i_tide` er alltid usann i `regnUtSvar`.
 
 ### § 33.6.1 — spesifisert krav
 
@@ -566,7 +571,8 @@ også § 30 om regningsarbeid, som § 34.4 viser til.
 - **Vedtak:** B-13 om preklusjon ut fra byggherrens egen vurdering (24.09,
   nevner § 34.1.2). [VS-U6](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u6) (utvider SK-12). [VS-U7](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u7) (utvider
   MM-U1 og MM-U8). [VS-U8](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u8) (endrer DRF-03 for registrerte brev).
-  [VS-U9](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u9).
+  [VS-U9](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u9). [VS-U15](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u15): varselet etter
+  § 34.1.2 sendes utenfor appen og registreres når § 34.1 er bygget.
 - **Kjernen i dag:** delvis. `gjelderVarslingspliktenForVederlag` og
   `beregnPreklusjon` i [`regler/vederlag.ts`](../kjerne/regler/vederlag.ts).
   `hovedkrav_varslet_i_tide` er påkrevd for SVIKT og ANDRE, men usann avvises,
@@ -863,12 +869,25 @@ visning ikke fremstiller et trekk som at utførelsesplikten er bortfalt.
   en endringsordre (KA-U26, KA-U28). MM-U18 (#326): en hendelse som ikke er registrert
   korrespondanse og strider mot en enighet, et frafall, et trekk, «ingen krav» eller en
   lukket sak, gjør saken ikke forstått, og et sammenfall som ikke stemmer med
-  standpunktene i brevet, likeså. I registrert korrespondanse får elementet ingen
-  virkning (`utenVirkning`). Kontrollen leser journalen før hvert dokument og gjelder
+  standpunktene i brevet, likeså. Det gjelder også et svar eller en aksept i et
+  trukket spor ([MM-U20](plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u20),
+  #405). I registrert korrespondanse får elementet ingen
+  virkning (`utenVirkning`), unntatt et svar uten sammenfall i et trukket spor
+  (`bareUregistrert`, arbeidsvalget 12.10 under). Kontrollen leser journalen før hvert dokument og gjelder
   bare vedtakene om enighet og lukking; at en aksept av et merket svar avvises, er et
   vilkår for å sende og står i forutsetningene, ikke i kontrollen. Ikke bygget: B-10 utover versjonene i formatet
   ([#316](https://github.com/khjohns/endringsmeldinger/issues/316)) og registreringen
   (#310). Brevteksten står i «Brevteksten».
+- **Arbeidsvalg 12.10 ([MM-U19](plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u19), [MM-U20](plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u20),
+  [#405](https://github.com/khjohns/endringsmeldinger/issues/405)):** et registrert brev i et
+  trukket spor behandles slik MM-U19 lyder. En aksept, eller et svar med sammenfall,
+  skaper en enighet vedtakene ikke tillater, og blir uten virkning. Et svar uten
+  sammenfall, som et avslag eller et frafall av pålegget etter et trekk av
+  grunnlaget, leses med virkning, fordi et trekk bare er TEs avkall på eget krav
+  ([KA-U14](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u14), [GR-U9](plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u9)). Å gjøre også det uten virkning
+  ville utvidet MM-U19 og krever et vedtak. En godkjenning etter trekk vises som
+  uten virkning i saken; appen sier ikke at brevet ikke er en endringsordre
+  (KA-U14).
 - **Vedtak 11.10:** [MM-U19](plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u19)
   (registrerte brev i samme klasse som MM-U18), [KA-U26](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u26)
   (hva merkingen sperrer), [KA-U27](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u27)
@@ -958,8 +977,24 @@ begrunnelse og beskrivelse er [KA-U31](plans/2026-09-16-godkjenning-og-varig-lev
   frist, er svaret ikke lenger subsidiært, og aksepten sier bare at TE godtar
   byggherrens svar i brevet det står i, uten «men ikke i byggherrens standpunkt
   til grunnlaget». Det sendte svarbrevet står som det ble sendt (MM-U9).
-- **Ikke her:** et eget varsel etter § 33.4 uten dager ([VS-U15](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u15)) er
-  [#411](https://github.com/khjohns/endringsmeldinger/issues/411).
+- **VS-U15 ([#411](https://github.com/khjohns/endringsmeldinger/issues/411)):** TEs
+  eget varsel etter § 33.4 uten dager har ordlyden i [VS-U15](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u15). Et brev fra appen
+  der varselet er det eneste elementet og ikke har en opplysning om datoen, er
+  varselet, og datoen er serverens. I et fristkrav med varselet står setningen i
+  LV-U4 punkt 3 som før; et varsel uten dato i et annet brev kan ikke uttrykkes.
+- **Arbeidsvalg 12.10 ([VS-U15](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u15), [MM-U1](plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u1), SK-12,
+  [#411](https://github.com/khjohns/endringsmeldinger/issues/411)):** et senere
+  fristkrav viser til varselet fra appen gjennom sporet, som til et registrert
+  varsel: byggherrens standpunkt om rettidighet gjelder det. Teksten i fristkravet
+  endres ikke. Et fristkrav som oppgir en dato for varselet etter et varsel fra
+  appen, avvises (`VARSEL_REGISTRERT`), fordi datoen er satt (SK-12).
+- **Arbeidsvalg 12.10 ([VS-U16](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u16), [#411](https://github.com/khjohns/endringsmeldinger/issues/411)):** er fristkravet
+  trukket, avvises varselet fra appen med `KRAV_TRUKKET`, som går foran, fordi sporet er
+  lukket (GR-U5, vedtaket om trukket krav 05.10). Registreringen av et varsel sendt
+  utenfor appen er uendret, også etter kravet: appen kontrollerer ikke datoen mot
+  kravet, fordi datoen er partens opplysning og kan bestrides
+  ([MM-U1](plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u1), MM-U7), og et
+  varsel registrert etter et svar følger MM-U8.
 
 ---
 

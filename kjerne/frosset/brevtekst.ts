@@ -546,12 +546,15 @@ function beskriv(id: string, j: Journalen): string {
   throw new KanIkkeUttrykkes(`${id} har ingen brevtekst som det et utsagn viser til`);
 }
 
-/** LV-U4 punkt 3 og 6–13, og KA-U22 og KA-U25 ordrett. */
+/** LV-U4 punkt 3 og 6–13, og VS-U15, KA-U22 og KA-U25 ordrett. */
 function utsagnstekst(u: Utsagn, { j, saken, nytt, sak }: Tekst): string {
   const part = PART[nytt.avsender];
   switch (u.art) {
     case 'varsel': {
       const dato = nytt.opplysninger.find((o) => erDato(o) && o.gjelder === u.id);
+      // VS-U15: et brev med bare varselet, uten en dato for det, er selve varselet.
+      if (dato === undefined && nytt.utsagn.length === 1 && !nytt.krav.length && !nytt.svar.length)
+        return `TE varsler etter NS 8407 § 33.4 at TE vil kreve fristforlengelse som følge av forholdet i ${sak}.`;
       if (dato?.hva !== 'sendt')
         throw new KanIkkeUttrykkes('et varsel i et brev fra appen har datoen det ble sendt');
       return `TE opplyser at varsel om fristforlengelse etter NS 8407 § 33.4 ble sendt ${norskDato(dato.dato)}.`;

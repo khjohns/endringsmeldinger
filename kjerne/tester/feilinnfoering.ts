@@ -5,8 +5,9 @@
  * i designnotatet, GR-U12 og registeret (#320). F48 er hvitelisten fra #329,
  * F49–F51 og F54–F58 versjoneringen (#316), F52–F53 registrert korrespondanse
  * (#336), F59–F60 kodene i formatet og predikatet for endringsordre
- * (#335, #351), F61–F104 byggedel 1 av #309, F105–F131 brevteksten (#369) og
- * F132–F134 LV-U5 (#414). Én mutasjon om gangen per arbeidskopi, Vitest over hele `kjerne/`
+ * (#335, #351), F61–F104 byggedel 1 av #309, F105–F131 brevteksten (#369),
+ * F132–F134 LV-U5 (#414) og F135–F148 MM-U20 (#405) og VS-U15 (#411). Én mutasjon
+ * om gangen per arbeidskopi, Vitest over hele `kjerne/`
  * og `sprakprove/kjernelagring/`, og originalteksten settes tilbake etterpå. For
  * hver mutasjon kreves det at de forventede målassertions feiler, og at alle
  * feil er assertions, ikke import, oppsett eller en brutt forutsetning
@@ -546,8 +547,8 @@ const MUTASJONER: Mutasjon[] = [
       ],
       // Strid-kontrollen (MM-U18) fanger det samme; begge må muteres.
       [
-        '      SPOR.some((n) => u.spor[n].enighet && u.spor[n].gjeldendeSvar?.id === x.gjelder)',
-        '      !x',
+        '    else if (sporet && u.spor[sporet].enighet && u.spor[sporet].gjeldendeSvar?.id === gjelder)',
+        '    else if (false)',
       ],
     ],
     mal: ['en aksept av et svar med sammenfall er ikke forstått'],
@@ -804,7 +805,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F70',
     feilklasse: 'et registrert brev som strider mot en enighet, gjør saken ikke forstått (MM-U18)',
     fil: `${K}/utledning/utled.ts`,
-    endringer: [['      if (registrert) uten.set(', '      if (!registrert) uten.set(']],
+    endringer: [['      if (!registrert) konflikter.push(', '      if (true) konflikter.push(']],
     mal: ['F-MM-U326e', 'F-MM-U326f'],
   },
   {
@@ -1162,8 +1163,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        '      SPOR.some((n) => u.spor[n].enighet && u.spor[n].gjeldendeSvar?.id === x.gjelder)',
-        '      !x',
+        '    else if (sporet && u.spor[sporet].enighet && u.spor[sporet].gjeldendeSvar?.id === gjelder)',
+        '    else if (false)',
       ],
     ],
     mal: ['F-MM-U326l', 'F-MM-U326m'],
@@ -1463,6 +1464,158 @@ const MUTASJONER: Mutasjon[] = [
       'nevner brevet varselet etter § 33.4 (LV-U5)',
       'gir byggherren innsigelsen opp, sier brevet det uttrykkelig (VS-U11)',
     ],
+  },
+  {
+    id: 'F135',
+    feilklasse:
+      'et svar i et trukket spor, i en rad som ikke er registrert, er ikke en strid (MM-U20)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [['    else if (u.spor[s.spor].trukket)\n', '    else if (false)\n']],
+    mal: ['F-MM-U20a', 'F-MM-U20c', 'F-MM-U20d'],
+  },
+  {
+    id: 'F136',
+    feilklasse:
+      'en aksept av et svar i et trukket spor, i en rad som ikke er registrert, er ikke en strid (MM-U20)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      ['    else if (sporet && u.spor[sporet].trukket)', '    else if (sporet && false)'],
+    ],
+    mal: ['F-MM-U20b'],
+  },
+  {
+    id: 'F137',
+    feilklasse: 'aksepten kontrolleres mot et annet spor enn svaret den gjelder (MM-U20)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        '        ? SPOR.find((n) => u.spor[n].svar.some((s) => s.id === x.gjelder))',
+        "        ? SPOR.find((n) => n === 'grunnlag')",
+      ],
+    ],
+    mal: ['F-MM-U20b'],
+  },
+  {
+    id: 'F138',
+    feilklasse:
+      'varselet fra appen har ingen tekst etter VS-U15, og kjernen kan ikke skrive brevet',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [
+      [
+        '      if (dato === undefined && nytt.utsagn.length === 1 && !nytt.krav.length && !nytt.svar.length)\n        return `TE varsler etter',
+        "      if (dato === undefined && nytt.utsagn.length === 1 && !nytt.krav.length && !nytt.svar.length)\n        throw new KanIkkeUttrykkes('et varsel i et brev fra appen har datoen det ble sendt');\n      if (false)\n        return `TE varsler etter",
+      ],
+    ],
+    mal: ['med teksten i VS-U15', 'F-VS-U15a'],
+  },
+  {
+    id: 'F139',
+    feilklasse: 'brevteksten i varselet fra appen viser ikke til saken (VS-U15)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [
+      [
+        'at TE vil kreve fristforlengelse som følge av forholdet i ${sak}.`',
+        'at TE vil kreve fristforlengelse.`',
+      ],
+    ],
+    mal: ['med teksten i VS-U15'],
+  },
+  {
+    id: 'F140',
+    feilklasse:
+      'varselet fra appen skrives som et varsel registrert med en dato fra klienten (VS-U15, VS-U8)',
+    fil: `${K}/kommandoer/skriving.ts`,
+    endringer: [
+      [
+        "      return { utsagn: [{ id: nyId(), art: 'varsel', hjemmel: k.hjemmel }] };",
+        "      return { utsagn: [{ id: nyId(), art: 'varsel', hjemmel: k.hjemmel }], opplysninger: [{ id: nyId(), hva: 'sendt', dato: '2026-09-02' }] };",
+      ],
+    ],
+    mal: ['med teksten i VS-U15', 'F-VS-U15a'],
+  },
+  {
+    id: 'F141',
+    feilklasse: 'varselet fra appen har ikke forutsetningene for et varsel (SK-12, VS-U15)',
+    fil: `${K}/kommandoer/avvisning.ts`,
+    endringer: [
+      [
+        "      return [{ type: 'sende_varsel', spor: 'frist' }];",
+        "      return [{ type: 'krav', spor: 'frist' }];",
+      ],
+    ],
+    mal: ['F-VS-U15a'],
+  },
+  {
+    id: 'F142',
+    feilklasse: 'en registrert aksept i et trukket spor leses med virkning (MM-U19, MM-U20)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        "        grunn: 'en aksept av et svar i et spor etter at kravet er trukket (MM-U20, GR-U5)',",
+        "        grunn: 'en aksept av et svar i et spor etter at kravet er trukket (MM-U20, GR-U5)',\n        bareUregistrert: true,",
+      ],
+    ],
+    mal: ['F-MM-U20e'],
+  },
+  {
+    id: 'F143',
+    feilklasse:
+      'et registrert svar med sammenfall i et trukket spor leses med virkning (MM-U19, MM-U20)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [['...(s.beslutningsgrunnlag.sammenfall ? {}', '...(false ? {}']],
+    mal: ['F-MM-U20f', 'F-MM-U20h'],
+  },
+  {
+    id: 'F144',
+    feilklasse: 'et registrert svar uten sammenfall i et trukket spor blir uten virkning (MM-U19)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [['...(s.beslutningsgrunnlag.sammenfall ? {}', '...(true ? {}']],
+    mal: ['F-MM-U20g', 'F-MM-U20i'],
+  },
+  {
+    id: 'F145',
+    feilklasse: 'et varsel fra appen godtas etter at fristkravet er sendt (VS-U16)',
+    fil: `${K}/kommandoer/forutsetninger.ts`,
+    endringer: [["      if (h.type === 'sende_varsel' && s.krav.length)", '      if (false)']],
+    mal: ['F-VS-U15c'],
+  },
+  {
+    id: 'F146',
+    feilklasse:
+      'en revisjon av et svar partene er enige om, i et trukket spor, regnes bare som et svar etter trekket (GR-U10, KA-U7)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        '    else if (s.erstatter !== null && u.spor[s.spor].enighet)',
+        '    else if (s.erstatter !== null && u.spor[s.spor].enighet && !u.spor[s.spor].trukket)',
+      ],
+    ],
+    mal: ['F-MM-U20j'],
+  },
+  {
+    id: 'F147',
+    feilklasse:
+      'et svar i et trukket spor som viser til et element uten virkning, leses inn i sporet (MM-U18)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        '    else if (utenVirkning(s.gjelder, s.erstatter, s.grunnlagskrav))',
+        '    else if (!u.spor[s.spor].trukket && utenVirkning(s.gjelder, s.erstatter, s.grunnlagskrav))',
+      ],
+    ],
+    mal: ['F-MM-U20k'],
+  },
+  {
+    id: 'F148',
+    feilklasse: 'et varsel uten dato i et brev med krav får teksten i VS-U15',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [
+      [
+        '      if (dato === undefined && nytt.utsagn.length === 1 && !nytt.krav.length && !nytt.svar.length)\n',
+        '      if (dato === undefined)\n',
+      ],
+    ],
+    mal: ['et varsel uten dato i et brev med krav'],
   },
 ];
 
