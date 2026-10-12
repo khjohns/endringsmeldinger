@@ -6,8 +6,9 @@
  * F49–F51 og F54–F58 versjoneringen (#316), F52–F53 registrert korrespondanse
  * (#336), F59–F60 kodene i formatet og predikatet for endringsordre
  * (#335, #351), F61–F104 byggedel 1 av #309, F105–F131 brevteksten (#369),
- * F132–F134 LV-U5 (#414), F135–F148 MM-U20 (#405) og VS-U15 (#411), og F149–F152
- * merkingen i et lukket spor (#426). Én mutasjon
+ * F132–F134 LV-U5 (#414), F135–F148 MM-U20 (#405) og VS-U15 (#411), F149–F152
+ * merkingen i et lukket spor (#426), og F153–F156 regelversjonen i kommandoen
+ * (#386). Én mutasjon
  * om gangen per arbeidskopi, Vitest over hele `kjerne/`
  * og `sprakprove/kjernelagring/`, og originalteksten settes tilbake etterpå. For
  * hver mutasjon kreves det at de forventede målassertions feiler, og at alle
@@ -27,8 +28,10 @@
  * Kjøres fra repoets rot, med testbasen oppe og `KOE_TESTBASE_URL` satt:
  *   node kjerne/tester/feilinnfoering.ts [F1 F2 ...]
  * Med `--ankre` kontrolleres bare at hver fra-streng finnes nøyaktig én gang i
- * fila (#430), uten kopier, base eller Vitest; det tar sekunder og kjøres før
- * hver push som rører `kjerne/`.
+ * fila (#430), og at hvert mål er en del av navnet på en test (#432), lest med
+ * `vitest list` uten kopier, base eller testkjøring. Det tar sekunder og kjøres
+ * før hver push som rører `kjerne/`. Begge kontrollene gjøres også før en
+ * full kjøring.
  * Forventet: «oppdaget» for hver mutasjon. Hopper kontrollkjøringen over en
  * test, for eksempel lagringstestene uten testbasen, avsluttes skriptet med
  * kode 2 før noen mutasjon (#353).
@@ -1668,6 +1671,44 @@ const MUTASJONER: Mutasjon[] = [
     ],
     mal: ['F-MM-M7d'],
   },
+  {
+    id: 'F153',
+    feilklasse:
+      'serveren godtar en aksept regnet ut med en høyere regelversjon (B-13, KA-U10, #386)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [['if (k.regelversjon !== regler.versjon)', 'if (k.regelversjon < regler.versjon)']],
+    mal: ['en aksept, med serverens regelversjon én lavere enn kommandoens'],
+  },
+  {
+    id: 'F154',
+    feilklasse:
+      'serveren godtar en aksept regnet ut med en lavere regelversjon (B-13, KA-U10, #386)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [['if (k.regelversjon !== regler.versjon)', 'if (k.regelversjon > regler.versjon)']],
+    mal: ['en aksept, med serverens regelversjon én høyere enn kommandoens'],
+  },
+  {
+    id: 'F155',
+    feilklasse:
+      'serveren godtar et svar eller en revisjon regnet ut med en høyere regelversjon (B-13, #386)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [['if (s.regelversjon !== regler.versjon)', 'if (s.regelversjon < regler.versjon)']],
+    mal: [
+      'et svar, med serverens regelversjon én lavere enn kommandoens',
+      'en revisjon av svaret, med serverens regelversjon én lavere enn kommandoens',
+    ],
+  },
+  {
+    id: 'F156',
+    feilklasse:
+      'serveren godtar et svar eller en revisjon regnet ut med en lavere regelversjon (B-13, #386)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [['if (s.regelversjon !== regler.versjon)', 'if (s.regelversjon > regler.versjon)']],
+    mal: [
+      'et svar, med serverens regelversjon én høyere enn kommandoens',
+      'en revisjon av svaret, med serverens regelversjon én høyere enn kommandoens',
+    ],
+  },
 ];
 
 interface Testresultat {
@@ -1692,6 +1733,31 @@ interface Arbeidskopi {
 
 const ROT = process.cwd();
 const TESTBASE = process.env.KOE_TESTBASE_URL;
+
+/** Navnet på hver test i samlingen, i formen `fullName` har i rapporten. */
+function testnavn(): string[] {
+  const mappe = mkdtempSync(join(tmpdir(), 'feilinnfoering-navn-'));
+  try {
+    const ut = join(mappe, 'navn.json');
+    const r = spawnSync(
+      'npx',
+      ['vitest', 'list', 'kjerne/', 'sprakprove/kjernelagring/', `--json=${ut}`],
+      {
+        encoding: 'utf8',
+        maxBuffer: 64 * 1024 * 1024,
+        timeout: 300_000,
+        env: { ...process.env, KOE_TESTBASE_URL: 'postgresql://feilinnfoering.invalid/navn' },
+      }
+    );
+    if (r.status !== 0 || !existsSync(ut))
+      throw new Error(`vitest list feilet (${r.status ?? r.signal}):\n${r.stderr || r.error}`);
+    const tester = JSON.parse(readFileSync(ut, 'utf8')) as { name: string }[];
+    // `vitest list` skiller nivåene med ` > `, rapporten med mellomrom.
+    return tester.map((t) => t.name.split(' > ').join(' '));
+  } finally {
+    rmSync(mappe, { recursive: true, force: true });
+  }
+}
 
 function kjoerVitest(k: Arbeidskopi): Promise<Rapport> {
   const ut = `${k.rot}-rapport.json`;
@@ -1880,11 +1946,20 @@ const ankerfeil = valgte.flatMap((m) => {
     return [];
   });
 });
-if (ankerfeil.length) throw new Error(ankerfeil.join('\n'));
 const delform = /^(\d+)\/(\d+)$/.exec(process.env.FEILINNFOERING_DEL ?? '1/1');
 const [del, deler] = [Number(delform?.[1]), Number(delform?.[2])];
 if (!delform || del < 1 || del > deler)
   throw new Error(`FEILINNFOERING_DEL må ha formen i/n, ikke «${process.env.FEILINNFOERING_DEL}»`);
+// #432: målene er deler av testnavnene, lest med `vitest list` uten å kjøre testene. Med en
+// adresse til testbasen hopper ikke lagringstestene over seg selv; de kobler seg til i
+// hookene, som ikke kjøres.
+const navn = testnavn();
+const malfeil = valgte.flatMap((m) =>
+  m.mal
+    .filter((mal) => !navn.some((n) => n.includes(mal)))
+    .map((mal) => `${m.id}: målet «${mal}» er ikke en del av navnet på noen test`)
+);
+if (ankerfeil.length || malfeil.length) throw new Error([...ankerfeil, ...malfeil].join('\n'));
 const mutasjoner = valgte.filter((_, i) => i % deler === del - 1);
 
 const antallKopier = Math.max(
@@ -1901,7 +1976,10 @@ for (const signal of ['SIGINT', 'SIGTERM'] as const)
     process.exit(128 + constants.signals[signal]);
   });
 
-if (bareAnkre) console.log(`Ankrene i ${valgte.length} feilinnføringer finnes nøyaktig én gang.`);
+if (bareAnkre)
+  console.log(
+    `Ankrene i ${valgte.length} feilinnføringer finnes nøyaktig én gang, og målene er deler av navnene på ${navn.length} tester.`
+  );
 else
   try {
     // Ikke `process.exit`: den venter ikke på at stdout er tømt når den går i et rør,
