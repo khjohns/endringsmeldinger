@@ -24,11 +24,14 @@ const SPERRET_MAPPE = new RegExp(
 const SKRIVENDE = [
   />/,
   /\btee\b/,
-  /\bsed\b[^|;&]*\s-[a-zA-Z]*i/,
+  /\bsed\b[^|;&]*(\s-[a-zA-Z]*i|--in-place)/,
   /\bperl\b[^|;&]*\s-[a-zA-Z]*i/,
   /\b(mv|cp|rm|rmdir|touch|mkdir|ln|chmod|truncate|dd|install|rsync|unlink)\b/,
   /\bgit\s+(checkout|restore|rm|mv|reset|clean|stash|init|clone|submodule|worktree)\b/,
-  /\b(python3?|node|ruby|perl)\b[^|;&]*\s-[a-zA-Z]*[ce]\b/,
+  /\b(python3?|node|ruby|perl)\b[^|;&]*\s-[a-zA-Z]*[cep]\b/,
+  /\b(python3?|node|ruby|perl)\b[^|;&]*--(eval|print)\b/,
+  /\bsort\b[^|;&]*\s-[a-zA-Z]*o\b/,
+  /\b(curl|wget)\b[^|;&]*\s-[a-zA-Z]*[oO]\b/,
   // --output (og forkortelser av det) skriver til fila i flagget.
   /--out\w*/,
 ];
@@ -45,6 +48,20 @@ const SKRIVENDE_UTEN_STI = [
 
 // gh-kall som merger PR-en eller oppdaterer den mot main.
 const GH_MERGE = /(\/pulls\/\S+\/merge\b|\bpr\s+merge\b|\/update-branch\b)/;
+
+// Hookoppsettet, som mekanisk-pr ikke endrer.
+const HOOKOPPSETT = ['.claude/settings.json', '.claude/settings.local.json'];
+
+// Tekstreglene ser ikke underkommandoen bak `git -C <mappe>` eller `git --no-pager`, så de
+// får også en variant der de globale valgene er fjernet.
+const GIT_GLOBALE = /\bgit((?:\s+(?:-[Cc]\s+\S+|--[\w-]+(?:=\S+)?))+)/g;
+
+function utenGitGlobale(tekst) {
+  return tekst.replace(GIT_GLOBALE, 'git');
+}
+
+// Git-underkommandoer som endrer oppsettet, eller som snakker med en fjernkopi utenom push.
+const GIT_OPPSETT = new Set(['config', 'remote', 'symbolic-ref', 'update-ref']);
 
 // Git-underkommandoer som endrer arbeidstreet eller indeksen.
 const TREENDRENDE = new Set([
@@ -120,9 +137,10 @@ function innenfor(sti, mappe) {
   );
 }
 
+// Filnavn fra git skilles med NUL (`-z`), så anførsel og linjeskift i navnet ikke endrer dem.
 function sperredeFiler(filer) {
   return filer
-    .split('\n')
+    .split('\0')
     .filter(Boolean)
     .filter((fil) => sperretSti(fil));
 }
@@ -138,7 +156,7 @@ function ledd(kommando) {
 
 // Omdirigering som ikke skriver: `2>&1` og `>/dev/null`. Alle andre `>` og `<` gjør leddet ukjent.
 const UFARLIG_OMDIRIGERING = /^>(&\d+(?=$|[\s;&|)])|\s*\/dev\/null(?=$|[\s;&|)]))/;
-const ESCAPE_I_ANFORSEL = '$`"\\\n';
+const ESCAPE_I_ANFORSEL = '$`"\\';
 
 /**
  * Deler en kommando i ledd og ord med skallets regler for anførselstegn og escape.
@@ -161,11 +179,15 @@ function lekser(tekst) {
     ukjentSyntaks = true;
     if (!ord.length) ukjentKommando = true;
   };
+  // Ordet etter en omdirigering er målet, ikke et kommandoord, så det hoppes over.
+  let venterPaaMaal = false;
   const merkOmdirigering = () => {
     ukjent = true;
+    venterPaaMaal = true;
   };
   const avsluttOrd = () => {
-    if (harOrd) ord.push(innhold);
+    if (harOrd && venterPaaMaal) venterPaaMaal = false;
+    else if (harOrd) ord.push(innhold);
     innhold = '';
     harOrd = false;
   };
@@ -176,6 +198,7 @@ function lekser(tekst) {
     ukjent = false;
     ukjentSyntaks = false;
     ukjentKommando = false;
+    venterPaaMaal = false;
   };
 
   for (let i = 0; i < tekst.length; i++) {
@@ -196,7 +219,10 @@ function lekser(tekst) {
       for (; j < tekst.length && tekst[j] !== '"'; j++) {
         const inni = tekst[j];
         const neste = tekst[j + 1];
-        if (inni === '\\' && neste !== undefined && ESCAPE_I_ANFORSEL.includes(neste)) {
+        // `\` før linjeskift er en fortsettelse, og skallet fjerner begge.
+        if (inni === '\\' && neste === '\n') {
+          j++;
+        } else if (inni === '\\' && neste !== undefined && ESCAPE_I_ANFORSEL.includes(neste)) {
           innhold += neste;
           j++;
         } else {
@@ -220,12 +246,12 @@ function lekser(tekst) {
         }
         i += ufarlig[0].length - 1;
       } else {
-        merkOmdirigering();
         avsluttOrd();
+        merkOmdirigering();
       }
     } else if (tegn === '<') {
-      merkOmdirigering();
       avsluttOrd();
+      merkOmdirigering();
     } else if (tegn === ';' || tegn === '&' || tegn === '|' || tegn === '\n') {
       avsluttLedd();
     } else if (tegn === ' ' || tegn === '\t') {
@@ -355,10 +381,28 @@ const PREFIKS = new Set([
 ]);
 const SKALL = new Set(['sh', 'bash', 'zsh', 'dash']);
 
+// Reserverte ord som står foran kommandoen i en sammensatt kommando, som `if` og `then`.
+const RESERVERT = /^(!|if|then|else|elif|do|while|until)$/;
+
 function erPrefiks(o) {
   return (
-    /^[A-Za-z_]\w*=/.test(o) || PREFIKS.has(o) || /^-/.test(o) || /^\d+(\.\d+)?[smhd]?$/.test(o)
+    /^[A-Za-z_]\w*=/.test(o) ||
+    PREFIKS.has(o) ||
+    RESERVERT.test(o) ||
+    /^-/.test(o) ||
+    /^\d+(\.\d+)?[smhd]?$/.test(o)
   );
+}
+
+// Innholdet i `-c` for et skall, etter eventuelle valg som `-o pipefail`.
+function skallPayload(argumenter) {
+  for (let j = 0; j < argumenter.length; j++) {
+    const o = argumenter[j];
+    if (/^-\w*c/.test(o)) return argumenter[j + 1] ?? '';
+    if (o === '-o' || o === '+o') j++;
+    else if (!/^[-+]/.test(o)) return undefined;
+  }
+  return undefined;
 }
 
 /**
@@ -373,16 +417,26 @@ function effektiveKommandoer(leddene) {
       continue;
     }
     const { ord } = del;
+    if (ord[0]?.split('/').pop() === 'env' && ord.some((o) => /^(-S|--split-string)/.test(o))) {
+      const tekst = ord
+        .slice(1)
+        .join(' ')
+        .replace(/(^|\s)(-S|--split-string)\s*/g, '$1');
+      ut.push(...effektiveKommandoer(lekser(tekst)));
+      continue;
+    }
     let k = 0;
     while (k < ord.length && erPrefiks(ord[k])) k++;
     if (k >= ord.length) continue;
-    const kommando = ord[k];
-    if (SKALL.has(kommando) && /^-\w*c/.test(ord[k + 1] ?? '')) {
-      ut.push(...effektiveKommandoer(lekser(ord[k + 2] ?? '')));
+    const kommando = ord[k].split('/').pop();
+    const resten = ord.slice(k + 1);
+    const payload = SKALL.has(kommando) ? skallPayload(resten) : undefined;
+    if (payload !== undefined) {
+      ut.push(...effektiveKommandoer(lekser(payload)));
     } else if (kommando === 'eval') {
-      ut.push(...effektiveKommandoer(lekser(ord.slice(k + 1).join(' '))));
+      ut.push(...effektiveKommandoer(lekser(resten.join(' '))));
     } else {
-      ut.push({ ord: ord.slice(k), ukjentKommando: false });
+      ut.push({ ord: [kommando, ...resten], ukjentKommando: false });
     }
   }
   return ut;
@@ -416,7 +470,9 @@ function vurderPush(argumenter, rot) {
   }
   let filer;
   try {
-    filer = sperredeFiler(git(rot, 'diff', '--name-only', 'origin/main...HEAD'));
+    filer = sperredeFiler(
+      git(rot, 'diff', '-z', '--name-only', '--no-renames', 'origin/main...HEAD')
+    );
   } catch {
     return 'Kunne ikke sammenligne med origin/main. Kjør `git fetch origin main` først.';
   }
@@ -440,7 +496,12 @@ function vurder(input) {
       const relativ = path.relative(tre, absolutt);
       if (sperretSti(relativ)) return `${relativ} ligger i en sperret mappe.`;
     }
-    if (rot && innenfor(absolutt, rot)) return null;
+    if (rot && innenfor(absolutt, rot)) {
+      const relativ = path.relative(rot, absolutt);
+      if (HOOKOPPSETT.includes(relativ))
+        return `${relativ} er hookoppsettet, og mekanisk-pr endrer det ikke.`;
+      return null;
+    }
     if (innenfor(absolutt, ekteSti(tmpdir())) || innenfor(absolutt, ekteSti('/tmp'))) return null;
     if (!rot) return `Ikke i et git-arbeidstre: ${cwd}.`;
     return `${absolutt} ligger utenfor arbeidstreet ${rot}. Skriv bare i ditt eget arbeidstre.`;
@@ -458,10 +519,13 @@ function vurder(input) {
     .replace(/\d*>&\d|\d*>\s*\/dev\/null/g, '');
   // Anførselstegn og escape kan skjule et mappenavn for tekstreglene (`kj""erne`).
   // Reglene kjøres derfor også på teksten uten dem.
-  for (const tekst of new Set([kommando, kommando.replace(/['"\\]/g, '')])) {
-    if (SPERRET_MAPPE.test(tekst) && SKRIVENDE.some((m) => m.test(tekst))) {
-      return 'Kommandoen nevner en sperret mappe og kan skrive.';
-    }
+  const varianter = [kommando, kommando.replace(/['"\\]/g, '')];
+  const tekster = new Set(varianter.flatMap((t) => [t, utenGitGlobale(t)]));
+  const nevnerSperret = [...tekster].some((t) => SPERRET_MAPPE.test(t));
+  if (nevnerSperret && [...tekster].some((t) => SKRIVENDE.some((m) => m.test(t)))) {
+    return 'Kommandoen nevner en sperret mappe og kan skrive.';
+  }
+  for (const tekst of tekster) {
     const utenSti = SKRIVENDE_UTEN_STI.find((m) => m.test(tekst));
     if (utenSti) return `Kommandoen kan skrive filer den ikke nevner (${utenSti}).`;
   }
@@ -487,7 +551,7 @@ function vurder(input) {
   }
   if (
     deler.some((del) => /^git\s+(-c\b|config\b)/.test(del)) ||
-    gitene.some((g) => g.underkommando === 'config' || g.globale.includes('-c'))
+    gitene.some((g) => GIT_OPPSETT.has(g.underkommando) || g.globale.includes('-c'))
   ) {
     return 'mekanisk-pr endrer ikke git-oppsettet.';
   }
@@ -497,7 +561,9 @@ function vurder(input) {
     ...deler
       .filter((del) => /^git(\s+-C\s+\S+)?\s+push\b/.test(del))
       .map((del) => del.replace(/^.*?\bpush\b/, '')),
-    ...gitene.filter((g) => g.underkommando === 'push').map((g) => g.argumenter.join(' ')),
+    ...gitene
+      .filter((g) => g.underkommando === 'push' || g.underkommando === 'send-pack')
+      .map((g) => g.argumenter.join(' ')),
   ];
   const commiter =
     deler.some((del) => /^git(\s+-C\s+\S+)?\s+(commit|add)\b/.test(del)) ||
@@ -507,9 +573,9 @@ function vurder(input) {
     return 'Kommandoen endrer treet og committer eller pusher i samme kall. Kjør dem i hver sin kommando.';
   }
   if (rot && commiter) {
-    const endret = git(rot, 'diff', '--name-only', 'HEAD');
-    const nye = git(rot, 'ls-files', '--others', '--exclude-standard');
-    const filer = sperredeFiler(`${endret}\n${nye}`);
+    const endret = git(rot, 'diff', '-z', '--name-only', '--no-renames', 'HEAD');
+    const nye = git(rot, 'ls-files', '-z', '--others', '--exclude-standard');
+    const filer = sperredeFiler(`${endret}\0${nye}`);
     if (filer.length) return `Endringer i sperrede mapper: ${filer.join(', ')}.`;
   }
   for (const argumenter of pushArgumenter) {
