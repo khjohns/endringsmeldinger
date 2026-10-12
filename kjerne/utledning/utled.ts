@@ -24,6 +24,7 @@ import type { Subsidiaergrunn } from '../regler/grunnlag.ts';
 import {
   blirEndringsordre,
   enighetsgrunnlag,
+  grunnerFraGrunnlaget,
   grunnlagetErAvklart,
   innsigelsenErOppgitt,
   innsigelsenGjelderSvaret,
@@ -243,17 +244,6 @@ function ikkeErstattet(svar: Svar[], kravId: string): Svar[] {
   const paaKravet = svar.filter((s) => s.gjelder === kravId);
   const erstattet = new Set(paaKravet.map((s) => s.erstatter).filter((e) => e !== null));
   return paaKravet.filter((s) => !erstattet.has(s.id));
-}
-
-/**
- * Hvorfor svarene på vederlag og frist er subsidiære til grunnlagssvaret, etter
- * standpunktene i brevet om grunnlaget (vedtaket 05.10, MM-U9).
- */
-function grunnerFraGrunnlaget({ svar, virkninger }: Svarberegning): Subsidiaergrunn[] {
-  const ut: Subsidiaergrunn[] = [];
-  if (prinsipalt(virkninger)?.art === 'rettidighet') ut.push('prekludert');
-  if (standpunktet(svar, 'grunnlag')?.resultat === 'avslaatt') ut.push('avslaatt');
-  return ut;
 }
 
 /** Elementene i et dokument som kan endre utfallet (KA-U11). Andre utsagn har ingen virkning på det. */
@@ -791,7 +781,9 @@ function utledSporene(
             .reverse()
             .map((k) => ikkeErstattet(spor.grunnlag.svar, k.id)[0])
             .find((x) => x !== undefined) ?? null));
-    spor[n].subsidiaer = kilde ? grunnerFraGrunnlaget(svar[kilde.id]) : [];
+    spor[n].subsidiaer = kilde
+      ? grunnerFraGrunnlaget(svar[kilde.id].svar, svar[kilde.id].virkninger)
+      : [];
   }
 
   const paaberopelser = (art: 'innsigelse' | 'protest' | 'passivitet'): Paaberopelse[] =>

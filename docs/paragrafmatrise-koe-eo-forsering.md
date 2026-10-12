@@ -24,7 +24,7 @@ hovedplanen, gjelder hovedplanen.
 
 **Grunnlag.** Kartlagt 10.10 på `7460838`. Kjernens tilstand er lest i koden
 (L), ikke kjørt, og `kjerne/` er uendret fram til `915ab32`. Utdragene er fra
-NS 8407:2011. Vedtakene er lest i 3.1 på `915ab32`, med vedtakene fra runde 3. Vedtakene 11.10 (VS-U13, VS-U14, KA-U23, KA-U24 og KA-U25) er ført inn i radene de gjelder samme dag. Begrepene utsagn, standpunkt, relasjon og predikat står i
+NS 8407:2011. Vedtakene er lest i 3.1 på `915ab32`, med vedtakene fra runde 3. Vedtakene 11.10 (VS-U13, VS-U14, KA-U23, KA-U24 og KA-U25) er ført inn i radene de gjelder samme dag, og vedtakene om brevteksten (LV-U4, GR-U14–GR-U16, KA-U31–KA-U33 og VS-U15) i «Brevteksten». Begrepene utsagn, standpunkt, relasjon og predikat står i
 [modellforslaget, 2.2](forslag-maalmodell-2026-10-09.md#22-byggeklossene) og i
 [domenetabellen](domenetabell/README.md). Navnene i formatet står i
 [designnotatet, 4.5](design-hendelsesformat-2026-10-09.md#45-navn-fra-kontrakten).
@@ -133,8 +133,9 @@ endringsordre og forsering, etter [OV-U1](plans/2026-09-16-godkjenning-og-varig-
 - **Utdrag:** § 32.2: «skal han uten ugrunnet opphold varsle byggherren dersom
   han vil påberope seg dette som en endring. Gjør han ikke det, taper han
   retten til å påberope seg at pålegget innebærer en endring.»
-- **Utsagn:** TE: krav i grunnlagssporet (kategori, underkategori, beskrivelse),
-  som kravversjon. BH: standpunkt `rettidighet` med hjemmel 32.2, `gjelder`
+- **Utsagn:** TE: krav i grunnlagssporet (kategori og underkategori, med
+  beskrivelsen av pålegget som utdypning i brevteksten, [GR-U15](plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u15)), som
+  kravversjon. BH: standpunkt `rettidighet` med hjemmel 32.2, `gjelder`
   grunnlagskravet, `i_tide` sann eller usann.
 - **Predikat:** preklusjon er påberopt når BH har et standpunkt med `i_tide`
   usann og § 32.2 gjaldt for underkategorien da brevet ble sendt. Da er
@@ -241,9 +242,10 @@ endringsordre og forsering, etter [OV-U1](plans/2026-09-16-godkjenning-og-varig-
 - **Vedtak:** [KA-U18](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u18). [KA-U24](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u24). B-13 begrunnelsestekst (T-a, 24.09).
   [MM-U12](plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u12).
   [LV-U1](plans/2026-09-16-godkjenning-og-varig-levering.md#lv-u1).
-- **Kjernen i dag:** ikke bygget. Svaret har ikke noe felt for tekst (`SVAR`
-  i [`format.ts`](../kjerne/format/format.ts) har `additionalProperties: false`). Bare
-  den genererte `linje` i beslutningsgrunnlaget lagres.
+- **Kjernen i dag:** bygget for brev fra appen. Begrunnelsen er utdypningen under
+  svarets låste tekst i brevteksten, én per svar ([KA-U31](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u31)), og et svar med en
+  avgrensning etter KA-U24, også et frafall ([KA-U32](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u32)), avvises uten den
+  (`BEGRUNNELSE_MANGLER`). Ikke bygget: en begrunnelse i et senere dokument.
 
 ### § 32 — trekk av grunnlaget og ny kravversjon
 
@@ -279,7 +281,7 @@ endringsordre og forsering, etter [OV-U1](plans/2026-09-16-godkjenning-og-varig-
   enighet som bygger på et merket brev, når merkingen gjelder sporet enigheten gjelder
   ([KA-U30](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u30);
   `trekkKanIkkeBevareAvtalen`, `AVTALE_KAN_IKKE_BEVARES`). Et fradrag avvises fordi KA-U9 ikke er bygget, og sperren
-  må dekke et avtalt fradrag når det bygges. Brevteksten er ikke bygget (#369).
+  må dekke et avtalt fradrag når det bygges. Brevteksten står i «Brevteksten» under.
 - **Arbeidsvalg 11.10 (#342, prinsipp 3, GR-U1, GR-U4):** relasjonen er
   grunnlagsversjonen svaret ble regnet mot, ikke grunnlagssvaret, så et nytt eller
   revidert svar på samme versjon gjelder uten at svaret på vederlag eller frist skrives
@@ -392,7 +394,9 @@ endringsordre og forsering, etter [OV-U1](plans/2026-09-16-godkjenning-og-varig-
   `VARSEL_REGISTRERT` i [`forutsetninger.ts`](../kjerne/kommandoer/forutsetninger.ts).
   Delvis: `varsel_type` er låst til spesifisert krav, og
   `har_tidligere_varsel_i_tide` er alltid usann i `regnUtSvar`. «Ingen krav»
-  leses (`ingen_krav`), men har ingen kommando.
+  leses (`ingen_krav`), men har ingen kommando. Ikke bygget: et eget varsel fra
+  appen uten dager ([VS-U15](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u15),
+  [#411](https://github.com/khjohns/endringsmeldinger/issues/411)).
 
 ### § 33.6.1 — spesifisert krav
 
@@ -417,7 +421,8 @@ endringsordre og forsering, etter [OV-U1](plans/2026-09-16-godkjenning-og-varig-
   [`regler/frist.ts`](../kjerne/regler/frist.ts) finnes og gir, som Python,
   bare en grunn og ett tall. `spesifisert_krav_ok` usann avvises (`utenforOmfanget`, #341). Ingen
   standpunktart for spesifiseringen. Dagene har ikke eget felt i
-  standpunktet. De leses fra `utregning`, med `utregning.resultat` som reserve
+  standpunktet. Et fristkrav fra appen må ha en begrunnelse ([KA-U33](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u33),
+  `BEGRUNNELSE_MANGLER`); appen vurderer ikke om den er tilstrekkelig. De leses fra `utregning`, med `utregning.resultat` som reserve
   i `leser.ts` (rettelsen 10.10 i #309).
 
 ### § 33.6.2 — byggherrens forespørsel og TEs svar
@@ -770,7 +775,9 @@ visning ikke fremstiller et trekk som at utførelsesplikten er bortfalt.
   (23.09). Vedtaket 29.09 om at en EO-sak kan følge av en KOE-sak, men ikke
   erstatte den. B-02 punkt 3 (23.09). GFK-06 (23.09 og 24.09).
   [GR-U13](plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u13).
-- **Kjernen i dag:** delvis. Kandidatkontrollen finnes som predikat
+- **Kjernen i dag:** delvis. En godkjenning fra appen som er en endringsordre,
+  sier at endringen kreves og hva den går ut på ([GR-U14](plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u14)); et krav som følger
+  av en endringsordre, identifiserer den ([GR-U16](plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u16)). Kandidatkontrollen finnes som predikat
   (`kanInngaaIEo` i [`utled.ts`](../kjerne/utledning/utled.ts)), men kalles ikke av
   kjernen. Ikke bygget: EO-saken, livsløpet og tilknytningen mellom saker.
 
@@ -860,8 +867,8 @@ visning ikke fremstiller et trekk som at utførelsesplikten er bortfalt.
   virkning (`utenVirkning`). Kontrollen leser journalen før hvert dokument og gjelder
   bare vedtakene om enighet og lukking; at en aksept av et merket svar avvises, er et
   vilkår for å sende og står i forutsetningene, ikke i kontrollen. Ikke bygget: B-10 utover versjonene i formatet
-  ([#316](https://github.com/khjohns/endringsmeldinger/issues/316)), registreringen
-  (#310) og brevteksten (#369).
+  ([#316](https://github.com/khjohns/endringsmeldinger/issues/316)) og registreringen
+  (#310). Brevteksten står i «Brevteksten».
 - **Vedtak 11.10:** [MM-U19](plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u19)
   (registrerte brev i samme klasse som MM-U18), [KA-U26](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u26)
   (hva merkingen sperrer), [KA-U27](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u27)
@@ -879,6 +886,80 @@ visning ikke fremstiller et trekk som at utførelsesplikten er bortfalt.
   holder ikke sperren i live, og et utsagn fra motparten opphever den ikke.
 - **Arbeidsvalg 11.10 (KA-U11, MM-U7):** innsigelse, protest og påberopt passivitet
   godtas når kravene er avgjort, som bestridelsen (se KA-U29).
+
+## Brevteksten
+
+Teksten i et brev appen sender ([#369](https://github.com/khjohns/endringsmeldinger/issues/369)).
+Ordlyden er [LV-U4](plans/2026-09-16-godkjenning-og-varig-levering.md#lv-u4) og [LV-U5](plans/2026-09-16-godkjenning-og-varig-levering.md#lv-u5), med [GR-U14](plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u14) og [GR-U16](plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u16); kravet til
+begrunnelse og beskrivelse er [KA-U31](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u31)–[KA-U33](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u33), [KA-U24](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u24) og
+[GR-U15](plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u15). Arbeidsvalgene under følger av vedtakene de viser til.
+
+- **Kjernen i dag:** bygget. Generatoren er `lagBrevtekst` i
+  [`frosset/brevtekst.ts`](../kjerne/frosset/brevtekst.ts), kontrollene av
+  begrunnelsen og beskrivelsen er `avgrensninger` og `kravetsUtdypning` i
+  [`nyttelast.ts`](../kjerne/kommandoer/nyttelast.ts), og kontrollen av teksten
+  er `tekstavvik` i [`skriving.ts`](../kjerne/kommandoer/skriving.ts).
+- **A1 (LV-U2, B-13 om regelversjon):** hver kommando som gir et brev fra appen,
+  bærer de låste avsnittene klienten viste (`brevtekst`), laget med
+  `forhaandsvis`. Serveren lager teksten selv og avviser en annen
+  (`ANNEN_BREVTEKST`) og en kommando uten (`BREVTEKST_MANGLER`). Påkrevd nå,
+  ikke fail-open. Registreringen `varsel` har ingen tekst.
+- **A2 ([LV-U3](plans/2026-09-16-godkjenning-og-varig-levering.md#lv-u3), [VS-U11](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u11), [HF-U2](plans/2026-09-16-godkjenning-og-varig-levering.md#hf-u2), [HF-U1](plans/2026-09-16-godkjenning-og-varig-levering.md#hf-u1), B-13 05.10):** ett
+  avsnitt for hvert krav, svar, utsagn og hver opplysning parten sier i brevet,
+  og én setning per standpunkt, også de appen regner som uten virkning.
+  «Prinsipalt» og «subsidiært» står slik brevet ordner standpunktene. Er svaret
+  på vederlag eller frist subsidiært fordi grunnlaget er avslått eller prekludert,
+  står byggherrens standpunkter til grunnlaget først, med henvisning til svaret på
+  grunnlaget i samme brev eller til brevet det står i. Grunnlagssvaret er det i
+  samme brev, ellers gjeldende svar før brevet. En revisjon viser til svaret den
+  erstatter. Teksten fryses som den var ([MM-U9](plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u9)).
+- **A3 ([MM-U17](plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u17)):** et registrert brev får ingen tekst fra appen, og
+  `brevtekst` i leveringsoppdraget er `null`.
+- **A4 (LV-U2):** et brev med vedlegg får et avsnitt som lister dem. Det gjelder
+  dokumentet, og leseren godtar et slikt avsnitt bare når brevet har vedlegg.
+- **A5 (HF-U1):** et tidligere brev er «brev <n> av <dato>», der `<n>` er
+  saksversjonen og datoen avsenderens dato for et registrert brev, ellers serverens
+  tidsstempel som dato i Europe/Oslo. Saksnummeret er sak-ID-en; hva TS viser,
+  avgjøres med opprettelsen (#370).
+- **A6:** teksten lagres i dokumentet som avsnitt med `gjelder`, `laast` og
+  `utdypning`, og kopieres til oppdraget (`OPPDRAGSFORMAT` 2). Ingen regel leser
+  innholdet i teksten. Kontrollene leser bare om en begrunnelse eller en
+  beskrivelse finnes, og GR-U14 setter TEs beskrivelse inn i byggherrens låste
+  tekst uten å tolke den ([KA-U19](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u19)). Grunnlagssvaret og om sporet er
+  subsidiært, kommer som argumenter fra skrivingen, så `frosset/` ikke når
+  utledningen. Feltene er klassifisert i `LESBART`.
+- **A7:** TEs vederlagskrav kan ha en valgfri utdypning under den låste teksten.
+- **A8:** TEs beskrivelse av forholdet er utdypningen under grunnlagskravet og står
+  bare i brevteksten. Grunnlagskravet har ikke lenger `beskrivelse`; kommandoen har
+  `utdypning`.
+- **Arbeidsvalg 11.10 (GR-U16):** endringsordrens dato eller nummer er feltet
+  `endringsordre` i grunnlagskravet, et lagret navn ført i
+  [registeret](datamodell/kjernehendelser.toml). Det er påkrevd i underkategorien
+  endringsordre og ikke tillatt ellers, i hver rad, så også en registrering av et
+  slikt krav avvises uten det (oppdragsgiver 11.10, svaret i #369). Teksten sier
+  «TE viser til endringsordren «<verdi>».» etter setningen i LV-U4 punkt 1.
+- **Arbeidsvalg 11.10 (LV-U4 punkt 2, [KA-U9](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u9), B-13):**
+  «eks. mva.» står ved hvert beløp i teksten: i kravet, i svaret og i trekket.
+- **Oppdragsgiver 11.10 (GR-U13, GR-U14, svaret i #369):** er TEs krav registrert
+  korrespondanse, siterer ikke godkjenningen noen beskrivelse, men viser til
+  pålegget i det registrerte brevet: «… slik pålegget er beskrevet i TEs krav i
+  brev <n> av <dato>.» Et krav fra appen uten beskrivelse, som bare kan finnes
+  etter en regelendring mellom kravet og svaret, gir ingen godkjenning som
+  endringsordre fra appen (`PAALEGGET_IKKE_BESKREVET`).
+- **Oppdragsgiver 12.10 ([LV-U5](plans/2026-09-16-godkjenning-og-varig-levering.md#lv-u5), svaret i
+  [#414](https://github.com/khjohns/endringsmeldinger/issues/414)):** standpunktet
+  om at varselet kom i tide, også etter en innsigelse som gis opp, nevner varselet
+  det gjelder. Teksten lages i `standpunkttekst`, og navnene på varslene står i
+  `VARSELET`.
+- **Arbeidsvalg 12.10 ([GR-U1](plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u1), LV-U4 punkt 6, svaret i
+  [#369](https://github.com/khjohns/endringsmeldinger/issues/369#issuecomment-6117469247)):**
+  aksepten leser saken når den sendes, ikke svaret slik det var da det ble sendt.
+  Har byggherren godkjent grunnlaget etter et subsidiært svar på vederlag eller
+  frist, er svaret ikke lenger subsidiært, og aksepten sier bare at TE godtar
+  byggherrens svar i brevet det står i, uten «men ikke i byggherrens standpunkt
+  til grunnlaget». Det sendte svarbrevet står som det ble sendt (MM-U9).
+- **Ikke her:** et eget varsel etter § 33.4 uten dager ([VS-U15](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u15)) er
+  [#411](https://github.com/khjohns/endringsmeldinger/issues/411).
 
 ---
 

@@ -11,7 +11,7 @@ import { describe, expect, it } from 'vitest';
 import { KRAVINNHOLD, objekt, UTREGNING } from '../format/format.ts';
 import { lesJournal } from '../format/leser.ts';
 import { feilI } from '../format/skjema.ts';
-import { vurder } from '../kommandoer/skriving.ts';
+import { forhaandsvis, laastTekst, vurder } from '../kommandoer/skriving.ts';
 import { GJELDENDE_REGLER } from '../regler/regelsett.ts';
 import type { Journalrad } from '../typer.ts';
 import { utled } from '../utledning/utled.ts';
@@ -77,13 +77,20 @@ describe('tekst basen ikke kan lagre, avvises av kjernen (#373)', () => {
     type: 'krav',
     spor: 'grunnlag',
     innhold: { hovedkategori: 'endring', underkategori: 'irregulaer_endring', ...innhold },
+    utdypning: 'Pålegget.',
   });
-  const utfall = async (k: unknown) => vurder(k, kontekst, await minnebane().journal(), KJERNE);
+  /** Kommandoen med den låste teksten fra forhåndsvisningen, slik klienten sender den (A1). */
+  const utfall = async (k: Data) => {
+    const journal = await minnebane().journal();
+    const vist = forhaandsvis(structuredClone(k), kontekst, journal, KJERNE);
+    const tekst = vist.godtatt ? laastTekst(vist.hendelser[0]) : null;
+    return vurder(tekst ? { ...k, brevtekst: tekst } : k, kontekst, journal, KJERNE);
+  };
 
   it.each([
     ['NUL i en tekst', { tittel: 'a\u0000b' }],
     ['en enslig høy surrogat', { tittel: 'a\ud800' }],
-    ['en enslig lav surrogat', { beskrivelse: '\udc00b' }],
+    ['en enslig lav surrogat', { tittel: '\udc00b' }],
     ['NUL i et feltnavn', { 'tit\u0000tel': 'x' }],
   ])('%s gir TEKST_KAN_IKKE_LAGRES', async (_navn, innhold) => {
     const u = await utfall(krav(innhold));

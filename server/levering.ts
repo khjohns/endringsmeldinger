@@ -8,19 +8,22 @@
  * migrasjon før den første reelle hendelsen. Et nytt leveringsforsøk sender
  * samme oppdrag. Oppdraget beviser ikke at brevet er sendt eller mottatt.
  *
- * Kjernen har ingen brevtekst ennå (#309, `frosset/`). `brevtekst` er `null`
- * til den finnes. Uten den er oppdraget ikke fullstendig etter LV-U1, og ingen
- * worker plukker det før da (#369).
+ * `brevtekst` er teksten kjernen frøs i brevet (LV-U2, LV-U3, #369): avsnittene
+ * med den låste delen og utdypningen hver for seg. Dokumentet som leveres, gjengir
+ * den tro (`gjengirTro` i `kjerne/frosset/brevtekst.ts`), og lages av oppdraget
+ * alene, uten journalen. Et registrert brev har ingen tekst fra appen (MM-U17), og
+ * `brevtekst` er da `null`.
  */
 
 import { createHash } from 'node:crypto';
-import type { Journalrad } from '../kjerne/typer.ts';
+import { gjengi, norskDato } from '../kjerne/frosset/brevtekst.ts';
+import type { Avsnitt, Journalrad } from '../kjerne/typer.ts';
 import type { Kjerne } from '../kjerne/versjon.ts';
 import type { Visning } from '../kjerne/utledning/visning.ts';
 import type { Leveringsmaal, Oppdragsrad } from './lager.ts';
 
 /** Formen på `leveringsoppdrag.innhold`. Økes når formen endres. */
-export const OPPDRAGSFORMAT = 1;
+export const OPPDRAGSFORMAT = 2;
 
 /** JSON med nøklene sortert, så summen kan regnes på nytt av det basen gir tilbake. */
 export function kanonisk(verdi: unknown): string {
@@ -58,7 +61,7 @@ export function lagOppdrag(
       avsender: { part: rad.aktor_rolle, aktor_id: rad.aktor_id, team_id: rad.aktor_team_id },
       hendelsesformat: rad.format,
       dokument: rad.data,
-      brevtekst: null,
+      brevtekst: rad.data.brevtekst ?? null,
     },
     dokument: {
       noekkel: rad.event_id,
@@ -79,4 +82,28 @@ export function lagOppdrag(
     innhold,
     innhold_sha256: sjekksum(innhold),
   };
+}
+
+/**
+ * Brevet i et lagret oppdrag som ren tekst, av oppdraget alene (LV-U1, B-17):
+ * hodet og brevteksten slik den ble frosset. Dokumentet #371 lager, gjengir den
+ * samme teksten. `null` når brevet er registrert og ikke har tekst fra appen (MM-U17).
+ */
+export function gjengiOppdrag(innhold: Record<string, unknown>): string | null {
+  const brev = innhold.brev as {
+    sak_id: string;
+    saksversjon: number;
+    tidsstempel: string;
+    avsender: { part: 'TE' | 'BH' };
+    brevtekst: Avsnitt[] | null;
+  };
+  if (!brev.brevtekst) return null;
+  const fra = brev.avsender.part === 'TE' ? 'Totalentreprenøren (TE)' : 'Byggherren (BH)';
+  return [
+    `Sak ${brev.sak_id}, brev ${brev.saksversjon}`,
+    `Fra: ${fra}`,
+    `Dato: ${norskDato(brev.tidsstempel)}`,
+    '',
+    gjengi(brev.brevtekst),
+  ].join('\n');
 }

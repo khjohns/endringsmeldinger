@@ -143,13 +143,26 @@ function svarutkast(
     regelversjon: regler.versjon,
     vurderinger: v,
     resultat,
+    ...utdypning(h),
   };
 }
+
+/**
+ * Begrunnelsen eller beskrivelsen under den låste teksten (KA-U31, KA-U33, GR-U15).
+ * Bevis-sakene har den, så kravet til den ikke avviser et steg som prøver noe annet;
+ * `utdypning: false` sender uten.
+ */
+const utdypning = (h: Record<string, unknown>) =>
+  h.utdypning === false
+    ? {}
+    : { utdypning: typeof h.utdypning === 'string' ? h.utdypning : 'Utdypning i bevis-saken.' };
 
 const INNHOLD = {
   grunnlag: (h: Handling) => ({
     hovedkategori: h.hovedkategori ?? 'endring',
     underkategori: h.underkategori,
+    // GR-U16: TE identifiserer endringsordren kravet følger av.
+    ...(h.underkategori === 'endringsordre' ? { endringsordre: 'EO 1' } : {}),
   }),
   vederlag: (h: Handling) => ({ metode: 'tilbud', beloep: h.belop }),
   frist: (h: Handling) => ({ dager: h.dager }),
@@ -165,6 +178,7 @@ export function kommandoFor(h: Handling, u: Utledning, regler: Regelsett, navn: 
         spor,
         innhold: INNHOLD[spor](h),
         ...(typeof h.varsel_sendt === 'string' ? { varsel: { sendt: h.varsel_sendt } } : {}),
+        ...(spor === 'vederlag' ? {} : utdypning(h)),
       };
     case 'brev':
       return {
