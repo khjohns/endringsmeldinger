@@ -31,6 +31,7 @@ import type {
   Avsnitt,
   Dokument,
   Domenehendelse,
+  Hjemmel,
   Kravspor,
   Krav,
   Opplysning,
@@ -372,7 +373,13 @@ function aapenInnsigelse(svar: Svar, avsender: Part, j: Journalen): string | und
   )?.dokument;
 }
 
-const SEN_32_2 = 'TEs varsel etter NS 8407 § 32.2 kom for sent';
+/** Varselet et standpunkt om rettidighet gjelder (LV-U4 punkt 5, LV-U5). */
+const VARSELET: Record<Hjemmel, string> = {
+  '32.2': 'TEs varsel etter NS 8407 § 32.2',
+  '33.4': 'varselet om fristforlengelse etter NS 8407 § 33.4',
+};
+
+const SEN_32_2 = `${VARSELET['32.2']} kom for sent`;
 
 /**
  * A2: standpunktene i svaret på grunnlaget som gjør et svar på vederlag eller frist
@@ -460,10 +467,7 @@ function standpunkttekst(
     s.spor === 'grunnlag' ? krav : s.grunnlagskrav ? j.krav(s.grunnlagskrav) : null;
   switch (p.art) {
     case 'rettidighet': {
-      const varselet =
-        p.hjemmel === '32.2'
-          ? 'TEs varsel etter NS 8407 § 32.2'
-          : 'varselet om fristforlengelse etter NS 8407 § 33.4';
+      const varselet = VARSELET[p.hjemmel];
       if (!p.iTide)
         return `byggherren gjør gjeldende at ${varselet} kom for sent${henvisning ? `, jf. innsigelsen i ${henvisning}` : ''}.`;
       return henvisning
