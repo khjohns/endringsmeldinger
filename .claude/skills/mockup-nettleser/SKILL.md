@@ -20,6 +20,13 @@ vurderingen, brevet og det sendte svaret. Det feiler ved JavaScript-feil i siden
 `node_modules` en symbolsk lenke, som i en worktree, må også lenkens mål stå i
 `server.fs.allow`. Legg det inn lokalt for kjøringen, og commit det ikke.
 
+## Stoppe en vite-server man har startet selv
+
+`pkill -f "vite dev"` dreper Bash-skallet selv, som har mønsteret i kommandolinja
+(exit 144). Bruk klammer i mønsteret, så skallets egen linje ikke treffer:
+`pgrep -f "node_modules/[.]bin/vite" | xargs -r kill`. Skriptet over stopper bare
+sin egen server.
+
 ## Nettleseren
 
 Bruk den globale playwright-pakken (`npm root -g`), ikke `npm i playwright`.
