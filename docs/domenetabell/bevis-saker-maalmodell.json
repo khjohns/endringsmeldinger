@@ -7146,11 +7146,11 @@
     {
       "id": "F-MM-U20g",
       "rader": [
-        "KA-40"
+        "KA-41"
       ],
       "start": "krav_irreg",
       "forslag": "MM-U19, kontrollsak: byggherrens registrerte avslag av et trukket krav skaper ingen enighet og leses med virkning",
-      "forventningsgrunnlag": "avklart_tolkning",
+      "forventningsgrunnlag": "arbeidshypotese",
       "steg": [
         {
           "handling": "trekk",
@@ -7236,11 +7236,11 @@
     {
       "id": "F-MM-U20i",
       "rader": [
-        "KA-40"
+        "KA-41"
       ],
       "start": "krav_irreg",
       "forslag": "MM-U19, kontrollsak: byggherrens registrerte frafall av pålegget etter at TE har trukket grunnlaget, leses med virkning (KA-U14, GR-U9)",
-      "forventningsgrunnlag": "avklart_tolkning",
+      "forventningsgrunnlag": "arbeidshypotese",
       "steg": [
         {
           "handling": "trekk",
@@ -7389,6 +7389,42 @@
               "S-v1"
             ],
             "gjeldende_svar.vederlag": null
+          }
+        }
+      ]
+    },
+    {
+      "id": "F-VS-U15d",
+      "rader": [
+        "VS-06"
+      ],
+      "start": "krav_irreg",
+      "forslag": "#411 (12.10), GR-U5: er fristkravet trukket, avvises varselet fra appen fordi sporet er lukket",
+      "forventningsgrunnlag": "avklart_tolkning",
+      "steg": [
+        {
+          "handling": "trekk",
+          "spor": "frist",
+          "navn": "D4"
+        },
+        {
+          "handling": "varsel",
+          "spor": "frist",
+          "navn": "D5"
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 2,
+          "rolle": "mal",
+          "kilde": [
+            "GR-U5",
+            "VS-U15"
+          ],
+          "forventet": {
+            "avvist": true,
+            "regel": "KRAV_TRUKKET",
+            "nye_hendelser": 0
           }
         }
       ]
