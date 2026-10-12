@@ -146,6 +146,7 @@ lagringsformatet står under.
 | Ny | Kommandofeltene `brevtekst` og `utdypning` i kravet, og `forhaandsvis` | A1 og A8 i paragrafmatrisen: teksten klienten viste, og TEs utdypning under kravet (#369) |
 | Ny | Kommandoen `send_varsel` | [VS-U15](../plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u15): TE sender et eget varsel etter § 33.4 fra appen. Kommandoen `varsel` registrerer et varsel sendt utenfor appen. Begge gir utsagnet `varsel`; et brev fra appen har ingen opplysning om datoen (VS-U8) |
 | Ny | `FRISTKRAV_SENDT` | Oppdragsgiver 12.10 på [#411](https://github.com/khjohns/endringsmeldinger/issues/411): et varsel fra appen avvises når et fristkrav er sendt |
+| `varsle:frist` (sende eller registrere varselet) | `varsle:frist` (registrere et varsel sendt utenfor appen) og `sende_varsel:frist` (sende varselet fra appen) | Handlingene i `pending_actions`. Et varsel fra appen avvises når et fristkrav er sendt, mens registreringen ikke gjør det ([#411](https://github.com/khjohns/endringsmeldinger/issues/411)), så de har hver sin nøkkel (INV-MM-1) |
 
 ### Navn i lagringsformatet
 

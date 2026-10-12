@@ -1502,8 +1502,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [
       [
-        '      if (dato === undefined && !nytt.krav.length)\n        return `TE varsler etter',
-        "      if (dato === undefined && !nytt.krav.length)\n        throw new KanIkkeUttrykkes('et varsel i et brev fra appen har datoen det ble sendt');\n      if (false)\n        return `TE varsler etter",
+        '      if (dato === undefined && nytt.utsagn.length === 1 && !nytt.krav.length && !nytt.svar.length)\n        return `TE varsler etter',
+        "      if (dato === undefined && nytt.utsagn.length === 1 && !nytt.krav.length && !nytt.svar.length)\n        throw new KanIkkeUttrykkes('et varsel i et brev fra appen har datoen det ble sendt');\n      if (false)\n        return `TE varsler etter",
       ],
     ],
     mal: ['med teksten i VS-U15', 'F-VS-U15a'],
@@ -1610,7 +1610,10 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse: 'et varsel uten dato i et brev med krav får teksten i VS-U15',
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [
-      ['      if (dato === undefined && !nytt.krav.length)\n', '      if (dato === undefined)\n'],
+      [
+        '      if (dato === undefined && nytt.utsagn.length === 1 && !nytt.krav.length && !nytt.svar.length)\n',
+        '      if (dato === undefined)\n',
+      ],
     ],
     mal: ['et varsel uten dato i et brev med krav'],
   },
