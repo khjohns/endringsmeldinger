@@ -312,6 +312,105 @@ describe('skrivevakten for mekanisk-pr', () => {
     }
   });
 
+  it('stopper Bash som skriver hookoppsettet', () => {
+    for (const kommando of [
+      'cp /tmp/x .claude/settings.json',
+      'echo {} > .claude/settings.local.json',
+      'cp -r /tmp/x/. .claude/',
+      'sed -i s/a/b/ .claude/settings.json',
+      'cd .claude && mv /tmp/x settings.json',
+      'git checkout origin/main -- .claude/settings.json',
+      'cp /tmp/x .claude/sett""ings.json',
+    ]) {
+      expect(bash(kommando).status, kommando).toBe(2);
+    }
+    expect(bash('cat .claude/settings.json').status).toBe(0);
+    expect(bash('cp /tmp/x .claude/hooks/ny.mjs').status).toBe(0);
+  });
+
+  it('stopper commit og push når hookoppsettet er endret, uansett hvordan det ble skrevet', () => {
+    mkdirSync(path.join(rot, '.claude'));
+    writeFileSync(path.join(rot, '.claude', 'settings.json'), '{}\n');
+    try {
+      const commit = bash('git commit -m x');
+      expect(commit.status).toBe(2);
+      expect(commit.stderr).toContain('.claude/settings.json');
+
+      git(rot, 'switch', '-q', '-c', 'claude/innstillinger');
+      git(rot, 'add', '.claude/settings.json');
+      git(rot, 'commit', '-qm', 'forbi vakten');
+      const push = bash('git push -u origin claude/innstillinger');
+      expect(push.status).toBe(2);
+      expect(push.stderr).toContain('.claude/settings.json');
+    } finally {
+      git(rot, 'switch', '-q', '-f', 'claude/test-1');
+      git(rot, 'branch', '-q', '-D', 'claude/innstillinger');
+      rmSync(path.join(rot, '.claude'), { recursive: true, force: true });
+    }
+  });
+
+  it('stopper push og commit bak et prefiks med flagg som tar argument', () => {
+    for (const kommando of [
+      'timeout -s KILL 5 git push origin HEAD:main',
+      'timeout --signal=KILL -k 2 5 git push origin HEAD:main',
+      'env -u HOME git push origin HEAD:main',
+      'env -C kjerne git push origin HEAD:main',
+      'nice -n 5 git push origin HEAD:main',
+      'exec -a navn git push origin HEAD:main',
+      '/usr/bin/env -i git push origin HEAD:main',
+    ]) {
+      expect(bash(kommando).status, kommando).toBe(2);
+    }
+    expect(bash('timeout -s KILL 60 git push -u origin claude/test-1').status).toBe(0);
+    expect(bash('env -u HOME npm test').status).toBe(0);
+    expect(bash('timeout 300 npx vitest run docs').status).toBe(0);
+  });
+
+  it('stopper et prefiks eller et program som vakten ikke kan tolke (fail-closed)', () => {
+    for (const kommando of [
+      'sudo -u root git commit -m x',
+      'timeout -x 5 ls',
+      'timeout -s KILL git push origin HEAD:main',
+      'env -iu HOME git push origin HEAD:main',
+      'ionice -c 3 git push origin HEAD:main',
+      'chrt 1 /usr/bin/git push origin HEAD:main',
+      'echo push origin HEAD:main | xargs git',
+      'find . -name x -exec git push origin HEAD:main \\;',
+      "python3 -c \"import subprocess; subprocess.run(['git', 'push'])\"",
+      'setsid sh -c "git push origin HEAD:main"',
+    ]) {
+      const svar = bash(kommando);
+      expect(svar.status, kommando).toBe(2);
+    }
+    expect(bash('ionice -c 3 git push origin HEAD:main').stderr).toContain(
+      'gjennom et program vakten ikke kjenner'
+    );
+    expect(bash('sudo -u root git commit -m x').stderr).toContain('prefiks med flagg');
+  });
+
+  it('stopper prettier -w, --fix og arkiver som pakkes ut', () => {
+    for (const kommando of [
+      'npx prettier -w docs/a.md',
+      'npm run lint -- --fix',
+      'tar -xf /tmp/a.tar',
+      'tar -xf /tmp/a.tar -C kjerne',
+      'unzip /tmp/a.zip',
+      "sed -n 'w kjerne/ut' docs/a.md",
+    ]) {
+      expect(bash(kommando).status, kommando).toBe(2);
+    }
+    expect(bash('npx prettier --check docs/a.md').status).toBe(0);
+  });
+
+  it('stopper gh api graphql, som kan merge med en mutasjon', () => {
+    for (const kommando of [
+      "gh api graphql -f query='mutation { mergePullRequest(input: {}) { clientMutationId } }'",
+      'gh api graphql -F query=@/tmp/q.graphql',
+    ]) {
+      expect(bash(kommando).status, kommando).toBe(2);
+    }
+  });
+
   it('stopper push til main, av en annen gren og med force', () => {
     for (const kommando of [
       'git push origin HEAD:main',
@@ -447,6 +546,8 @@ describe('lesevakten for diffkontroll', () => {
       'git -C /tmp/tre log --oneline -5',
       'git show HEAD:docs/a.md',
       'git diff --stat origin/main...HEAD -- docs/',
+      'git rev-parse --show-toplevel',
+      'git rev-parse --show-prefix --git-dir',
     ]) {
       expect(les(kommando).status, kommando).toBe(0);
     }
