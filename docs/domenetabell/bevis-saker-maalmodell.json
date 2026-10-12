@@ -5689,6 +5689,71 @@
       ]
     },
     {
+      "id": "F-MM-M7d",
+      "rader": [
+        "KA-33"
+      ],
+      "start": "krav_irreg",
+      "forslag": "KA-U20 og KA-U26, kontrollsak til F-MM-M7: et trekk i fristsporet lukker ikke vederlagssporet, så avsenderens revisjon der opphever sperren",
+      "forventningsgrunnlag": "avklart_tolkning",
+      "steg": [
+        {
+          "handling": "rad",
+          "spor": "vederlag",
+          "navn": "S-v1",
+          "dokument": "D4",
+          "gjelder": "K-v1",
+          "vurdering": "avslaatt",
+          "sendt": "2026-09-30",
+          "merking": [
+            "vederlag"
+          ]
+        },
+        {
+          "handling": "trekk",
+          "spor": "frist",
+          "navn": "D5"
+        },
+        {
+          "handling": "rad",
+          "spor": "vederlag",
+          "navn": "S-v2",
+          "dokument": "D6",
+          "gjelder": "K-v1",
+          "erstatter": "S-v1",
+          "vurdering": "avslaatt",
+          "sendt": "2026-10-01"
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 2,
+          "rolle": "mal",
+          "kilde": [
+            "KA-U20"
+          ],
+          "forventet": {
+            "forbehold.vederlag": true,
+            "trukket.frist": true,
+            "trukket.vederlag": false
+          }
+        },
+        {
+          "etter": 3,
+          "rolle": "mal",
+          "kilde": [
+            "KA-U20",
+            "KA-U26"
+          ],
+          "forventet": {
+            "forstaatt": true,
+            "gjeldende_svar.vederlag": "S-v2",
+            "forbehold.vederlag": false
+          }
+        }
+      ]
+    },
+    {
       "id": "F-MM-U326j",
       "rader": [
         "KA-37"
