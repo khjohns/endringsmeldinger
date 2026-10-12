@@ -102,14 +102,15 @@ tekst = "et ordrett utdrag"
 | --- | --- |
 | 3.1 er lik det verktøyet lager | alle poster |
 | Vedtaket, ankeret og vedtaksdatoen i hver rad i 3.1 på `main` står uendret | alle rader, også de importerte |
-| Innledningen, teksten etter tabellene (merknadene) og gruppetitlene kan bare få tekst lagt til; hver rad blir i gruppen sin; lenkene og setningene «Merknad dd.mm …» i Følge blir stående | 3.1 på `main` |
+| Innledningen, teksten etter tabellene (merknadene) og gruppetitlene kan bare få hele nye avsnitt lagt til; hver rad blir i gruppen sin; lenkene i Følge blir stående | 3.1 på `main` |
+| Følge i en importert rad står ordrett. Henvisningene fra nye vedtak kommer først og kan bli flere, og tekst kan legges til på slutten | importerte rader på `main` |
 | En post i importert form står i 3.1 på `main`; et nytt vedtak kan ikke føres i den formen | importerte poster |
 | Hvert anker i hovedplanen står én gang, og ID-en til en ny post står ikke i hovedplanen på `main` fra før, heller ikke uten anker eller utenfor 3.1 | hele planen |
 | Spørsmålet, alternativene, svaret og de andre feltene i en merget ny post står uendret; bare `folge` kan endres | nye poster på `main` |
 | Forholdet står begge veier | nye poster med `forhold` |
 | Vedtaksteksten har ingen kodenavn: backticks, `snake_case`, `camelCase`, `STORE_BOKSTAVER` med understrek, `navn()` og filnavn | nye poster, det valgte og de forkastede alternativene |
-| Svaret nevner det valgte alternativet | nye poster |
-| Hvert sitat står ordrett i posten og i kilden, med mellomrom normalisert, og er hele setninger der: det begynner ved setningsstart, «, kolon eller cellegrense og slutter ved punktum, » eller cellegrense. `utdrag = true` slipper et utdrag gjennom uttrykkelig. Kilden er NS 8407 eller fila slik den er på `main`, så et sitat kan ikke få kilden sin i samme PR | nye poster til de er merget; raden til posten selv teller ikke som kilde i hovedplanen. Etter merge kan kilden endres, og sitatet prøves ikke igjen |
+| Svaret nevner det valgte alternativet og ikke noe annet alternativ ved navn | nye poster |
+| Hvert sitat står ordrett i posten og i kilden, med mellomrom normalisert, og er hele setninger der: det begynner ved setningsstart, «, kolon, semikolon eller cellegrense og slutter ved punktum, » eller cellegrense. Fet skrift og et anker foran hoppes over, og en overskrift, et avsnitt og et punkt er grenser. `utdrag = true` slipper et utdrag gjennom uttrykkelig. Kilden er NS 8407 eller fila slik den er på `main`, så et sitat kan ikke få kilden sin i samme PR | nye poster til de er merget; raden til posten selv teller ikke som kilde i hovedplanen. Etter merge kan kilden endres, og sitatet prøves ikke igjen |
 
 De importerte postene har kodenavn i dag og skrives ikke om. Testen skiller dem
 på formen: en post med `vedtatt` er importert, og en ny post har `dato`. En
@@ -123,7 +124,10 @@ Det testene ikke ser: om et alternativ strider mot et vedtak, om forholdet er en
 presisering eller en endring, og om et sitat er tatt ut av sammenhengen. Det
 kontrolleres én gang, når spørsmålet stilles
 ([orkestreringsskillen](../../.claude/skills/orkestrering/SKILL.md#spørsmål-og-vedtak)).
-Testen ser heller ikke et sitat som ikke er ført som `sitat`.
+Testen ser heller ikke et sitat som ikke er ført som `sitat`. Testene ser bare
+at ny tekst i `folge`, `etter` og `innledning` er lagt til, ikke hva den sier.
+Innholdet kontrolleres av en subagent før vedtaks-PR-en merges
+([orkestreringsskillen](../../.claude/skills/orkestrering/SKILL.md#spørsmål-og-vedtak)).
 
 **Historikken.** NS 8407-teksten ligger ikke i treet og legges ikke tilbake
 (oppdragsgiver 12.10 i #413). Sitatkontrollen leser den med `git show` fra

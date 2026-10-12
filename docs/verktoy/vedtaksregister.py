@@ -366,6 +366,17 @@ def valider(register: dict) -> list[str]:
                 feil.append(
                     f"{navn}: svaret nevner ikke det valgte alternativet «{p['valgt']}»"
                 )
+            andre = [
+                a["navn"]
+                for a in p["alternativ"]
+                if a["navn"] != p["valgt"]
+                and re.search(rf"(?<!\w){re.escape(a['navn'])}(?!\w)", p["svar"])
+            ]
+            if andre:
+                feil.append(
+                    f"{navn}: svaret nevner også alternativ {', '.join(andre)}; "
+                    "før svaret som et eget alternativ"
+                )
             if any(
                 a["navn"] == p["valgt"] and a.get("forkastet") for a in p["alternativ"]
             ):
@@ -531,17 +542,24 @@ def setningstekst(kilde: str) -> str:
     som setningsgrenser; et sitatmerke (>) i starten av en linje fjernes."""
     tekst = re.sub(r"(?m)^\s*>\s*$", "", kilde)
     tekst = re.sub(r"(?m)^\s*>\s?", "", tekst)
-    tekst = re.sub(r"(?m)^\s*(?:#+|[-*]|\d+\.)\s+", " ¶ ", tekst)
+    tekst = re.sub(r"(?m)^\s*#+\s+(.*)$", r" ¶ \1 ¶ ", tekst)
+    tekst = re.sub(r"(?m)^\s*(?:[-*]|\d+\.)\s+", " ¶ ", tekst)
     return normaliser(re.sub(r"\n\s*\n", " ¶ ", tekst))
 
 
+# Det som står mellom en grense og setningen uten å være tekst: fet skrift og et anker.
+FORMATERING = re.compile(r'(?:\*\*|<a id="[^"]*"></a>|\s)+$')
+FORMATERING_ETTER = re.compile(r"^(?:\*\*|\s)+")
+
+
 def hele_setninger(sitat: str, tekst: str) -> bool:
-    """Sitatet begynner ved setningsstart, «, ett kolon eller en cellegrense, og slutter ved
-    punktum, », eller en cellegrense, et sted i teksten."""
+    """Sitatet begynner ved setningsstart, «, kolon, semikolon eller en cellegrense, og slutter
+    ved punktum, », eller en cellegrense, et sted i teksten. Fet skrift og et anker mellom
+    grensen og sitatet hoppes over."""
     start = 0
     while (i := tekst.find(sitat, start)) >= 0:
-        foer = tekst[:i].rstrip()
-        etter = tekst[i + len(sitat) :].lstrip()
+        foer = FORMATERING.sub("", tekst[:i])
+        etter = FORMATERING_ETTER.sub("", tekst[i + len(sitat) :])
         if (not foer or foer[-1] in SETNINGSSTART or sitat[0] == "«") and (
             not etter or sitat[-1] in SETNINGSSLUTT or etter[0] in SETNINGSSLUTT
         ):
@@ -600,19 +618,46 @@ def endrede_rader(gammel_plan: str, plan: str) -> list[str]:
 
 
 LENKE = re.compile(r"\[[^\]]+\]\(#[^)]+\)")
-MERKNAD = re.compile(r"Merknad \d{2}\.\d{2}.*?(?:\.(?= )|$)")
+
+
+def _avsnittene(tekst: str) -> list[str]:
+    return re.split(r"\n(?:[ \t]*>)?[ \t]*\n", tekst)
 
 
 def _bare_lagt_til(gammel: str, ny: str) -> bool:
-    """Hver linje i den gamle teksten står i den nye, i samme rekkefølge."""
-    linjer = iter(ny.split("\n"))
-    return all(any(g == n for n in linjer) for g in gammel.split("\n"))
+    """Hvert avsnitt i den gamle teksten står uendret i den nye, i samme rekkefølge, så ny
+    tekst er hele nye avsnitt. Et avsnitt i en merknad skilles med en linje med bare >."""
+    avsnitt_ = iter(_avsnittene(ny))
+    return all(any(g == n for n in avsnitt_) for g in _avsnittene(gammel))
 
 
-def endret_rundt_vedtakene(gammel_plan: str, plan: str) -> list[str]:
-    """Det som bærer vedtaksinnhold rundt radene i 3.1: innledningen, teksten etter tabellene og
-    gruppetitlene kan bare få tekst lagt til, en rad blir i gruppen sin, og lenkene og
-    merknadene i Følge blir stående."""
+HENVISNINGER = re.compile(
+    r"^(?:(?:Presisert|Utvidet|Snevret inn|Endret|Opphevet) \d{2}\.\d{2} av "
+    r"\[[^\]]+\]\(#[^)]+\)\.(?: |$))*"
+)
+
+
+def folge_bare_lagt_til(gammel: str, ny: str) -> bool:
+    """Følge i en importert rad: henvisningene verktøyet setter først, kan bli flere, og
+    resten står ordrett, eventuelt med tekst lagt til etter."""
+    gamle_h = HENVISNINGER.match(gammel).group(0)
+    nye_h = HENVISNINGER.match(ny).group(0)
+    if collections.Counter(LENKE.findall(gamle_h)) - collections.Counter(
+        LENKE.findall(nye_h)
+    ):
+        return False
+    rest_gammel, rest_ny = gammel[len(gamle_h) :], ny[len(nye_h) :]
+    tillegg = rest_ny[len(rest_gammel) :]
+    return rest_ny.startswith(rest_gammel) and (not tillegg or not tillegg[0].isalnum())
+
+
+def endret_rundt_vedtakene(
+    gammel_plan: str, plan: str, nye_ankre: frozenset = frozenset()
+) -> list[str]:
+    """Det som bærer vedtaksinnhold rundt radene i 3.1: innledningen, teksten etter tabellene
+    og gruppetitlene kan bare få hele avsnitt lagt til, en rad blir i gruppen sin, lenkene i
+    Følge blir stående, og Følge i en importert rad får bare tekst lagt til. Radene med
+    ankrene i `nye_ankre` er nye poster; der lages Følge av `folge`, som kan endres."""
     gammel = les_avsnitt(gammel_plan[slice(*avsnitt(gammel_plan))])
     ny = les_avsnitt(plan[slice(*avsnitt(plan))])
     feil = []
@@ -643,11 +688,12 @@ def endret_rundt_vedtakene(gammel_plan: str, plan: str) -> list[str]:
                 LENKE.findall(p["folge"])
             ) - collections.Counter(LENKE.findall(naa["folge"]))
             feil += [f"{navn}: lenken {lenke} er fjernet fra Følge" for lenke in borte]
-            feil += [
-                f"{navn}: «{m[:60]}» er endret eller fjernet fra Følge"
-                for m in MERKNAD.findall(p["folge"])
-                if m not in naa["folge"]
-            ]
+            if p.get("anker") not in nye_ankre and not folge_bare_lagt_til(
+                p["folge"], naa["folge"]
+            ):
+                feil.append(
+                    f"{navn}: Følge er endret; i en importert rad kan bare tekst legges til"
+                )
     return feil
 
 
@@ -705,7 +751,9 @@ def historiske_feil(register: dict, plan: str, commit: str | None) -> list[str]:
     return (
         doble_ankre(plan)
         + endrede_rader(gammel_plan, plan)
-        + endret_rundt_vedtakene(gammel_plan, plan)
+        + endret_rundt_vedtakene(
+            gammel_plan, plan, frozenset(anker(p) for p in poster(register) if er_ny(p))
+        )
         + mot_grunnlag(register, gammel_plan, gammel_register)
         + sitatfeil(register, kilder_paa(commit), merget)
     )
