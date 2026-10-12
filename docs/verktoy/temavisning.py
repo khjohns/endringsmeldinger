@@ -49,8 +49,9 @@ BEVIS = {
 TIL_PLANEN = "../../plans/2026-09-16-godkjenning-og-varig-levering.md"
 TIL_TABELLEN = "../../domenetabell/README.md#tabellen"
 LENKE = re.compile(r"\]\(#([^)\s]+)\)")
-# «Forkastet:», og formene med en avgrensning foran kolonet, som «Forkastet foreløpig:».
-FORKASTET = re.compile(r"(?<= )Forkastet[^:.«]{0,60}: ")
+# Et merke som begynner en setning i vedtaksteksten til en importert post: «Forkastet:»,
+# formene med en avgrensning, som «Forkastet foreløpig:», og «Utsatt:».
+MERKE = re.compile(r"(?<=[.»] )(?:Forkastet|Utsatt)[^:«]{0,60}?: ")
 
 
 def les_temaer(sti: pathlib.Path = TEMAER) -> list[dict]:
@@ -107,7 +108,7 @@ def _medlemmer(tema: dict, register: dict) -> list[dict]:
 
 def _ider(poster: list[dict]) -> set[str]:
     """Vedtaks-ID-ene regelradene og bevis-sakene viser til, som «GR-U10» og «B-03»."""
-    return set().union(*(vh._ider(p) for p in poster))
+    return set().union(*(vh.vedtaks_ider(p) for p in poster))
 
 
 def _rader(ider: set[str], regler: dict) -> list[dict]:
@@ -127,13 +128,13 @@ def _forlop_etter_rad(rad: str, bevis: dict) -> list[str]:
     return [f"{f['id']}{merke}" for merke, korpus in bevis.items() for f in korpus["forlop"] if rad in f["rader"]]
 
 
-def utdrag(tema: dict, kilder: dict) -> dict:
+def utdrag(tema: dict, kilder: dict, ix: tuple[dict, dict] | None = None) -> dict:
     """Det visningen leser. Kontrollsummen tas over dette."""
     register = kilder["register"]
     medlemmer = _medlemmer(tema, register)
     ider = _ider(medlemmer)
     ankre = {vr.anker(p) for p in medlemmer}
-    ix = vr.indeks(register)
+    ix = ix or vr.indeks(register)
     rader = _rader(ider, kilder["regler"])
     radider = {r["id"] for r in rader}
     alle, _ = ix
@@ -145,7 +146,7 @@ def utdrag(tema: dict, kilder: dict) -> dict:
         "tema": tema,
         "poster": medlemmer,
         "senere": [
-            (vr.anker(p), f) for p in vr.poster(register) if vr.er_ny(p)
+            (vr.anker(p), p["dato"], f) for p in vr.poster(register) if vr.er_ny(p)
             for f in p.get("forhold", [])
             if f["vedtak"] in ankre
         ],
@@ -174,12 +175,17 @@ def _lenker(tekst: str, medlemmer: set[str]) -> str:
 
 
 def vedtak_og_forkastet(post: dict) -> tuple[str, list[tuple[str, str]]]:
-    """Vedtaksteksten i 3.1, delt i vedtaket og de forkastede alternativene, hvert med merket sitt.
+    """Vedtaksteksten i 3.1, delt i vedtaket og de merkede delene etter det, som de forkastede alternativene.
 
-    Satt sammen med ett mellomrom er delene lik teksten i 3.1.
+    Hver del har merket sitt, som «Forkastet:» eller «Utsatt:». Satt sammen med ett
+    mellomrom er delene lik teksten i 3.1.
     """
-    tekst = vr.vedtakscelle(post).split("</a>", 1)[-1]
-    treff = list(FORKASTET.finditer(tekst))
+    if vr.er_ny(post):
+        forkastet = [f"«{vr.linje(a['tekst'])}»" for a in post["alternativ"] if a.get("forkastet")]
+        vedtak = f"{post['id']}: {vr.linje(vr._valgt(post)['tekst'])}"
+        return vedtak, [("Forkastet:", "; ".join(forkastet))] if forkastet else []
+    tekst = vr.linje(post["vedtak"])
+    treff = list(MERKE.finditer(tekst))
     if not treff:
         return tekst, []
     deler = [
@@ -200,14 +206,15 @@ def _vedtakslenke(anker: str, etiketter: dict, medlemmer: set[str]) -> str:
 
 def visning(tema: dict, kilder: dict) -> str:
     register = kilder["register"]
-    ut = utdrag(tema, kilder)
+    ix = vr.indeks(register)
+    ut = utdrag(tema, kilder, ix)
     poster = ut["poster"]
     kjerne = {v.lower() for v in tema["kjerne"]}
     medlemmer = {vr.anker(p) for p in poster}
     etiketter = ut["etiketter"] | {vr.anker(p): vr.etikett(p) for p in poster}
-    ix = vr.indeks(register)
     forhold = _forhold(register)
     bevis = kilder["bevis"]
+    ider_for = {vr.anker(p): _ider([p]) for p in poster}
 
     def lenke(a: str) -> str:
         return _vedtakslenke(a, etiketter, medlemmer)
@@ -271,7 +278,7 @@ def visning(tema: dict, kilder: dict) -> str:
         linjer.append(f"| {lenke(a)} | {'; '.join(aktive) or '—'} | {'; '.join(passive) or '—'} |")
     linjer += ["", "## Vedtakene", ""]
     for p in poster:
-        ider = _ider([p])
+        ider = ider_for[vr.anker(p)]
         vedtak, forkastet = vedtak_og_forkastet(p)
         linjer += [f'### <a id="{vr.anker(p)}"></a>{vr.etikett(p)}', "", f"> {_lenker(vedtak, medlemmer)}", ""]
         for merke, tekst in forkastet:
@@ -282,7 +289,7 @@ def visning(tema: dict, kilder: dict) -> str:
             f"**Følge:** {_lenker(vr.folgecelle(p, register, ix), medlemmer)}",
             "",
             "**Regelrader:** "
-            + (", ".join(f"[{r['id']}](#{_radanker(r['id'])})" for r in _rader(ider, kilder["regler"])) or "—"),
+            + (", ".join(f"[{r['id']}](#{_radanker(r['id'])})" for r in _rader(ider, {"rader": ut["rader"]})) or "—"),
             "",
             "**Bevis-saker som viser til vedtaket:** "
             + (", ".join(f"{f['id']}{merke}" for merke, f in _forlop_etter_vedtak(ider, bevis)) or "—"),
@@ -299,7 +306,7 @@ def visning(tema: dict, kilder: dict) -> str:
         "| Rad | Tilfelle | Vedtak i temaet | Bevis-saker |",
         "| --- | --- | --- | --- |",
     ]
-    anker_for = {i: vr.anker(p) for p in poster for i in _ider([p])}
+    anker_for = {i: a for a, ider in ider_for.items() for i in ider}
     for r in ut["rader"]:
         i_temaet = ", ".join(lenke(anker_for[k]) for k in r["kilder"] if k in anker_for)
         tilfelle = r["tilfelle"].replace("|", "\\|")

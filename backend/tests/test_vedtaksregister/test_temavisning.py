@@ -32,6 +32,7 @@ tv = _verktoy()
 vr = tv.vr
 
 GRUNNLAGSSVAR = "grunnlagssvar-som-endringsordre"
+MERKET = re.compile(r"^\*\*((?:Forkastet|Utsatt)[^*]*:)\*\* ")
 
 
 @pytest.fixture(scope="module")
@@ -102,13 +103,13 @@ def _seksjon(tekst: str, etikett: str) -> list[str]:
 
 def test_hvert_vedtak_i_temaet_star_ordrett_med_det_forkastede_merket_for_seg(tema, kilder):
     tekst = tv.visning(tema, kilder)
-    for anker in ("gr-u10", "gr-u12", "gr-u13", "gr-u14", "gr-u15", "mm-u17"):
-        post = _post(kilder["register"], anker)
+    for vedtak in tema["vedtak"]:
+        post = _post(kilder["register"], vedtak.lower())
         seksjon = [linje for linje in _seksjon(tekst, vr.etikett(post)) if linje]
         sitat = [linje.removeprefix("> ") for linje in seksjon if linje.startswith("> ")]
-        forkastet = [linje.replace("**", "") for linje in seksjon if linje.startswith("**Forkastet")]
+        forkastet = [MERKET.sub(r"\1 ", linje) for linje in seksjon if MERKET.match(linje)]
         assert len(sitat) == 1
-        assert "Forkastet" not in sitat[0]
+        assert not tv.MERKE.search(sitat[0])
         assert re.sub(r"\]\([^)]*#", "](#", " ".join(sitat + forkastet)) == vr.linje(post["vedtak"])
 
 
@@ -116,6 +117,7 @@ def test_hvert_vedtak_i_temaet_star_ordrett_med_det_forkastede_merket_for_seg(te
     ("gr-u14", ["Forkastet for registrerte krav:"]),
     ("lv-u4", ["Forkastet for setningen om endringsordren i punkt 1:", "Forkastet for punkt 6:"]),
     ("ka-u16", ["Forkastet foreløpig:"]),
+    ("ka-u19", ["Forkastet:", "Utsatt:"]),
     ("gr-u10", []),
 ])
 def test_de_forkastede_alternativene_skilles_ut_med_merket_og_teksten_blir_lik_3_1(anker, merker, kilder):
@@ -165,6 +167,10 @@ def test_et_nytt_vedtak_som_endrer_kjeden_gir_feil_til_det_er_tatt_inn(tema, kil
     assert "> XX-U1: Det valgte alternativet." in tekst
     assert "**Forkastet:** «Et forkastet alternativ.»" in tekst
     assert "Endret 12.10 av [XX-U1](#xx-u1)." in tekst
+
+    senere_dato = copy.deepcopy(endret)
+    _post(senere_dato["register"], "xx-u1")["dato"] = datetime.date(2026, 10, 13)
+    assert tv.kontrollsum(tv.utdrag(tema, senere_dato)) != tv.kontrollsum(tv.utdrag(tema, endret))
 
 
 def test_et_ukjent_vedtak_og_en_kjerne_utenfor_vedtakene_gir_feil(tema, kilder):
