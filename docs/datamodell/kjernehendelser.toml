@@ -214,6 +214,17 @@ blir ikke ubetinget fra sendetidspunktet."""
 felt = ["id", "art", "gjelder"]
 grunnlag = "KA-U20, MM-U12"
 
+[[utsagn]]
+art = "begrunnelse"
+avsender = "BH"
+beskrivelse = """
+Byggherrens senere begrunnelse av et svar. `gjelder` er svaret, også et svar som
+er erstattet eller registrert. Teksten står i brevteksten, som utdypningen under
+den faste setningen. Endrer ingen standpunkter, og godtas også når kravene er
+avgjort. Erstatter ikke begrunnelsen et svar fra appen må ha."""
+felt = ["id", "art", "gjelder"]
+grunnlag = "KA-U34, KA-U18, KA-U24, MM-U12"
+
 # ---------------------------------------------------------------------------
 # Delene i svaret og dokumentet.
 # ---------------------------------------------------------------------------

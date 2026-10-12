@@ -379,7 +379,7 @@ function utledSporene(
   const varsler: Extract<Utsagn, { art: 'varsel' }>[] = [];
   const henvisninger: Extract<
     Utsagn,
-    { art: 'innsigelse' | 'protest' | 'passivitet' | 'avklaring' }
+    { art: 'innsigelse' | 'protest' | 'passivitet' | 'avklaring' | 'begrunnelse' }
   >[] = [];
   const opplysninger: Opplysning[] = [];
   /** Hvert krav og svar i saken, også de uten virkning (MM-U18). */
@@ -639,6 +639,9 @@ function utledSporene(
         const m = merkinger.get(id);
         return m !== undefined && avsenderAv(m.brev) === part;
       }
+      case 'begrunnelse':
+        // KA-U34: byggherrens eget svar.
+        return maal.art === 'svar' && maal.part === part;
     }
   }
   for (const b of bestridelser) {

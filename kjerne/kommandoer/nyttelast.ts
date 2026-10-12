@@ -204,5 +204,10 @@ export function nyttelastkontroll(
     case 'merking':
     case 'avklaring':
       return null;
+    case 'begrunnelse':
+      // KA-U34: appen kontrollerer at teksten finnes, ikke hva den sier (KA-U19).
+      return utdypningKreves && !k.utdypning.trim()
+        ? avvis('BEGRUNNELSE_MANGLER', 'Begrunnelsen har ingen tekst.')
+        : null;
   }
 }

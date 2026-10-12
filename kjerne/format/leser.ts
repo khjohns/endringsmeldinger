@@ -258,6 +258,7 @@ const PART_FOR_UTSAGN: Record<Utsagnsart, Part | null> = {
   innsigelse: null,
   protest: null,
   avklaring: null,
+  begrunnelse: 'BH',
 };
 
 function lesDokument(h: Journalrad): Dokument {

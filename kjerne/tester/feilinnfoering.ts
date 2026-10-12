@@ -1710,6 +1710,81 @@ const MUTASJONER: Mutasjon[] = [
       'en revisjon av svaret, med serverens regelversjon én høyere enn kommandoens',
     ],
   },
+  {
+    id: 'F157',
+    feilklasse: 'en senere begrunnelse avvises når kravene er avgjort (KA-U34, KA-U11)',
+    fil: `${K}/kommandoer/forutsetninger.ts`,
+    endringer: [
+      [
+        "    case 'begrunne':\n",
+        "    case 'begrunne':\n      if (kraveneErAvgjort(u)) return avvis('KRAVENE_AVGJORT', '');\n",
+      ],
+    ],
+    mal: ['godtas når kravene er avgjort, mens en revisjon avvises'],
+  },
+  {
+    id: 'F158',
+    feilklasse: 'TE kan sende en senere begrunnelse (KA-U34)',
+    fil: `${K}/kommandoer/forutsetninger.ts`,
+    endringer: [["  begrunne: 'BH',", '  begrunne: null,']],
+    mal: ['avvises fra TE, når den ikke gjelder et svar, og uten tekst'],
+  },
+  {
+    id: 'F159',
+    feilklasse: 'en senere begrunnelse kan gjelde noe annet enn et svar (KA-U34)',
+    fil: `${K}/kommandoer/forutsetninger.ts`,
+    endringer: [["return maal?.art === 'svar' && maal.part === 'BH'", 'return maal !== undefined']],
+    mal: ['avvises fra TE, når den ikke gjelder et svar, og uten tekst'],
+  },
+  {
+    id: 'F160',
+    feilklasse: 'leseren godtar en begrunnelse som gjelder noe annet enn et svar (KA-U34, MM-U2)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      ["return maal.art === 'svar' && maal.part === part;", "return maal.art !== 'opplysning';"],
+    ],
+    mal: ['en begrunnelse fra TE eller av noe annet enn et svar gjør saken ikke forstått'],
+  },
+  {
+    id: 'F161',
+    feilklasse: 'brevteksten for den senere begrunnelsen avviker fra KA-U34',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [
+      [
+        'Byggherren begrunner sitt svar på ${SVARET_GJELDER[svar.spor]}',
+        'Byggherren begrunner sitt svar på ${SPORNAVN[svar.spor]}',
+      ],
+    ],
+    mal: ['brevet begrunner svaret på'],
+  },
+  {
+    id: 'F162',
+    feilklasse: 'en senere begrunnelse uten tekst godtas (KA-U34)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [['return utdypningKreves && !k.utdypning.trim()', 'return false']],
+    mal: ['avvises fra TE, når den ikke gjelder et svar, og uten tekst'],
+  },
+  {
+    id: 'F163',
+    feilklasse: 'et spor TE ikke har sendt, teller som avgjort (KA-U11)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        "(n) => u.spor[n].trukket || u.spor[n].ingenKrav || enighetensVirkning(u, n) === 'virksom'",
+        "(n) => !u.spor[n].krav.length || u.spor[n].trukket || enighetensVirkning(u, n) === 'virksom'",
+      ],
+    ],
+    mal: ['et spor TE fortsatt kan sende, gjør at kravene ikke er avgjort'],
+  },
+  {
+    id: 'F164',
+    feilklasse: 'meldingen for avgjorte krav kaller «ingen krav» et trekk (KA-U11, KA-U12)',
+    fil: `${K}/kommandoer/forutsetninger.ts`,
+    endringer: [
+      ['    u.spor[n].trukket\n      ?', '    u.spor[n].trukket || u.spor[n].ingenKrav\n      ?'],
+    ],
+    mal: ['når TE ikke krever fristforlengelse, er kravene avgjort, og meldingen sier hvorfor'],
+  },
 ];
 
 interface Testresultat {
