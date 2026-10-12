@@ -948,11 +948,9 @@ begrunnelse og beskrivelse er [KA-U31](plans/2026-09-16-godkjenning-og-varig-lev
   endringsordre fra appen (`PAALEGGET_IKKE_BESKREVET`).
 - **Oppdragsgiver 12.10 ([LV-U5](plans/2026-09-16-godkjenning-og-varig-levering.md#lv-u5), svaret i
   [#414](https://github.com/khjohns/endringsmeldinger/issues/414)):** standpunktet
-  om at varselet kom i tide, nevner varselet det gjelder, i samme form som «for
-  sent»: «Byggherren gjør ikke gjeldende at TEs varsel etter NS 8407 § 32.2
-  [varselet om fristforlengelse etter NS 8407 § 33.4] kom for sent.» Det samme
-  gjelder setningen etter en innsigelse som gis opp. Endret tekst gjelder bare nye
-  brev (MM-U9).
+  om at varselet kom i tide, også etter en innsigelse som gis opp, nevner varselet
+  det gjelder. Teksten lages i `standpunkttekst`, og navnene på varslene står i
+  `VARSELET`.
 - **Arbeidsvalg 12.10 ([GR-U1](plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u1), LV-U4 punkt 6, svaret i
   [#369](https://github.com/khjohns/endringsmeldinger/issues/369#issuecomment-6117469247)):**
   aksepten leser saken når den sendes, ikke svaret slik det var da det ble sendt.

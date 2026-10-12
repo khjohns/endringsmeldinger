@@ -6,7 +6,7 @@
  * F49–F51 og F54–F58 versjoneringen (#316), F52–F53 registrert korrespondanse
  * (#336), F59–F60 kodene i formatet og predikatet for endringsordre
  * (#335, #351), F61–F104 byggedel 1 av #309, F105–F131 brevteksten (#369) og
- * F132–F133 LV-U5 (#414). Én mutasjon om gangen per arbeidskopi, Vitest over hele `kjerne/`
+ * F132–F134 LV-U5 (#414). Én mutasjon om gangen per arbeidskopi, Vitest over hele `kjerne/`
  * og `sprakprove/kjernelagring/`, og originalteksten settes tilbake etterpå. For
  * hver mutasjon kreves det at de forventede målassertions feiler, og at alle
  * feil er assertions, ikke import, oppsett eller en brutt forutsetning
@@ -1447,6 +1447,22 @@ const MUTASJONER: Mutasjon[] = [
       ],
     ],
     mal: ['nevner brevet varselet etter § 33.4 (LV-U5)'],
+  },
+  {
+    id: 'F134',
+    feilklasse: 'standpunktet om rettidighet nevner feil varsel (LV-U4 punkt 5, LV-U5)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [
+      [
+        '      const varselet = VARSELET[p.hjemmel];',
+        "      const varselet = VARSELET[p.hjemmel === '32.2' ? '33.4' : '32.2'];",
+      ],
+    ],
+    mal: [
+      'nevner hjemmelen etter § 32.2-preklusjonen (LV-U5)',
+      'nevner brevet varselet etter § 33.4 (LV-U5)',
+      'gir byggherren innsigelsen opp, sier brevet det uttrykkelig (VS-U11)',
+    ],
   },
 ];
 
