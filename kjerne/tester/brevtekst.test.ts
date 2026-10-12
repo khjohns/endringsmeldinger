@@ -1220,7 +1220,7 @@ describe('varselet etter § 33.4 sendt fra appen (VS-U15)', () => {
   it('et fristkrav kan ikke oppgi en dato for varselet appen sendte (SK-12)', () => {
     const { s } = medVarsel();
     expect(s.avvist('TE', { ...FRISTKRAV, varsel: { sendt: '2026-10-03' } })).toBe(
-      'sendVarsel_REGISTRERT'
+      'VARSEL_REGISTRERT'
     );
     expect(s.avvist('TE', utenFelt(FRISTKRAV, 'varsel'))).toBeNull();
   });
