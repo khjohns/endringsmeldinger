@@ -692,6 +692,34 @@
       "radetikett": "KA-U35: Et brev der byggherren senere begrunner sitt svar, kan registreres i appen"
     },
     {
+      "id": "KA-U36",
+      "type": "vedtak",
+      "dato": "2026-10-12",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u36",
+      "radetikett": "KA-U36: En registrert begrunnelse med sendt-dato før svaret den begrunner, avvises"
+    },
+    {
+      "id": "KA-U37",
+      "type": "vedtak",
+      "dato": "2026-10-12",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u37",
+      "radetikett": "KA-U37: Et svar byggherren sender fra appen, har datoen appen registrerte det, i norsk tid, som i brevet"
+    },
+    {
+      "id": "KA-U38",
+      "type": "vedtak",
+      "dato": "2026-10-12",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u38",
+      "radetikett": "KA-U38: For et registrert svar sammenliknes begrunnelsen med datoen svaret ble sendt"
+    },
+    {
+      "id": "KA-U39",
+      "type": "vedtak",
+      "dato": "2026-10-12",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u39",
+      "radetikett": "KA-U39: En bestridelse av datoen på svaret endrer ikke kontrollen"
+    },
+    {
       "id": "KA-U28",
       "type": "vedtak",
       "dato": "2026-10-11",
@@ -2351,6 +2379,22 @@
       "kilder": [
         "KA-U34",
         "KA-U11"
+      ],
+      "tolkningsstatus": "avklart_tolkning"
+    },
+    {
+      "id": "KA-45",
+      "tilfelle": "Byggherren registrerer et brev der byggherren senere begrunner sitt svar, med en sendt-dato før svaret.",
+      "forventet": "Begrunnelsen avvises når sendt-datoen ligger før datoen svaret ble sendt. Samme dato godtas. Et svar fra appen har datoen appen registrerte det, i norsk tid. Et registrert svar har datoen det ble sendt, også når den er bestridt. Har det bare datoen det ble mottatt, kontrolleres ikke begrunnelsen.",
+      "bh_standpunkt": "Svaret slik det ble sendt.",
+      "rettslig_virkning": "Begrunnelsen kan ikke komme før svaret. Appen vurderer ikke om den kom i tide.",
+      "rettidighet": "—",
+      "tidsakse": "registrering",
+      "kilder": [
+        "KA-U36",
+        "KA-U37",
+        "KA-U38",
+        "KA-U39"
       ],
       "tolkningsstatus": "avklart_tolkning"
     }

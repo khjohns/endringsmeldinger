@@ -7,8 +7,9 @@
  * (#336), F59–F60 kodene i formatet og predikatet for endringsordre
  * (#335, #351), F61–F104 byggedel 1 av #309, F105–F131 brevteksten (#369),
  * F132–F134 LV-U5 (#414), F135–F148 MM-U20 (#405) og VS-U15 (#411), F149–F152
- * merkingen i et lukket spor (#426), og F153–F156 regelversjonen i kommandoen
- * (#386). Én mutasjon
+ * merkingen i et lukket spor (#426), F153–F156 regelversjonen i kommandoen
+ * (#386), F157–F168 den senere begrunnelsen (#448) og F169–F177 hullene fra
+ * samspillsreviewet av den og KA-U36 (#468). Én mutasjon
  * om gangen per arbeidskopi, Vitest over hele `kjerne/`
  * og `sprakprove/kjernelagring/`, og originalteksten settes tilbake etterpå. For
  * hver mutasjon kreves det at de forventede målassertions feiler, og at alle
@@ -1805,6 +1806,90 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/kommandoer/handlinger.ts`,
     endringer: [["    ut.push({ type: 'begrunne', gjelder: id });\n", '']],
     mal: ['F-MM-BG1', 'F-MM-BG2', 'F-MM-B1'],
+  },
+  {
+    id: 'F169',
+    feilklasse: 'meldingen for avgjorte krav kaller et frafall en godkjenning (KA-U11, GR-U9)',
+    fil: `${K}/kommandoer/forutsetninger.ts`,
+    endringer: [['  const grunnlag = u.frafalt\n', '  const grunnlag = false\n']],
+    mal: ['når byggherren har frafalt pålegget, sier meldingen det'],
+  },
+  {
+    id: 'F170',
+    feilklasse: 'en senere begrunnelse kan endre utfallet (KA-U34)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        "['aksept', 'trekk', 'ingen_krav', 'varsel']",
+        "['aksept', 'trekk', 'ingen_krav', 'varsel', 'begrunnelse']",
+      ],
+    ],
+    mal: ['godtas når kravene er avgjort, mens en revisjon avvises', 'F-MM-BG2'],
+  },
+  {
+    id: 'F171',
+    feilklasse: 'en registrert begrunnelse sendt før svaret godtas (KA-U36)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [['if (k.sendt === undefined || !svaret || k.sendt >= svaret)', 'if (true)']],
+    mal: ['før datoen appen registrerte svaret, avvises den', 'F-MM-BG1'],
+  },
+  {
+    id: 'F172',
+    feilklasse: 'en registrert begrunnelse med samme dato som svaret avvises (KA-U37)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [['!svaret || k.sendt >= svaret)', '!svaret || k.sendt > svaret)']],
+    mal: ['før datoen appen registrerte svaret, avvises den, og samme dato godtas', 'F-MM-BG1'],
+  },
+  {
+    id: 'F173',
+    feilklasse: 'datoen for et svar fra appen er i UTC, ikke i norsk tid (KA-U37)',
+    fil: `${K}/format/leser.ts`,
+    endringer: [['  OSLO.format(new Date(d.registrert));', '  d.registrert.slice(0, 10);']],
+    mal: ['datoen for svaret fra appen er i norsk tid'],
+  },
+  {
+    id: 'F174',
+    feilklasse: 'et registrert svar dateres med mottatt-datoen når den finnes (KA-U38)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        "? (datoFor(s, 'sendt', opplysninger)?.dato ?? null)",
+        "? ((datoFor(s, 'mottatt', opplysninger) ?? datoFor(s, 'sendt', opplysninger))?.dato ?? null)",
+      ],
+    ],
+    mal: ['for et registrert svar gjelder datoen det ble sendt'],
+  },
+  {
+    id: 'F175',
+    feilklasse: 'et registrert svar med bare mottatt-dato kontrolleres mot den (KA-U38)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        "? (datoFor(s, 'sendt', opplysninger)?.dato ?? null)",
+        "? ((datoFor(s, 'sendt', opplysninger) ?? datoFor(s, 'mottatt', opplysninger))?.dato ?? null)",
+      ],
+    ],
+    mal: ['et registrert svar med bare mottatt-dato gir ingen kontroll'],
+  },
+  {
+    id: 'F176',
+    feilklasse: 'en bestridelse av datoen på svaret opphever kontrollen (KA-U39)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [
+      [
+        'const svaret = u.svarSendt[k.gjelder];',
+        'const svaret = u.opplysninger.some((o) => o.bestridelser.length) ? null : u.svarSendt[k.gjelder];',
+      ],
+    ],
+    mal: ['en bestridelse av datoen på svaret endrer ikke kontrollen'],
+  },
+  {
+    id: 'F177',
+    feilklasse:
+      'et svar uten virkning har ingen dato, så begrunnelsen kontrolleres ikke (KA-U36, MM-U18)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [['    svarMedUten.map((s) => {', '    [...alleSvar.values()].map((s) => {']],
+    mal: ['en registrert begrunnelse av et svar uten virkning, sendt før svaret, avvises'],
   },
 ];
 

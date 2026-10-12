@@ -7,6 +7,7 @@
 
 import { UgyldigVurdering } from '../regler/feil.ts';
 import { avvis } from './forutsetninger.ts';
+import { norskDato } from '../frosset/brevtekst.ts';
 import { datoFor, sammeSlag } from '../format/leser.ts';
 import type { Kommando, Svarutkast } from './kommando.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
@@ -132,6 +133,23 @@ function begrunnelsensTekst(k: Extract<Kommando, { type: 'begrunnelse' }>): Avvi
 }
 
 /**
+ * KA-U36: en registrert begrunnelse kan ikke være sendt før svaret den begrunner.
+ * Datoen for svaret står i utledningen (KA-U37–KA-U39). Om begrunnelsen kom i tide,
+ * vurderes ikke.
+ */
+function begrunnelsensDato(
+  k: Extract<Kommando, { type: 'begrunnelse' }>,
+  u: Utledning
+): Avvisning | null {
+  const svaret = u.svarSendt[k.gjelder];
+  if (k.sendt === undefined || !svaret || k.sendt >= svaret) return null;
+  return avvis(
+    'BEGRUNNELSE_FOER_SVARET',
+    `Begrunnelsen er oppgitt sendt ${norskDato(k.sendt)}, men svaret den begrunner, ble sendt ${norskDato(svaret)}.`
+  );
+}
+
+/**
  * `utdypningKreves` er usann i forhåndsvisningen: utdypningen endrer ikke den låste
  * teksten, så klienten kan vise teksten før begrunnelsen er skrevet (A1).
  */
@@ -214,7 +232,10 @@ export function nyttelastkontroll(
     case 'merking':
     case 'avklaring':
       return null;
-    case 'begrunnelse':
-      return utdypningKreves ? begrunnelsensTekst(k) : null;
+    case 'begrunnelse': {
+      // Datoen kontrolleres også i forhåndsvisningen; teksten bare når den sendes.
+      const tekst = utdypningKreves ? begrunnelsensTekst(k) : null;
+      return tekst ?? begrunnelsensDato(k, u);
+    }
   }
 }
