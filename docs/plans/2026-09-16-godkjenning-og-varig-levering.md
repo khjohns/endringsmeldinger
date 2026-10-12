@@ -1457,6 +1457,15 @@ følges i [milepælen FK](https://github.com/khjohns/endringsmeldinger/milestone
 > (#395). Ikke bygget: lagringsformen i datalaget for Azure SQL (F0b), leveringen
 > (#371) og resten av byggedel 1.
 
+> **Merknad 2026-10-12 til FK, runde 15:** byggedel 1 er levert (del av #309).
+> Byggherrens senere begrunnelse er bygget i kjernen etter [KA-U34](#ka-u34) og
+> [KA-U35](#ka-u35). Når kravene er avgjort, sier avvisningen hvordan de ble
+> avgjort ([KA-U11](#ka-u11), #448, PR #458). Grunnlagsradene i domenetabellen er
+> prøvd mot kjernen med bevis-saker, uten avvik (PR #450 og PR #462).
+> Feilinnføringene er kjørt i CI og alle oppdaget (K 12.10, `a70591c` i PR #458).
+> Følge i radene for KA-U34 og KA-U35 sier fortsatt «Ikke bygget». Ikke bygget:
+> [KA-U36](#ka-u36) (#468), leveringen (#371) og de neste byggedelene av #309.
+
 ### F3 — Øvrige adaptere og drift
 
 **Avhenger av:** F2 grønn. Utvid én adapter om gangen.
