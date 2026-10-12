@@ -6994,7 +6994,7 @@
         "VS-06"
       ],
       "start": "krav_irreg",
-      "forslag": "#411 (12.10): når et fristkrav er sendt, avvises et nytt varsel fra appen; et varsel sendt tidligere utenfor appen registreres med sin dato",
+      "forslag": "VS-U16: når et fristkrav er sendt, avvises et nytt varsel fra appen; et varsel sendt tidligere utenfor appen registreres med sin dato",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -7024,7 +7024,7 @@
           "etter": 0,
           "rolle": "mal",
           "kilde": [
-            "VS-U15",
+            "VS-U16",
             "MM-U8"
           ],
           "forventet": {
@@ -7042,7 +7042,7 @@
           "etter": 1,
           "rolle": "mal",
           "kilde": [
-            "VS-U15",
+            "VS-U16",
             "MM-U8"
           ],
           "forventet": {
@@ -7399,7 +7399,7 @@
         "VS-06"
       ],
       "start": "krav_irreg",
-      "forslag": "#411 (12.10), GR-U5: er fristkravet trukket, avvises varselet fra appen fordi sporet er lukket",
+      "forslag": "VS-U16 og GR-U5: er fristkravet trukket, avvises varselet fra appen fordi sporet er lukket",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {

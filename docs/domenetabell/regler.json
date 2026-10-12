@@ -704,6 +704,13 @@
       "dato": "2026-10-12",
       "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u20",
       "radetikett": "MM-U20: et svar fra byggherren på et krav etter at TE har trukket det, eller TEs aksept, etter trekket, av et svar i sporet, hører til vedtakene om lukking som MM-U18 viser til"
+    },
+    {
+      "id": "VS-U16",
+      "type": "vedtak",
+      "dato": "2026-10-12",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u16",
+      "radetikett": "VS-U16: Når et fristkrav er sendt, avvises et nytt varsel etter § 33.4 fra appen"
     }
   ],
   "rader": [
@@ -2256,7 +2263,7 @@
     {
       "id": "VS-06",
       "tilfelle": "TE sender et eget varsel etter § 33.4 fra appen, uten dager, før fristkravet.",
-      "forventet": "Varselet er et eget brev med serverens dato og teksten i VS-U15, og det er sporets registrerte varsel: svaret på et senere fristkrav vurderer rettidigheten av det, og byggherren kan gjøre innsigelse mot det. Et nytt varsel, sendt eller registrert, og et fristkrav som oppgir en dato for varselet, avvises (VARSEL_REGISTRERT). Varselet avvises før grunnlaget er sendt og etter «ingen krav» i fristsporet, som registreringen. Når et fristkrav er sendt, avvises et varsel fra appen (FRISTKRAV_SENDT), mens et varsel sendt tidligere utenfor appen kan registreres med sin dato (oppdragsgiver 12.10, #411).",
+      "forventet": "Varselet er et eget brev med serverens dato og teksten i VS-U15, og det er sporets registrerte varsel: svaret på et senere fristkrav vurderer rettidigheten av det, og byggherren kan gjøre innsigelse mot det. Et nytt varsel, sendt eller registrert, og et fristkrav som oppgir en dato for varselet, avvises (VARSEL_REGISTRERT). Varselet avvises før grunnlaget er sendt og etter «ingen krav» i fristsporet, som registreringen. Når et fristkrav er sendt, avvises et varsel fra appen (FRISTKRAV_SENDT), mens et varsel sendt tidligere utenfor appen kan registreres med sin dato (VS-U16).",
       "bh_standpunkt": "Byggherrens vurdering av varselet: for sent.",
       "rettslig_virkning": "Appen avgjør ikke om varselet kom i tide.",
       "rettidighet": "Byggherrens vurdering av varselet etter § 33.4.",
@@ -2268,7 +2275,8 @@
         "VS-U1",
         "VS-U9",
         "KA-U15",
-        "MM-U8"
+        "MM-U8",
+        "VS-U16"
       ],
       "tolkningsstatus": "avklart_tolkning"
     }

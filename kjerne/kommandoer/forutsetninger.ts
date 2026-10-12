@@ -190,7 +190,7 @@ export function forutsetninger(h: Handlingsnoekkel, part: Part, u: Utledning): A
       // SK-12 og MM-U1: et registrert varsel er låst. Et utledet varsel er ikke registrert.
       if (s.varsel)
         return avvis('VARSEL_REGISTRERT', 'Varselet er registrert og kan ikke flyttes (SK-12).');
-      // #411, 12.10: etter et fristkrav kan varselet fra appen bare få en senere dato enn
+      // VS-U16: etter et fristkrav kan varselet fra appen bare få en senere dato enn
       // kravet. Et varsel sendt tidligere utenfor appen registreres (MM-U8).
       if (h.type === 'sende_varsel' && s.krav.length)
         return avvis(
