@@ -51,8 +51,10 @@ kjenner, stopper kallet, og det gjør også `xargs` og andre programmer som har
 `git`, `gh` eller et skall blant argumentene. Commit og push må stå i et kall
 med bare git-ledd og eventuelt `cd` eller `git -C` til ditt eget arbeidstre,
 fordi kontrollen leser arbeidstreet kallet starter i. Miljøvariabler som
-`GIT_DIR`, `EDITOR` og `PAGER` stoppes. Med `gh api` kan du skrive til PR-en,
-kommentarer og etiketter, ikke til andre endepunkter eller GraphQL. Den slipper bare gjennom
+`GIT_DIR`, `HOME`, `EDITOR` og `PAGER` stoppes. Med `gh api` kan du skrive til
+PR-en, kommentarer og etiketter, ikke til andre endepunkter eller GraphQL. En
+PR kan bare få endret tittel og beskrivelse. Git-hookene i `.husky/` stoppes
+som hookoppsettet. Den slipper bare gjennom
 `git push [-u] origin <utsjekket gren>`, uten andre flagg, i en egen kommando
 uten commit og uten endring av treet. Den stopper ikke den som vil omgå den
 med vilje. Mangler `node`, slipper alle kall gjennom: Claude Code regner bare
