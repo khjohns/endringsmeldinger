@@ -32,7 +32,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 ## Vedtakene
 
-### GR-U10
+### <a id="gr-u10"></a>GR-U10
 
 > GR-U10: har byggherren godkjent grunnlaget uten å påberope preklusjon, er partene enige ved sammenfall, og byggherren er bundet. Byggherren kan ikke revidere godkjenningen. Etter § 32.3 a er svaret en endringsordre. «Låst» er ikke lenger et eget begrep, men enighet. Frafall (GR-U9) er byggherrens standpunkt og kan fortsatt revideres
 
@@ -44,7 +44,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Bevis-saker som viser til vedtaket:** F-MM-A5b (målmodellen), F-MM-AC (målmodellen), F-MM-G10 (målmodellen), F-MM-G13 (målmodellen), F-MM-G14 (målmodellen), F-MM-G15 (målmodellen), F-MM-G18 (målmodellen), F-MM-U326c (målmodellen), F-MM-U326e (målmodellen), F-MM-T4 (målmodellen), F-MM-T5 (målmodellen), F-MM-U20c-kontroll (målmodellen), F-MM-U20f (målmodellen), F-MM-U20j (målmodellen), F-MM-K7 (målmodellen), F-MM-G28 (målmodellen), F-MM-G30 (målmodellen), F-MM-G30-kontroll (målmodellen), F-MM-G36 (målmodellen), F-MM-G35 (målmodellen)
 
-### GR-U12
+### <a id="gr-u12"></a>GR-U12
 
 > GR-U12: godkjenner byggherren grunnlaget uten å påberope preklusjon i en underkategori der § 32.2 gjaldt da brevet ble sendt (GR-U11), er svaret en endringsordre etter § 32.3 første ledd a, også når brevet ikke sier noe om varslingen. Det gjelder også registrert korrespondanse. Beslutningsgrunnlaget fryser derfor om § 32.2 gjaldt, som en del av virkningen brevet hadde (MM-U9, MM-U11). Frontenden varsler byggherren og betegner svaret som en endringsordre, slik at byggherren tydelig forstår virkningen.
 
@@ -58,7 +58,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Bevis-saker som viser til vedtaket:** F-MM-G18 (målmodellen), F-MM-R1 (målmodellen), F-MM-R1-kontroll (målmodellen), F-MM-G20 (målmodellen), F-MM-G21 (målmodellen), F-MM-G19 (målmodellen), F-MM-V2 (målmodellen), F-MM-V2-kontroll (målmodellen), F-MM-V3 (målmodellen), F-MM-V7 (målmodellen), F-MM-M5 (målmodellen), F-MM-T3 (målmodellen)
 
-### GR-U13
+### <a id="gr-u13"></a>GR-U13
 
 > GR-U13: byggherrens godkjenning av grunnlaget er en endringsordre etter § 32.3 første ledd a bare når også § 31.3 er oppfylt: endringsordren «skal være skriftlig og gi beskjed om at det kreves en endring, samt hva endringen går ut på», og den «må være gitt av byggherrens representant, jf. punkt 9, eller av en person med skriftlig fullmakt til å utstede slike». For brev sendt fra appen sørger appen for det: brevet sier at endringen kreves og viser til pålegget i varselet, og fullmakten kontrolleres i godkjenningsflyten (GFK-06). For registrert korrespondanse oppgir den som registrerer, om brevet var en endringsordre etter § 31.3. Opplysningen er registratorens vurdering og ikke en rettslig avgjørelse. Mangler opplysningen, vet appen ikke om brevet er en endringsordre, og manglende opplysning er ikke nok til å konkludere (KA-U14). Om § 32.2 gjaldt (GR-U12), fryses i beslutningsgrunnlaget som appens vurdering etter reglene og underkategorien da brevet ble sendt, med regelversjonen, atskilt fra det byggherren sa (MM-U12).
 
@@ -72,9 +72,11 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Bevis-saker som viser til vedtaket:** F-MM-G18 (målmodellen), F-MM-G20 (målmodellen), F-MM-G21 (målmodellen), F-MM-G22 (målmodellen), F-MM-V2 (målmodellen), F-MM-V2-kontroll (målmodellen), F-MM-T2 (målmodellen), F-MM-V7 (målmodellen), F-MM-M5 (målmodellen), F-MM-T4 (målmodellen), F-MM-T5 (målmodellen)
 
-### GR-U14
+### <a id="gr-u14"></a>GR-U14
 
-> GR-U14: et grunnlagssvar fra appen som etter GR-U12 og GR-U13 er en endringsordre, sier: «Byggherren godkjenner grunnlaget. Svaret er en endringsordre etter NS 8407 § 32.3 første ledd a, jf. § 31.3: byggherren krever at endringen utføres slik pålegget er beskrevet i TEs krav i brev <n> av <dato>: «<TEs beskrivelse av pålegget>».» Brevet <n> er det med kravversjonen svaret gjelder (HF-U1), også etter en ny kravversjon. Byggherrens låste tekst siterer da en fritekst fra TE som appen ikke tolker (KA-U19). Byggherren står bak sitatet som beskrivelse av endringen. Setningen velges når byggherren godkjenner grunnlaget uten å påberope preklusjon, og § 32.2 gjaldt. Den er byggherrens utsagn: byggherren ser og godkjenner den (GR-U12), og den er derfor ikke appens vurdering. Er TEs krav sendt utenfor appen og registrert, viser setningen til det registrerte brevet uten sitat: «… byggherren krever at endringen utføres slik pålegget er beskrevet i TEs krav i brev <n> av <dato>.» Forkastet for registrerte krav: «Byggherren beskriver» – «Byggherren må selv beskrive endringen i godkjenningen. Uten en slik beskrivelse avvises godkjenningen.» og «Avvis godkjenningen» – «En slik godkjenning avvises i appen, og byggherren må svare utenfor appen.»
+> GR-U14: et grunnlagssvar fra appen som etter GR-U12 og GR-U13 er en endringsordre, sier: «Byggherren godkjenner grunnlaget. Svaret er en endringsordre etter NS 8407 § 32.3 første ledd a, jf. § 31.3: byggherren krever at endringen utføres slik pålegget er beskrevet i TEs krav i brev <n> av <dato>: «<TEs beskrivelse av pålegget>».» Brevet <n> er det med kravversjonen svaret gjelder (HF-U1), også etter en ny kravversjon. Byggherrens låste tekst siterer da en fritekst fra TE som appen ikke tolker (KA-U19). Byggherren står bak sitatet som beskrivelse av endringen. Setningen velges når byggherren godkjenner grunnlaget uten å påberope preklusjon, og § 32.2 gjaldt. Den er byggherrens utsagn: byggherren ser og godkjenner den (GR-U12), og den er derfor ikke appens vurdering. Er TEs krav sendt utenfor appen og registrert, viser setningen til det registrerte brevet uten sitat: «… byggherren krever at endringen utføres slik pålegget er beskrevet i TEs krav i brev <n> av <dato>.»
+
+**Forkastet for registrerte krav:** «Byggherren beskriver» – «Byggherren må selv beskrive endringen i godkjenningen. Uten en slik beskrivelse avvises godkjenningen.» og «Avvis godkjenningen» – «En slik godkjenning avvises i appen, og byggherren må svare utenfor appen.»
 
 **Vedtatt:** 11.10, oppdragsgiver (#369, #410)
 
@@ -84,7 +86,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Bevis-saker som viser til vedtaket:** —
 
-### GR-U15
+### <a id="gr-u15"></a>GR-U15
 
 > GR-U15: TEs varsel etter § 32.2 fra appen må ha en beskrivelse av pålegget. Følgen for TE: et varsel uten beskrivelse avvises i appen. Varselet skal gis «uten ugrunnet opphold» (§ 32.2), så TE kan miste tid eller må varsle utenfor appen og registrere varselet.
 
@@ -98,7 +100,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Bevis-saker som viser til vedtaket:** —
 
-### MM-U17
+### <a id="mm-u17"></a>MM-U17
 
 > MM-U17: for et brev sendt utenfor appen og registrert i den, fryser beslutningsgrunnlaget appens vurdering etter reglene ved registreringen, merket «appens vurdering ved registreringen». Brevets innhold står som det ble sendt. Begrunnelsen er at den som sender et brev, er bundet av det hen har meddelt og har ansvaret for innholdet, og at bare for brev sendt fra appen har noen støttet seg på appens regel. Det trengs da ingen historikk over regelsett med datoer, og ingen gjetting ved ukjent dato eller brev fra før appen.
 

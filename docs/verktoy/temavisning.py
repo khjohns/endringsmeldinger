@@ -31,10 +31,11 @@ import sys
 import tomllib
 
 _spesifikasjon = importlib.util.spec_from_file_location(
-    "vedtaksregister", pathlib.Path(__file__).resolve().parent / "vedtaksregister.py"
+    "vedtakshenvisninger", pathlib.Path(__file__).resolve().parent / "vedtakshenvisninger.py"
 )
-vr = importlib.util.module_from_spec(_spesifikasjon)
-_spesifikasjon.loader.exec_module(vr)
+vh = importlib.util.module_from_spec(_spesifikasjon)
+_spesifikasjon.loader.exec_module(vh)
+vr = vh.vr
 
 ROT = vr.ROT
 TEMAER = ROT / "docs" / "vedtaksregister" / "temaer.toml"
@@ -48,7 +49,8 @@ BEVIS = {
 TIL_PLANEN = "../../plans/2026-09-16-godkjenning-og-varig-levering.md"
 TIL_TABELLEN = "../../domenetabell/README.md#tabellen"
 LENKE = re.compile(r"\]\(#([^)\s]+)\)")
-FORKASTET = " Forkastet: "
+# «Forkastet:», og formene med en avgrensning foran kolonet, som «Forkastet foreløpig:».
+FORKASTET = re.compile(r"(?<= )Forkastet[^:.«]{0,60}: ")
 
 
 def les_temaer(sti: pathlib.Path = TEMAER) -> list[dict]:
@@ -76,6 +78,7 @@ def _forhold(register: dict) -> list[tuple[str, str, str]]:
 def feil(tema: dict, register: dict) -> list[str]:
     alle = {vr.anker(p) for p in vr.poster(register) if vr.anker(p)}
     medlemmer = {v.lower() for v in tema["vedtak"]}
+    kjerne = {v.lower() for v in tema["kjerne"]}
     meldinger = [
         f"{tema['id']}: {v} er ikke et vedtak med anker i registeret"
         for v in [*tema["kjerne"], *tema["vedtak"]]
@@ -86,7 +89,7 @@ def feil(tema: dict, register: dict) -> list[str]:
         for v in tema["kjerne"]
         if v.lower() not in medlemmer
     ]
-    if len(set(tema["vedtak"])) != len(tema["vedtak"]):
+    if len(medlemmer) != len(tema["vedtak"]) or len(kjerne) != len(tema["kjerne"]):
         meldinger.append(f"{tema['id']}: et vedtak står mer enn én gang")
     meldinger += [
         f"{tema['id']}: {fra.upper()} {art} {til.upper()}, men står ikke i temaet"
@@ -100,6 +103,11 @@ def _medlemmer(tema: dict, register: dict) -> list[dict]:
     """Postene i temaet, i rekkefølgen i 3.1."""
     medlemmer = {v.lower() for v in tema["vedtak"]}
     return [p for p in vr.poster(register) if vr.anker(p) in medlemmer]
+
+
+def _ider(poster: list[dict]) -> set[str]:
+    """Vedtaks-ID-ene regelradene og bevis-sakene viser til, som «GR-U10» og «B-03»."""
+    return set().union(*(vh._ider(p) for p in poster))
 
 
 def _rader(ider: set[str], regler: dict) -> list[dict]:
@@ -123,13 +131,15 @@ def utdrag(tema: dict, kilder: dict) -> dict:
     """Det visningen leser. Kontrollsummen tas over dette."""
     register = kilder["register"]
     medlemmer = _medlemmer(tema, register)
-    ider = {vr.etikett(p) for p in medlemmer}
+    ider = _ider(medlemmer)
+    ankre = {vr.anker(p) for p in medlemmer}
+    ix = vr.indeks(register)
     rader = _rader(ider, kilder["regler"])
     radider = {r["id"] for r in rader}
-    alle, _ = vr.indeks(register)
+    alle, _ = ix
     lenket = sorted(
-        {m.group(1) for p in medlemmer for m in LENKE.finditer(vr.folgecelle(p, register))}
-        | {til for fra, _, til in _forhold(register) if fra in {vr.anker(p) for p in medlemmer}}
+        {m.group(1) for p in medlemmer for m in LENKE.finditer(vr.folgecelle(p, register, ix))}
+        | {a for fra, _, til in _forhold(register) for a in (fra, til) if ankre & {fra, til}}
     )
     return {
         "tema": tema,
@@ -137,7 +147,7 @@ def utdrag(tema: dict, kilder: dict) -> dict:
         "senere": [
             (vr.anker(p), f) for p in vr.poster(register) if vr.er_ny(p)
             for f in p.get("forhold", [])
-            if f["vedtak"] in {vr.anker(m) for m in medlemmer}
+            if f["vedtak"] in ankre
         ],
         "etiketter": {a: vr.etikett(alle[a]) for a in lenket if a in alle},
         "rader": rader,
@@ -150,8 +160,8 @@ def utdrag(tema: dict, kilder: dict) -> dict:
     }
 
 
-def kontrollsum(tema: dict, kilder: dict) -> str:
-    tekst = json.dumps(utdrag(tema, kilder), ensure_ascii=False, sort_keys=True, default=str)
+def kontrollsum(ut: dict) -> str:
+    tekst = json.dumps(ut, ensure_ascii=False, sort_keys=True, default=str)
     return hashlib.sha256(tekst.encode("utf-8")).hexdigest()
 
 
@@ -163,15 +173,20 @@ def _lenker(tekst: str, medlemmer: set[str]) -> str:
     )
 
 
-def _vedtak_og_forkastet(post: dict) -> tuple[str, list[str]]:
-    if vr.er_ny(post):
-        valgt = f"{post['id']}: {vr.linje(vr._valgt(post)['tekst'])}"
-        return valgt, [f"«{vr.linje(a['tekst'])}»" for a in post["alternativ"] if a.get("forkastet")]
-    tekst = vr.linje(post["vedtak"])
-    if FORKASTET in tekst:
-        vedtak, forkastet = tekst.split(FORKASTET, 1)
-        return vedtak, [forkastet]
-    return tekst, []
+def vedtak_og_forkastet(post: dict) -> tuple[str, list[tuple[str, str]]]:
+    """Vedtaksteksten i 3.1, delt i vedtaket og de forkastede alternativene, hvert med merket sitt.
+
+    Satt sammen med ett mellomrom er delene lik teksten i 3.1.
+    """
+    tekst = vr.vedtakscelle(post).split("</a>", 1)[-1]
+    treff = list(FORKASTET.finditer(tekst))
+    if not treff:
+        return tekst, []
+    deler = [
+        (t.group(0).rstrip(), tekst[t.end() : neste.start() - 1 if neste else None])
+        for t, neste in zip(treff, [*treff[1:], None])
+    ]
+    return tekst[: treff[0].start() - 1], deler
 
 
 def _radanker(rad: str) -> str:
@@ -187,6 +202,7 @@ def visning(tema: dict, kilder: dict) -> str:
     register = kilder["register"]
     ut = utdrag(tema, kilder)
     poster = ut["poster"]
+    kjerne = {v.lower() for v in tema["kjerne"]}
     medlemmer = {vr.anker(p) for p in poster}
     etiketter = ut["etiketter"] | {vr.anker(p): vr.etikett(p) for p in poster}
     ix = vr.indeks(register)
@@ -196,8 +212,7 @@ def visning(tema: dict, kilder: dict) -> str:
     def lenke(a: str) -> str:
         return _vedtakslenke(a, etiketter, medlemmer)
 
-    kjerne = ", ".join(lenke(v.lower()) for v in tema["kjerne"])
-    tillagt = [v for v in tema["vedtak"] if v not in tema["kjerne"]]
+    tillagt = [vr.anker(p) for p in poster if vr.anker(p) not in kjerne]
     linjer = [
         f"# Regelgrunnlaget: {tema['tittel'][0].lower()}{tema['tittel'][1:]}",
         "",
@@ -214,10 +229,10 @@ def visning(tema: dict, kilder: dict) -> str:
             "ordlyd: hva som gjelder, leses av vedtakene sammen, etter forholdene."
         ),
         "",
-        f"Temaet er {kjerne} ({', '.join(tema['kilde'])}). "
+        f"Temaet er {', '.join(lenke(v.lower()) for v in tema['kjerne'])} ({', '.join(tema['kilde'])}). "
         + (
             "I tillegg står vedtakene som endrer, utvider, snevrer inn, presiserer eller "
-            f"opphever et vedtak i temaet: {', '.join(lenke(v.lower()) for v in tillagt)}. "
+            f"opphever et vedtak i temaet: {', '.join(lenke(a) for a in tillagt)}. "
             if tillagt
             else ""
         )
@@ -233,7 +248,7 @@ def visning(tema: dict, kilder: dict) -> str:
             "og [`docs/domenetabell/bevis-saker-maalmodell.json`](../../domenetabell/bevis-saker-maalmodell.json)"
         ),
         "",
-        f"Kontrollsum (SHA-256 over utdraget visningen leser): `{kontrollsum(tema, kilder)}`",
+        f"Kontrollsum (SHA-256 over utdraget visningen leser): `{kontrollsum(ut)}`",
         "",
         "Lag visningen på nytt med `python3 docs/verktoy/temavisning.py`.",
         "",
@@ -256,11 +271,11 @@ def visning(tema: dict, kilder: dict) -> str:
         linjer.append(f"| {lenke(a)} | {'; '.join(aktive) or '—'} | {'; '.join(passive) or '—'} |")
     linjer += ["", "## Vedtakene", ""]
     for p in poster:
-        ider = {vr.etikett(p)}
-        vedtak, forkastet = _vedtak_og_forkastet(p)
-        linjer += [f"### {vr.etikett(p)}", "", f"> {_lenker(vedtak, medlemmer)}", ""]
-        linjer += [f"**Forkastet:** {_lenker(f, medlemmer)}" for f in forkastet]
-        linjer += [""] if forkastet else []
+        ider = _ider([p])
+        vedtak, forkastet = vedtak_og_forkastet(p)
+        linjer += [f'### <a id="{vr.anker(p)}"></a>{vr.etikett(p)}', "", f"> {_lenker(vedtak, medlemmer)}", ""]
+        for merke, tekst in forkastet:
+            linjer += [f"**{merke}** {_lenker(tekst, medlemmer)}", ""]
         linjer += [
             f"**Vedtatt:** {vr.vedtattcelle(p)}",
             "",
@@ -284,7 +299,7 @@ def visning(tema: dict, kilder: dict) -> str:
         "| Rad | Tilfelle | Vedtak i temaet | Bevis-saker |",
         "| --- | --- | --- | --- |",
     ]
-    anker_for = {vr.etikett(p): vr.anker(p) for p in poster}
+    anker_for = {i: vr.anker(p) for p in poster for i in _ider([p])}
     for r in ut["rader"]:
         i_temaet = ", ".join(lenke(anker_for[k]) for k in r["kilder"] if k in anker_for)
         tilfelle = r["tilfelle"].replace("|", "\\|")
@@ -299,6 +314,11 @@ def sti(tema: dict) -> pathlib.Path:
     return MAPPE / f"{tema['id']}.md"
 
 
+def foreldreloese(temaer: list[dict]) -> list[pathlib.Path]:
+    """Visninger i mappen uten et tema i temaer.toml."""
+    return sorted(set(MAPPE.glob("*.md")) - {sti(t) for t in temaer})
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--sjekk", action="store_true", help="bare kontroller, skriv ingenting")
@@ -306,6 +326,7 @@ def main() -> int:
     kilder = les_kilder()
     temaer = les_temaer()
     meldinger = [m for t in temaer for m in feil(t, kilder["register"])]
+    meldinger += [f"{s.relative_to(ROT)} har ikke noe tema i temaer.toml" for s in foreldreloese(temaer)]
     if meldinger:
         print("\n".join(meldinger), file=sys.stderr)
         return 1
