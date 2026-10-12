@@ -68,16 +68,17 @@ const SKRIVENDE_UTEN_STI = [
 // gh-kall som merger PR-en eller oppdaterer den mot main.
 const GH_MERGE = /(\/pulls\/\S+\/merge\b|\bpr\s+merge\b|\/update-branch\b)/;
 
-// Endepunktene mekanisk-pr kan skrive til med gh api, med feltene hvert av dem kan få.
+// Endepunktene mekanisk-pr kan skrive til med gh api, med feltene hvert av dem kan få. Stien
+// etter `repos/<eier>/<repo>` må passe hele mønsteret.
 const GH_SKRIVING_TILLATT = [
-  [/\/pulls$/, ['title', 'head', 'base', 'body', 'draft', 'maintainer_can_modify']],
-  [/\/pulls\/\d+$/, ['title', 'body']],
-  [/\/(issues|pulls)\/\d+\/labels$/, ['labels']],
-  [/\/pulls\/\d+\/requested_reviewers$/, ['reviewers', 'team_reviewers']],
-  [/\/(issues\/\d+\/comments|issues\/comments\/\d+|pulls\/comments\/\d+)$/, ['body']],
-  [/\/pulls\/\d+\/comments\/\d+\/replies$/, ['body']],
+  [/^\/pulls$/, ['title', 'head', 'base', 'body', 'draft', 'maintainer_can_modify']],
+  [/^\/pulls\/\d+$/, ['title', 'body']],
+  [/^\/(issues|pulls)\/\d+\/labels$/, ['labels']],
+  [/^\/pulls\/\d+\/requested_reviewers$/, ['reviewers', 'team_reviewers']],
+  [/^\/(issues\/\d+\/comments|issues\/comments\/\d+|pulls\/comments\/\d+)$/, ['body']],
+  [/^\/pulls\/\d+\/comments\/\d+\/replies$/, ['body']],
   [
-    /\/pulls\/\d+\/comments$/,
+    /^\/pulls\/\d+\/comments$/,
     [
       'body',
       'commit_id',
@@ -91,7 +92,7 @@ const GH_SKRIVING_TILLATT = [
     ],
   ],
 ];
-const GH_REPO_STI = /^\/?repos\/[\w.-]+\/[\w.-]+\//;
+const GH_REPO_STI = /^\/?repos\/[\w.-]+\/[\w.-]+(?=\/)/;
 // Underkommandoene mekanisk-pr kan bruke i gh utenom api. Står det ingen liste, er alle tillatt.
 // `pr merge` stoppes av GH_MERGE og `pr edit --base` for seg.
 const GH_TILLATT = new Map([
@@ -736,8 +737,13 @@ function ghSkriving([underkommando, ...resten]) {
     if (kall.ukjent) return `${kall.ukjent} i gh api kan vakten ikke tolke sikkert.`;
     if (GRAPHQL.test(kall.endepunkt)) return 'mekanisk-pr bruker ikke gh api graphql.';
     if (kall.metode === 'DELETE') return 'mekanisk-pr sletter ikke med gh api.';
+    // GitHub ser bort fra spørrestrengen og dekoder prosentkoding, så de kan skjule endepunktet.
+    if (/[?#%]/.test(kall.endepunkt)) {
+      return `Endepunktet ${kall.endepunkt} har ?, # eller %, som kan skjule hvor kallet skriver.`;
+    }
+    const sti = kall.endepunkt.replace(GH_REPO_STI, '');
     const tillatte = GH_REPO_STI.test(kall.endepunkt)
-      ? GH_SKRIVING_TILLATT.find(([sti]) => sti.test(kall.endepunkt))?.[1]
+      ? GH_SKRIVING_TILLATT.find(([monster]) => monster.test(sti))?.[1]
       : undefined;
     if (!tillatte) {
       return `mekanisk-pr skriver med gh api bare til PR-er og kommentarer, ikke ${kall.endepunkt}.`;
@@ -938,6 +944,13 @@ function vurder(input) {
     const nye = git(rot, 'ls-files', '-z', '--others', '--exclude-standard');
     const filer = sperredeFiler(`${endret}\0${nye}`);
     if (filer.length) return `Endringer i sperrede mapper: ${filer.join(', ')}.`;
+  }
+  // Husky kjører `.husky/pre-push` fra arbeidstreet, så den må være committet før push.
+  if (rot && pushArgumenter.length) {
+    const endret = git(rot, 'diff', '-z', '--name-only', '--no-renames', 'HEAD', '--', '.husky');
+    const nye = git(rot, 'ls-files', '-z', '--others', '--exclude-standard', '--', '.husky');
+    const husky = `${endret}\0${nye}`.split('\0').filter(Boolean);
+    if (husky.length) return `Endringer i .husky som ikke er committet: ${husky.join(', ')}.`;
   }
   for (const argumenter of pushArgumenter) {
     if (!rot) return 'Ikke i et git-arbeidstre.';
