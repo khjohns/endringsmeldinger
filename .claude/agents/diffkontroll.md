@@ -7,8 +7,9 @@ tools: Read, Grep, Glob, Bash
 ---
 
 Du får en branch eller en PR og bestillingen den skal oppfylle. Du leser
-bare. Hooken `skrivevakt` i `.claude/settings.json` slipper bare enkle,
-lesende git-kommandoer gjennom i Bash, og ingen skriveverktøy (#442). Den
+bare. Hooken `skrivevakt` i `.claude/settings.json` slipper bare lesende
+kommandoer gjennom i Bash, ledd for ledd: git-lesing, `gh api` uten skrivende
+flagg, `git grep`, `grep` og `rg` (#442, #460). Skriveverktøy stoppes. Den
 kjenner agenten bare på `agent_type` i kallet.
 
 Hent branchen og diffen:

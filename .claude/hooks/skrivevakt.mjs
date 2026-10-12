@@ -2,8 +2,8 @@
 // PreToolUse-hook for subagentene mekanisk-pr og diffkontroll (#439). Leser
 // hook-input som JSON på stdin og avslutter med kode 2 og en melding på stderr
 // når kallet ville skrive i en sperret mappe eller utenfor arbeidstreet. Med
-// --bare-lesing slipper den bare lesende git-kommandoer gjennom i Bash. Med
-// --etter-agent, slik .claude/settings.json kaller den, velger den vakt etter
+// --bare-lesing slipper den bare lesende kommandoer gjennom i Bash (git, gh api,
+// grep og rg). Med --etter-agent, slik .claude/settings.json kaller den, velger den vakt etter
 // agent_type og slipper alle andre kall gjennom (#442). Hva den ikke fanger,
 // står i .claude/agents/mekanisk-pr.md.
 import { execFileSync } from 'node:child_process';
@@ -15,8 +15,9 @@ const SKRIVEVERKTOY = ['Edit', 'Write', 'MultiEdit', 'NotebookEdit'];
 
 const SPERREDE_MAPPER = ['kjerne', 'server', 'backend', 'supabase', 'sprakprove'];
 
+// Skallet avslutter et ord også ved `;`, `&`, `|`, `)` og backtick, så de avgrenser mappenavnet.
 const SPERRET_MAPPE = new RegExp(
-  `(^|[\\s'"=:(/<>;&|{])\\.?/?(${SPERREDE_MAPPER.join('|')})(/|\\s|$|['"])`
+  `(^|[\\s'"=:(/<>;&|{\`])\\.?/?(${SPERREDE_MAPPER.join('|')})(/|[\\s;&|)\`'"]|$)`
 );
 
 // Kommandoer og operatorer som kan skrive en fil som er nevnt i kommandoen.
@@ -28,6 +29,8 @@ const SKRIVENDE = [
   /\b(mv|cp|rm|rmdir|touch|mkdir|ln|chmod|truncate|dd|install|rsync|unlink)\b/,
   /\bgit\s+(checkout|restore|rm|mv|reset|clean|stash|init|clone|submodule|worktree)\b/,
   /\b(python3?|node|ruby|perl)\b[^|;&]*\s-[a-zA-Z]*[ce]\b/,
+  // --output (og forkortelser av det) skriver til fila i flagget.
+  /--out\w*/,
 ];
 
 // Skriver filer uten at stien står i kommandoen.
@@ -108,27 +111,190 @@ function ledd(kommando) {
     .filter(Boolean);
 }
 
-// For diffkontroll: et lite sett lesende git-kommandoer med flagg fra en
-// tillatelsesliste. git godtar forkortede lange flagg, så en sperreliste holder ikke.
-const LESENDE_GIT =
-  /^git(?:\s+-C\s+\S+)?\s+(diff|log|show|status|rev-parse|merge-base|ls-files|fetch)((?:\s+\S+)*)$/;
-const LESENDE_FLAGG =
-  /^(--stat|--name-only|--name-status|--oneline|--no-color|--cached|--short|--abbrev-ref|--verify|--quiet|-q|-p|-n|-\d+|-U\d+|--)$/;
+// Omdirigering som ikke skriver: `2>&1` og `>/dev/null`. Alle andre `>` og `<` gjør leddet ukjent.
+const UFARLIG_OMDIRIGERING = /^>(&\d+|\s*\/dev\/null(?=$|[\s;&|)]))/;
+const ESCAPE_I_ANFORSEL = '$`"\\\n';
 
-/** For diffkontroll: bare enkle, lesende git-kommandoer i Bash. */
+/**
+ * Deler en kommando i ledd og ord med skallets regler for anførselstegn og escape.
+ * `ukjent` settes når et ledd har substitusjon, variabler, globber, klammer, `#`,
+ * subshell, heredoc eller omdirigering til fil: det kan ikke leses uten å kjøre skallet.
+ */
+function lekser(tekst) {
+  const liste = [];
+  let ord = [];
+  let innhold = '';
+  let harOrd = false;
+  let ukjent = false;
+
+  const avsluttOrd = () => {
+    if (harOrd) ord.push(innhold);
+    innhold = '';
+    harOrd = false;
+  };
+  const avsluttLedd = () => {
+    avsluttOrd();
+    if (ord.length || ukjent) liste.push({ ord, ukjent });
+    ord = [];
+    ukjent = false;
+  };
+
+  for (let i = 0; i < tekst.length; i++) {
+    const tegn = tekst[i];
+    if (tegn === "'") {
+      harOrd = true;
+      const slutt = tekst.indexOf("'", i + 1);
+      if (slutt === -1) {
+        ukjent = true;
+        innhold += tekst.slice(i + 1);
+        break;
+      }
+      innhold += tekst.slice(i + 1, slutt);
+      i = slutt;
+    } else if (tegn === '"') {
+      harOrd = true;
+      let j = i + 1;
+      for (; j < tekst.length && tekst[j] !== '"'; j++) {
+        const inni = tekst[j];
+        const neste = tekst[j + 1];
+        if (inni === '\\' && neste !== undefined && ESCAPE_I_ANFORSEL.includes(neste)) {
+          innhold += neste;
+          j++;
+        } else {
+          if (inni === '$' || inni === '`') ukjent = true;
+          innhold += inni;
+        }
+      }
+      if (j >= tekst.length) ukjent = true;
+      i = j;
+    } else if (tegn === '\\') {
+      harOrd = true;
+      if (i + 1 >= tekst.length || tekst[i + 1] === '\n') ukjent = true;
+      else innhold += tekst[i + 1];
+      i++;
+    } else if (tegn === '>') {
+      const ufarlig = UFARLIG_OMDIRIGERING.exec(tekst.slice(i));
+      if (ufarlig) {
+        if (harOrd && /^\d+$/.test(innhold)) {
+          innhold = '';
+          harOrd = false;
+        }
+        i += ufarlig[0].length - 1;
+      } else {
+        ukjent = true;
+        avsluttOrd();
+      }
+    } else if (tegn === '<') {
+      ukjent = true;
+      avsluttOrd();
+    } else if (tegn === ';' || tegn === '&' || tegn === '|' || tegn === '\n') {
+      avsluttLedd();
+    } else if (tegn === ' ' || tegn === '\t') {
+      avsluttOrd();
+    } else if ('$`(){*?[#'.includes(tegn)) {
+      // `#` er kommentar i ett skall og et vanlig ord i et annet, så leddet er ukjent.
+      ukjent = true;
+      harOrd = true;
+      innhold += tegn;
+    } else {
+      harOrd = true;
+      innhold += tegn;
+    }
+  }
+  avsluttLedd();
+  return liste;
+}
+
+// Flagg som er lesende for git-kommandoene under. git godtar forkortede lange flagg,
+// så flaggene står på en tillatelsesliste, ikke en sperreliste.
+const LESENDE_FLAGG = [
+  /^(--stat|--shortstat|--numstat|--name-only|--name-status|--oneline|--no-color|--cached|--short|--porcelain|--abbrev-ref|--verify|--quiet|--no-patch|--no-ext-diff|--graph|--all|--no-merges|--first-parent|--others|--exclude-standard|--modified|-p|-q|-s)$/,
+  /^(-n|-\d+|-U\d+|--stat=\d+|--unified=\d+|--diff-filter=[A-Za-z]+|--format=.*|--pretty=.*|--grep=.*|--author=.*|--since=.*|--until=.*)$/,
+];
+// git grep: `-O` og `--open-files-in-pager` starter et program, og er ikke med.
+const GREP_FLAGG = [
+  /^-[nilcEFGPwIHhsa]+$/,
+  /^-[ABC]\d*$/,
+  /^(-e|--cached|--no-color|--untracked|--no-index|--line-number|--files-with-matches|--count|--ignore-case|--word-regexp|--fixed-strings|--extended-regexp|--perl-regexp|--name-only)$/,
+];
+const GIT_LESENDE = new Map([
+  ['diff', LESENDE_FLAGG],
+  ['log', LESENDE_FLAGG],
+  ['show', LESENDE_FLAGG],
+  ['status', LESENDE_FLAGG],
+  ['rev-parse', LESENDE_FLAGG],
+  ['merge-base', LESENDE_FLAGG],
+  ['ls-files', LESENDE_FLAGG],
+  ['fetch', LESENDE_FLAGG],
+  ['grep', GREP_FLAGG],
+]);
+// gh api uten -f, -F, --field, --raw-field og --input, og uten metode som ikke er GET.
+const GH_API_LESENDE =
+  /^(-i|--include|-q|--jq(=.*)?|-t|--template(=.*)?|-p|--preview(=.*)?|--paginate|--slurp|--cache(=.*)?|--verbose|--silent|-H|--header(=.*)?|--hostname(=.*)?)$/;
+
+function ulovligFlagg(argumenter, tillatte) {
+  let etterSkille = false;
+  for (const o of argumenter) {
+    if (o === '--') etterSkille = true;
+    else if (!etterSkille && o.startsWith('-') && !tillatte.some((r) => r.test(o))) return o;
+  }
+  return null;
+}
+
+function lesingGit(argumenter) {
+  const start = argumenter[0] === '-C' ? 2 : 0;
+  if (start === 2 && argumenter.length < 2) return 'git -C mangler mappe.';
+  const underkommando = argumenter[start];
+  const tillatte = GIT_LESENDE.get(underkommando);
+  if (!tillatte) return `git ${underkommando ?? '(mangler)'} er ikke en lesende git-kommando.`;
+  const resten = argumenter.slice(start + 1);
+  const ulovlig = ulovligFlagg(resten, tillatte);
+  if (ulovlig) return `Flagget ${ulovlig} står ikke på listen over lesende flagg.`;
+  if (underkommando === 'fetch' && resten.some((o) => !/^[\w./-]+$/.test(o) || o === 'tag')) {
+    return 'fetch bare med navngitte grener, uten refspec eller tagger.';
+  }
+  return null;
+}
+
+function lesingGhApi(argumenter) {
+  if (argumenter[0] !== 'api') return 'gh er bare lesende som gh api.';
+  const resten = argumenter.slice(1);
+  for (let i = 0; i < resten.length; i++) {
+    const o = resten[i];
+    if (o === '-X' || o === '--method') {
+      if (resten[i + 1] !== 'GET') return 'gh api er bare lesende med metoden GET.';
+      i++;
+    } else if (o.startsWith('-') && !/^(-X|--method=)GET$/.test(o) && !GH_API_LESENDE.test(o)) {
+      return `Flagget ${o} i gh api kan skrive.`;
+    }
+  }
+  return null;
+}
+
+/** Begrunnelsen når et ledd ikke er lesende, ellers null. */
+function lesingsBegrunnelse({ ord, ukjent }) {
+  if (ukjent) return 'Skallsyntaksen kan ikke leses statisk.';
+  const [kommando, ...argumenter] = ord;
+  if (kommando === 'grep') return null;
+  if (kommando === 'rg') {
+    return argumenter.some((o) => /^--(pre|hostname-bin)/.test(o))
+      ? 'rg med --pre eller --hostname-bin kjører et program.'
+      : null;
+  }
+  if (kommando === 'gh') return lesingGhApi(argumenter);
+  if (kommando === 'git') return lesingGit(argumenter);
+  return `${kommando} er ikke en lesende kommando.`;
+}
+
+/** For diffkontroll: bare lesende kommandoer i Bash, ledd for ledd. */
 function vurderLesing(input) {
   if (SKRIVEVERKTOY.includes(input.tool_name)) return 'Skriveverktøy er ikke tillatt.';
   if (input.tool_name !== 'Bash') return null;
-  const kommando = String(input.tool_input?.command ?? '').trim();
-  const treff = /[\r\n;&|<>`$()]/.test(kommando) ? null : kommando.match(LESENDE_GIT);
-  if (!treff) return 'Bare enkle, lesende git-kommandoer er tillatt.';
-  const [, underkommando, resten] = treff;
-  const ord = resten.trim().split(/\s+/).filter(Boolean);
-  const flagg = ord.filter((o) => o.startsWith('-'));
-  if (flagg.some((o) => !LESENDE_FLAGG.test(o)))
-    return 'Flagget står ikke på listen over lesende flagg.';
-  if (underkommando === 'fetch' && ord.some((o) => !/^[\w./-]+$/.test(o) || o === 'tag')) {
-    return 'fetch bare med navngitte grener, uten refspec eller tagger.';
+  const leddene = lekser(String(input.tool_input?.command ?? ''));
+  if (!leddene.length) return 'Tom kommando.';
+  for (const del of leddene) {
+    const begrunnelse = lesingsBegrunnelse(del);
+    if (begrunnelse) return begrunnelse;
   }
   return null;
 }
@@ -178,15 +344,22 @@ function vurder(input) {
   }
 
   if (verktoy !== 'Bash') return null;
-  const kommando = String(parametre.command ?? '')
+  const rakKommando = String(parametre.command ?? '');
+  const kommando = rakKommando
     .replace(/[\r\n]+/g, ' ; ')
     .replace(/\d*>&\d|\d*>\s*\/dev\/null/g, '');
 
-  if (SPERRET_MAPPE.test(kommando) && SKRIVENDE.some((m) => m.test(kommando))) {
-    return 'Kommandoen nevner en sperret mappe og kan skrive.';
+  // Når hvert ledd er lesende, skriver kallet ikke, selv om et argument ligner en skrivende
+  // kommando (`grep "ruff format"`). Ellers gjelder de tekstbaserte reglene som før.
+  const leddene = lekser(rakKommando);
+  const lesende = leddene.length > 0 && leddene.every((del) => lesingsBegrunnelse(del) === null);
+  if (!lesende) {
+    if (SPERRET_MAPPE.test(kommando) && SKRIVENDE.some((m) => m.test(kommando))) {
+      return 'Kommandoen nevner en sperret mappe og kan skrive.';
+    }
+    const utenSti = SKRIVENDE_UTEN_STI.find((m) => m.test(kommando));
+    if (utenSti) return `Kommandoen kan skrive filer den ikke nevner (${utenSti}).`;
   }
-  const utenSti = SKRIVENDE_UTEN_STI.find((m) => m.test(kommando));
-  if (utenSti) return `Kommandoen kan skrive filer den ikke nevner (${utenSti}).`;
 
   const deler = ledd(kommando);
   if (
