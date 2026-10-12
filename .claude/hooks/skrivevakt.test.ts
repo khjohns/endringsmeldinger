@@ -361,7 +361,8 @@ describe('skrivevakten for mekanisk-pr', () => {
     ]) {
       expect(bash(kommando).status, kommando).toBe(2);
     }
-    expect(bash('timeout -s KILL 60 git push -u origin claude/test-1').status).toBe(0);
+    // Commit og push står i et kall med bare git-ledd, så også et prefiks vakten tolker, stopper.
+    expect(bash('timeout -s KILL 60 git push -u origin claude/test-1').status).toBe(2);
     expect(bash('env -u HOME npm test').status).toBe(0);
     expect(bash('timeout 300 npx vitest run docs').status).toBe(0);
   });
@@ -427,6 +428,26 @@ describe('skrivevakten for mekanisk-pr', () => {
       expect(bash(kommando).status, kommando).toBe(2);
     }
     expect(bash('git -C docs log --oneline -1').status).toBe(0);
+    expect(bash('GIT_PAGER=cat git log --oneline -3').status).toBe(0);
+    expect(bash('git --version').status).toBe(0);
+    for (const kommando of [
+      'GIT_DIR=/tmp/klon/.git; export GIT_DIR; git commit -m y',
+      'set -a; GIT_DIR=/tmp/klon/.git; git push origin claude/test-1',
+      'printf -v GIT_WORK_TREE /tmp/klon; export GIT_WORK_TREE; git commit -m y',
+      `EDITOR='sh -c "git push origin HEAD:main; true"' git commit --allow-empty`,
+      'export VISUAL=x; git commit',
+      "GIT_PAGER='sh x' git log",
+      "git clone -u 'sh x' /tmp/x /tmp/y",
+      "git ls-remote -u 'sh x' /tmp/x",
+    ]) {
+      expect(bash(kommando).status, kommando).toBe(2);
+    }
+  });
+
+  it('slipper commit og push med cd eller git -C til sitt eget arbeidstre', () => {
+    expect(bash(`cd ${rot} && git add docs/a.md && git commit -m x`).status).toBe(0);
+    expect(bash(`git -C ${rot} push -u origin claude/test-1`).status).toBe(0);
+    expect(bash(`cd ${rot}/docs && git commit -m x`).status).toBe(0);
   });
 
   it('stopper git-kommandoer og rg-valg som kjører et program', () => {
@@ -450,9 +471,19 @@ describe('skrivevakten for mekanisk-pr', () => {
       'gh api -X PUT repos/o/r/contents/kjerne/x.ts -f content=eA==',
       'gh pr edit 1 --base main',
       'gh api graphql',
+      'gh api /graphql -F query=@/tmp/q.txt',
+      'gh api https://api.github.com/graphql -F query=@/tmp/q.txt',
+      'gh api -X PATCH repos/o/r -f default_branch=claude/test-1',
+      'gh repo edit --default-branch claude/test-1',
     ]) {
       expect(bash(kommando).status, kommando).toBe(2);
     }
+    expect(
+      bash('gh api repos/o/r/pulls -f title=x -f head=claude/contents-oversikt-12 -f base=main')
+        .status
+    ).toBe(0);
+    expect(bash('gh api -X PATCH repos/o/r/pulls/12 -F body=@/tmp/b.md').status).toBe(0);
+    expect(bash('gh api repos/o/r/issues/12/comments -F body=@/tmp/b.md').status).toBe(0);
     expect(
       bash('gh api repos/o/r/pulls -f title=x -f head=claude/test-1 -f base=main').status
     ).toBe(0);
@@ -466,9 +497,16 @@ describe('skrivevakten for mekanisk-pr', () => {
       'sed -f /tmp/skript docs/a.md kjerne/x.ts',
       'cp /tmp/x .git/hooks/pre-push',
       'chmod +x ../.git/hooks/pre-push',
+      "find docs/a.md -exec sed -n 'w kjerne/ut' docs/a.md ';'",
+      "echo docs/a.md | xargs sed -n 'w kjerne/ut'",
+      "sed -n -l 5 'w kjerne/ut' docs/a.md",
     ]) {
       expect(bash(kommando).status, kommando).toBe(2);
     }
+    expect(skriv(path.join(rot, '.git', 'hooks', 'pre-push')).status).toBe(2);
+    expect(
+      kjor({ tool_name: 'Edit', tool_input: { file_path: '.git/config' }, cwd: rot }).status
+    ).toBe(2);
     expect(bash('sed -n 1p kjerne/web.ts').status).toBe(0);
     expect(bash('sed -n 1,5p backend/x.py; echo work').status).toBe(0);
     expect(bash('cp /tmp/x .github/ny.yml').status).toBe(0);
@@ -658,6 +696,7 @@ describe('lesevakten for diffkontroll', () => {
   it('stopper gh api med skrivende flagg eller en metode som ikke er GET', () => {
     for (const kommando of [
       'gh api graphql',
+      'gh api /graphql -F query=@/tmp/q.txt',
       'gh api -X POST repos/khjohns/endringsmeldinger/issues',
       'gh api repos/khjohns/endringsmeldinger/issues/460/comments -f body=x',
       'gh api -XPOST repos/x/issues',
