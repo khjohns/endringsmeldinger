@@ -146,7 +146,7 @@ export function nyttelastkontroll(
       if (sendt === undefined)
         return avvis(
           'VARSEL_REGISTRERT',
-          'Varselet er sendt fra appen med sin dato, og kravet kan ikke oppgi en (SK-12).'
+          'Varselet er sendt fra appen eller registrert uten dato for sendingen, og kravet kan ikke oppgi en (SK-12).'
         );
       // SK-12: et registrert varsel beholder datoen det fikk første gang (rad KA-19).
       return sendt.dato === k.varsel.sendt

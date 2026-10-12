@@ -2142,8 +2142,8 @@
     },
     {
       "id": "KA-40",
-      "tilfelle": "En part registrerer et brev sendt utenfor appen med et svar fra byggherren på et krav etter at TE har trukket det, eller TEs aksept, etter trekket, av et svar i sporet. Trekket kan gjelde sporet eller grunnlaget.",
-      "forventet": "Saken er forstått. En aksept, og et svar med sammenfall, bevares og vises uten virkning: sporet har ingen enighet, og en godkjenning av et trukket grunnlag er ikke en endringsordre i saken. Et svar uten sammenfall, som et avslag eller et frafall av pålegget, leses med virkning.",
+      "tilfelle": "En part registrerer et brev sendt utenfor appen med TEs aksept, etter trekket, av et svar i sporet, eller et svar fra byggherren med sammenfall på et krav etter at TE har trukket det. Trekket kan gjelde sporet eller grunnlaget.",
+      "forventet": "Saken er forstått. Aksepten og svaret bevares og vises uten virkning: sporet har ingen enighet, og en godkjenning av et trukket grunnlag er ikke en endringsordre i saken. Det gjelder også en revisjon av et svar partene er enige om, og et svar som viser til et element uten virkning.",
       "bh_standpunkt": "Brevet slik det ble sendt.",
       "rettslig_virkning": "Et trekk er bare TEs avkall på eget krav. Appen sier ikke at brevet ikke er en endringsordre, bare at godkjenningen er uten virkning i saken.",
       "rettidighet": "—",
@@ -2156,6 +2156,22 @@
         "GR-U10"
       ],
       "tolkningsstatus": "avklart_tolkning"
+    },
+    {
+      "id": "KA-41",
+      "tilfelle": "Byggherren registrerer et brev sendt utenfor appen med et svar uten sammenfall på et krav etter at TE har trukket det, for eksempel et avslag, eller et frafall av pålegget etter at grunnlaget er trukket.",
+      "forventet": "Saken er forstått, og svaret leses med virkning. Sporet er fortsatt trukket, og svaret skaper ingen enighet.",
+      "bh_standpunkt": "Brevet slik det ble sendt.",
+      "rettslig_virkning": "Et trekk er bare TEs avkall på eget krav. Arbeidsvalg 12.10 etter MM-U19 slik vedtaket lyder; å gjøre også dette svaret uten virkning ville utvidet MM-U19.",
+      "rettidighet": "—",
+      "tidsakse": "registrering",
+      "kilder": [
+        "MM-U19",
+        "MM-U20",
+        "KA-U14",
+        "GR-U9"
+      ],
+      "tolkningsstatus": "arbeidshypotese"
     },
     {
       "id": "VS-01",
