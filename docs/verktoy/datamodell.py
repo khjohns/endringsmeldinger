@@ -4,7 +4,7 @@ Kjøres fra repo-roten: /tmp/venv/bin/python docs/verktoy/datamodell.py
 Skriver docs/datamodell/tabeller.md, hendelser.md, kjernehendelser.md,
 relasjoner.md og tabellbeskrivelse.xlsx, men bare når innholdet er endret. Hendelseskatalogen
 leser backend-modellene, og Excel-fila krever openpyxl, så begge trenger
-venv-en i AGENTS.md. Katalogen over skjemaet, katalog.json, lages av
+venv-en i `.claude/skills/miljo/SKILL.md`. Katalogen over skjemaet, katalog.json, lages av
 katalog.py mot en testbase.
 """
 
