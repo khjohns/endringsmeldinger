@@ -322,14 +322,43 @@ issuenummeret til et vedtak i 3.1.
 | KA-45 | Byggherren registrerer et brev der byggherren senere begrunner sitt svar, med en sendt-dato før svaret. | Begrunnelsen avvises når sendt-datoen ligger før datoen svaret ble sendt. Samme dato godtas. Et svar fra appen har datoen appen registrerte det, i norsk tid. Et registrert svar har datoen det ble sendt, også når den er bestridt. Har det bare datoen det ble mottatt, kontrolleres ikke begrunnelsen. | Svaret slik det ble sendt. | Begrunnelsen kan ikke komme før svaret. Appen vurderer ikke om den kom i tide. | — | registrering | [KA-U36](../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u36), [KA-U37](../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u37), [KA-U38](../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u38), [KA-U39](../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u39) | avklart tolkning | F-MM-BG1 (målmodellen) | — |
 <!-- domenetabell:slutt -->
 
+## Sporbarhet
+
+Skrevet av `python3 docs/verktoy/domenetabell.py --skriv` fra `regelkoder`,
+`funksjoner` og `koder_uten_rad` i `regler.json` (#455, punkt 6 i
+[#451](https://github.com/khjohns/endringsmeldinger/issues/451)). Den første
+tabellen har hver regelkode kjernen avviser med, og radene koden viser til. En
+kode uten rad står med grunnen. Den andre har funksjonene i kjernen som
+gjennomfører regelen i raden. Sporbarheten innføres gradvis og er ført for
+byggedel 1 av #309: GR-01–GR-30, VS-01–VS-06 og KA-31–KA-45. Hvilke former
+kontrollen leter etter, står under [Formatet](#formatet).
+
+<!-- sporbarhet:start -->
+<!-- sporbarhet:slutt -->
+
 ## Formatet
 
 Formatet bygger på [metodeprøven](../vedlegg/metodeprove-frist-2026-10-08/README.md#formatkontrakt).
 Prøvemodellen er ikke gjenbrukt: forventningene kjøres mot applikasjonen.
 
 - `regler.json`: `kilder` er vedtak i hovedplanen 3.1 (med radetiketten
-  kontrollen leter etter) eller punkter i NS 8407. `tolkningsstatuser`
-  forklarer statusene. Hver rad har kilder og én tolkningsstatus.
+  kontrollen leter etter), punkter i NS 8407 eller arbeidsvalg. Et
+  arbeidsvalg (`"type": "arbeidsvalg"`) har `dato`, `issue` med nummeret på
+  issuet der valget står, og `merknad` med hva som ble valgt. Det er ikke et
+  vedtak: en rad med bare arbeidsvalg som kilde har ikke tolkningsstatus
+  `avklart_tolkning`. `tolkningsstatuser` forklarer statusene. Hver rad har
+  kilder og én tolkningsstatus.
+- En rad kan ha `funksjoner`, funksjonene som gjennomfører regelen, som
+  `sti#navn` fra repoets rot (`kjerne/utledning/utled.ts#kraveneErAvgjort`), og
+  `regelkoder`, kodene kjernen avviser med etter regelen. Kontrollen krever at
+  fila finnes og at navnet er deklarert der (`function`, `const`, `let` eller
+  `class`; `def` eller `class` i Python), og at en bevis-sak for målmodellen som
+  har raden, kontrollerer koden med `forventet.regel`. Hver regelkode i
+  `kjerne/` utenom testene står på minst én rad eller i `koder_uten_rad` med
+  grunnen, og ikke begge steder. Kontrollen finner kodene som strenglitteral i
+  `avvis('KODE'`, `regel: 'KODE'` og `new Klasse('KODE'`, og feiler på et kall
+  til `avvis` der koden ikke er en strenglitteral. De lagrede kodenavnene
+  endres ikke av dette.
 - `bevis-saker.json`: et forløp starter fra et navngitt `prefiks` og har
   `steg`, som er handlinger med parametre. Handlingene er domenets, ikke
   Python-modellens; kjøreren lager forespørslene slik `/api/events` tar imot
