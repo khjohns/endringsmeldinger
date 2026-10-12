@@ -334,6 +334,107 @@ byggedel 1 av #309: GR-01–GR-30, VS-01–VS-06 og KA-31–KA-45. Hvilke former
 kontrollen leter etter, står under [Formatet](#formatet).
 
 <!-- sporbarhet:start -->
+| Regelkode | Rader | Uten rad fordi |
+| --- | --- | --- |
+| `ALLEREDE_SVART` | — | Ingen bevis-sak for målmodellen kontrollerer koden ennå (#475). |
+| `ANNEN_BREVTEKST` | — | Ingen bevis-sak for målmodellen kontrollerer koden ennå (#475). |
+| `ANNEN_REGELVERSJON` | KA-23 | — |
+| `ANNET_RESULTAT` | — | Ingen bevis-sak for målmodellen kontrollerer koden ennå (#475). |
+| `AVTALE_KAN_IKKE_BEVARES` | KA-34 | — |
+| `BEGRUNNELSE_FOER_SVARET` | KA-45 | — |
+| `BEGRUNNELSE_MANGLER` | KA-42 | — |
+| `BESKRIVELSE_MANGLER` | — | Ingen bevis-sak for målmodellen kontrollerer koden ennå (#475). |
+| `BREVTEKST_MANGLER` | — | Ingen bevis-sak for målmodellen kontrollerer koden ennå (#475). |
+| `BREV_MED_FORBEHOLD` | KA-32 | — |
+| `ENDRINGSORDRE_IKKE_AVKLART` | GR-29, KA-32 | — |
+| `ENIGHET_I_SPORET` | GR-07, GR-23, GR-24, GR-25, GR-27 | — |
+| `FEIL_BESTRIDELSE` | — | Ingen bevis-sak for målmodellen kontrollerer koden ennå (#475). |
+| `FEIL_KRAVREFERANSE` | — | Kontrollen av referansen i kommandoen: svaret må vise til elementet som gjelder nå. Ingen rad sier avvisningen, og ingen bevis-sak kontrollerer koden ennå (#475). |
+| `FEIL_PART` | KA-33, KA-42 | — |
+| `FEIL_SVARREFERANSE` | — | Kontrollen av referansen i kommandoen: svaret må vise til elementet som gjelder nå. Ingen rad sier avvisningen, og ingen bevis-sak kontrollerer koden ennå (#475). |
+| `FRAFALL_KAN_IKKE_GODTAS` | GR-26 | — |
+| `FRISTKRAV_SENDT` | VS-06 | — |
+| `GRUNNLAG_AVVIST` | GR-20, VS-05 | — |
+| `GRUNNLAG_ER_ENDRINGSORDRE` | GR-28 | — |
+| `GRUNNLAG_IKKE_SENDT` | KA-31, VS-06 | — |
+| `IKKE_GJELDENDE_SVAR` | GR-01, GR-02, GR-03, GR-04, GR-05, GR-06 | — |
+| `INGENTING_AA_BESTRIDE` | — | Ingen bevis-sak for målmodellen kontrollerer koden ennå (#475). |
+| `INGEN_INNSIGELSE` | VS-01 | — |
+| `INGEN_KRAV` | — | Ingen bevis-sak for målmodellen kontrollerer koden ennå (#475). |
+| `INGEN_KRAV_I_SPORET` | KA-31, VS-06 | — |
+| `INGEN_MERKING` | — | Ingen bevis-sak for målmodellen kontrollerer koden ennå (#475). |
+| `INGEN_REGISTRERT_BREV` | — | Ingen bevis-sak for målmodellen kontrollerer koden ennå (#475). |
+| `INGEN_SVAR` | — | Ingen bevis-sak for målmodellen kontrollerer koden ennå (#475). |
+| `INGEN_SVAR_AA_BEGRUNNE` | KA-42 | — |
+| `INGEN_VARSEL_ETTER_32_2` | — | Ingen bevis-sak for målmodellen kontrollerer koden ennå (#475). |
+| `KRAVENE_AVGJORT` | VS-05, KA-44 | — |
+| `KRAV_I_SPORET` | KA-31 | — |
+| `KRAV_TRUKKET` | GR-09, GR-10, GR-11, GR-12, KA-39 | — |
+| `MERKING_AVKLART` | — | Ingen bevis-sak for målmodellen kontrollerer koden ennå (#475). |
+| `PAALEGGET_IKKE_BESKREVET` | — | Ingen bevis-sak for målmodellen kontrollerer koden ennå (#475). |
+| `SAK_IKKE_FORSTAATT` | KA-24 | — |
+| `STANDPUNKT_UAVKLART` | KA-38 | — |
+| `TEKST_KAN_IKKE_LAGRES` | — | Formkontroll av teksten i kommandoen (#373), ikke en regel i domenet. |
+| `UGYLDIG_FORM` | KA-43 | — |
+| `UGYLDIG_INNSIGELSE` | VS-01 | — |
+| `UGYLDIG_VURDERING` | GR-17, GR-18, VS-03 | — |
+| `VARSEL_REGISTRERT` | VS-06 | — |
+| `VARSLINGSPLIKT_GJELDER_IKKE` | VS-04 | — |
+| `VURDERING_UTENFOR_KJERNEN` | VS-03 | — |
+
+| Rad | Gjennomføres av |
+| --- | --- |
+| GR-01 | [`utledSporene`](../../kjerne/utledning/utled.ts), [`grunnerFraGrunnlaget`](../../kjerne/frosset/standpunkt.ts), [`forutsetninger`](../../kjerne/kommandoer/forutsetninger.ts) |
+| GR-02 | [`utledSporene`](../../kjerne/utledning/utled.ts), [`grunnerFraGrunnlaget`](../../kjerne/frosset/standpunkt.ts), [`kanInngaaIEo`](../../kjerne/utledning/utled.ts) |
+| GR-03 | [`forutsetninger`](../../kjerne/kommandoer/forutsetninger.ts) |
+| GR-04 | [`utledSporene`](../../kjerne/utledning/utled.ts), [`grunnerFraGrunnlaget`](../../kjerne/frosset/standpunkt.ts), [`forutsetninger`](../../kjerne/kommandoer/forutsetninger.ts) |
+| GR-05 | [`utledSporene`](../../kjerne/utledning/utled.ts), [`grunnerFraGrunnlaget`](../../kjerne/frosset/standpunkt.ts), [`forutsetninger`](../../kjerne/kommandoer/forutsetninger.ts) |
+| GR-06 | [`forutsetninger`](../../kjerne/kommandoer/forutsetninger.ts) |
+| GR-07 | [`forutsetninger`](../../kjerne/kommandoer/forutsetninger.ts), [`godkjennerHeleKravet`](../../kjerne/frosset/standpunkt.ts) |
+| GR-08 | [`utledSporene`](../../kjerne/utledning/utled.ts), [`grunnerFraGrunnlaget`](../../kjerne/frosset/standpunkt.ts) |
+| GR-09 | [`utledSporene`](../../kjerne/utledning/utled.ts), [`forutsetninger`](../../kjerne/kommandoer/forutsetninger.ts) |
+| GR-10 | [`utledSporene`](../../kjerne/utledning/utled.ts), [`forutsetninger`](../../kjerne/kommandoer/forutsetninger.ts) |
+| GR-11 | [`utledSporene`](../../kjerne/utledning/utled.ts), [`enighetensVirkning`](../../kjerne/utledning/utled.ts) |
+| GR-12 | [`forutsetninger`](../../kjerne/kommandoer/forutsetninger.ts) |
+| GR-13 | [`utledSporene`](../../kjerne/utledning/utled.ts) |
+| GR-14 | [`kanInngaaIEo`](../../kjerne/utledning/utled.ts), [`kraveneErAvgjort`](../../kjerne/utledning/utled.ts), [`grunnlagetErAvklart`](../../kjerne/frosset/standpunkt.ts) |
+| GR-15 | [`kraveneErAvgjort`](../../kjerne/utledning/utled.ts), [`kanInngaaIEo`](../../kjerne/utledning/utled.ts) |
+| GR-16 | [`grunnlagetErAvklart`](../../kjerne/frosset/standpunkt.ts), [`kraveneErAvgjort`](../../kjerne/utledning/utled.ts) |
+| GR-17 | [`regnUtSvar`](../../kjerne/frosset/standpunkt.ts), [`kontrollerSvar`](../../kjerne/kommandoer/nyttelast.ts) |
+| GR-18 | [`regnUtSvar`](../../kjerne/frosset/standpunkt.ts), [`gyldigeResultater`](../../kjerne/regler/grunnlag.ts) |
+| GR-19 | [`forutsetninger`](../../kjerne/kommandoer/forutsetninger.ts), [`enighetensVirkning`](../../kjerne/utledning/utled.ts), [`kanInngaaIEo`](../../kjerne/utledning/utled.ts) |
+| GR-20 | [`utledSporene`](../../kjerne/utledning/utled.ts), [`forutsetninger`](../../kjerne/kommandoer/forutsetninger.ts) |
+| GR-21 | [`enighetensVirkning`](../../kjerne/utledning/utled.ts), [`grunnlagetErAvklart`](../../kjerne/frosset/standpunkt.ts), [`kraveneErAvgjort`](../../kjerne/utledning/utled.ts) |
+| GR-22 | [`enighetensVirkning`](../../kjerne/utledning/utled.ts), [`kraveneErAvgjort`](../../kjerne/utledning/utled.ts) |
+| GR-23 | [`forutsetninger`](../../kjerne/kommandoer/forutsetninger.ts) |
+| GR-24 | [`godkjennerHeleKravet`](../../kjerne/frosset/standpunkt.ts), [`enighetensVirkning`](../../kjerne/utledning/utled.ts) |
+| GR-25 | [`forutsetninger`](../../kjerne/kommandoer/forutsetninger.ts), [`godkjennerHeleKravet`](../../kjerne/frosset/standpunkt.ts) |
+| GR-26 | [`forutsetninger`](../../kjerne/kommandoer/forutsetninger.ts), [`godkjennerHeleKravet`](../../kjerne/frosset/standpunkt.ts) |
+| GR-27 | [`forutsetninger`](../../kjerne/kommandoer/forutsetninger.ts), [`godkjennerHeleKravet`](../../kjerne/frosset/standpunkt.ts) |
+| GR-28 | [`trekkAvGrunnlagetErSperret`](../../kjerne/utledning/utled.ts), [`blirEndringsordre`](../../kjerne/frosset/standpunkt.ts), [`forutsetninger`](../../kjerne/kommandoer/forutsetninger.ts) |
+| GR-29 | [`utledSporene`](../../kjerne/utledning/utled.ts), [`trekkAvGrunnlagetErSperret`](../../kjerne/utledning/utled.ts), [`forutsetninger`](../../kjerne/kommandoer/forutsetninger.ts) |
+| GR-30 | [`utledSporene`](../../kjerne/utledning/utled.ts), [`ikkeErstattet`](../../kjerne/utledning/utled.ts), [`grunnerFraGrunnlaget`](../../kjerne/frosset/standpunkt.ts) |
+| KA-31 | [`forutsetninger`](../../kjerne/kommandoer/forutsetninger.ts) |
+| KA-32 | [`forutsetninger`](../../kjerne/kommandoer/forutsetninger.ts), [`godkjenningenErMerket`](../../kjerne/utledning/utled.ts), [`kanInngaaIEo`](../../kjerne/utledning/utled.ts) |
+| KA-33 | [`henvisning`](../../kjerne/kommandoer/forutsetninger.ts), [`utledSporene`](../../kjerne/utledning/utled.ts) |
+| KA-34 | [`trekkKanIkkeBevareAvtalen`](../../kjerne/utledning/utled.ts), [`forutsetninger`](../../kjerne/kommandoer/forutsetninger.ts) |
+| KA-35 | [`strid`](../../kjerne/utledning/utled.ts) |
+| KA-36 | [`strid`](../../kjerne/utledning/utled.ts) |
+| KA-37 | [`strid`](../../kjerne/utledning/utled.ts) |
+| KA-38 | [`lesesMedInnsigelse`](../../kjerne/frosset/standpunkt.ts), [`utledSporene`](../../kjerne/utledning/utled.ts), [`forutsetninger`](../../kjerne/kommandoer/forutsetninger.ts) |
+| KA-39 | [`strid`](../../kjerne/utledning/utled.ts), [`forutsetninger`](../../kjerne/kommandoer/forutsetninger.ts) |
+| KA-40 | [`strid`](../../kjerne/utledning/utled.ts) |
+| KA-41 | [`strid`](../../kjerne/utledning/utled.ts) |
+| VS-01 | [`kanFaaInnsigelse`](../../kjerne/utledning/utled.ts), [`kanFaaProtest`](../../kjerne/utledning/utled.ts), [`henvisning`](../../kjerne/kommandoer/forutsetninger.ts) |
+| VS-02 | [`lesesMedInnsigelse`](../../kjerne/frosset/standpunkt.ts), [`innsigelsenErOppgitt`](../../kjerne/frosset/standpunkt.ts), [`utledSporene`](../../kjerne/utledning/utled.ts) |
+| VS-03 | [`kontroller`](../../kjerne/regler/frist.ts), [`regnUtSvar`](../../kjerne/frosset/standpunkt.ts), [`kontrollerSvar`](../../kjerne/kommandoer/nyttelast.ts) |
+| VS-04 | [`nyttelastkontroll`](../../kjerne/kommandoer/nyttelast.ts), [`gjelderVarslingsplikten`](../../kjerne/frosset/standpunkt.ts), [`henvisning`](../../kjerne/kommandoer/forutsetninger.ts) |
+| VS-05 | [`forutsetninger`](../../kjerne/kommandoer/forutsetninger.ts), [`henvisning`](../../kjerne/kommandoer/forutsetninger.ts) |
+| VS-06 | [`forutsetninger`](../../kjerne/kommandoer/forutsetninger.ts), [`nyttelastkontroll`](../../kjerne/kommandoer/nyttelast.ts) |
+| KA-42 | [`henvisning`](../../kjerne/kommandoer/forutsetninger.ts), [`begrunnelsensTekst`](../../kjerne/kommandoer/nyttelast.ts), [`forutsetninger`](../../kjerne/kommandoer/forutsetninger.ts) |
+| KA-43 | [`formfeil`](../../kjerne/kommandoer/kommando.ts) |
+| KA-44 | [`forutsetninger`](../../kjerne/kommandoer/forutsetninger.ts), [`kraveneErAvgjort`](../../kjerne/utledning/utled.ts) |
+| KA-45 | [`begrunnelsensDato`](../../kjerne/kommandoer/nyttelast.ts), [`utledSporene`](../../kjerne/utledning/utled.ts) |
 <!-- sporbarhet:slutt -->
 
 ## Formatet
@@ -357,8 +458,8 @@ Prøvemodellen er ikke gjenbrukt: forventningene kjøres mot applikasjonen.
   `kjerne/` utenom testene står på minst én rad eller i `koder_uten_rad` med
   grunnen, og ikke begge steder. Kontrollen finner kodene som strenglitteral i
   `avvis('KODE'`, `regel: 'KODE'` og `new Klasse('KODE'`, og feiler på et kall
-  til `avvis` der koden ikke er en strenglitteral. De lagrede kodenavnene
-  endres ikke av dette.
+  til `avvis` der koden ikke er en strenglitteral. Kodenavnene
+  endres ikke.
 - `bevis-saker.json`: et forløp starter fra et navngitt `prefiks` og har
   `steg`, som er handlinger med parametre. Handlingene er domenets, ikke
   Python-modellens; kjøreren lager forespørslene slik `/api/events` tar imot
