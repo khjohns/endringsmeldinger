@@ -5679,7 +5679,8 @@
           "rolle": "mal",
           "kilde": [
             "KA-U20",
-            "KA-U26"
+            "KA-U26",
+            "MM-U20"
           ],
           "forventet": {
             "trukket.vederlag": true,
