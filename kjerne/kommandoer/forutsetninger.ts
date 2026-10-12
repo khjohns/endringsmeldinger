@@ -97,8 +97,8 @@ function henvisning(h: Extract<Handlingsnoekkel, { gjelder: string }>, part: Par
         : avvis('FEIL_PART', 'Bare den som sendte brevet, kan avklare merkingen.');
     }
     case 'begrunne':
-      // KA-U34: et svar byggherren har sendt eller registrert.
-      return maal?.art === 'svar' && maal.part === 'BH'
+      // KA-U34: et svar, sendt eller registrert. Et svar er alltid fra BH (format/leser.ts).
+      return maal?.art === 'svar'
         ? null
         : avvis('INGEN_SVAR_AA_BEGRUNNE', 'Begrunnelsen må gjelde et svar fra byggherren.');
     case 'bestride': {
@@ -133,7 +133,7 @@ function hvorforAvgjort(u: Utledning): string {
       ? `kravet om ${KRAVET[n]} er trukket`
       : u.spor[n].ingenKrav
         ? `TE krever ikke ${KRAVET[n]}`
-        : `partene er enige om kravet om ${KRAVET[n]}`
+        : `partene er enige om svaret på kravet om ${KRAVET[n]}`
   );
   return `Kravene i saken er avgjort: ${grunnlag}, ${krav.join(' og ')}.`;
 }

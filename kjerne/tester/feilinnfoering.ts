@@ -1733,16 +1733,14 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F159',
     feilklasse: 'en senere begrunnelse kan gjelde noe annet enn et svar (KA-U34)',
     fil: `${K}/kommandoer/forutsetninger.ts`,
-    endringer: [["return maal?.art === 'svar' && maal.part === 'BH'", 'return maal !== undefined']],
+    endringer: [["return maal?.art === 'svar'\n", 'return maal !== undefined\n']],
     mal: ['avvises fra TE, når den ikke gjelder et svar, og uten tekst'],
   },
   {
     id: 'F160',
     feilklasse: 'leseren godtar en begrunnelse som gjelder noe annet enn et svar (KA-U34, MM-U2)',
     fil: `${K}/utledning/utled.ts`,
-    endringer: [
-      ["return maal.art === 'svar' && maal.part === part;", "return maal.art !== 'opplysning';"],
-    ],
+    endringer: [["return maal.art === 'svar';", "return maal.art !== 'opplysning';"]],
     mal: ['en begrunnelse fra TE eller av noe annet enn et svar gjør saken ikke forstått'],
   },
   {
@@ -1761,29 +1759,24 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F162',
     feilklasse: 'en senere begrunnelse uten tekst godtas (KA-U34)',
     fil: `${K}/kommandoer/nyttelast.ts`,
-    endringer: [['return utdypningKreves && !k.utdypning.trim()', 'return false']],
+    endringer: [['return k.sendt === undefined && !k.utdypning?.trim()', 'return false']],
     mal: ['avvises fra TE, når den ikke gjelder et svar, og uten tekst'],
   },
   {
     id: 'F163',
-    feilklasse: 'et fristspor TE ikke har sendt, teller som avgjort (KA-U11)',
-    fil: `${K}/utledning/utled.ts`,
-    endringer: [
-      [
-        "(n) => u.spor[n].trukket || u.spor[n].ingenKrav || enighetensVirkning(u, n) === 'virksom'",
-        "(n) => (n === 'frist' && !u.spor.frist.krav.length) || u.spor[n].trukket || u.spor[n].ingenKrav || enighetensVirkning(u, n) === 'virksom'",
-      ],
-    ],
-    mal: ['et spor TE fortsatt kan sende, gjør at kravene ikke er avgjort'],
-  },
-  {
-    id: 'F164',
     feilklasse: 'meldingen for avgjorte krav kaller «ingen krav» et trekk (KA-U11, KA-U12)',
     fil: `${K}/kommandoer/forutsetninger.ts`,
     endringer: [
       ['    u.spor[n].trukket\n      ?', '    u.spor[n].trukket || u.spor[n].ingenKrav\n      ?'],
     ],
     mal: ['når TE ikke krever fristforlengelse, er kravene avgjort, og meldingen sier hvorfor'],
+  },
+  {
+    id: 'F164',
+    feilklasse: 'en registrert begrunnelse godtas uten brevet som vedlegg (KA-U35)',
+    fil: `${K}/kommandoer/kommando.ts`,
+    endringer: [['if (!k.dokumentasjon?.length)', 'if (false)']],
+    mal: ['en registrert begrunnelse uten brevet som vedlegg eller med tekst avvises'],
   },
 ];
 

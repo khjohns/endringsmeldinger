@@ -73,8 +73,18 @@ export type Kommando = (
   | { type: 'merking'; gjelder: string; spor: Spor[] }
   /** KA-U20: den som sendte brevet, sier at standpunktene gjelder uten forbehold. */
   | { type: 'avklaring'; gjelder: string }
-  /** KA-U34: byggherrens senere begrunnelse av et svar. Teksten er utdypningen. */
-  | { type: 'begrunnelse'; gjelder: string; utdypning: string }
+  /**
+   * Byggherrens senere begrunnelse av et svar. Fra appen er teksten utdypningen
+   * (KA-U34). Registrert har den datoen brevet ble sendt og brevet som vedlegg, uten
+   * tekst (KA-U35).
+   */
+  | {
+      type: 'begrunnelse';
+      gjelder: string;
+      utdypning?: string;
+      sendt?: string;
+      dokumentasjon?: string[];
+    }
 ) &
   Brevtekst;
 
@@ -169,8 +179,15 @@ const SKJEMA: Record<Kommando['type'], Skjema> = {
   ),
   avklaring: henvisning('avklaring'),
   begrunnelse: objekt(
-    { type: { const: 'begrunnelse' }, gjelder: ID, utdypning: TEKST, ...BREVTEKST },
-    ['type', 'gjelder', 'utdypning']
+    {
+      type: { const: 'begrunnelse' },
+      gjelder: ID,
+      utdypning: TEKST,
+      sendt: DATO,
+      dokumentasjon: liste(ID),
+      ...BREVTEKST,
+    },
+    ['type', 'gjelder']
   ),
 };
 
@@ -198,6 +215,13 @@ export function formfeil(kommando: unknown): string[] {
     const spor = (kommando as { svar: Svarutkast[] }).svar.map((s) => s.spor);
     if (!spor.length) feil.push('$.svar: brevet har ingen svar');
     if (new Set(spor).size !== spor.length) feil.push('$.svar: to svar i samme spor');
+  }
+  if (type === 'begrunnelse' && !feil.length && 'sendt' in kommando) {
+    // KA-U35: den registrerte begrunnelsen har ingen tekst i appen, og brevet ligger ved.
+    const k = kommando as { utdypning?: unknown; dokumentasjon?: unknown[] };
+    if ('utdypning' in k) feil.push('$.utdypning: en registrert begrunnelse har ingen tekst');
+    if (!k.dokumentasjon?.length)
+      feil.push('$.dokumentasjon: brevet med begrunnelsen må ligge ved');
   }
   if (type === 'merking' && !feil.length) {
     const spor = (kommando as { spor: Spor[] }).spor;
