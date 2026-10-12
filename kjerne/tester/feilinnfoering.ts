@@ -1766,12 +1766,12 @@ const MUTASJONER: Mutasjon[] = [
   },
   {
     id: 'F163',
-    feilklasse: 'et spor TE ikke har sendt, teller som avgjort (KA-U11)',
+    feilklasse: 'et fristspor TE ikke har sendt, teller som avgjort (KA-U11)',
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
         "(n) => u.spor[n].trukket || u.spor[n].ingenKrav || enighetensVirkning(u, n) === 'virksom'",
-        "(n) => !u.spor[n].krav.length || u.spor[n].trukket || enighetensVirkning(u, n) === 'virksom'",
+        "(n) => (n === 'frist' && !u.spor.frist.krav.length) || u.spor[n].trukket || u.spor[n].ingenKrav || enighetensVirkning(u, n) === 'virksom'",
       ],
     ],
     mal: ['et spor TE fortsatt kan sende, gjør at kravene ikke er avgjort'],
