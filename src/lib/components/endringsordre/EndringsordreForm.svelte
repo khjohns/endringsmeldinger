@@ -141,10 +141,16 @@
       `/${demo ? 'mockup/endringsordre' : encodeURIComponent(projectId)}/${encodeURIComponent(sakId)}`
     );
 
-  onMount(() => {
+  onMount(() => void open());
+
+  async function open() {
     const stored = loadDraft<{ version: number; draft: EODraft }>(storageKey);
-    if (stored?.version === 1 && Array.isArray(stored.draft?.selectedIds))
-      draft = { ...newEODraft(), ...stored.draft };
+    if (stored?.version === 1 && Array.isArray(stored.draft?.selectedIds)) {
+      const restored = { ...newEODraft(), ...stored.draft };
+      // #445: ordren kan være utstedt fra godkjenningssiden etter at utkastet ble lagret.
+      if (await numberIssued(restored.number)) clearDraft(storageKey);
+      else draft = restored;
+    }
     let selectionChanged = false;
     if (initialKoe) {
       if (draft.mode === 'direkte') draft.directEffects = snapshotEOEffects(draft);
@@ -156,7 +162,17 @@
     }
     ready = true;
     void load(selectionChanged);
-  });
+  }
+
+  /** Feiler hentingen av godkjenningene, beholdes utkastet (#464). */
+  async function numberIssued(number: string) {
+    const trimmed = typeof number === 'string' ? number.trim() : '';
+    if (!trimmed) return false;
+    await approvals.load();
+    return approvals.packages.some(
+      (p) => p.status === 'utstedt' && p.request.eo_nummer.trim() === trimmed
+    );
+  }
 
   $effect(() => {
     if (ready && !createdId) saveDraft(storageKey, { version: 1, draft: $state.snapshot(draft) });
@@ -309,6 +325,8 @@
           >{/if}
       </aside>
     </div>
+  {:else if !ready}
+    <p class="helptext" role="status">Kontrollerer det lagrede utkastet …</p>
   {:else}
     <form onsubmit={review}>
       <div class="edit-layout">
