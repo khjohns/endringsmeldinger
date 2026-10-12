@@ -239,7 +239,7 @@ try {
   assert.equal(new URL(demo.url()).pathname, orderPath);
   await demo.getByRole('link', { name: 'Ny endringsordre', exact: true }).click();
   await demo.getByRole('button', { name: /Formaliser avtalte KOE-krav/ }).click();
-  // #445: the draft of the order issued from the approval page is discarded.
+  // #445: utkastet til ordren som ble utstedt fra godkjenningssiden, er forkastet.
   assert.equal(await demo.getByLabel('Beskriv avtalen som formaliseres').inputValue(), '');
   assert.notEqual(await demo.getByLabel('Endringsordrenummer').inputValue(), firstNumber);
   await demo.getByRole('checkbox', { name: /KOE-2024-019/ }).check();

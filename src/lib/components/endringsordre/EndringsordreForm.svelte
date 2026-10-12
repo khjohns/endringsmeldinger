@@ -145,7 +145,7 @@
     const stored = loadDraft<{ version: number; draft: EODraft }>(storageKey);
     if (stored?.version === 1 && Array.isArray(stored.draft?.selectedIds)) {
       const restored = { ...newEODraft(), ...stored.draft };
-      // #445: the order may have been issued from the approval page since the draft was saved.
+      // #445: ordren kan være utstedt fra godkjenningssiden etter at utkastet ble lagret.
       if (restored.number.trim() && (await numberIssued(restored.number.trim())))
         clearDraft(storageKey);
       else draft = restored;
@@ -322,7 +322,7 @@
       </aside>
     </div>
   {:else}
-    <form onsubmit={review}>
+    <form onsubmit={review} inert={!ready}>
       <div class="edit-layout">
         <div>
           <FormSection title="Grunnlag for endringsordren">
