@@ -359,6 +359,7 @@ def test_et_importert_forhold_star_begge_veier_i_folge(register):
         ("En merking endrer ikke utfallet, etter [KA-U26](#ka-u26).", []),
         ("Presisert 10.10 for formatet av [HF-U2](#hf-u2).", []),
         ("Avgrenset 10.10 av [GR-U13](#gr-u13).", []),
+        ("Raden sier «Endret 11.10 av [GR-U14](#gr-u14)» om pålegget.", []),
         ("I tråd med [KA-U14](#ka-u14). Ikke bygget.", []),
         (
             "Presisert 11.10 av [KA-U25](#ka-u25): presiserer [KA-U9](#ka-u9).",
