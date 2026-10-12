@@ -632,6 +632,80 @@ inngår i en endringsordre) og [KA-U11](#ka-u11) (en merking åpner ikke en avgj
 Merknaden i [GR-U7](#gr-u7) sier at et slikt brev «er ikke en ubetinget godkjenning», og
 «avklart» defineres av standpunktene ([MM-U13](#mm-u13)). I skjemaet er alle spor
 utgangspunktet når den som merker, oppgir sporene. Ikke bygget'''
+[[gruppe.vedtak]]
+id = "KA-U34"
+dato = 2026-10-12
+hvem = "oppdragsgiver"
+kilde = ["#309"]
+sporsmal = '''
+Senere begrunnelse fra byggherren, i alle spor: hva brevet sier, og når det kan sendes.
+
+Belegg:
+- § 32.3 tredje ledd: «Byggherren skal uten ugrunnet opphold etter at han har avslått kravet begrunne sitt avslag.» Bestemmelsen gjelder bare grunnlaget.
+- KA-U24: «Kravet er appens atferd: for byggherrens svar i § 31–§ 35 krever NS 8407 begrunnelse bare i § 32.3 tredje ledd, og at innsigelser tapes når de ikke fremsettes i tide (§ 33.7 annet ledd), gir ikke samme plikt.»
+- KA-U18 og KA-U24: «En begrunnelse som kommer senere, er et eget utsagn.»
+- KA-U21: «En senere begrunnelse har ingen automatisk virkning på utfallet i appen, uten at det betyr at den er uten rettslig betydning.»
+- KA-U31: «Et brev med svar i flere spor har én begrunnelse per svar som krever det, og den låste delen og begrunnelsen står da sammen per svar.»
+- KA-U11: «Er kravene avgjort, avvises hver kommando som kan endre utfallet: trekk, ny kravversjon, varsel etter § 33.4 og byggherrens revisjon, også av et frafall.»
+- LV-U3: «Det som ikke står i teksten, regnes ikke som meddelt.»
+
+A: Byggherren kan sende en senere begrunnelse fra appen, per spor. Brevet sier: «Byggherren begrunner sitt svar på <grunnlaget / kravet om justering av vederlaget / kravet om fristforlengelse> i brev <n> av <dato>:», og byggherrens tekst følger. Begrunnelsen endrer ingen standpunkter. Den godtas også når kravene er avgjort, fordi den ikke kan endre utfallet. Den erstatter ikke begrunnelsen et svar fra appen må ha. Appen vurderer ikke om den er tilstrekkelig eller kom i tide.
+Forhold: utvider LV-U4; presiserer KA-U18, KA-U24 og KA-U11; følger KA-U21 og MM-U12.
+
+B: Utsagnet bygges, men i første versjon av TS-stien kan en senere begrunnelse bare registreres i et brev sendt utenfor appen. Brevteksten fra appen avgjøres etter første versjon av TS-stien.
+Forhold: utvider OV-U1.
+
+C: En senere begrunnelse kan ikke sendes fra appen før etter første versjon av TS-stien. Et brev sendt utenfor appen med en senere begrunnelse registreres og bevares likevel, etter KA-U16.
+Forhold: utvider OV-U1.'''
+valgt = "A"
+svar = '''
+A'''
+forhold = [{ art = "utvider", vedtak = "lv-u4" }, { art = "presiserer", vedtak = "ka-u18" }, { art = "presiserer", vedtak = "ka-u24" }, { art = "presiserer", vedtak = "ka-u11" }]
+folge = '''
+Følger [KA-U21](#ka-u21) og [MM-U12](#mm-u12). Ikke bygget'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Byggherren kan sende en senere begrunnelse fra appen, per spor. Brevet sier: «Byggherren begrunner sitt svar på <grunnlaget / kravet om justering av vederlaget / kravet om fristforlengelse> i brev <n> av <dato>:», og byggherrens tekst følger. Begrunnelsen endrer ingen standpunkter. Den godtas også når kravene er avgjort, fordi den ikke kan endre utfallet. Den erstatter ikke begrunnelsen et svar fra appen må ha. Appen vurderer ikke om den er tilstrekkelig eller kom i tide.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Utsagnet bygges, men i første versjon av TS-stien kan en senere begrunnelse bare registreres i et brev sendt utenfor appen. Brevteksten fra appen avgjøres etter første versjon av TS-stien.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "C"
+tekst = '''
+En senere begrunnelse kan ikke sendes fra appen før etter første versjon av TS-stien. Et brev sendt utenfor appen med en senere begrunnelse registreres og bevares likevel, etter KA-U16.'''
+
+[[gruppe.vedtak.sitat]]
+kilde = "ns8407"
+tekst = "Byggherren skal uten ugrunnet opphold etter at han har avslått kravet begrunne sitt avslag."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Kravet er appens atferd: for byggherrens svar i § 31–§ 35 krever NS 8407 begrunnelse bare i § 32.3 tredje ledd, og at innsigelser tapes når de ikke fremsettes i tide (§ 33.7 annet ledd), gir ikke samme plikt."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "En begrunnelse som kommer senere, er et eget utsagn."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "En senere begrunnelse har ingen automatisk virkning på utfallet i appen, uten at det betyr at den er uten rettslig betydning."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Et brev med svar i flere spor har én begrunnelse per svar som krever det, og den låste delen og begrunnelsen står da sammen per svar."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Er kravene avgjort, avvises hver kommando som kan endre utfallet: trekk, ny kravversjon, varsel etter § 33.4 og byggherrens revisjon, også av et frafall."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Det som ikke står i teksten, regnes ikke som meddelt."
 
 [[gruppe]]
 tittel = "Aksept og enighet"
