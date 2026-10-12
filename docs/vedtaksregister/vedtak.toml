@@ -2147,7 +2147,8 @@ vedtatt = "10.10, oppdragsgiver etter sparring (#309)"
 folge = '''
 Utvider [MM-U2](#mm-u2) og presiserer [HF-U1](#hf-u1): saken er heller ikke forstått når
 kjernen kan tolke hendelsen, men den strider mot vedtakene om enighet og lukking. Avgjør
-#326. Utvidet 11.10 av [MM-U19](#mm-u19) til andre registrerte brev. Ikke bygget (#309)'''
+#326. Utvidet 11.10 av [MM-U19](#mm-u19) til andre registrerte brev. Presisert 12.10 av
+[MM-U20](#mm-u20): svar og aksept etter trekk. Ikke bygget (#309).'''
 
 [[gruppe.vedtak]]
 anker = "mm-u19"
@@ -2169,6 +2170,27 @@ folge = '''
 Utvider [MM-U18](#mm-u18) til andre registrerte brev i samme klasse. Presiserer
 [KA-U7](#ka-u7) og [KA-U11](#ka-u11): et registrert brev avvises ikke, men får ingen
 virkning. I tråd med [KA-U16](#ka-u16): brevet bevares og forkastes ikke. Ikke bygget'''
+
+[[gruppe.vedtak]]
+anker = "mm-u20"
+vedtak = '''
+MM-U20: et svar fra byggherren på et krav etter at TE har trukket det, eller TEs aksept,
+etter trekket, av et svar i sporet, hører til vedtakene om lukking som MM-U18 viser til.
+Et trekk lukker sporet (KA-U12, KA-U11). Et svar eller en aksept i et trukket spor gjør
+saken ikke forstått, som en aksept av et frafall i MM-U18. Et ekte registrert brev
+behandles etter MM-U19 som i dag. Forkastet: «B: nei, bare vilkår for å sende» – «Raden
+leses uten virkning på utfallet, som i dag. #405 lukkes uten endring.»'''
+vedtatt = "12.10, oppdragsgiver (#405)"
+folge = '''
+Presiserer [MM-U18](#mm-u18): svar og aksept etter trekk strider mot vedtakene om
+lukking, ikke bare mot vilkårene for å sende. «Som i dag» i vedtaket viser til
+[MM-U19](#mm-u19) slik MM-U19 lyder; om et registrert svar eller en registrert aksept
+etter trekk faller inn under vilkårene der, avgjøres etter MM-U19. Kjernen dekker per
+12.10 ikke svar og aksept etter trekk i kontrollen etter MM-U18 (#405). I det forkastede
+alternativet viser «som i dag» til atferden 12.10: raden leses uten virkning på
+utfallet, fordi sporet regnes som trukket. Om det samme gjelder et spor lukket med
+«ingen krav» ([KA-U12](#ka-u12)), er ikke spurt. Spørsmålet og svaret står på #405. Ikke
+bygget. Bygges med bevis-sak og feilinnføring i #405'''
 
 [[gruppe.vedtak]]
 anker = "hf-u1"
@@ -2420,7 +2442,31 @@ nummer er påkrevd i grunnlagskravet ([GR-U16](#gr-u16)). Grunnlagskravet i forc
 gjengir [GR-U7](#gr-u7) i brevet («Den er ikke enighet om ansvaret»); spørsmålet foreslo
 setningen «Aksepten er ikke enighet om grunnlaget.», og oppdragsgiver valgte i
 oppfølgingen den tydeligere teksten. Vedleggene og henvisningen «brev <n> av <dato>» er
-også arbeidsvalg og føres i paragrafmatrisen. Ikke bygget. Brevteksten bygges i #369'''
+også arbeidsvalg og føres i paragrafmatrisen. Endret 12.10 av [LV-U5](#lv-u5):
+setningene for «i tide» og etter en innsigelse i punkt 5 nevner varselet. Ikke bygget.
+Brevteksten bygges i #369.'''
+
+[[gruppe.vedtak]]
+anker = "lv-u5"
+vedtak = '''
+LV-U5: brevteksten for rettidighet, i tide ([LV-U4](#lv-u4) punkt 5), nevner varselet
+den gjelder: «Byggherren gjør ikke gjeldende at TEs varsel etter NS 8407 § 32.2
+[varselet om fristforlengelse etter § 33.4] kom for sent.» Samme form som «for sent».
+Det samme gjelder setningen etter en innsigelse i LV-U4 punkt 5: «Byggherren gir opp
+innsigelsen etter NS 8407 § 5 i brev <n> av <dato> og gjør ikke gjeldende at varselet
+kom for sent.» Endret tekst gjelder bare nye brev (MM-U9). Forkastet: «B: som i dag» –
+at teksten blir «Byggherren gjør ikke gjeldende at varselet kom for sent.», med
+begrunnelsen «Sammenhengen i brevet holder.»'''
+vedtatt = "12.10, oppdragsgiver (#414)"
+folge = '''
+Endrer [LV-U4](#lv-u4) punkt 5, setningene for «i tide» og etter en innsigelse. Grunnen:
+i et svar der byggherren tidligere har påberopt at TEs varsel etter § 32.2 kom for sent,
+kan «varselet» i neste setning, som gjelder varselet etter § 33.4, leses som at
+byggherren gir opp den påberopelsen (#414, reviewet av samspillet i PR #410). Setningen
+etter en innsigelse blir: «Byggherren gir opp innsigelsen etter NS 8407 § 5 i brev <n>
+av <dato> og gjør ikke gjeldende at TEs varsel etter NS 8407 § 32.2 [varselet om
+fristforlengelse etter § 33.4] kom for sent.» Spørsmålet og svaret står på #414. Ikke
+bygget. Bygges i #410'''
 
 [[gruppe]]
 tittel = "Fullmakt og intern godkjenning"
