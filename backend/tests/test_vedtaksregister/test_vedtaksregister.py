@@ -461,6 +461,17 @@ def test_vakta_melder_et_uttrykkelig_forhold_som_ikke_kan_fores(
     assert melding in vr.forholdfeil(endret)
 
 
+def test_en_passiv_lenke_til_en_ny_post_er_feil_ogsaa_i_en_rad_uten_anker(register):
+    endret = copy.deepcopy(register)
+    uten_anker = next(
+        p for p in vr.poster(endret) if not vr.er_ny(p) and not vr.anker(p)
+    )
+    uten_anker["folge"] = (
+        vr.linje(uten_anker["folge"]) + ". Presisert 13.10 av [HF-U3](#hf-u3)."
+    )
+    assert any("#hf-u3 er en ny post" in f for f in vr.forholdfeil(endret))
+
+
 @pytest.mark.parametrize(
     ("forhold", "melding"),
     [
