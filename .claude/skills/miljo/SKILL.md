@@ -1,6 +1,6 @@
 ---
 name: miljo
-description: Kommandoene for pytest, TS-typesjekk, feilinnføringer, lint og omveiene i skyøkta i endringsmeldinger. Brukes når en sjekk skal kjøres, eller når en kommando feiler i en skyøkt.
+description: Kommandoene for pytest, TS-typesjekk og feilinnføringer, og omveiene i skyøkta i endringsmeldinger: gh api-søk i issues med sider og --paginate, og vitest-timeout. Brukes når en sjekk skal kjøres, eller når en kommando feiler i en skyøkt.
 ---
 
 # Miljø og kommandoer
