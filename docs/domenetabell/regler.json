@@ -794,7 +794,9 @@
       "rettidighet": "Byggherrens svar på den nye versjonen: ikke vurdert.",
       "tidsakse": "registrering",
       "kilder": [
-        "V-KRAVVERSJON"
+        "V-KRAVVERSJON",
+        "V-SK02-SK03",
+        "KA-U1"
       ],
       "tolkningsstatus": "avklart_tolkning"
     },
@@ -1212,17 +1214,18 @@
     {
       "id": "GR-02",
       "tilfelle": "TE endrer underkategorien fra pålegg (IRREG) til endringsordre (EO) etter et svar som påberoper preklusjon etter § 32.2, og byggherren godkjenner deretter grunnlaget.",
-      "forventet": "Svaret og § 32.2-vurderingen er ikke lenger gjeldende, og vederlag og frist forblir subsidiære til grunnlaget besvares. Når grunnlaget godkjennes, er grunnlaget avklart og vederlag og frist prinsipalt godkjent. Kravene er avgjort, og saken kan inngå i en endringsordre.",
+      "forventet": "Svaret og § 32.2-vurderingen er ikke lenger gjeldende. Vederlag og frist forblir subsidiære, med årsakene fra grunnlagssvaret de ble regnet mot, til grunnlaget besvares. Når grunnlaget godkjennes, er grunnlaget avklart og vederlag og frist prinsipalt godkjent. Kravene er avgjort, og saken kan inngå i en endringsordre.",
       "bh_standpunkt": "Først prinsipalt prekludert, subsidiært godkjent. Etter det nye svaret: godkjent grunnlag, og de subsidiære standpunktene får virkning.",
       "rettslig_virkning": "Det subsidiære standpunktet får virkning når grunnlaget godkjennes.",
       "rettidighet": "Byggherrens § 32.2-vurdering (for sent) faller med svaret. Med underkategori EO gjelder ikke varslingsplikten i 32.2.",
       "tidsakse": "registrering",
       "kilder": [
         "V-215",
+        "GR-U1",
         "V-B13-GRUNNLAG-AVSLATT",
         "NS-31.3-1",
         "NS-32.2-1",
-        "EO-U1"
+        "EO-U5"
       ],
       "tolkningsstatus": "avklart_tolkning"
     },
@@ -1393,7 +1396,7 @@
         "GR-U3",
         "V-235",
         "NS-32.3-1c",
-        "EO-U1"
+        "EO-U5"
       ],
       "tolkningsstatus": "avklart_tolkning"
     },
