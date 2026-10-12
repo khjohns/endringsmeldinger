@@ -22,7 +22,7 @@ import type { Avvisning, Kravspor, Part, Spor } from '../typer.ts';
 
 export type Handlingsnoekkel =
   | { type: 'krav' | 'trekke' | 'godta' | 'svare' | 'revidere'; spor: Spor }
-  | { type: 'varsle'; spor: 'frist' }
+  | { type: 'varsle' | 'sende_varsel'; spor: 'frist' }
   | { type: 'ingen_krav'; spor: Kravspor }
   | {
       type: 'bestride' | 'innsigelse' | 'protest' | 'passivitet' | 'merke' | 'avklare';
@@ -37,6 +37,7 @@ const PART: Record<Handlingsnoekkel['type'], Part | null> = {
   trekke: 'TE',
   godta: 'TE',
   varsle: 'TE',
+  sende_varsel: 'TE',
   ingen_krav: 'TE',
   passivitet: 'TE',
   svare: 'BH',
@@ -180,6 +181,7 @@ export function forutsetninger(h: Handlingsnoekkel, part: Part, u: Utledning): A
         return avvis('GRUNNLAG_IKKE_SENDT', 'Grunnlaget må være sendt før du kan si «ingen krav».');
       return null;
     case 'varsle':
+    case 'sende_varsel':
       if (!grunnlagSendt)
         return avvis('GRUNNLAG_IKKE_SENDT', 'Grunnlaget må være sendt før du kan varsle.');
       if (s.trukket) return avvis('KRAV_TRUKKET', 'Kravet er trukket.');
@@ -188,6 +190,13 @@ export function forutsetninger(h: Handlingsnoekkel, part: Part, u: Utledning): A
       // SK-12 og MM-U1: et registrert varsel er låst. Et utledet varsel er ikke registrert.
       if (s.varsel)
         return avvis('VARSEL_REGISTRERT', 'Varselet er registrert og kan ikke flyttes (SK-12).');
+      // VS-U16: etter et fristkrav kan varselet fra appen bare få en senere dato enn
+      // kravet. Et varsel sendt tidligere utenfor appen registreres (MM-U8).
+      if (h.type === 'sende_varsel' && s.krav.length)
+        return avvis(
+          'FRISTKRAV_SENDT',
+          'Fristkravet er sendt, så et varsel fra appen kommer etter det. Et varsel sendt tidligere utenfor appen kan registreres med sin dato.'
+        );
       return null;
     case 'svare':
       if (!s.gjeldendeKrav) return avvis('INGEN_KRAV', `Det er ikke sendt noe krav om ${h.spor}.`);

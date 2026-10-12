@@ -205,6 +205,9 @@ export function kommandoFor(h: Handling, u: Utledning, regler: Regelsett, navn: 
     case 'trekk':
       return { type: 'trekk', spor };
     case 'varsel':
+      // VS-U15: uten en dato sender appen varselet.
+      if (typeof h.sendt !== 'string')
+        return { type: 'send_varsel', spor: 'frist', hjemmel: '33.4' };
       return {
         type: 'varsel',
         spor: 'frist',

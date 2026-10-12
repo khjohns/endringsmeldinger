@@ -56,7 +56,10 @@ export type Kommando = (
       regelversjon: number;
     }
   | { type: 'trekk'; spor: Spor }
+  /** Registrerer et varsel etter § 33.4 sendt utenfor appen (MM-U1, SK-12). */
   | { type: 'varsel'; spor: 'frist'; hjemmel: '33.4'; sendt: string; dokumentasjon?: string[] }
+  /** VS-U15: TE sender et eget varsel etter § 33.4 fra appen, uten dager. */
+  | { type: 'send_varsel'; spor: 'frist'; hjemmel: '33.4' }
   | { type: 'bestridelse'; gjelder: string; hva: Opplysning['hva'] }
   /** KA-U12, KA-U15, KA-U17: TE krever ikke noe i et spor som ikke er sendt. Ingen fritekst (KA-U22). */
   | { type: 'ingen_krav'; spor: Kravspor }
@@ -132,6 +135,15 @@ const SKJEMA: Record<Kommando['type'], Skjema> = {
       dokumentasjon: liste(ID),
     },
     ['type', 'spor', 'hjemmel', 'sendt']
+  ),
+  send_varsel: objekt(
+    {
+      type: { const: 'send_varsel' },
+      spor: { const: 'frist' },
+      hjemmel: { const: '33.4' },
+      ...BREVTEKST,
+    },
+    ['type', 'spor', 'hjemmel']
   ),
   bestridelse: objekt(
     {

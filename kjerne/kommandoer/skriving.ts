@@ -175,6 +175,9 @@ function dokument(
         opplysninger: [{ id: nyId(), hva: 'sendt', dato: k.sendt }],
         ...(k.dokumentasjon?.length ? { dokumentasjon: k.dokumentasjon } : {}),
       };
+    case 'send_varsel':
+      // VS-U15, VS-U8: brevet er varselet, og datoen er serverens.
+      return { utsagn: [{ id: nyId(), art: 'varsel', hjemmel: k.hjemmel }] };
     case 'bestridelse':
       return { utsagn: [{ id: nyId(), art: 'bestridelse', gjelder: k.gjelder, hva: k.hva }] };
     case 'ingen_krav':

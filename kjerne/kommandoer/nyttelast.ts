@@ -142,8 +142,15 @@ export function nyttelastkontroll(
         'sendt',
         u.opplysninger.map((o) => o.opplysning)
       );
+      // SK-12, VS-U15: et varsel uten sendedato, som et varsel sendt fra appen med serverens
+      // dato, får ingen dato fra kravet.
+      if (sendt === undefined)
+        return avvis(
+          'VARSEL_REGISTRERT',
+          'Varselet er sendt fra appen eller registrert uten dato for sendingen, og kravet kan ikke oppgi en (SK-12).'
+        );
       // SK-12: et registrert varsel beholder datoen det fikk første gang (rad KA-19).
-      return sendt?.dato === k.varsel.sendt
+      return sendt.dato === k.varsel.sendt
         ? null
         : avvis(
             'VARSEL_REGISTRERT',
@@ -190,6 +197,7 @@ export function nyttelastkontroll(
     }
     case 'trekk':
     case 'varsel':
+    case 'send_varsel':
     case 'ingen_krav':
     case 'innsigelse':
     case 'protest':
