@@ -1445,6 +1445,15 @@ følges i [milepælen FK](https://github.com/khjohns/endringsmeldinger/milestone
 > og [B-19](#b-19) (PR #404; se 1.2), og vedtakene om brevteksten er ført i 3.1
 > (PR #412). Ikke bygget: brevteksten (#369) og resten av byggedel 1.
 
+> **Merknad 2026-10-12 til FK, runde 8:** brevteksten er bygget i kjernen og
+> fryses i brevet og i leveringsoppdraget (#369, PR #410), etter vedtakene om
+> brevteksten (PR #412) og [LV-U5](#lv-u5) (#414). Feilinnføringene er kjørt i
+> CI og alle oppdaget (K 12.10, `426784c` i PR #410). Vedtakene i 3.1 føres nå
+> gjennom [vedtaksregisteret](../vedtaksregister/README.md), med vakttester i CI
+> (#413, PR #416 og PR #422). Lagringsformen er avgjort med [HF-U3](#hf-u3)
+> (#395). Ikke bygget: lagringsformen i datalaget for Azure SQL (F0b), leveringen
+> (#371) og resten av byggedel 1.
+
 ### F3 — Øvrige adaptere og drift
 
 **Avhenger av:** F2 grønn. Utvid én adapter om gangen.

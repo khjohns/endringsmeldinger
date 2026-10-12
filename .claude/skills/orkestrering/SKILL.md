@@ -22,8 +22,9 @@ og etter en time uten aktivitet er hurtigbufferen borte. Da betaler neste
 vekking for hele konteksten. En økt som lever over natta, blir dyrere for hver
 sjekk.
 
-**Størrelse.** Høyst fire arbeidsøkter samtidig. Grensen settes av hvor mye
-oppdragsgiver kan gå gjennom og av konflikter ved merge, ikke av antall issues.
+**Størrelse.** Høyst tre arbeidsøkter per runde (oppdragsgiver 12.10, #425).
+Grensen settes av hvor mye oppdragsgiver kan gå gjennom, av konflikter ved
+merge og av kostnaden, ikke av antall issues.
 Ber oppdragsgiver om en etikett («ta review-oppfølging»), velg runden slik:
 
 1. Ta bort issues med `venter-på-beslutning`, og issues som rekkefølgen i
@@ -52,6 +53,11 @@ sluttrapporten kommer tilbake, så orkestratorens kontekst holder seg liten.
 Arbeid som gir en PR, får egen økt, fordi den må følge CI og rettinger over
 timer. En subagent deler i tillegg checkout med orkestratoren.
 
+**Innsats for orkestratoren.** Orkestratoren skriver ikke kode og kjører på
+innsats `high`, ikke `xhigh` (oppdragsgiver 12.10, #425). Innsatsen settes i
+appen. Subagenten som prøver alternativene mot vedtakene, beholder
+standardmodellen.
+
 **Modell for subagenten.** Mekaniske kontroller går på `model: "haiku"` med
 `effort: "medium"`, eller `"high"` når kontrollen har flere steg (oppdragsgiver
 10.10). Det gjelder polling av CI, sammenligning med skript av kolonner, ankre
@@ -59,6 +65,15 @@ og tokens, lenkekontroll, lesing av CI-logger, og kontroll av at en diff bare
 inneholder de bestilte endringene. Oppdraget sier nøyaktig hva som skal
 kontrolleres, og hva rapporten skal inneholde. Kontroll av juss, vedtak og kode
 går på standardmodellen.
+
+**Modell for mekaniske arbeidsøkter (prøveperiode).** En arbeidsøkt med rent
+mekanisk arbeid, som infrastruktur, CI-bilder og ren flytting, kan gå på Haiku
+med innsats `high`, aldri en økt som rører kjernen, vedtak eller tilgang
+(oppdragsgiver 12.10, #425). Modellen velges i `create_session`; innsatsen
+settes i appen. Det er en prøve: for hver slik økt skriver orkestratoren en
+kommentar på #425 om økta gjorde en god nok jobb, med rettingene den trengte,
+antall CI-runder og funnene i kontrollen før merge. Oppdragsgiver avgjør om
+prøven blir regel.
 
 ## 1. Kartlegg før du fordeler
 
@@ -103,6 +118,10 @@ issue. Oppdraget skal inneholde:
   økta løser et slikt funn i samme PR med `Closes #n` bare når rettingen er
   noen få linjer i en fil den allerede endrer. Alt annet venter til neste
   runde, også funn i andre øktes filer og funn som krever en avgjørelse;
+- at oppdraget er avgrenset til om lag 45–60 minutter med aktivt arbeid, og
+  hvordan økta venter (se «Kontekst i arbeidsøktene»);
+- at kartlegging, lesing av store filer og CI-logger gjøres av subagenter, så
+  øktas egen kontekst holder seg liten (oppdragsgiver 12.10, #425);
 - hvilke sjekker som skal kjøres før push, og nettleserkontroll der issuet
   krever det, med skillen `mockup-nettleser`. `/mockup` har demodata og en egen
   statusregel, så den viser ikke at den ekte saksruta virker, og det finnes
@@ -271,16 +290,31 @@ konteksten på nytt ved neste vekking, og det er dyrest når konteksten er stor.
 stor kontekst blir de også dårligere: etter en komprimering arbeider økta på et
 sammendrag, og ordrette vedtak og rettelser kan gå tapt.
 
+- **Arbeid i timer, ikke i døgn.** Hurtigbufferen varer en time. Et oppdrag
+  avgrenses slik at økta kan bli ferdig på om lag 45–60 minutter med aktivt
+  arbeid. Den kan gå over for å gjøre seg ferdig: pushe, skrive tilstanden i
+  PR-beskrivelsen og melde fra. Venter økta på CI eller feilinnføringene og
+  regner med å fortsette innen en time, venter den med en bakgrunnskommando
+  som vekker den, så hurtigbufferen holder seg varm. Venter den lenger, for
+  eksempel på oppdragsgiver, skriver den tilstanden i PR-en og stopper. En ny,
+  liten økt tar over med en avgrenset bestilling (under), i stedet for at den
+  store økta vekkes kald. Det samme gjelder orkestratoren: runden avgrenses til
+  om lag én time med aktivt arbeid, sikkerhetssjekkene settes innen 55 minutter
+  mens noe pågår, og etter mer enn en time uten aktivitet avsluttes runden
+  heller enn å vekkes (oppdragsgiver 12.10, #425).
 - **Følg med i hver sjekk.** `get_session` viser brukt kontekst
   (`context_usage.used_tokens`) og kostnad (`usage.cost_usd`).
-- **Ved om lag 250 000 tokens** skal alt økta trenger for å fullføre, stå der
+- **Ved om lag 200 000 tokens** skal alt økta trenger for å fullføre, stå der
   den kan lese det på nytt: vedtakene i hovedplanen, arbeidsvalgene i issuet og
   kravene i PR-beskrivelsen. Gi den ingen nye oppgaver.
-- **Ved om lag 500 000 tokens, eller etter en komprimering,** sender
+- **Ved om lag 300 000 tokens, eller etter en komprimering,** sender
   orkestratoren én samlet sjekkliste over det som gjenstår, med kildene som
   skal leses på nytt. Gjenstår mer enn rettinger og CI, overtar en ny økt fra
-  PR-en og issuene. Den gamle pusher det den har, og avsluttes.
-- **Venting.** Har en økt passert om lag 250 000 tokens og ventet mer enn en
+  PR-en og issuene. Den gamle pusher det den har, og avsluttes. Den nye økta
+  får en avgrenset bestilling: sjekklisten, PR-nummeret og de konkrete kildene.
+  Den leser ikke hele historikken og arbeider under de samme grensene
+  (oppdragsgiver 12.10, #425).
+- **Venting.** Har en økt passert om lag 200 000 tokens og ventet mer enn en
   time på oppdragsgiver, vekkes den ikke. En ny økt overtar fra PR-en,
   vedtakene og issuet. Skriv derfor tilstanden i PR-beskrivelsen før økta
   begynner å vente, for eksempel som utkast-PR. Still spørsmålene tidlig, og
@@ -293,13 +327,13 @@ sammendrag, og ordrette vedtak og rettelser kan gå tapt.
 Det samme gjelder orkestratoren. Tilstanden holdes i issuene og PR-ene, ikke
 bare i samtalen. Orkestratoren gjentar ikke lange lister i samtalen.
 Spørsmålene står i én fil som oppdragsgiver får, og samtalen viser bare det som
-er endret. Passerer orkestratoren om lag 500 000 tokens, avsluttes runden når
+er endret. Passerer orkestratoren om lag 300 000 tokens, avsluttes runden når
 PR-ene som er nær merge, er merget. Resten går til neste runde.
 
 ## 3. Gjennomgang når øktene er ferdige
 
 Øktene melder fra når de er bedt om det (punkt 2). Sett i tillegg én sjekk med
-`send_later` som sikkerhetsnett, innen en time mens noe venter.
+`send_later` som sikkerhetsnett, innen 55 minutter mens noe venter.
 
 Send ikke nye issues til en økt som er i gang. De venter til neste runde.
 Samle det en økt skal ha, i én melding, og vent på svaret før neste. Meldinger
