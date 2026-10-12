@@ -48,7 +48,9 @@ arbeidstreet med `HEAD` og grenen med `origin/main`. Den leser ordene i hvert
 ledd etter prefiks som `command`, `env`, `nice`, `nohup`, `sudo` og
 `timeout`, og innholdet i `sh -c` og `eval`. Et prefiks med et flagg den ikke
 kjenner, stopper kallet, og det gjør også `xargs` og andre programmer som har
-`git`, `gh` eller et skall blant argumentene. Den slipper bare gjennom
+`git`, `gh` eller et skall blant argumentene. Commit og push stoppes etter
+`cd`, `git -C`, `env -C` og miljøvariabler for git, fordi kontrollen leser
+arbeidstreet kallet starter i. Den slipper bare gjennom
 `git push [-u] origin <utsjekket gren>`, uten andre flagg, i en egen kommando
 uten commit og uten endring av treet. Den stopper ikke den som vil omgå den
 med vilje. Mangler `node`, slipper alle kall gjennom: Claude Code regner bare
