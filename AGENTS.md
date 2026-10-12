@@ -114,9 +114,9 @@ hindrer test eller demo
 
 ## Miljø
 
-Kommandoene for testene, typesjekkene og verktøykjeden, og omveiene i skyøktene,
-står i [miljø-skillen](.claude/skills/miljo/SKILL.md). I Claude Code heter skillen
-`miljo`.
+Kommandoene for testene, typesjekkene og verktøykjeden står i
+[miljø-skillen](.claude/skills/miljo/SKILL.md). I Claude Code heter skillen `miljo`.
+Omveiene i skyøktene står i denne fila, og kommandoene for dem står i skillen.
 
 `svelte-check` ser ikke `kjerne/`, `sprakprove/` og `server/`, så de har hver sin
 `tsc -p`-kommando.
@@ -127,7 +127,8 @@ I skyøkta kan hele `npx vitest run` ta over 120 s, standardgrensen for Bash. Gi
 Testene er raske. Kjør dem ofte.
 Med `KOE_TESTBASE_URL` kjører `npm test` også TS-databasetestene. Kjør dem ikke
 samtidig med pytest mot samme base: oppryddingen i pytest setter basen tilbake.
-Sett etiketten `feilinnfoering` på en PR som rører kjernen, før merge.
+Sett etiketten `feilinnfoering` på en PR som rører kjernen, før merge. Hva den kjører,
+står i miljø-skillen.
 
 **Nettleserkontroll av `/mockup` går gjennom skillen `mockup-nettleser`.** Kjør
 aldri `npm i playwright` eller `playwright install`; skillen sier hvorfor.
@@ -246,6 +247,8 @@ eller i en test merket med «historisk» (`docs/verktoy/vedtakshenvisninger.py`,
 | Beviset: auditer, design, reviewer, oppdrag, og gjennomføringsnotater ved særskilt behov eller bestilling | `docs/`, i formen [`.claude/rules/dokumentasjon.md`](.claude/rules/dokumentasjon.md) beskriver |
 | Regler som bare gjelder én del av treet: databasen, testene, tilgangen, Python-domenet, `docs/` | `.claude/rules/`, som lastes når du arbeider der |
 | Leveranseprosedyren: akseptkriterier, eierskap, utfasing og bevis før en PR er klar | [Leveranseskillen](.claude/skills/leveranse/SKILL.md). PR- og oppgavemalene i `.github/` samler beviset, men eier ingen regler |
+| Kommandoene for tester, typesjekk og verktøykjeden, og omveiene i skyøkta | [Miljø-skillen](.claude/skills/miljo/SKILL.md). Reglene står i «Miljø» |
+| Episodene bak resonneringsreglene | [Resonnering-skillen](.claude/skills/resonnering/SKILL.md). Reglene står i «Resonneringsregler» |
 | Datamodellen: hver tabell, hendelsestype og relasjon, hvem som skriver, og hvilke kall til Catenda som leser eller skriver | Kilderegistrene `tabeller.toml`, `hendelser.toml`, `kjernehendelser.toml` (typene TS-kjernen skriver), `relasjoner.toml` og `dataflyt.toml` i `docs/datamodell/`, med skjemaet i `katalog.json`. Markdown og Excel lages av `docs/verktoy/datamodell.py`. Vakttester feiler når et register mangler en tabell, en type, en fremmednøkkel eller et kall, eller avviker fra koden eller migrasjonene |
 | Arbeid som pågår eller venter: hva, hvem, hvilken PR, hva det venter på | GitHub-issues, samlet i én milepæl per arbeidspakke |
 
