@@ -20,12 +20,18 @@ const SPERRET_MAPPE = new RegExp(
   `(^|[\\s'"=:(/<>;&|{\`])\\.?/?(${SPERREDE_MAPPER.join('|')})(/|[\\s;&|)\`'"]|$)`
 );
 
+// Hookoppsettet nevnt med filnavn, eller hele `.claude`-mappa som mål.
+const NEVNER_HOOKOPPSETT =
+  /settings(\.local)?\.json|(^|[\s'"=:(<>;&|{`])\.?\/?\.claude\/?\.?(?=$|[\s;&|)`'"])/;
+
 // Kommandoer og operatorer som kan skrive en fil som er nevnt i kommandoen.
 const SKRIVENDE = [
   />/,
   /\btee\b/,
   /\bsed\b[^|;&]*(\s-[a-zA-Z]*i|--in-place)/,
   /\bperl\b[^|;&]*\s-[a-zA-Z]*i/,
+  // `w` og `W` i et sed-skript skriver til fila etter kommandoen.
+  /\bsed\b[^|&]*[^\w-][wW]/,
   /\b(mv|cp|rm|rmdir|touch|mkdir|ln|chmod|truncate|dd|install|rsync|unlink)\b/,
   /\bgit\s+(checkout|restore|rm|mv|reset|clean|stash|init|clone|submodule|worktree)\b/,
   /\b(python3?|node|ruby|perl)\b[^|;&]*\s-[a-zA-Z]*[cep]\b/,
@@ -38,9 +44,10 @@ const SKRIVENDE = [
 
 // Skriver filer uten at stien står i kommandoen.
 const SKRIVENDE_UTEN_STI = [
-  /\bprettier\b[^|;&]*--write/,
-  /\beslint\b[^|;&]*--fix/,
+  /(^|\s)--(write|fix)\b/,
+  /\bprettier\b[^|;&]*\s-[a-zA-Z]*w/,
   /\bnpm\s+run\s+format\b/,
+  /\b(tar|bsdtar|unzip|cpio)\b/,
   /\bruff\b[^|;&]*(--fix|\bformat\b)/,
   /\bgit\s+(apply|am|cherry-pick)\b/,
   /(^|[\s;&|])patch\b/,
@@ -85,6 +92,10 @@ const TREENDRENDE = new Set([
 function sperretSti(relativ) {
   const forste = relativ.split(/[\\/]/)[0];
   return SPERREDE_MAPPER.includes(forste);
+}
+
+function vernetSti(relativ) {
+  return sperretSti(relativ) || HOOKOPPSETT.includes(relativ.split(path.sep).join('/'));
 }
 
 function git(cwd, ...argumenter) {
@@ -142,7 +153,7 @@ function sperredeFiler(filer) {
   return filer
     .split('\0')
     .filter(Boolean)
-    .filter((fil) => sperretSti(fil));
+    .filter((fil) => vernetSti(fil));
 }
 
 // Kommandoledd: `;`, `&&`, `||`, `|` og linjeskift skiller dem. Miljøvariabler,
@@ -273,7 +284,7 @@ function lekser(tekst) {
 // Flagg som er lesende for git-kommandoene under. git godtar forkortede lange flagg,
 // så flaggene står på en tillatelsesliste, ikke en sperreliste.
 const LESENDE_FLAGG = [
-  /^(--stat|--shortstat|--numstat|--name-only|--name-status|--oneline|--no-color|--cached|--short|--porcelain|--abbrev-ref|--verify|--quiet|--no-patch|--no-ext-diff|--graph|--all|--no-merges|--first-parent|--others|--exclude-standard|--modified|-p|-q|-s)$/,
+  /^(--show-toplevel|--show-prefix|--show-cdup|--git-dir|--git-common-dir|--absolute-git-dir|--is-inside-work-tree|--stat|--shortstat|--numstat|--name-only|--name-status|--oneline|--no-color|--cached|--short|--porcelain|--abbrev-ref|--verify|--quiet|--no-patch|--no-ext-diff|--graph|--all|--no-merges|--first-parent|--others|--exclude-standard|--modified|-p|-q|-s)$/,
   /^(-n|-\d+|-U\d+|--stat=\d+|--unified=\d+|--diff-filter=[A-Za-z]+|--format=.*|--pretty=.*|--grep=.*|--author=.*|--since=.*|--until=.*)$/,
 ];
 // fetch uten --prune, som sletter fjernsporingsgreiner.
@@ -366,33 +377,90 @@ function vurderLesing(input) {
   return null;
 }
 
-// Prefiks som skallet kjører kommandoen gjennom. Argumentene til dem hoppes over.
-const PREFIKS = new Set([
-  'builtin',
-  'command',
-  'env',
-  'exec',
-  'nice',
-  'nohup',
-  'sudo',
-  'time',
-  'timeout',
-  'xargs',
+// Prefiks som skallet kjører kommandoen gjennom, med flaggene vakten kan tolke: `uten` tar
+// ikke argument, `med` tar ett. Et annet flagg gjør kommandoordet ukjent, og kallet stoppes.
+// xargs er ikke med: den legger til argumenter fra stdin, så kommandoen kan ikke leses.
+const PREFIKS = new Map([
+  ['builtin', { uten: [], med: [] }],
+  ['command', { uten: ['-p', '-v', '-V'], med: [] }],
+  ['env', { uten: ['-i', '--ignore-environment', '-'], med: ['-u', '--unset', '-C', '--chdir'] }],
+  ['exec', { uten: ['-c', '-l'], med: ['-a'] }],
+  ['nice', { uten: [], med: ['-n', '--adjustment'], tall: true }],
+  ['nohup', { uten: [], med: [] }],
+  ['sudo', { uten: [], med: [] }],
+  ['time', { uten: ['-p'], med: [] }],
+  [
+    'timeout',
+    {
+      uten: ['--preserve-status', '--foreground', '-v', '--verbose'],
+      med: ['-s', '--signal', '-k', '--kill-after'],
+      varighet: true,
+    },
+  ],
 ]);
 const SKALL = new Set(['sh', 'bash', 'zsh', 'dash']);
 
 // Reserverte ord som står foran kommandoen i en sammensatt kommando, som `if` og `then`.
 const RESERVERT = /^(!|if|then|else|elif|do|while|until)$/;
 
-function erPrefiks(o) {
-  return (
-    /^[A-Za-z_]\w*=/.test(o) ||
-    PREFIKS.has(o) ||
-    RESERVERT.test(o) ||
-    /^-/.test(o) ||
-    /^\d+(\.\d+)?[smhd]?$/.test(o)
-  );
+/** Indeksen etter prefiksets flagg og eventuelle varighet, eller null når de ikke kan tolkes. */
+function etterPrefiks(ord, i, { uten, med, tall, varighet }) {
+  for (; i < ord.length && ord[i].startsWith('-'); i++) {
+    const o = ord[i];
+    if (o === '--') {
+      i++;
+      break;
+    }
+    if (uten.includes(o) || (tall && /^-\d+$/.test(o))) continue;
+    if (med.includes(o)) {
+      if (++i >= ord.length) return null;
+    } else if (
+      o.startsWith('--')
+        ? !med.includes(o.split('=')[0]) || !o.includes('=')
+        : !med.includes(o.slice(0, 2))
+    ) {
+      return null;
+    }
+  }
+  if (varighet) {
+    if (!/^\d+(\.\d+)?[smhd]?$/.test(ord[i] ?? '')) return null;
+    i++;
+  }
+  return i;
 }
+
+/** Indeksen til kommandoordet etter tilordninger, reserverte ord og prefiks, eller null. */
+function kommandoordet(ord) {
+  let k = 0;
+  while (k < ord.length) {
+    if (/^[A-Za-z_]\w*=/.test(ord[k]) || RESERVERT.test(ord[k])) {
+      k++;
+      continue;
+    }
+    const flagg = PREFIKS.get(ord[k].split('/').pop());
+    if (!flagg) return k;
+    k = etterPrefiks(ord, k + 1, flagg);
+    if (k === null) return null;
+  }
+  return k;
+}
+
+// Ord i argumentene som kan starte git, gh eller et skall. Bare kommandoene i
+// TEKSTKOMMANDOER kjører aldri argumentene sine.
+const NEVNER_KJOERBAR = /(^|[\s'"`(;&|/])(git|gh|sh|bash|zsh|dash|eval)(?=$|[\s'"`);&|])/;
+const TEKSTKOMMANDOER = new Set([
+  'echo',
+  'printf',
+  'grep',
+  'rg',
+  'cat',
+  'head',
+  'tail',
+  'wc',
+  'ls',
+  'git',
+  'gh',
+]);
 
 // Innholdet i `-c` for et skall, etter eventuelle valg som `-o pipefail`.
 function skallPayload(argumenter) {
@@ -425,8 +493,11 @@ function effektiveKommandoer(leddene) {
       ut.push(...effektiveKommandoer(lekser(tekst)));
       continue;
     }
-    let k = 0;
-    while (k < ord.length && erPrefiks(ord[k])) k++;
+    const k = kommandoordet(ord);
+    if (k === null) {
+      ut.push({ ord, ukjentKommando: true, ukjentPrefiks: true });
+      continue;
+    }
     if (k >= ord.length) continue;
     const kommando = ord[k].split('/').pop();
     const resten = ord.slice(k + 1);
@@ -521,9 +592,11 @@ function vurder(input) {
   // Reglene kjøres derfor også på teksten uten dem.
   const varianter = [kommando, kommando.replace(/['"\\]/g, '')];
   const tekster = new Set(varianter.flatMap((t) => [t, utenGitGlobale(t)]));
-  const nevnerSperret = [...tekster].some((t) => SPERRET_MAPPE.test(t));
+  const nevnerSperret = [...tekster].some(
+    (t) => SPERRET_MAPPE.test(t) || NEVNER_HOOKOPPSETT.test(t)
+  );
   if (nevnerSperret && [...tekster].some((t) => SKRIVENDE.some((m) => m.test(t)))) {
-    return 'Kommandoen nevner en sperret mappe og kan skrive.';
+    return 'Kommandoen nevner en sperret mappe eller hookoppsettet og kan skrive.';
   }
   for (const tekst of tekster) {
     const utenSti = SKRIVENDE_UTEN_STI.find((m) => m.test(tekst));
@@ -531,6 +604,9 @@ function vurder(input) {
   }
 
   const eff = effektiveKommandoer(leddene);
+  if (eff.some((del) => del.ukjentPrefiks)) {
+    return 'Kommandoen har et prefiks med flagg som vakten ikke kan tolke sikkert.';
+  }
   if (eff.some((del) => del.ukjentKommando)) {
     return 'Kommandoen starter med skallsyntaks som ikke kan leses statisk.';
   }
@@ -541,6 +617,15 @@ function vurder(input) {
     return 'Kommandoen har skallsyntaks som ikke kan leses statisk, og kan skrive.';
   }
 
+  if (
+    eff.some(
+      (del) =>
+        !TEKSTKOMMANDOER.has(del.ord[0]) && del.ord.slice(1).some((o) => NEVNER_KJOERBAR.test(o))
+    )
+  ) {
+    return 'Kommandoen kan starte git, gh eller et skall gjennom et program vakten ikke kjenner.';
+  }
+
   const deler = ledd(kommando);
   const gitene = eff.filter((del) => del.ord[0] === 'git').map((del) => gitKommando(del.ord));
   if (
@@ -548,6 +633,10 @@ function vurder(input) {
     eff.some((del) => del.ord[0] === 'gh' && GH_MERGE.test(del.ord.join(' ')))
   ) {
     return 'mekanisk-pr merger ikke og oppdaterer ikke PR-en mot main.';
+  }
+  // GraphQL kan merge og slå på automatisk merge med en mutasjon, og trengs ikke for lesing.
+  if (eff.some((del) => del.ord[0] === 'gh' && del.ord.includes('graphql'))) {
+    return 'mekanisk-pr bruker ikke gh api graphql.';
   }
   if (
     deler.some((del) => /^git\s+(-c\b|config\b)/.test(del)) ||

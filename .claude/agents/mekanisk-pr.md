@@ -39,14 +39,16 @@ Hooken er et vern, ikke en garanti. Den leser kommandoteksten og ser ikke:
   `cp docs/a.md /home/.../docs/b.md`. Bare Write og Edit stoppes der;
 - git startet fra et skript, og git-kommandoer utenom push, commit, add,
   config, remote, update-ref, symbolic-ref og endring av treet;
-- hookoppsettet i ditt eget arbeidstre: `.claude/settings.json` og
-  `.claude/settings.local.json` stoppes, men `.claude/hooks/` kan du endre.
-  Diffkontroll leser det som endres.
+- endringer i `.claude/hooks/`. Hookoppsettet, `.claude/settings.json` og
+  `.claude/settings.local.json`, stoppes med Write, Edit og skrivende Bash som
+  nevner det, og ved commit og push. Diffkontroll leser det som endres.
 
 Ved `git add`, `git commit` og `git push` sammenligner den endringene i
 arbeidstreet med `HEAD` og grenen med `origin/main`. Den leser ordene i hvert
-ledd etter prefiks som `command`, `env`, `nohup`, `timeout` og `xargs`, og
-innholdet i `sh -c` og `eval`. Den slipper bare gjennom
+ledd etter prefiks som `command`, `env`, `nice`, `nohup`, `sudo` og
+`timeout`, og innholdet i `sh -c` og `eval`. Et prefiks med et flagg den ikke
+kjenner, stopper kallet, og det gjør også `xargs` og andre programmer som har
+`git`, `gh` eller et skall blant argumentene. Den slipper bare gjennom
 `git push [-u] origin <utsjekket gren>`, uten andre flagg, i en egen kommando
 uten commit og uten endring av treet. Den stopper ikke den som vil omgå den
 med vilje. Mangler `node`, slipper alle kall gjennom: Claude Code regner bare
