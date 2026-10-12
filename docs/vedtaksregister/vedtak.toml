@@ -2017,6 +2017,180 @@ Avklarer U7 i
 (#284). Tiltenkt atferd for prøven. Hvem som kan avgjøre motstriden, og rettelser av
 låste opplysninger, avgjøres ikke (B-16)'''
 
+[[gruppe.vedtak]]
+id = "VS-U17"
+dato = 2026-10-12
+hvem = "oppdragsgiver"
+kilde = ["#309", "#407"]
+sporsmal = '''
+§ 33.6.2 annet ledd: når byggherren ber om det, skal TE «uten ugrunnet opphold enten a) angi og begrunne det antall dager han krever som fristforlengelse, eller b) begrunne hvorfor grunnlaget for å beregne kravet ikke foreligger.» Femte ledd: svarer TE etter bokstav b, «gjelder bestemmelsen i 33.6.1». VS-U3 sier at en uttrykkelig påberopelse av at TE svarte for sent på forespørselen får virkning, og at manglende svar bare vises. Hva gjelder når TE svarer med en begrunnelse etter bokstav b?
+
+A: TEs begrunnelse etter § 33.6.2 annet ledd bokstav b registreres som TEs svar på forespørselen, og § 33.6.1 gjelder for kravet som senere fremmes (femte ledd). Påberoper byggherren uttrykkelig at begrunnelsen kom for sent, utledes virkningen som etter § 33.6.2 tredje ledd. Mener byggherren at begrunnelsen ikke er et svar etter annet ledd, registreres og vises det standpunktet uten utledet virkning, som når TE ikke svarer.
+Forhold: presiserer VS-U3.
+
+B: Som A, men: Mener byggherren at begrunnelsen ikke er et svar etter annet ledd, utledes virkningen som etter § 33.6.2 tredje ledd: kravet er prinsipalt avslått, med subsidiært standpunkt.
+Forhold: strider mot VS-U3 og VS-U2, og er et forslag om å endre VS-U3.
+
+Spørsmålet står i spørsmålspakken for byggedel 2 på #309 (J5).'''
+valgt = "A"
+svar = '''
+A: vises bare (Anbefalt)'''
+forhold = [{ art = "presiserer", vedtak = "vs-u3" }]
+folge = '''
+Følger [VS-U2](#vs-u2). Ikke bygget'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+TEs begrunnelse etter § 33.6.2 annet ledd bokstav b registreres som TEs svar på forespørselen, og § 33.6.1 gjelder for kravet som senere fremmes (femte ledd). Påberoper byggherren uttrykkelig at begrunnelsen kom for sent, utledes virkningen som etter § 33.6.2 tredje ledd. Mener byggherren at begrunnelsen ikke er et svar etter annet ledd, registreres og vises det standpunktet uten utledet virkning, som når TE ikke svarer.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+TEs begrunnelse etter § 33.6.2 annet ledd bokstav b registreres som TEs svar på forespørselen, og § 33.6.1 gjelder for kravet som senere fremmes (femte ledd). Påberoper byggherren uttrykkelig at begrunnelsen kom for sent, utledes virkningen som etter § 33.6.2 tredje ledd. Mener byggherren at begrunnelsen ikke er et svar etter annet ledd, utledes virkningen som etter § 33.6.2 tredje ledd: kravet er prinsipalt avslått, med subsidiært standpunkt.'''
+forkastet = true
+
+[[gruppe.vedtak]]
+id = "VS-U18"
+dato = 2026-10-12
+hvem = "oppdragsgiver"
+kilde = ["#309"]
+sporsmal = '''
+§ 33.5 sier at fristforlengelsen skal svare til virkningen på fremdriften, med hensyn til blant annet årstid og den samlede virkningen av tidligere varslede forhold, og at partene plikter å begrense skadevirkningene. MM-U12: «Appen avgjør ikke det kontrakten overlater til partene, en oppmann eller domstolene.» Hvordan behandler appen § 33.5?
+
+A: Appen avgjør ikke hvor mange dager fristforlengelsen skal svare til etter § 33.5. TEs krav om antall dager og byggherrens standpunkt om dagene registreres, og om dagene sammenlikner appen bare TEs og byggherrens tall (VS-U3).
+Forhold: følger MM-U12, VS-U3 og EO-U8. Anbefalt.
+
+B: Som A, og i tillegg: Appen viser § 33.5 som veiledning i fristkravet og fristsvaret, uten å trekke noen konklusjon.
+Forhold: gjør for § 33.5 det KA-U23 gjør for § 33.3 femte ledd. Strider ikke mot et vedtak.
+
+Spørsmålet står i spørsmålspakken for byggedel 2 på #309 (J6).'''
+valgt = "B"
+svar = '''
+B: med veiledning'''
+folge = '''
+Følger [MM-U12](#mm-u12), [VS-U3](#vs-u3), [EO-U8](#eo-u8) og [KA-U23](#ka-u23). Ikke bygget'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Appen avgjør ikke hvor mange dager fristforlengelsen skal svare til etter § 33.5. TEs krav om antall dager og byggherrens standpunkt om dagene registreres, og om dagene sammenlikner appen bare TEs og byggherrens tall (VS-U3).'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Appen avgjør ikke hvor mange dager fristforlengelsen skal svare til etter § 33.5. TEs krav om antall dager og byggherrens standpunkt om dagene registreres, og om dagene sammenlikner appen bare TEs og byggherrens tall (VS-U3). Appen viser § 33.5 som veiledning i fristkravet og fristsvaret, uten å trekke noen konklusjon.'''
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Appen avgjør ikke det kontrakten overlater til partene, en oppmann eller domstolene."
+
+[[gruppe.vedtak]]
+id = "VS-U19"
+dato = 2026-10-12
+hvem = "oppdragsgiver"
+kilde = ["#309"]
+sporsmal = '''
+T2, forespørselen etter § 33.6.2 første ledd (teknisk vedtak). Forslag: «Byggherren kan sende en forespørsel etter § 33.6.2 fra appen så lenge TE ikke har fremmet et krav om antall dager i saken. Deretter avvises den. En forespørsel sendt utenfor appen registreres alltid, også etter et slikt krav, og vises med datoen. Brevet fra appen har formkravene i § 33.6.2 første ledd. Ved en registrert forespørsel avgjør ikke appen om formkravene var oppfylt. Virkningen utledes bare når byggherren uttrykkelig påberoper at TE svarte for sent (VS-U3), ellers vises den (VS-U2).» Følger mønsteret i VS-U16, MM-U8 og KA-U16: det appen avviser, kan likevel registreres når det faktisk ble sendt.
+
+Godta: forslaget føres som vedtak.
+Avvis: forkastet alternativ: å avvise en registrert forespørsel etter et krav om antall dager.
+
+Spørsmålet står i spørsmålspakken for byggedel 2 på #309 (T2).'''
+valgt = "Godta"
+svar = '''
+Godta (Anbefalt)'''
+folge = '''
+Følger [VS-U16](#vs-u16), [MM-U8](#mm-u8) og [KA-U16](#ka-u16). Ikke bygget'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Godta"
+tekst = '''
+Byggherren kan sende en forespørsel etter § 33.6.2 fra appen så lenge TE ikke har fremmet et krav om antall dager i saken. Deretter avvises den. En forespørsel sendt utenfor appen registreres alltid, også etter et slikt krav, og vises med datoen. Brevet fra appen har formkravene i § 33.6.2 første ledd. Ved en registrert forespørsel avgjør ikke appen om formkravene var oppfylt. Virkningen utledes bare når byggherren uttrykkelig påberoper at TE svarte for sent (VS-U3), ellers vises den (VS-U2).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Avvis"
+tekst = '''
+En registrert forespørsel etter § 33.6.2 avvises etter et krav om antall dager.'''
+forkastet = true
+
+[[gruppe.vedtak]]
+id = "VS-U20"
+dato = 2026-10-12
+hvem = "oppdragsgiver"
+kilde = ["#309", "#407"]
+sporsmal = '''
+Varselet etter § 33.4 og det spesifiserte kravet etter § 33.6.1 er to meldinger. Sender TE kravet med dager uten varsel først, er kravet også varselet. Byggherren kan påberope for sent varsel etter § 33.4, og da tapes kravet. Byggherren kan også påberope for sen spesifisering etter § 33.6.1, og da har TE bare krav på det byggherren måtte forstå. Begge kan påberopes samtidig. § 5 tredje ledd krever bare at det skjer skriftlig uten ugrunnet opphold. VS-U11: «et registrert svar som ikke sier noe om rettidigheten, leses med innsigelsen.» Byggherren har i tide påberopt at varselet kom for sent. TE sender senere en ny kravversjon, og byggherrens svar på den sier ikke noe om varselet. Står påberopelsen?
+
+A: Har byggherren påberopt at TE varslet for sent etter § 33.4, gjelder påberopelsen varselet og står mot hver senere kravversjon i samme sak, også når varselet var selve kravet. Et senere svar som ikke sier noe om varselet, leses med påberopelsen. Appen leser den som oppgitt bare når byggherren uttrykkelig har sagt at varselet kom i tide. Om et senere brev etter en konkret tolkning innebærer at den er oppgitt, avgjør ikke appen (VS-U11).
+Forhold: presiserer VS-U9 og VS-U11. Anbefalt.
+
+B: Påberopelsen gjelder bare kravversjonen den ble gjort mot. Mot en senere kravversjon må byggherren gjenta den, og et senere svar som ikke sier noe om varselet, leses uten påberopelsen.
+Forhold: strider mot VS-U11 og HF-U1, og er et forslag om å endre VS-U11.
+
+Spørsmålet står i versjon 2 av spørsmålspakken for byggedel 2 på #309 (K3), og erstatter J1 i versjon 1.'''
+valgt = "A"
+svar = '''
+BH vil kunne naturligvis kunne velge å frafalle innsigelsen etter 33.4, ellers er A ok'''
+forhold = [{ art = "presiserer", vedtak = "vs-u9" }, { art = "presiserer", vedtak = "vs-u11" }]
+folge = '''
+Ikke bygget'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Har byggherren påberopt at TE varslet for sent etter § 33.4, gjelder påberopelsen varselet og står mot hver senere kravversjon i samme sak, også når varselet var selve kravet. Et senere svar som ikke sier noe om varselet, leses med påberopelsen. Appen leser den som oppgitt bare når byggherren uttrykkelig har sagt at varselet kom i tide. Om et senere brev etter en konkret tolkning innebærer at den er oppgitt, avgjør ikke appen (VS-U11).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Påberopelsen gjelder bare kravversjonen den ble gjort mot. Mot en senere kravversjon må byggherren gjenta den, og et senere svar som ikke sier noe om varselet, leses uten påberopelsen.'''
+forkastet = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "et registrert svar som ikke sier noe om rettidigheten, leses med innsigelsen"
+utdrag = true
+
+[[gruppe.vedtak]]
+id = "VS-U21"
+dato = 2026-10-12
+hvem = "oppdragsgiver"
+kilde = ["#309", "#407"]
+sporsmal = '''
+Et brev fra byggherren kan være sendt utenfor appen og registrert i den. Brevet kan si at TE var «for sent» uten å si hva det gjelder: varselet (§ 33.4, kravet tapes), det spesifiserte kravet (§ 33.6.1, TE har bare krav på det byggherren måtte forstå) eller begge. I et brev fra appen spør skjemaet om hver for seg. HF-U1: «Hvert utsagn viser uttrykkelig til det det gjelder.» Hvordan skal appen vite hva et registrert brev påberoper?
+
+A: Når et brev fra byggherren registreres, angir den som registrerer, hva brevet påberoper: at varselet kom for sent etter § 33.4, at kravet ble spesifisert for sent etter § 33.6.1, eller begge. Det gjelder også når kravet var varselet. Appen avgjør ikke det ut fra saken. Sier brevet ikke hvor mange dager byggherren mener TE måtte forstå, registreres påberopelsen etter § 33.6.1 uten tall, og brevet kan merkes (KA-U16, KA-U20).
+Forhold: følger HF-U1 og presiserer VS-U9. For registrerte brev gjør A unntak fra tallkravet i VS-U4. Anbefalt.
+
+B: Appen leser påberopelsen ut fra saken. Har TE varslet før kravet, gjelder den spesifiseringen etter § 33.6.1. Ellers gjelder den varselet etter § 33.4.
+Forhold: strider mot HF-U1, og gir ikke rom for begge påberopelsene samtidig.
+
+Spørsmålet står i versjon 2 av spørsmålspakken for byggedel 2 på #309 (K4), og erstatter J2 i versjon 1.'''
+valgt = "A"
+svar = '''
+A: den som registrerer (Anbefalt)'''
+forhold = [{ art = "presiserer", vedtak = "vs-u9" }, { art = "snevrer inn", vedtak = "vs-u4" }]
+folge = '''
+Følger [HF-U1](#hf-u1), [KA-U16](#ka-u16) og [KA-U20](#ka-u20). Ikke bygget'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Når et brev fra byggherren registreres, angir den som registrerer, hva brevet påberoper: at varselet kom for sent etter § 33.4, at kravet ble spesifisert for sent etter § 33.6.1, eller begge. Det gjelder også når kravet var varselet. Appen avgjør ikke det ut fra saken. Sier brevet ikke hvor mange dager byggherren mener TE måtte forstå, registreres påberopelsen etter § 33.6.1 uten tall, og brevet kan merkes (KA-U16, KA-U20).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Appen leser påberopelsen ut fra saken. Har TE varslet før kravet, gjelder den spesifiseringen etter § 33.6.1. Ellers gjelder den varselet etter § 33.4.'''
+forkastet = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Hvert utsagn viser uttrykkelig til det det gjelder"
+utdrag = true
+
 [[gruppe]]
 tittel = "Endringsordre og forsering"
 
