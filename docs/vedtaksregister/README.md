@@ -56,7 +56,10 @@ det også `og presiserer [X](#x)`, og i et passivt ledd `og utvidet av [X](#x)` 
 `[A](#a), [B](#b) og [C](#c)`. Annen tekst tolkes ikke, heller ikke «er presisert
 av» midt i en setning, der subjektet kan være et annet vedtak, eller en ID uten
 lenke. Følge skrives ikke om: forholdet står allerede i teksten, så verktøyet
-skriver det ikke i raden. En rad uten anker kan ikke være vedtaket et forhold gjelder.
+skriver det ikke i raden. En rad uten anker kan ikke være vedtaket et forhold gjelder;
+en passiv form der listes. En lenke i et uttrykkelig forhold som ikke er til et vedtak,
+til vedtaket selv eller, i passiv form, til en ny post, er en feil. Importen nekter å
+skrive over et register med forhold i de importerte postene.
 
 ```bash
 python3 docs/verktoy/vedtaksregister.py --forhold   # det som står én vei, og det som ikke leses
@@ -127,7 +130,7 @@ tekst = "et ordrett utdrag"
 | Hvert anker i hovedplanen står én gang, og ID-en til en ny post står ikke i hovedplanen på `main` fra før, heller ikke uten anker eller utenfor 3.1 | hele planen |
 | Spørsmålet, alternativene, svaret og de andre feltene i en merget ny post står uendret; bare `folge` kan endres | nye poster på `main` |
 | Forholdet står begge veier | nye poster med `forhold` |
-| Forholdene i en importert post er de Følge sier uttrykkelig, og de står begge veier, unntatt dem i `EN_VEI`; et forhold i `EN_VEI` som står begge veier, er også en feil | importerte poster |
+| Forholdene i en importert post er de Følge sier uttrykkelig, og de står begge veier, unntatt dem i `EN_VEI`; et forhold i `EN_VEI` som står begge veier, er også en feil; en lenke i et uttrykkelig forhold går til et annet vedtak, og i passiv form til en importert post | importerte poster |
 | Vedtaksteksten har ingen kodenavn: backticks, `snake_case`, `camelCase`, `STORE_BOKSTAVER` med understrek, `navn()` og filnavn | nye poster, det valgte og de forkastede alternativene |
 | Svaret nevner det valgte alternativet og ikke noe annet alternativ ved navn | nye poster |
 | Hvert sitat står ordrett i posten og i kilden, med mellomrom normalisert, og er hele setninger der: det begynner ved setningsstart, «, kolon, semikolon eller cellegrense og slutter ved punktum, » eller cellegrense. Fet skrift og et anker foran hoppes over, og en overskrift, et avsnitt og et punkt er grenser. `utdrag = true` slipper et utdrag gjennom uttrykkelig. Kilden er NS 8407 eller fila slik den er på `main`, så et sitat kan ikke få kilden sin i samme PR | nye poster til de er merget; raden til posten selv teller ikke som kilde i hovedplanen. Etter merge kan kilden endres, og sitatet prøves ikke igjen |
