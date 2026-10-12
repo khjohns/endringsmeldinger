@@ -801,6 +801,105 @@ Registreringen godtas, og visningen viser at datoen ligger før svaret. Appen av
 kilde = "hovedplanen"
 tekst = "Den endrer ingen standpunkter, og appen vurderer ikke om den er tilstrekkelig eller kom i tide."
 
+[[gruppe.vedtak]]
+id = "KA-U37"
+dato = 2026-10-12
+hvem = "oppdragsgiver"
+kilde = ["#468"]
+sporsmal = '''
+KA-U36 sier at en registrert begrunnelse med sendt-dato før svaret den begrunner, avvises, og at kontrollen «gjelder bare når svaret har en dato». Vedtaket sier ikke hvilken dato et svar byggherren sendte fra appen, har. Appen vet bare når den registrerte svaret, og brevet viser den datoen («brev <n> av <dato>»). Hvilken lesning gjelder? Valget blir et nytt vedtak som presiserer KA-U36.
+
+A: Et svar byggherren sender fra appen, har datoen appen registrerte det, i norsk tid, som i brevet. En registrert begrunnelse med sendt-dato før den datoen avvises. Samme dato godtas.
+Forhold: presiserer KA-U36. Gir kontroll i hovedtilfellet, i tråd med begrunnelsen i vedtaket: begrunnelsen kan ikke komme før svaret.
+
+B: Bare et registrert svar har en dato. En registrert begrunnelse til et svar sendt fra appen kontrolleres ikke.
+Forhold: snevrer inn KA-U36. En tilbakedatert begrunnelse til et svar fra appen blir godtatt.'''
+valgt = "A"
+svar = '''
+A: appens dato (Anbefalt)'''
+forhold = [{ art = "presiserer", vedtak = "ka-u36" }]
+folge = '''
+Ikke bygget'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Et svar byggherren sender fra appen, har datoen appen registrerte det, i norsk tid, som i brevet. En registrert begrunnelse med sendt-dato før den datoen avvises. Samme dato godtas.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Bare et registrert svar har en dato. En registrert begrunnelse til et svar sendt fra appen kontrolleres ikke.'''
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "gjelder bare når svaret har en dato"
+utdrag = true
+
+[[gruppe.vedtak]]
+id = "KA-U38"
+dato = 2026-10-12
+hvem = "oppdragsgiver"
+kilde = ["#468"]
+sporsmal = '''
+Et registrert svar fra byggherren kan ha en dato for når det ble sendt, når TE mottok det, eller begge. KA-U36 sammenlikner med begrunnelsens sendt-dato. Hvilken dato på svaret gjelder? Valget blir del av samme nye vedtak og presiserer KA-U36.
+
+A: For et registrert svar sammenliknes begrunnelsen med datoen svaret ble sendt. Har svaret bare datoen det ble mottatt, kontrolleres ikke begrunnelsen.
+Forhold: presiserer KA-U36. Byggherren kan ha sendt begrunnelsen etter svaret, men før TE mottok svaret; en kontroll mot mottatt-datoen ville avvist en riktig registrering.
+
+B: Har svaret bare datoen det ble mottatt, sammenliknes begrunnelsen med den.
+Forhold: utvider kontrollen til en dato som ikke viser når svaret ble sendt, og kan avvise en riktig registrering.'''
+valgt = "A"
+svar = '''
+A: bare sendt-dato (Anbefalt)'''
+forhold = [{ art = "presiserer", vedtak = "ka-u36" }]
+folge = '''
+Ikke bygget'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+For et registrert svar sammenliknes begrunnelsen med datoen svaret ble sendt. Har svaret bare datoen det ble mottatt, kontrolleres ikke begrunnelsen.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Har svaret bare datoen det ble mottatt, sammenliknes begrunnelsen med den.'''
+
+[[gruppe.vedtak]]
+id = "KA-U39"
+dato = 2026-10-12
+hvem = "oppdragsgiver"
+kilde = ["#468"]
+sporsmal = '''
+TE kan bestride datoen i et registrert brev fra byggherren. MM-U7 sier: «Bestridelsen registreres uten virkning på utfallet.» Vedtaket sier ikke uttrykkelig om en bestridelse virker på om en annen registrering godtas. Hva gjelder når TE har bestridt datoen på svaret som begrunnes? Valget blir del av samme nye vedtak.
+
+A: En bestridelse av datoen på svaret endrer ikke kontrollen. Datoen svaret ble registrert med, brukes.
+Forhold: presiserer KA-U36 og følger MM-U7: bestridelsen virker ikke. Det samme gjelder i dag for et registrert varsel, som beholder datoen det fikk første gang.
+
+B: Er datoen på svaret bestridt, kontrolleres ikke begrunnelsen.
+Forhold: snevrer inn KA-U36. Gir bestridelsen en virkning MM-U7 ikke gir den.'''
+valgt = "A"
+svar = '''
+A: datoen brukes (Anbefalt)'''
+forhold = [{ art = "presiserer", vedtak = "ka-u36" }]
+folge = '''
+Følger [MM-U7](#mm-u7). Ikke bygget'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+En bestridelse av datoen på svaret endrer ikke kontrollen. Datoen svaret ble registrert med, brukes.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Er datoen på svaret bestridt, kontrolleres ikke begrunnelsen.'''
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Bestridelsen registreres uten virkning på utfallet."
+
 [[gruppe]]
 tittel = "Aksept og enighet"
 
