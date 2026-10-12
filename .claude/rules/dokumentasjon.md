@@ -28,6 +28,13 @@ forklaring. Ingen gjennomføringsrapport eller handoff kreves for hver PR.
   ADR-er og designnotater kan begrunne valg, men oppretter ikke et konkurrerende
   beslutningsregister. En eventuell senere flytting av autoriteten må være
   uttrykkelig, med lenker og markering av hva som er erstattet.
+- Avsnitt 3.1 i hovedplanen lages av
+  [vedtaksregisteret](../../docs/vedtaksregister/README.md) (#413). Hovedplanen
+  er fortsatt autoritativ: et vedtak er det som står i 3.1 på `main`.
+  Registeret er kilden raden lages av, og beviset for et nytt vedtak:
+  spørsmålet, alternativene og svaret ordrett. Det fører ingen vedtak som ikke
+  står i 3.1. Rett 3.1 i registeret og kjør
+  `docs/verktoy/vedtaksregister.py`, ikke i hovedplanen.
 - Gjeldende arkitektur beskrives kort med ansvar, grenser og lenker til detaljer.
   Oppstart, migrering, gjenoppretting og drift beskrives som prøvbare oppskrifter.
   Gjenbruk eksisterende dokumenter; ikke opprett en ny systemoversikt per oppgave.
