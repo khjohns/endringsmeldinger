@@ -54,7 +54,7 @@ ikke er vedtatt. Slike valg står som åpne beslutninger i
 | Denne planen | Autoritativ for vedtak, rekkefølge og funnstatus |
 | [Domenetabellen](../domenetabell/README.md) | Eier forventet atferd per rad, begrepene og bevis-sakene. Radene viser til vedtakene her og gjentar dem ikke |
 | [Modellforslaget](../forslag-maalmodell-2026-10-09.md) | Begrunnelse for målmodellen. Ikke vedtatt som helhet; vedtakene som bygger på det, står i 3.1 |
-| Kjernemappa [`kjerne/`](../../kjerne/) | TS-kjernen (1.3, B-14). Målmodellen fra #304 er flyttet hit og skrevet om etter vedtakene 09.10 (#308). Dekker forløp A–E; resten av domenet er #309 |
+| Kjernemappa [`kjerne/`](../../kjerne/) | TS-kjernen (1.3, B-14). Målmodellen fra #304 er flyttet hit og skrevet om etter vedtakene 09.10 (#308). Dekker forløp A–E. Arbeidet med resten av domenet står i #309 |
 | [Arkitekturforslaget](../forslag-maalarkitektur-og-beslutningsproeve-2026-10-07.md) | Begrunnelse for B-14 og språkvalget (avsnitt 7 der). Overgangen der, én kommando om gangen, er erstattet av B-17 |
 | [Metodeprøven](../vedlegg/metodeprove-frist-2026-10-08/README.md) | Prøve av fristkrav og tidsinnsigelser. Vedtakene er MP-U4–MP-U7 |
 | [Arkitekturføringene AF-01–AF-06](../arkitekturforinger-2026-09-21.md) | Vedtatte føringer. Normative for design, ikke implementert |
