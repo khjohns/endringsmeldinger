@@ -12,6 +12,7 @@ import copy
 import datetime
 import importlib.util
 import pathlib
+import re
 
 import pytest
 
@@ -94,17 +95,34 @@ def test_visningen_sier_at_3_1_er_autoritativ_og_lager_ingen_sammenslatt_ordlyd(
     assert "lager ingen sammenslått gjeldende ordlyd" in tekst
 
 
+def _seksjon(tekst: str, etikett: str) -> list[str]:
+    linjer = tekst.split("\n### ")
+    return next(d for d in linjer if d.split("\n", 1)[0].endswith(f"</a>{etikett}")).splitlines()[1:]
+
+
 def test_hvert_vedtak_i_temaet_star_ordrett_med_det_forkastede_merket_for_seg(tema, kilder):
     tekst = tv.visning(tema, kilder)
-    linjer = tekst.splitlines()
-    medlemmer = {"gr-u10", "gr-u12", "gr-u13", "gr-u14", "gr-u15", "mm-u17"}
-    for anker in sorted(medlemmer):
+    for anker in ("gr-u10", "gr-u12", "gr-u13", "gr-u14", "gr-u15", "mm-u17"):
         post = _post(kilder["register"], anker)
-        vedtak, _, forkastet = vr.linje(post["vedtak"]).partition(tv.FORKASTET)
-        assert f"> {tv._lenker(vedtak, medlemmer)}" in linjer
-        if forkastet:
-            assert f"**Forkastet:** {tv._lenker(forkastet, medlemmer)}" in linjer
-            assert not any(linje.startswith("> ") and forkastet in linje for linje in linjer)
+        seksjon = [linje for linje in _seksjon(tekst, vr.etikett(post)) if linje]
+        sitat = [linje.removeprefix("> ") for linje in seksjon if linje.startswith("> ")]
+        forkastet = [linje.replace("**", "") for linje in seksjon if linje.startswith("**Forkastet")]
+        assert len(sitat) == 1
+        assert "Forkastet" not in sitat[0]
+        assert re.sub(r"\]\([^)]*#", "](#", " ".join(sitat + forkastet)) == vr.linje(post["vedtak"])
+
+
+@pytest.mark.parametrize("anker, merker", [
+    ("gr-u14", ["Forkastet for registrerte krav:"]),
+    ("lv-u4", ["Forkastet for setningen om endringsordren i punkt 1:", "Forkastet for punkt 6:"]),
+    ("ka-u16", ["Forkastet foreløpig:"]),
+    ("gr-u10", []),
+])
+def test_de_forkastede_alternativene_skilles_ut_med_merket_og_teksten_blir_lik_3_1(anker, merker, kilder):
+    post = _post(kilder["register"], anker)
+    vedtak, forkastet = tv.vedtak_og_forkastet(post)
+    assert [m for m, _ in forkastet] == merker
+    assert " ".join([vedtak, *(f"{m} {t}" for m, t in forkastet)]) == vr.linje(post["vedtak"])
 
 
 def test_kjeden_viser_forholdene_begge_veier(tema, kilder):
@@ -159,15 +177,15 @@ def test_et_ukjent_vedtak_og_en_kjerne_utenfor_vedtakene_gir_feil(tema, kilder):
 
 
 def test_kontrollsummen_endres_med_kildegrunnlaget_og_ikke_med_resten(tema, kilder):
-    for_ = tv.kontrollsum(tema, kilder)
+    for_ = tv.kontrollsum(tv.utdrag(tema, kilder))
 
     rad = copy.deepcopy(kilder)
     next(r for r in rad["regler"]["rader"] if r["id"] == "GR-28")["tilfelle"] += " Endret."
-    assert tv.kontrollsum(tema, rad) != for_
+    assert tv.kontrollsum(tv.utdrag(tema, rad)) != for_
 
     post = copy.deepcopy(kilder)
     _post(post["register"], "gr-u13")["folge"] += " Endret."
-    assert tv.kontrollsum(tema, post) != for_
+    assert tv.kontrollsum(tv.utdrag(tema, post)) != for_
 
     lenket = set(tv.utdrag(tema, kilders := copy.deepcopy(kilder))["etiketter"])
     medlemmer = {v.lower() for v in tema["vedtak"]}
@@ -176,4 +194,23 @@ def test_kontrollsummen_endres_med_kildegrunnlaget_og_ikke_med_resten(tema, kild
         if vr.anker(p) and vr.anker(p) not in lenket | medlemmer and "folge" in p
     )
     utenfor["folge"] += " Endret."
-    assert tv.kontrollsum(tema, kilders) == for_
+    assert tv.kontrollsum(tv.utdrag(tema, kilders)) == for_
+
+
+def test_et_vedtak_som_star_to_ganger_med_ulik_skrivemate_gir_feil(tema, kilder):
+    tema["vedtak"].append("gr-u10")
+    assert tv.feil(tema, kilder["register"]) == [
+        f"{GRUNNLAGSSVAR}: et vedtak står mer enn én gang"
+    ]
+
+
+def test_en_visning_uten_tema_er_foreldreloes(temaer, tmp_path, monkeypatch):
+    monkeypatch.setattr(tv, "MAPPE", tmp_path)
+    for tema in temaer:
+        tv.sti(tema).write_text("", encoding="utf-8")
+    (tmp_path / "gammelt-tema.md").write_text("", encoding="utf-8")
+    assert tv.foreldreloese(temaer) == [tmp_path / "gammelt-tema.md"]
+
+
+def test_ingen_innsjekket_visning_er_foreldreloes(temaer):
+    assert tv.foreldreloese(temaer) == []
