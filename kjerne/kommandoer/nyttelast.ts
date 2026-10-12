@@ -142,7 +142,8 @@ export function nyttelastkontroll(
         'sendt',
         u.opplysninger.map((o) => o.opplysning)
       );
-      // VS-U15: et varsel sendt fra appen har serverens dato, og kravet oppgir ingen.
+      // SK-12, VS-U15: et varsel uten sendedato, som et varsel sendt fra appen med serverens
+      // dato, får ingen dato fra kravet.
       if (sendt === undefined)
         return avvis(
           'VARSEL_REGISTRERT',

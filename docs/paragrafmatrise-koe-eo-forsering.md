@@ -397,11 +397,12 @@ endringsordre og forsering, etter [OV-U1](plans/2026-09-16-godkjenning-og-varig-
 - **Kjernen i dag:** bygget for varselet. `varsel` i `UTSAGN` og `sendt` i
   `OPPLYSNING` ([`format.ts`](../kjerne/format/format.ts)); `STANDPUNKT_UAVKLART` og
   `VARSEL_REGISTRERT` i [`forutsetninger.ts`](../kjerne/kommandoer/forutsetninger.ts).
-  Delvis: `varsel_type` er låst til spesifisert krav, og
-  `har_tidligere_varsel_i_tide` er alltid usann i `regnUtSvar`. «Ingen krav»
-  leses (`ingen_krav`), men har ingen kommando. Ikke bygget: et eget varsel fra
-  appen uten dager ([VS-U15](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u15),
-  [#411](https://github.com/khjohns/endringsmeldinger/issues/411)).
+  Bygget: et eget varsel fra appen uten dager
+  ([VS-U15](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u15),
+  [#411](https://github.com/khjohns/endringsmeldinger/issues/411)), med kommandoen
+  `send_varsel`, handlingen `sende_varsel` og `FRISTKRAV_SENDT` i
+  `forutsetninger.ts`. Delvis: `varsel_type` er låst til spesifisert krav, og
+  `har_tidligere_varsel_i_tide` er alltid usann i `regnUtSvar`.
 
 ### § 33.6.1 — spesifisert krav
 
@@ -978,9 +979,10 @@ begrunnelse og beskrivelse er [KA-U31](plans/2026-09-16-godkjenning-og-varig-lev
   byggherrens svar i brevet det står i, uten «men ikke i byggherrens standpunkt
   til grunnlaget». Det sendte svarbrevet står som det ble sendt (MM-U9).
 - **VS-U15 ([#411](https://github.com/khjohns/endringsmeldinger/issues/411)):** TEs
-  eget varsel etter § 33.4 uten dager har ordlyden i [VS-U15](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u15). Brevet har ingen
-  opplysning om datoen; uten den er brevet varselet, og datoen er serverens. I et
-  fristkrav med varselet står setningen i LV-U4 punkt 3 som før.
+  eget varsel etter § 33.4 uten dager har ordlyden i [VS-U15](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u15). Et brev fra appen
+  der varselet er det eneste elementet og ikke har en opplysning om datoen, er
+  varselet, og datoen er serverens. I et fristkrav med varselet står setningen i
+  LV-U4 punkt 3 som før; et varsel uten dato i et annet brev kan ikke uttrykkes.
 - **Arbeidsvalg 12.10 ([VS-U15](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u15), [MM-U1](plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u1), SK-12,
   [#411](https://github.com/khjohns/endringsmeldinger/issues/411)):** et senere
   fristkrav viser til varselet fra appen gjennom sporet, som til et registrert
