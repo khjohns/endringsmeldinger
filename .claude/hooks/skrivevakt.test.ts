@@ -1,5 +1,5 @@
 import { execFileSync, spawnSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
@@ -79,6 +79,10 @@ describe('skrivevakten for mekanisk-pr', () => {
   it('stopper skrivende Bash mot sperrede mapper og slipper lesing gjennom', () => {
     for (const kommando of [
       'echo x > kjerne/a.ts',
+      'echo x >kjerne/a.ts',
+      'true;rm -rf backend',
+      'cat docs/a.md\ncp docs/a.md server/a.md',
+      'gh api -X PUT repos/khjohns/endringsmeldinger/pulls/1/merge',
       "sed -i 's/a/b/' server/app.ts",
       'cp docs/a.md ./backend/a.md',
       'rm -rf supabase/migrations',
@@ -96,6 +100,29 @@ describe('skrivevakten for mekanisk-pr', () => {
       'npm run lint',
     ]) {
       expect(bash(kommando).status, kommando).toBe(0);
+    }
+  });
+
+  it('stopper Write i kjerne/ også når stien går gjennom en symbolsk lenke', () => {
+    const lenke = path.join(path.dirname(rot), 'lenke');
+    symlinkSync(rot, lenke);
+    expect(skriv(path.join(lenke, 'kjerne', 'a.ts'), lenke).status).toBe(2);
+  });
+
+  it('stopper kallet når input ikke kan leses', () => {
+    const svar = spawnSync('node', [SKRIPT], { input: 'ikke json', encoding: 'utf8' });
+    expect(svar.status).toBe(2);
+  });
+
+  it('stopper push til main, av en annen gren og med force', () => {
+    for (const kommando of [
+      'git push origin HEAD:main',
+      'git push origin main',
+      'git push origin annen-gren',
+      'git push --force origin claude/test-1',
+      'git push -fu origin claude/test-1',
+    ]) {
+      expect(bash(kommando).status, kommando).toBe(2);
     }
   });
 
@@ -141,6 +168,11 @@ describe('lesevakten for diffkontroll', () => {
       'git diff > /tmp/d.patch',
       'git diff --output=/tmp/d.patch',
       'git log; rm -rf docs',
+      'git log\nrm -rf docs',
+      'git grep --open-files-in-pager="rm -rf docs" foo',
+      'git grep -O"rm -rf docs" foo',
+      'git fetch --upload-pack="touch /tmp/x #" /tmp/repo',
+      'git fetch origin claude/x-1:main',
       'git diff $(rm -rf docs)',
       'cat docs/a.md',
       'echo x > docs/a.md',

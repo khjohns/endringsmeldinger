@@ -6,7 +6,7 @@ effort: high
 isolation: worktree
 skills:
   - leveranse
-disallowedTools: mcp__github__push_files, mcp__github__create_or_update_file, mcp__github__delete_file, mcp__github__merge_pull_request
+disallowedTools: mcp__github__push_files, mcp__github__create_or_update_file, mcp__github__delete_file, mcp__github__merge_pull_request, mcp__github__enable_pr_auto_merge, mcp__github__update_pull_request_branch
 experimental:
   cacheTtl: 1h
 hooks:
@@ -35,9 +35,10 @@ oppdraget først. Skriv på norsk bokmål.
 Hooken er et vern, ikke en garanti. Den ser ikke skriving fra et skript
 (`python -c`, `node -e`, en `npm run` som skriver) når stien ikke står i
 kommandoen, og ikke en `cd` inn i en sperret mappe før skrivingen. Det som
-slipper forbi, stopper den ved `git commit` og `git push`, så lenge
-kommandoen kjøres i arbeidstreet: da sammenligner den endringene med `HEAD`
-og grenen med `origin/main`.
+slipper forbi, stopper den ved `git commit` og `git push` i arbeidstreet:
+da sammenligner den endringene med `HEAD` og grenen med `origin/main`, og
+den slipper bare gjennom push av den utsjekkede grenen til `origin`. Den
+ser ikke `git -C <annet tre>`.
 
 ## Branch
 
@@ -66,8 +67,8 @@ annet arbeidstre eller på `origin`, stopp og si det i rapporten.
 - Åpne PR-en mot `main` som utkast med REST, ikke `gh pr` (GraphQL gir 403):
   `gh api repos/khjohns/endringsmeldinger/pulls -f title=… -f head=<branch> -f base=main -F draft=true -F body=@<fil>`.
   Følg PR-malen i `.github/pull_request_template.md`, med `Closes #n`.
-- Marker PR-en klar med GitHub-MCP (`update_pull_request` med `draft: false`)
-  når sjekkene er grønne lokalt. REST kan ikke endre utkaststatus.
+- La PR-en stå som utkast. Den som startet deg, kontrollerer diffen og
+  kjører `/code-review` der `AGENTS.md` krever det, før PR-en markeres klar.
 
 ## Rapport
 

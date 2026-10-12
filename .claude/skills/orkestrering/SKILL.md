@@ -56,8 +56,10 @@ timer. En subagent deler i tillegg checkout med orkestratoren.
 Unntaket er en liten PR med dokumentasjon eller mekanisk arbeid. Den kan
 leveres av subagenten `mekanisk-pr`, som arbeider på egen branch i eget
 arbeidstre og ikke kan skrive i `kjerne/`, `server/`, `backend/`, `supabase/`
-eller `sprakprove/` (#439). Subagenten `diffkontroll` kontrollerer diffen mot
-bestillingen før merge. Rettinger sendes til `mekanisk-pr` med `SendMessage`.
+eller `sprakprove/` (#439). Den lar PR-en stå som utkast. Subagenten
+`diffkontroll` kontrollerer diffen mot bestillingen, og `/code-review` kjøres
+etter regelen i `AGENTS.md`, før PR-en markeres klar. Rettinger sendes til
+`mekanisk-pr` med `SendMessage`.
 
 **Innsats for orkestratoren.** Orkestratoren skriver ikke kode og kjører på
 innsats `high`, ikke `xhigh` (oppdragsgiver 12.10, #425). Innsatsen settes i
