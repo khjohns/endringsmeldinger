@@ -92,13 +92,38 @@ def test_et_opphevet_vedtak_med_anker_som_ikke_er_id_en_gjelder_b_id_en():
     assert vh.vedtak(register) == ({"B-03", "KA-U1"}, {"B-03"})
 
 
-def test_aapne_beslutninger_leses_bare_fra_3_4():
+@pytest.mark.parametrize("neste", ["## 4. Funnregister", "# Vedlegg", "### 3.5 x"])
+def test_aapne_beslutninger_leses_bare_fra_3_4(neste):
     plan = (
-        "### 3.3 Anbefalinger\n| B-01 | x |\n"
+        "#### 3.4 Et underavsnitt\n| B-01 | x |\n"
         "### 3.4 Åpne beslutninger\n| B-16 | x |\n"
-        "## 4. Funnregister\n| B-02 | x |\n"
+        f"{neste}\n| B-02 | x |\n"
     )
     assert vh.aapne_beslutninger(plan) == {"B-16"}
+
+
+def test_en_plan_uten_3_4_gir_feil_og_ikke_en_tom_mengde():
+    with pytest.raises(ValueError, match="3.4"):
+        vh.aapne_beslutninger("### 3.1 Vedtatte\n| B-16 | x |\n")
+
+
+def test_et_forhold_til_et_ukjent_anker_gir_feil():
+    register = {
+        "gruppe": [
+            {
+                "vedtak": [
+                    {
+                        "anker": "ka-u1",
+                        "vedtak": "KA-U1: y",
+                        "vedtatt": "d",
+                        "forhold": [{"art": "opphever", "vedtak": "mm-u44"}],
+                    }
+                ]
+            }
+        ]
+    }
+    with pytest.raises(ValueError, match="mm-u44"):
+        vh.vedtak(register)
 
 
 def test_ukjent_vedtaks_id_gir_feil():
@@ -170,6 +195,11 @@ def test_et_ord_som_begynner_med_historisk_er_ikke_merket():
     assert len(_feil(tekst, "src/lib/a.test.ts")) == 1
 
 
+def test_ikke_historisk_er_ikke_merket():
+    tekst = "it('ikke historisk: MM-U4 avviser', () => {})"
+    assert len(_feil(tekst, "src/lib/a.test.ts")) == 1
+
+
 def test_merket_historisk_utenfor_en_test_gir_feil():
     assert _feil("// historisk: MM-U4") == [
         "kjerne/regel.ts:1: MM-U4 er opphevet og står som eneste grunnlag"
@@ -200,6 +230,8 @@ def test_en_blokkommentar_uten_stjerne_paa_hver_linje_er_ett_avsnitt(tekst):
         "// MM-U9\n//\n// Avvist etter MM-U4.",
         "/**\n * MM-U9\n *\n * Avvist etter MM-U4.\n */",
         "// MM-U9 gjelder\n#felt = 'MM-U4'",
+        "/** MM-U9 */\n// Avvist etter MM-U4.",
+        "<!-- MM-U9 -->\n<!-- Avvist etter MM-U4 -->",
     ],
 )
 def test_et_annet_avsnitt_eller_en_kodelinje_er_en_egen_henvisning(tekst):
