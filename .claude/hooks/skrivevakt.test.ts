@@ -107,6 +107,184 @@ describe('skrivevakten for mekanisk-pr', () => {
     }
   });
 
+  it('slipper lesende kommandoer gjennom, også når et argument ligner en skrivende', () => {
+    for (const kommando of [
+      'grep "ruff format" docs/a.md',
+      'rg -n "ruff format" docs',
+      'grep -n "=>" kjerne/a.ts',
+      'git grep -n kjerne -- docs',
+      'git diff origin/main...HEAD > /tmp/d.patch',
+      'git log -1 2>&1 && grep x docs/a.md',
+      'gh api -X GET repos/khjohns/endringsmeldinger/issues/460',
+      'grep x kjerne/a.ts 2>/dev/null',
+      'echo "git push origin main"',
+    ]) {
+      expect(bash(kommando).status, kommando).toBe(0);
+    }
+  });
+
+  it('stopper den skrivende formen når den står sammen med lesende ledd', () => {
+    for (const kommando of [
+      'grep "ruff format" f; ruff format .',
+      'rg "ruff format" docs && ruff format docs',
+      'grep "rm" docs/a.md; cp docs/a.md kjerne/b.ts',
+      'grep x docs/a.md | tee kjerne/out',
+      'grep "kjerne" docs/a.md > kjerne/x',
+      'git grep x && git push',
+      'git log -1 && git push origin main',
+      'gh api -X GET repos/x && rm -rf kjerne',
+      'git show HEAD:kjerne/a.ts > /tmp/a.ts',
+      'git log --output=kjerne/x.txt',
+      'git diff --outp=kjerne/x',
+      'rg --pre "rm -rf kjerne" x',
+      'grep "$(rm -rf kjerne)" f',
+      'echo `rm -rf kjerne`',
+      'rm -rf kjerne;echo ok',
+      'grep x docs/a.md;rm -rf backend',
+    ]) {
+      expect(bash(kommando).status, kommando).toBe(2);
+    }
+  });
+
+  it('stopper skriving som skjuler en sperret mappe med anførsel eller escape', () => {
+    for (const kommando of [
+      'echo x > kj""erne/a.ts',
+      "rm -rf kj''erne/a.ts",
+      'echo x > kj\\erne/a.ts',
+      'rm -rf kj"e"rne/a.ts',
+      'rm -rf kjerne;echo ok',
+    ]) {
+      expect(bash(kommando).status, kommando).toBe(2);
+    }
+  });
+
+  it('stopper skrivende kommandoer der kommandoordet eller målet ikke kan leses', () => {
+    for (const kommando of [
+      'rm -rf {kjerne,server}/a.ts',
+      'rm -rf kjerne*',
+      'k=kjer; n=ne; rm -rf $k$n/a.ts',
+      'c=rm; $c -rf docs/a.md',
+      '$(echo rm) -rf docs/a.md',
+      'echo $(git push origin HEAD:main)',
+    ]) {
+      expect(bash(kommando).status, kommando).toBe(2);
+    }
+  });
+
+  it('stopper push som er skjult av prefiks, sammensatte ledd eller skallnøsting', () => {
+    for (const kommando of [
+      'echo x & git push origin HEAD:main',
+      'git --no-pager push origin HEAD:main',
+      'nohup git push origin HEAD:main',
+      'timeout 60 git push origin HEAD:main',
+      'env -i git push origin HEAD:main',
+      'X="a b" git push origin HEAD:main',
+      "sh -c 'git push origin HEAD:main'",
+      'eval "git push origin HEAD:main"',
+      'echo x | xargs git push origin HEAD:main',
+      'git push origin "HEAD:main"',
+    ]) {
+      expect(bash(kommando).status, kommando).toBe(2);
+    }
+  });
+
+  it('stopper endring av treet i samme kall som commit eller push', () => {
+    for (const kommando of [
+      'git merge feat-kjerne --no-edit && git push -u origin claude/test-1',
+      'git checkout -q main; git add docs/a.md',
+      'git switch -q claude/test-1 && git commit -m x',
+    ]) {
+      expect(bash(kommando).status, kommando).toBe(2);
+    }
+  });
+
+  it('stopper push med andre flagg enn -u', () => {
+    for (const kommando of [
+      'git push --no-verify origin claude/test-1',
+      'git push --repo=/tmp/elsewhere origin claude/test-1',
+    ]) {
+      expect(bash(kommando).status, kommando).toBe(2);
+    }
+  });
+
+  it('slipper et filnavn som begynner med .. inne i arbeidstreet', () => {
+    expect(skriv(path.join(rot, '..notater.md')).status).toBe(0);
+  });
+
+  it('stopper skrivende git-kommandoer også med -C eller andre globale valg', () => {
+    for (const kommando of [
+      'git -C . apply /tmp/endring.patch',
+      'git -C . restore kjerne/a.ts',
+      'git -C kjerne checkout -- a.ts',
+      'git --no-pager apply /tmp/endring.patch',
+    ]) {
+      expect(bash(kommando).status, kommando).toBe(2);
+    }
+    expect(bash('git -C . log --oneline -1').status).toBe(0);
+  });
+
+  it('stopper push som står etter en omdirigering eller et reservert ord', () => {
+    for (const kommando of [
+      '> /tmp/x git push origin HEAD:main',
+      '! git push origin HEAD:main',
+      'if true; then git push origin HEAD:main; fi',
+      'true && ! git push origin HEAD:main',
+    ]) {
+      expect(bash(kommando).status, kommando).toBe(2);
+    }
+  });
+
+  it('stopper push med sti som kommandoord, shell-valg foran -c eller env -S', () => {
+    for (const kommando of [
+      '/usr/bin/git push origin HEAD:main',
+      'bash -o pipefail -c "git push origin HEAD:main"',
+      'env -S "git push origin HEAD:main"',
+      '/usr/bin/gh api -X PUT repos/x/pulls/1/merge',
+    ]) {
+      expect(bash(kommando).status, kommando).toBe(2);
+    }
+  });
+
+  it('stopper flere skrivende verktøy som skriver til en sperret mappe', () => {
+    for (const kommando of [
+      'sed --in-place s/a/b/ kjerne/a.ts',
+      'sort -o kjerne/a.ts docs/a.md',
+      'curl -o kjerne/a.ts https://example.invalid/x',
+      `node -p "require('fs').writeFileSync('kjerne/a.ts','x')"`,
+    ]) {
+      expect(bash(kommando).status, kommando).toBe(2);
+    }
+  });
+
+  it('stopper linjeskift i anførsel som skjuler et push-kall', () => {
+    expect(bash('git "pu\\\nsh" origin HEAD:main').status).toBe(2);
+  });
+
+  it('stopper send-pack og endring av fjernoppsett', () => {
+    for (const kommando of [
+      'git send-pack origin HEAD:refs/heads/main',
+      'git remote set-url origin /tmp/elsewhere',
+      'git update-ref refs/heads/main HEAD',
+    ]) {
+      expect(bash(kommando).status, kommando).toBe(2);
+    }
+  });
+
+  it('stopper commit når en usporet fil i en sperret mappe har et navn som git setter i anførsel', () => {
+    mkdirSync(path.join(rot, 'supabase'));
+    writeFileSync(path.join(rot, 'supabase', 'æ.ts'), 'x\n');
+    try {
+      expect(bash('git add -A').status).toBe(2);
+    } finally {
+      rmSync(path.join(rot, 'supabase'), { recursive: true, force: true });
+    }
+  });
+
+  it('stopper endring av hookoppsettet', () => {
+    expect(skriv(path.join(rot, '.claude', 'settings.json')).status).toBe(2);
+    expect(skriv(path.join(rot, '.claude', 'settings.local.json')).status).toBe(2);
+  });
+
   it('stopper Write i kjerne/ også når stien går gjennom en symbolsk lenke', () => {
     const lenke = path.join(path.dirname(rot), 'lenke');
     symlinkSync(rot, lenke);
@@ -132,6 +310,340 @@ describe('skrivevakten for mekanisk-pr', () => {
     } finally {
       rmSync(path.join(rot, 'server'), { recursive: true });
     }
+  });
+
+  it('stopper Bash som skriver hookoppsettet', () => {
+    for (const kommando of [
+      'cp /tmp/x .claude/settings.json',
+      'echo {} > .claude/settings.local.json',
+      'cp -r /tmp/x/. .claude/',
+      'sed -i s/a/b/ .claude/settings.json',
+      'cd .claude && mv /tmp/x settings.json',
+      'git checkout origin/main -- .claude/settings.json',
+      'cp /tmp/x .claude/sett""ings.json',
+    ]) {
+      expect(bash(kommando).status, kommando).toBe(2);
+    }
+    expect(bash('cat .claude/settings.json').status).toBe(0);
+    expect(bash('cp /tmp/x .claude/hooks/ny.mjs').status).toBe(0);
+  });
+
+  it('stopper commit og push når hookoppsettet er endret, uansett hvordan det ble skrevet', () => {
+    mkdirSync(path.join(rot, '.claude'));
+    writeFileSync(path.join(rot, '.claude', 'settings.json'), '{}\n');
+    try {
+      const commit = bash('git commit -m x');
+      expect(commit.status).toBe(2);
+      expect(commit.stderr).toContain('.claude/settings.json');
+
+      git(rot, 'switch', '-q', '-c', 'claude/innstillinger');
+      git(rot, 'add', '.claude/settings.json');
+      git(rot, 'commit', '-qm', 'forbi vakten');
+      const push = bash('git push -u origin claude/innstillinger');
+      expect(push.status).toBe(2);
+      expect(push.stderr).toContain('.claude/settings.json');
+    } finally {
+      git(rot, 'switch', '-q', '-f', 'claude/test-1');
+      git(rot, 'branch', '-q', '-D', 'claude/innstillinger');
+      rmSync(path.join(rot, '.claude'), { recursive: true, force: true });
+    }
+  });
+
+  it('stopper push og commit bak et prefiks med flagg som tar argument', () => {
+    for (const kommando of [
+      'timeout -s KILL 5 git push origin HEAD:main',
+      'timeout --signal=KILL -k 2 5 git push origin HEAD:main',
+      'env -C kjerne git push origin HEAD:main',
+      'nice -n 5 git push origin HEAD:main',
+      'exec -a navn git push origin HEAD:main',
+      '/usr/bin/env -i git push origin HEAD:main',
+    ]) {
+      expect(bash(kommando).status, kommando).toBe(2);
+    }
+    // Commit og push står i et kall med bare git-ledd, så også et prefiks vakten tolker, stopper.
+    expect(bash('timeout -s KILL 60 git push -u origin claude/test-1').status).toBe(2);
+    expect(bash('env -u LANG npm test').status).toBe(0);
+    // Bare den tolkede kommandoen bak `env -u` gir denne begrunnelsen; tekstreglene ser `env`.
+    const env = bash('env -u LANG git -c alias.x=y status');
+    expect(env.status).toBe(2);
+    expect(env.stderr).toContain('endrer ikke git-oppsettet');
+    expect(bash('timeout 300 npx vitest run docs').status).toBe(0);
+  });
+
+  it('stopper et prefiks eller et program som vakten ikke kan tolke (fail-closed)', () => {
+    for (const kommando of [
+      'sudo -u root git commit -m x',
+      'timeout -x 5 ls',
+      'timeout -s KILL git push origin HEAD:main',
+      'env -iu HOME git push origin HEAD:main',
+      'ionice -c 3 git push origin HEAD:main',
+      'chrt 1 /usr/bin/git push origin HEAD:main',
+      'echo push origin HEAD:main | xargs git',
+      'find . -name x -exec git push origin HEAD:main \\;',
+      "python3 -c \"import subprocess; subprocess.run(['git', 'push'])\"",
+      'setsid sh -c "git push origin HEAD:main"',
+    ]) {
+      const svar = bash(kommando);
+      expect(svar.status, kommando).toBe(2);
+    }
+    expect(bash('ionice -c 3 git push origin HEAD:main').stderr).toContain(
+      'gjennom et program vakten ikke kjenner'
+    );
+    expect(bash('sudo -u root git commit -m x').stderr).toContain('prefiks med flagg');
+  });
+
+  it('stopper prettier -w, --fix og arkiver som pakkes ut', () => {
+    for (const kommando of [
+      'npx prettier -w docs/a.md',
+      'npm run lint -- --fix',
+      'tar -xf /tmp/a.tar',
+      'tar -xf /tmp/a.tar -C kjerne',
+      'unzip /tmp/a.zip',
+    ]) {
+      expect(bash(kommando).status, kommando).toBe(2);
+    }
+    expect(bash('npx prettier --check docs/a.md').status).toBe(0);
+  });
+
+  it('stopper gh api graphql, som kan merge med en mutasjon', () => {
+    for (const kommando of [
+      "gh api graphql -f query='mutation { mergePullRequest(input: {}) { clientMutationId } }'",
+      'gh api graphql -F query=@/tmp/q.graphql',
+    ]) {
+      expect(bash(kommando).status, kommando).toBe(2);
+    }
+  });
+
+  it('stopper commit og push i et annet tre enn cwd og globale git-valg vakten ikke tolker', () => {
+    for (const kommando of [
+      'git -C /tmp/klon commit -qm y',
+      'git -C /tmp/klon push origin claude/test-1',
+      'cd /tmp/klon && git push origin claude/test-1',
+      'env -C /tmp/klon git push origin claude/test-1',
+      'GIT_DIR=/tmp/klon/.git git push origin claude/test-1',
+      'export GIT_WORK_TREE=/tmp/klon; git commit -m y',
+      'git --git-dir=/tmp/klon/.git --work-tree=/tmp/klon commit -m y',
+      'git --namespace x push --force origin main',
+      'git --attr-source HEAD push origin claude/test-1:main2',
+      'git --config-env alias.st=V st',
+      'GIT_CONFIG_COUNT=1 GIT_CONFIG_KEY_0=alias.st GIT_CONFIG_VALUE_0=x git st',
+    ]) {
+      expect(bash(kommando).status, kommando).toBe(2);
+    }
+    expect(bash('git -C docs log --oneline -1').status).toBe(0);
+    expect(bash('GIT_PAGER=cat git log --oneline -3').status).toBe(0);
+    expect(bash('git --version').status).toBe(0);
+    for (const kommando of [
+      'GIT_DIR=/tmp/klon/.git; export GIT_DIR; git commit -m y',
+      'set -a; GIT_DIR=/tmp/klon/.git; git push origin claude/test-1',
+      'printf -v GIT_WORK_TREE /tmp/klon; export GIT_WORK_TREE; git commit -m y',
+      `EDITOR='sh -c "git push origin HEAD:main; true"' git commit --allow-empty`,
+      'export VISUAL=x; git commit',
+      "GIT_PAGER='sh x' git log",
+      "git clone -u 'sh x' /tmp/x /tmp/y",
+      "git ls-remote -u 'sh x' /tmp/x",
+    ]) {
+      expect(bash(kommando).status, kommando).toBe(2);
+    }
+  });
+
+  it('slipper commit og push med cd eller git -C til sitt eget arbeidstre', () => {
+    expect(bash(`cd ${rot} && git add docs/a.md && git commit -m x`).status).toBe(0);
+    expect(bash(`git -C ${rot} push -u origin claude/test-1`).status).toBe(0);
+    expect(bash(`cd ${rot}/docs && git commit -m x`).status).toBe(0);
+  });
+
+  it('stopper git-kommandoer og rg-valg som kjører et program', () => {
+    for (const kommando of [
+      "git difftool -x 'git push origin HEAD:main' HEAD~1",
+      "git rebase -x 'git push origin HEAD:main' HEAD~1",
+      'git grep --open-files-in-pager=sh x',
+      "git fetch --upload-pack='sh x' origin",
+      'git submodule foreach git push origin HEAD:main',
+      'rg --pre sh . docs',
+      'rg --pre=git x',
+    ]) {
+      expect(bash(kommando).status, kommando).toBe(2);
+    }
+  });
+
+  it('stopper gh-kall som merger uten PR, flytter en gren eller skriver filer på fjernsiden', () => {
+    for (const kommando of [
+      'gh api repos/o/r/merges -f base=main -f head=x',
+      'gh api -X PATCH repos/o/r/git/refs/heads/main -f sha=abc -F force=true',
+      'gh api -X PUT repos/o/r/contents/kjerne/x.ts -f content=eA==',
+      'gh pr edit 1 --base main',
+      'gh api graphql',
+      'gh api /graphql -F query=@/tmp/q.txt',
+      'gh api https://api.github.com/graphql -F query=@/tmp/q.txt',
+      'gh api -X PATCH repos/o/r -f default_branch=claude/test-1',
+      'gh repo edit --default-branch claude/test-1',
+    ]) {
+      expect(bash(kommando).status, kommando).toBe(2);
+    }
+    expect(
+      bash('gh api repos/o/r/pulls -f title=x -f head=claude/contents-oversikt-12 -f base=main')
+        .status
+    ).toBe(0);
+    expect(bash('gh api -X PATCH repos/o/r/pulls/12 -F body=@/tmp/b.md').status).toBe(0);
+    expect(bash('gh api repos/o/r/issues/12/comments -F body=@/tmp/b.md').status).toBe(0);
+    expect(
+      bash('gh api repos/o/r/pulls -f title=x -f head=claude/test-1 -f base=main').status
+    ).toBe(0);
+    expect(bash('gh pr create --base main --title x --body y').status).toBe(0);
+  });
+
+  it('stopper sed med w i skriptet mot en sperret mappe, men ikke lesing med sed', () => {
+    for (const kommando of [
+      "sed -n 'w kjerne/ut' docs/a.md",
+      "sed -n -e p -e 's/a/b/w kjerne/ut' docs/a.md",
+      'sed -f /tmp/skript docs/a.md kjerne/x.ts',
+      'cp /tmp/x .git/hooks/pre-push',
+      'chmod +x ../.git/hooks/pre-push',
+      "find docs/a.md -exec sed -n 'w kjerne/ut' docs/a.md ';'",
+      "echo docs/a.md | xargs sed -n 'w kjerne/ut'",
+      "sed -n -l 5 'w kjerne/ut' docs/a.md",
+    ]) {
+      expect(bash(kommando).status, kommando).toBe(2);
+    }
+    expect(skriv(path.join(rot, '.git', 'hooks', 'pre-push')).status).toBe(2);
+    expect(
+      kjor({ tool_name: 'Edit', tool_input: { file_path: '.git/config' }, cwd: rot }).status
+    ).toBe(2);
+    expect(bash('sed -n 1p kjerne/web.ts').status).toBe(0);
+    expect(bash('sed -n 1,5p backend/x.py; echo work').status).toBe(0);
+    expect(bash('cp /tmp/x .github/ny.yml').status).toBe(0);
+  });
+
+  it('stopper gh api med samlede kortflagg og PATCH av en PR utover tittel og beskrivelse', () => {
+    for (const kommando of [
+      'gh api -it repos/o/r/pulls/5 -X PATCH repos/o/r/git/refs/heads/main -f sha=abc -F force=true',
+      'gh api -ip repos/o/r/pulls/5 -X PUT repos/o/r/contents/kjerne/x.ts -f content=eA==',
+      'gh api -X PATCH repos/o/r/pulls/5 -f base=x',
+      'gh api -X PATCH repos/o/r/pulls/5 -f state=closed',
+      'gh api -X PATCH repos/o/r/pulls/5 --input /tmp/b.json',
+      'gh api -X PATCH repos/o/r/pulls/5 -fbase=x',
+    ]) {
+      expect(bash(kommando).status, kommando).toBe(2);
+    }
+    expect(bash('gh api -X PATCH repos/o/r/pulls/5 -f title=x -F body=@/tmp/b.md').status).toBe(0);
+  });
+
+  it('stopper skriving i .claude med sti foran og i .husky, og HOME og XDG for git og rg', () => {
+    for (const kommando of [
+      `cp -r /tmp/c/. ${rot}/.claude`,
+      'cp -r /tmp/c/. docs/../.claude/',
+      'cp /tmp/x .husky/pre-push',
+      'chmod +x .husky/pre-push',
+      'HOME=/tmp/h git diff',
+      'XDG_CONFIG_HOME=/tmp/h git log',
+      'RIPGREP_CONFIG_PATH=/tmp/rc rg x docs',
+    ]) {
+      expect(bash(kommando).status, kommando).toBe(2);
+    }
+    expect(skriv(path.join(rot, '.husky', 'pre-push')).status).toBe(2);
+    expect(
+      kjor({ tool_name: 'Edit', tool_input: { file_path: '.husky/pre-commit' }, cwd: rot }).status
+    ).toBe(2);
+    expect(skriv(path.join(rot, 'docs', 'husky.md')).status).toBe(0);
+  });
+
+  it('stopper commit når en fil i .husky er endret', () => {
+    mkdirSync(path.join(rot, '.husky'));
+    writeFileSync(path.join(rot, '.husky', 'pre-push'), 'x\n');
+    try {
+      const commit = bash('git commit -m x');
+      expect(commit.status).toBe(2);
+      expect(commit.stderr).toContain('.husky/pre-push');
+    } finally {
+      rmSync(path.join(rot, '.husky'), { recursive: true, force: true });
+    }
+  });
+
+  it('stopper alle skrivemåter av .claude som mål, men ikke en navngitt fil under hooks', () => {
+    for (const kommando of [
+      `cp -r /tmp/c/. ${rot}/.claude//`,
+      'cp -r /tmp/c/. .claude/./',
+      'cp -r /tmp/c/. .claude/hooks/..',
+      'cd .claude/hooks && cp -r /tmp/c/. ..',
+      'cp /tmp/x .claude/skills/x/../../settings.json',
+    ]) {
+      expect(bash(kommando).status, kommando).toBe(2);
+    }
+    expect(bash('cp /tmp/x .claude/agents/ny.md').status).toBe(0);
+  });
+
+  it('leser miljøvariabler bare som tilordning eller navn, ikke inne i en tekst', () => {
+    for (const kommando of [
+      'git commit -m "stopp HOME i vakten"',
+      'gh api -X PATCH repos/o/r/pulls/5 -F "body=Retter HOME og XDG i vakten"',
+    ]) {
+      expect(bash(kommando).status, kommando).toBe(0);
+    }
+    for (const kommando of [
+      'ZDOTDIR=/tmp/z zsh -c "git status"',
+      'PATH=/tmp/x git status',
+      'GH_PAGER=/tmp/x gh pr list',
+      'LD_PRELOAD=/tmp/x.so git status',
+      'NODE_OPTIONS=--require=/tmp/x.js npx prettier --check docs',
+    ]) {
+      expect(bash(kommando).status, kommando).toBe(2);
+    }
+  });
+
+  it('tolker samlede kortflagg i gh api og stopper gh-underkommandoer som endrer tilstanden', () => {
+    expect(bash('gh api -XPATCH repos/o/r/pulls/5 -F body=@/tmp/b.md').status).toBe(0);
+    expect(bash('gh api -i -q .x -X PATCH repos/o/r/pulls/5 -f title=x').status).toBe(0);
+    for (const kommando of [
+      'gh api -XPATCH repos/o/r/pulls/5 -fstate=closed',
+      'gh api -X POST repos/o/r/pulls -F issue=3 -f head=x -f base=main',
+      'gh api -X DELETE repos/o/r/issues/comments/9',
+      'gh api -iz repos/o/r/pulls/5',
+      'gh pr close 5',
+      'gh pr reopen 5',
+      'gh pr ready 5',
+      'gh issue close 5',
+    ]) {
+      expect(bash(kommando).status, kommando).toBe(2);
+    }
+  });
+
+  it('stopper Edit i .husky i et arbeidstre inne i hovedkopien', () => {
+    const tre = path.join(rot, 'docs', 'tre-husky');
+    git(rot, 'worktree', 'add', '-q', '--detach', tre);
+    try {
+      const svar = kjor({
+        tool_name: 'Edit',
+        tool_input: { file_path: path.join(tre, '.husky', 'pre-commit') },
+        cwd: rot,
+      });
+      expect(svar.status).toBe(2);
+    } finally {
+      git(rot, 'worktree', 'remove', '--force', tre);
+    }
+  });
+
+  it('stopper gh api med spørrestreng eller prosentkoding som skjuler endepunktet', () => {
+    for (const kommando of [
+      "gh api -X POST 'repos/o/r/merges?x=/pulls' -f base=main -f head=claude/x",
+      "gh api -X PUT 'repos/o/r/pulls/5/%6Derge?x=/pulls'",
+      'gh api -X POST repos/o/r/merges/pulls -f base=main',
+    ]) {
+      expect(bash(kommando).status, kommando).toBe(2);
+    }
+  });
+
+  it('stopper push når .husky har endringer som ikke er committet', () => {
+    mkdirSync(path.join(rot, '.husky'));
+    writeFileSync(path.join(rot, '.husky', 'pre-push'), 'x\n');
+    try {
+      const push = bash('git push -u origin claude/test-1');
+      expect(push.status).toBe(2);
+      expect(push.stderr).toContain('.husky/pre-push');
+    } finally {
+      rmSync(path.join(rot, '.husky'), { recursive: true, force: true });
+    }
+    expect(bash('git push -u origin claude/test-1').status).toBe(0);
   });
 
   it('stopper push til main, av en annen gren og med force', () => {
@@ -269,6 +781,8 @@ describe('lesevakten for diffkontroll', () => {
       'git -C /tmp/tre log --oneline -5',
       'git show HEAD:docs/a.md',
       'git diff --stat origin/main...HEAD -- docs/',
+      'git rev-parse --show-toplevel',
+      'git rev-parse --show-prefix --git-dir',
     ]) {
       expect(les(kommando).status, kommando).toBe(0);
     }
@@ -292,6 +806,104 @@ describe('lesevakten for diffkontroll', () => {
       'git diff $(rm -rf docs)',
       'cat docs/a.md',
       'echo x > docs/a.md',
+    ]) {
+      expect(les(kommando).status, kommando).toBe(2);
+    }
+  });
+
+  it('slipper gh api uten skrivende flagg og git grep gjennom', () => {
+    for (const kommando of [
+      'gh api repos/khjohns/endringsmeldinger/issues/460',
+      'gh api -X GET repos/khjohns/endringsmeldinger/issues',
+      "gh api 'repos/khjohns/endringsmeldinger/issues?state=all&per_page=100&page=2'",
+      'gh api --paginate -H "Accept: application/vnd.github+json" repos/x/pulls',
+      'gh api --method=GET --jq ".[].title" repos/x/pulls',
+      'git grep -n LESBART -- kjerne docs',
+      'git grep -e ruff -- .claude',
+      'grep -rn "ruff format" docs',
+      'rg "ruff format" docs',
+    ]) {
+      expect(les(kommando).status, kommando).toBe(0);
+    }
+  });
+
+  it('stopper gh api med skrivende flagg eller en metode som ikke er GET', () => {
+    for (const kommando of [
+      'gh api graphql',
+      'gh api /graphql -F query=@/tmp/q.txt',
+      'gh api -X POST repos/khjohns/endringsmeldinger/issues',
+      'gh api repos/khjohns/endringsmeldinger/issues/460/comments -f body=x',
+      'gh api -XPOST repos/x/issues',
+      'gh api --method=PATCH repos/x/issues/1',
+      'gh api --method PUT repos/x/pulls/1/merge',
+      'gh api repos/x --input body.json',
+      'gh api repos/x -F body=@kladd.md',
+      'gh api --raw-field body=x repos/x',
+      'gh api --field body=x repos/x',
+      'gh api -X GET repos/x -f body=x',
+      'gh api -H "X: y" repos/x -f body=x',
+    ]) {
+      expect(les(kommando).status, kommando).toBe(2);
+    }
+  });
+
+  it('stopper git-kommandoer som skriver eller starter et program', () => {
+    for (const kommando of [
+      'git grep -O"rm -rf docs" foo',
+      'git grep --open-files-in-pager=rm foo',
+      'git grep --textconv foo',
+      'git diff --output=/tmp/d.patch',
+      'git log -p --output=x',
+      'git show --outp=/tmp/x HEAD',
+      'git diff --ext-diff',
+      'git fetch --upload-pack="touch /tmp/x #" /tmp/repo',
+      'git fetch origin claude/x-1:main',
+      'git fetch origin tag v1',
+      'git fetch -p origin main',
+      'git checkout main',
+      'rg --pre "rm -rf docs" x',
+    ]) {
+      expect(les(kommando).status, kommando).toBe(2);
+    }
+  });
+
+  it('stopper skallsyntaks som ikke kan leses statisk, også i anførsel', () => {
+    for (const kommando of [
+      'git diff $(rm -rf docs)',
+      'grep "$(rm -rf docs)" f',
+      'grep "`rm -rf docs`" f',
+      'git log $HOME',
+      'git log > /tmp/x',
+      'git log -1 >&1x',
+      'grep x docs/a.md >&1x',
+      'git log >> /tmp/x',
+      'git log < /etc/hosts',
+      'git log {a,b}',
+      'git log *',
+      'git log \\\nrm -rf docs',
+      "git log'",
+      'git log # "a\nrm -rf docs',
+      'git log # kommentar; rm -rf docs',
+    ]) {
+      expect(les(kommando).status, kommando).toBe(2);
+    }
+  });
+
+  it('vurderer sammensatte kommandoer ledd for ledd', () => {
+    for (const kommando of [
+      'git log --oneline -3 && git show HEAD:docs/a.md',
+      'git log | grep x',
+      'git log -1 2>&1; git log --oneline -2',
+      'git log --grep="a;b" -- docs',
+    ]) {
+      expect(les(kommando).status, kommando).toBe(0);
+    }
+    for (const kommando of [
+      'git log | head',
+      'git log && rm -rf docs',
+      'git log; rm -rf docs',
+      'git log\nrm -rf docs',
+      'git log | sh',
     ]) {
       expect(les(kommando).status, kommando).toBe(2);
     }
