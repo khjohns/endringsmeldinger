@@ -707,6 +707,54 @@ tekst = "Er kravene avgjort, avvises hver kommando som kan endre utfallet: trekk
 kilde = "hovedplanen"
 tekst = "Det som ikke står i teksten, regnes ikke som meddelt."
 
+[[gruppe.vedtak]]
+id = "KA-U35"
+dato = 2026-10-12
+hvem = "oppdragsgiver"
+kilde = ["#309"]
+sporsmal = '''
+KA-U34 (senere begrunnelse): Byggherren kan sende en senere begrunnelse fra appen. Men byggherren kan også sende den utenfor appen, i et vanlig brev. Skal et slikt brev kunne registreres i appen som en senere begrunnelse?
+
+Belegg:
+- Merknaden til KA-U18: «Kontrakten krever begrunnelse uten ugrunnet opphold etter avslaget (§ 32.3 tredje ledd), og en senere begrunnelse registreres som eget utsagn.»
+- MM-U12: «En senere avklaring registreres som et nytt utsagn, uten at brevet eller historikken skrives om.»
+- KA-U18: «Et registrert brev kan stå uten.»
+Et registrert brev har ingen tekst i appen, så begrunnelsen får bare en henvisning til svaret og brevet som vedlegg. Anbefaling: A, fordi den følger KA-U18 og MM-U12, og fordi en registrering ellers ikke avvises bare fordi den ikke har virkning (bestridelsen, MM-U7).
+
+A: Et brev der byggherren senere begrunner sitt svar, kan registreres i appen. Begrunnelsen blir et eget utsagn som viser til svaret, uten tekst i appen, og brevet ligger ved. Den endrer ingen standpunkter, og appen vurderer ikke om den er tilstrekkelig eller kom i tide.
+Forhold: utvider KA-U34; følger KA-U18 og MM-U12.
+
+B: En senere begrunnelse som byggherren har sendt utenfor appen, kan ikke registreres som begrunnelse i første versjon. Brevet kan legges ved saken som dokumentasjon.
+Forhold: snevrer inn merknaden i KA-U18.'''
+valgt = "A"
+svar = '''
+A: kan registreres (Recommended)'''
+forhold = [{ art = "utvider", vedtak = "ka-u34" }]
+folge = '''
+Følger [KA-U18](#ka-u18) og [MM-U12](#mm-u12). Ikke bygget'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Et brev der byggherren senere begrunner sitt svar, kan registreres i appen. Begrunnelsen blir et eget utsagn som viser til svaret, uten tekst i appen, og brevet ligger ved. Den endrer ingen standpunkter, og appen vurderer ikke om den er tilstrekkelig eller kom i tide.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+En senere begrunnelse som byggherren har sendt utenfor appen, kan ikke registreres som begrunnelse i første versjon. Brevet kan legges ved saken som dokumentasjon.'''
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Kontrakten krever begrunnelse uten ugrunnet opphold etter avslaget (§ 32.3 tredje ledd), og en senere begrunnelse registreres som eget utsagn."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "En senere avklaring registreres som et nytt utsagn, uten at brevet eller historikken skrives om."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Et registrert brev kan stå uten."
+
 [[gruppe]]
 tittel = "Aksept og enighet"
 
