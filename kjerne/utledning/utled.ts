@@ -325,7 +325,7 @@ function strid(d: Dokument, u: Utledning, uten: Map<string, unknown>): Strid[] {
         element: x.id,
         grunn: 'en aksept av et svar i et spor etter at kravet er trukket (MM-U20, GR-U5)',
       });
-    else if (x.art === 'aksept' && gjelder === u.spor.grunnlag.gjeldendeSvar?.id && u.frafalt)
+    else if (x.art === 'aksept' && x.gjelder === u.spor.grunnlag.gjeldendeSvar?.id && u.frafalt)
       ut.push({ element: x.id, grunn: 'en aksept av et frafall (GR-U9)' });
     else if (sporet && u.spor[sporet].enighet && u.spor[sporet].gjeldendeSvar?.id === gjelder)
       ut.push({
