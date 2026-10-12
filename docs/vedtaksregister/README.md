@@ -92,7 +92,9 @@ tekst = "et ordrett utdrag"
   `Presisert 13.10 av [LV-U6](#lv-u6).` først i Følge hos KA-U1. `folge` er resten:
   byggestatus, med dato og belegg.
 - **Sitater** fra NS 8407, hovedplanen eller en fil i treet føres som `sitat`
-  med kilden: `ns8407`, `hovedplanen` eller stien.
+  med kilden: `ns8407`, `hovedplanen` eller stien. Et sitat er hele setninger;
+  et utdrag får `utdrag = true`, og da er det et utdrag også i teksten.
+- **Svaret** er oppdragsgivers ordrett og nevner det valgte alternativet ved navn.
 
 ## Vakttestene
 
@@ -100,12 +102,14 @@ tekst = "et ordrett utdrag"
 | --- | --- |
 | 3.1 er lik det verktøyet lager | alle poster |
 | Vedtaket, ankeret og vedtaksdatoen i hver rad i 3.1 på `main` står uendret | alle rader, også de importerte |
+| Innledningen, teksten etter tabellene (merknadene) og gruppetitlene kan bare få tekst lagt til; hver rad blir i gruppen sin; lenkene og setningene «Merknad dd.mm …» i Følge blir stående | 3.1 på `main` |
 | En post i importert form står i 3.1 på `main`; et nytt vedtak kan ikke føres i den formen | importerte poster |
 | Hvert anker i hovedplanen står én gang, og ID-en til en ny post står ikke i hovedplanen på `main` fra før, heller ikke uten anker eller utenfor 3.1 | hele planen |
 | Spørsmålet, alternativene, svaret og de andre feltene i en merget ny post står uendret; bare `folge` kan endres | nye poster på `main` |
 | Forholdet står begge veier | nye poster med `forhold` |
 | Vedtaksteksten har ingen kodenavn: backticks, `snake_case`, `camelCase`, `STORE_BOKSTAVER` med understrek, `navn()` og filnavn | nye poster, det valgte og de forkastede alternativene |
-| Hvert sitat står ordrett i posten og i kilden, med mellomrom normalisert. Kilden er NS 8407 eller fila slik den er på `main`, så et sitat kan ikke få kilden sin i samme PR | nye poster til de er merget; raden til posten selv teller ikke som kilde i hovedplanen. Etter merge kan kilden endres, og sitatet prøves ikke igjen |
+| Svaret nevner det valgte alternativet | nye poster |
+| Hvert sitat står ordrett i posten og i kilden, med mellomrom normalisert, og er hele setninger der: det begynner ved setningsstart, «, kolon eller cellegrense og slutter ved punktum, » eller cellegrense. `utdrag = true` slipper et utdrag gjennom uttrykkelig. Kilden er NS 8407 eller fila slik den er på `main`, så et sitat kan ikke få kilden sin i samme PR | nye poster til de er merget; raden til posten selv teller ikke som kilde i hovedplanen. Etter merge kan kilden endres, og sitatet prøves ikke igjen |
 
 De importerte postene har kodenavn i dag og skrives ikke om. Testen skiller dem
 på formen: en post med `vedtatt` er importert, og en ny post har `dato`. En

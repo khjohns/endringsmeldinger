@@ -107,12 +107,11 @@ To krav har hver sin utløser. Filområdet er et eksempel, ikke utløseren.
   krever ikke applikasjonsbygg eller full testsuite.
 - Fører PR-en et vedtak, er det en ny post i
   [vedtaksregisteret](../../../docs/vedtaksregister/README.md), og raden i 3.1
-  er skrevet av `docs/verktoy/vedtaksregister.py`, ikke for hånd. Vakttestene
-  kontrollerer vedtaksteksten mot det valgte alternativet, ID-en, forholdet
-  begge veier, kodenavn og sitater; det trengs ingen egne kontrollrunder av
-  teksten. Om alternativene strider mot et vedtak, og om forholdet er riktig
-  valgt, er kontrollert da spørsmålet ble stilt
-  ([orkestreringsskillen](../orkestrering/SKILL.md#spørsmål-og-vedtak)).
+  er skrevet av `docs/verktoy/vedtaksregister.py`, ikke for hånd.
+  [Vakttestene](../../../docs/vedtaksregister/README.md#vakttestene) erstatter
+  kontrollrundene av vedtaksteksten. Det som krever skjønn, og kontrollen av
+  `folge` og merknadene mot svarene, står i
+  [orkestreringsskillen](../orkestrering/SKILL.md#spørsmål-og-vedtak).
 - Gjennomfør uavhengig review etter `AGENTS.md`, med akseptkriteriene som
   grunnlag. Se særlig etter ny duplisering, om regelen ligger der den skal eies,
   og om utfasingen er planlagt. Leveransen skal kunne forklares og etterprøves
