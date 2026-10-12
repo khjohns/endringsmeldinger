@@ -141,10 +141,15 @@
       `/${demo ? 'mockup/endringsordre' : encodeURIComponent(projectId)}/${encodeURIComponent(sakId)}`
     );
 
-  onMount(() => {
+  onMount(async () => {
     const stored = loadDraft<{ version: number; draft: EODraft }>(storageKey);
-    if (stored?.version === 1 && Array.isArray(stored.draft?.selectedIds))
-      draft = { ...newEODraft(), ...stored.draft };
+    if (stored?.version === 1 && Array.isArray(stored.draft?.selectedIds)) {
+      const restored = { ...newEODraft(), ...stored.draft };
+      // #445: the order may have been issued from the approval page since the draft was saved.
+      if (restored.number.trim() && (await numberIssued(restored.number.trim())))
+        clearDraft(storageKey);
+      else draft = restored;
+    }
     let selectionChanged = false;
     if (initialKoe) {
       if (draft.mode === 'direkte') draft.directEffects = snapshotEOEffects(draft);
@@ -161,6 +166,13 @@
   $effect(() => {
     if (ready && !createdId) saveDraft(storageKey, { version: 1, draft: $state.snapshot(draft) });
   });
+
+  async function numberIssued(number: string) {
+    await approvals.load();
+    return approvals.packages.some(
+      (p) => p.status === 'utstedt' && p.request.eo_nummer.trim() === number
+    );
+  }
 
   async function load(prefill = false) {
     loading = true;
