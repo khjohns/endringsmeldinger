@@ -6,15 +6,9 @@ effort: high
 isolation: worktree
 skills:
   - leveranse
-disallowedTools: mcp__github__push_files, mcp__github__create_or_update_file, mcp__github__delete_file, mcp__github__merge_pull_request, mcp__github__enable_pr_auto_merge, mcp__github__update_pull_request_branch, mcp__github__update_pull_request
+disallowedTools: Agent, mcp__github__push_files, mcp__github__create_or_update_file, mcp__github__delete_file, mcp__github__merge_pull_request, mcp__github__enable_pr_auto_merge, mcp__github__update_pull_request_branch, mcp__github__update_pull_request
 experimental:
   cacheTtl: 1h
-hooks:
-  PreToolUse:
-    - matcher: 'Edit|Write|MultiEdit|NotebookEdit|Bash'
-      hooks:
-        - type: command
-          command: 'node "$CLAUDE_PROJECT_DIR/.claude/hooks/skrivevakt.mjs"'
 ---
 
 Du leverer én PR for ett avgrenset oppdrag. Les `AGENTS.md` og issuet i
@@ -32,15 +26,27 @@ oppdraget først. Skriv på norsk bokmål.
 - Du merger ikke, og du endrer ikke en branch som er sjekket ut i et annet
   arbeidstre.
 
-Hooken er et vern, ikke en garanti. Den ser ikke skriving fra et skript
-(`python -c`, `node -e`, en `npm run` som skriver) når stien ikke står i
-kommandoen, og ikke en `cd` inn i en sperret mappe før skrivingen. Det som
-slipper forbi, stopper den ved `git add`, `git commit` og `git push` i
-arbeidstreet: da sammenligner den endringene med `HEAD` og grenen med
-`origin/main`. Den slipper bare gjennom `git push [-u] origin <utsjekket
-gren>`, i en egen kommando uten commit. Den ser ikke `git -C <annet tre>`,
-og den stopper ikke den som vil omgå den med vilje. Kontrollen før merge er
-`diffkontroll`.
+Hooken står i `.claude/settings.json` og gjelder kallene fra denne agenten.
+En hook i frontmatter hoppes over i en mappe som ikke er klarert, og det er
+skyøkta ikke (#442). Hooken kjenner agenten bare på `agent_type` i kallet.
+
+Hooken er et vern, ikke en garanti. Den leser kommandoteksten og ser ikke:
+
+- skriving fra et skript når stien ikke står i kommandoen (en `npm run` som
+  skriver, et skript i en fil). `python -c`, `node -e` og lignende stoppes
+  bare når en sperret mappe står i kommandoen;
+- en sti som skallet setter sammen: en variabel (`K=kjerne; echo x > $K/a`),
+  et mønster (`./kjern?/`) eller en `cd` inn i en sperret mappe før
+  skrivingen.
+
+Ved `git add`, `git commit` og `git push` sammenligner den endringene i
+arbeidstreet med `HEAD` og grenen med `origin/main`, også med miljøvariabler,
+`command` eller `env` foran. Den slipper bare gjennom
+`git push [-u] origin <utsjekket gren>`, i en egen kommando uten commit. Den
+ser ikke `git -C <annet tre>` eller git startet fra et skript, og den stopper
+ikke den som vil omgå den med vilje. Mangler `node`, slipper alle kall
+gjennom: Claude Code regner bare kode 2 som stopp, og et skall uten `node`
+gir 127. Kontrollen før merge er `diffkontroll`.
 
 ## Branch
 

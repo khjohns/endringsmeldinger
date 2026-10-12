@@ -56,7 +56,9 @@ timer. En subagent deler i tillegg checkout med orkestratoren.
 Unntaket er en liten PR med dokumentasjon eller mekanisk arbeid. Den kan
 leveres av subagenten `mekanisk-pr`, som arbeider på egen branch i eget
 arbeidstre og ikke kan skrive i `kjerne/`, `server/`, `backend/`, `supabase/`
-eller `sprakprove/` (#439). Den lar PR-en stå som utkast. Subagenten
+eller `sprakprove/` (#439). Vernet er hooken `skrivevakt` i
+`.claude/settings.json`, som velger vakt etter agenten kallet kommer fra (#442).
+`mekanisk-pr` lar PR-en stå som utkast. Subagenten
 `diffkontroll` kontrollerer diffen mot bestillingen, og `/code-review` kjøres
 etter regelen i `AGENTS.md`, før PR-en markeres klar. Rettinger sendes til
 `mekanisk-pr` med `SendMessage`.

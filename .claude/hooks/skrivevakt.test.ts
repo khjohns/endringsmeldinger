@@ -89,6 +89,8 @@ describe('skrivevakten for mekanisk-pr', () => {
       'git checkout -- sprakprove/',
       'npm run format',
       'git apply /tmp/endring.patch',
+      `python3 -c "open('kjerne/a.ts','w').write('x')"`,
+      `node -e "require('fs').writeFileSync('kjerne/a.ts','x')"`,
     ]) {
       expect(bash(kommando).status, kommando).toBe(2);
     }
@@ -144,6 +146,9 @@ describe('skrivevakten for mekanisk-pr', () => {
       'git push origin annen-gren',
       'git push --force origin claude/test-1',
       'git push -fu origin claude/test-1',
+      'X=1 git push --force origin main',
+      'command git push origin main',
+      'env A=b git push origin main',
     ]) {
       expect(bash(kommando).status, kommando).toBe(2);
     }
@@ -161,11 +166,94 @@ describe('skrivevakten for mekanisk-pr', () => {
     const commit = bash('git commit -m "noe"');
     expect(commit.status).toBe(2);
     expect(commit.stderr).toContain('kjerne/a.ts');
+    expect(bash('GIT_AUTHOR_NAME=x git commit -m "noe"').status).toBe(2);
+    expect(bash('command git commit -m "noe"').status).toBe(2);
 
     git(rot, 'commit', '-qm', 'forbi vakten');
     const push = bash('git push -u origin claude/test-1');
     expect(push.status).toBe(2);
     expect(push.stderr).toContain('Grenen endrer sperrede mapper: kjerne/a.ts');
+  });
+});
+
+describe('vaktvalget fra settings.json', () => {
+  function etterAgent(input: object) {
+    return kjor(input, '--etter-agent');
+  }
+
+  it('slipper hovedøktas kall gjennom, også i kjerne/', () => {
+    const skriving = { tool_name: 'Write', tool_input: { file_path: 'kjerne/a.ts' }, cwd: rot };
+    expect(etterAgent(skriving).status).toBe(0);
+    expect(etterAgent({ ...skriving, agent_type: 'Explore' }).status).toBe(0);
+    const bash = { tool_name: 'Bash', tool_input: { command: 'rm -rf kjerne' }, cwd: rot };
+    expect(etterAgent(bash).status).toBe(0);
+  });
+
+  it('bruker skrivevakten for mekanisk-pr og lesevakten for diffkontroll', () => {
+    const skriving = { tool_name: 'Write', tool_input: { file_path: 'kjerne/a.ts' }, cwd: rot };
+    expect(etterAgent({ ...skriving, agent_type: 'mekanisk-pr' }).status).toBe(2);
+    const docs = { tool_name: 'Write', tool_input: { file_path: 'docs/b.md' }, cwd: rot };
+    expect(etterAgent({ ...docs, agent_type: 'mekanisk-pr' }).status).toBe(0);
+    expect(etterAgent({ ...docs, agent_type: 'diffkontroll' }).status).toBe(2);
+    const les = { tool_name: 'Bash', tool_input: { command: 'git log --oneline -5' }, cwd: rot };
+    expect(etterAgent({ ...les, agent_type: 'diffkontroll' }).status).toBe(0);
+    const cat = { tool_name: 'Bash', tool_input: { command: 'cat docs/a.md' }, cwd: rot };
+    expect(etterAgent({ ...cat, agent_type: 'diffkontroll' }).status).toBe(2);
+  });
+
+  it('slipper hovedøkta gjennom også i et agentarbeidstre', () => {
+    const tre = path.join(rot, '.claude', 'worktrees', 'agent-1');
+    mkdirSync(path.dirname(tre), { recursive: true });
+    git(rot, 'worktree', 'add', '-q', '--detach', tre);
+    try {
+      const svar = etterAgent({
+        tool_name: 'Edit',
+        tool_input: { file_path: path.join(tre, 'kjerne', 'versjon.ts') },
+        cwd: tre,
+      });
+      expect(svar.status).toBe(0);
+    } finally {
+      git(rot, 'worktree', 'remove', '--force', tre);
+    }
+  });
+
+  it('stopper skriving i et nøstet repo i kjerne/ og kommandoene som lager det', () => {
+    const nostet = path.join(rot, 'kjerne', 'x');
+    mkdirSync(nostet, { recursive: true });
+    execFileSync('git', ['init', '-q', nostet]);
+    try {
+      const svar = etterAgent({
+        tool_name: 'Write',
+        tool_input: { file_path: path.join(nostet, 'a.ts') },
+        cwd: rot,
+        agent_type: 'mekanisk-pr',
+      });
+      expect(svar.status).toBe(2);
+      for (const command of ['git init -q kjerne/y', 'git clone /tmp/r kjerne/v']) {
+        const bash = { tool_name: 'Bash', tool_input: { command }, cwd: rot };
+        expect(etterAgent({ ...bash, agent_type: 'mekanisk-pr' }).status, command).toBe(2);
+      }
+    } finally {
+      rmSync(nostet, { recursive: true, force: true });
+    }
+  });
+
+  it('stopper kjerne/ i et arbeidstre inne i hovedkopien, også når cwd er hovedkopien', () => {
+    const tre = path.join(rot, '.claude', 'worktrees', 'agent-2');
+    mkdirSync(path.dirname(tre), { recursive: true });
+    git(rot, 'worktree', 'add', '-q', '--detach', tre);
+    try {
+      const svar = etterAgent({
+        tool_name: 'Edit',
+        tool_input: { file_path: path.join(tre, 'kjerne', 'versjon.ts') },
+        cwd: rot,
+        agent_type: 'mekanisk-pr',
+      });
+      expect(svar.status).toBe(2);
+      expect(svar.stderr).toContain('kjerne/versjon.ts ligger i en sperret mappe');
+    } finally {
+      git(rot, 'worktree', 'remove', '--force', tre);
+    }
   });
 });
 
