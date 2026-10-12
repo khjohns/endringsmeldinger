@@ -283,12 +283,12 @@ HENVISNING = re.compile(r"\b[A-ZÆØÅ]+\d*(?:-[A-Z]*\d+)+\b")
 
 
 def _ledd(tekst: str) -> list[str]:
-    """Setningene og leddene, delt ved punktum, kolon og semikolon utenfor parentes og «»."""
+    """Setningene og leddene, delt ved punktum, kolon og semikolon utenfor (), [] og «»."""
     deler, start, dybde = [], 0, 0
     for i, tegn in enumerate(tekst):
-        if tegn in "(«":
+        if tegn in "([«":
             dybde += 1
-        elif tegn in ")»":
+        elif tegn in ")]»":
             dybde = max(0, dybde - 1)
         elif dybde == 0 and tegn in ".:;" and tekst[i + 1 : i + 2] in (" ", "*", ""):
             deler.append(tekst[start : i + 1])
@@ -345,25 +345,29 @@ def les_forhold(folge: str) -> tuple[list[tuple[str, str, str]], list[str]]:
     return funn, uleste
 
 
-def uttrykkelige_forhold(register: dict) -> tuple[dict, list[str]]:
-    """Forholdene Følge i de importerte postene sier uttrykkelig, og det som ikke kan føres.
+def uttrykkelige_forhold(register: dict) -> tuple[dict, list[str], list[str]]:
+    """Forholdene Følge i de importerte postene sier uttrykkelig, det som ikke kan føres, og
+    feilene.
 
     Nøkkelen er (posten som presiserer, utvider, …, arten, ankeret til vedtaket den gjelder),
     og verdien hvor forholdet står: {"aktiv"} hos posten selv, {"passiv"} hos vedtaket den
-    gjelder, eller begge. Et forhold føres hos posten i aktiv form, som i en ny post.
+    gjelder, eller begge. Et forhold føres hos posten i aktiv form, som i en ny post. Det som
+    ikke kan føres, er et ledd som ikke leses, og en passiv form i en rad uten anker; det
+    listes for oppdragsgiver. En lenke som ikke er til et vedtak, til vedtaket selv eller,
+    i passiv form, til en ny post, er en feil.
     """
     ps = poster(register)
     alle = {anker(p): i for i, p in enumerate(ps) if anker(p)}
-    forhold, avvik = {}, []
+    forhold, avvik, feil = {}, [], []
     for i, p, navn in _importerte(ps):
         funn, uleste = les_forhold(p["folge"])
         avvik += [f"{navn}: ikke entydig: «{ledd}»" for ledd in uleste]
         for retning, art, a in funn:
             if a not in alle:
-                avvik.append(f"{navn}: «{art}» viser til #{a}, som ikke er et vedtak")
+                feil.append(f"{navn}: «{art}» viser til #{a}, som ikke er et vedtak")
                 continue
             if a == anker(p):
-                avvik.append(f"{navn}: forholdet viser til vedtaket selv")
+                feil.append(f"{navn}: forholdet viser til vedtaket selv")
                 continue
             if retning == "aktiv":
                 noekkel = (i, art, a)
@@ -373,14 +377,14 @@ def uttrykkelige_forhold(register: dict) -> tuple[dict, list[str]]:
                 )
                 continue
             elif er_ny(ps[alle[a]]):
-                avvik.append(
+                feil.append(
                     f"{navn}: «{FORHOLD[art]} av #{a}» står i teksten, men #{a} er en ny post"
                 )
                 continue
             else:
                 noekkel = (alle[a], art, anker(p))
             forhold.setdefault(noekkel, set()).add(retning)
-    return forhold, avvik
+    return forhold, avvik, feil
 
 
 def _importerte(ps: list[dict]):
@@ -407,23 +411,22 @@ def forholdfeil(register: dict) -> list[str]:
     """Forholdene i de importerte postene er de Følge sier uttrykkelig, og de står begge veier,
     unntatt dem i EN_VEI. Forutsetter et gyldig register."""
     ps = poster(register)
-    funnet, _ = uttrykkelige_forhold(register)
+    funnet, _, feil = uttrykkelige_forhold(register)
     per_post = collections.defaultdict(collections.Counter)
     for i, art, a in funnet:
         per_post[i][art, a] += 1
-    feil = []
     for i, p, navn in _importerte(ps):
-        ført = collections.Counter(
+        foert = collections.Counter(
             (f["art"], f["vedtak"]) for f in p.get("forhold", [])
         )
         lest = per_post[i]
         feil += [
             f"{navn}: forholdet «{art} #{a}» står i registeret, men ikke uttrykkelig i Følge"
-            for art, a in ført - lest
+            for art, a in foert - lest
         ]
         feil += [
             f"{navn}: Følge sier «{art} #{a}», men forholdet står ikke i registeret"
-            for art, a in lest - ført
+            for art, a in lest - foert
         ]
     en_vei = _en_vei(ps, funnet)
     feil += [_en_vei_tekst(*v) for v in sorted(en_vei - EN_VEI)]
@@ -1092,6 +1095,11 @@ def main() -> int:
                 "Registeret har nye poster. Importen ville slettet spørsmålene og svarene deres."
             )
             return 1
+        if REGISTER.exists() and any("forhold" in p for p in poster(les())):
+            print(
+                "Registeret har forhold i de importerte postene (#423). Importen ville slettet dem."
+            )
+            return 1
         register = _avsnitt_i(plan)
         REGISTER.parent.mkdir(exist_ok=True)
         REGISTER.write_text(toml(register), encoding="utf-8")
@@ -1106,7 +1114,7 @@ def main() -> int:
     register = les()
     feil = valider(register)
     if not feil and valg.forhold:
-        forhold, avvik = uttrykkelige_forhold(register)
+        forhold, avvik, _ = uttrykkelige_forhold(register)
         en_vei = _en_vei(poster(register), forhold)
         print(f"{len(forhold)} uttrykkelige forhold i de importerte postene")
         print(
@@ -1115,6 +1123,9 @@ def main() -> int:
             sep="\n  ",
         )
         print("Leses ikke:", *avvik, sep="\n  ")
+        if feil := forholdfeil(register):
+            print("Forholdene holder ikke:", *feil, sep="\n  ")
+            return 1
         return 0
     if not feil:
         feil = forholdfeil(register) + [

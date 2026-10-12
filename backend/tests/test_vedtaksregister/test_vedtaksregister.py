@@ -353,6 +353,10 @@ def test_et_importert_forhold_star_begge_veier_i_folge(register):
             "Endret 11.10 av [GR-U14](#gr-u14) («a; b») og utvidet av [GR-U15](#gr-u15) (c).",
             [("passiv", "endrer", "gr-u14"), ("passiv", "utvider", "gr-u15")],
         ),
+        (
+            "Presiserer [KA-U1, pkt. 3: a](#ka-u1).",
+            [("aktiv", "presiserer", "ka-u1")],
+        ),
         # Annen tekst tolkes ikke.
         ("Presiserer KA-U8, KA-U11 og EO-U5.", []),
         ("MM-U4, som teksten viser til, er opphevet 09.10 av [MM-U9](#mm-u9).", []),
@@ -427,6 +431,33 @@ def test_verktoyet_skriver_ikke_forholdene_i_en_importert_post(register):
 def test_vakta_melder_forhold_som_ikke_stemmer_med_folge(register, endring, melding):
     endret = copy.deepcopy(register)
     endring(endret)
+    assert melding in vr.forholdfeil(endret)
+
+
+@pytest.mark.parametrize(
+    ("tillegg", "melding"),
+    [
+        (
+            " Presiserer [KA-U1](#finnes-ikke).",
+            "ka-u20: «presiserer» viser til #finnes-ikke, som ikke er et vedtak",
+        ),
+        (
+            " Endrer [KA-U20](#ka-u20).",
+            "ka-u20: forholdet viser til vedtaket selv",
+        ),
+        (
+            " Presisert 13.10 av [HF-U3](#hf-u3).",
+            "ka-u20: «Presisert av #hf-u3» står i teksten, men #hf-u3 er en ny post",
+        ),
+    ],
+)
+def test_vakta_melder_et_uttrykkelig_forhold_som_ikke_kan_fores(
+    register, tillegg, melding
+):
+    """En lenke som ikke kan bli et forhold, er en feil, ikke bare en linje i listen (#423)."""
+    endret = copy.deepcopy(register)
+    ka_u20 = _post(endret, "ka-u20")
+    ka_u20["folge"] = vr.linje(ka_u20["folge"]) + "." + tillegg
     assert melding in vr.forholdfeil(endret)
 
 
