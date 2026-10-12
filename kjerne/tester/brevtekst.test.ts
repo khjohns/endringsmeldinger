@@ -1252,6 +1252,21 @@ describe('den senere begrunnelsen (KA-U34)', () => {
     expect(
       s.avvist('BH', { ...registrert, dokumentasjon: [randomUUID()], utdypning: BEGRUNNELSE })
     ).toBe('UGYLDIG_FORM');
+    expect(s.avvist('TE', { ...registrert, dokumentasjon: [randomUUID()] })).toBe('FEIL_PART');
+  });
+
+  it('en begrunnelse fra appen har ingen vedlegg, og en registrert har ingen brevtekst (KA-U34, MM-U17)', () => {
+    const { s, brev } = medSvar();
+    const fraAppen = { type: 'begrunnelse', gjelder: svarId(brev), utdypning: BEGRUNNELSE };
+    expect(s.avvist('BH', fraAppen), 'kontrollsak').toBeNull();
+    expect(s.avvist('BH', { ...fraAppen, dokumentasjon: [randomUUID()] })).toBe('UGYLDIG_FORM');
+    const registrert = {
+      type: 'begrunnelse',
+      gjelder: svarId(brev),
+      sendt: '2026-10-05',
+      dokumentasjon: [randomUUID()],
+    };
+    expect(s.avvist('BH', { ...registrert, brevtekst: ['Teksten.'] })).not.toBeNull();
   });
 
   it('avvises fra TE, når den ikke gjelder et svar, og uten tekst', () => {
